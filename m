@@ -1,259 +1,236 @@
-From: Joshua Clayton <stillcompiling@gmail.com>
+From: madcatxster@devoid-pointer.net
 Subject: Re: [PATCH 2/2] HID: hid-logitech: Add support for G29
-Date: Mon, 30 Nov 2015 05:03:51 -0800
-Message-ID: <1587298.yn0CI2NQhN@diplodocus>
-References: <1446476212-2289-1-git-send-email-simon@mungewell.org> <1446476212-2289-2-git-send-email-simon@mungewell.org>
+Date: Mon, 30 Nov 2015 14:15:49 +0000
+Message-ID: <c02pwt.nymsyf.2yb072-qmf@smtp.devoid-pointer.net>
+References: <1446476212-2289-1-git-send-email-simon@mungewell.org>
+ <1446476212-2289-2-git-send-email-simon@mungewell.org>
+ <1587298.yn0CI2NQhN@diplodocus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f176.google.com ([209.85.160.176]:34886 "EHLO
-	mail-yk0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752720AbbK3ND4 (ORCPT
+Received: from imap.devoid-pointer.net ([31.31.77.140]:46222 "EHLO
+	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752720AbbK3OZn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Nov 2015 08:03:56 -0500
-In-Reply-To: <1446476212-2289-2-git-send-email-simon@mungewell.org>
+	Mon, 30 Nov 2015 09:25:43 -0500
+In-Reply-To: <1587298.yn0CI2NQhN@diplodocus>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@velds.nl>, Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>
+To: stillcompiling@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz, Edwin@velds.nl, elias.vds@gmail.com, simon@mungewell.org
 
-Simon et al,
-My logitech cordless mouse is not detected in linux-next
-I have bisected the breakage to this patch,
- commit 29fae1c85166ef525b8b6518e749295e0c9d1e20 in linux-next.
-
-On Monday, November 02, 2015 07:56:52 AM Simon Wood wrote:
-> At present the G29 is mis-identified as a DFGT, this patch ensures
-> that the wheel is correctly detected and allows setting the LEDs and
-> turning range via the '/sys' interface.
-> 
-> This wheel can also emulate other types of Logitech wheels.
-> 
-> Signed-off-by: Simon Wood <simon@mungewell.org>
-> ---
->  drivers/hid/hid-core.c  |  1 +
->  drivers/hid/hid-lg.c    |  9 ++++++++
->  drivers/hid/hid-lg4ff.c | 57 +++++++++++++++++++++++++++++++++++++++++++++----
->  3 files changed, 63 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 70a11ac..949d804 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1896,6 +1896,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G29_WHEEL) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_F3D) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_FFG ) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_FORCE3D_PRO) },
-> diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
-> index 5332fb7..c20ac76 100644
-> --- a/drivers/hid/hid-lg.c
-> +++ b/drivers/hid/hid-lg.c
-> @@ -620,6 +620,7 @@ static int lg_input_mapped(struct hid_device *hdev, struct hid_input *hi,
->  			usage->code == ABS_Y || usage->code == ABS_Z ||
->  			usage->code == ABS_RZ)) {
->  		switch (hdev->product) {
-> +		case USB_DEVICE_ID_LOGITECH_G29_WHEEL:
->  		case USB_DEVICE_ID_LOGITECH_WHEEL:
->  		case USB_DEVICE_ID_LOGITECH_MOMO_WHEEL:
->  		case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
-> @@ -658,10 +659,18 @@ static int lg_event(struct hid_device *hdev, struct hid_field *field,
->  
->  static int lg_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  {
-> +	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
-> +	__u8 iface_num = iface->cur_altsetting->desc.bInterfaceNumber;
->  	unsigned int connect_mask = HID_CONNECT_DEFAULT;
->  	struct lg_drv_data *drv_data;
->  	int ret;
->  
-> +	/* Only work with the 1st interface (G29 presents multiple) */
-> +	if (iface_num != 0) {
-> +		dbg_hid("%s: ignoring ifnum %d\n", __func__, iface_num);
-> +		return -ENODEV;
-> +	}
-> +
->  	drv_data = kzalloc(sizeof(struct lg_drv_data), GFP_KERNEL);
->  	if (!drv_data) {
->  		hid_err(hdev, "Insufficient memory, cannot allocate driver data\n");
-> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-> index b363d88..fbddcb3 100644
-> --- a/drivers/hid/hid-lg4ff.c
-> +++ b/drivers/hid/hid-lg4ff.c
-> @@ -45,7 +45,8 @@
->  #define LG4FF_MODE_G25_IDX 3
->  #define LG4FF_MODE_DFGT_IDX 4
->  #define LG4FF_MODE_G27_IDX 5
-> -#define LG4FF_MODE_MAX_IDX 6
-> +#define LG4FF_MODE_G29_IDX 6
-> +#define LG4FF_MODE_MAX_IDX 7
->  
->  #define LG4FF_MODE_NATIVE BIT(LG4FF_MODE_NATIVE_IDX)
->  #define LG4FF_MODE_DFEX BIT(LG4FF_MODE_DFEX_IDX)
-> @@ -53,6 +54,7 @@
->  #define LG4FF_MODE_G25 BIT(LG4FF_MODE_G25_IDX)
->  #define LG4FF_MODE_DFGT BIT(LG4FF_MODE_DFGT_IDX)
->  #define LG4FF_MODE_G27 BIT(LG4FF_MODE_G27_IDX)
-> +#define LG4FF_MODE_G29 BIT(LG4FF_MODE_G29_IDX)
->  
->  #define LG4FF_DFEX_TAG "DF-EX"
->  #define LG4FF_DFEX_NAME "Driving Force / Formula EX"
-> @@ -62,6 +64,8 @@
->  #define LG4FF_G25_NAME "G25 Racing Wheel"
->  #define LG4FF_G27_TAG "G27"
->  #define LG4FF_G27_NAME "G27 Racing Wheel"
-> +#define LG4FF_G29_TAG "G29"
-> +#define LG4FF_G29_NAME "G29 Racing Wheel"
->  #define LG4FF_DFGT_TAG "DFGT"
->  #define LG4FF_DFGT_NAME "Driving Force GT"
->  
-> @@ -140,6 +144,7 @@ static const struct lg4ff_wheel lg4ff_devices[] = {
->  	{USB_DEVICE_ID_LOGITECH_G25_WHEEL,   lg4ff_wheel_effects, 40, 900, lg4ff_set_range_g25},
->  	{USB_DEVICE_ID_LOGITECH_DFGT_WHEEL,  lg4ff_wheel_effects, 40, 900, lg4ff_set_range_g25},
->  	{USB_DEVICE_ID_LOGITECH_G27_WHEEL,   lg4ff_wheel_effects, 40, 900, lg4ff_set_range_g25},
-> +	{USB_DEVICE_ID_LOGITECH_G29_WHEEL,   lg4ff_wheel_effects, 40, 900, lg4ff_set_range_g25},
->  	{USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2, lg4ff_wheel_effects, 40, 270, NULL},
->  	{USB_DEVICE_ID_LOGITECH_WII_WHEEL,   lg4ff_wheel_effects, 40, 270, NULL}
->  };
-> @@ -157,6 +162,9 @@ static const struct lg4ff_multimode_wheel lg4ff_multimode_wheels[] = {
->  	{USB_DEVICE_ID_LOGITECH_G27_WHEEL,
->  	 LG4FF_MODE_NATIVE | LG4FF_MODE_G27 | LG4FF_MODE_G25 | LG4FF_MODE_DFP | LG4FF_MODE_DFEX,
->  	 LG4FF_G27_TAG, LG4FF_G27_NAME},
-> +	{USB_DEVICE_ID_LOGITECH_G29_WHEEL,
-> +	 LG4FF_MODE_NATIVE | LG4FF_MODE_G29 | LG4FF_MODE_G27 | LG4FF_MODE_G25 | LG4FF_MODE_DFGT | LG4FF_MODE_DFP | LG4FF_MODE_DFEX,
-> +	 LG4FF_G29_TAG, LG4FF_G29_NAME},
->  };
->  
->  static const struct lg4ff_alternate_mode lg4ff_alternate_modes[] = {
-> @@ -165,7 +173,8 @@ static const struct lg4ff_alternate_mode lg4ff_alternate_modes[] = {
->  	[LG4FF_MODE_DFP_IDX] = {USB_DEVICE_ID_LOGITECH_DFP_WHEEL, LG4FF_DFP_TAG, LG4FF_DFP_NAME},
->  	[LG4FF_MODE_G25_IDX] = {USB_DEVICE_ID_LOGITECH_G25_WHEEL, LG4FF_G25_TAG, LG4FF_G25_NAME},
->  	[LG4FF_MODE_DFGT_IDX] = {USB_DEVICE_ID_LOGITECH_DFGT_WHEEL, LG4FF_DFGT_TAG, LG4FF_DFGT_NAME},
-> -	[LG4FF_MODE_G27_IDX] = {USB_DEVICE_ID_LOGITECH_G27_WHEEL, LG4FF_G27_TAG, LG4FF_G27_NAME}
-> +	[LG4FF_MODE_G27_IDX] = {USB_DEVICE_ID_LOGITECH_G27_WHEEL, LG4FF_G27_TAG, LG4FF_G27_NAME},
-> +	[LG4FF_MODE_G29_IDX] = {USB_DEVICE_ID_LOGITECH_G29_WHEEL, LG4FF_G29_TAG, LG4FF_G29_NAME},
->  };
->  
->  /* Multimode wheel identificators */
-> @@ -197,8 +206,24 @@ static const struct lg4ff_wheel_ident_info lg4ff_dfgt_ident_info = {
->  	USB_DEVICE_ID_LOGITECH_DFGT_WHEEL
->  };
->  
-> +static const struct lg4ff_wheel_ident_info lg4ff_g29_ident_info = {
-> +	LG4FF_MODE_G29 | LG4FF_MODE_G27 | LG4FF_MODE_G25 | LG4FF_MODE_DFGT | LG4FF_MODE_DFP | LG4FF_MODE_DFEX,
-> +	0xfff8,
-> +	0x1350,
-> +	USB_DEVICE_ID_LOGITECH_G29_WHEEL
-> +};
-> +
-> +static const struct lg4ff_wheel_ident_info lg4ff_g29_ident_info2 = {
-> +	LG4FF_MODE_G29 | LG4FF_MODE_G27 | LG4FF_MODE_G25 | LG4FF_MODE_DFGT | LG4FF_MODE_DFP | LG4FF_MODE_DFEX,
-> +	0xff00,
-> +	0x8900,
-> +	USB_DEVICE_ID_LOGITECH_G29_WHEEL
-> +};
-> +
->  /* Multimode wheel identification checklists */
->  static const struct lg4ff_wheel_ident_info *lg4ff_main_checklist[] = {
-> +	&lg4ff_g29_ident_info,
-> +	&lg4ff_g29_ident_info2,
->  	&lg4ff_dfgt_ident_info,
->  	&lg4ff_g27_ident_info,
->  	&lg4ff_g25_ident_info,
-> @@ -237,6 +262,12 @@ static const struct lg4ff_compat_mode_switch lg4ff_mode_switch_ext09_g27 = {
->  	 0xf8, 0x09, 0x04, 0x01, 0x00, 0x00, 0x00}	/* Switch mode to G27 with detach */
->  };
->  
-> +static const struct lg4ff_compat_mode_switch lg4ff_mode_switch_ext09_g29 = {
-> +	2,
-> +	{0xf8, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00,	/* Revert mode upon USB reset */
-> +	 0xf8, 0x09, 0x05, 0x01, 0x01, 0x00, 0x00}	/* Switch mode to G29 with detach */
-> +};
-> +
->  /* EXT_CMD1 - Understood by DFP, G25, G27 and DFGT */
->  static const struct lg4ff_compat_mode_switch lg4ff_mode_switch_ext01_dfp = {
->  	1,
-> @@ -650,6 +681,23 @@ static const struct lg4ff_compat_mode_switch *lg4ff_get_mode_switch_command(cons
->  			return NULL;
->  		}
->  		break;
-> +	case USB_DEVICE_ID_LOGITECH_G29_WHEEL:
-> +		switch (target_product_id) {
-> +		case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
-> +			return &lg4ff_mode_switch_ext09_dfp;
-> +		case USB_DEVICE_ID_LOGITECH_DFGT_WHEEL:
-> +			return &lg4ff_mode_switch_ext09_dfgt;
-> +		case USB_DEVICE_ID_LOGITECH_G25_WHEEL:
-> +			return &lg4ff_mode_switch_ext09_g25;
-> +		case USB_DEVICE_ID_LOGITECH_G27_WHEEL:
-> +			return &lg4ff_mode_switch_ext09_g27;
-> +		case USB_DEVICE_ID_LOGITECH_G29_WHEEL:
-> +			return &lg4ff_mode_switch_ext09_g29;
-> +		/* G29 can only be switched to DF-EX, DFP, DFGT, G25, G27 or its native mode */
-> +		default:
-> +			return NULL;
-> +		}
-> +		break;
->  	case USB_DEVICE_ID_LOGITECH_DFGT_WHEEL:
->  		switch (target_product_id) {
->  		case USB_DEVICE_ID_LOGITECH_WHEEL:
-> @@ -1232,12 +1280,13 @@ int lg4ff_init(struct hid_device *hid)
->  		entry->wdata.set_range(hid, entry->wdata.range);
->  
->  #ifdef CONFIG_LEDS_CLASS
-> -	/* register led subsystem - G27 only */
-> +	/* register led subsystem - G27/G29 only */
->  	entry->wdata.led_state = 0;
->  	for (j = 0; j < 5; j++)
->  		entry->wdata.led[j] = NULL;
->  
-> -	if (lg4ff_devices[i].product_id == USB_DEVICE_ID_LOGITECH_G27_WHEEL) {
-> +	if (lg4ff_devices[i].product_id == USB_DEVICE_ID_LOGITECH_G27_WHEEL ||
-> +			lg4ff_devices[i].product_id == USB_DEVICE_ID_LOGITECH_G29_WHEEL) {
->  		struct led_classdev *led;
->  		size_t name_sz;
->  		char *name;
-
-I have a logitech cordless mouse/keyboard combo.  The keyboard still works.
-
-The following is part of my dmesg output on the previous commit (with the mouse working),
-
-before:
-
-[    1.566674] usb 4-3: New USB device found, idVendor=046d, idProduct=c517
-[    1.566779] usb 4-3: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[    1.566881] usb 4-3: Product: USB Receiver
-[    1.566982] usb 4-3: Manufacturer: Logitech
-[    1.573671] input: Logitech USB Receiver as /devices/pci0000:00/0000:00:12.1/usb4/4-3/4-3:1.0/0003:046D:C517.0003/input/input14
-[    1.624510] logitech 0003:046D:C517.0003: input,hidraw0: USB HID v1.10 Keyboard [Logitech USB Receiver] on usb-0000:00:12.1-3/input0
-[    1.629313] tsc: Refined TSC clocksource calibration: 2511.094 MHz
-[    1.629407] clocksource: tsc: mask: 0xffffffffffffffff max_cycles: 0x243229b6f8a, max_idle_ns: 440795226168 ns
-[    1.631370] logitech 0003:046D:C517.0004: fixing up Logitech keyboard report descriptor
-[    1.632203] input: Logitech USB Receiver as /devices/pci0000:00/0000:00:12.1/usb4/4-3/4-3:1.1/0003:046D:C517.0004/input/input15
-[    1.677588] random: nonblocking pool is initialized
-[    1.683359] logitech 0003:046D:C517.0004: input,hiddev0,hidraw1: USB HID v1.10 Mouse [Logitech USB Receiver] on usb-0000:00:12.1-3/input1
-
-after:
-
-[    1.577748] usb 4-3: New USB device found, idVendor=046d, idProduct=c517
-[    1.577859] usb 4-3: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[    1.577963] usb 4-3: Product: USB Receiver
-[    1.578064] usb 4-3: Manufacturer: Logitech
-[    1.584746] input: Logitech USB Receiver as /devices/pci0000:00/0000:00:12.1/usb4/4-3/4-3:1.0/0003:046D:C517.0003/input/input14
-[    1.635596] logitech 0003:046D:C517.0003: input,hidraw0: USB HID v1.10 Keyboard [Logitech USB Receiver] on usb-0000:00:12.1-3/input0
-[    1.642389] tsc: Refined TSC clocksource calibration: 2511.093 MHz
-[    1.642507] clocksource: tsc: mask: 0xffffffffffffffff max_cycles: 0x24322913340, max_idle_ns: 440795255552 ns
-[    1.696567] random: nonblocking pool is initialized
-
-
-I can only guess that it is either now being misidentified (regression).
-... or do I perhaps need to enable a different driver now???
-Happy to help if I can.
-
-warmest regards,
-
-Joshua Clayton
+SGkgYWxsLA0KDQpteSBjb21wbGV0ZWx5IG9mZi10aGUtYmF0IGd1ZXNzIHdvdWxkIGJlIHRoYXQg
+dGhlIGNvbWJvIHVzZXMgbXVsdGlwbGUgaW50ZXJmYWNlcyBhcyB3ZWxsLCB0aGUgcGF0Y2ggc2Vl
+bXMgdG8gaWdub3JlIGV2ZXJ5dGhpbmcgYnV0IGlmYWNlIDAuIENhbiB5b3UgY29tbWVudCBvdXQg
+dGhlICdpZicgdGhhdCBkb2VzIHRoaXMgYW5kIGdpdmUgaXQgYSBnbz8NCg0KTWljaGFsDQoNCk9u
+IE1vbiBOb3YgMzAgMTQ6MDM6NTEgMjAxNSBHTVQrMDEwMCwgSm9zaHVhIENsYXl0b24gd3JvdGU6
+DQo+IFNpbW9uIGV0IGFsLA0KPiBNeSBsb2dpdGVjaCBjb3JkbGVzcyBtb3VzZSBpcyBub3QgZGV0
+ZWN0ZWQgaW4gbGludXgtbmV4dA0KPiBJIGhhdmUgYmlzZWN0ZWQgdGhlIGJyZWFrYWdlIHRvIHRo
+aXMgcGF0Y2gsDQo+ICBjb21taXQgMjlmYWUxYzg1MTY2ZWY1MjViOGI2NTE4ZTc0OTI5NWUwYzlk
+MWUyMCBpbiBsaW51eC1uZXh0Lg0KPiANCj4gT24gTW9uZGF5LCBOb3ZlbWJlciAwMiwgMjAxNSAw
+Nzo1Njo1MiBBTSBTaW1vbiBXb29kIHdyb3RlOg0KPiA+IEF0IHByZXNlbnQgdGhlIEcyOSBpcyBt
+aXMtaWRlbnRpZmllZCBhcyBhIERGR1QsIHRoaXMgcGF0Y2ggZW5zdXJlcw0KPiA+IHRoYXQgdGhl
+IHdoZWVsIGlzIGNvcnJlY3RseSBkZXRlY3RlZCBhbmQgYWxsb3dzIHNldHRpbmcgdGhlIExFRHMg
+YW5kDQo+ID4gdHVybmluZyByYW5nZSB2aWEgdGhlICcvc3lzJyBpbnRlcmZhY2UuDQo+ID4gDQo+
+ID4gVGhpcyB3aGVlbCBjYW4gYWxzbyBlbXVsYXRlIG90aGVyIHR5cGVzIG9mIExvZ2l0ZWNoIHdo
+ZWVscy4NCj4gPiANCj4gPiBTaWduZWQtb2ZmLWJ5OiBTaW1vbiBXb29kIDxzaW1vbkBtdW5nZXdl
+bGwub3JnPg0KPiA+IC0tLQ0KPiA+ICBkcml2ZXJzL2hpZC9oaWQtY29yZS5jICB8ICAxICsNCj4g
+PiAgZHJpdmVycy9oaWQvaGlkLWxnLmMgICAgfCAgOSArKysrKysrKw0KPiA+ICBkcml2ZXJzL2hp
+ZC9oaWQtbGc0ZmYuYyB8IDU3ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKy0tLS0NCj4gPiAgMyBmaWxlcyBjaGFuZ2VkLCA2MyBpbnNlcnRpb25zKCspLCA0IGRl
+bGV0aW9ucygtKQ0KPiA+IA0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9oaWQtY29yZS5j
+IGIvZHJpdmVycy9oaWQvaGlkLWNvcmUuYw0KPiA+IGluZGV4IDcwYTExYWMuLjk0OWQ4MDQgMTAw
+NjQ0DQo+ID4gLS0tIGEvZHJpdmVycy9oaWQvaGlkLWNvcmUuYw0KPiA+ICsrKyBiL2RyaXZlcnMv
+aGlkL2hpZC1jb3JlLmMNCj4gPiBAQCAtMTg5Niw2ICsxODk2LDcgQEAgc3RhdGljIGNvbnN0IHN0
+cnVjdCBoaWRfZGV2aWNlX2lkIGhpZF9oYXZlX3NwZWNpYWxfZHJpdmVyW10gPSB7DQo+ID4gIAl7
+IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfTE9HSVRFQ0gsIFVTQl9ERVZJQ0VfSURfTE9H
+SVRFQ0hfUlVNQkxFUEFEX0NPUkQpIH0sDQo+ID4gIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5E
+T1JfSURfTE9HSVRFQ0gsIFVTQl9ERVZJQ0VfSURfTE9HSVRFQ0hfUlVNQkxFUEFEKSB9LA0KPiA+
+ICAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0xPR0lURUNILCBVU0JfREVWSUNFX0lE
+X0xPR0lURUNIX1JVTUJMRVBBRDJfMikgfSwNCj4gPiArCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZF
+TkRPUl9JRF9MT0dJVEVDSCwgVVNCX0RFVklDRV9JRF9MT0dJVEVDSF9HMjlfV0hFRUwpIH0sDQo+
+ID4gIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfTE9HSVRFQ0gsIFVTQl9ERVZJQ0Vf
+SURfTE9HSVRFQ0hfV0lOR01BTl9GM0QpIH0sDQo+ID4gIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9W
+RU5ET1JfSURfTE9HSVRFQ0gsIFVTQl9ERVZJQ0VfSURfTE9HSVRFQ0hfV0lOR01BTl9GRkcgKSB9
+LA0KPiA+ICAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0xPR0lURUNILCBVU0JfREVW
+SUNFX0lEX0xPR0lURUNIX0ZPUkNFM0RfUFJPKSB9LA0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJz
+L2hpZC9oaWQtbGcuYyBiL2RyaXZlcnMvaGlkL2hpZC1sZy5jDQo+ID4gaW5kZXggNTMzMmZiNy4u
+YzIwYWM3NiAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2hpZC9oaWQtbGcuYw0KPiA+ICsrKyBi
+L2RyaXZlcnMvaGlkL2hpZC1sZy5jDQo+ID4gQEAgLTYyMCw2ICs2MjAsNyBAQCBzdGF0aWMgaW50
+IGxnX2lucHV0X21hcHBlZChzdHJ1Y3QgaGlkX2RldmljZSAqaGRldiwgc3RydWN0IGhpZF9pbnB1
+dCAqaGksDQo+ID4gIAkJCXVzYWdlLT5jb2RlID09IEFCU19ZIHx8IHVzYWdlLT5jb2RlID09IEFC
+U19aIHx8DQo+ID4gIAkJCXVzYWdlLT5jb2RlID09IEFCU19SWikpIHsNCj4gPiAgCQlzd2l0Y2gg
+KGhkZXYtPnByb2R1Y3QpIHsNCj4gPiArCQljYXNlIFVTQl9ERVZJQ0VfSURfTE9HSVRFQ0hfRzI5
+X1dIRUVMOg0KPiA+ICAJCWNhc2UgVVNCX0RFVklDRV9JRF9MT0dJVEVDSF9XSEVFTDoNCj4gPiAg
+CQljYXNlIFVTQl9ERVZJQ0VfSURfTE9HSVRFQ0hfTU9NT19XSEVFTDoNCj4gPiAgCQljYXNlIFVT
+Ql9ERVZJQ0VfSURfTE9HSVRFQ0hfREZQX1dIRUVMOg0KPiA+IEBAIC02NTgsMTAgKzY1OSwxOCBA
+QCBzdGF0aWMgaW50IGxnX2V2ZW50KHN0cnVjdCBoaWRfZGV2aWNlICpoZGV2LCBzdHJ1Y3QgaGlk
+X2ZpZWxkICpmaWVsZCwNCj4gPiAgDQo+ID4gIHN0YXRpYyBpbnQgbGdfcHJvYmUoc3RydWN0IGhp
+ZF9kZXZpY2UgKmhkZXYsIGNvbnN0IHN0cnVjdCBoaWRfZGV2aWNlX2lkICppZCkNCj4gPiAgew0K
+PiA+ICsJc3RydWN0IHVzYl9pbnRlcmZhY2UgKmlmYWNlID0gdG9fdXNiX2ludGVyZmFjZShoZGV2
+LT5kZXYucGFyZW50KTsNCj4gPiArCV9fdTggaWZhY2VfbnVtID0gaWZhY2UtPmN1cl9hbHRzZXR0
+aW5nLT5kZXNjLmJJbnRlcmZhY2VOdW1iZXI7DQo+ID4gIAl1bnNpZ25lZCBpbnQgY29ubmVjdF9t
+YXNrID0gSElEX0NPTk5FQ1RfREVGQVVMVDsNCj4gPiAgCXN0cnVjdCBsZ19kcnZfZGF0YSAqZHJ2
+X2RhdGE7DQo+ID4gIAlpbnQgcmV0Ow0KPiA+ICANCj4gPiArCS8qIE9ubHkgd29yayB3aXRoIHRo
+ZSAxc3QgaW50ZXJmYWNlIChHMjkgcHJlc2VudHMgbXVsdGlwbGUpICovDQo+ID4gKwlpZiAoaWZh
+Y2VfbnVtICE9IDApIHsNCj4gPiArCQlkYmdfaGlkKCIlczogaWdub3JpbmcgaWZudW0gJWRcbiIs
+IF9fZnVuY19fLCBpZmFjZV9udW0pOw0KPiA+ICsJCXJldHVybiAtRU5PREVWOw0KPiA+ICsJfQ0K
+PiA+ICsNCj4gPiAgCWRydl9kYXRhID0ga3phbGxvYyhzaXplb2Yoc3RydWN0IGxnX2Rydl9kYXRh
+KSwgR0ZQX0tFUk5FTCk7DQo+ID4gIAlpZiAoIWRydl9kYXRhKSB7DQo+ID4gIAkJaGlkX2Vyciho
+ZGV2LCAiSW5zdWZmaWNpZW50IG1lbW9yeSwgY2Fubm90IGFsbG9jYXRlIGRyaXZlciBkYXRhXG4i
+KTsNCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLWxnNGZmLmMgYi9kcml2ZXJzL2hp
+ZC9oaWQtbGc0ZmYuYw0KPiA+IGluZGV4IGIzNjNkODguLmZiZGRjYjMgMTAwNjQ0DQo+ID4gLS0t
+IGEvZHJpdmVycy9oaWQvaGlkLWxnNGZmLmMNCj4gPiArKysgYi9kcml2ZXJzL2hpZC9oaWQtbGc0
+ZmYuYw0KPiA+IEBAIC00NSw3ICs0NSw4IEBADQo+ID4gICNkZWZpbmUgTEc0RkZfTU9ERV9HMjVf
+SURYIDMNCj4gPiAgI2RlZmluZSBMRzRGRl9NT0RFX0RGR1RfSURYIDQNCj4gPiAgI2RlZmluZSBM
+RzRGRl9NT0RFX0cyN19JRFggNQ0KPiA+IC0jZGVmaW5lIExHNEZGX01PREVfTUFYX0lEWCA2DQo+
+ID4gKyNkZWZpbmUgTEc0RkZfTU9ERV9HMjlfSURYIDYNCj4gPiArI2RlZmluZSBMRzRGRl9NT0RF
+X01BWF9JRFggNw0KPiA+ICANCj4gPiAgI2RlZmluZSBMRzRGRl9NT0RFX05BVElWRSBCSVQoTEc0
+RkZfTU9ERV9OQVRJVkVfSURYKQ0KPiA+ICAjZGVmaW5lIExHNEZGX01PREVfREZFWCBCSVQoTEc0
+RkZfTU9ERV9ERkVYX0lEWCkNCj4gPiBAQCAtNTMsNiArNTQsNyBAQA0KPiA+ICAjZGVmaW5lIExH
+NEZGX01PREVfRzI1IEJJVChMRzRGRl9NT0RFX0cyNV9JRFgpDQo+ID4gICNkZWZpbmUgTEc0RkZf
+TU9ERV9ERkdUIEJJVChMRzRGRl9NT0RFX0RGR1RfSURYKQ0KPiA+ICAjZGVmaW5lIExHNEZGX01P
+REVfRzI3IEJJVChMRzRGRl9NT0RFX0cyN19JRFgpDQo+ID4gKyNkZWZpbmUgTEc0RkZfTU9ERV9H
+MjkgQklUKExHNEZGX01PREVfRzI5X0lEWCkNCj4gPiAgDQo+ID4gICNkZWZpbmUgTEc0RkZfREZF
+WF9UQUcgIkRGLUVYIg0KPiA+ICAjZGVmaW5lIExHNEZGX0RGRVhfTkFNRSAiRHJpdmluZyBGb3Jj
+ZSAvIEZvcm11bGEgRVgiDQo+ID4gQEAgLTYyLDYgKzY0LDggQEANCj4gPiAgI2RlZmluZSBMRzRG
+Rl9HMjVfTkFNRSAiRzI1IFJhY2luZyBXaGVlbCINCj4gPiAgI2RlZmluZSBMRzRGRl9HMjdfVEFH
+ICJHMjciDQo+ID4gICNkZWZpbmUgTEc0RkZfRzI3X05BTUUgIkcyNyBSYWNpbmcgV2hlZWwiDQo+
+ID4gKyNkZWZpbmUgTEc0RkZfRzI5X1RBRyAiRzI5Ig0KPiA+ICsjZGVmaW5lIExHNEZGX0cyOV9O
+QU1FICJHMjkgUmFjaW5nIFdoZWVsIg0KPiA+ICAjZGVmaW5lIExHNEZGX0RGR1RfVEFHICJERkdU
+Ig0KPiA+ICAjZGVmaW5lIExHNEZGX0RGR1RfTkFNRSAiRHJpdmluZyBGb3JjZSBHVCINCj4gPiAg
+DQo+ID4gQEAgLTE0MCw2ICsxNDQsNyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGxnNGZmX3doZWVs
+IGxnNGZmX2RldmljZXNbXSA9IHsNCj4gPiAgCXtVU0JfREVWSUNFX0lEX0xPR0lURUNIX0cyNV9X
+SEVFTCwgICBsZzRmZl93aGVlbF9lZmZlY3RzLCA0MCwgOTAwLCBsZzRmZl9zZXRfcmFuZ2VfZzI1
+fSwNCj4gPiAgCXtVU0JfREVWSUNFX0lEX0xPR0lURUNIX0RGR1RfV0hFRUwsICBsZzRmZl93aGVl
+bF9lZmZlY3RzLCA0MCwgOTAwLCBsZzRmZl9zZXRfcmFuZ2VfZzI1fSwNCj4gPiAgCXtVU0JfREVW
+SUNFX0lEX0xPR0lURUNIX0cyN19XSEVFTCwgICBsZzRmZl93aGVlbF9lZmZlY3RzLCA0MCwgOTAw
+LCBsZzRmZl9zZXRfcmFuZ2VfZzI1fSwNCj4gPiArCXtVU0JfREVWSUNFX0lEX0xPR0lURUNIX0cy
+OV9XSEVFTCwgICBsZzRmZl93aGVlbF9lZmZlY3RzLCA0MCwgOTAwLCBsZzRmZl9zZXRfcmFuZ2Vf
+ZzI1fSwNCj4gPiAgCXtVU0JfREVWSUNFX0lEX0xPR0lURUNIX01PTU9fV0hFRUwyLCBsZzRmZl93
+aGVlbF9lZmZlY3RzLCA0MCwgMjcwLCBOVUxMfSwNCj4gPiAgCXtVU0JfREVWSUNFX0lEX0xPR0lU
+RUNIX1dJSV9XSEVFTCwgICBsZzRmZl93aGVlbF9lZmZlY3RzLCA0MCwgMjcwLCBOVUxMfQ0KPiA+
+ICB9Ow0KPiA+IEBAIC0xNTcsNiArMTYyLDkgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBsZzRmZl9t
+dWx0aW1vZGVfd2hlZWwgbGc0ZmZfbXVsdGltb2RlX3doZWVsc1tdID0gew0KPiA+ICAJe1VTQl9E
+RVZJQ0VfSURfTE9HSVRFQ0hfRzI3X1dIRUVMLA0KPiA+ICAJIExHNEZGX01PREVfTkFUSVZFIHwg
+TEc0RkZfTU9ERV9HMjcgfCBMRzRGRl9NT0RFX0cyNSB8IExHNEZGX01PREVfREZQIHwgTEc0RkZf
+TU9ERV9ERkVYLA0KPiA+ICAJIExHNEZGX0cyN19UQUcsIExHNEZGX0cyN19OQU1FfSwNCj4gPiAr
+CXtVU0JfREVWSUNFX0lEX0xPR0lURUNIX0cyOV9XSEVFTCwNCj4gPiArCSBMRzRGRl9NT0RFX05B
+VElWRSB8IExHNEZGX01PREVfRzI5IHwgTEc0RkZfTU9ERV9HMjcgfCBMRzRGRl9NT0RFX0cyNSB8
+IExHNEZGX01PREVfREZHVCB8IExHNEZGX01PREVfREZQIHwgTEc0RkZfTU9ERV9ERkVYLA0KPiA+
+ICsJIExHNEZGX0cyOV9UQUcsIExHNEZGX0cyOV9OQU1FfSwNCj4gPiAgfTsNCj4gPiAgDQo+ID4g
+IHN0YXRpYyBjb25zdCBzdHJ1Y3QgbGc0ZmZfYWx0ZXJuYXRlX21vZGUgbGc0ZmZfYWx0ZXJuYXRl
+X21vZGVzW10gPSB7DQo+ID4gQEAgLTE2NSw3ICsxNzMsOCBAQCBzdGF0aWMgY29uc3Qgc3RydWN0
+IGxnNGZmX2FsdGVybmF0ZV9tb2RlIGxnNGZmX2FsdGVybmF0ZV9tb2Rlc1tdID0gew0KPiA+ICAJ
+W0xHNEZGX01PREVfREZQX0lEWF0gPSB7VVNCX0RFVklDRV9JRF9MT0dJVEVDSF9ERlBfV0hFRUws
+IExHNEZGX0RGUF9UQUcsIExHNEZGX0RGUF9OQU1FfSwNCj4gPiAgCVtMRzRGRl9NT0RFX0cyNV9J
+RFhdID0ge1VTQl9ERVZJQ0VfSURfTE9HSVRFQ0hfRzI1X1dIRUVMLCBMRzRGRl9HMjVfVEFHLCBM
+RzRGRl9HMjVfTkFNRX0sDQo+ID4gIAlbTEc0RkZfTU9ERV9ERkdUX0lEWF0gPSB7VVNCX0RFVklD
+RV9JRF9MT0dJVEVDSF9ERkdUX1dIRUVMLCBMRzRGRl9ERkdUX1RBRywgTEc0RkZfREZHVF9OQU1F
+fSwNCj4gPiAtCVtMRzRGRl9NT0RFX0cyN19JRFhdID0ge1VTQl9ERVZJQ0VfSURfTE9HSVRFQ0hf
+RzI3X1dIRUVMLCBMRzRGRl9HMjdfVEFHLCBMRzRGRl9HMjdfTkFNRX0NCj4gPiArCVtMRzRGRl9N
+T0RFX0cyN19JRFhdID0ge1VTQl9ERVZJQ0VfSURfTE9HSVRFQ0hfRzI3X1dIRUVMLCBMRzRGRl9H
+MjdfVEFHLCBMRzRGRl9HMjdfTkFNRX0sDQo+ID4gKwlbTEc0RkZfTU9ERV9HMjlfSURYXSA9IHtV
+U0JfREVWSUNFX0lEX0xPR0lURUNIX0cyOV9XSEVFTCwgTEc0RkZfRzI5X1RBRywgTEc0RkZfRzI5
+X05BTUV9LA0KPiA+ICB9Ow0KPiA+ICANCj4gPiAgLyogTXVsdGltb2RlIHdoZWVsIGlkZW50aWZp
+Y2F0b3JzICovDQo+ID4gQEAgLTE5Nyw4ICsyMDYsMjQgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBs
+ZzRmZl93aGVlbF9pZGVudF9pbmZvIGxnNGZmX2RmZ3RfaWRlbnRfaW5mbyA9IHsNCj4gPiAgCVVT
+Ql9ERVZJQ0VfSURfTE9HSVRFQ0hfREZHVF9XSEVFTA0KPiA+ICB9Ow0KPiA+ICANCj4gPiArc3Rh
+dGljIGNvbnN0IHN0cnVjdCBsZzRmZl93aGVlbF9pZGVudF9pbmZvIGxnNGZmX2cyOV9pZGVudF9p
+bmZvID0gew0KPiA+ICsJTEc0RkZfTU9ERV9HMjkgfCBMRzRGRl9NT0RFX0cyNyB8IExHNEZGX01P
+REVfRzI1IHwgTEc0RkZfTU9ERV9ERkdUIHwgTEc0RkZfTU9ERV9ERlAgfCBMRzRGRl9NT0RFX0RG
+RVgsDQo+ID4gKwkweGZmZjgsDQo+ID4gKwkweDEzNTAsDQo+ID4gKwlVU0JfREVWSUNFX0lEX0xP
+R0lURUNIX0cyOV9XSEVFTA0KPiA+ICt9Ow0KPiA+ICsNCj4gPiArc3RhdGljIGNvbnN0IHN0cnVj
+dCBsZzRmZl93aGVlbF9pZGVudF9pbmZvIGxnNGZmX2cyOV9pZGVudF9pbmZvMiA9IHsNCj4gPiAr
+CUxHNEZGX01PREVfRzI5IHwgTEc0RkZfTU9ERV9HMjcgfCBMRzRGRl9NT0RFX0cyNSB8IExHNEZG
+X01PREVfREZHVCB8IExHNEZGX01PREVfREZQIHwgTEc0RkZfTU9ERV9ERkVYLA0KPiA+ICsJMHhm
+ZjAwLA0KPiA+ICsJMHg4OTAwLA0KPiA+ICsJVVNCX0RFVklDRV9JRF9MT0dJVEVDSF9HMjlfV0hF
+RUwNCj4gPiArfTsNCj4gPiArDQo+ID4gIC8qIE11bHRpbW9kZSB3aGVlbCBpZGVudGlmaWNhdGlv
+biBjaGVja2xpc3RzICovDQo+ID4gIHN0YXRpYyBjb25zdCBzdHJ1Y3QgbGc0ZmZfd2hlZWxfaWRl
+bnRfaW5mbyAqbGc0ZmZfbWFpbl9jaGVja2xpc3RbXSA9IHsNCj4gPiArCSZsZzRmZl9nMjlfaWRl
+bnRfaW5mbywNCj4gPiArCSZsZzRmZl9nMjlfaWRlbnRfaW5mbzIsDQo+ID4gIAkmbGc0ZmZfZGZn
+dF9pZGVudF9pbmZvLA0KPiA+ICAJJmxnNGZmX2cyN19pZGVudF9pbmZvLA0KPiA+ICAJJmxnNGZm
+X2cyNV9pZGVudF9pbmZvLA0KPiA+IEBAIC0yMzcsNiArMjYyLDEyIEBAIHN0YXRpYyBjb25zdCBz
+dHJ1Y3QgbGc0ZmZfY29tcGF0X21vZGVfc3dpdGNoIGxnNGZmX21vZGVfc3dpdGNoX2V4dDA5X2cy
+NyA9IHsNCj4gPiAgCSAweGY4LCAweDA5LCAweDA0LCAweDAxLCAweDAwLCAweDAwLCAweDAwfQkv
+KiBTd2l0Y2ggbW9kZSB0byBHMjcgd2l0aCBkZXRhY2ggKi8NCj4gPiAgfTsNCj4gPiAgDQo+ID4g
+K3N0YXRpYyBjb25zdCBzdHJ1Y3QgbGc0ZmZfY29tcGF0X21vZGVfc3dpdGNoIGxnNGZmX21vZGVf
+c3dpdGNoX2V4dDA5X2cyOSA9IHsNCj4gPiArCTIsDQo+ID4gKwl7MHhmOCwgMHgwYSwgMHgwMCwg
+MHgwMCwgMHgwMCwgMHgwMCwgMHgwMCwJLyogUmV2ZXJ0IG1vZGUgdXBvbiBVU0IgcmVzZXQgKi8N
+Cj4gPiArCSAweGY4LCAweDA5LCAweDA1LCAweDAxLCAweDAxLCAweDAwLCAweDAwfQkvKiBTd2l0
+Y2ggbW9kZSB0byBHMjkgd2l0aCBkZXRhY2ggKi8NCj4gPiArfTsNCj4gPiArDQo+ID4gIC8qIEVY
+VF9DTUQxIC0gVW5kZXJzdG9vZCBieSBERlAsIEcyNSwgRzI3IGFuZCBERkdUICovDQo+ID4gIHN0
+YXRpYyBjb25zdCBzdHJ1Y3QgbGc0ZmZfY29tcGF0X21vZGVfc3dpdGNoIGxnNGZmX21vZGVfc3dp
+dGNoX2V4dDAxX2RmcCA9IHsNCj4gPiAgCTEsDQo+ID4gQEAgLTY1MCw2ICs2ODEsMjMgQEAgc3Rh
+dGljIGNvbnN0IHN0cnVjdCBsZzRmZl9jb21wYXRfbW9kZV9zd2l0Y2ggKmxnNGZmX2dldF9tb2Rl
+X3N3aXRjaF9jb21tYW5kKGNvbnMNCj4gPiAgCQkJcmV0dXJuIE5VTEw7DQo+ID4gIAkJfQ0KPiA+
+ICAJCWJyZWFrOw0KPiA+ICsJY2FzZSBVU0JfREVWSUNFX0lEX0xPR0lURUNIX0cyOV9XSEVFTDoN
+Cj4gPiArCQlzd2l0Y2ggKHRhcmdldF9wcm9kdWN0X2lkKSB7DQo+ID4gKwkJY2FzZSBVU0JfREVW
+SUNFX0lEX0xPR0lURUNIX0RGUF9XSEVFTDoNCj4gPiArCQkJcmV0dXJuICZsZzRmZl9tb2RlX3N3
+aXRjaF9leHQwOV9kZnA7DQo+ID4gKwkJY2FzZSBVU0JfREVWSUNFX0lEX0xPR0lURUNIX0RGR1Rf
+V0hFRUw6DQo+ID4gKwkJCXJldHVybiAmbGc0ZmZfbW9kZV9zd2l0Y2hfZXh0MDlfZGZndDsNCj4g
+PiArCQljYXNlIFVTQl9ERVZJQ0VfSURfTE9HSVRFQ0hfRzI1X1dIRUVMOg0KPiA+ICsJCQlyZXR1
+cm4gJmxnNGZmX21vZGVfc3dpdGNoX2V4dDA5X2cyNTsNCj4gPiArCQljYXNlIFVTQl9ERVZJQ0Vf
+SURfTE9HSVRFQ0hfRzI3X1dIRUVMOg0KPiA+ICsJCQlyZXR1cm4gJmxnNGZmX21vZGVfc3dpdGNo
+X2V4dDA5X2cyNzsNCj4gPiArCQljYXNlIFVTQl9ERVZJQ0VfSURfTE9HSVRFQ0hfRzI5X1dIRUVM
+Og0KPiA+ICsJCQlyZXR1cm4gJmxnNGZmX21vZGVfc3dpdGNoX2V4dDA5X2cyOTsNCj4gPiArCQkv
+KiBHMjkgY2FuIG9ubHkgYmUgc3dpdGNoZWQgdG8gREYtRVgsIERGUCwgREZHVCwgRzI1LCBHMjcg
+b3IgaXRzIG5hdGl2ZSBtb2RlICovDQo+ID4gKwkJZGVmYXVsdDoNCj4gPiArCQkJcmV0dXJuIE5V
+TEw7DQo+ID4gKwkJfQ0KPiA+ICsJCWJyZWFrOw0KPiA+ICAJY2FzZSBVU0JfREVWSUNFX0lEX0xP
+R0lURUNIX0RGR1RfV0hFRUw6DQo+ID4gIAkJc3dpdGNoICh0YXJnZXRfcHJvZHVjdF9pZCkgew0K
+PiA+ICAJCWNhc2UgVVNCX0RFVklDRV9JRF9MT0dJVEVDSF9XSEVFTDoNCj4gPiBAQCAtMTIzMiwx
+MiArMTI4MCwxMyBAQCBpbnQgbGc0ZmZfaW5pdChzdHJ1Y3QgaGlkX2RldmljZSAqaGlkKQ0KPiA+
+ICAJCWVudHJ5LT53ZGF0YS5zZXRfcmFuZ2UoaGlkLCBlbnRyeS0+d2RhdGEucmFuZ2UpOw0KPiA+
+ICANCj4gPiAgI2lmZGVmIENPTkZJR19MRURTX0NMQVNTDQo+ID4gLQkvKiByZWdpc3RlciBsZWQg
+c3Vic3lzdGVtIC0gRzI3IG9ubHkgKi8NCj4gPiArCS8qIHJlZ2lzdGVyIGxlZCBzdWJzeXN0ZW0g
+LSBHMjcvRzI5IG9ubHkgKi8NCj4gPiAgCWVudHJ5LT53ZGF0YS5sZWRfc3RhdGUgPSAwOw0KPiA+
+ICAJZm9yIChqID0gMDsgaiA8IDU7IGorKykNCj4gPiAgCQllbnRyeS0+d2RhdGEubGVkW2pdID0g
+TlVMTDsNCj4gPiAgDQo+ID4gLQlpZiAobGc0ZmZfZGV2aWNlc1tpXS5wcm9kdWN0X2lkID09IFVT
+Ql9ERVZJQ0VfSURfTE9HSVRFQ0hfRzI3X1dIRUVMKSB7DQo+ID4gKwlpZiAobGc0ZmZfZGV2aWNl
+c1tpXS5wcm9kdWN0X2lkID09IFVTQl9ERVZJQ0VfSURfTE9HSVRFQ0hfRzI3X1dIRUVMIHx8DQo+
+ID4gKwkJCWxnNGZmX2RldmljZXNbaV0ucHJvZHVjdF9pZCA9PSBVU0JfREVWSUNFX0lEX0xPR0lU
+RUNIX0cyOV9XSEVFTCkgew0KPiA+ICAJCXN0cnVjdCBsZWRfY2xhc3NkZXYgKmxlZDsNCj4gPiAg
+CQlzaXplX3QgbmFtZV9zejsNCj4gPiAgCQljaGFyICpuYW1lOw0KPiANCj4gSSBoYXZlIGEgbG9n
+aXRlY2ggY29yZGxlc3MgbW91c2Uva2V5Ym9hcmQgY29tYm8uICBUaGUga2V5Ym9hcmQgc3RpbGwg
+d29ya3MuDQo+IA0KPiBUaGUgZm9sbG93aW5nIGlzIHBhcnQgb2YgbXkgZG1lc2cgb3V0cHV0IG9u
+IHRoZSBwcmV2aW91cyBjb21taXQgKHdpdGggdGhlIG1vdXNlIHdvcmtpbmcpLA0KPiANCj4gYmVm
+b3JlOg0KPiANCj4gWyAgICAxLjU2NjY3NF0gdXNiIDQtMzogTmV3IFVTQiBkZXZpY2UgZm91bmQs
+IGlkVmVuZG9yPTA0NmQsIGlkUHJvZHVjdD1jNTE3DQo+IFsgICAgMS41NjY3NzldIHVzYiA0LTM6
+IE5ldyBVU0IgZGV2aWNlIHN0cmluZ3M6IE1mcj0xLCBQcm9kdWN0PTIsIFNlcmlhbE51bWJlcj0w
+DQo+IFsgICAgMS41NjY4ODFdIHVzYiA0LTM6IFByb2R1Y3Q6IFVTQiBSZWNlaXZlcg0KPiBbICAg
+IDEuNTY2OTgyXSB1c2IgNC0zOiBNYW51ZmFjdHVyZXI6IExvZ2l0ZWNoDQo+IFsgICAgMS41NzM2
+NzFdIGlucHV0OiBMb2dpdGVjaCBVU0IgUmVjZWl2ZXIgYXMgL2RldmljZXMvcGNpMDAwMDowMC8w
+MDAwOjAwOjEyLjEvdXNiNC80LTMvNC0zOjEuMC8wMDAzOjA0NkQ6QzUxNy4wMDAzL2lucHV0L2lu
+cHV0MTQNCj4gWyAgICAxLjYyNDUxMF0gbG9naXRlY2ggMDAwMzowNDZEOkM1MTcuMDAwMzogaW5w
+dXQsaGlkcmF3MDogVVNCIEhJRCB2MS4xMCBLZXlib2FyZCBbTG9naXRlY2ggVVNCIFJlY2VpdmVy
+XSBvbiB1c2ItMDAwMDowMDoxMi4xLTMvaW5wdXQwDQo+IFsgICAgMS42MjkzMTNdIHRzYzogUmVm
+aW5lZCBUU0MgY2xvY2tzb3VyY2UgY2FsaWJyYXRpb246IDI1MTEuMDk0IE1Ieg0KPiBbICAgIDEu
+NjI5NDA3XSBjbG9ja3NvdXJjZTogdHNjOiBtYXNrOiAweGZmZmZmZmZmZmZmZmZmZmYgbWF4X2N5
+Y2xlczogMHgyNDMyMjliNmY4YSwgbWF4X2lkbGVfbnM6IDQ0MDc5NTIyNjE2OCBucw0KPiBbICAg
+IDEuNjMxMzcwXSBsb2dpdGVjaCAwMDAzOjA0NkQ6QzUxNy4wMDA0OiBmaXhpbmcgdXAgTG9naXRl
+Y2gga2V5Ym9hcmQgcmVwb3J0IGRlc2NyaXB0b3INCj4gWyAgICAxLjYzMjIwM10gaW5wdXQ6IExv
+Z2l0ZWNoIFVTQiBSZWNlaXZlciBhcyAvZGV2aWNlcy9wY2kwMDAwOjAwLzAwMDA6MDA6MTIuMS91
+c2I0LzQtMy80LTM6MS4xLzAwMDM6MDQ2RDpDNTE3LjAwMDQvaW5wdXQvaW5wdXQxNQ0KPiBbICAg
+IDEuNjc3NTg4XSByYW5kb206IG5vbmJsb2NraW5nIHBvb2wgaXMgaW5pdGlhbGl6ZWQNCj4gWyAg
+ICAxLjY4MzM1OV0gbG9naXRlY2ggMDAwMzowNDZEOkM1MTcuMDAwNDogaW5wdXQsaGlkZGV2MCxo
+aWRyYXcxOiBVU0IgSElEIHYxLjEwIE1vdXNlIFtMb2dpdGVjaCBVU0IgUmVjZWl2ZXJdIG9uIHVz
+Yi0wMDAwOjAwOjEyLjEtMy9pbnB1dDENCj4gDQo+IGFmdGVyOg0KPiANCj4gWyAgICAxLjU3Nzc0
+OF0gdXNiIDQtMzogTmV3IFVTQiBkZXZpY2UgZm91bmQsIGlkVmVuZG9yPTA0NmQsIGlkUHJvZHVj
+dD1jNTE3DQo+IFsgICAgMS41Nzc4NTldIHVzYiA0LTM6IE5ldyBVU0IgZGV2aWNlIHN0cmluZ3M6
+IE1mcj0xLCBQcm9kdWN0PTIsIFNlcmlhbE51bWJlcj0wDQo+IFsgICAgMS41Nzc5NjNdIHVzYiA0
+LTM6IFByb2R1Y3Q6IFVTQiBSZWNlaXZlcg0KPiBbICAgIDEuNTc4MDY0XSB1c2IgNC0zOiBNYW51
+ZmFjdHVyZXI6IExvZ2l0ZWNoDQo+IFsgICAgMS41ODQ3NDZdIGlucHV0OiBMb2dpdGVjaCBVU0Ig
+UmVjZWl2ZXIgYXMgL2RldmljZXMvcGNpMDAwMDowMC8wMDAwOjAwOjEyLjEvdXNiNC80LTMvNC0z
+OjEuMC8wMDAzOjA0NkQ6QzUxNy4wMDAzL2lucHV0L2lucHV0MTQNCj4gWyAgICAxLjYzNTU5Nl0g
+bG9naXRlY2ggMDAwMzowNDZEOkM1MTcuMDAwMzogaW5wdXQsaGlkcmF3MDogVVNCIEhJRCB2MS4x
+MCBLZXlib2FyZCBbTG9naXRlY2ggVVNCIFJlY2VpdmVyXSBvbiB1c2ItMDAwMDowMDoxMi4xLTMv
+aW5wdXQwDQo+IFsgICAgMS42NDIzODldIHRzYzogUmVmaW5lZCBUU0MgY2xvY2tzb3VyY2UgY2Fs
+aWJyYXRpb246IDI1MTEuMDkzIE1Ieg0KPiBbICAgIDEuNjQyNTA3XSBjbG9ja3NvdXJjZTogdHNj
+OiBtYXNrOiAweGZmZmZmZmZmZmZmZmZmZmYgbWF4X2N5Y2xlczogMHgyNDMyMjkxMzM0MCwgbWF4
+X2lkbGVfbnM6IDQ0MDc5NTI1NTU1MiBucw0KPiBbICAgIDEuNjk2NTY3XSByYW5kb206IG5vbmJs
+b2NraW5nIHBvb2wgaXMgaW5pdGlhbGl6ZWQNCj4gDQo+IA0KPiBJIGNhbiBvbmx5IGd1ZXNzIHRo
+YXQgaXQgaXMgZWl0aGVyIG5vdyBiZWluZyBtaXNpZGVudGlmaWVkIChyZWdyZXNzaW9uKS4NCj4g
+Li4uIG9yIGRvIEkgcGVyaGFwcyBuZWVkIHRvIGVuYWJsZSBhIGRpZmZlcmVudCBkcml2ZXIgbm93
+Pz8/DQo+IEhhcHB5IHRvIGhlbHAgaWYgSSBjYW4uDQo+IA0KPiB3YXJtZXN0IHJlZ2FyZHMsDQo+
+IA0KPiBKb3NodWEgQ2xheXRvbg0KPg==

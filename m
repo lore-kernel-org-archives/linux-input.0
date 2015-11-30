@@ -1,68 +1,78 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 09/10] Input: synaptics-rmi4: Add device tree support to
- the SPI transport driver
-Date: Mon, 30 Nov 2015 15:28:00 -0600
-Message-ID: <20151130212800.GA6213@rob-hp-laptop>
-References: <1448496625-25408-1-git-send-email-aduggan@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Kamal Mostafa <kamal@canonical.com>
+Subject: [3.19.y-ckt stable] Patch "HID: core: Avoid uninitialized buffer access" has been added to staging queue
+Date: Mon, 30 Nov 2015 14:09:11 -0800
+Message-ID: <1448921351-8483-1-git-send-email-kamal@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:32782 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751250AbbK3V2F (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Nov 2015 16:28:05 -0500
-Content-Disposition: inline
-In-Reply-To: <1448496625-25408-1-git-send-email-aduggan@synaptics.com>
+Received: from youngberry.canonical.com ([91.189.89.112]:53775 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752652AbbK3WJQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Nov 2015 17:09:16 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, devicetree@vger.kernel.org
+To: Richard Purdie <richard.purdie@linuxfoundation.org>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Jiri Kosina <jkosina@suse.cz>, Kamal Mostafa <kamal@canonical.com>, kernel-team@lists.ubuntu.com
 
-On Wed, Nov 25, 2015 at 04:10:25PM -0800, Andrew Duggan wrote:
-> Add devicetree binding for SPI devices.
-> 
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> ---
->  .../devicetree/bindings/input/rmi4/rmi_spi.txt     | 57 ++++++++++++++++++++++
->  drivers/input/rmi4/rmi_spi.c                       | 44 ++++++++++++++++-
->  2 files changed, 100 insertions(+), 1 deletion(-)
->  create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
-> new file mode 100644
-> index 0000000..f20366b6
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
-> @@ -0,0 +1,57 @@
-> +Synaptics RMI4 SPI Device Binding
-> +
-> +The Synaptics RMI4 core is able to support RMI4 devices using differnet
-> +transports and differnet functions. This file describes the device tree
-> +bindings for devices using the SPI tranport driver. Complete documentation
-> +for other transports and functions cen be found ini
-> +Documentation/devicetree/bindings/input/rmi4.
-> +
-> +Required Properties:
-> +- compatible: syna,rmi-spi
-> +- reg: Chip select address for the device
-> +- #address-cells: Set to 1 to indicate that the function child nodes
-> +		    consist of only on uint32 value.
-> +- #size-cells: Set to 0 to indicate that the function child nodes do not
-> +		have a size property.
-> +
-> +Optional Properties:
-> +- interrupts: interrupt which the rmi device is connected to.
-> +- interrupt-parent: The interrupt controller.
-> +See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
-> +
-> +- syna,spi-read-delay: millisecond delay between read byte transfers.
-> +- syna,spi-write-delay: millisecond delay between write byte transfers.
+This is a note to let you know that I have just added a patch titled
 
-These could possibly be common SPI properties, but they would need to be 
-somewhat better defined as every access on SPI is a read and a write. 
-What if you have a read then write or write then read? Just a time 
-between transfers would probably make more sense.
+    HID: core: Avoid uninitialized buffer access
 
-Minimally, they should have -msec suffix.
+to the linux-3.19.y-queue branch of the 3.19.y-ckt extended stable tree 
+which can be found at:
 
-Rob
+    http://kernel.ubuntu.com/git/ubuntu/linux.git/log/?h=linux-3.19.y-queue
+
+This patch is scheduled to be released in version 3.19.8-ckt11.
+
+If you, or anyone else, feels it should not be added to this tree, please 
+reply to this email.
+
+For more information about the 3.19.y-ckt tree, see
+https://wiki.ubuntu.com/Kernel/Dev/ExtendedStable
+
+Thanks.
+-Kamal
+
+------
+
+>From b6be0e21e58d8c6284e85baeecaa5e206245946e Mon Sep 17 00:00:00 2001
+From: Richard Purdie <richard.purdie@linuxfoundation.org>
+Date: Fri, 18 Sep 2015 16:31:33 -0700
+Subject: HID: core: Avoid uninitialized buffer access
+
+commit 79b568b9d0c7c5d81932f4486d50b38efdd6da6d upstream.
+
+hid_connect adds various strings to the buffer but they're all
+conditional. You can find circumstances where nothing would be written
+to it but the kernel will still print the supposedly empty buffer with
+printk. This leads to corruption on the console/in the logs.
+
+Ensure buf is initialized to an empty string.
+
+Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
+[dvhart: Initialize string to "" rather than assign buf[0] = NULL;]
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+---
+ drivers/hid/hid-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8b63879..d7d965f 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1562,7 +1562,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+ 		"Multi-Axis Controller"
+ 	};
+ 	const char *type, *bus;
+-	char buf[64];
++	char buf[64] = "";
+ 	unsigned int i;
+ 	int len;
+ 	int ret;
+--
+1.9.1
+

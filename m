@@ -1,85 +1,38 @@
-From: Jonathan Beilharz <greenbigfrog@gmail.com>
-Subject: Re: X-Box one controller causes Xpad to crash [NEW INFO]
-Date: Tue, 1 Dec 2015 15:42:59 +0100
-Message-ID: <565DB1F3.4090001@gmail.com>
-References: <56588978.9030300@gmail.com> <20151127173436.GB27040@dtor-ws>
- <5658971E.4040703@gmail.com> <20151127180809.GD27040@dtor-ws>
- <5659D7D1.8090701@gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH] Input: aiptek: fix crash on detecting device without
+ endpoints
+Date: Tue, 1 Dec 2015 10:07:22 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.1512011006490.1697-100000@iolanthe.rowland.org>
+References: <191812479.29673243.1448957346445.JavaMail.zimbra@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:35540 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756341AbbLAOnD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2015 09:43:03 -0500
-Received: by wmeo63 with SMTP id o63so2717007wme.2
-        for <linux-input@vger.kernel.org>; Tue, 01 Dec 2015 06:43:01 -0800 (PST)
-In-Reply-To: <5659D7D1.8090701@gmail.com>
+Received: from iolanthe.rowland.org ([192.131.102.54]:48984 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752608AbbLAPHX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2015 10:07:23 -0500
+In-Reply-To: <191812479.29673243.1448957346445.JavaMail.zimbra@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: pavel@rojtberg.net, linux-input@vger.kernel.org
+To: Vladis Dronov <vdronov@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On 28.11.2015 17:35, Jonathan Beilharz wrote:
-> On 27.11.2015 19:08, Dmitry Torokhov wrote:
->> On Fri, Nov 27, 2015 at 06:47:10PM +0100, Jonathan Beilharz wrote:
->>> On 27.11.2015 18:34, Dmitry Torokhov wrote:
->>>> Hi Jonathan,
->>>>
->>>> On Fri, Nov 27, 2015 at 05:48:56PM +0100, Jonathan Beilharz wrote:
->>>>> Still haven't got it on the mailing list... Also can't find any info
->>>>> on how to add new stuff. I already had sent an email sometime ago
->>>>> but since then I found out more.
->>>> Hmm, not sure why your email do not reach the list, it does not 
->>>> require
->>>> subscription for posting...
->>>>
->>>>> [1.] One line summary of the problem:
->>>>> X-Box one controller causes Xpad to crash
->>>>>
->>>>> [2.] Full description of the problem/report:
->>>>> Plugging in the so called "Xbox one (converted forces)" controller
->>>>> crashes the Xpad module.
->>>>> Important part of dmesg:
->>>>> "BUG: unable to handle kernel NULL pointer dereference at 
->>>>> 000000000000004e"
->>>>> "RIP  [<ffffffffc02c952a>] xpad_probe+0x37a/0x9eb [xpad]"
->>>>>
->>>> You need the following commit from mainline:
->>>>
->>>> 39a7a88872df98f0c3c50fe278fd1a1f597afd95  - Input: xpad - add Covert
->>>> Forces edition of the Xbox One controller
->>>>
->>>> There was a report that while it fixes the crash the controller is not
->>>> really working, so I'd like to hear about your results.
->>>>
->>>> Thanks.
->>>>
->>> Thanks for answering.
->>>
->>> But shouldn't the commit be included in the "Linux version
->>> 4.3.0-040300-generic (kernel@gomeisa) (gcc version 5.2.1 20151010
->>> (Ubuntu 5.2.1-22ubuntu2) ) #201511020949 SMP Mon Nov 2 14:50:44 UTC
->>> 2015" I tested with?
->> No, it was in the pull request I sent for 4.4-rc1.
->>
->>> If not should I build the latest mainline kernel?
->> That would be great.
->>
->> Thanks.
->>
->
-> So I now was able to boot the new kernel fully (also onto desktop).
->
-> The patch fixes the crash and also the module gets successfully loaded 
-> dynamically.
->
-> But as you said earlier it isn't "working". jscal/jstest tell me the 
-> right amount of axes and buttons. But it doesn't matter if I calibrate 
-> the controller or not. Everything stays the same. I can move 
-> everything as much as I want but nothing changes in jstest.
->
-> Thanks for looking into this.
+On Tue, 1 Dec 2015, Vladis Dronov wrote:
 
-Should I open up a new "Thread" for this? I'm still new to lkml
+> Hello, Alan,
+> 
+> Thank you for the explanations and I'm sorry for my terminology
+> misunderstanding, I got the point now, endpoint 0 != endpoint[0].
+
+That's okay; it's an understandable mistake.
+
+> > My advice is to fix aiptek's probe routine. It should check that 
+> > intf->altsetting[0].desc.bNumEndpoints > 0 before trying to accessing 
+> > the endpoint array.
+> 
+> Thank you, yes, the patch proposed does something quite alike.
+
+You're welcome.  Glad I could help.
+
+Alan Stern
+

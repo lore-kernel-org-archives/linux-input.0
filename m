@@ -1,163 +1,113 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] touchscreen: pixcir_i2c: Add support for wake and
- enable gpios
-Date: Tue, 1 Dec 2015 13:27:39 -0800
-Message-ID: <20151201212739.GD3740@dtor-ws>
-References: <1448207853-24256-1-git-send-email-hdegoede@redhat.com>
- <20151122221950.GA16428@rob-hp-laptop>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 3/5] Input: wacom_w8001 - handle touch error case
+ correctly
+Date: Tue, 1 Dec 2015 14:01:56 -0800
+Message-ID: <20151201220156.GE3740@dtor-ws>
+References: <1448854696-32625-1-git-send-email-peter.hutterer@who-t.net>
+ <1448854696-32625-3-git-send-email-peter.hutterer@who-t.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:36271 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753506AbbLAWCA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2015 17:02:00 -0500
+Received: by pacdm15 with SMTP id dm15so17869331pac.3
+        for <linux-input@vger.kernel.org>; Tue, 01 Dec 2015 14:01:59 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20151122221950.GA16428@rob-hp-laptop>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Sander Vermin <sander-wENMetUwf8VmR6Xm/wNWPw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1448854696-32625-3-git-send-email-peter.hutterer@who-t.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
 
-On Sun, Nov 22, 2015 at 04:19:50PM -0600, Rob Herring wrote:
-> On Sun, Nov 22, 2015 at 04:57:33PM +0100, Hans de Goede wrote:
-> > From: Sander Vermin <sander-wENMetUwf8VmR6Xm/wNWPw@public.gmane.org>
-> > 
-> > On some devices the wake and enable pins of the pixcir touchscreen
-> > controller are connected to gpios and these must be controlled by the
-> > driver for the device to operate properly.
-> > 
-> > Signed-off-by: Sander Vermin <sander-wENMetUwf8VmR6Xm/wNWPw@public.gmane.org>
-> > Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> > ---
-> > Changes in v2 (Hans de Goede):
-> > -Split the changes for dealing with inverted / swapped axis out into a
-> >  separate patch
-> > -Remove a bunch of dev_info calls to make the driver less chatty
-> > -Use devm_gpiod_get_optional as these new gpios are optional
-> > -Only msleep after setting enable high if we have an enable pin
-> > Changes in v3 (Hans de Goede):
-> > -Use "if (ts->gpio_foo)" instead of "if (!IS_ERR_OR_NULL(ts->foo))"
-> > -No need to set gpio-s to 1 after requesting them with GPIOD_OUT_HIGH
-> > ---
-> >  .../bindings/input/touchscreen/pixcir_i2c_ts.txt   |  2 ++
-> 
-> For the binding:
-> 
-> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+On Mon, Nov 30, 2015 at 01:38:14PM +1000, Peter Hutterer wrote:
+> If a device failed at the pen setup and gets a zero reply from the touch
+> device, we need to return an error. Otherwise we have a device with
+> nothing but a name and the EV_KEY and EV_ABS bits.
 
-Applied, thank you.
+But if device does not fail pen setup (err_pen == 0) we should not
+return error, which you will !err_pen || !err_touch will be 1.
+
+Additionally we better return proper error codes to the upper layer
+instead of a boolean value.
 
 > 
-> >  drivers/input/touchscreen/pixcir_i2c_ts.c          | 40 ++++++++++++++++++++++
-> >  2 files changed, 42 insertions(+)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-> > index 8eb240a..72ca5ec 100644
-> > --- a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-> > @@ -10,6 +10,8 @@ Required properties:
-> >  
-> >  Optional properties:
-> >  - reset-gpio: GPIO connected to the RESET line of the chip
-> > +- enable-gpios: GPIO connected to the ENABLE line of the chip
-> > +- wake-gpios: GPIO connected to the WAKE line of the chip
-> >  
-> >  Example:
-> >  
-> > diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> > index 211408c..22a67c6 100644
-> > --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-> > +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> > @@ -38,6 +38,8 @@ struct pixcir_i2c_ts_data {
-> >  	struct input_dev *input;
-> >  	struct gpio_desc *gpio_attb;
-> >  	struct gpio_desc *gpio_reset;
-> > +	struct gpio_desc *gpio_enable;
-> > +	struct gpio_desc *gpio_wake;
-> >  	const struct pixcir_i2c_chip_data *chip;
-> >  	int max_fingers;	/* Max fingers supported in this instance */
-> >  	bool running;
-> > @@ -208,6 +210,11 @@ static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
-> >  	struct device *dev = &ts->client->dev;
-> >  	int ret;
-> >  
-> > +	if (mode == PIXCIR_POWER_ACTIVE || mode == PIXCIR_POWER_IDLE) {
-> > +		if (ts->gpio_wake)
-> > +			gpiod_set_value_cansleep(ts->gpio_wake, 1);
-> > +	}
-> > +
-> >  	ret = i2c_smbus_read_byte_data(ts->client, PIXCIR_REG_POWER_MODE);
-> >  	if (ret < 0) {
-> >  		dev_err(dev, "%s: can't read reg 0x%x : %d\n",
-> > @@ -228,6 +235,11 @@ static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
-> >  		return ret;
-> >  	}
-> >  
-> > +	if (mode == PIXCIR_POWER_HALT) {
-> > +		if (ts->gpio_wake)
-> > +			gpiod_set_value_cansleep(ts->gpio_wake, 0);
-> > +	}
-> > +
-> >  	return 0;
-> >  }
-> >  
-> > @@ -302,6 +314,11 @@ static int pixcir_start(struct pixcir_i2c_ts_data *ts)
-> >  	struct device *dev = &ts->client->dev;
-> >  	int error;
-> >  
-> > +	if (ts->gpio_enable) {
-> > +		gpiod_set_value_cansleep(ts->gpio_enable, 1);
-> > +		msleep(100);
-> > +	}
-> > +
-> >  	/* LEVEL_TOUCH interrupt with active low polarity */
-> >  	error = pixcir_set_int_mode(ts, PIXCIR_INT_LEVEL_TOUCH, 0);
-> >  	if (error) {
-> > @@ -343,6 +360,9 @@ static int pixcir_stop(struct pixcir_i2c_ts_data *ts)
-> >  	/* Wait till running ISR is complete */
-> >  	synchronize_irq(ts->client->irq);
-> >  
-> > +	if (ts->gpio_enable)
-> > +		gpiod_set_value_cansleep(ts->gpio_enable, 0);
-> > +
-> >  	return 0;
-> >  }
-> >  
-> > @@ -534,6 +554,26 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
-> >  		return error;
-> >  	}
-> >  
-> > +	tsdata->gpio_wake = devm_gpiod_get_optional(dev, "wake",
-> > +						    GPIOD_OUT_HIGH);
-> > +	if (IS_ERR(tsdata->gpio_wake)) {
-> > +		error = PTR_ERR(tsdata->gpio_wake);
-> > +		if (error != -EPROBE_DEFER)
-> > +			dev_err(dev, "Failed to get wake gpio: %d\n", error);
-> > +		return error;
-> > +	}
-> > +
-> > +	tsdata->gpio_enable = devm_gpiod_get_optional(dev, "enable",
-> > +						      GPIOD_OUT_HIGH);
-> > +	if (IS_ERR(tsdata->gpio_enable)) {
-> > +		error = PTR_ERR(tsdata->gpio_enable);
-> > +		if (error != -EPROBE_DEFER)
-> > +			dev_err(dev, "Failed to get enable gpio: %d\n", error);
-> > +		return error;
-> > +	}
-> > +  	if (tsdata->gpio_enable)
-> > +		msleep(100);
-> > +
-> >  	error = devm_request_threaded_irq(dev, client->irq, NULL, pixcir_ts_isr,
-> >  					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-> >  					  client->name, tsdata);
-> > -- 
-> > 2.5.0
-> > 
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> ---
+>  drivers/input/touchscreen/wacom_w8001.c | 14 ++++++++------
+>  1 file changed, 8 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
+> index 222006e..cdebf8e 100644
+> --- a/drivers/input/touchscreen/wacom_w8001.c
+> +++ b/drivers/input/touchscreen/wacom_w8001.c
+> @@ -385,7 +385,7 @@ static int w8001_setup(struct w8001 *w8001)
+>  	struct input_dev *dev = w8001->dev;
+>  	struct w8001_coord coord;
+>  	struct w8001_touch_query touch;
+> -	int error;
+> +	int error, err_pen, err_touch;
+>  
+>  	error = w8001_command(w8001, W8001_CMD_STOP, false);
+>  	if (error)
+> @@ -400,8 +400,8 @@ static int w8001_setup(struct w8001 *w8001)
+>  	__set_bit(INPUT_PROP_DIRECT, dev->propbit);
+>  
+>  	/* penabled? */
+> -	error = w8001_command(w8001, W8001_CMD_QUERY, true);
+> -	if (!error) {
+> +	err_pen = w8001_command(w8001, W8001_CMD_QUERY, true);
+> +	if (!err_pen) {
+>  		__set_bit(BTN_TOUCH, dev->keybit);
+>  		__set_bit(BTN_TOOL_PEN, dev->keybit);
+>  		__set_bit(BTN_TOOL_RUBBER, dev->keybit);
+> @@ -426,13 +426,15 @@ static int w8001_setup(struct w8001 *w8001)
+>  	}
+>  
+>  	/* Touch enabled? */
+> -	error = w8001_command(w8001, W8001_CMD_TOUCHQUERY, true);
+> +	err_touch = w8001_command(w8001, W8001_CMD_TOUCHQUERY, true);
+>  
+>  	/*
+>  	 * Some non-touch devices may reply to the touch query. But their
+>  	 * second byte is empty, which indicates touch is not supported.
+>  	 */
+> -	if (!error && w8001->response[1]) {
+> +	if (!err_touch && w8001->response[1]) {
+> +		err_touch = 1;
+
+Huh? Let's do:
+
+	if (!err_touch && !w8001->response[1])
+		err_touch = -ENXIO;
+
+	if (!err_touch) {
+		...
+	}
+
+> +
+>  		__set_bit(BTN_TOUCH, dev->keybit);
+>  		__set_bit(BTN_TOOL_FINGER, dev->keybit);
+>  
+> @@ -491,7 +493,7 @@ static int w8001_setup(struct w8001 *w8001)
+>  
+>  	strlcat(w8001->name, " Touchscreen", sizeof(w8001->name));
+>  
+> -	return 0;
+> +	return !err_pen || !err_touch;
+
+	return !err_pen || !err_touch ? 0 : -ENXIO;
+
+>  }
+>  
+>  /*
+> -- 
+> 2.5.0
+> 
+
+Thanks.
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

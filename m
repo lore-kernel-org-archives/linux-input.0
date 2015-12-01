@@ -1,33 +1,95 @@
-From: Vladis Dronov <vdronov@redhat.com>
-Subject: Re: [PATCH] Input: aiptek: fix crash on detecting device without
- endpoints
-Date: Tue, 1 Dec 2015 03:09:06 -0500 (EST)
-Message-ID: <191812479.29673243.1448957346445.JavaMail.zimbra@redhat.com>
-References: <Pine.LNX.4.44L0.1511301046070.1938-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx4-phx2.redhat.com ([209.132.183.25]:50567 "EHLO
-	mx4-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752966AbbLAIJJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2015 03:09:09 -0500
-In-Reply-To: <Pine.LNX.4.44L0.1511301046070.1938-100000@iolanthe.rowland.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Pingbo Wen <pingbo.wen@linaro.org>
+Subject: Re: [PATCH 0/3] introduce new evdev interface type
+Date: Tue, 1 Dec 2015 16:34:00 +0800
+Message-ID: <B94C5572-195B-4181-92F2-EA5FBDAF9BA9@linaro.org>
+References: <1448618432-32357-1-git-send-email-pingbo.wen@linaro.org> <8705201.iaeQDTRocP@wuerfel> <DDC9234F-F89D-4112-BD68-FC6EFEC7E215@linaro.org> <3322044.DFSNLmiFGl@wuerfel>
+Mime-Version: 1.0 (Mac OS X Mail 9.1 \(3096.5\))
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3322044.DFSNLmiFGl@wuerfel>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Pingbo Wen <pingbo.wen@linaro.org>, y2038@lists.linaro.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, aksgarg1989@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Hello, Alan,
+Hi, Arnd
 
-Thank you for the explanations and I'm sorry for my terminology
-misunderstanding, I got the point now, endpoint 0 != endpoint[0].
+>>>>=20
+>>>> The patch series add three evdev interface type:
+>>>>=20
+>>>> - EV_IF_LEGACY
+>>>> send event by input_event. This is the default option, keep kernel
+>>>> backward compatible.
+>>>=20
+>>> The problem I see with this approach is that it still breaks any
+>>> legacy source code that is compiled with a new libc that uses 64-bi=
+t
+>>> time_t. If we are requiring source code changes for building users
+>>> of input devices with a new libc, we can easily get them to handle
+>>> the overflow (they normally only care about the microsecond portion
+>>> anyway, so it doesn't matter in most cases), or to use monotonic ti=
+me.
+>>=20
+>> I don=A1=AFt think so.
+>>=20
+>> Actually, from the view of userspace, EV_IF_LEGACY interface is work
+>> exactly the same as old evdev. We didn=A1=AFt change anything in inp=
+ut_event
+>> and input_event_compat. And the problem you said will still be there=
+,
+>> even without those patches.
+>=20
+> I think we're still talking past one another. I thought we had establ=
+ished
+> that
+>=20
+> 1. the current interface is broken when time_t changes in user space
 
-> My advice is to fix aiptek's probe routine. It should check that 
-> intf->altsetting[0].desc.bNumEndpoints > 0 before trying to accessing 
-> the endpoint array.
+What kinds of changes in time_t? Extending it to 64-bits in both kernel
+and userspace? Ok, I get confused here, if there are some sample codes
+or use-cases here, it will help me a lot.
 
-Thank you, yes, the patch proposed does something quite alike.
+> 2. we can fix it by redefining struct input_event in a way that
+>   is independent of time_t
+> 3. once both user space and kernel are using the same ABI independent
+>   of time_t, we can look improving the timestamps so they don't
+>   overflow
+> 4. the monotonic timestamp interface already avoids the overflow, so
+>   it would be sufficient as a solution for 3.
+>=20
+> Where did I lose you here? Did you find any other facts that I
+> was missing? I don't know whether the two new event structures make
+> the interface better in some other way, but it seems mostly unrelated
+> to either of the two problems we already have with time_t (the
+> ABI mismatch, and the use of non-monotonic timestamps).
 
-Best regards,
-Vladis Dronov | Red Hat, Inc. | Product Security Engineer
+It seems we are mismatch here.
+
+Actually input_composite_event has the similar structure with input_eve=
+nt,
+but with a nicer definition, which can take both monotonic and non-mono=
+tonic
+timestamps safely.
+
+What I assumed here, is that leaving EV_IF_LEGACY as a untouched, depre=
+cated
+interface. If userspace try to adapt to new libc and kernel, it should =
+move
+to new interface. The userspace can do a lazy update, keep the code unt=
+ouched,
+but suffer the y2038 problem by itself.
+
+We can force kernel using monotonic time in EV_IF_LEGACY interface, and
+making input_event independent from time_t(after evdev has converted to
+input_value, it=A1=AFs easy to do that), but that also imply userspace
+must change their code to fit this change. If changing userspace code i=
+s
+a mandatory option, why not to force them do a complete conversion?
+
+Pingbo--
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

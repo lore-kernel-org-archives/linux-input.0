@@ -1,51 +1,88 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] hid: usbhid: hid-core: fix recursive deadlock
-Date: Tue, 1 Dec 2015 17:36:17 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1512011736030.32500@pobox.suse.cz>
-References: <1447874755-8673-1-git-send-email-adi@adirat.com> <1448050742-10777-1-git-send-email-adi@adirat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v4 2/2] USB: quirks: Apply ALWAYS_POLL to all ELAN devices
+Date: Tue, 1 Dec 2015 10:21:55 -0800
+Message-ID: <20151201182155.GA14494@kroah.com>
+References: <1448165164-11398-1-git-send-email-adrienverge@gmail.com>
+ <1448377325-4725-1-git-send-email-adrienverge@gmail.com>
+ <1448377325-4725-3-git-send-email-adrienverge@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:51381 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754713AbbLAQgT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Dec 2015 11:36:19 -0500
-In-Reply-To: <1448050742-10777-1-git-send-email-adi@adirat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1448377325-4725-3-git-send-email-adrienverge@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Adrien =?iso-8859-1?Q?Verg=E9?= <adrienverge@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Oliver Neukum <oneukum@suse.com>, Jiri Kosina <jikos@kernel.org>, Logan Gunthorpe <logang@deltatee.com>, Hans de Goede <hdegoede@redhat.com>, Vincent Palatin <vpalatin@chromium.org>, Macpaul Lin <macpaul@gmail.com>, Adel Gadllah <adel.gadllah@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ioan-Adrian Ratiu <adi@adirat.com>
-Cc: pinglinux@gmail.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, joshc@ni.com
 
-On Fri, 20 Nov 2015, Ioan-Adrian Ratiu wrote:
+On Tue, Nov 24, 2015 at 04:02:05PM +0100, Adrien Verg=E9 wrote:
+> All ELAN hid devices seem to require the ALWAYS_POLL quirk. Let's use
+> this quirk for all devices from this vendor, rather than maintaining =
+a
+> list of all its known product IDs.
+>=20
+> Tested-by: Adrien Verg=E9 <adrienverge@gmail.com>
+> Signed-off-by: Adrien Verg=E9 <adrienverge@gmail.com>
+> ---
+>  drivers/hid/hid-ids.h           | 5 -----
+>  drivers/hid/usbhid/hid-quirks.c | 9 +++------
+>  2 files changed, 3 insertions(+), 11 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index ac1feea..3c7e0c3 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -316,11 +316,6 @@
+>  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
+> =20
+>  #define USB_VENDOR_ID_ELAN		0x04f3
+> -#define USB_DEVICE_ID_ELAN_TOUCHSCREEN	0x0089
+> -#define USB_DEVICE_ID_ELAN_TOUCHSCREEN_009B	0x009b
+> -#define USB_DEVICE_ID_ELAN_TOUCHSCREEN_0103	0x0103
+> -#define USB_DEVICE_ID_ELAN_TOUCHSCREEN_010c	0x010c
+> -#define USB_DEVICE_ID_ELAN_TOUCHSCREEN_016F	0x016f
+> =20
+>  #define USB_VENDOR_ID_ELECOM		0x056e
+>  #define USB_DEVICE_ID_ELECOM_BM084	0x0061
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid=
+-quirks.c
+> index 94bb137..b1af008 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -72,11 +72,7 @@ static const struct hid_blacklist {
+>  	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_M=
+OUSE, HID_QUIRK_ALWAYS_POLL },
+>  	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
+>  	{ USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_WIIU, HID_QUIR=
+K_MULTI_INPUT },
+> -	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN, HID_QUIRK_ALW=
+AYS_POLL },
+> -	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_009B, HID_QUIR=
+K_ALWAYS_POLL },
+> -	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_0103, HID_QUIR=
+K_ALWAYS_POLL },
+> -	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_010c, HID_QUIR=
+K_ALWAYS_POLL },
+> -	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_016F, HID_QUIR=
+K_ALWAYS_POLL },
+> +	{ USB_VENDOR_ID_ELAN, HID_ANY_ID, HID_QUIRK_ALWAYS_POLL },
+>  	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
+>  	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUI=
+RK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_=
+NOGET },
+> @@ -339,7 +335,8 @@ static const struct hid_blacklist *usbhid_exists_=
+squirk(const u16 idVendor,
+> =20
+>  	for (; hid_blacklist[n].idVendor; n++)
+>  		if (hid_blacklist[n].idVendor =3D=3D idVendor &&
+> -				hid_blacklist[n].idProduct =3D=3D idProduct)
+> +			(hid_blacklist[n].idProduct =3D=3D HID_ANY_ID ||
+> +				hid_blacklist[n].idProduct =3D=3D idProduct))
 
-> The critical section protected by usbhid->lock in hid_ctrl() is too
-> big and because of this it causes a recursive deadlock. "Too big" means
-> the case statement and the call to hid_input_report() do not need to be
-> protected by the spinlock (no URB operations are done inside them).
-> 
-> The deadlock happens because in certain rare cases drivers try to grab
-> the lock while handling the ctrl irq which grabs the lock before them
-> as described above. For example newer wacom tablets like 056a:033c try
-> to reschedule proximity reads from wacom_intuos_schedule_prox_event()
-> calling hid_hw_request() -> usbhid_request() -> usbhid_submit_report()
-> which tries to grab the usbhid lock already held by hid_ctrl().
-> 
-> There are two ways to get out of this deadlock:
->     1. Make the drivers work "around" the ctrl critical region, in the
->     wacom case for ex. by delaying the scheduling of the proximity read
->     request itself to a workqueue.
->     2. Shrink the critical region so the usbhid lock protects only the
->     instructions which modify usbhid state, calling hid_input_report()
->     with the spinlock unlocked, allowing the device driver to grab the
->     lock first, finish and then grab the lock afterwards in hid_ctrl().
-> 
-> This patch implements the 2nd solution.
-> 
-> Signed-off-by: Ioan-Adrian Ratiu <adi@adirat.com>
+Please fix the warning the kbuild infrastructure told you about here.
 
-Applied to for-4.5/core branch. Thanks,
+thanks,
 
--- 
-Jiri Kosina
-SUSE Labs
-
+greg k-h

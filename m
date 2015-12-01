@@ -1,119 +1,85 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: multitouch: fix input mode switching on some Elan panels
-Date: Tue,  1 Dec 2015 12:41:38 +0100
-Message-ID: <1448970098-23572-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Jonathan Beilharz <greenbigfrog@gmail.com>
+Subject: Re: X-Box one controller causes Xpad to crash [NEW INFO]
+Date: Tue, 1 Dec 2015 15:42:59 +0100
+Message-ID: <565DB1F3.4090001@gmail.com>
+References: <56588978.9030300@gmail.com> <20151127173436.GB27040@dtor-ws>
+ <5658971E.4040703@gmail.com> <20151127180809.GD27040@dtor-ws>
+ <5659D7D1.8090701@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:32932 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753996AbbLALll (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Dec 2015 06:41:41 -0500
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:35540 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756341AbbLAOnD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2015 09:43:03 -0500
+Received: by wmeo63 with SMTP id o63so2717007wme.2
+        for <linux-input@vger.kernel.org>; Tue, 01 Dec 2015 06:43:01 -0800 (PST)
+In-Reply-To: <5659D7D1.8090701@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: pavel@rojtberg.net, linux-input@vger.kernel.org
 
-as reported by https://bugzilla.kernel.org/show_bug.cgi?id=108481
+On 28.11.2015 17:35, Jonathan Beilharz wrote:
+> On 27.11.2015 19:08, Dmitry Torokhov wrote:
+>> On Fri, Nov 27, 2015 at 06:47:10PM +0100, Jonathan Beilharz wrote:
+>>> On 27.11.2015 18:34, Dmitry Torokhov wrote:
+>>>> Hi Jonathan,
+>>>>
+>>>> On Fri, Nov 27, 2015 at 05:48:56PM +0100, Jonathan Beilharz wrote:
+>>>>> Still haven't got it on the mailing list... Also can't find any info
+>>>>> on how to add new stuff. I already had sent an email sometime ago
+>>>>> but since then I found out more.
+>>>> Hmm, not sure why your email do not reach the list, it does not 
+>>>> require
+>>>> subscription for posting...
+>>>>
+>>>>> [1.] One line summary of the problem:
+>>>>> X-Box one controller causes Xpad to crash
+>>>>>
+>>>>> [2.] Full description of the problem/report:
+>>>>> Plugging in the so called "Xbox one (converted forces)" controller
+>>>>> crashes the Xpad module.
+>>>>> Important part of dmesg:
+>>>>> "BUG: unable to handle kernel NULL pointer dereference at 
+>>>>> 000000000000004e"
+>>>>> "RIP  [<ffffffffc02c952a>] xpad_probe+0x37a/0x9eb [xpad]"
+>>>>>
+>>>> You need the following commit from mainline:
+>>>>
+>>>> 39a7a88872df98f0c3c50fe278fd1a1f597afd95  - Input: xpad - add Covert
+>>>> Forces edition of the Xbox One controller
+>>>>
+>>>> There was a report that while it fixes the crash the controller is not
+>>>> really working, so I'd like to hear about your results.
+>>>>
+>>>> Thanks.
+>>>>
+>>> Thanks for answering.
+>>>
+>>> But shouldn't the commit be included in the "Linux version
+>>> 4.3.0-040300-generic (kernel@gomeisa) (gcc version 5.2.1 20151010
+>>> (Ubuntu 5.2.1-22ubuntu2) ) #201511020949 SMP Mon Nov 2 14:50:44 UTC
+>>> 2015" I tested with?
+>> No, it was in the pull request I sent for 4.4-rc1.
+>>
+>>> If not should I build the latest mainline kernel?
+>> That would be great.
+>>
+>> Thanks.
+>>
+>
+> So I now was able to boot the new kernel fully (also onto desktop).
+>
+> The patch fixes the crash and also the module gets successfully loaded 
+> dynamically.
+>
+> But as you said earlier it isn't "working". jscal/jstest tell me the 
+> right amount of axes and buttons. But it doesn't matter if I calibrate 
+> the controller or not. Everything stays the same. I can move 
+> everything as much as I want but nothing changes in jstest.
+>
+> Thanks for looking into this.
 
-This bug reports mentions 6d4f5440 ("HID: multitouch: Fetch feature
-reports on demand for Win8 devices") as the origin of the problem but this
-commit actually masked 2 firmware bugs that are annihilating each other:
-
-The report descriptor declares two features in reports 3 and 5:
-
-0x05, 0x0d,                    // Usage Page (Digitizers)             318
-0x09, 0x0e,                    // Usage (Device Configuration)        320
-0xa1, 0x01,                    // Collection (Application)            322
-0x85, 0x03,                    //  Report ID (3)                      324
-0x09, 0x22,                    //  Usage (Finger)                     326
-0xa1, 0x00,                    //  Collection (Physical)              328
-0x09, 0x52,                    //   Usage (Inputmode)                 330
-0x15, 0x00,                    //   Logical Minimum (0)               332
-0x25, 0x0a,                    //   Logical Maximum (10)              334
-0x75, 0x08,                    //   Report Size (8)                   336
-0x95, 0x02,                    //   Report Count (2)                  338
-0xb1, 0x02,                    //   Feature (Data,Var,Abs)            340
-0xc0,                          //  End Collection                     342
-0x09, 0x22,                    //  Usage (Finger)                     343
-0xa1, 0x00,                    //  Collection (Physical)              345
-0x85, 0x05,                    //   Report ID (5)                     347
-0x09, 0x57,                    //   Usage (Surface Switch)            349
-0x09, 0x58,                    //   Usage (Button Switch)             351
-0x15, 0x00,                    //   Logical Minimum (0)               353
-0x75, 0x01,                    //   Report Size (1)                   355
-0x95, 0x02,                    //   Report Count (2)                  357
-0x25, 0x03,                    //   Logical Maximum (3)               359
-0xb1, 0x02,                    //   Feature (Data,Var,Abs)            361
-0x95, 0x0e,                    //   Report Count (14)                 363
-0xb1, 0x03,                    //   Feature (Cnst,Var,Abs)            365
-0xc0,                          //  End Collection                     367
-
-The report ID 3 presents 2 input mode features, while only the first one
-is handled by the device. Given that we did not checked if one was
-previously assigned, we were dealing with the ignored featured and we
-should never have been able to switch this panel into the multitouch mode.
-
-However, the firmware presents an other bugs which allowed 6d4f5440
-to counteract the faulty report descriptor. When we request the values
-of the feature 5, the firmware answers "03 03 00". The fields are correct
-but the report id is wrong. Before 6d4f5440, we retrieved all the features
-and injected them in the system. So when we called report 5, we injected
-in the system the report 3 with the values "03 00".
-Setting the second input mode to 03 in this report changed it to "03 03"
-and the touchpad switched to the mt mode. We could have set anything
-in the second field because the actual value (the first 03 in this report)
-was given by the query of report ID 5.
-
-To sum up: 2 bugs in the firmware were hiding that we were accessing the
-wrong feature.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
-
-Hi Jiri,
-
-Not so sure if this is 4.4 material. On the one hand we have a regression
-since 4.4-rc0 for this particular panel.
-On the other hand, there is still the chance that doing so will break a
-different panel. In the list of devices I have been reported, there is only one
-other elan touchpad (0x300b) that will be affected, but judging by the report
-descriptor, I think it will be in the same situation than this one (broken by
-4.4).
-
-All the other devices I know of have only one feature for the input mode and are
-thus not affected by this change.
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-multitouch.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 3d664d0..2b8ff18 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -357,8 +357,19 @@ static void mt_feature_mapping(struct hid_device *hdev,
- 			break;
- 		}
- 
--		td->inputmode = field->report->id;
--		td->inputmode_index = usage->usage_index;
-+		if (td->inputmode < 0) {
-+			td->inputmode = field->report->id;
-+			td->inputmode_index = usage->usage_index;
-+		} else {
-+			/*
-+			 * Some elan panels wrongly declare 2 input mode
-+			 * features, and silently ignore when we set the
-+			 * value in the second field. Skip the second feature
-+			 * and hope for the best.
-+			 */
-+			dev_info(&hdev->dev,
-+				 "Ignoring the extra HID_DG_INPUTMODE\n");
-+		}
- 
- 		break;
- 	case HID_DG_CONTACTMAX:
--- 
-2.5.0
-
+Should I open up a new "Thread" for this? I'm still new to lkml

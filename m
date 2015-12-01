@@ -1,162 +1,119 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH 0/3] introduce new evdev interface type
-Date: Tue, 01 Dec 2015 11:47:52 +0100
-Message-ID: <6792470.H7eb3IQorJ@wuerfel>
-References: <1448618432-32357-1-git-send-email-pingbo.wen@linaro.org> <3322044.DFSNLmiFGl@wuerfel> <CB4E5A6F-D514-4D3B-9C95-13A52C509EC9@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CB4E5A6F-D514-4D3B-9C95-13A52C509EC9-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pingbo Wen <pingbo.wen-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: y2038-cunTk1MwBs8s++Sfvej+rw@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, aksgarg1989-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: multitouch: fix input mode switching on some Elan panels
+Date: Tue,  1 Dec 2015 12:41:38 +0100
+Message-ID: <1448970098-23572-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:32932 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753996AbbLALll (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Dec 2015 06:41:41 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tuesday 01 December 2015 16:34:00 Pingbo Wen wrote:
-> Hi, Arnd
->=20
-> >>>>=20
-> >>>> The patch series add three evdev interface type:
-> >>>>=20
-> >>>> - EV_IF_LEGACY
-> >>>> send event by input_event. This is the default option, keep kern=
-el
-> >>>> backward compatible.
-> >>>=20
-> >>> The problem I see with this approach is that it still breaks any
-> >>> legacy source code that is compiled with a new libc that uses 64-=
-bit
-> >>> time_t. If we are requiring source code changes for building user=
-s
-> >>> of input devices with a new libc, we can easily get them to handl=
-e
-> >>> the overflow (they normally only care about the microsecond porti=
-on
-> >>> anyway, so it doesn't matter in most cases), or to use monotonic =
-time.
-> >>=20
-> >> I don=E2=80=99t think so.
-> >>=20
-> >> Actually, from the view of userspace, EV_IF_LEGACY interface is wo=
-rk
-> >> exactly the same as old evdev. We didn=E2=80=99t change anything i=
-n input_event
-> >> and input_event_compat. And the problem you said will still be the=
-re,
-> >> even without those patches.
-> >=20
-> > I think we're still talking past one another. I thought we had esta=
-blished
-> > that
-> >=20
-> > 1. the current interface is broken when time_t changes in user spac=
-e
->=20
-> What kinds of changes in time_t? Extending it to 64-bits in both kern=
-el
-> and userspace? Ok, I get confused here, if there are some sample code=
-s
-> or use-cases here, it will help me a lot.
+as reported by https://bugzilla.kernel.org/show_bug.cgi?id=108481
 
-We don't change time_t in the kernel, we just try to replace it
-with time64_t, or ktime_t where appropriate.
+This bug reports mentions 6d4f5440 ("HID: multitouch: Fetch feature
+reports on demand for Win8 devices") as the origin of the problem but this
+commit actually masked 2 firmware bugs that are annihilating each other:
 
-What I meant is the problem when glibc defines their time_t to
-be 'long long' so that user space can be built that runs after
-2038. This changes the timeval and timespec definitions, so
-a process that tries to use 'struct input_event' has a different
-layout compared to what the kernel has.
+The report descriptor declares two features in reports 3 and 5:
 
-I though that we had already discussed that multiple times.
+0x05, 0x0d,                    // Usage Page (Digitizers)             318
+0x09, 0x0e,                    // Usage (Device Configuration)        320
+0xa1, 0x01,                    // Collection (Application)            322
+0x85, 0x03,                    //  Report ID (3)                      324
+0x09, 0x22,                    //  Usage (Finger)                     326
+0xa1, 0x00,                    //  Collection (Physical)              328
+0x09, 0x52,                    //   Usage (Inputmode)                 330
+0x15, 0x00,                    //   Logical Minimum (0)               332
+0x25, 0x0a,                    //   Logical Maximum (10)              334
+0x75, 0x08,                    //   Report Size (8)                   336
+0x95, 0x02,                    //   Report Count (2)                  338
+0xb1, 0x02,                    //   Feature (Data,Var,Abs)            340
+0xc0,                          //  End Collection                     342
+0x09, 0x22,                    //  Usage (Finger)                     343
+0xa1, 0x00,                    //  Collection (Physical)              345
+0x85, 0x05,                    //   Report ID (5)                     347
+0x09, 0x57,                    //   Usage (Surface Switch)            349
+0x09, 0x58,                    //   Usage (Button Switch)             351
+0x15, 0x00,                    //   Logical Minimum (0)               353
+0x75, 0x01,                    //   Report Size (1)                   355
+0x95, 0x02,                    //   Report Count (2)                  357
+0x25, 0x03,                    //   Logical Maximum (3)               359
+0xb1, 0x02,                    //   Feature (Data,Var,Abs)            361
+0x95, 0x0e,                    //   Report Count (14)                 363
+0xb1, 0x03,                    //   Feature (Cnst,Var,Abs)            365
+0xc0,                          //  End Collection                     367
 
-> > 2. we can fix it by redefining struct input_event in a way that
-> >   is independent of time_t
-> > 3. once both user space and kernel are using the same ABI independe=
-nt
-> >   of time_t, we can look improving the timestamps so they don't
-> >   overflow
-> > 4. the monotonic timestamp interface already avoids the overflow, s=
-o
-> >   it would be sufficient as a solution for 3.
-> >=20
-> > Where did I lose you here? Did you find any other facts that I
-> > was missing? I don't know whether the two new event structures make
-> > the interface better in some other way, but it seems mostly unrelat=
-ed
-> > to either of the two problems we already have with time_t (the
-> > ABI mismatch, and the use of non-monotonic timestamps).
->=20
-> It seems we are mismatch here.
->=20
-> Actually input_composite_event has the similar structure with input_e=
-vent,
-> but with a nicer definition, which can take both monotonic and non-mo=
-notonic
-> timestamps safely.
->=20
-> What I assumed here, is that leaving EV_IF_LEGACY as a untouched, dep=
-recated
-> interface. If userspace try to adapt to new libc and kernel, it shoul=
-d move
-> to new interface. The userspace can do a lazy update, keep the code u=
-ntouched,
-> but suffer the y2038 problem by itself.
+The report ID 3 presents 2 input mode features, while only the first one
+is handled by the device. Given that we did not checked if one was
+previously assigned, we were dealing with the ignored featured and we
+should never have been able to switch this panel into the multitouch mode.
 
-=46orcing the move to the new API is very ugly, because you can't do it
-in a way that works on old kernels as well, unless you then try to supp=
-ort
-both APIs at runtime.
+However, the firmware presents an other bugs which allowed 6d4f5440
+to counteract the faulty report descriptor. When we request the values
+of the feature 5, the firmware answers "03 03 00". The fields are correct
+but the report id is wrong. Before 6d4f5440, we retrieved all the features
+and injected them in the system. So when we called report 5, we injected
+in the system the report 3 with the values "03 00".
+Setting the second input mode to 03 in this report changed it to "03 03"
+and the touchpad switched to the mt mode. We could have set anything
+in the second field because the actual value (the first 03 in this report)
+was given by the query of report ID 5.
 
-Just requiring user space to switch to monotonic time is easily done,
-as it can likely work either way.
+To sum up: 2 bugs in the firmware were hiding that we were accessing the
+wrong feature.
 
-> We can force kernel using monotonic time in EV_IF_LEGACY interface, a=
-nd
-> making input_event independent from time_t(after evdev has converted =
-to
-> input_value, it=E2=80=99s easy to do that), but that also imply users=
-pace
-> must change their code to fit this change. If changing userspace code=
- is
-> a mandatory option, why not to force them do a complete conversion?
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
-Most user space programs won't care, as they don't even look at the tv_=
-sec
-portion, and the goal is to avoid having to change them.
+Hi Jiri,
 
-There is still an open question to how exactly we want to get user spac=
-e
-to change.
+Not so sure if this is 4.4 material. On the one hand we have a regression
+since 4.4-rc0 for this particular panel.
+On the other hand, there is still the chance that doing so will break a
+different panel. In the list of devices I have been reported, there is only one
+other elan touchpad (0x300b) that will be affected, but judging by the report
+descriptor, I think it will be in the same situation than this one (broken by
+4.4).
 
-We could do some compile-time trick by having a union in struct input_e=
-vent
-and mark the existing timeval part as deprecated, so we flag any use of=
- the
-32-bit tv_sec member, such as:
+All the other devices I know of have only one feature for the input mode and are
+thus not affected by this change.
 
-struct input_event {
-#if !defined(__KERNEL__) && __TIME_T_BITS =3D=3D __BITS_PER_LONG
-        struct timeval time;
-#else
-	struct {
-		union {
-			__u32 tv_sec __attribute__((deprecated));
-			__u32 tv_sec_monotonic;
-		};
-		__s32 tv_usec;
-	} time;
-#endif
-        __u16 type;
-        __u16 code;
-        __s32 value;
-};
+Cheers,
+Benjamin
 
-Another option is to do a runtime change, and always set the time field
-to zero when the kernel is built without support for 32-bit time_t
-and user space has not yet called the ioctl to change to monotonic time=
-=2E
+ drivers/hid/hid-multitouch.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-We can also do a combination of the two.
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 3d664d0..2b8ff18 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -357,8 +357,19 @@ static void mt_feature_mapping(struct hid_device *hdev,
+ 			break;
+ 		}
+ 
+-		td->inputmode = field->report->id;
+-		td->inputmode_index = usage->usage_index;
++		if (td->inputmode < 0) {
++			td->inputmode = field->report->id;
++			td->inputmode_index = usage->usage_index;
++		} else {
++			/*
++			 * Some elan panels wrongly declare 2 input mode
++			 * features, and silently ignore when we set the
++			 * value in the second field. Skip the second feature
++			 * and hope for the best.
++			 */
++			dev_info(&hdev->dev,
++				 "Ignoring the extra HID_DG_INPUTMODE\n");
++		}
+ 
+ 		break;
+ 	case HID_DG_CONTACTMAX:
+-- 
+2.5.0
 
-	Arnd

@@ -1,155 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 5/5] Input: wacom_w8001 - split the touch and pen devices
- into two devices
-Date: Tue, 1 Dec 2015 14:06:51 -0800
-Message-ID: <20151201220651.GG3740@dtor-ws>
-References: <1448854696-32625-1-git-send-email-peter.hutterer@who-t.net>
- <1448854696-32625-5-git-send-email-peter.hutterer@who-t.net>
+From: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v5 2/2] USB: quirks: Apply ALWAYS_POLL to all ELAN
+ devices
+Date: Tue, 1 Dec 2015 23:09:23 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1512012308160.32500@pobox.suse.cz>
+References: <1448165164-11398-1-git-send-email-adrienverge@gmail.com> <1448996208-19713-1-git-send-email-adrienverge@gmail.com> <1448996208-19713-3-git-send-email-adrienverge@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:36505 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757118AbbLAWGy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2015 17:06:54 -0500
-Received: by pacdm15 with SMTP id dm15so17988117pac.3
-        for <linux-input@vger.kernel.org>; Tue, 01 Dec 2015 14:06:54 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1448854696-32625-5-git-send-email-peter.hutterer@who-t.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1448996208-19713-3-git-send-email-adrienverge-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?ISO-8859-15?Q?Adrien_Verg=E9?= <adrienverge-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Oliver Neukum <oneukum-IBi9RG/b67k@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Vincent Palatin <vpalatin-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Macpaul Lin <macpaul-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Adel Gadllah <adel.gadllah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
 
-On Mon, Nov 30, 2015 at 01:38:16PM +1000, Peter Hutterer wrote:
-> These devices have a pen device and a touch device through the same serial
-> protocol, split it up into two separate devices like we do for USB Wacom
-> tablets too.
-> 
-> Userspace already matches on the device name so we can't drop it
-> completely. Compose the same basename based on capabilities and append the
-> tool type, leading to a name like "Wacom Serial Penabled 2FG Touchscreen
-> Pen".
-> 
-> Note that this drops BTN_TOOL_FINGER, it is not needed once the tools are
-> split out (and a touch device with BTN_TOOL_FINGER is interpreted as
-> touchpad by most of userspace).
-> 
-> Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
-> Acked-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> ---
->  drivers/input/touchscreen/wacom_w8001.c | 163 ++++++++++++++++++++++----------
->  1 file changed, 112 insertions(+), 51 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
-> index 363e510..9efc7ec 100644
-> --- a/drivers/input/touchscreen/wacom_w8001.c
-> +++ b/drivers/input/touchscreen/wacom_w8001.c
-> @@ -80,7 +80,8 @@ struct w8001_touch_query {
->   */
->  
->  struct w8001 {
-> -	struct input_dev *dev;
-> +	struct input_dev *pen_dev;
-> +	struct input_dev *touch_dev;
->  	struct serio *serio;
->  	struct completion cmd_done;
->  	int id;
-> @@ -95,7 +96,10 @@ struct w8001 {
->  	u16 max_touch_y;
->  	u16 max_pen_x;
->  	u16 max_pen_y;
-> -	char name[64];
-> +	char pen_name[64];
-> +	char touch_name[64];
-> +	int open_count;
-> +	struct mutex mutex;
->  };
->  
->  static void parse_pen_data(u8 *data, struct w8001_coord *coord)
-> @@ -141,7 +145,7 @@ static void scale_touch_coordinates(struct w8001 *w8001,
->  
->  static void parse_multi_touch(struct w8001 *w8001)
->  {
-> -	struct input_dev *dev = w8001->dev;
-> +	struct input_dev *dev = w8001->touch_dev;
->  	unsigned char *data = w8001->data;
->  	unsigned int x, y;
->  	int i;
-> @@ -207,7 +211,7 @@ static void parse_touchquery(u8 *data, struct w8001_touch_query *query)
->  
->  static void report_pen_events(struct w8001 *w8001, struct w8001_coord *coord)
->  {
-> -	struct input_dev *dev = w8001->dev;
-> +	struct input_dev *dev = w8001->pen_dev;
->  
->  	/*
->  	 * We have 1 bit for proximity (rdy) and 3 bits for tip, side,
-> @@ -233,11 +237,6 @@ static void report_pen_events(struct w8001 *w8001, struct w8001_coord *coord)
->  		break;
->  
->  	case BTN_TOOL_FINGER:
-> -		input_report_key(dev, BTN_TOUCH, 0);
-> -		input_report_key(dev, BTN_TOOL_FINGER, 0);
-> -		input_sync(dev);
-> -		/* fall through */
-> -
->  	case KEY_RESERVED:
->  		w8001->type = coord->f2 ? BTN_TOOL_RUBBER : BTN_TOOL_PEN;
->  		break;
-> @@ -261,7 +260,7 @@ static void report_pen_events(struct w8001 *w8001, struct w8001_coord *coord)
->  
->  static void report_single_touch(struct w8001 *w8001, struct w8001_coord *coord)
->  {
-> -	struct input_dev *dev = w8001->dev;
-> +	struct input_dev *dev = w8001->touch_dev;
->  	unsigned int x = coord->x;
->  	unsigned int y = coord->y;
->  
-> @@ -271,7 +270,6 @@ static void report_single_touch(struct w8001 *w8001, struct w8001_coord *coord)
->  	input_report_abs(dev, ABS_X, x);
->  	input_report_abs(dev, ABS_Y, y);
->  	input_report_key(dev, BTN_TOUCH, coord->tsw);
-> -	input_report_key(dev, BTN_TOOL_FINGER, coord->tsw);
->  
->  	input_sync(dev);
->  
-> @@ -369,20 +367,33 @@ static int w8001_command(struct w8001 *w8001, unsigned char command,
->  static int w8001_open(struct input_dev *dev)
->  {
->  	struct w8001 *w8001 = input_get_drvdata(dev);
-> +	int err;
->  
-> -	return w8001_command(w8001, W8001_CMD_START, false);
-> +	err = mutex_lock_interruptible(&w8001->mutex);
-> +	if (err)
-> +		return err;
-> +
-> +	if (w8001->open_count++ == 0)
-> +		err = w8001_command(w8001, W8001_CMD_START, false);
+On Tue, 1 Dec 2015, Adrien Verg=C3=A9 wrote:
 
-We leak the count in case of error here. You need something like:
+> All ELAN hid devices seem to require the ALWAYS_POLL quirk. Let's use
+> this quirk for all devices from this vendor, rather than maintaining =
+a
+> list of all its known product IDs.
+>=20
+> Tested-by: Adrien Verg=C3=A9 <adrienverge-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Adrien Verg=C3=A9 <adrienverge-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-static int w8001_open(struct input_dev *dev)
-{
-	struct w8001 *w8001 = input_get_drvdata(dev);
-	int retval;
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Reviewed-by: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
 
-	retval = mutex_lock_interruptible(&w8001->mutex);
-	if (retval)
-		return retval;
+Greg, I guess it makes sense to take both 1/2 and 2/2 together as a who=
+le.=20
+Would you mind adding the tags above and taking it through usb git tree=
+?
 
-	if (w8001->open_count++ == 0) {
-		retval = w8001_command(w8001, W8001_CMD_START, false);
-		if (retval)
-			w8001->open_count--;
-	}
+Alternatively I can take it through my tree if you Ack the usb part.
 
-	mutex_unlock(&w8001->mutex);
-	return retval;
-}
+Thanks,
 
-Thanks.
+--=20
+Jiri Kosina
+SUSE Labs
 
--- 
-Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,78 +1,88 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: aiptek: fix crash on detecting device without
- endpoints
-Date: Tue, 1 Dec 2015 13:16:14 -0800
-Message-ID: <20151201211614.GB3740@dtor-ws>
-References: <1448467088-7703-1-git-send-email-vdronov@redhat.com>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - add generic platform data for
+ Chromebooks
+Date: Tue, 1 Dec 2015 13:21:51 -0800
+Message-ID: <20151201212151.GC3740@dtor-ws>
+References: <20151124185810.GA18357@dtor-ws>
+ <5654B7ED.9080107@osg.samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:35636 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756437AbbLAVQR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2015 16:16:17 -0500
-Received: by pacej9 with SMTP id ej9so16878103pac.2
-        for <linux-input@vger.kernel.org>; Tue, 01 Dec 2015 13:16:17 -0800 (PST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1448467088-7703-1-git-send-email-vdronov@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <5654B7ED.9080107@osg.samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-input@vger.kernel.org, Nick Dyer <nick.dyer@itdev.co.uk>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vladis Dronov <vdronov@redhat.com>
-Cc: linux-input@vger.kernel.org
 
-Hi Vladis,
+Hi Javier,
 
-On Wed, Nov 25, 2015 at 04:58:08PM +0100, Vladis Dronov wrote:
-> The aiptek driver crashes in aiptek_probe() when a specially crafted usb device
-> without endpoints is detected. This fix adds a check that the device has proper
-> configuration expected by the driver. Also an error return value is changed to
-> more matching one in one of the error paths.
+On Tue, Nov 24, 2015 at 04:18:05PM -0300, Javier Martinez Canillas wrote:
+> Hello Dmitry,
 > 
-> Reported-by: Ralf Spenneberg <ralf@spenneberg.net>
-> Signed-off-by: Vladis Dronov <vdronov@redhat.com>
-> ---
->  drivers/input/tablet/aiptek.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
+> On 11/24/2015 03:58 PM, Dmitry Torokhov wrote:
+> > Apparently people are installing generic Linux distributions not only on
+> > Pixels but also on other Chromebooks. Unfortunately on all of them Atmel
+> > parts assigned names ATML0000 and ATML0001, and do not carry any other
+> > configuration data. So let's create generic instance of platform data that
+> > should cover most of them (we assume that they will not be using T100
+> > objects, since with those Google mapped BTN_LEFT onto a different GPIO, so
+> > slightly different keymap would be needed, but I think we used parts with
+> > T100 on ARM devices where we thankfully have DTS and can describe the
+> > devices better).
+> > 
 > 
-> diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
-> index e7f966d..78c0732 100644
-> --- a/drivers/input/tablet/aiptek.c
-> +++ b/drivers/input/tablet/aiptek.c
-> @@ -1819,6 +1819,15 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
->  	input_set_abs_params(inputdev, ABS_TILT_Y, AIPTEK_TILT_MIN, AIPTEK_TILT_MAX, 0, 0);
->  	input_set_abs_params(inputdev, ABS_WHEEL, AIPTEK_WHEEL_MIN, AIPTEK_WHEEL_MAX - 1, 0, 0);
->  
-> +	/* Verify that a device really has an endpoint
-> +	 */
-> +	if (intf->altsetting[0].desc.bNumEndpoints < 1) {
-> +		dev_warn(&intf->dev,
+> That is correct, an example of an ARM based Chromebook that has an Atmel chip
+> with a T100 object is the Exynos5800 Peach Pi Chromebook and as you correctly
+> said, the buttons to GPIO mapping is described in the DTS, i.e:
+> 
+> 	/* Atmel mXT540S */
+> 	trackpad@4b {
+> 		compatible = "atmel,maxtouch";
+> 		reg = <0x4b>;
+> 		interrupt-parent = <&gpx1>;
+> 		interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
+> 		wakeup-source;
+> 		pinctrl-names = "default";
+> 		pinctrl-0 = <&trackpad_irq>;
+> 		linux,gpio-keymap = <KEY_RESERVED
+> 				     KEY_RESERVED
+> 				     KEY_RESERVED	/* GPIO 0 */
+> 				     KEY_RESERVED	/* GPIO 1 */
+> 				     BTN_LEFT		/* GPIO 2 */
+> 				     KEY_RESERVED>;	/* GPIO 3 */
+> 	};
+> 
+> > Tested-by: Rich K <rgkirch@gmail.com>
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > ---
+> >  drivers/input/touchscreen/atmel_mxt_ts.c | 33 ++++++++++++++++++++++++++++++++
+> >  1 file changed, 33 insertions(+)
+> > 
+> > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> > index c562205..159120b 100644
+> > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> > @@ -2487,6 +2487,31 @@ static struct mxt_acpi_platform_data samus_platform_data[] = {
+> >  	{ }
+> >  };
+> >  
+> > +static unsigned int chromebook_tp_buttons[] = {
+> 
+> Maybe naming it chromebook_t19_buttons instead to make it clear that the
+> mapping is specific to the T19 object or at least document that assumption?
 
-This should be dev_err as we are aborting device initialization. I know
-the driver user warn/info in similar places, but it is not right, we
-might want to adjust it at some point.
+The idea was to document that the mapping is applied to the touchpad
+and not any other Atmel device that might have T19 object in it, similar
+to samus_touchpad_buttons[] array.
 
-> +			"interface has %d endpoints, but must have minimum 1\n",
-> +			intf->altsetting[0].desc.bNumEndpoints);
-> +		err = -ENODEV;
+> 
+> Although is mentioned in the commit message so I don't have a strong
+> preference and the patch looks good to me:
+> 
+> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
--EINVAL: the device configuration is invalid from the driver point of
-view.
-
-> +		goto fail3;
-> +	}
->  	endpoint = &intf->altsetting[0].endpoint[0].desc;
->  
->  	/* Go set up our URB, which is called when the tablet receives
-> @@ -1861,6 +1870,7 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
->  	if (i == ARRAY_SIZE(speeds)) {
->  		dev_info(&intf->dev,
->  			 "Aiptek tried all speeds, no sane response\n");
-> +		err = -ENODEV;
-
-I believe it should be -EINVAL as well. I adjusted the above 3 items and
-applied.
-
-Thanks.
+Thank you for the review.
 
 -- 
 Dmitry

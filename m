@@ -1,129 +1,102 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH RFC 3/8] Input: atmel_mxt_ts - read touchscreen position in matrix
-Date: Wed,  2 Dec 2015 20:42:26 +0000
-Message-ID: <1449088951-7069-4-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH RFC 8/8] Input: atmel_mxt_ts - create debugfs info file
+Date: Wed,  2 Dec 2015 20:42:31 +0000
+Message-ID: <1449088951-7069-9-git-send-email-nick.dyer@itdev.co.uk>
 References: <1449088951-7069-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:39203 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752536AbbLBUvR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2015 15:51:17 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1449088951-7069-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Yufeng Shen <miletus@google.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Nick Dyer <nick.dyer@itdev.co.uk>
+List-Id: linux-input@vger.kernel.org
 
-The touchscreen may have a margin where not all the matrix is used. Read
-the parameters from T9 and T100 and take account of the difference.
+Add a file in debugfs directory with info about the chip.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 41 ++++++++++++++++++++++++++++----
- 1 file changed, 36 insertions(+), 5 deletions(-)
+ Documentation/ABI/testing/debugfs-heatmap | 14 ++++++++++++++
+ drivers/input/touchscreen/atmel_mxt_ts.c  | 22 ++++++++++++++++++++++
+ 2 files changed, 36 insertions(+)
 
+diff --git a/Documentation/ABI/testing/debugfs-heatmap b/Documentation/ABI/testing/debugfs-heatmap
+index 9246340..95668a5 100644
+--- a/Documentation/ABI/testing/debugfs-heatmap
++++ b/Documentation/ABI/testing/debugfs-heatmap
+@@ -6,6 +6,13 @@ Description:
+ 	A directory will be created under heatmap for each device which
+ 	provides heatmap data.
+ 
++What:           /sys/kernel/debug/heatmap-dev_driver_string-dev_name/info
++Date:
++KernelVersion:
++Contact:
++Description:
++        Info relating to the device, eg hardware/firmware version
++
+ What:		/sys/kernel/debug/heatmap-dev_driver_string-dev_name/datatype/
+ Date:
+ KernelVersion:
+@@ -48,6 +55,13 @@ Contact:
+ Description:
+ 	Display name for the data.
+ 
++What:		/sys/kernel/debug/heatmap-xxx/datatype/input_name
++Date:
++KernelVersion:
++Contact:
++Description:
++	The name of the corresponding input device, if relevant.
++
+ What:		/sys/kernel/debug/heatmap-xxx/datatype/data
+ Date:
+ KernelVersion:
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index a96fec4..9bc42f4 100644
+index dbe9ebb..34f3d86 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -100,6 +100,8 @@ struct t7_config {
+@@ -277,7 +277,10 @@ struct mxt_dbg {
+ 	struct dentry *debugfs_dir;
+ 	struct dentry *deltas_file;
+ 	struct dentry *refs_file;
++	struct debugfs_blob_wrapper input_name_wrapper;
+ 	struct mxt_debug_datatype_meta dt_meta[ARRAY_SIZE(datatypes)];
++	char info[50];
++	struct debugfs_blob_wrapper info_wrapper;
+ };
+ #endif
  
- /* MXT_TOUCH_MULTI_T9 field */
- #define MXT_T9_CTRL		0
-+#define MXT_T9_XSIZE		3
-+#define MXT_T9_YSIZE		4
- #define MXT_T9_ORIENT		9
- #define MXT_T9_RANGE		18
- 
-@@ -145,7 +147,9 @@ struct t37_debug {
- #define MXT_T100_CTRL		0
- #define MXT_T100_CFG1		1
- #define MXT_T100_TCHAUX		3
-+#define MXT_T100_XSIZE		9
- #define MXT_T100_XRANGE		13
-+#define MXT_T100_YSIZE		20
- #define MXT_T100_YRANGE		24
- 
- #define MXT_T100_CFG_SWITCHXY	BIT(5)
-@@ -243,6 +247,8 @@ struct mxt_data {
- 	unsigned int max_x;
- 	unsigned int max_y;
- 	bool xy_switch;
-+	u8 xsize;
-+	u8 ysize;
- 	bool in_bootloader;
- 	u16 mem_size;
- 	u8 t100_aux_ampl;
-@@ -1688,6 +1694,18 @@ static int mxt_read_t9_resolution(struct mxt_data *data)
- 		return -EINVAL;
- 
- 	error = __mxt_read_reg(client,
-+			       object->start_address + MXT_T9_XSIZE,
-+			       sizeof(data->xsize), &data->xsize);
-+	if (error)
-+		return error;
-+
-+	error = __mxt_read_reg(client,
-+			       object->start_address + MXT_T9_YSIZE,
-+			       sizeof(data->ysize), &data->ysize);
-+	if (error)
-+		return error;
-+
-+	error = __mxt_read_reg(client,
- 			       object->start_address + MXT_T9_RANGE,
- 			       sizeof(range), &range);
- 	if (error)
-@@ -1737,6 +1755,18 @@ static int mxt_read_t100_config(struct mxt_data *data)
- 
- 	data->max_y = get_unaligned_le16(&range_y);
- 
-+	error = __mxt_read_reg(client,
-+			       object->start_address + MXT_T100_XSIZE,
-+			       sizeof(data->xsize), &data->xsize);
-+	if (error)
-+		return error;
-+
-+	error = __mxt_read_reg(client,
-+			       object->start_address + MXT_T100_YSIZE,
-+			       sizeof(data->ysize), &data->ysize);
-+	if (error)
-+		return error;
-+
- 	/* read orientation config */
- 	error =  __mxt_read_reg(client,
- 				object->start_address + MXT_T100_CFG1,
-@@ -2077,7 +2107,7 @@ static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
- 	struct mxt_dbg *dbg = &data->dbg;
- 	unsigned int ofs, page;
- 
--	ofs = (y + (x * (data->info.matrix_ysize))) * sizeof(u16);
-+	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
- 	page = ofs / MXT_DIAGNOSTIC_SIZE;
- 	ofs %= MXT_DIAGNOSTIC_SIZE;
- 
-@@ -2095,7 +2125,7 @@ static void mxt_convert_debug_pages(struct mxt_data *data)
- 		dbg->debug_buf[i] = mxt_get_debug_value(data, x, y);
- 
- 		/* Next value */
--		if (++x >= data->info.matrix_xsize) {
-+		if (++x >= data->xsize) {
- 			x = 0;
- 			y++;
- 		}
-@@ -2213,9 +2243,10 @@ static void mxt_debugfs_init(struct mxt_data *data)
+@@ -2319,6 +2322,18 @@ static void mxt_debugfs_init(struct mxt_data *data)
+ 		return;
  	}
  
- 	/* Calculate size of data and allocate buffer */
--	dbg->t37_nodes = data->info.matrix_xsize * data->info.matrix_ysize;
--	dbg->t37_pages = dbg->t37_nodes * sizeof(u16)
--					/ sizeof(dbg->t37_buf->data) + 1;
-+	dbg->t37_nodes = data->xsize * data->ysize;
-+	dbg->t37_pages = ((data->xsize * data->info.matrix_ysize)
-+			  * sizeof(u16) / sizeof(dbg->t37_buf->data)) + 1;
++	dbg->info_wrapper.data = dbg->info;
++	dbg->info_wrapper.size = sizeof(dbg->info);
++	scnprintf(dbg->info, sizeof(dbg->info),
++		 "Family: %u Variant: %u Firmware V%u.%u.%02X",
++		 info->family_id, info->variant_id, info->version >> 4,
++		 info->version & 0xf, info->build);
 +
- 	dbg->debug_buf = devm_kzalloc(&data->client->dev,
- 				     dbg->t37_nodes * sizeof(u16),
- 				     GFP_KERNEL);
++	dent = debugfs_create_blob("info", S_IRUGO, dbg->debugfs_dir,
++			&dbg->info_wrapper);
++	if (!dent)
++		goto error;
++
+ 	/* Calculate size of data and allocate buffer */
+ 	dbg->t37_nodes = data->xsize * data->ysize;
+ 
+@@ -2383,6 +2398,13 @@ static void mxt_debugfs_init(struct mxt_data *data)
+ 		if (!dent)
+ 			goto error;
+ 
++		dbg->input_name_wrapper.data = (void *)data->input_dev->name;
++		dbg->input_name_wrapper.size = strlen(data->input_dev->name);
++		dent = debugfs_create_blob("input_name", S_IRUGO,
++					   dir, &dbg->input_name_wrapper);
++		if (!dent)
++			goto error;
++
+ 		dtm->dent = dent;
+ 		dent->d_inode->i_size = dbg->t37_nodes * sizeof(u16);
+ 	}
 -- 
 2.5.0
-

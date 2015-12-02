@@ -1,60 +1,94 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v2] Implement i8042 detect by BIOS FADT i8042 flag
-Date: Wed, 2 Dec 2015 12:45:10 +0100
-Message-ID: <20151202114510.GC3783@pd.tnic>
-References: <1449083238-13179-1-git-send-email-Vincent.Wan@amd.com>
+From: Rojhalat Ibrahim <imr@rtschenk.de>
+Subject: Re: [PATCH RFC 0/3] input: rotary_encoder: use more than two gpios as input
+Date: Wed, 02 Dec 2015 13:52:58 +0100
+Message-ID: <2266988.l83Fg404My@pcimr>
+References: <1449050834-31779-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1449083238-13179-1-git-send-email-Vincent.Wan@amd.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wan Zongshun <Vincent.Wan@amd.com>
-Cc: dmitry.torokhov@gmail.coom, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, mcuos.com@gmail.com
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-out.m-online.net ([212.18.0.10]:42763 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756467AbbLBMxH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2015 07:53:07 -0500
+In-Reply-To: <1449050834-31779-1-git-send-email-u.kleine-koenig@pengutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: linux-arm-kernel@lists.infradead.org, Guido =?ISO-8859-1?Q?Mart=EDnez?= <guido@vanguardiasur.com.ar>, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, Rob Herring <robh@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sylvain Rochet <sylvain.rochet@finsecur.com>, Johan Hovold <johan@kernel.org>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, devicetree@vger.kernel.org, kernel@pengutronix.de, linux-input@vger.kernel.org
 
-On Wed, Dec 02, 2015 at 02:07:18PM -0500, Wan Zongshun wrote:
-> Detecting x86 platform supporting i8042 or not, we should resort
-> to BIOS's FADT i8042 flag per ACPI spec.
-> 
-> Currently, Windows is conforming to this spec, and request this
-> flag to detect i8042 supporting.
-> 
-> Signed-off-by: Wan Zongshun <Vincent.Wan@amd.com>
-> ---
->  drivers/input/serio/i8042-x86ia64io.h | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> index c115565..73686bd 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -9,6 +9,7 @@
->  
->  #ifdef CONFIG_X86
->  #include <asm/x86_init.h>
-> +#include <linux/acpi.h>
->  #endif
->  
->  /*
-> @@ -1047,6 +1048,9 @@ static int __init i8042_platform_init(void)
->  	/* Just return if pre-detection shows no i8042 controller exist */
->  	if (!x86_platform.i8042_detect())
->  		return -ENODEV;
-> +
-> +	if (!(acpi_gbl_FADT.boot_flags & ACPI_FADT_8042))
-> +		return -ENODEV;
->  #endif
+On Wednesday 02 December 2015 11:07:11 Uwe Kleine-K=F6nig wrote:
+> Hello,
+>=20
+> some time ago I worked on the rotary encoder driver to make it suppor=
+t
+> more than two input lines. This is the (only slightly tested[1]) reba=
+se of
+> this series on top of 4.4-rc2 (from 4.1).
+>=20
+> It would be great to get some feedback, especially (but not only) for=
+ my
+> change to raumfeld.c.
+>=20
+> Before Ezequiel's patch 3a341a4c30d4 ("Input: rotary-encoder - add
+> support for quarter-period mode") we had a dt property
+> "rotary-encoder,half-period" defined. It's presence meant that we had=
+ 2
+> indents per period; it's absence that there is only 1. Ezequiel
+> introduced rotary-encoder,steps-per-period instead when adding suppor=
+t
+> for quarter-period mode (which has 4 indents per period).
+>=20
+> Up to now (i.e. with two inputs) a period has length 4. Now with (say=
+)
+> four inputs a period has length 16 instead. Now how should this be
+> modeled in dt? This series implements that I have to pass
+>=20
+> 	rotary-encoder,steps-per-period =3D <16>;
+>=20
+> now for "quarter-period mode" (i.e. 4 indents per 4 state changes[2])=
+,
+> but that feels unnatural. I'd prefer to set a property to <1> instead=
+,
+> meaning the device has an indent for each state change[2]. half-perio=
+d
+> mode would be <2> and full-period mode would be <4>. But I don't have=
+ a
+> nice name for such a property and maybe it's easier to live with
+> steps-per-period =3D <16>? What do you think?
+>=20
+> Also note that these patches are not as technically versatile as
+> possible. With 4 (n) input lines we could detect a quick rotation whe=
+re the
+> machine's latency only allows to sample after 7 (2^(n-1)-1) state
+> changes. Currently this is not implemented, but can be done later.
+>=20
+> Best regards
+> Uwe
+>=20
 
-Acked-by: Borislav Petkov <bp@suse.de>
+AFAIUI the rotary encoder driver only handles incremental encoders not
+absolute encoders. (So in fact the assumed rotary encoder could also be=
+ a
+linear encoder with an incremental interface.) Those encoders almost al=
+ways
+have an interface with two outputs (A, B) with a phase shift of 90 degr=
+ees
+between them. So in this case we have 4 steps per period. Sometimes the=
+re
+is only one line for 1 or 2 steps per period. But I have never seen or
+heard of a device with more than 2 lines (except for the third output w=
+hich
+serves as a reference position index marker).
 
-with the small remark that whoever commits it, could add the URL of the
-microsoft document to the commit message for further reference.
+Do devices wirh more than two outputs actually exist?
+Or is the purpose of supporting more than 2 lines something other than
+connecting an actual encoder to them?
 
-Thanks.
+   Rojhalat
 
--- 
-Regards/Gruss,
-    Boris.
-
-ECO tip #101: Trim your mails when you reply.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

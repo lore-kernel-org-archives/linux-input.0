@@ -1,138 +1,136 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH RFC 0/3] input: rotary_encoder: use more than two gpios
- as input
-Date: Wed, 2 Dec 2015 19:59:20 +0100
-Message-ID: <20151202185920.GO5072@pengutronix.de>
-References: <1449050834-31779-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <2266988.l83Fg404My@pcimr>
+From: "Sinclair Yeh" <syeh@vmware.com>
+Subject: Re: [PATCH 3/6] Input: Update vmmouse.c to use the common VMW_PORT
+	macros
+Date: Wed, 2 Dec 2015 11:02:23 -0800
+Message-ID: <20151202190223.GD14231@syeh-linux>
+References: <1449008332-9394-3-git-send-email-syeh@vmware.com>
+	<20151201222414.GH3740@dtor-ws> <20151201223255.GA10753@syeh-linux>
+	<CAKdAkRTVJ_DWD6uYhp+qd1uYwe3rPguDFAMXpa5=8CwVuO16NQ@mail.gmail.com>
+	<20151201225420.GA11210@syeh-linux>
+	<20151202000408.GB5363@kroah.com>
+	<20151202022106.GA6471@syeh-linux>
+	<20151202153124.GC29557@kroah.com> <20151202172634.GA15531@dtor-ws>
+	<20151202184528.GA23182@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:39383 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757649AbbLBS7h (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 2 Dec 2015 13:59:37 -0500
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <2266988.l83Fg404My@pcimr>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20151202184528.GA23182@kroah.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: X86 ML <x86@kernel.org>, Arnd Bergmann <arnd@arndb.de>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "linux-graphics-maintainer@vmware.com" <linux-graphics-maintainer@vmware.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Rojhalat Ibrahim <imr@rtschenk.de>
-Cc: linux-arm-kernel@lists.infradead.org, Guido =?iso-8859-1?Q?Mart=EDnez?= <guido@vanguardiasur.com.ar>, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, Rob Herring <robh@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sylvain Rochet <sylvain.rochet@finsecur.com>, Johan Hovold <johan@kernel.org>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, devicetree@vger.kernel.org, kernel@pengutronix.de, linux-input@vger.kernel.org
 
-Hello,
+On Wed, Dec 02, 2015 at 10:45:28AM -0800, Greg Kroah-Hartman wrote:
+> On Wed, Dec 02, 2015 at 09:26:34AM -0800, Dmitry Torokhov wrote:
+> > On Wed, Dec 02, 2015 at 07:31:24AM -0800, Greg Kroah-Hartman wrote:
+> > > On Tue, Dec 01, 2015 at 06:21:06PM -0800, Sinclair Yeh wrote:
+> > > > On Tue, Dec 01, 2015 at 04:04:08PM -0800, Greg Kroah-Hartman wrote:
+> > > > > On Tue, Dec 01, 2015 at 02:54:20PM -0800, Sinclair Yeh wrote:
+> > > > > > Hi,
+> > > > > > 
+> > > > > > On Tue, Dec 01, 2015 at 02:45:27PM -0800, Dmitry Torokhov wrote:
+> > > > > > > On Tue, Dec 1, 2015 at 2:32 PM, Sinclair Yeh <syeh@vmware.com> wrote:
+> > > > > > > > Hi,
+> > > > > > > >
+> > > > > > 
+> > > > > > <snip>
+> > > > > > 
+> > > > > > > >> >   */
+> > > > > > > >> > -#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)      \
+> > > > > > > >> > -({                                                 \
+> > > > > > > >> > -   unsigned long __dummy1, __dummy2;               \
+> > > > > > > >> > -   __asm__ __volatile__ ("inl %%dx" :              \
+> > > > > > > >> > -           "=a"(out1),                             \
+> > > > > > > >> > -           "=b"(out2),                             \
+> > > > > > > >> > -           "=c"(out3),                             \
+> > > > > > > >> > -           "=d"(out4),                             \
+> > > > > > > >> > -           "=S"(__dummy1),                         \
+> > > > > > > >> > -           "=D"(__dummy2) :                        \
+> > > > > > > >> > -           "a"(VMMOUSE_PROTO_MAGIC),               \
+> > > > > > > >> > -           "b"(in1),                               \
+> > > > > > > >> > -           "c"(VMMOUSE_PROTO_CMD_##cmd),           \
+> > > > > > > >> > -           "d"(VMMOUSE_PROTO_PORT) :               \
+> > > > > > > >> > -           "memory");                              \
+> > > > > > > >> > +#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)                 \
+> > > > > > > >> > +({                                                            \
+> > > > > > > >> > +   unsigned long __dummy1 = 0, __dummy2 = 0;                  \
+> > > > > > > >>
+> > > > > > > >> Why do we need to initialize dummies?
+> > > > > > > >
+> > > > > > > > Because for some commands those parameters to VMW_PORT() can be both
+> > > > > > > > input and outout.
+> > > > > > > 
+> > > > > > > The vmmouse commands do not use them as input though, so it seems we
+> > > > > > > are simply wasting CPU cycles setting them to 0 just because we are
+> > > > > > > using the new VMW_PORT here. Why do we need to switch? What is the
+> > > > > > > benefit of doing this?
+> > > > > > 
+> > > > > > There are two reasons.  One is to make the code more readable and
+> > > > > > maintainable.  Rather than having mostly similar inline assembly
+> > > > > > code sprinkled across multiple modules, we can just use the macros
+> > > > > > and document that.
+> > > > > 
+> > > > > But the macro is only used here, and the variables aren't used at all,
+> > > > > so it makes no sense in this file.
+> > > > 
+> > > > Maybe it's because I didn't CC you on the rest of the series.  I wasn't
+> > > > sure what the proper distribution list is for each part.
+> > > 
+> > > Use scripts/get_maintainer.pl, that's what it is there for.  A number of
+> > > those patches should go through me, if not all of them, if you want them
+> > > merged...
+> > > 
+> > > > 
+> > > > This new macro is also used in arch/x86/kernel/cpu/vmware.c and
+> > > > vmw_balloon.c
+> > > 
+> > > And it's used inconsistantly in those patches (you don't set the dummy
+> > > variables to 0 in all of them...)  Now maybe that's just how the asm
+> > > functions work, but it's not very obvious as to why this is at all.
+> > > 
+> > > > > > The second reason is this organization makes some on-going future
+> > > > > > development easier.
+> > > > > 
+> > > > > We don't plan for "future" development other than a single patch series,
+> > > > > as we have no idea what that development is, nor if it will really
+> > > > > happen.  You can always change this file later if you need to, nothing
+> > > > > is keeping that from happening.
+> > > > 
+> > > > So the intent of this series is to centralize similar lines of inline
+> > > > assembly code that are currently used by 3 different kernel modules
+> > > > to a central place.  The new vmware.h [patch 0/6] becomes the one header
+> > > > to include for common guest-host communication needs.
+> > > 
+> > > Why can't it go into vmw_vmci_defs.h instead, or your other .h file, why
+> > > create yet-another-.h-file for your bus?  You already have 2, this would
+> > > make it 3, which seems like a lot...
+> > 
+> > Umm, you are not saying that vmmouse should include vmci header file(s),
+> > are you? Because the 2 are unrelated and vmci does not use the
+> > hypervisor port to communicate with host IIRC.
+> 
+> vmmouse should include some type of "vmware bus" .h file, if it's not
+> the vmw_* files, what are they for?  My point being, I didn't see the
+> need to add another .h file when we should probably already have one for
+> this bus, right?
 
-On Wed, Dec 02, 2015 at 01:52:58PM +0100, Rojhalat Ibrahim wrote:
-> On Wednesday 02 December 2015 11:07:11 Uwe Kleine-K=F6nig wrote:
-> > some time ago I worked on the rotary encoder driver to make it supp=
-ort
-> > more than two input lines. This is the (only slightly tested[1]) re=
-base of
-> > this series on top of 4.4-rc2 (from 4.1).
-> >=20
-> > It would be great to get some feedback, especially (but not only) f=
-or my
-> > change to raumfeld.c.
-> >=20
-> > Before Ezequiel's patch 3a341a4c30d4 ("Input: rotary-encoder - add
-> > support for quarter-period mode") we had a dt property
-> > "rotary-encoder,half-period" defined. It's presence meant that we h=
-ad 2
-> > indents per period; it's absence that there is only 1. Ezequiel
-> > introduced rotary-encoder,steps-per-period instead when adding supp=
-ort
-> > for quarter-period mode (which has 4 indents per period).
-> >=20
-> > Up to now (i.e. with two inputs) a period has length 4. Now with (s=
-ay)
-> > four inputs a period has length 16 instead. Now how should this be
-> > modeled in dt? This series implements that I have to pass
-> >=20
-> > 	rotary-encoder,steps-per-period =3D <16>;
-> >=20
-> > now for "quarter-period mode" (i.e. 4 indents per 4 state changes[2=
-]),
-> > but that feels unnatural. I'd prefer to set a property to <1> inste=
-ad,
-> > meaning the device has an indent for each state change[2]. half-per=
-iod
-> > mode would be <2> and full-period mode would be <4>. But I don't ha=
-ve a
-> > nice name for such a property and maybe it's easier to live with
-> > steps-per-period =3D <16>? What do you think?
-> >=20
-> > Also note that these patches are not as technically versatile as
-> > possible. With 4 (n) input lines we could detect a quick rotation w=
-here the
-> > machine's latency only allows to sample after 7 (2^(n-1)-1) state
-> > changes. Currently this is not implemented, but can be done later.
-> >=20
-> > Best regards
-> > Uwe
-> >=20
->=20
-> AFAIUI the rotary encoder driver only handles incremental encoders no=
-t
-> absolute encoders. (So in fact the assumed rotary encoder could also =
-be a
+I had a brief chat with Thomas on this, and he added to Dmitry's reply
+earlier.
 
-There is a device tree property "rotary-encoder,relative-axis" which
-switches between absolute and relative reporting. This is maybe badly
-named, but IIUC is there to differenciate between incremental and
-absolute encoders.
+The two existing *.h files are for the VMCI driver, and the new macros
+are used by the platform code and also other drivers like vmw_balloon and
+vmmouse.
 
-> linear encoder with an incremental interface.) Those encoders almost =
-always
-> have an interface with two outputs (A, B) with a phase shift of 90 de=
-grees
-> between them. So in this case we have 4 steps per period. Sometimes t=
-here
-> is only one line for 1 or 2 steps per period. But I have never seen o=
-r
+It makes more sense to create a new vmware.h file in arch/x86/include/asm
 
-I don't see how using only a single gpio would work for a rotary
-encoder. I suspect we use different vocabulary to describe our devices
-and so don't understand each other?! At least you cannot detect the
-direction of the movement with a single input line, do you?
-
-> heard of a device with more than 2 lines (except for the third output=
- which
-> serves as a reference position index marker).
->=20
-> Do devices wirh more than two outputs actually exist?
-> Or is the purpose of supporting more than 2 lines something other tha=
-n
-> connecting an actual encoder to them?
-
-I have a real rotary encoder with 4 input lines and so 16
-distinguishable positions. It would be described as:
-
-	compatible =3D "rotary-encoder";
-	gpios =3D <&gpio4 12 GPIO_ACTIVE_HIGH>, <&gpio4 11 GPIO_ACTIVE_HIGH>, =
-<&gpio4 10 GPIO_ACTIVE_HIGH>, <&gpio4 9 GPIO_ACTIVE_HIGH>;
-	rotary-encoder,steps =3D <16>;
-	rotary-encoder,steps-per-period =3D <16>;
-
-with the binding implemented in my patches.
-
-The wikipedia article about rotary encoders[1] uses a device with 3
-input lines to explain gray encoding. So I didn't consider "my" device
-as exotic up to now.
-
-Best regards
-Uwe
-
-[1] https://en.wikipedia.org/wiki/Rotary_encoder
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Sinclair

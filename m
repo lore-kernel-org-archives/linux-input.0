@@ -1,84 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/6] Input: Update vmmouse.c to use the common VMW_PORT macros
-Date: Tue, 1 Dec 2015 15:56:39 -0800
-Message-ID: <CAKdAkRThOqXpVPYbSTE305_6=sOK8Kfbxfof_ybvJxvm4ge9Kg@mail.gmail.com>
-References: <1449008047-8252-1-git-send-email-syeh@vmware.com>
-	<1449008332-9394-1-git-send-email-syeh@vmware.com>
-	<1449008332-9394-3-git-send-email-syeh@vmware.com>
-	<20151201222414.GH3740@dtor-ws>
-	<20151201223255.GA10753@syeh-linux>
-	<CAKdAkRTVJ_DWD6uYhp+qd1uYwe3rPguDFAMXpa5=8CwVuO16NQ@mail.gmail.com>
-	<20151201225420.GA11210@syeh-linux>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH v2] hid: usbhid: hid-core: fix recursive deadlock
+Date: Tue, 1 Dec 2015 16:00:12 -0800
+Message-ID: <CAF8JNh+HEfj7JV-i5yZebwthZn_xFzT7Hra+RWBqFfVtH6_58g@mail.gmail.com>
+References: <1447874755-8673-1-git-send-email-adi@adirat.com>
+ <1448050742-10777-1-git-send-email-adi@adirat.com> <alpine.LNX.2.00.1512011736030.32500@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f44.google.com ([209.85.218.44]:35417 "EHLO
-	mail-oi0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756196AbbLAX4k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2015 18:56:40 -0500
-In-Reply-To: <20151201225420.GA11210@syeh-linux>
+Received: from mail-ob0-f177.google.com ([209.85.214.177]:33071 "EHLO
+	mail-ob0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932128AbbLBAAc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2015 19:00:32 -0500
+In-Reply-To: <alpine.LNX.2.00.1512011736030.32500@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sinclair Yeh <syeh@vmware.com>
-Cc: X86 ML <x86@kernel.org>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "linux-graphics-maintainer@vmware.com" <linux-graphics-maintainer@vmware.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Ioan-Adrian Ratiu <adi@adirat.com>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, joshc@ni.com, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Tue, Dec 1, 2015 at 2:54 PM, Sinclair Yeh <syeh@vmware.com> wrote:
-> Hi,
+Hi Jiri,
+
+On Tue, Dec 1, 2015 at 8:36 AM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Fri, 20 Nov 2015, Ioan-Adrian Ratiu wrote:
 >
-> On Tue, Dec 01, 2015 at 02:45:27PM -0800, Dmitry Torokhov wrote:
->> On Tue, Dec 1, 2015 at 2:32 PM, Sinclair Yeh <syeh@vmware.com> wrote:
->> > Hi,
->> >
->
-> <snip>
->
->> >> >   */
->> >> > -#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)      \
->> >> > -({                                                 \
->> >> > -   unsigned long __dummy1, __dummy2;               \
->> >> > -   __asm__ __volatile__ ("inl %%dx" :              \
->> >> > -           "=a"(out1),                             \
->> >> > -           "=b"(out2),                             \
->> >> > -           "=c"(out3),                             \
->> >> > -           "=d"(out4),                             \
->> >> > -           "=S"(__dummy1),                         \
->> >> > -           "=D"(__dummy2) :                        \
->> >> > -           "a"(VMMOUSE_PROTO_MAGIC),               \
->> >> > -           "b"(in1),                               \
->> >> > -           "c"(VMMOUSE_PROTO_CMD_##cmd),           \
->> >> > -           "d"(VMMOUSE_PROTO_PORT) :               \
->> >> > -           "memory");                              \
->> >> > +#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)                 \
->> >> > +({                                                            \
->> >> > +   unsigned long __dummy1 = 0, __dummy2 = 0;                  \
->> >>
->> >> Why do we need to initialize dummies?
->> >
->> > Because for some commands those parameters to VMW_PORT() can be both
->> > input and outout.
+>> The critical section protected by usbhid->lock in hid_ctrl() is too
+>> big and because of this it causes a recursive deadlock. "Too big" means
+>> the case statement and the call to hid_input_report() do not need to be
+>> protected by the spinlock (no URB operations are done inside them).
 >>
->> The vmmouse commands do not use them as input though, so it seems we
->> are simply wasting CPU cycles setting them to 0 just because we are
->> using the new VMW_PORT here. Why do we need to switch? What is the
->> benefit of doing this?
+>> The deadlock happens because in certain rare cases drivers try to grab
+>> the lock while handling the ctrl irq which grabs the lock before them
+>> as described above. For example newer wacom tablets like 056a:033c try
+>> to reschedule proximity reads from wacom_intuos_schedule_prox_event()
+>> calling hid_hw_request() -> usbhid_request() -> usbhid_submit_report()
+>> which tries to grab the usbhid lock already held by hid_ctrl().
+>>
+>> There are two ways to get out of this deadlock:
+>>     1. Make the drivers work "around" the ctrl critical region, in the
+>>     wacom case for ex. by delaying the scheduling of the proximity read
+>>     request itself to a workqueue.
+>>     2. Shrink the critical region so the usbhid lock protects only the
+>>     instructions which modify usbhid state, calling hid_input_report()
+>>     with the spinlock unlocked, allowing the device driver to grab the
+>>     lock first, finish and then grab the lock afterwards in hid_ctrl().
+>>
+>> This patch implements the 2nd solution.
+>>
+>> Signed-off-by: Ioan-Adrian Ratiu <adi@adirat.com>
 >
-> There are two reasons.  One is to make the code more readable and
-> maintainable.  Rather than having mostly similar inline assembly
-> code sprinkled across multiple modules, we can just use the macros
-> and document that.
+> Applied to for-4.5/core branch. Thanks,
 
-At the cost of wasting cycles though :(.
+Since wacom_intuos_schedule_prox_event() was introduced on March 5,
+2015, the call was first used in kernel 3.19. Shouldn't we back-port
+this patch to other stable versions?
 
-Oh well, it is not like we are polling the backdoor here, so if you do
-not care about a few wasted cycles I don't have to either ;)
+Thank you.
 
->
-> The second reason is this organization makes some on-going future
-> development easier.
->
-> Hope this helps.
->
-> Sinclair
-
--- 
-Dmitry
+Ping

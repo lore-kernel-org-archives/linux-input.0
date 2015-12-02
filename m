@@ -1,287 +1,77 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH RFC 2/8] Input: atmel_mxt_ts - add diagnostic data retrieval via debugfs
-Date: Wed,  2 Dec 2015 20:42:25 +0000
-Message-ID: <1449088951-7069-3-git-send-email-nick.dyer@itdev.co.uk>
-References: <1449088951-7069-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1449088951-7069-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Yufeng Shen <miletus@google.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Nick Dyer <nick.dyer@itdev.co.uk>
+From: Kamal Mostafa <kamal@canonical.com>
+Subject: [3.13.y-ckt stable] Patch "HID: core: Avoid uninitialized buffer access" has been added to staging queue
+Date: Wed,  2 Dec 2015 14:53:08 -0800
+Message-ID: <1449096788-19576-1-git-send-email-kamal@canonical.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:47257 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757210AbbLBWxO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2015 17:53:14 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Richard Purdie <richard.purdie@linuxfoundation.org>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Jiri Kosina <jkosina@suse.cz>, Kamal Mostafa <kamal@canonical.com>, kernel-team@lists.ubuntu.com
 
-Retrieve refs data from the T37 diagnostic data object and expose it via
-a binary attribute in debugfs.
+This is a note to let you know that I have just added a patch titled
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+    HID: core: Avoid uninitialized buffer access
+
+to the linux-3.13.y-queue branch of the 3.13.y-ckt extended stable tree 
+which can be found at:
+
+    http://kernel.ubuntu.com/git/ubuntu/linux.git/log/?h=linux-3.13.y-queue
+
+This patch is scheduled to be released in version 3.13.11-ckt31.
+
+If you, or anyone else, feels it should not be added to this tree, please 
+reply to this email.
+
+For more information about the 3.13.y-ckt tree, see
+https://wiki.ubuntu.com/Kernel/Dev/ExtendedStable
+
+Thanks.
+-Kamal
+
+------
+
+>From 963535ae98492b87beb642ccd378fc8a7eb22a22 Mon Sep 17 00:00:00 2001
+From: Richard Purdie <richard.purdie@linuxfoundation.org>
+Date: Fri, 18 Sep 2015 16:31:33 -0700
+Subject: HID: core: Avoid uninitialized buffer access
+
+commit 79b568b9d0c7c5d81932f4486d50b38efdd6da6d upstream.
+
+hid_connect adds various strings to the buffer but they're all
+conditional. You can find circumstances where nothing would be written
+to it but the kernel will still print the supposedly empty buffer with
+printk. This leads to corruption on the console/in the logs.
+
+Ensure buf is initialized to an empty string.
+
+Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
+[dvhart: Initialize string to "" rather than assign buf[0] = NULL;]
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Kamal Mostafa <kamal@canonical.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 212 +++++++++++++++++++++++++++++++
- 1 file changed, 212 insertions(+)
+ drivers/hid/hid-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 4a1d218..a96fec4 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -28,6 +28,7 @@
- #include <linux/of.h>
- #include <linux/slab.h>
- #include <asm/unaligned.h>
-+#include <linux/debugfs.h>
- 
- /* Firmware files */
- #define MXT_FW_NAME		"maxtouch.fw"
-@@ -124,6 +125,17 @@ struct t9_range {
- #define MXT_COMMS_CTRL		0
- #define MXT_COMMS_CMD		1
- 
-+/* MXT_DEBUG_DIAGNOSTIC_T37 */
-+#define MXT_DIAGNOSTIC_PAGEUP 0x01
-+#define MXT_DIAGNOSTIC_DELTAS 0x10
-+#define MXT_DIAGNOSTIC_SIZE    128
-+
-+struct t37_debug {
-+	u8 mode;
-+	u8 page;
-+	u8 data[MXT_DIAGNOSTIC_SIZE];
-+};
-+
- /* Define for MXT_GEN_COMMAND_T6 */
- #define MXT_BOOT_VALUE		0xa5
- #define MXT_RESET_VALUE		0x01
-@@ -205,6 +217,20 @@ struct mxt_object {
- 	u8 num_report_ids;
- } __packed;
- 
-+#ifdef CONFIG_DEBUG_FS
-+struct mxt_dbg {
-+	u16 t37_address;
-+	u16 diag_cmd_address;
-+	struct t37_debug *t37_buf;
-+	u16 *debug_buf;
-+	unsigned int t37_pages;
-+	unsigned int t37_nodes;
-+
-+	struct dentry *debugfs_dir;
-+	struct dentry *deltas_file;
-+};
-+#endif
-+
- /* Each client has this additional data */
- struct mxt_data {
- 	struct i2c_client *client;
-@@ -233,6 +259,7 @@ struct mxt_data {
- 	u8 num_touchids;
- 	u8 multitouch;
- 	struct t7_config t7_cfg;
-+	struct mxt_dbg dbg;
- 
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -2043,6 +2070,188 @@ recheck:
- 	return 0;
- }
- 
-+#ifdef CONFIG_DEBUG_FS
-+static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
-+			       unsigned int y)
-+{
-+	struct mxt_dbg *dbg = &data->dbg;
-+	unsigned int ofs, page;
-+
-+	ofs = (y + (x * (data->info.matrix_ysize))) * sizeof(u16);
-+	page = ofs / MXT_DIAGNOSTIC_SIZE;
-+	ofs %= MXT_DIAGNOSTIC_SIZE;
-+
-+	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
-+}
-+
-+static void mxt_convert_debug_pages(struct mxt_data *data)
-+{
-+	struct mxt_dbg *dbg = &data->dbg;
-+	unsigned int x = 0;
-+	unsigned int y = 0;
-+	unsigned int i;
-+
-+	for (i = 0; i < dbg->t37_nodes; i++) {
-+		dbg->debug_buf[i] = mxt_get_debug_value(data, x, y);
-+
-+		/* Next value */
-+		if (++x >= data->info.matrix_xsize) {
-+			x = 0;
-+			y++;
-+		}
-+	}
-+}
-+
-+static int mxt_open_deltas(struct inode *inode, struct file *file)
-+{
-+	struct mxt_data *data = inode->i_private;
-+	struct mxt_dbg *dbg = &data->dbg;
-+	int retries = 0;
-+	int page;
-+	int ret;
-+	u8 mode = MXT_DIAGNOSTIC_DELTAS;
-+	u8 cmd = mode;
-+	struct t37_debug *p;
-+
-+	for (page = 0; page < dbg->t37_pages; page++) {
-+		p = dbg->t37_buf + page;
-+
-+		ret = mxt_write_reg(data->client, dbg->diag_cmd_address,
-+				    cmd);
-+		if (ret)
-+			return ret;
-+
-+		retries = 0;
-+
-+		/* Poll until command is actioned */
-+		msleep(20);
-+wait_cmd:
-+		/* Read first two bytes only */
-+		ret = __mxt_read_reg(data->client, dbg->t37_address,
-+				     2, p);
-+		if (ret)
-+			return ret;
-+
-+		if ((p->mode != mode) || (p->page != page)) {
-+			if (retries++ > 100)
-+				return -EINVAL;
-+
-+			msleep(20);
-+			goto wait_cmd;
-+		}
-+
-+		/* Read entire T37 page */
-+		ret = __mxt_read_reg(data->client, dbg->t37_address,
-+				sizeof(struct t37_debug), p);
-+		if (ret)
-+			return ret;
-+
-+		dev_dbg(&data->client->dev, "%s page:%d retries:%d\n",
-+			__func__, page, retries);
-+
-+		/* For remaining pages, write PAGEUP rather than mode */
-+		cmd = MXT_DIAGNOSTIC_PAGEUP;
-+	}
-+
-+	mxt_convert_debug_pages(data);
-+	file->private_data = data;
-+
-+	return 0;
-+}
-+
-+static ssize_t mxt_read_deltas(struct file *file, char __user *ubuf,
-+			       size_t count, loff_t *offp)
-+{
-+	struct mxt_data *data = file->private_data;
-+
-+	return simple_read_from_buffer(ubuf, count, offp,
-+			data->dbg.debug_buf,
-+			data->dbg.t37_nodes * sizeof(u16));
-+}
-+
-+static const struct file_operations atmel_mxt_deltas_fops = {
-+	.open = mxt_open_deltas,
-+	.read = mxt_read_deltas,
-+};
-+
-+static void mxt_debugfs_remove(struct mxt_data *data)
-+{
-+	debugfs_remove_recursive(data->dbg.debugfs_dir);
-+}
-+
-+static void mxt_debugfs_init(struct mxt_data *data)
-+{
-+	struct mxt_dbg *dbg = &data->dbg;
-+	struct mxt_object *object;
-+	char dirname[50];
-+
-+	object = mxt_get_object(data, MXT_GEN_COMMAND_T6);
-+	if (!object)
-+		return;
-+
-+	dbg->diag_cmd_address = object->start_address + MXT_COMMAND_DIAGNOSTIC;
-+
-+	object = mxt_get_object(data, MXT_DEBUG_DIAGNOSTIC_T37);
-+	if (!object)
-+		return;
-+
-+	if (mxt_obj_size(object) != sizeof(struct t37_debug)) {
-+		dev_warn(&data->client->dev, "Bad T37 size");
-+		return;
-+	}
-+
-+	dbg->t37_address = object->start_address;
-+
-+	snprintf(dirname, sizeof(dirname), "heatmap-%s-%s",
-+		 dev_driver_string(&data->client->dev),
-+		 dev_name(&data->client->dev));
-+
-+	dbg->debugfs_dir = debugfs_create_dir(dirname, NULL);
-+	if (!dbg->debugfs_dir) {
-+		dev_err(&data->client->dev, "Error creating debugfs dir\n");
-+		return;
-+	}
-+
-+	/* Calculate size of data and allocate buffer */
-+	dbg->t37_nodes = data->info.matrix_xsize * data->info.matrix_ysize;
-+	dbg->t37_pages = dbg->t37_nodes * sizeof(u16)
-+					/ sizeof(dbg->t37_buf->data) + 1;
-+	dbg->debug_buf = devm_kzalloc(&data->client->dev,
-+				     dbg->t37_nodes * sizeof(u16),
-+				     GFP_KERNEL);
-+	if (!dbg->debug_buf)
-+		goto error;
-+
-+	dbg->t37_buf = devm_kzalloc(&data->client->dev,
-+				     sizeof(struct t37_debug) * dbg->t37_pages,
-+				     GFP_KERNEL);
-+	if (!dbg->t37_buf)
-+		goto error;
-+
-+	dbg->deltas_file = debugfs_create_file("deltas", S_IRUGO,
-+						dbg->debugfs_dir, data,
-+						&atmel_mxt_deltas_fops);
-+	if (!dbg->deltas_file)
-+		goto error;
-+
-+	dbg->deltas_file->d_inode->i_size = dbg->t37_nodes * sizeof(u16);
-+
-+	return;
-+
-+error:
-+	dev_err(&data->client->dev, "Error creating debugfs entry\n");
-+	mxt_debugfs_remove(data);
-+}
-+#else
-+static inline void mxt_debugfs_remove(struct mxt_data *data)
-+{
-+}
-+
-+static inline void mxt_debugfs_init(struct mxt_data *data)
-+{
-+}
-+#endif /* CONFIG_DEBUG_FS */
-+
- static int mxt_configure_objects(struct mxt_data *data,
- 				 const struct firmware *cfg)
- {
-@@ -2070,6 +2279,8 @@ static int mxt_configure_objects(struct mxt_data *data,
- 		dev_warn(dev, "No touch object detected\n");
- 	}
- 
-+	mxt_debugfs_init(data);
-+
- 	dev_info(dev,
- 		 "Family: %u Variant: %u Firmware V%u.%u.%02X Objects: %u\n",
- 		 info->family_id, info->variant_id, info->version >> 4,
-@@ -2617,6 +2828,7 @@ static int mxt_remove(struct i2c_client *client)
- {
- 	struct mxt_data *data = i2c_get_clientdata(client);
- 
-+	mxt_debugfs_remove(data);
- 	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
- 	free_irq(data->irq, data);
- 	mxt_free_input_device(data);
--- 
-2.5.0
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 5b9e996..982d24d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1506,7 +1506,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+ 		"Multi-Axis Controller"
+ 	};
+ 	const char *type, *bus;
+-	char buf[64];
++	char buf[64] = "";
+ 	unsigned int i;
+ 	int len;
+ 	int ret;
+--
+1.9.1
+

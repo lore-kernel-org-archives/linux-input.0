@@ -1,43 +1,31 @@
 From: Kamal Mostafa <kamal@canonical.com>
-Subject: [3.13.y-ckt stable] Patch "HID: core: Avoid uninitialized buffer access" has been added to staging queue
-Date: Wed,  2 Dec 2015 14:53:08 -0800
-Message-ID: <1449096788-19576-1-git-send-email-kamal@canonical.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:47257 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757210AbbLBWxO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2015 17:53:14 -0500
-Sender: linux-input-owner@vger.kernel.org
+Subject: [PATCH 3.13.y-ckt 15/86] HID: core: Avoid uninitialized buffer access
+Date: Wed,  2 Dec 2015 14:53:36 -0800
+Message-ID: <1449096887-23017-16-git-send-email-kamal@canonical.com>
+References: <1449096887-23017-1-git-send-email-kamal@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <kernel-team-bounces@lists.ubuntu.com>
+In-Reply-To: <1449096887-23017-1-git-send-email-kamal@canonical.com>
+List-Unsubscribe: <https://lists.ubuntu.com/mailman/options/kernel-team>,
+ <mailto:kernel-team-request@lists.ubuntu.com?subject=unsubscribe>
+List-Archive: <https://lists.ubuntu.com/archives/kernel-team>
+List-Post: <mailto:kernel-team@lists.ubuntu.com>
+List-Help: <mailto:kernel-team-request@lists.ubuntu.com?subject=help>
+List-Subscribe: <https://lists.ubuntu.com/mailman/listinfo/kernel-team>,
+ <mailto:kernel-team-request@lists.ubuntu.com?subject=subscribe>
+Errors-To: kernel-team-bounces@lists.ubuntu.com
+Sender: kernel-team-bounces@lists.ubuntu.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@lists.ubuntu.com
+Cc: Jiri Kosina <jkosina@suse.cz>, Kamal Mostafa <kamal@canonical.com>, Jiri Kosina <jikos@kernel.org>, Richard Purdie <richard.purdie@linuxfoundation.org>, linux-input@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Richard Purdie <richard.purdie@linuxfoundation.org>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Jiri Kosina <jkosina@suse.cz>, Kamal Mostafa <kamal@canonical.com>, kernel-team@lists.ubuntu.com
 
-This is a note to let you know that I have just added a patch titled
+3.13.11-ckt31 -stable review patch.  If anyone has any objections, please let me know.
 
-    HID: core: Avoid uninitialized buffer access
+------------------
 
-to the linux-3.13.y-queue branch of the 3.13.y-ckt extended stable tree 
-which can be found at:
-
-    http://kernel.ubuntu.com/git/ubuntu/linux.git/log/?h=linux-3.13.y-queue
-
-This patch is scheduled to be released in version 3.13.11-ckt31.
-
-If you, or anyone else, feels it should not be added to this tree, please 
-reply to this email.
-
-For more information about the 3.13.y-ckt tree, see
-https://wiki.ubuntu.com/Kernel/Dev/ExtendedStable
-
-Thanks.
--Kamal
-
-------
-
->From 963535ae98492b87beb642ccd378fc8a7eb22a22 Mon Sep 17 00:00:00 2001
 From: Richard Purdie <richard.purdie@linuxfoundation.org>
-Date: Fri, 18 Sep 2015 16:31:33 -0700
-Subject: HID: core: Avoid uninitialized buffer access
 
 commit 79b568b9d0c7c5d81932f4486d50b38efdd6da6d upstream.
 
@@ -72,6 +60,5 @@ index 5b9e996..982d24d 100644
  	unsigned int i;
  	int len;
  	int ret;
---
+-- 
 1.9.1
-

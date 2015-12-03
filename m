@@ -1,85 +1,53 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2] Input: psmouse - rename ps2pp_init() to ps2pp_detect()
-Date: Thu, 3 Dec 2015 09:34:40 +0100
-Message-ID: <565FFEA0.7050304@redhat.com>
-References: <20151202192555.GA25587@dtor-ws>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2] hid: enable hid device to suspend/resume
+ asynchronously
+Date: Thu, 3 Dec 2015 09:53:46 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1512030953300.32500@cbobk.fhfr.pm>
+References: <560392E7.1030207@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20151202192555.GA25587@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:59838 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759000AbbLCIxs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Dec 2015 03:53:48 -0500
+In-Reply-To: <560392E7.1030207@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 24 Sep 2015, Fu, Zhonghui wrote:
 
-On 02-12-15 20:25, Dmitry Torokhov wrote:
-> This makes Logitech PS2++ protocol implementation consistent with
-> the naming in other protocols. Also mark the stub as "static inline"
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Much better / less confusing then the old code :)
-
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-
-Regards,
-
-hans
-
-
-
+> Now, PM core supports asynchronous suspend/resume mode for devices
+> during system suspend/resume, and the power state transition of one
+> device may be completed in separate kernel thread. PM core ensures
+> all power state transition timing dependency between devices. This
+> patch enables hid devices to suspend/resume asynchronously. This
+> will take advantage of multicore and improve system suspend/resume
+> speed.
+> 
+> Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
 > ---
->
-> V2: add forgotten drivers/input/mouse/logips2pp.c file.
->
->   drivers/input/mouse/logips2pp.c    | 2 +-
->   drivers/input/mouse/logips2pp.h    | 4 ++--
->   drivers/input/mouse/psmouse-base.c | 2 +-
->   3 files changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/input/mouse/logips2pp.c b/drivers/input/mouse/logips2pp.c
-> index 136e222..422da1c 100644
-> --- a/drivers/input/mouse/logips2pp.c
-> +++ b/drivers/input/mouse/logips2pp.c
-> @@ -325,7 +325,7 @@ static void ps2pp_set_model_properties(struct psmouse *psmouse,
->    * that support it.
->    */
->
-> -int ps2pp_init(struct psmouse *psmouse, bool set_properties)
-> +int ps2pp_detect(struct psmouse *psmouse, bool set_properties)
->   {
->   	struct ps2dev *ps2dev = &psmouse->ps2dev;
->   	unsigned char param[4];
-> diff --git a/drivers/input/mouse/logips2pp.h b/drivers/input/mouse/logips2pp.h
-> index 0c186f0..bf62945 100644
-> --- a/drivers/input/mouse/logips2pp.h
-> +++ b/drivers/input/mouse/logips2pp.h
-> @@ -12,9 +12,9 @@
->   #define _LOGIPS2PP_H
->
->   #ifdef CONFIG_MOUSE_PS2_LOGIPS2PP
-> -int ps2pp_init(struct psmouse *psmouse, bool set_properties);
-> +int ps2pp_detect(struct psmouse *psmouse, bool set_properties);
->   #else
-> -inline int ps2pp_init(struct psmouse *psmouse, bool set_properties)
-> +static inline int ps2pp_detect(struct psmouse *psmouse, bool set_properties)
->   {
->   	return -ENOSYS;
->   }
-> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> index e909c6e..90d9218 100644
-> --- a/drivers/input/mouse/psmouse-base.c
-> +++ b/drivers/input/mouse/psmouse-base.c
-> @@ -699,7 +699,7 @@ static const struct psmouse_protocol psmouse_protocols[] = {
->   		.type		= PSMOUSE_PS2PP,
->   		.name		= "PS2++",
->   		.alias		= "logitech",
-> -		.detect		= ps2pp_init,
-> +		.detect		= ps2pp_detect,
->   	},
->   #endif
->   	{
->
+> Changes in v2:
+> - Amend commit message.
+> 
+>  drivers/hid/hid-core.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 70a11ac..357f3a3 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -2652,6 +2652,7 @@ struct hid_device *hid_allocate_device(void)
+>  	device_initialize(&hdev->dev);
+>  	hdev->dev.release = hid_device_release;
+>  	hdev->dev.bus = &hid_bus_type;
+> +	device_enable_async_suspend(&hdev->dev);
+
+Applied to for-4.5/async-suspend branch.
+
+-- 
+Jiri Kosina
+SUSE Labs
+

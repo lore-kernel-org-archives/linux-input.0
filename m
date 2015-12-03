@@ -1,53 +1,90 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] hid: enable hid device to suspend/resume
- asynchronously
-Date: Thu, 3 Dec 2015 09:53:46 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1512030953300.32500@cbobk.fhfr.pm>
-References: <560392E7.1030207@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:59838 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759000AbbLCIxs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Dec 2015 03:53:48 -0500
-In-Reply-To: <560392E7.1030207@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Pingbo Wen <pingbo.wen@linaro.org>
+Subject: Re: [PATCH 0/3] introduce new evdev interface type
+Date: Thu, 3 Dec 2015 20:49:06 +0800
+Message-ID: <1BB6B3AD-F547-49F8-886A-56EF80CE62FE@linaro.org>
+References: <1448618432-32357-1-git-send-email-pingbo.wen@linaro.org>
+ <3322044.DFSNLmiFGl@wuerfel>
+ <CB4E5A6F-D514-4D3B-9C95-13A52C509EC9@linaro.org>
+ <6792470.H7eb3IQorJ@wuerfel>
+Mime-Version: 1.0 (Mac OS X Mail 9.1 \(3096.5\))
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+In-Reply-To: <6792470.H7eb3IQorJ@wuerfel>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: y2038@lists.linaro.org, linux-api@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, aksgarg1989@gmail.com, linux-input@vger.kernel.org, Pingbo Wen <pingbo.wen@linaro.org>
 List-Id: linux-input@vger.kernel.org
-To: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 24 Sep 2015, Fu, Zhonghui wrote:
-
-> Now, PM core supports asynchronous suspend/resume mode for devices
-> during system suspend/resume, and the power state transition of one
-> device may be completed in separate kernel thread. PM core ensures
-> all power state transition timing dependency between devices. This
-> patch enables hid devices to suspend/resume asynchronously. This
-> will take advantage of multicore and improve system suspend/resume
-> speed.
-> 
-> Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
-> ---
-> Changes in v2:
-> - Amend commit message.
-> 
->  drivers/hid/hid-core.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 70a11ac..357f3a3 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2652,6 +2652,7 @@ struct hid_device *hid_allocate_device(void)
->  	device_initialize(&hdev->dev);
->  	hdev->dev.release = hid_device_release;
->  	hdev->dev.bus = &hid_bus_type;
-> +	device_enable_async_suspend(&hdev->dev);
-
-Applied to for-4.5/async-suspend branch.
-
--- 
-Jiri Kosina
-SUSE Labs
-
+Cj4g5ZyoIDIwMTXlubQxMuaciDHml6XvvIwxODo0N++8jEFybmQgQmVyZ21hbm4gPGFybmRAYXJu
+ZGIuZGU+IOWGmemBk++8mgo+IAo+IE9uIFR1ZXNkYXkgMDEgRGVjZW1iZXIgMjAxNSAxNjozNDow
+MCBQaW5nYm8gV2VuIHdyb3RlOgo+PiAKPj4gCj4+IFdoYXQga2luZHMgb2YgY2hhbmdlcyBpbiB0
+aW1lX3Q/IEV4dGVuZGluZyBpdCB0byA2NC1iaXRzIGluIGJvdGgga2VybmVsCj4+IGFuZCB1c2Vy
+c3BhY2U/IE9rLCBJIGdldCBjb25mdXNlZCBoZXJlLCBpZiB0aGVyZSBhcmUgc29tZSBzYW1wbGUg
+Y29kZXMKPj4gb3IgdXNlLWNhc2VzIGhlcmUsIGl0IHdpbGwgaGVscCBtZSBhIGxvdC4KPiAKPiBX
+ZSBkb24ndCBjaGFuZ2UgdGltZV90IGluIHRoZSBrZXJuZWwsIHdlIGp1c3QgdHJ5IHRvIHJlcGxh
+Y2UgaXQKPiB3aXRoIHRpbWU2NF90LCBvciBrdGltZV90IHdoZXJlIGFwcHJvcHJpYXRlLgo+IAo+
+IFdoYXQgSSBtZWFudCBpcyB0aGUgcHJvYmxlbSB3aGVuIGdsaWJjIGRlZmluZXMgdGhlaXIgdGlt
+ZV90IHRvCj4gYmUgJ2xvbmcgbG9uZycgc28gdGhhdCB1c2VyIHNwYWNlIGNhbiBiZSBidWlsdCB0
+aGF0IHJ1bnMgYWZ0ZXIKPiAyMDM4LiBUaGlzIGNoYW5nZXMgdGhlIHRpbWV2YWwgYW5kIHRpbWVz
+cGVjIGRlZmluaXRpb25zLCBzbwo+IGEgcHJvY2VzcyB0aGF0IHRyaWVzIHRvIHVzZSAnc3RydWN0
+IGlucHV0X2V2ZW50JyBoYXMgYSBkaWZmZXJlbnQKPiBsYXlvdXQgY29tcGFyZWQgdG8gd2hhdCB0
+aGUga2VybmVsIGhhcy4KCk9rLCBJIGRpZG7igJl0IHJlYWNoIHRoaXMgcG9pbnQuIFRoYW5rcyB0
+byBjbGFyaWZ5LgoKPj4gCj4+IEl0IHNlZW1zIHdlIGFyZSBtaXNtYXRjaCBoZXJlLgo+PiAKPj4g
+QWN0dWFsbHkgaW5wdXRfY29tcG9zaXRlX2V2ZW50IGhhcyB0aGUgc2ltaWxhciBzdHJ1Y3R1cmUg
+d2l0aCBpbnB1dF9ldmVudCwKPj4gYnV0IHdpdGggYSBuaWNlciBkZWZpbml0aW9uLCB3aGljaCBj
+YW4gdGFrZSBib3RoIG1vbm90b25pYyBhbmQgbm9uLW1vbm90b25pYwo+PiB0aW1lc3RhbXBzIHNh
+ZmVseS4KPj4gCj4+IFdoYXQgSSBhc3N1bWVkIGhlcmUsIGlzIHRoYXQgbGVhdmluZyBFVl9JRl9M
+RUdBQ1kgYXMgYSB1bnRvdWNoZWQsIGRlcHJlY2F0ZWQKPj4gaW50ZXJmYWNlLiBJZiB1c2Vyc3Bh
+Y2UgdHJ5IHRvIGFkYXB0IHRvIG5ldyBsaWJjIGFuZCBrZXJuZWwsIGl0IHNob3VsZCBtb3ZlCj4+
+IHRvIG5ldyBpbnRlcmZhY2UuIFRoZSB1c2Vyc3BhY2UgY2FuIGRvIGEgbGF6eSB1cGRhdGUsIGtl
+ZXAgdGhlIGNvZGUgdW50b3VjaGVkLAo+PiBidXQgc3VmZmVyIHRoZSB5MjAzOCBwcm9ibGVtIGJ5
+IGl0c2VsZi4KPiAKPiBGb3JjaW5nIHRoZSBtb3ZlIHRvIHRoZSBuZXcgQVBJIGlzIHZlcnkgdWds
+eSwgYmVjYXVzZSB5b3UgY2FuJ3QgZG8gaXQKPiBpbiBhIHdheSB0aGF0IHdvcmtzIG9uIG9sZCBr
+ZXJuZWxzIGFzIHdlbGwsIHVubGVzcyB5b3UgdGhlbiB0cnkgdG8gc3VwcG9ydAo+IGJvdGggQVBJ
+cyBhdCBydW50aW1lLgo+IAo+IEp1c3QgcmVxdWlyaW5nIHVzZXIgc3BhY2UgdG8gc3dpdGNoIHRv
+IG1vbm90b25pYyB0aW1lIGlzIGVhc2lseSBkb25lLAo+IGFzIGl0IGNhbiBsaWtlbHkgd29yayBl
+aXRoZXIgd2F5LgoKSXQgc2VlbXMgSeKAmW0gbW9yZSBhZ2dyZXNzaXZlOikgQnV0IHRoZSBsZWdh
+Y3kgYmluYXJ5IGNhbiBzdGlsbCBsaXZlIDMwIHllYXJzIGxvbmdlcgp3aXRob3V0IGFueSBjaGFu
+Z2VzLgoKPiAKPj4gV2UgY2FuIGZvcmNlIGtlcm5lbCB1c2luZyBtb25vdG9uaWMgdGltZSBpbiBF
+Vl9JRl9MRUdBQ1kgaW50ZXJmYWNlLCBhbmQKPj4gbWFraW5nIGlucHV0X2V2ZW50IGluZGVwZW5k
+ZW50IGZyb20gdGltZV90KGFmdGVyIGV2ZGV2IGhhcyBjb252ZXJ0ZWQgdG8KPj4gaW5wdXRfdmFs
+dWUsIGl04oCZcyBlYXN5IHRvIGRvIHRoYXQpLCBidXQgdGhhdCBhbHNvIGltcGx5IHVzZXJzcGFj
+ZQo+PiBtdXN0IGNoYW5nZSB0aGVpciBjb2RlIHRvIGZpdCB0aGlzIGNoYW5nZS4gSWYgY2hhbmdp
+bmcgdXNlcnNwYWNlIGNvZGUgaXMKPj4gYSBtYW5kYXRvcnkgb3B0aW9uLCB3aHkgbm90IHRvIGZv
+cmNlIHRoZW0gZG8gYSBjb21wbGV0ZSBjb252ZXJzaW9uPwo+IAo+IE1vc3QgdXNlciBzcGFjZSBw
+cm9ncmFtcyB3b24ndCBjYXJlLCBhcyB0aGV5IGRvbid0IGV2ZW4gbG9vayBhdCB0aGUgdHZfc2Vj
+Cj4gcG9ydGlvbiwgYW5kIHRoZSBnb2FsIGlzIHRvIGF2b2lkIGhhdmluZyB0byBjaGFuZ2UgdGhl
+bS4KPiAKPiBUaGVyZSBpcyBzdGlsbCBhbiBvcGVuIHF1ZXN0aW9uIHRvIGhvdyBleGFjdGx5IHdl
+IHdhbnQgdG8gZ2V0IHVzZXIgc3BhY2UKPiB0byBjaGFuZ2UuCj4gCj4gV2UgY291bGQgZG8gc29t
+ZSBjb21waWxlLXRpbWUgdHJpY2sgYnkgaGF2aW5nIGEgdW5pb24gaW4gc3RydWN0IGlucHV0X2V2
+ZW50Cj4gYW5kIG1hcmsgdGhlIGV4aXN0aW5nIHRpbWV2YWwgcGFydCBhcyBkZXByZWNhdGVkLCBz
+byB3ZSBmbGFnIGFueSB1c2Ugb2YgdGhlCj4gMzItYml0IHR2X3NlYyBtZW1iZXIsIHN1Y2ggYXM6
+Cj4gCj4gc3RydWN0IGlucHV0X2V2ZW50IHsKPiAjaWYgIWRlZmluZWQoX19LRVJORUxfXykgJiYg
+X19USU1FX1RfQklUUyA9PSBfX0JJVFNfUEVSX0xPTkcKPiAgICAgICAgc3RydWN0IHRpbWV2YWwg
+dGltZTsKCj4gI2Vsc2UKPiAJc3RydWN0IHsKPiAJCXVuaW9uIHsKPiAJCQlfX3UzMiB0dl9zZWMg
+X19hdHRyaWJ1dGVfXygoZGVwcmVjYXRlZCkpOwo+IAkJCV9fdTMyIHR2X3NlY19tb25vdG9uaWM7
+Cj4gCQl9Owo+IAkJX19zMzIgdHZfdXNlYzsKPiAJfSB0aW1lOwo+ICNlbmRpZgo+ICAgICAgICBf
+X3UxNiB0eXBlOwo+ICAgICAgICBfX3UxNiBjb2RlOwo+ICAgICAgICBfX3MzMiB2YWx1ZTsKPiB9
+OwoKSSBoYXZlIG9uZSBxdWVzdGlvbiBoZXJlLCBpZiB1c2Vyc3BhY2UgdXNlIHRoaXMgc3RydWN0
+dXJlLCBhbGwgaGVscGVyIGZ1bmN0aW9ucwpvZiB0aW1ldmFsIHdpbGwgbm90IHdvcmsuIEFuZCB1
+c2Vyc3BhY2UgbmVlZCB0byB3cml0ZSBleHRyYSBoZWxwZXIgZnVuY3Rpb24gZm9yCnRoaXMgZmFr
+ZSB0aW1ldmFsLiBUaGlzIGp1c3QgY3JlYXRlIGFuIGFub3RoZXIgdXJnbHkgdGltZSBzdHJ1Y3R1
+cmUuCgpBbmQgdGhpcyBtZXRob2QgYWxzbyBmb3JjZXMgbW9zdCBvZiBvbGQgYmluYXJpZXMgdG8g
+Y29tcGlsZSB3aXRoIG5ldyBsaWJjLCBhZGp1c3QKdGhlaXIgY29kZXMgd2l0aCBuZXcgZmFrZSB0
+aW1lIHN0cnVjdHVyZS4KCkJlc2lkZXMsIEkgZ2V0IGFuIGlkZWEgdG8gY29tYmluZSB5b3VyIHN0
+cnVjdHVyZSB3aXRoIGlucHV0X2NvbXBvc2l0ZV9ldmVudDoKCnVuaW9uIHsKCXN0cnVjdCB7CgkJ
+X19zMzIgdHZfdXNlYzsKCQlfX3MzMiB0dl9zZWM7Cgl9OwoJX19zNjQgdGltZTsKfSB0aW1lOwoK
+SSBwcmVmZXIgdG8gdXNlIGEgc2luZ2xlIHM2NCB0aW1lc3RhbXAsIGlmIG91ciBnb2FsIGlzIHRv
+IHJlbW92ZSB0aW1ldmFsIGZyb20ga2VybmVsLgoKUGluZ2JvCgpfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpZMjAzOCBtYWlsaW5nIGxpc3QKWTIwMzhAbGlz
+dHMubGluYXJvLm9yZwpodHRwczovL2xpc3RzLmxpbmFyby5vcmcvbWFpbG1hbi9saXN0aW5mby95
+MjAzOAo=

@@ -1,404 +1,148 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH v2 5/5] Input: wacom_w8001 - split the touch and pen devices
- into two devices
-Date: Thu, 3 Dec 2015 14:22:28 +1000
-Message-ID: <20151203042228.GA22622@jelly.redhat.com>
-References: <20151201220651.GG3740@dtor-ws>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 5/6] Input: psmouse - factor out common protocol probing
+ code
+Date: Thu, 3 Dec 2015 09:33:53 +0100
+Message-ID: <565FFE71.4050404@redhat.com>
+References: <1448774036-39040-1-git-send-email-dmitry.torokhov@gmail.com>
+ <1448774036-39040-6-git-send-email-dmitry.torokhov@gmail.com>
+ <565F0C50.2090502@redhat.com> <20151202191839.GD15531@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:28317 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757388AbbLCEWb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2015 23:22:31 -0500
-Content-Disposition: inline
-In-Reply-To: <20151201220651.GG3740@dtor-ws>
+Received: from mx1.redhat.com ([209.132.183.28]:46135 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754013AbbLCIeA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Dec 2015 03:34:00 -0500
+In-Reply-To: <20151202191839.GD15531@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Thomas Hellstrom <thellstrom@vmware.com>, pali.rohar@gmail.com, jckeerthan@gmail.com, till2.schaefer@uni-dortmund.de, linux-kernel@vger.kernel.org
 
-These devices have a pen device and a touch device through the same serial
-protocol, split it up into two separate devices like we do for USB Wacom
-tablets too.
+Hi,
 
-Userspace already matches on the device name so we can't drop it completely.
-Compose the same basename based on capabilities and append the tool type,
-leading to a name like "Wacom Serial Penabled 2FG Touchscreen Pen".
+On 02-12-15 20:18, Dmitry Torokhov wrote:
+> Hi Hans,
+>
+> On Wed, Dec 02, 2015 at 04:20:48PM +0100, Hans de Goede wrote:
+>> Hi,
+>>
+>> Thanks for splitting out the series, patches 1 - 4 look good to me and are:
+>>
+>> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+>>
+>> I've some comments inline for this one.
+>
+> Thanks for spending time on reviewing this.
+>
+>>> @@ -1025,68 +1053,48 @@ static int psmouse_extensions(struct psmouse *psmouse,
+>>>   	 * Trackpads.
+>>>   	 */
+>>>   	if (max_proto > PSMOUSE_IMEX &&
+>>> -			cypress_detect(psmouse, set_properties) == 0) {
+>>> -		if (IS_ENABLED(CONFIG_MOUSE_PS2_CYPRESS)) {
+>>> -			if (cypress_init(psmouse) == 0)
+>>> -				return PSMOUSE_CYPRESS;
+>>> -
+>>> -			/*
+>>> -			 * Finger Sensing Pad probe upsets some modules of
+>>> -			 * Cypress Trackpad, must avoid Finger Sensing Pad
+>>> -			 * probe if Cypress Trackpad device detected.
+>>> -			 */
+>>> -			return PSMOUSE_PS2;
+>>> -		}
+>>> -
+>>> -		max_proto = PSMOUSE_IMEX;
+>>> +	    psmouse_try_protocol(psmouse, PSMOUSE_CYPRESS, &max_proto,
+>>> +				 set_properties, true)) {
+>>> +		return PSMOUSE_CYPRESS;
+>>>   	}
+>>
+>> The protocols array has the CYPRESS entry wrapped in "#ifdef CONFIG_MOUSE_PS2_CYPRESS"
+>> so this bit of the patches changes behavior of the probe order if
+>> CONFIG_MOUSE_PS2_CYPRESS is not enabled. Before this patch the max_proto would
+>> get limited to PSMOUSE_IMEX, but now the:
+>>
+>> 	proto = __psmouse_protocol_by_type(type);
+>> 	if (!proto)
+>> 		return false;
+>>
+>> Part of psmouse_try_protocol will trigger and then max_proto will stay unmodified.
+>>
+>> I think this can best be fixed by always including CYPRESS in the proto array,
+>> and have init be a stub which always fails when CYPRESS is not actually enabled.
+>
+> I would not want to do that as that would make cypress be in the list of
+> supported protocols whereas it is actually compiled out.
+>
+> BUT, there is actually no problem, the original code was misleading.
+> cypress_detect() is already a stub returning -ENOSYS when
+> CONFIG_MOUSE_PS2_CYPRESS is not enabled, so we would never went into
+> that "if" body in that case.
 
-Note that this drops BTN_TOOL_FINGER, it is not needed once the tools
-are split out (and a touch device with BTN_TOOL_FINGER is interpreted
-as touchpad by most of userspace).
+Ah, so the whole "if (IS_ENABLED(CONFIG_MOUSE_PS2_CYPRESS))" check in the original
+code was not really necessary, I see.
 
-Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
----
-Changes to v1:
-- don't leak open_count on error
+> I'll make a patch cleaning it up, but won't repost the whole series so
+> as to not clutter the list.
 
- drivers/input/touchscreen/wacom_w8001.c | 167 ++++++++++++++++++++++----------
- 1 file changed, 116 insertions(+), 51 deletions(-)
+Ack.
 
-diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
-index de8f0e4..fe983e7 100644
---- a/drivers/input/touchscreen/wacom_w8001.c
-+++ b/drivers/input/touchscreen/wacom_w8001.c
-@@ -80,7 +80,8 @@ struct w8001_touch_query {
-  */
- 
- struct w8001 {
--	struct input_dev *dev;
-+	struct input_dev *pen_dev;
-+	struct input_dev *touch_dev;
- 	struct serio *serio;
- 	struct completion cmd_done;
- 	int id;
-@@ -95,7 +96,10 @@ struct w8001 {
- 	u16 max_touch_y;
- 	u16 max_pen_x;
- 	u16 max_pen_y;
--	char name[64];
-+	char pen_name[64];
-+	char touch_name[64];
-+	int open_count;
-+	struct mutex mutex;
- };
- 
- static void parse_pen_data(u8 *data, struct w8001_coord *coord)
-@@ -141,7 +145,7 @@ static void scale_touch_coordinates(struct w8001 *w8001,
- 
- static void parse_multi_touch(struct w8001 *w8001)
- {
--	struct input_dev *dev = w8001->dev;
-+	struct input_dev *dev = w8001->touch_dev;
- 	unsigned char *data = w8001->data;
- 	unsigned int x, y;
- 	int i;
-@@ -207,7 +211,7 @@ static void parse_touchquery(u8 *data, struct w8001_touch_query *query)
- 
- static void report_pen_events(struct w8001 *w8001, struct w8001_coord *coord)
- {
--	struct input_dev *dev = w8001->dev;
-+	struct input_dev *dev = w8001->pen_dev;
- 
- 	/*
- 	 * We have 1 bit for proximity (rdy) and 3 bits for tip, side,
-@@ -233,11 +237,6 @@ static void report_pen_events(struct w8001 *w8001, struct w8001_coord *coord)
- 		break;
- 
- 	case BTN_TOOL_FINGER:
--		input_report_key(dev, BTN_TOUCH, 0);
--		input_report_key(dev, BTN_TOOL_FINGER, 0);
--		input_sync(dev);
--		/* fall through */
--
- 	case KEY_RESERVED:
- 		w8001->type = coord->f2 ? BTN_TOOL_RUBBER : BTN_TOOL_PEN;
- 		break;
-@@ -261,7 +260,7 @@ static void report_pen_events(struct w8001 *w8001, struct w8001_coord *coord)
- 
- static void report_single_touch(struct w8001 *w8001, struct w8001_coord *coord)
- {
--	struct input_dev *dev = w8001->dev;
-+	struct input_dev *dev = w8001->touch_dev;
- 	unsigned int x = coord->x;
- 	unsigned int y = coord->y;
- 
-@@ -271,7 +270,6 @@ static void report_single_touch(struct w8001 *w8001, struct w8001_coord *coord)
- 	input_report_abs(dev, ABS_X, x);
- 	input_report_abs(dev, ABS_Y, y);
- 	input_report_key(dev, BTN_TOUCH, coord->tsw);
--	input_report_key(dev, BTN_TOOL_FINGER, coord->tsw);
- 
- 	input_sync(dev);
- 
-@@ -369,20 +367,36 @@ static int w8001_command(struct w8001 *w8001, unsigned char command,
- static int w8001_open(struct input_dev *dev)
- {
- 	struct w8001 *w8001 = input_get_drvdata(dev);
-+	int err;
- 
--	return w8001_command(w8001, W8001_CMD_START, false);
-+	err = mutex_lock_interruptible(&w8001->mutex);
-+	if (err)
-+		return err;
-+
-+	if (w8001->open_count++ == 0) {
-+		err = w8001_command(w8001, W8001_CMD_START, false);
-+		if (err)
-+			w8001->open_count--;
-+	}
-+
-+	mutex_unlock(&w8001->mutex);
-+	return err;
- }
- 
- static void w8001_close(struct input_dev *dev)
- {
- 	struct w8001 *w8001 = input_get_drvdata(dev);
- 
--	w8001_command(w8001, W8001_CMD_STOP, false);
-+	mutex_lock(&w8001->mutex);
-+
-+	if (--w8001->open_count == 0)
-+		w8001_command(w8001, W8001_CMD_STOP, false);
-+
-+	mutex_unlock(&w8001->mutex);
- }
- 
- static int w8001_detect(struct w8001 *w8001)
- {
--	struct input_dev *dev = w8001->dev;
- 	int error;
- 
- 	error = w8001_command(w8001, W8001_CMD_STOP, false);
-@@ -391,18 +405,13 @@ static int w8001_detect(struct w8001 *w8001)
- 
- 	msleep(250);	/* wait 250ms before querying the device */
- 
--	__set_bit(EV_KEY, dev->evbit);
--	__set_bit(EV_ABS, dev->evbit);
--	strlcat(w8001->name, "Wacom Serial", sizeof(w8001->name));
--
--	__set_bit(INPUT_PROP_DIRECT, dev->propbit);
--
- 	return 0;
- }
- 
--static int w8001_setup_pen(struct w8001 *w8001)
-+static int w8001_setup_pen(struct w8001 *w8001, char *basename,
-+			   size_t basename_sz)
- {
--	struct input_dev *dev = w8001->dev;
-+	struct input_dev *dev = w8001->pen_dev;
- 	struct w8001_coord coord;
- 	int error;
- 
-@@ -411,11 +420,14 @@ static int w8001_setup_pen(struct w8001 *w8001)
- 	if (error)
- 		return error;
- 
-+	__set_bit(EV_KEY, dev->evbit);
-+	__set_bit(EV_ABS, dev->evbit);
- 	__set_bit(BTN_TOUCH, dev->keybit);
- 	__set_bit(BTN_TOOL_PEN, dev->keybit);
- 	__set_bit(BTN_TOOL_RUBBER, dev->keybit);
- 	__set_bit(BTN_STYLUS, dev->keybit);
- 	__set_bit(BTN_STYLUS2, dev->keybit);
-+	__set_bit(INPUT_PROP_DIRECT, dev->propbit);
- 
- 	parse_pen_data(w8001->response, &coord);
- 	w8001->max_pen_x = coord.x;
-@@ -432,17 +444,19 @@ static int w8001_setup_pen(struct w8001 *w8001)
- 	}
- 
- 	w8001->id = 0x90;
--	strlcat(w8001->name, " Penabled", sizeof(w8001->name));
-+	strlcat(basename, " Penabled", basename_sz);
- 
- 	return 0;
- }
- 
--static int w8001_setup_touch(struct w8001 *w8001)
-+static int w8001_setup_touch(struct w8001 *w8001, char *basename,
-+			     size_t basename_sz)
- {
--	struct input_dev *dev = w8001->dev;
-+	struct input_dev *dev = w8001->touch_dev;
- 	struct w8001_touch_query touch;
- 	int error;
- 
-+
- 	/* Touch enabled? */
- 	error = w8001_command(w8001, W8001_CMD_TOUCHQUERY, true);
- 	if (error)
-@@ -454,8 +468,10 @@ static int w8001_setup_touch(struct w8001 *w8001)
- 	if (!w8001->response[1])
- 		return -ENXIO;
- 
-+	__set_bit(EV_KEY, dev->evbit);
-+	__set_bit(EV_ABS, dev->evbit);
- 	__set_bit(BTN_TOUCH, dev->keybit);
--	__set_bit(BTN_TOOL_FINGER, dev->keybit);
-+	__set_bit(INPUT_PROP_DIRECT, dev->propbit);
- 
- 	parse_touchquery(w8001->response, &touch);
- 	w8001->max_touch_x = touch.x;
-@@ -478,14 +494,14 @@ static int w8001_setup_touch(struct w8001 *w8001)
- 	case 2:
- 		w8001->pktlen = W8001_PKTLEN_TOUCH93;
- 		w8001->id = 0x93;
--		strlcat(w8001->name, " 1FG", sizeof(w8001->name));
-+		strlcat(basename, " 1FG", basename_sz);
- 		break;
- 
- 	case 1:
- 	case 3:
- 	case 4:
- 		w8001->pktlen = W8001_PKTLEN_TOUCH9A;
--		strlcat(w8001->name, " 1FG", sizeof(w8001->name));
-+		strlcat(basename, " 1FG", basename_sz);
- 		w8001->id = 0x9a;
- 		break;
- 
-@@ -501,7 +517,7 @@ static int w8001_setup_touch(struct w8001 *w8001)
- 		input_set_abs_params(dev, ABS_MT_TOOL_TYPE,
- 					0, MT_TOOL_MAX, 0, 0);
- 
--		strlcat(w8001->name, " 2FG", sizeof(w8001->name));
-+		strlcat(basename, " 2FG", basename_sz);
- 		if (w8001->max_pen_x && w8001->max_pen_y)
- 			w8001->id = 0xE3;
- 		else
-@@ -509,11 +525,27 @@ static int w8001_setup_touch(struct w8001 *w8001)
- 		break;
- 	}
- 
--	strlcat(w8001->name, " Touchscreen", sizeof(w8001->name));
-+	strlcat(basename, " Touchscreen", basename_sz);
- 
- 	return 0;
- }
- 
-+static void w8001_set_devdata(struct input_dev *dev, struct w8001 *w8001,
-+			      struct serio *serio)
-+{
-+	dev->phys = w8001->phys;
-+	dev->id.bustype = BUS_RS232;
-+	dev->id.product = w8001->id;
-+	dev->id.vendor = 0x056a;
-+	dev->id.version = 0x0100;
-+	dev->open = w8001_open;
-+	dev->close = w8001_close;
-+
-+	dev->dev.parent = &serio->dev;
-+
-+	input_set_drvdata(dev, w8001);
-+}
-+
- /*
-  * w8001_disconnect() is the opposite of w8001_connect()
-  */
-@@ -524,7 +556,10 @@ static void w8001_disconnect(struct serio *serio)
- 
- 	serio_close(serio);
- 
--	input_unregister_device(w8001->dev);
-+	if (w8001->pen_dev)
-+		input_unregister_device(w8001->pen_dev);
-+	if (w8001->touch_dev)
-+		input_unregister_device(w8001->touch_dev);
- 	kfree(w8001);
- 
- 	serio_set_drvdata(serio, NULL);
-@@ -539,18 +574,23 @@ static void w8001_disconnect(struct serio *serio)
- static int w8001_connect(struct serio *serio, struct serio_driver *drv)
- {
- 	struct w8001 *w8001;
--	struct input_dev *input_dev;
-+	struct input_dev *input_dev_pen;
-+	struct input_dev *input_dev_touch;
-+	char basename[64];
- 	int err, err_pen, err_touch;
- 
- 	w8001 = kzalloc(sizeof(struct w8001), GFP_KERNEL);
--	input_dev = input_allocate_device();
--	if (!w8001 || !input_dev) {
-+	input_dev_pen = input_allocate_device();
-+	input_dev_touch = input_allocate_device();
-+	if (!w8001 || !input_dev_pen || !input_dev_touch) {
- 		err = -ENOMEM;
- 		goto fail1;
- 	}
- 
- 	w8001->serio = serio;
--	w8001->dev = input_dev;
-+	w8001->pen_dev = input_dev_pen;
-+	w8001->touch_dev = input_dev_touch;
-+	mutex_init(&w8001->mutex);
- 	init_completion(&w8001->cmd_done);
- 	snprintf(w8001->phys, sizeof(w8001->phys), "%s/input0", serio->phys);
- 
-@@ -563,38 +603,63 @@ static int w8001_connect(struct serio *serio, struct serio_driver *drv)
- 	if (err)
- 		goto fail3;
- 
--	err_pen = w8001_setup_pen(w8001);
--	err_touch = w8001_setup_touch(w8001);
-+	/* For backwards-compatibility we compose the basename based on
-+	 * capabilities and then just append the tool type
-+	 */
-+	strlcpy(basename, "Wacom Serial", sizeof(basename));
-+
-+	err_pen = w8001_setup_pen(w8001, basename, sizeof(basename));
-+	err_touch = w8001_setup_touch(w8001, basename, sizeof(basename));
- 	if (err_pen && err_touch) {
- 		err = -ENXIO;
- 		goto fail3;
- 	}
- 
--	input_dev->name = w8001->name;
--	input_dev->phys = w8001->phys;
--	input_dev->id.product = w8001->id;
--	input_dev->id.bustype = BUS_RS232;
--	input_dev->id.vendor = 0x056a;
--	input_dev->id.version = 0x0100;
--	input_dev->dev.parent = &serio->dev;
-+	if (!err_pen) {
-+		strlcpy(w8001->pen_name, basename, sizeof(w8001->pen_name));
-+		strlcat(w8001->pen_name, " Pen", sizeof(w8001->pen_name));
-+		input_dev_pen->name = w8001->pen_name;
- 
--	input_dev->open = w8001_open;
--	input_dev->close = w8001_close;
-+		w8001_set_devdata(input_dev_pen, w8001, serio);
- 
--	input_set_drvdata(input_dev, w8001);
-+		err = input_register_device(w8001->pen_dev);
-+		if (err)
-+			goto fail3;
-+	} else {
-+		input_free_device(input_dev_pen);
-+		input_dev_pen = NULL;
-+		w8001->pen_dev = NULL;
-+	}
- 
--	err = input_register_device(w8001->dev);
--	if (err)
--		goto fail3;
-+	if (!err_touch) {
-+		strlcpy(w8001->touch_name, basename, sizeof(w8001->touch_name));
-+		strlcat(w8001->touch_name, " Finger",
-+			sizeof(w8001->touch_name));
-+		input_dev_touch->name = w8001->touch_name;
-+
-+		w8001_set_devdata(input_dev_touch, w8001, serio);
-+
-+		err = input_register_device(w8001->touch_dev);
-+		if (err)
-+			goto fail4;
-+	} else {
-+		input_free_device(input_dev_touch);
-+		input_dev_touch = NULL;
-+		w8001->touch_dev = NULL;
-+	}
- 
- 	return 0;
- 
-+fail4:
-+	if (w8001->pen_dev)
-+		input_unregister_device(w8001->pen_dev);
- fail3:
- 	serio_close(serio);
- fail2:
- 	serio_set_drvdata(serio, NULL);
- fail1:
--	input_free_device(input_dev);
-+	input_free_device(input_dev_pen);
-+	input_free_device(input_dev_touch);
- 	kfree(w8001);
- 	return err;
- }
--- 
-2.5.0
+>>>
+>>>   	if (max_proto > PSMOUSE_IMEX) {
+>>> -		if (psmouse_do_detect(genius_detect,
+>>> -				      psmouse, set_properties) == 0)
+>>> +		if (psmouse_try_protocol(psmouse, PSMOUSE_GENPS,
+>>> +					 &max_proto, set_properties, true))
+>>>   			return PSMOUSE_GENPS;
+>>>
+>>> -		if (psmouse_do_detect(ps2pp_init,
+>>> -				      psmouse, set_properties) == 0)
+>>> +		if (psmouse_try_protocol(psmouse, PSMOUSE_PS2PP,
+>>> +					 &max_proto, set_properties, true))
+>>>   			return PSMOUSE_PS2PP;
+>>
+>> The PS2PP entry in the protocols table has an init function, by passing
+>> in true here you are causing this to get called, where as it was not
+>> being called before.
+>
+> No, it has detect function only (but called ps2pp_init), I'll post the
+> patch renaming it to ps2pp_detect.
 
+Right, I misread that as it having an init function.
+
+>> p.s.
+>>
+>> After this change, a whole lot of the code has the form of:
+>>
+>> 	if (max_proto >= PSMOUSE_FOO &&
+>> 	    psmouse_try_protocol(psmouse, ...)) {
+>> 		return PSMOUSE_BAR;
+>> 	}
+>>
+>> Maybe you can do a follow-up which makes PSMOUSE_FOO a parameter to
+>> psmouse_try_protocol and move the test into psmouse_try_protocol?
+>
+> I considered it, but some protocols we detect unconditionally and some
+> conditionally, passing a parameter woudl somewhat hide it. Plus
+> try_protocol() already has a lot of parameters.
+
+Ok.
+
+>> Also you may want to consider to drop the {} around the single return
+>> statement most of this code-blocks now have. Maybe best to do
+>> this in a followup patch to keep the diff readable.
+>
+> I like to keep the braces if "if" condition is multi-line to better see
+> where condition ends and body starts.
+
+Fair enough, I've no problem with that.
+
+With the above explanations this patch is:
+
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+
+Regards,
+
+Hans

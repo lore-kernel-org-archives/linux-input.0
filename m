@@ -1,43 +1,99 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] HID: wacom: Apply lowres quirk to BAMBOO_TOUCH devices
-Date: Fri,  4 Dec 2015 14:45:27 -0800
-Message-ID: <1449269127-23508-1-git-send-email-killertofu@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f182.google.com ([209.85.192.182]:34697 "EHLO
-	mail-pf0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755162AbbLDWpj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2015 17:45:39 -0500
-Received: by pfbg73 with SMTP id g73so33375621pfb.1
-        for <linux-input@vger.kernel.org>; Fri, 04 Dec 2015 14:45:39 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: "Sinclair Yeh" <syeh@vmware.com>
+Subject: [PATCH 3/6] Input: Update vmmouse.c to use the common VMW_PORT macros
+Date: Fri,  4 Dec 2015 15:19:40 -0800
+Message-ID: <1449271183-1746-4-git-send-email-syeh@vmware.com>
+References: <1449008047-8252-1-git-send-email-syeh@vmware.com>
+	<1449271183-1746-1-git-send-email-syeh@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1449271183-1746-1-git-send-email-syeh@vmware.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: x86@kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Sinclair Yeh <syeh@vmware.com>, pv-drivers@vmware.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-graphics-maintainer@vmware.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-When splitting the touch-only "BAMBOO_TOUCH" type out of the existing
-"BAMBOO_PT" type in 3b164a00, the lowres quirk was not updated so that
-it would continue to apply to these devices (effectively only the 0xD0).
-The absence of this quirk does not significantly impact usability, but
-is a correctness issue nonetheless.
+Updated the VMMOUSE macro to use the new VMW_PORT macro. Doing
+this instead of replacing all existing instances of VMWMOUSE
+to minimize code change.
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Signed-off-by: Sinclair Yeh <syeh@vmware.com>
+Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Alok N Kataria <akataria@vmware.com>
+Cc: pv-drivers@vmware.com
+Cc: linux-graphics-maintainer@vmware.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-input@vger.kernel.org
+
 ---
- drivers/hid/wacom_wac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 3953416..bec2300 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2421,7 +2421,7 @@ void wacom_setup_device_quirks(struct wacom *wacom)
- 		features->quirks |= WACOM_QUIRK_BATTERY;
+v2:
+Instead of replacing existing VMMOUSE defines, only modify enough
+to use the new VMW_PORT define.
+
+v3:
+Use updated VMWARE_PORT() which requires hypervisor magic as an added
+parameter
+
+v4:
+Swapped parameters 1 and 2 when calling VMW_PORT because the macro
+has been updated
+---
+ drivers/input/mouse/vmmouse.c | 22 +++++++---------------
+ 1 file changed, 7 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmouse.c
+index e272f06..ddb152c 100644
+--- a/drivers/input/mouse/vmmouse.c
++++ b/drivers/input/mouse/vmmouse.c
+@@ -19,6 +19,7 @@
+ #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <asm/hypervisor.h>
++#include <asm/vmware.h>
  
- 	/* quirk for bamboo touch with 2 low res touches */
--	if (features->type == BAMBOO_PT &&
-+	if ((features->type == BAMBOO_PT || features->type == BAMBOO_TOUCH) &&
- 	    features->pktlen == WACOM_PKGLEN_BBTOUCH) {
- 		features->x_max <<= 5;
- 		features->y_max <<= 5;
+ #include "psmouse.h"
+ #include "vmmouse.h"
+@@ -84,21 +85,12 @@ struct vmmouse_data {
+  * implementing the vmmouse protocol. Should never execute on
+  * bare metal hardware.
+  */
+-#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)	\
+-({							\
+-	unsigned long __dummy1, __dummy2;		\
+-	__asm__ __volatile__ ("inl %%dx" :		\
+-		"=a"(out1),				\
+-		"=b"(out2),				\
+-		"=c"(out3),				\
+-		"=d"(out4),				\
+-		"=S"(__dummy1),				\
+-		"=D"(__dummy2) :			\
+-		"a"(VMMOUSE_PROTO_MAGIC),		\
+-		"b"(in1),				\
+-		"c"(VMMOUSE_PROTO_CMD_##cmd),		\
+-		"d"(VMMOUSE_PROTO_PORT) :		\
+-		"memory");		                \
++#define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)		   \
++({								   \
++	unsigned long __dummy1 = 0, __dummy2 = 0;		   \
++	VMW_PORT(VMMOUSE_PROTO_CMD_##cmd, in1, VMMOUSE_PROTO_PORT, \
++		 VMMOUSE_PROTO_MAGIC,				   \
++		 out1, out2, out3, out4, __dummy1, __dummy2);      \
+ })
+ 
+ /**
 -- 
-2.6.2
-
+1.9.1

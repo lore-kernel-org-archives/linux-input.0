@@ -1,62 +1,48 @@
-From: Daniel Mack <daniel@zonque.org>
-Subject: Re: [PATCH RFC 0/3] input: rotary_encoder: use more than two gpios as
- input
-Date: Sat, 5 Dec 2015 20:50:18 +0100
-Message-ID: <56633FFA.5080708@zonque.org>
-References: <1449050834-31779-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <2266988.l83Fg404My@pcimr> <20151202185920.GO5072@pengutronix.de>
- <21976926.6E4NCDDElu@pcimr>
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: [PATCH] Input: xpad - fix input from Covert Forces Xbox One
+ controller
+Date: Sun, 6 Dec 2015 00:02:31 -0800
+Message-ID: <5663EB97.7020103@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <21976926.6E4NCDDElu@pcimr>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Rojhalat Ibrahim <imr@rtschenk.de>, =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: devicetree@vger.kernel.org, Sylvain Rochet <sylvain.rochet@finsecur.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Johan Hovold <johan@kernel.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de, linux-input@vger.kernel.org, Robert Jarzmik <robert.jarzmik@free.fr>, =?UTF-8?Q?Guido_Mart=c3=adnez?= <guido@vanguardiasur.com.ar>, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:36385 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753364AbbLFICd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Dec 2015 03:02:33 -0500
+Received: by pacdm15 with SMTP id dm15so108538022pac.3
+        for <linux-input@vger.kernel.org>; Sun, 06 Dec 2015 00:02:32 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
 
-T24gMTIvMDMvMjAxNSAwMjowMSBQTSwgUm9qaGFsYXQgSWJyYWhpbSB3cm90ZToKPiBPbiBXZWRu
-ZXNkYXkgMDIgRGVjZW1iZXIgMjAxNSAxOTo1OToyMCBVd2UgS2xlaW5lLUvDtm5pZyB3cm90ZToK
-Cj4+IEkgaGF2ZSBhIHJlYWwgcm90YXJ5IGVuY29kZXIgd2l0aCA0IGlucHV0IGxpbmVzIGFuZCBz
-byAxNgo+PiBkaXN0aW5ndWlzaGFibGUgcG9zaXRpb25zLiBJdCB3b3VsZCBiZSBkZXNjcmliZWQg
-YXM6Cj4+Cj4+IAljb21wYXRpYmxlID0gInJvdGFyeS1lbmNvZGVyIjsKPj4gCWdwaW9zID0gPCZn
-cGlvNCAxMiBHUElPX0FDVElWRV9ISUdIPiwgPCZncGlvNCAxMSBHUElPX0FDVElWRV9ISUdIPiwg
-PCZncGlvNCAxMCBHUElPX0FDVElWRV9ISUdIPiwgPCZncGlvNCA5IEdQSU9fQUNUSVZFX0hJR0g+
-Owo+PiAJcm90YXJ5LWVuY29kZXIsc3RlcHMgPSA8MTY+Owo+PiAJcm90YXJ5LWVuY29kZXIsc3Rl
-cHMtcGVyLXBlcmlvZCA9IDwxNj47Cj4+Cj4+IHdpdGggdGhlIGJpbmRpbmcgaW1wbGVtZW50ZWQg
-aW4gbXkgcGF0Y2hlcy4KPj4KPj4gVGhlIHdpa2lwZWRpYSBhcnRpY2xlIGFib3V0IHJvdGFyeSBl
-bmNvZGVyc1sxXSB1c2VzIGEgZGV2aWNlIHdpdGggMwo+PiBpbnB1dCBsaW5lcyB0byBleHBsYWlu
-IGdyYXkgZW5jb2RpbmcuIFNvIEkgZGlkbid0IGNvbnNpZGVyICJteSIgZGV2aWNlCj4+IGFzIGV4
-b3RpYyB1cCB0byBub3cuCj4+Cj4gCj4gU28geW91IGhhdmUgYW4gYWJzb2x1dGUgZW5jb2Rlci4g
-RnJvbSB0aGUgc3RhdGUgb2YgdGhlIGZvdXIgaW5wdXQgbGluZXMgeW91Cj4gY2FuIGRldGVybWlu
-ZSB0aGUgYWJzb2x1dGUgcG9zaXRpb24gdmFsdWUuIFRoZXJlIGlzIG5vIG5lZWQgdG8gY291bnQg
-c3RlcHMuCj4gQXQgbGVhc3QgdGhhdCdzIHRoZSBvcmlnaW5hbCBwdXJwb3NlIG9mIHlvdXIgZGV2
-aWNlLgo+IAo+IE9mIGNvdXJzZSBpdCBtaWdodCBiZSBjb25jZWl2YWJsZSB0byB1c2UgdGhhdCBr
-aW5kIG9mIGFic29sdXRlIGVuY29kZXIgaW4gYW4KPiBpbmNyZW1lbnRhbCB3YXkgYW5kIGNvdW50
-IHRoZSBzdGVwcyB0aHJvdWdob3V0IG11bHRpcGxlIHJldm9sdXRpb25zLgo+IEJ1dCB3aHkgd291
-bGQgeW91IGRvIHRoYXQ/IFRoZSByZXNvbHV0aW9uIG9mIDE2IHN0ZXBzIHBlciByZXZvbHV0aW9u
-IGlzIG5vdAo+IHZlcnkgZ29vZCAoaW5jcmVtZW50YWwgZW5jb2RlcnMgb2Z0ZW4gaGF2ZSBodW5k
-cmVkcyBvciB0aG91c2FuZHMgb2Ygc3RlcHMgcGVyCj4gcmV2b2x1dGlvbikuIEFuZCB0aGUgd2hv
-bGUgcG9pbnQgb2YgYW4gYWJzb2x1dGUgZW5jb2RlciBpcyB0aGF0IHlvdSBhcmUgYWJsZQo+IHRv
-IGRldGVybWluZSB0aGUgY3VycmVudCBwb3NpdGlvbiBhdCBhbnkgdGltZSBqdXN0IGJ5IGxvb2tp
-bmcgYXQgdGhlIGlucHV0cwo+IHdpdGhvdXQgaGF2aW5nIHRvIGNvdW50IHN0ZXBzLgoKWWVzLCB5
-b3UncmUgcmlnaHQsIHRoYXQncyBhY3R1YWxseSBhIHZlcnkgZGlmZmVyZW50IGtpbmQgb2YgZGV2
-aWNlIHdoaWNoCnNob3VsZCBiZSBzdXBwb3J0ZWQgd2l0aCBhIGRpZmZlcmVudCBtb2RlIG9yIHNv
-bWV0aGluZywgc28gdGhhdCB0aGUKb3V0cHV0IG9mIHRoZSBkcml2ZXIgcmVmbGVjdHMgdGhlIGFi
-c29sdXRlIHN0YXRlIG9mIHRoZSBlbmNvZGVyLiBUaGlzCmV2ZW4gc2ltcGxpZmllcyB0aGluZ3Mg
-aW4gdGhlIGRyaXZlcjogVGhlIGVudGlyZSBzdGF0ZSBsb2dpYyB3b3VsZCBiZQpieXBhc3NlZCBp
-biB0aGlzIG1vZGUsIGFuZCB0aGUgY3VycmVudCBzdGF0ZSBvZiB0aGUgR1BJTyBsaW5lcyB3b3Vs
-ZCBiZQp1c2VkIGRpcmVjdGx5IHRvIGdldCB0aGUgYWJzb2x1dGUgdmFsdWUuIE1ha2VzIHNlbnNl
-PwoKClRoYW5rcywKRGFuaWVsCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVs
-QGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9s
-aXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+The Covert Forces edition of the Xbox One controller requires the full 5
+byte initialization packet to work at all. The 5 byte packet was known to
+be needed for proper rumble support, but it looks like it's needed even
+without rumble on these controllers.
+
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+---
+  drivers/input/joystick/xpad.c | 5 ++++-
+  1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index fd4100d..de89de0 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -1052,7 +1052,10 @@ static int xpad_open(struct input_dev *dev)
+  		/* Xbox one controller needs to be initialized. */
+  		xpad->odata[0] = 0x05;
+  		xpad->odata[1] = 0x20;
+-		xpad->irq_out->transfer_buffer_length = 2;
++		xpad->odata[2] = 0x00;
++		xpad->odata[3] = 0x01;
++		xpad->odata[4] = 0x00;
++		xpad->irq_out->transfer_buffer_length = 5;
+  		return usb_submit_urb(xpad->irq_out, GFP_KERNEL);
+  	}
+
+-- 
+2.5.0

@@ -1,144 +1,92 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v9 2/8] ARM: dt: Binding documentation for imx25 GCQ
-Date: Mon, 7 Dec 2015 11:39:06 -0600
-Message-ID: <20151207173906.GA29656@rob-hp-laptop>
+Subject: Re: [PATCH v9 3/8] ARM: dt: Binding documentation for imx25
+ touchscreen controller
+Date: Mon, 7 Dec 2015 14:45:46 -0600
+Message-ID: <20151207204546.GA30936@rob-hp-laptop>
 References: <1449431542-1892-1-git-send-email-mpa@pengutronix.de>
- <1449431542-1892-3-git-send-email-mpa@pengutronix.de>
+ <1449431542-1892-4-git-send-email-mpa@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:42765 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933065AbbLGUpx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 7 Dec 2015 15:45:53 -0500
 Content-Disposition: inline
-In-Reply-To: <1449431542-1892-3-git-send-email-mpa@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Markus Pargmann <mpa@pengutronix.de>
-Cc: devicetree@vger.kernel.org, Fabio Estevam <festevam@gmail.com>, Sascha Hauer <kernel@pengutronix.de>, linux-iio@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Denis Carikli <denis@eukrea.com>, linux-arm-kernel@lists.infradead.org, Eric =?iso-8859-1?Q?B=E9nard?= <eric@eukrea.com>, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>
+In-Reply-To: <1449431542-1892-4-git-send-email-mpa@pengutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Markus Pargmann <mpa@pengutronix.de>
+Cc: Shawn Guo <shawnguo@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Lee Jones <lee.jones@linaro.org>, Denis Carikli <denis@eukrea.com>, Eric =?iso-8859-1?Q?B=E9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hartmut Knaack <knaack.h@gmx.de>, Fabio Estevam <festevam@gmail.com>
 
-On Sun, Dec 06, 2015 at 08:52:15PM +0100, Markus Pargmann wrote:
-> The documentation describes the bindings for the imx25 GCQ unit which is
-> essentially a generic conversion queue using the imx25 ADC.
+On Sun, Dec 06, 2015 at 08:52:16PM +0100, Markus Pargmann wrote:
+> This is the touchscreen conversion queue binding documentation. It uses
+> the shared imx25 ADC.
 > 
 > Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
-
-Acked-by: Rob Herring <robh@kernel.org>
-
 > ---
 > 
 > Notes:
 >     Changes in v9:
->      - Added the dt-bindings header to this patch instead of the driver
->     
->     Changes in v6:
->      - Changed bindings to use adc-refp and adc-refn. Also a bit of cleanup in the
->        setup routine.
+>      - Updated binding descriptions
 >     
 >     Changes in v5:
->      - Fixed locking
->      - Removed module owner
+>      - Fix signed/unsigned comparison
+>      - Fix unused variable settling_time by putting it in the correct argument list
+>      - Use continous conversion queue with the repeat feature and a proper
+>        repeat-wait. Previously the touchscreen caused massive number of interrupts.
 > 
->  .../devicetree/bindings/iio/adc/fsl,imx25-gcq.txt  | 58 ++++++++++++++++++++++
->  include/dt-bindings/iio/adc/fsl-imx25-gcq.h        | 18 +++++++
->  2 files changed, 76 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt
->  create mode 100644 include/dt-bindings/iio/adc/fsl-imx25-gcq.h
+>  .../bindings/input/touchscreen/fsl-mx25-tcq.txt    | 35 ++++++++++++++++++++++
+>  1 file changed, 35 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt b/Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
 > new file mode 100644
-> index 000000000000..b0866d36a307
+> index 000000000000..d45e50872114
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt
-> @@ -0,0 +1,58 @@
-> +Freescale i.MX25 ADC GCQ device
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
+> @@ -0,0 +1,35 @@
+> +Freescale mx25 TS conversion queue module
 > +
-> +This is a generic conversion queue device that can convert any of the
-> +analog inputs using the ADC unit of the i.MX25.
+> +mx25 touchscreen conversion queue module which controls the ADC unit of the
+> +mx25 for attached touchscreens.
 > +
 > +Required properties:
-> + - compatible: Should be "fsl,imx25-gcq".
-> + - reg: Should be the register range of the module.
-> + - interrupts: Should be the interrupt number of the module.
-> +   Typically this is <1>.
-> + - interrupt-parent: phandle to the tsadc module of the i.MX25.
-> + - #address-cells: Should be <1> (setting for the subnodes)
-> + - #size-cells: Should be <0> (setting for the subnodes)
+> + - compatible: Should be "fsl,imx25-tcq".
+> + - reg: Memory range of the device.
+> + - interrupts: Should be the interrupt number associated with this module within
+> +   the tscadc unit (<0>).
+> + - interrupt-parent: Should be a phandle to the tscadc unit.
+> + - fsl,wires: Should be '<4>' or '<5>'
 > +
 > +Optional properties:
-> + - vref-ext-supply: The regulator supplying the ADC reference voltage.
-> +   Required when at least one subnode uses the this reference.
-> + - vref-xp-supply: The regulator supplying the ADC reference voltage on pin XP.
-> +   Required when at least one subnode uses this reference.
-> + - vref-yp-supply: The regulator supplying the ADC reference voltage on pin YP.
-> +   Required when at least one subnode uses this reference.
+> + - fsl,pen-debounce: Pen debounce time in nanoseconds.
+
+This and ...
+
+> + - fsl,pen-threshold: Pen-down threshold for the touchscreen. This is a value
+> +   between 1 and 4096. It is the ratio between the internal reference voltage
+> +   and the measured voltage after the plate was precharged. Resistence between
+> +   plates and therefore the voltage decreases with pressure so that a smaller
+> +   value is equivalent to a higher pressure.
+> + - fsl,settling-time: Settling time in nanoseconds. The settling time is before
+> +   the actual touch detection to wait for an even charge distribution in the
+> +   plate.
+
+... this still need units (-ns) appended to the property name.
+
 > +
-> +Sub-nodes:
-> +Optionally you can define subnodes which define the reference voltage
-> +for the analog inputs.
-> +
-> +Required properties for subnodes:
-> + - reg: Should be the number of the analog input.
-> +     0: xp
-> +     1: yp
-> +     2: xn
-> +     3: yn
-> +     4: wiper
-> +     5: inaux0
-> +     6: inaux1
-> +     7: inaux2
-> +Optional properties for subnodes:
-> + - fsl,adc-refp: specifies the positive reference input as defined in
-> +     <dt-bindings/iio/adc/fsl-imx25-gcq.h>
-> + - fsl,adc-refn: specifies the negative reference input as defined in
-> +     <dt-bindings/iio/adc/fsl-imx25-gcq.h>
+> +This device includes two conversion queues which can be added as subnodes.
+> +The first queue is for the touchscreen, the second for general purpose ADC.
 > +
 > +Example:
-> +
-> +	adc: adc@50030800 {
-> +		compatible = "fsl,imx25-gcq";
-> +		reg = <0x50030800 0x60>;
+> +	tsc: tcq@50030400 {
+> +		compatible = "fsl,imx25-tcq";
+> +		reg = <0x50030400 0x60>;
 > +		interrupt-parent = <&tscadc>;
-> +		interrupts = <1>;
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +
-> +		inaux@5 {
-> +			reg = <5>;
-> +			fsl,adc-refp = <MX25_ADC_REFP_INT>;
-> +			fsl,adc-refn = <MX25_ADC_REFN_NGND>;
-> +		};
+> +		interrupts = <0>;
+> +		fsl,wires = <4>;
 > +	};
-> diff --git a/include/dt-bindings/iio/adc/fsl-imx25-gcq.h b/include/dt-bindings/iio/adc/fsl-imx25-gcq.h
-> new file mode 100644
-> index 000000000000..87abdd4a7674
-> --- /dev/null
-> +++ b/include/dt-bindings/iio/adc/fsl-imx25-gcq.h
-> @@ -0,0 +1,18 @@
-> +/*
-> + * This header provides constants for configuring the I.MX25 ADC
-> + */
-> +
-> +#ifndef _DT_BINDINGS_IIO_ADC_FS_IMX25_GCQ_H
-> +#define _DT_BINDINGS_IIO_ADC_FS_IMX25_GCQ_H
-> +
-> +#define MX25_ADC_REFP_YP	0 /* YP voltage reference */
-> +#define MX25_ADC_REFP_XP	1 /* XP voltage reference */
-> +#define MX25_ADC_REFP_EXT	2 /* External voltage reference */
-> +#define MX25_ADC_REFP_INT	3 /* Internal voltage reference */
-> +
-> +#define MX25_ADC_REFN_XN	0 /* XN ground reference */
-> +#define MX25_ADC_REFN_YN	1 /* YN ground reference */
-> +#define MX25_ADC_REFN_NGND	2 /* Internal ground reference */
-> +#define MX25_ADC_REFN_NGND2	3 /* External ground reference */
-> +
-> +#endif
 > -- 
 > 2.6.2
 > 

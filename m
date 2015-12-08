@@ -1,143 +1,288 @@
-From: Markus Pargmann <mpa@pengutronix.de>
-Subject: Re: [PATCH v9 3/8] ARM: dt: Binding documentation for imx25 touchscreen controller
-Date: Tue, 08 Dec 2015 11:33:39 +0100
-Message-ID: <6094071.cpaNNKXzrc@adelgunde>
-References: <1449431542-1892-1-git-send-email-mpa@pengutronix.de> <1449431542-1892-4-git-send-email-mpa@pengutronix.de> <20151207204546.GA30936@rob-hp-laptop>
+From: Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v11 2/8] Input: goodix - reset device at init
+Date: Tue, 8 Dec 2015 15:04:59 +0300
+Message-ID: <20151208150459.bfc26a32aee88da2c7f8e8bd@gmail.com>
+References: <1447936001-21420-1-git-send-email-irina.tirdea@intel.com>
+	<1447936001-21420-3-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart161066863.S5KdsbnWZj"; micalg="pgp-sha256"; protocol="application/pgp-signature"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:37827 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932544AbbLHKeE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 8 Dec 2015 05:34:04 -0500
-In-Reply-To: <20151207204546.GA30936@rob-hp-laptop>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1447936001-21420-3-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Karsten Merker <merker-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org, Fabio Estevam <festevam@gmail.com>, Sascha Hauer <kernel@pengutronix.de>, linux-iio@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Denis Carikli <denis@eukrea.com>, Eric =?ISO-8859-1?Q?B=E9nard?= <eric@eukrea.com>, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>
+
+On Thu, 19 Nov 2015 14:26:35 +0200
+Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+
+> After power on, it is recommended that the driver resets the device.
+> The reset procedure timing is described in the datasheet and is used
+> at device init (before writing device configuration) and
+> for power management. It is a sequence of setting the interrupt
+> and reset pins high/low at specific timing intervals. This procedure
+> also includes setting the slave address to the one specified in the
+> ACPI/device tree.
+> 
+> This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
+> driver gt9xx.c for Android (publicly available in Android kernel
+> trees for various devices).
+> 
+> For reset the driver needs to control the interrupt and
+> reset gpio pins (configured through ACPI/device tree). For devices
+> that do not have the gpio pins properly declared, the functionality
+> depending on these pins will not be available, but the device can still
+> be used with basic functionality.
+> 
+> For both device tree and ACPI, the interrupt gpio pin configuration is
+> read from the "irq-gpios" property and the reset pin configuration is
+> read from the "reset-gpios" property. For ACPI 5.1, named properties
+> can be specified using the _DSD section. This functionality will not be
+> available for devices that use indexed gpio pins declared in the _CRS
+> section (we need to provide backward compatibility with devices
+> that do not support using the interrupt gpio pin as output).
+> 
+> For ACPI, the pins can be specified using ACPI 5.1:
+> Device (STAC)
+> {
+>     Name (_HID, "GDIX1001")
+>     ...
+> 
+>     Method (_CRS, 0, Serialized)
+>     {
+>         Name (RBUF, ResourceTemplate ()
+>         {
+>             I2cSerialBus (0x0014, ControllerInitiated, 0x00061A80,
+>                 AddressingMode7Bit, "\\I2C0",
+>                 0x00, ResourceConsumer, ,
+>                 )
+> 
+>             GpioInt (Edge, ActiveHigh, Exclusive, PullNone, 0x0000,
+>                 "\\I2C0", 0x00, ResourceConsumer, ,
+>                  )
+>                  {   // Pin list
+>                      0
+>                  }
+> 
+>             GpioIo (Exclusive, PullDown, 0x0000, 0x0000,
+>                 IoRestrictionOutputOnly, "\\I2C0", 0x00,
+>                 ResourceConsumer, ,
+>                 )
+>                 {
+>                      1
+>                 }
+>         })
+>         Return (RBUF)
+>     }
+> 
+>     Name (_DSD,  Package ()
+>     {
+>         ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+>         Package ()
+>         {
+>             Package (2) {"irq-gpios", Package() {^STAC, 0, 0, 0 }},
+>             Package (2) {"reset-gpios", Package() {^STAC, 1, 0, 0 }},
+>             ...
+>         }
+>     }
+> 
+> Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+
+Works on the Wexler TAB7200
+
+Tested-by: Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+
+> ---
+>  .../bindings/input/touchscreen/goodix.txt          |   9 ++
+>  drivers/input/touchscreen/Kconfig                  |   1 +
+>  drivers/input/touchscreen/goodix.c                 | 101 +++++++++++++++++++++
+>  3 files changed, 111 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> index 8ba98ee..c42d2ce 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> @@ -13,6 +13,12 @@ Required properties:
+>   - interrupt-parent	: Interrupt controller to which the chip is connected
+>   - interrupts		: Interrupt to which the chip is connected
+>  
+> +Optional properties:
+> +
+> + - irq-gpios		: GPIO pin used for IRQ. The driver uses the
+> +			  interrupt gpio pin as output to reset the device.
+> + - reset-gpios		: GPIO pin used for reset
+> +
+>  Example:
+>  
+>  	i2c@00000000 {
+> @@ -23,6 +29,9 @@ Example:
+>  			reg = <0x5d>;
+>  			interrupt-parent = <&gpio>;
+>  			interrupts = <0 0>;
+> +
+> +			irq-gpios = <&gpio1 0 0>;
+> +			reset-gpios = <&gpio1 1 0>;
+>  		};
+>  
+>  		/* ... */
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 2ccc522..121a0ac 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -324,6 +324,7 @@ config TOUCHSCREEN_FUJITSU
+>  config TOUCHSCREEN_GOODIX
+>  	tristate "Goodix I2C touchscreen"
+>  	depends on I2C
+> +	depends on GPIOLIB
+>  	help
+>  	  Say Y here if you have the Goodix touchscreen (such as one
+>  	  installed in Onda v975w tablets) connected to your
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index 56d0330..4744032 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -16,6 +16,7 @@
+>  
+>  #include <linux/kernel.h>
+>  #include <linux/dmi.h>
+> +#include <linux/gpio.h>
+>  #include <linux/i2c.h>
+>  #include <linux/input.h>
+>  #include <linux/input/mt.h>
+> @@ -37,8 +38,13 @@ struct goodix_ts_data {
+>  	unsigned int int_trigger_type;
+>  	bool rotated_screen;
+>  	int cfg_len;
+> +	struct gpio_desc *gpiod_int;
+> +	struct gpio_desc *gpiod_rst;
+>  };
+>  
+> +#define GOODIX_GPIO_INT_NAME		"irq"
+> +#define GOODIX_GPIO_RST_NAME		"reset"
+> +
+>  #define GOODIX_MAX_HEIGHT		4096
+>  #define GOODIX_MAX_WIDTH		4096
+>  #define GOODIX_INT_TRIGGER		1
+> @@ -237,6 +243,88 @@ static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
+>  	return IRQ_HANDLED;
+>  }
+>  
+> +static int goodix_int_sync(struct goodix_ts_data *ts)
+> +{
+> +	int error;
+> +
+> +	error = gpiod_direction_output(ts->gpiod_int, 0);
+> +	if (error)
+> +		return error;
+> +	msleep(50);				/* T5: 50ms */
+> +
+> +	return gpiod_direction_input(ts->gpiod_int);
+> +}
+> +
+> +/**
+> + * goodix_reset - Reset device during power on
+> + *
+> + * @ts: goodix_ts_data pointer
+> + */
+> +static int goodix_reset(struct goodix_ts_data *ts)
+> +{
+> +	int error;
+> +
+> +	/* begin select I2C slave addr */
+> +	error = gpiod_direction_output(ts->gpiod_rst, 0);
+> +	if (error)
+> +		return error;
+> +	msleep(20);				/* T2: > 10ms */
+> +	/* HIGH: 0x28/0x29, LOW: 0xBA/0xBB */
+> +	error = gpiod_direction_output(ts->gpiod_int, ts->client->addr == 0x14);
+> +	if (error)
+> +		return error;
+> +	usleep_range(100, 2000);		/* T3: > 100us */
+> +	error = gpiod_direction_output(ts->gpiod_rst, 1);
+> +	if (error)
+> +		return error;
+> +	usleep_range(6000, 10000);		/* T4: > 5ms */
+> +	/* end select I2C slave addr */
+> +	error = gpiod_direction_input(ts->gpiod_rst);
+> +	if (error)
+> +		return error;
+> +	return goodix_int_sync(ts);
+> +}
+> +
+> +/**
+> + * goodix_get_gpio_config - Get GPIO config from ACPI/DT
+> + *
+> + * @ts: goodix_ts_data pointer
+> + */
+> +static int goodix_get_gpio_config(struct goodix_ts_data *ts)
+> +{
+> +	int error;
+> +	struct device *dev;
+> +	struct gpio_desc *gpiod;
+> +
+> +	if (!ts->client)
+> +		return -EINVAL;
+> +	dev = &ts->client->dev;
+> +
+> +	/* Get the interrupt GPIO pin number */
+> +	gpiod = devm_gpiod_get_optional(dev, GOODIX_GPIO_INT_NAME, GPIOD_IN);
+> +	if (IS_ERR(gpiod)) {
+> +		error = PTR_ERR(gpiod);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_dbg(dev, "Failed to get %s GPIO: %d\n",
+> +				GOODIX_GPIO_INT_NAME, error);
+> +		return error;
+> +	}
+> +	ts->gpiod_int = gpiod;
+> +
+> +	/* Get the reset line GPIO pin number */
+> +	gpiod = devm_gpiod_get_optional(dev, GOODIX_GPIO_RST_NAME, GPIOD_IN);
+> +	if (IS_ERR(gpiod)) {
+> +		error = PTR_ERR(gpiod);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_dbg(dev, "Failed to get %s GPIO: %d\n",
+> +				GOODIX_GPIO_RST_NAME, error);
+> +		return error;
+> +	}
+> +	ts->gpiod_rst = gpiod;
+> +
+> +	return 0;
+> +}
+> +
+>  /**
+>   * goodix_read_config - Read the embedded configuration of the panel
+>   *
+> @@ -405,6 +493,19 @@ static int goodix_ts_probe(struct i2c_client *client,
+>  	ts->client = client;
+>  	i2c_set_clientdata(client, ts);
+>  
+> +	error = goodix_get_gpio_config(ts);
+> +	if (error)
+> +		return error;
+> +
+> +	if (ts->gpiod_int && ts->gpiod_rst) {
+> +		/* reset the controller */
+> +		error = goodix_reset(ts);
+> +		if (error) {
+> +			dev_err(&client->dev, "Controller reset failed.\n");
+> +			return error;
+> +		}
+> +	}
+> +
+>  	error = goodix_i2c_test(client);
+>  	if (error) {
+>  		dev_err(&client->dev, "I2C communication failure: %d\n", error);
+> -- 
+> 1.9.1
+> 
 
 
---nextPart161066863.S5KdsbnWZj
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="us-ascii"
-
-Hi,
-
-On Monday 07 December 2015 14:45:46 Rob Herring wrote:
-> On Sun, Dec 06, 2015 at 08:52:16PM +0100, Markus Pargmann wrote:
-> > This is the touchscreen conversion queue binding documentation. It =
-uses
-> > the shared imx25 ADC.
-> >=20
-> > Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
-> > ---
-> >=20
-> > Notes:
-> >     Changes in v9:
-> >      - Updated binding descriptions
-> >    =20
-> >     Changes in v5:
-> >      - Fix signed/unsigned comparison
-> >      - Fix unused variable settling_time by putting it in the corre=
-ct argument list
-> >      - Use continous conversion queue with the repeat feature and a=
- proper
-> >        repeat-wait. Previously the touchscreen caused massive numbe=
-r of interrupts.
-> >=20
-> >  .../bindings/input/touchscreen/fsl-mx25-tcq.txt    | 35 ++++++++++=
-++++++++++++
-> >  1 file changed, 35 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/touchsc=
-reen/fsl-mx25-tcq.txt
-> >=20
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/fs=
-l-mx25-tcq.txt b/Documentation/devicetree/bindings/input/touchscreen/fs=
-l-mx25-tcq.txt
-> > new file mode 100644
-> > index 000000000000..d45e50872114
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-=
-tcq.txt
-> > @@ -0,0 +1,35 @@
-> > +Freescale mx25 TS conversion queue module
-> > +
-> > +mx25 touchscreen conversion queue module which controls the ADC un=
-it of the
-> > +mx25 for attached touchscreens.
-> > +
-> > +Required properties:
-> > + - compatible: Should be "fsl,imx25-tcq".
-> > + - reg: Memory range of the device.
-> > + - interrupts: Should be the interrupt number associated with this=
- module within
-> > +   the tscadc unit (<0>).
-> > + - interrupt-parent: Should be a phandle to the tscadc unit.
-> > + - fsl,wires: Should be '<4>' or '<5>'
-> > +
-> > +Optional properties:
-> > + - fsl,pen-debounce: Pen debounce time in nanoseconds.
->=20
-> This and ...
->=20
-> > + - fsl,pen-threshold: Pen-down threshold for the touchscreen. This=
- is a value
-> > +   between 1 and 4096. It is the ratio between the internal refere=
-nce voltage
-> > +   and the measured voltage after the plate was precharged. Resist=
-ence between
-> > +   plates and therefore the voltage decreases with pressure so tha=
-t a smaller
-> > +   value is equivalent to a higher pressure.
-> > + - fsl,settling-time: Settling time in nanoseconds. The settling t=
-ime is before
-> > +   the actual touch detection to wait for an even charge distribut=
-ion in the
-> > +   plate.
->=20
-> ... this still need units (-ns) appended to the property name.
-
-Thanks. I wasn't aware that the property names itself should include th=
-e units.
-Will fix that.
-
-Best Regards,
-
-Markus
-
-=2D-=20
-Pengutronix e.K.                           |                           =
-  |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0  =
-  |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-555=
-5 |
-
---nextPart161066863.S5KdsbnWZj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAABCAAGBQJWZrIJAAoJEEpcgKtcEGQQvXQP/j+LCJU18AoxZ5EiUycHkg6m
-nIfzkILPYKCD4DpvQGEQa1iu7FnsPbXOtusiknhGuBpWkyJKga+RcQB5z9XzDvID
-/nuY3MN9ExNUtYvXl7ehVaaDuBdNYE1JF6PEdR3H7QrqORmPZK57kju/UeAAtPjR
-gesaHfK4Ln5iOOxCwu5dxpr0ZUd0l9jL1YgffetQkEToY7/gE4gklfUK0WdSevrl
-m+Itq2zyE9f9DYLAf9NcvcCUhviqhCvrNDY7IvV+mQEUjlQ1KPbbl216m7wmw6Tp
-ZM59M28j1T/cqeLCsiGc/QtgbKwQP+1a0iWAD1YTN6zr13LG8bJ6aQP/uoTDWeF3
-AfNNo1zjWdOJkC3e0SLoHj+ekyHY1oYSMXuSGm/jgEl5n3oSWWaFzVKHJqjT977o
-AHozoRBslLvPwOpTqjJyaPjMzwAT2k+Zy5sZf2pM5Yhazs+jvsvffUPEw0oOGN1O
-2bq3WpDT4Fr3ZFI6yh9Gm/I3qoxo4kIg2YPL4vVJEfZRi4CMFlU4SaLremrDYhs0
-j4cYMzAjv2QFpHcfIjpaSIROWc+8XYq3LkTrR3E++7dWekq8S1dsoFPOnOQqSQPa
-V8cMlYzaHWqqfD1oB2+7JU9zkrjREToJKBGmQnjGITsYfHk0iRqNRe4tHF7bNw88
-ZVI/DwqVe+1XX6WjfyLG
-=xD7q
------END PGP SIGNATURE-----
-
---nextPart161066863.S5KdsbnWZj--
-
+-- 
+Thanks and regards,
+Aleksei Mamlin
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

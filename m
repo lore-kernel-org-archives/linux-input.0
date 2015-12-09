@@ -1,66 +1,69 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V1] input: da9063: report KEY_POWER instead of KEY_SLEEP
- during power key-press
-Date: Wed, 9 Dec 2015 09:17:04 -0800
-Message-ID: <20151209171704.GB27131@dtor-ws>
-References: <20151208180554.F29B93FB25@swsrvapps-01.diasemi.com>
+From: Clement Calmels <clement.calmels@free.fr>
+Subject: Re: [PATCH v2] Input: xpad - remove spurious events of wireless
+ xpad 360 controller
+Date: Wed, 9 Dec 2015 18:32:04 +0100
+Message-ID: <20151209183204.65a94d86@gromit>
+References: <1448210139-6144-1-git-send-email-clement.calmels@free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151208180554.F29B93FB25@swsrvapps-01.diasemi.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUX-INPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Support Opensource <support.opensource@diasemi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp6-g21.free.fr ([212.27.42.6]:61853 "EHLO smtp6-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752574AbbLIRcI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Dec 2015 12:32:08 -0500
+In-Reply-To: <1448210139-6144-1-git-send-email-clement.calmels@free.fr>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On Tue, Dec 08, 2015 at 05:55:05PM +0000, Steve Twiss wrote:
-> From: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> Stop reporting KEY_SLEEP for a short key-press and report KEY_POWER instead
-> This change applied to both DA9063 and DA9062 ONKEY drivers.
+On Sun, 22 Nov 2015 17:35:39 +0100
+clement.calmels@free.fr wrote:
 
-You need to explain why this change is needed.
-
+> From: Clement Calmels <clement.calmels@free.fr>
 > 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> When powering up a wireless xbox 360 controller, some wrong joystick
+> events are generated. It is annoying because, for example, it makes
+> unwanted moves in Steam big picture mode's menu.
 > 
+> When my controller is powering up, this packet is received by the
+> driver:
+> 00000000: 00 0f 00 f0 00 cc ff cf 8b e0 86 6a 68 f0 00
+> 20  ...........jh.. 00000010: 13 e3 20 1d 30 03 40 01 50 01 ff
+> ff              .. .0.@.P...
+> 
+> According to xboxdrv userspace driver source code, this packet is only
+> dumping a serial id and should not be interpreted as joystick events.
+> This issue can be easily seen with jstest:
+> $ jstest --event /dev/input/js0
+> 
+> This patch only adds a way to filter out this "serial" packet and as a
+> result it removes the spurous events.
+> 
+> Signed-off-by: Clement Calmels <clement.calmels@free.fr>
 > ---
+>  drivers/input/joystick/xpad.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> This patch applies against linux-next and v4.4-rc4
-> 
-> Regards,
-> Steve
-> 
-> 
->  drivers/input/misc/da9063_onkey.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
-> index 8eb697d..bb863e0 100644
-> --- a/drivers/input/misc/da9063_onkey.c
-> +++ b/drivers/input/misc/da9063_onkey.c
-> @@ -179,13 +179,13 @@ static irqreturn_t da9063_onkey_irq_handler(int irq, void *data)
->  		input_report_key(onkey->input, KEY_POWER, 1);
->  		input_sync(onkey->input);
->  		schedule_delayed_work(&onkey->work, 0);
-> -		dev_dbg(onkey->dev, "KEY_POWER pressed.\n");
-> +		dev_dbg(onkey->dev, "KEY_POWER long press.\n");
->  	} else {
-> -		input_report_key(onkey->input, KEY_SLEEP, 1);
-> +		input_report_key(onkey->input, KEY_POWER, 1);
->  		input_sync(onkey->input);
-> -		input_report_key(onkey->input, KEY_SLEEP, 0);
-> +		input_report_key(onkey->input, KEY_POWER, 0);
->  		input_sync(onkey->input);
-> -		dev_dbg(onkey->dev, "KEY_SLEEP pressed.\n");
-> +		dev_dbg(onkey->dev, "KEY_POWER short press.\n");
->  	}
+> diff --git a/drivers/input/joystick/xpad.c
+> b/drivers/input/joystick/xpad.c index fd4100d..c44cbd4 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -527,7 +527,7 @@ static void xpad360w_process_packet(struct
+> usb_xpad *xpad, u16 cmd, unsigned cha }
 >  
->  	return IRQ_HANDLED;
-> -- 
-> end-of-patch for PATCH V1
-> 
+>  	/* Valid pad data */
+> -	if (!(data[1] & 0x1))
+> +	if (data[1] != 0x1)
+>  		return;
+>  
+>  	xpad360_process_packet(xpad, cmd, &data[4]);
 
--- 
-Dmitry
+Hi,
+
+This patch is waiting for a review since 30 days:
+http://marc.info/?l=linux-input&m=144821014611458&w=2
+Please have a look.
+
+Best regards,
+Clement

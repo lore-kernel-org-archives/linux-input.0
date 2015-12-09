@@ -1,61 +1,94 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH 000/182] Rid struct gpio_chip from container_of() usage
-Date: Wed, 9 Dec 2015 13:44:11 +0000
-Message-ID: <20151209134410.GH8644@n2100.arm.linux.org.uk>
-References: <1449666515-23343-1-git-send-email-linus.walleij@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1449666515-23343-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexandre Courbot <acourbot-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Amit Kucheria <amit.kucheria-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Haavard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Greg Ungerer <gerg-JBU5SbJe1FlAfugRpC6u6w@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 154/182] hid: cp2112: use gpiochip data pointer
+Date: Wed,  9 Dec 2015 14:44:18 +0100
+Message-ID: <1449668658-5642-1-git-send-email-linus.walleij@linaro.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lf0-f43.google.com ([209.85.215.43]:32992 "EHLO
+	mail-lf0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754643AbbLINoX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2015 08:44:23 -0500
+Received: by lfaz4 with SMTP id z4so34532111lfa.0
+        for <linux-input@vger.kernel.org>; Wed, 09 Dec 2015 05:44:22 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-gpio@vger.kernel.org, Johan Hovold <johan@kernel.org>, Alexandre Courbot <acourbot@nvidia.com>, Michael Welling <mwelling@ieee.org>, Markus Pargmann <mpa@pengutronix.de>, Jiri Kosina <jikos@kernel.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org
 
-On Wed, Dec 09, 2015 at 02:08:35PM +0100, Linus Walleij wrote:
-> Because we want to have a proper userspace ABI for GPIO chips,
-> which involves using a character device that the user opens
-> and closes. While the character device is open, the underlying
-> kernel objects must not go away.
+This makes the driver use the data pointer added to the gpio_chip
+to store a pointer to the state container instead of relying on
+container_of().
 
-Okay, so you stop the gpio_chip struct from going away.  What
-about the code which is called via gpio_chip - say, if userspace
-keep shte chardev open, and someone rmmod's the driver providing
-the GPIO driver.
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+Jiri: please ACK this so I can merge it in the GPIO tree.
+---
+ drivers/hid/hid-cp2112.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-I'm not sure that splitting up objects in this way really solves
-anything at all.  Yes, it divorses the driver's private data from
-the subsystem data, but is that really an advantage?
-
-Network drivers have a similar issue, and the way this problem is
-solved there is that alloc_netdev() is always used to allocate the
-subsystem data structure and any driver private data structure as
-one allocation, and the lifetime of both objects remains under the
-control of the subsystem.
-
-The allocated memory is only freed when the last user goes away,
-and net has protection to prevent an unregistered driver from
-being called (via locks on every path into the layer.)
-
-Things get a little more complex with gpio, because there's the
-issue that some methods are spinlocked while others can take
-semaphores, but it should be possible to come up with a solution
-to that - maybe an atomic_t which is incremented whenever we're
-in some operation provided it's >= 0 (otherwise it fails), and
-decremented when the operation completes.  We can then control
-in the unregistration path further GPIO accesses, and also
-prevent new accesses occuring by setting the atomic_t to -1.
-This shouldn't require any additional locking in any path.  It
-does mean that the unregistration path needs careful thought to
-ensure that when we set it to -1, we wait for it to be dropped
-by the appropriate amount.
-
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index f47954e8fd2c..0ccdd37e121a 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -24,7 +24,7 @@
+  *   http://www.silabs.com/Support%20Documents/TechnicalDocs/AN495.pdf
+  */
+ 
+-#include <linux/gpio.h>
++#include <linux/gpio/driver.h>
+ #include <linux/hid.h>
+ #include <linux/i2c.h>
+ #include <linux/module.h>
+@@ -169,8 +169,7 @@ MODULE_PARM_DESC(gpio_push_pull, "GPIO push-pull configuration bitmask");
+ 
+ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
+ {
+-	struct cp2112_device *dev = container_of(chip, struct cp2112_device,
+-						 gc);
++	struct cp2112_device *dev = gpiochip_get_data(chip);
+ 	struct hid_device *hdev = dev->hdev;
+ 	u8 buf[5];
+ 	int ret;
+@@ -198,8 +197,7 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
+ 
+ static void cp2112_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
+ {
+-	struct cp2112_device *dev = container_of(chip, struct cp2112_device,
+-						 gc);
++	struct cp2112_device *dev = gpiochip_get_data(chip);
+ 	struct hid_device *hdev = dev->hdev;
+ 	u8 buf[3];
+ 	int ret;
+@@ -216,8 +214,7 @@ static void cp2112_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
+ 
+ static int cp2112_gpio_get(struct gpio_chip *chip, unsigned offset)
+ {
+-	struct cp2112_device *dev = container_of(chip, struct cp2112_device,
+-						 gc);
++	struct cp2112_device *dev = gpiochip_get_data(chip);
+ 	struct hid_device *hdev = dev->hdev;
+ 	u8 buf[2];
+ 	int ret;
+@@ -235,8 +232,7 @@ static int cp2112_gpio_get(struct gpio_chip *chip, unsigned offset)
+ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
+ 					unsigned offset, int value)
+ {
+-	struct cp2112_device *dev = container_of(chip, struct cp2112_device,
+-						 gc);
++	struct cp2112_device *dev = gpiochip_get_data(chip);
+ 	struct hid_device *hdev = dev->hdev;
+ 	u8 buf[5];
+ 	int ret;
+@@ -1106,7 +1102,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	dev->gc.can_sleep		= 1;
+ 	dev->gc.parent			= &hdev->dev;
+ 
+-	ret = gpiochip_add(&dev->gc);
++	ret = gpiochip_add_data(&dev->gc, dev);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "error registering gpio chip\n");
+ 		goto err_free_i2c;
 -- 
-RMK's Patch system: http://www.arm.linux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
---
-To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+2.4.3
+

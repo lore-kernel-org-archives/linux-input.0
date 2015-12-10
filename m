@@ -1,89 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Patch-V2 1/6] INPUT: xpad: Add minimal support for Logitech G920 Wheel
-Date: Thu, 10 Dec 2015 10:40:58 -0800
-Message-ID: <CAKdAkRSBTBTW8ma79hh+0sr4izJ70SnvUb1gmPFy3MoVWYaUbA@mail.gmail.com>
-References: <1447345535-2912-1-git-send-email-simon@mungewell.org>
-	<1447345535-2912-2-git-send-email-simon@mungewell.org>
-	<alpine.LNX.2.00.1511191449130.20111@pobox.suse.cz>
-	<20151119183106.GC24773@dtor-ws>
-	<CAKdAkRTaTA8KFQripYP0ZcFb+5G7OC_Ecnhrwum4L9hsQ-PVxg@mail.gmail.com>
-	<CAKdAkRRBtVfTss9AV+DgTtCXf8PVks5pCB4VnR5sQvgW=S3HyA@mail.gmail.com>
-	<20151210170853.GC16026@mail.corp.redhat.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: [PATCH v2] Input: atmel_mxt_ts - Add maxtouch to I2C table for
+ module autoload
+Date: Thu, 10 Dec 2015 20:07:47 -0300
+Message-ID: <566A05C3.30204@osg.samsung.com>
+References: <1448046582-20231-1-git-send-email-javier@osg.samsung.com>
+ <20151120191558.GD26895@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20151210170853.GC16026@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Simon Wood <simon@mungewell.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Edwin <Edwin@velds.nl>, =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lists.s-osg.org ([54.187.51.154]:34364 "EHLO lists.s-osg.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753145AbbLJXHx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Dec 2015 18:07:53 -0500
+In-Reply-To: <20151120191558.GD26895@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org
 
-On Thu, Dec 10, 2015 at 9:08 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> On Dec 09 2015 or thereabouts, Dmitry Torokhov wrote:
->> On Wed, Dec 9, 2015 at 5:23 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > On Thu, Nov 19, 2015 at 10:31 AM, Dmitry Torokhov
->> > <dmitry.torokhov@gmail.com> wrote:
->> >> On Thu, Nov 19, 2015 at 02:50:51PM +0100, Jiri Kosina wrote:
->> >>> On Thu, 12 Nov 2015, Simon Wood wrote:
->> >>>
->> >>> > When plugged in the Logitech G920 wheel starts with USBID 046d:c261
->> >>> > and behaviors as a vendor specific class. If a 'magic' byte sequence
->> >>> > is sent the wheel will detach and reconnect as a HID device with the
->> >>> > USBID 046d:c262.
->> >>> >
->> >>> > Signed-off-by: Simon Wood <simon@mungewell.org>
->> >>>
->> >>> Adding Dmitry to CC.
->> >>>
->> >>> Dmitry, I am planning to take this through my tree together with the rest
->> >>> of the actual HID support for that device if you Ack this.
->> >>
->> >> Hmm, I have an incoming series for xbox that night clash with this... If
->> >> you'll put it in a clean branch off 4.3 I'd pull it and then get more
->> >> changes on top.
->> >>
->> >> Can we also change the subject as it is not about adding a minimal
->> >> support. Something like "Input: xpad - switch Logitech G920 Wheel into
->> >> HID mode"
->> >>
->> >> Otherwise:
->> >>
->> >> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> >
->> > Hmm, looking sat this some more why are we waiting to switch device
->> > mode until after userspace opens input device instead of when we are
->> > executing driver probe()?
->> >
+Hello Dmitry,
+
+On 11/20/2015 04:15 PM, Dmitry Torokhov wrote:
+> On Fri, Nov 20, 2015 at 04:09:42PM -0300, Javier Martinez Canillas wrote:
+>> The Atmel maxtouch DT binding documents that the compatible string for
+>> the device is "atmel,maxtouch" and the I2C core always reports a module
+>> alias of the form i2c:alias where alias is the compatible string model:
 >>
->> Actually, thinking about it even more, why do we want to have this in
->> xpad.c? Have HID module handle both IDs and switch to HID mode if we
->> want HID to handle this device. I think we should revert/drop this
->> patch.
->>
+>> $ grep MODALIAS /sys/devices/platform/12e00000.i2c/i2c-8/8-004b/uevent
+>> MODALIAS=i2c:maxtouch
+> 
+> Do we know why we are not reporting modalias as "of:..." so that
+> autoloading using the of table works properly?
+> 
+> It sounds like the of matching and modalias is quite a mess at the
+> moment.
 >
-> Hi Dmitry,
 
-Hi Benjamin,
+I already explained the issues with OF modalias and why I believe
+$SUBJECT is the least bad solution for now until the I2C subsystem
+is changed to properly report OF modalias.
 
->
-> IIRC, last time I saw an XBox-like controller, it doesn't register as a
-> HID device at all. SO I think It will be hard to switch it into the HID
-> mode from HID directly.
-> Simon, can you confirm that the device does not contains any references
-> to HID while in the XBox mode (lsusb -v should give enough information).
->
-> Switching the device during probe in xpad.c makes a lot of sense
-> however.
+Please let me know if you are considering applying this or if
+module autoloading will be broken for this driver in the meantime.
+ 
+> Thanks.
+> 
 
-It makes as much sense doing it in xpad as doing it from a random USB
-network driver. I mean the only reason we are doing it from xpad is
-because of name and the fat that it has usb_driver structure. Nobody
-stops you from creating a tiny USB stub driver in hid portion that
-would probe the "non-hid" device and switch it over to hid.
-
-Thanks.
-
+Best regards,
 -- 
-Dmitry
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America

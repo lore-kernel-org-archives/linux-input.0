@@ -1,41 +1,42 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH 6/6] Input: psmouse - limit protocols that we try on
- passthrough ports
-Date: Fri, 11 Dec 2015 12:50:09 +0100
-Message-ID: <20151211115009.GL12308@pali>
-References: <1448774036-39040-1-git-send-email-dmitry.torokhov@gmail.com>
- <1448774036-39040-7-git-send-email-dmitry.torokhov@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] HID: enable all buttons on the TiVo Slide Pro remote
+Date: Fri, 11 Dec 2015 11:18:10 -0800
+Message-ID: <CAKdAkRS6HfP91-Hn789GQdgcE3whrCey1Dxu+j3xcDNM2ySNYA@mail.gmail.com>
+References: <i825gaplvjcd1oha4ethkjj325m51ujano@4ax.com>
+	<alpine.LNX.2.00.1503151005240.24876@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1448774036-39040-7-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Thomas Hellstrom <thellstrom@vmware.com>, jckeerthan@gmail.com, till2.schaefer@uni-dortmund.de, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f179.google.com ([209.85.214.179]:33266 "EHLO
+	mail-ob0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751818AbbLKTSL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Dec 2015 14:18:11 -0500
+Received: by obbsd4 with SMTP id sd4so40751439obb.0
+        for <linux-input@vger.kernel.org>; Fri, 11 Dec 2015 11:18:10 -0800 (PST)
+In-Reply-To: <alpine.LNX.2.00.1503151005240.24876@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Forest Wilkinson <web11.forest@tibit.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, illumilore@gmail.com
 
-On Saturday 28 November 2015 21:13:56 Dmitry Torokhov wrote:
-> PS/2 protocol is slow, and using it with pass-through port (where we
-> encapsulate PS/2 into PS/2) is slower yet so it takes quite a bit of =
-time
-> to do full protocol discovery for device attached to a pass-through p=
-ort.
-> However, so far we have not see anything but trackpoints or basic PS/=
-2
-> mice on pass-through ports, so let's limit protocols that we probe th=
-ere
-> to Trackpoint, IntelliMouse Explorer, IntelliMouse, and bare PS/2 pro=
-tocol,
-> and avoid other extended protocols, such as Synaptics, ALPS, etc.
->=20
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Sun, Mar 15, 2015 at 7:05 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Thu, 12 Mar 2015, Forest Wilkinson wrote:
+>
+>> The linux kernel has supported the TiVo Slide remote control for some time,
+>> but does not recognize the USB ID of the newer Slide Pro. This patch adds
+>> the missing data structures so the newer remote will be recognized by the
+>> driver, thereby allowing the TiVo, LiveTV, and Thumbs Up/Down buttons to be
+>> mapped with a hwdb file.
+>>
+>> Signed-off-by: Forest Wilkinson <web11.forest@tibit.com>
+>
+> Applied to for-4.0/upstream-fixes.
 
-Reviewed-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+There is a complaint in bugzilla that it may have broken their remote:
+https://bugzilla.kernel.org/show_bug.cgi?id=107791
 
-Thanks for this patch series!
+Thanks.
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+-- 
+Dmitry

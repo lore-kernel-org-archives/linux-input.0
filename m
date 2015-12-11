@@ -1,54 +1,57 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH v2] Input: atmel_mxt_ts - Add maxtouch to I2C table for
- module autoload
-Date: Thu, 10 Dec 2015 20:07:47 -0300
-Message-ID: <566A05C3.30204@osg.samsung.com>
-References: <1448046582-20231-1-git-send-email-javier@osg.samsung.com>
- <20151120191558.GD26895@dtor-ws>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/2] Input: add touchscreen bindings for TS-4800
+Date: Thu, 10 Dec 2015 21:39:54 -0600
+Message-ID: <20151211033954.GA638@rob-hp-laptop>
+References: <1449763872-572-1-git-send-email-damien.riegel@savoirfairelinux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:34364 "EHLO lists.s-osg.org"
+Received: from mail.kernel.org ([198.145.29.136]:42283 "EHLO mail.kernel.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753145AbbLJXHx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Dec 2015 18:07:53 -0500
-In-Reply-To: <20151120191558.GD26895@dtor-ws>
+	id S1751312AbbLKDj7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Dec 2015 22:39:59 -0500
+Content-Disposition: inline
+In-Reply-To: <1449763872-572-1-git-send-email-damien.riegel@savoirfairelinux.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org
+To: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, kernel@savoirfairelinux.com
 
-Hello Dmitry,
-
-On 11/20/2015 04:15 PM, Dmitry Torokhov wrote:
-> On Fri, Nov 20, 2015 at 04:09:42PM -0300, Javier Martinez Canillas wrote:
->> The Atmel maxtouch DT binding documents that the compatible string for
->> the device is "atmel,maxtouch" and the I2C core always reports a module
->> alias of the form i2c:alias where alias is the compatible string model:
->>
->> $ grep MODALIAS /sys/devices/platform/12e00000.i2c/i2c-8/8-004b/uevent
->> MODALIAS=i2c:maxtouch
+On Thu, Dec 10, 2015 at 11:11:11AM -0500, Damien Riegel wrote:
+> Add bindings for the TS-4800 touchscreen.
 > 
-> Do we know why we are not reporting modalias as "of:..." so that
-> autoloading using the of table works properly?
+> Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+
+Generally, there are other properties needed from the common touchscreen 
+binding. You don't need any of those here?
+
+Otherwise,
+
+Acked-by: Rob Herring <robh@kernel.org>
+
+> ---
+>  .../devicetree/bindings/input/touchscreen/ts4800-ts.txt      | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ts4800-ts.txt
 > 
-> It sounds like the of matching and modalias is quite a mess at the
-> moment.
->
-
-I already explained the issues with OF modalias and why I believe
-$SUBJECT is the least bad solution for now until the I2C subsystem
-is changed to properly report OF modalias.
-
-Please let me know if you are considering applying this or if
-module autoloading will be broken for this driver in the meantime.
- 
-> Thanks.
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ts4800-ts.txt b/Documentation/devicetree/bindings/input/touchscreen/ts4800-ts.txt
+> new file mode 100644
+> index 0000000..63282fa
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/ts4800-ts.txt
+> @@ -0,0 +1,12 @@
+> +* TS-4800 Touchscreen bindings
+> +
+> +Required properties:
+> +- compatible: must be "technologic,ts4800-ts"
+> +- reg: physical base address of the controller and length of memory mapped
+> +  region.
+> +- syscon: phandle / integers array that points to the syscon node which
+> +          describes the FPGA's syscon registers.
+> +          - phandle to FPGA's syscon
+> +          - offset to the touchscreen register
+> +          - offset to the touchscreen enable bit
+> +
+> -- 
+> 2.5.0
 > 
-
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America

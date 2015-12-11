@@ -1,73 +1,58 @@
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH] hid: add support for Lilliput touchscreen
-Date: Fri, 11 Dec 2015 19:47:44 +0000
-Message-ID: <1449863264-14184-1-git-send-email-srinivas.kandagatla@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Kiran Rudramuni <kchitrik@codeaurora.org>, Nicolas Dechesne <nicolas.dechesne@linaro.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Input: atmel_mxt_ts - Add maxtouch to I2C table for
+ module autoload
+Date: Fri, 11 Dec 2015 13:24:22 -0800
+Message-ID: <20151211212422.GA32425@dtor-ws>
+References: <1448046582-20231-1-git-send-email-javier@osg.samsung.com>
+ <20151120191558.GD26895@dtor-ws>
+ <566A05C3.30204@osg.samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:33077 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750880AbbLKVY0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Dec 2015 16:24:26 -0500
+Content-Disposition: inline
+In-Reply-To: <566A05C3.30204@osg.samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org
 
-From: Kiran Rudramuni <kchitrik@codeaurora.org>
+Hi Javier,
 
-This patch adds support to Liliput capacitive touchscreeen.
+On Thu, Dec 10, 2015 at 08:07:47PM -0300, Javier Martinez Canillas wrote:
+> Hello Dmitry,
+> 
+> On 11/20/2015 04:15 PM, Dmitry Torokhov wrote:
+> > On Fri, Nov 20, 2015 at 04:09:42PM -0300, Javier Martinez Canillas wrote:
+> >> The Atmel maxtouch DT binding documents that the compatible string for
+> >> the device is "atmel,maxtouch" and the I2C core always reports a module
+> >> alias of the form i2c:alias where alias is the compatible string model:
+> >>
+> >> $ grep MODALIAS /sys/devices/platform/12e00000.i2c/i2c-8/8-004b/uevent
+> >> MODALIAS=i2c:maxtouch
+> > 
+> > Do we know why we are not reporting modalias as "of:..." so that
+> > autoloading using the of table works properly?
+> > 
+> > It sounds like the of matching and modalias is quite a mess at the
+> > moment.
+> >
+> 
+> I already explained the issues with OF modalias and why I believe
+> $SUBJECT is the least bad solution for now until the I2C subsystem
+> is changed to properly report OF modalias.
+> 
+> Please let me know if you are considering applying this or if
+> module autoloading will be broken for this driver in the meantime.
 
-Signed-off-by: Kiran Rudramuni <kchitrik@codeaurora.org>
-Signed-off-by: Nicolas Dechesne <nicolas.dechesne@linaro.org>
----
-Hi
+My bad, I was going to apply it several times but then my attention
+would wander to some other patchset and I'd forget.
 
-This patch has been in my local tree for long time, tested in
-various Hackathons. Could you please take this for v4.5.
+Applied now.
 
-thanks,
-srini
-
- drivers/hid/hid-core.c       | 1 +
- drivers/hid/hid-ids.h        | 4 ++++
- drivers/hid/hid-multitouch.c | 5 +++++
- 3 files changed, 10 insertions(+)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index c6f7a69..4350376 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2051,6 +2051,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_LILLIPUT, USB_PROD_ID_LILLIPUT) },
- 
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9024a3d..f87993f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1055,4 +1055,8 @@
- #define USB_DEVICE_ID_RAPHNET_2NES2SNES	0x0002
- #define USB_DEVICE_ID_RAPHNET_4NES4SNES	0x0003
- 
-+/* Lilliput Capacitive TouchScreen */
-+#define USB_VENDOR_ID_LILLIPUT  0x1391
-+#define USB_PROD_ID_LILLIPUT    0x2112
-+
- #endif
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 3d664d0..580749e 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1209,6 +1209,11 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
- 			USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0040) },
- 
-+	/* Lilliput multitouch panels */
-+	{  .driver_data = MT_CLS_DEFAULT,
-+		HID_USB_DEVICE(USB_VENDOR_ID_LILLIPUT,
-+			USB_PROD_ID_LILLIPUT) },
-+
- 	/* CVTouch panels */
- 	{ .driver_data = MT_CLS_NSMU,
- 		MT_USB_DEVICE(USB_VENDOR_ID_CVTOUCH,
 -- 
-1.9.1
+Dmitry

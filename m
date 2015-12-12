@@ -1,519 +1,253 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v9 5/8] iio: adc: fsl,imx25-gcq driver
-Date: Sat, 12 Dec 2015 17:14:24 +0000
-Message-ID: <566C55F0.6080901@kernel.org>
-References: <1449431542-1892-1-git-send-email-mpa@pengutronix.de>
- <1449431542-1892-6-git-send-email-mpa@pengutronix.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] uinput: Rename a jump label in uinput_ioctl_handler()
+Date: Sat, 12 Dec 2015 14:23:28 -0800
+Message-ID: <20151212222328.GA40689@dtor-ws>
+References: <566ABCD9.1060404@users.sourceforge.net>
+ <566BE5F2.9070909@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:56926 "EHLO
-	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752324AbbLLRO1 (ORCPT
+Received: from mail-pf0-f173.google.com ([209.85.192.173]:35553 "EHLO
+	mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751197AbbLLWXb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Dec 2015 12:14:27 -0500
-In-Reply-To: <1449431542-1892-6-git-send-email-mpa@pengutronix.de>
+	Sat, 12 Dec 2015 17:23:31 -0500
+Content-Disposition: inline
+In-Reply-To: <566BE5F2.9070909@users.sourceforge.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Markus Pargmann <mpa@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>
-Cc: Denis Carikli <denis@eukrea.com>, =?UTF-8?Q?Eric_B=c3=a9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hartmut Knaack <knaack.h@gmx.de>, Fabio Estevam <festevam@gmail.com>
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 
-On 06/12/15 19:52, Markus Pargmann wrote:
-> This is a conversion queue driver for the mx25 SoC. It uses the central
-> ADC which is used by two seperate independent queues. This driver
-> prepares different conversion configurations for each possible input.
-> For a conversion it creates a conversionqueue of one item with the
-conversion queue
-> correct configuration for the chosen channel. It then executes the queue
-> once and disables the conversion queue afterwards.
-> 
-> The reference voltages are configurable through devicetree subnodes,
-> depending on the connections of the ADC inputs.
-> 
-> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
-> Signed-off-by: Denis Carikli <denis@eukrea.com>
-A couple of little bits inline.  Fix the return of 0 on fail in probe
-and you can add
+Hi Markus,
 
-Acked-by: Jonathan Cameron <jic23@kernel.org>
+On Sat, Dec 12, 2015 at 10:16:34AM +0100, SF Markus Elfring wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Sat, 12 Dec 2015 10:06:00 +0100
+> 
+> This issue was detected by using the Coccinelle software.
+> 
+> Choose a jump label according to the current Linux coding style convention.
+
+While I am mildly curious where you  found this Coccinelle script
+complaining about label names I find the current name is perfectly fine.
+
+Thanks.
+
+> 
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 > ---
+>  drivers/input/misc/uinput.c | 66 ++++++++++++++++++++++-----------------------
+>  1 file changed, 33 insertions(+), 33 deletions(-)
 > 
-> Notes:
->     Changes in v7:
->      - Remove separate functions mx25_gcq_disable/enable_eoq() as they were used at
->        only one position
->      - Enforce an external reference regulator if one of the conversions uses it as
->        reference. The devm_regulator_get() call was moved into
->        mx25_gcq_setup_cfgs() to be able to acquire the reference regulator when
->        necessary.
->      - Store indio_dev as platform driver data instead of the private data. This
->        was changed in probe() and remove().
->     
->     Changes in v6:
->      - Added defines for a complete list of references in the dt binding macros
-> 
->  drivers/iio/adc/Kconfig         |   7 +
->  drivers/iio/adc/Makefile        |   1 +
->  drivers/iio/adc/fsl-imx25-gcq.c | 415 ++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 423 insertions(+)
->  create mode 100644 drivers/iio/adc/fsl-imx25-gcq.c
-> 
-> diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-> index 7868c744fd4b..73145c53ec2c 100644
-> --- a/drivers/iio/adc/Kconfig
-> +++ b/drivers/iio/adc/Kconfig
-> @@ -183,6 +183,13 @@ config EXYNOS_ADC
->  	  To compile this driver as a module, choose M here: the module will be
->  	  called exynos_adc.
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index 5adbced..466f62d 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -717,7 +717,7 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>  	if (!udev->dev) {
+>  		retval = uinput_allocate_device(udev);
+>  		if (retval)
+> -			goto out;
+> +			goto unlock;
+>  	}
 >  
-> +config FSL_MX25_ADC
-> +	tristate "Freescale MX25 ADC driver"
-> +	depends on MFD_MX25_TSADC
-> +	help
-> +	  Generic Conversion Queue driver used for general purpose ADC in the
-> +	  MX25. This driver supports single measurements using the MX25 ADC.
-> +
->  config HI8435
->  	tristate "Holt Integrated Circuits HI-8435 threshold detector"
->  	select IIO_TRIGGERED_EVENT
-> diff --git a/drivers/iio/adc/Makefile b/drivers/iio/adc/Makefile
-> index 99b37a963a1e..2fe9b78e4b02 100644
-> --- a/drivers/iio/adc/Makefile
-> +++ b/drivers/iio/adc/Makefile
-> @@ -19,6 +19,7 @@ obj-$(CONFIG_BERLIN2_ADC) += berlin2-adc.o
->  obj-$(CONFIG_CC10001_ADC) += cc10001_adc.o
->  obj-$(CONFIG_DA9150_GPADC) += da9150-gpadc.o
->  obj-$(CONFIG_EXYNOS_ADC) += exynos_adc.o
-> +obj-$(CONFIG_FSL_MX25_ADC) += fsl-imx25-gcq.o
->  obj-$(CONFIG_HI8435) += hi8435.o
->  obj-$(CONFIG_LP8788_ADC) += lp8788_adc.o
->  obj-$(CONFIG_MAX1027) += max1027.o
-> diff --git a/drivers/iio/adc/fsl-imx25-gcq.c b/drivers/iio/adc/fsl-imx25-gcq.c
-> new file mode 100644
-> index 000000000000..eb9570876291
-> --- /dev/null
-> +++ b/drivers/iio/adc/fsl-imx25-gcq.c
-> @@ -0,0 +1,415 @@
-> +/*
-> + * Copyright (C) 2014-2015 Pengutronix, Markus Pargmann <mpa@pengutronix.de>
-> + *
-> + * This program is free software; you can redistribute it and/or modify it under
-> + * the terms of the GNU General Public License version 2 as published by the
-> + * Free Software Foundation.
-> + *
-> + * This is the driver for the imx25 GCQ (Generic Conversion Queue)
-> + * connected to the imx25 ADC.
-> + */
-> +
-> +#include <dt-bindings/iio/adc/fsl-imx25-gcq.h>
-> +#include <linux/clk.h>
-> +#include <linux/iio/iio.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/mfd/imx25-tsadc.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/regulator/consumer.h>
-> +
-> +#define MX25_GCQ_TIMEOUT (msecs_to_jiffies(2000))
-> +
-> +static const char * const driver_name = "mx25-gcq";
-> +
-> +enum mx25_gcq_cfgs {
-> +	MX25_CFG_XP = 0,
-> +	MX25_CFG_YP,
-> +	MX25_CFG_XN,
-> +	MX25_CFG_YN,
-> +	MX25_CFG_WIPER,
-> +	MX25_CFG_INAUX0,
-> +	MX25_CFG_INAUX1,
-> +	MX25_CFG_INAUX2,
-> +	MX25_NUM_CFGS,
-> +};
-> +
-> +struct mx25_gcq_priv {
-> +	struct regmap *regs;
-> +	struct completion completed;
-> +	struct clk *clk;
-> +	int irq;
-> +	struct regulator *vref[4];
-> +	u32 channel_vref_mv[MX25_NUM_CFGS];
-> +};
-> +
-> +#define MX25_CQG_CHAN(chan, id) {\
-> +	.type = IIO_VOLTAGE,\
-> +	.indexed = 1,\
-> +	.channel = chan,\
-> +	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) | \
-> +			      BIT(IIO_CHAN_INFO_SCALE),\
-> +	.datasheet_name = id,\
-> +}
-> +
-> +static const struct iio_chan_spec mx25_gcq_channels[MX25_NUM_CFGS] = {
-> +	MX25_CQG_CHAN(MX25_CFG_XP, "xp"),
-> +	MX25_CQG_CHAN(MX25_CFG_YP, "yp"),
-> +	MX25_CQG_CHAN(MX25_CFG_XN, "xn"),
-> +	MX25_CQG_CHAN(MX25_CFG_YN, "yn"),
-> +	MX25_CQG_CHAN(MX25_CFG_WIPER, "wiper"),
-> +	MX25_CQG_CHAN(MX25_CFG_INAUX0, "inaux0"),
-> +	MX25_CQG_CHAN(MX25_CFG_INAUX1, "inaux1"),
-> +	MX25_CQG_CHAN(MX25_CFG_INAUX2, "inaux2"),
-> +};
-> +
-> +static const char * const mx25_gcq_refp_names[] = {
-> +	[MX25_ADC_REFP_YP] = "yp",
-> +	[MX25_ADC_REFP_XP] = "xp",
-> +	[MX25_ADC_REFP_INT] = "int",
-> +	[MX25_ADC_REFP_EXT] = "ext",
-> +};
-> +
-> +static irqreturn_t mx25_gcq_irq(int irq, void *data)
-> +{
-> +	struct mx25_gcq_priv *priv = data;
-> +	u32 stats;
-> +
-> +	regmap_read(priv->regs, MX25_ADCQ_SR, &stats);
-> +
-> +	if (stats & MX25_ADCQ_SR_EOQ) {
-> +		regmap_update_bits(priv->regs, MX25_ADCQ_MR,
-> +				   MX25_ADCQ_MR_EOQ_IRQ, MX25_ADCQ_MR_EOQ_IRQ);
-> +		complete(&priv->completed);
-> +	}
-> +
-> +	/* Disable conversion queue run */
-> +	regmap_update_bits(priv->regs, MX25_ADCQ_CR, MX25_ADCQ_CR_FQS, 0);
-> +
-> +	/* Acknowledge all possible irqs */
-> +	regmap_write(priv->regs, MX25_ADCQ_SR, MX25_ADCQ_SR_FRR |
-> +		     MX25_ADCQ_SR_FUR | MX25_ADCQ_SR_FOR |
-> +		     MX25_ADCQ_SR_EOQ | MX25_ADCQ_SR_PD);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int mx25_gcq_get_raw_value(struct device *dev,
-> +				  struct iio_chan_spec const *chan,
-> +				  struct mx25_gcq_priv *priv,
-> +				  int *val)
-> +{
-> +	long timeout;
-> +	u32 data;
-> +
-> +	/* Setup the configuration we want to use */
-> +	regmap_write(priv->regs, MX25_ADCQ_ITEM_7_0,
-> +		     MX25_ADCQ_ITEM(0, chan->channel));
-> +
-> +	regmap_update_bits(priv->regs, MX25_ADCQ_MR, MX25_ADCQ_MR_EOQ_IRQ, 0);
-> +
-> +	/* Trigger queue for one run */
-> +	regmap_update_bits(priv->regs, MX25_ADCQ_CR, MX25_ADCQ_CR_FQS,
-> +			   MX25_ADCQ_CR_FQS);
-> +
-> +	timeout = wait_for_completion_interruptible_timeout(
-> +		&priv->completed, MX25_GCQ_TIMEOUT);
-> +	if (timeout < 0) {
-> +		dev_err(dev, "ADC wait for measurement failed\n");
-> +		return timeout;
-> +	} else if (timeout == 0) {
-> +		dev_err(dev, "ADC timed out\n");
-> +		return -ETIMEDOUT;
-> +	}
-> +
-> +	regmap_read(priv->regs, MX25_ADCQ_FIFO, &data);
-> +
-> +	*val = MX25_ADCQ_FIFO_DATA(data);
-> +
-> +	return IIO_VAL_INT;
-> +}
-> +
-> +static int mx25_gcq_read_raw(struct iio_dev *indio_dev,
-> +			     struct iio_chan_spec const *chan, int *val,
-> +			     int *val2, long mask)
-> +{
-> +	struct mx25_gcq_priv *priv = iio_priv(indio_dev);
-> +	int ret;
-> +
-> +	switch (mask) {
-> +	case IIO_CHAN_INFO_RAW:
-> +		mutex_lock(&indio_dev->mlock);
-> +		ret = mx25_gcq_get_raw_value(&indio_dev->dev, chan, priv, val);
-> +		mutex_unlock(&indio_dev->mlock);
-> +		return ret;
-> +
-> +	case IIO_CHAN_INFO_SCALE:
-> +		*val = priv->channel_vref_mv[chan->channel];
-> +		*val2 = 12;
-> +		return IIO_VAL_FRACTIONAL_LOG2;
-> +
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +}
-> +
-> +static const struct iio_info mx25_gcq_iio_info = {
-> +	.read_raw = mx25_gcq_read_raw,
-> +};
-> +
-> +static const struct regmap_config mx25_gcq_regconfig = {
-> +	.max_register = 0x5c,
-> +	.reg_bits = 32,
-> +	.val_bits = 32,
-> +	.reg_stride = 4,
-> +};
-> +
-> +static int mx25_gcq_setup_cfgs(struct platform_device *pdev,
-> +			       struct mx25_gcq_priv *priv)
-> +{
-> +	struct device_node *np = pdev->dev.of_node;
-> +	struct device_node *child;
-> +	struct device *dev = &pdev->dev;
-> +	unsigned int refp_used[4] = {};
-> +	int ret, i;
-> +
-> +	/*
-> +	 * Setup all configurations registers with a default conversion
-> +	 * configuration for each input
-> +	 */
-> +	for (i = 0; i < MX25_NUM_CFGS; ++i)
-> +		regmap_write(priv->regs, MX25_ADCQ_CFG(i),
-> +			     MX25_ADCQ_CFG_YPLL_OFF |
-> +			     MX25_ADCQ_CFG_XNUR_OFF |
-> +			     MX25_ADCQ_CFG_XPUL_OFF |
-> +			     MX25_ADCQ_CFG_REFP_INT |
-> +			     MX25_ADCQ_CFG_IN(i) |
-> +			     MX25_ADCQ_CFG_REFN_NGND2);
-> +
-> +	/*
-> +	 * First get all regulators to store them in channel_vref_mv if
-> +	 * necessary. Later we use that information for proper IIO scale
-> +	 * information.
-> +	 */
-> +	priv->vref[MX25_ADC_REFP_INT] = NULL;
-> +	priv->vref[MX25_ADC_REFP_EXT] =
-> +		devm_regulator_get_optional(&pdev->dev, "vref-ext");
-> +	priv->vref[MX25_ADC_REFP_XP] =
-> +		devm_regulator_get_optional(&pdev->dev, "vref-xp");
-> +	priv->vref[MX25_ADC_REFP_YP] =
-> +		devm_regulator_get_optional(&pdev->dev, "vref-yp");
-> +
-> +	for_each_child_of_node(np, child) {
-> +		u32 reg;
-> +		u32 refp = MX25_ADCQ_CFG_REFP_INT;
-> +		u32 refn = MX25_ADCQ_CFG_REFN_NGND2;
-> +
-> +		ret = of_property_read_u32(child, "reg", &reg);
-> +		if (ret) {
-> +			dev_err(dev, "Failed to get reg property\n");
-> +			return ret;
-> +		}
-> +
-> +		if (reg >= MX25_NUM_CFGS) {
-> +			dev_err(dev,
-> +				"reg value is greater than the number of available configuration registers\n");
-> +			return -EINVAL;
-> +		}
-> +
-> +		of_property_read_u32(child, "fsl,adc-refp", &refp);
-> +		of_property_read_u32(child, "fsl,adc-refn", &refn);
-> +
-> +		switch (refp) {
-> +		case MX25_ADC_REFP_EXT:
-> +		case MX25_ADC_REFP_XP:
-> +		case MX25_ADC_REFP_YP:
-> +			if (IS_ERR(priv->vref[refp])) {
-> +				dev_err(dev, "Error, trying to use external voltage reference without a vref-%s regulator.",
-> +					mx25_gcq_refp_names[refp]);
-> +				return PTR_ERR(priv->vref[refp]);
-> +			}
-> +			priv->channel_vref_mv[reg] =
-> +				regulator_get_voltage(priv->vref[refp]);
-> +			/* Conversion from uV to mV */
-> +			do_div(priv->channel_vref_mv[reg], 1000);
-> +			break;
-> +		case MX25_ADC_REFP_INT:
-> +			priv->channel_vref_mv[reg] = 2500;
-> +			break;
-> +		default:
-> +			dev_err(dev, "Invalid positive reference %d\n", refp);
-> +			return -EINVAL;
-> +		}
-> +
-> +		++refp_used[refp];
-> +
-> +		/*
-> +		 * Shift the read values to the correct positions within the
-> +		 * register.
-> +		 */
-> +		refp = MX25_ADCQ_CFG_REFP(refp);
-> +		refn = MX25_ADCQ_CFG_REFN(refn);
-> +
-> +		if ((refp & MX25_ADCQ_CFG_REFP_MASK) != refp) {
-> +			dev_err(dev, "Invalid fsl,adc-refp property value\n");
-> +			return -EINVAL;
-> +		}
-> +		if ((refn & MX25_ADCQ_CFG_REFN_MASK) != refn) {
-> +			dev_err(dev, "Invalid fsl,adc-refn property value\n");
-> +			return -EINVAL;
-> +		}
-> +
-> +		regmap_update_bits(priv->regs, MX25_ADCQ_CFG(reg),
-> +				   MX25_ADCQ_CFG_REFP_MASK |
-> +				   MX25_ADCQ_CFG_REFN_MASK,
-> +				   refp | refn);
-> +	}
-> +	regmap_update_bits(priv->regs, MX25_ADCQ_CR,
-> +			   MX25_ADCQ_CR_FRST | MX25_ADCQ_CR_QRST,
-> +			   MX25_ADCQ_CR_FRST | MX25_ADCQ_CR_QRST);
-> +
-> +	regmap_write(priv->regs, MX25_ADCQ_CR,
-> +		     MX25_ADCQ_CR_PDMSK | MX25_ADCQ_CR_QSM_FQS);
-> +
-> +	/* Remove unused regulators */
-> +	for (i = 0; i != 4; ++i) {
-> +		if (!refp_used[i]) {
-> +			if (!IS_ERR_OR_NULL(priv->vref[i]))
-> +				devm_regulator_put(priv->vref[i]);
-> +			priv->vref[i] = NULL;
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int mx25_gcq_probe(struct platform_device *pdev)
-> +{
-> +	struct iio_dev *indio_dev;
-> +	struct mx25_gcq_priv *priv;
-> +	struct mx25_tsadc *tsadc = dev_get_drvdata(pdev->dev.parent);
-> +	struct device *dev = &pdev->dev;
-> +	struct resource *res;
-> +	void __iomem *mem;
-> +	int ret;
-> +	int i;
-> +
-> +	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*priv));
-> +	if (!indio_dev)
-> +		return -ENOMEM;
-> +
-> +	priv = iio_priv(indio_dev);
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	mem = devm_ioremap_resource(dev, res);
-> +	if (IS_ERR(mem))
-> +		return PTR_ERR(mem);
-> +
-> +	priv->regs = devm_regmap_init_mmio(dev, mem, &mx25_gcq_regconfig);
-> +	if (IS_ERR(priv->regs)) {
-> +		dev_err(dev, "Failed to initialize regmap\n");
-> +		return PTR_ERR(priv->regs);
-> +	}
-> +
-> +	init_completion(&priv->completed);
-> +
-> +	ret = mx25_gcq_setup_cfgs(pdev, priv);
-> +	if (ret)
-> +		return ret;
-> +
-> +	for (i = 0; i != 4; ++i) {
-> +		if (!priv->vref[i])
-> +			continue;
-> +
-> +		ret = regulator_enable(priv->vref[i]);
-> +		if (ret)
-> +			goto err_regulator_disable;
-> +	}
-> +
-> +	priv->clk = tsadc->clk;
-> +	ret = clk_prepare_enable(priv->clk);
-> +	if (ret) {
-> +		dev_err(dev, "Failed to enable clock\n");
-> +		goto err_vref_disable;
-> +	}
-> +
-> +	priv->irq = platform_get_irq(pdev, 0);
-> +	if (priv->irq <= 0) {
-> +		dev_err(dev, "Failed to get IRQ\n");
-> +		ret = priv->irq;
-If it is zero you'll return 0 from probe (success)
-whilst actually failing.  
-> +		goto err_clk_unprepare;
-> +	}
-> +
-> +	ret = request_irq(priv->irq, mx25_gcq_irq, 0, pdev->name, priv);
-> +	if (ret) {
-> +		dev_err(dev, "Failed requesting IRQ\n");
-> +		goto err_clk_unprepare;
-> +	}
-> +
-> +	indio_dev->dev.parent = &pdev->dev;
-> +	indio_dev->channels = mx25_gcq_channels;
-> +	indio_dev->num_channels = ARRAY_SIZE(mx25_gcq_channels);
-> +	indio_dev->info = &mx25_gcq_iio_info;
-> +	indio_dev->name = driver_name;
-> +
-> +	ret = iio_device_register(indio_dev);
-> +	if (ret) {
-> +		dev_err(dev, "Failed to register iio device\n");
-> +		goto err_irq_free;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, indio_dev);
-> +
-> +	return 0;
-> +
-> +err_irq_free:
-> +	free_irq(priv->irq, (void *)priv);
-Cast to void * not needed. Any pointer can be implicitly be
-cast to void *
-
-> +err_clk_unprepare:
-> +	clk_disable_unprepare(priv->clk);
-> +err_vref_disable:
-> +	i = 4;
-> +err_regulator_disable:
-> +	for (; i-- > 0;) {
-> +		if (priv->vref[i])
-> +			regulator_disable(priv->vref[i]);
-> +	}
-> +	return ret;
-> +}
-> +
-> +static int mx25_gcq_remove(struct platform_device *pdev)
-> +{
-> +	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
-> +	struct mx25_gcq_priv *priv = iio_priv(indio_dev);
-> +	int i;
-> +
-> +	iio_device_unregister(indio_dev);
-> +	free_irq(priv->irq, priv);
-> +	clk_disable_unprepare(priv->clk);
-> +	for (i = 4; i-- > 0;) {
-> +		if (priv->vref[i])
-> +			regulator_disable(priv->vref[i]);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id mx25_gcq_ids[] = {
-> +	{ .compatible = "fsl,imx25-gcq", },
-> +	{ /* Sentinel */ }
-> +};
-> +
-> +static struct platform_driver mx25_gcq_driver = {
-> +	.driver		= {
-> +		.name	= "mx25-gcq",
-> +		.of_match_table = mx25_gcq_ids,
-> +	},
-> +	.probe		= mx25_gcq_probe,
-> +	.remove		= mx25_gcq_remove,
-> +};
-> +module_platform_driver(mx25_gcq_driver);
-> +
-> +MODULE_DESCRIPTION("ADC driver for Freescale mx25");
-> +MODULE_AUTHOR("Markus Pargmann <mpa@pengutronix.de>");
-> +MODULE_LICENSE("GPL v2");
+>  	switch (cmd) {
+> @@ -725,82 +725,82 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>  			if (put_user(UINPUT_VERSION,
+>  				     (unsigned int __user *)p))
+>  				retval = -EFAULT;
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_DEV_CREATE:
+>  			retval = uinput_create_device(udev);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_DEV_DESTROY:
+>  			uinput_destroy_device(udev);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_SET_EVBIT:
+>  			retval = uinput_set_bit(arg, evbit, EV_MAX);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_SET_KEYBIT:
+>  			retval = uinput_set_bit(arg, keybit, KEY_MAX);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_SET_RELBIT:
+>  			retval = uinput_set_bit(arg, relbit, REL_MAX);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_SET_ABSBIT:
+>  			retval = uinput_set_bit(arg, absbit, ABS_MAX);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_SET_MSCBIT:
+>  			retval = uinput_set_bit(arg, mscbit, MSC_MAX);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_SET_LEDBIT:
+>  			retval = uinput_set_bit(arg, ledbit, LED_MAX);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_SET_SNDBIT:
+>  			retval = uinput_set_bit(arg, sndbit, SND_MAX);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_SET_FFBIT:
+>  			retval = uinput_set_bit(arg, ffbit, FF_MAX);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_SET_SWBIT:
+>  			retval = uinput_set_bit(arg, swbit, SW_MAX);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_SET_PROPBIT:
+>  			retval = uinput_set_bit(arg, propbit, INPUT_PROP_MAX);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_SET_PHYS:
+>  			if (udev->state == UIST_CREATED) {
+>  				retval = -EINVAL;
+> -				goto out;
+> +				goto unlock;
+>  			}
+>  
+>  			phys = strndup_user(p, 1024);
+>  			if (IS_ERR(phys)) {
+>  				retval = PTR_ERR(phys);
+> -				goto out;
+> +				goto unlock;
+>  			}
+>  
+>  			kfree(udev->dev->phys);
+>  			udev->dev->phys = phys;
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_BEGIN_FF_UPLOAD:
+>  			retval = uinput_ff_upload_from_user(p, &ff_up);
+>  			if (retval)
+> -				goto out;
+> +				goto unlock;
+>  
+>  			req = uinput_request_find(udev, ff_up.request_id);
+>  			if (!req || req->code != UI_FF_UPLOAD ||
+>  			    !req->u.upload.effect) {
+>  				retval = -EINVAL;
+> -				goto out;
+> +				goto unlock;
+>  			}
+>  
+>  			ff_up.retval = 0;
+> @@ -811,60 +811,60 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>  				memset(&ff_up.old, 0, sizeof(struct ff_effect));
+>  
+>  			retval = uinput_ff_upload_to_user(p, &ff_up);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_BEGIN_FF_ERASE:
+>  			if (copy_from_user(&ff_erase, p, sizeof(ff_erase))) {
+>  				retval = -EFAULT;
+> -				goto out;
+> +				goto unlock;
+>  			}
+>  
+>  			req = uinput_request_find(udev, ff_erase.request_id);
+>  			if (!req || req->code != UI_FF_ERASE) {
+>  				retval = -EINVAL;
+> -				goto out;
+> +				goto unlock;
+>  			}
+>  
+>  			ff_erase.retval = 0;
+>  			ff_erase.effect_id = req->u.effect_id;
+>  			if (copy_to_user(p, &ff_erase, sizeof(ff_erase))) {
+>  				retval = -EFAULT;
+> -				goto out;
+> +				goto unlock;
+>  			}
+>  
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_END_FF_UPLOAD:
+>  			retval = uinput_ff_upload_from_user(p, &ff_up);
+>  			if (retval)
+> -				goto out;
+> +				goto unlock;
+>  
+>  			req = uinput_request_find(udev, ff_up.request_id);
+>  			if (!req || req->code != UI_FF_UPLOAD ||
+>  			    !req->u.upload.effect) {
+>  				retval = -EINVAL;
+> -				goto out;
+> +				goto unlock;
+>  			}
+>  
+>  			req->retval = ff_up.retval;
+>  			uinput_request_done(udev, req);
+> -			goto out;
+> +			goto unlock;
+>  
+>  		case UI_END_FF_ERASE:
+>  			if (copy_from_user(&ff_erase, p, sizeof(ff_erase))) {
+>  				retval = -EFAULT;
+> -				goto out;
+> +				goto unlock;
+>  			}
+>  
+>  			req = uinput_request_find(udev, ff_erase.request_id);
+>  			if (!req || req->code != UI_FF_ERASE) {
+>  				retval = -EINVAL;
+> -				goto out;
+> +				goto unlock;
+>  			}
+>  
+>  			req->retval = ff_erase.retval;
+>  			uinput_request_done(udev, req);
+> -			goto out;
+> +			goto unlock;
+>  	}
+>  
+>  	size = _IOC_SIZE(cmd);
+> @@ -874,15 +874,15 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>  	case UI_GET_SYSNAME(0):
+>  		if (udev->state != UIST_CREATED) {
+>  			retval = -ENOENT;
+> -			goto out;
+> +			goto unlock;
+>  		}
+>  		name = dev_name(&udev->dev->dev);
+>  		retval = uinput_str_to_user(p, name, size);
+> -		goto out;
+> +		goto unlock;
+>  	}
+>  
+>  	retval = -EINVAL;
+> - out:
+> + unlock:
+>  	mutex_unlock(&udev->mutex);
+>  	return retval;
+>  }
+> -- 
+> 2.6.3
 > 
 
+-- 
+Dmitry

@@ -1,54 +1,49 @@
-From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: Re: [PATCH 2/2] Input: add touchscreen support for TS-4800
-Date: Sun, 13 Dec 2015 15:55:57 -0500
-Message-ID: <20151213205557.GA4600@localhost>
-References: <1449763872-572-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1449763872-572-2-git-send-email-damien.riegel@savoirfairelinux.com>
- <20151213045858.GB22780@dtor-ws>
+From: maitysanchayan@gmail.com
+Subject: Re: touchscreen: edt-ft5x06: Prevent DMA driver from mapping an area
+ on stack
+Date: Mon, 14 Dec 2015 13:23:39 +0530
+Message-ID: <20151214075339.GA28733@Sanchayan-Arch.toradex.int>
+References: <e0311a5e79a315814e8678c9ef4a32563c01d1e0.1449913392.git.maitysanchayan@gmail.com>
+ <20151212171355.GA7362@katana>
+ <20151213044237.GA22780@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:43914 "EHLO
-	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752317AbbLMU4D (ORCPT
+Received: from mail-pf0-f180.google.com ([209.85.192.180]:35545 "EHLO
+	mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751423AbbLNH6V (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Dec 2015 15:56:03 -0500
+	Mon, 14 Dec 2015 02:58:21 -0500
 Content-Disposition: inline
-In-Reply-To: <20151213045858.GB22780@dtor-ws>
+In-Reply-To: <20151213044237.GA22780@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, kernel@savoirfairelinux.com
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, maxime.ripard@free-electrons.com, stefan@agner.ch
 
-Hi Dmitry
+Hello,
 
-On Sat, Dec 12, 2015 at 08:58:58PM -0800, Dmitry Torokhov wrote:
-> Hi Damien,
+On 15-12-12 20:42:37, Dmitry Torokhov wrote:
+> On Sat, Dec 12, 2015 at 06:13:55PM +0100, Wolfram Sang wrote:
+> > 
+> > > Frankly speaking I do not know where the fix should actually be. I2C IMX
+> > > driver somehow taking care of this or the users of I2C, touchscreen drivers
+> > > in this case. In my opinion, the fix should be with the touchscreen driver
+> > > however I did like to have feedback or hear opinions on what is the accepted
+> > > solution to this.
+> > 
+> > There is no accepted solution to this yet :( DMA is/was still too rare for
+> > a serious discussion about this. There is also [1] and probably more...
+> > 
+> > [1]  http://patchwork.ozlabs.org/patch/220137/
 > 
-> On Thu, Dec 10, 2015 at 11:11:12AM -0500, Damien Riegel wrote:
-> > On this board, the touchscreen, an ads7843, is not handled directly by
-> > Linux but by a companion FPGA. This FPGA is memory-mapped and the IP
-> > design is very similar to the mk712.
+> I believe vast majority of i2c client drivers do not expect that the
+> transfer buffer they supply in i2c messages are supposed to be DMAable
+> (unlike USB and SPI buses that had that requirement from the beginning).
 > 
-> ...
-> 
-> > +
-> > +	poll_dev = devm_input_allocate_polled_device(&pdev->dev);
-> > +	if (!poll_dev)
-> > +		return -ENOMEM;
-> 
-> I wonder how useful touchscreen implemented as polling device is. Isn't
-> there an interrupt line for it?
- 
-There is an interrupt line between the touchscreen and the FGPA, but not
-between the FPGA and the SoC. I agree it is a bit peculiar. Hopefully on
-more recent boards, they changed their design to handle the touchscreen
-directly with Linux.
+> I won't be applying this patch unless we decide that I2C changes the
+> rules.
 
-Thanks,
-Damien
+Understood. Thanks for the clarifications Dmitry and Wolfram.
 
-> Thanks.
-> 
-> -- 
-> Dmitry
+- Sanchayan.

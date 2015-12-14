@@ -1,117 +1,45 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 000/182] Rid struct gpio_chip from container_of() usage
-Date: Mon, 14 Dec 2015 10:18:04 +0100
-Message-ID: <CACRpkdZDFPFOH=9FfYzLeKo5b-oXG4rPjoU4Rpq9Wv1-RvY6uQ@mail.gmail.com>
-References: <1449666515-23343-1-git-send-email-linus.walleij@linaro.org>
-	<20151209193034.GE27131@dtor-ws>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V2] input: da9063: report KEY_POWER instead of KEY_SLEEP
+ during power key-press
+Date: Mon, 14 Dec 2015 10:28:24 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB70173D28771@SW-EX-MBX02.diasemi.com>
+References: <20151210093632.5DF333FBD7@swsrvapps-01.diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20151209193034.GE27131@dtor-ws>
-Sender: linux-gpio-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20151210093632.5DF333FBD7@swsrvapps-01.diasemi.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Johan Hovold <johan@kernel.org>, Alexandre Courbot <acourbot@nvidia.com>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, Markus Pargmann <mpa@pengutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Brown <broonie@kernel.org>, Amit Kucheria <amit.kucheria@linaro.org>, "arm@kernel.org" <arm@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Sonic Zhang <sonic.zhang@analog.com>, Greg Ungerer <gerg@uclinux.org>, Ralf Baechle <ralf@linux-mips.org>, Linux MIPS <linux-mips@linux-mips.org>, Anatolij Gustschin <agust@denx.de>, linux-wireless <linux-wireless@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: LINUX-INPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Dec 9, 2015 at 8:30 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Dec 09, 2015 at 02:08:35PM +0100, Linus Walleij wrote:
->> This removes the use of container_of() constructions from *all*
->> GPIO drivers in the kernel. It is done by instead adding an
->> optional void *data pointer to the struct gpio_chip and an
->> accessor function, gpiochip_get_data() to get it from a driver.
->>
->> WHY?
->>
->> Because we want to have a proper userspace ABI for GPIO chips,
->> which involves using a character device that the user opens
->> and closes. While the character device is open, the underlying
->> kernel objects must not go away.
->>
->> Currently the GPIO drivers keep their state in the struct
->> gpio_chip, and that is often allocated by the drivers, very
->> often as a part of a containing per-instance state container
->> struct for the driver:
->>
->> struct foo_state {
->>    struct gpio_chip chip;  <- OMG my state is there
->> };
->>
->> Drivers cannot allocate and manage this state: if a user has the
->> character device open, the objects allocated must stay around
->> even if the driver goes away. Instead drivers need to pass a
->> descriptor to the GPIO core, and then the core should allocate
->> and manage the lifecycle of things related to the device, such
->> as the chardev itself or the struct device related to the GPIO
->> device.
->
-> Yes, but it does not mean that the object that is being maintained by
-> the subsystem and that us attached to character device needs to be
-> gpio_chip itself. You can have something like
->
-> struct gpio_chip_chardev {
->         struct cdev chardev;
->         struct gpio_chip *chip;
->         bool dead;
-> };
+Regarding:
+> To: Dmitry Torokhov; LINUX-INPUT; LINUXKERNEL
+> Subject: [PATCH V2] input: da9063: report KEY_POWER instead of KEY_SLEEP during power key-press
 
-There needs to be a struct device too, amongst other things.
+Hi Dmitry,
+Thanks for your Signed-off-by and merge.
+Regards,
+Steve
 
->
-> struct gpio_chip {
->         ...
->         struct gpio_chip_chardev *chardev;
->         ...
-> };
->
-> You alloctae the new structure when you register/export gpio chip in
-> gpio subsystem core and leave all the individual drivers alone.
+repo linux-next
+tag next-20151214
+commit f889beaaab1ce2ff9d018302359abb345f49be29
+Author: Steve Twiss <stwiss.opensource@diasemi.com>
+Date:   Sat Dec 12 20:43:35 2015 -0800
 
-The current idea I have is something in the middle. Drivers have to
-change a bit. The important part is that gpiolib handles allocation of
-anything containing states. I'm thinking along the lines of Russell's
-proposal to use netdev_alloc()'s design pattern.
-
-The problem is that currently gpio_chip contains a lot of
-stateful variables (like the dynamically allocated array of GPIO descriptors
-etc) and those are used by the gpiolib core, so they have to be moved away
-from gpio_chip.
-
-So what happens if I don't change the design pattern:
-
-int ret = gpiochip_add(&my_chip);
-...
-gpiochip_remove(&my_chip);
-
-At this point we have to cross-reference the pointer to my chip to
-find the chip to remove. This goes for anything that takes the struct
-gpio_chip *
-as parameter, like gpiochip_add_pin_range(), gpiochip_request_own_desc()
-etc etc. So something inside gpiolib must take a gpio_chip * pointer and
-turn that into the actual state container, e.g, a struct gpio_device.
-Since struct gpio_chip needs to be static and stateless, it cannot contain
-a pointer back to its struct gpio_device.
-
-That means basically comparing pointers across a list of gpio_device's
-to find it. And that's ... very kludgy. But if people think it's better to avoid
-changing all drivers I will consider it.
-
-I think it is better if the GPIO drivers get a handle on the
-real gpio_device * to be used when calling these gpiochip_* related
-functions and also in the callbacks, which is a bigger refactoring
-indeed.
-
-Part of this is trying to be elegant and mimic other subsystems and not
-have GPIO be too hopelessly wayward about things.
-
-If I compare to how struct input_dev is done, you appear to also use the
-pattern Russell suggested with input_dev_allocate() akin to
-netdev_alloc(), and the allocated struct holds all the vtable and states etc,
-and I think it is a good pattern, and that GPIO should conform.
-
-This current patch series however, just give us the equivalent of
-input_get_drvdata()/input_set_drvdata() and that seems valuable on its
-own, as it reduces code size and make things more readable.
-
-Yours,
-Linus Walleij
+    Input: da9063 - report KEY_POWER instead of KEY_SLEEP during power key-press
+    
+    Stop reporting KEY_SLEEP for a short key-press and report KEY_POWER instead
+    This change applies to both DA9063 and DA9062 ONKEY drivers.
+    
+    A previous application used for testing by the developer required a
+    KEY_SLEEP and KEY_POWER input_report_key event to distinguish between a
+    short and long key-press of the power key.  This is not the general
+    convention and the typical solution is for KEY_POWER to be used in both
+    cases: suspend and S/W power off.
+    
+    Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+    Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>

@@ -1,696 +1,441 @@
-From: Markus Pargmann <mpa@pengutronix.de>
-Subject: [PATCH v10 6/8] input: touchscreen: imx25 tcq driver
-Date: Mon, 14 Dec 2015 14:53:52 +0100
-Message-ID: <1450101234-2191-7-git-send-email-mpa@pengutronix.de>
-References: <1450101234-2191-1-git-send-email-mpa@pengutronix.de>
+From: Boszormenyi Zoltan <zboszor@pr.hu>
+Subject: [PATCH] EETI eGalaxTouch serial touchscreen driver, inputattach patch
+Date: Mon, 14 Dec 2015 16:38:01 +0100
+Message-ID: <566EE259.3030006@pr.hu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="------------010800080502030801060107"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:56611 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932455AbbLNNyv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Dec 2015 08:54:51 -0500
-In-Reply-To: <1450101234-2191-1-git-send-email-mpa@pengutronix.de>
+Received: from mail9.pr.hu ([87.242.0.9]:40149 "EHLO mail9.pr.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751155AbbLNQUp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Dec 2015 11:20:45 -0500
+Received: from [2a02:808:3:101::5] (helo=mail.pr.hu)
+	by frontdoor.pr.hu with esmtps (TLS1.2:DHE_RSA_AES_128_CBC_SHA1:128)
+	(Exim 4.80)
+	(envelope-from <zboszor@pr.hu>)
+	id 1a8VCS-0005kq-P6
+	for linux-input@vger.kernel.org; Mon, 14 Dec 2015 16:38:08 +0100
+Received: from host-87-242-63-18.prtelecom.hu ([87.242.63.18] helo=s002.sicom.com)
+	by mail.pr.hu with esmtpsa (TLS1.2:DHE_RSA_AES_128_CBC_SHA1:128)
+	(Exim 4.80)
+	(envelope-from <zboszor@pr.hu>)
+	id 1a8VCO-0002yq-Kb
+	for linux-input@vger.kernel.org; Mon, 14 Dec 2015 16:38:06 +0100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shawn Guo <shawnguo@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Lee Jones <lee.jones@linaro.org>
-Cc: Denis Carikli <denis@eukrea.com>, =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hartmut Knaack <knaack.h@gmx.de>, Fabio Estevam <festevam@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, Juergen Borleis <jbe@pengutronix.de>
+To: linux-input@vger.kernel.org
 
-This is a driver for the imx25 ADC/TSC module. It controls the
-touchscreen conversion queue and creates a touchscreen input device.
-The driver currently only supports 4 wire touchscreens. The driver uses
-a simple conversion queue of precharge, touch detection, X measurement,
-Y measurement, precharge and another touch detection.
+This is a multi-part message in MIME format.
+--------------010800080502030801060107
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8bit
 
-This driver uses the regmap from the parent to setup some touch specific
-settings in the core driver and setup a idle configuration with touch
-detection.
+Hi,
 
-Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
-Signed-off-by: Denis Carikli <denis@eukrea.com>
+I have implemented the serial version of the EETI eGalaxTouch
+touchscreen driver today using the Hampshire driver as a template.
 
-[fix clock's period calculation]
-[fix calculation of the 'settling' value]
-Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
----
+I have also patched inputattach in linuxconsoletools 1.4.8 to initialize
+and recognize the device.
 
-Notes:
-    Changes in v10:
-     - Renamed devicetree properties
-    
-    Changes in v9:
-     - Added module description to Kconfig item
-     - Fixed devm_ioremap_resource() return value check to use IS_ERR()
-     - Removed return value of mx25_tcq_create_event_for_4wire()
-     - Renamed most 'ret' variables through 'error'
-     - Removed IRQF_ONESHOT
-     - Rearranged threaded handler to not mix up samples from multiple measurements
-    
-    Changes in v7:
-     - Moved clk_prepare_enable() and mx25_tcq_init() into mx25_tcq_open(). This
-       was done to be able to use devm_request_threaded_irq().
-     - Cleanup of the probe function through above change
-     - Removed mx25_tcq_remove(), not necessary now
+I tested it with kernel 4.2.6 and Xorg 1.16.4 and xinput_calibrate with a stylus.
 
- drivers/input/touchscreen/Kconfig         |   9 +
- drivers/input/touchscreen/Makefile        |   1 +
- drivers/input/touchscreen/fsl-imx25-tcq.c | 596 ++++++++++++++++++++++++++++++
- 3 files changed, 606 insertions(+)
- create mode 100644 drivers/input/touchscreen/fsl-imx25-tcq.c
+# inputattach -eeti /dev/ttyS3
+EETI eGalaxTouch firmware: 1.13.3.HM-EX
+EETI eGalaxTouch controller type: C8051F320
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index ae33da7ab51f..873bf3697e35 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -811,6 +811,15 @@ config TOUCHSCREEN_USB_COMPOSITE
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called usbtouchscreen.
+# dmesg | tail -f
+...
+[   48.381613] serio: Serial port ttyS3
+[   48.388445] input: EETI eGalaxTouch Serial TouchScreen as
+/devices/pnp0/00:06/tty/ttyS3/serio1/input/input9
+
+Attached both the kernel module patch and the linuxconsoletools patch.
+Can someone review these patches, please?
+
+The kernel patch is
+
+Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
+
+No idea if the linuxconsoletools patch needs the annotation or not.
+
+I also noticed that inputattach does not support SERIO_HAMPSHIRE
+which was also added as a template in the patch.
+Another note about inputattach.c in linuxconsoletools that it has
+#ifdef SERIO_TSC40 ... #endif and SERIO_TSC40 is smaller, hence,
+added earlier to the kernel than SERIO_WACOM_IV, for which the
+support is unconditional. Isn't it a little inconsistent?
+
+Best regards,
+Zoltán Böszörményi
+
+
+--------------010800080502030801060107
+Content-Type: text/x-patch;
+ name="linuxconsoletools-1.4.8-egalax-hampshire-serio-support.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="linuxconsoletools-1.4.8-egalax-hampshire-serio-support.patch"
+
+diff -durpN linuxconsoletools-1.4.8.old/utils/inputattach.c linuxconsoletools-1.4.8/utils/inputattach.c
+--- linuxconsoletools-1.4.8.old/utils/inputattach.c	2015-01-18 15:43:41.000000000 +0100
++++ linuxconsoletools-1.4.8/utils/inputattach.c	2015-12-14 11:07:46.351403884 +0100
+@@ -622,6 +622,68 @@ static int wacom_iv_init(int fd, unsigne
+ 	return 0;
+ }
  
-+config TOUCHSCREEN_MX25
-+	tristate "Freescale i.MX25 touchscreen input driver"
-+	depends on MFD_MX25_TSADC
-+	help
-+	  Enable support for touchscreen connected to your i.MX25.
++static int check_egalax_response(int fd, unsigned char *command, int sz, unsigned char *response) {
++	int pos = 0;
++	int error = 0;
++	int rest_length;
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called fsl-imx25-tcq.
++	if (write(fd, command, sz) != sz)
++		return -1;
 +
- config TOUCHSCREEN_MC13783
- 	tristate "Freescale MC13783 touchscreen input driver"
- 	depends on MFD_MC13XXX
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index cbaa6abb08da..77a2ac54101a 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -45,6 +45,7 @@ obj-$(CONFIG_TOUCHSCREEN_INTEL_MID)	+= intel-mid-touch.o
- obj-$(CONFIG_TOUCHSCREEN_IPROC)		+= bcm_iproc_tsc.o
- obj-$(CONFIG_TOUCHSCREEN_LPC32XX)	+= lpc32xx_ts.o
- obj-$(CONFIG_TOUCHSCREEN_MAX11801)	+= max11801_ts.o
-+obj-$(CONFIG_TOUCHSCREEN_MX25)		+= fsl-imx25-tcq.o
- obj-$(CONFIG_TOUCHSCREEN_MC13783)	+= mc13783_ts.o
- obj-$(CONFIG_TOUCHSCREEN_MCS5000)	+= mcs5000_ts.o
- obj-$(CONFIG_TOUCHSCREEN_MIGOR)		+= migor_ts.o
-diff --git a/drivers/input/touchscreen/fsl-imx25-tcq.c b/drivers/input/touchscreen/fsl-imx25-tcq.c
-new file mode 100644
-index 000000000000..fe9877a6af9e
---- /dev/null
-+++ b/drivers/input/touchscreen/fsl-imx25-tcq.c
-@@ -0,0 +1,596 @@
-+/*
-+ * Copyright (C) 2014-2015 Pengutronix, Markus Pargmann <mpa@pengutronix.de>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it under
-+ * the terms of the GNU General Public License version 2 as published by the
-+ * Free Software Foundation.
-+ *
-+ * Based on driver from 2011:
-+ *   Juergen Beisert, Pengutronix <kernel@pengutronix.de>
-+ *
-+ * This is the driver for the imx25 TCQ (Touchscreen Conversion Queue)
-+ * connected to the imx25 ADC.
-+ */
++	for (pos = 0; pos < 3; pos++) {
++		if (readchar(fd, &response[pos], 100)) {
++			error = 1;
++			break;
++		}
++	}
 +
-+#include <linux/clk.h>
-+#include <linux/device.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/mfd/imx25-tsadc.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
++	if (error)
++		return -1;
 +
-+static const char mx25_tcq_name[] = "mx25-tcq";
++	rest_length = response[1] - 1;
 +
-+enum mx25_tcq_mode {
-+	MX25_TS_4WIRE,
-+};
++	for (; rest_length; rest_length--, pos++) {
++		if (readchar(fd, &response[pos], 100)) {
++			error = 1;
++			break;
++		}
++	}
 +
-+struct mx25_tcq_priv {
-+	struct regmap *regs;
-+	struct regmap *core_regs;
-+	struct input_dev *idev;
-+	enum mx25_tcq_mode mode;
-+	unsigned int pen_threshold;
-+	unsigned int sample_count;
-+	unsigned int expected_samples;
-+	unsigned int pen_debounce;
-+	unsigned int settling_time;
-+	struct clk *clk;
-+	int irq;
-+	struct device *dev;
-+};
++	if (error)
++		return -1;
 +
-+static struct regmap_config mx25_tcq_regconfig = {
-+	.fast_io = true,
-+	.max_register = 0x5c,
-+	.reg_bits = 32,
-+	.val_bits = 32,
-+	.reg_stride = 4,
-+};
++	if (response[1] >= command[1] &&
++		response[0] == command[0] &&
++		response[2] == command[2])
++		return 0;
 +
-+static const struct of_device_id mx25_tcq_ids[] = {
-+	{ .compatible = "fsl,imx25-tcq", },
-+	{ /* Sentinel */ }
-+};
-+
-+#define TSC_4WIRE_PRE_INDEX 0
-+#define TSC_4WIRE_X_INDEX 1
-+#define TSC_4WIRE_Y_INDEX 2
-+#define TSC_4WIRE_POST_INDEX 3
-+#define TSC_4WIRE_LEAVE 4
-+
-+#define MX25_TSC_DEF_THRESHOLD 80
-+#define TSC_MAX_SAMPLES 16
-+
-+#define MX25_TSC_REPEAT_WAIT 14
-+
-+enum mx25_adc_configurations {
-+	MX25_CFG_PRECHARGE = 0,
-+	MX25_CFG_TOUCH_DETECT,
-+	MX25_CFG_X_MEASUREMENT,
-+	MX25_CFG_Y_MEASUREMENT,
-+};
-+
-+#define MX25_PRECHARGE_VALUE (\
-+			MX25_ADCQ_CFG_YPLL_OFF | \
-+			MX25_ADCQ_CFG_XNUR_OFF | \
-+			MX25_ADCQ_CFG_XPUL_HIGH | \
-+			MX25_ADCQ_CFG_REFP_INT | \
-+			MX25_ADCQ_CFG_IN_XP | \
-+			MX25_ADCQ_CFG_REFN_NGND2 | \
-+			MX25_ADCQ_CFG_IGS)
-+
-+#define MX25_TOUCH_DETECT_VALUE (\
-+			MX25_ADCQ_CFG_YNLR | \
-+			MX25_ADCQ_CFG_YPLL_OFF | \
-+			MX25_ADCQ_CFG_XNUR_OFF | \
-+			MX25_ADCQ_CFG_XPUL_OFF | \
-+			MX25_ADCQ_CFG_REFP_INT | \
-+			MX25_ADCQ_CFG_IN_XP | \
-+			MX25_ADCQ_CFG_REFN_NGND2 | \
-+			MX25_ADCQ_CFG_PENIACK)
-+
-+static void imx25_setup_queue_cfgs(struct mx25_tcq_priv *priv,
-+				   unsigned int settling_cnt)
-+{
-+	u32 precharge_cfg =
-+			MX25_PRECHARGE_VALUE |
-+			MX25_ADCQ_CFG_SETTLING_TIME(settling_cnt);
-+	u32 touch_detect_cfg =
-+			MX25_TOUCH_DETECT_VALUE |
-+			MX25_ADCQ_CFG_NOS(1) |
-+			MX25_ADCQ_CFG_SETTLING_TIME(settling_cnt);
-+
-+	regmap_write(priv->core_regs, MX25_TSC_TICR, precharge_cfg);
-+
-+	/* PRECHARGE */
-+	regmap_write(priv->regs, MX25_ADCQ_CFG(MX25_CFG_PRECHARGE),
-+		     precharge_cfg);
-+
-+	/* TOUCH_DETECT */
-+	regmap_write(priv->regs, MX25_ADCQ_CFG(MX25_CFG_TOUCH_DETECT),
-+		     touch_detect_cfg);
-+
-+	/* X Measurement */
-+	regmap_write(priv->regs, MX25_ADCQ_CFG(MX25_CFG_X_MEASUREMENT),
-+		     MX25_ADCQ_CFG_YPLL_OFF |
-+		     MX25_ADCQ_CFG_XNUR_LOW |
-+		     MX25_ADCQ_CFG_XPUL_HIGH |
-+		     MX25_ADCQ_CFG_REFP_XP |
-+		     MX25_ADCQ_CFG_IN_YP |
-+		     MX25_ADCQ_CFG_REFN_XN |
-+		     MX25_ADCQ_CFG_NOS(priv->sample_count) |
-+		     MX25_ADCQ_CFG_SETTLING_TIME(settling_cnt));
-+
-+	/* Y Measurement */
-+	regmap_write(priv->regs, MX25_ADCQ_CFG(MX25_CFG_Y_MEASUREMENT),
-+		     MX25_ADCQ_CFG_YNLR |
-+		     MX25_ADCQ_CFG_YPLL_HIGH |
-+		     MX25_ADCQ_CFG_XNUR_OFF |
-+		     MX25_ADCQ_CFG_XPUL_OFF |
-+		     MX25_ADCQ_CFG_REFP_YP |
-+		     MX25_ADCQ_CFG_IN_XP |
-+		     MX25_ADCQ_CFG_REFN_YN |
-+		     MX25_ADCQ_CFG_NOS(priv->sample_count) |
-+		     MX25_ADCQ_CFG_SETTLING_TIME(settling_cnt));
-+
-+	/* Enable the touch detection right now */
-+	regmap_write(priv->core_regs, MX25_TSC_TICR, touch_detect_cfg |
-+		     MX25_ADCQ_CFG_IGS);
++	return -1;
 +}
 +
-+static int imx25_setup_queue_4wire(struct mx25_tcq_priv *priv,
-+				   unsigned settling_cnt, int *items)
-+{
-+	imx25_setup_queue_cfgs(priv, settling_cnt);
++static int egalax_init(int fd, unsigned long *id, unsigned long *extra) {
++	unsigned char packet_alive_query[3] = { 0x0a, 0x01, 'A' };
++	unsigned char packet_fw_ver[3] = { 0x0a, 0x01, 'D' };
++	unsigned char packet_ctrl_type[3] = { 0x0a, 0x01, 'E' };
++	unsigned char response[128];
 +
-+	/* Setup the conversion queue */
-+	regmap_write(priv->regs, MX25_ADCQ_ITEM_7_0,
-+		     MX25_ADCQ_ITEM(0, MX25_CFG_PRECHARGE) |
-+		     MX25_ADCQ_ITEM(1, MX25_CFG_TOUCH_DETECT) |
-+		     MX25_ADCQ_ITEM(2, MX25_CFG_X_MEASUREMENT) |
-+		     MX25_ADCQ_ITEM(3, MX25_CFG_Y_MEASUREMENT) |
-+		     MX25_ADCQ_ITEM(4, MX25_CFG_PRECHARGE) |
-+		     MX25_ADCQ_ITEM(5, MX25_CFG_TOUCH_DETECT));
++	if (check_egalax_response(fd, packet_alive_query, sizeof(packet_alive_query), response))
++		return -1;
 +
-+	/*
-+	 * We measure X/Y with 'sample_count' number of samples and execute a
-+	 * touch detection twice, with 1 sample each
-+	 */
-+	priv->expected_samples = priv->sample_count * 2 + 2;
-+	*items = 6;
++	if (check_egalax_response(fd, packet_fw_ver, sizeof(packet_fw_ver), response))
++		return -1;
++
++	response[(unsigned char)response[1] + 2] = '\0';
++	printf("EETI eGalaxTouch firmware: %s\n", &response[3]);
++
++	if (check_egalax_response(fd, packet_ctrl_type, sizeof(packet_ctrl_type), response))
++		return -1;
++
++	response[(unsigned char)response[1] + 2] = '\0';
++	printf("EETI eGalaxTouch controller type: %s\n", &response[3]);
 +
 +	return 0;
 +}
 +
-+static void mx25_tcq_disable_touch_irq(struct mx25_tcq_priv *priv)
+ struct input_types {
+ 	const char *name;
+ 	const char *name2;
+@@ -704,6 +766,11 @@ static struct input_types input_types[]
+ { "--twiddler-joy",	"-twidjoy",	"Handykey Twiddler used as a joystick",
+ 	B2400, CS8,
+ 	SERIO_TWIDJOY,		0x00,	0x00,	0,	twiddler_init },
++#ifdef SERIO_EGALAX
++{ "--eetiegalax",	"-eeti",	"EETI eGalaxTouch",
++	B9600, CS8,
++	SERIO_EGALAX,		0x00,	0x00,	0,	egalax_init },
++#endif
+ { "--elotouch",		"-elo",		"ELO touchscreen, 10-byte mode",
+ 	B9600, CS8,
+ 	SERIO_ELO,		0x00,	0x00,	0,	NULL },
+@@ -716,6 +783,11 @@ static struct input_types input_types[]
+ { "--elo261-280",	"-elo3b",	"ELO Touchscreen, 3-byte mode",
+ 	B9600, CS8 | CRTSCTS,
+ 	SERIO_ELO,		0x03,	0x00,	0,	NULL },
++#ifdef SERIO_HAMPSHIRE
++{ "--hampshire",   "-ham",         "Hampshire touchscreen",
++	B9600, CS8,
++	SERIO_HAMPSHIRE,	0x00,   0x00,   0,  NULL },
++#endif
+ { "--mtouch",		"-mtouch",	"MicroTouch (3M) touchscreen",
+ 	B9600, CS8 | CRTSCTS,
+ 	SERIO_MICROTOUCH,	0x00,	0x00,	0,	NULL },
+
+--------------010800080502030801060107
+Content-Type: text/x-patch;
+ name="01-kernel-egalax-serio.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment;
+ filename="01-kernel-egalax-serio.patch"
+
+diff -durpN linux-4.2.6/drivers/input/touchscreen/egalax.c linux-4.2.6.egalax-serio/drivers/input/touchscreen/egalax.c
+--- linux-4.2.6/drivers/input/touchscreen/egalax.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-4.2.6.egalax-serio/drivers/input/touchscreen/egalax.c	2015-12-14 09:56:28.456074915 +0100
+@@ -0,0 +1,210 @@
++/*
++ * EETI Egalax serial touchscreen driver
++ *
++ * Copyright (c) 2015 ZoltÃ¡n BÃ¶szÃ¶rmÃ©nyi <zboszor@pr.hu>
++ *
++ * based on the
++ *
++ * Hampshire serial touchscreen driver (Copyright (c) 2010 Adam Bennett)
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#include <linux/errno.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/serio.h>
++
++#define DRIVER_DESC	"EETI Egalax serial touchscreen driver"
++
++MODULE_AUTHOR("ZoltÃ¡n BÃ¶szÃ¶rmÃ©nyi <zboszor@pr.hu>");
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPL");
++
++/*
++ * Definitions & global arrays.
++ */
++
++#define EGALAX_FORMAT_MAX_LENGTH 6
++#define EGALAX_RESPONSE_BEGIN_BYTE 0x80
++#define EGALAX_FORMAT_PRESSURE_BIT 0x40
++#define EGALAX_FORMAT_TOUCH_BIT 0x01
++#define EGALAX_FORMAT_RESOLUTION 0x06
++
++#define EGALAX_MIN_XC 0
++#define EGALAX_MAX_XC 0x4000
++#define EGALAX_MIN_YC 0
++#define EGALAX_MAX_YC 0x4000
++
++#define EGALAX_GET_XC(data, resbits, shift) ((((data[1] & (resbits)) << 7) | (data[2] & 0x7f)) << shift)
++#define EGALAX_GET_YC(data, resbits, shift) ((((data[3] & (resbits)) << 7) | (data[4] & 0x7f)) << shift)
++#define EGALAX_GET_TOUCHED(data) (EGALAX_FORMAT_TOUCH_BIT & data[0])
++
++/*
++ * Per-touchscreen data.
++ */
++
++struct egalax {
++	struct input_dev *dev;
++	struct serio *serio;
++	int idx;
++	int bytes;
++	int resbits;
++	int shift;
++	unsigned char data[EGALAX_FORMAT_MAX_LENGTH];
++	char phys[32];
++};
++
++static void egalax_process_data(struct egalax *pegalax)
 +{
-+	regmap_update_bits(priv->regs, MX25_ADCQ_CR, MX25_ADCQ_CR_PDMSK,
-+			   MX25_ADCQ_CR_PDMSK);
++	struct input_dev *dev = pegalax->dev;
++
++	if (++pegalax->idx == pegalax->bytes) {
++		input_report_abs(dev, ABS_X, EGALAX_GET_XC(pegalax->data, pegalax->resbits, pegalax->shift));
++		input_report_abs(dev, ABS_Y, EGALAX_GET_YC(pegalax->data, pegalax->resbits, pegalax->shift));
++		input_report_key(dev, BTN_TOUCH, EGALAX_GET_TOUCHED(pegalax->data));
++		input_sync(dev);
++
++		pegalax->idx = 0;
++	}
 +}
 +
-+static void mx25_tcq_enable_touch_irq(struct mx25_tcq_priv *priv)
++static irqreturn_t egalax_interrupt(struct serio *serio,
++		unsigned char data, unsigned int flags)
 +{
-+	regmap_update_bits(priv->regs, MX25_ADCQ_CR, MX25_ADCQ_CR_PDMSK, 0);
-+}
++	struct egalax *pegalax = serio_get_drvdata(serio);
 +
-+static void mx25_tcq_disable_fifo_irq(struct mx25_tcq_priv *priv)
-+{
-+	regmap_update_bits(priv->regs, MX25_ADCQ_MR, MX25_ADCQ_MR_FDRY_IRQ,
-+			   MX25_ADCQ_MR_FDRY_IRQ);
-+}
++	pegalax->data[pegalax->idx] = data;
 +
-+static void mx25_tcq_enable_fifo_irq(struct mx25_tcq_priv *priv)
-+{
-+	regmap_update_bits(priv->regs, MX25_ADCQ_MR, MX25_ADCQ_MR_FDRY_IRQ, 0);
-+}
-+
-+static void mx25_tcq_force_queue_start(struct mx25_tcq_priv *priv)
-+{
-+	regmap_update_bits(priv->regs, MX25_ADCQ_CR,
-+			   MX25_ADCQ_CR_FQS,
-+			   MX25_ADCQ_CR_FQS);
-+}
-+
-+static void mx25_tcq_force_queue_stop(struct mx25_tcq_priv *priv)
-+{
-+	regmap_update_bits(priv->regs, MX25_ADCQ_CR,
-+			   MX25_ADCQ_CR_FQS, 0);
-+}
-+
-+static void mx25_tcq_fifo_reset(struct mx25_tcq_priv *priv)
-+{
-+	u32 tcqcr;
-+
-+	regmap_read(priv->regs, MX25_ADCQ_CR, &tcqcr);
-+	regmap_update_bits(priv->regs, MX25_ADCQ_CR, MX25_ADCQ_CR_FRST,
-+			   MX25_ADCQ_CR_FRST);
-+	regmap_update_bits(priv->regs, MX25_ADCQ_CR, MX25_ADCQ_CR_FRST, 0);
-+	regmap_write(priv->regs, MX25_ADCQ_CR, tcqcr);
-+}
-+
-+static void mx25_tcq_re_enable_touch_detection(struct mx25_tcq_priv *priv)
-+{
-+	/* stop the queue from looping */
-+	mx25_tcq_force_queue_stop(priv);
-+
-+	/* for a clean touch detection, preload the X plane */
-+	regmap_write(priv->core_regs, MX25_TSC_TICR, MX25_PRECHARGE_VALUE);
-+
-+	/* waste some time now to pre-load the X plate to high voltage */
-+	mx25_tcq_fifo_reset(priv);
-+
-+	/* re-enable the detection right now */
-+	regmap_write(priv->core_regs, MX25_TSC_TICR,
-+		     MX25_TOUCH_DETECT_VALUE | MX25_ADCQ_CFG_IGS);
-+
-+	regmap_update_bits(priv->regs, MX25_ADCQ_SR, MX25_ADCQ_SR_PD,
-+			   MX25_ADCQ_SR_PD);
-+
-+	/* enable the pen down event to be a source for the interrupt */
-+	regmap_update_bits(priv->regs, MX25_ADCQ_MR, MX25_ADCQ_MR_PD_IRQ, 0);
-+
-+	/* lets fire the next IRQ if someone touches the touchscreen */
-+	mx25_tcq_enable_touch_irq(priv);
-+}
-+
-+static void mx25_tcq_create_event_for_4wire(struct mx25_tcq_priv *priv,
-+					    u32 *sample_buf,
-+					    unsigned int samples)
-+{
-+	unsigned int x_pos = 0;
-+	unsigned int y_pos = 0;
-+	unsigned int touch_pre = 0;
-+	unsigned int touch_post = 0;
-+	unsigned int i;
-+
-+	for (i = 0; i < samples; i++) {
-+		unsigned int index = MX25_ADCQ_FIFO_ID(sample_buf[i]);
-+		unsigned int val = MX25_ADCQ_FIFO_DATA(sample_buf[i]);
-+
-+		switch (index) {
++	if (EGALAX_RESPONSE_BEGIN_BYTE & pegalax->data[0]) {
++		pegalax->bytes = (EGALAX_FORMAT_PRESSURE_BIT & pegalax->data[0] ? 6 : 5);
++		switch ((EGALAX_FORMAT_RESOLUTION & pegalax->data[0]) >> 1) {
++		case 0:
++			pegalax->resbits = 0x0f;
++			pegalax->shift = 3;
++			break;
 +		case 1:
-+			touch_pre = val;
++			pegalax->resbits = 0x1f;
++			pegalax->shift = 2;
 +			break;
 +		case 2:
-+			x_pos = val;
-+			break;
-+		case 3:
-+			y_pos = val;
-+			break;
-+		case 5:
-+			touch_post = val;
++			pegalax->resbits = 0x3f;
++			pegalax->shift = 1;
 +			break;
 +		default:
-+			dev_dbg(priv->dev, "Dropped samples because of invalid index %d\n",
-+				index);
-+			return;
++			pegalax->resbits = 0x7f;
++			pegalax->shift = 0;
++			break;
 +		}
++		egalax_process_data(pegalax);
 +	}
-+
-+	if (samples != 0) {
-+		/*
-+		 * only if both touch measures are below a threshold,
-+		 * the position is valid
-+		 */
-+		if (touch_pre < priv->pen_threshold &&
-+		    touch_post < priv->pen_threshold) {
-+			/* valid samples, generate a report */
-+			x_pos /= priv->sample_count;
-+			y_pos /= priv->sample_count;
-+			input_report_abs(priv->idev, ABS_X, x_pos);
-+			input_report_abs(priv->idev, ABS_Y, y_pos);
-+			input_report_key(priv->idev, BTN_TOUCH, 1);
-+			input_sync(priv->idev);
-+
-+			/* get next sample */
-+			mx25_tcq_enable_fifo_irq(priv);
-+		} else if (touch_pre >= priv->pen_threshold &&
-+			   touch_post >= priv->pen_threshold) {
-+			/*
-+			 * if both samples are invalid,
-+			 * generate a release report
-+			 */
-+			input_report_key(priv->idev, BTN_TOUCH, 0);
-+			input_sync(priv->idev);
-+			mx25_tcq_re_enable_touch_detection(priv);
-+		} else {
-+			/*
-+			 * if only one of both touch measurements are
-+			 * below the threshold, still some bouncing
-+			 * happens. Take additional samples in this
-+			 * case to be sure
-+			 */
-+			mx25_tcq_enable_fifo_irq(priv);
-+		}
-+	}
-+}
-+
-+static irqreturn_t mx25_tcq_irq_thread(int irq, void *dev_id)
-+{
-+	struct mx25_tcq_priv *priv = dev_id;
-+	u32 sample_buf[TSC_MAX_SAMPLES];
-+	unsigned int samples;
-+	u32 stats;
-+	unsigned int i;
-+
-+	/*
-+	 * Check how many samples are available. We always have to read exactly
-+	 * sample_count samples from the fifo, or a multiple of sample_count.
-+	 * Otherwise we mixup samples into different touch events.
-+	 */
-+	regmap_read(priv->regs, MX25_ADCQ_SR, &stats);
-+	samples = MX25_ADCQ_SR_FDN(stats);
-+	samples -= samples % priv->sample_count;
-+
-+	if (!samples)
-+		return IRQ_HANDLED;
-+
-+	for (i = 0; i != samples; ++i)
-+		regmap_read(priv->regs, MX25_ADCQ_FIFO, &sample_buf[i]);
-+
-+	mx25_tcq_create_event_for_4wire(priv, sample_buf, samples);
++	else
++		dev_dbg(&serio->dev, "unknown/unsynchronized data: %x\n",
++			pegalax->data[0]);
 +
 +	return IRQ_HANDLED;
 +}
 +
-+static irqreturn_t mx25_tcq_irq(int irq, void *dev_id)
++static void egalax_disconnect(struct serio *serio)
 +{
-+	struct mx25_tcq_priv *priv = dev_id;
-+	u32 stat;
-+	int ret = IRQ_HANDLED;
++	struct egalax *pegalax = serio_get_drvdata(serio);
 +
-+	regmap_read(priv->regs, MX25_ADCQ_SR, &stat);
-+
-+	if (stat & (MX25_ADCQ_SR_FRR | MX25_ADCQ_SR_FUR | MX25_ADCQ_SR_FOR))
-+		mx25_tcq_re_enable_touch_detection(priv);
-+
-+	if (stat & MX25_ADCQ_SR_PD) {
-+		mx25_tcq_disable_touch_irq(priv);
-+		mx25_tcq_force_queue_start(priv);
-+		mx25_tcq_enable_fifo_irq(priv);
-+	}
-+
-+	if (stat & MX25_ADCQ_SR_FDRY) {
-+		mx25_tcq_disable_fifo_irq(priv);
-+		ret = IRQ_WAKE_THREAD;
-+	}
-+
-+	regmap_update_bits(priv->regs, MX25_ADCQ_SR, MX25_ADCQ_SR_FRR |
-+			   MX25_ADCQ_SR_FUR | MX25_ADCQ_SR_FOR |
-+			   MX25_ADCQ_SR_PD,
-+			   MX25_ADCQ_SR_FRR | MX25_ADCQ_SR_FUR |
-+			   MX25_ADCQ_SR_FOR | MX25_ADCQ_SR_PD);
-+
-+	return ret;
++	input_get_device(pegalax->dev);
++	input_unregister_device(pegalax->dev);
++	serio_close(serio);
++	serio_set_drvdata(serio, NULL);
++	input_put_device(pegalax->dev);
++	kfree(pegalax);
 +}
 +
-+/* configure the state machine for a 4-wire touchscreen */
-+static int mx25_tcq_init(struct mx25_tcq_priv *priv)
++/*
++ * egalax_connect() is the routine that is called when someone adds a
++ * new serio device that supports egalax protocol and registers it as
++ * an input device. This is usually accomplished using inputattach.
++ */
++
++static int egalax_connect(struct serio *serio, struct serio_driver *drv)
 +{
-+	u32 tgcr;
-+	unsigned int ipg_div;
-+	unsigned int adc_period;
-+	unsigned int debounce_cnt;
-+	unsigned int settling_cnt;
-+	int itemct;
-+	int error;
++	struct egalax *pegalax;
++	struct input_dev *input_dev;
++	int err;
 +
-+	regmap_read(priv->core_regs, MX25_TSC_TGCR, &tgcr);
-+	ipg_div = max_t(unsigned int, 4, MX25_TGCR_GET_ADCCLK(tgcr));
-+	adc_period = USEC_PER_SEC * ipg_div * 2 + 2;
-+	adc_period /= clk_get_rate(priv->clk) / 1000 + 1;
-+	debounce_cnt = DIV_ROUND_UP(priv->pen_debounce, adc_period * 8) - 1;
-+	settling_cnt = DIV_ROUND_UP(priv->settling_time, adc_period * 8) - 1;
++	pegalax = kzalloc(sizeof(struct egalax), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!pegalax || !input_dev) {
++		err = -ENOMEM;
++		goto fail1;
++	}
 +
-+	/* Reset */
-+	regmap_write(priv->regs, MX25_ADCQ_CR,
-+		     MX25_ADCQ_CR_QRST | MX25_ADCQ_CR_FRST);
-+	regmap_update_bits(priv->regs, MX25_ADCQ_CR,
-+			   MX25_ADCQ_CR_QRST | MX25_ADCQ_CR_FRST, 0);
++	pegalax->serio = serio;
++	pegalax->dev = input_dev;
++	snprintf(pegalax->phys, sizeof(pegalax->phys),
++		 "%s/input0", serio->phys);
 +
-+	/* up to 128 * 8 ADC clocks are possible */
-+	if (debounce_cnt > 127)
-+		debounce_cnt = 127;
++	input_dev->name = "EETI eGalaxTouch Serial TouchScreen";
++	input_dev->phys = pegalax->phys;
++	input_dev->id.bustype = BUS_RS232;
++	input_dev->id.vendor = SERIO_EGALAX;
++	input_dev->id.product = 0;
++	input_dev->id.version = 0x0001;
++	input_dev->dev.parent = &serio->dev;
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++	input_set_abs_params(pegalax->dev, ABS_X,
++			     EGALAX_MIN_XC, EGALAX_MAX_XC, 0, 0);
++	input_set_abs_params(pegalax->dev, ABS_Y,
++			     EGALAX_MIN_YC, EGALAX_MAX_YC, 0, 0);
 +
-+	/* up to 255 * 8 ADC clocks are possible */
-+	if (settling_cnt > 255)
-+		settling_cnt = 255;
++	serio_set_drvdata(serio, pegalax);
 +
-+	error = imx25_setup_queue_4wire(priv, settling_cnt, &itemct);
-+	if (error)
-+		return error;
++	err = serio_open(serio, drv);
++	if (err)
++		goto fail2;
 +
-+	regmap_update_bits(priv->regs, MX25_ADCQ_CR,
-+			   MX25_ADCQ_CR_LITEMID_MASK | MX25_ADCQ_CR_WMRK_MASK,
-+			   MX25_ADCQ_CR_LITEMID(itemct - 1) |
-+			   MX25_ADCQ_CR_WMRK(priv->expected_samples - 1));
-+
-+	/* setup debounce count */
-+	regmap_update_bits(priv->core_regs, MX25_TSC_TGCR,
-+			   MX25_TGCR_PDBTIME_MASK,
-+			   MX25_TGCR_PDBTIME(debounce_cnt));
-+
-+	/* enable debounce */
-+	regmap_update_bits(priv->core_regs, MX25_TSC_TGCR, MX25_TGCR_PDBEN,
-+			   MX25_TGCR_PDBEN);
-+	regmap_update_bits(priv->core_regs, MX25_TSC_TGCR, MX25_TGCR_PDEN,
-+			   MX25_TGCR_PDEN);
-+
-+	/* enable the engine on demand */
-+	regmap_update_bits(priv->regs, MX25_ADCQ_CR, MX25_ADCQ_CR_QSM_MASK,
-+			   MX25_ADCQ_CR_QSM_FQS);
-+
-+	/* Enable repeat and repeat wait */
-+	regmap_update_bits(priv->regs, MX25_ADCQ_CR,
-+			   MX25_ADCQ_CR_RPT | MX25_ADCQ_CR_RWAIT_MASK,
-+			   MX25_ADCQ_CR_RPT |
-+			   MX25_ADCQ_CR_RWAIT(MX25_TSC_REPEAT_WAIT));
++	err = input_register_device(pegalax->dev);
++	if (err)
++		goto fail3;
 +
 +	return 0;
++
++ fail3:	serio_close(serio);
++ fail2:	serio_set_drvdata(serio, NULL);
++ fail1:	input_free_device(input_dev);
++	kfree(pegalax);
++	return err;
 +}
 +
-+static int mx25_tcq_parse_dt(struct platform_device *pdev,
-+			     struct mx25_tcq_priv *priv)
-+{
-+	struct device_node *np = pdev->dev.of_node;
-+	u32 wires;
-+	int error;
++/*
++ * The serio driver structure.
++ */
 +
-+	/* Setup defaults */
-+	priv->pen_threshold = 500;
-+	priv->sample_count = 3;
-+	priv->pen_debounce = 1000000;
-+	priv->settling_time = 250000;
-+
-+	error = of_property_read_u32(np, "fsl,wires", &wires);
-+	if (error) {
-+		dev_err(&pdev->dev, "Failed to find fsl,wires properties\n");
-+		return error;
-+	}
-+
-+	if (wires == 4) {
-+		priv->mode = MX25_TS_4WIRE;
-+	} else {
-+		dev_err(&pdev->dev, "%u-wire mode not supported\n", wires);
-+		return -EINVAL;
-+	}
-+
-+	/* These are optional, we don't care about the return values */
-+	of_property_read_u32(np, "fsl,pen-threshold", &priv->pen_threshold);
-+	of_property_read_u32(np, "fsl,settling-time-ns", &priv->settling_time);
-+	of_property_read_u32(np, "fsl,pen-debounce-ns", &priv->pen_debounce);
-+
-+	return 0;
-+}
-+
-+static int mx25_tcq_open(struct input_dev *idev)
-+{
-+	struct device *dev = &idev->dev;
-+	struct mx25_tcq_priv *priv = dev_get_drvdata(dev);
-+	int error;
-+
-+	error = clk_prepare_enable(priv->clk);
-+	if (error) {
-+		dev_err(dev, "Failed to enable ipg clock\n");
-+		return error;
-+	}
-+
-+	error = mx25_tcq_init(priv);
-+	if (error) {
-+		dev_err(dev, "Failed to init tcq\n");
-+		clk_disable_unprepare(priv->clk);
-+		return error;
-+	}
-+
-+	mx25_tcq_re_enable_touch_detection(priv);
-+
-+	return 0;
-+}
-+
-+static void mx25_tcq_close(struct input_dev *idev)
-+{
-+	struct mx25_tcq_priv *priv = input_get_drvdata(idev);
-+
-+	mx25_tcq_force_queue_stop(priv);
-+	mx25_tcq_disable_touch_irq(priv);
-+	mx25_tcq_disable_fifo_irq(priv);
-+	clk_disable_unprepare(priv->clk);
-+}
-+
-+static int mx25_tcq_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct input_dev *idev;
-+	struct mx25_tcq_priv *priv;
-+	struct mx25_tsadc *tsadc = dev_get_drvdata(pdev->dev.parent);
-+	struct resource *res;
-+	void __iomem *mem;
-+	int error;
-+
-+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+	priv->dev = dev;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	mem = devm_ioremap_resource(dev, res);
-+	if (IS_ERR(mem))
-+		return PTR_ERR(mem);
-+
-+	error = mx25_tcq_parse_dt(pdev, priv);
-+	if (error)
-+		return error;
-+
-+	priv->regs = devm_regmap_init_mmio(dev, mem, &mx25_tcq_regconfig);
-+	if (IS_ERR(priv->regs)) {
-+		dev_err(dev, "Failed to initialize regmap\n");
-+		return PTR_ERR(priv->regs);
-+	}
-+
-+	priv->irq = platform_get_irq(pdev, 0);
-+	if (priv->irq <= 0) {
-+		dev_err(dev, "Failed to get IRQ\n");
-+		return priv->irq;
-+	}
-+
-+	idev = devm_input_allocate_device(dev);
-+	if (!idev) {
-+		dev_err(dev, "Failed to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	idev->name = mx25_tcq_name;
-+	input_set_capability(idev, EV_KEY, BTN_TOUCH);
-+	input_set_abs_params(idev, ABS_X, 0, 0xfff, 0, 0);
-+	input_set_abs_params(idev, ABS_Y, 0, 0xfff, 0, 0);
-+
-+	idev->id.bustype = BUS_HOST;
-+	idev->open = mx25_tcq_open;
-+	idev->close = mx25_tcq_close;
-+
-+	priv->idev = idev;
-+	input_set_drvdata(idev, priv);
-+
-+	priv->core_regs = tsadc->regs;
-+	if (!priv->core_regs)
-+		return -EINVAL;
-+
-+	priv->clk = tsadc->clk;
-+	if (!priv->clk)
-+		return -EINVAL;
-+
-+	platform_set_drvdata(pdev, priv);
-+
-+	error = devm_request_threaded_irq(dev, priv->irq, mx25_tcq_irq,
-+					  mx25_tcq_irq_thread, 0, pdev->name,
-+					  priv);
-+	if (error) {
-+		dev_err(dev, "Failed requesting IRQ\n");
-+		return error;
-+	}
-+
-+	error = input_register_device(idev);
-+	if (error) {
-+		dev_err(dev, "Failed to register input device\n");
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static struct platform_driver mx25_tcq_driver = {
-+	.driver		= {
-+		.name	= "mx25-tcq",
-+		.of_match_table = mx25_tcq_ids,
++static struct serio_device_id egalax_serio_ids[] = {
++	{
++		.type	= SERIO_RS232,
++		.proto	= SERIO_EGALAX,
++		.id	= SERIO_ANY,
++		.extra	= SERIO_ANY,
 +	},
-+	.probe		= mx25_tcq_probe,
++	{ 0 }
 +};
-+module_platform_driver(mx25_tcq_driver);
 +
-+MODULE_DESCRIPTION("TS input driver for Freescale mx25");
-+MODULE_AUTHOR("Markus Pargmann <mpa@pengutronix.de>");
-+MODULE_LICENSE("GPL v2");
--- 
-2.6.2
++MODULE_DEVICE_TABLE(serio, egalax_serio_ids);
++
++static struct serio_driver egalax_drv = {
++	.driver		= {
++		.name	= "egalax",
++	},
++	.description	= DRIVER_DESC,
++	.id_table	= egalax_serio_ids,
++	.interrupt	= egalax_interrupt,
++	.connect	= egalax_connect,
++	.disconnect	= egalax_disconnect,
++};
++
++module_serio_driver(egalax_drv);
+diff -durpN linux-4.2.6/drivers/input/touchscreen/Kconfig linux-4.2.6.egalax-serio/drivers/input/touchscreen/Kconfig
+--- linux-4.2.6/drivers/input/touchscreen/Kconfig	2015-11-09 23:37:56.000000000 +0100
++++ linux-4.2.6.egalax-serio/drivers/input/touchscreen/Kconfig	2015-12-14 09:58:46.363311141 +0100
+@@ -295,6 +295,16 @@ config TOUCHSCREEN_EGALAX
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called egalax_ts.
+ 
++config TOUCHSCREEN_EGALAX_SERIO
++	tristate "EETI eGalax serial touchscreen"
++	select SERIO
++	help
++	  Say Y here to enable support for serial connected EETI
++	  eGalax touch panels.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called egalax.
++
+ config TOUCHSCREEN_FUJITSU
+ 	tristate "Fujitsu serial touchscreen"
+ 	select SERIO
+diff -durpN linux-4.2.6/drivers/input/touchscreen/Makefile linux-4.2.6.egalax-serio/drivers/input/touchscreen/Makefile
+--- linux-4.2.6/drivers/input/touchscreen/Makefile	2015-11-09 23:37:56.000000000 +0100
++++ linux-4.2.6.egalax-serio/drivers/input/touchscreen/Makefile	2015-12-14 09:59:26.113667470 +0100
+@@ -35,6 +35,7 @@ obj-$(CONFIG_TOUCHSCREEN_EETI)		+= eeti_
+ obj-$(CONFIG_TOUCHSCREEN_ELAN)		+= elants_i2c.o
+ obj-$(CONFIG_TOUCHSCREEN_ELO)		+= elo.o
+ obj-$(CONFIG_TOUCHSCREEN_EGALAX)	+= egalax_ts.o
++obj-$(CONFIG_TOUCHSCREEN_EGALAX_SERIO)	+= egalax.o
+ obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+= goodix.o
+ obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
+diff -durpN linux-4.2.6/include/uapi/linux/serio.h linux-4.2.6.egalax-serio/include/uapi/linux/serio.h
+--- linux-4.2.6/include/uapi/linux/serio.h	2015-11-09 23:37:56.000000000 +0100
++++ linux-4.2.6.egalax-serio/include/uapi/linux/serio.h	2015-12-14 09:21:39.868415166 +0100
+@@ -77,5 +77,6 @@
+ #define SERIO_PS2MULT	0x3c
+ #define SERIO_TSC40	0x3d
+ #define SERIO_WACOM_IV	0x3e
++#define SERIO_EGALAX	0x3f
+ 
+ #endif /* _UAPI_SERIO_H */
 
+--------------010800080502030801060107--

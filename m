@@ -1,90 +1,82 @@
-From: Boszormenyi Zoltan <zboszor@pr.hu>
-Subject: Re: [PATCH] Add support for the egalax serial touchscreen driver
-Date: Tue, 15 Dec 2015 20:18:59 +0100
-Message-ID: <567067A3.8080905@pr.hu>
-References: <1450178672-26885-1-git-send-email-zboszormenyi@sicom.com>
- <20151215200630.0a8b5479@heffalump.sk2.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: Report vendor and product IDs for elan_i2c
+Date: Tue, 15 Dec 2015 11:34:42 -0800
+Message-ID: <20151215193442.GB7471@dtor-ws>
+References: <1450206672-9840-1-git-send-email-charliemooney@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail9.pr.hu ([87.242.0.9]:50499 "EHLO mail9.pr.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751259AbbLOTTK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Dec 2015 14:19:10 -0500
-In-Reply-To: <20151215200630.0a8b5479@heffalump.sk2.org>
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:34332 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753616AbbLOTep (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Dec 2015 14:34:45 -0500
+Content-Disposition: inline
+In-Reply-To: <1450206672-9840-1-git-send-email-charliemooney@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Kitt <steve@sk2.org>, =?UTF-8?B?QsO2c3rDtnJtw6lueWkgWm9sdMOhbg==?= <zboszormenyi@sicom.com>
-Cc: Vojtech Pavlik <vojtech@suse.com>, linuxconsole-dev@lists.sourceforge.net, linux-input@vger.kernel.org
+To: Charlie Mooney <charliemooney@chromium.org>
+Cc: linux-input@vger.kernel.org, dusonlin@emc.com.tw, jkosina@suse.com, michele.curti@gmail.com, k.kozlowski@samsung.com, bleung@chromium.org, drake@endlessm.com, linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Dec 15, 2015 at 11:11:12AM -0800, Charlie Mooney wrote:
+> Previously the "vendor" and "product" IDs for the elan_i2c
+> driver simply reported 0000.  This patch modifies the elan_i2c
+> driver to include the Elan vendor ID and the touchpad's product
+> id under input/input*/{vendor,product}.
+> 
+> Specifically, this is to allow us to apply a generic Elan gestures
+> config that will apply to all Elan touchpads on ChromeOS.  These
+> configs  match to input devices in various ways, but one major way
+> is by matching on vendor ID.  Adding this patch allows the
+> default Elan touchpad config to be applied to Elan touchpads in
+> this kernel by matching on devices that have vendor ID 04f3.
+> 
+> To test this patch, I mannually built and installed the modified
+> driver for my laptop which has an elan_i2c touchpad.  Everything
+> still functions correctly, and when I query the vendor and product
+> ID I see what I expected:
+> 
+> localhost i2c-ELAN0000:00 # cat \
+>     /sys/bus/i2c/devices/i2c-ELAN0000\:00/input/input6/id/{vendor,product}
+> 04f3
+> 007f
+> 
+> Before this patch it simply returned 0000 for both values.  Note that
+> 007F is the product ID that this device will return through its custom
+> sysfs entry "product_id" as well.
+> 
+> Signed-off-by: Charlie Mooney <charliemooney@chromium.org>
 
-2015-12-15 20:06 keltez=C3=A9ssel, Stephen Kitt =C3=ADrta:
-> Hi,
->
-> Thanks for submitting this. I have just a couple of questions...
->
-> On Tue, 15 Dec 2015 12:24:32 +0100, B=C3=B6sz=C3=B6rm=C3=A9nyi Zolt=C3=
-=A1n
-> <zboszormenyi@sicom.com> wrote:
->> +static int egalax_init(int fd, unsigned long *id, unsigned long *ex=
-tra) {
->> +	unsigned char packet_alive_query[3] =3D { 0x0a, 0x01, 'A' };
->> +	unsigned char packet_fw_ver[3] =3D { 0x0a, 0x01, 'D' };
->> +	unsigned char packet_ctrl_type[3] =3D { 0x0a, 0x01, 'E' };
->> +	unsigned char response[128];
->> +
->> +	if (check_egalax_response(fd, packet_alive_query, sizeof(packet_al=
-ive_query), response))
->> +		return -1;
->> +
->> +	if (check_egalax_response(fd, packet_fw_ver, sizeof(packet_fw_ver)=
-, response))
->> +		return -1;
->> +
->> +	response[(unsigned char)response[1] + 2] =3D '\0';
->> +	printf("EETI eGalaxTouch firmware: %s\n", &response[3]);
-> inputattach is generally silent when everything goes well. I can see =
-how this
-> kind of info would be useful though; would you mind simply commenting=
- the
-> printf() lines out, and I'll add a verbose mode later on?
+Applied, thank you.
 
-Sure, I'll put it under #ifdef 0.
+> ---
+>  drivers/input/mouse/elan_i2c_core.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index 5e1665b..2f58985 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -41,6 +41,7 @@
+>  
+>  #define DRIVER_NAME		"elan_i2c"
+>  #define ELAN_DRIVER_VERSION	"1.6.1"
+> +#define ELAN_VENDOR_ID		0x04f3
+>  #define ETP_MAX_PRESSURE	255
+>  #define ETP_FWIDTH_REDUCE	90
+>  #define ETP_FINGER_WIDTH	15
+> @@ -914,6 +915,8 @@ static int elan_setup_input_device(struct elan_tp_data *data)
+>  
+>  	input->name = "Elan Touchpad";
+>  	input->id.bustype = BUS_I2C;
+> +	input->id.vendor = ELAN_VENDOR_ID;
+> +	input->id.product = data->product_id;
+>  	input_set_drvdata(input, data);
+>  
+>  	error = input_mt_init_slots(input, ETP_MAX_FINGERS,
+> -- 
+> 2.1.2
+> 
 
->
->> +
->> +	if (check_egalax_response(fd, packet_ctrl_type, sizeof(packet_ctrl=
-_type), response))
->> +		return -1;
->> +
->> +	response[(unsigned char)response[1] + 2] =3D '\0';
->> +	printf("EETI eGalaxTouch controller type: %s\n", &response[3]);
-> As above.
->
->> +#ifdef SERIO_HAMPSHIRE
->> +{ "--hampshire",   "-ham",         "Hampshire touchscreen",
->> +	B9600, CS8,
->> +	SERIO_HAMPSHIRE,	0x00,   0x00,   0,  NULL },
->> +#endif
-> Is this intentional? If so, could you mention it in the commit messag=
-e?
-
-Yes, it is intentional. I noticed that the SERIO_HAMPSHIRE support
-is also missing from inputattach. I don't currently know if the
-Hampshire touchscreen needs an init function or not, so it is a
-placeholder at the moment. Also, the SERIO_HAMPSHIRE value is
-smaller than SERIO_PS2MULT which is unconditionally enabled,
-so maybe it doesn't need the #ifdef SERIO_HAMPSHIRE ... #endif
-cover at all. I will mention it in the commit message for the v2 patch,
-which I will send tomorrow.
-
-Best regards,
-Zolt=C3=A1n B=C3=B6sz=C3=B6rm=C3=A9nyi
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

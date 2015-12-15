@@ -1,82 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: Report vendor and product IDs for elan_i2c
-Date: Tue, 15 Dec 2015 11:34:42 -0800
-Message-ID: <20151215193442.GB7471@dtor-ws>
-References: <1450206672-9840-1-git-send-email-charliemooney@chromium.org>
+From: Stephen Kitt <steve@sk2.org>
+Subject: Re: [PATCH] Add support for the egalax serial touchscreen driver
+Date: Tue, 15 Dec 2015 20:06:30 +0100
+Message-ID: <20151215200630.0a8b5479@heffalump.sk2.org>
+References: <1450178672-26885-1-git-send-email-zboszormenyi@sicom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:34332 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753616AbbLOTep (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Dec 2015 14:34:45 -0500
-Content-Disposition: inline
-In-Reply-To: <1450206672-9840-1-git-send-email-charliemooney@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linuxconsole-dev-bounces@lists.sourceforge.net>
+In-Reply-To: <1450178672-26885-1-git-send-email-zboszormenyi@sicom.com>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxconsole-dev>,
+	<mailto:linuxconsole-dev-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxconsole-dev>
+List-Post: <mailto:linuxconsole-dev@lists.sourceforge.net>
+List-Help: <mailto:linuxconsole-dev-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxconsole-dev>,
+	<mailto:linuxconsole-dev-request@lists.sourceforge.net?subject=subscribe>
+Errors-To: linuxconsole-dev-bounces@lists.sourceforge.net
+To: =?UTF-8?B?QsO2c3rDtnJtw6lueWkgWm9sdMOhbg==?= <zboszormenyi@sicom.com>
+Cc: linux-input@vger.kernel.org, linuxconsole-dev@lists.sourceforge.net, =?UTF-8?B?QsO2c3rDtnJtw6lueWkgWm9s?=, Vojtech Pavlik <vojtech@suse.com>, =?UTF-8?B?dMOhbg==?= <zboszor@pr.hu>
 List-Id: linux-input@vger.kernel.org
-To: Charlie Mooney <charliemooney@chromium.org>
-Cc: linux-input@vger.kernel.org, dusonlin@emc.com.tw, jkosina@suse.com, michele.curti@gmail.com, k.kozlowski@samsung.com, bleung@chromium.org, drake@endlessm.com, linux-kernel@vger.kernel.org
 
-On Tue, Dec 15, 2015 at 11:11:12AM -0800, Charlie Mooney wrote:
-> Previously the "vendor" and "product" IDs for the elan_i2c
-> driver simply reported 0000.  This patch modifies the elan_i2c
-> driver to include the Elan vendor ID and the touchpad's product
-> id under input/input*/{vendor,product}.
-> 
-> Specifically, this is to allow us to apply a generic Elan gestures
-> config that will apply to all Elan touchpads on ChromeOS.  These
-> configs  match to input devices in various ways, but one major way
-> is by matching on vendor ID.  Adding this patch allows the
-> default Elan touchpad config to be applied to Elan touchpads in
-> this kernel by matching on devices that have vendor ID 04f3.
-> 
-> To test this patch, I mannually built and installed the modified
-> driver for my laptop which has an elan_i2c touchpad.  Everything
-> still functions correctly, and when I query the vendor and product
-> ID I see what I expected:
-> 
-> localhost i2c-ELAN0000:00 # cat \
->     /sys/bus/i2c/devices/i2c-ELAN0000\:00/input/input6/id/{vendor,product}
-> 04f3
-> 007f
-> 
-> Before this patch it simply returned 0000 for both values.  Note that
-> 007F is the product ID that this device will return through its custom
-> sysfs entry "product_id" as well.
-> 
-> Signed-off-by: Charlie Mooney <charliemooney@chromium.org>
-
-Applied, thank you.
-
-> ---
->  drivers/input/mouse/elan_i2c_core.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> index 5e1665b..2f58985 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -41,6 +41,7 @@
->  
->  #define DRIVER_NAME		"elan_i2c"
->  #define ELAN_DRIVER_VERSION	"1.6.1"
-> +#define ELAN_VENDOR_ID		0x04f3
->  #define ETP_MAX_PRESSURE	255
->  #define ETP_FWIDTH_REDUCE	90
->  #define ETP_FINGER_WIDTH	15
-> @@ -914,6 +915,8 @@ static int elan_setup_input_device(struct elan_tp_data *data)
->  
->  	input->name = "Elan Touchpad";
->  	input->id.bustype = BUS_I2C;
-> +	input->id.vendor = ELAN_VENDOR_ID;
-> +	input->id.product = data->product_id;
->  	input_set_drvdata(input, data);
->  
->  	error = input_mt_init_slots(input, ETP_MAX_FINGERS,
-> -- 
-> 2.1.2
-> 
-
--- 
-Dmitry
+SGksCgpUaGFua3MgZm9yIHN1Ym1pdHRpbmcgdGhpcy4gSSBoYXZlIGp1c3QgYSBjb3VwbGUgb2Yg
+cXVlc3Rpb25zLi4uCgpPbiBUdWUsIDE1IERlYyAyMDE1IDEyOjI0OjMyICswMTAwLCBCw7ZzesO2
+cm3DqW55aSBab2x0w6FuCjx6Ym9zem9ybWVueWlAc2ljb20uY29tPiB3cm90ZToKPiArc3RhdGlj
+IGludCBlZ2FsYXhfaW5pdChpbnQgZmQsIHVuc2lnbmVkIGxvbmcgKmlkLCB1bnNpZ25lZCBsb25n
+ICpleHRyYSkgewo+ICsJdW5zaWduZWQgY2hhciBwYWNrZXRfYWxpdmVfcXVlcnlbM10gPSB7IDB4
+MGEsIDB4MDEsICdBJyB9Owo+ICsJdW5zaWduZWQgY2hhciBwYWNrZXRfZndfdmVyWzNdID0geyAw
+eDBhLCAweDAxLCAnRCcgfTsKPiArCXVuc2lnbmVkIGNoYXIgcGFja2V0X2N0cmxfdHlwZVszXSA9
+IHsgMHgwYSwgMHgwMSwgJ0UnIH07Cj4gKwl1bnNpZ25lZCBjaGFyIHJlc3BvbnNlWzEyOF07Cj4g
+Kwo+ICsJaWYgKGNoZWNrX2VnYWxheF9yZXNwb25zZShmZCwgcGFja2V0X2FsaXZlX3F1ZXJ5LCBz
+aXplb2YocGFja2V0X2FsaXZlX3F1ZXJ5KSwgcmVzcG9uc2UpKQo+ICsJCXJldHVybiAtMTsKPiAr
+Cj4gKwlpZiAoY2hlY2tfZWdhbGF4X3Jlc3BvbnNlKGZkLCBwYWNrZXRfZndfdmVyLCBzaXplb2Yo
+cGFja2V0X2Z3X3ZlciksIHJlc3BvbnNlKSkKPiArCQlyZXR1cm4gLTE7Cj4gKwo+ICsJcmVzcG9u
+c2VbKHVuc2lnbmVkIGNoYXIpcmVzcG9uc2VbMV0gKyAyXSA9ICdcMCc7Cj4gKwlwcmludGYoIkVF
+VEkgZUdhbGF4VG91Y2ggZmlybXdhcmU6ICVzXG4iLCAmcmVzcG9uc2VbM10pOwoKaW5wdXRhdHRh
+Y2ggaXMgZ2VuZXJhbGx5IHNpbGVudCB3aGVuIGV2ZXJ5dGhpbmcgZ29lcyB3ZWxsLiBJIGNhbiBz
+ZWUgaG93IHRoaXMKa2luZCBvZiBpbmZvIHdvdWxkIGJlIHVzZWZ1bCB0aG91Z2g7IHdvdWxkIHlv
+dSBtaW5kIHNpbXBseSBjb21tZW50aW5nIHRoZQpwcmludGYoKSBsaW5lcyBvdXQsIGFuZCBJJ2xs
+IGFkZCBhIHZlcmJvc2UgbW9kZSBsYXRlciBvbj8KCj4gKwo+ICsJaWYgKGNoZWNrX2VnYWxheF9y
+ZXNwb25zZShmZCwgcGFja2V0X2N0cmxfdHlwZSwgc2l6ZW9mKHBhY2tldF9jdHJsX3R5cGUpLCBy
+ZXNwb25zZSkpCj4gKwkJcmV0dXJuIC0xOwo+ICsKPiArCXJlc3BvbnNlWyh1bnNpZ25lZCBjaGFy
+KXJlc3BvbnNlWzFdICsgMl0gPSAnXDAnOwo+ICsJcHJpbnRmKCJFRVRJIGVHYWxheFRvdWNoIGNv
+bnRyb2xsZXIgdHlwZTogJXNcbiIsICZyZXNwb25zZVszXSk7CgpBcyBhYm92ZS4KCj4gKyNpZmRl
+ZiBTRVJJT19IQU1QU0hJUkUKPiAreyAiLS1oYW1wc2hpcmUiLCAgICItaGFtIiwgICAgICAgICAi
+SGFtcHNoaXJlIHRvdWNoc2NyZWVuIiwKPiArCUI5NjAwLCBDUzgsCj4gKwlTRVJJT19IQU1QU0hJ
+UkUsCTB4MDAsICAgMHgwMCwgICAwLCAgTlVMTCB9LAo+ICsjZW5kaWYKCklzIHRoaXMgaW50ZW50
+aW9uYWw/IElmIHNvLCBjb3VsZCB5b3UgbWVudGlvbiBpdCBpbiB0aGUgY29tbWl0IG1lc3NhZ2U/
+CgpUaGFua3MsCgpTdGVwaGVuCgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KTGludXhjb25zb2xlLWRldiBtYWlsaW5n
+IGxpc3QKTGludXhjb25zb2xlLWRldkBsaXN0cy5zb3VyY2Vmb3JnZS5uZXQKaHR0cHM6Ly9saXN0
+cy5zb3VyY2Vmb3JnZS5uZXQvbGlzdHMvbGlzdGluZm8vbGludXhjb25zb2xlLWRldgo=

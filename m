@@ -1,52 +1,90 @@
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Subject: [RESEND] Lenovo Yoga 900 touchpad issues
-Date: Tue, 15 Dec 2015 11:14:32 -0800
-Message-ID: <CAOhV88MGoJdUzty=DDTLOkd7me5uoRWwTTrR8aD=zf5ga0_Hew@mail.gmail.com>
+From: Boszormenyi Zoltan <zboszor@pr.hu>
+Subject: Re: [PATCH] Add support for the egalax serial touchscreen driver
+Date: Tue, 15 Dec 2015 20:18:59 +0100
+Message-ID: <567067A3.8080905@pr.hu>
+References: <1450178672-26885-1-git-send-email-zboszormenyi@sicom.com>
+ <20151215200630.0a8b5479@heffalump.sk2.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f173.google.com ([209.85.213.173]:36861 "EHLO
-	mail-ig0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754091AbbLOTOc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Dec 2015 14:14:32 -0500
+Received: from mail9.pr.hu ([87.242.0.9]:50499 "EHLO mail9.pr.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751259AbbLOTTK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Dec 2015 14:19:10 -0500
+In-Reply-To: <20151215200630.0a8b5479@heffalump.sk2.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andrew Duggan <aduggan@synaptics.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Seth Forshee <seth.forshee@canonical.com>, Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Stephen Kitt <steve@sk2.org>, =?UTF-8?B?QsO2c3rDtnJtw6lueWkgWm9sdMOhbg==?= <zboszormenyi@sicom.com>
+Cc: Vojtech Pavlik <vojtech@suse.com>, linuxconsole-dev@lists.sourceforge.net, linux-input@vger.kernel.org
 
-[Apologies for the resend, didn't realize I hadn't changed my GMail settings
-to not use HTML.]
+Hi,
 
-I have recently purchased a Lenovo Yoga 900 and most everything is working
-with a slightly modified 4.4-rc5 (https://lkml.org/lkml/2015/11/30/441 applied
-to enable the touchpad itself), I am seeing two issues:
+2015-12-15 20:06 keltez=C3=A9ssel, Stephen Kitt =C3=ADrta:
+> Hi,
+>
+> Thanks for submitting this. I have just a couple of questions...
+>
+> On Tue, 15 Dec 2015 12:24:32 +0100, B=C3=B6sz=C3=B6rm=C3=A9nyi Zolt=C3=
+=A1n
+> <zboszormenyi@sicom.com> wrote:
+>> +static int egalax_init(int fd, unsigned long *id, unsigned long *ex=
+tra) {
+>> +	unsigned char packet_alive_query[3] =3D { 0x0a, 0x01, 'A' };
+>> +	unsigned char packet_fw_ver[3] =3D { 0x0a, 0x01, 'D' };
+>> +	unsigned char packet_ctrl_type[3] =3D { 0x0a, 0x01, 'E' };
+>> +	unsigned char response[128];
+>> +
+>> +	if (check_egalax_response(fd, packet_alive_query, sizeof(packet_al=
+ive_query), response))
+>> +		return -1;
+>> +
+>> +	if (check_egalax_response(fd, packet_fw_ver, sizeof(packet_fw_ver)=
+, response))
+>> +		return -1;
+>> +
+>> +	response[(unsigned char)response[1] + 2] =3D '\0';
+>> +	printf("EETI eGalaxTouch firmware: %s\n", &response[3]);
+> inputattach is generally silent when everything goes well. I can see =
+how this
+> kind of info would be useful though; would you mind simply commenting=
+ the
+> printf() lines out, and I'll add a verbose mode later on?
 
-1) On suspend/resume, the touchpad is non-functional. A `modprobe -r i2c-hid;
- modprobe i2c-hid` "fixes" it.
+Sure, I'll put it under #ifdef 0.
 
-The kernel emits:
+>
+>> +
+>> +	if (check_egalax_response(fd, packet_ctrl_type, sizeof(packet_ctrl=
+_type), response))
+>> +		return -1;
+>> +
+>> +	response[(unsigned char)response[1] + 2] =3D '\0';
+>> +	printf("EETI eGalaxTouch controller type: %s\n", &response[3]);
+> As above.
+>
+>> +#ifdef SERIO_HAMPSHIRE
+>> +{ "--hampshire",   "-ham",         "Hampshire touchscreen",
+>> +	B9600, CS8,
+>> +	SERIO_HAMPSHIRE,	0x00,   0x00,   0,  NULL },
+>> +#endif
+> Is this intentional? If so, could you mention it in the commit messag=
+e?
 
-i2c_hid i2c-SYNA2B29:00: failed to reset device.
-dpm_run_callback(): i2c_hid_resume+0x0/0xc0 [i2c_hid] returns -61
-PM: Device i2c-SYNA2B29:00 failed to resume: error -61
+Yes, it is intentional. I noticed that the SERIO_HAMPSHIRE support
+is also missing from inputattach. I don't currently know if the
+Hampshire touchscreen needs an init function or not, so it is a
+placeholder at the moment. Also, the SERIO_HAMPSHIRE value is
+smaller than SERIO_PS2MULT which is unconditionally enabled,
+so maybe it doesn't need the #ifdef SERIO_HAMPSHIRE ... #endif
+cover at all. I will mention it in the commit message for the v2 patch,
+which I will send tomorrow.
 
-During the resume. So perhaps this is a timing issue (given that once
-resumed, the
-module reload does work?).
+Best regards,
+Zolt=C3=A1n B=C3=B6sz=C3=B6rm=C3=A9nyi
 
-2) During boot, the following is emitted:
-
-i2c_hid i2c-ITE8396:00: error in i2c_hid_init_report size:19 / ret_size:18
-
-I'm not sure if this indicates a hardware or driver bug? With
-i2c-hid.debug=1, I see:
-
-i2c_hid i2c-ITE8396:00: report (len=19): 12 00 5a ff ff ff ff ff ff ff
-ff ff ff ff ff ff ff ff 06
-i2c_hid i2c-ITE8396:00: error in i2c_hid_init_report size:19 / ret_size:18
-
-Any suggestions?
-
-Thanks,
-Nish
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

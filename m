@@ -1,102 +1,270 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: don't push static constants on stack for %*ph
-Date: Mon, 14 Dec 2015 23:31:43 -0800
-Message-ID: <CAKdAkRQN_LnnL=OCbzeMS-X+kFz3kiTJGxBw1KC6R=jEt8YVfw@mail.gmail.com>
-References: <1378291309-13869-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	<1449755217.30729.99.camel@linux.intel.com>
+From: Ben Chen <ben_chen@bizlinktech.com>
+Subject: [PATCH 1/1] Support for CMedia CM6533 HID audio jack controls.
+Date: Tue, 15 Dec 2015 15:36:39 +0800
+Message-ID: <1450164999-3130-1-git-send-email-ben_chen@bizlinktech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f170.google.com ([209.85.214.170]:33551 "EHLO
-	mail-ob0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751580AbbLOHbo (ORCPT
+Received: from mail-io0-f171.google.com ([209.85.223.171]:34411 "EHLO
+	mail-io0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750764AbbLOHgy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Dec 2015 02:31:44 -0500
-Received: by mail-ob0-f170.google.com with SMTP id sd4so359337obb.0
-        for <linux-input@vger.kernel.org>; Mon, 14 Dec 2015 23:31:44 -0800 (PST)
-In-Reply-To: <1449755217.30729.99.camel@linux.intel.com>
+	Tue, 15 Dec 2015 02:36:54 -0500
+Received: by mail-io0-f171.google.com with SMTP id e126so10477299ioa.1
+        for <linux-input@vger.kernel.org>; Mon, 14 Dec 2015 23:36:53 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Ben Chen <ben_chen@bizlinktech.com>
 
-On Thu, Dec 10, 2015 at 5:46 AM, Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
-> On Wed, 2013-09-04 at 13:41 +0300, Andy Shevchenko wrote:
->> There is no need to pass constants via stack. The width may be
->> explicitly
->> specified in the format.
->
-> Dmitry, any comments on this?
+Signed-off-by: Ben Chen <ben_chen@bizlinktech.com>
+---
+ drivers/hid/Kconfig      |   6 ++
+ drivers/hid/Makefile     |   1 +
+ drivers/hid/hid-cm6533.c | 168 +++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-core.c   |   1 +
+ drivers/hid/hid-ids.h    |   1 +
+ 5 files changed, 177 insertions(+)
+ create mode 100644 drivers/hid/hid-cm6533.c
 
-My personal preference is to have length as a parameter instead of
-encoding in format string as it allows using symbolic constants and
-expressions (even though in these particular cases we use numeric
-constants). The code is not in critical paths so we can live with
-extra arguments.
-
-Thanks.
-
->
->>
->> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->> ---
->>  drivers/input/mouse/hgpk.c               | 7 +++----
->>  drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++--
->>  2 files changed, 5 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
->> index 62be888..27909a1 100644
->> --- a/drivers/input/mouse/hgpk.c
->> +++ b/drivers/input/mouse/hgpk.c
->> @@ -333,9 +333,8 @@ static bool hgpk_is_byte_valid(struct psmouse
->> *psmouse, unsigned char *packet)
->>       }
->>
->>       if (!valid)
->> -             psmouse_dbg(psmouse,
->> -                         "bad data, mode %d (%d) %*ph\n",
->> -                         priv->mode, pktcnt, 6, psmouse->packet);
->> +             psmouse_dbg(psmouse, "bad data, mode %d (%d)
->> %6ph\n",
->> +                         priv->mode, pktcnt, psmouse->packet);
->>
->>       return valid;
->>  }
->> @@ -1027,7 +1026,7 @@ static enum hgpk_model_t hgpk_get_model(struct
->> psmouse *psmouse)
->>               return -EIO;
->>       }
->>
->> -     psmouse_dbg(psmouse, "ID: %*ph\n", 3, param);
->> +     psmouse_dbg(psmouse, "ID: %3ph\n", param);
->>
->>       /* HGPK signature: 0x67, 0x00, 0x<model> */
->>       if (param[0] != 0x67 || param[1] != 0x00)
->> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c
->> b/drivers/input/touchscreen/atmel_mxt_ts.c
->> index 59aa240..dd44ebf 100644
->> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
->> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
->> @@ -331,8 +331,8 @@ static bool mxt_object_writable(unsigned int
->> type)
->>  static void mxt_dump_message(struct device *dev,
->>                            struct mxt_message *message)
->>  {
->> -     dev_dbg(dev, "reportid: %u\tmessage: %*ph\n",
->> -             message->reportid, 7, message->message);
->> +     dev_dbg(dev, "reportid: %u\tmessage: %7ph\n",
->> +             message->reportid, message->message);
->>  }
->>
->>  static int mxt_check_bootloader(struct i2c_client *client,
->
-> --
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Intel Finland Oy
->
-
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 513a16c..4e0ca39 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -196,6 +196,12 @@ config HID_PRODIKEYS
+ 	  multimedia keyboard, but will lack support for the musical keyboard
+ 	  and some additional multimedia keys.
+ 
++config HID_CM6533
++	tristate "CMedia CM6533 HID audio jack controls"
++	depends on HID
++	---help---
++	Support for CMedia CM6533 HID audio jack controls.
++
+ config HID_CP2112
+ 	tristate "Silicon Labs CP2112 HID USB-to-SMBus Bridge support"
+ 	depends on USB_HID && I2C && GPIOLIB
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 00011fe..63f99bd 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -29,6 +29,7 @@ obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
+ obj-$(CONFIG_HID_BETOP_FF)	+= hid-betopff.o
+ obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
+ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
++obj-$(CONFIG_HID_CM6533)	+= hid-cm6533.o
+ obj-$(CONFIG_HID_CORSAIR)	+= hid-corsair.o
+ obj-$(CONFIG_HID_CP2112)	+= hid-cp2112.o
+ obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
+diff --git a/drivers/hid/hid-cm6533.c b/drivers/hid/hid-cm6533.c
+new file mode 100644
+index 0000000..a097f8b
+--- /dev/null
++++ b/drivers/hid/hid-cm6533.c
+@@ -0,0 +1,168 @@
++/*
++ * HID driver for CMedia CM6533 audio jack controls
++ *
++ * Copyright (C) 2015 Ben Chen <ben_chen@bizlinktech.com>
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++#include "hid-ids.h"
++
++MODULE_AUTHOR("Ben Chen");
++MODULE_DESCRIPTION("CM6533 HID jack controls");
++MODULE_LICENSE("GPL");
++
++#define CM6533_JD_TYPE_COUNT      1
++#define CM6533_JD_RAWEV_LEN	 16
++#define CM6533_JD_SFX_OFFSET	  8
++
++/*
++*
++*CM6533 audio jack HID raw events:
++*
++*Plug in:
++*01000600 002083xx 080008c0 10000000
++*about 3 seconds later...
++*01000a00 002083xx 08000380 10000000
++*01000600 002083xx 08000380 10000000
++*
++*Plug out:
++*01000400 002083xx 080008c0 x0000000
++*/
++
++static const u8 ji_sfx[] = { 0x08, 0x00, 0x08, 0xc0 };
++static const u8 ji_in[]  = { 0x01, 0x00, 0x06, 0x00 };
++static const u8 ji_out[] = { 0x01, 0x00, 0x04, 0x00 };
++
++static int jack_switch_types[CM6533_JD_TYPE_COUNT] = {
++	SW_HEADPHONE_INSERT,
++};
++
++struct cmhid {
++	struct input_dev *input_dev;
++	struct hid_device *hid;
++	unsigned short switch_map[CM6533_JD_TYPE_COUNT];
++};
++
++static void hp_ev(struct hid_device *hid, struct cmhid *cm, int value)
++{
++	input_report_switch(cm->input_dev, SW_HEADPHONE_INSERT, value);
++	input_sync(cm->input_dev);
++}
++
++static int cmhid_raw_event(struct hid_device *hid, struct hid_report *report,
++	 u8 *data, int len)
++{
++	struct cmhid *cm = hid_get_drvdata(hid);
++
++	if (len != CM6533_JD_RAWEV_LEN)
++		goto out;
++	if (memcmp(data+CM6533_JD_SFX_OFFSET, ji_sfx, sizeof(ji_sfx)))
++		goto out;
++
++	if (!memcmp(data, ji_out, sizeof(ji_out))) {
++		hp_ev(hid, cm, 0);
++		goto out;
++	}
++	if (!memcmp(data, ji_in, sizeof(ji_in))) {
++		hp_ev(hid, cm, 1);
++		goto out;
++	}
++
++out:
++	return 0;
++}
++
++static void cmhid_input_configured(struct hid_device *hid,
++		struct hid_input *hidinput)
++{
++	struct input_dev *input_dev = hidinput->input;
++	struct cmhid *cm = hid_get_drvdata(hid);
++	int i;
++
++	hid_info(hid, "cmhid_input_configured\n");
++	cm->input_dev = input_dev;
++	memcpy(cm->switch_map, jack_switch_types, sizeof(cm->switch_map));
++	input_dev->evbit[0] = BIT(EV_SW);
++	for (i = 0; i < CM6533_JD_TYPE_COUNT; i++)
++		input_set_capability(cm->input_dev,
++				EV_SW, jack_switch_types[i]);
++}
++
++static int cmhid_input_mapping(struct hid_device *hid,
++		struct hid_input *hi, struct hid_field *field,
++		struct hid_usage *usage, unsigned long **bit, int *max)
++{
++	return -1;
++}
++
++static int cmhid_probe(struct hid_device *hid, const struct hid_device_id *id)
++{
++	int ret;
++	struct cmhid *cm;
++
++	cm = kzalloc(sizeof(struct cmhid), GFP_KERNEL);
++	if (!cm) {
++		ret = -ENOMEM;
++		goto allocfail;
++	}
++
++	cm->hid = hid;
++
++	hid->quirks |= HID_QUIRK_HIDINPUT_FORCE;
++	hid_set_drvdata(hid, cm);
++
++	ret = hid_parse(hid);
++	if (ret) {
++		hid_err(hid, "parse failed\n");
++		goto fail;
++	}
++
++	ret = hid_hw_start(hid, HID_CONNECT_DEFAULT | HID_CONNECT_HIDDEV_FORCE);
++	if (ret) {
++		hid_err(hid, "hw start failed\n");
++		goto fail;
++	}
++
++	return 0;
++fail:
++	kfree(cm);
++allocfail:
++	return ret;
++}
++
++static void cmhid_remove(struct hid_device *hid)
++{
++	struct cmhid *cm = hid_get_drvdata(hid);
++
++	hid_hw_stop(hid);
++	kfree(cm);
++}
++
++static const struct hid_device_id cmhid_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CMEDIA, USB_DEVICE_ID_CM6533) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, cmhid_devices);
++
++static struct hid_driver cmhid_driver = {
++	.name = "cm6533_jd",
++	.id_table = cmhid_devices,
++	.raw_event = cmhid_raw_event,
++	.input_configured = cmhid_input_configured,
++	.probe = cmhid_probe,
++	.remove = cmhid_remove,
++	.input_mapping = cmhid_input_mapping,
++};
++module_hid_driver(cmhid_driver);
++
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index c6f7a69..d8e55fe 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2056,6 +2056,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CMEDIA, USB_DEVICE_ID_CM6533) },
+ 	{ }
+ };
+ 
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 9024a3d..86fa1e6 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -246,6 +246,7 @@
+ 
+ #define USB_VENDOR_ID_CMEDIA		0x0d8c
+ #define USB_DEVICE_ID_CM109		0x000e
++#define USB_DEVICE_ID_CM6533		0x0022
+ 
+ #define USB_VENDOR_ID_CODEMERCS		0x07c0
+ #define USB_DEVICE_ID_CODEMERCS_IOW_FIRST	0x1500
+-- 
+1.9.1
 
 
 -- 
-Dmitry
+Legal Disclaimer:
+The information contained in this message may be privileged and 
+confidential. It is intended to be read only by the individual or entity to 
+whom it is addressed or by their designee. If the reader of this message is 
+not the intended recipient, you  are not to copy,disclose,or distribute 
+this e-mail or its contents to any other person and any such actions are 
+unlawful. If you have received this message in error, please immediately 
+notify the sender and delete or destroy any copy of this message!
+

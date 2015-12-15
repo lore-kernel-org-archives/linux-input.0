@@ -1,132 +1,102 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 000/182] Rid struct gpio_chip from container_of() usage
-Date: Mon, 14 Dec 2015 23:25:44 -0800
-Message-ID: <CAKdAkRR6kEzEOtjxXqS4BPToEzKGBsLb=SzePFAiLSDhh+=qnw@mail.gmail.com>
-References: <1449666515-23343-1-git-send-email-linus.walleij@linaro.org>
-	<20151209193034.GE27131@dtor-ws>
-	<CACRpkdZDFPFOH=9FfYzLeKo5b-oXG4rPjoU4Rpq9Wv1-RvY6uQ@mail.gmail.com>
+Subject: Re: [PATCH] Input: don't push static constants on stack for %*ph
+Date: Mon, 14 Dec 2015 23:31:43 -0800
+Message-ID: <CAKdAkRQN_LnnL=OCbzeMS-X+kFz3kiTJGxBw1KC6R=jEt8YVfw@mail.gmail.com>
+References: <1378291309-13869-1-git-send-email-andriy.shevchenko@linux.intel.com>
+	<1449755217.30729.99.camel@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdZDFPFOH=9FfYzLeKo5b-oXG4rPjoU4Rpq9Wv1-RvY6uQ@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Johan Hovold <johan@kernel.org>, Alexandre Courbot <acourbot@nvidia.com>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, Markus Pargmann <mpa@pengutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Brown <broonie@kernel.org>, Amit Kucheria <amit.kucheria@linaro.org>, "arm@kernel.org" <arm@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Sonic Zhang <sonic.zhang@analog.com>, Greg Ungerer <gerg@uclinux.org>, Ralf Baechle <ralf@linux-mips.org>, Linux MIPS <linux-mips@linux-mips.org>, Anatolij Gustschin <agust@denx.de>, linux-wireless <linux-wireless@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f170.google.com ([209.85.214.170]:33551 "EHLO
+	mail-ob0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751580AbbLOHbo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Dec 2015 02:31:44 -0500
+Received: by mail-ob0-f170.google.com with SMTP id sd4so359337obb.0
+        for <linux-input@vger.kernel.org>; Mon, 14 Dec 2015 23:31:44 -0800 (PST)
+In-Reply-To: <1449755217.30729.99.camel@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Mon, Dec 14, 2015 at 1:18 AM, Linus Walleij <linus.walleij@linaro.org> wrote:
-> On Wed, Dec 9, 2015 at 8:30 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Wed, Dec 09, 2015 at 02:08:35PM +0100, Linus Walleij wrote:
->>> This removes the use of container_of() constructions from *all*
->>> GPIO drivers in the kernel. It is done by instead adding an
->>> optional void *data pointer to the struct gpio_chip and an
->>> accessor function, gpiochip_get_data() to get it from a driver.
->>>
->>> WHY?
->>>
->>> Because we want to have a proper userspace ABI for GPIO chips,
->>> which involves using a character device that the user opens
->>> and closes. While the character device is open, the underlying
->>> kernel objects must not go away.
->>>
->>> Currently the GPIO drivers keep their state in the struct
->>> gpio_chip, and that is often allocated by the drivers, very
->>> often as a part of a containing per-instance state container
->>> struct for the driver:
->>>
->>> struct foo_state {
->>>    struct gpio_chip chip;  <- OMG my state is there
->>> };
->>>
->>> Drivers cannot allocate and manage this state: if a user has the
->>> character device open, the objects allocated must stay around
->>> even if the driver goes away. Instead drivers need to pass a
->>> descriptor to the GPIO core, and then the core should allocate
->>> and manage the lifecycle of things related to the device, such
->>> as the chardev itself or the struct device related to the GPIO
->>> device.
->>
->> Yes, but it does not mean that the object that is being maintained by
->> the subsystem and that us attached to character device needs to be
->> gpio_chip itself. You can have something like
->>
->> struct gpio_chip_chardev {
->>         struct cdev chardev;
->>         struct gpio_chip *chip;
->>         bool dead;
->> };
+On Thu, Dec 10, 2015 at 5:46 AM, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+> On Wed, 2013-09-04 at 13:41 +0300, Andy Shevchenko wrote:
+>> There is no need to pass constants via stack. The width may be
+>> explicitly
+>> specified in the format.
 >
-> There needs to be a struct device too, amongst other things.
+> Dmitry, any comments on this?
 
-Could be; I was not trying to provide finished data structure but just
-illustrate possible solution.
-
->
->>
->> struct gpio_chip {
->>         ...
->>         struct gpio_chip_chardev *chardev;
->>         ...
->> };
->>
->> You alloctae the new structure when you register/export gpio chip in
->> gpio subsystem core and leave all the individual drivers alone.
->
-> The current idea I have is something in the middle. Drivers have to
-> change a bit. The important part is that gpiolib handles allocation of
-> anything containing states. I'm thinking along the lines of Russell's
-> proposal to use netdev_alloc()'s design pattern.
->
-> The problem is that currently gpio_chip contains a lot of
-> stateful variables (like the dynamically allocated array of GPIO descriptors
-> etc) and those are used by the gpiolib core, so they have to be moved away
-> from gpio_chip.
->
-> So what happens if I don't change the design pattern:
->
-> int ret = gpiochip_add(&my_chip);
-> ...
-> gpiochip_remove(&my_chip);
->
-> At this point we have to cross-reference the pointer to my chip to
-> find the chip to remove. This goes for anything that takes the struct
-> gpio_chip *
-> as parameter, like gpiochip_add_pin_range(), gpiochip_request_own_desc()
-> etc etc. So something inside gpiolib must take a gpio_chip * pointer and
-> turn that into the actual state container, e.g, a struct gpio_device.
-> Since struct gpio_chip needs to be static and stateless, it cannot contain
-> a pointer back to its struct gpio_device.
-
-Why does gpio_chip have to be stateless? I am not saying that it
-should or should not, I just want to better understand what you are
-trying to achieve.
-
->
-> That means basically comparing pointers across a list of gpio_device's
-> to find it. And that's ... very kludgy. But if people think it's better to avoid
-> changing all drivers I will consider it.
->
-> I think it is better if the GPIO drivers get a handle on the
-> real gpio_device * to be used when calling these gpiochip_* related
-> functions and also in the callbacks, which is a bigger refactoring
-> indeed.
->
-> Part of this is trying to be elegant and mimic other subsystems and not
-> have GPIO be too hopelessly wayward about things.
->
-> If I compare to how struct input_dev is done, you appear to also use the
-> pattern Russell suggested with input_dev_allocate() akin to
-> netdev_alloc(), and the allocated struct holds all the vtable and states etc,
-> and I think it is a good pattern, and that GPIO should conform.
-
-The main difference between gpio_chip (at least as it stands
-currently) and input devices and corresponding private driver data is
-that input device and driver data has different lifetimes; input
-devices may stick around even though driver is unbound from
-corresponding device and driver's private data freed.
+My personal preference is to have length as a parameter instead of
+encoding in format string as it allows using symbolic constants and
+expressions (even though in these particular cases we use numeric
+constants). The code is not in critical paths so we can live with
+extra arguments.
 
 Thanks.
+
+>
+>>
+>> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>> ---
+>>  drivers/input/mouse/hgpk.c               | 7 +++----
+>>  drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++--
+>>  2 files changed, 5 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
+>> index 62be888..27909a1 100644
+>> --- a/drivers/input/mouse/hgpk.c
+>> +++ b/drivers/input/mouse/hgpk.c
+>> @@ -333,9 +333,8 @@ static bool hgpk_is_byte_valid(struct psmouse
+>> *psmouse, unsigned char *packet)
+>>       }
+>>
+>>       if (!valid)
+>> -             psmouse_dbg(psmouse,
+>> -                         "bad data, mode %d (%d) %*ph\n",
+>> -                         priv->mode, pktcnt, 6, psmouse->packet);
+>> +             psmouse_dbg(psmouse, "bad data, mode %d (%d)
+>> %6ph\n",
+>> +                         priv->mode, pktcnt, psmouse->packet);
+>>
+>>       return valid;
+>>  }
+>> @@ -1027,7 +1026,7 @@ static enum hgpk_model_t hgpk_get_model(struct
+>> psmouse *psmouse)
+>>               return -EIO;
+>>       }
+>>
+>> -     psmouse_dbg(psmouse, "ID: %*ph\n", 3, param);
+>> +     psmouse_dbg(psmouse, "ID: %3ph\n", param);
+>>
+>>       /* HGPK signature: 0x67, 0x00, 0x<model> */
+>>       if (param[0] != 0x67 || param[1] != 0x00)
+>> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c
+>> b/drivers/input/touchscreen/atmel_mxt_ts.c
+>> index 59aa240..dd44ebf 100644
+>> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+>> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+>> @@ -331,8 +331,8 @@ static bool mxt_object_writable(unsigned int
+>> type)
+>>  static void mxt_dump_message(struct device *dev,
+>>                            struct mxt_message *message)
+>>  {
+>> -     dev_dbg(dev, "reportid: %u\tmessage: %*ph\n",
+>> -             message->reportid, 7, message->message);
+>> +     dev_dbg(dev, "reportid: %u\tmessage: %7ph\n",
+>> +             message->reportid, message->message);
+>>  }
+>>
+>>  static int mxt_check_bootloader(struct i2c_client *client,
+>
+> --
+> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Intel Finland Oy
+>
+
+
 
 -- 
 Dmitry

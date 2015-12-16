@@ -1,60 +1,50 @@
-From: Boszormenyi Zoltan <zboszor@pr.hu>
-Subject: Re: [PATCH] Add eGalaxTouch serial touchscreen driver v3
-Date: Wed, 16 Dec 2015 20:31:44 +0100
-Message-ID: <5671BC20.1080509@pr.hu>
-References: <1450269798-13928-1-git-send-email-zboszor@pr.hu>
- <56715EE9.9080303@pr.hu> <20151216192830.GA10962@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH 3/4] HID: wacom: Fix touchring value reporting
+Date: Wed, 16 Dec 2015 13:37:35 -0800
+Message-ID: <1450301856-7253-3-git-send-email-killertofu@gmail.com>
+References: <1450301856-7253-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail9.pr.hu ([87.242.0.9]:60221 "EHLO mail9.pr.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932118AbbLPTb4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Dec 2015 14:31:56 -0500
-In-Reply-To: <20151216192830.GA10962@dtor-ws>
+Received: from mail-pf0-f180.google.com ([209.85.192.180]:35667 "EHLO
+	mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S966412AbbLPVh6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Dec 2015 16:37:58 -0500
+Received: by mail-pf0-f180.google.com with SMTP id v86so18412828pfa.2
+        for <linux-input@vger.kernel.org>; Wed, 16 Dec 2015 13:37:57 -0800 (PST)
+In-Reply-To: <1450301856-7253-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, =?UTF-8?B?QsO2c3rDtnJtw6lueWkgWm9sdMOhbg==?= <zboszormenyi@sicom.com>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-2015-12-16 20:28 keltez=C3=A9ssel, Dmitry Torokhov =C3=ADrta:
-> On Wed, Dec 16, 2015 at 01:54:01PM +0100, Boszormenyi Zoltan wrote:
->> 2015-12-16 13:43 keltez=C3=A9ssel, Zolt=C3=A1n B=C3=B6sz=C3=B6rm=C3=A9=
-nyi =C3=ADrta:
->>> Signed-off-by: B=EF=BF=BDsz=EF=BF=BDrm=EF=BF=BDnyi Zolt=EF=BF=BDn <=
-zboszor@pr.hu>
->> this
->>
->>> + * Copyright (c) 2015 Zolt=EF=BF=BDn B=EF=BF=BDsz=EF=BF=BDrm=EF=BF=
-=BDnyi <zboszor@pr.hu>
->> this
->>
->>> +MODULE_AUTHOR("Zolt=EF=BF=BDn B=EF=BF=BDsz=EF=BF=BDrm=EF=BF=BDnyi =
-<zboszor@pr.hu>");
->> and this were in Latin-2 after you sent the patch back to me, my pat=
-ch
->> was UTF-8 in the beginning.
-> Hmm, not sure what happened...
->
->> Can you run the code through "recode latin2..utf-8" before committin=
-g or
->> should I resend to fix this?
-> No, I recoded it and I also added back SERIO_EGALAX definition to
-> serio.h that you somehow dropped from the patch.
+Commit c7f0522 reports incorrect touchring values to userspace. This is
+due to its incorrect handling of the 'touched' bit present in the 'ring1'
+and 'ring2' variables. Instead of using this bit when determining if a
+value should be sent, the ABS_WHEEL and ABS_INPUT check (different?!)
+portions of the position bits. Furthermore, the full values of 'ring1'
+and 'ring2' are reported to userspace, despite the 'touched' flag
+needing to be trimmed beforehand. This commit addresses both issues.
 
-and the Makefile change I suppose. I think I was in a hurry and
-only did "git add egalax_ts_serial.c" and "git commit" instead of "git =
-commit -a".
-Sorry for that.
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
->  The driver is queued for 4.5 now.
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 94dffde..23212af 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -560,8 +560,8 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 	input_report_abs(input, ABS_RX, strip1);
+ 	input_report_abs(input, ABS_RY, strip2);
+ 
+-	input_report_abs(input, ABS_WHEEL,    ring1 & 0x7f ? ring1 : 0);
+-	input_report_abs(input, ABS_THROTTLE, ring2 & 0x07 ? ring2 : 0);
++	input_report_abs(input, ABS_WHEEL,    (ring1 & 0x80) ? (ring1 & 0x7f) : 0);
++	input_report_abs(input, ABS_THROTTLE, (ring2 & 0x80) ? (ring2 & 0x7f) : 0);
+ 
+ 	input_report_key(input, wacom->tool[1], prox ? 1 : 0);
+ 	input_report_abs(input, ABS_MISC, prox ? PAD_DEVICE_ID : 0);
+-- 
+2.6.3
 
-Thank you very much,
-Zolt=C3=A1n B=C3=B6sz=C3=B6rm=C3=A9nyi
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

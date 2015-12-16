@@ -1,77 +1,195 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [RESEND] Lenovo Yoga 900 touchpad issues
-Date: Wed, 16 Dec 2015 14:18:04 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1512161416350.9922@cbobk.fhfr.pm>
-References: <CAOhV88MGoJdUzty=DDTLOkd7me5uoRWwTTrR8aD=zf5ga0_Hew@mail.gmail.com> <20151216092858.GP1762@lahna.fi.intel.com>
+Subject: Re: [PATCH 1/1] Support for CMedia CM6533 HID audio jack controls.
+Date: Wed, 16 Dec 2015 14:45:41 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1512161441330.9922@cbobk.fhfr.pm>
+References: <1450164999-3130-1-git-send-email-ben_chen@bizlinktech.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20151216092858.GP1762@lahna.fi.intel.com>
+In-Reply-To: <1450164999-3130-1-git-send-email-ben_chen@bizlinktech.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Nish Aravamudan <nish.aravamudan@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Seth Forshee <seth.forshee@canonical.com>, Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Ben Chen <ben_chen@bizlinktech.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 16 Dec 2015, Mika Westerberg wrote:
+On Tue, 15 Dec 2015, Ben Chen wrote:
 
-> > [Apologies for the resend, didn't realize I hadn't changed my GMail settings
-> > to not use HTML.]
-> > 
-> > I have recently purchased a Lenovo Yoga 900 and most everything is working
-> > with a slightly modified 4.4-rc5 (https://lkml.org/lkml/2015/11/30/441 applied
-> > to enable the touchpad itself), I am seeing two issues:
-> > 
-> > 1) On suspend/resume, the touchpad is non-functional. A `modprobe -r i2c-hid;
-> >  modprobe i2c-hid` "fixes" it.
-> > 
-> > The kernel emits:
-> > 
-> > i2c_hid i2c-SYNA2B29:00: failed to reset device.
-> > dpm_run_callback(): i2c_hid_resume+0x0/0xc0 [i2c_hid] returns -61
-> > PM: Device i2c-SYNA2B29:00 failed to resume: error -61
-> > 
-> > During the resume. So perhaps this is a timing issue (given that once
-> > resumed, the
-> > module reload does work?).
+> Signed-off-by: Ben Chen <ben_chen@bizlinktech.com>
+
+Please provide a changelog. At least a description of the device and 
+overview of changes that are needed on top of generic HID should be 
+provided. Thanks.
+
+> ---
+>  drivers/hid/Kconfig      |   6 ++
+>  drivers/hid/Makefile     |   1 +
+>  drivers/hid/hid-cm6533.c | 168 +++++++++++++++++++++++++++++++++++++++++++++++
+>  drivers/hid/hid-core.c   |   1 +
+>  drivers/hid/hid-ids.h    |   1 +
+>  5 files changed, 177 insertions(+)
+>  create mode 100644 drivers/hid/hid-cm6533.c
 > 
-> Linus noticed this as well and Jiri suggested the below patch which
-> seemed to fix the issue (although it increased resume time a bit).
-> 
-> I was supposed to get one Lenovo Yoga 900 here to debug this issue but
-> I'm still waiting for it (sloow big corporation bureaucracy takes some
-> time to get things purchased outside).
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 55d8f9d..52dd03a0 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -1121,10 +1121,16 @@ static int i2c_hid_resume(struct device *dev)
->  	struct i2c_client *client = to_i2c_client(dev);
->  	struct i2c_hid *ihid = i2c_get_clientdata(client);
->  	struct hid_device *hid = ihid->hid;
-> -	int wake_status;
-> +	int wake_status, tries = 3;
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 513a16c..4e0ca39 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -196,6 +196,12 @@ config HID_PRODIKEYS
+>  	  multimedia keyboard, but will lack support for the musical keyboard
+>  	  and some additional multimedia keys.
 >  
->  	enable_irq(ihid->irq);
-> -	ret = i2c_hid_hwreset(client);
+> +config HID_CM6533
+> +	tristate "CMedia CM6533 HID audio jack controls"
+> +	depends on HID
+> +	---help---
+> +	Support for CMedia CM6533 HID audio jack controls.
 > +
-> +	do {
-> +		ret = i2c_hid_hwreset(client);
-> +		if (ret)
-> +			msleep(1000);
-> +	} while (tries-- > 0 && ret);
+>  config HID_CP2112
+>  	tristate "Silicon Labs CP2112 HID USB-to-SMBus Bridge support"
+>  	depends on USB_HID && I2C && GPIOLIB
+> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+> index 00011fe..63f99bd 100644
+> --- a/drivers/hid/Makefile
+> +++ b/drivers/hid/Makefile
+> @@ -29,6 +29,7 @@ obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
+>  obj-$(CONFIG_HID_BETOP_FF)	+= hid-betopff.o
+>  obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
+>  obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
+> +obj-$(CONFIG_HID_CM6533)	+= hid-cm6533.o
+>  obj-$(CONFIG_HID_CORSAIR)	+= hid-corsair.o
+>  obj-$(CONFIG_HID_CP2112)	+= hid-cp2112.o
+>  obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
+> diff --git a/drivers/hid/hid-cm6533.c b/drivers/hid/hid-cm6533.c
+> new file mode 100644
+> index 0000000..a097f8b
+> --- /dev/null
+> +++ b/drivers/hid/hid-cm6533.c
+> @@ -0,0 +1,168 @@
+> +/*
+> + * HID driver for CMedia CM6533 audio jack controls
+> + *
+> + * Copyright (C) 2015 Ben Chen <ben_chen@bizlinktech.com>
+> + *
+> + * This software is licensed under the terms of the GNU General Public
+> + * License version 2, as published by the Free Software Foundation, and
+> + * may be copied, distributed, and modified under those terms.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
 > +
->  	if (ret)
->  		return ret;
+> +#include <linux/device.h>
+> +#include <linux/hid.h>
+> +#include <linux/module.h>
+> +#include "hid-ids.h"
+> +
+> +MODULE_AUTHOR("Ben Chen");
+> +MODULE_DESCRIPTION("CM6533 HID jack controls");
+> +MODULE_LICENSE("GPL");
+> +
+> +#define CM6533_JD_TYPE_COUNT      1
+> +#define CM6533_JD_RAWEV_LEN	 16
+> +#define CM6533_JD_SFX_OFFSET	  8
+> +
+> +/*
+> +*
+> +*CM6533 audio jack HID raw events:
+> +*
+> +*Plug in:
+> +*01000600 002083xx 080008c0 10000000
+> +*about 3 seconds later...
+> +*01000a00 002083xx 08000380 10000000
+> +*01000600 002083xx 08000380 10000000
+> +*
+> +*Plug out:
+> +*01000400 002083xx 080008c0 x0000000
+> +*/
+> +
+> +static const u8 ji_sfx[] = { 0x08, 0x00, 0x08, 0xc0 };
+> +static const u8 ji_in[]  = { 0x01, 0x00, 0x06, 0x00 };
+> +static const u8 ji_out[] = { 0x01, 0x00, 0x04, 0x00 };
+> +
+> +static int jack_switch_types[CM6533_JD_TYPE_COUNT] = {
+> +	SW_HEADPHONE_INSERT,
+> +};
+> +
+> +struct cmhid {
+> +	struct input_dev *input_dev;
+> +	struct hid_device *hid;
+> +	unsigned short switch_map[CM6533_JD_TYPE_COUNT];
+> +};
+> +
+> +static void hp_ev(struct hid_device *hid, struct cmhid *cm, int value)
+> +{
+> +	input_report_switch(cm->input_dev, SW_HEADPHONE_INSERT, value);
+> +	input_sync(cm->input_dev);
+> +}
+> +
+> +static int cmhid_raw_event(struct hid_device *hid, struct hid_report *report,
+> +	 u8 *data, int len)
+> +{
+> +	struct cmhid *cm = hid_get_drvdata(hid);
+> +
+> +	if (len != CM6533_JD_RAWEV_LEN)
+> +		goto out;
+> +	if (memcmp(data+CM6533_JD_SFX_OFFSET, ji_sfx, sizeof(ji_sfx)))
+> +		goto out;
+> +
+> +	if (!memcmp(data, ji_out, sizeof(ji_out))) {
+> +		hp_ev(hid, cm, 0);
+> +		goto out;
+> +	}
+> +	if (!memcmp(data, ji_in, sizeof(ji_in))) {
+> +		hp_ev(hid, cm, 1);
+> +		goto out;
+> +	}
+> +
+> +out:
+> +	return 0;
+> +}
+> +
+> +static void cmhid_input_configured(struct hid_device *hid,
 
-As a possible alternative, please test the patch above on top of for-next 
-branch of 
+input_configured callback is prototyped to return int.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git
+> +		struct hid_input *hidinput)
+> +{
+> +	struct input_dev *input_dev = hidinput->input;
+> +	struct cmhid *cm = hid_get_drvdata(hid);
+> +	int i;
+> +
+> +	hid_info(hid, "cmhid_input_configured\n");
+> +	cm->input_dev = input_dev;
+> +	memcpy(cm->switch_map, jack_switch_types, sizeof(cm->switch_map));
+> +	input_dev->evbit[0] = BIT(EV_SW);
+> +	for (i = 0; i < CM6533_JD_TYPE_COUNT; i++)
+> +		input_set_capability(cm->input_dev,
+> +				EV_SW, jack_switch_types[i]);
+> +}
+> +
+> +static int cmhid_input_mapping(struct hid_device *hid,
+> +		struct hid_input *hi, struct hid_field *field,
+> +		struct hid_usage *usage, unsigned long **bit, int *max)
+> +{
+> +	return -1;
+> +}
 
-It contains 64bebefcf3 ("HID: enable hid device to suspend/resume 
-asynchronously") and knowing whether that changes something might be 
-interesting datapoint as well.
+Why do you need this at all?
+
+[ ... snip ... ]
+> -- 
+> Legal Disclaimer:
+> The information contained in this message may be privileged and 
+> confidential. It is intended to be read only by the individual or entity to 
+> whom it is addressed or by their designee. If the reader of this message is 
+> not the intended recipient, you  are not to copy,disclose,or distribute 
+> this e-mail or its contents to any other person and any such actions are 
+> unlawful. If you have received this message in error, please immediately 
+> notify the sender and delete or destroy any copy of this message!
+
+I would feel more comfortable if your further patch submissions do not 
+contain this.
 
 Thanks,
 

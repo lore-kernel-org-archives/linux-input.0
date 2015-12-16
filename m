@@ -1,26 +1,24 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 4/4] HID: wacom: Fix pad button range for CINTIQ_COMPANION_2
-Date: Wed, 16 Dec 2015 13:37:36 -0800
-Message-ID: <1450301856-7253-4-git-send-email-killertofu@gmail.com>
+Subject: [PATCH 2/4] HID: wacom: Report 'strip2' values in ABS_RY
+Date: Wed, 16 Dec 2015 13:37:34 -0800
+Message-ID: <1450301856-7253-2-git-send-email-killertofu@gmail.com>
 References: <1450301856-7253-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:35735 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S966369AbbLPVh6 (ORCPT
+Received: from mail-pf0-f181.google.com ([209.85.192.181]:35662 "EHLO
+	mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S966388AbbLPVh5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Dec 2015 16:37:58 -0500
-Received: by mail-pa0-f43.google.com with SMTP id jx14so1051530pad.2
-        for <linux-input@vger.kernel.org>; Wed, 16 Dec 2015 13:37:58 -0800 (PST)
+	Wed, 16 Dec 2015 16:37:57 -0500
+Received: by mail-pf0-f181.google.com with SMTP id v86so18412686pfa.2
+        for <linux-input@vger.kernel.org>; Wed, 16 Dec 2015 13:37:57 -0800 (PST)
 In-Reply-To: <1450301856-7253-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-Commit c7f0522 incorrectly constructs the 'buttons' variable for the
-CINTIQ_COMPANION_2 case. The high nybble of data[2] is shifted four
-bits too far, leaving the bits associated with BTN_7 through BTN_A
-unset.
+Commit c7f0522 accidentally used ABS_RX for reporting both 'strip1' and
+'strip2', when the latter should actually be reported through ABS_RY.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 ---
@@ -28,18 +26,18 @@ Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 23212af..f706604 100644
+index cf87810..94dffde 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -516,7 +516,7 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
- 		 * d-pad down   -> data[4] & 0x80
- 		 * d-pad center -> data[3] & 0x01
- 		 */
--		buttons = ((data[2] & 0xF0) << 7) |
-+		buttons = ((data[2] >> 4) << 7) |
- 		          ((data[1] & 0x04) << 6) |
- 		          ((data[2] & 0x0F) << 2) |
- 		          (data[1] & 0x03);
+@@ -558,7 +558,7 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 		input_report_key(input, KEY_PROG1 + i, keys & (1 << i));
+ 
+ 	input_report_abs(input, ABS_RX, strip1);
+-	input_report_abs(input, ABS_RX, strip2);
++	input_report_abs(input, ABS_RY, strip2);
+ 
+ 	input_report_abs(input, ABS_WHEEL,    ring1 & 0x7f ? ring1 : 0);
+ 	input_report_abs(input, ABS_THROTTLE, ring2 & 0x07 ? ring2 : 0);
 -- 
 2.6.3
 

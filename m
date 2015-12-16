@@ -1,62 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Boszormenyi Zoltan <zboszor@pr.hu>
 Subject: Re: [PATCH] Add eGalaxTouch serial touchscreen driver v3
-Date: Wed, 16 Dec 2015 11:28:30 -0800
-Message-ID: <20151216192830.GA10962@dtor-ws>
+Date: Wed, 16 Dec 2015 20:31:44 +0100
+Message-ID: <5671BC20.1080509@pr.hu>
 References: <1450269798-13928-1-git-send-email-zboszor@pr.hu>
- <56715EE9.9080303@pr.hu>
+ <56715EE9.9080303@pr.hu> <20151216192830.GA10962@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:34146 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S966407AbbLPT2e (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Dec 2015 14:28:34 -0500
-Received: by mail-pa0-f52.google.com with SMTP id wq6so28379652pac.1
-        for <linux-input@vger.kernel.org>; Wed, 16 Dec 2015 11:28:34 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <56715EE9.9080303@pr.hu>
+Received: from mail9.pr.hu ([87.242.0.9]:60221 "EHLO mail9.pr.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932118AbbLPTb4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Dec 2015 14:31:56 -0500
+In-Reply-To: <20151216192830.GA10962@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Boszormenyi Zoltan <zboszor@pr.hu>
-Cc: linux-input@vger.kernel.org, =?iso-8859-1?B?QvZzevZybelueWkgWm9sdOFu?= <zboszormenyi@sicom.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, =?UTF-8?B?QsO2c3rDtnJtw6lueWkgWm9sdMOhbg==?= <zboszormenyi@sicom.com>
 
-On Wed, Dec 16, 2015 at 01:54:01PM +0100, Boszormenyi Zoltan wrote:
-> 2015-12-16 13:43 keltez=C3=A9ssel, Zolt=C3=A1n B=C3=B6sz=C3=B6rm=C3=A9=
+2015-12-16 20:28 keltez=C3=A9ssel, Dmitry Torokhov =C3=ADrta:
+> On Wed, Dec 16, 2015 at 01:54:01PM +0100, Boszormenyi Zoltan wrote:
+>> 2015-12-16 13:43 keltez=C3=A9ssel, Zolt=C3=A1n B=C3=B6sz=C3=B6rm=C3=A9=
 nyi =C3=ADrta:
-> > Signed-off-by: B=EF=BF=BDsz=EF=BF=BDrm=EF=BF=BDnyi Zolt=EF=BF=BDn <=
+>>> Signed-off-by: B=EF=BF=BDsz=EF=BF=BDrm=EF=BF=BDnyi Zolt=EF=BF=BDn <=
 zboszor@pr.hu>
->=20
-> this
->=20
-> > + * Copyright (c) 2015 Zolt=EF=BF=BDn B=EF=BF=BDsz=EF=BF=BDrm=EF=BF=
+>> this
+>>
+>>> + * Copyright (c) 2015 Zolt=EF=BF=BDn B=EF=BF=BDsz=EF=BF=BDrm=EF=BF=
 =BDnyi <zboszor@pr.hu>
->=20
-> this
->=20
-> > +MODULE_AUTHOR("Zolt=EF=BF=BDn B=EF=BF=BDsz=EF=BF=BDrm=EF=BF=BDnyi =
+>> this
+>>
+>>> +MODULE_AUTHOR("Zolt=EF=BF=BDn B=EF=BF=BDsz=EF=BF=BDrm=EF=BF=BDnyi =
 <zboszor@pr.hu>");
->=20
-> and this were in Latin-2 after you sent the patch back to me, my patc=
-h
-> was UTF-8 in the beginning.
+>> and this were in Latin-2 after you sent the patch back to me, my pat=
+ch
+>> was UTF-8 in the beginning.
+> Hmm, not sure what happened...
+>
+>> Can you run the code through "recode latin2..utf-8" before committin=
+g or
+>> should I resend to fix this?
+> No, I recoded it and I also added back SERIO_EGALAX definition to
+> serio.h that you somehow dropped from the patch.
 
-Hmm, not sure what happened...
+and the Makefile change I suppose. I think I was in a hurry and
+only did "git add egalax_ts_serial.c" and "git commit" instead of "git =
+commit -a".
+Sorry for that.
 
->=20
-> Can you run the code through "recode latin2..utf-8" before committing=
- or
-> should I resend to fix this?
+>  The driver is queued for 4.5 now.
 
-No, I recoded it and I also added back SERIO_EGALAX definition to
-serio.h that you somehow dropped from the patch. The driver is queued
-for 4.5 now.
+Thank you very much,
+Zolt=C3=A1n B=C3=B6sz=C3=B6rm=C3=A9nyi
 
-Thank you.
-
---=20
-Dmitry
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

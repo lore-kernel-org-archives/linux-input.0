@@ -1,229 +1,245 @@
-From: Boszormenyi Zoltan <zboszor@pr.hu>
-Subject: Re: [PATCH] input/touchscreen: New EETI eGalaxTouch serial
- touchscreen driver
-Date: Wed, 16 Dec 2015 13:43:03 +0100
-Message-ID: <56715C57.9080507@pr.hu>
-References: <1450178527-26745-1-git-send-email-zboszormenyi@sicom.com>
- <20151215212123.GA18844@dtor-ws>
+From: =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
+	<zboszor@pr.hu>
+Subject: [PATCH] Add eGalaxTouch serial touchscreen driver v3
+Date: Wed, 16 Dec 2015 13:43:18 +0100
+Message-ID: <1450269798-13928-1-git-send-email-zboszor@pr.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail9.pr.hu ([87.242.0.9]:54102 "EHLO mail9.pr.hu"
+Received: from mail9.pr.hu ([87.242.0.9]:54236 "EHLO mail9.pr.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753894AbbLPMnR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Dec 2015 07:43:17 -0500
-In-Reply-To: <20151215212123.GA18844@dtor-ws>
+	id S933010AbbLPMnc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Dec 2015 07:43:32 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?B?QsO2c3rDtnJtw6lueWkgWm9sdMOhbg==?= <zboszormenyi@sicom.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, =?UTF-8?q?B=C3=B6sz=C3=B6rm=C3=A9nyi=20Zolt=C3=A1n?= <zboszormenyi@sicom.com>, =?UTF-8?q?B=F6sz=F6rm=E9nyi=20Zolt=E1n?= <zboszor@pr.hu>
 
-2015-12-15 22:21 keltez=E9ssel, Dmitry Torokhov =EDrta:
-> Hi Zolt=E1n,
->
-> On Tue, Dec 15, 2015 at 12:22:07PM +0100, B=F6sz=F6rm=E9nyi Zolt=E1n =
-wrote:
->> From: B=F6sz=F6rm=E9nyi Zolt=E1n <zboszor@pr.hu>
->>
->> There are two EETI touchscreen drivers in the kernel (eeti_ts and eg=
-alax_ts)
->> but both are for I2C-connected panels. This is for a different, seri=
-al
->> and not multi-touch touchscreen panel. The protocol documentation is=
- at
->> http://www.eeti.com.tw/pdf/Software%20Programming%20Guide_v2.0.pdf
->>
->> Signed-off-by: B=F6sz=F6rm=E9nyi Zolt=E1n <zboszor@pr.hu>
->>
-> Thank you for your patch, it looks pretty good, just a few comments
-> below.
->
->> +config TOUCHSCREEN_EGALAX_SERIO
-> I'd rather called it TOUCHSCREEN_EGALAX_SERIAL
+=46rom: B=C3=B6sz=C3=B6rm=C3=A9nyi Zolt=C3=A1n <zboszormenyi@sicom.com>
 
-It doesn't matter, I am not attached to names.
+There are two EETI touchscreen drivers in the kernel (eeti_ts and egala=
+x_ts)
+but both are for I2C-connected panels. This is for a different, serial
+and not multi-touch touchscreen panel. The protocol documentation is at
+http://www.eeti.com.tw/pdf/Software%20Programming%20Guide_v2.0.pdf
 
->> +obj-$(CONFIG_TOUCHSCREEN_EGALAX_SERIO)	+=3D egalax.o
-> I think better name is egalax_ts_serial.
+Signed-off-by: B=F6sz=F6rm=E9nyi Zolt=E1n <zboszor@pr.hu>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Sure, I was thinking about it myself.
+---
+ drivers/input/touchscreen/egalax_ts_serial.c | 194 +++++++++++++++++++=
+++++++++
+ 1 file changed, 194 insertions(+)
+ create mode 100644 drivers/input/touchscreen/egalax_ts_serial.c
 
->>  obj-$(CONFIG_TOUCHSCREEN_FT6236)	+=3D ft6236.o
->>  obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+=3D fujitsu_ts.o
->>  obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+=3D goodix.o
->>  obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+=3D ili210x.o
->>  obj-$(CONFIG_TOUCHSCREEN_IMX6UL_TSC)	+=3D imx6ul_tsc.o
->>  obj-$(CONFIG_TOUCHSCREEN_INEXIO)	+=3D inexio.o
->>  obj-$(CONFIG_TOUCHSCREEN_INTEL_MID)	+=3D intel-mid-touch.o
->>  obj-$(CONFIG_TOUCHSCREEN_IPROC)		+=3D bcm_iproc_tsc.o
->>  obj-$(CONFIG_TOUCHSCREEN_LPC32XX)	+=3D lpc32xx_ts.o
->>  obj-$(CONFIG_TOUCHSCREEN_MAX11801)	+=3D max11801_ts.o
->> diff --git a/drivers/input/touchscreen/egalax.c b/drivers/input/touc=
-hscreen/egalax.c
->> new file mode 100644
->> index 0000000..94ac9bd
->> --- /dev/null
->> +++ b/drivers/input/touchscreen/egalax.c
->> @@ -0,0 +1,210 @@
->> +/*
->> + * EETI Egalax serial touchscreen driver
->> + *
->> + * Copyright (c) 2015 Zolt=E1n B=F6sz=F6rm=E9nyi <zboszor@pr.hu>
->> + *
->> + * based on the
->> + *
->> + * Hampshire serial touchscreen driver (Copyright (c) 2010 Adam Ben=
-nett)
->> + */
->> +
->> +/*
->> + * This program is free software; you can redistribute it and/or mo=
-dify it
->> + * under the terms of the GNU General Public License version 2 as p=
-ublished by
->> + * the Free Software Foundation.
->> + */
->> +
->> +#include <linux/errno.h>
->> +#include <linux/kernel.h>
->> +#include <linux/module.h>
->> +#include <linux/slab.h>
->> +#include <linux/input.h>
->> +#include <linux/serio.h>
->> +
->> +#define DRIVER_DESC	"EETI Egalax serial touchscreen driver"
->> +
->> +MODULE_AUTHOR("Zolt=E1n B=F6sz=F6rm=E9nyi <zboszor@pr.hu>");
->> +MODULE_DESCRIPTION(DRIVER_DESC);
->> +MODULE_LICENSE("GPL");
->> +
->> +/*
->> + * Definitions & global arrays.
->> + */
->> +
->> +#define EGALAX_FORMAT_MAX_LENGTH 6
->> +#define EGALAX_RESPONSE_BEGIN_BYTE 0x80
->> +#define EGALAX_FORMAT_PRESSURE_BIT 0x40
->> +#define EGALAX_FORMAT_TOUCH_BIT 0x01
-> We have BIT() macro that would be very useful here.
->
->> +#define EGALAX_FORMAT_RESOLUTION 0x06
->> +
->> +#define EGALAX_MIN_XC 0
->> +#define EGALAX_MAX_XC 0x4000
->> +#define EGALAX_MIN_YC 0
->> +#define EGALAX_MAX_YC 0x4000
->> +
->> +#define EGALAX_GET_XC(data, resbits, shift) ((((data[1] & (resbits)=
-) << 7) | (data[2] & 0x7f)) << shift)
->> +#define EGALAX_GET_YC(data, resbits, shift) ((((data[3] & (resbits)=
-) << 7) | (data[4] & 0x7f)) << shift)
->> +#define EGALAX_GET_TOUCHED(data) (EGALAX_FORMAT_TOUCH_BIT & data[0]=
-)
->> +
->> +/*
->> + * Per-touchscreen data.
->> + */
->> +
->> +struct egalax {
->> +	struct input_dev *dev;
->> +	struct serio *serio;
->> +	int idx;
->> +	int bytes;
->> +	int resbits;
->> +	int shift;
->> +	unsigned char data[EGALAX_FORMAT_MAX_LENGTH];
->> +	char phys[32];
->> +};
->> +
->> +static void egalax_process_data(struct egalax *pegalax)
->> +{
->> +	struct input_dev *dev =3D pegalax->dev;
->> +
->> +	if (++pegalax->idx =3D=3D pegalax->bytes) {
->> +		input_report_abs(dev, ABS_X, EGALAX_GET_XC(pegalax->data, pegalax=
-->resbits, pegalax->shift));
->> +		input_report_abs(dev, ABS_Y, EGALAX_GET_YC(pegalax->data, pegalax=
-->resbits, pegalax->shift));
->> +		input_report_key(dev, BTN_TOUCH, EGALAX_GET_TOUCHED(pegalax->data=
-));
->> +		input_sync(dev);
->> +
->> +		pegalax->idx =3D 0;
->> +	}
->> +}
->> +
->> +static irqreturn_t egalax_interrupt(struct serio *serio,
->> +		unsigned char data, unsigned int flags)
->> +{
->> +	struct egalax *pegalax =3D serio_get_drvdata(serio);
->> +
->> +	pegalax->data[pegalax->idx] =3D data;
->> +
->> +	if (EGALAX_RESPONSE_BEGIN_BYTE & pegalax->data[0]) {
->> +		pegalax->bytes =3D (EGALAX_FORMAT_PRESSURE_BIT & pegalax->data[0]=
- ? 6 : 5);
->> +		switch ((EGALAX_FORMAT_RESOLUTION & pegalax->data[0]) >> 1) {
->> +		case 0:
->> +			pegalax->resbits =3D 0x0f;
->> +			pegalax->shift =3D 3;
->> +			break;
->> +		case 1:
->> +			pegalax->resbits =3D 0x1f;
->> +			pegalax->shift =3D 2;
->> +			break;
->> +		case 2:
->> +			pegalax->resbits =3D 0x3f;
->> +			pegalax->shift =3D 1;
->> +			break;
->> +		default:
->> +			pegalax->resbits =3D 0x7f;
->> +			pegalax->shift =3D 0;
->> +			break;
->> +		}
->> +		egalax_process_data(pegalax);
-> There is no reason to recalculate shift and mask on every byte and ca=
-ll
-> egalax_process_data(), better is to wait till you get full packet and
-> then do the claculations. Also I think you can avoid conditional
-> computation (switch) here.
-
-See my comment below.
-
->> +static void egalax_disconnect(struct serio *serio)
->> +{
->> +	struct egalax *pegalax =3D serio_get_drvdata(serio);
->> +
->> +	input_get_device(pegalax->dev);
->> +	input_unregister_device(pegalax->dev);
->> +	serio_close(serio);
->> +	serio_set_drvdata(serio, NULL);
->> +	input_put_device(pegalax->dev);
->> +	kfree(pegalax);
-> This is needlessly complicated (although I do know we have this code =
-in
-> other drivers). Since we do not send any data *to* the touch controll=
-er
-> we can close the port first and then unregister the device.
-
-OK, whatever you think is better. I am not familiar with the input
-subsystem internals.
-
->
-> Could you please try the version of the patch below and let me know i=
-f
-> it works for you?
->
-> Thanks!
-
-While the code itself didn't look suspicious at first, testing showed
-that it doesn't work when compiled in with 4.4-rc5, while my original
-code did. You got the mask and expanding my macros wrong.
-I will submit a v3 patch, as yours was v2.
-
-Thanks,
-Zolt=E1n B=F6sz=F6rm=E9nyi
+diff --git a/drivers/input/touchscreen/egalax_ts_serial.c b/drivers/inp=
+ut/touchscreen/egalax_ts_serial.c
+new file mode 100644
+index 0000000..59f2bfc
+--- /dev/null
++++ b/drivers/input/touchscreen/egalax_ts_serial.c
+@@ -0,0 +1,194 @@
++/*
++ * EETI Egalax serial touchscreen driver
++ *
++ * Copyright (c) 2015 Zolt=E1n B=F6sz=F6rm=E9nyi <zboszor@pr.hu>
++ *
++ * based on the
++ *
++ * Hampshire serial touchscreen driver (Copyright (c) 2010 Adam Bennet=
+t)
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modif=
+y it
++ * under the terms of the GNU General Public License version 2 as publ=
+ished by
++ * the Free Software Foundation.
++ */
++
++#include <linux/errno.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/serio.h>
++
++#define DRIVER_DESC	"EETI Egalax serial touchscreen driver"
++
++/*
++ * Definitions & global arrays.
++ */
++
++#define EGALAX_FORMAT_MAX_LENGTH	6
++#define EGALAX_FORMAT_START_BIT		BIT(7)
++#define EGALAX_FORMAT_PRESSURE_BIT	BIT(6)
++#define EGALAX_FORMAT_TOUCH_BIT		BIT(0)
++#define EGALAX_FORMAT_RESOLUTION_MASK	0x06
++
++#define EGALAX_MIN_XC			0
++#define EGALAX_MAX_XC			0x4000
++#define EGALAX_MIN_YC			0
++#define EGALAX_MAX_YC			0x4000
++
++/*
++ * Per-touchscreen data.
++ */
++struct egalax {
++	struct input_dev *input;
++	struct serio *serio;
++	int idx;
++	u8 data[EGALAX_FORMAT_MAX_LENGTH];
++	char phys[32];
++};
++
++static void egalax_process_data(struct egalax *egalax)
++{
++	struct input_dev *dev =3D egalax->input;
++	u8 *data =3D egalax->data;
++	u16 x, y;
++	u8 shift;
++	u8 mask;
++
++	shift =3D 3 - ((data[0] & EGALAX_FORMAT_RESOLUTION_MASK) >> 1);
++	mask =3D 0xff >> (shift + 1);
++
++	x =3D (((u16)(data[1] & mask) << 7) | (data[2] & 0x7f)) << shift;
++	y =3D (((u16)(data[3] & mask) << 7) | (data[4] & 0x7f)) << shift;
++
++	input_report_key(dev, BTN_TOUCH, data[0] & EGALAX_FORMAT_TOUCH_BIT);
++	input_report_abs(dev, ABS_X, x);
++	input_report_abs(dev, ABS_Y, y);
++	input_sync(dev);
++}
++
++static irqreturn_t egalax_interrupt(struct serio *serio,
++				    unsigned char data, unsigned int flags)
++{
++	struct egalax *egalax =3D serio_get_drvdata(serio);
++	int pkt_len;
++
++	egalax->data[egalax->idx++] =3D data;
++
++	if (likely(egalax->data[0] & EGALAX_FORMAT_START_BIT)) {
++		pkt_len =3D egalax->data[0] & EGALAX_FORMAT_PRESSURE_BIT ? 6 : 5;
++		if (pkt_len =3D=3D egalax->idx) {
++			egalax_process_data(egalax);
++			egalax->idx =3D 0;
++		}
++	} else {
++		dev_dbg(&serio->dev, "unknown/unsynchronized data: %x\n",
++			egalax->data[0]);
++		egalax->idx =3D 0;
++	}
++
++	return IRQ_HANDLED;
++}
++
++/*
++ * egalax_connect() is the routine that is called when someone adds a
++ * new serio device that supports egalax protocol and registers it as
++ * an input device. This is usually accomplished using inputattach.
++ */
++static int egalax_connect(struct serio *serio, struct serio_driver *dr=
+v)
++{
++	struct egalax *egalax;
++	struct input_dev *input_dev;
++	int error;
++
++	egalax =3D kzalloc(sizeof(struct egalax), GFP_KERNEL);
++	input_dev =3D input_allocate_device();
++	if (!egalax) {
++		error =3D -ENOMEM;
++		goto err_free_mem;
++	}
++
++	egalax->serio =3D serio;
++	egalax->input =3D input_dev;
++	snprintf(egalax->phys, sizeof(egalax->phys),
++		 "%s/input0", serio->phys);
++
++	input_dev->name =3D "EETI eGalaxTouch Serial TouchScreen";
++	input_dev->phys =3D egalax->phys;
++	input_dev->id.bustype =3D BUS_RS232;
++	input_dev->id.vendor =3D SERIO_EGALAX;
++	input_dev->id.product =3D 0;
++	input_dev->id.version =3D 0x0001;
++	input_dev->dev.parent =3D &serio->dev;
++
++	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
++	input_set_abs_params(input_dev, ABS_X,
++			     EGALAX_MIN_XC, EGALAX_MAX_XC, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y,
++			     EGALAX_MIN_YC, EGALAX_MAX_YC, 0, 0);
++
++	serio_set_drvdata(serio, egalax);
++
++	error =3D serio_open(serio, drv);
++	if (error)
++		goto err_reset_drvdata;
++
++	error =3D input_register_device(input_dev);
++	if (error)
++		goto err_close_serio;
++
++	return 0;
++
++err_close_serio:
++	serio_close(serio);
++err_reset_drvdata:
++	serio_set_drvdata(serio, NULL);
++err_free_mem:
++	input_free_device(input_dev);
++	kfree(egalax);
++	return error;
++}
++
++static void egalax_disconnect(struct serio *serio)
++{
++	struct egalax *egalax =3D serio_get_drvdata(serio);
++
++	serio_close(serio);
++	serio_set_drvdata(serio, NULL);
++	input_unregister_device(egalax->input);
++	kfree(egalax);
++}
++
++/*
++ * The serio driver structure.
++ */
++
++static const struct serio_device_id egalax_serio_ids[] =3D {
++	{
++		.type	=3D SERIO_RS232,
++		.proto	=3D SERIO_EGALAX,
++		.id	=3D SERIO_ANY,
++		.extra	=3D SERIO_ANY,
++	},
++	{ 0 }
++};
++
++MODULE_DEVICE_TABLE(serio, egalax_serio_ids);
++
++static struct serio_driver egalax_drv =3D {
++	.driver		=3D {
++		.name	=3D "egalax",
++	},
++	.description	=3D DRIVER_DESC,
++	.id_table	=3D egalax_serio_ids,
++	.interrupt	=3D egalax_interrupt,
++	.connect	=3D egalax_connect,
++	.disconnect	=3D egalax_disconnect,
++};
++module_serio_driver(egalax_drv);
++
++MODULE_AUTHOR("Zolt=E1n B=F6sz=F6rm=E9nyi <zboszor@pr.hu>");
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPL v2");
+--=20
+2.5.0
 
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

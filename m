@@ -1,27 +1,24 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [patch] HID: wacom: bitwise vs logical ORs
-Date: Fri, 18 Dec 2015 00:02:07 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1512180001380.9922@cbobk.fhfr.pm>
-References: <20151209102205.GB3173@mwanda> <alpine.LNX.2.00.1512161557060.9922@cbobk.fhfr.pm> <CANRwn3TvwFr85A=dbVTY2gXVdL0y=uw10f1eJBLYWzd3BfNg1Q@mail.gmail.com>
+Subject: Re: [PATCH 1/4] HID: wacom: Limit touchstrip data to 13 bits
+Date: Fri, 18 Dec 2015 00:04:47 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1512180004290.9922@cbobk.fhfr.pm>
+References: <1450301856-7253-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <CANRwn3TvwFr85A=dbVTY2gXVdL0y=uw10f1eJBLYWzd3BfNg1Q@mail.gmail.com>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, Linux Input <linux-input@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:48638 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751400AbbLQXEt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Dec 2015 18:04:49 -0500
+In-Reply-To: <1450301856-7253-1-git-send-email-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Wed, 16 Dec 2015, Jason Gerecke wrote:
+I've applied the series to for-4.5/wacom.
 
-> This patch looks fine to me (the 'prox' calculation /should/ be
-> logical, but I suppose bitwise works too :D). Found two other bugs
-> from c7f0522 while reviewing though -- I'll have patches for you
-> shortly.
-> 
-> Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
-
-Queued in for-4.5/wacom, thanks.
+Thanks,
 
 -- 
 Jiri Kosina

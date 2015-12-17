@@ -1,92 +1,50 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH] Input: don't push static constants on stack for %*ph
-Date: Thu, 17 Dec 2015 17:16:35 +0000
-Message-ID: <5672EDF3.50001@itdev.co.uk>
-References: <1378291309-13869-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1449755217.30729.99.camel@linux.intel.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 1/1] HID: multitouch: enable palm rejection if device
+ implements confidence usage
+Date: Thu, 17 Dec 2015 22:52:37 +0100
+Message-ID: <CAN+gG=Ga92-UPbbcjiL0p2b4gO0iQE_-U6wXiq_x3=39z+edSg@mail.gmail.com>
+References: <1448014866-25348-1-git-send-email-allen_hung@dell.com>
+	<alpine.LNX.2.00.1511261521350.20111@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zencphosting06.zen.co.uk ([82.71.204.9]:45856 "EHLO
-	zencphosting06.zen.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751563AbbLQSiQ (ORCPT
+Received: from mail-wm0-f41.google.com ([74.125.82.41]:34376 "EHLO
+	mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932967AbbLQVwj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Dec 2015 13:38:16 -0500
-In-Reply-To: <1449755217.30729.99.camel@linux.intel.com>
+	Thu, 17 Dec 2015 16:52:39 -0500
+In-Reply-To: <alpine.LNX.2.00.1511261521350.20111@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Allen Hung <allen_hung@dell.com>, LKML <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-> On Wed, 2013-09-04 at 13:41 +0300, Andy Shevchenko wrote:
->> There is no need to pass constants via stack. The width may be
->> explicitly
->> specified in the format.
-> 
-> Dmitry, any comments on this?
-
-Hi Andy-
-
-Just to weigh in on the atmel_mxt_ts part - it's made moot by:
-http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/input/touchscreen/atmel_mxt_ts.c?id=5f3f9bc2b1f3a09e732df
-
-regards
-
-Nick
-
-> 
+On Thu, Nov 26, 2015 at 3:21 PM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Fri, 20 Nov 2015, Allen Hung wrote:
+>
+>> The usage Confidence is mandary to Windows Precision Touchpad devices. The
+>> appearance of this usage is checked in hidinput_connect but the quirk
+>> MT_QUIRK_VALID_IS_CONFIDENCE is not applied to device accordingly.
+>> Apply this quirk and also remove quirk MT_QUIRK_ALWAYS_VALID to enable palm
+>> rejection for the WIN 8 touchpad devices which have implemented usage
+>> Confidence in its input reports.
 >>
->> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->> ---
->>  drivers/input/mouse/hgpk.c               | 7 +++----
->>  drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++--
->>  2 files changed, 5 insertions(+), 6 deletions(-)
+>> Tested on Dell XPS 13 laptop.
 >>
->> diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
->> index 62be888..27909a1 100644
->> --- a/drivers/input/mouse/hgpk.c
->> +++ b/drivers/input/mouse/hgpk.c
->> @@ -333,9 +333,8 @@ static bool hgpk_is_byte_valid(struct psmouse
->> *psmouse, unsigned char *packet)
->>  	}
->>  
->>  	if (!valid)
->> -		psmouse_dbg(psmouse,
->> -			    "bad data, mode %d (%d) %*ph\n",
->> -			    priv->mode, pktcnt, 6, psmouse->packet);
->> +		psmouse_dbg(psmouse, "bad data, mode %d (%d)
->> %6ph\n",
->> +			    priv->mode, pktcnt, psmouse->packet);
->>  
->>  	return valid;
->>  }
->> @@ -1027,7 +1026,7 @@ static enum hgpk_model_t hgpk_get_model(struct
->> psmouse *psmouse)
->>  		return -EIO;
->>  	}
->>  
->> -	psmouse_dbg(psmouse, "ID: %*ph\n", 3, param);
->> +	psmouse_dbg(psmouse, "ID: %3ph\n", param);
->>  
->>  	/* HGPK signature: 0x67, 0x00, 0x<model> */
->>  	if (param[0] != 0x67 || param[1] != 0x00)
->> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c
->> b/drivers/input/touchscreen/atmel_mxt_ts.c
->> index 59aa240..dd44ebf 100644
->> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
->> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
->> @@ -331,8 +331,8 @@ static bool mxt_object_writable(unsigned int
->> type)
->>  static void mxt_dump_message(struct device *dev,
->>  			     struct mxt_message *message)
->>  {
->> -	dev_dbg(dev, "reportid: %u\tmessage: %*ph\n",
->> -		message->reportid, 7, message->message);
->> +	dev_dbg(dev, "reportid: %u\tmessage: %7ph\n",
->> +		message->reportid, message->message);
->>  }
->>  
->>  static int mxt_check_bootloader(struct i2c_client *client,
-> 
+>> Signed-off-by: Allen Hung <allen_hung@dell.com>
+>
+> Applied to for-4.5/multitouch. Thanks,
+>
 
+Allen, looks like the Dell XPS13 2015 (or was it the 2014?) has
+problems with your patch:
+https://bugzilla.redhat.com/show_bug.cgi?id=1292583 (we backported
+this change in the Fedora kernel 4.2.7).
+
+Would you mind checking that this patch does not create regressions on
+older series of laptops?
+
+Thanks in advance.
+
+Cheers,
+Benjamin

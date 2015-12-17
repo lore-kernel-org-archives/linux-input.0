@@ -1,304 +1,354 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/5] Input: xpad: workaround dead irq_out after suspend/
- resume
-Date: Wed, 16 Dec 2015 17:09:37 -0800
-Message-ID: <20151217010937.GE10962@dtor-ws>
-References: <1446391899-24250-1-git-send-email-rojtberg@gmail.com>
- <1446391899-24250-5-git-send-email-rojtberg@gmail.com>
- <20151210064131.GB35505@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/2] Input: add touchscreen support for TS-4800
+Date: Wed, 16 Dec 2015 20:11:28 -0800
+Message-ID: <20151217041128.GA32039@dtor-ws>
+References: <1449763872-572-1-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1449763872-572-2-git-send-email-damien.riegel@savoirfairelinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f177.google.com ([209.85.192.177]:34755 "EHLO
-	mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S966196AbbLQBJk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Dec 2015 20:09:40 -0500
-Received: by mail-pf0-f177.google.com with SMTP id 68so20973066pfc.1
-        for <linux-input@vger.kernel.org>; Wed, 16 Dec 2015 17:09:40 -0800 (PST)
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20151210064131.GB35505@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1449763872-572-2-git-send-email-damien.riegel-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Damien Riegel <damien.riegel-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org>
+Cc: lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, kernel-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Rojtberg <rojtberg@gmail.com>
-Cc: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, gregkh@linuxfoundation.org
 
-On Wed, Dec 09, 2015 at 10:41:31PM -0800, Dmitry Torokhov wrote:
-> On Sun, Nov 01, 2015 at 04:31:38PM +0100, Pavel Rojtberg wrote:
-> > From: Pavel Rojtberg <rojtberg@gmail.com>
-...
-> > +
-> > +static int xpad_resume(struct usb_interface *intf)
-> > +{
-> > +	usb_queue_reset_device(intf);
-> 
-> Why do we have to force reset (and tear down the device)? I am sure we
-> can resume it properly.
+Hi Damien,
 
-Does the patch below work for you?
+On Thu, Dec 10, 2015 at 11:11:12AM -0500, Damien Riegel wrote:
+> On this board, the touchscreen, an ads7843, is not handled directly by
+> Linux but by a companion FPGA. This FPGA is memory-mapped and the IP
+> design is very similar to the mk712.
+>
+> This commit adds the support for this IP.
+>
+> Signed-off-by: Damien Riegel <damien.riegel-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org>
+> ---
+>  drivers/input/touchscreen/Kconfig     |  15 +++
+>  drivers/input/touchscreen/Makefile    |   1 +
+>  drivers/input/touchscreen/ts4800-ts.c | 238 ++++++++++++++++++++++++++++++++++
+>  3 files changed, 254 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/ts4800-ts.c
+>
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index deb14c1..2d3b2f2 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -914,6 +914,21 @@ config TOUCHSCREEN_TOUCHIT213
+>    To compile this driver as a module, choose M here: the
+>    module will be called touchit213.
+>  
+> +config TOUCHSCREEN_TS4800
+> + tristate "TS-4800 touchscreen"
+> + depends on HAS_IOMEM && OF
+> + select MFD_SYSCON
+
+You also need "select INPUT_POLLDEV" here.
+
+> + help
+> +  Say Y here if you have a touchscreen on a TS-4800 board.
+> +
+> +  On TS-4800, the touchscreen is not handled directly by Linux but by
+> +  a companion FPGA.
+> +
+> +  If unsure, say N.
+> +
+> +  To compile this driver as a module, choose M here: the
+> +  module will be called ts4800_ts.
+> +
+>  config TOUCHSCREEN_TSC_SERIO
+>   tristate "TSC-10/25/40 serial touchscreen support"
+>   select SERIO
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index 1b79cc0..5d81ba8c 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -67,6 +67,7 @@ obj-$(CONFIG_TOUCHSCREEN_TI_AM335X_TSC) += ti_am335x_tsc.o
+>  obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213) += touchit213.o
+>  obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT) += touchright.o
+>  obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN) += touchwin.o
+> +obj-$(CONFIG_TOUCHSCREEN_TS4800) += ts4800-ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_TSC_SERIO) += tsc40.o
+>  obj-$(CONFIG_TOUCHSCREEN_TSC2005) += tsc2005.o
+>  obj-$(CONFIG_TOUCHSCREEN_TSC2007) += tsc2007.o
+> diff --git a/drivers/input/touchscreen/ts4800-ts.c b/drivers/input/touchscreen/ts4800-ts.c
+> new file mode 100644
+> index 0000000..1e81b17
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/ts4800-ts.c
+> @@ -0,0 +1,238 @@
+> +/*
+> + * Touchscreen driver for the TS-4800 board
+> + *
+> + * Copyright (c) 2015 - Savoir-faire Linux
+> + *
+> + * This file is licensed under the terms of the GNU General Public
+> + * License version 2. This program is licensed "as is" without any
+> + * warranty of any kind, whether express or implied.
+> + */
+> +
+> +#include <linux/input.h>
+> +#include <linux/input-polldev.h>
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/mfd/syscon.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +
+> +/* polling interval in ms*/
+> +#define POLL_INTERVAL           3
+> +
+> +/* sensor values are 12-bit wide */
+> +#define MAX_12BIT               ((1 << 12) - 1)
+> +
+> +#define PENDOWN_MASK            0x1
+> +
+> +#define X_OFFSET                0x0
+> +#define Y_OFFSET                0x2
+> +
+> +struct ts4800_ts {
+> + struct input_polled_dev *poll_dev;
+> + struct device           *dev;
+> + char                    phys[32];
+> +
+> + void __iomem            *base;
+> + struct regmap           *regmap;
+> + unsigned int            reg;
+> + unsigned int            bit;
+> +
+> + bool                    pendown;
+> + int                     debounce;
+> +};
+> +
+> +static void ts4800_ts_open(struct input_polled_dev *dev)
+> +{
+> + struct ts4800_ts *ts = dev->private;
+> + int ret;
+> +
+> + ret = regmap_update_bits(ts->regmap, ts->reg,
+> + 1 << ts->bit, 1  << ts->bit);
+
+Instead of doing shift every time you can store already shifted value in
+ts->bit.
+
+> + if (ret)
+> + dev_warn(ts->dev, "Failed to enable touchscreen\n");
+> +}
+> +
+> +static void ts4800_ts_close(struct input_polled_dev *dev)
+> +{
+> + struct ts4800_ts *ts = dev->private;
+> + int ret;
+> +
+> + ret = regmap_update_bits(ts->regmap, ts->reg,
+> + 1 << ts->bit, 0);
+> + if (ret)
+> + dev_warn(ts->dev, "Failed to disable touchscreen\n");
+> +
+> +}
+> +
+> +static void ts4800_ts_poll(struct input_polled_dev *dev)
+> +{
+> + struct input_dev *input_dev = dev->input;
+> + struct ts4800_ts *ts = dev->private;
+> + u16 last_x = readw(ts->base + X_OFFSET);
+> + u16 last_y = readw(ts->base + Y_OFFSET);
+> + bool pendown = last_x & PENDOWN_MASK;
+> +
+> + if (!pendown && ts->pendown) {
+> + ts->pendown = false;
+> + ts->debounce = 1;
+> + input_report_key(input_dev, BTN_TOUCH, 0);
+> + input_sync(input_dev);
+> + }
+> +
+> + if (pendown) {
+> + if (ts->debounce) {
+> + ts->debounce = 0;
+
+This looks like a boolean, but I think having a counter for debounce is
+more natural.
+
+> + return;
+> + }
+> +
+> + if (!ts->pendown) {
+> + input_report_key(input_dev, BTN_TOUCH, 1);
+> + ts->pendown = true;
+> + }
+> +
+> + last_x = ((~last_x) >> 4) & MAX_12BIT;
+> + last_y = ((~last_y) >> 4) & MAX_12BIT;
+> +
+> + input_report_abs(input_dev, ABS_X, last_x);
+> + input_report_abs(input_dev, ABS_Y, last_y);
+> + input_sync(input_dev);
+> + }
+> +}
+> +
+> +static void ts4800_input_setup(struct input_dev *input_dev)
+> +{
+> + input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> + input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> +
+> + input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
+> + input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
+> +}
+> +
+> +static int ts4800_parse_dt(struct platform_device *pdev,
+> +   struct ts4800_ts *ts)
+> +{
+> + struct device *dev = &pdev->dev;
+> + struct device_node *np = dev->of_node;
+> + struct device_node *syscon_np;
+> + struct resource *res;
+> + u32 reg, bit;
+> + int ret;
+> +
+> + res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> + ts->base = devm_ioremap_resource(dev, res);
+> + if (IS_ERR(ts->base))
+> + return PTR_ERR(ts->base);
+
+This has nothing to do with DT parsing, I'd move it out into probe().
+
+> +
+> + syscon_np = of_parse_phandle(np, "syscon", 0);
+> + if (!syscon_np) {
+> + dev_err(dev, "no syscon property\n");
+> + return -ENODEV;
+> + }
+> +
+> + ret = of_property_read_u32_index(np, "syscon", 1, &reg);
+> + if (ret < 0) {
+> + dev_err(dev, "no offset in syscon\n");
+> + return ret;
+> + }
+> +
+> + ret = of_property_read_u32_index(np, "syscon", 2, &bit);
+> + if (ret < 0) {
+> + dev_err(dev, "no bit in syscon\n");
+> + return ret;
+> + }
+> +
+> + ts->reg = reg;
+> + ts->bit = bit;
+> + ts->regmap = syscon_node_to_regmap(syscon_np);
+> +
+> + if (IS_ERR(ts->regmap)) {
+> + dev_err(dev, "cannot get parent's regmap\n");
+> + return PTR_ERR(ts->regmap);
+> + }
+> +
+> + return 0;
+> +}
+> +
+> +static int ts4800_ts_probe(struct platform_device *pdev)
+> +{
+> + struct input_polled_dev *poll_dev;
+> + struct input_dev *input_dev;
+> + struct ts4800_ts *ts;
+> + int ret;
+> +
+> + ts = devm_kzalloc(&pdev->dev, sizeof(struct ts4800_ts), GFP_KERNEL);
+> + if (!ts)
+> + return -ENOMEM;
+> +
+> + ret = ts4800_parse_dt(pdev, ts);
+> + if (ret)
+> + return ret;
+> +
+> + poll_dev = devm_input_allocate_polled_device(&pdev->dev);
+> + if (!poll_dev)
+> + return -ENOMEM;
+> +
+> + snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(&pdev->dev));
+> + ts->poll_dev = poll_dev;
+> + ts->dev = &pdev->dev;
+> + ts->pendown = false;
+> + ts->debounce = 1;
+> +
+> + poll_dev->private = ts;
+> + poll_dev->poll_interval = POLL_INTERVAL;
+> + poll_dev->open = ts4800_ts_open;
+> + poll_dev->close = ts4800_ts_close;
+> + poll_dev->poll = ts4800_ts_poll;
+> +
+> + ts4800_input_setup(poll_dev->input);
+> +
+> + input_dev = poll_dev->input;
+> + input_dev->name = "TS-4800 Touchscreen";
+> + input_dev->phys = ts->phys;
+> + input_dev->dev.parent = pdev->dev.parent;
+
+This is wrong. First of all managed input device requires that you do
+not override parent (see comment to devm_input_allocate_polled_device)
+and also naturally this input dveice's parent is this platform device,
+and parent of platform device is input dveice's grandparent.
+
+> +
+> + ret = input_register_polled_device(poll_dev);
+> + if (ret) {
+> + dev_err(&pdev->dev,
+> + "Unabled to register polled input device (%d)\n",
+> + ret);
+> + return ret;
+> + }
+> +
+> + platform_set_drvdata(pdev, ts);
+> +
+> + return 0;
+> +}
+> +
+> +static int ts4800_ts_remove(struct platform_device *pdev)
+> +{
+> + struct ts4800_ts *ts = platform_get_drvdata(pdev);
+> + struct input_polled_dev *poll_dev = ts->poll_dev;
+> +
+> + input_unregister_polled_device(poll_dev);
+
+Since you are using managed polled device you do not need to explicitly
+unregister it.
+
+> +
+> + return 0;
+> +}
+> +
+> +static const struct of_device_id ts4800_ts_of_match[] = {
+> + { .compatible = "technologic,ts4800-ts", },
+> + { },
+> +};
+> +MODULE_DEVICE_TABLE(of, ts4800_ts_of_match);
+> +
+> +static struct platform_driver ts4800_ts_driver = {
+> + .driver = {
+> + .name = "ts4800-ts",
+> + .of_match_table = ts4800_ts_of_match,
+> + },
+> + .probe = ts4800_ts_probe,
+> + .remove = ts4800_ts_remove,
+> +};
+> +module_platform_driver(ts4800_ts_driver);
+> +
+> +MODULE_AUTHOR("Damien Riegel <damien.riegel-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org>");
+> +MODULE_DESCRIPTION("TS-4800 Touchscreen Driver");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_ALIAS("platform:ts4800_ts");
+> --
+> 2.5.0
+>
+
+I adjusted the aforementioned items and applied the driver, please check
+out my "next" branch.
+
+Thanks.
 
 -- 
 Dmitry
-
-
-Input: xpad - workaround dead irq_out after suspend/ resume
-
-From: Pavel Rojtberg <rojtberg@gmail.com>
-
-The irq_out urb is dead after suspend/ resume on my x360 wr pad. (also
-reproduced by Zachary Lund [0]) Work around this by implementing suspend
-and resume callbacks and properly shutting down URBs on suspend and
-restarting them on resume.
-
-[0]: https://github.com/paroj/xpad/issues/6
-
-Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/joystick/xpad.c |  156 ++++++++++++++++++++++++++++++-----------
- 1 file changed, 114 insertions(+), 42 deletions(-)
-
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index f88cf00..36328b3 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -864,12 +864,6 @@ static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
-  fail1:	return error;
- }
- 
--static void xpad_stop_output(struct usb_xpad *xpad)
--{
--	if (xpad->xtype != XTYPE_UNKNOWN)
--		usb_kill_urb(xpad->irq_out);
--}
--
- static void xpad_deinit_output(struct usb_xpad *xpad)
- {
- 	if (xpad->xtype != XTYPE_UNKNOWN) {
-@@ -930,7 +924,7 @@ static int xpad_start_xbox_one(struct usb_xpad *xpad)
- 	packet->len = 5;
- 	packet->pending = true;
- 
--	retval = usb_submit_urb(xpad->irq_out, GFP_KERNEL);
-+	retval = usb_submit_urb(xpad->irq_out, GFP_KERNEL) ? -EIO : 0;
- 
- 	spin_unlock_irqrestore(&xpad->odata_lock, flags);
- 
-@@ -1194,32 +1188,73 @@ static void xpad_led_disconnect(struct usb_xpad *xpad) { }
- static void xpad_identify_controller(struct usb_xpad *xpad) { }
- #endif
- 
--static int xpad_open(struct input_dev *dev)
-+static int xpad_start_input(struct usb_xpad *xpad)
- {
--	struct usb_xpad *xpad = input_get_drvdata(dev);
--
--	/* URB was submitted in probe */
--	if (xpad->xtype == XTYPE_XBOX360W)
--		return 0;
-+	int error;
- 
--	xpad->irq_in->dev = xpad->udev;
- 	if (usb_submit_urb(xpad->irq_in, GFP_KERNEL))
- 		return -EIO;
- 
--	if (xpad->xtype == XTYPE_XBOXONE)
--		return xpad_start_xbox_one(xpad);
-+	if (xpad->xtype == XTYPE_XBOXONE) {
-+		error = xpad_start_xbox_one(xpad);
-+		if (error) {
-+			usb_kill_urb(xpad->irq_in);
-+			return error;
-+		}
-+	}
- 
- 	return 0;
- }
- 
--static void xpad_close(struct input_dev *dev)
-+static void xpad_stop_input(struct usb_xpad *xpad)
- {
--	struct usb_xpad *xpad = input_get_drvdata(dev);
-+	usb_kill_urb(xpad->irq_in);
-+}
-+
-+static int xpad360w_start_input(struct usb_xpad *xpad)
-+{
-+	int error;
- 
--	if (xpad->xtype != XTYPE_XBOX360W)
-+	error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
-+	if (error)
-+		return -EIO;
-+
-+	/*
-+	 * Send presence packet.
-+	 * This will force the controller to resend connection packets.
-+	 * This is useful in the case we activate the module after the
-+	 * adapter has been plugged in, as it won't automatically
-+	 * send us info about the controllers.
-+	 */
-+	error = xpad_inquiry_pad_presence(xpad);
-+	if (error) {
- 		usb_kill_urb(xpad->irq_in);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static void xpad360w_stop_input(struct usb_xpad *xpad)
-+{
-+	usb_kill_urb(xpad->irq_in);
-+
-+	/* Make sure we are done with presence work if it was scheduled */
-+	flush_work(&xpad->work);
-+}
-+
-+static int xpad_open(struct input_dev *dev)
-+{
-+	struct usb_xpad *xpad = input_get_drvdata(dev);
-+
-+	return xpad_start_input(xpad);
-+}
- 
--	xpad_stop_output(xpad);
-+static void xpad_close(struct input_dev *dev)
-+{
-+	struct usb_xpad *xpad = input_get_drvdata(dev);
-+
-+	xpad_stop_input(xpad);
- }
- 
- static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
-@@ -1274,8 +1309,10 @@ static int xpad_init_input(struct usb_xpad *xpad)
- 
- 	input_set_drvdata(input_dev, xpad);
- 
--	input_dev->open = xpad_open;
--	input_dev->close = xpad_close;
-+	if (xpad->xtype != XTYPE_XBOX360W) {
-+		input_dev->open = xpad_open;
-+		input_dev->close = xpad_close;
-+	}
- 
- 	__set_bit(EV_KEY, input_dev->evbit);
- 
-@@ -1443,21 +1480,9 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 		 * exactly the message that a controller has arrived that
- 		 * we're waiting for.
- 		 */
--		xpad->irq_in->dev = xpad->udev;
--		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
-+		error = xpad360w_start_input(xpad);
- 		if (error)
- 			goto err_deinit_output;
--
--		/*
--		 * Send presence packet.
--		 * This will force the controller to resend connection packets.
--		 * This is useful in the case we activate the module after the
--		 * adapter has been plugged in, as it won't automatically
--		 * send us info about the controllers.
--		 */
--		error = xpad_inquiry_pad_presence(xpad);
--		if (error)
--			goto err_kill_in_urb;
- 	} else {
- 		error = xpad_init_input(xpad);
- 		if (error)
-@@ -1465,8 +1490,6 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 	}
- 	return 0;
- 
--err_kill_in_urb:
--	usb_kill_urb(xpad->irq_in);
- err_deinit_output:
- 	xpad_deinit_output(xpad);
- err_free_in_urb:
-@@ -1476,20 +1499,24 @@ err_free_idata:
- err_free_mem:
- 	kfree(xpad);
- 	return error;
--
- }
- 
- static void xpad_disconnect(struct usb_interface *intf)
- {
--	struct usb_xpad *xpad = usb_get_intfdata (intf);
-+	struct usb_xpad *xpad = usb_get_intfdata(intf);
- 
- 	if (xpad->xtype == XTYPE_XBOX360W)
--		usb_kill_urb(xpad->irq_in);
--
--	cancel_work_sync(&xpad->work);
-+		xpad360w_stop_input(xpad);
- 
- 	xpad_deinit_input(xpad);
- 
-+	/*
-+	 * Now that both input device and LED device are gone we can
-+	 * stop output URB.
-+	 */
-+	if (xpad->xtype == XTYPE_XBOX360W)
-+		usb_kill_urb(xpad->irq_out);
-+
- 	usb_free_urb(xpad->irq_in);
- 	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
- 			xpad->idata, xpad->idata_dma);
-@@ -1501,10 +1528,55 @@ static void xpad_disconnect(struct usb_interface *intf)
- 	usb_set_intfdata(intf, NULL);
- }
- 
-+static int xpad_suspend(struct usb_interface *intf, pm_message_t message)
-+{
-+	struct usb_xpad *xpad = usb_get_intfdata(intf);
-+	struct input_dev *input = xpad->dev;
-+
-+	if (xpad->xtype == XTYPE_XBOX360W) {
-+		/*
-+		 * Wireless controllers always listen to input so
-+		 * they are notified when controller shows up
-+		 * or goes away.
-+		 */
-+		xpad360w_stop_input(xpad);
-+	} else {
-+		mutex_lock(&input->mutex);
-+		if (input->users)
-+			xpad_stop_input(xpad);
-+		mutex_unlock(&input->mutex);
-+	}
-+
-+	if (xpad->xtype != XTYPE_UNKNOWN)
-+		usb_kill_urb(xpad->irq_out);
-+
-+	return 0;
-+}
-+
-+static int xpad_resume(struct usb_interface *intf)
-+{
-+	struct usb_xpad *xpad = usb_get_intfdata(intf);
-+	struct input_dev *input = xpad->dev;
-+	int retval = 0;
-+
-+	if (xpad->xtype == XTYPE_XBOX360W) {
-+		retval = xpad360w_start_input(xpad);
-+	} else {
-+		mutex_lock(&input->mutex);
-+		if (input->users)
-+			retval = xpad_start_input(xpad);
-+		mutex_unlock(&input->mutex);
-+	}
-+
-+	return retval;
-+}
-+
- static struct usb_driver xpad_driver = {
- 	.name		= "xpad",
- 	.probe		= xpad_probe,
- 	.disconnect	= xpad_disconnect,
-+	.suspend	= xpad_suspend,
-+	.resume		= xpad_resume,
- 	.id_table	= xpad_table,
- };
- 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

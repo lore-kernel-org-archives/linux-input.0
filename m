@@ -1,121 +1,35 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [RESEND] Lenovo Yoga 900 touchpad issues
-Date: Fri, 18 Dec 2015 16:42:09 +0200
-Message-ID: <20151218144209.GK1762@lahna.fi.intel.com>
-References: <CAOhV88MGoJdUzty=DDTLOkd7me5uoRWwTTrR8aD=zf5ga0_Hew@mail.gmail.com>
- <20151216092858.GP1762@lahna.fi.intel.com>
- <CAOhV88Mv+RUADPHT5AwD=dR-VdPn7Cmf4TkJoaBjNA4Q6zL6WQ@mail.gmail.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 000/182] Rid struct gpio_chip from container_of() usage
+Date: Fri, 18 Dec 2015 15:42:27 +0100
+Message-ID: <CACRpkdZ9vZmMWHemb8_XDwdhMDjMNoE7EyLUSnvVS6R5yU3i_A@mail.gmail.com>
+References: <1449666515-23343-1-git-send-email-linus.walleij@linaro.org>
+	<20151209134410.GH8644@n2100.arm.linux.org.uk>
+	<CACRpkdZcz73vtgZsCKZCJ=G3nq-yCPiO8hws4ro5HVWd8AVRCw@mail.gmail.com>
+	<20151214124626.GG23327@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAOhV88Mv+RUADPHT5AwD=dR-VdPn7Cmf4TkJoaBjNA4Q6zL6WQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Seth Forshee <seth.forshee@canonical.com>, Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20151214124626.GG23327@localhost>
+Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alexandre Courbot <acourbot-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Amit Kucheria <amit.kucheria-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Haavard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Greg Ungerer <gerg-JBU5SbJe1FlAfugRpC6u6w@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Linux MIPS <linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>, linux-wireless <linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Dec 16, 2015 at 02:58:11PM -0800, Nish Aravamudan wrote:
-> With the patch applied to my patched 4.4-rc5, things seem to be
-> working now. I do get one "failed to reset device" message in the
-> logs, but then I'm guessing the second one succeeds and I don't see
-> the "failed to resume" message.
+On Mon, Dec 14, 2015 at 1:46 PM, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
 
-I finally got the yoga 900 machine.
+> Ok, but let's take a step back. So you have all this in place and a
+> consumer calls gpiod_get_value() that returns an errno because the device
+> is gone. Note that this wasn't even possible before e20538b82f1f ("gpio:
+> Propagate errors from chip->get()") that went into *v4.3*, and I assume
+> most drivers would need to be updated to even handle that that gpio
+> call, and all future calls, are now suddenly failing.
 
-This is what happens when I have "i2c_hid.debug=1" in the kernel command
-line (I stripped out non-related messages and added few more debug
-prints):
+I actually have a revert of that in my fixes queue. So another step back
+and two forward for v4.5 (hopefully): audit all drivers to respect this.
 
-<resume by pressing power button>
-
-  [   72.410282] i2c_hid i2c-SYNA2B29:00: enabled IRQ
-  [   72.410285] i2c_hid i2c-SYNA2B29:00: i2c_hid_hwreset
-  [   72.410288] i2c_hid i2c-SYNA2B29:00: i2c_hid_set_power
-  [   72.410291] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: cmd=22 00 00 08
-  [   72.412879] i2c_hid i2c-SYNA2B29:00: resetting...
-  [   72.412883] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: cmd=22 00 00 01
-
-Now we sent out reset command and wait for the interrupt to happen.
-
-  [   72.413248] i2c_hid i2c-SYNA2B29:00: input: 06 00 01 00 00 00
-
-We get interrupt here but the received message did not have first two
-bytes zeroed as expected by the driver and the i2c-hid spec so we think
-it is an input report!
-
-  [   72.413266] i2c_hid i2c-SYNA2B29:00: i2c_hid_set_or_send_report
-  [   72.413270] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: cmd=22 00 3f 03 0f 23 00 04 00 0f 01
-
-  [   72.413416] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: waiting...
-
-Here we start actually waiting for the interrupt which already
-happened.
-
-  [   72.413751] i2c_hid i2c-SYNA2B29:00: i2c_hid_set_or_send_report
-  [   72.413755] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: cmd=25 00 17 00 09 01 42 00 2e 00 19 19 00 10 cc 06 74 04 0f 19 00 00 00 00 00
-  [   77.413135] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: finished.
-  [   77.413137] i2c_hid i2c-SYNA2B29:00: failed to reset device.
-
-And after 5 seconds we report error.
-
-  [   77.413138] i2c_hid i2c-SYNA2B29:00: i2c_hid_set_power
-  [   77.413139] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: cmd=22 00 01 08
-  [   77.415030] i2c_hid i2c-SYNA2B29:00: reset returned: -61
-  [   77.415035] dpm_run_callback(): i2c_hid_resume+0x0/0xe0 returns -61
-  [   77.415037] PM: Device i2c-SYNA2B29:00 failed to resume: error -61
-
-On another occasion the faulty input report was received immediatelly
-after we call i2c_hid_set_power().
-
-With below hack patch suspend/resume works fine but it is far from being
-suitable for merging. Still, it would be nice if you could try it out
-and see if it helps in your case.
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 10bd8e6..1c6969f 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -354,14 +354,19 @@ static int i2c_hid_hwreset(struct i2c_client *client)
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 	int ret;
- 
-+	disable_irq(ihid->irq);
-+
- 	i2c_hid_dbg(ihid, "%s\n", __func__);
- 
- 	ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
--	if (ret)
-+	if (ret) {
-+		enable_irq(ihid->irq);
- 		return ret;
-+	}
- 
- 	i2c_hid_dbg(ihid, "resetting...\n");
- 
-+	enable_irq(ihid->irq);
- 	ret = i2c_hid_command(client, &hid_reset_cmd, NULL, 0);
- 	if (ret) {
- 		dev_err(&client->dev, "failed to reset device.\n");
-@@ -390,16 +395,14 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
- 		return;
- 	}
- 
--	ret_size = ihid->inbuf[0] | ihid->inbuf[1] << 8;
--
--	if (!ret_size) {
--		/* host or device initiated RESET completed */
--		if (test_and_clear_bit(I2C_HID_RESET_PENDING, &ihid->flags))
--			wake_up(&ihid->wait);
-+	/* host or device initiated RESET completed */
-+	if (test_and_clear_bit(I2C_HID_RESET_PENDING, &ihid->flags)) {
-+		wake_up(&ihid->wait);
- 		return;
- 	}
- 
--	if (ret_size > size) {
-+	ret_size = ihid->inbuf[0] | ihid->inbuf[1] << 8;
-+	if (ret_size > size || !ret_size) {
- 		dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
- 			__func__, size, ret_size);
- 		return;
+Yours,
+Linus Walleij
+--
+To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

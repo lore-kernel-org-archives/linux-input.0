@@ -1,69 +1,63 @@
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Subject: Re: iio/hid-sensor-accel-3d: no output from /dev/iio:device*?
-Date: Thu, 17 Dec 2015 17:08:40 -0800
-Message-ID: <CAOhV88OinTE31-qp1vh-4XHT-TqMTTOYwHiLk0yptg0prwetjw@mail.gmail.com>
+Date: Fri, 18 Dec 2015 01:11:01 +0000
+Message-ID: <1450400953.5427.18.camel@intel.com>
 References: <CAOhV88ODTazDA2jmn9DP5idMmXXQa9jKB9Ur_aWTD_3WYZM1fw@mail.gmail.com>
-	<1450399868.5427.11.camel@linux.intel.com>
-	<1450400312.5427.15.camel@intel.com>
+	 <1450399868.5427.11.camel@linux.intel.com>
+	 <1450400312.5427.15.camel@intel.com>
+	 <CAOhV88OinTE31-qp1vh-4XHT-TqMTTOYwHiLk0yptg0prwetjw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1450400312.5427.15.camel@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Cc: "jikos@kernel.org" <jikos@kernel.org>, "lars@metafoo.de" <lars@metafoo.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "knaack.h@gmx.de" <knaack.h@gmx.de>, "jic23@kernel.org" <jic23@kernel.org>, "cmo@melexis.com" <cmo@melexis.com>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "pmeerw@pmeerw.net" <pmeerw@pmeerw.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Shevchenko, Andriy" <andriy.shevchenko@intel.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAOhV88OinTE31-qp1vh-4XHT-TqMTTOYwHiLk0yptg0prwetjw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
+Content-ID: <46B7FF2F76319A4FA31FFC06F13E06AF-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "nish.aravamudan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <nish.aravamudan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org" <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "knaack.h-Mmb7MZpHnFY@public.gmane.org" <knaack.h-Mmb7MZpHnFY@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org" <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org" <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Shevchenko, Andriy" <andriy.shevchenko-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Dec 17, 2015 at 5:00 PM, Pandruvada, Srinivas
-<srinivas.pandruvada@intel.com> wrote:
-> Hi Andy,
->
-> As per Nish these patches are impacting sensors on Yoga.
-> https://lkml.org/lkml/2015/11/30/441
-
-To be clear, without that series, the touchpad and touchscreen on the
-Yoga 900 don't work at all. So they are necessary for functioning. I
-don't know (I will test it now), if removing the series makes the IIO
-sensors work properly in /dev/.
-
--Nish
-
-> On Thu, 2015-12-17 at 16:51 -0800, Srinivas Pandruvada wrote:
->> On Thu, 2015-12-17 at 15:38 -0800, Nish Aravamudan wrote:
->> > [Starting a new thread from https://lkml.org/lkml/2015/12/15/663,
->> > as
->> > now my laptop is displaying values in the sysfs *raw* files.]
->> >
->> > So I'm trying to understand exactly how the hid-sensor-accel-3d
->> > driver works.
->> >
->> > If I turn up debugging, when I `cat
->> > /sys/bus/iio/devices/device*/*raw*`, I see "iio iio:device3:
->> > accel_3d_proc_event" and I think that means that
->> > hid_sensor_push_data() is getting called.
->> >
->> > But read()'s on /dev/iio:device3 never produces anything, which is
->> > what iio-sensor-proxy uses to translate events to dbus.
->> >
->> > Is it expected that the dev-node is "silent"? Just trying to
->> > understand if an extension to the driver to support a chardev based
->> > output is appropriate, or if iio-sensor-proxy needs to be changed
->> > to
->> > handle this device.
->>
->> You are saying there is some regression. This used to work and now it
->> doesn't work. Is raw values are displayed correctly, when you do
->> "cat"?
->> If cat of raw values is working then power on of sensors is working.
->>
->> Turn on HID debug prints. If it is regression we can do git bisect.
->> Any ACPI or PM changes can break this. Usually there will be GPIOs
->> which will be involved in power on, where ACPI comes into play. This
->> will be done by i2c-hid. There are some prints in i2c-hid which can
->> be
->> enabled also.
->>
->> Thanks,
->> Srinivas
->>
->> >
+T24gVGh1LCAyMDE1LTEyLTE3IGF0IDE3OjA4IC0wODAwLCBOaXNoIEFyYXZhbXVkYW4gd3JvdGU6
+DQo+IE9uIFRodSwgRGVjIDE3LCAyMDE1IGF0IDU6MDAgUE0sIFBhbmRydXZhZGEsIFNyaW5pdmFz
+DQo+IDxzcmluaXZhcy5wYW5kcnV2YWRhQGludGVsLmNvbT4gd3JvdGU6DQo+ID4gSGkgQW5keSwN
+Cj4gPiANCj4gPiBBcyBwZXIgTmlzaCB0aGVzZSBwYXRjaGVzIGFyZSBpbXBhY3Rpbmcgc2Vuc29y
+cyBvbiBZb2dhLg0KPiA+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE1LzExLzMwLzQ0MQ0KPiAN
+Cj4gVG8gYmUgY2xlYXIsIHdpdGhvdXQgdGhhdCBzZXJpZXMsIHRoZSB0b3VjaHBhZCBhbmQgdG91
+Y2hzY3JlZW4gb24gdGhlDQo+IFlvZ2EgOTAwIGRvbid0IHdvcmsgYXQgYWxsLiBTbyB0aGV5IGFy
+ZSBuZWNlc3NhcnkgZm9yIGZ1bmN0aW9uaW5nLiBJDQo+IGRvbid0IGtub3cgKEkgd2lsbCB0ZXN0
+IGl0IG5vdyksIGlmIHJlbW92aW5nIHRoZSBzZXJpZXMgbWFrZXMgdGhlIElJTw0KPiBzZW5zb3Jz
+IHdvcmsgcHJvcGVybHkgaW4gL2Rldi8uDQpUaGlzIGlzIGltcG9ydGFudCB0byBrbm93IGJlZm9y
+ZSB3ZSB0YWtlIEFuZHkncyB0aW1lLg0KDQpUaGFua3MsDQpTcmluaXZhcw0KDQo+IA0KPiAtTmlz
+aA0KPiANCj4gPiBPbiBUaHUsIDIwMTUtMTItMTcgYXQgMTY6NTEgLTA4MDAsIFNyaW5pdmFzIFBh
+bmRydXZhZGEgd3JvdGU6DQo+ID4gPiBPbiBUaHUsIDIwMTUtMTItMTcgYXQgMTU6MzggLTA4MDAs
+IE5pc2ggQXJhdmFtdWRhbiB3cm90ZToNCj4gPiA+ID4gW1N0YXJ0aW5nIGEgbmV3IHRocmVhZCBm
+cm9tIA0KPiA+ID4gPiBodHRwczovL2xrbWwub3JnL2xrbWwvMjAxNS8xMi8xNS82NjMsDQo+ID4g
+PiA+IGFzDQo+ID4gPiA+IG5vdyBteSBsYXB0b3AgaXMgZGlzcGxheWluZyB2YWx1ZXMgaW4gdGhl
+IHN5c2ZzICpyYXcqIGZpbGVzLl0NCj4gPiA+ID4gDQo+ID4gPiA+IFNvIEknbSB0cnlpbmcgdG8g
+dW5kZXJzdGFuZCBleGFjdGx5IGhvdyB0aGUgaGlkLXNlbnNvci1hY2NlbC0zZA0KPiA+ID4gPiBk
+cml2ZXIgd29ya3MuDQo+ID4gPiA+IA0KPiA+ID4gPiBJZiBJIHR1cm4gdXAgZGVidWdnaW5nLCB3
+aGVuIEkgYGNhdA0KPiA+ID4gPiAvc3lzL2J1cy9paW8vZGV2aWNlcy9kZXZpY2UqLypyYXcqYCwg
+SSBzZWUgImlpbyBpaW86ZGV2aWNlMzoNCj4gPiA+ID4gYWNjZWxfM2RfcHJvY19ldmVudCIgYW5k
+IEkgdGhpbmsgdGhhdCBtZWFucyB0aGF0DQo+ID4gPiA+IGhpZF9zZW5zb3JfcHVzaF9kYXRhKCkg
+aXMgZ2V0dGluZyBjYWxsZWQuDQo+ID4gPiA+IA0KPiA+ID4gPiBCdXQgcmVhZCgpJ3Mgb24gL2Rl
+di9paW86ZGV2aWNlMyBuZXZlciBwcm9kdWNlcyBhbnl0aGluZywgd2hpY2gNCj4gPiA+ID4gaXMN
+Cj4gPiA+ID4gd2hhdCBpaW8tc2Vuc29yLXByb3h5IHVzZXMgdG8gdHJhbnNsYXRlIGV2ZW50cyB0
+byBkYnVzLg0KPiA+ID4gPiANCj4gPiA+ID4gSXMgaXQgZXhwZWN0ZWQgdGhhdCB0aGUgZGV2LW5v
+ZGUgaXMgInNpbGVudCI/IEp1c3QgdHJ5aW5nIHRvDQo+ID4gPiA+IHVuZGVyc3RhbmQgaWYgYW4g
+ZXh0ZW5zaW9uIHRvIHRoZSBkcml2ZXIgdG8gc3VwcG9ydCBhIGNoYXJkZXYNCj4gPiA+ID4gYmFz
+ZWQNCj4gPiA+ID4gb3V0cHV0IGlzIGFwcHJvcHJpYXRlLCBvciBpZiBpaW8tc2Vuc29yLXByb3h5
+IG5lZWRzIHRvIGJlDQo+ID4gPiA+IGNoYW5nZWQNCj4gPiA+ID4gdG8NCj4gPiA+ID4gaGFuZGxl
+IHRoaXMgZGV2aWNlLg0KPiA+ID4gDQo+ID4gPiBZb3UgYXJlIHNheWluZyB0aGVyZSBpcyBzb21l
+IHJlZ3Jlc3Npb24uIFRoaXMgdXNlZCB0byB3b3JrIGFuZA0KPiA+ID4gbm93IGl0DQo+ID4gPiBk
+b2Vzbid0IHdvcmsuIElzIHJhdyB2YWx1ZXMgYXJlIGRpc3BsYXllZCBjb3JyZWN0bHksIHdoZW4g
+eW91IGRvDQo+ID4gPiAiY2F0Ij8NCj4gPiA+IElmIGNhdCBvZiByYXcgdmFsdWVzIGlzIHdvcmtp
+bmcgdGhlbiBwb3dlciBvbiBvZiBzZW5zb3JzIGlzDQo+ID4gPiB3b3JraW5nLg0KPiA+ID4gDQo+
+ID4gPiBUdXJuIG9uIEhJRCBkZWJ1ZyBwcmludHMuIElmIGl0IGlzIHJlZ3Jlc3Npb24gd2UgY2Fu
+IGRvIGdpdA0KPiA+ID4gYmlzZWN0Lg0KPiA+ID4gQW55IEFDUEkgb3IgUE0gY2hhbmdlcyBjYW4g
+YnJlYWsgdGhpcy4gVXN1YWxseSB0aGVyZSB3aWxsIGJlDQo+ID4gPiBHUElPcw0KPiA+ID4gd2hp
+Y2ggd2lsbCBiZSBpbnZvbHZlZCBpbiBwb3dlciBvbiwgd2hlcmUgQUNQSSBjb21lcyBpbnRvIHBs
+YXkuDQo+ID4gPiBUaGlzDQo+ID4gPiB3aWxsIGJlIGRvbmUgYnkgaTJjLWhpZC4gVGhlcmUgYXJl
+IHNvbWUgcHJpbnRzIGluIGkyYy1oaWQgd2hpY2gNCj4gPiA+IGNhbg0KPiA+ID4gYmUNCj4gPiA+
+IGVuYWJsZWQgYWxzby4NCj4gPiA+IA0KPiA+ID4gVGhhbmtzLA0KPiA+ID4gU3Jpbml2YXMNCj4g
+PiA+IA0KPiA+ID4gPiA=

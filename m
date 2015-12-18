@@ -1,63 +1,31 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: iio/hid-sensor-accel-3d: no output from /dev/iio:device*?
-Date: Fri, 18 Dec 2015 01:11:01 +0000
-Message-ID: <1450400953.5427.18.camel@intel.com>
-References: <CAOhV88ODTazDA2jmn9DP5idMmXXQa9jKB9Ur_aWTD_3WYZM1fw@mail.gmail.com>
-	 <1450399868.5427.11.camel@linux.intel.com>
-	 <1450400312.5427.15.camel@intel.com>
-	 <CAOhV88OinTE31-qp1vh-4XHT-TqMTTOYwHiLk0yptg0prwetjw@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v11 0/8] Goodix touchscreen enhancements
+Date: Thu, 17 Dec 2015 17:13:18 -0800
+Message-ID: <20151218011318.GB16016@dtor-ws>
+References: <1447936001-21420-1-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAOhV88OinTE31-qp1vh-4XHT-TqMTTOYwHiLk0yptg0prwetjw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Language: en-US
-Content-ID: <46B7FF2F76319A4FA31FFC06F13E06AF-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "nish.aravamudan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <nish.aravamudan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org" <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "knaack.h-Mmb7MZpHnFY@public.gmane.org" <knaack.h-Mmb7MZpHnFY@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org" <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org" <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Shevchenko, Andriy" <andriy.shevchenko-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f179.google.com ([209.85.192.179]:34370 "EHLO
+	mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932478AbbLRBNV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Dec 2015 20:13:21 -0500
+Content-Disposition: inline
+In-Reply-To: <1447936001-21420-1-git-send-email-irina.tirdea@intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Irina Tirdea <irina.tirdea@intel.com>
+Cc: Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-T24gVGh1LCAyMDE1LTEyLTE3IGF0IDE3OjA4IC0wODAwLCBOaXNoIEFyYXZhbXVkYW4gd3JvdGU6
-DQo+IE9uIFRodSwgRGVjIDE3LCAyMDE1IGF0IDU6MDAgUE0sIFBhbmRydXZhZGEsIFNyaW5pdmFz
-DQo+IDxzcmluaXZhcy5wYW5kcnV2YWRhQGludGVsLmNvbT4gd3JvdGU6DQo+ID4gSGkgQW5keSwN
-Cj4gPiANCj4gPiBBcyBwZXIgTmlzaCB0aGVzZSBwYXRjaGVzIGFyZSBpbXBhY3Rpbmcgc2Vuc29y
-cyBvbiBZb2dhLg0KPiA+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE1LzExLzMwLzQ0MQ0KPiAN
-Cj4gVG8gYmUgY2xlYXIsIHdpdGhvdXQgdGhhdCBzZXJpZXMsIHRoZSB0b3VjaHBhZCBhbmQgdG91
-Y2hzY3JlZW4gb24gdGhlDQo+IFlvZ2EgOTAwIGRvbid0IHdvcmsgYXQgYWxsLiBTbyB0aGV5IGFy
-ZSBuZWNlc3NhcnkgZm9yIGZ1bmN0aW9uaW5nLiBJDQo+IGRvbid0IGtub3cgKEkgd2lsbCB0ZXN0
-IGl0IG5vdyksIGlmIHJlbW92aW5nIHRoZSBzZXJpZXMgbWFrZXMgdGhlIElJTw0KPiBzZW5zb3Jz
-IHdvcmsgcHJvcGVybHkgaW4gL2Rldi8uDQpUaGlzIGlzIGltcG9ydGFudCB0byBrbm93IGJlZm9y
-ZSB3ZSB0YWtlIEFuZHkncyB0aW1lLg0KDQpUaGFua3MsDQpTcmluaXZhcw0KDQo+IA0KPiAtTmlz
-aA0KPiANCj4gPiBPbiBUaHUsIDIwMTUtMTItMTcgYXQgMTY6NTEgLTA4MDAsIFNyaW5pdmFzIFBh
-bmRydXZhZGEgd3JvdGU6DQo+ID4gPiBPbiBUaHUsIDIwMTUtMTItMTcgYXQgMTU6MzggLTA4MDAs
-IE5pc2ggQXJhdmFtdWRhbiB3cm90ZToNCj4gPiA+ID4gW1N0YXJ0aW5nIGEgbmV3IHRocmVhZCBm
-cm9tIA0KPiA+ID4gPiBodHRwczovL2xrbWwub3JnL2xrbWwvMjAxNS8xMi8xNS82NjMsDQo+ID4g
-PiA+IGFzDQo+ID4gPiA+IG5vdyBteSBsYXB0b3AgaXMgZGlzcGxheWluZyB2YWx1ZXMgaW4gdGhl
-IHN5c2ZzICpyYXcqIGZpbGVzLl0NCj4gPiA+ID4gDQo+ID4gPiA+IFNvIEknbSB0cnlpbmcgdG8g
-dW5kZXJzdGFuZCBleGFjdGx5IGhvdyB0aGUgaGlkLXNlbnNvci1hY2NlbC0zZA0KPiA+ID4gPiBk
-cml2ZXIgd29ya3MuDQo+ID4gPiA+IA0KPiA+ID4gPiBJZiBJIHR1cm4gdXAgZGVidWdnaW5nLCB3
-aGVuIEkgYGNhdA0KPiA+ID4gPiAvc3lzL2J1cy9paW8vZGV2aWNlcy9kZXZpY2UqLypyYXcqYCwg
-SSBzZWUgImlpbyBpaW86ZGV2aWNlMzoNCj4gPiA+ID4gYWNjZWxfM2RfcHJvY19ldmVudCIgYW5k
-IEkgdGhpbmsgdGhhdCBtZWFucyB0aGF0DQo+ID4gPiA+IGhpZF9zZW5zb3JfcHVzaF9kYXRhKCkg
-aXMgZ2V0dGluZyBjYWxsZWQuDQo+ID4gPiA+IA0KPiA+ID4gPiBCdXQgcmVhZCgpJ3Mgb24gL2Rl
-di9paW86ZGV2aWNlMyBuZXZlciBwcm9kdWNlcyBhbnl0aGluZywgd2hpY2gNCj4gPiA+ID4gaXMN
-Cj4gPiA+ID4gd2hhdCBpaW8tc2Vuc29yLXByb3h5IHVzZXMgdG8gdHJhbnNsYXRlIGV2ZW50cyB0
-byBkYnVzLg0KPiA+ID4gPiANCj4gPiA+ID4gSXMgaXQgZXhwZWN0ZWQgdGhhdCB0aGUgZGV2LW5v
-ZGUgaXMgInNpbGVudCI/IEp1c3QgdHJ5aW5nIHRvDQo+ID4gPiA+IHVuZGVyc3RhbmQgaWYgYW4g
-ZXh0ZW5zaW9uIHRvIHRoZSBkcml2ZXIgdG8gc3VwcG9ydCBhIGNoYXJkZXYNCj4gPiA+ID4gYmFz
-ZWQNCj4gPiA+ID4gb3V0cHV0IGlzIGFwcHJvcHJpYXRlLCBvciBpZiBpaW8tc2Vuc29yLXByb3h5
-IG5lZWRzIHRvIGJlDQo+ID4gPiA+IGNoYW5nZWQNCj4gPiA+ID4gdG8NCj4gPiA+ID4gaGFuZGxl
-IHRoaXMgZGV2aWNlLg0KPiA+ID4gDQo+ID4gPiBZb3UgYXJlIHNheWluZyB0aGVyZSBpcyBzb21l
-IHJlZ3Jlc3Npb24uIFRoaXMgdXNlZCB0byB3b3JrIGFuZA0KPiA+ID4gbm93IGl0DQo+ID4gPiBk
-b2Vzbid0IHdvcmsuIElzIHJhdyB2YWx1ZXMgYXJlIGRpc3BsYXllZCBjb3JyZWN0bHksIHdoZW4g
-eW91IGRvDQo+ID4gPiAiY2F0Ij8NCj4gPiA+IElmIGNhdCBvZiByYXcgdmFsdWVzIGlzIHdvcmtp
-bmcgdGhlbiBwb3dlciBvbiBvZiBzZW5zb3JzIGlzDQo+ID4gPiB3b3JraW5nLg0KPiA+ID4gDQo+
-ID4gPiBUdXJuIG9uIEhJRCBkZWJ1ZyBwcmludHMuIElmIGl0IGlzIHJlZ3Jlc3Npb24gd2UgY2Fu
-IGRvIGdpdA0KPiA+ID4gYmlzZWN0Lg0KPiA+ID4gQW55IEFDUEkgb3IgUE0gY2hhbmdlcyBjYW4g
-YnJlYWsgdGhpcy4gVXN1YWxseSB0aGVyZSB3aWxsIGJlDQo+ID4gPiBHUElPcw0KPiA+ID4gd2hp
-Y2ggd2lsbCBiZSBpbnZvbHZlZCBpbiBwb3dlciBvbiwgd2hlcmUgQUNQSSBjb21lcyBpbnRvIHBs
-YXkuDQo+ID4gPiBUaGlzDQo+ID4gPiB3aWxsIGJlIGRvbmUgYnkgaTJjLWhpZC4gVGhlcmUgYXJl
-IHNvbWUgcHJpbnRzIGluIGkyYy1oaWQgd2hpY2gNCj4gPiA+IGNhbg0KPiA+ID4gYmUNCj4gPiA+
-IGVuYWJsZWQgYWxzby4NCj4gPiA+IA0KPiA+ID4gVGhhbmtzLA0KPiA+ID4gU3Jpbml2YXMNCj4g
-PiA+IA0KPiA+ID4gPiA=
+On Thu, Nov 19, 2015 at 02:26:33PM +0200, Irina Tirdea wrote:
+> This patchset depends on Dmitry's patch that fixes the
+> GPIO ACPI API[1], so devm_gpiod_get_optional can be properly
+> used in the code. 
+> 
+> [1] https://lkml.org/lkml/2015/11/11/465
+
+Applied 1 through 5 (see my goodix branch), looking at the rest.
+
+-- 
+Dmitry

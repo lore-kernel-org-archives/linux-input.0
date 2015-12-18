@@ -1,111 +1,56 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [RESEND] Lenovo Yoga 900 touchpad issues
-Date: Fri, 18 Dec 2015 17:10:31 +0100
-Message-ID: <20151218161031.GB12730@mail.corp.redhat.com>
-References: <CAOhV88MGoJdUzty=DDTLOkd7me5uoRWwTTrR8aD=zf5ga0_Hew@mail.gmail.com>
- <20151216092858.GP1762@lahna.fi.intel.com>
- <CAOhV88Mv+RUADPHT5AwD=dR-VdPn7Cmf4TkJoaBjNA4Q6zL6WQ@mail.gmail.com>
- <20151218144209.GK1762@lahna.fi.intel.com>
- <20151218153802.GL1762@lahna.fi.intel.com>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: iio/hid-sensor-accel-3d: no output from /dev/iio:device*?
+Date: Fri, 18 Dec 2015 16:58:53 +0000
+Message-ID: <1450457824.3958.9.camel@intel.com>
+References: <CAOhV88ODTazDA2jmn9DP5idMmXXQa9jKB9Ur_aWTD_3WYZM1fw@mail.gmail.com>
+	 <1450399868.5427.11.camel@linux.intel.com>
+	 <1450400312.5427.15.camel@intel.com>
+	 <CAOhV88OinTE31-qp1vh-4XHT-TqMTTOYwHiLk0yptg0prwetjw@mail.gmail.com>
+	 <1450400953.5427.18.camel@intel.com>
+	 <CAOhV88Oqj+JrPsHqZmtmydUftSA9sUuCDErUOaAG_Erk+uDr1g@mail.gmail.com>
+	 <1450406943.3885.3.camel@intel.com>
+	 <CAOhV88MH4pyX1j8qutc47vjpwQcb9bEUFTyocLtNH5JnVve+6A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35357 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932151AbbLRQKg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Dec 2015 11:10:36 -0500
-Content-Disposition: inline
-In-Reply-To: <20151218153802.GL1762@lahna.fi.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAOhV88MH4pyX1j8qutc47vjpwQcb9bEUFTyocLtNH5JnVve+6A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
+Content-ID: <2D9372FF021DED49A0ABD1B713BAC062-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "nish.aravamudan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <nish.aravamudan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org" <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "knaack.h-Mmb7MZpHnFY@public.gmane.org" <knaack.h-Mmb7MZpHnFY@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org" <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org" <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Shevchenko, Andriy" <andriy.shevchenko-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Nish Aravamudan <nish.aravamudan@gmail.com>, Jiri Kosina <jikos@kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Seth Forshee <seth.forshee@canonical.com>, Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Dec 18 2015 or thereabouts, Mika Westerberg wrote:
-> On Fri, Dec 18, 2015 at 04:42:09PM +0200, Mika Westerberg wrote:
-> > On another occasion the faulty input report was received immediatelly
-> > after we call i2c_hid_set_power().
-> > 
-> > With below hack patch suspend/resume works fine but it is far from being
-> > suitable for merging. Still, it would be nice if you could try it out
-> > and see if it helps in your case.
-> 
-> Actually it looks like we can handle this by just ignoring input reports
-> while we are resetting the device. Following seems to work as well.
-
-Yes, I like this one better. I think, it is still prone to races, but
-it's a much better option.
-
-After turning this around, I think I finally got what was going on (and
-yes, it's basically a race that should have been caught long ago):
-- during resume, the i2c-hid driver calls reset, which is a long (few
-  ms) operation.
-- hid-multitouch is also called during resume, and right after i2c-hid
-- hid-multiotuch immediately emits for touchpads a set input mode (this
-  was unseen with touchscreens because they do not have to be switched
-  into a proper mode)
-- there is a race between hid-multitouch accessing the features while
-  the device is still resetting. And our reset interrupt never gets to
-  us because there was an other operation in progress to request/set
-  reports
-
-So the actual fix would be to make hid-multitouch wait until we reset
-i2c-hid.
-
-This should be done by either a mutex or a spinlock in
-i2c_hid_output_raw_report() and i2c_hid_resume() that would protect a
-flag set during suspend and cleared after resume.
-
-(not sure if this is clear :-P )
-
-Cheers,
-Benjamin
-
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 10bd8e6..eeaf33a 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -352,13 +352,24 @@ static int i2c_hid_set_power(struct i2c_client *client, int power_state)
->  static int i2c_hid_hwreset(struct i2c_client *client)
->  {
->  	struct i2c_hid *ihid = i2c_get_clientdata(client);
-> +	bool started;
->  	int ret;
->  
->  	i2c_hid_dbg(ihid, "%s\n", __func__);
->  
-> +	/*
-> +	 * Some touchpads seem to send input reports once their power is
-> +	 * turned back on after resume. This confuses our reset logic
-> +	 * below.
-> +	 *
-> +	 * Prevent handling any input reports while we are resetting the
-> +	 * device.
-> +	 */
-> +	started = test_and_clear_bit(I2C_HID_STARTED, &ihid->flags);
-> +
->  	ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
->  	if (ret)
-> -		return ret;
-> +		goto out;
->  
->  	i2c_hid_dbg(ihid, "resetting...\n");
->  
-> @@ -366,10 +377,14 @@ static int i2c_hid_hwreset(struct i2c_client *client)
->  	if (ret) {
->  		dev_err(&client->dev, "failed to reset device.\n");
->  		i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
-> -		return ret;
-> +		goto out;
->  	}
->  
-> -	return 0;
-> +out:
-> +	if (started)
-> +		set_bit(I2C_HID_STARTED, &ihid->flags);
-> +
-> +	return ret;
->  }
->  
->  static void i2c_hid_get_input(struct i2c_hid *ihid)
+T24gVGh1LCAyMDE1LTEyLTE3IGF0IDE5OjA2IC0wODAwLCBOaXNoIEFyYXZhbXVkYW4gd3JvdGU6
+DQo+IE9uIFRodSwgRGVjIDE3LCAyMDE1IGF0IDY6NTAgUE0sIFBhbmRydXZhZGEsIFNyaW5pdmFz
+DQo+IDxzcmluaXZhcy5wYW5kcnV2YWRhQGludGVsLmNvbT4gd3JvdGU6DQo+ID4gT24gVGh1LCAy
+MDE1LTEyLTE3IGF0IDE4OjMzIC0wODAwLCBOaXNoIEFyYXZhbXVkYW4gd3JvdGU6DQo+ID4gPiBP
+biBUaHUsIERlYyAxNywgMjAxNSBhdCA1OjExIFBNLCBQYW5kcnV2YWRhLCBTcmluaXZhcw0KPiA+
+ID4gPHNyaW5pdmFzLnBhbmRydXZhZGFAaW50ZWwuY29tPiB3cm90ZToNCj4gPiA+ID4gT24gVGh1
+LCAyMDE1LTEyLTE3IGF0IDE3OjA4IC0wODAwLCBOaXNoIEFyYXZhbXVkYW4gd3JvdGU6DQo+ID4g
+PiA+ID4gT24gVGh1LCBEZWMgMTcsIDIwMTUgYXQgNTowMCBQTSwgUGFuZHJ1dmFkYSwgU3Jpbml2
+YXMNCj4gPiA+ID4gPiA8c3Jpbml2YXMucGFuZHJ1dmFkYUBpbnRlbC5jb20+IHdyb3RlOg0KPiA+
+ID4gPiA+ID4gSGkgQW5keSwNCj4gPiA+ID4gPiA+IA0KPiA+ID4gPiA+ID4gQXMgcGVyIE5pc2gg
+dGhlc2UgcGF0Y2hlcyBhcmUgaW1wYWN0aW5nIHNlbnNvcnMgb24gWW9nYS4NCj4gPiA+ID4gPiA+
+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE1LzExLzMwLzQ0MQ0KPiA+ID4gPiA+IA0KPiA+ID4g
+PiA+IFRvIGJlIGNsZWFyLCB3aXRob3V0IHRoYXQgc2VyaWVzLCB0aGUgdG91Y2hwYWQgYW5kDQo+
+ID4gPiA+ID4gdG91Y2hzY3JlZW4gb24NCj4gPiA+ID4gPiB0aGUNCj4gPiA+ID4gPiBZb2dhIDkw
+MCBkb24ndCB3b3JrIGF0IGFsbC4gU28gdGhleSBhcmUgbmVjZXNzYXJ5IGZvcg0KPiA+ID4gPiA+
+IGZ1bmN0aW9uaW5nLiBJDQo+ID4gPiA+ID4gZG9uJ3Qga25vdyAoSSB3aWxsIHRlc3QgaXQgbm93
+KSwgaWYgcmVtb3ZpbmcgdGhlIHNlcmllcyBtYWtlcw0KPiA+ID4gPiA+IHRoZQ0KPiA+ID4gPiA+
+IElJTw0KPiA+ID4gPiA+IHNlbnNvcnMgd29yayBwcm9wZXJseSBpbiAvZGV2Ly4NCj4gPiA+ID4g
+VGhpcyBpcyBpbXBvcnRhbnQgdG8ga25vdyBiZWZvcmUgd2UgdGFrZSBBbmR5J3MgdGltZS4NCj4g
+PiA+IA0KPiA+ID4gSXQgc2VlbXMgbGlrZSBBbmR5J3MgcGF0Y2hlcyBhcmUgbm90IHRoZSBwcm9i
+bGVtLiBUaGF0IGlzLCB3aXRoDQo+ID4gPiBzdG9jaw0KPiA+ID4gNC40LXJjNSwgdGhlIGFjY2Vs
+ZXJvbW1ldGVyIC9kZXYgZmlsZXMgc3RpbGwgZG8gbm90IHVwZGF0ZS4NCj4gPiA+IA0KPiA+IENh
+biB5b3Ugbm90IHVzZSByYXcgdmFsdWVzIGJ5IHBvbGxpbmcgZnJvbSB1c2VyIHNwYWNlPyBTZW5k
+IG1lDQo+ID4gcmVwb3J0IGRlc2NyaXB0aW9uLiBJdCBzaG91bGQgYmUgaW4NCj4gPiAvc3lzL2tl
+cm5lbC9kZWJ1Zy9oaWQvICJ5b3VyIGRldmljZSBpZCIgL3JlZGVzYy4NCj4gDQo+IFRoZSB1bmRl
+cmx5aW5nIGlzc3VlIGlzIHRoYXQgaWlvLXNlbnNvci1wcm94eSByZWxpZXMgb24gdmFsdWVzIGZy
+b20NCj4gdGhlIGNvcnJlc3BvbmRpbmcgL2RldiBub2RlcyB0byBhdXRvbWF0aWNhbGx5IHJvdGF0
+ZSB0aGUgc2NyZWVuLCBldGMuDQo+IGluIHRoZSBkZXNrdG9wIGVudmlyb25tZW50Lg0KPiANCj4g
+QXR0YWNoZWQgZHVlIHRvIGl0cyBzaXplLg0KPiANCj4gPiBBbHNvIGRldmljZSBpZCAoInlvdXIg
+ZGV2aWNlIGlkIikgYWJvdmUuDQo+IA0KPiAwMDE4OjA0OEQ6ODM5Ni4wMDAyDQpTZW50IGEgcGF0
+Y2gsIHRyeSBhbmQgc2VlIGlmIHRoaXMgd29ya3MuDQoNClRoYW5rcywNClNyaW5pdmFzDQoNCj4g
+DQo+IC1OaXNo

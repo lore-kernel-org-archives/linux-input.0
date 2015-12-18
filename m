@@ -1,31 +1,76 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH 1/2] HID: Use multitouch driver for Type Covers
-Date: Fri, 18 Dec 2015 16:06:42 +0100
-Message-ID: <1450451202.24419.13.camel@hadess.net>
-References: <1450097429-4959-1-git-send-email-akihiko.odaki.4i@stu.hosei.ac.jp>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [RESEND] Lenovo Yoga 900 touchpad issues
+Date: Fri, 18 Dec 2015 17:38:02 +0200
+Message-ID: <20151218153802.GL1762@lahna.fi.intel.com>
+References: <CAOhV88MGoJdUzty=DDTLOkd7me5uoRWwTTrR8aD=zf5ga0_Hew@mail.gmail.com>
+ <20151216092858.GP1762@lahna.fi.intel.com>
+ <CAOhV88Mv+RUADPHT5AwD=dR-VdPn7Cmf4TkJoaBjNA4Q6zL6WQ@mail.gmail.com>
+ <20151218144209.GK1762@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1450097429-4959-1-git-send-email-akihiko.odaki.4i@stu.hosei.ac.jp>
+Content-Disposition: inline
+In-Reply-To: <20151218144209.GK1762@lahna.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Akihiko Odaki <akihiko.odaki.4i@stu.hosei.ac.jp>, jikos@kernel.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Seth Forshee <seth.forshee@canonical.com>, Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 2015-12-14 at 21:50 +0900, Akihiko Odaki wrote:
-> Use multitouch driver instead of microsoft one for Microsoft Surface
-> Type Covers.
+On Fri, Dec 18, 2015 at 04:42:09PM +0200, Mika Westerberg wrote:
+> On another occasion the faulty input report was received immediatelly
+> after we call i2c_hid_set_power().
 > 
-> By using MT_CLS_EXPORT_ALL_INPUTS, the keyboards function as well as
-> the multitouch pads do.
-> 
-> Signed-off-by: Akihiko Odaki <akihiko.odaki.4i@stu.hosei.ac.jp>
+> With below hack patch suspend/resume works fine but it is far from being
+> suitable for merging. Still, it would be nice if you could try it out
+> and see if it helps in your case.
 
-All the multimedia keys work, and MT support also works, on my Surface
-3 cover (045e:07de).
+Actually it looks like we can handle this by just ignoring input reports
+while we are resetting the device. Following seems to work as well.
 
-*But* the Caps-Lock key's LED doesn't light up anymore. Can you verify
-it does on yours as well?
-
-Cheers
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 10bd8e6..eeaf33a 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -352,13 +352,24 @@ static int i2c_hid_set_power(struct i2c_client *client, int power_state)
+ static int i2c_hid_hwreset(struct i2c_client *client)
+ {
+ 	struct i2c_hid *ihid = i2c_get_clientdata(client);
++	bool started;
+ 	int ret;
+ 
+ 	i2c_hid_dbg(ihid, "%s\n", __func__);
+ 
++	/*
++	 * Some touchpads seem to send input reports once their power is
++	 * turned back on after resume. This confuses our reset logic
++	 * below.
++	 *
++	 * Prevent handling any input reports while we are resetting the
++	 * device.
++	 */
++	started = test_and_clear_bit(I2C_HID_STARTED, &ihid->flags);
++
+ 	ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+ 	i2c_hid_dbg(ihid, "resetting...\n");
+ 
+@@ -366,10 +377,14 @@ static int i2c_hid_hwreset(struct i2c_client *client)
+ 	if (ret) {
+ 		dev_err(&client->dev, "failed to reset device.\n");
+ 		i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+-		return ret;
++		goto out;
+ 	}
+ 
+-	return 0;
++out:
++	if (started)
++		set_bit(I2C_HID_STARTED, &ihid->flags);
++
++	return ret;
+ }
+ 
+ static void i2c_hid_get_input(struct i2c_hid *ihid)

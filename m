@@ -1,71 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 2/2] Input: uinput: Sanity check on ff_effects_max and
- EV_FF
-Date: Fri, 18 Dec 2015 17:50:38 -0800
-Message-ID: <20151219015038.GD26333@dtor-ws>
-References: <1442510988-3164-3-git-send-email-elias.vds@gmail.com>
- <1447004254-12431-1-git-send-email-elias.vds@gmail.com>
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Subject: Re: [PATCH] HID: sensor-hub: Add quirk for Lenovo Yoga 900 with ITE Chips
+Date: Fri, 18 Dec 2015 22:31:22 -0800
+Message-ID: <CAOhV88P35k37uP1=qhsThgrA4Y7iOn6fARps-N6DxaSpzKkztA@mail.gmail.com>
+References: <1450463680-10400-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1447004254-12431-1-git-send-email-elias.vds@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Elias Vanderstuyft <elias.vds@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, David Herrmann <dh.herrmann@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yk0-f180.google.com ([209.85.160.180]:35736 "EHLO
+	mail-yk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752478AbbLSGbX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 19 Dec 2015 01:31:23 -0500
+Received: by mail-yk0-f180.google.com with SMTP id v6so82490349ykc.2
+        for <linux-input@vger.kernel.org>; Fri, 18 Dec 2015 22:31:23 -0800 (PST)
+In-Reply-To: <1450463680-10400-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, linux-input@vger.kernel.org
 
-On Sun, Nov 08, 2015 at 06:37:34PM +0100, Elias Vanderstuyft wrote:
-> Currently the user can set ff_effects_max to zero with the EV_FF bit
-> (and the FF_GAIN and/or FF_AUTOCENTER bits) set,
-> in this case the uninitialized methods
-> ff->set_gain and/or ff->set_autocenter can be dereferenced,
-> resulting in a kernel oops.
-> 
-> Check in uinput_create_device() and
-> print a helpful message and return -EINVAL in case the check fails.
-> 
-> Signed-off-by: Elias Vanderstuyft <elias.vds@gmail.com>
+On Fri, Dec 18, 2015 at 10:34 AM, Srinivas Pandruvada
+<srinivas.pandruvada@linux.intel.com> wrote:
+> This needs same quirk as applied to other YOGA sensor hubs.
+> Refer to
+> 47eeca8a48 (" HID: sensor-hub: Add in quirk for Lenovo Yogas with ITE")
+>
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> Tested-by: Nishanth Aravamudan <nish.aravamudan@gmail.com>
 
-Applied, thank you.
+Ok, maybe I spoke too soon! It did work once, at least. But since then
+it seems to have stopped working again? That is, the *raw* files are
+still working, but iio-sensor-proxy is again not seeing any updates
+via the chardev(s). Any notion of what might be going on?
 
-> ---
-> Changes in v2:
->   - Rebase on pending patches from David Herrmann and Benjamin Tissoires:
->     - v3 Input: uinput - add new UINPUT_DEV_SETUP and UI_ABS_SETUP ioctl
->     - Input: uinput - rework ABS validation
->   - Don't require EV_FF bit to be set when ff_effects_max is non-zero
->   - Move check from uinput_setup_device() to uinput_create_device()
->   - Update commit description
-> 
-> At the same time, the new UINPUT_DEV_SETUP and UI_ABS_SETUP ioctls were
-> tested as well (in both orders).
-> The legacy write() (instead of UINPUT_DEV_SETUP) was also tested.
-> 
->  drivers/input/misc/uinput.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-> index 1d93037..b9d0713 100644
-> --- a/drivers/input/misc/uinput.c
-> +++ b/drivers/input/misc/uinput.c
-> @@ -272,6 +272,13 @@ static int uinput_create_device(struct uinput_device *udev)
->  		input_set_events_per_packet(dev, 60);
->  	}
->  
-> +	if (test_bit(EV_FF, dev->evbit) && !udev->ff_effects_max) {
-> +		printk(KERN_DEBUG "%s: ff_effects_max should be non-zero when FF_BIT is set\n",
-> +			UINPUT_NAME);
-> +		error = -EINVAL;
-> +		goto fail1;
-> +	}
-> +
->  	if (udev->ff_effects_max) {
->  		error = input_ff_create(dev, udev->ff_effects_max);
->  		if (error)
-> -- 
-> 1.9.3
-> 
+Note that dmesg does contain (it always has):
 
--- 
-Dmitry
+i2c_hid i2c-ITE8396:00: error in i2c_hid_init_report size:19 / ret_size:18
+
+but I have no idea if that's relevant to the IIO sensors? I was told
+in another thread that it shouldn't have any negative consequence.
+-Nish

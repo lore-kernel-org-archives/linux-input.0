@@ -1,94 +1,71 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] Input: uinput - add new UINPUT_DEV_SETUP and
- UI_ABS_SETUP ioctl
-Date: Fri, 18 Dec 2015 17:50:12 -0800
-Message-ID: <20151219015012.GC26333@dtor-ws>
-References: <1440515579-5359-1-git-send-email-benjamin.tissoires@redhat.com>
- <20151024225341.GA17120@dtor-pixel>
- <CANq1E4TLDMjbfMY-rOM7M8VE_EKejk5DmbPF_BgwNtRwbJV-Aw@mail.gmail.com>
- <20151028151006.GB20468@mail.corp.redhat.com>
+Subject: Re: [PATCH v2 2/2] Input: uinput: Sanity check on ff_effects_max and
+ EV_FF
+Date: Fri, 18 Dec 2015 17:50:38 -0800
+Message-ID: <20151219015038.GD26333@dtor-ws>
+References: <1442510988-3164-3-git-send-email-elias.vds@gmail.com>
+ <1447004254-12431-1-git-send-email-elias.vds@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f175.google.com ([209.85.192.175]:32898 "EHLO
-	mail-pf0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751478AbbLSBuP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Dec 2015 20:50:15 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20151028151006.GB20468@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1447004254-12431-1-git-send-email-elias.vds@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Elias Vanderstuyft <elias.vds@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, David Herrmann <dh.herrmann@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: David Herrmann <dh.herrmann@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Wed, Oct 28, 2015 at 11:10:06AM -0400, Benjamin Tissoires wrote:
-> Hi,
+On Sun, Nov 08, 2015 at 06:37:34PM +0100, Elias Vanderstuyft wrote:
+> Currently the user can set ff_effects_max to zero with the EV_FF bit
+> (and the FF_GAIN and/or FF_AUTOCENTER bits) set,
+> in this case the uninitialized methods
+> ff->set_gain and/or ff->set_autocenter can be dereferenced,
+> resulting in a kernel oops.
 > 
-> On Oct 25 2015 or thereabouts, David Herrmann wrote:
-> > Hi
-> > 
-> > On Sun, Oct 25, 2015 at 12:53 AM, Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> > > Hi Benjamin,
-> > >
-> > > On Tue, Aug 25, 2015 at 11:12:59AM -0400, Benjamin Tissoires wrote:
-> > >> +static int uinput_abs_setup(struct uinput_device *udev,
-> > >> +                         struct uinput_setup __user *arg, size_t size)
-> > >> +{
-> > >> +     struct uinput_abs_setup setup = {};
-> > >> +     struct input_dev *dev;
-> > >> +
-> > >> +     if (size > sizeof(setup))
-> > >> +             return -E2BIG;
-> > >> +     if (udev->state == UIST_CREATED)
-> > >> +             return -EINVAL;
-> > >> +     if (copy_from_user(&setup, arg, size))
-> > >> +             return -EFAULT;
-> > >> +     if (setup.code > ABS_MAX)
-> > >> +             return -ERANGE;
-> > >> +
-> > >> +     dev = udev->dev;
-> > >> +
-> > >> +     input_alloc_absinfo(dev);
-> > >> +     if (!dev->absinfo)
-> > >> +             return -ENOMEM;
-> > >> +
-> > >> +     set_bit(setup.code, dev->absbit);
-> > >> +     dev->absinfo[setup.code] = setup.absinfo;
-> > >> +
-> > >> +     /*
-> > >> +      * We restore the state to UIST_NEW_DEVICE because the user has to call
-> > >> +      * UI_DEV_SETUP in the last place before UI_DEV_CREATE to check the
-> > >> +      * validity of the absbits.
-> > >> +      */
-> > >
-> > > Do we have to be this strict? It seems to me that with the new IOCTLs
-> > > you naturally want to use the new ioctl to setup the device, then adjust
-> > > various axes and bits and then validate everything.
-> > 
-> > Indeed, we now force the order to be abs-setup first, then
-> > device-setup as last step. Appended is a follow-up patch to cleanup
-> > ABS handling in uinput. It is untested. Benjamin, care to give it a
-> > spin?
-> > 
+> Check in uinput_create_device() and
+> print a helpful message and return -EINVAL in case the check fails.
 > 
-> Sorry it took so long for the tests/review.
-> 
-> So the test part is fine. It works as expected. (Tested-by: BT
-> <benjamin.tissoires@redhat.com>)
-> 
-> For the review part, everything looks good except that now the doc for
-> UI_ABS_SETUP in uapi/linux/uinput.h should be changed to reflect the
-> fact that UI_DEV_SETUP is not a pre-requirement before calling
-> UI_ABS_SETUP.
-> 
-> With the doc change, the patch is also Reviewed-by: me.
+> Signed-off-by: Elias Vanderstuyft <elias.vds@gmail.com>
 
-OK, I applied the original and also adjusted the docs and applied this
-one as a separate patch.
+Applied, thank you.
 
-Thanks.
+> ---
+> Changes in v2:
+>   - Rebase on pending patches from David Herrmann and Benjamin Tissoires:
+>     - v3 Input: uinput - add new UINPUT_DEV_SETUP and UI_ABS_SETUP ioctl
+>     - Input: uinput - rework ABS validation
+>   - Don't require EV_FF bit to be set when ff_effects_max is non-zero
+>   - Move check from uinput_setup_device() to uinput_create_device()
+>   - Update commit description
+> 
+> At the same time, the new UINPUT_DEV_SETUP and UI_ABS_SETUP ioctls were
+> tested as well (in both orders).
+> The legacy write() (instead of UINPUT_DEV_SETUP) was also tested.
+> 
+>  drivers/input/misc/uinput.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index 1d93037..b9d0713 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -272,6 +272,13 @@ static int uinput_create_device(struct uinput_device *udev)
+>  		input_set_events_per_packet(dev, 60);
+>  	}
+>  
+> +	if (test_bit(EV_FF, dev->evbit) && !udev->ff_effects_max) {
+> +		printk(KERN_DEBUG "%s: ff_effects_max should be non-zero when FF_BIT is set\n",
+> +			UINPUT_NAME);
+> +		error = -EINVAL;
+> +		goto fail1;
+> +	}
+> +
+>  	if (udev->ff_effects_max) {
+>  		error = input_ff_create(dev, udev->ff_effects_max);
+>  		if (error)
+> -- 
+> 1.9.3
+> 
 
 -- 
 Dmitry

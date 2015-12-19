@@ -1,42 +1,78 @@
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Subject: Re: [PATCH] HID: sensor-hub: Add quirk for Lenovo Yoga 900 with ITE Chips
-Date: Fri, 18 Dec 2015 22:31:22 -0800
-Message-ID: <CAOhV88P35k37uP1=qhsThgrA4Y7iOn6fARps-N6DxaSpzKkztA@mail.gmail.com>
-References: <1450463680-10400-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 4.4-rc5
+Date: Fri, 18 Dec 2015 23:29:54 -0800
+Message-ID: <20151219072954.GA37083@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f180.google.com ([209.85.160.180]:35736 "EHLO
-	mail-yk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752478AbbLSGbX (ORCPT
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:36721 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753171AbbLSH35 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 19 Dec 2015 01:31:23 -0500
-Received: by mail-yk0-f180.google.com with SMTP id v6so82490349ykc.2
-        for <linux-input@vger.kernel.org>; Fri, 18 Dec 2015 22:31:23 -0800 (PST)
-In-Reply-To: <1450463680-10400-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+	Sat, 19 Dec 2015 02:29:57 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, Dec 18, 2015 at 10:34 AM, Srinivas Pandruvada
-<srinivas.pandruvada@linux.intel.com> wrote:
-> This needs same quirk as applied to other YOGA sensor hubs.
-> Refer to
-> 47eeca8a48 (" HID: sensor-hub: Add in quirk for Lenovo Yogas with ITE")
->
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> Tested-by: Nishanth Aravamudan <nish.aravamudan@gmail.com>
+Hi Linus,
 
-Ok, maybe I spoke too soon! It did work once, at least. But since then
-it seems to have stopped working again? That is, the *raw* files are
-still working, but iio-sensor-proxy is again not seeing any updates
-via the chardev(s). Any notion of what might be going on?
+Please pull from:
 
-Note that dmesg does contain (it always has):
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-i2c_hid i2c-ITE8396:00: error in i2c_hid_init_report size:19 / ret_size:18
+to receive updates for the input subsystem. Just a few assorted driver
+fixes.
 
-but I have no idea if that's relevant to the IIO sensors? I was told
-in another thread that it shouldn't have any negative consequence.
--Nish
+Changelog:
+---------
+
+Charles Keepax (1):
+      Input: arizona-haptic - fix disabling of haptics device
+
+Charlie Mooney (1):
+      Input: elan_i2c - set input device's vendor and product IDs
+
+Dmitry Torokhov (1):
+      Input: atmel_mxt_ts - add generic platform data for Chromebooks
+
+James Chen (1):
+      Input: elants_i2c - fix wake-on-touch
+
+Javier Martinez Canillas (1):
+      Input: atmel_mxt_ts - add maxtouch to I2C table for module autoload
+
+Karsten Merker (1):
+      Input: sun4i-lradc-keys - fix typo in binding documentation
+
+Sudip Mukherjee (5):
+      Input: db9 - clear unused function pointers
+      Input: gamecon - clear unused function pointers
+      Input: turbografx - clear unused function pointers
+      Input: walkera0701 - clear unused function pointers
+      Input: parkbd - clear unused function pointers
+
+Vladis Dronov (1):
+      Input: aiptek - fix crash on detecting device without endpoints
+
+
+Diffstat:
+--------
+
+ .../devicetree/bindings/input/sun4i-lradc-keys.txt |  2 +-
+ drivers/input/joystick/db9.c                       |  1 +
+ drivers/input/joystick/gamecon.c                   |  1 +
+ drivers/input/joystick/turbografx.c                |  1 +
+ drivers/input/joystick/walkera0701.c               |  1 +
+ drivers/input/misc/arizona-haptics.c               |  3 +-
+ drivers/input/mouse/elan_i2c_core.c                |  3 ++
+ drivers/input/serio/parkbd.c                       |  1 +
+ drivers/input/tablet/aiptek.c                      |  9 ++++++
+ drivers/input/touchscreen/atmel_mxt_ts.c           | 34 ++++++++++++++++++++++
+ drivers/input/touchscreen/elants_i2c.c             | 21 +++++++------
+ 11 files changed, 65 insertions(+), 12 deletions(-)
+
+-- 
+Dmitry
+

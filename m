@@ -1,69 +1,39 @@
-From: Clement Calmels <clement.calmels@free.fr>
-Subject: Re: [PATCH] Input: xpad - use LED API when identifying wireless
- controllers
-Date: Sat, 19 Dec 2015 22:17:09 +0100
-Message-ID: <20151219221709.5b5947ec@gromit>
-References: <20151216224408.GA14261@dtor-ws>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v10 3/8] ARM: dt: Binding documentation for imx25
+ touchscreen controller
+Date: Sat, 19 Dec 2015 21:39:43 -0600
+Message-ID: <20151220033943.GO9883@rob-hp-laptop>
+References: <1450101234-2191-1-git-send-email-mpa@pengutronix.de>
+ <1450101234-2191-4-git-send-email-mpa@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20151216224408.GA14261@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Pavel Rojtberg <rojtberg@gmail.com>, "Pierre-Loup A. Griffais" <githubpublic@plagman.net>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1450101234-2191-4-git-send-email-mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Eric =?iso-8859-1?Q?B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 16 Dec 2015 14:44:08 -0800
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-
-> When lighting up the segment identifying wireless controller, Instead
-> of sending command directly to the controller, let's do it via LED
-> API (usinf led_set_brightness) so that LED object state is in sync
-> with controller state and we'll light up the correct segment on
-> resume as well.
+On Mon, Dec 14, 2015 at 02:53:49PM +0100, Markus Pargmann wrote:
+> This is the touchscreen conversion queue binding documentation. It uses
+> the shared imx25 ADC.
 > 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 > ---
 > 
-> I do not have the hardware so please try this out.
+> Notes:
+>     Changes in v9:
+>      - Updated binding descriptions
+>     
+>     Changes in v5:
+>      - Fix signed/unsigned comparison
+>      - Fix unused variable settling_time by putting it in the correct argument list
+>      - Use continous conversion queue with the repeat feature and a proper
+>        repeat-wait. Previously the touchscreen caused massive number of interrupts.
 > 
->  drivers/input/joystick/xpad.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/joystick/xpad.c
-> b/drivers/input/joystick/xpad.c index 36328b3..00a766b 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -1118,7 +1118,7 @@ static void xpad_send_led_command(struct
-> usb_xpad *xpad, int command) */
->  static void xpad_identify_controller(struct usb_xpad *xpad)
->  {
-> -	xpad_send_led_command(xpad, (xpad->pad_nr % 4) + 2);
-> +	led_set_brightness(&xpad->led->led_cdev, (xpad->pad_nr % 4)
-> + 2); }
->  
->  static void xpad_led_set(struct led_classdev *led_cdev,
+>  .../bindings/input/touchscreen/fsl-mx25-tcq.txt    | 35 ++++++++++++++++++++++
+>  1 file changed, 35 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
 
-Hi Dimitri,
-
-My hardware: two wireless xpad 360 using a single usb receiver.
-
-Power on the first gamepad => light the "1" led.
-Power on the second gamepad => light the "2" led.
-
-Suspend the PC (systemctl suspend): the two gamepads are "disconnected"
-=> blinking circle.
-
-Resume the PC, the two gamepads keep blinking but are working (tested
-with jstest).
-
-Power off and on the gamepad => still blinking.
-Reload (rmmod/modprobe) the xpad module => still blinking.
-
-That said, without your patch, the behavior is exactly the same.
-It seems that the suspend/resume broke the led feature. Even using
-the /sys/class/leds/xpad0/brigthness sysfs entry does not work.
-
-Best regards,
-Clement
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>

@@ -1,98 +1,58 @@
-From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: Re: [PATCH] Input: xpad - use LED API when identifying wireless controllers
-Date: Sun, 20 Dec 2015 13:49:25 +0100
-Message-ID: <CA+b0ujeD_qV-MtPx7ktxMWw-UgxZq8d9BN6SgwA3F+RKaXz6ng@mail.gmail.com>
-References: <20151216224408.GA14261@dtor-ws> <20151219221709.5b5947ec@gromit> <20151220075504.GA35575@dtor-ws>
+From: Allen Hung <allen_hung@dell.com>
+Subject: Re: [PATCH 1/1] HID: multitouch: enable palm rejection if device
+ implements confidence usage
+Date: Mon, 21 Dec 2015 17:45:07 +0800
+Message-ID: <5677CA23.9050008@dell.com>
+References: <1448014866-25348-1-git-send-email-allen_hung@dell.com>
+ <alpine.LNX.2.00.1511261521350.20111@pobox.suse.cz>
+ <CAN+gG=Ga92-UPbbcjiL0p2b4gO0iQE_-U6wXiq_x3=39z+edSg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f181.google.com ([209.85.160.181]:35597 "EHLO
-	mail-yk0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754303AbbLTMtp (ORCPT
+Received: from ausxippc101.us.dell.com ([143.166.85.207]:58583 "EHLO
+	ausxippc101.us.dell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751030AbbLUJpN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Dec 2015 07:49:45 -0500
-In-Reply-To: <20151220075504.GA35575@dtor-ws>
+	Mon, 21 Dec 2015 04:45:13 -0500
+In-Reply-To: <CAN+gG=Ga92-UPbbcjiL0p2b4gO0iQE_-U6wXiq_x3=39z+edSg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Clement Calmels <clement.calmels@free.fr>, linux-input@vger.kernel.org, "Pierre-Loup A. Griffais" <githubpublic@plagman.net>, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jikos@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-2015-12-20 8:55 GMT+01:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> On Sat, Dec 19, 2015 at 10:17:09PM +0100, Clement Calmels wrote:
->> On Wed, 16 Dec 2015 14:44:08 -0800
->> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+On 12/18/2015 05:52 AM, Benjamin Tissoires wrote:
+> On Thu, Nov 26, 2015 at 3:21 PM, Jiri Kosina <jikos@kernel.org> wrote:
+>> On Fri, 20 Nov 2015, Allen Hung wrote:
 >>
->> > When lighting up the segment identifying wireless controller, Instead
->> > of sending command directly to the controller, let's do it via LED
->> > API (usinf led_set_brightness) so that LED object state is in sync
->> > with controller state and we'll light up the correct segment on
->> > resume as well.
->> >
->> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> > ---
->> >
->> > I do not have the hardware so please try this out.
->> >
->> >  drivers/input/joystick/xpad.c | 2 +-
->> >  1 file changed, 1 insertion(+), 1 deletion(-)
->> >
->> > diff --git a/drivers/input/joystick/xpad.c
->> > b/drivers/input/joystick/xpad.c index 36328b3..00a766b 100644
->> > --- a/drivers/input/joystick/xpad.c
->> > +++ b/drivers/input/joystick/xpad.c
->> > @@ -1118,7 +1118,7 @@ static void xpad_send_led_command(struct
->> > usb_xpad *xpad, int command) */
->> >  static void xpad_identify_controller(struct usb_xpad *xpad)
->> >  {
->> > -   xpad_send_led_command(xpad, (xpad->pad_nr % 4) + 2);
->> > +   led_set_brightness(&xpad->led->led_cdev, (xpad->pad_nr % 4)
->> > + 2); }
->> >
->> >  static void xpad_led_set(struct led_classdev *led_cdev,
+>>> The usage Confidence is mandary to Windows Precision Touchpad devices. The
+>>> appearance of this usage is checked in hidinput_connect but the quirk
+>>> MT_QUIRK_VALID_IS_CONFIDENCE is not applied to device accordingly.
+>>> Apply this quirk and also remove quirk MT_QUIRK_ALWAYS_VALID to enable palm
+>>> rejection for the WIN 8 touchpad devices which have implemented usage
+>>> Confidence in its input reports.
+>>>
+>>> Tested on Dell XPS 13 laptop.
+>>>
+>>> Signed-off-by: Allen Hung <allen_hung@dell.com>
+>> Applied to for-4.5/multitouch. Thanks,
 >>
->> Hi Dimitri,
+> Allen, looks like the Dell XPS13 2015 (or was it the 2014?) has
+> problems with your patch:
+> https://bugzilla.redhat.com/show_bug.cgi?id=1292583 (we backported
+> this change in the Fedora kernel 4.2.7).
 >
-> Hi Clement,
+> Would you mind checking that this patch does not create regressions on
+> older series of laptops?
 >
->>
->> My hardware: two wireless xpad 360 using a single usb receiver.
->>
->> Power on the first gamepad => light the "1" led.
->> Power on the second gamepad => light the "2" led.
->>
->> Suspend the PC (systemctl suspend): the two gamepads are "disconnected"
->> => blinking circle.
->>
->> Resume the PC, the two gamepads keep blinking but are working (tested
->> with jstest).
->>
->> Power off and on the gamepad => still blinking.
->> Reload (rmmod/modprobe) the xpad module => still blinking.
->>
->> That said, without your patch, the behavior is exactly the same.
->> It seems that the suspend/resume broke the led feature. Even using
->> the /sys/class/leds/xpad0/brigthness sysfs entry does not work.
->>
+> Thanks in advance.
 >
-> OK, so the patch does work (the device is still correctly identified),
-> but resume requires additional patches. Could you try 'xpad' branch of
-> my tree on kernel.org [1] and let me know if it works for you?
-at least on my machine your follow up patch was also required which I merged at:
-https://github.com/paroj/xpad/tree/dtor
+> Cheers,
+> Benjamin
+Hi Benjamin,
 
-with this patch the controllers still continue blinking after resume,
-however the URB
-will still work so they respond to subsequent LED commands triggered
-via sysfs (or if they are powered off and on).
+It looks like a XPS13 2014 but I can confirm this with my colleagues who are in charge of this product line. I don't mind checking this patch with more older series of laptops. I will do it and let you know the status. Should I also test the machines with Fedora 23, or just go with Ubuntu OS? The XPS machines are shipped with Ubuntu.
+Btw, the issue reporter said she/he cannot reproduce the issue (posted on Dec. 18).
 
-I also verified that a LED command is triggered upon resume - however
-the controller ignores that.
-Maybe it is sent too early/ in the wrong order.
-
->
-> Thanks!
->
-> --
-> Dmitry
->
-> [1] git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+Regards,
+Allen Hung

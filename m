@@ -1,170 +1,230 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: i2c-hid: Prevent sending reports from racing with
- device reset
-Date: Mon, 21 Dec 2015 15:13:01 +0100
-Message-ID: <20151221141259.GA21704@mail.corp.redhat.com>
-References: <1450704391-47008-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: xpad - use LED API when identifying wireless
+ controllers
+Date: Mon, 21 Dec 2015 12:06:50 -0800
+Message-ID: <20151221200650.GB40090@dtor-ws>
+References: <20151216224408.GA14261@dtor-ws>
+ <20151219221709.5b5947ec@gromit>
+ <20151220075504.GA35575@dtor-ws>
+ <CA+b0ujeD_qV-MtPx7ktxMWw-UgxZq8d9BN6SgwA3F+RKaXz6ng@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f171.google.com ([209.85.192.171]:34724 "EHLO
+	mail-pf0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750985AbbLUUGy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Dec 2015 15:06:54 -0500
 Content-Disposition: inline
-In-Reply-To: <1450704391-47008-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Nish Aravamudan <nish.aravamudan@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Seth Forshee <seth.forshee@canonical.com>, Dan Carpenter <dan.carpenter@oracle.com>, Linus Torvalds <torvalds@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <CA+b0ujeD_qV-MtPx7ktxMWw-UgxZq8d9BN6SgwA3F+RKaXz6ng@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pavel Rojtberg <rojtberg@gmail.com>
+Cc: Clement Calmels <clement.calmels@free.fr>, linux-input@vger.kernel.org, "Pierre-Loup A. Griffais" <githubpublic@plagman.net>, linux-kernel@vger.kernel.org
 
-On Dec 21 2015 or thereabouts, Mika Westerberg wrote:
-> When an i2c-hid device is resumed from system sleep the driver resets
-> the device to be sure it is in known state. The device is expected to
-> issue an interrupt when reset is complete.
+On Sun, Dec 20, 2015 at 01:49:25PM +0100, Pavel Rojtberg wrote:
+> 2015-12-20 8:55 GMT+01:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> > On Sat, Dec 19, 2015 at 10:17:09PM +0100, Clement Calmels wrote:
+> >> On Wed, 16 Dec 2015 14:44:08 -0800
+> >> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> >>
+> >> > When lighting up the segment identifying wireless controller, Instead
+> >> > of sending command directly to the controller, let's do it via LED
+> >> > API (usinf led_set_brightness) so that LED object state is in sync
+> >> > with controller state and we'll light up the correct segment on
+> >> > resume as well.
+> >> >
+> >> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> >> > ---
+> >> >
+> >> > I do not have the hardware so please try this out.
+> >> >
+> >> >  drivers/input/joystick/xpad.c | 2 +-
+> >> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >> >
+> >> > diff --git a/drivers/input/joystick/xpad.c
+> >> > b/drivers/input/joystick/xpad.c index 36328b3..00a766b 100644
+> >> > --- a/drivers/input/joystick/xpad.c
+> >> > +++ b/drivers/input/joystick/xpad.c
+> >> > @@ -1118,7 +1118,7 @@ static void xpad_send_led_command(struct
+> >> > usb_xpad *xpad, int command) */
+> >> >  static void xpad_identify_controller(struct usb_xpad *xpad)
+> >> >  {
+> >> > -   xpad_send_led_command(xpad, (xpad->pad_nr % 4) + 2);
+> >> > +   led_set_brightness(&xpad->led->led_cdev, (xpad->pad_nr % 4)
+> >> > + 2); }
+> >> >
+> >> >  static void xpad_led_set(struct led_classdev *led_cdev,
+> >>
+> >> Hi Dimitri,
+> >
+> > Hi Clement,
+> >
+> >>
+> >> My hardware: two wireless xpad 360 using a single usb receiver.
+> >>
+> >> Power on the first gamepad => light the "1" led.
+> >> Power on the second gamepad => light the "2" led.
+> >>
+> >> Suspend the PC (systemctl suspend): the two gamepads are "disconnected"
+> >> => blinking circle.
+> >>
+> >> Resume the PC, the two gamepads keep blinking but are working (tested
+> >> with jstest).
+> >>
+> >> Power off and on the gamepad => still blinking.
+> >> Reload (rmmod/modprobe) the xpad module => still blinking.
+> >>
+> >> That said, without your patch, the behavior is exactly the same.
+> >> It seems that the suspend/resume broke the led feature. Even using
+> >> the /sys/class/leds/xpad0/brigthness sysfs entry does not work.
+> >>
+> >
+> > OK, so the patch does work (the device is still correctly identified),
+> > but resume requires additional patches. Could you try 'xpad' branch of
+> > my tree on kernel.org [1] and let me know if it works for you?
+> at least on my machine your follow up patch was also required which I merged at:
+> https://github.com/paroj/xpad/tree/dtor
 > 
-> This reset might take few milliseconds to complete so if the HID driver
-> on top (hid-rmi) starts to set up the device by sending feature reports
-> etc. the device might not issue the reset complete interrupt anymore.
+> with this patch the controllers still continue blinking after resume,
+> however the URB
+> will still work so they respond to subsequent LED commands triggered
+> via sysfs (or if they are powered off and on).
 > 
-> Below is what happens to touchpad on Lenovo Yoga 900 during resume from
-> system sleep:
-> 
->   [   24.790951] i2c_hid i2c-SYNA2B29:00: i2c_hid_hwreset
->   [   24.790973] i2c_hid i2c-SYNA2B29:00: i2c_hid_set_power
->   [   24.790982] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: cmd=22 00 00 08
->   [   24.793011] i2c_hid i2c-SYNA2B29:00: resetting...
->   [   24.793016] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: cmd=22 00 00 01
-> 
-> Here i2c-hid sends reset command to the touchpad.
-> 
->   [   24.794012] i2c_hid i2c-SYNA2B29:00: input: 06 00 01 00 00 00
->   [   24.794051] i2c_hid i2c-SYNA2B29:00: i2c_hid_set_or_send_report
->   [   24.794059] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command:
->                  cmd=22 00 3f 03 0f 23 00 04 00 0f 01
-> 
-> Now hid-rmi puts the touchpad to correct mode by sending it a feature
-> report. This makes the touchpad not to issue reset complete interrupt.
-> 
->   [   24.796092] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: waiting...
-> 
-> i2c-hid starts to wait for the reset interrupt to trigger which never
-> happens.
-> 
->   [   24.798304] i2c_hid i2c-SYNA2B29:00: i2c_hid_set_or_send_report
->   [   24.798313] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command:
->                  cmd=25 00 17 00 09 01 42 00 2e 00 19 19 00 10 cc 06 74 04 0f
->                      19 00 00 00 00 00
-> 
-> Yet another output report from hid-rmi driver.
-> 
->   [   29.795630] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: finished.
->   [   29.795637] i2c_hid i2c-SYNA2B29:00: failed to reset device.
-> 
-> After 5 seconds i2c-hid driver times out.
-> 
->   [   29.795642] i2c_hid i2c-SYNA2B29:00: i2c_hid_set_power
->   [   29.795649] i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: cmd=22 00 01 08
->   [   29.797576] dpm_run_callback(): i2c_hid_resume+0x0/0xb0 returns -61
->   [   29.797584] PM: Device i2c-SYNA2B29:00 failed to resume: error -61
-> 
-> After this the touchpad does not work anymore (and also resume itself
-> gets slowed down because of the timeout).
-> 
-> Prevent sending of feature/output reports while the device is being
-> reset by adding a mutex which is held during that time.
-> 
-> Reported-by: Nish Aravamudan <nish.aravamudan@gmail.com>
-> Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> ---
+> I also verified that a LED command is triggered upon resume - however
+> the controller ignores that.
+> Maybe it is sent too early/ in the wrong order.
 
-Looks good to me.
+I wonder if below helps this.
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+-- 
+Dmitry
 
-Thanks for the patch Mika!
 
-Cheers,
-Benjamin
+Input: xpad - try waiting for output URB to complete
 
->  drivers/hid/i2c-hid/i2c-hid.c | 21 ++++++++++++++++++---
->  1 file changed, 18 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 10bd8e6e4c9c..fc5ef1c25ed4 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -151,6 +151,7 @@ struct i2c_hid {
->  	struct i2c_hid_platform_data pdata;
->  
->  	bool			irq_wake_enabled;
-> +	struct mutex		reset_lock;
->  };
->  
->  static int __i2c_hid_command(struct i2c_client *client,
-> @@ -356,9 +357,16 @@ static int i2c_hid_hwreset(struct i2c_client *client)
->  
->  	i2c_hid_dbg(ihid, "%s\n", __func__);
->  
-> +	/*
-> +	 * This prevents sending feature reports while the device is
-> +	 * being reset. Otherwise we may lose the reset complete
-> +	 * interrupt.
-> +	 */
-> +	mutex_lock(&ihid->reset_lock);
-> +
->  	ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
->  	if (ret)
-> -		return ret;
-> +		goto out_unlock;
->  
->  	i2c_hid_dbg(ihid, "resetting...\n");
->  
-> @@ -366,10 +374,11 @@ static int i2c_hid_hwreset(struct i2c_client *client)
->  	if (ret) {
->  		dev_err(&client->dev, "failed to reset device.\n");
->  		i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
-> -		return ret;
->  	}
->  
-> -	return 0;
-> +out_unlock:
-> +	mutex_unlock(&ihid->reset_lock);
-> +	return ret;
->  }
->  
->  static void i2c_hid_get_input(struct i2c_hid *ihid)
-> @@ -587,12 +596,15 @@ static int i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
->  		size_t count, unsigned char report_type, bool use_data)
->  {
->  	struct i2c_client *client = hid->driver_data;
-> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
->  	int report_id = buf[0];
->  	int ret;
->  
->  	if (report_type == HID_INPUT_REPORT)
->  		return -EINVAL;
->  
-> +	mutex_lock(&ihid->reset_lock);
-> +
->  	if (report_id) {
->  		buf++;
->  		count--;
-> @@ -605,6 +617,8 @@ static int i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
->  	if (report_id && ret >= 0)
->  		ret++; /* add report_id to the number of transfered bytes */
->  
-> +	mutex_unlock(&ihid->reset_lock);
-> +
->  	return ret;
->  }
->  
-> @@ -990,6 +1004,7 @@ static int i2c_hid_probe(struct i2c_client *client,
->  	ihid->wHIDDescRegister = cpu_to_le16(hidRegister);
->  
->  	init_waitqueue_head(&ihid->wait);
-> +	mutex_init(&ihid->reset_lock);
->  
->  	/* we need to allocate the command buffer without knowing the maximum
->  	 * size of the reports. Let's use HID_MIN_BUFFER_SIZE, then we do the
-> -- 
-> 2.6.4
-> 
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/joystick/xpad.c |   41 +++++++++++++++++++++++++++++++++--------
+ 1 file changed, 33 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 30b2fa8..dd7a2af 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -346,9 +346,10 @@ struct usb_xpad {
+ 	dma_addr_t idata_dma;
+ 
+ 	struct urb *irq_out;		/* urb for interrupt out report */
++	struct usb_anchor irq_out_anchor;
+ 	bool irq_out_active;		/* we must not use an active URB */
+-	unsigned char *odata;		/* output data */
+ 	u8 odata_serial;		/* serial number for xbox one protocol */
++	unsigned char *odata;		/* output data */
+ 	dma_addr_t odata_dma;
+ 	spinlock_t odata_lock;
+ 
+@@ -764,11 +765,13 @@ static int xpad_try_sending_next_out_packet(struct usb_xpad *xpad)
+ 	int error;
+ 
+ 	if (!xpad->irq_out_active && xpad_prepare_next_out_packet(xpad)) {
++		usb_anchor_urb(xpad->irq_out, &xpad->irq_out_anchor);
+ 		error = usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+ 		if (error) {
+ 			dev_err(&xpad->intf->dev,
+ 				"%s - usb_submit_urb failed with result %d\n",
+ 				__func__, error);
++			usb_unanchor_urb(xpad->irq_out);
+ 			return -EIO;
+ 		}
+ 
+@@ -811,11 +814,13 @@ static void xpad_irq_out(struct urb *urb)
+ 	}
+ 
+ 	if (xpad->irq_out_active) {
++		usb_anchor_urb(urb, &xpad->irq_out_anchor);
+ 		error = usb_submit_urb(urb, GFP_ATOMIC);
+ 		if (error) {
+ 			dev_err(dev,
+ 				"%s - usb_submit_urb failed with result %d\n",
+ 				__func__, error);
++			usb_unanchor_urb(urb);
+ 			xpad->irq_out_active = false;
+ 		}
+ 	}
+@@ -832,6 +837,8 @@ static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
+ 	if (xpad->xtype == XTYPE_UNKNOWN)
+ 		return 0;
+ 
++	init_usb_anchor(&xpad->irq_out_anchor);
++
+ 	xpad->odata = usb_alloc_coherent(xpad->udev, XPAD_PKT_LEN,
+ 					 GFP_KERNEL, &xpad->odata_dma);
+ 	if (!xpad->odata) {
+@@ -864,6 +871,18 @@ static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
+  fail1:	return error;
+ }
+ 
++static void xpad_stop_output(struct usb_xpad *xpad)
++{
++	if (xpad->xtype != XTYPE_UNKNOWN) {
++		if (!usb_wait_anchor_empty_timeout(&xpad->irq_out_anchor,
++						   5000)) {
++			dev_warn(&xpad->intf->dev,
++				 "timed out waiting for output URB to complete, killing\n");
++			usb_kill_anchored_urbs(&xpad->irq_out_anchor);
++		}
++	}
++}
++
+ static void xpad_deinit_output(struct usb_xpad *xpad)
+ {
+ 	if (xpad->xtype != XTYPE_UNKNOWN) {
+@@ -924,7 +943,15 @@ static int xpad_start_xbox_one(struct usb_xpad *xpad)
+ 	packet->len = 5;
+ 	packet->pending = true;
+ 
+-	retval = usb_submit_urb(xpad->irq_out, GFP_KERNEL) ? -EIO : 0;
++	usb_anchor_urb(xpad->irq_out, &xpad->irq_out_anchor);
++	retval = usb_submit_urb(xpad->irq_out, GFP_KERNEL);
++	if (retval) {
++		dev_err(&xpad->intf->dev,
++			"%s - usb_submit_urb failed with result %d\n",
++			__func__, retval);
++		usb_unanchor_urb(xpad->irq_out);
++		retval = -EIO;
++	}
+ 
+ 	spin_unlock_irqrestore(&xpad->odata_lock, flags);
+ 
+@@ -1514,15 +1541,14 @@ static void xpad_disconnect(struct usb_interface *intf)
+ 	 * Now that both input device and LED device are gone we can
+ 	 * stop output URB.
+ 	 */
+-	if (xpad->xtype == XTYPE_XBOX360W)
+-		usb_kill_urb(xpad->irq_out);
++	xpad_stop_output(xpad);
++
++	xpad_deinit_output(xpad);
+ 
+ 	usb_free_urb(xpad->irq_in);
+ 	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
+ 			xpad->idata, xpad->idata_dma);
+ 
+-	xpad_deinit_output(xpad);
+-
+ 	kfree(xpad);
+ 
+ 	usb_set_intfdata(intf, NULL);
+@@ -1548,8 +1574,7 @@ static int xpad_suspend(struct usb_interface *intf, pm_message_t message)
+ 		mutex_unlock(&input->mutex);
+ 	}
+ 
+-	if (xpad->xtype != XTYPE_UNKNOWN)
+-		usb_kill_urb(xpad->irq_out);
++	xpad_stop_output(xpad);
+ 
+ 	return 0;
+ }

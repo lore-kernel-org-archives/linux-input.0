@@ -1,40 +1,53 @@
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Subject: Re: [PATCH] HID: sensor-hub: Add quirk for Lenovo Yoga 900 with ITE Chips
-Date: Tue, 22 Dec 2015 07:50:57 -0800
-Message-ID: <CAOhV88PeREu=ywVz4M38=_B200Ztu6moHSjA5Scqc44-v-mhbA@mail.gmail.com>
-References: <1450463680-10400-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-	<alpine.LNX.2.00.1512221427230.9922@cbobk.fhfr.pm>
+From: <shraddha.6596@gmail.com>
+Subject: [PATCH] hil_mlc: Convert timeval to ktime_t
+Date: Tue, 22 Dec 2015 21:36:57 +0530
+Message-ID: <1450800417-6113-1-git-send-email-shraddha.6596@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f180.google.com ([209.85.160.180]:34314 "EHLO
-	mail-yk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754787AbbLVPu5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Dec 2015 10:50:57 -0500
-Received: by mail-yk0-f180.google.com with SMTP id p130so167619278yka.1
-        for <linux-input@vger.kernel.org>; Tue, 22 Dec 2015 07:50:57 -0800 (PST)
-In-Reply-To: <alpine.LNX.2.00.1512221427230.9922@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: y2038@lists.linaro.org, Shraddha Barke <shraddha.6596@gmail.com>, Arnd Bergmann <arnd@arndb.de>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jonathan Cameron <jic23@kernel.org>, linux-input@vger.kernel.org
 
-On Tue, Dec 22, 2015 at 5:27 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Fri, 18 Dec 2015, Srinivas Pandruvada wrote:
->
->> This needs same quirk as applied to other YOGA sensor hubs.
->> Refer to
->> 47eeca8a48 (" HID: sensor-hub: Add in quirk for Lenovo Yogas with ITE")
->>
->> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
->> Tested-by: Nishanth Aravamudan <nish.aravamudan@gmail.com>
->
-> I got a bit lost here ... what's the status of this patch? Nishanth later
-> reported that the patch actually doesn't fix the issue for him, so?
-That's my fault. It does seem like the patch is necessary. It's
-possible there is some other issue whereby the sensors aren't always
-in the proper state. I'm still debugging that. But without Srinivas'
-patch, it never works and with it, it at least sometimes does.
-
--Nish
+RnJvbTogU2hyYWRkaGEgQmFya2UgPHNocmFkZGhhLjY1OTZAZ21haWwuY29tPgoKMzItYml0IHN5
+c3RlbXMgdXNpbmcgJ3N0cnVjdCB0aW1ldmFsJyB3aWxsIGJyZWFrIGluIHRoZSB5ZWFyIDIwMzgs
+CmluIG9yZGVyIHRvIGF2b2lkIHRoYXQgdGhlIGNvZGUgc2hvdWxkIGJlIHJlcGxhY2VkIHdpdGgg
+YXBwcm9wcmlhdGUKdHlwZXMuIFRoaXMgcGF0Y2ggcmVwbGFjZXMgdGltZXZhbCB3aXRoIDY0LWJp
+dCBrdGltZV90IHdoaWNoIGlzIHkyMDM4CnNhZmUuIEhlcmUsIHRpbWU2NF90IGlzIHVzZWQgZGly
+ZWN0bHkgc2luY2UgbWxjLT5sY3ZfdCBpcyBpbnRlcmVzdGVkCm9ubHkgaW4gc2Vjb25kcy4KClNp
+Z25lZC1vZmYtYnk6IFNocmFkZGhhIEJhcmtlIDxzaHJhZGRoYS42NTk2QGdtYWlsLmNvbT4KLS0t
+CiBkcml2ZXJzL2lucHV0L3NlcmlvL2hpbF9tbGMuYyB8IDggKysrLS0tLS0KIGluY2x1ZGUvbGlu
+dXgvaGlsX21sYy5oICAgICAgIHwgMiArLQogMiBmaWxlcyBjaGFuZ2VkLCA0IGluc2VydGlvbnMo
+KyksIDYgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9zZXJpby9oaWxf
+bWxjLmMgYi9kcml2ZXJzL2lucHV0L3NlcmlvL2hpbF9tbGMuYwppbmRleCA2NTYwNWU0Li5mYjI5
+N2FhIDEwMDY0NAotLS0gYS9kcml2ZXJzL2lucHV0L3NlcmlvL2hpbF9tbGMuYworKysgYi9kcml2
+ZXJzL2lucHV0L3NlcmlvL2hpbF9tbGMuYwpAQCAtMjc0LDE0ICsyNzQsMTIgQEAgc3RhdGljIGlu
+dCBoaWxzZV9tYXRjaChoaWxfbWxjICptbGMsIGludCB1bnVzZWQpCiAvKiBBbiBMQ1YgdXNlZCB0
+byBwcmV2ZW50IHJ1bmF3YXkgbG9vcHMsIGZvcmNlcyA1IHNlY29uZCBzbGVlcCB3aGVuIHJlc2V0
+LiAqLwogc3RhdGljIGludCBoaWxzZV9pbml0X2xjdihoaWxfbWxjICptbGMsIGludCB1bnVzZWQp
+CiB7Ci0Jc3RydWN0IHRpbWV2YWwgdHY7CisJdGltZTY0X3Qgbm93ID0ga3RpbWVfZ2V0X3NlY29u
+ZHMoKTsKIAotCWRvX2dldHRpbWVvZmRheSgmdHYpOwotCi0JaWYgKG1sYy0+bGN2ICYmICh0di50
+dl9zZWMgLSBtbGMtPmxjdl90di50dl9zZWMpIDwgNSkKKwlpZiAobWxjLT5sY3YgJiYgKG5vdyAt
+IG1sYy0+bGN2X3QpIDwgNSkKIAkJcmV0dXJuIC0xOwogCi0JbWxjLT5sY3ZfdHYgPSB0djsKKwlt
+bGMtPmxjdl90ID0gbm93OwogCW1sYy0+bGN2ID0gMDsKIAogCXJldHVybiAwOwpkaWZmIC0tZ2l0
+IGEvaW5jbHVkZS9saW51eC9oaWxfbWxjLmggYi9pbmNsdWRlL2xpbnV4L2hpbF9tbGMuaAppbmRl
+eCAzOTRhODQwLi4yOWJiNWUzIDEwMDY0NAotLS0gYS9pbmNsdWRlL2xpbnV4L2hpbF9tbGMuaAor
+KysgYi9pbmNsdWRlL2xpbnV4L2hpbF9tbGMuaApAQCAtMTQ5LDcgKzE0OSw3IEBAIHN0cnVjdCBo
+aWxfbWxjIHsKIAogCWludAkJCWRkaTsJLyogTGFzdCBvcGVyYXRpb25hbCBkZXZpY2UgaWQgKi8K
+IAlpbnQJCQlsY3Y7CS8qIExDViB0byB0aHJvdHRsZSBsb29wcyAqLwotCXN0cnVjdCB0aW1ldmFs
+CQlsY3ZfdHY7IC8qIFRpbWUgbG9vcCB3YXMgc3RhcnRlZCAqLworCXRpbWU2NF90CQlsY3ZfdDsg
+LyogVGltZSBsb29wIHdhcyBzdGFydGVkICovCiAKIAlpbnQJCQlkaV9tYXBbN107IC8qIE1hcHMg
+YmVsb3cgaXRlbXMgdG8gbGl2ZSBkZXZzICovCiAJc3RydWN0IGhpbF9tbGNfZGV2aW5mbwlkaVtI
+SUxfTUxDX0RFVk1FTV07Ci0tIAoyLjEuNAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KWTIwMzggbWFpbGluZyBsaXN0ClkyMDM4QGxpc3RzLmxpbmFyby5v
+cmcKaHR0cHM6Ly9saXN0cy5saW5hcm8ub3JnL21haWxtYW4vbGlzdGluZm8veTIwMzgK

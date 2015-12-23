@@ -1,66 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input:touchscreen:Properly check touchscreen information
- is read in ads7846_probe
-Date: Tue, 22 Dec 2015 10:53:00 -0800
-Message-ID: <CAKdAkRSjJJrnEb6-e9DHG14w6trLeRKn6AZ8_gXq9-YbawncdQ@mail.gmail.com>
-References: <1450807105-14209-1-git-send-email-xerofoify@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1450807105-14209-1-git-send-email-xerofoify@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nicholas Krause <xerofoify@gmail.com>
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Mark Brown <broonie@kernel.org>, Andrey Gelman <andrey.gelman@compulab.co.il>, afd@ti.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+From: Geliang Tang <geliangtang-9Onoh4P/yGk@public.gmane.org>
+Subject: [PATCH 4/4] HID: usbhid: use to_usb_device
+Date: Wed, 23 Dec 2015 21:26:53 +0800
+Message-ID: <639acbe1bd1388d007c88b80041807c2d8f48bf2.1450876612.git.geliangtang@163.com>
+References: <41e4a06ba4bb1f35c195c7ea66071953600ca930.1450876612.git.geliangtang@163.com>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <41e4a06ba4bb1f35c195c7ea66071953600ca930.1450876612.git.geliangtang-9Onoh4P/yGk@public.gmane.org>
+In-Reply-To: <41e4a06ba4bb1f35c195c7ea66071953600ca930.1450876612.git.geliangtang-9Onoh4P/yGk@public.gmane.org>
+References: <41e4a06ba4bb1f35c195c7ea66071953600ca930.1450876612.git.geliangtang-9Onoh4P/yGk@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Geliang Tang <geliangtang-9Onoh4P/yGk@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Dec 22, 2015 at 9:58 AM, Nicholas Krause <xerofoify@gmail.com> wrote:
-> This properly checks if touchscreen information is read before
-> allocating a sysfs_group of files for this device's device
-> structure's kobject(s) and if we fail to read the information
-> successfully then we must continue with the error path for
-> the error occurred by freeing up resources allocating by
-> ads7846_probe before returning the error code returned
-> by this function call to the caller of ads7846_probe.
->
-> Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
-> ---
->  drivers/input/touchscreen/ads7846.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-> index a61b215..d8150a9 100644
-> --- a/drivers/input/touchscreen/ads7846.c
-> +++ b/drivers/input/touchscreen/ads7846.c
-> @@ -1412,9 +1412,12 @@ static int ads7846_probe(struct spi_device *spi)
->          * the touchscreen, in case it's not connected.
->          */
->         if (ts->model == 7845)
-> -               ads7845_read12_ser(&spi->dev, PWRDOWN);
-> +               err = ads7845_read12_ser(&spi->dev, PWRDOWN);
->         else
-> -               (void) ads7846_read12_ser(&spi->dev, READ_12BIT_SER(vaux));
-> +               err = ads7846_read12_ser(&spi->dev, READ_12BIT_SER(vaux));
-> +
-> +       if (err)
-> +               goto err_remove_hwmon;
+Use to_usb_device() instead of open-coding it.
 
-Positive return value from ads784*_read12_ser() does not indicate
-error. Also note that when someone takes care annotating an
-expressions as "(void)" they explicitly indicate that return value
-should be ignored. For details about why it has been done here you'd
-have to ask Anatolij Gustschin.
+Signed-off-by: Geliang Tang <geliangtang-9Onoh4P/yGk@public.gmane.org>
+---
+ drivers/hid/usbhid/usbhid.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->
->         err = sysfs_create_group(&spi->dev.kobj, &ads784x_attr_group);
->         if (err)
-> --
-> 2.5.0
->
-
-Nick, it has been proven time and again that your submissions are not
-useful, please refrain from sending me patches.
-
-Thanks.
-
+diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
+index 807922b..fa47d66 100644
+--- a/drivers/hid/usbhid/usbhid.h
++++ b/drivers/hid/usbhid/usbhid.h
+@@ -96,7 +96,7 @@ struct usbhid_device {
+ };
+ 
+ #define	hid_to_usb_dev(hid_dev) \
+-	container_of(hid_dev->dev.parent->parent, struct usb_device, dev)
++	to_usb_device(hid_dev->dev.parent->parent)
+ 
+ #endif
+ 
 -- 
-Dmitry
+2.5.0
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

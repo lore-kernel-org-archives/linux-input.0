@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH RFC v2 5/9] Input: atmel_mxt_ts - add diagnostic data support for mXT1386
-Date: Thu, 24 Dec 2015 13:49:24 +0000
-Message-ID: <1450964968-9792-6-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH RFC v2 7/9] Input: atmel_mxt_ts - add metadata to debugfs
+Date: Thu, 24 Dec 2015 13:49:26 +0000
+Message-ID: <1450964968-9792-8-git-send-email-nick.dyer@itdev.co.uk>
 References: <1450964968-9792-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1450964968-9792-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,81 +10,169 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-The mXT1386 family of chips have a different architecture which splits
-the diagnostic data into 3 columns.
+Add information to debugfs to allow a generic utility to retrieve
+screen parameters and info.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 30 +++++++++++++++++++++++++++---
- 1 file changed, 27 insertions(+), 3 deletions(-)
+ Documentation/ABI/testing/debugfs-heatmap | 60 +++++++++++++++++++++++++++++++
+ drivers/input/touchscreen/atmel_mxt_ts.c  | 48 +++++++++++++++++++++++--
+ 2 files changed, 105 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/ABI/testing/debugfs-heatmap
 
+diff --git a/Documentation/ABI/testing/debugfs-heatmap b/Documentation/ABI/testing/debugfs-heatmap
+new file mode 100644
+index 0000000..9246340
+--- /dev/null
++++ b/Documentation/ABI/testing/debugfs-heatmap
+@@ -0,0 +1,60 @@
++What:		/sys/kernel/debug/heatmap-dev_driver_string-dev_name/
++Date:
++KernelVersion:
++Contact:
++Description:
++	A directory will be created under heatmap for each device which
++	provides heatmap data.
++
++What:		/sys/kernel/debug/heatmap-dev_driver_string-dev_name/datatype/
++Date:
++KernelVersion:
++Contact:
++Description:
++	The device can have multiple heatmap data types. A directory is created
++	for each one.
++
++What:		/sys/kernel/debug/heatmap-xxx/datatype/format
++Date:
++KernelVersion:
++Contact:
++Description:
++	Specifies the type of each data value, one of:
++		uint8
++		uint16
++		uint32
++		int8
++		int16
++		int32
++
++What:		/sys/kernel/debug/heatmap-xxx/datatype/width
++Date:
++KernelVersion:
++Contact:
++Description:
++	The width of the data.
++
++What:		/sys/kernel/debug/heatmap-xxx/datatype/height
++Date:
++KernelVersion:
++Contact:
++Description:
++	The height of the data.
++
++What:		/sys/kernel/debug/heatmap-xxx/datatype/name
++Date:
++KernelVersion:
++Contact:
++Description:
++	Display name for the data.
++
++What:		/sys/kernel/debug/heatmap-xxx/datatype/data
++Date:
++KernelVersion:
++Contact:
++Description:
++	Binary attribute for the data.
++
++	The orientation of the data should correspond to the co-ordinates
++	reported to the input layer. Starting at the top left hand corner, rows
++	then columns.  The endianness of data values will be as per host cpu.
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 48bf9ec..a2f11836 100644
+index bccd7bc..3f12915 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -134,6 +134,10 @@ struct t9_range {
- #define MXT_DIAGNOSTIC_DELTAS 0x10
- #define MXT_DIAGNOSTIC_SIZE    128
- 
-+#define MXT_FAMILY_1386			160
-+#define MXT1386_COLUMNS			3
-+#define MXT1386_PAGES_PER_COLUMN	8
-+
- struct t37_debug {
+@@ -236,21 +236,31 @@ struct mxt_object {
+ struct mxt_debug_datatype {
  	u8 mode;
- 	u8 page;
-@@ -2114,13 +2118,27 @@ recheck:
- static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
- 			       unsigned int y)
- {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	unsigned int ofs, page;
-+	unsigned int col = 0;
-+	unsigned int col_width;
-+
-+	if (info->family_id == MXT_FAMILY_1386) {
-+		col_width = info->matrix_ysize / MXT1386_COLUMNS;
-+		col = y / col_width;
-+		y = y % col_width;
-+	} else {
-+		col_width = info->matrix_ysize;
-+	}
+ 	char *name;
++	char *desc;
++	char *format;
+ };
  
--	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
-+	ofs = (y + (x * col_width)) * sizeof(u16);
- 	page = ofs / MXT_DIAGNOSTIC_SIZE;
- 	ofs %= MXT_DIAGNOSTIC_SIZE;
+ struct mxt_debug_entry {
+ 	struct mxt_data *data;
+ 	const struct mxt_debug_datatype *datatype;
++	u16 width;
++	u16 height;
++	struct debugfs_blob_wrapper format_wrapper;
++	struct debugfs_blob_wrapper desc_wrapper;
+ };
  
-+	if (info->family_id == MXT_FAMILY_1386)
-+		page += col * MXT1386_PAGES_PER_COLUMN;
-+
- 	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
- }
+ static const struct mxt_debug_datatype mxt_dbg_datatypes[] = {
+ 	{
+ 		.mode = MXT_DIAGNOSTIC_REFS,
+ 		.name = "refs",
++		.desc = "Mutual Capacitance References",
++		.format = "uint16",
+ 	},
+ 	{
+ 		.mode = MXT_DIAGNOSTIC_DELTAS,
+ 		.name = "deltas",
++		.desc = "Mutual Capacitance Deltas",
++		.format = "int16",
+ 	},
+ };
  
-@@ -2229,6 +2247,7 @@ static void mxt_debugfs_remove(struct mxt_data *data)
- 
- static void mxt_debugfs_init(struct mxt_data *data)
- {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	struct mxt_object *object;
+@@ -2286,6 +2296,7 @@ static void mxt_debugfs_init(struct mxt_data *data)
  	char dirname[50];
-@@ -2263,8 +2282,13 @@ static void mxt_debugfs_init(struct mxt_data *data)
+ 	struct dentry *dent;
+ 	struct mxt_debug_entry *e;
++	struct dentry *dir;
+ 	int i;
  
- 	/* Calculate size of data and allocate buffer */
- 	dbg->t37_nodes = data->xsize * data->ysize;
--	dbg->t37_pages = ((data->xsize * data->info.matrix_ysize)
--			  * sizeof(u16) / sizeof(dbg->t37_buf->data)) + 1;
+ 	object = mxt_get_object(data, MXT_GEN_COMMAND_T6);
+@@ -2337,9 +2348,40 @@ static void mxt_debugfs_init(struct mxt_data *data)
+ 		e->data = data;
+ 		e->datatype = mxt_dbg_datatypes + i;
+ 
+-		dent = debugfs_create_file(mxt_dbg_datatypes[i].name, S_IRUGO,
+-					   dbg->debugfs_dir, e,
+-					   &mxt_debugfs_data_ops);
++		dir = debugfs_create_dir(mxt_dbg_datatypes[i].name,
++					 dbg->debugfs_dir);
++		if (!dir)
++			goto error;
 +
-+	if (info->family_id == MXT_FAMILY_1386)
-+		dbg->t37_pages = MXT1386_COLUMNS * MXT1386_PAGES_PER_COLUMN;
-+	else
-+		dbg->t37_pages = ((data->xsize * info->matrix_ysize)
-+				   * sizeof(u16) / sizeof(dbg->t37_buf->data))
-+				   + 1;
- 
- 
- 	dbg->t37_buf = devm_kzalloc(&data->client->dev,
++		e->width = data->xyswitch ? data->ysize : data->xsize;
++		e->height = data->xyswitch ? data->xsize : data->ysize;
++
++		e->format_wrapper.data = (void *)e->datatype->format;
++		e->format_wrapper.size = strlen(e->datatype->format);
++		dent = debugfs_create_blob("format", S_IRUGO,
++					   dir, &e->format_wrapper);
++		if (!dent)
++			goto error;
++
++		e->desc_wrapper.data = (void *)e->datatype->desc;
++		e->desc_wrapper.size = strlen(e->datatype->desc);
++		dent = debugfs_create_blob("name", S_IRUGO,
++					   dir, &e->desc_wrapper);
++		if (!dent)
++			goto error;
++
++		dent = debugfs_create_u16("width", S_IRUGO,
++					  dir, &e->width);
++		if (!dent)
++			goto error;
++
++		dent = debugfs_create_u16("height", S_IRUGO,
++					  dir, &e->height);
++		if (!dent)
++			goto error;
++
++		dent = debugfs_create_file("data", S_IRUGO,
++					   dir, e, &mxt_debugfs_data_ops);
+ 		if (!dent)
+ 			goto error;
+ 	}
 -- 
 2.5.0

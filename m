@@ -1,116 +1,159 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH RFC v2 4/9] Input: atmel_mxt_ts - handle diagnostic data orientation
-Date: Thu, 24 Dec 2015 13:49:23 +0000
-Message-ID: <1450964968-9792-5-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH RFC v2 9/9] Input: atmel_mxt_ts - single node diagnostic data support
+Date: Thu, 24 Dec 2015 13:49:28 +0000
+Message-ID: <1450964968-9792-10-git-send-email-nick.dyer@itdev.co.uk>
 References: <1450964968-9792-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:5973 "EHLO
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:4607 "EHLO
 	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752365AbbLXNth (ORCPT
+	with ESMTP id S1752812AbbLXNtk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Dec 2015 08:49:37 -0500
+	Thu, 24 Dec 2015 08:49:40 -0500
 In-Reply-To: <1450964968-9792-1-git-send-email-nick.dyer@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Nick Dyer <nick.dyer@itdev.co.uk>
 
-Invert the diagnostic data to match the orientation of the input device.
-
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Add support for retrieving a single node of data at high rate.
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 30 +++++++++++++++++++++++-------
- 1 file changed, 23 insertions(+), 7 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 60 +++++++++++++++++++++++++++++---
+ 1 file changed, 55 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index a177019..48bf9ec 100644
+index 05bacc6..fd3aaae 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -122,6 +122,8 @@ struct t9_range {
+@@ -238,6 +238,7 @@ struct mxt_debug_datatype {
+ 	char *name;
+ 	char *desc;
+ 	char *format;
++	bool single_node;
+ };
  
- /* MXT_TOUCH_MULTI_T9 orient */
- #define MXT_T9_ORIENT_SWITCH	(1 << 0)
-+#define MXT_T9_ORIENT_INVERTX	(1 << 1)
-+#define MXT_T9_ORIENT_INVERTY	(1 << 2)
+ struct mxt_debug_entry {
+@@ -262,6 +263,20 @@ static const struct mxt_debug_datatype mxt_dbg_datatypes[] = {
+ 		.desc = "Mutual Capacitance Deltas",
+ 		.format = "int16",
+ 	},
++	{
++		.mode = MXT_DIAGNOSTIC_REFS,
++		.name = "single_node_refs",
++		.desc = "Single Node References",
++		.format = "uint16",
++		.single_node = true,
++	},
++	{
++		.mode = MXT_DIAGNOSTIC_DELTAS,
++		.name = "single_node_deltas",
++		.format = "int16",
++		.desc = "Single Node Deltas",
++		.single_node = true,
++	},
+ };
  
- /* MXT_SPT_COMMSCONFIG_T18 */
- #define MXT_COMMS_CTRL		0
-@@ -153,6 +155,8 @@ struct t37_debug {
- #define MXT_T100_YRANGE		24
+ struct mxt_dbg {
+@@ -270,6 +285,7 @@ struct mxt_dbg {
+ 	struct t37_debug *t37_buf;
+ 	unsigned int t37_pages;
+ 	unsigned int t37_nodes;
++	unsigned int single_node_ofs;
  
- #define MXT_T100_CFG_SWITCHXY	BIT(5)
-+#define MXT_T100_CFG_INVERTY	BIT(6)
-+#define MXT_T100_CFG_INVERTX	BIT(7)
- 
- #define MXT_T100_TCHAUX_VECT	BIT(0)
- #define MXT_T100_TCHAUX_AMPL	BIT(1)
-@@ -244,7 +248,9 @@ struct mxt_data {
- 	unsigned int irq;
- 	unsigned int max_x;
- 	unsigned int max_y;
--	bool xy_switch;
-+	bool invertx;
-+	bool inverty;
-+	bool xyswitch;
- 	u8 xsize;
- 	u8 ysize;
- 	bool in_bootloader;
-@@ -1720,7 +1726,9 @@ static int mxt_read_t9_resolution(struct mxt_data *data)
- 	if (error)
- 		return error;
- 
--	data->xy_switch = orient & MXT_T9_ORIENT_SWITCH;
-+	data->xyswitch = orient & MXT_T9_ORIENT_SWITCH;
-+	data->invertx = orient & MXT_T9_ORIENT_INVERTX;
-+	data->inverty = orient & MXT_T9_ORIENT_INVERTY;
- 
- 	return 0;
- }
-@@ -1774,7 +1782,9 @@ static int mxt_read_t100_config(struct mxt_data *data)
- 	if (error)
- 		return error;
- 
--	data->xy_switch = cfg & MXT_T100_CFG_SWITCHXY;
-+	data->xyswitch = cfg & MXT_T100_CFG_SWITCHXY;
-+	data->invertx = cfg & MXT_T100_CFG_INVERTX;
-+	data->inverty = cfg & MXT_T100_CFG_INVERTY;
- 
- 	/* allocate aux bytes */
- 	error =  __mxt_read_reg(client,
-@@ -1863,7 +1873,7 @@ static int mxt_initialize_input_device(struct mxt_data *data)
- 	if (data->max_y == 0)
- 		data->max_y = 1023;
- 
--	if (data->xy_switch)
-+	if (data->xyswitch)
- 		swap(data->max_x, data->max_y);
- 
- 	dev_info(dev, "Touchscreen size X%uY%u\n", data->max_x, data->max_y);
-@@ -2119,15 +2129,21 @@ static void mxt_convert_debug_pages(struct seq_file *s, struct mxt_data *data)
+ 	struct dentry *debugfs_dir;
+ 	struct mxt_debug_entry entries[ARRAY_SIZE(mxt_dbg_datatypes)];
+@@ -2216,14 +2232,16 @@ static int mxt_read_diagnostic_debug(struct seq_file *s, void *d)
  	struct mxt_dbg *dbg = &data->dbg;
- 	unsigned int x = 0;
- 	unsigned int y = 0;
--	unsigned int i;
-+	unsigned int i, rx, ry;
- 	u16 val;
+ 	int retries = 0;
+ 	int page;
++	int pages = e->datatype->single_node ? 1 : dbg->t37_pages;
+ 	int ret;
+ 	u8 mode = e->datatype->mode;
+ 	u8 cmd = mode;
+ 	struct t37_debug *p;
++	u16 val;
  
- 	for (i = 0; i < dbg->t37_nodes; i++) {
--		val = mxt_get_debug_value(data, x, y);
-+		/* Handle orientation */
-+		rx = data->xyswitch ? y : x;
-+		ry = data->xyswitch ? x : y;
-+		rx = data->invertx ? (data->xsize - 1 - rx) : rx;
-+		ry = data->inverty ? (data->ysize - 1 - ry) : ry;
+ 	mutex_lock(&dbg->dbg_mutex);
+ 
+-	for (page = 0; page < dbg->t37_pages; page++) {
++	for (page = 0; page < pages; page++) {
+ 		p = dbg->t37_buf + page;
+ 
+ 		ret = mxt_write_reg(data->client, dbg->diag_cmd_address,
+@@ -2263,7 +2281,14 @@ wait_cmd:
+ 		cmd = MXT_DIAGNOSTIC_PAGEUP;
+ 	}
+ 
+-	ret = mxt_convert_debug_pages(s, data);
++	if (e->datatype->single_node) {
++		val = get_unaligned_le16(&dbg->t37_buf[0]
++					 .data[dbg->single_node_ofs]);
++		seq_write(s, &val, sizeof(u16));
++		ret = 0;
++	} else {
++		ret = mxt_convert_debug_pages(s, data);
++	}
+ 
+ release:
+ 	mutex_unlock(&dbg->dbg_mutex);
+@@ -2273,7 +2298,12 @@ release:
+ static int mxt_debugfs_data_open(struct inode *inode, struct file *f)
+ {
+ 	struct mxt_debug_entry *e = inode->i_private;
+-	size_t size = e->data->dbg.t37_nodes * sizeof(u16);
++	size_t size;
 +
-+		val = mxt_get_debug_value(data, rx, ry);
- 		seq_write(s, &val, sizeof(u16));
++	if (e->datatype->single_node)
++		size = sizeof(u16);
++	else
++		size = e->data->dbg.t37_nodes * sizeof(u16);
  
- 		/* Next value */
--		if (++x >= data->xsize) {
-+		if (++x >= (data->xyswitch ? data->ysize : data->xsize)) {
- 			x = 0;
- 			y++;
- 		}
+ 	return single_open_size(f, mxt_read_diagnostic_debug, e, size);
+ }
+@@ -2291,6 +2321,19 @@ static void mxt_debugfs_remove(struct mxt_data *data)
+ 	debugfs_remove_recursive(data->dbg.debugfs_dir);
+ }
+ 
++static void mxt_debugfs_calc_single_node_ofs(struct mxt_data *data)
++{
++	struct mxt_info *info = &data->info;
++	int ofs = data->ysize / 2;
++
++	while ((ofs + info->matrix_ysize) <= (MXT_DIAGNOSTIC_SIZE/sizeof(u16)))
++		ofs += info->matrix_ysize;
++
++	dev_dbg(&data->client->dev, "Single node ofs: %d\n", ofs);
++
++	data->dbg.single_node_ofs = ofs;
++}
++
+ static void mxt_debugfs_init(struct mxt_data *data)
+ {
+ 	struct mxt_info *info = &data->info;
+@@ -2358,6 +2401,8 @@ static void mxt_debugfs_init(struct mxt_data *data)
+ 	if (!dbg->t37_buf)
+ 		goto error;
+ 
++	mxt_debugfs_calc_single_node_ofs(data);
++
+ 	for (i = 0; i < ARRAY_SIZE(mxt_dbg_datatypes); i++) {
+ 		e = &dbg->entries[i];
+ 		e->data = data;
+@@ -2368,8 +2413,13 @@ static void mxt_debugfs_init(struct mxt_data *data)
+ 		if (!dir)
+ 			goto error;
+ 
+-		e->width = data->xyswitch ? data->ysize : data->xsize;
+-		e->height = data->xyswitch ? data->xsize : data->ysize;
++		if (e->datatype->single_node) {
++			e->width = 1;
++			e->height = 1;
++		} else {
++			e->width = data->xyswitch ? data->ysize : data->xsize;
++			e->height = data->xyswitch ? data->xsize : data->ysize;
++		}
+ 
+ 		e->format_wrapper.data = (void *)e->datatype->format;
+ 		e->format_wrapper.size = strlen(e->datatype->format);
 -- 
 2.5.0
 

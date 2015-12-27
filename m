@@ -1,68 +1,59 @@
 From: Geliang Tang <geliangtang@163.com>
-Subject: [PATCH 1/5] HID: move to_hid_device() to hid.h
-Date: Sun, 27 Dec 2015 17:25:20 +0800
-Message-ID: <3490fef13d9af010ff2da07012eed189c46ee3fa.1451206516.git.geliangtang@163.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m50-132.163.com ([123.125.50.132]:41969 "EHLO m50-132.163.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750843AbbL0J0j (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 27 Dec 2015 04:26:39 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 4/5] HID: wiimote: use dev_to_wii()
+Date: Sun, 27 Dec 2015 17:25:23 +0800
+Message-ID: <aa8060c2f9e42359a9b1fc402f8d48ce9045e840.1451206516.git.geliangtang@163.com>
+References: <3490fef13d9af010ff2da07012eed189c46ee3fa.1451206516.git.geliangtang@163.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3490fef13d9af010ff2da07012eed189c46ee3fa.1451206516.git.geliangtang@163.com>
+In-Reply-To: <1f3f9887783a36170a5972e6819c7841db95d888.1451206516.git.geliangtang@163.com>
+References: <3490fef13d9af010ff2da07012eed189c46ee3fa.1451206516.git.geliangtang@163.com> <3c9a720e58ea32c5df098cbe744c6b5821a756a6.1451206516.git.geliangtang@163.com> <1f3f9887783a36170a5972e6819c7841db95d888.1451206516.git.geliangtang@163.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Geliang Tang <geliangtang@163.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-to_hid_device() macro is defined in both hid-lg4ff.c and 
-hid-logitech-hidpp.c. So I move it to include/linux/hid.h.
+Use dev_to_wii() instead of open-coding it.
 
 Signed-off-by: Geliang Tang <geliangtang@163.com>
 ---
- drivers/hid/hid-lg4ff.c          | 2 --
- drivers/hid/hid-logitech-hidpp.c | 2 --
- include/linux/hid.h              | 3 +++
- 3 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/hid/hid-wiimote-modules.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-index fbddcb3..3e160ff 100644
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -33,8 +33,6 @@
- #include "hid-lg4ff.h"
- #include "hid-ids.h"
+diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
+index 05e23c4..4390eee 100644
+--- a/drivers/hid/hid-wiimote-modules.c
++++ b/drivers/hid/hid-wiimote-modules.c
+@@ -296,14 +296,12 @@ static const struct wiimod_ops wiimod_battery = {
  
--#define to_hid_device(pdev) container_of(pdev, struct hid_device, dev)
--
- #define LG4FF_MMODE_IS_MULTIMODE 0
- #define LG4FF_MMODE_SWITCHED 1
- #define LG4FF_MMODE_NOT_MULTIMODE 2
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index f2a4811..bd2ab476 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1310,8 +1310,6 @@ struct g920_private_data {
- 	u16 range;
- };
- 
--#define to_hid_device(pdev) container_of(pdev, struct hid_device, dev)
--
- static ssize_t g920_range_show(struct device *dev, struct device_attribute *attr,
- 				char *buf)
+ static enum led_brightness wiimod_led_get(struct led_classdev *led_dev)
  {
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index a6d7a3f..1472026 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -565,6 +565,9 @@ struct hid_device {							/* device report descriptor */
- 	wait_queue_head_t debug_wait;
- };
+-	struct wiimote_data *wdata;
+ 	struct device *dev = led_dev->dev->parent;
++	struct wiimote_data *wdata = dev_to_wii(dev);
+ 	int i;
+ 	unsigned long flags;
+ 	bool value = false;
  
-+#define to_hid_device(pdev) \
-+	container_of(pdev, struct hid_device, dev)
-+
- static inline void *hid_get_drvdata(struct hid_device *hdev)
+-	wdata = hid_get_drvdata(container_of(dev, struct hid_device, dev));
+-
+ 	for (i = 0; i < 4; ++i) {
+ 		if (wdata->leds[i] == led_dev) {
+ 			spin_lock_irqsave(&wdata->state.lock, flags);
+@@ -319,14 +317,12 @@ static enum led_brightness wiimod_led_get(struct led_classdev *led_dev)
+ static void wiimod_led_set(struct led_classdev *led_dev,
+ 			   enum led_brightness value)
  {
- 	return dev_get_drvdata(&hdev->dev);
+-	struct wiimote_data *wdata;
+ 	struct device *dev = led_dev->dev->parent;
++	struct wiimote_data *wdata = dev_to_wii(dev);
+ 	int i;
+ 	unsigned long flags;
+ 	__u8 state, flag;
+ 
+-	wdata = hid_get_drvdata(container_of(dev, struct hid_device, dev));
+-
+ 	for (i = 0; i < 4; ++i) {
+ 		if (wdata->leds[i] == led_dev) {
+ 			flag = WIIPROTO_FLAG_LED(i + 1);
 -- 
 2.5.0
-
-

@@ -1,76 +1,41 @@
-From: Geliang Tang <geliangtang@163.com>
-Subject: [PATCH 3/5] HID: add a new helper to_hid_driver()
-Date: Sun, 27 Dec 2015 17:25:22 +0800
-Message-ID: <1f3f9887783a36170a5972e6819c7841db95d888.1451206516.git.geliangtang@163.com>
-References: <3490fef13d9af010ff2da07012eed189c46ee3fa.1451206516.git.geliangtang@163.com>
+From: Oreste Salerno <oreste.salerno@tomtom.com>
+Subject: [PATCH 1/3] Input: cyttsp - remove unused irq_gpio from platform_data
+Date: Sun, 27 Dec 2015 17:21:08 +0100
+Message-ID: <5718d3609e7bf3670b5160df1abd9aa117dea6e6.1451231697.git.oreste.salerno@tomtom.com>
+References: <cover.1451231697.git.oreste.salerno@tomtom.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m50-134.163.com ([123.125.50.134]:33320 "EHLO m50-134.163.com"
+Received: from mail3.tomtom.com ([85.90.76.132]:20882 "EHLO mail3.tomtom.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750957AbbL0J0n (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 27 Dec 2015 04:26:43 -0500
-In-Reply-To: <3490fef13d9af010ff2da07012eed189c46ee3fa.1451206516.git.geliangtang@163.com>
-In-Reply-To: <3c9a720e58ea32c5df098cbe744c6b5821a756a6.1451206516.git.geliangtang@163.com>
-References: <3490fef13d9af010ff2da07012eed189c46ee3fa.1451206516.git.geliangtang@163.com> <3c9a720e58ea32c5df098cbe744c6b5821a756a6.1451206516.git.geliangtang@163.com>
+	id S1751948AbbL0Q02 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 27 Dec 2015 11:26:28 -0500
+In-Reply-To: <cover.1451231697.git.oreste.salerno@tomtom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Geliang Tang <geliangtang@163.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, fery@cypress.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, oreste.salerno@tomtom.com
 
-Add a new helper to_hid_driver() and use it in hid-core.c.
+This field is not being used and the irq is anyway passed
+via the 'irq' parameter to cyttsp_probe.
 
-Signed-off-by: Geliang Tang <geliangtang@163.com>
+Signed-off-by: Oreste Salerno <oreste.salerno@tomtom.com>
 ---
- drivers/hid/hid-core.c | 7 +++----
- include/linux/hid.h    | 3 +++
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ include/linux/input/cyttsp.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 3abff97..ecf614b 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2071,7 +2071,7 @@ struct hid_dynid {
- static ssize_t store_new_id(struct device_driver *drv, const char *buf,
- 		size_t count)
- {
--	struct hid_driver *hdrv = container_of(drv, struct hid_driver, driver);
-+	struct hid_driver *hdrv = to_hid_driver(drv);
- 	struct hid_dynid *dynid;
- 	__u32 bus, vendor, product;
- 	unsigned long driver_data = 0;
-@@ -2133,7 +2133,7 @@ static const struct hid_device_id *hid_match_device(struct hid_device *hdev,
- 
- static int hid_bus_match(struct device *dev, struct device_driver *drv)
- {
--	struct hid_driver *hdrv = container_of(drv, struct hid_driver, driver);
-+	struct hid_driver *hdrv = to_hid_driver(drv);
- 	struct hid_device *hdev = to_hid_device(dev);
- 
- 	return hid_match_device(hdev, hdrv) != NULL;
-@@ -2141,8 +2141,7 @@ static int hid_bus_match(struct device *dev, struct device_driver *drv)
- 
- static int hid_device_probe(struct device *dev)
- {
--	struct hid_driver *hdrv = container_of(dev->driver,
--			struct hid_driver, driver);
-+	struct hid_driver *hdrv = to_hid_driver(dev->driver);
- 	struct hid_device *hdev = to_hid_device(dev);
- 	const struct hid_device_id *id;
- 	int ret = 0;
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 1472026..75b66ec 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -717,6 +717,9 @@ struct hid_driver {
- 	struct device_driver driver;
+diff --git a/include/linux/input/cyttsp.h b/include/linux/input/cyttsp.h
+index 5af7c66..d7c2520 100644
+--- a/include/linux/input/cyttsp.h
++++ b/include/linux/input/cyttsp.h
+@@ -51,7 +51,6 @@ struct cyttsp_platform_data {
+ 	int (*init)(void);
+ 	void (*exit)(void);
+ 	char *name;
+-	s16 irq_gpio;
+ 	u8 *bl_keys;
  };
  
-+#define to_hid_driver(pdrv) \
-+	container_of(pdrv, struct hid_driver, driver)
-+
- /**
-  * hid_ll_driver - low level driver callbacks
-  * @start: called on probe to start the device
 -- 
-2.5.0
-
+1.9.1
 

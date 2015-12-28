@@ -1,54 +1,42 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: corsair: Convert to use module_hid_driver
-Date: Mon, 28 Dec 2015 13:12:03 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1512281311510.9922@cbobk.fhfr.pm>
-References: <1450256199.17220.1.camel@ingics.com>
+Subject: Re: [PATCH 4/4] HID: usbhid: use to_usb_device
+Date: Mon, 28 Dec 2015 13:14:05 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1512281313420.9922@cbobk.fhfr.pm>
+References: <41e4a06ba4bb1f35c195c7ea66071953600ca930.1450876612.git.geliangtang@163.com> <639acbe1bd1388d007c88b80041807c2d8f48bf2.1450876612.git.geliangtang@163.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:34655 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:34726 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751479AbbL1MMF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Dec 2015 07:12:05 -0500
-In-Reply-To: <1450256199.17220.1.camel@ingics.com>
+	id S1751915AbbL1MOH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Dec 2015 07:14:07 -0500
+In-Reply-To: <639acbe1bd1388d007c88b80041807c2d8f48bf2.1450876612.git.geliangtang@163.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@ingics.com>
-Cc: =?ISO-8859-15?Q?Cl=E9ment_Vuchener?= <clement.vuchener@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+To: Geliang Tang <geliangtang@163.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 16 Dec 2015, Axel Lin wrote:
+On Wed, 23 Dec 2015, Geliang Tang wrote:
 
-> Signed-off-by: Axel Lin <axel.lin@ingics.com>
-> ---
->  drivers/hid/hid-corsair.c | 13 +------------
->  1 file changed, 1 insertion(+), 12 deletions(-)
+> Use to_usb_device() instead of open-coding it.
 > 
-> diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
-> index bcefb9e..5855196 100644
-> --- a/drivers/hid/hid-corsair.c
-> +++ b/drivers/hid/hid-corsair.c
-> @@ -655,18 +655,7 @@ static struct hid_driver corsair_driver = {
->  	.input_mapping = corsair_input_mapping,
+> Signed-off-by: Geliang Tang <geliangtang@163.com>
+> ---
+>  drivers/hid/usbhid/usbhid.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
+> index 807922b..fa47d66 100644
+> --- a/drivers/hid/usbhid/usbhid.h
+> +++ b/drivers/hid/usbhid/usbhid.h
+> @@ -96,7 +96,7 @@ struct usbhid_device {
 >  };
 >  
-> -static int __init corsair_init(void)
-> -{
-> -	return hid_register_driver(&corsair_driver);
-> -}
-> -
-> -static void corsair_exit(void)
-> -{
-> -	hid_unregister_driver(&corsair_driver);
-> -}
-> -
-> -module_init(corsair_init);
-> -module_exit(corsair_exit);
-> +module_hid_driver(corsair_driver);
->  
->  MODULE_LICENSE("GPL");
->  MODULE_AUTHOR("Clement Vuchener");
+>  #define	hid_to_usb_dev(hid_dev) \
+> -	container_of(hid_dev->dev.parent->parent, struct usb_device, dev)
+> +	to_usb_device(hid_dev->dev.parent->parent)
 
-Applied to for-4.5/upstream.
+Applied to hid.git#for-4.5/upstream.
 
 -- 
 Jiri Kosina

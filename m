@@ -1,57 +1,40 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH v2] HID: sensor-hub: Add quirk for Lenovo Yoga 900 with ITE Chips
-Date: Mon, 28 Dec 2015 07:01:31 -0800
-Message-ID: <1451314891-7302-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: "Jeff Skoll" <verna.viajar@icdd.uni-kassel.de>
+Subject: Charity Donation
+Date: Mon, 28 Dec 2015 13:14:49 -0500
+Message-ID: <auto-000004993533@mailadmin.uni-kassel.de>
+Reply-To: jeff.skoll@skollcharity.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:10816 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751288AbbL1PGj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Dec 2015 10:06:39 -0500
+Received: from mx3.its.uni-kassel.de ([141.51.12.64]:56868 "EHLO
+	mx3.its.uni-kassel.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751199AbbL1S1u convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Dec 2015 13:27:50 -0500
+Content-Description: Mail message body
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org, jic23@kernel.org
-Cc: nish.aravamudan@gmail.com, linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Me <verna.viajar@icdd.uni-kassel.de>
 
-This needs same quirk as applied to other YOGA sensor hubs.
-Refer to
-commit 21589ebda681 ("HID: sensor-hub: Add in quirk for Lenovo Yogas
-with ITE")
+Hi,
+My name is Jeffrey Skoll, a philanthropist and the founder of one of th=
+e largest private foundations in the world. I believe strongly in =E2=80=
+=98giving while living.=E2=80=99 I had one idea that never changed in m=
+y mind =E2=80=94 that you should use your wealth to help people and I h=
+ave decided to secretly give USD2.498 Million to a randomly selected in=
+dividual. On receipt of this email, you should count yourself as the in=
+dividual. Kindly get back to me at your earliest convenience, so I know=
+ your email address is valid.
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
-Changes in v2:
-  - Fix the commit id referred in the description
+Visit the web page to know more about me: http://www.theglobeandmail.co=
+m/news/national/meet-the-canadian-billionaire-whos-giving-it-all-away/a=
+rticle4209888/ or you can read an article of me on Wikipedia.
 
- drivers/hid/hid-ids.h        | 1 +
- drivers/hid/hid-sensor-hub.c | 3 +++
- 2 files changed, 4 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 8b78a7f..0873958 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -510,6 +510,7 @@
- #define USB_VENDOR_ID_ITE               0x048d
- #define USB_DEVICE_ID_ITE_LENOVO_YOGA   0x8386
- #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
-+#define USB_DEVICE_ID_ITE_LENOVO_YOGA900	0x8396
- 
- #define USB_VENDOR_ID_JABRA		0x0b0e
- #define USB_DEVICE_ID_JABRA_SPEAK_410	0x0412
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 92870cd..58ed8f2 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -794,6 +794,9 @@ static const struct hid_device_id sensor_hub_devices[] = {
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_ITE,
- 			USB_DEVICE_ID_ITE_LENOVO_YOGA2),
- 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
-+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_ITE,
-+			USB_DEVICE_ID_ITE_LENOVO_YOGA900),
-+			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, HID_ANY_ID,
- 		     HID_ANY_ID) },
- 	{ }
--- 
-2.4.3
-
+Regards,
+Jeffrey Skoll.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

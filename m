@@ -1,37 +1,34 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH 2/3] Input: cyttsp - add device tree support
-Date: Mon, 28 Dec 2015 01:33:12 +0800
-Message-ID: <201512280113.AVgpxiIx%fengguang.wu@intel.com>
-References: <942d2d3ba128ee9597e02144cc913273433d42d5.1451231697.git.oreste.salerno@tomtom.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH] HID: i2c-hid: Prevent sending reports from racing with
+ device reset
+Date: Sun, 27 Dec 2015 18:10:10 -0800
+Message-ID: <CA+55aFwh13JJ8s-7+Tc48npW4N1NpDod4DKdJTcQh5u+mQbVeg@mail.gmail.com>
+References: <1450704391-47008-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:43893 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751648AbbL0Re3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 27 Dec 2015 12:34:29 -0500
-Content-Disposition: inline
-In-Reply-To: <942d2d3ba128ee9597e02144cc913273433d42d5.1451231697.git.oreste.salerno@tomtom.com>
+Received: from mail-ig0-f169.google.com ([209.85.213.169]:33595 "EHLO
+	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750894AbbL1CKL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 27 Dec 2015 21:10:11 -0500
+In-Reply-To: <1450704391-47008-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, fery@cypress.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, oreste.salerno@tomtom.com
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nish Aravamudan <nish.aravamudan@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Seth Forshee <seth.forshee@canonical.com>, Dan Carpenter <dan.carpenter@oracle.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-[if your patch is applied to the wrong git tree, please drop us a note to help improving the system]
-Hi Oreste,
+On Mon, Dec 21, 2015 at 5:26 AM, Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+>
+> Below is what happens to touchpad on Lenovo Yoga 900 during resume from
+> system sleep:
 
-[auto build test WARNING on input/next]
-[also build test WARNING on v4.4-rc6 next-20151223]
+Ok, since my daughter is home for xmas, I can report that it seems to
+indeed fix the problem on her Yoga 900 too.
 
-url:    https://github.com/0day-ci/linux/commits/Oreste-Salerno/Add-device-tree-support-to-the-cyttsp-driver/20151228-002949
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+  Reported-and-tested-by: Linus Torvalds <torvalds@linux-foundation.org>
 
+Thanks,
 
-coccinelle warnings: (new ones prefixed by >>)
-
->> drivers/input/touchscreen/cyttsp_core.c:637:9-16: WARNING: ERR_CAST can be used with pdata
-
-Please review and possibly fold the followup patch.
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+    Linus

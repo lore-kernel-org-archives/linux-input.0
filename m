@@ -1,70 +1,58 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] Input: evdev: avoid storing newest SYN_REPORT when
- dropping all events
-Date: Tue, 29 Dec 2015 23:32:25 +0530
-Message-ID: <CADYu308-H5A9RZPP=Daxbde2FXZjbWFiJXRzOSoKOmg4qUEy+Q@mail.gmail.com>
-References: <1450985148-804-1-git-send-email-a.mathur@samsung.com>
-	<CAKdAkRR0aiziybrsDnvNwC7qCY7vg3K4UHaWfwkZ9oX7hguQOQ@mail.gmail.com>
+From: =?iso-8859-1?Q?Aur=E9lien?= Francillon <aurelien@francillon.net>
+Subject: [PATCH] Input: i8042 add Fujitsu Lifebook U745 to the nomux list
+Date: Wed, 30 Dec 2015 01:14:23 +0100
+Message-ID: <20151230001423.GW8549@crashmenot.s3.eurecom.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:35938 "EHLO
-	mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753529AbbL2SC0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Dec 2015 13:02:26 -0500
-In-Reply-To: <CAKdAkRR0aiziybrsDnvNwC7qCY7vg3K4UHaWfwkZ9oX7hguQOQ@mail.gmail.com>
+Received: from smtp3.eurecom.fr ([193.55.113.213]:58792 "EHLO smtp2.eurecom.fr"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753613AbbL3AY6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Dec 2015 19:24:58 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-Hello Mr. Torokhov,
+Without i8042.nomux=3D1 the Elantech touch pad is not working at all on
+a Fujitsu Lifebook U745. This patch does not seem necessary for all
+U745 (maybe because of different BIOS versions?). However, it was
+verified that the patch does not break those (see opensuse bug 883192:
+https://bugzilla.opensuse.org/show_bug.cgi?id=3D883192).
 
-On Tue, Dec 29, 2015 at 5:11 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Aniroop,
->
-> On Thu, Dec 24, 2015 at 11:25 AM, Aniroop Mathur <a.mathur@samsung.com> wrote:
->> The newest event can be SYN_REPORT in case of dropping all old events when
->> buffer is full, but as now there is no device data available to read so
->> lets drop SYN_REPORT as well and store only SYN_DROPPED.
->>
->
-> We can not drop the SYN_REPORT event in this case as userspace needs
-> it to determine if the events that are coming after SYN_DROPPED are
-> part of a full packet or if they belong to a partial packet. From
-> Documentation/input/event-codes.txt:
->
-> * SYN_DROPPED:
->   - Used to indicate buffer overrun in the evdev client's event queue.
->     Client should ignore all events up to and including next SYN_REPORT
->     event and query the device (using EVIOCG* ioctls) to obtain its
->     current state.
->
+Signed-off-by: Aur=E9lien Francillon <aurelien@francillon.net>
+---
+ drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Okay I see.
-
-In case of buffer overrun, how about handling the partial packet case
-in evdev handler itself and free evdev client from handling it ?
-
-Normally, evdev buffer contain only full packets. But in case of dropping
-events, buffer would contain a partial packet almost all times and hence
-evdev client would have to handle the case of partial packet and
-as documentation says, client will ignore the events until new packet
-starts. So as a new protocol, after buffer overrun occurs, evdev handler
-can ignore the events until SYN_REPORT occurs and then start storing
-events. This way buffer will contain full packet as always and reading
-would be simplified for evdev clients.
-Accordingly, document can also be updated.
-
-Please let me know your opinion about it.
-
-Thanks and Regards,
-Aniroop Mathur
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/seri=
+o/i8042-x86ia64io.h
+index c115565..68f5f4a 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -258,6 +258,13 @@ static const struct dmi_system_id __initconst i804=
+2_dmi_nomux_table[] =3D {
+ 		},
+ 	},
+ 	{
++		/* Fujitsu Lifebook U745 */
++		.matches =3D {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK U745"),
++		},
++	},
++	{
+ 		/* Fujitsu T70H */
+ 		.matches =3D {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+--=20
+2.6.4
 
 
-> Thanks.
->
-> --
-> Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

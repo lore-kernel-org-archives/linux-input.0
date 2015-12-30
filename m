@@ -1,51 +1,136 @@
-From: Michael Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v4 14/24] clk: pwm: use pwm_get/set_default_xxx()
- helpers where appropriate
-Date: Wed, 30 Dec 2015 13:05:11 -0800
-Message-ID: <20151230210511.19557.73321@quark.deferred.io>
-References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
- <1447664207-24370-15-git-send-email-boris.brezillon@free-electrons.com>
-Reply-To: mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCYKZMUQ7QBBBCMOSG2AKGQELREAKDI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1447664207-24370-15-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-fbdev-u79uwXL29TZUIDd8j+nm9g@public.gmane.org
+From: Aniroop Mathur <a.mathur@samsung.com>
+Subject: [PATCH] Input: evdev - drop partial events after emptying the buffer
+Date: Thu, 31 Dec 2015 03:36:47 +0530
+Message-ID: <1451513207-712-1-git-send-email-a.mathur@samsung.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, aniroop.mathur@gmail.com, Aniroop Mathur <a.mathur@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Boris,
+This patch introduces concept to drop partial events in evdev handler
+itself after emptying the buffer which are dropped by all evdev
+clients in userspace after SYN_DROPPED occurs.
+This in turn saves space of partial events in evdev handler buffer
+and reduces evdev client reading requests.
 
-Quoting Boris Brezillon (2015-11-16 00:56:37)
-> pwm_set/get_default_xxx() helpers have been introduced to differentiate
-> the default PWM states (those retrieved through DT, PWM lookup table or
-> statically assigned by the driver) and the current ones.
-> Make use of those helpers where appropriate.
-> 
-> Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> ---
->  drivers/clk/clk-pwm.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/clk/clk-pwm.c b/drivers/clk/clk-pwm.c
-> index b6306a2..642a49a 100644
-> --- a/drivers/clk/clk-pwm.c
-> +++ b/drivers/clk/clk-pwm.c
-> @@ -71,23 +71,23 @@ static int clk_pwm_probe(struct platform_device *pdev)
->         if (IS_ERR(pwm))
->                 return PTR_ERR(pwm);
->  
-> -       if (!pwm_get_period((pwm))) {
-> +       if (!pwm_get_default_period((pwm))) {
+Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+---
+ drivers/input/evdev.c | 49 +++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 45 insertions(+), 4 deletions(-)
 
-The change itself looks fine, but the semantic patch added extra parens.
-Can you remove them? After doing so feel free to add:
-
-Acked-by: Michael Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index e9ae3d5..e7b612e 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -58,6 +58,7 @@ struct evdev_client {
+ 	struct list_head node;
+ 	unsigned int clk_type;
+ 	bool revoked;
++	bool drop_pevent; /* specifies whether partial events need to be dropped */
+ 	unsigned long *evmasks[EV_CNT];
+ 	unsigned int bufsize;
+ 	struct input_event buffer[];
+@@ -192,6 +193,7 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+ {
+ 	unsigned long flags;
+ 	unsigned int clk_type;
++	struct input_event *ev;
+ 
+ 	switch (clkid) {
+ 
+@@ -218,6 +220,17 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+ 		spin_lock_irqsave(&client->buffer_lock, flags);
+ 
+ 		if (client->head != client->tail) {
++
++			/*
++			 * Set drop_pevent to true if last event packet is
++			 * not stored completely in buffer.
++			 */
++			client->head--;
++			client->head &= client->bufsize - 1;
++			ev = &client->buffer[client->head];
++			if (!(ev->type == EV_SYN && ev->code == SYN_REPORT))
++				client->drop_pevent = true;
++
+ 			client->packet_head = client->head = client->tail;
+ 			__evdev_queue_syn_dropped(client);
+ 		}
+@@ -228,31 +241,51 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+ 	return 0;
+ }
+ 
+-static void __pass_event(struct evdev_client *client,
++static bool __pass_event(struct evdev_client *client,
+ 			 const struct input_event *event)
+ {
++	struct input_event *prev_ev;
++
+ 	client->buffer[client->head++] = *event;
+ 	client->head &= client->bufsize - 1;
+ 
+ 	if (unlikely(client->head == client->tail)) {
+ 		/*
+-		 * This effectively "drops" all unconsumed events, leaving
+-		 * EV_SYN/SYN_DROPPED plus the newest event in the queue.
++		 * This effectively "drops" all unconsumed events, storing
++		 * EV_SYN/SYN_DROPPED and the newest event in the queue but
++		 * only if it is not part of partial packet.
++		 * Set drop_pevent to true if last event packet is not stored
++		 * completely in buffer and set to false if SYN_REPORT occurs.
+ 		 */
++
+ 		client->tail = (client->head - 2) & (client->bufsize - 1);
+ 
++		prev_ev = &client->buffer[client->tail];
++		if (!(prev_ev->type == EV_SYN && prev_ev->code == SYN_REPORT)) {
++			client->drop_pevent = true;
++			client->head--;
++			client->head &= client->bufsize - 1;
++		}
++
+ 		client->buffer[client->tail].time = event->time;
+ 		client->buffer[client->tail].type = EV_SYN;
+ 		client->buffer[client->tail].code = SYN_DROPPED;
+ 		client->buffer[client->tail].value = 0;
+ 
+ 		client->packet_head = client->tail;
++
++		if (event->type == EV_SYN && event->code == SYN_REPORT) {
++			client->drop_pevent = false;
++			return true;
++		}
+ 	}
+ 
+ 	if (event->type == EV_SYN && event->code == SYN_REPORT) {
+ 		client->packet_head = client->head;
+ 		kill_fasync(&client->fasync, SIGIO, POLL_IN);
+ 	}
++
++	return false;
+ }
+ 
+ static void evdev_pass_values(struct evdev_client *client,
+@@ -284,10 +317,18 @@ static void evdev_pass_values(struct evdev_client *client,
+ 			wakeup = true;
+ 		}
+ 
++		/* drop partial events until SYN_REPORT occurs */
++		if (client->drop_pevent) {
++			if (v->type == EV_SYN && v->code == SYN_REPORT)
++				client->drop_pevent = false;
++			continue;
++		}
++
+ 		event.type = v->type;
+ 		event.code = v->code;
+ 		event.value = v->value;
+-		__pass_event(client, &event);
++		if (__pass_event(client, &event))
++			wakeup = false;
+ 	}
+ 
+ 	spin_unlock(&client->buffer_lock);
+-- 
+2.6.2

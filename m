@@ -1,263 +1,154 @@
-From: Ben Chen <ben_chen@bizlinktech.com>
-Subject: [PATCH v2 1/1] Support for CMedia CM6533 HID audio jack controls
-Date: Wed, 30 Dec 2015 15:35:04 +0800
-Message-ID: <1451460904-7959-1-git-send-email-ben_chen@bizlinktech.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f44.google.com ([209.85.220.44]:32997 "EHLO
-	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751303AbbL3Hfe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Dec 2015 02:35:34 -0500
-Received: by mail-pa0-f44.google.com with SMTP id cy9so135101481pac.0
-        for <linux-input@vger.kernel.org>; Tue, 29 Dec 2015 23:35:34 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: Re: [PATCH v4 09/24] regulator: pwm: use pwm_get/set_default_xxx()
+ helpers where appropriate
+Date: Wed, 30 Dec 2015 12:01:25 +0100
+Message-ID: <20151230120125.3ab6e0bd@bbrezillon>
+References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1447664207-24370-10-git-send-email-boris.brezillon@free-electrons.com>
+	<20151116105558.GB31303@sirena.org.uk>
+	<20151116132359.39d84279@bbrezillon>
+	<20151116184238.GJ31303@sirena.org.uk>
+	<20151202113720.0a6517b1@bbrezillon>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-clk-owner@vger.kernel.org>
+In-Reply-To: <20151202113720.0a6517b1@bbrezillon>
+Sender: linux-clk-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>, Thierry Reding <thierry.reding@gmail.com>, Stephen Boyd <sboyd@codeaurora.org>
+Cc: linux-pwm@vger.kernel.org, Mike Turquette <mturquette@baylibre.com>, linux-clk@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>, Kamil Debski <k.debski@samsung.com>, lm-sensors@lm-sensors.org, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-sunxi@googlegroups.com, Joachim Eastwood <manabian@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Heiko Stuebner <heiko@sntech.de>, linux-rockchip@lists.infradead.org, Jingoo Han <jingoohan1@gmail.com>, Lee Jones <lee.jones@linaro.org>, linux-fbdev@vger.kernel.org, Jean-Christophe
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Ben Chen <ben_chen@bizlinktech.com>
 
-The C-Media CM6533 is a USB audio chip featuring it's jack detection capability.The device originates an interrupt transfer via HID interface each time when a jack event occurs.
-The purpose of this patch is to handle hid raw events to keep the operating system informed of user interactions.
+Hi Thierry,
 
-Signed-off-by: Ben Chen <ben_chen@bizlinktech.com>
----
-Changes in v2:
-- The return type of input_configured callback has been changed from void to be int.
+I'm trying to get these "atomic PWM config" and "initial PWM state
+retrieval" stuff in for at least 3 releases. I can understand that some
+things have to be discussed and reworked in order to be good enough for
+mainline, but that's not what I'm seeing here.
 
- drivers/hid/Kconfig      |   6 ++
- drivers/hid/Makefile     |   1 +
- drivers/hid/hid-cm6533.c | 168 +++++++++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-core.c   |   1 +
- drivers/hid/hid-ids.h    |   1 +
- 5 files changed, 177 insertions(+)
- create mode 100644 drivers/hid/hid-cm6533.c
+You and Mark raised some concerns about the usage of the
+pwm_{get,set}_default_xxx() helpers which I tried to address by
+proposing something else. I asked you to comment on it a few weeks ago,
+but you never did.
+You also told me that you would search for an alternative solution, but
+never came back to me.
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 513a16c..4e0ca39 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -196,6 +196,12 @@ config HID_PRODIKEYS
- 	  multimedia keyboard, but will lack support for the musical keyboard
- 	  and some additional multimedia keys.
- 
-+config HID_CM6533
-+	tristate "CMedia CM6533 HID audio jack controls"
-+	depends on HID
-+	---help---
-+	Support for CMedia CM6533 HID audio jack controls.
-+
- config HID_CP2112
- 	tristate "Silicon Labs CP2112 HID USB-to-SMBus Bridge support"
- 	depends on USB_HID && I2C && GPIOLIB
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 00011fe..63f99bd 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -29,6 +29,7 @@ obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
- obj-$(CONFIG_HID_BETOP_FF)	+= hid-betopff.o
- obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
- obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
-+obj-$(CONFIG_HID_CM6533)	+= hid-cm6533.o
- obj-$(CONFIG_HID_CORSAIR)	+= hid-corsair.o
- obj-$(CONFIG_HID_CP2112)	+= hid-cp2112.o
- obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
-diff --git a/drivers/hid/hid-cm6533.c b/drivers/hid/hid-cm6533.c
-new file mode 100644
-index 0000000..7230f85
---- /dev/null
-+++ b/drivers/hid/hid-cm6533.c
-@@ -0,0 +1,168 @@
-+/*
-+ * HID driver for CMedia CM6533 audio jack controls
-+ *
-+ * Copyright (C) 2015 Ben Chen <ben_chen@bizlinktech.com>
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include "hid-ids.h"
-+
-+MODULE_AUTHOR("Ben Chen");
-+MODULE_DESCRIPTION("CM6533 HID jack controls");
-+MODULE_LICENSE("GPL");
-+
-+#define CM6533_JD_TYPE_COUNT      1
-+#define CM6533_JD_RAWEV_LEN	 16
-+#define CM6533_JD_SFX_OFFSET	  8
-+
-+/*
-+*
-+*CM6533 audio jack HID raw events:
-+*
-+*Plug in:
-+*01000600 002083xx 080008c0 10000000
-+*about 3 seconds later...
-+*01000a00 002083xx 08000380 10000000
-+*01000600 002083xx 08000380 10000000
-+*
-+*Plug out:
-+*01000400 002083xx 080008c0 x0000000
-+*/
-+
-+static const u8 ji_sfx[] = { 0x08, 0x00, 0x08, 0xc0 };
-+static const u8 ji_in[]  = { 0x01, 0x00, 0x06, 0x00 };
-+static const u8 ji_out[] = { 0x01, 0x00, 0x04, 0x00 };
-+
-+static int jack_switch_types[CM6533_JD_TYPE_COUNT] = {
-+	SW_HEADPHONE_INSERT,
-+};
-+
-+struct cmhid {
-+	struct input_dev *input_dev;
-+	struct hid_device *hid;
-+	unsigned short switch_map[CM6533_JD_TYPE_COUNT];
-+};
-+
-+static void hp_ev(struct hid_device *hid, struct cmhid *cm, int value)
-+{
-+	input_report_switch(cm->input_dev, SW_HEADPHONE_INSERT, value);
-+	input_sync(cm->input_dev);
-+}
-+
-+static int cmhid_raw_event(struct hid_device *hid, struct hid_report *report,
-+	 u8 *data, int len)
-+{
-+	struct cmhid *cm = hid_get_drvdata(hid);
-+
-+	if (len != CM6533_JD_RAWEV_LEN)
-+		goto out;
-+	if (memcmp(data+CM6533_JD_SFX_OFFSET, ji_sfx, sizeof(ji_sfx)))
-+		goto out;
-+
-+	if (!memcmp(data, ji_out, sizeof(ji_out))) {
-+		hp_ev(hid, cm, 0);
-+		goto out;
-+	}
-+	if (!memcmp(data, ji_in, sizeof(ji_in))) {
-+		hp_ev(hid, cm, 1);
-+		goto out;
-+	}
-+
-+out:
-+	return 0;
-+}
-+
-+static int cmhid_input_configured(struct hid_device *hid,
-+		struct hid_input *hidinput)
-+{
-+	struct input_dev *input_dev = hidinput->input;
-+	struct cmhid *cm = hid_get_drvdata(hid);
-+	int i;
-+
-+	cm->input_dev = input_dev;
-+	memcpy(cm->switch_map, jack_switch_types, sizeof(cm->switch_map));
-+	input_dev->evbit[0] = BIT(EV_SW);
-+	for (i = 0; i < CM6533_JD_TYPE_COUNT; i++)
-+		input_set_capability(cm->input_dev,
-+				EV_SW, jack_switch_types[i]);
-+	return 0;
-+}
-+
-+static int cmhid_input_mapping(struct hid_device *hid,
-+		struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit, int *max)
-+{
-+	return -1;
-+}
-+
-+static int cmhid_probe(struct hid_device *hid, const struct hid_device_id *id)
-+{
-+	int ret;
-+	struct cmhid *cm;
-+
-+	cm = kzalloc(sizeof(struct cmhid), GFP_KERNEL);
-+	if (!cm) {
-+		ret = -ENOMEM;
-+		goto allocfail;
-+	}
-+
-+	cm->hid = hid;
-+
-+	hid->quirks |= HID_QUIRK_HIDINPUT_FORCE;
-+	hid_set_drvdata(hid, cm);
-+
-+	ret = hid_parse(hid);
-+	if (ret) {
-+		hid_err(hid, "parse failed\n");
-+		goto fail;
-+	}
-+
-+	ret = hid_hw_start(hid, HID_CONNECT_DEFAULT | HID_CONNECT_HIDDEV_FORCE);
-+	if (ret) {
-+		hid_err(hid, "hw start failed\n");
-+		goto fail;
-+	}
-+
-+	return 0;
-+fail:
-+	kfree(cm);
-+allocfail:
-+	return ret;
-+}
-+
-+static void cmhid_remove(struct hid_device *hid)
-+{
-+	struct cmhid *cm = hid_get_drvdata(hid);
-+
-+	hid_hw_stop(hid);
-+	kfree(cm);
-+}
-+
-+static const struct hid_device_id cmhid_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CMEDIA, USB_DEVICE_ID_CM6533) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, cmhid_devices);
-+
-+static struct hid_driver cmhid_driver = {
-+	.name = "cm6533_jd",
-+	.id_table = cmhid_devices,
-+	.raw_event = cmhid_raw_event,
-+	.input_configured = cmhid_input_configured,
-+	.probe = cmhid_probe,
-+	.remove = cmhid_remove,
-+	.input_mapping = cmhid_input_mapping,
-+};
-+module_hid_driver(cmhid_driver);
-+
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index c6f7a69..d8e55fe 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2056,6 +2056,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CMEDIA, USB_DEVICE_ID_CM6533) },
- 	{ }
- };
- 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9024a3d..86fa1e6 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -246,6 +246,7 @@
- 
- #define USB_VENDOR_ID_CMEDIA		0x0d8c
- #define USB_DEVICE_ID_CM109		0x000e
-+#define USB_DEVICE_ID_CM6533		0x0022
- 
- #define USB_VENDOR_ID_CODEMERCS		0x07c0
- #define USB_DEVICE_ID_CODEMERCS_IOW_FIRST	0x1500
+So I think it's now time to take a decision, whether you want to take
+this series with some minor reworks (changing function names to clarify
+what is a default and current PWM state), or decide that you expect
+something else (but in that case I'd like you to explain what you want).
+
+And by the way, the behavior you're complaining about is already
+currently in place: even if the pwm_get_period() function does not
+contain the 'default' word in its name, what's actually returned is the
+default (or reference) period (the one retrieved from the DT or the PWM
+lookup table) not the period currently in use on the PWM device (the
+same goes for other helpers).
+
+Can we please settle on something for 4.6 so that I can repost a series
+when 4.5-rc1 is out?
+
+Thanks,
+
+Boris
+
+On Wed, 2 Dec 2015 11:37:20 +0100
+Boris Brezillon <boris.brezillon@free-electrons.com> wrote:
+
+> Hi,
+> 
+> On Mon, 16 Nov 2015 18:42:38 +0000
+> Mark Brown <broonie@kernel.org> wrote:
+> 
+> > On Mon, Nov 16, 2015 at 01:23:59PM +0100, Boris Brezillon wrote:
+> > > Mark Brown <broonie@kernel.org> wrote:
+> > > > On Mon, Nov 16, 2015 at 09:56:32AM +0100, Boris Brezillon wrote:
+> > 
+> > > > > -	pwm_reg_period = pwm_get_period(drvdata->pwm);
+> > > > > +	pwm_reg_period = pwm_get_default_period(drvdata->pwm);
+> > 
+> > > > It's not clear to me that we're not looking for the current period here
+> > > > or in the other use.  Won't configuring based on a period other than the
+> > > > one that has been set give the wrong answer?
+> > 
+> > > Hm, maybe that's naming problem. What I call the 'default' period here
+> > > is actually the period configured in your board file (using a PWM lookup
+> > > table) or your DT. This value represent the period requested by the PWM
+> > > user not a default value specified by the PWM chip driver.
+> > 
+> > > The reason we're not using the 'current' period value is because it may
+> > > have been set by the bootloader, and may be inappropriate for our use
+> > > case (ie. the period may be to small to represent the different
+> > > voltages).
+> > 
+> > > ITOH, we're using the current period value when calculating the current
+> > > voltage, because we want to get the correct voltage value, and the PWM
+> > > device may still use the configuration set by the bootloader (not the
+> > > default one specified in your board or DT files).
+> > 
+> > > I hope this clarifies the differences between the current and default
+> > > period, and why we should use the default value here.
+> > 
+> > To be honest I'm still a bit confused here.  When do we actually apply
+> > the default setting and why do we keep on having to constantly override
+> > it rather than doing this once at boot?  It feels wrong to be using it
+> > every time we set anything.  I'd expect it to be something we only need
+> > to do at probe time or which would automatically be handled by the PWM
+> > framework (but that'd have issues changing the state and potentially
+> > breaking things if done in an uncoordiated fashion).
+> 
+> Thierry, I didn't hear from you after the long discussion we had on IRC
+> a few weeks ago.
+> The conclusion of this discussion was that using
+> pwm_get_default_period() was not acceptable (even after renaming it
+> differently, like pwm_get_reference_period()), because it was
+> disturbing to get the default/reference period each time we wanted to
+> configure the PWM differently.
+> Another suggestion was to automatically reconfigure the PWM duty_ns
+> value based on the initial PWM state (retrieved through hardware
+> readout) and the default period value (specified in the PWM lookup table
+> or the DT). But this implied supporting hardware readout in all PWM
+> drivers, which prevents a smooth migration to this new approach.
+> 
+> I also proposed to provide helpers to hide the duty cycle to active
+> time calculation in the PWM core, so that PWM users just have to choose
+> their scale (percent, or any other custom scale) and set their duty
+> cycle based on this scale instead of specifying an active/on time in
+> nanosecond. You didn't seem to like this idea, but I gave it a try
+> (see here [1]), and think it might be worth looking at it.
+> 
+> The commit you should look at are [2], [3] and [4], and the idea is to
+> clarify the notion of duty-cycle, which, according to wikipedia [5]
+> (and a lot of other references) is supposed to be expressed in a
+> relative unit (percent, or any other scale as said earlier).
+> After renaming the pwm_set/get_duty_cycle() helpers into
+> pwm_set/get_active_time() we can define a new pwm_set_duty_cycle()
+> helper to let the PWM user configure its PWM device relatively to a
+> chosen scale, without asking him to choose the PWM period (the
+> conversion is done based on the default/reference period).
+> The pwm_get_duty_cycle() is doing the reverse conversion: it returns the
+> duty-cycle expressed relatively to the scale (here the current PWM
+> period is used to handle the case where the PWM user hasn't configure
+> the PWM yet, but want to retrieve the current duty-cycle extracted from
+> hardware readout).
+> 
+> Please let me know what you think of this approach, and if you're happy
+> with it I'll rework my series accordingly.
+> 
+> Best Regards,
+> 
+> Boris
+> 
+> [1]https://github.com/bbrezillon/linux-rk/commits/atomic-pwm-alt
+> [2]https://github.com/bbrezillon/linux-rk/commit/d7d4d04e147d4ec349c59f70e141877661930c6d
+> [3]https://github.com/bbrezillon/linux-rk/commit/66ce78f308f3eb1a9c536689352f208fd51c9030
+> [4]https://github.com/bbrezillon/linux-rk/commit/07882a2dd21f0d17d83640ff55204cc7a7d4c8f7
+> [5]https://en.wikipedia.org/wiki/Duty_cycle
+> 
+
+
+
 -- 
-1.9.1
-
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com

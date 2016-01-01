@@ -1,46 +1,42 @@
-From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: [PATCH] Input: evdev - Avoid duplicate checking of empty SYN_REPORT
-Date: Thu, 31 Dec 2015 04:55:58 +0530
-Message-ID: <1451517958-2173-1-git-send-email-a.mathur@samsung.com>
+From: Geliang Tang <geliangtang@163.com>
+Subject: [PATCH 3/7] input: touchscreen: use to_delayed_work
+Date: Fri,  1 Jan 2016 22:59:08 +0800
+Message-ID: <178deb25bed7a09d97a5b37e75fa4db9f3194e1d.1451659910.git.geliangtang@163.com>
+References: <643e31066f3378b9521dd9cd8c569ccfcf185d61.1451659910.git.geliangtang@163.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f181.google.com ([209.85.192.181]:36699 "EHLO
-	mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751132AbbL3XYQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Dec 2015 18:24:16 -0500
+Received: from m50-135.163.com ([123.125.50.135]:56243 "EHLO m50-135.163.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751894AbcAAO7d (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Jan 2016 09:59:33 -0500
+In-Reply-To: <643e31066f3378b9521dd9cd8c569ccfcf185d61.1451659910.git.geliangtang@163.com>
+In-Reply-To: <643e31066f3378b9521dd9cd8c569ccfcf185d61.1451659910.git.geliangtang@163.com>
+References: <643e31066f3378b9521dd9cd8c569ccfcf185d61.1451659910.git.geliangtang@163.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, aniroop.mathur@gmail.com, Aniroop Mathur <a.mathur@samsung.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Geliang Tang <geliangtang@163.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Input core already drops empty syn_report event so there is no need
-to check again for dropping empty syn_report event in evdev handler
-for all clients on every new event.
+Use to_delayed_work() instead of open-coding it.
 
-Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+Signed-off-by: Geliang Tang <geliangtang@163.com>
 ---
- drivers/input/evdev.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/input/touchscreen/pcap_ts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index e9ae3d5..6e242b7 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -276,13 +276,8 @@ static void evdev_pass_values(struct evdev_client *client,
- 		if (__evdev_is_filtered(client, v->type, v->code))
- 			continue;
+diff --git a/drivers/input/touchscreen/pcap_ts.c b/drivers/input/touchscreen/pcap_ts.c
+index 23a354a..0e3fc41 100644
+--- a/drivers/input/touchscreen/pcap_ts.c
++++ b/drivers/input/touchscreen/pcap_ts.c
+@@ -87,7 +87,7 @@ static void pcap_ts_read_xy(void *data, u16 res[2])
  
--		if (v->type == EV_SYN && v->code == SYN_REPORT) {
--			/* drop empty SYN_REPORT */
--			if (client->packet_head == client->head)
--				continue;
--
-+		if (v->type == EV_SYN && v->code == SYN_REPORT)
- 			wakeup = true;
--		}
+ static void pcap_ts_work(struct work_struct *work)
+ {
+-	struct delayed_work *dw = container_of(work, struct delayed_work, work);
++	struct delayed_work *dw = to_delayed_work(work);
+ 	struct pcap_ts *pcap_ts = container_of(dw, struct pcap_ts, work);
+ 	u8 ch[2];
  
- 		event.type = v->type;
- 		event.code = v->code;
 -- 
-2.6.2
+2.5.0
+
 

@@ -1,42 +1,74 @@
-From: =?UTF-8?Q?Cl=c3=a9ment_Vuchener?= <clement.vuchener@gmail.com>
-Subject: Re: [PATCH 1/1] R.A.T.5 also works with hid-saitek
-Date: Sun, 3 Jan 2016 11:45:29 +0100
-Message-ID: <5688FBC9.1070403@gmail.com>
-References: <56841599.5050800@users.sf.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+Subject: [PATCH] input: gpio_keys: Fix check for disabling unsupported key
+Date: Sun,  3 Jan 2016 23:21:16 +0200
+Message-ID: <1451856076-29045-1-git-send-email-ivo.g.dimitrov.75@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f43.google.com ([74.125.82.43]:35514 "EHLO
-	mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751385AbcACKpc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 3 Jan 2016 05:45:32 -0500
-Received: by mail-wm0-f43.google.com with SMTP id f206so112772882wmf.0
-        for <linux-input@vger.kernel.org>; Sun, 03 Jan 2016 02:45:31 -0800 (PST)
-In-Reply-To: <56841599.5050800@users.sf.net>
+Received: from mail-wm0-f53.google.com ([74.125.82.53]:35970 "EHLO
+	mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752092AbcACVVg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 3 Jan 2016 16:21:36 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Piotr Sawuk <piotr5@users.sf.net>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: pali.rohar@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
 
-On 12/30/2015 06:34 PM, Piotr Sawuk wrote:
-> sorry for the old kernel. tell me if it failed to apply.
-You should send your patch to the appropriate maintainers (use the get_maintainer.pl script) and your patch should be inline (not an attachment). See documentation/SubmittingPatches for more information.
->
-> and I have a question, since I know nothing of linux-programming:
-> in include/linux/hidraw.h there is a struct hidraw defined.
-> obviously one of these is assigned to each device.
-> also hid-saitek.c uses that and stores its data inside.
-> more exactly in ->hid->dev->mode is a value I'd like to read.
->From what I read, it uses the driver data pointer from the hid_device structure. As its name imply, it is a way for a driver to attach some data to a device for internal use (only the driver knows its meaning).
-> what is the proper way to do that? is it possible from userspace?
-> hid-saitek module removes information on what colour the mode-LED has.
-> that information is stored in the mode variable of struct saitec_sc.
-> since that struct is only defined in the c-sources, I have a problem?
-> would it be sufficient to move that definition into include/?
-> any suggestions on where to?
-You can add a sysfs attribute to expose the value to userspace, you should find plenty of example code around.
+Commit 4ea14a53d8f881034fa9e186653821c4e3d9a8fb ("Input: gpio-keys -
+report error when disabling unsupported key") tried to prevent an
+unsupported key to disabled. Unfortunately it effectively broke the driver
+in a way so no key is possible to be disabled. Fix that by providing the
+correct verify logic.
 
-If you have more questions, I suggest you send them to the kernelnewbies mailing list, you may get more help there.
->
-> P
+Signed-off-by: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+---
+ drivers/input/keyboard/gpio_keys.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index bef317f..a371805 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -226,22 +226,32 @@ static ssize_t gpio_keys_attr_store_helper(struct gpio_keys_drvdata *ddata,
+ 		goto out;
+ 
+ 	/* First validate */
+-	for (i = 0; i < ddata->pdata->nbuttons; i++) {
+-		struct gpio_button_data *bdata = &ddata->data[i];
++	for (i = 0; i < n_events; i++) {
++		int j;
+ 
+-		if (bdata->button->type != type)
++		if (!test_bit(i, bits))
+ 			continue;
+ 
+-		if (test_bit(bdata->button->code, bits) &&
+-		    !bdata->button->can_disable) {
++		for (j = 0; j < ddata->pdata->nbuttons; j++) {
++			struct gpio_button_data *bdata = &ddata->data[j];
++
++			if (bdata->button->type != type)
++				continue;
++
++			if (bdata->button->code == i) {
++				if (!bdata->button->can_disable) {
++					error = -EINVAL;
++					goto out;
++				}
++				break;
++			}
++		}
++
++		if (j == ddata->pdata->nbuttons) {
+ 			error = -EINVAL;
+ 			goto out;
+ 		}
+-	}
+ 
+-	if (i == ddata->pdata->nbuttons) {
+-		error = -EINVAL;
+-		goto out;
+ 	}
+ 
+ 	mutex_lock(&ddata->disable_lock);
+-- 
+1.9.1
 

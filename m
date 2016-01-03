@@ -1,51 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/7] input: touchscreen: use to_delayed_work
-Date: Sat, 2 Jan 2016 21:07:28 -0800
-Message-ID: <20160103050728.GF23680@dtor-ws>
-References: <643e31066f3378b9521dd9cd8c569ccfcf185d61.1451659910.git.geliangtang@163.com>
- <178deb25bed7a09d97a5b37e75fa4db9f3194e1d.1451659910.git.geliangtang@163.com>
+From: "Jeff Skoll" <s_w9gc9x@uni-kassel.de>
+Subject: Charity Donation
+Date: Sun, 03 Jan 2016 04:12:46 -0500
+Message-ID: <auto-000000645543@mailadmin.uni-kassel.de>
+Reply-To: jeff.skoll@skollcharity.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f172.google.com ([209.85.192.172]:35713 "EHLO
-	mail-pf0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750758AbcACFHb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 3 Jan 2016 00:07:31 -0500
-Content-Disposition: inline
-In-Reply-To: <178deb25bed7a09d97a5b37e75fa4db9f3194e1d.1451659910.git.geliangtang@163.com>
+Received: from mx4.its.uni-kassel.de ([141.51.12.63]:25162 "EHLO
+	mx4.its.uni-kassel.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751282AbcACJOy convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 3 Jan 2016 04:14:54 -0500
+Content-Description: Mail message body
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geliang Tang <geliangtang@163.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Me <s_w9gc9x@uni-kassel.de>
 
-On Fri, Jan 01, 2016 at 10:59:08PM +0800, Geliang Tang wrote:
-> Use to_delayed_work() instead of open-coding it.
-> 
-> Signed-off-by: Geliang Tang <geliangtang@163.com>
+Hi,
+My name is Jeffrey Skoll, a philanthropist and the founder of one of th=
+e largest private foundations in the world. I believe strongly in =E2=80=
+=98giving while living.=E2=80=99 I had one idea that never changed in m=
+y mind =E2=80=94 that you should use your wealth to help people and I h=
+ave decided to secretly give USD2.498 Million to a randomly selected in=
+dividual. On receipt of this email, you should count yourself as the in=
+dividual. Kindly get back to me at your earliest convenience, so I know=
+ your email address is valid.
 
-Applied, thank you.
+Visit the web page to know more about me: http://www.theglobeandmail.co=
+m/news/national/meet-the-canadian-billionaire-whos-giving-it-all-away/a=
+rticle4209888/ or you can read an article of me on Wikipedia.
 
-> ---
->  drivers/input/touchscreen/pcap_ts.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/pcap_ts.c b/drivers/input/touchscreen/pcap_ts.c
-> index 23a354a..0e3fc41 100644
-> --- a/drivers/input/touchscreen/pcap_ts.c
-> +++ b/drivers/input/touchscreen/pcap_ts.c
-> @@ -87,7 +87,7 @@ static void pcap_ts_read_xy(void *data, u16 res[2])
->  
->  static void pcap_ts_work(struct work_struct *work)
->  {
-> -	struct delayed_work *dw = container_of(work, struct delayed_work, work);
-> +	struct delayed_work *dw = to_delayed_work(work);
->  	struct pcap_ts *pcap_ts = container_of(dw, struct pcap_ts, work);
->  	u8 ch[2];
->  
-> -- 
-> 2.5.0
-> 
-> 
-
--- 
-Dmitry
+Regards,
+Jeffrey Skoll.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

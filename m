@@ -1,45 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: bma150 - constify bma150_cfg structure
-Date: Sat, 2 Jan 2016 21:05:03 -0800
-Message-ID: <20160103050503.GE23680@dtor-ws>
-References: <1451473879-10443-1-git-send-email-Julia.Lawall@lip6.fr>
+Subject: Re: [PATCH 3/7] input: touchscreen: use to_delayed_work
+Date: Sat, 2 Jan 2016 21:07:28 -0800
+Message-ID: <20160103050728.GF23680@dtor-ws>
+References: <643e31066f3378b9521dd9cd8c569ccfcf185d61.1451659910.git.geliangtang@163.com>
+ <178deb25bed7a09d97a5b37e75fa4db9f3194e1d.1451659910.git.geliangtang@163.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <kernel-janitors-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f172.google.com ([209.85.192.172]:35713 "EHLO
+	mail-pf0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750758AbcACFHb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 3 Jan 2016 00:07:31 -0500
 Content-Disposition: inline
-In-Reply-To: <1451473879-10443-1-git-send-email-Julia.Lawall@lip6.fr>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-Cc: kernel-janitors@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <178deb25bed7a09d97a5b37e75fa4db9f3194e1d.1451659910.git.geliangtang@163.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Geliang Tang <geliangtang@163.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Dec 30, 2015 at 12:11:19PM +0100, Julia Lawall wrote:
-> The bma150_cfg structure is never modified, so declare it as const.
+On Fri, Jan 01, 2016 at 10:59:08PM +0800, Geliang Tang wrote:
+> Use to_delayed_work() instead of open-coding it.
 > 
-> Done with the help of Coccinelle.
-> 
-> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+> Signed-off-by: Geliang Tang <geliangtang@163.com>
 
 Applied, thank you.
 
-> 
 > ---
->  drivers/input/misc/bma150.c |    2 +-
+>  drivers/input/touchscreen/pcap_ts.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-> index 1d0e61d..b0d4453 100644
-> --- a/drivers/input/misc/bma150.c
-> +++ b/drivers/input/misc/bma150.c
-> @@ -147,7 +147,7 @@ struct bma150_data {
->   * are stated and verified by Bosch Sensortec where they are configured
->   * to provide a generic sensitivity performance.
->   */
-> -static struct bma150_cfg default_cfg = {
-> +static const struct bma150_cfg default_cfg = {
->  	.any_motion_int = 1,
->  	.hg_int = 1,
->  	.lg_int = 1,
+> diff --git a/drivers/input/touchscreen/pcap_ts.c b/drivers/input/touchscreen/pcap_ts.c
+> index 23a354a..0e3fc41 100644
+> --- a/drivers/input/touchscreen/pcap_ts.c
+> +++ b/drivers/input/touchscreen/pcap_ts.c
+> @@ -87,7 +87,7 @@ static void pcap_ts_read_xy(void *data, u16 res[2])
+>  
+>  static void pcap_ts_work(struct work_struct *work)
+>  {
+> -	struct delayed_work *dw = container_of(work, struct delayed_work, work);
+> +	struct delayed_work *dw = to_delayed_work(work);
+>  	struct pcap_ts *pcap_ts = container_of(dw, struct pcap_ts, work);
+>  	u8 ch[2];
+>  
+> -- 
+> 2.5.0
+> 
 > 
 
 -- 

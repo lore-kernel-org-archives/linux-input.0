@@ -1,8 +1,8 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: madcatxster@devoid-pointer.net
 Subject: Re: [Patch-V2 1/6] INPUT: xpad: Add minimal support for Logitech
  G920 Wheel
-Date: Mon, 4 Jan 2016 10:55:24 +0100
-Message-ID: <20160104095524.GB20222@mail.corp.redhat.com>
+Date: Mon, 4 Jan 2016 12:43:02 +0000
+Message-ID: <hhnu52.o0fhzs.2yy6b9-qmf@smtp.devoid-pointer.net>
 References: <1447345535-2912-1-git-send-email-simon@mungewell.org>
  <1447345535-2912-2-git-send-email-simon@mungewell.org>
  <alpine.LNX.2.00.1511191449130.20111@pobox.suse.cz>
@@ -11,92 +11,88 @@ References: <1447345535-2912-1-git-send-email-simon@mungewell.org>
  <CAKdAkRRBtVfTss9AV+DgTtCXf8PVks5pCB4VnR5sQvgW=S3HyA@mail.gmail.com>
  <20151210170853.GC16026@mail.corp.redhat.com>
  <CAKdAkRSBTBTW8ma79hh+0sr4izJ70SnvUb1gmPFy3MoVWYaUbA@mail.gmail.com>
+ <20160104095524.GB20222@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAKdAkRSBTBTW8ma79hh+0sr4izJ70SnvUb1gmPFy3MoVWYaUbA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Simon Wood <simon@mungewell.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Edwin <Edwin@velds.nl>, Michal =?utf-8?B?TWFsw70=?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from transparentnimenzy.cz ([31.31.77.140]:34231 "EHLO
+	smtp.devoid-pointer.net" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+	with ESMTP id S1753237AbcADMn1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jan 2016 07:43:27 -0500
+In-Reply-To: <20160104095524.GB20222@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: benjamin.tissoires@redhat.com
+Cc: jikos@kernel.org, simon@mungewell.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Edwin@velds.nl, elias.vds@gmail.com, dmitry.torokhov@gmail.com
 
-On Dec 10 2015 or thereabouts, Dmitry Torokhov wrote:
-> On Thu, Dec 10, 2015 at 9:08 AM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
-> > On Dec 09 2015 or thereabouts, Dmitry Torokhov wrote:
-> >> On Wed, Dec 9, 2015 at 5:23 PM, Dmitry Torokhov
-> >> <dmitry.torokhov@gmail.com> wrote:
-> >> > On Thu, Nov 19, 2015 at 10:31 AM, Dmitry Torokhov
-> >> > <dmitry.torokhov@gmail.com> wrote:
-> >> >> On Thu, Nov 19, 2015 at 02:50:51PM +0100, Jiri Kosina wrote:
-> >> >>> On Thu, 12 Nov 2015, Simon Wood wrote:
-> >> >>>
-> >> >>> > When plugged in the Logitech G920 wheel starts with USBID 046d:c261
-> >> >>> > and behaviors as a vendor specific class. If a 'magic' byte sequence
-> >> >>> > is sent the wheel will detach and reconnect as a HID device with the
-> >> >>> > USBID 046d:c262.
-> >> >>> >
-> >> >>> > Signed-off-by: Simon Wood <simon@mungewell.org>
-> >> >>>
-> >> >>> Adding Dmitry to CC.
-> >> >>>
-> >> >>> Dmitry, I am planning to take this through my tree together with the rest
-> >> >>> of the actual HID support for that device if you Ack this.
-> >> >>
-> >> >> Hmm, I have an incoming series for xbox that night clash with this... If
-> >> >> you'll put it in a clean branch off 4.3 I'd pull it and then get more
-> >> >> changes on top.
-> >> >>
-> >> >> Can we also change the subject as it is not about adding a minimal
-> >> >> support. Something like "Input: xpad - switch Logitech G920 Wheel into
-> >> >> HID mode"
-> >> >>
-> >> >> Otherwise:
-> >> >>
-> >> >> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> >> >
-> >> > Hmm, looking sat this some more why are we waiting to switch device
-> >> > mode until after userspace opens input device instead of when we are
-> >> > executing driver probe()?
-> >> >
-> >>
-> >> Actually, thinking about it even more, why do we want to have this in
-> >> xpad.c? Have HID module handle both IDs and switch to HID mode if we
-> >> want HID to handle this device. I think we should revert/drop this
-> >> patch.
-> >>
-> >
-> > Hi Dmitry,
-> 
-> Hi Benjamin,
-> 
-> >
-> > IIRC, last time I saw an XBox-like controller, it doesn't register as a
-> > HID device at all. SO I think It will be hard to switch it into the HID
-> > mode from HID directly.
-> > Simon, can you confirm that the device does not contains any references
-> > to HID while in the XBox mode (lsusb -v should give enough information).
-> >
-> > Switching the device during probe in xpad.c makes a lot of sense
-> > however.
-> 
-> It makes as much sense doing it in xpad as doing it from a random USB
-> network driver. I mean the only reason we are doing it from xpad is
-> because of name and the fat that it has usb_driver structure. Nobody
-> stops you from creating a tiny USB stub driver in hid portion that
-> would probe the "non-hid" device and switch it over to hid.
-> 
-
-Jiri, I *think* this commit still is in your next pull request for
-Linus. We might want to drop it before it hits Linus' tree.
-
-We can still keep the HID work in place even if the device is not
-switched into the HID protocol at plug.
-
-Simon, do you mind looking into Dmitry's suggestion of having a clean,
-small usb device which loads itself when the G920 is plugged in and
-switches it immediately into the HID mode?
-
-Cheers,
-Benjamin
+DQoNCk9uIE1vbiBKYW4gNCAxMDo1NToyNCAyMDE2IEdNVCswMTAwLCBCZW5qYW1pbiBUaXNzb2ly
+ZXMgd3JvdGU6DQo+IE9uIERlYyAxMCAyMDE1IG9yIHRoZXJlYWJvdXRzLCBEbWl0cnkgVG9yb2to
+b3Ygd3JvdGU6DQo+ID4gT24gVGh1LCBEZWMgMTAsIDIwMTUgYXQgOTowOCBBTSwgQmVuamFtaW4g
+VGlzc29pcmVzDQo+ID4gPGJlbmphbWluLnRpc3NvaXJlc0ByZWRoYXQuY29tPiB3cm90ZToNCj4g
+PiA+IE9uIERlYyAwOSAyMDE1IG9yIHRoZXJlYWJvdXRzLCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6
+DQo+ID4gPj4gT24gV2VkLCBEZWMgOSwgMjAxNSBhdCA1OjIzIFBNLCBEbWl0cnkgVG9yb2tob3YN
+Cj4gPiA+PiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4gd3JvdGU6DQo+ID4gPj4gPiBPbiBU
+aHUsIE5vdiAxOSwgMjAxNSBhdCAxMDozMSBBTSwgRG1pdHJ5IFRvcm9raG92DQo+ID4gPj4gPiA8
+ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4gd3JvdGU6DQo+ID4gPj4gPj4gT24gVGh1LCBOb3Yg
+MTksIDIwMTUgYXQgMDI6NTA6NTFQTSArMDEwMCwgSmlyaSBLb3NpbmEgd3JvdGU6DQo+ID4gPj4g
+Pj4+IE9uIFRodSwgMTIgTm92IDIwMTUsIFNpbW9uIFdvb2Qgd3JvdGU6DQo+ID4gPj4gPj4+DQo+
+ID4gPj4gPj4+ID4gV2hlbiBwbHVnZ2VkIGluIHRoZSBMb2dpdGVjaCBHOTIwIHdoZWVsIHN0YXJ0
+cyB3aXRoIFVTQklEIDA0NmQ6YzI2MQ0KPiA+ID4+ID4+PiA+IGFuZCBiZWhhdmlvcnMgYXMgYSB2
+ZW5kb3Igc3BlY2lmaWMgY2xhc3MuIElmIGEgJ21hZ2ljJyBieXRlIHNlcXVlbmNlDQo+ID4gPj4g
+Pj4+ID4gaXMgc2VudCB0aGUgd2hlZWwgd2lsbCBkZXRhY2ggYW5kIHJlY29ubmVjdCBhcyBhIEhJ
+RCBkZXZpY2Ugd2l0aCB0aGUNCj4gPiA+PiA+Pj4gPiBVU0JJRCAwNDZkOmMyNjIuDQo+ID4gPj4g
+Pj4+ID4NCj4gPiA+PiA+Pj4gPiBTaWduZWQtb2ZmLWJ5OiBTaW1vbiBXb29kIDxzaW1vbkBtdW5n
+ZXdlbGwub3JnPg0KPiA+ID4+ID4+Pg0KPiA+ID4+ID4+PiBBZGRpbmcgRG1pdHJ5IHRvIENDLg0K
+PiA+ID4+ID4+Pg0KPiA+ID4+ID4+PiBEbWl0cnksIEkgYW0gcGxhbm5pbmcgdG8gdGFrZSB0aGlz
+IHRocm91Z2ggbXkgdHJlZSB0b2dldGhlciB3aXRoIHRoZSByZXN0DQo+ID4gPj4gPj4+IG9mIHRo
+ZSBhY3R1YWwgSElEIHN1cHBvcnQgZm9yIHRoYXQgZGV2aWNlIGlmIHlvdSBBY2sgdGhpcy4NCj4g
+PiA+PiA+Pg0KPiA+ID4+ID4+IEhtbSwgSSBoYXZlIGFuIGluY29taW5nIHNlcmllcyBmb3IgeGJv
+eCB0aGF0IG5pZ2h0IGNsYXNoIHdpdGggdGhpcy4uLiBJZg0KPiA+ID4+ID4+IHlvdSdsbCBwdXQg
+aXQgaW4gYSBjbGVhbiBicmFuY2ggb2ZmIDQuMyBJJ2QgcHVsbCBpdCBhbmQgdGhlbiBnZXQgbW9y
+ZQ0KPiA+ID4+ID4+IGNoYW5nZXMgb24gdG9wLg0KPiA+ID4+ID4+DQo+ID4gPj4gPj4gQ2FuIHdl
+IGFsc28gY2hhbmdlIHRoZSBzdWJqZWN0IGFzIGl0IGlzIG5vdCBhYm91dCBhZGRpbmcgYSBtaW5p
+bWFsDQo+ID4gPj4gPj4gc3VwcG9ydC4gU29tZXRoaW5nIGxpa2UgIklucHV0OiB4cGFkIC0gc3dp
+dGNoIExvZ2l0ZWNoIEc5MjAgV2hlZWwgaW50bw0KPiA+ID4+ID4+IEhJRCBtb2RlIg0KPiA+ID4+
+ID4+DQo+ID4gPj4gPj4gT3RoZXJ3aXNlOg0KPiA+ID4+ID4+DQo+ID4gPj4gPj4gQWNrZWQtYnk6
+IERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4NCj4gPiA+PiA+DQo+
+ID4gPj4gPiBIbW0sIGxvb2tpbmcgc2F0IHRoaXMgc29tZSBtb3JlIHdoeSBhcmUgd2Ugd2FpdGlu
+ZyB0byBzd2l0Y2ggZGV2aWNlDQo+ID4gPj4gPiBtb2RlIHVudGlsIGFmdGVyIHVzZXJzcGFjZSBv
+cGVucyBpbnB1dCBkZXZpY2UgaW5zdGVhZCBvZiB3aGVuIHdlIGFyZQ0KPiA+ID4+ID4gZXhlY3V0
+aW5nIGRyaXZlciBwcm9iZSgpPw0KPiA+ID4+ID4NCj4gPiA+Pg0KPiA+ID4+IEFjdHVhbGx5LCB0
+aGlua2luZyBhYm91dCBpdCBldmVuIG1vcmUsIHdoeSBkbyB3ZSB3YW50IHRvIGhhdmUgdGhpcyBp
+bg0KPiA+ID4+IHhwYWQuYz8gSGF2ZSBISUQgbW9kdWxlIGhhbmRsZSBib3RoIElEcyBhbmQgc3dp
+dGNoIHRvIEhJRCBtb2RlIGlmIHdlDQo+ID4gPj4gd2FudCBISUQgdG8gaGFuZGxlIHRoaXMgZGV2
+aWNlLiBJIHRoaW5rIHdlIHNob3VsZCByZXZlcnQvZHJvcCB0aGlzDQo+ID4gPj4gcGF0Y2guDQo+
+ID4gPj4NCj4gPiA+DQo+ID4gPiBIaSBEbWl0cnksDQo+ID4gDQo+ID4gSGkgQmVuamFtaW4sDQo+
+ID4gDQo+ID4gPg0KPiA+ID4gSUlSQywgbGFzdCB0aW1lIEkgc2F3IGFuIFhCb3gtbGlrZSBjb250
+cm9sbGVyLCBpdCBkb2Vzbid0IHJlZ2lzdGVyIGFzIGENCj4gPiA+IEhJRCBkZXZpY2UgYXQgYWxs
+LiBTTyBJIHRoaW5rIEl0IHdpbGwgYmUgaGFyZCB0byBzd2l0Y2ggaXQgaW50byB0aGUgSElEDQo+
+ID4gPiBtb2RlIGZyb20gSElEIGRpcmVjdGx5Lg0KPiA+ID4gU2ltb24sIGNhbiB5b3UgY29uZmly
+bSB0aGF0IHRoZSBkZXZpY2UgZG9lcyBub3QgY29udGFpbnMgYW55IHJlZmVyZW5jZXMNCj4gPiA+
+IHRvIEhJRCB3aGlsZSBpbiB0aGUgWEJveCBtb2RlIChsc3VzYiAtdiBzaG91bGQgZ2l2ZSBlbm91
+Z2ggaW5mb3JtYXRpb24pLg0KPiA+ID4NCj4gPiA+IFN3aXRjaGluZyB0aGUgZGV2aWNlIGR1cmlu
+ZyBwcm9iZSBpbiB4cGFkLmMgbWFrZXMgYSBsb3Qgb2Ygc2Vuc2UNCj4gPiA+IGhvd2V2ZXIuDQo+
+ID4gDQo+ID4gSXQgbWFrZXMgYXMgbXVjaCBzZW5zZSBkb2luZyBpdCBpbiB4cGFkIGFzIGRvaW5n
+IGl0IGZyb20gYSByYW5kb20gVVNCDQo+ID4gbmV0d29yayBkcml2ZXIuIEkgbWVhbiB0aGUgb25s
+eSByZWFzb24gd2UgYXJlIGRvaW5nIGl0IGZyb20geHBhZCBpcw0KPiA+IGJlY2F1c2Ugb2YgbmFt
+ZSBhbmQgdGhlIGZhdCB0aGF0IGl0IGhhcyB1c2JfZHJpdmVyIHN0cnVjdHVyZS4gTm9ib2R5DQo+
+ID4gc3RvcHMgeW91IGZyb20gY3JlYXRpbmcgYSB0aW55IFVTQiBzdHViIGRyaXZlciBpbiBoaWQg
+cG9ydGlvbiB0aGF0DQo+ID4gd291bGQgcHJvYmUgdGhlICJub24taGlkIiBkZXZpY2UgYW5kIHN3
+aXRjaCBpdCBvdmVyIHRvIGhpZC4NCj4gPiANCj4gDQo+IEppcmksIEkgKnRoaW5rKiB0aGlzIGNv
+bW1pdCBzdGlsbCBpcyBpbiB5b3VyIG5leHQgcHVsbCByZXF1ZXN0IGZvcg0KPiBMaW51cy4gV2Ug
+bWlnaHQgd2FudCB0byBkcm9wIGl0IGJlZm9yZSBpdCBoaXRzIExpbnVzJyB0cmVlLg0KPiANCj4g
+V2UgY2FuIHN0aWxsIGtlZXAgdGhlIEhJRCB3b3JrIGluIHBsYWNlIGV2ZW4gaWYgdGhlIGRldmlj
+ZSBpcyBub3QNCj4gc3dpdGNoZWQgaW50byB0aGUgSElEIHByb3RvY29sIGF0IHBsdWcuDQo+IA0K
+PiBTaW1vbiwgZG8geW91IG1pbmQgbG9va2luZyBpbnRvIERtaXRyeSdzIHN1Z2dlc3Rpb24gb2Yg
+aGF2aW5nIGEgY2xlYW4sDQo+IHNtYWxsIHVzYiBkZXZpY2Ugd2hpY2ggbG9hZHMgaXRzZWxmIHdo
+ZW4gdGhlIEc5MjAgaXMgcGx1Z2dlZCBpbiBhbmQNCj4gc3dpdGNoZXMgaXQgaW1tZWRpYXRlbHkg
+aW50byB0aGUgSElEIG1vZGU/DQo+IA0KPiBDaGVlcnMsDQo+IEJlbmphbWluDQo+IA0KDQpIaSBn
+dXlzLA0KDQpzaW5jZSBJIGZlZWwgcHJldHR5IGJhZCBmb3Igbm90IGNvbnRyaWJ1dGluZyB0byB0
+aGUgcHJvamVjdCAodG9vIG11Y2ggUGhEIHN0dWZmKSBJJ2QgZ2xhZGx5IGxvb2sgaW50byB0aGUg
+VVNCIHN0dWIgZHJpdmVyIGlzIFNpbW9uIGlzIHRvbyBidXlzIG9yIG90aGVyd2lzZSB1bmFibGUg
+dG8gZG8gaXQgaGltc2VsZi4gSWYgSSB1bmRlcnN0YW5kIHRoZSBpc3N1ZSB0aGUgaWRlYSBpcyB0
+byBoYXZlIGEgc2ltcGxlIG1vZHVsZSB0aGF0IHdvdWxkIHBpY2sgdXAgYSBkZXZpY2UgdGhhdCBh
+dCBmaXJzdCBhcHBlYXJzIGFzIGEgZ2VuZXJpYyBVU0IgZGV2aWNlLCBkbyB0aGUgbmVjZXNzYXJ5
+IGluaXRpYWxpemF0aW9uIGFuZCBsZXQgdGhlIGRldmljZS1zcGVjaWZpYyBkcml2ZXIgdGFrZSBv
+dmVyIGZyb20gdGhlcmU/DQoNCk1pY2hhbA==

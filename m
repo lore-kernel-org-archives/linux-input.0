@@ -1,146 +1,102 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: Quanta touchscreen 0408:3003 does not work with hid-multitouch
-Date: Mon, 4 Jan 2016 10:10:34 +0100
-Message-ID: <20160104091034.GA20222@mail.corp.redhat.com>
-References: <CACcJrhR8iv0FKRrH7V2nbefZBLfhmr_Kn9ctg4O4bhzd_3oFnA@mail.gmail.com>
- <20151219174154.GC27255@dtor-ws>
+Subject: Re: [Patch-V2 1/6] INPUT: xpad: Add minimal support for Logitech
+ G920 Wheel
+Date: Mon, 4 Jan 2016 10:55:24 +0100
+Message-ID: <20160104095524.GB20222@mail.corp.redhat.com>
+References: <1447345535-2912-1-git-send-email-simon@mungewell.org>
+ <1447345535-2912-2-git-send-email-simon@mungewell.org>
+ <alpine.LNX.2.00.1511191449130.20111@pobox.suse.cz>
+ <20151119183106.GC24773@dtor-ws>
+ <CAKdAkRTaTA8KFQripYP0ZcFb+5G7OC_Ecnhrwum4L9hsQ-PVxg@mail.gmail.com>
+ <CAKdAkRRBtVfTss9AV+DgTtCXf8PVks5pCB4VnR5sQvgW=S3HyA@mail.gmail.com>
+ <20151210170853.GC16026@mail.corp.redhat.com>
+ <CAKdAkRSBTBTW8ma79hh+0sr4izJ70SnvUb1gmPFy3MoVWYaUbA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53767 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753136AbcADJKi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 4 Jan 2016 04:10:38 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20151219174154.GC27255@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <CAKdAkRSBTBTW8ma79hh+0sr4izJ70SnvUb1gmPFy3MoVWYaUbA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jim lovell <jimlovell777@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Simon Wood <simon@mungewell.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Edwin <Edwin@velds.nl>, Michal =?utf-8?B?TWFsw70=?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>
+List-Id: linux-input@vger.kernel.org
 
-On Dec 19 2015 or thereabouts, Dmitry Torokhov wrote:
-> On Tue, Nov 10, 2015 at 10:21:15PM -0600, Jim lovell wrote:
-> > [1.] 0408:3003 Quanta Computer, Inc. Touchscreen Controller Detecte=
-d
-> > But Doesn't Work
-> >=20
-> > [2.] Booting my computer using the newest mainline kernel, the
-> > built-in USB 0408:3003 Quanta Computer, Inc. touchscreen controller=
- is
-> > detected but doesn't work. The touchscreen controller is detected b=
-ut
-> > no touches are acknowleged. Using "xinput [id] test" no output is
-> > generated while single or multi touching the screen.
->=20
-> ...
->=20
-> >=20
-> > [X.] Launchpad Bug Report
-> > https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1514310
-> >     Workaround that 70% of the time allows single touches to work
-> > until the system is rebooted.
-> >     xinput set-mode [id] RELATIVE
-> >     xinput set-mode [id] ABSOLUTE
-> >     sudo rmmod hid-multitouch
-> >     sudo modprobe hid-multitouch
-> >=20
-> >     xinput --list
-> >         =E2=86=B3 Quanta Computer OpticalTouchScreen id=3D12 [slave=
- pointer (2)]
-> >     lsusb
-> >             Bus 001 Device 005: ID 0408:3003 Quanta Computer, Inc.
-> >     lsmod
-> >         hid 118784 7 hid_multitouch,usbhid,hid_logitech_dj,hid_logi=
-tech_hidpp
-> >     dmesg (most recent output after many attempts following elmarik=
-on's "fix")
-> >         input: Quanta Computer OpticalTouchScreen as
-> > /devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.6/1-1.6:1.0/0003:0408=
-:3003.0007/input/input16
-> >         hid-multitouch 0003:0408:3003.0007: input,hiddev0,hidraw4: =
-USB
-> > HID v1.10 Mouse [Quanta Computer OpticalTouchScreen] on
-> > usb-0000:00:1a.0-1.6/input0
-> >         hid-multitouch 0003:0408:3003.0007: usb_submit_urb(ctrl) fa=
-iled: -1
-> >         hid-multitouch 0003:0408:3003.0007: usb_submit_urb(ctrl) fa=
-iled: -1
->=20
-> Benjamin, any ideas?
->=20
+On Dec 10 2015 or thereabouts, Dmitry Torokhov wrote:
+> On Thu, Dec 10, 2015 at 9:08 AM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> > On Dec 09 2015 or thereabouts, Dmitry Torokhov wrote:
+> >> On Wed, Dec 9, 2015 at 5:23 PM, Dmitry Torokhov
+> >> <dmitry.torokhov@gmail.com> wrote:
+> >> > On Thu, Nov 19, 2015 at 10:31 AM, Dmitry Torokhov
+> >> > <dmitry.torokhov@gmail.com> wrote:
+> >> >> On Thu, Nov 19, 2015 at 02:50:51PM +0100, Jiri Kosina wrote:
+> >> >>> On Thu, 12 Nov 2015, Simon Wood wrote:
+> >> >>>
+> >> >>> > When plugged in the Logitech G920 wheel starts with USBID 046d:c261
+> >> >>> > and behaviors as a vendor specific class. If a 'magic' byte sequence
+> >> >>> > is sent the wheel will detach and reconnect as a HID device with the
+> >> >>> > USBID 046d:c262.
+> >> >>> >
+> >> >>> > Signed-off-by: Simon Wood <simon@mungewell.org>
+> >> >>>
+> >> >>> Adding Dmitry to CC.
+> >> >>>
+> >> >>> Dmitry, I am planning to take this through my tree together with the rest
+> >> >>> of the actual HID support for that device if you Ack this.
+> >> >>
+> >> >> Hmm, I have an incoming series for xbox that night clash with this... If
+> >> >> you'll put it in a clean branch off 4.3 I'd pull it and then get more
+> >> >> changes on top.
+> >> >>
+> >> >> Can we also change the subject as it is not about adding a minimal
+> >> >> support. Something like "Input: xpad - switch Logitech G920 Wheel into
+> >> >> HID mode"
+> >> >>
+> >> >> Otherwise:
+> >> >>
+> >> >> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> >> >
+> >> > Hmm, looking sat this some more why are we waiting to switch device
+> >> > mode until after userspace opens input device instead of when we are
+> >> > executing driver probe()?
+> >> >
+> >>
+> >> Actually, thinking about it even more, why do we want to have this in
+> >> xpad.c? Have HID module handle both IDs and switch to HID mode if we
+> >> want HID to handle this device. I think we should revert/drop this
+> >> patch.
+> >>
+> >
+> > Hi Dmitry,
+> 
+> Hi Benjamin,
+> 
+> >
+> > IIRC, last time I saw an XBox-like controller, it doesn't register as a
+> > HID device at all. SO I think It will be hard to switch it into the HID
+> > mode from HID directly.
+> > Simon, can you confirm that the device does not contains any references
+> > to HID while in the XBox mode (lsusb -v should give enough information).
+> >
+> > Switching the device during probe in xpad.c makes a lot of sense
+> > however.
+> 
+> It makes as much sense doing it in xpad as doing it from a random USB
+> network driver. I mean the only reason we are doing it from xpad is
+> because of name and the fat that it has usb_driver structure. Nobody
+> stops you from creating a tiny USB stub driver in hid portion that
+> would probe the "non-hid" device and switch it over to hid.
+> 
 
-dmesg shows a lot of:
-[   12.304314] hid-multitouch 0003:0408:3003.0007: usb_submit_urb(ctrl)=
- failed: -1
-[   12.304384] hid-multitouch 0003:0408:3003.0007: timeout initializing=
- reports
+Jiri, I *think* this commit still is in your next pull request for
+Linus. We might want to drop it before it hits Linus' tree.
 
-And the other Quanta devices has a quirk NO_GET to work around this.
+We can still keep the HID work in place even if the device is not
+switched into the HID protocol at plug.
 
-Jim, does the following patch helps:
-
-
-m 729b779256296e68b2079b813ccb61354f8c77d7 Mon Sep 17 00:00:00 2001
-=46rom: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date: Mon, 4 Jan 2016 10:08:54 +0100
-Subject: [PATCH] HID: add HID_QUIRK_NOGET to Quanta 3003 too
-
-dmesg shows a lot of:
-[ 1374.890348] hid-multitouch 0003:0408:3003.0007: usb_submit_urb(ctrl)=
- failed: -1
-[ 1384.916388] hid-multitouch 0003:0408:3003.0007: usb_submit_urb(ctrl)=
- failed: -1
-[ 1384.916432] hid-multitouch 0003:0408:3003.0007: timeout initializing=
- reports
-
-Add the quirk and make the touchscreen happy.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-ids.h           | 1 +
- drivers/hid/usbhid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index ac1feea..4561a9e 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -801,6 +801,7 @@
- #define USB_VENDOR_ID_QUANTA           0x0408
- #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH             0x3000
- #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001                0x3001
-+#define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3003                0x3003
- #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008                0x3008
-=20
- #define USB_VENDOR_ID_RAZER            0x1532
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-q=
-uirks.c
-index 94bb137..8910f79 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -109,6 +109,7 @@ static const struct hid_blacklist {
-        { USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_MOUSE_4D22, HID_QU=
-IRK_ALWAYS_POLL },
-        { USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, HID_QU=
-IRK_NOGET },
-        { USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001=
-, HID_QUIRK_NOGET },
-+       { USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3003=
-, HID_QUIRK_NOGET },
-        { USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008=
-, HID_QUIRK_NOGET },
-        { USB_VENDOR_ID_REALTEK, USB_DEVICE_ID_REALTEK_READER, HID_QUIR=
-K_NO_INIT_REPORTS },
-        { USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB,=
- HID_QUIRK_NOGET },
---=20
-2.5.0
+Simon, do you mind looking into Dmitry's suggestion of having a clean,
+small usb device which loads itself when the G920 is plugged in and
+switches it immediately into the HID mode?
 
 Cheers,
 Benjamin
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

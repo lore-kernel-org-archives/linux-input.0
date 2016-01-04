@@ -1,98 +1,137 @@
-From: madcatxster@devoid-pointer.net
-Subject: Re: [Patch-V2 1/6] INPUT: xpad: Add minimal support for Logitech
- G920 Wheel
-Date: Mon, 4 Jan 2016 12:43:02 +0000
-Message-ID: <hhnu52.o0fhzs.2yy6b9-qmf@smtp.devoid-pointer.net>
-References: <1447345535-2912-1-git-send-email-simon@mungewell.org>
- <1447345535-2912-2-git-send-email-simon@mungewell.org>
- <alpine.LNX.2.00.1511191449130.20111@pobox.suse.cz>
- <20151119183106.GC24773@dtor-ws>
- <CAKdAkRTaTA8KFQripYP0ZcFb+5G7OC_Ecnhrwum4L9hsQ-PVxg@mail.gmail.com>
- <CAKdAkRRBtVfTss9AV+DgTtCXf8PVks5pCB4VnR5sQvgW=S3HyA@mail.gmail.com>
- <20151210170853.GC16026@mail.corp.redhat.com>
- <CAKdAkRSBTBTW8ma79hh+0sr4izJ70SnvUb1gmPFy3MoVWYaUbA@mail.gmail.com>
- <20160104095524.GB20222@mail.corp.redhat.com>
+From: Lyude <cpaul@redhat.com>
+Subject: Re: [PATCH] HID: wacom: Fix deadlock on proximity in events with
+ the Intuos Draw
+Date: Mon, 04 Jan 2016 10:33:27 -0500
+Message-ID: <1451921607.21146.0.camel@redhat.com>
+References: <1451495307-11600-1-git-send-email-cpaul@redhat.com>
+	 <CANRwn3SFCvZ+6EQ1D5az41oXfEXYKdPic2E+rzCpcZ4oo6X4UQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from transparentnimenzy.cz ([31.31.77.140]:34231 "EHLO
-	smtp.devoid-pointer.net" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1753237AbcADMn1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jan 2016 07:43:27 -0500
-In-Reply-To: <20160104095524.GB20222@mail.corp.redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:37529 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751308AbcADPd2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 Jan 2016 10:33:28 -0500
+In-Reply-To: <CANRwn3SFCvZ+6EQ1D5az41oXfEXYKdPic2E+rzCpcZ4oo6X4UQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: benjamin.tissoires@redhat.com
-Cc: jikos@kernel.org, simon@mungewell.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Edwin@velds.nl, elias.vds@gmail.com, dmitry.torokhov@gmail.com
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, linux-kernel@vger.kernel.org
 
-DQoNCk9uIE1vbiBKYW4gNCAxMDo1NToyNCAyMDE2IEdNVCswMTAwLCBCZW5qYW1pbiBUaXNzb2ly
-ZXMgd3JvdGU6DQo+IE9uIERlYyAxMCAyMDE1IG9yIHRoZXJlYWJvdXRzLCBEbWl0cnkgVG9yb2to
-b3Ygd3JvdGU6DQo+ID4gT24gVGh1LCBEZWMgMTAsIDIwMTUgYXQgOTowOCBBTSwgQmVuamFtaW4g
-VGlzc29pcmVzDQo+ID4gPGJlbmphbWluLnRpc3NvaXJlc0ByZWRoYXQuY29tPiB3cm90ZToNCj4g
-PiA+IE9uIERlYyAwOSAyMDE1IG9yIHRoZXJlYWJvdXRzLCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6
-DQo+ID4gPj4gT24gV2VkLCBEZWMgOSwgMjAxNSBhdCA1OjIzIFBNLCBEbWl0cnkgVG9yb2tob3YN
-Cj4gPiA+PiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4gd3JvdGU6DQo+ID4gPj4gPiBPbiBU
-aHUsIE5vdiAxOSwgMjAxNSBhdCAxMDozMSBBTSwgRG1pdHJ5IFRvcm9raG92DQo+ID4gPj4gPiA8
-ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4gd3JvdGU6DQo+ID4gPj4gPj4gT24gVGh1LCBOb3Yg
-MTksIDIwMTUgYXQgMDI6NTA6NTFQTSArMDEwMCwgSmlyaSBLb3NpbmEgd3JvdGU6DQo+ID4gPj4g
-Pj4+IE9uIFRodSwgMTIgTm92IDIwMTUsIFNpbW9uIFdvb2Qgd3JvdGU6DQo+ID4gPj4gPj4+DQo+
-ID4gPj4gPj4+ID4gV2hlbiBwbHVnZ2VkIGluIHRoZSBMb2dpdGVjaCBHOTIwIHdoZWVsIHN0YXJ0
-cyB3aXRoIFVTQklEIDA0NmQ6YzI2MQ0KPiA+ID4+ID4+PiA+IGFuZCBiZWhhdmlvcnMgYXMgYSB2
-ZW5kb3Igc3BlY2lmaWMgY2xhc3MuIElmIGEgJ21hZ2ljJyBieXRlIHNlcXVlbmNlDQo+ID4gPj4g
-Pj4+ID4gaXMgc2VudCB0aGUgd2hlZWwgd2lsbCBkZXRhY2ggYW5kIHJlY29ubmVjdCBhcyBhIEhJ
-RCBkZXZpY2Ugd2l0aCB0aGUNCj4gPiA+PiA+Pj4gPiBVU0JJRCAwNDZkOmMyNjIuDQo+ID4gPj4g
-Pj4+ID4NCj4gPiA+PiA+Pj4gPiBTaWduZWQtb2ZmLWJ5OiBTaW1vbiBXb29kIDxzaW1vbkBtdW5n
-ZXdlbGwub3JnPg0KPiA+ID4+ID4+Pg0KPiA+ID4+ID4+PiBBZGRpbmcgRG1pdHJ5IHRvIENDLg0K
-PiA+ID4+ID4+Pg0KPiA+ID4+ID4+PiBEbWl0cnksIEkgYW0gcGxhbm5pbmcgdG8gdGFrZSB0aGlz
-IHRocm91Z2ggbXkgdHJlZSB0b2dldGhlciB3aXRoIHRoZSByZXN0DQo+ID4gPj4gPj4+IG9mIHRo
-ZSBhY3R1YWwgSElEIHN1cHBvcnQgZm9yIHRoYXQgZGV2aWNlIGlmIHlvdSBBY2sgdGhpcy4NCj4g
-PiA+PiA+Pg0KPiA+ID4+ID4+IEhtbSwgSSBoYXZlIGFuIGluY29taW5nIHNlcmllcyBmb3IgeGJv
-eCB0aGF0IG5pZ2h0IGNsYXNoIHdpdGggdGhpcy4uLiBJZg0KPiA+ID4+ID4+IHlvdSdsbCBwdXQg
-aXQgaW4gYSBjbGVhbiBicmFuY2ggb2ZmIDQuMyBJJ2QgcHVsbCBpdCBhbmQgdGhlbiBnZXQgbW9y
-ZQ0KPiA+ID4+ID4+IGNoYW5nZXMgb24gdG9wLg0KPiA+ID4+ID4+DQo+ID4gPj4gPj4gQ2FuIHdl
-IGFsc28gY2hhbmdlIHRoZSBzdWJqZWN0IGFzIGl0IGlzIG5vdCBhYm91dCBhZGRpbmcgYSBtaW5p
-bWFsDQo+ID4gPj4gPj4gc3VwcG9ydC4gU29tZXRoaW5nIGxpa2UgIklucHV0OiB4cGFkIC0gc3dp
-dGNoIExvZ2l0ZWNoIEc5MjAgV2hlZWwgaW50bw0KPiA+ID4+ID4+IEhJRCBtb2RlIg0KPiA+ID4+
-ID4+DQo+ID4gPj4gPj4gT3RoZXJ3aXNlOg0KPiA+ID4+ID4+DQo+ID4gPj4gPj4gQWNrZWQtYnk6
-IERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4NCj4gPiA+PiA+DQo+
-ID4gPj4gPiBIbW0sIGxvb2tpbmcgc2F0IHRoaXMgc29tZSBtb3JlIHdoeSBhcmUgd2Ugd2FpdGlu
-ZyB0byBzd2l0Y2ggZGV2aWNlDQo+ID4gPj4gPiBtb2RlIHVudGlsIGFmdGVyIHVzZXJzcGFjZSBv
-cGVucyBpbnB1dCBkZXZpY2UgaW5zdGVhZCBvZiB3aGVuIHdlIGFyZQ0KPiA+ID4+ID4gZXhlY3V0
-aW5nIGRyaXZlciBwcm9iZSgpPw0KPiA+ID4+ID4NCj4gPiA+Pg0KPiA+ID4+IEFjdHVhbGx5LCB0
-aGlua2luZyBhYm91dCBpdCBldmVuIG1vcmUsIHdoeSBkbyB3ZSB3YW50IHRvIGhhdmUgdGhpcyBp
-bg0KPiA+ID4+IHhwYWQuYz8gSGF2ZSBISUQgbW9kdWxlIGhhbmRsZSBib3RoIElEcyBhbmQgc3dp
-dGNoIHRvIEhJRCBtb2RlIGlmIHdlDQo+ID4gPj4gd2FudCBISUQgdG8gaGFuZGxlIHRoaXMgZGV2
-aWNlLiBJIHRoaW5rIHdlIHNob3VsZCByZXZlcnQvZHJvcCB0aGlzDQo+ID4gPj4gcGF0Y2guDQo+
-ID4gPj4NCj4gPiA+DQo+ID4gPiBIaSBEbWl0cnksDQo+ID4gDQo+ID4gSGkgQmVuamFtaW4sDQo+
-ID4gDQo+ID4gPg0KPiA+ID4gSUlSQywgbGFzdCB0aW1lIEkgc2F3IGFuIFhCb3gtbGlrZSBjb250
-cm9sbGVyLCBpdCBkb2Vzbid0IHJlZ2lzdGVyIGFzIGENCj4gPiA+IEhJRCBkZXZpY2UgYXQgYWxs
-LiBTTyBJIHRoaW5rIEl0IHdpbGwgYmUgaGFyZCB0byBzd2l0Y2ggaXQgaW50byB0aGUgSElEDQo+
-ID4gPiBtb2RlIGZyb20gSElEIGRpcmVjdGx5Lg0KPiA+ID4gU2ltb24sIGNhbiB5b3UgY29uZmly
-bSB0aGF0IHRoZSBkZXZpY2UgZG9lcyBub3QgY29udGFpbnMgYW55IHJlZmVyZW5jZXMNCj4gPiA+
-IHRvIEhJRCB3aGlsZSBpbiB0aGUgWEJveCBtb2RlIChsc3VzYiAtdiBzaG91bGQgZ2l2ZSBlbm91
-Z2ggaW5mb3JtYXRpb24pLg0KPiA+ID4NCj4gPiA+IFN3aXRjaGluZyB0aGUgZGV2aWNlIGR1cmlu
-ZyBwcm9iZSBpbiB4cGFkLmMgbWFrZXMgYSBsb3Qgb2Ygc2Vuc2UNCj4gPiA+IGhvd2V2ZXIuDQo+
-ID4gDQo+ID4gSXQgbWFrZXMgYXMgbXVjaCBzZW5zZSBkb2luZyBpdCBpbiB4cGFkIGFzIGRvaW5n
-IGl0IGZyb20gYSByYW5kb20gVVNCDQo+ID4gbmV0d29yayBkcml2ZXIuIEkgbWVhbiB0aGUgb25s
-eSByZWFzb24gd2UgYXJlIGRvaW5nIGl0IGZyb20geHBhZCBpcw0KPiA+IGJlY2F1c2Ugb2YgbmFt
-ZSBhbmQgdGhlIGZhdCB0aGF0IGl0IGhhcyB1c2JfZHJpdmVyIHN0cnVjdHVyZS4gTm9ib2R5DQo+
-ID4gc3RvcHMgeW91IGZyb20gY3JlYXRpbmcgYSB0aW55IFVTQiBzdHViIGRyaXZlciBpbiBoaWQg
-cG9ydGlvbiB0aGF0DQo+ID4gd291bGQgcHJvYmUgdGhlICJub24taGlkIiBkZXZpY2UgYW5kIHN3
-aXRjaCBpdCBvdmVyIHRvIGhpZC4NCj4gPiANCj4gDQo+IEppcmksIEkgKnRoaW5rKiB0aGlzIGNv
-bW1pdCBzdGlsbCBpcyBpbiB5b3VyIG5leHQgcHVsbCByZXF1ZXN0IGZvcg0KPiBMaW51cy4gV2Ug
-bWlnaHQgd2FudCB0byBkcm9wIGl0IGJlZm9yZSBpdCBoaXRzIExpbnVzJyB0cmVlLg0KPiANCj4g
-V2UgY2FuIHN0aWxsIGtlZXAgdGhlIEhJRCB3b3JrIGluIHBsYWNlIGV2ZW4gaWYgdGhlIGRldmlj
-ZSBpcyBub3QNCj4gc3dpdGNoZWQgaW50byB0aGUgSElEIHByb3RvY29sIGF0IHBsdWcuDQo+IA0K
-PiBTaW1vbiwgZG8geW91IG1pbmQgbG9va2luZyBpbnRvIERtaXRyeSdzIHN1Z2dlc3Rpb24gb2Yg
-aGF2aW5nIGEgY2xlYW4sDQo+IHNtYWxsIHVzYiBkZXZpY2Ugd2hpY2ggbG9hZHMgaXRzZWxmIHdo
-ZW4gdGhlIEc5MjAgaXMgcGx1Z2dlZCBpbiBhbmQNCj4gc3dpdGNoZXMgaXQgaW1tZWRpYXRlbHkg
-aW50byB0aGUgSElEIG1vZGU/DQo+IA0KPiBDaGVlcnMsDQo+IEJlbmphbWluDQo+IA0KDQpIaSBn
-dXlzLA0KDQpzaW5jZSBJIGZlZWwgcHJldHR5IGJhZCBmb3Igbm90IGNvbnRyaWJ1dGluZyB0byB0
-aGUgcHJvamVjdCAodG9vIG11Y2ggUGhEIHN0dWZmKSBJJ2QgZ2xhZGx5IGxvb2sgaW50byB0aGUg
-VVNCIHN0dWIgZHJpdmVyIGlzIFNpbW9uIGlzIHRvbyBidXlzIG9yIG90aGVyd2lzZSB1bmFibGUg
-dG8gZG8gaXQgaGltc2VsZi4gSWYgSSB1bmRlcnN0YW5kIHRoZSBpc3N1ZSB0aGUgaWRlYSBpcyB0
-byBoYXZlIGEgc2ltcGxlIG1vZHVsZSB0aGF0IHdvdWxkIHBpY2sgdXAgYSBkZXZpY2UgdGhhdCBh
-dCBmaXJzdCBhcHBlYXJzIGFzIGEgZ2VuZXJpYyBVU0IgZGV2aWNlLCBkbyB0aGUgbmVjZXNzYXJ5
-IGluaXRpYWxpemF0aW9uIGFuZCBsZXQgdGhlIGRldmljZS1zcGVjaWZpYyBkcml2ZXIgdGFrZSBv
-dmVyIGZyb20gdGhlcmU/DQoNCk1pY2hhbA==
+Yep! That's definitely the same as this one. Glad to hear it still was =
+useful
+even if it's obsolete :).
+
+
+
+On Wed, 2015-12-30 at 12:39 -0800, Jason Gerecke wrote:
+> Is this a fix for the same bug addressed in http://linux.kernel.narki=
+ve.com/zU
+> Iw13xt/patch-hid-usbhid-hid-core-fix-recursive-deadlock
+> I think Ping was going to work on something similar to this for the "=
+input-
+> wacom" backports (since we can't rely on a fixed hid_ctrl being prese=
+nt) after
+> returning from vacation, but if you've already written it... :)
+> On Dec 30, 2015 9:08 AM, "Lyude" <cpaul@redhat.com> wrote:
+> > Unfortunately, when we have an Intuos Draw connected using a USB
+> > connection, wacom's IRQ handler will be called while the lock for t=
+he
+> > usbhid driver is held by hid_ctrl. This means when we try to schedu=
+le a
+> > new proximity event in wacom_intuos_schedule_prox_event() by callin=
+g
+> > hid_hw_request(), we'll try to take the lock a second time which
+> > deadlocks the system. This patch fixes that behavior by initializin=
+g a
+> > worker when we have a INTUOSHT2 device connected, and using that wo=
+rker
+> > to schedule the proximity event instead.
+> >=20
+> > Signed-off-by: Lyude <cpaul@redhat.com>
+> > ---
+> > =C2=A0drivers/hid/wacom_wac.c | 9 +++++++--
+> > =C2=A0drivers/hid/wacom_wac.h | 1 +
+> > =C2=A02 files changed, 8 insertions(+), 2 deletions(-)
+> >=20
+> > diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> > index 01a4f05..b59ded6 100644
+> > --- a/drivers/hid/wacom_wac.c
+> > +++ b/drivers/hid/wacom_wac.c
+> > @@ -433,8 +433,10 @@ exit:
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 return retval;
+> > =C2=A0}
+> >=20
+> > -static void wacom_intuos_schedule_prox_event(struct wacom_wac *wac=
+om_wac)
+> > +static void wacom_intuos_schedule_prox_event(struct work_struct *w=
+ork)
+> > =C2=A0{
+> > +=C2=A0 =C2=A0 =C2=A0 =C2=A0struct wacom_wac *wacom_wac =3D
+> > +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0container_o=
+f(work, struct wacom_wac,
+> > intuos_prox_event_worker);
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 struct wacom *wacom =3D container_of(wa=
+com_wac, struct wacom,
+> > wacom_wac);
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 struct hid_report *r;
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 struct hid_report_enum *re;
+> > @@ -624,7 +626,7 @@ static int wacom_intuos_inout(struct wacom_wac =
+*wacom)
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* don't report other events if we don'=
+t know the ID */
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (!wacom->id[idx]) {
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* but resc=
+hedule a read of the current tool */
+> > -=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0wacom_intuo=
+s_schedule_prox_event(wacom);
+> > +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0schedule_wo=
+rk(&wacom->intuos_prox_event_worker);
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return 1;
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 }
+> >=20
+> > @@ -2675,6 +2677,9 @@ int wacom_setup_pen_input_capabilities(struct
+> > input_dev *input_dev,
+> >=20
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (feature=
+s->type =3D=3D INTUOSHT2) {
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 wacom_setup_basic_pro_pen(wacom_wac);
+> > +
+> > +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0INIT_WORK(&wacom_wac->intuos_prox_event_worker,
+> > +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0wacom_intuos_schedu=
+le_prox_event);
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 } else {
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 __clear_bit(ABS_MISC, input_dev->absbit);
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 __set_bit(BTN_TOOL_PEN, input_dev->keybit);
+> > diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+> > index 877c24a..c24cfdc 100644
+> > --- a/drivers/hid/wacom_wac.h
+> > +++ b/drivers/hid/wacom_wac.h
+> > @@ -237,6 +237,7 @@ struct wacom_wac {
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 int ps_connected;
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 u8 bt_features;
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 u8 bt_high_speed;
+> > +=C2=A0 =C2=A0 =C2=A0 =C2=A0struct work_struct intuos_prox_event_wo=
+rker;
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 struct hid_data hid_data;
+> > =C2=A0};
+> >=20
+> > --
+> > 2.5.0
+> >=20
+> >=20
+--=20
+Cheers,
+	Lyude
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

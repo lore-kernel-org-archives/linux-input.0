@@ -1,64 +1,50 @@
-From: Kamal Mostafa <kamal@canonical.com>
-Subject: [PATCH 4.2.y-ckt 030/211] HID: core: Avoid uninitialized buffer access
-Date: Tue,  5 Jan 2016 11:42:18 -0800
-Message-ID: <1452023119-25647-31-git-send-email-kamal@canonical.com>
-References: <1452023119-25647-1-git-send-email-kamal@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v11 0/8] Goodix touchscreen enhancements
+Date: Tue, 5 Jan 2016 14:07:47 -0800
+Message-ID: <CAKdAkRQRJTONwakthxKDyG-=2CeaBjANiew6jpGc_1+ustSmGQ@mail.gmail.com>
+References: <1447936001-21420-1-git-send-email-irina.tirdea@intel.com>
+	<20151218011318.GB16016@dtor-ws>
+	<20160105200343.GA3425@excalibur.cnev.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <kernel-team-bounces@lists.ubuntu.com>
-In-Reply-To: <1452023119-25647-1-git-send-email-kamal@canonical.com>
-List-Unsubscribe: <https://lists.ubuntu.com/mailman/options/kernel-team>,
- <mailto:kernel-team-request@lists.ubuntu.com?subject=unsubscribe>
-List-Archive: <https://lists.ubuntu.com/archives/kernel-team>
-List-Post: <mailto:kernel-team@lists.ubuntu.com>
-List-Help: <mailto:kernel-team-request@lists.ubuntu.com?subject=help>
-List-Subscribe: <https://lists.ubuntu.com/mailman/listinfo/kernel-team>,
- <mailto:kernel-team-request@lists.ubuntu.com?subject=subscribe>
-Errors-To: kernel-team-bounces@lists.ubuntu.com
-Sender: kernel-team-bounces@lists.ubuntu.com
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@lists.ubuntu.com
-Cc: Jiri Kosina <jkosina@suse.cz>, Kamal Mostafa <kamal@canonical.com>, Jiri Kosina <jikos@kernel.org>, Richard Purdie <richard.purdie@linuxfoundation.org>, linux-input@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f193.google.com ([209.85.214.193]:33475 "EHLO
+	mail-ob0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751792AbcAEWHs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jan 2016 17:07:48 -0500
+In-Reply-To: <20160105200343.GA3425@excalibur.cnev.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Karsten Merker <merker@debian.org>
+Cc: Irina Tirdea <irina.tirdea@intel.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, lkml <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-4.2.8-ckt1 -stable review patch.  If anyone has any objections, please let me know.
+Hi Karsten,
 
-------------------
+On Tue, Jan 5, 2016 at 12:03 PM, Karsten Merker <merker@debian.org> wrote:
+> On Thu, Dec 17, 2015 at 05:13:18PM -0800, Dmitry Torokhov wrote:
+>> On Thu, Nov 19, 2015 at 02:26:33PM +0200, Irina Tirdea wrote:
+>> > This patchset depends on Dmitry's patch that fixes the
+>> > GPIO ACPI API[1], so devm_gpiod_get_optional can be properly
+>> > used in the code.
+>> >
+>> > [1] https://lkml.org/lkml/2015/11/11/465
+>>
+>> Applied 1 through 5 (see my goodix branch), looking at the rest.
+>
+> Hello,
+>
+> as we are getting near to the next merge window, I wanted to
+> kindly ask whether there is any news on this.  It would be really
+> nice if the complete stack of goodix patches could go into kernel
+> 4.5.
 
-From: Richard Purdie <richard.purdie@linuxfoundation.org>
+There is goodix branch at
+git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git that we
+should be able to merge in 4.5. It has your patches and half of
+Irina's (with config dump and ESD support missing at the moment). If
+you could give ti a quick spin I'd appreciate it.
 
-commit 79b568b9d0c7c5d81932f4486d50b38efdd6da6d upstream.
+Thanks.
 
-hid_connect adds various strings to the buffer but they're all
-conditional. You can find circumstances where nothing would be written
-to it but the kernel will still print the supposedly empty buffer with
-printk. This leads to corruption on the console/in the logs.
-
-Ensure buf is initialized to an empty string.
-
-Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
-[dvhart: Initialize string to "" rather than assign buf[0] = NULL;]
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Darren Hart <dvhart@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Kamal Mostafa <kamal@canonical.com>
----
- drivers/hid/hid-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index e6fce23..e3edddd 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1591,7 +1591,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 		"Multi-Axis Controller"
- 	};
- 	const char *type, *bus;
--	char buf[64];
-+	char buf[64] = "";
- 	unsigned int i;
- 	int len;
- 	int ret;
 -- 
-1.9.1
+Dmitry

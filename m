@@ -1,97 +1,64 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Input: ALPS - Report v3 pinnacle trackstick device only
- if is present
-Date: Tue, 5 Jan 2016 17:54:19 +0100
-Message-ID: <20160105165419.GQ22661@pali>
-References: <1427032068-13066-1-git-send-email-pali.rohar@gmail.com>
- <550FFC21.1000503@redhat.com>
+From: Kamal Mostafa <kamal@canonical.com>
+Subject: [PATCH 4.2.y-ckt 030/211] HID: core: Avoid uninitialized buffer access
+Date: Tue,  5 Jan 2016 11:42:18 -0800
+Message-ID: <1452023119-25647-31-git-send-email-kamal@canonical.com>
+References: <1452023119-25647-1-git-send-email-kamal@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f41.google.com ([74.125.82.41]:35444 "EHLO
-	mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750846AbcAEQyV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jan 2016 11:54:21 -0500
-Content-Disposition: inline
-In-Reply-To: <550FFC21.1000503@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <kernel-team-bounces@lists.ubuntu.com>
+In-Reply-To: <1452023119-25647-1-git-send-email-kamal@canonical.com>
+List-Unsubscribe: <https://lists.ubuntu.com/mailman/options/kernel-team>,
+ <mailto:kernel-team-request@lists.ubuntu.com?subject=unsubscribe>
+List-Archive: <https://lists.ubuntu.com/archives/kernel-team>
+List-Post: <mailto:kernel-team@lists.ubuntu.com>
+List-Help: <mailto:kernel-team-request@lists.ubuntu.com?subject=help>
+List-Subscribe: <https://lists.ubuntu.com/mailman/listinfo/kernel-team>,
+ <mailto:kernel-team-request@lists.ubuntu.com?subject=subscribe>
+Errors-To: kernel-team-bounces@lists.ubuntu.com
+Sender: kernel-team-bounces@lists.ubuntu.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@lists.ubuntu.com
+Cc: Jiri Kosina <jkosina@suse.cz>, Kamal Mostafa <kamal@canonical.com>, Jiri Kosina <jikos@kernel.org>, Richard Purdie <richard.purdie@linuxfoundation.org>, linux-input@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Monday 23 March 2015 12:42:25 Hans de Goede wrote:
-> Hi,
->=20
-> On 22-03-15 14:47, Pali Roh=C3=A1r wrote:
-> >This patch move v3 pinnacle code for trackstick detection from alps_=
-hw_init_v3()
-> >to alps_set_protocol() so ALPS_DUALPOINT flag can be cleared before =
-registering
-> >trackstick input device in kernel.
-> >
-> >Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
->=20
-> Looks good:
->=20
-> Acked-by: Hans de Goede <hdegoede@redhat.com>
->=20
-> Regards,
->=20
-> Hans
->=20
+4.2.8-ckt1 -stable review patch.  If anyone has any objections, please let me know.
 
-Hi Hans! I would like to remind this patch as it stays here on ML.
+------------------
 
->=20
-> >---
-> >  drivers/input/mouse/alps.c |   12 +++++++-----
-> >  1 file changed, 7 insertions(+), 5 deletions(-)
-> >
-> >diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> >index c9cd27a..d24e98d 100644
-> >--- a/drivers/input/mouse/alps.c
-> >+++ b/drivers/input/mouse/alps.c
-> >@@ -1877,15 +1877,12 @@ error:
-> >
-> >  static int alps_hw_init_v3(struct psmouse *psmouse)
-> >  {
-> >+	struct alps_data *priv =3D psmouse->private;
-> >  	struct ps2dev *ps2dev =3D &psmouse->ps2dev;
-> >  	int reg_val;
-> >  	unsigned char param[4];
-> >
-> >-	reg_val =3D alps_probe_trackstick_v3_v7(psmouse, ALPS_REG_BASE_PIN=
-NACLE);
-> >-	if (reg_val =3D=3D -EIO)
-> >-		goto error;
-> >-
-> >-	if (reg_val =3D=3D 0 &&
-> >+	if ((priv->flags & ALPS_DUALPOINT) &&
-> >  	    alps_setup_trackstick_v3(psmouse, ALPS_REG_BASE_PINNACLE) =3D=
-=3D -EIO)
-> >  		goto error;
-> >
-> >@@ -2249,6 +2246,11 @@ static int alps_set_protocol(struct psmouse *=
-psmouse,
-> >  		priv->decode_fields =3D alps_decode_pinnacle;
-> >  		priv->nibble_commands =3D alps_v3_nibble_commands;
-> >  		priv->addr_command =3D PSMOUSE_CMD_RESET_WRAP;
-> >+
-> >+		if (alps_probe_trackstick_v3_v7(psmouse,
-> >+						ALPS_REG_BASE_PINNACLE) < 0)
-> >+			priv->flags &=3D ~ALPS_DUALPOINT;
-> >+
-> >  		break;
-> >
-> >  	case ALPS_PROTO_V3_RUSHMORE:
-> >
+From: Richard Purdie <richard.purdie@linuxfoundation.org>
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+commit 79b568b9d0c7c5d81932f4486d50b38efdd6da6d upstream.
+
+hid_connect adds various strings to the buffer but they're all
+conditional. You can find circumstances where nothing would be written
+to it but the kernel will still print the supposedly empty buffer with
+printk. This leads to corruption on the console/in the logs.
+
+Ensure buf is initialized to an empty string.
+
+Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
+[dvhart: Initialize string to "" rather than assign buf[0] = NULL;]
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+---
+ drivers/hid/hid-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index e6fce23..e3edddd 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1591,7 +1591,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+ 		"Multi-Axis Controller"
+ 	};
+ 	const char *type, *bus;
+-	char buf[64];
++	char buf[64] = "";
+ 	unsigned int i;
+ 	int len;
+ 	int ret;
+-- 
+1.9.1

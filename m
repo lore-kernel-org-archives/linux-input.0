@@ -1,39 +1,41 @@
-From: "Jeff Skoll" <simon.peter@inm.uni-stuttgart.de>
-Subject: Charity Donation
-Date: Mon, 04 Jan 2016 18:10:12 -0500
-Message-ID: <auto-000204167120@uni-stuttgart.de>
-Reply-To: jeff.skoll@skollcharity.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: xpad - use LED API when identifying wireless
+ controllers
+Date: Mon, 4 Jan 2016 16:50:17 -0800
+Message-ID: <20160105005017.GA11801@dtor-ws>
+References: <20151216224408.GA14261@dtor-ws>
+ <20151219221709.5b5947ec@gromit>
+ <20151220075504.GA35575@dtor-ws>
+ <CA+b0ujeD_qV-MtPx7ktxMWw-UgxZq8d9BN6SgwA3F+RKaXz6ng@mail.gmail.com>
+ <20151221200650.GB40090@dtor-ws>
+ <CA+b0ujepYgvgC6tTeWBphQLEr+KXXzA48uGzxUvfO8yyXey6UA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.rus.uni-stuttgart.de ([129.69.192.2]:48761 "EHLO
-	mx2.rus.uni-stuttgart.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753262AbcADXq2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jan 2016 18:46:28 -0500
-Content-Description: Mail message body
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:34451 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753733AbcAEAuU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jan 2016 19:50:20 -0500
+Content-Disposition: inline
+In-Reply-To: <CA+b0ujepYgvgC6tTeWBphQLEr+KXXzA48uGzxUvfO8yyXey6UA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Me <simon.peter@inm.uni-stuttgart.de>
+To: Pavel Rojtberg <rojtberg@gmail.com>
+Cc: Clement Calmels <clement.calmels@free.fr>, linux-input@vger.kernel.org, "Pierre-Loup A. Griffais" <githubpublic@plagman.net>, linux-kernel@vger.kernel.org
 
-Hi,
-My name is Jeffrey Skoll, a philanthropist and the founder of one of th=
-e largest private foundations in the world. I believe strongly in =E2=80=
-=98giving while living.=E2=80=99 I had one idea that never changed in m=
-y mind =E2=80=94 that you should use your wealth to help people and I h=
-ave decided to secretly give USD2.498 Million to a randomly selected in=
-dividual. On receipt of this email, you should count yourself as the in=
-dividual. Kindly get back to me at your earliest convenience, so I know=
- your email address is valid.
+On Thu, Dec 24, 2015 at 07:11:22PM +0100, Pavel Rojtberg wrote:
+> 
+> for me this one did the trick. The correct LED lights up after resume.
+> 
+> Integrated it here (master):
+> https://github.com/paroj/xpad
 
-Visit the web page to know more about me: http://www.theglobeandmail.co=
-m/news/national/meet-the-canadian-billionaire-whos-giving-it-all-away/a=
-rticle4209888/ or you can read an article of me on Wikipedia.
+Pavel, I refreshed my xpad branch on kernel.org folding the reset_resume
+and anchor changes into your original suspend/resume patch. Could you
+please try it out so that I can send it to mainline in the upcoming
+merge window?
 
-Regards,
-Jeffrey Skoll.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks!
+
+-- 
+Dmitry

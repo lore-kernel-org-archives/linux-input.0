@@ -1,68 +1,39 @@
-From: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
-Subject: Re: [PATCH] input: gpio_keys: Fix check for disabling unsupported key
-Date: Tue, 5 Jan 2016 09:24:40 +0200
-Message-ID: <568B6FB8.6000101@gmail.com>
-References: <1451856076-29045-1-git-send-email-ivo.g.dimitrov.75@gmail.com>
- <20160105011942.GD11801@dtor-ws>
+From: Oreste Salerno <oreste.salerno@tomtom.com>
+Subject: [PATCH v2 0/3] Add device tree support to the cyttsp driver
+Date: Tue, 5 Jan 2016 13:59:12 +0100
+Message-ID: <cover.1451997697.git.oreste.salerno@tomtom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:37597 "EHLO
-	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752484AbcAEHYp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jan 2016 02:24:45 -0500
-In-Reply-To: <20160105011942.GD11801@dtor-ws>
+Received: from mail3.tomtom.com ([85.90.76.132]:55939 "EHLO mail3.tomtom.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751434AbcAEM7V (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Jan 2016 07:59:21 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: pali.rohar@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, fery@cypress.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, oreste.salerno@tomtom.com
 
-Hi,
+This set of patches adds support to the cyttsp touchscreen driver
+to retrieve platform data details from the device tree.
+Additionally, they define a default init function that performs a hard
+reset of the chip on boot.
 
-On  5.01.2016 03:19, Dmitry Torokhov wrote:
->>   	/* First validate */
->> -	for (i = 0; i < ddata->pdata->nbuttons; i++) {
->> -		struct gpio_button_data *bdata = &ddata->data[i];
->> +	for (i = 0; i < n_events; i++) {
->
-> for_each_set_bit()?
+---
+Changes in v2:
+  - Fix err_cast.cocci warning in patch 2/3
 
-Yeah, seems I must have overslept that helper, will send an updated version.
+Oreste Salerno (3):
+  Input: cyttsp - remove unused irq_gpio from platform_data
+  Input: cyttsp - add device tree support
+  Input: cyttsp - add default init function
 
->
-> OTOH maybe we should do
->
-> 	bitmap = get_bitmap_events_by_type(type); // new, return keybit or swbit
+ .../bindings/input/touchscreen/cyttsp.txt          |  73 +++++++++++++
+ drivers/input/touchscreen/cyttsp_core.c            | 120 +++++++++++++++++++--
+ include/linux/input/cyttsp.h                       |   4 +-
+ 3 files changed, 189 insertions(+), 8 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt
 
-new helper function? or static function in gpio-keys? who 
-allocates/frees the bitmap memory? or this is static data? Maybe I don't 
-get the idea :) .
+-- 
+1.9.1
 
-> 	if (!bitmap_subset(bits, bitmap, n_events)) {
-> 		error = -EINVAL;
-> 		goto out;
-> 	}
->
-> ... and leave the rest of the loop as is?
->
-
-Not sure about that. Unless I miss something, what we want is:
-
-1. make sure that what user has written is within the range of the event 
-type. I hope bitmap_parselist already does it for us.
-
-2. Make sure that for every bit in bits set based on what user has 
-provided, there is a matching gpio in this particular gpio-keys device.
-
-3. Make sure that every gpio user wants disabled is actually allowed to 
-be disabled.
-
-I don't see how 2 is achieved with ^^^ code.
-
-So, shall I send a new version of the patch with for_each_set_bit() 
-used, or you'll fix the $subject problem with whatever magic you think 
-is needed?
-
-Thanks,
-Ivo

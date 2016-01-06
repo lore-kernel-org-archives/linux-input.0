@@ -1,49 +1,36 @@
-From: Kristian Evensen <kristian.evensen@gmail.com>
-Subject: [PATCH] usb: hid: Add new PID for Microchip Pick16F1454
-Date: Wed,  6 Jan 2016 15:08:53 +0100
-Message-ID: <1452089333-32671-1-git-send-email-kristian.evensen@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
-Cc: Kristian Evensen <kristian.evensen@gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [Patch-V2 1/6] INPUT: xpad: Add minimal support for Logitech
+ G920 Wheel
+Date: Wed, 6 Jan 2016 15:36:57 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1601061535440.3402@cbobk.fhfr.pm>
+References: <1447345535-2912-1-git-send-email-simon@mungewell.org> <1447345535-2912-2-git-send-email-simon@mungewell.org> <alpine.LNX.2.00.1511191449130.20111@pobox.suse.cz> <20151119183106.GC24773@dtor-ws> <CAKdAkRTaTA8KFQripYP0ZcFb+5G7OC_Ecnhrwum4L9hsQ-PVxg@mail.gmail.com>
+ <CAKdAkRRBtVfTss9AV+DgTtCXf8PVks5pCB4VnR5sQvgW=S3HyA@mail.gmail.com> <20151210170853.GC16026@mail.corp.redhat.com> <CAKdAkRSBTBTW8ma79hh+0sr4izJ70SnvUb1gmPFy3MoVWYaUbA@mail.gmail.com> <20160104095524.GB20222@mail.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:52805 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752522AbcAFOhC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Jan 2016 09:37:02 -0500
+In-Reply-To: <20160104095524.GB20222@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Wood <simon@mungewell.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Edwin <Edwin@velds.nl>, =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>
 
-From: Kristian Evensen <kristian.evensen@gmail.com>
+On Mon, 4 Jan 2016, Benjamin Tissoires wrote:
 
-There seems to be a new version of the Microchip Pick16F1454 with a
-different PID (0xf2f7). This device should also be ignored by the HID
-driver. The PID was observed with the second version of the Yepkit Ykush
-USB hub.
+> Jiri, I *think* this commit still is in your next pull request for
+> Linus. We might want to drop it before it hits Linus' tree.
 
-Signed-off-by: Kristian Evensen <kristian.evensen@gmail.com>
----
- drivers/hid/hid-core.c | 1 +
- drivers/hid/hid-ids.h  | 1 +
- 2 files changed, 2 insertions(+)
+What exactly would be the reasoning for dropping it?
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index c6f7a69..ab3b86c 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2408,6 +2408,7 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICKIT1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICKIT2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICK16F1454) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICK16F1454_V2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NATIONAL_SEMICONDUCTOR, USB_DEVICE_ID_N_S_HARMONY) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ONTRAK, USB_DEVICE_ID_ONTRAK_ADU100) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ONTRAK, USB_DEVICE_ID_ONTRAK_ADU100 + 20) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 8b78a7f..16d3077 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -664,6 +664,7 @@
- #define USB_DEVICE_ID_PICOLCD		0xc002
- #define USB_DEVICE_ID_PICOLCD_BOOTLOADER	0xf002
- #define USB_DEVICE_ID_PICK16F1454	0x0042
-+#define USB_DEVICE_ID_PICK16F1454_V2	0xf2f7
- 
- #define USB_VENDOR_ID_MICROSOFT		0x045e
- #define USB_DEVICE_ID_SIDEWINDER_GV	0x003b
+I am all for implementing the skeleton HID driver to take over the xpad.c 
+heavylifting, but before that work gets done, this can stay, can't it?
+
+Thanks,
+
 -- 
-2.5.0
+Jiri Kosina
+SUSE Labs
+

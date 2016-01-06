@@ -1,107 +1,63 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2 2/3] Input: cyttsp - add device tree support
-Date: Wed, 6 Jan 2016 09:02:56 -0600
-Message-ID: <20160106150256.GA27683@rob-hp-laptop>
-References: <cover.1451997697.git.oreste.salerno@tomtom.com>
- <97cd8c1d98d7406347e4e48f4c7383a394a2ae93.1451997697.git.oreste.salerno@tomtom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] HID: wacom: Use correct report to query pen ID from INTUOSHT2 devices
+Date: Wed,  6 Jan 2016 13:25:53 -0800
+Message-ID: <1452115553-3129-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:46102 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751605AbcAFPDB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 Jan 2016 10:03:01 -0500
-Content-Disposition: inline
-In-Reply-To: <97cd8c1d98d7406347e4e48f4c7383a394a2ae93.1451997697.git.oreste.salerno@tomtom.com>
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:33205 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752010AbcAFV0E (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jan 2016 16:26:04 -0500
+Received: by mail-pa0-f53.google.com with SMTP id cy9so240346020pac.0
+        for <linux-input@vger.kernel.org>; Wed, 06 Jan 2016 13:26:04 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oreste Salerno <oreste.salerno@tomtom.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, fery@cypress.com, dmitry.torokhov@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Tue, Jan 05, 2016 at 01:59:14PM +0100, Oreste Salerno wrote:
-> Add support for retrieving the platform data from the device
-> tree.
+Unlike other tablets which are compatible with the wacom_intuos_irq handler,
+INTUOSHT2 devices provide pen ID with report ID 8 instead of 5. To ensure
+wacom_intuos_schedule_prox_event works as intended for these tablets, we
+must be sure it uses the correct report ID in this case.
 
-Converting platform data to DT as is is typically not the right thing to 
-do. There's some overlap, but it is not typically 1-1.
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 6 +++++-
+ drivers/hid/wacom_wac.h | 1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-> Signed-off-by: Oreste Salerno <oreste.salerno@tomtom.com>
-> ---
->  .../bindings/input/touchscreen/cyttsp.txt          |  73 ++++++++++++++
->  drivers/input/touchscreen/cyttsp_core.c            | 108 +++++++++++++++++++--
->  include/linux/input/cyttsp.h                       |   3 +
->  3 files changed, 177 insertions(+), 7 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt b/Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt
-> new file mode 100644
-> index 0000000..8e0bcc73
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt
-> @@ -0,0 +1,73 @@
-> +* Cypress cyttsp touchscreen controller
-> +
-> +Required properties:
-> +- compatible		: must be "cypress,cyttsp-i2c" or "cypress,cyttsp-spi"
-> +- reg			: Device address
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index f706604..3aeddc2 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -439,11 +439,15 @@ exit:
+ static void wacom_intuos_schedule_prox_event(struct wacom_wac *wacom_wac)
+ {
+ 	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
++	struct wacom_features *features = &wacom_wac->features;
+ 	struct hid_report *r;
+ 	struct hid_report_enum *re;
+ 
+ 	re = &(wacom->hdev->report_enum[HID_FEATURE_REPORT]);
+-	r = re->report_id_hash[WACOM_REPORT_INTUOS_ID1];
++	if (features->type == INTUOSHT2)
++		r = re->report_id_hash[WACOM_REPORT_INTUOSHT2_ID];
++	else
++		r = re->report_id_hash[WACOM_REPORT_INTUOS_ID1];
+ 	if (r) {
+ 		hid_hw_request(wacom->hdev, r, HID_REQ_GET_REPORT);
+ 	}
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 3f60192..25baa7f 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -70,6 +70,7 @@
+ #define WACOM_REPORT_DEVICE_LIST	16
+ #define WACOM_REPORT_INTUOS_PEN		16
+ #define WACOM_REPORT_REMOTE		17
++#define WACOM_REPORT_INTUOSHT2_ID	8
+ 
+ /* device quirks */
+ #define WACOM_QUIRK_BBTOUCH_LOWRES	0x0001
+-- 
+2.6.3
 
-...or SPI chip select number
-
-> +- spi-max-frequency 	: Maximum SPI clocking speed of the device (for cyttsp-spi)
-> +- interrupt-parent	: the phandle for the gpio controller
-> +			  (see interrupt binding[0]).
-> +- interrupts		: (gpio) interrupt to which the chip is connected
-> +			  (see interrupt binding[0]).
-> +- reset-gpios		: the reset gpio the chip is connected to
-> +			  (see GPIO binding[1] for more details).
-> +- maxx			: horizontal resolution of touchscreen (in pixels)
-> +- maxy			: vertical resolution of touchscreen (in pixels)
-
-IIRC, we have standard properties for these. Touchscreens don't really 
-have pixels...
-
-> +- bootloader-key	: the bootloader key used to exit bootloader mode
-
-I don't understand what this is.
-
-> +
-> +Optional properties:
-> +- use_hndshk		: enable handshake bit
-> +- act_dist		: active distance
-> +- act_intrvl		: active refresh interval in ms
-
-Is this sampling frequency?
-
-> +- tch_tmout		: active touch timeout in ms
-> +- lp_intrvl		: low power refresh interval in ms
-
-Look whether other touchscreens bindings have similar properties already 
-and copy those. These need better definitions in general.
-
-Don't use '_' in property names and append units to the name of 
-properties that have units (e.g. ms).
-
-> +Example:
-> +	&i2c1 {
-> +		/* ... */
-> +		cyttsp@a {
-> +			compatible = "cypress,cyttsp-i2c";
-> +			reg = <0xa>;
-> +			interrupt-parent = <&msm_gpio>;
-> +			interrupts = <13 0x2008>;
-> +			reset-gpios = <&msm_gpio 12 0x00>;
-> +
-> +			maxx = <800>;
-> +			maxy = <480>;
-> +			bootloader-key = /bits/ 8 <0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x08>;
-> +
-> +			use_hndshk;
-> +			act_dist = /bits/ 8 <0xF8>;
-> +			act_intrvl = /bits/ 8 <0x00>;
-> +			tch_tmout = /bits/ 8 <0xFF>;
-> +			lp_intrvl = /bits/ 8 <0x0A>;
-
-If the size is not 32-bits, you need to state that in the description. 
-There is not really much point in making these 8-bit though.
-
-Rob

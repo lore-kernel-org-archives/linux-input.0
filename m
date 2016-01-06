@@ -1,36 +1,84 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [Patch-V2 1/6] INPUT: xpad: Add minimal support for Logitech
- G920 Wheel
-Date: Wed, 6 Jan 2016 15:36:57 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1601061535440.3402@cbobk.fhfr.pm>
-References: <1447345535-2912-1-git-send-email-simon@mungewell.org> <1447345535-2912-2-git-send-email-simon@mungewell.org> <alpine.LNX.2.00.1511191449130.20111@pobox.suse.cz> <20151119183106.GC24773@dtor-ws> <CAKdAkRTaTA8KFQripYP0ZcFb+5G7OC_Ecnhrwum4L9hsQ-PVxg@mail.gmail.com>
- <CAKdAkRRBtVfTss9AV+DgTtCXf8PVks5pCB4VnR5sQvgW=S3HyA@mail.gmail.com> <20151210170853.GC16026@mail.corp.redhat.com> <CAKdAkRSBTBTW8ma79hh+0sr4izJ70SnvUb1gmPFy3MoVWYaUbA@mail.gmail.com> <20160104095524.GB20222@mail.corp.redhat.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH] hid: core: add managed version of hid_hw_start
+Date: Wed, 6 Jan 2016 15:37:36 +0100
+Message-ID: <568D26B0.9080301@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:52805 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752522AbcAFOhC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 Jan 2016 09:37:02 -0500
-In-Reply-To: <20160104095524.GB20222@mail.corp.redhat.com>
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:37483 "EHLO
+	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751994AbcAFOht (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jan 2016 09:37:49 -0500
+Received: by mail-wm0-f52.google.com with SMTP id f206so78360335wmf.0
+        for <linux-input@vger.kernel.org>; Wed, 06 Jan 2016 06:37:48 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Wood <simon@mungewell.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Edwin <Edwin@velds.nl>, =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 4 Jan 2016, Benjamin Tissoires wrote:
+Most calls to hid_hw_stop are boilerplate code. The function comment
+states: "This is usually called from remove function or from probe
+when something failed and hid_hw_start was called already."
 
-> Jiri, I *think* this commit still is in your next pull request for
-> Linus. We might want to drop it before it hits Linus' tree.
+A managed version of hid_hw_start allows to avoid this boilerplate
+code in most cases (similar to the other devm_ functions). 
+hid_hw_stop is called automatically before the device is deleted.
 
-What exactly would be the reasoning for dropping it?
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+ drivers/hid/hid-core.c | 22 ++++++++++++++++++++++
+ include/linux/hid.h    |  3 +++
+ 2 files changed, 25 insertions(+)
 
-I am all for implementing the skeleton HID driver to take over the xpad.c 
-heavylifting, but before that work gets done, this can stay, can't it?
-
-Thanks,
-
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index e95f23f..61c6f63 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2752,6 +2752,28 @@ int hid_check_keys_pressed(struct hid_device *hid)
+ 
+ EXPORT_SYMBOL_GPL(hid_check_keys_pressed);
+ 
++static void __hid_hw_stop(void *data)
++{
++	hid_hw_stop((struct hid_device *)data);
++}
++
++int __must_check devm_hid_hw_start(struct hid_device *hdev,
++				   unsigned int connect_mask)
++{
++	int ret;
++
++	ret = hid_hw_start(hdev, connect_mask);
++	if (ret)
++		return ret;
++
++	ret = devm_add_action(&hdev->dev, __hid_hw_stop, hdev);
++	if (ret)
++		hid_hw_stop(hdev);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(devm_hid_hw_start);
++
+ static int __init hid_init(void)
+ {
+ 	int ret;
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 75b66ec..2d85b3e 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -774,6 +774,9 @@ extern bool hid_ignore(struct hid_device *);
+ extern int hid_add_device(struct hid_device *);
+ extern void hid_destroy_device(struct hid_device *);
+ 
++extern int __must_check devm_hid_hw_start(struct hid_device *hdev,
++					  unsigned int connect_mask);
++
+ extern int __must_check __hid_register_driver(struct hid_driver *,
+ 		struct module *, const char *mod_name);
+ 
 -- 
-Jiri Kosina
-SUSE Labs
+2.6.4
+
 

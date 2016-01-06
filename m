@@ -1,130 +1,70 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] Input: ALPS - Detect trackstick presence for v7 protocol
-Date: Wed, 6 Jan 2016 09:12:30 +0100
-Message-ID: <568CCC6E.7010707@redhat.com>
-References: <1427031971-13018-1-git-send-email-pali.rohar@gmail.com>
- <20160105164421.GP22661@pali>
+From: rajeev kumar <rajeevkumar.linux@gmail.com>
+Subject: Re: Add support(re-using) for Cypress CY8CTMA884 part in exiting
+ cypress touch controller driver(drivers/input/touchscreen/cyttsp4_core.c)
+Date: Wed, 6 Jan 2016 15:43:13 +0530
+Message-ID: <CAA7nrthvojGcUr0E+VRzYKVg=a7MuHxc5_NdwY8r3wgr17H-QQ@mail.gmail.com>
+References: <CAA7nrthgTKF0z=T98hA2wsEuvzMbpyNe3Ck0TDpbWuqYSEs+jg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160105164421.GP22661@pali>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Santiago Gala <sgala@apache.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alex Hung <alex.hung@canonical.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lf0-f52.google.com ([209.85.215.52]:35097 "EHLO
+	mail-lf0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752472AbcAFKNP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jan 2016 05:13:15 -0500
+Received: by mail-lf0-f52.google.com with SMTP id c192so133863548lfe.2
+        for <linux-input@vger.kernel.org>; Wed, 06 Jan 2016 02:13:14 -0800 (PST)
+In-Reply-To: <CAA7nrthgTKF0z=T98hA2wsEuvzMbpyNe3Ck0TDpbWuqYSEs+jg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: fery@cypress.com
+Cc: linux-input@vger.kernel.org, javier@dowhile0.org
 
-Hi,
+Hello Ferruh
 
-On 05-01-16 17:44, Pali Roh=C3=A1r wrote:
-> On Sunday 22 March 2015 14:46:11 Pali Roh=C3=A1r wrote:
->> This patch adds detection of trackstick for v7 protocol devices. Cod=
-e in this
->> patch is used in official Dell touchpad linux drivers for Dell model=
-s:
->> Dell Latitude E5250/5250, E5450/5450, E5550/5550
->>
->> Detection code and base reg for alps v3 rushmore and v7 devices is e=
-xacly same.
->>
->> Also user in bug https://bugzilla.kernel.org/show_bug.cgi?id=3D94801=
- reported
->> that Toshiba Sattellite Z30-A-1DG has only alps v7 touchpad device w=
-ithout
->> trackstick and kernel reports to userspace also redundant trackstick=
- device.
->>
->> Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
->> ---
+On Mon, Jan 4, 2016 at 12:46 PM, rajeev kumar
+<rajeevkumar.linux@gmail.com> wrote:
+> Hello Ferruh,
 >
-> Hello!
->
-> Alex now tested this patch on two Dell machines with ALPS: E5450 (wit=
-h
-> TrackStick) and E5250 (without TrackStick).
->
-> With patch nothing was changed for E5450. And E5250 with patch does n=
-ot
-> show trackstick input device anymore.
->
-> Tested-by: Alex Hung <alex.hung@canonical.com>
+>   I was going through exiting cypress touch screen  driver
+> (drivers/input/touchscreen/cyttsp4_core.c). Driver copy write suggest
+> that it supports TMA4XX and TMA1036 cypress touch part. Is there any
+> planning to extend the support for tma884 part ?
+> In fact , support for tma884 part exit in android version of the code
+> for v3.0.31 Linux kernel. I've gone ahead and tried to review the
+> current version of the `cyttsp4*` sources in v4.3 relative to the
+> version present in
+> Android(https://android.googlesource.com/kernel/omap) and there are a
+> lot of similarities between these two versions of the drivers. It
+> looks to me that the version in v4.3 is a cleaned up fork of the older
+> version contained in Android. I understand that these two versions of
+> the driver may have both been targeted at different Cypress touch
+> screen controller part numbers. But based on what I've been reading,
+> both of these parts appear to be more closely related/in the same
+> product family than not and so should use a common driver.
+> So my question is:
+> 1. Is there any planning to extend support for cypress tma884 part in
+> existing cypress touch screen driver i.e in
+> drivers/input/touchscreen/cyttsp4_core.c ? or
+> 2. may be with minor changes, can I re-use the same driver for tma884
+> part ? Please suggest.
 
-With that this patch looks good to me:
+Continuation to the last mail, doing more post-mortem analysis for the
+code base,  drivers/input/touchscreen/cyttsp4_core.c ( v4.3 kernel:
+support TMA4XX and TMA1036 cypress touch part) and android
+code base, https://android.googlesource.com/kernel/omap ( Supports
+CY8CTMA398 and CY8CTMA884 cypress touch part). I don't have the
+specification for TMA4XX device families but by looking/comparing
+code, my analysis suggest that I can use
+drivers/input/touchscreen/cyttsp4_core.c (v4.3 kernel) also for
+cypress touch part CY8CTMA884 as it is.
+Could you please strengthen my understanding ?
 
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-
-Pali, it is probably a good idea to send Dmitry a v2 of these 2
-patches rebased on top of the latest next and with Alex' Tested-By
-and my Reviewed-by-s added.
-
-Regards,
-
-Hans
-
+TIA
+Best Regards
+Rajeev
 
 >
->>   drivers/input/mouse/alps.c |   12 ++++++++----
->>   1 file changed, 8 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
->> index 33198b9..c9cd27a 100644
->> --- a/drivers/input/mouse/alps.c
->> +++ b/drivers/input/mouse/alps.c
->> @@ -30,6 +30,7 @@
->>   #define ALPS_CMD_NIBBLE_10	0x01f2
->>
->>   #define ALPS_REG_BASE_RUSHMORE	0xc2c0
->> +#define ALPS_REG_BASE_V7	0xc2c0
->>   #define ALPS_REG_BASE_PINNACLE	0x0000
->>
->>   static const struct alps_nibble_commands alps_v3_nibble_commands[]=
- =3D {
->> @@ -1795,7 +1796,7 @@ static int alps_absolute_mode_v3(struct psmous=
-e *psmouse)
->>   	return 0;
->>   }
->>
->> -static int alps_probe_trackstick_v3(struct psmouse *psmouse, int re=
-g_base)
->> +static int alps_probe_trackstick_v3_v7(struct psmouse *psmouse, int=
- reg_base)
->>   {
->>   	int ret =3D -EIO, reg_val;
->>
->> @@ -1880,7 +1881,7 @@ static int alps_hw_init_v3(struct psmouse *psm=
-ouse)
->>   	int reg_val;
->>   	unsigned char param[4];
->>
->> -	reg_val =3D alps_probe_trackstick_v3(psmouse, ALPS_REG_BASE_PINNAC=
-LE);
->> +	reg_val =3D alps_probe_trackstick_v3_v7(psmouse, ALPS_REG_BASE_PIN=
-NACLE);
->>   	if (reg_val =3D=3D -EIO)
->>   		goto error;
->>
->> @@ -2260,8 +2261,8 @@ static int alps_set_protocol(struct psmouse *p=
-smouse,
->>   		priv->x_bits =3D 16;
->>   		priv->y_bits =3D 12;
->>
->> -		if (alps_probe_trackstick_v3(psmouse,
->> -					     ALPS_REG_BASE_RUSHMORE) < 0)
->> +		if (alps_probe_trackstick_v3_v7(psmouse,
->> +						ALPS_REG_BASE_RUSHMORE) < 0)
->>   			priv->flags &=3D ~ALPS_DUALPOINT;
->>
->>   		break;
->> @@ -2311,6 +2312,9 @@ static int alps_set_protocol(struct psmouse *p=
-smouse,
->>   		if (priv->fw_ver[1] !=3D 0xba)
->>   			priv->flags |=3D ALPS_BUTTONPAD;
->>
->> +		if (alps_probe_trackstick_v3_v7(psmouse, ALPS_REG_BASE_V7) < 0)
->> +			priv->flags &=3D ~ALPS_DUALPOINT;
->> +
->>   		break;
->>   	}
->>
+> TIA
 >
+> Best Regards
+> Rajeev

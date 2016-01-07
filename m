@@ -1,70 +1,101 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: ALPS - Detect trackstick presence for v7 protocol
-Date: Wed, 6 Jan 2016 15:55:01 -0800
-Message-ID: <20160106235501.GA3129@dtor-ws>
-References: <1427031971-13018-1-git-send-email-pali.rohar@gmail.com>
- <20160105164421.GP22661@pali>
- <568CCC6E.7010707@redhat.com>
+Subject: Re: [PATCH] Input: ALPS - Report v3 pinnacle trackstick device only
+ if is present
+Date: Wed, 6 Jan 2016 16:00:33 -0800
+Message-ID: <20160107000033.GB3129@dtor-ws>
+References: <1427032068-13066-1-git-send-email-pali.rohar@gmail.com>
+ <550FFC21.1000503@redhat.com>
+ <20160105165419.GQ22661@pali>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:34588 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752192AbcAFXzF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jan 2016 18:55:05 -0500
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:35464 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752192AbcAGAAg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jan 2016 19:00:36 -0500
 Content-Disposition: inline
-In-Reply-To: <568CCC6E.7010707@redhat.com>
+In-Reply-To: <20160105165419.GQ22661@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Santiago Gala <sgala@apache.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alex Hung <alex.hung@canonical.com>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Jan 06, 2016 at 09:12:30AM +0100, Hans de Goede wrote:
-> Hi,
+On Tue, Jan 05, 2016 at 05:54:19PM +0100, Pali Roh=E1r wrote:
+> On Monday 23 March 2015 12:42:25 Hans de Goede wrote:
+> > Hi,
+> >=20
+> > On 22-03-15 14:47, Pali Roh=E1r wrote:
+> > >This patch move v3 pinnacle code for trackstick detection from alp=
+s_hw_init_v3()
+> > >to alps_set_protocol() so ALPS_DUALPOINT flag can be cleared befor=
+e registering
+> > >trackstick input device in kernel.
+> > >
+> > >Signed-off-by: Pali Roh=E1r <pali.rohar@gmail.com>
+> >=20
+> > Looks good:
+> >=20
+> > Acked-by: Hans de Goede <hdegoede@redhat.com>
+> >=20
+> > Regards,
+> >=20
+> > Hans
+> >=20
 >=20
-> On 05-01-16 17:44, Pali Roh=E1r wrote:
-> >On Sunday 22 March 2015 14:46:11 Pali Roh=E1r wrote:
-> >>This patch adds detection of trackstick for v7 protocol devices. Co=
-de in this
-> >>patch is used in official Dell touchpad linux drivers for Dell mode=
-ls:
-> >>Dell Latitude E5250/5250, E5450/5450, E5550/5550
-> >>
-> >>Detection code and base reg for alps v3 rushmore and v7 devices is =
-exacly same.
-> >>
-> >>Also user in bug https://bugzilla.kernel.org/show_bug.cgi?id=3D9480=
-1 reported
-> >>that Toshiba Sattellite Z30-A-1DG has only alps v7 touchpad device =
-without
-> >>trackstick and kernel reports to userspace also redundant trackstic=
-k device.
-> >>
-> >>Signed-off-by: Pali Roh=E1r <pali.rohar@gmail.com>
-> >>---
-> >
-> >Hello!
-> >
-> >Alex now tested this patch on two Dell machines with ALPS: E5450 (wi=
-th
-> >TrackStick) and E5250 (without TrackStick).
-> >
-> >With patch nothing was changed for E5450. And E5250 with patch does =
-not
-> >show trackstick input device anymore.
-> >
-> >Tested-by: Alex Hung <alex.hung@canonical.com>
->=20
-> With that this patch looks good to me:
->=20
-> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
->=20
-> Pali, it is probably a good idea to send Dmitry a v2 of these 2
-> patches rebased on top of the latest next and with Alex' Tested-By
-> and my Reviewed-by-s added.
+> Hi Hans! I would like to remind this patch as it stays here on ML.
 
-It's alright, I added the tags and applied.
+Applied, thank you.
+
+>=20
+> >=20
+> > >---
+> > >  drivers/input/mouse/alps.c |   12 +++++++-----
+> > >  1 file changed, 7 insertions(+), 5 deletions(-)
+> > >
+> > >diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps=
+=2Ec
+> > >index c9cd27a..d24e98d 100644
+> > >--- a/drivers/input/mouse/alps.c
+> > >+++ b/drivers/input/mouse/alps.c
+> > >@@ -1877,15 +1877,12 @@ error:
+> > >
+> > >  static int alps_hw_init_v3(struct psmouse *psmouse)
+> > >  {
+> > >+	struct alps_data *priv =3D psmouse->private;
+> > >  	struct ps2dev *ps2dev =3D &psmouse->ps2dev;
+> > >  	int reg_val;
+> > >  	unsigned char param[4];
+> > >
+> > >-	reg_val =3D alps_probe_trackstick_v3_v7(psmouse, ALPS_REG_BASE_P=
+INNACLE);
+> > >-	if (reg_val =3D=3D -EIO)
+> > >-		goto error;
+> > >-
+> > >-	if (reg_val =3D=3D 0 &&
+> > >+	if ((priv->flags & ALPS_DUALPOINT) &&
+> > >  	    alps_setup_trackstick_v3(psmouse, ALPS_REG_BASE_PINNACLE) =3D=
+=3D -EIO)
+> > >  		goto error;
+> > >
+> > >@@ -2249,6 +2246,11 @@ static int alps_set_protocol(struct psmouse=
+ *psmouse,
+> > >  		priv->decode_fields =3D alps_decode_pinnacle;
+> > >  		priv->nibble_commands =3D alps_v3_nibble_commands;
+> > >  		priv->addr_command =3D PSMOUSE_CMD_RESET_WRAP;
+> > >+
+> > >+		if (alps_probe_trackstick_v3_v7(psmouse,
+> > >+						ALPS_REG_BASE_PINNACLE) < 0)
+> > >+			priv->flags &=3D ~ALPS_DUALPOINT;
+> > >+
+> > >  		break;
+> > >
+> > >  	case ALPS_PROTO_V3_RUSHMORE:
+> > >
+>=20
+> --=20
+> Pali Roh=E1r
+> pali.rohar@gmail.com
 
 --=20
 Dmitry

@@ -1,92 +1,111 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
-Subject: Re: [Patch-V2 1/6] INPUT: xpad: Add minimal support for Logitech
- G920 Wheel
-Date: Fri, 08 Jan 2016 00:05:11 +0100
-Message-ID: <1452207911.7572.9.camel@devoid-pointer.net>
-References: <1447345535-2912-1-git-send-email-simon@mungewell.org>
-	 <1447345535-2912-2-git-send-email-simon@mungewell.org>
-	 <alpine.LNX.2.00.1511191449130.20111@pobox.suse.cz>
-	 <20151119183106.GC24773@dtor-ws>
-	 <CAKdAkRTaTA8KFQripYP0ZcFb+5G7OC_Ecnhrwum4L9hsQ-PVxg@mail.gmail.com>
-	 <CAKdAkRRBtVfTss9AV+DgTtCXf8PVks5pCB4VnR5sQvgW=S3HyA@mail.gmail.com>
-	 <20151210170853.GC16026@mail.corp.redhat.com>
-	 <CAKdAkRSBTBTW8ma79hh+0sr4izJ70SnvUb1gmPFy3MoVWYaUbA@mail.gmail.com>
-	 <20160104095524.GB20222@mail.corp.redhat.com>
-	 <alpine.LNX.2.00.1601061535440.3402@cbobk.fhfr.pm>
-	 <20160107014721.GA35823@dtor-ws>
-	 <1452207016.7572.7.camel@devoid-pointer.net>
-	 <CAKdAkRSyPed3_K6jhqODvi5o61X-WTgSE6OTia-RXBXb+iZn4w@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] OMAP: Add keypad driver
+Date: Thu, 7 Jan 2016 15:22:28 -0800
+Message-ID: <20160107232228.GA20533@dtor-ws>
+References: <20160107093751.GD27186@mwanda>
+ <CAKdAkRSic46XAhuXO6fijBTWMaRJPqRNPx6MwTv=Pgoo6JL=hQ@mail.gmail.com>
+ <20160107201316.GF12600@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gitweb.devoid-pointer.net ([31.31.77.140]:34330 "EHLO
-	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752040AbcAGXFO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2016 18:05:14 -0500
-In-Reply-To: <CAKdAkRSyPed3_K6jhqODvi5o61X-WTgSE6OTia-RXBXb+iZn4w@mail.gmail.com>
+Received: from mail-pf0-f179.google.com ([209.85.192.179]:36457 "EHLO
+	mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753792AbcAGXWd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2016 18:22:33 -0500
+Content-Disposition: inline
+In-Reply-To: <20160107201316.GF12600@atomide.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Edwin <Edwin@velds.nl>, elias vanderstuyft <elias.vds@gmail.com>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, Komal Shah <komal_shah802003@yahoo.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>, Aaro Koskinen <aaro.koskinen@nokia.com>, linux-omap@vger.kernel.org
 
-On Thu, 2016-01-07 at 14:53 -0800, Dmitry Torokhov wrote:
-> On Thu, Jan 7, 2016 at 2:50 PM, Michal Mal=C3=BD
-> <madcatxster@devoid-pointer.net> wrote:
-> > On Wed, 2016-01-06 at 17:47 -0800, Dmitry Torokhov wrote:
-> > > On Wed, Jan 06, 2016 at 03:36:57PM +0100, Jiri Kosina wrote:
-> > > > On Mon, 4 Jan 2016, Benjamin Tissoires wrote:
-> > > >=20
-> > > > > Jiri, I *think* this commit still is in your next pull
-> > > > > request
-> > > > > for
-> > > > > Linus. We might want to drop it before it hits Linus' tree.
-> > > >=20
-> > > > What exactly would be the reasoning for dropping it?
-> > >=20
-> > > It is wrong. Aside form the fact that IMO xpad.c is the wrong
-> > > place
-> > > for
-> > > this code to be in, why are we waiting for the input device to be
-> > > opened by userspace before we do the switch instead of doing it
-> > > immediately?
-> > >=20
-> >=20
-> > Hi all,
-> >=20
-> > I have to disagree with the xpad driver being the wrong place to
-> > handle
-> > this. The xpad driver matches devices it should handle by interface
-> > class, subclass and protocol. When G920 first appears on the USB
-> > bus,
-> > it for all intents and purposes looks like a Xbox One controller so
-> > the
-> > xpad driver picks it up even if there is no G920-specific code in
-> > the
-> > driver. Unless there is a way how to blacklist certain idProduct
-> > values, the switch from XBone mode to HID mode will have to be done
-> > in
-> > the xpad driver.
-> >=20
-> > I'm pretty much done with the simple switching module but it will
-> > be of
-> > no use if we cannot make the xpad module ignore G920 first.
->=20
-> I see that Simon's patch added:
->=20
-> XPAD_XBOXONE_VENDOR(0x046d),
->=20
-> to the xpad driver. Are you saying that we latch onto the controller
-> even without this addition?
->=20
-> Thanks.
+On Thu, Jan 07, 2016 at 12:13:17PM -0800, Tony Lindgren wrote:
+> Hi,
+> 
+> * Dmitry Torokhov <dmitry.torokhov@gmail.com> [160107 10:54]:
+> > On Thu, Jan 7, 2016 at 1:37 AM, Dan Carpenter <dan.carpenter@oracle.com> wrote:
+> > > Hello file (standard input) matches,
+> > >
+> > > The patch ad4e09b16ad3: "[PATCH] OMAP: Add keypad driver", leads to the
+> > > following static checker warning:
+> > >
+> > >         drivers/input/keyboard/omap-keypad.c:158 omap_kp_tasklet()
+> > >         warn: 'keycodes[]' is never negative.
+> > 
+> > It looks like you are not resolving commits correctly, the original
+> > submission did not have this issue.
+> > 
+> > >
+> > > drivers/input/keyboard/omap-keypad.c
+> ...
+> > >    152  #ifdef NEW_BOARD_LEARNING_MODE
+> > >    153                          printk(KERN_INFO "omap-keypad: key %d-%d %s\n", col,
+> > >    154                                 row, (new_state[col] & (1 << row)) ?
+> > >    155                                 "pressed" : "released");
+> > >    156  #else
+> > >    157                          key = keycodes[MATRIX_SCAN_CODE(row, col, row_shift)];
+> > >    158                          if (key < 0) {
+> > >                                     ^^^^^^^
+> > > Never true.  Not sure what was intended.
+> > 
+> > It looks like this check was broken by
+> > da1f026b532ce944d74461497dc6d8c16456466e (Keyboard: omap-keypad: use
+> > matrix_keypad.h). Previously the driver would expect a list of known
+> > keys and would scan it and return -1 if key was not found. Now we have
+> > 2 options:
+> > 
+> > 1. Simply remove the check
+> > 2. Change the condition to "if (key == KEY_RESERVED)"
+> > 
+> > I do not really have preference. Tony?
+> 
+> Sounds like the check is not needed if it has not been used for
+> past five years, so my preference is option #1 then.
 
-Sorry, my bad, I missed that change in the patch. Handling the switch
-elsewhere should be no problem then.
+OK, how about the below then?
 
-Michal
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry
+
+
+Input: omap-keypad - remove dead check
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Commit da1f026b532ce944d74461497dc6d8c16456466e ("Keyboard: omap-keypad:
+use matrix_keypad.h") switched the driver to use matrix keypad
+infrastructure, which made array of keycodes to be unsigned short, and
+caused the test for negativity never trigger. This leads to the following
+static checker warning:
+
+	drivers/input/keyboard/omap-keypad.c:158 omap_kp_tasklet()
+	warn: 'keycodes[]' is never negative.
+
+Given that we did not care about this check for a few years already let's
+simply remove it.
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/omap-keypad.c |    8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
+index 75ad666..e0d72c8 100644
+--- a/drivers/input/keyboard/omap-keypad.c
++++ b/drivers/input/keyboard/omap-keypad.c
+@@ -155,14 +155,6 @@ static void omap_kp_tasklet(unsigned long data)
+ 			       "pressed" : "released");
+ #else
+ 			key = keycodes[MATRIX_SCAN_CODE(row, col, row_shift)];
+-			if (key < 0) {
+-				printk(KERN_WARNING
+-				      "omap-keypad: Spurious key event %d-%d\n",
+-				       col, row);
+-				/* We scan again after a couple of seconds */
+-				spurious = 1;
+-				continue;
+-			}
+ 
+ 			if (!(kp_cur_group == (key & GROUP_MASK) ||
+ 			      kp_cur_group == -1))

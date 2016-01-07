@@ -1,121 +1,155 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: rotary-encoder: use request_any_context_irq and gpio_get_value_cansleep
-Date: Thu, 7 Jan 2016 12:46:40 -0800
-Message-ID: <CAKdAkRTc__1UXOcYcJ74MJ2S54+5S4p9ZDm_dJ+VZRsKFbQOgQ@mail.gmail.com>
-References: <1450896115-12422-1-git-send-email-timo.teras@iki.fi>
-	<20160107180816.GB12332@dtor-ws>
-	<20160107222525.27fde1f4@vostro>
+From: Oreste Salerno <oreste.salerno@tomtom.com>
+Subject: Re: [PATCH v2 2/3] Input: cyttsp - add device tree support
+Date: Thu, 7 Jan 2016 22:35:28 +0100
+Message-ID: <20160107213528.GA31600@nl1lxl-107192.ttg.global>
+References: <cover.1451997697.git.oreste.salerno@tomtom.com>
+ <97cd8c1d98d7406347e4e48f4c7383a394a2ae93.1451997697.git.oreste.salerno@tomtom.com>
+ <20160106150256.GA27683@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f169.google.com ([209.85.217.169]:35740 "EHLO
-	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750768AbcAGUql convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2016 15:46:41 -0500
-Received: by mail-lb0-f169.google.com with SMTP id bc4so213751099lbc.2
-        for <linux-input@vger.kernel.org>; Thu, 07 Jan 2016 12:46:41 -0800 (PST)
-In-Reply-To: <20160107222525.27fde1f4@vostro>
+Received: from mail3.tomtom.com ([85.90.76.132]:5800 "EHLO mail3.tomtom.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752150AbcAGVfb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 Jan 2016 16:35:31 -0500
+Content-Disposition: inline
+In-Reply-To: <20160106150256.GA27683@rob-hp-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Timo Teras <timo.teras@iki.fi>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Rob Herring <robh@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, fery@cypress.com, dmitry.torokhov@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org
 
-On Thu, Jan 7, 2016 at 12:25 PM, Timo Teras <timo.teras@iki.fi> wrote:
-> On Thu, 7 Jan 2016 10:08:16 -0800
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Hi Rob,
+
+Thanks a lot for reviewing the patch. I have some comments.
+
+On Wed, Jan 06, 2016 at 09:02:56AM -0600, Rob Herring wrote:
+> On Tue, Jan 05, 2016 at 01:59:14PM +0100, Oreste Salerno wrote:
+> > Add support for retrieving the platform data from the device
+> > tree.
+> 
+> Converting platform data to DT as is is typically not the right thing to 
+> do. There's some overlap, but it is not typically 1-1.
+> 
+
+What would be the criteria? I believe that the required properties are
+platform-specific values that need to be defined here.
+As for the optional properties, they can be useful to tweak the touchscreen
+performance based on the use case and the hardware using the touchscreen
+controller.
+
+> > Signed-off-by: Oreste Salerno <oreste.salerno@tomtom.com>
+> > ---
+> >  .../bindings/input/touchscreen/cyttsp.txt          |  73 ++++++++++++++
+> >  drivers/input/touchscreen/cyttsp_core.c            | 108 +++++++++++++++++++--
+> >  include/linux/input/cyttsp.h                       |   3 +
+> >  3 files changed, 177 insertions(+), 7 deletions(-)
+> >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt b/Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt
+> > new file mode 100644
+> > index 0000000..8e0bcc73
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt
+> > @@ -0,0 +1,73 @@
+> > +* Cypress cyttsp touchscreen controller
+> > +
+> > +Required properties:
+> > +- compatible		: must be "cypress,cyttsp-i2c" or "cypress,cyttsp-spi"
+> > +- reg			: Device address
+> 
+> ...or SPI chip select number
+> 
+> > +- spi-max-frequency 	: Maximum SPI clocking speed of the device (for cyttsp-spi)
+> > +- interrupt-parent	: the phandle for the gpio controller
+> > +			  (see interrupt binding[0]).
+> > +- interrupts		: (gpio) interrupt to which the chip is connected
+> > +			  (see interrupt binding[0]).
+> > +- reset-gpios		: the reset gpio the chip is connected to
+> > +			  (see GPIO binding[1] for more details).
+> > +- maxx			: horizontal resolution of touchscreen (in pixels)
+> > +- maxy			: vertical resolution of touchscreen (in pixels)
+> 
+> IIRC, we have standard properties for these. Touchscreens don't really 
+> have pixels...
 >
->> On Wed, Dec 23, 2015 at 08:41:55PM +0200, Timo Ter=C3=A4s wrote:
->> > This allows to use GPIO expanders behind I2C or SPI bus.
->> >
->> > Signed-off-by: Timo Ter=C3=A4s <timo.teras@iki.fi>
->> > ---
->> >  drivers/input/misc/rotary_encoder.c | 20 ++++++++++----------
->> >  1 file changed, 10 insertions(+), 10 deletions(-)
->> >
->> > diff --git a/drivers/input/misc/rotary_encoder.c
->> > b/drivers/input/misc/rotary_encoder.c index 8aee719..8bedd7b 10064=
-4
->> > --- a/drivers/input/misc/rotary_encoder.c
->> > +++ b/drivers/input/misc/rotary_encoder.c
->> > @@ -48,8 +48,8 @@ struct rotary_encoder {
->> >
->> >  static int rotary_encoder_get_state(const struct
->> > rotary_encoder_platform_data *pdata) {
->> > -   int a =3D !!gpio_get_value(pdata->gpio_a);
->> > -   int b =3D !!gpio_get_value(pdata->gpio_b);
->> > +   int a =3D !!gpio_get_value_cansleep(pdata->gpio_a);
->> > +   int b =3D !!gpio_get_value_cansleep(pdata->gpio_b);
->> >
->> >     a ^=3D pdata->inverted_a;
->> >     b ^=3D pdata->inverted_b;
->> > @@ -335,18 +335,18 @@ static int rotary_encoder_probe(struct
->> > platform_device *pdev) goto exit_free_gpio_b;
->> >     }
->> >
->> > -   err =3D request_irq(encoder->irq_a, handler,
->> > -                     IRQF_TRIGGER_RISING |
->> > IRQF_TRIGGER_FALLING,
->> > -                     DRV_NAME, encoder);
->> > -   if (err) {
->> > +   err =3D request_any_context_irq(encoder->irq_a, handler,
->> > +                                 IRQF_TRIGGER_RISING |
->> > IRQF_TRIGGER_FALLING,
->> > +                                 DRV_NAME, encoder);
->> > +   if (err < 0) {
->>
->> This is wrong. If you are saying that you can use any context IRQ yo=
-u
->> can get hard irq, but in rotary_encoder_get_state() (which is called
->> from IRQ handler) you are using sleeping gpio accessors.
->>
->> I guess you need to explicitly request threaded IRQs.
+
+Indeed, there are touchscreen-size-x and touchscreen-size-y, I will rename 
+them using the standard properties.
+To be fair, though, the description for them in touchscreen.txt is identical
+to what I wrote ("horizontal resolution of touchscreen (in pixels)") .
+
+> > +- bootloader-key	: the bootloader key used to exit bootloader mode
+> 
+> I don't understand what this is.
+> 
+
+This is a 8-byte key that is required to switch the chip from bootloader mode
+(default mode) to application mode. It's platform-specific because it's set
+by the customer using the chip (or by Cypress on behalf of the customer).
+
+> > +
+> > +Optional properties:
+> > +- use_hndshk		: enable handshake bit
+> > +- act_dist		: active distance
+> > +- act_intrvl		: active refresh interval in ms
+> 
+> Is this sampling frequency?
 >
-> This was based on commit 94a8cab8caaa56824981c17b6898b73627e8382f whi=
-ch
-> did the exact same change for gpio_keys.c.
+
+Yes, it's basically the period between consecutive scanning/processing
+cycles when the chip is in active mode. The higher the value, the higher
+the response time but the lower the power consumption.
+The value below (lp_intrvl) is the equivalent for when the chip is in
+low power mode.
+ 
+> > +- tch_tmout		: active touch timeout in ms
+> > +- lp_intrvl		: low power refresh interval in ms
+> 
+> Look whether other touchscreens bindings have similar properties already 
+> and copy those. These need better definitions in general.
+> 
+> Don't use '_' in property names and append units to the name of 
+> properties that have units (e.g. ms).
 >
-> I think this was based on the assumption that gpio_get_value_cansleep=
-()
-> never sleeps when it's hard irq based. And I thought this is why
-> gpio_get_value_cansleep() can really sleep only when the irq is runni=
-ng
-> in the threaded context in first place.
+
+The only binding that I found to have somewhat similar properies
+is brcm,iproc-touchscreen.txt which calls scanning_period what I call
+act_intrvl and touch_timeout what I call tch_tmout.
+As I said, these properties are not strictly required but can be
+useful to tweak the touchscreen performance.
+I'll improve the descriptions and the namings as you suggested.
+ 
+> > +Example:
+> > +	&i2c1 {
+> > +		/* ... */
+> > +		cyttsp@a {
+> > +			compatible = "cypress,cyttsp-i2c";
+> > +			reg = <0xa>;
+> > +			interrupt-parent = <&msm_gpio>;
+> > +			interrupts = <13 0x2008>;
+> > +			reset-gpios = <&msm_gpio 12 0x00>;
+> > +
+> > +			maxx = <800>;
+> > +			maxy = <480>;
+> > +			bootloader-key = /bits/ 8 <0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x08>;
+> > +
+> > +			use_hndshk;
+> > +			act_dist = /bits/ 8 <0xF8>;
+> > +			act_intrvl = /bits/ 8 <0x00>;
+> > +			tch_tmout = /bits/ 8 <0xFF>;
+> > +			lp_intrvl = /bits/ 8 <0x0A>;
+> 
+> If the size is not 32-bits, you need to state that in the description. 
+> There is not really much point in making these 8-bit though.
 >
-> And that's what I followed.
->
-> Then again looking again, seems that all similar uses have been chang=
-ed
-> to use workqueue or timer - but primarily due for debouncing - not
-> that the above code would have been incorrect (at least according to
-> commitlog).
 
-Yes, commit log did not address why the call was changed to
-cansleep(), but because it is called from workqueue context it is OK
-to be used.
+These 8-bit properties are written as-is to 8-bit registers, so I thought
+it would be a way to enforce that the binding user cannot specify bigger
+values than 0xFF. Would you suggest changing them to 32-bits and handle
+possible bigger values as errors in the driver?
 
->
-> But on second thought, I wonder if there's any races due to having tw=
-o
-> gpios affect the rotary encoder state. What if the IRQs run on
-> different CPUs on SMP box.
+Thanks,
+Oreste
 
-Yes, you are right, there is a race.
-
->
-> Would it make sense to convert the actual state reading code to be wo=
-rk
-> item, and just schedule the work in an any context irq?
-
-Or make them both threaded IRQs and protect form concurrent execution
-with a mutex.
-
-Thanks.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Rob

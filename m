@@ -1,76 +1,48 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: re: [PATCH] OMAP: Add keypad driver
-Date: Thu, 7 Jan 2016 12:37:51 +0300
-Message-ID: <20160107093751.GD27186@mwanda>
+From: Yuasa Yoichi <yuasa@linux-mips.org>
+Subject: Re: [PATCH] Input: rohm_bu21023 - fix handling of retrying firmware update
+Date: Thu, 7 Jan 2016 19:11:59 +0900
+Message-ID: <CACBHAey1nr6iq2U-Y0NNEDDbfDni9q4BrA7UWg3+cTXH-ex6Vw@mail.gmail.com>
+References: <20160106225111.GA40396@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from aserp1040.oracle.com ([141.146.126.69]:43644 "EHLO
-	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752352AbcAGJiD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2016 04:38:03 -0500
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160106225111.GA40396@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Komal Shah <komal_shah802003@yahoo.com>
-Cc: linux-input@vger.kernel.org
 
-Hello file (standard input) matches,
+Hi Dmitry,
 
-The patch ad4e09b16ad3: "[PATCH] OMAP: Add keypad driver", leads to the
-following static checker warning:
+Thank you for fixing it.
 
-	drivers/input/keyboard/omap-keypad.c:158 omap_kp_tasklet()
-	warn: 'keycodes[]' is never negative.
+Acked-by:Yoichi Yuasa <yuasa@linux-mips.org>
 
-drivers/input/keyboard/omap-keypad.c
-   129  static void omap_kp_tasklet(unsigned long data)
-   130  {
-   131          struct omap_kp *omap_kp_data = (struct omap_kp *) data;
-   132          unsigned short *keycodes = omap_kp_data->input->keycode;
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-   133          unsigned int row_shift = get_count_order(omap_kp_data->cols);
-   134          unsigned char new_state[8], changed, key_down = 0;
-   135          int col, row;
-   136          int spurious = 0;
-   137  
-   138          /* check for any changes */
-   139          omap_kp_scan_keypad(omap_kp_data, new_state);
-   140  
-   141          /* check for changes and print those */
-   142          for (col = 0; col < omap_kp_data->cols; col++) {
-   143                  changed = new_state[col] ^ keypad_state[col];
-   144                  key_down |= new_state[col];
-   145                  if (changed == 0)
-   146                          continue;
-   147  
-   148                  for (row = 0; row < omap_kp_data->rows; row++) {
-   149                          int key;
-                                ^^^^^^^
-   150                          if (!(changed & (1 << row)))
-   151                                  continue;
-   152  #ifdef NEW_BOARD_LEARNING_MODE
-   153                          printk(KERN_INFO "omap-keypad: key %d-%d %s\n", col,
-   154                                 row, (new_state[col] & (1 << row)) ?
-   155                                 "pressed" : "released");
-   156  #else
-   157                          key = keycodes[MATRIX_SCAN_CODE(row, col, row_shift)];
-   158                          if (key < 0) {
-                                    ^^^^^^^
-Never true.  Not sure what was intended.
-
-   159                                  printk(KERN_WARNING
-   160                                        "omap-keypad: Spurious key event %d-%d\n",
-   161                                         col, row);
-   162                                  /* We scan again after a couple of seconds */
-   163                                  spurious = 1;
-   164                                  continue;
-   165                          }
-   166  
-   167                          if (!(kp_cur_group == (key & GROUP_MASK) ||
-   168                                kp_cur_group == -1))
-   169                                  continue;
-   170  
-
-regards,
-dan carpenter
+2016-01-07 7:51 GMT+09:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> Because of the wrong condition we'd never retry firmware update.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/touchscreen/rohm_bu21023.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/touchscreen/rohm_bu21023.c b/drivers/input/touchscreen/rohm_bu21023.c
+> index ba6024f..611156a 100644
+> --- a/drivers/input/touchscreen/rohm_bu21023.c
+> +++ b/drivers/input/touchscreen/rohm_bu21023.c
+> @@ -725,7 +725,7 @@ static int rohm_ts_load_firmware(struct i2c_client *client,
+>                         break;
+>
+>                 error = -EIO;
+> -       } while (++retry >= FIRMWARE_RETRY_MAX);
+> +       } while (++retry <= FIRMWARE_RETRY_MAX);
+>
+>  out:
+>         error2 = i2c_smbus_write_byte_data(client, INT_MASK, INT_ALL);
+> --
+> 2.6.0.rc2.230.g3dd15c0
+>
+>
+> --
+> Dmitry
+>

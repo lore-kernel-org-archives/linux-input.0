@@ -1,28 +1,39 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] usb: hid: Add new PID for Microchip Pick16F1454
-Date: Fri, 8 Jan 2016 10:50:14 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1601081050030.3402@cbobk.fhfr.pm>
-References: <1452089333-32671-1-git-send-email-kristian.evensen@gmail.com>
+Subject: Re: [PATCH] hid: core: add managed version of hid_hw_start
+Date: Fri, 8 Jan 2016 10:51:34 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1601081050520.3402@cbobk.fhfr.pm>
+References: <568D26B0.9080301@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1452089333-32671-1-git-send-email-kristian.evensen@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kristian Evensen <kristian.evensen@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:54675 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751397AbcAHJvg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 8 Jan 2016 04:51:36 -0500
+In-Reply-To: <568D26B0.9080301@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Wed, 6 Jan 2016, Kristian Evensen wrote:
+On Wed, 6 Jan 2016, Heiner Kallweit wrote:
 
-> From: Kristian Evensen <kristian.evensen@gmail.com>
+> Most calls to hid_hw_stop are boilerplate code. The function comment
+> states: "This is usually called from remove function or from probe
+> when something failed and hid_hw_start was called already."
 > 
-> There seems to be a new version of the Microchip Pick16F1454 with a
-> different PID (0xf2f7). This device should also be ignored by the HID
-> driver. The PID was observed with the second version of the Yepkit Ykush
-> USB hub.
+> A managed version of hid_hw_start allows to avoid this boilerplate
+> code in most cases (similar to the other devm_ functions). 
+> hid_hw_stop is called automatically before the device is deleted.
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 
-Applied, thanks.
+Generally I agree with the idea, but I'll be merging this only together 
+with patches that are converting drivers to actually use this API.
+
+Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
+

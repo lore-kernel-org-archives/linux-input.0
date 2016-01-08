@@ -1,69 +1,34 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: omap-keypad - remove set_col_gpio_val() and
- get_row_gpio_val()
-Date: Thu, 7 Jan 2016 22:42:27 -0800
-Message-ID: <20160108064227.GA30991@dtor-ws>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [Patch-V2 1/6] INPUT: xpad: Add minimal support for Logitech
+ G920 Wheel
+Date: Fri, 8 Jan 2016 10:11:59 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1601081009561.3402@cbobk.fhfr.pm>
+References: <1447345535-2912-1-git-send-email-simon@mungewell.org> <1447345535-2912-2-git-send-email-simon@mungewell.org> <alpine.LNX.2.00.1511191449130.20111@pobox.suse.cz> <20151119183106.GC24773@dtor-ws> <CAKdAkRTaTA8KFQripYP0ZcFb+5G7OC_Ecnhrwum4L9hsQ-PVxg@mail.gmail.com>
+ <CAKdAkRRBtVfTss9AV+DgTtCXf8PVks5pCB4VnR5sQvgW=S3HyA@mail.gmail.com> <20151210170853.GC16026@mail.corp.redhat.com> <CAKdAkRSBTBTW8ma79hh+0sr4izJ70SnvUb1gmPFy3MoVWYaUbA@mail.gmail.com> <20160104095524.GB20222@mail.corp.redhat.com> <alpine.LNX.2.00.1601061535440.3402@cbobk.fhfr.pm>
+ <20160107014721.GA35823@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f180.google.com ([209.85.192.180]:35363 "EHLO
-	mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752069AbcAHGm3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jan 2016 01:42:29 -0500
-Content-Disposition: inline
+Received: from mx2.suse.de ([195.135.220.15]:52530 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751314AbcAHJMD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 8 Jan 2016 04:12:03 -0500
+In-Reply-To: <20160107014721.GA35823@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Aaro Koskinen <aaro.koskinen@nokia.com>, Tony Lindgren <tony@atomide.com>, Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Edwin <Edwin@velds.nl>, =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>
 
-Commit f799a3d8fe170159257b75c1baf48a7c1f625d1d ("Input: omap-keypad:
-Remove dependencies to mach includes") removed users of the above
-functions, but left them in the code.
+Alright, so what I am planning to do is to drop 27b9d5a254d ("INPUT: xpad: 
+switch Logitech G920 Wheel into HID mode") from the for-4.5/logitech 
+branch, while keeping the rest of the G920 support in, so that it 
+immediately starts working once proper HID-mode switching is implemented.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/omap-keypad.c | 25 -------------------------
- 1 file changed, 25 deletions(-)
+If anyone has objections to this aproach, please speak up.
 
-diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
-index 8dc34ee..146b26f 100644
---- a/drivers/input/keyboard/omap-keypad.c
-+++ b/drivers/input/keyboard/omap-keypad.c
-@@ -64,31 +64,6 @@ static DECLARE_TASKLET_DISABLED(kp_tasklet, omap_kp_tasklet, 0);
- static unsigned int *row_gpios;
- static unsigned int *col_gpios;
- 
--#ifdef CONFIG_ARCH_OMAP2
--static void set_col_gpio_val(struct omap_kp *omap_kp, u8 value)
--{
--	int col;
--
--	for (col = 0; col < omap_kp->cols; col++)
--		gpio_set_value(col_gpios[col], value & (1 << col));
--}
--
--static u8 get_row_gpio_val(struct omap_kp *omap_kp)
--{
--	int row;
--	u8 value = 0;
--
--	for (row = 0; row < omap_kp->rows; row++) {
--		if (gpio_get_value(row_gpios[row]))
--			value |= (1 << row);
--	}
--	return value;
--}
--#else
--#define		set_col_gpio_val(x, y)	do {} while (0)
--#define		get_row_gpio_val(x)	0
--#endif
--
- static irqreturn_t omap_kp_interrupt(int irq, void *dev_id)
- {
- 	/* disable keyboard interrupt and schedule for handling */
--- 
-2.6.0.rc2.230.g3dd15c0
-
+Thanks,
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs
+

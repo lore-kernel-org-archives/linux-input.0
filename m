@@ -1,32 +1,32 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [Patch-V2 1/6] INPUT: xpad: Add minimal support for Logitech
- G920 Wheel
-Date: Fri, 8 Jan 2016 10:11:59 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1601081009561.3402@cbobk.fhfr.pm>
-References: <1447345535-2912-1-git-send-email-simon@mungewell.org> <1447345535-2912-2-git-send-email-simon@mungewell.org> <alpine.LNX.2.00.1511191449130.20111@pobox.suse.cz> <20151119183106.GC24773@dtor-ws> <CAKdAkRTaTA8KFQripYP0ZcFb+5G7OC_Ecnhrwum4L9hsQ-PVxg@mail.gmail.com>
- <CAKdAkRRBtVfTss9AV+DgTtCXf8PVks5pCB4VnR5sQvgW=S3HyA@mail.gmail.com> <20151210170853.GC16026@mail.corp.redhat.com> <CAKdAkRSBTBTW8ma79hh+0sr4izJ70SnvUb1gmPFy3MoVWYaUbA@mail.gmail.com> <20160104095524.GB20222@mail.corp.redhat.com> <alpine.LNX.2.00.1601061535440.3402@cbobk.fhfr.pm>
- <20160107014721.GA35823@dtor-ws>
+Subject: Re: [PATCH] HID: wacom: Use correct report to query pen ID from
+ INTUOSHT2 devices
+Date: Fri, 8 Jan 2016 10:17:31 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1601081017210.3402@cbobk.fhfr.pm>
+References: <1452115553-3129-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:52530 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:52728 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751314AbcAHJMD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 8 Jan 2016 04:12:03 -0500
-In-Reply-To: <20160107014721.GA35823@dtor-ws>
+	id S1754370AbcAHJRd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 8 Jan 2016 04:17:33 -0500
+In-Reply-To: <1452115553-3129-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Edwin <Edwin@velds.nl>, =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-Alright, so what I am planning to do is to drop 27b9d5a254d ("INPUT: xpad: 
-switch Logitech G920 Wheel into HID mode") from the for-4.5/logitech 
-branch, while keeping the rest of the G920 support in, so that it 
-immediately starts working once proper HID-mode switching is implemented.
+On Wed, 6 Jan 2016, Jason Gerecke wrote:
 
-If anyone has objections to this aproach, please speak up.
+> Unlike other tablets which are compatible with the wacom_intuos_irq handler,
+> INTUOSHT2 devices provide pen ID with report ID 8 instead of 5. To ensure
+> wacom_intuos_schedule_prox_event works as intended for these tablets, we
+> must be sure it uses the correct report ID in this case.
+> 
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-Thanks,
+Applied to for-4.5/wacom.
 
 -- 
 Jiri Kosina

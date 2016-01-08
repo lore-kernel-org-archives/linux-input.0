@@ -1,80 +1,56 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Input: evdev - add ioctl cmd EVIOCGBUFSIZE to get buffer size
-Date: Fri, 8 Jan 2016 16:29:48 +0100
-Message-ID: <CANq1E4T0UVLijsFivcANtMjknn6bkq7W5nned_hAvRQD=K94Nw@mail.gmail.com>
-References: <1452266588-3139-1-git-send-email-a.mathur@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: sony: do not bail out when the sixaxis refuses the output report
+Date: Fri,  8 Jan 2016 17:58:49 +0100
+Message-ID: <1452272329-8744-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:37520 "EHLO
-	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751025AbcAHP3u (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jan 2016 10:29:50 -0500
-In-Reply-To: <1452266588-3139-1-git-send-email-a.mathur@samsung.com>
+Received: from mx1.redhat.com ([209.132.183.28]:52808 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932220AbcAHQ6z (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 8 Jan 2016 11:58:55 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <a.mathur@samsung.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, aniroop.mathur@gmail.com
+To: Lauri Kasanen <cand@gmx.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
+Cc: Max Fedotov <thesourcehim@gmail.com>, linux-kernel@vger.kernel.org
 
-Hi
+When setting the operational mode, some third party (Speedlink Strike-FX)
+gamepads refuse the output report. Failing here means we refuse to
+initialize the gamepad while this should be harmless.
 
-On Fri, Jan 8, 2016 at 4:23 PM, Aniroop Mathur <a.mathur@samsung.com> wrote:
-> Add ioctl cmd EVIOCGBUFSIZE to get kernel buffer size of device so that
-> clients can accordingly set the size of userspace buffer and can know
-> maximum number of events that they are required to read in worst case.
+The weird part is that the initial commit that added this: a7de9b8
+("HID: sony: Enable Gasia third-party PS3 controllers") mentions this
+very same controller as one requiring this output report.
+Anyway, it's broken for one user at least, so let's change it.
+We will report an error, but at least the controller should work.
 
-Why is that needed? What's wrong with resizing your buffers in
-user-space? Exposing this information limits the kernel to never allow
-dynamically sized buffers.
+And no, these devices present themselves as legacy Sony controllers
+(VID:PID of 054C:0268, as in the official ones) so there are no ways
+of discriminating them from the official ones.
 
-Furthermore, in user-space you don't have to pre-allocate your
-buffers. It'd be enough to reserve the address space for it.
+https://bugzilla.redhat.com/show_bug.cgi?id=1255325
 
-Could you elaborate on your use-case?
+Reported-and-tested-by: Max Fedotov <thesourcehim@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-sony.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
-> ---
->  drivers/input/evdev.c      |    3 +++
->  include/uapi/linux/input.h |    2 ++
->  2 files changed, 5 insertions(+)
->
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index e9ae3d5..8b16f08 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -1103,6 +1103,9 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
->
->                 return 0;
->
-> +       case EVIOCGBUFSIZE:
-> +               return put_user(client->bufsize, (unsigned int __user *)p);
-> +
->         case EVIOCRMFF:
->                 return input_ff_erase(dev, (int)(unsigned long) p, file);
->
-> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> index 2758687..51d66aa 100644
-> --- a/include/uapi/linux/input.h
-> +++ b/include/uapi/linux/input.h
-> @@ -114,6 +114,8 @@ struct input_mask {
->  #define EVIOCSKEYCODE          _IOW('E', 0x04, unsigned int[2])        /* set keycode */
->  #define EVIOCSKEYCODE_V2       _IOW('E', 0x04, struct input_keymap_entry)
->
-> +#define EVIOCGBUFSIZE          _IOR('E', 0x05, unsigned int)           /* get device buffer size */
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 9b8db0e..b2d2fae 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1420,8 +1420,10 @@ static int sixaxis_set_operational_usb(struct hid_device *hdev)
+ 	}
+ 
+ 	ret = hid_hw_output_report(hdev, buf, 1);
+-	if (ret < 0)
+-		hid_err(hdev, "can't set operational mode: step 3\n");
++	if (ret < 0) {
++		hid_info(hdev, "can't set operational mode: step 3, ignoring\n");
++		ret = 0;
++	}
+ 
+ out:
+ 	kfree(buf);
+-- 
+2.5.0
 
-Please document all new ioctls. See EVIOCSMASK for an example.
-
-Thanks
-David
-
-> +
->  #define EVIOCGNAME(len)                _IOC(_IOC_READ, 'E', 0x06, len)         /* get device name */
->  #define EVIOCGPHYS(len)                _IOC(_IOC_READ, 'E', 0x07, len)         /* get physical location */
->  #define EVIOCGUNIQ(len)                _IOC(_IOC_READ, 'E', 0x08, len)         /* get unique identifier */
-> --
-> 1.7.9.5
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html

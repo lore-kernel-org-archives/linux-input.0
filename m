@@ -1,1004 +1,201 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
-Date: Sat, 9 Jan 2016 11:20:43 -0800
-Message-ID: <20160109192043.GC19004@dtor-ws>
-References: <1452266256-553-1-git-send-email-jeffrey.lin@rad-ic.com>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] Input: evdev - add ioctl cmd EVIOCGBUFSIZE to get buffer size
+Date: Sun, 10 Jan 2016 04:33:08 +0530
+Message-ID: <CADYu30_nnL7snv2b5Nn8vYcYd90pD2cp9BaJseg9Y=DDAjTU_g@mail.gmail.com>
+References: <CADYu30_KWWELgNM4a0Lyd_AoewpmhizuxJxXJSXzoGSF5YFOZg@mail.gmail.com>
+	<20160108201346.6a6694e2@lxorguk.ukuu.org.uk>
+	<CADYu309gh6QOgGXsaxJO06Xif50mK73u6VaxjwRQYWyeeL5EMg@mail.gmail.com>
+	<20160108203340.2b728a41@lxorguk.ukuu.org.uk>
+	<CADYu309viVxQJVo-HR=17s-gGhXm03t4p_qL5i1=YUwKqh3pbA@mail.gmail.com>
+	<CAKdAkRQ6SPt2oBJPv6h-gPVsEGZWRcBfp7J-TZpzWnO-nEOXKw@mail.gmail.com>
+	<CADYu309cx-mb0skOTOkT67bjg83Vx6A-_rJ2QWRkbyLL9yHKxQ@mail.gmail.com>
+	<20160108222720.GB39042@dtor-ws>
+	<CADYu30-Nykka4gwWCUSDt1_pKUZkYDuGY5X_giFLOYxDSDr3wA@mail.gmail.com>
+	<CADYu30-Y8oBtupLx+e6N5WJkc_ck5AdotZc69mDpeFMjU=A6zw@mail.gmail.com>
+	<20160109185155.GB19004@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1452266256-553-1-git-send-email-jeffrey.lin@rad-ic.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeffrey Lin <yajohn@gmail.com>
-Cc: rydberg@euromail.se, dianders@chromium.org, bleung@chromium.org, scott.liu@emc.com.tw, jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f175.google.com ([209.85.214.175]:34523 "EHLO
+	mail-ob0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756212AbcAIXDJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Jan 2016 18:03:09 -0500
+In-Reply-To: <20160109185155.GB19004@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, David Herrmann <dh.herrmann@gmail.com>, Aniroop Mathur <a.mathur@samsung.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-Hi Jeffrey,
+On Sun, Jan 10, 2016 at 12:21 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Sat, Jan 09, 2016 at 09:51:59PM +0530, Aniroop Mathur wrote:
+>> On Sat, Jan 9, 2016 at 4:13 AM, Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
+>> > On Sat, Jan 9, 2016 at 3:57 AM, Dmitry Torokhov
+>> > <dmitry.torokhov@gmail.com> wrote:
+>> >> On Sat, Jan 09, 2016 at 03:46:41AM +0530, Aniroop Mathur wrote:
+>> >>> On Sat, Jan 9, 2016 at 2:32 AM, Dmitry Torokhov
+>> >>> <dmitry.torokhov@gmail.com> wrote:
+>> >>> > On Fri, Jan 8, 2016 at 12:51 PM, Aniroop Mathur
+>> >>> > <aniroop.mathur@gmail.com> wrote:
+>> >>> >> On Sat, Jan 9, 2016 at 2:03 AM, One Thousand Gnomes
+>> >>> >> <gnomes@lxorguk.ukuu.org.uk> wrote:
+>> >>> >>> On Sat, 9 Jan 2016 01:50:42 +0530
+>> >>> >>> Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
+>> >>> >>>
+>> >>> >>>> On Sat, Jan 9, 2016 at 1:43 AM, One Thousand Gnomes
+>> >>> >>>> <gnomes@lxorguk.ukuu.org.uk> wrote:
+>> >>> >>>> >> During system boot up, user space buf size is fixed, it cannot be
+>> >>> >>>> >> resized later and we cannot choose by hit&trial.
+>> >>> >>>> >> struct input_event* mBuffer = new input_event[mBuf];
+>> >>> >>>> >
+>> >>> >>>> > Who says that won't change ? Imagine a future case where plugging in a
+>> >>> >>>> > device changes the buffer size ?
+>> >>> >>>> >
+>> >>> >>>>
+>> >>> >>>> Ofcourse buffer size can be changed but it will also change the value of bufsize
+>> >>> >>>> variable and accordingly user space client should also change its buf size.
+>> >>> >>>
+>> >>> >>> If its hot plugged why shouldn't that value change dynamically after
+>> >>> >>> you've asked ?
+>> >>> >>>
+>> >>> >>
+>> >>> >> Please put up your query clearly. what value ? what asked ?
+>> >>> >
+>> >>> > There is nothing that would stop us (kernel) to decide to resize the
+>> >>> > buffer after you issued your new EVIOCGBUFSIZE. For example one can
+>> >>> > decide to implement a feature that will double the size of evdev's
+>> >>> > client buffer if there happened too many overruns i a given time
+>> >>> > period.
+>> >>> >
+>> >>>
+>> >>> If one decided to double the size of evdev buffer then it would be done
+>> >>> by the same client facing buffer overrun and for this case client would
+>> >>> not need to request for evdev buf size again as it has only set it. And
+>> >>> still evdev buf size variable value be changed as well with the request
+>> >>> to change buf size so client can read it again, if wishes.
+>> >>
+>> >> I was talking about changing the size of the buffer on kernel side.
+>> >>
+>> >>>
+>> >>> > In any case the userpsace consumers already have to inspect input
+>> >>> > device in question (number of axes and what they are; number of
+>> >>> > keys/buttons, number of slots, etc) so that they can handle devices
+>> >>> > properly and it should have enough information to intelligently size
+>> >>> > of the receiving buffers. There is no need for a new kernel ioctl.
+>> >>> >
+>> >>>
+>> >>> yes, consumers have to inspect input device but they cannot know
+>> >>> the size of evdev buffer initially set as it is calculated in evdev.c file
+>> >>> Consumer does not know that there is a limit of 8 packets.
+>> >>> #define EVDEV_BUF_PACKETS       8
+>> >>> unsigned int n_events =
+>> >>>     max(dev->hint_events_per_packet * EVDEV_BUF_PACKETS, EVDEV_MIN_BUFFER_SIZE);
+>> >>> return roundup_pow_of_two(n_events);
+>> >>> This value varies for every device as every device has different value
+>> >>> of hint_events_per_packet.
+>> >>>
+>> >>> Even after increasing kernel buffer size, buffer overrun can occur
+>> >>> if reading is delayed and userspace buf is very small say only 1/2.
+>> >>> In this case, buffer overrun will still occur and it will only be delayed.
+>> >>> This was happening in my use case for gyroscope sensor device for
+>> >>> which I initially forcefully increased the evdev buf size but problem was
+>> >>> still not solved and buffer overrun was only delayed. The cause of the
+>> >>> problem was that gyroscope client was using very small buf size for
+>> >>> reading and after increasing the user space buf size, problem was solved.
+>> >>> If client chooses maximum possible buffer size then it will be able to
+>> >>> consume maximum events when reading is delayed and hence there will
+>> >>> be least chance of buffer overrun. Evdev buf size should only be increased
+>> >>> when buffer overrun occurs even with max user-space buf size.
+>> >>> But the max user space buf size cannot be known until client request for it
+>> >>> using this ioctl. So, I added it.
+>> >>>
+>> >>> So, are you convinced now that this ioctl is required ?
+>> >>
+>> >> No because I'd rather you managed size of your own buffer and increased
+>> >> it as needed if you see drops. Let's say kernel decides to have buffer
+>> >> of 100 events, do you have to mirror this size? What if device only
+>> >> generates 1 event per minute?
+>> >>
+>> >
+>> > We do not want any drop in the first place by keeping max buf size for
+>> > reading for devices which need it only. On changing buf size on run time
+>> > would not do any help because many events have already been dropped.
+>> > And then after rebooting the system, user space buf size will again change
+>> > to old value and so again events will be dropped and again buf size need to
+>> > be changed.
+>> > Yes, there is a need to mirror it, especially for device which support batching.
+>> > If device generates only 1 event per minute, then client can choose minimum
+>> > user space buf size, say 1. It is not compulsory to choose max buf size always
+>> > for every device.
+>> >
+>>
+>> Any update on above in order to conclude this change ?
+>
+> I am still unconvinced that it is needed.
+>
+>>
+>> As consumer need to manage the user-space buf size as per requirement,
+>> it needs to know the max limit upto which it can be increased so that consumer
+>> should not request to read for more data than the max limit.
+>
+> What is exactly the requirement? Minimizing amount of reads? Why? If
+> device is basically "streaming" events to userspace and you believe that
+> it is essential for you want to consume entire client buffer at once
+> that means that you are basically losing the race and with the slightest
+> hickup you'll experience drop. If you are keeping up with the
+> device/kernel you reads should be typically smaller than what kernel
+> buffer can potentially hold.
+>
 
-On Fri, Jan 08, 2016 at 11:17:36PM +0800, Jeffrey Lin wrote:
-> This patch is porting Raydium I2C touch driver. Developer can enable raydium touch driver by modifying define
-> "CONFIG_TOUCHSCREEN_RM_TS".
-> 
-> Signed-off-by: jeffrey lin <jeffrey.lin@rad-ic.com>
-> ---
->  drivers/input/touchscreen/Kconfig      |  12 +
->  drivers/input/touchscreen/Makefile     |   1 +
->  drivers/input/touchscreen/rm31100_ts.c | 843 +++++++++++++++++++++++++++++++++
->  3 files changed, 856 insertions(+)
->  create mode 100644 drivers/input/touchscreen/rm31100_ts.c
-> 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 0f13e52..2a85353 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -329,6 +329,18 @@ config TOUCHSCREEN_ELAN
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called elants_i2c.
->  
-> +config TOUCHSCREEN_RM_TS
-> +	tristate "Raydium I2C Touchscreen"
-> +	depends on I2C
-> +	help
-> +	  Say Y here if you have Raydium series I2C touchscreen,
-> +	  such as RM31100 , connected to your system.
-> +
-> +	  If unsure, say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called rm31100_ts.
-> +
->  config TOUCHSCREEN_ELO
->  	tristate "Elo serial touchscreens"
->  	select SERIO
-> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-> index 687d5a7..aae4af2 100644
-> --- a/drivers/input/touchscreen/Makefile
-> +++ b/drivers/input/touchscreen/Makefile
-> @@ -78,3 +78,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
->  obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
->  obj-$(CONFIG_TOUCHSCREEN_ZFORCE)	+= zforce_ts.o
-> +obj-$(CONFIG_TOUCHSCREEN_RM_TS)	+= rm31100_ts.o
-> diff --git a/drivers/input/touchscreen/rm31100_ts.c b/drivers/input/touchscreen/rm31100_ts.c
-> new file mode 100644
-> index 0000000..941fa31
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/rm31100_ts.c
-> @@ -0,0 +1,843 @@
-> +/*
-> + * Raydium RM31100_ts touchscreen driver.
-> + *
-> + * Copyright (C) 2012-2014, Raydium Semiconductor Corporation.
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * version 2, and only version 2, as published by the
-> + * Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * Raydium reserves the right to make changes without further notice
-> + * to the materials described herein. Raydium does not assume any
-> + * liability arising out of the application described herein.
-> + *
-> + * Contact Raydium Semiconductor Corporation at www.rad-ic.com
-> + *
-> + */
-> +#include <linux/async.h>
-> +#include <linux/init.h>
-> +#include <linux/module.h>
-> +#include <linux/i2c.h>
-> +#include <linux/input.h>
-> +#include <linux/slab.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/irq.h>
-> +#include <linux/gpio.h>
-> +#include <linux/mutex.h>
-> +#include <linux/delay.h>
-> +#include <linux/pm.h>
-> +#include <linux/pm_runtime.h>
-> +#ifdef CONFIG_MISC_DEV
-> +#include <linux/miscdevice.h>
-> +#endif
-> +#include <linux/uaccess.h>
-> +#include <asm/unaligned.h>
-> +#include <linux/input/mt.h>
-> +
-> +#define rm31100	0x0
-> +#define rm3110x	0x1
-> +
-> +#define INVALID_DATA	0xff
-> +#define MAX_REPORT_TOUCHED_POINTS	10
-> +
-> +#define I2C_CLIENT_ADDR         0x39
-> +#define I2C_DMA_CLIENT_ADDR     0x5A
-> +
-> +struct rm31100_ts_data {
-> +	u8 x_index;
-> +	u8 y_index;
-> +	u8 z_index;
-> +	u8 id_index;
-> +	u8 touch_index;
-> +	u8 data_reg;
-> +	u8 status_reg;
-> +	u8 data_size;
-> +	u8 touch_bytes;
-> +	u8 update_data;
-> +	u8 touch_meta_data;
-> +	u8 finger_size;
-> +};
-> +
-> +struct rm3110x_ts_platform_data {
-> +	int (*power_on)(int on);
-> +	int (*dev_setup)(bool on);
-> +	const char *ts_name;
-> +	u32 dis_min_x; /* display resoltion ABS min*/
-> +	u32 dis_max_x;/* display resoltion ABS max*/
-> +	u32 dis_min_y;
-> +	u32 dis_max_y;
-> +	u32 min_touch; /* no.of touches supported */
-> +	u32 max_touch;
-> +	u32 min_tid; /* track id */
+There is only one requirement:
+How would the clients come to know the maximum number of events they
+can read at once ?
 
-Not used?
-
-> +	u32 max_tid;
-
-Not used?
-
-> +	u32 min_width;/* size of the finger */
-> +	u32 max_width;
-
-No used?
-
-> +	u32 res_x; /* TS resolution unit*/
-> +	u32 res_y;
-
-Not used?
-
-> +	u32 swap_xy;
-> +	u8 nfingers;
-
-Why is this part of platform data? Isn't the maximum number of touches
-property of the hardware.
-
-> +	u32 irq_gpio;
-> +	int resout_gpio;
-> +	bool wakeup;
-> +	u32 irq_cfg;
-> +};
-> +
-> +static struct rm31100_ts_data devices[] = {
-> +	[0] = {
-> +		.x_index = 2,
-> +		.y_index = 4,
-> +		.z_index = 6,
-> +		.id_index = 1,
-> +		.data_reg = 0x1,
-> +		.status_reg = 0,
-> +		.update_data = 0x0,
-> +		.touch_bytes = 6,
-> +		.touch_meta_data = 1,
-> +		.finger_size = 70,
-> +	},
-> +};
-> +
-> +struct rm31100_ts {
-> +	struct i2c_client *client;
-> +	struct input_dev *input;
-> +	struct rm3110x_ts_platform_data *pdata;
-> +	struct rm31100_ts_data *dd;
-> +	u8 *touch_data;
-> +	u8 device_id;
-> +	u8 prev_touches;
-> +	bool is_suspended;
-> +	bool int_pending;
-> +	struct mutex access_lock;
-> +	u32 pen_irq;
-> +};
-> +
-> +struct rm31100_ts *pts;
-> +/*
-> +static inline u16 join_bytes(u8 a, u8 b)
-> +{
-> +	u16 ab = 0;
-> +	ab = ab | a;
-> +	ab = ab << 8 | b;
-> +	return ab;
-> +}
-> +*/
-> +static s32 rm31100_ts_write_reg_u8(struct i2c_client *client, u8 reg, u8 val)
-> +{
-> +	s32 data;
-> +
-> +	data = i2c_smbus_write_byte_data(client, reg, val);
-> +	if (data < 0)
-> +		dev_err(&client->dev, "error %d in writing reg 0x%x\n",
-> +						 data, reg);
-> +
-> +	return data;
-> +}
-> +
-> +static s32 rm31100_ts_read_reg_u8(struct i2c_client *client, u8 reg)
-> +{
-> +	s32 data;
-> +
-> +	data = i2c_smbus_read_byte_data(client, reg);
-> +	if (data < 0)
-> +		dev_err(&client->dev, "error %d in reading reg 0x%x\n",
-> +						 data, reg);
-> +
-> +	return data;
-> +}
-> +
-> +static int rm31100_ts_read(struct i2c_client *client, u8 reg, u8 *buf, int num)
-> +{
-> +	struct i2c_msg xfer_msg[2];
-> +
-> +	xfer_msg[0].addr = client->addr;
-> +	xfer_msg[0].len = 1;
-> +	xfer_msg[0].flags = 0;
-> +	xfer_msg[0].buf = &reg;
-> +
-> +	xfer_msg[1].addr = client->addr;
-> +	xfer_msg[1].len = num;
-> +	xfer_msg[1].flags = I2C_M_RD;
-> +	xfer_msg[1].buf = buf;
-> +
-> +	return i2c_transfer(client->adapter, xfer_msg, 2);
-> +}
-> +
-> +static int
-> +rm31100_ts_write_client_dma(struct i2c_client *client, u8 *buf, int num)
-> +{
-> +	struct i2c_msg xfer_msg[1];
-> +
-> +	xfer_msg[0].addr = I2C_DMA_CLIENT_ADDR;
-> +	xfer_msg[0].len = num;
-> +	xfer_msg[0].flags = 0;
-> +	xfer_msg[0].buf = buf;
-
-What does DMA here stand for? Not "direct memory access" for sure...
-
-> +
-> +	return i2c_transfer(client->adapter, xfer_msg, 1);
-> +}
-> +
-> +static int rm31100_ts_write(struct i2c_client *client, u8 *buf, int num)
-> +{
-> +	struct i2c_msg xfer_msg[1];
-> +
-> +	xfer_msg[0].addr = client->addr;
-> +	xfer_msg[0].len = num;
-> +	xfer_msg[0].flags = 0;
-> +	xfer_msg[0].buf = buf;
-> +
-> +	return i2c_transfer(client->adapter, xfer_msg, 1);
-> +}
-> +#ifdef CONFIG_MISC_DEV
-> +static int dev_open(struct inode *inode, struct file *filp)
-> +{
-> +	mutex_lock(&pts->access_lock);
-> +	return 0;
-> +}
-> +
-> +static int dev_release(struct inode *inode, struct file *filp)
-> +{
-> +	mutex_unlock(&pts->access_lock);
-> +	return 0;
-> +}
-> +static ssize_t
-> +dev_read(struct file *filp, char __user *buf, size_t count, loff_t *pos)
-> +{
-> +	u8 *kbuf;
-> +	struct i2c_msg xfer_msg;
-> +	/*static char out[] = "1234567890";*/
-> +	/*static int idx;*//*= 0; remove by checkpatch*/
-> +	int i;
-> +
-> +	kbuf = kmalloc(count, GFP_KERNEL);
-> +	if (kbuf == NULL)
-> +		return -ENOMEM;
-> +
-> +	/*xfer_msg.addr = pts->client->addr;*/
-> +	xfer_msg.addr = I2C_CLIENT_ADDR;
-> +	xfer_msg.len = count;
-> +	xfer_msg.flags = I2C_M_RD;
-> +	xfer_msg.buf = kbuf;
-> +
-> +	i2c_transfer(pts->client->adapter, &xfer_msg, 1);
-> +
-> +	if (copy_to_user(buf, kbuf, count) == 0)
-> +		return count;
-> +	else
-> +		return -EFAULT;
-> +}
-> +
-> +static ssize_t
-> +dev_write(struct file *filp, const char __user *buf, size_t count, loff_t *pos)
-> +{
-> +	u8 *kbuf;
-> +	ssize_t status = 0;
-> +	int i;
-> +
-> +	kbuf = kmalloc(count, GFP_KERNEL);
-> +	if (kbuf == NULL) {
-> +		dev_err("kmalloc() fail\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	if (copy_from_user(kbuf, buf, count) == 0) {
-> +		pts->client->addr = I2C_CLIENT_ADDR;
-> +		if (rm31100_ts_write(pts->client, kbuf, count) < 0)
-> +			status = -EFAULT;
-> +		else
-> +			status = count;
-> +	} else {
-> +		dev_err("copy_from_user() fail\n");
-> +		status = -EFAULT;
-> +	}
-> +
-> +	kfree(kbuf);
-> +	return status;
-> +}
-> +
-> +static const struct file_operations dev_fops = {
-> +	.owner = THIS_MODULE,
-> +	.open = dev_open,
-> +	.release = dev_release,
-> +	.read = dev_read,
-> +	.write = dev_write,
-> +	/*.unlocked_ioctl = dev_ioctl,*/
-> +};
-> +
-> +static struct miscdevice raydium_ts_miscdev = {
-> +	.minor = MISC_DYNAMIC_MINOR,
-> +	.name = "raydium_ts",
-> +	.fops = &dev_fops,
-> +};
-
-A custom character device is not the appropriate interface for an input
-controller. Please explain what you are trying to do here?
-
-> +#endif
-> +
-> +
-> +ssize_t show(struct device_driver *drv, char *buff)
-> +{
-> +	struct i2c_msg xfer_msg;
-> +	int num = 10;
-> +	char buf[100];
-> +	/*int i;*/
-> +
-> +	xfer_msg.addr = pts->client->addr;
-> +	xfer_msg.len = num;
-> +	xfer_msg.flags = I2C_M_RD;
-> +	xfer_msg.buf = buf;
-> +	pts->client->addr = I2C_CLIENT_ADDR;
-> +	i2c_transfer(pts->client->adapter, &xfer_msg, 1);
-> +
-> +	return 0;
-> +}
-> +
-> +ssize_t store(struct device_driver *drv, const char *buf, size_t count)
-> +{
-> +	/*unsigned char pkt[] = { 0xF2, 5, 1, 1 };*/
-> +	unsigned char pkt[] = { 0xF1, 5, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
-> +
-> +	pts->client->addr = I2C_CLIENT_ADDR;
-> +	rm31100_ts_write(pts->client, pkt, sizeof(pkt));
-> +
-> +	return sizeof(pkt);
-> +}
-> +
-> +DRIVER_ATTR(myAttr, 0x777, show, store);
-
-What is this supposed to do?
-
-> +
-> +static void report_data(struct rm31100_ts *dev, u16 x, u16 y,
-> +	u8 pressure, u8 id)
-> +{
-> +	struct input_dev *input_dev = dev->input;
-> +	if (dev->pdata->swap_xy)
-> +		swap(x, y);
-> +
-> +	input_mt_slot(input_dev, id);
-> +	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, true);
-> +	input_report_abs(input_dev, ABS_MT_POSITION_X, x);
-> +	input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
-> +	input_report_abs(input_dev, ABS_MT_PRESSURE, pressure);
-> +	input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, dev->dd->finger_size);
-> +/*
-> +	dev_dbg("%s(): id =%2hhd, x =%4hd, y =%4hd, pressure = %hhd\n",
-> +		__func__, id, x, y, pressure);
-> +*/
-> +}
-> +
-> +static void process_rm31100_data(struct rm31100_ts *ts)
-> +{
-> +	u8 id, pressure, touches, i;
-> +	u16 x, y;
-> +
-> +	touches = ts->touch_data[ts->dd->touch_index];
-> +
-> +	if (touches > 0) {
-> +		for (i = 0; i < touches; i++) {
-> +			id = ts->touch_data[i * ts->dd->touch_bytes +
-> +				ts->dd->id_index];
-> +			pressure = ts->touch_data[i * ts->dd->touch_bytes +
-> +				ts->dd->z_index];
-> +			x = get_unaligned_le16(&(ts->touch_data[i *
-> +				ts->dd->touch_bytes + ts->dd->x_index]));
-> +			y = get_unaligned_le16(&(ts->touch_data[i *
-> +				ts->dd->touch_bytes + ts->dd->y_index]));
-> +			report_data(ts, x, y, pressure, id);
-> +		}
-> +	} else
-> +		input_mt_sync(ts->input);
-> +
-> +	ts->prev_touches = touches;
-> +	/*input_report_key(ts->input, BTN_TOUCH, 1);*/
-> +	input_mt_report_pointer_emulation(ts->input, true);
-> +	input_sync(ts->input);
-> +}
-> +
-> +/*static void rm31100_ts_xy_worker(struct work_struct *work) JL remove*/
-> +static void rm31100_ts_xy_worker(struct rm31100_ts *work)
-> +{
-> +	int rc;
-> +	u8 client_dma_package[4] = {0x0f, 0x00, 0x20, 0x81};
-> +	struct rm31100_ts *ts = work;
-> +
-> +	if (ts->is_suspended == true) {
-> +		dev_dbg(&ts->client->dev, "TS is supended\n");
-> +		ts->int_pending = true;
-
-You disable the interrupt in suspend path so I do not see how this
-condition can ever be true, please remove.
-
-> +		return;
-> +	}
-> +
-> +	mutex_lock(&ts->access_lock);
-> +	/* read data from DATA_REG */
-> +	/*RM31100 DMA Mode*/
-> +	rc = rm31100_ts_write_client_dma(ts->client, client_dma_package, 0x04);
-> +	if (rc < 0) {
-> +		dev_err(&ts->client->dev, "write client dma failed\n");
-> +		goto schedule;
-> +	}
-> +	rc = rm31100_ts_read(ts->client, ts->dd->data_reg, ts->touch_data,
-> +	ts->dd->data_size);
-> +
-> +	if (rc < 0) {
-> +		dev_err(&ts->client->dev, "read failed\n");
-> +		goto schedule;
-> +	}
-> +
-> +	if (ts->touch_data[ts->dd->touch_index] == INVALID_DATA)
-> +		goto schedule;
-> +
-> +	/* write to STATUS_REG to release lock */
-> +	rc = rm31100_ts_write_reg_u8(ts->client,
-> +		ts->dd->status_reg, ts->dd->update_data);
-> +	if (rc < 0) {
-> +		dev_err(&ts->client->dev, "write failed, try once more\n");
-> +
-> +		rc = rm31100_ts_write_reg_u8(ts->client,
-> +			ts->dd->status_reg, ts->dd->update_data);
-> +		if (rc < 0)
-> +			dev_err(&ts->client->dev, "write failed, exiting\n");
-> +	}
-> +
-> +	process_rm31100_data(ts);
-> +schedule:
-> +	mutex_unlock(&ts->access_lock);
-> +}
-> +
-> +static irqreturn_t rm31100_ts_irq(int irq, void *dev_id)
-> +{
-> +	struct rm31100_ts *ts = dev_id;
-> +
-> +	rm31100_ts_xy_worker(ts);
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int rm31100_ts_init_ts(struct i2c_client *client, struct rm31100_ts *ts)
-> +{
-> +	/*struct input_dev *input_device;*/
-> +	/*int rc = 0;*/
-> +
-> +	ts->dd = &devices[ts->device_id];
-> +
-> +	if (!ts->pdata->nfingers) {
-> +		dev_err(&client->dev, "Touches information not specified\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (ts->device_id == rm3110x) {
-> +		if (ts->pdata->nfingers > 2) {
-> +			dev_err(&client->dev, "Touches >=1 & <= 2\n");
-> +			return -EINVAL;
-> +		}
-> +		ts->dd->data_size = ts->dd->touch_bytes;
-> +		ts->dd->touch_index = 0x0;
-
-Umm, you only have 1 entry in devices array, this is bound to blow up.
-
-> +	} else if (ts->device_id == rm31100) {
-> +		if (ts->pdata->nfingers > 10) {
-> +			dev_err(&client->dev, "Touches >=1 & <= 10\n");
-> +			return -EINVAL;
-> +		}
-> +		ts->dd->data_size = ts->pdata->nfingers * ts->dd->touch_bytes +
-> +						ts->dd->touch_meta_data;
-> +		ts->dd->touch_index = 0x0;
-> +	}
-> +	/* w001 */
-> +	else {
-> +		ts->dd->data_size = ts->pdata->nfingers * ts->dd->touch_bytes +
-> +		ts->dd->touch_meta_data;
-> +		ts->dd->touch_index = 0x0;
-> +	}
-> +
-> +	ts->touch_data = kzalloc(ts->dd->data_size, GFP_KERNEL);
-> +	if (!ts->touch_data) {
-> +		pr_err("%s: Unable to allocate memory\n", __func__);
-> +		return -ENOMEM;
-> +	}
-> +	return 0;
-> +}
-> +
-> +#ifdef CONFIG_PM
-> +static int rm31100_ts_suspend(struct device *dev)
-
-Instead of guarding with #ifdef please mark as __maybe_unused
-
-> +{
-> +	struct rm31100_ts *ts = dev_get_drvdata(dev);
-> +	int rc = 0;
-> +
-> +	if (device_may_wakeup(dev)) {
-> +		/* mark suspend flag */
-> +		ts->is_suspended = true;
-> +		enable_irq_wake(ts->pen_irq);
-> +	}
-> +
-> +	disable_irq(ts->pen_irq);
-> +
-> +	gpio_free(ts->pdata->irq_gpio);
-> +
-> +	if (ts->pdata->power_on) {
-> +		rc = ts->pdata->power_on(0);
-> +		if (rc) {
-> +			dev_err(dev, "unable to goto suspend\n");
-> +			return rc;
-> +		}
-> +	}
-> +	return 0;
-> +}
-> +
-> +static int rm31100_ts_resume(struct device *dev)
-
-Mark with __maybe_unused
-
-> +{
-> +	struct rm31100_ts *ts = dev_get_drvdata(dev);
-> +
-> +	int rc = 0;
-> +
-> +	if (device_may_wakeup(dev)) {
-> +		disable_irq_wake(ts->pen_irq);
-> +
-> +		ts->is_suspended = false;
-> +
-> +		if (ts->int_pending == true)
-> +			ts->int_pending = false;
-> +	} else {
-> +		if (ts->pdata->power_on) {
-> +			rc = ts->pdata->power_on(1);
-> +			if (rc) {
-> +				dev_err(dev, "unable to resume\n");
-> +				return rc;
-> +			}
-> +		}
-> +
-> +		enable_irq(ts->pen_irq);
-> +
-> +		/* Clear the status register of the TS controller */
-> +		rc = rm31100_ts_write_reg_u8(ts->client,
-> +			ts->dd->status_reg, ts->dd->update_data);
-> +		if (rc < 0) {
-> +			dev_err(&ts->client->dev,
-> +				"write failed, try once more\n");
-> +
-> +			rc = rm31100_ts_write_reg_u8(ts->client,
-> +				ts->dd->status_reg,
-> +				ts->dd->update_data);
-> +			if (rc < 0)
-> +				dev_err(&ts->client->dev,
-> +					"write failed, exiting\n");
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct dev_pm_ops rm31100_ts_pm_ops = {
-> +	.suspend = rm31100_ts_suspend,
-> +	.resume = rm31100_ts_resume,
-> +};
-> +#endif
-
-Use SIMPLE_DEV_PM_OPS().
+Usually, reading as small as 1 packet is enough, keeping reading+writing
+remains in sync and no problem/drops occur, However, sometimes, it is
+possible that reading and writing are not in sync like in case of batching
+where multiple data is written to chip without any delay or in case of
+high cpu load. So sometimes for a short time, writing can be fast but
+reading can be slow. To balance out gap between reading and writing in
+order to make them in sync again for that short time, we need to read
+multiple packets at once and in worst case maximum possible packets.
+For example:
+If gyro chip is generating data at 5ms interval and reading is delayed
+by extra 5 ms for 80 ms with reading size of 1 packet & kernel but size of
+8 packets, then drop will occur after 80 ms as client would only be able to
+read 8 packets but 16 packets are reported. Surely, reading can again be
+in sync after 80 ms but for that 80 ms when not in sync, client will loose data
+which could have been saved just by using reading size of 2 packets in this
+case. Similarly, reading can be delayed by 10/20/30 ms for a short time and
+reading size of 4/6/max_packet can solve the problem.
 
 
-> +
-> +static int rm_input_dev_create(struct rm31100_ts *ts)
-> +{
-> +	struct input_dev *input_device;
-> +	int rc = 0;
-> +	ts->prev_touches = 0;
-> +
-> +	input_device = input_allocate_device();
-> +	if (!input_device) {
-> +		rc = -ENOMEM;
-> +		goto error_alloc_dev;
-> +	}
-> +	ts->input = input_device;
-> +
-> +	input_device->name = "raydium_ts";
-> +	input_device->id.bustype = BUS_I2C;
-> +	input_device->dev.parent = &ts->client->dev;
-> +	input_set_drvdata(input_device, ts);
-> +
-> +	__set_bit(EV_ABS, input_device->evbit);
-> +	__set_bit(INPUT_PROP_DIRECT, input_device->propbit);
-> +	__set_bit(BTN_TOUCH, input_device->keybit);
+> I'll add Peter as he was complaining about dropouts too at some point.
+>
+>>
+>> Also, evdev read should be changed to
+>> - if (count != 0 && count < input_event_size())
+>> + if ((count != 0 && count < input_event_size()) || (count > client->bufsize))
+>>              return -EINVAL;
+>
+> Why on earth??? No, we do not need this.
+>
 
-No need to do this, simply pass INPUT_MT_DIRECT as the 3rd argument to
-input_mt_init_slots().
+okay.
+My concern was to notify the client that it is requesting for number
+of events which
+will never ever be possible to deliver at once so it should request
+for proper number
+of events for reading and free the unnecessary memory allocated at user-space.
+It might not be a good idea to return -EINVAL here but at least print
+a warning log
+about it so that clients can take action upon it.
 
-> +
-> +
-> +	if (ts->device_id == rm31100) {
-> +		/* set up virtual key */
-> +		__set_bit(EV_KEY, input_device->evbit);
-> +	}
 
-What virtual key?
+Regards,
+Aniroop Mathur
 
-> +	input_mt_init_slots(input_device,
-> +		MAX_REPORT_TOUCHED_POINTS, 0);
-> +	input_set_abs_params(input_device, ABS_MT_POSITION_X,
-> +		ts->pdata->dis_min_x, ts->pdata->dis_max_x, 0, 0);
-> +	input_set_abs_params(input_device, ABS_MT_POSITION_Y,
-> +		ts->pdata->dis_min_y, ts->pdata->dis_max_y, 0, 0);
-> +	input_set_abs_params(input_device, ABS_MT_PRESSURE,
-> +		0, 0xFF, 0, 0);
-> +	input_set_abs_params(input_device, ABS_MT_TOUCH_MAJOR,
-> +		0, 0xFF, 0, 0);
-> +	rc = input_register_device(input_device);
-> +	if (rc)
-> +		goto error_unreg_device;
-> +
-> +	return 0;
-> +
-> +error_unreg_device:
-> +	input_free_device(input_device);
-> +error_alloc_dev:
-> +	ts->input = NULL;
-> +	return rc;
-> +}
-> +
-> +static int rm31100_initialize(struct i2c_client *client)
-> +{
-> +	struct rm31100_ts *ts = i2c_get_clientdata(client);
-> +	int rc = 0, /*retry_cnt = 0,*/ temp_reg;
-> +	/* power on the device */
-> +	if (ts->pdata->power_on) {
-> +		rc = ts->pdata->power_on(1);
-> +		if (rc) {
-> +			pr_err("%s: Unable to power on the device\n", __func__);
-> +			goto error_dev_setup;
-> +		}
-> +	}
-> +
-> +	/* read one byte to make sure i2c device exists */
-> +	if (ts->device_id == rm3110x)
-> +		temp_reg = 0x01;
-> +	else if (ts->device_id == rm31100)
-> +		temp_reg = 0x00;
-> +	else
-> +		temp_reg = 0x05;
-> +
-> +	rc = rm31100_ts_read_reg_u8(client, temp_reg);
-> +	if (rc < 0) {
-> +		dev_err(&client->dev, "i2c sanity check failed\n");
-> +		goto error_power_on;
-> +	}
-> +
-> +	rc = rm31100_ts_init_ts(client, ts);
-> +	if (rc < 0) {
-> +		dev_err(&client->dev, "rm31100_ts init failed\n");
-> +		goto error_mutex_destroy;
-> +	}
-> +
-> +	/* configure touchscreen reset out gpio */
-> +	rc = gpio_request(ts->pdata->resout_gpio, "rm31100_resout_gpio");
-
-Please use gpiod_* or devm_gpiod_* interface.
-
-> +	if (rc) {
-> +		pr_err("%s: unable to request gpio %d\n",
-> +			__func__, ts->pdata->resout_gpio);
-> +		goto error_uninit_ts;
-> +	}
-> +
-> +	rc = gpio_direction_output(ts->pdata->resout_gpio, 0);
-> +	if (rc) {
-> +		pr_err("%s: unable to set direction for gpio %d\n",
-> +			__func__, ts->pdata->resout_gpio);
-> +		goto error_resout_gpio_dir;
-> +	}
-> +	/* reset gpio stabilization time */
-> +	msleep(20);
-> +
-> +	return 0;
-> +error_resout_gpio_dir:
-> +	if (ts->pdata->resout_gpio >= 0)
-> +		gpio_free(ts->pdata->resout_gpio);
-> +error_uninit_ts:
-> +	input_unregister_device(ts->input);
-> +	kfree(ts->touch_data);
-> +error_mutex_destroy:
-> +	mutex_destroy(&ts->access_lock);
-> +error_power_on:
-> +	if (ts->pdata->power_on)
-> +		ts->pdata->power_on(0);
-> +error_dev_setup:
-> +	if (ts->pdata->dev_setup)
-> +		ts->pdata->dev_setup(0);
-> +	return rc;
-> +}
-> +
-> +static void rm_initialize_async(void *data, async_cookie_t cookie)
-> +{
-> +	struct rm31100_ts *ts = data;
-> +	struct i2c_client *client = ts->client;
-> +	unsigned long irqflags;
-> +	int err = 0;
-> +
-> +	mutex_lock(&ts->access_lock);
-> +
-> +	err = rm31100_initialize(client);
-> +	if (err < 0) {
-> +		dev_err(&client->dev, "probe failed! unbind device.\n");
-> +		goto error_free_mem;
-> +	}
-> +
-> +	err = rm_input_dev_create(ts);
-> +	if (err) {
-> +		dev_err(&client->dev, "%s crated failed, %d\n", __func__, err);
-> +		goto error_goio_release;
-> +	}
-> +
-> +	irqflags = client->dev.of_node ? 0 : IRQF_TRIGGER_FALLING;
-
-This is new driver in mainline, let's rely on platform to properly set
-up irq for the part. Please remove this line.
-
-> +
-> +	err = request_threaded_irq(ts->pen_irq, NULL,
-> +				   rm31100_ts_irq,
-> +				   irqflags | IRQF_ONESHOT,
-> +				   ts->client->dev.driver->name, ts);
-> +	if (err) {
-> +		dev_err(&client->dev, "Failed to register interrupt\n");
-> +		goto error_dev_release;
-> +	}
-> +
-> +	mutex_unlock(&ts->access_lock);
-> +
-> +	return;
-> +
-> +error_dev_release:
-> +	input_free_device(ts->input);
-> +error_goio_release:
-> +	if (ts->pdata->resout_gpio >= 0)
-> +		gpio_free(ts->pdata->resout_gpio);
-> +error_free_mem:
-> +	mutex_unlock(&ts->access_lock);
-> +	kfree(ts);
-> +	return;
-> +}
-> +
-> +
-> +/*static int __devinit rm31100_ts_probe(struct i2c_client *client,
-> +			const struct i2c_device_id *id)*/
-
-Please drop old commented out code (such as above), it is not needed in
-mainline.
-
-> +static int rm31100_ts_probe(struct i2c_client *client,
-> +			const struct i2c_device_id *id)
-> +{
-> +	struct rm31100_ts *ts;
-> +	struct rm3110x_ts_platform_data *pdata = client->dev.platform_data;
-> +	int rc/*, temp_reg*/;
-> +	union i2c_smbus_data dummy;
-> +
-> +	if (!pdata) {
-> +		dev_err(&client->dev, "platform data is required!\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (!i2c_check_functionality(client->adapter,
-> +		I2C_FUNC_SMBUS_READ_WORD_DATA)) {
-> +		dev_err(&client->dev, "I2C functionality not supported\n");
-> +		return -EIO;
-> +	}
-> +	/* Make sure there is something at this address */
-> +	if (i2c_smbus_xfer(client->adapter, client->addr, 0,
-> +		I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &dummy) < 0)
-> +		return -ENODEV;
-
-You need to do this after powering up the device.
-
-> +
-> +	ts = kzalloc(sizeof(*ts), GFP_KERNEL);
-> +	if (!ts)
-
-Consider switching to devm_* interfaces to simplify error handling.
-
-> +		return -ENOMEM;
-> +	pts = ts;
-> +
-> +	/* Enable runtime PM ops, start in ACTIVE mode */
-> +	rc = pm_runtime_set_active(&client->dev);
-> +	if (rc < 0)
-> +		dev_warn(&client->dev, "unable to set runtime pm state\n");
-> +	pm_runtime_enable(&client->dev);
-
-You do not have any runtime PM methods implemented in the driver, why do
-you do this?
-
-> +
-> +	ts->client = client;
-> +	ts->pdata = pdata;
-> +	i2c_set_clientdata(client, ts);
-> +	ts->device_id = id->driver_data;
-> +
-> +	if (ts->pdata->dev_setup) {
-> +		rc = ts->pdata->dev_setup(1);
-> +		if (rc < 0) {
-> +			dev_err(&client->dev, "dev setup failed\n");
-> +			goto error_touch_data_alloc;
-> +		}
-> +	}
-
-Having device setup functions in platform data is an obsolete style that
-is not compatible with devicetree or newer ACPI systems. Try establish
-common power up/power down procedures expressed as sequence of
-operations on regulators and gpios.
-
-> +
-> +
-> +	ts->is_suspended = false;
-> +	ts->int_pending = false;
-> +	/*mutex_init(&ts->sus_lock); JL remove*/
-> +	mutex_init(&ts->access_lock);
-> +
-> +	async_schedule(rm_initialize_async, ts);
-
-This is racy (try doing modprobe <your module>; rmmod <your module> and
-observe kernel crashing). Please mark the driver as async probe capable
-(probe_type = PROBE_PREFER_ASYNCHRONOUS) and device core will handle
-asynchronous probing for you.
-
-> +
-> +	device_init_wakeup(&client->dev, ts->pdata->wakeup);
-
-I2C core will mark device as wakeup-capable as needed for us.
-
-> +	return 0;
-> +
-> +error_touch_data_alloc:
-> +	pm_runtime_set_suspended(&client->dev);
-> +	pm_runtime_disable(&client->dev);
-> +	kfree(ts);
-> +	return rc;
-> +}
-> +
-> +/*static int __devexit RM31100_ts_remove(struct i2c_client *client)*/
-> +static int rm31100_ts_remove(struct i2c_client *client)
-> +{
-> +	struct rm31100_ts *ts = i2c_get_clientdata(client);
-> +
-> +	pm_runtime_set_suspended(&client->dev);
-> +	pm_runtime_disable(&client->dev);
-> +
-> +	device_init_wakeup(&client->dev, 0);
-> +	free_irq(ts->pen_irq, ts);
-> +
-> +	gpio_free(ts->pdata->irq_gpio);
-> +
-> +	if (ts->pdata->resout_gpio >= 0)
-> +		gpio_free(ts->pdata->resout_gpio);
-> +	input_unregister_device(ts->input);
-> +
-> +	/*mutex_destroy(&ts->sus_lock); JL remove*/
-> +	mutex_destroy(&ts->access_lock);
-> +
-> +	if (ts->pdata->power_on)
-> +		ts->pdata->power_on(0);
-> +
-> +	if (ts->pdata->dev_setup)
-> +		ts->pdata->dev_setup(0);
-> +
-> +	kfree(ts->touch_data);
-> +	kfree(ts);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct i2c_device_id rm31100_ts_id[] = {
-> +	{"RM31100", rm31100},
-> +	{"RM3110x", rm3110x},
-> +	{}
-> +};
-> +MODULE_DEVICE_TABLE(i2c, rm31100_ts_id);
-> +
-> +
-> +static struct i2c_driver rm31100_ts_driver = {
-> +	.driver = {
-> +		.name = "raydium_ts",
-> +		.owner = THIS_MODULE,
-> +#ifdef CONFIG_PM
-> +		.pm = &rm31100_ts_pm_ops,
-> +#endif
-> +	},
-> +	.probe = rm31100_ts_probe,
-> +	.remove = rm31100_ts_remove,
-> +	.id_table = rm31100_ts_id,
-> +};
-> +
-> +static int __init rm31100_ts_init(void)
-> +{
-> +	int rc;
-> +	int rc2;
-> +
-> +	rc = i2c_add_driver(&rm31100_ts_driver);
-> +
-> +	rc2 = driver_create_file(&rm31100_ts_driver.driver,
-> +		&driver_attr_myAttr);
-> +
-> +	return rc;
-> +}
-> +/* Making this as late init to avoid power fluctuations
-> + * during LCD initialization.
-> + */
-> +module_init(rm31100_ts_init);
-> +
-> +static void __exit rm31100_ts_exit(void)
-> +{
-> +	i2c_del_driver(&rm31100_ts_driver);
-> +}
-> +module_exit(rm31100_ts_exit);
-> +
-> +MODULE_LICENSE("GPL");
-> +MODULE_DESCRIPTION("rm31100-rm3110x touchscreen controller driver");
-> +MODULE_AUTHOR("Raydium");
-> +MODULE_ALIAS("platform:rm31100_ts");
-> -- 
-> 2.1.2
-> 
-
-Thanks.
-
--- 
-Dmitry
+> Thanks.
+>
+> --
+> Dmitry

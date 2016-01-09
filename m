@@ -1,104 +1,79 @@
 From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 2/4] HID: wacom - make sure wacom_intuos_inout only process in/out events
-Date: Fri,  8 Jan 2016 17:15:48 -0800
-Message-ID: <1452302148-5561-1-git-send-email-pingc@wacom.com>
+Subject: [PATCH 3/4] HID: wacom - Cleanup touch arbitration logic
+Date: Fri,  8 Jan 2016 17:16:06 -0800
+Message-ID: <1452302166-5601-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:33006 "EHLO
-	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752593AbcAIBP5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jan 2016 20:15:57 -0500
-Received: by mail-pf0-f196.google.com with SMTP id e65so1313925pfe.0
-        for <linux-input@vger.kernel.org>; Fri, 08 Jan 2016 17:15:56 -0800 (PST)
+Received: from mail-pa0-f65.google.com ([209.85.220.65]:35796 "EHLO
+	mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753852AbcAIBQO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jan 2016 20:16:14 -0500
+Received: by mail-pa0-f65.google.com with SMTP id gi1so29468830pac.2
+        for <linux-input@vger.kernel.org>; Fri, 08 Jan 2016 17:16:13 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, killertofu@gmail.com, Ping Cheng <pingc@wacom.com>
 
-Move general events related data validation to wacom_intuos_general.
+stylus_in_proximity was introduced to support touch arbitration
+before in range was supported. With in range event, the logic
+changed. stylus_in_proximity should be set for both in prox and
+in range events.
+
+To finish a clean touch arbitration logic, we should send touch
+up (if it was down) before posting any general pen events.
 
 Signed-off-by: Ping Cheng <pingc@wacom.com>
 Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 ---
- drivers/hid/wacom_wac.c | 51 +++++++++++++++++++++++++------------------------
- 1 file changed, 26 insertions(+), 25 deletions(-)
+ drivers/hid/wacom_wac.c | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 6449547..8507028 100644
+index 8507028..af9ecf4 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -576,12 +576,13 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 	struct wacom_features *features = &wacom->features;
- 	unsigned char *data = wacom->data;
- 	struct input_dev *input = wacom->pen_input;
--	int idx = 0;
--
--	/* tool number */
--	if (features->type == INTUOS)
--		idx = data[1] & 0x01;
-+	int idx = (features->type == INTUOS) ? (data[1] & 0x01) : 0;
- 
-+	if (!(((data[1] & 0xfc) == 0xc0) ||  /* in prox */
-+	    ((data[1] & 0xfe) == 0x20) ||    /* in range */
-+	    ((data[1] & 0xfe) == 0x80)))     /* out prox */
-+		return 0;
-+
- 	/* Enter report */
- 	if ((data[1] & 0xfc) == 0xc0) {
- 		/* serial number of the tool */
-@@ -672,26 +673,6 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+@@ -670,19 +670,22 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 			wacom->tool[idx] = BTN_TOOL_PEN;
+ 			break;
+ 		}
++		wacom->shared->stylus_in_proximity = true;
  		return 1;
  	}
  
--	/*
--	 * don't report events for invalid data
--	 */
--	/* older I4 styli don't work with new Cintiqs */
--	if ((!((wacom->id[idx] >> 20) & 0x01) &&
--			(features->type == WACOM_21UX2)) ||
--	    /* Only large Intuos support Lense Cursor */
--	    (wacom->tool[idx] == BTN_TOOL_LENS &&
--		(features->type == INTUOS3 ||
--		 features->type == INTUOS3S ||
--		 features->type == INTUOS4 ||
--		 features->type == INTUOS4S ||
--		 features->type == INTUOS5 ||
--		 features->type == INTUOS5S ||
--		 features->type == INTUOSPM ||
--		 features->type == INTUOSPS)) ||
--	   /* Cintiq doesn't send data when RDY bit isn't set */
--	   (features->type == CINTIQ && !(data[1] & 0x40)))
+-	wacom->shared->stylus_in_proximity = true;
+-	if (wacom->shared->touch_down)
 -		return 1;
--
- 	wacom->shared->stylus_in_proximity = true;
- 	if (wacom->shared->touch_down)
- 		return 1;
-@@ -893,6 +874,26 @@ static int wacom_intuos_general(struct wacom_wac *wacom)
- 		return 1;
++	/* in Range */
++	if ((data[1] & 0xfe) == 0x20) {
++		wacom->shared->stylus_in_proximity = true;
+ 
+-	/* in Range while exiting */
+-	if (((data[1] & 0xfe) == 0x20) && wacom->reporting_data) {
+-		input_report_key(input, BTN_TOUCH, 0);
+-		input_report_abs(input, ABS_PRESSURE, 0);
+-		input_report_abs(input, ABS_DISTANCE, wacom->features.distance_max);
+-		return 2;
++		/* in Range while exiting */
++		if (wacom->reporting_data) {
++			input_report_key(input, BTN_TOUCH, 0);
++			input_report_abs(input, ABS_PRESSURE, 0);
++			input_report_abs(input, ABS_DISTANCE, wacom->features.distance_max);
++			return 2;
++		}
++		return 1;
  	}
  
-+	/*
-+	 * don't report events for invalid data
-+	 */
-+	/* older I4 styli don't work with new Cintiqs */
-+	if ((!((wacom->id[idx] >> 20) & 0x01) &&
-+			(features->type == WACOM_21UX2)) ||
-+	    /* Only large Intuos support Lense Cursor */
-+	    (wacom->tool[idx] == BTN_TOOL_LENS &&
-+		(features->type == INTUOS3 ||
-+		 features->type == INTUOS3S ||
-+		 features->type == INTUOS4 ||
-+		 features->type == INTUOS4S ||
-+		 features->type == INTUOS5 ||
-+		 features->type == INTUOS5S ||
-+		 features->type == INTUOSPM ||
-+		 features->type == INTUOSPS)) ||
-+	   /* Cintiq doesn't send data when RDY bit isn't set */
-+	   (features->type == CINTIQ && !(data[1] & 0x40)))
+ 	/* Exit report */
+@@ -867,6 +870,9 @@ static int wacom_intuos_general(struct wacom_wac *wacom)
+ 		data[0] != WACOM_REPORT_INTUOS_PEN)
+ 		return 0;
+ 
++	if (wacom->shared->touch_down)
 +		return 1;
 +
- 	x = (be16_to_cpup((__be16 *)&data[2]) << 1) | ((data[9] >> 1) & 1);
- 	y = (be16_to_cpup((__be16 *)&data[4]) << 1) | (data[9] & 1);
- 	distance = data[9] >> 2;
+ 	/* don't report events if we don't know the tool ID */
+ 	if (!wacom->id[idx]) {
+ 		/* but reschedule a read of the current tool */
 -- 
 1.9.1
 

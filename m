@@ -1,175 +1,159 @@
-From: Piotr Sawuk <a9702387@unet.univie.ac.at>
-Subject: [Patch] hid: enhance hid-saitek for use with R.A.T.5 and similar
-Date: Sat, 9 Jan 2016 13:36:00 +0100
-Message-ID: <5690FEB0.4040809@unet.univie.ac.at>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] Input: evdev - add ioctl cmd EVIOCGBUFSIZE to get buffer size
+Date: Sat, 9 Jan 2016 21:51:59 +0530
+Message-ID: <CADYu30-Y8oBtupLx+e6N5WJkc_ck5AdotZc69mDpeFMjU=A6zw@mail.gmail.com>
+References: <1452266588-3139-1-git-send-email-a.mathur@samsung.com>
+	<CANq1E4T0UVLijsFivcANtMjknn6bkq7W5nned_hAvRQD=K94Nw@mail.gmail.com>
+	<CADYu30_KWWELgNM4a0Lyd_AoewpmhizuxJxXJSXzoGSF5YFOZg@mail.gmail.com>
+	<20160108201346.6a6694e2@lxorguk.ukuu.org.uk>
+	<CADYu309gh6QOgGXsaxJO06Xif50mK73u6VaxjwRQYWyeeL5EMg@mail.gmail.com>
+	<20160108203340.2b728a41@lxorguk.ukuu.org.uk>
+	<CADYu309viVxQJVo-HR=17s-gGhXm03t4p_qL5i1=YUwKqh3pbA@mail.gmail.com>
+	<CAKdAkRQ6SPt2oBJPv6h-gPVsEGZWRcBfp7J-TZpzWnO-nEOXKw@mail.gmail.com>
+	<CADYu309cx-mb0skOTOkT67bjg83Vx6A-_rJ2QWRkbyLL9yHKxQ@mail.gmail.com>
+	<20160108222720.GB39042@dtor-ws>
+	<CADYu30-Nykka4gwWCUSDt1_pKUZkYDuGY5X_giFLOYxDSDr3wA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from grace.univie.ac.at ([131.130.3.115]:56467 "EHLO
-	grace.univie.ac.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754008AbcAIMoL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Jan 2016 07:44:11 -0500
+Received: from mail-oi0-f45.google.com ([209.85.218.45]:36021 "EHLO
+	mail-oi0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753238AbcAIQV7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Jan 2016 11:21:59 -0500
+In-Reply-To: <CADYu30-Nykka4gwWCUSDt1_pKUZkYDuGY5X_giFLOYxDSDr3wA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, David Herrmann <dh.herrmann@gmail.com>, Aniroop Mathur <a.mathur@samsung.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-added support for my pid so I can test the changes:
-3 events were mapped to one, this allows discerning which is which.
-on my mouse there is a button with a 3 colour-led.
-I can now determine in user-space which colour is visible.
-this patch replaces my previous one which merely added rat5-support.
+On Sat, Jan 9, 2016 at 4:13 AM, Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
+> On Sat, Jan 9, 2016 at 3:57 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> On Sat, Jan 09, 2016 at 03:46:41AM +0530, Aniroop Mathur wrote:
+>>> On Sat, Jan 9, 2016 at 2:32 AM, Dmitry Torokhov
+>>> <dmitry.torokhov@gmail.com> wrote:
+>>> > On Fri, Jan 8, 2016 at 12:51 PM, Aniroop Mathur
+>>> > <aniroop.mathur@gmail.com> wrote:
+>>> >> On Sat, Jan 9, 2016 at 2:03 AM, One Thousand Gnomes
+>>> >> <gnomes@lxorguk.ukuu.org.uk> wrote:
+>>> >>> On Sat, 9 Jan 2016 01:50:42 +0530
+>>> >>> Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
+>>> >>>
+>>> >>>> On Sat, Jan 9, 2016 at 1:43 AM, One Thousand Gnomes
+>>> >>>> <gnomes@lxorguk.ukuu.org.uk> wrote:
+>>> >>>> >> During system boot up, user space buf size is fixed, it cannot be
+>>> >>>> >> resized later and we cannot choose by hit&trial.
+>>> >>>> >> struct input_event* mBuffer = new input_event[mBuf];
+>>> >>>> >
+>>> >>>> > Who says that won't change ? Imagine a future case where plugging in a
+>>> >>>> > device changes the buffer size ?
+>>> >>>> >
+>>> >>>>
+>>> >>>> Ofcourse buffer size can be changed but it will also change the value of bufsize
+>>> >>>> variable and accordingly user space client should also change its buf size.
+>>> >>>
+>>> >>> If its hot plugged why shouldn't that value change dynamically after
+>>> >>> you've asked ?
+>>> >>>
+>>> >>
+>>> >> Please put up your query clearly. what value ? what asked ?
+>>> >
+>>> > There is nothing that would stop us (kernel) to decide to resize the
+>>> > buffer after you issued your new EVIOCGBUFSIZE. For example one can
+>>> > decide to implement a feature that will double the size of evdev's
+>>> > client buffer if there happened too many overruns i a given time
+>>> > period.
+>>> >
+>>>
+>>> If one decided to double the size of evdev buffer then it would be done
+>>> by the same client facing buffer overrun and for this case client would
+>>> not need to request for evdev buf size again as it has only set it. And
+>>> still evdev buf size variable value be changed as well with the request
+>>> to change buf size so client can read it again, if wishes.
+>>
+>> I was talking about changing the size of the buffer on kernel side.
+>>
+>>>
+>>> > In any case the userpsace consumers already have to inspect input
+>>> > device in question (number of axes and what they are; number of
+>>> > keys/buttons, number of slots, etc) so that they can handle devices
+>>> > properly and it should have enough information to intelligently size
+>>> > of the receiving buffers. There is no need for a new kernel ioctl.
+>>> >
+>>>
+>>> yes, consumers have to inspect input device but they cannot know
+>>> the size of evdev buffer initially set as it is calculated in evdev.c file
+>>> Consumer does not know that there is a limit of 8 packets.
+>>> #define EVDEV_BUF_PACKETS       8
+>>> unsigned int n_events =
+>>>     max(dev->hint_events_per_packet * EVDEV_BUF_PACKETS, EVDEV_MIN_BUFFER_SIZE);
+>>> return roundup_pow_of_two(n_events);
+>>> This value varies for every device as every device has different value
+>>> of hint_events_per_packet.
+>>>
+>>> Even after increasing kernel buffer size, buffer overrun can occur
+>>> if reading is delayed and userspace buf is very small say only 1/2.
+>>> In this case, buffer overrun will still occur and it will only be delayed.
+>>> This was happening in my use case for gyroscope sensor device for
+>>> which I initially forcefully increased the evdev buf size but problem was
+>>> still not solved and buffer overrun was only delayed. The cause of the
+>>> problem was that gyroscope client was using very small buf size for
+>>> reading and after increasing the user space buf size, problem was solved.
+>>> If client chooses maximum possible buffer size then it will be able to
+>>> consume maximum events when reading is delayed and hence there will
+>>> be least chance of buffer overrun. Evdev buf size should only be increased
+>>> when buffer overrun occurs even with max user-space buf size.
+>>> But the max user space buf size cannot be known until client request for it
+>>> using this ioctl. So, I added it.
+>>>
+>>> So, are you convinced now that this ioctl is required ?
+>>
+>> No because I'd rather you managed size of your own buffer and increased
+>> it as needed if you see drops. Let's say kernel decides to have buffer
+>> of 100 events, do you have to mirror this size? What if device only
+>> generates 1 event per minute?
+>>
+>
+> We do not want any drop in the first place by keeping max buf size for
+> reading for devices which need it only. On changing buf size on run time
+> would not do any help because many events have already been dropped.
+> And then after rebooting the system, user space buf size will again change
+> to old value and so again events will be dropped and again buf size need to
+> be changed.
+> Yes, there is a need to mirror it, especially for device which support batching.
+> If device generates only 1 event per minute, then client can choose minimum
+> user space buf size, say 1. It is not compulsory to choose max buf size always
+> for every device.
+>
 
-Signed-off-by: Piotr Sawuk <piotr5@users.sf.net>
----
-add support for mad catz r.a.t.5
-add a file in sysfs called "mode" exposing the integer of that name.
+Any update on above in order to conclude this change ?
 
-diff -rup linux-4.2.6-gentoo/drivers/hid/hid-core.c
-linux-4.2.6-gentoo-rat5/drivers/hid/hid-core.c
---- linux-4.2.6-gentoo/drivers/hid/hid-core.c	2015-08-30
-20:34:09.000000000 +0200
-+++ linux-4.2.6-gentoo-rat5/drivers/hid/hid-core.c	2015-12-30
-12:09:14.340841552 +0100
-@@ -1959,6 +1959,7 @@ static const struct hid_device_id hid_ha
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9) }=
-,
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT5) }=
-,
- #endif
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG,
-USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG,
-USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
-diff -rup linux-4.2.6-gentoo/drivers/hid/hid-ids.h
-linux-4.2.6-gentoo-rat5/drivers/hid/hid-ids.h
---- linux-4.2.6-gentoo/drivers/hid/hid-ids.h	2015-08-30
-20:34:09.000000000 +0200
-+++ linux-4.2.6-gentoo-rat5/drivers/hid/hid-ids.h	2015-12-29
-18:47:36.756225217 +0100
-@@ -634,6 +634,7 @@
+As consumer need to manage the user-space buf size as per requirement,
+it needs to know the max limit upto which it can be increased so that consumer
+should not request to read for more data than the max limit.
 
- #define USB_VENDOR_ID_MADCATZ		0x0738
- #define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
-+#define USB_DEVICE_ID_MADCATZ_RAT5	0x1705
- #define USB_DEVICE_ID_MADCATZ_RAT9	0x1709
+Also, evdev read should be changed to
+- if (count != 0 && count < input_event_size())
++ if ((count != 0 && count < input_event_size()) || (count > client->bufsize))
+             return -EINVAL;
 
- #define USB_VENDOR_ID_MCC		0x09db
-diff -rup linux-4.2.6-gentoo/drivers/hid/hid-saitek.c
-linux-4.2.6-gentoo-rat5/drivers/hid/hid-saitek.c
---- linux-4.2.6-gentoo/drivers/hid/hid-saitek.c	2015-08-30
-20:34:09.000000000 +0200
-+++ linux-4.2.6-gentoo-rat5/drivers/hid/hid-saitek.c	2016-01-09
-12:19:19.574905612 +0100
-@@ -7,10 +7,11 @@
-  *  (This module is based on "hid-ortek".)
-  *  Copyright (c) 2012 Andreas H=C3=BCbner
-  *
-- *  R.A.T.7, R.A.T.9, M.M.O.7 (USB gaming mice):
-+ *  R.A.T.5, R.A.T.7, R.A.T.9, M.M.O.7 (USB gaming mice):
-  *  Fixes the mode button which cycles through three constantly presse=
-d
-  *  buttons. All three press events are mapped to one button and the
-  *  missing release event is generated immediately.
-+ *  Original press event is available in "mode" file on sysfs.
-  *
-  */
 
-@@ -37,6 +38,40 @@ struct saitek_sc {
- 	int mode;
- };
+And most likely, if kernel buf size need to be changed it will done
+through ioctl
+request by client which needs it and so client already know about new kernel
+buf size.
+And if  kernel but size is decided by device driver during probe then that will
+be first buf size set which is same original case so no problem here.
+And less likely, if input subsystem by self decides to change buf size
+without any
+request from client or device driver, then it should notify about it
+to user space
+through a new event and obviously update the but size variable.
 
-+static ssize_t show_mode(struct device *dev,
-+		struct device_attribute *attr,
-+		char *mode_buf);
-+
-+/* world-readable since errors are caught and no usb-interaction neede=
-d. */
-+DEVICE_ATTR(mode, 0444, show_mode, NULL);
-+
-+static ssize_t show_mode(struct device *dev,
-+		struct device_attribute *attr,
-+		char *mode_buf)
-+{
-+	struct saitek_sc *ssc;
-+	struct hid_device *hdev;
-+
-+	/* error-messages in sysfs file since it's non-critical. */
-+	if (dev =3D=3D NULL) {
-+		return snprintf(mode_buf, PAGE_SIZE, "No parent.\n");
-+	}
-+
-+	hdev =3D container_of(dev, struct hid_device, dev);
-+	ssc =3D hid_get_drvdata(hdev);
-+	if (ssc =3D=3D NULL) {
-+		return snprintf(mode_buf, PAGE_SIZE, "No data.\n");
-+	}
-+
-+	/* actual output is number >=3D1. 0 or above text for error: */
-+	return snprintf(mode_buf, PAGE_SIZE, "%i\n", ssc->mode + 1);
-+}
-+
-+static void saitek_remove(struct hid_device *hdev)
-+{
-+	device_remove_file(&hdev->dev, &dev_attr_mode);
-+}
-+
- static int saitek_probe(struct hid_device *hdev,
- 		const struct hid_device_id *id)
- {
-@@ -61,9 +96,15 @@ static int saitek_probe(struct hid_devic
- 		return ret;
- 	}
-
-+	ret =3D device_create_file(&hdev->dev, &dev_attr_mode);
-+	if (ret) {
-+		hid_warn(hdev, "Couldn't create mode file in sysfs.\n");
-+	}
-+
- 	ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 	if (ret) {
- 		hid_err(hdev, "hw start failed\n");
-+		saitek_remove(hdev);
- 		return ret;
- 	}
-
-@@ -181,6 +222,8 @@ static const struct hid_device_id saitek
- 		.driver_data =3D SAITEK_RELEASE_MODE_RAT7 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7),
- 		.driver_data =3D SAITEK_RELEASE_MODE_RAT7 },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT5),
-+		.driver_data =3D SAITEK_RELEASE_MODE_RAT7 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9),
- 		.driver_data =3D SAITEK_RELEASE_MODE_RAT7 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7),
-@@ -197,6 +240,7 @@ static struct hid_driver saitek_driver =3D
- 	.report_fixup =3D saitek_report_fixup,
- 	.raw_event =3D saitek_raw_event,
- 	.event =3D saitek_event,
-+	.remove =3D saitek_remove,
- };
- module_hid_driver(saitek_driver);
-
-diff -rup linux-4.2.6-gentoo/drivers/hid/Kconfig
-linux-4.2.6-gentoo-rat5/drivers/hid/Kconfig
---- linux-4.2.6-gentoo/drivers/hid/Kconfig	2015-08-30 20:34:09.00000000=
-0
-+0200
-+++ linux-4.2.6-gentoo-rat5/drivers/hid/Kconfig	2015-12-30
-12:14:49.228404039 +0100
-@@ -665,6 +665,7 @@ config HID_SAITEK
-
- 	Supported devices:
- 	- PS1000 Dual Analog Pad
-+	- R.A.T.5 Gaming Mouse
- 	- R.A.T.9 Gaming Mouse
- 	- R.A.T.7 Gaming Mouse
- 	- M.M.O.7 Gaming Mouse
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Regards,
+> Aniroop
+>
+>> Thanks.
+>>
+>> --
+>> Dmitry

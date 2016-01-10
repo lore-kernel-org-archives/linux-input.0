@@ -1,227 +1,830 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] Input: evdev - add ioctl cmd EVIOCGBUFSIZE to get buffer
- size
-Date: Mon, 11 Jan 2016 08:43:54 +1000
-Message-ID: <20160110224354.GA28145@jelly.redhat.com>
-References: <CADYu309gh6QOgGXsaxJO06Xif50mK73u6VaxjwRQYWyeeL5EMg@mail.gmail.com>
- <20160108203340.2b728a41@lxorguk.ukuu.org.uk>
- <CADYu309viVxQJVo-HR=17s-gGhXm03t4p_qL5i1=YUwKqh3pbA@mail.gmail.com>
- <CAKdAkRQ6SPt2oBJPv6h-gPVsEGZWRcBfp7J-TZpzWnO-nEOXKw@mail.gmail.com>
- <CADYu309cx-mb0skOTOkT67bjg83Vx6A-_rJ2QWRkbyLL9yHKxQ@mail.gmail.com>
- <20160108222720.GB39042@dtor-ws>
- <CADYu30-Nykka4gwWCUSDt1_pKUZkYDuGY5X_giFLOYxDSDr3wA@mail.gmail.com>
- <CADYu30-Y8oBtupLx+e6N5WJkc_ck5AdotZc69mDpeFMjU=A6zw@mail.gmail.com>
- <20160109185155.GB19004@dtor-ws>
- <CADYu30_nnL7snv2b5Nn8vYcYd90pD2cp9BaJseg9Y=DDAjTU_g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Edwin Velds <e.velds@gmail.com>
+Subject: [PATCH-V2 1/1] HID: Force feedback support for the Logitech G920
+Date: Mon, 11 Jan 2016 00:25:15 +0100
+Message-ID: <1452468315-8978-1-git-send-email-e.velds@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:55152 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757766AbcAJWoG (ORCPT
+Received: from mail-wm0-f42.google.com ([74.125.82.42]:33948 "EHLO
+	mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757777AbcAJXZd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Jan 2016 17:44:06 -0500
-Content-Disposition: inline
-In-Reply-To: <CADYu30_nnL7snv2b5Nn8vYcYd90pD2cp9BaJseg9Y=DDAjTU_g@mail.gmail.com>
+	Sun, 10 Jan 2016 18:25:33 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, David Herrmann <dh.herrmann@gmail.com>, Aniroop Mathur <a.mathur@samsung.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Simon Wood <simon@mungewell.org>, Jiri Kosina <jkosina@suse.cz>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Edwin Velds <e.velds@gmail.com>
 
-On Sun, Jan 10, 2016 at 04:33:08AM +0530, Aniroop Mathur wrote:
-> On Sun, Jan 10, 2016 at 12:21 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Sat, Jan 09, 2016 at 09:51:59PM +0530, Aniroop Mathur wrote:
-> >> On Sat, Jan 9, 2016 at 4:13 AM, Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
-> >> > On Sat, Jan 9, 2016 at 3:57 AM, Dmitry Torokhov
-> >> > <dmitry.torokhov@gmail.com> wrote:
-> >> >> On Sat, Jan 09, 2016 at 03:46:41AM +0530, Aniroop Mathur wrote:
-> >> >>> On Sat, Jan 9, 2016 at 2:32 AM, Dmitry Torokhov
-> >> >>> <dmitry.torokhov@gmail.com> wrote:
-> >> >>> > On Fri, Jan 8, 2016 at 12:51 PM, Aniroop Mathur
-> >> >>> > <aniroop.mathur@gmail.com> wrote:
-> >> >>> >> On Sat, Jan 9, 2016 at 2:03 AM, One Thousand Gnomes
-> >> >>> >> <gnomes@lxorguk.ukuu.org.uk> wrote:
-> >> >>> >>> On Sat, 9 Jan 2016 01:50:42 +0530
-> >> >>> >>> Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
-> >> >>> >>>
-> >> >>> >>>> On Sat, Jan 9, 2016 at 1:43 AM, One Thousand Gnomes
-> >> >>> >>>> <gnomes@lxorguk.ukuu.org.uk> wrote:
-> >> >>> >>>> >> During system boot up, user space buf size is fixed, it cannot be
-> >> >>> >>>> >> resized later and we cannot choose by hit&trial.
-> >> >>> >>>> >> struct input_event* mBuffer = new input_event[mBuf];
-> >> >>> >>>> >
-> >> >>> >>>> > Who says that won't change ? Imagine a future case where plugging in a
-> >> >>> >>>> > device changes the buffer size ?
-> >> >>> >>>> >
-> >> >>> >>>>
-> >> >>> >>>> Ofcourse buffer size can be changed but it will also change the value of bufsize
-> >> >>> >>>> variable and accordingly user space client should also change its buf size.
-> >> >>> >>>
-> >> >>> >>> If its hot plugged why shouldn't that value change dynamically after
-> >> >>> >>> you've asked ?
-> >> >>> >>>
-> >> >>> >>
-> >> >>> >> Please put up your query clearly. what value ? what asked ?
-> >> >>> >
-> >> >>> > There is nothing that would stop us (kernel) to decide to resize the
-> >> >>> > buffer after you issued your new EVIOCGBUFSIZE. For example one can
-> >> >>> > decide to implement a feature that will double the size of evdev's
-> >> >>> > client buffer if there happened too many overruns i a given time
-> >> >>> > period.
-> >> >>> >
-> >> >>>
-> >> >>> If one decided to double the size of evdev buffer then it would be done
-> >> >>> by the same client facing buffer overrun and for this case client would
-> >> >>> not need to request for evdev buf size again as it has only set it. And
-> >> >>> still evdev buf size variable value be changed as well with the request
-> >> >>> to change buf size so client can read it again, if wishes.
-> >> >>
-> >> >> I was talking about changing the size of the buffer on kernel side.
-> >> >>
-> >> >>>
-> >> >>> > In any case the userpsace consumers already have to inspect input
-> >> >>> > device in question (number of axes and what they are; number of
-> >> >>> > keys/buttons, number of slots, etc) so that they can handle devices
-> >> >>> > properly and it should have enough information to intelligently size
-> >> >>> > of the receiving buffers. There is no need for a new kernel ioctl.
-> >> >>> >
-> >> >>>
-> >> >>> yes, consumers have to inspect input device but they cannot know
-> >> >>> the size of evdev buffer initially set as it is calculated in evdev.c file
-> >> >>> Consumer does not know that there is a limit of 8 packets.
-> >> >>> #define EVDEV_BUF_PACKETS       8
-> >> >>> unsigned int n_events =
-> >> >>>     max(dev->hint_events_per_packet * EVDEV_BUF_PACKETS, EVDEV_MIN_BUFFER_SIZE);
-> >> >>> return roundup_pow_of_two(n_events);
-> >> >>> This value varies for every device as every device has different value
-> >> >>> of hint_events_per_packet.
-> >> >>>
-> >> >>> Even after increasing kernel buffer size, buffer overrun can occur
-> >> >>> if reading is delayed and userspace buf is very small say only 1/2.
-> >> >>> In this case, buffer overrun will still occur and it will only be delayed.
-> >> >>> This was happening in my use case for gyroscope sensor device for
-> >> >>> which I initially forcefully increased the evdev buf size but problem was
-> >> >>> still not solved and buffer overrun was only delayed. The cause of the
-> >> >>> problem was that gyroscope client was using very small buf size for
-> >> >>> reading and after increasing the user space buf size, problem was solved.
-> >> >>> If client chooses maximum possible buffer size then it will be able to
-> >> >>> consume maximum events when reading is delayed and hence there will
-> >> >>> be least chance of buffer overrun. Evdev buf size should only be increased
-> >> >>> when buffer overrun occurs even with max user-space buf size.
-> >> >>> But the max user space buf size cannot be known until client request for it
-> >> >>> using this ioctl. So, I added it.
-> >> >>>
-> >> >>> So, are you convinced now that this ioctl is required ?
-> >> >>
-> >> >> No because I'd rather you managed size of your own buffer and increased
-> >> >> it as needed if you see drops. Let's say kernel decides to have buffer
-> >> >> of 100 events, do you have to mirror this size? What if device only
-> >> >> generates 1 event per minute?
-> >> >>
-> >> >
-> >> > We do not want any drop in the first place by keeping max buf size for
-> >> > reading for devices which need it only. On changing buf size on run time
-> >> > would not do any help because many events have already been dropped.
-> >> > And then after rebooting the system, user space buf size will again change
-> >> > to old value and so again events will be dropped and again buf size need to
-> >> > be changed.
-> >> > Yes, there is a need to mirror it, especially for device which support batching.
-> >> > If device generates only 1 event per minute, then client can choose minimum
-> >> > user space buf size, say 1. It is not compulsory to choose max buf size always
-> >> > for every device.
-> >> >
-> >>
-> >> Any update on above in order to conclude this change ?
-> >
-> > I am still unconvinced that it is needed.
-> >
-> >>
-> >> As consumer need to manage the user-space buf size as per requirement,
-> >> it needs to know the max limit upto which it can be increased so that consumer
-> >> should not request to read for more data than the max limit.
-> >
-> > What is exactly the requirement? Minimizing amount of reads? Why? If
-> > device is basically "streaming" events to userspace and you believe that
-> > it is essential for you want to consume entire client buffer at once
-> > that means that you are basically losing the race and with the slightest
-> > hickup you'll experience drop. If you are keeping up with the
-> > device/kernel you reads should be typically smaller than what kernel
-> > buffer can potentially hold.
-> >
-> 
-> There is only one requirement:
-> How would the clients come to know the maximum number of events they
-> can read at once ?
-> 
-> Usually, reading as small as 1 packet is enough, keeping reading+writing
-> remains in sync and no problem/drops occur, However, sometimes, it is
-> possible that reading and writing are not in sync like in case of batching
-> where multiple data is written to chip without any delay or in case of
-> high cpu load. So sometimes for a short time, writing can be fast but
-> reading can be slow. To balance out gap between reading and writing in
-> order to make them in sync again for that short time, we need to read
-> multiple packets at once and in worst case maximum possible packets.
-> For example:
-> If gyro chip is generating data at 5ms interval and reading is delayed
-> by extra 5 ms for 80 ms with reading size of 1 packet & kernel but size of
-> 8 packets, then drop will occur after 80 ms as client would only be able to
-> read 8 packets but 16 packets are reported. Surely, reading can again be
-> in sync after 80 ms but for that 80 ms when not in sync, client will loose data
-> which could have been saved just by using reading size of 2 packets in this
-> case. Similarly, reading can be delayed by 10/20/30 ms for a short time and
-> reading size of 4/6/max_packet can solve the problem.
+This patch implements force feedback support for the Logitech
+G920 Driving Force Racing Wheel. It is a generic implementation
+of feature 0x8123 of the Logitech HID++ protocol and should be
+usable for any future devices that implement this feature.
 
-Speaking for the xorg drivers and libevdev, we always try to read as many
-packets as are available or fit into our event queue. The kernel buffer is
-just that - a buffer. If you need all events unconditionally, you better
-pull them out of the buffer into your own queue asap, then you have control
-over it.
+This patch should be applied after the basic G920 support patch
+by Simon Wood:
+http://www.spinics.net/lists/linux-input/msg42174.html
 
-I can't think of a use-case where reading one event/packet is a good idea.
-Which brings me to the next point: you talk about "packet", so I'm not sure
-if you talk about one struct input_event, or one frame (i.e. events +
-SYN_REPORT). The kernel flushes on SYN_REPORT, so you'll always have more
-than one event waiting anyway, better to read in more in one go.
-In the latter: you can't know how many events are in the frame, the kernel
-may suppress some values or you get other values that aren't usually in the
-same frame (e.g. button presses on top of finger data).
-And if you *do* know the exact number of events per frame, your software is
-probably specific enough for the device that you can hardcode or closely
-estimate the buffer size rather than requiring an ioctl.
+The driving supports everything that is supported by the G920
+firmware:
+    FF_CONSTANT
+    FF_PERIODIC
+    FF_SINE
+    FF_SQUARE
+    FF_SAW_UP
+    FF_SAW_DOWN
+    FF_TRIANGLE
+    FF_SPRING
+    FF_DAMPER
+    FF_AUTOCENTER
+    FF_GAIN
+and for version 2 firmware also:
+    FF_FRICTION
+    FF_INERTIA
+    FF_RAMP
 
-so again, you should be reading multiple events per run. for example,
-libevdev reads up to 64 events at a time.
+Both envelopes and replay values are supported as well, but some
+problems may occur when using firmware release 1. There is also a
+small residual clockwise damper in the wheel when using the first
+firmware release. All problems are fixed in the soon te be released
+firmware version 2.
+
+The default spring is disabled by permanently placing a spring
+force in the wheel. This spring is also used as the autocenter
+spring.
+
+Signed-off-by: Edwin Velds <e.velds@gmail.com>
+---
+ drivers/hid/hid-logitech-hidpp.c | 704 +++++++++++++++++++++++++++++++++------
+ 1 file changed, 594 insertions(+), 110 deletions(-)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index f2a4811..35205f0 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -15,13 +15,19 @@
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
  
-> > I'll add Peter as he was complaining about dropouts too at some point.
+ #include <linux/device.h>
++#include <linux/input.h>
++#include <linux/usb.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/sched.h>
+ #include <linux/kfifo.h>
+ #include <linux/input/mt.h>
++#include <linux/workqueue.h>
++#include <linux/atomic.h>
++#include <linux/fixp-arith.h>
+ #include <asm/unaligned.h>
++#include "usbhid/usbhid.h"
+ #include "hid-ids.h"
+ 
+ MODULE_LICENSE("GPL");
+@@ -773,6 +779,591 @@ static void hidpp_touchpad_raw_xy_event(struct hidpp_device *hidpp_dev,
+ 	}
+ }
+ 
++/* -------------------------------------------------------------------------- */
++/* 0x8123: Force feedback support                                             */
++/* -------------------------------------------------------------------------- */
++
++#define HIDPP_FF_GET_INFO		0x01
++#define HIDPP_FF_RESET_ALL		0x11
++#define HIDPP_FF_DOWNLOAD_EFFECT	0x21
++#define HIDPP_FF_SET_EFFECT_STATE	0x31
++#define HIDPP_FF_DESTROY_EFFECT		0x41
++#define HIDPP_FF_GET_APERTURE		0x51
++#define HIDPP_FF_SET_APERTURE		0x61
++#define HIDPP_FF_GET_GLOBAL_GAINS	0x71
++#define HIDPP_FF_SET_GLOBAL_GAINS	0x81
++
++#define HIDPP_FF_EFFECT_STATE_GET	0x00
++#define HIDPP_FF_EFFECT_STATE_STOP	0x01
++#define HIDPP_FF_EFFECT_STATE_PLAY	0x02
++#define HIDPP_FF_EFFECT_STATE_PAUSE	0x03
++
++#define HIDPP_FF_EFFECT_CONSTANT	0x00
++#define HIDPP_FF_EFFECT_PERIODIC_SINE		0x01
++#define HIDPP_FF_EFFECT_PERIODIC_SQUARE		0x02
++#define HIDPP_FF_EFFECT_PERIODIC_TRIANGLE	0x03
++#define HIDPP_FF_EFFECT_PERIODIC_SAWTOOTHUP	0x04
++#define HIDPP_FF_EFFECT_PERIODIC_SAWTOOTHDOWN	0x05
++#define HIDPP_FF_EFFECT_SPRING		0x06
++#define HIDPP_FF_EFFECT_DAMPER		0x07
++#define HIDPP_FF_EFFECT_FRICTION	0x08
++#define HIDPP_FF_EFFECT_INERTIA		0x09
++#define HIDPP_FF_EFFECT_RAMP		0x0A
++
++#define HIDPP_FF_EFFECT_AUTOSTART	0x80
++
++#define HIDPP_FF_EFFECTID_NONE		-1
++#define HIDPP_FF_EFFECTID_AUTOCENTER	-2
++
++#define HIDPP_FF_MAX_PARAMS	20
++#define HIDPP_FF_RESERVED_SLOTS	1
++
++#define to_hid_device(pdev) container_of(pdev, struct hid_device, dev)
++
++struct hidpp_ff_private_data {
++	struct hidpp_device *hidpp;
++	u8 feature_index;
++	u8 version;
++	u16 gain;
++	s16 range;
++	u8 slot_autocenter;
++	u8 num_effects;
++	int *effect_ids;
++	struct workqueue_struct *wq;
++	atomic_t workqueue_size;
++};
++
++struct hidpp_ff_work_data {
++	struct work_struct work;
++	struct hidpp_ff_private_data *data;
++	int effect_id;
++	u8 command;
++	u8 params[HIDPP_FF_MAX_PARAMS];
++	u8 size;
++};
++
++static const signed short hiddpp_ff_effects[] = {
++	FF_CONSTANT,
++	FF_PERIODIC,
++	FF_SINE,
++	FF_SQUARE,
++	FF_SAW_UP,
++	FF_SAW_DOWN,
++	FF_TRIANGLE,
++	FF_SPRING,
++	FF_DAMPER,
++	FF_AUTOCENTER,
++	FF_GAIN,
++	-1
++};
++
++static const signed short hiddpp_ff_effects_v2[] = {
++	FF_RAMP,
++	FF_FRICTION,
++	FF_INERTIA,
++	-1
++};
++
++static const u8 HIDPP_FF_CONDITION_CMDS[] = { 
++	HIDPP_FF_EFFECT_SPRING,
++	HIDPP_FF_EFFECT_FRICTION,
++	HIDPP_FF_EFFECT_DAMPER,
++	HIDPP_FF_EFFECT_INERTIA
++};
++
++static const char *HIDPP_FF_CONDITION_NAMES[] = { 
++	"spring",
++	"friction",
++	"damper",
++	"inertia"
++};
++
++
++static u8 hidpp_ff_find_effect(struct hidpp_ff_private_data *data, int effect_id)
++{
++	int i;
++
++	for (i = 0; i < data->num_effects; i++)
++		if (data->effect_ids[i] == effect_id)
++			return i+1;
++
++	return 0;
++}
++
++static void hidpp_ff_work_handler(struct work_struct *w)
++{
++	struct hidpp_ff_work_data *wd = container_of(w, struct hidpp_ff_work_data, work);
++	struct hidpp_ff_private_data *data = wd->data;
++	struct hidpp_report response;
++	u8 slot;
++	int ret;
++
++	/* add slot number if needed */
++	switch (wd->effect_id) {
++	case HIDPP_FF_EFFECTID_AUTOCENTER:
++		wd->params[0] = data->slot_autocenter;
++		break;
++	case HIDPP_FF_EFFECTID_NONE:
++		/* leave slot as zero */
++		break;
++	default:
++		/* find current slot for effect */
++		wd->params[0] = hidpp_ff_find_effect(data, wd->effect_id);
++		break;
++	}
++
++	/* send command and wait for reply */
++	ret = hidpp_send_fap_command_sync(data->hidpp, data->feature_index,
++		wd->command, wd->params, wd->size, &response);
++
++	if (ret) {
++		hid_err(data->hidpp->hid_dev, "Failed to send command to device!\n");
++		goto out;
++	}
++
++	/* parse return data */
++	switch (wd->command) {
++	case HIDPP_FF_DOWNLOAD_EFFECT:
++		slot = response.fap.params[0];
++		if (slot > 0 && slot <= data->num_effects) {
++			if (wd->effect_id >= 0)
++				/* regular effect uploaded */
++				data->effect_ids[slot-1] = wd->effect_id;
++			else if (wd->effect_id >= HIDPP_FF_EFFECTID_AUTOCENTER)
++				/* autocenter spring uploaded */
++				data->slot_autocenter = slot;
++		}
++		break;
++	case HIDPP_FF_DESTROY_EFFECT:
++		if (wd->effect_id >= 0)
++			/* regular effect destroyed */
++			data->effect_ids[wd->params[0]-1] = -1;
++		else if (wd->effect_id >= HIDPP_FF_EFFECTID_AUTOCENTER)
++			/* autocenter spring destoyed */
++			data->slot_autocenter = 0;
++		break;
++	case HIDPP_FF_SET_GLOBAL_GAINS:
++		data->gain = (wd->params[0] << 8) + wd->params[1];
++		break;
++	case HIDPP_FF_SET_APERTURE:
++		data->range = (wd->params[0] << 8) + wd->params[1];
++		break;
++	default:
++		/* no action needed */
++		break;
++	}
++
++out:
++	atomic_dec(&data->workqueue_size);
++	kfree(wd);
++}
++
++static int hidpp_ff_queue_work(struct hidpp_ff_private_data *data, int effect_id, u8 command, u8 *params, u8 size)
++{
++	struct hidpp_ff_work_data *wd = kzalloc(sizeof(*wd), GFP_KERNEL);
++	int s;
++
++	if (!wd)
++		return -ENOMEM;
++
++	INIT_WORK(&wd->work, hidpp_ff_work_handler);
++
++	wd->data = data;
++	wd->effect_id = effect_id;
++	wd->command = command;
++	wd->size = size;
++	memcpy(wd->params, params, size);
++
++	atomic_inc(&data->workqueue_size);
++	queue_work(data->wq, &wd->work);
++
++	/* warn about excessive queue size */
++	s = atomic_read(&data->workqueue_size);
++	if (s >= 20 && s % 20 == 0)
++		hid_warn(data->hidpp->hid_dev, "Force feedback command queue contains %d commands, causing substantial delays!", s);
++
++	return 0;
++}
++
++static int hidpp_ff_upload_effect(struct input_dev *dev, struct ff_effect *effect, struct ff_effect *old)
++{
++	struct hidpp_ff_private_data *data = dev->ff->private;
++	u8 params[20];
++	u8 size;
++	int force;
++
++	/* set common parameters */
++	params[2] = effect->replay.length >> 8;
++	params[3] = effect->replay.length & 255;
++	params[4] = effect->replay.delay >> 8;
++	params[5] = effect->replay.delay & 255;
++
++	switch (effect->type) {
++	case FF_CONSTANT:
++		force = (effect->u.constant.level * fixp_sin16((effect->direction * 360) >> 16)) >> 15;
++		params[1] = HIDPP_FF_EFFECT_CONSTANT;
++		params[6] = force >> 8;
++		params[7] = force & 255;
++		params[8] = effect->u.constant.envelope.attack_level >> 7;
++		params[9] = effect->u.constant.envelope.attack_length >> 8;
++		params[10] = effect->u.constant.envelope.attack_length & 255;
++		params[11] = effect->u.constant.envelope.fade_level >> 7;
++		params[12] = effect->u.constant.envelope.fade_length >> 8;
++		params[13] = effect->u.constant.envelope.fade_length & 255;
++		size = 14;
++		dbg_hid("Uploading constant force level=%d in dir %d = %d\n",
++				effect->u.constant.level,
++				effect->direction, force);
++		dbg_hid("          envelope attack=(%d, %d ms) fade=(%d, %d ms)\n",
++				effect->u.constant.envelope.attack_level,
++				effect->u.constant.envelope.attack_length,
++				effect->u.constant.envelope.fade_level,
++				effect->u.constant.envelope.fade_length);
++		break;
++	case FF_PERIODIC:
++	{
++		switch (effect->u.periodic.waveform) {
++		case FF_SINE:
++			params[1] = HIDPP_FF_EFFECT_PERIODIC_SINE;
++			break;
++		case FF_SQUARE:
++			params[1] = HIDPP_FF_EFFECT_PERIODIC_SQUARE;
++			break;
++		case FF_SAW_UP:
++			params[1] = HIDPP_FF_EFFECT_PERIODIC_SAWTOOTHUP;
++			break;
++		case FF_SAW_DOWN:
++			params[1] = HIDPP_FF_EFFECT_PERIODIC_SAWTOOTHDOWN;
++			break;
++		case FF_TRIANGLE:
++			params[1] = HIDPP_FF_EFFECT_PERIODIC_TRIANGLE;
++			break;
++		default:
++			hid_err(data->hidpp->hid_dev, "Unexpected periodic waveform type %i!\n", effect->u.periodic.waveform);
++			return -EINVAL;
++		}
++		force = (effect->u.periodic.magnitude * fixp_sin16((effect->direction * 360) >> 16)) >> 15;
++		params[6] = effect->u.periodic.magnitude >> 8;
++		params[7] = effect->u.periodic.magnitude & 255;
++		params[8] = effect->u.periodic.offset >> 8;
++		params[9] = effect->u.periodic.offset & 255;
++		params[10] = effect->u.periodic.period >> 8;
++		params[11] = effect->u.periodic.period & 255;
++		params[12] = effect->u.periodic.phase >> 8;
++		params[13] = effect->u.periodic.phase & 255;
++		params[14] = effect->u.periodic.envelope.attack_level >> 7;
++		params[15] = effect->u.periodic.envelope.attack_length >> 8;
++		params[16] = effect->u.periodic.envelope.attack_length & 255;
++		params[17] = effect->u.periodic.envelope.fade_level >> 7;
++		params[18] = effect->u.periodic.envelope.fade_length >> 8;
++		params[19] = effect->u.periodic.envelope.fade_length & 255;
++		size = 20;
++		dbg_hid("Uploading periodic force mag=%d/dir=%d, offset=%d, period=%d ms, phase=%d\n",
++				effect->u.periodic.magnitude, effect->direction,
++				effect->u.periodic.offset,
++				effect->u.periodic.period,
++				effect->u.periodic.phase);
++		dbg_hid("          envelope attack=(%d, %d ms) fade=(%d, %d ms)\n",
++				effect->u.periodic.envelope.attack_level,
++				effect->u.periodic.envelope.attack_length,
++				effect->u.periodic.envelope.fade_level,
++				effect->u.periodic.envelope.fade_length);
++		break;
++	}
++	case FF_RAMP:
++		params[1] = HIDPP_FF_EFFECT_RAMP;
++		force = (effect->u.ramp.start_level * fixp_sin16((effect->direction * 360) >> 16)) >> 15;
++		params[6] = force >> 8;
++		params[7] = force & 255;
++		force = (effect->u.ramp.end_level * fixp_sin16((effect->direction * 360) >> 16)) >> 15;
++		params[8] = force >> 8;
++		params[9] = force & 255;
++		params[10] = effect->u.ramp.envelope.attack_level >> 7;
++		params[11] = effect->u.ramp.envelope.attack_length >> 8;
++		params[12] = effect->u.ramp.envelope.attack_length & 255;
++		params[13] = effect->u.ramp.envelope.fade_level >> 7;
++		params[14] = effect->u.ramp.envelope.fade_length >> 8;
++		params[15] = effect->u.ramp.envelope.fade_length & 255;
++		size = 16;
++		dbg_hid("Uploading ramp force level=%d -> %d in dir %d = %d\n",
++				effect->u.ramp.start_level,
++				effect->u.ramp.end_level,
++				effect->direction, force);
++		dbg_hid("          envelope attack=(%d, %d ms) fade=(%d, %d ms)\n",
++				effect->u.ramp.envelope.attack_level,
++				effect->u.ramp.envelope.attack_length,
++				effect->u.ramp.envelope.fade_level,
++				effect->u.ramp.envelope.fade_length);
++		break;
++	case FF_FRICTION:
++	case FF_INERTIA:
++	case FF_SPRING:
++	case FF_DAMPER:
++		params[1] = HIDPP_FF_CONDITION_CMDS[effect->type - FF_SPRING];
++		params[6] = effect->u.condition[0].left_saturation >> 9;
++		params[7] = (effect->u.condition[0].left_saturation >> 1) & 255;
++		params[8] = effect->u.condition[0].left_coeff >> 8;
++		params[9] = effect->u.condition[0].left_coeff & 255;
++		params[10] = effect->u.condition[0].deadband >> 9;
++		params[11] = (effect->u.condition[0].deadband >> 1) & 255;
++		params[12] = effect->u.condition[0].center >> 8;
++		params[13] = effect->u.condition[0].center & 255;
++		params[14] = effect->u.condition[0].right_coeff >> 8;
++		params[15] = effect->u.condition[0].right_coeff & 255;
++		params[16] = effect->u.condition[0].right_saturation >> 9;
++		params[17] = (effect->u.condition[0].right_saturation >> 1) & 255;
++		size = 18;
++		dbg_hid("Uploading %s force left coeff=%d, left sat=%d, right coeff=%d, right sat=%d\n",
++				HIDPP_FF_CONDITION_NAMES[effect->type - FF_SPRING],
++				effect->u.condition[0].left_coeff,
++				effect->u.condition[0].left_saturation,
++				effect->u.condition[0].right_coeff,
++				effect->u.condition[0].right_saturation);
++		dbg_hid("          deadband=%d, center=%d\n",
++				effect->u.condition[0].deadband,
++				effect->u.condition[0].center);
++		break;
++	default:
++		hid_err(data->hidpp->hid_dev, "Unexpected force type %i!\n", effect->type);
++		return -EINVAL;
++	}
++
++	return hidpp_ff_queue_work(data, effect->id, HIDPP_FF_DOWNLOAD_EFFECT, params, size);
++}
++
++static int hidpp_ff_playback(struct input_dev *dev, int effect_id, int value)
++{
++	struct hidpp_ff_private_data *data = dev->ff->private;
++	u8 params[2];
++
++	params[1] = value ? HIDPP_FF_EFFECT_STATE_PLAY : HIDPP_FF_EFFECT_STATE_STOP;
++
++	dbg_hid("St%sing playback of effect %d.\n", value?"art":"opp", effect_id);
++
++	return hidpp_ff_queue_work(data, effect_id, HIDPP_FF_SET_EFFECT_STATE, params, ARRAY_SIZE(params));
++}
++
++static int hidpp_ff_erase_effect(struct input_dev *dev, int effect_id)
++{
++	struct hidpp_ff_private_data *data = dev->ff->private;
++	u8 slot = 0;
++
++	dbg_hid("Erasing effect %d.\n", effect_id);
++
++	return hidpp_ff_queue_work(data, effect_id, HIDPP_FF_DESTROY_EFFECT, &slot, 1);
++}
++
++static void hidpp_ff_set_autocenter(struct input_dev *dev, u16 magnitude)
++{
++	struct hidpp_ff_private_data *data = dev->ff->private;
++	u8 params[18];
++
++	dbg_hid("Setting autocenter to %d.\n", magnitude);
++
++	/* start a standard spring effect */
++	params[1] = HIDPP_FF_EFFECT_SPRING | HIDPP_FF_EFFECT_AUTOSTART;
++	/* zero delay and duration */
++	params[2] = params[3] = params[4] = params[5] = 0;
++	/* set coeff to 25% of saturation */
++	params[8] = params[14] = magnitude >> 11;
++	params[9] = params[15] = (magnitude >> 3) & 255;
++	params[6] = params[16] = magnitude >> 9;
++	params[7] = params[17] = (magnitude >> 1) & 255;
++	/* zero deadband and center */
++	params[10] = params[11] = params[12] = params[13] = 0;
++
++	hidpp_ff_queue_work(data, HIDPP_FF_EFFECTID_AUTOCENTER, HIDPP_FF_DOWNLOAD_EFFECT, params, ARRAY_SIZE(params));
++}
++
++static void hidpp_ff_set_gain(struct input_dev *dev, u16 gain)
++{
++	struct hidpp_ff_private_data *data = dev->ff->private;
++	u8 params[4];
++
++	dbg_hid("Setting gain to %d.\n", gain);
++
++	params[0] = gain >> 8;
++	params[1] = gain & 255;
++	params[2] = 0; /* no boost */
++	params[3] = 0;
++
++	hidpp_ff_queue_work(data, HIDPP_FF_EFFECTID_NONE, HIDPP_FF_SET_GLOBAL_GAINS, params, ARRAY_SIZE(params));
++}
++
++static ssize_t hidpp_ff_range_show(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct hid_device *hid = to_hid_device(dev);
++	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
++	struct input_dev *idev = hidinput->input;
++	struct hidpp_ff_private_data *data = idev->ff->private;
++
++	return scnprintf(buf, PAGE_SIZE, "%u\n", data->range);
++}
++
++static ssize_t hidpp_ff_range_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct hid_device *hid = to_hid_device(dev);
++	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
++	struct input_dev *idev = hidinput->input;
++	struct hidpp_ff_private_data *data = idev->ff->private;
++	u8 params[2];
++	int range = simple_strtoul(buf, NULL, 10);
++
++	range = clamp(range, 180, 900);
++
++	params[0] = range >> 8;
++	params[1] = range & 0x00FF;
++
++	hidpp_ff_queue_work(data, -1, HIDPP_FF_SET_APERTURE, params, ARRAY_SIZE(params));
++
++	return count;
++}
++
++static DEVICE_ATTR(range, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, hidpp_ff_range_show, hidpp_ff_range_store);
++
++static void hidpp_ff_destroy(struct ff_device *ff)
++{
++	struct hidpp_ff_private_data *data = ff->private;
++
++	kfree(data->effect_ids);
++}
++
++int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
++{
++	struct hid_device *hid = hidpp->hid_dev;
++	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
++	struct input_dev *dev = hidinput->input;
++	const struct usb_device_descriptor *udesc = &(hid_to_usb_dev(hid)->descriptor);
++	const u16 bcdDevice = le16_to_cpu(udesc->bcdDevice);
++	struct ff_device *ff;
++	struct hidpp_report response;
++	struct hidpp_ff_private_data *data;
++	int error, j, num_slots;
++	u8 version;
++
++	if (!dev) {
++		hid_err(hid, "Struct input_dev not set!\n");
++		return -EINVAL;
++	}
++
++	/* Get firmware release */
++	version = bcdDevice & 255;
++
++	/* Set supported force feedback capabilities */
++	for (j = 0; hiddpp_ff_effects[j] >= 0; j++)
++		set_bit(hiddpp_ff_effects[j], dev->ffbit);
++	if (version > 1)
++		for (j = 0; hiddpp_ff_effects_v2[j] >= 0; j++)
++			set_bit(hiddpp_ff_effects_v2[j], dev->ffbit);
++
++	/* Read number of slots available in device */
++	error = hidpp_send_fap_command_sync(hidpp, feature_index,
++		HIDPP_FF_GET_INFO, NULL, 0, &response);
++	if (error) {
++		if (error < 0)
++			return error;
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, error);
++		return -EPROTO;
++	}
++
++	num_slots = response.fap.params[0] - HIDPP_FF_RESERVED_SLOTS;
++
++	error = input_ff_create(dev, num_slots);
++
++	if (error) {
++		hid_err(dev, "Failed to create FF device!\n");
++		return error;
++	}
++
++	data = kzalloc(sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++	data->effect_ids = kcalloc(num_slots, sizeof(int), GFP_KERNEL);
++	if (!data->effect_ids) {
++		kfree(data);
++		return -ENOMEM;
++	}
++	data->hidpp = hidpp;
++	data->feature_index = feature_index;
++	data->version = version;
++	data->slot_autocenter = 0;
++	data->num_effects = num_slots;
++	for (j = 0; j < num_slots; j++)
++		data->effect_ids[j] = -1;
++
++	ff = dev->ff;
++	ff->private = data;
++
++	ff->upload = hidpp_ff_upload_effect;
++	ff->erase = hidpp_ff_erase_effect;
++	ff->playback = hidpp_ff_playback;
++	ff->set_gain = hidpp_ff_set_gain;
++	ff->set_autocenter = hidpp_ff_set_autocenter;
++	ff->destroy = hidpp_ff_destroy;
++
++
++	/* reset all forces */
++	error = hidpp_send_fap_command_sync(hidpp, feature_index,
++		HIDPP_FF_RESET_ALL, NULL, 0, &response);
++
++	/* Read current Range */
++	error = hidpp_send_fap_command_sync(hidpp, feature_index,
++		HIDPP_FF_GET_APERTURE, NULL, 0, &response);
++	if (error)
++		hid_warn(hidpp->hid_dev, "Failed to read range from device!\n");
++	data->range = error ? 900 : get_unaligned_be16(&response.fap.params[0]);
++
++	/* Create sysfs interface */
++	error = device_create_file(&(hidpp->hid_dev->dev), &dev_attr_range);
++	if (error)
++		hid_warn(hidpp->hid_dev, "Unable to create sysfs interface for \"range\", errno %d!\n", error);
++
++	/* Read the current gain values */
++	error = hidpp_send_fap_command_sync(hidpp, feature_index,
++		HIDPP_FF_GET_GLOBAL_GAINS, NULL, 0, &response);
++	if (error)
++		hid_warn(hidpp->hid_dev, "Failed to read gain values from device!\n");
++	data->gain = error ? 0xffff : get_unaligned_be16(&response.fap.params[0]);
++	/* ignore boost value at response.fap.params[2] */
++
++	/* init the hardware command queue */
++	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
++	atomic_set(&data->workqueue_size, 0);
++
++	/* initialize with zero autocenter to get wheel in usable state */
++	hidpp_ff_set_autocenter(dev, 0);
++
++	hid_info(hid, "Force feeback support loaded (firmware release %d).\n", version);
++
++	return 0;
++}
++
++int hidpp_ff_deinit(struct hid_device *hid)
++{
++	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
++	struct input_dev *dev = hidinput->input;
++	struct hidpp_ff_private_data *data;
++
++	if (!dev) {
++		hid_err(hid, "Struct input_dev not found!\n");
++		return -EINVAL;
++	}
++
++	hid_info(hid, "Unloading HID++ force feedback.\n");
++	data = dev->ff->private;
++	if (!data) {
++		hid_err(hid, "Private data not found!\n");
++		return -EINVAL;
++	}
++
++	destroy_workqueue(data->wq);
++	device_remove_file(&hid->dev, &dev_attr_range);
++
++	return 0;
++}
++
++
+ /* ************************************************************************** */
+ /*                                                                            */
+ /* Device Support                                                             */
+@@ -1301,123 +1892,21 @@ static int k400_connect(struct hid_device *hdev, bool connected)
+ 
+ #define HIDPP_PAGE_G920_FORCE_FEEDBACK			0x8123
+ 
+-/* Using session ID = 1 */
+-#define CMD_G920_FORCE_GET_APERTURE			0x51
+-#define CMD_G920_FORCE_SET_APERTURE			0x61
+-
+-struct g920_private_data {
+-	u8 force_feature;
+-	u16 range;
+-};
+-
+-#define to_hid_device(pdev) container_of(pdev, struct hid_device, dev)
+-
+-static ssize_t g920_range_show(struct device *dev, struct device_attribute *attr,
+-				char *buf)
+-{
+-	struct hid_device *hid = to_hid_device(dev);
+-	struct hidpp_device *hidpp = hid_get_drvdata(hid);
+-	struct g920_private_data *pdata;
+-
+-	pdata = hidpp->private_data;
+-	if (!pdata) {
+-		hid_err(hid, "Private driver data not found!\n");
+-		return -EINVAL;
+-	}
+-
+-	return scnprintf(buf, PAGE_SIZE, "%u\n", pdata->range);
+-}
+-
+-static ssize_t g920_range_store(struct device *dev, struct device_attribute *attr,
+-				 const char *buf, size_t count)
+-{
+-	struct hid_device *hid = to_hid_device(dev);
+-	struct hidpp_device *hidpp = hid_get_drvdata(hid);
+-	struct g920_private_data *pdata;
+-	struct hidpp_report response;
+-	u8 params[2];
+-	int ret;
+-	u16 range = simple_strtoul(buf, NULL, 10);
+-
+-	pdata = hidpp->private_data;
+-	if (!pdata) {
+-		hid_err(hid, "Private driver data not found!\n");
+-		return -EINVAL;
+-	}
+-
+-	if (range < 180)
+-		range = 180;
+-	else if (range > 900)
+-		range = 900;
+-
+-	params[0] = range >> 8;
+-	params[1] = range & 0x00FF;
+-
+-	ret = hidpp_send_fap_command_sync(hidpp, pdata->force_feature,
+-		CMD_G920_FORCE_SET_APERTURE, params, 2, &response);
+-	if (ret)
+-		return ret;
+-
+-	pdata->range = range;
+-	return count;
+-}
+-
+-static DEVICE_ATTR(range, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, g920_range_show, g920_range_store);
+-
+-static int g920_allocate(struct hid_device *hdev)
+-{
+-	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+-	struct g920_private_data *pdata;
+-
+-	pdata = devm_kzalloc(&hdev->dev, sizeof(struct g920_private_data),
+-			GFP_KERNEL);
+-	if (!pdata)
+-		return -ENOMEM;
+-
+-	hidpp->private_data = pdata;
+-
+-	return 0;
+-}
+-
+ static int g920_get_config(struct hidpp_device *hidpp)
+ {
+-	struct g920_private_data *pdata = hidpp->private_data;
+-	struct hidpp_report response;
+ 	u8 feature_type;
+ 	u8 feature_index;
+ 	int ret;
+ 
+-	pdata = hidpp->private_data;
+-	if (!pdata) {
+-		hid_err(hidpp->hid_dev, "Private driver data not found!\n");
+-		return -EINVAL;
+-	}
+-
+ 	/* Find feature and store for later use */
+ 	ret = hidpp_root_get_feature(hidpp, HIDPP_PAGE_G920_FORCE_FEEDBACK,
+ 		&feature_index, &feature_type);
+ 	if (ret)
+ 		return ret;
+ 
+-	pdata->force_feature = feature_index;
+-
+-	/* Read current Range */
+-	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
+-		CMD_G920_FORCE_GET_APERTURE, NULL, 0, &response);
+-	if (ret > 0) {
+-		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
+-			__func__, ret);
+-		return -EPROTO;
+-	}
++	ret = hidpp_ff_init(hidpp, feature_index);
+ 	if (ret)
+-		return ret;
+-
+-	pdata->range = get_unaligned_be16(&response.fap.params[0]);
+-
+-	/* Create sysfs interface */
+-	ret = device_create_file(&(hidpp->hid_dev->dev), &dev_attr_range);
+-	if (ret)
+-		hid_warn(hidpp->hid_dev, "Unable to create sysfs interface for \"range\", errno %d\n", ret);
++		hid_warn(hidpp->hid_dev, "Unable to initialize force feedback support, errno %d\n", ret);
+ 
+ 	return 0;
+ }
+@@ -1741,10 +2230,6 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		ret = k400_allocate(hdev);
+ 		if (ret)
+ 			goto allocate_fail;
+-	} else if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
+-		ret = g920_allocate(hdev);
+-		if (ret)
+-			goto allocate_fail;
+ 	}
+ 
+ 	INIT_WORK(&hidpp->work, delayed_work_cb);
+@@ -1827,7 +2312,6 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ hid_hw_open_failed:
+ 	hid_device_io_stop(hdev);
+ 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
+-		device_remove_file(&hdev->dev, &dev_attr_range);
+ 		hid_hw_close(hdev);
+ 		hid_hw_stop(hdev);
+ 	}
+@@ -1845,7 +2329,7 @@ static void hidpp_remove(struct hid_device *hdev)
+ 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+ 
+ 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
+-		device_remove_file(&hdev->dev, &dev_attr_range);
++		hidpp_ff_deinit(hdev);
+ 		hid_hw_close(hdev);
+ 	}
+ 	hid_hw_stop(hdev);
+-- 
+2.5.0
 
-The problem we still have is that it's hard to synchronise correctly after
-a SYN_DROPPED. Key events get discarded from the queue and iirc EV_ABS too,
-but if you have a multitouch device, the slot states aren't necessarily
-correct. David had a patch for that at some point, but I don't think it made
-ever made it to the final submission.
-Having said that, clearly not highest priority :)
-
-> >> Also, evdev read should be changed to
-> >> - if (count != 0 && count < input_event_size())
-> >> + if ((count != 0 && count < input_event_size()) || (count > client->bufsize))
-> >>              return -EINVAL;
-> >
-> > Why on earth??? No, we do not need this.
-> >
-> 
-> okay.
-> My concern was to notify the client that it is requesting for number
-> of events which
-> will never ever be possible to deliver at once so it should request
-> for proper number
-> of events for reading and free the unnecessary memory allocated at user-space.
-> It might not be a good idea to return -EINVAL here but at least print
-> a warning log
-> about it so that clients can take action upon it.
-
-What are you optimising for? sizeof(struct input_event) is 24 bytes, I
-reckon a larger-than-needed event queue is the least of your memory worries.
-
-Cheers,
-   Peter

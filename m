@@ -1,55 +1,41 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Re: [PATCH] hid: core: add managed version of hid_hw_start
-Date: Sun, 10 Jan 2016 15:33:34 +0100
-Message-ID: <56926BBE.1020003@gmail.com>
-References: <568D26B0.9080301@gmail.com>
- <alpine.LNX.2.00.1601081050520.3402@cbobk.fhfr.pm>
+From: Oreste Salerno <oreste.salerno-Jdzig1fPfSTQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v3 0/3] Add device tree support to the cyttsp driver
+Date: Sun, 10 Jan 2016 18:36:06 +0100
+Message-ID: <cover.1452447124.git.oreste.salerno@tomtom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:33235 "EHLO
-	mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755425AbcAJOdl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Jan 2016 09:33:41 -0500
-Received: by mail-wm0-f54.google.com with SMTP id f206so185413278wmf.0
-        for <linux-input@vger.kernel.org>; Sun, 10 Jan 2016 06:33:40 -0800 (PST)
-In-Reply-To: <alpine.LNX.2.00.1601081050520.3402@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, fery-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, oreste.salerno-Jdzig1fPfSTQT0dZR+AlfA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org
 
-Am 08.01.2016 um 10:51 schrieb Jiri Kosina:
-> On Wed, 6 Jan 2016, Heiner Kallweit wrote:
-> 
->> Most calls to hid_hw_stop are boilerplate code. The function comment
->> states: "This is usually called from remove function or from probe
->> when something failed and hid_hw_start was called already."
->>
->> A managed version of hid_hw_start allows to avoid this boilerplate
->> code in most cases (similar to the other devm_ functions). 
->> hid_hw_stop is called automatically before the device is deleted.
->>
->> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> 
-> Generally I agree with the idea, but I'll be merging this only together 
-> with patches that are converting drivers to actually use this API.
-> 
-OK. When working on it I saw that hid_hw_stop is called by the core if
-the driver doesn't define a remove callback.
-This means if we use devm_hid_hw_start in a driver with a probe but no
-remove callback then hid_hw_stop will be called twice.
-To prevent this I'd switch all drivers with probe but no remove to the
-new call and remove the fallback call to hid_hw_stop in the core.
-At the same time I'd switch the fallback call to hid_hw_start in the core
-(in case the driver doesn't define a probe callback) to the new call.
-This way the change is transparent to drivers which define neither probe
-nor remove.
-Fine with you?
+This set of patches adds support to the cyttsp touchscreen driver
+to retrieve platform-specific details from the device tree.
+Additionally, they define a default init function that performs a hard
+reset of the chip on boot.
 
-> Thanks,
-> 
-Regards, Heiner
+---
+Changes in v3:
+  - Rework binding names and descriptions
+Changes in v2:
+  - Fix err_cast.cocci warning in patch 2/3
 
+Oreste Salerno (3):
+  Input: cyttsp - remove unused irq_gpio from platform_data
+  Input: cyttsp - add device tree bindings
+  Input: cyttsp - add default init function
+
+ .../bindings/input/touchscreen/cyttsp.txt          |  82 ++++++++++++
+ drivers/input/touchscreen/cyttsp_core.c            | 146 ++++++++++++++++++++-
+ include/linux/input/cyttsp.h                       |   4 +-
+ 3 files changed, 224 insertions(+), 8 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt
+
+-- 
+1.9.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

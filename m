@@ -1,62 +1,41 @@
 From: Oreste Salerno <oreste.salerno@tomtom.com>
-Subject: [PATCH v3 3/3] Input: cyttsp - add default init function
-Date: Sun, 10 Jan 2016 18:36:09 +0100
-Message-ID: <01aa2661875444ecc771dfce1f466b6846ac5eea.1452447124.git.oreste.salerno@tomtom.com>
+Subject: [PATCH v3 1/3] Input: cyttsp - remove unused irq_gpio from platform_data
+Date: Sun, 10 Jan 2016 18:36:07 +0100
+Message-ID: <f2e8051d9c1648d75af124e7d92c979590fd8c47.1452447124.git.oreste.salerno@tomtom.com>
 References: <cover.1452447124.git.oreste.salerno@tomtom.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail3.tomtom.com ([85.90.76.132]:56423 "EHLO mail3.tomtom.com"
+Received: from mail3.tomtom.com ([85.90.76.132]:40674 "EHLO mail3.tomtom.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757268AbcAJRgY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Jan 2016 12:36:24 -0500
+	id S1756795AbcAJRgX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 10 Jan 2016 12:36:23 -0500
 In-Reply-To: <cover.1452447124.git.oreste.salerno@tomtom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-input@vger.kernel.org, fery@cypress.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, oreste.salerno@tomtom.com
 
-When using device trees, it's not possible to assign an init()
-function in the platform data.
-In case the init function has not been assigned, attempt to
-perform a hard reset of the chip, using reset gpio defined in the
-platform data / device tree.
+This field is not being used and the irq is anyway passed
+via the 'irq' parameter to cyttsp_probe.
 
 Signed-off-by: Oreste Salerno <oreste.salerno@tomtom.com>
 ---
- drivers/input/touchscreen/cyttsp_core.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ include/linux/input/cyttsp.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
-index 5dc6bf6..baf0fd5 100644
---- a/drivers/input/touchscreen/cyttsp_core.c
-+++ b/drivers/input/touchscreen/cyttsp_core.c
-@@ -239,6 +239,16 @@ static int cyttsp_set_sysinfo_regs(struct cyttsp *ts)
- 	return retval;
- }
+diff --git a/include/linux/input/cyttsp.h b/include/linux/input/cyttsp.h
+index 5af7c66..d7c2520 100644
+--- a/include/linux/input/cyttsp.h
++++ b/include/linux/input/cyttsp.h
+@@ -51,7 +51,6 @@ struct cyttsp_platform_data {
+ 	int (*init)(void);
+ 	void (*exit)(void);
+ 	char *name;
+-	s16 irq_gpio;
+ 	u8 *bl_keys;
+ };
  
-+static void cyttsp_hard_reset(struct cyttsp *ts)
-+{
-+	if (ts->pdata->reset_gpio) {
-+		gpiod_set_value_cansleep(ts->pdata->reset_gpio, 1);
-+		msleep(CY_DELAY_DFLT);
-+		gpiod_set_value_cansleep(ts->pdata->reset_gpio, 0);
-+		msleep(CY_DELAY_DFLT);
-+	}
-+}
-+
- static int cyttsp_soft_reset(struct cyttsp *ts)
- {
- 	unsigned long timeout;
-@@ -685,6 +695,8 @@ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
- 				error);
- 			goto err_free_mem;
- 		}
-+	} else {
-+		cyttsp_hard_reset(ts);
- 	}
- 
- 	input_dev->name = pdata->name;
 -- 
 1.9.1
 

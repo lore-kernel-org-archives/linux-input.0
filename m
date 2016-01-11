@@ -1,75 +1,53 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 2/3] Input: cyttsp - add device tree bindings
-Date: Sun, 10 Jan 2016 21:01:56 -0600
-Message-ID: <20160111030156.GA18656@rob-hp-laptop>
-References: <cover.1452447124.git.oreste.salerno@tomtom.com>
- <dd329fe3420fba4049c353a9a092ff9c45c5a252.1452447124.git.oreste.salerno@tomtom.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: [PATCH] Input: wacom_w8001 - drop use of ABS_MT_TOOL_TYPE
+Date: Mon, 11 Jan 2016 13:51:51 +1000
+Message-ID: <20160111035151.GA24743@jelly.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:36625 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757904AbcAKDCB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Jan 2016 22:02:01 -0500
+Received: from leo.clearchain.com ([199.73.29.74]:18543 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757949AbcAKDvz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 10 Jan 2016 22:51:55 -0500
 Content-Disposition: inline
-In-Reply-To: <dd329fe3420fba4049c353a9a092ff9c45c5a252.1452447124.git.oreste.salerno@tomtom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oreste Salerno <oreste.salerno@tomtom.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, fery@cypress.com, dmitry.torokhov@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
 
-On Sun, Jan 10, 2016 at 06:36:08PM +0100, Oreste Salerno wrote:
-> Signed-off-by: Oreste Salerno <oreste.salerno@tomtom.com>
-> ---
->  .../bindings/input/touchscreen/cyttsp.txt          |  82 +++++++++++++
->  drivers/input/touchscreen/cyttsp_core.c            | 134 +++++++++++++++++++--
->  include/linux/input/cyttsp.h                       |   3 +
->  3 files changed, 212 insertions(+), 7 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt b/Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt
-> new file mode 100644
-> index 0000000..2dc5c65
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt
-> @@ -0,0 +1,82 @@
-> +* Cypress cyttsp touchscreen controller
-> +
-> +Required properties:
-> +- compatible		: must be "cypress,cyttsp-i2c" or "cypress,cyttsp-spi"
-> +- reg			: Device I2C address or SPI chip select number
-> +- spi-max-frequency 	: Maximum SPI clocking speed of the device (for cyttsp-spi)
-> +- interrupt-parent	: the phandle for the gpio controller
-> +			  (see interrupt binding[0]).
-> +- interrupts		: (gpio) interrupt to which the chip is connected
-> +			  (see interrupt binding[0]).
-> +- reset-gpios		: the reset gpio the chip is connected to
-> +			  (see GPIO binding[1] for more details).
-> +- touchscreen-size-x	: horizontal resolution of touchscreen (in pixels)
-> +- touchscreen-size-y	: vertical resolution of touchscreen (in pixels)
-> +- bootloader-key	: the 8-byte bootloader key that is required to switch
-> +			  the chip from bootloader mode (default mode) to
-> +			  application mode.
-> +			  This property has to be specified as an array of 8
-> +			  '/bits/ 8' values.
-> +
-> +Optional properties:
-> +- active-distance	: the distance in pixels beyond which a touch must move
-> +			  before movement is detected and reported by the device.
-> +			  Valid values: 0-15.
+As of e0361b70175f0cd6199dd9ed6679632de73973d4
+  Input: wacom_w8001 - split the touch and pen devices into two devices
+the touch events aren't multiplexed over the same device anymore, the use of
+ABS_MT_TOOL_TYPE is superfluous. And even before then it only ever sent
+MT_TOOL_TYPE_FINGER anyway.
 
-Wouldn't this be the same as touchscreen-fuzz-(x|y) which is the 
-replacement for the deprecated moving-threshold? 
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ drivers/input/touchscreen/wacom_w8001.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-> +- active-interval-ms	: the minimum period in ms between consecutive
-> +			  scanning/processing cycles when the chip is in active mode.
-> +			  Valid values: 0-255.
-> +- lowpower-interval-ms	: the minimum period in ms between consecutive
-> +			  scanning/processing cycles when the chip is in low-power mode.
-> +			  Valid values: 0-2550
-> +- touch-timeout-ms	: minimum time in ms spent in the active power state while no
-> +			  touches are detected before entering low-power mode.
-> +			  Valid values: 0-2550
-> +
+diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
+index fe983e7..bab3c6a 100644
+--- a/drivers/input/touchscreen/wacom_w8001.c
++++ b/drivers/input/touchscreen/wacom_w8001.c
+@@ -155,7 +155,6 @@ static void parse_multi_touch(struct w8001 *w8001)
+ 		bool touch = data[0] & (1 << i);
+ 
+ 		input_mt_slot(dev, i);
+-		input_mt_report_slot_state(dev, MT_TOOL_FINGER, touch);
+ 		if (touch) {
+ 			x = (data[6 * i + 1] << 7) | data[6 * i + 2];
+ 			y = (data[6 * i + 3] << 7) | data[6 * i + 4];
+@@ -514,8 +513,6 @@ static int w8001_setup_touch(struct w8001 *w8001, char *basename,
+ 					0, touch.x, 0, 0);
+ 		input_set_abs_params(dev, ABS_MT_POSITION_Y,
+ 					0, touch.y, 0, 0);
+-		input_set_abs_params(dev, ABS_MT_TOOL_TYPE,
+-					0, MT_TOOL_MAX, 0, 0);
+ 
+ 		strlcat(basename, " 2FG", basename_sz);
+ 		if (w8001->max_pen_x && w8001->max_pen_y)
+-- 
+2.5.0
 
-Otherwise, looks fine.

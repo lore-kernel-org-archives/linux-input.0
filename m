@@ -1,71 +1,124 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v10 4/8] mfd: fsl imx25 Touchscreen ADC driver
-Date: Mon, 11 Jan 2016 06:54:41 +0000
-Message-ID: <20160111065441.GW3331@x1>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v10 1/8] ARM: dt: Binding documentation for imx25 ADC/TSC
+Date: Mon, 11 Jan 2016 07:29:21 +0000
+Message-ID: <20160111072921.GX3331@x1>
 References: <1450101234-2191-1-git-send-email-mpa@pengutronix.de>
- <1450101234-2191-5-git-send-email-mpa@pengutronix.de>
+ <1450101234-2191-2-git-send-email-mpa@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f50.google.com ([74.125.82.50]:34266 "EHLO
+	mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753760AbcAKH30 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Jan 2016 02:29:26 -0500
+Received: by mail-wm0-f50.google.com with SMTP id u188so202615844wmu.1
+        for <linux-input@vger.kernel.org>; Sun, 10 Jan 2016 23:29:25 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1450101234-2191-5-git-send-email-mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Eric =?iso-8859-1?Q?B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1450101234-2191-2-git-send-email-mpa@pengutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Markus Pargmann <mpa@pengutronix.de>
+Cc: Shawn Guo <shawnguo@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Denis Carikli <denis@eukrea.com>, Eric =?iso-8859-1?Q?B=E9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hartmut Knaack <knaack.h@gmx.de>, Fabio Estevam <festevam@gmail.com>
 
 On Mon, 14 Dec 2015, Markus Pargmann wrote:
 
-> This is the core driver for imx25 touchscreen/adc driver. The module
-> has one shared ADC and two different conversion queues which use the
-> ADC. The two queues are identical. Both can be used for general purpo=
-se
-> ADC but one is meant to be used for touchscreens.
+> This documentation describes the devicetree bindings for the
+> ADC/Touchscreen unit of the i.MX25 SoC.
 >=20
-> This driver is the core which manages the central components and
-> registers of the TSC/ADC unit. It manages the IRQs and forwards them =
-to
-> the correct components.
->=20
-> Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
->=20
-> [ensure correct ADC clock depending on the IPG clock]
-> Signed-off-by: Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+> Acked-by: Jonathan Cameron <jic23@kernel.org>
+> Acked-by: Rob Herring <robh@kernel.org>
 > ---
 >=20
 > Notes:
->     Changes in v7:
->      - Cleanup bit defines in header files to be more readable
->      - Fix irq check to return with an error for irq <=3D 0
->      - Add COMPILE_TEST in Kconfig file
+>     Changes in v9:
+>      - Fixed some style things.
 >    =20
->     Changes in v5:
->      - Remove ifdef CONFIG_OF as this driver is only for DT usage
->      - Remove module owner
->      - Add Kconfig dependencies ARCH_MX25 and OF
+>     Changes in v6:
+>      - Removed adc-ref property and replaced it with refp and refn fo=
+r positive and
+>        negative references. The properties are optional now as the de=
+fault
+>        behaviour is a positive internal reference voltage and ADC GND=
+ as negative
+>        reference.
 >=20
->  drivers/mfd/Kconfig             |   9 ++
->  drivers/mfd/Makefile            |   2 +
->  drivers/mfd/fsl-imx25-tsadc.c   | 203 ++++++++++++++++++++++++++++++=
+>  .../devicetree/bindings/mfd/fsl-imx25-tsadc.txt    | 47 ++++++++++++=
 ++++++++++
->  include/linux/mfd/imx25-tsadc.h | 140 +++++++++++++++++++++++++++
->  4 files changed, 354 insertions(+)
->  create mode 100644 drivers/mfd/fsl-imx25-tsadc.c
->  create mode 100644 include/linux/mfd/imx25-tsadc.h
+>  1 file changed, 47 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/fsl-imx25-t=
+sadc.txt
 
-=46or my own reference:
-  Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Binding looks fine, but you need to change the subject line of the
+patch, for is it not an ARM, but MFD patch.
 
-I will apply this and sent out pull-requests to the relevant
-maintainers once -rc1 is out.
-
-[...]
+> diff --git a/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.tx=
+t b/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
+> new file mode 100644
+> index 000000000000..b03505286997
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
+> @@ -0,0 +1,47 @@
+> +Freescale MX25 ADC/TSC MultiFunction Device (MFD)
+> +
+> +This device combines two general purpose conversion queues one used =
+for general
+> +ADC and the other used for touchscreens.
+> +
+> +Required properties:
+> + - compatible:			Should be "fsl,imx25-tsadc".
+> + - reg:				Start address and size of the memory area of
+> + 					the device
+> + - interrupts:			Interrupt for this device
+> +					(See: ../interrupt-controller/interrupts.txt)
+> + - clocks:			An 'ipg' clock (See: ../clock/clock-bindings.txt)
+> + - interrupt-controller:	This device is an interrupt controller. It
+> +   					controls the interrupts of both
+> +					conversion queues.
+> + - #interrupt-cells:		Should be '<1>'.
+> + - #address-cells:		Should be '<1>'.
+> + - #size-cells:			Should be '<1>'.
+> +
+> +This device includes two conversion queues which can be added as sub=
+nodes.
+> +The first queue is for the touchscreen, the second for general purpo=
+se ADC.
+> +
+> +Example:
+> +	tscadc: tscadc@50030000 {
+> +		compatible =3D "fsl,imx25-tsadc";
+> +		reg =3D <0x50030000 0xc>;
+> +		interrupts =3D <46>;
+> +		clocks =3D <&clks 119>;
+> +		clock-names =3D "ipg";
+> +		interrupt-controller;
+> +		#interrupt-cells =3D <1>;
+> +		#address-cells =3D <1>;
+> +		#size-cells =3D <1>;
+> +		ranges;
+> +
+> +		tsc: tcq@50030400 {
+> +			compatible =3D "fsl,imx25-tcq";
+> +			reg =3D <0x50030400 0x60>;
+> +			...
+> +		};
+> +
+> +		adc: gcq@50030800 {
+> +			compatible =3D "fsl,imx25-gcq";
+> +			reg =3D <0x50030800 0x60>;
+> +			...
+> +		};
+> +	};
 
 --=20
 Lee Jones
 Linaro STMicroelectronics Landing Team Lead
 Linaro.org =E2=94=82 Open source software for ARM SoCs
 =46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

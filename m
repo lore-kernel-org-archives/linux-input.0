@@ -1,61 +1,187 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RFC 0/8] Input: atmel_mxt_ts - raw data via debugfs
-Date: Mon, 11 Jan 2016 15:24:13 -0800
-Message-ID: <20160111232413.GA39766@dtor-ws>
-References: <1449088951-7069-1-git-send-email-nick.dyer@itdev.co.uk>
- <5672EF68.3000800@itdev.co.uk>
+Subject: Re: [PATCH RFC v2 1/9] Input: atmel_mxt_ts - improve touchscreen
+ size/orientation handling
+Date: Mon, 11 Jan 2016 15:24:28 -0800
+Message-ID: <20160111232428.GB39766@dtor-ws>
+References: <1450964968-9792-1-git-send-email-nick.dyer@itdev.co.uk>
+ <1450964968-9792-2-git-send-email-nick.dyer@itdev.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:35617 "EHLO
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:35646 "EHLO
 	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758151AbcAKXYR (ORCPT
+	with ESMTP id S1757478AbcAKXYb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jan 2016 18:24:17 -0500
+	Mon, 11 Jan 2016 18:24:31 -0500
 Content-Disposition: inline
-In-Reply-To: <5672EF68.3000800@itdev.co.uk>
+In-Reply-To: <1450964968-9792-2-git-send-email-nick.dyer@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>
 
-Hi Nick,
-
-On Thu, Dec 17, 2015 at 05:22:48PM +0000, Nick Dyer wrote:
-> On 02/12/15 20:42, Nick Dyer wrote:
-> > This is a series of patches to add diagnostic data support to the Atmel
-> > maXTouch driver. There's an existing implementation in the open-source mxt-app
-> > tool, however there are performance advantages to moving this code into the driver.
-> > The algorithm for retrieving the data has been fairly consistent across a range of
-> > chips, with the exception of the mXT1386 series (see patch).
-> > 
-> > The intention is to open-source a utility which can read/display this data, this
-> > should be available very shortly.
+On Thu, Dec 24, 2015 at 01:49:20PM +0000, Nick Dyer wrote:
+> Both T100 and T9 handle range and orientation in a similar fashion.
+> Reduce duplication between the two implementations.
 > 
-> Hi-
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+
+Applied, thank you.
+
+> ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 68 ++++++++++++--------------------
+>  1 file changed, 26 insertions(+), 42 deletions(-)
 > 
-> The utility to read this data has now been released, and you can find it at:
-> https://github.com/ndyer/heatmap
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index c562205..4a1d218 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -113,8 +113,8 @@ struct t7_config {
+>  #define MXT_T9_DETECT		(1 << 7)
+>  
+>  struct t9_range {
+> -	u16 x;
+> -	u16 y;
+> +	__le16 x;
+> +	__le16 y;
+>  } __packed;
+>  
+>  /* MXT_TOUCH_MULTI_T9 orient */
+> @@ -216,6 +216,7 @@ struct mxt_data {
+>  	unsigned int irq;
+>  	unsigned int max_x;
+>  	unsigned int max_y;
+> +	bool xy_switch;
+>  	bool in_bootloader;
+>  	u16 mem_size;
+>  	u8 t100_aux_ampl;
+> @@ -1665,8 +1666,8 @@ static int mxt_read_t9_resolution(struct mxt_data *data)
+>  	if (error)
+>  		return error;
+>  
+> -	le16_to_cpus(&range.x);
+> -	le16_to_cpus(&range.y);
+> +	data->max_x = get_unaligned_le16(&range.x);
+> +	data->max_y = get_unaligned_le16(&range.y);
+>  
+>  	error =  __mxt_read_reg(client,
+>  				object->start_address + MXT_T9_ORIENT,
+> @@ -1674,23 +1675,7 @@ static int mxt_read_t9_resolution(struct mxt_data *data)
+>  	if (error)
+>  		return error;
+>  
+> -	/* Handle default values */
+> -	if (range.x == 0)
+> -		range.x = 1023;
+> -
+> -	if (range.y == 0)
+> -		range.y = 1023;
+> -
+> -	if (orient & MXT_T9_ORIENT_SWITCH) {
+> -		data->max_x = range.y;
+> -		data->max_y = range.x;
+> -	} else {
+> -		data->max_x = range.x;
+> -		data->max_y = range.y;
+> -	}
+> -
+> -	dev_dbg(&client->dev,
+> -		"Touchscreen size X%uY%u\n", data->max_x, data->max_y);
+> +	data->xy_switch = orient & MXT_T9_ORIENT_SWITCH;
+>  
+>  	return 0;
+>  }
+> @@ -1708,13 +1693,14 @@ static int mxt_read_t100_config(struct mxt_data *data)
+>  	if (!object)
+>  		return -EINVAL;
+>  
+> +	/* read touchscreen dimensions */
+>  	error = __mxt_read_reg(client,
+>  			       object->start_address + MXT_T100_XRANGE,
+>  			       sizeof(range_x), &range_x);
+>  	if (error)
+>  		return error;
+>  
+> -	le16_to_cpus(&range_x);
+> +	data->max_x = get_unaligned_le16(&range_x);
+>  
+>  	error = __mxt_read_reg(client,
+>  			       object->start_address + MXT_T100_YRANGE,
+> @@ -1722,36 +1708,24 @@ static int mxt_read_t100_config(struct mxt_data *data)
+>  	if (error)
+>  		return error;
+>  
+> -	le16_to_cpus(&range_y);
+> +	data->max_y = get_unaligned_le16(&range_y);
+>  
+> +	/* read orientation config */
+>  	error =  __mxt_read_reg(client,
+>  				object->start_address + MXT_T100_CFG1,
+>  				1, &cfg);
+>  	if (error)
+>  		return error;
+>  
+> +	data->xy_switch = cfg & MXT_T100_CFG_SWITCHXY;
+> +
+> +	/* allocate aux bytes */
+>  	error =  __mxt_read_reg(client,
+>  				object->start_address + MXT_T100_TCHAUX,
+>  				1, &tchaux);
+>  	if (error)
+>  		return error;
+>  
+> -	/* Handle default values */
+> -	if (range_x == 0)
+> -		range_x = 1023;
+> -
+> -	if (range_y == 0)
+> -		range_y = 1023;
+> -
+> -	if (cfg & MXT_T100_CFG_SWITCHXY) {
+> -		data->max_x = range_y;
+> -		data->max_y = range_x;
+> -	} else {
+> -		data->max_x = range_x;
+> -		data->max_y = range_y;
+> -	}
+> -
+> -	/* allocate aux bytes */
+>  	aux = 6;
+>  
+>  	if (tchaux & MXT_T100_TCHAUX_VECT)
+> @@ -1767,9 +1741,6 @@ static int mxt_read_t100_config(struct mxt_data *data)
+>  		"T100 aux mappings vect:%u ampl:%u area:%u\n",
+>  		data->t100_aux_vect, data->t100_aux_ampl, data->t100_aux_area);
+>  
+> -	dev_info(&client->dev,
+> -		 "T100 Touchscreen size X%uY%u\n", data->max_x, data->max_y);
+> -
+>  	return 0;
+>  }
+>  
+> @@ -1828,6 +1799,19 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+>  		return -EINVAL;
+>  	}
+>  
+> +	/* Handle default values and orientation switch */
+> +	if (data->max_x == 0)
+> +		data->max_x = 1023;
+> +
+> +	if (data->max_y == 0)
+> +		data->max_y = 1023;
+> +
+> +	if (data->xy_switch)
+> +		swap(data->max_x, data->max_y);
+> +
+> +	dev_info(dev, "Touchscreen size X%uY%u\n", data->max_x, data->max_y);
+> +
+> +	/* Register input device */
+>  	input_dev = input_allocate_device();
+>  	if (!input_dev) {
+>  		dev_err(dev, "Failed to allocate memory\n");
+> -- 
+> 2.5.0
 > 
-> I've recorded a couple of videos of the utility in action on a Pixel 2:
-> * https://youtu.be/M0VD2gZt8Zk
-> * https://youtu.be/nwDLB4zikzU
-
-Thank you for sharing the utility and the recording, but it seems that
-there is a desire to get access to the heat maps not only for
-validation, but also for certain processing purposes, and so I do not
-think that we should try to standardize on debugfs as the interface, but
-rather look for something that allows better performance.
-
-I wonder if the interface should look similar to the V4L2 capture API
-where application opens a character device, uses several ioctls to query
-its capabilities/set up capture parameters (i.e reference or deltas),
-select()s file descriptor for reading and then uses mmap() to access the
-captured heat map.
-
-I've CCed a few people who might be interested in this topic.
-
-Thanks.
 
 -- 
 Dmitry

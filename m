@@ -1,157 +1,71 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] [v4]Input: evdev - drop partial events after emptying
- the buffer
-Date: Mon, 11 Jan 2016 14:11:34 +1000
-Message-ID: <20160111041134.GA24860@jelly.redhat.com>
-References: <1451944601-1376-1-git-send-email-a.mathur@samsung.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v10 4/8] mfd: fsl imx25 Touchscreen ADC driver
+Date: Mon, 11 Jan 2016 06:54:41 +0000
+Message-ID: <20160111065441.GW3331@x1>
+References: <1450101234-2191-1-git-send-email-mpa@pengutronix.de>
+ <1450101234-2191-5-git-send-email-mpa@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1451944601-1376-1-git-send-email-a.mathur@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Aniroop Mathur <a.mathur@samsung.com>
-Cc: dmitry.torokhov@gmail.com, benjamin.tissoires@gmail.com, dh.herrmann@gmail.com, rydberg@bitmath.org, aniroop.mathur@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1450101234-2191-5-git-send-email-mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Eric =?iso-8859-1?Q?B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jan 05, 2016 at 03:26:41AM +0530, Aniroop Mathur wrote:
-> This patch introduces concept to drop partial events in evdev handler
-> itself after emptying the buffer which are dropped by all evdev
-> clients in userspace after SYN_DROPPED occurs and this in turn reduces
-> evdev client reading requests plus saves memory space filled by partial
-> events in evdev handler buffer.
-> Also, this patch prevents dropping of full packet by evdev client after
-> SYN_DROPPED occurs in case last stored event was SYN_REPORT.
-> (like after clock change request)
+On Mon, 14 Dec 2015, Markus Pargmann wrote:
 
-this patch looks technically correct now, thanks. but tbh, especially after
-reading the EVIOCGBUFSIZE patch I'm wondering why you need to optimise this
-path. ignoring events after a SYN_DROPPED is easy in userspace, and you'll
-need the code to do so anyway because even with your patch, there is no API
-guarantee that this will always happen - if you rely on it, your code may
-break on a future kernel.
-
->From userland, this patch has no real effect, it only slightly reduces the
-chance that you get a SYN_DROPPED while reading events after a SYN_DROPPED
-has already occured. And if that's a problem, fixing the kernel is likely
-the wrong solution anyway. so yeah, still in doubt about whether this patch
-provides any real benefit.
-
-Cheers,
-   Peter
-
-> --
-> Please ignore v3.
-> 
-> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+> This is the core driver for imx25 touchscreen/adc driver. The module
+> has one shared ADC and two different conversion queues which use the
+> ADC. The two queues are identical. Both can be used for general purpo=
+se
+> ADC but one is meant to be used for touchscreens.
+>=20
+> This driver is the core which manages the central components and
+> registers of the TSC/ADC unit. It manages the IRQs and forwards them =
+to
+> the correct components.
+>=20
+> Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
+>=20
+> [ensure correct ADC clock depending on the IPG clock]
+> Signed-off-by: Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 > ---
->  drivers/input/evdev.c | 53 ++++++++++++++++++++++++++++++++++++++-------------
->  1 file changed, 40 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index e9ae3d5..15b6eb2 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -58,6 +58,7 @@ struct evdev_client {
->  	struct list_head node;
->  	unsigned int clk_type;
->  	bool revoked;
-> +	bool drop_pevent; /* specifies if partial events need to be dropped */
->  	unsigned long *evmasks[EV_CNT];
->  	unsigned int bufsize;
->  	struct input_event buffer[];
-> @@ -156,7 +157,12 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->  static void __evdev_queue_syn_dropped(struct evdev_client *client)
->  {
->  	struct input_event ev;
-> +	struct input_event *prev_ev;
->  	ktime_t time;
-> +	unsigned int mask = client->bufsize - 1;
-> +
-> +	/* Store previous event */
-> +	prev_ev = &client->buffer[(client->head - 1) & mask];
->  
->  	time = client->clk_type == EV_CLK_REAL ?
->  			ktime_get_real() :
-> @@ -170,13 +176,33 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
->  	ev.value = 0;
->  
->  	client->buffer[client->head++] = ev;
-> -	client->head &= client->bufsize - 1;
-> +	client->head &= mask;
->  
->  	if (unlikely(client->head == client->tail)) {
->  		/* drop queue but keep our SYN_DROPPED event */
-> -		client->tail = (client->head - 1) & (client->bufsize - 1);
-> +		client->tail = (client->head - 1) & mask;
->  		client->packet_head = client->tail;
->  	}
-> +
-> +	/*
-> +	 * If last packet is NOT fully stored, set drop_pevent to true to
-> +	 * ignore partial events and if last packet is fully stored, queue
-> +	 * SYN_REPORT so that clients would not ignore next full packet.
-> +	 */
-> +	if (prev_ev->type != EV_SYN && prev_ev->code != SYN_REPORT) {
-> +		client->drop_pevent = true;
-> +	} else if (prev_ev->type == EV_SYN && prev_ev->code == SYN_REPORT) {
-> +		prev_ev->time = ev.time;
-> +		client->buffer[client->head++] = *prev_ev;
-> +		client->head &= mask;
-> +		client->packet_head = client->head;
-> +
-> +		/* drop queue but keep our SYN_DROPPED & SYN_REPORT event */
-> +		if (unlikely(client->head == client->tail)) {
-> +			client->tail = (client->head - 2) & mask;
-> +			client->packet_head = client->tail;
-> +		}
-> +	}
->  }
->  
->  static void evdev_queue_syn_dropped(struct evdev_client *client)
-> @@ -235,18 +261,8 @@ static void __pass_event(struct evdev_client *client,
->  	client->head &= client->bufsize - 1;
->  
->  	if (unlikely(client->head == client->tail)) {
-> -		/*
-> -		 * This effectively "drops" all unconsumed events, leaving
-> -		 * EV_SYN/SYN_DROPPED plus the newest event in the queue.
-> -		 */
-> -		client->tail = (client->head - 2) & (client->bufsize - 1);
-> -
-> -		client->buffer[client->tail].time = event->time;
-> -		client->buffer[client->tail].type = EV_SYN;
-> -		client->buffer[client->tail].code = SYN_DROPPED;
-> -		client->buffer[client->tail].value = 0;
-> -
->  		client->packet_head = client->tail;
-> +		__evdev_queue_syn_dropped(client);
->  	}
->  
->  	if (event->type == EV_SYN && event->code == SYN_REPORT) {
-> @@ -284,6 +300,17 @@ static void evdev_pass_values(struct evdev_client *client,
->  			wakeup = true;
->  		}
->  
-> +		/*
-> +		 * drop partial events of last packet but queue SYN_REPORT
-> +		 * so that clients would not ignore extra full packet.
-> +		 */
-> +		if (client->drop_pevent) {
-> +			if (v->type == EV_SYN && v->code == SYN_REPORT)
-> +				client->drop_pevent = false;
-> +			else
-> +				continue;
-> +		}
-> +
->  		event.type = v->type;
->  		event.code = v->code;
->  		event.value = v->value;
-> -- 
-> 2.6.2
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+>=20
+> Notes:
+>     Changes in v7:
+>      - Cleanup bit defines in header files to be more readable
+>      - Fix irq check to return with an error for irq <=3D 0
+>      - Add COMPILE_TEST in Kconfig file
+>    =20
+>     Changes in v5:
+>      - Remove ifdef CONFIG_OF as this driver is only for DT usage
+>      - Remove module owner
+>      - Add Kconfig dependencies ARCH_MX25 and OF
+>=20
+>  drivers/mfd/Kconfig             |   9 ++
+>  drivers/mfd/Makefile            |   2 +
+>  drivers/mfd/fsl-imx25-tsadc.c   | 203 ++++++++++++++++++++++++++++++=
+++++++++++
+>  include/linux/mfd/imx25-tsadc.h | 140 +++++++++++++++++++++++++++
+>  4 files changed, 354 insertions(+)
+>  create mode 100644 drivers/mfd/fsl-imx25-tsadc.c
+>  create mode 100644 include/linux/mfd/imx25-tsadc.h
+
+=46or my own reference:
+  Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+
+I will apply this and sent out pull-requests to the relevant
+maintainers once -rc1 is out.
+
+[...]
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

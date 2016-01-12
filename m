@@ -1,8 +1,8 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
 Subject: Re: [PATCH] Input: evdev - add ioctl cmd EVIOCGBUFSIZE to get buffer
  size
-Date: Mon, 11 Jan 2016 15:46:02 -0800
-Message-ID: <20160111234602.GD39766@dtor-ws>
+Date: Tue, 12 Jan 2016 10:21:24 +1000
+Message-ID: <20160112002124.GC7838@jelly.redhat.com>
 References: <CADYu309viVxQJVo-HR=17s-gGhXm03t4p_qL5i1=YUwKqh3pbA@mail.gmail.com>
  <CAKdAkRQ6SPt2oBJPv6h-gPVsEGZWRcBfp7J-TZpzWnO-nEOXKw@mail.gmail.com>
  <CADYu309cx-mb0skOTOkT67bjg83Vx6A-_rJ2QWRkbyLL9yHKxQ@mail.gmail.com>
@@ -16,17 +16,17 @@ References: <CADYu309viVxQJVo-HR=17s-gGhXm03t4p_qL5i1=YUwKqh3pbA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f65.google.com ([209.85.220.65]:33488 "EHLO
-	mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761936AbcAKXqJ (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:20708 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761277AbcALAVg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jan 2016 18:46:09 -0500
+	Mon, 11 Jan 2016 19:21:36 -0500
 Content-Disposition: inline
 In-Reply-To: <CADYu30_eRD=h4S60EbT_Ou1uGWeEfs-8vkNoPQmiE_Yng6RSRw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, David Herrmann <dh.herrmann@gmail.com>, Aniroop Mathur <a.mathur@samsung.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, s.samuel@samsung.com, r.mahale@samsung.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, David Herrmann <dh.herrmann@gmail.com>, Aniroop Mathur <a.mathur@samsung.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, s.samuel@samsung.com, r.mahale@samsung.com
 
 On Mon, Jan 11, 2016 at 11:43:00PM +0530, Aniroop Mathur wrote:
 > On Mon, Jan 11, 2016 at 4:13 AM, Peter Hutterer
@@ -185,30 +185,119 @@ On Mon, Jan 11, 2016 at 11:43:00PM +0530, Aniroop Mathur wrote:
 > then user space buf size for "reading" should be between 1 to 100 bytes,
 > otherwise, user-space buf may choose 200 bytes for "reading", which is
 > "ideally" wrong.
+> 
+> > Speaking for the xorg drivers and libevdev, we always try to read as many
+> > packets as are available or fit into our event queue. The kernel buffer is
+> > just that - a buffer. If you need all events unconditionally, you better
+> > pull them out of the buffer into your own queue asap, then you have control
+> > over it.
+> >
+> 
+> But as you know and as I mentioned above, writing can be fast and reading can
+> be delayed sometimes for some short period of time, so we would not be able to
+> pull them out asap.
 
-Aniroop,
+and this patch won't help you at all. if the kernel writes faster than you
+read, it doesn't help to know the buffer size, it'll still fell up. You need
+to read events faster than the kernel writes them.
+ 
+> > I can't think of a use-case where reading one event/packet is a good idea.
+> > Which brings me to the next point: you talk about "packet", so I'm not sure
+> > if you talk about one struct input_event, or one frame (i.e. events +
+> > SYN_REPORT). The kernel flushes on SYN_REPORT, so you'll always have more
+> > than one event waiting anyway, better to read in more in one go.
+> > In the latter: you can't know how many events are in the frame, the kernel
+> > may suppress some values or you get other values that aren't usually in the
+> > same frame (e.g. button presses on top of finger data).
+> > And if you *do* know the exact number of events per frame, your software is
+> > probably specific enough for the device that you can hardcode or closely
+> > estimate the buffer size rather than requiring an ioctl.
+> >
+> 
+> I meant, packet as events+syn_report.
+> Hardcoding and doing estimation is generally considered a bad idea everywhere.
+> There are so many types of input devices and every device has different
+> capabilities and different kernel buf size. There are so many different systems
+> and each system can have many input devices so hardcoding or estimating
+> maximum possible buf size seems not a good idea. Instead just using
+> ioctl call to
+> get the max buf size value seems much easier.
 
-It seems to me that you are optimizing for the wrong condition. You want
-to know kernel's buffer size so that you can consume whole buffer in one
-read(), but what you are missing is that if you let kernel to [almost]
-fill entire event queue on the kernel side you are already losing. A
-tiniest additional hiccup and you will see the drop.
+you're chasing an ideal here that looks good on paper, but you're ignoring
+the practical effects that come from testing, failure cases, etc. this is
+one case where hardcoding a buffer size is easier and the better solution.
 
-You need to optimize your application/framework so that it keeps up with
-the device, because if you do not, then no matter how big the buffers
-are on either side you eventually full them up and will see the drop. So
-the "normal" case for you should be where kernel queue is almost empty.
-And if there is scheduling hiccup then you do have space in the buffer
-as a safety net to carry you over, but consuming it in one go should not
-be a priority. It should be perfectly fine to select your buffer size
-(let's say 64 events, like libinput does) and consume input in smaller
-chunks. I am sure you will not see any practical performance difference
-between consuming up to 64 events and consuming your "ideal" buffer at
-once.
+> > so again, you should be reading multiple events per run. for example,
+> > libevdev reads up to 64 events at a time.
+> >
+> 
+> I absolutely agree. :)
+> However, how have you decided exact 64 events here?
 
-Please consider the patch rejected.
+random pick. I think we had 32 at some point in the past but when MT events
+came to be 32 wasn't enough anymore. (I may completely misremember this
+though)
 
-Thanks.
+> Its most likely because evdev.c define minimum buf size as 64 and that is the
+> final buf size set by evdev handler using compute_buf_size api.
+> All my asking here is to get this value using this new ioctl call which will
+> give correct buf size value easily and we do not have to hardcode or estimate
+> for every input device in the world.
 
--- 
-Dmitry
+given the amount of memory we're talking about here, use 100 and you won't
+have to think about it for a number of years. that's a lot better than using
+ioctls with variable buffer sizes, all of which require additional testing
+effort.
+
+> >> > I'll add Peter as he was complaining about dropouts too at some point.
+> >
+> > The problem we still have is that it's hard to synchronise correctly after
+> > a SYN_DROPPED. Key events get discarded from the queue and iirc EV_ABS too,
+> > but if you have a multitouch device, the slot states aren't necessarily
+> > correct. David had a patch for that at some point, but I don't think it made
+> > ever made it to the final submission.
+> > Having said that, clearly not highest priority :)
+> >
+> >> >> Also, evdev read should be changed to
+> >> >> - if (count != 0 && count < input_event_size())
+> >> >> + if ((count != 0 && count < input_event_size()) || (count > client->bufsize))
+> >> >>              return -EINVAL;
+> >> >
+> >> > Why on earth??? No, we do not need this.
+> >> >
+> >>
+> >> okay.
+> >> My concern was to notify the client that it is requesting for number
+> >> of events which
+> >> will never ever be possible to deliver at once so it should request
+> >> for proper number
+> >> of events for reading and free the unnecessary memory allocated at user-space.
+> >> It might not be a good idea to return -EINVAL here but at least print
+> >> a warning log
+> >> about it so that clients can take action upon it.
+> >
+> > What are you optimising for? sizeof(struct input_event) is 24 bytes, I
+> > reckon a larger-than-needed event queue is the least of your memory worries.
+> >
+> 
+> I meant,
+> count > client->bufsize * input_event_size();
+> I am not worried about more memory as there is plenty in userspace. I am worried
+> about "unnecessary" allocated memory at user space for reading events as it
+> is "ideally" wrong and not a standard.
+> For example:
+> If kernel buf size is: 64*24  = 1536 bytes
+> And if user space buf is: 100*24 = 2400 bytes.
+> So 2400 - 1536 i.e. 864 bytes are wasted because they will never be filled
+> with any event by kernel. So 864 bytes will always be empty in user-space buf.
+> So I wanted to notify userspace that maximum valid size for reading events
+> could not be more than 1536 bytes for the above case.
+> Using this extra space for some other purpose except reading is a different
+> question or concern.
+
+the effort expended in adding the ioctl and even using the ioctl in your
+average application is vastly greater than wasting 864 bytes. chasing a
+theoretically ideal situation here is just not effective, sorry.
+
+Cheers,
+   Peter

@@ -1,61 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: gpio-keys: add support for disable button
- from DT
-Date: Tue, 12 Jan 2016 13:19:24 -0800
-Message-ID: <20160112211924.GE32064@dtor-ws>
-References: <1452598370-28509-1-git-send-email-ldewangan@nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Pavel Rojtberg <rojtberg@gmail.com>
+Subject: [PATCH] Input: xpad: correct xbox one pad device name
+Date: Tue, 12 Jan 2016 23:23:09 +0100
+Message-ID: <1452637389-7690-1-git-send-email-rojtberg@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:35434 "EHLO
-	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750863AbcALVT1 (ORCPT
+Received: from mail-wm0-f53.google.com ([74.125.82.53]:32909 "EHLO
+	mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752332AbcALWXm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Jan 2016 16:19:27 -0500
-Content-Disposition: inline
-In-Reply-To: <1452598370-28509-1-git-send-email-ldewangan@nvidia.com>
+	Tue, 12 Jan 2016 17:23:42 -0500
+Received: by mail-wm0-f53.google.com with SMTP id f206so272725337wmf.0
+        for <linux-input@vger.kernel.org>; Tue, 12 Jan 2016 14:23:42 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linus.walleij@linaro.org, bjorn.andersson@sonymobile.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: Pavel Rojtberg <rojtberg@gmail.com>
 
-On Tue, Jan 12, 2016 at 05:02:49PM +0530, Laxman Dewangan wrote:
-> Add support to disable the button from DT via status property
-> if given button is not supporting on given platforms.
-> 
-> This will help to re-use the existing dtsi file with status
-> enable/disable across platforms.
-> 
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-> ---
->  drivers/input/keyboard/gpio_keys.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index bef317f..cf068cb 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -632,6 +632,14 @@ gpio_keys_get_devtree_pdata(struct device *dev)
->  	for_each_child_of_node(node, pp) {
->  		enum of_gpio_flags flags;
->  
-> +		/* Ignore the button if status of node is disabled */
-> +		error = of_device_is_available(pp);
-> +		if (!error) {
-> +			dev_info(dev, "Button %s is ignored\n", pp->name);
+From: Pavel Rojtberg <rojtberg@gmail.com>
 
-I'd rather have it as dev_dbg() please.
+apparently the Covert Forces id is not Covert Forces pad exclusive, but
+rather denotes a new Firmware Version that can be found on all new
+controllers and can be also updated on old hardware using Windows 10.
 
-> +			pdata->nbuttons--;
-> +			continue;
-> +		}
-> +
->  		button = &pdata->buttons[i++];
->  
->  		button->gpio = of_get_gpio_flags(pp, 0, &flags);
-> -- 
-> 2.1.4
-> 
+see: https://github.com/paroj/xpad/issues/19
 
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 22e6205..6727954 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -128,7 +128,7 @@ static const struct xpad_device {
+ 	{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", 0, XTYPE_XBOX },
+ 	{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", 0, XTYPE_XBOX360 },
+ 	{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 0, XTYPE_XBOXONE },
+-	{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Covert Forces)", 0, XTYPE_XBOXONE },
++	{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver (XBOX)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
 -- 
-Dmitry
+1.9.1
+

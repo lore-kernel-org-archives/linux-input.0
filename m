@@ -1,303 +1,274 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] Input: evdev - add ioctl cmd EVIOCGBUFSIZE to get buffer
- size
-Date: Tue, 12 Jan 2016 10:21:24 +1000
-Message-ID: <20160112002124.GC7838@jelly.redhat.com>
-References: <CADYu309viVxQJVo-HR=17s-gGhXm03t4p_qL5i1=YUwKqh3pbA@mail.gmail.com>
- <CAKdAkRQ6SPt2oBJPv6h-gPVsEGZWRcBfp7J-TZpzWnO-nEOXKw@mail.gmail.com>
- <CADYu309cx-mb0skOTOkT67bjg83Vx6A-_rJ2QWRkbyLL9yHKxQ@mail.gmail.com>
- <20160108222720.GB39042@dtor-ws>
- <CADYu30-Nykka4gwWCUSDt1_pKUZkYDuGY5X_giFLOYxDSDr3wA@mail.gmail.com>
- <CADYu30-Y8oBtupLx+e6N5WJkc_ck5AdotZc69mDpeFMjU=A6zw@mail.gmail.com>
- <20160109185155.GB19004@dtor-ws>
- <CADYu30_nnL7snv2b5Nn8vYcYd90pD2cp9BaJseg9Y=DDAjTU_g@mail.gmail.com>
- <20160110224354.GA28145@jelly.redhat.com>
- <CADYu30_eRD=h4S60EbT_Ou1uGWeEfs-8vkNoPQmiE_Yng6RSRw@mail.gmail.com>
+Subject: Re: [PATCH] [v4]Input: evdev - drop partial events after emptying
+ the buffer
+Date: Tue, 12 Jan 2016 10:52:55 +1000
+Message-ID: <20160112005255.GD7838@jelly.redhat.com>
+References: <1451944601-1376-1-git-send-email-a.mathur@samsung.com>
+ <20160111041134.GA24860@jelly.redhat.com>
+ <CADYu309KOBo0DecJYuWv7T2T9OJhnX0G98CvFWy8OdT60d-W+A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:20708 "EHLO
+Received: from leo.clearchain.com ([199.73.29.74]:28433 "EHLO
 	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761277AbcALAVg (ORCPT
+	with ESMTP id S933457AbcALAxK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jan 2016 19:21:36 -0500
+	Mon, 11 Jan 2016 19:53:10 -0500
 Content-Disposition: inline
-In-Reply-To: <CADYu30_eRD=h4S60EbT_Ou1uGWeEfs-8vkNoPQmiE_Yng6RSRw@mail.gmail.com>
+In-Reply-To: <CADYu309KOBo0DecJYuWv7T2T9OJhnX0G98CvFWy8OdT60d-W+A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, David Herrmann <dh.herrmann@gmail.com>, Aniroop Mathur <a.mathur@samsung.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, s.samuel@samsung.com, r.mahale@samsung.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aniroop Mathur <a.mathur@samsung.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, s.samuel@samsung.com, r.mahale@samsung.com
 
-On Mon, Jan 11, 2016 at 11:43:00PM +0530, Aniroop Mathur wrote:
-> On Mon, Jan 11, 2016 at 4:13 AM, Peter Hutterer
+On Mon, Jan 11, 2016 at 07:46:53PM +0530, Aniroop Mathur wrote:
+> On Mon, Jan 11, 2016 at 9:41 AM, Peter Hutterer
 > <peter.hutterer@who-t.net> wrote:
-> > On Sun, Jan 10, 2016 at 04:33:08AM +0530, Aniroop Mathur wrote:
-> >> On Sun, Jan 10, 2016 at 12:21 AM, Dmitry Torokhov
-> >> <dmitry.torokhov@gmail.com> wrote:
-> >> > On Sat, Jan 09, 2016 at 09:51:59PM +0530, Aniroop Mathur wrote:
-> >> >> On Sat, Jan 9, 2016 at 4:13 AM, Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
-> >> >> > On Sat, Jan 9, 2016 at 3:57 AM, Dmitry Torokhov
-> >> >> > <dmitry.torokhov@gmail.com> wrote:
-> >> >> >> On Sat, Jan 09, 2016 at 03:46:41AM +0530, Aniroop Mathur wrote:
-> >> >> >>> On Sat, Jan 9, 2016 at 2:32 AM, Dmitry Torokhov
-> >> >> >>> <dmitry.torokhov@gmail.com> wrote:
-> >> >> >>> > On Fri, Jan 8, 2016 at 12:51 PM, Aniroop Mathur
-> >> >> >>> > <aniroop.mathur@gmail.com> wrote:
-> >> >> >>> >> On Sat, Jan 9, 2016 at 2:03 AM, One Thousand Gnomes
-> >> >> >>> >> <gnomes@lxorguk.ukuu.org.uk> wrote:
-> >> >> >>> >>> On Sat, 9 Jan 2016 01:50:42 +0530
-> >> >> >>> >>> Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
-> >> >> >>> >>>
-> >> >> >>> >>>> On Sat, Jan 9, 2016 at 1:43 AM, One Thousand Gnomes
-> >> >> >>> >>>> <gnomes@lxorguk.ukuu.org.uk> wrote:
-> >> >> >>> >>>> >> During system boot up, user space buf size is fixed, it cannot be
-> >> >> >>> >>>> >> resized later and we cannot choose by hit&trial.
-> >> >> >>> >>>> >> struct input_event* mBuffer = new input_event[mBuf];
-> >> >> >>> >>>> >
-> >> >> >>> >>>> > Who says that won't change ? Imagine a future case where plugging in a
-> >> >> >>> >>>> > device changes the buffer size ?
-> >> >> >>> >>>> >
-> >> >> >>> >>>>
-> >> >> >>> >>>> Ofcourse buffer size can be changed but it will also change the value of bufsize
-> >> >> >>> >>>> variable and accordingly user space client should also change its buf size.
-> >> >> >>> >>>
-> >> >> >>> >>> If its hot plugged why shouldn't that value change dynamically after
-> >> >> >>> >>> you've asked ?
-> >> >> >>> >>>
-> >> >> >>> >>
-> >> >> >>> >> Please put up your query clearly. what value ? what asked ?
-> >> >> >>> >
-> >> >> >>> > There is nothing that would stop us (kernel) to decide to resize the
-> >> >> >>> > buffer after you issued your new EVIOCGBUFSIZE. For example one can
-> >> >> >>> > decide to implement a feature that will double the size of evdev's
-> >> >> >>> > client buffer if there happened too many overruns i a given time
-> >> >> >>> > period.
-> >> >> >>> >
-> >> >> >>>
-> >> >> >>> If one decided to double the size of evdev buffer then it would be done
-> >> >> >>> by the same client facing buffer overrun and for this case client would
-> >> >> >>> not need to request for evdev buf size again as it has only set it. And
-> >> >> >>> still evdev buf size variable value be changed as well with the request
-> >> >> >>> to change buf size so client can read it again, if wishes.
-> >> >> >>
-> >> >> >> I was talking about changing the size of the buffer on kernel side.
-> >> >> >>
-> >> >> >>>
-> >> >> >>> > In any case the userpsace consumers already have to inspect input
-> >> >> >>> > device in question (number of axes and what they are; number of
-> >> >> >>> > keys/buttons, number of slots, etc) so that they can handle devices
-> >> >> >>> > properly and it should have enough information to intelligently size
-> >> >> >>> > of the receiving buffers. There is no need for a new kernel ioctl.
-> >> >> >>> >
-> >> >> >>>
-> >> >> >>> yes, consumers have to inspect input device but they cannot know
-> >> >> >>> the size of evdev buffer initially set as it is calculated in evdev.c file
-> >> >> >>> Consumer does not know that there is a limit of 8 packets.
-> >> >> >>> #define EVDEV_BUF_PACKETS       8
-> >> >> >>> unsigned int n_events =
-> >> >> >>>     max(dev->hint_events_per_packet * EVDEV_BUF_PACKETS, EVDEV_MIN_BUFFER_SIZE);
-> >> >> >>> return roundup_pow_of_two(n_events);
-> >> >> >>> This value varies for every device as every device has different value
-> >> >> >>> of hint_events_per_packet.
-> >> >> >>>
-> >> >> >>> Even after increasing kernel buffer size, buffer overrun can occur
-> >> >> >>> if reading is delayed and userspace buf is very small say only 1/2.
-> >> >> >>> In this case, buffer overrun will still occur and it will only be delayed.
-> >> >> >>> This was happening in my use case for gyroscope sensor device for
-> >> >> >>> which I initially forcefully increased the evdev buf size but problem was
-> >> >> >>> still not solved and buffer overrun was only delayed. The cause of the
-> >> >> >>> problem was that gyroscope client was using very small buf size for
-> >> >> >>> reading and after increasing the user space buf size, problem was solved.
-> >> >> >>> If client chooses maximum possible buffer size then it will be able to
-> >> >> >>> consume maximum events when reading is delayed and hence there will
-> >> >> >>> be least chance of buffer overrun. Evdev buf size should only be increased
-> >> >> >>> when buffer overrun occurs even with max user-space buf size.
-> >> >> >>> But the max user space buf size cannot be known until client request for it
-> >> >> >>> using this ioctl. So, I added it.
-> >> >> >>>
-> >> >> >>> So, are you convinced now that this ioctl is required ?
-> >> >> >>
-> >> >> >> No because I'd rather you managed size of your own buffer and increased
-> >> >> >> it as needed if you see drops. Let's say kernel decides to have buffer
-> >> >> >> of 100 events, do you have to mirror this size? What if device only
-> >> >> >> generates 1 event per minute?
-> >> >> >>
-> >> >> >
-> >> >> > We do not want any drop in the first place by keeping max buf size for
-> >> >> > reading for devices which need it only. On changing buf size on run time
-> >> >> > would not do any help because many events have already been dropped.
-> >> >> > And then after rebooting the system, user space buf size will again change
-> >> >> > to old value and so again events will be dropped and again buf size need to
-> >> >> > be changed.
-> >> >> > Yes, there is a need to mirror it, especially for device which support batching.
-> >> >> > If device generates only 1 event per minute, then client can choose minimum
-> >> >> > user space buf size, say 1. It is not compulsory to choose max buf size always
-> >> >> > for every device.
-> >> >> >
-> >> >>
-> >> >> Any update on above in order to conclude this change ?
-> >> >
-> >> > I am still unconvinced that it is needed.
-> >> >
-> >> >>
-> >> >> As consumer need to manage the user-space buf size as per requirement,
-> >> >> it needs to know the max limit upto which it can be increased so that consumer
-> >> >> should not request to read for more data than the max limit.
-> >> >
-> >> > What is exactly the requirement? Minimizing amount of reads? Why? If
-> >> > device is basically "streaming" events to userspace and you believe that
-> >> > it is essential for you want to consume entire client buffer at once
-> >> > that means that you are basically losing the race and with the slightest
-> >> > hickup you'll experience drop. If you are keeping up with the
-> >> > device/kernel you reads should be typically smaller than what kernel
-> >> > buffer can potentially hold.
-> >> >
-> >>
-> >> There is only one requirement:
-> >> How would the clients come to know the maximum number of events they
-> >> can read at once ?
-> >>
-> >> Usually, reading as small as 1 packet is enough, keeping reading+writing
-> >> remains in sync and no problem/drops occur, However, sometimes, it is
-> >> possible that reading and writing are not in sync like in case of batching
-> >> where multiple data is written to chip without any delay or in case of
-> >> high cpu load. So sometimes for a short time, writing can be fast but
-> >> reading can be slow. To balance out gap between reading and writing in
-> >> order to make them in sync again for that short time, we need to read
-> >> multiple packets at once and in worst case maximum possible packets.
-> >> For example:
-> >> If gyro chip is generating data at 5ms interval and reading is delayed
-> >> by extra 5 ms for 80 ms with reading size of 1 packet & kernel but size of
-> >> 8 packets, then drop will occur after 80 ms as client would only be able to
-> >> read 8 packets but 16 packets are reported. Surely, reading can again be
-> >> in sync after 80 ms but for that 80 ms when not in sync, client will loose data
-> >> which could have been saved just by using reading size of 2 packets in this
-> >> case. Similarly, reading can be delayed by 10/20/30 ms for a short time and
-> >> reading size of 4/6/max_packet can solve the problem.
+> > On Tue, Jan 05, 2016 at 03:26:41AM +0530, Aniroop Mathur wrote:
+> >> This patch introduces concept to drop partial events in evdev handler
+> >> itself after emptying the buffer which are dropped by all evdev
+> >> clients in userspace after SYN_DROPPED occurs and this in turn reduces
+> >> evdev client reading requests plus saves memory space filled by partial
+> >> events in evdev handler buffer.
+> >> Also, this patch prevents dropping of full packet by evdev client after
+> >> SYN_DROPPED occurs in case last stored event was SYN_REPORT.
+> >> (like after clock change request)
+> >
+> > this patch looks technically correct now, thanks. but tbh, especially after
+> > reading the EVIOCGBUFSIZE patch I'm wondering why you need to optimise this
+> > path. ignoring events after a SYN_DROPPED is easy in userspace, and you'll
+> > need the code to do so anyway because even with your patch, there is no API
+> > guarantee that this will always happen - if you rely on it, your code may
+> > break on a future kernel.
+> >
+> > From userland, this patch has no real effect, it only slightly reduces the
+> > chance that you get a SYN_DROPPED while reading events after a SYN_DROPPED
+> > has already occured. And if that's a problem, fixing the kernel is likely
+> > the wrong solution anyway. so yeah, still in doubt about whether this patch
+> > provides any real benefit.
 > >
 > 
-> Is the requirement clear by above example? (Here, packet means events+syn)
+> Hello Mr. Peter,
 > 
-> As above example shows that sometimes, we need to read full kernel buffer
-> and for that we need to know the kernel buffer size.
+> I'm sorry that I'm really not able to understand you fully above.
+> Please, provide your opinion after seeing below reason of this patch and
+> elaborate more on above, if still required.
+> 
+> As you can understand by seeing the patch code, this patch is required for
+> three reasons as follows:
+> 
+> 1. To fix bug of dropping full valid packet events by userspace clients in case
+> last packet was fully stored and then syn_dropped occurs.
+> 
 > For example:
-> if kernel space buf size is 100 bytes,
-> then user space buf size for "reading" should be between 1 to 100 bytes,
-> otherwise, user-space buf may choose 200 bytes for "reading", which is
-> "ideally" wrong.
+> Consider kernel buf contains:
+> ... SYN_REPORT REL_X, REL_Y, SYN_REPORT <one event space>
+> Now consider case that clock type is changed, so these events will be dropped
+> and syn_dropped will be queued.
+> OR
+> consider second case that new first packet event occur and that is stored in
+> last event space left, so all stored events will be dropped and syn_dropped
+> will be queued + newest event as per current code.
+> So now for first case, kernel buf contains: SYN_DROPPED
+> and for second case, kernel buf contains: SYN_DROPPED REL_X
+> Next consider that full packet is finished storing for both cases and
+> user-space is notified that events are ready to be read.
+> So now kernel buf contains: SYN_DROPPED REL_X REL_Y SYN_REPORT
+> But this new valid full packet event will be ignored by the userspace client
+> as mentioned in documentation that userspace clients ignore all events up to
+> and including next SYN_REPORT. As you know, this valid full event should not
+> be ignored by the userspace. So this patch fixes this bug.
 > 
-> > Speaking for the xorg drivers and libevdev, we always try to read as many
-> > packets as are available or fit into our event queue. The kernel buffer is
-> > just that - a buffer. If you need all events unconditionally, you better
-> > pull them out of the buffer into your own queue asap, then you have control
-> > over it.
-> >
+> 2. To save small memory filled with partial events in evdev handler
+> kernel buffer after syn_dropped as these partial events will not be consumed by
+> clients anyways so no need to store them as well.
 > 
-> But as you know and as I mentioned above, writing can be fast and reading can
-> be delayed sometimes for some short period of time, so we would not be able to
-> pull them out asap.
-
-and this patch won't help you at all. if the kernel writes faster than you
-read, it doesn't help to know the buffer size, it'll still fell up. You need
-to read events faster than the kernel writes them.
- 
-> > I can't think of a use-case where reading one event/packet is a good idea.
-> > Which brings me to the next point: you talk about "packet", so I'm not sure
-> > if you talk about one struct input_event, or one frame (i.e. events +
-> > SYN_REPORT). The kernel flushes on SYN_REPORT, so you'll always have more
-> > than one event waiting anyway, better to read in more in one go.
-> > In the latter: you can't know how many events are in the frame, the kernel
-> > may suppress some values or you get other values that aren't usually in the
-> > same frame (e.g. button presses on top of finger data).
-> > And if you *do* know the exact number of events per frame, your software is
-> > probably specific enough for the device that you can hardcode or closely
-> > estimate the buffer size rather than requiring an ioctl.
-> >
-> 
-> I meant, packet as events+syn_report.
-> Hardcoding and doing estimation is generally considered a bad idea everywhere.
-> There are so many types of input devices and every device has different
-> capabilities and different kernel buf size. There are so many different systems
-> and each system can have many input devices so hardcoding or estimating
-> maximum possible buf size seems not a good idea. Instead just using
-> ioctl call to
-> get the max buf size value seems much easier.
-
-you're chasing an ideal here that looks good on paper, but you're ignoring
-the practical effects that come from testing, failure cases, etc. this is
-one case where hardcoding a buffer size is easier and the better solution.
-
-> > so again, you should be reading multiple events per run. for example,
-> > libevdev reads up to 64 events at a time.
-> >
-> 
-> I absolutely agree. :)
-> However, how have you decided exact 64 events here?
-
-random pick. I think we had 32 at some point in the past but when MT events
-came to be 32 wasn't enough anymore. (I may completely misremember this
-though)
-
-> Its most likely because evdev.c define minimum buf size as 64 and that is the
-> final buf size set by evdev handler using compute_buf_size api.
-> All my asking here is to get this value using this new ioctl call which will
-> give correct buf size value easily and we do not have to hardcode or estimate
-> for every input device in the world.
-
-given the amount of memory we're talking about here, use 100 and you won't
-have to think about it for a number of years. that's a lot better than using
-ioctls with variable buffer sizes, all of which require additional testing
-effort.
-
-> >> > I'll add Peter as he was complaining about dropouts too at some point.
-> >
-> > The problem we still have is that it's hard to synchronise correctly after
-> > a SYN_DROPPED. Key events get discarded from the queue and iirc EV_ABS too,
-> > but if you have a multitouch device, the slot states aren't necessarily
-> > correct. David had a patch for that at some point, but I don't think it made
-> > ever made it to the final submission.
-> > Having said that, clearly not highest priority :)
-> >
-> >> >> Also, evdev read should be changed to
-> >> >> - if (count != 0 && count < input_event_size())
-> >> >> + if ((count != 0 && count < input_event_size()) || (count > client->bufsize))
-> >> >>              return -EINVAL;
-> >> >
-> >> > Why on earth??? No, we do not need this.
-> >> >
-> >>
-> >> okay.
-> >> My concern was to notify the client that it is requesting for number
-> >> of events which
-> >> will never ever be possible to deliver at once so it should request
-> >> for proper number
-> >> of events for reading and free the unnecessary memory allocated at user-space.
-> >> It might not be a good idea to return -EINVAL here but at least print
-> >> a warning log
-> >> about it so that clients can take action upon it.
-> >
-> > What are you optimising for? sizeof(struct input_event) is 24 bytes, I
-> > reckon a larger-than-needed event queue is the least of your memory worries.
-> >
-> 
-> I meant,
-> count > client->bufsize * input_event_size();
-> I am not worried about more memory as there is plenty in userspace. I am worried
-> about "unnecessary" allocated memory at user space for reading events as it
-> is "ideally" wrong and not a standard.
 > For example:
-> If kernel buf size is: 64*24  = 1536 bytes
-> And if user space buf is: 100*24 = 2400 bytes.
-> So 2400 - 1536 i.e. 864 bytes are wasted because they will never be filled
-> with any event by kernel. So 864 bytes will always be empty in user-space buf.
-> So I wanted to notify userspace that maximum valid size for reading events
-> could not be more than 1536 bytes for the above case.
-> Using this extra space for some other purpose except reading is a different
-> question or concern.
+> Consider full packet as REL_X REL_Y REL_Z REL_RX REL_RY REL_RZ SYN_REPORT
+> as in case of magnetic sensor data which includes raw data along x, y, z axis
+> and noise data along x, y, z axis.
+> Consider kernel buf contains:
+> SYN_DROPPED REL_Y REL_Z REL_RX REL_RY REL_RZ SYN_REPORT REL_X REL_Y ...
+> As you know, REL_Y REL_Z REL_RX REL_RY REL_RZ are partial events that will not
+> be consumed by userspace clients, so this patch saves memory space of these
+> partial events by not storing them as it not consumed by clients as well.
+> With this patch, kernel buf will contain only required events:
+> SYN_DROPPED SYN_REPORT REL_X REL_Y ...
+> 
+> 3. To reduce few looping iterations of reading partial events by user space
+> clients after syn_dropped occurs.
+> 
+> For example:
+> Userspace client reads some events and userspace buf contains:
+> SYN_DROPPED REL_Y REL_Z REL_RX REL_RY REL_RZ SYN_REPORT REL_X <more events> ..
+> Client will process syn_dropped and decides to ignore next events until
+> syn_report occurs. So it processes REL_Y but ignores, processes REL_Z but
+> ignores, processes REL_RX but ignores, processes REL_RY but ignores, processes
+> REL_RZ but ignores and then it processes SYN_REPORT after which it decides to
+> not ignore any events any more. All this processing will basically be done in
+> a loop so with this patch extra looping cycles of partial events are removed
+> because with this patch userspace buf will contain:
+> SYN_DROPPED SYN_REPORT REL_X REL_Y <more events>
+> Hence we have saved a few looping cycles here.
 
-the effort expended in adding the ioctl and even using the ioctl in your
-average application is vastly greater than wasting 864 bytes. chasing a
-theoretically ideal situation here is just not effective, sorry.
+like I mentioned in the other email, I think you're optimising the wrong
+thing. SYN_DROPPED *must* be an exception. you need code to handle it, sure,
+but in the same way as you need code to handle read errors on a file. if
+you get a SYN_DROPPED during normal usage you need to optimise your
+application to read events faster, not hope that you can reduce the events
+after a SYN_DROPPED to avoid getting another one. and since this is only
+supposed to happen once every blue moon, saving a few cycles here does not
+gain you anything.
+
+to give you an analogy: if you regularly end up with a flat tyre, you
+shouldn't focus on improving the efficiency of the pump. the problem is
+elsewhere.
+
+conincidentally, I strongly suggest that you use libevdev so you don't have
+to worry about these things. the code to handle SYN_DROPPED with libevdev is a
+couple of lines and otherwise identical to the normal code you'll have to
+deal with.
 
 Cheers,
    Peter
+
+> 
+> I also think that there is a need to change the patch title and description as
+> well to make it better:
+> 
+> Subject: Drop partial events and queue syn_report after syn_dropped occurs.
+> 
+> Description:
+> This patch introduces concept to drop partial events and queue syn_report
+> after syn_dropped which in turn does the following jobs:
+> - Fixes bug of dropping full valid packet events by userspace clients in case
+> last packet was fully stored and then syn_dropped occurs.
+> - Save small memory filled with partial events in evdev handler kernel buffer
+> after syn_dropped as these partial events will not be consumed by
+> clients anyways so no need to store them as well.
+> - Reduces few looping iterations of processing partial events by userspace
+> clients after syn_dropped occurs.
+> 
+> Thanks.
+> 
+> BR,
+> Aniroop Mathur
+> 
+> > Cheers,
+> >    Peter
+> >
+> >> --
+> >> Please ignore v3.
+> >>
+> >> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+> >> ---
+> >>  drivers/input/evdev.c | 53 ++++++++++++++++++++++++++++++++++++++-------------
+> >>  1 file changed, 40 insertions(+), 13 deletions(-)
+> >>
+> >> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> >> index e9ae3d5..15b6eb2 100644
+> >> --- a/drivers/input/evdev.c
+> >> +++ b/drivers/input/evdev.c
+> >> @@ -58,6 +58,7 @@ struct evdev_client {
+> >>       struct list_head node;
+> >>       unsigned int clk_type;
+> >>       bool revoked;
+> >> +     bool drop_pevent; /* specifies if partial events need to be dropped */
+> >>       unsigned long *evmasks[EV_CNT];
+> >>       unsigned int bufsize;
+> >>       struct input_event buffer[];
+> >> @@ -156,7 +157,12 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+> >>  static void __evdev_queue_syn_dropped(struct evdev_client *client)
+> >>  {
+> >>       struct input_event ev;
+> >> +     struct input_event *prev_ev;
+> >>       ktime_t time;
+> >> +     unsigned int mask = client->bufsize - 1;
+> >> +
+> >> +     /* Store previous event */
+> >> +     prev_ev = &client->buffer[(client->head - 1) & mask];
+> >>
+> >>       time = client->clk_type == EV_CLK_REAL ?
+> >>                       ktime_get_real() :
+> >> @@ -170,13 +176,33 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
+> >>       ev.value = 0;
+> >>
+> >>       client->buffer[client->head++] = ev;
+> >> -     client->head &= client->bufsize - 1;
+> >> +     client->head &= mask;
+> >>
+> >>       if (unlikely(client->head == client->tail)) {
+> >>               /* drop queue but keep our SYN_DROPPED event */
+> >> -             client->tail = (client->head - 1) & (client->bufsize - 1);
+> >> +             client->tail = (client->head - 1) & mask;
+> >>               client->packet_head = client->tail;
+> >>       }
+> >> +
+> >> +     /*
+> >> +      * If last packet is NOT fully stored, set drop_pevent to true to
+> >> +      * ignore partial events and if last packet is fully stored, queue
+> >> +      * SYN_REPORT so that clients would not ignore next full packet.
+> >> +      */
+> >> +     if (prev_ev->type != EV_SYN && prev_ev->code != SYN_REPORT) {
+> >> +             client->drop_pevent = true;
+> >> +     } else if (prev_ev->type == EV_SYN && prev_ev->code == SYN_REPORT) {
+> >> +             prev_ev->time = ev.time;
+> >> +             client->buffer[client->head++] = *prev_ev;
+> >> +             client->head &= mask;
+> >> +             client->packet_head = client->head;
+> >> +
+> >> +             /* drop queue but keep our SYN_DROPPED & SYN_REPORT event */
+> >> +             if (unlikely(client->head == client->tail)) {
+> >> +                     client->tail = (client->head - 2) & mask;
+> >> +                     client->packet_head = client->tail;
+> >> +             }
+> >> +     }
+> >>  }
+> >>
+> >>  static void evdev_queue_syn_dropped(struct evdev_client *client)
+> >> @@ -235,18 +261,8 @@ static void __pass_event(struct evdev_client *client,
+> >>       client->head &= client->bufsize - 1;
+> >>
+> >>       if (unlikely(client->head == client->tail)) {
+> >> -             /*
+> >> -              * This effectively "drops" all unconsumed events, leaving
+> >> -              * EV_SYN/SYN_DROPPED plus the newest event in the queue.
+> >> -              */
+> >> -             client->tail = (client->head - 2) & (client->bufsize - 1);
+> >> -
+> >> -             client->buffer[client->tail].time = event->time;
+> >> -             client->buffer[client->tail].type = EV_SYN;
+> >> -             client->buffer[client->tail].code = SYN_DROPPED;
+> >> -             client->buffer[client->tail].value = 0;
+> >> -
+> >>               client->packet_head = client->tail;
+> >> +             __evdev_queue_syn_dropped(client);
+> >>       }
+> >>
+> >>       if (event->type == EV_SYN && event->code == SYN_REPORT) {
+> >> @@ -284,6 +300,17 @@ static void evdev_pass_values(struct evdev_client *client,
+> >>                       wakeup = true;
+> >>               }
+> >>
+> >> +             /*
+> >> +              * drop partial events of last packet but queue SYN_REPORT
+> >> +              * so that clients would not ignore extra full packet.
+> >> +              */
+> >> +             if (client->drop_pevent) {
+> >> +                     if (v->type == EV_SYN && v->code == SYN_REPORT)
+> >> +                             client->drop_pevent = false;
+> >> +                     else
+> >> +                             continue;
+> >> +             }
+> >> +
+> >>               event.type = v->type;
+> >>               event.code = v->code;
+> >>               event.value = v->value;
+> >> --
+> >> 2.6.2
+> >>
+> >> --
+> >> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> >> the body of a message to majordomo@vger.kernel.org
+> >> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >>

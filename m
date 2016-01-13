@@ -1,113 +1,74 @@
-From: =?iso-8859-1?Q?Ren=E9_Rebe?= <rene@exactcode.com>
-Subject: [PATCH] support for Microsoft Type Cover 4
-Date: Wed, 13 Jan 2016 18:06:27 +0100
-Message-ID: <C2BB3A59-C842-49A7-BA73-1FCC11A1817C@exactcode.com>
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH RFC 0/8] Input: atmel_mxt_ts - raw data via debugfs
+Date: Wed, 13 Jan 2016 17:20:57 +0000
+Message-ID: <56968779.5060302@itdev.co.uk>
+References: <1449088951-7069-1-git-send-email-nick.dyer@itdev.co.uk>
+ <5672EF68.3000800@itdev.co.uk> <20160111232413.GA39766@dtor-ws>
+ <20160112081041.GB19287@mail.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx.exactcode.de ([144.76.154.42]:44852 "EHLO mx.exactcode.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753835AbcAMRG0 convert rfc822-to-8bit (ORCPT
+Received: from zencphosting06.zen.co.uk ([82.71.204.9]:53713 "EHLO
+	zencphosting06.zen.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752023AbcAMRVN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jan 2016 12:06:26 -0500
-Received: from ip5b403229.dynamic.kabel-deutschland.de ([91.64.50.41] helo=exactcode.com)
-	by mx.exactcode.de with esmtp (Exim 4.82)
-	(envelope-from <rene@exactcode.com>)
-	id 1aJOsN-0004q9-IA
-	for linux-input@vger.kernel.org; Wed, 13 Jan 2016 17:06:27 +0000
-Received: from retina ([192.168.2.174])
-	by exactcode.com with esmtpsa (TLSv1:AES128-SHA:128)
-	(Exim 4.54)
-	id 1aJOsg-0004WD-4s
-	for linux-input@vger.kernel.org; Wed, 13 Jan 2016 17:06:46 +0000
+	Wed, 13 Jan 2016 12:21:13 -0500
+In-Reply-To: <20160112081041.GB19287@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>
 
-Hi there,
+Hi Ben/Dmitry-
 
-add USB product id for MS Type Cover 4, too.
+On 12/01/16 08:10, Benjamin Tissoires wrote:
+> On Jan 11 2016 or thereabouts, Dmitry Torokhov wrote:
+>> On Thu, Dec 17, 2015 at 05:22:48PM +0000, Nick Dyer wrote:
+>>>> This is a series of patches to add diagnostic data support to the Atmel
+>>>> maXTouch driver. There's an existing implementation in the open-source mxt-app
+>>>> tool, however there are performance advantages to moving this code into the driver.
+>>>> The algorithm for retrieving the data has been fairly consistent across a range of
+>>>> chips, with the exception of the mXT1386 series (see patch).
+>>>>
+>>>> The intention is to open-source a utility which can read/display this data, this
+>>>> should be available very shortly.
+>>>
+>>> The utility to read this data has now been released, and you can find it at:
+>>> https://github.com/ndyer/heatmap
+>>>
+>>> I've recorded a couple of videos of the utility in action on a Pixel 2:
+>>> * https://youtu.be/M0VD2gZt8Zk
+>>> * https://youtu.be/nwDLB4zikzU
+>>
+>> Thank you for sharing the utility and the recording, but it seems that
+>> there is a desire to get access to the heat maps not only for
+>> validation, but also for certain processing purposes, and so I do not
+>> think that we should try to standardize on debugfs as the interface, but
+>> rather look for something that allows better performance.
+>>
+>> I wonder if the interface should look similar to the V4L2 capture API
+>> where application opens a character device, uses several ioctls to query
+>> its capabilities/set up capture parameters (i.e reference or deltas),
+>> select()s file descriptor for reading and then uses mmap() to access the
+>> captured heat map.
+>>
+>> I've CCed a few people who might be interested in this topic.
+> 
+> I've added Florian, who worked on the driver for the Surface 2.0 which
+> does exactly that, exports the heat map through V4L2.
+> 
+> See drivers/input/touchscreen/sur40.c for his driver.
 
-Signed-off-by: Ren=E9 Rebe <rene@exactcode.com>
+That's very interesting, thanks. I do think there is a difference in intent
+between the debugfs interface we are proposing and the video interface.
 
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -727,6 +727,7 @@ static void hid_scan_collection(struct hid_parser *=
-parser, unsigned type)
-	    (hid->product =3D=3D USB_DEVICE_ID_MS_TYPE_COVER_PRO_3 ||
-	     hid->product =3D=3D USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
-	     hid->product =3D=3D USB_DEVICE_ID_MS_TYPE_COVER_3 ||
-+	     hid->product =3D=3D USB_DEVICE_ID_MS_TYPE_COVER_PRO_4 ||
-	     hid->product =3D=3D USB_DEVICE_ID_MS_POWER_COVER) &&
-	    hid->group =3D=3D HID_GROUP_MULTITOUCH)
-		hid->group =3D HID_GROUP_GENERIC;
-@@ -1930,6 +1931,7 @@ static const struct hid_device_id hid_have_specia=
-l_driver[] =3D {
-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_=
-PRO_3) },
-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_=
-PRO_3_JP) },
-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_=
-3) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER=
-_PRO_4) },
-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER=
-) },
-	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) }=
-,
-	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL=
-) },
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -681,6 +681,7 @@
-#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3    0x07dc
-#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
-#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
-+#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4    0x07e8
-#define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+The devices we want to support are I2C based and the frame rate is low:
+typically less than 10 fps with 1386 nodes, as an example. So performance
+is not critical and doing meaningful processing is not really feasible.
 
-#define USB_VENDOR_ID_MOJO		0x8282
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -282,6 +282,8 @@ static const struct hid_device_id ms_devices[] =3D =
-{
-		.driver_data =3D MS_HIDINPUT },
-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_=
-3),
-		.driver_data =3D MS_HIDINPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER=
-_PRO_4),
-+		.driver_data =3D MS_HIDINPUT },
-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER=
-),
-		.driver_data =3D MS_HIDINPUT },
+The use cases we want to support are diagnostic, for instance tuning and
+analysing touch sensor manufacturing defects. It's useful in this context
+to be able to interrogate the device using the command line or shell scripts.
 
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -93,6 +93,7 @@ static const struct hid_blacklist {
-	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3, HID_QUIR=
-K_NO_INIT_REPORTS },
-	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_Q=
-UIRK_NO_INIT_REPORTS },
-	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO=
-_INIT_REPORTS },
-+	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4, HID_QUI=
-RK_NO_INIT_REPORTS },
-	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_=
-INIT_REPORTS },
-	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_=
-INIT_REPORTS },
-	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUI=
-RK_NO_INIT_REPORTS },
-
---=20
-ExactCODE GmbH, Lietzenburger Str. 42, DE-10789 Berlin
-http://exactcode.com | http://exactscan.com | http://ocrkit.com | http:=
-//t2-project.org | http://rene.rebe.de
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Nick

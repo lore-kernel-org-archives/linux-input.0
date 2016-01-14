@@ -1,168 +1,151 @@
-From: Roberto Alejandro Espi Munoz <raespi@icid.cu>
-Subject: Re: uinput on headless system ...
-Date: Thu, 14 Jan 2016 10:16:13 -0500
-Message-ID: <5697BBBD.4050003@icid.cu>
-References: <56965CFB.3020401@icid.cu>	<20160113222151.GE39593@dtor-ws>	<CAN+gG=FirVq_MrXDkFe8K=7TEVzif9MSHvov4SyZE1M_Z5N=8g@mail.gmail.com>	<5697AB41.3070001@icid.cu> <CAN+gG=Fcz7riLQPhmwZWF8X9xGCQ346rhcOH-Qu5rH-oEkj-xw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Aniroop Mathur <a.mathur@samsung.com>
+Subject: [PATCH] [v6]Input: evdev: fix bug of dropping valid full packet after
+ syn_dropped event
+Date: Thu, 14 Jan 2016 22:15:22 +0530
+Message-ID: <1452789923-13327-1-git-send-email-a.mathur@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.icid.cu ([200.55.133.90]:59464 "EHLO mail.icid.cu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753582AbcANPRA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Jan 2016 10:17:00 -0500
-Received: from icid.cu ([10.10.0.3])
-	by mail.icid.cu (8.13.8/8.13.8) with ESMTP id u0EE53qq003080
-	for <linux-input@vger.kernel.org>; Thu, 14 Jan 2016 09:05:10 -0500
-Received: from [10.10.8.78] by icid.cu
-	(Cipher TLSv1:RC4-MD5:128) (MDaemon PRO v9.6.1)
-	with ESMTP id md50008530773.msg
-	for <linux-input@vger.kernel.org>; Thu, 14 Jan 2016 09:34:13 -0500
-In-Reply-To: <CAN+gG=Fcz7riLQPhmwZWF8X9xGCQ346rhcOH-Qu5rH-oEkj-xw@mail.gmail.com>
+Received: from mailout1.samsung.com ([203.254.224.24]:44072 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755347AbcANQpx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 Jan 2016 11:45:53 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, aniroop.mathur@gmail.com, s.samuel@samsung.com, r.mahale@samsung.com, Aniroop Mathur <a.mathur@samsung.com>
 
-Well yes ... the code I posted is actually part of a TCP server client 
-connection.  One part of the code gets executed up to the point you 
-mentioned.  The part where the keys get sent only executes when 
-receiving the network command, so yes, there is a time lapse between one 
-part and the other.
+If last event in old queue that was dropped was EV_SYN/SYN_REPORT, then
+lets generate EV_SYN/SYN_REPORT immediately after queing EV_SYN/SYN_DROPPED
+so that clients would not ignore next valid full packet events.
 
-On 01/14/2016 09:27 AM, Benjamin Tissoires wrote:
-> On Thu, Jan 14, 2016 at 3:05 PM, Roberto Alejandro Espi Munoz
-> <raespi@icid.cu> wrote:
->> Yes the uinput driver is compiled as a module and loaded before running the
->> test app that I have (double checked with modprobe and lsmod).  The same
->> code has been compiled for my laptop and everything loads and works fine
->> when sending events to the input subsystem.   I mentioned the physical
->> keyboard issue because that's what made it work: SCENARIO1 the headless
->> motherboard starts without a keyboard and both the module and the app loads
->> but no events get injected and the problem occurs when writing to the
->> /dev/uinput device, SCENARIO2 I connect a physical keyboard and all goes
->> well. I looked at the libevdev before and sinced my code ended up working on
->> my laptop I discarded the library.  I saw the libevdev-uinput.c you
->> recommended, I think I'm following the same rationale.
->>
->> Thanks for the replies ...
->>
->> This is the code I'm using that fails at the end when writing to the
->> /dev/uinput device:
->>
->>      int uinputDev;
->>      struct uinput_user_dev device;
->>      memset(&device, 0, sizeof device);
->>
->>      uinputDev = open("/dev/uinput",O_WRONLY | O_NONBLOCK);
->>          strcpy(device.name,"test remote");
->>
->>          device.id.bustype=BUS_USB;
->>          device.id.vendor=1;
->>          device.id.product=1;
->>          device.id.version=1;
->>
->>
->>          if (write(uinputDev,&device,sizeof(device)) != sizeof(device))
->>          {
->>              fprintf(stderr, "error setup\n");
->>          }
->>          if (ioctl(uinputDev,UI_SET_EVBIT,EV_KEY) < 0)
->>              fprintf(stderr, "error evbit key\n");
->>
->>          if (ioctl(uinputDev,UI_SET_KEYBIT, KEY_LEFT) < 0)
->>              fprintf(stderr, "error evbit key\n");
->>
->>          if (ioctl(uinputDev,UI_SET_KEYBIT, KEY_UP) < 0)
->>              fprintf(stderr, "error evbit key\n");
->>
->>          if (ioctl(uinputDev,UI_SET_KEYBIT, KEY_DOWN) < 0)
->>              fprintf(stderr, "error evbit key\n");
->>
->>          if (ioctl(uinputDev,UI_SET_KEYBIT, KEY_RIGHT) < 0)
->>              fprintf(stderr, "error evbit key\n");
->>
->>          if (ioctl(uinputDev,UI_SET_KEYBIT, KEY_ENTER) < 0)
->>              fprintf(stderr, "error evbit key\n");
->>
->>          if (ioctl(uinputDev,UI_DEV_CREATE) < 0)
->>          {
->>              fprintf(stderr, "error create\n");
->>          }
->>
->>       struct input_event event;
->>
-> Just to be sure, is there any sleep here or way to ensure your
-> motherboard actually opened the device here?
-> If not, you might simply send the events too early, when nobody reads
-> them, and thus you think you did not receive them.
->
-> Cheers,
-> Benjamin
->
->>      memset(&event, 0, sizeof(event));
->>      event.type = EV_KEY;
->>      event.code = KEY_UP;
->>      event.value = 1;
->>      gettimeofday(&event.time,NULL);
->>
->>      if (write( uinputDev, &event, sizeof(struct input_event)) != sizeof(
->> struct input_event) ) {
->>          fprintf(stderr, "Error on send_event");
->>          return -1;
->>      }
->>
->>      memset(&event, 0, sizeof(event));
->>      event.type = EV_KEY;
->>      event.code = KEY_UP;
->>      event.value = 0;
->>      gettimeofday(&event.time,NULL);
->>
->>      if (write( uinputDev, &event, sizeof(struct input_event)) != sizeof(
->> struct input_event) ) {
->>          fprintf(stderr, "Error on send_event");
->>          return -1;
->>      }
->>
->> On 01/14/2016 12:08 AM, Benjamin Tissoires wrote:
->>> Hi Roberto,
->>>
->>> On Wed, Jan 13, 2016 at 11:21 PM, Dmitry Torokhov
->>> <dmitry.torokhov@gmail.com> wrote:
->>>> Hi Roberto,
->>>>
->>>> On Wed, Jan 13, 2016 at 09:19:39AM -0500, Roberto Alejandro Espi Munoz
->>>> wrote:
->>>>> Hello ... I've been searching around the web for a specific mailing
->>>>> list for the uinput driver but couldn't find any.  I managed to
->>>>> create an example app that injects keyboard events to the running
->>>>> linux kernel succesfully when I have a keyboard attached to the
->>>>> computer.  However if I run it on a keyboardless machine, like a
->>>>> standalone motherboard, the uinput device fails to open.
->>>> uinput driver does not depend on presence of a physical keyboard. I'd
->>>> start looking whether uinput module is enabled on your headless box and
->>>> if it is a module verify that it is loaded.
->>>>
->>> As Dmitry said, uinput is independent of any attached hardware.
->>> You might want to see how we managed to create new devices through
->>> uinput by looking at libevdev[1] (see libevdev/libevdev-uinput.c).
->>>
->>> You might actually also want to use libevdev instead of manually doing
->>> the ioctls and processing of all the small things :)
->>>
->>> Cheers,
->>> Benjamin
->>>
->>> [1] http://www.freedesktop.org/wiki/Software/libevdev/
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
->>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Difference from v5:
+- Corrected header to store last event occured for pass_event and
+clock_change function
+- Moved buffer lock after evdev_queue_syn_dropped to avoid shifting
+of head during bits_to_user processing in evdev_handle_get_val function.
+As input cores passes packets (not single events) to evdev handler so
+after flushing queue for particular events, there will always be syn_report
+in the buffer at the end. And if flush request is for syn_report, then
+syn_report will not be queued after syn_dropped, anyways.
 
+Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+---
+ drivers/input/evdev.c |   57 ++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 35 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index e9ae3d5..b474e81 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -156,7 +156,12 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ static void __evdev_queue_syn_dropped(struct evdev_client *client)
+ {
+ 	struct input_event ev;
++	struct input_event last_ev;
+ 	ktime_t time;
++	unsigned int mask = client->bufsize - 1;
++
++	/* store last event */
++	last_ev = client->buffer[(client->head - 1) & mask];
+ 
+ 	time = client->clk_type == EV_CLK_REAL ?
+ 			ktime_get_real() :
+@@ -170,22 +175,28 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
+ 	ev.value = 0;
+ 
+ 	client->buffer[client->head++] = ev;
+-	client->head &= client->bufsize - 1;
++	client->head &= mask;
+ 
+ 	if (unlikely(client->head == client->tail)) {
+ 		/* drop queue but keep our SYN_DROPPED event */
+-		client->tail = (client->head - 1) & (client->bufsize - 1);
++		client->tail = (client->head - 1) & mask;
+ 		client->packet_head = client->tail;
+ 	}
+-}
+ 
+-static void evdev_queue_syn_dropped(struct evdev_client *client)
+-{
+-	unsigned long flags;
++	/*
++	 * If last packet was completely stored, then queue SYN_REPORT
++	 * so that clients would not ignore next valid full packet
++	 */
++	if (last_ev.type == EV_SYN && last_ev.code == SYN_REPORT) {
++		last_ev.time = ev.time;
++		client->buffer[client->head++] = last_ev;
++		client->head &= mask;
++		client->packet_head = client->head;
+ 
+-	spin_lock_irqsave(&client->buffer_lock, flags);
+-	__evdev_queue_syn_dropped(client);
+-	spin_unlock_irqrestore(&client->buffer_lock, flags);
++		/* drop queue but keep our SYN_DROPPED & SYN_REPORT event */
++		if (unlikely(client->head == client->tail))
++			client->tail = (client->head - 2) & mask;
++	}
+ }
+ 
+ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+@@ -218,7 +229,7 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+ 		spin_lock_irqsave(&client->buffer_lock, flags);
+ 
+ 		if (client->head != client->tail) {
+-			client->packet_head = client->head = client->tail;
++			client->packet_head = client->tail = client->head;
+ 			__evdev_queue_syn_dropped(client);
+ 		}
+ 
+@@ -231,22 +242,24 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+ static void __pass_event(struct evdev_client *client,
+ 			 const struct input_event *event)
+ {
++	unsigned int mask = client->bufsize - 1;
++
+ 	client->buffer[client->head++] = *event;
+-	client->head &= client->bufsize - 1;
++	client->head &= mask;
+ 
+ 	if (unlikely(client->head == client->tail)) {
+ 		/*
+ 		 * This effectively "drops" all unconsumed events, leaving
+-		 * EV_SYN/SYN_DROPPED plus the newest event in the queue.
++		 * EV_SYN/SYN_DROPPED, EV_SYN/SYN_REPORT (if required) and
++		 * newest event in the queue.
+ 		 */
+-		client->tail = (client->head - 2) & (client->bufsize - 1);
++		client->head = (client->head - 1) & mask;
++		client->packet_head = client->tail = client->head;
++		__evdev_queue_syn_dropped(client);
+ 
+-		client->buffer[client->tail].time = event->time;
+-		client->buffer[client->tail].type = EV_SYN;
+-		client->buffer[client->tail].code = SYN_DROPPED;
+-		client->buffer[client->tail].value = 0;
+-
+-		client->packet_head = client->tail;
++		client->buffer[client->head++] = *event;
++		client->head &= mask;
++		/* No need to check for buffer overflow as it just occurred */
+ 	}
+ 
+ 	if (event->type == EV_SYN && event->code == SYN_REPORT) {
+@@ -935,11 +948,11 @@ static int evdev_handle_get_val(struct evdev_client *client,
+ 
+ 	__evdev_flush_queue(client, type);
+ 
+-	spin_unlock_irq(&client->buffer_lock);
+-
+ 	ret = bits_to_user(mem, maxbit, maxlen, p, compat);
+ 	if (ret < 0)
+-		evdev_queue_syn_dropped(client);
++		__evdev_queue_syn_dropped(client);
++
++	spin_unlock_irq(&client->buffer_lock);
+ 
+ 	kfree(mem);
+ 
+-- 
+1.7.9.5
 

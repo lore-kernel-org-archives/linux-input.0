@@ -1,163 +1,145 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Fwd: ALPS v7 TrackStick detected wrongly
-Date: Thu, 14 Jan 2016 13:11:18 +0100
-Message-ID: <20160114121118.GU11560@pali>
-References: <1452773083.4165.0@smtp.gmail.com>
+From: Roberto Alejandro Espi Munoz <raespi@icid.cu>
+Subject: Re: uinput on headless system ...
+Date: Thu, 14 Jan 2016 09:05:53 -0500
+Message-ID: <5697AB41.3070001@icid.cu>
+References: <56965CFB.3020401@icid.cu>	<20160113222151.GE39593@dtor-ws> <CAN+gG=FirVq_MrXDkFe8K=7TEVzif9MSHvov4SyZE1M_Z5N=8g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="AqsLC8rIMeq19msA"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f53.google.com ([74.125.82.53]:35253 "EHLO
-	mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751448AbcANMLV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Jan 2016 07:11:21 -0500
-Received: by mail-wm0-f53.google.com with SMTP id f206so340681443wmf.0
-        for <linux-input@vger.kernel.org>; Thu, 14 Jan 2016 04:11:20 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1452773083.4165.0@smtp.gmail.com>
+Received: from mail.icid.cu ([200.55.133.90]:59151 "EHLO mail.icid.cu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751599AbcANOGh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 Jan 2016 09:06:37 -0500
+Received: from icid.cu ([10.10.0.3])
+	by mail.icid.cu (8.13.8/8.13.8) with ESMTP id u0ECsex6001681
+	for <linux-input@vger.kernel.org>; Thu, 14 Jan 2016 07:54:47 -0500
+Received: from [10.10.8.78] by icid.cu
+	(Cipher TLSv1:RC4-MD5:128) (MDaemon PRO v9.6.1)
+	with ESMTP id md50008530586.msg
+	for <linux-input@vger.kernel.org>; Thu, 14 Jan 2016 08:23:48 -0500
+In-Reply-To: <CAN+gG=FirVq_MrXDkFe8K=7TEVzif9MSHvov4SyZE1M_Z5N=8g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Martin <madstitz@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>
+
+Yes the uinput driver is compiled as a module and loaded before running 
+the test app that I have (double checked with modprobe and lsmod).  The 
+same code has been compiled for my laptop and everything loads and works 
+fine when sending events to the input subsystem.   I mentioned the 
+physical keyboard issue because that's what made it work: SCENARIO1 the 
+headless motherboard starts without a keyboard and both the module and 
+the app loads but no events get injected and the problem occurs when 
+writing to the /dev/uinput device, SCENARIO2 I connect a physical 
+keyboard and all goes well. I looked at the libevdev before and sinced 
+my code ended up working on my laptop I discarded the library.  I saw 
+the libevdev-uinput.c you recommended, I think I'm following the same 
+rationale.
+
+Thanks for the replies ...
+
+This is the code I'm using that fails at the end when writing to the 
+/dev/uinput device:
+
+     int uinputDev;
+     struct uinput_user_dev device;
+     memset(&device, 0, sizeof device);
+
+     uinputDev = open("/dev/uinput",O_WRONLY | O_NONBLOCK);
+         strcpy(device.name,"test remote");
+
+         device.id.bustype=BUS_USB;
+         device.id.vendor=1;
+         device.id.product=1;
+         device.id.version=1;
 
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+         if (write(uinputDev,&device,sizeof(device)) != sizeof(device))
+         {
+             fprintf(stderr, "error setup\n");
+         }
+         if (ioctl(uinputDev,UI_SET_EVBIT,EV_KEY) < 0)
+             fprintf(stderr, "error evbit key\n");
 
-Hi!
+         if (ioctl(uinputDev,UI_SET_KEYBIT, KEY_LEFT) < 0)
+             fprintf(stderr, "error evbit key\n");
 
-I'm Forwarding to linux-input. Looks like there can be problem with
-TPPS2 protocol detection on ThinkPad laptop. Any idea?
+         if (ioctl(uinputDev,UI_SET_KEYBIT, KEY_UP) < 0)
+             fprintf(stderr, "error evbit key\n");
 
--- 
-Pali Rohár
-pali.rohar@gmail.com
+         if (ioctl(uinputDev,UI_SET_KEYBIT, KEY_DOWN) < 0)
+             fprintf(stderr, "error evbit key\n");
 
---AqsLC8rIMeq19msA
-Content-Type: message/rfc822
-Content-Disposition: inline
+         if (ioctl(uinputDev,UI_SET_KEYBIT, KEY_RIGHT) < 0)
+             fprintf(stderr, "error evbit key\n");
 
-Delivered-To: pali.rohar@gmail.com
-Received: by 10.13.238.5 with SMTP id x5csp4076697ywe;
-        Thu, 14 Jan 2016 04:04:46 -0800 (PST)
-X-Received: by 10.194.82.229 with SMTP id l5mr4259100wjy.140.1452773086172;
-        Thu, 14 Jan 2016 04:04:46 -0800 (PST)
-Return-Path: <madstitz@gmail.com>
-Received: from mail-wm0-x22d.google.com (mail-wm0-x22d.google.com. [2a00:1450:400c:c09::22d])
-        by mx.google.com with ESMTPS id lh1si691580wjc.78.2016.01.14.04.04.45
-        for <pali.rohar@gmail.com>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 14 Jan 2016 04:04:46 -0800 (PST)
-Received-SPF: pass (google.com: domain of madstitz@gmail.com designates 2a00:1450:400c:c09::22d as permitted sender) client-ip=2a00:1450:400c:c09::22d;
-Authentication-Results: mx.google.com;
-       spf=pass (google.com: domain of madstitz@gmail.com designates 2a00:1450:400c:c09::22d as permitted sender) smtp.mailfrom=madstitz@gmail.com;
-       dkim=pass header.i=@gmail.com;
-       dmarc=pass (p=NONE dis=NONE) header.from=gmail.com
-Received: by mail-wm0-x22d.google.com with SMTP id b14so361183859wmb.1
-        for <pali.rohar@gmail.com>; Thu, 14 Jan 2016 04:04:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=date:from:subject:to:message-id:mime-version:content-type;
-        bh=be7sflDR7+mB7KwKLD3a8uPxyoTg7HSdn+SIcVw3a7A=;
-        b=AnPmFyosw1RzfXXZ2N3/aoNutsSk4ALp27Ws2AipepNcfbbt6YcF3VqRgWaKqvyJcO
-         TKQSG2ExGygZxz0R4li8/xP4KQBxoSIMS8uKhgCdxv0g3/rv/jzQEvLaUVDLXyU765I+
-         dmuOBjpORIZn7e+5CIekm9fjP+cQsGHb3mMKMyEM3BUNF1WbV533e9pduQFT4HP7ltx+
-         axbZKxhkWf+GxDhYbIAE0z1N5LXKmKtWCrFWO6iay/Gw5z2mN/Cab/7qDqUBHO9p4y59
-         PfO91w6/abcmOy7UDzblYFZvbeoSqoVJjGbM6de0uFGU0KNxjWgtBz+3zWW4g9NQAXBs
-         YtwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20130820;
-        h=x-gm-message-state:date:from:subject:to:message-id:mime-version
-         :content-type;
-        bh=be7sflDR7+mB7KwKLD3a8uPxyoTg7HSdn+SIcVw3a7A=;
-        b=bHegmh9qtHK/GEpIa/H1ZOEI4kQkfYaiIl9bn9NQqI9piu158ofgOSqejXTDO4+2Qh
-         vSPk+8ppkWEJD5u4RZ0lH4vA8lKp7My7BCku9eTUly4f//sxYBhK1jKWGOcdjLiXT1So
-         1lY+6jTg3PwvXfjOq6MRZ1A1v4TRkCGgNfTfsKjIuIkT+K59uhjuaOtCHGpKJS+eM+9x
-         ujgr7cFr3dVfjC4Xunskx16g7FpFbiOMgSVnRDmzCLi01f6WhFUjR49w4wz52AnCL/0g
-         ksLVJyRvAfzHbNk/1A4fJhmpvX1KZMoGMi9IOwa3gSrcr12zW9fVQNah9/edhQGhaSo9
-         MNsA==
-X-Gm-Message-State: ALoCoQmtqnxdQ6Bq52ZA7DmletIia4eZh48vi0sd0mwb0qFUuEj/+YjBoo8heW/YWH/ulMOWk0dumAPuRFl4rxbt1Wj80g81ZA==
-X-Received: by 10.194.115.129 with SMTP id jo1mr3737274wjb.28.1452773085827;
-        Thu, 14 Jan 2016 04:04:45 -0800 (PST)
-Return-Path: <madstitz@gmail.com>
-Received: from s5020.dyn.hrz.tu-darmstadt.de (s5020.dyn.hrz.tu-darmstadt.de. [130.83.219.252])
-        by smtp.gmail.com with ESMTPSA id qs1sm5822643wjc.2.2016.01.14.04.04.44
-        for <pali.rohar@gmail.com>
-        (version=TLSv1/SSLv3 cipher=OTHER);
-        Thu, 14 Jan 2016 04:04:44 -0800 (PST)
-Date: Thu, 14 Jan 2016 13:04:43 +0100
-From: Martin <madstitz@gmail.com>
-Subject: ALPS v7 TrackStick detected wrongly
-To: pali.rohar@gmail.com
-Message-Id: <1452773083.4165.0@smtp.gmail.com>
-X-Mailer: geary/0.10.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+         if (ioctl(uinputDev,UI_SET_KEYBIT, KEY_ENTER) < 0)
+             fprintf(stderr, "error evbit key\n");
 
-Hi Mr. Rohar,
+         if (ioctl(uinputDev,UI_DEV_CREATE) < 0)
+         {
+             fprintf(stderr, "error create\n");
+         }
 
-I just read about your commit for kernel 4.5 ("Input: ALPS - detect 
-trackstick presence for v7 protocol"),
-and was wondering if this is addressing a problem I have:
+      struct input_event event;
 
-I recently replaced the touchpad of my ThinkPad S440 with the one from 
-the T450 (because of the dedicated trackstick buttons).
-The touchpad is working fine (including the dedicated buttons), but the 
-trackstick doesn't work anymore.
+     memset(&event, 0, sizeof(event));
+     event.type = EV_KEY;
+     event.code = KEY_UP;
+     event.value = 1;
+     gettimeofday(&event.time,NULL);
 
-I suspect this is because it is detected incorrectly as an "AlpsPS/2 
-ALPS DualPoint Stick" when it should be (and previously was detected 
-as) an "TPPS/2 IBM TrackPoint" (checked with other S440 owner).
-A friend replaced his T440 touchpad with a T450 touchpad from 
-synaptics, and his trackpoint is working fine.
+     if (write( uinputDev, &event, sizeof(struct input_event)) != 
+sizeof( struct input_event) ) {
+         fprintf(stderr, "Error on send_event");
+         return -1;
+     }
 
-Relevant output of
-cat /proc/bus/input/devices
+     memset(&event, 0, sizeof(event));
+     event.type = EV_KEY;
+     event.code = KEY_UP;
+     event.value = 0;
+     gettimeofday(&event.time,NULL);
 
-I: Bus=0011 Vendor=0002 Product=0008 Version=0700
-N: Name="AlpsPS/2 ALPS DualPoint Stick"
-P: Phys=isa0060/serio1/input1
-S: Sysfs=/devices/platform/i8042/serio1/input/input8
-U: Uniq=
-H: Handlers=mouse0 event6
-B: PROP=21
-B: EV=7
-B: KEY=70000 0 0 0 0
-B: REL=3
+     if (write( uinputDev, &event, sizeof(struct input_event)) != 
+sizeof( struct input_event) ) {
+         fprintf(stderr, "Error on send_event");
+         return -1;
+     }
 
-I: Bus=0011 Vendor=0002 Product=0008 Version=0700
-N: Name="AlpsPS/2 ALPS DualPoint TouchPad"
-P: Phys=isa0060/serio1/input0
-S: Sysfs=/devices/platform/i8042/serio1/input/input5
-U: Uniq=
-H: Handlers=mouse1 event7
-B: PROP=5
-B: EV=b
-B: KEY=e520 10000 0 0 0 0
-B: ABS=260800000000003
-
-I: Bus=0019 Vendor=17aa Product=5054 Version=4101
-N: Name="ThinkPad Extra Buttons"
-P: Phys=thinkpad_acpi/input0
-S: Sysfs=/devices/platform/thinkpad_acpi/input/input9
-U: Uniq=
-H: Handlers=kbd event8 rfkill
-B: PROP=0
-B: EV=13
-B: KEY=10040 0 18040000 0 10000000000000 0 1501b02102004 
-c000280041114000 10e000000000000 0
-B: MSC=10
+On 01/14/2016 12:08 AM, Benjamin Tissoires wrote:
+> Hi Roberto,
+>
+> On Wed, Jan 13, 2016 at 11:21 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> Hi Roberto,
+>>
+>> On Wed, Jan 13, 2016 at 09:19:39AM -0500, Roberto Alejandro Espi Munoz wrote:
+>>> Hello ... I've been searching around the web for a specific mailing
+>>> list for the uinput driver but couldn't find any.  I managed to
+>>> create an example app that injects keyboard events to the running
+>>> linux kernel succesfully when I have a keyboard attached to the
+>>> computer.  However if I run it on a keyboardless machine, like a
+>>> standalone motherboard, the uinput device fails to open.
+>> uinput driver does not depend on presence of a physical keyboard. I'd
+>> start looking whether uinput module is enabled on your headless box and
+>> if it is a module verify that it is loaded.
+>>
+> As Dmitry said, uinput is independent of any attached hardware.
+> You might want to see how we managed to create new devices through
+> uinput by looking at libevdev[1] (see libevdev/libevdev-uinput.c).
+>
+> You might actually also want to use libevdev instead of manually doing
+> the ioctls and processing of all the small things :)
+>
+> Cheers,
+> Benjamin
+>
+> [1] http://www.freedesktop.org/wiki/Software/libevdev/
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 
-Is your patch intended to solve this or should I open a bug ticket?
-
-Thank you very much for your time!
-
-Greetings
-Martin Stitz
-
-
---AqsLC8rIMeq19msA--

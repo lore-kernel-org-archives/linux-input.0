@@ -1,51 +1,508 @@
 From: Chris Diamand <chris@diamand.org>
-Subject: Re: [PATCH] Input: byd - add BYD PS/2 touchpad driver
-Date: Fri, 15 Jan 2016 08:11:10 +0000
-Message-ID: <20160115081110.GA10700@smaug>
-References: <1451272536-22065-1-git-send-email-chris@diamand.org>
- <20160103050230.GD23680@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH v2] Input: byd - add BYD PS/2 touchpad driver
+Date: Fri, 15 Jan 2016 08:14:16 +0000
+Message-ID: <1452845656-25564-1-git-send-email-chris@diamand.org>
+References: <20160115081110.GA10700@smaug>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:32829 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755711AbcAOILN (ORCPT
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:36826 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751105AbcAOIOp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Jan 2016 03:11:13 -0500
-Received: by mail-wm0-f67.google.com with SMTP id u188so1576110wmu.0
-        for <linux-input@vger.kernel.org>; Fri, 15 Jan 2016 00:11:13 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20160103050230.GD23680@dtor-ws>
+	Fri, 15 Jan 2016 03:14:45 -0500
+Received: by mail-wm0-f66.google.com with SMTP id l65so1571956wmf.3
+        for <linux-input@vger.kernel.org>; Fri, 15 Jan 2016 00:14:44 -0800 (PST)
+In-Reply-To: <20160115081110.GA10700@smaug>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: Chris Diamand <chris@diamand.org>
 
-Hi Dmitry,
+Driver for the BYD BTP10463 touchpad, found in PC Specialist `Lafite'
+laptops. This patch sends the magic command sequence which causes the
+touchpad to stream intellimouse-style packets.
 
-Thanks for the review! Apologies - I meant to send this extra info with v2 of
-the patch, but my Mutt settings failed me.
+Gestures are detected inside the touchpad, and exposed as special
+values in the Z component of each packet - absolute coordinates are
+not supported, even in the Windows driver. At present, this supports
+two-finger vertical and horizontal scrolling, and provides the
+framework to expose the other gestures it can recognize.
 
-> Could you please tell me what boxes use this touchpad?
+Signed-off-by: Chris Diamand <chris@diamand.org>
+---
+Changed in v2:
+ - Applies to linux-next.
+ - Combine movement and button reporting.
+ - Use BIT and ARRAY_SIZE macros.
+ - Change Z values from enum to #define, and document the meanings.
+ - Check result of ps2_command during intellimouse initialisation.
+ - psmouse_dbg instead of psmouse_info.
+ - Mention the machine and lack of absolute mode in commit message.
 
-The touchpad is found in the 2015 PC Specialist `Lafite' laptops:
+ drivers/input/mouse/Kconfig        |  10 ++
+ drivers/input/mouse/Makefile       |   1 +
+ drivers/input/mouse/byd.c          | 341 +++++++++++++++++++++++++++++++++++++
+ drivers/input/mouse/byd.h          |  18 ++
+ drivers/input/mouse/psmouse-base.c |  14 ++
+ drivers/input/mouse/psmouse.h      |   1 +
+ 6 files changed, 385 insertions(+)
+ create mode 100644 drivers/input/mouse/byd.c
+ create mode 100644 drivers/input/mouse/byd.h
 
-    http://www.pcspecialist.co.uk/
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index 17f97e5..096abb4 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -48,6 +48,16 @@ config MOUSE_PS2_ALPS
+ 
+ 	  If unsure, say Y.
+ 
++config MOUSE_PS2_BYD
++	bool "BYD PS/2 mouse protocol extension" if EXPERT
++	default y
++	depends on MOUSE_PS2
++	help
++	  Say Y here if you have a BYD PS/2 touchpad connected to
++	  your system.
++
++	  If unsure, say Y.
++
+ config MOUSE_PS2_LOGIPS2PP
+ 	bool "Logitech PS/2++ mouse protocol extension" if EXPERT
+ 	default y
+diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+index ee6a6e9..6168b13 100644
+--- a/drivers/input/mouse/Makefile
++++ b/drivers/input/mouse/Makefile
+@@ -28,6 +28,7 @@ cyapatp-objs := cyapa.o cyapa_gen3.o cyapa_gen5.o cyapa_gen6.o
+ psmouse-objs := psmouse-base.o synaptics.o focaltech.o
+ 
+ psmouse-$(CONFIG_MOUSE_PS2_ALPS)	+= alps.o
++psmouse-$(CONFIG_MOUSE_PS2_BYD)		+= byd.o
+ psmouse-$(CONFIG_MOUSE_PS2_ELANTECH)	+= elantech.o
+ psmouse-$(CONFIG_MOUSE_PS2_OLPC)	+= hgpk.o
+ psmouse-$(CONFIG_MOUSE_PS2_LOGIPS2PP)	+= logips2pp.o
+diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
+new file mode 100644
+index 0000000..8d39c96
+--- /dev/null
++++ b/drivers/input/mouse/byd.c
+@@ -0,0 +1,341 @@
++/*
++ * BYD TouchPad PS/2 mouse driver
++ *
++ * Copyright (C) 2015 Chris Diamand <chris@diamand.org>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#include <linux/delay.h>
++#include <linux/input.h>
++#include <linux/libps2.h>
++#include <linux/serio.h>
++
++#include "psmouse.h"
++#include "byd.h"
++
++#define PS2_Y_OVERFLOW	BIT_MASK(7)
++#define PS2_X_OVERFLOW	BIT_MASK(6)
++#define PS2_Y_SIGN	BIT_MASK(5)
++#define PS2_X_SIGN	BIT_MASK(4)
++#define PS2_ALWAYS_1	BIT_MASK(3)
++#define PS2_MIDDLE	BIT_MASK(2)
++#define PS2_RIGHT	BIT_MASK(1)
++#define PS2_LEFT	BIT_MASK(0)
++
++/*
++ * The touchpad reports gestures in the last byte of each packet. It can take
++ * any of the following values:
++ */
++/* One-finger scrolling in one of the edge scroll zones. */
++#define BYD_SCROLLUP 0xCA
++#define BYD_SCROLLDOWN 0x36
++#define BYD_SCROLLLEFT 0xCB
++#define BYD_SCROLLRIGHT 0x35
++/* Two-finger scrolling. */
++#define BYD_2DOWN 0x2B
++#define BYD_2UP 0xD5
++#define BYD_2LEFT 0xD6
++#define BYD_2RIGHT 0x2A
++/* Pinching in or out. */
++#define BYD_ZOOMOUT 0xD8
++#define BYD_ZOOMIN 0x28
++/* Three-finger swipe. */
++#define BYD_3UP 0xD3
++#define BYD_3DOWN 0x2D
++#define BYD_3LEFT 0xD4
++#define BYD_3RIGHT 0x2C
++/* Four-finger swipe. */
++#define BYD_4UP 0xCD
++#define BYD_4DOWN 0x33
++
++int byd_detect(struct psmouse *psmouse, bool set_properties)
++{
++	struct ps2dev *ps2dev = &psmouse->ps2dev;
++	unsigned char param[4];
++
++	param[0] = 0x03;
++	param[1] = 0x00;
++	param[2] = 0x00;
++	param[3] = 0x00;
++
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
++		return -1;
++
++	if (param[1] != 0x03 || param[2] != 0x64)
++		return -ENODEV;
++
++	psmouse_dbg(psmouse, "BYD touchpad detected\n");
++
++	if (set_properties) {
++		psmouse->vendor = "BYD";
++		psmouse->name = "TouchPad";
++	}
++
++	return 0;
++}
++
++static int interpret_scroll(struct psmouse *psmouse)
++{
++	struct input_dev *dev = psmouse->dev;
++	u8 scroll = psmouse->packet[3];
++
++	switch (scroll) {
++	case BYD_SCROLLDOWN:
++	case BYD_2DOWN:
++		input_report_rel(dev, REL_WHEEL, -1);
++		return 1;
++	case BYD_SCROLLUP:
++	case BYD_2UP:
++		input_report_rel(dev, REL_WHEEL, 1);
++		return 1;
++	case BYD_SCROLLLEFT:
++	case BYD_2LEFT:
++		input_report_rel(dev, REL_HWHEEL, -1);
++		return 1;
++	case BYD_SCROLLRIGHT:
++	case BYD_2RIGHT:
++		input_report_rel(dev, REL_HWHEEL, 1);
++		return 1;
++	case BYD_ZOOMOUT:
++	case BYD_ZOOMIN:
++	case BYD_3UP:
++	case BYD_3DOWN:
++	case BYD_3LEFT:
++	case BYD_3RIGHT:
++	case BYD_4UP:
++	case BYD_4DOWN:
++		return 1;
++	}
++
++	if (scroll != 0) {
++		psmouse_warn(psmouse,
++			     "Unrecognized Z: pkt = %02x %02x %02x %02x\n",
++			     psmouse->packet[0], psmouse->packet[1],
++			     psmouse->packet[2], psmouse->packet[3]);
++		return 1;
++	}
++	return 0;
++}
++
++static psmouse_ret_t byd_process_byte(struct psmouse *psmouse)
++{
++	u8 *pkt = psmouse->packet;
++
++	if (psmouse->pktcnt > 0 && !(pkt[0] & PS2_ALWAYS_1)) {
++		psmouse_warn(psmouse, "Always_1 bit not 1. pkt[0] = %02x\n",
++			     pkt[0]);
++		return PSMOUSE_BAD_DATA;
++	}
++
++	if (psmouse->pktcnt < psmouse->pktsize)
++		return PSMOUSE_GOOD_DATA;
++
++	/* Otherwise, a full packet has been received */
++	if (!interpret_scroll(psmouse)) {
++		/* Sign-extend if a sign bit is set. */
++		unsigned int signx = pkt[0] & PS2_X_SIGN ? ~0xFF : 0;
++		unsigned int signy = pkt[0] & PS2_Y_SIGN ? ~0xFF : 0;
++		int dx = signx | (int) pkt[1];
++		int dy = signy | (int) pkt[2];
++
++		input_report_rel(psmouse->dev, REL_X, dx);
++		input_report_rel(psmouse->dev, REL_Y, -dy);
++
++		input_report_key(psmouse->dev, BTN_LEFT, pkt[0] & PS2_LEFT);
++		input_report_key(psmouse->dev, BTN_RIGHT, pkt[0] & PS2_RIGHT);
++		input_report_key(psmouse->dev, BTN_MIDDLE, pkt[0] & PS2_MIDDLE);
++	}
++
++	input_sync(psmouse->dev);
++
++	return PSMOUSE_FULL_PACKET;
++}
++
++/* Send a sequence of bytes, where each is ACKed before the next is sent. */
++static int send_sequence(struct psmouse *psmouse, const u8 *seq, size_t len)
++{
++	unsigned int i;
++
++	for (i = 0; i < len; ++i) {
++		if (ps2_command(&psmouse->ps2dev, NULL, seq[i]))
++			return -1;
++	}
++	return 0;
++}
++
++/* Keep scrolling after fingers are removed. */
++#define SCROLL_INERTIAL 0x01
++#define SCROLL_NO_INERTIAL 0x02
++
++/* Clicking can be done by tapping or pressing. */
++#define CLICK_BOTH 0x01
++/* Clicking can only be done by pressing. */
++#define CLICK_PRESS_ONLY 0x02
++
++static int byd_enable(struct psmouse *psmouse)
++{
++	const u8 seq1[] = { 0xE2, 0x00, 0xE0, 0x02, 0xE0 };
++	const u8 seq2[] = {
++		0xD3, 0x01,
++		0xD0, 0x00,
++		0xD0, 0x04,
++		/* Whether clicking is done by tapping or pressing. */
++		0xD4, CLICK_PRESS_ONLY,
++		0xD5, 0x01,
++		0xD7, 0x03,
++		/* Vertical and horizontal one-finger scroll zone inertia. */
++		0xD8, SCROLL_INERTIAL,
++		0xDA, 0x05,
++		0xDB, 0x02,
++		0xE4, 0x05,
++		0xD6, 0x01,
++		0xDE, 0x04,
++		0xE3, 0x01,
++		0xCF, 0x00,
++		0xD2, 0x03,
++		/* Vertical and horizontal two-finger scrolling inertia. */
++		0xE5, SCROLL_INERTIAL,
++		0xD9, 0x02,
++		0xD9, 0x07,
++		0xDC, 0x03,
++		0xDD, 0x03,
++		0xDF, 0x03,
++		0xE1, 0x03,
++		0xD1, 0x00,
++		0xCE, 0x00,
++		0xCC, 0x00,
++		0xE0, 0x00,
++		0xE2, 0x01
++	};
++	u8 param[4];
++
++	if (send_sequence(psmouse, seq1, ARRAY_SIZE(seq1)))
++		return -1;
++
++	/* Send a 0x01 command, which should return 4 bytes. */
++	if (ps2_command(&psmouse->ps2dev, param, 0x0401))
++		return -1;
++
++	if (send_sequence(psmouse, seq2, ARRAY_SIZE(seq2)))
++		return -1;
++
++	return 0;
++}
++
++/*
++ * Send the set of PS/2 commands required to make it identify as an
++ * intellimouse with 4-byte instead of 3-byte packets.
++ */
++static int send_intellimouse_sequence(struct psmouse *psmouse)
++{
++	int i;
++	struct ps2dev *ps2dev = &psmouse->ps2dev;
++	u8 param[4];
++
++	const struct {
++		u16 command;
++		u8 arg;
++	} seq[] = {
++		{ PSMOUSE_CMD_RESET_BAT, 0 },
++		{ PSMOUSE_CMD_RESET_BAT, 0 },
++		{ PSMOUSE_CMD_GETID, 0 },
++		{ PSMOUSE_CMD_SETSCALE11, 0 },
++		{ PSMOUSE_CMD_SETSCALE11, 0 },
++		{ PSMOUSE_CMD_SETSCALE11, 0 },
++		{ PSMOUSE_CMD_GETINFO, 0 },
++		{ PSMOUSE_CMD_SETRES, 0x03 },
++		{ PSMOUSE_CMD_SETRATE, 0xC8 },
++		{ PSMOUSE_CMD_SETRATE, 0x64 },
++		{ PSMOUSE_CMD_SETRATE, 0x50 },
++		{ PSMOUSE_CMD_GETID, 0 },
++		{ PSMOUSE_CMD_SETRATE, 0xC8 },
++		{ PSMOUSE_CMD_SETRATE, 0xC8 },
++		{ PSMOUSE_CMD_SETRATE, 0x50 },
++		{ PSMOUSE_CMD_GETID, 0 },
++		{ PSMOUSE_CMD_SETRATE, 0x64 },
++		{ PSMOUSE_CMD_SETRES, 0x03 },
++		{ PSMOUSE_CMD_ENABLE, 0 }
++	};
++
++	memset(param, 0, sizeof(param));
++	for (i = 0; i < ARRAY_SIZE(seq); ++i) {
++		param[0] = seq[i].arg;
++		if (ps2_command(ps2dev, param, seq[i].command))
++			return -1;
++	}
++
++	return 0;
++}
++
++static int reset_touchpad(struct psmouse *psmouse)
++{
++	if (send_intellimouse_sequence(psmouse))
++		return -EIO;
++
++	if (byd_enable(psmouse))
++		return -EIO;
++
++	return 0;
++}
++
++static int byd_reconnect(struct psmouse *psmouse)
++{
++	int retry = 0, error = 0;
++
++	psmouse_dbg(psmouse, "Reconnect\n");
++	do {
++		psmouse_reset(psmouse);
++		if (retry)
++			ssleep(1);
++		error = byd_detect(psmouse, 0);
++	} while (error && ++retry < 3);
++
++	if (error)
++		return error;
++	psmouse_dbg(psmouse, "Reconnected after %d attempts\n", retry);
++
++	error = reset_touchpad(psmouse);
++	if (error) {
++		psmouse_err(psmouse, "Unable to initialize device\n");
++		return error;
++	}
++
++	return 0;
++}
++
++int byd_init(struct psmouse *psmouse)
++{
++	struct input_dev *dev = psmouse->dev;
++
++	if (psmouse_reset(psmouse))
++		return -EIO;
++	if (reset_touchpad(psmouse))
++		return -EIO;
++
++	psmouse->reconnect = byd_reconnect;
++	psmouse->protocol_handler = byd_process_byte;
++	psmouse->pktsize = 4;
++	psmouse->resync_time = 0;
++
++	__set_bit(EV_KEY, dev->evbit);
++	__set_bit(BTN_LEFT, dev->keybit);
++	__set_bit(BTN_MIDDLE, dev->keybit);
++	__set_bit(BTN_RIGHT, dev->keybit);
++
++	__set_bit(EV_REL, dev->evbit);
++	__set_bit(REL_WHEEL, dev->relbit);
++	__set_bit(REL_HWHEEL, dev->relbit);
++
++	return 0;
++}
+diff --git a/drivers/input/mouse/byd.h b/drivers/input/mouse/byd.h
+new file mode 100644
+index 0000000..d6c120c
+--- /dev/null
++++ b/drivers/input/mouse/byd.h
+@@ -0,0 +1,18 @@
++#ifndef _BYD_H
++#define _BYD_H
++
++#ifdef CONFIG_MOUSE_PS2_BYD
++int byd_detect(struct psmouse *psmouse, bool set_properties);
++int byd_init(struct psmouse *psmouse);
++#else
++static inline int byd_detect(struct psmouse *psmouse, bool set_properties)
++{
++	return -ENOSYS;
++}
++static inline int byd_init(struct psmouse *psmouse)
++{
++	return -ENOSYS;
++}
++#endif /* CONFIG_MOUSE_PS2_BYD */
++
++#endif /* _BYD_H */
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index b9e4ee3..39d1bec 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -37,6 +37,7 @@
+ #include "cypress_ps2.h"
+ #include "focaltech.h"
+ #include "vmmouse.h"
++#include "byd.h"
+ 
+ #define DRIVER_DESC	"PS/2 mouse driver"
+ 
+@@ -842,6 +843,15 @@ static const struct psmouse_protocol psmouse_protocols[] = {
+ 		.init		= vmmouse_init,
+ 	},
+ #endif
++#ifdef CONFIG_MOUSE_PS2_BYD
++	{
++		.type		= PSMOUSE_BYD,
++		.name		= "BydPS/2",
++		.alias		= "byd",
++		.detect		= byd_detect,
++		.init		= byd_init,
++	},
++#endif
+ 	{
+ 		.type		= PSMOUSE_AUTO,
+ 		.name		= "auto",
+@@ -1105,6 +1115,10 @@ static int psmouse_extensions(struct psmouse *psmouse,
+ 		if (psmouse_try_protocol(psmouse, PSMOUSE_TOUCHKIT_PS2,
+ 					 &max_proto, set_properties, true))
+ 			return PSMOUSE_TOUCHKIT_PS2;
++
++		if (psmouse_try_protocol(psmouse, PSMOUSE_BYD,
++					 &max_proto, set_properties, true))
++			return PSMOUSE_BYD;
+ 	}
+ 
+ 	/*
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index ad5a5a1..e0ca6cd 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -104,6 +104,7 @@ enum psmouse_type {
+ 	PSMOUSE_CYPRESS,
+ 	PSMOUSE_FOCALTECH,
+ 	PSMOUSE_VMMOUSE,
++	PSMOUSE_BYD,
+ 	PSMOUSE_AUTO		/* This one should always be last */
+ };
+ 
+-- 
+2.1.4
 
-There's an Ubuntu bug for the lack of driver here:
-
-    https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1424293
-
-And the manufacturer's datasheet is here:
-
-    http://bydit.com/doce/products/microelectronics/2474.html
-
-> Hmm, so the touchpad can't report absolute coordinates for us? That's
-> unfortunate.
-
-Yep, that's correct, even for the Windows driver.
-
-I've updated the patch based on your feedback - I'll post it again shortly.
-
-Cheers,
-Chris

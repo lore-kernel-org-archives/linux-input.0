@@ -1,42 +1,99 @@
-From: Andrey Gusakov <andrey.gusakov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v2 03/10] Input: synaptics-rmi4: Add device tree support
- for RMI4 I2C devices
-Date: Fri, 15 Jan 2016 14:24:15 +0300
-Message-ID: <CAFmnZc3Ce40CT9V8X223aPxfbRXUcRX5RvK=0GitQ5yrPVXhOg@mail.gmail.com>
-References: <1452815059-22980-1-git-send-email-aduggan@synaptics.com>
+From: Martin <madstitz@gmail.com>
+Subject: Re: Fwd: ALPS v7 TrackStick detected wrongly
+Date: Fri, 15 Jan 2016 12:27:16 +0100
+Message-ID: <1452857236.32706.0@smtp.gmail.com>
+References: <1452773083.4165.0@smtp.gmail.com>
+	<20160114121118.GU11560@pali> <20160114200726.GW11560@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1452815059-22980-1-git-send-email-aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Christopher Heiny <cheiny-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>, Stephen Chandler Paul <cpaul-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Vincent Huang <vincent.huang-8LB1SX4YFO85ffrT631h+Q@public.gmane.org>, Chris Healy <cphealy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f44.google.com ([74.125.82.44]:34131 "EHLO
+	mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753791AbcAOL1U convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Jan 2016 06:27:20 -0500
+Received: by mail-wm0-f44.google.com with SMTP id u188so19190496wmu.1
+        for <linux-input@vger.kernel.org>; Fri, 15 Jan 2016 03:27:19 -0800 (PST)
+In-Reply-To: <20160114200726.GW11560@pali>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pali =?iso-8859-1?b?Um9o4XI=?= <pali.rohar@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Fri, Jan 15, 2016 at 2:44 AM, Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org> wrote:
->
-> Add devicetree binding for I2C devices and add bindings for optional
-> parameters in the function drivers. Parameters for function drivers are
-> defined in child nodes for each of the functions.
->
-> Signed-off-by: Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
-...
-> +#ifdef CONFIG_OF
-> +static void rmi_function_of_probe(struct rmi_function *fn)
-> +{
-> +       char of_name[8];
-> +
-> +       snprintf(of_name, sizeof(of_name), "rmi4-f%02x",
-> +               fn->fd.function_number);
-> +       fn->dev.of_node = of_find_node_by_name(
-> +                               fn->rmi_dev->xport->dev->of_node, of_name);
-> +}
->
-Name like "rmi4-f11" including 0 terminator does not fit in 8 chars.
-This leads to the inability to find the correct OF node and get settings.
+So I can't be sure if it even detects the trackstick, because it just=20
+creates the device anyway?
 
-Sorry for previous HTML noise.
+I bought the trackpad from eBay, as Lenovo doesn't sell it separately.
+Apparently its pure luck if you get a Synaptics or Alps model - I got=20
+the Alps, my friend got the Synaptics model.
+Don't know whether Lenovo uses Alps in its newer series too or if this=20
+trackpad is a fake (feels and works very real though ;))
+
+Maybe I'll try to get a synaptics then, as this was the manufacturer of=
+=20
+the original trackpad.
+
+Greetings
+Martin
+
+
+Am Do, 14. Jan, 2016 um 9:07 schrieb Pali Roh=C3=A1r <pali.rohar@gmail.=
+com>:
+> On Thursday 14 January 2016 13:04:43 Martin <madstitz@gmail.com>=20
+> wrote:
+>>  Is your patch intended to solve this or should I open a bug ticket?
+>=20
+> Hi! That my patch hides Track Stick input device when ALPS touchpad
+> report that Track Stick is not present. Before my patch was applied
+> kernel created "AlpsPS/2 ALPS DualPoint Stick" input device for V7
+> protocol always, even if there was no Track Stick device.
+>=20
+> But as Dmitry said, you replaced Synaptics touchpad with ALPS which i=
+s
+> working differently. Synaptics touchpad export PS/2 bus via its own
+> pass-though protocol and this bus then available on kernel which do
+> normal PS/2 mouse detection it. So kernel bind thinkpad TPPS2 driver=20
+> to
+> that bus.
+>=20
+> ALPS is working differently. There is no pass-though mode and all dat=
+a
+> (touchpad, track stick) are exported in ALPS packets. Kernel ALPS=20
+> driver
+> has special parser which can decide if packet comes from touchpad or
+> trackstick (based on received data). So via ALPS touchpad kernel=20
+> cannot
+> communicate directly with trackpoint.
+>=20
+> So I guess... in case you have thinkpad trackpoint HW and ALPS=20
+> touchpad
+> which cannot work with that trackpoint you just do not get trackpoint
+> data. Here kernel cannot do anything.
+>=20
+> I suspect that if you apply my patch (which check presence of
+> trackstick) then kernel probably do not export this track stick devic=
+e
+> "AlpsPS/2 ALPS DualPoint Stick" anymore...
+>=20
+>>  I: Bus=3D0011 Vendor=3D0002 Product=3D0008 Version=3D0700
+>>  N: Name=3D"AlpsPS/2 ALPS DualPoint Stick"
+>>  P: Phys=3Disa0060/serio1/input1
+>>  S: Sysfs=3D/devices/platform/i8042/serio1/input/input8
+>>  U: Uniq=3D
+>>  H: Handlers=3Dmouse0 event6
+>>  B: PROP=3D21
+>>  B: EV=3D7
+>>  B: KEY=3D70000 0 0 0 0
+>>  B: REL=3D3
+>=20
+> --
+> Pali Roh=C3=A1r
+> pali.rohar@gmail.com
+
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

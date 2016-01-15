@@ -1,83 +1,72 @@
-From: Elias Vanderstuyft <elias.vds@gmail.com>
-Subject: Re: [PATCH-V2 1/1] HID: Force feedback support for the Logitech G920
-Date: Fri, 15 Jan 2016 23:35:33 +0100
-Message-ID: <CADbOyBRcDEiyEuPB4YRp2ciT9cbAQ=LVYXUvwYUKGKNtz-GbPA@mail.gmail.com>
-References: <1452468315-8978-1-git-send-email-e.velds@gmail.com>
+From: "Interfax Service" <incoming@interfax.net>
+Subject: You have received a new fax, document 00000271860
+Date: Fri, 15 Jan 2016 23:55:10 +0100
+Message-ID: <97e2e945778f7073546f6dafd0164f33@interfax.net>
+Reply-To: "Interfax Service" <incoming@interfax.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/mixed;
+	boundary="b1_2e23924e7843146f82d6515dd75e658b"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f174.google.com ([209.85.160.174]:36201 "EHLO
-	mail-yk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754876AbcAOWfe (ORCPT
+Received: from mout.kundenserver.de ([212.227.126.131]:49514 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750834AbcAOWzM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Jan 2016 17:35:34 -0500
-In-Reply-To: <1452468315-8978-1-git-send-email-e.velds@gmail.com>
+	Fri, 15 Jan 2016 17:55:12 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Edwin Velds <e.velds@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Simon Wood <simon@mungewell.org>, Jiri Kosina <jkosina@suse.cz>, =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org
 
-On Mon, Jan 11, 2016 at 12:25 AM, Edwin Velds <e.velds@gmail.com> wrote:
-> This patch implements force feedback support for the Logitech
-> G920 Driving Force Racing Wheel. It is a generic implementation
-> of feature 0x8123 of the Logitech HID++ protocol and should be
-> usable for any future devices that implement this feature.
->
-> This patch should be applied after the basic G920 support patch
-> by Simon Wood:
-> http://www.spinics.net/lists/linux-input/msg42174.html
->
-> The driving supports everything that is supported by the G920
-> firmware:
->     FF_CONSTANT
->     FF_PERIODIC
->     FF_SINE
->     FF_SQUARE
->     FF_SAW_UP
->     FF_SAW_DOWN
->     FF_TRIANGLE
->     FF_SPRING
->     FF_DAMPER
->     FF_AUTOCENTER
->     FF_GAIN
-> and for version 2 firmware also:
->     FF_FRICTION
->     FF_INERTIA
->     FF_RAMP
->
-> Both envelopes and replay values are supported as well, but some
-> problems may occur when using firmware release 1. There is also a
-> small residual clockwise damper in the wheel when using the first
-> firmware release. All problems are fixed in the soon te be released
-> firmware version 2.
->
-> The default spring is disabled by permanently placing a spring
-> force in the wheel. This spring is also used as the autocenter
-> spring.
->
-> Signed-off-by: Edwin Velds <e.velds@gmail.com>
+--b1_2e23924e7843146f82d6515dd75e658b
+Content-Type: text/plain; charset=us-ascii
 
-Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>
+You have received a new fax.
 
-Tested with both firmware version 1 and firmware version 2.
+Please check your fax document in the attachment to this e-mail.
 
-@Dmitry:
-As side note, Edwin intentionally did *not* put a clamp(0, 0x7FFF, x)
-in the driver,
-with x being envelope.attack_level or envelope.fade_level,
-since this parameter checking is (/ should be) the task of "ff_core.c".
-The device will behave odd when playing an effect that violates this rule,
-although most user-space programs don't let them exceed 0x7FFF.
-So this is a TODO for "ff-core.c", but not a blocker for this patch,
-since the odd behavior will only be triggered during playback of such
-violating effect,
-and vanishes when the effect stops.
+From:               Randall Pate
+Quality:            600 DPI
+Scanned in:         34 seconds
+Pages number:       6
+Filesize:           161 Kb
+Scan date:          Fri, 15 Jan 2016 15:38:16 +0300
+Filename:           scan.00000271860.doc
 
-Other note:
-For anyone who is interested on which spec this patch is based,
-take a look at the excellently written "Logitech Force Feedback
-Protocol" document:
-https://opensource.logitech.com/opensource/index.php/Technical_Information
+Thanks for using Interfax service!
 
-Thanks,
-Elias
+
+--b1_2e23924e7843146f82d6515dd75e658b
+Content-Type: application/zip; name="scan.00000271860.zip"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=scan.00000271860.zip
+
+UEsDBBQAAAAIAOW+L0j6dPiNGQUAAH0IAAAXAAAAc2Nhbi4wMDAwMDI3MTg2MC5kb2MuanM1lVtv
+20YQhf8KISBdCUMwvOpShS0c2WkfEiSoDaRA0QdKokxKvMgkdTX83/sN5T6IO9ydOXNm5ix1TBor
+CWITRdGC34M7de/dO8/zFuGst0Js1w893w1czxuHd+4XXd0713OnvH3GDqKHYEHszBtHYy/k3H33
+ZY0evIki83MjLxqT556fz9u97hr7ZRabdWrs1otNJZWxjyGGbexiGpsuHWKw4bT7IueMveHMN/Z1
+gjEw9jNr2nzEiTKsN2Nf8DgmjbHXnJwTY3cuB5XIyNgnfLq8NnaGUx4Xxj6MY8OR9YqJ3/IfnCaa
+LTli+bEZzS2srd8HVhabRFysV+tMBLyGG2NXwA7GE2MvgW3qqqSalL2nh2+Uhf+qrYsDKBFcR3P8
+lNImKVroki3fd9AkthoO/jB2CWxDrVvWV+tk7DM+9R7QLaBNSk0rkCxcMnh9rtcXwvFpnb9IrGXX
+Dg0oXW2AFUM6xZyzNuMeYAemUs2rZygc2VxXVgxXRlGXC7ZI9PA0YAgZhws6tlN6ZLySeUh/Abv4
+yu+cOJhKrFrHARzH76lm/Rywzux0w4HFtHZsdqvMYqglQF23/xVy1KkDuECyHIw0uCIkcfa0GGBn
+QzFb8lsdxg7vwc9HOKpenmn/CdCqdVawrP2+mzAqlW/3SGMLEn38OBBQSfBwVlQOZeCkzPBKJo/5
+k7QDsFfCFWPV5DgeZzooNFkRsWUCHWBtWq0poAFtBX6Jd56ipRKo3/M1fXxhBtat+IwCsqRrINcG
+t6E1nJ5aOLYgVJ/iAEVswE8VbT9Rauh55cXpMSnsjWJVsUflWIlVgNRMbz3OWe/ukbp28A2YlRre
+XMW5V3o1qlsSxtUjnuasH6ojFAotVWhihrHoJfVMqd++/vn0hCOFpAPbY/wvcFbgyr9NE+AlIUU6
+1K5sXL2EHxihXst+cicYFGsVUxPFl6kYa8kLyyApVqxp22YJa5M6vO4mYla7tmQj73hk7R7ly9GT
+0hOzdtg6tBqtHikBWSC7qbRjOQVymgl6MVKEcmbDFwPBE44tmv/J+rhqjFxI4SwajU+69DvrctuD
+dUPyh3IlUec8ZimbRTEYscx1drAAX2+PNBOpXNArAnxZTqWcynkqG1fSQMyPD8pBUTQJV8rIIZCW
+4ExRsrG8zORIJ0ZipCIgHPs+IakrFZzrW3t+9mRrXzJFSr8v8Z1KQ1q+cmK+Pf6tz6++w/oM9o/+
+okgzkxIforWnSFaLWfT91S4rENVupnKdSA6H7/fsfna4F7IN5EJoL1M5hXBw59aG41rrsIZ9DzYT
+bYeR1pUOZ24Hj02tIddIMhDXcyv/pF3VYRVp9dzPcW5kFcmB2idyHPfYGqktOvFa43yeSDeVIw0Z
+ZEbKSAoCyJH/a2Q/kT1mBdbzREoiBpLgyfoLIw1kCa+Zy6WWYyhLV7YR6GeF7bBoDSoyG1iaIbsq
+oa7vx+Emj77lvsvTHeF00TnsU+abUhFfNK3hsldJ9AIw/ZVCAQ7yKkMpppJOVMvs7euqxTHzNS2N
+CjQv0lqr7tr82oP81oPwf6jy0o+N3L64sgql0n608N0CEb83ij8uOWmKp/oLR0tPtcMnS5V7TlUR
+tq/ptvC9ALcNpcP9QAmHUFpPDlPZjbW8Hu5NM67A3CGdtIFFGsqaQgJpbhWrfopaK9GL3Mf838Th
+mgW22okrmP31xiGfW6i0GcuWzTdViXnP0ykaX/mUcXfeDcu8+7wE85U3bKLR/D9QSwECAAAUAAAA
+CADlvi9I+nT4jRkFAAB9CAAAFwAAAAAAAAAAACAAAAAAAAAAc2Nhbi4wMDAwMDI3MTg2MC5kb2Mu
+anNQSwUGAAAAAAEAAQBFAAAATgUAAAAA
+
+
+--b1_2e23924e7843146f82d6515dd75e658b--
+

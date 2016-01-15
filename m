@@ -1,44 +1,65 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: [PATCH] input: serio: drop warnings in case of EPROBE_DEFER from serio_find_driver()
-Date: Fri, 15 Jan 2016 20:01:15 +0200
-Message-ID: <1452880875-4148-1-git-send-email-grygorii.strashko@ti.com>
+From: Thomas Hellstrom <thellstrom@vmware.com>
+Subject: Re: MOUSE_PS2_VMMOUSE and input/mice
+Date: Fri, 15 Jan 2016 19:22:31 +0100
+Message-ID: <569938E7.3090509@vmware.com>
+References: <20160115123928.d06e1fed.cand@gmx.com>
+ <5698D343.3000606@vmware.com> <20160115132312.654ad5aa.cand@gmx.com>
+ <56991418.1070701@vmware.com> <20160115175040.GA5664@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, nsekhar@ti.com, linux-kernel@vger.kernel.org, lkp@01.org, Grygorii Strashko <grygorii.strashko@ti.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp-outbound-2.vmware.com ([208.91.2.13]:50923 "EHLO
+	smtp-outbound-2.vmware.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753620AbcAOSWi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Jan 2016 13:22:38 -0500
+In-Reply-To: <20160115175040.GA5664@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Lauri Kasanen <cand@gmx.com>, linux-input@vger.kernel.org
 
-Now serio_find_driver() will print warnings in case device_attach()
-returns -EPROBE_DEFER. Those warnings are obsolete, in genral, because:
-- DD core can report the same if required
-- since commit 013c074f8642 ("PM / sleep: prohibit devices probing
-during suspend/hibernation") the devices probing is prohibited during
-System suspend and deferred device will be carefully reprobed once
-Resume is finished.
+On 01/15/2016 06:50 PM, Dmitry Torokhov wrote:
+> On Fri, Jan 15, 2016 at 04:45:28PM +0100, Thomas Hellstrom wrote:
+>> On 01/15/2016 12:23 PM, Lauri Kasanen wrote:
+>>> On Fri, 15 Jan 2016 12:08:51 +0100
+>>> Thomas Hellstrom <thellstrom@vmware.com> wrote:
+>>>
+>>>>> Seems the new and shiny VMWare mouse driver does not pass events
+>>>>> to /dev/input/mice, rudely breaking userspace that doesn't
+>>>>> support absolute input devices.
+>>>>>
+>>>>> Can this be changed? Would there be any downside to passing those
+>>>>> events?
+>>>> Hi, Lauri.
+>>>> What particular use-case is broken?
+>>> VMWare + 4.2 kernel + Xvesa. This was reported for the current TinyCore
+>>> beta, which has that kernel.
+> Although we will make vmmouse work with /dev/input/mice, could you
+> please tell TinyCore that 90s are calling and they want their mouse
+> technology back? And tell them to switch to switch to evdev X driver.
+>
+>>>> I'm assuming what's happening is that only the relative device gets
+>>>> recognized as a mouse, and by default we don't send events through that
+>>>> device.
+> No, this is not correct, mousedev (the one that provides
+> /dev/input/mouseX and /dev/input/mice) should bind to absolute device
+> exported by vmmouse on this rule:
+>
+> 	{
+> 		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
+> 			INPUT_DEVICE_ID_MATCH_KEYBIT |
+> 			INPUT_DEVICE_ID_MATCH_ABSBIT,
+> 		.evbit = { BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS) },
+> 		.keybit = { [BIT_WORD(BTN_LEFT)] = BIT_MASK(BTN_LEFT) },
+> 		.absbit = { BIT_MASK(ABS_X) | BIT_MASK(ABS_Y) },
+> 	},	/* Mouse-like device with absolute X and Y but ordinary
+> 		   clicks, like hp ILO2 High Performance mouse */
+>
+> and it should convert absolute events to relative motion.
+>
+Ah. Thanks for clarifying!
 
-Hence, drop warnings in case of EPROBE_DEFER from serio_find_driver().
+/Thomas
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
----
- drivers/input/serio/serio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index 8f82897..1ca7f55 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -134,7 +134,7 @@ static void serio_find_driver(struct serio *serio)
- 	int error;
- 
- 	error = device_attach(&serio->dev);
--	if (error < 0)
-+	if (error < 0 && error != -EPROBE_DEFER)
- 		dev_warn(&serio->dev,
- 			 "device_attach() failed for %s (%s), error: %d\n",
- 			 serio->phys, serio->name, error);
--- 
-2.7.0

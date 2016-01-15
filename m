@@ -1,77 +1,51 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH] input: cyapa: fix the report events may lost issue during
- set power mode
-Date: Fri, 15 Jan 2016 06:44:40 +0000
-Message-ID: <SN1PR0601MB19033C37A19EED52A9AF517BD1CD0@SN1PR0601MB1903.namprd06.prod.outlook.com>
-References: <1452750033-25692-1-git-send-email-dudl@cypress.com>
- <20160115053410.GA21967@hudson.localdomain>
+From: Chris Diamand <chris@diamand.org>
+Subject: Re: [PATCH] Input: byd - add BYD PS/2 touchpad driver
+Date: Fri, 15 Jan 2016 08:11:10 +0000
+Message-ID: <20160115081110.GA10700@smaug>
+References: <1451272536-22065-1-git-send-email-chris@diamand.org>
+ <20160103050230.GD23680@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bl2on0105.outbound.protection.outlook.com ([65.55.169.105]:11881
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750762AbcAOGon convert rfc822-to-8bit (ORCPT
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:32829 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755711AbcAOILN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Jan 2016 01:44:43 -0500
-In-Reply-To: <20160115053410.GA21967@hudson.localdomain>
-Content-Language: en-US
+	Fri, 15 Jan 2016 03:11:13 -0500
+Received: by mail-wm0-f67.google.com with SMTP id u188so1576110wmu.0
+        for <linux-input@vger.kernel.org>; Fri, 15 Jan 2016 00:11:13 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20160103050230.GD23680@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeremiah Mahler <jmmahler@gmail.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "eugenesan@gmail.com" <eugenesan@gmail.com>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Jeremiah,
+Hi Dmitry,
 
-Thanks for your help to do test and verification.
+Thanks for the review! Apologies - I meant to send this extra info with v2 of
+the patch, but my Mutt settings failed me.
 
-Regards,
-Dudley
+> Could you please tell me what boxes use this touchpad?
 
-> -----Original Message-----
-> From: Jeremiah Mahler [mailto:jmmahler@gmail.com]
-> Sent: 2016?1?15? 13:34
-> To: Dudley Du
-> Cc: dmitry.torokhov@gmail.com; eugenesan@gmail.com; bleung@google.com;
-> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH] input: cyapa: fix the report events may lost issue during set
-> power mode
->
-> Dudley,
->
-> On Thu, Jan 14, 2016 at 01:40:33PM +0800, Dudley Du wrote:
-> > When driver set the power mode to change the scan rate in auto suspend
-> > process, some events may be lost because
-> > 1) for gen3 trackpad, the driver must msleep() some time to avoid issuing
-> > next command encounter error;
-> > 2) for gen5 and later trackpads, the queue dumping function will simply
-> > ignore the events when waiting for the set power mode command response.
-> > so, when auto resume process will be executed, the set power mode command
-> > will be issued can cause the events may be lost.
-> > The solution is kept polling and report those valid events when the set
-> > power mode command is in progress.
-> >
-> > TEST=test on Acer C720P Chromebook
-> >
-> > Signed-off-by: Dudley Du <dudl@cypress.com>
-> > ---
-> >  drivers/input/mouse/cyapa.c      |  22 ++++----
-> >  drivers/input/mouse/cyapa.h      |  14 ++++-
-> >  drivers/input/mouse/cyapa_gen3.c | 108
-> ++++++++++++++++++++++++++++-----------
-> >  drivers/input/mouse/cyapa_gen5.c |  99
-> +++++++++++++++++++++++++++++------
-> >  drivers/input/mouse/cyapa_gen6.c |   4 +-
-> >  5 files changed, 188 insertions(+), 59 deletions(-)
-> >
-> [...]
->
-> I tested this on my Acer C720 and it appears to work properly.
->
-> Tested-by: Jeremiah Mahler <jmmahler@gmail.com>
->
-> --
-> - Jeremiah Mahler
+The touchpad is found in the 2015 PC Specialist `Lafite' laptops:
 
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+    http://www.pcspecialist.co.uk/
+
+There's an Ubuntu bug for the lack of driver here:
+
+    https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1424293
+
+And the manufacturer's datasheet is here:
+
+    http://bydit.com/doce/products/microelectronics/2474.html
+
+> Hmm, so the touchpad can't report absolute coordinates for us? That's
+> unfortunate.
+
+Yep, that's correct, even for the Windows driver.
+
+I've updated the patch based on your feedback - I'll post it again shortly.
+
+Cheers,
+Chris

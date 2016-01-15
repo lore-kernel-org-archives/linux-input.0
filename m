@@ -1,65 +1,42 @@
-From: Lauri Kasanen <cand@gmx.com>
-Subject: Re: MOUSE_PS2_VMMOUSE and input/mice
-Date: Fri, 15 Jan 2016 13:23:12 +0200
-Message-ID: <20160115132312.654ad5aa.cand@gmx.com>
-References: <20160115123928.d06e1fed.cand@gmx.com>
-	<5698D343.3000606@vmware.com>
+From: Andrey Gusakov <andrey.gusakov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v2 03/10] Input: synaptics-rmi4: Add device tree support
+ for RMI4 I2C devices
+Date: Fri, 15 Jan 2016 14:24:15 +0300
+Message-ID: <CAFmnZc3Ce40CT9V8X223aPxfbRXUcRX5RvK=0GitQ5yrPVXhOg@mail.gmail.com>
+References: <1452815059-22980-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.15.19]:59482 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757784AbcAOLXN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Jan 2016 06:23:13 -0500
-In-Reply-To: <5698D343.3000606@vmware.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1452815059-22980-1-git-send-email-aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Christopher Heiny <cheiny-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>, Stephen Chandler Paul <cpaul-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Vincent Huang <vincent.huang-8LB1SX4YFO85ffrT631h+Q@public.gmane.org>, Chris Healy <cphealy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Thomas Hellstrom <thellstrom@vmware.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Fri, 15 Jan 2016 12:08:51 +0100
-Thomas Hellstrom <thellstrom@vmware.com> wrote:
-
-> > Seems the new and shiny VMWare mouse driver does not pass events
-> > to /dev/input/mice, rudely breaking userspace that doesn't
-> > support absolute input devices.
-> >
-> > Can this be changed? Would there be any downside to passing those
-> > events?
+On Fri, Jan 15, 2016 at 2:44 AM, Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org> wrote:
 >
-> Hi, Lauri.
-> What particular use-case is broken?
+> Add devicetree binding for I2C devices and add bindings for optional
+> parameters in the function drivers. Parameters for function drivers are
+> defined in child nodes for each of the functions.
+>
+> Signed-off-by: Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
+...
+> +#ifdef CONFIG_OF
+> +static void rmi_function_of_probe(struct rmi_function *fn)
+> +{
+> +       char of_name[8];
+> +
+> +       snprintf(of_name, sizeof(of_name), "rmi4-f%02x",
+> +               fn->fd.function_number);
+> +       fn->dev.of_node = of_find_node_by_name(
+> +                               fn->rmi_dev->xport->dev->of_node, of_name);
+> +}
+>
+Name like "rmi4-f11" including 0 terminator does not fit in 8 chars.
+This leads to the inability to find the correct OF node and get settings.
 
-VMWare + 4.2 kernel + Xvesa. This was reported for the current TinyCore
-beta, which has that kernel.
-
-> I'm assuming what's happening is that only the relative device gets
-> recognized as a mouse, and by default we don't send events through that
-> device.
-> 
-> In the vmware gui there is a workaround, one can select 
-> edit->preferences->input->"Optimize mouse for games"->Always
-> 
-> This will send events through the relative USB mouse, and if there is no
-> USB controller in the VM, through the relative MOUSE_PS2_VMMOUSE
-> 
-> The other option is to limit the number of protocols the PS2 driver
-> checks for and avoid enabling the vmmmouse functionality. There is a
-> kernel module option for that, although I can't remember it offhand.
-> 
-> We can't send both relative and absolute events simultaneously since
-> that would confuse the X server severely.
-
-Yeah, I know of the psmouse.proto=imps workaround. But requiring either
-bootcodes or VM setting tweaks is not nice, as what the users see will
-be "distro version X worked in my VMWare, in version Y the mouse does
-not work".
-
-If we instead disable MOUSE_PS2_VMMOUSE, I assume a future
-xf86-input-vmmouse version will drop support for the userspace-side
-mouse synchronization, and then VMWare+Xorg users will suffer.
-
-Can you think of any solution that would detect things at runtime?
-
-- Lauri
+Sorry for previous HTML noise.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

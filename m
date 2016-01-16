@@ -1,51 +1,62 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: MOUSE_PS2_VMMOUSE and input/mice
-Date: Sat, 16 Jan 2016 10:30:08 -0800
-Message-ID: <20160116183008.GB9203@dtor-ws>
-References: <20160115123928.d06e1fed.cand@gmx.com>
- <5698D343.3000606@vmware.com>
- <20160115132312.654ad5aa.cand@gmx.com>
- <56991418.1070701@vmware.com>
- <20160115175040.GA5664@dtor-ws>
- <20160116105735.5c659e05.cand@gmx.com>
+Subject: Re: adding xpad support for PS-PC Smart Joypad
+Date: Sat, 16 Jan 2016 10:34:53 -0800
+Message-ID: <20160116183453.GC9203@dtor-ws>
+References: <CAPMSj_FGPyTVtS-F-U6C-Jji8V7_yv9-nqu4=9+1_7wCNP2UnQ@mail.gmail.com>
+ <CAKdAkRTjs6r4fE5F3g9qw1kszRkrLQ6L3AVAxLtkRiv16OU9JQ@mail.gmail.com>
+ <CAPMSj_HSv_cYc+fk8-j-7DDrkcE8OtV=962_ytOhJPrEgyToGw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f180.google.com ([209.85.192.180]:33782 "EHLO
-	mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752076AbcAPSaM (ORCPT
+Received: from mail-pf0-f177.google.com ([209.85.192.177]:33065 "EHLO
+	mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752076AbcAPSe4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 16 Jan 2016 13:30:12 -0500
-Received: by mail-pf0-f180.google.com with SMTP id e65so135115299pfe.0
-        for <linux-input@vger.kernel.org>; Sat, 16 Jan 2016 10:30:11 -0800 (PST)
+	Sat, 16 Jan 2016 13:34:56 -0500
+Received: by mail-pf0-f177.google.com with SMTP id e65so135151818pfe.0
+        for <linux-input@vger.kernel.org>; Sat, 16 Jan 2016 10:34:56 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20160116105735.5c659e05.cand@gmx.com>
+In-Reply-To: <CAPMSj_HSv_cYc+fk8-j-7DDrkcE8OtV=962_ytOhJPrEgyToGw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lauri Kasanen <cand@gmx.com>
-Cc: Thomas Hellstrom <thellstrom@vmware.com>, linux-input@vger.kernel.org
+To: "Allen M." <ase1592@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Sat, Jan 16, 2016 at 10:57:35AM +0200, Lauri Kasanen wrote:
-> On Fri, 15 Jan 2016 09:50:40 -0800
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+On Fri, Jan 15, 2016 at 08:18:03PM -0600, Allen M. wrote:
+> On Fri, Jan 15, 2016 at 6:43 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > Hi Allen,
+> >
+> > On Fri, Jan 15, 2016 at 9:42 AM, Allen M. <ase1592@gmail.com> wrote:
+> >> Hello, I have a Playstation 1 to USB device I'd like to request to be added
+> >> as an xpad supported device. verbose lsusb output for the device can be
+> >> found here: http://ix.io/nq3
+> >>
+> >> The device currently works fine as a generic joystick. However, it needs
+> >> the MAP_DPAD_AS_BUTTONS option in order for it to be used with a dance pad.
+> >> Let me know if I need to do anything further or if I need to provide more
+> >> info for the device.
+> >
+> > This looks like a generic HID device, not Xbox device, so xpad driver
+> > would be wrong one to add it to. Can you have UDEV rule to remap
+> > buttons form userspace when the device is discovered, similarly to
+> > what we do for keyboards?
+> >
+> > Thanks.
+> >
+> > --
+> > Dmitry
 > 
-> > Although we will make vmmouse work with /dev/input/mice, could you
-> > please tell TinyCore that 90s are calling and they want their mouse
-> > technology back? And tell them to switch to switch to evdev X driver.
-> 
-> TinyCore sends their regards, and tells they will consider evdev when
-> Xorg + evdev + paraphelia can total less than 650kb.
+> Can UDEV remap a joystick axis to buttons? I wasn't aware it had that
+> ability. Currently I cannot simultaneously hit the left and right buttons
+> on the dance pad, as that simply does not work for an axis-mapped device.
 
-I do not think you are doing your users any favors by limiting them to
-PS/2 emulation. For desktops, unless they only use basic mice mousedev
-emulation does not work well for neither touchpads, nor tablets, nor
-touchscreens.  And for appliances you do not need mouse at all. Maybe if
-you targeting kiosks with limited UI it will work for a bit. I wonder
-how long Xorg will be keeping lights on for mouse_drv.
+Hmm, you are right, we can only remap keys or not-yep mapped usages, not
+usages that are represented as relative or absolute axis. So it really
+depends how your device presents itself to HID.
 
-I am tempted to deprecate mousedev and maybe joydev as well. They were
-supposed to fill the gap between then current applications and kernel,
-but that was 10+ years ago.
+If udev keymap load does not work you will need to create a tiny HID
+driver that overrides mapping in kernel.
 
 Thanks.
 

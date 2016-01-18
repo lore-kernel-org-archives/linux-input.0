@@ -1,41 +1,39 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: sony: do not bail out when the sixaxis refuses the
- output report
-Date: Mon, 18 Jan 2016 23:11:07 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1601182310490.21446@cbobk.fhfr.pm>
-References: <1452272329-8744-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/2] HID: sony: Add nyko core controller support
+Date: Mon, 18 Jan 2016 23:11:29 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1601182311110.21446@cbobk.fhfr.pm>
+References: <1452696043-18362-1-git-send-email-oreaus@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1452272329-8744-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Lauri Kasanen <cand@gmx.com>, linux-input@vger.kernel.org, Max Fedotov <thesourcehim@gmail.com>, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:32911 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754871AbcARWLb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Jan 2016 17:11:31 -0500
+In-Reply-To: <1452696043-18362-1-git-send-email-oreaus@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Scott Moreau <oreaus@gmail.com>
+Cc: linux-input@vger.kernel.org, ao2@ao2.it, frank.praznik@oh.rr.com
 
-On Fri, 8 Jan 2016, Benjamin Tissoires wrote:
+On Wed, 13 Jan 2016, Scott Moreau wrote:
 
-> When setting the operational mode, some third party (Speedlink Strike-FX)
-> gamepads refuse the output report. Failing here means we refuse to
-> initialize the gamepad while this should be harmless.
+> This adds rumble and LED support for nyko core controllers
+> using the sino lite chip vendor:1345 product:3008, for PS3.
 > 
-> The weird part is that the initial commit that added this: a7de9b8
-> ("HID: sony: Enable Gasia third-party PS3 controllers") mentions this
-> very same controller as one requiring this output report.
-> Anyway, it's broken for one user at least, so let's change it.
-> We will report an error, but at least the controller should work.
+> Setting operational mode and output reports are the same as
+> sixaxis but the input report has a different format since the
+> PS3 accepts HID usb devices. For it to work, an exception is
+> needed to skip overriding the report descriptor and use the
+> original one.
 > 
-> And no, these devices present themselves as legacy Sony controllers
-> (VID:PID of 054C:0268, as in the official ones) so there are no ways
-> of discriminating them from the official ones.
-> 
-> https://bugzilla.redhat.com/show_bug.cgi?id=1255325
-> 
-> Reported-and-tested-by: Max Fedotov <thesourcehim@gmail.com>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Scott Moreau <oreaus@gmail.com>
 
-Applied, thanks.
+Applied both patches to for-4.6/sony.
+
+Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
+

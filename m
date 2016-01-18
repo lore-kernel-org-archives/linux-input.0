@@ -1,94 +1,92 @@
-From: Timo Teras <timo.teras@iki.fi>
-Subject: Re: [PATCH 2/3] Input: rotary_encoder - fix device tree error
- handling
-Date: Mon, 18 Jan 2016 16:00:42 +0200
-Message-ID: <20160118160042.5165f9a5@vostro>
-References: <1452890030-23316-1-git-send-email-timo.teras@iki.fi>
-	<1452890030-23316-2-git-send-email-timo.teras@iki.fi>
-	<20160116190243.GE9203@dtor-ws>
+From: "Dr. Harry Thomas" <mrios@unefa.edu.ve>
+Subject: Dr. Harry Thomas
+Date: Mon, 18 Jan 2016 09:53:59 -0430 (VET)
+Message-ID: <2c89ffb8-f307-4274-894c-eebe6cff90b3@mail2>
+Reply-To: "dr.harrythomas7@hotmail.com" <dr.harrythomas7@hotmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f195.google.com ([209.85.217.195]:33564 "EHLO
-	mail-lb0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755072AbcAROAw convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Jan 2016 09:00:52 -0500
-Received: by mail-lb0-f195.google.com with SMTP id bc4so24486430lbc.0
-        for <linux-input@vger.kernel.org>; Mon, 18 Jan 2016 06:00:51 -0800 (PST)
-In-Reply-To: <20160116190243.GE9203@dtor-ws>
+Received: from [150.186.0.8] ([150.186.0.8]:64216 "HELO correo.unefa.edu.ve"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with SMTP
+	id S932142AbcAROey (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Jan 2016 09:34:54 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Sat, 16 Jan 2016 11:02:43 -0800
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-
-> On Fri, Jan 15, 2016 at 10:33:49PM +0200, Timo Ter=C3=A4s wrote:
-> > of_get_gpio_flags() can fail, so pass through the error code
-> > properly. Most important use case is when it returns EPROBE_DEFER
-> > so that the probe gets called again later.
-> >=20
-> > Signed-off-by: Timo Ter=C3=A4s <timo.teras@iki.fi>
-> > ---
-> >  drivers/input/misc/rotary_encoder.c | 18 ++++++++++++------
-> >  1 file changed, 12 insertions(+), 6 deletions(-)
-> >=20
-> > diff --git a/drivers/input/misc/rotary_encoder.c
-> > b/drivers/input/misc/rotary_encoder.c index 0f23d32..156f40f 100644
-> > --- a/drivers/input/misc/rotary_encoder.c
-> > +++ b/drivers/input/misc/rotary_encoder.c
-> > @@ -206,7 +206,7 @@ static struct rotary_encoder_platform_data
-> > *rotary_encoder_parse_dt(struct devic struct device_node *np =3D
-> > dev->of_node; struct rotary_encoder_platform_data *pdata;
-> >  	enum of_gpio_flags flags;
-> > -	int error;
-> > +	int ret; =20
->=20
-> I strongly prefer variables holding error codes and not being returne=
-d
-> to caller in success path to be called "error".
-
-Uh. Ok. My preference was on 'ret' or similar as the return value is
-used on success path for something useful. But error be it.
-
-> >  	if (!of_id || !np)
-> >  		return NULL;
-> > @@ -219,19 +219,25 @@ static struct rotary_encoder_platform_data
-> > *rotary_encoder_parse_dt(struct devic of_property_read_u32(np,
-> > "rotary-encoder,steps", &pdata->steps); of_property_read_u32(np,
-> > "linux,axis", &pdata->axis);=20
-> > -	pdata->gpio_a =3D of_get_gpio_flags(np, 0, &flags);
-> > +	ret =3D of_get_gpio_flags(np, 0, &flags);
-> > +	if (ret < 0)
-> > +		return ERR_PTR(ret);
-> > +	pdata->gpio_a =3D ret; =20
->=20
-> Instead of doing this maybe we could switch to gpiod interface that
-> handles polarity internally and does not depend on OF? The only issue
-> is that we have a few board files in tree that use raw gpio numbers s=
-o
-> we'll need to convert them...
-
-This is kinda two unrelated things... of course using gpiod_get_array()
-would simplify the error path handling and other parts. And as side
-effect probably fix the issue at hand too.
-
-The only place where the platform data is used that I found is:
-arch/arm/mach-pxa/raumfeld.c
-
-So it should be relatively constrained change.
-
-Could you perhaps also push what you already committed from me (dunno
-what you decided with patch #3). If I do gpiod_* conversion, it'll
-conflict with the last patch.
-
-Thanks,
-Timo
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+0JTRgCDQpdCw0YDQuCDQotC+0LzQsNGBCtCR0YDQvtC90LTQtdGB0LHRg9GA0LgsINCd0L7RgNGC
+0YUg0JLQtdGB0YIK0JvQvtC90LTQvtC9CgpEcmFnaSBwcmlqYXRlbGp1LgrCoAoKCgrQiNCwINGB
+0LDQvCDQtNGAINCl0LDRgNC4INCi0L7QvNCw0YEg0LjQtyDQkdGA0L7QvdC00LXRgdCx0YPRgNC4
+LCDQndC+0YDRgtGFINCS0LXRgdGCINCb0L7QvdC00L7QvSwg0L7QstC00LUg0YMg0JXQvdCz0LvQ
+tdGB0LrQvtGYLiDQoNCw0LTQuNC8INC30LAg0KPQkdChINCY0L3QstC10YHRgtC80LXQvdGCINCR
+0LDQvdC6INCb0L7QvdC00L7QvS4g0IjQsCDQstCw0Lwg0L/QuNGI0LXQvCDQviDQv9C+0YHQu9C+
+0LLQvdC+0Lwg0L/RgNC10LTQu9C+0LPRgyDQutC+0ZjQuCDRm9C1INCx0LjRgtC4INC+0LQg0L7Q
+s9GA0L7QvNC90L7QsyDQutC+0YDQuNGB0YLQuCDQt9CwINC+0LHQvtGY0LUuINCjINC80L7QvCDQ
+vtC00LXRmdC10ZrRgywg0LrQsNC+INGH0LvQsNC9INCY0LfQstGA0YjQvdC+0LMg0L7QtNCx0L7R
+gNCwINCj0JHQoSDQuNC90LLQtdGB0YLQuNGG0LjQvtC90LUg0LHQsNC90LrQtSDQuCDRgtCw0LrQ
+vtC00ZjQtSDQs9C70LDQstC90Lgg0L7RhNC40YbQuNGAINGA0LjQt9C40LrQsCDQvtCy0LTRmNC1
+INGDICjQktC10LvQuNC60LAg0KDQtdCz0LjQvtC90LDQu9C90LAg0LrQsNC90YbQtdC70LDRgNC4
+0ZjQsCDQm9C+0L3QtNC+0L3RgykuINCe0YLQutGA0LjQviDRgdCw0Lwg0YMg0L3QsNC/0YPRiNGC
+0LXQvdGDINGB0YPQvNGDINC+0LQgMTUg0LzQuNC70LjQvtC90LAg0JLQtdC70LjQutC1INCR0YDQ
+uNGC0LDQvdGB0LrQsCDRhNGD0L3RgtCwICjQv9C10YLQvdCw0LXRgdGCINC80LjQu9C40L7QvdCw
+INCT0YDQtdCw0YIg0JHRgNC40YLQuNGB0YUg0YTRg9C90YLQuCDRgdGC0LXRgNC70LjQvdCz0LAp
+INGDINC+0LHQt9C40YAg0LTQsCDQv9GA0LjQv9Cw0LTQsCDRmNC10LTQvdC+0Zgg0L7QtCDQvdCw
+0YjQtSDRgdC/0L7RmdC90LUg0L/RgNC10LzQuNC90YPQu9C+0LMg0LrQu9C40ZjQtdC90YLQsCwg
+0LzQuNC70LjRmNCw0YDQtNC10YAg0JHRg9GB0LjQvdC10YHRgSDQnNCw0L0gKNC/0L7QutC+0ZjQ
+vdC4INCz0L7RgdC/0L7QtNC40L0g0JzQvtGY0YHQuNGY0LUg0KHQsNCx0LAg0JzQsNGB0YDQuCkg
+0LjQtyDQnNC10LrRgdC40LrQsCDQutC+0ZjQuCDRmNC1INCx0LjQviDQttGA0YLQstCwINCw0LLQ
+uNC+0L3RgdC60LUg0L3QtdGB0YDQtdGb0LUsINGI0YLQviDRmNC1INGA0LXQt9GD0LvRgtC40YDQ
+sNC70L4g0LTQviDRmtC10LPQvtCy0LUg0YHQvNGA0YLQuCDQuCDRh9C70LDQvdC+0LLQsCDRmtC1
+0LPQvtCy0LUg0L/QvtGA0L7QtNC40YbQtS4g0KHQsNCx0LAg0ZjQtSA1MS3Qs9C+0LTQuNGI0ZrQ
+uC4g0KLQsNC60L7RktC1LCDRgyDQsNCy0LjQvtC90YHQutC+0Zgg0L3QtdGB0YDQtdGb0Lgg0LHQ
+uNC+INGB0LAg0YHRg9C/0YDRg9Cz0L7QvCDQuCDRmtC40YXQvtCyINGB0LjQvSDQkNCy0YDQsNC8
+ICjQodCw0LHQsCkg0Lgg0ZrQtdCz0L7QstCwINGb0LXRgNC60LAt0YMt0LfQsNC60L7QvS4KwqAK
+CtCY0LfQsdC+0YAg0LLQsNGBINC60L7QvdGC0LDQutGC0LjRgNCwINGY0LUg0LjQt9Cw0LfQstCw
+0L4g0L7QtCDQs9C10L7Qs9GA0LDRhNGB0LrQtSDQv9GA0LjRgNC+0LTQtSDQs9C00LUg0LbQuNCy
+0LjRgtC1LCDQv9C+0YHQtdCx0L3QviDQt9Cx0L7QsyDQvtGB0LXRgtGZ0LjQstC+0YHRgtC4INGC
+0YDQsNC90YHQsNC60YbQuNGY0LUg0Lgg0L/QvtCy0LXRgNGZ0LjQstC+0YHRgtC4INC+0LLQvtCz
+INC30LDQutC+0L3QsC4g0KHQsNC00LAg0L3QsNGI0LAg0LHQsNC90LrQsCDRmNC1INGH0LXQutCw
+0L4g0L3QtdC60L4g0L7QtCDRgNC+0LTQsdC40L3QtSDQtNCwINC00L7RktGDLdGD0L8g0LfQsCDQ
+v9C+0YLRgNCw0LbQuNCy0LDRmtCwLCDQsNC70Lgg0L3QuNC60L4g0L3QuNGY0LUg0YPRgNCw0LTQ
+uNC+LiDQiNCwINGB0LDQvCDQu9C40YfQvdC+INCx0LjQviDQvdC10YPRgdC/0LXRiNCw0L0g0YMg
+0L/RgNC+0L3QsNC70LDQttC10ZrRgyDRgNC+0ZLQsNC60LAg0LfQsCAxMCDQvNC10YHQtdGG0LAg
+0YHQsNC00LAsINGC0YDQsNC20LjQvCDRgtCy0L7RmCDQv9GA0LjRgdGC0LDQvdCw0Log0LTQsCDQ
+stCw0Lwg0L/RgNC10LTRgdGC0LDQstC4INC60LDQviDRgNC+0LTQsdC40L3QuCAvINCS0LjQu9C7
+INC60L7RgNC40YHQvdC40Log0L3QsCDQv9C+0LrQvtGY0L3QuNC60LAsINGC0LDQutC+INC00LAg
+0YHRgyDRgdGA0LXQtNGB0YLQstCwINC+0LQg0L7QstC+0LMg0YDQsNGH0YPQvdCwINGDINCy0YDQ
+tdC00L3QvtGB0YLQuCDQvtC0IMKjIDE1INC80LjQu9C40L7QvdCwINGE0YPQvdGC0Lgg0LzQvtCz
+0YMg0LHQuNGC0Lgg0L/Qu9Cw0ZvQtdC90Lgg0LfQsCDQstCw0YEgLgrCoAoK0J7QstC+INGb0LUg
+0LHQuNGC0Lgg0LjRgdC/0LvQsNGb0LXQvdCwINC40LvQuCDQtNC10LvQuCDRgyDQvtCy0LjQvCDQ
+v9GA0L7RhtC10L3RgtC40LzQsCwgNjAlINC30LAg0LzQtdC90LUg0LggNDAlINC30LAg0LLQsNGB
+LiDQiNCwINGB0LDQvCDQvtCx0LXQt9Cx0LXQtNC40L4g0YHQstC1INC90LXQvtC/0YXQvtC00L3Q
+tSDQv9GA0LDQstC90LUg0LTQvtC60YPQvNC10L3RgtC1INC60L7RmNC4INGB0LUg0LzQvtCz0YMg
+0LrQvtGA0LjRgdGC0LjRgtC4INC30LAg0L/RgNCw0LLRmdC10ZrQtSDRgNC10LfQtdGA0LLQvdC4
+0YUg0LrQvtC/0LjRmNCwINC+0LLRgyDRgtCy0YDQtNGa0YMg0J/RgNCw0LLQuNC80L4uINCh0LLQ
+tSDRiNGC0L4g0YLRgNC10LHQsCDQtNCwINGD0YDQsNC00LjRgtC1INGY0LUg0LTQsCDQv9C+0L/R
+g9C90LjRgtC1INGDINCy0LDRiNC40Lwg0LjQvNC10L3QuNC80LAg0LTQvtC60YPQvNC10L3RgtC4
+0LzQsCDQuCDQu9C10LPQsNC70LjQt9C+0LLQsNGC0Lgg0LPQsCDRgyDRgdGD0LTRgyDRgtGDINC0
+0LAg0LLQsNC8INC00L7QutCw0LbQtSDQutCw0L4g0LvQtdCz0LjRgtC40LzQvdC+0LMg0LrQvtGA
+0LjRgdC90LjQutCwLiDQodCy0LUg0YjRgtC+INGB0LDQtNCwINGC0YDQtdCx0LAg0ZjQtSDRgtCy
+0L7RmNCwINC40YHQutGA0LXQvdCwINGB0LDRgNCw0LTRmtCwLCDQv9C+0LLQtdGA0ZnQuNCy0L7R
+gdGCINC4INC/0L7QstC10YDQtdGa0LUg0LTQsCDQvdCw0Lwg0L7QvNC+0LPRg9Gb0LjRgtC4INCy
+0LjQtNC1INC+0LLRgyDRgtGA0LDQvdGB0LDQutGG0LjRmNGDINC/0YPRgtC10LwuINCI0LAg0LLQ
+sNC8INCz0LDRgNCw0L3RgtGD0ZjQtdC8INC00LAg0ZvQtSDQvtCy0L4g0LHQuNGC0Lgg0L/QvtCz
+0YPQsdGZ0LXQvdC4INC/0L7QtCDQu9C10LPQuNGC0LjQvNCw0L0g0LDRgNCw0L3QttC80LDQvSDQ
+utC+0ZjQuCDRm9C1INCy0LDRgSDQt9Cw0YjRgtC40YLQuNGC0Lgg0L7QtCDQsdC40LvQviDQutC+
+0ZjQtSDQutGA0YjQtdGa0LUg0LfQsNC60L7QvdCwLgrCoAoK0JzQvtC70LjQvNC+INCy0LDRgSDQ
+tNCwINC90LDQstC10LTQtdGC0LUg0LzQtSDRgdC70LXQtNC10ZvQtTog0LrQsNC+INGI0YLQviDR
+gdC80L4gNyDQtNCw0L3QsCDQtNCwINCz0LAg0L/QvtC60YDQtdC90LXRgtC1INC60YDQvtC3LiDQ
+ntCy0L4g0ZjQtSDQstC10L7QvNCwINCl0JjQotCd0J4g0JzQntCb0JjQnC4KwqAKCjEuINCY0LzQ
+tSDQuCDQv9GA0LXQt9C40LzQtToKMi4g0JLQsNGIINC80L7QsdC40LvQvdC4INGC0LXQu9C10YTQ
+vtC9OgozLiDQktCw0YjQsCDQmtC+0L3RgtCw0LrRgiDQkNC00YDQtdGB0LA6CjQuINCY0L7Rg9GA
+INCQ0LPQtToKNS4g0J/QvtC7OgrCoAoK0J/QvtGI0YLQviDQv9GA0L7RiNC70Lgg0LrRgNC+0Lcg
+0LzQtdGC0L7QtNC40YfQutC+INC/0YDQtdGC0YDQsNCz0YMsINC+0LTQu9GD0YfQuNC+INGB0LDQ
+vCDQtNCwINCy0LDRgSDQutC+0L3RgtCw0LrRgtC40YDQsNC80L4g0YMg0L3QsNC00Lgg0LTQsCDR
+m9C10YLQtSDQvdCw0ZvQuCDQvtCy0LDRmCDQv9GA0LXQtNC70L7QsyDQuNC90YLQtdGA0LXRgdCw
+0L3RgtC90L4uINCd0LAg0LLQsNGI0LXQvCDQv9C+0YLQstGA0LTRgyDQvtCy0YMg0L/QvtGA0YPQ
+utGDINC4INGD0LrQsNC30YPRmNC1INGB0LLQvtGYINC40L3RgtC10YDQtdGBINGb0LUg0LLQsNC8
+INC00L7RgdGC0LDQstC40YLQuCDRgdCwINCy0LjRiNC1INC40L3RhNC+0YDQvNCw0YbQuNGY0LAu
+INCd0LDRgdGC0L7RmNCw0YLQuCDQtNCwINGY0LDQstC40YLQtSDQvNC4INGB0LLQvtGY0YMg0L7Q
+tNC70YPQutGDLCDQvdC10LPQviDQtNCwINGC0LUg0YfQtdC60LDQvC4KwqAKCtChINC/0L7RiNGC
+0L7QstCw0ZrQtdC8LArQlNGAINCl0LDRgNC4INCi0L7QvNCw0YEKCgrQkdGA0L7RmCDQvNC+0LHQ
+uNC70L3QvtCzINGC0LXQu9C10YTQvtC90LAgKzQ0NzkzNzQ2MjQxMg==

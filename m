@@ -1,358 +1,259 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4/4] Input: rotary_encoder - move away from platform data structure
-Date: Mon, 18 Jan 2016 09:41:42 -0800
-Message-ID: <1453138902-11657-5-git-send-email-dmitry.torokhov@gmail.com>
+Subject: [PATCH 2/4] Input: rotary_encoder - convert to use gpiod API
+Date: Mon, 18 Jan 2016 09:41:40 -0800
+Message-ID: <1453138902-11657-3-git-send-email-dmitry.torokhov@gmail.com>
 References: <1453138902-11657-1-git-send-email-dmitry.torokhov@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f180.google.com ([209.85.192.180]:34746 "EHLO
+	mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756069AbcARRlq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Jan 2016 12:41:46 -0500
 In-Reply-To: <1453138902-11657-1-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, =?UTF-8?q?Timo=20Ter=C3=A4s?= <timo.teras@iki.fi>, Daniel Mack <daniel@zonque.org>
 Cc: Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-Drop support for platform data passed via a C-structure and switch to
-device properties instead, which should make the driver compatible with all
-platforms: OF, ACPI and static boards. Static boards should use property
-sets to communicate device parameters to the driver.
+Instead of using old GPIO API, let's switch to GPIOD API, which
+automatically handles polarity.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- arch/arm/mach-pxa/raumfeld.c        |  29 +++++--
- drivers/input/misc/rotary_encoder.c | 147 ++++++++++++++----------------------
- include/linux/rotary_encoder.h      |  13 ----
- 3 files changed, 76 insertions(+), 113 deletions(-)
- delete mode 100644 include/linux/rotary_encoder.h
+ arch/arm/mach-pxa/raumfeld.c        | 21 +++++++++--
+ drivers/input/misc/rotary_encoder.c | 73 +++++++++++++++++--------------------
+ include/linux/rotary_encoder.h      |  4 --
+ 3 files changed, 50 insertions(+), 48 deletions(-)
 
 diff --git a/arch/arm/mach-pxa/raumfeld.c b/arch/arm/mach-pxa/raumfeld.c
-index d156f79..c559114 100644
+index 36571a9..d156f79 100644
 --- a/arch/arm/mach-pxa/raumfeld.c
 +++ b/arch/arm/mach-pxa/raumfeld.c
-@@ -18,13 +18,13 @@
- 
- #include <linux/init.h>
- #include <linux/kernel.h>
-+#include <linux/property.h>
+@@ -21,6 +21,7 @@
  #include <linux/platform_device.h>
  #include <linux/interrupt.h>
  #include <linux/gpio.h>
- #include <linux/gpio/machine.h>
++#include <linux/gpio/machine.h>
  #include <linux/smsc911x.h>
  #include <linux/input.h>
--#include <linux/rotary_encoder.h>
- #include <linux/gpio_keys.h>
- #include <linux/input/eeti_ts.h>
- #include <linux/leds.h>
-@@ -378,18 +378,27 @@ static struct gpiod_lookup_table raumfeld_rotary_gpios_table = {
- 	},
- };
+ #include <linux/rotary_encoder.h>
+@@ -366,14 +367,21 @@ static struct pxaohci_platform_data raumfeld_ohci_info = {
+  * Rotary encoder input device
+  */
  
--static struct rotary_encoder_platform_data raumfeld_rotary_encoder_info = {
--	.steps		= 24,
--	.axis		= REL_X,
--	.relative_axis	= 1,
-+static u32 raumfeld_rotary_encoder_steps = 24;
-+static u32 raumfeld_rotary_encoder_axis = REL_X;
-+static u32 raumfeld_rotary_encoder_relative_axis = 1;
-+
-+static struct property_entry raumfeld_rotary_properties[] = {
-+	{ "rotary-encoder,steps-per-period",
-+		DEV_PROP_U32, 1, &raumfeld_rotary_encoder_steps, },
-+	{ "linux,axis",
-+		DEV_PROP_U32, 1, &raumfeld_rotary_encoder_axis, },
-+	{ "rotary-encoder,relative_axis", 1, },
-+		DEV_PROP_U32, 1, &raumfeld_rotary_encoder_relative_axis, },
-+	{ NULL }
++static struct gpiod_lookup_table raumfeld_rotary_gpios_table = {
++	.dev_id = "rotary-encoder",
++	.table = {
++		GPIO_LOOKUP_IDX("gpio-0",
++				GPIO_VOLENC_A, NULL, 0, GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP_IDX("gpio-0",
++				GPIO_VOLENC_B, NULL, 1, GPIO_ACTIVE_HIGH),
++		{ },
++	},
 +};
 +
-+static struct property_entry raumfeld_rotary_property_set = {
-+	.properties = raumfeld_rotary_properties,
+ static struct rotary_encoder_platform_data raumfeld_rotary_encoder_info = {
+ 	.steps		= 24,
+ 	.axis		= REL_X,
+ 	.relative_axis	= 1,
+-	.gpio_a		= GPIO_VOLENC_A,
+-	.gpio_b		= GPIO_VOLENC_B,
+-	.inverted_a	= 1,
+-	.inverted_b	= 0,
  };
  
  static struct platform_device rotary_encoder_device = {
- 	.name		= "rotary-encoder",
- 	.id		= 0,
--	.dev		= {
--		.platform_data = &raumfeld_rotary_encoder_info,
--	}
- };
+@@ -1051,7 +1059,10 @@ static void __init raumfeld_controller_init(void)
+ 	int ret;
  
- /**
-@@ -1061,6 +1070,8 @@ static void __init raumfeld_controller_init(void)
  	pxa3xx_mfp_config(ARRAY_AND_SIZE(raumfeld_controller_pin_config));
- 
- 	gpiod_add_lookup_table(&raumfeld_rotary_gpios_table);
-+	device_add_property_set(&rotary_encoder_device.dev,
-+				&raumfeld_rotary_property_set);
++
++	gpiod_add_lookup_table(&raumfeld_rotary_gpios_table);
  	platform_device_register(&rotary_encoder_device);
- 
++
  	spi_register_board_info(ARRAY_AND_SIZE(controller_spi_devices));
-@@ -1099,6 +1110,8 @@ static void __init raumfeld_speaker_init(void)
- 	platform_device_register(&smc91x_device);
+ 	i2c_register_board_info(0, &raumfeld_controller_i2c_board_info, 1);
  
- 	gpiod_add_lookup_table(&raumfeld_rotary_gpios_table);
-+	device_add_property_set(&rotary_encoder_device.dev,
-+				&raumfeld_rotary_property_set);
+@@ -1086,6 +1097,8 @@ static void __init raumfeld_speaker_init(void)
+ 	i2c_register_board_info(0, &raumfeld_connector_i2c_board_info, 1);
+ 
+ 	platform_device_register(&smc91x_device);
++
++	gpiod_add_lookup_table(&raumfeld_rotary_gpios_table);
  	platform_device_register(&rotary_encoder_device);
  
  	raumfeld_audio_init();
 diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
-index 1882e65..309612a 100644
+index b9a86ca..e913bfb64 100644
 --- a/drivers/input/misc/rotary_encoder.c
 +++ b/drivers/input/misc/rotary_encoder.c
-@@ -21,20 +21,23 @@
+@@ -20,12 +20,11 @@
+ #include <linux/input.h>
  #include <linux/device.h>
  #include <linux/platform_device.h>
- #include <linux/gpio/consumer.h>
--#include <linux/rotary_encoder.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/rotary_encoder.h>
  #include <linux/slab.h>
  #include <linux/of.h>
--#include <linux/of_platform.h>
+ #include <linux/of_platform.h>
+-#include <linux/of_gpio.h>
  #include <linux/pm.h>
-+#include <linux/property.h>
  
  #define DRV_NAME "rotary-encoder"
- 
- struct rotary_encoder {
- 	struct input_dev *input;
--	const struct rotary_encoder_platform_data *pdata;
-+
- 	struct mutex access_mutex;
- 
--	unsigned int axis;
-+	u32 steps;
-+	u32 axis;
-+	bool relative_axis;
-+	bool rollover;
-+
+@@ -38,6 +37,9 @@ struct rotary_encoder {
+ 	unsigned int axis;
  	unsigned int pos;
  
- 	struct gpio_desc *gpio_a;
-@@ -59,31 +62,29 @@ static int rotary_encoder_get_state(struct rotary_encoder *encoder)
++	struct gpio_desc *gpio_a;
++	struct gpio_desc *gpio_b;
++
+ 	unsigned int irq_a;
+ 	unsigned int irq_b;
  
- static void rotary_encoder_report_event(struct rotary_encoder *encoder)
+@@ -47,13 +49,10 @@ struct rotary_encoder {
+ 	char last_stable;
+ };
+ 
+-static int rotary_encoder_get_state(const struct rotary_encoder_platform_data *pdata)
++static int rotary_encoder_get_state(struct rotary_encoder *encoder)
  {
--	const struct rotary_encoder_platform_data *pdata = encoder->pdata;
+-	int a = !!gpio_get_value_cansleep(pdata->gpio_a);
+-	int b = !!gpio_get_value_cansleep(pdata->gpio_b);
 -
--	if (pdata->relative_axis) {
-+	if (encoder->relative_axis) {
- 		input_report_rel(encoder->input,
--				 pdata->axis, encoder->dir ? -1 : 1);
-+				 encoder->axis, encoder->dir ? -1 : 1);
- 	} else {
- 		unsigned int pos = encoder->pos;
+-	a ^= pdata->inverted_a;
+-	b ^= pdata->inverted_b;
++	int a = !!gpiod_get_value_cansleep(encoder->gpio_a);
++	int b = !!gpiod_get_value_cansleep(encoder->gpio_b);
  
- 		if (encoder->dir) {
- 			/* turning counter-clockwise */
--			if (pdata->rollover)
--				pos += pdata->steps;
-+			if (encoder->rollover)
-+				pos += encoder->steps;
- 			if (pos)
- 				pos--;
- 		} else {
- 			/* turning clockwise */
--			if (pdata->rollover || pos < pdata->steps)
-+			if (encoder->rollover || pos < encoder->steps)
- 				pos++;
- 		}
- 
--		if (pdata->rollover)
--			pos %= pdata->steps;
-+		if (encoder->rollover)
-+			pos %= encoder->steps;
- 
- 		encoder->pos = pos;
--		input_report_abs(encoder->input, pdata->axis, encoder->pos);
-+		input_report_abs(encoder->input, encoder->axis, encoder->pos);
- 	}
- 
- 	input_sync(encoder->input);
-@@ -204,91 +205,43 @@ out:
- 	return IRQ_HANDLED;
+ 	return ((a << 1) | b);
  }
+@@ -97,7 +96,7 @@ static irqreturn_t rotary_encoder_irq(int irq, void *dev_id)
  
--#ifdef CONFIG_OF
--static const struct of_device_id rotary_encoder_of_match[] = {
--	{ .compatible = "rotary-encoder", },
--	{ },
--};
--MODULE_DEVICE_TABLE(of, rotary_encoder_of_match);
--
--static struct rotary_encoder_platform_data *rotary_encoder_parse_dt(struct device *dev)
--{
--	const struct of_device_id *of_id =
--				of_match_device(rotary_encoder_of_match, dev);
--	struct device_node *np = dev->of_node;
--	struct rotary_encoder_platform_data *pdata;
--	enum of_gpio_flags flags;
--	int error;
--
--	if (!of_id || !np)
--		return NULL;
--
--	pdata = devm_kzalloc(dev, sizeof(struct rotary_encoder_platform_data),
--			     GFP_KERNEL);
--	if (!pdata)
--		return ERR_PTR(-ENOMEM);
--
--	of_property_read_u32(np, "rotary-encoder,steps", &pdata->steps);
--	of_property_read_u32(np, "linux,axis", &pdata->axis);
--
--	pdata->relative_axis =
--		of_property_read_bool(np, "rotary-encoder,relative-axis");
--	pdata->rollover = of_property_read_bool(np, "rotary-encoder,rollover");
--
--	error = of_property_read_u32(np, "rotary-encoder,steps-per-period",
--				     &pdata->steps_per_period);
--	if (error) {
--		/*
--		 * The 'half-period' property has been deprecated, you must use
--		 * 'steps-per-period' and set an appropriate value, but we still
--		 * need to parse it to maintain compatibility.
--		 */
--		if (of_property_read_bool(np, "rotary-encoder,half-period")) {
--			pdata->steps_per_period = 2;
--		} else {
--			/* Fallback to one step per period behavior */
--			pdata->steps_per_period = 1;
--		}
--	}
--
--	pdata->wakeup_source = of_property_read_bool(np, "wakeup-source");
--
--	return pdata;
--}
--#else
--static inline struct rotary_encoder_platform_data *
--rotary_encoder_parse_dt(struct device *dev)
--{
--	return NULL;
--}
--#endif
--
- static int rotary_encoder_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
--	const struct rotary_encoder_platform_data *pdata = dev_get_platdata(dev);
- 	struct rotary_encoder *encoder;
- 	struct input_dev *input;
- 	irq_handler_t handler;
-+	u32 steps_per_period;
- 	int err;
+ 	mutex_lock(&encoder->access_mutex);
  
--	if (!pdata) {
--		pdata = rotary_encoder_parse_dt(dev);
--		if (IS_ERR(pdata))
--			return PTR_ERR(pdata);
+-	state = rotary_encoder_get_state(encoder->pdata);
++	state = rotary_encoder_get_state(encoder);
+ 
+ 	switch (state) {
+ 	case 0x0:
+@@ -130,7 +129,7 @@ static irqreturn_t rotary_encoder_half_period_irq(int irq, void *dev_id)
+ 
+ 	mutex_lock(&encoder->access_mutex);
+ 
+-	state = rotary_encoder_get_state(encoder->pdata);
++	state = rotary_encoder_get_state(encoder);
+ 
+ 	switch (state) {
+ 	case 0x00:
+@@ -160,7 +159,7 @@ static irqreturn_t rotary_encoder_quarter_period_irq(int irq, void *dev_id)
+ 
+ 	mutex_lock(&encoder->access_mutex);
+ 
+-	state = rotary_encoder_get_state(encoder->pdata);
++	state = rotary_encoder_get_state(encoder);
+ 
+ 	/*
+ 	 * We encode the previous and the current state using a byte.
+@@ -232,12 +231,6 @@ static struct rotary_encoder_platform_data *rotary_encoder_parse_dt(struct devic
+ 	of_property_read_u32(np, "rotary-encoder,steps", &pdata->steps);
+ 	of_property_read_u32(np, "linux,axis", &pdata->axis);
+ 
+-	pdata->gpio_a = of_get_gpio_flags(np, 0, &flags);
+-	pdata->inverted_a = flags & OF_GPIO_ACTIVE_LOW;
 -
--		if (!pdata) {
--			dev_err(dev, "missing platform data\n");
--			return -EINVAL;
--		}
--	}
+-	pdata->gpio_b = of_get_gpio_flags(np, 1, &flags);
+-	pdata->inverted_b = flags & OF_GPIO_ACTIVE_LOW;
 -
- 	encoder = devm_kzalloc(dev, sizeof(struct rotary_encoder), GFP_KERNEL);
+ 	pdata->relative_axis =
+ 		of_property_read_bool(np, "rotary-encoder,relative-axis");
+ 	pdata->rollover = of_property_read_bool(np, "rotary-encoder,rollover");
+@@ -294,14 +287,32 @@ static int rotary_encoder_probe(struct platform_device *pdev)
  	if (!encoder)
  		return -ENOMEM;
  
- 	mutex_init(&encoder->access_mutex);
--	encoder->pdata = pdata;
++	mutex_init(&encoder->access_mutex);
++	encoder->pdata = pdata;
 +
-+	device_property_read_u32(dev, "rotary-encoder,steps", &encoder->steps);
-+
-+	err = device_property_read_u32(dev, "rotary-encoder,steps-per-period",
-+				       &steps_per_period);
-+	if (err) {
-+		/*
-+		 * The 'half-period' property has been deprecated, you must
-+		 * use 'steps-per-period' and set an appropriate value, but
-+		 * we still need to parse it to maintain compatibility. If
-+		 * neither property is present we fall back to the one step
-+		 * per period behavior.
-+		 */
-+		steps_per_period = device_property_read_bool(dev,
-+					"rotary-encoder,half-period") ? 2 : 1;
++	encoder->gpio_a = devm_gpiod_get_index(dev, NULL, 0, GPIOD_IN);
++	if (IS_ERR(encoder->gpio_a)) {
++		err = PTR_ERR(encoder->gpio_a);
++		dev_err(dev, "unable to get GPIO at index 0: %d\n", err);
++		return err;
 +	}
 +
-+	encoder->rollover =
-+		device_property_read_bool(dev, "rotary-encoder,rollover");
++	encoder->irq_a = gpiod_to_irq(encoder->gpio_a);
 +
-+	device_property_read_u32(dev, "linux,axis", &encoder->axis);
-+	encoder->relative_axis =
-+		device_property_read_bool(dev, "rotary-encoder,relative-axis");
++	encoder->gpio_b = devm_gpiod_get_index(dev, NULL, 1, GPIOD_IN);
++	if (IS_ERR(encoder->gpio_b)) {
++		err = PTR_ERR(encoder->gpio_b);
++		dev_err(dev, "unable to get GPIO at index 1: %d\n", err);
++		return err;
++	}
++
++	encoder->irq_b = gpiod_to_irq(encoder->gpio_b);
++
+ 	input = devm_input_allocate_device(dev);
+ 	if (!input)
+ 		return -ENOMEM;
  
- 	encoder->gpio_a = devm_gpiod_get_index(dev, NULL, 0, GPIOD_IN);
- 	if (IS_ERR(encoder->gpio_a)) {
-@@ -318,12 +271,13 @@ static int rotary_encoder_probe(struct platform_device *pdev)
+-	mutex_init(&encoder->access_mutex);
+-
+ 	encoder->input = input;
+-	encoder->pdata = pdata;
+ 
+ 	input->name = pdev->name;
  	input->id.bustype = BUS_HOST;
- 	input->dev.parent = dev;
+@@ -316,32 +327,14 @@ static int rotary_encoder_probe(struct platform_device *pdev)
+ 				     pdata->axis, 0, pdata->steps, 0, 1);
+ 	}
  
--	if (pdata->relative_axis)
--		input_set_capability(input, EV_REL, pdata->axis);
-+	if (encoder->relative_axis)
-+		input_set_capability(input, EV_REL, encoder->axis);
- 	else
--		input_set_abs_params(input, pdata->axis, 0, pdata->steps, 0, 1);
-+		input_set_abs_params(input,
-+				     encoder->axis, 0, encoder->steps, 0, 1);
- 
--	switch (pdata->steps_per_period) {
-+	switch (steps_per_period) {
+-	/* request the GPIOs */
+-	err = devm_gpio_request_one(dev, pdata->gpio_a, GPIOF_IN,
+-				    dev_name(dev));
+-	if (err) {
+-		dev_err(dev, "unable to request GPIO %d\n", pdata->gpio_a);
+-		return err;
+-	}
+-
+-	err = devm_gpio_request_one(dev, pdata->gpio_b, GPIOF_IN,
+-				    dev_name(dev));
+-	if (err) {
+-		dev_err(dev, "unable to request GPIO %d\n", pdata->gpio_b);
+-		return err;
+-	}
+-
+-	encoder->irq_a = gpio_to_irq(pdata->gpio_a);
+-	encoder->irq_b = gpio_to_irq(pdata->gpio_b);
+-
+ 	switch (pdata->steps_per_period) {
  	case 4:
  		handler = &rotary_encoder_quarter_period_irq;
- 		encoder->last_stable = rotary_encoder_get_state(encoder);
-@@ -337,7 +291,7 @@ static int rotary_encoder_probe(struct platform_device *pdev)
+-		encoder->last_stable = rotary_encoder_get_state(pdata);
++		encoder->last_stable = rotary_encoder_get_state(encoder);
  		break;
- 	default:
- 		dev_err(dev, "'%d' is not a valid steps-per-period value\n",
--			pdata->steps_per_period);
-+			steps_per_period);
- 		return -EINVAL;
- 	}
- 
-@@ -363,7 +317,8 @@ static int rotary_encoder_probe(struct platform_device *pdev)
- 		return err;
- 	}
- 
--	device_init_wakeup(&pdev->dev, pdata->wakeup_source);
-+	device_init_wakeup(dev,
-+			   device_property_read_bool(dev, "wakeup-source"));
- 
- 	platform_set_drvdata(pdev, encoder);
- 
-@@ -397,6 +352,14 @@ static int __maybe_unused rotary_encoder_resume(struct device *dev)
- static SIMPLE_DEV_PM_OPS(rotary_encoder_pm_ops,
- 			 rotary_encoder_suspend, rotary_encoder_resume);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id rotary_encoder_of_match[] = {
-+	{ .compatible = "rotary-encoder", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, rotary_encoder_of_match);
-+#endif
-+
- static struct platform_driver rotary_encoder_driver = {
- 	.probe		= rotary_encoder_probe,
- 	.driver		= {
+ 	case 2:
+ 		handler = &rotary_encoder_half_period_irq;
+-		encoder->last_stable = rotary_encoder_get_state(pdata);
++		encoder->last_stable = rotary_encoder_get_state(encoder);
+ 		break;
+ 	case 1:
+ 		handler = &rotary_encoder_irq;
 diff --git a/include/linux/rotary_encoder.h b/include/linux/rotary_encoder.h
-deleted file mode 100644
-index 4536c81..0000000
+index fe3dc64..4536c81 100644
 --- a/include/linux/rotary_encoder.h
-+++ /dev/null
-@@ -1,13 +0,0 @@
--#ifndef __ROTARY_ENCODER_H__
--#define __ROTARY_ENCODER_H__
--
--struct rotary_encoder_platform_data {
--	unsigned int steps;
--	unsigned int axis;
--	unsigned int steps_per_period;
--	bool relative_axis;
--	bool rollover;
--	bool wakeup_source;
--};
--
--#endif /* __ROTARY_ENCODER_H__ */
++++ b/include/linux/rotary_encoder.h
+@@ -4,10 +4,6 @@
+ struct rotary_encoder_platform_data {
+ 	unsigned int steps;
+ 	unsigned int axis;
+-	unsigned int gpio_a;
+-	unsigned int gpio_b;
+-	unsigned int inverted_a;
+-	unsigned int inverted_b;
+ 	unsigned int steps_per_period;
+ 	bool relative_axis;
+ 	bool rollover;
 -- 
 2.6.0.rc2.230.g3dd15c0
+

@@ -1,50 +1,40 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: core: prevent out-of-bound readings
-Date: Tue, 19 Jan 2016 12:34:58 +0100
-Message-ID: <1453203298-24993-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: fix out of bound access in extract and implement
+Date: Tue, 19 Jan 2016 14:14:45 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1601191414290.21446@cbobk.fhfr.pm>
+References: <20160119064037.GA18052@dtor-ws>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:49061 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751184AbcASNOt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Jan 2016 08:14:49 -0500
+In-Reply-To: <20160119064037.GA18052@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dtor@chromium.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Plugging a Logitech DJ receiver with KASAN activated raises a bunch of
-out-of-bound readings.
+On Mon, 18 Jan 2016, Dmitry Torokhov wrote:
 
-The fields are allocated up to MAX_USAGE, meaning that potentially, we do
-not have enough fields to fit the incoming values.
-Add checks and silence KASAN.
+> extract() and implement() access buffer containing reports in 64-bit
+> chunks, but there is no guarantee that buffers are padded to 64 bit
+> boundary. In fact, KASAN has caught such OOB access with i2c-hid and
+> Synaptics touch controller.
+> 
+> Instead of trying to hunt all parties that allocate buffers and make
+> sure they are padded, let's switch extract() and implement() to byte
+> access. It is a bit slower, bit we are not dealing with super fast
+> devices here.
+> 
+> Also let's fix link to the HID spec while we are at it.
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-core.c | 3 +++
- 1 file changed, 3 insertions(+)
+Good catch, applied to for-4.5/upstream-fixes. Thanks,
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 1532ae6..4f329d4 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1294,6 +1294,7 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
- 		/* Ignore report if ErrorRollOver */
- 		if (!(field->flags & HID_MAIN_ITEM_VARIABLE) &&
- 		    value[n] >= min && value[n] <= max &&
-+		    value[n] - min < field->maxusage &&
- 		    field->usage[value[n] - min].hid == HID_UP_KEYBOARD + 1)
- 			goto exit;
- 	}
-@@ -1306,11 +1307,13 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
- 		}
- 
- 		if (field->value[n] >= min && field->value[n] <= max
-+			&& field->value[n] - min < field->maxusage
- 			&& field->usage[field->value[n] - min].hid
- 			&& search(value, field->value[n], count))
- 				hid_process_event(hid, field, &field->usage[field->value[n] - min], 0, interrupt);
- 
- 		if (value[n] >= min && value[n] <= max
-+			&& value[n] - min < field->maxusage
- 			&& field->usage[value[n] - min].hid
- 			&& search(field->value, value[n], count))
- 				hid_process_event(hid, field, &field->usage[value[n] - min], 1, interrupt);
 -- 
-2.5.0
+Jiri Kosina
+SUSE Labs
+

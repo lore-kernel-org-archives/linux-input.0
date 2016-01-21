@@ -1,75 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] usbhid: replace inappropriate ENOSYS with ENODEV
-Date: Thu, 21 Jan 2016 09:42:30 -0800
-Message-ID: <CAKdAkRT7imctXF_p0nyvpO8ikriBm3dkq7h1YqS+4x2ZWujcVg@mail.gmail.com>
-References: <56A0028C.9080308@gmail.com>
-	<alpine.LNX.2.00.1601211516510.21446@cbobk.fhfr.pm>
+Subject: Re: [PATCH] [v8]Input: evdev: fix bug of dropping valid packet after
+ syn_dropped event
+Date: Thu, 21 Jan 2016 11:17:25 -0800
+Message-ID: <20160121191725.GA39970@dtor-ws>
+References: <1453397839-942-1-git-send-email-a.mathur@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f53.google.com ([209.85.218.53]:36376 "EHLO
-	mail-oi0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965648AbcAURmb (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:33603 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759572AbcAUTR3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Jan 2016 12:42:31 -0500
-Received: by mail-oi0-f53.google.com with SMTP id o124so30985791oia.3
-        for <linux-input@vger.kernel.org>; Thu, 21 Jan 2016 09:42:31 -0800 (PST)
-In-Reply-To: <alpine.LNX.2.00.1601211516510.21446@cbobk.fhfr.pm>
+	Thu, 21 Jan 2016 14:17:29 -0500
+Content-Disposition: inline
+In-Reply-To: <1453397839-942-1-git-send-email-a.mathur@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Aniroop Mathur <a.mathur@samsung.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, aniroop.mathur@gmail.com
 
-On Thu, Jan 21, 2016 at 6:18 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Wed, 20 Jan 2016, Heiner Kallweit wrote:
->
->> Primary meaning of ENOSYS is "system call not available" but it's also used
->> with meaning "function not implemented". Both are not applicable here.
->>
->> Typically this error occurs when the device was unplugged.
->> usbhid_raw_request returns -ENODEV in such a case what seems to be more
->> reasonable. Therefore use -ENODEV also here.
->>
->> Primary motivation for this change is a change in the LED subsystem to
->> ignore -ENODEV if the device was most likely unplugged.
->
-> I believe POSIX defines ENOSYS as "Function not implemented". In this
-> case, we are signalling there is no "URB OUT" function.
->
+Hi Anoroop,
 
-Well, it looks like ENOSYS is really reserved for unimplemented system calls:
+On Thu, Jan 21, 2016 at 11:07:19PM +0530, Aniroop Mathur wrote:
+> If last event dropped in the old queue was EVi_SYN/SYN_REPORT, then lets
+> generate EV_SYN/SYN_REPORT immediately after queing EV_SYN/SYN_DROPPED
+> so that clients would not ignore next valid full packet events.
+> 
+> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+> ---
+>  drivers/input/evdev.c | 46 ++++++++++++++++++++++++++++++++++------------
+>  1 file changed, 34 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index e9ae3d5..821b68a 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -156,7 +156,12 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+>  static void __evdev_queue_syn_dropped(struct evdev_client *client)
+>  {
+>  	struct input_event ev;
+> +	struct input_event *last_ev;
+>  	ktime_t time;
+> +	unsigned int mask = client->bufsize - 1;
+> +
+> +	/* capture last event stored in the buffer */
+> +	last_ev = &client->buffer[(client->head - 1) & mask];
 
-commit 91c9afaf97ee554d2cd3042a5ad01ad21c99e8c4
-Author: Andy Lutomirski <luto@amacapital.net>
-Date:   Thu Apr 16 12:44:44 2015 -0700
+I have still the same comment. How do you know that event at last_ev
+position is in fact valid and unconsumed yet event. Also, you need to
+figure out not only if queue contains last SYN event, but also to handle
+the case where the queue is empty and client has consumed either full or
+partial packet at the time you are queueing the drop.
 
-    checkpatch.pl: new instances of ENOSYS are errors
-
-    ENOSYS means that a nonexistent system call was called.  We have a
-    bad habit of using it for things like invalid operations on
-    otherwise valid syscalls.  We should avoid this in new code.
-
-    Pervasive incorrect usage of ENOSYS came up at the kernel summit ABI
-    review discussion.  Let's see if checkpatch can help.
-
-    I'll submit a separate patch for include/uapi/asm-generic/errno.h.
-
-    Signed-off-by: Andy Lutomirski <luto@amacapital.net>
-    Cc: Pavel Machek <pavel@ucw.cz>
-    Cc: Michael Kerrisk <mtk.manpages@gmail.com>
-    Cc: Joe Perches <joe@perches.com>
-    Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-    Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-> I don't have strong preference either way, but ENODEV doesn't seem to be
-> particularly good fit for this purpose either.
-
-If there is no urbout during normal operation then -EINVAL I think is
-applicable - upper layers are trying to send request to the device
-that can not be executed, i.e. invalid request. If it happens during
-removal then it is either a) there is a race or b) we are not actually
-racing with whomever is resetting urbout to NULL but we need to check
-if device is actually gone and return -ENXIO in this case.
+Also please enumerate what changes you done between version n and n+1 so
+I do not have to compare them line by line trying to figure it out
+myself.
 
 Thanks.
 

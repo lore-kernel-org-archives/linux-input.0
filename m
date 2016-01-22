@@ -1,65 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 4.5-rc0 (round 2)
-Date: Fri, 22 Jan 2016 12:56:29 -0800
-Message-ID: <20160122205629.GA38479@dtor-ws>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Creating multiple event nodes for A composite HID Device.
+Date: Fri, 22 Jan 2016 23:36:09 +0100
+Message-ID: <CAN+gG=E579-B-mGyFZPqAHADCFcF1+XG7yB_3a-jvvKJRpP+AA@mail.gmail.com>
+References: <CAKafyqpeJi+ZZccawr4EJFEO02a_jZk02XS-xZ_is8D0ZGd=Ew@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f181.google.com ([209.85.192.181]:34471 "EHLO
-	mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754276AbcAVU4c (ORCPT
+Received: from mail-wm0-f50.google.com ([74.125.82.50]:36340 "EHLO
+	mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754534AbcAVWgL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Jan 2016 15:56:32 -0500
-Content-Disposition: inline
+	Fri, 22 Jan 2016 17:36:11 -0500
+Received: by mail-wm0-f50.google.com with SMTP id l65so1878330wmf.1
+        for <linux-input@vger.kernel.org>; Fri, 22 Jan 2016 14:36:10 -0800 (PST)
+In-Reply-To: <CAKafyqpeJi+ZZccawr4EJFEO02a_jZk02XS-xZ_is8D0ZGd=Ew@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Prabhu Chawandi <foss.chaws@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-Hi Linus,
+Hi,
 
-Please pull from:
+On Fri, Jan 22, 2016 at 8:28 AM, Prabhu Chawandi <foss.chaws@gmail.com> wrote:
+> Hi,
+>
+>   Is it possible to make Linux to create a separate /dev/input/eventX
+> node for all the device composited ?
+>
+> Example: if my device is supporting Mouse, KBD and Consumer
+>
+> if I want to create three event nodes for each, like /dev/input/event1
+> /dev/input/event2 /dev/input/event3.
+>
+> How can I do if I am using bluetooth Smart HID device ? Please share your input.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+We have a quirk for that. HID_QUIRK_MULTI_INPUT is the one you are looking for.
+IIRC bluetooth Smart is using uhid, so there might be no facilities to
+set this without having to rely on a separate (new) HID driver. Check
+fo rhte code of hid-generic and just add a .probe function that sets
+the quirk.
 
-to receive second round of updates for the input subsystem, mainly
-changes to xpad driver to better hanlde Xbox One controllers.
+You could also check with bluez if they do not have anything to split
+the HID devices into three (i.e. make sure bluez does not agregate the
+devices by default while it should use several distinct uhid devices).
 
-Changelog:
----------
+Cheers,
+Benjamin
 
-Clement Calmels (1):
-      Input: xpad - remove spurious events of wireless xpad 360 controller
-
-Dmitry Torokhov (1):
-      Input: xpad - use LED API when identifying wireless controllers
-
-Laxman Dewangan (2):
-      Input: gpio-keys - allow setting input device name in DT
-      Input: gpio-keys - allow disabling individual buttons in DT
-
-Nick Dyer (1):
-      Input: atmel_mxt_ts - improve touchscreen size/orientation handling
-
-Pavel Rojtberg (3):
-      Input: xpad - correctly handle concurrent LED and FF requests
-      Input: xpad - workaround dead irq_out after suspend/ resume
-      Input: xpad - correct xbox one pad device name
-
-Pierre-Loup A. Griffais (2):
-      Input: xpad - handle "present" and "gone" correctly
-      Input: xpad - update Xbox One Force Feedback Support
-
-
-Diffstat:
---------
-
- .../devicetree/bindings/input/gpio-keys.txt        |   1 +
- drivers/input/joystick/xpad.c                      | 591 +++++++++++++++------
- drivers/input/keyboard/gpio_keys.c                 |   6 +-
- drivers/input/touchscreen/atmel_mxt_ts.c           |  68 +--
- 4 files changed, 456 insertions(+), 210 deletions(-)
-
--- 
-Dmitry
-
+>
+> thanks in advance.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

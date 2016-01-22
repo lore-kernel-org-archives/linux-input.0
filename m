@@ -1,37 +1,82 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v5 3/4] Input: cyttsp - switch to using device properties
-Date: Fri, 22 Jan 2016 16:37:17 -0600
-Message-ID: <20160122223717.GA23569@rob-hp-laptop>
-References: <cover.1453414661.git.oreste.salerno@tomtom.com>
- <cbb77531529b8941a6a9a7a191e91c6629506a71.1453414661.git.oreste.salerno@tomtom.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] hid: add support for Lilliput touchscreen
+Date: Fri, 22 Jan 2016 23:39:48 +0100
+Message-ID: <CAN+gG=Fs9Sm3GwQrn+yGcgz8ono_VM+DwLqBLSGumqYMnXD__Q@mail.gmail.com>
+References: <1449863264-14184-1-git-send-email-srinivas.kandagatla@linaro.org>
+	<alpine.LNX.2.00.1601211435360.21446@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:59678 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754540AbcAVWhV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Jan 2016 17:37:21 -0500
-Content-Disposition: inline
-In-Reply-To: <cbb77531529b8941a6a9a7a191e91c6629506a71.1453414661.git.oreste.salerno@tomtom.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1601211435360.21446@cbobk.fhfr.pm>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-arm-kernel@lists.infradead.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Kiran Rudramuni <kchitrik@codeaurora.org>, Nicolas Dechesne <nicolas.dechesne@linaro.org>
 List-Id: linux-input@vger.kernel.org
-To: Oreste Salerno <oreste.salerno@tomtom.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, fery@cypress.com, dmitry.torokhov@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org
 
-On Thu, Jan 21, 2016 at 11:21:31PM +0100, Oreste Salerno wrote:
-> Drop support for platform data passed via a C-structure and switch to
-> device properties instead, which should make the driver compatible
-> with all platforms: OF, ACPI and static boards. Static boards should
-> use property sets to communicate device parameters to the driver.
-> 
-> Signed-off-by: Oreste Salerno <oreste.salerno@tomtom.com>
-> ---
->  .../bindings/input/touchscreen/cyttsp.txt          |  95 ++++++++++++++
+On Thu, Jan 21, 2016 at 2:37 PM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Fri, 11 Dec 2015, Srinivas Kandagatla wrote:
+>
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index c6f7a69..4350376 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -2051,6 +2051,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>>       { HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+>>       { HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+>>       { HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
+>> +     { HID_USB_DEVICE(USB_VENDOR_ID_LILLIPUT, USB_PROD_ID_LILLIPUT) },
+>
+> Could you please keep the list sorted?
+>
+>>
+>>       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+>>       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
+>> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+>> index 9024a3d..f87993f 100644
+>> --- a/drivers/hid/hid-ids.h
+>> +++ b/drivers/hid/hid-ids.h
+>> @@ -1055,4 +1055,8 @@
+>>  #define USB_DEVICE_ID_RAPHNET_2NES2SNES      0x0002
+>>  #define USB_DEVICE_ID_RAPHNET_4NES4SNES      0x0003
+>>
+>> +/* Lilliput Capacitive TouchScreen */
+>> +#define USB_VENDOR_ID_LILLIPUT  0x1391
+>> +#define USB_PROD_ID_LILLIPUT    0x2112
+>> +
+>>  #endif
+>> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+>> index 3d664d0..580749e 100644
+>> --- a/drivers/hid/hid-multitouch.c
+>> +++ b/drivers/hid/hid-multitouch.c
+>> @@ -1209,6 +1209,11 @@ static const struct hid_device_id mt_devices[] = {
+>>               MT_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
+>>                       USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0040) },
+>>
+>> +     /* Lilliput multitouch panels */
+>> +     {  .driver_data = MT_CLS_DEFAULT,
 
-Acked-by: Rob Herring <robh@kernel.org>
+NACK without further explanations.
 
->  drivers/input/touchscreen/cyttsp_core.c            | 136 ++++++++++++++-------
->  drivers/input/touchscreen/cyttsp_core.h            |   9 +-
->  include/linux/input/cyttsp.h                       |  15 ---
->  4 files changed, 197 insertions(+), 58 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cyttsp.txt
+Why do you need to patch the kernel an already working touchscreen?
+MT_CLS_DEFAULT is the default as its name stands, and we do not need
+to add a per device entry for it.
+
+Cheers,
+Benjamin
+
+>> +             HID_USB_DEVICE(USB_VENDOR_ID_LILLIPUT,
+>> +                     USB_PROD_ID_LILLIPUT) },
+>> +
+>
+> This is a bit out of order as well.
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

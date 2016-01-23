@@ -1,80 +1,127 @@
-From: Manuel Reimer <Manuel.Spam@nurfuerspam.de>
-Subject: Re: PS4 controller with Bluetooth: Only the touch pad sends events?
-Date: Sat, 23 Jan 2016 18:26:23 +0100
-Message-ID: <n80d3v$qcj$1@ger.gmane.org>
-References: <n8097h$uek$1@ger.gmane.org>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] [v8]Input: evdev: fix bug of dropping valid packet after
+ syn_dropped event
+Date: Sat, 23 Jan 2016 23:29:29 +0530
+Message-ID: <CADYu30_xbT5sA1J04-JRxcC_Ky9N_iNoqknQXX-CUooBdF1gbw@mail.gmail.com>
+References: <1453397839-942-1-git-send-email-a.mathur@samsung.com>
+	<20160121191725.GA39970@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:34322 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751118AbcAWR0g (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 23 Jan 2016 12:26:36 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <glki-linux-input-2@m.gmane.org>)
-	id 1aN1xK-0002X8-NO
-	for linux-input@vger.kernel.org; Sat, 23 Jan 2016 18:26:34 +0100
-Received: from p5dd5670f.dip0.t-ipconnect.de ([93.213.103.15])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Sat, 23 Jan 2016 18:26:34 +0100
-Received: from Manuel.Spam by p5dd5670f.dip0.t-ipconnect.de with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Sat, 23 Jan 2016 18:26:34 +0100
-In-Reply-To: <n8097h$uek$1@ger.gmane.org>
+Received: from mail-ob0-f180.google.com ([209.85.214.180]:35727 "EHLO
+	mail-ob0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751399AbcAWR73 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 23 Jan 2016 12:59:29 -0500
+In-Reply-To: <20160121191725.GA39970@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hello,
+Hi Mr. Torokhov,
 
-just a short follow up.
-
-I've tested the controller directly on the PS3 console (don't own a PS4 
-yet) and it works well there, which confirms that the controller is OK.
-
-Then I searched around a bit and found:
-https://bugzilla.kernel.org/show_bug.cgi?id=107081
-
-Did this patch ever land here on the mailing list?
-
-If not, I'll take over, have a look at reformatting the patch, test it 
-with my PC and my PS4 controller and then send it to the list.
-
-Thanks in advance
-
-Manuel
-
-
-On 01/23/2016 05:20 PM, Manuel Reimer wrote:
-> Hello,
+On Fri, Jan 22, 2016 at 12:47 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Anoroop,
 >
-> I'm currently trying to get my PS4 controller to work via Bluetooth.
+> On Thu, Jan 21, 2016 at 11:07:19PM +0530, Aniroop Mathur wrote:
+>> If last event dropped in the old queue was EVi_SYN/SYN_REPORT, then lets
+>> generate EV_SYN/SYN_REPORT immediately after queing EV_SYN/SYN_DROPPED
+>> so that clients would not ignore next valid full packet events.
+>>
+>> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+>> ---
+>>  drivers/input/evdev.c | 46 ++++++++++++++++++++++++++++++++++------------
+>>  1 file changed, 34 insertions(+), 12 deletions(-)
+>>
+>> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+>> index e9ae3d5..821b68a 100644
+>> --- a/drivers/input/evdev.c
+>> +++ b/drivers/input/evdev.c
+>> @@ -156,7 +156,12 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+>>  static void __evdev_queue_syn_dropped(struct evdev_client *client)
+>>  {
+>>       struct input_event ev;
+>> +     struct input_event *last_ev;
+>>       ktime_t time;
+>> +     unsigned int mask = client->bufsize - 1;
+>> +
+>> +     /* capture last event stored in the buffer */
+>> +     last_ev = &client->buffer[(client->head - 1) & mask];
 >
-> My kernel is:
-> $ uname -a
-> Linux manuelspc 4.3.3-3-ARCH #1 SMP PREEMPT Wed Jan 20 08:12:23 CET 2016
-> x86_64 GNU/Linux
+> I have still the same comment. How do you know that event at last_ev
+> position is in fact valid and unconsumed yet event. Also, you need to
+> figure out not only if queue contains last SYN event, but also to handle
+> the case where the queue is empty and client has consumed either full or
+> partial packet at the time you are queueing the drop.
 >
-> If I run "evtest" on the event device, created by the controller, then I
-> only get events if the touch pad is touched. Even pressing the touch pad
-> doesn't create a event and all other buttons and sticks don't send
-> events either.
+
+Could you please explain what you mean exactly so that I could answer it
+properly?
+
+>From what I understood, it seems to me that there is no problem related to
+validity, unconsumption, empty queue, full/partial packet.
+I would like to explain for clock change request case so that you can know
+my understanding for your question.
+
+Clock change request case:
+
+1.1 About last event being valid and unconsumed:
+We flush buffer and queue syn_dropped only when buffer is not empty. So there
+will be always be atleast one event in buffer that is not consumed and is
+ofcourse valid.
+
+1.2 About queue is empty
+If not empty, we do not flush or add syn_dropped at all.
+
+1.3 About consumption of full or partial packet
+If client has consumed full packet, then buffer will look like,
+... X Y S(consumed) ... X Y S
+As we always store packets keeping buffer lock and not single events, so there
+will always be syn_report in the end.
+If syn_dropped is queued here, then queing syn_report is fine.
+If client has consumed partial packet,  then buffer will look like,
+... X(consumed) Y S ... S
+If syn_dropped is queued here, then it is fine to queue syn_report because
+now new X Y will be reported by driver, and so client will consume new X and Y
+and that old X will be replaced with new X and this new packet will be sent by
+client to application. Obviously, client never sends partial events to
+application and send data packet by packet.
+So I do not see any trouble here related to partial or full packet.
+
+> Also please enumerate what changes you done between version n and n+1 so
+> I do not have to compare them line by line trying to figure it out
+> myself.
 >
-> What's the reason for this? If I connect via USB, I don't have any
-> issues and all buttons and axis work well...
->
-> Thank you very much in advance.
->
-> Best regards,
->
-> Manuel
+
+Difference from v5:
+Made a mistake about head index in v5.
+Corrected in v8.
+
+evdev_set_clk_type:
+- client->packet_head = client->head = client->tail;
++ client->packet_head = client->tail = client->head;
+
+__pass_event:
+- client->tail = (client->head - 2) & (client->bufsize - 1);
++ client->head = (client->head - 1) & mask;
++ client->packet_head = client->tail = client->head;
++ __evdev_queue_syn_dropped(client);
+
+v6:
+Made change only for clock change and pass event function.
+Do not included change for evdev_flush_queue as I was not sure.
+But now I think it is okay for evdev_flush_queue also.
+As I am not 100% sure, so sent v6 for that.
+
+v7:
+please ignore it.
+
+Thanks,
+Aniroop Mathur
+
+> Thanks.
 >
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-
-
+> Dmitry

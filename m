@@ -1,86 +1,44 @@
-From: Amitoj Kaur Chawla <amitoj1606@gmail.com>
-Subject: [PATCH] input: keyboard: cap11xx: Add missing of_node_put
-Date: Mon, 25 Jan 2016 21:01:21 +0530
-Message-ID: <20160125153121.GA21093@amitoj-Inspiron-3542>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] input: xpad: remove unused function
+Date: Mon, 25 Jan 2016 16:30:41 +0100
+Message-ID: <1453735884-1958624-1-git-send-email-arnd@arndb.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:33506 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751913AbcAYPb1 (ORCPT
+Received: from mout.kundenserver.de ([212.227.17.13]:62148 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754095AbcAYPby (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jan 2016 10:31:27 -0500
-Content-Disposition: inline
+	Mon, 25 Jan 2016 10:31:54 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: julia.lawall@lip6.fr
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, Pavel Rojtberg <rojtberg@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-for_each_child_of_node performs an of_node_get on each iteration, so
-to break out of the loop an of_node_put is required.
+There are two definitions of xpad_identify_controller(), one is used
+when CONFIG_JOYSTICK_XPAD_LEDS is set, but the other one is empty
+and never used, and we get a gcc warning about it:
 
-Found using Coccinelle. The semantic patch used for this is as follows:
+drivers/input/joystick/xpad.c:1210:13: warning: 'xpad_identify_controller' defined but not used [-Wunused-function]
 
-// <smpl>
-@@
-expression e;
-local idexpression n;
-@@
+This removes the second definition.
 
- for_each_child_of_node(..., n) {
-   ... when != of_node_put(n)
-       when != e = n
-(
-   return n;
-|
-+  of_node_put(n);
-?  return ...;
-)
-   ...
- }
-// </smpl
-
-Signed-off-by: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: cae705baa40b ("Input: xpad - re-send LED command on present event")
 ---
- drivers/input/keyboard/cap11xx.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/input/joystick/xpad.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index 378db10..27cd7df 100644
---- a/drivers/input/keyboard/cap11xx.c
-+++ b/drivers/input/keyboard/cap11xx.c
-@@ -304,8 +304,10 @@ static int cap11xx_init_leds(struct device *dev,
- 		led->cdev.brightness = LED_OFF;
- 
- 		error = of_property_read_u32(child, "reg", &reg);
--		if (error != 0 || reg >= num_leds)
--			return -EINVAL;
-+		if (error != 0 || reg >= num_leds) {
-+			error = -EINVAL;
-+			goto putchild;
-+		}
- 
- 		led->reg = reg;
- 		led->priv = priv;
-@@ -314,13 +316,17 @@ static int cap11xx_init_leds(struct device *dev,
- 
- 		error = devm_led_classdev_register(dev, &led->cdev);
- 		if (error)
--			return error;
-+			goto putchild;
- 
- 		priv->num_leds++;
- 		led++;
- 	}
- 
- 	return 0;
-+
-+putchild:
-+	of_node_put(child);
-+	return error;
- }
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 6727954ab74b..e8a84d12b7ff 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -1207,7 +1207,6 @@ static void xpad_led_disconnect(struct usb_xpad *xpad)
  #else
- static int cap11xx_init_leds(struct device *dev,
+ static int xpad_led_probe(struct usb_xpad *xpad) { return 0; }
+ static void xpad_led_disconnect(struct usb_xpad *xpad) { }
+-static void xpad_identify_controller(struct usb_xpad *xpad) { }
+ #endif
+ 
+ static int xpad_start_input(struct usb_xpad *xpad)
 -- 
-1.9.1
+2.7.0
 

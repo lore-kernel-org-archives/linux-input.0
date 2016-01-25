@@ -1,73 +1,45 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] input: sirf onkey: allow modular build
-Date: Mon, 25 Jan 2016 16:31:35 +0100
-Message-ID: <1453735950-1958677-1-git-send-email-arnd@arndb.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, Barry Song <baohua@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Aniroop Mathur <a.mathur@samsung.com>
+Subject: [PATCH] Input: evdev: correct handling of memory allocation failure of evdev_client
+Date: Mon, 25 Jan 2016 23:20:05 +0530
+Message-ID: <1453744205-868-1-git-send-email-a.mathur@samsung.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f174.google.com ([209.85.192.174]:33678 "EHLO
+	mail-pf0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932942AbcAYRrp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Jan 2016 12:47:45 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, aniroop.mathur@gmail.com, Aniroop Mathur <a.mathur@samsung.com>
 
-CONFIG_INPUT may itself be a loadable module, but the sirf power key
-driver is listed as 'bool', which makes it possible to select
-a broken configuration with the driver built-in but the subsystem
-not loaded. In this configuration, we get a link error:
+Lets fix twice checking of memory allocation failure of evdev_client
+structure when allocated successfully.
 
-drivers/input/built-in.o: In function `sirfsoc_pwrc_isr':
-drivers/input/misc/sirfsoc-onkey.c:63: undefined reference to `input_event'
-drivers/input/built-in.o: In function `sirfsoc_pwrc_isr':
-include/linux/input.h:414: undefined reference to `input_event'
-drivers/input/built-in.o: In function `sirfsoc_pwrc_probe':
-drivers/input/misc/sirfsoc-onkey.c:132: undefined reference to `devm_input_allocate_device'
-drivers/input/misc/sirfsoc-onkey.c:139: undefined reference to `input_set_capability'
-drivers/input/misc/sirfsoc-onkey.c:161: undefined reference to `input_register_device'
-drivers/input/built-in.o: In function `sirfsoc_pwrc_report_event':
-drivers/input/misc/sirfsoc-onkey.c:48: undefined reference to `input_event'
-drivers/input/built-in.o: In function `sirfsoc_pwrc_report_event':
-include/linux/input.h:414: undefined reference to `input_event'
-drivers/input/built-in.o:(.debug_addr+0x24): undefined reference to `input_event'
-drivers/input/built-in.o:(.debug_addr+0xbc): undefined reference to `devm_input_allocate_device'
-drivers/input/built-in.o:(.debug_addr+0x104): undefined reference to `input_set_capability'
-drivers/input/built-in.o:(.debug_addr+0x128): undefined reference to `input_register_device'
-
-This marks the driver as 'tristate' so it becomes possible to have
-it in a loadable module, mainly to help with randconfig builds.
-
-We also have to add a missing semicolon here, which ended up not
-being needed in built-in mode because the following MODULE_DEVICE_TABLE
-is an empty macro followed by another semicolon then.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
 ---
- drivers/input/misc/Kconfig         | 2 +-
- drivers/input/misc/sirfsoc-onkey.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/evdev.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index d6d16fa78281..1f2337abcf2f 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -733,7 +733,7 @@ config INPUT_XEN_KBDDEV_FRONTEND
- 	  module will be called xen-kbdfront.
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index e9ae3d5..102b5d9 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -503,10 +503,11 @@ static int evdev_open(struct inode *inode, struct file *file)
+ 	int error;
  
- config INPUT_SIRFSOC_ONKEY
--	bool "CSR SiRFSoC power on/off/suspend key support"
-+	tristate "CSR SiRFSoC power on/off/suspend key support"
- 	depends on ARCH_SIRF && OF
- 	default y
- 	help
-diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
-index 9d5b89befe6f..ed7237f19539 100644
---- a/drivers/input/misc/sirfsoc-onkey.c
-+++ b/drivers/input/misc/sirfsoc-onkey.c
-@@ -101,7 +101,7 @@ static void sirfsoc_pwrc_close(struct input_dev *input)
- static const struct of_device_id sirfsoc_pwrc_of_match[] = {
- 	{ .compatible = "sirf,prima2-pwrc" },
- 	{},
--}
-+};
- MODULE_DEVICE_TABLE(of, sirfsoc_pwrc_of_match);
+ 	client = kzalloc(size, GFP_KERNEL | __GFP_NOWARN);
+-	if (!client)
++	if (!client) {
+ 		client = vzalloc(size);
+-	if (!client)
+-		return -ENOMEM;
++		if (!client)
++			return -ENOMEM;
++	}
  
- static int sirfsoc_pwrc_probe(struct platform_device *pdev)
+ 	client->bufsize = bufsize;
+ 	spin_lock_init(&client->buffer_lock);
 -- 
-2.7.0
+2.6.2
+

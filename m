@@ -1,192 +1,215 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] [v8]Input: evdev: fix bug of dropping valid packet after
- syn_dropped event
-Date: Mon, 25 Jan 2016 23:31:54 +0530
-Message-ID: <CADYu308LG55DfxP2t1XUzG9QzWe3rdMoyLGoREA5DzT8socQdw@mail.gmail.com>
-References: <1453397839-942-1-git-send-email-a.mathur@samsung.com>
-	<20160121191725.GA39970@dtor-ws>
-	<CADYu30_xbT5sA1J04-JRxcC_Ky9N_iNoqknQXX-CUooBdF1gbw@mail.gmail.com>
-	<20160123183940.GA3410@dtor-ws>
-	<CADYu3099RDSnHWy-fs1kw2Ga_LZhL_0veF3JSgw_-bLRw5u1NA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f172.google.com ([209.85.214.172]:35570 "EHLO
-	mail-ob0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752914AbcAYSB4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jan 2016 13:01:56 -0500
-In-Reply-To: <CADYu3099RDSnHWy-fs1kw2Ga_LZhL_0veF3JSgw_-bLRw5u1NA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Stefan Agner <stefan-XLVq0VzYD2Y@public.gmane.org>
+Subject: [PATCH 1/3] input: touchscreen: ad7879: move header to input subdirectory
+Date: Mon, 25 Jan 2016 19:04:35 -0800
+Message-ID: <1453777477-29706-1-git-send-email-stefan@agner.ch>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, realmz6-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stefan Agner <stefan-XLVq0VzYD2Y@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Sun, Jan 24, 2016 at 1:35 AM, Aniroop Mathur
-<aniroop.mathur@gmail.com> wrote:
-> On Sun, Jan 24, 2016 at 12:09 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Sat, Jan 23, 2016 at 11:29:29PM +0530, Aniroop Mathur wrote:
->>> Hi Mr. Torokhov,
->>>
->>> On Fri, Jan 22, 2016 at 12:47 AM, Dmitry Torokhov
->>> <dmitry.torokhov@gmail.com> wrote:
->>> > Hi Anoroop,
->>> >
->>> > On Thu, Jan 21, 2016 at 11:07:19PM +0530, Aniroop Mathur wrote:
->>> >> If last event dropped in the old queue was EVi_SYN/SYN_REPORT, then lets
->>> >> generate EV_SYN/SYN_REPORT immediately after queing EV_SYN/SYN_DROPPED
->>> >> so that clients would not ignore next valid full packet events.
->>> >>
->>> >> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
->>> >> ---
->>> >>  drivers/input/evdev.c | 46 ++++++++++++++++++++++++++++++++++------------
->>> >>  1 file changed, 34 insertions(+), 12 deletions(-)
->>> >>
->>> >> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
->>> >> index e9ae3d5..821b68a 100644
->>> >> --- a/drivers/input/evdev.c
->>> >> +++ b/drivers/input/evdev.c
->>> >> @@ -156,7 +156,12 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->>> >>  static void __evdev_queue_syn_dropped(struct evdev_client *client)
->>> >>  {
->>> >>       struct input_event ev;
->>> >> +     struct input_event *last_ev;
->>> >>       ktime_t time;
->>> >> +     unsigned int mask = client->bufsize - 1;
->>> >> +
->>> >> +     /* capture last event stored in the buffer */
->>> >> +     last_ev = &client->buffer[(client->head - 1) & mask];
->>> >
->>> > I have still the same comment. How do you know that event at last_ev
->>> > position is in fact valid and unconsumed yet event. Also, you need to
->>> > figure out not only if queue contains last SYN event, but also to handle
->>> > the case where the queue is empty and client has consumed either full or
->>> > partial packet at the time you are queueing the drop.
->>> >
->>>
->>> Could you please explain what you mean exactly so that I could answer it
->>> properly?
->>>
->>> From what I understood, it seems to me that there is no problem related to
->>> validity, unconsumption, empty queue, full/partial packet.
->>> I would like to explain for clock change request case so that you can know
->>> my understanding for your question.
->>>
->>> Clock change request case:
->>>
->>> 1.1 About last event being valid and unconsumed:
->>> We flush buffer and queue syn_dropped only when buffer is not empty. So there
->>> will be always be atleast one event in buffer that is not consumed and is
->>> ofcourse valid.
->>>
->>> 1.2 About queue is empty
->>> If not empty, we do not flush or add syn_dropped at all.
->>
->> Clock type change is not the only time we queue SYN_DROP, the other time
->> is when we fail to handle EVIOCG[type] (during which we remove some
->> events from the queue). Queue may be empty when these ioctls are issued.
->>
->
-> yeah, ideally it should be changed to:
-> ret = bits_to_user(mem, maxbit, maxlen, p, compat);
-> if (ret < 0)
->     + if (client->head != client->tail)
->     - evdev_queue_syn_dropped(client);
->     +     evdev_queue_syn_dropped(client);
->
-> Firstly, there is a need to follow protocol of SYN_REPORT as mentioned in
-> next section.
->
+The header file is used by the SPI and I2C variant of the driver.
+Therefore, move it to a more generic place under input.
 
-and yes, there is need to make many more changes to have correct
-last_event for this case. But it seems really complex.
+Signed-off-by: Stefan Agner <stefan-XLVq0VzYD2Y@public.gmane.org>
+---
+ arch/blackfin/mach-bf527/boards/ezbrd.c    |  2 +-
+ arch/blackfin/mach-bf527/boards/ezkit.c    |  2 +-
+ arch/blackfin/mach-bf527/boards/tll6527m.c |  2 +-
+ arch/blackfin/mach-bf537/boards/stamp.c    |  2 +-
+ arch/blackfin/mach-bf538/boards/ezkit.c    |  2 +-
+ drivers/input/touchscreen/ad7879.c         |  4 +--
+ include/linux/input/ad7879.h               | 41 ++++++++++++++++++++++++++++++
+ include/linux/spi/ad7879.h                 | 41 ------------------------------
+ 8 files changed, 48 insertions(+), 48 deletions(-)
+ create mode 100644 include/linux/input/ad7879.h
+ delete mode 100644 include/linux/spi/ad7879.h
 
-> Unless syn_report does not denote end of a packet,
-> it is okay without this change too because last event stored would be
-> syn_report and after flushing, syn_report will still be at the end and
-> with empty queue too if syn_dropped is queued then we have added syn_report
-> to not ignore upcoming valid packet.
->
->>>
->>> 1.3 About consumption of full or partial packet
->>> If client has consumed full packet, then buffer will look like,
->>> ... X Y S(consumed) ... X Y S
->>> As we always store packets keeping buffer lock and not single events, so there
->>> will always be syn_report in the end.
->>
->> We try to pass full packets to clients, but there is no guarantee. We
->> only estimate number of events in device's packet, not guarantee that it
->> is correct size.
->>
->
-> As per documentation, SYN_REPORT should be used to separate packets.
-> * SYN_REPORT:
->   - Used to synchronize and separate events into packets of input data changes
->     occurring at the same moment in time. For example, motion of a mouse may set
->     the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
->     motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
->
-> So I think, there is a need of below change:
-> file: input.c
-> function: input_handle_event:
-> } else if (dev->num_vals >= dev->max_vals - 2) {
-> - dev->vals[dev->num_vals++] = input_value_sync;
-> input_pass_values(dev, dev->vals, dev->num_vals);
->
-> We have sufficient space in buffer to store more than 1 packet even when
-> actual packet size is more than max_vals so there seems no need to add
-> syn_report event here by self. So whenever driver sends syn_report, then only
-> it will be considered as end of a packet and on exceding max_vals, we can
-> simply pass to handlers to store those partial events in buffer. And anyways
-> unless the packet is really completed then only client will send it to
-> application.
->
-> Without following this protocol, we would not be able to find the end of a
-> packet because if max_vals comes out to 3 but actual packet size is 15, then
-> in the buffer, there will be many syn_reports within a single packet. So with
-> both current code and with patch code, there will be trouble in handling
-> syn_dropped because after one syn_report comes, client will stop ignoring the
-> events.
->
+diff --git a/arch/blackfin/mach-bf527/boards/ezbrd.c b/arch/blackfin/mach-bf527/boards/ezbrd.c
+index a3a5723..b5a74e5 100644
+--- a/arch/blackfin/mach-bf527/boards/ezbrd.c
++++ b/arch/blackfin/mach-bf527/boards/ezbrd.c
+@@ -279,7 +279,7 @@ static const struct ad7877_platform_data bfin_ad7877_ts_info = {
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_TOUCHSCREEN_AD7879)
+-#include <linux/spi/ad7879.h>
++#include <linux/input/ad7879.h>
+ static const struct ad7879_platform_data bfin_ad7879_ts_info = {
+ 	.model			= 7879,	/* Model = AD7879 */
+ 	.x_plate_ohms		= 620,	/* 620 Ohm from the touch datasheet */
+diff --git a/arch/blackfin/mach-bf527/boards/ezkit.c b/arch/blackfin/mach-bf527/boards/ezkit.c
+index d4219e8..276270c 100644
+--- a/arch/blackfin/mach-bf527/boards/ezkit.c
++++ b/arch/blackfin/mach-bf527/boards/ezkit.c
+@@ -477,7 +477,7 @@ static const struct ad7877_platform_data bfin_ad7877_ts_info = {
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_TOUCHSCREEN_AD7879)
+-#include <linux/spi/ad7879.h>
++#include <linux/input/ad7879.h>
+ static const struct ad7879_platform_data bfin_ad7879_ts_info = {
+ 	.model			= 7879,	/* Model = AD7879 */
+ 	.x_plate_ohms		= 620,	/* 620 Ohm from the touch datasheet */
+diff --git a/arch/blackfin/mach-bf527/boards/tll6527m.c b/arch/blackfin/mach-bf527/boards/tll6527m.c
+index a0f5856..ff67ddc 100644
+--- a/arch/blackfin/mach-bf527/boards/tll6527m.c
++++ b/arch/blackfin/mach-bf527/boards/tll6527m.c
+@@ -29,7 +29,7 @@
+ #include <asm/dpmc.h>
+ 
+ #if IS_ENABLED(CONFIG_TOUCHSCREEN_AD7879)
+-#include <linux/spi/ad7879.h>
++#include <linux/input/ad7879.h>
+ #define LCD_BACKLIGHT_GPIO 0x40
+ /* TLL6527M uses TLL7UIQ35 / ADI LCD EZ Extender. AD7879 AUX GPIO is used for
+  * LCD Backlight Enable
+diff --git a/arch/blackfin/mach-bf537/boards/stamp.c b/arch/blackfin/mach-bf537/boards/stamp.c
+index c181543..cf063be 100644
+--- a/arch/blackfin/mach-bf537/boards/stamp.c
++++ b/arch/blackfin/mach-bf537/boards/stamp.c
+@@ -776,7 +776,7 @@ static const struct ad7877_platform_data bfin_ad7877_ts_info = {
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_TOUCHSCREEN_AD7879)
+-#include <linux/spi/ad7879.h>
++#include <linux/input/ad7879.h>
+ static const struct ad7879_platform_data bfin_ad7879_ts_info = {
+ 	.model			= 7879,	/* Model = AD7879 */
+ 	.x_plate_ohms		= 620,	/* 620 Ohm from the touch datasheet */
+diff --git a/arch/blackfin/mach-bf538/boards/ezkit.c b/arch/blackfin/mach-bf538/boards/ezkit.c
+index ae2fcbb..849587c 100644
+--- a/arch/blackfin/mach-bf538/boards/ezkit.c
++++ b/arch/blackfin/mach-bf538/boards/ezkit.c
+@@ -521,7 +521,7 @@ static struct bfin5xx_spi_chip spi_flash_chip_info = {
+ #endif	/* CONFIG_SPI_BFIN5XX */
+ 
+ #if IS_ENABLED(CONFIG_TOUCHSCREEN_AD7879)
+-#include <linux/spi/ad7879.h>
++#include <linux/input/ad7879.h>
+ static const struct ad7879_platform_data bfin_ad7879_ts_info = {
+ 	.model			= 7879,	/* Model = AD7879 */
+ 	.x_plate_ohms		= 620,	/* 620 Ohm from the touch datasheet */
+diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+index 16b5cc2..a73934b 100644
+--- a/drivers/input/touchscreen/ad7879.c
++++ b/drivers/input/touchscreen/ad7879.c
+@@ -31,7 +31,7 @@
+ #include <linux/i2c.h>
+ #include <linux/gpio.h>
+ 
+-#include <linux/spi/ad7879.h>
++#include <linux/input/ad7879.h>
+ #include <linux/module.h>
+ #include "ad7879.h"
+ 
+@@ -170,7 +170,7 @@ static int ad7879_report(struct ad7879 *ts)
+ 	 * filter.  The combination of these two techniques provides a robust
+ 	 * solution, discarding the spurious noise in the signal and keeping
+ 	 * only the data of interest.  The size of both filters is
+-	 * programmable. (dev.platform_data, see linux/spi/ad7879.h) Other
++	 * programmable. (dev.platform_data, see linux/input/ad7879.h) Other
+ 	 * user-programmable conversion controls include variable acquisition
+ 	 * time, and first conversion delay. Up to 16 averages can be taken
+ 	 * per conversion.
+diff --git a/include/linux/input/ad7879.h b/include/linux/input/ad7879.h
+new file mode 100644
+index 0000000..98fc270
+--- /dev/null
++++ b/include/linux/input/ad7879.h
+@@ -0,0 +1,41 @@
++/* linux/input/ad7879.h */
++
++/* Touchscreen characteristics vary between boards and models.  The
++ * platform_data for the device's "struct device" holds this information.
++ *
++ * It's OK if the min/max values are zero.
++ */
++struct ad7879_platform_data {
++	u16	model;			/* 7879 */
++	u16	x_plate_ohms;
++	u16	x_min, x_max;
++	u16	y_min, y_max;
++	u16	pressure_min, pressure_max;
++
++	bool	swap_xy;		/* swap x and y axes */
++
++	/* [0..255] 0=OFF Starts at 1=550us and goes
++	 * all the way to 9.440ms in steps of 35us.
++	 */
++	u8	pen_down_acc_interval;
++	/* [0..15] Starts at 0=128us and goes all the
++	 * way to 4.096ms in steps of 128us.
++	 */
++	u8	first_conversion_delay;
++	/* [0..3] 0 = 2us, 1 = 4us, 2 = 8us, 3 = 16us */
++	u8	acquisition_time;
++	/* [0..3] Average X middle samples 0 = 2, 1 = 4, 2 = 8, 3 = 16 */
++	u8	averaging;
++	/* [0..3] Perform X measurements 0 = OFF,
++	 * 1 = 4, 2 = 8, 3 = 16 (median > averaging)
++	 */
++	u8	median;
++	/* 1 = AUX/VBAT/GPIO export GPIO to gpiolib
++	 * requires CONFIG_GPIOLIB
++	 */
++	bool	gpio_export;
++	/* identifies the first GPIO number handled by this chip;
++	 * or, if negative, requests dynamic ID allocation.
++	 */
++	s32	gpio_base;
++};
+diff --git a/include/linux/spi/ad7879.h b/include/linux/spi/ad7879.h
+deleted file mode 100644
+index 58368be..0000000
+--- a/include/linux/spi/ad7879.h
++++ /dev/null
+@@ -1,41 +0,0 @@
+-/* linux/spi/ad7879.h */
+-
+-/* Touchscreen characteristics vary between boards and models.  The
+- * platform_data for the device's "struct device" holds this information.
+- *
+- * It's OK if the min/max values are zero.
+- */
+-struct ad7879_platform_data {
+-	u16	model;			/* 7879 */
+-	u16	x_plate_ohms;
+-	u16	x_min, x_max;
+-	u16	y_min, y_max;
+-	u16	pressure_min, pressure_max;
+-
+-	bool	swap_xy;		/* swap x and y axes */
+-
+-	/* [0..255] 0=OFF Starts at 1=550us and goes
+-	 * all the way to 9.440ms in steps of 35us.
+-	 */
+-	u8	pen_down_acc_interval;
+-	/* [0..15] Starts at 0=128us and goes all the
+-	 * way to 4.096ms in steps of 128us.
+-	 */
+-	u8	first_conversion_delay;
+-	/* [0..3] 0 = 2us, 1 = 4us, 2 = 8us, 3 = 16us */
+-	u8	acquisition_time;
+-	/* [0..3] Average X middle samples 0 = 2, 1 = 4, 2 = 8, 3 = 16 */
+-	u8	averaging;
+-	/* [0..3] Perform X measurements 0 = OFF,
+-	 * 1 = 4, 2 = 8, 3 = 16 (median > averaging)
+-	 */
+-	u8	median;
+-	/* 1 = AUX/VBAT/GPIO export GPIO to gpiolib
+-	 * requires CONFIG_GPIOLIB
+-	 */
+-	bool	gpio_export;
+-	/* identifies the first GPIO number handled by this chip;
+-	 * or, if negative, requests dynamic ID allocation.
+-	 */
+-	s32	gpio_base;
+-};
+-- 
+2.7.0
 
-How about above change and do you want me send separate patch for it?
-
->>> If syn_dropped is queued here, then queing syn_report is fine.
->>> If client has consumed partial packet,  then buffer will look like,
->>> ... X(consumed) Y S ... S
->>> If syn_dropped is queued here, then it is fine to queue syn_report because
->>> now new X Y will be reported by driver, and so client will consume new X and Y
->>> and that old X will be replaced with new X and this new packet will be sent by
->>> client to application. Obviously, client never sends partial events to
->>> application and send data packet by packet.
->>> So I do not see any trouble here related to partial or full packet.
->>>
->>> > Also please enumerate what changes you done between version n and n+1 so
->>> > I do not have to compare them line by line trying to figure it out
->>> > myself.
->>> >
->>>
->>> Difference from v5:
->>> Made a mistake about head index in v5.
->>> Corrected in v8.
->>>
->>> evdev_set_clk_type:
->>> - client->packet_head = client->head = client->tail;
->>> + client->packet_head = client->tail = client->head;
->>
->> Why does this matter?
->>
->
-> We must not change the head index. So we need to make packet_head and tail
-> index same as head index and not same as tail index. After this setting,
-> we call evdev_queue_syn_dropped where we capture last event as the event
-> present at (head - 1) index;
->
-> Thanks,
-> Aniroop Mathur
->
->> Thanks.
->>
->> --
->> Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

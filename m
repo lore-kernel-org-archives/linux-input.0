@@ -1,90 +1,133 @@
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: Re: [PATCH 2/3] input: touchscreen: ad7879: fix default x/y axis
- assignment
-Date: Tue, 26 Jan 2016 08:58:44 +0100
-Message-ID: <56A72734.9000303@analog.com>
-References: <1453777477-29706-1-git-send-email-stefan@agner.ch>
- <1453777477-29706-2-git-send-email-stefan@agner.ch>
-Reply-To: <michael.hennerich@analog.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [Patch] hid: enhance hid-saitek for use with R.A.T.5 and
+ similar
+Date: Tue, 26 Jan 2016 15:29:38 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1601261527260.21446@cbobk.fhfr.pm>
+References: <5690FEB0.4040809@unet.univie.ac.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1453777477-29706-2-git-send-email-stefan@agner.ch>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stefan Agner <stefan@agner.ch>, dmitry.torokhov@gmail.com, robh+dt@kernel.org
-Cc: mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, realmz6@gmail.com, broonie@kernel.org, jic23@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:54715 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965877AbcAZO3k (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Jan 2016 09:29:40 -0500
+In-Reply-To: <5690FEB0.4040809@unet.univie.ac.at>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Piotr Sawuk <a9702387@unet.univie.ac.at>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 01/26/2016 04:04 AM, Stefan Agner wrote:
-> The measurements read from the controller which are temporary stored
-> in conversion_data, are interpreted wrong. The first measurement X+
-> contains the Y position, and the second measurement Y+ the X position
-> (see also Table 11 Register Table in the data sheet).
->
-> The problem is already known and a swap option has been introduced:
-> commit 6680884a4420 ("Input: ad7879 - add option to correct xy axis")
->
-> However, with that the meaning of the new boolean is inverted since
-> the underlying values are already swapped. With this change, a true
-> in swap_xy actually swaps the two axis.
->
-> Signed-off-by: Stefan Agner <stefan@agner.ch>
+On Sat, 9 Jan 2016, Piotr Sawuk wrote:
+
+> added support for my pid so I can test the changes:
+> 3 events were mapped to one, this allows discerning which is which.
+> on my mouse there is a button with a 3 colour-led.
+> I can now determine in user-space which colour is visible.
+> this patch replaces my previous one which merely added rat5-support.
+>=20
+> Signed-off-by: Piotr Sawuk <piotr5@users.sf.net>
+
+The patch has been damaged by your mail client, and as such can't be=20
+applied. Could you please fix that up and resend?
+
 > ---
-> Hi Michael,
->
-> It seems that swap_xy is not used in any board which is in mainline,
-> hence swap_xy is always false. Therefore, up until now all boards
-> actually used swapped axis. However, I doubt that the blackfin boards
-> really have those axis swapped, it is probably more likely that the
-> userspace calibration took care of it.
->
-> However, if they are really swapped, we should set the swap_xy flag
-> to 1 for those board...
->
-> Do you happen to now what is the case with those boards?
->
+> add support for mad catz r.a.t.5
+> add a file in sysfs called "mode" exposing the integer of that name.
+>=20
+> diff -rup linux-4.2.6-gentoo/drivers/hid/hid-core.c
+> linux-4.2.6-gentoo-rat5/drivers/hid/hid-core.c
+> --- linux-4.2.6-gentoo/drivers/hid/hid-core.c	2015-08-30
+> 20:34:09.000000000 +0200
+> +++ linux-4.2.6-gentoo-rat5/drivers/hid/hid-core.c	2015-12-30
+> 12:09:14.340841552 +0100
+> @@ -1959,6 +1959,7 @@ static const struct hid_device_id hid_ha
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7) }=
+,
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7) }=
+,
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9)=
+ },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT5)=
+ },
 
+Could you please keep the list sorted (at least by parts)?
 
-Hi Stefan,
+>  #endif
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG,
+> USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG,
+> USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
+> diff -rup linux-4.2.6-gentoo/drivers/hid/hid-ids.h
+> linux-4.2.6-gentoo-rat5/drivers/hid/hid-ids.h
+> --- linux-4.2.6-gentoo/drivers/hid/hid-ids.h	2015-08-30
+> 20:34:09.000000000 +0200
+> +++ linux-4.2.6-gentoo-rat5/drivers/hid/hid-ids.h	2015-12-29
+> 18:47:36.756225217 +0100
+> @@ -634,6 +634,7 @@
+>=20
+>  #define USB_VENDOR_ID_MADCATZ		0x0738
+>  #define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
+> +#define USB_DEVICE_ID_MADCATZ_RAT5	0x1705
+>  #define USB_DEVICE_ID_MADCATZ_RAT9	0x1709
+>=20
+>  #define USB_VENDOR_ID_MCC		0x09db
+> diff -rup linux-4.2.6-gentoo/drivers/hid/hid-saitek.c
+> linux-4.2.6-gentoo-rat5/drivers/hid/hid-saitek.c
+> --- linux-4.2.6-gentoo/drivers/hid/hid-saitek.c	2015-08-30
+> 20:34:09.000000000 +0200
+> +++ linux-4.2.6-gentoo-rat5/drivers/hid/hid-saitek.c	2016-01-09
+> 12:19:19.574905612 +0100
+> @@ -7,10 +7,11 @@
+>   *  (This module is based on "hid-ortek".)
+>   *  Copyright (c) 2012 Andreas H=C3=BCbner
+>   *
+> - *  R.A.T.7, R.A.T.9, M.M.O.7 (USB gaming mice):
+> + *  R.A.T.5, R.A.T.7, R.A.T.9, M.M.O.7 (USB gaming mice):
+>   *  Fixes the mode button which cycles through three constantly pres=
+sed
+>   *  buttons. All three press events are mapped to one button and the
+>   *  missing release event is generated immediately.
+> + *  Original press event is available in "mode" file on sysfs.
+>   *
+>   */
+>=20
+> @@ -37,6 +38,40 @@ struct saitek_sc {
+>  	int mode;
+>  };
+>=20
+> +static ssize_t show_mode(struct device *dev,
+> +		struct device_attribute *attr,
+> +		char *mode_buf);
+> +
+> +/* world-readable since errors are caught and no usb-interaction nee=
+ded. */
+> +DEVICE_ATTR(mode, 0444, show_mode, NULL);
+> +
+> +static ssize_t show_mode(struct device *dev,
+> +		struct device_attribute *attr,
+> +		char *mode_buf)
+> +{
+> +	struct saitek_sc *ssc;
+> +	struct hid_device *hdev;
+> +
+> +	/* error-messages in sysfs file since it's non-critical. */
+> +	if (dev =3D=3D NULL) {
+> +		return snprintf(mode_buf, PAGE_SIZE, "No parent.\n");
+> +	}
+> +
+> +	hdev =3D container_of(dev, struct hid_device, dev);
 
-I would be hesitant to invert the default behaviour of the driver.
-Too many people in the field already using it as it is.
+You can use to_hid_device() here.
 
-A XY swap can have multiple reasons.
+Thanks,
 
-Lot's of small VGA/QVGA TFTs have the option to switch the scan 
-direction from Landscape to Portrait. In addition you can also rotate 
-and flip or mirror using VDMA options. So it really depends on the use 
-case, how the touch panel is mounted to the screen or how it is wired.
+--=20
+Jiri Kosina
+SUSE Labs
 
-Regards,
-Michael
-
-> --
-> Stefan
->
->   drivers/input/touchscreen/ad7879.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-> index a73934b..e290e7b 100644
-> --- a/drivers/input/touchscreen/ad7879.c
-> +++ b/drivers/input/touchscreen/ad7879.c
-> @@ -94,8 +94,8 @@
->   #define AD7879_TEMP_BIT			(1<<1)
->
->   enum {
-> -	AD7879_SEQ_XPOS  = 0,
-> -	AD7879_SEQ_YPOS  = 1,
-> +	AD7879_SEQ_YPOS  = 0,
-> +	AD7879_SEQ_XPOS  = 1,
->   	AD7879_SEQ_Z1    = 2,
->   	AD7879_SEQ_Z2    = 3,
->   	AD7879_NR_SENSE  = 4,
->
-
-
--- 
-Greetings,
-Michael
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

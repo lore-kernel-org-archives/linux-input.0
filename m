@@ -1,48 +1,90 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: New FocalTech FT6236 touchscreen driver is a duplicate with the
- existing edt-ft5x06.c driver
-Date: Tue, 26 Jan 2016 10:16:25 +0100
-Message-ID: <56A73969.5000100@redhat.com>
-References: <5675B852.5060308@redhat.com>
+From: Michael Hennerich <michael.hennerich@analog.com>
+Subject: Re: [PATCH 2/3] input: touchscreen: ad7879: fix default x/y axis
+ assignment
+Date: Tue, 26 Jan 2016 08:58:44 +0100
+Message-ID: <56A72734.9000303@analog.com>
+References: <1453777477-29706-1-git-send-email-stefan@agner.ch>
+ <1453777477-29706-2-git-send-email-stefan@agner.ch>
+Reply-To: <michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44092 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756215AbcAZJQc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jan 2016 04:16:32 -0500
-In-Reply-To: <5675B852.5060308@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1453777477-29706-2-git-send-email-stefan@agner.ch>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stefan Agner <stefan@agner.ch>, dmitry.torokhov@gmail.com, robh+dt@kernel.org
+Cc: mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, realmz6@gmail.com, broonie@kernel.org, jic23@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Sean Cross <xobs@kosagi.com>, =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.or>
-Cc: Bertrik Sikken <bertrik@sikken.nl>
 
-Hi,
-
-On 19-12-15 21:04, Hans de Goede wrote:
-> Hi All,
+On 01/26/2016 04:04 AM, Stefan Agner wrote:
+> The measurements read from the controller which are temporary stored
+> in conversion_data, are interpreted wrong. The first measurement X+
+> contains the Y position, and the second measurement Y+ the X position
+> (see also Table 11 Register Table in the data sheet).
 >
-> While looking into getting a focaltech touchscreen on a tablet working I noticed
-> that we've 2 overlapping drivers, the ft6236.c and the edt-ft5x06.c driver both
-> support the exact same i2c touchscreen protocol. In the latter the code for the
-> "M09" variant offers identical functionality to the ft6236.c code.
+> The problem is already known and a swap option has been introduced:
+> commit 6680884a4420 ("Input: ad7879 - add option to correct xy axis")
 >
-> Since the edt-ft5x06.c code seems more complete wrt advanced features and has
-> been around much longer, I would like to suggest to add the ft6236.c compatible
-> and i2c-ids to the edt-ft5x06.c driver and to drop the duplicate ft6236.c driver.
+> However, with that the meaning of the new boolean is inverted since
+> the underlying values are already swapped. With this change, a true
+> in swap_xy actually swaps the two axis.
 >
-> I've tested both drivers on a Chuwi_V7_CW0825 tablet with a ft5302fe4 touchscreen
-> controller (not 100% sure on the model I may be mixing up touchscreen models here,
-> but it definitely is a focaltech controller), and both drivers work identically.
+> Signed-off-by: Stefan Agner <stefan@agner.ch>
+> ---
+> Hi Michael,
+>
+> It seems that swap_xy is not used in any board which is in mainline,
+> hence swap_xy is always false. Therefore, up until now all boards
+> actually used swapped axis. However, I doubt that the blackfin boards
+> really have those axis swapped, it is probably more likely that the
+> userspace calibration took care of it.
+>
+> However, if they are really swapped, we should set the swap_xy flag
+> to 1 for those board...
+>
+> Do you happen to now what is the case with those boards?
+>
 
-Ping ? We really need to fix this and the sooner the better, so that we do not
-get more and more devices depending on the new duplicate ft6236.c driver.
 
-Dmitry, since non of the ft6236.c maintainers has responded / has tested there devices
-with edt-ft5x06.c, shall I just go ahead and send a patch to add the i2c-id +
-compatibles from ft6236.c to edt-ft5x06.c and remove ft6236.c ?
+Hi Stefan,
+
+I would be hesitant to invert the default behaviour of the driver.
+Too many people in the field already using it as it is.
+
+A XY swap can have multiple reasons.
+
+Lot's of small VGA/QVGA TFTs have the option to switch the scan 
+direction from Landscape to Portrait. In addition you can also rotate 
+and flip or mirror using VDMA options. So it really depends on the use 
+case, how the touch panel is mounted to the screen or how it is wired.
 
 Regards,
+Michael
 
-Hans
+> --
+> Stefan
+>
+>   drivers/input/touchscreen/ad7879.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+> index a73934b..e290e7b 100644
+> --- a/drivers/input/touchscreen/ad7879.c
+> +++ b/drivers/input/touchscreen/ad7879.c
+> @@ -94,8 +94,8 @@
+>   #define AD7879_TEMP_BIT			(1<<1)
+>
+>   enum {
+> -	AD7879_SEQ_XPOS  = 0,
+> -	AD7879_SEQ_YPOS  = 1,
+> +	AD7879_SEQ_YPOS  = 0,
+> +	AD7879_SEQ_XPOS  = 1,
+>   	AD7879_SEQ_Z1    = 2,
+>   	AD7879_SEQ_Z2    = 3,
+>   	AD7879_NR_SENSE  = 4,
+>
+
+
+-- 
+Greetings,
+Michael

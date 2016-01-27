@@ -1,18 +1,23 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 3.10 51/53] HID: core: Avoid uninitialized buffer access
-Date: Wed, 27 Jan 2016 10:16:10 -0800
-Message-ID: <20160127180651.514342670@linuxfoundation.org>
-References: <20160127180648.932559859@linuxfoundation.org>
+Subject: [PATCH 4.3 150/157] HID: core: Avoid uninitialized buffer access
+Date: Wed, 27 Jan 2016 10:13:37 -0800
+Message-ID: <20160127180940.616436007@linuxfoundation.org>
+References: <20160127180932.533735338@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160127180648.932559859@linuxfoundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:54864 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965204AbcA0TGl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Jan 2016 14:06:41 -0500
+In-Reply-To: <20160127180932.533735338@linuxfoundation.org>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Richard Purdie <richard.purdie@linuxfoundation.org>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Jiri Kosina <jkosina@suse.cz>
-List-Id: linux-input@vger.kernel.org
 
-3.10-stable review patch.  If anyone has any objections, please let me know.
+4.3-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -41,7 +46,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -1462,7 +1462,7 @@ int hid_connect(struct hid_device *hdev,
+@@ -1611,7 +1611,7 @@ int hid_connect(struct hid_device *hdev,
  		"Multi-Axis Controller"
  	};
  	const char *type, *bus;
@@ -50,3 +55,5 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	unsigned int i;
  	int len;
  	int ret;
+
+

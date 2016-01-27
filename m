@@ -1,18 +1,18 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.1 121/127] HID: core: Avoid uninitialized buffer access
-Date: Wed, 27 Jan 2016 10:14:45 -0800
-Message-ID: <20160127180811.904543184@linuxfoundation.org>
-References: <20160127180805.624425994@linuxfoundation.org>
+Subject: [PATCH 3.10 51/53] HID: core: Avoid uninitialized buffer access
+Date: Wed, 27 Jan 2016 10:16:10 -0800
+Message-ID: <20160127180651.514342670@linuxfoundation.org>
+References: <20160127180648.932559859@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20160127180805.624425994@linuxfoundation.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160127180648.932559859@linuxfoundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Richard Purdie <richard.purdie@linuxfoundation.org>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
 
-4.1-stable review patch.  If anyone has any objections, please let me know.
+3.10-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -41,7 +41,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -1589,7 +1589,7 @@ int hid_connect(struct hid_device *hdev,
+@@ -1462,7 +1462,7 @@ int hid_connect(struct hid_device *hdev,
  		"Multi-Axis Controller"
  	};
  	const char *type, *bus;

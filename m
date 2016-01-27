@@ -1,67 +1,52 @@
-From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH resend 2/4] touchscreen: ft5x06: Add support for axis inversion / swapping
-Date: Wed, 27 Jan 2016 19:25:22 +0100
-Message-ID: <1453919124-3840-3-git-send-email-hdegoede@redhat.com>
-References: <1453919124-3840-1-git-send-email-hdegoede@redhat.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1453919124-3840-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 3.14 56/59] HID: core: Avoid uninitialized buffer access
+Date: Wed, 27 Jan 2016 10:15:44 -0800
+Message-ID: <20160127180739.314298827@linuxfoundation.org>
+References: <20160127180730.588995883@linuxfoundation.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160127180730.588995883@linuxfoundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Richard Purdie <richard.purdie@linuxfoundation.org>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
 
-Add support for axis inversion / swapping using the new
-touchscreen_parse_properties and touchscreen_apply_prop_to_x_y
-functionality.
+3.14-stable review patch.  If anyone has any objections, please let me know.
 
-Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+------------------
+
+From: Richard Purdie <richard.purdie@linuxfoundation.org>
+
+commit 79b568b9d0c7c5d81932f4486d50b38efdd6da6d upstream.
+
+hid_connect adds various strings to the buffer but they're all
+conditional. You can find circumstances where nothing would be written
+to it but the kernel will still print the supposedly empty buffer with
+printk. This leads to corruption on the console/in the logs.
+
+Ensure buf is initialized to an empty string.
+
+Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
+[dvhart: Initialize string to "" rather than assign buf[0] = NULL;]
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/hid/hid-core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index a97b54a..6fe8d51 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -86,6 +86,7 @@ struct edt_reg_addr {
- struct edt_ft5x06_ts_data {
- 	struct i2c_client *client;
- 	struct input_dev *input;
-+	struct touchscreen_properties prop;
- 	u16 num_x;
- 	u16 num_y;
- 
-@@ -173,7 +174,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
- 	struct device *dev = &tsdata->client->dev;
- 	u8 cmd;
- 	u8 rdbuf[63];
--	int i, type, x, y, id;
-+	s16 x, y;
-+	int i, type, id;
- 	int offset, tplen, datalen, crclen;
- 	int error;
- 
-@@ -246,6 +248,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
- 		if (!down)
- 			continue;
- 
-+		touchscreen_apply_prop_to_x_y(&tsdata->prop, &x, &y);
- 		input_report_abs(tsdata->input, ABS_MT_POSITION_X, x);
- 		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, y);
- 	}
-@@ -966,7 +969,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 	input_set_abs_params(input, ABS_MT_POSITION_Y,
- 			     0, tsdata->num_y * 64 - 1, 0, 0);
- 
--	touchscreen_parse_properties(input, true, NULL);
-+	touchscreen_parse_properties(input, true, &tsdata->prop);
- 
- 	error = input_mt_init_slots(input, tsdata->max_support_points,
- 				INPUT_MT_DIRECT);
--- 
-2.5.0
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1506,7 +1506,7 @@ int hid_connect(struct hid_device *hdev,
+ 		"Multi-Axis Controller"
+ 	};
+ 	const char *type, *bus;
+-	char buf[64];
++	char buf[64] = "";
+ 	unsigned int i;
+ 	int len;
+ 	int ret;

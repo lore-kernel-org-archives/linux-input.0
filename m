@@ -1,57 +1,32 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: quirks: Add no_init_reports for AKAI midi
- controller
-Date: Wed, 27 Jan 2016 22:31:26 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1601272230070.21446@cbobk.fhfr.pm>
-References: <1453903777-11790-1-git-send-email-shorne@gmail.com>
+Subject: Re: [PATCH] HID: rmi: Check that the device is a RMI device in
+ suspend and resume callbacks
+Date: Wed, 27 Jan 2016 22:41:48 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1601272241250.21446@cbobk.fhfr.pm>
+References: <1453851636-5490-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1453903777-11790-1-git-send-email-shorne@gmail.com>
+In-Reply-To: <1453851636-5490-1-git-send-email-aduggan@synaptics.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stafford Horne <shorne@gmail.com>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Rodrigo Gomes <rodrigo.toste.gomes@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 27 Jan 2016, Stafford Horne wrote:
+On Tue, 26 Jan 2016, Andrew Duggan wrote:
 
-> The midi controller times-out while initializing reports, this
-> causes boot to take an extra 10 seconds. The device descriptor
-> advertises that it has an internal HID device but seems to not
-> actually do anything useful.
+> Commit 092563604217 ("HID: rmi: Disable scanning if the device is not a
+> wake source") introduced a regression for devices which use hid-rmi to
+> handle composite USB devices. The suspend or resume callbacks are not
+> checking that the device is a RMI device before calling rmi_read or
+> rmi_write. This results in dereferencing uninitialized variables on
+> non RMI devices. This patch checks that the RMI_DEVICE flag is set before
+> sending RMI commands to the device.
 > 
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
-> ---
->  drivers/hid/hid-ids.h           | 3 +++
->  drivers/hid/usbhid/hid-quirks.c | 1 +
->  2 files changed, 4 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index b6ff6e7..3dfb166 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -61,6 +61,9 @@
->  #define USB_VENDOR_ID_AIREN		0x1a2c
->  #define USB_DEVICE_ID_AIREN_SLIMPLUS	0x0002
->  
-> +#define USB_VENDOR_ID_AKAI              0x2011
-> +#define USB_DEVICE_ID_AKAI_MPKMINI2     0x0715
-> +
->  #define USB_VENDOR_ID_ALCOR		0x058f
->  #define USB_DEVICE_ID_ALCOR_USBRS232	0x9720
->  
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index 7dd0953..055e740 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -55,6 +55,7 @@ static const struct hid_blacklist {
->  	{ USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS, HID_QUIRK_MULTI_INPUT },
->  
->  	{ USB_VENDOR_ID_AIREN, USB_DEVICE_ID_AIREN_SLIMPLUS, HID_QUIRK_NOGET },
-> +	{ USB_VENDOR_ID_AKAI, USB_DEVICE_ID_AKAI_MPKMINI2, HID_QUIRK_NO_INIT_REPORTS },
+> Reported-by: Rodrigo Gomes <rodrigo.toste.gomes@gmail.com>
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 
-If the (proclaimed) HID device is completely silent, wouldn't 
-HID_QUIRK_IGNORE be more appropriate?
+Applied to for-4.5/upstream-fixes.
 
 -- 
 Jiri Kosina

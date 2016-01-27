@@ -1,59 +1,84 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.3 150/157] HID: core: Avoid uninitialized buffer access
-Date: Wed, 27 Jan 2016 10:13:37 -0800
-Message-ID: <20160127180940.616436007@linuxfoundation.org>
-References: <20160127180932.533735338@linuxfoundation.org>
+From: Andrea <andrea.deangelis93@gmail.com>
+Subject: Re: keyboard problem on linux
+Date: Wed, 27 Jan 2016 21:52:25 +0100
+Message-ID: <56A92E09.9020009@gmail.com>
+References: <569E3B62.6050407@gmail.com> <20160120001340.GC31589@dtor-ws>
+ <569F5389.8040800@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:54864 "EHLO
-	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965204AbcA0TGl (ORCPT
+Received: from mail-wm0-f41.google.com ([74.125.82.41]:37945 "EHLO
+	mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965544AbcA0Uwd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jan 2016 14:06:41 -0500
-In-Reply-To: <20160127180932.533735338@linuxfoundation.org>
+	Wed, 27 Jan 2016 15:52:33 -0500
+Received: by mail-wm0-f41.google.com with SMTP id p63so44889515wmp.1
+        for <linux-input@vger.kernel.org>; Wed, 27 Jan 2016 12:52:33 -0800 (PST)
+In-Reply-To: <569F5389.8040800@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Richard Purdie <richard.purdie@linuxfoundation.org>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Jiri Kosina <jkosina@suse.cz>
-
-4.3-stable review patch.  If anyone has any objections, please let me know.
-
-------------------
-
-From: Richard Purdie <richard.purdie@linuxfoundation.org>
-
-commit 79b568b9d0c7c5d81932f4486d50b38efdd6da6d upstream.
-
-hid_connect adds various strings to the buffer but they're all
-conditional. You can find circumstances where nothing would be written
-to it but the kernel will still print the supposedly empty buffer with
-printk. This leads to corruption on the console/in the logs.
-
-Ensure buf is initialized to an empty string.
-
-Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
-[dvhart: Initialize string to "" rather than assign buf[0] = NULL;]
-Cc: Jiri Kosina <jikos@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
-Signed-off-by: Darren Hart <dvhart@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/hid/hid-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+i've installed the new kernel 4.5 RC1, but i've the same problem.
+i've also tried start ubuntu with upstart, same problem.
+i don't know why i've this strange problem.
 
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1611,7 +1611,7 @@ int hid_connect(struct hid_device *hdev,
- 		"Multi-Axis Controller"
- 	};
- 	const char *type, *bus;
--	char buf[64];
-+	char buf[64] = "";
- 	unsigned int i;
- 	int len;
- 	int ret;
+i've also tried GhostBSD on live (i don't know if this information can 
+be useful), the problems occurs also on BSD but seem that is less severe 
+than on Linux, because on BSD seems that the problem occurs only one 
+time every boot, then disappears without do nothing (don't need to press 
+MAIUSC key for some seconds).
+
+I hope that this bug can be solved.
 
 
+Il 20/01/2016 10:29, Andrea ha scritto:
+> Hi, Dmitry
+> i've the same problem on console without X.
+> this is an output of evtest on console:
+> http://pastebin.com/4aWYYhwN
+> (as you can see, after a while i'm pressing Left_Alt (from line 434 of
+> pastebin) or Left_Ctrl (from line 605 of pastebin) or Left_Shift (from
+> line 786 of pastebin), these keys are released and then pressed again.
+> but when i press only left_shift for some seconds, the issue don't occurs.)
+>
+> i haven't found nothing on BIOS settings, the only options relative to
+> keyboard is:
+>
+> Action Keys Mode:
+> [Enabled]: Requires pressing only F1 throug F12 to activate action keys
+> [Disabled]: Requires pressing FN Key + F1 throug F12 to activate action
+> keys
+>
+> but the problem occurs in both modes
+>
+>
+> Il 20/01/2016 01:13, Dmitry Torokhov ha scritto:
+>> Hi Andera,
+>>
+>> On Tue, Jan 19, 2016 at 02:34:26PM +0100, Andrea wrote:
+>>> [1.] i've a problem with keyboard of my notebook HP Pavilion 15
+>>> ab062nl; CTRL SHIFT and ALT buttons not works as they should. in
+>>> particular, it is as if these keys are pressed and released alone.
+>>> isn't an hardware problem, because on windows 10 and windows 8.1 i
+>>> haven't these problems, is only a linux problem (all distro).
+>>>
+>>> [2.] the bug is always active, every time i start a linux Distro
+>>> (also from live, and also without DE/WM) i've this problem with
+>>> keyboard, the only way to fix temporarily the bug, is pressing the
+>>> only Left SHIFT key for some seconds, then all problems disappear
+>>> indefinitely, and in any case, if i shutdown or if i reboot the PC,
+>>> the problem recurs.
+>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1532746
+>>
+>> Hmm, this is weird. Do you observe the same issue in text console (not
+>> in X)? It would be nice to see events as emitted by the kernel - you can
+>> use evtest utility for that.
+>>
+>> Is sounds like some accessibility feature, is there anything in BIOS to
+>> that effect?
+>>
+>> Thanks.
+>>

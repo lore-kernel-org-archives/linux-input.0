@@ -1,53 +1,88 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: xpad: remove unused function
-Date: Wed, 27 Jan 2016 15:43:03 -0800
-Message-ID: <20160127234303.GG28687@dtor-ws>
-References: <1453735884-1958624-1-git-send-email-arnd@arndb.de>
+Subject: Re: [PATCH] input: sirf onkey: allow modular build
+Date: Wed, 27 Jan 2016 15:43:50 -0800
+Message-ID: <20160127234350.GH28687@dtor-ws>
+References: <1453735950-1958677-1-git-send-email-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f174.google.com ([209.85.192.174]:34200 "EHLO
-	mail-pf0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934689AbcA0XnH (ORCPT
+Received: from mail-pf0-f172.google.com ([209.85.192.172]:34515 "EHLO
+	mail-pf0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934772AbcA0Xnx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jan 2016 18:43:07 -0500
+	Wed, 27 Jan 2016 18:43:53 -0500
 Content-Disposition: inline
-In-Reply-To: <1453735884-1958624-1-git-send-email-arnd@arndb.de>
+In-Reply-To: <1453735950-1958677-1-git-send-email-arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arm-kernel@lists.infradead.org, Pavel Rojtberg <rojtberg@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, Barry Song <baohua@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Jan 25, 2016 at 04:30:41PM +0100, Arnd Bergmann wrote:
-> There are two definitions of xpad_identify_controller(), one is used
-> when CONFIG_JOYSTICK_XPAD_LEDS is set, but the other one is empty
-> and never used, and we get a gcc warning about it:
+On Mon, Jan 25, 2016 at 04:31:35PM +0100, Arnd Bergmann wrote:
+> CONFIG_INPUT may itself be a loadable module, but the sirf power key
+> driver is listed as 'bool', which makes it possible to select
+> a broken configuration with the driver built-in but the subsystem
+> not loaded. In this configuration, we get a link error:
 > 
-> drivers/input/joystick/xpad.c:1210:13: warning: 'xpad_identify_controller' defined but not used [-Wunused-function]
+> drivers/input/built-in.o: In function `sirfsoc_pwrc_isr':
+> drivers/input/misc/sirfsoc-onkey.c:63: undefined reference to `input_event'
+> drivers/input/built-in.o: In function `sirfsoc_pwrc_isr':
+> include/linux/input.h:414: undefined reference to `input_event'
+> drivers/input/built-in.o: In function `sirfsoc_pwrc_probe':
+> drivers/input/misc/sirfsoc-onkey.c:132: undefined reference to `devm_input_allocate_device'
+> drivers/input/misc/sirfsoc-onkey.c:139: undefined reference to `input_set_capability'
+> drivers/input/misc/sirfsoc-onkey.c:161: undefined reference to `input_register_device'
+> drivers/input/built-in.o: In function `sirfsoc_pwrc_report_event':
+> drivers/input/misc/sirfsoc-onkey.c:48: undefined reference to `input_event'
+> drivers/input/built-in.o: In function `sirfsoc_pwrc_report_event':
+> include/linux/input.h:414: undefined reference to `input_event'
+> drivers/input/built-in.o:(.debug_addr+0x24): undefined reference to `input_event'
+> drivers/input/built-in.o:(.debug_addr+0xbc): undefined reference to `devm_input_allocate_device'
+> drivers/input/built-in.o:(.debug_addr+0x104): undefined reference to `input_set_capability'
+> drivers/input/built-in.o:(.debug_addr+0x128): undefined reference to `input_register_device'
 > 
-> This removes the second definition.
+> This marks the driver as 'tristate' so it becomes possible to have
+> it in a loadable module, mainly to help with randconfig builds.
+> 
+> We also have to add a missing semicolon here, which ended up not
+> being needed in built-in mode because the following MODULE_DEVICE_TABLE
+> is an empty macro followed by another semicolon then.
 > 
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Fixes: cae705baa40b ("Input: xpad - re-send LED command on present event")
 
 Applied, thank you.
 
 > ---
->  drivers/input/joystick/xpad.c | 1 -
->  1 file changed, 1 deletion(-)
+>  drivers/input/misc/Kconfig         | 2 +-
+>  drivers/input/misc/sirfsoc-onkey.c | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index 6727954ab74b..e8a84d12b7ff 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -1207,7 +1207,6 @@ static void xpad_led_disconnect(struct usb_xpad *xpad)
->  #else
->  static int xpad_led_probe(struct usb_xpad *xpad) { return 0; }
->  static void xpad_led_disconnect(struct usb_xpad *xpad) { }
-> -static void xpad_identify_controller(struct usb_xpad *xpad) { }
->  #endif
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index d6d16fa78281..1f2337abcf2f 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -733,7 +733,7 @@ config INPUT_XEN_KBDDEV_FRONTEND
+>  	  module will be called xen-kbdfront.
 >  
->  static int xpad_start_input(struct usb_xpad *xpad)
+>  config INPUT_SIRFSOC_ONKEY
+> -	bool "CSR SiRFSoC power on/off/suspend key support"
+> +	tristate "CSR SiRFSoC power on/off/suspend key support"
+>  	depends on ARCH_SIRF && OF
+>  	default y
+>  	help
+> diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
+> index 9d5b89befe6f..ed7237f19539 100644
+> --- a/drivers/input/misc/sirfsoc-onkey.c
+> +++ b/drivers/input/misc/sirfsoc-onkey.c
+> @@ -101,7 +101,7 @@ static void sirfsoc_pwrc_close(struct input_dev *input)
+>  static const struct of_device_id sirfsoc_pwrc_of_match[] = {
+>  	{ .compatible = "sirf,prima2-pwrc" },
+>  	{},
+> -}
+> +};
+>  MODULE_DEVICE_TABLE(of, sirfsoc_pwrc_of_match);
+>  
+>  static int sirfsoc_pwrc_probe(struct platform_device *pdev)
 > -- 
 > 2.7.0
 > 

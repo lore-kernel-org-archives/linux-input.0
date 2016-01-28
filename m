@@ -1,59 +1,71 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [patch added to 3.12-stable] HID: core: Avoid uninitialized buffer access
-Date: Thu, 28 Jan 2016 11:52:21 +0100
-Message-ID: <1453978346-20237-30-git-send-email-jslaby@suse.cz>
-References: <1453978346-20237-1-git-send-email-jslaby@suse.cz>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:60526 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S967343AbcA1Kwv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jan 2016 05:52:51 -0500
-In-Reply-To: <1453978346-20237-1-git-send-email-jslaby@suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH-V2 1/1] HID: Force feedback support for the Logitech
+ G920
+Date: Thu, 28 Jan 2016 14:33:12 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1601281430560.21446@cbobk.fhfr.pm>
+References: <1452468315-8978-1-git-send-email-e.velds@gmail.com> <0db5d205435e01d8228b97a2d87ef42d.squirrel@mungewell.org>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <0db5d205435e01d8228b97a2d87ef42d.squirrel@mungewell.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Simon Wood <simon@mungewell.org>
+Cc: Edwin Velds <e.velds@gmail.com>, linux-input@vger.kernel.org, Michal Maly <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: stable@vger.kernel.org
-Cc: Richard Purdie <richard.purdie@linuxfoundation.org>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Jiri Kosina <jkosina@suse.cz>, Jiri Slaby <jslaby@suse.cz>
 
-From: Richard Purdie <richard.purdie@linuxfoundation.org>
+On Tue, 26 Jan 2016, Simon Wood wrote:
 
-This patch has been added to the 3.12 stable tree. If you have any
-objections, please let us know.
+> On Sun, January 10, 2016 4:25 pm, Edwin Velds wrote:
+> > This patch implements force feedback support for the Logitech
+> > G920 Driving Force Racing Wheel. It is a generic implementation
+> > of feature 0x8123 of the Logitech HID++ protocol and should be usable for
+> > any future devices that implement this feature.
+> 
+> Apologies for being slow on this (something to do with changing jobs and
+> accomodation ;-).
+> 
+> Doesn't patch cleanly on Linus' HEAD due to:
+> --
+> commit d8ce9bf5551bfea431893bdd0a943f24a5170828
+> Author: Geliang Tang <geliangtang@163.com>
+> Date:   Sun Dec 27 17:25:20 2015 +0800
+> 
+>     HID: move to_hid_device() to hid.h
 
-===============
+I've fixed the conflict.
 
-commit 79b568b9d0c7c5d81932f4486d50b38efdd6da6d upstream.
+> --
+> 
+> A couple of white space issues:
+> --
+> ERROR: trailing whitespace
+> #114: FILE: drivers/hid/hid-logitech-hidpp.c:867:
+> +static const u8 HIDPP_FF_CONDITION_CMDS[] = { $
+> 
+> ERROR: trailing whitespace
+> #121: FILE: drivers/hid/hid-logitech-hidpp.c:874:
+> +static const char *HIDPP_FF_CONDITION_NAMES[] = { $
 
-hid_connect adds various strings to the buffer but they're all
-conditional. You can find circumstances where nothing would be written
-to it but the kernel will still print the supposedly empty buffer with
-printk. This leads to corruption on the console/in the logs.
+Fixed as well.
 
-Ensure buf is initialized to an empty string.
+> --
+> 
+> Note: The wheel _DOES_NOT_ auto switch to Logitech/HID mode (it is stuck
+> in XBox since the xpad changes where not included). Michal has an
+> alternative approach documented here:
 
-Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
-[dvhart: Initialize string to "" rather than assign buf[0] = NULL;]
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Darren Hart <dvhart@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
----
- drivers/hid/hid-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I've ammended the changelog with this information.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 85b0da8c33f4..7ca1b4a97a14 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1514,7 +1514,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 		"Multi-Axis Controller"
- 	};
- 	const char *type, *bus;
--	char buf[64];
-+	char buf[64] = "";
- 	unsigned int i;
- 	int len;
- 	int ret;
+> Apart from these few minor points, but seems to work OK - tested against
+> G920 with older firmware.
+> 
+> Tested-by: Simon Wood <simon@mungewell.org>
+
+Applied to for-4.6/logitech, thanks.
+
+(also, I've made hidpp_ff_init() and hidpp_ff_deinit() static, as they 
+don't have to be exported outside of the unit).
+
 -- 
-2.7.0
-
+Jiri Kosina
+SUSE Labs

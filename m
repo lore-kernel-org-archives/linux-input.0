@@ -1,91 +1,71 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH] input: keyboard: cap11xx: Add missing of_node_put
-Date: Thu, 28 Jan 2016 10:16:39 +0100 (CET)
-Message-ID: <alpine.DEB.2.10.1601281014320.2516@hadrien>
-References: <20160125153121.GA21093@amitoj-Inspiron-3542> <20160127234858.GI28687@dtor-ws>
+From: Oliver Neukum <oneukum@suse.com>
+Subject: Re: [PATCH] HID: quirks: Add no_init_reports for AKAI midi
+ controller
+Date: Thu, 28 Jan 2016 10:15:48 +0100
+Message-ID: <1453972548.8073.1.camel@suse.com>
+References: <1453903777-11790-1-git-send-email-shorne@gmail.com>
+	 <alpine.LNX.2.00.1601272230070.21446@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail2-relais-roc.national.inria.fr ([192.134.164.83]:19444 "EHLO
-	mail2-relais-roc.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755043AbcA1JRQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jan 2016 04:17:16 -0500
-In-Reply-To: <20160127234858.GI28687@dtor-ws>
+Received: from mx2.suse.de ([195.135.220.15]:36454 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S966118AbcA1JSP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 Jan 2016 04:18:15 -0500
+In-Reply-To: <alpine.LNX.2.00.1601272230070.21446@cbobk.fhfr.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Amitoj Kaur Chawla <amitoj1606@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Stafford Horne <shorne@gmail.com>, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-
-
-On Wed, 27 Jan 2016, Dmitry Torokhov wrote:
-
-> On Mon, Jan 25, 2016 at 09:01:21PM +0530, Amitoj Kaur Chawla wrote:
-> > for_each_child_of_node performs an of_node_get on each iteration, so
-> > to break out of the loop an of_node_put is required.
-> >
-> > Found using Coccinelle. The semantic patch used for this is as follows:
-> >
-> > // <smpl>
-> > @@
-> > expression e;
-> > local idexpression n;
-> > @@
-> >
-> >  for_each_child_of_node(..., n) {
-> >    ... when != of_node_put(n)
-> >        when != e = n
-> > (
-> >    return n;
-> > |
-> > +  of_node_put(n);
-> > ?  return ...;
-> > )
-> >    ...
-> >  }
-> > // </smpl
-> >
-> > Signed-off-by: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+On Wed, 2016-01-27 at 22:31 +0100, Jiri Kosina wrote:
+> On Wed, 27 Jan 2016, Stafford Horne wrote:
+> 
+> > The midi controller times-out while initializing reports, this
+> > causes boot to take an extra 10 seconds. The device descriptor
+> > advertises that it has an internal HID device but seems to not
+> > actually do anything useful.
+> > 
+> > Signed-off-by: Stafford Horne <shorne@gmail.com>
 > > ---
-> >  drivers/input/keyboard/cap11xx.c | 12 +++++++++---
-> >  1 file changed, 9 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-> > index 378db10..27cd7df 100644
-> > --- a/drivers/input/keyboard/cap11xx.c
-> > +++ b/drivers/input/keyboard/cap11xx.c
-> > @@ -304,8 +304,10 @@ static int cap11xx_init_leds(struct device *dev,
-> >  		led->cdev.brightness = LED_OFF;
-> >
-> >  		error = of_property_read_u32(child, "reg", &reg);
-> > -		if (error != 0 || reg >= num_leds)
-> > -			return -EINVAL;
-> > +		if (error != 0 || reg >= num_leds) {
-> > +			error = -EINVAL;
-> > +			goto putchild;
->
-> Instead of jumping to a label I added of_node_put here and also below
-> and applied, thank you.
+> >  drivers/hid/hid-ids.h           | 3 +++
+> >  drivers/hid/usbhid/hid-quirks.c | 1 +
+> >  2 files changed, 4 insertions(+)
+> > 
+> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> > index b6ff6e7..3dfb166 100644
+> > --- a/drivers/hid/hid-ids.h
+> > +++ b/drivers/hid/hid-ids.h
+> > @@ -61,6 +61,9 @@
+> >  #define USB_VENDOR_ID_AIREN		0x1a2c
+> >  #define USB_DEVICE_ID_AIREN_SLIMPLUS	0x0002
+> >  
+> > +#define USB_VENDOR_ID_AKAI              0x2011
+> > +#define USB_DEVICE_ID_AKAI_MPKMINI2     0x0715
+> > +
+> >  #define USB_VENDOR_ID_ALCOR		0x058f
+> >  #define USB_DEVICE_ID_ALCOR_USBRS232	0x9720
+> >  
+> > diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> > index 7dd0953..055e740 100644
+> > --- a/drivers/hid/usbhid/hid-quirks.c
+> > +++ b/drivers/hid/usbhid/hid-quirks.c
+> > @@ -55,6 +55,7 @@ static const struct hid_blacklist {
+> >  	{ USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS, HID_QUIRK_MULTI_INPUT },
+> >  
+> >  	{ USB_VENDOR_ID_AIREN, USB_DEVICE_ID_AIREN_SLIMPLUS, HID_QUIRK_NOGET },
+> > +	{ USB_VENDOR_ID_AKAI, USB_DEVICE_ID_AKAI_MPKMINI2, HID_QUIRK_NO_INIT_REPORTS },
+> 
+> If the (proclaimed) HID device is completely silent, wouldn't 
+> HID_QUIRK_IGNORE be more appropriate?
 
-Do you have a general strategy for this?
+If it really is impossible to use the device.
+That quirk would preclude any use you are not aware of with almost
+no added benefit. I would take the patch as is.
 
-I asked Arnd Bergmann, and he said that if things were shared and if all
-failures later in the function could use the shared label, then one should
-use a label.  But I can see that there could be different opinions about
-it.  Maybe two instances is not enough for sharing?  Maybe the fact that
-the need for this error handling is limited to the loop means that there
-should never be sharing?
+	Regards
+		Oliver
 
-thanks,
-julia
 
->
-> I believe there is another input driver that returns from
-> for_each_child_of_node() without dropping reference.
->
-> Thanks.
->
-> --
-> Dmitry
->
+

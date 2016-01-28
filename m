@@ -1,75 +1,233 @@
-From: "Laison Computech Inc" <danny@lamicro.com>
-Subject: NEW ARRIVALS, CISCO,CPU's,Memory, LAPTOP AND AVAYA
-Date: Wed, 27 Jan 2016 12:41:51 +0700
-Message-ID: <201601270544.AQX06493__12511.08706133$1453951446$gmane$org@razorgate1.infokom.net>
-Reply-To: <LaisonComputer@computer4u.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH resend 1/4] of_touchscreen-helpers: Add support for
+ inverted / swapped axis
+Date: Thu, 28 Jan 2016 08:57:13 +0100
+Message-ID: <56A9C9D9.7050803@redhat.com>
+References: <1453919124-3840-1-git-send-email-hdegoede@redhat.com>
+ <1453919124-3840-2-git-send-email-hdegoede@redhat.com>
+ <20160127224559.GB3482@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1251"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from razorgate1.infokom.net ([202.147.192.101]:12251 "EHLO
-	razorgate1.infokom.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161368AbcA1DXp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jan 2016 22:23:45 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:37193 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934300AbcA1H5T (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 Jan 2016 02:57:19 -0500
+In-Reply-To: <20160127224559.GB3482@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>
 
-Dear Sir/Madam,
+Hi,
 
-Clean tested working pulls CPUs and QTYs in stock.
+On 27-01-16 23:45, Dmitry Torokhov wrote:
+> Hi Hans,
+>
+> On Wed, Jan 27, 2016 at 07:25:21PM +0100, Hans de Goede wrote:
+>> Extend touchscreen_parse_properties() with support for the
+>> touchscreen-inverted-x/y and touchscreen-swapped-x-y properties and
+>> add a touchscreen_apply_prop_to_x_y() helper function for adjusting
+>> x and y coordinates to take these properties into account.
+>>
+>> This commit also modifies the existing callers of
+>> touchscreen_parse_properties() to pass in NULL for the new third
+>> argument, keeping the existing behavior.
+>
+> Thank you for re-sending the patches. I was wondering if we should add
+> the transformation flags directly to the input devices and perform
+> transformation in input core... Probably won't going to work well unless
+> we start defining order in which we send events to the core.
 
-115  X   X5650
-65  X   E5410
-75  X   X5660
-145  X   E5530
-100  X   E5645
-40  X   X5680
-75  X   X5690
+Interesting that you mention this, I had the same thought. The problem
+with doing this in the core is that we rely on the order of applying
+invert then axis swapping specified in the dt binding, so it seems best
+to keep this in the of helpers.
 
-Brand new sealed  IP phones and QTYs in stock.
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>   drivers/input/touchscreen/edt-ft5x06.c     |  2 +-
+>>   drivers/input/touchscreen/of_touchscreen.c | 56 +++++++++++++++++++++++++++++-
+>>   drivers/input/touchscreen/pixcir_i2c_ts.c  |  2 +-
+>>   drivers/input/touchscreen/tsc200x-core.c   |  2 +-
+>>   include/linux/input/touchscreen.h          | 16 ++++++++-
+>>   5 files changed, 73 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+>> index 0b0f8c1..a97b54a 100644
+>> --- a/drivers/input/touchscreen/edt-ft5x06.c
+>> +++ b/drivers/input/touchscreen/edt-ft5x06.c
+>> @@ -966,7 +966,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+>>   	input_set_abs_params(input, ABS_MT_POSITION_Y,
+>>   			     0, tsdata->num_y * 64 - 1, 0, 0);
+>>
+>> -	touchscreen_parse_properties(input, true);
+>> +	touchscreen_parse_properties(input, true, NULL);
+>>
+>>   	error = input_mt_init_slots(input, tsdata->max_support_points,
+>>   				INPUT_MT_DIRECT);
+>> diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input/touchscreen/of_touchscreen.c
+>> index bb6f2fe..6fd9872 100644
+>> --- a/drivers/input/touchscreen/of_touchscreen.c
+>> +++ b/drivers/input/touchscreen/of_touchscreen.c
+>> @@ -55,12 +55,16 @@ static void touchscreen_set_params(struct input_dev *dev,
+>>    * @input: input device that should be parsed
+>>    * @multitouch: specifies whether parsed properties should be applied to
+>>    *	single-touch or multi-touch axes
+>> + * @prop: pointer to a struct touchscreen_properties into which to store
+>> + *	axis swap and invert info for use with touchscreen_report_x_y();
+>> + *	or NULL
+>>    *
+>>    * This function parses common DT properties for touchscreens and setups the
+>>    * input device accordingly. The function keeps previously set up default
+>>    * values if no value is specified via DT.
+>>    */
+>> -void touchscreen_parse_properties(struct input_dev *input, bool multitouch)
+>> +void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
+>> +				  struct touchscreen_properties *prop)
+>>   {
+>>   	struct device *dev = input->dev.parent;
+>>   	unsigned int axis;
+>> @@ -104,5 +108,55 @@ void touchscreen_parse_properties(struct input_dev *input, bool multitouch)
+>>   						&fuzz);
+>>   	if (data_present)
+>>   		touchscreen_set_params(input, axis, maximum, fuzz);
+>> +
+>> +	if (!prop)
+>> +		return;
+>> +
+>> +	axis = multitouch ? ABS_MT_POSITION_X : ABS_X;
+>> +
+>> +	prop->max_x = input_abs_get_max(input, axis);
+>> +	prop->max_y = input_abs_get_max(input, axis + 1);
+>> +	prop->invert_x =
+>> +		device_property_read_bool(dev, "touchscreen-inverted-x");
+>> +	prop->invert_y =
+>> +		device_property_read_bool(dev, "touchscreen-inverted-y");
+>> +	prop->swap_x_y =
+>> +		device_property_read_bool(dev, "touchscreen-swapped-x-y");
+>> +
+>> +	if (prop->swap_x_y) {
+>> +		struct input_absinfo tmp_absinfo;
+>> +
+>> +		tmp_absinfo = input->absinfo[axis];
+>> +		input->absinfo[axis] = input->absinfo[axis + 1];
+>> +		input->absinfo[axis + 1] = tmp_absinfo;
+>> +	}
+>>   }
+>>   EXPORT_SYMBOL(touchscreen_parse_properties);
+>> +
+>> +/**
+>> + * touchscreen_apply_prop_to_x_y - Adjust abs x and y coordinates
+>> + * @prop: pointer to a struct touchscreen_properties
+>> + * @x: X coordinate to apply inversion and swapping to
+>> + * @y: Y coordinate to apply inversion and swapping to
+>> + *
+>> + * Adjust the passed in x and y values applying any axis inversion and
+>> + * swapping requested in the passed in touchscreen_properties.
+>> + */
+>> +void touchscreen_apply_prop_to_x_y(struct touchscreen_properties *prop,
+>> +				   s16 *x, s16 *y)
+>
+> why s16?
 
-55 x CP-7937G
-77 x CP-7942G
-54 x CP-7945G
-75 x CP-7962G
-......
-45 x Avaya 9630
-65 x Avaya 9641
-55 x Avaya 9640
+To match the type used in struct input_mt_pos, so that this can be
+called directly on a struct input_mt_pos (something which I ended
+up not doing in all of the followup patches, but probably still
+useful for the future).
 
-All NIB.
+>> +{
+>> +	if (prop->invert_x)
+>> +		*x = prop->max_x - *x;
+>> +
+>> +	if (prop->invert_y)
+>> +		*y = prop->max_y - *y;
+>> +
+>> +	if (prop->swap_x_y) {
+>> +		s16 tmp;
+>> +
+>> +		tmp = *x;
+>> +		*x = *y;
+>> +		*y = tmp;
+>
+> 		swap(*x, *y);
+>
+>> +	}
+>> +}
+>> +EXPORT_SYMBOL(touchscreen_apply_prop_to_x_y);
+>> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+>> index 09523a3..f58784d 100644
+>> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
+>> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+>> @@ -515,7 +515,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+>>   	} else {
+>>   		input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
+>>   		input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
+>> -		touchscreen_parse_properties(input, true);
+>> +		touchscreen_parse_properties(input, true, NULL);
+>>   		if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
+>>   		    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
+>>   			dev_err(dev, "Touchscreen size is not specified\n");
+>> diff --git a/drivers/input/touchscreen/tsc200x-core.c b/drivers/input/touchscreen/tsc200x-core.c
+>> index 15240c1..26e81d1 100644
+>> --- a/drivers/input/touchscreen/tsc200x-core.c
+>> +++ b/drivers/input/touchscreen/tsc200x-core.c
+>> @@ -559,7 +559,7 @@ int tsc200x_probe(struct device *dev, int irq, __u16 bustype,
+>>   	input_set_abs_params(input_dev, ABS_PRESSURE, 0, max_p, fudge_p, 0);
+>>
+>>   	if (np)
+>> -		touchscreen_parse_properties(input_dev, false);
+>> +		touchscreen_parse_properties(input_dev, false, NULL);
+>>
+>>   	input_dev->open = tsc200x_open;
+>>   	input_dev->close = tsc200x_close;
+>> diff --git a/include/linux/input/touchscreen.h b/include/linux/input/touchscreen.h
+>> index c91e137..9e6ba20 100644
+>> --- a/include/linux/input/touchscreen.h
+>> +++ b/include/linux/input/touchscreen.h
+>> @@ -9,8 +9,22 @@
+>>   #ifndef _TOUCHSCREEN_H
+>>   #define _TOUCHSCREEN_H
+>>
+>> +#include <asm/types.h>
+>
+> If you are trying to add this to have s32 typedefs
 
-Here is our current stock list.
+Yes that is why it is there.
 
- SSD drives and 750 gig 2.5" sata drives
+> then I think it is
+> wrong one.
 
-We also have
-250 x i5 dell
-133 x HP
-360 x Lenevo
-all grade A
+Looks like your right, do you know what the right one is ?
 
-Here is the qty in stock for laptops
- 
-150 x E6500 Dell Latitude E6500 Core 2 Duo 2.80GHz T9600 4GB 160GB DVD+/-RW Win 7
- 60 x E6510 Dell Ltitude E6510. 15.6" Intel Core i5- M520 @ 2.40GHz. 4GB. 320GB DVD+/-RW Win 7
-30 X 8530P HP EliteBook 8530p 15.4" Laptop 2.53GHz Core 2 Duo T9400, 4GB RAM, 160GB HDD, Win
-100 x  8740W  HP EliteBook 8740w 17" 2.4Ghz Core i5 6GB 250GB Win 7 Pr
-45 x 8760W HP EliteBook 8760W 17.3" 2nd Gen Intel Core i7 2.70GHz 8GB 320GB Windows 7 Pro
-50 x DELL 6520Dell latitude e6520 15.6" i5-2520M 2.5Ghz, 8GB Ram, 500GB HD Win 7 @ $115
-120 x DELL 6420 Laptop Dell Latitude E6420 14" Intel Core i5 2.4Ghz 4GB RAM 250GB HDD DVD Win 7
-150 x T410 Lenovo ThinkPad Laptop T410s 14.1" 2.40GHz Core i5 4GB RAM 160GB Win 7
-180 x 8440P HP EliteBook 8440p 14" M520 Core i5 2.4GHz 4GB 250GB Win 7
+>
+>> +
+>>   struct input_dev;
+>>
+>> -void touchscreen_parse_properties(struct input_dev *dev, bool multitouch);
+>> +struct touchscreen_properties {
+>> +	s32 max_x;
+>> +	s32 max_y;
+>> +	bool invert_x;
+>> +	bool invert_y;
+>> +	bool swap_x_y;
+>> +};
+>> +
+>> +void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
+>> +				  struct touchscreen_properties *prop);
+>> +
+>> +void touchscreen_apply_prop_to_x_y(struct touchscreen_properties *prop,
+>> +				   s16 *x, s16 *y);
+>>
+>>   #endif
+>> --
+>> 2.5.0
+>>
+>
+> Thanks.
+>
 
+Regards,
 
-Let me know if you're interested. We are very open to offers and willing to work with you to make sure that we have a deal.
-
-Thank You
-Barbara Johnson
-Laison Computech Inc
-210 N Scoring Ave,
-Rialto California, 92376
-Tel: +1-657-232-7047
-Fax: +1-347-214-047
+Hans

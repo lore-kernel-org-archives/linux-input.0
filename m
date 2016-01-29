@@ -1,36 +1,29 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: quirks: Add no_init_reports for AKAI midi
- controller
-Date: Fri, 29 Jan 2016 16:40:26 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1601291640090.21446@cbobk.fhfr.pm>
-References: <alpine.LNX.2.00.1601272230070.21446@cbobk.fhfr.p> <1454074687-17073-1-git-send-email-shorne@gmail.com>
+Subject: Re: [PATCH 1/7] HID: dragonrise: fix a typo in descriptors comments
+ s/Joystik/Joystick/
+Date: Fri, 29 Jan 2016 17:13:02 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1601291712440.21446@cbobk.fhfr.pm>
+References: <1454001827-26732-1-git-send-email-ao2@ao2.it> <1454001827-26732-2-git-send-email-ao2@ao2.it>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1454074687-17073-1-git-send-email-shorne@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stafford Horne <shorne@gmail.com>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:56325 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750991AbcA2QNE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 Jan 2016 11:13:04 -0500
+In-Reply-To: <1454001827-26732-2-git-send-email-ao2@ao2.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Antonio Ospite <ao2@ao2.it>
+Cc: linux-input@vger.kernel.org, Frank Praznik <frank.praznik@gmail.com>
 
-On Fri, 29 Jan 2016, Stafford Horne wrote:
+Hi,
 
-> The midi controller times-out while initializing reports, this
-> causes boot to take an extra 10 seconds. The device descriptor
-> advertises that it has an internal HID device but seems to not
-> actually do anything useful.
-> 
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
-> ---
-> Resending the same patch for the keyboard to simply disable init reports,
-> as discussed with Oliver there might be some hidden functionality which
-> I will look into.  At the moment I dont want to worry about time timeouts. 
-> 
-> Also, I did create and test a patch to use HID_QUIRK_IGNORE which I can 
-> send if you feel strongly about it. 
+1/7 and 3/7 applied to hid.git#for-4.6/upstream.
 
-Applied to for-4.5/upstream-fixes.
+Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
+

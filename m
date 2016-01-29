@@ -1,100 +1,94 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: keyboard: cap11xx: Add missing of_node_put
-Date: Thu, 28 Jan 2016 10:51:28 -0800
-Message-ID: <20160128185128.GA23256@dtor-ws>
-References: <20160125153121.GA21093@amitoj-Inspiron-3542>
- <20160127234858.GI28687@dtor-ws>
- <alpine.DEB.2.10.1601281014320.2516@hadrien>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 3/3] input: touchscreen: ad7879: add device tree support
+Date: Thu, 28 Jan 2016 21:00:32 -0600
+Message-ID: <20160129030032.GA24144@rob-hp-laptop>
+References: <1453777477-29706-1-git-send-email-stefan@agner.ch>
+ <1453777477-29706-3-git-send-email-stefan@agner.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:33712 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751498AbcA1Svb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jan 2016 13:51:31 -0500
+Received: from mail.kernel.org ([198.145.29.136]:58798 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751894AbcA2DAh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 Jan 2016 22:00:37 -0500
 Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.10.1601281014320.2516@hadrien>
+In-Reply-To: <1453777477-29706-3-git-send-email-stefan@agner.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Julia Lawall <julia.lawall@lip6.fr>
-Cc: Amitoj Kaur Chawla <amitoj1606@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Stefan Agner <stefan@agner.ch>
+Cc: dmitry.torokhov@gmail.com, michael.hennerich@analog.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, realmz6@gmail.com, broonie@kernel.org, jic23@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jan 28, 2016 at 10:16:39AM +0100, Julia Lawall wrote:
+On Mon, Jan 25, 2016 at 07:04:37PM -0800, Stefan Agner wrote:
+> Add device tree support for the I2C variant of AD7879 (AD7879-1). This
+> allows to specify the touchscreen controller as a I2C client node.
+> Most of the options available as platform data are also available as
+> device tree properties. Exporting the GPIO is currently not possible
+> through device tree.
 > 
+> Signed-off-by: Stefan Agner <stefan@agner.ch>
+> ---
+>  .../bindings/input/touchscreen/ad7879-i2c.txt      | 47 ++++++++++++++++
+>  drivers/input/touchscreen/ad7879-i2c.c             | 63 +++++++++++++++++++++-
+>  drivers/input/touchscreen/ad7879-spi.c             |  3 +-
+>  drivers/input/touchscreen/ad7879.c                 |  2 +-
+>  drivers/input/touchscreen/ad7879.h                 |  1 +
+>  5 files changed, 113 insertions(+), 3 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ad7879-i2c.txt
 > 
-> On Wed, 27 Jan 2016, Dmitry Torokhov wrote:
-> 
-> > On Mon, Jan 25, 2016 at 09:01:21PM +0530, Amitoj Kaur Chawla wrote:
-> > > for_each_child_of_node performs an of_node_get on each iteration, so
-> > > to break out of the loop an of_node_put is required.
-> > >
-> > > Found using Coccinelle. The semantic patch used for this is as follows:
-> > >
-> > > // <smpl>
-> > > @@
-> > > expression e;
-> > > local idexpression n;
-> > > @@
-> > >
-> > >  for_each_child_of_node(..., n) {
-> > >    ... when != of_node_put(n)
-> > >        when != e = n
-> > > (
-> > >    return n;
-> > > |
-> > > +  of_node_put(n);
-> > > ?  return ...;
-> > > )
-> > >    ...
-> > >  }
-> > > // </smpl
-> > >
-> > > Signed-off-by: Amitoj Kaur Chawla <amitoj1606@gmail.com>
-> > > ---
-> > >  drivers/input/keyboard/cap11xx.c | 12 +++++++++---
-> > >  1 file changed, 9 insertions(+), 3 deletions(-)
-> > >
-> > > diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-> > > index 378db10..27cd7df 100644
-> > > --- a/drivers/input/keyboard/cap11xx.c
-> > > +++ b/drivers/input/keyboard/cap11xx.c
-> > > @@ -304,8 +304,10 @@ static int cap11xx_init_leds(struct device *dev,
-> > >  		led->cdev.brightness = LED_OFF;
-> > >
-> > >  		error = of_property_read_u32(child, "reg", &reg);
-> > > -		if (error != 0 || reg >= num_leds)
-> > > -			return -EINVAL;
-> > > +		if (error != 0 || reg >= num_leds) {
-> > > +			error = -EINVAL;
-> > > +			goto putchild;
-> >
-> > Instead of jumping to a label I added of_node_put here and also below
-> > and applied, thank you.
-> 
-> Do you have a general strategy for this?
-> 
-> I asked Arnd Bergmann, and he said that if things were shared and if all
-> failures later in the function could use the shared label, then one should
-> use a label.  But I can see that there could be different opinions about
-> it.  Maybe two instances is not enough for sharing?  Maybe the fact that
-> the need for this error handling is limited to the loop means that there
-> should never be sharing?
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ad7879-i2c.txt b/Documentation/devicetree/bindings/input/touchscreen/ad7879-i2c.txt
+> new file mode 100644
+> index 0000000..bf169a2
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/ad7879-i2c.txt
+> @@ -0,0 +1,47 @@
+> +* Analog Devices AD7879-1/AD7889-1 touchscreen interface (I2C)
+> +
+> +Required properties:
+> +- compatible: must be "adi,ad7879-1"
+> +- reg: i2c slave address
+> +- interrupt-parent: the phandle for the interrupt controller
+> +- interrupts: touch controller interrupt
+> +- resistance-plate-x		: total resistance of X-plate (for pressure
+> +				  calculation)
+> +- touchscreen-max-pressure	: maximum reported pressure
+> +- touchscreen-swapped-x-y	: X and Y axis are swapped (boolean)
+> +				  Swapping is done after inverting the axis
+> +Optional properties:
+> +- first-conversion-delay	: 0-12 in 128us steps (starting with 128us)
+> +				  13: 2.560ms
+> +				  14: 3.584ms
+> +				  15: 4.096ms
+> +- acquisition-time		: 0: 2us
+> +				  1: 4us
+> +				  2: 8us
+> +				  3: 16us
+> +- median-filter-size		: 0: disabled
+> +				  1: 4 measurements
+> +				  2: 8 measurements
+> +				  3: 16 measurements
+> +- averaging			: 0: 2 middle values (1 if median disabled)
+> +				  1: 4 middle values
+> +				  2: 8 middle values
+> +				  3: 16 values
+> +- conversion-interval:		: 0: convert one time only
+> +				  1-255: 515us + val * 35us (up to 9.440ms)
 
-I do not think I can formalize the rule well, it is a bit of everything:
+These all should be prefixed with "adi,". Also, please state the sizes 
+are 8-bit.
 
-- the function is devm-ised and I do not like mixing "goto err" style of
-  cleanups with automatic devm cleanup
-- there was no "goto err*" in the function before the change
-- as you mentioned the cleanup "belongs" to the loop
-- there were only 2 instances where we needed to do cleanup
-- amount of cleanup was minimal
-
-As a side not I am unhappy with this API as it is very similar
-list_for_each and for_each_set_bit, etc, so needing to drop reference
-when breaking/returning is quite unexpected ;(
-
-Thanks.
-
--- 
-Dmitry
+> +
+> +Example:
+> +
+> +	ad7879@2c {
+> +		compatible = "adi,ad7879-1";
+> +		reg = <0x2c>;
+> +		interrupt-parent = <&gpio1>;
+> +		interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
+> +		resistance-plate-x = <120>;
+> +		touchscreen-max-pressure = <4096>;
+> +		first-conversion-delay = /bits/ 8 <3>;
+> +		acquisition-time = /bits/ 8 <1>;
+> +		median-filter-size = /bits/ 8 <2>;
+> +		averaging = /bits/ 8 <1>;
+> +		conversion-interval = /bits/ 8 <255>;
+> +	};

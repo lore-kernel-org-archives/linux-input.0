@@ -1,35 +1,35 @@
-From: Unknown <unknown@unknown.invalid>
-Subject: product request
-Date: Mon, 01 Feb 2016 03:21:31 -0500
-Message-ID: <auto-000000389321@gaiacom.net>
-Reply-To: rsteve691@yahoo.com
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: Check whether if the hidraw is null pointer before
+ release.
+Date: Mon, 1 Feb 2016 11:12:42 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1602011110450.22727@cbobk.fhfr.pm>
+References: <1454318785-11289-1-git-send-email-shenpengru@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [45.58.62.167] ([45.58.62.167]:49543 "EHLO gaiacom.net"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751948AbcBAIYm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Feb 2016 03:24:42 -0500
-Received: from [45.58.62.167] (account sales@gaiacom.net [45.58.62.167] verified)
-  by gaiacom.net (CommuniGate Pro SMTP 6.1.8 _community_)
-  with ESMTPA id 389321 for linux-input@vger.kernel.org; Mon, 01 Feb 2016 03:21:31 -0500
-Content-Description: Mail message body
-From: ''Tessy Richard '' <>
+Received: from mx2.suse.de ([195.135.220.15]:43758 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753102AbcBAKMp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 1 Feb 2016 05:12:45 -0500
+In-Reply-To: <1454318785-11289-1-git-send-email-shenpengru@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: shenpengru@gmail.com
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, shenpengru <shenpengru@xiaomi.com>
 
-Hello Sir/Ma
-   My name is Tessy Richard , 
-I will love to get your price list 
-of your product ,and all i need to know ,
-please kindly send me your info (asap)
-I will be expecting to hear from you .
+On Mon, 1 Feb 2016, shenpengru@gmail.com wrote:
 
-                
+> From: shenpengru <shenpengru@xiaomi.com>
 
+Changelog needs to go here.
 
-Thanks 
-Mrs, Tessy Richard 
-Email: rsteve691@yahoo.com
+Namely -- what bug is being fixed, what effects does it cause and how is 
+it possible to trigger it (under which circumstances can we end up with 
+null pointer there).
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
+

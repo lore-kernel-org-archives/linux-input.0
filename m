@@ -1,43 +1,32 @@
-From: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Subject: =?utf-8?Q?=D0=9A=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D1=81=D0?=
-	=?utf-8?Q?=BA=D0=B8=D0=B5_=D0=B1=D0=B0=D0=B7=D1=8B!!!_=D0?=
-	=?utf-8?Q?=A2=D0=B5=D0=BB=5CViber=5CWhatsapp=3A+791339138?=
-	=?utf-8?Q?37_Skype=3Aprodawez389_Email=3Agorskova32=40gma?=
-	=?utf-8?Q?il=2Ecom_=D0=A3=D0=B7=D0=BD=D0=B0=D0=B9=D1=82?=
-	=?utf-8?Q?=D0=B5_=D0=BF=D0=BE=D0=B4=D1=80=D0=BE=D0=B1=D0?=
-	=?utf-8?Q?=BD=D0=B5=D0=B5!!!?=
-Date: Mon, 1 Feb 2016 10:22:44 +0600
-Message-ID: <8E747DE54397B87BA7A2EB54A09A39C0@vger.kernel.org>
-Reply-To: "linux-input@vger.kernel.org" <nonen22pp@gmail.com>
+From: Sushaanth Srirangapathi <sushaanth.s@ti.com>
+Subject: [PATCH 0/3] Add Device Tree support for tps6507x-ts
+Date: Mon, 1 Feb 2016 11:58:46 +0530
+Message-ID: <1454308130-12452-1-git-send-email-sushaanth.s@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bestluckymens24.com ([188.120.230.78]:38811 "EHLO
-	bestluckymens24.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751071AbcBAG2e (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Feb 2016 01:28:34 -0500
-Received: from 188.120.230.78 (localhost.localdomain [127.0.0.1])
-	by bestluckymens24.com (Postfix) with SMTP id 38BF71B27264
-	for <linux-input@vger.kernel.org>; Mon,  1 Feb 2016 04:22:46 +0000 (UTC)
+Received: from devils.ext.ti.com ([198.47.26.153]:40370 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752283AbcBAG3v (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Feb 2016 01:29:51 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joe Perches <joe@perches.com>, Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Sushaanth Srirangapathi <sushaanth.s@ti.com>
 
-=D0=A1=D0=BE=D0=B1=D0=B5=D1=80=D0=B5=D0=BC =D0=B4=D0=BB=D1=8F =D0=92=D0=
-=B0=D1=81 =D0=BF=D0=BE =D0=B8=D0=BD=D1=82=D0=B5=D1=80=D0=BD=D0=B5=D1=82=
- =D0=B1=D0=B0=D0=B7=D1=83 =D0=B4=D0=B0=D0=BD=D0=BD=D1=8B=D1=85 =D0=BF=D0=
-=BE=D1=82=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D1=8B=D1=85 =D0=
-=BA=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D0=BE=D0=B2 =D0=B4=D0=BB=D1=8F =D0=92=
-=D0=B0=D1=88=D0=B5=D0=B3=D0=BE =D0=91=D0=B8=D0=B7=D0=BD=D0=B5=D1=81=D0=B0=
-!!! =D0=9C=D0=BD=D0=BE=D0=B3=D0=BE! =D0=91=D1=8B=D1=81=D1=82=D1=80=D0=BE=
-! =D0=9D=D0=B5 =D0=B4=D0=BE=D1=80=D0=BE=D0=B3=D0=BE! =D0=A3=D0=B7=D0=BD=
-=D0=B0=D0=B9=D1=82=D0=B5 =D0=BE=D0=B1 =D1=8D=D1=82=D0=BE=D0=BC =D0=BF=D0=
-=BE=D0=B4=D1=80=D0=BE=D0=B1=D0=BD=D0=B5=D0=B5 =D0=BF=D0=BE =D0=A2=D0=B5=
-=D0=BB\Viber\Whatsapp:+79133913837 Skype:prodawez389 Email:zradionova92=
-@gmail.com =20
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Add DT support for touchscreen input device tps6507x-ts which is part
+of MFD device "TPS6507x"
+
+Sushaanth Srirangapathi (3):
+  Input: tps6507x-ts - add binding for tps6507x-ts
+  Input: tps6507x-ts - Add device tree support
+  ARM: DTS: da850: add DT node for tps6507x-ts
+
+ Documentation/devicetree/bindings/mfd/tps6507x.txt |   10 +++-
+ arch/arm/boot/dts/da850-evm.dts                    |    3 ++
+ drivers/input/touchscreen/tps6507x-ts.c            |   51 ++++++++++++++++++--
+ 3 files changed, 59 insertions(+), 5 deletions(-)
+
+-- 
+1.7.9.5
+

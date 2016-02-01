@@ -1,37 +1,67 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/3] Input: tps6507x-ts - add binding for tps6507x-ts
-Date: Mon, 1 Feb 2016 08:39:15 -0600
-Message-ID: <20160201143915.GA9909@rob-hp-laptop>
-References: <1454308130-12452-1-git-send-email-sushaanth.s@ti.com>
- <1454308130-12452-2-git-send-email-sushaanth.s@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Frank Praznik <frank.praznik@gmail.com>
+Subject: Re: [PATCH 4/7] HID: sony: make the check for BUZZ_CONTROLLER more readable
+Date: Mon, 1 Feb 2016 09:41:01 -0500
+Message-ID: <E1835BCB-CF3E-47D8-B782-A971D64685C5@gmail.com>
+References: <1454001827-26732-1-git-send-email-ao2@ao2.it> <1454001827-26732-5-git-send-email-ao2@ao2.it>
+Mime-Version: 1.0 (Mac OS X Mail 9.2 \(3112\))
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:60598 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932418AbcBAOjX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Feb 2016 09:39:23 -0500
-Content-Disposition: inline
-In-Reply-To: <1454308130-12452-2-git-send-email-sushaanth.s@ti.com>
+Received: from mail-qg0-f68.google.com ([209.85.192.68]:34434 "EHLO
+	mail-qg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932715AbcBAOlE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Feb 2016 09:41:04 -0500
+Received: by mail-qg0-f68.google.com with SMTP id 94so10084736qgt.1
+        for <linux-input@vger.kernel.org>; Mon, 01 Feb 2016 06:41:04 -0800 (PST)
+In-Reply-To: <1454001827-26732-5-git-send-email-ao2@ao2.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sushaanth Srirangapathi <sushaanth.s@ti.com>
-Cc: Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joe Perches <joe@perches.com>, Javier Martinez Canillas <javier@osg.samsung.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Antonio Ospite <ao2@ao2.it>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
 
-On Mon, Feb 01, 2016 at 11:58:47AM +0530, Sushaanth Srirangapathi wrote:
-> add binding information for tps6507x touchscreen input.
-> 
-> "ti,min-pressure" was added as TI specific binding because it
-> was specific to tps6507x IP and not applicable or relevant for
-> other touchscreen drivers.
-> 
-> Signed-off-by: Sushaanth Srirangapathi <sushaanth.s@ti.com>
+
+> On Jan 28, 2016, at 12:23, Antonio Ospite <ao2@ao2.it> wrote:
+>=20
+> Use a positive test for BUZZ_CONTROLLER which is the particular case,
+> and leave the 'else' branch for the general case.
+>=20
+> Signed-off-by: Antonio Ospite <ao2@ao2.it>
 > ---
->  Documentation/devicetree/bindings/mfd/tps6507x.txt |   10 +++++++++-
->  1 file changed, 9 insertions(+), 1 deletion(-)
+> drivers/hid/hid-sony.c | 6 +++---
+> 1 file changed, 3 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index 8dcea69..3877101 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -1547,10 +1547,10 @@ static void buzz_set_leds(struct sony_sc *sc)
+>=20
+> static void sony_set_leds(struct sony_sc *sc)
+> {
+> -	if (!(sc->quirks & BUZZ_CONTROLLER))
+> -		schedule_work(&sc->state_worker);
+> -	else
+> +	if (sc->quirks & BUZZ_CONTROLLER)
+> 		buzz_set_leds(sc);
+> +	else
+> +		schedule_work(&sc->state_worker);
+> }
+>=20
+> static void sony_led_set_brightness(struct led_classdev *led,
+> --=20
+> 2.7.0
+>=20
 
-Seems like you would need other properties from the common touchscreen 
-binding.
+My nitpick here is that moving the common case to the =E2=80=98else=E2=80=
+=99 branch can mean more branch mispredictions.
+This isn=E2=80=99t a particularly hot piece of code, but I still prefer=
+ common-case first.
 
-Acked-by: Rob Herring <robh@kernel.org>
-
+Ultimately I=E2=80=99d really like to get rid of the special-case buzze=
+r code and just use a state worker like all of the
+other devices, but I don=E2=80=99t have any buzzer controllers to test =
+with and don=E2=80=99t know anyone who does.--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

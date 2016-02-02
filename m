@@ -1,114 +1,114 @@
-From: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v10 4/8] mfd: fsl imx25 Touchscreen ADC driver
-Date: Tue, 02 Feb 2016 12:41:40 +0100
-Message-ID: <6151166.y0HMDdqtvF@adelgunde>
-References: <1450101234-2191-1-git-send-email-mpa@pengutronix.de> <1450101234-2191-5-git-send-email-mpa@pengutronix.de> <20160111065441.GW3331@x1>
+From: Daniel Mack <daniel@zonque.org>
+Subject: Re: [PATCH v2 1/3] Input: rotary-encoder - make use of devm_* to
+ simplify .probe and .remove
+Date: Tue, 2 Feb 2016 12:56:24 +0100
+Message-ID: <56B09968.9050705@zonque.org>
+References: <1454408678-6011-1-git-send-email-u.kleine-koenig@pengutronix.de>
+ <1454408678-6011-2-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart2458794.MQBc4Lxljv"; micalg="pgp-sha256"; protocol="application/pgp-signature"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160111065441.GW3331@x1>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Eric =?ISO-8859-1?Q?B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1454408678-6011-2-git-send-email-u.kleine-koenig@pengutronix.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sylvain Rochet <sylvain.rochet@finsecur.com>, Johan Hovold <johan@kernel.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-
---nextPart2458794.MQBc4Lxljv
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="us-ascii"
-
-Hi,
-
-On Monday, January 11, 2016 06:54:41 AM Lee Jones wrote:
-> On Mon, 14 Dec 2015, Markus Pargmann wrote:
->=20
-> > This is the core driver for imx25 touchscreen/adc driver. The modul=
-e
-> > has one shared ADC and two different conversion queues which use th=
-e
-> > ADC. The two queues are identical. Both can be used for general pur=
-pose
-> > ADC but one is meant to be used for touchscreens.
-> >=20
-> > This driver is the core which manages the central components and
-> > registers of the TSC/ADC unit. It manages the IRQs and forwards the=
-m to
-> > the correct components.
-> >=20
-> > Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-> >=20
-> > [ensure correct ADC clock depending on the IPG clock]
-> > Signed-off-by: Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> > ---
-> >=20
-> > Notes:
-> >     Changes in v7:
-> >      - Cleanup bit defines in header files to be more readable
-> >      - Fix irq check to return with an error for irq <=3D 0
-> >      - Add COMPILE_TEST in Kconfig file
-> >    =20
-> >     Changes in v5:
-> >      - Remove ifdef CONFIG_OF as this driver is only for DT usage
-> >      - Remove module owner
-> >      - Add Kconfig dependencies ARCH_MX25 and OF
-> >=20
-> >  drivers/mfd/Kconfig             |   9 ++
-> >  drivers/mfd/Makefile            |   2 +
-> >  drivers/mfd/fsl-imx25-tsadc.c   | 203 ++++++++++++++++++++++++++++=
-++++++++++++
-> >  include/linux/mfd/imx25-tsadc.h | 140 +++++++++++++++++++++++++++
-> >  4 files changed, 354 insertions(+)
-> >  create mode 100644 drivers/mfd/fsl-imx25-tsadc.c
-> >  create mode 100644 include/linux/mfd/imx25-tsadc.h
->=20
-> For my own reference:
->   Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->=20
-> I will apply this and sent out pull-requests to the relevant
-> maintainers once -rc1 is out.
-
-Thanks. Do you mean just this patch or the whole series?
-
-Shall I resend the whole series to fix the commit title of the first
-patch?
-
-Best Regards,
-
-Markus
-
-=2D-=20
-Pengutronix e.K.                           |                           =
-  |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0  =
-  |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-555=
-5 |
-
---nextPart2458794.MQBc4Lxljv
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAABCAAGBQJWsJX0AAoJEEpcgKtcEGQQjNcP/214dQVDTNzK8gpUr6sMUCoF
-L8b8setMn+y+qAQTQD+hJNCfSUMP7O5SFvR+k54XxmBvJxRzrSiGWKFHwBO2lkGu
-zjCVNs8CFn941cBYYn44NKm7q7u11vBq74K0tpercVppG7q/mXkasDJz86Ni+wlN
-FZ2jzGCqT+ct/ZV+AfuSMRc93A5ya2oFIajLw0/KnuR3/TbNKF/NpjFfFgQjyFtg
-w+wdLQ19TxlldDJU8KEKs7dR5ComTNul9JSA+y4SHaiGcLEuR/mCUFhvtOB2S4ys
-UgKhB8XkVVG6fHTBjqQgm9Gu3c9lvTnQKfyd1ywopfv1WH3bR4bU1/Pe3Rb8zEuz
-WoFxgRWiDiPcNTeoO0g0M8uYu8WT4n7cMh/oZ6r1tncn5okPhm3dSeyH0GggpXJ3
-saHc0YeMno3FLoE5sV7Sf5QL+IBM6tK5aB/BpPrTJbP05CFJsPp53gkXLO+UaQxK
-wXnbRxBSynd3xLOjf8eQcZRAnRl6PJc7sGhV7AL9wLJaYXO/uLwKWL93ZEkvxx4/
-at63+vTqw804s9eIxEFDJhUqQ7TpJX7JX09xR7SXuo0r0QLbODu9HLT2nHg0IibJ
-8a3f7+LJuNlklffNdmvphN2DZogT6njaqDkiok4qoJ7uyREUjK44B7DoByH/e4/9
-W4RVRyuZ4wjwXj73dpH4
-=t7PK
------END PGP SIGNATURE-----
-
---nextPart2458794.MQBc4Lxljv--
+T24gMDIvMDIvMjAxNiAxMToyNCBBTSwgVXdlIEtsZWluZS1Lw7ZuaWcgd3JvdGU6Cj4gRm9yIGFs
+bCBvcGVyYXRpb25zIGNhbGxlZCBpbiAucHJvYmUgdGhlcmUgYXJlIGRldm1fKiB2YXJpYW50cy4K
+PiAoaW5wdXRfcmVnaXN0ZXJfZGV2aWNlIGlzIGNsZXZlciBlbm91Z2ggdG8gYmUgZGV2bSBhd2Fy
+ZSBvbiBpdHMgb3duLikKPiBUaGlzIGFsbG93cyB0byBnZXQgcmlkIG9mIHRoZSBlcnJvciB1bndp
+bmQgY29kZSBwYXRocyBpbiAucHJvYmUgYW5kIHRoZQo+IGNvbXBsZXRlIC5yZW1vdmUgZnVuY3Rp
+b24uCgpXaGlsZSBhdCBpdCwgY291bGQgeW91IGFsc28gY29udmVydCB0aGlzIG92ZXIgdG8gdGhl
+IGdwaW9kXyogQVBJPwoKClRoYW5rcywKRGFuaWVsCgoKCj4gCj4gU2lnbmVkLW9mZi1ieTogVXdl
+IEtsZWluZS1Lw7ZuaWcgPHUua2xlaW5lLWtvZW5pZ0BwZW5ndXRyb25peC5kZT4KPiAtLS0KPiAg
+ZHJpdmVycy9pbnB1dC9taXNjL3JvdGFyeV9lbmNvZGVyLmMgfCA3NCArKysrKysrKysrKy0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gIDEgZmlsZSBjaGFuZ2VkLCAyMiBpbnNlcnRpb25zKCsp
+LCA1MiBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9taXNjL3Jv
+dGFyeV9lbmNvZGVyLmMgYi9kcml2ZXJzL2lucHV0L21pc2Mvcm90YXJ5X2VuY29kZXIuYwo+IGlu
+ZGV4IDhhZWU3MTk4NjQzMC4uMzg2YmRiNTMxNGU2IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvaW5w
+dXQvbWlzYy9yb3RhcnlfZW5jb2Rlci5jCj4gKysrIGIvZHJpdmVycy9pbnB1dC9taXNjL3JvdGFy
+eV9lbmNvZGVyLmMKPiBAQCAtMjExLDggKzIxMSw4IEBAIHN0YXRpYyBzdHJ1Y3Qgcm90YXJ5X2Vu
+Y29kZXJfcGxhdGZvcm1fZGF0YSAqcm90YXJ5X2VuY29kZXJfcGFyc2VfZHQoc3RydWN0IGRldmlj
+Cj4gIAlpZiAoIW9mX2lkIHx8ICFucCkKPiAgCQlyZXR1cm4gTlVMTDsKPiAgCj4gLQlwZGF0YSA9
+IGt6YWxsb2Moc2l6ZW9mKHN0cnVjdCByb3RhcnlfZW5jb2Rlcl9wbGF0Zm9ybV9kYXRhKSwKPiAt
+CQkJR0ZQX0tFUk5FTCk7Cj4gKwlwZGF0YSA9IGRldm1fa3phbGxvYyhkZXYsIHNpemVvZihzdHJ1
+Y3Qgcm90YXJ5X2VuY29kZXJfcGxhdGZvcm1fZGF0YSksCj4gKwkJCSAgICAgR0ZQX0tFUk5FTCk7
+Cj4gIAlpZiAoIXBkYXRhKQo+ICAJCXJldHVybiBFUlJfUFRSKC1FTk9NRU0pOwo+ICAKPiBAQCAt
+Mjc3LDExICsyNzcsMTEgQEAgc3RhdGljIGludCByb3RhcnlfZW5jb2Rlcl9wcm9iZShzdHJ1Y3Qg
+cGxhdGZvcm1fZGV2aWNlICpwZGV2KQo+ICAJCX0KPiAgCX0KPiAgCj4gLQllbmNvZGVyID0ga3ph
+bGxvYyhzaXplb2Yoc3RydWN0IHJvdGFyeV9lbmNvZGVyKSwgR0ZQX0tFUk5FTCk7Cj4gLQlpbnB1
+dCA9IGlucHV0X2FsbG9jYXRlX2RldmljZSgpOwo+ICsJZW5jb2RlciA9IGRldm1fa3phbGxvYyhk
+ZXYsIHNpemVvZihzdHJ1Y3Qgcm90YXJ5X2VuY29kZXIpLCBHRlBfS0VSTkVMKTsKPiArCWlucHV0
+ID0gZGV2bV9pbnB1dF9hbGxvY2F0ZV9kZXZpY2UoJnBkZXYtPmRldik7Cj4gIAlpZiAoIWVuY29k
+ZXIgfHwgIWlucHV0KSB7Cj4gLQkJZXJyID0gLUVOT01FTTsKPiAtCQlnb3RvIGV4aXRfZnJlZV9t
+ZW07Cj4gKwkJZGV2X2VycihkZXYsICJ1bmFibGUgdG8gYWxsb2NhdGUgbWVtb3J5XG4iKTsKPiAr
+CQlyZXR1cm4gLUVOT01FTTsKPiAgCX0KPiAgCj4gIAllbmNvZGVyLT5pbnB1dCA9IGlucHV0Owo+
+IEBAIC0zMDEsMTYgKzMwMSwxOCBAQCBzdGF0aWMgaW50IHJvdGFyeV9lbmNvZGVyX3Byb2JlKHN0
+cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCj4gIAl9Cj4gIAo+ICAJLyogcmVxdWVzdCB0aGUg
+R1BJT3MgKi8KPiAtCWVyciA9IGdwaW9fcmVxdWVzdF9vbmUocGRhdGEtPmdwaW9fYSwgR1BJT0Zf
+SU4sIGRldl9uYW1lKGRldikpOwo+ICsJZXJyID0gZGV2bV9ncGlvX3JlcXVlc3Rfb25lKGRldiwg
+cGRhdGEtPmdwaW9fYSwKPiArCQkJCSAgICBHUElPRl9JTiwgZGV2X25hbWUoZGV2KSk7Cj4gIAlp
+ZiAoZXJyKSB7Cj4gIAkJZGV2X2VycihkZXYsICJ1bmFibGUgdG8gcmVxdWVzdCBHUElPICVkXG4i
+LCBwZGF0YS0+Z3Bpb19hKTsKPiAtCQlnb3RvIGV4aXRfZnJlZV9tZW07Cj4gKwkJcmV0dXJuIGVy
+cjsKPiAgCX0KPiAgCj4gLQllcnIgPSBncGlvX3JlcXVlc3Rfb25lKHBkYXRhLT5ncGlvX2IsIEdQ
+SU9GX0lOLCBkZXZfbmFtZShkZXYpKTsKPiArCWVyciA9IGRldm1fZ3Bpb19yZXF1ZXN0X29uZShk
+ZXYsIHBkYXRhLT5ncGlvX2IsCj4gKwkJCQkgICAgR1BJT0ZfSU4sIGRldl9uYW1lKGRldikpOwo+
+ICAJaWYgKGVycikgewo+ICAJCWRldl9lcnIoZGV2LCAidW5hYmxlIHRvIHJlcXVlc3QgR1BJTyAl
+ZFxuIiwgcGRhdGEtPmdwaW9fYik7Cj4gLQkJZ290byBleGl0X2ZyZWVfZ3Bpb19hOwo+ICsJCXJl
+dHVybiBlcnI7Cj4gIAl9Cj4gIAo+ICAJZW5jb2Rlci0+aXJxX2EgPSBncGlvX3RvX2lycShwZGF0
+YS0+Z3Bpb19hKTsKPiBAQCAtMzMxLDMwICszMzMsMjkgQEAgc3RhdGljIGludCByb3RhcnlfZW5j
+b2Rlcl9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQo+ICAJZGVmYXVsdDoKPiAg
+CQlkZXZfZXJyKGRldiwgIiclZCcgaXMgbm90IGEgdmFsaWQgc3RlcHMtcGVyLXBlcmlvZCB2YWx1
+ZVxuIiwKPiAgCQkJcGRhdGEtPnN0ZXBzX3Blcl9wZXJpb2QpOwo+IC0JCWVyciA9IC1FSU5WQUw7
+Cj4gLQkJZ290byBleGl0X2ZyZWVfZ3Bpb19iOwo+ICsJCXJldHVybiAtRUlOVkFMOwo+ICAJfQo+
+ICAKPiAtCWVyciA9IHJlcXVlc3RfaXJxKGVuY29kZXItPmlycV9hLCBoYW5kbGVyLAo+IC0JCQkg
+IElSUUZfVFJJR0dFUl9SSVNJTkcgfCBJUlFGX1RSSUdHRVJfRkFMTElORywKPiAtCQkJICBEUlZf
+TkFNRSwgZW5jb2Rlcik7Cj4gKwllcnIgPSBkZXZtX3JlcXVlc3RfaXJxKGRldiwgZW5jb2Rlci0+
+aXJxX2EsIGhhbmRsZXIsCj4gKwkJCSAgICAgICBJUlFGX1RSSUdHRVJfUklTSU5HIHwgSVJRRl9U
+UklHR0VSX0ZBTExJTkcsCj4gKwkJCSAgICAgICBEUlZfTkFNRSwgZW5jb2Rlcik7Cj4gIAlpZiAo
+ZXJyKSB7Cj4gIAkJZGV2X2VycihkZXYsICJ1bmFibGUgdG8gcmVxdWVzdCBJUlEgJWRcbiIsIGVu
+Y29kZXItPmlycV9hKTsKPiAtCQlnb3RvIGV4aXRfZnJlZV9ncGlvX2I7Cj4gKwkJcmV0dXJuIGVy
+cjsKPiAgCX0KPiAgCj4gLQllcnIgPSByZXF1ZXN0X2lycShlbmNvZGVyLT5pcnFfYiwgaGFuZGxl
+ciwKPiAtCQkJICBJUlFGX1RSSUdHRVJfUklTSU5HIHwgSVJRRl9UUklHR0VSX0ZBTExJTkcsCj4g
+LQkJCSAgRFJWX05BTUUsIGVuY29kZXIpOwo+ICsJZXJyID0gZGV2bV9yZXF1ZXN0X2lycShkZXYs
+IGVuY29kZXItPmlycV9iLCBoYW5kbGVyLAo+ICsJCQkgICAgICAgSVJRRl9UUklHR0VSX1JJU0lO
+RyB8IElSUUZfVFJJR0dFUl9GQUxMSU5HLAo+ICsJCQkgICAgICAgRFJWX05BTUUsIGVuY29kZXIp
+Owo+ICAJaWYgKGVycikgewo+ICAJCWRldl9lcnIoZGV2LCAidW5hYmxlIHRvIHJlcXVlc3QgSVJR
+ICVkXG4iLCBlbmNvZGVyLT5pcnFfYik7Cj4gLQkJZ290byBleGl0X2ZyZWVfaXJxX2E7Cj4gKwkJ
+cmV0dXJuIGVycjsKPiAgCX0KPiAgCj4gIAllcnIgPSBpbnB1dF9yZWdpc3Rlcl9kZXZpY2UoaW5w
+dXQpOwo+ICAJaWYgKGVycikgewo+ICAJCWRldl9lcnIoZGV2LCAiZmFpbGVkIHRvIHJlZ2lzdGVy
+IGlucHV0IGRldmljZVxuIik7Cj4gLQkJZ290byBleGl0X2ZyZWVfaXJxX2I7Cj4gKwkJcmV0dXJu
+IGVycjsKPiAgCX0KPiAgCj4gIAlkZXZpY2VfaW5pdF93YWtldXAoJnBkZXYtPmRldiwgcGRhdGEt
+Pndha2V1cF9zb3VyY2UpOwo+IEBAIC0zNjIsNDIgKzM2MywxMSBAQCBzdGF0aWMgaW50IHJvdGFy
+eV9lbmNvZGVyX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCj4gIAlwbGF0Zm9y
+bV9zZXRfZHJ2ZGF0YShwZGV2LCBlbmNvZGVyKTsKPiAgCj4gIAlyZXR1cm4gMDsKPiAtCj4gLWV4
+aXRfZnJlZV9pcnFfYjoKPiAtCWZyZWVfaXJxKGVuY29kZXItPmlycV9iLCBlbmNvZGVyKTsKPiAt
+ZXhpdF9mcmVlX2lycV9hOgo+IC0JZnJlZV9pcnEoZW5jb2Rlci0+aXJxX2EsIGVuY29kZXIpOwo+
+IC1leGl0X2ZyZWVfZ3Bpb19iOgo+IC0JZ3Bpb19mcmVlKHBkYXRhLT5ncGlvX2IpOwo+IC1leGl0
+X2ZyZWVfZ3Bpb19hOgo+IC0JZ3Bpb19mcmVlKHBkYXRhLT5ncGlvX2EpOwo+IC1leGl0X2ZyZWVf
+bWVtOgo+IC0JaW5wdXRfZnJlZV9kZXZpY2UoaW5wdXQpOwo+IC0Ja2ZyZWUoZW5jb2Rlcik7Cj4g
+LQlpZiAoIWRldl9nZXRfcGxhdGRhdGEoJnBkZXYtPmRldikpCj4gLQkJa2ZyZWUocGRhdGEpOwo+
+IC0KPiAtCXJldHVybiBlcnI7Cj4gIH0KPiAgCj4gIHN0YXRpYyBpbnQgcm90YXJ5X2VuY29kZXJf
+cmVtb3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCj4gIHsKPiAtCXN0cnVjdCByb3Rh
+cnlfZW5jb2RlciAqZW5jb2RlciA9IHBsYXRmb3JtX2dldF9kcnZkYXRhKHBkZXYpOwo+IC0JY29u
+c3Qgc3RydWN0IHJvdGFyeV9lbmNvZGVyX3BsYXRmb3JtX2RhdGEgKnBkYXRhID0gZW5jb2Rlci0+
+cGRhdGE7Cj4gLQo+ICAJZGV2aWNlX2luaXRfd2FrZXVwKCZwZGV2LT5kZXYsIGZhbHNlKTsKPiAt
+Cj4gLQlmcmVlX2lycShlbmNvZGVyLT5pcnFfYSwgZW5jb2Rlcik7Cj4gLQlmcmVlX2lycShlbmNv
+ZGVyLT5pcnFfYiwgZW5jb2Rlcik7Cj4gLQlncGlvX2ZyZWUocGRhdGEtPmdwaW9fYSk7Cj4gLQln
+cGlvX2ZyZWUocGRhdGEtPmdwaW9fYik7Cj4gLQo+IC0JaW5wdXRfdW5yZWdpc3Rlcl9kZXZpY2Uo
+ZW5jb2Rlci0+aW5wdXQpOwo+IC0Ja2ZyZWUoZW5jb2Rlcik7Cj4gLQo+IC0JaWYgKCFkZXZfZ2V0
+X3BsYXRkYXRhKCZwZGV2LT5kZXYpKQo+IC0JCWtmcmVlKHBkYXRhKTsKPiAtCj4gIAlyZXR1cm4g
+MDsKPiAgfQo+ICAKPiAKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxp
+c3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0
+aW5mby9saW51eC1hcm0ta2VybmVsCg==

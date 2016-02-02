@@ -1,101 +1,70 @@
-From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: [PATCH 4/7] HID: sony: make the check for BUZZ_CONTROLLER more
- readable
-Date: Tue, 2 Feb 2016 16:19:13 +0100
-Message-ID: <20160202161913.111f39918038b91287c234f2@ao2.it>
-References: <1454001827-26732-1-git-send-email-ao2@ao2.it>
-	<1454001827-26732-5-git-send-email-ao2@ao2.it>
-	<E1835BCB-CF3E-47D8-B782-A971D64685C5@gmail.com>
+From: Matt Sturgeon <matt@sturgeon.me.uk>
+Subject: xpad: System freeze when using force feedback
+Date: Tue, 2 Feb 2016 22:08:30 +0000
+Message-ID: <CABVhHhqk1mme4Vg7YXy+Uu8QGL7PKzFtaTJMyNL4wfCR4XDD8g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp207.alice.it ([82.57.200.103]:28004 "EHLO smtp207.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932505AbcBBPTV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Feb 2016 10:19:21 -0500
-In-Reply-To: <E1835BCB-CF3E-47D8-B782-A971D64685C5@gmail.com>
+Received: from mail-wm0-f54.google.com ([74.125.82.54]:38503 "EHLO
+	mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750793AbcBBWIc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Feb 2016 17:08:32 -0500
+Received: by mail-wm0-f54.google.com with SMTP id p63so43845809wmp.1
+        for <linux-input@vger.kernel.org>; Tue, 02 Feb 2016 14:08:31 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
+To: linux-input@vger.kernel.org
 
-On Mon, 1 Feb 2016 09:41:01 -0500
-=46rank Praznik <frank.praznik@gmail.com> wrote:
+I realise I sent the below email without a subject!
 
->=20
-> > On Jan 28, 2016, at 12:23, Antonio Ospite <ao2@ao2.it> wrote:
-> >=20
-> > Use a positive test for BUZZ_CONTROLLER which is the particular cas=
-e,
-> > and leave the 'else' branch for the general case.
-> >=20
-> > Signed-off-by: Antonio Ospite <ao2@ao2.it>
-> > ---
-> > drivers/hid/hid-sony.c | 6 +++---
-> > 1 file changed, 3 insertions(+), 3 deletions(-)
-> >=20
-> > diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> > index 8dcea69..3877101 100644
-> > --- a/drivers/hid/hid-sony.c
-> > +++ b/drivers/hid/hid-sony.c
-> > @@ -1547,10 +1547,10 @@ static void buzz_set_leds(struct sony_sc *s=
-c)
-> >=20
-> > static void sony_set_leds(struct sony_sc *sc)
-> > {
-> > -	if (!(sc->quirks & BUZZ_CONTROLLER))
-> > -		schedule_work(&sc->state_worker);
-> > -	else
-> > +	if (sc->quirks & BUZZ_CONTROLLER)
-> > 		buzz_set_leds(sc);
-> > +	else
-> > +		schedule_work(&sc->state_worker);
-> > }
-> >=20
-> > static void sony_led_set_brightness(struct led_classdev *led,
-> > --=20
-> > 2.7.0
-> >=20
->
-> My nitpick here is that moving the common case to the =E2=80=98else=E2=
-=80=99 branch
-> can mean more branch mispredictions.  This isn=E2=80=99t a particular=
-ly hot
-> piece of code, but I still prefer common-case first.
->
+I am led to believe the patch
+here[https://github.com/torvalds/linux/commit/7fc595f4c02636eadaeeecfe7bbc45b57c173004]
+fixes the issue.
 
-Hi Frank,
+You should disregard this thread and resent me for wasting your valuable time :)
 
-I see your point. Let's drop 4/7 for now then.
-Jiri, will you apply the other patches? They have Frank's ACK.
 
-> Ultimately I=E2=80=99d really like to get rid of the special-case buz=
-zer code
-> and just use a state worker like all of the other devices, but I don=E2=
-=80=99t
-> have any buzzer controllers to test with and don=E2=80=99t know anyon=
-e who
-> does.
+---------- Forwarded message ----------
+From: Matt Sturgeon <matt@sturgeon.me.uk>
+Date: Tue, Feb 2, 2016 at 1:14 AM
+Subject:
+To: linux-input@vger.kernel.org
 
-Agreed, a proper refactoring would be indeed better than my 4/7
-proposal.
 
-Looking at the history, support for the buzz controller was added by
-Colin Leitner <colin.leitner@gmail.com>
+Hi
 
-Ciao ciao,
-   Antonio
+There is a bug in xpad that (as far as I can tell) has a few fixes
+implemented, but none are yet included upstream.
 
---=20
-Antonio Ospite
-http://ao2.it
+Whilst I am no computer scientist or engineer, I understand that the
+bug is related to force feedback (vibration) on xpad controllers
+causing the system to freeze up and require a hard reset (kernel
+panic?)
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+My apologies if this has been addressed somewhere, but in my kernel
+(4.2.0-25-generic #30-Ubuntu) the issue remains, particularly for me
+when playing GRID Autosport using an wired Xbox 360 controller.
+
+I've heard that valve have fixed the issue in their steamos kernel.
+There is also a patch proposed in May 2014 by Sarah Bessmer
+[http://www.spinics.net/lists/linux-input/msg31450.html] and an
+updated version of the same patch
+[http://steamcommunity.com/app/233130/discussions/0/611702631210587760/#c611702631218590990].
+
+As far as reports of the issue, there are two threads on steam with
+users reporting Sarah's patch fixes the issue. I myself can also
+confirm the patch fixed the bug for me and I haven't noticed any side
+effects, although I don't really know what to look for.
+
+In conclusion, you may think of this as somewhat of a "bump" for
+Sarah's patch. Whilst I do not consider myself a skilled or
+experienced programmer and I've never really looked at lower level
+stuff like drivers before, I am willing to help get a fix merged in
+any way I can.
+
+Apologies once more, if this is already in progress or I have
+approached this in the wrong way,
+
+Regards,
+
+Matt Sturgeon

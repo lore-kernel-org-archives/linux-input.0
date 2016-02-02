@@ -1,126 +1,101 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v2 0/3] Input: rotary-encoder - use more than two gpios
-Date: Tue, 2 Feb 2016 14:27:03 +0100
-Message-ID: <20160202132703.GY13664@pengutronix.de>
-References: <1454408678-6011-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <56B09C27.8070009@zonque.org>
- <20160202125602.GW13664@pengutronix.de>
- <56B0ABC9.10107@zonque.org>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: Re: [PATCH 4/7] HID: sony: make the check for BUZZ_CONTROLLER more
+ readable
+Date: Tue, 2 Feb 2016 16:19:13 +0100
+Message-ID: <20160202161913.111f39918038b91287c234f2@ao2.it>
+References: <1454001827-26732-1-git-send-email-ao2@ao2.it>
+	<1454001827-26732-5-git-send-email-ao2@ao2.it>
+	<E1835BCB-CF3E-47D8-B782-A971D64685C5@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <56B0ABC9.10107-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sylvain Rochet <sylvain.rochet-ETtyaVkrhkNWk0Htik3J/w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp207.alice.it ([82.57.200.103]:28004 "EHLO smtp207.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932505AbcBBPTV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Feb 2016 10:19:21 -0500
+In-Reply-To: <E1835BCB-CF3E-47D8-B782-A971D64685C5@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Frank Praznik <frank.praznik@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
 
-Hello Daniel,
+On Mon, 1 Feb 2016 09:41:01 -0500
+=46rank Praznik <frank.praznik@gmail.com> wrote:
 
-On Tue, Feb 02, 2016 at 02:14:49PM +0100, Daniel Mack wrote:
-> On 02/02/2016 01:56 PM, Uwe Kleine-K=F6nig wrote:
-> > Hello Daniel,
-> >=20
-> > On Tue, Feb 02, 2016 at 01:08:07PM +0100, Daniel Mack wrote:
-> >> On 02/02/2016 11:24 AM, Uwe Kleine-K=F6nig wrote:
-> >>> Some time ago I sent a v1 of this, now after testing the changes =
-more
-> >>> deeply patch 3 changed a bit. The old series started with
-> >>>
-> >>> 	Date: Wed,  2 Dec 2015 11:07:11 +0100
-> >>> 	From: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> >>> 	Subject: [PATCH RFC 0/3] input: rotary_encoder: use more than tw=
-o gpios as input
-> >>> 	Message-Id: <1449050834-31779-1-git-send-email-u.kleine-koenig@p=
-engutronix.de>
-> >>>
-> >>> The two first patches are just preparation for the third patch.
-> >>>
-> >>> There is an obvious improvement that allows detection of quick ch=
-anges
-> >>> more reliably with >2 gpios, but I didn't implement this yet. (Wi=
-th 4
-> >>> GPIOs you can distinguish a counter clockwise movement of three s=
-tates
-> >>> from a clock wise movement of a single state. Still the patch is =
-useful
-> >>> as it makes these devices work at all.
-> >>>
-> >>> My test device looks as follows:
-> >>>
-> >>>         rotary@0 {
-> >>>                 compatible =3D "rotary-encoder";
-> >>>                 gpios =3D <&gpio4 12 GPIO_ACTIVE_HIGH>, <&gpio4 1=
-1 GPIO_ACTIVE_HIGH>, <&gpio4 10 GPIO_ACTIVE_HIGH>, <&gpio4 9 GPIO_ACTIV=
-E_HIGH>;
-> >>>
-> >>>                 rotary-encoder,steps =3D <16>;
-> >>> 		rotary-encoder,steps-per-period =3D <16>;
-> >>>         };
-> >>>
-> >>> While Daniel Mack and Rojhalat Ibrahim agreed that this device is=
- an
-> >>> absolute encoder and should be supported by a simpler logic, I st=
-ill
-> >>> consider it worthwhile to get these patches in as a first step. A=
-lso the
-> >>> binding looks right, so IMHO the comments shouldn't stop this ser=
-ies
-> >>> from going in.
-> >>
-> >> I still don't understand why this is implemented that way, rather =
-than
-> >> going for a much simpler logic of interpretation that also allows =
-users
-> >> to read out the absolute position.
-> >>
-> >> The code to read the value would be really just as simple as readi=
-ng all
-> >> GPIOs and or-ing their values into the result, and skip the state
-> >> machine completely. This code would be active if a new attribute
-> >> (something like 'rotary-encoder,hardware-absolute') is set, or eve=
-n
-> >> implicitly, when more than 2 GPIOs are specified.
-> >>
-> >> Is there any reason for not doing that?
-> >=20
-> > Currently the reason is lack of time. And when implementing
-> > rotary-encoder,hardware-absolute something similar would be the res=
-ult
-> > for the relative reporting anyhow. So the problem is only that I do=
-n't
-> > have absolute support yet, but the patches as is would be the base =
-for
-> > that anyhow.
 >=20
-> Because you would support relative support for such 4-pin encoders as
-> well? I would have thought that absolute encoders would report absolu=
-te
-> values only, but I guess you have a point here. Just to make sure we'=
-re
-> on the same page: For more than 2 GPIOs, and an absent
-> "rotary-encoder,relative-axis", the driver would switch to a mode in
-> which it bypasses the state machine, right?
+> > On Jan 28, 2016, at 12:23, Antonio Ospite <ao2@ao2.it> wrote:
+> >=20
+> > Use a positive test for BUZZ_CONTROLLER which is the particular cas=
+e,
+> > and leave the 'else' branch for the general case.
+> >=20
+> > Signed-off-by: Antonio Ospite <ao2@ao2.it>
+> > ---
+> > drivers/hid/hid-sony.c | 6 +++---
+> > 1 file changed, 3 insertions(+), 3 deletions(-)
+> >=20
+> > diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> > index 8dcea69..3877101 100644
+> > --- a/drivers/hid/hid-sony.c
+> > +++ b/drivers/hid/hid-sony.c
+> > @@ -1547,10 +1547,10 @@ static void buzz_set_leds(struct sony_sc *s=
+c)
+> >=20
+> > static void sony_set_leds(struct sony_sc *sc)
+> > {
+> > -	if (!(sc->quirks & BUZZ_CONTROLLER))
+> > -		schedule_work(&sc->state_worker);
+> > -	else
+> > +	if (sc->quirks & BUZZ_CONTROLLER)
+> > 		buzz_set_leds(sc);
+> > +	else
+> > +		schedule_work(&sc->state_worker);
+> > }
+> >=20
+> > static void sony_led_set_brightness(struct led_classdev *led,
+> > --=20
+> > 2.7.0
+> >=20
+>
+> My nitpick here is that moving the common case to the =E2=80=98else=E2=
+=80=99 branch
+> can mean more branch mispredictions.  This isn=E2=80=99t a particular=
+ly hot
+> piece of code, but I still prefer common-case first.
+>
 
-Not sure about how this will be represented in the device tree, but yes=
-,
-that's more or less how I imagine to implement this. (And in the end
-having support for a 4-line relative device is just a side effect of
-having support for relative devices and for 4-line devices.)
+Hi Frank,
 
-Best regards
-Uwe
+I see your point. Let's drop 4/7 for now then.
+Jiri, will you apply the other patches? They have Frank's ACK.
+
+> Ultimately I=E2=80=99d really like to get rid of the special-case buz=
+zer code
+> and just use a state worker like all of the other devices, but I don=E2=
+=80=99t
+> have any buzzer controllers to test with and don=E2=80=99t know anyon=
+e who
+> does.
+
+Agreed, a proper refactoring would be indeed better than my 4/7
+proposal.
+
+Looking at the history, support for the buzz controller was added by
+Colin Leitner <colin.leitner@gmail.com>
+
+Ciao ciao,
+   Antonio
 
 --=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,55 +1,71 @@
-From: Matt Sturgeon <matt@sturgeon.me.uk>
-Subject: (unknown)
-Date: Tue, 2 Feb 2016 01:14:23 +0000
-Message-ID: <CABVhHhr7FRfGEsiB9NF8KOUQKRBL1LW72USoyniod0MfhhsQzw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Shawn Lin <shawn.lin@rock-chips.com>
+Subject: [PATCH] Input: gpio-keys - fix unbalanced call pair for err handle
+Date: Tue,  2 Feb 2016 10:58:19 +0800
+Message-ID: <1454381899-18725-1-git-send-email-shawn.lin@rock-chips.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f44.google.com ([74.125.82.44]:35155 "EHLO
-	mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751495AbcBBBOZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Feb 2016 20:14:25 -0500
-Received: by mail-wm0-f44.google.com with SMTP id r129so96015323wmr.0
-        for <linux-input@vger.kernel.org>; Mon, 01 Feb 2016 17:14:24 -0800 (PST)
-Subject: 
+Received: from lucky1.263xmail.com ([211.157.147.131]:56740 "EHLO
+	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751017AbcBBDDA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Feb 2016 22:03:00 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>
 
-Hi
+If we fail to get pdata, we should not directly break
+from the for_each_available_child_of_node since it calls of_node_get
+while iterating. This patch add of_node_put to fix the unbalanced
+call pair.
 
-There is a bug in xpad that (as far as I can tell) has a few fixes
-implemented, but none are yet included upstream.
+Signed-off-by: Shawn Lin <shawn.lin@rock-chips.com>
+---
 
-Whilst I am no computer scientist or engineer, I understand that the
-bug is related to force feedback (vibration) on xpad controllers
-causing the system to freeze up and require a hard reset (kernel
-panic?)
+ drivers/input/keyboard/gpio_keys.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-My apologies if this has been addressed somewhere, but in my kernel
-(4.2.0-25-generic #30-Ubuntu) the issue remains, particularly for me
-when playing GRID Autosport using an wired Xbox 360 controller.
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 2909365..87744d3 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -661,7 +661,7 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 					dev_err(dev,
+ 						"Failed to get gpio flags, error: %d\n",
+ 						error);
+-				return ERR_PTR(error);
++				goto err_out;
+ 			}
+ 		} else {
+ 			button->active_low = flags & OF_GPIO_ACTIVE_LOW;
+@@ -671,13 +671,15 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 
+ 		if (!gpio_is_valid(button->gpio) && !button->irq) {
+ 			dev_err(dev, "Found button without gpios or irqs\n");
+-			return ERR_PTR(-EINVAL);
++			error = -EINVAL;
++			goto err_out;
+ 		}
+ 
+ 		if (of_property_read_u32(pp, "linux,code", &button->code)) {
+ 			dev_err(dev, "Button without keycode: 0x%x\n",
+ 				button->gpio);
+-			return ERR_PTR(-EINVAL);
++			error = -EINVAL;
++			goto err_out;
+ 		}
+ 
+ 		button->desc = of_get_property(pp, "label", NULL);
+@@ -700,6 +702,10 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	return pdata;
++
++err_out:
++	of_node_put(pp);
++	return ERR_PTR(error);
+ }
+ 
+ static const struct of_device_id gpio_keys_of_match[] = {
+-- 
+2.3.7
 
-I've heard that valve have fixed the issue in their steamos kernel.
-There is also a patch proposed in May 2014 by Sarah Bessmer
-[http://www.spinics.net/lists/linux-input/msg31450.html] and an
-updated version of the same patch
-[http://steamcommunity.com/app/233130/discussions/0/611702631210587760/#c611702631218590990].
 
-As far as reports of the issue, there are two threads on steam with
-users reporting Sarah's patch fixes the issue. I myself can also
-confirm the patch fixed the bug for me and I haven't noticed any side
-effects, although I don't really know what to look for.
-
-In conclusion, you may think of this as somewhat of a "bump" for
-Sarah's patch. Whilst I do not consider myself a skilled or
-experienced programmer and I've never really looked at lower level
-stuff like drivers before, I am willing to help get a fix merged in
-any way I can.
-
-Apologies once more, if this is already in progress or I have
-approached this in the wrong way,
-
-Regards,
-
-Matt Sturgeon

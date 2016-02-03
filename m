@@ -1,46 +1,50 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hid:Add missing error checking in mt_probe for creating
- sysfs_create_group
-Date: Wed, 3 Feb 2016 10:14:20 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1602031013520.22727@cbobk.fhfr.pm>
-References: <1454470263-29702-1-git-send-email-xerofoify@gmail.com> <20160203082355.GE12345@mail.corp.redhat.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v2 2/3] Input: rotary-encoder - move configuration data
+ to driver data
+Date: Wed, 3 Feb 2016 10:35:27 +0100
+Message-ID: <20160203093527.GD13664@pengutronix.de>
+References: <1454408678-6011-1-git-send-email-u.kleine-koenig@pengutronix.de>
+ <1454408678-6011-3-git-send-email-u.kleine-koenig@pengutronix.de>
+ <56B09CAB.5020600@zonque.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:40682 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751119AbcBCJOW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 3 Feb 2016 04:14:22 -0500
-In-Reply-To: <20160203082355.GE12345@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <56B09CAB.5020600-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>
+Cc: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sylvain Rochet <sylvain.rochet-ETtyaVkrhkNWk0Htik3J/w@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Nicholas Krause <xerofoify@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 3 Feb 2016, Benjamin Tissoires wrote:
+Hello,
 
-> > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> > index 296d499..46ebf06 100644
-> > --- a/drivers/hid/hid-multitouch.c
-> > +++ b/drivers/hid/hid-multitouch.c
-> > @@ -1133,6 +1133,8 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> >  		return ret;
-> >  
-> >  	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
-> > +	if (ret)
-> > +		return ret;
-> 
-> I am not particularly happy with a hard failure here in case the sysfs
-> group doesn't bind. The group is mainly used for debug, and I am not
-> sure anybody but me uses it nowadays.
-> 
-> Could you amend the patch to put a warning in case of a failure but
-> still continue?
+On Tue, Feb 02, 2016 at 01:10:19PM +0100, Daniel Mack wrote:
+> On 02/02/2016 11:24 AM, Uwe Kleine-K=F6nig wrote:
+> > This is a preparation for the next patche. There is no change in
+> > behaviour intended.
+>=20
+> This one looks good to me, but it clashes with Dmitry's latest patch
+> sets (which I haven't found the time to test yet, sorry!).
 
-Yeah. And also in case of hard failure, some cleanup would have to be done 
-anyway (hid_hw_start() has already happened, etc).
+There is nothing in next-20160203, so I assume Dmitry either fixes this
+up when applying my patches or tells me when I should rebase.
 
--- 
-Jiri Kosina
-SUSE Labs
+> > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+>=20
+>  Acked-by: Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>
 
+Thanks
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

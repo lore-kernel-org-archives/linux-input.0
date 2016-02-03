@@ -1,74 +1,46 @@
-From: Chris Diamand <chris@diamand.org>
-Subject: Re: [PATCH] psmouse: added BYD touchpad driver
-Date: Wed, 3 Feb 2016 08:58:16 +0000
-Message-ID: <20160203085816.GA3307@smaug>
-References: <CAHc7Qt33N4LZNm1kjeFKKtqCHt8o8e-ZGu7BBuc0oGJZeB_JyA@mail.gmail.com>
- <20160203004153.GA15147@smaug>
- <CAHc7Qt3cMu4+qXvruXtY7-GxL=skaUda1c4bfA5DDdNMfOfKGg@mail.gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] hid:Add missing error checking in mt_probe for creating
+ sysfs_create_group
+Date: Wed, 3 Feb 2016 10:14:20 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1602031013520.22727@cbobk.fhfr.pm>
+References: <1454470263-29702-1-git-send-email-xerofoify@gmail.com> <20160203082355.GE12345@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f51.google.com ([74.125.82.51]:37544 "EHLO
-	mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751942AbcBCI6U (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Feb 2016 03:58:20 -0500
-Received: by mail-wm0-f51.google.com with SMTP id l66so59488774wml.0
-        for <linux-input@vger.kernel.org>; Wed, 03 Feb 2016 00:58:19 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CAHc7Qt3cMu4+qXvruXtY7-GxL=skaUda1c4bfA5DDdNMfOfKGg@mail.gmail.com>
+Received: from mx2.suse.de ([195.135.220.15]:40682 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751119AbcBCJOW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Feb 2016 04:14:22 -0500
+In-Reply-To: <20160203082355.GE12345@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Richard Pospesel <pospeselr@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Nicholas Krause <xerofoify@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Richard,
+On Wed, 3 Feb 2016, Benjamin Tissoires wrote:
 
-> Reporting absolute position allows the synaptics and libinput xorg drivers
-> to treat the BYD touchpad as a touchpad, rather than a mouse.  This allows
-> edge scrolling, tap to click, natural scrolling and any other location
-> based single touch gesture to work.
->
-> I opted to completely disable the hardware multitouch gesture recognition
-> (including two finger scroll) for a couple of reasons:
->
-> 1.  time delta between gesture packets was very large resulting in a rather
-> jerky scrolling experience, especially compared to touchpad with real
-> multitouch reporting.
-> 2.  Reporting absolute position and touch support enables the users to
-> configure the touchpad in the touchpad settings section of gnome, cinnamon,
-> etc because those applets configure synaptics and libinput.  Otherwise xorg
-> thinks it's just a mouse.
+> > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> > index 296d499..46ebf06 100644
+> > --- a/drivers/hid/hid-multitouch.c
+> > +++ b/drivers/hid/hid-multitouch.c
+> > @@ -1133,6 +1133,8 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> >  		return ret;
+> >  
+> >  	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
+> > +	if (ret)
+> > +		return ret;
+> 
+> I am not particularly happy with a hard failure here in case the sysfs
+> group doesn't bind. The group is mainly used for debug, and I am not
+> sure anybody but me uses it nowadays.
+> 
+> Could you amend the patch to put a warning in case of a failure but
+> still continue?
 
-This all sounds good - I look forward to trying your patch!
+Yeah. And also in case of hard failure, some cleanup would have to be done 
+anyway (hid_hw_start() has already happened, etc).
 
-Also, how did you figure out how to enable the absolute packets? I couldn't
-find anything like that with the Windows driver I was using.
+-- 
+Jiri Kosina
+SUSE Labs
 
-> 3.  Enabling multitouch gesture recognition results in the mouse cursor
-> freezing up when the user uses two fingers, one to move the mouse cursor
-> and another to click.  This is because movement packets stop getting sent
-> while a gesture (such as pinch, rotate, etc) is being detected and/or
-> reported.
-
-So with your patch, how will this gesture work, if it can only recognise one
-finger at a time? I guess you'd have to enable the "double-tap then drag"
-thing in synaptics and use that?
-
-> Disabling all hardware gesture detection, including two finger
-> scroll, provides the most fluid user experience.
-
-Yep, I agree that if it works, good one-finger scrolling would be much better
-than the touchpad's internal gesture recognition.
-
-> Regarding serio_pause_rx(), I was following a pattern similar to another
-> touchpad driver in psmouse.  That whole callback mechanism is required to
-> report the touch had ended, since the BYD hardware only sends packets when
-> a touch is occurring.  Is there a better way?
-
-You're right, actually - I was worried that the input_report_* functions might
-sleep, but I just had a proper look and they don't.
-
-> I'll try to rebase and post an updated patch tonight.
-
-Cheers!
-Chris

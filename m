@@ -1,37 +1,83 @@
 From: <mika.penttila@nextfour.com>
-Subject: [PATCH v3 0/2] Input: SiS 9200 family I2C touchscreen controller driver
-Date: Thu, 4 Feb 2016 13:53:38 +0200
-Message-ID: <1454586820-22157-1-git-send-email-mika.penttila@nextfour.com>
+Subject: [PATCH v3 2/2] Input: SiS 9200 documentation parts.
+Date: Thu, 4 Feb 2016 13:53:40 +0200
+Message-ID: <1454586820-22157-3-git-send-email-mika.penttila@nextfour.com>
+References: <1454586820-22157-1-git-send-email-mika.penttila@nextfour.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-am1on0087.outbound.protection.outlook.com ([157.56.112.87]:16360
-	"EHLO emea01-am1-obe.outbound.protection.outlook.com"
+Received: from mail-db3on0092.outbound.protection.outlook.com ([157.55.234.92]:20167
+	"EHLO emea01-db3-obe.outbound.protection.outlook.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753377AbcBDLxy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Feb 2016 06:53:54 -0500
+	id S1755796AbcBDLyG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Feb 2016 06:54:06 -0500
+In-Reply-To: <1454586820-22157-1-git-send-email-mika.penttila@nextfour.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: tammy_tseng@sis.com, yuger_yu@sis.com
+Cc: tammy_tseng@sis.com, yuger_yu@sis.com, =?UTF-8?q?Mika=20Penttil=C3=A4?= <mika.penttila@nextfour.com>
 
-Hi,
+=46rom: Mika Penttil=C3=A4 <mika.penttila@nextfour.com>
 
-v3 of the SiS I2C touch patch includes only cleanups and
-acks from SiS folks. Bases on v4.5-rc2.
+Signed-off-by: Mika Penttil=C3=A4 <mika.penttila@nextfour.com>
+Acked-by: Tammy Tseng <tammy_tseng@sis.com>
+Acked-by: Yuger Yu <yuger_yu@sis.com>
+---
+ .../bindings/input/touchscreen/sis_i2c.txt         | 22 ++++++++++++++=
+++++++++
+ .../devicetree/bindings/vendor-prefixes.txt        |  1 +
+ 2 files changed, 23 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen=
+/sis_i2c.txt
 
-Thanks,
-Mika
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/sis_i2=
+c.txt b/Documentation/devicetree/bindings/input/touchscreen/sis_i2c.txt
+new file mode 100644
+index 0000000..af1bc7c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/sis_i2c.txt
+@@ -0,0 +1,22 @@
++* SiS I2C Multiple Touch Controller
++
++Required properties:
++- compatible: must be "sis,9200_ts"
++- reg: i2c slave address
++- interrupt-parent: the phandle for the interrupt controller
++- interrupts: touch controller interrupt
++- irq-gpio: the gpio pin used as irq pin
++- reset-gpio: the gpio pin used to reset the controller=20
++
++Example:
++
++	sis9255@5c  {
++                compatible =3D "sis,9200_ts";
++                reg =3D <0x5c>;
++                pinctrl-names =3D "default";
++                pinctrl-0 =3D <&pinctrl_sis>;
++                interrupt-parent =3D <&gpio3>;
++                interrupts =3D <19 2>;
++                irq-gpio =3D <&gpio3 19 0>;
++                reset-gpio =3D <&gpio2 30 0>;
++	};
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Do=
+cumentation/devicetree/bindings/vendor-prefixes.txt
+index 72e2c5a..077f8e9 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -212,6 +212,7 @@ simtek
+ sii	Seiko Instruments, Inc.
+ silergy	Silergy Corp.
+ sirf	SiRF Technology, Inc.
++sis	Silicon Integrated Systems Corp.
+ sitronix	Sitronix Technology Corporation
+ skyworks	Skyworks Solutions, Inc.
+ smsc	Standard Microsystems Corporation
+--=20
+1.9.1
 
-
-[PATCH v3 1/2] Input: Driver for SiS 9200 family I2C touchscreen controller.
-[PATCH v3 2/2] Input: SiS 9200 documentation parts.
-
- .../devicetree/bindings/input/touchscreen/sis_i2c.txt     |  22 ++
- Documentation/devicetree/bindings/vendor-prefixes.txt     |   1 +
- drivers/input/touchscreen/Kconfig                         |  11 +
- drivers/input/touchscreen/Makefile                        |   1 +
- drivers/input/touchscreen/sis_i2c.c                       | 493 ++++++++++++++++++++++++
- 5 files changed, 528 insertions(+)
-
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

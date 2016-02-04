@@ -1,58 +1,492 @@
-From: Chris Diamand <chris@diamand.org>
-Subject: [PATCH] Input: byd - Simplify initialization sequence code.
-Date: Wed,  3 Feb 2016 23:35:52 +0000
-Message-ID: <1454542552-28995-1-git-send-email-chris@diamand.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:38735 "EHLO
-	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752157AbcBCXgL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Feb 2016 18:36:11 -0500
-Received: by mail-wm0-f45.google.com with SMTP id p63so93582541wmp.1
-        for <linux-input@vger.kernel.org>; Wed, 03 Feb 2016 15:36:10 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Richard Pospesel <pospeselr@gmail.com>
+Subject: Re: [PATCH] psmouse: added BYD touchpad driver
+Date: Wed, 3 Feb 2016 21:52:03 -0800
+Message-ID: <56B2E703.8000708@gmail.com>
+References: <CAHc7Qt33N4LZNm1kjeFKKtqCHt8o8e-ZGu7BBuc0oGJZeB_JyA@mail.gmail.com>
+ <20160203004153.GA15147@smaug>
+ <CAHc7Qt3cMu4+qXvruXtY7-GxL=skaUda1c4bfA5DDdNMfOfKGg@mail.gmail.com>
+ <20160203085816.GA3307@smaug> <56B23203.3080509@gmail.com>
+ <20160203202803.GA18677@smaug>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160203202803.GA18677@smaug>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chris Diamand <chris@diamand.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Cc: Chris Diamand <chris@diamand.org>
 
-The touchpad initialization sequence was spread out over several
-functions, and used two different data structures to store the
-different sections.
+Rebased patch against 98ee377144935857d8ad5d7d70cdab1da4ede32e:
 
-However, the different parts are only ever used together, so merge
-them into one function and data structure.
-
-Signed-off-by: Chris Diamand <chris@diamand.org>
 ---
- drivers/input/mouse/byd.c | 133 ++++++++++++++++++----------------------------
- 1 file changed, 51 insertions(+), 82 deletions(-)
-
 diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
-index 9425e0f..00910f3 100644
+index 9425e0f..f213a08 100644
 --- a/drivers/input/mouse/byd.c
 +++ b/drivers/input/mouse/byd.c
-@@ -162,18 +162,6 @@ static psmouse_ret_t byd_process_byte(struct psmouse *psmouse)
- 	return PSMOUSE_FULL_PACKET;
- }
- 
--/* Send a sequence of bytes, where each is ACKed before the next is sent. */
--static int byd_send_sequence(struct psmouse *psmouse, const u8 *seq, size_t len)
+@@ -2,93 +2,276 @@
+   * BYD TouchPad PS/2 mouse driver
+   *
+   * Copyright (C) 2015 Chris Diamand <chris@diamand.org>
++ * Copyright (C) 2015 Richard Pospesel
++ * Copyright (C) 2015 Tai Chi Minh Ralph Eastwood
++ * Copyright (C) 2015 Martin Wimpress
++ * Copyright (C) 2015 Jay Kuri
+   *
+   * This program is free software; you can redistribute it and/or modify it
+   * under the terms of the GNU General Public License version 2 as 
+published by
+   * the Free Software Foundation.
++ *
++ * Protocol of BYD Touch Pad reverse-engineered from windows driver:
++ * filename:  "byd touchpad driver - win7, 8, 8.1 - 2.4.1.102.zip"
++ * md5:       0d5e4660b98fca9587a0df212fca3048
++ * sha1:      97a0eca8edc482bf9d08ab9509084a514dad4c4b
++ * datasheet: http://bydit.com/userfiles/file/BTP10463-XXX.pdf
+   */
+
+  #include <linux/delay.h>
+  #include <linux/input.h>
+  #include <linux/libps2.h>
+  #include <linux/serio.h>
++#include <linux/slab.h>
+
+  #include "psmouse.h"
+  #include "byd.h"
+
+-#define PS2_Y_OVERFLOW	BIT_MASK(7)
+-#define PS2_X_OVERFLOW	BIT_MASK(6)
+-#define PS2_Y_SIGN	BIT_MASK(5)
+-#define PS2_X_SIGN	BIT_MASK(4)
+-#define PS2_ALWAYS_1	BIT_MASK(3)
+-#define PS2_MIDDLE	BIT_MASK(2)
+-#define PS2_RIGHT	BIT_MASK(1)
+-#define PS2_LEFT	BIT_MASK(0)
++/* PS2 Bits */
++#define PS2_Y_OVERFLOW BIT_MASK(7)
++#define PS2_X_OVERFLOW BIT_MASK(6)
++#define PS2_Y_SIGN     BIT_MASK(5)
++#define PS2_X_SIGN     BIT_MASK(4)
++#define PS2_ALWAYS_1   BIT_MASK(3)
++#define PS2_MIDDLE     BIT_MASK(2)
++#define PS2_RIGHT      BIT_MASK(1)
++#define PS2_LEFT       BIT_MASK(0)
+
+  /*
+- * The touchpad reports gestures in the last byte of each packet. It 
+can take
+- * any of the following values:
++ * BYD pad constants
++ *
++ * True device resolution is unknown, however experiments show the
++ * resolution is about 111 units/mm.
++ * Absolute coordinate packets are in the range 0-255 for both X and Y
++ * we pick ABS_X/ABS_Y dimensions which are multiples of 256 and in
++ * the right ballpark given the touchpad's physical dimensions and estimate
++ * resolution per spec sheet, device active area dimensions are
++ * 101.6 x 60.1 mm.
+   */
++#define BYD_CONST_PAD_WIDTH	     11264
++#define BYD_CONST_PAD_HEIGHT     6656
++#define BYD_CONST_PAD_RESOLUTION 111
+
+-/* One-finger scrolling in one of the edge scroll zones. */
+-#define BYD_SCROLLUP		0xCA
+-#define BYD_SCROLLDOWN		0x36
+-#define BYD_SCROLLLEFT		0xCB
+-#define BYD_SCROLLRIGHT		0x35
+-/* Two-finger scrolling. */
+-#define BYD_2DOWN		0x2B
+-#define BYD_2UP			0xD5
+-#define BYD_2LEFT		0xD6
+-#define BYD_2RIGHT		0x2A
+-/* Pinching in or out. */
+-#define BYD_ZOOMOUT		0xD8
+-#define BYD_ZOOMIN		0x28
+-/* Three-finger swipe. */
+-#define BYD_3UP			0xD3
+-#define BYD_3DOWN		0x2D
+-#define BYD_3LEFT		0xD4
+-#define BYD_3RIGHT		0x2C
+-/* Four-finger swipe. */
+-#define BYD_4UP			0xCD
+-#define BYD_4DOWN		0x33
+-
+-int byd_detect(struct psmouse *psmouse, bool set_properties)
+-{
+-	struct ps2dev *ps2dev = &psmouse->ps2dev;
+-	unsigned char param[4];
++/* BYD commands reverse engineered from windows driver */
+
+-	param[0] = 0x03;
+-	param[1] = 0x00;
+-	param[2] = 0x00;
+-	param[3] = 0x00;
+-
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+-		return -1;
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+-		return -1;
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+-		return -1;
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+-		return -1;
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
+-		return -1;
++/*
++ * Swipe gesture from off-pad to on-pad
++ *  0 : disable
++ *  1 : enable
++ */
++#define BYD_CMD_SET_OFFSCREEN_SWIPE        0x10cc
++/*
++ * Tap and drag delay time
++ *  0 : disable
++ *  1 - 8 : least to most delay
++ */
++#define BYD_CMD_SET_TAP_DRAG_DELAY_TIME    0x10cf
++/*
++ * Physical buttons function mapping
++ *  0 : enable
++ *  4 : normal
++ *  5 : left button custom command
++ *  6 : right button custom command
++ *  8 : disable
++ */
++#define BYD_CMD_SET_PHYSICAL_BUTTONS       0x10d0
++/*
++ * Absolute mode (1 byte X/Y resolution)
++ *  0 : disable
++ *  2 : enable
++ */
++#define BYD_CMD_SET_ABSOLUTE_MODE          0x10d1
++/*
++ * Two finger scrolling
++ *  1 : vertical
++ *  2 : horizontal
++ *  3 : vertical + horizontal
++ *  4 : disable
++ */
++#define BYD_CMD_SET_TWO_FINGER_SCROLL      0x10d2
++/*
++ * Handedness
++ *  1 : right handed
++ *  2 : left handed
++ */
++#define BYD_CMD_SET_HANDEDNESS             0x10d3
++/*
++ * Tap to click
++ *  1 : enable
++ *  2 : disable
++ */
++#define BYD_CMD_SET_TAP                    0x10d4
++/*
++ * Tap and drag
++ *  1 : tap and hold to drag
++ *  2 : tap and hold to drag + lock
++ *  3 : disable
++ */
++#define BYD_CMD_SET_TAP_DRAG               0x10d5
++/*
++ * Touch sensitivity
++ *  1 - 7 : least to most sensitive
++ */
++#define BYD_CMD_SET_TOUCH_SENSITIVITY      0x10d6
++/*
++ * One finger scrolling
++ *  1 : vertical
++ *  2 : horizontal
++ *  3 : vertical + horizontal
++ *  4 : disable
++ */
++#define BYD_CMD_SET_ONE_FINGER_SCROLL      0x10d7
++/*
++ * One finger scrolling function
++ *  1 : free scrolling
++ *  2 : edge motion
++ *  3 : free scrolling + edge motion
++ *  4 : disable
++ */
++#define BYD_CMD_SET_ONE_FINGER_SCROLL_FUNC 0x10d8
++/*
++ * Sliding speed
++ *  1 - 5 : slowest to fastest
++ */
++#define BYD_CMD_SET_SLIDING_SPEED          0x10da
++/*
++ * Edge motion
++ *  1 : disable
++ *  2 : enable when dragging
++ *  3 : enable when dragging and pointing
++ */
++#define BYD_CMD_SET_EDGE_MOTION            0x10db
++/*
++ * Left edge region size
++ *  0 - 7 : smallest to largest width
++ */
++#define BYD_CMD_SET_LEFT_EDGE_REGION       0x10dc
++/*
++ * Top edge region size
++ *  0 - 9 : smallest to largest height
++ */
++#define BYD_CMD_SET_TOP_EDGE_REGION        0x10dd
++/*
++ * Disregard palm press as clicks
++ *  1 - 6 : smallest to largest
++ */
++#define BYD_CMD_SET_PALM_CHECK             0x10de
++/*
++ * Right edge region size
++ *  0 - 7 : smallest to largest width
++ */
++#define BYD_CMD_SET_RIGHT_EDGE_REGION      0x10df
++/*
++ * Bottom edge region size
++ *  0 - 9 : smallest to largest height
++ */
++#define BYD_CMD_SET_BOTTOM_EDGE_REGION     0x10e1
++/*
++ * Multitouch gestures
++ *  1 : enable
++ *  2 : disable
++ */
++#define BYD_CMD_SET_MULTITOUCH             0x10e3
++/*
++ * Edge motion speed
++ *  0 : control with finger pressure
++ *  1 - 9 : slowest to fastest
++ */
++#define BYD_CMD_SET_EDGE_MOTION_SPEED      0x10e4
++/*
++ * Two finger scolling function
++ *  0 : free scrolling
++ *  1 : free scrolling (with momentum)
++ *  2 : edge motion
++ *  3 : free scrolling (with momentum) + edge motion
++ *  4 : disable
++ */
++#define BYD_CMD_SET_TWO_FINGER_SCROLL_FUNC 0x10e5
+
+-	if (param[1] != 0x03 || param[2] != 0x64)
+-		return -ENODEV;
++/*
++ * The touchpad generates a mixture of absolute and relative packets, 
+indicated
++ * by the the last byte of each packet being set to one of the following:
++ */
++#define BYD_PACKET_ABSOLUTE	0xF8
++#define BYD_PACKET_RELATIVE	0x00
+
+-	psmouse_dbg(psmouse, "BYD touchpad detected\n");
++/*
++ * With multitouch gestures enabled, the following packets will be sent 
+from
++ * the touchpad:
++ */
++#define BYD_PACKET_PINCH_IN                    0xd8
++#define BYD_PACKET_PINCH_OUT                   0x28
++#define BYD_PACKET_ROTATE_CLOCKWISE            0x29
++#define BYD_PACKET_ROTATE_ANTICLOCKWISE        0xd7
++#define BYD_PACKET_TWO_FINGER_SCROLL_RIGHT     0x2a
++#define BYD_PACKET_TWO_FINGER_SCROLL_DOWN      0x2b
++#define BYD_PACKET_TWO_FINGER_SCROLL_UP        0xd5
++#define BYD_PACKET_TWO_FINGER_SCROLL_LEFT      0xd6
++#define BYD_PACKET_THREE_FINGER_SWIPE_RIGHT    0x2c
++#define BYD_PACKET_THREE_FINGER_SWIPE_DOWN     0x2d
++#define BYD_PACKET_THREE_FINGER_SWIPE_UP       0xd3
++#define BYD_PACKET_THREE_FINGER_SWIPE_LEFT     0xd4
++#define BYD_PACKET_FOUR_FINGER_DOWN            0x33
++#define BYD_PACKET_FOUR_FINGER_UP              0xcd
++#define BYD_PACKET_REGION_SCROLL_RIGHT         0x35
++#define BYD_PACKET_REGION_SCROLL_DOWN          0x36
++#define BYD_PACKET_REGION_SCROLL_UP            0xca
++#define BYD_PACKET_REGION_SCROLL_LEFT          0xcb
++#define BYD_PACKET_RIGHT_CORNER_CLICK          0xd2
++#define BYD_PACKET_LEFT_CORNER_CLICK           0x2e
++#define BYD_PACKET_LEFT_AND_RIGHT_CORNER_CLICK 0x2f
++#define BYD_PACKET_ONTO_PAD_SWIPE_RIGHT        0x37
++#define BYD_PACKET_ONTO_PAD_SWIPE_DOWN         0x30
++#define BYD_PACKET_ONTO_PAD_SWIPE_UP           0xd0
++#define BYD_PACKET_ONTO_PAD_SWIPE_LEFT         0xc9
++
++struct byd_data {
++	struct timer_list timer;
++	s32 abs_x;
++	s32 abs_y;
++	u32 last_touch_time;
++	bool btn_left  : 1;
++	bool btn_right : 1;
++	bool touch     : 1;
++};
++
++static void byd_report_input(struct psmouse *psmouse)
++{
++	struct byd_data *priv = (struct byd_data *)psmouse->private;
++	struct input_dev *dev = psmouse->dev;
+
+-	if (set_properties) {
+-		psmouse->vendor = "BYD";
+-		psmouse->name = "TouchPad";
+-	}
++	input_report_abs(dev, ABS_X, priv->abs_x);
++	input_report_abs(dev, ABS_Y, priv->abs_y);
++	input_report_key(dev, BTN_LEFT, priv->btn_left);
++	input_report_key(dev, BTN_RIGHT, priv->btn_right);
++	input_report_key(dev, BTN_TOUCH, priv->touch);
++	input_report_key(dev, BTN_TOOL_FINGER, priv->touch);
++	input_sync(dev);
++}
+
+-	return 0;
++static void byd_clear_touch(unsigned long data)
++{
++	struct psmouse *psmouse = (struct psmouse *) data;
++	struct byd_data *priv = psmouse->private;
++
++	serio_pause_rx(psmouse->ps2dev.serio);
++	priv->touch = false;
++	/*
++	 * Move cursor back to center of pad when we lose touch - this
++	 * specifically improves user experience when moving cursor with one
++	 * finger, and pressing a button with another.
++	 */
++	priv->abs_x = BYD_CONST_PAD_WIDTH / 2;
++	priv->abs_y = BYD_CONST_PAD_HEIGHT / 2;
++	byd_report_input(psmouse);
++
++	serio_continue_rx(psmouse->ps2dev.serio);
+  }
+
+  static psmouse_ret_t byd_process_byte(struct psmouse *psmouse)
+  {
+-	struct input_dev *dev = psmouse->dev;
++	struct byd_data *priv = psmouse->private;
++	u32 now_msecs = jiffies_to_msecs(jiffies);
+  	u8 *pkt = psmouse->packet;
+
+  	if (psmouse->pktcnt > 0 && !(pkt[0] & PS2_ALWAYS_1)) {
+@@ -102,53 +285,37 @@ static psmouse_ret_t byd_process_byte(struct 
+psmouse *psmouse)
+
+  	/* Otherwise, a full packet has been received */
+  	switch (pkt[3]) {
+-	case 0: {
++	case BYD_PACKET_ABSOLUTE:
++		/* Only use absolute packets for the start of movement. */
++		if (!priv->touch) {
++			priv->abs_x = pkt[1] * (BYD_CONST_PAD_WIDTH / 256);
++			priv->abs_y = (255 - pkt[2]) *
++				      (BYD_CONST_PAD_HEIGHT / 256);
++
++			/* needed to detect tap */
++			if (now_msecs - priv->last_touch_time > 64)
++				priv->touch = true;
++		}
++		break;
++	case BYD_PACKET_RELATIVE: {
+  		/* Standard packet */
+  		/* Sign-extend if a sign bit is set. */
+-		unsigned int signx = pkt[0] & PS2_X_SIGN ? ~0xFF : 0;
+-		unsigned int signy = pkt[0] & PS2_Y_SIGN ? ~0xFF : 0;
+-		int dx = signx | (int) pkt[1];
+-		int dy = signy | (int) pkt[2];
+-
+-		input_report_rel(psmouse->dev, REL_X, dx);
+-		input_report_rel(psmouse->dev, REL_Y, -dy);
+-
+-		input_report_key(psmouse->dev, BTN_LEFT, pkt[0] & PS2_LEFT);
+-		input_report_key(psmouse->dev, BTN_RIGHT, pkt[0] & PS2_RIGHT);
+-		input_report_key(psmouse->dev, BTN_MIDDLE, pkt[0] & PS2_MIDDLE);
++		u32 signx = pkt[0] & PS2_X_SIGN ? ~0xFF : 0;
++		u32 signy = pkt[0] & PS2_Y_SIGN ? ~0xFF : 0;
++		s32 dx = signx | (int) pkt[1];
++		s32 dy = signy | (int) pkt[2];
++
++		/*
++		 * Experiments show relative mouse packets come in increments
++		 * of 1 unit / 11 milliseconds (regardless of time delta between
++		 * relative packets).
++		 */
++		priv->abs_x += dx * 11;
++		priv->abs_y -= dy * 11;
++
++		priv->touch = true;
+  		break;
+  	}
+-
+-	case BYD_SCROLLDOWN:
+-	case BYD_2DOWN:
+-		input_report_rel(dev, REL_WHEEL, -1);
+-		break;
+-
+-	case BYD_SCROLLUP:
+-	case BYD_2UP:
+-		input_report_rel(dev, REL_WHEEL, 1);
+-		break;
+-
+-	case BYD_SCROLLLEFT:
+-	case BYD_2LEFT:
+-		input_report_rel(dev, REL_HWHEEL, -1);
+-		break;
+-
+-	case BYD_SCROLLRIGHT:
+-	case BYD_2RIGHT:
+-		input_report_rel(dev, REL_HWHEEL, 1);
+-		break;
+-
+-	case BYD_ZOOMOUT:
+-	case BYD_ZOOMIN:
+-	case BYD_3UP:
+-	case BYD_3DOWN:
+-	case BYD_3LEFT:
+-	case BYD_3RIGHT:
+-	case BYD_4UP:
+-	case BYD_4DOWN:
+-		break;
+-
+  	default:
+  		psmouse_warn(psmouse,
+  			     "Unrecognized Z: pkt = %02x %02x %02x %02x\n",
+@@ -157,134 +324,76 @@ static psmouse_ret_t byd_process_byte(struct 
+psmouse *psmouse)
+  		return PSMOUSE_BAD_DATA;
+  	}
+
+-	input_sync(dev);
++	priv->btn_left = pkt[0] & PS2_LEFT;
++	priv->btn_right = pkt[0] & PS2_RIGHT;
+
+-	return PSMOUSE_FULL_PACKET;
+-}
++	byd_report_input(psmouse);
+
+-/* Send a sequence of bytes, where each is ACKed before the next is 
+sent. */
+-static int byd_send_sequence(struct psmouse *psmouse, const u8 *seq, 
+size_t len)
 -{
 -	unsigned int i;
 -
 -	for (i = 0; i < len; ++i) {
 -		if (ps2_command(&psmouse->ps2dev, NULL, seq[i]))
 -			return -1;
--	}
++	/* Reset time since last touch. */
++	if (priv->touch) {
++		priv->last_touch_time = now_msecs;
++		mod_timer(&priv->timer, jiffies + msecs_to_jiffies(64));
+  	}
 -	return 0;
 -}
 -
- /* Keep scrolling after fingers are removed. */
- #define SCROLL_INERTIAL		0x01
- #define SCROLL_NO_INERTIAL	0x02
-@@ -183,69 +171,20 @@ static int byd_send_sequence(struct psmouse *psmouse, const u8 *seq, size_t len)
- /* Clicking can only be done by pressing. */
- #define CLICK_PRESS_ONLY	0x02
- 
+-/* Keep scrolling after fingers are removed. */
+-#define SCROLL_INERTIAL		0x01
+-#define SCROLL_NO_INERTIAL	0x02
+-
+-/* Clicking can be done by tapping or pressing. */
+-#define CLICK_BOTH		0x01
+-/* Clicking can only be done by pressing. */
+-#define CLICK_PRESS_ONLY	0x02
+-
 -static int byd_enable(struct psmouse *psmouse)
 -{
 -	const u8 seq1[] = { 0xE2, 0x00, 0xE0, 0x02, 0xE0 };
@@ -96,93 +530,90 @@ index 9425e0f..00910f3 100644
 -	/* Send a 0x01 command, which should return 4 bytes. */
 -	if (ps2_command(&psmouse->ps2dev, param, 0x0401))
 -		return -1;
--
+
 -	if (byd_send_sequence(psmouse, seq2, ARRAY_SIZE(seq2)))
 -		return -1;
 -
 -	return 0;
--}
--
++	return PSMOUSE_FULL_PACKET;
+  }
+
 -/*
 - * Send the set of PS/2 commands required to make it identify as an
 - * intellimouse with 4-byte instead of 3-byte packets.
 - */
 -static int byd_send_intellimouse_sequence(struct psmouse *psmouse)
 +static int byd_reset_touchpad(struct psmouse *psmouse)
- {
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
- 	u8 param[4];
- 	int i;
+  {
+  	struct ps2dev *ps2dev = &psmouse->ps2dev;
+  	u8 param[4];
+-	int i;
++	size_t i;
 +
- 	const struct {
- 		u16 command;
- 		u8 arg;
- 	} seq[] = {
+  	const struct {
+  		u16 command;
+  		u8 arg;
+  	} seq[] = {
+-		{ PSMOUSE_CMD_RESET_BAT, 0 },
+-		{ PSMOUSE_CMD_RESET_BAT, 0 },
+-		{ PSMOUSE_CMD_GETID, 0 },
+-		{ PSMOUSE_CMD_SETSCALE11, 0 },
+-		{ PSMOUSE_CMD_SETSCALE11, 0 },
+-		{ PSMOUSE_CMD_SETSCALE11, 0 },
+-		{ PSMOUSE_CMD_GETINFO, 0 },
+-		{ PSMOUSE_CMD_SETRES, 0x03 },
 +		/*
 +		 * Intellimouse initialization sequence, to get 4-byte instead
 +		 * of 3-byte packets.
 +		 */
- 		{ PSMOUSE_CMD_RESET_BAT, 0 },
- 		{ PSMOUSE_CMD_RESET_BAT, 0 },
- 		{ PSMOUSE_CMD_GETID, 0 },
-@@ -264,27 +203,57 @@ static int byd_send_intellimouse_sequence(struct psmouse *psmouse)
- 		{ PSMOUSE_CMD_GETID, 0 },
- 		{ PSMOUSE_CMD_SETRATE, 0x64 },
- 		{ PSMOUSE_CMD_SETRES, 0x03 },
+  		{ PSMOUSE_CMD_SETRATE, 0xC8 },
+  		{ PSMOUSE_CMD_SETRATE, 0x64 },
+  		{ PSMOUSE_CMD_SETRATE, 0x50 },
+  		{ PSMOUSE_CMD_GETID, 0 },
+-		{ PSMOUSE_CMD_SETRATE, 0xC8 },
+-		{ PSMOUSE_CMD_SETRATE, 0xC8 },
+-		{ PSMOUSE_CMD_SETRATE, 0x50 },
+-		{ PSMOUSE_CMD_GETID, 0 },
+-		{ PSMOUSE_CMD_SETRATE, 0x64 },
+-		{ PSMOUSE_CMD_SETRES, 0x03 },
 -		{ PSMOUSE_CMD_ENABLE, 0 }
 +		{ PSMOUSE_CMD_ENABLE, 0 },
 +		/*
 +		 * BYD-specific initialization, which enables absolute mode and
 +		 * (if desired), the touchpad's built-in gesture detection.
 +		 */
-+		{0xE2, 0},
-+		{0x00, 0},
-+		{0xE0, 0},
-+		{0x02, 0},
-+		{0xE0, 0},
++		{ 0x10E2, 0x00 },
++		{ 0x10E0, 0x02 },
 +		/* The touchpad should reply with 4 seemingly-random bytes */
-+		{0x0401, 0},
++		{ 0x14E0, 0x01 },
 +		/* Pairs of parameters and values. */
-+		{0xD3, 0}, {0x01, 0},
-+		{0xD0, 0}, {0x00, 0},
-+		{0xD0, 0}, {0x04, 0},
-+		/* Whether clicking is done by tapping or pressing. */
-+		{0xD4, 0}, {CLICK_PRESS_ONLY, 0},
-+		{0xD5, 0}, {0x01, 0},
-+		{0xD7, 0}, {0x03, 0},
-+		/* Vertical and horizontal one-finger scroll zone inertia. */
-+		{0xD8, 0}, {SCROLL_INERTIAL, 0},
-+		{0xDA, 0}, {0x05, 0},
-+		{0xDB, 0}, {0x02, 0},
-+		{0xE4, 0}, {0x05, 0},
-+		{0xD6, 0}, {0x01, 0},
-+		{0xDE, 0}, {0x04, 0},
-+		{0xE3, 0}, {0x01, 0},
-+		{0xCF, 0}, {0x00, 0},
-+		{0xD2, 0}, {0x03, 0},
-+		/* Vertical and horizontal two-finger scrolling inertia. */
-+		{0xE5, 0}, {SCROLL_INERTIAL, 0},
-+		{0xD9, 0}, {0x02, 0},
-+		{0xD9, 0}, {0x07, 0},
-+		{0xDC, 0}, {0x03, 0},
-+		{0xDD, 0}, {0x03, 0},
-+		{0xDF, 0}, {0x03, 0},
-+		{0xE1, 0}, {0x03, 0},
-+		{0xD1, 0}, {0x00, 0},
-+		{0xCE, 0}, {0x00, 0},
-+		{0xCC, 0}, {0x00, 0},
-+		{0xE0, 0}, {0x00, 0},
-+		{0xE2, 0}, {0x01, 0},
- 	};
- 
++		{ BYD_CMD_SET_HANDEDNESS, 0x01 },
++		{ BYD_CMD_SET_PHYSICAL_BUTTONS, 0x04 },
++		{ BYD_CMD_SET_TAP, 0x02 },
++		{ BYD_CMD_SET_ONE_FINGER_SCROLL, 0x04 },
++		{ BYD_CMD_SET_ONE_FINGER_SCROLL_FUNC, 0x04 },
++		{ BYD_CMD_SET_EDGE_MOTION, 0x01 },
++		{ BYD_CMD_SET_PALM_CHECK, 0x00 },
++		{ BYD_CMD_SET_MULTITOUCH, 0x02 },
++		{ BYD_CMD_SET_TWO_FINGER_SCROLL, 0x04 },
++		{ BYD_CMD_SET_TWO_FINGER_SCROLL_FUNC, 0x04 },
++		{ BYD_CMD_SET_LEFT_EDGE_REGION, 0x00 },
++		{ BYD_CMD_SET_TOP_EDGE_REGION, 0x00 },
++		{ BYD_CMD_SET_RIGHT_EDGE_REGION, 0x00 },
++		{ BYD_CMD_SET_BOTTOM_EDGE_REGION, 0x00 },
++		{ BYD_CMD_SET_ABSOLUTE_MODE, 0x02 },
++		/* Finalize initialization. */
++		{ 0x10E0, 0x00 },
++		{ 0x10E2, 0x01 },
+  	};
+
 -	memset(param, 0, sizeof(param));
- 	for (i = 0; i < ARRAY_SIZE(seq); ++i) {
+  	for (i = 0; i < ARRAY_SIZE(seq); ++i) {
 +		memset(param, 0, sizeof(param));
- 		param[0] = seq[i].arg;
- 		if (ps2_command(ps2dev, param, seq[i].command))
+  		param[0] = seq[i].arg;
+  		if (ps2_command(ps2dev, param, seq[i].command))
 -			return -1;
-+			return -EIO;
- 	}
+-	}
 -
 -	return 0;
 -}
@@ -194,10 +625,142 @@ index 9425e0f..00910f3 100644
 -
 -	if (byd_enable(psmouse))
 -		return -EIO;
--
- 	return 0;
- }
- 
--- 
-2.1.4
++			return -EIO;
 
++	}
++	psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
+  	return 0;
+  }
+
+@@ -314,9 +423,50 @@ static int byd_reconnect(struct psmouse *psmouse)
+  	return 0;
+  }
+
++static void byd_disconnect(struct psmouse *psmouse)
++{
++	struct byd_data *priv = psmouse->private;
++
++	if (priv) {
++		del_timer(&priv->timer);
++		kfree(psmouse->private);
++		psmouse->private = NULL;
++	}
++}
++
++int byd_detect(struct psmouse *psmouse, bool set_properties)
++{
++	struct ps2dev *ps2dev = &psmouse->ps2dev;
++	u8 param[4] = {0x03, 0x00, 0x00, 0x00};
++
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
++		return -1;
++
++	if (param[1] != 0x03 || param[2] != 0x64)
++		return -ENODEV;
++
++	psmouse_dbg(psmouse, "BYD touchpad detected\n");
++
++	if (set_properties) {
++		psmouse->vendor = "BYD";
++		psmouse->name = "TouchPad";
++	}
++
++	return 0;
++}
++
+  int byd_init(struct psmouse *psmouse)
+  {
+  	struct input_dev *dev = psmouse->dev;
++	struct byd_data *priv;
+
+  	if (psmouse_reset(psmouse))
+  		return -EIO;
+@@ -324,14 +474,39 @@ int byd_init(struct psmouse *psmouse)
+  	if (byd_reset_touchpad(psmouse))
+  		return -EIO;
+
++	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	memset(priv, 0, sizeof(*priv));
++	setup_timer(&priv->timer, byd_clear_touch, (unsigned long) psmouse);
++
++	psmouse->private = priv;
++	psmouse->disconnect = byd_disconnect;
+  	psmouse->reconnect = byd_reconnect;
+  	psmouse->protocol_handler = byd_process_byte;
+  	psmouse->pktsize = 4;
+  	psmouse->resync_time = 0;
+
+-	__set_bit(BTN_MIDDLE, dev->keybit);
+-	__set_bit(REL_WHEEL, dev->relbit);
+-	__set_bit(REL_HWHEEL, dev->relbit);
++	__set_bit(INPUT_PROP_POINTER, dev->propbit);
++	/* Touchpad */
++	__set_bit(BTN_TOUCH, dev->keybit);
++	__set_bit(BTN_TOOL_FINGER, dev->keybit);
++	/* Buttons */
++	__set_bit(BTN_LEFT, dev->keybit);
++	__set_bit(BTN_RIGHT, dev->keybit);
++	__clear_bit(BTN_MIDDLE, dev->keybit);
++
++	/* Absolute position */
++	__set_bit(EV_ABS, dev->evbit);
++	input_set_abs_params(dev, ABS_X, 0, BYD_CONST_PAD_WIDTH, 0, 0);
++	input_set_abs_params(dev, ABS_Y, 0, BYD_CONST_PAD_HEIGHT, 0, 0);
++	input_abs_set_res(dev, ABS_X, BYD_CONST_PAD_RESOLUTION);
++	input_abs_set_res(dev, ABS_Y, BYD_CONST_PAD_RESOLUTION);
++	/* No relative support */
++	__clear_bit(EV_REL, dev->evbit);
++	__clear_bit(REL_X, dev->relbit);
++	__clear_bit(REL_Y, dev->relbit);
+
+  	return 0;
+  }
+diff --git a/drivers/input/mouse/psmouse-base.c 
+b/drivers/input/mouse/psmouse-base.c
+index 39d1bec..5784e20 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -846,7 +846,7 @@ static const struct psmouse_protocol 
+psmouse_protocols[] = {
+  #ifdef CONFIG_MOUSE_PS2_BYD
+  	{
+  		.type		= PSMOUSE_BYD,
+-		.name		= "BydPS/2",
++		.name		= "BYDPS/2",
+  		.alias		= "byd",
+  		.detect		= byd_detect,
+  		.init		= byd_init,
+
+
+
+
+On 02/03/2016 12:28 PM, Chris Diamand wrote:
+>> The Windows driver provides a visualization of the regions for the hardware
+>> edge scrolling capability. When entering that screen, a particular command
+>> pair is sent, and the touchpad starts sending interleaved REL and ABS
+>> packets.  When leaving that screen, another particular command pair is sent,
+>> and the touchpad resumes the normal REL only stream.
+>
+> Good find! That's very crafty.
+>
+> I've managed to apply your patch, and can confirm that it works - my initial
+> impressions (using it for 15 mins...) are that even 256x256 resolution absolute
+> mode + synaptics is much better than the touchpad's built-in gesture detection.
+>
+> Let's work your patch into something which applies on top of the existing
+> driver, and get it merged.
+>
+> Cheers!
+> Chris
+>

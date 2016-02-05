@@ -1,36 +1,30 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] Input: synaptics-rmi4: Get IRQ flags from the IRQ subsystem
-Date: Fri, 5 Feb 2016 13:40:08 +0100
-Message-ID: <CACRpkdYF9BdGLdxOFwZ_OOD2=WHku_biuRDFBCNErZHUbTYJSA@mail.gmail.com>
-References: <1454675797-10065-1-git-send-email-linus.walleij@linaro.org>
+Subject: Re: [PATCH v3 00/10] Input: synaptics-rmi4: Synaptics RMI4 Driver
+Date: Fri, 5 Feb 2016 13:42:06 +0100
+Message-ID: <CACRpkdanmC_CWJKpfL5bY7v+N+KM+F1WMf1zZLWOY2mrrj1NCQ@mail.gmail.com>
+References: <1454463809-3884-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f43.google.com ([209.85.218.43]:33944 "EHLO
-	mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751572AbcBEMkJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Feb 2016 07:40:09 -0500
-Received: by mail-oi0-f43.google.com with SMTP id w5so39963192oie.1
-        for <linux-input@vger.kernel.org>; Fri, 05 Feb 2016 04:40:08 -0800 (PST)
-In-Reply-To: <1454675797-10065-1-git-send-email-linus.walleij@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1454463809-3884-1-git-send-email-aduggan@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>, Rob Herring <robh@kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>
-Cc: Christopher Heiny <cheiny@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Linus Walleij <linus.walleij@linaro.org>
 
-On Fri, Feb 5, 2016 at 1:36 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
+On Wed, Feb 3, 2016 at 2:43 AM, Andrew Duggan <aduggan@synaptics.com> wrote:
 
-> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
->  #include <linux/of.h>
-> +#include <linux/irq.h>
-(...)
-> diff --git a/drivers/input/rmi4/rmi_spi.c b/drivers/input/rmi4/rmi_spi.c
+> This is the v3 patch series which fixes the issues identified in the
+> previous patch series.
 
-Ooops maybe I didn't compile the SPI driver. You probably need to
-include <linux/irq.h> in rmi_spi.c too.
+For the core, I2C and F01+F11 (what I'm using):
+Tested-by: Linus Walleij <linus.walleij@linaro.org>
 
-Tell me if I should send a new version of the patch or if it's OK
-like this.
+...provided you apply something like that IRQ patch I just sent.
+
+This looks like it's in pretty nice shape now, I hope Dmitry will
+consider merging it so we can get rid of
+drivers/staging/ste_rmi4 finally...
 
 Yours,
 Linus Walleij

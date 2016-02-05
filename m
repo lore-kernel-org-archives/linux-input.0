@@ -1,58 +1,83 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] hid:Add warning message if sysfs group is not created
- for passed kobject in the function, mt_probe
-Date: Fri, 5 Feb 2016 08:48:04 +0100
-Message-ID: <20160205074804.GF12345@mail.corp.redhat.com>
-References: <1454601160-21966-1-git-send-email-xerofoify@gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v2 2/3] Input: rotary-encoder - move configuration data
+ to driver data
+Date: Fri, 5 Feb 2016 10:05:45 +0100
+Message-ID: <20160205090545.GM13664@pengutronix.de>
+References: <1454408678-6011-1-git-send-email-u.kleine-koenig@pengutronix.de>
+ <1454408678-6011-3-git-send-email-u.kleine-koenig@pengutronix.de>
+ <56B09CAB.5020600@zonque.org>
+ <20160203093527.GD13664@pengutronix.de>
+ <20160204211842.GA40137@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38556 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750904AbcBEHsJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 5 Feb 2016 02:48:09 -0500
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:57342 "EHLO
+	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751206AbcBEJGW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 5 Feb 2016 04:06:22 -0500
 Content-Disposition: inline
-In-Reply-To: <1454601160-21966-1-git-send-email-xerofoify@gmail.com>
+In-Reply-To: <20160204211842.GA40137@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nicholas Krause <xerofoify@gmail.com>
-Cc: jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Mack <daniel@zonque.org>, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, Sylvain Rochet <sylvain.rochet@finsecur.com>, Johan Hovold <johan@kernel.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de, linux-input@vger.kernel.org
 
-Hi Nick,
+Hello Dmitry,
 
-On Feb 04 2016 or thereabouts, Nicholas Krause wrote:
-> This adds a warning message stating that the sysfs group was not
-> able to be created for the passed hid_device structure pointer
-> with dev_warn.
-> 
-> Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
-> ---
->  drivers/hid/hid-multitouch.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 296d499..b2b2451 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -1133,6 +1133,8 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		return ret;
->  
->  	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
-> +	if (ret)
-> +		dev_warn(&hdev->dev, "Cannot allocate sysfs group for %s\n", hdev->name);
+On Thu, Feb 04, 2016 at 01:18:42PM -0800, Dmitry Torokhov wrote:
+> On Wed, Feb 03, 2016 at 10:35:27AM +0100, Uwe Kleine-K=F6nig wrote:
+> > Hello,
+> >=20
+> > On Tue, Feb 02, 2016 at 01:10:19PM +0100, Daniel Mack wrote:
+> > > On 02/02/2016 11:24 AM, Uwe Kleine-K=F6nig wrote:
+> > > > This is a preparation for the next patche. There is no change i=
+n
+> > > > behaviour intended.
+> > >=20
+> > > This one looks good to me, but it clashes with Dmitry's latest pa=
+tch
+> > > sets (which I haven't found the time to test yet, sorry!).
+> >=20
+> > There is nothing in next-20160203, so I assume Dmitry either fixes =
+this
+> > up when applying my patches or tells me when I should rebase.
+>=20
+> Please take a look at my rotary-encoder branch. I am waiting to merge=
+ it
+> into next until I can get some testers. If you have raumfild device t=
+hat
+> would be awesome.
 
-Just nitpicking here. Checkpatch.pl complains about a line over 80
-characters here. Could you (or maybe just Jiri) fix that?
+I don't have a raumfeld device. I did a similar conversion and the only
+relevant difference is that I used
 
-Otherwise:
-Reviewed-by: Benjamin Tissoires <benajmin.tissoires@redhat.com>
+	.dev_id =3D "rotary_encoder.0",
 
-Cheers,
-Benjamin
+while you used
 
->  
->  	mt_set_maxcontacts(hdev);
->  	mt_set_input_mode(hdev);
-> -- 
-> 2.5.0
-> 
+	.dev_id =3D "rotary-encoder",
+
+in raumfeld_rotary_gpios_table.
+I think a mixture of these is the right thing, i.e.
+
+	.dev_id =3D "rotary-encoder.0",
+
+Your series obsoletes my first two patches, so I will port my third
+patch on top of your branch and retest there.
+
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

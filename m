@@ -1,63 +1,41 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCHv11 01/17] dts: exynos4*: add HDMI CEC pin definition to pinctrl
-Date: Fri,  5 Feb 2016 16:27:44 +0100
-Message-ID: <1454686080-39018-2-git-send-email-hverkuil@xs4all.nl>
+Subject: [PATCHv11 03/17] dts: exynos4412-odroid*: enable the HDMI CEC device
+Date: Fri,  5 Feb 2016 16:27:46 +0100
+Message-ID: <1454686080-39018-4-git-send-email-hverkuil@xs4all.nl>
 References: <1454686080-39018-1-git-send-email-hverkuil@xs4all.nl>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 In-Reply-To: <1454686080-39018-1-git-send-email-hverkuil@xs4all.nl>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
 Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
 From: Kamil Debski <kamil@wypas.org>
 
-Add pinctrl nodes for the HDMI CEC device to the Exynos4210 and
-Exynos4x12 SoCs. These are required by the HDMI CEC device.
+Add a dts node entry and enable the HDMI CEC device present in the Exynos4
+family of SoCs.
 
 Signed-off-by: Kamil Debski <kamil@wypas.org>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 Acked-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
- arch/arm/boot/dts/exynos4210-pinctrl.dtsi | 7 +++++++
- arch/arm/boot/dts/exynos4x12-pinctrl.dtsi | 7 +++++++
- 2 files changed, 14 insertions(+)
+ arch/arm/boot/dts/exynos4210-universal_c210.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/exynos4210-pinctrl.dtsi b/arch/arm/boot/dts/exynos4210-pinctrl.dtsi
-index a7c2128..9331c62 100644
---- a/arch/arm/boot/dts/exynos4210-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/exynos4210-pinctrl.dtsi
-@@ -820,6 +820,13 @@
- 			samsung,pin-pud = <1>;
- 			samsung,pin-drv = <0>;
- 		};
-+
-+		hdmi_cec: hdmi-cec {
-+			samsung,pins = "gpx3-6";
-+			samsung,pin-function = <3>;
-+			samsung,pin-pud = <0>;
-+			samsung,pin-drv = <0>;
-+		};
+diff --git a/arch/arm/boot/dts/exynos4210-universal_c210.dts b/arch/arm/boot/dts/exynos4210-universal_c210.dts
+index 4f5d379..331ab9f 100644
+--- a/arch/arm/boot/dts/exynos4210-universal_c210.dts
++++ b/arch/arm/boot/dts/exynos4210-universal_c210.dts
+@@ -223,6 +223,10 @@
+ 		enable-active-high;
  	};
  
- 	pinctrl@03860000 {
-diff --git a/arch/arm/boot/dts/exynos4x12-pinctrl.dtsi b/arch/arm/boot/dts/exynos4x12-pinctrl.dtsi
-index bac25c6..856b292 100644
---- a/arch/arm/boot/dts/exynos4x12-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/exynos4x12-pinctrl.dtsi
-@@ -885,6 +885,13 @@
- 			samsung,pin-pud = <0>;
- 			samsung,pin-drv = <0>;
- 		};
++	cec@100B0000 {
++		status = "okay";
++	};
 +
-+		hdmi_cec: hdmi-cec {
-+			samsung,pins = "gpx3-6";
-+			samsung,pin-function = <3>;
-+			samsung,pin-pud = <0>;
-+			samsung,pin-drv = <0>;
-+		};
- 	};
- 
- 	pinctrl_2: pinctrl@03860000 {
+ 	hdmi_ddc: i2c-ddc {
+ 		compatible = "i2c-gpio";
+ 		gpios = <&gpe4 2 GPIO_ACTIVE_HIGH &gpe4 3 GPIO_ACTIVE_HIGH>;
 -- 
 2.7.0

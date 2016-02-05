@@ -1,369 +1,381 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCHv11 12/17] cec: adv7604: add cec support.
-Date: Fri,  5 Feb 2016 16:27:55 +0100
-Message-ID: <1454686080-39018-13-git-send-email-hverkuil@xs4all.nl>
+Subject: [PATCHv11 09/17] cec.txt: add CEC framework documentation
+Date: Fri,  5 Feb 2016 16:27:52 +0100
+Message-ID: <1454686080-39018-10-git-send-email-hverkuil@xs4all.nl>
 References: <1454686080-39018-1-git-send-email-hverkuil@xs4all.nl>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 In-Reply-To: <1454686080-39018-1-git-send-email-hverkuil@xs4all.nl>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>
+Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Hans Verkuil <hans.verkuil@cisco.com>
+From: Hans Verkuil <hansverk@cisco.com>
 
-Add CEC support to the adv7604 driver.
+Document the new HDMI CEC framework.
 
 Signed-off-by: Hans Verkuil <hansverk@cisco.com>
-[k.debski@samsung.com: Merged changes from CEC Updates commit by Hans Verkuil]
-[k.debski@samsung.com: add missing methods cec/io_write_and_or]
-[k.debski@samsung.com: change adv7604 to adv76xx in added functions]
-[hansverk@cisco.com: use _clr_set instead of _and_or]
+[k.debski@samsung.com: add DocBook documentation by Hans Verkuil, with
+Signed-off-by: Kamil Debski <kamil@wypas.org>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 ---
- drivers/media/i2c/adv7604.c | 243 +++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 239 insertions(+), 4 deletions(-)
+ Documentation/cec.txt | 348 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 348 insertions(+)
+ create mode 100644 Documentation/cec.txt
 
-diff --git a/drivers/media/i2c/adv7604.c b/drivers/media/i2c/adv7604.c
-index f8dd750..884fc92 100644
---- a/drivers/media/i2c/adv7604.c
-+++ b/drivers/media/i2c/adv7604.c
-@@ -40,6 +40,7 @@
- #include <linux/regmap.h>
- 
- #include <media/i2c/adv7604.h>
-+#include <media/cec.h>
- #include <media/v4l2-ctrls.h>
- #include <media/v4l2-device.h>
- #include <media/v4l2-event.h>
-@@ -80,6 +81,8 @@ MODULE_LICENSE("GPL");
- 
- #define ADV76XX_OP_SWAP_CB_CR				(1 << 0)
- 
-+#define ADV76XX_MAX_ADDRS (3)
+diff --git a/Documentation/cec.txt b/Documentation/cec.txt
+new file mode 100644
+index 0000000..c82630c
+--- /dev/null
++++ b/Documentation/cec.txt
+@@ -0,0 +1,348 @@
++CEC Kernel Support
++==================
 +
- enum adv76xx_type {
- 	ADV7604,
- 	ADV7611,
-@@ -184,6 +187,10 @@ struct adv76xx_state {
- 	u16 spa_port_a[2];
- 	struct v4l2_fract aspect_ratio;
- 	u32 rgb_quantization_range;
-+	u8   cec_addr[ADV76XX_MAX_ADDRS];
-+	u8   cec_valid_addrs;
-+	bool cec_enabled_adap;
++The CEC framework provides a unified kernel interface for use with HDMI CEC
++hardware. It is designed to handle a multiple types of hardware (receivers,
++transmitters, USB dongles). The framework also gives the option to decide
++what to do in the kernel driver and what should be handled by userspace
++applications. In addition it integrates the remote control passthrough
++feature into the kernel's remote control framework.
 +
- 	struct workqueue_struct *work_queues;
- 	struct delayed_work delayed_work_enable_hotplug;
- 	bool restart_stdi_once;
-@@ -430,7 +437,8 @@ static inline int io_write(struct v4l2_subdev *sd, u8 reg, u8 val)
- 	return regmap_write(state->regmap[ADV76XX_PAGE_IO], reg, val);
- }
- 
--static inline int io_write_clr_set(struct v4l2_subdev *sd, u8 reg, u8 mask, u8 val)
-+static inline int io_write_clr_set(struct v4l2_subdev *sd, u8 reg, u8 mask,
-+				   u8 val)
- {
- 	return io_write(sd, reg, (io_read(sd, reg) & ~mask) | val);
- }
-@@ -463,6 +471,12 @@ static inline int cec_write(struct v4l2_subdev *sd, u8 reg, u8 val)
- 	return regmap_write(state->regmap[ADV76XX_PAGE_CEC], reg, val);
- }
- 
-+static inline int cec_write_clr_set(struct v4l2_subdev *sd, u8 reg, u8 mask,
-+				   u8 val)
-+{
-+	return cec_write(sd, reg, (cec_read(sd, reg) & ~mask) | val);
-+}
 +
- static inline int infoframe_read(struct v4l2_subdev *sd, u8 reg)
- {
- 	struct adv76xx_state *state = to_state(sd);
-@@ -550,8 +564,13 @@ static inline int edid_write_block(struct v4l2_subdev *sd,
- 
- static void adv76xx_set_hpd(struct adv76xx_state *state, unsigned int hpd)
- {
-+	u16 connected_inputs;
- 	unsigned int i;
- 
-+	connected_inputs = hpd & state->info->read_cable_det(&state->sd);
-+	v4l2_subdev_notify(&state->sd, V4L2_SUBDEV_CEC_CONN_INPUTS,
-+			   &connected_inputs);
++The CEC Protocol
++----------------
 +
- 	for (i = 0; i < state->info->num_dv_ports; ++i)
- 		gpiod_set_value_cansleep(state->hpd_gpio[i], hpd & BIT(i));
- 
-@@ -891,9 +910,12 @@ static int adv76xx_s_detect_tx_5v_ctrl(struct v4l2_subdev *sd)
- {
- 	struct adv76xx_state *state = to_state(sd);
- 	const struct adv76xx_chip_info *info = state->info;
-+	u16 cable_det = info->read_cable_det(sd);
-+	u16 connected_inputs = state->edid.present & cable_det;
- 
--	return v4l2_ctrl_s_ctrl(state->detect_tx_5v_ctrl,
--				info->read_cable_det(sd));
-+	v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_CONN_INPUTS,
-+			   &connected_inputs);
-+	return v4l2_ctrl_s_ctrl(state->detect_tx_5v_ctrl, cable_det);
- }
- 
- static int find_and_set_predefined_video_timings(struct v4l2_subdev *sd,
-@@ -1914,6 +1936,189 @@ static int adv76xx_set_format(struct v4l2_subdev *sd,
- 	return 0;
- }
- 
-+static void adv76xx_cec_tx_raw_status(struct v4l2_subdev *sd, u8 tx_raw_status)
-+{
-+	struct v4l2_subdev_cec_tx_done tx_done = {};
++The CEC protocol enables consumer electronic devices to communicate with each
++other through the HDMI connection. The protocol uses logical addresses in the
++communication. The logical address is strictly connected with the functionality
++provided by the device. The TV acting as the communication hub is always
++assigned address 0. The physical address is determined by the physical
++connection between devices.
 +
-+	if ((cec_read(sd, 0x11) & 0x01) == 0) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: tx disabled\n", __func__);
-+		return;
-+	}
++The CEC framework described here is up to date with the CEC 2.0 specification.
++It is documented in the HDMI 1.4 specification with the new 2.0 bits documented
++in the HDMI 2.0 specification. But for most of the features the freely available
++HDMI 1.3a specification is sufficient:
 +
-+	if (tx_raw_status & 0x02) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: arbitration lost\n",
-+			 __func__);
-+		tx_done.status = CEC_TX_STATUS_ARB_LOST;
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE, &tx_done);
-+		return;
-+	}
-+	if (tx_raw_status & 0x04) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: retry failed\n", __func__);
-+		tx_done.status = CEC_TX_STATUS_MAX_RETRIES;
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE, &tx_done);
-+		return;
-+	}
-+	if (tx_raw_status & 0x01) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: ready ok\n", __func__);
-+		tx_done.status = CEC_TX_STATUS_OK;
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE, &tx_done);
-+		return;
-+	}
-+}
++http://www.microprocessor.org/HDMISpecification13a.pdf
 +
-+static void adv76xx_cec_isr(struct v4l2_subdev *sd, bool *handled)
-+{
-+	u8 cec_irq;
 +
-+	/* cec controller */
-+	cec_irq = io_read(sd, 0x4d) & 0x0f;
-+	if (!cec_irq)
-+		return;
++The Kernel Interface
++====================
 +
-+	v4l2_dbg(1, debug, sd, "%s: cec: irq 0x%x\n", __func__, cec_irq);
-+	adv76xx_cec_tx_raw_status(sd, cec_irq);
-+	if (cec_irq & 0x08) {
-+		struct cec_msg msg;
++CEC Adapter
++-----------
 +
-+		msg.len = cec_read(sd, 0x25) & 0x1f;
-+		if (msg.len > 16)
-+			msg.len = 16;
++The struct cec_adapter represents the CEC adapter hardware. It is created by
++calling cec_create_adapter() and deleted by calling cec_delete_adapter():
 +
-+		if (msg.len) {
-+			u8 i;
++struct cec_adapter *cec_create_adapter(const struct cec_adap_ops *ops,
++		       void *priv, const char *name, u32 caps,
++		       u8 ninputs, struct module *owner, struct device *parent);
++void cec_delete_adapter(struct cec_adapter *adap);
 +
-+			for (i = 0; i < msg.len; i++)
-+				msg.msg[i] = cec_read(sd, i + 0x15);
-+			cec_write(sd, 0x26, 0x01); /* re-enable rx */
-+			v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_RX_MSG, &msg);
-+		}
-+	}
++To create an adapter you need to pass the following information:
 +
-+	/* note: the bit order is swapped between 0x4d and 0x4e */
-+	cec_irq = ((cec_irq & 0x08) >> 3) | ((cec_irq & 0x04) >> 1) |
-+		  ((cec_irq & 0x02) << 1) | ((cec_irq & 0x01) << 3);
-+	io_write(sd, 0x4e, cec_irq);
++ops: adapter operations which are called by the CEC framework and that you
++have to implement.
 +
-+	if (handled)
-+		*handled = true;
-+}
++priv: will be stored in adap->priv and can be used by the adapter ops.
 +
-+static unsigned adv76xx_cec_adap_available_log_addrs(struct v4l2_subdev *sd)
-+{
-+	return ADV76XX_MAX_ADDRS;
-+}
++name: the name of the CEC adapter. Note: this name will be copied.
 +
-+static int adv76xx_cec_adap_enable(struct v4l2_subdev *sd, bool enable)
-+{
-+	struct adv76xx_state *state = to_state(sd);
++caps: capabilities of the CEC adapter. These capabilities determine the
++	capabilities of the hardware and which parts are to be handled
++	by userspace and which parts are handled by kernelspace. The
++	capabilities are returned by CEC_ADAP_G_CAPS.
 +
-+	if (!state->cec_enabled_adap && enable) {
-+		cec_write_clr_set(sd, 0x2a, 0x01, 0x01);	/* power up cec */
-+		cec_write(sd, 0x2c, 0x01);	/* cec soft reset */
-+		cec_write_clr_set(sd, 0x11, 0x01, 0);  /* initially disable tx */
-+		/* enabled irqs: */
-+		/* tx: ready */
-+		/* tx: arbitration lost */
-+		/* tx: retry timeout */
-+		/* rx: ready */
-+		io_write_clr_set(sd, 0x50, 0x0f, 0x0f);
-+		cec_write(sd, 0x26, 0x01);            /* enable rx */
-+	} else if (state->cec_enabled_adap && !enable) {
-+		/* disable cec interrupts */
-+		io_write_clr_set(sd, 0x50, 0x0f, 0x00);
-+		/* disable address mask 1-3 */
-+		cec_write_clr_set(sd, 0x27, 0x70, 0x00);
-+		/* power down cec section */
-+		cec_write_clr_set(sd, 0x2a, 0x01, 0x00);
-+		state->cec_valid_addrs = 0;
-+	}
-+	state->cec_enabled_adap = enable;
-+	adv76xx_s_detect_tx_5v_ctrl(sd);
-+	return 0;
-+}
++ninputs: the number of HDMI inputs of the device. This may be 0. This
++	is returned by CEC_ADAP_G_CAPS.
 +
-+static int adv76xx_cec_adap_log_addr(struct v4l2_subdev *sd, u8 addr)
-+{
-+	struct adv76xx_state *state = to_state(sd);
-+	unsigned i, free_idx = ADV76XX_MAX_ADDRS;
++owner: the module owner.
 +
-+	if (!state->cec_enabled_adap)
-+		return -EIO;
++parent: the parent device.
 +
-+	if (addr == CEC_LOG_ADDR_INVALID) {
-+		cec_write_clr_set(sd, 0x27, 0x70, 0);
-+		state->cec_valid_addrs = 0;
-+		return 0;
-+	}
 +
-+	for (i = 0; i < ADV76XX_MAX_ADDRS; i++) {
-+		bool is_valid = state->cec_valid_addrs & (1 << i);
++After creating the adapter the driver can modify the following fields
++in struct cec_adapter:
 +
-+		if (free_idx == ADV76XX_MAX_ADDRS && !is_valid)
-+			free_idx = i;
-+		if (is_valid && state->cec_addr[i] == addr)
-+			return 0;
-+	}
-+	if (i == ADV76XX_MAX_ADDRS) {
-+		i = free_idx;
-+		if (i == ADV76XX_MAX_ADDRS)
-+			return -ENXIO;
-+	}
-+	state->cec_addr[i] = addr;
-+	state->cec_valid_addrs |= 1 << i;
++	u8 available_log_addrs;
 +
-+	switch (i) {
-+	case 0:
-+		/* enable address mask 0 */
-+		cec_write_clr_set(sd, 0x27, 0x10, 0x10);
-+		/* set address for mask 0 */
-+		cec_write_clr_set(sd, 0x28, 0x0f, addr);
-+		break;
-+	case 1:
-+		/* enable address mask 1 */
-+		cec_write_clr_set(sd, 0x27, 0x20, 0x20);
-+		/* set address for mask 1 */
-+		cec_write_clr_set(sd, 0x28, 0xf0, addr << 4);
-+		break;
-+	case 2:
-+		/* enable address mask 2 */
-+		cec_write_clr_set(sd, 0x27, 0x40, 0x40);
-+		/* set address for mask 1 */
-+		cec_write_clr_set(sd, 0x29, 0x0f, addr);
-+		break;
-+	}
-+	return 0;
-+}
++This determines the number of simultaneous logical addresses the hardware
++can program. Often this is 1, which is also the default.
 +
-+static int adv76xx_cec_adap_transmit(struct v4l2_subdev *sd, u8 *retries,
-+				     u32 signal_free_time_ms, struct cec_msg *msg)
-+{
-+	u8 len = msg->len;
-+	unsigned i;
++	u8 pwr_state;
 +
-+	if (len == 1)
-+		/* allow for one retry for polling */
-+		cec_write_clr_set(sd, 0x12, 0x07, 1);
-+	else
-+		/* allow for three retries */
-+		cec_write_clr_set(sd, 0x12, 0x07, 3);
++The CEC_MSG_GIVE_DEVICE_POWER_STATUS power state. By default this is
++CEC_OP_POWER_STATUS_ON (0). The driver can change this to signal power
++state transitions.
 +
-+	if (len > 16) {
-+		v4l2_err(sd, "%s: len exceeded 16 (%d)\n", __func__, len);
-+		return -EINVAL;
-+	}
++	u16 phys_addr;
 +
-+	/* write data */
-+	for (i = 0; i < len; i++)
-+		cec_write(sd, i, msg->msg[i]);
++By default this is 0xffff, but drivers can change this. The phys_addr field
++must be set before the CEC adapter is enabled (see the adap_enable op below).
++While the CEC adapter remains enabled it cannot be changed. Drivers never set
++this if CEC_CAP_PHYS_ADDR is set.
 +
-+	/* set length (data + header) */
-+	cec_write(sd, 0x10, len);
-+	/* start transmit, enable tx */
-+	cec_write(sd, 0x11, 0x01);
-+	return 0;
-+}
++	u32 vendor_id;
 +
- static int adv76xx_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
- {
- 	struct adv76xx_state *state = to_state(sd);
-@@ -1959,6 +2164,9 @@ static int adv76xx_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
- 			*handled = true;
- 	}
- 
-+	/* cec */
-+	adv76xx_cec_isr(sd, handled);
++By default this is CEC_VENDOR_ID_NONE (0xffffffff). It should not be changed
++once the adapter is configured. Drivers never set this if CEC_CAP_VENDOR_ID
++is set.
 +
- 	/* tx 5v detect */
- 	tx_5v = io_read(sd, 0x70) & info->cable_det_mask;
- 	if (tx_5v) {
-@@ -2266,8 +2474,19 @@ static int adv76xx_log_status(struct v4l2_subdev *sd)
- 			((edid_enabled & 0x02) ? "Yes" : "No"),
- 			((edid_enabled & 0x04) ? "Yes" : "No"),
- 			((edid_enabled & 0x08) ? "Yes" : "No"));
--	v4l2_info(sd, "CEC: %s\n", !!(cec_read(sd, 0x2a) & 0x01) ?
-+	v4l2_info(sd, "CEC: %s\n", state->cec_enabled_adap ?
- 			"enabled" : "disabled");
-+	if (state->cec_enabled_adap) {
-+		int i;
++	u8 cec_version;
 +
-+		for (i = 0; i < ADV76XX_MAX_ADDRS; i++) {
-+			bool is_valid = state->cec_valid_addrs & (1 << i);
++The CEC version that the framework should support. By default this is the
++latest version, but it can be changed to an older version, causing attempts
++to use later extensions to fail. Obviously this should be set before the
++CEC adapter is enabled.
 +
-+			if (is_valid)
-+				v4l2_info(sd, "CEC Logical Address: 0x%x\n",
-+					  state->cec_addr[i]);
-+		}
-+	}
- 
- 	v4l2_info(sd, "-----Signal status-----\n");
- 	cable_det = info->read_cable_det(sd);
-@@ -2402,6 +2621,13 @@ static const struct v4l2_subdev_video_ops adv76xx_video_ops = {
- 	.query_dv_timings = adv76xx_query_dv_timings,
- };
- 
-+static const struct v4l2_subdev_cec_ops adv76xx_cec_ops = {
-+	.adap_available_log_addrs = adv76xx_cec_adap_available_log_addrs,
-+	.adap_enable = adv76xx_cec_adap_enable,
-+	.adap_log_addr = adv76xx_cec_adap_log_addr,
-+	.adap_transmit = adv76xx_cec_adap_transmit,
++To register the /dev/cecX device node and the remote control device (if
++CEC_CAP_RC is set) you call:
++
++int cec_register_adapter(struct cec_adapter *adap);
++
++To unregister the devices call:
++
++void cec_unregister_adapter(struct cec_adapter *adap);
++
++Note: if cec_register_adapter() fails, then call cec_delete_adapter() to
++clean up. But if cec_register_adapter() succeeded, then only call
++cec_unregister_adapter() to clean up, never cec_delete_adapter(). The
++unregister function will delete the adapter automatically once the last user
++of that /dev/cecX device has closed its file handle.
++
++
++Implementing the Low-Level CEC Adapter
++--------------------------------------
++
++The following low-level adapter operations have to be implemented in
++your driver:
++
++struct cec_adap_ops {
++	/* Low-level callbacks */
++	int (*adap_enable)(struct cec_adapter *adap, bool enable);
++	int (*adap_log_addr)(struct cec_adapter *adap, u8 logical_addr);
++	int (*adap_transmit)(struct cec_adapter *adap, u8 *retries,
++			     u32 signal_free_time_ms, struct cec_msg *msg);
++
++	/* High-level callbacks */
++	...
 +};
 +
- static const struct v4l2_subdev_pad_ops adv76xx_pad_ops = {
- 	.enum_mbus_code = adv76xx_enum_mbus_code,
- 	.get_fmt = adv76xx_get_format,
-@@ -2416,6 +2642,7 @@ static const struct v4l2_subdev_ops adv76xx_ops = {
- 	.core = &adv76xx_core_ops,
- 	.video = &adv76xx_video_ops,
- 	.pad = &adv76xx_pad_ops,
-+	.cec = &adv76xx_cec_ops,
- };
- 
- /* -------------------------- custom ctrls ---------------------------------- */
-@@ -3249,6 +3476,14 @@ static int adv76xx_remove(struct i2c_client *client)
- 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
- 	struct adv76xx_state *state = to_state(sd);
- 
-+	/* disable interrupts */
-+	io_write(sd, 0x40, 0);
-+	io_write(sd, 0x41, 0);
-+	io_write(sd, 0x46, 0);
-+	io_write(sd, 0x6e, 0);
-+	io_write(sd, 0x73, 0);
-+	adv76xx_cec_adap_enable(sd, false);
++The three low-level ops deal with various aspects of controlling the CEC adapter
++hardware:
 +
- 	cancel_delayed_work(&state->delayed_work_enable_hotplug);
- 	destroy_workqueue(state->work_queues);
- 	v4l2_async_unregister_subdev(sd);
++To enable/disable the hardware:
++
++	int (*adap_enable)(struct cec_adapter *adap, bool enable);
++
++This callback enables or disables the CEC hardware. Enabling the CEC hardware
++means powering it up in a state where no logical addresses are claimed. This
++op assumes that the physical address (adap->phys_addr) is valid when enable is
++true and will not change while the CEC adapter remains enabled. The initial
++state of the CEC adapter after calling cec_create_adapter() is disabled.
++
++To program a new logical address:
++
++	int (*adap_log_addr)(struct cec_adapter *adap, u8 logical_addr);
++
++If logical_addr == CEC_LOG_ADDR_INVALID then all programmed logical addresses
++are to be erased. Otherwise the given logical address should be programmed.
++If the maximum number of available logical addresses is exceeded, then it
++should return -ENXIO. Once a logical address is programmed the CEC hardware
++can start receiving messages.
++
++To transmit a new message:
++
++	int (*adap_transmit)(struct cec_adapter *adap, u8 *retries,
++			     u32 signal_free_time_ms, struct cec_msg *msg);
++
++This transmits a new message. The retries argument is the suggested number of
++retries for the transmit. The driver should set this to the actual retries the
++hardware can handle, which may be 0 if the hardware has no retry support. In
++that case the framework will do the retries for you.
++
++The signal_free_time_ms is the number of milliseconds that the adapter should
++wait when the line is free before attempting to send a message. This value
++depends on whether this transmit is a retry, a message from a new initiator or
++a new message for the same initiator. Most hardware will handle this
++automatically, but in some cases this information is needed.
++
++Your adapter driver will also have to react to events (typically interrupt
++driven) by calling into the framework in the following situations:
++
++When a transmit finished (successfully or otherwise):
++
++void cec_transmit_done(struct cec_adapter *adap, u8 status,
++		       u8 arb_lost_cnt, u8 nack_cnt, u8 error_cnt);
++
++The status can be one of:
++
++CEC_TX_STATUS_OK: the transmit was successful.
++CEC_TX_STATUS_ARB_LOST: arbitration was lost: another CEC initiator
++took control of the CEC line and you lost the arbitration.
++CEC_TX_STATUS_NACK: the message was nacked (for a directed message) or
++acked (for a broadcast message).
++CEC_TX_STATUS_ERROR: some unspecified error occurred: this can be one of
++the previous two if the hardware cannot differentiate or something else
++entirely.
++CEC_TX_STATUS_MAX_RETRIES: could not transmit the message after
++trying multiple times. Should only be set by the driver if it has hardware
++support for retrying messages.
++
++The *_cnt arguments are the number of error conditions that were seen.
++This may be 0 if no information is available. Drivers that do not support
++hardware retry can just set the counter corresponding to the transmit error
++to 1, if the hardware does support retry then either set these counters to
++0 if the hardware provides no feedback of which errors occurred and how many
++times, or fill in the correct values as reported by the hardware.
++
++When a CEC message was received:
++
++void cec_received_msg(struct cec_adapter *adap, struct cec_msg *msg);
++
++Speaks for itself.
++
++When the number connected inputs changes:
++
++void cec_connected_inputs(struct cec_adapter *adap, u16 connected_inputs);
++
++The connected_inputs argument is a bit mask where bit 0 refers to HDMI input 0,
++etc. Only the first ninputs (see CEC_ADAP_G_CAPS) bits can be 1, the remainder
++are always 0. This function should be called when the HDMI receiver driver
++detects when a new device is connected or disconnected from a given input.
++
++The CEC framework will pass this information on to the user.
++
++Implementing the High-Level CEC Adapter
++---------------------------------------
++
++The low-level operations drive the hardware, the high-level operations are
++CEC protocol driven. The following high-level callbacks are available:
++
++struct cec_adap_ops {
++	/* Low-level callbacks */
++	...
++
++	/* High-level CEC message callback */
++	int (*received)(struct cec_adapter *adap, struct cec_msg *msg);
++
++	/* High-level CDC Hotplug Detect callbacks */
++	u8 (*source_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state);
++	void (*sink_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state, u8 cdc_hpd_error);
++
++	/* High-level Audio Return Channel callbacks */
++	int (*sink_initiate_arc)(struct cec_adapter *adap);
++	int (*sink_terminate_arc)(struct cec_adapter *adap);
++	int (*source_arc_initiated)(struct cec_adapter *adap);
++	int (*source_arc_terminated)(struct cec_adapter *adap);
++};
++
++The received() callback allows the driver to optionally handle a newly
++received CEC message
++
++	int (*received)(struct cec_adapter *adap, struct cec_msg *msg);
++
++If the driver wants to process a CEC message, then it can implement this
++callback. If it doesn't want to handle this message, then it should return
++-ENOMSG, otherwise the CEC framework assumes it processed this message and
++it will not no anything with it.
++
++The other callbacks deal with two CEC features: CDC Hotplug Detect and
++Audio Return Channel. Here the framework takes care of handling these
++messages and it calls the callbacks to notify the driver when it needs
++to take action.
++
++CDC Hotplug Support
++-------------------
++
++A source received a hotplug state change message:
++
++	u8 (*source_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state);
++
++A source received a CEC_MSG_CDC_HPD_SET_STATE message. The framework will
++reply with a CEC_MSG_CDC_HPD_REPORT_STATE message and this callback is used
++to fill in the HPD Error Code Operand of the REPORT_STATE message. In addition,
++the driver can act in this callback on the hotplug state change.
++
++Only implement if CEC_CAP_CDC_HPD is set.
++
++A sink received a hotplug report state message:
++
++	void (*sink_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state, u8 cdc_hpd_error);
++
++A sink received a CEC_MSG_CDC_HPD_REPORT_STATE message. This callback will
++do anything necessary to implement this hotplug change. The two arguments
++are the HPD Error State and HPD Error Code Operands from the CEC_MSG_CDC_HPD_REPORT_STATE
++message.
++
++
++Audio Return Channel Support
++----------------------------
++
++Called if a CEC_MSG_INITIATE_ARC message is received by an HDMI sink.
++This callback should start sending audio over the audio return channel. If
++successful it should return 0.
++
++	int (*sink_initiate_arc)(struct cec_adapter *adap);
++
++Called if a CEC_MSG_TERMINATE_ARC message is received by an HDMI sink.
++This callback should stop sending audio over the audio return channel. If
++successful it should return 0.
++
++	void (*sink_terminate_arc)(struct cec_adapter *adap);
++
++Called if a CEC_MSG_REPORT_ARC_INITIATED message is received by an
++HDMI source. This callback can be used to enable receiving audio from
++the audio return channel.
++
++	void (*source_arc_initiated)(struct cec_adapter *adap);
++
++Called if a CEC_MSG_REPORT_ARC_TERMINATED message is received by an
++HDMI source. This callback can be used to disable receiving audio from
++the audio return channel.
++
++	void (*source_arc_terminated)(struct cec_adapter *adap);
++
++
++CEC framework functions
++-----------------------
++
++CEC Adapter drivers can call the following CEC framework functions:
++
++int cec_transmit_msg(struct cec_adapter *adap, struct cec_msg *msg,
++		     bool block);
++
++Transmit a CEC message. If block is true, then wait until the message has been
++transmitted, otherwise just queue it and return.
++
++int cec_claim_log_addrs(struct cec_adapter *adap,
++			struct cec_log_addrs *log_addrs, bool block);
++
++Claim the CEC logical addresses. Should never be called if CEC_CAP_LOG_ADDRS
++is set. If block is true, then wait until the logical addresses have been
++claimed, otherwise just queue it and return.
++
++int _cec_enable(struct cec_adapter *adap, bool enable);
++int cec_enable(struct cec_adapter *adap, bool enable);
++
++Enable or disable the CEC adapter. HDMI transmitters will typically disable
++the adapter when the hotplug signal goes down and enable it after it went up
++again and the EDID was read containing the new physical address. Should never
++be called if CEC_CAP_STATE is set. The _cec_enable is the unlocked variant and
++cec_enable takes the adap->lock mutex and calls _cec_enable.
++
++u8 cec_sink_cdc_hpd(struct cec_adapter *adap, u8 input_port, u8 cdc_hpd_state);
++
++If an HDMI receiver supports hotplug signalling over CDC (CEC_CAP_CDC_HPD is
++set), then the driver should call this function whenever the hotplug state
++changes for an input. This call will send an appropriate CDC message over
++the CEC line. It returns CEC_OP_HPD_ERROR_NONE on success, if the adapter
++is unconfigured it returns CEC_OP_HPD_ERROR_INITIATOR_WRONG_STATE and if
++the cec_transmit fails it returns CEC_OP_HPD_ERROR_OTHER.
++
++void cec_log_status(struct cec_adapter *adap);
++
++This logs the current CEC adapter status in the kernel log. Useful for
++debugging and implementing the V4L2 VIDIOC_LOG_STATUS ioctl.
 -- 
 2.7.0

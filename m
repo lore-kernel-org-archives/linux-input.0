@@ -1,56 +1,54 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: [PATCH v1 0/6] EC-based USB Power Delivery support for Chrome machines
-Date: Fri,  5 Feb 2016 14:32:55 +0100
-Message-ID: <1454679181-8949-1-git-send-email-tomeu.vizoso@collabora.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Sameer Nanda <snanda@chromium.org>, Benson Leung <bleung@chromium.org>, =?UTF-8?q?Enric=20Balletb=C3=B2?= <enric.balletbo@collabora.co.uk>, Vic Yang <victoryang@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Randall Spangler <rspangler@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-pm@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-input@vger.kernel.org, Olof Johansson <olof@lixom.net>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] hid:Add warning message if sysfs group is not created
+ for passed kobject in the function, mt_probe
+Date: Fri, 5 Feb 2016 14:37:58 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1602051437370.22727@cbobk.fhfr.pm>
+References: <1454601160-21966-1-git-send-email-xerofoify@gmail.com> <20160205074804.GF12345@mail.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:44630 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752471AbcBENiA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 5 Feb 2016 08:38:00 -0500
+In-Reply-To: <20160205074804.GF12345@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Nicholas Krause <xerofoify@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 5 Feb 2016, Benjamin Tissoires wrote:
 
-this series contains a driver that exposes a power_supply to userspace
-representing a port that support USB PD charging.
+> > This adds a warning message stating that the sysfs group was not
+> > able to be created for the passed hid_device structure pointer
+> > with dev_warn.
+> > 
+> > Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
+> > ---
+> >  drivers/hid/hid-multitouch.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> > index 296d499..b2b2451 100644
+> > --- a/drivers/hid/hid-multitouch.c
+> > +++ b/drivers/hid/hid-multitouch.c
+> > @@ -1133,6 +1133,8 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> >  		return ret;
+> >  
+> >  	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
+> > +	if (ret)
+> > +		dev_warn(&hdev->dev, "Cannot allocate sysfs group for %s\n", hdev->name);
+> 
+> Just nitpicking here. Checkpatch.pl complains about a line over 80
+> characters here. Could you (or maybe just Jiri) fix that?
+> 
+> Otherwise:
+> Reviewed-by: Benjamin Tissoires <benajmin.tissoires@redhat.com>
 
-Allows userspace to display to the user if the machine is charging and
-on which port, and if another device is being charged by a port. Also
-allows to limit the current draw for thermal reasons.
-
-Thanks,
-
-Tomeu
-
-
-Benson Leung (1):
-  power_supply: Add types for USB Type C and PD chargers
-
-Sameer Nanda (1):
-  power: cros_usbpd-charger: Add EC-based USB PD charger driver
-
-Tomeu Vizoso (2):
-  mfd: cros_ec: small kerneldoc fix
-  platform/chrome: Register USB PD charger device
-
-Vic Yang (1):
-  mfd: cros_ec: Add MKBP event support
-
-Vincent Palatin (1):
-  platform/chrome: Check the USB PD feature before creating a charger
-
- drivers/input/keyboard/cros_ec_keyb.c   | 135 ++---
- drivers/mfd/cros_ec.c                   |  72 ++-
- drivers/platform/chrome/cros_ec_dev.c   |  72 +++
- drivers/platform/chrome/cros_ec_proto.c | 139 +++++
- drivers/power/Kconfig                   |  10 +
- drivers/power/Makefile                  |   1 +
- drivers/power/cros_usbpd-charger.c      | 907 ++++++++++++++++++++++++++++++++
- drivers/power/power_supply_sysfs.c      |   3 +-
- include/linux/mfd/cros_ec.h             |  77 ++-
- include/linux/mfd/cros_ec_commands.h    | 442 +++++++++++++++-
- include/linux/power_supply.h            |   3 +
- 11 files changed, 1747 insertions(+), 114 deletions(-)
- create mode 100644 drivers/power/cros_usbpd-charger.c
+Thanks. I've reformatted the source (and also changelog a bit) and 
+applied.
 
 -- 
-2.5.0
+Jiri Kosina
+SUSE Labs
+

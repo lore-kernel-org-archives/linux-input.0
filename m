@@ -1,26 +1,51 @@
-From: Ms Ayala <ana.mascarenhas@mj.gov.br>
-Subject: Very Urgent,response needed.
-Date: Mon, 8 Feb 2016 00:28:22 +0300
-Message-ID: <579bd258-34b3-4b55-8e0f-146384ea4e21__13300.1079470434$1454903511$gmane$org@TIMON.mj.gov.br>
-Reply-To: msayalabrnaca101@163.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from piaget.mj.gov.br ([200.198.212.76]:43257 "EHLO piaget.mj.gov.br"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753989AbcBHDvB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Feb 2016 22:51:01 -0500
-Content-Description: Mail message body
-Sender: linux-input-owner@vger.kernel.org
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 2/2] Input: Allow compile test of Goodix and Colibri VF50 if !GPIOLIB
+Date: Sun,  7 Feb 2016 15:18:07 +0100
+Message-ID: <1454854687-21114-2-git-send-email-geert@linux-m68k.org>
+References: <1454854687-21114-1-git-send-email-geert@linux-m68k.org>
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <1454854687-21114-1-git-send-email-geert@linux-m68k.org>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Sanchayan Maity <maitysanchayan@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-input@vger.kernel.org
-To: Recipients <ana.mascarenhas@mj.gov.br>
 
-Hi,
+The GPIO subsystem provides dummy GPIO consumer functions if GPIOLIB is
+not enabled. Hence drivers that depend on GPIOLIB, but use GPIO consumer
+functionality only, can still be compiled if GPIOLIB is not enabled.
 
-I am Ms. Ayala; I am getting in touch with you regarding an extremely
-important and urgent matter.If you would oblige me the opportunity,I shall
-provide you with details upon your response.Please respond to: msayalabrnaca101@163.com
+If COMPILE_TEST is enabled, relax the dependency on GPIOLIB for the
+recently introduced or relaxed symbols TOUCHSCREEN_GOODIX and
+TOUCHSCREEN_COLIBRI_VF50.
 
-Faithfully,
-Ms. Ayala Bracha
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ drivers/input/touchscreen/Kconfig | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 66c62641b59a31cf..fba4d5665857221b 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -334,7 +334,7 @@ config TOUCHSCREEN_FUJITSU
+ config TOUCHSCREEN_GOODIX
+ 	tristate "Goodix I2C touchscreen"
+ 	depends on I2C
+-	depends on GPIOLIB
++	depends on GPIOLIB || COMPILE_TEST
+ 	help
+ 	  Say Y here if you have the Goodix touchscreen (such as one
+ 	  installed in Onda v975w tablets) connected to your
+@@ -1112,7 +1112,8 @@ config TOUCHSCREEN_ZFORCE
+ 
+ config TOUCHSCREEN_COLIBRI_VF50
+ 	tristate "Toradex Colibri on board touchscreen driver"
+-	depends on GPIOLIB && IIO && VF610_ADC
++	depends on IIO && VF610_ADC
++	depends on GPIOLIB || COMPILE_TEST
+ 	help
+ 	  Say Y here if you have a Colibri VF50 and plan to use
+ 	  the on-board provided 4-wire touchscreen driver.
+-- 
+1.9.1
+

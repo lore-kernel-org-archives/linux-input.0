@@ -1,77 +1,91 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: edt-ft5x06 - fix setting gain, offset, and
- threshold via device tree
-Date: Tue, 9 Feb 2016 09:33:17 -0800
-Message-ID: <20160209173317.GA40460@dtor-ws>
-References: <1455038558-27471-1-git-send-email-p.zabel@pengutronix.de>
+Subject: Re: [PATCH] input: adp5589: Fix row 5 handling for adp5589
+Date: Tue, 9 Feb 2016 09:36:27 -0800
+Message-ID: <20160209173627.GB40460@dtor-ws>
+References: <1455013795-28180-1-git-send-email-lars@metafoo.de>
+ <56B9BE6A.3080700@analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f174.google.com ([209.85.192.174]:35892 "EHLO
-	mail-pf0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757298AbcBIRdU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2016 12:33:20 -0500
-Received: by mail-pf0-f174.google.com with SMTP id e127so35253581pfe.3
-        for <linux-input@vger.kernel.org>; Tue, 09 Feb 2016 09:33:20 -0800 (PST)
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:32984 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932949AbcBIRgb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2016 12:36:31 -0500
+Received: by mail-pa0-f45.google.com with SMTP id cy9so94627271pac.0
+        for <linux-input@vger.kernel.org>; Tue, 09 Feb 2016 09:36:30 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1455038558-27471-1-git-send-email-p.zabel@pengutronix.de>
+In-Reply-To: <56B9BE6A.3080700@analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: Franklin S Cooper Jr <fcooper@ti.com>, linux-input@vger.kernel.org, kernel@pengutronix.de
+To: Michael Hennerich <michael.hennerich@analog.com>
+Cc: Lars-Peter Clausen <lars@metafoo.de>, linux-input@vger.kernel.org
 
-On Tue, Feb 09, 2016 at 06:22:38PM +0100, Philipp Zabel wrote:
-> A recent patch broke parsing the gain, offset, and threshold parameters
-> from device tree. Instead of setting the cached values and writing them
-> to the correct registers during probe, it would write the values from DT
-> into the register address variables and never write them to the chip
-> during normal operation.
+On Tue, Feb 09, 2016 at 11:24:42AM +0100, Michael Hennerich wrote:
+> On 02/09/2016 11:29 AM, Lars-Peter Clausen wrote:
+> >The adp5589 has row 5, don't skip it when creating the GPIO mapping.
+> >Otherwise the pin gets reserved as used and it is not possible to use it as
+> >a GPIO.
+> >
+> >Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
 > 
-> Fixes: 2e23b7a96372 ("Input: edt-ft5x06 - use generic properties API")
-> Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
 
 Applied, thank you.
 
-> ---
->  drivers/input/touchscreen/edt-ft5x06.c | 18 ++++++++++++------
->  1 file changed, 12 insertions(+), 6 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> index 0b0f8c1..23fbe38 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -822,16 +822,22 @@ static void edt_ft5x06_ts_get_defaults(struct device *dev,
->  	int error;
->  
->  	error = device_property_read_u32(dev, "threshold", &val);
-> -	if (!error)
-> -		reg_addr->reg_threshold = val;
-> +	if (!error) {
-> +		edt_ft5x06_register_write(tsdata, reg_addr->reg_threshold, val);
-> +		tsdata->threshold = val;
-> +	}
->  
->  	error = device_property_read_u32(dev, "gain", &val);
-> -	if (!error)
-> -		reg_addr->reg_gain = val;
-> +	if (!error) {
-> +		edt_ft5x06_register_write(tsdata, reg_addr->reg_gain, val);
-> +		tsdata->gain = val;
-> +	}
->  
->  	error = device_property_read_u32(dev, "offset", &val);
-> -	if (!error)
-> -		reg_addr->reg_offset = val;
-> +	if (!error) {
-> +		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset, val);
-> +		tsdata->offset = val;
-> +	}
->  }
->  
->  static void
+> >---
+> >  drivers/input/keyboard/adp5589-keys.c | 7 ++++---
+> >  1 file changed, 4 insertions(+), 3 deletions(-)
+> >
+> >diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
+> >index 4d446d5..c01a1d6 100644
+> >--- a/drivers/input/keyboard/adp5589-keys.c
+> >+++ b/drivers/input/keyboard/adp5589-keys.c
+> >@@ -235,7 +235,7 @@ struct adp5589_kpad {
+> >  	unsigned short gpimapsize;
+> >  	unsigned extend_cfg;
+> >  	bool is_adp5585;
+> >-	bool adp5585_support_row5;
+> >+	bool support_row5;
+> >  #ifdef CONFIG_GPIOLIB
+> >  	unsigned char gpiomap[ADP5589_MAXGPIO];
+> >  	bool export_gpio;
+> >@@ -485,7 +485,7 @@ static int adp5589_build_gpiomap(struct adp5589_kpad *kpad,
+> >  	if (kpad->extend_cfg & C4_EXTEND_CFG)
+> >  		pin_used[kpad->var->c4_extend_cfg] = true;
+> >
+> >-	if (!kpad->adp5585_support_row5)
+> >+	if (!kpad->support_row5)
+> >  		pin_used[5] = true;
+> >
+> >  	for (i = 0; i < kpad->var->maxgpio; i++)
+> >@@ -884,12 +884,13 @@ static int adp5589_probe(struct i2c_client *client,
+> >
+> >  	switch (id->driver_data) {
+> >  	case ADP5585_02:
+> >-		kpad->adp5585_support_row5 = true;
+> >+		kpad->support_row5 = true;
+> >  	case ADP5585_01:
+> >  		kpad->is_adp5585 = true;
+> >  		kpad->var = &const_adp5585;
+> >  		break;
+> >  	case ADP5589:
+> >+		kpad->support_row5 = true;
+> >  		kpad->var = &const_adp5589;
+> >  		break;
+> >  	}
+> >
+> 
+> 
 > -- 
-> 2.7.0.rc3
+> Greetings,
+> Michael
 > 
+> --
+> Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+> Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
+> Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
+> Margaret Seif
 
 -- 
 Dmitry

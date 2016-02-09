@@ -1,52 +1,130 @@
-From: Otthon 3D <csillagvarazslo@outlook.hu>
-Subject: =?utf-8?Q?K=C3=BCl=C3=B6nleges?= VALENTIN NAPI
- =?utf-8?Q?aj=C3=A1nd=C3=A9k!_Febru=C3=A1r?= 15-ig.
-Date: Tue, 09 Feb 2016 17:28:05 +0100
-Message-ID: <e0b4dca807a68164ab6db326a339e7f5@euve77345.serverprofi24.net>
-Reply-To: csillagvarazslo@outlook.hu
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/3] input: cygnus-update touchscreen dt node document
+Date: Tue, 9 Feb 2016 09:43:51 -0800
+Message-ID: <20160209174351.GC40460@dtor-ws>
+References: <1455008277-8312-1-git-send-email-raveendra.padasalagi@broadcom.com>
+ <1455008277-8312-2-git-send-email-raveendra.padasalagi@broadcom.com>
+ <2631849.GeOulu78vx@wuerfel>
+ <3b53af6b6c6735d10cb88518c8b8a0ae@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from euve77345.serverprofi24.net ([62.75.142.68]:60626 "EHLO
-	euve77345.serverprofi24.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756299AbcBIRff convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Feb 2016 12:35:35 -0500
-Received: from euve77345.serverprofi24.net ([62.75.142.68])
-	by euve77345.serverprofi24.net with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-	(Exim 4.82)
-	(envelope-from <bounced@euve77345.serverprofi24.net>)
-	id 1aTB93-0003dc-2w
-	for linux-input@vger.kernel.org; Tue, 09 Feb 2016 16:28:05 +0000
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <3b53af6b6c6735d10cb88518c8b8a0ae-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Raveendra Padasalagi <raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jonathan Richardson <jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Jon Mason <jonmason-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Input Vger Kernel Org <linux-input@vger.kernel.org>
 
-T=C3=A9nyleg "lehozza a csillagokat az =C3=A9gr=C5=91l" kedves=C3=A9nek=
-! :)
+On Tue, Feb 09, 2016 at 10:25:26PM +0530, Raveendra Padasalagi wrote:
+> > -----Original Message-----
+> > From: Arnd Bergmann [mailto:arnd-r2nGTMty4D4@public.gmane.org]
+> > Sent: 09 February 2016 16:34
+> > To: Raveendra Padasalagi
+> > Cc: Dmitry Torokhov; Russell King; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> linux-arm-
+> > kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Rob Herring;
+> Pawel
+> > Moll; Mark Rutland; Ian Campbell; Kumar Gala; Jonathan Richardson; Jon
+> > Mason; Florian Fainelli; Ray Jui; Scott Branden;
+> linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> > bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
+> > Subject: Re: [PATCH 1/3] input: cygnus-update touchscreen dt node
+> document
+> >
+> > On Tuesday 09 February 2016 14:27:55 Raveendra Padasalagi wrote:
+> > > +
+> > > +One of the below 2 property is mandatory.
+> > > +- ts_syscon: handler of syscon node defining physical base address
+> > > +  of the controller and length of memory mapped region.
+> > > +  If this property is selected please make sure MFD_SYSCON config
+> > > +  is enabled in the defconfig file.
+> > > +or
+> > > +- reg: physical base address of the controller and length of memory
+> > > +  mapped region.
+> > > +
+> > >  - clocks:  The clock provided by the SOC to driver the tsc
+> > >  - clock-name:  name for the clock
+> > >  - interrupts: The touchscreen controller's interrupt @@ -54,12 +62,16
+> > > @@ Optional properties:
+> > >  - touchscreen-inverted-y: Y axis is inverted (boolean)
+> > >
+> > >  Example:
+> > > +       ts_adc_syscon: ts_adc_syscon@0x180a6000 {
+> > > +               compatible = "syscon";
+> > > +               reg = <0x180a6000 0xc30>;
+> > > +       };
+> > >
+> > >         touchscreen: tsc@0x180A6000 {
+> > >                 compatible = "brcm,iproc-touchscreen";
+> > >                 #address-cells = <1>;
+> > >                 #size-cells = <1>;
+> > > -               reg = <0x180A6000 0x40>;
+> > > +               syscon = <&ts_adc_syscon>;
+> > >                 clocks = <&adc_clk>;
+> > >                 clock-names = "tsc_clk";
+> > >                 interrupts = <GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>;
+> >
+> > This doesn't seem right: For one thing, it's an incompatible binding
+> change which
+> > you should try to avoid.
+> 
+> > Worse, the syscon has a name indicating that it really has a particular
+> function,
+> > but the name is completely generic (just "syscon"). Please add a
+> specific
+> > compatible string identifying the device that owns the registers, and
+> put any
+> > other associated properties (clocks, interrupts, ...) that are for that
+> device in
+> > general rather than just the touchscreen in there.
+> 
+> By mistake "syscon" name is documented in "touchscreen" label above. In
+> the
+> touchscreen driver code and .dtsi file it's named and used as "ts_syscon".
+> Please refer https://lkml.org/lkml/2016/2/9/71 for the changes.
+> Let me know if this ok. I will correct the documentation in the next
+> patch.
+> 
+> > Your changelog text fails to describe why you do this change in the
+> first place,
+> > and why you can't do it in a backward-compatible way, so please rewrite
+> that
+> > text.
+> 
+> Yes, I will update the change log in the next patch.
+> 
+> In Cygnus SOC, Touch screen controller registers are shared with ADC and
+> flex timer IP's.
+> Using readl/writel could lead to race condition. So this patch is
+> introduced to take care
+> mutually exclusive access of register's in such a case.
+> 
+> In the platform's where touchscreen register's are not shared normal
+> readl/writel
+> could be used.
 
-3D-s val=C3=B3s=C3=A1gh=C5=B1 CSILLAGOS =C3=89GBOLT =C3=A9s =C3=A9lm=C3=
-=A9ny SAJ=C3=81T otthon=C3=A1ban!
+Are there currently platforms where the registers are not shared? If we
+have to use regmap to correctly update registers (and thus we need
+syscon) then I wonder if we should even attempt to support direct
+register access by the driver.
 
-11 =C3=A9vesek vagyunk, ez=C3=A9rt most ak=C3=A1r t=C3=B6bb,=20
-mint 30%-os kedvezm=C3=A9nnyel el=C3=A9rhet=C5=91!
+> 
+> Based on the dt  property entry "reg" or "ts_syscon" register accesses are
+> handled.
+> if "reg" is provided normal readl/writel API's are used to access
+> register's else if
+> "ts_syscon" is provided then syscon API's are used.
 
-Jelentkez=C3=A9s: 2016. FEBRU=C3=81R 15-ig.
-Eg=C3=A9sz febru=C3=A1rban vannak m=C3=A9g SZABAD id=C5=91pontok.
+If we decide that we still allow register access then please change the
+driver so it instantiates its own regmap instance in this case instead
+of doing checks all the time.
 
-R=C3=A9szletek >>>  http://www.csillag-varazslo.link
+Thanks.
 
-Tisztelettel:
-Jeles J=C3=BAlia
-
-
-
-Leiratkoz=C3=A1s http://euve77345.serverprofi24.net/nuevoMailer/subscri=
-ber/optOut.php?c=3D94&e2=3Db2b0b0bcc072aeafb6bcb687beacaab374b2a7b9b6aa=
-b16fb5b9a9&a=3D1
+-- 
+Dmitry
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

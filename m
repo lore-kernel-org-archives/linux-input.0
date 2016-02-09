@@ -1,67 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: Allow compile test of Goodix and Colibri VF50
- if !GPIOLIB
-Date: Tue, 9 Feb 2016 10:34:09 -0800
-Message-ID: <20160209183409.GF40460@dtor-ws>
-References: <1454854687-21114-1-git-send-email-geert@linux-m68k.org>
- <1454854687-21114-2-git-send-email-geert@linux-m68k.org>
+From: Charles Mooney <charliemooney@google.com>
+Subject: Question about ABS_DISTANCE's intended usage.
+Date: Tue, 9 Feb 2016 13:56:05 -0800
+Message-ID: <CAJ34Pp7OM7DAiA1gZqQ0dtgXZ=z6p+LEVD5aeMiYOecHCbcfLw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:34480 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932193AbcBISeN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2016 13:34:13 -0500
-Content-Disposition: inline
-In-Reply-To: <1454854687-21114-2-git-send-email-geert@linux-m68k.org>
+Received: from mail-yw0-f171.google.com ([209.85.161.171]:34023 "EHLO
+	mail-yw0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932936AbcBIV4p (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2016 16:56:45 -0500
+Received: by mail-yw0-f171.google.com with SMTP id h129so260932ywb.1
+        for <linux-input@vger.kernel.org>; Tue, 09 Feb 2016 13:56:45 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Bastien Nocera <hadess@hadess.net>, Sanchayan Maity <maitysanchayan@gmail.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dtor@google.com>
 
-On Sun, Feb 07, 2016 at 03:18:07PM +0100, Geert Uytterhoeven wrote:
-> The GPIO subsystem provides dummy GPIO consumer functions if GPIOLIB is
-> not enabled. Hence drivers that depend on GPIOLIB, but use GPIO consumer
-> functionality only, can still be compiled if GPIOLIB is not enabled.
-> 
-> If COMPILE_TEST is enabled, relax the dependency on GPIOLIB for the
-> recently introduced or relaxed symbols TOUCHSCREEN_GOODIX and
-> TOUCHSCREEN_COLIBRI_VF50.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Hello all,
 
-Applied, thank you.
+I'm currently working with a touchpad vendor with a new device that
+supports a limited form of hover detection.  Their sensor is able to
+detect the presence or absence of a finger/hand/palm hovering over the
+sensor without touching it, but is unable to report any more details
+about it.  This is a more limited form of hover detection than some
+devices which attach a hover state to each finger they see, and can
+even report x/y coordinates to hovering finger.
 
-> ---
->  drivers/input/touchscreen/Kconfig | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 66c62641b59a31cf..fba4d5665857221b 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -334,7 +334,7 @@ config TOUCHSCREEN_FUJITSU
->  config TOUCHSCREEN_GOODIX
->  	tristate "Goodix I2C touchscreen"
->  	depends on I2C
-> -	depends on GPIOLIB
-> +	depends on GPIOLIB || COMPILE_TEST
->  	help
->  	  Say Y here if you have the Goodix touchscreen (such as one
->  	  installed in Onda v975w tablets) connected to your
-> @@ -1112,7 +1112,8 @@ config TOUCHSCREEN_ZFORCE
->  
->  config TOUCHSCREEN_COLIBRI_VF50
->  	tristate "Toradex Colibri on board touchscreen driver"
-> -	depends on GPIOLIB && IIO && VF610_ADC
-> +	depends on IIO && VF610_ADC
-> +	depends on GPIOLIB || COMPILE_TEST
->  	help
->  	  Say Y here if you have a Colibri VF50 and plan to use
->  	  the on-board provided 4-wire touchscreen driver.
-> -- 
-> 1.9.1
-> 
+Instead of using ABS_MT_DISTANCE, it appears that the correct event to
+use would be ABS_DISTANCE, since the value is not tied to a specific
+finger.  I would like to check with you all about how this value is
+intended to be used, because it's not quite as obvious to me as I
+first thought.
 
--- 
-Dmitry
+We need to handle three basic states:
+  1. At least one finger is touching the pad.
+  2. Something is hovering, but nothing is actually touching.
+  3. Nothing is touching the pad and nothing is detected hovering over it either
+
+It's seems clear to me that an ABS_DISTANCE of zero should indicate
+state #1 and that any other legal positive value should indicate state
+#2, but I'm less clear on what the best way to handle state #3 is.
+Currently, I think the best strategy would be to use a value of
+ABS_DISTANCE = -1 to indicate that there are no fingers seen (hovering
+or otherwise), does that make sense?
+
+If not this, how else would you suggest that this ought to be done?
+
+Thank you,
+Charlie

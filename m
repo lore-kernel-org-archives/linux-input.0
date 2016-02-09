@@ -1,83 +1,89 @@
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: Re: [PATCH] input: adp5589: Fix row 5 handling for adp5589
-Date: Tue, 9 Feb 2016 11:24:42 +0100
-Message-ID: <56B9BE6A.3080700@analog.com>
-References: <1455013795-28180-1-git-send-email-lars@metafoo.de>
-Reply-To: <michael.hennerich@analog.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v10 4/8] mfd: fsl imx25 Touchscreen ADC driver
+Date: Tue, 9 Feb 2016 10:35:13 +0000
+Message-ID: <20160209103513.GC24522@x1>
+References: <1450101234-2191-1-git-send-email-mpa@pengutronix.de>
+ <1450101234-2191-5-git-send-email-mpa@pengutronix.de>
+ <20160111065441.GW3331@x1>
+ <6151166.y0HMDdqtvF@adelgunde>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bl2on0079.outbound.protection.outlook.com ([65.55.169.79]:4087
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932535AbcBIKby (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Feb 2016 05:31:54 -0500
-In-Reply-To: <1455013795-28180-1-git-send-email-lars@metafoo.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <6151166.y0HMDdqtvF@adelgunde>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Eric =?iso-8859-1?Q?B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Lars-Peter Clausen <lars@metafoo.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-On 02/09/2016 11:29 AM, Lars-Peter Clausen wrote:
-> The adp5589 has row 5, don't skip it when creating the GPIO mapping.
-> Otherwise the pin gets reserved as used and it is not possible to use it as
-> a GPIO.
->
-> Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+On Tue, 02 Feb 2016, Markus Pargmann wrote:
 
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+> Hi,
+>=20
+> On Monday, January 11, 2016 06:54:41 AM Lee Jones wrote:
+> > On Mon, 14 Dec 2015, Markus Pargmann wrote:
+> >=20
+> > > This is the core driver for imx25 touchscreen/adc driver. The mod=
+ule
+> > > has one shared ADC and two different conversion queues which use =
+the
+> > > ADC. The two queues are identical. Both can be used for general p=
+urpose
+> > > ADC but one is meant to be used for touchscreens.
+> > >=20
+> > > This driver is the core which manages the central components and
+> > > registers of the TSC/ADC unit. It manages the IRQs and forwards t=
+hem to
+> > > the correct components.
+> > >=20
+> > > Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > > Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
+> > >=20
+> > > [ensure correct ADC clock depending on the IPG clock]
+> > > Signed-off-by: Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > > Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> > > ---
+> > >=20
+> > > Notes:
+> > >     Changes in v7:
+> > >      - Cleanup bit defines in header files to be more readable
+> > >      - Fix irq check to return with an error for irq <=3D 0
+> > >      - Add COMPILE_TEST in Kconfig file
+> > >    =20
+> > >     Changes in v5:
+> > >      - Remove ifdef CONFIG_OF as this driver is only for DT usage
+> > >      - Remove module owner
+> > >      - Add Kconfig dependencies ARCH_MX25 and OF
+> > >=20
+> > >  drivers/mfd/Kconfig             |   9 ++
+> > >  drivers/mfd/Makefile            |   2 +
+> > >  drivers/mfd/fsl-imx25-tsadc.c   | 203 ++++++++++++++++++++++++++=
+++++++++++++++
+> > >  include/linux/mfd/imx25-tsadc.h | 140 ++++++++++++++++++++++++++=
++
+> > >  4 files changed, 354 insertions(+)
+> > >  create mode 100644 drivers/mfd/fsl-imx25-tsadc.c
+> > >  create mode 100644 include/linux/mfd/imx25-tsadc.h
+> >=20
+> > For my own reference:
+> >   Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> >=20
+> > I will apply this and sent out pull-requests to the relevant
+> > maintainers once -rc1 is out.
+>=20
+> Thanks. Do you mean just this patch or the whole series?
 
-> ---
->   drivers/input/keyboard/adp5589-keys.c | 7 ++++---
->   1 file changed, 4 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
-> index 4d446d5..c01a1d6 100644
-> --- a/drivers/input/keyboard/adp5589-keys.c
-> +++ b/drivers/input/keyboard/adp5589-keys.c
-> @@ -235,7 +235,7 @@ struct adp5589_kpad {
->   	unsigned short gpimapsize;
->   	unsigned extend_cfg;
->   	bool is_adp5585;
-> -	bool adp5585_support_row5;
-> +	bool support_row5;
->   #ifdef CONFIG_GPIOLIB
->   	unsigned char gpiomap[ADP5589_MAXGPIO];
->   	bool export_gpio;
-> @@ -485,7 +485,7 @@ static int adp5589_build_gpiomap(struct adp5589_kpad *kpad,
->   	if (kpad->extend_cfg & C4_EXTEND_CFG)
->   		pin_used[kpad->var->c4_extend_cfg] = true;
->
-> -	if (!kpad->adp5585_support_row5)
-> +	if (!kpad->support_row5)
->   		pin_used[5] = true;
->
->   	for (i = 0; i < kpad->var->maxgpio; i++)
-> @@ -884,12 +884,13 @@ static int adp5589_probe(struct i2c_client *client,
->
->   	switch (id->driver_data) {
->   	case ADP5585_02:
-> -		kpad->adp5585_support_row5 = true;
-> +		kpad->support_row5 = true;
->   	case ADP5585_01:
->   		kpad->is_adp5585 = true;
->   		kpad->var = &const_adp5585;
->   		break;
->   	case ADP5589:
-> +		kpad->support_row5 = true;
->   		kpad->var = &const_adp5589;
->   		break;
->   	}
->
+I will take all of the /driver patches.  The ARM patches need to go in
+through ARM-SoC via the relevant sub-arch maintainer(s).
 
+> Shall I resend the whole series to fix the commit title of the first
+> patch?
 
--- 
-Greetings,
-Michael
+No, that's fine.  I'll handle that *this time*.
 
---
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
-Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
-Margaret Seif
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

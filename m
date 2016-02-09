@@ -1,64 +1,67 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: [PATCH] input: adp5589: Fix row 5 handling for adp5589
-Date: Tue,  9 Feb 2016 11:29:55 +0100
-Message-ID: <1455013795-28180-1-git-send-email-lars@metafoo.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 1/3] input: cygnus-update touchscreen dt node document
+Date: Tue, 09 Feb 2016 12:04 +0100
+Message-ID: <2631849.GeOulu78vx@wuerfel>
+References: <1455008277-8312-1-git-send-email-raveendra.padasalagi@broadcom.com> <1455008277-8312-2-git-send-email-raveendra.padasalagi@broadcom.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx-36.synserver.de ([212.40.180.141]:51833 "EHLO
-	smtp-out-151.synserver.de" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S932557AbcBIKgm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Feb 2016 05:36:42 -0500
+Received: from mout.kundenserver.de ([217.72.192.73]:55450 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752765AbcBILEn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2016 06:04:43 -0500
+In-Reply-To: <1455008277-8312-2-git-send-email-raveendra.padasalagi@broadcom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>
+To: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King <linux@arm.linux.org.uk>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jonathan Richardson <jonathar@broadcom.com>, Jon Mason <jonmason@broadcom.com>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com
 
-The adp5589 has row 5, don't skip it when creating the GPIO mapping.
-Otherwise the pin gets reserved as used and it is not possible to use it as
-a GPIO.
+On Tuesday 09 February 2016 14:27:55 Raveendra Padasalagi wrote:
+> +
+> +One of the below 2 property is mandatory.
+> +- ts_syscon: handler of syscon node defining physical base address
+> +  of the controller and length of memory mapped region.
+> +  If this property is selected please make sure MFD_SYSCON config
+> +  is enabled in the defconfig file.
+> +or
+> +- reg: physical base address of the controller and length of memory
+> +  mapped region.
+> +
+>  - clocks:  The clock provided by the SOC to driver the tsc
+>  - clock-name:  name for the clock
+>  - interrupts: The touchscreen controller's interrupt
+> @@ -54,12 +62,16 @@ Optional properties:
+>  - touchscreen-inverted-y: Y axis is inverted (boolean)
+>  
+>  Example:
+> +       ts_adc_syscon: ts_adc_syscon@0x180a6000 {
+> +               compatible = "syscon";
+> +               reg = <0x180a6000 0xc30>;
+> +       };
+>  
+>         touchscreen: tsc@0x180A6000 {
+>                 compatible = "brcm,iproc-touchscreen";
+>                 #address-cells = <1>;
+>                 #size-cells = <1>;
+> -               reg = <0x180A6000 0x40>;
+> +               syscon = <&ts_adc_syscon>;
+>                 clocks = <&adc_clk>;
+>                 clock-names = "tsc_clk";
+>                 interrupts = <GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>;
 
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
----
- drivers/input/keyboard/adp5589-keys.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+This doesn't seem right: For one thing, it's an incompatible binding
+change which you should try to avoid.
 
-diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
-index 4d446d5..c01a1d6 100644
---- a/drivers/input/keyboard/adp5589-keys.c
-+++ b/drivers/input/keyboard/adp5589-keys.c
-@@ -235,7 +235,7 @@ struct adp5589_kpad {
- 	unsigned short gpimapsize;
- 	unsigned extend_cfg;
- 	bool is_adp5585;
--	bool adp5585_support_row5;
-+	bool support_row5;
- #ifdef CONFIG_GPIOLIB
- 	unsigned char gpiomap[ADP5589_MAXGPIO];
- 	bool export_gpio;
-@@ -485,7 +485,7 @@ static int adp5589_build_gpiomap(struct adp5589_kpad *kpad,
- 	if (kpad->extend_cfg & C4_EXTEND_CFG)
- 		pin_used[kpad->var->c4_extend_cfg] = true;
- 
--	if (!kpad->adp5585_support_row5)
-+	if (!kpad->support_row5)
- 		pin_used[5] = true;
- 
- 	for (i = 0; i < kpad->var->maxgpio; i++)
-@@ -884,12 +884,13 @@ static int adp5589_probe(struct i2c_client *client,
- 
- 	switch (id->driver_data) {
- 	case ADP5585_02:
--		kpad->adp5585_support_row5 = true;
-+		kpad->support_row5 = true;
- 	case ADP5585_01:
- 		kpad->is_adp5585 = true;
- 		kpad->var = &const_adp5585;
- 		break;
- 	case ADP5589:
-+		kpad->support_row5 = true;
- 		kpad->var = &const_adp5589;
- 		break;
- 	}
--- 
-2.1.4
+Worse, the syscon has a name indicating that it really has a particular
+function, but the name is completely generic (just "syscon"). Please
+add a specific compatible string identifying the device that owns
+the registers, and put any other associated properties (clocks,
+interrupts, ...) that are for that device in general rather than just
+the touchscreen in there.
 
+Your changelog text fails to describe why you do this change in
+the first place, and why you can't do it in a backward-compatible
+way, so please rewrite that text.
+
+	Arnd

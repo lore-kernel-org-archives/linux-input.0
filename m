@@ -1,91 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: adp5589: Fix row 5 handling for adp5589
-Date: Tue, 9 Feb 2016 09:36:27 -0800
-Message-ID: <20160209173627.GB40460@dtor-ws>
-References: <1455013795-28180-1-git-send-email-lars@metafoo.de>
- <56B9BE6A.3080700@analog.com>
+From: Otthon 3D <csillagvarazslo@outlook.hu>
+Subject: =?utf-8?Q?K=C3=BCl=C3=B6nleges?= VALENTIN NAPI
+ =?utf-8?Q?aj=C3=A1nd=C3=A9k!_Febru=C3=A1r?= 15-ig.
+Date: Tue, 09 Feb 2016 17:28:05 +0100
+Message-ID: <e0b4dca807a68164ab6db326a339e7f5@euve77345.serverprofi24.net>
+Reply-To: csillagvarazslo@outlook.hu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:32984 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932949AbcBIRgb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2016 12:36:31 -0500
-Received: by mail-pa0-f45.google.com with SMTP id cy9so94627271pac.0
-        for <linux-input@vger.kernel.org>; Tue, 09 Feb 2016 09:36:30 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <56B9BE6A.3080700@analog.com>
+Received: from euve77345.serverprofi24.net ([62.75.142.68]:60626 "EHLO
+	euve77345.serverprofi24.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756299AbcBIRff convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Feb 2016 12:35:35 -0500
+Received: from euve77345.serverprofi24.net ([62.75.142.68])
+	by euve77345.serverprofi24.net with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+	(Exim 4.82)
+	(envelope-from <bounced@euve77345.serverprofi24.net>)
+	id 1aTB93-0003dc-2w
+	for linux-input@vger.kernel.org; Tue, 09 Feb 2016 16:28:05 +0000
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Hennerich <michael.hennerich@analog.com>
-Cc: Lars-Peter Clausen <lars@metafoo.de>, linux-input@vger.kernel.org
+To: Linux Input Vger Kernel Org <linux-input@vger.kernel.org>
 
-On Tue, Feb 09, 2016 at 11:24:42AM +0100, Michael Hennerich wrote:
-> On 02/09/2016 11:29 AM, Lars-Peter Clausen wrote:
-> >The adp5589 has row 5, don't skip it when creating the GPIO mapping.
-> >Otherwise the pin gets reserved as used and it is not possible to use it as
-> >a GPIO.
-> >
-> >Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-> 
-> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+T=C3=A9nyleg "lehozza a csillagokat az =C3=A9gr=C5=91l" kedves=C3=A9nek=
+! :)
 
-Applied, thank you.
+3D-s val=C3=B3s=C3=A1gh=C5=B1 CSILLAGOS =C3=89GBOLT =C3=A9s =C3=A9lm=C3=
+=A9ny SAJ=C3=81T otthon=C3=A1ban!
 
-> 
-> >---
-> >  drivers/input/keyboard/adp5589-keys.c | 7 ++++---
-> >  1 file changed, 4 insertions(+), 3 deletions(-)
-> >
-> >diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
-> >index 4d446d5..c01a1d6 100644
-> >--- a/drivers/input/keyboard/adp5589-keys.c
-> >+++ b/drivers/input/keyboard/adp5589-keys.c
-> >@@ -235,7 +235,7 @@ struct adp5589_kpad {
-> >  	unsigned short gpimapsize;
-> >  	unsigned extend_cfg;
-> >  	bool is_adp5585;
-> >-	bool adp5585_support_row5;
-> >+	bool support_row5;
-> >  #ifdef CONFIG_GPIOLIB
-> >  	unsigned char gpiomap[ADP5589_MAXGPIO];
-> >  	bool export_gpio;
-> >@@ -485,7 +485,7 @@ static int adp5589_build_gpiomap(struct adp5589_kpad *kpad,
-> >  	if (kpad->extend_cfg & C4_EXTEND_CFG)
-> >  		pin_used[kpad->var->c4_extend_cfg] = true;
-> >
-> >-	if (!kpad->adp5585_support_row5)
-> >+	if (!kpad->support_row5)
-> >  		pin_used[5] = true;
-> >
-> >  	for (i = 0; i < kpad->var->maxgpio; i++)
-> >@@ -884,12 +884,13 @@ static int adp5589_probe(struct i2c_client *client,
-> >
-> >  	switch (id->driver_data) {
-> >  	case ADP5585_02:
-> >-		kpad->adp5585_support_row5 = true;
-> >+		kpad->support_row5 = true;
-> >  	case ADP5585_01:
-> >  		kpad->is_adp5585 = true;
-> >  		kpad->var = &const_adp5585;
-> >  		break;
-> >  	case ADP5589:
-> >+		kpad->support_row5 = true;
-> >  		kpad->var = &const_adp5589;
-> >  		break;
-> >  	}
-> >
-> 
-> 
-> -- 
-> Greetings,
-> Michael
-> 
-> --
-> Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-> Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
-> Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
-> Margaret Seif
+11 =C3=A9vesek vagyunk, ez=C3=A9rt most ak=C3=A1r t=C3=B6bb,=20
+mint 30%-os kedvezm=C3=A9nnyel el=C3=A9rhet=C5=91!
 
--- 
-Dmitry
+Jelentkez=C3=A9s: 2016. FEBRU=C3=81R 15-ig.
+Eg=C3=A9sz febru=C3=A1rban vannak m=C3=A9g SZABAD id=C5=91pontok.
+
+R=C3=A9szletek >>>  http://www.csillag-varazslo.link
+
+Tisztelettel:
+Jeles J=C3=BAlia
+
+
+
+Leiratkoz=C3=A1s http://euve77345.serverprofi24.net/nuevoMailer/subscri=
+ber/optOut.php?c=3D94&e2=3Db2b0b0bcc072aeafb6bcb687beacaab374b2a7b9b6aa=
+b16fb5b9a9&a=3D1
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

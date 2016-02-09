@@ -1,35 +1,59 @@
-From: Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] iio: adc: Move mxs-lradc out of staging
-Date: Tue, 9 Feb 2016 09:52:05 -0800
-Message-ID: <20160209175205.GD40460@dtor-ws>
-References: <1454797403-21576-1-git-send-email-ksenija.stanojevic@gmail.com>
- <56B8DF81.3000901@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] Input: Colibri VF50 - Add missing #include
+ <linux/of.h>
+Date: Tue, 9 Feb 2016 10:33:24 -0800
+Message-ID: <20160209183324.GE40460@dtor-ws>
+References: <1454854687-21114-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:33211 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752854AbcBIRwJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2016 12:52:09 -0500
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <56B8DF81.3000901@kernel.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1454854687-21114-1-git-send-email-geert@linux-m68k.org>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Bastien Nocera <hadess@hadess.net>, Sanchayan Maity <maitysanchayan@gmail.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, gregkh@linuxfoundation.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Mon, Feb 08, 2016 at 06:33:37PM +0000, Jonathan Cameron wrote:
-> On 06/02/16 22:23, Ksenija Stanojevic wrote:
-> > Move mxs-lradc driver from drivers/staging/iio/adc to drivers/iio/adc.
-> > 
-> > Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-> Given the input elements in here, cc'ing linux-input and Dmitry.
+On Sun, Feb 07, 2016 at 03:18:06PM +0100, Geert Uytterhoeven wrote:
+> drivers/input/touchscreen/colibri-vf50-ts.c: In function =E2=80=98vf5=
+0_ts_probe=E2=80=99:
+> drivers/input/touchscreen/colibri-vf50-ts.c:302: error: implicit decl=
+aration of function =E2=80=98of_property_read_u32=E2=80=99
+>=20
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Input parts look reasonable to me, but please set INPUT_PROP_DIRECT to
-indicate that it is a touchscreen on the device to help userspace
-classify it. Can be a separate patch though.
+Applied, thank you.
 
-Thanks.
+> ---
+> Seen with "[PATCH 2/2] Input: Allow compile test of Goodix and Colibr=
+i
+> VF50 if !GPIOLIB" on m68k/allmodconfig
+>=20
+>  drivers/input/touchscreen/colibri-vf50-ts.c | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/drivers/input/touchscreen/colibri-vf50-ts.c b/drivers/in=
+put/touchscreen/colibri-vf50-ts.c
+> index 5d4903a402cc6a5f..69828d015d45ffa4 100644
+> --- a/drivers/input/touchscreen/colibri-vf50-ts.c
+> +++ b/drivers/input/touchscreen/colibri-vf50-ts.c
+> @@ -21,6 +21,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+> +#include <linux/of.h>
+>  #include <linux/pinctrl/consumer.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/slab.h>
+> --=20
+> 1.9.1
+>=20
 
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

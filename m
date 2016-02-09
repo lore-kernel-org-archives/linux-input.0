@@ -1,12 +1,12 @@
 From: Antonio Ospite <ao2@ao2.it>
-Subject: [RESEND PATCH 2/6] HID: lg: fix a typo in descriptors comments s/Joystik/Joystick/
-Date: Tue,  9 Feb 2016 13:55:04 +0100
-Message-ID: <1455022508-20041-3-git-send-email-ao2@ao2.it>
+Subject: [RESEND PATCH 1/6] HID: dragonrise: fix a typo in descriptors comments s/Joystik/Joystick/
+Date: Tue,  9 Feb 2016 13:55:03 +0100
+Message-ID: <1455022508-20041-2-git-send-email-ao2@ao2.it>
 References: <1455022508-20041-1-git-send-email-ao2@ao2.it>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp207.alice.it ([82.57.200.103]:3838 "EHLO smtp207.alice.it"
+Received: from smtp208.alice.it ([82.57.200.104]:7841 "EHLO smtp208.alice.it"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754726AbcBIMzd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	id S1754571AbcBIMzd (ORCPT <rfc822;linux-input@vger.kernel.org>);
 	Tue, 9 Feb 2016 07:55:33 -0500
 In-Reply-To: <1455022508-20041-1-git-send-email-ao2@ao2.it>
 Sender: linux-input-owner@vger.kernel.org
@@ -16,58 +16,31 @@ Cc: Jiri Kosina <jikos@kernel.org>, Antonio Ospite <ao2@ao2.it>
 
 Signed-off-by: Antonio Ospite <ao2@ao2.it>
 ---
- drivers/hid/hid-lg.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/hid/hid-dr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
-index c690fae..feb2be7 100644
---- a/drivers/hid/hid-lg.c
-+++ b/drivers/hid/hid-lg.c
-@@ -61,7 +61,7 @@
-  */
- static __u8 df_rdesc_fixed[] = {
- 0x05, 0x01,         /*  Usage Page (Desktop),                   */
--0x09, 0x04,         /*  Usage (Joystik),                        */
-+0x09, 0x04,         /*  Usage (Joystick),                       */
- 0xA1, 0x01,         /*  Collection (Application),               */
- 0xA1, 0x02,         /*      Collection (Logical),               */
- 0x95, 0x01,         /*          Report Count (1),               */
-@@ -127,7 +127,7 @@ static __u8 df_rdesc_fixed[] = {
- 
- static __u8 dfp_rdesc_fixed[] = {
- 0x05, 0x01,         /*  Usage Page (Desktop),                   */
--0x09, 0x04,         /*  Usage (Joystik),                        */
-+0x09, 0x04,         /*  Usage (Joystick),                       */
- 0xA1, 0x01,         /*  Collection (Application),               */
- 0xA1, 0x02,         /*      Collection (Logical),               */
- 0x95, 0x01,         /*          Report Count (1),               */
-@@ -175,7 +175,7 @@ static __u8 dfp_rdesc_fixed[] = {
- 
- static __u8 fv_rdesc_fixed[] = {
- 0x05, 0x01,         /*  Usage Page (Desktop),                   */
--0x09, 0x04,         /*  Usage (Joystik),                        */
-+0x09, 0x04,         /*  Usage (Joystick),                       */
- 0xA1, 0x01,         /*  Collection (Application),               */
- 0xA1, 0x02,         /*      Collection (Logical),               */
- 0x95, 0x01,         /*          Report Count (1),               */
-@@ -242,7 +242,7 @@ static __u8 fv_rdesc_fixed[] = {
- 
- static __u8 momo_rdesc_fixed[] = {
- 0x05, 0x01,         /*  Usage Page (Desktop),               */
--0x09, 0x04,         /*  Usage (Joystik),                    */
-+0x09, 0x04,         /*  Usage (Joystick),                   */
- 0xA1, 0x01,         /*  Collection (Application),           */
- 0xA1, 0x02,         /*      Collection (Logical),           */
- 0x95, 0x01,         /*          Report Count (1),           */
-@@ -288,7 +288,7 @@ static __u8 momo_rdesc_fixed[] = {
- 
- static __u8 momo2_rdesc_fixed[] = {
- 0x05, 0x01,         /*  Usage Page (Desktop),               */
--0x09, 0x04,         /*  Usage (Joystik),                    */
-+0x09, 0x04,         /*  Usage (Joystick),                   */
- 0xA1, 0x01,         /*  Collection (Application),           */
- 0xA1, 0x02,         /*      Collection (Logical),           */
- 0x95, 0x01,         /*          Report Count (1),           */
+diff --git a/drivers/hid/hid-dr.c b/drivers/hid/hid-dr.c
+index 1d78ba3..8fd4bf7 100644
+--- a/drivers/hid/hid-dr.c
++++ b/drivers/hid/hid-dr.c
+@@ -151,7 +151,7 @@ static inline int drff_init(struct hid_device *hid)
+  * descriptor. In any case, it's a wonder it works on Windows.
+  *
+  *  Usage Page (Desktop),             ; Generic desktop controls (01h)
+- *  Usage (Joystik),                  ; Joystik (04h, application collection)
++ *  Usage (Joystick),                 ; Joystick (04h, application collection)
+  *  Collection (Application),
+  *    Collection (Logical),
+  *      Report Size (8),
+@@ -207,7 +207,7 @@ static inline int drff_init(struct hid_device *hid)
+ /* Fixed report descriptor for PID 0x011 joystick */
+ static __u8 pid0011_rdesc_fixed[] = {
+ 	0x05, 0x01,         /*  Usage Page (Desktop),           */
+-	0x09, 0x04,         /*  Usage (Joystik),                */
++	0x09, 0x04,         /*  Usage (Joystick),               */
+ 	0xA1, 0x01,         /*  Collection (Application),       */
+ 	0xA1, 0x02,         /*      Collection (Logical),       */
+ 	0x14,               /*          Logical Minimum (0),    */
 -- 
 2.7.0
 

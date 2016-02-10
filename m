@@ -1,54 +1,41 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCHv12 02/17] dts: exynos4: add node for the HDMI CEC device
-Date: Wed, 10 Feb 2016 13:51:36 +0100
-Message-ID: <1455108711-29850-3-git-send-email-hverkuil@xs4all.nl>
+Subject: [PATCHv12 03/17] dts: exynos4412-odroid*: enable the HDMI CEC device
+Date: Wed, 10 Feb 2016 13:51:37 +0100
+Message-ID: <1455108711-29850-4-git-send-email-hverkuil@xs4all.nl>
 References: <1455108711-29850-1-git-send-email-hverkuil@xs4all.nl>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb1-smtp-cloud3.xs4all.net ([194.109.24.22]:50857 "EHLO
-	lb1-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750970AbcBJMwG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Feb 2016 07:52:06 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 In-Reply-To: <1455108711-29850-1-git-send-email-hverkuil@xs4all.nl>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: linux-samsung-soc@vger.kernel.org, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, dri-devel@lists.freedesktop.org, lars@opdenkamp.eu, Hans Verkuil <hans.verkuil@cisco.com>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-From: Kamil Debski <kamil@wypas.org>
-
-This patch adds HDMI CEC node specific to the Exynos4210/4x12 SoC series.
-
-Signed-off-by: Kamil Debski <kamil@wypas.org>
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Acked-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
----
- arch/arm/boot/dts/exynos4.dtsi | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-diff --git a/arch/arm/boot/dts/exynos4.dtsi b/arch/arm/boot/dts/exynos4.dtsi
-index 045785c..8913408 100644
---- a/arch/arm/boot/dts/exynos4.dtsi
-+++ b/arch/arm/boot/dts/exynos4.dtsi
-@@ -751,6 +751,18 @@
- 		status = "disabled";
- 	};
- 
-+	hdmicec: cec@100B0000 {
-+		compatible = "samsung,s5p-cec";
-+		reg = <0x100B0000 0x200>;
-+		interrupts = <0 114 0>;
-+		clocks = <&clock CLK_HDMI_CEC>;
-+		clock-names = "hdmicec";
-+		samsung,syscon-phandle = <&pmu_system_controller>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&hdmi_cec>;
-+		status = "disabled";
-+	};
-+
- 	mixer: mixer@12C10000 {
- 		compatible = "samsung,exynos4210-mixer";
- 		interrupts = <0 91 0>;
--- 
-2.7.0
-
+RnJvbTogS2FtaWwgRGVic2tpIDxrYW1pbEB3eXBhcy5vcmc+CgpBZGQgYSBkdHMgbm9kZSBlbnRy
+eSBhbmQgZW5hYmxlIHRoZSBIRE1JIENFQyBkZXZpY2UgcHJlc2VudCBpbiB0aGUgRXh5bm9zNApm
+YW1pbHkgb2YgU29Dcy4KClNpZ25lZC1vZmYtYnk6IEthbWlsIERlYnNraSA8a2FtaWxAd3lwYXMu
+b3JnPgpTaWduZWQtb2ZmLWJ5OiBIYW5zIFZlcmt1aWwgPGhhbnMudmVya3VpbEBjaXNjby5jb20+
+CkFja2VkLWJ5OiBLcnp5c3p0b2YgS296bG93c2tpIDxrLmtvemxvd3NraUBzYW1zdW5nLmNvbT4K
+LS0tCiBhcmNoL2FybS9ib290L2R0cy9leHlub3M0MjEwLXVuaXZlcnNhbF9jMjEwLmR0cyB8IDQg
+KysrKwogMSBmaWxlIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL2FyY2gv
+YXJtL2Jvb3QvZHRzL2V4eW5vczQyMTAtdW5pdmVyc2FsX2MyMTAuZHRzIGIvYXJjaC9hcm0vYm9v
+dC9kdHMvZXh5bm9zNDIxMC11bml2ZXJzYWxfYzIxMC5kdHMKaW5kZXggNGY1ZDM3OS4uMzMxYWI5
+ZiAxMDA2NDQKLS0tIGEvYXJjaC9hcm0vYm9vdC9kdHMvZXh5bm9zNDIxMC11bml2ZXJzYWxfYzIx
+MC5kdHMKKysrIGIvYXJjaC9hcm0vYm9vdC9kdHMvZXh5bm9zNDIxMC11bml2ZXJzYWxfYzIxMC5k
+dHMKQEAgLTIyMyw2ICsyMjMsMTAgQEAKIAkJZW5hYmxlLWFjdGl2ZS1oaWdoOwogCX07CiAKKwlj
+ZWNAMTAwQjAwMDAgeworCQlzdGF0dXMgPSAib2theSI7CisJfTsKKwogCWhkbWlfZGRjOiBpMmMt
+ZGRjIHsKIAkJY29tcGF0aWJsZSA9ICJpMmMtZ3BpbyI7CiAJCWdwaW9zID0gPCZncGU0IDIgR1BJ
+T19BQ1RJVkVfSElHSCAmZ3BlNCAzIEdQSU9fQUNUSVZFX0hJR0g+OwotLSAKMi43LjAKCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWls
+aW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZy
+ZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=

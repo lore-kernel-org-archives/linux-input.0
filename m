@@ -1,660 +1,441 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCHv12 14/17] cec: adv7511: add cec support.
-Date: Wed, 10 Feb 2016 13:51:48 +0100
-Message-ID: <1455108711-29850-15-git-send-email-hverkuil@xs4all.nl>
+Subject: [PATCHv12 17/17] vivid: add CEC emulation
+Date: Wed, 10 Feb 2016 13:51:51 +0100
+Message-ID: <1455108711-29850-18-git-send-email-hverkuil@xs4all.nl>
 References: <1455108711-29850-1-git-send-email-hverkuil@xs4all.nl>
-Return-path: <linux-media-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 In-Reply-To: <1455108711-29850-1-git-send-email-hverkuil@xs4all.nl>
-Sender: linux-media-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: linux-samsung-soc@vger.kernel.org, linux@arm.linux.org.uk, dri-devel@lists.freedesktop.org, lars@opdenkamp.eu, Hans Verkuil <hans.verkuil@cisco.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Hans Verkuil <hans.verkuil@cisco.com>
-
-Add CEC support to the adv7511 driver.
-
-Signed-off-by: Hans Verkuil <hansverk@cisco.com>
-[k.debski@samsung.com: Merged changes from CEC Updates commit by Hans Verkuil]
-Signed-off-by: Kamil Debski <kamil@wypas.org>
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
----
- drivers/media/i2c/adv7511.c | 384 +++++++++++++++++++++++++++++++++++++++++++-
- include/media/i2c/adv7511.h |   6 +-
- 2 files changed, 378 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/media/i2c/adv7511.c b/drivers/media/i2c/adv7511.c
-index 67046aa..e70dbaf 100644
---- a/drivers/media/i2c/adv7511.c
-+++ b/drivers/media/i2c/adv7511.c
-@@ -33,6 +33,7 @@
- #include <media/v4l2-ctrls.h>
- #include <media/v4l2-dv-timings.h>
- #include <media/i2c/adv7511.h>
-+#include <media/cec.h>
- 
- static int debug;
- module_param(debug, int, 0644);
-@@ -59,6 +60,8 @@ MODULE_LICENSE("GPL v2");
- #define ADV7511_MIN_PIXELCLOCK 20000000
- #define ADV7511_MAX_PIXELCLOCK 225000000
- 
-+#define ADV7511_MAX_ADDRS (3)
-+
- /*
- **********************************************************************
- *
-@@ -90,12 +93,19 @@ struct adv7511_state {
- 	struct v4l2_ctrl_handler hdl;
- 	int chip_revision;
- 	u8 i2c_edid_addr;
--	u8 i2c_cec_addr;
- 	u8 i2c_pktmem_addr;
-+	u8 i2c_cec_addr;
-+
-+	struct i2c_client *i2c_cec;
-+	u8   cec_addr[ADV7511_MAX_ADDRS];
-+	u8   cec_valid_addrs;
-+	bool cec_enabled_adap;
-+
- 	/* Is the adv7511 powered on? */
- 	bool power_on;
- 	/* Did we receive hotplug and rx-sense signals? */
- 	bool have_monitor;
-+	bool enabled_irq;
- 	/* timings from s_dv_timings */
- 	struct v4l2_dv_timings dv_timings;
- 	u32 fmt_code;
-@@ -225,7 +235,7 @@ static int adv_smbus_read_i2c_block_data(struct i2c_client *client,
- 	return ret;
- }
- 
--static inline void adv7511_edid_rd(struct v4l2_subdev *sd, u16 len, u8 *buf)
-+static void adv7511_edid_rd(struct v4l2_subdev *sd, uint16_t len, uint8_t *buf)
- {
- 	struct adv7511_state *state = get_adv7511_state(sd);
- 	int i;
-@@ -240,6 +250,34 @@ static inline void adv7511_edid_rd(struct v4l2_subdev *sd, u16 len, u8 *buf)
- 		v4l2_err(sd, "%s: i2c read error\n", __func__);
- }
- 
-+static inline int adv7511_cec_read(struct v4l2_subdev *sd, u8 reg)
-+{
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+
-+	return i2c_smbus_read_byte_data(state->i2c_cec, reg);
-+}
-+
-+static int adv7511_cec_write(struct v4l2_subdev *sd, u8 reg, u8 val)
-+{
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+	int ret;
-+	int i;
-+
-+	for (i = 0; i < 3; i++) {
-+		ret = i2c_smbus_write_byte_data(state->i2c_cec, reg, val);
-+		if (ret == 0)
-+			return 0;
-+	}
-+	v4l2_err(sd, "%s: I2C Write Problem\n", __func__);
-+	return ret;
-+}
-+
-+static inline int adv7511_cec_write_and_or(struct v4l2_subdev *sd, u8 reg, u8 mask,
-+				   u8 val)
-+{
-+	return adv7511_cec_write(sd, reg, (adv7511_cec_read(sd, reg) & mask) | val);
-+}
-+
- static int adv7511_pktmem_rd(struct v4l2_subdev *sd, u8 reg)
- {
- 	struct adv7511_state *state = get_adv7511_state(sd);
-@@ -413,16 +451,28 @@ static const struct v4l2_ctrl_ops adv7511_ctrl_ops = {
- #ifdef CONFIG_VIDEO_ADV_DEBUG
- static void adv7511_inv_register(struct v4l2_subdev *sd)
- {
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+
- 	v4l2_info(sd, "0x000-0x0ff: Main Map\n");
-+	if (state->i2c_cec)
-+		v4l2_info(sd, "0x100-0x1ff: CEC Map\n");
- }
- 
- static int adv7511_g_register(struct v4l2_subdev *sd, struct v4l2_dbg_register *reg)
- {
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+
- 	reg->size = 1;
- 	switch (reg->reg >> 8) {
- 	case 0:
- 		reg->val = adv7511_rd(sd, reg->reg & 0xff);
- 		break;
-+	case 1:
-+		if (state->i2c_cec) {
-+			reg->val = adv7511_cec_read(sd, reg->reg & 0xff);
-+			break;
-+		}
-+		/* fall through */
- 	default:
- 		v4l2_info(sd, "Register %03llx not supported\n", reg->reg);
- 		adv7511_inv_register(sd);
-@@ -433,10 +483,18 @@ static int adv7511_g_register(struct v4l2_subdev *sd, struct v4l2_dbg_register *
- 
- static int adv7511_s_register(struct v4l2_subdev *sd, const struct v4l2_dbg_register *reg)
- {
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+
- 	switch (reg->reg >> 8) {
- 	case 0:
- 		adv7511_wr(sd, reg->reg & 0xff, reg->val & 0xff);
- 		break;
-+	case 1:
-+		if (state->i2c_cec) {
-+			adv7511_cec_write(sd, reg->reg & 0xff, reg->val & 0xff);
-+			break;
-+		}
-+		/* fall through */
- 	default:
- 		v4l2_info(sd, "Register %03llx not supported\n", reg->reg);
- 		adv7511_inv_register(sd);
-@@ -524,6 +582,7 @@ static int adv7511_log_status(struct v4l2_subdev *sd)
- {
- 	struct adv7511_state *state = get_adv7511_state(sd);
- 	struct adv7511_state_edid *edid = &state->edid;
-+	int i;
- 
- 	static const char * const states[] = {
- 		"in reset",
-@@ -593,7 +652,23 @@ static int adv7511_log_status(struct v4l2_subdev *sd)
- 	else
- 		v4l2_info(sd, "no timings set\n");
- 	v4l2_info(sd, "i2c edid addr: 0x%x\n", state->i2c_edid_addr);
-+
-+	if (state->i2c_cec == NULL)
-+		return 0;
-+
- 	v4l2_info(sd, "i2c cec addr: 0x%x\n", state->i2c_cec_addr);
-+
-+	v4l2_info(sd, "CEC: %s\n", state->cec_enabled_adap ?
-+			"enabled" : "disabled");
-+	if (state->cec_enabled_adap) {
-+		for (i = 0; i < ADV7511_MAX_ADDRS; i++) {
-+			bool is_valid = state->cec_valid_addrs & (1 << i);
-+
-+			if (is_valid)
-+				v4l2_info(sd, "CEC Logical Address: 0x%x\n",
-+					  state->cec_addr[i]);
-+		}
-+	}
- 	v4l2_info(sd, "i2c pktmem addr: 0x%x\n", state->i2c_pktmem_addr);
- 	return 0;
- }
-@@ -651,15 +726,146 @@ static int adv7511_s_power(struct v4l2_subdev *sd, int on)
- 	return true;
- }
- 
-+static unsigned adv7511_cec_adap_available_log_addrs(struct v4l2_subdev *sd)
-+{
-+	return ADV7511_MAX_ADDRS;
-+}
-+
-+static int adv7511_cec_adap_enable(struct v4l2_subdev *sd, bool enable)
-+{
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+
-+	if (state->i2c_cec == NULL)
-+		return -EIO;
-+
-+	if (!state->cec_enabled_adap && enable) {
-+		/* power up cec section */
-+		adv7511_cec_write_and_or(sd, 0x4e, 0xfc, 0x01);
-+		/* legacy mode and clear all rx buffers */
-+		adv7511_cec_write(sd, 0x4a, 0x07);
-+		adv7511_cec_write(sd, 0x4a, 0);
-+		adv7511_cec_write_and_or(sd, 0x11, 0xfe, 0); /* initially disable tx */
-+		/* enabled irqs: */
-+		/* tx: ready */
-+		/* tx: arbitration lost */
-+		/* tx: retry timeout */
-+		/* rx: ready 1 */
-+		if (state->enabled_irq)
-+			adv7511_wr_and_or(sd, 0x95, 0xc0, 0x39);
-+	} else if (state->cec_enabled_adap && !enable) {
-+		if (state->enabled_irq)
-+			adv7511_wr_and_or(sd, 0x95, 0xc0, 0x00);
-+		/* disable address mask 1-3 */
-+		adv7511_cec_write_and_or(sd, 0x4b, 0x8f, 0x00);
-+		/* power down cec section */
-+		adv7511_cec_write_and_or(sd, 0x4e, 0xfc, 0x00);
-+		state->cec_valid_addrs = 0;
-+	}
-+	state->cec_enabled_adap = enable;
-+	return 0;
-+}
-+
-+static int adv7511_cec_adap_log_addr(struct v4l2_subdev *sd, u8 addr)
-+{
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+	unsigned i, free_idx = ADV7511_MAX_ADDRS;
-+
-+	if (!state->cec_enabled_adap)
-+		return -EIO;
-+
-+	if (addr == CEC_LOG_ADDR_INVALID) {
-+		adv7511_cec_write_and_or(sd, 0x4b, 0x8f, 0);
-+		state->cec_valid_addrs = 0;
-+		return 0;
-+	}
-+
-+	for (i = 0; i < ADV7511_MAX_ADDRS; i++) {
-+		bool is_valid = state->cec_valid_addrs & (1 << i);
-+
-+		if (free_idx == ADV7511_MAX_ADDRS && !is_valid)
-+			free_idx = i;
-+		if (is_valid && state->cec_addr[i] == addr)
-+			return 0;
-+	}
-+	if (i == ADV7511_MAX_ADDRS) {
-+		i = free_idx;
-+		if (i == ADV7511_MAX_ADDRS)
-+			return -ENXIO;
-+	}
-+	state->cec_addr[i] = addr;
-+	state->cec_valid_addrs |= 1 << i;
-+
-+	switch (i) {
-+	case 0:
-+		/* enable address mask 0 */
-+		adv7511_cec_write_and_or(sd, 0x4b, 0xef, 0x10);
-+		/* set address for mask 0 */
-+		adv7511_cec_write_and_or(sd, 0x4c, 0xf0, addr);
-+		break;
-+	case 1:
-+		/* enable address mask 1 */
-+		adv7511_cec_write_and_or(sd, 0x4b, 0xdf, 0x20);
-+		/* set address for mask 1 */
-+		adv7511_cec_write_and_or(sd, 0x4c, 0x0f, addr << 4);
-+		break;
-+	case 2:
-+		/* enable address mask 2 */
-+		adv7511_cec_write_and_or(sd, 0x4b, 0xbf, 0x40);
-+		/* set address for mask 1 */
-+		adv7511_cec_write_and_or(sd, 0x4d, 0xf0, addr);
-+		break;
-+	}
-+	return 0;
-+}
-+
-+static int adv7511_cec_adap_transmit(struct v4l2_subdev *sd, u8 attempts,
-+				     u32 signal_free_time_ms, struct cec_msg *msg)
-+{
-+	u8 len = msg->len;
-+	unsigned i;
-+
-+	v4l2_dbg(1, debug, sd, "%s: len %d\n", __func__, len);
-+
-+	if (len > 16) {
-+		v4l2_err(sd, "%s: len exceeded 16 (%d)\n", __func__, len);
-+		return -EINVAL;
-+	}
-+
-+	/*
-+	 * The number of retries is the number of attempts - 1, but retry
-+	 * at least once. It's not clear if a value of 0 is allowed, so
-+	 * let's do at least one retry.
-+	 */
-+	adv7511_cec_write_and_or(sd, 0x12, ~0x70, max(1, attempts - 1) << 4);
-+
-+	/* blocking, clear cec tx irq status */
-+	adv7511_wr_and_or(sd, 0x97, 0xc7, 0x38);
-+
-+	/* write data */
-+	for (i = 0; i < len; i++)
-+		adv7511_cec_write(sd, i, msg->msg[i]);
-+
-+	/* set length (data + header) */
-+	adv7511_cec_write(sd, 0x10, len);
-+	/* start transmit, enable tx */
-+	adv7511_cec_write(sd, 0x11, 0x01);
-+	return 0;
-+}
-+
- /* Enable interrupts */
- static void adv7511_set_isr(struct v4l2_subdev *sd, bool enable)
- {
-+	struct adv7511_state *state = get_adv7511_state(sd);
- 	u8 irqs = MASK_ADV7511_HPD_INT | MASK_ADV7511_MSEN_INT;
- 	u8 irqs_rd;
- 	int retries = 100;
- 
- 	v4l2_dbg(2, debug, sd, "%s: %s\n", __func__, enable ? "enable" : "disable");
- 
-+	if (state->enabled_irq == enable)
-+		return;
-+	state->enabled_irq = enable;
-+
- 	/* The datasheet says that the EDID ready interrupt should be
- 	   disabled if there is no hotplug. */
- 	if (!enable)
-@@ -667,6 +873,9 @@ static void adv7511_set_isr(struct v4l2_subdev *sd, bool enable)
- 	else if (adv7511_have_hotplug(sd))
- 		irqs |= MASK_ADV7511_EDID_RDY_INT;
- 
-+	if (state->cec_enabled_adap)
-+		adv7511_wr_and_or(sd, 0x95, 0xc0, enable ? 0x39 : 0x00);
-+
- 	/*
- 	 * This i2c write can fail (approx. 1 in 1000 writes). But it
- 	 * is essential that this register is correct, so retry it
-@@ -685,24 +894,95 @@ static void adv7511_set_isr(struct v4l2_subdev *sd, bool enable)
- 	v4l2_err(sd, "Could not set interrupts: hw failure?\n");
- }
- 
-+static void adv_cec_tx_raw_status(struct v4l2_subdev *sd, u8 tx_raw_status)
-+{
-+	struct v4l2_subdev_cec_tx_done tx_done = {};
-+
-+	if ((adv7511_cec_read(sd, 0x11) & 0x01) == 0) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: tx disabled\n", __func__);
-+		return;
-+	}
-+
-+	if (tx_raw_status & 0x10) {
-+		v4l2_dbg(1, debug, sd,
-+			 "%s: tx raw: arbitration lost\n", __func__);
-+		tx_done.status = CEC_TX_STATUS_ARB_LOST;
-+		tx_done.arb_lost_cnt = 1;
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE, &tx_done);
-+		return;
-+	}
-+	if (tx_raw_status & 0x08) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: retry failed\n", __func__);
-+		/*
-+		 * We set this status bit since this hardware performs
-+		 * retransmissions.
-+		 */
-+		tx_done.status = CEC_TX_STATUS_MAX_RETRIES;
-+		tx_done.nack_cnt = adv7511_cec_read(sd, 0x14) & 0xf;
-+		if (tx_done.nack_cnt)
-+			tx_done.status |= CEC_TX_STATUS_NACK;
-+		tx_done.low_drive_cnt = adv7511_cec_read(sd, 0x14) >> 4;
-+		if (tx_done.low_drive_cnt)
-+			tx_done.status |= CEC_TX_STATUS_LOW_DRIVE;
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE, &tx_done);
-+		return;
-+	}
-+	if (tx_raw_status & 0x20) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: ready ok\n", __func__);
-+		tx_done.status = CEC_TX_STATUS_OK;
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE, &tx_done);
-+		return;
-+	}
-+}
-+
- /* Interrupt handler */
- static int adv7511_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
- {
- 	u8 irq_status;
-+	u8 cec_irq;
- 
- 	/* disable interrupts to prevent a race condition */
- 	adv7511_set_isr(sd, false);
- 	irq_status = adv7511_rd(sd, 0x96);
-+	cec_irq = adv7511_rd(sd, 0x97);
- 	/* clear detected interrupts */
- 	adv7511_wr(sd, 0x96, irq_status);
-+	adv7511_wr(sd, 0x97, cec_irq);
- 
--	v4l2_dbg(1, debug, sd, "%s: irq 0x%x\n", __func__, irq_status);
-+	v4l2_dbg(1, debug, sd, "%s: irq 0x%x, cec-irq 0x%x\n", __func__,
-+		 irq_status, cec_irq);
- 
- 	if (irq_status & (MASK_ADV7511_HPD_INT | MASK_ADV7511_MSEN_INT))
- 		adv7511_check_monitor_present_status(sd);
- 	if (irq_status & MASK_ADV7511_EDID_RDY_INT)
- 		adv7511_check_edid_status(sd);
- 
-+	if (cec_irq & 0x38)
-+		adv_cec_tx_raw_status(sd, cec_irq);
-+
-+	if (cec_irq & 1) {
-+		struct cec_msg msg;
-+
-+		msg.len = adv7511_cec_read(sd, 0x25) & 0x1f;
-+
-+		v4l2_dbg(1, debug, sd, "%s: cec msg len %d\n", __func__,
-+			 msg.len);
-+
-+		if (msg.len > 16)
-+			msg.len = 16;
-+
-+		if (msg.len) {
-+			u8 i;
-+
-+			for (i = 0; i < msg.len; i++)
-+				msg.msg[i] = adv7511_cec_read(sd, i + 0x15);
-+
-+			adv7511_cec_write(sd, 0x4a, 1); /* toggle to re-enable rx 1 */
-+			adv7511_cec_write(sd, 0x4a, 0);
-+			v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_RX_MSG, &msg);
-+		}
-+	}
-+
- 	/* enable interrupts */
- 	adv7511_set_isr(sd, true);
- 
-@@ -808,6 +1088,13 @@ static const struct v4l2_subdev_video_ops adv7511_video_ops = {
- 	.g_dv_timings = adv7511_g_dv_timings,
- };
- 
-+static const struct v4l2_subdev_cec_ops adv7511_cec_ops = {
-+	.adap_available_log_addrs = adv7511_cec_adap_available_log_addrs,
-+	.adap_enable = adv7511_cec_adap_enable,
-+	.adap_log_addr = adv7511_cec_adap_log_addr,
-+	.adap_transmit = adv7511_cec_adap_transmit,
-+};
-+
- /* ------------------------------ AUDIO OPS ------------------------------ */
- static int adv7511_s_audio_stream(struct v4l2_subdev *sd, int enable)
- {
-@@ -1138,6 +1425,7 @@ static const struct v4l2_subdev_ops adv7511_ops = {
- 	.pad  = &adv7511_pad_ops,
- 	.video = &adv7511_video_ops,
- 	.audio = &adv7511_audio_ops,
-+	.cec  = &adv7511_cec_ops,
- };
- 
- /* ----------------------------------------------------------------------- */
-@@ -1169,6 +1457,7 @@ static void adv7511_notify_no_edid(struct v4l2_subdev *sd)
- 	/* We failed to read the EDID, so send an event for this. */
- 	ed.present = false;
- 	ed.segment = adv7511_rd(sd, 0xc4);
-+	ed.phys_addr = 0xffff;
- 	v4l2_subdev_notify(sd, ADV7511_EDID_DETECT, (void *)&ed);
- 	v4l2_ctrl_s_ctrl(state->have_edid0_ctrl, 0x0);
- }
-@@ -1341,10 +1630,36 @@ static bool edid_verify_header(struct v4l2_subdev *sd, u32 segment)
- 	return !memcmp(data, hdmi_header, sizeof(hdmi_header));
- }
- 
-+static int get_edid_spa_location(const u8 *edid)
-+{
-+	u8 d;
-+
-+	if (edid[0x7e] != 1 || edid[0x80] != 0x02 || edid[0x81] != 0x03)
-+		return -1;
-+
-+	/* search Vendor Specific Data Block (tag 3) */
-+	d = edid[0x82] & 0x7f;
-+	if (d > 4) {
-+		int i = 0x84;
-+		int end = 0x80 + d;
-+
-+		do {
-+			u8 tag = edid[i] >> 5;
-+			u8 len = edid[i] & 0x1f;
-+
-+			if (tag == 3 && len >= 5)
-+				return i + 4;
-+			i += len + 1;
-+		} while (i < end);
-+	}
-+	return -1;
-+}
-+
- static bool adv7511_check_edid_status(struct v4l2_subdev *sd)
- {
- 	struct adv7511_state *state = get_adv7511_state(sd);
- 	u8 edidRdy = adv7511_rd(sd, 0xc5);
-+	int offset;
- 
- 	v4l2_dbg(1, debug, sd, "%s: edid ready (retries: %d)\n",
- 			 __func__, EDID_MAX_RETRIES - state->edid.read_retries);
-@@ -1391,6 +1706,12 @@ static bool adv7511_check_edid_status(struct v4l2_subdev *sd)
- 
- 		v4l2_dbg(1, debug, sd, "%s: edid complete with %d segment(s)\n", __func__, state->edid.segments);
- 		state->edid.complete = true;
-+		offset = get_edid_spa_location(state->edid.data);
-+		if (offset > 0)
-+			ed.phys_addr = (state->edid.data[offset] << 8) |
-+					state->edid.data[offset + 1];
-+		else
-+			ed.phys_addr = 0xffff;
- 
- 		/* report when we have all segments
- 		   but report only for segment 0
-@@ -1411,11 +1732,14 @@ static void adv7511_init_setup(struct v4l2_subdev *sd)
- {
- 	struct adv7511_state *state = get_adv7511_state(sd);
- 	struct adv7511_state_edid *edid = &state->edid;
-+	u32 cec_clk = state->pdata.cec_clk;
-+	u8 ratio;
- 
- 	v4l2_dbg(1, debug, sd, "%s\n", __func__);
- 
- 	/* clear all interrupts */
- 	adv7511_wr(sd, 0x96, 0xff);
-+	adv7511_wr(sd, 0x97, 0xff);
- 	/*
- 	 * Stop HPD from resetting a lot of registers.
- 	 * It might leave the chip in a partly un-initialized state,
-@@ -1427,6 +1751,25 @@ static void adv7511_init_setup(struct v4l2_subdev *sd)
- 	adv7511_set_isr(sd, false);
- 	adv7511_s_stream(sd, false);
- 	adv7511_s_audio_stream(sd, false);
-+
-+	if (state->i2c_cec == NULL)
-+		return;
-+
-+	v4l2_dbg(1, debug, sd, "%s: cec_clk %d\n", __func__, cec_clk);
-+
-+	/* cec soft reset */
-+	adv7511_cec_write(sd, 0x50, 0x01);
-+	adv7511_cec_write(sd, 0x50, 0x00);
-+
-+	/* legacy mode */
-+	adv7511_cec_write(sd, 0x4a, 0x00);
-+
-+	if (cec_clk % 750000 != 0)
-+		v4l2_err(sd, "%s: cec_clk %d, not multiple of 750 Khz\n",
-+			 __func__, cec_clk);
-+
-+	ratio = (cec_clk / 750000) - 1;
-+	adv7511_cec_write(sd, 0x4e, ratio << 2);
- }
- 
- static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *id)
-@@ -1503,26 +1846,47 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
- 	chip_id[0] = adv7511_rd(sd, 0xf5);
- 	chip_id[1] = adv7511_rd(sd, 0xf6);
- 	if (chip_id[0] != 0x75 || chip_id[1] != 0x11) {
--		v4l2_err(sd, "chip_id != 0x7511, read 0x%02x%02x\n", chip_id[0], chip_id[1]);
-+		v4l2_err(sd, "chip_id != 0x7511, read 0x%02x%02x\n", chip_id[0],
-+			 chip_id[1]);
- 		err = -EIO;
- 		goto err_entity;
- 	}
- 
--	state->i2c_edid = i2c_new_dummy(client->adapter, state->i2c_edid_addr >> 1);
-+	state->i2c_edid = i2c_new_dummy(client->adapter,
-+					state->i2c_edid_addr >> 1);
- 	if (state->i2c_edid == NULL) {
- 		v4l2_err(sd, "failed to register edid i2c client\n");
- 		err = -ENOMEM;
- 		goto err_entity;
- 	}
- 
-+	adv7511_wr(sd, 0xe1, state->i2c_cec_addr);
-+	if (state->pdata.cec_clk < 3000000 ||
-+	    state->pdata.cec_clk > 100000000) {
-+		v4l2_err(sd, "%s: cec_clk %u outside range, disabling cec\n",
-+				__func__, state->pdata.cec_clk);
-+		state->pdata.cec_clk = 0;
-+	}
-+
-+	if (state->pdata.cec_clk) {
-+		state->i2c_cec = i2c_new_dummy(client->adapter,
-+					       state->i2c_cec_addr >> 1);
-+		if (state->i2c_cec == NULL) {
-+			v4l2_err(sd, "failed to register cec i2c client\n");
-+			goto err_unreg_edid;
-+		}
-+		adv7511_wr(sd, 0xe2, 0x00); /* power up cec section */
-+	} else {
-+		adv7511_wr(sd, 0xe2, 0x01); /* power down cec section */
-+	}
-+
- 	state->i2c_pktmem = i2c_new_dummy(client->adapter, state->i2c_pktmem_addr >> 1);
- 	if (state->i2c_pktmem == NULL) {
- 		v4l2_err(sd, "failed to register pktmem i2c client\n");
- 		err = -ENOMEM;
--		goto err_unreg_edid;
-+		goto err_unreg_cec;
- 	}
- 
--	adv7511_wr(sd, 0xe2, 0x01); /* power down cec section */
- 	state->work_queue = create_singlethread_workqueue(sd->name);
- 	if (state->work_queue == NULL) {
- 		v4l2_err(sd, "could not create workqueue\n");
-@@ -1542,6 +1906,9 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
- 
- err_unreg_pktmem:
- 	i2c_unregister_device(state->i2c_pktmem);
-+err_unreg_cec:
-+	if (state->i2c_cec)
-+		i2c_unregister_device(state->i2c_cec);
- err_unreg_edid:
- 	i2c_unregister_device(state->i2c_edid);
- err_entity:
-@@ -1563,9 +1930,12 @@ static int adv7511_remove(struct i2c_client *client)
- 	v4l2_dbg(1, debug, sd, "%s removed @ 0x%x (%s)\n", client->name,
- 		 client->addr << 1, client->adapter->name);
- 
-+	adv7511_set_isr(sd, false);
- 	adv7511_init_setup(sd);
- 	cancel_delayed_work(&state->edid_handler);
- 	i2c_unregister_device(state->i2c_edid);
-+	if (state->i2c_cec)
-+		i2c_unregister_device(state->i2c_cec);
- 	i2c_unregister_device(state->i2c_pktmem);
- 	destroy_workqueue(state->work_queue);
- 	v4l2_device_unregister_subdev(sd);
-diff --git a/include/media/i2c/adv7511.h b/include/media/i2c/adv7511.h
-index d83b91d..61c3d71 100644
---- a/include/media/i2c/adv7511.h
-+++ b/include/media/i2c/adv7511.h
-@@ -32,11 +32,7 @@ struct adv7511_monitor_detect {
- struct adv7511_edid_detect {
- 	int present;
- 	int segment;
--};
--
--struct adv7511_cec_arg {
--	void *arg;
--	u32 f_flags;
-+	uint16_t phys_addr;
- };
- 
- struct adv7511_platform_data {
--- 
-2.7.0
+RnJvbTogSGFucyBWZXJrdWlsIDxoYW5zLnZlcmt1aWxAY2lzY28uY29tPgoKVGhlIHZpdmlkIGRy
+aXZlciBoYXMgYmVlbiBleHRlbmRlZCB0byBwcm92aWRlIENFQyBhZGFwdGVycyBmb3IgdGhlIEhE
+TUkKaW5wdXQgYW5kIEhETUkgb3V0cHV0cyBpbiBvcmRlciB0byB0ZXN0IENFQyBhcHBsaWNhdGlv
+bnMuCgpUaGlzIENFQyBlbXVsYXRpb24gaXMgZmFpdGhmdWwgdG8gdGhlIENFQyB0aW1pbmdzIChp
+LmUuLCBpdCBhbGwgYXQgYQpzbmFpbCdzIHBhY2UpLgoKU2lnbmVkLW9mZi1ieTogSGFucyBWZXJr
+dWlsIDxoYW5zLnZlcmt1aWxAY2lzY28uY29tPgotLS0KIERvY3VtZW50YXRpb24vdmlkZW80bGlu
+dXgvdml2aWQudHh0ICAgICAgICAgICAgIHwgIDM2ICsrLQogZHJpdmVycy9tZWRpYS9wbGF0Zm9y
+bS92aXZpZC9LY29uZmlnICAgICAgICAgICAgfCAgIDEgKwogZHJpdmVycy9tZWRpYS9wbGF0Zm9y
+bS92aXZpZC92aXZpZC1jb3JlLmMgICAgICAgfCAzMDggKysrKysrKysrKysrKysrKysrKysrKyst
+CiBkcml2ZXJzL21lZGlhL3BsYXRmb3JtL3ZpdmlkL3ZpdmlkLWNvcmUuaCAgICAgICB8ICAyMyAr
+KwogZHJpdmVycy9tZWRpYS9wbGF0Zm9ybS92aXZpZC92aXZpZC12aWQtY2FwLmMgICAgfCAgMjMg
+KysKIGRyaXZlcnMvbWVkaWEvcGxhdGZvcm0vdml2aWQvdml2aWQtdmlkLWNvbW1vbi5jIHwgIDYx
+ICsrKysrCiBkcml2ZXJzL21lZGlhL3BsYXRmb3JtL3ZpdmlkL3ZpdmlkLXZpZC1jb21tb24uaCB8
+ICAgMSArCiA3IGZpbGVzIGNoYW5nZWQsIDQ0NiBpbnNlcnRpb25zKCspLCA3IGRlbGV0aW9ucygt
+KQoKZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vdmlkZW80bGludXgvdml2aWQudHh0IGIvRG9j
+dW1lbnRhdGlvbi92aWRlbzRsaW51eC92aXZpZC50eHQKaW5kZXggZTM1ZDM3Ni4uMGQ4OTcxNSAx
+MDA2NDQKLS0tIGEvRG9jdW1lbnRhdGlvbi92aWRlbzRsaW51eC92aXZpZC50eHQKKysrIGIvRG9j
+dW1lbnRhdGlvbi92aWRlbzRsaW51eC92aXZpZC50eHQKQEAgLTc0LDcgKzc0LDggQEAgU2VjdGlv
+biAxMTogQ3JvcHBpbmcsIENvbXBvc2luZywgU2NhbGluZwogU2VjdGlvbiAxMjogRm9ybWF0cwog
+U2VjdGlvbiAxMzogQ2FwdHVyZSBPdmVybGF5CiBTZWN0aW9uIDE0OiBPdXRwdXQgT3ZlcmxheQot
+U2VjdGlvbiAxNTogU29tZSBGdXR1cmUgSW1wcm92ZW1lbnRzCitTZWN0aW9uIDE1OiBDRUMgKENv
+bnN1bWVyIEVsZWN0cm9uaWNzIENvbnRyb2wpCitTZWN0aW9uIDE2OiBTb21lIEZ1dHVyZSBJbXBy
+b3ZlbWVudHMKIAogCiBTZWN0aW9uIDE6IENvbmZpZ3VyaW5nIHRoZSBkcml2ZXIKQEAgLTM2NCw3
+ICszNjUsMTEgQEAgRm9yIEhETUkgaW5wdXRzIGl0IGlzIHBvc3NpYmxlIHRvIHNldCB0aGUgRURJ
+RC4gQnkgZGVmYXVsdCBhIHNpbXBsZSBFRElECiBpcyBwcm92aWRlZC4gWW91IGNhbiBvbmx5IHNl
+dCB0aGUgRURJRCBmb3IgSERNSSBpbnB1dHMuIEludGVybmFsbHksIGhvd2V2ZXIsCiB0aGUgRURJ
+RCBpcyBzaGFyZWQgYmV0d2VlbiBhbGwgSERNSSBpbnB1dHMuCiAKLU5vIGludGVycHJldGF0aW9u
+IGlzIGRvbmUgb2YgdGhlIEVESUQgZGF0YS4KK05vIGludGVycHJldGF0aW9uIGlzIGRvbmUgb2Yg
+dGhlIEVESUQgZGF0YSB3aXRoIHRoZSBleGNlcHRpb24gb2YgdGhlCitwaHlzaWNhbCBhZGRyZXNz
+LiBTZWUgdGhlIENFQyBzZWN0aW9uIGZvciBtb3JlIGRldGFpbHMuCisKK1RoZXJlIGlzIGEgbWF4
+aW11bSBvZiAxNSBIRE1JIGlucHV0cyAoaWYgdGhlcmUgYXJlIG1vcmUsIHRoZW4gdGhleSB3aWxs
+IGJlCityZWR1Y2VkIHRvIDE1KSBzaW5jZSB0aGF0J3MgdGhlIGxpbWl0YXRpb24gb2YgdGhlIEVE
+SUQgcGh5c2ljYWwgYWRkcmVzcy4KIAogCiBTZWN0aW9uIDM6IFZpZGVvIE91dHB1dApAQCAtNDA5
+LDYgKzQxNCw5IEBAIHN0YW5kYXJkLCBhbmQgZm9yIGFsbCBvdGhlcnMgYSAxOjEgcGl4ZWwgYXNw
+ZWN0IHJhdGlvIGlzIHJldHVybmVkLgogCiBBbiBIRE1JIG91dHB1dCBoYXMgYSB2YWxpZCBFRElE
+IHdoaWNoIGNhbiBiZSBvYnRhaW5lZCB0aHJvdWdoIFZJRElPQ19HX0VESUQuCiAKK1RoZXJlIGlz
+IGEgbWF4aW11bSBvZiAxNSBIRE1JIG91dHB1dHMgKGlmIHRoZXJlIGFyZSBtb3JlLCB0aGVuIHRo
+ZXkgd2lsbCBiZQorcmVkdWNlZCB0byAxNSkgc2luY2UgdGhhdCdzIHRoZSBsaW1pdGF0aW9uIG9m
+IHRoZSBFRElEIHBoeXNpY2FsIGFkZHJlc3MuIFNlZQorYWxzbyB0aGUgQ0VDIHNlY3Rpb24gZm9y
+IG1vcmUgZGV0YWlscy4KIAogU2VjdGlvbiA0OiBWQkkgQ2FwdHVyZQogLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLQpAQCAtMTEwOCw3ICsxMTE2LDI2IEBAIGNhcGFiaWxpdGllcyB3aWxsIHNsb3cgZG93
+biB0aGUgdmlkZW8gbG9vcCBjb25zaWRlcmFibHkgYXMgYSBsb3Qgb2YgY2hlY2tzIGhhdmUKIHRv
+IGJlIGRvbmUgcGVyIHBpeGVsLgogCiAKLVNlY3Rpb24gMTU6IFNvbWUgRnV0dXJlIEltcHJvdmVt
+ZW50cworU2VjdGlvbiAxNTogQ0VDIChDb25zdW1lciBFbGVjdHJvbmljcyBDb250cm9sKQorLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQorCitJZiB0aGVyZSBh
+cmUgSERNSSBpbnB1dHMgdGhlbiBhIENFQyBhZGFwdGVyIHdpbGwgYmUgY3JlYXRlZCB0aGF0IGhh
+cwordGhlIHNhbWUgbnVtYmVyIG9mIGlucHV0IHBvcnRzLiBUaGlzIGlzIHRoZSBlcXVpdmFsZW50
+IG9mIGUuZy4gYSBUViB0aGF0CitoYXMgdGhhdCBudW1iZXIgb2YgaW5wdXRzLiBFYWNoIEhETUkg
+b3V0cHV0IHdpbGwgYWxzbyBjcmVhdGUgYQorQ0VDIGFkYXB0ZXIgdGhhdCBpcyBob29rZWQgdXAg
+dG8gdGhlIGNvcnJlc3BvbmRpbmcgaW5wdXQgcG9ydCwgb3IgKGlmIHRoZXJlCithcmUgbW9yZSBv
+dXRwdXRzIHRoYW4gaW5wdXRzKSBpcyBub3QgaG9va2VkIHVwIGF0IGFsbC4gSW4gb3RoZXIgd29y
+ZHMsCit0aGlzIGlzIHRoZSBlcXVpdmFsZW50IG9mIGhvb2tpbmcgdXAgZWFjaCBvdXRwdXQgZGV2
+aWNlIHRvIGFuIGlucHV0IHBvcnQgb2YKK3RoZSBUVi4gQW55IHJlbWFpbmluZyBvdXRwdXQgZGV2
+aWNlcyByZW1haW4gdW5jb25uZWN0ZWQuCisKK1RoZSBFRElEIHRoYXQgZWFjaCBvdXRwdXQgcmVh
+ZHMgcmVwb3J0cyBhIHVuaXF1ZSBDRUMgcGh5c2ljYWwgYWRkcmVzcyB0aGF0IGlzCitiYXNlZCBv
+biB0aGUgcGh5c2ljYWwgYWRkcmVzcyBvZiB0aGUgRURJRCBvZiB0aGUgaW5wdXQuIFNvIGlmIHRo
+ZSBFRElEIG9mIHRoZQorcmVjZWl2ZXIgaGFzIHBoeXNpY2FsIGFkZHJlc3MgQS5CLjAuMCwgdGhl
+biBlYWNoIG91dHB1dCB3aWxsIHNlZSBhbiBFRElECitjb250YWluaW5nIHBoeXNpY2FsIGFkZHJl
+c3MgQS5CLkMuMCB3aGVyZSBDIGlzIDEgdG8gdGhlIG51bWJlciBvZiBpbnB1dHMuIElmCit0aGVy
+ZSBhcmUgbW9yZSBvdXRwdXRzIHRoYW4gaW5wdXRzIHRoZW4gdGhlIHJlbWFpbmluZyBvdXRwdXRz
+IGhhdmUgYSBDRUMgYWRhcHRlcgordGhhdCBpcyBkaXNhYmxlZCBhbmQgcmVwb3J0cyBhbiBpbnZh
+bGlkIHBoeXNpY2FsIGFkZHJlc3MuCisKKworU2VjdGlvbiAxNjogU29tZSBGdXR1cmUgSW1wcm92
+ZW1lbnRzCiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KIAogSnVzdCBhcyBh
+IHJlbWluZGVyIGFuZCBpbiBubyBwYXJ0aWN1bGFyIG9yZGVyOgpAQCAtMTEyMSw4ICsxMTQ4LDYg
+QEAgSnVzdCBhcyBhIHJlbWluZGVyIGFuZCBpbiBubyBwYXJ0aWN1bGFyIG9yZGVyOgogLSBGaXgg
+c2VxdWVuY2UvZmllbGQgbnVtYmVyaW5nIHdoZW4gbG9vcGluZyBvZiB2aWRlbyB3aXRoIGFsdGVy
+bmF0ZSBmaWVsZHMKIC0gQWRkIHN1cHBvcnQgZm9yIFY0TDJfQ0lEX0JHX0NPTE9SIGZvciB2aWRl
+byBvdXRwdXRzCiAtIEFkZCBBUkdCODg4IG92ZXJsYXkgc3VwcG9ydDogYmV0dGVyIHRlc3Rpbmcg
+b2YgdGhlIGFscGhhIGNoYW5uZWwKLS0gQWRkIGN1c3RvbSBEViB0aW1pbmdzIHN1cHBvcnQKLS0g
+QWRkIHN1cHBvcnQgZm9yIFY0TDJfRFZfRkxfUkVEVUNFRF9GUFMKIC0gSW1wcm92ZSBwaXhlbCBh
+c3BlY3Qgc3VwcG9ydCBpbiB0aGUgdHBnIGNvZGUgYnkgcGFzc2luZyBhIHJlYWwgdjRsMl9mcmFj
+dAogLSBVc2UgcGVyLXF1ZXVlIGxvY2tzIGFuZC9vciBwZXItZGV2aWNlIGxvY2tzIHRvIGltcHJv
+dmUgdGhyb3VnaHB1dAogLSBBZGQgc3VwcG9ydCB0byBsb29wIGZyb20gYSBzcGVjaWZpYyBvdXRw
+dXQgdG8gYSBzcGVjaWZpYyBpbnB1dCBhY3Jvc3MKQEAgLTExMzMsMyArMTE1OCw0IEBAIEp1c3Qg
+YXMgYSByZW1pbmRlciBhbmQgaW4gbm8gcGFydGljdWxhciBvcmRlcjoKIC0gTWFrZSBhIHRocmVh
+ZCBmb3IgdGhlIFJEUyBnZW5lcmF0aW9uLCB0aGF0IHdvdWxkIGhlbHAgaW4gcGFydGljdWxhciBm
+b3IgdGhlCiAgICJDb250cm9scyIgUkRTIFJ4IEkvTyBNb2RlIGFzIHRoZSByZWFkLW9ubHkgUkRT
+IGNvbnRyb2xzIGNvdWxkIGJlIHVwZGF0ZWQKICAgaW4gcmVhbC10aW1lLgorLSBDaGFuZ2luZyB0
+aGUgRURJRCBzaG91bGQgY2F1c2UgaG90cGx1ZyBkZXRlY3QgZW11bGF0aW9uIHRvIGhhcHBlbi4K
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vdml2aWQvS2NvbmZpZyBiL2RyaXZl
+cnMvbWVkaWEvcGxhdGZvcm0vdml2aWQvS2NvbmZpZwppbmRleCAwODg1ZTkzLi44NjQ1YmI2IDEw
+MDY0NAotLS0gYS9kcml2ZXJzL21lZGlhL3BsYXRmb3JtL3ZpdmlkL0tjb25maWcKKysrIGIvZHJp
+dmVycy9tZWRpYS9wbGF0Zm9ybS92aXZpZC9LY29uZmlnCkBAIC02LDYgKzYsNyBAQCBjb25maWcg
+VklERU9fVklWSUQKIAlzZWxlY3QgRkJfQ0ZCX0ZJTExSRUNUCiAJc2VsZWN0IEZCX0NGQl9DT1BZ
+QVJFQQogCXNlbGVjdCBGQl9DRkJfSU1BR0VCTElUCisJc2VsZWN0IE1FRElBX0NFQwogCXNlbGVj
+dCBWSURFT0JVRjJfVk1BTExPQwogCWRlZmF1bHQgbgogCS0tLWhlbHAtLS0KZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vdml2aWQvdml2aWQtY29yZS5jIGIvZHJpdmVycy9tZWRp
+YS9wbGF0Zm9ybS92aXZpZC92aXZpZC1jb3JlLmMKaW5kZXggZWMxMjViZWMuLmM3YmJkMDkgMTAw
+NjQ0Ci0tLSBhL2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vdml2aWQvdml2aWQtY29yZS5jCisrKyBi
+L2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vdml2aWQvdml2aWQtY29yZS5jCkBAIC0zOTYsMTAgKzM5
+NiwxOSBAQCBzdGF0aWMgaW50IHZpZGlvY19sb2dfc3RhdHVzKHN0cnVjdCBmaWxlICpmaWxlLCB2
+b2lkICpmaCkKIHsKIAlzdHJ1Y3Qgdml2aWRfZGV2ICpkZXYgPSB2aWRlb19kcnZkYXRhKGZpbGUp
+OwogCXN0cnVjdCB2aWRlb19kZXZpY2UgKnZkZXYgPSB2aWRlb19kZXZkYXRhKGZpbGUpOworCXVu
+c2lnbmVkIGJ1c19pZHg7CiAKIAl2NGwyX2N0cmxfbG9nX3N0YXR1cyhmaWxlLCBmaCk7CiAJaWYg
+KHZkZXYtPnZmbF9kaXIgPT0gVkZMX0RJUl9SWCAmJiB2ZGV2LT52ZmxfdHlwZSA9PSBWRkxfVFlQ
+RV9HUkFCQkVSKQogCQl0cGdfbG9nX3N0YXR1cygmZGV2LT50cGcpOworCWlmICh2ZGV2LT52Zmxf
+ZGlyID09IFZGTF9ESVJfUlggJiYgdmRldi0+dmZsX3R5cGUgPT0gVkZMX1RZUEVfR1JBQkJFUiAm
+JgorCSAgICBkZXYtPmNlY19yeF9hZGFwKQorCQljZWNfbG9nX3N0YXR1cyhkZXYtPmNlY19yeF9h
+ZGFwKTsKKwlpZiAodmRldi0+dmZsX2RpciA9PSBWRkxfRElSX1RYICYmIHZkZXYtPnZmbF90eXBl
+ID09IFZGTF9UWVBFX0dSQUJCRVIgJiYKKwkgICAgZGV2LT5vdXRwdXRfdHlwZVtkZXYtPm91dHB1
+dF0gPT0gSERNSSkgeworCQlidXNfaWR4ID0gZGV2LT5jZWNfb3V0cHV0MmJ1c19tYXBbZGV2LT5v
+dXRwdXRdOworCQljZWNfbG9nX3N0YXR1cyhkZXYtPmNlY190eF9hZGFwW2J1c19pZHhdKTsKKwl9
+CiAJcmV0dXJuIDA7CiB9CiAKQEAgLTY0Niw2ICs2NTUsMjA2IEBAIHN0YXRpYyB2b2lkIHZpdmlk
+X2Rldl9yZWxlYXNlKHN0cnVjdCB2NGwyX2RldmljZSAqdjRsMl9kZXYpCiAJa2ZyZWUoZGV2KTsK
+IH0KIAorc3RhdGljIHZvaWQgdml2aWRfY2VjX2J1c19mcmVlX3dvcmsoc3RydWN0IHZpdmlkX2Rl
+diAqZGV2KQoreworCXNwaW5fbG9jaygmZGV2LT5jZWNfc2xvY2spOworCXdoaWxlICghbGlzdF9l
+bXB0eSgmZGV2LT5jZWNfd29ya19saXN0KSkgeworCQlzdHJ1Y3Qgdml2aWRfY2VjX3dvcmsgKmN3
+ID0KKwkJCWxpc3RfZmlyc3RfZW50cnkoJmRldi0+Y2VjX3dvcmtfbGlzdCwKKwkJCQkJIHN0cnVj
+dCB2aXZpZF9jZWNfd29yaywgbGlzdCk7CisKKwkJc3Bpbl91bmxvY2soJmRldi0+Y2VjX3Nsb2Nr
+KTsKKwkJY2FuY2VsX2RlbGF5ZWRfd29ya19zeW5jKCZjdy0+d29yayk7CisJCXNwaW5fbG9jaygm
+ZGV2LT5jZWNfc2xvY2spOworCQlsaXN0X2RlbCgmY3ctPmxpc3QpOworCQljZWNfdHJhbnNtaXRf
+ZG9uZShjdy0+YWRhcCwgQ0VDX1RYX1NUQVRVU19MT1dfRFJJVkUsIDAsIDAsIDEsIDApOworCQlr
+ZnJlZShjdyk7CisJfQorCXNwaW5fdW5sb2NrKCZkZXYtPmNlY19zbG9jayk7Cit9CisKK3N0YXRp
+YyBzdHJ1Y3QgY2VjX2FkYXB0ZXIgKnZpdmlkX2NlY19maW5kX2Rlc3RfYWRhcChzdHJ1Y3Qgdml2
+aWRfZGV2ICpkZXYsCisJCQkJCQkgICAgc3RydWN0IGNlY19hZGFwdGVyICphZGFwLAorCQkJCQkJ
+ICAgIHU4IGRlc3QpCit7CisJdW5zaWduZWQgaTsKKworCWlmIChkZXN0ID49IDB4ZikKKwkJcmV0
+dXJuIE5VTEw7CisKKwlpZiAoYWRhcCAhPSBkZXYtPmNlY19yeF9hZGFwICYmIGRldi0+Y2VjX3J4
+X2FkYXAgJiYKKwkgICAgZGV2LT5jZWNfcnhfYWRhcC0+aXNfY29uZmlndXJlZCAmJgorCSAgICBj
+ZWNfaGFzX2xvZ19hZGRyKGRldi0+Y2VjX3J4X2FkYXAsIGRlc3QpKQorCQlyZXR1cm4gZGV2LT5j
+ZWNfcnhfYWRhcDsKKworCWZvciAoaSA9IDA7IGkgPCBNQVhfT1VUUFVUUyAmJiBkZXYtPmNlY190
+eF9hZGFwW2ldOyBpKyspIHsKKwkJaWYgKGFkYXAgPT0gZGV2LT5jZWNfdHhfYWRhcFtpXSkKKwkJ
+CWNvbnRpbnVlOworCQlpZiAoIWRldi0+Y2VjX3R4X2FkYXBbaV0tPmlzX2NvbmZpZ3VyZWQpCisJ
+CQljb250aW51ZTsKKwkJaWYgKGNlY19oYXNfbG9nX2FkZHIoZGV2LT5jZWNfdHhfYWRhcFtpXSwg
+ZGVzdCkpCisJCQlyZXR1cm4gZGV2LT5jZWNfdHhfYWRhcFtpXTsKKwl9CisJcmV0dXJuIE5VTEw7
+Cit9CisKK3N0YXRpYyB2b2lkIHZpdmlkX2NlY194ZmVyX2RvbmVfd29ya2VyKHN0cnVjdCB3b3Jr
+X3N0cnVjdCAqd29yaykKK3sKKwlzdHJ1Y3Qgdml2aWRfY2VjX3dvcmsgKmN3ID0KKwkJY29udGFp
+bmVyX29mKHdvcmssIHN0cnVjdCB2aXZpZF9jZWNfd29yaywgd29yay53b3JrKTsKKwlzdHJ1Y3Qg
+dml2aWRfZGV2ICpkZXYgPSBjdy0+ZGV2OworCXN0cnVjdCBjZWNfYWRhcHRlciAqYWRhcCA9IGN3
+LT5hZGFwOworCWJvb2wgaXNfcG9sbCA9IGN3LT5tc2cubGVuID09IDE7CisJdTggZGVzdCA9IGNl
+Y19tc2dfZGVzdGluYXRpb24oJmN3LT5tc2cpOworCXN0cnVjdCBjZWNfYWRhcHRlciAqZGVzdF9h
+ZGFwID0gTlVMTDsKKwlib29sIHZhbGlkX2Rlc3Q7CisJdW5zaWduZWQgaTsKKworCXZhbGlkX2Rl
+c3QgPSBjZWNfbXNnX2lzX2Jyb2FkY2FzdCgmY3ctPm1zZyk7CisJaWYgKCF2YWxpZF9kZXN0KSB7
+CisJCWRlc3RfYWRhcCA9IHZpdmlkX2NlY19maW5kX2Rlc3RfYWRhcChkZXYsIGFkYXAsIGRlc3Qp
+OworCQlpZiAoZGVzdF9hZGFwKQorCQkJdmFsaWRfZGVzdCA9IHRydWU7CisJfQorCWN3LT50eF9z
+dGF0dXMgPSB2YWxpZF9kZXN0ID8gQ0VDX1RYX1NUQVRVU19PSyA6IENFQ19UWF9TVEFUVVNfTkFD
+SzsKKwlzcGluX2xvY2soJmRldi0+Y2VjX3Nsb2NrKTsKKwlkZXYtPmNlY194ZmVyX3RpbWVfamlm
+ZmllcyA9IDA7CisJZGV2LT5jZWNfeGZlcl9zdGFydF9qaWZmaWVzID0gMDsKKwlsaXN0X2RlbCgm
+Y3ctPmxpc3QpOworCXNwaW5fdW5sb2NrKCZkZXYtPmNlY19zbG9jayk7CisJY2VjX3RyYW5zbWl0
+X2RvbmUoY3ctPmFkYXAsIGN3LT50eF9zdGF0dXMsIDAsIHZhbGlkX2Rlc3QgPyAwIDogMSwgMCwg
+MCk7CisKKwlpZiAoIWlzX3BvbGwgJiYgZGVzdF9hZGFwKSB7CisJCS8qIERpcmVjdGVkIG1lc3Nh
+Z2UgKi8KKwkJY2VjX3JlY2VpdmVkX21zZyhkZXN0X2FkYXAsICZjdy0+bXNnKTsKKwl9IGVsc2Ug
+aWYgKCFpc19wb2xsICYmIHZhbGlkX2Rlc3QpIHsKKwkJLyogQnJvYWRjYXN0IG1lc3NhZ2UgKi8K
+KwkJaWYgKGFkYXAgIT0gZGV2LT5jZWNfcnhfYWRhcCAmJiBkZXYtPmNlY19yeF9hZGFwLT5sb2df
+YWRkcl9tYXNrKQorCQkJY2VjX3JlY2VpdmVkX21zZyhkZXYtPmNlY19yeF9hZGFwLCAmY3ctPm1z
+Zyk7CisJCWZvciAoaSA9IDA7IGkgPCBNQVhfT1VUUFVUUyAmJiBkZXYtPmNlY190eF9hZGFwW2ld
+OyBpKyspIHsKKwkJCWlmIChhZGFwID09IGRldi0+Y2VjX3R4X2FkYXBbaV0gfHwKKwkJCSAgICAh
+ZGV2LT5jZWNfdHhfYWRhcFtpXS0+bG9nX2FkZHJfbWFzaykKKwkJCQljb250aW51ZTsKKwkJCWNl
+Y19yZWNlaXZlZF9tc2coZGV2LT5jZWNfdHhfYWRhcFtpXSwgJmN3LT5tc2cpOworCQl9CisJfQor
+CWtmcmVlKGN3KTsKK30KKworc3RhdGljIHZvaWQgdml2aWRfY2VjX3hmZXJfdHJ5X3dvcmtlcihz
+dHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspCit7CisJc3RydWN0IHZpdmlkX2NlY193b3JrICpjdyA9
+CisJCWNvbnRhaW5lcl9vZih3b3JrLCBzdHJ1Y3Qgdml2aWRfY2VjX3dvcmssIHdvcmsud29yayk7
+CisJc3RydWN0IHZpdmlkX2RldiAqZGV2ID0gY3ctPmRldjsKKworCXNwaW5fbG9jaygmZGV2LT5j
+ZWNfc2xvY2spOworCWlmIChkZXYtPmNlY194ZmVyX3RpbWVfamlmZmllcykgeworCQlsaXN0X2Rl
+bCgmY3ctPmxpc3QpOworCQlzcGluX3VubG9jaygmZGV2LT5jZWNfc2xvY2spOworCQljZWNfdHJh
+bnNtaXRfZG9uZShjdy0+YWRhcCwgQ0VDX1RYX1NUQVRVU19BUkJfTE9TVCwgMSwgMCwgMCwgMCk7
+CisJCWtmcmVlKGN3KTsKKwl9IGVsc2UgeworCQlJTklUX0RFTEFZRURfV09SSygmY3ctPndvcmss
+IHZpdmlkX2NlY194ZmVyX2RvbmVfd29ya2VyKTsKKwkJZGV2LT5jZWNfeGZlcl9zdGFydF9qaWZm
+aWVzID0gamlmZmllczsKKwkJZGV2LT5jZWNfeGZlcl90aW1lX2ppZmZpZXMgPSBtc2Vjc190b19q
+aWZmaWVzKGN3LT5tc2Vjcyk7CisJCXNwaW5fdW5sb2NrKCZkZXYtPmNlY19zbG9jayk7CisJCXNj
+aGVkdWxlX2RlbGF5ZWRfd29yaygmY3ctPndvcmssIGRldi0+Y2VjX3hmZXJfdGltZV9qaWZmaWVz
+KTsKKwl9Cit9CisKK3N0YXRpYyBpbnQgdml2aWRfY2VjX2FkYXBfZW5hYmxlKHN0cnVjdCBjZWNf
+YWRhcHRlciAqYWRhcCwgYm9vbCBlbmFibGUpCit7CisJcmV0dXJuIDA7Cit9CisKK3N0YXRpYyBp
+bnQgdml2aWRfY2VjX2FkYXBfbG9nX2FkZHIoc3RydWN0IGNlY19hZGFwdGVyICphZGFwLCB1OCBs
+b2dfYWRkcikKK3sKKwlyZXR1cm4gMDsKK30KKworLyoKKyAqIE9uZSBkYXRhIGJpdCB0YWtlcyAy
+LjQgbXMsIGVhY2ggYnl0ZSBuZWVkcyAxMCBiaXRzIHNvIHRoYXQncyAyNCBtcyBwZXIgYnl0ZS4K
+KyAqLworI2RlZmluZSBNU0VDU19QRVJfQllURSAyNAorCitzdGF0aWMgaW50IHZpdmlkX2NlY19h
+ZGFwX3RyYW5zbWl0KHN0cnVjdCBjZWNfYWRhcHRlciAqYWRhcCwgdTggYXR0ZW1wdHMsCisJCQkJ
+ICAgdTMyIHNpZ25hbF9mcmVlX3RpbWVfbXMsIHN0cnVjdCBjZWNfbXNnICptc2cpCit7CisJc3Ry
+dWN0IHZpdmlkX2RldiAqZGV2ID0gYWRhcC0+cHJpdjsKKwlzdHJ1Y3Qgdml2aWRfY2VjX3dvcmsg
+KmN3ID0ga3phbGxvYyhzaXplb2YoKmN3KSwgR0ZQX0tFUk5FTCk7CisJbG9uZyBkZWx0YV9qaWZm
+aWVzID0gMDsKKworCWlmIChjdyA9PSBOVUxMKQorCQlyZXR1cm4gLUVOT01FTTsKKwljdy0+ZGV2
+ID0gZGV2OworCWN3LT5hZGFwID0gYWRhcDsKKwljdy0+bXNlY3MgPSBzaWduYWxfZnJlZV90aW1l
+X21zICsgbXNnLT5sZW4gKiBNU0VDU19QRVJfQllURTsKKwljdy0+bXNnID0gKm1zZzsKKworCXNw
+aW5fbG9jaygmZGV2LT5jZWNfc2xvY2spOworCWxpc3RfYWRkKCZjdy0+bGlzdCwgJmRldi0+Y2Vj
+X3dvcmtfbGlzdCk7CisJaWYgKGRldi0+Y2VjX3hmZXJfdGltZV9qaWZmaWVzID09IDApIHsKKwkJ
+SU5JVF9ERUxBWUVEX1dPUksoJmN3LT53b3JrLCB2aXZpZF9jZWNfeGZlcl9kb25lX3dvcmtlcik7
+CisJCWRldi0+Y2VjX3hmZXJfc3RhcnRfamlmZmllcyA9IGppZmZpZXM7CisJCWRldi0+Y2VjX3hm
+ZXJfdGltZV9qaWZmaWVzID0gbXNlY3NfdG9famlmZmllcyhjdy0+bXNlY3MpOworCQlkZWx0YV9q
+aWZmaWVzID0gZGV2LT5jZWNfeGZlcl90aW1lX2ppZmZpZXM7CisJfSBlbHNlIHsKKwkJSU5JVF9E
+RUxBWUVEX1dPUksoJmN3LT53b3JrLCB2aXZpZF9jZWNfeGZlcl90cnlfd29ya2VyKTsKKwkJZGVs
+dGFfamlmZmllcyA9IGRldi0+Y2VjX3hmZXJfc3RhcnRfamlmZmllcyArCisJCQlkZXYtPmNlY194
+ZmVyX3RpbWVfamlmZmllcyAtIGppZmZpZXM7CisJfQorCXNwaW5fdW5sb2NrKCZkZXYtPmNlY19z
+bG9jayk7CisJc2NoZWR1bGVfZGVsYXllZF93b3JrKCZjdy0+d29yaywgZGVsdGFfamlmZmllcyA8
+IDAgPyAwIDogZGVsdGFfamlmZmllcyk7CisJcmV0dXJuIDA7Cit9CisKK3N0YXRpYyBpbnQgdml2
+aWRfcmVjZWl2ZWQoc3RydWN0IGNlY19hZGFwdGVyICphZGFwLCBzdHJ1Y3QgY2VjX21zZyAqbXNn
+KQoreworCXN0cnVjdCBjZWNfbXNnIHJlcGx5OworCXUxNiBwYTsKKworCWNlY19tc2dfaW5pdCgm
+cmVwbHksIGFkYXAtPmxvZ19hZGRyWzBdLCBjZWNfbXNnX2luaXRpYXRvcihtc2cpKTsKKworCXN3
+aXRjaCAobXNnLT5tc2dbMV0pIHsKKwljYXNlIENFQ19NU0dfU0VUX1NUUkVBTV9QQVRIOgorCQlp
+ZiAoIWFkYXAtPmlzX3NvdXJjZSkKKwkJCXJldHVybiAtRU5PTVNHOworCQljZWNfb3BzX3NldF9z
+dHJlYW1fcGF0aChtc2csICZwYSk7CisJCWlmIChwYSAhPSBhZGFwLT5waHlzX2FkZHIpCisJCQly
+ZXR1cm4gLUVOT01TRzsKKwkJY2VjX21zZ19hY3RpdmVfc291cmNlKCZyZXBseSwgYWRhcC0+cGh5
+c19hZGRyKTsKKwkJY2VjX3RyYW5zbWl0X21zZyhhZGFwLCAmcmVwbHksIGZhbHNlKTsKKwkJYnJl
+YWs7CisJZGVmYXVsdDoKKwkJcmV0dXJuIC1FTk9NU0c7CisJfQorCXJldHVybiAwOworfQorCitj
+b25zdCBzdHJ1Y3QgY2VjX2FkYXBfb3BzIHZpdmlkX2NlY19hZGFwX29wcyA9IHsKKwkuYWRhcF9l
+bmFibGUgPSB2aXZpZF9jZWNfYWRhcF9lbmFibGUsCisJLmFkYXBfbG9nX2FkZHIgPSB2aXZpZF9j
+ZWNfYWRhcF9sb2dfYWRkciwKKwkuYWRhcF90cmFuc21pdCA9IHZpdmlkX2NlY19hZGFwX3RyYW5z
+bWl0LAorCS5yZWNlaXZlZCA9IHZpdmlkX3JlY2VpdmVkLAorfTsKKworc3RhdGljIHN0cnVjdCBj
+ZWNfYWRhcHRlciAqdml2aWRfY3JlYXRlX2NlY19hZGFwKHN0cnVjdCB2aXZpZF9kZXYgKmRldiwK
+KwkJCQkJCSB1bnNpZ25lZCBpZHgsCisJCQkJCQkgc3RydWN0IGRldmljZSAqcGFyZW50LAorCQkJ
+CQkJIGJvb2wgaXNfc291cmNlKQoreworCWNoYXIgbmFtZVtzaXplb2YoZGV2LT52aWRfb3V0X2Rl
+di5uYW1lKSArIDJdOworCXUzMiBjYXBzID0gQ0VDX0NBUF9JTyB8IENFQ19DQVBfTE9HX0FERFJT
+IHwKKwkJQ0VDX0NBUF9QQVNTVEhST1VHSCB8IENFQ19DQVBfUkMgfAorCQlDRUNfQ0FQX1ZFTkRP
+Ul9JRCB8IChpc19zb3VyY2UgPyBDRUNfQ0FQX0lTX1NPVVJDRSA6IDApOworCisJc25wcmludGYo
+bmFtZSwgc2l6ZW9mKG5hbWUpLCAiJXMlZCIsCisJCSBpc19zb3VyY2UgPyBkZXYtPnZpZF9vdXRf
+ZGV2Lm5hbWUgOiBkZXYtPnZpZF9jYXBfZGV2Lm5hbWUsCisJCSBpZHgpOworCXJldHVybiBjZWNf
+Y3JlYXRlX2FkYXB0ZXIoJnZpdmlkX2NlY19hZGFwX29wcywgZGV2LCBuYW1lLAorCQljYXBzLCBp
+c19zb3VyY2UgPyAwIDogMSwgVEhJU19NT0RVTEUsIHBhcmVudCk7Cit9CisKIHN0YXRpYyBpbnQg
+dml2aWRfY3JlYXRlX2luc3RhbmNlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYsIGludCBp
+bnN0KQogewogCXN0YXRpYyBjb25zdCBzdHJ1Y3QgdjRsMl9kdl90aW1pbmdzIGRlZl9kdl90aW1p
+bmdzID0KQEAgLTY5OSw2ICs5MDgsMTEgQEAgc3RhdGljIGludCB2aXZpZF9jcmVhdGVfaW5zdGFu
+Y2Uoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldiwgaW50IGluc3QpCiAJCWRldi0+aW5wdXRf
+bmFtZV9jb3VudGVyW2ldID0gaW5fdHlwZV9jb3VudGVyW2Rldi0+aW5wdXRfdHlwZVtpXV0rKzsK
+IAl9CiAJZGV2LT5oYXNfYXVkaW9faW5wdXRzID0gaW5fdHlwZV9jb3VudGVyW1RWXSAmJiBpbl90
+eXBlX2NvdW50ZXJbU1ZJRF07CisJaWYgKGluX3R5cGVfY291bnRlcltIRE1JXSA9PSAxNikgewor
+CQkvKiBUaGUgQ0VDIHBoeXNpY2FsIGFkZHJlc3Mgb25seSBhbGxvd3MgZm9yIG1heCAxNSBpbnB1
+dHMgKi8KKwkJaW5fdHlwZV9jb3VudGVyW0hETUldLS07CisJCWRldi0+bnVtX2lucHV0cy0tOwor
+CX0KIAogCS8qIGhvdyBtYW55IG91dHB1dHMgZG8gd2UgaGF2ZSBhbmQgb2Ygd2hhdCB0eXBlPyAq
+LwogCWRldi0+bnVtX291dHB1dHMgPSBudW1fb3V0cHV0c1tpbnN0XTsKQEAgLTcxMSw2ICs5MjUs
+MTUgQEAgc3RhdGljIGludCB2aXZpZF9jcmVhdGVfaW5zdGFuY2Uoc3RydWN0IHBsYXRmb3JtX2Rl
+dmljZSAqcGRldiwgaW50IGluc3QpCiAJCWRldi0+b3V0cHV0X25hbWVfY291bnRlcltpXSA9IG91
+dF90eXBlX2NvdW50ZXJbZGV2LT5vdXRwdXRfdHlwZVtpXV0rKzsKIAl9CiAJZGV2LT5oYXNfYXVk
+aW9fb3V0cHV0cyA9IG91dF90eXBlX2NvdW50ZXJbU1ZJRF07CisJaWYgKG91dF90eXBlX2NvdW50
+ZXJbSERNSV0gPT0gMTYpIHsKKwkJLyoKKwkJICogVGhlIENFQyBwaHlzaWNhbCBhZGRyZXNzIG9u
+bHkgYWxsb3dzIGZvciBtYXggMTUgaW5wdXRzLAorCQkgKiBzbyBvdXRwdXRzIGFyZSBhbHNvIGxp
+bWl0ZWQgdG8gMTUgdG8gYWxsb3cgZm9yIGVhc3kKKwkJICogQ0VDIG91dHB1dCB0byBpbnB1dCBt
+YXBwaW5nLgorCQkgKi8KKwkJb3V0X3R5cGVfY291bnRlcltIRE1JXS0tOworCQlkZXYtPm51bV9v
+dXRwdXRzLS07CisJfQogCiAJLyogZG8gd2UgY3JlYXRlIGEgdmlkZW8gY2FwdHVyZSBkZXZpY2U/
+ICovCiAJZGV2LT5oYXNfdmlkX2NhcCA9IG5vZGVfdHlwZSAmIDB4MDAwMTsKQEAgLTEwMjUsNiAr
+MTI0OCwxNyBAQCBzdGF0aWMgaW50IHZpdmlkX2NyZWF0ZV9pbnN0YW5jZShzdHJ1Y3QgcGxhdGZv
+cm1fZGV2aWNlICpwZGV2LCBpbnQgaW5zdCkKIAlJTklUX0xJU1RfSEVBRCgmZGV2LT52Ymlfb3V0
+X2FjdGl2ZSk7CiAJSU5JVF9MSVNUX0hFQUQoJmRldi0+c2RyX2NhcF9hY3RpdmUpOwogCisJSU5J
+VF9MSVNUX0hFQUQoJmRldi0+Y2VjX3dvcmtfbGlzdCk7CisJc3Bpbl9sb2NrX2luaXQoJmRldi0+
+Y2VjX3Nsb2NrKTsKKwkvKgorCSAqIFNhbWUgYXMgY3JlYXRlX3NpbmdsZXRocmVhZF93b3JrcXVl
+dWUsIGJ1dCBub3cgSSBjYW4gdXNlIHRoZQorCSAqIHN0cmluZyBmb3JtYXR0aW5nIG9mIGFsbG9j
+X29yZGVyZWRfd29ya3F1ZXVlLgorCSAqLworCWRldi0+Y2VjX3dvcmtxdWV1ZSA9CisJCWFsbG9j
+X29yZGVyZWRfd29ya3F1ZXVlKCJ2aXZpZC1jZWMlZCIsIFdRX01FTV9SRUNMQUlNLCBpbnN0KTsK
+KwlpZiAoIWRldi0+Y2VjX3dvcmtxdWV1ZSkKKwkJZ290byB1bnJlZ19kZXY7CisKIAkvKiBzdGFy
+dCBjcmVhdGluZyB0aGUgdmIyIHF1ZXVlcyAqLwogCWlmIChkZXYtPmhhc192aWRfY2FwKSB7CiAJ
+CS8qIGluaXRpYWxpemUgdmlkX2NhcCBxdWV1ZSAqLwpAQCAtMTEzMSw2ICsxMzY1LDkgQEAgc3Rh
+dGljIGludCB2aXZpZF9jcmVhdGVfaW5zdGFuY2Uoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRl
+diwgaW50IGluc3QpCiAKIAkvKiBmaW5hbGx5IHN0YXJ0IGNyZWF0aW5nIHRoZSBkZXZpY2Ugbm9k
+ZXMgKi8KIAlpZiAoZGV2LT5oYXNfdmlkX2NhcCkgeworCQl1bnNpZ25lZCBjZWNfY250ID0gaW5f
+dHlwZV9jb3VudGVyW0hETUldOworCQlzdHJ1Y3QgY2VjX2FkYXB0ZXIgKmFkYXA7CisKIAkJdmZk
+ID0gJmRldi0+dmlkX2NhcF9kZXY7CiAJCXN0cmxjcHkodmZkLT5uYW1lLCAidml2aWQtdmlkLWNh
+cCIsIHNpemVvZih2ZmQtPm5hbWUpKTsKIAkJdmZkLT5mb3BzID0gJnZpdmlkX2ZvcHM7CkBAIC0x
+MTQ3LDYgKzEzODQsMjcgQEAgc3RhdGljIGludCB2aXZpZF9jcmVhdGVfaW5zdGFuY2Uoc3RydWN0
+IHBsYXRmb3JtX2RldmljZSAqcGRldiwgaW50IGluc3QpCiAJCXZmZC0+bG9jayA9ICZkZXYtPm11
+dGV4OwogCQl2aWRlb19zZXRfZHJ2ZGF0YSh2ZmQsIGRldik7CiAKKwkJaWYgKGNlY19jbnQpIHsK
+KwkJCWFkYXAgPSB2aXZpZF9jcmVhdGVfY2VjX2FkYXAoZGV2LCAwLCAmcGRldi0+ZGV2LCBmYWxz
+ZSk7CisJCQlyZXQgPSBQVFJfRVJSX09SX1pFUk8oYWRhcCk7CisJCQlpZiAocmV0IDwgMCkKKwkJ
+CQlnb3RvIHVucmVnX2RldjsKKwkJCWRldi0+Y2VjX3J4X2FkYXAgPSBhZGFwOworCQkJY2VjX2Nv
+bm5lY3RlZF9pbnB1dHMoYWRhcCwgY2VjX2NudCk7CisJCQlyZXQgPSBjZWNfcmVnaXN0ZXJfYWRh
+cHRlcihhZGFwKTsKKwkJCWlmIChyZXQgPCAwKSB7CisJCQkJY2VjX2RlbGV0ZV9hZGFwdGVyKGFk
+YXApOworCQkJCWRldi0+Y2VjX3J4X2FkYXAgPSBOVUxMOworCQkJCWdvdG8gdW5yZWdfZGV2Owor
+CQkJfQorCQkJY2VjX3NldF9waHlzX2FkZHIoYWRhcCwgMCk7CisJCQlyZXQgPSBjZWNfZW5hYmxl
+KGFkYXAsIHRydWUpOworCQkJaWYgKHJldCA8IDApCisJCQkJZ290byB1bnJlZ19kZXY7CisJCQl2
+NGwyX2luZm8oJmRldi0+djRsMl9kZXYsICJDRUMgYWRhcHRlciAlcyByZWdpc3RlcmVkIGZvciBI
+RE1JIGlucHV0ICVkXG4iLAorCQkJCSAgZGV2X25hbWUoJmFkYXAtPmRldm5vZGUuZGV2KSwgaSk7
+CisJCX0KKwogCQlyZXQgPSB2aWRlb19yZWdpc3Rlcl9kZXZpY2UodmZkLCBWRkxfVFlQRV9HUkFC
+QkVSLCB2aWRfY2FwX25yW2luc3RdKTsKIAkJaWYgKHJldCA8IDApCiAJCQlnb3RvIHVucmVnX2Rl
+djsKQEAgLTExNTUsNiArMTQxMyw4IEBAIHN0YXRpYyBpbnQgdml2aWRfY3JlYXRlX2luc3RhbmNl
+KHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYsIGludCBpbnN0KQogCX0KIAogCWlmIChkZXYt
+Pmhhc192aWRfb3V0KSB7CisJCXVuc2lnbmVkIGJ1c19jbnQgPSAwOworCiAJCXZmZCA9ICZkZXYt
+PnZpZF9vdXRfZGV2OwogCQlzdHJsY3B5KHZmZC0+bmFtZSwgInZpdmlkLXZpZC1vdXQiLCBzaXpl
+b2YodmZkLT5uYW1lKSk7CiAJCXZmZC0+dmZsX2RpciA9IFZGTF9ESVJfVFg7CkBAIC0xMTcyLDYg
+KzE0MzIsMzcgQEAgc3RhdGljIGludCB2aXZpZF9jcmVhdGVfaW5zdGFuY2Uoc3RydWN0IHBsYXRm
+b3JtX2RldmljZSAqcGRldiwgaW50IGluc3QpCiAJCXZmZC0+bG9jayA9ICZkZXYtPm11dGV4Owog
+CQl2aWRlb19zZXRfZHJ2ZGF0YSh2ZmQsIGRldik7CiAKKwkJZm9yIChpID0gMDsgaSA8IGRldi0+
+bnVtX291dHB1dHM7IGkrKykgeworCQkJc3RydWN0IGNlY19hZGFwdGVyICphZGFwOworCisJCQlp
+ZiAoZGV2LT5vdXRwdXRfdHlwZVtpXSAhPSBIRE1JKQorCQkJCWNvbnRpbnVlOworCQkJZGV2LT5j
+ZWNfb3V0cHV0MmJ1c19tYXBbaV0gPSBidXNfY250OworCQkJYWRhcCA9IHZpdmlkX2NyZWF0ZV9j
+ZWNfYWRhcChkZXYsIGJ1c19jbnQsCisJCQkJCQkgICAgICZwZGV2LT5kZXYsIHRydWUpOworCQkJ
+cmV0ID0gUFRSX0VSUl9PUl9aRVJPKGFkYXApOworCQkJaWYgKHJldCA8IDApCisJCQkJZ290byB1
+bnJlZ19kZXY7CisJCQlkZXYtPmNlY190eF9hZGFwW2J1c19jbnRdID0gYWRhcDsKKwkJCXJldCA9
+IGNlY19yZWdpc3Rlcl9hZGFwdGVyKGFkYXApOworCQkJaWYgKHJldCA8IDApIHsKKwkJCQljZWNf
+ZGVsZXRlX2FkYXB0ZXIoYWRhcCk7CisJCQkJZGV2LT5jZWNfdHhfYWRhcFtidXNfY250XSA9IE5V
+TEw7CisJCQkJZ290byB1bnJlZ19kZXY7CisJCQl9CisJCQlidXNfY250Kys7CisJCQlpZiAoYnVz
+X2NudCA8PSBpbl90eXBlX2NvdW50ZXJbSERNSV0pIHsKKwkJCQljZWNfc2V0X3BoeXNfYWRkcihh
+ZGFwLCBidXNfY250IDw8IDEyKTsKKwkJCQlyZXQgPSBjZWNfZW5hYmxlKGFkYXAsIHRydWUpOwor
+CQkJCWlmIChyZXQgPCAwKQorCQkJCQlnb3RvIHVucmVnX2RldjsKKwkJCX0gZWxzZSB7CisJCQkJ
+Y2VjX3NldF9waHlzX2FkZHIoYWRhcCwgMHgxMDAwKTsKKwkJCX0KKwkJCXY0bDJfaW5mbygmZGV2
+LT52NGwyX2RldiwgIkNFQyBhZGFwdGVyICVzIHJlZ2lzdGVyZWQgZm9yIEhETUkgb3V0cHV0ICVk
+XG4iLAorCQkJCSAgZGV2X25hbWUoJmFkYXAtPmRldm5vZGUuZGV2KSwgaSk7CisJCX0KKwogCQly
+ZXQgPSB2aWRlb19yZWdpc3Rlcl9kZXZpY2UodmZkLCBWRkxfVFlQRV9HUkFCQkVSLCB2aWRfb3V0
+X25yW2luc3RdKTsKIAkJaWYgKHJldCA8IDApCiAJCQlnb3RvIHVucmVnX2RldjsKQEAgLTEyOTAs
+NiArMTU4MSwxMyBAQCB1bnJlZ19kZXY6CiAJdmlkZW9fdW5yZWdpc3Rlcl9kZXZpY2UoJmRldi0+
+dmJpX2NhcF9kZXYpOwogCXZpZGVvX3VucmVnaXN0ZXJfZGV2aWNlKCZkZXYtPnZpZF9vdXRfZGV2
+KTsKIAl2aWRlb191bnJlZ2lzdGVyX2RldmljZSgmZGV2LT52aWRfY2FwX2Rldik7CisJY2VjX3Vu
+cmVnaXN0ZXJfYWRhcHRlcihkZXYtPmNlY19yeF9hZGFwKTsKKwlmb3IgKGkgPSAwOyBpIDwgTUFY
+X09VVFBVVFM7IGkrKykKKwkJY2VjX3VucmVnaXN0ZXJfYWRhcHRlcihkZXYtPmNlY190eF9hZGFw
+W2ldKTsKKwlpZiAoZGV2LT5jZWNfd29ya3F1ZXVlKSB7CisJCXZpdmlkX2NlY19idXNfZnJlZV93
+b3JrKGRldik7CisJCWRlc3Ryb3lfd29ya3F1ZXVlKGRldi0+Y2VjX3dvcmtxdWV1ZSk7CisJfQog
+ZnJlZV9kZXY6CiAJdjRsMl9kZXZpY2VfcHV0KCZkZXYtPnY0bDJfZGV2KTsKIAlyZXR1cm4gcmV0
+OwpAQCAtMTMzOSw4ICsxNjM3LDcgQEAgc3RhdGljIGludCB2aXZpZF9wcm9iZShzdHJ1Y3QgcGxh
+dGZvcm1fZGV2aWNlICpwZGV2KQogc3RhdGljIGludCB2aXZpZF9yZW1vdmUoc3RydWN0IHBsYXRm
+b3JtX2RldmljZSAqcGRldikKIHsKIAlzdHJ1Y3Qgdml2aWRfZGV2ICpkZXY7Ci0JdW5zaWduZWQg
+aTsKLQorCXVuc2lnbmVkIGksIGo7CiAKIAlmb3IgKGkgPSAwOyBpIDwgbl9kZXZzOyBpKyspIHsK
+IAkJZGV2ID0gdml2aWRfZGV2c1tpXTsKQEAgLTEzODgsNiArMTY4NSwxMyBAQCBzdGF0aWMgaW50
+IHZpdmlkX3JlbW92ZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQogCQkJdW5yZWdpc3Rl
+cl9mcmFtZWJ1ZmZlcigmZGV2LT5mYl9pbmZvKTsKIAkJCXZpdmlkX2ZiX3JlbGVhc2VfYnVmZmVy
+cyhkZXYpOwogCQl9CisJCWNlY191bnJlZ2lzdGVyX2FkYXB0ZXIoZGV2LT5jZWNfcnhfYWRhcCk7
+CisJCWZvciAoaiA9IDA7IGogPCBNQVhfT1VUUFVUUzsgaisrKQorCQkJY2VjX3VucmVnaXN0ZXJf
+YWRhcHRlcihkZXYtPmNlY190eF9hZGFwW2pdKTsKKwkJaWYgKGRldi0+Y2VjX3dvcmtxdWV1ZSkg
+eworCQkJdml2aWRfY2VjX2J1c19mcmVlX3dvcmsoZGV2KTsKKwkJCWRlc3Ryb3lfd29ya3F1ZXVl
+KGRldi0+Y2VjX3dvcmtxdWV1ZSk7CisJCX0KIAkJdjRsMl9kZXZpY2VfcHV0KCZkZXYtPnY0bDJf
+ZGV2KTsKIAkJdml2aWRfZGV2c1tpXSA9IE5VTEw7CiAJfQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9t
+ZWRpYS9wbGF0Zm9ybS92aXZpZC92aXZpZC1jb3JlLmggYi9kcml2ZXJzL21lZGlhL3BsYXRmb3Jt
+L3ZpdmlkL3ZpdmlkLWNvcmUuaAppbmRleCA3NTFjMWJhLi5mODY0ZmI5IDEwMDY0NAotLS0gYS9k
+cml2ZXJzL21lZGlhL3BsYXRmb3JtL3ZpdmlkL3ZpdmlkLWNvcmUuaAorKysgYi9kcml2ZXJzL21l
+ZGlhL3BsYXRmb3JtL3ZpdmlkL3ZpdmlkLWNvcmUuaApAQCAtMjEsNiArMjEsOCBAQAogI2RlZmlu
+ZSBfVklWSURfQ09SRV9IXwogCiAjaW5jbHVkZSA8bGludXgvZmIuaD4KKyNpbmNsdWRlIDxsaW51
+eC93b3JrcXVldWUuaD4KKyNpbmNsdWRlIDxtZWRpYS9jZWMuaD4KICNpbmNsdWRlIDxtZWRpYS92
+aWRlb2J1ZjItdjRsMi5oPgogI2luY2x1ZGUgPG1lZGlhL3Y0bDItZGV2aWNlLmg+CiAjaW5jbHVk
+ZSA8bWVkaWEvdjRsMi1kZXYuaD4KQEAgLTEzMiw2ICsxMzQsMTcgQEAgZW51bSB2aXZpZF9jb2xv
+cnNwYWNlIHsKICNkZWZpbmUgVklWSURfSU5WQUxJRF9TSUdOQUwobW9kZSkgXAogCSgobW9kZSkg
+PT0gTk9fU0lHTkFMIHx8IChtb2RlKSA9PSBOT19MT0NLIHx8IChtb2RlKSA9PSBPVVRfT0ZfUkFO
+R0UpCiAKK3N0cnVjdCB2aXZpZF9jZWNfd29yayB7CisJc3RydWN0IGxpc3RfaGVhZAlsaXN0Owor
+CXN0cnVjdCBkZWxheWVkX3dvcmsJd29yazsKKwlzdHJ1Y3QgY2VjX2FkYXB0ZXIJKmFkYXA7CisJ
+c3RydWN0IHZpdmlkX2RldgkqZGV2OworCXVuc2lnbmVkCQltc2VjczsKKwl1bnNpZ25lZAkJdGlt
+ZW91dF9tczsKKwl1OAkJCXR4X3N0YXR1czsKKwlzdHJ1Y3QgY2VjX21zZwkJbXNnOworfTsKKwog
+c3RydWN0IHZpdmlkX2RldiB7CiAJdW5zaWduZWQJCQlpbnN0OwogCXN0cnVjdCB2NGwyX2Rldmlj
+ZQkJdjRsMl9kZXY7CkBAIC00OTcsNiArNTEwLDE2IEBAIHN0cnVjdCB2aXZpZF9kZXYgewogCS8q
+IFNoYXJlZCBiZXR3ZWVuIHJhZGlvIHJlY2VpdmVyIGFuZCB0cmFuc21pdHRlciAqLwogCWJvb2wJ
+CQkJcmFkaW9fcmRzX2xvb3A7CiAJc3RydWN0IHRpbWVzcGVjCQkJcmFkaW9fcmRzX2luaXRfdHM7
+CisKKwkvKiBDRUMgKi8KKwlzdHJ1Y3QgY2VjX2FkYXB0ZXIJCSpjZWNfcnhfYWRhcDsKKwlzdHJ1
+Y3QgY2VjX2FkYXB0ZXIJCSpjZWNfdHhfYWRhcFtNQVhfT1VUUFVUU107CisJc3RydWN0IHdvcmtx
+dWV1ZV9zdHJ1Y3QJCSpjZWNfd29ya3F1ZXVlOworCXNwaW5sb2NrX3QJCQljZWNfc2xvY2s7CisJ
+c3RydWN0IGxpc3RfaGVhZAkJY2VjX3dvcmtfbGlzdDsKKwl1bnNpZ25lZAkJCWNlY194ZmVyX3Rp
+bWVfamlmZmllczsKKwl1bnNpZ25lZCBsb25nCQkJY2VjX3hmZXJfc3RhcnRfamlmZmllczsKKwl1
+OAkJCQljZWNfb3V0cHV0MmJ1c19tYXBbTUFYX09VVFBVVFNdOwogfTsKIAogc3RhdGljIGlubGlu
+ZSBib29sIHZpdmlkX2lzX3dlYmNhbShjb25zdCBzdHJ1Y3Qgdml2aWRfZGV2ICpkZXYpCmRpZmYg
+LS1naXQgYS9kcml2ZXJzL21lZGlhL3BsYXRmb3JtL3ZpdmlkL3ZpdmlkLXZpZC1jYXAuYyBiL2Ry
+aXZlcnMvbWVkaWEvcGxhdGZvcm0vdml2aWQvdml2aWQtdmlkLWNhcC5jCmluZGV4IGI4NGYwODEu
+LjdhYjVmYTkgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vdml2aWQvdml2aWQt
+dmlkLWNhcC5jCisrKyBiL2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vdml2aWQvdml2aWQtdmlkLWNh
+cC5jCkBAIC0xNzAwLDYgKzE3MDAsOSBAQCBpbnQgdmlkaW9jX3NfZWRpZChzdHJ1Y3QgZmlsZSAq
+ZmlsZSwgdm9pZCAqX2ZoLAogCQkJIHN0cnVjdCB2NGwyX2VkaWQgKmVkaWQpCiB7CiAJc3RydWN0
+IHZpdmlkX2RldiAqZGV2ID0gdmlkZW9fZHJ2ZGF0YShmaWxlKTsKKwl1MTYgcGh5c19hZGRyOwor
+CXVuc2lnbmVkIHNoaWZ0OworCXVuc2lnbmVkIGk7CiAKIAltZW1zZXQoZWRpZC0+cmVzZXJ2ZWQs
+IDAsIHNpemVvZihlZGlkLT5yZXNlcnZlZCkpOwogCWlmIChlZGlkLT5wYWQgPj0gZGV2LT5udW1f
+aW5wdXRzKQpAQCAtMTcxNCw4ICsxNzE3LDI4IEBAIGludCB2aWRpb2Nfc19lZGlkKHN0cnVjdCBm
+aWxlICpmaWxlLCB2b2lkICpfZmgsCiAJCWVkaWQtPmJsb2NrcyA9IGRldi0+ZWRpZF9tYXhfYmxv
+Y2tzOwogCQlyZXR1cm4gLUUyQklHOwogCX0KKwlwaHlzX2FkZHIgPSB2aXZpZF9nZXRfZWRpZF9w
+aHlzX2FkZHIoZWRpZC0+ZWRpZCwgZWRpZC0+YmxvY2tzICogMTI4KTsKKwkvKgorCSAqIEludmFs
+aWQgcGh5c2ljYWwgYWRkcmVzcywgYWxsIG5pYmJsZXMgYXJlIHVzZWQgYW5kIG5vIHBoeXNpY2Fs
+CisJICogYWRkcmVzc2VzIGNhbiBiZSBhc3NpZ25lZCB0byB0aGUgaW5wdXRzLgorCSAqLworCWlm
+IChwaHlzX2FkZHIgJiAweGYpCisJCXJldHVybiAtRUlOVkFMOworCWlmICh2YjJfaXNfYnVzeSgm
+ZGV2LT52Yl92aWRfY2FwX3EpKQorCQlyZXR1cm4gLUVCVVNZOworCiAJZGV2LT5lZGlkX2Jsb2Nr
+cyA9IGVkaWQtPmJsb2NrczsKIAltZW1jcHkoZGV2LT5lZGlkLCBlZGlkLT5lZGlkLCBlZGlkLT5i
+bG9ja3MgKiAxMjgpOworCisJLyogVE9ETzogYSBwcm9wZXIgaG90cGx1ZyBkZXRlY3QgY3ljbGUg
+c2hvdWxkIGJlIGVtdWxhdGVkIGhlcmUgKi8KKwljZWNfc2V0X3BoeXNfYWRkcihkZXYtPmNlY19y
+eF9hZGFwLCBwaHlzX2FkZHIpOworCS8qIE5vdGU6IHdlIGFscmVhZHkgY2hlY2tlZCBhYm92ZSB0
+aGF0IHRoZSBsb3dlc3QgbmliYmxlID09IDAgKi8KKwlmb3IgKHNoaWZ0ID0gNDsgc2hpZnQgPCAx
+Njsgc2hpZnQgKz0gNCkKKwkJaWYgKHBoeXNfYWRkciAmICgweGYgPDwgc2hpZnQpKQorCQkJYnJl
+YWs7CisJc2hpZnQgLT0gNDsKKwlmb3IgKGkgPSAwOyBpIDwgTUFYX09VVFBVVFMgJiYgZGV2LT5j
+ZWNfdHhfYWRhcFtpXTsgaSsrKQorCQljZWNfc2V0X3BoeXNfYWRkcihkZXYtPmNlY190eF9hZGFw
+W2ldLCBwaHlzX2FkZHIgfCAoKGkgKyAxKSA8PCBzaGlmdCkpOwogCXJldHVybiAwOwogfQogCmRp
+ZmYgLS1naXQgYS9kcml2ZXJzL21lZGlhL3BsYXRmb3JtL3ZpdmlkL3ZpdmlkLXZpZC1jb21tb24u
+YyBiL2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vdml2aWQvdml2aWQtdmlkLWNvbW1vbi5jCmluZGV4
+IDE2NzhiNzMuLjM4NTJjNzEgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vdml2
+aWQvdml2aWQtdmlkLWNvbW1vbi5jCisrKyBiL2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vdml2aWQv
+dml2aWQtdmlkLWNvbW1vbi5jCkBAIC04NjgsMTEgKzg2OCw2NiBAQCBpbnQgdmlkaW9jX2R2X3Rp
+bWluZ3NfY2FwKHN0cnVjdCBmaWxlICpmaWxlLCB2b2lkICpfZmgsCiAJcmV0dXJuIDA7CiB9CiAK
+K3N0YXRpYyBpbnQgZ2V0X2VkaWRfc3BhX2xvY2F0aW9uKGNvbnN0IHU4ICplZGlkLCB1bnNpZ25l
+ZCBzaXplKQoreworCXU4IGQ7CisKKwlpZiAoc2l6ZSA8IDI1NikKKwkJcmV0dXJuIC0xOworCisJ
+aWYgKGVkaWRbMHg3ZV0gIT0gMSB8fCBlZGlkWzB4ODBdICE9IDB4MDIgfHwgZWRpZFsweDgxXSAh
+PSAweDAzKQorCQlyZXR1cm4gLTE7CisKKwkvKiBzZWFyY2ggVmVuZG9yIFNwZWNpZmljIERhdGEg
+QmxvY2sgKHRhZyAzKSAqLworCWQgPSBlZGlkWzB4ODJdICYgMHg3ZjsKKwlpZiAoZCA+IDQpIHsK
+KwkJaW50IGkgPSAweDg0OworCQlpbnQgZW5kID0gMHg4MCArIGQ7CisKKwkJZG8geworCQkJdTgg
+dGFnID0gZWRpZFtpXSA+PiA1OworCQkJdTggbGVuID0gZWRpZFtpXSAmIDB4MWY7CisKKwkJCWlm
+ICh0YWcgPT0gMyAmJiBsZW4gPj0gNSkKKwkJCQlyZXR1cm4gaSArIDQ7CisJCQlpICs9IGxlbiAr
+IDE7CisJCX0gd2hpbGUgKGkgPCBlbmQpOworCX0KKwlyZXR1cm4gLTE7Cit9CisKK3N0YXRpYyB2
+b2lkIHNldF9lZGlkX3BoeXNfYWRkcih1OCAqZWRpZCwgdW5zaWduZWQgc2l6ZSwgdTE2IHBoeXNf
+YWRkcikKK3sKKwlpbnQgbG9jID0gZ2V0X2VkaWRfc3BhX2xvY2F0aW9uKGVkaWQsIHNpemUpOwor
+CXU4IHN1bSA9IDA7CisJaW50IGk7CisKKwlpZiAobG9jIDwgMCkKKwkJcmV0dXJuOworCWVkaWRb
+bG9jXSA9IHBoeXNfYWRkciA+PiA4OworCWVkaWRbbG9jICsgMV0gPSBwaHlzX2FkZHIgJiAweGZm
+OworCWxvYyAmPSB+MHg3ZjsKKworCWZvciAoaSA9IGxvYzsgaSA8IGxvYyArIDEyNzsgaSsrKQor
+CQlzdW0gKz0gZWRpZFtpXTsKKwllZGlkW2ldID0gMjU2IC0gc3VtOworfQorCit1MTYgdml2aWRf
+Z2V0X2VkaWRfcGh5c19hZGRyKGNvbnN0IHU4ICplZGlkLCB1bnNpZ25lZCBzaXplKQoreworCWlu
+dCBsb2MgPSBnZXRfZWRpZF9zcGFfbG9jYXRpb24oZWRpZCwgc2l6ZSk7CisKKwlpZiAobG9jIDwg
+MCkKKwkJcmV0dXJuIENFQ19QSFlTX0FERFJfSU5WQUxJRDsKKwlyZXR1cm4gKGVkaWRbbG9jXSA8
+PCA4KSB8IGVkaWRbbG9jICsgMV07Cit9CisKIGludCB2aWRpb2NfZ19lZGlkKHN0cnVjdCBmaWxl
+ICpmaWxlLCB2b2lkICpfZmgsCiAJCQkgc3RydWN0IHY0bDJfZWRpZCAqZWRpZCkKIHsKIAlzdHJ1
+Y3Qgdml2aWRfZGV2ICpkZXYgPSB2aWRlb19kcnZkYXRhKGZpbGUpOwogCXN0cnVjdCB2aWRlb19k
+ZXZpY2UgKnZkZXYgPSB2aWRlb19kZXZkYXRhKGZpbGUpOworCXN0cnVjdCBjZWNfYWRhcHRlciAq
+YWRhcDsKIAogCW1lbXNldChlZGlkLT5yZXNlcnZlZCwgMCwgc2l6ZW9mKGVkaWQtPnJlc2VydmVk
+KSk7CiAJaWYgKHZkZXYtPnZmbF9kaXIgPT0gVkZMX0RJUl9SWCkgewpAQCAtODgwLDExICs5MzUs
+MTYgQEAgaW50IHZpZGlvY19nX2VkaWQoc3RydWN0IGZpbGUgKmZpbGUsIHZvaWQgKl9maCwKIAkJ
+CXJldHVybiAtRUlOVkFMOwogCQlpZiAoZGV2LT5pbnB1dF90eXBlW2VkaWQtPnBhZF0gIT0gSERN
+SSkKIAkJCXJldHVybiAtRUlOVkFMOworCQlhZGFwID0gZGV2LT5jZWNfcnhfYWRhcDsKIAl9IGVs
+c2UgeworCQl1bnNpZ25lZCBidXNfaWR4OworCiAJCWlmIChlZGlkLT5wYWQgPj0gZGV2LT5udW1f
+b3V0cHV0cykKIAkJCXJldHVybiAtRUlOVkFMOwogCQlpZiAoZGV2LT5vdXRwdXRfdHlwZVtlZGlk
+LT5wYWRdICE9IEhETUkpCiAJCQlyZXR1cm4gLUVJTlZBTDsKKwkJYnVzX2lkeCA9IGRldi0+Y2Vj
+X291dHB1dDJidXNfbWFwW2VkaWQtPnBhZF07CisJCWFkYXAgPSBkZXYtPmNlY190eF9hZGFwW2J1
+c19pZHhdOwogCX0KIAlpZiAoZWRpZC0+c3RhcnRfYmxvY2sgPT0gMCAmJiBlZGlkLT5ibG9ja3Mg
+PT0gMCkgewogCQllZGlkLT5ibG9ja3MgPSBkZXYtPmVkaWRfYmxvY2tzOwpAQCAtODk3LDUgKzk1
+Nyw2IEBAIGludCB2aWRpb2NfZ19lZGlkKHN0cnVjdCBmaWxlICpmaWxlLCB2b2lkICpfZmgsCiAJ
+aWYgKGVkaWQtPnN0YXJ0X2Jsb2NrICsgZWRpZC0+YmxvY2tzID4gZGV2LT5lZGlkX2Jsb2NrcykK
+IAkJZWRpZC0+YmxvY2tzID0gZGV2LT5lZGlkX2Jsb2NrcyAtIGVkaWQtPnN0YXJ0X2Jsb2NrOwog
+CW1lbWNweShlZGlkLT5lZGlkLCBkZXYtPmVkaWQsIGVkaWQtPmJsb2NrcyAqIDEyOCk7CisJc2V0
+X2VkaWRfcGh5c19hZGRyKGVkaWQtPmVkaWQsIGVkaWQtPmJsb2NrcyAqIDEyOCwgYWRhcC0+cGh5
+c19hZGRyKTsKIAlyZXR1cm4gMDsKIH0KZGlmZiAtLWdpdCBhL2RyaXZlcnMvbWVkaWEvcGxhdGZv
+cm0vdml2aWQvdml2aWQtdmlkLWNvbW1vbi5oIGIvZHJpdmVycy9tZWRpYS9wbGF0Zm9ybS92aXZp
+ZC92aXZpZC12aWQtY29tbW9uLmgKaW5kZXggM2VjNGZhOC4uZWEyMDNkYSAxMDA2NDQKLS0tIGEv
+ZHJpdmVycy9tZWRpYS9wbGF0Zm9ybS92aXZpZC92aXZpZC12aWQtY29tbW9uLmgKKysrIGIvZHJp
+dmVycy9tZWRpYS9wbGF0Zm9ybS92aXZpZC92aXZpZC12aWQtY29tbW9uLmgKQEAgLTQ3LDYgKzQ3
+LDcgQEAgc3RydWN0IHY0bDJfcmVjdCByZWN0X2ludGVyc2VjdChjb25zdCBzdHJ1Y3QgdjRsMl9y
+ZWN0ICphLCBjb25zdCBzdHJ1Y3QgdjRsMl9yZWMKIHZvaWQgcmVjdF9zY2FsZShzdHJ1Y3QgdjRs
+Ml9yZWN0ICpyLCBjb25zdCBzdHJ1Y3QgdjRsMl9yZWN0ICpmcm9tLAogCQkJCSAgICAgY29uc3Qg
+c3RydWN0IHY0bDJfcmVjdCAqdG8pOwogaW50IHZpdmlkX3ZpZF9hZGp1c3Rfc2VsKHVuc2lnbmVk
+IGZsYWdzLCBzdHJ1Y3QgdjRsMl9yZWN0ICpyKTsKK3UxNiB2aXZpZF9nZXRfZWRpZF9waHlzX2Fk
+ZHIoY29uc3QgdTggKmVkaWQsIHVuc2lnbmVkIHNpemUpOwogCiBpbnQgdml2aWRfZW51bV9mbXRf
+dmlkKHN0cnVjdCBmaWxlICpmaWxlLCB2b2lkICAqcHJpdiwgc3RydWN0IHY0bDJfZm10ZGVzYyAq
+Zik7CiBpbnQgdmlkaW9jX2VudW1fZm10X3ZpZF9tcGxhbmUoc3RydWN0IGZpbGUgKmZpbGUsIHZv
+aWQgICpwcml2LCBzdHJ1Y3QgdjRsMl9mbXRkZXNjICpmKTsKLS0gCjIuNy4wCgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBs
+aXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVz
+a3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK

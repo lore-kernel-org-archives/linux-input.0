@@ -1,33 +1,51 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH v4 02/10] Input: synaptics-rmi4: Add I2C transport driver
-Date: Wed, 10 Feb 2016 10:45:25 +0800
-Message-ID: <201602101058.eieyFMNU%fengguang.wu@intel.com>
-References: <1455068440-11964-1-git-send-email-aduggan@synaptics.com>
+From: Apex Groups <apexgroups01@apexgroups.info>
+Subject: products enquiry......
+Date: Tue, 9 Feb 2016 21:18:36 -0500 (EST)
+Message-ID: <2054099021.112604.1455070716322.JavaMail.open-xchange@bosoxweb05.eigbox.net>
+Reply-To: Apex Groups <apexgroups01@apexgroups.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1455068440-11964-1-git-send-email-aduggan@synaptics.com>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: kbuild-all@01.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bosmailout08.eigbox.net ([66.96.188.8]:34125 "EHLO
+	bosmailout08.eigbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932103AbcBJCu6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2016 21:50:58 -0500
+Received: from bosmailscan06.eigbox.net ([10.20.15.6])
+	by bosmailout08.eigbox.net with esmtp (Exim)
+	id 1aTKOW-000191-I1
+	for linux-input@vger.kernel.org; Tue, 09 Feb 2016 21:20:40 -0500
+Received: from [10.115.3.32] (helo=bosimpout12)
+	by bosmailscan06.eigbox.net with esmtp (Exim)
+	id 1aTKOW-0000g5-9J
+	for linux-input@vger.kernel.org; Tue, 09 Feb 2016 21:20:40 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Andrew,
+Dear.
 
-[auto build test WARNING on input/next]
-[also build test WARNING on v4.5-rc3 next-20160209]
-[if your patch is applied to the wrong git tree, please drop us a note to help improving the system]
+We are interested to buy your products, we sincerely want to established
+long-term business partnership with your esteemed company. Pls do kindly send me
+your new catalog and let us know immediately about the Minimum Order/ Quantity,
+and Delivery time or FOB, with your payment terms warranty.
 
-url:    https://github.com/0day-ci/linux/commits/Andrew-Duggan/Input-synaptics-rmi4-Synaptics-RMI4-Driver/20160210-094628
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+Please respond to me via email bellow: Your early reply is highly appreciated.
 
+Thank You!
 
-coccinelle warnings: (new ones prefixed by >>)
+Best Regards,
 
->> drivers/input/rmi4/rmi_i2c.c:373:3-8: No need to set .owner here. The core will do it.
+_____________________________
 
-Please review and possibly fold the followup patch.
+Thank you
 
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+Regards,
+Mr. Khalid Al Shatti
+Sales & Marketing Manager
+Apex Groups
+Suite 1108, 10th Floor
+Dubai World Trade Center
+Dubai, UAE
+Tel: +97142501995
+Fax: +97142501991
+apexgroup05@gmail.com

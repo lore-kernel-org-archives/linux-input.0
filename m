@@ -1,48 +1,69 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] Input: Colibri VF50 - Add missing #include
- <linux/of.h>
-Date: Wed, 10 Feb 2016 11:38:16 -0800
-Message-ID: <20160210193816.GA17738@dtor-glaptop>
-References: <1454854687-21114-1-git-send-email-geert@linux-m68k.org>
- <20160209183324.GE40460@dtor-ws>
- <CAMuHMdU3oWoCTgy14mhuFAE33Bne0a18xErLRjYv_pugq4_V5Q@mail.gmail.com>
+Subject: [git pull] Input updates for 4.5-rc3
+Date: Wed, 10 Feb 2016 11:41:37 -0800
+Message-ID: <20160210194137.GA5626@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:35286 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751712AbcBJTlk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Feb 2016 14:41:40 -0500
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdU3oWoCTgy14mhuFAE33Bne0a18xErLRjYv_pugq4_V5Q@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Bastien Nocera <hadess@hadess.net>, Sanchayan Maity <maitysanchayan@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, Feb 10, 2016 at 10:52:39AM +0100, Geert Uytterhoeven wrote:
-> On Tue, Feb 9, 2016 at 7:33 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Sun, Feb 07, 2016 at 03:18:06PM +0100, Geert Uytterhoeven wrote:
-> >> drivers/input/touchscreen/colibri-vf50-ts.c: In function =E2=80=98=
-vf50_ts_probe=E2=80=99:
-> >> drivers/input/touchscreen/colibri-vf50-ts.c:302: error: implicit d=
-eclaration of function =E2=80=98of_property_read_u32=E2=80=99
-> >>
-> >> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> >
-> > Applied, thank you.
->=20
-> Apparently you only applied patch 2/2, causing the abovementioned
-> breakage in -next?
+Hi Linus,
 
-Hmm, I applied both, the Kconfig change went to next and include went i=
-nto
-for-linus and they both should have ended up in linux-next...
+Please pull from:
 
-Thanks.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
---=20
+to receive updates for the input subsystem. Just small driver fixups...
+
+Changelog:
+---------
+
+Amitoj Kaur Chawla (1):
+      Input: cap11xx - add missing of_node_put
+
+Arnd Bergmann (2):
+      Input: xpad - remove unused function
+      Input: sirfsoc-onkey - allow modular build
+
+Dmitry Torokhov (1):
+      Input: vmmouse - fix absolute device registration
+
+Geert Uytterhoeven (1):
+      Input: colibri-vf50-ts - add missing #include <linux/of.h>
+
+Grygorii Strashko (1):
+      Input: serio - drop warnings in case of EPROBE_DEFER from serio_find_driver()
+
+Lars-Peter Clausen (1):
+      Input: adp5589 - fix row 5 handling for adp5589
+
+Philipp Zabel (1):
+      Input: edt-ft5x06 - fix setting gain, offset, and threshold via device tree
+
+
+Diffstat:
+--------
+
+ drivers/input/joystick/xpad.c               |  1 -
+ drivers/input/keyboard/adp5589-keys.c       |  7 ++++---
+ drivers/input/keyboard/cap11xx.c            |  8 ++++++--
+ drivers/input/misc/Kconfig                  |  2 +-
+ drivers/input/misc/sirfsoc-onkey.c          |  2 +-
+ drivers/input/mouse/vmmouse.c               | 13 +++++++------
+ drivers/input/serio/serio.c                 |  2 +-
+ drivers/input/touchscreen/colibri-vf50-ts.c |  1 +
+ drivers/input/touchscreen/edt-ft5x06.c      | 18 ++++++++++++------
+ 9 files changed, 33 insertions(+), 21 deletions(-)
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

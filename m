@@ -1,42 +1,58 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCHv12 04/17] input.h: add BUS_CEC type
-Date: Wed, 10 Feb 2016 13:51:38 +0100
-Message-ID: <1455108711-29850-5-git-send-email-hverkuil@xs4all.nl>
+Subject: [PATCHv12 05/17] HID: add HDMI CEC specific keycodes
+Date: Wed, 10 Feb 2016 13:51:39 +0100
+Message-ID: <1455108711-29850-6-git-send-email-hverkuil@xs4all.nl>
 References: <1455108711-29850-1-git-send-email-hverkuil@xs4all.nl>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb2-smtp-cloud3.xs4all.net ([194.109.24.26]:45485 "EHLO
-	lb2-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750970AbcBJMwK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Feb 2016 07:52:10 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 In-Reply-To: <1455108711-29850-1-git-send-email-hverkuil@xs4all.nl>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: linux-samsung-soc@vger.kernel.org, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, dri-devel@lists.freedesktop.org, lars@opdenkamp.eu, Hans Verkuil <hans.verkuil@cisco.com>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-From: Hans Verkuil <hans.verkuil@cisco.com>
-
-Inputs can come in over the HDMI CEC bus, so add a new type for this.
-
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- include/uapi/linux/input.h | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 2758687..4f8c813 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -246,6 +246,7 @@ struct input_mask {
- #define BUS_GSC			0x1A
- #define BUS_ATARI		0x1B
- #define BUS_SPI			0x1C
-+#define BUS_CEC			0x1D
- 
- /*
-  * MT_TOOL types
--- 
-2.7.0
-
+RnJvbTogS2FtaWwgRGVic2tpIDxrYW1pbEB3eXBhcy5vcmc+CgpBZGQgSERNSSBDRUMgc3BlY2lm
+aWMga2V5Y29kZXMgdG8gdGhlIGtleWNvZGVzIGRlZmluaXRpb24uCgpTaWduZWQtb2ZmLWJ5OiBL
+YW1pbCBEZWJza2kgPGthbWlsQHd5cGFzLm9yZz4KU2lnbmVkLW9mZi1ieTogSGFucyBWZXJrdWls
+IDxoYW5zLnZlcmt1aWxAY2lzY28uY29tPgotLS0KIGluY2x1ZGUvdWFwaS9saW51eC9pbnB1dC1l
+dmVudC1jb2Rlcy5oIHwgMjggKysrKysrKysrKysrKysrKysrKysrKysrKysrKwogMSBmaWxlIGNo
+YW5nZWQsIDI4IGluc2VydGlvbnMoKykKCmRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgv
+aW5wdXQtZXZlbnQtY29kZXMuaCBiL2luY2x1ZGUvdWFwaS9saW51eC9pbnB1dC1ldmVudC1jb2Rl
+cy5oCmluZGV4IDg3Y2YzNTEuLjI2NjI1MDAgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvdWFwaS9saW51
+eC9pbnB1dC1ldmVudC1jb2Rlcy5oCisrKyBiL2luY2x1ZGUvdWFwaS9saW51eC9pbnB1dC1ldmVu
+dC1jb2Rlcy5oCkBAIC02MTEsNiArNjExLDM0IEBACiAjZGVmaW5lIEtFWV9LQkRJTlBVVEFTU0lT
+VF9BQ0NFUFQJCTB4MjY0CiAjZGVmaW5lIEtFWV9LQkRJTlBVVEFTU0lTVF9DQU5DRUwJCTB4MjY1
+CiAKKyNkZWZpbmUgS0VZX1JJR0hUX1VQCQkJMHgyNjYKKyNkZWZpbmUgS0VZX1JJR0hUX0RPV04J
+CQkweDI2NworI2RlZmluZSBLRVlfTEVGVF9VUAkJCTB4MjY4CisjZGVmaW5lIEtFWV9MRUZUX0RP
+V04JCQkweDI2OQorI2RlZmluZSBLRVlfUk9PVF9NRU5VCQkJMHgyNmEgLyogU2hvdyBEZXZpY2Un
+cyBSb290IE1lbnUgKi8KKyNkZWZpbmUgS0VZX01FRElBX1RPUF9NRU5VCQkweDI2YiAvKiBTaG93
+IFRvcCBNZW51IG9mIHRoZSBNZWRpYSAoZS5nLiBEVkQpICovCisjZGVmaW5lIEtFWV9OVU1FUklD
+XzExCQkJMHgyNmMKKyNkZWZpbmUgS0VZX05VTUVSSUNfMTIJCQkweDI2ZAorLyoKKyAqIFRvZ2ds
+ZSBBdWRpbyBEZXNjcmlwdGlvbjogcmVmZXJzIHRvIGFuIGF1ZGlvIHNlcnZpY2UgdGhhdCBoZWxw
+cyBibGluZCBhbmQKKyAqIHZpc3VhbGx5IGltcGFpcmVkIGNvbnN1bWVycyB1bmRlcnN0YW5kIHRo
+ZSBhY3Rpb24gaW4gYSBwcm9ncmFtLiBOb3RlOiBpbgorICogc29tZSBjb3VudHJpZXMgdGhpcyBp
+cyByZWZlcnJlZCB0byBhcyAiVmlkZW8gRGVzY3JpcHRpb24iLgorICovCisjZGVmaW5lIEtFWV9B
+VURJT19ERVNDCQkJMHgyNmUKKyNkZWZpbmUgS0VZXzNEX01PREUJCQkweDI2ZgorI2RlZmluZSBL
+RVlfTkVYVF9GQVZPUklURQkJMHgyNzAKKyNkZWZpbmUgS0VZX1NUT1BfUkVDT1JECQkJMHgyNzEK
+KyNkZWZpbmUgS0VZX1BBVVNFX1JFQ09SRAkJMHgyNzIKKyNkZWZpbmUgS0VZX1ZPRAkJCQkweDI3
+MyAvKiBWaWRlbyBvbiBEZW1hbmQgKi8KKyNkZWZpbmUgS0VZX1VOTVVURQkJCTB4Mjc0CisjZGVm
+aW5lIEtFWV9GQVNUUkVWRVJTRQkJCTB4Mjc1CisjZGVmaW5lIEtFWV9TTE9XUkVWRVJTRQkJCTB4
+Mjc2CisvKgorICogQ29udHJvbCBhIGRhdGEgYXBwbGljYXRpb24gYXNzb2NpYXRlZCB3aXRoIHRo
+ZSBjdXJyZW50bHkgdmlld2VkIGNoYW5uZWwsCisgKiBlLmcuIHRlbGV0ZXh0IG9yIGRhdGEgYnJv
+YWRjYXN0IGFwcGxpY2F0aW9uIChNSEVHLCBNSFAsIEhiYlRWLCBldGMuKQorICovCisjZGVmaW5l
+IEtFWV9EQVRBCQkJMHgyNzUKKwogI2RlZmluZSBCVE5fVFJJR0dFUl9IQVBQWQkJMHgyYzAKICNk
+ZWZpbmUgQlROX1RSSUdHRVJfSEFQUFkxCQkweDJjMAogI2RlZmluZSBCVE5fVFJJR0dFUl9IQVBQ
+WTIJCTB4MmMxCi0tIAoyLjcuMAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRl
+c2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8v
+ZHJpLWRldmVsCg==

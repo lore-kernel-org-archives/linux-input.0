@@ -1,92 +1,64 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH v5 07/10] Input: synaptics-rmi4: Add support for F30
-Date: Wed, 10 Feb 2016 14:25:08 -0800
-Message-ID: <1455143108-10358-1-git-send-email-aduggan@synaptics.com>
+Subject: [PATCH v5 08/10] Input: synaptics-rmi4: Add SPI transport driver
+Date: Wed, 10 Feb 2016 14:25:26 -0800
+Message-ID: <1455143126-10409-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>, Julia Lawall <julia.lawall@lip6.fr>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>, Mark Brown <broonie@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-RMI4 F30 supports input from clickpad buttons and controls LEDs located
-on the touchpad PCB. This patch adds support of the clickpad buttons and
-defers supporting LEDs for the future.
+Add the transport driver for devices using RMI4 over SPI.
 
 Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/rmi4/Kconfig      |   9 +
- drivers/input/rmi4/Makefile     |   1 +
- drivers/input/rmi4/rmi_bus.c    |   3 +
- drivers/input/rmi4/rmi_driver.h |   1 +
- drivers/input/rmi4/rmi_f30.c    | 407 ++++++++++++++++++++++++++++++++++++++++
- include/linux/rmi.h             |  16 ++
- 6 files changed, 437 insertions(+)
- create mode 100644 drivers/input/rmi4/rmi_f30.c
+ drivers/input/rmi4/Kconfig   |   9 +
+ drivers/input/rmi4/Makefile  |   1 +
+ drivers/input/rmi4/rmi_spi.c | 547 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/rmi.h          |  51 ++++
+ 4 files changed, 608 insertions(+)
+ create mode 100644 drivers/input/rmi4/rmi_spi.c
 
 diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index aabb854..284faec 100644
+index 284faec..f73df24 100644
 --- a/drivers/input/rmi4/Kconfig
 +++ b/drivers/input/rmi4/Kconfig
-@@ -43,3 +43,12 @@ config RMI4_F12
- 	  Function 12 provides 2D multifinger pointing for touchscreens and
- 	  touchpads. For sensors that support relative pointing, F12 also
- 	  provides mouse input.
-+
-+config RMI4_F30
-+	bool "RMI4 Function 30 (GPIO LED)"
-+	depends on RMI4_CORE
+@@ -18,6 +18,15 @@ config RMI4_I2C
+ 
+ 	  If unsure, say Y.
+ 
++config RMI4_SPI
++	tristate "RMI4 SPI Support"
++	depends on RMI4_CORE && SPI
 +	help
-+	  Say Y here if you want to add support for RMI4 function 30.
++	  Say Y here if you want to support RMI4 devices connected to a SPI
++	  bus.
 +
-+	  Function 30 provides GPIO and LED support for RMI4 devices. This
-+	  includes support for buttons on TouchPads and ClickPads.
++	  If unsure, say N.
++
+ config RMI4_2D_SENSOR
+ 	bool
+ 	depends on RMI4_CORE
 diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-index d01e703..ad7156d 100644
+index ad7156d..95c00a7 100644
 --- a/drivers/input/rmi4/Makefile
 +++ b/drivers/input/rmi4/Makefile
-@@ -6,6 +6,7 @@ rmi_core-$(CONFIG_RMI4_2D_SENSOR) += rmi_2d_sensor.o
- # Function drivers
- rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
- rmi_core-$(CONFIG_RMI4_F12) += rmi_f12.o
-+rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
+@@ -10,3 +10,4 @@ rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
  
  # Transports
  obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
-diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-index 466d312..c9fffac 100644
---- a/drivers/input/rmi4/rmi_bus.c
-+++ b/drivers/input/rmi4/rmi_bus.c
-@@ -312,6 +312,9 @@ static struct rmi_function_handler *fn_handlers[] = {
- #ifdef CONFIG_RMI4_F12
- 	&rmi_f12_handler,
- #endif
-+#ifdef CONFIG_RMI4_F30
-+	&rmi_f30_handler,
-+#endif
- };
- 
- static void __rmi_unregister_function_handlers(int start_idx)
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index ed9127d..6e140fa 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -101,4 +101,5 @@ char *rmi_f01_get_product_ID(struct rmi_function *fn);
- extern struct rmi_function_handler rmi_f01_handler;
- extern struct rmi_function_handler rmi_f11_handler;
- extern struct rmi_function_handler rmi_f12_handler;
-+extern struct rmi_function_handler rmi_f30_handler;
- #endif
-diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
++obj-$(CONFIG_RMI4_SPI) += rmi_spi.o
+diff --git a/drivers/input/rmi4/rmi_spi.c b/drivers/input/rmi4/rmi_spi.c
 new file mode 100644
-index 0000000..760aff1
+index 0000000..4319c63
 --- /dev/null
-+++ b/drivers/input/rmi4/rmi_f30.c
-@@ -0,0 +1,407 @@
++++ b/drivers/input/rmi4/rmi_spi.c
+@@ -0,0 +1,547 @@
 +/*
-+ * Copyright (c) 2012-2016 Synaptics Incorporated
++ * Copyright (c) 2011-2016 Synaptics Incorporated
++ * Copyright (c) 2011 Unixphere
 + *
 + * This program is free software; you can redistribute it and/or modify it
 + * under the terms of the GNU General Public License version 2 as published by
@@ -94,437 +66,611 @@ index 0000000..760aff1
 + */
 +
 +#include <linux/kernel.h>
++#include <linux/module.h>
 +#include <linux/rmi.h>
-+#include <linux/input.h>
 +#include <linux/slab.h>
++#include <linux/spi/spi.h>
++#include <linux/irq.h>
 +#include "rmi_driver.h"
 +
-+#define RMI_F30_QUERY_SIZE			2
++#define RMI_SPI_DEFAULT_XFER_BUF_SIZE	64
 +
-+/* Defs for Query 0 */
-+#define RMI_F30_EXTENDED_PATTERNS		0x01
-+#define RMI_F30_HAS_MAPPABLE_BUTTONS		(1 << 1)
-+#define RMI_F30_HAS_LED			(1 << 2)
-+#define RMI_F30_HAS_GPIO			(1 << 3)
-+#define RMI_F30_HAS_HAPTIC			(1 << 4)
-+#define RMI_F30_HAS_GPIO_DRV_CTL		(1 << 5)
-+#define RMI_F30_HAS_MECH_MOUSE_BTNS		(1 << 6)
++#define RMI_PAGE_SELECT_REGISTER	0x00FF
++#define RMI_SPI_PAGE(addr)		(((addr) >> 8) & 0x80)
++#define RMI_SPI_XFER_SIZE_LIMIT		255
 +
-+/* Defs for Query 1 */
-+#define RMI_F30_GPIO_LED_COUNT			0x1F
++#define BUFFER_SIZE_INCREMENT 32
 +
-+/* Defs for Control Registers */
-+#define RMI_F30_CTRL_1_GPIO_DEBOUNCE		0x01
-+#define RMI_F30_CTRL_1_HALT			(1 << 4)
-+#define RMI_F30_CTRL_1_HALTED			(1 << 5)
-+#define RMI_F30_CTRL_10_NUM_MECH_MOUSE_BTNS	0x03
-+
-+struct rmi_f30_ctrl_data {
-+	int address;
-+	int length;
-+	u8 *regs;
++enum rmi_spi_op {
++	RMI_SPI_WRITE = 0,
++	RMI_SPI_READ,
++	RMI_SPI_V2_READ_UNIFIED,
++	RMI_SPI_V2_READ_SPLIT,
++	RMI_SPI_V2_WRITE,
 +};
 +
-+#define RMI_F30_CTRL_MAX_REGS		32
-+#define RMI_F30_CTRL_MAX_BYTES		((RMI_F30_CTRL_MAX_REGS + 7) >> 3)
-+#define RMI_F30_CTRL_MAX_REG_BLOCKS	11
-+
-+#define RMI_F30_CTRL_REGS_MAX_SIZE (RMI_F30_CTRL_MAX_BYTES		\
-+					+ 1				\
-+					+ RMI_F30_CTRL_MAX_BYTES	\
-+					+ RMI_F30_CTRL_MAX_BYTES	\
-+					+ RMI_F30_CTRL_MAX_BYTES	\
-+					+ 6				\
-+					+ RMI_F30_CTRL_MAX_REGS		\
-+					+ RMI_F30_CTRL_MAX_REGS		\
-+					+ RMI_F30_CTRL_MAX_BYTES	\
-+					+ 1				\
-+					+ 1)
-+
-+struct f30_data {
-+	/* Query Data */
-+	bool has_extended_pattern;
-+	bool has_mappable_buttons;
-+	bool has_led;
-+	bool has_gpio;
-+	bool has_haptic;
-+	bool has_gpio_driver_control;
-+	bool has_mech_mouse_btns;
-+	u8 gpioled_count;
-+
-+	u8 register_count;
-+
-+	/* Control Register Data */
-+	struct rmi_f30_ctrl_data ctrl[RMI_F30_CTRL_MAX_REG_BLOCKS];
-+	u8 ctrl_regs[RMI_F30_CTRL_REGS_MAX_SIZE];
-+	u32 ctrl_regs_size;
-+
-+	u8 data_regs[RMI_F30_CTRL_MAX_BYTES];
-+	u16 *gpioled_key_map;
-+
-+	struct input_dev *input;
++struct rmi_spi_cmd {
++	enum rmi_spi_op op;
++	u16 addr;
 +};
 +
-+static int rmi_f30_read_control_parameters(struct rmi_function *fn,
-+						struct f30_data *f30)
++struct rmi_spi_xport {
++	struct rmi_transport_dev xport;
++	struct spi_device *spi;
++
++	struct mutex page_mutex;
++	int page;
++
++	int irq;
++
++	u8 *rx_buf;
++	u8 *tx_buf;
++	int xfer_buf_size;
++
++	struct spi_transfer *rx_xfers;
++	struct spi_transfer *tx_xfers;
++	int rx_xfer_count;
++	int tx_xfer_count;
++};
++
++static int rmi_spi_manage_pools(struct rmi_spi_xport *rmi_spi, int len)
 +{
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	int error = 0;
++	struct spi_device *spi = rmi_spi->spi;
++	int buf_size = rmi_spi->xfer_buf_size
++		? rmi_spi->xfer_buf_size : RMI_SPI_DEFAULT_XFER_BUF_SIZE;
++	struct spi_transfer *xfer_buf;
++	void *buf;
++	void *tmp;
 +
-+	error = rmi_read_block(rmi_dev, fn->fd.control_base_addr,
-+				f30->ctrl_regs, f30->ctrl_regs_size);
-+	if (error) {
-+		dev_err(&rmi_dev->dev, "%s : Could not read control registers at 0x%x error (%d)\n",
-+			__func__, fn->fd.control_base_addr, error);
-+		return error;
-+	}
++	while (buf_size < len)
++		buf_size *= 2;
 +
-+	return 0;
-+}
++	if (buf_size > RMI_SPI_XFER_SIZE_LIMIT)
++		buf_size = RMI_SPI_XFER_SIZE_LIMIT;
 +
-+static int rmi_f30_attention(struct rmi_function *fn, unsigned long *irq_bits)
-+{
-+	struct f30_data *f30 = dev_get_drvdata(&fn->dev);
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	int retval;
-+	int gpiled = 0;
-+	int value = 0;
-+	int i;
-+	int reg_num;
++	tmp = rmi_spi->rx_buf;
++	buf = devm_kzalloc(&spi->dev, buf_size * 2,
++				GFP_KERNEL | GFP_DMA);
++	if (!buf)
++		return -ENOMEM;
 +
-+	if (!f30->input)
-+		return 0;
++	rmi_spi->rx_buf = buf;
++	rmi_spi->tx_buf = &rmi_spi->rx_buf[buf_size];
++	rmi_spi->xfer_buf_size = buf_size;
 +
-+	/* Read the gpi led data. */
-+	if (rmi_dev->xport->attn_data) {
-+		memcpy(f30->data_regs, rmi_dev->xport->attn_data,
-+			f30->register_count);
-+		rmi_dev->xport->attn_data += f30->register_count;
-+		rmi_dev->xport->attn_size -= f30->register_count;
-+	} else {
-+		retval = rmi_read_block(rmi_dev, fn->fd.data_base_addr,
-+			f30->data_regs, f30->register_count);
++	if (tmp)
++		devm_kfree(&spi->dev, tmp);
 +
-+		if (retval) {
-+			dev_err(&fn->dev, "%s: Failed to read F30 data registers.\n",
-+				__func__);
-+			return retval;
-+		}
-+	}
++	if (rmi_spi->xport.pdata.spi_data.read_delay_us)
++		rmi_spi->rx_xfer_count = buf_size;
++	else
++		rmi_spi->rx_xfer_count = 1;
 +
-+	for (reg_num = 0; reg_num < f30->register_count; ++reg_num) {
-+		for (i = 0; gpiled < f30->gpioled_count && i < 8; ++i,
-+			++gpiled) {
-+			if (f30->gpioled_key_map[gpiled] != 0) {
-+				/* buttons have pull up resistors */
-+				value = (((f30->data_regs[reg_num] >> i) & 0x01)
-+									== 0);
-+
-+				rmi_dbg(RMI_DEBUG_FN, &fn->dev,
-+					"%s: call input report key (0x%04x) value (0x%02x)",
-+					__func__,
-+					f30->gpioled_key_map[gpiled], value);
-+				input_report_key(f30->input,
-+						 f30->gpioled_key_map[gpiled],
-+						 value);
-+			}
-+
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int rmi_f30_register_device(struct rmi_function *fn)
-+{
-+	int i;
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	struct rmi_driver_data *drv_data = dev_get_drvdata(&rmi_dev->dev);
-+	struct f30_data *f30 = dev_get_drvdata(&fn->dev);
-+	struct input_dev *input_dev;
-+	int button_count = 0;
-+
-+	input_dev = drv_data->input;
-+	if (!input_dev) {
-+		dev_info(&fn->dev, "F30: no input device found, ignoring.\n");
-+		return -EINVAL;
-+	}
-+
-+	f30->input = input_dev;
-+
-+	set_bit(EV_KEY, input_dev->evbit);
-+
-+	input_dev->keycode = f30->gpioled_key_map;
-+	input_dev->keycodesize = sizeof(u16);
-+	input_dev->keycodemax = f30->gpioled_count;
-+
-+	for (i = 0; i < f30->gpioled_count; i++) {
-+		if (f30->gpioled_key_map[i] != 0) {
-+			input_set_capability(input_dev, EV_KEY,
-+						f30->gpioled_key_map[i]);
-+			button_count++;
-+		}
-+	}
-+
-+	if (button_count == 1)
-+		__set_bit(INPUT_PROP_BUTTONPAD, input_dev->propbit);
-+	return 0;
-+}
-+
-+static int rmi_f30_config(struct rmi_function *fn)
-+{
-+	struct f30_data *f30 = dev_get_drvdata(&fn->dev);
-+	struct rmi_driver *drv = fn->rmi_dev->driver;
-+	const struct rmi_device_platform_data *pdata =
-+				rmi_get_platform_data(fn->rmi_dev);
-+	int error;
-+
-+	if (pdata->f30_data && pdata->f30_data->disable) {
-+		drv->clear_irq_bits(fn->rmi_dev, fn->irq_mask);
-+	} else {
-+		/* Write Control Register values back to device */
-+		error = rmi_write_block(fn->rmi_dev, fn->fd.control_base_addr,
-+					f30->ctrl_regs, f30->ctrl_regs_size);
-+		if (error) {
-+			dev_err(&fn->rmi_dev->dev,
-+				"%s : Could not write control registers at 0x%x error (%d)\n",
-+				__func__, fn->fd.control_base_addr, error);
-+			return error;
-+		}
-+
-+		drv->set_irq_bits(fn->rmi_dev, fn->irq_mask);
-+	}
-+	return 0;
-+}
-+
-+static inline void rmi_f30_set_ctrl_data(struct rmi_f30_ctrl_data *ctrl,
-+					int *ctrl_addr, int len, u8 **reg)
-+{
-+	ctrl->address = *ctrl_addr;
-+	ctrl->length = len;
-+	ctrl->regs = *reg;
-+	*ctrl_addr += len;
-+	*reg += len;
-+}
-+
-+static inline bool rmi_f30_is_valid_button(int button,
-+		struct rmi_f30_ctrl_data *ctrl)
-+{
-+	int byte_position = button >> 3;
-+	int bit_position = button & 0x07;
++	if (rmi_spi->xport.pdata.spi_data.write_delay_us)
++		rmi_spi->tx_xfer_count = buf_size;
++	else
++		rmi_spi->tx_xfer_count = 1;
 +
 +	/*
-+	 * ctrl2 -> dir == 0 -> input mode
-+	 * ctrl3 -> data == 1 -> actual button
++	 * Allocate a pool of spi_transfer buffers for devices which need
++	 * per byte delays.
 +	 */
-+	return !(ctrl[2].regs[byte_position] & BIT(bit_position)) &&
-+		(ctrl[3].regs[byte_position] & BIT(bit_position));
++	tmp = rmi_spi->rx_xfers;
++	xfer_buf = devm_kzalloc(&spi->dev,
++		(rmi_spi->rx_xfer_count + rmi_spi->tx_xfer_count)
++		* sizeof(struct spi_transfer), GFP_KERNEL);
++	if (!xfer_buf)
++		return -ENOMEM;
++
++	rmi_spi->rx_xfers = xfer_buf;
++	rmi_spi->tx_xfers = &xfer_buf[rmi_spi->rx_xfer_count];
++
++	if (tmp)
++		devm_kfree(&spi->dev, tmp);
++
++	return 0;
 +}
 +
-+static inline int rmi_f30_initialize(struct rmi_function *fn)
++static int rmi_spi_xfer(struct rmi_spi_xport *rmi_spi,
++			const struct rmi_spi_cmd *cmd, const u8 *tx_buf,
++			int tx_len, u8 *rx_buf, int rx_len)
 +{
-+	struct f30_data *f30;
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	const struct rmi_device_platform_data *pdata;
-+	int retval = 0;
-+	int control_address;
++	struct spi_device *spi = rmi_spi->spi;
++	struct rmi_device_platform_data_spi *spi_data =
++					&rmi_spi->xport.pdata.spi_data;
++	struct spi_message msg;
++	struct spi_transfer *xfer;
++	int ret = 0;
++	int len;
++	int cmd_len = 0;
++	int total_tx_len;
 +	int i;
-+	int button;
-+	u8 buf[RMI_F30_QUERY_SIZE];
-+	u8 *ctrl_reg;
-+	u8 *map_memory;
++	u16 addr = cmd->addr;
 +
-+	f30 = devm_kzalloc(&fn->dev, sizeof(struct f30_data),
-+			   GFP_KERNEL);
-+	if (!f30)
-+		return -ENOMEM;
++	spi_message_init(&msg);
 +
-+	dev_set_drvdata(&fn->dev, f30);
-+
-+	retval = rmi_read_block(fn->rmi_dev, fn->fd.query_base_addr, buf,
-+				RMI_F30_QUERY_SIZE);
-+
-+	if (retval) {
-+		dev_err(&fn->dev, "Failed to read query register.\n");
-+		return retval;
++	switch (cmd->op) {
++	case RMI_SPI_WRITE:
++	case RMI_SPI_READ:
++		cmd_len += 2;
++		break;
++	case RMI_SPI_V2_READ_UNIFIED:
++	case RMI_SPI_V2_READ_SPLIT:
++	case RMI_SPI_V2_WRITE:
++		cmd_len += 4;
++		break;
 +	}
 +
-+	f30->has_extended_pattern = buf[0] & RMI_F30_EXTENDED_PATTERNS;
-+	f30->has_mappable_buttons = buf[0] & RMI_F30_HAS_MAPPABLE_BUTTONS;
-+	f30->has_led = buf[0] & RMI_F30_HAS_LED;
-+	f30->has_gpio = buf[0] & RMI_F30_HAS_GPIO;
-+	f30->has_haptic = buf[0] & RMI_F30_HAS_HAPTIC;
-+	f30->has_gpio_driver_control = buf[0] & RMI_F30_HAS_GPIO_DRV_CTL;
-+	f30->has_mech_mouse_btns = buf[0] & RMI_F30_HAS_MECH_MOUSE_BTNS;
-+	f30->gpioled_count = buf[1] & RMI_F30_GPIO_LED_COUNT;
++	total_tx_len = cmd_len + tx_len;
++	len = max(total_tx_len, rx_len);
 +
-+	f30->register_count = (f30->gpioled_count + 7) >> 3;
++	if (len > RMI_SPI_XFER_SIZE_LIMIT)
++		return -EINVAL;
 +
-+	control_address = fn->fd.control_base_addr;
-+	ctrl_reg = f30->ctrl_regs;
++	if (rmi_spi->xfer_buf_size < len)
++		rmi_spi_manage_pools(rmi_spi, len);
 +
-+	if (f30->has_gpio && f30->has_led)
-+		rmi_f30_set_ctrl_data(&f30->ctrl[0], &control_address,
-+					f30->register_count, &ctrl_reg);
++	if (addr == 0)
++		/*
++		 * SPI needs an address. Use 0x7FF if we want to keep
++		 * reading from the last position of the register pointer.
++		 */
++		addr = 0x7FF;
 +
-+	rmi_f30_set_ctrl_data(&f30->ctrl[1], &control_address, sizeof(u8),
-+				&ctrl_reg);
-+
-+	if (f30->has_gpio) {
-+		rmi_f30_set_ctrl_data(&f30->ctrl[2], &control_address,
-+					f30->register_count, &ctrl_reg);
-+
-+		rmi_f30_set_ctrl_data(&f30->ctrl[3], &control_address,
-+					f30->register_count, &ctrl_reg);
++	switch (cmd->op) {
++	case RMI_SPI_WRITE:
++		rmi_spi->tx_buf[0] = (addr >> 8);
++		rmi_spi->tx_buf[1] = addr & 0xFF;
++		break;
++	case RMI_SPI_READ:
++		rmi_spi->tx_buf[0] = (addr >> 8) | 0x80;
++		rmi_spi->tx_buf[1] = addr & 0xFF;
++		break;
++	case RMI_SPI_V2_READ_UNIFIED:
++		break;
++	case RMI_SPI_V2_READ_SPLIT:
++		break;
++	case RMI_SPI_V2_WRITE:
++		rmi_spi->tx_buf[0] = 0x40;
++		rmi_spi->tx_buf[1] = (addr >> 8) & 0xFF;
++		rmi_spi->tx_buf[2] = addr & 0xFF;
++		rmi_spi->tx_buf[3] = tx_len;
++		break;
 +	}
 +
-+	if (f30->has_led) {
-+		int ctrl5_len;
++	if (tx_buf)
++		memcpy(&rmi_spi->tx_buf[cmd_len], tx_buf, tx_len);
 +
-+		rmi_f30_set_ctrl_data(&f30->ctrl[4], &control_address,
-+					f30->register_count, &ctrl_reg);
-+
-+		if (f30->has_extended_pattern)
-+			ctrl5_len = 6;
-+		else
-+			ctrl5_len = 2;
-+
-+		rmi_f30_set_ctrl_data(&f30->ctrl[5], &control_address,
-+					ctrl5_len, &ctrl_reg);
++	if (rmi_spi->tx_xfer_count > 1) {
++		for (i = 0; i < total_tx_len; i++) {
++			xfer = &rmi_spi->tx_xfers[i];
++			memset(xfer, 0,	sizeof(struct spi_transfer));
++			xfer->tx_buf = &rmi_spi->tx_buf[i];
++			xfer->len = 1;
++			xfer->delay_usecs = spi_data->write_delay_us;
++			spi_message_add_tail(xfer, &msg);
++		}
++	} else {
++		xfer = rmi_spi->tx_xfers;
++		memset(xfer, 0, sizeof(struct spi_transfer));
++		xfer->tx_buf = rmi_spi->tx_buf;
++		xfer->len = total_tx_len;
++		spi_message_add_tail(xfer, &msg);
 +	}
 +
-+	if (f30->has_led || f30->has_gpio_driver_control) {
-+		/* control 6 uses a byte per gpio/led */
-+		rmi_f30_set_ctrl_data(&f30->ctrl[6], &control_address,
-+					f30->gpioled_count, &ctrl_reg);
-+	}
++	rmi_dbg(RMI_DEBUG_XPORT, &spi->dev, "%s: cmd: %s tx_buf len: %d tx_buf: %*ph\n",
++		__func__, cmd->op == RMI_SPI_WRITE ? "WRITE" : "READ",
++		total_tx_len, total_tx_len, rmi_spi->tx_buf);
 +
-+	if (f30->has_mappable_buttons) {
-+		/* control 7 uses a byte per gpio/led */
-+		rmi_f30_set_ctrl_data(&f30->ctrl[7], &control_address,
-+					f30->gpioled_count, &ctrl_reg);
-+	}
-+
-+	if (f30->has_haptic) {
-+		rmi_f30_set_ctrl_data(&f30->ctrl[8], &control_address,
-+					f30->register_count, &ctrl_reg);
-+
-+		rmi_f30_set_ctrl_data(&f30->ctrl[9], &control_address,
-+					sizeof(u8), &ctrl_reg);
-+	}
-+
-+	if (f30->has_mech_mouse_btns)
-+		rmi_f30_set_ctrl_data(&f30->ctrl[10], &control_address,
-+					sizeof(u8), &ctrl_reg);
-+
-+	f30->ctrl_regs_size = ctrl_reg - f30->ctrl_regs
-+				?: RMI_F30_CTRL_REGS_MAX_SIZE;
-+
-+	retval = rmi_f30_read_control_parameters(fn, f30);
-+	if (retval < 0) {
-+		dev_err(&fn->dev,
-+			"Failed to initialize F19 control params.\n");
-+		return retval;
-+	}
-+
-+	map_memory = devm_kzalloc(&fn->dev,
-+				  (f30->gpioled_count * (sizeof(u16))),
-+				  GFP_KERNEL);
-+	if (!map_memory) {
-+		dev_err(&fn->dev, "Failed to allocate gpioled map memory.\n");
-+		return -ENOMEM;
-+	}
-+
-+	f30->gpioled_key_map = (u16 *)map_memory;
-+
-+	pdata = rmi_get_platform_data(rmi_dev);
-+	if (pdata && f30->has_gpio) {
-+		button = BTN_LEFT;
-+		for (i = 0; i < f30->gpioled_count; i++) {
-+			if (rmi_f30_is_valid_button(i, f30->ctrl)) {
-+				f30->gpioled_key_map[i] = button++;
-+
-+				/*
-+				 * buttonpad might be given by
-+				 * f30->has_mech_mouse_btns, but I am
-+				 * not sure, so use only the pdata info
-+				 */
-+				if (pdata->f30_data &&
-+				    pdata->f30_data->buttonpad)
-+					break;
++	if (rx_buf) {
++		if (rmi_spi->rx_xfer_count > 1) {
++			for (i = 0; i < rx_len; i++) {
++				xfer = &rmi_spi->rx_xfers[i];
++				memset(xfer, 0, sizeof(struct spi_transfer));
++				xfer->rx_buf = &rmi_spi->rx_buf[i];
++				xfer->len = 1;
++				xfer->delay_usecs = spi_data->read_delay_us;
++				spi_message_add_tail(xfer, &msg);
 +			}
++		} else {
++			xfer = rmi_spi->rx_xfers;
++			memset(xfer, 0, sizeof(struct spi_transfer));
++			xfer->rx_buf = rmi_spi->rx_buf;
++			xfer->len = rx_len;
++			spi_message_add_tail(xfer, &msg);
 +		}
 +	}
 +
++	ret = spi_sync(spi, &msg);
++	if (ret < 0) {
++		dev_err(&spi->dev, "spi xfer failed: %d\n", ret);
++		return ret;
++	}
++
++	if (rx_buf) {
++		memcpy(rx_buf, rmi_spi->rx_buf, rx_len);
++		rmi_dbg(RMI_DEBUG_XPORT, &spi->dev, "%s: (%d) %*ph\n",
++			__func__, rx_len, rx_len, rx_buf);
++	}
++
 +	return 0;
 +}
 +
-+static int rmi_f30_probe(struct rmi_function *fn)
++/*
++ * rmi_set_page - Set RMI page
++ * @xport: The pointer to the rmi_transport_dev struct
++ * @page: The new page address.
++ *
++ * RMI devices have 16-bit addressing, but some of the transport
++ * implementations (like SMBus) only have 8-bit addressing. So RMI implements
++ * a page address at 0xff of every page so we can reliable page addresses
++ * every 256 registers.
++ *
++ * The page_mutex lock must be held when this function is entered.
++ *
++ * Returns zero on success, non-zero on failure.
++ */
++static int rmi_set_page(struct rmi_spi_xport *rmi_spi, u8 page)
 +{
-+	int rc;
-+	const struct rmi_device_platform_data *pdata =
-+				rmi_get_platform_data(fn->rmi_dev);
++	struct rmi_spi_cmd cmd;
++	int ret;
 +
-+	if (pdata->f30_data && pdata->f30_data->disable)
-+		return 0;
++	cmd.op = RMI_SPI_WRITE;
++	cmd.addr = RMI_PAGE_SELECT_REGISTER;
 +
-+	rc = rmi_f30_initialize(fn);
-+	if (rc < 0)
-+		goto error_exit;
++	ret = rmi_spi_xfer(rmi_spi, &cmd, &page, 1, NULL, 0);
 +
-+	rc = rmi_f30_register_device(fn);
-+	if (rc < 0)
-+		goto error_exit;
++	if (ret)
++		rmi_spi->page = page;
 +
-+	return 0;
-+
-+error_exit:
-+	return rc;
-+
++	return ret;
 +}
 +
-+struct rmi_function_handler rmi_f30_handler = {
-+	.driver = {
-+		.name = "rmi4_f30",
-+	},
-+	.func = 0x30,
-+	.probe = rmi_f30_probe,
-+	.config = rmi_f30_config,
-+	.attention = rmi_f30_attention,
++static int rmi_spi_write_block(struct rmi_transport_dev *xport, u16 addr,
++			       const void *buf, size_t len)
++{
++	struct rmi_spi_xport *rmi_spi =
++		container_of(xport, struct rmi_spi_xport, xport);
++	struct rmi_spi_cmd cmd;
++	int ret;
++
++	mutex_lock(&rmi_spi->page_mutex);
++
++	if (RMI_SPI_PAGE(addr) != rmi_spi->page) {
++		ret = rmi_set_page(rmi_spi, RMI_SPI_PAGE(addr));
++		if (ret)
++			goto exit;
++	}
++
++	cmd.op = RMI_SPI_WRITE;
++	cmd.addr = addr;
++
++	ret = rmi_spi_xfer(rmi_spi, &cmd, buf, len, NULL, 0);
++
++exit:
++	mutex_unlock(&rmi_spi->page_mutex);
++	return ret;
++}
++
++static int rmi_spi_read_block(struct rmi_transport_dev *xport, u16 addr,
++			      void *buf, size_t len)
++{
++	struct rmi_spi_xport *rmi_spi =
++		container_of(xport, struct rmi_spi_xport, xport);
++	struct rmi_spi_cmd cmd;
++	int ret;
++
++	mutex_lock(&rmi_spi->page_mutex);
++
++	if (RMI_SPI_PAGE(addr) != rmi_spi->page) {
++		ret = rmi_set_page(rmi_spi, RMI_SPI_PAGE(addr));
++		if (ret)
++			goto exit;
++	}
++
++	cmd.op = RMI_SPI_READ;
++	cmd.addr = addr;
++
++	ret = rmi_spi_xfer(rmi_spi, &cmd, NULL, 0, buf, len);
++
++exit:
++	mutex_unlock(&rmi_spi->page_mutex);
++	return ret;
++}
++
++static const struct rmi_transport_ops rmi_spi_ops = {
++	.write_block	= rmi_spi_write_block,
++	.read_block	= rmi_spi_read_block,
 +};
++
++static irqreturn_t rmi_spi_irq(int irq, void *dev_id)
++{
++	struct rmi_spi_xport *rmi_spi = dev_id;
++	struct rmi_device *rmi_dev = rmi_spi->xport.rmi_dev;
++	int ret;
++
++	ret = rmi_process_interrupt_requests(rmi_dev);
++	if (ret)
++		rmi_dbg(RMI_DEBUG_XPORT, &rmi_dev->dev,
++			"Failed to process interrupt request: %d\n", ret);
++
++	return IRQ_HANDLED;
++}
++
++static int rmi_spi_init_irq(struct spi_device *spi)
++{
++	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
++	int irq_flags = irqd_get_trigger_type(irq_get_irq_data(rmi_spi->irq));
++	int ret;
++
++	if (!irq_flags)
++		irq_flags = IRQF_TRIGGER_LOW;
++
++	ret = devm_request_threaded_irq(&spi->dev, rmi_spi->irq, NULL,
++			rmi_spi_irq, irq_flags | IRQF_ONESHOT,
++			dev_name(&spi->dev), rmi_spi);
++	if (ret < 0) {
++		dev_warn(&spi->dev, "Failed to register interrupt %d\n",
++			rmi_spi->irq);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int rmi_spi_probe(struct spi_device *spi)
++{
++	struct rmi_spi_xport *rmi_spi;
++	struct rmi_device_platform_data *pdata;
++	struct rmi_device_platform_data *spi_pdata = spi->dev.platform_data;
++	int retval;
++
++	if (spi->master->flags & SPI_MASTER_HALF_DUPLEX)
++		return -EINVAL;
++
++	rmi_spi = devm_kzalloc(&spi->dev, sizeof(struct rmi_spi_xport),
++			GFP_KERNEL);
++	if (!rmi_spi)
++		return -ENOMEM;
++
++	pdata = &rmi_spi->xport.pdata;
++
++	if (spi_pdata)
++		*pdata = *spi_pdata;
++
++	if (pdata->spi_data.bits_per_word)
++		spi->bits_per_word = pdata->spi_data.bits_per_word;
++
++	if (pdata->spi_data.mode)
++		spi->mode = pdata->spi_data.mode;
++
++	retval = spi_setup(spi);
++	if (retval < 0) {
++		dev_err(&spi->dev, "spi_setup failed!\n");
++		return retval;
++	}
++
++	if (spi->irq > 0)
++		rmi_spi->irq = spi->irq;
++
++	rmi_spi->spi = spi;
++	mutex_init(&rmi_spi->page_mutex);
++
++	rmi_spi->xport.dev = &spi->dev;
++	rmi_spi->xport.proto_name = "spi";
++	rmi_spi->xport.ops = &rmi_spi_ops;
++
++	spi_set_drvdata(spi, rmi_spi);
++
++	retval = rmi_spi_manage_pools(rmi_spi, RMI_SPI_DEFAULT_XFER_BUF_SIZE);
++	if (retval)
++		return retval;
++
++	/*
++	 * Setting the page to zero will (a) make sure the PSR is in a
++	 * known state, and (b) make sure we can talk to the device.
++	 */
++	retval = rmi_set_page(rmi_spi, 0);
++	if (retval) {
++		dev_err(&spi->dev, "Failed to set page select to 0.\n");
++		return retval;
++	}
++
++	retval = rmi_register_transport_device(&rmi_spi->xport);
++	if (retval) {
++		dev_err(&spi->dev, "failed to register transport.\n");
++		return retval;
++	}
++
++	retval = rmi_spi_init_irq(spi);
++	if (retval < 0)
++		return retval;
++
++	dev_info(&spi->dev, "registered RMI SPI driver\n");
++	return 0;
++}
++
++static int rmi_spi_remove(struct spi_device *spi)
++{
++	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
++
++	rmi_unregister_transport_device(&rmi_spi->xport);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int rmi_spi_suspend(struct device *dev)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
++	int ret;
++
++	ret = rmi_driver_suspend(rmi_spi->xport.rmi_dev);
++	if (ret)
++		dev_warn(dev, "Failed to resume device: %d\n", ret);
++
++	disable_irq(rmi_spi->irq);
++	if (device_may_wakeup(&spi->dev)) {
++		ret = enable_irq_wake(rmi_spi->irq);
++		if (!ret)
++			dev_warn(dev, "Failed to enable irq for wake: %d\n",
++				ret);
++	}
++	return ret;
++}
++
++static int rmi_spi_resume(struct device *dev)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
++	int ret;
++
++	enable_irq(rmi_spi->irq);
++	if (device_may_wakeup(&spi->dev)) {
++		ret = disable_irq_wake(rmi_spi->irq);
++		if (!ret)
++			dev_warn(dev, "Failed to disable irq for wake: %d\n",
++				ret);
++	}
++
++	ret = rmi_driver_resume(rmi_spi->xport.rmi_dev);
++	if (ret)
++		dev_warn(dev, "Failed to resume device: %d\n", ret);
++
++	return ret;
++}
++#endif
++
++#ifdef CONFIG_PM
++static int rmi_spi_runtime_suspend(struct device *dev)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
++	int ret;
++
++	ret = rmi_driver_suspend(rmi_spi->xport.rmi_dev);
++	if (ret)
++		dev_warn(dev, "Failed to resume device: %d\n", ret);
++
++	disable_irq(rmi_spi->irq);
++
++	return 0;
++}
++
++static int rmi_spi_runtime_resume(struct device *dev)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
++	int ret;
++
++	enable_irq(rmi_spi->irq);
++
++	ret = rmi_driver_resume(rmi_spi->xport.rmi_dev);
++	if (ret)
++		dev_warn(dev, "Failed to resume device: %d\n", ret);
++
++	return 0;
++}
++#endif
++
++static const struct dev_pm_ops rmi_spi_pm = {
++	SET_SYSTEM_SLEEP_PM_OPS(rmi_spi_suspend, rmi_spi_resume)
++	SET_RUNTIME_PM_OPS(rmi_spi_runtime_suspend, rmi_spi_runtime_resume,
++			   NULL)
++};
++
++static const struct spi_device_id rmi_id[] = {
++	{ "rmi4_spi", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(spi, rmi_id);
++
++static struct spi_driver rmi_spi_driver = {
++	.driver = {
++		.name	= "rmi4_spi",
++		.pm	= &rmi_spi_pm,
++	},
++	.id_table	= rmi_id,
++	.probe		= rmi_spi_probe,
++	.remove		= rmi_spi_remove,
++};
++
++module_spi_driver(rmi_spi_driver);
++
++MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com>");
++MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com>");
++MODULE_DESCRIPTION("RMI SPI driver");
++MODULE_LICENSE("GPL");
++MODULE_VERSION(RMI_DRIVER_VERSION);
 diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index b527064..ac89d1e 100644
+index ac89d1e..e0aca14 100644
 --- a/include/linux/rmi.h
 +++ b/include/linux/rmi.h
-@@ -102,6 +102,21 @@ struct rmi_2d_sensor_platform_data {
+@@ -150,6 +150,55 @@ struct rmi_f01_power_management {
  };
  
  /**
-+ * struct rmi_f30_data - overrides defaults for a single F30 GPIOs/LED chip.
-+ * @buttonpad - the touchpad is a buttonpad, so enable only the first actual
-+ * button that is found.
-+ * @trackstick_buttons - Set when the function 30 is handling the physical
-+ * buttons of the trackstick (as a PD/2 passthrough device.
-+ * @disable - the touchpad incorrectly reports F30 and it should be ignored.
-+ * This is a special case which is due to misconfigured firmware.
++ * struct rmi_device_platform_data_spi - provides parameters used in SPI
++ * communications.  All Synaptics SPI products support a standard SPI
++ * interface; some also support what is called SPI V2 mode, depending on
++ * firmware and/or ASIC limitations.  In V2 mode, the touch sensor can
++ * support shorter delays during certain operations, and these are specified
++ * separately from the standard mode delays.
++ *
++ * @block_delay - for standard SPI transactions consisting of both a read and
++ * write operation, the delay (in microseconds) between the read and write
++ * operations.
++ * @split_read_block_delay_us - for V2 SPI transactions consisting of both a
++ * read and write operation, the delay (in microseconds) between the read and
++ * write operations.
++ * @read_delay_us - the delay between each byte of a read operation in normal
++ * SPI mode.
++ * @write_delay_us - the delay between each byte of a write operation in normal
++ * SPI mode.
++ * @split_read_byte_delay_us - the delay between each byte of a read operation
++ * in V2 mode.
++ * @pre_delay_us - the delay before the start of a SPI transaction.  This is
++ * typically useful in conjunction with custom chip select assertions (see
++ * below).
++ * @post_delay_us - the delay after the completion of an SPI transaction.  This
++ * is typically useful in conjunction with custom chip select assertions (see
++ * below).
++ * @cs_assert - For systems where the SPI subsystem does not control the CS/SSB
++ * line, or where such control is broken, you can provide a custom routine to
++ * handle a GPIO as CS/SSB.  This routine will be called at the beginning and
++ * end of each SPI transaction.  The RMI SPI implementation will wait
++ * pre_delay_us after this routine returns before starting the SPI transfer;
++ * and post_delay_us after completion of the SPI transfer(s) before calling it
++ * with assert==FALSE.
 + */
-+struct rmi_f30_data {
-+	bool buttonpad;
-+	bool trackstick_buttons;
-+	bool disable;
++struct rmi_device_platform_data_spi {
++	u32 block_delay_us;
++	u32 split_read_block_delay_us;
++	u32 read_delay_us;
++	u32 write_delay_us;
++	u32 split_read_byte_delay_us;
++	u32 pre_delay_us;
++	u32 post_delay_us;
++	u8 bits_per_word;
++	u16 mode;
++
++	void *cs_assert_data;
++	int (*cs_assert)(const void *cs_assert_data, const bool assert);
 +};
 +
 +/**
-  * struct rmi_f01_power - override default power management settings.
+  * struct rmi_device_platform_data - system specific configuration info.
   *
-  */
-@@ -147,6 +162,7 @@ struct rmi_device_platform_data {
+  * @reset_delay_ms - after issuing a reset command to the touch sensor, the
+@@ -159,6 +208,8 @@ struct rmi_f01_power_management {
+ struct rmi_device_platform_data {
+ 	int reset_delay_ms;
+ 
++	struct rmi_device_platform_data_spi spi_data;
++
  	/* function handler pdata */
  	struct rmi_2d_sensor_platform_data *sensor_pdata;
  	struct rmi_f01_power_management power_management;
-+	struct rmi_f30_data *f30_data;
- };
- 
- /**
 -- 
 2.5.0

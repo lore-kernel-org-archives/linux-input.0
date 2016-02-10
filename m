@@ -1,38 +1,29 @@
-From: Sudip Mukherjee <sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] Input: colibri-vf50-ts: fix implicit declaration
-Date: Wed, 10 Feb 2016 15:34:16 +0530
-Message-ID: <20160210100416.GA8872@sudip-pc>
-References: <1455097547-31053-1-git-send-email-sudipm.mukherjee@gmail.com>
- <CAMuHMdVViFX+0Wi_LBFsjFStEZnX1XNG-n8tj6qug3mSioySag@mail.gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [RESEND PATCH 0/6] HID: minor misc fixes
+Date: Wed, 10 Feb 2016 11:33:31 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1602101133030.22727@cbobk.fhfr.pm>
+References: <1455022508-20041-1-git-send-email-ao2@ao2.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdVViFX+0Wi_LBFsjFStEZnX1XNG-n8tj6qug3mSioySag-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sanchayan Maity <maitysanchayan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:51794 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752811AbcBJKdd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Feb 2016 05:33:33 -0500
+In-Reply-To: <1455022508-20041-1-git-send-email-ao2@ao2.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Antonio Ospite <ao2@ao2.it>
+Cc: linux-input@vger.kernel.org
 
-On Wed, Feb 10, 2016 at 10:54:45AM +0100, Geert Uytterhoeven wrote:
-> On Wed, Feb 10, 2016 at 10:45 AM, Sudip Mukherjee
-> <sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > The build of m32r allmodconfig fails with the error:
-> > drivers/input/touchscreen/colibri-vf50-ts.c:302:10: error: implicit
-> >         declaration of function 'of_property_read_u32'
-> >
-> > of_property_read_u32() is defined in linux/of.h which was not included.
-> >
-> > Fixes: 1261d013daea ("Input: Allow compile test of Goodix and Colibri VF50 if !GPIOLIB")
-> 
-> Actually I had sent the exact same patch to add this missing include,
-> to apply before 1261d013daea, but it seems Dmitry only applied the
-> second one.
-> 
-> http://permalink.gmane.org/gmane.linux.kernel.gpio/14086
+On Tue, 9 Feb 2016, Antonio Ospite wrote:
 
-apart from m32r it also affects tilegx, s390, m68k allmodconfig.
-I hope Dmitry applies any one from your or mine patch today.
+> resending the patches as asked by Jiri, leaving out the one about the
+> BUZZ controller as agreed with Frank.
 
-regards
-sudip
+I've applied the patches to hid.git. Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
+

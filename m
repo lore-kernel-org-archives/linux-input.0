@@ -1,41 +1,42 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCHv12 03/17] dts: exynos4412-odroid*: enable the HDMI CEC device
-Date: Wed, 10 Feb 2016 13:51:37 +0100
-Message-ID: <1455108711-29850-4-git-send-email-hverkuil@xs4all.nl>
+Subject: [PATCHv12 04/17] input.h: add BUS_CEC type
+Date: Wed, 10 Feb 2016 13:51:38 +0100
+Message-ID: <1455108711-29850-5-git-send-email-hverkuil@xs4all.nl>
 References: <1455108711-29850-1-git-send-email-hverkuil@xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lb2-smtp-cloud3.xs4all.net ([194.109.24.26]:45485 "EHLO
+	lb2-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750970AbcBJMwK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Feb 2016 07:52:10 -0500
 In-Reply-To: <1455108711-29850-1-git-send-email-hverkuil@xs4all.nl>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: linux-media@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, dri-devel@lists.freedesktop.org, lars@opdenkamp.eu, Hans Verkuil <hans.verkuil@cisco.com>, linux-input@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-media@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
 
-RnJvbTogS2FtaWwgRGVic2tpIDxrYW1pbEB3eXBhcy5vcmc+CgpBZGQgYSBkdHMgbm9kZSBlbnRy
-eSBhbmQgZW5hYmxlIHRoZSBIRE1JIENFQyBkZXZpY2UgcHJlc2VudCBpbiB0aGUgRXh5bm9zNApm
-YW1pbHkgb2YgU29Dcy4KClNpZ25lZC1vZmYtYnk6IEthbWlsIERlYnNraSA8a2FtaWxAd3lwYXMu
-b3JnPgpTaWduZWQtb2ZmLWJ5OiBIYW5zIFZlcmt1aWwgPGhhbnMudmVya3VpbEBjaXNjby5jb20+
-CkFja2VkLWJ5OiBLcnp5c3p0b2YgS296bG93c2tpIDxrLmtvemxvd3NraUBzYW1zdW5nLmNvbT4K
-LS0tCiBhcmNoL2FybS9ib290L2R0cy9leHlub3M0MjEwLXVuaXZlcnNhbF9jMjEwLmR0cyB8IDQg
-KysrKwogMSBmaWxlIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL2FyY2gv
-YXJtL2Jvb3QvZHRzL2V4eW5vczQyMTAtdW5pdmVyc2FsX2MyMTAuZHRzIGIvYXJjaC9hcm0vYm9v
-dC9kdHMvZXh5bm9zNDIxMC11bml2ZXJzYWxfYzIxMC5kdHMKaW5kZXggNGY1ZDM3OS4uMzMxYWI5
-ZiAxMDA2NDQKLS0tIGEvYXJjaC9hcm0vYm9vdC9kdHMvZXh5bm9zNDIxMC11bml2ZXJzYWxfYzIx
-MC5kdHMKKysrIGIvYXJjaC9hcm0vYm9vdC9kdHMvZXh5bm9zNDIxMC11bml2ZXJzYWxfYzIxMC5k
-dHMKQEAgLTIyMyw2ICsyMjMsMTAgQEAKIAkJZW5hYmxlLWFjdGl2ZS1oaWdoOwogCX07CiAKKwlj
-ZWNAMTAwQjAwMDAgeworCQlzdGF0dXMgPSAib2theSI7CisJfTsKKwogCWhkbWlfZGRjOiBpMmMt
-ZGRjIHsKIAkJY29tcGF0aWJsZSA9ICJpMmMtZ3BpbyI7CiAJCWdwaW9zID0gPCZncGU0IDIgR1BJ
-T19BQ1RJVkVfSElHSCAmZ3BlNCAzIEdQSU9fQUNUSVZFX0hJR0g+OwotLSAKMi43LjAKCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWls
-aW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZy
-ZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
+From: Hans Verkuil <hans.verkuil@cisco.com>
+
+Inputs can come in over the HDMI CEC bus, so add a new type for this.
+
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ include/uapi/linux/input.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 2758687..4f8c813 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -246,6 +246,7 @@ struct input_mask {
+ #define BUS_GSC			0x1A
+ #define BUS_ATARI		0x1B
+ #define BUS_SPI			0x1C
++#define BUS_CEC			0x1D
+ 
+ /*
+  * MT_TOOL types
+-- 
+2.7.0
+

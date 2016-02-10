@@ -1,37 +1,49 @@
-From: Sudip Mukherjee <sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] Input: colibri-vf50-ts: fix implicit declaration
-Date: Wed, 10 Feb 2016 15:15:47 +0530
-Message-ID: <1455097547-31053-1-git-send-email-sudipm.mukherjee@gmail.com>
-Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sanchayan Maity <maitysanchayan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sudip Mukherjee <sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 1/2] Input: Colibri VF50 - Add missing #include <linux/of.h>
+Date: Wed, 10 Feb 2016 10:52:39 +0100
+Message-ID: <CAMuHMdU3oWoCTgy14mhuFAE33Bne0a18xErLRjYv_pugq4_V5Q@mail.gmail.com>
+References: <1454854687-21114-1-git-send-email-geert@linux-m68k.org>
+	<20160209183324.GE40460@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <20160209183324.GE40460@dtor-ws>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Bastien Nocera <hadess@hadess.net>, Sanchayan Maity <maitysanchayan@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-The build of m32r allmodconfig fails with the error:
-drivers/input/touchscreen/colibri-vf50-ts.c:302:10: error: implicit
-	declaration of function 'of_property_read_u32'
+On Tue, Feb 9, 2016 at 7:33 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Sun, Feb 07, 2016 at 03:18:06PM +0100, Geert Uytterhoeven wrote:
+>> drivers/input/touchscreen/colibri-vf50-ts.c: In function =E2=80=98vf=
+50_ts_probe=E2=80=99:
+>> drivers/input/touchscreen/colibri-vf50-ts.c:302: error: implicit dec=
+laration of function =E2=80=98of_property_read_u32=E2=80=99
+>>
+>> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+>
+> Applied, thank you.
 
-of_property_read_u32() is defined in linux/of.h which was not included.	
+Apparently you only applied patch 2/2, causing the abovementioned
+breakage in -next?
 
-Fixes: 1261d013daea ("Input: Allow compile test of Goodix and Colibri VF50 if !GPIOLIB")
-Cc: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Signed-off-by: Sudip Mukherjee <sudip-ofJRbWXBVFamYgehrs7/Lw@public.gmane.org>
----
- drivers/input/touchscreen/colibri-vf50-ts.c | 1 +
- 1 file changed, 1 insertion(+)
+Gr{oetje,eeting}s,
 
-diff --git a/drivers/input/touchscreen/colibri-vf50-ts.c b/drivers/input/touchscreen/colibri-vf50-ts.c
-index 5d4903a..594c096 100644
---- a/drivers/input/touchscreen/colibri-vf50-ts.c
-+++ b/drivers/input/touchscreen/colibri-vf50-ts.c
-@@ -25,6 +25,7 @@
- #include <linux/platform_device.h>
- #include <linux/slab.h>
- #include <linux/types.h>
-+#include <linux/of.h>
- 
- #define DRIVER_NAME			"colibri-vf50-ts"
- #define DRV_VERSION			"1.0"
--- 
-1.9.1
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-=
+m68k.org
+
+In personal conversations with technical people, I call myself a hacker=
+=2E But
+when I'm talking to journalists I just say "programmer" or something li=
+ke that.
+                                -- Linus Torvalds
+--
+To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

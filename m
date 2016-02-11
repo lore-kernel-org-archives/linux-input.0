@@ -1,55 +1,78 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 3.12 50/64] HID: core: Avoid uninitialized buffer access
-Date: Thu, 11 Feb 2016 14:59:26 +0100
-Message-ID: <a258401dd98e0f6968f014bf3410a091c3785ad4.1455198893.git.jslaby@suse.cz>
-References: <74c0820133f1dada0d70c74bc70a9530b2697f86.1455198893.git.jslaby@suse.cz>
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: Re: [PATCH v1 2/6] mfd: cros_ec: Add MKBP event support
+Date: Thu, 11 Feb 2016 15:52:33 +0100
+Message-ID: <56BCA031.3010702@collabora.com>
+References: <1454679181-8949-1-git-send-email-tomeu.vizoso@collabora.com>
+ <1454679181-8949-3-git-send-email-tomeu.vizoso@collabora.com>
+ <CAMHSBOXRvC7U_KWeg+rX3Qymaos0-3FN6AuaXT2cyP=gAN47mA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <74c0820133f1dada0d70c74bc70a9530b2697f86.1455198893.git.jslaby@suse.cz>
-In-Reply-To: <cover.1455198893.git.jslaby@suse.cz>
-References: <cover.1455198893.git.jslaby@suse.cz>
+In-Reply-To: <CAMHSBOXRvC7U_KWeg+rX3Qymaos0-3FN6AuaXT2cyP=gAN47mA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: stable@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Richard Purdie <richard.purdie@linuxfoundation.org>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Jiri Kosina <jkosina@suse.cz>, Jiri Slaby <jslaby@suse.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Sameer Nanda <snanda@chromium.org>, Benson Leung <bleung@chromium.org>, =?UTF-8?Q?Enric_Balletb=c3=b2?= <enric.balletbo@collabora.co.uk>, Vic Yang <victoryang@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Randall Spangler <rspangler@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Vic Yang <victoryang@google.com>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Richard Purdie <richard.purdie@linuxfoundation.org>
+On 02/05/2016 06:24 PM, Gwendal Grignou wrote:
+> We should not used kmalloc when get events, these functions are called
+> quite often.
+> Gwendal.
+> 
+> On Fri, Feb 5, 2016 at 5:32 AM, Tomeu Vizoso <tomeu.vizoso@collabora.com
+> <mailto:tomeu.vizoso@collabora.com>> wrote:
+> 
+>     +static int cros_ec_get_host_command_version_mask(struct
+>     cros_ec_device *ec_dev,
+>     +       u16 cmd, u32 *mask)
+>     +{
+>     +       struct ec_params_get_cmd_versions *pver;
+>     +       struct ec_response_get_cmd_versions *rver;
+>     +       struct cros_ec_command *msg;
+>     +       int ret;
+>     +
+>     +       msg = kmalloc(sizeof(*msg) + max(sizeof(rver), sizeof(pver)),
+>     +                     GFP_KERNEL);
+>     +       if (!msg)
+>     +               return -ENOMEM;
+> 
+>  Victor's version in https://chromium-review.googlesource.com/272954
+> looks cleaner: no malloc, no need to cast rver.
 
-3.12-stable review patch.  If anyone has any objections, please let me know.
+I agree that it looks cleaner, but how would you allocate the payload at
+build time if it has to be max(sizeof(*pver), sizeof(*rver))?
 
-===============
+>     +static int get_next_event(struct cros_ec_device *ec_dev)
+>     +{
+>     +       struct cros_ec_command *msg;
+>     +       int ret;
+>     +
+>     +       msg = kmalloc(sizeof(*msg) + sizeof(ec_dev->event_data),
+>     GFP_KERNEL);
+>     +       if (!msg)
+>     +               return -ENOMEM;
+> 
+> Same grip about malloc(). This function will be called very often when
+> sensors are used.
 
-commit 79b568b9d0c7c5d81932f4486d50b38efdd6da6d upstream.
+Ok.
 
-hid_connect adds various strings to the buffer but they're all
-conditional. You can find circumstances where nothing would be written
-to it but the kernel will still print the supposedly empty buffer with
-printk. This leads to corruption on the console/in the logs.
+>     +static int get_keyboard_state_event(struct cros_ec_device *ec_dev)
+>     +{
+>     +       struct cros_ec_command *msg;
+>     +
+>     +       msg = kmalloc(sizeof(*msg) + sizeof(ec_dev->event_data.data),
+>     +                     GFP_KERNEL);
+>     +       if (!msg)
+>     +               return -ENOMEM;
+> 
+> Given this command will be used on every key press, it is better to
+> pre-allocate data (like
+> in https://chromium-review.googlesource.com/276768) and use msg on the
+> stack like Victor's changes.
 
-Ensure buf is initialized to an empty string.
+Ok.
 
-Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
-[dvhart: Initialize string to "" rather than assign buf[0] = NULL;]
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Darren Hart <dvhart@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
----
- drivers/hid/hid-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks,
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 85b0da8c33f4..7ca1b4a97a14 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1514,7 +1514,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 		"Multi-Axis Controller"
- 	};
- 	const char *type, *bus;
--	char buf[64];
-+	char buf[64] = "";
- 	unsigned int i;
- 	int len;
- 	int ret;
--- 
-2.7.1
+Tomeu

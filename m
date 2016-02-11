@@ -1,78 +1,79 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: Re: [PATCH v1 2/6] mfd: cros_ec: Add MKBP event support
-Date: Thu, 11 Feb 2016 15:52:33 +0100
-Message-ID: <56BCA031.3010702@collabora.com>
-References: <1454679181-8949-1-git-send-email-tomeu.vizoso@collabora.com>
- <1454679181-8949-3-git-send-email-tomeu.vizoso@collabora.com>
- <CAMHSBOXRvC7U_KWeg+rX3Qymaos0-3FN6AuaXT2cyP=gAN47mA@mail.gmail.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [GIT PULL] Immutable branch between MFD, Input and IIO
+Date: Thu, 11 Feb 2016 15:56:33 +0000
+Message-ID: <20160211155633.GB20693@x1>
+References: <1450101234-2191-1-git-send-email-mpa@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMHSBOXRvC7U_KWeg+rX3Qymaos0-3FN6AuaXT2cyP=gAN47mA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Sameer Nanda <snanda@chromium.org>, Benson Leung <bleung@chromium.org>, =?UTF-8?Q?Enric_Balletb=c3=b2?= <enric.balletbo@collabora.co.uk>, Vic Yang <victoryang@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Randall Spangler <rspangler@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Vic Yang <victoryang@google.com>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1450101234-2191-1-git-send-email-mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Eric =?iso-8859-1?Q?B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On 02/05/2016 06:24 PM, Gwendal Grignou wrote:
-> We should not used kmalloc when get events, these functions are called
-> quite often.
-> Gwendal.
-> 
-> On Fri, Feb 5, 2016 at 5:32 AM, Tomeu Vizoso <tomeu.vizoso@collabora.com
-> <mailto:tomeu.vizoso@collabora.com>> wrote:
-> 
->     +static int cros_ec_get_host_command_version_mask(struct
->     cros_ec_device *ec_dev,
->     +       u16 cmd, u32 *mask)
->     +{
->     +       struct ec_params_get_cmd_versions *pver;
->     +       struct ec_response_get_cmd_versions *rver;
->     +       struct cros_ec_command *msg;
->     +       int ret;
->     +
->     +       msg = kmalloc(sizeof(*msg) + max(sizeof(rver), sizeof(pver)),
->     +                     GFP_KERNEL);
->     +       if (!msg)
->     +               return -ENOMEM;
-> 
->  Victor's version in https://chromium-review.googlesource.com/272954
-> looks cleaner: no malloc, no need to cast rver.
+Enjoy!
 
-I agree that it looks cleaner, but how would you allocate the payload at
-build time if it has to be max(sizeof(*pver), sizeof(*rver))?
+The following changes since commit 36f90b0a2ddd60823fe193a85e60ff1906c2=
+a9b3:
 
->     +static int get_next_event(struct cros_ec_device *ec_dev)
->     +{
->     +       struct cros_ec_command *msg;
->     +       int ret;
->     +
->     +       msg = kmalloc(sizeof(*msg) + sizeof(ec_dev->event_data),
->     GFP_KERNEL);
->     +       if (!msg)
->     +               return -ENOMEM;
-> 
-> Same grip about malloc(). This function will be called very often when
-> sensors are used.
+  Linux 4.5-rc2 (2016-01-31 18:12:16 -0800)
 
-Ok.
+are available in the git repository at:
 
->     +static int get_keyboard_state_event(struct cros_ec_device *ec_dev)
->     +{
->     +       struct cros_ec_command *msg;
->     +
->     +       msg = kmalloc(sizeof(*msg) + sizeof(ec_dev->event_data.data),
->     +                     GFP_KERNEL);
->     +       if (!msg)
->     +               return -ENOMEM;
-> 
-> Given this command will be used on every key press, it is better to
-> pre-allocate data (like
-> in https://chromium-review.googlesource.com/276768) and use msg on the
-> stack like Victor's changes.
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/ib-mfd=
+-input-iio-v4.6
 
-Ok.
+for you to fetch changes up to 4f7ed234f2a5dcc26fc56a6e8324d34bbc9afe23=
+:
 
-Thanks,
+  Input: touchscreen: Add imx25 TCQ driver (2016-02-11 15:40:42 +0000)
 
-Tomeu
+----------------------------------------------------------------
+Immutable branch between MFD, Input and IIO due for v4.6
+
+----------------------------------------------------------------
+Markus Pargmann (6):
+      mfd: Add DT binding documentation for imx25 ADC/TSC
+      iio: Add binding documentation for imx25 GCQ
+      Input: add binding documentation for imx25 touchscreen controller
+      mfd: fsl-imx25-tsadc: Register touchscreen ADC driver
+      iio: adc: Add imx25-gcq ADC driver
+      Input: touchscreen: Add imx25 TCQ driver
+
+ .../devicetree/bindings/iio/adc/fsl,imx25-gcq.txt  |  58 ++
+ .../bindings/input/touchscreen/fsl-mx25-tcq.txt    |  35 ++
+ .../devicetree/bindings/mfd/fsl-imx25-tsadc.txt    |  47 ++
+ drivers/iio/adc/Kconfig                            |   7 +
+ drivers/iio/adc/Makefile                           |   1 +
+ drivers/iio/adc/fsl-imx25-gcq.c                    | 417 +++++++++++++=
++
+ drivers/input/touchscreen/Kconfig                  |   9 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/fsl-imx25-tcq.c          | 596 +++++++++++++=
+++++++++
+ drivers/mfd/Kconfig                                |   9 +
+ drivers/mfd/Makefile                               |   2 +
+ drivers/mfd/fsl-imx25-tsadc.c                      | 203 +++++++
+ include/dt-bindings/iio/adc/fsl-imx25-gcq.h        |  18 +
+ include/linux/mfd/imx25-tsadc.h                    | 140 +++++
+ 14 files changed, 1543 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/iio/adc/fsl,imx25=
+-gcq.txt
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen=
+/fsl-mx25-tcq.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/fsl-imx25-tsa=
+dc.txt
+ create mode 100644 drivers/iio/adc/fsl-imx25-gcq.c
+ create mode 100644 drivers/input/touchscreen/fsl-imx25-tcq.c
+ create mode 100644 drivers/mfd/fsl-imx25-tsadc.c
+ create mode 100644 include/dt-bindings/iio/adc/fsl-imx25-gcq.h
+ create mode 100644 include/linux/mfd/imx25-tsadc.h
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

@@ -1,145 +1,211 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 4/6] HID: wacom: reuse wacom_parse_and_register() in wireless_work
-Date: Fri, 12 Feb 2016 17:27:43 +0100
-Message-ID: <1455294465-13694-5-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/6] HID: wacom: break out wacom_intuos_get_tool_type
+Date: Fri, 12 Feb 2016 17:27:40 +0100
+Message-ID: <1455294465-13694-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1455294465-13694-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:38793 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751458AbcBLQ1u (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Feb 2016 11:27:50 -0500
 In-Reply-To: <1455294465-13694-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 Cc: Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-Removes duplicated code.
-The only difference is that we now need to stop and start the attached hid
-device, but this is a small cost.
+Allow to reuse the code in a later series and simplifies
+the reading of wacom_intuos_inout().
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom_sys.c | 61 +++++++++++++------------------------------------
- 1 file changed, 16 insertions(+), 45 deletions(-)
+ drivers/hid/wacom_wac.c | 166 +++++++++++++++++++++++++-----------------------
+ 1 file changed, 87 insertions(+), 79 deletions(-)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 78e9e25..5cb8528 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -1525,7 +1525,7 @@ static size_t wacom_compute_pktlen(struct hid_device *hdev)
- 	return size;
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index e92e1e8..bd198bb 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -575,6 +575,91 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 	return 1;
  }
  
--static void wacom_update_name(struct wacom *wacom)
-+static void wacom_update_name(struct wacom *wacom, const char *suffix)
- {
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct wacom_features *features = &wacom_wac->features;
-@@ -1561,14 +1561,14 @@ static void wacom_update_name(struct wacom *wacom)
- 
- 	/* Append the device type to the name */
- 	snprintf(wacom_wac->pen_name, sizeof(wacom_wac->pen_name),
--		"%s Pen", name);
-+		"%s%s Pen", name, suffix);
- 	snprintf(wacom_wac->touch_name, sizeof(wacom_wac->touch_name),
--		"%s Finger", name);
-+		"%s%s Finger", name, suffix);
- 	snprintf(wacom_wac->pad_name, sizeof(wacom_wac->pad_name),
--		"%s Pad", name);
-+		"%s%s Pad", name, suffix);
- }
- 
--static int wacom_parse_and_register(struct wacom *wacom)
-+static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- {
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct wacom_features *features = &wacom_wac->features;
-@@ -1622,7 +1622,7 @@ static int wacom_parse_and_register(struct wacom *wacom)
- 
- 	wacom_calculate_res(features);
- 
--	wacom_update_name(wacom);
-+	wacom_update_name(wacom, wireless ? " (WL)" : "");
- 
- 	error = wacom_add_shared_data(hdev);
- 	if (error)
-@@ -1649,8 +1649,10 @@ static int wacom_parse_and_register(struct wacom *wacom)
- 		goto fail_hw_start;
- 	}
- 
--	/* Note that if query fails it is not a hard failure */
--	wacom_query_tablet_data(hdev, features);
-+	if (!wireless) {
-+		/* Note that if query fails it is not a hard failure */
-+		wacom_query_tablet_data(hdev, features);
-+	}
- 
- 	/* touch only Bamboo doesn't support pen */
- 	if ((features->type == BAMBOO_TOUCH) &&
-@@ -1745,22 +1747,10 @@ static void wacom_wireless_work(struct work_struct *work)
- 		/* Stylus interface */
- 		wacom_wac1->features =
- 			*((struct wacom_features *)id->driver_data);
--		wacom_wac1->features.device_type |= WACOM_DEVICETYPE_PEN;
--		wacom_set_default_phy(&wacom_wac1->features);
--		wacom_calculate_res(&wacom_wac1->features);
--		snprintf(wacom_wac1->pen_name, WACOM_NAME_MAX, "%s (WL) Pen",
--			 wacom_wac1->features.name);
--		if (wacom_wac1->features.type < BAMBOO_PEN ||
--		    wacom_wac1->features.type > BAMBOO_PT) {
--			snprintf(wacom_wac1->pad_name, WACOM_NAME_MAX,
--				 "%s (WL) Pad", wacom_wac1->features.name);
--			wacom_wac1->features.device_type |= WACOM_DEVICETYPE_PAD;
--		}
--		wacom_wac1->shared->touch_max = wacom_wac1->features.touch_max;
--		wacom_wac1->shared->type = wacom_wac1->features.type;
++static int wacom_intuos_get_tool_type(int tool_id)
++{
++	int tool_type;
 +
- 		wacom_wac1->pid = wacom_wac->pid;
--		error = wacom_allocate_inputs(wacom1) ||
--			wacom_register_inputs(wacom1);
-+		hid_hw_stop(hdev1);
-+		error = wacom_parse_and_register(wacom1, true);
- 		if (error)
- 			goto fail;
++	switch (tool_id) {
++	case 0x812: /* Inking pen */
++	case 0x801: /* Intuos3 Inking pen */
++	case 0x120802: /* Intuos4/5 Inking Pen */
++	case 0x012:
++		tool_type = BTN_TOOL_PENCIL;
++		break;
++
++	case 0x822: /* Pen */
++	case 0x842:
++	case 0x852:
++	case 0x823: /* Intuos3 Grip Pen */
++	case 0x813: /* Intuos3 Classic Pen */
++	case 0x885: /* Intuos3 Marker Pen */
++	case 0x802: /* Intuos4/5 13HD/24HD General Pen */
++	case 0x804: /* Intuos4/5 13HD/24HD Marker Pen */
++	case 0x8e2: /* IntuosHT2 pen */
++	case 0x022:
++	case 0x100804: /* Intuos4/5 13HD/24HD Art Pen */
++	case 0x140802: /* Intuos4/5 13HD/24HD Classic Pen */
++	case 0x160802: /* Cintiq 13HD Pro Pen */
++	case 0x180802: /* DTH2242 Pen */
++	case 0x100802: /* Intuos4/5 13HD/24HD General Pen */
++		tool_type = BTN_TOOL_PEN;
++		break;
++
++	case 0x832: /* Stroke pen */
++	case 0x032:
++		tool_type = BTN_TOOL_BRUSH;
++		break;
++
++	case 0x007: /* Mouse 4D and 2D */
++	case 0x09c:
++	case 0x094:
++	case 0x017: /* Intuos3 2D Mouse */
++	case 0x806: /* Intuos4 Mouse */
++		tool_type = BTN_TOOL_MOUSE;
++		break;
++
++	case 0x096: /* Lens cursor */
++	case 0x097: /* Intuos3 Lens cursor */
++	case 0x006: /* Intuos4 Lens cursor */
++		tool_type = BTN_TOOL_LENS;
++		break;
++
++	case 0x82a: /* Eraser */
++	case 0x85a:
++	case 0x91a:
++	case 0xd1a:
++	case 0x0fa:
++	case 0x82b: /* Intuos3 Grip Pen Eraser */
++	case 0x81b: /* Intuos3 Classic Pen Eraser */
++	case 0x91b: /* Intuos3 Airbrush Eraser */
++	case 0x80c: /* Intuos4/5 13HD/24HD Marker Pen Eraser */
++	case 0x80a: /* Intuos4/5 13HD/24HD General Pen Eraser */
++	case 0x90a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
++	case 0x14080a: /* Intuos4/5 13HD/24HD Classic Pen Eraser */
++	case 0x10090a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
++	case 0x10080c: /* Intuos4/5 13HD/24HD Art Pen Eraser */
++	case 0x16080a: /* Cintiq 13HD Pro Pen Eraser */
++	case 0x18080a: /* DTH2242 Eraser */
++	case 0x10080a: /* Intuos4/5 13HD/24HD General Pen Eraser */
++		tool_type = BTN_TOOL_RUBBER;
++		break;
++
++	case 0xd12:
++	case 0x912:
++	case 0x112:
++	case 0x913: /* Intuos3 Airbrush */
++	case 0x902: /* Intuos4/5 13HD/24HD Airbrush */
++	case 0x100902: /* Intuos4/5 13HD/24HD Airbrush */
++		tool_type = BTN_TOOL_AIRBRUSH;
++		break;
++
++	default: /* Unknown tool */
++		tool_type = BTN_TOOL_PEN;
++		break;
++	}
++	return tool_type;
++}
++
+ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ {
+ 	struct wacom_features *features = &wacom->features;
+@@ -597,85 +682,8 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		wacom->id[idx] = (data[2] << 4) | (data[3] >> 4) |
+ 			((data[7] & 0x0f) << 20) | ((data[8] & 0xf0) << 12);
  
-@@ -1770,30 +1760,11 @@ static void wacom_wireless_work(struct work_struct *work)
- 		    wacom_wac1->features.type <= BAMBOO_PT)) {
- 			wacom_wac2->features =
- 				*((struct wacom_features *)id->driver_data);
--			wacom_wac2->features.pktlen = WACOM_PKGLEN_BBTOUCH3;
--			wacom_set_default_phy(&wacom_wac2->features);
--			wacom_wac2->features.x_max = wacom_wac2->features.y_max = 4096;
--			wacom_calculate_res(&wacom_wac2->features);
--			snprintf(wacom_wac2->touch_name, WACOM_NAME_MAX,
--				 "%s (WL) Finger", wacom_wac2->features.name);
--			if (wacom_wac1->features.touch_max)
--				wacom_wac2->features.device_type |= WACOM_DEVICETYPE_TOUCH;
--			if (wacom_wac1->features.type >= INTUOSHT &&
--			    wacom_wac1->features.type <= BAMBOO_PT) {
--				snprintf(wacom_wac2->pad_name, WACOM_NAME_MAX,
--					 "%s (WL) Pad", wacom_wac2->features.name);
--				wacom_wac2->features.device_type |= WACOM_DEVICETYPE_PAD;
--			}
- 			wacom_wac2->pid = wacom_wac->pid;
--			error = wacom_allocate_inputs(wacom2) ||
--				wacom_register_inputs(wacom2);
-+			hid_hw_stop(hdev2);
-+			error = wacom_parse_and_register(wacom2, true);
- 			if (error)
- 				goto fail;
+-		switch (wacom->id[idx]) {
+-		case 0x812: /* Inking pen */
+-		case 0x801: /* Intuos3 Inking pen */
+-		case 0x120802: /* Intuos4/5 Inking Pen */
+-		case 0x012:
+-			wacom->tool[idx] = BTN_TOOL_PENCIL;
+-			break;
 -
--			if ((wacom_wac1->features.type == INTUOSHT ||
--			    wacom_wac1->features.type == INTUOSHT2) &&
--			    wacom_wac1->features.touch_max)
--				wacom_wac->shared->touch_input = wacom_wac2->touch_input;
- 		}
- 
- 		error = wacom_initialize_battery(wacom);
-@@ -1855,7 +1826,7 @@ static int wacom_probe(struct hid_device *hdev,
- 		goto fail_parse;
+-		case 0x822: /* Pen */
+-		case 0x842:
+-		case 0x852:
+-		case 0x823: /* Intuos3 Grip Pen */
+-		case 0x813: /* Intuos3 Classic Pen */
+-		case 0x885: /* Intuos3 Marker Pen */
+-		case 0x802: /* Intuos4/5 13HD/24HD General Pen */
+-		case 0x804: /* Intuos4/5 13HD/24HD Marker Pen */
+-		case 0x8e2: /* IntuosHT2 pen */
+-		case 0x022:
+-		case 0x100804: /* Intuos4/5 13HD/24HD Art Pen */
+-		case 0x140802: /* Intuos4/5 13HD/24HD Classic Pen */
+-		case 0x160802: /* Cintiq 13HD Pro Pen */
+-		case 0x180802: /* DTH2242 Pen */
+-		case 0x100802: /* Intuos4/5 13HD/24HD General Pen */
+-			wacom->tool[idx] = BTN_TOOL_PEN;
+-			break;
+-
+-		case 0x832: /* Stroke pen */
+-		case 0x032:
+-			wacom->tool[idx] = BTN_TOOL_BRUSH;
+-			break;
+-
+-		case 0x007: /* Mouse 4D and 2D */
+-		case 0x09c:
+-		case 0x094:
+-		case 0x017: /* Intuos3 2D Mouse */
+-		case 0x806: /* Intuos4 Mouse */
+-			wacom->tool[idx] = BTN_TOOL_MOUSE;
+-			break;
+-
+-		case 0x096: /* Lens cursor */
+-		case 0x097: /* Intuos3 Lens cursor */
+-		case 0x006: /* Intuos4 Lens cursor */
+-			wacom->tool[idx] = BTN_TOOL_LENS;
+-			break;
+-
+-		case 0x82a: /* Eraser */
+-		case 0x85a:
+-		case 0x91a:
+-		case 0xd1a:
+-		case 0x0fa:
+-		case 0x82b: /* Intuos3 Grip Pen Eraser */
+-		case 0x81b: /* Intuos3 Classic Pen Eraser */
+-		case 0x91b: /* Intuos3 Airbrush Eraser */
+-		case 0x80c: /* Intuos4/5 13HD/24HD Marker Pen Eraser */
+-		case 0x80a: /* Intuos4/5 13HD/24HD General Pen Eraser */
+-		case 0x90a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
+-		case 0x14080a: /* Intuos4/5 13HD/24HD Classic Pen Eraser */
+-		case 0x10090a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
+-		case 0x10080c: /* Intuos4/5 13HD/24HD Art Pen Eraser */
+-		case 0x16080a: /* Cintiq 13HD Pro Pen Eraser */
+-		case 0x18080a: /* DTH2242 Eraser */
+-		case 0x10080a: /* Intuos4/5 13HD/24HD General Pen Eraser */
+-			wacom->tool[idx] = BTN_TOOL_RUBBER;
+-			break;
+-
+-		case 0xd12:
+-		case 0x912:
+-		case 0x112:
+-		case 0x913: /* Intuos3 Airbrush */
+-		case 0x902: /* Intuos4/5 13HD/24HD Airbrush */
+-		case 0x100902: /* Intuos4/5 13HD/24HD Airbrush */
+-			wacom->tool[idx] = BTN_TOOL_AIRBRUSH;
+-			break;
+-
+-		default: /* Unknown tool */
+-			wacom->tool[idx] = BTN_TOOL_PEN;
+-			break;
+-		}
+-		wacom->shared->stylus_in_proximity = true;
++		wacom->tool[idx] = wacom_intuos_get_tool_type(wacom->id[idx]);
++
+ 		return 1;
  	}
- 
--	error = wacom_parse_and_register(wacom);
-+	error = wacom_parse_and_register(wacom, false);
- 	if (error)
- 		goto fail_parse;
  
 -- 
 2.5.0
+

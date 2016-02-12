@@ -1,45 +1,57 @@
-From: Gregor Riepl <onitake@gmail.com>
-Subject: Re: atmel_mxt_ts maxtouch.cfg firmware ?
-Date: Fri, 12 Feb 2016 18:16:49 +0100
-Message-ID: <56BE1381.7020402@gmail.com>
-References: <CAB=NE6UWaTv1EN1XPByMucW2Ftv9G9GtOauR9uQTsWb+N8z7wg@mail.gmail.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH v5 05/10] Input: synaptics-rmi4: Add device tree support
+ for 2d sensors and F11
+Date: Fri, 12 Feb 2016 09:20:46 -0800
+Message-ID: <56BE146E.7050107@synaptics.com>
+References: <1455143074-10259-1-git-send-email-aduggan@synaptics.com>
+ <20160212154427.GA8795@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f49.google.com ([74.125.82.49]:33361 "EHLO
-	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752186AbcBLRQw (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:32496 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750865AbcBLRUr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Feb 2016 12:16:52 -0500
-Received: by mail-wm0-f49.google.com with SMTP id g62so71186877wme.0
-        for <linux-input@vger.kernel.org>; Fri, 12 Feb 2016 09:16:51 -0800 (PST)
-Received: from ?IPv6:2001:4b28:1:201:843d:50c8:7258:6bdc? ([2001:4b28:1:201:843d:50c8:7258:6bdc])
-        by smtp.googlemail.com with ESMTPSA id w144sm3231393wmd.8.2016.02.12.09.16.50
-        for <linux-input@vger.kernel.org>
-        (version=TLSv1/SSLv3 cipher=OTHER);
-        Fri, 12 Feb 2016 09:16:50 -0800 (PST)
-In-Reply-To: <CAB=NE6UWaTv1EN1XPByMucW2Ftv9G9GtOauR9uQTsWb+N8z7wg@mail.gmail.com>
+	Fri, 12 Feb 2016 12:20:47 -0500
+In-Reply-To: <20160212154427.GA8795@rob-hp-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>, devicetree@vger.kernel.org
 
-> And that Atmel provides such firmwaere in .enc form. Is this firmware
-> optional? If so why? If it gives me a few bells and whistles, what are
-> they ? Can we just put the firmware into the linux-firmware tree? If
-> not, why not.
-> 
-> Can the firmware be open sourced? If not why not? [0]
+On 02/12/2016 07:47 AM, Rob Herring wrote:
+> On Wed, Feb 10, 2016 at 02:24:34PM -0800, Andrew Duggan wrote:
+>> 2D sensors have several parameter which can be set in the platform data.
+>> This patch adds support for getting those values from devicetree.
+>>
+>> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+>> ---
+>>   .../bindings/input/rmi4/rmi_2d_sensor.txt          |  56 +++++++++++
+>>   .../bindings/input/touchscreen/touchscreen.txt     |   2 +
+>>   drivers/input/rmi4/rmi_2d_sensor.c                 | 108 +++++++++++++++++++++
+>>   drivers/input/rmi4/rmi_2d_sensor.h                 |   3 +
+>>   drivers/input/rmi4/rmi_f11.c                       |   7 +-
+>>   5 files changed, 175 insertions(+), 1 deletion(-)
+>>   create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
+> [...]
+>
+>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+>> index ac23caf..d6674de 100644
+>> --- a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+>> +++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+>> @@ -18,6 +18,8 @@ Optional properties for Touchscreens:
+>>    - touchscreen-inverted-y	: Y axis is inverted (boolean)
+>>    - touchscreen-swapped-x-y	: X and Y axis are swapped (boolean)
+>>   				  Swapping is done after inverting the axis
+>> + - touchscreen-mm-x		: horizontal length in mm of the touchscreen
+>> + - touchscreen-mm-y		: vertical length in mm of the touchscreen
+> As I mentioned on v3, put the units on the end.
 
-I can only speak from experience with Silead TS controller firmware, but the
-most likely reason why one can't simply add the fw to linux-firmware or
-open-source it, is that it mainly contains device-specific calibration data.
-This means that you need a different file for every single device.
+Oh sorry! I see you did mention that in v3 and I must have missed it.
 
-If the controller, DT or DSDT don't give you any hints to reliably identify
-which exact firmware you need, then there's not much you can do. Perhaps
-device quirks.
+Thanks,
+Andrew
 
-Maybe this doesn't apply to the Atmel chips, but I really suspect it does.
+> Rob
 
-(Sorry for only posting to linux-input, I'm not subscribed to the other lists)

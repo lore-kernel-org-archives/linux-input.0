@@ -1,47 +1,45 @@
-From: "Luis R. Rodriguez" <mcgrof@kernel.org>
-Subject: atmel_mxt_ts maxtouch.cfg firmware ?
-Date: Fri, 12 Feb 2016 08:51:17 -0800
-Message-ID: <CAB=NE6UWaTv1EN1XPByMucW2Ftv9G9GtOauR9uQTsWb+N8z7wg@mail.gmail.com>
+From: Gregor Riepl <onitake@gmail.com>
+Subject: Re: atmel_mxt_ts maxtouch.cfg firmware ?
+Date: Fri, 12 Feb 2016 18:16:49 +0100
+Message-ID: <56BE1381.7020402@gmail.com>
+References: <CAB=NE6UWaTv1EN1XPByMucW2Ftv9G9GtOauR9uQTsWb+N8z7wg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:37416 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751723AbcBLQvj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Feb 2016 11:51:39 -0500
+Received: from mail-wm0-f49.google.com ([74.125.82.49]:33361 "EHLO
+	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752186AbcBLRQw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Feb 2016 12:16:52 -0500
+Received: by mail-wm0-f49.google.com with SMTP id g62so71186877wme.0
+        for <linux-input@vger.kernel.org>; Fri, 12 Feb 2016 09:16:51 -0800 (PST)
+Received: from ?IPv6:2001:4b28:1:201:843d:50c8:7258:6bdc? ([2001:4b28:1:201:843d:50c8:7258:6bdc])
+        by smtp.googlemail.com with ESMTPSA id w144sm3231393wmd.8.2016.02.12.09.16.50
+        for <linux-input@vger.kernel.org>
+        (version=TLSv1/SSLv3 cipher=OTHER);
+        Fri, 12 Feb 2016 09:16:50 -0800 (PST)
+In-Reply-To: <CAB=NE6UWaTv1EN1XPByMucW2Ftv9G9GtOauR9uQTsWb+N8z7wg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@bitmath.org>
-Cc: Kyle McMartin <kyle@kernel.org>, linux-firmware@kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-I've recently taken up picking up the Chromebook Pixel off the floor
-as a brick as I was finally able to replace the stupid BIOS to let me
-have a decent development OS on it, while grooming the kernel log on
-firmware_class I see this laptop uses the atmel_mxt_ts touch screen
-driver and that it looks for the maxtouch.cfg firmware, but doesn't
-not seem to fail if it doesn't find it.
+> And that Atmel provides such firmwaere in .enc form. Is this firmware
+> optional? If so why? If it gives me a few bells and whistles, what are
+> they ? Can we just put the firmware into the linux-firmware tree? If
+> not, why not.
+> 
+> Can the firmware be open sourced? If not why not? [0]
 
-The source code seems to also say:
+I can only speak from experience with Silead TS controller firmware, but the
+most likely reason why one can't simply add the fw to linux-firmware or
+open-source it, is that it mainly contains device-specific calibration data.
+This means that you need a different file for every single device.
 
-xxd -r -p mXTXXX__APP_VX-X-XX.enc > maxtouch.fw
+If the controller, DT or DSDT don't give you any hints to reliably identify
+which exact firmware you need, then there's not much you can do. Perhaps
+device quirks.
 
-And that Atmel provides such firmwaere in .enc form. Is this firmware
-optional? If so why? If it gives me a few bells and whistles, what are
-they ? Can we just put the firmware into the linux-firmware tree? If
-not, why not.
+Maybe this doesn't apply to the Atmel chips, but I really suspect it does.
 
-Can the firmware be open sourced? If not why not? [0]
-
-  Luis
-
-[0] Please note, I've heard all excuses about firmware not being
-opened up, everything is just excuses, I've been able to open source
-firmware before even for 802.11 devices which are far more complex
-devices, can someone at Atmel just really try asking? The Chromebook
-Pixel 2013, given it has no firmware even for 802.11, and you can use
-coreboot, is likely one of the few devices in the market that you
-might get without oddball proprietary fuzz. Granted if the firmware is
-not needed this is moot, but if we can get some enhancements with it
-and the firmware be opened why not.
-
-  Luis
+(Sorry for only posting to linux-input, I'm not subscribed to the other lists)

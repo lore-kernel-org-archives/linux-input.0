@@ -1,72 +1,37 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/3] input: cygnus-update touchscreen dt node document
-Date: Fri, 12 Feb 2016 09:04:30 -0600
-Message-ID: <20160212150430.GA15049@rob-hp-laptop>
-References: <1455008277-8312-1-git-send-email-raveendra.padasalagi@broadcom.com>
- <1455008277-8312-2-git-send-email-raveendra.padasalagi@broadcom.com>
- <2631849.GeOulu78vx@wuerfel>
- <3b53af6b6c6735d10cb88518c8b8a0ae@mail.gmail.com>
- <20160209174351.GC40460@dtor-ws>
- <979fb4dc5fba643a6780759d2a13530a@mail.gmail.com>
+Subject: Re: [PATCH v5 03/10] Input: synaptics-rmi4: Add device tree support
+ for RMI4 I2C devices
+Date: Fri, 12 Feb 2016 09:41:15 -0600
+Message-ID: <20160212154115.GA7907@rob-hp-laptop>
+References: <1455143041-10159-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:41548 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750802AbcBLPEl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Feb 2016 10:04:41 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <979fb4dc5fba643a6780759d2a13530a@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1455143041-10159-1-git-send-email-aduggan@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Russell King <linux@arm.linux.org.uk>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jonathan Richardson <jonathar@broadcom.com>, Jon Mason <jonmason@broadcom.com>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com
 
-Your mailer is not handling wrapping correctly. Generally, Outlook does 
-not work for maillists.
-
-On Wed, Feb 10, 2016 at 10:24:43AM +0530, Raveendra Padasalagi wrote:
-> > -----Original Message-----
-> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > Sent: 09 February 2016 23:14
-> > To: Raveendra Padasalagi
-> > Cc: Arnd Bergmann; Russell King; devicetree@vger.kernel.org; linux-arm-
-> > kernel@lists.infradead.org; linux-input@vger.kernel.org; Rob Herring;
-> Pawel
-> > Moll; Mark Rutland; Ian Campbell; Kumar Gala; Jonathan Richardson; Jon
-> > Mason; Florian Fainelli; Ray Jui; Scott Branden;
-> linux-kernel@vger.kernel.org;
-> > bcm-kernel-feedback-list@broadcom.com
-> > Subject: Re: [PATCH 1/3] input: cygnus-update touchscreen dt node
-> document
-
-And Outlook's reply header is non-standard.
-
-[...]
-
-> > > In Cygnus SOC, Touch screen controller registers are shared with ADC
-> > > and flex timer IP's.
-> > > Using readl/writel could lead to race condition. So this patch is
-> > > introduced to take care mutually exclusive access of register's in
-> > > such a case.
-> > >
-> > > In the platform's where touchscreen register's are not shared normal
-> > > readl/writel could be used.
-> >
-> > Are there currently platforms where the registers are not shared? If we
-> have to
-> > use regmap to correctly update registers (and thus we need
-> > syscon) then I wonder if we should even attempt to support direct
-> register
-> > access by the driver.
+On Wed, Feb 10, 2016 at 02:24:01PM -0800, Andrew Duggan wrote:
+> Add devicetree binding for I2C devices and add bindings for optional
+> parameters in the function drivers. Parameters for function drivers are
+> defined in child nodes for each of the functions.
 > 
-> Currently there are no platforms without register sharing, but we would
-> like to keep
-> the driver generic enough to take care of future SOC's if comes with
-> dedicated registers
-> and same touchscreen IP being re-used.
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> ---
+>  .../devicetree/bindings/input/rmi4/rmi_f01.txt     | 39 ++++++++++++++++
+>  .../devicetree/bindings/input/rmi4/rmi_i2c.txt     | 53 ++++++++++++++++++++++
+>  .../devicetree/bindings/vendor-prefixes.txt        |  1 +
 
-These future SoCs will have a different compatible string and you should 
-use that to determine whether reg or syscon is used.
+Acked-by: Rob Herring <robh@kernel.org>
 
-Rob
+>  drivers/input/rmi4/rmi_bus.c                       | 35 ++++++++++++++
+>  drivers/input/rmi4/rmi_bus.h                       |  4 --
+>  drivers/input/rmi4/rmi_driver.c                    | 28 ++++++++++++
+>  drivers/input/rmi4/rmi_f01.c                       | 50 ++++++++++++++++++++
+>  drivers/input/rmi4/rmi_i2c.c                       | 12 ++++-
+>  8 files changed, 217 insertions(+), 5 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_f01.txt
+>  create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt

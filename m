@@ -1,33 +1,61 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v5 09/10] Input: synaptics-rmi4: Add device tree support
- to the SPI transport driver
-Date: Fri, 12 Feb 2016 09:49:14 -0600
-Message-ID: <20160212154914.GA12710@rob-hp-laptop>
-References: <1455143143-10464-1-git-send-email-aduggan@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1455143143-10464-1-git-send-email-aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Christopher Heiny <cheiny-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>, Stephen Chandler Paul <cpaul-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Vincent Huang <vincent.huang-8LB1SX4YFO85ffrT631h+Q@public.gmane.org>, Chris Healy <cphealy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrey Gusakov <andrey.gusakov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: fix hid_ignore_special_drivers module parameter
+Date: Fri, 12 Feb 2016 17:10:37 +0100
+Message-ID: <1455293437-12088-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:33881 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750825AbcBLQKl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Feb 2016 11:10:41 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-On Wed, Feb 10, 2016 at 02:25:43PM -0800, Andrew Duggan wrote:
-> Add devicetree binding for SPI devices.
-> 
-> Signed-off-by: Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
-> ---
->  .../devicetree/bindings/input/rmi4/rmi_spi.txt     | 57 ++++++++++++++++++++++
->  Documentation/devicetree/bindings/spi/spi-bus.txt  |  2 +
+hid_ignore_special_drivers works fine until hid_scan_report
+autodetects and reassign devices (for hid-multitouch,
+hid-microsoft and hid-rmi).
 
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Simplify the handling of the parameter: if it is there, use
+hid-generic, no matter what, and if not, scan the device or
+rely on the hid_have_special_driver table.
 
->  drivers/input/rmi4/rmi_spi.c                       | 44 ++++++++++++++++-
->  3 files changed, 102 insertions(+), 1 deletion(-)
->  create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This was detected while trying to disable hid-multitouch on
+a Surface Pro cover which prevented to use the keyboard.
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+CC: stable@vger.kernel.org
+---
+
+Hi Jiri,
+
+not sure if we should keep or not the stable@ tag. The issue was there for a
+long time, and nobody complained. It's up to you.
+
+Cheers,
+Benjamin
+
+ drivers/hid/hid-core.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index e637e4f..fe8be16 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2661,9 +2661,10 @@ int hid_add_device(struct hid_device *hdev)
+ 	/*
+ 	 * Scan generic devices for group information
+ 	 */
+-	if (hid_ignore_special_drivers ||
+-	    (!hdev->group &&
+-	     !hid_match_id(hdev, hid_have_special_driver))) {
++	if (hid_ignore_special_drivers) {
++		hdev->group = HID_GROUP_GENERIC;
++	} else if (!hdev->group &&
++		   !hid_match_id(hdev, hid_have_special_driver)) {
+ 		ret = hid_scan_report(hdev);
+ 		if (ret)
+ 			hid_warn(hdev, "bad device descriptor (%d)\n", ret);
+-- 
+2.5.0
+

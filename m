@@ -1,45 +1,46 @@
 From: Grazvydas Ignotas <notasas@gmail.com>
-Subject: [PATCH] HID: logitech: fix Dual Action gamepad support
-Date: Sat, 13 Feb 2016 22:41:51 +0200
-Message-ID: <1455396111-2511-1-git-send-email-notasas@gmail.com>
+Subject: Re: logitech HID driver is not probing
+Date: Sat, 13 Feb 2016 22:46:04 +0200
+Message-ID: <CANOLnONnWtvp73DMZ2Uy=nNv3u+fXfxme=FugjJ9m=KcBYm0ZA@mail.gmail.com>
+References: <CANOLnOMFQpULSw5Wt=v200peGSCoLNbVpVG5eYW-w6amxBL_pQ@mail.gmail.com>
+	<af1aa3beec094c30d4670eda62bcf2c3.squirrel@mungewell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:37290 "EHLO
-	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751229AbcBMUl6 (ORCPT
+Received: from mail-yk0-f177.google.com ([209.85.160.177]:35202 "EHLO
+	mail-yk0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751229AbcBMUqF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Feb 2016 15:41:58 -0500
-Received: by mail-wm0-f47.google.com with SMTP id g62so61627878wme.0
-        for <linux-input@vger.kernel.org>; Sat, 13 Feb 2016 12:41:57 -0800 (PST)
+	Sat, 13 Feb 2016 15:46:05 -0500
+Received: by mail-yk0-f177.google.com with SMTP id r207so47258764ykd.2
+        for <linux-input@vger.kernel.org>; Sat, 13 Feb 2016 12:46:04 -0800 (PST)
+In-Reply-To: <af1aa3beec094c30d4670eda62bcf2c3.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>, Grazvydas Ignotas <notasas@gmail.com>, Vitaly Katraew <zawullon@gmail.com>
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
 
-The patch that added Logitech Dual Action gamepad support forgot to
-update the special driver list for the device. This caused the logitech
-driver not to probe unless kernel module load order was favorable.
-Update the special driver list to fix it. Thanks to Simon Wood for the
-idea.
+On Sat, Feb 13, 2016 at 9:30 PM, Simon Wood <simon@mungewell.org> wrote=
+:
+=2E..
+> static const struct hid_device_id hid_have_special_driver[] =3D {
+> ...
+> --
+>
+> Perhaps that's something to do with confusion. Do you have the abilit=
+y to
+> add and rebuild kernel to test?
 
-Cc: Vitaly Katraew <zawullon@gmail.com>
-Fixes: 56d0c8b7c8fb ("HID: add support for Logitech Dual Action gamepads")
-Signed-off-by: Grazvydas Ignotas <notasas@gmail.com>
----
- drivers/hid/hid-core.c | 1 +
- 1 file changed, 1 insertion(+)
+Yup, that helped, patch sent, thanks.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index c6f7a69..f16155f5 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1897,6 +1897,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_ELITE_KBD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_CORDLESS_DESKTOP_LX500) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_EXTREME_3D) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DUAL_ACTION) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD) },
--- 
-2.7.0
+Gra=C5=BEvydas
 
+>
+> Simon
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

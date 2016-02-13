@@ -1,67 +1,45 @@
-From: "Simon Wood" <simon@mungewell.org>
-Subject: Re: logitech HID driver is not probing
-Date: Sat, 13 Feb 2016 12:30:10 -0700
-Message-ID: <af1aa3beec094c30d4670eda62bcf2c3.squirrel@mungewell.org>
-References: <CANOLnOMFQpULSw5Wt=v200peGSCoLNbVpVG5eYW-w6amxBL_pQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: Grazvydas Ignotas <notasas@gmail.com>
+Subject: [PATCH] HID: logitech: fix Dual Action gamepad support
+Date: Sat, 13 Feb 2016 22:41:51 +0200
+Message-ID: <1455396111-2511-1-git-send-email-notasas@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host18.canaca.com ([66.49.204.205]:36833 "EHLO
-	host18.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751132AbcBMTaL (ORCPT
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:37290 "EHLO
+	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751229AbcBMUl6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Feb 2016 14:30:11 -0500
-In-Reply-To: <CANOLnOMFQpULSw5Wt=v200peGSCoLNbVpVG5eYW-w6amxBL_pQ@mail.gmail.com>
+	Sat, 13 Feb 2016 15:41:58 -0500
+Received: by mail-wm0-f47.google.com with SMTP id g62so61627878wme.0
+        for <linux-input@vger.kernel.org>; Sat, 13 Feb 2016 12:41:57 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grazvydas Ignotas <notasas@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>, Grazvydas Ignotas <notasas@gmail.com>, Vitaly Katraew <zawullon@gmail.com>
 
-On Sat, February 13, 2016 11:58 am, Grazvydas Ignotas wrote:
-> Hi,
->
->
-> I have a gamepad [1] that requires quirks from hid-lg.c to work
-> correctly. However for whatever reason the logitech driver is not probing
-> and I'm getting hid-generic assigned to it instead. When I plug the device
-> in, hid_logitech module is correctly autoloaded but it never probes
-> (hid-generic does it instead).
+The patch that added Logitech Dual Action gamepad support forgot to
+update the special driver list for the device. This caused the logitech
+driver not to probe unless kernel module load order was favorable.
+Update the special driver list to fix it. Thanks to Simon Wood for the
+idea.
 
-It's listed as supported by 'hid-lg.c'
---
-simon@retrobox:~/linux-git/drivers/hid$ grep
-USB_DEVICE_ID_LOGITECH_DUAL_ACTION *.[ch]
-hid-ids.h:#define USB_DEVICE_ID_LOGITECH_DUAL_ACTION	0xc216
-hid-lg.c:	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-USB_DEVICE_ID_LOGITECH_DUAL_ACTION),
+Cc: Vitaly Katraew <zawullon@gmail.com>
+Fixes: 56d0c8b7c8fb ("HID: add support for Logitech Dual Action gamepads")
+Signed-off-by: Grazvydas Ignotas <notasas@gmail.com>
+---
+ drivers/hid/hid-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---
-
-but not included in hid-core as having a special driver
---
-/*
- * A list of devices for which there is a specialized driver on HID bus.
- *
- * Please note that for multitouch devices (driven by hid-multitouch driver),
- * there is a proper autodetection and autoloading in place (based on
-presence
- * of HID_DG_CONTACTID), so those devices don't need to be added to this
-list,
- * as we are doing the right thing in hid_scan_usage().
- *
- * Autodetection for (USB) HID sensor hubs exists too. If a collection of
-type
- * physical is found inside a usage page of type sensor, hid-sensor-hub
-will be
- * used as a driver. See hid_scan_report().
- */
-static const struct hid_device_id hid_have_special_driver[] = {
-...
---
-
-Perhaps that's something to do with confusion. Do you have the ability to
-add and rebuild kernel to test?
-
-Simon
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index c6f7a69..f16155f5 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1897,6 +1897,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_ELITE_KBD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_CORDLESS_DESKTOP_LX500) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_EXTREME_3D) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DUAL_ACTION) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD) },
+-- 
+2.7.0
 

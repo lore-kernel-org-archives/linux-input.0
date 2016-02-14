@@ -1,137 +1,62 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH]  Input: colibri-vf50-ts - call iio_channel_release_all() in all error paths
-Date: Sun, 14 Feb 2016 12:10:49 -0200
-Message-ID: <1455459049-5690-1-git-send-email-festevam@gmail.com>
+From: sergk sergk2mail <sergk.admin@gmail.com>
+Subject: Chipone icn85xx support in x86 linux kernel
+Date: Sun, 14 Feb 2016 23:03:41 +0000
+Message-ID: <CA+V1LzoXvWO1FROO2z7tFc-0zoM_Ur+B1iiar+EJ4uvn+DWGdQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f44.google.com ([209.85.192.44]:32831 "EHLO
-	mail-qg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751128AbcBNOLA (ORCPT
+Received: from mail-qg0-f49.google.com ([209.85.192.49]:35045 "EHLO
+	mail-qg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754136AbcBNXDm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 14 Feb 2016 09:11:00 -0500
-Received: by mail-qg0-f44.google.com with SMTP id b35so94725783qge.0
-        for <linux-input@vger.kernel.org>; Sun, 14 Feb 2016 06:11:00 -0800 (PST)
+	Sun, 14 Feb 2016 18:03:42 -0500
+Received: by mail-qg0-f49.google.com with SMTP id y89so100064131qge.2
+        for <linux-input@vger.kernel.org>; Sun, 14 Feb 2016 15:03:42 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: maitysanchayan@gmail.com, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>
+To: linux-input@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam@nxp.com>
+Hello All,
+Please advice whether it is supported touch screen icn85xx in anykind
+of x86 (baytrail interested in!) kernel?
 
-We need to make sure to call iio_channel_release_all() in all error
-paths of the probe function.
+I have discovered in Vanilla chipone_icn8318.c  kernel driver from Hans de Goede
+but this driver in contrast to arm available icn83xx.c looks really
+strange, it is even excluded from Kconfig by default in 4.4.1: it has
+no firmware load while at the same time android driver
+https://android.googlesource.com/kernel/bcm/+/android-bcm-tetra-3.10-lollipop-wear-release/drivers/input/touchscreen/icn83xx.c
+has.
+Also for rtk3128 chip there is!  icn85xx driver:
+https://github.com/bbelos/rk3188-kernel/blob/master/drivers/input/touchscreen/ICN8503/icn85xx.c
 
-Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
----
-Build-tested only.
+I am trying to make it working my touch on Chuwi Vi10 (Baytrail
+Z3536), Archlinux, custom 4.4.1 (from Vanilla) kernel.
+What I have discovered from Windows and Android: I2c address of TS is
+0x48, in Android it is located under i2c-4 0x48
 
- drivers/input/touchscreen/colibri-vf50-ts.c | 39 ++++++++++++++++++-----------
- 1 file changed, 24 insertions(+), 15 deletions(-)
+>: cat /sys/bus/i2c/devices/i2c-4/4-0048/name
+chipone-icn85xx.
 
-diff --git a/drivers/input/touchscreen/colibri-vf50-ts.c b/drivers/input/touchscreen/colibri-vf50-ts.c
-index 69828d0..67f8a17 100644
---- a/drivers/input/touchscreen/colibri-vf50-ts.c
-+++ b/drivers/input/touchscreen/colibri-vf50-ts.c
-@@ -279,9 +279,8 @@ static int vf50_ts_probe(struct platform_device *pdev)
- 
- 	error = devm_add_action(dev, vf50_ts_channel_release, channels);
- 	if (error) {
--		iio_channel_release_all(channels);
- 		dev_err(dev, "Failed to register iio channel release action");
--		return error;
-+		goto channel_release;
- 	}
- 
- 	num_adc_channels = 0;
-@@ -290,12 +289,15 @@ static int vf50_ts_probe(struct platform_device *pdev)
- 
- 	if (num_adc_channels != COLI_TOUCH_REQ_ADC_CHAN) {
- 		dev_err(dev, "Inadequate ADC channels specified\n");
--		return -EINVAL;
-+		error = -EINVAL;
-+		goto channel_release;
- 	}
- 
- 	touchdev = devm_kzalloc(dev, sizeof(*touchdev), GFP_KERNEL);
--	if (!touchdev)
--		return -ENOMEM;
-+	if (!touchdev) {
-+		error = -ENOMEM;
-+		goto channel_release;
-+	}
- 
- 	touchdev->pdev = pdev;
- 	touchdev->channels = channels;
-@@ -303,12 +305,13 @@ static int vf50_ts_probe(struct platform_device *pdev)
- 	error = of_property_read_u32(dev->of_node, "vf50-ts-min-pressure",
- 				 &touchdev->min_pressure);
- 	if (error)
--		return error;
-+		goto channel_release;
- 
- 	input = devm_input_allocate_device(dev);
- 	if (!input) {
- 		dev_err(dev, "Failed to allocate TS input device\n");
--		return -ENOMEM;
-+		error = -ENOMEM;
-+		goto channel_release;
- 	}
- 
- 	platform_set_drvdata(pdev, touchdev);
-@@ -330,29 +333,31 @@ static int vf50_ts_probe(struct platform_device *pdev)
- 	error = input_register_device(input);
- 	if (error) {
- 		dev_err(dev, "Failed to register input device\n");
--		return error;
-+		goto channel_release;
- 	}
- 
- 	error = vf50_ts_get_gpiod(dev, &touchdev->gpio_xp, "xp", GPIOD_OUT_LOW);
- 	if (error)
--		return error;
-+		goto channel_release;
- 
- 	error = vf50_ts_get_gpiod(dev, &touchdev->gpio_xm,
- 				"xm", GPIOD_OUT_LOW);
- 	if (error)
--		return error;
-+		goto channel_release;
- 
- 	error = vf50_ts_get_gpiod(dev, &touchdev->gpio_yp, "yp", GPIOD_OUT_LOW);
- 	if (error)
--		return error;
-+		goto channel_release;
- 
- 	error = vf50_ts_get_gpiod(dev, &touchdev->gpio_ym, "ym", GPIOD_OUT_LOW);
- 	if (error)
--		return error;
-+		goto channel_release;
- 
- 	touchdev->pen_irq = platform_get_irq(pdev, 0);
--	if (touchdev->pen_irq < 0)
--		return touchdev->pen_irq;
-+	if (touchdev->pen_irq < 0) {
-+		error = touchdev->pen_irq;
-+		goto channel_release;
-+	}
- 
- 	error = devm_request_threaded_irq(dev, touchdev->pen_irq,
- 					  NULL, vf50_ts_irq_bh, IRQF_ONESHOT,
-@@ -360,10 +365,14 @@ static int vf50_ts_probe(struct platform_device *pdev)
- 	if (error) {
- 		dev_err(dev, "Failed to request IRQ %d: %d\n",
- 			touchdev->pen_irq, error);
--		return error;
-+		goto channel_release;
- 	}
- 
- 	return 0;
-+
-+channel_release:
-+	iio_channel_release_all(channels);
-+	return error;
- }
- 
- static const struct of_device_id vf50_touch_of_match[] = {
--- 
-1.9.1
+Under windows 8.1 there is icnfirmware.sys for it. (;-) no need to
+grab it!), fw also present in .h file of rtk3128 github repo.
+GPIO pin I have guessing to enable TS is 393 (stupid looking over all
+gpios via sysfs and enabling each to 1).
 
+So my farther additional questions are:
+
+2) Could be icn8318 by Hans de Goede be adopted for icn85xx?
+3) Looks currently kernel is not supported ACPII for icn85xx
+4) Please advice how to (if possible) having windows and android with
+working touch to grab all needed information for makes device working
+with kernel (gpio pins).
+5) In Windows driver is myi2c.sys and reports that this is chipone ts,
+in Android is loaded atmel_mxt_ts module and the most strange thing
+afrer rmmod touch is working.
+dmesg under android shows: input: chipone-ts as /devices/virtual/input/input5.
+modalis: input:b0000v0000p0000-e0,1,3,k8b,9e,d9,ra2f,30,32,35,36,39,m1sfw
+how it is possible to use atmel_mxt_ts module for chipone? or what is the trick?
+
+Thanks in advance,
+      hope together we will make it working under x86!
+Regards,
+                 Serge Kolotylo.

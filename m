@@ -1,72 +1,137 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH] input: touchscreen: stmpe: kerneldoc
-Date: Sun, 14 Feb 2016 14:31:21 +0100
-Message-ID: <1455456681-18846-1-git-send-email-linus.walleij@linaro.org>
+From: Fabio Estevam <festevam@gmail.com>
+Subject: [PATCH]  Input: colibri-vf50-ts - call iio_channel_release_all() in all error paths
+Date: Sun, 14 Feb 2016 12:10:49 -0200
+Message-ID: <1455459049-5690-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f169.google.com ([209.85.217.169]:33612 "EHLO
-	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751315AbcBNNbc (ORCPT
+Received: from mail-qg0-f44.google.com ([209.85.192.44]:32831 "EHLO
+	mail-qg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751128AbcBNOLA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 14 Feb 2016 08:31:32 -0500
-Received: by mail-lb0-f169.google.com with SMTP id x4so66398333lbm.0
-        for <linux-input@vger.kernel.org>; Sun, 14 Feb 2016 05:31:32 -0800 (PST)
+	Sun, 14 Feb 2016 09:11:00 -0500
+Received: by mail-qg0-f44.google.com with SMTP id b35so94725783qge.0
+        for <linux-input@vger.kernel.org>; Sun, 14 Feb 2016 06:11:00 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Linus Walleij <linus.walleij@linaro.org>
+To: dmitry.torokhov@gmail.com
+Cc: maitysanchayan@gmail.com, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>
 
-commit e4b88e19897f1039fd83f1630517becafc0dd163
-"Input: stmpe-ts - enforce device tree only mode"
-removed platform data but accidentally stripped away useful
-kerneldoc, so reintroduce it.
+From: Fabio Estevam <fabio.estevam@nxp.com>
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+We need to make sure to call iio_channel_release_all() in all error
+paths of the probe function.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
 ---
- drivers/input/touchscreen/stmpe-ts.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+Build-tested only.
 
-diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
-index e414d43e5159..2a78e27b4495 100644
---- a/drivers/input/touchscreen/stmpe-ts.c
-+++ b/drivers/input/touchscreen/stmpe-ts.c
-@@ -63,6 +63,37 @@
- #define STMPE_TS_NAME			"stmpe-ts"
- #define XY_MASK				0xfff
+ drivers/input/touchscreen/colibri-vf50-ts.c | 39 ++++++++++++++++++-----------
+ 1 file changed, 24 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/input/touchscreen/colibri-vf50-ts.c b/drivers/input/touchscreen/colibri-vf50-ts.c
+index 69828d0..67f8a17 100644
+--- a/drivers/input/touchscreen/colibri-vf50-ts.c
++++ b/drivers/input/touchscreen/colibri-vf50-ts.c
+@@ -279,9 +279,8 @@ static int vf50_ts_probe(struct platform_device *pdev)
  
-+/**
-+ * struct stmpe_touch - stmpe811 touch screen controller state
-+ * @stmpe: pointer back to STMPE MFD container
-+ * @idev: registered input device
-+ * @work: a work item used to scan the device
-+ * @dev: a pointer back to the MFD cell struct device*
-+ * @sample_time: ADC converstion time in number of clock.
-+ * (0 -> 36 clocks, 1 -> 44 clocks, 2 -> 56 clocks, 3 -> 64 clocks,
-+ * 4 -> 80 clocks, 5 -> 96 clocks, 6 -> 144 clocks),
-+ * recommended is 4.
-+ * @mod_12b: ADC Bit mode (0 -> 10bit ADC, 1 -> 12bit ADC)
-+ * @ref_sel: ADC reference source
-+ * (0 -> internal reference, 1 -> external reference)
-+ * @adc_freq: ADC Clock speed
-+ * (0 -> 1.625 MHz, 1 -> 3.25 MHz, 2 || 3 -> 6.5 MHz)
-+ * @ave_ctrl: Sample average control
-+ * (0 -> 1 sample, 1 -> 2 samples, 2 -> 4 samples, 3 -> 8 samples)
-+ * @touch_det_delay: Touch detect interrupt delay
-+ * (0 -> 10 us, 1 -> 50 us, 2 -> 100 us, 3 -> 500 us,
-+ * 4-> 1 ms, 5 -> 5 ms, 6 -> 10 ms, 7 -> 50 ms)
-+ * recommended is 3
-+ * @settling: Panel driver settling time
-+ * (0 -> 10 us, 1 -> 100 us, 2 -> 500 us, 3 -> 1 ms,
-+ * 4 -> 5 ms, 5 -> 10 ms, 6 for 50 ms, 7 -> 100 ms)
-+ * recommended is 2
-+ * @fraction_z: Length of the fractional part in z
-+ * (fraction_z ([0..7]) = Count of the fractional part)
-+ * recommended is 7
-+ * @i_drive: current limit value of the touchscreen drivers
-+ * (0 -> 20 mA typical 35 mA max, 1 -> 50 mA typical 80 mA max)
-+ */
- struct stmpe_touch {
- 	struct stmpe *stmpe;
- 	struct input_dev *idev;
+ 	error = devm_add_action(dev, vf50_ts_channel_release, channels);
+ 	if (error) {
+-		iio_channel_release_all(channels);
+ 		dev_err(dev, "Failed to register iio channel release action");
+-		return error;
++		goto channel_release;
+ 	}
+ 
+ 	num_adc_channels = 0;
+@@ -290,12 +289,15 @@ static int vf50_ts_probe(struct platform_device *pdev)
+ 
+ 	if (num_adc_channels != COLI_TOUCH_REQ_ADC_CHAN) {
+ 		dev_err(dev, "Inadequate ADC channels specified\n");
+-		return -EINVAL;
++		error = -EINVAL;
++		goto channel_release;
+ 	}
+ 
+ 	touchdev = devm_kzalloc(dev, sizeof(*touchdev), GFP_KERNEL);
+-	if (!touchdev)
+-		return -ENOMEM;
++	if (!touchdev) {
++		error = -ENOMEM;
++		goto channel_release;
++	}
+ 
+ 	touchdev->pdev = pdev;
+ 	touchdev->channels = channels;
+@@ -303,12 +305,13 @@ static int vf50_ts_probe(struct platform_device *pdev)
+ 	error = of_property_read_u32(dev->of_node, "vf50-ts-min-pressure",
+ 				 &touchdev->min_pressure);
+ 	if (error)
+-		return error;
++		goto channel_release;
+ 
+ 	input = devm_input_allocate_device(dev);
+ 	if (!input) {
+ 		dev_err(dev, "Failed to allocate TS input device\n");
+-		return -ENOMEM;
++		error = -ENOMEM;
++		goto channel_release;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, touchdev);
+@@ -330,29 +333,31 @@ static int vf50_ts_probe(struct platform_device *pdev)
+ 	error = input_register_device(input);
+ 	if (error) {
+ 		dev_err(dev, "Failed to register input device\n");
+-		return error;
++		goto channel_release;
+ 	}
+ 
+ 	error = vf50_ts_get_gpiod(dev, &touchdev->gpio_xp, "xp", GPIOD_OUT_LOW);
+ 	if (error)
+-		return error;
++		goto channel_release;
+ 
+ 	error = vf50_ts_get_gpiod(dev, &touchdev->gpio_xm,
+ 				"xm", GPIOD_OUT_LOW);
+ 	if (error)
+-		return error;
++		goto channel_release;
+ 
+ 	error = vf50_ts_get_gpiod(dev, &touchdev->gpio_yp, "yp", GPIOD_OUT_LOW);
+ 	if (error)
+-		return error;
++		goto channel_release;
+ 
+ 	error = vf50_ts_get_gpiod(dev, &touchdev->gpio_ym, "ym", GPIOD_OUT_LOW);
+ 	if (error)
+-		return error;
++		goto channel_release;
+ 
+ 	touchdev->pen_irq = platform_get_irq(pdev, 0);
+-	if (touchdev->pen_irq < 0)
+-		return touchdev->pen_irq;
++	if (touchdev->pen_irq < 0) {
++		error = touchdev->pen_irq;
++		goto channel_release;
++	}
+ 
+ 	error = devm_request_threaded_irq(dev, touchdev->pen_irq,
+ 					  NULL, vf50_ts_irq_bh, IRQF_ONESHOT,
+@@ -360,10 +365,14 @@ static int vf50_ts_probe(struct platform_device *pdev)
+ 	if (error) {
+ 		dev_err(dev, "Failed to request IRQ %d: %d\n",
+ 			touchdev->pen_irq, error);
+-		return error;
++		goto channel_release;
+ 	}
+ 
+ 	return 0;
++
++channel_release:
++	iio_channel_release_all(channels);
++	return error;
+ }
+ 
+ static const struct of_device_id vf50_touch_of_match[] = {
 -- 
-2.4.3
+1.9.1
 

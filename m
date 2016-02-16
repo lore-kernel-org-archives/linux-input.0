@@ -1,50 +1,49 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: logitech: fix Dual Action gamepad support
-Date: Tue, 16 Feb 2016 11:02:34 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1602161102210.22700@cbobk.fhfr.pm>
-References: <1455396111-2511-1-git-send-email-notasas@gmail.com>
+Subject: Re: [PATCH] HID: fix hid_ignore_special_drivers module parameter
+Date: Tue, 16 Feb 2016 11:05:45 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1602161104400.22700@cbobk.fhfr.pm>
+References: <1455293437-12088-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:55145 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:55534 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754812AbcBPKCh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Feb 2016 05:02:37 -0500
-In-Reply-To: <1455396111-2511-1-git-send-email-notasas@gmail.com>
+	id S1754412AbcBPKFr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Feb 2016 05:05:47 -0500
+In-Reply-To: <1455293437-12088-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grazvydas Ignotas <notasas@gmail.com>
-Cc: linux-input@vger.kernel.org, Vitaly Katraew <zawullon@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, 13 Feb 2016, Grazvydas Ignotas wrote:
+On Fri, 12 Feb 2016, Benjamin Tissoires wrote:
 
-> The patch that added Logitech Dual Action gamepad support forgot to
-> update the special driver list for the device. This caused the logitech
-> driver not to probe unless kernel module load order was favorable.
-> Update the special driver list to fix it. Thanks to Simon Wood for the
-> idea.
+> hid_ignore_special_drivers works fine until hid_scan_report
+> autodetects and reassign devices (for hid-multitouch,
+> hid-microsoft and hid-rmi).
 > 
-> Cc: Vitaly Katraew <zawullon@gmail.com>
-> Fixes: 56d0c8b7c8fb ("HID: add support for Logitech Dual Action gamepads")
-> Signed-off-by: Grazvydas Ignotas <notasas@gmail.com>
+> Simplify the handling of the parameter: if it is there, use
+> hid-generic, no matter what, and if not, scan the device or
+> rely on the hid_have_special_driver table.
+> 
+> This was detected while trying to disable hid-multitouch on
+> a Surface Pro cover which prevented to use the keyboard.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> CC: stable@vger.kernel.org
 > ---
->  drivers/hid/hid-core.c | 1 +
->  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index c6f7a69..f16155f5 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1897,6 +1897,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_ELITE_KBD) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_CORDLESS_DESKTOP_LX500) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_EXTREME_3D) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DUAL_ACTION) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD) },
+> Hi Jiri,
+> 
+> not sure if we should keep or not the stable@ tag. The issue was there for a
+> long time, and nobody complained. It's up to you.
 
-Applied, thanks.
+I've now applied it to for-4.5/upstream-fixes, but will wait if there is 
+any other more important fix that'd trigger the push of this branch to 
+Linus; otherwise it'll go in the merge window pile and will get backported 
+to -stable later.
+
+Thanks,
 
 -- 
 Jiri Kosina

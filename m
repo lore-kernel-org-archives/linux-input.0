@@ -1,93 +1,58 @@
-From: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
-Subject: RE: [PATCH 1/3] input: cygnus-update touchscreen dt node document
-Date: Tue, 16 Feb 2016 09:54:56 +0530
-Message-ID: <766ebcaceac5e04307b48527eaeefb90@mail.gmail.com>
-References: <1455008277-8312-1-git-send-email-raveendra.padasalagi@broadcom.com>
- <1455008277-8312-2-git-send-email-raveendra.padasalagi@broadcom.com>
- <2631849.GeOulu78vx@wuerfel> <3b53af6b6c6735d10cb88518c8b8a0ae@mail.gmail.com>
- <20160209174351.GC40460@dtor-ws> <979fb4dc5fba643a6780759d2a13530a@mail.gmail.com>
- <20160212150430.GA15049@rob-hp-laptop>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v3 0/3] Input: rotary_encoder - Fixups for Dmitry's
+ rework and support for >2 gpios
+Date: Tue, 16 Feb 2016 08:33:27 +0100
+Message-ID: <20160216073327.GL12289@pengutronix.de>
+References: <1454674101-1194-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f171.google.com ([209.85.161.171]:36587 "EHLO
-	mail-yw0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752002AbcBPEY6 (ORCPT
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:40765 "EHLO
+	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753787AbcBPHdg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Feb 2016 23:24:58 -0500
-Received: by mail-yw0-f171.google.com with SMTP id e63so35520399ywc.3
-        for <linux-input@vger.kernel.org>; Mon, 15 Feb 2016 20:24:58 -0800 (PST)
-In-Reply-To: <20160212150430.GA15049@rob-hp-laptop>
+	Tue, 16 Feb 2016 02:33:36 -0500
+Content-Disposition: inline
+In-Reply-To: <1454674101-1194-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Russell King <linux@arm.linux.org.uk>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jonathan Richardson <jonathar@broadcom.com>, Jon Mason <jonmason@broadcom.com>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com
+To: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sylvain Rochet <sylvain.rochet@finsecur.com>, Johan Hovold <johan@kernel.org>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de, linux-input@vger.kernel.org
 
-> -----Original Message-----
-> From: Rob Herring [mailto:robh@kernel.org]
-> Sent: 12 February 2016 20:35
-> To: Raveendra Padasalagi
-> Cc: Dmitry Torokhov; Arnd Bergmann; Russell King;
-devicetree@vger.kernel.org;
-> linux-arm-kernel@lists.infradead.org; linux-input@vger.kernel.org; Pawel
-Moll;
-> Mark Rutland; Ian Campbell; Kumar Gala; Jonathan Richardson; Jon Mason;
-> Florian Fainelli; Ray Jui; Scott Branden; linux-kernel@vger.kernel.org;
-bcm-
-> kernel-feedback-list@broadcom.com
-> Subject: Re: [PATCH 1/3] input: cygnus-update touchscreen dt node
-document
->
-> Your mailer is not handling wrapping correctly. Generally, Outlook does
-not
-> work for maillists.
->
-> On Wed, Feb 10, 2016 at 10:24:43AM +0530, Raveendra Padasalagi wrote:
-> > > -----Original Message-----
-> > > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > > Sent: 09 February 2016 23:14
-> > > To: Raveendra Padasalagi
-> > > Cc: Arnd Bergmann; Russell King; devicetree@vger.kernel.org;
-> > > linux-arm- kernel@lists.infradead.org; linux-input@vger.kernel.org;
-> > > Rob Herring;
-> > Pawel
-> > > Moll; Mark Rutland; Ian Campbell; Kumar Gala; Jonathan Richardson;
-> > > Jon Mason; Florian Fainelli; Ray Jui; Scott Branden;
-> > linux-kernel@vger.kernel.org;
-> > > bcm-kernel-feedback-list@broadcom.com
-> > > Subject: Re: [PATCH 1/3] input: cygnus-update touchscreen dt node
-> > document
->
-> And Outlook's reply header is non-standard.
->
-> [...]
->
-> > > > In Cygnus SOC, Touch screen controller registers are shared with
-> > > > ADC and flex timer IP's.
-> > > > Using readl/writel could lead to race condition. So this patch is
-> > > > introduced to take care mutually exclusive access of register's in
-> > > > such a case.
-> > > >
-> > > > In the platform's where touchscreen register's are not shared
-> > > > normal readl/writel could be used.
-> > >
-> > > Are there currently platforms where the registers are not shared? If
-> > > we
-> > have to
-> > > use regmap to correctly update registers (and thus we need
-> > > syscon) then I wonder if we should even attempt to support direct
-> > register
-> > > access by the driver.
-> >
-> > Currently there are no platforms without register sharing, but we
-> > would like to keep the driver generic enough to take care of future
-> > SOC's if comes with dedicated registers and same touchscreen IP being
-> > re-used.
->
-> These future SoCs will have a different compatible string and you should
-use that
-> to determine whether reg or syscon is used.
+Hello Dmitry,
 
-Thanks Rob. I will address this in the next patch.
+On Fri, Feb 05, 2016 at 01:08:18PM +0100, Uwe Kleine-K=F6nig wrote:
+> Hello,
+>=20
+> This bases on top of
+>=20
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input rotary-enco=
+der
+>=20
+> (currently at 557a30f2f046).
+>=20
+> Dmitry, I assume you will squash the two fixups accordingly, otherwis=
+e
+> just tell me, then I create proper patches.
+>=20
+> Also let me note that with threaded irqs I'm able to rotate my device
+> quicker than irq handling happens. So a quick counterclockwise rotati=
+on
+> might be detected as single step clockwise rotation.
 
-> Rob
+gentle ping!
+
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

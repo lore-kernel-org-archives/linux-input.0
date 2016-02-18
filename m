@@ -1,21 +1,50 @@
-From: Richard Pospesel <pospeselr@gmail.com>
-Subject: [PATCH] psmouse: added absolute touch event support to BYD touchpad driver
-Date: Wed, 17 Feb 2016 08:39:31 -0800
-Message-ID: <1455727171-23995-2-git-send-email-pospeselr@gmail.com>
-References: <56C40474.5050803@gmail.com>
- <1455727171-23995-1-git-send-email-pospeselr@gmail.com>
+From: Chris Diamand <chris@diamand.org>
+Subject: [PATCH] Input: byd - enable absolute mode
+Date: Thu, 18 Feb 2016 00:07:52 +0000
+Message-ID: <1455754072-16364-1-git-send-email-chris@diamand.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f179.google.com ([209.85.192.179]:35077 "EHLO
-	mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423936AbcBQQjp (ORCPT
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:35247 "EHLO
+	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965331AbcBRAIY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Feb 2016 11:39:45 -0500
-Received: by mail-pf0-f179.google.com with SMTP id c10so14635199pfc.2
-        for <linux-input@vger.kernel.org>; Wed, 17 Feb 2016 08:39:44 -0800 (PST)
-In-Reply-To: <1455727171-23995-1-git-send-email-pospeselr@gmail.com>
+	Wed, 17 Feb 2016 19:08:24 -0500
+Received: by mail-wm0-f45.google.com with SMTP id c200so2374073wme.0
+        for <linux-input@vger.kernel.org>; Wed, 17 Feb 2016 16:08:23 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: pospeselr@gmail.com, chris@diamand.org, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Richard Pospesel <pospeselr@gmail.com>, Chris Diamand <chris@diamand.org>
+
+From: Richard Pospesel <pospeselr@gmail.com>
+
+The Windows driver's settings dialog contains a visualization of the
+regions for the hardware edge scrolling capability, which uses a
+temporarily-enabled limited-resolution absolute mode.
+
+This patch enables this during normal operation, and combines the
+absolute packets with the existing relative packets to provide
+accurate absolute position and touch reporting.
+
+It also adds documentation for all known gesture packets and
+initialization commands.
+
+Reviewed-by: Chris Diamand <chris@diamand.org>
+Signed-off-by: Richard Pospesel <pospeselr@gmail.com>
+[chris@diamand.org: add more detail to commit message]
+Signed-off-by: Chris Diamand <chris@diamand.org>
+---
+(Resending on Richard's behalf with correct mailer settings)
+
+Hi Dmitry,
+
+I'm happy with this patch - would you mind taking a look at it please?
+
+Thanks!
+Chris
+
+ drivers/input/mouse/byd.c          | 578 ++++++++++++++++++++++++-------------
+ drivers/input/mouse/psmouse-base.c |   2 +-
+ 2 files changed, 379 insertions(+), 201 deletions(-)
 
 diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
 index 9425e0f..5b004b2c 100644
@@ -718,5 +747,5 @@ index 39d1bec..5784e20 100644
  		.detect		= byd_detect,
  		.init		= byd_init,
 -- 
-2.7.0
+2.1.4
 

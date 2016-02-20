@@ -1,35 +1,63 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v2 0/8] EC-based USB Power Delivery support for Chrome
- machines
-Date: Sat, 20 Feb 2016 17:22:11 +0100
-Message-ID: <20160220162211.GA4662@amd>
-References: <1455281825-23526-1-git-send-email-tomeu.vizoso@collabora.com>
+From: Manuel Reimer <mail+linux-input@m-reimer.de>
+Subject: How to get the kernel to emulate force feedback events?
+Date: Sat, 20 Feb 2016 20:28:45 +0100
+Message-ID: <56C8BE6D.7050409@m-reimer.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:60234 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750987AbcBTQWS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Feb 2016 11:22:18 -0500
-Content-Disposition: inline
-In-Reply-To: <1455281825-23526-1-git-send-email-tomeu.vizoso@collabora.com>
+Received: from mx1.mailbox.org ([80.241.60.212]:35959 "EHLO mx1.mailbox.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754012AbcBTT2s (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 20 Feb 2016 14:28:48 -0500
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [80.241.60.240])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.mailbox.org (Postfix) with ESMTPS id D6F6343B79
+	for <linux-input@vger.kernel.org>; Sat, 20 Feb 2016 20:28:46 +0100 (CET)
+Received: from smtp1.mailbox.org ([80.241.60.240])
+	by hefe.heinlein-support.de (hefe.heinlein-support.de [91.198.250.172]) (amavisd-new, port 10030)
+	with ESMTP id NIRlTvcdBnIV for <linux-input@vger.kernel.org>;
+	Sat, 20 Feb 2016 20:28:45 +0100 (CET)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: linux-kernel@vger.kernel.org, Sameer Nanda <snanda@chromium.org>, Lee Jones <lee.jones@linaro.org>, Benson Leung <bleung@chromium.org>, Enric =?iso-8859-1?Q?Balletb=F2?= <enric.balletbo@collabora.co.uk>, Vic Yang <victoryang@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Randall Spangler <rspangler@chromium.org>, Todd Broch <tbroch@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, linux-pm@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-input@vger.kernel.org, Olof Johansson <olof@lixom.net>
+To: linux-input@vger.kernel.org
 
-Hi!
+Hello,
 
-> this series contains a driver that exposes a power_supply to userspace
-> representing a port that support USB PD charging.
+if I plug my Xbox 360 controller and run fftest on it, then the 
+following force feedback modes are listed as supported:
 
-Well, if this is meant for userspace, should it add some
-documentation, too?
+| Force feedback effects types: Periodic, Rumble, Gain,
+| Force feedback periodic effects: Square, Triangle, Sine,
 
-Thanks,
-								Pavel
-								
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+If I have a look at the driver itself, then it actually only supports 
+FF_RUMBLE:
+
+https://github.com/torvalds/linux/blob/master/drivers/input/joystick/xpad.c#L1054
+https://github.com/torvalds/linux/blob/master/drivers/input/joystick/xpad.c#L966
+
+So somewhere in the kernel source there has to be some kind of built-in 
+force feedback effect emulation...
+
+If I do the same in an uinput driver (only report "FF_RUMBLE" as being 
+supported), then fftest only shows this one effect to be supported by 
+the device. The "kernel side emulation" does not kick in...
+
+The kernel documentation 
+(https://www.kernel.org/doc/Documentation/input/ff.txt) says:
+
+| Note: In most cases you should use FF_PERIODIC instead of FF_RUMBLE.
+|       All devices that support FF_RUMBLE support FF_PERIODIC (square,
+|       triangle, sine) and the other way around.
+
+But what could be the mistake, which allowed me to create a device 
+driver which actually only supports FF_RUMBLE? Are there any special 
+driver parameters that have to be present, so the kernel side emulation 
+gets active?
+
+Thanks in advance.
+
+Best regards,
+
+Manuel

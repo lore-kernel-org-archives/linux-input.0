@@ -1,29 +1,31 @@
 From: Manuel Reimer <mail+linux-input@m-reimer.de>
 Subject: Re: How to get the kernel to emulate force feedback events?
-Date: Sun, 21 Feb 2016 11:20:45 +0100
-Message-ID: <56C98F7D.6090100@m-reimer.de>
+Date: Sun, 21 Feb 2016 15:07:16 +0100
+Message-ID: <56C9C494.6070500@m-reimer.de>
 References: <56C8BE6D.7050409@m-reimer.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.mailbox.org ([80.241.60.212]:51691 "EHLO mx1.mailbox.org"
+Received: from mx1.mailbox.org ([80.241.60.212]:52986 "EHLO mx1.mailbox.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752855AbcBUR3O (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 21 Feb 2016 12:29:14 -0500
+	id S1751326AbcBURoO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 21 Feb 2016 12:44:14 -0500
 Received: from smtp1.mailbox.org (smtp1.mailbox.org [80.241.60.240])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mx1.mailbox.org (Postfix) with ESMTPS id C855043B19
-	for <linux-input@vger.kernel.org>; Sun, 21 Feb 2016 11:20:47 +0100 (CET)
+	by mx1.mailbox.org (Postfix) with ESMTPS id D457B43AFD
+	for <linux-input@vger.kernel.org>; Sun, 21 Feb 2016 15:07:18 +0100 (CET)
 Received: from smtp1.mailbox.org ([80.241.60.240])
 	by hefe.heinlein-support.de (hefe.heinlein-support.de [91.198.250.172]) (amavisd-new, port 10030)
-	with ESMTP id WENyd2eFuS76 for <linux-input@vger.kernel.org>;
-	Sun, 21 Feb 2016 11:20:46 +0100 (CET)
+	with ESMTP id qcrunSSu79C5 for <linux-input@vger.kernel.org>;
+	Sun, 21 Feb 2016 15:07:16 +0100 (CET)
 In-Reply-To: <56C8BE6D.7050409@m-reimer.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+
+Resending message. Is the list broken?
 
 On 02/20/2016 08:28 PM, Manuel Reimer wrote:
 > But what could be the mistake, which allowed me to create a device

@@ -1,123 +1,83 @@
-From: Charles Mooney <charliemooney@google.com>
-Subject: Re: Question about ABS_DISTANCE's intended usage.
-Date: Mon, 22 Feb 2016 08:35:31 -0800
-Message-ID: <CAJ34Pp70HjQsCo-pCdHXo7FmN8KXgOAT5NKFVS-13z2c_MPzPw@mail.gmail.com>
-References: <CAJ34Pp7OM7DAiA1gZqQ0dtgXZ=z6p+LEVD5aeMiYOecHCbcfLw@mail.gmail.com>
- <20160218181930.GA34407@dtor-ws> <20160221220426.GA20055@jelly.redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/3] input: cygnus-update touchscreen dt node document
+Date: Mon, 22 Feb 2016 11:36:04 -0800
+Message-ID: <20160222193604.GA26177@dtor-ws>
+References: <1455702226-20599-1-git-send-email-raveendra.padasalagi@broadcom.com>
+ <1455702226-20599-2-git-send-email-raveendra.padasalagi@broadcom.com>
+ <20160218143617.GH9654@rob-hp-laptop>
+ <CAAFb_vq6_uQbcWvwV8TZqVqH_C-ueUd+gBRA=mXUQrWqxoz=ww@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f171.google.com ([209.85.161.171]:34633 "EHLO
-	mail-yw0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751187AbcBVQgL (ORCPT
+Received: from mail-pf0-f181.google.com ([209.85.192.181]:34727 "EHLO
+	mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751179AbcBVTgJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Feb 2016 11:36:11 -0500
-Received: by mail-yw0-f171.google.com with SMTP id h129so123117890ywb.1
-        for <linux-input@vger.kernel.org>; Mon, 22 Feb 2016 08:36:10 -0800 (PST)
-In-Reply-To: <20160221220426.GA20055@jelly.redhat.com>
+	Mon, 22 Feb 2016 14:36:09 -0500
+Content-Disposition: inline
+In-Reply-To: <CAAFb_vq6_uQbcWvwV8TZqVqH_C-ueUd+gBRA=mXUQrWqxoz=ww@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, Linux Input <linux-input@vger.kernel.org>
+To: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+Cc: Rob Herring <robh@kernel.org>, Russell King <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jonathan Richardson <jonathar@broadcom.com>, Jon Mason <jonmason@broadcom.com>, Florian Fainelli <f.fainelli@gmail.com>, Anup Patel <anup.patel@broadcom.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com
 
-On Sun, Feb 21, 2016 at 2:04 PM Peter Hutterer <peter.hutterer@who-t.net> wrote:
->
-> On Thu, Feb 18, 2016 at 10:19:30AM -0800, Dmitry Torokhov wrote:
-> > On Tue, Feb 09, 2016 at 01:56:05PM -0800, Charles Mooney wrote:
-> > > Hello all,
-> > >
-> > > I'm currently working with a touchpad vendor with a new device that
-> > > supports a limited form of hover detection.  Their sensor is able to
-> > > detect the presence or absence of a finger/hand/palm hovering over the
-> > > sensor without touching it, but is unable to report any more details
-> > > about it.  This is a more limited form of hover detection than some
-> > > devices which attach a hover state to each finger they see, and can
-> > > even report x/y coordinates to hovering finger.
-> > >
-> > > Instead of using ABS_MT_DISTANCE, it appears that the correct event to
-> > > use would be ABS_DISTANCE, since the value is not tied to a specific
-> > > finger.  I would like to check with you all about how this value is
-> > > intended to be used, because it's not quite as obvious to me as I
-> > > first thought.
-> > >
-> > > We need to handle three basic states:
-> > >   1. At least one finger is touching the pad.
-> > >   2. Something is hovering, but nothing is actually touching.
-> > >   3. Nothing is touching the pad and nothing is detected hovering over it either
-> > >
-> > > It's seems clear to me that an ABS_DISTANCE of zero should indicate
-> > > state #1 and that any other legal positive value should indicate state
-> > > #2, but I'm less clear on what the best way to handle state #3 is.
-> > > Currently, I think the best strategy would be to use a value of
-> > > ABS_DISTANCE = -1 to indicate that there are no fingers seen (hovering
-> > > or otherwise), does that make sense?
-> > >
-> > > If not this, how else would you suggest that this ought to be done?
+On Fri, Feb 19, 2016 at 11:43:50AM +0530, Raveendra Padasalagi wrote:
+> On Thu, Feb 18, 2016 at 8:06 PM, Rob Herring <robh@kernel.org> wrote:
+> > On Wed, Feb 17, 2016 at 03:13:44PM +0530, Raveendra Padasalagi wrote:
+> >> In Cygnus SOC touch screen controller registers are shared
+> >> with ADC and flex timer. Using readl/writel could lead to
+> >> race condition. So touch screen driver is enhanced to support
+> >>
+> >> 1. If touchscreen register's are not shared. Register access
+> >> is handled through readl/writel if "brcm,iproc-touchscreen"
+> >> compatible is provided in touchscreen dt node. This will help
+> >> for future SOC's if comes with dedicated touchscreen IP register's.
+> >>
+> >> 2. If touchscreen register's are shared with other IP's, register
+> >> access is handled through syscon framework API's to take care of
+> >> mutually exclusive access. This feature can be enabled by selecting
+> >> "brcm,iproc-touchscreen-syscon" compatible string in the touchscreen
+> >> dt node.
+> >>
+> >> Hence touchscreen dt node bindings document is updated to take care
+> >> of above changes in the touchscreen driver.
+> >>
+> >> Signed-off-by: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+> >> Reviewed-by: Ray Jui <ray.jui@broadcom.com>
+> >> Reviewed-by: Scott Branden <scott.branden@broadcom.com>
+> >> ---
+> >>  .../input/touchscreen/brcm,iproc-touchscreen.txt   | 57 +++++++++++++++++++---
+> >>  1 file changed, 51 insertions(+), 6 deletions(-)
+> >>
+> >> diff --git a/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
+> >> index 34e3382..f530c25 100644
+> >> --- a/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
+> >> +++ b/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
+> >> @@ -1,12 +1,30 @@
+> >>  * Broadcom's IPROC Touchscreen Controller
+> >>
+> >>  Required properties:
+> >> -- compatible: must be "brcm,iproc-touchscreen"
+> >> -- reg: physical base address of the controller and length of memory mapped
+> >> -  region.
+> >> +- compatible: should be one of
+> >> +        "brcm,iproc-touchscreen"
+> >> +        "brcm,iproc-touchscreen-syscon"
 > >
-> > As we discussed in person, I believe that reporting an "out of bounds"
-> > value for ABS_DISTANCE when we have to use single-touch mode and thus do
-> > not have a good way to invalidate a contact, is the easiest option.
-> > Alternative would be to invent another SYN event, which I'd rather not.
-> >
-> > So for devices that support hovering but can not report individual
-> > hovering contacts we should declare 0..N as ABS_DISTANCE range and report
-> > following values:
-> >
-> >  - 0 when a finger is actually touching
-> >  - 1..N for hovering fingers
-> >  - return X < 0 or X > N when no fingers are detected at all; in
-> >    practice I think we should simply report -1 in this case.
-> >
-> > Benjamin, Peter, Henrik, any concerns?
->
-> on the touchpads that support hovering we're already using BTN_TOOL_FINGER
-> together with ABS_DISTANCE, without needing out-of-range reports.
-> BTN_TOUCH is the signal when a finger is physically touching (or ABS_PRESSURE
-> if it exists and clients care about it).
->
-> So the sequence Charles should send is:
->
-> 3) <nothing> :)
-> 2)
->     EV_ABS ABS_DISTANCE <d> # for d > 0
->     EV_KEY BTN_TOOL_FINGER 1
->     EV_SYN SYN_REPORT 0
-> 1)
->     EV_ABS ABS_DISTANCE 0
->     EV_ABS ABS_X <x>
->     EV_ABS ABS_Y <y>
->     ...
->     EV_KEY BTN_TOUCH 1
->     EV_SYN SYN_REPORT 0
-> 2)
->     EV_ABS ABS_DISTANCE <d> # for d > 0
->     EV_KEY BTN_TOUCH 0
->     EV_SYN SYN_REPORT 0
-> 3)
->     EV_KEY BTN_TOOL_FINGER 0
->     EV_SYN SYN_REPORT 0
->
-> This should work with at least libinput, though I have to check what happens
-> when you don't send x/y on the first event. I think this would need a patch
-> in libinput, but that's doable. And it's the same sequence we also use for
-> e.g. pen tools that support hovering as well.
->
-> Cheers,
->    Peter
+> > More specific and this is not how you do syscon. Either the block is or
+> > isn't. You can't have it both ways.
+> 
+> Existing driver has support for reg, if we modify now to support only syscon
+> then this driver will not work if some one wishes to use previous
+> kernel version's
+> dt and vice versa. Basically this breaks dt compatibility. Is that ok ?
 
-Hi Peter,
+But the issue is that the driver does not actually work correctly with
+direct register access on those systems, since the registers are
+actually shared with other components. I am not quite sure if it is OK
+to break DT binding in this case...
 
-It looks like you're suggesting to use "BTN_TOOL_FINGER" as a signal
-as to weather or not the value in "ABS_DISTANCE" is valid or not.
+Thanks.
 
-1. No finger detected anywhere:
-    BTN_TOOL_FINGER = 0
-    ABS_DISTANCE = n/a
-2. Finger seen hovering but not touching:
-    BTN_TOOL_FINGER = 1
-    ABS_DISTANCE > 0
-2. Finger touching:
-    BTN_TOOL_FINGER = 1
-    ABS_DISTANCE = 0
-
-Am I understanding that correctly?
+-- 
+Dmitry

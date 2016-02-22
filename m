@@ -1,98 +1,123 @@
-From: Andrea <andrea.deangelis93@gmail.com>
-Subject: Re: keyboard problem on linux
-Date: Mon, 22 Feb 2016 15:33:40 +0100
-Message-ID: <56CB1C44.8000004@gmail.com>
-References: <569E3B62.6050407@gmail.com> <20160120001340.GC31589@dtor-ws>
- <569F5389.8040800@gmail.com> <56A92E09.9020009@gmail.com>
+From: Charles Mooney <charliemooney@google.com>
+Subject: Re: Question about ABS_DISTANCE's intended usage.
+Date: Mon, 22 Feb 2016 08:35:31 -0800
+Message-ID: <CAJ34Pp70HjQsCo-pCdHXo7FmN8KXgOAT5NKFVS-13z2c_MPzPw@mail.gmail.com>
+References: <CAJ34Pp7OM7DAiA1gZqQ0dtgXZ=z6p+LEVD5aeMiYOecHCbcfLw@mail.gmail.com>
+ <20160218181930.GA34407@dtor-ws> <20160221220426.GA20055@jelly.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f43.google.com ([74.125.82.43]:33155 "EHLO
-	mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755642AbcBVOdu (ORCPT
+Received: from mail-yw0-f171.google.com ([209.85.161.171]:34633 "EHLO
+	mail-yw0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751187AbcBVQgL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Feb 2016 09:33:50 -0500
-Received: by mail-wm0-f43.google.com with SMTP id g62so159601893wme.0
-        for <linux-input@vger.kernel.org>; Mon, 22 Feb 2016 06:33:50 -0800 (PST)
-In-Reply-To: <56A92E09.9020009@gmail.com>
+	Mon, 22 Feb 2016 11:36:11 -0500
+Received: by mail-yw0-f171.google.com with SMTP id h129so123117890ywb.1
+        for <linux-input@vger.kernel.org>; Mon, 22 Feb 2016 08:36:10 -0800 (PST)
+In-Reply-To: <20160221220426.GA20055@jelly.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, Linux Input <linux-input@vger.kernel.org>
 
-the problem occurs also when i logout to login manager.
+On Sun, Feb 21, 2016 at 2:04 PM Peter Hutterer <peter.hutterer@who-t.net> wrote:
+>
+> On Thu, Feb 18, 2016 at 10:19:30AM -0800, Dmitry Torokhov wrote:
+> > On Tue, Feb 09, 2016 at 01:56:05PM -0800, Charles Mooney wrote:
+> > > Hello all,
+> > >
+> > > I'm currently working with a touchpad vendor with a new device that
+> > > supports a limited form of hover detection.  Their sensor is able to
+> > > detect the presence or absence of a finger/hand/palm hovering over the
+> > > sensor without touching it, but is unable to report any more details
+> > > about it.  This is a more limited form of hover detection than some
+> > > devices which attach a hover state to each finger they see, and can
+> > > even report x/y coordinates to hovering finger.
+> > >
+> > > Instead of using ABS_MT_DISTANCE, it appears that the correct event to
+> > > use would be ABS_DISTANCE, since the value is not tied to a specific
+> > > finger.  I would like to check with you all about how this value is
+> > > intended to be used, because it's not quite as obvious to me as I
+> > > first thought.
+> > >
+> > > We need to handle three basic states:
+> > >   1. At least one finger is touching the pad.
+> > >   2. Something is hovering, but nothing is actually touching.
+> > >   3. Nothing is touching the pad and nothing is detected hovering over it either
+> > >
+> > > It's seems clear to me that an ABS_DISTANCE of zero should indicate
+> > > state #1 and that any other legal positive value should indicate state
+> > > #2, but I'm less clear on what the best way to handle state #3 is.
+> > > Currently, I think the best strategy would be to use a value of
+> > > ABS_DISTANCE = -1 to indicate that there are no fingers seen (hovering
+> > > or otherwise), does that make sense?
+> > >
+> > > If not this, how else would you suggest that this ought to be done?
+> >
+> > As we discussed in person, I believe that reporting an "out of bounds"
+> > value for ABS_DISTANCE when we have to use single-touch mode and thus do
+> > not have a good way to invalidate a contact, is the easiest option.
+> > Alternative would be to invent another SYN event, which I'd rather not.
+> >
+> > So for devices that support hovering but can not report individual
+> > hovering contacts we should declare 0..N as ABS_DISTANCE range and report
+> > following values:
+> >
+> >  - 0 when a finger is actually touching
+> >  - 1..N for hovering fingers
+> >  - return X < 0 or X > N when no fingers are detected at all; in
+> >    practice I think we should simply report -1 in this case.
+> >
+> > Benjamin, Peter, Henrik, any concerns?
+>
+> on the touchpads that support hovering we're already using BTN_TOOL_FINGER
+> together with ABS_DISTANCE, without needing out-of-range reports.
+> BTN_TOUCH is the signal when a finger is physically touching (or ABS_PRESSURE
+> if it exists and clients care about it).
+>
+> So the sequence Charles should send is:
+>
+> 3) <nothing> :)
+> 2)
+>     EV_ABS ABS_DISTANCE <d> # for d > 0
+>     EV_KEY BTN_TOOL_FINGER 1
+>     EV_SYN SYN_REPORT 0
+> 1)
+>     EV_ABS ABS_DISTANCE 0
+>     EV_ABS ABS_X <x>
+>     EV_ABS ABS_Y <y>
+>     ...
+>     EV_KEY BTN_TOUCH 1
+>     EV_SYN SYN_REPORT 0
+> 2)
+>     EV_ABS ABS_DISTANCE <d> # for d > 0
+>     EV_KEY BTN_TOUCH 0
+>     EV_SYN SYN_REPORT 0
+> 3)
+>     EV_KEY BTN_TOOL_FINGER 0
+>     EV_SYN SYN_REPORT 0
+>
+> This should work with at least libinput, though I have to check what happens
+> when you don't send x/y on the first event. I think this would need a patch
+> in libinput, but that's doable. And it's the same sequence we also use for
+> e.g. pen tools that support hovering as well.
+>
+> Cheers,
+>    Peter
 
-for example if in this moment i haven't the problem (because i've 
-pressed for some seconds MAIUSC key) and i logout, the problem occurs 
-again infact sometimes, when i logout, and then i try to login again, 
-the login manager doesn't accpet the password because the passowrd 
-contains uppercase letters, but sometimes the OS don't take maiusc key 
-(I hope I explained well)
+Hi Peter,
 
-i hope that this information can be useful.
-thanks
+It looks like you're suggesting to use "BTN_TOOL_FINGER" as a signal
+as to weather or not the value in "ABS_DISTANCE" is valid or not.
 
-Il 27/01/2016 21:52, Andrea ha scritto:
-> i've installed the new kernel 4.5 RC1, but i've the same problem.
-> i've also tried start ubuntu with upstart, same problem.
-> i don't know why i've this strange problem.
->
-> i've also tried GhostBSD on live (i don't know if this information can
-> be useful), the problems occurs also on BSD but seem that is less severe
-> than on Linux, because on BSD seems that the problem occurs only one
-> time every boot, then disappears without do nothing (don't need to press
-> MAIUSC key for some seconds).
->
-> I hope that this bug can be solved.
->
->
-> Il 20/01/2016 10:29, Andrea ha scritto:
->> Hi, Dmitry
->> i've the same problem on console without X.
->> this is an output of evtest on console:
->> http://pastebin.com/4aWYYhwN
->> (as you can see, after a while i'm pressing Left_Alt (from line 434 of
->> pastebin) or Left_Ctrl (from line 605 of pastebin) or Left_Shift (from
->> line 786 of pastebin), these keys are released and then pressed again.
->> but when i press only left_shift for some seconds, the issue don't
->> occurs.)
->>
->> i haven't found nothing on BIOS settings, the only options relative to
->> keyboard is:
->>
->> Action Keys Mode:
->> [Enabled]: Requires pressing only F1 throug F12 to activate action keys
->> [Disabled]: Requires pressing FN Key + F1 throug F12 to activate action
->> keys
->>
->> but the problem occurs in both modes
->>
->>
->> Il 20/01/2016 01:13, Dmitry Torokhov ha scritto:
->>> Hi Andera,
->>>
->>> On Tue, Jan 19, 2016 at 02:34:26PM +0100, Andrea wrote:
->>>> [1.] i've a problem with keyboard of my notebook HP Pavilion 15
->>>> ab062nl; CTRL SHIFT and ALT buttons not works as they should. in
->>>> particular, it is as if these keys are pressed and released alone.
->>>> isn't an hardware problem, because on windows 10 and windows 8.1 i
->>>> haven't these problems, is only a linux problem (all distro).
->>>>
->>>> [2.] the bug is always active, every time i start a linux Distro
->>>> (also from live, and also without DE/WM) i've this problem with
->>>> keyboard, the only way to fix temporarily the bug, is pressing the
->>>> only Left SHIFT key for some seconds, then all problems disappear
->>>> indefinitely, and in any case, if i shutdown or if i reboot the PC,
->>>> the problem recurs.
->>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1532746
->>>
->>> Hmm, this is weird. Do you observe the same issue in text console (not
->>> in X)? It would be nice to see events as emitted by the kernel - you can
->>> use evtest utility for that.
->>>
->>> Is sounds like some accessibility feature, is there anything in BIOS to
->>> that effect?
->>>
->>> Thanks.
->>>
+1. No finger detected anywhere:
+    BTN_TOOL_FINGER = 0
+    ABS_DISTANCE = n/a
+2. Finger seen hovering but not touching:
+    BTN_TOOL_FINGER = 1
+    ABS_DISTANCE > 0
+2. Finger touching:
+    BTN_TOOL_FINGER = 1
+    ABS_DISTANCE = 0
+
+Am I understanding that correctly?

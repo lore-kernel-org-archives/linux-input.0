@@ -1,84 +1,68 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: touchscreen: stmpe: kerneldoc
-Date: Mon, 22 Feb 2016 11:38:05 -0800
-Message-ID: <20160222193805.GB26177@dtor-ws>
-References: <1455456681-18846-1-git-send-email-linus.walleij@linaro.org>
+Subject: Re: [PATCH]  Input: colibri-vf50-ts - call iio_channel_release_all()
+ in all error paths
+Date: Mon, 22 Feb 2016 11:39:42 -0800
+Message-ID: <20160222193942.GC26177@dtor-ws>
+References: <1455459049-5690-1-git-send-email-festevam@gmail.com>
+ <20160215050247.GA16995@Sanchayan-Arch.toradex.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f178.google.com ([209.85.192.178]:34615 "EHLO
-	mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752235AbcBVTiI (ORCPT
+Received: from mail-pf0-f176.google.com ([209.85.192.176]:35604 "EHLO
+	mail-pf0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752219AbcBVTjp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Feb 2016 14:38:08 -0500
-Received: by mail-pf0-f178.google.com with SMTP id x65so97628444pfb.1
-        for <linux-input@vger.kernel.org>; Mon, 22 Feb 2016 11:38:08 -0800 (PST)
+	Mon, 22 Feb 2016 14:39:45 -0500
+Received: by mail-pf0-f176.google.com with SMTP id c10so100850340pfc.2
+        for <linux-input@vger.kernel.org>; Mon, 22 Feb 2016 11:39:45 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1455456681-18846-1-git-send-email-linus.walleij@linaro.org>
+In-Reply-To: <20160215050247.GA16995@Sanchayan-Arch.toradex.int>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-input@vger.kernel.org
+To: maitysanchayan@gmail.com
+Cc: Fabio Estevam <festevam@gmail.com>, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>
 
-On Sun, Feb 14, 2016 at 02:31:21PM +0100, Linus Walleij wrote:
-> commit e4b88e19897f1039fd83f1630517becafc0dd163
-> "Input: stmpe-ts - enforce device tree only mode"
-> removed platform data but accidentally stripped away useful
-> kerneldoc, so reintroduce it.
+On Mon, Feb 15, 2016 at 10:32:47AM +0530, maitysanchayan@gmail.com wrote:
+> Hello Fabio,
 > 
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> On 16-02-14 12:10:49, Fabio Estevam wrote:
+> > From: Fabio Estevam <fabio.estevam@nxp.com>
+> > 
+> > We need to make sure to call iio_channel_release_all() in all error
+> > paths of the probe function.
+> > 
+> > Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+> > ---
+> > Build-tested only.
+> > 
+> >  drivers/input/touchscreen/colibri-vf50-ts.c | 39 ++++++++++++++++++-----------
+> >  1 file changed, 24 insertions(+), 15 deletions(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/colibri-vf50-ts.c b/drivers/input/touchscreen/colibri-vf50-ts.c
+> > index 69828d0..67f8a17 100644
+> > --- a/drivers/input/touchscreen/colibri-vf50-ts.c
+> > +++ b/drivers/input/touchscreen/colibri-vf50-ts.c
+> > @@ -279,9 +279,8 @@ static int vf50_ts_probe(struct platform_device *pdev)
+> >  
+> >  	error = devm_add_action(dev, vf50_ts_channel_release, channels);
+> >  	if (error) {
+> > -		iio_channel_release_all(channels);
+> >  		dev_err(dev, "Failed to register iio channel release action");
+> > -		return error;
+> > +		goto channel_release;
+> >  	}
+> 
+> As far as my understanding goes, from the discussion which happened during the
+> submission of the patchset for this driver, the channel release gets taken care
+> by the vf50_ts_channel_release function. Once it is successfully registered with
+> devm_add_action, any further error returns in probe, will result in this function
+> being called and the channels getting released.
 
-Applied, thank you.
+That is correct, devm_add_action injects a custom action into devm
+release sequence, so we should be releasing all channels when bailing
+out due to an error.
 
-> ---
->  drivers/input/touchscreen/stmpe-ts.c | 31 +++++++++++++++++++++++++++++++
->  1 file changed, 31 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
-> index e414d43e5159..2a78e27b4495 100644
-> --- a/drivers/input/touchscreen/stmpe-ts.c
-> +++ b/drivers/input/touchscreen/stmpe-ts.c
-> @@ -63,6 +63,37 @@
->  #define STMPE_TS_NAME			"stmpe-ts"
->  #define XY_MASK				0xfff
->  
-> +/**
-> + * struct stmpe_touch - stmpe811 touch screen controller state
-> + * @stmpe: pointer back to STMPE MFD container
-> + * @idev: registered input device
-> + * @work: a work item used to scan the device
-> + * @dev: a pointer back to the MFD cell struct device*
-> + * @sample_time: ADC converstion time in number of clock.
-> + * (0 -> 36 clocks, 1 -> 44 clocks, 2 -> 56 clocks, 3 -> 64 clocks,
-> + * 4 -> 80 clocks, 5 -> 96 clocks, 6 -> 144 clocks),
-> + * recommended is 4.
-> + * @mod_12b: ADC Bit mode (0 -> 10bit ADC, 1 -> 12bit ADC)
-> + * @ref_sel: ADC reference source
-> + * (0 -> internal reference, 1 -> external reference)
-> + * @adc_freq: ADC Clock speed
-> + * (0 -> 1.625 MHz, 1 -> 3.25 MHz, 2 || 3 -> 6.5 MHz)
-> + * @ave_ctrl: Sample average control
-> + * (0 -> 1 sample, 1 -> 2 samples, 2 -> 4 samples, 3 -> 8 samples)
-> + * @touch_det_delay: Touch detect interrupt delay
-> + * (0 -> 10 us, 1 -> 50 us, 2 -> 100 us, 3 -> 500 us,
-> + * 4-> 1 ms, 5 -> 5 ms, 6 -> 10 ms, 7 -> 50 ms)
-> + * recommended is 3
-> + * @settling: Panel driver settling time
-> + * (0 -> 10 us, 1 -> 100 us, 2 -> 500 us, 3 -> 1 ms,
-> + * 4 -> 5 ms, 5 -> 10 ms, 6 for 50 ms, 7 -> 100 ms)
-> + * recommended is 2
-> + * @fraction_z: Length of the fractional part in z
-> + * (fraction_z ([0..7]) = Count of the fractional part)
-> + * recommended is 7
-> + * @i_drive: current limit value of the touchscreen drivers
-> + * (0 -> 20 mA typical 35 mA max, 1 -> 50 mA typical 80 mA max)
-> + */
->  struct stmpe_touch {
->  	struct stmpe *stmpe;
->  	struct input_dev *idev;
-> -- 
-> 2.4.3
-> 
+Thanks.
 
 -- 
 Dmitry

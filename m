@@ -1,139 +1,77 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: Question about ABS_DISTANCE's intended usage.
-Date: Tue, 23 Feb 2016 08:04:32 +1000
-Message-ID: <20160222220432.GB11173@jelly.redhat.com>
-References: <CAJ34Pp7OM7DAiA1gZqQ0dtgXZ=z6p+LEVD5aeMiYOecHCbcfLw@mail.gmail.com>
- <20160218181930.GA34407@dtor-ws>
- <20160221220426.GA20055@jelly.redhat.com>
- <CAJ34Pp70HjQsCo-pCdHXo7FmN8KXgOAT5NKFVS-13z2c_MPzPw@mail.gmail.com>
+From: Dudley Du <dudl@cypress.com>
+Subject: RE: [PATCH] input: cyapa: fix the report events may lost issue during
+ set power mode
+Date: Tue, 23 Feb 2016 01:43:16 +0000
+Message-ID: <SN1PR0601MB19032820A81DB9C6726B09F9D1A40@SN1PR0601MB1903.namprd06.prod.outlook.com>
+References: <1452750033-25692-1-git-send-email-dudl@cypress.com>
+ <20160115053410.GA21967@hudson.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:37516 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755870AbcBVWEn (ORCPT
+Received: from mail-bl2on0123.outbound.protection.outlook.com ([65.55.169.123]:41549
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754795AbcBWCRA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Feb 2016 17:04:43 -0500
-Content-Disposition: inline
-In-Reply-To: <CAJ34Pp70HjQsCo-pCdHXo7FmN8KXgOAT5NKFVS-13z2c_MPzPw@mail.gmail.com>
+	Mon, 22 Feb 2016 21:17:00 -0500
+In-Reply-To: <20160115053410.GA21967@hudson.localdomain>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Charles Mooney <charliemooney@google.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, Linux Input <linux-input@vger.kernel.org>
+To: Jeremiah Mahler <jmmahler@gmail.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "eugenesan@gmail.com" <eugenesan@gmail.com>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, Feb 22, 2016 at 08:35:31AM -0800, Charles Mooney wrote:
-> On Sun, Feb 21, 2016 at 2:04 PM Peter Hutterer <peter.hutterer@who-t.net> wrote:
-> >
-> > On Thu, Feb 18, 2016 at 10:19:30AM -0800, Dmitry Torokhov wrote:
-> > > On Tue, Feb 09, 2016 at 01:56:05PM -0800, Charles Mooney wrote:
-> > > > Hello all,
-> > > >
-> > > > I'm currently working with a touchpad vendor with a new device that
-> > > > supports a limited form of hover detection.  Their sensor is able to
-> > > > detect the presence or absence of a finger/hand/palm hovering over the
-> > > > sensor without touching it, but is unable to report any more details
-> > > > about it.  This is a more limited form of hover detection than some
-> > > > devices which attach a hover state to each finger they see, and can
-> > > > even report x/y coordinates to hovering finger.
-> > > >
-> > > > Instead of using ABS_MT_DISTANCE, it appears that the correct event to
-> > > > use would be ABS_DISTANCE, since the value is not tied to a specific
-> > > > finger.  I would like to check with you all about how this value is
-> > > > intended to be used, because it's not quite as obvious to me as I
-> > > > first thought.
-> > > >
-> > > > We need to handle three basic states:
-> > > >   1. At least one finger is touching the pad.
-> > > >   2. Something is hovering, but nothing is actually touching.
-> > > >   3. Nothing is touching the pad and nothing is detected hovering over it either
-> > > >
-> > > > It's seems clear to me that an ABS_DISTANCE of zero should indicate
-> > > > state #1 and that any other legal positive value should indicate state
-> > > > #2, but I'm less clear on what the best way to handle state #3 is.
-> > > > Currently, I think the best strategy would be to use a value of
-> > > > ABS_DISTANCE = -1 to indicate that there are no fingers seen (hovering
-> > > > or otherwise), does that make sense?
-> > > >
-> > > > If not this, how else would you suggest that this ought to be done?
-> > >
-> > > As we discussed in person, I believe that reporting an "out of bounds"
-> > > value for ABS_DISTANCE when we have to use single-touch mode and thus do
-> > > not have a good way to invalidate a contact, is the easiest option.
-> > > Alternative would be to invent another SYN event, which I'd rather not.
-> > >
-> > > So for devices that support hovering but can not report individual
-> > > hovering contacts we should declare 0..N as ABS_DISTANCE range and report
-> > > following values:
-> > >
-> > >  - 0 when a finger is actually touching
-> > >  - 1..N for hovering fingers
-> > >  - return X < 0 or X > N when no fingers are detected at all; in
-> > >    practice I think we should simply report -1 in this case.
-> > >
-> > > Benjamin, Peter, Henrik, any concerns?
-> >
-> > on the touchpads that support hovering we're already using BTN_TOOL_FINGER
-> > together with ABS_DISTANCE, without needing out-of-range reports.
-> > BTN_TOUCH is the signal when a finger is physically touching (or ABS_PRESSURE
-> > if it exists and clients care about it).
-> >
-> > So the sequence Charles should send is:
-> >
-> > 3) <nothing> :)
-> > 2)
-> >     EV_ABS ABS_DISTANCE <d> # for d > 0
-> >     EV_KEY BTN_TOOL_FINGER 1
-> >     EV_SYN SYN_REPORT 0
-> > 1)
-> >     EV_ABS ABS_DISTANCE 0
-> >     EV_ABS ABS_X <x>
-> >     EV_ABS ABS_Y <y>
-> >     ...
-> >     EV_KEY BTN_TOUCH 1
-> >     EV_SYN SYN_REPORT 0
-> > 2)
-> >     EV_ABS ABS_DISTANCE <d> # for d > 0
-> >     EV_KEY BTN_TOUCH 0
-> >     EV_SYN SYN_REPORT 0
-> > 3)
-> >     EV_KEY BTN_TOOL_FINGER 0
-> >     EV_SYN SYN_REPORT 0
-> >
-> > This should work with at least libinput, though I have to check what happens
-> > when you don't send x/y on the first event. I think this would need a patch
-> > in libinput, but that's doable. And it's the same sequence we also use for
-> > e.g. pen tools that support hovering as well.
-> >
-> > Cheers,
-> >    Peter
-> 
-> Hi Peter,
-> 
-> It looks like you're suggesting to use "BTN_TOOL_FINGER" as a signal
-> as to weather or not the value in "ABS_DISTANCE" is valid or not.
-> 
-> 1. No finger detected anywhere:
->     BTN_TOOL_FINGER = 0
->     ABS_DISTANCE = n/a
-> 2. Finger seen hovering but not touching:
->     BTN_TOOL_FINGER = 1
->     ABS_DISTANCE > 0
-> 2. Finger touching:
->     BTN_TOOL_FINGER = 1
->     ABS_DISTANCE = 0
+Hi Dmitry,
 
-you should set BTN_TOUCH here. This can be done based on some magic pressure
-threshold if you have pressure, otherwise just unconditionally set it
-whenever distance is 0.
+Is there any update on this patch?
 
-> 
-> Am I understanding that correctly?
+Thanks,
+Dudley
 
-yes, but IMO better to think it this way: BTN_TOOL_FINGER signals whether a
-finger is detected by the device. everything else is just axis information
-if and when it becomes available.
-likewise, BTN_TOUCH signals whether the current tool (could be something
-other than finger) logically touches the surface.
+> -----Original Message-----
+> From: Jeremiah Mahler [mailto:jmmahler@gmail.com]
+> Sent: 2016?1?15? 13:34
+> To: Dudley Du
+> Cc: dmitry.torokhov@gmail.com; eugenesan@gmail.com; bleung@google.com;
+> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] input: cyapa: fix the report events may lost issue during set
+> power mode
+>
+> Dudley,
+>
+> On Thu, Jan 14, 2016 at 01:40:33PM +0800, Dudley Du wrote:
+> > When driver set the power mode to change the scan rate in auto suspend
+> > process, some events may be lost because
+> > 1) for gen3 trackpad, the driver must msleep() some time to avoid issuing
+> > next command encounter error;
+> > 2) for gen5 and later trackpads, the queue dumping function will simply
+> > ignore the events when waiting for the set power mode command response.
+> > so, when auto resume process will be executed, the set power mode command
+> > will be issued can cause the events may be lost.
+> > The solution is kept polling and report those valid events when the set
+> > power mode command is in progress.
+> >
+> > TEST=test on Acer C720P Chromebook
+> >
+> > Signed-off-by: Dudley Du <dudl@cypress.com>
+> > ---
+> >  drivers/input/mouse/cyapa.c      |  22 ++++----
+> >  drivers/input/mouse/cyapa.h      |  14 ++++-
+> >  drivers/input/mouse/cyapa_gen3.c | 108
+> ++++++++++++++++++++++++++++-----------
+> >  drivers/input/mouse/cyapa_gen5.c |  99
+> +++++++++++++++++++++++++++++------
+> >  drivers/input/mouse/cyapa_gen6.c |   4 +-
+> >  5 files changed, 188 insertions(+), 59 deletions(-)
+> >
+> [...]
+>
+> I tested this on my Acer C720 and it appears to work properly.
+>
+> Tested-by: Jeremiah Mahler <jmmahler@gmail.com>
+>
+> --
+> - Jeremiah Mahler
 
-Cheers,
-   Peter
+This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

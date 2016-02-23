@@ -1,90 +1,108 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: byd - enable absolute mode
-Date: Tue, 23 Feb 2016 10:08:44 -0800
-Message-ID: <20160223180844.GB30638@dtor-ws>
-References: <1455754072-16364-1-git-send-email-chris@diamand.org>
- <20160222200553.GC28343@dtor-ws>
- <56CBE3C3.9020008@gmail.com>
+Subject: Re: [PATCH 2/3] input: gpio_keys: Switch from irq_of_parse_and_map()
+ to platform_get_irq()
+Date: Tue, 23 Feb 2016 11:35:48 -0800
+Message-ID: <20160223193548.GC30638@dtor-ws>
+References: <1455876982-6743-1-git-send-email-geert+renesas@glider.be>
+ <1455876982-6743-3-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f173.google.com ([209.85.192.173]:35497 "EHLO
-	mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753250AbcBWSIr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Feb 2016 13:08:47 -0500
-Received: by mail-pf0-f173.google.com with SMTP id c10so119994209pfc.2
-        for <linux-input@vger.kernel.org>; Tue, 23 Feb 2016 10:08:47 -0800 (PST)
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <56CBE3C3.9020008@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1455876982-6743-3-git-send-email-geert+renesas@glider.be>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Aaron Lu <aaron.lu@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Vincent Pelletier <plr.vincent@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Richard Pospesel <pospeselr@gmail.com>
-Cc: Chris Diamand <chris@diamand.org>, linux-input@vger.kernel.org
 
-Hi Richard,
-
-On Mon, Feb 22, 2016 at 08:44:51PM -0800, Richard Pospesel wrote:
-> Hi Dmitry,
+On Fri, Feb 19, 2016 at 11:16:21AM +0100, Geert Uytterhoeven wrote:
+> Note that irq_of_parse_and_map() returns 0 on failure, while
+> platform_get_irq() returns -ENXIO on failure, so we have to make irq
+> signed, and update all error checks.
 > 
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
+>  drivers/input/keyboard/gpio_keys.c | 16 ++++++++--------
+>  include/linux/gpio_keys.h          |  2 +-
+>  2 files changed, 9 insertions(+), 9 deletions(-)
 > 
-> On 02/22/2016 12:05 PM, Dmitry Torokhov wrote:
-> >Hi Chris,
-> >
-> >On Thu, Feb 18, 2016 at 12:07:52AM +0000, Chris Diamand wrote:
-> >>+
-> >>+	serio_continue_rx(psmouse->ps2dev.serio);
-> >>  }
-> >>
-> >>  static psmouse_ret_t byd_process_byte(struct psmouse *psmouse)
-> >>  {
-> >>-	struct input_dev *dev = psmouse->dev;
-> >>+	struct byd_data *priv = psmouse->private;
-> >>+	u32 now = jiffies_to_msecs(jiffies);
-> >>  	u8 *pkt = psmouse->packet;
-> >>
-> >>  	if (psmouse->pktcnt > 0 && !(pkt[0] & PS2_ALWAYS_1)) {
-> >>@@ -102,53 +292,33 @@ static psmouse_ret_t byd_process_byte(struct psmouse *psmouse)
-> >>
-> >>  	/* Otherwise, a full packet has been received */
-> >>  	switch (pkt[3]) {
-> >>-	case 0: {
-> >>+	case BYD_PACKET_ABSOLUTE:
-> >>+		/* Only use absolute packets for the start of movement. */
-> >>+		if (!priv->touch) {
-> >>+			priv->abs_x = pkt[1] * (BYD_PAD_WIDTH / 256);
-> >>+			priv->abs_y = (255 - pkt[2]) *
-> >>+				      (BYD_PAD_HEIGHT / 256);
-> >>+
-> >>+			/* needed to detect tap */
-> >>+			if (now - priv->last_touch_time > BYD_TOUCH_TIMEOUT_MS)
-> >>+				priv->touch = true;
-> >
-> >This is not correct: it will break when time wraps around. If you need
-> >to store/compare times do it in jiffies and use
-> >time_before()/time_after() API.
-> >
-> >But I am confused why you need this. Can you please explain?
-> >
-> >Thanks.
-> >
-> 
-> This does work when time wraps around, unless I've misunderstood you (
-> see: https://ideone.com/OTnMH7 ).  However, I will change this to
-> jiffies since that seems to be the lingua franca for time in the
-> kernel.
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index d2b6c3acd9c32f1d..b6262d94aff19f70 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -30,7 +30,6 @@
+>  #include <linux/of.h>
+>  #include <linux/of_platform.h>
+>  #include <linux/of_gpio.h>
+> -#include <linux/of_irq.h>
+>  #include <linux/spinlock.h>
+>  
+>  struct gpio_button_data {
+> @@ -511,7 +510,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+>  						button->debounce_interval;
+>  		}
+>  
+> -		if (button->irq) {
+> +		if (button->irq >= 0) {
+>  			bdata->irq = button->irq;
+>  		} else {
+>  			irq = gpiod_to_irq(button->gpiod);
+> @@ -531,7 +530,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+>  		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
+>  
+>  	} else {
+> -		if (!button->irq) {
+> +		if (button->irq < 0) {
+>  			dev_err(dev, "No IRQ specified\n");
+>  			return -EINVAL;
+>  		}
+> @@ -631,8 +630,9 @@ static void gpio_keys_close(struct input_dev *input)
+>   * Translate OpenFirmware node properties into platform_data
+>   */
+>  static struct gpio_keys_platform_data *
+> -gpio_keys_get_devtree_pdata(struct device *dev)
+> +gpio_keys_get_devtree_pdata(struct platform_device *pdev)
+>  {
+> +	struct device *dev = &pdev->dev;
+>  	struct device_node *node, *pp;
+>  	struct gpio_keys_platform_data *pdata;
+>  	struct gpio_keys_button *button;
+> @@ -681,9 +681,9 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+>  			button->active_low = flags & OF_GPIO_ACTIVE_LOW;
+>  		}
+>  
+> -		button->irq = irq_of_parse_and_map(pp, 0);
+> +		button->irq = platform_get_irq(pdev, 0);
 
-Please.
+There are a lot of current users of platform data that do not specify
+button IRQ (and leave it as 0). If we start treating 0 as valid IRQ
+number then we may break them.
 
-> 
-> I went over why this particular time delta check is required earlier
-> in this thread.  For brevity, I'll say this is required to allow
-> "two-finger" scenario where one finger navigates, while the other
-> clicks on the primary mouse button.  I can go into further detail if
-> you like.
+I do not think that any real setup will actually use IRQ 0 as anything
+but timer, so can we do:
 
-Please because I tried going back to earlier messages but I could not
-find detailed explanation for the delay in reporting touch.
+		int irq;
+
+		...
+
+		irq = platform_get_irq(pdev, 0);
+		if (irq < 0) {
+			if (irq == -EPROBE_DEFER)
+				return ERR_PTR(-EPROBE_DEFER);
+
+			/* The driver treats IRQ 0 as invalid */
+			irq = 0;
+		}
+
+		button->irq = irq;
+
+and leave the rest of the code and users as is?
+
+
+Or maybe inner condition should be:
+
+			if (irq != -ENXIO)
+				return ERR_PTR(irq);
 
 Thanks.
 

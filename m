@@ -1,108 +1,148 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/3] input: gpio_keys: Switch from irq_of_parse_and_map()
- to platform_get_irq()
-Date: Tue, 23 Feb 2016 11:35:48 -0800
-Message-ID: <20160223193548.GC30638@dtor-ws>
-References: <1455876982-6743-1-git-send-email-geert+renesas@glider.be>
- <1455876982-6743-3-git-send-email-geert+renesas@glider.be>
+Subject: Re: Question about ABS_DISTANCE's intended usage.
+Date: Tue, 23 Feb 2016 14:02:45 -0800
+Message-ID: <20160223220245.GA3971@dtor-ws>
+References: <CAJ34Pp7OM7DAiA1gZqQ0dtgXZ=z6p+LEVD5aeMiYOecHCbcfLw@mail.gmail.com>
+ <20160218181930.GA34407@dtor-ws>
+ <20160221220426.GA20055@jelly.redhat.com>
+ <CAJ34Pp70HjQsCo-pCdHXo7FmN8KXgOAT5NKFVS-13z2c_MPzPw@mail.gmail.com>
+ <20160222220432.GB11173@jelly.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f180.google.com ([209.85.192.180]:34163 "EHLO
+	mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752501AbcBWWCs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Feb 2016 17:02:48 -0500
+Received: by mail-pf0-f180.google.com with SMTP id x65so119169073pfb.1
+        for <linux-input@vger.kernel.org>; Tue, 23 Feb 2016 14:02:48 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1455876982-6743-3-git-send-email-geert+renesas@glider.be>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Aaron Lu <aaron.lu@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Vincent Pelletier <plr.vincent@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org
+In-Reply-To: <20160222220432.GB11173@jelly.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Charles Mooney <charliemooney@google.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, Linux Input <linux-input@vger.kernel.org>
 
-On Fri, Feb 19, 2016 at 11:16:21AM +0100, Geert Uytterhoeven wrote:
-> Note that irq_of_parse_and_map() returns 0 on failure, while
-> platform_get_irq() returns -ENXIO on failure, so we have to make irq
-> signed, and update all error checks.
+On Tue, Feb 23, 2016 at 08:04:32AM +1000, Peter Hutterer wrote:
+> On Mon, Feb 22, 2016 at 08:35:31AM -0800, Charles Mooney wrote:
+> > On Sun, Feb 21, 2016 at 2:04 PM Peter Hutterer <peter.hutterer@who-t.net> wrote:
+> > >
+> > > On Thu, Feb 18, 2016 at 10:19:30AM -0800, Dmitry Torokhov wrote:
+> > > > On Tue, Feb 09, 2016 at 01:56:05PM -0800, Charles Mooney wrote:
+> > > > > Hello all,
+> > > > >
+> > > > > I'm currently working with a touchpad vendor with a new device that
+> > > > > supports a limited form of hover detection.  Their sensor is able to
+> > > > > detect the presence or absence of a finger/hand/palm hovering over the
+> > > > > sensor without touching it, but is unable to report any more details
+> > > > > about it.  This is a more limited form of hover detection than some
+> > > > > devices which attach a hover state to each finger they see, and can
+> > > > > even report x/y coordinates to hovering finger.
+> > > > >
+> > > > > Instead of using ABS_MT_DISTANCE, it appears that the correct event to
+> > > > > use would be ABS_DISTANCE, since the value is not tied to a specific
+> > > > > finger.  I would like to check with you all about how this value is
+> > > > > intended to be used, because it's not quite as obvious to me as I
+> > > > > first thought.
+> > > > >
+> > > > > We need to handle three basic states:
+> > > > >   1. At least one finger is touching the pad.
+> > > > >   2. Something is hovering, but nothing is actually touching.
+> > > > >   3. Nothing is touching the pad and nothing is detected hovering over it either
+> > > > >
+> > > > > It's seems clear to me that an ABS_DISTANCE of zero should indicate
+> > > > > state #1 and that any other legal positive value should indicate state
+> > > > > #2, but I'm less clear on what the best way to handle state #3 is.
+> > > > > Currently, I think the best strategy would be to use a value of
+> > > > > ABS_DISTANCE = -1 to indicate that there are no fingers seen (hovering
+> > > > > or otherwise), does that make sense?
+> > > > >
+> > > > > If not this, how else would you suggest that this ought to be done?
+> > > >
+> > > > As we discussed in person, I believe that reporting an "out of bounds"
+> > > > value for ABS_DISTANCE when we have to use single-touch mode and thus do
+> > > > not have a good way to invalidate a contact, is the easiest option.
+> > > > Alternative would be to invent another SYN event, which I'd rather not.
+> > > >
+> > > > So for devices that support hovering but can not report individual
+> > > > hovering contacts we should declare 0..N as ABS_DISTANCE range and report
+> > > > following values:
+> > > >
+> > > >  - 0 when a finger is actually touching
+> > > >  - 1..N for hovering fingers
+> > > >  - return X < 0 or X > N when no fingers are detected at all; in
+> > > >    practice I think we should simply report -1 in this case.
+> > > >
+> > > > Benjamin, Peter, Henrik, any concerns?
+> > >
+> > > on the touchpads that support hovering we're already using BTN_TOOL_FINGER
+> > > together with ABS_DISTANCE, without needing out-of-range reports.
+> > > BTN_TOUCH is the signal when a finger is physically touching (or ABS_PRESSURE
+> > > if it exists and clients care about it).
+> > >
+> > > So the sequence Charles should send is:
+> > >
+> > > 3) <nothing> :)
+> > > 2)
+> > >     EV_ABS ABS_DISTANCE <d> # for d > 0
+> > >     EV_KEY BTN_TOOL_FINGER 1
+> > >     EV_SYN SYN_REPORT 0
+> > > 1)
+> > >     EV_ABS ABS_DISTANCE 0
+> > >     EV_ABS ABS_X <x>
+> > >     EV_ABS ABS_Y <y>
+> > >     ...
+> > >     EV_KEY BTN_TOUCH 1
+> > >     EV_SYN SYN_REPORT 0
+> > > 2)
+> > >     EV_ABS ABS_DISTANCE <d> # for d > 0
+> > >     EV_KEY BTN_TOUCH 0
+> > >     EV_SYN SYN_REPORT 0
+> > > 3)
+> > >     EV_KEY BTN_TOOL_FINGER 0
+> > >     EV_SYN SYN_REPORT 0
+> > >
+> > > This should work with at least libinput, though I have to check what happens
+> > > when you don't send x/y on the first event. I think this would need a patch
+> > > in libinput, but that's doable. And it's the same sequence we also use for
+> > > e.g. pen tools that support hovering as well.
+> > >
+> > > Cheers,
+> > >    Peter
+> > 
+> > Hi Peter,
+> > 
+> > It looks like you're suggesting to use "BTN_TOOL_FINGER" as a signal
+> > as to weather or not the value in "ABS_DISTANCE" is valid or not.
+> > 
+> > 1. No finger detected anywhere:
+> >     BTN_TOOL_FINGER = 0
+> >     ABS_DISTANCE = n/a
+> > 2. Finger seen hovering but not touching:
+> >     BTN_TOOL_FINGER = 1
+> >     ABS_DISTANCE > 0
+> > 2. Finger touching:
+> >     BTN_TOOL_FINGER = 1
+> >     ABS_DISTANCE = 0
 > 
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> ---
->  drivers/input/keyboard/gpio_keys.c | 16 ++++++++--------
->  include/linux/gpio_keys.h          |  2 +-
->  2 files changed, 9 insertions(+), 9 deletions(-)
+> you should set BTN_TOUCH here. This can be done based on some magic pressure
+> threshold if you have pressure, otherwise just unconditionally set it
+> whenever distance is 0.
 > 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index d2b6c3acd9c32f1d..b6262d94aff19f70 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -30,7 +30,6 @@
->  #include <linux/of.h>
->  #include <linux/of_platform.h>
->  #include <linux/of_gpio.h>
-> -#include <linux/of_irq.h>
->  #include <linux/spinlock.h>
->  
->  struct gpio_button_data {
-> @@ -511,7 +510,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
->  						button->debounce_interval;
->  		}
->  
-> -		if (button->irq) {
-> +		if (button->irq >= 0) {
->  			bdata->irq = button->irq;
->  		} else {
->  			irq = gpiod_to_irq(button->gpiod);
-> @@ -531,7 +530,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
->  		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
->  
->  	} else {
-> -		if (!button->irq) {
-> +		if (button->irq < 0) {
->  			dev_err(dev, "No IRQ specified\n");
->  			return -EINVAL;
->  		}
-> @@ -631,8 +630,9 @@ static void gpio_keys_close(struct input_dev *input)
->   * Translate OpenFirmware node properties into platform_data
->   */
->  static struct gpio_keys_platform_data *
-> -gpio_keys_get_devtree_pdata(struct device *dev)
-> +gpio_keys_get_devtree_pdata(struct platform_device *pdev)
->  {
-> +	struct device *dev = &pdev->dev;
->  	struct device_node *node, *pp;
->  	struct gpio_keys_platform_data *pdata;
->  	struct gpio_keys_button *button;
-> @@ -681,9 +681,9 @@ gpio_keys_get_devtree_pdata(struct device *dev)
->  			button->active_low = flags & OF_GPIO_ACTIVE_LOW;
->  		}
->  
-> -		button->irq = irq_of_parse_and_map(pp, 0);
-> +		button->irq = platform_get_irq(pdev, 0);
+> > 
+> > Am I understanding that correctly?
+> 
+> yes, but IMO better to think it this way: BTN_TOOL_FINGER signals whether a
+> finger is detected by the device. everything else is just axis information
+> if and when it becomes available.
+> likewise, BTN_TOUCH signals whether the current tool (could be something
+> other than finger) logically touches the surface.
 
-There are a lot of current users of platform data that do not specify
-button IRQ (and leave it as 0). If we start treating 0 as valid IRQ
-number then we may break them.
-
-I do not think that any real setup will actually use IRQ 0 as anything
-but timer, so can we do:
-
-		int irq;
-
-		...
-
-		irq = platform_get_irq(pdev, 0);
-		if (irq < 0) {
-			if (irq == -EPROBE_DEFER)
-				return ERR_PTR(-EPROBE_DEFER);
-
-			/* The driver treats IRQ 0 as invalid */
-			irq = 0;
-		}
-
-		button->irq = irq;
-
-and leave the rest of the code and users as is?
-
-
-Or maybe inner condition should be:
-
-			if (irq != -ENXIO)
-				return ERR_PTR(irq);
+I wonder if this will not confuse clients that do not pay attention to
+ABS_DISTANCE though... I take it that libinput and x synaptics drivers
+won't be confused, mousedev in kernel relies on BTN_TOUCH, what about
+others?
 
 Thanks.
 

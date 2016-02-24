@@ -1,47 +1,96 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH] Documentation: event-codes.txt: clarify we want
- BTN_TOOL_<name> on proximity
-Date: Wed, 24 Feb 2016 14:12:03 +1000
-Message-ID: <20160224041203.GA32566@jelly.redhat.com>
-References: <20160223230855.GD30638@dtor-ws>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCHv12 05/17] HID: add HDMI CEC specific keycodes
+Date: Wed, 24 Feb 2016 09:31:15 +0100
+Message-ID: <56CD6A53.4090606@xs4all.nl>
+References: <1455108711-29850-1-git-send-email-hverkuil@xs4all.nl>
+ <1455108711-29850-6-git-send-email-hverkuil@xs4all.nl>
+ <56BDA577.5060302@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:41266 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756006AbcBXEMQ (ORCPT
+Received: from lb3-smtp-cloud6.xs4all.net ([194.109.24.31]:45836 "EHLO
+	lb3-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757976AbcBXIbU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Feb 2016 23:12:16 -0500
-Content-Disposition: inline
-In-Reply-To: <20160223230855.GD30638@dtor-ws>
+	Wed, 24 Feb 2016 03:31:20 -0500
+In-Reply-To: <56BDA577.5060302@xs4all.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Charles Mooney <charliemooney@google.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, Linux Input <linux-input@vger.kernel.org>
+To: linux-media@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-This explicitly states behavior we already use for some touchpads and tablet
-devices.
+Dmitry,
 
-Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
----
- Documentation/input/event-codes.txt | 4 ++++
- 1 file changed, 4 insertions(+)
+Ping!
 
-diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-index 3f0f5ce..36ea940 100644
---- a/Documentation/input/event-codes.txt
-+++ b/Documentation/input/event-codes.txt
-@@ -173,6 +173,10 @@ A few EV_ABS codes have special meanings:
-     proximity of the device and while the value of the BTN_TOUCH code is 0. If
-     the input device may be used freely in three dimensions, consider ABS_Z
-     instead.
-+  - BTN_TOOL_<name> should be set to 1 when the tool comes into detectable
-+    proximity and set to 0 when the tool leaves detectable proximity.
-+    BTN_TOOL_<name> signals the type of tool that is currently detected by the
-+    hardware and is otherwise independent of ABS_DISTANCE and/or BTN_TOUCH.
- 
- * ABS_MT_<name>:
-   - Used to describe multitouch input events. Please see
--- 
-2.5.0
+Regards,
 
+	Hans
+
+On 02/12/16 10:27, Hans Verkuil wrote:
+> Dmitry,
+> 
+> Can you provide an Ack for this patch?
+> 
+> Thanks!
+> 
+> 	Hans
+> 
+> On 02/10/2016 01:51 PM, Hans Verkuil wrote:
+>> From: Kamil Debski <kamil@wypas.org>
+>>
+>> Add HDMI CEC specific keycodes to the keycodes definition.
+>>
+>> Signed-off-by: Kamil Debski <kamil@wypas.org>
+>> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+>> ---
+>>  include/uapi/linux/input-event-codes.h | 28 ++++++++++++++++++++++++++++
+>>  1 file changed, 28 insertions(+)
+>>
+>> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+>> index 87cf351..2662500 100644
+>> --- a/include/uapi/linux/input-event-codes.h
+>> +++ b/include/uapi/linux/input-event-codes.h
+>> @@ -611,6 +611,34 @@
+>>  #define KEY_KBDINPUTASSIST_ACCEPT		0x264
+>>  #define KEY_KBDINPUTASSIST_CANCEL		0x265
+>>  
+>> +#define KEY_RIGHT_UP			0x266
+>> +#define KEY_RIGHT_DOWN			0x267
+>> +#define KEY_LEFT_UP			0x268
+>> +#define KEY_LEFT_DOWN			0x269
+>> +#define KEY_ROOT_MENU			0x26a /* Show Device's Root Menu */
+>> +#define KEY_MEDIA_TOP_MENU		0x26b /* Show Top Menu of the Media (e.g. DVD) */
+>> +#define KEY_NUMERIC_11			0x26c
+>> +#define KEY_NUMERIC_12			0x26d
+>> +/*
+>> + * Toggle Audio Description: refers to an audio service that helps blind and
+>> + * visually impaired consumers understand the action in a program. Note: in
+>> + * some countries this is referred to as "Video Description".
+>> + */
+>> +#define KEY_AUDIO_DESC			0x26e
+>> +#define KEY_3D_MODE			0x26f
+>> +#define KEY_NEXT_FAVORITE		0x270
+>> +#define KEY_STOP_RECORD			0x271
+>> +#define KEY_PAUSE_RECORD		0x272
+>> +#define KEY_VOD				0x273 /* Video on Demand */
+>> +#define KEY_UNMUTE			0x274
+>> +#define KEY_FASTREVERSE			0x275
+>> +#define KEY_SLOWREVERSE			0x276
+>> +/*
+>> + * Control a data application associated with the currently viewed channel,
+>> + * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
+>> + */
+>> +#define KEY_DATA			0x275
+>> +
+>>  #define BTN_TRIGGER_HAPPY		0x2c0
+>>  #define BTN_TRIGGER_HAPPY1		0x2c0
+>>  #define BTN_TRIGGER_HAPPY2		0x2c1
+>>
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-media" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

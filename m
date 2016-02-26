@@ -1,748 +1,1051 @@
-From: Richard Pospesel <pospeselr@gmail.com>
-Subject: Re: [PATCH] Input: byd - enable absolute mode
-Date: Thu, 25 Feb 2016 19:43:16 -0800
-Message-ID: <1456458196-1656-1-git-send-email-pospeselr@gmail.com>
-References: <6CBE3C3.9020008@gmail.com>
+From: "jeffrey.lin" <yajohn@gmail.com>
+Subject: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver file
+Date: Fri, 26 Feb 2016 15:23:54 +0800
+Message-ID: <1456471434-433-1-git-send-email-jeffrey.lin@rad-ic.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:32954 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751338AbcBZDnm (ORCPT
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:33626 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753319AbcBZHYL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Feb 2016 22:43:42 -0500
-Received: by mail-pa0-f53.google.com with SMTP id fl4so43500599pad.0
-        for <linux-input@vger.kernel.org>; Thu, 25 Feb 2016 19:43:42 -0800 (PST)
-In-Reply-To: <6CBE3C3.9020008@gmail.com>
+	Fri, 26 Feb 2016 02:24:11 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: chris@diamand.org, linux-input@vger.kernel.org, Richard Pospesel <pospeselr@gmail.com>
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se, grant.likely@linaro.org, robh+dt@kernel.org, jeesw@melfas.com, bleung@chromium.org, scott.liu@emc.com.tw
+Cc: jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-Hey Dmitry, I've updated (and verified) the patch with your suggested changes.
+This patch is porting Raydium I2C touch driver. Developer can enable raydium touch driver by modifying define
 
-best,
--Richard
+"CONFIG_TOUCHSCREEN_RM_TS".
 
+Signed-off-by: jeffrey.lin <jeffrey.lin@rad-ic.com>
 ---
-The Windows driver's settings dialog contains a visualization of the
-regions for the hardware edge scrolling capability, which uses a
-temporarily-enabled limited-resolution absolute mode.
+ drivers/input/touchscreen/Kconfig          |  12 +
+ drivers/input/touchscreen/Makefile         |   1 +
+ drivers/input/touchscreen/raydium_i2c_ts.c | 980 +++++++++++++++++++++++++++++
+ 3 files changed, 993 insertions(+)
+ create mode 100644 drivers/input/touchscreen/raydium_i2c_ts.c
 
-This patch enables this during normal operation, and combines the
-absolute packets with the existing relative packets to provide
-accurate absolute position and touch reporting.
-
-It also adds documentation for all known gesture packets and
-initialization commands.
-
-Reviewed-by: Chris Diamand <chris@diamand.org>
-Signed-off-by: Richard Pospesel <pospeselr@gmail.com>
-
----
- drivers/input/mouse/byd.c          | 577 ++++++++++++++++++++++++-------------
- drivers/input/mouse/psmouse-base.c |   2 +-
- 2 files changed, 380 insertions(+), 199 deletions(-)
-
-diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
-index 9425e0f..573c090 100644
---- a/drivers/input/mouse/byd.c
-+++ b/drivers/input/mouse/byd.c
-@@ -2,20 +2,32 @@
-  * BYD TouchPad PS/2 mouse driver
-  *
-  * Copyright (C) 2015 Chris Diamand <chris@diamand.org>
-+ * Copyright (C) 2015 Richard Pospesel <pospeselr@gmail.com>
-+ * Copyright (C) 2015 Tai Chi Minh Ralph Eastwood
-+ * Copyright (C) 2015 Martin Wimpress
-+ * Copyright (C) 2015 Jay Kuri
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of the GNU General Public License version 2 as published by
-  * the Free Software Foundation.
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 3f3f6ee..ab28721 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -915,6 +915,18 @@ config TOUCHSCREEN_PCAP
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called pcap_ts.
+ 
++config TOUCHSCREEN_RM_TS
++	tristate "Raydium I2C Touchscreen"
++	depends on I2C
++	help
++	  Say Y here if you have Raydium series I2C touchscreen,
++	  such as RM31100 , connected to your system.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called raydium_i2c_ts.
++
+ config TOUCHSCREEN_ST1232
+ 	tristate "Sitronix ST1232 touchscreen controllers"
+ 	depends on I2C
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 4941f2d..99e08cf 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -55,6 +55,7 @@ obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
+ obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+ obj-$(CONFIG_TOUCHSCREEN_PIXCIR)	+= pixcir_i2c_ts.o
++obj-$(CONFIG_TOUCHSCREEN_RM_TS)		+= raydium_i2c_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+ obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
+diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+new file mode 100644
+index 0000000..139f28a
+--- /dev/null
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -0,0 +1,980 @@
++/*
++ * Raydium touchscreen I2C driver.
 + *
-+ * Protocol of BYD Touch Pad reverse-engineered from windows driver:
-+ * filename:  "byd touchpad driver - win7, 8, 8.1 - 2.4.1.102.zip"
-+ * md5:       0d5e4660b98fca9587a0df212fca3048
-+ * sha1:      97a0eca8edc482bf9d08ab9509084a514dad4c4b
-+ * datasheet: http://bydit.com/userfiles/file/BTP10463-XXX.pdf
-  */
- 
- #include <linux/delay.h>
- #include <linux/input.h>
- #include <linux/libps2.h>
- #include <linux/serio.h>
++ * Copyright (C) 2012-2014, Raydium Semiconductor Corporation.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2, and only version 2, as published by the
++ * Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * Raydium reserves the right to make changes without further notice
++ * to the materials described herein. Raydium does not assume any
++ * liability arising out of the application described herein.
++ *
++ * Contact Raydium Semiconductor Corporation at www.rad-ic.com
++ */
++
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
++#include <linux/i2c.h>
++#include <linux/delay.h>
++#include <linux/uaccess.h>
++#include <linux/buffer_head.h>
 +#include <linux/slab.h>
- 
- #include "psmouse.h"
- #include "byd.h"
- 
-+/* PS2 Bits */
- #define PS2_Y_OVERFLOW	BIT_MASK(7)
- #define PS2_X_OVERFLOW	BIT_MASK(6)
- #define PS2_Y_SIGN	BIT_MASK(5)
-@@ -26,69 +38,250 @@
- #define PS2_LEFT	BIT_MASK(0)
- 
- /*
-- * The touchpad reports gestures in the last byte of each packet. It can take
-- * any of the following values:
-+ * BYD pad constants
-  */
- 
--/* One-finger scrolling in one of the edge scroll zones. */
--#define BYD_SCROLLUP		0xCA
--#define BYD_SCROLLDOWN		0x36
--#define BYD_SCROLLLEFT		0xCB
--#define BYD_SCROLLRIGHT		0x35
--/* Two-finger scrolling. */
--#define BYD_2DOWN		0x2B
--#define BYD_2UP			0xD5
--#define BYD_2LEFT		0xD6
--#define BYD_2RIGHT		0x2A
--/* Pinching in or out. */
--#define BYD_ZOOMOUT		0xD8
--#define BYD_ZOOMIN		0x28
--/* Three-finger swipe. */
--#define BYD_3UP			0xD3
--#define BYD_3DOWN		0x2D
--#define BYD_3LEFT		0xD4
--#define BYD_3RIGHT		0x2C
--/* Four-finger swipe. */
--#define BYD_4UP			0xCD
--#define BYD_4DOWN		0x33
-+/*
-+ * True device resolution is unknown, however experiments show the
-+ * resolution is about 111 units/mm.
-+ * Absolute coordinate packets are in the range 0-255 for both X and Y
-+ * we pick ABS_X/ABS_Y dimensions which are multiples of 256 and in
-+ * the right ballpark given the touchpad's physical dimensions and estimate
-+ * resolution per spec sheet, device active area dimensions are
-+ * 101.6 x 60.1 mm.
-+ */
-+#define BYD_PAD_WIDTH		11264
-+#define BYD_PAD_HEIGHT		6656
-+#define BYD_PAD_RESOLUTION	111
- 
--int byd_detect(struct psmouse *psmouse, bool set_properties)
-+/*
-+ * Given the above dimensions, relative packets velocity is in multiples of
-+ * 1 unit / 11 milliseconds.  We use this dt to estimate distance traveled
-+ */
-+#define BYD_DT			11
-+/* Time in jiffies used to timeout various touch events (64 ms) */
-+#define BYD_TOUCH_TIMEOUT	msecs_to_jiffies(64)
++#include <linux/firmware.h>
++#include <linux/input/mt.h>
++#include <linux/acpi.h>
++#include <linux/of.h>
++#include <linux/gpio.h>
++#include <linux/regulator/consumer.h>
++#include <asm/unaligned.h>
++#include <linux/gpio/consumer.h>
 +
-+/* BYD commands reverse engineered from windows driver */
++/* Device, Driver information */
++#define DEVICE_NAME	"raydium_i2c"
 +
-+/*
-+ * Swipe gesture from off-pad to on-pad
-+ *  0 : disable
-+ *  1 : enable
-+ */
-+#define BYD_CMD_SET_OFFSCREEN_SWIPE		0x10cc
-+/*
-+ * Tap and drag delay time
-+ *  0 : disable
-+ *  1 - 8 : least to most delay
-+ */
-+#define BYD_CMD_SET_TAP_DRAG_DELAY_TIME		0x10cf
-+/*
-+ * Physical buttons function mapping
-+ *  0 : enable
-+ *  4 : normal
-+ *  5 : left button custom command
-+ *  6 : right button custom command
-+ *  8 : disable
-+ */
-+#define BYD_CMD_SET_PHYSICAL_BUTTONS		0x10d0
-+/*
-+ * Absolute mode (1 byte X/Y resolution)
-+ *  0 : disable
-+ *  2 : enable
-+ */
-+#define BYD_CMD_SET_ABSOLUTE_MODE		0x10d1
-+/*
-+ * Two finger scrolling
-+ *  1 : vertical
-+ *  2 : horizontal
-+ *  3 : vertical + horizontal
-+ *  4 : disable
-+ */
-+#define BYD_CMD_SET_TWO_FINGER_SCROLL		0x10d2
-+/*
-+ * Handedness
-+ *  1 : right handed
-+ *  2 : left handed
-+ */
-+#define BYD_CMD_SET_HANDEDNESS			0x10d3
-+/*
-+ * Tap to click
-+ *  1 : enable
-+ *  2 : disable
-+ */
-+#define BYD_CMD_SET_TAP				0x10d4
-+/*
-+ * Tap and drag
-+ *  1 : tap and hold to drag
-+ *  2 : tap and hold to drag + lock
-+ *  3 : disable
-+ */
-+#define BYD_CMD_SET_TAP_DRAG			0x10d5
-+/*
-+ * Touch sensitivity
-+ *  1 - 7 : least to most sensitive
-+ */
-+#define BYD_CMD_SET_TOUCH_SENSITIVITY		0x10d6
-+/*
-+ * One finger scrolling
-+ *  1 : vertical
-+ *  2 : horizontal
-+ *  3 : vertical + horizontal
-+ *  4 : disable
-+ */
-+#define BYD_CMD_SET_ONE_FINGER_SCROLL		0x10d7
-+/*
-+ * One finger scrolling function
-+ *  1 : free scrolling
-+ *  2 : edge motion
-+ *  3 : free scrolling + edge motion
-+ *  4 : disable
-+ */
-+#define BYD_CMD_SET_ONE_FINGER_SCROLL_FUNC	0x10d8
-+/*
-+ * Sliding speed
-+ *  1 - 5 : slowest to fastest
-+ */
-+#define BYD_CMD_SET_SLIDING_SPEED		0x10da
-+/*
-+ * Edge motion
-+ *  1 : disable
-+ *  2 : enable when dragging
-+ *  3 : enable when dragging and pointing
-+ */
-+#define BYD_CMD_SET_EDGE_MOTION			0x10db
-+/*
-+ * Left edge region size
-+ *  0 - 7 : smallest to largest width
-+ */
-+#define BYD_CMD_SET_LEFT_EDGE_REGION		0x10dc
-+/*
-+ * Top edge region size
-+ *  0 - 9 : smallest to largest height
-+ */
-+#define BYD_CMD_SET_TOP_EDGE_REGION		0x10dd
-+/*
-+ * Disregard palm press as clicks
-+ *  1 - 6 : smallest to largest
-+ */
-+#define BYD_CMD_SET_PALM_CHECK			0x10de
-+/*
-+ * Right edge region size
-+ *  0 - 7 : smallest to largest width
-+ */
-+#define BYD_CMD_SET_RIGHT_EDGE_REGION		0x10df
-+/*
-+ * Bottom edge region size
-+ *  0 - 9 : smallest to largest height
-+ */
-+#define BYD_CMD_SET_BOTTOM_EDGE_REGION		0x10e1
-+/*
-+ * Multitouch gestures
-+ *  1 : enable
-+ *  2 : disable
-+ */
-+#define BYD_CMD_SET_MULTITOUCH			0x10e3
-+/*
-+ * Edge motion speed
-+ *  0 : control with finger pressure
-+ *  1 - 9 : slowest to fastest
-+ */
-+#define BYD_CMD_SET_EDGE_MOTION_SPEED		0x10e4
-+/*
-+ * Two finger scolling function
-+ *  0 : free scrolling
-+ *  1 : free scrolling (with momentum)
-+ *  2 : edge motion
-+ *  3 : free scrolling (with momentum) + edge motion
-+ *  4 : disable
-+ */
-+#define BYD_CMD_SET_TWO_FINGER_SCROLL_FUNC	0x10e5
++/* Slave I2C mode*/
++#define RM_BOOT_BLDR	0x02
++#define RM_BOOT_MAIN	0x03
 +
-+/*
-+ * The touchpad generates a mixture of absolute and relative packets, indicated
-+ * by the the last byte of each packet being set to one of the following:
-+ */
-+#define BYD_PACKET_ABSOLUTE			0xf8
-+#define BYD_PACKET_RELATIVE			0x00
-+/* Multitouch gesture packets */
-+#define BYD_PACKET_PINCH_IN			0xd8
-+#define BYD_PACKET_PINCH_OUT			0x28
-+#define BYD_PACKET_ROTATE_CLOCKWISE		0x29
-+#define BYD_PACKET_ROTATE_ANTICLOCKWISE		0xd7
-+#define BYD_PACKET_TWO_FINGER_SCROLL_RIGHT	0x2a
-+#define BYD_PACKET_TWO_FINGER_SCROLL_DOWN	0x2b
-+#define BYD_PACKET_TWO_FINGER_SCROLL_UP		0xd5
-+#define BYD_PACKET_TWO_FINGER_SCROLL_LEFT	0xd6
-+#define BYD_PACKET_THREE_FINGER_SWIPE_RIGHT	0x2c
-+#define BYD_PACKET_THREE_FINGER_SWIPE_DOWN	0x2d
-+#define BYD_PACKET_THREE_FINGER_SWIPE_UP	0xd3
-+#define BYD_PACKET_THREE_FINGER_SWIPE_LEFT	0xd4
-+#define BYD_PACKET_FOUR_FINGER_DOWN		0x33
-+#define BYD_PACKET_FOUR_FINGER_UP		0xcd
-+#define BYD_PACKET_REGION_SCROLL_RIGHT		0x35
-+#define BYD_PACKET_REGION_SCROLL_DOWN		0x36
-+#define BYD_PACKET_REGION_SCROLL_UP		0xca
-+#define BYD_PACKET_REGION_SCROLL_LEFT		0xcb
-+#define BYD_PACKET_RIGHT_CORNER_CLICK		0xd2
-+#define BYD_PACKET_LEFT_CORNER_CLICK		0x2e
-+#define BYD_PACKET_LEFT_AND_RIGHT_CORNER_CLICK	0x2f
-+#define BYD_PACKET_ONTO_PAD_SWIPE_RIGHT		0x37
-+#define BYD_PACKET_ONTO_PAD_SWIPE_DOWN		0x30
-+#define BYD_PACKET_ONTO_PAD_SWIPE_UP		0xd0
-+#define BYD_PACKET_ONTO_PAD_SWIPE_LEFT		0xc9
++/*I2C command */
++#define CMD_QUERY_BANK		0x2B
++#define CMD_DATA_BANK		0x4D
++#define CMD_ENTER_SLEEP		0x4E
++#define CMD_BOOT_ACK		0x0A
++#define CMD_BOOT_WRT		0x5B
++#define CMD_BOOT_CHK		0x0C
++#define CMD_BANK_SWITCH		0xAA
 +
-+struct byd_data {
-+	struct timer_list timer;
-+	s32 abs_x;
-+	s32 abs_y;
-+	typeof(jiffies) last_touch_time;
-+	bool btn_left;
-+	bool btn_right;
-+	bool touch;
++/* Touch relative info */
++#define MAX_RETRIES		3
++#define MAX_FW_UPDATE_RETRIES	30
++#define MAX_TOUCH_NUM		10
++#define MAX_PACKET_SIZE		60
++#define BOOT_DELAY_MS	100
++
++#define RAYDIUM_FW_PAGESIZE	128
++#define RAYDIUM_POWERON_DELAY_USEC	500
++#define RAYDIUM_RESET_DELAY_MSEC	50
++
++#define ADDR_INDEX		0x03
++#define HEADER_SIZE		4
++
++enum raydium_boot_mode {
++	RAYDIUM_TS_MAIN,
++	RAYDIUM_TS_BLDR,
 +};
 +
-+static void byd_report_input(struct psmouse *psmouse)
- {
--	struct ps2dev *ps2dev = &psmouse->ps2dev;
--	unsigned char param[4];
-+	struct byd_data *priv = psmouse->private;
-+	struct input_dev *dev = psmouse->dev;
- 
--	param[0] = 0x03;
--	param[1] = 0x00;
--	param[2] = 0x00;
--	param[3] = 0x00;
-+	input_report_key(dev, BTN_TOUCH, priv->touch);
-+	input_report_key(dev, BTN_TOOL_FINGER, priv->touch);
- 
--	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
--		return -1;
--	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
--		return -1;
--	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
--		return -1;
--	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
--		return -1;
--	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
--		return -1;
-+	input_report_abs(dev, ABS_X, priv->abs_x);
-+	input_report_abs(dev, ABS_Y, priv->abs_y);
-+	input_report_key(dev, BTN_LEFT, priv->btn_left);
-+	input_report_key(dev, BTN_RIGHT, priv->btn_right);
- 
--	if (param[1] != 0x03 || param[2] != 0x64)
--		return -ENODEV;
-+	input_sync(dev);
-+}
- 
--	psmouse_dbg(psmouse, "BYD touchpad detected\n");
-+static void byd_clear_touch(unsigned long data)
-+{
-+	struct psmouse *psmouse = (struct psmouse *)data;
-+	struct byd_data *priv = psmouse->private;
- 
--	if (set_properties) {
--		psmouse->vendor = "BYD";
--		psmouse->name = "TouchPad";
--	}
-+	serio_pause_rx(psmouse->ps2dev.serio);
-+	priv->touch = false;
- 
--	return 0;
-+	byd_report_input(psmouse);
++struct raydium_info {
++	u32 hw_ver;
++	u8 main_ver;
++	u8 sub_ver;
++	u16 ft_ver;
++	u8 x_num;
++	u8 y_num;
++	u16 x_max;
++	u16 y_max;
++	u8 x_res;		/* units/mm */
++	u8 y_res;		/* units/mm */
++};
 +
-+	serio_continue_rx(psmouse->ps2dev.serio);
++struct raydium_abs_info {
++	u8 state;/*1:touch, 0:no touch*/
++	u8 x_pos_lsb;
++	u8 x_pos_msb;
++	u8 y_pos_lsb;
++	u8 y_pos_msb;
++	u8 pressure;
++	u8 x_width;
++	u8 y_width;
++};
++
++struct raydium_object {
++	u32 data_bank_addr;
++	u8 pkg_size;
++};
++
++/* struct raydium_data - represents state of Raydium touchscreen device */
++struct raydium_data {
++	struct i2c_client *client;
++	struct input_dev *input;
++
++	struct regulator *vcc33;
++	struct regulator *vccio;
++	struct gpio_desc *reset_gpio;
++
++	u32 query_bank_info;
++
++	struct raydium_info info;
++	struct raydium_object obj;
++	struct raydium_abs_info finger;
++
++	enum raydium_boot_mode boot_mode;
++
++	struct mutex sysfs_mutex;
++
++	u8 cmd_resp[HEADER_SIZE];
++	struct completion cmd_done;
++
++	u8 buf[MAX_PACKET_SIZE];
++
++	bool wake_irq_enabled;
++};
++
++static int raydium_i2c_send(struct i2c_client *client,
++	u8 addr, u8 *data, size_t len)
++{
++	u8 buf[MAX_PACKET_SIZE + 1];
++	int i, tries = 0;
++
++	if (len > MAX_PACKET_SIZE)
++		return -EINVAL;
++
++	buf[0] = addr & 0xff;
++	for (i = 0; i < len; i++)
++		buf[i + 1] = *data++;
++
++	do {
++		if (i2c_master_send(client, buf, len + 1) == (len + 1))
++			return 0;
++		msleep(20);
++	} while (++tries < MAX_RETRIES);
++
++	dev_err(&client->dev, "%s: i2c send failed\n", __func__);
++
++	return -EIO;
++}
++
++static int raydium_i2c_read(struct i2c_client *client,
++	u8 addr, size_t len, void *data)
++{
++	struct i2c_msg xfer[2];
++
++	/* Write register */
++	xfer[0].addr = client->addr;
++	xfer[0].flags = 0;
++	xfer[0].len = 1;
++	xfer[0].buf = &addr;
++
++	/* Read data */
++	xfer[1].addr = client->addr;
++	xfer[1].flags = I2C_M_RD;
++	xfer[1].len = len;
++	xfer[1].buf = data;
++
++	if (i2c_transfer(client->adapter, xfer, 2) == 2)
++		return 0;
++
++	dev_err(&client->dev, "%s: i2c transfer failed\n", __func__);
++
++	return -EIO;
++}
++
++static int raydium_i2c_read_message(struct i2c_client *client,
++	u32 addr, size_t len, void *data)
++{
++	u16 pkg_size, use_len;
++	u8 buf[HEADER_SIZE], idx_i, idx_j;
++	int error;
++
++	use_len = len;
++	idx_j = 0;
++	while (use_len > 0) {
++		pkg_size = (use_len < MAX_PACKET_SIZE) ?
++			use_len : MAX_PACKET_SIZE;
++		for (idx_i = 0; idx_i < HEADER_SIZE; idx_i++)
++			buf[idx_i] = addr >> (3 - idx_i)*8;
++
++		/*set data bank*/
++		error = raydium_i2c_send(client, CMD_BANK_SWITCH,
++			(u8 *)buf, HEADER_SIZE);
++		/*read potints data*/
++		if (!error)
++			error = raydium_i2c_read(client,
++				buf[ADDR_INDEX],
++				pkg_size,
++				(void *)(data + idx_j*MAX_PACKET_SIZE));
++
++		pkg_size += MAX_PACKET_SIZE;
++		addr += MAX_PACKET_SIZE;
++		use_len = (use_len < MAX_PACKET_SIZE) ?
++			0 : (use_len - MAX_PACKET_SIZE);
++		idx_j++;
++	}
++
++	return error;
++}
++
++static int raydium_i2c_send_message(struct i2c_client *client,
++	size_t len, void *data)
++{
++	int error;
++	u8 buf[HEADER_SIZE], ii;
++
++	for (ii = 0; ii < HEADER_SIZE; ii++)
++		buf[ii] = ((u8 *)data)[3 - ii];
++	/*set data bank*/
++	error = raydium_i2c_send(client, CMD_BANK_SWITCH,
++		(u8 *)buf, HEADER_SIZE);
++
++	/*send messange*/
++	if (!error)
++		error = raydium_i2c_send(client, buf[ADDR_INDEX], buf, len);
++
++	return error;
++}
++
++static int raydium_i2c_sw_reset(struct i2c_client *client)
++{
++	const u8 soft_rst_cmd[] = { 0x01, 0x04, 0x00, 0x00, 0x40};
++	int error;
++
++	error = raydium_i2c_send_message(client,
++			1, (void *)soft_rst_cmd);
++	if (error) {
++		dev_err(&client->dev, "software reset failed: %d\n", error);
++		return error;
++	}
++
++	msleep(RAYDIUM_RESET_DELAY_MSEC);
++
++	return 0;
++}
++
++static int raydium_i2c_query_ts_info(struct raydium_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	int error, retry_cnt;
++
++	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
++		error = raydium_i2c_read(client, CMD_DATA_BANK,
++			sizeof(ts->obj), (void *)&ts->obj);
++		if (error)
++			dev_err(&client->dev, "get data bank failed: %d\n",
++			error);
++		else {
++			error = raydium_i2c_read(client, CMD_QUERY_BANK,
++				sizeof(ts->query_bank_info),
++				(void *)&ts->query_bank_info);
++			if (!error) {
++				error = raydium_i2c_read_message(client,
++					ts->query_bank_info,
++					sizeof(ts->info),
++					(void *)&ts->info);
++			}
++		}
++		if (!error)
++			return 0;
++	}
++
++	return -EINVAL;
++}
++
++static int raydium_i2c_fastboot(struct i2c_client *client)
++{
++	const u8 boot_cmd[] = { 0x20, 0x06, 0x00, 0x50 };
++	u8 buf[HEADER_SIZE];
++	int error;
++
++	error = raydium_i2c_read_message(client,
++		get_unaligned_be32(boot_cmd),
++		sizeof(boot_cmd),
++		buf);
++
++	if (error) {
++		dev_err(&client->dev, "boot failed: %d\n", error);
++		return error;
++	} else if (buf[0] == RM_BOOT_BLDR) {
++		dev_dbg(&client->dev, "boot in fastboot mode\n");
++		return -EINVAL;
++	}
++
++	dev_dbg(&client->dev, "boot success -- 0x%x\n", client->addr);
++	return 0;
++}
++
++static int raydium_i2c_initialize(struct raydium_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	int error, retry_cnt;
++	const u8 recov_packet[] = { 0x04, 0x81 };
++	u8 buf[HEADER_SIZE];
++
++	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
++		error = raydium_i2c_fastboot(client);
++		if (error) {
++			/* Continue initializing if it's the last try */
++			if (retry_cnt < MAX_RETRIES - 1)
++				continue;
++		}
++		/* Wait for Hello packet */
++		msleep(BOOT_DELAY_MS);
++
++		error = raydium_i2c_read(client, recov_packet[0],
++			1, (void *)buf);
++		if (error) {
++			dev_err(&client->dev,
++				"failed to read 'hello' packet: %d\n", error);
++		} else if (buf[0] == recov_packet[1]) {
++			ts->boot_mode = RAYDIUM_TS_MAIN;
++			break;
++		}
++	}
++
++	if (error)
++		ts->boot_mode = RAYDIUM_TS_BLDR;
++	else
++		raydium_i2c_query_ts_info(ts);
++
++	return error;
++}
++
++static int raydium_i2c_fw_write_page(struct i2c_client *client,
++				    const void *page)
++{
++	const u8 ack_ok[] = { 0x55, 0xAA };
++	u8 buf[2];
++	int retry;
++	int error;
++
++	for (retry = 0; retry < MAX_FW_UPDATE_RETRIES; retry++) {
++		error = raydium_i2c_send(client, CMD_BOOT_WRT,
++			(u8 *)page, RAYDIUM_FW_PAGESIZE);
++		if (error) {
++			dev_err(&client->dev,
++				"BLDR Write Page failed: %d\n", error);
++			continue;
++		}
++
++		error = raydium_i2c_read(client, CMD_BOOT_CHK,
++			sizeof(ack_ok), (void *)buf);
++		if (error) {
++			dev_err(&client->dev,
++				"BLDR Ack read failed: %d\n", error);
++			return error;
++		}
++
++		if (!memcmp(buf, ack_ok, sizeof(ack_ok)))
++			return 0;
++
++		error = -EIO;
++		dev_err(&client->dev,
++			"BLDR Get Ack Error [%02x:%02x]\n",
++			buf[0], buf[1]);
++	}
++
++	return error;
++}
++
++static int raydium_i2c_do_update_firmware(struct i2c_client *client,
++					 const struct firmware *fw,
++					 bool force)
++{
++	const u8 boot_cmd[] = { RM_BOOT_BLDR, 0x20, 0x06, 0x00, 0x50 };
++	const u8 main_cmd[] = { RM_BOOT_MAIN, 0x20, 0x06, 0x00, 0x50 };
++	const u8 boot_ack[] = { 0x55, 0xAA, 0x00, 0xFF };
++	u8 buf[HEADER_SIZE];
++	int page, n_fw_pages;
++	int error;
++
++	/* Recovery mode detection! */
++	if (!force) {
++		/* Start boot loader Procedure */
++		dev_dbg(&client->dev, "Normal BLDR procedure\n");
++		/* switch to mode */
++		error = raydium_i2c_send_message(client, 1, (void *)boot_cmd);
++		if (error)
++			dev_err(&client->dev, "failed to send boot cmd: %d\n",
++				error);
++		msleep(60);
++		raydium_i2c_sw_reset(client);
++		msleep(RAYDIUM_RESET_DELAY_MSEC);
++		error = raydium_i2c_send_message(client, 1, (void *)boot_cmd);
++	}
++
++	if (error) {
++		dev_err(&client->dev, "failed to enter fastboot mode: %d\n",
++			error);
++		return error;
++	}
++
++	msleep(20);
++
++	/* check fastboot state */
++	error = raydium_i2c_read(client, CMD_BOOT_ACK,
++		sizeof(boot_ack), (void *)buf);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to read boot ack: %d\n",
++			error);
++		return error;
++	}
++
++	if (memcmp(buf, boot_ack, sizeof(boot_ack))) {
++		dev_err(&client->dev,
++			"failed to enter fastboot: %*ph (expected %*ph)\n",
++			(int)sizeof(buf), buf, (int)sizeof(boot_ack), boot_ack);
++		return -EIO;
++	}
++
++	dev_info(&client->dev, "successfully entered fastboot mode");
++
++	n_fw_pages = fw->size / RAYDIUM_FW_PAGESIZE;
++	dev_dbg(&client->dev, "BLDR Pages = %d\n", n_fw_pages);
++
++	for (page = 0; page < n_fw_pages; page++) {
++		error = raydium_i2c_fw_write_page(client,
++					fw->data + page * RAYDIUM_FW_PAGESIZE);
++		if (error) {
++			dev_err(&client->dev,
++				"failed to write FW page %d: %d\n",
++				page, error);
++			return error;
++		}
++	}
++	error = raydium_i2c_send_message(client, 1, (void *)main_cmd);
++	msleep(20);
++	raydium_i2c_sw_reset(client);
++	dev_info(&client->dev, "firmware update completed\n");
++
++	return 0;
++}
++
++static int raydium_i2c_fw_update(struct raydium_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	const struct firmware *fw;
++	char *fw_name;
++	int error;
++
++	fw_name = kasprintf(GFP_KERNEL, "raydium_i2c_%04x.bin",
++		ts->info.hw_ver & 0xFFFF);
++	if (!fw_name)
++		return -ENOMEM;
++
++	dev_info(&client->dev, "requesting fw name = %s\n", fw_name);
++	error = request_firmware(&fw, fw_name, &client->dev);
++	kfree(fw_name);
++	if (error) {
++		dev_err(&client->dev, "failed to request firmware: %d\n",
++			error);
++		return error;
++	}
++
++	if (fw->size % RAYDIUM_FW_PAGESIZE) {
++		dev_err(&client->dev, "invalid firmware length: %zu\n",
++			fw->size);
++		error = -EINVAL;
++		goto out;
++	}
++
++	disable_irq(client->irq);
++	error = raydium_i2c_do_update_firmware(client, fw,
++					ts->boot_mode == RAYDIUM_TS_BLDR);
++	if (error) {
++		dev_err(&client->dev, "firmware update failed: %d\n", error);
++		ts->boot_mode = RAYDIUM_TS_BLDR;
++		goto out_enable_irq;
++	}
++	error = raydium_i2c_initialize(ts);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to initialize device after firmware update: %d\n",
++			error);
++		ts->boot_mode = RAYDIUM_TS_BLDR;
++		goto out_enable_irq;
++	}
++
++	ts->boot_mode = RAYDIUM_TS_MAIN;
++
++out_enable_irq:
++	enable_irq(client->irq);
++	msleep(100);
++out:
++	release_firmware(fw);
++	return error;
++}
++
++static void raydium_mt_event(struct raydium_data *ts)
++{
++	struct raydium_abs_info *data;
++	int error, i, x, y;
++	u8 f_state;
++	u8 touch_count;
++	u8 tp_info_size;
++
++	error = raydium_i2c_read_message(ts->client, ts->obj.data_bank_addr,
++		ts->obj.pkg_size, (void *)&ts->buf);
++
++	if (error < 0) {
++		dev_err(&ts->client->dev, "%s: failed to read data: %d\n",
++			__func__, error);
++		return;
++	}
++
++	touch_count = 0;
++	tp_info_size = sizeof(ts->finger);
++
++	for (i = 0; i < MAX_TOUCH_NUM; i++) {
++		data = (struct raydium_abs_info *)(ts->buf + i * tp_info_size);
++
++		f_state = data->state & 0x03;
++
++		input_mt_slot(ts->input, i);
++		input_mt_report_slot_state(ts->input,
++				MT_TOOL_FINGER, f_state != 0);
++
++		if (!f_state)
++			continue;
++
++			x = (data->x_pos_msb << 8) | (data->x_pos_lsb);
++			y = (data->y_pos_msb << 8) | (data->y_pos_lsb);
++
++			input_report_key(ts->input,
++				BTN_TOUCH, 1);
++			input_report_key(ts->input,
++				BTN_TOOL_FINGER, 1);
++			input_report_abs(ts->input,
++				ABS_MT_POSITION_X, x);
++			input_report_abs(ts->input,
++				ABS_MT_POSITION_Y, y);
++			input_report_abs(ts->input,
++				ABS_MT_PRESSURE, data->pressure);
++			input_report_abs(ts->input,
++				ABS_MT_TOUCH_MAJOR,
++				max(data->x_width, data->y_width));
++			input_report_abs(ts->input,
++				ABS_MT_TOUCH_MINOR,
++				min(data->x_width, data->y_width));
++			touch_count++;
++	}
++
++	input_report_key(ts->input,
++			BTN_TOUCH, touch_count > 0);
++	input_report_key(ts->input,
++			BTN_TOOL_FINGER, ts->input > 0);
++	input_mt_report_pointer_emulation(ts->input, false);
++	input_sync(ts->input);
++}
++
++static irqreturn_t raydium_i2c_irq(int irq, void *_dev)
++{
++	struct raydium_data *ts = _dev;
++
++	if (ts->boot_mode != RAYDIUM_TS_BLDR)
++		raydium_mt_event(ts);
++
++	return IRQ_HANDLED;
++}
++
++static ssize_t write_update_fw(struct device *dev,
++			       struct device_attribute *attr,
++			       const char *buf, size_t count)
++{
++	struct raydium_data *ts = dev_get_drvdata(dev);
++	int error;
++
++	error = mutex_lock_interruptible(&ts->sysfs_mutex);
++	if (error)
++		return error;
++
++	error = raydium_i2c_fw_update(ts);
++	dev_dbg(dev, "firmware update result: %d\n", error);
++
++	mutex_unlock(&ts->sysfs_mutex);
++	return error ?: count;
++}
++
++static ssize_t show_boot_mode(struct device *dev,
++			     struct device_attribute *attr, char *buf)
++{
++	struct raydium_data *ts = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%s\n",
++		       ts->boot_mode == RAYDIUM_TS_MAIN ?
++				"Normal" : "Recovery");
++}
++
++static ssize_t raydium_fw_ver_show(struct device *dev,
++				      struct device_attribute *attr, char *buf)
++{
++	struct raydium_data *ts = dev_get_drvdata(dev);
++
++	return sprintf(buf, "Release Version %d.%d\n",
++		ts->info.main_ver,
++		ts->info.sub_ver);
++}
++
++static ssize_t raydium_hw_ver_show(struct device *dev,
++				      struct device_attribute *attr, char *buf)
++{
++	struct raydium_data *ts = dev_get_drvdata(dev);
++
++	return sprintf(buf, "Hardware version 0x%x\n",
++		ts->info.hw_ver & 0xFFFF);
++}
++static DEVICE_ATTR(fw_version, S_IRUGO, raydium_fw_ver_show, NULL);
++static DEVICE_ATTR(hw_version, S_IRUGO, raydium_hw_ver_show, NULL);
++static DEVICE_ATTR(boot_mode, S_IRUGO, show_boot_mode, NULL);
++static DEVICE_ATTR(update_fw, S_IWUSR, NULL, write_update_fw);
++
++static struct attribute *raydium_attributes[] = {
++	&dev_attr_update_fw.attr,
++	&dev_attr_boot_mode.attr,
++	&dev_attr_fw_version.attr,
++	&dev_attr_hw_version.attr,
++	NULL
++};
++
++static struct attribute_group raydium_attribute_group = {
++	.attrs = raydium_attributes,
++};
++
++static void raydium_i2c_remove_sysfs_group(void *_data)
++{
++	struct raydium_data *ts = _data;
++
++	sysfs_remove_group(&ts->client->dev.kobj, &raydium_attribute_group);
++}
++
++static int raydium_i2c_power_on(struct raydium_data *ts)
++{
++	int error;
 +
 +	/*
-+	 * Move cursor back to center of pad when we lose touch - this
-+	 * specifically improves user experience when moving cursor with one
-+	 * finger, and pressing a button with another.
++	 * If we do not have reset gpio assume platform firmware
++	 * controls regulators and does power them on for us.
 +	 */
-+	priv->abs_x = BYD_PAD_WIDTH / 2;
-+	priv->abs_y = BYD_PAD_HEIGHT / 2;
- }
- 
- static psmouse_ret_t byd_process_byte(struct psmouse *psmouse)
- {
--	struct input_dev *dev = psmouse->dev;
-+	struct byd_data *priv = psmouse->private;
-+	u32 now = jiffies;
- 	u8 *pkt = psmouse->packet;
- 
- 	if (psmouse->pktcnt > 0 && !(pkt[0] & PS2_ALWAYS_1)) {
-@@ -102,53 +295,33 @@ static psmouse_ret_t byd_process_byte(struct psmouse *psmouse)
- 
- 	/* Otherwise, a full packet has been received */
- 	switch (pkt[3]) {
--	case 0: {
-+	case BYD_PACKET_ABSOLUTE:
-+		/* Only use absolute packets for the start of movement. */
-+		if (!priv->touch) {
-+			priv->abs_x = pkt[1] * (BYD_PAD_WIDTH / 256);
-+			priv->abs_y = (255 - pkt[2]) *
-+				      (BYD_PAD_HEIGHT / 256);
++	if (IS_ERR_OR_NULL(ts->reset_gpio))
++		return 0;
 +
-+			/* needed to detect tap */
-+			if (now - priv->last_touch_time > BYD_TOUCH_TIMEOUT)
-+				priv->touch = true;
-+		}
-+		break;
-+	case BYD_PACKET_RELATIVE: {
- 		/* Standard packet */
- 		/* Sign-extend if a sign bit is set. */
--		unsigned int signx = pkt[0] & PS2_X_SIGN ? ~0xFF : 0;
--		unsigned int signy = pkt[0] & PS2_Y_SIGN ? ~0xFF : 0;
--		int dx = signx | (int) pkt[1];
--		int dy = signy | (int) pkt[2];
-+		u32 signx = pkt[0] & PS2_X_SIGN ? ~0xFF : 0;
-+		u32 signy = pkt[0] & PS2_Y_SIGN ? ~0xFF : 0;
-+		s32 dx = signx | (int) pkt[1];
-+		s32 dy = signy | (int) pkt[2];
- 
--		input_report_rel(psmouse->dev, REL_X, dx);
--		input_report_rel(psmouse->dev, REL_Y, -dy);
-+		/* Update position based on velocity */
-+		priv->abs_x += dx * BYD_DT;
-+		priv->abs_y -= dy * BYD_DT;
- 
--		input_report_key(psmouse->dev, BTN_LEFT, pkt[0] & PS2_LEFT);
--		input_report_key(psmouse->dev, BTN_RIGHT, pkt[0] & PS2_RIGHT);
--		input_report_key(psmouse->dev, BTN_MIDDLE, pkt[0] & PS2_MIDDLE);
-+		priv->touch = true;
- 		break;
- 	}
--
--	case BYD_SCROLLDOWN:
--	case BYD_2DOWN:
--		input_report_rel(dev, REL_WHEEL, -1);
--		break;
--
--	case BYD_SCROLLUP:
--	case BYD_2UP:
--		input_report_rel(dev, REL_WHEEL, 1);
--		break;
--
--	case BYD_SCROLLLEFT:
--	case BYD_2LEFT:
--		input_report_rel(dev, REL_HWHEEL, -1);
--		break;
--
--	case BYD_SCROLLRIGHT:
--	case BYD_2RIGHT:
--		input_report_rel(dev, REL_HWHEEL, 1);
--		break;
--
--	case BYD_ZOOMOUT:
--	case BYD_ZOOMIN:
--	case BYD_3UP:
--	case BYD_3DOWN:
--	case BYD_3LEFT:
--	case BYD_3RIGHT:
--	case BYD_4UP:
--	case BYD_4DOWN:
--		break;
--
- 	default:
- 		psmouse_warn(psmouse,
- 			     "Unrecognized Z: pkt = %02x %02x %02x %02x\n",
-@@ -157,134 +330,76 @@ static psmouse_ret_t byd_process_byte(struct psmouse *psmouse)
- 		return PSMOUSE_BAD_DATA;
- 	}
- 
--	input_sync(dev);
-+	priv->btn_left = pkt[0] & PS2_LEFT;
-+	priv->btn_right = pkt[0] & PS2_RIGHT;
- 
--	return PSMOUSE_FULL_PACKET;
--}
-+	byd_report_input(psmouse);
- 
--/* Send a sequence of bytes, where each is ACKed before the next is sent. */
--static int byd_send_sequence(struct psmouse *psmouse, const u8 *seq, size_t len)
--{
--	unsigned int i;
--
--	for (i = 0; i < len; ++i) {
--		if (ps2_command(&psmouse->ps2dev, NULL, seq[i]))
--			return -1;
-+	/* Reset time since last touch. */
-+	if (priv->touch) {
-+		priv->last_touch_time = now;
-+		mod_timer(&priv->timer, jiffies + BYD_TOUCH_TIMEOUT);
- 	}
--	return 0;
--}
--
--/* Keep scrolling after fingers are removed. */
--#define SCROLL_INERTIAL		0x01
--#define SCROLL_NO_INERTIAL	0x02
--
--/* Clicking can be done by tapping or pressing. */
--#define CLICK_BOTH		0x01
--/* Clicking can only be done by pressing. */
--#define CLICK_PRESS_ONLY	0x02
--
--static int byd_enable(struct psmouse *psmouse)
--{
--	const u8 seq1[] = { 0xE2, 0x00, 0xE0, 0x02, 0xE0 };
--	const u8 seq2[] = {
--		0xD3, 0x01,
--		0xD0, 0x00,
--		0xD0, 0x04,
--		/* Whether clicking is done by tapping or pressing. */
--		0xD4, CLICK_PRESS_ONLY,
--		0xD5, 0x01,
--		0xD7, 0x03,
--		/* Vertical and horizontal one-finger scroll zone inertia. */
--		0xD8, SCROLL_INERTIAL,
--		0xDA, 0x05,
--		0xDB, 0x02,
--		0xE4, 0x05,
--		0xD6, 0x01,
--		0xDE, 0x04,
--		0xE3, 0x01,
--		0xCF, 0x00,
--		0xD2, 0x03,
--		/* Vertical and horizontal two-finger scrolling inertia. */
--		0xE5, SCROLL_INERTIAL,
--		0xD9, 0x02,
--		0xD9, 0x07,
--		0xDC, 0x03,
--		0xDD, 0x03,
--		0xDF, 0x03,
--		0xE1, 0x03,
--		0xD1, 0x00,
--		0xCE, 0x00,
--		0xCC, 0x00,
--		0xE0, 0x00,
--		0xE2, 0x01
--	};
--	u8 param[4];
--
--	if (byd_send_sequence(psmouse, seq1, ARRAY_SIZE(seq1)))
--		return -1;
--
--	/* Send a 0x01 command, which should return 4 bytes. */
--	if (ps2_command(&psmouse->ps2dev, param, 0x0401))
--		return -1;
- 
--	if (byd_send_sequence(psmouse, seq2, ARRAY_SIZE(seq2)))
--		return -1;
--
--	return 0;
-+	return PSMOUSE_FULL_PACKET;
- }
- 
--/*
-- * Send the set of PS/2 commands required to make it identify as an
-- * intellimouse with 4-byte instead of 3-byte packets.
-- */
--static int byd_send_intellimouse_sequence(struct psmouse *psmouse)
-+static int byd_reset_touchpad(struct psmouse *psmouse)
- {
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
- 	u8 param[4];
--	int i;
-+	size_t i;
++	gpiod_set_value_cansleep(ts->reset_gpio, 1);
 +
- 	const struct {
- 		u16 command;
- 		u8 arg;
- 	} seq[] = {
--		{ PSMOUSE_CMD_RESET_BAT, 0 },
--		{ PSMOUSE_CMD_RESET_BAT, 0 },
--		{ PSMOUSE_CMD_GETID, 0 },
--		{ PSMOUSE_CMD_SETSCALE11, 0 },
--		{ PSMOUSE_CMD_SETSCALE11, 0 },
--		{ PSMOUSE_CMD_SETSCALE11, 0 },
--		{ PSMOUSE_CMD_GETINFO, 0 },
--		{ PSMOUSE_CMD_SETRES, 0x03 },
-+		/*
-+		 * Intellimouse initialization sequence, to get 4-byte instead
-+		 * of 3-byte packets.
-+		 */
- 		{ PSMOUSE_CMD_SETRATE, 0xC8 },
- 		{ PSMOUSE_CMD_SETRATE, 0x64 },
- 		{ PSMOUSE_CMD_SETRATE, 0x50 },
- 		{ PSMOUSE_CMD_GETID, 0 },
--		{ PSMOUSE_CMD_SETRATE, 0xC8 },
--		{ PSMOUSE_CMD_SETRATE, 0xC8 },
--		{ PSMOUSE_CMD_SETRATE, 0x50 },
--		{ PSMOUSE_CMD_GETID, 0 },
--		{ PSMOUSE_CMD_SETRATE, 0x64 },
--		{ PSMOUSE_CMD_SETRES, 0x03 },
--		{ PSMOUSE_CMD_ENABLE, 0 }
-+		{ PSMOUSE_CMD_ENABLE, 0 },
-+		/*
-+		 * BYD-specific initialization, which enables absolute mode and
-+		 * (if desired), the touchpad's built-in gesture detection.
-+		 */
-+		{ 0x10E2, 0x00 },
-+		{ 0x10E0, 0x02 },
-+		/* The touchpad should reply with 4 seemingly-random bytes */
-+		{ 0x14E0, 0x01 },
-+		/* Pairs of parameters and values. */
-+		{ BYD_CMD_SET_HANDEDNESS, 0x01 },
-+		{ BYD_CMD_SET_PHYSICAL_BUTTONS, 0x04 },
-+		{ BYD_CMD_SET_TAP, 0x02 },
-+		{ BYD_CMD_SET_ONE_FINGER_SCROLL, 0x04 },
-+		{ BYD_CMD_SET_ONE_FINGER_SCROLL_FUNC, 0x04 },
-+		{ BYD_CMD_SET_EDGE_MOTION, 0x01 },
-+		{ BYD_CMD_SET_PALM_CHECK, 0x00 },
-+		{ BYD_CMD_SET_MULTITOUCH, 0x02 },
-+		{ BYD_CMD_SET_TWO_FINGER_SCROLL, 0x04 },
-+		{ BYD_CMD_SET_TWO_FINGER_SCROLL_FUNC, 0x04 },
-+		{ BYD_CMD_SET_LEFT_EDGE_REGION, 0x00 },
-+		{ BYD_CMD_SET_TOP_EDGE_REGION, 0x00 },
-+		{ BYD_CMD_SET_RIGHT_EDGE_REGION, 0x00 },
-+		{ BYD_CMD_SET_BOTTOM_EDGE_REGION, 0x00 },
-+		{ BYD_CMD_SET_ABSOLUTE_MODE, 0x02 },
-+		/* Finalize initialization. */
-+		{ 0x10E0, 0x00 },
-+		{ 0x10E2, 0x01 },
- 	};
- 
--	memset(param, 0, sizeof(param));
- 	for (i = 0; i < ARRAY_SIZE(seq); ++i) {
-+		memset(param, 0, sizeof(param));
- 		param[0] = seq[i].arg;
- 		if (ps2_command(ps2dev, param, seq[i].command))
--			return -1;
--	}
--
--	return 0;
--}
--
--static int byd_reset_touchpad(struct psmouse *psmouse)
--{
--	if (byd_send_intellimouse_sequence(psmouse))
--		return -EIO;
--
--	if (byd_enable(psmouse))
--		return -EIO;
-+			return -EIO;
- 
++	error = regulator_enable(ts->vcc33);
++	if (error) {
++		dev_err(&ts->client->dev,
++			"failed to enable vcc33 regulator: %d\n",
++			error);
++		goto release_reset_gpio;
 +	}
-+	psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
- 	return 0;
- }
- 
-@@ -314,9 +429,50 @@ static int byd_reconnect(struct psmouse *psmouse)
- 	return 0;
- }
- 
-+static void byd_disconnect(struct psmouse *psmouse)
-+{
-+	struct byd_data *priv = psmouse->private;
 +
-+	if (priv) {
-+		del_timer(&priv->timer);
-+		kfree(psmouse->private);
-+		psmouse->private = NULL;
++	error = regulator_enable(ts->vccio);
++	if (error) {
++		dev_err(&ts->client->dev,
++			"failed to enable vccio regulator: %d\n",
++			error);
++		regulator_disable(ts->vcc33);
++		goto release_reset_gpio;
++	}
++
++	udelay(RAYDIUM_POWERON_DELAY_USEC);
++
++release_reset_gpio:
++	gpiod_set_value_cansleep(ts->reset_gpio, 0);
++
++	if (error)
++		return error;
++
++	msleep(RAYDIUM_RESET_DELAY_MSEC);
++
++	return 0;
++}
++
++static void raydium_i2c_power_off(void *_data)
++{
++	struct raydium_data *ts = _data;
++
++	if (!IS_ERR_OR_NULL(ts->reset_gpio)) {
++		gpiod_set_value_cansleep(ts->reset_gpio, 1);
++		regulator_disable(ts->vccio);
++		regulator_disable(ts->vcc33);
 +	}
 +}
 +
-+int byd_detect(struct psmouse *psmouse, bool set_properties)
++static int raydium_i2c_probe(struct i2c_client *client,
++			    const struct i2c_device_id *id)
 +{
-+	struct ps2dev *ps2dev = &psmouse->ps2dev;
-+	u8 param[4] = {0x03, 0x00, 0x00, 0x00};
++	union i2c_smbus_data dummy;
++	struct raydium_data *ts;
++	unsigned long irqflags;
++	int error;
 +
-+	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
-+		return -1;
-+	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
-+		return -1;
-+	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
-+		return -1;
-+	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
-+		return -1;
-+	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
-+		return -1;
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev,
++			"%s: i2c check functionality error\n", DEVICE_NAME);
++		return -ENXIO;
++	}
 +
-+	if (param[1] != 0x03 || param[2] != 0x64)
-+		return -ENODEV;
++	ts = devm_kzalloc(&client->dev,
++		sizeof(struct raydium_data), GFP_KERNEL);
++	if (!ts)
++		return -ENOMEM;
 +
-+	psmouse_dbg(psmouse, "BYD touchpad detected\n");
++	mutex_init(&ts->sysfs_mutex);
++	init_completion(&ts->cmd_done);
 +
-+	if (set_properties) {
-+		psmouse->vendor = "BYD";
-+		psmouse->name = "TouchPad";
++	ts->client = client;
++	i2c_set_clientdata(client, ts);
++
++	ts->vcc33 = devm_regulator_get(&client->dev, "avdd");
++	if (IS_ERR(ts->vcc33)) {
++		error = PTR_ERR(ts->vcc33);
++		if (error != -EPROBE_DEFER)
++			dev_err(&client->dev,
++				"Failed to get 'vcc33' regulator: %d\n",
++				error);
++		return error;
++	}
++
++	ts->vccio = devm_regulator_get(&client->dev, "vdd");
++	if (IS_ERR(ts->vccio)) {
++		error = PTR_ERR(ts->vccio);
++		if (error != -EPROBE_DEFER)
++			dev_err(&client->dev,
++				"Failed to get 'vccio' regulator: %d\n",
++				error);
++		return error;
++	}
++
++
++	ts->reset_gpio = devm_gpiod_get_optional(&client->dev, "reset",
++		GPIOD_OUT_LOW);
++	if (IS_ERR(ts->reset_gpio)) {
++		error = PTR_ERR(ts->reset_gpio);
++		if (error != -EPROBE_DEFER) {
++			dev_err(&client->dev,
++				"failed to get reset gpio: %d\n",
++				error);
++			return error;
++		}
++	}
++
++	error = raydium_i2c_power_on(ts);
++	if (error)
++		return error;
++
++	error = devm_add_action(&client->dev, raydium_i2c_power_off, ts);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to install power off action: %d\n", error);
++		raydium_i2c_power_off(ts);
++		return error;
++	}
++
++	/* Make sure there is something at this address */
++	if (i2c_smbus_xfer(client->adapter, client->addr, 0,
++			   I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &dummy) < 0) {
++		dev_err(&client->dev, "nothing at this address\n");
++		return -ENXIO;
++	}
++
++	error = raydium_i2c_initialize(ts);
++	if (error) {
++		dev_err(&client->dev, "failed to initialize: %d\n", error);
++		return error;
++	}
++
++	ts->input = devm_input_allocate_device(&client->dev);
++	if (!ts->input) {
++		dev_err(&client->dev, "Failed to allocate input device\n");
++		return -ENOMEM;
++	}
++
++	ts->input->name = "Raydium Touchscreen";
++	ts->input->id.bustype = BUS_I2C;
++
++	__set_bit(BTN_TOUCH, ts->input->keybit);
++	__set_bit(EV_ABS, ts->input->evbit);
++	__set_bit(EV_KEY, ts->input->evbit);
++
++	/* Single touch input params setup */
++	input_set_abs_params(ts->input, ABS_X, 0, ts->info.x_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_Y, 0, ts->info.y_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_PRESSURE, 0, 255, 0, 0);
++	input_abs_set_res(ts->input, ABS_X, ts->info.x_res);
++	input_abs_set_res(ts->input, ABS_Y, ts->info.y_res);
++
++	/* Multitouch input params setup */
++	error = input_mt_init_slots(ts->input, MAX_TOUCH_NUM,
++				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to initialize MT slots: %d\n", error);
++		return error;
++	}
++
++	input_set_abs_params(ts->input, ABS_MT_POSITION_X, 0,
++		ts->info.x_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_POSITION_Y,
++		0, ts->info.y_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_PRESSURE, 0, 255, 0, 0);
++	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->info.x_res);
++	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->info.y_res);
++
++	input_mt_init_slots(ts->input, MAX_TOUCH_NUM, 0);
++
++	input_set_drvdata(ts->input, ts);
++
++	error = input_register_device(ts->input);
++	if (error) {
++		dev_err(&client->dev,
++			"unable to register input device: %d\n", error);
++		return error;
++	}
++
++	error = devm_request_threaded_irq(&client->dev, client->irq,
++					  NULL, raydium_i2c_irq,
++					  irqflags | IRQF_ONESHOT,
++					  client->name, ts);
++	if (error) {
++		dev_err(&client->dev, "Failed to register interrupt\n");
++		return error;
++	}
++
++	if (!client->dev.of_node)
++		device_init_wakeup(&client->dev, true);
++
++	error = sysfs_create_group(&client->dev.kobj, &raydium_attribute_group);
++	if (error) {
++		dev_err(&client->dev, "failed to create sysfs attributes: %d\n",
++			error);
++		return error;
++	}
++
++	error = devm_add_action(&client->dev,
++				raydium_i2c_remove_sysfs_group, ts);
++	if (error) {
++		raydium_i2c_remove_sysfs_group(ts);
++		dev_err(&client->dev,
++			"Failed to add sysfs cleanup action: %d\n",
++			error);
++		return error;
 +	}
 +
 +	return 0;
 +}
 +
- int byd_init(struct psmouse *psmouse)
- {
- 	struct input_dev *dev = psmouse->dev;
-+	struct byd_data *priv;
- 
- 	if (psmouse_reset(psmouse))
- 		return -EIO;
-@@ -324,14 +480,39 @@ int byd_init(struct psmouse *psmouse)
- 	if (byd_reset_touchpad(psmouse))
- 		return -EIO;
- 
-+	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
++static int raydium_i2c_remove(struct i2c_client *client)
++{
++	struct raydium_data *ts = i2c_get_clientdata(client);
 +
-+	memset(priv, 0, sizeof(*priv));
-+	setup_timer(&priv->timer, byd_clear_touch, (unsigned long) psmouse);
++	if (ts->input)
++		input_unregister_device(ts->input);
 +
-+	psmouse->private = priv;
-+	psmouse->disconnect = byd_disconnect;
- 	psmouse->reconnect = byd_reconnect;
- 	psmouse->protocol_handler = byd_process_byte;
- 	psmouse->pktsize = 4;
- 	psmouse->resync_time = 0;
- 
--	__set_bit(BTN_MIDDLE, dev->keybit);
--	__set_bit(REL_WHEEL, dev->relbit);
--	__set_bit(REL_HWHEEL, dev->relbit);
-+	__set_bit(INPUT_PROP_POINTER, dev->propbit);
-+	/* Touchpad */
-+	__set_bit(BTN_TOUCH, dev->keybit);
-+	__set_bit(BTN_TOOL_FINGER, dev->keybit);
-+	/* Buttons */
-+	__set_bit(BTN_LEFT, dev->keybit);
-+	__set_bit(BTN_RIGHT, dev->keybit);
-+	__clear_bit(BTN_MIDDLE, dev->keybit);
++	device_init_wakeup(&client->dev, false);
 +
-+	/* Absolute position */
-+	__set_bit(EV_ABS, dev->evbit);
-+	input_set_abs_params(dev, ABS_X, 0, BYD_PAD_WIDTH, 0, 0);
-+	input_set_abs_params(dev, ABS_Y, 0, BYD_PAD_HEIGHT, 0, 0);
-+	input_abs_set_res(dev, ABS_X, BYD_PAD_RESOLUTION);
-+	input_abs_set_res(dev, ABS_Y, BYD_PAD_RESOLUTION);
-+	/* No relative support */
-+	__clear_bit(EV_REL, dev->evbit);
-+	__clear_bit(REL_X, dev->relbit);
-+	__clear_bit(REL_Y, dev->relbit);
- 
- 	return 0;
- }
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index 39d1bec..5784e20 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -846,7 +846,7 @@ static const struct psmouse_protocol psmouse_protocols[] = {
- #ifdef CONFIG_MOUSE_PS2_BYD
- 	{
- 		.type		= PSMOUSE_BYD,
--		.name		= "BydPS/2",
-+		.name		= "BYDPS/2",
- 		.alias		= "byd",
- 		.detect		= byd_detect,
- 		.init		= byd_init,
++	devm_free_irq(&client->dev, client->irq, ts);
++
++	mutex_destroy(&ts->sysfs_mutex);
++
++	devm_remove_action(&client->dev, raydium_i2c_remove_sysfs_group, ts);
++
++	devm_remove_action(&client->dev, raydium_i2c_power_off, ts);
++
++	return 0;
++}
++
++static void __maybe_unused raydium_enter_sleep(struct i2c_client *client)
++{
++	const u8 sleep_cmd[] = { 0x5A, 0xff, 0x00, 0x0f };
++	int error;
++
++	error = raydium_i2c_send(client, CMD_ENTER_SLEEP,
++			(u8 *)sleep_cmd, sizeof(sleep_cmd));
++	if (error)
++		dev_err(&client->dev,
++			"Send sleep failed: %d\n", error);
++}
++
++static int __maybe_unused raydium_i2c_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct raydium_data *ts = i2c_get_clientdata(client);
++
++	/* Command not support in BLDR recovery mode */
++	if (ts->boot_mode != RAYDIUM_TS_MAIN)
++		return -EBUSY;
++
++	disable_irq(client->irq);
++
++	if (device_may_wakeup(dev)) {
++		raydium_enter_sleep(client);
++
++		ts->wake_irq_enabled = (enable_irq_wake(client->irq) == 0);
++	} else {
++		raydium_i2c_power_off(ts);
++	}
++
++	return 0;
++}
++
++static int __maybe_unused raydium_i2c_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct raydium_data *ts = i2c_get_clientdata(client);
++
++	if (device_may_wakeup(dev)) {
++		if (ts->wake_irq_enabled)
++			disable_irq_wake(client->irq);
++		raydium_i2c_sw_reset(client);
++	} else {
++		raydium_i2c_power_on(ts);
++		raydium_i2c_initialize(ts);
++	}
++
++	enable_irq(client->irq);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(raydium_i2c_pm_ops,
++			 raydium_i2c_suspend, raydium_i2c_resume);
++
++static const struct i2c_device_id raydium_i2c_id[] = {
++	{ DEVICE_NAME, 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, raydium_i2c_id);
++
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id raydium_acpi_id[] = {
++	{ "RMTS_0001", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, raydium_acpi_id);
++#endif
++
++#ifdef CONFIG_OF
++static const struct of_device_id raydium_of_match[] = {
++	{ .compatible = "raydium,rm-ts",},
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, raydium_of_match);
++#endif
++
++static struct i2c_driver raydium_i2c_driver = {
++	.probe = raydium_i2c_probe,
++	.remove = raydium_i2c_remove,
++	.id_table = raydium_i2c_id,
++	.driver = {
++		.name = "raydium_ts",
++		.pm = &raydium_i2c_pm_ops,
++		.acpi_match_table = ACPI_PTR(raydium_acpi_id),
++		.of_match_table = of_match_ptr(raydium_of_match),
++	},
++};
++
++module_i2c_driver(raydium_i2c_driver);
++
++MODULE_AUTHOR("Raydium");
++MODULE_DESCRIPTION("Raydium I2c Touchscreen driver");
++MODULE_LICENSE("GPL");
 -- 
-2.5.0
+2.1.2
 

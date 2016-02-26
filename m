@@ -1,75 +1,42 @@
-From: =?big5?B?SmVmZnJleSBMaW4gKKpMuHGzuSk=?= <Jeffrey.Lin@rad-ic.com>
-Subject: RE: [PATCH] driver: input :touchscreen : add Raydium I2C touch
- driver file
-Date: Fri, 26 Feb 2016 09:24:23 +0000
-Message-ID: <9BE4B49389AB2F41A64A32DFC844F1DF73EF7EE7@RADHCMS5.corp.rad-ic.com>
-References: <201602261633.y2ggBswA%fengguang.wu@intel.com>
- <alpine.DEB.2.10.1602260951390.2614@hadrien>
+From: Stefan =?utf-8?b?TMO2d2Vu?= <stefan.loewen@gmail.com>
+Subject: Re: Fake =?utf-8?b?S0VZXzU=?= continuous keydown events with Logitech wireless keyboard on Kernel 4.2
+Date: Fri, 26 Feb 2016 10:50:46 +0000 (UTC)
+Message-ID: <loom.20160226T114609-429@post.gmane.org>
+References: <20151106115053.487d81b7@recife.lan> <CAN+gG=EOH==YHscYL6V5PNBNbzH-xZ3pdBLd3S=UqzFnsCykbQ@mail.gmail.com> <CAM4jgCqJ0A3xpg2OGa-3Yd_APnHW9kObfO_dvS_ZO_Nb0gOdpA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="big5"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 219-80-251-49.static.tfn.net.tw ([219.80.251.49]:30692 "EHLO
-	mse1.corp.rad-ic.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750883AbcBZKFf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Feb 2016 05:05:35 -0500
-Received: from mse1.corp.rad-ic.com (localhost [127.0.0.2] (may be forged))
-	by mse1.corp.rad-ic.com with ESMTP id u1Q9Ox9V066539
-	for <linux-input@vger.kernel.org>; Fri, 26 Feb 2016 17:24:59 +0800 (GMT-8)
-	(envelope-from Jeffrey.Lin@rad-ic.com)
-In-Reply-To: <alpine.DEB.2.10.1602260951390.2614@hadrien>
-Content-Language: zh-TW
+Received: from plane.gmane.org ([80.91.229.3]:38622 "EHLO plane.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753476AbcBZKzM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Feb 2016 05:55:12 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <glki-linux-input-2@m.gmane.org>)
+	id 1aZG35-0003xn-8I
+	for linux-input@vger.kernel.org; Fri, 26 Feb 2016 11:55:03 +0100
+Received: from aftr-37-201-213-201.unity-media.net ([37.201.213.201])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Fri, 26 Feb 2016 11:55:03 +0100
+Received: from stefan.loewen by aftr-37-201-213-201.unity-media.net with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Fri, 26 Feb 2016 11:55:03 +0100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Julia Lawall <julia.lawall@lip6.fr>, "jeffrey.lin" <yajohn@gmail.com>
-Cc: "kbuild-all@01.org" <kbuild-all@01.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "jeesw@melfas.com" <jeesw@melfas.com>, "bleung@chromium.org" <bleung@chromium.org>, "scott.liu@emc.com.tw" <scott.liu@emc.com.tw>, =?big5?B?Um9nZXIgWWFuZyAot6jC7d6zKQ==?= <Roger.Yang@rad-ic.com>, =?big5?B?S1AgTGkgKKf1qfitvyk=?= <KP.Li@rad-ic.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: linux-input@vger.kernel.org
 
-SnVsaWE6DQpUaGFua3MgZm9yIHlvdXIgcmVzcG9uc2UuIEknbGwgZml4IHRoZW0gaW4gbmV4dCB2
-ZXJzaW9uLg0KDQpCZXN0IFJlZ2FyZHMNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCkplZmZyZXkgTGluLKpMuHGz
-uQ0Kt+e5qazsp94NClJheWRpdW0gU2VtaWNvbmR1Y3RvciBDb3Jwb3JhdGlvbg0KVGVsOigwMyk2
-NjYtMTgxOCBFeHQuNDE2Mw0KRmF4OigwMyk2NjYtMTkxOQ0KDQotLS0tLU9yaWdpbmFsIE1lc3Nh
-Z2UtLS0tLQ0KRnJvbTogSnVsaWEgTGF3YWxsIFttYWlsdG86anVsaWEubGF3YWxsQGxpcDYuZnJd
-IA0KU2VudDogRnJpZGF5LCBGZWJydWFyeSAyNiwgMjAxNiA0OjUzIFBNDQpUbzogamVmZnJleS5s
-aW4NCkNjOiBrYnVpbGQtYWxsQDAxLm9yZzsgZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbTsgcnlk
-YmVyZ0BldXJvbWFpbC5zZTsgZ3JhbnQubGlrZWx5QGxpbmFyby5vcmc7IHJvYmgrZHRAa2VybmVs
-Lm9yZzsgamVlc3dAbWVsZmFzLmNvbTsgYmxldW5nQGNocm9taXVtLm9yZzsgc2NvdHQubGl1QGVt
-Yy5jb20udHc7IEplZmZyZXkgTGluICiqTLhxs7kpOyBSb2dlciBZYW5nICi3qMLt3rMpOyBLUCBM
-aSAop/Wp+K2/KTsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgbGludXgtaW5wdXRAdmdl
-ci5rZXJuZWwub3JnOyBkZXZpY2V0cmVlQHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDogUmU6IFtQ
-QVRDSF0gZHJpdmVyOiBpbnB1dCA6dG91Y2hzY3JlZW4gOiBhZGQgUmF5ZGl1bSBJMkMgdG91Y2gg
-ZHJpdmVyIGZpbGUNCg0KUGxlYXNlIGFkanVzdCB0aGUgaW5kZW50YXRpb24uDQoNCmp1bGlhDQoN
-Ck9uIEZyaSwgMjYgRmViIDIwMTYsIGtidWlsZCB0ZXN0IHJvYm90IHdyb3RlOg0KDQo+IEhpIGpl
-ZmZyZXkubGluLA0KPg0KPiBbYXV0byBidWlsZCB0ZXN0IFdBUk5JTkcgb24gaW5wdXQvbmV4dF0g
-W2Fsc28gYnVpbGQgdGVzdCBXQVJOSU5HIG9uIA0KPiB2NC41LXJjNSBuZXh0LTIwMTYwMjI2XSBb
-aWYgeW91ciBwYXRjaCBpcyBhcHBsaWVkIHRvIHRoZSB3cm9uZyBnaXQgDQo+IHRyZWUsIHBsZWFz
-ZSBkcm9wIHVzIGEgbm90ZSB0byBoZWxwIGltcHJvdmluZyB0aGUgc3lzdGVtXQ0KPg0KPiB1cmw6
-ICAgIGh0dHBzOi8vZ2l0aHViLmNvbS8wZGF5LWNpL2xpbnV4L2NvbW1pdHMvamVmZnJleS1saW4v
-ZHJpdmVyLWlucHV0LXRvdWNoc2NyZWVuLWFkZC1SYXlkaXVtLUkyQy10b3VjaC1kcml2ZXItZmls
-ZS8yMDE2MDIyNi0xNTI1NDINCj4gYmFzZTogICBodHRwczovL2dpdC5rZXJuZWwub3JnL3B1Yi9z
-Y20vbGludXgva2VybmVsL2dpdC9kdG9yL2lucHV0LmdpdCBuZXh0DQo+IDo6Ojo6OiBicmFuY2gg
-ZGF0ZTogNjQgbWludXRlcyBhZ28NCj4gOjo6Ojo6IGNvbW1pdCBkYXRlOiA2NCBtaW51dGVzIGFn
-bw0KPg0KPiA+PiBkcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL3JheWRpdW1faTJjX3RzLmM6NTM2
-OjMtMTI6IGNvZGUgYWxpZ25lZCANCj4gPj4gd2l0aCBmb2xsb3dpbmcgY29kZSBvbiBsaW5lIDUz
-OA0KPg0KPiBnaXQgcmVtb3RlIGFkZCBsaW51eC1yZXZpZXcgaHR0cHM6Ly9naXRodWIuY29tLzBk
-YXktY2kvbGludXggZ2l0IA0KPiByZW1vdGUgdXBkYXRlIGxpbnV4LXJldmlldyBnaXQgY2hlY2tv
-dXQgDQo+IDE4ZGRkMjg1NjdkMDhiMTE0YjU3NmU4MDE0NzVkNmQ3MjA5Zjc2ZjUNCj4gdmltICs1
-MzYgZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9yYXlkaXVtX2kyY190cy5jDQo+DQo+IDE4ZGRk
-Mjg1IGplZmZyZXkubGluIDIwMTYtMDItMjYgIDUzMA0KPiAxOGRkZDI4NSBqZWZmcmV5LmxpbiAy
-MDE2LTAyLTI2ICA1MzEgIAkJaW5wdXRfbXRfc2xvdCh0cy0+aW5wdXQsIGkpOw0KPiAxOGRkZDI4
-NSBqZWZmcmV5LmxpbiAyMDE2LTAyLTI2ICA1MzIgIAkJaW5wdXRfbXRfcmVwb3J0X3Nsb3Rfc3Rh
-dGUodHMtPmlucHV0LA0KPiAxOGRkZDI4NSBqZWZmcmV5LmxpbiAyMDE2LTAyLTI2ICA1MzMgIAkJ
-CQlNVF9UT09MX0ZJTkdFUiwgZl9zdGF0ZSAhPSAwKTsNCj4gMThkZGQyODUgamVmZnJleS5saW4g
-MjAxNi0wMi0yNiAgNTM0DQo+IDE4ZGRkMjg1IGplZmZyZXkubGluIDIwMTYtMDItMjYgIDUzNSAg
-CQlpZiAoIWZfc3RhdGUpDQo+IDE4ZGRkMjg1IGplZmZyZXkubGluIDIwMTYtMDItMjYgQDUzNiAg
-CQkJY29udGludWU7DQo+IDE4ZGRkMjg1IGplZmZyZXkubGluIDIwMTYtMDItMjYgIDUzNw0KPiAx
-OGRkZDI4NSBqZWZmcmV5LmxpbiAyMDE2LTAyLTI2IEA1MzggIAkJCXggPSAoZGF0YS0+eF9wb3Nf
-bXNiIDw8IDgpIHwgKGRhdGEtPnhfcG9zX2xzYik7DQo+IDE4ZGRkMjg1IGplZmZyZXkubGluIDIw
-MTYtMDItMjYgIDUzOSAgCQkJeSA9IChkYXRhLT55X3Bvc19tc2IgPDwgOCkgfCAoZGF0YS0+eV9w
-b3NfbHNiKTsNCj4gMThkZGQyODUgamVmZnJleS5saW4gMjAxNi0wMi0yNiAgNTQwDQo+IDE4ZGRk
-Mjg1IGplZmZyZXkubGluIDIwMTYtMDItMjYgIDU0MSAgCQkJaW5wdXRfcmVwb3J0X2tleSh0cy0+
-aW5wdXQsDQo+DQo+IC0tLQ0KPiAwLURBWSBrZXJuZWwgdGVzdCBpbmZyYXN0cnVjdHVyZSAgICAg
-ICAgICAgICAgICBPcGVuIFNvdXJjZSBUZWNobm9sb2d5IENlbnRlcg0KPiBodHRwczovL2xpc3Rz
-LjAxLm9yZy9waXBlcm1haWwva2J1aWxkLWFsbCAgICAgICAgICAgICAgICAgICBJbnRlbCBDb3Jw
-b3JhdGlvbg0KPg0K
+Hey,
+
+I experience the same bug on openSUSE 42.1
+
+$ uname -a
+Linux suse 4.1.15-8-default #1 SMP PREEMPT Wed Jan 20 16:41:00 UTC 2016 
+(0e3b3ab) x86_64 x86_64 x86_64 GNU/Linux
+
+Keyboard: Logiteck MK700
+
+Also posted my info to https://bugzilla.redhat.com/show_bug.cgi?id=1278818
+
+Has any progress been made on this? Can I support any data for debugging?
+

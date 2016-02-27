@@ -1,77 +1,50 @@
-From: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
-Subject: [PATCH v4 1/3] input: cygnus-update touchscreen dt node document
-Date: Sat, 27 Feb 2016 12:29:54 +0530
-Message-ID: <1456556396-4759-2-git-send-email-raveendra.padasalagi@broadcom.com>
-References: <1456556396-4759-1-git-send-email-raveendra.padasalagi@broadcom.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1456556396-4759-1-git-send-email-raveendra.padasalagi@broadcom.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King <linux@arm.linux.org.uk>, Rob Herring <robh+dt@kernel.org>, Arnd Bergmann <arnd@arndb.de>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
-Cc: Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jonathan Richardson <jonathar@broadcom.com>, Jon Mason <jonmason@broadcom.com>, Florian Fainelli <f.fainelli@gmail.com>, Anup Patel <anup.patel@broadcom.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+From: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Subject: =?utf-8?Q?=D0=9A=D0=9B=D0=98=D0=95=D0=9D=D0=A2=D0=A1=D0?=
+	=?utf-8?Q?=9A=D0=98=D0=95_=D0=91=D0=90=D0=97=D0=AB!_=D0?=
+	=?utf-8?Q?=A2=D0=B5=D0=BB=5CViber=5CWhatsapp=3A_+79133913?=
+	=?utf-8?Q?837_Email=3A_abelozerov39=40gmail=2Ecom_Skype?=
+	=?utf-8?Q?=3A_prodawez389?=
+Date: Sat, 27 Feb 2016 17:54:08 +0600
+Message-ID: <41BA0ED15084AB68B4B1F847B3BF2A5C@vger.kernel.org>
+Reply-To: "linux-input@vger.kernel.org" <abelozerov39@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from [101.254.204.76] ([101.254.204.76]:19129 "EHLO
+	slave16.localdomain" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756241AbcB0MDd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 27 Feb 2016 07:03:33 -0500
+Received: from 125.62.14.162 (localhost [127.0.0.1])
+	by slave16.localdomain (Postfix) with SMTP id 60E1E4D22DD
+	for <linux-input@vger.kernel.org>; Sat, 27 Feb 2016 19:53:42 +0800 (CST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-In Cygnus SOC touch screen controller registers are shared
-with ADC and flex timer. Using readl/writel could lead to
-race condition. So touch screen driver is enhanced to support
-register access using syscon framework API's to take care of
-mutually exclusive access.In addition to this existing touchscreen
-node name "tsc" is renamed to "touchscreen".
+=D0=9A=D0=9B=D0=98=D0=95=D0=9D=D0=A2=D0=A1=D0=9A=D0=98=D0=95 =D0=91=D0=90=
+=D0=97=D0=AB!
 
-Hence touchscreen dt node bindings document is updated to take care
-of above changes in the touchscreen driver.
-
-Signed-off-by: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
-Reviewed-by: Ray Jui <ray.jui@broadcom.com>
-Reviewed-by: Scott Branden <scott.branden@broadcom.com>
----
- .../input/touchscreen/brcm,iproc-touchscreen.txt    | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
-index 34e3382..25541f3 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
-@@ -2,11 +2,17 @@
- 
- Required properties:
- - compatible: must be "brcm,iproc-touchscreen"
--- reg: physical base address of the controller and length of memory mapped
--  region.
-+- ts_syscon: handler of syscon node defining physical base
-+  address of the controller and length of memory mapped region.
-+  If this property is selected please make sure MFD_SYSCON config
-+  is enabled in the defconfig file.
- - clocks:  The clock provided by the SOC to driver the tsc
- - clock-name:  name for the clock
- - interrupts: The touchscreen controller's interrupt
-+- address-cells: Specify the number of u32 entries needed in child nodes.
-+  Should set to 1.
-+- size-cells: Specify number of u32 entries needed to specify child nodes size
-+  in reg property. Should set to 1.
- 
- Optional properties:
- - scanning_period: Time between scans. Each step is 1024 us.  Valid 1-256.
-@@ -53,13 +59,18 @@ Optional properties:
- - touchscreen-inverted-x: X axis is inverted (boolean)
- - touchscreen-inverted-y: Y axis is inverted (boolean)
- 
--Example:
-+Example: An example of touchscreen node
- 
--	touchscreen: tsc@0x180A6000 {
-+	ts_adc_syscon: ts_adc_syscon@180a6000 {
-+		compatible = "brcm,iproc-ts-adc-syscon","syscon";
-+		reg = <0x180a6000 0xc30>;
-+	};
-+
-+	touchscreen: touchscreen@180A6000 {
- 		compatible = "brcm,iproc-touchscreen";
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		reg = <0x180A6000 0x40>;
-+		ts_syscon = <&ts_adc_syscon>;
- 		clocks = <&adc_clk>;
- 		clock-names = "tsc_clk";
- 		interrupts = <GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>;
--- 
-1.9.1
+=D0=A1=D0=BE=D0=B1=D0=B5=D1=80=D0=B5=D0=BC =D0=B4=D0=BB=D1=8F =D0=92=D0=
+=B0=D1=81 =D0=BF=D0=BE =D0=B8=D0=BD=D1=82=D0=B5=D1=80=D0=BD=D0=B5=D1=82=
+ =D0=B1=D0=B0=D0=B7=D1=83 =D0=B4=D0=B0=D0=BD=D0=BD=D1=8B=D1=85 =D0=BF=D0=
+=BE=D1=82=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D1=8B=D1=85 =D0=
+=BA=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D0=BE=D0=B2=20
+=D0=B4=D0=BB=D1=8F =D0=92=D0=B0=D1=88=D0=B5=D0=B3=D0=BE =D0=91=D0=B8=D0=
+=B7=D0=BD=D0=B5=D1=81=D0=B0!
+=D0=9C=D0=BD=D0=BE=D0=B3=D0=BE! =D0=91=D1=8B=D1=81=D1=82=D1=80=D0=BE! =D0=
+=9D=D0=B5=D0=B4=D0=BE=D1=80=D0=BE=D0=B3=D0=BE!=20
+=D0=A3=D0=B7=D0=BD=D0=B0=D0=B9=D1=82=D0=B5 =D0=BE=D0=B1 =D1=8D=D1=82=D0=
+=BE=D0=BC =D0=BF=D0=BE=D0=B4=D1=80=D0=BE=D0=B1=D0=BD=D0=B5=D0=B5 =D0=BF=
+=D0=BE=20
+=D0=A2=D0=B5=D0=BB: +79133913837
+Viber: +79133913837
+Whatsapp: +79133913837
+Skype: prodawez389
+Email: abelozerov39@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

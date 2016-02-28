@@ -1,692 +1,250 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 1/2] Input: Driver for SiS 9200 family I2C touchscreen
- controller.
-Date: Sat, 27 Feb 2016 20:38:56 -0800
-Message-ID: <20160228043856.GA25027@dtor-ws>
-References: <1454586820-22157-1-git-send-email-mika.penttila@nextfour.com>
- <1454586820-22157-2-git-send-email-mika.penttila@nextfour.com>
+From: sergk sergk2mail <sergk.admin@gmail.com>
+Subject: How to use ACPI for touchscreen
+Date: Sun, 28 Feb 2016 22:30:21 +0000
+Message-ID: <CA+V1LzqohgdNChrBUO+VqUiPD-9gPGvSCiu0t3L7aUk5dRyD1w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f177.google.com ([209.85.192.177]:35235 "EHLO
-	mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S2992738AbcB1EjC (ORCPT
+Received: from mail-qg0-f50.google.com ([209.85.192.50]:36461 "EHLO
+	mail-qg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755048AbcB1WaW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Feb 2016 23:39:02 -0500
-Received: by mail-pf0-f177.google.com with SMTP id w128so27087688pfb.2
-        for <linux-input@vger.kernel.org>; Sat, 27 Feb 2016 20:39:01 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1454586820-22157-2-git-send-email-mika.penttila@nextfour.com>
+	Sun, 28 Feb 2016 17:30:22 -0500
+Received: by mail-qg0-f50.google.com with SMTP id y9so104641822qgd.3
+        for <linux-input@vger.kernel.org>; Sun, 28 Feb 2016 14:30:21 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mika.penttila@nextfour.com
-Cc: linux-input@vger.kernel.org, tammy_tseng@sis.com, yuger_yu@sis.com
+To: linux-input@vger.kernel.org
 
-On Thu, Feb 04, 2016 at 01:53:39PM +0200, mika.penttila@nextfour.com wr=
-ote:
-> From: Mika Penttil=E4 <mika.penttila@nextfour.com>
->=20
-> Multitouch protocol B support.
->=20
-> v3:
->   - cleanup unused defines
->   - added acked-bys from SiS
->=20
-> v2:
->   - use gpio descriptor api
->   - probe cleanups
->   - error handling cleanups
->=20
-> Signed-off-by: Mika Penttil=E4 <mika.penttila@nextfour.com>
-> Acked-by: Tammy Tseng <tammy_tseng@sis.com>
-> Acked-by: Yuger Yu <yuger_yu@sis.com>
-> ---
->  drivers/input/touchscreen/Kconfig   |  11 +
->  drivers/input/touchscreen/Makefile  |   1 +
->  drivers/input/touchscreen/sis_i2c.c | 493 ++++++++++++++++++++++++++=
-++++++++++
->  3 files changed, 505 insertions(+)
->  create mode 100644 drivers/input/touchscreen/sis_i2c.c
->=20
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchs=
-creen/Kconfig
-> index 3370a1a..577ef0b 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -1133,5 +1133,16 @@ config TOUCHSCREEN_ROHM_BU21023
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called bu21023_ts.
-> =20
-> +config TOUCHSCREEN_SIS_I2C
-> +	tristate "SiS 9200 family I2C touchscreen driver"
-> +	depends on I2C
-> +	depends on GPIOLIB
-> +	help
-> +	  This enables support for SiS 9200 family over I2C based touchscre=
-ens.
-> +
-> +	  If unsure, say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called sis_i2c.
-> =20
->  endif
-> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touch=
-screen/Makefile
-> index fa6bc56..03b065e 100644
-> --- a/drivers/input/touchscreen/Makefile
-> +++ b/drivers/input/touchscreen/Makefile
-> @@ -61,6 +61,7 @@ obj-$(CONFIG_TOUCHSCREEN_PCAP)		+=3D pcap_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+=3D penmount.o
->  obj-$(CONFIG_TOUCHSCREEN_PIXCIR)	+=3D pixcir_i2c_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+=3D s3c2410_ts.o
-> +obj-$(CONFIG_TOUCHSCREEN_SIS_I2C)       +=3D sis_i2c.o
->  obj-$(CONFIG_TOUCHSCREEN_ST1232)	+=3D st1232.o
->  obj-$(CONFIG_TOUCHSCREEN_STMPE)		+=3D stmpe-ts.o
->  obj-$(CONFIG_TOUCHSCREEN_SUN4I)		+=3D sun4i-ts.o
-> diff --git a/drivers/input/touchscreen/sis_i2c.c b/drivers/input/touc=
-hscreen/sis_i2c.c
-> new file mode 100644
-> index 0000000..0dc28aa
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/sis_i2c.c
-> @@ -0,0 +1,493 @@
-> +/* drivers/input/touchscreen/sis_i2c.c
-> + *  - I2C Touch panel driver for SiS 9200 family
-> + *
-> + * Copyright (C) 2011 SiS, Inc.
-> + * Copyright (C) 2015 Nextfour Group
-> + *
-> + * This software is licensed under the terms of the GNU General Publ=
-ic
-> + * License version 2, as published by the Free Software Foundation, =
-and
-> + * may be copied, distributed, and modified under those terms.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/delay.h>
-> +#include <linux/i2c.h>
-> +#include <linux/input.h>
-> +#include <linux/input/mt.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/io.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/linkage.h>
-> +#include <linux/slab.h>
-> +#include <linux/of_gpio.h>
-> +#include <linux/uaccess.h>
-> +#include <linux/irq.h>
-> +#include <asm/unaligned.h>
-> +#include <linux/crc-itu-t.h>
-> +
-> +#define SIS_I2C_NAME "sis_i2c_ts"
-> +#define MAX_FINGERS					10
-> +
-> +#define SIS_MAX_X					4095
-> +#define SIS_MAX_Y					4095
-> +
-> +#define PACKET_BUFFER_SIZE				128
-> +
-> +#define SIS_CMD_NORMAL					0x0
-> +
-> +#define TOUCHDOWN                                       0x3
-> +#define TOUCHUP                                         0x0
-> +#define MAX_BYTE					 64
-> +#define PRESSURE_MAX                                    255
-> +
-> +/* Resolution diagonal */
-> +#define AREA_LENGTH_LONGER				5792
-> +/*((SIS_MAX_X^2) + (SIS_MAX_Y^2))^0.5*/
-> +#define AREA_LENGTH_SHORT				5792
-> +#define AREA_UNIT					(5792/32)
-> +
-> +#define P_BYTECOUNT					0
-> +#define ALL_IN_ONE_PACKAGE				0x10
-> +#define IS_TOUCH(x)					(x & 0x1)
-> +#define IS_HIDI2C(x)					((x & 0xF) =3D=3D 0x06)
-> +#define IS_AREA(x)					((x >> 4) & 0x1)
-> +#define IS_PRESSURE(x)				        ((x >> 5) & 0x1)
-> +#define IS_SCANTIME(x)			                ((x >> 6) & 0x1)
+Hi ALL,
+Please help or reference with the following:
 
-Macro arguments shoudl be enclosed in parenthesis, (((x) >> 6) & 01)
+Howto use ACPI for touchscreen:
 
-> +
-> +#define NORMAL_LEN_PER_POINT			        6
-> +#define AREA_LEN_PER_POINT				2
-> +#define PRESSURE_LEN_PER_POINT			        1
-> +
-> +#define TOUCH_FORMAT					0x1
-> +#define HIDI2C_FORMAT					0x6
-> +#define P_REPORT_ID					2
-> +#define BYTE_BYTECOUNT					2
-> +#define BYTE_REPORTID					1
-> +#define BYTE_CRC_HIDI2C                                 0
-> +#define BYTE_CRC_I2C					2
-> +#define BYTE_SCANTIME					2
-> +
-> +#define SIS_ERR                                        -1
+  1) is it possible to detect via ACPI GPIO pin to INT/WAKE Touch?
+   2) If yes how to find out equivalent of this gpio pin in
+/sys/class/gpio? (to have userspace interface to it via export
+gpioPINNUMBER> /sys/class/gpio/export
+3) From the bellow DSDT table touch is dependant from I2C5  while
+i2c-dev creates devices i2c-0...i2c-4. Does this mean that in ACPI
+base is 1 and I2C5 is identical to i2c-4 dev ?
 
-Please use standard LInux error codes.
 
-> +
-> +struct _touchpoint {
-> +	int id;
-> +	unsigned short x, y;
-> +	uint16_t pressure;
-> +	uint16_t width;
-> +	uint16_t height;
-> +};
+As input additional info - I have decoded under 4.4.2 vanilla kernel
+x86_64 the following DSDT:
+touch related area: (chipone icn 8528).
 
-Please use u8, u16, etc in kernel code.
+          Device (TCS5)
+            {
+                Name (_ADR, Zero)  // _ADR: Address
+                Name (_HID, "CHPN0001")  // _HID: Hardware ID
+                Name (_CID, "PNP0C50" /* HID Protocol Device (I2C bus)
+*/)  // _CID: Compatible ID
+                Name (_S0W, Zero)  // _S0W: S0 Device Wake State
+                Name (_DEP, Package (0x02)  // _DEP: Dependencies
+                {
+                    GPO1,
+                    I2C5
+                })
+                Method (_PS3, 0, Serialized)  // _PS3: Power State 3
+                {
+                }
 
-> +
-> +struct sistp_driver_data {
-> +	int id;
-> +	int fingers;
-> +	uint8_t pre_keybit_state;
-> +	struct _touchpoint pt[MAX_FINGERS];
-> +};
-> +
-> +struct sis_ts_data {
-> +	struct gpio_desc *irq_gpiod;
-> +	struct gpio_desc *reset_gpiod;
-> +	struct i2c_client *client;
-> +	struct input_dev *input_dev;
-> +struct sistp_driver_data tpinfo;
-> +};
-> +
-> +static void sis_tpinfo_clear(struct sistp_driver_data *tpinfo, int m=
-ax);
-> +
-> +static int sis_cul_unit(uint8_t report_id)
-> +{
-> +	int ret =3D NORMAL_LEN_PER_POINT;
-> +
-> +	if (report_id !=3D ALL_IN_ONE_PACKAGE) {
-> +
-> +		if (IS_AREA(report_id) /*&& IS_TOUCH(report_id)*/)
-> +			ret +=3D AREA_LEN_PER_POINT;
-> +
-> +		if (IS_PRESSURE(report_id))
-> +			ret +=3D PRESSURE_LEN_PER_POINT;
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static int sis_readpacket(struct i2c_client *client, uint8_t cmd, ui=
-nt8_t *buf)
-> +{
-> +	uint8_t tmpbuf[MAX_BYTE] =3D {0};
-> +	int ret =3D SIS_ERR;
-> +	int touchnum =3D 0;
-> +	int p_count =3D 0;
-> +	int touch_format_id =3D 0;
-> +	int location =3D 0;
-> +	bool read_first =3D true;
-> +
-> +/*
-> + * I2C touch report format
-> + *
-> + * buf[0] =3D Low 8 bits of byte count value
-> + * buf[1] =3D High 8 bits of byte counte value
-> + * buf[2] =3D Report ID
-> + * buf[touch num * 6 + 2 ] =3D Touch information
-> + * 1 touch point has 6 bytes, it could be none if no touch
-> + * buf[touch num * 6 + 3] =3D Touch numbers
-> + *
-> + * One touch point information include 6 bytes, the order is
-> + *
-> + * 1. status =3D touch down or touch up
-> + * 2. id =3D finger id
-> + * 3. x axis low 8 bits
-> + * 4. x axis high 8 bits
-> + * 5. y axis low 8 bits
-> + * 6. y axis high 8 bits
-> + */
-> +	do {
-> +		if (location >=3D PACKET_BUFFER_SIZE) {
-> +			dev_err(&client->dev, "sis_readpacket: Buf Overflow\n");
-> +			return SIS_ERR;
-> +		}
-> +
-> +		ret =3D i2c_master_recv(client, tmpbuf, MAX_BYTE);
-> +
-> +		if (ret <=3D 0) {
-> +			return touchnum;
-> +		} else if (tmpbuf[P_BYTECOUNT] > MAX_BYTE) {
-> +			dev_err(&client->dev, "sis_readpacket: invalid bytecout\n");
-> +			return SIS_ERR;
-> +		}
-> +
-> +		if (tmpbuf[P_BYTECOUNT] < 10)
-> +			return touchnum;
-> +
-> +		if (read_first)
-> +			if (tmpbuf[P_BYTECOUNT] =3D=3D 0)
-> +				return 0;	/* touchnum is 0 */
-> +
-> +		touch_format_id =3D tmpbuf[P_REPORT_ID] & 0xf;
-> +
-> +		if ((touch_format_id !=3D TOUCH_FORMAT)
-> +			&& (touch_format_id !=3D HIDI2C_FORMAT)
-> +			&& (tmpbuf[P_REPORT_ID] !=3D ALL_IN_ONE_PACKAGE)) {
-> +			dev_err(&client->dev, "sis_readpacket: invalid reportid\n");
-> +			return SIS_ERR;
-> +		}
-> +
-> +		p_count =3D (int) tmpbuf[P_BYTECOUNT] - 1; /* start from 0 */
-> +		if (tmpbuf[P_REPORT_ID] !=3D ALL_IN_ONE_PACKAGE) {
-> +			if (IS_TOUCH(tmpbuf[P_REPORT_ID])) {
-> +				p_count -=3D BYTE_CRC_I2C; /* delete 2 byte crc */
-> +			} else if (IS_HIDI2C(tmpbuf[P_REPORT_ID])) {
-> +				p_count -=3D BYTE_CRC_HIDI2C;
-> +			} else {
-> +				dev_err(&client->dev, "sis_readpacket: delete crc error\n");
-> +				return SIS_ERR;
-> +			}
-> +			if (IS_SCANTIME(tmpbuf[P_REPORT_ID]))
-> +				p_count -=3D BYTE_SCANTIME;
-> +		}
-> +
-> +		if (read_first)
-> +			touchnum =3D tmpbuf[p_count];
-> +		else {
-> +			if (tmpbuf[p_count] !=3D 0) {
-> +				dev_err(&client->dev, "sis_readpacket: nonzero point count in ta=
-il packet\n");
-> +				return SIS_ERR;
-> +			}
-> +		}
-> +
-> +		if ((touch_format_id !=3D HIDI2C_FORMAT) &&
-> +			(tmpbuf[P_BYTECOUNT] > 3)) {
-> +			int crc_end =3D p_count +
-> +				(IS_SCANTIME(tmpbuf[P_REPORT_ID]) * 2);
-> +			u16 buf_crc =3D
-> +				crc_itu_t(0, tmpbuf + 2, crc_end - 1);
-> +			int l_package_crc =3D
-> +				(IS_SCANTIME(tmpbuf[P_REPORT_ID]) * 2) +
-> +				p_count + 1;
-> +			u16 package_crc =3D
-> +				get_unaligned_le16(&tmpbuf[l_package_crc]);
-> +			if (buf_crc !=3D package_crc) {
-> +				dev_err(&client->dev, "sis_readpacket: CRC Error\n");
-> +				return SIS_ERR;
-> +			}
-> +		}
-> +
-> +		memcpy(&buf[location], &tmpbuf[0], 64);
-> +		/* Buf_Data [0~63] [64~128] */
-> +		location +=3D MAX_BYTE;
-> +		read_first =3D false;
+                Method (_PS0, 0, Serialized)  // _PS0: Power State 0
+                {
+                    If ((^^^GPO1.AVBL == One))
+                    {
+                        ^^^GPO1.TCD3 = Zero
+                    }
 
-Why do we have to read in 64 byte chunks? Can we read entire packet at
-once?
+                    Sleep (0x05)
+                    If ((^^^I2C5.PMI1.AVBG == One))
+                    {
+                        ^^^I2C5.PMI1.TCON = One
+                    }
 
-> +	} while (tmpbuf[P_REPORT_ID] !=3D ALL_IN_ONE_PACKAGE &&
-> +		tmpbuf[p_count] > 5);
-> +
-> +	return touchnum;
-> +}
-> +
-> +static irqreturn_t sis_ts_irq_handler(int irq, void *dev_id)
-> +{
-> +	struct sis_ts_data *ts =3D dev_id;
-> +	struct sistp_driver_data *tpinfo =3D &ts->tpinfo;
-> +
-> +	int ret =3D SIS_ERR;
-> +	int point_unit;
-> +	uint8_t buf[PACKET_BUFFER_SIZE] =3D {0};
-> +	uint8_t i =3D 0, fingers =3D 0;
-> +	uint8_t px =3D 0, py =3D 0, pstatus =3D 0;
-> +	uint8_t p_area =3D 0;
-> +	uint8_t p_preasure =3D 0;
-> +
-> +redo:
-> +	/* I2C or SMBUS block data read */
-> +	ret =3D sis_readpacket(ts->client, SIS_CMD_NORMAL, buf);
-> +
-> +	if (ret < 0)
-> +		goto recheck_irq;
-> +
-> +	else if (ret =3D=3D 0) {
-> +		fingers =3D 0;
-> +		sis_tpinfo_clear(tpinfo, MAX_FINGERS);
-> +		goto label_send_report;
-> +		/*need to report input_mt_sync()*/
-> +	}
-> +	sis_tpinfo_clear(tpinfo, MAX_FINGERS);
-> +
-> +	point_unit =3D sis_cul_unit(buf[P_REPORT_ID]);
-> +	fingers =3D ret;
-> +
-> +	tpinfo->fingers =3D fingers =3D (fingers > MAX_FINGERS ? 0 : finger=
-s);
-> +
-> +	for (i =3D 0; i < fingers; i++) {
-> +		if ((buf[P_REPORT_ID] !=3D ALL_IN_ONE_PACKAGE) && (i >=3D 5)) {
-> +			pstatus =3D BYTE_BYTECOUNT + BYTE_REPORTID
-> +				+ ((i - 5) * point_unit);
-> +			pstatus +=3D 64;
-> +		} else {
-> +			pstatus =3D BYTE_BYTECOUNT + BYTE_REPORTID
-> +				+ (i * point_unit);
-> +		}
-> +		/* X and Y coordinate locations */
-> +		px =3D pstatus + 2;
-> +		py =3D px + 2;
-> +
-> +		if ((buf[pstatus]) =3D=3D TOUCHUP) {
-> +			tpinfo->pt[i].width    =3D 0;
-> +			tpinfo->pt[i].height   =3D 0;
-> +			tpinfo->pt[i].pressure =3D 0;
-> +		} else if (buf[P_REPORT_ID] =3D=3D ALL_IN_ONE_PACKAGE
-> +			&& (buf[pstatus]) =3D=3D TOUCHDOWN) {
-> +			tpinfo->pt[i].width    =3D 1;
-> +			tpinfo->pt[i].height   =3D 1;
-> +			tpinfo->pt[i].pressure =3D 1;
-> +		} else if ((buf[pstatus]) =3D=3D TOUCHDOWN) {
-> +			p_area =3D py + 2;
-> +			p_preasure =3D py + 2 + (IS_AREA(buf[P_REPORT_ID]) * 2);
-> +
-> +			if (IS_AREA(buf[P_REPORT_ID])) {
-> +				tpinfo->pt[i].width =3D buf[p_area];
-> +				tpinfo->pt[i].height =3D buf[p_area + 1];
-> +			} else {
-> +				tpinfo->pt[i].width =3D 1;
-> +				tpinfo->pt[i].height =3D 1;
-> +			}
-> +
-> +			if (IS_PRESSURE(buf[P_REPORT_ID]))
-> +				tpinfo->pt[i].pressure =3D (buf[p_preasure]);
-> +			else
-> +				tpinfo->pt[i].pressure =3D 1;
-> +		} else {
-> +			dev_err(&ts->client->dev, "Touch status error\n");
-> +			goto recheck_irq;
-> +		}
-> +		tpinfo->pt[i].id =3D (buf[pstatus + 1]);
-> +		tpinfo->pt[i].x =3D le16_to_cpu(get_unaligned_le16(&buf[px]));
-> +		tpinfo->pt[i].y =3D le16_to_cpu(get_unaligned_le16(&buf[py]));
-> +	}
-> +
-> +label_send_report:
-> +
-> +	for (i =3D 0; i < tpinfo->fingers; i++) {
-> +
-> +		int slot =3D input_mt_get_slot_by_key(
-> +			ts->input_dev, tpinfo->pt[i].id);
-> +
-> +		if (slot < 0)
-> +			continue;
-> +
-> +		input_mt_slot(ts->input_dev, slot);
-> +		input_mt_report_slot_state(ts->input_dev,
-> +					MT_TOOL_FINGER, tpinfo->pt[i].pressure);
-> +
-> +		if (tpinfo->pt[i].pressure) {
-> +
-> +			tpinfo->pt[i].width *=3D AREA_UNIT;
-> +			input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR,
-> +					tpinfo->pt[i].width);
-> +			tpinfo->pt[i].height *=3D AREA_UNIT;
-> +			input_report_abs(ts->input_dev, ABS_MT_TOUCH_MINOR,
-> +					tpinfo->pt[i].height);
-> +			input_report_abs(ts->input_dev, ABS_MT_PRESSURE,
-> +					tpinfo->pt[i].pressure);
-> +			input_report_abs(ts->input_dev, ABS_MT_POSITION_X,
-> +					tpinfo->pt[i].x);
-> +			input_report_abs(ts->input_dev, ABS_MT_POSITION_Y,
-> +					tpinfo->pt[i].y);
-> +
-> +		}
-> +	}
+                    Sleep (0x1E)
+                    If ((^^^GPO1.AVBL == One))
+                    {
+                        ^^^GPO1.TCD3 = One
+                    }
 
-Why do we need first collect data and then send out events? Can we send
-them out as we read contact data?
+                    Sleep (0x78)
+                }
 
-> +
-> +	input_mt_sync_frame(ts->input_dev);
-> +	input_sync(ts->input_dev);
-> +
-> +recheck_irq:
-> +
-> +	ret =3D gpiod_get_value(ts->irq_gpiod);
+                Method (_CRS, 0, NotSerialized)  // _CRS: Current
+Resource Settings
+                {
+                    Name (RBUF, ResourceTemplate ()
+                    {
+                        I2cSerialBus (0x0030, ControllerInitiated, 0x00061A80,
+                            AddressingMode7Bit, "\\_SB.I2C4",
+                            0x00, ResourceConsumer, ,
+                            )
+                        Interrupt (ResourceConsumer, Level,
+ActiveHigh, Exclusive, ,, )
+                        {
+                            0x00000044,
+                        }
+                        GpioIo (Exclusive, PullDefault, 0x0000,
+0x0000, IoRestrictionOutputOnly,
+                            "\\_SB.GPO1", 0x00, ResourceConsumer, ,
+                            )
+                            {   // Pin list
+                                0x001A
+                            }
+                    })
+                    Return (RBUF) /* \_SB_.I2C4.TCS5._CRS.RBUF */
+                }
 
-We are in a thread, so we can use gpiod_get_value_cansleep().
+                Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
+                {
+                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
+                    Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
+                    Debug = "Method _DSM begin"
+                    If ((Arg0 == ToUUID
+("3cdff6f7-4267-4555-ad05-b30a3d8938de") /* HID I2C Device */))
+                    {
+                        While (One)
+                        {
+                            _T_0 = ToInteger (Arg2)
+                            If ((_T_0 == Zero))
+                            {
+                                While (One)
+                                {
+                                    _T_1 = ToInteger (Arg1)
+                                    If ((_T_1 == One))
+                                    {
+                                        Debug = "Method _DSM Function Query"
+                                        Return (Buffer (One)
+                                        {
+                                             0x03
+                       /* . */
+                                        })
+                                    }
+                                    Else
+                                    {
+                                        Return (Buffer (One)
+                                        {
+                                             0x00
+                       /* . */
+                                        })
+                                    }
 
-> +	/*
-> +	 * If interrupt pin is still LOW,
-> +	 * read data until interrupt pin is released.
-> +	 *
-> +	 */
+                                    Break
+                                }
+                            }
+                            Else
+                            {
+                                If ((_T_0 == One))
+                                {
+                                    Debug = "Method _DSM Function HID"
+                                    Return (Zero)
+                                }
+                                Else
+                                {
+                                    Return (Zero)
+                                }
+                            }
 
-This is wrong use of gpiod API. If polarity is properly specified
-gpiod_get_value will return 1 when GPIO is active.
+                            Break
+                        }
+                    }
+                    Else
+                    {
+                        Return (Buffer (One)
+                        {
+                             0x00
+       /* . */
+                        })
+                    }
+                }
 
-> +	if (!ret)
-> +		goto redo;
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static void sis_tpinfo_clear(struct sistp_driver_data *tpinfo, int m=
-ax)
-> +{
-> +	int i =3D 0;
-> +
-> +	for (i =3D 0; i < max; i++) {
-> +		tpinfo->pt[i].id =3D -1;
-> +		tpinfo->pt[i].x =3D 0;
-> +		tpinfo->pt[i].y =3D 0;
-> +		tpinfo->pt[i].pressure =3D 0;
-> +		tpinfo->pt[i].width =3D 0;
-> +	}
-> +	tpinfo->id =3D 0x0;
-> +	tpinfo->fingers =3D 0;
-> +}
-> +
-> +static int sis_ts_configure(struct i2c_client *client, struct sis_ts=
-_data *ts)
-> +{
-> +	struct device_node *np =3D client->dev.of_node;
-> +
-> +	if (!np)
-> +		return -ENODEV;
+                Method (_STA, 0, NotSerialized)  // _STA: Status
+                {
+                    If ((OSSL & 0x80))
+                    {
+                        Return (Zero)
+                    }
 
-No need for this check, devm_gpiod_get() is not OF-specific.=20
+                    If ((OSYS == 0x07DD))
+                    {
+                        Return (0x0F)
+                    }
+                    Else
+                    {
+                        Return (0x0F)
+                    }
+                }
+            }
+        }
 
->+
-> +	ts->irq_gpiod   =3D devm_gpiod_get(&client->dev, "irq", GPIOD_IN);
 
-I'd rather we had these IRQs optional. On X86 firmware is often takes
-care of powering up and resetting the device, so if we do not find rese=
-t
-GPIO we can assume firmware reset the device. Same for INT GPIO - if it
-is not specified let's just rely on the controller re-asserting IRQ
-line.
+  Device (GPO1)
+        {
+            Name (_ADR, Zero)  // _ADR: Address
+            Name (_HID, "INT33FC" /* Intel Baytrail GPIO Controller
+*/)  // _HID: Hardware ID
+            Name (_CID, "INT33FC" /* Intel Baytrail GPIO Controller
+*/)  // _CID: Compatible ID
+            Name (_DDN, "ValleyView GPNCORE controller")  // _DDN: DOS
+Device Name
+            Name (_UID, 0x02)  // _UID: Unique ID
+            Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+            {
+                Name (RBUF, ResourceTemplate ()
+                {
+                    Memory32Fixed (ReadWrite,
+                        0xFED0D000,         // Address Base
+                        0x00001000,         // Address Length
+                        )
+                    Interrupt (ResourceConsumer, Level, ActiveLow, Shared, ,, )
+                    {
+                        0x00000030,
+                    }
+                })
+                Return (RBUF) /* \_SB_.GPO1._CRS.RBUF */
+            }
 
-I'd also move GPIO paersing into probe() and callied this
-sis_ts_reset().
+            Name (AVBL, Zero)
+            Method (_REG, 2, NotSerialized)  // _REG: Region Availability
+            {
+                If ((Arg0 == 0x08))
+                {
+                    AVBL = Arg1
+                }
+            }
 
-> +	ts->reset_gpiod =3D devm_gpiod_get(&client->dev, "reset", GPIOD_OUT=
-_HIGH);
-> +
-> +	if (IS_ERR(ts->irq_gpiod) || IS_ERR(ts->reset_gpiod))
-> +		return -ENODEV;
-> +
-> +	/* Get out of reset */
-> +	msleep(1);
-> +	gpiod_set_value(ts->reset_gpiod, 0);
-> +	msleep(1);
-> +	gpiod_set_value(ts->reset_gpiod, 1);
-> +	msleep(100);
+            OperationRegion (GPOP, GeneralPurposeIo, Zero, 0x0C)
+            Field (GPOP, ByteAcc, NoLock, Preserve)
+            {
+                Connection (
+                    GpioIo (Exclusive, PullDefault, 0x0000, 0x0000,
+IoRestrictionOutputOnly,
+                        "\\_SB.GPO1", 0x00, ResourceConsumer, ,
+                        )
+                        {   // Pin list
+                            0x000F
+                        }
+                ),
+                BST5,   1,
+                Connection (
+                    GpioIo (Exclusive, PullDefault, 0x0000, 0x0000,
+IoRestrictionOutputOnly,
+                        "\\_SB.GPO1", 0x00, ResourceConsumer, ,
+                        )
+                        {   // Pin list
+                            0x001A
+                        }
+                ),
+                TCD3,   1
+            }
 
-So it looks like the reset GPIO is active low. With GPIOD API that
-should be:
+            Method (_STA, 0, NotSerialized)  // _STA: Status
+            {
+                Return (0x0F)
+            }
+        }
 
-	gpiod_set_value(ts->reset_gpiod, 1);
-	msleep(...)
-	gpiod_set_value(ts->reset_gpiod, 0);
-
-and GPIO should be described as actove-low in DTS.
-
-> +	return 0;
-> +
-> +}
-> +
-> +static int sis_ts_probe(
-> +	struct i2c_client *client, const struct i2c_device_id *id)
-> +{
-> +	int ret =3D 0;
-> +	struct sis_ts_data *ts =3D NULL;
-> +
-> +	ts =3D devm_kzalloc(&client->dev, sizeof(struct sis_ts_data), GFP_K=
-ERNEL);
-> +	if (ts =3D=3D NULL)
-
-	if (!ts)
-
-> +		return -ENOMEM;
-> +
-> +	if (sis_ts_configure(client, ts))
-> +		return -ENODEV;
-
-	error =3D sis_ts_configure(client, ts);
-	if (error)
-		return error;
-
-> +
-> +	ts->client =3D client;
-> +	i2c_set_clientdata(client, ts);
-> +
-> +	ts->input_dev =3D devm_input_allocate_device(&client->dev);
-> +	if (!ts->input_dev) {
-> +		dev_err(&client->dev, "sis_ts_probe: Failed to allocate input devi=
-ce\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	ts->input_dev->name =3D "sis_touch";
-> +	ts->input_dev->id.bustype =3D BUS_I2C;
-> +
-> +	set_bit(EV_ABS, ts->input_dev->evbit);
-> +	set_bit(EV_KEY, ts->input_dev->evbit);
-> +	set_bit(BTN_TOUCH, ts->input_dev->keybit);
-> +
-> +	set_bit(ABS_MT_POSITION_X, ts->input_dev->absbit);
-> +	set_bit(ABS_MT_POSITION_Y, ts->input_dev->absbit);
-> +
-> +	set_bit(ABS_MT_PRESSURE, ts->input_dev->absbit);
-> +	set_bit(ABS_MT_TOUCH_MAJOR, ts->input_dev->absbit);
-> +	set_bit(ABS_MT_TOUCH_MINOR, ts->input_dev->absbit);
-
-No need to do these explicit set_bit()s when using
-input_set_abs_params() (with recent kernels).
-
-> +	input_set_abs_params(ts->input_dev, ABS_MT_PRESSURE,
-> +			0, PRESSURE_MAX, 0, 0);
-> +	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR,
-> +			0, AREA_LENGTH_LONGER, 0, 0);
-> +	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MINOR,
-> +			0, AREA_LENGTH_SHORT, 0, 0);
-> +	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
-> +			0, SIS_MAX_X, 0, 0);
-> +	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
-> +			0, SIS_MAX_Y, 0, 0);
-> +
-> +	input_mt_init_slots(ts->input_dev, MAX_FINGERS,
-> +			INPUT_MT_DROP_UNUSED | INPUT_MT_DIRECT);
-
-Please add error handling.
-
-> +
-> +	ret =3D input_register_device(ts->input_dev);
-
-Please call this variable "error".
-
-> +	if (ret) {
-> +		dev_err(&client->dev,
-> +			"Unable to register %s input device\n",
-> +			ts->input_dev->name);
-> +		return ret;
-> +	}
-> +
-> +	ret =3D devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> +					sis_ts_irq_handler,
-> +					IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-
-Do not override IRQ trigger, let platform (ACPI, OF, or board code) set
-it up for us, so just use IRQF_ONESHOT.
-
-> +					client->name, ts);
-> +
-> +	if (ret) {
-> +		dev_err(&client->dev, "request irq failed\n");
-> +		return ret;
-> +	}
-> +
-> +	dev_info(&client->dev, "sis_ts_probe: Started touchscreen %s\n",
-> +		ts->input_dev->name);
-
-Please drop.
-
-> +	return 0;
-> +
-> +}
-> +
-> +static const struct i2c_device_id sis_ts_id[] =3D {
-> +	{ SIS_I2C_NAME, 0 },
-> +	{ }
-> +};
-> +
-> +MODULE_DEVICE_TABLE(i2c, sis_ts_id);
-> +
-
-#ifdef CONFIG_OF
-
-> +static const struct of_device_id sis_ts_dt_ids[] =3D {
-> +	{ .compatible =3D "sis,9200_ts" },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, sis_ts_dt_ids);
-
-#endif
-
-> +
-> +static struct i2c_driver sis_ts_driver =3D {
-> +	.probe		=3D sis_ts_probe,
-> +	.id_table	=3D sis_ts_id,
-> +	.driver =3D {
-> +		.name	=3D SIS_I2C_NAME,
-> +		.of_match_table	=3D sis_ts_dt_ids,
-
-Please use of_match_ptr(sis_ts_dt_ids).
-
-> +	},
-> +};
-> +
-> +module_i2c_driver(sis_ts_driver);
-> +MODULE_DESCRIPTION("SiS 9200 Family Touchscreen Driver");
-> +MODULE_LICENSE("GPL v2");
-> --=20
-> 1.9.1
-
-Thanks.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Kind regards,
+                     Serge Kolotylo.

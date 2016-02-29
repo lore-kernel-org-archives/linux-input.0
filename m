@@ -1,49 +1,170 @@
-From: "Mr. DOUGLAS" <douglascontact6048@live.com>
-Subject: =?utf-8?q?INFORMA=C3=87=C3=83O_IMPORTANTE__RE=3A_Consultoria_de_Investime?=
- =?utf-8?q?nto_em_sua_Localidade=2E?=
-Date: Sun, 28 Feb 2016 04:46:24 -0800
-Message-ID: <20160228134522.84E878FD8CF__4917.73491162366$1456756001$gmane$org@webmail.cefet-rj.br>
-Reply-To: johnsondouglas8738@gmail.com
+From: Charles Mooney <charliemooney@google.com>
+Subject: Re: Question about ABS_DISTANCE's intended usage.
+Date: Mon, 29 Feb 2016 08:16:34 -0800
+Message-ID: <CAJ34Pp4+=muYetuV_-ejwY4yCoTsiaBc5xdg682_piTvVaGTig@mail.gmail.com>
+References: <CAJ34Pp7OM7DAiA1gZqQ0dtgXZ=z6p+LEVD5aeMiYOecHCbcfLw@mail.gmail.com>
+ <20160218181930.GA34407@dtor-ws> <20160221220426.GA20055@jelly.redhat.com>
+ <CAJ34Pp70HjQsCo-pCdHXo7FmN8KXgOAT5NKFVS-13z2c_MPzPw@mail.gmail.com>
+ <20160222220432.GB11173@jelly.redhat.com> <20160223220245.GA3971@dtor-ws>
+ <20160223223915.GC13049@jelly.redhat.com> <20160223230855.GD30638@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from webmail.cefet-rj.br ([200.9.149.52]:42774 "EHLO
-	webmail.cefet-rj.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750796AbcB2O0M convert rfc822-to-8bit (ORCPT
+Received: from mail-yw0-f173.google.com ([209.85.161.173]:34080 "EHLO
+	mail-yw0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751979AbcB2QRP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Feb 2016 09:26:12 -0500
-Content-Description: Mail message body
+	Mon, 29 Feb 2016 11:17:15 -0500
+Received: by mail-yw0-f173.google.com with SMTP id h129so124928984ywb.1
+        for <linux-input@vger.kernel.org>; Mon, 29 Feb 2016 08:17:14 -0800 (PST)
+In-Reply-To: <20160223230855.GD30638@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Recipients <douglascontact6048@live.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, Linux Input <linux-input@vger.kernel.org>
 
-Oi,
+On Tue, Feb 23, 2016 at 3:08 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Wed, Feb 24, 2016 at 08:39:15AM +1000, Peter Hutterer wrote:
+>> On Tue, Feb 23, 2016 at 02:02:45PM -0800, Dmitry Torokhov wrote:
+>> > On Tue, Feb 23, 2016 at 08:04:32AM +1000, Peter Hutterer wrote:
+>> > > On Mon, Feb 22, 2016 at 08:35:31AM -0800, Charles Mooney wrote:
+>> > > > On Sun, Feb 21, 2016 at 2:04 PM Peter Hutterer <peter.hutterer@who-t.net> wrote:
+>> > > > >
+>> > > > > On Thu, Feb 18, 2016 at 10:19:30AM -0800, Dmitry Torokhov wrote:
+>> > > > > > On Tue, Feb 09, 2016 at 01:56:05PM -0800, Charles Mooney wrote:
+>> > > > > > > Hello all,
+>> > > > > > >
+>> > > > > > > I'm currently working with a touchpad vendor with a new device that
+>> > > > > > > supports a limited form of hover detection.  Their sensor is able to
+>> > > > > > > detect the presence or absence of a finger/hand/palm hovering over the
+>> > > > > > > sensor without touching it, but is unable to report any more details
+>> > > > > > > about it.  This is a more limited form of hover detection than some
+>> > > > > > > devices which attach a hover state to each finger they see, and can
+>> > > > > > > even report x/y coordinates to hovering finger.
+>> > > > > > >
+>> > > > > > > Instead of using ABS_MT_DISTANCE, it appears that the correct event to
+>> > > > > > > use would be ABS_DISTANCE, since the value is not tied to a specific
+>> > > > > > > finger.  I would like to check with you all about how this value is
+>> > > > > > > intended to be used, because it's not quite as obvious to me as I
+>> > > > > > > first thought.
+>> > > > > > >
+>> > > > > > > We need to handle three basic states:
+>> > > > > > >   1. At least one finger is touching the pad.
+>> > > > > > >   2. Something is hovering, but nothing is actually touching.
+>> > > > > > >   3. Nothing is touching the pad and nothing is detected hovering over it either
+>> > > > > > >
+>> > > > > > > It's seems clear to me that an ABS_DISTANCE of zero should indicate
+>> > > > > > > state #1 and that any other legal positive value should indicate state
+>> > > > > > > #2, but I'm less clear on what the best way to handle state #3 is.
+>> > > > > > > Currently, I think the best strategy would be to use a value of
+>> > > > > > > ABS_DISTANCE = -1 to indicate that there are no fingers seen (hovering
+>> > > > > > > or otherwise), does that make sense?
+>> > > > > > >
+>> > > > > > > If not this, how else would you suggest that this ought to be done?
+>> > > > > >
+>> > > > > > As we discussed in person, I believe that reporting an "out of bounds"
+>> > > > > > value for ABS_DISTANCE when we have to use single-touch mode and thus do
+>> > > > > > not have a good way to invalidate a contact, is the easiest option.
+>> > > > > > Alternative would be to invent another SYN event, which I'd rather not.
+>> > > > > >
+>> > > > > > So for devices that support hovering but can not report individual
+>> > > > > > hovering contacts we should declare 0..N as ABS_DISTANCE range and report
+>> > > > > > following values:
+>> > > > > >
+>> > > > > >  - 0 when a finger is actually touching
+>> > > > > >  - 1..N for hovering fingers
+>> > > > > >  - return X < 0 or X > N when no fingers are detected at all; in
+>> > > > > >    practice I think we should simply report -1 in this case.
+>> > > > > >
+>> > > > > > Benjamin, Peter, Henrik, any concerns?
+>> > > > >
+>> > > > > on the touchpads that support hovering we're already using BTN_TOOL_FINGER
+>> > > > > together with ABS_DISTANCE, without needing out-of-range reports.
+>> > > > > BTN_TOUCH is the signal when a finger is physically touching (or ABS_PRESSURE
+>> > > > > if it exists and clients care about it).
+>> > > > >
+>> > > > > So the sequence Charles should send is:
+>> > > > >
+>> > > > > 3) <nothing> :)
+>> > > > > 2)
+>> > > > >     EV_ABS ABS_DISTANCE <d> # for d > 0
+>> > > > >     EV_KEY BTN_TOOL_FINGER 1
+>> > > > >     EV_SYN SYN_REPORT 0
+>> > > > > 1)
+>> > > > >     EV_ABS ABS_DISTANCE 0
+>> > > > >     EV_ABS ABS_X <x>
+>> > > > >     EV_ABS ABS_Y <y>
+>> > > > >     ...
+>> > > > >     EV_KEY BTN_TOUCH 1
+>> > > > >     EV_SYN SYN_REPORT 0
+>> > > > > 2)
+>> > > > >     EV_ABS ABS_DISTANCE <d> # for d > 0
+>> > > > >     EV_KEY BTN_TOUCH 0
+>> > > > >     EV_SYN SYN_REPORT 0
+>> > > > > 3)
+>> > > > >     EV_KEY BTN_TOOL_FINGER 0
+>> > > > >     EV_SYN SYN_REPORT 0
+>> > > > >
+>> > > > > This should work with at least libinput, though I have to check what happens
+>> > > > > when you don't send x/y on the first event. I think this would need a patch
+>> > > > > in libinput, but that's doable. And it's the same sequence we also use for
+>> > > > > e.g. pen tools that support hovering as well.
+>> > > > >
+>> > > > > Cheers,
+>> > > > >    Peter
+>> > > >
+>> > > > Hi Peter,
+>> > > >
+>> > > > It looks like you're suggesting to use "BTN_TOOL_FINGER" as a signal
+>> > > > as to weather or not the value in "ABS_DISTANCE" is valid or not.
+>> > > >
+>> > > > 1. No finger detected anywhere:
+>> > > >     BTN_TOOL_FINGER = 0
+>> > > >     ABS_DISTANCE = n/a
+>> > > > 2. Finger seen hovering but not touching:
+>> > > >     BTN_TOOL_FINGER = 1
+>> > > >     ABS_DISTANCE > 0
+>> > > > 2. Finger touching:
+>> > > >     BTN_TOOL_FINGER = 1
+>> > > >     ABS_DISTANCE = 0
+>> > >
+>> > > you should set BTN_TOUCH here. This can be done based on some magic pressure
+>> > > threshold if you have pressure, otherwise just unconditionally set it
+>> > > whenever distance is 0.
+>> > >
+>> > > >
+>> > > > Am I understanding that correctly?
+>> > >
+>> > > yes, but IMO better to think it this way: BTN_TOOL_FINGER signals whether a
+>> > > finger is detected by the device. everything else is just axis information
+>> > > if and when it becomes available.
+>> > > likewise, BTN_TOUCH signals whether the current tool (could be something
+>> > > other than finger) logically touches the surface.
+>> >
+>> > I wonder if this will not confuse clients that do not pay attention to
+>> > ABS_DISTANCE though... I take it that libinput and x synaptics drivers
+>> > won't be confused, mousedev in kernel relies on BTN_TOUCH, what about
+>> > others?
+>>
+>> if they get confused, they'd already be confused by a set of current
+>> devices. This isn't new behaviour, we've been doing this for quite a while.
+>> and as I said above, it matches the behaviour we use for BTN_TOOL_PEN, it's
+>> IMO hard to justify that the behaviour should be different between the two
+>> tools.
+>
+> OK, fair enough. Any chance I could get a patch for ABS_DISTANCE section
+> of Documentation/input/event-codes.txt to mention that we expect
+> to see BTN_TOOL_* as well?
+>
+> Thanks.
+>
+> --
+> Dmitry
 
-Temos planejado investir alguns fundos no seu pa=EDs.
+Very good, thank you all for your help and clarification.  I will work
+with our vendor to make sure their touchpads follow this pattern so it
+works smoothly with everyone else as well.
 
-Responder se voc=EA estiver interessado.
-
-Sauda=E7=F5es,
-Sir Henry Neville Lindley Keswick
-Presidente da Jardine Matheson Holdings Ltd
-https://en.wikipedia.org/wiki/Keswick_family
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D
-
-Hi friend,
-
-Our family is interested in investing funds in your locality.
-
-More information for you interest .
-
-Greetings,
-Sir Henry Neville Lindley Keswick
-Chairman of Jardine Matheson Holdings Ltd
-https://en.wikipedia.org/wiki/Keswick_family
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks!
+Charlie Mooney

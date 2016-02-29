@@ -1,129 +1,120 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 1/3] hid: thingm: remove workqueue
-Date: Mon, 29 Feb 2016 21:34:50 +0100
-Message-ID: <56D4AB6A.3070100@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 3/3] hid: thingm: improve locking
+Date: Mon, 29 Feb 2016 23:38:06 +0100
+Message-ID: <20160229223806.GD22340@mail.corp.redhat.com>
+References: <56D4AC4C.3050707@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:35582 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750729AbcB2Uiu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Feb 2016 15:38:50 -0500
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-leds-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <56D4AC4C.3050707@gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-input@vger.kernel.org, linux-leds@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Jacek Anaszewski <j.anaszewski@samsung.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-leds@vger.kernel.org, linux-input@vger.kernel.org
 
-Defining workqueues in LED drivers isn't needed any longer as the LED core
-was extended with a generic workqueue recently.
+Hi Heiner,
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
- drivers/hid/hid-thingm.c | 35 +++++++++++++----------------------
- 1 file changed, 13 insertions(+), 22 deletions(-)
+On Feb 29 2016 or thereabouts, Heiner Kallweit wrote:
+> When reading from the device the full operation including sending the
+> read command and the actual read should be protected by the mutex.
+> Facilitate this by changing the semantics of thingm_recv to include
+> sending the read command.
 
-diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
-index b95d397..69a6ada 100644
---- a/drivers/hid/hid-thingm.c
-+++ b/drivers/hid/hid-thingm.c
-@@ -14,7 +14,6 @@
- #include <linux/leds.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
--#include <linux/workqueue.h>
- 
- #include "hid-ids.h"
- 
-@@ -56,7 +55,6 @@ struct thingm_rgb {
- 	struct thingm_led red;
- 	struct thingm_led green;
- 	struct thingm_led blue;
--	struct work_struct work;
- 	u8 num;
- };
- 
-@@ -131,25 +129,21 @@ static int thingm_write_color(struct thingm_rgb *rgb)
- 	return thingm_send(rgb->tdev, buf);
- }
- 
--static void thingm_work(struct work_struct *work)
-+static int thingm_led_set(struct led_classdev *ldev,
-+			  enum led_brightness brightness)
- {
--	struct thingm_rgb *rgb = container_of(work, struct thingm_rgb, work);
-+	struct thingm_led *led = container_of(ldev, struct thingm_led, ldev);
-+	int ret;
- 
--	mutex_lock(&rgb->tdev->lock);
-+	mutex_lock(&led->rgb->tdev->lock);
- 
--	if (thingm_write_color(rgb))
--		hid_err(rgb->tdev->hdev, "failed to write color\n");
-+	ret = thingm_write_color(led->rgb);
-+	if (ret)
-+		hid_err(led->rgb->tdev->hdev, "failed to write color\n");
- 
--	mutex_unlock(&rgb->tdev->lock);
--}
-+	mutex_unlock(&led->rgb->tdev->lock);
- 
--static void thingm_led_set(struct led_classdev *ldev,
--		enum led_brightness brightness)
--{
--	struct thingm_led *led = container_of(ldev, struct thingm_led, ldev);
--
--	/* the ledclass has already stored the brightness value */
--	schedule_work(&led->rgb->work);
-+	return ret;
- }
- 
- static int thingm_init_rgb(struct thingm_rgb *rgb)
-@@ -162,7 +156,7 @@ static int thingm_init_rgb(struct thingm_rgb *rgb)
- 			"thingm%d:red:led%d", minor, rgb->num);
- 	rgb->red.ldev.name = rgb->red.name;
- 	rgb->red.ldev.max_brightness = 255;
--	rgb->red.ldev.brightness_set = thingm_led_set;
-+	rgb->red.ldev.brightness_set_blocking = thingm_led_set;
- 	rgb->red.rgb = rgb;
- 
- 	err = led_classdev_register(&rgb->tdev->hdev->dev, &rgb->red.ldev);
-@@ -174,7 +168,7 @@ static int thingm_init_rgb(struct thingm_rgb *rgb)
- 			"thingm%d:green:led%d", minor, rgb->num);
- 	rgb->green.ldev.name = rgb->green.name;
- 	rgb->green.ldev.max_brightness = 255;
--	rgb->green.ldev.brightness_set = thingm_led_set;
-+	rgb->green.ldev.brightness_set_blocking = thingm_led_set;
- 	rgb->green.rgb = rgb;
- 
- 	err = led_classdev_register(&rgb->tdev->hdev->dev, &rgb->green.ldev);
-@@ -186,15 +180,13 @@ static int thingm_init_rgb(struct thingm_rgb *rgb)
- 			"thingm%d:blue:led%d", minor, rgb->num);
- 	rgb->blue.ldev.name = rgb->blue.name;
- 	rgb->blue.ldev.max_brightness = 255;
--	rgb->blue.ldev.brightness_set = thingm_led_set;
-+	rgb->blue.ldev.brightness_set_blocking = thingm_led_set;
- 	rgb->blue.rgb = rgb;
- 
- 	err = led_classdev_register(&rgb->tdev->hdev->dev, &rgb->blue.ldev);
- 	if (err)
- 		goto unregister_green;
- 
--	INIT_WORK(&rgb->work, thingm_work);
--
- 	return 0;
- 
- unregister_green:
-@@ -211,7 +203,6 @@ static void thingm_remove_rgb(struct thingm_rgb *rgb)
- 	led_classdev_unregister(&rgb->red.ldev);
- 	led_classdev_unregister(&rgb->green.ldev);
- 	led_classdev_unregister(&rgb->blue.ldev);
--	flush_work(&rgb->work);
- }
- 
- static int thingm_probe(struct hid_device *hdev, const struct hid_device_id *id)
--- 
-2.7.1
+I really like the cleanups of patches 1/3 and 2/3. However, this patch
+does not make sense to me. thingm_send() and thingm_recv() are pretty
+well defined to me. One reads data from the device, the other writes it.
 
+With this change, whenever you read data from the device, you start by
+overwriting its value and then read it back. Am I missing something?
 
+I think you'd better add the proper mutexes around thingm_version()
+or add the read command before thingm_send() in thingm_write_color()
+(and please add a comment explaining why we need to read first).
+
+Cheers,
+Benjamin
+
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+>  drivers/hid/hid-thingm.c | 28 +++++++++++++++++-----------
+>  1 file changed, 17 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
+> index 5e35ec1..0e4b50c 100644
+> --- a/drivers/hid/hid-thingm.c
+> +++ b/drivers/hid/hid-thingm.c
+> @@ -77,9 +77,13 @@ static int thingm_send(struct thingm_device *tdev, u8 buf[REPORT_SIZE])
+>  			buf[0], buf[1], buf[2], buf[3], buf[4],
+>  			buf[5], buf[6], buf[7], buf[8]);
+>  
+> +	mutex_lock(&tdev->lock);
+> +
+>  	ret = hid_hw_raw_request(tdev->hdev, buf[0], buf, REPORT_SIZE,
+>  			HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+>  
+> +	mutex_unlock(&tdev->lock);
+> +
+>  	return ret < 0 ? ret : 0;
+>  }
+>  
+> @@ -87,16 +91,26 @@ static int thingm_recv(struct thingm_device *tdev, u8 buf[REPORT_SIZE])
+>  {
+>  	int ret;
+>  
+> +	mutex_lock(&tdev->lock);
+> +
+> +	ret = hid_hw_raw_request(tdev->hdev, buf[0], buf, REPORT_SIZE,
+> +			HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+> +	if (ret < 0)
+> +		goto err;
+> +
+>  	ret = hid_hw_raw_request(tdev->hdev, buf[0], buf, REPORT_SIZE,
+>  			HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+>  	if (ret < 0)
+> -		return ret;
+> +		goto err;
+> +
+> +	ret = 0;
+>  
+>  	hid_dbg(tdev->hdev, "<- %d %c %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx\n",
+>  			buf[0], buf[1], buf[2], buf[3], buf[4],
+>  			buf[5], buf[6], buf[7], buf[8]);
+> -
+> -	return 0;
+> +err:
+> +	mutex_unlock(&tdev->lock);
+> +	return ret;
+>  }
+>  
+>  static int thingm_version(struct thingm_device *tdev)
+> @@ -104,10 +118,6 @@ static int thingm_version(struct thingm_device *tdev)
+>  	u8 buf[REPORT_SIZE] = { REPORT_ID, 'v', 0, 0, 0, 0, 0, 0, 0 };
+>  	int err;
+>  
+> -	err = thingm_send(tdev, buf);
+> -	if (err)
+> -		return err;
+> -
+>  	err = thingm_recv(tdev, buf);
+>  	if (err)
+>  		return err;
+> @@ -135,14 +145,10 @@ static int thingm_led_set(struct led_classdev *ldev,
+>  	struct thingm_led *led = container_of(ldev, struct thingm_led, ldev);
+>  	int ret;
+>  
+> -	mutex_lock(&led->rgb->tdev->lock);
+> -
+>  	ret = thingm_write_color(led->rgb);
+>  	if (ret)
+>  		hid_err(led->rgb->tdev->hdev, "failed to write color\n");
+>  
+> -	mutex_unlock(&led->rgb->tdev->lock);
+> -
+>  	return ret;
+>  }
+>  
+> -- 
+> 2.7.1
+> 

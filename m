@@ -1,39 +1,26 @@
-From: "Alecssandro" <contactalecssandrokonart65@live.com>
-Subject: =?utf-8?q?INFORMA=C3=87=C3=83O_IMPORTANTE__RE=3A_Consultoria_de_Investime?=
- =?utf-8?q?nto_em_sua_Localidade=2E?=
-Date: Sun, 28 Feb 2016 04:49:43 -0800
-Message-ID: <20160228134842.B1AC48FDADA__32303.1095591888$1456771415$gmane$org@webmail.cefet-rj.br>
-Reply-To: contactalecssandrokonart@gmail.com
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH 0/3] hid: thingm: Refactor driver
+Date: Mon, 29 Feb 2016 21:34:33 +0100
+Message-ID: <56D4AB59.1060303@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from webmail.cefet-rj.br ([200.9.149.52]:37356 "EHLO
-	webmail.cefet-rj.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750885AbcB2SnW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Feb 2016 13:43:22 -0500
-Content-Description: Mail message body
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-leds-owner@vger.kernel.org>
+Sender: linux-leds-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Jacek Anaszewski <j.anaszewski@samsung.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-leds@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Recipients <contactalecssandrokonart65@live.com>
 
+This patch series reflects a recent change in the LED core regarding
+workqueue usage, simplifies the driver and improves locking.
 
-Oi Amigo,
+Heiner Kallweit (3):
+  hid: thingm: remove workqueue
+  hid: thingm: switch to managed version of led_classdev_register
+  hid: thingm: improve locking
 
-INFORMA=C7=C3O IMPORTANTE
+ drivers/hid/hid-thingm.c | 105 ++++++++++++++++-------------------------------
+ 1 file changed, 36 insertions(+), 69 deletions(-)
 
-Nossa fam=EDlia est=E1 interessada em investir fundos em sua localidade=
-=2E
-
-Mais informa=E7=F5es para voc=EA se interessou.
-
-Sauda=E7=F5es,
-Sir Henry Neville Lindley Keswick
-Presidente da Jardine Matheson Holdings Ltd
-https://en.wikipedia.org/wiki/Keswick_family
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+2.7.1

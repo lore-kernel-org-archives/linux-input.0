@@ -1,67 +1,79 @@
-From: Laison Computech Inc <7sales@laiisoncomputech.com>
-Subject: CISCO AND AVAYA IP Phones
-Date: Wed, 02 Mar 2016 03:10:35 +0700
-Message-ID: <20160301210942.5F83E574BB8__4717.63447062603$1456874280$gmane$org@srv-mta.gcmillenium.com.br>
-Reply-To: sales@laiisoncomputech.com
+From: Alan Cox <alan@linux.intel.com>
+Subject: Re: [PATCH 3/3] goldfish: multitouch: no extra EV_SYN
+Date: Tue, 01 Mar 2016 23:27:13 +0000
+Message-ID: <1456874833.7064.22.camel@linux.intel.com>
+References: <20160226184908.3539.48691.stgit@localhost.localdomain>
+	 <20160226185007.3539.83946.stgit@localhost.localdomain>
+	 <20160226195746.GA3769@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from srv-mta.gcmillenium.com.br ([177.125.218.132]:51815 "EHLO
-	srv-mta.gcmillenium.com.br" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751350AbcCAXRh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Mar 2016 18:17:37 -0500
-Content-Description: Mail message body
+Received: from mga09.intel.com ([134.134.136.24]:60857 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750850AbcCAX13 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Mar 2016 18:27:29 -0500
+In-Reply-To: <20160226195746.GA3769@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Recipients <7sales@laiisoncomputech.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, jinqian@android.com
 
-Hi,
+> >  	input_event(edev->input, type, code, value);
+> > -	input_sync(edev->input);
+> > +	/*
+> > +	 * Send an extra (EV_SYN, SYN_REPORT, 0x0) event
+> > +	 * if a key was pressed. Some keyboard device
+> > +	 * drivers may only send the EV_KEY event and
+> > +	 * not EV_SYN.
+> 
+> That would be error in that keyboard driver and should be fixed.
 
-Clean tested working pulls CPUs and QTYs in stock.
+Agreed but it's still the case that current and long standing Goldfish
+behaviour requires the above.
 
-115 X X5650
-65 X E5410
-75 X X5660
-145 X E5530
-100 X E5645
-40 X X5680
-75 X X5690
+> > +	 * Note that sending an extra SYN_REPORT is not
+> > +	 * necessary nor correct protocol with other
+> > +	 * devices such as touchscreens, which will send
+> > +	 * their own SYN_REPORT's when sufficient event
+> > +	 * information has been collected (e.g., for
+> > +	 * touchscreens, when pressure and X/Y coordinates
+> > +	 * have been received). Hence, we will only send
+> > +	 * this extra SYN_REPORT if type == EV_KEY.
+> > +	 */
+> > +	if (type == EV_KEY)
+> > +		input_sync(edev->input);
+> 
+> 
+> I'd rather we always rely on the host to send the SYN event.
 
-Brand new sealed IP phones and QTYs in stock.
+That would certainly make sense for the future.
 
-55 x CP-7937G
-77 x CP-7942G
-54 x CP-7945G
-75 x CP-7962G
-=2E.....
-45 x Avaya 9630
-65 x Avaya 9641
-55 x Avaya 9640=20
+> > +
+> >  	return IRQ_HANDLED;
+> >  }
+> >  
+> > @@ -154,6 +173,15 @@ static int events_probe(struct platform_device
+> > *pdev)
+> >  
+> >  	input_dev->name = edev->name;
+> >  	input_dev->id.bustype = BUS_HOST;
+> > +	/*
+> > +	 * Set the Goldfish Device to be multi-touch.
+> > +	 * If we do not issue input_mt_init_slots,
+> > +	 * the kernel will filter out needed ABS_MT_SLOT
+> > +	 * events when we touch the screen in more than one place,
+> > +	 * preventing multi-touch with more than one finger from
+> > working.
+> > +	 * See drivers/input/input.c:input_handle_abs_event.
+> > +	 */
+> > +	input_mt_init_slots(input_dev, GOLDFISH_MAX_FINGERS, 0);
+> 
+> Can we use data retrieved by events_import_abs_params() to set up
+> correct number of slots? Also we need error handling. And possibly
+> retrieve correct properties to set pass to input_mt_init_slots()...
 
-USED IT HARDWARE FROM:
+Again - I agree that makes sense for future versions of Goldfish
 
-=46UJITSU       IBM         SUN        HP
-QUANTUM   DELL       HDS        STK
-NETAPP      SGI         Oracle      EMC=B2
+Alan
 
-3Com, ADVA, Alcatel, Brocade, Cisco,
-Cabletron, Enterasys, Extreme Networks,
-Huawei, Marconi, Nortel, Qlogic, Avaya
-
-Let me know if you're interested. We are very open to offers and willin=
-g to work with you to make sure that we have a deal.
-
-Sincerely
-Barbara Johnson
-Laison Computech Inc
-Tel: +1-657-205-7860
-=46ax: +1-347-214-0478
-Email: sales@laiisoncomputech.com
-Web: www.laisoncomputech.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

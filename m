@@ -1,75 +1,109 @@
-From: Manuel Reimer <mail+linux-input@m-reimer.de>
-Subject: Re: Simple approach to write PS3/PS4 usermode driver?
-Date: Tue, 1 Mar 2016 20:56:56 +0100
-Message-ID: <56D5F408.4020604@m-reimer.de>
-References: <56C2270E.9080603@m-reimer.de>
- <20160215223436.fc5a3f66f82ee49b161099ea@ao2.it>
- <56C37C5A.6030303@m-reimer.de>
- <CAM4jgCrRCUQYZBnhKGhc27UTkyzQS=rJOP4jrdT1UGtLDGqNzQ@mail.gmail.com>
- <20160227225909.073f78a9@neptune.home>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH v2 3/3] hid: thingm: improve locking
+Date: Tue, 1 Mar 2016 20:49:54 +0100
+Message-ID: <56D5F262.4030106@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.mailbox.org ([80.241.60.215]:60803 "EHLO mx2.mailbox.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752932AbcCAT5A (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Mar 2016 14:57:00 -0500
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [80.241.60.240])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx2.mailbox.org (Postfix) with ESMTPS id 40376434E0
-	for <linux-input@vger.kernel.org>; Tue,  1 Mar 2016 20:56:59 +0100 (CET)
-Received: from smtp1.mailbox.org ([80.241.60.240])
-	by gerste.heinlein-support.de (gerste.heinlein-support.de [91.198.250.173]) (amavisd-new, port 10030)
-	with ESMTP id aml42QsNsY_z for <linux-input@vger.kernel.org>;
-	Tue,  1 Mar 2016 20:56:58 +0100 (CET)
-In-Reply-To: <20160227225909.073f78a9@neptune.home>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-leds-owner@vger.kernel.org>
+Sender: linux-leds-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Jacek Anaszewski <j.anaszewski@samsung.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-leds@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-On 02/27/2016 10:59 PM, Bruno Pr=C3=A9mont wrote:
-> Have you tried event remapping as supported by evdev?
->
-> Have a look at EVIOCGKEYCODE and EVIOCSKEYCODE ioctls for event devic=
-es.
->
-> Those might be sufficient to perform your remapping (as long as games=
- don't
-> do magic based on event device identification).
+Reading from the device consists of two operations: sending the read
+command and the actual read from the device. If the device is accessed
+in between we might read wrong data. Therefore protect the full sequence
+of both operations with a mutex.
+Also change the semantics of thingm_recv to include both operations.
 
-They do! A few games actually have support for the PS3 controller so I=20
-would have to enable/disable my modifications depending on that.
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+v2:
+- reworked commit message
+- added comment to thingm_recv
+---
+ drivers/hid/hid-thingm.c | 33 ++++++++++++++++++++++-----------
+ 1 file changed, 22 insertions(+), 11 deletions(-)
 
-I just want some easy way to use my controllers with any game that=20
-supports xbox pads. This also involves scaling the stick values to the=20
-range used by the Xbox pad.
-
-I'm nearly done with USB support in my usermode driver and currently I=20
-think I won't do bluetooth as this starts to suck. USB seems to be many=
-=20
-times easier...
-
-=46or whatever reason the PS4 controller doesn't send anything to the=20
-interrupt socket (I already send all "initialization sequences" I found=
-=20
-on the web) and the PS3 controller seems to use some crazy special type=
-=20
-of connecting (does the controller actually try to connect to my PC and=
-=20
-so I have to listen for it??).
-
-I still hope to be at least able to support the PS4 controller in=20
-bluetooth mode, but I don't have any clue why the interrupt socket is=20
-silent...
-
-Best regards,
-
-Manuel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
+index 5e35ec1..f4196ac 100644
+--- a/drivers/hid/hid-thingm.c
++++ b/drivers/hid/hid-thingm.c
+@@ -77,9 +77,13 @@ static int thingm_send(struct thingm_device *tdev, u8 buf[REPORT_SIZE])
+ 			buf[0], buf[1], buf[2], buf[3], buf[4],
+ 			buf[5], buf[6], buf[7], buf[8]);
+ 
++	mutex_lock(&tdev->lock);
++
+ 	ret = hid_hw_raw_request(tdev->hdev, buf[0], buf, REPORT_SIZE,
+ 			HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+ 
++	mutex_unlock(&tdev->lock);
++
+ 	return ret < 0 ? ret : 0;
+ }
+ 
+@@ -87,16 +91,31 @@ static int thingm_recv(struct thingm_device *tdev, u8 buf[REPORT_SIZE])
+ {
+ 	int ret;
+ 
++	/*
++	 * A read consists of two operations: sending the read command
++	 * and the actual read from the device. Use the mutex to protect
++	 * the full sequence of both operations.
++	 */
++	mutex_lock(&tdev->lock);
++
++	ret = hid_hw_raw_request(tdev->hdev, buf[0], buf, REPORT_SIZE,
++			HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
++	if (ret < 0)
++		goto err;
++
+ 	ret = hid_hw_raw_request(tdev->hdev, buf[0], buf, REPORT_SIZE,
+ 			HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+ 	if (ret < 0)
+-		return ret;
++		goto err;
++
++	ret = 0;
+ 
+ 	hid_dbg(tdev->hdev, "<- %d %c %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx\n",
+ 			buf[0], buf[1], buf[2], buf[3], buf[4],
+ 			buf[5], buf[6], buf[7], buf[8]);
+-
+-	return 0;
++err:
++	mutex_unlock(&tdev->lock);
++	return ret;
+ }
+ 
+ static int thingm_version(struct thingm_device *tdev)
+@@ -104,10 +123,6 @@ static int thingm_version(struct thingm_device *tdev)
+ 	u8 buf[REPORT_SIZE] = { REPORT_ID, 'v', 0, 0, 0, 0, 0, 0, 0 };
+ 	int err;
+ 
+-	err = thingm_send(tdev, buf);
+-	if (err)
+-		return err;
+-
+ 	err = thingm_recv(tdev, buf);
+ 	if (err)
+ 		return err;
+@@ -135,14 +150,10 @@ static int thingm_led_set(struct led_classdev *ldev,
+ 	struct thingm_led *led = container_of(ldev, struct thingm_led, ldev);
+ 	int ret;
+ 
+-	mutex_lock(&led->rgb->tdev->lock);
+-
+ 	ret = thingm_write_color(led->rgb);
+ 	if (ret)
+ 		hid_err(led->rgb->tdev->hdev, "failed to write color\n");
+ 
+-	mutex_unlock(&led->rgb->tdev->lock);
+-
+ 	return ret;
+ }
+ 
+-- 
+2.7.1

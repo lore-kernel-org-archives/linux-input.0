@@ -1,72 +1,67 @@
-From: Gregor Riepl <onitake@gmail.com>
-Subject: Re: How to use ACPI for touchscreen
-Date: Tue, 1 Mar 2016 23:56:05 +0100
-Message-ID: <56D61E05.3060407@gmail.com>
-References: <CA+V1LzqohgdNChrBUO+VqUiPD-9gPGvSCiu0t3L7aUk5dRyD1w@mail.gmail.com>
- <56D568C7.20203@gmail.com>
- <CA+V1LzpzJ1P3E_Rm4bRRegV0+ZMLs9befCXmA7PTSEn8umQsBw@mail.gmail.com>
+From: Laison Computech Inc <7sales@laiisoncomputech.com>
+Subject: CISCO AND AVAYA IP Phones
+Date: Wed, 02 Mar 2016 03:10:35 +0700
+Message-ID: <20160301210942.5F83E574BB8__4717.63447062603$1456874280$gmane$org@srv-mta.gcmillenium.com.br>
+Reply-To: sales@laiisoncomputech.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f43.google.com ([74.125.82.43]:33545 "EHLO
-	mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750846AbcCAW4I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Mar 2016 17:56:08 -0500
-Received: by mail-wm0-f43.google.com with SMTP id l68so56636040wml.0
-        for <linux-input@vger.kernel.org>; Tue, 01 Mar 2016 14:56:07 -0800 (PST)
-In-Reply-To: <CA+V1LzpzJ1P3E_Rm4bRRegV0+ZMLs9befCXmA7PTSEn8umQsBw@mail.gmail.com>
+Received: from srv-mta.gcmillenium.com.br ([177.125.218.132]:51815 "EHLO
+	srv-mta.gcmillenium.com.br" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751350AbcCAXRh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Mar 2016 18:17:37 -0500
+Content-Description: Mail message body
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: sergk sergk2mail <sergk.admin@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Recipients <7sales@laiisoncomputech.com>
 
-> So, my questions are:
-> 
-> 1) Am I right when I am registering i2c client  mentioned in .probe
-> function should be called immediately ?
+Hi,
 
-Please clarify: Are you trying to configure any i2c stuff from user space? You
-shouldn't do that, as the kernel will take care of everything.
+Clean tested working pulls CPUs and QTYs in stock.
 
-The probing procedure works like this, I believe:
-- Module has an ACPI HID or OF/DT matching table
-- Kernel finds an entry in the DSDT or DT
-- Kernel loads module with corresponding entry (if not loaded)
-or
-- Module is loaded manually
-- Kernel calls probe() with the preconfigured device structure
-- probe() fetches i2c, gpio and irq information from device structure
-- probe() configures gpio, irq handler, internal stuff and input devices
-- probe() starts up the device
-- probe() returns
+115 X X5650
+65 X E5410
+75 X X5660
+145 X E5530
+100 X E5645
+40 X X5680
+75 X X5690
 
-If your probe routine isn't called, there may be a mismatch, or someone
-claimed the device already. Try a reboot, perhaps.
+Brand new sealed IP phones and QTYs in stock.
 
-> 2) how to ensure and output all info that was taken from ACPI, as
-> minimum i2cbus number and address,
->     irq
+55 x CP-7937G
+77 x CP-7942G
+54 x CP-7945G
+75 x CP-7962G
+=2E.....
+45 x Avaya 9630
+65 x Avaya 9641
+55 x Avaya 9640=20
 
-You shouldn't have to worry about that.
+USED IT HARDWARE FROM:
 
-This line should print all the interesting information:
->     dev_warn(&client->dev, "%s: got a device named %s at address 0x%x,
-> IRQ %d, flags 0x%x\n", __func__, client->name, client->addr,
-> client->irq, client->flags);
-If it doesn't something may have gone wrong.
+=46UJITSU       IBM         SUN        HP
+QUANTUM   DELL       HDS        STK
+NETAPP      SGI         Oracle      EMC=B2
 
-> 3) how to ensure that gpios are taken? from where was taken name
-> "power" for gpio?  Why exactly the name "power" ?    Looks also like I
-> need one more gpio that is "reset".
+3Com, ADVA, Alcatel, Brocade, Cisco,
+Cabletron, Enterasys, Extreme Networks,
+Huawei, Marconi, Nortel, Qlogic, Avaya
 
-"power" is a name I gave to the wakeup pin. The DSDT does not contain named
-GPIOs, and AFAIK direct use of unnamed GPIOs is deprecated.
+Let me know if you're interested. We are very open to offers and willin=
+g to work with you to make sure that we have a deal.
 
-> 4) How will be created i2c-dev ? is this should be done by kernel
-> automatically? I mean there is no any direct creation of device on
-> predefined i2c-bus at predefined address.
-
-Yes, the kernel will take care of that whenever it finds a matching device.
-
-
+Sincerely
+Barbara Johnson
+Laison Computech Inc
+Tel: +1-657-205-7860
+=46ax: +1-347-214-0478
+Email: sales@laiisoncomputech.com
+Web: www.laisoncomputech.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

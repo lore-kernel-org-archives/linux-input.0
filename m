@@ -1,180 +1,113 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 3/3] hid: thingm: improve locking
-Date: Tue, 1 Mar 2016 09:03:29 +0100
-Message-ID: <20160301080329.GE22340@mail.corp.redhat.com>
-References: <56D4AC4C.3050707@gmail.com>
- <20160229223806.GD22340@mail.corp.redhat.com>
- <56D543BC.1060808@gmail.com>
+From: Andrea <andrea.deangelis93@gmail.com>
+Subject: Re: keyboard problem on linux
+Date: Tue, 1 Mar 2016 09:21:45 +0100
+Message-ID: <56D55119.4050009@gmail.com>
+References: <569E3B62.6050407@gmail.com> <20160120001340.GC31589@dtor-ws>
+ <569F5389.8040800@gmail.com> <56A92E09.9020009@gmail.com>
+ <56CB1C44.8000004@gmail.com> <56CC5480.6080305@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-leds-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <56D543BC.1060808@gmail.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-input@vger.kernel.org, linux-leds@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:33910 "EHLO
+	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750933AbcCAIWA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Mar 2016 03:22:00 -0500
+Received: by mail-wm0-f52.google.com with SMTP id p65so23950339wmp.1
+        for <linux-input@vger.kernel.org>; Tue, 01 Mar 2016 00:21:59 -0800 (PST)
+In-Reply-To: <56CC5480.6080305@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Mar 01 2016 or thereabouts, Heiner Kallweit wrote:
-> Am 29.02.2016 um 23:38 schrieb Benjamin Tissoires:
-> > Hi Heiner,
-> > 
-> > On Feb 29 2016 or thereabouts, Heiner Kallweit wrote:
-> >> When reading from the device the full operation including sending the
-> >> read command and the actual read should be protected by the mutex.
-> >> Facilitate this by changing the semantics of thingm_recv to include
-> >> sending the read command.
-> > 
-> > I really like the cleanups of patches 1/3 and 2/3. However, this patch
-> > does not make sense to me. thingm_send() and thingm_recv() are pretty
-> > well defined to me. One reads data from the device, the other writes it.
-> > 
-> > With this change, whenever you read data from the device, you start by
-> > overwriting its value and then read it back. Am I missing something?
-> > 
-> > I think you'd better add the proper mutexes around thingm_version()
-> > or add the read command before thingm_send() in thingm_write_color()
-> > (and please add a comment explaining why we need to read first).
-> > 
-> The semantical read operation consists of writing the read command and
-> the actual read. If another read command should come in between then the read
-> returns wrong data. Therefore I'd like to protect the complete semantical
-> read operation with the mutex. I change nothing in the content or order
-> of calls. 
+i'm not the only with this problem.
+on HP forum, another user with the same notebook, has the same problem.
 
-Hmm, OK, then this explanation should go in the commit message and
-please also add a comment in thingm_recv() that a read is a 2 operations
-sequence.
+http://h30434.www3.hp.com/t5/Notebook-Operating-System-and-Recovery/HP-Pavilion-15-ab062nl-SHIFT-CTRL-ALT-keys-problems-on-linux/m-p/5522283/highlight/false#M429851
 
-> 
-> Basically this patch changes thingm_recv from a technical read to a
-> semantical read and ensures that a write read command + subsequent read
-> sequence can't be interrupted by another device access.
 
-Ack, but the mutex is not needed currently as there is no other concurrent
-access that can happen (the LED are initialized after the firmware read,
-which is the only user of thingm_recv()).
-
-> 
-> And it allows to move the mutex handling to the thingm_send/recv helpers
-> so that we don't have to take care of it on a upper driver logic level
-> thus making the code simpler.
-
-Well, I also think that the problem lies in the ordering of the
-functions in probe(). thingm_recv() is only used to fetch the firmware
-version. In case of an error, the driver bails out.
-
-The problem here is that hid_hw_start() is called before
-thingm_version() which allows user space to briefly introduce races
-between thingm_version() and any hidraw requests. Your mutex will not
-help here as it is initialized after hid_hw_start() and only used for
-protecting the concurrent access of the rgb.
-
-In the end, I think the driver should be re-ordered as such:
-- mutex_init()
-- thingm_version()
-- foreach leds: thingm_init_rgb()
-- hid_hw_start()
-
-I believe you don't need to call hid_device_io_start() nor call
-hid_hw_start() earlier as thingm is using hid_hw_raw_request() which
-does not rely on the parsing of the hid report descriptor.
-
-Moving the mutexes in thingm_recv() will only be cosmetic given that
-no one can race against thingm_version(), but at least, it will prevent
-future use of thingm_recv() to race against thingm_send().
-
-Cheers,
-Benjamin
-
-> 
-> Rgds, Heiner
-> 
-> > Cheers,
-> > Benjamin
-> > 
-> >>
-> >> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> >> ---
-> >>  drivers/hid/hid-thingm.c | 28 +++++++++++++++++-----------
-> >>  1 file changed, 17 insertions(+), 11 deletions(-)
-> >>
-> >> diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
-> >> index 5e35ec1..0e4b50c 100644
-> >> --- a/drivers/hid/hid-thingm.c
-> >> +++ b/drivers/hid/hid-thingm.c
-> >> @@ -77,9 +77,13 @@ static int thingm_send(struct thingm_device *tdev, u8 buf[REPORT_SIZE])
-> >>  			buf[0], buf[1], buf[2], buf[3], buf[4],
-> >>  			buf[5], buf[6], buf[7], buf[8]);
-> >>  
-> >> +	mutex_lock(&tdev->lock);
-> >> +
-> >>  	ret = hid_hw_raw_request(tdev->hdev, buf[0], buf, REPORT_SIZE,
-> >>  			HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-> >>  
-> >> +	mutex_unlock(&tdev->lock);
-> >> +
-> >>  	return ret < 0 ? ret : 0;
-> >>  }
-> >>  
-> >> @@ -87,16 +91,26 @@ static int thingm_recv(struct thingm_device *tdev, u8 buf[REPORT_SIZE])
-> >>  {
-> >>  	int ret;
-> >>  
-> >> +	mutex_lock(&tdev->lock);
-> >> +
-> >> +	ret = hid_hw_raw_request(tdev->hdev, buf[0], buf, REPORT_SIZE,
-> >> +			HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-> >> +	if (ret < 0)
-> >> +		goto err;
-> >> +
-> >>  	ret = hid_hw_raw_request(tdev->hdev, buf[0], buf, REPORT_SIZE,
-> >>  			HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-> >>  	if (ret < 0)
-> >> -		return ret;
-> >> +		goto err;
-> >> +
-> >> +	ret = 0;
-> >>  
-> >>  	hid_dbg(tdev->hdev, "<- %d %c %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx\n",
-> >>  			buf[0], buf[1], buf[2], buf[3], buf[4],
-> >>  			buf[5], buf[6], buf[7], buf[8]);
-> >> -
-> >> -	return 0;
-> >> +err:
-> >> +	mutex_unlock(&tdev->lock);
-> >> +	return ret;
-> >>  }
-> >>  
-> >>  static int thingm_version(struct thingm_device *tdev)
-> >> @@ -104,10 +118,6 @@ static int thingm_version(struct thingm_device *tdev)
-> >>  	u8 buf[REPORT_SIZE] = { REPORT_ID, 'v', 0, 0, 0, 0, 0, 0, 0 };
-> >>  	int err;
-> >>  
-> >> -	err = thingm_send(tdev, buf);
-> >> -	if (err)
-> >> -		return err;
-> >> -
-> >>  	err = thingm_recv(tdev, buf);
-> >>  	if (err)
-> >>  		return err;
-> >> @@ -135,14 +145,10 @@ static int thingm_led_set(struct led_classdev *ldev,
-> >>  	struct thingm_led *led = container_of(ldev, struct thingm_led, ldev);
-> >>  	int ret;
-> >>  
-> >> -	mutex_lock(&led->rgb->tdev->lock);
-> >> -
-> >>  	ret = thingm_write_color(led->rgb);
-> >>  	if (ret)
-> >>  		hid_err(led->rgb->tdev->hdev, "failed to write color\n");
-> >>  
-> >> -	mutex_unlock(&led->rgb->tdev->lock);
-> >> -
-> >>  	return ret;
-> >>  }
-> >>  
-> >> -- 
-> >> 2.7.1
-> >>
-> > 
-> 
+Il 23/02/2016 13:45, Andrea ha scritto:
+> seems that when i play game (on steam), i haven't any problem when i'm
+> playing, but i'm not sure
+>
+>
+>
+> Il 22/02/2016 15:33, Andrea ha scritto:
+>> the problem occurs also when i logout to login manager.
+>>
+>> for example if in this moment i haven't the problem (because i've
+>> pressed for some seconds MAIUSC key) and i logout, the problem occurs
+>> again infact sometimes, when i logout, and then i try to login again,
+>> the login manager doesn't accpet the password because the passowrd
+>> contains uppercase letters, but sometimes the OS don't take maiusc key
+>> (I hope I explained well)
+>>
+>> i hope that this information can be useful.
+>> thanks
+>>
+>> Il 27/01/2016 21:52, Andrea ha scritto:
+>>> i've installed the new kernel 4.5 RC1, but i've the same problem.
+>>> i've also tried start ubuntu with upstart, same problem.
+>>> i don't know why i've this strange problem.
+>>>
+>>> i've also tried GhostBSD on live (i don't know if this information can
+>>> be useful), the problems occurs also on BSD but seem that is less severe
+>>> than on Linux, because on BSD seems that the problem occurs only one
+>>> time every boot, then disappears without do nothing (don't need to press
+>>> MAIUSC key for some seconds).
+>>>
+>>> I hope that this bug can be solved.
+>>>
+>>>
+>>> Il 20/01/2016 10:29, Andrea ha scritto:
+>>>> Hi, Dmitry
+>>>> i've the same problem on console without X.
+>>>> this is an output of evtest on console:
+>>>> http://pastebin.com/4aWYYhwN
+>>>> (as you can see, after a while i'm pressing Left_Alt (from line 434 of
+>>>> pastebin) or Left_Ctrl (from line 605 of pastebin) or Left_Shift (from
+>>>> line 786 of pastebin), these keys are released and then pressed again.
+>>>> but when i press only left_shift for some seconds, the issue don't
+>>>> occurs.)
+>>>>
+>>>> i haven't found nothing on BIOS settings, the only options relative to
+>>>> keyboard is:
+>>>>
+>>>> Action Keys Mode:
+>>>> [Enabled]: Requires pressing only F1 throug F12 to activate action keys
+>>>> [Disabled]: Requires pressing FN Key + F1 throug F12 to activate action
+>>>> keys
+>>>>
+>>>> but the problem occurs in both modes
+>>>>
+>>>>
+>>>> Il 20/01/2016 01:13, Dmitry Torokhov ha scritto:
+>>>>> Hi Andera,
+>>>>>
+>>>>> On Tue, Jan 19, 2016 at 02:34:26PM +0100, Andrea wrote:
+>>>>>> [1.] i've a problem with keyboard of my notebook HP Pavilion 15
+>>>>>> ab062nl; CTRL SHIFT and ALT buttons not works as they should. in
+>>>>>> particular, it is as if these keys are pressed and released alone.
+>>>>>> isn't an hardware problem, because on windows 10 and windows 8.1 i
+>>>>>> haven't these problems, is only a linux problem (all distro).
+>>>>>>
+>>>>>> [2.] the bug is always active, every time i start a linux Distro
+>>>>>> (also from live, and also without DE/WM) i've this problem with
+>>>>>> keyboard, the only way to fix temporarily the bug, is pressing the
+>>>>>> only Left SHIFT key for some seconds, then all problems disappear
+>>>>>> indefinitely, and in any case, if i shutdown or if i reboot the PC,
+>>>>>> the problem recurs.
+>>>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1532746
+>>>>>
+>>>>> Hmm, this is weird. Do you observe the same issue in text console (not
+>>>>> in X)? It would be nice to see events as emitted by the kernel - you
+>>>>> can
+>>>>> use evtest utility for that.
+>>>>>
+>>>>> Is sounds like some accessibility feature, is there anything in
+>>>>> BIOS to
+>>>>> that effect?
+>>>>>
+>>>>> Thanks.
+>>>>>

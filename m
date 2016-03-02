@@ -1,73 +1,62 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH] Remove ARCH_SHMOBILE
-Date: Thu, 3 Mar 2016 01:00:31 +0900
-Message-ID: <CANqRtoQ5R7rpr9uw-9ZASdvFjf11ZUR1vt0CYQY-ADnBTj9eHw@mail.gmail.com>
-References: <1456883754-24305-1-git-send-email-horms+renesas@verge.net.au>
-	<CAMuHMdU8W1GrBO=UJPk2P+Yt4swrTzxpBR7TNYBGk=N7wqvBcQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdU8W1GrBO=UJPk2P+Yt4swrTzxpBR7TNYBGk=N7wqvBcQ@mail.gmail.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Simon Horman <horms+renesas@verge.net.au>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-renesas-soc@vger.kernel.org
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 11/14] input: spear-keyboard: use __maybe_unused to hide pm functions
+Date: Wed,  2 Mar 2016 16:59:03 +0100
+Message-ID: <1456934350-1389172-12-git-send-email-arnd@arndb.de>
+References: <1456934350-1389172-1-git-send-email-arnd@arndb.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1456934350-1389172-1-git-send-email-arnd@arndb.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, Rajeev Kumar <rajeevkumar.linux@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 2, 2016 at 6:30 PM, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> On Wed, Mar 2, 2016 at 2:55 AM, Simon Horman <horms+renesas@verge.net.au> wrote:
->> [PATCH] Remove ARCH_SHMOBILE
->
-> Please use a more appropriate one-line summary.
->
->> Since the removal of legacy (non-multiplatform) support this driver has not
->> been used by any Renesas ARM based SoCs.
->>
->> This is part of an ongoing process to migrate from ARCH_SHMOBILE to
->> ARCH_RENESAS the motivation for which being that RENESAS seems to be a more
->> appropriate name than SHMOBILE for the majority of Renesas ARM based SoCs.
->>
->> Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
->> ---
->>  drivers/input/keyboard/Kconfig | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->>  Based on v4.5-rc1
->>
->> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
->> index ddd8148d51d7..984532c6e689 100644
->> --- a/drivers/input/keyboard/Kconfig
->> +++ b/drivers/input/keyboard/Kconfig
->> @@ -560,7 +560,7 @@ config KEYBOARD_SUNKBD
->>
->>  config KEYBOARD_SH_KEYSC
->>         tristate "SuperH KEYSC keypad support"
->> -       depends on SUPERH || ARCH_SHMOBILE || COMPILE_TEST
->> +       depends on SUPERH || COMPILE_TEST
->
-> I think dropping the SUPERH dependency is the right approach here, as all
-> SuperH platforms using the driver select ARCH_SHMOBILE.
+The spear keyboard driver uses #ifdef CONFIG_PM to hide its
+power management functions, but then uses references from
+SIMPLE_DEV_PM_OPS that are only present if both CONFIG_PM
+and CONFIG_PM_SLEEP are set, resulting in a warning about unused
+functions:
 
-Thanks, I agree!
+drivers/input/keyboard/spear-keyboard.c:292:12: error: 'spear_kbd_suspend' defined but not used [-Werror=unused-function]
+drivers/input/keyboard/spear-keyboard.c:345:12: error: 'spear_kbd_resume' defined but not used [-Werror=unused-function]
 
-> "sh_keysc" is used on SH_MIGOR, SH_ECOVEC, SH_KFR2R09, SH_7722_SOLUTION_ENGINE,
-> and SH_7724_SOLUTION_ENGINE, which depend on either CPU_SUBTYPE_SH7722 or
-> CPU_SUBTYPE_SH7724, and both select ARCH_SHMOBILE.
->
->>         help
->>           Say Y here if you want to use a keypad attached to the KEYSC block
->>           on SuperH processors such as sh7722 and sh7343.
->
-> FWIW, this has never been enabled on sh7343. But CPU_SUBTYPE_SH7343 also
-> selects ARCH_SHMOBILE, so we're safe.
+This removes the #ifdef and instead uses a __maybe_unused
+annotation.
 
-You are right that the SH architecture is the main consumer at this
-point. I do however vaguely recall ARM shmobile G3EVM and G4EVM
-including sh7367 and some other SoC also having a KEYSC hardware block
-included. Due to the iffy interrupt controller upstream support for
-those boards/socs were killed off quite some time ago while (not)
-migrating to DT. So I think this KEYSC driver is simply a left over
-from that time.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/input/keyboard/spear-keyboard.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-Cheers,
-
-/ magnus
+diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
+index 623d451767e3..8083eaa0524a 100644
+--- a/drivers/input/keyboard/spear-keyboard.c
++++ b/drivers/input/keyboard/spear-keyboard.c
+@@ -288,8 +288,7 @@ static int spear_kbd_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_PM
+-static int spear_kbd_suspend(struct device *dev)
++static int __maybe_unused spear_kbd_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct spear_kbd *kbd = platform_get_drvdata(pdev);
+@@ -342,7 +341,7 @@ static int spear_kbd_suspend(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int spear_kbd_resume(struct device *dev)
++static int __maybe_unused spear_kbd_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct spear_kbd *kbd = platform_get_drvdata(pdev);
+@@ -368,7 +367,6 @@ static int spear_kbd_resume(struct device *dev)
+ 
+ 	return 0;
+ }
+-#endif
+ 
+ static SIMPLE_DEV_PM_OPS(spear_kbd_pm_ops, spear_kbd_suspend, spear_kbd_resume);
+ 
+-- 
+2.7.0

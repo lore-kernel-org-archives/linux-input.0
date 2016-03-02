@@ -1,39 +1,40 @@
-From: Simon Horman <horms+renesas@verge.net.au>
-Subject: [PATCH] Remove ARCH_SHMOBILE
-Date: Wed,  2 Mar 2016 10:55:54 +0900
-Message-ID: <1456883754-24305-1-git-send-email-horms+renesas@verge.net.au>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms+renesas@verge.net.au>
+From: Richard Pospesel <pospeselr@gmail.com>
+Subject: Re: [PATCH] Input: byd - enable absolute mode
+Date: Tue,  1 Mar 2016 21:27:29 -0800
+Message-ID: <1456896450-29653-1-git-send-email-pospeselr@gmail.com>
+References: <20160302005549.GA17074@dtor-ws>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f180.google.com ([209.85.192.180]:35841 "EHLO
+	mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750852AbcCBF2S (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Mar 2016 00:28:18 -0500
+Received: by mail-pf0-f180.google.com with SMTP id l6so29531281pfl.3
+        for <linux-input@vger.kernel.org>; Tue, 01 Mar 2016 21:28:18 -0800 (PST)
+In-Reply-To: <20160302005549.GA17074@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: chris@diamand.org, linux-input@vger.kernel.org, Richard Pospesel <pospeselr@gmail.com>
 
-Since the removal of legacy (non-multiplatform) support this driver has not
-been used by any Renesas ARM based SoCs.
 
-This is part of an ongoing process to migrate from ARCH_SHMOBILE to
-ARCH_RENESAS the motivation for which being that RENESAS seems to be a more
-appropriate name than SHMOBILE for the majority of Renesas ARM based SoCs.
+Removed and replaced jiffie logic per Dmitry's suggestion in offline
+conversation.  Got rid of the 'now' variable entirely and instead
+use jiffies directly instead of caching.
 
-Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+Verified updated patch works as intended on device.
+
 ---
- drivers/input/keyboard/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Based on v4.5-rc1
+The Windows driver's settings dialog contains a visualization of the
+regions for the hardware edge scrolling capability, which uses a
+temporarily-enabled limited-resolution absolute mode.
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index ddd8148d51d7..984532c6e689 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -560,7 +560,7 @@ config KEYBOARD_SUNKBD
- 
- config KEYBOARD_SH_KEYSC
- 	tristate "SuperH KEYSC keypad support"
--	depends on SUPERH || ARCH_SHMOBILE || COMPILE_TEST
-+	depends on SUPERH || COMPILE_TEST
- 	help
- 	  Say Y here if you want to use a keypad attached to the KEYSC block
- 	  on SuperH processors such as sh7722 and sh7343.
--- 
-2.1.4
+This patch enables this during normal operation, and combines the
+absolute packets with the existing relative packets to provide
+accurate absolute position and touch reporting.
+
+It also adds documentation for all known gesture packets and
+initialization commands.
+
+Reviewed-by: Chris Diamand <chris@diamand.org>
+Signed-off-by: Richard Pospesel <pospeselr@gmail.com>

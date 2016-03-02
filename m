@@ -1,86 +1,67 @@
-From: Frank Li <frank.li@nxp.com>
-Subject: RE: [PATCH 12/14] keyboard: snvs-pwrkey: use __maybe_unused to hide
- pm functions
-Date: Wed, 2 Mar 2016 16:04:46 +0000
-Message-ID: <AMSPR04MB263BDF6CE19C8B5432ECAE588BC0@AMSPR04MB263.eurprd04.prod.outlook.com>
-References: <1456934350-1389172-1-git-send-email-arnd@arndb.de>
- <1456934350-1389172-13-git-send-email-arnd@arndb.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] Remove ARCH_SHMOBILE
+Date: Wed, 2 Mar 2016 17:08:52 +0100
+Message-ID: <CAMuHMdXBOUANzg-UiDTHDU7GvDw2--9peUJ9UMkngrYhuAinbQ@mail.gmail.com>
+References: <1456883754-24305-1-git-send-email-horms+renesas@verge.net.au>
+	<CAMuHMdU8W1GrBO=UJPk2P+Yt4swrTzxpBR7TNYBGk=N7wqvBcQ@mail.gmail.com>
+	<CANqRtoQ5R7rpr9uw-9ZASdvFjf11ZUR1vt0CYQY-ADnBTj9eHw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1456934350-1389172-13-git-send-email-arnd@arndb.de>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Frank Li <Frank.Li@freescale.com>, "b38343@freescale.com" <b38343@freescale.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Shawn Guo <shawnguo@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <CANqRtoQ5R7rpr9uw-9ZASdvFjf11ZUR1vt0CYQY-ADnBTj9eHw@mail.gmail.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: Simon Horman <horms+renesas@verge.net.au>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-renesas-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Hi Magnus,
 
+On Wed, Mar 2, 2016 at 5:00 PM, Magnus Damm <magnus.damm@gmail.com> wrote:
+> On Wed, Mar 2, 2016 at 6:30 PM, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+>> On Wed, Mar 2, 2016 at 2:55 AM, Simon Horman <horms+renesas@verge.net.au> wrote:
+>>> --- a/drivers/input/keyboard/Kconfig
+>>> +++ b/drivers/input/keyboard/Kconfig
+>>> @@ -560,7 +560,7 @@ config KEYBOARD_SUNKBD
+>>>
+>>>  config KEYBOARD_SH_KEYSC
+>>>         tristate "SuperH KEYSC keypad support"
+>>> -       depends on SUPERH || ARCH_SHMOBILE || COMPILE_TEST
+>>> +       depends on SUPERH || COMPILE_TEST
+>>
+>> I think dropping the SUPERH dependency is the right approach here, as all
+>> SuperH platforms using the driver select ARCH_SHMOBILE.
+>
+> Thanks, I agree!
+>
+>> "sh_keysc" is used on SH_MIGOR, SH_ECOVEC, SH_KFR2R09, SH_7722_SOLUTION_ENGINE,
+>> and SH_7724_SOLUTION_ENGINE, which depend on either CPU_SUBTYPE_SH7722 or
+>> CPU_SUBTYPE_SH7724, and both select ARCH_SHMOBILE.
+>>
+>>>         help
+>>>           Say Y here if you want to use a keypad attached to the KEYSC block
+>>>           on SuperH processors such as sh7722 and sh7343.
+>>
+>> FWIW, this has never been enabled on sh7343. But CPU_SUBTYPE_SH7343 also
+>> selects ARCH_SHMOBILE, so we're safe.
+>
+> You are right that the SH architecture is the main consumer at this
+> point. I do however vaguely recall ARM shmobile G3EVM and G4EVM
+> including sh7367 and some other SoC also having a KEYSC hardware block
+> included. Due to the iffy interrupt controller upstream support for
+> those boards/socs were killed off quite some time ago while (not)
+> migrating to DT. So I think this KEYSC driver is simply a left over
+> from that time.
 
-> -----Original Message-----
-> From: Arnd Bergmann [mailto:arnd@arndb.de]
-> Sent: Wednesday, March 02, 2016 9:59 AM
-> To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-arm-kernel@lists.infradead.org; Arnd Bergmann <arnd@arndb.de>;
-> Shawn Guo <shawnguo@kernel.org>; b38343@freescale.com; Javier
-> Martinez Canillas <javier@osg.samsung.com>; Frank Li
-> <Frank.Li@freescale.com>; linux-input@vger.kernel.org; linux-
-> kernel@vger.kernel.org
-> Subject: [PATCH 12/14] keyboard: snvs-pwrkey: use __maybe_unused to hide
-> pm functions
-> 
-> The SNVS power key driver has suspend/resume functions that are accessed
-> using SIMPLE_DEV_PM_OPS, which hide the reference when
-> CONFIG_PM_SLEEP is not set, resulting in a warning about unused functions:
-> 
-> drivers/input/keyboard/snvs_pwrkey.c:183:12: error:
-> 'imx_snvs_pwrkey_suspend' defined but not used [-Werror=unused-function]
-> drivers/input/keyboard/snvs_pwrkey.c:194:12: error:
-> 'imx_snvs_pwrkey_resume' defined but not used [-Werror=unused-function]
-> 
-> This adds __maybe_unused annotations to let the compiler know it can
-> silently drop the function definition.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Note that sh73a0 also has keysc, but I don't think it's usable on kzm9g
+(after a quick look at the schematics).
 
-Acked-by: Frank Li <Frank.Li@nxp.com>
+Gr{oetje,eeting}s,
 
-> ---
->  drivers/input/keyboard/snvs_pwrkey.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/snvs_pwrkey.c
-> b/drivers/input/keyboard/snvs_pwrkey.c
-> index 9adf13a5864a..b0ffadeb208c 100644
-> --- a/drivers/input/keyboard/snvs_pwrkey.c
-> +++ b/drivers/input/keyboard/snvs_pwrkey.c
-> @@ -180,7 +180,7 @@ static int imx_snvs_pwrkey_probe(struct
-> platform_device *pdev)
->  	return 0;
->  }
-> 
-> -static int imx_snvs_pwrkey_suspend(struct device *dev)
-> +static int __maybe_unused imx_snvs_pwrkey_suspend(struct device *dev)
->  {
->  	struct platform_device *pdev = to_platform_device(dev);
->  	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev); @@ -
-> 191,7 +191,7 @@ static int imx_snvs_pwrkey_suspend(struct device *dev)
->  	return 0;
->  }
-> 
-> -static int imx_snvs_pwrkey_resume(struct device *dev)
-> +static int __maybe_unused imx_snvs_pwrkey_resume(struct device *dev)
->  {
->  	struct platform_device *pdev = to_platform_device(dev);
->  	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
-> --
-> 2.7.0
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

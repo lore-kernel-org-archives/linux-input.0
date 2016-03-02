@@ -1,7 +1,7 @@
 From: sergk sergk2mail <sergk.admin@gmail.com>
 Subject: Re: How to use ACPI for touchscreen
-Date: Wed, 2 Mar 2016 19:01:36 +0000
-Message-ID: <CA+V1LzqQ=s9kahPW8c0Xw-SZCc0PYb8cGXf0q6Ps9Kq24HJw3A@mail.gmail.com>
+Date: Wed, 2 Mar 2016 19:11:03 +0000
+Message-ID: <CA+V1Lzp9yfbNg7Qo7fsoiuXRrWOBZ+iYiaNi+Vxy92UOvCc9RA@mail.gmail.com>
 References: <CA+V1LzqohgdNChrBUO+VqUiPD-9gPGvSCiu0t3L7aUk5dRyD1w@mail.gmail.com>
 	<56D568C7.20203@gmail.com>
 	<CA+V1LzohZr1ryibyS+YQ75D8-txQaiYU5qo2CNWTKS2kwn53dg@mail.gmail.com>
@@ -13,22 +13,21 @@ References: <CA+V1LzqohgdNChrBUO+VqUiPD-9gPGvSCiu0t3L7aUk5dRyD1w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f169.google.com ([209.85.220.169]:35762 "EHLO
-	mail-qk0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754826AbcCBTBh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Mar 2016 14:01:37 -0500
-Received: by mail-qk0-f169.google.com with SMTP id o6so86526565qkc.2
-        for <linux-input@vger.kernel.org>; Wed, 02 Mar 2016 11:01:37 -0800 (PST)
+Received: from mail-qk0-f170.google.com ([209.85.220.170]:35650 "EHLO
+	mail-qk0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752577AbcCBTLF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Mar 2016 14:11:05 -0500
+Received: by mail-qk0-f170.google.com with SMTP id o6so86646649qkc.2
+        for <linux-input@vger.kernel.org>; Wed, 02 Mar 2016 11:11:04 -0800 (PST)
 In-Reply-To: <CA+V1Lzr4pOJs1VG3V1MzAR4bEr1gjoJKfU9hAzVxpLwNErMv4Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Gregor Riepl <onitake@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Sorry, have forgotten to mentione that after this i2cdetect -r 4
-detects nothing on i2c-4 0x48.
-Kind regards,
-                        Serge Kolotylo.
+Actually specs are located here https://gitlab.com/antruziliak/icn8528.git
+Regards ,
+                 Serge Kolotylo.
 
 On Wed, Mar 2, 2016 at 7:00 PM, sergk sergk2mail <sergk.admin@gmail.com> wrote:
 > Hi Gregor,

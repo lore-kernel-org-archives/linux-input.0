@@ -1,61 +1,59 @@
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Subject: [PATCH] da9052: ensure da9052_ts_input_open will not lock up on irq flood
-Date: Thu,  3 Mar 2016 11:52:02 +0100
-Message-ID: <1457002322-21953-1-git-send-email-m.grzeschik@pengutronix.de>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v5 00/10] Input: synaptics-rmi4: Synaptics RMI4 Driver
+Date: Thu, 3 Mar 2016 18:11:38 +0100
+Message-ID: <20160303171138.GH22340@mail.corp.redhat.com>
+References: <1455142982-10008-1-git-send-email-aduggan@synaptics.com>
+ <CACRpkdaE91ncWccG9_dsOiC40j9mFpm7A=S_mpeHmP-vjSVjMQ@mail.gmail.com>
+ <56BE200F.5040602@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:54244 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755079AbcCCKwI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Mar 2016 05:52:08 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:32861 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752052AbcCCRLo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Mar 2016 12:11:44 -0500
+Content-Disposition: inline
+In-Reply-To: <56BE200F.5040602@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, support.opensource@diasemi.com, kernel@pengutronix.de
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>, Rob Herring <robh@kernel.org>
 
-It is possible that da9052_ts_input_open is called and the touchscreen
-is triggering continuous interrupts. In this case we will never leave
-da9052_ts_input_open. The da9052_reg_update will never get the i2c bus
-as the interrupt handler will continuously lock it.
+On Feb 12 2016 or thereabouts, Andrew Duggan wrote:
+> On 02/12/2016 04:54 AM, Linus Walleij wrote:
+> >On Wed, Feb 10, 2016 at 11:23 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
+> >
+> >>This is the v5 patch series which fixes the issues identified by kbuild
+> >>and coccinelle in the previous patch series. These include:
+> >>
+> >>- Using ARRAY_SIZE instead of a custom macro to calculate the size of the
+> >>   function handler array.
+> >>- Remove setting the .owner field for the driver in rmi_i2c and rmi_spi
+> >>   since the i2c-core and spi set that field.
+> >>- Fix if statment in rmi_f30 which was testing has_led twice instead of
+> >>   testing has_gpio.
+> >Works like a charm.
+> >Tested-by: Linus Walleij <linus.walleij@linaro.org>
+> 
+> Thanks for testing. At this point except for the touchscreen binding rename
+> fix needed in patch 5, all of the outstanding issues have been addressed. If
+> the rest of the patch series is acceptable, then I can do a final v6 respin
+> which fixes the binding and also removes the HID patch. But, if more work
+> needs to be done on the patch series I can wait to do the respin. Dmitry,
+> what do you think of the patch series at this point?
 
-This patch switch places of da9052_reg_update and the setting of
-tsi->stopped. This way its ensured that da9052_ts_input_open will never
-lockup on interrupt flood.
+Dmitry, ping on this one...
 
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
----
- drivers/input/touchscreen/da9052_tsi.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+I'd like to see the series in 4.6, and we are getting closer of the
+merge window. Could we get some of your time on this?
 
-diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
-index 5a013bb..1b136b8 100644
---- a/drivers/input/touchscreen/da9052_tsi.c
-+++ b/drivers/input/touchscreen/da9052_tsi.c
-@@ -189,17 +189,20 @@ static int da9052_configure_tsi(struct da9052_tsi *tsi)
- 
- static int da9052_ts_input_open(struct input_dev *input_dev)
- {
-+	int val;
- 	struct da9052_tsi *tsi = input_get_drvdata(input_dev);
- 
--	tsi->stopped = false;
--	mb();
-+	val = da9052_reg_update(tsi->da9052, DA9052_TSI_CONT_A_REG,
-+				 1 << 1, 1 << 1);
- 
- 	/* Unmask PEN_DOWN event */
- 	da9052_enable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
- 
-+	tsi->stopped = false;
-+	mb();
-+
- 	/* Enable Pen Detect Circuit */
--	return da9052_reg_update(tsi->da9052, DA9052_TSI_CONT_A_REG,
--				 1 << 1, 1 << 1);
-+	return val;
- }
- 
- static void da9052_ts_input_close(struct input_dev *input_dev)
--- 
-2.7.0
+Cheers,
+Benjamin
 
+> 
+> Thanks,
+> Andrew
+> 
+> >Yours,
+> >Linus Walleij
+> 

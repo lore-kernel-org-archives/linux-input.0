@@ -1,680 +1,1045 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH] input: cyapa: fix the report events may lost issue during
- set power mode
-Date: Thu, 3 Mar 2016 01:51:34 +0000
-Message-ID: <SN1PR0601MB19038DCA1721D06E7BAE7B2AD1BD0@SN1PR0601MB1903.namprd06.prod.outlook.com>
-References: <1452750033-25692-1-git-send-email-dudl@cypress.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
+From: "jeffrey.lin" <yajohn@gmail.com>
+Subject: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
+Date: Thu,  3 Mar 2016 10:29:10 +0800
+Message-ID: <1456972150-32303-1-git-send-email-jeffrey.lin@rad-ic.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2on0120.outbound.protection.outlook.com ([207.46.100.120]:41408
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753885AbcCCBvh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Mar 2016 20:51:37 -0500
-In-Reply-To: <1452750033-25692-1-git-send-email-dudl@cypress.com>
-Content-Language: en-US
+Received: from mail-pa0-f66.google.com ([209.85.220.66]:34580 "EHLO
+	mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752046AbcCCC3n (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Mar 2016 21:29:43 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "eugenesan@gmail.com" <eugenesan@gmail.com>
-Cc: "bleung@google.com" <bleung@google.com>, "jmmahler@gmail.com" <jmmahler@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se, grant.likely@linaro.org, robh+dt@kernel.org, jeesw@melfas.com, bleung@chromium.org, scott.liu@emc.com.tw
+Cc: jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, albert.shieh@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-Hi Dmitry,
+This patch is porting Raydium I2C touch driver. Developer can enable raydium touch driver by modifying define "CONFIG_TOUCHSCREEN_RM_TS".
 
-Is there any update on this patch?
-Looking forward to your response.
+Signed-off-by: jeffrey.lin <jeffrey.lin@rad-ic.com>
+---
+ drivers/input/touchscreen/Kconfig          |  12 +
+ drivers/input/touchscreen/Makefile         |   1 +
+ drivers/input/touchscreen/raydium_i2c_ts.c | 977 +++++++++++++++++++++++++++++
+ 3 files changed, 990 insertions(+)
+ create mode 100644 drivers/input/touchscreen/raydium_i2c_ts.c
 
-Thanks,
-Dudley
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 3f3f6ee..ab28721 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -915,6 +915,18 @@ config TOUCHSCREEN_PCAP
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called pcap_ts.
+ 
++config TOUCHSCREEN_RM_TS
++	tristate "Raydium I2C Touchscreen"
++	depends on I2C
++	help
++	  Say Y here if you have Raydium series I2C touchscreen,
++	  such as RM31100 , connected to your system.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called raydium_i2c_ts.
++
+ config TOUCHSCREEN_ST1232
+ 	tristate "Sitronix ST1232 touchscreen controllers"
+ 	depends on I2C
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 4941f2d..99e08cf 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -55,6 +55,7 @@ obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
+ obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+ obj-$(CONFIG_TOUCHSCREEN_PIXCIR)	+= pixcir_i2c_ts.o
++obj-$(CONFIG_TOUCHSCREEN_RM_TS)		+= raydium_i2c_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+ obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
+diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+new file mode 100644
+index 0000000..fa65c26
+--- /dev/null
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -0,0 +1,977 @@
++/*
++ * Raydium touchscreen I2C driver.
++ *
++ * Copyright (C) 2012-2014, Raydium Semiconductor Corporation.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2, and only version 2, as published by the
++ * Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * Raydium reserves the right to make changes without further notice
++ * to the materials described herein. Raydium does not assume any
++ * liability arising out of the application described herein.
++ *
++ * Contact Raydium Semiconductor Corporation at www.rad-ic.com
++ */
++
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
++#include <linux/i2c.h>
++#include <linux/delay.h>
++#include <linux/uaccess.h>
++#include <linux/buffer_head.h>
++#include <linux/slab.h>
++#include <linux/firmware.h>
++#include <linux/input/mt.h>
++#include <linux/acpi.h>
++#include <linux/of.h>
++#include <linux/gpio.h>
++#include <linux/regulator/consumer.h>
++#include <asm/unaligned.h>
++#include <linux/gpio/consumer.h>
++
++/* Device, Driver information */
++#define DEVICE_NAME	"raydium_i2c"
++
++/* Slave I2C mode*/
++#define RM_BOOT_BLDR	0x02
++#define RM_BOOT_MAIN	0x03
++
++/*I2C command */
++#define CMD_QUERY_BANK		0x2B
++#define CMD_DATA_BANK		0x4D
++#define CMD_ENTER_SLEEP		0x4E
++#define CMD_BOOT_ACK		0x0A
++#define CMD_BOOT_WRT		0x5B
++#define CMD_BOOT_CHK		0x0C
++#define CMD_BANK_SWITCH		0xAA
++
++/* Touch relative info */
++#define MAX_RETRIES		3
++#define MAX_FW_UPDATE_RETRIES	30
++#define MAX_TOUCH_NUM		10
++#define MAX_PACKET_SIZE		60
++#define BOOT_DELAY_MS	100
++
++#define RAYDIUM_FW_PAGESIZE	128
++#define RAYDIUM_POWERON_DELAY_USEC	500
++#define RAYDIUM_RESET_DELAY_MSEC	50
++
++#define ADDR_INDEX		0x03
++#define HEADER_SIZE		4
++
++enum raydium_boot_mode {
++	RAYDIUM_TS_MAIN,
++	RAYDIUM_TS_BLDR,
++};
++
++struct raydium_info {
++	u32 hw_ver;
++	u8 main_ver;
++	u8 sub_ver;
++	u16 ft_ver;
++	u8 x_num;
++	u8 y_num;
++	u16 x_max;
++	u16 y_max;
++	u8 x_res;		/* units/mm */
++	u8 y_res;		/* units/mm */
++};
++
++struct raydium_abs_info {
++	u8 state;/*1:touch, 0:no touch*/
++	u8 x_pos_lsb;
++	u8 x_pos_msb;
++	u8 y_pos_lsb;
++	u8 y_pos_msb;
++	u8 pressure;
++	u8 x_width;
++	u8 y_width;
++};
++
++struct raydium_object {
++	u32 data_bank_addr;
++	u8 pkg_size;
++};
++
++/* struct raydium_data - represents state of Raydium touchscreen device */
++struct raydium_data {
++	struct i2c_client *client;
++	struct input_dev *input;
++
++	struct regulator *vcc33;
++	struct regulator *vccio;
++	struct gpio_desc *reset_gpio;
++
++	u32 query_bank_info;
++
++	struct raydium_info info;
++	struct raydium_object obj;
++	struct raydium_abs_info finger;
++
++	enum raydium_boot_mode boot_mode;
++
++	struct mutex sysfs_mutex;
++
++	u8 cmd_resp[HEADER_SIZE];
++	struct completion cmd_done;
++
++	u8 buf[MAX_PACKET_SIZE];
++
++	bool wake_irq_enabled;
++};
++
++static int raydium_i2c_send(struct i2c_client *client,
++	u8 addr, u8 *data, size_t len)
++{
++	u8 buf[MAX_PACKET_SIZE + 1];
++	int i, tries = 0;
++
++	if (len > MAX_PACKET_SIZE)
++		return -EINVAL;
++
++	buf[0] = addr & 0xff;
++	for (i = 0; i < len; i++)
++		buf[i + 1] = *data++;
++
++	do {
++		if (i2c_master_send(client, buf, len + 1) == (len + 1))
++			return 0;
++		msleep(20);
++	} while (++tries < MAX_RETRIES);
++
++	dev_err(&client->dev, "%s: i2c send failed\n", __func__);
++
++	return -EIO;
++}
++
++static int raydium_i2c_read(struct i2c_client *client,
++	u8 addr, size_t len, void *data)
++{
++	struct i2c_msg xfer[2];
++
++	/* Write register */
++	xfer[0].addr = client->addr;
++	xfer[0].flags = 0;
++	xfer[0].len = 1;
++	xfer[0].buf = &addr;
++
++	/* Read data */
++	xfer[1].addr = client->addr;
++	xfer[1].flags = I2C_M_RD;
++	xfer[1].len = len;
++	xfer[1].buf = data;
++
++	if (i2c_transfer(client->adapter, xfer, 2) == 2)
++		return 0;
++
++	dev_err(&client->dev, "%s: i2c transfer failed\n", __func__);
++
++	return -EIO;
++}
++
++static int raydium_i2c_read_message(struct i2c_client *client,
++	u32 addr, size_t len, void *data)
++{
++	u16 pkg_size, use_len;
++	u8 buf[HEADER_SIZE], idx_i, idx_j;
++	int error;
++
++	use_len = len;
++	idx_j = 0;
++	while (use_len > 0) {
++		pkg_size = (use_len < MAX_PACKET_SIZE) ?
++			use_len : MAX_PACKET_SIZE;
++		for (idx_i = 0; idx_i < HEADER_SIZE; idx_i++)
++			buf[idx_i] = addr >> (3 - idx_i)*8;
++
++		/*set data bank*/
++		error = raydium_i2c_send(client, CMD_BANK_SWITCH,
++			(u8 *)buf, HEADER_SIZE);
++		/*read potints data*/
++		if (!error)
++			error = raydium_i2c_read(client,
++				buf[ADDR_INDEX],
++				pkg_size,
++				(void *)(data + idx_j*MAX_PACKET_SIZE));
++
++		pkg_size += MAX_PACKET_SIZE;
++		addr += MAX_PACKET_SIZE;
++		use_len = (use_len < MAX_PACKET_SIZE) ?
++			0 : (use_len - MAX_PACKET_SIZE);
++		idx_j++;
++	}
++
++	return error;
++}
++
++static int raydium_i2c_send_message(struct i2c_client *client,
++	size_t len, void *data)
++{
++	int error;
++	u8 buf[HEADER_SIZE], ii;
++
++	for (ii = 0; ii < HEADER_SIZE; ii++)
++		buf[ii] = ((u8 *)data)[3 - ii];
++	/*set data bank*/
++	error = raydium_i2c_send(client, CMD_BANK_SWITCH,
++		(u8 *)buf, HEADER_SIZE);
++
++	/*send messange*/
++	if (!error)
++		error = raydium_i2c_send(client, buf[ADDR_INDEX], buf, len);
++
++	return error;
++}
++
++static int raydium_i2c_sw_reset(struct i2c_client *client)
++{
++	const u8 soft_rst_cmd[] = { 0x01, 0x04, 0x00, 0x00, 0x40};
++	int error;
++
++	error = raydium_i2c_send_message(client,
++			1, (void *)soft_rst_cmd);
++	if (error) {
++		dev_err(&client->dev, "software reset failed: %d\n", error);
++		return error;
++	}
++
++	msleep(RAYDIUM_RESET_DELAY_MSEC);
++
++	return 0;
++}
++
++static int raydium_i2c_query_ts_info(struct raydium_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	int error, retry_cnt;
++
++	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
++		error = raydium_i2c_read(client, CMD_DATA_BANK,
++			sizeof(ts->obj), (void *)&ts->obj);
++		if (error)
++			dev_err(&client->dev, "get data bank failed: %d\n",
++			error);
++		else {
++			error = raydium_i2c_read(client, CMD_QUERY_BANK,
++				sizeof(ts->query_bank_info),
++				(void *)&ts->query_bank_info);
++			if (!error) {
++				error = raydium_i2c_read_message(client,
++					ts->query_bank_info,
++					sizeof(ts->info),
++					(void *)&ts->info);
++			}
++		}
++		if (!error)
++			return 0;
++	}
++
++	return -EINVAL;
++}
++
++static int raydium_i2c_fastboot(struct i2c_client *client)
++{
++	const u8 boot_cmd[] = { 0x20, 0x06, 0x00, 0x50 };
++	u8 buf[HEADER_SIZE];
++	int error;
++
++	error = raydium_i2c_read_message(client,
++		get_unaligned_be32(boot_cmd),
++		sizeof(boot_cmd),
++		buf);
++
++	if (error) {
++		dev_err(&client->dev, "boot failed: %d\n", error);
++		return error;
++	} else if (buf[0] == RM_BOOT_BLDR) {
++		dev_dbg(&client->dev, "boot in fastboot mode\n");
++		return -EINVAL;
++	}
++
++	dev_dbg(&client->dev, "boot success -- 0x%x\n", client->addr);
++	return 0;
++}
++
++static int raydium_i2c_initialize(struct raydium_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	int error, retry_cnt;
++	const u8 recov_packet[] = { 0x04, 0x81 };
++	u8 buf[HEADER_SIZE];
++
++	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
++		error = raydium_i2c_fastboot(client);
++		if (error) {
++			/* Continue initializing if it's the last try */
++			if (retry_cnt < MAX_RETRIES - 1)
++				continue;
++		}
++		/* Wait for Hello packet */
++		msleep(BOOT_DELAY_MS);
++
++		error = raydium_i2c_read(client, recov_packet[0],
++			1, (void *)buf);
++		if (error) {
++			dev_err(&client->dev,
++				"failed to read 'hello' packet: %d\n", error);
++		} else if (buf[0] == recov_packet[1]) {
++			ts->boot_mode = RAYDIUM_TS_MAIN;
++			break;
++		}
++	}
++
++	if (error)
++		ts->boot_mode = RAYDIUM_TS_BLDR;
++	else
++		raydium_i2c_query_ts_info(ts);
++
++	return error;
++}
++
++static int raydium_i2c_fw_write_page(struct i2c_client *client,
++				    const void *page)
++{
++	const u8 ack_ok[] = { 0x55, 0xAA };
++	u8 buf[2];
++	int retry;
++	int error;
++
++	for (retry = 0; retry < MAX_FW_UPDATE_RETRIES; retry++) {
++		error = raydium_i2c_send(client, CMD_BOOT_WRT,
++			(u8 *)page, RAYDIUM_FW_PAGESIZE);
++		if (error) {
++			dev_err(&client->dev,
++				"BLDR Write Page failed: %d\n", error);
++			continue;
++		}
++
++		error = raydium_i2c_read(client, CMD_BOOT_CHK,
++			sizeof(ack_ok), (void *)buf);
++		if (error) {
++			dev_err(&client->dev,
++				"BLDR Ack read failed: %d\n", error);
++			return error;
++		}
++
++		if (!memcmp(buf, ack_ok, sizeof(ack_ok)))
++			return 0;
++
++		error = -EIO;
++		dev_err(&client->dev,
++			"BLDR Get Ack Error [%02x:%02x]\n",
++			buf[0], buf[1]);
++	}
++
++	return error;
++}
++
++static int raydium_i2c_do_update_firmware(struct i2c_client *client,
++					 const struct firmware *fw,
++					 bool force)
++{
++	const u8 boot_cmd[] = { RM_BOOT_BLDR, 0x20, 0x06, 0x00, 0x50 };
++	const u8 main_cmd[] = { RM_BOOT_MAIN, 0x20, 0x06, 0x00, 0x50 };
++	const u8 boot_ack[] = { 0x55, 0xAA, 0x00, 0xFF };
++	u8 buf[HEADER_SIZE];
++	int page, n_fw_pages;
++	int error;
++
++	/* Recovery mode detection! */
++	if (!force) {
++		/* Start boot loader Procedure */
++		dev_dbg(&client->dev, "Normal BLDR procedure\n");
++		/* switch to mode */
++		error = raydium_i2c_send_message(client, 1, (void *)boot_cmd);
++		if (error)
++			dev_err(&client->dev, "failed to send boot cmd: %d\n",
++				error);
++		msleep(60);
++		raydium_i2c_sw_reset(client);
++		msleep(RAYDIUM_RESET_DELAY_MSEC);
++		error = raydium_i2c_send_message(client, 1, (void *)boot_cmd);
++	}
++
++	if (error) {
++		dev_err(&client->dev, "failed to enter fastboot mode: %d\n",
++			error);
++		return error;
++	}
++
++	msleep(20);
++
++	/* check fastboot state */
++	error = raydium_i2c_read(client, CMD_BOOT_ACK,
++		sizeof(boot_ack), (void *)buf);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to read boot ack: %d\n",
++			error);
++		return error;
++	}
++
++	if (memcmp(buf, boot_ack, sizeof(boot_ack))) {
++		dev_err(&client->dev,
++			"failed to enter fastboot: %*ph (expected %*ph)\n",
++			(int)sizeof(buf), buf, (int)sizeof(boot_ack), boot_ack);
++		return -EIO;
++	}
++
++	dev_info(&client->dev, "successfully entered fastboot mode");
++
++	n_fw_pages = fw->size / RAYDIUM_FW_PAGESIZE;
++	dev_dbg(&client->dev, "BLDR Pages = %d\n", n_fw_pages);
++
++	for (page = 0; page < n_fw_pages; page++) {
++		error = raydium_i2c_fw_write_page(client,
++					fw->data + page * RAYDIUM_FW_PAGESIZE);
++		if (error) {
++			dev_err(&client->dev,
++				"failed to write FW page %d: %d\n",
++				page, error);
++			return error;
++		}
++	}
++	error = raydium_i2c_send_message(client, 1, (void *)main_cmd);
++	msleep(20);
++	raydium_i2c_sw_reset(client);
++	dev_info(&client->dev, "firmware update completed\n");
++
++	return 0;
++}
++
++static int raydium_i2c_fw_update(struct raydium_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	const struct firmware *fw;
++	char *fw_name;
++	int error;
++
++	fw_name = kasprintf(GFP_KERNEL, "raydium_i2c_%04x.bin",
++		ts->info.hw_ver & 0xFFFF);
++	if (!fw_name)
++		return -ENOMEM;
++
++	dev_info(&client->dev, "requesting fw name = %s\n", fw_name);
++	error = request_firmware(&fw, fw_name, &client->dev);
++	kfree(fw_name);
++	if (error) {
++		dev_err(&client->dev, "failed to request firmware: %d\n",
++			error);
++		return error;
++	}
++
++	if (fw->size % RAYDIUM_FW_PAGESIZE) {
++		dev_err(&client->dev, "invalid firmware length: %zu\n",
++			fw->size);
++		error = -EINVAL;
++		goto out;
++	}
++
++	disable_irq(client->irq);
++	error = raydium_i2c_do_update_firmware(client, fw,
++					ts->boot_mode == RAYDIUM_TS_BLDR);
++	if (error) {
++		dev_err(&client->dev, "firmware update failed: %d\n", error);
++		ts->boot_mode = RAYDIUM_TS_BLDR;
++		goto out_enable_irq;
++	}
++	error = raydium_i2c_initialize(ts);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to initialize device after firmware update: %d\n",
++			error);
++		ts->boot_mode = RAYDIUM_TS_BLDR;
++		goto out_enable_irq;
++	}
++
++	ts->boot_mode = RAYDIUM_TS_MAIN;
++
++out_enable_irq:
++	enable_irq(client->irq);
++	msleep(100);
++out:
++	release_firmware(fw);
++	return error;
++}
++
++static void raydium_mt_event(struct raydium_data *ts)
++{
++	struct raydium_abs_info *data;
++	int error, i, x, y;
++	u8 f_state;
++	u8 touch_count;
++	u8 tp_info_size;
++
++	error = raydium_i2c_read_message(ts->client, ts->obj.data_bank_addr,
++		ts->obj.pkg_size, (void *)&ts->buf);
++
++	if (error < 0) {
++		dev_err(&ts->client->dev, "%s: failed to read data: %d\n",
++			__func__, error);
++		return;
++	}
++
++	touch_count = 0;
++	tp_info_size = sizeof(ts->finger);
++
++	for (i = 0; i < MAX_TOUCH_NUM; i++) {
++		data = (struct raydium_abs_info *)(ts->buf + i * tp_info_size);
++
++		f_state = data->state & 0x03;
++
++		input_mt_slot(ts->input, i);
++		input_mt_report_slot_state(ts->input,
++				MT_TOOL_FINGER, f_state != 0);
++
++		if (!f_state)
++			continue;
++
++		x = (data->x_pos_msb << 8) | (data->x_pos_lsb);
++		y = (data->y_pos_msb << 8) | (data->y_pos_lsb);
++
++		input_report_key(ts->input,
++			BTN_TOUCH, 1);
++		input_report_key(ts->input,
++			BTN_TOOL_FINGER, 1);
++		input_report_abs(ts->input,
++			ABS_MT_POSITION_X, x);
++		input_report_abs(ts->input,
++			ABS_MT_POSITION_Y, y);
++		input_report_abs(ts->input,
++			ABS_MT_PRESSURE, data->pressure);
++		input_report_abs(ts->input,
++			ABS_MT_TOUCH_MAJOR,
++			max(data->x_width, data->y_width));
++		input_report_abs(ts->input,
++			ABS_MT_TOUCH_MINOR,
++			min(data->x_width, data->y_width));
++		touch_count++;
++	}
++
++	input_report_key(ts->input,
++		BTN_TOUCH, touch_count > 0);
++	input_report_key(ts->input,
++		BTN_TOOL_FINGER, ts->input > 0);
++	input_mt_report_pointer_emulation(ts->input, false);
++	input_sync(ts->input);
++}
++
++static irqreturn_t raydium_i2c_irq(int irq, void *_dev)
++{
++	struct raydium_data *ts = _dev;
++
++	if (ts->boot_mode != RAYDIUM_TS_BLDR)
++		raydium_mt_event(ts);
++
++	return IRQ_HANDLED;
++}
++
++static ssize_t write_update_fw(struct device *dev,
++			struct device_attribute *attr,
++			const char *buf, size_t count)
++{
++	struct raydium_data *ts = dev_get_drvdata(dev);
++	int error;
++
++	error = mutex_lock_interruptible(&ts->sysfs_mutex);
++	if (error)
++		return error;
++
++	error = raydium_i2c_fw_update(ts);
++	dev_dbg(dev, "firmware update result: %d\n", error);
++
++	mutex_unlock(&ts->sysfs_mutex);
++	return error ?: count;
++}
++
++static ssize_t raydium_bootmode_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct raydium_data *ts = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%s\n",
++		ts->boot_mode == RAYDIUM_TS_MAIN ?
++		"Normal" : "Recovery");
++}
++
++static ssize_t raydium_fw_ver_show(struct device *dev,
++			struct device_attribute *attr, char *buf)
++{
++	struct raydium_data *ts = dev_get_drvdata(dev);
++
++	return sprintf(buf, "Release Version %d.%d\n",
++		ts->info.main_ver,
++		ts->info.sub_ver);
++}
++
++static ssize_t raydium_hw_ver_show(struct device *dev,
++			struct device_attribute *attr, char *buf)
++{
++	struct raydium_data *ts = dev_get_drvdata(dev);
++
++	return sprintf(buf, "Hardware version 0x%x\n",
++		ts->info.hw_ver & 0xFFFF);
++}
++
++static DEVICE_ATTR(fw_version, S_IRUGO, raydium_fw_ver_show, NULL);
++static DEVICE_ATTR(hw_version, S_IRUGO, raydium_hw_ver_show, NULL);
++static DEVICE_ATTR(boot_mode, S_IRUGO, raydium_bootmode_show, NULL);
++static DEVICE_ATTR(update_fw, S_IWUSR, NULL, write_update_fw);
++
++static struct attribute *raydium_attributes[] = {
++	&dev_attr_update_fw.attr,
++	&dev_attr_boot_mode.attr,
++	&dev_attr_fw_version.attr,
++	&dev_attr_hw_version.attr,
++	NULL
++};
++
++static struct attribute_group raydium_attribute_group = {
++	.attrs = raydium_attributes,
++};
++
++static void raydium_i2c_remove_sysfs_group(void *_data)
++{
++	struct raydium_data *ts = _data;
++
++	sysfs_remove_group(&ts->client->dev.kobj, &raydium_attribute_group);
++}
++
++static int raydium_i2c_power_on(struct raydium_data *ts)
++{
++	int error;
++
++	if (IS_ERR_OR_NULL(ts->reset_gpio))
++		return 0;
++
++	gpiod_set_value_cansleep(ts->reset_gpio, 1);
++
++	error = regulator_enable(ts->vcc33);
++	if (error) {
++		dev_err(&ts->client->dev,
++			"failed to enable vcc33 regulator: %d\n",
++			error);
++		goto release_reset_gpio;
++	}
++
++	error = regulator_enable(ts->vccio);
++	if (error) {
++		dev_err(&ts->client->dev,
++			"failed to enable vccio regulator: %d\n",
++			error);
++		regulator_disable(ts->vcc33);
++		goto release_reset_gpio;
++	}
++
++	udelay(RAYDIUM_POWERON_DELAY_USEC);
++
++release_reset_gpio:
++	gpiod_set_value_cansleep(ts->reset_gpio, 0);
++
++	if (error)
++		return error;
++
++	msleep(RAYDIUM_RESET_DELAY_MSEC);
++
++	return 0;
++}
++
++static void raydium_i2c_power_off(void *_data)
++{
++	struct raydium_data *ts = _data;
++
++	if (!IS_ERR_OR_NULL(ts->reset_gpio)) {
++		gpiod_set_value_cansleep(ts->reset_gpio, 1);
++		regulator_disable(ts->vccio);
++		regulator_disable(ts->vcc33);
++	}
++}
++
++static int raydium_i2c_probe(struct i2c_client *client,
++			    const struct i2c_device_id *id)
++{
++	union i2c_smbus_data dummy;
++	struct raydium_data *ts;
++	unsigned long irqflags;
++	int error;
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev,
++			"%s: i2c check functionality error\n", DEVICE_NAME);
++		return -ENXIO;
++	}
++
++	ts = devm_kzalloc(&client->dev,
++		sizeof(struct raydium_data), GFP_KERNEL);
++	if (!ts)
++		return -ENOMEM;
++
++	mutex_init(&ts->sysfs_mutex);
++	init_completion(&ts->cmd_done);
++
++	ts->client = client;
++	i2c_set_clientdata(client, ts);
++
++	ts->vcc33 = devm_regulator_get(&client->dev, "avdd");
++	if (IS_ERR(ts->vcc33)) {
++		error = PTR_ERR(ts->vcc33);
++		if (error != -EPROBE_DEFER)
++			dev_err(&client->dev,
++				"Failed to get 'vcc33' regulator: %d\n",
++				error);
++		return error;
++	}
++
++	ts->vccio = devm_regulator_get(&client->dev, "vdd");
++	if (IS_ERR(ts->vccio)) {
++		error = PTR_ERR(ts->vccio);
++		if (error != -EPROBE_DEFER)
++			dev_err(&client->dev,
++				"Failed to get 'vccio' regulator: %d\n",
++				error);
++		return error;
++	}
++
++
++	ts->reset_gpio = devm_gpiod_get_optional(&client->dev, "reset",
++		GPIOD_OUT_LOW);
++	if (IS_ERR(ts->reset_gpio)) {
++		error = PTR_ERR(ts->reset_gpio);
++		if (error != -EPROBE_DEFER) {
++			dev_err(&client->dev,
++				"failed to get reset gpio: %d\n",
++				error);
++			return error;
++		}
++	}
++
++	error = raydium_i2c_power_on(ts);
++	if (error)
++		return error;
++
++	error = devm_add_action(&client->dev, raydium_i2c_power_off, ts);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to install power off action: %d\n", error);
++		raydium_i2c_power_off(ts);
++		return error;
++	}
++
++	/* Make sure there is something at this address */
++	if (i2c_smbus_xfer(client->adapter, client->addr, 0,
++			   I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &dummy) < 0) {
++		dev_err(&client->dev, "nothing at this address\n");
++		return -ENXIO;
++	}
++
++	error = raydium_i2c_initialize(ts);
++	if (error) {
++		dev_err(&client->dev, "failed to initialize: %d\n", error);
++		return error;
++	}
++
++	ts->input = devm_input_allocate_device(&client->dev);
++	if (!ts->input) {
++		dev_err(&client->dev, "Failed to allocate input device\n");
++		return -ENOMEM;
++	}
++
++	ts->input->name = "Raydium Touchscreen";
++	ts->input->id.bustype = BUS_I2C;
++
++	__set_bit(BTN_TOUCH, ts->input->keybit);
++	__set_bit(EV_ABS, ts->input->evbit);
++	__set_bit(EV_KEY, ts->input->evbit);
++
++	/* Single touch input params setup */
++	input_set_abs_params(ts->input, ABS_X, 0, ts->info.x_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_Y, 0, ts->info.y_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_PRESSURE, 0, 255, 0, 0);
++	input_abs_set_res(ts->input, ABS_X, ts->info.x_res);
++	input_abs_set_res(ts->input, ABS_Y, ts->info.y_res);
++
++	/* Multitouch input params setup */
++	error = input_mt_init_slots(ts->input, MAX_TOUCH_NUM,
++				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to initialize MT slots: %d\n", error);
++		return error;
++	}
++
++	input_set_abs_params(ts->input, ABS_MT_POSITION_X, 0,
++		ts->info.x_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_POSITION_Y,
++		0, ts->info.y_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_PRESSURE, 0, 255, 0, 0);
++	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->info.x_res);
++	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->info.y_res);
++
++	input_mt_init_slots(ts->input, MAX_TOUCH_NUM, 0);
++
++	input_set_drvdata(ts->input, ts);
++
++	error = input_register_device(ts->input);
++	if (error) {
++		dev_err(&client->dev,
++			"unable to register input device: %d\n", error);
++		return error;
++	}
++
++	error = devm_request_threaded_irq(&client->dev, client->irq,
++					  NULL, raydium_i2c_irq,
++					  irqflags | IRQF_ONESHOT,
++					  client->name, ts);
++	if (error) {
++		dev_err(&client->dev, "Failed to register interrupt\n");
++		return error;
++	}
++
++	if (!client->dev.of_node)
++		device_init_wakeup(&client->dev, true);
++
++	error = sysfs_create_group(&client->dev.kobj, &raydium_attribute_group);
++	if (error) {
++		dev_err(&client->dev, "failed to create sysfs attributes: %d\n",
++			error);
++		return error;
++	}
++
++	error = devm_add_action(&client->dev,
++				raydium_i2c_remove_sysfs_group, ts);
++	if (error) {
++		raydium_i2c_remove_sysfs_group(ts);
++		dev_err(&client->dev,
++			"Failed to add sysfs cleanup action: %d\n",
++			error);
++		return error;
++	}
++
++	return 0;
++}
++
++static int raydium_i2c_remove(struct i2c_client *client)
++{
++	struct raydium_data *ts = i2c_get_clientdata(client);
++
++	if (ts->input)
++		input_unregister_device(ts->input);
++
++	device_init_wakeup(&client->dev, false);
++
++	devm_free_irq(&client->dev, client->irq, ts);
++
++	mutex_destroy(&ts->sysfs_mutex);
++
++	devm_remove_action(&client->dev, raydium_i2c_remove_sysfs_group, ts);
++
++	devm_remove_action(&client->dev, raydium_i2c_power_off, ts);
++
++	return 0;
++}
++
++static void __maybe_unused raydium_enter_sleep(struct i2c_client *client)
++{
++	const u8 sleep_cmd[] = { 0x5A, 0xff, 0x00, 0x0f };
++	int error;
++
++	error = raydium_i2c_send(client, CMD_ENTER_SLEEP,
++			(u8 *)sleep_cmd, sizeof(sleep_cmd));
++	if (error)
++		dev_err(&client->dev,
++			"Send sleep failed: %d\n", error);
++}
++
++static int __maybe_unused raydium_i2c_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct raydium_data *ts = i2c_get_clientdata(client);
++
++	/* Command not support in BLDR recovery mode */
++	if (ts->boot_mode != RAYDIUM_TS_MAIN)
++		return -EBUSY;
++
++	disable_irq(client->irq);
++
++	if (device_may_wakeup(dev)) {
++		raydium_enter_sleep(client);
++
++		ts->wake_irq_enabled = (enable_irq_wake(client->irq) == 0);
++	} else {
++		raydium_i2c_power_off(ts);
++	}
++
++	return 0;
++}
++
++static int __maybe_unused raydium_i2c_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct raydium_data *ts = i2c_get_clientdata(client);
++
++	if (device_may_wakeup(dev)) {
++		if (ts->wake_irq_enabled)
++			disable_irq_wake(client->irq);
++		raydium_i2c_sw_reset(client);
++	} else {
++		raydium_i2c_power_on(ts);
++		raydium_i2c_initialize(ts);
++	}
++
++	enable_irq(client->irq);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(raydium_i2c_pm_ops,
++			 raydium_i2c_suspend, raydium_i2c_resume);
++
++static const struct i2c_device_id raydium_i2c_id[] = {
++	{ DEVICE_NAME, 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, raydium_i2c_id);
++
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id raydium_acpi_id[] = {
++	{ "RMTS_0001", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, raydium_acpi_id);
++#endif
++
++#ifdef CONFIG_OF
++static const struct of_device_id raydium_of_match[] = {
++	{ .compatible = "raydium,rm-ts",},
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, raydium_of_match);
++#endif
++
++static struct i2c_driver raydium_i2c_driver = {
++	.probe = raydium_i2c_probe,
++	.remove = raydium_i2c_remove,
++	.id_table = raydium_i2c_id,
++	.driver = {
++		.name = "raydium_ts",
++		.pm = &raydium_i2c_pm_ops,
++		.acpi_match_table = ACPI_PTR(raydium_acpi_id),
++		.of_match_table = of_match_ptr(raydium_of_match),
++	},
++};
++
++module_i2c_driver(raydium_i2c_driver);
++
++MODULE_AUTHOR("Raydium");
++MODULE_DESCRIPTION("Raydium I2c Touchscreen driver");
++MODULE_LICENSE("GPL");
+-- 
+2.1.2
 
-> -----Original Message-----
-> From: Dudley Du [mailto:dudl@cypress.com]
-> Sent: 2016?1?14? 13:41
-> To: dmitry.torokhov@gmail.com; eugenesan@gmail.com
-> Cc: Dudley Du; bleung@google.com; jmmahler@gmail.com;
-> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: [PATCH] input: cyapa: fix the report events may lost issue during set power
-> mode
->
-> When driver set the power mode to change the scan rate in auto suspend
-> process, some events may be lost because
-> 1) for gen3 trackpad, the driver must msleep() some time to avoid issuing
-> next command encounter error;
-> 2) for gen5 and later trackpads, the queue dumping function will simply
-> ignore the events when waiting for the set power mode command response.
-> so, when auto resume process will be executed, the set power mode command
-> will be issued can cause the events may be lost.
-> The solution is kept polling and report those valid events when the set
-> power mode command is in progress.
->
-> TEST=test on Acer C720P Chromebook
->
-> Signed-off-by: Dudley Du <dudl@cypress.com>
-> ---
->  drivers/input/mouse/cyapa.c      |  22 ++++----
->  drivers/input/mouse/cyapa.h      |  14 ++++-
->  drivers/input/mouse/cyapa_gen3.c | 108
-> ++++++++++++++++++++++++++++-----------
->  drivers/input/mouse/cyapa_gen5.c |  99 +++++++++++++++++++++++++++++------
->  drivers/input/mouse/cyapa_gen6.c |   4 +-
->  5 files changed, 188 insertions(+), 59 deletions(-)
->
-> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-> index eb76b61..dc23942 100644
-> --- a/drivers/input/mouse/cyapa.c
-> +++ b/drivers/input/mouse/cyapa.c
-> @@ -383,7 +383,7 @@ static int cyapa_open(struct input_dev *input)
->   * when in operational mode.
->   */
->  error = cyapa->ops->set_power_mode(cyapa,
-> -PWR_MODE_FULL_ACTIVE, 0, false);
-> +PWR_MODE_FULL_ACTIVE, 0, CYAPA_PM_ACTIVE);
->  if (error) {
->  dev_warn(dev, "set active power failed: %d\n", error);
->  goto out;
-> @@ -424,7 +424,8 @@ static void cyapa_close(struct input_dev *input)
->  pm_runtime_set_suspended(dev);
->
->  if (cyapa->operational)
-> -cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0, false);
-> +cyapa->ops->set_power_mode(cyapa,
-> +PWR_MODE_OFF, 0, CYAPA_PM_DEACTIVE);
->
->  mutex_unlock(&cyapa->state_sync_lock);
->  }
-> @@ -534,7 +535,7 @@ static void cyapa_enable_irq_for_cmd(struct cyapa
-> *cyapa)
->   */
->  if (!input || cyapa->operational)
->  cyapa->ops->set_power_mode(cyapa,
-> -PWR_MODE_FULL_ACTIVE, 0, false);
-> +PWR_MODE_FULL_ACTIVE, 0, CYAPA_PM_ACTIVE);
->  /* Gen3 always using polling mode for command. */
->  if (cyapa->gen >= CYAPA_GEN5)
->  enable_irq(cyapa->client->irq);
-> @@ -550,7 +551,7 @@ static void cyapa_disable_irq_for_cmd(struct cyapa
-> *cyapa)
->  disable_irq(cyapa->client->irq);
->  if (!input || cyapa->operational)
->  cyapa->ops->set_power_mode(cyapa,
-> -   PWR_MODE_OFF, 0, false);
-> +PWR_MODE_OFF, 0, CYAPA_PM_ACTIVE);
->  }
->  }
->
-> @@ -617,7 +618,8 @@ static int cyapa_initialize(struct cyapa *cyapa)
->
->  /* Power down the device until we need it. */
->  if (cyapa->operational)
-> -cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0, false);
-> +cyapa->ops->set_power_mode(cyapa,
-> +PWR_MODE_OFF, 0, CYAPA_PM_ACTIVE);
->
->  return 0;
->  }
-> @@ -634,7 +636,7 @@ static int cyapa_reinitialize(struct cyapa *cyapa)
->  /* Avoid command failures when TP was in OFF state. */
->  if (cyapa->operational)
->  cyapa->ops->set_power_mode(cyapa,
-> -   PWR_MODE_FULL_ACTIVE, 0, false);
-> +PWR_MODE_FULL_ACTIVE, 0, CYAPA_PM_ACTIVE);
->
->  error = cyapa_detect(cyapa);
->  if (error)
-> @@ -654,7 +656,7 @@ out:
->  /* Reset to power OFF state to save power when no user open. */
->  if (cyapa->operational)
->  cyapa->ops->set_power_mode(cyapa,
-> -   PWR_MODE_OFF, 0, false);
-> +PWR_MODE_OFF, 0, CYAPA_PM_DEACTIVE);
->  } else if (!error && cyapa->operational) {
->  /*
->   * Make sure only enable runtime PM when device is
-> @@ -1392,7 +1394,7 @@ static int __maybe_unused cyapa_suspend(struct device
-> *dev)
->  power_mode = device_may_wakeup(dev) ?
-> cyapa->suspend_power_mode
->      : PWR_MODE_OFF;
->  error = cyapa->ops->set_power_mode(cyapa, power_mode,
-> -cyapa->suspend_sleep_time, true);
-> +cyapa->suspend_sleep_time, CYAPA_PM_SUSPEND);
->  if (error)
->  dev_err(dev, "suspend set power mode failed: %d\n",
->  error);
-> @@ -1447,7 +1449,7 @@ static int __maybe_unused
-> cyapa_runtime_suspend(struct device *dev)
->  error = cyapa->ops->set_power_mode(cyapa,
->  cyapa->runtime_suspend_power_mode,
->  cyapa->runtime_suspend_sleep_time,
-> -false);
-> +CYAPA_PM_RUNTIME_SUSPEND);
->  if (error)
->  dev_warn(dev, "runtime suspend failed: %d\n", error);
->
-> @@ -1460,7 +1462,7 @@ static int __maybe_unused
-> cyapa_runtime_resume(struct device *dev)
->  int error;
->
->  error = cyapa->ops->set_power_mode(cyapa,
-> -   PWR_MODE_FULL_ACTIVE, 0, false);
-> +PWR_MODE_FULL_ACTIVE, 0, CYAPA_PM_RUNTIME_RESUME);
->  if (error)
->  dev_warn(dev, "runtime resume failed: %d\n", error);
->
-> diff --git a/drivers/input/mouse/cyapa.h b/drivers/input/mouse/cyapa.h
-> index b812bba..ce951fe 100644
-> --- a/drivers/input/mouse/cyapa.h
-> +++ b/drivers/input/mouse/cyapa.h
-> @@ -250,6 +250,15 @@ struct cyapa;
->
->  typedef bool (*cb_sort)(struct cyapa *, u8 *, int);
->
-> +enum cyapa_pm_stage {
-> +CYAPA_PM_DEACTIVE,
-> +CYAPA_PM_ACTIVE,
-> +CYAPA_PM_SUSPEND,
-> +CYAPA_PM_RESUME,
-> +CYAPA_PM_RUNTIME_SUSPEND,
-> +CYAPA_PM_RUNTIME_RESUME,
-> +};
-> +
->  struct cyapa_dev_ops {
->  int (*check_fw)(struct cyapa *, const struct firmware *);
->  int (*bl_enter)(struct cyapa *);
-> @@ -273,7 +282,7 @@ struct cyapa_dev_ops {
->  int (*sort_empty_output_data)(struct cyapa *,
->  u8 *, int *, cb_sort);
->
-> -int (*set_power_mode)(struct cyapa *, u8, u16, bool);
-> +int (*set_power_mode)(struct cyapa *, u8, u16, enum cyapa_pm_stage);
->
->  int (*set_proximity)(struct cyapa *, bool);
->  };
-> @@ -289,6 +298,9 @@ struct cyapa_pip_cmd_states {
->  u8 *resp_data;
->  int *resp_len;
->
-> +enum cyapa_pm_stage pm_stage;
-> +struct mutex pm_stage_lock;
-> +
->  u8 irq_cmd_buf[CYAPA_REG_MAP_SIZE];
->  u8 empty_buf[CYAPA_REG_MAP_SIZE];
->  };
-> diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
-> index 1a9d12a..c86c31f 100644
-> --- a/drivers/input/mouse/cyapa_gen3.c
-> +++ b/drivers/input/mouse/cyapa_gen3.c
-> @@ -269,6 +269,7 @@ static const struct cyapa_cmd_len cyapa_smbus_cmds[] =
-> {
->  { CYAPA_SMBUS_MIN_BASELINE, 1 },/* CYAPA_CMD_MIN_BASELINE */
->  };
->
-> +static int cyapa_gen3_try_poll_handler(struct cyapa *cyapa);
->
->  /*
->   * cyapa_smbus_read_block - perform smbus block read command
-> @@ -950,12 +951,14 @@ static u16 cyapa_get_wait_time_for_pwr_cmd(u8
-> pwr_mode)
->   * Device power mode can only be set when device is in operational mode.
->   */
->  static int cyapa_gen3_set_power_mode(struct cyapa *cyapa, u8 power_mode,
-> -u16 always_unused, bool is_suspend_unused)
-> +u16 always_unused, enum cyapa_pm_stage pm_stage)
->  {
-> -int ret;
-> +struct input_dev *input = cyapa->input;
->  u8 power;
->  int tries;
-> -u16 sleep_time;
-> +int sleep_time;
-> +int interval;
-> +int ret;
->
->  if (cyapa->state != CYAPA_STATE_OP)
->  return 0;
-> @@ -977,7 +980,7 @@ static int cyapa_gen3_set_power_mode(struct cyapa
-> *cyapa, u8 power_mode,
->  if ((ret & PWR_MODE_MASK) == power_mode)
->  return 0;
->
-> -sleep_time = cyapa_get_wait_time_for_pwr_cmd(ret & PWR_MODE_MASK);
-> +sleep_time = (int)cyapa_get_wait_time_for_pwr_cmd(ret &
-> PWR_MODE_MASK);
->  power = ret;
->  power &= ~PWR_MODE_MASK;
->  power |= power_mode & PWR_MODE_MASK;
-> @@ -995,7 +998,23 @@ static int cyapa_gen3_set_power_mode(struct cyapa
-> *cyapa, u8 power_mode,
->   * doing so before issuing the next command may result in errors
->   * depending on the command's content.
->   */
-> -msleep(sleep_time);
-> +if (cyapa->operational && input && input->users &&
-> +    (pm_stage == CYAPA_PM_RUNTIME_SUSPEND ||
-> +     pm_stage == CYAPA_PM_RUNTIME_RESUME)) {
-> +/* Try to polling in 120Hz, read may fail, just ignore it. */
-> +interval = 1000 / 120;
-> +while (sleep_time > 0) {
-> +if (sleep_time > interval)
-> +msleep(interval);
-> +else
-> +msleep(sleep_time);
-> +sleep_time -= interval;
-> +cyapa_gen3_try_poll_handler(cyapa);
-> +}
-> +} else {
-> +msleep(sleep_time);
-> +}
-> +
->  return ret;
->  }
->
-> @@ -1112,7 +1131,7 @@ static int cyapa_gen3_do_operational_check(struct
-> cyapa *cyapa)
->   * may cause problems, so we set the power mode first here.
->   */
->  error = cyapa_gen3_set_power_mode(cyapa,
-> -PWR_MODE_FULL_ACTIVE, 0, false);
-> +PWR_MODE_FULL_ACTIVE, 0, CYAPA_PM_ACTIVE);
->  if (error)
->  dev_err(dev, "%s: set full power mode failed: %d\n",
->  __func__, error);
-> @@ -1168,32 +1187,16 @@ static bool cyapa_gen3_irq_cmd_handler(struct
-> cyapa *cyapa)
->  return false;
->  }
->
-> -static int cyapa_gen3_irq_handler(struct cyapa *cyapa)
-> +static int cyapa_gen3_event_process(struct cyapa *cyapa,
-> +    struct cyapa_reg_data *data)
->  {
->  struct input_dev *input = cyapa->input;
-> -struct device *dev = &cyapa->client->dev;
-> -struct cyapa_reg_data data;
->  int num_fingers;
-> -int ret;
->  int i;
->
-> -ret = cyapa_read_block(cyapa, CYAPA_CMD_GROUP_DATA, (u8 *)&data);
-> -if (ret != sizeof(data)) {
-> -dev_err(dev, "failed to read report data, (%d)\n", ret);
-> -return -EINVAL;
-> -}
-> -
-> -if ((data.device_status & OP_STATUS_SRC) != OP_STATUS_SRC ||
-> -    (data.device_status & OP_STATUS_DEV) != CYAPA_DEV_NORMAL ||
-> -    (data.finger_btn & OP_DATA_VALID) != OP_DATA_VALID) {
-> -dev_err(dev, "invalid device state bytes, %02x %02x\n",
-> -data.device_status, data.finger_btn);
-> -return -EINVAL;
-> -}
-> -
-> -num_fingers = (data.finger_btn >> 4) & 0x0f;
-> +num_fingers = (data->finger_btn >> 4) & 0x0f;
->  for (i = 0; i < num_fingers; i++) {
-> -const struct cyapa_touch *touch = &data.touches[i];
-> +const struct cyapa_touch *touch = &data->touches[i];
->  /* Note: touch->id range is 1 to 15; slots are 0 to 14. */
->  int slot = touch->id - 1;
->
-> @@ -1210,18 +1213,65 @@ static int cyapa_gen3_irq_handler(struct cyapa
-> *cyapa)
->
->  if (cyapa->btn_capability & CAPABILITY_LEFT_BTN_MASK)
->  input_report_key(input, BTN_LEFT,
-> - !!(data.finger_btn & OP_DATA_LEFT_BTN));
-> + !!(data->finger_btn & OP_DATA_LEFT_BTN));
->  if (cyapa->btn_capability & CAPABILITY_MIDDLE_BTN_MASK)
->  input_report_key(input, BTN_MIDDLE,
-> - !!(data.finger_btn & OP_DATA_MIDDLE_BTN));
-> + !!(data->finger_btn & OP_DATA_MIDDLE_BTN));
->  if (cyapa->btn_capability & CAPABILITY_RIGHT_BTN_MASK)
->  input_report_key(input, BTN_RIGHT,
-> - !!(data.finger_btn & OP_DATA_RIGHT_BTN));
-> + !!(data->finger_btn & OP_DATA_RIGHT_BTN));
->  input_sync(input);
->
->  return 0;
->  }
->
-> +static int cyapa_gen3_irq_handler(struct cyapa *cyapa)
-> +{
-> +struct device *dev = &cyapa->client->dev;
-> +struct cyapa_reg_data data;
-> +int ret;
-> +
-> +ret = cyapa_read_block(cyapa, CYAPA_CMD_GROUP_DATA, (u8 *)&data);
-> +if (ret != sizeof(data)) {
-> +dev_err(dev, "failed to read report data, (%d)\n", ret);
-> +return -EINVAL;
-> +}
-> +
-> +if ((data.device_status & OP_STATUS_SRC) != OP_STATUS_SRC ||
-> +    (data.device_status & OP_STATUS_DEV) != CYAPA_DEV_NORMAL ||
-> +    (data.finger_btn & OP_DATA_VALID) != OP_DATA_VALID) {
-> +dev_err(dev, "invalid device state bytes, %02x %02x\n",
-> +data.device_status, data.finger_btn);
-> +return -EINVAL;
-> +}
-> +
-> +return cyapa_gen3_event_process(cyapa, &data);
-> +}
-> +
-> +/*
-> + * This function will be called in the cyapa_gen3_set_power_mode function,
-> + * and it's known that it may failed in some situation after the set power
-> + * mode command was sent. So this function is aimed to avoid the knwon
-> + * and unwanted output I2C and data parse error messages.
-> + */
-> +static int cyapa_gen3_try_poll_handler(struct cyapa *cyapa)
-> +{
-> +struct cyapa_reg_data data;
-> +int ret;
-> +
-> +ret = cyapa_read_block(cyapa, CYAPA_CMD_GROUP_DATA, (u8 *)&data);
-> +if (ret != sizeof(data))
-> +return -EINVAL;
-> +
-> +if ((data.device_status & OP_STATUS_SRC) != OP_STATUS_SRC ||
-> +    (data.device_status & OP_STATUS_DEV) != CYAPA_DEV_NORMAL ||
-> +    (data.finger_btn & OP_DATA_VALID) != OP_DATA_VALID)
-> +return -EINVAL;
-> +
-> +return cyapa_gen3_event_process(cyapa, &data);
-> +
-> +}
-> +
->  static int cyapa_gen3_initialize(struct cyapa *cyapa) { return 0; }
->  static int cyapa_gen3_bl_initiate(struct cyapa *cyapa,
->  const struct firmware *fw) { return 0; }
-> diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
-> index 118ba97..5775d40 100644
-> --- a/drivers/input/mouse/cyapa_gen5.c
-> +++ b/drivers/input/mouse/cyapa_gen5.c
-> @@ -342,6 +342,9 @@ u8 pip_bl_read_app_info[] = { 0x04, 0x00, 0x0b, 0x00, 0x40,
-> 0x00,
->  static u8 cyapa_pip_bl_cmd_key[] = { 0xa5, 0x01, 0x02, 0x03,
->  0xff, 0xfe, 0xfd, 0x5a };
->
-> +static int cyapa_pip_event_process(struct cyapa *cyapa,
-> +   struct cyapa_pip_report_data *report_data);
-> +
->  int cyapa_pip_cmd_state_initialize(struct cyapa *cyapa)
->  {
->  struct cyapa_pip_cmd_states *pip = &cyapa->cmd_states.pip;
-> @@ -350,6 +353,9 @@ int cyapa_pip_cmd_state_initialize(struct cyapa *cyapa)
->  atomic_set(&pip->cmd_issued, 0);
->  mutex_init(&pip->cmd_lock);
->
-> +mutex_init(&pip->pm_stage_lock);
-> +pip->pm_stage = CYAPA_PM_DEACTIVE;
-> +
->  pip->resp_sort_func = NULL;
->  pip->in_progress_cmd = PIP_INVALID_CMD;
->  pip->resp_data = NULL;
-> @@ -397,6 +403,38 @@ ssize_t cyapa_i2c_pip_write(struct cyapa *cyapa, u8 *buf,
-> size_t size)
->  return 0;
->  }
->
-> +static void cyapa_set_pip_pm_state(struct cyapa *cyapa,
-> +   enum cyapa_pm_stage pm_stage)
-> +{
-> +struct cyapa_pip_cmd_states *pip = &cyapa->cmd_states.pip;
-> +
-> +mutex_lock(&pip->pm_stage_lock);
-> +pip->pm_stage = pm_stage;
-> +mutex_unlock(&pip->pm_stage_lock);
-> +}
-> +
-> +static void cyapa_reset_pip_pm_state(struct cyapa *cyapa)
-> +{
-> +struct cyapa_pip_cmd_states *pip = &cyapa->cmd_states.pip;
-> +
-> +/* Indicates the pip->pm_stage is not valid. */
-> +mutex_lock(&pip->pm_stage_lock);
-> +pip->pm_stage = CYAPA_PM_DEACTIVE;
-> +mutex_unlock(&pip->pm_stage_lock);
-> +}
-> +
-> +static enum cyapa_pm_stage cyapa_get_pip_pm_state(struct cyapa *cyapa)
-> +{
-> +struct cyapa_pip_cmd_states *pip = &cyapa->cmd_states.pip;
-> +enum cyapa_pm_stage pm_stage;
-> +
-> +mutex_lock(&pip->pm_stage_lock);
-> +pm_stage = pip->pm_stage;
-> +mutex_unlock(&pip->pm_stage_lock);
-> +
-> +return pm_stage;
-> +}
-> +
->  /**
->   * This function is aimed to dump all not read data in Gen5 trackpad
->   * before send any command, otherwise, the interrupt line will be blocked.
-> @@ -404,7 +442,9 @@ ssize_t cyapa_i2c_pip_write(struct cyapa *cyapa, u8 *buf,
-> size_t size)
->  int cyapa_empty_pip_output_data(struct cyapa *cyapa,
->  u8 *buf, int *len, cb_sort func)
->  {
-> +struct input_dev *input = cyapa->input;
->  struct cyapa_pip_cmd_states *pip = &cyapa->cmd_states.pip;
-> +enum cyapa_pm_stage pm_stage = cyapa_get_pip_pm_state(cyapa);
->  int length;
->  int report_count;
->  int empty_count;
-> @@ -478,6 +518,12 @@ int cyapa_empty_pip_output_data(struct cyapa *cyapa,
->  *len = length;
->  /* Response found, success. */
->  return 0;
-> +} else if (cyapa->operational && input && input->users &&
-> +   (pm_stage == CYAPA_PM_RUNTIME_RESUME ||
-> +    pm_stage == CYAPA_PM_RUNTIME_SUSPEND)) {
-> +/* Parse the data and report it if it's valid. */
-> +cyapa_pip_event_process(cyapa,
-> +       (struct cyapa_pip_report_data *)pip->empty_buf);
->  }
->
->  error = -EINVAL;
-> @@ -1566,15 +1612,17 @@ int cyapa_pip_deep_sleep(struct cyapa *cyapa, u8
-> state)
->  }
->
->  static int cyapa_gen5_set_power_mode(struct cyapa *cyapa,
-> -u8 power_mode, u16 sleep_time, bool is_suspend)
-> +u8 power_mode, u16 sleep_time, enum cyapa_pm_stage pm_stage)
->  {
->  struct device *dev = &cyapa->client->dev;
->  u8 power_state;
-> -int error;
-> +int error = 0;
->
->  if (cyapa->state != CYAPA_STATE_GEN5_APP)
->  return 0;
->
-> +cyapa_set_pip_pm_state(cyapa, pm_stage);
-> +
->  if (PIP_DEV_GET_PWR_STATE(cyapa) == UNINIT_PWR_MODE) {
->  /*
->   * Assume TP in deep sleep mode when driver is loaded,
-> @@ -1597,7 +1645,7 @@ static int cyapa_gen5_set_power_mode(struct cyapa
-> *cyapa,
->  power_mode == PWR_MODE_BTN_ONLY ||
->  PIP_DEV_GET_SLEEP_TIME(cyapa) == sleep_time) {
->  /* Has in correct power mode state, early return. */
-> -return 0;
-> +goto out;
->  }
->  }
->
-> @@ -1605,11 +1653,11 @@ static int cyapa_gen5_set_power_mode(struct cyapa
-> *cyapa,
->  error = cyapa_pip_deep_sleep(cyapa, PIP_DEEP_SLEEP_STATE_OFF);
->  if (error) {
->  dev_err(dev, "enter deep sleep fail: %d\n", error);
-> -return error;
-> +goto out;
->  }
->
->  PIP_DEV_SET_PWR_STATE(cyapa, PWR_MODE_OFF);
-> -return 0;
-> +goto out;
->  }
->
->  /*
-> @@ -1621,7 +1669,7 @@ static int cyapa_gen5_set_power_mode(struct cyapa
-> *cyapa,
->  error = cyapa_pip_deep_sleep(cyapa, PIP_DEEP_SLEEP_STATE_ON);
->  if (error) {
->  dev_err(dev, "deep sleep wake fail: %d\n", error);
-> -return error;
-> +goto out;
->  }
->  }
->
-> @@ -1630,7 +1678,7 @@ static int cyapa_gen5_set_power_mode(struct cyapa
-> *cyapa,
->  GEN5_POWER_STATE_ACTIVE);
->  if (error) {
->  dev_err(dev, "change to active fail: %d\n", error);
-> -return error;
-> +goto out;
->  }
->
->  PIP_DEV_SET_PWR_STATE(cyapa, PWR_MODE_FULL_ACTIVE);
-> @@ -1639,7 +1687,7 @@ static int cyapa_gen5_set_power_mode(struct cyapa
-> *cyapa,
->  GEN5_POWER_STATE_BTN_ONLY);
->  if (error) {
->  dev_err(dev, "fail to button only mode: %d\n", error);
-> -return error;
-> +goto out;
->  }
->
->  PIP_DEV_SET_PWR_STATE(cyapa, PWR_MODE_BTN_ONLY);
-> @@ -1664,7 +1712,7 @@ static int cyapa_gen5_set_power_mode(struct cyapa
-> *cyapa,
->  if (error) {
->  dev_err(dev, "set power state to 0x%02x failed: %d\n",
->  power_state, error);
-> -return error;
-> +goto out;
->  }
->
->  /*
-> @@ -1677,14 +1725,16 @@ static int cyapa_gen5_set_power_mode(struct cyapa
-> *cyapa,
->   * is suspending which may cause interrupt line unable to be
->   * asserted again.
->   */
-> -if (is_suspend)
-> +if (pm_stage == CYAPA_PM_SUSPEND)
->  cyapa_gen5_disable_pip_report(cyapa);
->
->  PIP_DEV_SET_PWR_STATE(cyapa,
->  cyapa_sleep_time_to_pwr_cmd(sleep_time));
->  }
->
-> -return 0;
-> +out:
-> +cyapa_reset_pip_pm_state(cyapa);
-> +return error;
->  }
->
->  int cyapa_pip_resume_scanning(struct cyapa *cyapa)
-> @@ -2513,7 +2563,7 @@ static int cyapa_gen5_do_operational_check(struct
-> cyapa *cyapa)
->   * the device state is required.
->   */
->  error = cyapa_gen5_set_power_mode(cyapa,
-> -PWR_MODE_FULL_ACTIVE, 0, false);
-> +PWR_MODE_FULL_ACTIVE, 0, CYAPA_PM_ACTIVE);
->  if (error)
->  dev_warn(dev, "%s: failed to set power active mode.\n",
->  __func__);
-> @@ -2715,7 +2765,6 @@ int cyapa_pip_irq_handler(struct cyapa *cyapa)
->  struct device *dev = &cyapa->client->dev;
->  struct cyapa_pip_report_data report_data;
->  unsigned int report_len;
-> -u8 report_id;
->  int ret;
->
->  if (!cyapa_is_pip_app_mode(cyapa)) {
-> @@ -2752,7 +2801,23 @@ int cyapa_pip_irq_handler(struct cyapa *cyapa)
->  return -EINVAL;
->  }
->
-> -report_id = report_data.report_head[PIP_RESP_REPORT_ID_OFFSET];
-> +return cyapa_pip_event_process(cyapa, &report_data);
-> +}
-> +
-> +static int cyapa_pip_event_process(struct cyapa *cyapa,
-> +   struct cyapa_pip_report_data *report_data)
-> +{
-> +struct device *dev = &cyapa->client->dev;
-> +unsigned int report_len;
-> +u8 report_id;
-> +
-> +report_len = get_unaligned_le16(
-> +&report_data->report_head[PIP_RESP_LENGTH_OFFSET]);
-> +/* Idle, no data for report. */
-> +if (report_len == PIP_RESP_LENGTH_SIZE)
-> +return 0;
-> +
-> +report_id = report_data->report_head[PIP_RESP_REPORT_ID_OFFSET];
->  if (report_id == PIP_WAKEUP_EVENT_REPORT_ID &&
->  report_len == PIP_WAKEUP_EVENT_SIZE) {
->  /*
-> @@ -2805,11 +2870,11 @@ int cyapa_pip_irq_handler(struct cyapa *cyapa)
->  }
->
->  if (report_id == PIP_TOUCH_REPORT_ID)
-> -cyapa_pip_report_touches(cyapa, &report_data);
-> +cyapa_pip_report_touches(cyapa, report_data);
->  else if (report_id == PIP_PROXIMITY_REPORT_ID)
-> -cyapa_pip_report_proximity(cyapa, &report_data);
-> +cyapa_pip_report_proximity(cyapa, report_data);
->  else
-> -cyapa_pip_report_buttons(cyapa, &report_data);
-> +cyapa_pip_report_buttons(cyapa, report_data);
->
->  return 0;
->  }
-> diff --git a/drivers/input/mouse/cyapa_gen6.c b/drivers/input/mouse/cyapa_gen6.c
-> index e4eb048..0163978 100644
-> --- a/drivers/input/mouse/cyapa_gen6.c
-> +++ b/drivers/input/mouse/cyapa_gen6.c
-> @@ -425,7 +425,7 @@ static int cyapa_gen6_deep_sleep(struct cyapa *cyapa, u8
-> state)
->  }
->
->  static int cyapa_gen6_set_power_mode(struct cyapa *cyapa,
-> -u8 power_mode, u16 sleep_time, bool is_suspend)
-> +u8 power_mode, u16 sleep_time, enum cyapa_pm_stage pm_stage)
->  {
->  struct device *dev = &cyapa->client->dev;
->  struct gen6_interval_setting *interval_setting =
-> @@ -689,7 +689,7 @@ static int cyapa_gen6_operational_check(struct cyapa
-> *cyapa)
->   * the device state is required.
->   */
->  error = cyapa_gen6_set_power_mode(cyapa,
-> -PWR_MODE_FULL_ACTIVE, 0, false);
-> +PWR_MODE_FULL_ACTIVE, 0, CYAPA_PM_ACTIVE);
->  if (error)
->  dev_warn(dev, "%s: failed to set power active mode.\n",
->  __func__);
-> --
-> 1.9.1
->
->
-> ---------------------------------------------------------------
-> This message and any attachments may contain Cypress (or its
-> subsidiaries) confidential information. If it has been received
-> in error, please advise the sender and immediately delete this
-> message.
-> ---------------------------------------------------------------
-
-
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

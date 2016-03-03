@@ -1,59 +1,39 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v5 00/10] Input: synaptics-rmi4: Synaptics RMI4 Driver
-Date: Thu, 3 Mar 2016 18:11:38 +0100
-Message-ID: <20160303171138.GH22340@mail.corp.redhat.com>
-References: <1455142982-10008-1-git-send-email-aduggan@synaptics.com>
- <CACRpkdaE91ncWccG9_dsOiC40j9mFpm7A=S_mpeHmP-vjSVjMQ@mail.gmail.com>
- <56BE200F.5040602@synaptics.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v4 1/3] input: cygnus-update touchscreen dt node document
+Date: Thu, 3 Mar 2016 16:04:12 -0600
+Message-ID: <20160303220412.GA27797@rob-hp-laptop>
+References: <1456556396-4759-1-git-send-email-raveendra.padasalagi@broadcom.com>
+ <1456556396-4759-2-git-send-email-raveendra.padasalagi@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:32861 "EHLO mx1.redhat.com"
+Received: from mail.kernel.org ([198.145.29.136]:39392 "EHLO mail.kernel.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752052AbcCCRLo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Mar 2016 12:11:44 -0500
+	id S1756736AbcCCWER (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Mar 2016 17:04:17 -0500
 Content-Disposition: inline
-In-Reply-To: <56BE200F.5040602@synaptics.com>
+In-Reply-To: <1456556396-4759-2-git-send-email-raveendra.padasalagi@broadcom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>, Rob Herring <robh@kernel.org>
+To: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jonathan Richardson <jonathar@broadcom.com>, Jon Mason <jonmason@broadcom.com>, Florian Fainelli <f.fainelli@gmail.com>, Anup Patel <anup.patel@broadcom.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com
 
-On Feb 12 2016 or thereabouts, Andrew Duggan wrote:
-> On 02/12/2016 04:54 AM, Linus Walleij wrote:
-> >On Wed, Feb 10, 2016 at 11:23 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
-> >
-> >>This is the v5 patch series which fixes the issues identified by kbuild
-> >>and coccinelle in the previous patch series. These include:
-> >>
-> >>- Using ARRAY_SIZE instead of a custom macro to calculate the size of the
-> >>   function handler array.
-> >>- Remove setting the .owner field for the driver in rmi_i2c and rmi_spi
-> >>   since the i2c-core and spi set that field.
-> >>- Fix if statment in rmi_f30 which was testing has_led twice instead of
-> >>   testing has_gpio.
-> >Works like a charm.
-> >Tested-by: Linus Walleij <linus.walleij@linaro.org>
+On Sat, Feb 27, 2016 at 12:29:54PM +0530, Raveendra Padasalagi wrote:
+> In Cygnus SOC touch screen controller registers are shared
+> with ADC and flex timer. Using readl/writel could lead to
+> race condition. So touch screen driver is enhanced to support
+> register access using syscon framework API's to take care of
+> mutually exclusive access.In addition to this existing touchscreen
+> node name "tsc" is renamed to "touchscreen".
 > 
-> Thanks for testing. At this point except for the touchscreen binding rename
-> fix needed in patch 5, all of the outstanding issues have been addressed. If
-> the rest of the patch series is acceptable, then I can do a final v6 respin
-> which fixes the binding and also removes the HID patch. But, if more work
-> needs to be done on the patch series I can wait to do the respin. Dmitry,
-> what do you think of the patch series at this point?
-
-Dmitry, ping on this one...
-
-I'd like to see the series in 4.6, and we are getting closer of the
-merge window. Could we get some of your time on this?
-
-Cheers,
-Benjamin
-
+> Hence touchscreen dt node bindings document is updated to take care
+> of above changes in the touchscreen driver.
 > 
-> Thanks,
-> Andrew
-> 
-> >Yours,
-> >Linus Walleij
-> 
+> Signed-off-by: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+> Reviewed-by: Ray Jui <ray.jui@broadcom.com>
+> Reviewed-by: Scott Branden <scott.branden@broadcom.com>
+> ---
+>  .../input/touchscreen/brcm,iproc-touchscreen.txt    | 21 ++++++++++++++++-----
+>  1 file changed, 16 insertions(+), 5 deletions(-)
+
+Acked-by: Rob Herring <robh@kernel.org>

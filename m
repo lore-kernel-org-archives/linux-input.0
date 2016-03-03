@@ -1,119 +1,88 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch
+From: =?utf-8?B?SmVmZnJleSBMaW4gKOael+e+qeeroCk=?=
+	<Jeffrey.Lin@rad-ic.com>
+Subject: RE: [PATCH] driver: input :touchscreen : add Raydium I2C touch
  driver
-Date: Wed, 02 Mar 2016 18:44:10 -0800
-Message-ID: <1456973050.4044.81.camel@perches.com>
+Date: Thu, 3 Mar 2016 03:14:42 +0000
+Message-ID: <9BE4B49389AB2F41A64A32DFC844F1DF73EF8627@RADHCMS5.corp.rad-ic.com>
 References: <1456972150-32303-1-git-send-email-jeffrey.lin@rad-ic.com>
+ <1456973050.4044.81.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1456972150-32303-1-git-send-email-jeffrey.lin@rad-ic.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "jeffrey.lin" <yajohn@gmail.com>, dmitry.torokhov@gmail.com, rydberg@euromail.se, grant.likely@linaro.org, robh+dt@kernel.org, jeesw@melfas.com, bleung@chromium.org, scott.liu@emc.com.tw
-Cc: jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, albert.shieh@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 219-80-251-49.static.tfn.net.tw ([219.80.251.49]:41321 "EHLO
+	mse1.corp.rad-ic.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751891AbcCCDkN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Mar 2016 22:40:13 -0500
+Received: from mse1.corp.rad-ic.com (localhost [127.0.0.2] (may be forged))
+	by mse1.corp.rad-ic.com with ESMTP id u233FAYr081372
+	for <linux-input@vger.kernel.org>; Thu, 3 Mar 2016 11:15:10 +0800 (GMT-8)
+	(envelope-from Jeffrey.Lin@rad-ic.com)
+In-Reply-To: <1456973050.4044.81.camel@perches.com>
+Content-Language: zh-TW
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Joe Perches <joe@perches.com>, "jeffrey.lin" <yajohn@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "jeesw@melfas.com" <jeesw@melfas.com>, "bleung@chromium.org" <bleung@chromium.org>, "scott.liu@emc.com.tw" <scott.liu@emc.com.tw>
+Cc: =?utf-8?B?Um9nZXIgWWFuZyAo5qWK6Y6u55GLKQ==?= <Roger.Yang@rad-ic.com>, =?utf-8?B?S1AgTGkgKOadjuaYhuWAjSk=?= <KP.Li@rad-ic.com>, =?utf-8?B?QWxiZXJ0IFNoaWVoICjorJ3mrKPnkYsp?= <Albert.Shieh@rad-ic.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-On Thu, 2016-03-03 at 10:29 +0800, jeffrey.lin wrote:
-> This patch is porting Raydium I2C touch driver. Developer can enable =
-raydium touch driver by modifying define "CONFIG_TOUCHSCREEN_RM_TS".
-
-trivial comments:
-
-> diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/inp=
-ut/touchscreen/raydium_i2c_ts.c
-[]
-> +static int raydium_i2c_send(struct i2c_client *client,
-> +	u8 addr, u8 *data, size_t len)
-> +{
-> +	u8 buf[MAX_PACKET_SIZE + 1];
-> +	int i, tries =3D 0;
-> +
-> +	if (len > MAX_PACKET_SIZE)
-> +		return -EINVAL;
-> +
-> +	buf[0] =3D addr & 0xff;
-
-Seems pointless to use & 0xff when both
-buf and addr are u8
-
-> +	for (i =3D 0; i < len; i++)
-> +		buf[i + 1] =3D *data++;
-
-memcpy. =A0Maybe:
-
-	buf[0] =3D addr;
-	memcpy(&buf[1], data, len);
-
-> +static int raydium_i2c_send_message(struct i2c_client *client,
-> +	size_t len, void *data)
-> +{
-> +	int error;
-> +	u8 buf[HEADER_SIZE], ii;
-> +
-> +	for (ii =3D 0; ii < HEADER_SIZE; ii++)
-> +		buf[ii] =3D ((u8 *)data)[3 - ii];
-> +	/*set data bank*/
-> +	error =3D raydium_i2c_send(client, CMD_BANK_SWITCH,
-> +		(u8 *)buf, HEADER_SIZE);
-> +
-> +	/*send messange*/
-
-typo, message
-
-> +	if (!error)
-> +		error =3D raydium_i2c_send(client, buf[ADDR_INDEX], buf, len);
-> +
-> +	return error;
-> +}
-> +
-> +static int raydium_i2c_sw_reset(struct i2c_client *client)
-> +{
-> +	const u8 soft_rst_cmd[] =3D { 0x01, 0x04, 0x00, 0x00, 0x40};
-
-static
-
-> +	int error;
-> +
-> +	error =3D raydium_i2c_send_message(client,
-> +			1, (void *)soft_rst_cmd);
-
-could be better on a single line
-
-> +static int raydium_i2c_fastboot(struct i2c_client *client)
-> +{
-> +	const u8 boot_cmd[] =3D { 0x20, 0x06, 0x00, 0x50 };
-> +	u8 buf[HEADER_SIZE];
-> +	int error;
-> +
-> +	error =3D raydium_i2c_read_message(client,
-> +		get_unaligned_be32(boot_cmd),
-> +		sizeof(boot_cmd),
-> +		buf);
-> +
-> +	if (error) {
-> +		dev_err(&client->dev, "boot failed: %d\n", error);
-> +		return error;
-> +	} else if (buf[0] =3D=3D RM_BOOT_BLDR) {
-
-unnecessary else
-
-> +		dev_dbg(&client->dev, "boot in fastboot mode\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	dev_dbg(&client->dev, "boot success -- 0x%x\n", client->addr);
-> +	return 0;
-> +}
-> +
-> +static int raydium_i2c_initialize(struct raydium_data *ts)
-> +{
-> +	struct i2c_client *client =3D ts->client;
-> +	int error, retry_cnt;
-> +	const u8 recov_packet[] =3D { 0x04, 0x81 };
-
-static and etc...
-
-generally, it'd be nice to align to open parenthesis and
-to more maximally fill lines to 80 chars instead of using
-relatively short line lengths and multiple line statements.
+SGkgSm9lOg0KVGhhbmsgeW91IGZvciB5b3VyIHJlc3BvbnNlLiBJJ2xsIGZvbGxvdyB5b3VyIGNv
+bW1lbnRzIGluIG5leHQgdmVyc2lvbi4NCg0KQmVzdCBSZWdhcmRzDQotLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQpK
+ZWZmcmV5IExpbizmnpfnvqnnq6ANCueRnum8juenkeaKgA0KUmF5ZGl1bSBTZW1pY29uZHVjdG9y
+IENvcnBvcmF0aW9uDQpUZWw6KDAzKTY2Ni0xODE4IEV4dC40MTYzDQpGYXg6KDAzKTY2Ni0xOTE5
+DQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBKb2UgUGVyY2hlcyBbbWFpbHRv
+OmpvZUBwZXJjaGVzLmNvbV0gDQpTZW50OiBUaHVyc2RheSwgTWFyY2ggMDMsIDIwMTYgMTA6NDQg
+QU0NClRvOiBqZWZmcmV5LmxpbjsgZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbTsgcnlkYmVyZ0Bl
+dXJvbWFpbC5zZTsgZ3JhbnQubGlrZWx5QGxpbmFyby5vcmc7IHJvYmgrZHRAa2VybmVsLm9yZzsg
+amVlc3dAbWVsZmFzLmNvbTsgYmxldW5nQGNocm9taXVtLm9yZzsgc2NvdHQubGl1QGVtYy5jb20u
+dHcNCkNjOiBKZWZmcmV5IExpbiAo5p6X576p56ugKTsgUm9nZXIgWWFuZyAo5qWK6Y6u55GLKTsg
+S1AgTGkgKOadjuaYhuWAjSk7IEFsYmVydCBTaGllaCAo6Kyd5qyj55GLKTsgbGludXgta2VybmVs
+QHZnZXIua2VybmVsLm9yZzsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBkZXZpY2V0cmVl
+QHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDogUmU6IFtQQVRDSF0gZHJpdmVyOiBpbnB1dCA6dG91
+Y2hzY3JlZW4gOiBhZGQgUmF5ZGl1bSBJMkMgdG91Y2ggZHJpdmVyDQoNCk9uIFRodSwgMjAxNi0w
+My0wMyBhdCAxMDoyOSArMDgwMCwgamVmZnJleS5saW4gd3JvdGU6DQo+IFRoaXMgcGF0Y2ggaXMg
+cG9ydGluZyBSYXlkaXVtIEkyQyB0b3VjaCBkcml2ZXIuIERldmVsb3BlciBjYW4gZW5hYmxlIHJh
+eWRpdW0gdG91Y2ggZHJpdmVyIGJ5IG1vZGlmeWluZyBkZWZpbmUgIkNPTkZJR19UT1VDSFNDUkVF
+Tl9STV9UUyIuDQoNCnRyaXZpYWwgY29tbWVudHM6DQoNCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
+aW5wdXQvdG91Y2hzY3JlZW4vcmF5ZGl1bV9pMmNfdHMuYyBiL2RyaXZlcnMvaW5wdXQvdG91Y2hz
+Y3JlZW4vcmF5ZGl1bV9pMmNfdHMuYw0KW10NCj4gK3N0YXRpYyBpbnQgcmF5ZGl1bV9pMmNfc2Vu
+ZChzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50LA0KPiArCXU4IGFkZHIsIHU4ICpkYXRhLCBzaXpl
+X3QgbGVuKQ0KPiArew0KPiArCXU4IGJ1ZltNQVhfUEFDS0VUX1NJWkUgKyAxXTsNCj4gKwlpbnQg
+aSwgdHJpZXMgPSAwOw0KPiArDQo+ICsJaWYgKGxlbiA+IE1BWF9QQUNLRVRfU0laRSkNCj4gKwkJ
+cmV0dXJuIC1FSU5WQUw7DQo+ICsNCj4gKwlidWZbMF0gPSBhZGRyICYgMHhmZjsNCg0KU2VlbXMg
+cG9pbnRsZXNzIHRvIHVzZSAmIDB4ZmYgd2hlbiBib3RoDQpidWYgYW5kIGFkZHIgYXJlIHU4DQoN
+Cj4gKwlmb3IgKGkgPSAwOyBpIDwgbGVuOyBpKyspDQo+ICsJCWJ1ZltpICsgMV0gPSAqZGF0YSsr
+Ow0KDQptZW1jcHkuIMKgTWF5YmU6DQoNCglidWZbMF0gPSBhZGRyOw0KCW1lbWNweSgmYnVmWzFd
+LCBkYXRhLCBsZW4pOw0KDQo+ICtzdGF0aWMgaW50IHJheWRpdW1faTJjX3NlbmRfbWVzc2FnZShz
+dHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50LA0KPiArCXNpemVfdCBsZW4sIHZvaWQgKmRhdGEpDQo+
+ICt7DQo+ICsJaW50IGVycm9yOw0KPiArCXU4IGJ1ZltIRUFERVJfU0laRV0sIGlpOw0KPiArDQo+
+ICsJZm9yIChpaSA9IDA7IGlpIDwgSEVBREVSX1NJWkU7IGlpKyspDQo+ICsJCWJ1ZltpaV0gPSAo
+KHU4ICopZGF0YSlbMyAtIGlpXTsNCj4gKwkvKnNldCBkYXRhIGJhbmsqLw0KPiArCWVycm9yID0g
+cmF5ZGl1bV9pMmNfc2VuZChjbGllbnQsIENNRF9CQU5LX1NXSVRDSCwNCj4gKwkJKHU4ICopYnVm
+LCBIRUFERVJfU0laRSk7DQo+ICsNCj4gKwkvKnNlbmQgbWVzc2FuZ2UqLw0KDQp0eXBvLCBtZXNz
+YWdlDQoNCj4gKwlpZiAoIWVycm9yKQ0KPiArCQllcnJvciA9IHJheWRpdW1faTJjX3NlbmQoY2xp
+ZW50LCBidWZbQUREUl9JTkRFWF0sIGJ1ZiwgbGVuKTsNCj4gKw0KPiArCXJldHVybiBlcnJvcjsN
+Cj4gK30NCj4gKw0KPiArc3RhdGljIGludCByYXlkaXVtX2kyY19zd19yZXNldChzdHJ1Y3QgaTJj
+X2NsaWVudCAqY2xpZW50KQ0KPiArew0KPiArCWNvbnN0IHU4IHNvZnRfcnN0X2NtZFtdID0geyAw
+eDAxLCAweDA0LCAweDAwLCAweDAwLCAweDQwfTsNCg0Kc3RhdGljDQoNCj4gKwlpbnQgZXJyb3I7
+DQo+ICsNCj4gKwllcnJvciA9IHJheWRpdW1faTJjX3NlbmRfbWVzc2FnZShjbGllbnQsDQo+ICsJ
+CQkxLCAodm9pZCAqKXNvZnRfcnN0X2NtZCk7DQoNCmNvdWxkIGJlIGJldHRlciBvbiBhIHNpbmds
+ZSBsaW5lDQoNCj4gK3N0YXRpYyBpbnQgcmF5ZGl1bV9pMmNfZmFzdGJvb3Qoc3RydWN0IGkyY19j
+bGllbnQgKmNsaWVudCkNCj4gK3sNCj4gKwljb25zdCB1OCBib290X2NtZFtdID0geyAweDIwLCAw
+eDA2LCAweDAwLCAweDUwIH07DQo+ICsJdTggYnVmW0hFQURFUl9TSVpFXTsNCj4gKwlpbnQgZXJy
+b3I7DQo+ICsNCj4gKwllcnJvciA9IHJheWRpdW1faTJjX3JlYWRfbWVzc2FnZShjbGllbnQsDQo+
+ICsJCWdldF91bmFsaWduZWRfYmUzMihib290X2NtZCksDQo+ICsJCXNpemVvZihib290X2NtZCks
+DQo+ICsJCWJ1Zik7DQo+ICsNCj4gKwlpZiAoZXJyb3IpIHsNCj4gKwkJZGV2X2VycigmY2xpZW50
+LT5kZXYsICJib290IGZhaWxlZDogJWRcbiIsIGVycm9yKTsNCj4gKwkJcmV0dXJuIGVycm9yOw0K
+PiArCX0gZWxzZSBpZiAoYnVmWzBdID09IFJNX0JPT1RfQkxEUikgew0KDQp1bm5lY2Vzc2FyeSBl
+bHNlDQoNCj4gKwkJZGV2X2RiZygmY2xpZW50LT5kZXYsICJib290IGluIGZhc3Rib290IG1vZGVc
+biIpOw0KPiArCQlyZXR1cm4gLUVJTlZBTDsNCj4gKwl9DQo+ICsNCj4gKwlkZXZfZGJnKCZjbGll
+bnQtPmRldiwgImJvb3Qgc3VjY2VzcyAtLSAweCV4XG4iLCBjbGllbnQtPmFkZHIpOw0KPiArCXJl
+dHVybiAwOw0KPiArfQ0KPiArDQo+ICtzdGF0aWMgaW50IHJheWRpdW1faTJjX2luaXRpYWxpemUo
+c3RydWN0IHJheWRpdW1fZGF0YSAqdHMpDQo+ICt7DQo+ICsJc3RydWN0IGkyY19jbGllbnQgKmNs
+aWVudCA9IHRzLT5jbGllbnQ7DQo+ICsJaW50IGVycm9yLCByZXRyeV9jbnQ7DQo+ICsJY29uc3Qg
+dTggcmVjb3ZfcGFja2V0W10gPSB7IDB4MDQsIDB4ODEgfTsNCg0Kc3RhdGljIGFuZCBldGMuLi4N
+Cg0KZ2VuZXJhbGx5LCBpdCdkIGJlIG5pY2UgdG8gYWxpZ24gdG8gb3BlbiBwYXJlbnRoZXNpcyBh
+bmQNCnRvIG1vcmUgbWF4aW1hbGx5IGZpbGwgbGluZXMgdG8gODAgY2hhcnMgaW5zdGVhZCBvZiB1
+c2luZw0KcmVsYXRpdmVseSBzaG9ydCBsaW5lIGxlbmd0aHMgYW5kIG11bHRpcGxlIGxpbmUgc3Rh
+dGVtZW50cy4NCg==

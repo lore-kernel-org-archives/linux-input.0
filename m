@@ -1,100 +1,42 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCHv12 05/17] HID: add HDMI CEC specific keycodes
-Date: Fri, 4 Mar 2016 13:27:26 +0100
-Message-ID: <56D97F2E.6020209@xs4all.nl>
-References: <1455108711-29850-1-git-send-email-hverkuil@xs4all.nl>
- <1455108711-29850-6-git-send-email-hverkuil@xs4all.nl>
- <56BDA577.5060302@xs4all.nl> <56CD6A53.4090606@xs4all.nl>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Input: sh_keysc - Remove dependency on SUPERH
+Date: Fri, 4 Mar 2016 11:22:01 -0800
+Message-ID: <20160304192201.GC17145@dtor-ws>
+References: <1456966425-14664-1-git-send-email-horms+renesas@verge.net.au>
+ <CAMuHMdWdeZkjk++5kpPLH6vHvz=ZAPqFp8z9od+Y-=R1W8HCxA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <56CD6A53.4090606@xs4all.nl>
-Sender: linux-media-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-media@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdWdeZkjk++5kpPLH6vHvz=ZAPqFp8z9od+Y-=R1W8HCxA@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Simon Horman <horms+renesas@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, linux-renesas-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Dmitry,
-
-Ping? Please? I can't merge this without your Ack.
-
-Regards,
-
-	Hans
-
-On 02/24/2016 09:31 AM, Hans Verkuil wrote:
-> Dmitry,
+On Thu, Mar 03, 2016 at 09:11:18AM +0100, Geert Uytterhoeven wrote:
+> On Thu, Mar 3, 2016 at 1:53 AM, Simon Horman <horms+renesas@verge.net.au> wrote:
+> > A dependency on ARCH_SHMOBILE seems to be the best option for sh_keysc:
+> >
+> > * For Super H based SoCs: sh_keysc is used on SH_MIGOR, SH_ECOVEC, SH_KFR2R09,
+> >   SH_7722_SOLUTION_ENGINE, and SH_7724_SOLUTION_ENGINE, which depend on
+> >   either CPU_SUBTYPE_SH7722 or CPU_SUBTYPE_SH7724, and both select
+> >   ARCH_SHMOBILE.
+> >
+> > * For ARM Based SoCs: Since the removal of legacy (non-multiplatform) support
+> >   this driver has not been used by any Renesas ARM based SoCs. The Renesas
+> >   ARM based SoCs currently select ARCH_SHMOBILE, however, it is planned
+> >   that this will no longer be the case.
+> >
+> > This is part of an ongoing process to migrate from ARCH_SHMOBILE to
+> > ARCH_RENESAS the motivation for which being that RENESAS seems to be a more
+> > appropriate name than SHMOBILE for the majority of Renesas ARM based SoCs.
+> >
+> > Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
 > 
-> Ping!
-> 
-> Regards,
-> 
-> 	Hans
-> 
-> On 02/12/16 10:27, Hans Verkuil wrote:
->> Dmitry,
->>
->> Can you provide an Ack for this patch?
->>
->> Thanks!
->>
->> 	Hans
->>
->> On 02/10/2016 01:51 PM, Hans Verkuil wrote:
->>> From: Kamil Debski <kamil@wypas.org>
->>>
->>> Add HDMI CEC specific keycodes to the keycodes definition.
->>>
->>> Signed-off-by: Kamil Debski <kamil@wypas.org>
->>> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
->>> ---
->>>  include/uapi/linux/input-event-codes.h | 28 ++++++++++++++++++++++++++++
->>>  1 file changed, 28 insertions(+)
->>>
->>> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
->>> index 87cf351..2662500 100644
->>> --- a/include/uapi/linux/input-event-codes.h
->>> +++ b/include/uapi/linux/input-event-codes.h
->>> @@ -611,6 +611,34 @@
->>>  #define KEY_KBDINPUTASSIST_ACCEPT		0x264
->>>  #define KEY_KBDINPUTASSIST_CANCEL		0x265
->>>  
->>> +#define KEY_RIGHT_UP			0x266
->>> +#define KEY_RIGHT_DOWN			0x267
->>> +#define KEY_LEFT_UP			0x268
->>> +#define KEY_LEFT_DOWN			0x269
->>> +#define KEY_ROOT_MENU			0x26a /* Show Device's Root Menu */
->>> +#define KEY_MEDIA_TOP_MENU		0x26b /* Show Top Menu of the Media (e.g. DVD) */
->>> +#define KEY_NUMERIC_11			0x26c
->>> +#define KEY_NUMERIC_12			0x26d
->>> +/*
->>> + * Toggle Audio Description: refers to an audio service that helps blind and
->>> + * visually impaired consumers understand the action in a program. Note: in
->>> + * some countries this is referred to as "Video Description".
->>> + */
->>> +#define KEY_AUDIO_DESC			0x26e
->>> +#define KEY_3D_MODE			0x26f
->>> +#define KEY_NEXT_FAVORITE		0x270
->>> +#define KEY_STOP_RECORD			0x271
->>> +#define KEY_PAUSE_RECORD		0x272
->>> +#define KEY_VOD				0x273 /* Video on Demand */
->>> +#define KEY_UNMUTE			0x274
->>> +#define KEY_FASTREVERSE			0x275
->>> +#define KEY_SLOWREVERSE			0x276
->>> +/*
->>> + * Control a data application associated with the currently viewed channel,
->>> + * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
->>> + */
->>> +#define KEY_DATA			0x275
->>> +
->>>  #define BTN_TRIGGER_HAPPY		0x2c0
->>>  #define BTN_TRIGGER_HAPPY1		0x2c0
->>>  #define BTN_TRIGGER_HAPPY2		0x2c1
->>>
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-media" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
+> Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Applied, thank you.
+
+-- 
+Dmitry

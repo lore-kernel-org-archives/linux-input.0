@@ -1,42 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: sh_keysc - Remove dependency on SUPERH
-Date: Fri, 4 Mar 2016 11:22:01 -0800
-Message-ID: <20160304192201.GC17145@dtor-ws>
-References: <1456966425-14664-1-git-send-email-horms+renesas@verge.net.au>
- <CAMuHMdWdeZkjk++5kpPLH6vHvz=ZAPqFp8z9od+Y-=R1W8HCxA@mail.gmail.com>
+Subject: Re: [PATCH 2/3] Input: ts4800: add hardware dependency
+Date: Fri, 4 Mar 2016 11:42:01 -0800
+Message-ID: <20160304194201.GD17145@dtor-ws>
+References: <20160209111549.7e9b4fbb@endymion>
+ <20160209111847.21902883@endymion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f176.google.com ([209.85.192.176]:35539 "EHLO
+	mail-pf0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758765AbcCDTmF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Mar 2016 14:42:05 -0500
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdWdeZkjk++5kpPLH6vHvz=ZAPqFp8z9od+Y-=R1W8HCxA@mail.gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Simon Horman <horms+renesas@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, linux-renesas-soc@vger.kernel.org
+In-Reply-To: <20160209111847.21902883@endymion>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>, Damien Riegel <damien.riegel@savoirfairelinux.com>, linux-input@vger.kernel.org
 
-On Thu, Mar 03, 2016 at 09:11:18AM +0100, Geert Uytterhoeven wrote:
-> On Thu, Mar 3, 2016 at 1:53 AM, Simon Horman <horms+renesas@verge.net.au> wrote:
-> > A dependency on ARCH_SHMOBILE seems to be the best option for sh_keysc:
-> >
-> > * For Super H based SoCs: sh_keysc is used on SH_MIGOR, SH_ECOVEC, SH_KFR2R09,
-> >   SH_7722_SOLUTION_ENGINE, and SH_7724_SOLUTION_ENGINE, which depend on
-> >   either CPU_SUBTYPE_SH7722 or CPU_SUBTYPE_SH7724, and both select
-> >   ARCH_SHMOBILE.
-> >
-> > * For ARM Based SoCs: Since the removal of legacy (non-multiplatform) support
-> >   this driver has not been used by any Renesas ARM based SoCs. The Renesas
-> >   ARM based SoCs currently select ARCH_SHMOBILE, however, it is planned
-> >   that this will no longer be the case.
-> >
-> > This is part of an ongoing process to migrate from ARCH_SHMOBILE to
-> > ARCH_RENESAS the motivation for which being that RENESAS seems to be a more
-> > appropriate name than SHMOBILE for the majority of Renesas ARM based SoCs.
-> >
-> > Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+On Tue, Feb 09, 2016 at 11:18:47AM +0100, Jean Delvare wrote:
+> The Technologic Systems TS-4800 is an i.MX515 board, so its drivers
+> are useless unless building a SOC_IMX51 kernel, except for build
+> testing purposes.
 > 
-> Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
 
 Applied, thank you.
+
+> Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> Cc: Rob Herring <robh@kernel.org>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/touchscreen/Kconfig |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> --- linux-4.5-rc3.orig/drivers/input/touchscreen/Kconfig	2016-02-02 09:02:08.180924572 +0100
+> +++ linux-4.5-rc3/drivers/input/touchscreen/Kconfig	2016-02-09 08:58:50.693442294 +0100
+> @@ -941,6 +941,7 @@ config TOUCHSCREEN_TOUCHIT213
+>  config TOUCHSCREEN_TS4800
+>  	tristate "TS-4800 touchscreen"
+>  	depends on HAS_IOMEM && OF
+> +	depends on SOC_IMX51 || COMPILE_TEST
+>  	select MFD_SYSCON
+>  	select INPUT_POLLDEV
+>  	help
+> 
+> -- 
+> Jean Delvare
+> SUSE L3 Support
 
 -- 
 Dmitry

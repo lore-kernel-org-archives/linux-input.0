@@ -1,53 +1,85 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/3] Input: ts4800: add hardware dependency
-Date: Fri, 4 Mar 2016 11:42:01 -0800
-Message-ID: <20160304194201.GD17145@dtor-ws>
-References: <20160209111549.7e9b4fbb@endymion>
- <20160209111847.21902883@endymion>
+Subject: Re: [PATCHv12 05/17] HID: add HDMI CEC specific keycodes
+Date: Fri, 4 Mar 2016 11:58:27 -0800
+Message-ID: <20160304195827.GE17145@dtor-ws>
+References: <1455108711-29850-1-git-send-email-hverkuil@xs4all.nl>
+ <1455108711-29850-6-git-send-email-hverkuil@xs4all.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f176.google.com ([209.85.192.176]:35539 "EHLO
-	mail-pf0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758765AbcCDTmF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Mar 2016 14:42:05 -0500
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:33583 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758765AbcCDT6b (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Mar 2016 14:58:31 -0500
 Content-Disposition: inline
-In-Reply-To: <20160209111847.21902883@endymion>
+In-Reply-To: <1455108711-29850-6-git-send-email-hverkuil@xs4all.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>, Damien Riegel <damien.riegel@savoirfairelinux.com>, linux-input@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
 
-On Tue, Feb 09, 2016 at 11:18:47AM +0100, Jean Delvare wrote:
-> The Technologic Systems TS-4800 is an i.MX515 board, so its drivers
-> are useless unless building a SOC_IMX51 kernel, except for build
-> testing purposes.
+On Wed, Feb 10, 2016 at 01:51:39PM +0100, Hans Verkuil wrote:
+> From: Kamil Debski <kamil@wypas.org>
 > 
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-
-Applied, thank you.
-
-> Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>
-> Cc: Rob Herring <robh@kernel.org>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Add HDMI CEC specific keycodes to the keycodes definition.
+> 
+> Signed-off-by: Kamil Debski <kamil@wypas.org>
+> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 > ---
->  drivers/input/touchscreen/Kconfig |    1 +
->  1 file changed, 1 insertion(+)
+>  include/uapi/linux/input-event-codes.h | 28 ++++++++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
 > 
-> --- linux-4.5-rc3.orig/drivers/input/touchscreen/Kconfig	2016-02-02 09:02:08.180924572 +0100
-> +++ linux-4.5-rc3/drivers/input/touchscreen/Kconfig	2016-02-09 08:58:50.693442294 +0100
-> @@ -941,6 +941,7 @@ config TOUCHSCREEN_TOUCHIT213
->  config TOUCHSCREEN_TS4800
->  	tristate "TS-4800 touchscreen"
->  	depends on HAS_IOMEM && OF
-> +	depends on SOC_IMX51 || COMPILE_TEST
->  	select MFD_SYSCON
->  	select INPUT_POLLDEV
->  	help
-> 
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index 87cf351..2662500 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -611,6 +611,34 @@
+>  #define KEY_KBDINPUTASSIST_ACCEPT		0x264
+>  #define KEY_KBDINPUTASSIST_CANCEL		0x265
+>  
+> +#define KEY_RIGHT_UP			0x266
+> +#define KEY_RIGHT_DOWN			0x267
+> +#define KEY_LEFT_UP			0x268
+> +#define KEY_LEFT_DOWN			0x269
+
+Can you please add some comments to these and how they are different
+form normal KEY_UP/KEY_DOWN or KEY_DPAD* or BTN_A/B/X/Y.
+
+> +#define KEY_ROOT_MENU			0x26a /* Show Device's Root Menu */
+> +#define KEY_MEDIA_TOP_MENU		0x26b /* Show Top Menu of the Media (e.g. DVD) */
+> +#define KEY_NUMERIC_11			0x26c
+> +#define KEY_NUMERIC_12			0x26d
+> +/*
+> + * Toggle Audio Description: refers to an audio service that helps blind and
+> + * visually impaired consumers understand the action in a program. Note: in
+> + * some countries this is referred to as "Video Description".
+> + */
+> +#define KEY_AUDIO_DESC			0x26e
+> +#define KEY_3D_MODE			0x26f
+> +#define KEY_NEXT_FAVORITE		0x270
+> +#define KEY_STOP_RECORD			0x271
+> +#define KEY_PAUSE_RECORD		0x272
+> +#define KEY_VOD				0x273 /* Video on Demand */
+> +#define KEY_UNMUTE			0x274
+> +#define KEY_FASTREVERSE			0x275
+> +#define KEY_SLOWREVERSE			0x276
+
+KEY_FRAMEBACK maybe?
+
+> +/*
+> + * Control a data application associated with the currently viewed channel,
+> + * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
+> + */
+> +#define KEY_DATA			0x275
+> +
+>  #define BTN_TRIGGER_HAPPY		0x2c0
+>  #define BTN_TRIGGER_HAPPY1		0x2c0
+>  #define BTN_TRIGGER_HAPPY2		0x2c1
 > -- 
-> Jean Delvare
-> SUSE L3 Support
+> 2.7.0
+> 
+
+Thanks.
 
 -- 
 Dmitry

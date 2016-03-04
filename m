@@ -1,39 +1,117 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 1/3] input: cygnus-update touchscreen dt node document
-Date: Thu, 3 Mar 2016 16:04:12 -0600
-Message-ID: <20160303220412.GA27797@rob-hp-laptop>
-References: <1456556396-4759-1-git-send-email-raveendra.padasalagi@broadcom.com>
- <1456556396-4759-2-git-send-email-raveendra.padasalagi@broadcom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Sangwon Jee <jeesw@melfas.com>
+Subject: Input: melfas_mip4 - add resolution reporting
+Date: Fri,  4 Mar 2016 16:55:01 +0900
+Message-ID: <1457078101-3190-1-git-send-email-jeesw@melfas.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:39392 "EHLO mail.kernel.org"
+Received: from sbs.melfas.com ([39.118.242.30]:13320 "EHLO sbs.melfas.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756736AbcCCWER (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Mar 2016 17:04:17 -0500
-Content-Disposition: inline
-In-Reply-To: <1456556396-4759-2-git-send-email-raveendra.padasalagi@broadcom.com>
+	id S1751080AbcCDHzr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 4 Mar 2016 02:55:47 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jonathan Richardson <jonathar@broadcom.com>, Jon Mason <jonmason@broadcom.com>, Florian Fainelli <f.fainelli@gmail.com>, Anup Patel <anup.patel@broadcom.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, jeesw@melfas.com
 
-On Sat, Feb 27, 2016 at 12:29:54PM +0530, Raveendra Padasalagi wrote:
-> In Cygnus SOC touch screen controller registers are shared
-> with ADC and flex timer. Using readl/writel could lead to
-> race condition. So touch screen driver is enhanced to support
-> register access using syscon framework API's to take care of
-> mutually exclusive access.In addition to this existing touchscreen
-> node name "tsc" is renamed to "touchscreen".
-> 
-> Hence touchscreen dt node bindings document is updated to take care
-> of above changes in the touchscreen driver.
-> 
-> Signed-off-by: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
-> Reviewed-by: Ray Jui <ray.jui@broadcom.com>
-> Reviewed-by: Scott Branden <scott.branden@broadcom.com>
-> ---
->  .../input/touchscreen/brcm,iproc-touchscreen.txt    | 21 ++++++++++++++++-----
->  1 file changed, 16 insertions(+), 5 deletions(-)
+Add resolution(pixels per mm) value registers and resolution reporting 
+by input_abs_set_res.
 
-Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Sangwon Jee <jeesw@melfas.com>
+---
+ drivers/input/touchscreen/melfas_mip4.c | 26 ++++++++++++++++++++++----
+ 1 file changed, 22 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
+index b8e9ead..2a879e4b 100644
+--- a/drivers/input/touchscreen/melfas_mip4.c
++++ b/drivers/input/touchscreen/melfas_mip4.c
+@@ -33,7 +33,7 @@
+ 
+ /*****************************************************************
+  * Protocol
+- * Version : MIP 4.0 Rev 4.4
++ * Version : MIP 4.0 Rev 4.6
+  *****************************************************************/
+ 
+ /* Address */
+@@ -52,6 +52,11 @@
+ #define MIP4_R1_INFO_NODE_NUM_X			0x14
+ #define MIP4_R1_INFO_NODE_NUM_Y			0x15
+ #define MIP4_R1_INFO_KEY_NUM			0x16
++#define MIP4_R1_INFO_PRESSURE_NUM		0x17
++#define MIP4_R1_INFO_LENGTH_X			0x18
++#define MIP4_R1_INFO_LENGTH_Y			0x1A
++#define MIP4_R1_INFO_PPM_X				0x1C
++#define MIP4_R1_INFO_PPM_Y				0x1D
+ #define MIP4_R1_INFO_VERSION_BOOT		0x20
+ #define MIP4_R1_INFO_VERSION_CORE		0x22
+ #define MIP4_R1_INFO_VERSION_APP		0x24
+@@ -158,6 +163,8 @@ struct mip4_ts {
+ 	u8 node_x;
+ 	u8 node_y;
+ 	u8 node_key;
++	unsigned int ppm_x;
++	unsigned int ppm_y;
+ 
+ 	struct mip4_fw_version fw_version;
+ 
+@@ -242,7 +249,7 @@ static int mip4_query_device(struct mip4_ts *ts)
+ {
+ 	int error;
+ 	u8 cmd[2];
+-	u8 buf[8];
++	u8 buf[14];
+ 
+ 	/* Product name */
+ 	cmd[0] = MIP4_R0_INFO;
+@@ -269,7 +276,7 @@ static int mip4_query_device(struct mip4_ts *ts)
+ 	/* Resolution */
+ 	cmd[0] = MIP4_R0_INFO;
+ 	cmd[1] = MIP4_R1_INFO_RESOLUTION_X;
+-	error = mip4_i2c_xfer(ts, cmd, sizeof(cmd), buf, 7);
++	error = mip4_i2c_xfer(ts, cmd, sizeof(cmd), buf, 14);
+ 	if (error) {
+ 		dev_warn(&ts->client->dev,
+ 			 "Failed to retrieve touchscreen parameters: %d\n",
+@@ -287,6 +294,11 @@ static int mip4_query_device(struct mip4_ts *ts)
+ 			"node_x: %d, node_y: %d, node_key: %d\n",
+ 			ts->node_x, ts->node_y, ts->node_key);
+ 
++		ts->ppm_x = buf[12];
++		ts->ppm_y = buf[13];
++		dev_dbg(&ts->client->dev, "ppm_x: %d, ppm_y: %d\n",
++			ts->ppm_x, ts->ppm_y);
++
+ 		/* Key ts */
+ 		if (ts->node_key > 0)
+ 			ts->key_num = ts->node_key;
+@@ -1095,6 +1107,10 @@ exit_bl:
+ 	input_set_abs_params(ts->input, ABS_MT_POSITION_Y, 0, ts->max_y, 0, 0);
+ 	input_set_abs_params(ts->input, ABS_X, 0, ts->max_x, 0, 0);
+ 	input_set_abs_params(ts->input, ABS_Y, 0, ts->max_y, 0, 0);
++	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->ppm_x);
++	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->ppm_y);
++	input_abs_set_res(ts->input, ABS_X, ts->ppm_x);
++	input_abs_set_res(ts->input, ABS_Y, ts->ppm_y);
+ 
+ 	return error ? error : 0;
+ }
+@@ -1377,6 +1393,8 @@ static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 			     MIP4_TOUCH_MAJOR_MIN, MIP4_TOUCH_MAJOR_MAX, 0, 0);
+ 	input_set_abs_params(input, ABS_MT_TOUCH_MINOR,
+ 			     MIP4_TOUCH_MINOR_MIN, MIP4_TOUCH_MINOR_MAX, 0, 0);
++	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->ppm_x);
++	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->ppm_y);
+ 
+ 	error = input_mt_init_slots(input, MIP4_MAX_FINGERS, INPUT_MT_DIRECT);
+ 	if (error)
+@@ -1494,6 +1512,6 @@ static struct i2c_driver mip4_driver = {
+ module_i2c_driver(mip4_driver);
+ 
+ MODULE_DESCRIPTION("MELFAS MIP4 Touchscreen");
+-MODULE_VERSION("2016.01.13");
++MODULE_VERSION("2016.03.03");
+ MODULE_AUTHOR("Sangwon Jee <jeesw@melfas.com>");
+ MODULE_LICENSE("GPL");
+-- 
+1.9.1
+

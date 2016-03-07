@@ -1,52 +1,54 @@
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH] MAINTAINERS: Add devicetree bindings to Input Drivers section
-Date: Mon, 07 Mar 2016 19:54:16 +0100
-Message-ID: <2964268.geAV7fb7cP@diego>
-References: <1457374694-4764-1-git-send-email-afaerber@suse.de>
+From: =?UTF-8?Q?Andreas_F=c3=a4rber?= <afaerber-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH RESEND] Documentation: devicetree: Clean up gpio-keys
+ example
+Date: Mon, 7 Mar 2016 20:25:31 +0100
+Message-ID: <56DDD5AB.1090707@suse.de>
+References: <1457375055-5544-1-git-send-email-afaerber@suse.de>
+ <CABxcv=kEDoP3_Q3OKh1rGJ3=nFxRydu7L7bv5C=bNbmXyFt8dQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gloria.sntech.de ([95.129.55.99]:57260 "EHLO gloria.sntech.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752826AbcCGSyT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Mar 2016 13:54:19 -0500
-In-Reply-To: <1457374694-4764-1-git-send-email-afaerber@suse.de>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CABxcv=kEDoP3_Q3OKh1rGJ3=nFxRydu7L7bv5C=bNbmXyFt8dQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Julien Chauveau <chauveau.julien-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Andreas =?ISO-8859-1?Q?F=E4rber?= <afaerber@suse.de>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, open list <linux-kernel@vger.kernel.org>
 
-Am Montag, 7. M=E4rz 2016, 19:18:13 schrieb Andreas F=E4rber:
-> To avoid changes to input bindings not reaching linux-input reviewers
-> add an appropriate file pattern to the MAINTAINERS entry.
+Hi,
+
+Am 07.03.2016 um 19:34 schrieb Javier Martinez Canillas:
+> On Mon, Mar 7, 2016 at 3:24 PM, Andreas F=C3=A4rber <afaerber-l3A5Bk7waGM@public.gmane.org=
+> wrote:
+>> Drop #address-cells and #size-cells, which are not required by the
+>> gpio-keys binding documentation, as button sub-nodes are not devices=
+=2E
+>>
+>> Reported-by: Julien Chauveau <chauveau.julien-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>> Signed-off-by: Andreas F=C3=A4rber <afaerber-l3A5Bk7waGM@public.gmane.org>
 >=20
-> Reported-by: Heiko St=FCbner <heiko@sntech.de>
-> Signed-off-by: Andreas F=E4rber <afaerber@suse.de>
-
-not sure if it is needed, but looks good to me, so
-
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-
-> ---
->  MAINTAINERS | 1 +
->  1 file changed, 1 insertion(+)
+> Looks good to me.
 >=20
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 8e9d47e10f59..b01a56dd7fb2 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -5633,6 +5633,7 @@ F:	drivers/input/
->  F:	include/linux/input.h
->  F:	include/uapi/linux/input.h
->  F:	include/linux/input/
-> +F:	Documentation/devicetree/bindings/input/
->=20
->  INPUT MULTITOUCH (MT) PROTOCOL
->  M:	Henrik Rydberg <rydberg@bitmath.org>
+> Reviewed-by: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
 
+Thanks. Quick summary for non-Rockchip reviewers:
+
+This is a resend of: https://patchwork.kernel.org/patch/8513851/
+
+To avoid future resends: https://patchwork.kernel.org/patch/8521501/
+
+Rockchip arm64 cleanup: https://patchwork.kernel.org/patch/8513951/
+Patch prompting all this: https://patchwork.kernel.org/patch/8513921/
+
+Cheers,
+Andreas
+
+--=20
+SUSE Linux GmbH, Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+GF: Felix Imend=C3=B6rffer, Jane Smithard, Graham Norton; HRB 21284 (AG=
+ N=C3=BCrnberg)
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

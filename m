@@ -1,41 +1,44 @@
 From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
-Subject: [PATCH] MAINTAINERS: Add devicetree bindings to Input Drivers section
-Date: Mon,  7 Mar 2016 19:18:13 +0100
-Message-ID: <1457374694-4764-1-git-send-email-afaerber@suse.de>
+Subject: [PATCH RESEND] Documentation: devicetree: Clean up gpio-keys example
+Date: Mon,  7 Mar 2016 19:24:15 +0100
+Message-ID: <1457375055-5544-1-git-send-email-afaerber@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:42235 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:43060 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751146AbcCGSST (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 7 Mar 2016 13:18:19 -0500
+	id S1753152AbcCGSYh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 7 Mar 2016 13:24:37 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: =?UTF-8?q?Heiko=20St=C3=BCbner?= <heiko@sntech.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>, open list <linux-kernel@vger.kernel.org>
+Cc: linux-rockchip@lists.infradead.org, linux-arm-kernel@lists.infradead.org, =?UTF-8?q?Heiko=20St=C3=BCbner?= <heiko@sntech.de>, Julien Chauveau <chauveau.julien@gmail.com>, =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "open list:OPEN FIRMWARE AND FLATTENED
+	DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 
-To avoid changes to input bindings not reaching linux-input reviewers
-add an appropriate file pattern to the MAINTAINERS entry.
+Drop #address-cells and #size-cells, which are not required by the
+gpio-keys binding documentation, as button sub-nodes are not devices.
 
-Reported-by: Heiko St=C3=BCbner <heiko@sntech.de>
+Reported-by: Julien Chauveau <chauveau.julien@gmail.com>
 Signed-off-by: Andreas F=C3=A4rber <afaerber@suse.de>
 ---
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/input/gpio-keys.txt | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 8e9d47e10f59..b01a56dd7fb2 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -5633,6 +5633,7 @@ F:	drivers/input/
- F:	include/linux/input.h
- F:	include/uapi/linux/input.h
- F:	include/linux/input/
-+F:	Documentation/devicetree/bindings/input/
+diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Do=
+cumentation/devicetree/bindings/input/gpio-keys.txt
+index 21641236c095..1552a11f6786 100644
+--- a/Documentation/devicetree/bindings/input/gpio-keys.txt
++++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
+@@ -34,8 +34,6 @@ Example nodes:
 =20
- INPUT MULTITOUCH (MT) PROTOCOL
- M:	Henrik Rydberg <rydberg@bitmath.org>
+ 	gpio_keys {
+ 			compatible =3D "gpio-keys";
+-			#address-cells =3D <1>;
+-			#size-cells =3D <0>;
+ 			autorepeat;
+ 			button@21 {
+ 				label =3D "GPIO Key UP";
 --=20
 2.6.2
 

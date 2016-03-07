@@ -1,62 +1,48 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: multitouch: force retrieving of Win8 signature blob
-Date: Mon,  7 Mar 2016 11:02:38 +0100
-Message-ID: <1457344958-9987-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Aniroop Mathur <a.mathur@samsung.com>
+Subject: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
+Date: Mon,  7 Mar 2016 23:14:32 +0530
+Message-ID: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56875 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752082AbcCGKCm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 7 Mar 2016 05:02:42 -0500
+Received: from mail-pf0-f169.google.com ([209.85.192.169]:33282 "EHLO
+	mail-pf0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752427AbcCGRlK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Mar 2016 12:41:10 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, aniroop.mathur@gmail.com, Aniroop Mathur <a.mathur@samsung.com>
 
-The Synaptics 0x11e5 over I2C found in the Asus T100-CHI requires to
-fetch the signature blob to actually start sending events.
+As mentioned in documentation, SYN_REPORT should be used to separate two packets
+and should not be inserted in between a single packet as otherwise with multiple
+SYN_REPORT in a single packet, input reader would not be able to know when the
+packet ended really.
 
-With this patch, we should be close enough to the Windows driver which
-checks the content of the blob at plugin to validate or not the
-touchscreen.
+Documentation snippet:
+* SYN_REPORT:
+  - Used to synchronize and separate events into packets of input data changes
+    occurring at the same moment in time. For example, motion of a mouse may set
+    the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
+    motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
 
-Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=113481
-regression introduced by 6d4f5440 ("HID: multitouch: Fetch feature
-reports on demand for Win8 devices") which has been backported to stable.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
 ---
+ drivers/input/input.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Hi Jiri,
-
-Let's hope this will be the final patch for Win8 touch devices. I do not
-think we need much more tests from broader devices as this is really what
-we use to do before 6d4f5440, and this is also what the Windows driver does.
-
-Crossing fingers.
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-multitouch.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 6adb788..c2cb46d 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -396,6 +396,11 @@ static void mt_feature_mapping(struct hid_device *hdev,
- 			td->is_buttonpad = true;
- 
- 		break;
-+	case 0xff0000c5:
-+		/* Retrieve the Win8 blob once to enable some devices */
-+		if (usage->usage_index == 0)
-+			mt_get_feature(hdev, field->report);
-+		break;
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 8806059..262ef77 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
+ 		if (dev->num_vals >= 2)
+ 			input_pass_values(dev, dev->vals, dev->num_vals);
+ 		dev->num_vals = 0;
+-	} else if (dev->num_vals >= dev->max_vals - 2) {
+-		dev->vals[dev->num_vals++] = input_value_sync;
++	} else if (dev->num_vals >= dev->max_vals - 1) {
+ 		input_pass_values(dev, dev->vals, dev->num_vals);
+ 		dev->num_vals = 0;
  	}
- }
- 
 -- 
-2.5.0
+2.6.2
 

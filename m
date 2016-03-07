@@ -1,48 +1,46 @@
-From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
-Date: Mon,  7 Mar 2016 23:14:32 +0530
-Message-ID: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Subject: [PATCH] MAINTAINERS: Add devicetree bindings to Input Drivers section
+Date: Mon,  7 Mar 2016 19:18:13 +0100
+Message-ID: <1457374694-4764-1-git-send-email-afaerber@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f169.google.com ([209.85.192.169]:33282 "EHLO
-	mail-pf0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752427AbcCGRlK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Mar 2016 12:41:10 -0500
+Received: from mx2.suse.de ([195.135.220.15]:42235 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751146AbcCGSST (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 7 Mar 2016 13:18:19 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, aniroop.mathur@gmail.com, Aniroop Mathur <a.mathur@samsung.com>
+To: linux-input@vger.kernel.org
+Cc: =?UTF-8?q?Heiko=20St=C3=BCbner?= <heiko@sntech.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>, open list <linux-kernel@vger.kernel.org>
 
-As mentioned in documentation, SYN_REPORT should be used to separate two packets
-and should not be inserted in between a single packet as otherwise with multiple
-SYN_REPORT in a single packet, input reader would not be able to know when the
-packet ended really.
+To avoid changes to input bindings not reaching linux-input reviewers
+add an appropriate file pattern to the MAINTAINERS entry.
 
-Documentation snippet:
-* SYN_REPORT:
-  - Used to synchronize and separate events into packets of input data changes
-    occurring at the same moment in time. For example, motion of a mouse may set
-    the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
-    motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
-
-Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+Reported-by: Heiko St=C3=BCbner <heiko@sntech.de>
+Signed-off-by: Andreas F=C3=A4rber <afaerber@suse.de>
 ---
- drivers/input/input.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 8806059..262ef77 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
- 		if (dev->num_vals >= 2)
- 			input_pass_values(dev, dev->vals, dev->num_vals);
- 		dev->num_vals = 0;
--	} else if (dev->num_vals >= dev->max_vals - 2) {
--		dev->vals[dev->num_vals++] = input_value_sync;
-+	} else if (dev->num_vals >= dev->max_vals - 1) {
- 		input_pass_values(dev, dev->vals, dev->num_vals);
- 		dev->num_vals = 0;
- 	}
--- 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 8e9d47e10f59..b01a56dd7fb2 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -5633,6 +5633,7 @@ F:	drivers/input/
+ F:	include/linux/input.h
+ F:	include/uapi/linux/input.h
+ F:	include/linux/input/
++F:	Documentation/devicetree/bindings/input/
+=20
+ INPUT MULTITOUCH (MT) PROTOCOL
+ M:	Henrik Rydberg <rydberg@bitmath.org>
+--=20
 2.6.2
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,129 +1,136 @@
-From: Silvan Jegen <me@sillymon.ch>
-Subject: Getting a functional driver for Mad Catz Fightstick TE 2 (Xbox One
- version)
-Date: Tue, 8 Mar 2016 22:45:12 +0100
-Message-ID: <20160308214512.ls7d4rs4jrs6paiy@myarchbang>
-Content-Type: text/plain; charset=utf-8
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH v3] HID: i2c-hid: Fix suspend/resume when already runtime
+ suspended
+Date: Tue, 8 Mar 2016 15:03:23 -0800
+Message-ID: <20160308230323.GA4382@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx01.mykolab.com ([95.128.36.1]:46707 "EHLO
-	mx-out03.mykolab.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750903AbcCHVpR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Mar 2016 16:45:17 -0500
-Received: from mx05.mykolab.com (mx05.mykolab.com [10.20.7.161])
-	by mx-out03.mykolab.com (Postfix) with ESMTPS id 87360260D4
-	for <linux-input@vger.kernel.org>; Tue,  8 Mar 2016 22:45:13 +0100 (CET)
+Received: from mail-pf0-f176.google.com ([209.85.192.176]:35034 "EHLO
+	mail-pf0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751149AbcCHXD1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Mar 2016 18:03:27 -0500
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andrew Duggan <aduggan@synaptics.com>, Benson Leung <bleung@chromium.org>, Dan Carpenter <dan.carpenter@oracle.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Doug Anderson <dianders@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>
 
-Heyho
+On ACPI-based systems ACPI power domain code runtime resumes device before
+calling suspend method, which ensures that i2c-hid suspend code starts with
+device not in low-power state and with interrupts enabled.
 
-(I was asked on kernelnewbies to send this here instead)
+On other systems, especially if device is not a part of any power domain,
+we may end up calling driver's system-level suspend routine while the
+device is runtime-suspended (with controller in presumably low power state
+and interrupts disabled). This will result in interrupts being essentially
+disabled twice, and we will only re-enable them after both system resume
+and runtime resume methods complete. Unfortunately i2c_hid_resume() calls
+i2c_hid_hwreset() and that only works properly if interrupts are enabled.
 
-I bought a Mad Catz Fightstick TE2 for Xbox One because I wanted to play
-some fighting games on Linux. I chose this stick because it has gotten good
-reviews and I assumed that the Kernel driver should work because there are
-already drivers for Xbox One controllers in drivers/input/joystick/xpad.c.
+Also if device is runtime-suspended driver's suspend code may fail if it
+tries to issue I/O requests.
 
-It turns out that the driver does not work and dmesg just shows
+Let's fix it by runtime-resuming the device if we need to run HID driver's
+suspend code and also disabling interrupts only if device is not already
+runtime-suspended. Also on resume we mark the device as running at full
+power (since that is what resetting will do to it).
 
-[12293.077720] usb 1-1.2.1: new full-speed USB device number 9 using ehci-pci
+Signed-off-by: Doug Anderson <dianders@chromium.org>
+Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
+---
 
-when plugging it in. Simply adding the line
-
-{ 0x0738, 0x4a01, "Mad Catz FightStick TE 2", 0, XTYPE_XBOXONE },
-
-(where the two Hex values are VENDOR_ID and PRODUCT_ID) to xpad_device[]
-in xpad.c does not help either (which I naively hoped it would).
-
-I realized that the stick does not conform to the USB HID interface
-after looking more closely at the lsusb -v output (pasted below).
-
-
-Bus 001 Device 007: ID 0738:4a01 Mad Catz, Inc. 
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass          255 Vendor Specific Class
-  bDeviceSubClass       255 Vendor Specific Subclass
-  bDeviceProtocol       255 Vendor Specific Protocol
-  bMaxPacketSize0        64
-  idVendor           0x0738 Mad Catz, Inc.
-  idProduct          0x4a01 
-  bcdDevice            0.34
-  iManufacturer           1 MADCATZ
-  iProduct                2 FIGHTSTICK
-  iSerial                 3 0000BCA2F0E774D2
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           32
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xa0
-      (Bus Powered)
-      Remote Wakeup
-    MaxPower              200mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass     71 
-      bInterfaceProtocol    208 
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               4
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               4
-Device Status:     0x0002
-  (Bus Powered)
-  Remote Wakeup Enabled
+This is an uprev of a patch that Doug sent a year ago (see
+https://patchwork.kernel.org/patch/5970731/), adjusted to the latest
+mainline. The change from v2 is that we runtime-resume the device before
+calling into HID driver's suspend callback.
 
 
-The Fightstick seems to use a "Vendor Specific Class" and not the HID
-interface.
+ drivers/hid/i2c-hid/i2c-hid.c | 43 +++++++++++++++++++++++++++++++------------
+ 1 file changed, 31 insertions(+), 12 deletions(-)
 
-The device is relatively simple having only about 10 buttons and a digital
-stick and the Xbox One driver for Windows works for it so xpad.c should
-be able to deal with it I assume. Worst case I would have to reverse-
-engineer the USB protocol it uses on my Window installation though I
-hope that will not be necessary given that the much more sophisticated
-Xbox One controller works on Linux already.
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index b921693..1f62751 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -1108,13 +1108,30 @@ static int i2c_hid_suspend(struct device *dev)
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct i2c_hid *ihid = i2c_get_clientdata(client);
+ 	struct hid_device *hid = ihid->hid;
+-	int ret = 0;
++	int ret;
+ 	int wake_status;
+ 
+-	if (hid->driver && hid->driver->suspend)
++	if (hid->driver && hid->driver->suspend) {
++		/*
++		 * Wake up the device so that IO issues in
++		 * HID driver's suspend code can succeed.
++		 */
++		ret = pm_runtime_resume(dev);
++		if (ret < 0)
++			return ret;
++
+ 		ret = hid->driver->suspend(hid, PMSG_SUSPEND);
++		if (ret < 0)
++			return ret;
++	}
++
++	if (!pm_runtime_suspended(dev)) {
++		/* Save some power */
++		i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
++
++		disable_irq(ihid->irq);
++	}
+ 
+-	disable_irq(ihid->irq);
+ 	if (device_may_wakeup(&client->dev)) {
+ 		wake_status = enable_irq_wake(ihid->irq);
+ 		if (!wake_status)
+@@ -1124,10 +1141,7 @@ static int i2c_hid_suspend(struct device *dev)
+ 				wake_status);
+ 	}
+ 
+-	/* Save some power */
+-	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+-
+-	return ret;
++	return 0;
+ }
+ 
+ static int i2c_hid_resume(struct device *dev)
+@@ -1138,11 +1152,6 @@ static int i2c_hid_resume(struct device *dev)
+ 	struct hid_device *hid = ihid->hid;
+ 	int wake_status;
+ 
+-	enable_irq(ihid->irq);
+-	ret = i2c_hid_hwreset(client);
+-	if (ret)
+-		return ret;
+-
+ 	if (device_may_wakeup(&client->dev) && ihid->irq_wake_enabled) {
+ 		wake_status = disable_irq_wake(ihid->irq);
+ 		if (!wake_status)
+@@ -1152,6 +1161,16 @@ static int i2c_hid_resume(struct device *dev)
+ 				wake_status);
+ 	}
+ 
++	/* We'll resume to full power */
++	pm_runtime_disable(dev);
++	pm_runtime_set_active(dev);
++	pm_runtime_enable(dev);
++
++	enable_irq(ihid->irq);
++	ret = i2c_hid_hwreset(client);
++	if (ret)
++		return ret;
++
+ 	if (hid->driver && hid->driver->reset_resume) {
+ 		ret = hid->driver->reset_resume(hid);
+ 		return ret;
+-- 
+2.7.0.rc3.207.g0ac5344
 
-What I would like to know is if it is possible to use the xpad.c
-infrastructure in this case and maybe some pointers on where to go from
-here (I have looked at [0],[1] and [2] but want to check if somebody
-has dealt with a similar case already and can give me a hint). Thanks!
 
-
-Cheers,
-
-Silvan
-
-[0] https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/input?id=refs/tags/v4.5-rc7
-[1] https://lwn.net/Kernel/LDD3/
-[2] http://matthias.vallentin.net/blog/2007/04/writing-a-linux-kernel-driver-for-an-unknown-usb-device/
-
+-- 
+Dmitry

@@ -1,41 +1,62 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 3/3] input: gpio_keys: Make use of the device property API
-Date: Wed, 9 Mar 2016 10:36:54 +0200
-Message-ID: <20160309083654.GC1796@lahna.fi.intel.com>
-References: <1455876982-6743-1-git-send-email-geert+renesas@glider.be>
- <1455876982-6743-4-git-send-email-geert+renesas@glider.be>
- <20160222195815.GB28343@dtor-ws>
- <CA+V1Lzrag5QPAPjjhqp8R6uUG4NPb9sG7axiJoBGk4q=ozXV0w@mail.gmail.com>
- <20160229081723.GB1770@lahna.fi.intel.com>
- <CA+V1LzqX7_r1YuBCHSVLbjmp=6Ra=fi+mnVjNGzNhdvEDgXh2Q@mail.gmail.com>
- <20160301075241.GD1794@lahna.fi.intel.com>
- <CACRpkdb2vwjcpvOdmn36u_ESpapoc7_BPGOVFGKfsRmW_Q2cQA@mail.gmail.com>
+From: Gregor Riepl <onitake@gmail.com>
+Subject: Re: Getting a functional driver for Mad Catz Fightstick TE 2 (Xbox
+ One version)
+Date: Wed, 9 Mar 2016 12:43:06 +0100
+Message-ID: <56E00C4A.4000304@gmail.com>
+References: <20160308214512.ls7d4rs4jrs6paiy@myarchbang>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdb2vwjcpvOdmn36u_ESpapoc7_BPGOVFGKfsRmW_Q2cQA@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: sergk sergk2mail <sergk.admin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Aaron Lu <aaron.lu@intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Vincent Pelletier <plr.vincent@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Linux Input <linux-input@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f49.google.com ([74.125.82.49]:38158 "EHLO
+	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752474AbcCILnJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2016 06:43:09 -0500
+Received: by mail-wm0-f49.google.com with SMTP id l68so66989256wml.1
+        for <linux-input@vger.kernel.org>; Wed, 09 Mar 2016 03:43:08 -0800 (PST)
+In-Reply-To: <20160308214512.ls7d4rs4jrs6paiy@myarchbang>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Silvan Jegen <me@sillymon.ch>, linux-input@vger.kernel.org
 
-On Wed, Mar 09, 2016 at 10:36:08AM +0700, Linus Walleij wrote:
-> I just this merge window added an ABI for userspace to read name
-> of the GPIO line and also consumer name ("label") by using the
-> two strings stored in struct gpio_desc.
+Hi Silvan,
+
+> when plugging it in. Simply adding the line
 > 
-> Currently this will be initialized per-offset from the seldom used
-> char names[] in struct gpio_chip, if not NULL.
+> { 0x0738, 0x4a01, "Mad Catz FightStick TE 2", 0, XTYPE_XBOXONE },
 > 
-> We're working on DT bindings to set this per-line from the DT, and
-> if ACPI has a mechanism to name individual lines, please submit
-> patches for assigning this properly! (Hi Mika ;)
+> (where the two Hex values are VENDOR_ID and PRODUCT_ID) to xpad_device[]
+> in xpad.c does not help either (which I naively hoped it would).
 
-Hi :)
+If the controller is not 100% proprietary - which I doubt, or it would hardly
+work on the Xbox without special vendor support - "abusing" xpad seems
+perfectly reasonable.
 
-Yes, ACPI nowadays has mechanism for assigning names to GPIOs (_DSD). We
-will look into the DT implementation and try to come up with
-corresponding ACPI version.
+> I realized that the stick does not conform to the USB HID interface
+> after looking more closely at the lsusb -v output (pasted below).
+>
+> The Fightstick seems to use a "Vendor Specific Class" and not the HID
+> interface.
 
-Thanks for the heads-up.
+This may be because Xbox One controllers require a special initialisation
+sequence to make them send input reports at all.
+
+As far as I know, xpad does this for Xbox One pads, but the commands sent may
+not be sufficient for the Mad Catz. This may also be the reason why it doesn't
+show up as a HID device: It's possible that the device descriptor changes as
+soon as initialisation is complete.
+
+> The device is relatively simple having only about 10 buttons and a digital
+> stick and the Xbox One driver for Windows works for it so xpad.c should
+> be able to deal with it I assume. Worst case I would have to reverse-
+> engineer the USB protocol it uses on my Window installation though I
+> hope that will not be necessary given that the much more sophisticated
+> Xbox One controller works on Linux already.
+
+I think this is a good idea. Watch the initial data sent closely and compare
+what xpad does in the case of a Xbox One controller.
+
+Perhaps the logic is there already, and it just needs to be triggered?
+
+Regards,
+Gregor

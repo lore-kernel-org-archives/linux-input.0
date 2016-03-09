@@ -1,55 +1,67 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
-Date: Wed, 9 Mar 2016 11:07:53 -0800
-Message-ID: <CAKdAkRQT0R6peS8iO8PhQ4YoPMowt6voZJez4EubK7R0ZV_m4Q@mail.gmail.com>
-References: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: i2c-hid: Add hid-over-i2c name to i2c id table
+Date: Wed, 9 Mar 2016 20:50:58 +0100
+Message-ID: <20160309195058.GJ22340@mail.corp.redhat.com>
+References: <20160308192539.GA23955@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f46.google.com ([209.85.213.46]:33055 "EHLO
-	mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933895AbcCITHz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2016 14:07:55 -0500
-In-Reply-To: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
+Received: from mx1.redhat.com ([209.132.183.28]:59675 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933634AbcCITvD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Mar 2016 14:51:03 -0500
+Content-Disposition: inline
+In-Reply-To: <20160308192539.GA23955@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <a.mathur@samsung.com>, Henrik Rydberg <rydberg@bitmath.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Aniroop Mathur <aniroop.mathur@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Mar 7, 2016 at 9:44 AM, Aniroop Mathur <a.mathur@samsung.com> wrote:
-> As mentioned in documentation, SYN_REPORT should be used to separate two packets
-> and should not be inserted in between a single packet as otherwise with multiple
-> SYN_REPORT in a single packet, input reader would not be able to know when the
-> packet ended really.
->
-> Documentation snippet:
-> * SYN_REPORT:
->   - Used to synchronize and separate events into packets of input data changes
->     occurring at the same moment in time. For example, motion of a mouse may set
->     the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
->     motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
->
-> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+On Mar 08 2016 or thereabouts, Dmitry Torokhov wrote:
+> When using the device tree binding OF compatible = "hid-over-i2c" the
+> i2c id table also needs to have that name in order to auto load this
+> driver, since i2c core reports module alias as i2c:<string> where
+> <string> is compatible string of OF binding stripped of manufacturer's
+> prefix.
+
+OK, so the story here is during the first submissions, I had something
+similar (i2c-hid or so). I was then told that it was not necessary to
+use "i2c" in the name given that it was an I2C driver already. But it
+looks like when I created the device tree binding, I forgot about it and
+messed around a little bit, again.
+
+My apologies, and:
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>.
+
+Would it make sense to remove the other name ("hid") which should have
+less compatibility issues (all the users *should* be in the kernel
+tree).
+
+Cheers,
+Benjamin
+
+> 
+> Signed-off-by: Benson Leung <bleung@chromium.org>
+> Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
 > ---
->  drivers/input/input.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index 8806059..262ef77 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
->                 if (dev->num_vals >= 2)
->                         input_pass_values(dev, dev->vals, dev->num_vals);
->                 dev->num_vals = 0;
-> -       } else if (dev->num_vals >= dev->max_vals - 2) {
-> -               dev->vals[dev->num_vals++] = input_value_sync;
-> +       } else if (dev->num_vals >= dev->max_vals - 1) {
->                 input_pass_values(dev, dev->vals, dev->num_vals);
->                 dev->num_vals = 0;
->         }
-
-This makes sense to me. Henrik?
-
--- 
-Dmitry
+>  drivers/hid/i2c-hid/i2c-hid.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index b921693..a2c6c98 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -1191,6 +1191,7 @@ static const struct dev_pm_ops i2c_hid_pm = {
+>  
+>  static const struct i2c_device_id i2c_hid_id_table[] = {
+>  	{ "hid", 0 },
+> +	{ "hid-over-i2c", 0 },
+>  	{ },
+>  };
+>  MODULE_DEVICE_TABLE(i2c, i2c_hid_id_table);
+> -- 
+> 2.7.0.rc3.207.g0ac5344
+> 
+> 
+> -- 
+> Dmitry

@@ -1,31 +1,22 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
-Date: Thu, 10 Mar 2016 00:23:30 +0530
-Message-ID: <CADYu309tKSs_LDw_F=s_aU2mbomjQV2H+DhXvPbS2CCqSybnBQ@mail.gmail.com>
+Date: Wed, 9 Mar 2016 11:07:53 -0800
+Message-ID: <CAKdAkRQT0R6peS8iO8PhQ4YoPMowt6voZJez4EubK7R0ZV_m4Q@mail.gmail.com>
 References: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f175.google.com ([209.85.214.175]:33044 "EHLO
-	mail-ob0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750817AbcCISxb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2016 13:53:31 -0500
+Received: from mail-vk0-f46.google.com ([209.85.213.46]:33055 "EHLO
+	mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933895AbcCITHz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2016 14:07:55 -0500
 In-Reply-To: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <a.mathur@samsung.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Aniroop Mathur <a.mathur@samsung.com>, Henrik Rydberg <rydberg@bitmath.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Aniroop Mathur <aniroop.mathur@gmail.com>
 
-Hello Mr. Torokhov,
-
-
-Could you kindly help to update about below patch?
-
-Thanks,
-Aniroop Mathur
-
-
-On Mon, Mar 7, 2016 at 11:14 PM, Aniroop Mathur <a.mathur@samsung.com> wrote:
+On Mon, Mar 7, 2016 at 9:44 AM, Aniroop Mathur <a.mathur@samsung.com> wrote:
 > As mentioned in documentation, SYN_REPORT should be used to separate two packets
 > and should not be inserted in between a single packet as otherwise with multiple
 > SYN_REPORT in a single packet, input reader would not be able to know when the
@@ -57,6 +48,8 @@ On Mon, Mar 7, 2016 at 11:14 PM, Aniroop Mathur <a.mathur@samsung.com> wrote:
 >                 input_pass_values(dev, dev->vals, dev->num_vals);
 >                 dev->num_vals = 0;
 >         }
-> --
-> 2.6.2
->
+
+This makes sense to me. Henrik?
+
+-- 
+Dmitry

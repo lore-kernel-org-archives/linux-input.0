@@ -1,83 +1,43 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [GIT PULL v2] Immutable branch between MFD, Input and IIO [with fix]
-Date: Wed, 9 Mar 2016 12:55:43 +0700
-Message-ID: <20160309055543.GQ13692@x1>
-References: <1450101234-2191-1-git-send-email-mpa@pengutronix.de>
- <20160211155633.GB20693@x1>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [RFC 2/7] Input: joystick - avoid fragile snprintf use
+Date: Wed, 9 Mar 2016 08:49:27 +0200
+Message-ID: <CAHp75VckekMWgJOfd1z1ZezGs5RZ3PpymObb49FtikED1T62Eg@mail.gmail.com>
+References: <CAGXu5jJ-NApCpANjfz+bAEfwZJ8xizkM-jDHVhOPCzhxV-aqdA@mail.gmail.com>
+	<1457469654-17059-1-git-send-email-linux@rasmusvillemoes.dk>
+	<1457469654-17059-3-git-send-email-linux@rasmusvillemoes.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20160211155633.GB20693@x1>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Eric =?iso-8859-1?Q?B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f178.google.com ([209.85.161.178]:35090 "EHLO
+	mail-yw0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751101AbcCIGt2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2016 01:49:28 -0500
+In-Reply-To: <1457469654-17059-3-git-send-email-linux@rasmusvillemoes.dk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Please pull this new tag.  It contains a fix.
+On Tue, Mar 8, 2016 at 10:40 PM, Rasmus Villemoes
+<linux@rasmusvillemoes.dk> wrote:
+> Passing overlapping src and dst buffers to snprintf is fragile, and
+> while it currently works for the special case of passing dst as the
+> argument corresponding to an initial "%s" in the format string, any
+> other use would very likely lead to chaos. It's easy enough to avoid,
+> so let's do that.
 
-The following changes since commit 36f90b0a2ddd60823fe193a85e60ff1906c2=
-a9b3:
+>  static void analog_name(struct analog *analog)
+>  {
+> -       snprintf(analog->name, sizeof(analog->name), "Analog %d-axis %d-button",
+> +       int ret = 0;
 
-  Linux 4.5-rc2 (2016-01-31 18:12:16 -0800)
+Assignment is not needed.
 
-are available in the git repository at:
+> +
+> +       ret = scnprintf(analog->name, sizeof(analog->name), "Analog %d-axis %d-button",
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/ib-mfd=
--input-iio-v4.6-v2
 
-for you to fetch changes up to 0708677558dd7d03e70292549433f0f6b04a5e00=
-:
 
-  iio: adc/imx25-gcq: Move incorrect do_div (2016-03-09 12:50:51 +0700)
-
-----------------------------------------------------------------
-Immutable branch between MFD, Input and IIO [with fix] due for v4.6
-
-----------------------------------------------------------------
-Arnd Bergmann (1):
-      iio: adc/imx25-gcq: Move incorrect do_div
-
-Markus Pargmann (6):
-      mfd: Add DT binding documentation for imx25 ADC/TSC
-      iio: Add binding documentation for imx25 GCQ
-      Input: add binding documentation for imx25 touchscreen controller
-      mfd: fsl-imx25-tsadc: Register touchscreen ADC driver
-      iio: adc: Add imx25-gcq ADC driver
-      Input: touchscreen: Add imx25 TCQ driver
-
- .../devicetree/bindings/iio/adc/fsl,imx25-gcq.txt  |  58 ++
- .../bindings/input/touchscreen/fsl-mx25-tcq.txt    |  35 ++
- .../devicetree/bindings/mfd/fsl-imx25-tsadc.txt    |  47 ++
- drivers/iio/adc/Kconfig                            |   7 +
- drivers/iio/adc/Makefile                           |   1 +
- drivers/iio/adc/fsl-imx25-gcq.c                    | 417 +++++++++++++=
-+
- drivers/input/touchscreen/Kconfig                  |   9 +
- drivers/input/touchscreen/Makefile                 |   1 +
- drivers/input/touchscreen/fsl-imx25-tcq.c          | 596 +++++++++++++=
-++++++++
- drivers/mfd/Kconfig                                |   9 +
- drivers/mfd/Makefile                               |   2 +
- drivers/mfd/fsl-imx25-tsadc.c                      | 203 +++++++
- include/dt-bindings/iio/adc/fsl-imx25-gcq.h        |  18 +
- include/linux/mfd/imx25-tsadc.h                    | 140 +++++
- 14 files changed, 1543 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/iio/adc/fsl,imx25=
--gcq.txt
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen=
-/fsl-mx25-tcq.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/fsl-imx25-tsa=
-dc.txt
- create mode 100644 drivers/iio/adc/fsl-imx25-gcq.c
- create mode 100644 drivers/input/touchscreen/fsl-imx25-tcq.c
- create mode 100644 drivers/mfd/fsl-imx25-tsadc.c
- create mode 100644 include/dt-bindings/iio/adc/fsl-imx25-gcq.h
- create mode 100644 include/linux/mfd/imx25-tsadc.h
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+-- 
+With Best Regards,
+Andy Shevchenko

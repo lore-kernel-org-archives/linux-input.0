@@ -1,59 +1,81 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v3] HID: i2c-hid: Fix suspend/resume when already runtime
- suspended
-Date: Wed, 9 Mar 2016 21:53:40 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1603092152420.3656@cbobk.fhfr.pm>
-References: <20160308230323.GA4382@dtor-ws> <20160309120411.GF1796@lahna.fi.intel.com> <20160309195638.GK22340@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Eduardo Valentin <edubezval@gmail.com>
+Subject: [PATCH 05/13] input: convert sun4i-ts to use devm_thermal_zone_of_sensor_register
+Date: Wed,  9 Mar 2016 13:35:27 -0800
+Message-ID: <1457559336-17652-6-git-send-email-edubezval@gmail.com>
+References: <1457559336-17652-1-git-send-email-edubezval@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:43950 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933828AbcCIUxn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 9 Mar 2016 15:53:43 -0500
-In-Reply-To: <20160309195638.GK22340@mail.corp.redhat.com>
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:33535 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754005AbcCIVfr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2016 16:35:47 -0500
+In-Reply-To: <1457559336-17652-1-git-send-email-edubezval@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Andrew Duggan <aduggan@synaptics.com>, Benson Leung <bleung@chromium.org>, Dan Carpenter <dan.carpenter@oracle.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Doug Anderson <dianders@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To: Rui Zhang <rui.zhang@intel.com>
+Cc: Linux PM <linux-pm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, lm-sensors@lm-sensors.org, Eduardo Valentin <edubezval@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, Lukasz Majewski <l.majewski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, Sascha Hauer <s.hauer@pengutronix.de>, Jens Thiele <karme@karme.de>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Tue, 8 Mar 2016, Dmitry Torokhov wrote:
+This changes the driver to use the devm_ version
+of thermal_zone_of_sensor_register and cleans
+up the  local points and unregister calls.
 
-> On ACPI-based systems ACPI power domain code runtime resumes device before
-> calling suspend method, which ensures that i2c-hid suspend code starts with
-> device not in low-power state and with interrupts enabled.
-> 
-> On other systems, especially if device is not a part of any power domain,
-> we may end up calling driver's system-level suspend routine while the
-> device is runtime-suspended (with controller in presumably low power state
-> and interrupts disabled). This will result in interrupts being essentially
-> disabled twice, and we will only re-enable them after both system resume
-> and runtime resume methods complete. Unfortunately i2c_hid_resume() calls
-> i2c_hid_hwreset() and that only works properly if interrupts are enabled.
-> 
-> Also if device is runtime-suspended driver's suspend code may fail if it
-> tries to issue I/O requests.
-> 
-> Let's fix it by runtime-resuming the device if we need to run HID driver's
-> suspend code and also disabling interrupts only if device is not already
-> runtime-suspended. Also on resume we mark the device as running at full
-> power (since that is what resetting will do to it).
-> 
-> Signed-off-by: Doug Anderson <dianders@chromium.org>
-> Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Chen-Yu Tsai <wens@csie.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Zhang Rui <rui.zhang@intel.com>
+Cc: Lukasz Majewski <l.majewski@samsung.com>
+Cc: Heiko Stuebner <heiko@sntech.de>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Jens Thiele <karme@karme.de>
+Cc: linux-input@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+---
+ drivers/input/touchscreen/sun4i-ts.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-Applied to for-4.6/i2c-hid, thanks.
-
-On Wed, 9 Mar 2016, Benjamin Tissoires wrote:
-
-> Well, I have completely no way of testing this myself, and I blindly
-> trust Mika, Dmitry and the others for doing the right thing :).
-
-Welcome to the wonderful world of linux kernel maintainers! :p
-
-Thanks,
-
+diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
+index 4857943..d07dd29 100644
+--- a/drivers/input/touchscreen/sun4i-ts.c
++++ b/drivers/input/touchscreen/sun4i-ts.c
+@@ -115,7 +115,6 @@
+ struct sun4i_ts_data {
+ 	struct device *dev;
+ 	struct input_dev *input;
+-	struct thermal_zone_device *tz;
+ 	void __iomem *base;
+ 	unsigned int irq;
+ 	bool ignore_fifo_data;
+@@ -366,10 +365,7 @@ static int sun4i_ts_probe(struct platform_device *pdev)
+ 	if (IS_ERR(hwmon))
+ 		return PTR_ERR(hwmon);
+ 
+-	ts->tz = thermal_zone_of_sensor_register(ts->dev, 0, ts,
+-						 &sun4i_ts_tz_ops);
+-	if (IS_ERR(ts->tz))
+-		ts->tz = NULL;
++	devm_thermal_zone_of_sensor_register(ts->dev, 0, ts, &sun4i_ts_tz_ops);
+ 
+ 	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+ 
+@@ -377,7 +373,6 @@ static int sun4i_ts_probe(struct platform_device *pdev)
+ 		error = input_register_device(ts->input);
+ 		if (error) {
+ 			writel(0, ts->base + TP_INT_FIFOC);
+-			thermal_zone_of_sensor_unregister(ts->dev, ts->tz);
+ 			return error;
+ 		}
+ 	}
+@@ -394,8 +389,6 @@ static int sun4i_ts_remove(struct platform_device *pdev)
+ 	if (ts->input)
+ 		input_unregister_device(ts->input);
+ 
+-	thermal_zone_of_sensor_unregister(ts->dev, ts->tz);
+-
+ 	/* Deactivate all IRQs */
+ 	writel(0, ts->base + TP_INT_FIFOC);
+ 
 -- 
-Jiri Kosina
-SUSE Labs
+2.1.4
 

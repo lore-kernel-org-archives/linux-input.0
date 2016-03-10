@@ -1,100 +1,85 @@
-From: Andrew Shadura <andrew.shadura@collabora.co.uk>
-Subject: Re: [PATCH v2] HID: report only one button for PenMount 6000 USB
- touchscreen controller
-Date: Thu, 10 Mar 2016 12:46:38 +0100
-Message-ID: <56E15E9E.4090107@collabora.co.uk>
-References: <1446131389-21759-1-git-send-email-andrew.shadura@collabora.co.uk>
- <565456F3.8080408@collabora.co.uk>
- <CAH9NwWfj4pNuqBhYj7ZJQbzqyJ19UpT3iNY8avX-Uu6XLtMW7g@mail.gmail.com>
- <569514D6.2060204@collabora.co.uk>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 05/13] input: convert sun4i-ts to use
+ devm_thermal_zone_of_sensor_register
+Date: Thu, 10 Mar 2016 14:19:49 +0100
+Message-ID: <56E17475.8010506@redhat.com>
+References: <1457559336-17652-1-git-send-email-edubezval@gmail.com>
+ <1457559336-17652-6-git-send-email-edubezval@gmail.com>
+ <20160310093438.GL30994@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="LkbXQ9xs3VnCUDl4bjgU6NTmHdl5MSRFt"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:32883 "EHLO
-	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751199AbcCJLqn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Mar 2016 06:46:43 -0500
-In-Reply-To: <569514D6.2060204@collabora.co.uk>
+Received: from mx1.redhat.com ([209.132.183.28]:55236 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750997AbcCJNUC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Mar 2016 08:20:02 -0500
+In-Reply-To: <20160310093438.GL30994@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christian Gmeiner <christian.gmeiner@gmail.com>
-Cc: Linux Input Mailing List <linux-input@vger.kernel.org>, =?UTF-8?B?SmnFmcOtIEtvc2luYQ==?= <jkosina@suse.com>
+To: Sascha Hauer <s.hauer@pengutronix.de>, Eduardo Valentin <edubezval@gmail.com>
+Cc: Rui Zhang <rui.zhang@intel.com>, Linux PM <linux-pm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, lm-sensors@lm-sensors.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, Lukasz Majewski <l.majewski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, Jens Thiele <karme@karme.de>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---LkbXQ9xs3VnCUDl4bjgU6NTmHdl5MSRFt
-Content-Type: multipart/mixed; boundary="KAF0XkrmqxTHHViPhW4nCxaWtqXSsPoGq"
-From: Andrew Shadura <andrew.shadura@collabora.co.uk>
-To: Christian Gmeiner <christian.gmeiner@gmail.com>
-Cc: Linux Input Mailing List <linux-input@vger.kernel.org>,
- =?UTF-8?B?SmnFmcOtIEtvc2luYQ==?= <jkosina@suse.com>
-Message-ID: <56E15E9E.4090107@collabora.co.uk>
-Subject: Re: [PATCH v2] HID: report only one button for PenMount 6000 USB
- touchscreen controller
-References: <1446131389-21759-1-git-send-email-andrew.shadura@collabora.co.uk>
- <565456F3.8080408@collabora.co.uk>
- <CAH9NwWfj4pNuqBhYj7ZJQbzqyJ19UpT3iNY8avX-Uu6XLtMW7g@mail.gmail.com>
- <569514D6.2060204@collabora.co.uk>
-In-Reply-To: <569514D6.2060204@collabora.co.uk>
+Hi,
 
---KAF0XkrmqxTHHViPhW4nCxaWtqXSsPoGq
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+On 10-03-16 10:34, Sascha Hauer wrote:
+> On Wed, Mar 09, 2016 at 01:35:27PM -0800, Eduardo Valentin wrote:
+>> This changes the driver to use the devm_ version
+>> of thermal_zone_of_sensor_register and cleans
+>> up the  local points and unregister calls.
+>>
+>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
+>> Cc: Chen-Yu Tsai <wens@csie.org>
+>> Cc: Hans de Goede <hdegoede@redhat.com>
+>> Cc: Zhang Rui <rui.zhang@intel.com>
+>> Cc: Lukasz Majewski <l.majewski@samsung.com>
+>> Cc: Heiko Stuebner <heiko@sntech.de>
+>> Cc: Sascha Hauer <s.hauer@pengutronix.de>
+>> Cc: Jens Thiele <karme@karme.de>
+>> Cc: linux-input@vger.kernel.org
+>> Cc: linux-arm-kernel@lists.infradead.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+>> ---
+>>   drivers/input/touchscreen/sun4i-ts.c | 9 +--------
+>>   1 file changed, 1 insertion(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
+>> index 4857943..d07dd29 100644
+>> --- a/drivers/input/touchscreen/sun4i-ts.c
+>> +++ b/drivers/input/touchscreen/sun4i-ts.c
+>> @@ -115,7 +115,6 @@
+>>   struct sun4i_ts_data {
+>>   	struct device *dev;
+>>   	struct input_dev *input;
+>> -	struct thermal_zone_device *tz;
+>>   	void __iomem *base;
+>>   	unsigned int irq;
+>>   	bool ignore_fifo_data;
+>> @@ -366,10 +365,7 @@ static int sun4i_ts_probe(struct platform_device *pdev)
+>>   	if (IS_ERR(hwmon))
+>>   		return PTR_ERR(hwmon);
+>>
+>> -	ts->tz = thermal_zone_of_sensor_register(ts->dev, 0, ts,
+>> -						 &sun4i_ts_tz_ops);
+>> -	if (IS_ERR(ts->tz))
+>> -		ts->tz = NULL;
+>> +	devm_thermal_zone_of_sensor_register(ts->dev, 0, ts, &sun4i_ts_tz_ops);
+>
+> Shouldn't we check the return value? There are a few possibilities for
+> thermal_zone_of_sensor_register to fail.
 
-On 12/01/16 15:59, Andrew Shadura wrote:
-> On 27/11/15 16:18, Christian Gmeiner wrote:
->> > 2015-11-24 13:24 GMT+01:00 Andrew Shadura <andrew.shadura@collabora.=
-co.uk>:
->>> >> On 29/10/15 16:00, Andrew Shadura wrote:
->>>> >>> PenMount 6000 USB resistive touchscreen controller reports it ha=
-s three
->>>> >>> buttons, while in reality it doesn't have any and doesn't suppor=
-t active
->>>> >>> styli, and only generates touch events.
->>>> >>>
->>>> >>> In penmount_input_mapping(), map only the first button (with cod=
-e 0),
->>>> >>> ignore the rest.
->>>> >>>
->>>> >>> Signed-off-by: Andrew Shadura <andrew.shadura@collabora.co.uk>
->>> >>
->>> >> Any news on this patch? It'd be cool if it could be merged.
->> >=20
->> > I try to get access to the hardware and will test it.
-> Christian, have you had a chance to test the patch?
+Note thee old code also was not checking this, it was simply continuing
+without having registered a tz-sensor.
 
-Ping, once again. Any progress on this?
+I guess we could log an error in that case, but that should be done in a
+seperate follow-up patch.
 
---=20
-Cheers,
-  Andrew
+The current patch looks good to me:
 
+Acked-by: Hans de Goede <hdegoede@redhat.com>
 
---KAF0XkrmqxTHHViPhW4nCxaWtqXSsPoGq--
+Regards,
 
---LkbXQ9xs3VnCUDl4bjgU6NTmHdl5MSRFt
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJW4V6eAAoJEEFnG7NKhJOBI8kQAMVPUYXRGdRu+EaYV8ogtOht
-NvFfZ0O4aZR2eJPEXwiii4VBUoxsGnkza0UV/cFk4sNMycR4DZQUXWDcu0lP5Rpk
-opjFipUBmgFVKef0DrlK5phogvfQUgU39uJhY+Vkq1ie2CdAcw/ZqT0tmaBPYwWg
-PGY2pnFgBR89XYjzA70h4pvCQ7wtjPViUqX1g/QW5v6kk6k+NZL85pzpgNjVwlL/
-cJqtDyc0m8k1dquafYaRoP+mL6AhGyuRJ02qmKTYBPit5dP+vNcJ83hDsEbbIE5a
-ekZ6Uj8t+6afz3cuuaVGf27P4bryUPKFcuRpH793Ib8UDySkJ8FnEKiSbxPoZ3Ez
-HnxqJvq4ArVEyImqJxtZ8nqibJXyUIkyHlhPUOiCo1iL/ghY4+6d4aD0BLtC2ciV
-gKj+KLpVCMK0K7lfJMZB/Sg11ulpLdz6kwsMQoQ/rOPV6KzTGoH2cYUK2t2zCUbO
-NBvt3alyvEhJT8AOlaaQGhFsf71Sm60J3YmWX0jDeLNmLXNkT275UzCeULYjhTJ4
-dQHYzqd3gH/PHJWSMC1zuyAjlSFFsLFPu63rWHl3Y72oSwh6YJjSYfKXofUGb2Fr
-WSk0GBerfd1v3GTutEAyQHwQHfq2ZeoiLlRoPRuVAIHWnWmzEQ5f7GWS3WXy4GVw
-kr2C6avLezqIkQfckSe1
-=w3GL
------END PGP SIGNATURE-----
-
---LkbXQ9xs3VnCUDl4bjgU6NTmHdl5MSRFt--
+Hans

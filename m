@@ -1,82 +1,139 @@
-From: Julien Chauveau <chauveau.julien@gmail.com>
-Subject: Re: [PATCH RESEND] Documentation: devicetree: Clean up gpio-keys example
-Date: Fri, 11 Mar 2016 00:08:56 +0100
-Message-ID: <A62AD22E-ECB3-4DC7-8156-22BC84795412@gmail.com>
-References: <1457375055-5544-1-git-send-email-afaerber@suse.de> <CAMuHMdVMVYaygvKd3qgTz2fF9SuLA_zEYRoZZrJO+2zmP=jxag@mail.gmail.com> <56DEA4D6.10008@suse.de>
-Mime-Version: 1.0 (Mac OS X Mail 9.2 \(3112\))
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v5 01/10] Input: synaptics-rmi4: Add support for
+ Synaptics RMI4 devices
+Date: Thu, 10 Mar 2016 15:43:10 -0800
+Message-ID: <20160310234310.GA22661@dtor-ws>
+References: <1455143005-10060-1-git-send-email-aduggan@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <56DEA4D6.10008@suse.de>
+Content-Disposition: inline
+In-Reply-To: <1455143005-10060-1-git-send-email-aduggan@synaptics.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-rockchip <linux-rockchip@lists.infradead.org>, LAKML <linux-arm-kernel@lists.infradead.org>, =?utf-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 List-Id: linux-input@vger.kernel.org
 
+On Wed, Feb 10, 2016 at 02:23:25PM -0800, Andrew Duggan wrote:
+> Synaptics uses the Register Mapped Interface (RMI) protocol as a
+> communications interface for their devices. This driver adds the core
+> functionality needed to interface with RMI4 devices.
+> 
+> RMI devices can be connected to the host via several transport protocols
+> and can supports a wide variety of functionality defined by RMI functions.
+> Support for transport protocols and RMI functions are implemented in
+> individual drivers. The RMI4 core driver uses a bus architecture to
+> facilitate the various combinations of transport and function drivers
+> needed by a particular device.
+> 
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+> ---
+>  drivers/input/Kconfig           |    2 +
+>  drivers/input/Makefile          |    2 +
+>  drivers/input/rmi4/Kconfig      |   10 +
+>  drivers/input/rmi4/Makefile     |    2 +
+>  drivers/input/rmi4/rmi_bus.c    |  375 ++++++++++++++
+>  drivers/input/rmi4/rmi_bus.h    |  186 +++++++
+>  drivers/input/rmi4/rmi_driver.c | 1027 +++++++++++++++++++++++++++++++++++++++
+>  drivers/input/rmi4/rmi_driver.h |  103 ++++
+>  drivers/input/rmi4/rmi_f01.c    |  574 ++++++++++++++++++++++
+>  include/linux/rmi.h             |  209 ++++++++
+>  include/uapi/linux/input.h      |    1 +
+>  11 files changed, 2491 insertions(+)
+>  create mode 100644 drivers/input/rmi4/Kconfig
+>  create mode 100644 drivers/input/rmi4/Makefile
+>  create mode 100644 drivers/input/rmi4/rmi_bus.c
+>  create mode 100644 drivers/input/rmi4/rmi_bus.h
+>  create mode 100644 drivers/input/rmi4/rmi_driver.c
+>  create mode 100644 drivers/input/rmi4/rmi_driver.h
+>  create mode 100644 drivers/input/rmi4/rmi_f01.c
+>  create mode 100644 include/linux/rmi.h
+> 
+> diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
+> index a35532e..6261874 100644
+> --- a/drivers/input/Kconfig
+> +++ b/drivers/input/Kconfig
+> @@ -201,6 +201,8 @@ source "drivers/input/touchscreen/Kconfig"
+>  
+>  source "drivers/input/misc/Kconfig"
+>  
+> +source "drivers/input/rmi4/Kconfig"
+> +
+>  endif
+>  
+>  menu "Hardware I/O ports"
+> diff --git a/drivers/input/Makefile b/drivers/input/Makefile
+> index 0c9302c..595820b 100644
+> --- a/drivers/input/Makefile
+> +++ b/drivers/input/Makefile
+> @@ -26,3 +26,5 @@ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
+>  obj-$(CONFIG_INPUT_MISC)	+= misc/
+>  
+>  obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
+> +
+> +obj-$(CONFIG_RMI4_CORE)		+= rmi4/
+> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+> new file mode 100644
+> index 0000000..5ea60e3
+> --- /dev/null
+> +++ b/drivers/input/rmi4/Kconfig
+> @@ -0,0 +1,10 @@
+> +#
+> +# RMI4 configuration
+> +#
+> +config RMI4_CORE
+> +	tristate "Synaptics RMI4 bus support"
+> +	help
+> +	  Say Y here if you want to support the Synaptics RMI4 bus.  This is
+> +	  required for all RMI4 device support.
+> +
+> +	  If unsure, say Y.
+> diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
+> new file mode 100644
+> index 0000000..12f2197
+> --- /dev/null
+> +++ b/drivers/input/rmi4/Makefile
+> @@ -0,0 +1,2 @@
+> +obj-$(CONFIG_RMI4_CORE) += rmi_core.o
+> +rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
+> diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+> new file mode 100644
+> index 0000000..78922a6
+> --- /dev/null
+> +++ b/drivers/input/rmi4/rmi_bus.c
+> @@ -0,0 +1,375 @@
+> +/*
+> + * Copyright (c) 2011-2016 Synaptics Incorporated
+> + * Copyright (c) 2011 Unixphere
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2 as published by
+> + * the Free Software Foundation.
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/device.h>
+> +#include <linux/kconfig.h>
+> +#include <linux/list.h>
+> +#include <linux/pm.h>
+> +#include <linux/rmi.h>
+> +#include <linux/slab.h>
+> +#include <linux/types.h>
+> +#include <linux/of.h>
+> +#include "rmi_bus.h"
+> +#include "rmi_driver.h"
+> +
+> +int debug_flags;
 
-> Le 8 mars 2016 =C3=A0 11:09, Andreas F=C3=A4rber <afaerber@suse.de> a=
- =C3=A9crit :
->=20
-> Am 08.03.2016 um 09:54 schrieb Geert Uytterhoeven:
->> On Mon, Mar 7, 2016 at 7:24 PM, Andreas F=C3=A4rber <afaerber@suse.d=
-e> wrote:
->>> Drop #address-cells and #size-cells, which are not required by the
->>> gpio-keys binding documentation, as button sub-nodes are not device=
-s.
->>>=20
->>> Reported-by: Julien Chauveau <chauveau.julien@gmail.com>
->>> Signed-off-by: Andreas F=C3=A4rber <afaerber@suse.de>
->>> ---
->>> Documentation/devicetree/bindings/input/gpio-keys.txt | 2 --
->>> 1 file changed, 2 deletions(-)
->>>=20
->>> diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt =
-b/Documentation/devicetree/bindings/input/gpio-keys.txt
->>> index 21641236c095..1552a11f6786 100644
->>> --- a/Documentation/devicetree/bindings/input/gpio-keys.txt
->>> +++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
->>> @@ -34,8 +34,6 @@ Example nodes:
->>>=20
->>>        gpio_keys {
->=20
-> While at it, I was told the preferred node naming would be dashes, no=
-t
-> underscores. The deeper we dig, the more we find.
+Changed to static.
 
-I agree, here we should use dashes, not underscores. So "gpio-keys" ins=
-tead of "gpio_keys".
+> +module_param(debug_flags, int, 0444);
 
->=20
->>>                        compatible =3D "gpio-keys";
->>> -                       #address-cells =3D <1>;
->>> -                       #size-cells =3D <0>;
->>>                        autorepeat;
->=20
-> Also a white line here may be optically more pleasant.
+Changed to 0644 - there is no reason why we can't change flags at
+runtime.
 
-I agree.
+Thanks.
 
->=20
->>>                        button@21 {
->>=20
->> FYI, with "[PATCH] scripts/dtc: Update to upstream version 53bf130b1=
-cdd":
->> (http://www.spinics.net/lists/devicetree/msg117206.html) applied:
->>=20
->> Warning (unit_address_vs_reg): Node /keyboard/button@21 has a unit
->> name, but no reg property
->=20
-> My v2 GeekBox patch did have *-cells and a reg property, but Julien
-> asked I drop that: https://patchwork.kernel.org/patch/8246481/
->=20
-> Are you suggesting we should add a reg property here and drop this pa=
-tch
-> or go with this patch but follow up to not use @21?
-
-I may be wrong but I think that if the unit-address has no meaning and =
-is not used, then it should be removed.
-
-By the way, I think the warning message is wrong. It should be _address=
-_ instead of name: "Node has a unit address, but no reg property".
-
-Julien
+-- 
+Dmitry

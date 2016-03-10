@@ -1,62 +1,47 @@
-From: Silvan Jegen <me@sillymon.ch>
-Subject: Re: Getting a functional driver for Mad Catz Fightstick TE 2 (Xbox
- One version)
-Date: Thu, 10 Mar 2016 09:48:10 +0100
-Message-ID: <3477c829c2d757553331662c63cb271c@sillymon.ch>
-References: <20160308214512.ls7d4rs4jrs6paiy@myarchbang>
- <56E00C4A.4000304@gmail.com>
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: i2c-hid: Add hid-over-i2c name to i2c id table
+Date: Thu, 10 Mar 2016 10:05:40 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1603101005060.3656@cbobk.fhfr.pm>
+References: <20160308192539.GA23955@dtor-ws> <alpine.LNX.2.00.1603092150060.3656@cbobk.fhfr.pm> <CAKdAkRQwpQ8RmptQgfbPF4-w9qXGHHA0kXQEQkU23jr+FMjOAA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx01.mykolab.com ([95.128.36.1]:42406 "EHLO
-	mx-out02.mykolab.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752819AbcCJIsP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Mar 2016 03:48:15 -0500
-In-Reply-To: <56E00C4A.4000304@gmail.com>
+Received: from mx2.suse.de ([195.135.220.15]:49080 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754583AbcCJJFm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Mar 2016 04:05:42 -0500
+In-Reply-To: <CAKdAkRQwpQ8RmptQgfbPF4-w9qXGHHA0kXQEQkU23jr+FMjOAA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gregor Riepl <onitake@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Benson Leung <bleung@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
-Hi Gregor
+On Wed, 9 Mar 2016, Dmitry Torokhov wrote:
 
-Am 2016-03-09 12:43, schrieb Gregor Riepl:
->> I realized that the stick does not conform to the USB HID interface
->> after looking more closely at the lsusb -v output (pasted below).
->> 
->> The Fightstick seems to use a "Vendor Specific Class" and not the HID
->> interface.
+> >> When using the device tree binding OF compatible = "hid-over-i2c" the
+> >> i2c id table also needs to have that name in order to auto load this
+> >> driver, since i2c core reports module alias as i2c:<string> where
+> >> <string> is compatible string of OF binding stripped of manufacturer's
+> >> prefix.
+> >>
+> >> Signed-off-by: Benson Leung <bleung@chromium.org>
+> >> Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
+> >
+> > Applied, thanks.
 > 
-> This may be because Xbox One controllers require a special 
-> initialisation
-> sequence to make them send input reports at all.
+> Crap, can you change author on this to "Benson Leung
+> <bleung@chromium.org>" and on "HID: i2c-hid: Fix suspend/resume when
+> already runtime suspended" to "Doug Anderson <dianders@chromium.org>"?
 > 
-> As far as I know, xpad does this for Xbox One pads, but the commands 
-> sent may
-> not be sufficient for the Mad Catz. This may also be the reason why it 
-> doesn't
-> show up as a HID device: It's possible that the device descriptor 
-> changes as
-> soon as initialisation is complete.
+> I need to fix my script...
 
-So thanks to this suggestion I looked at the xpad.c code again yesterday 
-to see which initialisation bytes are being sent. When reading through 
-it I realized that I did not add an entry for the fight stick in the 
-xpad_table[] array. Adding an entry there using the XPAD_XBOXONE_VENDOR 
-macro (whose .bInterfaceSubClass and .bInterfaceProtocol values 
-correspond to what I found in the lsusb -v output) lets the driver find 
-the stick and also lets me read input from it.
+Alright, this is one of the rare ocasions where I believe that rebase of a 
+public git tree is justifiable. I've just fixed the commits and pushed out 
+the new branches.
 
-I am travelling till next week but as soon as I get back I will test the 
-stick's functionality and check if I have to add a quirk. If I find the 
-stick to be reasonably functional after some tweaking I will send a 
-patch to the list.
+Thanks,
 
-Thanks for your help!
+-- 
+Jiri Kosina
+SUSE Labs
 
-
-Cheers,
-
-Silvan

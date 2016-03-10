@@ -1,47 +1,72 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: i2c-hid: Add hid-over-i2c name to i2c id table
-Date: Thu, 10 Mar 2016 10:05:40 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1603101005060.3656@cbobk.fhfr.pm>
-References: <20160308192539.GA23955@dtor-ws> <alpine.LNX.2.00.1603092150060.3656@cbobk.fhfr.pm> <CAKdAkRQwpQ8RmptQgfbPF4-w9qXGHHA0kXQEQkU23jr+FMjOAA@mail.gmail.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [PATCH 05/13] input: convert sun4i-ts to use
+ devm_thermal_zone_of_sensor_register
+Date: Thu, 10 Mar 2016 10:34:38 +0100
+Message-ID: <20160310093438.GL30994@pengutronix.de>
+References: <1457559336-17652-1-git-send-email-edubezval@gmail.com>
+ <1457559336-17652-6-git-send-email-edubezval@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49080 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754583AbcCJJFm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Mar 2016 04:05:42 -0500
-In-Reply-To: <CAKdAkRQwpQ8RmptQgfbPF4-w9qXGHHA0kXQEQkU23jr+FMjOAA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1457559336-17652-6-git-send-email-edubezval@gmail.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Eduardo Valentin <edubezval@gmail.com>
+Cc: Rui Zhang <rui.zhang@intel.com>, Linux PM <linux-pm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, lm-sensors@lm-sensors.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, Lukasz Majewski <l.majewski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, Jens Thiele <karme@karme.de>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Benson Leung <bleung@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
-On Wed, 9 Mar 2016, Dmitry Torokhov wrote:
-
-> >> When using the device tree binding OF compatible = "hid-over-i2c" the
-> >> i2c id table also needs to have that name in order to auto load this
-> >> driver, since i2c core reports module alias as i2c:<string> where
-> >> <string> is compatible string of OF binding stripped of manufacturer's
-> >> prefix.
-> >>
-> >> Signed-off-by: Benson Leung <bleung@chromium.org>
-> >> Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
-> >
-> > Applied, thanks.
+On Wed, Mar 09, 2016 at 01:35:27PM -0800, Eduardo Valentin wrote:
+> This changes the driver to use the devm_ version
+> of thermal_zone_of_sensor_register and cleans
+> up the  local points and unregister calls.
 > 
-> Crap, can you change author on this to "Benson Leung
-> <bleung@chromium.org>" and on "HID: i2c-hid: Fix suspend/resume when
-> already runtime suspended" to "Doug Anderson <dianders@chromium.org>"?
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
+> Cc: Chen-Yu Tsai <wens@csie.org>
+> Cc: Hans de Goede <hdegoede@redhat.com>
+> Cc: Zhang Rui <rui.zhang@intel.com>
+> Cc: Lukasz Majewski <l.majewski@samsung.com>
+> Cc: Heiko Stuebner <heiko@sntech.de>
+> Cc: Sascha Hauer <s.hauer@pengutronix.de>
+> Cc: Jens Thiele <karme@karme.de>
+> Cc: linux-input@vger.kernel.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+> ---
+>  drivers/input/touchscreen/sun4i-ts.c | 9 +--------
+>  1 file changed, 1 insertion(+), 8 deletions(-)
 > 
-> I need to fix my script...
+> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
+> index 4857943..d07dd29 100644
+> --- a/drivers/input/touchscreen/sun4i-ts.c
+> +++ b/drivers/input/touchscreen/sun4i-ts.c
+> @@ -115,7 +115,6 @@
+>  struct sun4i_ts_data {
+>  	struct device *dev;
+>  	struct input_dev *input;
+> -	struct thermal_zone_device *tz;
+>  	void __iomem *base;
+>  	unsigned int irq;
+>  	bool ignore_fifo_data;
+> @@ -366,10 +365,7 @@ static int sun4i_ts_probe(struct platform_device *pdev)
+>  	if (IS_ERR(hwmon))
+>  		return PTR_ERR(hwmon);
+>  
+> -	ts->tz = thermal_zone_of_sensor_register(ts->dev, 0, ts,
+> -						 &sun4i_ts_tz_ops);
+> -	if (IS_ERR(ts->tz))
+> -		ts->tz = NULL;
+> +	devm_thermal_zone_of_sensor_register(ts->dev, 0, ts, &sun4i_ts_tz_ops);
 
-Alright, this is one of the rare ocasions where I believe that rebase of a 
-public git tree is justifiable. I've just fixed the commits and pushed out 
-the new branches.
+Shouldn't we check the return value? There are a few possibilities for
+thermal_zone_of_sensor_register to fail.
 
-Thanks,
+Sascha
+
 
 -- 
-Jiri Kosina
-SUSE Labs
-
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

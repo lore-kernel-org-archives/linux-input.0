@@ -1,43 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] HID: i2c-hid: Add hid-over-i2c name to i2c id table
-Date: Wed, 9 Mar 2016 16:15:00 -0800
-Message-ID: <CAKdAkRQwpQ8RmptQgfbPF4-w9qXGHHA0kXQEQkU23jr+FMjOAA@mail.gmail.com>
-References: <20160308192539.GA23955@dtor-ws>
-	<alpine.LNX.2.00.1603092150060.3656@cbobk.fhfr.pm>
+From: Frederic Jacob <frederic.jacob.78@gmail.com>
+Subject: Re: [PATCH] hid: sony: Add power supply support for PS3 remote
+Date: Wed, 9 Mar 2016 21:54:12 -0500
+Message-ID: <56E0E1D4.1050302@gmail.com>
+References: <1457487659-3970-1-git-send-email-frederic.jacob.78@gmail.com>
+ <1457542738.2648.113.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f51.google.com ([209.85.213.51]:35014 "EHLO
-	mail-vk0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754289AbcCJAPB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2016 19:15:01 -0500
-In-Reply-To: <alpine.LNX.2.00.1603092150060.3656@cbobk.fhfr.pm>
+Received: from mail-io0-f182.google.com ([209.85.223.182]:35953 "EHLO
+	mail-io0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751774AbcCJCyP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2016 21:54:15 -0500
+In-Reply-To: <1457542738.2648.113.camel@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Benson Leung <bleung@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Bastien Nocera <hadess@hadess.net>, jikos@kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Mar 9, 2016 at 12:50 PM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Tue, 8 Mar 2016, Dmitry Torokhov wrote:
+On 03/09/2016 11:58 AM, Bastien Nocera wrote:
+> Hey Frederic,
 >
->> When using the device tree binding OF compatible = "hid-over-i2c" the
->> i2c id table also needs to have that name in order to auto load this
->> driver, since i2c core reports module alias as i2c:<string> where
->> <string> is compatible string of OF binding stripped of manufacturer's
->> prefix.
->>
->> Signed-off-by: Benson Leung <bleung@chromium.org>
->> Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
+> On Tue, 2016-03-08 at 20:40 -0500, Frederic Jacob wrote:
+>> Add power supply support for the PS3 remote controller
+> Isn't something like "add battery state reporting for PS3 remotes"
+> better?
 >
-> Applied, thanks.
+> Also, as I don't think it's physically possible to have the PS3 remote
+> both connected and charging at the same time, maybe the comment
+> in sixaxis_parse_report() should be modified to make it clear that the
+> PS3 remote doesn't have that problem.
+>
+> Cheers
+I hesitated to use a message similar as to what you suggest
+but changed it to use the technical term, but I prefer yours.
 
-Crap, can you change author on this to "Benson Leung
-<bleung@chromium.org>" and on "HID: i2c-hid: Fix suspend/resume when
-already runtime suspended" to "Doug Anderson <dianders@chromium.org>"?
+As for the comment in  sixaxis_parse_report() what do you think if I add
+at the end of the comment?
+" The PS3 remote cannot be charged so it is always set to discharging
+    and unplugged."
 
-I need to fix my script...
+Thanks
 
-Thanks.
 
--- 
-Dmitry
+

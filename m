@@ -1,437 +1,492 @@
 From: sergk sergk2mail <sergk.admin@gmail.com>
 Subject: Re: Chipone icn85xx support in x86 linux kernel
-Date: Thu, 10 Mar 2016 20:28:23 +0000
-Message-ID: <CA+V1Lzo4-EBWQcpg9T-BBcF5xqa31_JNOZj-ev56PWe=vuvqZQ@mail.gmail.com>
+Date: Thu, 10 Mar 2016 21:11:35 +0000
+Message-ID: <CA+V1LzotRUczT=G5tGHATpBOUc8PK00gPMfQPejEWESoxpd74g@mail.gmail.com>
+References: <CA+V1Lzo4-EBWQcpg9T-BBcF5xqa31_JNOZj-ev56PWe=vuvqZQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f54.google.com ([209.85.192.54]:33496 "EHLO
-	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754256AbcCJU2Z (ORCPT
+Received: from mail-qk0-f170.google.com ([209.85.220.170]:36701 "EHLO
+	mail-qk0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932626AbcCJVLh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Mar 2016 15:28:25 -0500
-Received: by mail-qg0-f54.google.com with SMTP id t4so80948811qge.0
-        for <linux-input@vger.kernel.org>; Thu, 10 Mar 2016 12:28:24 -0800 (PST)
+	Thu, 10 Mar 2016 16:11:37 -0500
+Received: by mail-qk0-f170.google.com with SMTP id s68so39900446qkh.3
+        for <linux-input@vger.kernel.org>; Thu, 10 Mar 2016 13:11:36 -0800 (PST)
+In-Reply-To: <CA+V1Lzo4-EBWQcpg9T-BBcF5xqa31_JNOZj-ev56PWe=vuvqZQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Gregor Riepl <onitake@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-Hi ALL.
-Gathered all answers to the received questions in the code.
-What I did: Using my experience of gsl1680 (userspace) on Chuwi Vi8
-and reviewing code
-https://github.com/bbelos/rk3188-kernel/blob/master/drivers/input/touchscreen/ICN8503/icn85xx.c
-mentioned in the 1st my message (icn85xx.c) - I have created simple
-module i2c client without ACPI that is using define constants for
-manually setuping i2cbus (i2c-devX), i2cport and gpio pin then it
-trying to wake up icn8528 chip and after trying to read main registers
-according mentioned above specs for the chip.
-
-0x000a - IcVersion, should be according Android data (i2cget -f 4 0x48
-0x000a b) = 0x85 and is major chip version
-0x000c - firmware version, according  Android (i2cget 4 0x48 0x000c b)
-it is 0x38
-
-
-Main goal of this module - just to wakeup chip and read some data from
-it to ensure that it is working as expected.
-For Gregor: in the code there is hw_init - this is my way (actually
-attempt) to wake up the chip, also in the code there is the same but
-in kernel space I've sent to you (userspace version) of using gpio.
-For simplicity and discussing (read at once)  I have created "all in
-one file" without includes and code splitting.
-
-QUESTIONS:
-
- 1) It is strange, but it looks that via Vanilla custom x8_64 Linux
-4.4.2 ArchLinux   Baytrail on Chuwi Vi10 the Touchscreen Control Chip
-probably resides not on 0x48  and it is resides on i2c-3 0x30. This
-confused me completely, AFAIK chip could switch buses but not its
-address.
-Will be happy if anyone helps with this - whether it is possible for
-chip to be i2c-4, 0x48 on Android and switched in Linux to i2c-3 0x30?
-
-Also my discovering:
-1.1)  On Chuwi Vi8 for gsl1680 it was only such Android: i2c-4, 0x40
-and in Linux: i2c-3, 0x40 - only bus! But not address switching!
-
-1.2) Taking into account decoded ACPI DSDT for Chipone icn8528
-(CHPN0001) we see that  I2cSerialBus (0x0030, ControllerInitiated,
-0x00061A80,
-                            AddressingMode7Bit, "\\_SB.I2C4",
-                            0x00, ResourceConsumer, ,
-                            )
-
-this makes sence of provided information into item 1.
-
-2) I have not got positive results with my code - and still under
-guessing whether I am not successful in waking up the chip or
-something other wrong. :( I could not even read correct Chip version
-in checking whether hw initialized correct.
-
-
-3) Results of testing my code with different variations of i2cbus,
-port  will be provided in next letter.
-
-4) For Dmitry Torokhov : GPL or not included in main line of the
-kernel according mentioned by you conditions for Chipone - I do not
-care at the moment - my main goal is very simple - make myself happy
-and at least get working touch on my Chuwi Vi10 rev 11 under ArchLinux
-and help others owners of Baytrail tablets with TS on chipone icn85xx
-to add OS Linux on their tablets.
-The most important is very simple thing - to have driver for TS. May
-be Chipone even approve farther adding it to the mainline (if it will
-be created).
-It is sad but Linux in contrast to Android has a lack of drivers for
-touchscreen and many other hw of the tablets and this is to my mind is
-very strange and reminding early times of 2.xx kernel. ;-) I am trying
-to join and change this situation!
-
-Regards,
-                 Serge Kolotylo.
-
-
-
-
----------------- Testing Code:  ------------------------
-
-
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/init.h>
-#include <linux/types.h>
-#include <linux/acpi.h>
-#include <acpi/acpi_bus.h>
-#include <acpi/acpi_drivers.h>
-#include <linux/gpio.h>
-#include <linux/delay.h>
-#include <linux/i2c.h>
-
-#define TS_I2C_BUS 4
-#define TS_I2C_ADDR 0x30
-#define CTP_RST_PORT 393
-#define DRIVER_VERSION "0.0.1"
-#define CTP_NAME "chipone-ts"
-#define ICN85XX_PROG_IIC_ADDR (0x30)
-
-
-#define POINT_NUM                   5
-
-#define ICN85XX_WITHOUT_FLASH           0x11
-#define ICN85XX_WITH_FLASH              0x22
-
-#define IIC_RETRY_NUM 3
-
-
-typedef struct _POINT_INFO
-{
-    unsigned char  u8ID;
-    unsigned short u16PosX;     // coordinate X, plus 4 LSBs for
-precision extension
-    unsigned short u16PosY;     // coordinate Y, plus 4 LSBs for
-precision extension
-    unsigned char  u8Pressure;
-    unsigned char  u8EventId;
-}POINT_INFO;
-
-
-struct icn85xx_ts_data {
-    struct i2c_client        *client;
-    struct input_dev         *input_dev;
-    struct work_struct       pen_event_work;
-    struct workqueue_struct  *ts_workqueue;
-    struct hrtimer           timer;
-    spinlock_t               irq_lock;
-    struct semaphore         sem;
-    int         ictype;
-    int         code_loaded_flag;
-    POINT_INFO  point_info[POINT_NUM+1];
-    int         point_num;
-    int         irq;
-    int         irq_is_disable;
-    int         use_irq;
-    int         work_mode;
-    int         screen_max_x;
-    int         screen_max_y;
-    int         revert_x_flag;
-    int         revert_y_flag;
-    int         exchange_x_y_flag;
-};
-
-static struct i2c_client *this_client;
-
-/***********************************************************************************************
-Name    :   icn85xx_i2c_rxdata
-Input   :   addr
-            *rxdata
-            length
-Output  :   ret
-function    : read data from icn85xx, normal mode
-***********************************************************************************************/
-int icn85xx_i2c_rxdata(unsigned short addr, char *rxdata, int length){
-    int ret = -1;
-    int retries = 0;
-
-    unsigned char tmp_buf[2];
-    struct i2c_msg msgs[] = {
-        {
-            .addr   = this_client->addr,
-            .flags  = 0,
-            .len    = 2,
-            .buf    = tmp_buf,
-        },
-        {
-            .addr   = this_client->addr,
-            .flags  = I2C_M_RD,
-            .len    = length,
-            .buf    = rxdata,
-        },
-    };
-
-    tmp_buf[0] = (unsigned char)(addr>>8);
-    tmp_buf[1] = (unsigned char)(addr);
-    while(retries < IIC_RETRY_NUM){
-        ret = i2c_transfer(this_client->adapter, msgs, 2);
-        if(ret == 2)break;
-        retries++;
-    }
-
-    if (retries >= IIC_RETRY_NUM)
-    printk("from %s: i2c read error: %d\n", __func__, ret);
-
-    return ret;
-
-}
-
-/***********************************************************************************************
-Name    :   icn85xx_read_reg
-Input   :   addr
-            pdata
-Output  :
-function    :   read register of icn85xx, normal mode
-***********************************************************************************************/
-int icn85xx_read_reg(unsigned short addr, char *pdata)
-{
-    int ret = -1;
-    ret = icn85xx_i2c_rxdata(addr, pdata, 1);
-    printk("From %s -  addr: 0x%x: 0x%x\n", __func__,addr, *pdata);
-    return ret;
-}
-
-
-
-/***********************************************************************************************
-Name    :   icn85xx_iic_test
-Input   :   void
-Output  :
-function    : 0 success,
-***********************************************************************************************/
-static int icn85xx_iic_test(void){
-    struct icn85xx_ts_data *icn85xx_ts = i2c_get_clientdata(this_client);
-    int  ret = -1;
-    char value = 0;
-    int  retry = 0;
-    int  flashid;
-    icn85xx_ts->ictype = 0;
-//    icn85xx_ts->ictype = ICN85XX_WITHOUT_FLASH;
-//    return 1;
-    printk("\nbegin %s",__func__);
-    printk("\n BEGIN test another way of reading CurrFW ver");
-    char mtmp[2];
-    ret = icn85xx_i2c_rxdata(0x000c, mtmp, 2);
-    short CurVersion;
-    CurVersion = (mtmp[0]<<8) | mtmp[1];
-    printk("\n CurrFW ver=%hu",CurVersion);
-
-    printk("\n END test another way of reading CurrFW ver");
-
-    while(retry++ < 3)
-    {
-        ret = icn85xx_read_reg(0xa, &value);
-        if( (ret > 0) && (value == 0x85) ){
-                icn85xx_ts->ictype = ICN85XX_WITH_FLASH;
-            return ret;
-
-        }
-        ///////////////////////
-        printk("\nBegin read fw ver from iictest");
-        ret = icn85xx_read_reg(0xc, &value);
-        printk("\nEnd read fw ver from iictest");
-
-        printk("\nBegin read IC subver  from iictest");
-        ret = icn85xx_read_reg(0xb, &value);
-        printk("\nEnd read IC subver from iictest");
-
-        ///////////////////////
-        printk("iic test error! %d in %s\n", retry,__func__);
-        msleep(3);
-    }
-
-    printk("\nend %s",__func__);
-    return ret;
-}
-
-
-
-
-static int icn85xx_ts_probe(struct i2c_client *client, const struct
-i2c_device_id *id){
-    printk("\nhello from i2cprobe,%s",__func__);
-    struct icn85xx_ts_data *icn85xx_ts;
-    short fwVersion = 0;
-    short curVersion = 0;
-    int err = 0;
-    int retry;
-
-    printk("\n====%s begin=====.  \n", __func__);
-    if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-    {
-        printk("I2C check functionality failed from %s.\n",__func__);
-        return -ENODEV;
-    }
-
-    //memdata
-    icn85xx_ts = kzalloc(sizeof(*icn85xx_ts), GFP_KERNEL);
-    if (!icn85xx_ts)
-    {
-        printk("Alloc icn85xx_ts memory failed. %s\n",__func__);
-        return -ENOMEM;
-    }
-    memset(icn85xx_ts, 0, sizeof(*icn85xx_ts));
-    this_client = client;
-    this_client->addr = client->addr;
-    i2c_set_clientdata(client, icn85xx_ts);
-
-    icn85xx_ts->work_mode = 0;
-    spin_lock_init(&icn85xx_ts->irq_lock);
-//    icn85xx_ts->irq_lock = SPIN_LOCK_UNLOCKED;
-    err = icn85xx_iic_test();
-    if (err <= 0){
-        printk("func %s: icn85xx_iic_test  failed.\n",__func__);
-        return -1;
-    }
-    else
-        printk("iic communication ok: 0x%x\n", icn85xx_ts->ictype);
-
-
-    printk("\nBye from i2cprobe,%s",__func__);
-return 0;
-}
-
-
-static int  icn85xx_ts_remove(struct i2c_client *client){
-return 0;
-}
-
-
-
-static const struct i2c_device_id icn85xx_ts_id[] = {
-    { CTP_NAME, 0 },
-    {}
-};
-
-MODULE_DEVICE_TABLE(i2c, icn85xx_ts_id);
-
-static struct i2c_driver icn85xx_ts_driver = {
-    .class      = I2C_CLASS_HWMON,
-    .probe      = icn85xx_ts_probe,
-    .remove     = icn85xx_ts_remove,
-    .id_table   = icn85xx_ts_id,
-    .driver = {
-        .name   = CTP_NAME,
-        .owner  = THIS_MODULE,
-    },
-};
-
-static struct i2c_board_info ts_info = {
-    .type    = CTP_NAME,
-    .addr    =  TS_I2C_ADDR,
-};
-
-
-
-static int icn85xx_hw_init(void){
-    int err = 0;
-    err = gpio_request(CTP_RST_PORT, CTP_NAME);
-    if ( err ) {
-    printk("\nError CTP_RST_PORTgpio in %s ",__func__);
-    err = -EINVAL;
-    return err;
-    }
-    err = gpio_direction_output(CTP_RST_PORT, 1);
-    if ( err ) {
-    printk("\nError CTP_RST_PORTgpiodirection in %s ",__func__);
-    err = -EINVAL;
-    return err;
-    }
-    msleep(20);
-    gpio_set_value_cansleep(CTP_RST_PORT, 0);
-    msleep(100);
-    gpio_set_value_cansleep(CTP_RST_PORT, 1);
-    msleep(300);
-return err;
-}
-
-static int __init ts_init(void){
-    printk("\nINIT icn MODULE,func %s",__func__);
-    printk("\n get pwr gpio in func %s",__func__);
-    icn85xx_hw_init();
-
-    struct i2c_adapter *adap = i2c_get_adapter(TS_I2C_BUS);
-    printk(KERN_ERR "==icn85xx ts_init %d at i2cbus:
-%d!!!!!!!!\n",__LINE__,TS_I2C_BUS);
-    i2c_new_device(adap, &ts_info);
-    //i2c client reg
-    int ret = -1;
-    ret = i2c_add_driver(&icn85xx_ts_driver);
-
-
-return 0;
-}
-
-
-
-static void __exit ts_exit(void){
-    printk("\nEXIT icn MODULE,func:  %s",__func__);
-    gpio_free(CTP_RST_PORT);
-    i2c_del_driver(&icn85xx_ts_driver);
-
-}
-
-
-module_init(ts_init);
-module_exit(ts_exit);
-MODULE_DESCRIPTION("MyICN touchscreen controller driver");
-MODULE_AUTHOR("Serge Kolotylo sergk.admin@gmail.com>");
-MODULE_VERSION(DRIVER_VERSION);
-MODULE_LICENSE("GPL");
-
-
-
-
-
-
-
-On Wed, Mar 2, 2016 at 11:06 PM, sergk sergk2mail <sergk.admin@gmail.com> wrote:
-> Would like to add that specs are located
-> https://gitlab.com/antruziliak/icn8528.git
-> The main question - how to wake up chip.
-> Looks that 2 gpios are used INT/WAKE + RST.
-> Regards,
->                Serge Kolotylo.
->
-> On Tue, Mar 1, 2016 at 10:07 AM, Gregor Riepl <onitake@gmail.com> wrote:
->>> 2) Could be icn8318 by Hans de Goede be adopted for icn85xx?
->>
->> chipone_icn8318.c lacks ACPI support. It may not be difficult to add though.
->>
->> The question is if both chips are sufficiently compatible.
->>
->>> how it is possible to use atmel_mxt_ts module for chipone? or what is the trick?
->>
->> That sounds very odd. Perhaps they share the same control interface?
->> Or perhaps Chipone just cloned the Atmel chips...
->>
->> I'm pretty certain that a specific firmware is required for your chip, though.
->>
+Hi ALL,
+Results of testing my code on Chuwi Vi10 rev11 with different
+combinations of define
+#TS_I2C_BUS  - i2c bus (i2c-dev)
+#define TS_I2C_ADDR  - chip address on i2c bus
+#define CTP_RST_PORT 393 - wakeup gpio. Actually have chosen 393
+because it is the same as it was on Chuwi Vi8. Also may be for Chuwi
+Vi10 could be used 391, 392 gpios. All 391-393 gpios by setting them
+to 0 and then to 1 do the same - turn on\off screen.
+
+
+Results of testing: dmesg output:
+Procedure of testing: modprobe i2c-dev gpio && insmod myicn,ko
+
+i2c-3 0x30:   (last lines looks strange like battery is resided on this address)
+
+
+-- Logs begin at Thu 2016-03-10 17:49:10 UTC, end at Thu 2016-03-10
+17:49:58 UTC. --
+Mar 10 17:49:56 archiso kernel: device: 'i2c-0': device_add
+Mar 10 17:49:56 archiso kernel: PM: Adding info for No Bus:i2c-0
+Mar 10 17:49:56 archiso kernel: device: 'i2c-1': device_add
+Mar 10 17:49:56 archiso kernel: PM: Adding info for No Bus:i2c-1
+Mar 10 17:49:56 archiso kernel: device: 'i2c-2': device_add
+Mar 10 17:49:56 archiso kernel: PM: Adding info for No Bus:i2c-2
+Mar 10 17:49:56 archiso kernel: device: 'i2c-3': device_add
+Mar 10 17:49:56 archiso kernel: PM: Adding info for No Bus:i2c-3
+Mar 10 17:49:56 archiso kernel: device: 'i2c-4': device_add
+Mar 10 17:49:56 archiso kernel: PM: Adding info for No Bus:i2c-4
+Mar 10 17:49:56 archiso kernel: device class 'mtd': registering
+Mar 10 17:49:56 archiso kernel: device: 'mtd': device_add
+Mar 10 17:49:56 archiso kernel: PM: Adding info for No Bus:mtd
+Mar 10 17:49:56 archiso kernel: bus: 'platform': add driver gpio-nand
+Mar 10 17:49:57 archiso kernel:
+                                INIT icn MODULE,func ts_init
+                                 get pwr gpio in func ts_init
+Mar 10 17:49:57 archiso kernel: ------------[ cut here ]------------
+Mar 10 17:49:57 archiso kernel: WARNING: CPU: 2 PID: 714 at
+drivers/pinctrl/intel/pinctrl-baytrail.c:214
+byt_gpio_request+0xaf/0xe0()
+Mar 10 17:49:57 archiso kernel: Modules linked in: myicn(O+) gpio nand
+nand_ecc nand_ids mtd i2c_dev intel_rapl intel_soc_dts_thermal
+intel_soc_dts_iosf intel_powerclamp iTCO_wdt iTCO_vendor_support
+coretemp kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul
+aesni_intel aes_x86_64 lrw gf128mul glue_helper ablk_helper cryptd
+i915 brcmfmac uio_pdrv_genirq uio joydev cfg80211 i2c_algo_bit
+input_leds rfkill drm_kms_helper brcmutil efi_pstore
+snd_intel_sst_acpi snd_intel_sst_core snd_soc_sst_mfld_platform
+efivars drm pcspkr dw_dmac dw_dmac_core snd_soc_core snd_compress
+evdev myicn_ts_acpi(O) intel_gtt kxcjk_1013 i2c_hid snd_pcm_dmaengine
+industrialio_triggered_buffer mei_txe kfifo_buf syscopyarea
+sysfillrect snd_pcm industrialio mei sysimgblt tpm_tis snd_timer snd
+lpc_ich battery fb_sys_fops tpm i2c_designware_platform
+Mar 10 17:49:57 archiso kernel:  i2c_designware_core ac acpi_pad
+soundcore spi_pxa2xx_platform i2c_core snd_soc_sst_acpi processor
+thermal 8250_dw sch_fq_codel nfs lockd grace sunrpc fscache ip_tables
+x_tables overlay squashfs isofs nls_iso8859_1 nls_cp437 vfat fat
+sd_mod hid_generic usbhid hid uas usb_storage scsi_mod xhci_pci
+xhci_hcd usbcore crc32c_intel usb_common button serio wmi video
+sdhci_acpi sdhci led_class loop
+Mar 10 17:49:57 archiso kernel: CPU: 2 PID: 714 Comm: insmod Tainted:
+G        W  O    4.4.2-2-ARCH #2
+Mar 10 17:49:57 archiso kernel: Hardware name: ilife S165/BYT-PF02,
+BIOS J1D_S165C_206 10/29/2014
+Mar 10 17:49:57 archiso kernel:  0000000000000000 00000000bde94ada
+ffff8800736efb68 ffffffff812b324b
+Mar 10 17:49:57 archiso kernel:  0000000000000000 ffff8800736efba0
+ffffffff8105dc53 ffffc9000036a0f0
+Mar 10 17:49:57 archiso kernel:  ffff88007c056e18 000000000000000b
+0000000000000002 ffff88007c056f20
+Mar 10 17:49:57 archiso kernel: Call Trace:
+Mar 10 17:49:57 archiso kernel:  [<ffffffff812b324b>] dump_stack+0x4b/0x70
+Mar 10 17:49:57 archiso kernel:  [<ffffffff8105dc53>]
+warn_slowpath_common+0x83/0xc0
+Mar 10 17:49:57 archiso kernel:  [<ffffffff8105ddab>]
+warn_slowpath_null+0x1b/0x20
+Mar 10 17:49:57 archiso kernel:  [<ffffffff812e683f>] byt_gpio_request+0xaf/0xe0
+Mar 10 17:49:57 archiso kernel:  [<ffffffffa00d8000>] ? 0xffffffffa00d8000
+Mar 10 17:49:57 archiso kernel:  [<ffffffff812e7004>] __gpiod_request+0x74/0x100
+Mar 10 17:49:57 archiso kernel:  [<ffffffff812e9dad>] gpiod_request+0x5d/0x100
+Mar 10 17:49:57 archiso kernel:  [<ffffffff812e9101>] ? gpio_to_desc+0x91/0xe0
+Mar 10 17:49:57 archiso kernel:  [<ffffffff812ea8c4>] gpio_request+0x34/0x40
+Mar 10 17:49:57 archiso kernel:  [<ffffffffa00d803c>]
+ts_init+0x3c/0x1000 [myicn]
+Mar 10 17:49:57 archiso kernel:  [<ffffffff810003e2>] do_one_initcall+0xb2/0x1f0
+Mar 10 17:49:57 archiso kernel:  [<ffffffff8118cd52>] ? __vunmap+0x92/0xf0
+Mar 10 17:49:57 archiso kernel:  [<ffffffff811aabce>] ? kfree+0x14e/0x160
+Mar 10 17:49:57 archiso kernel:  [<ffffffff8114966f>] do_init_module+0x5f/0x1f0
+Mar 10 17:49:57 archiso kernel:  [<ffffffff810e7d01>] load_module+0x2231/0x28a0
+Mar 10 17:49:57 archiso kernel:  [<ffffffff810e4b10>] ?
+symbol_put_addr+0x50/0x50
+Mar 10 17:49:57 archiso kernel:  [<ffffffff811cdec1>] ? kernel_read+0x51/0x80
+Mar 10 17:49:57 archiso kernel:  [<ffffffff810e85cd>] SyS_finit_module+0xbd/0xf0
+Mar 10 17:49:57 archiso kernel:  [<ffffffff8157a217>]
+entry_SYSCALL_64_fastpath+0x12/0x66
+Mar 10 17:49:57 archiso kernel: ---[ end trace dcb1f480a2bec481 ]---
+Mar 10 17:49:57 archiso kernel: byt_gpio INT33FC:01: pin 11 forcibly
+re-configured as GPIO
+Mar 10 17:49:58 archiso kernel: ==icn85xx ts_init 280 at i2cbus: 3!!!!!!!!
+Mar 10 17:49:58 archiso kernel: device: '3-0030': device_add
+Mar 10 17:49:58 archiso kernel: bus: 'i2c': add device 3-0030
+Mar 10 17:49:58 archiso kernel: PM: Adding info for i2c:3-0030
+Mar 10 17:49:58 archiso kernel: bus: 'i2c': add driver chipone-ts
+Mar 10 17:49:58 archiso kernel: bus: 'i2c': driver_probe_device:
+matched device 3-0030 with driver chipone-ts
+Mar 10 17:49:58 archiso kernel: bus: 'i2c': really_probe: probing
+driver chipone-ts with device 3-0030
+Mar 10 17:49:58 archiso kernel: chipone-ts 3-0030: no default pinctrl state
+Mar 10 17:49:58 archiso kernel: devices_kset: Moving 3-0030 to end of list
+Mar 10 17:49:58 archiso kernel:
+                                hello from i2cprobe,icn85xx_ts_probe
+                                ====icn85xx_ts_probe begin=====.
+Mar 10 17:49:58 archiso kernel:
+                                begin icn85xx_iic_test
+                                 BEGIN test another way of reading CurrFW ver
+                                 CurrFW ver=43360
+                                 END test another way of reading
+CurrFW verFrom icn85xx_read_reg -  addr: 0xa: 0x42
+Mar 10 17:49:58 archiso kernel:
+                                Begin read fw ver from iictestFrom
+icn85xx_read_reg -  addr: 0xc: 0x7
+Mar 10 17:49:58 archiso kernel:
+                                End read fw ver from iictest
+                                Begin read IC subver  from iictestFrom
+icn85xx_read_reg -  addr: 0xb: 0x0
+Mar 10 17:49:58 archiso kernel:
+                                End read IC subver from iictestiic
+test error! 1 in icn85xx_iic_test
+Mar 10 17:49:58 archiso kernel: From icn85xx_read_reg -  addr: 0xa: 0x11
+Mar 10 17:49:58 archiso kernel:
+                                Begin read fw ver from iictestFrom
+icn85xx_read_reg -  addr: 0xc: 0x28
+Mar 10 17:49:58 archiso kernel:
+                                End read fw ver from iictest
+                                Begin read IC subver  from iictestFrom
+icn85xx_read_reg -  addr: 0xb: 0x8
+Mar 10 17:49:58 archiso kernel:
+                                End read IC subver from iictestiic
+test error! 2 in icn85xx_iic_test
+Mar 10 17:49:58 archiso kernel: From icn85xx_read_reg -  addr: 0xa: 0x4a
+Mar 10 17:49:58 archiso kernel:
+                                Begin read fw ver from iictestFrom
+icn85xx_read_reg -  addr: 0xc: 0x74
+Mar 10 17:49:58 archiso kernel:
+                                End read fw ver from iictest
+                                Begin read IC subver  from iictestFrom
+icn85xx_read_reg -  addr: 0xb: 0x4
+Mar 10 17:49:58 archiso kernel:
+                                End read IC subver from iictestiic
+test error! 3 in icn85xx_iic_test
+Mar 10 17:49:58 archiso kernel:
+                                end icn85xx_iic_testiic communication ok: 0x0
+Mar 10 17:49:58 archiso kernel:
+                                Bye from i2cprobe,icn85xx_ts_probe
+Mar 10 17:49:58 archiso kernel: driver: 'chipone-ts': driver_bound:
+bound to device '3-0030'
+Mar 10 17:49:58 archiso kernel: bus: 'i2c': really_probe: bound device
+3-0030 to driver chipone-ts
+Mar 10 17:49:58 archiso kernel: PM: Moving acpi:PNP0C0A:01 to end of list
+Mar 10 17:49:58 archiso kernel: acpi PNP0C0A:01: Retrying from deferred list
+Mar 10 17:49:58 archiso kernel: bus: 'acpi': driver_probe_device:
+matched device PNP0C0A:01 with driver battery
+Mar 10 17:49:58 archiso kernel: bus: 'acpi': really_probe: probing
+driver battery with device PNP0C0A:01
+Mar 10 17:49:58 archiso kernel: battery PNP0C0A:01: no default pinctrl state
+Mar 10 17:49:58 archiso kernel: devices_kset: Moving PNP0C0A:01 to end of list
+Mar 10 17:49:58 archiso kernel: acpi PNP0C0A:01: Driver battery
+requests probe deferral
+
+-----------------
+i2c-4 0x48  - this is etalon because Android and Windows using these
+params!!! And :( failed to probe!
+-----------------
+
+Mar 10 20:53:53 archiso kernel: i2c /dev entries driver
+Mar 10 20:53:53 archiso kernel: device class 'i2c-dev': registering
+Mar 10 20:53:53 archiso kernel: device: 'i2c-0': device_add
+Mar 10 20:53:53 archiso kernel: PM: Adding info for No Bus:i2c-0
+Mar 10 20:53:53 archiso kernel: device: 'i2c-1': device_add
+Mar 10 20:53:53 archiso kernel: PM: Adding info for No Bus:i2c-1
+Mar 10 20:53:53 archiso kernel: device: 'i2c-2': device_add
+Mar 10 20:53:53 archiso kernel: PM: Adding info for No Bus:i2c-2
+Mar 10 20:53:53 archiso kernel: device: 'i2c-3': device_add
+Mar 10 20:53:53 archiso kernel: PM: Adding info for No Bus:i2c-3
+Mar 10 20:53:53 archiso kernel: device: 'i2c-4': device_add
+Mar 10 20:53:53 archiso kernel: PM: Adding info for No Bus:i2c-4
+Mar 10 20:53:55 archiso kernel: device class 'mtd': registering
+Mar 10 20:53:55 archiso kernel: device: 'mtd': device_add
+Mar 10 20:53:55 archiso kernel: PM: Adding info for No Bus:mtd
+Mar 10 20:53:55 archiso kernel: bus: 'platform': add driver gpio-nand
+Mar 10 20:53:58 archiso kernel:
+                                INIT icn MODULE,func ts_init
+                                 get pwr gpio in func ts_init
+Mar 10 20:53:58 archiso kernel: ------------[ cut here ]------------
+Mar 10 20:53:58 archiso kernel: WARNING: CPU: 2 PID: 696 at
+drivers/pinctrl/intel/pinctrl-baytrail.c:214
+byt_gpio_request+0xaf/0xe0()
+Mar 10 20:53:58 archiso kernel: Modules linked in: myicn(O+) gpio nand
+nand_ecc nand_ids mtd i2c_dev intel_rapl intel_soc_dts_thermal
+intel_soc_dts_iosf intel_powerclamp iTCO_wdt coretemp
+iTCO_vendor_support kvm_intel brcmfmac i915 kvm cfg80211 irqbypass
+crct10dif_pclmul crc32_pclmul i2c_algo_bit aesni_intel aes_x86_64
+joydev lrw rfkill gf128mul input_leds efi_pstore brcmutil glue_helper
+ablk_helper drm_kms_helper uio_pdrv_genirq efivars uio cryptd pcspkr
+myicn_ts_acpi(O) drm kxcjk_1013 industrialio_triggered_buffer
+kfifo_buf thermal i2c_hid evdev industrialio snd_intel_sst_acpi
+dw_dmac snd_intel_sst_core snd_soc_sst_mfld_platform dw_dmac_core
+battery intel_gtt mei_txe syscopyarea sysfillrect sysimgblt
+fb_sys_fops i2c_designware_platform snd_soc_core snd_compress
+snd_pcm_dmaengine ac acpi_pad tpm_tis snd_pcm tpm spi_pxa2xx_platform
+Mar 10 20:53:58 archiso kernel:  lpc_ich i2c_designware_core mei
+snd_timer snd i2c_core processor soundcore 8250_dw snd_soc_sst_acpi
+sch_fq_codel nfs lockd grace sunrpc fscache ip_tables x_tables overlay
+squashfs isofs nls_iso8859_1 nls_cp437 vfat fat sd_mod hid_generic
+usbhid hid uas usb_storage scsi_mod xhci_pci xhci_hcd usbcore
+crc32c_intel usb_common button serio video wmi sdhci_acpi sdhci
+led_class loop
+Mar 10 20:53:58 archiso kernel: CPU: 2 PID: 696 Comm: insmod Tainted:
+G        W  O    4.4.2-2-ARCH #2
+Mar 10 20:53:58 archiso kernel: Hardware name: ilife S165/BYT-PF02,
+BIOS J1D_S165C_206 10/29/2014
+Mar 10 20:53:58 archiso kernel:  0000000000000000 00000000deb7bf9d
+ffff88007799fb68 ffffffff812b324b
+Mar 10 20:53:58 archiso kernel:  0000000000000000 ffff88007799fba0
+ffffffff8105dc53 ffffc9000036a0f0
+Mar 10 20:53:58 archiso kernel:  ffff88007c056e18 000000000000000b
+0000000000000002 ffff88007c056f20
+Mar 10 20:53:58 archiso kernel: Call Trace:
+Mar 10 20:53:58 archiso kernel:  [<ffffffff812b324b>] dump_stack+0x4b/0x70
+Mar 10 20:53:58 archiso kernel:  [<ffffffff8105dc53>]
+warn_slowpath_common+0x83/0xc0
+Mar 10 20:53:58 archiso kernel:  [<ffffffff8105ddab>]
+warn_slowpath_null+0x1b/0x20
+Mar 10 20:53:58 archiso kernel:  [<ffffffff812e683f>] byt_gpio_request+0xaf/0xe0
+Mar 10 20:53:58 archiso kernel:  [<ffffffffa002a000>] ? 0xffffffffa002a000
+Mar 10 20:53:58 archiso kernel:  [<ffffffff812e7004>] __gpiod_request+0x74/0x100
+Mar 10 20:53:58 archiso kernel:  [<ffffffff812e9dad>] gpiod_request+0x5d/0x100
+Mar 10 20:53:58 archiso kernel:  [<ffffffff812e9101>] ? gpio_to_desc+0x91/0xe0
+Mar 10 20:53:58 archiso kernel:  [<ffffffff812ea8c4>] gpio_request+0x34/0x40
+Mar 10 20:53:58 archiso kernel:  [<ffffffffa002a03c>]
+ts_init+0x3c/0x1000 [myicn]
+Mar 10 20:53:58 archiso kernel:  [<ffffffff810003e2>] do_one_initcall+0xb2/0x1f0
+Mar 10 20:53:58 archiso kernel:  [<ffffffff8114966f>] do_init_module+0x5f/0x1f0
+Mar 10 20:53:58 archiso kernel:  [<ffffffff810e7d01>] load_module+0x2231/0x28a0
+Mar 10 20:53:58 archiso kernel:  [<ffffffff810e4b10>] ?
+symbol_put_addr+0x50/0x50
+Mar 10 20:53:58 archiso kernel:  [<ffffffff811cdec1>] ? kernel_read+0x51/0x80
+Mar 10 20:53:58 archiso kernel:  [<ffffffff810e85cd>] SyS_finit_module+0xbd/0xf0
+Mar 10 20:53:58 archiso kernel:  [<ffffffff8157a217>]
+entry_SYSCALL_64_fastpath+0x12/0x66
+Mar 10 20:53:58 archiso kernel: ---[ end trace 50506b677151cf1f ]---
+Mar 10 20:53:58 archiso kernel: byt_gpio INT33FC:01: pin 11 forcibly
+re-configured as GPIO
+Mar 10 20:53:59 archiso kernel: ==icn85xx ts_init 280 at i2cbus: 4!!!!!!!!
+Mar 10 20:53:59 archiso kernel: device: '4-0048': device_add
+Mar 10 20:53:59 archiso kernel: bus: 'i2c': add device 4-0048
+Mar 10 20:53:59 archiso kernel: PM: Adding info for i2c:4-0048
+Mar 10 20:53:59 archiso kernel: bus: 'i2c': add driver chipone-ts
+Mar 10 20:53:59 archiso kernel: bus: 'i2c': driver_probe_device:
+matched device 4-0048 with driver chipone-ts
+Mar 10 20:53:59 archiso kernel: bus: 'i2c': really_probe: probing
+driver chipone-ts with device 4-0048
+Mar 10 20:53:59 archiso kernel: chipone-ts 4-0048: no default pinctrl state
+Mar 10 20:53:59 archiso kernel: devices_kset: Moving 4-0048 to end of list
+Mar 10 20:53:59 archiso kernel:
+                                hello from i2cprobe,icn85xx_ts_probe
+                                ====icn85xx_ts_probe begin=====.
+Mar 10 20:53:59 archiso kernel:
+                                begin icn85xx_iic_test
+                                 BEGIN test another way of reading
+CurrFW verfrom icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 20:53:59 archiso kernel:
+                                 CurrFW ver=0
+                                 END test another way of reading
+CurrFW verfrom icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 20:53:59 archiso kernel: From icn85xx_read_reg -  addr: 0xa: 0x0
+Mar 10 20:53:59 archiso kernel:
+                                Begin read fw ver from iictestFrom
+icn85xx_read_reg -  addr: 0xc: 0x0
+Mar 10 20:53:59 archiso kernel:
+                                End read fw ver from iictest
+                                Begin read IC subver  from iictestfrom
+icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 20:53:59 archiso kernel: From icn85xx_read_reg -  addr: 0xb: 0x0
+Mar 10 20:53:59 archiso kernel:
+                                End read IC subver from iictestiic
+test error! 1 in icn85xx_iic_test
+Mar 10 20:53:59 archiso kernel: from icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 20:53:59 archiso kernel: From icn85xx_read_reg -  addr: 0xa: 0x0
+Mar 10 20:53:59 archiso kernel:
+                                Begin read fw ver from iictestfrom
+icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 20:53:59 archiso kernel: From icn85xx_read_reg -  addr: 0xc: 0x0
+Mar 10 20:53:59 archiso kernel:
+                                End read fw ver from iictest
+                                Begin read IC subver  from iictestfrom
+icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 20:53:59 archiso kernel: From icn85xx_read_reg -  addr: 0xb: 0x0
+Mar 10 20:53:59 archiso kernel:
+                                End read IC subver from iictestiic
+test error! 2 in icn85xx_iic_test
+Mar 10 20:53:59 archiso kernel: from icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 20:53:59 archiso kernel: From icn85xx_read_reg -  addr: 0xa: 0x0
+Mar 10 20:53:59 archiso kernel:
+                                Begin read fw ver from iictestfrom
+icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 20:53:59 archiso kernel: From icn85xx_read_reg -  addr: 0xc: 0x0
+Mar 10 20:53:59 archiso kernel:
+                                End read fw ver from iictest
+                                Begin read IC subver  from iictestfrom
+icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 20:53:59 archiso kernel: From icn85xx_read_reg -  addr: 0xb: 0x0
+Mar 10 20:53:59 archiso kernel:
+                                End read IC subver from iictestiic
+test error! 3 in icn85xx_iic_test
+Mar 10 20:53:59 archiso kernel:
+                                end icn85xx_iic_testfunc
+icn85xx_ts_probe: icn85xx_iic_test  failed.
+Mar 10 20:53:59 archiso kernel: chipone-ts: probe of 4-0048 failed with error -1
+
+-----
+i2c-4, 0x30 - just as written in ACPI DSDT - again failed
+-----
+-- Logs begin at Thu 2016-03-10 21:03:40 UTC, end at Thu 2016-03-10
+21:04:41 UTC. --
+Mar 10 21:04:39 archiso kernel: i2c /dev entries driver
+Mar 10 21:04:39 archiso kernel: device class 'i2c-dev': registering
+Mar 10 21:04:39 archiso kernel: device: 'i2c-0': device_add
+Mar 10 21:04:39 archiso kernel: PM: Adding info for No Bus:i2c-0
+Mar 10 21:04:39 archiso kernel: device: 'i2c-1': device_add
+Mar 10 21:04:39 archiso kernel: PM: Adding info for No Bus:i2c-1
+Mar 10 21:04:39 archiso kernel: device: 'i2c-2': device_add
+Mar 10 21:04:39 archiso kernel: PM: Adding info for No Bus:i2c-2
+Mar 10 21:04:39 archiso kernel: device: 'i2c-3': device_add
+Mar 10 21:04:39 archiso kernel: PM: Adding info for No Bus:i2c-3
+Mar 10 21:04:39 archiso kernel: device: 'i2c-4': device_add
+Mar 10 21:04:39 archiso kernel: PM: Adding info for No Bus:i2c-4
+Mar 10 21:04:39 archiso kernel: device class 'mtd': registering
+Mar 10 21:04:39 archiso kernel: device: 'mtd': device_add
+Mar 10 21:04:39 archiso kernel: PM: Adding info for No Bus:mtd
+Mar 10 21:04:39 archiso kernel: bus: 'platform': add driver gpio-nand
+Mar 10 21:04:40 archiso kernel:
+                                INIT icn MODULE,func ts_init
+                                 get pwr gpio in func ts_init
+Mar 10 21:04:40 archiso kernel: ------------[ cut here ]------------
+Mar 10 21:04:40 archiso kernel: WARNING: CPU: 3 PID: 703 at
+drivers/pinctrl/intel/pinctrl-baytrail.c:214
+byt_gpio_request+0xaf/0xe0()
+Mar 10 21:04:40 archiso kernel: Modules linked in: myicn(O+) gpio nand
+nand_ecc nand_ids mtd i2c_dev iTCO_wdt iTCO_vendor_support intel_rapl
+intel_soc_dts_thermal intel_soc_dts_iosf intel_powerclamp coretemp
+kvm_intel kvm brcmfmac i915 irqbypass crct10dif_pclmul crc32_pclmul
+joydev input_leds cfg80211 i2c_algo_bit aesni_intel aes_x86_64 lrw
+gf128mul drm_kms_helper glue_helper rfkill ablk_helper brcmutil drm
+cryptd snd_intel_sst_acpi uio_pdrv_genirq snd_intel_sst_core
+efi_pstore uio snd_soc_sst_mfld_platform pcspkr efivars intel_gtt
+snd_soc_core snd_compress snd_pcm_dmaengine thermal snd_pcm evdev
+dw_dmac myicn_ts_acpi(O) dw_dmac_core syscopyarea kxcjk_1013
+industrialio_triggered_buffer mei_txe spi_pxa2xx_platform sysfillrect
+kfifo_buf i2c_hid sysimgblt battery industrialio snd_timer acpi_pad ac
+mei lpc_ich fb_sys_fops
+Mar 10 21:04:40 archiso kernel:  snd tpm_tis 8250_dw tpm processor
+i2c_designware_platform i2c_designware_core soundcore snd_soc_sst_acpi
+i2c_core sch_fq_codel nfs lockd grace sunrpc fscache ip_tables
+x_tables overlay squashfs isofs nls_iso8859_1 nls_cp437 vfat fat
+sd_mod hid_generic usbhid hid uas usb_storage scsi_mod xhci_pci
+xhci_hcd usbcore crc32c_intel usb_common button serio wmi video
+sdhci_acpi sdhci led_class loop
+Mar 10 21:04:40 archiso kernel: CPU: 3 PID: 703 Comm: insmod Tainted:
+G        W  O    4.4.2-2-ARCH #2
+Mar 10 21:04:40 archiso kernel: Hardware name: ilife S165/BYT-PF02,
+BIOS J1D_S165C_206 10/29/2014
+Mar 10 21:04:40 archiso kernel:  0000000000000000 000000001e8b0650
+ffff880073abbb68 ffffffff812b324b
+Mar 10 21:04:40 archiso kernel:  0000000000000000 ffff880073abbba0
+ffffffff8105dc53 ffffc9000036a0f0
+Mar 10 21:04:40 archiso kernel:  ffff88007c066e18 000000000000000b
+0000000000000002 ffff88007c066f20
+Mar 10 21:04:40 archiso kernel: Call Trace:
+Mar 10 21:04:40 archiso kernel:  [<ffffffff812b324b>] dump_stack+0x4b/0x70
+Mar 10 21:04:40 archiso kernel:  [<ffffffff8105dc53>]
+warn_slowpath_common+0x83/0xc0
+Mar 10 21:04:40 archiso kernel:  [<ffffffff8105ddab>]
+warn_slowpath_null+0x1b/0x20
+Mar 10 21:04:40 archiso kernel:  [<ffffffff812e683f>] byt_gpio_request+0xaf/0xe0
+Mar 10 21:04:40 archiso kernel:  [<ffffffffa0059000>] ? 0xffffffffa0059000
+Mar 10 21:04:40 archiso kernel:  [<ffffffff812e7004>] __gpiod_request+0x74/0x100
+Mar 10 21:04:40 archiso kernel:  [<ffffffff812e9dad>] gpiod_request+0x5d/0x100
+Mar 10 21:04:40 archiso kernel:  [<ffffffff812e9101>] ? gpio_to_desc+0x91/0xe0
+Mar 10 21:04:40 archiso kernel:  [<ffffffff812ea8c4>] gpio_request+0x34/0x40
+Mar 10 21:04:40 archiso kernel:  [<ffffffffa005903c>]
+ts_init+0x3c/0x1000 [myicn]
+Mar 10 21:04:40 archiso kernel:  [<ffffffff810003e2>] do_one_initcall+0xb2/0x1f0
+Mar 10 21:04:40 archiso kernel:  [<ffffffff8114966f>] do_init_module+0x5f/0x1f0
+Mar 10 21:04:40 archiso kernel:  [<ffffffff810e7d01>] load_module+0x2231/0x28a0
+Mar 10 21:04:40 archiso kernel:  [<ffffffff810e4b10>] ?
+symbol_put_addr+0x50/0x50
+Mar 10 21:04:40 archiso kernel:  [<ffffffff811cdec1>] ? kernel_read+0x51/0x80
+Mar 10 21:04:40 archiso kernel:  [<ffffffff810e85cd>] SyS_finit_module+0xbd/0xf0
+Mar 10 21:04:40 archiso kernel:  [<ffffffff8157a217>]
+entry_SYSCALL_64_fastpath+0x12/0x66
+Mar 10 21:04:40 archiso kernel: ---[ end trace c17ab1bcd4ba3d1e ]---
+Mar 10 21:04:40 archiso kernel: byt_gpio INT33FC:01: pin 11 forcibly
+re-configured as GPIO
+Mar 10 21:04:41 archiso kernel: ==icn85xx ts_init 280 at i2cbus: 4!!!!!!!!
+Mar 10 21:04:41 archiso kernel: device: '4-0030': device_add
+Mar 10 21:04:41 archiso kernel: bus: 'i2c': add device 4-0030
+Mar 10 21:04:41 archiso kernel: PM: Adding info for i2c:4-0030
+Mar 10 21:04:41 archiso kernel: bus: 'i2c': add driver chipone-ts
+Mar 10 21:04:41 archiso kernel: bus: 'i2c': driver_probe_device:
+matched device 4-0030 with driver chipone-ts
+Mar 10 21:04:41 archiso kernel: bus: 'i2c': really_probe: probing
+driver chipone-ts with device 4-0030
+Mar 10 21:04:41 archiso kernel: chipone-ts 4-0030: no default pinctrl state
+Mar 10 21:04:41 archiso kernel: devices_kset: Moving 4-0030 to end of list
+Mar 10 21:04:41 archiso kernel:
+                                hello from i2cprobe,icn85xx_ts_probe
+                                ====icn85xx_ts_probe begin=====.
+Mar 10 21:04:41 archiso kernel:
+                                begin icn85xx_iic_test
+                                 BEGIN test another way of reading
+CurrFW verfrom icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 21:04:41 archiso kernel:
+                                 CurrFW ver=0
+                                 END test another way of reading
+CurrFW verfrom icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 21:04:41 archiso kernel: From icn85xx_read_reg -  addr: 0xa: 0x0
+Mar 10 21:04:41 archiso kernel:
+                                Begin read fw ver from iictestfrom
+icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 21:04:41 archiso kernel: From icn85xx_read_reg -  addr: 0xc: 0x0
+Mar 10 21:04:41 archiso kernel:
+                                End read fw ver from iictest
+                                Begin read IC subver  from iictestfrom
+icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 21:04:41 archiso kernel: From icn85xx_read_reg -  addr: 0xb: 0x0
+Mar 10 21:04:41 archiso kernel:
+                                End read IC subver from iictestiic
+test error! 1 in icn85xx_iic_test
+Mar 10 21:04:41 archiso kernel: from icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 21:04:41 archiso kernel: From icn85xx_read_reg -  addr: 0xa: 0x0
+Mar 10 21:04:41 archiso kernel:
+                                Begin read fw ver from iictestfrom
+icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 21:04:41 archiso kernel: From icn85xx_read_reg -  addr: 0xc: 0x0
+Mar 10 21:04:41 archiso kernel:
+                                End read fw ver from iictest
+                                Begin read IC subver  from iictestfrom
+icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 21:04:41 archiso kernel: From icn85xx_read_reg -  addr: 0xb: 0x0
+Mar 10 21:04:41 archiso kernel:
+                                End read IC subver from iictestiic
+test error! 2 in icn85xx_iic_test
+Mar 10 21:04:41 archiso kernel: from icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 21:04:41 archiso kernel: From icn85xx_read_reg -  addr: 0xa: 0x0
+Mar 10 21:04:41 archiso kernel:
+                                Begin read fw ver from iictestfrom
+icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 21:04:41 archiso kernel: From icn85xx_read_reg -  addr: 0xc: 0x0
+Mar 10 21:04:41 archiso kernel:
+                                End read fw ver from iictest
+                                Begin read IC subver  from iictestfrom
+icn85xx_i2c_rxdata: i2c read error: -121
+Mar 10 21:04:41 archiso kernel: From icn85xx_read_reg -  addr: 0xb: 0x0
+Mar 10 21:04:41 archiso kernel:
+                                End read IC subver from iictestiic
+test error! 3 in icn85xx_iic_test
+Mar 10 21:04:41 archiso kernel:
+                                end icn85xx_iic_testfunc
+icn85xx_ts_probe: icn85xx_iic_test  failed.
+Mar 10 21:04:41 archiso kernel: chipone-ts: probe of 4-0030 failed with error -1

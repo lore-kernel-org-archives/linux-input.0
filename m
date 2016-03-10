@@ -1,88 +1,63 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: Re: [PATCH v2] HID: report only one button for PenMount 6000 USB
- touchscreen controller
-Date: Thu, 10 Mar 2016 14:47:21 +0100
-Message-ID: <CAH9NwWcK=J5h++NMSPY6v7RWcVa3=FuPmAEY+_S7vHFMxSXZMA@mail.gmail.com>
-References: <1446131389-21759-1-git-send-email-andrew.shadura@collabora.co.uk>
- <565456F3.8080408@collabora.co.uk> <CAH9NwWfj4pNuqBhYj7ZJQbzqyJ19UpT3iNY8avX-Uu6XLtMW7g@mail.gmail.com>
- <569514D6.2060204@collabora.co.uk> <56E15E9E.4090107@collabora.co.uk>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH RFC 0/8] Input: atmel_mxt_ts - raw data via debugfs
+Date: Thu, 10 Mar 2016 14:08:45 +0000
+Message-ID: <56E17FED.2010104@itdev.co.uk>
+References: <1449088951-7069-1-git-send-email-nick.dyer@itdev.co.uk>
+ <5672EF68.3000800@itdev.co.uk> <20160111232413.GA39766@dtor-ws>
+ <20160112081041.GB19287@mail.corp.redhat.com> <56968779.5060302@itdev.co.uk>
+ <20160113184005.GB39593@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f49.google.com ([74.125.82.49]:35602 "EHLO
-	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751485AbcCJNrm (ORCPT
+Received: from zencphosting06.zen.co.uk ([82.71.204.9]:50182 "EHLO
+	zencphosting06.zen.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751825AbcCJOIk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Mar 2016 08:47:42 -0500
-Received: by mail-wm0-f49.google.com with SMTP id l68so31099419wml.0
-        for <linux-input@vger.kernel.org>; Thu, 10 Mar 2016 05:47:41 -0800 (PST)
-In-Reply-To: <56E15E9E.4090107@collabora.co.uk>
+	Thu, 10 Mar 2016 09:08:40 -0500
+In-Reply-To: <20160113184005.GB39593@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Shadura <andrew.shadura@collabora.co.uk>
-Cc: Linux Input Mailing List <linux-input@vger.kernel.org>, =?UTF-8?B?SmnFmcOtIEtvc2luYQ==?= <jkosina@suse.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>
 
-2016-03-10 12:46 GMT+01:00 Andrew Shadura <andrew.shadura@collabora.co.uk>:
-> On 12/01/16 15:59, Andrew Shadura wrote:
->> On 27/11/15 16:18, Christian Gmeiner wrote:
->>> > 2015-11-24 13:24 GMT+01:00 Andrew Shadura <andrew.shadura@collabora.co.uk>:
->>>> >> On 29/10/15 16:00, Andrew Shadura wrote:
->>>>> >>> PenMount 6000 USB resistive touchscreen controller reports it has three
->>>>> >>> buttons, while in reality it doesn't have any and doesn't support active
->>>>> >>> styli, and only generates touch events.
->>>>> >>>
->>>>> >>> In penmount_input_mapping(), map only the first button (with code 0),
->>>>> >>> ignore the rest.
->>>>> >>>
->>>>> >>> Signed-off-by: Andrew Shadura <andrew.shadura@collabora.co.uk>
->>>> >>
->>>> >> Any news on this patch? It'd be cool if it could be merged.
->>> >
->>> > I try to get access to the hardware and will test it.
->> Christian, have you had a chance to test the patch?
->
-> Ping, once again. Any progress on this?
+> On Wed, Jan 13, 2016 at 05:20:57PM +0000, Nick Dyer wrote:
+>> The devices we want to support are I2C based and the frame rate is low:
+>> typically less than 10 fps with 1386 nodes, as an example. So performance
+>> is not critical and doing meaningful processing is not really feasible.
+>>
+>> The use cases we want to support are diagnostic, for instance tuning and
+>> analysing touch sensor manufacturing defects. It's useful in this context
+>> to be able to interrogate the device using the command line or shell scripts.
+> 
+> I understand that the current controller and firmware you are working on
+> is not suitable for actual processing and the data rate is only useful
+> for diagnostic. This does not mean however that we can't use the same
+> high-speed interface for both diagnostic and processing, if such
+> interface is available. And given that there is desire to do some of the
+> host-side processing I'd prefer to standardize on interface that is
+> suitable for both instead of stuffing driver-specific bits into debugfs.
 
-Sorry for the long delay. I have applied your patch and the touch
-works as expected.
+Hi Dmitry-
 
+We've begun to look at re-implementing this using V4L2.
 
-No device specified, trying to scan all of /dev/input/event*
-Available devices:
-/dev/input/event0:      Power Button
-/dev/input/event1:      Lid Switch
-/dev/input/event2:      Sleep Button
-/dev/input/event3:      Video Bus
-/dev/input/event4:      DIALOGUE INC PenMount USB
-Select the device event number [0-4]: 4
-Input driver version is 1.0.1
-Input device ID: bus 0x3 vendor 0x14e1 product 0x6000 version 0x101
-Input device name: "DIALOGUE INC PenMount USB"
-Supported events:
-  Event type 0 (EV_SYN)
-  Event type 1 (EV_KEY)
-    Event code 330 (BTN_TOUCH)
-  Event type 3 (EV_ABS)
-    Event code 0 (ABS_X)
-      Value      0
-      Min        0
-      Max     1023
-    Event code 1 (ABS_Y)
-      Value      0
-      Min        0
-      Max     1023
-  Event type 4 (EV_MSC)
-    Event code 4 (MSC_SCAN)
-Properties:
-Testing ... (interrupt to exit)
+One additional thing that I wanted to raise in relation to this feature.
+The diagnostic data available from these chips is not limited to raw
+capacitance value data for each node on the touch matrix. Examples might be:
 
+* One reading per X/Y line, eg a noise measurement
+* Single values, for example a frame counter
+* Raw pressure/button data from an active stylus
 
+It's unclear exactly how we are going to expose this kind of information at
+the moment.
 
+One option seems to be the multi-plane support in V4L2, or defining a
+custom struct for embedding this data in the V4L2 frame.
 
-Tested-by: Christian Gmeiner <c.gmeiner@bachmann.info
+But the number of differences between chip versions means that we might
+have to settle for having some way to get the raw data stream out and
+forward it to some user space tool which is able to decode.
 
-greets
---
-Christian Gmeiner, MSc
-
-https://soundcloud.com/christian-gmeiner
+Nick

@@ -1,139 +1,67 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 01/10] Input: synaptics-rmi4: Add support for
- Synaptics RMI4 devices
-Date: Thu, 10 Mar 2016 15:43:10 -0800
-Message-ID: <20160310234310.GA22661@dtor-ws>
-References: <1455143005-10060-1-git-send-email-aduggan@synaptics.com>
+Subject: Re: [PATCH] MAINTAINERS: Add devicetree bindings to Input Drivers
+ section
+Date: Thu, 10 Mar 2016 17:20:24 -0800
+Message-ID: <20160311012024.GB485@dtor-ws>
+References: <1457374694-4764-1-git-send-email-afaerber@suse.de>
+ <2964268.geAV7fb7cP@diego>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f173.google.com ([209.85.192.173]:34855 "EHLO
+	mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932961AbcCKBU2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Mar 2016 20:20:28 -0500
 Content-Disposition: inline
-In-Reply-To: <1455143005-10060-1-git-send-email-aduggan@synaptics.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+In-Reply-To: <2964268.geAV7fb7cP@diego>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Cc: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>, linux-input@vger.kernel.org, open list <linux-kernel@vger.kernel.org>
 
-On Wed, Feb 10, 2016 at 02:23:25PM -0800, Andrew Duggan wrote:
-> Synaptics uses the Register Mapped Interface (RMI) protocol as a
-> communications interface for their devices. This driver adds the core
-> functionality needed to interface with RMI4 devices.
-> 
-> RMI devices can be connected to the host via several transport protocols
-> and can supports a wide variety of functionality defined by RMI functions.
-> Support for transport protocols and RMI functions are implemented in
-> individual drivers. The RMI4 core driver uses a bus architecture to
-> facilitate the various combinations of transport and function drivers
-> needed by a particular device.
-> 
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-> ---
->  drivers/input/Kconfig           |    2 +
->  drivers/input/Makefile          |    2 +
->  drivers/input/rmi4/Kconfig      |   10 +
->  drivers/input/rmi4/Makefile     |    2 +
->  drivers/input/rmi4/rmi_bus.c    |  375 ++++++++++++++
->  drivers/input/rmi4/rmi_bus.h    |  186 +++++++
->  drivers/input/rmi4/rmi_driver.c | 1027 +++++++++++++++++++++++++++++++++++++++
->  drivers/input/rmi4/rmi_driver.h |  103 ++++
->  drivers/input/rmi4/rmi_f01.c    |  574 ++++++++++++++++++++++
->  include/linux/rmi.h             |  209 ++++++++
->  include/uapi/linux/input.h      |    1 +
->  11 files changed, 2491 insertions(+)
->  create mode 100644 drivers/input/rmi4/Kconfig
->  create mode 100644 drivers/input/rmi4/Makefile
->  create mode 100644 drivers/input/rmi4/rmi_bus.c
->  create mode 100644 drivers/input/rmi4/rmi_bus.h
->  create mode 100644 drivers/input/rmi4/rmi_driver.c
->  create mode 100644 drivers/input/rmi4/rmi_driver.h
->  create mode 100644 drivers/input/rmi4/rmi_f01.c
->  create mode 100644 include/linux/rmi.h
-> 
-> diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
-> index a35532e..6261874 100644
-> --- a/drivers/input/Kconfig
-> +++ b/drivers/input/Kconfig
-> @@ -201,6 +201,8 @@ source "drivers/input/touchscreen/Kconfig"
->  
->  source "drivers/input/misc/Kconfig"
->  
-> +source "drivers/input/rmi4/Kconfig"
-> +
->  endif
->  
->  menu "Hardware I/O ports"
-> diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-> index 0c9302c..595820b 100644
-> --- a/drivers/input/Makefile
-> +++ b/drivers/input/Makefile
-> @@ -26,3 +26,5 @@ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
->  obj-$(CONFIG_INPUT_MISC)	+= misc/
->  
->  obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
-> +
-> +obj-$(CONFIG_RMI4_CORE)		+= rmi4/
-> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-> new file mode 100644
-> index 0000000..5ea60e3
-> --- /dev/null
-> +++ b/drivers/input/rmi4/Kconfig
-> @@ -0,0 +1,10 @@
-> +#
-> +# RMI4 configuration
-> +#
-> +config RMI4_CORE
-> +	tristate "Synaptics RMI4 bus support"
-> +	help
-> +	  Say Y here if you want to support the Synaptics RMI4 bus.  This is
-> +	  required for all RMI4 device support.
-> +
-> +	  If unsure, say Y.
-> diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-> new file mode 100644
-> index 0000000..12f2197
-> --- /dev/null
-> +++ b/drivers/input/rmi4/Makefile
-> @@ -0,0 +1,2 @@
-> +obj-$(CONFIG_RMI4_CORE) += rmi_core.o
-> +rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
-> diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-> new file mode 100644
-> index 0000000..78922a6
-> --- /dev/null
-> +++ b/drivers/input/rmi4/rmi_bus.c
-> @@ -0,0 +1,375 @@
-> +/*
-> + * Copyright (c) 2011-2016 Synaptics Incorporated
-> + * Copyright (c) 2011 Unixphere
-> + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License version 2 as published by
-> + * the Free Software Foundation.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/device.h>
-> +#include <linux/kconfig.h>
-> +#include <linux/list.h>
-> +#include <linux/pm.h>
-> +#include <linux/rmi.h>
-> +#include <linux/slab.h>
-> +#include <linux/types.h>
-> +#include <linux/of.h>
-> +#include "rmi_bus.h"
-> +#include "rmi_driver.h"
-> +
-> +int debug_flags;
+On Mon, Mar 07, 2016 at 07:54:16PM +0100, Heiko St=FCbner wrote:
+> Am Montag, 7. M=E4rz 2016, 19:18:13 schrieb Andreas F=E4rber:
+> > To avoid changes to input bindings not reaching linux-input reviewe=
+rs
+> > add an appropriate file pattern to the MAINTAINERS entry.
+> >=20
+> > Reported-by: Heiko St=FCbner <heiko@sntech.de>
+> > Signed-off-by: Andreas F=E4rber <afaerber@suse.de>
+>=20
+> not sure if it is needed, but looks good to me, so
 
-Changed to static.
+Should not hurt...
 
-> +module_param(debug_flags, int, 0444);
+>=20
+> Reviewed-by: Heiko Stuebner <heiko@sntech.de>
 
-Changed to 0644 - there is no reason why we can't change flags at
-runtime.
+Applied, thank you.
 
-Thanks.
+>=20
+> > ---
+> >  MAINTAINERS | 1 +
+> >  1 file changed, 1 insertion(+)
+> >=20
+> > diff --git a/MAINTAINERS b/MAINTAINERS
+> > index 8e9d47e10f59..b01a56dd7fb2 100644
+> > --- a/MAINTAINERS
+> > +++ b/MAINTAINERS
+> > @@ -5633,6 +5633,7 @@ F:	drivers/input/
+> >  F:	include/linux/input.h
+> >  F:	include/uapi/linux/input.h
+> >  F:	include/linux/input/
+> > +F:	Documentation/devicetree/bindings/input/
+> >=20
+> >  INPUT MULTITOUCH (MT) PROTOCOL
+> >  M:	Henrik Rydberg <rydberg@bitmath.org>
+>=20
 
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

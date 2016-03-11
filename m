@@ -1,70 +1,80 @@
-From: Andrew Duggan <andrew.duggan@gmail.com>
-Subject: Re: [PATCH v5 00/10] Input: synaptics-rmi4: Synaptics RMI4 Driver
-Date: Fri, 11 Mar 2016 10:36:53 -0800
-Message-ID: <CAE7eX3Jadtjy-sZcO42z7z7Nxvv2Eayy5+FXAjHiuNAF7fotBA@mail.gmail.com>
-References: <1455142982-10008-1-git-send-email-aduggan@synaptics.com>
-	<CACRpkdaE91ncWccG9_dsOiC40j9mFpm7A=S_mpeHmP-vjSVjMQ@mail.gmail.com>
-	<56BE200F.5040602@synaptics.com>
-	<20160303171138.GH22340@mail.corp.redhat.com>
-	<20160311180521.GA13175@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] da9052: ensure da9052_ts_input_open will not lock up on
+ irq flood
+Date: Fri, 11 Mar 2016 11:33:11 -0800
+Message-ID: <20160311193311.GD13175@dtor-ws>
+References: <1457002322-21953-1-git-send-email-m.grzeschik@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f195.google.com ([209.85.161.195]:36606 "EHLO
-	mail-yw0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750976AbcCKSgy (ORCPT
+Received: from mail-pf0-f170.google.com ([209.85.192.170]:35256 "EHLO
+	mail-pf0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932070AbcCKTdO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Mar 2016 13:36:54 -0500
-In-Reply-To: <20160311180521.GA13175@dtor-ws>
+	Fri, 11 Mar 2016 14:33:14 -0500
+Received: by mail-pf0-f170.google.com with SMTP id n5so52477710pfn.2
+        for <linux-input@vger.kernel.org>; Fri, 11 Mar 2016 11:33:14 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1457002322-21953-1-git-send-email-m.grzeschik@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>, Rob Herring <robh@kernel.org>
+To: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Cc: linux-input@vger.kernel.org, support.opensource@diasemi.com, kernel@pengutronix.de
 
-On Fri, Mar 11, 2016 at 10:05 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Mar 03, 2016 at 06:11:38PM +0100, Benjamin Tissoires wrote:
->> On Feb 12 2016 or thereabouts, Andrew Duggan wrote:
->> > On 02/12/2016 04:54 AM, Linus Walleij wrote:
->> > >On Wed, Feb 10, 2016 at 11:23 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
->> > >
->> > >>This is the v5 patch series which fixes the issues identified by kbuild
->> > >>and coccinelle in the previous patch series. These include:
->> > >>
->> > >>- Using ARRAY_SIZE instead of a custom macro to calculate the size of the
->> > >>   function handler array.
->> > >>- Remove setting the .owner field for the driver in rmi_i2c and rmi_spi
->> > >>   since the i2c-core and spi set that field.
->> > >>- Fix if statment in rmi_f30 which was testing has_led twice instead of
->> > >>   testing has_gpio.
->> > >Works like a charm.
->> > >Tested-by: Linus Walleij <linus.walleij@linaro.org>
->> >
->> > Thanks for testing. At this point except for the touchscreen binding rename
->> > fix needed in patch 5, all of the outstanding issues have been addressed. If
->> > the rest of the patch series is acceptable, then I can do a final v6 respin
->> > which fixes the binding and also removes the HID patch. But, if more work
->> > needs to be done on the patch series I can wait to do the respin. Dmitry,
->> > what do you think of the patch series at this point?
->>
->> Dmitry, ping on this one...
->>
->> I'd like to see the series in 4.6, and we are getting closer of the
->> merge window. Could we get some of your time on this?
->
-> I adjusted the binding on patch 5 (to read -x-mm and y-mm) and applied
-> the first 9 leaving the HID out for now.
->
+On Thu, Mar 03, 2016 at 11:52:02AM +0100, Michael Grzeschik wrote:
+> It is possible that da9052_ts_input_open is called and the touchscreen
+> is triggering continuous interrupts. In this case we will never leave
+> da9052_ts_input_open. The da9052_reg_update will never get the i2c bus
+> as the interrupt handler will continuously lock it.
+> 
+> This patch switch places of da9052_reg_update and the setting of
+> tsi->stopped. This way its ensured that da9052_ts_input_open will never
+> lockup on interrupt flood.
 
-Great! Thanks everyone for testing and reviewing.
+I understand what you are saying about updating register, however I do
+not understand why we would want to swap unmasking pendown event ans
+clearing the "stopped" flag.
 
-Andrew
+Thanks.
 
-> Thanks.
->
-> --
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> ---
+>  drivers/input/touchscreen/da9052_tsi.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
+> index 5a013bb..1b136b8 100644
+> --- a/drivers/input/touchscreen/da9052_tsi.c
+> +++ b/drivers/input/touchscreen/da9052_tsi.c
+> @@ -189,17 +189,20 @@ static int da9052_configure_tsi(struct da9052_tsi *tsi)
+>  
+>  static int da9052_ts_input_open(struct input_dev *input_dev)
+>  {
+> +	int val;
+>  	struct da9052_tsi *tsi = input_get_drvdata(input_dev);
+>  
+> -	tsi->stopped = false;
+> -	mb();
+> +	val = da9052_reg_update(tsi->da9052, DA9052_TSI_CONT_A_REG,
+> +				 1 << 1, 1 << 1);
+>  
+>  	/* Unmask PEN_DOWN event */
+>  	da9052_enable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
+>  
+> +	tsi->stopped = false;
+> +	mb();
+> +
+>  	/* Enable Pen Detect Circuit */
+> -	return da9052_reg_update(tsi->da9052, DA9052_TSI_CONT_A_REG,
+> -				 1 << 1, 1 << 1);
+> +	return val;
+>  }
+>  
+>  static void da9052_ts_input_close(struct input_dev *input_dev)
+> -- 
+> 2.7.0
+> 
+
+-- 
+Dmitry

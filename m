@@ -1,80 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] da9052: ensure da9052_ts_input_open will not lock up on
- irq flood
-Date: Fri, 11 Mar 2016 11:33:11 -0800
-Message-ID: <20160311193311.GD13175@dtor-ws>
-References: <1457002322-21953-1-git-send-email-m.grzeschik@pengutronix.de>
+Subject: Re: Chipone icn85xx support in x86 linux kernel
+Date: Fri, 11 Mar 2016 11:40:01 -0800
+Message-ID: <CAKdAkRQbHDehT0t2gDUkbOQNWKsY8O7iMi7cEAsN_N8=UBWZAQ@mail.gmail.com>
+References: <CA+V1Lzo4-EBWQcpg9T-BBcF5xqa31_JNOZj-ev56PWe=vuvqZQ@mail.gmail.com>
+	<56E1EE3C.6010007@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f170.google.com ([209.85.192.170]:35256 "EHLO
-	mail-pf0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932070AbcCKTdO (ORCPT
+Received: from mail-vk0-f43.google.com ([209.85.213.43]:34670 "EHLO
+	mail-vk0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932089AbcCKTkD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Mar 2016 14:33:14 -0500
-Received: by mail-pf0-f170.google.com with SMTP id n5so52477710pfn.2
-        for <linux-input@vger.kernel.org>; Fri, 11 Mar 2016 11:33:14 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1457002322-21953-1-git-send-email-m.grzeschik@pengutronix.de>
+	Fri, 11 Mar 2016 14:40:03 -0500
+Received: by mail-vk0-f43.google.com with SMTP id e185so146355019vkb.1
+        for <linux-input@vger.kernel.org>; Fri, 11 Mar 2016 11:40:02 -0800 (PST)
+In-Reply-To: <56E1EE3C.6010007@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Cc: linux-input@vger.kernel.org, support.opensource@diasemi.com, kernel@pengutronix.de
+To: Gregor Riepl <onitake@gmail.com>
+Cc: sergk sergk2mail <sergk.admin@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, Mar 03, 2016 at 11:52:02AM +0100, Michael Grzeschik wrote:
-> It is possible that da9052_ts_input_open is called and the touchscreen
-> is triggering continuous interrupts. In this case we will never leave
-> da9052_ts_input_open. The da9052_reg_update will never get the i2c bus
-> as the interrupt handler will continuously lock it.
-> 
-> This patch switch places of da9052_reg_update and the setting of
-> tsi->stopped. This way its ensured that da9052_ts_input_open will never
-> lockup on interrupt flood.
+On Thu, Mar 10, 2016 at 1:59 PM, Gregor Riepl <onitake@gmail.com> wrote:
+>>  1) It is strange, but it looks that via Vanilla custom x8_64 Linux
+>> 4.4.2 ArchLinux   Baytrail on Chuwi Vi10 the Touchscreen Control Chip
+>> probably resides not on 0x48  and it is resides on i2c-3 0x30. This
+>> confused me completely, AFAIK chip could switch buses but not its
+>> address.
+>> Will be happy if anyone helps with this - whether it is possible for
+>> chip to be i2c-4, 0x48 on Android and switched in Linux to i2c-3 0x30?
+>
+> The way I2C works, this is simply not possible unless the chip is reconfigured
+> somehow. I2C frames always start with the device address, and if a chip isn't
+> listening for a specific address (or a broadcast), it will not respond.
+>
+> The I2C bus number in user space on the other hand is completely dynamic and
+> depends on the driver load order.
+>
+> So in short, without any separate "switching" mechanism (highly unlikely), the
+> device will always have the same address (0x30 is 48 in decimal, mind you),
+> but it may live on i2c-0, i2c-1, i2c-2, i2c-3, i2c-4, i2c-5 depending on when
+> the bus is initialised or which drivers are loaded.
 
-I understand what you are saying about updating register, however I do
-not understand why we would want to swap unmasking pendown event ans
-clearing the "stopped" flag.
+Some devices do allow you to switch slave address, Goodix touchscreen
+is one example.
 
 Thanks.
-
-> 
-> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-> ---
->  drivers/input/touchscreen/da9052_tsi.c | 11 +++++++----
->  1 file changed, 7 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
-> index 5a013bb..1b136b8 100644
-> --- a/drivers/input/touchscreen/da9052_tsi.c
-> +++ b/drivers/input/touchscreen/da9052_tsi.c
-> @@ -189,17 +189,20 @@ static int da9052_configure_tsi(struct da9052_tsi *tsi)
->  
->  static int da9052_ts_input_open(struct input_dev *input_dev)
->  {
-> +	int val;
->  	struct da9052_tsi *tsi = input_get_drvdata(input_dev);
->  
-> -	tsi->stopped = false;
-> -	mb();
-> +	val = da9052_reg_update(tsi->da9052, DA9052_TSI_CONT_A_REG,
-> +				 1 << 1, 1 << 1);
->  
->  	/* Unmask PEN_DOWN event */
->  	da9052_enable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
->  
-> +	tsi->stopped = false;
-> +	mb();
-> +
->  	/* Enable Pen Detect Circuit */
-> -	return da9052_reg_update(tsi->da9052, DA9052_TSI_CONT_A_REG,
-> -				 1 << 1, 1 << 1);
-> +	return val;
->  }
->  
->  static void da9052_ts_input_close(struct input_dev *input_dev)
-> -- 
-> 2.7.0
-> 
 
 -- 
 Dmitry

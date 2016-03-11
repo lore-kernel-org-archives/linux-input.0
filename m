@@ -1,70 +1,70 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: egalax_ts - remove unused definitions
-Date: Fri, 11 Mar 2016 10:08:52 -0800
-Message-ID: <20160311180852.GC13175@dtor-ws>
-References: <1457129278-9165-1-git-send-email-festevam@gmail.com>
+From: Andrew Duggan <andrew.duggan@gmail.com>
+Subject: Re: [PATCH v5 00/10] Input: synaptics-rmi4: Synaptics RMI4 Driver
+Date: Fri, 11 Mar 2016 10:36:53 -0800
+Message-ID: <CAE7eX3Jadtjy-sZcO42z7z7Nxvv2Eayy5+FXAjHiuNAF7fotBA@mail.gmail.com>
+References: <1455142982-10008-1-git-send-email-aduggan@synaptics.com>
+	<CACRpkdaE91ncWccG9_dsOiC40j9mFpm7A=S_mpeHmP-vjSVjMQ@mail.gmail.com>
+	<56BE200F.5040602@synaptics.com>
+	<20160303171138.GH22340@mail.corp.redhat.com>
+	<20160311180521.GA13175@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:33510 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751248AbcCKSIz (ORCPT
+Received: from mail-yw0-f195.google.com ([209.85.161.195]:36606 "EHLO
+	mail-yw0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750976AbcCKSgy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Mar 2016 13:08:55 -0500
-Received: by mail-pa0-f53.google.com with SMTP id fl4so104660031pad.0
-        for <linux-input@vger.kernel.org>; Fri, 11 Mar 2016 10:08:54 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1457129278-9165-1-git-send-email-festevam@gmail.com>
+	Fri, 11 Mar 2016 13:36:54 -0500
+In-Reply-To: <20160311180521.GA13175@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>, Rob Herring <robh@kernel.org>
 
-Hi Fabio,
+On Fri, Mar 11, 2016 at 10:05 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Thu, Mar 03, 2016 at 06:11:38PM +0100, Benjamin Tissoires wrote:
+>> On Feb 12 2016 or thereabouts, Andrew Duggan wrote:
+>> > On 02/12/2016 04:54 AM, Linus Walleij wrote:
+>> > >On Wed, Feb 10, 2016 at 11:23 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
+>> > >
+>> > >>This is the v5 patch series which fixes the issues identified by kbuild
+>> > >>and coccinelle in the previous patch series. These include:
+>> > >>
+>> > >>- Using ARRAY_SIZE instead of a custom macro to calculate the size of the
+>> > >>   function handler array.
+>> > >>- Remove setting the .owner field for the driver in rmi_i2c and rmi_spi
+>> > >>   since the i2c-core and spi set that field.
+>> > >>- Fix if statment in rmi_f30 which was testing has_led twice instead of
+>> > >>   testing has_gpio.
+>> > >Works like a charm.
+>> > >Tested-by: Linus Walleij <linus.walleij@linaro.org>
+>> >
+>> > Thanks for testing. At this point except for the touchscreen binding rename
+>> > fix needed in patch 5, all of the outstanding issues have been addressed. If
+>> > the rest of the patch series is acceptable, then I can do a final v6 respin
+>> > which fixes the binding and also removes the HID patch. But, if more work
+>> > needs to be done on the patch series I can wait to do the respin. Dmitry,
+>> > what do you think of the patch series at this point?
+>>
+>> Dmitry, ping on this one...
+>>
+>> I'd like to see the series in 4.6, and we are getting closer of the
+>> merge window. Could we get some of your time on this?
+>
+> I adjusted the binding on patch 5 (to read -x-mm and y-mm) and applied
+> the first 9 leaving the HID out for now.
+>
 
-On Fri, Mar 04, 2016 at 07:07:58PM -0300, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam@nxp.com>
-> 
-> REPORT_MODE_MOUSE and REPORT_MODE_VENDOR are never used in the driver,
-> so let's just remove them.
-> 
-> Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
-> ---
->  drivers/input/touchscreen/egalax_ts.c | 12 ------------
->  1 file changed, 12 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
-> index 1afc08b..a260476 100644
-> --- a/drivers/input/touchscreen/egalax_ts.c
-> +++ b/drivers/input/touchscreen/egalax_ts.c
-> @@ -29,18 +29,6 @@
->  #include <linux/input/mt.h>
->  #include <linux/of_gpio.h>
->  
-> -/*
-> - * Mouse Mode: some panel may configure the controller to mouse mode,
-> - * which can only report one point at a given time.
-> - * This driver will ignore events in this mode.
-> - */
-> -#define REPORT_MODE_MOUSE		0x1
-> -/*
-> - * Vendor Mode: this mode is used to transfer some vendor specific
-> - * messages.
-> - * This driver will ignore events in this mode.
-> - */
-> -#define REPORT_MODE_VENDOR		0x3
+Great! Thanks everyone for testing and reviewing.
 
-Keeping this does not add to runtime size and is not excessive, I do not
-see harm in not keeping it.
+Andrew
 
->  /* Multiple Touch Mode */
->  #define REPORT_MODE_MTTOUCH		0x4
->  
-> -- 
-> 1.9.1
-> 
-
-Thanks.
-
--- 
-Dmitry
+> Thanks.
+>
+> --
+> Dmitry
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

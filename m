@@ -1,72 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] HID: multitouch: Release all touch slots on reset_resume
-Date: Fri, 11 Mar 2016 14:19:49 -0800
-Message-ID: <20160311221949.GA14029@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Sangwon Jee <jeesw@melfas.com>
+Subject: Input: melfas_mip4 - add hw_version sysfs attribute
+Date: Sat, 12 Mar 2016 19:22:50 +0900
+Message-ID: <1457778170-31320-1-git-send-email-jeesw@melfas.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f44.google.com ([209.85.220.44]:35677 "EHLO
-	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932084AbcCKWTw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Mar 2016 17:19:52 -0500
-Content-Disposition: inline
+Received: from sbs.melfas.com ([39.118.242.30]:46950 "EHLO sbs.melfas.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751241AbcCLKXF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 12 Mar 2016 05:23:05 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, jeesw@melfas.com
 
-From: Benson Leung <bleung@chromium.org>
+Add hw_version sysfs attribute for retrieving hardware information
+from firmware.
 
-When resetting a device (especially after power loss) it is unlikely
-that the firmware will keep the contact tracking data for the previous
-touches and will be able to reconcile it with the new contacts, so
-let's release all slots on reset resume as start anew.
-
-Signed-off-by: Benson Leung <bleung@chromium.org>
-Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
+Signed-off-by: Sangwon Jee <jeesw@melfas.com>
 ---
- drivers/hid/hid-multitouch.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/input/touchscreen/melfas_mip4.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 6adb788..e24e33c 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1148,8 +1148,30 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- }
+diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
+index 89272973..fb5fb91 100644
+--- a/drivers/input/touchscreen/melfas_mip4.c
++++ b/drivers/input/touchscreen/melfas_mip4.c
+@@ -1310,8 +1310,34 @@ static ssize_t mip4_sysfs_read_fw_version(struct device *dev,
  
- #ifdef CONFIG_PM
-+static void mt_release_contacts(struct hid_device *hid)
+ static DEVICE_ATTR(fw_version, S_IRUGO, mip4_sysfs_read_fw_version, NULL);
+ 
++static ssize_t mip4_sysfs_read_hw_version(struct device *dev,
++					  struct device_attribute *attr,
++					  char *buf)
 +{
-+	struct hid_input *hidinput;
++	struct i2c_client *client = to_i2c_client(dev);
++	struct mip4_ts *ts = i2c_get_clientdata(client);
++	size_t count;
 +
-+	list_for_each_entry(hidinput, &hid->inputs, list) {
-+		struct input_dev *input_dev = hidinput->input;
-+		struct input_mt *mt = input_dev->mt;
-+		int i;
++	/* Take lock to prevent racing with firmware update */
++	mutex_lock(&ts->input->mutex);
 +
-+		if (mt) {
-+			for (i = 0; i < mt->num_slots; i++) {
-+				input_mt_slot(input_dev, i);
-+				input_mt_report_slot_state(input_dev,
-+							   MT_TOOL_FINGER,
-+							   false);
-+			}
-+			input_sync(input_dev);
-+		}
-+	}
++	/*
++	 * product_name shows the name or version of the hardware
++	 * paired with current firmware in the chip.
++	 */
++	count = snprintf(buf, PAGE_SIZE, "%.*s\n",
++		(int)sizeof(ts->product_name), ts->product_name);
++
++	mutex_unlock(&ts->input->mutex);
++
++	return count;
 +}
 +
- static int mt_reset_resume(struct hid_device *hdev)
- {
-+	mt_release_contacts(hdev);
- 	mt_set_maxcontacts(hdev);
- 	mt_set_input_mode(hdev);
- 	return 0;
++static DEVICE_ATTR(hw_version, S_IRUGO, mip4_sysfs_read_hw_version, NULL);
++
+ static struct attribute *mip4_attrs[] = {
+ 	&dev_attr_fw_version.attr,
++	&dev_attr_hw_version.attr,
+ 	&dev_attr_update_fw.attr,
+ 	NULL,
+ };
+@@ -1512,6 +1538,6 @@ static struct i2c_driver mip4_driver = {
+ module_i2c_driver(mip4_driver);
+ 
+ MODULE_DESCRIPTION("MELFAS MIP4 Touchscreen");
+-MODULE_VERSION("2016.03.03");
++MODULE_VERSION("2016.03.12");
+ MODULE_AUTHOR("Sangwon Jee <jeesw@melfas.com>");
+ MODULE_LICENSE("GPL");
 -- 
-2.7.0.rc3.207.g0ac5344
+1.9.1
 
-
--- 
-Dmitry

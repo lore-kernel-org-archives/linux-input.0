@@ -1,57 +1,82 @@
-From: Gregor Riepl <onitake@gmail.com>
-Subject: Re: Chipone icn85xx support in x86 linux kernel
-Date: Sun, 13 Mar 2016 14:24:01 +0100
-Message-ID: <56E569F1.1000900@gmail.com>
-References: <CA+V1Lzo4-EBWQcpg9T-BBcF5xqa31_JNOZj-ev56PWe=vuvqZQ@mail.gmail.com>
- <56E1EE3C.6010007@gmail.com>
- <CA+V1LzoHQq71riUOciB2PTLm4-Xk5DO1DA49f2uF9SOk5x_rKA@mail.gmail.com>
- <56E41184.8020006@gmail.com>
- <CA+V1LzrQJguh4Yqi56x1Jv+WJtO+A5B_7N6Q6kPw+_zcU6H8Ng@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: multitouch: Release all touch slots on reset_resume
+Date: Mon, 14 Mar 2016 09:05:35 +0100
+Message-ID: <20160314080535.GM22340@mail.corp.redhat.com>
+References: <20160311221949.GA14029@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:33141 "EHLO
-	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751124AbcCMNYF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Mar 2016 09:24:05 -0400
-Received: by mail-wm0-f52.google.com with SMTP id l68so70842426wml.0
-        for <linux-input@vger.kernel.org>; Sun, 13 Mar 2016 06:24:04 -0700 (PDT)
-In-Reply-To: <CA+V1LzrQJguh4Yqi56x1Jv+WJtO+A5B_7N6Q6kPw+_zcU6H8Ng@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:45181 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933728AbcCNIFk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Mar 2016 04:05:40 -0400
+Content-Disposition: inline
+In-Reply-To: <20160311221949.GA14029@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: sergk sergk2mail <sergk.admin@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> Actually I am not sure if I have waked up chip, BUT at the same I am
-> stabile receive something on i2c-3 0x30.
-> This looks like in DSDT ACPI and by analogy with Chuwi vi8 again is a
-> shift on Baytrail -1 on i2cbus.
-> The problem is - why I am receiving each time different values for
-> reading the same addresses on i2c bus?
-> I mean if I read 0xa address (should be 0x85 - the major version of
-> the chip) - I receive each time new values but not 0x85! see my posts
-> with test results.
+On Mar 11 2016 or thereabouts, Dmitry Torokhov wrote:
+> From: Benson Leung <bleung@chromium.org>
 > 
-> HOW IT COULD BE  POSSIBLE SO?
->
-> ...
+> When resetting a device (especially after power loss) it is unlikely
+> that the firmware will keep the contact tracking data for the previous
+> touches and will be able to reconcile it with the new contacts, so
+> let's release all slots on reset resume as start anew.
 > 
-> Also from android - the only TS module is loaded and present is
-> atmel_mxt_ts - nm g shows
+> Signed-off-by: Benson Leung <bleung@chromium.org>
+> Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
+> ---
 
-Well.... Perhaps you have one of those Atmel maXTouch chips after all?
+Seems good to me:
 
-Have you looked inside your tablet to confirm this?
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-The mXT most likely has a different protocol/memory map than the icn85xx.
-If you can find a data sheet, you may be able to read the respective
-identification registers.
+Cheers,
+Benjamin
 
-Also, keep in mind that a loaded module does not necessarily mean you have the
-corresponding hardware. There could be a user space driver that handles touch
-on Android.
-
-Or perhaps... You have a totally different chip.
-Are you sure that all icnxxxx devices use the same memory map?
+>  drivers/hid/hid-multitouch.c | 22 ++++++++++++++++++++++
+>  1 file changed, 22 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 6adb788..e24e33c 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -1148,8 +1148,30 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  }
+>  
+>  #ifdef CONFIG_PM
+> +static void mt_release_contacts(struct hid_device *hid)
+> +{
+> +	struct hid_input *hidinput;
+> +
+> +	list_for_each_entry(hidinput, &hid->inputs, list) {
+> +		struct input_dev *input_dev = hidinput->input;
+> +		struct input_mt *mt = input_dev->mt;
+> +		int i;
+> +
+> +		if (mt) {
+> +			for (i = 0; i < mt->num_slots; i++) {
+> +				input_mt_slot(input_dev, i);
+> +				input_mt_report_slot_state(input_dev,
+> +							   MT_TOOL_FINGER,
+> +							   false);
+> +			}
+> +			input_sync(input_dev);
+> +		}
+> +	}
+> +}
+> +
+>  static int mt_reset_resume(struct hid_device *hdev)
+>  {
+> +	mt_release_contacts(hdev);
+>  	mt_set_maxcontacts(hdev);
+>  	mt_set_input_mode(hdev);
+>  	return 0;
+> -- 
+> 2.7.0.rc3.207.g0ac5344
+> 
+> 
+> -- 
+> Dmitry

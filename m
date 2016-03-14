@@ -1,80 +1,106 @@
-From: Eduardo Valentin <edubezval@gmail.com>
-Subject: Re: [PATCH 05/13] input: convert sun4i-ts to use
- devm_thermal_zone_of_sensor_register
-Date: Mon, 14 Mar 2016 14:07:22 -0700
-Message-ID: <20160314210721.GB4740@localhost.localdomain>
-References: <1457559336-17652-1-git-send-email-edubezval@gmail.com>
- <1457559336-17652-6-git-send-email-edubezval@gmail.com>
- <20160309214514.GA18066@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] HID: i2c-hid: fix OOB write in i2c_hid_set_or_send_report()
+Date: Mon, 14 Mar 2016 15:21:04 -0700
+Message-ID: <20160314222104.GA20569@dtor-ws>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:33845 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932815AbcCNVH0 (ORCPT
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:34838 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751716AbcCNWVI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Mar 2016 17:07:26 -0400
+	Mon, 14 Mar 2016 18:21:08 -0400
 Content-Disposition: inline
-In-Reply-To: <20160309214514.GA18066@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rui Zhang <rui.zhang@intel.com>, Linux PM <linux-pm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, lm-sensors@lm-sensors.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, Lukasz Majewski <l.majewski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, Sascha Hauer <s.hauer@pengutronix.de>, Jens Thiele <karme@karme.de>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andrew Duggan <aduggan@synaptics.com>, Alexander Potapenko <glider@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+
+From: Dmitry Torokhov <dtor@chromium.org>
+
+Even though hid_hw_* checks that passed in data_len is less than
+HID_MAX_BUFFER_SIZE it is not enough, as i2c-hid does not necessarily
+allocate buffers of HID_MAX_BUFFER_SIZE but rather checks all device
+reports and select largest size. In-kernel users normally just send as much
+data as report needs, so there is no problem, but hidraw users can do
+whatever they please:
+
+BUG: KASAN: slab-out-of-bounds in memcpy+0x34/0x54 at addr ffffffc07135ea80
+Write of size 4101 by task syz-executor/8747
+CPU: 2 PID: 8747 Comm: syz-executor Tainted: G    BU         3.18.0 #37
+Hardware name: Google Tegra210 Smaug Rev 1,3+ (DT)
+Call trace:
+[<ffffffc00020ebcc>] dump_backtrace+0x0/0x258 arch/arm64/kernel/traps.c:83
+[<ffffffc00020ee40>] show_stack+0x1c/0x2c arch/arm64/kernel/traps.c:172
+[<     inline     >] __dump_stack lib/dump_stack.c:15
+[<ffffffc001958114>] dump_stack+0x90/0x140 lib/dump_stack.c:50
+[<     inline     >] print_error_description mm/kasan/report.c:97
+[<     inline     >] kasan_report_error mm/kasan/report.c:278
+[<ffffffc0004597dc>] kasan_report+0x268/0x530 mm/kasan/report.c:305
+[<ffffffc0004592e8>] __asan_storeN+0x20/0x150 mm/kasan/kasan.c:718
+[<ffffffc0004594e0>] memcpy+0x30/0x54 mm/kasan/kasan.c:299
+[<ffffffc001306354>] __i2c_hid_command+0x2b0/0x7b4 drivers/hid/i2c-hid/i2c-hid.c:178
+[<     inline     >] i2c_hid_set_or_send_report drivers/hid/i2c-hid/i2c-hid.c:321
+[<ffffffc0013079a0>] i2c_hid_output_raw_report.isra.2+0x3d4/0x4b8 drivers/hid/i2c-hid/i2c-hid.c:589
+[<ffffffc001307ad8>] i2c_hid_output_report+0x54/0x68 drivers/hid/i2c-hid/i2c-hid.c:602
+[<     inline     >] hid_hw_output_report include/linux/hid.h:1039
+[<ffffffc0012cc7a0>] hidraw_send_report+0x400/0x414 drivers/hid/hidraw.c:154
+[<ffffffc0012cc7f4>] hidraw_write+0x40/0x64 drivers/hid/hidraw.c:177
+[<ffffffc0004681dc>] vfs_write+0x1d4/0x3cc fs/read_write.c:534
+[<     inline     >] SYSC_pwrite64 fs/read_write.c:627
+[<ffffffc000468984>] SyS_pwrite64+0xec/0x144 fs/read_write.c:614
+Object at ffffffc07135ea80, in cache kmalloc-512
+Object allocated with size 268 bytes.
+
+Let's check data length against the buffer size before attempting to copy
+data over.
+
+Reported-by: Alexander Potapenko <glider@google.com>
+Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
+---
+
+This should probably go to stable as well, leaving it to Jiri/Benjamin
+to decide.
 
 
---tjCHc7DPkfUGtrlw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ drivers/hid/i2c-hid/i2c-hid.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-On Wed, Mar 09, 2016 at 01:45:14PM -0800, Dmitry Torokhov wrote:
-> On Wed, Mar 09, 2016 at 01:35:27PM -0800, Eduardo Valentin wrote:
-> > This changes the driver to use the devm_ version
-> > of thermal_zone_of_sensor_register and cleans
-> > up the  local points and unregister calls.
-> >=20
-> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
-> > Cc: Chen-Yu Tsai <wens@csie.org>
-> > Cc: Hans de Goede <hdegoede@redhat.com>
-> > Cc: Zhang Rui <rui.zhang@intel.com>
-> > Cc: Lukasz Majewski <l.majewski@samsung.com>
-> > Cc: Heiko Stuebner <heiko@sntech.de>
-> > Cc: Sascha Hauer <s.hauer@pengutronix.de>
-> > Cc: Jens Thiele <karme@karme.de>
-> > Cc: linux-input@vger.kernel.org
-> > Cc: linux-arm-kernel@lists.infradead.org
-> > Cc: linux-kernel@vger.kernel.org
-> > Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
->=20
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->=20
-> I guess it will make sense to merge through your tree unless you want to
-> hold off until after I merge winth mainline (around -rc3) assuming that
-> it even makes into 4.6.
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index b921693..bb89749 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -283,17 +283,21 @@ static int i2c_hid_set_or_send_report(struct i2c_client *client, u8 reportType,
+ 	u16 dataRegister = le16_to_cpu(ihid->hdesc.wDataRegister);
+ 	u16 outputRegister = le16_to_cpu(ihid->hdesc.wOutputRegister);
+ 	u16 maxOutputLength = le16_to_cpu(ihid->hdesc.wMaxOutputLength);
++	u16 size;
++	int args_len;
++	int index = 0;
++
++	i2c_hid_dbg(ihid, "%s\n", __func__);
++
++	if (data_len > ihid->bufsize)
++		return -EINVAL;
+ 
+-	/* hid_hw_* already checked that data_len < HID_MAX_BUFFER_SIZE */
+-	u16 size =	2			/* size */ +
++	size =		2			/* size */ +
+ 			(reportID ? 1 : 0)	/* reportID */ +
+ 			data_len		/* buf */;
+-	int args_len =	(reportID >= 0x0F ? 1 : 0) /* optional third byte */ +
++	args_len =	(reportID >= 0x0F ? 1 : 0) /* optional third byte */ +
+ 			2			/* dataRegister */ +
+ 			size			/* args */;
+-	int index = 0;
+-
+-	i2c_hid_dbg(ihid, "%s\n", __func__);
+ 
+ 	if (!use_data && maxOutputLength == 0)
+ 		return -ENOSYS;
+-- 
+2.7.0.rc3.207.g0ac5344
 
-No rush from my side. I would rather get the right review cycles.
 
-The devm_ APIs were sent to 4.6-rc1 (well, right now in Rui's tree, but
-I assume he is sending them).
-
-Thanks for your review.
-
---tjCHc7DPkfUGtrlw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQEcBAEBAgAGBQJW5ygFAAoJEMLUO4d9pOJW1fkH/RTl+WR8y+rYZn8P7sMComvB
-NVumLi7MTMyke2BdcRbuwkJBdQmpIEFAl4RsYwq0R1M2jfMrKjClgjfLTUyv+Stj
-3dgZ2tIuqRACUm0eTasF2yprIM7NfsPuQd8kQdZEemKLZxJJCTUMyasYKKbYDJXA
-7xeoZD5mqPwwRUcL5aitm/jRkWFdnX4lnhzjSTjYyq3+7UxQFsTUmZG/u5sayoim
-xJk2Fm5RZTGZdbjelEbH8JxGHmcXYYff8fxar99V/Aw2V+rhdTW/r04a8rXNTFn5
-w3XvIRcjBnApNqSd0dqqK1joMfGv/6xTeidjOGRBSECFBm3DB1+S0lkkiNGlFwQ=
-=+wPS
------END PGP SIGNATURE-----
-
---tjCHc7DPkfUGtrlw--
+-- 
+Dmitry

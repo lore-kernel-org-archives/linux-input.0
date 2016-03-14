@@ -1,65 +1,54 @@
-From: Silvan Jegen <s.jegen@gmail.com>
-Subject: [PATCH] Input: xpad - Add Mad Catz FightStick TE 2 VID/PID
-Date: Mon, 14 Mar 2016 20:07:08 +0100
-Message-ID: <1457982428-9849-1-git-send-email-s.jegen@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: re: Input: synaptics-rmi4 - add support for Synaptics RMI4 devices
+Date: Mon, 14 Mar 2016 23:45:18 +0300
+Message-ID: <20160314204518.GA29433@mwanda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f48.google.com ([74.125.82.48]:34653 "EHLO
-	mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751379AbcCNTIA (ORCPT
+Received: from userp1040.oracle.com ([156.151.31.81]:35177 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750741AbcCNUp1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Mar 2016 15:08:00 -0400
+	Mon, 14 Mar 2016 16:45:27 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Rojtberg <rojtberg@gmail.com>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Pierre-Loup A. Griffais" <githubpublic@plagman.net>
-Cc: Silvan Jegen <s.jegen@gmail.com>, linux-kernel@vger.kernel.org
+To: aduggan@synaptics.com
+Cc: linux-input@vger.kernel.org
 
-This adds the VID/PID combination for the Xbox One version of the Mad
-Catz FightStick TE 2.
+Hello Andrew Duggan,
 
-The functionality that this provides is about on par with what the
-Windows drivers for the stick manage to deliver.
+The patch 2b6a321da9a2: "Input: synaptics-rmi4 - add support for
+Synaptics RMI4 devices" from Mar 10, 2016, leads to the following
+static checker warning:
 
-What works:
-- Digital stick
-- 6 main buttons
-- Xbox button
-- The two buttons on the back
-- The locking buttons (preventing accidental Xbox button press)
+	drivers/input/rmi4/rmi_driver.c:129 process_one_interrupt()
+	warn: this array is probably non-NULL. 'fn->irq_mask'
 
-What doesn't work:
-- Two of the main buttons (don't work on Windows either)
-- The "Haptic" button setting does not have an effect (not sure if it
-  works on Windows)
+drivers/input/rmi4/rmi_driver.c
+   120  static void process_one_interrupt(struct rmi_driver_data *data,
+   121                                    struct rmi_function *fn)
+   122  {
+   123          struct rmi_function_handler *fh;
+   124  
+   125          if (!fn || !fn->dev.driver)
+   126                  return;
+   127  
+   128          fh = to_rmi_function_handler(fn->dev.driver);
+   129          if (fn->irq_mask && fh->attention) {
+                    ^^^^^^^^^^^^
+Always true.
 
-I added the MAP_TRIGGERS_TO_BUTTONS option but in my (limited) testing
-there was no practical difference with or without. The FightStick does
-not have triggers though so adding it makes sense.
+   130                  bitmap_and(data->fn_irq_bits, data->irq_status, fn->irq_mask,
+   131                                  data->irq_count);
+   132                  if (!bitmap_empty(data->fn_irq_bits, data->irq_count))
+   133                          fh->attention(fn, data->fn_irq_bits);
+   134          }
+   135  }
 
-Signed-off-by: Silvan Jegen <s.jegen@gmail.com>
----
- drivers/input/joystick/xpad.c | 2 ++
- 1 file changed, 2 insertions(+)
+See also:
+drivers/input/rmi4/rmi_driver.c:175 rmi_process_interrupt_requests() warn: this array is probably non-NULL. 'entry->irq_mask'
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index e8a84d1..d3d7f7c 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -149,6 +149,7 @@ static const struct xpad_device {
- 	{ 0x0738, 0x4556, "Mad Catz Lynx Wireless Controller", 0, XTYPE_XBOX },
- 	{ 0x0738, 0x4716, "Mad Catz Wired Xbox 360 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0738, 0x4718, "Mad Catz Street Fighter IV FightStick SE", 0, XTYPE_XBOX360 },
-+	{ 0x0738, 0x4a01, "Mad Catz FightStick TE 2", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0738, 0x4726, "Mad Catz Xbox 360 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0738, 0x4728, "Mad Catz Street Fighter IV FightPad", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x0738, 0x4738, "Mad Catz Wired Xbox 360 Controller (SFIV)", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
-@@ -304,6 +305,7 @@ static struct usb_device_id xpad_table[] = {
- 	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
- 	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz X-Box 360 controllers */
- 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
-+	XPAD_XBOXONE_VENDOR(0x0738),		/* Mad Catz FightStick TE 2 */
- 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
- 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
--- 
-2.7.2
 
+regards,
+dan carpenter

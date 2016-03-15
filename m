@@ -1,72 +1,83 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: i2c-hid: fix OOB write in
- i2c_hid_set_or_send_report()
-Date: Tue, 15 Mar 2016 14:34:07 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1603151430200.3656@cbobk.fhfr.pm>
-References: <20160314222104.GA20569@dtor-ws> <20160315075946.GN22340@mail.corp.redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] Input: synaptics - checking Extbit when passing
+ ext_buttons to pt_port
+Date: Tue, 15 Mar 2016 15:21:00 +0100
+Message-ID: <CAN+gG=HCjEtFeCwxmocpD6x1pKrKnxmpQ3GP0GAkhxQhiREo5g@mail.gmail.com>
+References: <1458013522-8139-1-git-send-email-hui.wang@canonical.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37561 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750817AbcCONeK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Mar 2016 09:34:10 -0400
-In-Reply-To: <20160315075946.GN22340@mail.corp.redhat.com>
+Received: from mail-vk0-f43.google.com ([209.85.213.43]:34951 "EHLO
+	mail-vk0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750874AbcCOOVC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Mar 2016 10:21:02 -0400
+Received: by mail-vk0-f43.google.com with SMTP id e6so22164261vkh.2
+        for <linux-input@vger.kernel.org>; Tue, 15 Mar 2016 07:21:01 -0700 (PDT)
+In-Reply-To: <1458013522-8139-1-git-send-email-hui.wang@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andrew Duggan <aduggan@synaptics.com>, Alexander Potapenko <glider@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Hui Wang <hui.wang@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-On Tue, 15 Mar 2016, Benjamin Tissoires wrote:
+Hi Hui,
 
-> > BUG: KASAN: slab-out-of-bounds in memcpy+0x34/0x54 at addr ffffffc07135ea80
-> > Write of size 4101 by task syz-executor/8747
-> > CPU: 2 PID: 8747 Comm: syz-executor Tainted: G    BU         3.18.0 #37
-> > Hardware name: Google Tegra210 Smaug Rev 1,3+ (DT)
-> > Call trace:
-> > [<ffffffc00020ebcc>] dump_backtrace+0x0/0x258 arch/arm64/kernel/traps.c:83
-> > [<ffffffc00020ee40>] show_stack+0x1c/0x2c arch/arm64/kernel/traps.c:172
-> > [<     inline     >] __dump_stack lib/dump_stack.c:15
-> > [<ffffffc001958114>] dump_stack+0x90/0x140 lib/dump_stack.c:50
-> > [<     inline     >] print_error_description mm/kasan/report.c:97
-> > [<     inline     >] kasan_report_error mm/kasan/report.c:278
-> > [<ffffffc0004597dc>] kasan_report+0x268/0x530 mm/kasan/report.c:305
-> > [<ffffffc0004592e8>] __asan_storeN+0x20/0x150 mm/kasan/kasan.c:718
-> > [<ffffffc0004594e0>] memcpy+0x30/0x54 mm/kasan/kasan.c:299
-> > [<ffffffc001306354>] __i2c_hid_command+0x2b0/0x7b4 drivers/hid/i2c-hid/i2c-hid.c:178
-> > [<     inline     >] i2c_hid_set_or_send_report drivers/hid/i2c-hid/i2c-hid.c:321
-> > [<ffffffc0013079a0>] i2c_hid_output_raw_report.isra.2+0x3d4/0x4b8 drivers/hid/i2c-hid/i2c-hid.c:589
-> > [<ffffffc001307ad8>] i2c_hid_output_report+0x54/0x68 drivers/hid/i2c-hid/i2c-hid.c:602
-> > [<     inline     >] hid_hw_output_report include/linux/hid.h:1039
-> > [<ffffffc0012cc7a0>] hidraw_send_report+0x400/0x414 drivers/hid/hidraw.c:154
-> > [<ffffffc0012cc7f4>] hidraw_write+0x40/0x64 drivers/hid/hidraw.c:177
-> > [<ffffffc0004681dc>] vfs_write+0x1d4/0x3cc fs/read_write.c:534
-> > [<     inline     >] SYSC_pwrite64 fs/read_write.c:627
-> > [<ffffffc000468984>] SyS_pwrite64+0xec/0x144 fs/read_write.c:614
-> > Object at ffffffc07135ea80, in cache kmalloc-512
-> > Object allocated with size 268 bytes.
-> > 
-> > Let's check data length against the buffer size before attempting to copy
-> > data over.
-> > 
-> > Reported-by: Alexander Potapenko <glider@google.com>
-> > Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
-> > ---
-> > 
-> > This should probably go to stable as well, leaving it to Jiri/Benjamin
-> > to decide.
-> 
-> Works for me:
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> I also think this should go to stable. Jiri, can you add the tag when
-> committing?
+On Tue, Mar 15, 2016 at 4:45 AM, Hui Wang <hui.wang@canonical.com> wrote:
+> We found a problem on couples of Lenovo laptop models, when we press
+> down the extend button of trackstick (IBM trackpoint), the driver will
+> report both key_down and key_up events to the userspace, while we
+> release that button, the driver won't report any events to the
+> userspace.
+>
+> Through debugging, we found when we press down or release the extend
+> button, the hardware will report more than one packets to the driver,
+> only one packet is valid (Extbit is set to 1), the rest of the
+> packets only contain zero. The current driver won't drop those
+> invalid packets but regard them as ext_button packets and pass them
+> to the pt_port, unfortunately the zero means key release, as a
+> result the userspace get the key_up event immediately following the
+> key_down event.
+>
+> Adding an Extbit check before passing ext_buttons to pt_port can
+> drop all invalid packets and fix this problem.
+>
+> Signed-off-by: Hui Wang <hui.wang@canonical.com>
 
-Makes sense, thanks to both of you.
+Could you check if the patch I posted this morning fixes your problem?:
+https://patchwork.kernel.org/patch/8587101/
 
-Added the Cc: stable and applied.
+The issue with yours is that it will change the behavior for all
+generation of synaptics devices and might introduce regressions.
 
--- 
-Jiri Kosina
-SUSE Labs
+Cheers,
+Benjamin
 
+> ---
+>  drivers/input/mouse/synaptics.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 6025eb4..ad81140 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -880,9 +880,11 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
+>         /*
+>          * This generation of touchpads has the trackstick buttons
+>          * physically wired to the touchpad. Re-route them through
+> -        * the pass-through interface.
+> +        * the pass-through interface. And only pass extend button
+> +        * events to pt_port when ExtBit is 1.
+>          */
+> -       if (!priv->pt_port)
+> +       if (!priv->pt_port ||
+> +           !((psmouse->packet[0] ^ psmouse->packet[3]) & 0x02))
+>                 return;
+>
+>         /* The trackstick expects at most 3 buttons */
+> --
+> 1.9.1
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

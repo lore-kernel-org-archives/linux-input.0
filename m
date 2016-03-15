@@ -1,137 +1,160 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v5 1/4] i2c: add a protocol parameter to the alert
- callback
-Date: Tue, 15 Mar 2016 21:08:48 +0100
-Message-ID: <20160315200848.GQ22340@mail.corp.redhat.com>
-References: <1458053624-14818-1-git-send-email-benjamin.tissoires@redhat.com>
- <1458053624-14818-2-git-send-email-benjamin.tissoires@redhat.com>
- <20160315152940.GA5284@roeck-us.net>
+From: Roderick Colenbrander <thunderbird2k@gmail.com>
+Subject: Re: Handling of non-positional data through evdev
+Date: Tue, 15 Mar 2016 14:09:21 -0700
+Message-ID: <CAEc3jaBQJNmYwxZzXn7qeuO_9KgD=jhihPZ04h-+V+vY_o_3aQ@mail.gmail.com>
+References: <CAEc3jaB2KOUoymz3BL6Bc7_vv3bTHadBqGM9YLHyt_GeVkOtng@mail.gmail.com>
+	<CAN+gG=EELgs8n7Cbf4akP-sYpBxoX07JX76R9RfR8HTY69xkfw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51485 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753807AbcCOUIz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Mar 2016 16:08:55 -0400
-Content-Disposition: inline
-In-Reply-To: <20160315152940.GA5284@roeck-us.net>
+Received: from mail-pf0-f181.google.com ([209.85.192.181]:36349 "EHLO
+	mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750926AbcCOVJW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Mar 2016 17:09:22 -0400
+Received: by mail-pf0-f181.google.com with SMTP id u190so44007748pfb.3
+        for <linux-input@vger.kernel.org>; Tue, 15 Mar 2016 14:09:22 -0700 (PDT)
+In-Reply-To: <CAN+gG=EELgs8n7Cbf4akP-sYpBxoX07JX76R9RfR8HTY69xkfw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, David Herrmann <dh.herrmann@gmail.com>
 
-On Mar 15 2016 or thereabouts, Guenter Roeck wrote:
-> On Tue, Mar 15, 2016 at 03:53:41PM +0100, Benjamin Tissoires wrote:
-> > .alert() is meant to be generic, but there is currently no way
-> > for the device driver to know which protocol generated the alert.
-> > Add a parameter in .alert() to help the device driver to understand
-> > what is given in data.
-> > 
-> > This patch is required to have the support of SMBus Host Notify protocol
-> > through .alert().
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > ---
-> >  drivers/char/ipmi/ipmi_ssif.c | 6 +++++-
-> >  drivers/hwmon/lm90.c          | 3 ++-
-> >  drivers/i2c/i2c-smbus.c       | 3 ++-
-> >  include/linux/i2c.h           | 7 ++++++-
-> >  4 files changed, 15 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
-> > index 5f1c3d0..84d07bc 100644
-> > --- a/drivers/char/ipmi/ipmi_ssif.c
-> > +++ b/drivers/char/ipmi/ipmi_ssif.c
-> > @@ -568,12 +568,16 @@ static void retry_timeout(unsigned long data)
-> >  }
-> >  
-> >  
-> > -static void ssif_alert(struct i2c_client *client, unsigned int data)
-> > +static void ssif_alert(struct i2c_client *client,
-> > +		       enum i2c_alert_protocol protocol, unsigned int data)
-> >  {
-> >  	struct ssif_info *ssif_info = i2c_get_clientdata(client);
-> >  	unsigned long oflags, *flags;
-> >  	bool do_get = false;
-> >  
-> > +	if (protocol != I2C_PROTOCOL_SMBUS_ALERT)
-> > +		return;
-> > +
-> >  	ssif_inc_stat(ssif_info, alerts);
-> >  
-> >  	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
-> > diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
-> > index c9ff08d..2b77dbd 100644
-> > --- a/drivers/hwmon/lm90.c
-> > +++ b/drivers/hwmon/lm90.c
-> > @@ -1624,7 +1624,8 @@ static int lm90_remove(struct i2c_client *client)
-> >  	return 0;
-> >  }
-> >  
-> > -static void lm90_alert(struct i2c_client *client, unsigned int flag)
-> > +static void lm90_alert(struct i2c_client *client, enum i2c_alert_protocol type,
-> > +		       unsigned int flag)
-> >  {
-> 
-> For IPMI you added a check for the alert type. It would seem to be prudent to
-> add one here as well, unless you expect the driver to be able to handle all
-> alert types without modification. In that case, though, I would expect some
-> note that this is the case.
+Hi Benjamin,
 
-Hi Guenter,
+Thanks for your reply so far. I wasn't aware of hwdb, but it could be
+interesting for us for some situations.
 
-yes, this is a miss from my side. I'll update the series tomorrow.
-Hopefully by then, the kbuild bot will find the remaining issues (2 in a
-row is kind of shameful).
+My device is more like a joystick with many directional axes in
+addition to the accelerometer and gyro functionality. I can easily
+remap the sensor axes to be reported using REL_* constants, but the
+main issue for me are the units. The device has many keys, axes and
+the only way to only solution is to hard code the data type in the
+application on whether to interpret relative axis data as e.g. units
+per rad/s, units per G or units per mm.
 
-Cheers,
-Benjamin
+Ideally I'm looking for a way to solve the unit problem, but I'm not
+sure yet how (new axis type or new ioctl...)
 
-> 
-> Thnaks,
-> Guenter
-> 
-> >  	u16 alarms;
-> >  
-> > diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-> > index abb55d3..3b6765a 100644
-> > --- a/drivers/i2c/i2c-smbus.c
-> > +++ b/drivers/i2c/i2c-smbus.c
-> > @@ -56,7 +56,8 @@ static int smbus_do_alert(struct device *dev, void *addrp)
-> >  	if (client->dev.driver) {
-> >  		driver = to_i2c_driver(client->dev.driver);
-> >  		if (driver->alert)
-> > -			driver->alert(client, data->flag);
-> > +			driver->alert(client, I2C_PROTOCOL_SMBUS_ALERT,
-> > +				      data->flag);
-> >  		else
-> >  			dev_warn(&client->dev, "no driver alert()!\n");
-> >  	} else
-> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> > index 200cf13b..baae02a 100644
-> > --- a/include/linux/i2c.h
-> > +++ b/include/linux/i2c.h
-> > @@ -126,6 +126,10 @@ i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
-> >  					  u8 command, u8 length, u8 *values);
-> >  #endif /* I2C */
-> >  
-> > +enum i2c_alert_protocol {
-> > +	I2C_PROTOCOL_SMBUS_ALERT,
-> > +};
-> > +
-> >  /**
-> >   * struct i2c_driver - represent an I2C device driver
-> >   * @class: What kind of i2c device we instantiate (for detect)
-> > @@ -181,7 +185,8 @@ struct i2c_driver {
-> >  	 * For the SMBus alert protocol, there is a single bit of data passed
-> >  	 * as the alert response's low bit ("event flag").
-> >  	 */
-> > -	void (*alert)(struct i2c_client *, unsigned int data);
-> > +	void (*alert)(struct i2c_client *, enum i2c_alert_protocol protocol,
-> > +		      unsigned int data);
-> >  
-> >  	/* a ioctl like command that can be used to perform specific functions
-> >  	 * with the device.
-> > -- 
-> > 2.5.0
-> > 
+Thanks,
+Roderick
+
+On Tue, Mar 15, 2016 at 1:07 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> HI Roderick,
+>
+> [adding some people in the discussion]
+>
+> On Tue, Mar 15, 2016 at 8:26 PM, Roderick Colenbrander
+> <thunderbird2k@gmail.com> wrote:
+>> Hi all,
+>>
+>> I'm working on a device driver for an input device, which has both
+>> directional axes in addition to sensors (accelerometer and gyro). I'm
+>> trying to figure out how to map these axes properly, but I'm stumbling
+>> on some road blocks. Directional axes should be mapped to e.g.
+>> ABS_X/_Y/_Z, while relative axes make most sense for sensors. The main
+>> issue I'm seeing is that there is no way to determine using evdev what
+>> type of data is exposed on an axis.
+>
+> I am not entirely sure of what you mean by "relative axes". In the
+> evdev world, relative axes are given through REL_* and there is a
+> clear separation between relative (think mice) and absolute (think
+> touchscreen).
+>
+>>
+>> Based on definitions in input.h, it seems traditionally ABS_X/_Y/_Z
+>> had a resolution of 'units per millimeter', while ABS_RX/_RY/_RZ where
+>> meant for rotational axes in 'units per radian'. Over the years
+>> handling of these axes evolved, where gamepads often use
+>> ABS_RX/_RY/_RZ for the right stick, which is 'units per millimeter'.
+>
+> According to our API, ABS_X/Y/Z are positional axis, and are reported
+> no matter what as "unit per mm" as you mentioned.
+> ABS_RX/RY/RZ are "rotation X/Y/Z" and are indeed reported as "unit per radian".
+>
+> This is also what the HID specification says in the HID usage table,
+> page 29, section 4.2
+> (http://www.usb.org/developers/hidpage/Hut1_12v2.pdf).
+>
+> The problem you are seeing is either a bug in the specific driver of
+> the gamepad, or the fact that the HID report descriptor is not well
+> understood by us, and we end up using ABs_X|Y for the left stick and
+> then use the next available ones for the right one: ABS_Z/ABS_RX. This
+> is ugly, but given that this is how things work for a long time, we
+> can't fix those without a lot of bandaids for backward compatibility.
+>
+>>
+>> In a similar way some drivers are currently reporting acceleration
+>> through absolute axes (e.g. wii driver). The application has to know
+>> it is dealing with the wii gamepad to be able to really understand the
+>> data. Then there is also a special flag 'INPUT_PROP_ACCELEROMETER'
+>> which some drivers use to report acceleration data through absolute /
+>> relative axes provided the device doesn't report any directional axes
+>> on that same node.
+>
+> Yes, this is now the prefer way. We can report acceleration through
+> ABS_X/Y/Z, but the driver needs to set the property you mentioned. If
+> it is not set, ask the driver maintainer to set it.
+>
+>>
+>> As I have shown, handling of non-positional data is sort of handled
+>> now on a case by case basis. As an application developer you pretty
+>> much have to check the product/vendor IDs to really be able to handle
+>> a device. You can't just rely on detecting the type of axes. Moving
+>> forward I would like to determine what the best way of handling
+>> non-positional data is through evdev.
+>
+> The best way would actually not handling this in the final
+> application, but at the system level. udev already tries to tag
+> devices (JOYSTICK, ACCELEROMETER, TABLET, etc...). And any per VID/PID
+> configuration can easily be solved by adding a hwdb entry. Udev
+> already have a heuristic to determine which device is which, and it is
+> best to not duplicate this in each and every application.
+>
+>>
+>> In my opinion the main problem of the current API is that there is no
+>> way to determine what 'unit' is reported on an axes. Is it positional
+>> data, is it (angular) velocity, is it acceleration, something else?
+>> Ideally I think there should have been some 'type' field in
+>> 'input_absinfo', which allowed someone to determine the data type and
+>> e.g. map a resolution of '1024' units to 1G of acceleration or a
+>> certain number of radians per second. Unfortunately user space can't
+>> be broken, but potentially a new ioctl could be invented to add such
+>> information (if that's the way forward) returning e.g.
+>> 'input_relinfo'. Another option is to add a new axis type.
+>
+> Again, for relative, we have REL_* events. I concede that the evdev
+> protocol might lack some information (the low level HID protocol is
+> much more flexible in term of units, resolution, and extendability),
+> but so far we hae been able to circumvent most of the limitations.
+>
+>>
+>> What are your thoughts on this matter? Ideally I would like to find a
+>> nice solution if possible.
+>
+> My solution would be:
+> - check and rely only on the udev properties. This is already what
+> libinput does. Also this has the good benefit of being able to say to
+> your users: "if it doesn't work, add the following hwdb entry, reload
+> the hwdb, and you will be fixed". And if the axis are wrong, you can
+> already use the ioctl to remap the axis to something more sensible
+> (can't remember if udev as a builtin that does that). You can also
+> extend the udev properties attached to the devices you are working
+> with (this is what we do in libinput and libratbag) if you want to
+> classify the devices (crappy-device-with-abs-rx, very-good-one). You
+> can ship those rules with your application and only you will use them.
+> - but also report as many misconfigured devices as possible upstream
+> to their maintainers (here on this list, and ideally add the right
+> person by looking at the driver code).
+>
+> Cheers,
+> Benjamin
+>
+>>
+>> Thanks,
+>> Roderick
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html

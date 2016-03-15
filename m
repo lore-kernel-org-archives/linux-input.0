@@ -1,59 +1,45 @@
-From: Hui Wang <hui.wang@canonical.com>
-Subject: [PATCH] Input: synaptics - checking Extbit when passing ext_buttons to pt_port
-Date: Tue, 15 Mar 2016 11:45:22 +0800
-Message-ID: <1458013522-8139-1-git-send-email-hui.wang@canonical.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] Input: synaptics-rmi4 - using logical instead of bitwise AND
+Date: Tue, 15 Mar 2016 10:11:40 +0300
+Message-ID: <20160315071140.GF13560@mwanda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:48620 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932162AbcCODra (ORCPT
+Received: from aserp1040.oracle.com ([141.146.126.69]:48671 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755734AbcCOHMB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Mar 2016 23:47:30 -0400
+	Tue, 15 Mar 2016 03:12:01 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, hui.wang@canonical.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-We found a problem on couples of Lenovo laptop models, when we press
-down the extend button of trackstick (IBM trackpoint), the driver will
-report both key_down and key_up events to the userspace, while we
-release that button, the driver won't report any events to the
-userspace.
+There is a typo so we have && instead of &.
 
-Through debugging, we found when we press down or release the extend
-button, the hardware will report more than one packets to the driver,
-only one packet is valid (Extbit is set to 1), the rest of the
-packets only contain zero. The current driver won't drop those
-invalid packets but regard them as ext_button packets and pass them
-to the pt_port, unfortunately the zero means key release, as a
-result the userspace get the key_up event immediately following the
-key_down event.
+Fixes: ff8f83708b3e ('Input: synaptics-rmi4 - add support for 2D sensors and F11')
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Adding an Extbit check before passing ext_buttons to pt_port can
-drop all invalid packets and fix this problem.
-
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
----
- drivers/input/mouse/synaptics.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 6025eb4..ad81140 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -880,9 +880,11 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
- 	/*
- 	 * This generation of touchpads has the trackstick buttons
- 	 * physically wired to the touchpad. Re-route them through
--	 * the pass-through interface.
-+	 * the pass-through interface. And only pass extend button
-+	 * events to pt_port when ExtBit is 1.
- 	 */
--	if (!priv->pt_port)
-+	if (!priv->pt_port ||
-+	    !((psmouse->packet[0] ^ psmouse->packet[3]) & 0x02))
- 		return;
+diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+index 77a5eb8..ec8a10d 100644
+--- a/drivers/input/rmi4/rmi_f11.c
++++ b/drivers/input/rmi4/rmi_f11.c
+@@ -775,7 +775,7 @@ static int rmi_f11_get_query_parameters(struct rmi_device *rmi_dev,
+ 	sensor_query->has_abs = !!(query_buf[0] & RMI_F11_HAS_ABS);
+ 	sensor_query->has_gestures = !!(query_buf[0] & RMI_F11_HAS_GESTURES);
+ 	sensor_query->has_sensitivity_adjust =
+-		!!(query_buf[0] && RMI_F11_HAS_SENSITIVITY_ADJ);
++		!!(query_buf[0] & RMI_F11_HAS_SENSITIVITY_ADJ);
+ 	sensor_query->configurable = !!(query_buf[0] & RMI_F11_CONFIGURABLE);
  
- 	/* The trackstick expects at most 3 buttons */
--- 
-1.9.1
-
+ 	sensor_query->nr_x_electrodes =
+@@ -803,7 +803,7 @@ static int rmi_f11_get_query_parameters(struct rmi_device *rmi_dev,
+ 		sensor_query->has_bending_correction =
+ 			!!(query_buf[0] & RMI_F11_HAS_BENDING_CORRECTION);
+ 		sensor_query->has_large_object_suppression =
+-		!!(query_buf[0] && RMI_F11_HAS_LARGE_OBJECT_SUPPRESSION);
++			!!(query_buf[0] & RMI_F11_HAS_LARGE_OBJECT_SUPPRESSION);
+ 		sensor_query->has_jitter_filter =
+ 			!!(query_buf[0] & RMI_F11_HAS_JITTER_FILTER);
+ 		query_size++;

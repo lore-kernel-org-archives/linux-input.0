@@ -1,81 +1,59 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Input: synaptics - checking Extbit when passing
- ext_buttons to pt_port
-Date: Tue, 15 Mar 2016 15:21:00 +0100
-Message-ID: <CAN+gG=HCjEtFeCwxmocpD6x1pKrKnxmpQ3GP0GAkhxQhiREo5g@mail.gmail.com>
-References: <1458013522-8139-1-git-send-email-hui.wang@canonical.com>
+Subject: Re: [PATCH] Input: synaptics - handle spurious release of trackstick
+ buttons, again
+Date: Tue, 15 Mar 2016 15:25:40 +0100
+Message-ID: <CAN+gG=H+n5fcUw2isArFu04VPdyQ7UmzWzU8-jOVRefnzR_69Q@mail.gmail.com>
+References: <1458037097-6444-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f43.google.com ([209.85.213.43]:34951 "EHLO
-	mail-vk0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750874AbcCOOVC (ORCPT
+Received: from mail-vk0-f41.google.com ([209.85.213.41]:35821 "EHLO
+	mail-vk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750874AbcCOOZl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Mar 2016 10:21:02 -0400
-Received: by mail-vk0-f43.google.com with SMTP id e6so22164261vkh.2
-        for <linux-input@vger.kernel.org>; Tue, 15 Mar 2016 07:21:01 -0700 (PDT)
-In-Reply-To: <1458013522-8139-1-git-send-email-hui.wang@canonical.com>
+	Tue, 15 Mar 2016 10:25:41 -0400
+In-Reply-To: <1458037097-6444-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hui Wang <hui.wang@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Hui,
+On Tue, Mar 15, 2016 at 11:18 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> Looks like the fimware 8.2 stall has the extra buttons spurious release
 
-On Tue, Mar 15, 2016 at 4:45 AM, Hui Wang <hui.wang@canonical.com> wrote:
-> We found a problem on couples of Lenovo laptop models, when we press
-> down the extend button of trackstick (IBM trackpoint), the driver will
-> report both key_down and key_up events to the userspace, while we
-> release that button, the driver won't report any events to the
-> userspace.
->
-> Through debugging, we found when we press down or release the extend
-> button, the hardware will report more than one packets to the driver,
-> only one packet is valid (Extbit is set to 1), the rest of the
-> packets only contain zero. The current driver won't drop those
-> invalid packets but regard them as ext_button packets and pass them
-> to the pt_port, unfortunately the zero means key release, as a
-> result the userspace get the key_up event immediately following the
-> key_down event.
->
-> Adding an Extbit check before passing ext_buttons to pt_port can
-> drop all invalid packets and fix this problem.
->
-> Signed-off-by: Hui Wang <hui.wang@canonical.com>
-
-Could you check if the patch I posted this morning fixes your problem?:
-https://patchwork.kernel.org/patch/8587101/
-
-The issue with yours is that it will change the behavior for all
-generation of synaptics devices and might introduce regressions.
+Typo: *still, not stall. (sorry)
 
 Cheers,
 Benjamin
 
+> bug.
+>
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=114321
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > ---
->  drivers/input/mouse/synaptics.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
+>  drivers/input/mouse/synaptics.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 >
 > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 6025eb4..ad81140 100644
+> index 6025eb4..9f3b83f 100644
 > --- a/drivers/input/mouse/synaptics.c
 > +++ b/drivers/input/mouse/synaptics.c
-> @@ -880,9 +880,11 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
->         /*
->          * This generation of touchpads has the trackstick buttons
->          * physically wired to the touchpad. Re-route them through
-> -        * the pass-through interface.
-> +        * the pass-through interface. And only pass extend button
-> +        * events to pt_port when ExtBit is 1.
->          */
-> -       if (!priv->pt_port)
-> +       if (!priv->pt_port ||
-> +           !((psmouse->packet[0] ^ psmouse->packet[3]) & 0x02))
+> @@ -862,8 +862,9 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
+>         if (!SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap))
 >                 return;
 >
->         /* The trackstick expects at most 3 buttons */
+> -       /* Bug in FW 8.1, buttons are reported only when ExtBit is 1 */
+> -       if (SYN_ID_FULL(priv->identity) == 0x801 &&
+> +       /* Bug in FW 8.1 & 8.2, buttons are reported only when ExtBit is 1 */
+> +       if (((SYN_ID_FULL(priv->identity) == 0x801) ||
+> +            (SYN_ID_FULL(priv->identity) == 0x802)) &&
+>             !((psmouse->packet[0] ^ psmouse->packet[3]) & 0x02))
+>                 return;
+>
 > --
-> 1.9.1
+> 2.5.0
 >
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-input" in

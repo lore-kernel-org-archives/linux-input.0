@@ -1,52 +1,59 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] Input: synaptics-rmi4: Remove check of Non-NULL array
-Date: Mon, 14 Mar 2016 17:35:01 -0700
-Message-ID: <1458002101-4681-1-git-send-email-aduggan@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Hui Wang <hui.wang@canonical.com>
+Subject: [PATCH] Input: synaptics - checking Extbit when passing ext_buttons to pt_port
+Date: Tue, 15 Mar 2016 11:45:22 +0800
+Message-ID: <1458013522-8139-1-git-send-email-hui.wang@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:3793 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932254AbcCOAfJ (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:48620 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932162AbcCODra (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Mar 2016 20:35:09 -0400
+	Mon, 14 Mar 2016 23:47:30 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dan Carpenter <dan.carpenter@oracle.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, hui.wang@canonical.com
 
-Originally the irq_mask member of rmi_function was a pointer. Then it was
-switched to being a zero length array. However, the checks for a NULL
-pointer where not removed.
+We found a problem on couples of Lenovo laptop models, when we press
+down the extend button of trackstick (IBM trackpoint), the driver will
+report both key_down and key_up events to the userspace, while we
+release that button, the driver won't report any events to the
+userspace.
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Through debugging, we found when we press down or release the extend
+button, the hardware will report more than one packets to the driver,
+only one packet is valid (Extbit is set to 1), the rest of the
+packets only contain zero. The current driver won't drop those
+invalid packets but regard them as ext_button packets and pass them
+to the pt_port, unfortunately the zero means key release, as a
+result the userspace get the key_up event immediately following the
+key_down event.
+
+Adding an Extbit check before passing ext_buttons to pt_port can
+drop all invalid packets and fix this problem.
+
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
 ---
- drivers/input/rmi4/rmi_driver.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/input/mouse/synaptics.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index da38f0a..faa295e 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -126,7 +126,7 @@ static void process_one_interrupt(struct rmi_driver_data *data,
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 6025eb4..ad81140 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -880,9 +880,11 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
+ 	/*
+ 	 * This generation of touchpads has the trackstick buttons
+ 	 * physically wired to the touchpad. Re-route them through
+-	 * the pass-through interface.
++	 * the pass-through interface. And only pass extend button
++	 * events to pt_port when ExtBit is 1.
+ 	 */
+-	if (!priv->pt_port)
++	if (!priv->pt_port ||
++	    !((psmouse->packet[0] ^ psmouse->packet[3]) & 0x02))
  		return;
  
- 	fh = to_rmi_function_handler(fn->dev.driver);
--	if (fn->irq_mask && fh->attention) {
-+	if (fh->attention) {
- 		bitmap_and(data->fn_irq_bits, data->irq_status, fn->irq_mask,
- 				data->irq_count);
- 		if (!bitmap_empty(data->fn_irq_bits, data->irq_count))
-@@ -172,8 +172,7 @@ int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
- 	 * use irq_chip.
- 	 */
- 	list_for_each_entry(entry, &data->function_list, node)
--		if (entry->irq_mask)
--			process_one_interrupt(data, entry);
-+		process_one_interrupt(data, entry);
- 
- 	if (data->input)
- 		input_sync(data->input);
+ 	/* The trackstick expects at most 3 buttons */
 -- 
-2.5.0
+1.9.1
 

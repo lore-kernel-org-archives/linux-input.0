@@ -1,33 +1,40 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: microsoft: Add ID for MS Wireless Comfort
- Keyboard
-Date: Wed, 16 Mar 2016 11:21:31 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1603161121190.3656@cbobk.fhfr.pm>
-References: <1457715444-18097-1-git-send-email-slava@bacher09.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v5 00/10] Input: synaptics-rmi4: Synaptics RMI4 Driver
+Date: Wed, 16 Mar 2016 12:53:32 +0100
+Message-ID: <CACRpkdZWzPDDLvvD1A=ioKwEfujRj_Xgv15QDyp+HD-=hW0eLQ@mail.gmail.com>
+References: <1455142982-10008-1-git-send-email-aduggan@synaptics.com>
+	<CACRpkdaE91ncWccG9_dsOiC40j9mFpm7A=S_mpeHmP-vjSVjMQ@mail.gmail.com>
+	<56BE200F.5040602@synaptics.com>
+	<20160303171138.GH22340@mail.corp.redhat.com>
+	<20160311180521.GA13175@dtor-ws>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:40002 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965962AbcCPKVd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2016 06:21:33 -0400
-In-Reply-To: <1457715444-18097-1-git-send-email-slava@bacher09.org>
+Received: from mail-oi0-f52.google.com ([209.85.218.52]:33698 "EHLO
+	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753596AbcCPLxd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Mar 2016 07:53:33 -0400
+Received: by mail-oi0-f52.google.com with SMTP id d205so36378592oia.0
+        for <linux-input@vger.kernel.org>; Wed, 16 Mar 2016 04:53:32 -0700 (PDT)
+In-Reply-To: <20160311180521.GA13175@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Slava Bacherikov <slava@bacher09.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Andrey Gusakov <andrey.gusakov@cogentembedded.com>, Rob Herring <robh@kernel.org>
 
-On Fri, 11 Mar 2016, Slava Bacherikov wrote:
+On Fri, Mar 11, 2016 at 7:05 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Thu, Mar 03, 2016 at 06:11:38PM +0100, Benjamin Tissoires wrote:
 
-> Microsoft Wireless Comfort Keyboard has vendor specific My Favorites
-> 1-5 keys. Linux already supports this buttons on other MS keyboards by
-> MS_ERGONOMY quirk. So apply MS_ERGONOMY quirk to USB PID 0x00e3
-> (Microsoft Wireless Optical Desktop Receiver 3.0A). After this
-> My Favorites 1..5 keys will be reported as KEY_F14..KEY_F15 events.
+>> I'd like to see the series in 4.6, and we are getting closer of the
+>> merge window. Could we get some of your time on this?
+>
+> I adjusted the binding on patch 5 (to read -x-mm and y-mm) and applied
+> the first 9 leaving the HID out for now.
 
-Applied to for-4.6/upstream.
+Thanks to everyone involved that we finally got this in upstream shape
+after all these years!
 
--- 
-Jiri Kosina
-SUSE Labs
-
+Yours,
+Linus Walleij

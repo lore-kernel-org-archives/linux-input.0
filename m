@@ -1,118 +1,198 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Input: synaptics - checking Extbit when passing
- ext_buttons to pt_port
-Date: Wed, 16 Mar 2016 07:29:01 +0100
-Message-ID: <CAN+gG=H_Dj6JPXHbO0j2h0BXPt_NJu8ZppSUumEtyFquHGO9DQ@mail.gmail.com>
-References: <1458013522-8139-1-git-send-email-hui.wang@canonical.com>
-	<CAN+gG=HCjEtFeCwxmocpD6x1pKrKnxmpQ3GP0GAkhxQhiREo5g@mail.gmail.com>
-	<56E8B7E1.7030807@canonical.com>
+From: Benjamin Tissoires <btissoir@redhat.com>
+Subject: Re: hid-multitouch stuck taps, possibly 4.5 regression?
+Date: Wed, 16 Mar 2016 09:47:16 +0100
+Message-ID: <20160316084716.GR22340@mail.corp.redhat.com>
+References: <CALCETrXDiW4ZyHhqt2gWwwgVYmdup27f3MsyEY9y+=EjrgJBJg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f53.google.com ([209.85.213.53]:33979 "EHLO
-	mail-vk0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754348AbcCPG3D (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2016 02:29:03 -0400
-Received: by mail-vk0-f53.google.com with SMTP id e185so49873342vkb.1
-        for <linux-input@vger.kernel.org>; Tue, 15 Mar 2016 23:29:03 -0700 (PDT)
-In-Reply-To: <56E8B7E1.7030807@canonical.com>
+Received: from mx1.redhat.com ([209.132.183.28]:57387 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965501AbcCPIrW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Mar 2016 04:47:22 -0400
+Content-Disposition: inline
+In-Reply-To: <CALCETrXDiW4ZyHhqt2gWwwgVYmdup27f3MsyEY9y+=EjrgJBJg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hui Wang <hui.wang@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>
 
-On Wed, Mar 16, 2016 at 2:33 AM, Hui Wang <hui.wang@canonical.com> wrote:
-> On 03/15/2016 10:21 PM, Benjamin Tissoires wrote:
->>
->> Hi Hui,
->>
->> On Tue, Mar 15, 2016 at 4:45 AM, Hui Wang <hui.wang@canonical.com> wrote:
->>>
->>> We found a problem on couples of Lenovo laptop models, when we press
->>> down the extend button of trackstick (IBM trackpoint), the driver will
->>> report both key_down and key_up events to the userspace, while we
->>> release that button, the driver won't report any events to the
->>> userspace.
->>>
->>> Through debugging, we found when we press down or release the extend
->>> button, the hardware will report more than one packets to the driver,
->>> only one packet is valid (Extbit is set to 1), the rest of the
->>> packets only contain zero. The current driver won't drop those
->>> invalid packets but regard them as ext_button packets and pass them
->>> to the pt_port, unfortunately the zero means key release, as a
->>> result the userspace get the key_up event immediately following the
->>> key_down event.
->>>
->>> Adding an Extbit check before passing ext_buttons to pt_port can
->>> drop all invalid packets and fix this problem.
->>>
->>> Signed-off-by: Hui Wang <hui.wang@canonical.com>
->>
->> Could you check if the patch I posted this morning fixes your problem?:
->> https://patchwork.kernel.org/patch/8587101/
->>
->> The issue with yours is that it will change the behavior for all
->> generation of synaptics devices and might introduce regressions.
->>
->> Cheers,
->> Benjamin
->
->
-> Yes, it can fix the problem on the machines I tested.
->
-> By the way, according to the page 29 of Synaptics PS/2 TouchPad Interfacing
-> Guide Rev. B, the extended button event is only reported when Extbit is set
-> to 1, I think all generation firmware should follow this guide, why do we
-> need to check the firmware version here?
->
+Hi Andy,
 
-That's what I first thought, but Dmitry showed me I was wrong. See
-http://www.spinics.net/lists/linux-input/msg36349.html
-If the bit is not set, there is no button pressed, so we should release them.
+On Mar 15 2016 or thereabouts, Andy Lutomirski wrote:
+> Hi-
+> 
+> In 4.5 and several 4.5 rcs, I see occasional stuck taps (I think) on
+> my XPS 13 9350's touchpad.  The effect is that trying to left-click
+> ends up middle-clicking.  I think it's a kernel issue and not a
+> hardware or libinput issue, but I'm not 100% sure.  I don't think I
+> had this issue in 4.4.
+> 
+> I've attached what I think is an evtest issue of my fixing the issue
+> by pressing three fingers down in sequence and then releasing them.
+> After doing that, left-clicks worked.
 
-Synaptics was aware of the problem, promised to fix it but it looks
-like it fells through the cracks.
+I think I already have been reported the issue here:
+https://bugs.freedesktop.org/show_bug.cgi?id=93948
+
+The result was that it was more likely an I2C transport bug than a
+hid-multitouch one (see comment #8 in the fdo bug).
+
+You can try to run hid-recorder when you see the problems, and then
+parse the output (or just send it to me). There is huge chances that
+there will be no events from I2C sending the release.
+
+And again, I am not sure how we could end up debugging this in the
+i2c-designware driver :(
 
 Cheers,
 Benjamin
 
->
-> Thanks,
-> Hui.
->
->
->>
->>> ---
->>>   drivers/input/mouse/synaptics.c | 6 ++++--
->>>   1 file changed, 4 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/drivers/input/mouse/synaptics.c
->>> b/drivers/input/mouse/synaptics.c
->>> index 6025eb4..ad81140 100644
->>> --- a/drivers/input/mouse/synaptics.c
->>> +++ b/drivers/input/mouse/synaptics.c
->>> @@ -880,9 +880,11 @@ static void synaptics_report_ext_buttons(struct
->>> psmouse *psmouse,
->>>          /*
->>>           * This generation of touchpads has the trackstick buttons
->>>           * physically wired to the touchpad. Re-route them through
->>> -        * the pass-through interface.
->>> +        * the pass-through interface. And only pass extend button
->>> +        * events to pt_port when ExtBit is 1.
->>>           */
->>> -       if (!priv->pt_port)
->>> +       if (!priv->pt_port ||
->>> +           !((psmouse->packet[0] ^ psmouse->packet[3]) & 0x02))
->>>                  return;
->>>
->>>          /* The trackstick expects at most 3 buttons */
->>> --
->>> 1.9.1
->>>
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
+> 
+> --Andy
+
+> Input driver version is 1.0.1
+> Input device ID: bus 0x18 vendor 0x6cb product 0x76ae version 0x100
+> Input device name: "DLL0704:01 06CB:76AE Touchpad"
+> Supported events:
+>   Event type 0 (EV_SYN)
+>   Event type 1 (EV_KEY)
+>     Event code 272 (BTN_LEFT)
+>     Event code 325 (BTN_TOOL_FINGER)
+>     Event code 328 (BTN_TOOL_QUINTTAP)
+>     Event code 330 (BTN_TOUCH)
+>     Event code 333 (BTN_TOOL_DOUBLETAP)
+>     Event code 334 (BTN_TOOL_TRIPLETAP)
+>     Event code 335 (BTN_TOOL_QUADTAP)
+>   Event type 3 (EV_ABS)
+>     Event code 0 (ABS_X)
+>       Value   1174
+>       Min        0
+>       Max     1216
+>       Resolution      12
+>     Event code 1 (ABS_Y)
+>       Value    585
+>       Min        0
+>       Max      680
+>       Resolution      12
+>     Event code 47 (ABS_MT_SLOT)
+>       Value      1
+>       Min        0
+>       Max        4
+>     Event code 53 (ABS_MT_POSITION_X)
+>       Value      0
+>       Min        0
+>       Max     1216
+>       Resolution      12
+>     Event code 54 (ABS_MT_POSITION_Y)
+>       Value      0
+>       Min        0
+>       Max      680
+>       Resolution      12
+>     Event code 57 (ABS_MT_TRACKING_ID)
+>       Value      0
+>       Min        0
+>       Max    65535
+> Properties:
+>   Property type 0 (INPUT_PROP_POINTER)
+>   Property type 2 (INPUT_PROP_BUTTONPAD)
+> Testing ... (interrupt to exit)
+> Event: time 1458078092.092559, type 3 (EV_ABS), code 57 (ABS_MT_TRACKING_ID), value 1658
+> Event: time 1458078092.092559, type 3 (EV_ABS), code 53 (ABS_MT_POSITION_X), value 359
+> Event: time 1458078092.092559, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 327
+> Event: time 1458078092.092559, type 1 (EV_KEY), code 325 (BTN_TOOL_FINGER), value 0
+> Event: time 1458078092.092559, type 1 (EV_KEY), code 333 (BTN_TOOL_DOUBLETAP), value 1
+> Event: time 1458078092.092559, -------------- SYN_REPORT ------------
+> Event: time 1458078092.232054, type 3 (EV_ABS), code 47 (ABS_MT_SLOT), value 2
+> Event: time 1458078092.232054, type 3 (EV_ABS), code 57 (ABS_MT_TRACKING_ID), value 1659
+> Event: time 1458078092.232054, type 3 (EV_ABS), code 53 (ABS_MT_POSITION_X), value 625
+> Event: time 1458078092.232054, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 270
+> Event: time 1458078092.232054, type 1 (EV_KEY), code 333 (BTN_TOOL_DOUBLETAP), value 0
+> Event: time 1458078092.232054, type 1 (EV_KEY), code 334 (BTN_TOOL_TRIPLETAP), value 1
+> Event: time 1458078092.232054, -------------- SYN_REPORT ------------
+> Event: time 1458078092.379317, type 3 (EV_ABS), code 47 (ABS_MT_SLOT), value 0
+> Event: time 1458078092.379317, type 3 (EV_ABS), code 53 (ABS_MT_POSITION_X), value 931
+> Event: time 1458078092.379317, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 287
+> Event: time 1458078092.379317, type 3 (EV_ABS), code 0 (ABS_X), value 931
+> Event: time 1458078092.379317, type 3 (EV_ABS), code 1 (ABS_Y), value 287
+> Event: time 1458078092.379317, -------------- SYN_REPORT ------------
+> Event: time 1458078092.758084, type 3 (EV_ABS), code 57 (ABS_MT_TRACKING_ID), value -1
+> Event: time 1458078092.758084, type 1 (EV_KEY), code 333 (BTN_TOOL_DOUBLETAP), value 1
+> Event: time 1458078092.758084, type 1 (EV_KEY), code 334 (BTN_TOOL_TRIPLETAP), value 0
+> Event: time 1458078092.758084, type 3 (EV_ABS), code 0 (ABS_X), value 359
+> Event: time 1458078092.758084, type 3 (EV_ABS), code 1 (ABS_Y), value 327
+> Event: time 1458078092.758084, -------------- SYN_REPORT ------------
+> Event: time 1458078092.852128, type 3 (EV_ABS), code 47 (ABS_MT_SLOT), value 2
+> Event: time 1458078092.852128, type 3 (EV_ABS), code 57 (ABS_MT_TRACKING_ID), value -1
+> Event: time 1458078092.852128, type 1 (EV_KEY), code 325 (BTN_TOOL_FINGER), value 1
+> Event: time 1458078092.852128, type 1 (EV_KEY), code 333 (BTN_TOOL_DOUBLETAP), value 0
+> Event: time 1458078092.852128, -------------- SYN_REPORT ------------
+> Event: time 1458078093.018994, type 3 (EV_ABS), code 47 (ABS_MT_SLOT), value 1
+> Event: time 1458078093.018994, type 3 (EV_ABS), code 57 (ABS_MT_TRACKING_ID), value -1
+> Event: time 1458078093.018994, type 1 (EV_KEY), code 330 (BTN_TOUCH), value 0
+> Event: time 1458078093.018994, type 1 (EV_KEY), code 325 (BTN_TOOL_FINGER), value 0
+> Event: time 1458078093.018994, -------------- SYN_REPORT ------------
+> Event: time 1458078093.297313, type 3 (EV_ABS), code 47 (ABS_MT_SLOT), value 0
+> Event: time 1458078093.297313, type 3 (EV_ABS), code 57 (ABS_MT_TRACKING_ID), value 1660
+> Event: time 1458078093.297313, type 3 (EV_ABS), code 53 (ABS_MT_POSITION_X), value 179
+> Event: time 1458078093.297313, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 654
+> Event: time 1458078093.297313, type 1 (EV_KEY), code 330 (BTN_TOUCH), value 1
+> Event: time 1458078093.297313, type 1 (EV_KEY), code 325 (BTN_TOOL_FINGER), value 1
+> Event: time 1458078093.297313, type 3 (EV_ABS), code 0 (ABS_X), value 179
+> Event: time 1458078093.297313, type 3 (EV_ABS), code 1 (ABS_Y), value 654
+> Event: time 1458078093.297313, -------------- SYN_REPORT ------------
+> Event: time 1458078093.348801, type 3 (EV_ABS), code 53 (ABS_MT_POSITION_X), value 180
+> Event: time 1458078093.348801, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 650
+> Event: time 1458078093.348801, type 3 (EV_ABS), code 0 (ABS_X), value 180
+> Event: time 1458078093.348801, type 3 (EV_ABS), code 1 (ABS_Y), value 650
+> Event: time 1458078093.348801, -------------- SYN_REPORT ------------
+> Event: time 1458078093.355991, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 649
+> Event: time 1458078093.355991, type 3 (EV_ABS), code 1 (ABS_Y), value 649
+> Event: time 1458078093.355991, -------------- SYN_REPORT ------------
+> Event: time 1458078093.370723, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 648
+> Event: time 1458078093.370723, type 3 (EV_ABS), code 1 (ABS_Y), value 648
+> Event: time 1458078093.370723, -------------- SYN_REPORT ------------
+> Event: time 1458078093.377898, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 647
+> Event: time 1458078093.377898, type 3 (EV_ABS), code 1 (ABS_Y), value 647
+> Event: time 1458078093.377898, -------------- SYN_REPORT ------------
+> Event: time 1458078093.385184, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 646
+> Event: time 1458078093.385184, type 3 (EV_ABS), code 1 (ABS_Y), value 646
+> Event: time 1458078093.385184, -------------- SYN_REPORT ------------
+> Event: time 1458078093.399779, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 645
+> Event: time 1458078093.399779, type 3 (EV_ABS), code 1 (ABS_Y), value 645
+> Event: time 1458078093.399779, -------------- SYN_REPORT ------------
+> Event: time 1458078093.407435, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+> Event: time 1458078093.407435, -------------- SYN_REPORT ------------
+> Event: time 1458078093.450960, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 646
+> Event: time 1458078093.450960, type 3 (EV_ABS), code 1 (ABS_Y), value 646
+> Event: time 1458078093.450960, -------------- SYN_REPORT ------------
+> Event: time 1458078093.458260, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 647
+> Event: time 1458078093.458260, type 3 (EV_ABS), code 1 (ABS_Y), value 647
+> Event: time 1458078093.458260, -------------- SYN_REPORT ------------
+> Event: time 1458078093.465568, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 648
+> Event: time 1458078093.465568, type 3 (EV_ABS), code 1 (ABS_Y), value 648
+> Event: time 1458078093.465568, -------------- SYN_REPORT ------------
+> Event: time 1458078093.472880, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 649
+> Event: time 1458078093.472880, type 3 (EV_ABS), code 1 (ABS_Y), value 649
+> Event: time 1458078093.472880, -------------- SYN_REPORT ------------
+> Event: time 1458078093.480192, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 650
+> Event: time 1458078093.480192, type 3 (EV_ABS), code 1 (ABS_Y), value 650
+> Event: time 1458078093.480192, -------------- SYN_REPORT ------------
+> Event: time 1458078093.487537, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 651
+> Event: time 1458078093.487537, type 3 (EV_ABS), code 1 (ABS_Y), value 651
+> Event: time 1458078093.487537, -------------- SYN_REPORT ------------
+> Event: time 1458078093.502119, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 652
+> Event: time 1458078093.502119, type 3 (EV_ABS), code 1 (ABS_Y), value 652
+> Event: time 1458078093.502119, -------------- SYN_REPORT ------------
+> Event: time 1458078093.538618, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+> Event: time 1458078093.538618, -------------- SYN_REPORT ------------
+> Event: time 1458078093.618865, type 3 (EV_ABS), code 53 (ABS_MT_POSITION_X), value 170
+> Event: time 1458078093.618865, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 680
+> Event: time 1458078093.618865, type 3 (EV_ABS), code 0 (ABS_X), value 170
+> Event: time 1458078093.618865, type 3 (EV_ABS), code 1 (ABS_Y), value 680
+> Event: time 1458078093.618865, -------------- SYN_REPORT ------------
+> Event: time 1458078093.662013, type 3 (EV_ABS), code 57 (ABS_MT_TRACKING_ID), value -1
+> Event: time 1458078093.662013, type 1 (EV_KEY), code 330 (BTN_TOUCH), value 0
+> Event: time 1458078093.662013, type 1 (EV_KEY), code 325 (BTN_TOOL_FINGER), value 0
+> Event: time 1458078093.662013, -------------- SYN_REPORT ------------
+

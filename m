@@ -1,7 +1,7 @@
-From: Roderick Colenbrander <thunderbird2k@gmail.com>
+From: =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>
 Subject: Re: Handling of non-positional data through evdev
-Date: Wed, 16 Mar 2016 12:00:19 -0700
-Message-ID: <CAEc3jaB6q4OtZd4dkOg5wNgzCia06=ggS2vy+c3jd9Y1qRRRMg@mail.gmail.com>
+Date: Wed, 16 Mar 2016 20:09:55 +0100
+Message-ID: <CAM4jgCp-rGVEhWns4=k0HFRfZrY-kOmcWG5Z8GXJ3Ucb8eQx4g@mail.gmail.com>
 References: <CAEc3jaB2KOUoymz3BL6Bc7_vv3bTHadBqGM9YLHyt_GeVkOtng@mail.gmail.com>
 	<1458082753.4785.27.camel@hadess.net>
 	<CAEc3jaA_EnhbNChXAStdqDik9YMfWYXzfHQbOgEb=TXmuNR_5w@mail.gmail.com>
@@ -10,22 +10,20 @@ References: <CAEc3jaB2KOUoymz3BL6Bc7_vv3bTHadBqGM9YLHyt_GeVkOtng@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f171.google.com ([209.85.192.171]:36670 "EHLO
-	mail-pf0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752216AbcCPTAd (ORCPT
+Received: from mail-ig0-f169.google.com ([209.85.213.169]:37879 "EHLO
+	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752216AbcCPTKK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2016 15:00:33 -0400
-Received: by mail-pf0-f171.google.com with SMTP id u190so85693061pfb.3
-        for <linux-input@vger.kernel.org>; Wed, 16 Mar 2016 12:00:20 -0700 (PDT)
+	Wed, 16 Mar 2016 15:10:10 -0400
+Received: by mail-ig0-f169.google.com with SMTP id mh10so52256982igb.0
+        for <linux-input@vger.kernel.org>; Wed, 16 Mar 2016 12:09:56 -0700 (PDT)
 In-Reply-To: <CANq1E4TCTzZomCCWeSqsfmLM93ZVBwASgdy48bprddOtmBwhRg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Bastien Nocera <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>
+Cc: Bastien Nocera <hadess@hadess.net>, Roderick Colenbrander <thunderbird2k@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-Hi David,
-
-On Wed, Mar 16, 2016 at 8:26 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+2016-03-16 16:26 GMT+01:00 David Herrmann <dh.herrmann@gmail.com>:
 > Hi
 >
 > On Wed, Mar 16, 2016 at 4:10 PM, Bastien Nocera <hadess@hadess.net> wrote:
@@ -61,13 +59,17 @@ On Wed, Mar 16, 2016 at 8:26 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
 > to pick this up. It might be a lengthy effort, though. You might be
 > better off doing it the wiimote way: pick you ABS types and make
 > user-space recognize them depending on the device name/etc.
+
+Hi.
+
+I am writing a user-space driver for the steam controller and I was
+wondering how that would fit. The steam controller reports its
+absolute gyro data as a quaternion instead of three angles. Although,
+in the case of the steam controller, this data is meant to emulate
+other kind of devices from the driver, if applications started to use
+such an interface, it would be nice that the steam controller supports
+it.
+
 >
 > Thanks
 > David
-
-Your work was definitely interesting and exactly what I would have
-needed. It felt like a reasonable path forward. What was ultimately
-the main blocker? There was no interest?
-
-Thanks,
-Roderick

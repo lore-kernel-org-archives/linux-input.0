@@ -1,96 +1,68 @@
-From: Hui Wang <hui.wang@canonical.com>
-Subject: Re: [PATCH] Input: synaptics - checking Extbit when passing
- ext_buttons to pt_port
-Date: Wed, 16 Mar 2016 09:33:21 +0800
-Message-ID: <56E8B7E1.7030807@canonical.com>
-References: <1458013522-8139-1-git-send-email-hui.wang@canonical.com>
- <CAN+gG=HCjEtFeCwxmocpD6x1pKrKnxmpQ3GP0GAkhxQhiREo5g@mail.gmail.com>
+From: Raveendra Padasalagi <raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v4 0/3] Syscon support for iProc touchscreen driver
+Date: Wed, 16 Mar 2016 11:53:15 +0530
+Message-ID: <CAAFb_vrP3YmbqvmkDbhnPkt9Y3DBSSYcTJUMMJnyM+35uQx6SQ@mail.gmail.com>
+References: <1456556396-4759-1-git-send-email-raveendra.padasalagi@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:59219 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752756AbcCPBd1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Mar 2016 21:33:27 -0400
-In-Reply-To: <CAN+gG=HCjEtFeCwxmocpD6x1pKrKnxmpQ3GP0GAkhxQhiREo5g@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1456556396-4759-1-git-send-email-raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jonathan Richardson <jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Jon Mason <jonmason-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Anup Patel <anup.patel-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, Raveendra Padasalagi <raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-On 03/15/2016 10:21 PM, Benjamin Tissoires wrote:
-> Hi Hui,
->
-> On Tue, Mar 15, 2016 at 4:45 AM, Hui Wang <hui.wang@canonical.com> wrote:
->> We found a problem on couples of Lenovo laptop models, when we press
->> down the extend button of trackstick (IBM trackpoint), the driver will
->> report both key_down and key_up events to the userspace, while we
->> release that button, the driver won't report any events to the
->> userspace.
->>
->> Through debugging, we found when we press down or release the extend
->> button, the hardware will report more than one packets to the driver,
->> only one packet is valid (Extbit is set to 1), the rest of the
->> packets only contain zero. The current driver won't drop those
->> invalid packets but regard them as ext_button packets and pass them
->> to the pt_port, unfortunately the zero means key release, as a
->> result the userspace get the key_up event immediately following the
->> key_down event.
->>
->> Adding an Extbit check before passing ext_buttons to pt_port can
->> drop all invalid packets and fix this problem.
->>
->> Signed-off-by: Hui Wang <hui.wang@canonical.com>
-> Could you check if the patch I posted this morning fixes your problem?:
-> https://patchwork.kernel.org/patch/8587101/
->
-> The issue with yours is that it will change the behavior for all
-> generation of synaptics devices and might introduce regressions.
->
-> Cheers,
-> Benjamin
+Hi Dmitry, Arnd,
 
-Yes, it can fix the problem on the machines I tested.
-
-By the way, according to the page 29 of Synaptics PS/2 TouchPad 
-Interfacing Guide Rev. B, the extended button event is only reported 
-when Extbit is set to 1, I think all generation firmware should follow 
-this guide, why do we need to check the firmware version here?
-
+Do you have any comments on this patch set [PATCH v4 0/3] ?
 
 Thanks,
-Hui.
+Raveendra
 
+On Sat, Feb 27, 2016 at 12:29 PM, Raveendra Padasalagi
+<raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org> wrote:
+> This patchset is based on v4.5-rc3 tag and its tested on
+> Broadcom Cygnus SoC.
 >
->> ---
->>   drivers/input/mouse/synaptics.c | 6 ++++--
->>   1 file changed, 4 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
->> index 6025eb4..ad81140 100644
->> --- a/drivers/input/mouse/synaptics.c
->> +++ b/drivers/input/mouse/synaptics.c
->> @@ -880,9 +880,11 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
->>          /*
->>           * This generation of touchpads has the trackstick buttons
->>           * physically wired to the touchpad. Re-route them through
->> -        * the pass-through interface.
->> +        * the pass-through interface. And only pass extend button
->> +        * events to pt_port when ExtBit is 1.
->>           */
->> -       if (!priv->pt_port)
->> +       if (!priv->pt_port ||
->> +           !((psmouse->packet[0] ^ psmouse->packet[3]) & 0x02))
->>                  return;
->>
->>          /* The trackstick expects at most 3 buttons */
->> --
->> 1.9.1
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+> The patches can be fetched from iproc-tsc-v4 branch of
+> https://github.com/Broadcom/arm64-linux.git
+>
+> Changes since v3:
+>  - Renamed touchscreen node "tsc" to "touchscreen" in dt binding document
+>  - Added support for syscon only based register access in touch screen
+>    driver and removed "regs" based register access. Updated dt binding
+>    document to reflect the changes.
+>  - Removed "brcm,iproc-touchscreen-syscon" compatible string support in
+>    dt binding document and touchscreen driver implementation.
+>
+> Changes since v2:
+>  - Omitted '0x' in "tsc node" definition in dt documentation file
+>  - Omitted '0x' in "ts_adc_syscon" definition in dt documentation file
+>  - Added "brcm,iproc-ts-adc-syscon" compatible string in "ts_adc_syscon"
+>    node. Updated dt documentation file to reflect this change.
+>
+> Changes since v1:
+>  - Enhanced touchscreen driver to handle syscon based register access if
+>    "brcm,iproc-touchscreen-syscon" compatible string is provided in dt
+>  - Normal register access is handled through readl and writel API's if
+>    "brcm,iproc-touchscreen" compatible string is provided.
+>  - Updated touchscreen dt node document to reflect the new changes.
+>  - Updated change logs in each patchset to reflect the new changes
+>
+> Raveendra Padasalagi (3):
+>   input: cygnus-update touchscreen dt node document
+>   input: syscon support in bcm_iproc_tsc driver
+>   ARM: dts: use syscon in cygnus touchscreen dt node
+>
+>  .../input/touchscreen/brcm,iproc-touchscreen.txt   | 21 ++++--
+>  arch/arm/boot/dts/bcm-cygnus.dtsi                  | 11 ++-
+>  drivers/input/touchscreen/bcm_iproc_tsc.c          | 79 ++++++++++++----------
+>  3 files changed, 69 insertions(+), 42 deletions(-)
+>
+> --
+> 1.9.1
+>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

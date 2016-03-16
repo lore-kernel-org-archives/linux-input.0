@@ -1,75 +1,66 @@
-From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
-Subject: [PATCH v2] Documentation: devicetree: Clean up gpio-keys example
-Date: Wed, 16 Mar 2016 12:53:29 +0100
-Message-ID: <1458129209-15449-1-git-send-email-afaerber@suse.de>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: Re: [PATCH v4 01/24] pwm: rcar: make use of pwm_is_enabled()
+Date: Wed, 16 Mar 2016 15:30:22 +0100
+Message-ID: <20160316153022.164105d1@bbrezillon>
+References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1447664207-24370-2-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:35336 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933443AbcCPLxg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2016 07:53:36 -0400
+Received: from down.free-electrons.com ([37.187.137.238]:49902 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S933471AbcCPOa0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Mar 2016 10:30:26 -0400
+In-Reply-To: <1447664207-24370-2-git-send-email-boris.brezillon@free-electrons.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Heiko Stuebner <heiko@sntech.de>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>, Julien Chauveau <chauveau.julien@gmail.com>, Javier Martinez Canillas <javier@dowhile0.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "open list:OPEN FIRMWARE AND FLATTENED
-	DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>
+To: Thierry Reding <thierry.reding@gmail.com>, linux-pwm@vger.kernel.org
+Cc: Mike Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, linux-clk@vger.kernel.org, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Kamil Debski <k.debski@samsung.com>, lm-sensors@lm-sensors.org, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-sunxi@googlegroups.com, Joachim Eastwood <manabian@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Heiko Stuebner <heiko@sntech.de>, linux-rockchip@lists.infradead.org, Jingoo Han <jingoohan1@gmail.com>, Lee Jones <lee.jones@linaro.org>, linux-fbd
 
-Drop #address-cells and #size-cells, which are not required by the
-gpio-keys binding documentation, as button sub-nodes are not devices.
+Hi Thierry,
 
-Rename sub-nodes to avoid new dtc unit address warnings when copied.
+Can you please apply this patch?
+It's completely independent from the rest of the series.
 
-While at it, adopt the dashes convention for the node name.
+Thanks,
 
-Reported-by: Julien Chauveau <chauveau.julien@gmail.com>
-Cc: Julien Chauveau <chauveau.julien@gmail.com>
-Cc: Javier Martinez Canillas <javier@dowhile0.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Andreas F=C3=A4rber <afaerber@suse.de>
----
- v1 -> v2:
- * Changed node name from underscore to dash
- * Inserted white lines
- * Renamed sub-nodes (Geert, Julien)
-=20
- Documentation/devicetree/bindings/input/gpio-keys.txt | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+Boris
 
-diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Do=
-cumentation/devicetree/bindings/input/gpio-keys.txt
-index 21641236c095..a94940481e55 100644
---- a/Documentation/devicetree/bindings/input/gpio-keys.txt
-+++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
-@@ -32,17 +32,17 @@ Optional subnode-properties:
-=20
- Example nodes:
-=20
--	gpio_keys {
-+	gpio-keys {
- 			compatible =3D "gpio-keys";
--			#address-cells =3D <1>;
--			#size-cells =3D <0>;
- 			autorepeat;
--			button@21 {
-+
-+			up {
- 				label =3D "GPIO Key UP";
- 				linux,code =3D <103>;
- 				gpios =3D <&gpio1 0 1>;
- 			};
--			button@22 {
-+
-+			down {
- 				label =3D "GPIO Key DOWN";
- 				linux,code =3D <108>;
- 				interrupts =3D <1 IRQ_TYPE_LEVEL_HIGH 7>;
---=20
-2.6.2
+On Mon, 16 Nov 2015 09:56:24 +0100
+Boris Brezillon <boris.brezillon@free-electrons.com> wrote:
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Commit 5c31252c4a86 ("pwm: Add the pwm_is_enabled() helper") introduced a
+> new function to test whether a PWM device is enabled or not without
+> manipulating PWM internal fields.
+> Hiding this is necessary if we want to smoothly move to the atomic PWM
+> config approach without impacting PWM drivers.
+> Fix this driver to use pwm_is_enabled() instead of directly accessing the
+> ->flags field.
+> 
+> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+> ---
+>  drivers/pwm/pwm-rcar.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/pwm/pwm-rcar.c b/drivers/pwm/pwm-rcar.c
+> index 6e99a63..70899c9 100644
+> --- a/drivers/pwm/pwm-rcar.c
+> +++ b/drivers/pwm/pwm-rcar.c
+> @@ -157,7 +157,7 @@ static int rcar_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+>  		return div;
+>  
+>  	/* Let the core driver set pwm->period if disabled and duty_ns == 0 */
+> -	if (!test_bit(PWMF_ENABLED, &pwm->flags) && !duty_ns)
+> +	if (!pwm_is_enabled(pwm) && !duty_ns)
+>  		return 0;
+>  
+>  	rcar_pwm_update(rp, RCAR_PWMCR_SYNC, RCAR_PWMCR_SYNC, RCAR_PWMCR);
+
+
+
+-- 
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com

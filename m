@@ -1,59 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch] Input: synaptics-rmi4 - using logical instead of bitwise
- AND
-Date: Tue, 15 Mar 2016 16:45:36 -0700
-Message-ID: <20160315234536.GA29178@dtor-ws>
-References: <20160315071140.GF13560@mwanda>
- <56E87C82.7080105@synaptics.com>
+From: Roderick Colenbrander <thunderbird2k@gmail.com>
+Subject: Re: Handling of non-positional data through evdev
+Date: Tue, 15 Mar 2016 17:17:57 -0700
+Message-ID: <CAEc3jaA_EnhbNChXAStdqDik9YMfWYXzfHQbOgEb=TXmuNR_5w@mail.gmail.com>
+References: <CAEc3jaB2KOUoymz3BL6Bc7_vv3bTHadBqGM9YLHyt_GeVkOtng@mail.gmail.com>
+	<1458082753.4785.27.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f177.google.com ([209.85.192.177]:32866 "EHLO
+Received: from mail-pf0-f177.google.com ([209.85.192.177]:35838 "EHLO
 	mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933813AbcCOXpk (ORCPT
+	with ESMTP id S1751087AbcCPAR5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Mar 2016 19:45:40 -0400
-Content-Disposition: inline
-In-Reply-To: <56E87C82.7080105@synaptics.com>
+	Tue, 15 Mar 2016 20:17:57 -0400
+Received: by mail-pf0-f177.google.com with SMTP id n5so49743078pfn.2
+        for <linux-input@vger.kernel.org>; Tue, 15 Mar 2016 17:17:57 -0700 (PDT)
+In-Reply-To: <1458082753.4785.27.camel@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, Henrik Rydberg <rydberg@bitmath.org>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-On Tue, Mar 15, 2016 at 02:20:02PM -0700, Andrew Duggan wrote:
-> On 03/15/2016 12:11 AM, Dan Carpenter wrote:
-> >There is a typo so we have && instead of &.
-> >
-> >Fixes: ff8f83708b3e ('Input: synaptics-rmi4 - add support for 2D sensors and F11')
-> >Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> 
-> Acked-by: Andrew Duggan <aduggan@synaptics.com>
+Hi Bastien,
 
-Applied, thank you.
+Thanks for providing this suggestion. I can see this approach work for
+situations like screen rotation on tablets. The device I'm involved
+with is an input device, which needs a high poll rate for acceleration
+/ velocity and needs to be paired with the button / axes data. Evdev
+would be most appropriate.
 
-> 
-> >diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-> >index 77a5eb8..ec8a10d 100644
-> >--- a/drivers/input/rmi4/rmi_f11.c
-> >+++ b/drivers/input/rmi4/rmi_f11.c
-> >@@ -775,7 +775,7 @@ static int rmi_f11_get_query_parameters(struct rmi_device *rmi_dev,
-> >  	sensor_query->has_abs = !!(query_buf[0] & RMI_F11_HAS_ABS);
-> >  	sensor_query->has_gestures = !!(query_buf[0] & RMI_F11_HAS_GESTURES);
-> >  	sensor_query->has_sensitivity_adjust =
-> >-		!!(query_buf[0] && RMI_F11_HAS_SENSITIVITY_ADJ);
-> >+		!!(query_buf[0] & RMI_F11_HAS_SENSITIVITY_ADJ);
-> >  	sensor_query->configurable = !!(query_buf[0] & RMI_F11_CONFIGURABLE);
-> >  	sensor_query->nr_x_electrodes =
-> >@@ -803,7 +803,7 @@ static int rmi_f11_get_query_parameters(struct rmi_device *rmi_dev,
-> >  		sensor_query->has_bending_correction =
-> >  			!!(query_buf[0] & RMI_F11_HAS_BENDING_CORRECTION);
-> >  		sensor_query->has_large_object_suppression =
-> >-		!!(query_buf[0] && RMI_F11_HAS_LARGE_OBJECT_SUPPRESSION);
-> >+			!!(query_buf[0] & RMI_F11_HAS_LARGE_OBJECT_SUPPRESSION);
-> >  		sensor_query->has_jitter_filter =
-> >  			!!(query_buf[0] & RMI_F11_HAS_JITTER_FILTER);
-> >  		query_size++;
-> 
+Thanks,
+Roderick
 
--- 
-Dmitry
+On Tue, Mar 15, 2016 at 3:59 PM, Bastien Nocera <hadess@hadess.net> wrote:
+> On Tue, 2016-03-15 at 12:26 -0700, Roderick Colenbrander wrote:
+>> Hi all,
+>>
+>> I'm working on a device driver for an input device, which has both
+>> directional axes in addition to sensors (accelerometer and gyro). I'm
+>> trying to figure out how to map these axes properly, but I'm
+>> stumbling
+>> on some road blocks.
+>
+> Depending on what your device is, you might be looking for the IIO sub-
+> system instead, which hosts most of the sensor-type drivers.
+>
+> iio-sensor-proxy is one of the daemon that can consume data from it
+> (even if somewhat unelegantly these days).
+>
+> Cheers

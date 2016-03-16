@@ -1,50 +1,96 @@
-From: Roderick Colenbrander <thunderbird2k@gmail.com>
-Subject: Re: Handling of non-positional data through evdev
-Date: Tue, 15 Mar 2016 17:17:57 -0700
-Message-ID: <CAEc3jaA_EnhbNChXAStdqDik9YMfWYXzfHQbOgEb=TXmuNR_5w@mail.gmail.com>
-References: <CAEc3jaB2KOUoymz3BL6Bc7_vv3bTHadBqGM9YLHyt_GeVkOtng@mail.gmail.com>
-	<1458082753.4785.27.camel@hadess.net>
+From: Hui Wang <hui.wang@canonical.com>
+Subject: Re: [PATCH] Input: synaptics - checking Extbit when passing
+ ext_buttons to pt_port
+Date: Wed, 16 Mar 2016 09:33:21 +0800
+Message-ID: <56E8B7E1.7030807@canonical.com>
+References: <1458013522-8139-1-git-send-email-hui.wang@canonical.com>
+ <CAN+gG=HCjEtFeCwxmocpD6x1pKrKnxmpQ3GP0GAkhxQhiREo5g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f177.google.com ([209.85.192.177]:35838 "EHLO
-	mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751087AbcCPAR5 (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:59219 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752756AbcCPBd1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Mar 2016 20:17:57 -0400
-Received: by mail-pf0-f177.google.com with SMTP id n5so49743078pfn.2
-        for <linux-input@vger.kernel.org>; Tue, 15 Mar 2016 17:17:57 -0700 (PDT)
-In-Reply-To: <1458082753.4785.27.camel@hadess.net>
+	Tue, 15 Mar 2016 21:33:27 -0400
+In-Reply-To: <CAN+gG=HCjEtFeCwxmocpD6x1pKrKnxmpQ3GP0GAkhxQhiREo5g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-Hi Bastien,
+On 03/15/2016 10:21 PM, Benjamin Tissoires wrote:
+> Hi Hui,
+>
+> On Tue, Mar 15, 2016 at 4:45 AM, Hui Wang <hui.wang@canonical.com> wrote:
+>> We found a problem on couples of Lenovo laptop models, when we press
+>> down the extend button of trackstick (IBM trackpoint), the driver will
+>> report both key_down and key_up events to the userspace, while we
+>> release that button, the driver won't report any events to the
+>> userspace.
+>>
+>> Through debugging, we found when we press down or release the extend
+>> button, the hardware will report more than one packets to the driver,
+>> only one packet is valid (Extbit is set to 1), the rest of the
+>> packets only contain zero. The current driver won't drop those
+>> invalid packets but regard them as ext_button packets and pass them
+>> to the pt_port, unfortunately the zero means key release, as a
+>> result the userspace get the key_up event immediately following the
+>> key_down event.
+>>
+>> Adding an Extbit check before passing ext_buttons to pt_port can
+>> drop all invalid packets and fix this problem.
+>>
+>> Signed-off-by: Hui Wang <hui.wang@canonical.com>
+> Could you check if the patch I posted this morning fixes your problem?:
+> https://patchwork.kernel.org/patch/8587101/
+>
+> The issue with yours is that it will change the behavior for all
+> generation of synaptics devices and might introduce regressions.
+>
+> Cheers,
+> Benjamin
 
-Thanks for providing this suggestion. I can see this approach work for
-situations like screen rotation on tablets. The device I'm involved
-with is an input device, which needs a high poll rate for acceleration
-/ velocity and needs to be paired with the button / axes data. Evdev
-would be most appropriate.
+Yes, it can fix the problem on the machines I tested.
+
+By the way, according to the page 29 of Synaptics PS/2 TouchPad 
+Interfacing Guide Rev. B, the extended button event is only reported 
+when Extbit is set to 1, I think all generation firmware should follow 
+this guide, why do we need to check the firmware version here?
+
 
 Thanks,
-Roderick
+Hui.
 
-On Tue, Mar 15, 2016 at 3:59 PM, Bastien Nocera <hadess@hadess.net> wrote:
-> On Tue, 2016-03-15 at 12:26 -0700, Roderick Colenbrander wrote:
->> Hi all,
+>
+>> ---
+>>   drivers/input/mouse/synaptics.c | 6 ++++--
+>>   1 file changed, 4 insertions(+), 2 deletions(-)
 >>
->> I'm working on a device driver for an input device, which has both
->> directional axes in addition to sensors (accelerometer and gyro). I'm
->> trying to figure out how to map these axes properly, but I'm
->> stumbling
->> on some road blocks.
->
-> Depending on what your device is, you might be looking for the IIO sub-
-> system instead, which hosts most of the sensor-type drivers.
->
-> iio-sensor-proxy is one of the daemon that can consume data from it
-> (even if somewhat unelegantly these days).
->
-> Cheers
+>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+>> index 6025eb4..ad81140 100644
+>> --- a/drivers/input/mouse/synaptics.c
+>> +++ b/drivers/input/mouse/synaptics.c
+>> @@ -880,9 +880,11 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
+>>          /*
+>>           * This generation of touchpads has the trackstick buttons
+>>           * physically wired to the touchpad. Re-route them through
+>> -        * the pass-through interface.
+>> +        * the pass-through interface. And only pass extend button
+>> +        * events to pt_port when ExtBit is 1.
+>>           */
+>> -       if (!priv->pt_port)
+>> +       if (!priv->pt_port ||
+>> +           !((psmouse->packet[0] ^ psmouse->packet[3]) & 0x02))
+>>                  return;
+>>
+>>          /* The trackstick expects at most 3 buttons */
+>> --
+>> 1.9.1
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

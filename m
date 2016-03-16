@@ -1,83 +1,43 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
-Date: Wed, 16 Mar 2016 23:54:54 +0530
-Message-ID: <CADYu30-CU+cy=N2O+S=__F774YeWiXF=KbQqXJi6aaxWx-pK1w@mail.gmail.com>
-References: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
-	<CAKdAkRQT0R6peS8iO8PhQ4YoPMowt6voZJez4EubK7R0ZV_m4Q@mail.gmail.com>
-	<56E17A73.8090901@bitmath.org>
-	<CADYu30-b+5TFh2yy2SrGTJJ7FzvcezWut1XL3Ypno5R29hyYww@mail.gmail.com>
+From: Roderick Colenbrander <thunderbird2k@gmail.com>
+Subject: Re: Handling of non-positional data through evdev
+Date: Wed, 16 Mar 2016 11:39:35 -0700
+Message-ID: <CAEc3jaAUmhzVwCMWWwWADCwz22Q8sFQP5qN5H8+Gb2Exf3GRcQ@mail.gmail.com>
+References: <CAEc3jaB2KOUoymz3BL6Bc7_vv3bTHadBqGM9YLHyt_GeVkOtng@mail.gmail.com>
+	<1458082753.4785.27.camel@hadess.net>
+	<CAEc3jaA_EnhbNChXAStdqDik9YMfWYXzfHQbOgEb=TXmuNR_5w@mail.gmail.com>
+	<1458141032.29084.0.camel@hadess.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f179.google.com ([209.85.214.179]:35894 "EHLO
-	mail-ob0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965617AbcCPSYz (ORCPT
+Received: from mail-pf0-f172.google.com ([209.85.192.172]:33005 "EHLO
+	mail-pf0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935107AbcCPSjg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2016 14:24:55 -0400
-In-Reply-To: <CADYu30-b+5TFh2yy2SrGTJJ7FzvcezWut1XL3Ypno5R29hyYww@mail.gmail.com>
+	Wed, 16 Mar 2016 14:39:36 -0400
+Received: by mail-pf0-f172.google.com with SMTP id 124so85332674pfg.0
+        for <linux-input@vger.kernel.org>; Wed, 16 Mar 2016 11:39:36 -0700 (PDT)
+In-Reply-To: <1458141032.29084.0.camel@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
-Cc: Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-Hello Mr. Torokhov,
+On Wed, Mar 16, 2016 at 8:10 AM, Bastien Nocera <hadess@hadess.net> wrote:
+> On Tue, 2016-03-15 at 17:17 -0700, Roderick Colenbrander wrote:
+>> Hi Bastien,
+>>
+>> Thanks for providing this suggestion. I can see this approach work
+>> for
+>> situations like screen rotation on tablets. The device I'm involved
+>> with is an input device, which needs a high poll rate for
+>> acceleration
+>> / velocity and needs to be paired with the button / axes data. Evdev
+>> would be most appropriate.
+>
+> So more like a Wiimote than a builtin sensor. What will consume events
+> in user-space? A specialised application?
 
-Could you kindly help to update about this patch?
-
-Thank you,
-Aniroop Mathur
-
-
-On Fri, Mar 11, 2016 at 12:26 AM, Aniroop Mathur
-<aniroop.mathur@gmail.com> wrote:
-> Hi Henrik,
->
-> On Thu, Mar 10, 2016 at 7:15 PM, Henrik Rydberg <rydberg@bitmath.org> wrote:
->> Hi Dmitry,
->>
->>>> diff --git a/drivers/input/input.c b/drivers/input/input.c
->>>> index 8806059..262ef77 100644
->>>> --- a/drivers/input/input.c
->>>> +++ b/drivers/input/input.c
->>>> @@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
->>>>                 if (dev->num_vals >= 2)
->>>>                         input_pass_values(dev, dev->vals, dev->num_vals);
->>>>                 dev->num_vals = 0;
->>>> -       } else if (dev->num_vals >= dev->max_vals - 2) {
->>>> -               dev->vals[dev->num_vals++] = input_value_sync;
->>>> +       } else if (dev->num_vals >= dev->max_vals - 1) {
->>>>                 input_pass_values(dev, dev->vals, dev->num_vals);
->>>>                 dev->num_vals = 0;
->>>>         }
->>>
->>> This makes sense to me. Henrik?
->>
->> I went through the commits that made these changes, and I cannot see any strong
->> reason to keep it. However, this code path only triggers if no SYN events are
->> seen, as in a driver that fails to emit them and consequently fills up the
->> buffer. In other words, this change would only affect a device that is already,
->> to some degree, broken.
->>
->> So, the question to Aniroop is: do you see this problem in practise, and in that
->> case, for what driver?
->>
->
-> Nope. So far I have not dealt with any such driver.
-> I made this change because it is breaking protocol of SYN_REPORT event code.
->
-> Further from the code, I could deduce that max_vals is just an estimation of
-> packet_size and it does not guarantee that packet_size is same as max_vals.
-> So real packet_size can be more than max_vals value and hence we could not
-> insert SYN_REPORT until packet ends really.
-> Further, if we consider that there exists a driver or will exist in future
-> which sets capability of x event code according to which max_value comes out to
-> y and the real packet size is z i.e. driver wants to send same event codes
-> again in the same packet, so input event reader would be expecting SYN_REPORT
-> after z events but due to current code SYN_REPORT will get inserted
-> automatically after y events, which is a wrong behaviour.
->
-> Thanks,
-> Aniroop Mathur
->
->> Henrik
->>
+Correct see it more like a wiimote-like device. I expect many
+userspace applications (desktop or embedded) to ultimately support
+this device and many existing applications could already use the
+device except they can't utilize the motion sensors.

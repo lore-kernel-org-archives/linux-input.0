@@ -1,73 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] HID: hidraw: switch to using memdup_user
-Date: Wed, 16 Mar 2016 16:59:38 -0700
-Message-ID: <20160316235938.GA23827@dtor-ws>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: hid-multitouch stuck taps, possibly 4.5 regression?
+Date: Thu, 17 Mar 2016 10:06:12 +0200
+Message-ID: <20160317080612.GN1793@lahna.fi.intel.com>
+References: <CALCETrXDiW4ZyHhqt2gWwwgVYmdup27f3MsyEY9y+=EjrgJBJg@mail.gmail.com>
+ <20160316084716.GR22340@mail.corp.redhat.com>
+ <CALCETrWRi8nM6h234ppeQZ3VaAqL4d37VmZvt6HSYwDYddO3Kw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f177.google.com ([209.85.192.177]:35897 "EHLO
-	mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935267AbcCPX7n (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2016 19:59:43 -0400
+Received: from mga04.intel.com ([192.55.52.120]:6800 "EHLO mga04.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754662AbcCQIGR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Mar 2016 04:06:17 -0400
 Content-Disposition: inline
+In-Reply-To: <CALCETrWRi8nM6h234ppeQZ3VaAqL4d37VmZvt6HSYwDYddO3Kw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Benjamin Tissoires <btissoir@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Jingoo Han <jingoohan1@gmail.com>, Pratyush Anand <pratyush.anand@gmail.com>
 
-Instead of open-coding memory allocation and copying form user memory
-sequence let's use memdup_user().
+On Wed, Mar 16, 2016 at 02:59:48PM -0700, Andy Lutomirski wrote:
+> [add i2c-designware maintainers]
+> 
+> On Wed, Mar 16, 2016 at 1:47 AM, Benjamin Tissoires <btissoir@redhat.com> wrote:
+> > Hi Andy,
+> >
+> > On Mar 15 2016 or thereabouts, Andy Lutomirski wrote:
+> >> Hi-
+> >>
+> >> In 4.5 and several 4.5 rcs, I see occasional stuck taps (I think) on
+> >> my XPS 13 9350's touchpad.  The effect is that trying to left-click
+> >> ends up middle-clicking.  I think it's a kernel issue and not a
+> >> hardware or libinput issue, but I'm not 100% sure.  I don't think I
+> >> had this issue in 4.4.
+> >>
+> >> I've attached what I think is an evtest issue of my fixing the issue
+> >> by pressing three fingers down in sequence and then releasing them.
+> >> After doing that, left-clicks worked.
+> >
+> > I think I already have been reported the issue here:
+> > https://bugs.freedesktop.org/show_bug.cgi?id=93948
+> >
+> > The result was that it was more likely an I2C transport bug than a
+> > hid-multitouch one (see comment #8 in the fdo bug).
+> >
+> > You can try to run hid-recorder when you see the problems, and then
+> > parse the output (or just send it to me). There is huge chances that
+> > there will be no events from I2C sending the release.
+> >
+> > And again, I am not sure how we could end up debugging this in the
+> > i2c-designware driver :(
+> >
+> 
+> Does this ring a bell?
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/hid/hidraw.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 9c2d7c2..b9a76e3 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -34,6 +34,7 @@
- #include <linux/hid.h>
- #include <linux/mutex.h>
- #include <linux/sched.h>
-+#include <linux/string.h>
- 
- #include <linux/hidraw.h>
- 
-@@ -123,7 +124,6 @@ static ssize_t hidraw_send_report(struct file *file, const char __user *buffer,
- 
- 	dev = hidraw_table[minor]->hid;
- 
--
- 	if (count > HID_MAX_BUFFER_SIZE) {
- 		hid_warn(dev, "pid %d passed too large report\n",
- 			 task_pid_nr(current));
-@@ -138,17 +138,12 @@ static ssize_t hidraw_send_report(struct file *file, const char __user *buffer,
- 		goto out;
- 	}
- 
--	buf = kmalloc(count * sizeof(__u8), GFP_KERNEL);
--	if (!buf) {
--		ret = -ENOMEM;
-+	buf = memdup_user(buffer, count);
-+	if (IS_ERR(buf)) {
-+		ret = PTR_ERR(buf);
- 		goto out;
- 	}
- 
--	if (copy_from_user(buf, buffer, count)) {
--		ret = -EFAULT;
--		goto out_free;
--	}
--
- 	if ((report_type == HID_OUTPUT_REPORT) &&
- 	    !(dev->quirks & HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP)) {
- 		ret = hid_hw_output_report(dev, buf, count);
--- 
-2.7.0.rc3.207.g0ac5344
-
-
--- 
-Dmitry
+i2c-designware usually prints errors to dmesg if it fails to transfer
+messages. Can you include dmesg of the failure as well?

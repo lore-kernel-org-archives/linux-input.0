@@ -1,773 +1,888 @@
 From: Hans Verkuil <hans.verkuil@cisco.com>
-Subject: [PATCHv13 17/17] vivid: add CEC emulation
-Date: Fri, 18 Mar 2016 15:07:16 +0100
-Message-ID: <1458310036-19252-18-git-send-email-hans.verkuil@cisco.com>
+Subject: [PATCHv13 16/17] cec: s5p-cec: Add s5p-cec driver
+Date: Fri, 18 Mar 2016 15:07:15 +0100
+Message-ID: <1458310036-19252-17-git-send-email-hans.verkuil@cisco.com>
 References: <1458310036-19252-1-git-send-email-hans.verkuil@cisco.com>
 Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <1458310036-19252-1-git-send-email-hans.verkuil@cisco.com>
 Sender: linux-media-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-The vivid driver has been extended to provide CEC adapters for the HDMI
-input and HDMI outputs in order to test CEC applications.
+From: Kamil Debski <kamil@wypas.org>
 
-This CEC emulation is faithful to the CEC timings (i.e., it all at a
-snail's pace).
+Add CEC interface driver present in the Samsung Exynos range of
+SoCs.
 
+The following files were based on work by SangPil Moon:
+- exynos_hdmi_cec.h
+- exynos_hdmi_cecctl.c
+
+Signed-off-by: Kamil Debski <kamil@wypas.org>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 ---
- Documentation/video4linux/vivid.txt              |  36 ++-
- drivers/media/platform/vivid/Kconfig             |   1 +
- drivers/media/platform/vivid/vivid-core.c        | 361 ++++++++++++++++++++++-
- drivers/media/platform/vivid/vivid-core.h        |  27 ++
- drivers/media/platform/vivid/vivid-kthread-cap.c |  11 +
- drivers/media/platform/vivid/vivid-vid-cap.c     |  31 ++
- drivers/media/platform/vivid/vivid-vid-common.c  |   7 +
- 7 files changed, 460 insertions(+), 14 deletions(-)
+ .../devicetree/bindings/media/s5p-cec.txt          |  31 +++
+ MAINTAINERS                                        |   7 +
+ drivers/media/platform/Kconfig                     |  12 +
+ drivers/media/platform/Makefile                    |   1 +
+ drivers/media/platform/s5p-cec/Makefile            |   2 +
+ drivers/media/platform/s5p-cec/exynos_hdmi_cec.h   |  38 +++
+ .../media/platform/s5p-cec/exynos_hdmi_cecctrl.c   | 210 +++++++++++++++
+ drivers/media/platform/s5p-cec/regs-cec.h          |  96 +++++++
+ drivers/media/platform/s5p-cec/s5p_cec.c           | 295 +++++++++++++++++++++
+ drivers/media/platform/s5p-cec/s5p_cec.h           |  76 ++++++
+ 10 files changed, 768 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/media/s5p-cec.txt
+ create mode 100644 drivers/media/platform/s5p-cec/Makefile
+ create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+ create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+ create mode 100644 drivers/media/platform/s5p-cec/regs-cec.h
+ create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.c
+ create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.h
 
-diff --git a/Documentation/video4linux/vivid.txt b/Documentation/video4linux/vivid.txt
-index e35d376..0d89715 100644
---- a/Documentation/video4linux/vivid.txt
-+++ b/Documentation/video4linux/vivid.txt
-@@ -74,7 +74,8 @@ Section 11: Cropping, Composing, Scaling
- Section 12: Formats
- Section 13: Capture Overlay
- Section 14: Output Overlay
--Section 15: Some Future Improvements
-+Section 15: CEC (Consumer Electronics Control)
-+Section 16: Some Future Improvements
- 
- 
- Section 1: Configuring the driver
-@@ -364,7 +365,11 @@ For HDMI inputs it is possible to set the EDID. By default a simple EDID
- is provided. You can only set the EDID for HDMI inputs. Internally, however,
- the EDID is shared between all HDMI inputs.
- 
--No interpretation is done of the EDID data.
-+No interpretation is done of the EDID data with the exception of the
-+physical address. See the CEC section for more details.
+diff --git a/Documentation/devicetree/bindings/media/s5p-cec.txt b/Documentation/devicetree/bindings/media/s5p-cec.txt
+new file mode 100644
+index 0000000..925ab4d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/media/s5p-cec.txt
+@@ -0,0 +1,31 @@
++* Samsung HDMI CEC driver
 +
-+There is a maximum of 15 HDMI inputs (if there are more, then they will be
-+reduced to 15) since that's the limitation of the EDID physical address.
- 
- 
- Section 3: Video Output
-@@ -409,6 +414,9 @@ standard, and for all others a 1:1 pixel aspect ratio is returned.
- 
- An HDMI output has a valid EDID which can be obtained through VIDIOC_G_EDID.
- 
-+There is a maximum of 15 HDMI outputs (if there are more, then they will be
-+reduced to 15) since that's the limitation of the EDID physical address. See
-+also the CEC section for more details.
- 
- Section 4: VBI Capture
- ----------------------
-@@ -1108,7 +1116,26 @@ capabilities will slow down the video loop considerably as a lot of checks have
- to be done per pixel.
- 
- 
--Section 15: Some Future Improvements
-+Section 15: CEC (Consumer Electronics Control)
-+----------------------------------------------
++The HDMI CEC module is present is Samsung SoCs and its purpose is to
++handle communication between HDMI connected devices over the CEC bus.
 +
-+If there are HDMI inputs then a CEC adapter will be created that has
-+the same number of input ports. This is the equivalent of e.g. a TV that
-+has that number of inputs. Each HDMI output will also create a
-+CEC adapter that is hooked up to the corresponding input port, or (if there
-+are more outputs than inputs) is not hooked up at all. In other words,
-+this is the equivalent of hooking up each output device to an input port of
-+the TV. Any remaining output devices remain unconnected.
++Required properties:
++  - compatible : value should be following
++	"samsung,s5p-cec"
 +
-+The EDID that each output reads reports a unique CEC physical address that is
-+based on the physical address of the EDID of the input. So if the EDID of the
-+receiver has physical address A.B.0.0, then each output will see an EDID
-+containing physical address A.B.C.0 where C is 1 to the number of inputs. If
-+there are more outputs than inputs then the remaining outputs have a CEC adapter
-+that is disabled and reports an invalid physical address.
++  - reg : Physical base address of the IP registers and length of memory
++	  mapped region.
 +
++  - interrupts : HDMI CEC interrupt number to the CPU.
++  - clocks : from common clock binding: handle to HDMI CEC clock.
++  - clock-names : from common clock binding: must contain "hdmicec",
++		  corresponding to entry in the clocks property.
++  - samsung,syscon-phandle - phandle to the PMU system controller
 +
-+Section 16: Some Future Improvements
- ------------------------------------
++Example:
++
++hdmicec: cec@100B0000 {
++	compatible = "samsung,s5p-cec";
++	reg = <0x100B0000 0x200>;
++	interrupts = <0 114 0>;
++	clocks = <&clock CLK_HDMI_CEC>;
++	clock-names = "hdmicec";
++	samsung,syscon-phandle = <&pmu_system_controller>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&hdmi_cec>;
++	status = "okay";
++};
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 9b10806..1eb422b 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1543,6 +1543,13 @@ L:	linux-media@vger.kernel.org
+ S:	Maintained
+ F:	drivers/media/platform/s5p-tv/
  
- Just as a reminder and in no particular order:
-@@ -1121,8 +1148,6 @@ Just as a reminder and in no particular order:
- - Fix sequence/field numbering when looping of video with alternate fields
- - Add support for V4L2_CID_BG_COLOR for video outputs
- - Add ARGB888 overlay support: better testing of the alpha channel
--- Add custom DV timings support
--- Add support for V4L2_DV_FL_REDUCED_FPS
- - Improve pixel aspect support in the tpg code by passing a real v4l2_fract
- - Use per-queue locks and/or per-device locks to improve throughput
- - Add support to loop from a specific output to a specific input across
-@@ -1133,3 +1158,4 @@ Just as a reminder and in no particular order:
- - Make a thread for the RDS generation, that would help in particular for the
-   "Controls" RDS Rx I/O Mode as the read-only RDS controls could be updated
-   in real-time.
-+- Changing the EDID should cause hotplug detect emulation to happen.
-diff --git a/drivers/media/platform/vivid/Kconfig b/drivers/media/platform/vivid/Kconfig
-index 0885e93..8645bb6 100644
---- a/drivers/media/platform/vivid/Kconfig
-+++ b/drivers/media/platform/vivid/Kconfig
-@@ -6,6 +6,7 @@ config VIDEO_VIVID
- 	select FB_CFB_FILLRECT
- 	select FB_CFB_COPYAREA
- 	select FB_CFB_IMAGEBLIT
++ARM/SAMSUNG S5P SERIES HDMI CEC SUBSYSTEM SUPPORT
++M:	Kyungmin Park <kyungmin.park@samsung.com>
++L:	linux-arm-kernel@lists.infradead.org
++L:	linux-media@vger.kernel.org
++S:	Maintained
++F:	drivers/media/platform/s5p-cec/
++
+ ARM/SAMSUNG S5P SERIES JPEG CODEC SUPPORT
+ M:	Andrzej Pietrasiewicz <andrzej.p@samsung.com>
+ M:	Jacek Anaszewski <j.anaszewski@samsung.com>
+diff --git a/drivers/media/platform/Kconfig b/drivers/media/platform/Kconfig
+index 201f5c2..8a5597e 100644
+--- a/drivers/media/platform/Kconfig
++++ b/drivers/media/platform/Kconfig
+@@ -108,6 +108,18 @@ config VIDEO_S3C_CAMIF
+ source "drivers/media/platform/soc_camera/Kconfig"
+ source "drivers/media/platform/exynos4-is/Kconfig"
+ source "drivers/media/platform/s5p-tv/Kconfig"
++
++config VIDEO_SAMSUNG_S5P_CEC
++	tristate "Samsung S5P CEC driver"
++	depends on VIDEO_DEV && VIDEO_V4L2 && (PLAT_S5P || ARCH_EXYNOS || COMPILE_TEST)
 +	select MEDIA_CEC
- 	select VIDEOBUF2_VMALLOC
- 	default n
- 	---help---
-diff --git a/drivers/media/platform/vivid/vivid-core.c b/drivers/media/platform/vivid/vivid-core.c
-index ec125bec..777807d 100644
---- a/drivers/media/platform/vivid/vivid-core.c
-+++ b/drivers/media/platform/vivid/vivid-core.c
-@@ -396,10 +396,19 @@ static int vidioc_log_status(struct file *file, void *fh)
- {
- 	struct vivid_dev *dev = video_drvdata(file);
- 	struct video_device *vdev = video_devdata(file);
-+	unsigned bus_idx;
- 
- 	v4l2_ctrl_log_status(file, fh);
- 	if (vdev->vfl_dir == VFL_DIR_RX && vdev->vfl_type == VFL_TYPE_GRABBER)
- 		tpg_log_status(&dev->tpg);
-+	if (vdev->vfl_dir == VFL_DIR_RX && vdev->vfl_type == VFL_TYPE_GRABBER &&
-+	    dev->cec_rx_adap)
-+		cec_log_status(dev->cec_rx_adap, NULL);
-+	if (vdev->vfl_dir == VFL_DIR_TX && vdev->vfl_type == VFL_TYPE_GRABBER &&
-+	    dev->output_type[dev->output] == HDMI) {
-+		bus_idx = dev->cec_output2bus_map[dev->output];
-+		cec_log_status(dev->cec_tx_adap[bus_idx], NULL);
-+	}
- 	return 0;
- }
- 
-@@ -646,6 +655,238 @@ static void vivid_dev_release(struct v4l2_device *v4l2_dev)
- 	kfree(dev);
- }
- 
-+static void vivid_cec_bus_free_work(struct vivid_dev *dev)
-+{
-+	spin_lock(&dev->cec_slock);
-+	while (!list_empty(&dev->cec_work_list)) {
-+		struct vivid_cec_work *cw =
-+			list_first_entry(&dev->cec_work_list,
-+					 struct vivid_cec_work, list);
++	default n
++	---help---
++	  This is a driver for Samsung S5P HDMI CEC interface. It uses the
++	  generic CEC framework interface.
++	  CEC bus is present in the HDMI connector and enables communication
++	  between compatible devices.
 +
-+		spin_unlock(&dev->cec_slock);
-+		cancel_delayed_work_sync(&cw->work);
-+		spin_lock(&dev->cec_slock);
-+		list_del(&cw->list);
-+		cec_transmit_done(cw->adap, CEC_TX_STATUS_LOW_DRIVE, 0, 0, 1, 0);
-+		kfree(cw);
+ source "drivers/media/platform/am437x/Kconfig"
+ source "drivers/media/platform/xilinx/Kconfig"
+ 
+diff --git a/drivers/media/platform/Makefile b/drivers/media/platform/Makefile
+index bbb7bd1..f598c80 100644
+--- a/drivers/media/platform/Makefile
++++ b/drivers/media/platform/Makefile
+@@ -28,6 +28,7 @@ obj-$(CONFIG_VIDEO_MEM2MEM_DEINTERLACE)	+= m2m-deinterlace.o
+ 
+ obj-$(CONFIG_VIDEO_S3C_CAMIF) 		+= s3c-camif/
+ obj-$(CONFIG_VIDEO_SAMSUNG_EXYNOS4_IS) 	+= exynos4-is/
++obj-$(CONFIG_VIDEO_SAMSUNG_S5P_CEC)	+= s5p-cec/
+ obj-$(CONFIG_VIDEO_SAMSUNG_S5P_JPEG)	+= s5p-jpeg/
+ obj-$(CONFIG_VIDEO_SAMSUNG_S5P_MFC)	+= s5p-mfc/
+ obj-$(CONFIG_VIDEO_SAMSUNG_S5P_TV)	+= s5p-tv/
+diff --git a/drivers/media/platform/s5p-cec/Makefile b/drivers/media/platform/s5p-cec/Makefile
+new file mode 100644
+index 0000000..0e2cf45
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/Makefile
+@@ -0,0 +1,2 @@
++obj-$(CONFIG_VIDEO_SAMSUNG_S5P_CEC)	+= s5p-cec.o
++s5p-cec-y += s5p_cec.o exynos_hdmi_cecctrl.o
+diff --git a/drivers/media/platform/s5p-cec/exynos_hdmi_cec.h b/drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+new file mode 100644
+index 0000000..3e4fc7b
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+@@ -0,0 +1,38 @@
++/* drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
++ *
++ * Copyright (c) 2010, 2014 Samsung Electronics
++ *		http://www.samsung.com/
++ *
++ * Header file for interface of Samsung Exynos hdmi cec hardware
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef _EXYNOS_HDMI_CEC_H_
++#define _EXYNOS_HDMI_CEC_H_ __FILE__
++
++#include <linux/regmap.h>
++#include <linux/miscdevice.h>
++#include "s5p_cec.h"
++
++void s5p_cec_set_divider(struct s5p_cec_dev *cec);
++void s5p_cec_enable_rx(struct s5p_cec_dev *cec);
++void s5p_cec_mask_rx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_unmask_rx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_mask_tx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_unmask_tx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_reset(struct s5p_cec_dev *cec);
++void s5p_cec_tx_reset(struct s5p_cec_dev *cec);
++void s5p_cec_rx_reset(struct s5p_cec_dev *cec);
++void s5p_cec_threshold(struct s5p_cec_dev *cec);
++void s5p_cec_copy_packet(struct s5p_cec_dev *cec, char *data,
++			 size_t count, u8 retries);
++void s5p_cec_set_addr(struct s5p_cec_dev *cec, u32 addr);
++u32 s5p_cec_get_status(struct s5p_cec_dev *cec);
++void s5p_clr_pending_tx(struct s5p_cec_dev *cec);
++void s5p_clr_pending_rx(struct s5p_cec_dev *cec);
++void s5p_cec_get_rx_buf(struct s5p_cec_dev *cec, u32 size, u8 *buffer);
++
++#endif /* _EXYNOS_HDMI_CEC_H_ */
+diff --git a/drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c b/drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+new file mode 100644
+index 0000000..d7550d5
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+@@ -0,0 +1,210 @@
++/* drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
++ *
++ * Copyright (c) 2009, 2014 Samsung Electronics
++ *		http://www.samsung.com/
++ *
++ * cec ftn file for Samsung TVOUT driver
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/io.h>
++#include <linux/device.h>
++
++#include "exynos_hdmi_cec.h"
++#include "regs-cec.h"
++
++#define S5P_HDMI_FIN			24000000
++#define CEC_DIV_RATIO			320000
++
++#define CEC_MESSAGE_BROADCAST_MASK	0x0F
++#define CEC_MESSAGE_BROADCAST		0x0F
++#define CEC_FILTER_THRESHOLD		0x15
++
++void s5p_cec_set_divider(struct s5p_cec_dev *cec)
++{
++	u32 div_ratio, div_val;
++	unsigned int reg;
++
++	div_ratio  = S5P_HDMI_FIN / CEC_DIV_RATIO - 1;
++
++	if (regmap_read(cec->pmu, EXYNOS_HDMI_PHY_CONTROL, &reg)) {
++		dev_err(cec->dev, "failed to read phy control\n");
++		return;
 +	}
-+	spin_unlock(&dev->cec_slock);
++
++	reg = (reg & ~(0x3FF << 16)) | (div_ratio << 16);
++
++	if (regmap_write(cec->pmu, EXYNOS_HDMI_PHY_CONTROL, reg)) {
++		dev_err(cec->dev, "failed to write phy control\n");
++		return;
++	}
++
++	div_val = CEC_DIV_RATIO * 0.00005 - 1;
++
++	writeb(0x0, cec->reg + S5P_CEC_DIVISOR_3);
++	writeb(0x0, cec->reg + S5P_CEC_DIVISOR_2);
++	writeb(0x0, cec->reg + S5P_CEC_DIVISOR_1);
++	writeb(div_val, cec->reg + S5P_CEC_DIVISOR_0);
 +}
 +
-+static struct cec_adapter *vivid_cec_find_dest_adap(struct vivid_dev *dev,
-+						    struct cec_adapter *adap,
-+						    u8 dest)
++void s5p_cec_enable_rx(struct s5p_cec_dev *cec)
 +{
-+	unsigned i;
++	u8 reg;
 +
-+	if (dest >= 0xf)
-+		return NULL;
-+
-+	if (adap != dev->cec_rx_adap && dev->cec_rx_adap &&
-+	    dev->cec_rx_adap->is_configured &&
-+	    cec_has_log_addr(dev->cec_rx_adap, dest))
-+		return dev->cec_rx_adap;
-+
-+	for (i = 0; i < MAX_OUTPUTS && dev->cec_tx_adap[i]; i++) {
-+		if (adap == dev->cec_tx_adap[i])
-+			continue;
-+		if (!dev->cec_tx_adap[i]->is_configured)
-+			continue;
-+		if (cec_has_log_addr(dev->cec_tx_adap[i], dest))
-+			return dev->cec_tx_adap[i];
-+	}
-+	return NULL;
++	reg = readb(cec->reg + S5P_CEC_RX_CTRL);
++	reg |= S5P_CEC_RX_CTRL_ENABLE;
++	writeb(reg, cec->reg + S5P_CEC_RX_CTRL);
 +}
 +
-+static void vivid_cec_xfer_done_worker(struct work_struct *work)
++void s5p_cec_mask_rx_interrupts(struct s5p_cec_dev *cec)
 +{
-+	struct vivid_cec_work *cw =
-+		container_of(work, struct vivid_cec_work, work.work);
-+	struct vivid_dev *dev = cw->dev;
-+	struct cec_adapter *adap = cw->adap;
-+	bool is_poll = cw->msg.len == 1;
-+	u8 dest = cec_msg_destination(&cw->msg);
-+	struct cec_adapter *dest_adap = NULL;
-+	bool valid_dest;
-+	unsigned i;
++	u8 reg;
 +
-+	valid_dest = cec_msg_is_broadcast(&cw->msg);
-+	if (!valid_dest) {
-+		dest_adap = vivid_cec_find_dest_adap(dev, adap, dest);
-+		if (dest_adap)
-+			valid_dest = true;
-+	}
-+	cw->tx_status = valid_dest ? CEC_TX_STATUS_OK : CEC_TX_STATUS_NACK;
-+	spin_lock(&dev->cec_slock);
-+	dev->cec_xfer_time_jiffies = 0;
-+	dev->cec_xfer_start_jiffies = 0;
-+	list_del(&cw->list);
-+	spin_unlock(&dev->cec_slock);
-+	cec_transmit_done(cw->adap, cw->tx_status, 0, valid_dest ? 0 : 1, 0, 0);
-+
-+	if (!is_poll && dest_adap) {
-+		/* Directed message */
-+		cec_received_msg(dest_adap, &cw->msg);
-+	} else if (!is_poll && valid_dest) {
-+		/* Broadcast message */
-+		if (adap != dev->cec_rx_adap && dev->cec_rx_adap->log_addr_mask)
-+			cec_received_msg(dev->cec_rx_adap, &cw->msg);
-+		for (i = 0; i < MAX_OUTPUTS && dev->cec_tx_adap[i]; i++) {
-+			if (adap == dev->cec_tx_adap[i] ||
-+			    !dev->cec_tx_adap[i]->log_addr_mask)
-+				continue;
-+			cec_received_msg(dev->cec_tx_adap[i], &cw->msg);
-+		}
-+	}
-+	kfree(cw);
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg |= S5P_CEC_IRQ_RX_DONE;
++	reg |= S5P_CEC_IRQ_RX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
 +}
 +
-+static void vivid_cec_xfer_try_worker(struct work_struct *work)
++void s5p_cec_unmask_rx_interrupts(struct s5p_cec_dev *cec)
 +{
-+	struct vivid_cec_work *cw =
-+		container_of(work, struct vivid_cec_work, work.work);
-+	struct vivid_dev *dev = cw->dev;
++	u8 reg;
 +
-+	spin_lock(&dev->cec_slock);
-+	if (dev->cec_xfer_time_jiffies) {
-+		list_del(&cw->list);
-+		spin_unlock(&dev->cec_slock);
-+		cec_transmit_done(cw->adap, CEC_TX_STATUS_ARB_LOST, 1, 0, 0, 0);
-+		kfree(cw);
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg &= ~S5P_CEC_IRQ_RX_DONE;
++	reg &= ~S5P_CEC_IRQ_RX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++}
++
++void s5p_cec_mask_tx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg |= S5P_CEC_IRQ_TX_DONE;
++	reg |= S5P_CEC_IRQ_TX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++
++}
++
++void s5p_cec_unmask_tx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg &= ~S5P_CEC_IRQ_TX_DONE;
++	reg &= ~S5P_CEC_IRQ_TX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++}
++
++void s5p_cec_reset(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	writeb(S5P_CEC_RX_CTRL_RESET, cec->reg + S5P_CEC_RX_CTRL);
++	writeb(S5P_CEC_TX_CTRL_RESET, cec->reg + S5P_CEC_TX_CTRL);
++
++	reg = readb(cec->reg + 0xc4);
++	reg &= ~0x1;
++	writeb(reg, cec->reg + 0xc4);
++}
++
++void s5p_cec_tx_reset(struct s5p_cec_dev *cec)
++{
++	writeb(S5P_CEC_TX_CTRL_RESET, cec->reg + S5P_CEC_TX_CTRL);
++}
++
++void s5p_cec_rx_reset(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	writeb(S5P_CEC_RX_CTRL_RESET, cec->reg + S5P_CEC_RX_CTRL);
++
++	reg = readb(cec->reg + 0xc4);
++	reg &= ~0x1;
++	writeb(reg, cec->reg + 0xc4);
++}
++
++void s5p_cec_threshold(struct s5p_cec_dev *cec)
++{
++	writeb(CEC_FILTER_THRESHOLD, cec->reg + S5P_CEC_RX_FILTER_TH);
++	writeb(0, cec->reg + S5P_CEC_RX_FILTER_CTRL);
++}
++
++void s5p_cec_copy_packet(struct s5p_cec_dev *cec, char *data,
++			 size_t count, u8 retries)
++{
++	char debug[40];
++	int i = 0;
++	u8 reg;
++
++	while (i < count) {
++		writeb(data[i], cec->reg + (S5P_CEC_TX_BUFF0 + (i * 4)));
++		sprintf(debug + i * 2, "%02x ", data[i]);
++		i++;
++	}
++
++	writeb(count, cec->reg + S5P_CEC_TX_BYTES);
++	reg = readb(cec->reg + S5P_CEC_TX_CTRL);
++	reg |= S5P_CEC_TX_CTRL_START;
++	reg &= ~0x70;
++	reg |= retries << 4;
++
++	if ((data[0] & CEC_MESSAGE_BROADCAST_MASK) == CEC_MESSAGE_BROADCAST) {
++		dev_dbg(cec->dev, "Broadcast");
++		reg |= S5P_CEC_TX_CTRL_BCAST;
 +	} else {
-+		INIT_DELAYED_WORK(&cw->work, vivid_cec_xfer_done_worker);
-+		dev->cec_xfer_start_jiffies = jiffies;
-+		dev->cec_xfer_time_jiffies = usecs_to_jiffies(cw->usecs);
-+		spin_unlock(&dev->cec_slock);
-+		schedule_delayed_work(&cw->work, dev->cec_xfer_time_jiffies);
++		dev_dbg(cec->dev, "No Broadcast");
++		reg &= ~S5P_CEC_TX_CTRL_BCAST;
 +	}
++
++	writeb(reg, cec->reg + S5P_CEC_TX_CTRL);
++	dev_dbg(cec->dev, "cec-tx: cec count(%zu): %s", count, debug);
 +}
 +
-+static int vivid_cec_adap_enable(struct cec_adapter *adap, bool enable)
++void s5p_cec_set_addr(struct s5p_cec_dev *cec, u32 addr)
 +{
-+	return 0;
++	writeb(addr & 0x0F, cec->reg + S5P_CEC_LOGIC_ADDR);
 +}
 +
-+static int vivid_cec_adap_log_addr(struct cec_adapter *adap, u8 log_addr)
++u32 s5p_cec_get_status(struct s5p_cec_dev *cec)
 +{
-+	return 0;
++	u32 status = 0;
++
++	status = readb(cec->reg + S5P_CEC_STATUS_0);
++	status |= readb(cec->reg + S5P_CEC_STATUS_1) << 8;
++	status |= readb(cec->reg + S5P_CEC_STATUS_2) << 16;
++	status |= readb(cec->reg + S5P_CEC_STATUS_3) << 24;
++
++	dev_dbg(cec->dev, "status = 0x%x!\n", status);
++
++	return status;
 +}
++
++void s5p_clr_pending_tx(struct s5p_cec_dev *cec)
++{
++	writeb(S5P_CEC_IRQ_TX_DONE | S5P_CEC_IRQ_TX_ERROR,
++					cec->reg + S5P_CEC_IRQ_CLEAR);
++}
++
++void s5p_clr_pending_rx(struct s5p_cec_dev *cec)
++{
++	writeb(S5P_CEC_IRQ_RX_DONE | S5P_CEC_IRQ_RX_ERROR,
++					cec->reg + S5P_CEC_IRQ_CLEAR);
++}
++
++void s5p_cec_get_rx_buf(struct s5p_cec_dev *cec, u32 size, u8 *buffer)
++{
++	u32 i = 0;
++	char debug[40];
++
++	while (i < size) {
++		buffer[i] = readb(cec->reg + S5P_CEC_RX_BUFF0 + (i * 4));
++		sprintf(debug + i * 2, "%02x ", buffer[i]);
++		i++;
++	}
++	dev_dbg(cec->dev, "cec-rx: cec size(%d): %s", size, debug);
++}
+diff --git a/drivers/media/platform/s5p-cec/regs-cec.h b/drivers/media/platform/s5p-cec/regs-cec.h
+new file mode 100644
+index 0000000..b2e7e12
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/regs-cec.h
+@@ -0,0 +1,96 @@
++/* drivers/media/platform/s5p-cec/regs-cec.h
++ *
++ * Copyright (c) 2010 Samsung Electronics
++ *		http://www.samsung.com/
++ *
++ *  register header file for Samsung TVOUT driver
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef __EXYNOS_REGS__H
++#define __EXYNOS_REGS__H
 +
 +/*
-+ * One data bit takes 2400 us, each byte needs 10 bits so that's 24000 us
-+ * per byte.
++ * Register part
 + */
-+#define USECS_PER_BYTE 24000
++#define S5P_CEC_STATUS_0			(0x0000)
++#define S5P_CEC_STATUS_1			(0x0004)
++#define S5P_CEC_STATUS_2			(0x0008)
++#define S5P_CEC_STATUS_3			(0x000C)
++#define S5P_CEC_IRQ_MASK			(0x0010)
++#define S5P_CEC_IRQ_CLEAR			(0x0014)
++#define S5P_CEC_LOGIC_ADDR			(0x0020)
++#define S5P_CEC_DIVISOR_0			(0x0030)
++#define S5P_CEC_DIVISOR_1			(0x0034)
++#define S5P_CEC_DIVISOR_2			(0x0038)
++#define S5P_CEC_DIVISOR_3			(0x003C)
 +
-+static int vivid_cec_adap_transmit(struct cec_adapter *adap, u8 attempts,
-+				   u32 signal_free_time, struct cec_msg *msg)
-+{
-+	struct vivid_dev *dev = adap->priv;
-+	struct vivid_cec_work *cw = kzalloc(sizeof(*cw), GFP_KERNEL);
-+	long delta_jiffies = 0;
++#define S5P_CEC_TX_CTRL				(0x0040)
++#define S5P_CEC_TX_BYTES			(0x0044)
++#define S5P_CEC_TX_STAT0			(0x0060)
++#define S5P_CEC_TX_STAT1			(0x0064)
++#define S5P_CEC_TX_BUFF0			(0x0080)
++#define S5P_CEC_TX_BUFF1			(0x0084)
++#define S5P_CEC_TX_BUFF2			(0x0088)
++#define S5P_CEC_TX_BUFF3			(0x008C)
++#define S5P_CEC_TX_BUFF4			(0x0090)
++#define S5P_CEC_TX_BUFF5			(0x0094)
++#define S5P_CEC_TX_BUFF6			(0x0098)
++#define S5P_CEC_TX_BUFF7			(0x009C)
++#define S5P_CEC_TX_BUFF8			(0x00A0)
++#define S5P_CEC_TX_BUFF9			(0x00A4)
++#define S5P_CEC_TX_BUFF10			(0x00A8)
++#define S5P_CEC_TX_BUFF11			(0x00AC)
++#define S5P_CEC_TX_BUFF12			(0x00B0)
++#define S5P_CEC_TX_BUFF13			(0x00B4)
++#define S5P_CEC_TX_BUFF14			(0x00B8)
++#define S5P_CEC_TX_BUFF15			(0x00BC)
 +
-+	if (cw == NULL)
-+		return -ENOMEM;
-+	cw->dev = dev;
-+	cw->adap = adap;
-+	cw->usecs = CEC_FREE_TIME_TO_USEC(signal_free_time) +
-+		    msg->len * USECS_PER_BYTE;
-+	cw->msg = *msg;
++#define S5P_CEC_RX_CTRL				(0x00C0)
++#define S5P_CEC_RX_STAT0			(0x00E0)
++#define S5P_CEC_RX_STAT1			(0x00E4)
++#define S5P_CEC_RX_BUFF0			(0x0100)
++#define S5P_CEC_RX_BUFF1			(0x0104)
++#define S5P_CEC_RX_BUFF2			(0x0108)
++#define S5P_CEC_RX_BUFF3			(0x010C)
++#define S5P_CEC_RX_BUFF4			(0x0110)
++#define S5P_CEC_RX_BUFF5			(0x0114)
++#define S5P_CEC_RX_BUFF6			(0x0118)
++#define S5P_CEC_RX_BUFF7			(0x011C)
++#define S5P_CEC_RX_BUFF8			(0x0120)
++#define S5P_CEC_RX_BUFF9			(0x0124)
++#define S5P_CEC_RX_BUFF10			(0x0128)
++#define S5P_CEC_RX_BUFF11			(0x012C)
++#define S5P_CEC_RX_BUFF12			(0x0130)
++#define S5P_CEC_RX_BUFF13			(0x0134)
++#define S5P_CEC_RX_BUFF14			(0x0138)
++#define S5P_CEC_RX_BUFF15			(0x013C)
 +
-+	spin_lock(&dev->cec_slock);
-+	list_add(&cw->list, &dev->cec_work_list);
-+	if (dev->cec_xfer_time_jiffies == 0) {
-+		INIT_DELAYED_WORK(&cw->work, vivid_cec_xfer_done_worker);
-+		dev->cec_xfer_start_jiffies = jiffies;
-+		dev->cec_xfer_time_jiffies = usecs_to_jiffies(cw->usecs);
-+		delta_jiffies = dev->cec_xfer_time_jiffies;
-+	} else {
-+		INIT_DELAYED_WORK(&cw->work, vivid_cec_xfer_try_worker);
-+		delta_jiffies = dev->cec_xfer_start_jiffies +
-+			dev->cec_xfer_time_jiffies - jiffies;
-+	}
-+	spin_unlock(&dev->cec_slock);
-+	schedule_delayed_work(&cw->work, delta_jiffies < 0 ? 0 : delta_jiffies);
-+	return 0;
-+}
++#define S5P_CEC_RX_FILTER_CTRL			(0x0180)
++#define S5P_CEC_RX_FILTER_TH			(0x0184)
 +
-+static int vivid_received(struct cec_adapter *adap, struct cec_msg *msg)
-+{
-+	struct vivid_dev *dev = adap->priv;
-+	struct cec_msg reply;
-+	u8 dest = cec_msg_destination(msg);
-+	u16 pa;
-+	u8 disp_ctl;
-+	char osd[14];
++/*
++ * Bit definition part
++ */
++#define S5P_CEC_IRQ_TX_DONE			(1<<0)
++#define S5P_CEC_IRQ_TX_ERROR			(1<<1)
++#define S5P_CEC_IRQ_RX_DONE			(1<<4)
++#define S5P_CEC_IRQ_RX_ERROR			(1<<5)
 +
-+	if (cec_msg_is_broadcast(msg))
-+		dest = adap->log_addr[0];
-+	cec_msg_init(&reply, dest, cec_msg_initiator(msg));
++#define S5P_CEC_TX_CTRL_START			(1<<0)
++#define S5P_CEC_TX_CTRL_BCAST			(1<<1)
++#define S5P_CEC_TX_CTRL_RETRY			(0x04<<4)
++#define S5P_CEC_TX_CTRL_RESET			(1<<7)
 +
-+	switch (cec_msg_opcode(msg)) {
-+	case CEC_MSG_SET_STREAM_PATH:
-+		if (!adap->is_source)
-+			return -ENOMSG;
-+		cec_ops_set_stream_path(msg, &pa);
-+		if (pa != adap->phys_addr)
-+			return -ENOMSG;
-+		cec_msg_active_source(&reply, adap->phys_addr);
-+		cec_transmit_msg(adap, &reply, false);
-+		break;
-+	case CEC_MSG_SET_OSD_STRING:
-+		if (adap->is_source)
-+			return -ENOMSG;
-+		cec_ops_set_osd_string(msg, &disp_ctl, osd);
-+		switch (disp_ctl) {
-+		case CEC_OP_DISP_CTL_DEFAULT:
-+			strcpy(dev->osd, osd);
-+			dev->osd_jiffies = jiffies;
-+			break;
-+		case CEC_OP_DISP_CTL_UNTIL_CLEARED:
-+			strcpy(dev->osd, osd);
-+			dev->osd_jiffies = 0;
-+			break;
-+		case CEC_OP_DISP_CTL_CLEAR:
-+			dev->osd[0] = 0;
-+			dev->osd_jiffies = 0;
-+			break;
-+		default:
-+			cec_msg_feature_abort(&reply, cec_msg_opcode(msg),
-+					      CEC_OP_ABORT_INVALID_OP);
-+			cec_transmit_msg(adap, &reply, false);
-+			break;
-+		}
-+		break;
-+	default:
-+		return -ENOMSG;
-+	}
-+	return 0;
-+}
++#define S5P_CEC_RX_CTRL_ENABLE			(1<<0)
++#define S5P_CEC_RX_CTRL_RESET			(1<<7)
 +
-+const struct cec_adap_ops vivid_cec_adap_ops = {
-+	.adap_enable = vivid_cec_adap_enable,
-+	.adap_log_addr = vivid_cec_adap_log_addr,
-+	.adap_transmit = vivid_cec_adap_transmit,
-+	.received = vivid_received,
-+};
++#define S5P_CEC_LOGIC_ADDR_MASK			(0xF)
 +
-+static struct cec_adapter *vivid_create_cec_adap(struct vivid_dev *dev,
-+						 unsigned idx,
-+						 struct device *parent,
-+						 bool is_source)
-+{
-+	char name[sizeof(dev->vid_out_dev.name) + 2];
-+	u32 caps = CEC_CAP_TRANSMIT | CEC_CAP_LOG_ADDRS |
-+		CEC_CAP_PASSTHROUGH | CEC_CAP_RC |
-+		CEC_CAP_VENDOR_ID | (is_source ? CEC_CAP_IS_SOURCE : 0);
++/* PMU Registers for PHY */
++#define EXYNOS_HDMI_PHY_CONTROL			0x700
 +
-+	snprintf(name, sizeof(name), "%s%d",
-+		 is_source ? dev->vid_out_dev.name : dev->vid_cap_dev.name,
-+		 idx);
-+	return cec_create_adapter(&vivid_cec_adap_ops, dev,
-+		name, caps, is_source ? 0 : 1, parent);
-+}
++#endif	/* __EXYNOS_REGS__H	*/
+diff --git a/drivers/media/platform/s5p-cec/s5p_cec.c b/drivers/media/platform/s5p-cec/s5p_cec.c
+new file mode 100644
+index 0000000..49c192f
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/s5p_cec.c
+@@ -0,0 +1,295 @@
++/* drivers/media/platform/s5p-cec/s5p_cec.c
++ *
++ * Samsung S5P CEC driver
++ *
++ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This driver is based on the "cec interface driver for exynos soc" by
++ * SangPil Moon.
++ */
 +
- static int vivid_create_instance(struct platform_device *pdev, int inst)
- {
- 	static const struct v4l2_dv_timings def_dv_timings =
-@@ -699,6 +940,11 @@ static int vivid_create_instance(struct platform_device *pdev, int inst)
- 		dev->input_name_counter[i] = in_type_counter[dev->input_type[i]]++;
- 	}
- 	dev->has_audio_inputs = in_type_counter[TV] && in_type_counter[SVID];
-+	if (in_type_counter[HDMI] == 16) {
-+		/* The CEC physical address only allows for max 15 inputs */
-+		in_type_counter[HDMI]--;
-+		dev->num_inputs--;
-+	}
- 
- 	/* how many outputs do we have and of what type? */
- 	dev->num_outputs = num_outputs[inst];
-@@ -711,6 +957,15 @@ static int vivid_create_instance(struct platform_device *pdev, int inst)
- 		dev->output_name_counter[i] = out_type_counter[dev->output_type[i]]++;
- 	}
- 	dev->has_audio_outputs = out_type_counter[SVID];
-+	if (out_type_counter[HDMI] == 16) {
-+		/*
-+		 * The CEC physical address only allows for max 15 inputs,
-+		 * so outputs are also limited to 15 to allow for easy
-+		 * CEC output to input mapping.
-+		 */
-+		out_type_counter[HDMI]--;
-+		dev->num_outputs--;
-+	}
- 
- 	/* do we create a video capture device? */
- 	dev->has_vid_cap = node_type & 0x0001;
-@@ -1025,6 +1280,17 @@ static int vivid_create_instance(struct platform_device *pdev, int inst)
- 	INIT_LIST_HEAD(&dev->vbi_out_active);
- 	INIT_LIST_HEAD(&dev->sdr_cap_active);
- 
-+	INIT_LIST_HEAD(&dev->cec_work_list);
-+	spin_lock_init(&dev->cec_slock);
-+	/*
-+	 * Same as create_singlethread_workqueue, but now I can use the
-+	 * string formatting of alloc_ordered_workqueue.
-+	 */
-+	dev->cec_workqueue =
-+		alloc_ordered_workqueue("vivid-%03d-cec", WQ_MEM_RECLAIM, inst);
-+	if (!dev->cec_workqueue)
-+		goto unreg_dev;
-+
- 	/* start creating the vb2 queues */
- 	if (dev->has_vid_cap) {
- 		/* initialize vid_cap queue */
-@@ -1131,8 +1397,12 @@ static int vivid_create_instance(struct platform_device *pdev, int inst)
- 
- 	/* finally start creating the device nodes */
- 	if (dev->has_vid_cap) {
-+		unsigned cec_cnt = in_type_counter[HDMI];
-+		struct cec_adapter *adap;
-+
- 		vfd = &dev->vid_cap_dev;
--		strlcpy(vfd->name, "vivid-vid-cap", sizeof(vfd->name));
-+		snprintf(vfd->name, sizeof(vfd->name),
-+			 "vivid-%03d-vid-cap", inst);
- 		vfd->fops = &vivid_fops;
- 		vfd->ioctl_ops = &vivid_ioctl_ops;
- 		vfd->release = video_device_release_empty;
-@@ -1147,6 +1417,27 @@ static int vivid_create_instance(struct platform_device *pdev, int inst)
- 		vfd->lock = &dev->mutex;
- 		video_set_drvdata(vfd, dev);
- 
-+		if (cec_cnt) {
-+			adap = vivid_create_cec_adap(dev, 0, &pdev->dev, false);
-+			ret = PTR_ERR_OR_ZERO(adap);
-+			if (ret < 0)
-+				goto unreg_dev;
-+			dev->cec_rx_adap = adap;
-+			cec_connected_inputs(adap, cec_cnt);
-+			ret = cec_register_adapter(adap);
-+			if (ret < 0) {
-+				cec_delete_adapter(adap);
-+				dev->cec_rx_adap = NULL;
-+				goto unreg_dev;
-+			}
-+			cec_set_phys_addr(adap, 0);
-+			ret = cec_enable(adap, true);
-+			if (ret < 0)
-+				goto unreg_dev;
-+			v4l2_info(&dev->v4l2_dev, "CEC adapter %s registered for HDMI input %d\n",
-+				  dev_name(&adap->devnode.dev), i);
-+		}
-+
- 		ret = video_register_device(vfd, VFL_TYPE_GRABBER, vid_cap_nr[inst]);
- 		if (ret < 0)
- 			goto unreg_dev;
-@@ -1155,8 +1446,11 @@ static int vivid_create_instance(struct platform_device *pdev, int inst)
- 	}
- 
- 	if (dev->has_vid_out) {
-+		unsigned bus_cnt = 0;
-+
- 		vfd = &dev->vid_out_dev;
--		strlcpy(vfd->name, "vivid-vid-out", sizeof(vfd->name));
-+		snprintf(vfd->name, sizeof(vfd->name),
-+			 "vivid-%03d-vid-out", inst);
- 		vfd->vfl_dir = VFL_DIR_TX;
- 		vfd->fops = &vivid_fops;
- 		vfd->ioctl_ops = &vivid_ioctl_ops;
-@@ -1172,6 +1466,37 @@ static int vivid_create_instance(struct platform_device *pdev, int inst)
- 		vfd->lock = &dev->mutex;
- 		video_set_drvdata(vfd, dev);
- 
-+		for (i = 0; i < dev->num_outputs; i++) {
-+			struct cec_adapter *adap;
-+
-+			if (dev->output_type[i] != HDMI)
-+				continue;
-+			dev->cec_output2bus_map[i] = bus_cnt;
-+			adap = vivid_create_cec_adap(dev, bus_cnt,
-+						     &pdev->dev, true);
-+			ret = PTR_ERR_OR_ZERO(adap);
-+			if (ret < 0)
-+				goto unreg_dev;
-+			dev->cec_tx_adap[bus_cnt] = adap;
-+			ret = cec_register_adapter(adap);
-+			if (ret < 0) {
-+				cec_delete_adapter(adap);
-+				dev->cec_tx_adap[bus_cnt] = NULL;
-+				goto unreg_dev;
-+			}
-+			bus_cnt++;
-+			if (bus_cnt <= in_type_counter[HDMI]) {
-+				cec_set_phys_addr(adap, bus_cnt << 12);
-+				ret = cec_enable(adap, true);
-+				if (ret < 0)
-+					goto unreg_dev;
-+			} else {
-+				cec_set_phys_addr(adap, 0x1000);
-+			}
-+			v4l2_info(&dev->v4l2_dev, "CEC adapter %s registered for HDMI output %d\n",
-+				  dev_name(&adap->devnode.dev), i);
-+		}
-+
- 		ret = video_register_device(vfd, VFL_TYPE_GRABBER, vid_out_nr[inst]);
- 		if (ret < 0)
- 			goto unreg_dev;
-@@ -1181,7 +1506,8 @@ static int vivid_create_instance(struct platform_device *pdev, int inst)
- 
- 	if (dev->has_vbi_cap) {
- 		vfd = &dev->vbi_cap_dev;
--		strlcpy(vfd->name, "vivid-vbi-cap", sizeof(vfd->name));
-+		snprintf(vfd->name, sizeof(vfd->name),
-+			 "vivid-%03d-vbi-cap", inst);
- 		vfd->fops = &vivid_fops;
- 		vfd->ioctl_ops = &vivid_ioctl_ops;
- 		vfd->release = video_device_release_empty;
-@@ -1203,7 +1529,8 @@ static int vivid_create_instance(struct platform_device *pdev, int inst)
- 
- 	if (dev->has_vbi_out) {
- 		vfd = &dev->vbi_out_dev;
--		strlcpy(vfd->name, "vivid-vbi-out", sizeof(vfd->name));
-+		snprintf(vfd->name, sizeof(vfd->name),
-+			 "vivid-%03d-vbi-out", inst);
- 		vfd->vfl_dir = VFL_DIR_TX;
- 		vfd->fops = &vivid_fops;
- 		vfd->ioctl_ops = &vivid_ioctl_ops;
-@@ -1226,7 +1553,8 @@ static int vivid_create_instance(struct platform_device *pdev, int inst)
- 
- 	if (dev->has_sdr_cap) {
- 		vfd = &dev->sdr_cap_dev;
--		strlcpy(vfd->name, "vivid-sdr-cap", sizeof(vfd->name));
-+		snprintf(vfd->name, sizeof(vfd->name),
-+			 "vivid-%03d-sdr-cap", inst);
- 		vfd->fops = &vivid_fops;
- 		vfd->ioctl_ops = &vivid_ioctl_ops;
- 		vfd->release = video_device_release_empty;
-@@ -1244,7 +1572,8 @@ static int vivid_create_instance(struct platform_device *pdev, int inst)
- 
- 	if (dev->has_radio_rx) {
- 		vfd = &dev->radio_rx_dev;
--		strlcpy(vfd->name, "vivid-rad-rx", sizeof(vfd->name));
-+		snprintf(vfd->name, sizeof(vfd->name),
-+			 "vivid-%03d-rad-rx", inst);
- 		vfd->fops = &vivid_radio_fops;
- 		vfd->ioctl_ops = &vivid_ioctl_ops;
- 		vfd->release = video_device_release_empty;
-@@ -1261,7 +1590,8 @@ static int vivid_create_instance(struct platform_device *pdev, int inst)
- 
- 	if (dev->has_radio_tx) {
- 		vfd = &dev->radio_tx_dev;
--		strlcpy(vfd->name, "vivid-rad-tx", sizeof(vfd->name));
-+		snprintf(vfd->name, sizeof(vfd->name),
-+			 "vivid-%03d-rad-tx", inst);
- 		vfd->vfl_dir = VFL_DIR_TX;
- 		vfd->fops = &vivid_radio_fops;
- 		vfd->ioctl_ops = &vivid_ioctl_ops;
-@@ -1290,6 +1620,13 @@ unreg_dev:
- 	video_unregister_device(&dev->vbi_cap_dev);
- 	video_unregister_device(&dev->vid_out_dev);
- 	video_unregister_device(&dev->vid_cap_dev);
-+	cec_unregister_adapter(dev->cec_rx_adap);
-+	for (i = 0; i < MAX_OUTPUTS; i++)
-+		cec_unregister_adapter(dev->cec_tx_adap[i]);
-+	if (dev->cec_workqueue) {
-+		vivid_cec_bus_free_work(dev);
-+		destroy_workqueue(dev->cec_workqueue);
-+	}
- free_dev:
- 	v4l2_device_put(&dev->v4l2_dev);
- 	return ret;
-@@ -1339,8 +1676,7 @@ static int vivid_probe(struct platform_device *pdev)
- static int vivid_remove(struct platform_device *pdev)
- {
- 	struct vivid_dev *dev;
--	unsigned i;
--
-+	unsigned i, j;
- 
- 	for (i = 0; i < n_devs; i++) {
- 		dev = vivid_devs[i];
-@@ -1388,6 +1724,13 @@ static int vivid_remove(struct platform_device *pdev)
- 			unregister_framebuffer(&dev->fb_info);
- 			vivid_fb_release_buffers(dev);
- 		}
-+		cec_unregister_adapter(dev->cec_rx_adap);
-+		for (j = 0; j < MAX_OUTPUTS; j++)
-+			cec_unregister_adapter(dev->cec_tx_adap[j]);
-+		if (dev->cec_workqueue) {
-+			vivid_cec_bus_free_work(dev);
-+			destroy_workqueue(dev->cec_workqueue);
-+		}
- 		v4l2_device_put(&dev->v4l2_dev);
- 		vivid_devs[i] = NULL;
- 	}
-diff --git a/drivers/media/platform/vivid/vivid-core.h b/drivers/media/platform/vivid/vivid-core.h
-index 751c1ba..a7c125e 100644
---- a/drivers/media/platform/vivid/vivid-core.h
-+++ b/drivers/media/platform/vivid/vivid-core.h
-@@ -21,6 +21,8 @@
- #define _VIVID_CORE_H_
- 
- #include <linux/fb.h>
++#include <linux/clk.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mfd/syscon.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++#include <linux/timer.h>
++#include <linux/version.h>
 +#include <linux/workqueue.h>
 +#include <media/cec.h>
- #include <media/videobuf2-v4l2.h>
- #include <media/v4l2-device.h>
- #include <media/v4l2-dev.h>
-@@ -132,6 +134,17 @@ enum vivid_colorspace {
- #define VIVID_INVALID_SIGNAL(mode) \
- 	((mode) == NO_SIGNAL || (mode) == NO_LOCK || (mode) == OUT_OF_RANGE)
- 
-+struct vivid_cec_work {
-+	struct list_head	list;
-+	struct delayed_work	work;
++
++#include "exynos_hdmi_cec.h"
++#include "regs-cec.h"
++#include "s5p_cec.h"
++
++#define CEC_NAME	"s5p-cec"
++
++static int debug;
++module_param(debug, int, 0644);
++MODULE_PARM_DESC(debug, "debug level (0-2)");
++
++static int s5p_cec_adap_enable(struct cec_adapter *adap, bool enable)
++{
++	struct s5p_cec_dev *cec = adap->priv;
++	int ret;
++
++	if (enable) {
++		ret = pm_runtime_get_sync(cec->dev);
++
++		s5p_cec_reset(cec);
++
++		s5p_cec_set_divider(cec);
++		s5p_cec_threshold(cec);
++
++		s5p_cec_unmask_tx_interrupts(cec);
++		s5p_cec_unmask_rx_interrupts(cec);
++		s5p_cec_enable_rx(cec);
++	} else {
++		s5p_cec_mask_tx_interrupts(cec);
++		s5p_cec_mask_rx_interrupts(cec);
++		pm_runtime_disable(cec->dev);
++	}
++
++	return 0;
++}
++
++static int s5p_cec_adap_log_addr(struct cec_adapter *adap, u8 addr)
++{
++	struct s5p_cec_dev *cec = adap->priv;
++
++	s5p_cec_set_addr(cec, addr);
++	return 0;
++}
++
++static int s5p_cec_adap_transmit(struct cec_adapter *adap, u8 attempts,
++				 u32 signal_free_time, struct cec_msg *msg)
++{
++	struct s5p_cec_dev *cec = adap->priv;
++
++	/*
++	 * Unclear if 0 retries are allowed by the hardware, so have 1 as
++	 * the minimum.
++	 */
++	s5p_cec_copy_packet(cec, msg->msg, msg->len, max(1, attempts - 1));
++	return 0;
++}
++
++static irqreturn_t s5p_cec_irq_handler(int irq, void *priv)
++{
++	struct s5p_cec_dev *cec = priv;
++	u32 status = 0;
++
++	status = s5p_cec_get_status(cec);
++
++	dev_dbg(cec->dev, "irq received\n");
++
++	if (status & CEC_STATUS_TX_DONE) {
++		if (status & CEC_STATUS_TX_ERROR) {
++			dev_dbg(cec->dev, "CEC_STATUS_TX_ERROR set\n");
++			cec->tx = STATE_ERROR;
++		} else {
++			dev_dbg(cec->dev, "CEC_STATUS_TX_DONE\n");
++			cec->tx = STATE_DONE;
++		}
++		s5p_clr_pending_tx(cec);
++	}
++
++	if (status & CEC_STATUS_RX_DONE) {
++		if (status & CEC_STATUS_RX_ERROR) {
++			dev_dbg(cec->dev, "CEC_STATUS_RX_ERROR set\n");
++			s5p_cec_rx_reset(cec);
++			s5p_cec_enable_rx(cec);
++		} else {
++			dev_dbg(cec->dev, "CEC_STATUS_RX_DONE set\n");
++			if (cec->rx != STATE_IDLE)
++				dev_dbg(cec->dev, "Buffer overrun (worker did not process previous message)\n");
++			cec->rx = STATE_BUSY;
++			cec->msg.len = status >> 24;
++			cec->msg.rx_status = CEC_RX_STATUS_OK;
++			s5p_cec_get_rx_buf(cec, cec->msg.len,
++					cec->msg.msg);
++			cec->rx = STATE_DONE;
++			s5p_cec_enable_rx(cec);
++		}
++		/* Clear interrupt pending bit */
++		s5p_clr_pending_rx(cec);
++	}
++	return IRQ_WAKE_THREAD;
++}
++
++static irqreturn_t s5p_cec_irq_handler_thread(int irq, void *priv)
++{
++	struct s5p_cec_dev *cec = priv;
++
++	dev_dbg(cec->dev, "irq processing thread\n");
++	switch (cec->tx) {
++	case STATE_DONE:
++		cec_transmit_done(cec->adap, CEC_TX_STATUS_OK, 0, 0, 0, 0);
++		cec->tx = STATE_IDLE;
++		break;
++	case STATE_ERROR:
++		cec_transmit_done(cec->adap,
++			CEC_TX_STATUS_MAX_RETRIES | CEC_TX_STATUS_ERROR,
++			0, 0, 0, 1);
++		cec->tx = STATE_IDLE;
++		break;
++	case STATE_BUSY:
++		dev_err(cec->dev, "state set to busy, this should not occur here\n");
++		break;
++	default:
++		break;
++	}
++
++	switch (cec->rx) {
++	case STATE_DONE:
++		cec_received_msg(cec->adap, &cec->msg);
++		cec->rx = STATE_IDLE;
++		break;
++	default:
++		break;
++	}
++
++	return IRQ_HANDLED;
++}
++
++static const struct cec_adap_ops s5p_cec_adap_ops = {
++	.adap_enable = s5p_cec_adap_enable,
++	.adap_log_addr = s5p_cec_adap_log_addr,
++	.adap_transmit = s5p_cec_adap_transmit,
++};
++
++static int s5p_cec_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct resource *res;
++	struct s5p_cec_dev *cec;
++	int ret;
++
++	cec = devm_kzalloc(&pdev->dev, sizeof(*cec), GFP_KERNEL);
++	if (!dev)
++		return -ENOMEM;
++
++	cec->dev = dev;
++
++	cec->irq = platform_get_irq(pdev, 0);
++	if (IS_ERR_VALUE(cec->irq))
++		return cec->irq;
++
++	ret = devm_request_threaded_irq(dev, cec->irq, s5p_cec_irq_handler,
++		s5p_cec_irq_handler_thread, 0, pdev->name, cec);
++	if (IS_ERR_VALUE(ret))
++		return ret;
++
++	cec->clk = devm_clk_get(dev, "hdmicec");
++	if (IS_ERR(cec->clk))
++		return PTR_ERR(cec->clk);
++
++	cec->pmu = syscon_regmap_lookup_by_phandle(dev->of_node,
++						 "samsung,syscon-phandle");
++	if (IS_ERR(cec->pmu))
++		return -EPROBE_DEFER;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	cec->reg = devm_ioremap_resource(dev, res);
++	if (IS_ERR(cec->reg))
++		return PTR_ERR(cec->reg);
++
++	cec->adap = cec_create_adapter(&s5p_cec_adap_ops, cec,
++		CEC_NAME, CEC_CAP_STATE |
++		CEC_CAP_PHYS_ADDR | CEC_CAP_LOG_ADDRS | CEC_CAP_TRANSMIT |
++		CEC_CAP_IS_SOURCE, 0, &pdev->dev);
++	ret = PTR_ERR_OR_ZERO(cec->adap);
++	if (ret)
++		return ret;
++	cec->adap->available_log_addrs = 1;
++	ret = cec_register_adapter(cec->adap);
++	if (ret) {
++		cec_delete_adapter(cec->adap);
++		return ret;
++	}
++
++	platform_set_drvdata(pdev, cec);
++	pm_runtime_enable(dev);
++
++	dev_dbg(dev, "successfuly probed\n");
++	return 0;
++}
++
++static int s5p_cec_remove(struct platform_device *pdev)
++{
++	struct s5p_cec_dev *cec = platform_get_drvdata(pdev);
++
++	cec_unregister_adapter(cec->adap);
++	pm_runtime_disable(&pdev->dev);
++	return 0;
++}
++
++static int s5p_cec_runtime_suspend(struct device *dev)
++{
++	struct s5p_cec_dev *cec = dev_get_drvdata(dev);
++
++	clk_disable_unprepare(cec->clk);
++	return 0;
++}
++
++static int s5p_cec_runtime_resume(struct device *dev)
++{
++	struct s5p_cec_dev *cec = dev_get_drvdata(dev);
++	int ret;
++
++	ret = clk_prepare_enable(cec->clk);
++	if (ret < 0)
++		return ret;
++	return 0;
++}
++
++static int s5p_cec_suspend(struct device *dev)
++{
++	if (pm_runtime_suspended(dev))
++		return 0;
++	return s5p_cec_runtime_suspend(dev);
++}
++
++static int s5p_cec_resume(struct device *dev)
++{
++	if (pm_runtime_suspended(dev))
++		return 0;
++	return s5p_cec_runtime_resume(dev);
++}
++
++static const struct dev_pm_ops s5p_cec_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(s5p_cec_suspend, s5p_cec_resume)
++	SET_RUNTIME_PM_OPS(s5p_cec_runtime_suspend, s5p_cec_runtime_resume,
++			   NULL)
++};
++
++static const struct of_device_id s5p_cec_match[] = {
++	{
++		.compatible	= "samsung,s5p-cec",
++	},
++	{},
++};
++
++static struct platform_driver s5p_cec_pdrv = {
++	.probe	= s5p_cec_probe,
++	.remove	= s5p_cec_remove,
++	.driver	= {
++		.name		= CEC_NAME,
++		.of_match_table	= s5p_cec_match,
++		.pm		= &s5p_cec_pm_ops,
++	},
++};
++
++module_platform_driver(s5p_cec_pdrv);
++
++MODULE_AUTHOR("Kamil Debski <kamil@wypas.org>");
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("Samsung S5P CEC driver");
+diff --git a/drivers/media/platform/s5p-cec/s5p_cec.h b/drivers/media/platform/s5p-cec/s5p_cec.h
+new file mode 100644
+index 0000000..03732c1
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/s5p_cec.h
+@@ -0,0 +1,76 @@
++/* drivers/media/platform/s5p-cec/s5p_cec.h
++ *
++ * Samsung S5P HDMI CEC driver
++ *
++ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#ifndef _S5P_CEC_H_
++#define _S5P_CEC_H_ __FILE__
++
++#include <linux/clk.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mfd/syscon.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++#include <linux/timer.h>
++#include <linux/version.h>
++#include <linux/workqueue.h>
++#include <media/cec.h>
++
++#include "exynos_hdmi_cec.h"
++#include "regs-cec.h"
++#include "s5p_cec.h"
++
++#define CEC_NAME	"s5p-cec"
++
++#define CEC_STATUS_TX_RUNNING		(1 << 0)
++#define CEC_STATUS_TX_TRANSFERRING	(1 << 1)
++#define CEC_STATUS_TX_DONE		(1 << 2)
++#define CEC_STATUS_TX_ERROR		(1 << 3)
++#define CEC_STATUS_TX_BYTES		(0xFF << 8)
++#define CEC_STATUS_RX_RUNNING		(1 << 16)
++#define CEC_STATUS_RX_RECEIVING		(1 << 17)
++#define CEC_STATUS_RX_DONE		(1 << 18)
++#define CEC_STATUS_RX_ERROR		(1 << 19)
++#define CEC_STATUS_RX_BCAST		(1 << 20)
++#define CEC_STATUS_RX_BYTES		(0xFF << 24)
++
++#define CEC_WORKER_TX_DONE		(1 << 0)
++#define CEC_WORKER_RX_MSG		(1 << 1)
++
++/* CEC Rx buffer size */
++#define CEC_RX_BUFF_SIZE		16
++/* CEC Tx buffer size */
++#define CEC_TX_BUFF_SIZE		16
++
++enum cec_state {
++	STATE_IDLE,
++	STATE_BUSY,
++	STATE_DONE,
++	STATE_ERROR
++};
++
++struct s5p_cec_dev {
 +	struct cec_adapter	*adap;
-+	struct vivid_dev	*dev;
-+	unsigned		usecs;
-+	unsigned		timeout_ms;
-+	u8			tx_status;
++	struct clk		*clk;
++	struct device		*dev;
++	struct mutex		lock;
++	struct regmap           *pmu;
++	int			irq;
++	void __iomem		*reg;
++
++	enum cec_state		rx;
++	enum cec_state		tx;
 +	struct cec_msg		msg;
 +};
 +
- struct vivid_dev {
- 	unsigned			inst;
- 	struct v4l2_device		v4l2_dev;
-@@ -497,6 +510,20 @@ struct vivid_dev {
- 	/* Shared between radio receiver and transmitter */
- 	bool				radio_rds_loop;
- 	struct timespec			radio_rds_init_ts;
-+
-+	/* CEC */
-+	struct cec_adapter		*cec_rx_adap;
-+	struct cec_adapter		*cec_tx_adap[MAX_OUTPUTS];
-+	struct workqueue_struct		*cec_workqueue;
-+	spinlock_t			cec_slock;
-+	struct list_head		cec_work_list;
-+	unsigned			cec_xfer_time_jiffies;
-+	unsigned long			cec_xfer_start_jiffies;
-+	u8				cec_output2bus_map[MAX_OUTPUTS];
-+
-+	/* CEC OSD String */
-+	char				osd[14];
-+	unsigned long			osd_jiffies;
- };
- 
- static inline bool vivid_is_webcam(const struct vivid_dev *dev)
-diff --git a/drivers/media/platform/vivid/vivid-kthread-cap.c b/drivers/media/platform/vivid/vivid-kthread-cap.c
-index 9034281..6f38131 100644
---- a/drivers/media/platform/vivid/vivid-kthread-cap.c
-+++ b/drivers/media/platform/vivid/vivid-kthread-cap.c
-@@ -551,6 +551,17 @@ static void vivid_fillbuff(struct vivid_dev *dev, struct vivid_buffer *buf)
- 			snprintf(str, sizeof(str), " button pressed!");
- 			tpg_gen_text(tpg, basep, line++ * line_height, 16, str);
- 		}
-+		if (dev->osd[0]) {
-+			if (vivid_is_hdmi_cap(dev)) {
-+				snprintf(str, sizeof(str), " OSD \"%s\"", dev->osd);
-+				tpg_gen_text(tpg, basep, line++ * line_height, 16, str);
-+			}
-+			if (dev->osd_jiffies &&
-+			    time_is_before_jiffies(dev->osd_jiffies + 5 * HZ)) {
-+				dev->osd[0] = 0;
-+				dev->osd_jiffies = 0;
-+			}
-+		}
- 	}
- 
- 	/*
-diff --git a/drivers/media/platform/vivid/vivid-vid-cap.c b/drivers/media/platform/vivid/vivid-vid-cap.c
-index b84f081..c64f4d9 100644
---- a/drivers/media/platform/vivid/vivid-vid-cap.c
-+++ b/drivers/media/platform/vivid/vivid-vid-cap.c
-@@ -1700,6 +1700,9 @@ int vidioc_s_edid(struct file *file, void *_fh,
- 			 struct v4l2_edid *edid)
- {
- 	struct vivid_dev *dev = video_drvdata(file);
-+	u16 phys_addr;
-+	unsigned shift;
-+	unsigned i;
- 
- 	memset(edid->reserved, 0, sizeof(edid->reserved));
- 	if (edid->pad >= dev->num_inputs)
-@@ -1714,8 +1717,36 @@ int vidioc_s_edid(struct file *file, void *_fh,
- 		edid->blocks = dev->edid_max_blocks;
- 		return -E2BIG;
- 	}
-+	phys_addr = cec_get_edid_phys_addr(edid->edid, edid->blocks * 128, NULL);
-+	/*
-+	 * All nibbles are used so no valid physical addresses can be assigned
-+	 * to the inputs.
-+	 */
-+	if (phys_addr & 0xf)
-+		phys_addr = CEC_PHYS_ADDR_INVALID;
-+
-+	if (vb2_is_busy(&dev->vb_vid_cap_q))
-+		return -EBUSY;
-+
- 	dev->edid_blocks = edid->blocks;
- 	memcpy(dev->edid, edid->edid, edid->blocks * 128);
-+
-+	/* TODO: a proper hotplug detect cycle should be emulated here */
-+	cec_set_phys_addr(dev->cec_rx_adap, phys_addr);
-+
-+	if (phys_addr == CEC_PHYS_ADDR_INVALID) {
-+		for (i = 0; i < MAX_OUTPUTS && dev->cec_tx_adap[i]; i++)
-+			cec_set_phys_addr(dev->cec_tx_adap[i], phys_addr);
-+		return 0;
-+	}
-+
-+	/* Note: we already checked above that the lowest nibble == 0 */
-+	for (shift = 4; shift < 16; shift += 4)
-+		if (phys_addr & (0xf << shift))
-+			break;
-+	shift -= 4;
-+	for (i = 0; i < MAX_OUTPUTS && dev->cec_tx_adap[i]; i++)
-+		cec_set_phys_addr(dev->cec_tx_adap[i], phys_addr | ((i + 1) << shift));
- 	return 0;
- }
- 
-diff --git a/drivers/media/platform/vivid/vivid-vid-common.c b/drivers/media/platform/vivid/vivid-vid-common.c
-index b0d4e3a..1e004ac 100644
---- a/drivers/media/platform/vivid/vivid-vid-common.c
-+++ b/drivers/media/platform/vivid/vivid-vid-common.c
-@@ -908,6 +908,7 @@ int vidioc_g_edid(struct file *file, void *_fh,
- {
- 	struct vivid_dev *dev = video_drvdata(file);
- 	struct video_device *vdev = video_devdata(file);
-+	struct cec_adapter *adap;
- 
- 	memset(edid->reserved, 0, sizeof(edid->reserved));
- 	if (vdev->vfl_dir == VFL_DIR_RX) {
-@@ -915,11 +916,16 @@ int vidioc_g_edid(struct file *file, void *_fh,
- 			return -EINVAL;
- 		if (dev->input_type[edid->pad] != HDMI)
- 			return -EINVAL;
-+		adap = dev->cec_rx_adap;
- 	} else {
-+		unsigned bus_idx;
-+
- 		if (edid->pad >= dev->num_outputs)
- 			return -EINVAL;
- 		if (dev->output_type[edid->pad] != HDMI)
- 			return -EINVAL;
-+		bus_idx = dev->cec_output2bus_map[edid->pad];
-+		adap = dev->cec_tx_adap[bus_idx];
- 	}
- 	if (edid->start_block == 0 && edid->blocks == 0) {
- 		edid->blocks = dev->edid_blocks;
-@@ -932,5 +938,6 @@ int vidioc_g_edid(struct file *file, void *_fh,
- 	if (edid->start_block + edid->blocks > dev->edid_blocks)
- 		edid->blocks = dev->edid_blocks - edid->start_block;
- 	memcpy(edid->edid, dev->edid, edid->blocks * 128);
-+	cec_set_edid_phys_addr(edid->edid, edid->blocks * 128, adap->phys_addr);
- 	return 0;
- }
++#endif /* _S5P_CEC_H_ */
 -- 
 2.7.0

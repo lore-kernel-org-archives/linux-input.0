@@ -1,82 +1,59 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: hid-multitouch stuck taps, possibly 4.5 regression?
-Date: Fri, 18 Mar 2016 10:42:01 -0700
-Message-ID: <CALCETrWsxoL83fNRFrv5ga1mNc=Uh+263T+qXajHNt+9YkYfAA@mail.gmail.com>
-References: <CALCETrXDiW4ZyHhqt2gWwwgVYmdup27f3MsyEY9y+=EjrgJBJg@mail.gmail.com>
- <20160316084716.GR22340@mail.corp.redhat.com> <CALCETrWRi8nM6h234ppeQZ3VaAqL4d37VmZvt6HSYwDYddO3Kw@mail.gmail.com>
- <20160317080612.GN1793@lahna.fi.intel.com> <CALCETrWzDhwMP6Ld4U_OO0Q+Bpb=tmb01iC2xRTpjfY6=p_8cg@mail.gmail.com>
- <CAE7eX3+WOOO=6KVpFaqVDeEegRjz5Atofj8r-bEGfn6KshyDEQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Vladis Dronov <vdronov@redhat.com>
+Subject: [PATCH] Input: gtco: fix crash on detecting device without endpoints
+Date: Fri, 18 Mar 2016 19:35:00 +0100
+Message-ID: <1458326100-14899-1-git-send-email-vdronov@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f176.google.com ([209.85.214.176]:35846 "EHLO
-	mail-ob0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757791AbcCRRmW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Mar 2016 13:42:22 -0400
-Received: by mail-ob0-f176.google.com with SMTP id m7so122575250obh.3
-        for <linux-input@vger.kernel.org>; Fri, 18 Mar 2016 10:42:21 -0700 (PDT)
-In-Reply-To: <CAE7eX3+WOOO=6KVpFaqVDeEegRjz5Atofj8r-bEGfn6KshyDEQ@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:51204 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750994AbcCRSfP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Mar 2016 14:35:15 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <andrew.duggan@gmail.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Benjamin Tissoires <btissoir@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Jingoo Han <jingoohan1@gmail.com>, Pratyush Anand <pratyush.anand@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: Vladis Dronov <vdronov@redhat.com>
 
-On Thu, Mar 17, 2016 at 1:24 PM, Andrew Duggan <andrew.duggan@gmail.com> wrote:
-> On Thu, Mar 17, 2016 at 11:43 AM, Andy Lutomirski <luto@amacapital.net> wrote:
->> On Thu, Mar 17, 2016 at 1:06 AM, Mika Westerberg
->> <mika.westerberg@linux.intel.com> wrote:
->>> On Wed, Mar 16, 2016 at 02:59:48PM -0700, Andy Lutomirski wrote:
->>>> [add i2c-designware maintainers]
->>>>
->>>> On Wed, Mar 16, 2016 at 1:47 AM, Benjamin Tissoires <btissoir@redhat.com> wrote:
->>>> > Hi Andy,
->>>> >
->>>> > On Mar 15 2016 or thereabouts, Andy Lutomirski wrote:
->>>> >> Hi-
->>>> >>
->>>> >> In 4.5 and several 4.5 rcs, I see occasional stuck taps (I think) on
->>>> >> my XPS 13 9350's touchpad.  The effect is that trying to left-click
->>>> >> ends up middle-clicking.  I think it's a kernel issue and not a
->>>> >> hardware or libinput issue, but I'm not 100% sure.  I don't think I
->>>> >> had this issue in 4.4.
->>>> >>
->>>> >> I've attached what I think is an evtest issue of my fixing the issue
->>>> >> by pressing three fingers down in sequence and then releasing them.
->>>> >> After doing that, left-clicks worked.
->>>> >
->>>> > I think I already have been reported the issue here:
->>>> > https://bugs.freedesktop.org/show_bug.cgi?id=93948
->>>> >
->>>> > The result was that it was more likely an I2C transport bug than a
->>>> > hid-multitouch one (see comment #8 in the fdo bug).
->>>> >
->>>> > You can try to run hid-recorder when you see the problems, and then
->>>> > parse the output (or just send it to me). There is huge chances that
->>>> > there will be no events from I2C sending the release.
->>>> >
->>>> > And again, I am not sure how we could end up debugging this in the
->>>> > i2c-designware driver :(
->>>> >
->>>>
->>>> Does this ring a bell?
->>>
->>> i2c-designware usually prints errors to dmesg if it fails to transfer
->>> messages. Can you include dmesg of the failure as well?
->>
->> Nothing shows up at all.  All I have is:
->>
->> input: DLL0704:01 06CB:76AE Touchpad as
->> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/i2c-DLL0704:01/0018:06CB:76AE.0001/input/input12
->
-> What is the fw id? I have a 9343 with the same touchpad and have not
-> noticed an issue. This is the dmesg output for my touchpad.
->
-> [    5.216319] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1,
-> id: 0x1e2b1, caps: 0xd00123/0x840300/0x12e800/0x0, board id: 3038, fw
-> id: 1832324
+The gtco driver expects at least one valid endpoint. If given
+malicious descriptors that specify 0 for the number of endpoints,
+it will crash in the probe function. Ensure there is at least
+one endpoint on the interface before using it. Fix minor coding
+style issue.
 
-Mine is shinier and newer, apparently.
+The full report of this issue can be found here:
+http://seclists.org/bugtraq/2016/Mar/86
 
-psmouse serio1: synaptics: Touchpad model: 1, fw: 8.2, id: 0x1e2a1,
-caps: 0xf00223/0x840300/0x12e800/0x0, board id: 3038, fw id: 2011643
+Reported-by: Ralf Spenneberg <ralf@spenneberg.net>
+Signed-off-by: Vladis Dronov <vdronov@redhat.com>
+---
+ drivers/input/tablet/gtco.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
+index 3a7f3a4..7c18249 100644
+--- a/drivers/input/tablet/gtco.c
++++ b/drivers/input/tablet/gtco.c
+@@ -858,6 +858,14 @@ static int gtco_probe(struct usb_interface *usbinterface,
+ 		goto err_free_buf;
+ 	}
+ 
++	/* Sanity check that a device has an endpoint */
++	if (usbinterface->altsetting[0].desc.bNumEndpoints < 1) {
++		dev_err(&usbinterface->dev,
++			"Invalid number of endpoints\n");
++		error = -EINVAL;
++		goto err_free_urb;
++	}
++
+ 	/*
+ 	 * The endpoint is always altsetting 0, we know this since we know
+ 	 * this device only has one interrupt endpoint
+@@ -879,7 +887,7 @@ static int gtco_probe(struct usb_interface *usbinterface,
+ 	 * HID report descriptor
+ 	 */
+ 	if (usb_get_extra_descriptor(usbinterface->cur_altsetting,
+-				     HID_DEVICE_TYPE, &hid_desc) != 0){
++				     HID_DEVICE_TYPE, &hid_desc) != 0) {
+ 		dev_err(&usbinterface->dev,
+ 			"Can't retrieve exta USB descriptor to get hid report descriptor length\n");
+ 		error = -EIO;
+-- 
+2.5.0

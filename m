@@ -1,94 +1,86 @@
-From: Andrew Duggan <andrew.duggan@gmail.com>
-Subject: Re: hid-multitouch stuck taps, possibly 4.5 regression?
-Date: Fri, 18 Mar 2016 11:53:29 -0700
-Message-ID: <CAE7eX3K8XKc2aFbL61btco0aRSUi-+ZUsgsMZ4YKPi7b-Qc=MA@mail.gmail.com>
-References: <CALCETrXDiW4ZyHhqt2gWwwgVYmdup27f3MsyEY9y+=EjrgJBJg@mail.gmail.com>
-	<20160316084716.GR22340@mail.corp.redhat.com>
-	<CALCETrWRi8nM6h234ppeQZ3VaAqL4d37VmZvt6HSYwDYddO3Kw@mail.gmail.com>
-	<20160317080612.GN1793@lahna.fi.intel.com>
-	<CALCETrWzDhwMP6Ld4U_OO0Q+Bpb=tmb01iC2xRTpjfY6=p_8cg@mail.gmail.com>
-	<CAE7eX3+WOOO=6KVpFaqVDeEegRjz5Atofj8r-bEGfn6KshyDEQ@mail.gmail.com>
-	<CALCETrWsxoL83fNRFrv5ga1mNc=Uh+263T+qXajHNt+9YkYfAA@mail.gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
+Date: Fri, 18 Mar 2016 16:04:50 -0500
+Message-ID: <20160318210450.GA28913@rob-hp-laptop>
+References: <1458031457-1315-1-git-send-email-jeffrey.lin@rad-ic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f173.google.com ([209.85.161.173]:36121 "EHLO
-	mail-yw0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751200AbcCRSxa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Mar 2016 14:53:30 -0400
-Received: by mail-yw0-f173.google.com with SMTP id g3so150384627ywa.3
-        for <linux-input@vger.kernel.org>; Fri, 18 Mar 2016 11:53:30 -0700 (PDT)
-In-Reply-To: <CALCETrWsxoL83fNRFrv5ga1mNc=Uh+263T+qXajHNt+9YkYfAA@mail.gmail.com>
+Received: from mail.kernel.org ([198.145.29.136]:56729 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751200AbcCRVE6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Mar 2016 17:04:58 -0400
+Content-Disposition: inline
+In-Reply-To: <1458031457-1315-1-git-send-email-jeffrey.lin@rad-ic.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Benjamin Tissoires <btissoir@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Jingoo Han <jingoohan1@gmail.com>, Pratyush Anand <pratyush.anand@gmail.com>
+To: "jeffrey.lin" <yajohn@gmail.com>
+Cc: pawel.moll@arm.com, mark.rutland@arm.com, jc+devicetree@hellion.org.uk, galak@codeaurora.org, treding@nvidia.com, inki.dae@samsung.com, djkurtz@chromium.org, dusonlin@emc.com.tw, ajaykumar.rs@samsung.com, jeesw@melfas.com, dmitry.torokhov@gmail.com, rydberg@euromail.se, grant.likely@linaro.org, bleung@chromium.org, scott.liu@emc.com.tw, jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, albert.shieh@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-On Fri, Mar 18, 2016 at 10:42 AM, Andy Lutomirski <luto@amacapital.net> wrote:
-> On Thu, Mar 17, 2016 at 1:24 PM, Andrew Duggan <andrew.duggan@gmail.com> wrote:
->> On Thu, Mar 17, 2016 at 11:43 AM, Andy Lutomirski <luto@amacapital.net> wrote:
->>> On Thu, Mar 17, 2016 at 1:06 AM, Mika Westerberg
->>> <mika.westerberg@linux.intel.com> wrote:
->>>> On Wed, Mar 16, 2016 at 02:59:48PM -0700, Andy Lutomirski wrote:
->>>>> [add i2c-designware maintainers]
->>>>>
->>>>> On Wed, Mar 16, 2016 at 1:47 AM, Benjamin Tissoires <btissoir@redhat.com> wrote:
->>>>> > Hi Andy,
->>>>> >
->>>>> > On Mar 15 2016 or thereabouts, Andy Lutomirski wrote:
->>>>> >> Hi-
->>>>> >>
->>>>> >> In 4.5 and several 4.5 rcs, I see occasional stuck taps (I think) on
->>>>> >> my XPS 13 9350's touchpad.  The effect is that trying to left-click
->>>>> >> ends up middle-clicking.  I think it's a kernel issue and not a
->>>>> >> hardware or libinput issue, but I'm not 100% sure.  I don't think I
->>>>> >> had this issue in 4.4.
->>>>> >>
->>>>> >> I've attached what I think is an evtest issue of my fixing the issue
->>>>> >> by pressing three fingers down in sequence and then releasing them.
->>>>> >> After doing that, left-clicks worked.
->>>>> >
->>>>> > I think I already have been reported the issue here:
->>>>> > https://bugs.freedesktop.org/show_bug.cgi?id=93948
->>>>> >
->>>>> > The result was that it was more likely an I2C transport bug than a
->>>>> > hid-multitouch one (see comment #8 in the fdo bug).
->>>>> >
->>>>> > You can try to run hid-recorder when you see the problems, and then
->>>>> > parse the output (or just send it to me). There is huge chances that
->>>>> > there will be no events from I2C sending the release.
->>>>> >
->>>>> > And again, I am not sure how we could end up debugging this in the
->>>>> > i2c-designware driver :(
->>>>> >
->>>>>
->>>>> Does this ring a bell?
->>>>
->>>> i2c-designware usually prints errors to dmesg if it fails to transfer
->>>> messages. Can you include dmesg of the failure as well?
->>>
->>> Nothing shows up at all.  All I have is:
->>>
->>> input: DLL0704:01 06CB:76AE Touchpad as
->>> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/i2c-DLL0704:01/0018:06CB:76AE.0001/input/input12
->>
->> What is the fw id? I have a 9343 with the same touchpad and have not
->> noticed an issue. This is the dmesg output for my touchpad.
->>
->> [    5.216319] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1,
->> id: 0x1e2b1, caps: 0xd00123/0x840300/0x12e800/0x0, board id: 3038, fw
->> id: 1832324
->
-> Mine is shinier and newer, apparently.
->
-> psmouse serio1: synaptics: Touchpad model: 1, fw: 8.2, id: 0x1e2a1,
-> caps: 0xf00223/0x840300/0x12e800/0x0, board id: 3038, fw id: 2011643
+On Tue, Mar 15, 2016 at 04:44:17PM +0800, jeffrey.lin wrote:
+> Raydium I2C touch driver.
+> 
+> Signed-off-by: jeffrey.lin <jeffrey.lin@rad-ic.com>
+> ---
+>  .../devicetree/bindings/input/raydium_i2c_ts.txt   |  23 +
+>  .../devicetree/bindings/vendor-prefixes.txt        |   1 +
 
-It looks like you actually have a slightly newer revision of the
-module (76AE vs my 76AD). So I can't quite do a direct comparison.
-However, the 9350 system listed in the bug does have my exact module.
-Which is why we think it might be a problem with the embedded I2C
-chipset in the 9350.
+It is generally preferred to split bindings from driver changes.
 
-Andrew
+>  drivers/input/touchscreen/Kconfig                  |  12 +
+>  drivers/input/touchscreen/Makefile                 |   1 +
+>  drivers/input/touchscreen/raydium_i2c_ts.c         | 932 +++++++++++++++++++++
+>  5 files changed, 969 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/raydium_i2c_ts.txt
+>  create mode 100644 drivers/input/touchscreen/raydium_i2c_ts.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/raydium_i2c_ts.txt b/Documentation/devicetree/bindings/input/raydium_i2c_ts.txt
+> new file mode 100644
+> index 0000000..329864d
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/raydium_i2c_ts.txt
+> @@ -0,0 +1,23 @@
+> +Raydium I2C touchscreen
+> +
+> +Required properties:
+> +- compatible:
+> +    "raydium,rm31100"
+> +
+> +- reg: The I2C address of the device
+> +- interrupts: interrupt to which the chip is connected
+> +    See ../interrupt-controller/interrupts.txt
+> +Optional property:
+> + - avdd-supply	: Analog power supply needed to power device
+> + - vccio-supply: IO Power source
+> +
+> +Example:
+> +
+> +	raydium_i2c@0x39 {
+
+touchscreen@39
+
+Otherwise,
+
+Acked-by: Rob Herring <robh@kernel.org>
+
+
+> +		compatible = "raydium,rm31100";
+> +		avdd-supply = <&pm8226_l19>;
+> +		vccio-supply = <&pm8226_lvs1>;
+> +		reg = <0x39>;
+> +		interrupt-parent = <&gpio>;
+> +		interrupts = <0x0 IRQ_TYPE_EDGE_FALLING>;
+> +	};
+> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+> index af49e0f..5b6224b 100644
+> --- a/Documentation/devicetree/bindings/vendor-prefixes.txt
+> +++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+> @@ -126,6 +126,7 @@ radxa	Radxa
+>  raidsonic	RaidSonic Technology GmbH
+>  ralink	Mediatek/Ralink Technology Corp.
+>  ramtron	Ramtron International
+> +raydium Raydium Semiconductor Corp.
+>  realtek Realtek Semiconductor Corp.
+>  renesas	Renesas Electronics Corporation
+>  ricoh	Ricoh Co. Ltd.
+

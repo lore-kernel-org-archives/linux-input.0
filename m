@@ -1,59 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4: Remove check of Non-NULL array
-Date: Thu, 17 Mar 2016 17:10:59 -0700
-Message-ID: <20160318001059.GC21461@dtor-ws>
-References: <1458002101-4681-1-git-send-email-aduggan@synaptics.com>
+Subject: Re: [PATCH] Input: synaptics - handle spurious release of trackstick
+ buttons, again
+Date: Thu, 17 Mar 2016 17:14:19 -0700
+Message-ID: <20160318001419.GD21461@dtor-ws>
+References: <1458037097-6444-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f177.google.com ([209.85.192.177]:35356 "EHLO
-	mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S967113AbcCRALK (ORCPT
+Received: from mail-pf0-f180.google.com ([209.85.192.180]:35642 "EHLO
+	mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S966832AbcCRAOX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Mar 2016 20:11:10 -0400
+	Thu, 17 Mar 2016 20:14:23 -0400
 Content-Disposition: inline
-In-Reply-To: <1458002101-4681-1-git-send-email-aduggan@synaptics.com>
+In-Reply-To: <1458037097-6444-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2016 at 05:35:01PM -0700, Andrew Duggan wrote:
-> Originally the irq_mask member of rmi_function was a pointer. Then it was
-> switched to being a zero length array. However, the checks for a NULL
-> pointer where not removed.
+On Tue, Mar 15, 2016 at 11:18:17AM +0100, Benjamin Tissoires wrote:
+> Looks like the fimware 8.2 stall has the extra buttons spurious release
+> bug.
 > 
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=114321
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/rmi4/rmi_driver.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
+>  drivers/input/mouse/synaptics.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index da38f0a..faa295e 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -126,7 +126,7 @@ static void process_one_interrupt(struct rmi_driver_data *data,
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 6025eb4..9f3b83f 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -862,8 +862,9 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
+>  	if (!SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap))
 >  		return;
 >  
->  	fh = to_rmi_function_handler(fn->dev.driver);
-> -	if (fn->irq_mask && fh->attention) {
-> +	if (fh->attention) {
->  		bitmap_and(data->fn_irq_bits, data->irq_status, fn->irq_mask,
->  				data->irq_count);
->  		if (!bitmap_empty(data->fn_irq_bits, data->irq_count))
-> @@ -172,8 +172,7 @@ int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
->  	 * use irq_chip.
->  	 */
->  	list_for_each_entry(entry, &data->function_list, node)
-> -		if (entry->irq_mask)
-> -			process_one_interrupt(data, entry);
-> +		process_one_interrupt(data, entry);
+> -	/* Bug in FW 8.1, buttons are reported only when ExtBit is 1 */
+> -	if (SYN_ID_FULL(priv->identity) == 0x801 &&
+> +	/* Bug in FW 8.1 & 8.2, buttons are reported only when ExtBit is 1 */
+> +	if (((SYN_ID_FULL(priv->identity) == 0x801) ||
+> +	     (SYN_ID_FULL(priv->identity) == 0x802)) &&
+
+but dropped extra parenthesis...
+
+>  	    !((psmouse->packet[0] ^ psmouse->packet[3]) & 0x02))
+>  		return;
 >  
->  	if (data->input)
->  		input_sync(data->input);
 > -- 
 > 2.5.0
 > 

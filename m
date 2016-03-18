@@ -1,84 +1,82 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCHv13 05/17] HID: add HDMI CEC specific keycodes
-Date: Fri, 18 Mar 2016 18:30:09 +0100
-Message-ID: <56EC3B21.7060405@xs4all.nl>
-References: <1458310036-19252-1-git-send-email-hans.verkuil@cisco.com>
- <1458310036-19252-6-git-send-email-hans.verkuil@cisco.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: hid-multitouch stuck taps, possibly 4.5 regression?
+Date: Fri, 18 Mar 2016 10:42:01 -0700
+Message-ID: <CALCETrWsxoL83fNRFrv5ga1mNc=Uh+263T+qXajHNt+9YkYfAA@mail.gmail.com>
+References: <CALCETrXDiW4ZyHhqt2gWwwgVYmdup27f3MsyEY9y+=EjrgJBJg@mail.gmail.com>
+ <20160316084716.GR22340@mail.corp.redhat.com> <CALCETrWRi8nM6h234ppeQZ3VaAqL4d37VmZvt6HSYwDYddO3Kw@mail.gmail.com>
+ <20160317080612.GN1793@lahna.fi.intel.com> <CALCETrWzDhwMP6Ld4U_OO0Q+Bpb=tmb01iC2xRTpjfY6=p_8cg@mail.gmail.com>
+ <CAE7eX3+WOOO=6KVpFaqVDeEegRjz5Atofj8r-bEGfn6KshyDEQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb1-smtp-cloud3.xs4all.net ([194.109.24.22]:45562 "EHLO
-	lb1-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932228AbcCRRaQ (ORCPT
+Received: from mail-ob0-f176.google.com ([209.85.214.176]:35846 "EHLO
+	mail-ob0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757791AbcCRRmW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Mar 2016 13:30:16 -0400
-In-Reply-To: <1458310036-19252-6-git-send-email-hans.verkuil@cisco.com>
+	Fri, 18 Mar 2016 13:42:22 -0400
+Received: by mail-ob0-f176.google.com with SMTP id m7so122575250obh.3
+        for <linux-input@vger.kernel.org>; Fri, 18 Mar 2016 10:42:21 -0700 (PDT)
+In-Reply-To: <CAE7eX3+WOOO=6KVpFaqVDeEegRjz5Atofj8r-bEGfn6KshyDEQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
+To: Andrew Duggan <andrew.duggan@gmail.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Benjamin Tissoires <btissoir@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Jingoo Han <jingoohan1@gmail.com>, Pratyush Anand <pratyush.anand@gmail.com>
 
-Hi Dmitry,
+On Thu, Mar 17, 2016 at 1:24 PM, Andrew Duggan <andrew.duggan@gmail.com> wrote:
+> On Thu, Mar 17, 2016 at 11:43 AM, Andy Lutomirski <luto@amacapital.net> wrote:
+>> On Thu, Mar 17, 2016 at 1:06 AM, Mika Westerberg
+>> <mika.westerberg@linux.intel.com> wrote:
+>>> On Wed, Mar 16, 2016 at 02:59:48PM -0700, Andy Lutomirski wrote:
+>>>> [add i2c-designware maintainers]
+>>>>
+>>>> On Wed, Mar 16, 2016 at 1:47 AM, Benjamin Tissoires <btissoir@redhat.com> wrote:
+>>>> > Hi Andy,
+>>>> >
+>>>> > On Mar 15 2016 or thereabouts, Andy Lutomirski wrote:
+>>>> >> Hi-
+>>>> >>
+>>>> >> In 4.5 and several 4.5 rcs, I see occasional stuck taps (I think) on
+>>>> >> my XPS 13 9350's touchpad.  The effect is that trying to left-click
+>>>> >> ends up middle-clicking.  I think it's a kernel issue and not a
+>>>> >> hardware or libinput issue, but I'm not 100% sure.  I don't think I
+>>>> >> had this issue in 4.4.
+>>>> >>
+>>>> >> I've attached what I think is an evtest issue of my fixing the issue
+>>>> >> by pressing three fingers down in sequence and then releasing them.
+>>>> >> After doing that, left-clicks worked.
+>>>> >
+>>>> > I think I already have been reported the issue here:
+>>>> > https://bugs.freedesktop.org/show_bug.cgi?id=93948
+>>>> >
+>>>> > The result was that it was more likely an I2C transport bug than a
+>>>> > hid-multitouch one (see comment #8 in the fdo bug).
+>>>> >
+>>>> > You can try to run hid-recorder when you see the problems, and then
+>>>> > parse the output (or just send it to me). There is huge chances that
+>>>> > there will be no events from I2C sending the release.
+>>>> >
+>>>> > And again, I am not sure how we could end up debugging this in the
+>>>> > i2c-designware driver :(
+>>>> >
+>>>>
+>>>> Does this ring a bell?
+>>>
+>>> i2c-designware usually prints errors to dmesg if it fails to transfer
+>>> messages. Can you include dmesg of the failure as well?
+>>
+>> Nothing shows up at all.  All I have is:
+>>
+>> input: DLL0704:01 06CB:76AE Touchpad as
+>> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/i2c-DLL0704:01/0018:06CB:76AE.0001/input/input12
+>
+> What is the fw id? I have a 9343 with the same touchpad and have not
+> noticed an issue. This is the dmesg output for my touchpad.
+>
+> [    5.216319] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1,
+> id: 0x1e2b1, caps: 0xd00123/0x840300/0x12e800/0x0, board id: 3038, fw
+> id: 1832324
 
-Can you Ack this? I don't expect this to change anymore. Your comments have been
-incorporated (added the "Diagonal movement keys" comment).
+Mine is shinier and newer, apparently.
 
-Thanks!
-
-	Hans
-
-On 03/18/2016 03:07 PM, Hans Verkuil wrote:
-> From: Kamil Debski <kamil@wypas.org>
-> 
-> Add HDMI CEC specific keycodes to the keycodes definition.
-> 
-> Signed-off-by: Kamil Debski <kamil@wypas.org>
-> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-> ---
->  include/uapi/linux/input-event-codes.h | 30 ++++++++++++++++++++++++++++++
->  1 file changed, 30 insertions(+)
-> 
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 87cf351..02b7b3a 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -611,6 +611,36 @@
->  #define KEY_KBDINPUTASSIST_ACCEPT		0x264
->  #define KEY_KBDINPUTASSIST_CANCEL		0x265
->  
-> +/* Diagonal movement keys */
-> +#define KEY_RIGHT_UP			0x266
-> +#define KEY_RIGHT_DOWN			0x267
-> +#define KEY_LEFT_UP			0x268
-> +#define KEY_LEFT_DOWN			0x269
-> +
-> +#define KEY_ROOT_MENU			0x26a /* Show Device's Root Menu */
-> +#define KEY_MEDIA_TOP_MENU		0x26b /* Show Top Menu of the Media (e.g. DVD) */
-> +#define KEY_NUMERIC_11			0x26c
-> +#define KEY_NUMERIC_12			0x26d
-> +/*
-> + * Toggle Audio Description: refers to an audio service that helps blind and
-> + * visually impaired consumers understand the action in a program. Note: in
-> + * some countries this is referred to as "Video Description".
-> + */
-> +#define KEY_AUDIO_DESC			0x26e
-> +#define KEY_3D_MODE			0x26f
-> +#define KEY_NEXT_FAVORITE		0x270
-> +#define KEY_STOP_RECORD			0x271
-> +#define KEY_PAUSE_RECORD		0x272
-> +#define KEY_VOD				0x273 /* Video on Demand */
-> +#define KEY_UNMUTE			0x274
-> +#define KEY_FASTREVERSE			0x275
-> +#define KEY_SLOWREVERSE			0x276
-> +/*
-> + * Control a data application associated with the currently viewed channel,
-> + * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
-> + */
-> +#define KEY_DATA			0x275
-> +
->  #define BTN_TRIGGER_HAPPY		0x2c0
->  #define BTN_TRIGGER_HAPPY1		0x2c0
->  #define BTN_TRIGGER_HAPPY2		0x2c1
-> 
-
+psmouse serio1: synaptics: Touchpad model: 1, fw: 8.2, id: 0x1e2a1,
+caps: 0xf00223/0x840300/0x12e800/0x0, board id: 3038, fw id: 2011643

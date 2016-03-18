@@ -1,48 +1,34 @@
 From: Hans Verkuil <hans.verkuil@cisco.com>
-Subject: [PATCHv13 02/17] dts: exynos4: add node for the HDMI CEC device
-Date: Fri, 18 Mar 2016 15:07:01 +0100
-Message-ID: <1458310036-19252-3-git-send-email-hans.verkuil@cisco.com>
+Subject: [PATCHv13 04/17] input.h: add BUS_CEC type
+Date: Fri, 18 Mar 2016 15:07:03 +0100
+Message-ID: <1458310036-19252-5-git-send-email-hans.verkuil@cisco.com>
 References: <1458310036-19252-1-git-send-email-hans.verkuil@cisco.com>
 Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 In-Reply-To: <1458310036-19252-1-git-send-email-hans.verkuil@cisco.com>
 Sender: linux-samsung-soc-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Kamil Debski <kamil@wypas.org>
+Inputs can come in over the HDMI CEC bus, so add a new type for this.
 
-This patch adds HDMI CEC node specific to the Exynos4210/4x12 SoC series.
-
-Signed-off-by: Kamil Debski <kamil@wypas.org>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Acked-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- arch/arm/boot/dts/exynos4.dtsi | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ include/uapi/linux/input.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/exynos4.dtsi b/arch/arm/boot/dts/exynos4.dtsi
-index 045785c..8913408 100644
---- a/arch/arm/boot/dts/exynos4.dtsi
-+++ b/arch/arm/boot/dts/exynos4.dtsi
-@@ -751,6 +751,18 @@
- 		status = "disabled";
- 	};
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 2758687..4f8c813 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -246,6 +246,7 @@ struct input_mask {
+ #define BUS_GSC			0x1A
+ #define BUS_ATARI		0x1B
+ #define BUS_SPI			0x1C
++#define BUS_CEC			0x1D
  
-+	hdmicec: cec@100B0000 {
-+		compatible = "samsung,s5p-cec";
-+		reg = <0x100B0000 0x200>;
-+		interrupts = <0 114 0>;
-+		clocks = <&clock CLK_HDMI_CEC>;
-+		clock-names = "hdmicec";
-+		samsung,syscon-phandle = <&pmu_system_controller>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&hdmi_cec>;
-+		status = "disabled";
-+	};
-+
- 	mixer: mixer@12C10000 {
- 		compatible = "samsung,exynos4210-mixer";
- 		interrupts = <0 91 0>;
+ /*
+  * MT_TOOL types
 -- 
 2.7.0

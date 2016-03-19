@@ -1,86 +1,43 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
-Date: Fri, 18 Mar 2016 16:04:50 -0500
-Message-ID: <20160318210450.GA28913@rob-hp-laptop>
-References: <1458031457-1315-1-git-send-email-jeffrey.lin@rad-ic.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: [PATCHv13 01/17] dts: exynos4*: add HDMI CEC pin definition to
+ pinctrl
+Date: Sat, 19 Mar 2016 11:50:40 +0900
+Message-ID: <20160319025040.GA7289@kozik-lap>
+References: <1458310036-19252-1-git-send-email-hans.verkuil@cisco.com>
+ <1458310036-19252-2-git-send-email-hans.verkuil@cisco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:56729 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751200AbcCRVE6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Mar 2016 17:04:58 -0400
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 Content-Disposition: inline
-In-Reply-To: <1458031457-1315-1-git-send-email-jeffrey.lin@rad-ic.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1458310036-19252-2-git-send-email-hans.verkuil@cisco.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Hans Verkuil <hans.verkuil@cisco.com>
+Cc: linux-samsung-soc@vger.kernel.org, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, dri-devel@lists.freedesktop.org, lars@opdenkamp.eu, krzk@kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "jeffrey.lin" <yajohn@gmail.com>
-Cc: pawel.moll@arm.com, mark.rutland@arm.com, jc+devicetree@hellion.org.uk, galak@codeaurora.org, treding@nvidia.com, inki.dae@samsung.com, djkurtz@chromium.org, dusonlin@emc.com.tw, ajaykumar.rs@samsung.com, jeesw@melfas.com, dmitry.torokhov@gmail.com, rydberg@euromail.se, grant.likely@linaro.org, bleung@chromium.org, scott.liu@emc.com.tw, jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, albert.shieh@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-On Tue, Mar 15, 2016 at 04:44:17PM +0800, jeffrey.lin wrote:
-> Raydium I2C touch driver.
-> 
-> Signed-off-by: jeffrey.lin <jeffrey.lin@rad-ic.com>
-> ---
->  .../devicetree/bindings/input/raydium_i2c_ts.txt   |  23 +
->  .../devicetree/bindings/vendor-prefixes.txt        |   1 +
-
-It is generally preferred to split bindings from driver changes.
-
->  drivers/input/touchscreen/Kconfig                  |  12 +
->  drivers/input/touchscreen/Makefile                 |   1 +
->  drivers/input/touchscreen/raydium_i2c_ts.c         | 932 +++++++++++++++++++++
->  5 files changed, 969 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/raydium_i2c_ts.txt
->  create mode 100644 drivers/input/touchscreen/raydium_i2c_ts.c
-> 
-> diff --git a/Documentation/devicetree/bindings/input/raydium_i2c_ts.txt b/Documentation/devicetree/bindings/input/raydium_i2c_ts.txt
-> new file mode 100644
-> index 0000000..329864d
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/raydium_i2c_ts.txt
-> @@ -0,0 +1,23 @@
-> +Raydium I2C touchscreen
-> +
-> +Required properties:
-> +- compatible:
-> +    "raydium,rm31100"
-> +
-> +- reg: The I2C address of the device
-> +- interrupts: interrupt to which the chip is connected
-> +    See ../interrupt-controller/interrupts.txt
-> +Optional property:
-> + - avdd-supply	: Analog power supply needed to power device
-> + - vccio-supply: IO Power source
-> +
-> +Example:
-> +
-> +	raydium_i2c@0x39 {
-
-touchscreen@39
-
-Otherwise,
-
-Acked-by: Rob Herring <robh@kernel.org>
-
-
-> +		compatible = "raydium,rm31100";
-> +		avdd-supply = <&pm8226_l19>;
-> +		vccio-supply = <&pm8226_lvs1>;
-> +		reg = <0x39>;
-> +		interrupt-parent = <&gpio>;
-> +		interrupts = <0x0 IRQ_TYPE_EDGE_FALLING>;
-> +	};
-> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
-> index af49e0f..5b6224b 100644
-> --- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-> +++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-> @@ -126,6 +126,7 @@ radxa	Radxa
->  raidsonic	RaidSonic Technology GmbH
->  ralink	Mediatek/Ralink Technology Corp.
->  ramtron	Ramtron International
-> +raydium Raydium Semiconductor Corp.
->  realtek Realtek Semiconductor Corp.
->  renesas	Renesas Electronics Corporation
->  ricoh	Ricoh Co. Ltd.
-
+T24gRnJpLCBNYXIgMTgsIDIwMTYgYXQgMDM6MDc6MDBQTSArMDEwMCwgSGFucyBWZXJrdWlsIHdy
+b3RlOgo+IEZyb206IEthbWlsIERlYnNraSA8a2FtaWxAd3lwYXMub3JnPgo+IAo+IEFkZCBwaW5j
+dHJsIG5vZGVzIGZvciB0aGUgSERNSSBDRUMgZGV2aWNlIHRvIHRoZSBFeHlub3M0MjEwIGFuZAo+
+IEV4eW5vczR4MTIgU29Dcy4gVGhlc2UgYXJlIHJlcXVpcmVkIGJ5IHRoZSBIRE1JIENFQyBkZXZp
+Y2UuCj4gCj4gU2lnbmVkLW9mZi1ieTogS2FtaWwgRGVic2tpIDxrYW1pbEB3eXBhcy5vcmc+Cj4g
+U2lnbmVkLW9mZi1ieTogSGFucyBWZXJrdWlsIDxoYW5zLnZlcmt1aWxAY2lzY28uY29tPgo+IEFj
+a2VkLWJ5OiBLcnp5c3p0b2YgS296bG93c2tpIDxrLmtvemxvd3NraUBzYW1zdW5nLmNvbT4KPiAt
+LS0KPiAgYXJjaC9hcm0vYm9vdC9kdHMvZXh5bm9zNDIxMC1waW5jdHJsLmR0c2kgfCA3ICsrKysr
+KysKPiAgYXJjaC9hcm0vYm9vdC9kdHMvZXh5bm9zNHgxMi1waW5jdHJsLmR0c2kgfCA3ICsrKysr
+KysKPiAgMiBmaWxlcyBjaGFuZ2VkLCAxNCBpbnNlcnRpb25zKCspCgpIaSBIYW5zLAoKSSBzZWUg
+eW91IGhhdmUgYmVlbiBjYXJyeWluZyB0aGVzZSB0aHJlZSBwYXRjaGVzIGZvciBhIGxvbmcgdGlt
+ZS4KSW5pdGlhbGx5IEkgdGhvdWdodCB0aGF0IHRoZXJlIGFyZSBzb21lIGRlcGVuZGVuY2llcy4u
+LiBidXQgbWF5YmUgdGhlcmUKYXJlIG5vdD8KCkNhbiBJIHRha2UgdGhlc2UgRXh5bm9zIERUUyBw
+YXRjaGVzIHRvIHNhbXN1bmctc29jPwoKQmVzdCByZWdhcmRzLApLcnp5c3p0b2YKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcg
+bGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRl
+c2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==

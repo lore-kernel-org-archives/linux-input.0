@@ -1,43 +1,65 @@
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
 Subject: Re: [PATCHv13 01/17] dts: exynos4*: add HDMI CEC pin definition to
  pinctrl
-Date: Sat, 19 Mar 2016 11:50:40 +0900
-Message-ID: <20160319025040.GA7289@kozik-lap>
+Date: Sat, 19 Mar 2016 09:15:31 +0100
+Message-ID: <56ED0AA3.1000601@xs4all.nl>
 References: <1458310036-19252-1-git-send-email-hans.verkuil@cisco.com>
  <1458310036-19252-2-git-send-email-hans.verkuil@cisco.com>
+ <20160319025040.GA7289@kozik-lap>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <1458310036-19252-2-git-send-email-hans.verkuil@cisco.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Hans Verkuil <hans.verkuil@cisco.com>
-Cc: linux-samsung-soc@vger.kernel.org, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, dri-devel@lists.freedesktop.org, lars@opdenkamp.eu, krzk@kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lb3-smtp-cloud6.xs4all.net ([194.109.24.31]:40937 "EHLO
+	lb3-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751870AbcCSIPm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 19 Mar 2016 04:15:42 -0400
+In-Reply-To: <20160319025040.GA7289@kozik-lap>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, krzk@kernel.org
 
-T24gRnJpLCBNYXIgMTgsIDIwMTYgYXQgMDM6MDc6MDBQTSArMDEwMCwgSGFucyBWZXJrdWlsIHdy
-b3RlOgo+IEZyb206IEthbWlsIERlYnNraSA8a2FtaWxAd3lwYXMub3JnPgo+IAo+IEFkZCBwaW5j
-dHJsIG5vZGVzIGZvciB0aGUgSERNSSBDRUMgZGV2aWNlIHRvIHRoZSBFeHlub3M0MjEwIGFuZAo+
-IEV4eW5vczR4MTIgU29Dcy4gVGhlc2UgYXJlIHJlcXVpcmVkIGJ5IHRoZSBIRE1JIENFQyBkZXZp
-Y2UuCj4gCj4gU2lnbmVkLW9mZi1ieTogS2FtaWwgRGVic2tpIDxrYW1pbEB3eXBhcy5vcmc+Cj4g
-U2lnbmVkLW9mZi1ieTogSGFucyBWZXJrdWlsIDxoYW5zLnZlcmt1aWxAY2lzY28uY29tPgo+IEFj
-a2VkLWJ5OiBLcnp5c3p0b2YgS296bG93c2tpIDxrLmtvemxvd3NraUBzYW1zdW5nLmNvbT4KPiAt
-LS0KPiAgYXJjaC9hcm0vYm9vdC9kdHMvZXh5bm9zNDIxMC1waW5jdHJsLmR0c2kgfCA3ICsrKysr
-KysKPiAgYXJjaC9hcm0vYm9vdC9kdHMvZXh5bm9zNHgxMi1waW5jdHJsLmR0c2kgfCA3ICsrKysr
-KysKPiAgMiBmaWxlcyBjaGFuZ2VkLCAxNCBpbnNlcnRpb25zKCspCgpIaSBIYW5zLAoKSSBzZWUg
-eW91IGhhdmUgYmVlbiBjYXJyeWluZyB0aGVzZSB0aHJlZSBwYXRjaGVzIGZvciBhIGxvbmcgdGlt
-ZS4KSW5pdGlhbGx5IEkgdGhvdWdodCB0aGF0IHRoZXJlIGFyZSBzb21lIGRlcGVuZGVuY2llcy4u
-LiBidXQgbWF5YmUgdGhlcmUKYXJlIG5vdD8KCkNhbiBJIHRha2UgdGhlc2UgRXh5bm9zIERUUyBw
-YXRjaGVzIHRvIHNhbXN1bmctc29jPwoKQmVzdCByZWdhcmRzLApLcnp5c3p0b2YKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcg
-bGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRl
-c2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+On 03/19/2016 03:50 AM, Krzysztof Kozlowski wrote:
+> On Fri, Mar 18, 2016 at 03:07:00PM +0100, Hans Verkuil wrote:
+>> From: Kamil Debski <kamil@wypas.org>
+>>
+>> Add pinctrl nodes for the HDMI CEC device to the Exynos4210 and
+>> Exynos4x12 SoCs. These are required by the HDMI CEC device.
+>>
+>> Signed-off-by: Kamil Debski <kamil@wypas.org>
+>> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+>> Acked-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>> ---
+>>  arch/arm/boot/dts/exynos4210-pinctrl.dtsi | 7 +++++++
+>>  arch/arm/boot/dts/exynos4x12-pinctrl.dtsi | 7 +++++++
+>>  2 files changed, 14 insertions(+)
+> 
+> Hi Hans,
+> 
+> I see you have been carrying these three patches for a long time.
+> Initially I thought that there are some dependencies... but maybe there
+> are not?
+> 
+> Can I take these Exynos DTS patches to samsung-soc?
+
+That would be very nice!
+
+BTW, it would be nice if someone from Samsung could try to improve the s5p
+CEC driver from this patch series.
+
+The problem is that it expects userspace to tell it the physical address,
+which is read from the EDID. But the HDMI driver in the kernel already knows
+this, so requiring userspace to handle this is not nice.
+
+Basically the CEC driver needs to know when a new EDID has been read and
+when the hotplug detect goes low (EDID has been lost).
+
+If someone who actually knows the HDMI code could provide me with a patch,
+then I can fix the CEC driver. I have an odroid to test with, so I can check
+the code.
+
+Regards,
+
+	Hans

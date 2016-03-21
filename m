@@ -1,76 +1,65 @@
-From: sergk sergk2mail <sergk.admin@gmail.com>
-Subject: Re: Chipone icn85xx support in x86 linux kernel
-Date: Sun, 20 Mar 2016 23:52:14 +0000
-Message-ID: <CA+V1Lzqw_VfBpx9TUUVsjVahV8LOveVUttA98eVe6iWxkf+Zbg@mail.gmail.com>
-References: <CA+V1Lzo4-EBWQcpg9T-BBcF5xqa31_JNOZj-ev56PWe=vuvqZQ@mail.gmail.com>
-	<56E1EE3C.6010007@gmail.com>
-	<CA+V1LzoHQq71riUOciB2PTLm4-Xk5DO1DA49f2uF9SOk5x_rKA@mail.gmail.com>
-	<56E41184.8020006@gmail.com>
-	<CA+V1LzrQJguh4Yqi56x1Jv+WJtO+A5B_7N6Q6kPw+_zcU6H8Ng@mail.gmail.com>
-	<56E569F1.1000900@gmail.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: [PATCHv13 01/17] dts: exynos4*: add HDMI CEC pin definition to
+ pinctrl
+Date: Mon, 21 Mar 2016 09:22:46 +0900
+Message-ID: <56EF3ED6.3010308@samsung.com>
+References: <1458310036-19252-1-git-send-email-hans.verkuil@cisco.com>
+ <1458310036-19252-2-git-send-email-hans.verkuil@cisco.com>
+ <20160319025040.GA7289@kozik-lap> <56ED0AA3.1000601@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f49.google.com ([209.85.192.49]:36233 "EHLO
-	mail-qg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751563AbcCTXwQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Mar 2016 19:52:16 -0400
-Received: by mail-qg0-f49.google.com with SMTP id u110so143877236qge.3
-        for <linux-input@vger.kernel.org>; Sun, 20 Mar 2016 16:52:15 -0700 (PDT)
-In-Reply-To: <56E569F1.1000900@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-reply-to: <56ED0AA3.1000601@xs4all.nl>
+Sender: linux-media-owner@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, krzk@kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gregor Riepl <onitake@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-Hi Gregor, and ALL.
-
-Good news - have created module that wake up chip and load in FW and
-reads coordinates!
-Could not at the moment setup IRQ.
-Polling mode is possible! but have not yet tested it completely, also
-some weird happens with reading y coordinate - instead reading from 0
-to 768 it reads normally till something 2xx-3xx, then overflow then
-again from 0 to 500. Anyway even with this it could be fixed just with
-corelation received information based on current behaviour. X looks is
-readed perfect (0 - 1366).
-
-Will generate dedicated to IRQ and touch screen thread with result and question.
-
-Regards,
-
-                Serge Kolotylo.
-
-On Sun, Mar 13, 2016 at 1:24 PM, Gregor Riepl <onitake@gmail.com> wrote:
->> Actually I am not sure if I have waked up chip, BUT at the same I am
->> stabile receive something on i2c-3 0x30.
->> This looks like in DSDT ACPI and by analogy with Chuwi vi8 again is a
->> shift on Baytrail -1 on i2cbus.
->> The problem is - why I am receiving each time different values for
->> reading the same addresses on i2c bus?
->> I mean if I read 0xa address (should be 0x85 - the major version of
->> the chip) - I receive each time new values but not 0x85! see my posts
->> with test results.
+On 19.03.2016 17:15, Hans Verkuil wrote:
+> On 03/19/2016 03:50 AM, Krzysztof Kozlowski wrote:
+>> On Fri, Mar 18, 2016 at 03:07:00PM +0100, Hans Verkuil wrote:
+>>> From: Kamil Debski <kamil@wypas.org>
+>>>
+>>> Add pinctrl nodes for the HDMI CEC device to the Exynos4210 and
+>>> Exynos4x12 SoCs. These are required by the HDMI CEC device.
+>>>
+>>> Signed-off-by: Kamil Debski <kamil@wypas.org>
+>>> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+>>> Acked-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>>> ---
+>>>  arch/arm/boot/dts/exynos4210-pinctrl.dtsi | 7 +++++++
+>>>  arch/arm/boot/dts/exynos4x12-pinctrl.dtsi | 7 +++++++
+>>>  2 files changed, 14 insertions(+)
 >>
->> HOW IT COULD BE  POSSIBLE SO?
+>> Hi Hans,
 >>
->> ...
+>> I see you have been carrying these three patches for a long time.
+>> Initially I thought that there are some dependencies... but maybe there
+>> are not?
 >>
->> Also from android - the only TS module is loaded and present is
->> atmel_mxt_ts - nm g shows
->
-> Well.... Perhaps you have one of those Atmel maXTouch chips after all?
->
-> Have you looked inside your tablet to confirm this?
->
-> The mXT most likely has a different protocol/memory map than the icn85xx.
-> If you can find a data sheet, you may be able to read the respective
-> identification registers.
->
-> Also, keep in mind that a loaded module does not necessarily mean you have the
-> corresponding hardware. There could be a user space driver that handles touch
-> on Android.
->
-> Or perhaps... You have a totally different chip.
-> Are you sure that all icnxxxx devices use the same memory map?
+>> Can I take these Exynos DTS patches to samsung-soc?
+> 
+> That would be very nice!
+
+I'll apply them after merge window.
+
+
+> BTW, it would be nice if someone from Samsung could try to improve the s5p
+> CEC driver from this patch series.
+> 
+> The problem is that it expects userspace to tell it the physical address,
+> which is read from the EDID. But the HDMI driver in the kernel already knows
+> this, so requiring userspace to handle this is not nice.
+> 
+> Basically the CEC driver needs to know when a new EDID has been read and
+> when the hotplug detect goes low (EDID has been lost).
+> 
+> If someone who actually knows the HDMI code could provide me with a patch,
+> then I can fix the CEC driver. I have an odroid to test with, so I can check
+> the code.
+
+Not quite my area of knowledge but I'll keep it in mind.
+
+Best regards,
+Krzysztof

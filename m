@@ -1,32 +1,153 @@
-From: Vladis Dronov <vdronov-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] Input: gtco: fix crash on detecting device without
- endpoints
-Date: Mon, 21 Mar 2016 05:04:02 -0400 (EDT)
-Message-ID: <1597504137.38727942.1458551042248.JavaMail.zimbra@redhat.com>
-References: <1458326100-14899-1-git-send-email-vdronov@redhat.com>
+From: Andrea <andrea.deangelis93@gmail.com>
+Subject: Re: keyboard problem on linux
+Date: Mon, 21 Mar 2016 10:35:32 +0100
+Message-ID: <56EFC064.8070903@gmail.com>
+References: <569E3B62.6050407@gmail.com> <20160120001340.GC31589@dtor-ws>
+ <569F5389.8040800@gmail.com> <56A92E09.9020009@gmail.com>
+ <56CB1C44.8000004@gmail.com> <56CC5480.6080305@gmail.com>
+ <56D55119.4050009@gmail.com> <56D6ECBD.3020809@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1458326100-14899-1-git-send-email-vdronov-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:38005 "EHLO
+	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751730AbcCUJfh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Mar 2016 05:35:37 -0400
+Received: by mail-wm0-f52.google.com with SMTP id l68so114014023wml.1
+        for <linux-input@vger.kernel.org>; Mon, 21 Mar 2016 02:35:36 -0700 (PDT)
+In-Reply-To: <56D6ECBD.3020809@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
->> The full report of this issue can be found here:
->> http://seclists.org/bugtraq/2016/Mar/86
+the problem still present also on kernel 4.5
+and I noticed that after momentarily solved the issue pressing the LEFT 
+SHIFT key, if i press CAPS LOCK or BLOCK NUM keys, the problem came back 
+immediately.
+on launchpad, there are other user with HP Pavilion 15, with the same 
+problem
 
-The subject and the body of the above message are not matching and
-the message does not describe the gtco driver bug.
+I hope you can help me to fix the issue.
 
-The full correct report of this issue can be found in the public
-Red Hat Bugzilla:
+tell me if i can do something to help
 
-https://bugzilla.redhat.com/show_bug.cgi?id=1283385
+thanks for help
 
-Best regards,
-Vladis Dronov | Red Hat, Inc. | Product Security Engineer
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+Il 02/03/2016 14:38, Andrea ha scritto:
+> on launchpad an user with the same notebook and the same problems,
+> posted some results of keyboard events
+>
+> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1532746/comments/11
+>
+> i hope this can be usefult to fix the problem
+>
+>
+>
+>
+> Il 01/03/2016 09:21, Andrea ha scritto:
+>> i'm not the only with this problem.
+>> on HP forum, another user with the same notebook, has the same problem.
+>>
+>> http://h30434.www3.hp.com/t5/Notebook-Operating-System-and-Recovery/HP-Pavilion-15-ab062nl-SHIFT-CTRL-ALT-keys-problems-on-linux/m-p/5522283/highlight/false#M429851
+>>
+>>
+>>
+>>
+>> Il 23/02/2016 13:45, Andrea ha scritto:
+>>> seems that when i play game (on steam), i haven't any problem when i'm
+>>> playing, but i'm not sure
+>>>
+>>>
+>>>
+>>> Il 22/02/2016 15:33, Andrea ha scritto:
+>>>> the problem occurs also when i logout to login manager.
+>>>>
+>>>> for example if in this moment i haven't the problem (because i've
+>>>> pressed for some seconds MAIUSC key) and i logout, the problem occurs
+>>>> again infact sometimes, when i logout, and then i try to login again,
+>>>> the login manager doesn't accpet the password because the passowrd
+>>>> contains uppercase letters, but sometimes the OS don't take maiusc key
+>>>> (I hope I explained well)
+>>>>
+>>>> i hope that this information can be useful.
+>>>> thanks
+>>>>
+>>>> Il 27/01/2016 21:52, Andrea ha scritto:
+>>>>> i've installed the new kernel 4.5 RC1, but i've the same problem.
+>>>>> i've also tried start ubuntu with upstart, same problem.
+>>>>> i don't know why i've this strange problem.
+>>>>>
+>>>>> i've also tried GhostBSD on live (i don't know if this information can
+>>>>> be useful), the problems occurs also on BSD but seem that is less
+>>>>> severe
+>>>>> than on Linux, because on BSD seems that the problem occurs only one
+>>>>> time every boot, then disappears without do nothing (don't need to
+>>>>> press
+>>>>> MAIUSC key for some seconds).
+>>>>>
+>>>>> I hope that this bug can be solved.
+>>>>>
+>>>>>
+>>>>> Il 20/01/2016 10:29, Andrea ha scritto:
+>>>>>> Hi, Dmitry
+>>>>>> i've the same problem on console without X.
+>>>>>> this is an output of evtest on console:
+>>>>>> http://pastebin.com/4aWYYhwN
+>>>>>> (as you can see, after a while i'm pressing Left_Alt (from line
+>>>>>> 434 of
+>>>>>> pastebin) or Left_Ctrl (from line 605 of pastebin) or Left_Shift
+>>>>>> (from
+>>>>>> line 786 of pastebin), these keys are released and then pressed
+>>>>>> again.
+>>>>>> but when i press only left_shift for some seconds, the issue don't
+>>>>>> occurs.)
+>>>>>>
+>>>>>> i haven't found nothing on BIOS settings, the only options
+>>>>>> relative to
+>>>>>> keyboard is:
+>>>>>>
+>>>>>> Action Keys Mode:
+>>>>>> [Enabled]: Requires pressing only F1 throug F12 to activate action
+>>>>>> keys
+>>>>>> [Disabled]: Requires pressing FN Key + F1 throug F12 to activate
+>>>>>> action
+>>>>>> keys
+>>>>>>
+>>>>>> but the problem occurs in both modes
+>>>>>>
+>>>>>>
+>>>>>> Il 20/01/2016 01:13, Dmitry Torokhov ha scritto:
+>>>>>>> Hi Andera,
+>>>>>>>
+>>>>>>> On Tue, Jan 19, 2016 at 02:34:26PM +0100, Andrea wrote:
+>>>>>>>> [1.] i've a problem with keyboard of my notebook HP Pavilion 15
+>>>>>>>> ab062nl; CTRL SHIFT and ALT buttons not works as they should. in
+>>>>>>>> particular, it is as if these keys are pressed and released alone.
+>>>>>>>> isn't an hardware problem, because on windows 10 and windows 8.1 i
+>>>>>>>> haven't these problems, is only a linux problem (all distro).
+>>>>>>>>
+>>>>>>>> [2.] the bug is always active, every time i start a linux Distro
+>>>>>>>> (also from live, and also without DE/WM) i've this problem with
+>>>>>>>> keyboard, the only way to fix temporarily the bug, is pressing the
+>>>>>>>> only Left SHIFT key for some seconds, then all problems disappear
+>>>>>>>> indefinitely, and in any case, if i shutdown or if i reboot the PC,
+>>>>>>>> the problem recurs.
+>>>>>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1532746
+>>>>>>>
+>>>>>>> Hmm, this is weird. Do you observe the same issue in text console
+>>>>>>> (not
+>>>>>>> in X)? It would be nice to see events as emitted by the kernel - you
+>>>>>>> can
+>>>>>>> use evtest utility for that.
+>>>>>>>
+>>>>>>> Is sounds like some accessibility feature, is there anything in
+>>>>>>> BIOS to
+>>>>>>> that effect?
+>>>>>>>
+>>>>>>> Thanks.
+>>>>>>>

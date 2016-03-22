@@ -1,1151 +1,1002 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] HID: rmi: Make hid-rmi a transport driver for synaptics-rmi4
-Date: Mon, 21 Mar 2016 17:12:17 -0700
-Message-ID: <1458605537-19462-1-git-send-email-aduggan@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: "jeffrey.lin" <yajohn@gmail.com>
+Subject: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
+Date: Tue, 22 Mar 2016 14:23:13 +0800
+Message-ID: <1458627793-1861-1-git-send-email-jeffrey.lin@rad-ic.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:58244 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750934AbcCVAMb (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36048 "EHLO
+	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751211AbcCVGX2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Mar 2016 20:12:31 -0400
+	Tue, 22 Mar 2016 02:23:28 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se, grant.likely@linaro.org, robh+dt@kernel.org, jeesw@melfas.com, bleung@chromium.org, scott.liu@emc.com.tw
+Cc: jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, albert.shieh@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-The Synaptics RMI4 driver provides support for RMI4 devices. Instead of
-duplicating the RMI4 processing code, make hid-rmi a transport driver
-and register it with the Synaptics RMI4 core.
+Raydium I2C touch driver.
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Signed-off-by: jeffrey.lin <jeffrey.lin@rad-ic.com>
 ---
-This is the patch which was originally submitted as part of the Synaptics
-RMI4 patch series which converts hid-rmi into a transport driver. Now
-that the core has been accepting I am resubmitting.
+ drivers/input/touchscreen/Kconfig          |  13 +
+ drivers/input/touchscreen/Makefile         |   1 +
+ drivers/input/touchscreen/raydium_i2c_ts.c | 932 +++++++++++++++++++++++++++++
+ 3 files changed, 946 insertions(+)
+ create mode 100644 drivers/input/touchscreen/raydium_i2c_ts.c
 
-The most significant change in this version of the patch is that
-rmi_process_interrupt_requests() is now being called from a workqueue.
-I noticed that HID/USB devices call hid_input_report() from irq context
-or softirq context. However, rmi_process_interrupt_requests() calls
-functions which may sleep. For instance the irq masks are protected by
-a mutex which is acquired when processing interrupts. It is also possible
-that some HID device may need to read additional registers when processing
-interrupts which is another example of a call which could sleep. Calling
-rmi_process_interrupt_requests() from a workqueue seemed like the best
-way to guarenttee that rmi_process_interrupt_requests() isn't being
-called in interrupt context.
-
- drivers/hid/Kconfig   |   2 +-
- drivers/hid/hid-rmi.c | 895 +++++---------------------------------------------
- 2 files changed, 89 insertions(+), 808 deletions(-)
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 513a16c..9cba717 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -740,7 +740,7 @@ config HID_SUNPLUS
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 3f3f6ee..9adacf6 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -915,6 +915,19 @@ config TOUCHSCREEN_PCAP
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called pcap_ts.
  
- config HID_RMI
- 	tristate "Synaptics RMI4 device support"
--	depends on HID
-+	depends on HID && RMI4_CORE
- 	---help---
- 	Support for Synaptics RMI4 touchpads.
- 	Say Y here if you have a Synaptics RMI4 touchpads over i2c-hid or usbhid
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index 9cd2ca3..c80e7c7 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -19,6 +19,7 @@
- #include <linux/slab.h>
- #include <linux/wait.h>
- #include <linux/sched.h>
-+#include <linux/rmi.h>
- #include "hid-ids.h"
- 
- #define RMI_MOUSE_REPORT_ID		0x01 /* Mouse emulation Report */
-@@ -32,9 +33,7 @@
- #define RMI_READ_REQUEST_PENDING	0
- #define RMI_READ_DATA_PENDING		1
- #define RMI_STARTED			2
--
--#define RMI_SLEEP_NORMAL		0x0
--#define RMI_SLEEP_DEEP_SLEEP		0x1
-+#define RMI_PROCESS_ATTN_PENDING	3
- 
- /* device flags */
- #define RMI_DEVICE			BIT(0)
-@@ -54,20 +53,6 @@ enum rmi_mode_type {
- 	RMI_MODE_NO_PACKED_ATTN_REPORTS	= 2,
- };
- 
--struct rmi_function {
--	unsigned page;			/* page of the function */
--	u16 query_base_addr;		/* base address for queries */
--	u16 command_base_addr;		/* base address for commands */
--	u16 control_base_addr;		/* base address for controls */
--	u16 data_base_addr;		/* base address for datas */
--	unsigned int interrupt_base;	/* cross-function interrupt number
--					 * (uniq in the device)*/
--	unsigned int interrupt_count;	/* number of interrupts */
--	unsigned int report_size;	/* size of a report */
--	unsigned long irq_mask;		/* mask of the interrupts
--					 * (to be applied against ATTN IRQ) */
--};
--
- /**
-  * struct rmi_data - stores information for hid communication
-  *
-@@ -104,6 +89,7 @@ struct rmi_function {
- struct rmi_data {
- 	struct mutex page_mutex;
- 	int page;
-+	struct rmi_transport_dev xport;
- 
- 	wait_queue_head_t wait;
- 
-@@ -115,34 +101,11 @@ struct rmi_data {
- 
- 	unsigned long flags;
- 
--	struct rmi_function f01;
--	struct rmi_function f11;
--	struct rmi_function f30;
--
--	unsigned int max_fingers;
--	unsigned int max_x;
--	unsigned int max_y;
--	unsigned int x_size_mm;
--	unsigned int y_size_mm;
--	bool read_f11_ctrl_regs;
--	u8 f11_ctrl_regs[RMI_F11_CTRL_REG_COUNT];
--
--	unsigned int gpio_led_count;
--	unsigned int button_count;
--	unsigned long button_mask;
--	unsigned long button_state_mask;
--
--	struct input_dev *input;
--
- 	struct work_struct reset_work;
-+	struct work_struct attn_work;
- 	struct hid_device *hdev;
- 
- 	unsigned long device_flags;
--	unsigned long firmware_id;
--
--	u8 f01_ctrl0;
--	u8 interrupt_enable_mask;
--	bool restore_interrupt_mask;
- };
- 
- #define RMI_PAGE(addr) (((addr) >> 8) & 0xff)
-@@ -214,10 +177,11 @@ static int rmi_write_report(struct hid_device *hdev, u8 *report, int len)
- 	return ret;
- }
- 
--static int rmi_read_block(struct hid_device *hdev, u16 addr, void *buf,
--		const int len)
-+static int rmi_hid_read_block(struct rmi_transport_dev *xport, u16 addr,
-+		void *buf, size_t len)
- {
--	struct rmi_data *data = hid_get_drvdata(hdev);
-+	struct rmi_data *data = container_of(xport, struct rmi_data, xport);
-+	struct hid_device *hdev = data->hdev;
- 	int ret;
- 	int bytes_read;
- 	int bytes_needed;
-@@ -286,15 +250,11 @@ exit:
- 	return ret;
- }
- 
--static inline int rmi_read(struct hid_device *hdev, u16 addr, void *buf)
-+static int rmi_hid_write_block(struct rmi_transport_dev *xport, u16 addr,
-+		const void *buf, size_t len)
- {
--	return rmi_read_block(hdev, addr, buf, 1);
--}
--
--static int rmi_write_block(struct hid_device *hdev, u16 addr, void *buf,
--		const int len)
--{
--	struct rmi_data *data = hid_get_drvdata(hdev);
-+	struct rmi_data *data = container_of(xport, struct rmi_data, xport);
-+	struct hid_device *hdev = data->hdev;
- 	int ret;
- 
- 	mutex_lock(&data->page_mutex);
-@@ -326,62 +286,20 @@ exit:
- 	return ret;
- }
- 
--static inline int rmi_write(struct hid_device *hdev, u16 addr, void *buf)
--{
--	return rmi_write_block(hdev, addr, buf, 1);
--}
--
--static void rmi_f11_process_touch(struct rmi_data *hdata, int slot,
--		u8 finger_state, u8 *touch_data)
--{
--	int x, y, wx, wy;
--	int wide, major, minor;
--	int z;
--
--	input_mt_slot(hdata->input, slot);
--	input_mt_report_slot_state(hdata->input, MT_TOOL_FINGER,
--			finger_state == 0x01);
--	if (finger_state == 0x01) {
--		x = (touch_data[0] << 4) | (touch_data[2] & 0x0F);
--		y = (touch_data[1] << 4) | (touch_data[2] >> 4);
--		wx = touch_data[3] & 0x0F;
--		wy = touch_data[3] >> 4;
--		wide = (wx > wy);
--		major = max(wx, wy);
--		minor = min(wx, wy);
--		z = touch_data[4];
--
--		/* y is inverted */
--		y = hdata->max_y - y;
--
--		input_event(hdata->input, EV_ABS, ABS_MT_POSITION_X, x);
--		input_event(hdata->input, EV_ABS, ABS_MT_POSITION_Y, y);
--		input_event(hdata->input, EV_ABS, ABS_MT_ORIENTATION, wide);
--		input_event(hdata->input, EV_ABS, ABS_MT_PRESSURE, z);
--		input_event(hdata->input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
--		input_event(hdata->input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
--	}
--}
--
- static int rmi_reset_attn_mode(struct hid_device *hdev)
- {
- 	struct rmi_data *data = hid_get_drvdata(hdev);
-+	struct rmi_device *rmi_dev = data->xport.rmi_dev;
- 	int ret;
- 
- 	ret = rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
- 	if (ret)
- 		return ret;
- 
--	if (data->restore_interrupt_mask) {
--		ret = rmi_write(hdev, data->f01.control_base_addr + 1,
--				&data->interrupt_enable_mask);
--		if (ret) {
--			hid_err(hdev, "can not write F01 control register\n");
--			return ret;
--		}
--	}
-+	if (test_bit(RMI_STARTED, &data->flags))
-+		ret = rmi_dev->driver->reset_handler(rmi_dev);
- 
--	return 0;
-+	return ret;
- }
- 
- static void rmi_reset_work(struct work_struct *work)
-@@ -399,96 +317,34 @@ static inline int rmi_schedule_reset(struct hid_device *hdev)
- 	return schedule_work(&hdata->reset_work);
- }
- 
--static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
--		int size)
--{
--	struct rmi_data *hdata = hid_get_drvdata(hdev);
--	int offset;
--	int i;
--
--	if (!(irq & hdata->f11.irq_mask) || size <= 0)
--		return 0;
--
--	offset = (hdata->max_fingers >> 2) + 1;
--	for (i = 0; i < hdata->max_fingers; i++) {
--		int fs_byte_position = i >> 2;
--		int fs_bit_position = (i & 0x3) << 1;
--		int finger_state = (data[fs_byte_position] >> fs_bit_position) &
--					0x03;
--		int position = offset + 5 * i;
--
--		if (position + 5 > size) {
--			/* partial report, go on with what we received */
--			printk_once(KERN_WARNING
--				"%s %s: Detected incomplete finger report. Finger reports may occasionally get dropped on this platform.\n",
--				 dev_driver_string(&hdev->dev),
--				 dev_name(&hdev->dev));
--			hid_dbg(hdev, "Incomplete finger report\n");
--			break;
--		}
--
--		rmi_f11_process_touch(hdata, i, finger_state, &data[position]);
--	}
--	input_mt_sync_frame(hdata->input);
--	input_sync(hdata->input);
--	return hdata->f11.report_size;
--}
--
--static int rmi_f30_input_event(struct hid_device *hdev, u8 irq, u8 *data,
--		int size)
-+static void rmi_attn_work(struct work_struct *work)
- {
--	struct rmi_data *hdata = hid_get_drvdata(hdev);
--	int i;
--	int button = 0;
--	bool value;
--
--	if (!(irq & hdata->f30.irq_mask))
--		return 0;
-+	 struct rmi_data *hdata = container_of(work, struct rmi_data,
-+						attn_work);
-+	 struct rmi_device *rmi_dev = hdata->xport.rmi_dev;
- 
--	if (size < (int)hdata->f30.report_size) {
--		hid_warn(hdev, "Click Button pressed, but the click data is missing\n");
--		return 0;
--	}
-+	 rmi_process_interrupt_requests(rmi_dev);
- 
--	for (i = 0; i < hdata->gpio_led_count; i++) {
--		if (test_bit(i, &hdata->button_mask)) {
--			value = (data[i / 8] >> (i & 0x07)) & BIT(0);
--			if (test_bit(i, &hdata->button_state_mask))
--				value = !value;
--			input_event(hdata->input, EV_KEY, BTN_LEFT + button++,
--					value);
--		}
--	}
--	return hdata->f30.report_size;
-+	 clear_bit(RMI_PROCESS_ATTN_PENDING, &hdata->flags);
- }
- 
- static int rmi_input_event(struct hid_device *hdev, u8 *data, int size)
- {
- 	struct rmi_data *hdata = hid_get_drvdata(hdev);
--	unsigned long irq_mask = 0;
--	unsigned index = 2;
-+	struct rmi_device *rmi_dev = hdata->xport.rmi_dev;
-+	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
- 
- 	if (!(test_bit(RMI_STARTED, &hdata->flags)))
- 		return 0;
- 
--	irq_mask |= hdata->f11.irq_mask;
--	irq_mask |= hdata->f30.irq_mask;
--
--	if (data[1] & ~irq_mask)
--		hid_dbg(hdev, "unknown intr source:%02lx %s:%d\n",
--			data[1] & ~irq_mask, __FILE__, __LINE__);
--
--	if (hdata->f11.interrupt_base < hdata->f30.interrupt_base) {
--		index += rmi_f11_input_event(hdev, data[1], &data[index],
--				size - index);
--		index += rmi_f30_input_event(hdev, data[1], &data[index],
--				size - index);
--	} else {
--		index += rmi_f30_input_event(hdev, data[1], &data[index],
--				size - index);
--		index += rmi_f11_input_event(hdev, data[1], &data[index],
--				size - index);
--	}
-+	if (test_and_set_bit(RMI_PROCESS_ATTN_PENDING, &hdata->flags))
-+		return 1;
++config TOUCHSCREEN_RM_TS
++	tristate "Raydium I2C Touchscreen"
++	depends on I2C
++	help
++	  Say Y here if you have Raydium series I2C touchscreen,
++	  such as RM31100 , connected to your system.
 +
-+	*(drvdata->irq_status) = data[1];
-+	hdata->xport.attn_data = &data[2];
-+	hdata->xport.attn_size = hdata->input_report_size - 2;
++	  If unsure, say N.
 +
-+	schedule_work(&hdata->attn_work);
- 
- 	return 1;
- }
-@@ -570,637 +426,71 @@ static int rmi_event(struct hid_device *hdev, struct hid_field *field,
- }
- 
- #ifdef CONFIG_PM
--static int rmi_set_sleep_mode(struct hid_device *hdev, int sleep_mode)
--{
--	struct rmi_data *data = hid_get_drvdata(hdev);
--	int ret;
--	u8 f01_ctrl0;
--
--	f01_ctrl0 = (data->f01_ctrl0 & ~0x3) | sleep_mode;
--
--	ret = rmi_write(hdev, data->f01.control_base_addr,
--			&f01_ctrl0);
--	if (ret) {
--		hid_err(hdev, "can not write sleep mode\n");
--		return ret;
--	}
--
--	return 0;
--}
--
- static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
- {
- 	struct rmi_data *data = hid_get_drvdata(hdev);
--	int ret;
--	u8 buf[RMI_F11_CTRL_REG_COUNT];
--
--	if (!(data->device_flags & RMI_DEVICE))
--		return 0;
--
--	ret = rmi_read_block(hdev, data->f11.control_base_addr, buf,
--				RMI_F11_CTRL_REG_COUNT);
--	if (ret)
--		hid_warn(hdev, "can not read F11 control registers\n");
--	else
--		memcpy(data->f11_ctrl_regs, buf, RMI_F11_CTRL_REG_COUNT);
--
--
--	if (!device_may_wakeup(hdev->dev.parent))
--		return rmi_set_sleep_mode(hdev, RMI_SLEEP_DEEP_SLEEP);
--
--	return 0;
--}
--
--static int rmi_post_reset(struct hid_device *hdev)
--{
--	struct rmi_data *data = hid_get_drvdata(hdev);
-+	struct rmi_device *rmi_dev = data->xport.rmi_dev;
- 	int ret;
- 
- 	if (!(data->device_flags & RMI_DEVICE))
- 		return 0;
- 
--	ret = rmi_reset_attn_mode(hdev);
-+	ret = rmi_driver_suspend(rmi_dev);
- 	if (ret) {
--		hid_err(hdev, "can not set rmi mode\n");
-+		hid_warn(hdev, "Failed to suspend device: %d\n", ret);
- 		return ret;
- 	}
- 
--	if (data->read_f11_ctrl_regs) {
--		ret = rmi_write_block(hdev, data->f11.control_base_addr,
--				data->f11_ctrl_regs, RMI_F11_CTRL_REG_COUNT);
--		if (ret)
--			hid_warn(hdev,
--				"can not write F11 control registers after reset\n");
--	}
--
--	if (!device_may_wakeup(hdev->dev.parent)) {
--		ret = rmi_set_sleep_mode(hdev, RMI_SLEEP_NORMAL);
--		if (ret) {
--			hid_err(hdev, "can not write sleep mode\n");
--			return ret;
--		}
--	}
--
--	return ret;
-+	return 0;
- }
- 
- static int rmi_post_resume(struct hid_device *hdev)
- {
- 	struct rmi_data *data = hid_get_drvdata(hdev);
-+	struct rmi_device *rmi_dev = data->xport.rmi_dev;
++	  To compile this driver as a module, choose M here: the
++	  module will be called raydium_i2c_ts.
++
++
+ config TOUCHSCREEN_ST1232
+ 	tristate "Sitronix ST1232 touchscreen controllers"
+ 	depends on I2C
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 4941f2d..99e08cf 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -55,6 +55,7 @@ obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
+ obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+ obj-$(CONFIG_TOUCHSCREEN_PIXCIR)	+= pixcir_i2c_ts.o
++obj-$(CONFIG_TOUCHSCREEN_RM_TS)		+= raydium_i2c_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+ obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
+diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+new file mode 100644
+index 0000000..d4184e2
+--- /dev/null
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -0,0 +1,932 @@
++/*
++ * Raydium touchscreen I2C driver.
++ *
++ * Copyright (C) 2012-2014, Raydium Semiconductor Corporation.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2, and only version 2, as published by the
++ * Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * Raydium reserves the right to make changes without further notice
++ * to the materials described herein. Raydium does not assume any
++ * liability arising out of the application described herein.
++ *
++ * Contact Raydium Semiconductor Corporation at www.rad-ic.com
++ */
++
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/i2c.h>
++#include <linux/delay.h>
++#include <linux/slab.h>
++#include <linux/firmware.h>
++#include <linux/input/mt.h>
++#include <linux/acpi.h>
++#include <linux/of.h>
++#include <linux/regulator/consumer.h>
++#include <asm/unaligned.h>
++#include <linux/gpio/consumer.h>
++
++/* Device, Driver information */
++#define DEVICE_NAME	"rm3xxxx"
++
++/* Slave I2C mode*/
++#define RM_BOOT_BLDR	0x02
++#define RM_BOOT_MAIN	0x03
++
++/*I2C command */
++#define CMD_QUERY_BANK		0x2B
++#define CMD_DATA_BANK		0x4D
++#define CMD_ENTER_SLEEP		0x4E
++#define CMD_BOOT_ACK		0x0A
++#define CMD_BOOT_WRT		0x5B
++#define CMD_BOOT_CHK		0x0C
++#define CMD_BANK_SWITCH		0xAA
++
++/* Touch relative info */
++#define MAX_RETRIES		3
++#define MAX_FW_UPDATE_RETRIES	30
++#define MAX_TOUCH_NUM		10
++#define MAX_PACKET_SIZE		60
++#define BOOT_DELAY_MS	100
++
++#define RAYDIUM_FW_PAGESIZE	128
++#define RAYDIUM_POWERON_DELAY_USEC	500
++#define RAYDIUM_RESET_DELAY_MSEC	50
++
++#define ADDR_INDEX		0x03
++#define DATA_INDEX		0x04
++
++#define HEADER_SIZE		4
++
++enum raydium_boot_mode {
++	RAYDIUM_TS_MAIN = 0,
++	RAYDIUM_TS_BLDR,
++};
++
++enum raydium_abs_idx {
++	POS_STATE = 0,/*1:touch, 0:no touch*/
++	POS_X,
++	POS_Y = 3,
++	POS_PRESSURE,
++	WIDTH_X,
++	WIDTH_Y,
++};
++
++struct raydium_info {
++	u32 hw_ver;	/*device ver, __le32*/
++	u8 main_ver;
++	u8 sub_ver;
++	u16 ft_ver;	/*test ver, __le16*/
++	u8 x_num;
++	u8 y_num;
++	u16 x_max;	/*disp reso, __le16*/
++	u16 y_max;	/*disp reso, __le16*/
++	u8 x_res;		/* units/mm */
++	u8 y_res;		/* units/mm */
++};
++
++struct raydium_object {
++	u32 data_bank_addr;
++	u8 pkg_size;
++	u8 tp_info_size;
++};
++
++/* struct raydium_data - represents state of Raydium touchscreen device */
++struct raydium_data {
++	struct i2c_client *client;
++	struct input_dev *input;
++
++	struct regulator *avdd;
++	struct regulator *vccio;
++	struct gpio_desc *reset_gpio;
++
++	u32 query_bank_info;
++
++	struct raydium_info info;
++	struct raydium_object obj;
++	enum raydium_boot_mode boot_mode;
++
++	struct mutex sysfs_mutex;
++	struct completion cmd_done;
++
++	bool wake_irq_enabled;
++};
++
++static int raydium_i2c_send(struct i2c_client *client,
++	u8 addr, u8 *data, size_t len)
++{
++	u8 buf[MAX_PACKET_SIZE + 1];
++	int tries = 0;
++
++	if (len > MAX_PACKET_SIZE)
++		return -EINVAL;
++
++	buf[0] = addr;
++	memcpy(&buf[1], data, len);
++
++	do {
++		if (i2c_master_send(client, buf, len + 1) == (len + 1))
++			return 0;
++		msleep(20);
++	} while (++tries < MAX_RETRIES);
++
++	dev_err(&client->dev, "%s: i2c send failed\n", __func__);
++
++	return -EIO;
++}
++
++static int raydium_i2c_read(struct i2c_client *client,
++	u8 addr, size_t len, void *data)
++{
++	struct i2c_msg xfer[2];
 +	int ret;
- 
- 	if (!(data->device_flags & RMI_DEVICE))
- 		return 0;
- 
--	return rmi_reset_attn_mode(hdev);
--}
--#endif /* CONFIG_PM */
--
--#define RMI4_MAX_PAGE 0xff
--#define RMI4_PAGE_SIZE 0x0100
--
--#define PDT_START_SCAN_LOCATION 0x00e9
--#define PDT_END_SCAN_LOCATION	0x0005
--#define RMI4_END_OF_PDT(id) ((id) == 0x00 || (id) == 0xff)
--
--struct pdt_entry {
--	u8 query_base_addr:8;
--	u8 command_base_addr:8;
--	u8 control_base_addr:8;
--	u8 data_base_addr:8;
--	u8 interrupt_source_count:3;
--	u8 bits3and4:2;
--	u8 function_version:2;
--	u8 bit7:1;
--	u8 function_number:8;
--} __attribute__((__packed__));
--
--static inline unsigned long rmi_gen_mask(unsigned irq_base, unsigned irq_count)
--{
--	return GENMASK(irq_count + irq_base - 1, irq_base);
--}
--
--static void rmi_register_function(struct rmi_data *data,
--	struct pdt_entry *pdt_entry, int page, unsigned interrupt_count)
--{
--	struct rmi_function *f = NULL;
--	u16 page_base = page << 8;
--
--	switch (pdt_entry->function_number) {
--	case 0x01:
--		f = &data->f01;
--		break;
--	case 0x11:
--		f = &data->f11;
--		break;
--	case 0x30:
--		f = &data->f30;
--		break;
--	}
--
--	if (f) {
--		f->page = page;
--		f->query_base_addr = page_base | pdt_entry->query_base_addr;
--		f->command_base_addr = page_base | pdt_entry->command_base_addr;
--		f->control_base_addr = page_base | pdt_entry->control_base_addr;
--		f->data_base_addr = page_base | pdt_entry->data_base_addr;
--		f->interrupt_base = interrupt_count;
--		f->interrupt_count = pdt_entry->interrupt_source_count;
--		f->irq_mask = rmi_gen_mask(f->interrupt_base,
--						f->interrupt_count);
--		data->interrupt_enable_mask |= f->irq_mask;
--	}
--}
--
--static int rmi_scan_pdt(struct hid_device *hdev)
--{
--	struct rmi_data *data = hid_get_drvdata(hdev);
--	struct pdt_entry entry;
--	int page;
--	bool page_has_function;
--	int i;
--	int retval;
--	int interrupt = 0;
--	u16 page_start, pdt_start , pdt_end;
--
--	hid_info(hdev, "Scanning PDT...\n");
--
--	for (page = 0; (page <= RMI4_MAX_PAGE); page++) {
--		page_start = RMI4_PAGE_SIZE * page;
--		pdt_start = page_start + PDT_START_SCAN_LOCATION;
--		pdt_end = page_start + PDT_END_SCAN_LOCATION;
--
--		page_has_function = false;
--		for (i = pdt_start; i >= pdt_end; i -= sizeof(entry)) {
--			retval = rmi_read_block(hdev, i, &entry, sizeof(entry));
--			if (retval) {
--				hid_err(hdev,
--					"Read of PDT entry at %#06x failed.\n",
--					i);
--				goto error_exit;
--			}
--
--			if (RMI4_END_OF_PDT(entry.function_number))
--				break;
--
--			page_has_function = true;
--
--			hid_info(hdev, "Found F%02X on page %#04x\n",
--					entry.function_number, page);
--
--			rmi_register_function(data, &entry, page, interrupt);
--			interrupt += entry.interrupt_source_count;
--		}
--
--		if (!page_has_function)
--			break;
--	}
--
--	hid_info(hdev, "%s: Done with PDT scan.\n", __func__);
--	retval = 0;
--
--error_exit:
--	return retval;
--}
--
--#define RMI_DEVICE_F01_BASIC_QUERY_LEN	11
--
--static int rmi_populate_f01(struct hid_device *hdev)
--{
--	struct rmi_data *data = hid_get_drvdata(hdev);
--	u8 basic_queries[RMI_DEVICE_F01_BASIC_QUERY_LEN];
--	u8 info[3];
--	int ret;
--	bool has_query42;
--	bool has_lts;
--	bool has_sensor_id;
--	bool has_ds4_queries = false;
--	bool has_build_id_query = false;
--	bool has_package_id_query = false;
--	u16 query_offset = data->f01.query_base_addr;
--	u16 prod_info_addr;
--	u8 ds4_query_len;
--
--	ret = rmi_read_block(hdev, query_offset, basic_queries,
--				RMI_DEVICE_F01_BASIC_QUERY_LEN);
--	if (ret) {
--		hid_err(hdev, "Can not read basic queries from Function 0x1.\n");
--		return ret;
--	}
--
--	has_lts = !!(basic_queries[0] & BIT(2));
--	has_sensor_id = !!(basic_queries[1] & BIT(3));
--	has_query42 = !!(basic_queries[1] & BIT(7));
--
--	query_offset += 11;
--	prod_info_addr = query_offset + 6;
--	query_offset += 10;
--
--	if (has_lts)
--		query_offset += 20;
--
--	if (has_sensor_id)
--		query_offset++;
--
--	if (has_query42) {
--		ret = rmi_read(hdev, query_offset, info);
--		if (ret) {
--			hid_err(hdev, "Can not read query42.\n");
--			return ret;
--		}
--		has_ds4_queries = !!(info[0] & BIT(0));
--		query_offset++;
--	}
--
--	if (has_ds4_queries) {
--		ret = rmi_read(hdev, query_offset, &ds4_query_len);
--		if (ret) {
--			hid_err(hdev, "Can not read DS4 Query length.\n");
--			return ret;
--		}
--		query_offset++;
--
--		if (ds4_query_len > 0) {
--			ret = rmi_read(hdev, query_offset, info);
--			if (ret) {
--				hid_err(hdev, "Can not read DS4 query.\n");
--				return ret;
--			}
--
--			has_package_id_query = !!(info[0] & BIT(0));
--			has_build_id_query = !!(info[0] & BIT(1));
--		}
--	}
--
--	if (has_package_id_query)
--		prod_info_addr++;
--
--	if (has_build_id_query) {
--		ret = rmi_read_block(hdev, prod_info_addr, info, 3);
--		if (ret) {
--			hid_err(hdev, "Can not read product info.\n");
--			return ret;
--		}
--
--		data->firmware_id = info[1] << 8 | info[0];
--		data->firmware_id += info[2] * 65536;
--	}
--
--	ret = rmi_read_block(hdev, data->f01.control_base_addr, info,
--				2);
--
--	if (ret) {
--		hid_err(hdev, "can not read f01 ctrl registers\n");
--		return ret;
--	}
--
--	data->f01_ctrl0 = info[0];
--
--	if (!info[1]) {
--		/*
--		 * Do to a firmware bug in some touchpads the F01 interrupt
--		 * enable control register will be cleared on reset.
--		 * This will stop the touchpad from reporting data, so
--		 * if F01 CTRL1 is 0 then we need to explicitly enable
--		 * interrupts for the functions we want data for.
--		 */
--		data->restore_interrupt_mask = true;
--
--		ret = rmi_write(hdev, data->f01.control_base_addr + 1,
--				&data->interrupt_enable_mask);
--		if (ret) {
--			hid_err(hdev, "can not write to control reg 1: %d.\n",
--				ret);
--			return ret;
--		}
--	}
--
--	return 0;
--}
--
--static int rmi_populate_f11(struct hid_device *hdev)
--{
--	struct rmi_data *data = hid_get_drvdata(hdev);
--	u8 buf[20];
--	int ret;
--	bool has_query9;
--	bool has_query10 = false;
--	bool has_query11;
--	bool has_query12;
--	bool has_query27;
--	bool has_query28;
--	bool has_query36 = false;
--	bool has_physical_props;
--	bool has_gestures;
--	bool has_rel;
--	bool has_data40 = false;
--	bool has_dribble = false;
--	bool has_palm_detect = false;
--	unsigned x_size, y_size;
--	u16 query_offset;
--
--	if (!data->f11.query_base_addr) {
--		hid_err(hdev, "No 2D sensor found, giving up.\n");
--		return -ENODEV;
--	}
--
--	/* query 0 contains some useful information */
--	ret = rmi_read(hdev, data->f11.query_base_addr, buf);
--	if (ret) {
--		hid_err(hdev, "can not get query 0: %d.\n", ret);
--		return ret;
--	}
--	has_query9 = !!(buf[0] & BIT(3));
--	has_query11 = !!(buf[0] & BIT(4));
--	has_query12 = !!(buf[0] & BIT(5));
--	has_query27 = !!(buf[0] & BIT(6));
--	has_query28 = !!(buf[0] & BIT(7));
--
--	/* query 1 to get the max number of fingers */
--	ret = rmi_read(hdev, data->f11.query_base_addr + 1, buf);
--	if (ret) {
--		hid_err(hdev, "can not get NumberOfFingers: %d.\n", ret);
--		return ret;
--	}
--	data->max_fingers = (buf[0] & 0x07) + 1;
--	if (data->max_fingers > 5)
--		data->max_fingers = 10;
--
--	data->f11.report_size = data->max_fingers * 5 +
--				DIV_ROUND_UP(data->max_fingers, 4);
--
--	if (!(buf[0] & BIT(4))) {
--		hid_err(hdev, "No absolute events, giving up.\n");
--		return -ENODEV;
--	}
--
--	has_rel = !!(buf[0] & BIT(3));
--	has_gestures = !!(buf[0] & BIT(5));
--
--	ret = rmi_read(hdev, data->f11.query_base_addr + 5, buf);
--	if (ret) {
--		hid_err(hdev, "can not get absolute data sources: %d.\n", ret);
--		return ret;
--	}
--
--	has_dribble = !!(buf[0] & BIT(4));
--
--	/*
--	 * At least 4 queries are guaranteed to be present in F11
--	 * +1 for query 5 which is present since absolute events are
--	 * reported and +1 for query 12.
--	 */
--	query_offset = 6;
--
--	if (has_rel)
--		++query_offset; /* query 6 is present */
--
--	if (has_gestures) {
--		/* query 8 to find out if query 10 exists */
--		ret = rmi_read(hdev,
--			data->f11.query_base_addr + query_offset + 1, buf);
--		if (ret) {
--			hid_err(hdev, "can not read gesture information: %d.\n",
--				ret);
--			return ret;
--		}
--		has_palm_detect = !!(buf[0] & BIT(0));
--		has_query10 = !!(buf[0] & BIT(2));
--
--		query_offset += 2; /* query 7 and 8 are present */
--	}
--
--	if (has_query9)
--		++query_offset;
--
--	if (has_query10)
--		++query_offset;
--
--	if (has_query11)
--		++query_offset;
--
--	/* query 12 to know if the physical properties are reported */
--	if (has_query12) {
--		ret = rmi_read(hdev, data->f11.query_base_addr
--				+ query_offset, buf);
--		if (ret) {
--			hid_err(hdev, "can not get query 12: %d.\n", ret);
--			return ret;
--		}
--		has_physical_props = !!(buf[0] & BIT(5));
--
--		if (has_physical_props) {
--			query_offset += 1;
--			ret = rmi_read_block(hdev,
--					data->f11.query_base_addr
--						+ query_offset, buf, 4);
--			if (ret) {
--				hid_err(hdev, "can not read query 15-18: %d.\n",
--					ret);
--				return ret;
--			}
--
--			x_size = buf[0] | (buf[1] << 8);
--			y_size = buf[2] | (buf[3] << 8);
--
--			data->x_size_mm = DIV_ROUND_CLOSEST(x_size, 10);
--			data->y_size_mm = DIV_ROUND_CLOSEST(y_size, 10);
--
--			hid_info(hdev, "%s: size in mm: %d x %d\n",
--				 __func__, data->x_size_mm, data->y_size_mm);
--
--			/*
--			 * query 15 - 18 contain the size of the sensor
--			 * and query 19 - 26 contain bezel dimensions
--			 */
--			query_offset += 12;
--		}
--	}
--
--	if (has_query27)
--		++query_offset;
--
--	if (has_query28) {
--		ret = rmi_read(hdev, data->f11.query_base_addr
--				+ query_offset, buf);
--		if (ret) {
--			hid_err(hdev, "can not get query 28: %d.\n", ret);
--			return ret;
--		}
--
--		has_query36 = !!(buf[0] & BIT(6));
--	}
--
--	if (has_query36) {
--		query_offset += 2;
--		ret = rmi_read(hdev, data->f11.query_base_addr
--				+ query_offset, buf);
--		if (ret) {
--			hid_err(hdev, "can not get query 36: %d.\n", ret);
--			return ret;
--		}
--
--		has_data40 = !!(buf[0] & BIT(5));
--	}
--
--
--	if (has_data40)
--		data->f11.report_size += data->max_fingers * 2;
--
--	ret = rmi_read_block(hdev, data->f11.control_base_addr,
--			data->f11_ctrl_regs, RMI_F11_CTRL_REG_COUNT);
--	if (ret) {
--		hid_err(hdev, "can not read ctrl block of size 11: %d.\n", ret);
--		return ret;
--	}
--
--	/* data->f11_ctrl_regs now contains valid register data */
--	data->read_f11_ctrl_regs = true;
--
--	data->max_x = data->f11_ctrl_regs[6] | (data->f11_ctrl_regs[7] << 8);
--	data->max_y = data->f11_ctrl_regs[8] | (data->f11_ctrl_regs[9] << 8);
--
--	if (has_dribble) {
--		data->f11_ctrl_regs[0] = data->f11_ctrl_regs[0] & ~BIT(6);
--		ret = rmi_write(hdev, data->f11.control_base_addr,
--				data->f11_ctrl_regs);
--		if (ret) {
--			hid_err(hdev, "can not write to control reg 0: %d.\n",
--				ret);
--			return ret;
--		}
--	}
--
--	if (has_palm_detect) {
--		data->f11_ctrl_regs[11] = data->f11_ctrl_regs[11] & ~BIT(0);
--		ret = rmi_write(hdev, data->f11.control_base_addr + 11,
--				&data->f11_ctrl_regs[11]);
--		if (ret) {
--			hid_err(hdev, "can not write to control reg 11: %d.\n",
--				ret);
--			return ret;
--		}
--	}
--
--	return 0;
--}
--
--static int rmi_populate_f30(struct hid_device *hdev)
--{
--	struct rmi_data *data = hid_get_drvdata(hdev);
--	u8 buf[20];
--	int ret;
--	bool has_gpio, has_led;
--	unsigned bytes_per_ctrl;
--	u8 ctrl2_addr;
--	int ctrl2_3_length;
--	int i;
--
--	/* function F30 is for physical buttons */
--	if (!data->f30.query_base_addr) {
--		hid_err(hdev, "No GPIO/LEDs found, giving up.\n");
--		return -ENODEV;
--	}
--
--	ret = rmi_read_block(hdev, data->f30.query_base_addr, buf, 2);
--	if (ret) {
--		hid_err(hdev, "can not get F30 query registers: %d.\n", ret);
-+	ret = rmi_reset_attn_mode(hdev);
-+	if (ret)
- 		return ret;
--	}
- 
--	has_gpio = !!(buf[0] & BIT(3));
--	has_led = !!(buf[0] & BIT(2));
--	data->gpio_led_count = buf[1] & 0x1f;
--
--	/* retrieve ctrl 2 & 3 registers */
--	bytes_per_ctrl = (data->gpio_led_count + 7) / 8;
--	/* Ctrl0 is present only if both has_gpio and has_led are set*/
--	ctrl2_addr = (has_gpio && has_led) ? bytes_per_ctrl : 0;
--	/* Ctrl1 is always be present */
--	ctrl2_addr += bytes_per_ctrl;
--	ctrl2_3_length = 2 * bytes_per_ctrl;
--
--	data->f30.report_size = bytes_per_ctrl;
--
--	ret = rmi_read_block(hdev, data->f30.control_base_addr + ctrl2_addr,
--				buf, ctrl2_3_length);
-+	ret = rmi_driver_resume(rmi_dev);
- 	if (ret) {
--		hid_err(hdev, "can not read ctrl 2&3 block of size %d: %d.\n",
--			ctrl2_3_length, ret);
-+		hid_warn(hdev, "Failed to resume device: %d\n", ret);
- 		return ret;
- 	}
- 
--	for (i = 0; i < data->gpio_led_count; i++) {
--		int byte_position = i >> 3;
--		int bit_position = i & 0x07;
--		u8 dir_byte = buf[byte_position];
--		u8 data_byte = buf[byte_position + bytes_per_ctrl];
--		bool dir = (dir_byte >> bit_position) & BIT(0);
--		bool dat = (data_byte >> bit_position) & BIT(0);
--
--		if (dir == 0) {
--			/* input mode */
--			if (dat) {
--				/* actual buttons have pull up resistor */
--				data->button_count++;
--				set_bit(i, &data->button_mask);
--				set_bit(i, &data->button_state_mask);
--			}
--		}
--
--	}
--
- 	return 0;
- }
-+#endif /* CONFIG_PM */
- 
--static int rmi_populate(struct hid_device *hdev)
-+static int rmi_hid_reset(struct rmi_transport_dev *xport, u16 reset_addr)
- {
--	struct rmi_data *data = hid_get_drvdata(hdev);
--	int ret;
--
--	ret = rmi_scan_pdt(hdev);
--	if (ret) {
--		hid_err(hdev, "PDT scan failed with code %d.\n", ret);
--		return ret;
--	}
-+	struct rmi_data *data = container_of(xport, struct rmi_data, xport);
-+	struct hid_device *hdev = data->hdev;
- 
--	ret = rmi_populate_f01(hdev);
--	if (ret) {
--		hid_err(hdev, "Error while initializing F01 (%d).\n", ret);
--		return ret;
--	}
--
--	ret = rmi_populate_f11(hdev);
--	if (ret) {
--		hid_err(hdev, "Error while initializing F11 (%d).\n", ret);
--		return ret;
--	}
--
--	if (!(data->device_flags & RMI_DEVICE_HAS_PHYS_BUTTONS)) {
--		ret = rmi_populate_f30(hdev);
--		if (ret)
--			hid_warn(hdev, "Error while initializing F30 (%d).\n", ret);
--	}
--
--	return 0;
-+	return rmi_reset_attn_mode(hdev);
- }
- 
- static int rmi_input_configured(struct hid_device *hdev, struct hid_input *hi)
- {
- 	struct rmi_data *data = hid_get_drvdata(hdev);
- 	struct input_dev *input = hi->input;
--	int ret;
--	int res_x, res_y, i;
-+	int ret = 0;
 +
-+	if (!(data->device_flags & RMI_DEVICE))
++	/* Write register */
++	xfer[0].addr = client->addr;
++	xfer[0].flags = 0;
++	xfer[0].len = 1;
++	xfer[0].buf = &addr;
++
++	/* Read data */
++	xfer[1].addr = client->addr;
++	xfer[1].flags = I2C_M_RD;
++	xfer[1].len = len;
++	xfer[1].buf = data;
++
++	ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
++	if (ret < 0)
++		return ret;
++
++	if (ret != ARRAY_SIZE(xfer))
++		return -EIO;
++
++	return 0;
++}
++
++static int raydium_i2c_read_message(struct i2c_client *client,
++	u32 addr, size_t len, void *data)
++{
++	u16 pkg_size, use_len;
++	u8 buf[HEADER_SIZE], idx_i;
++	int error;
++
++	use_len = len;
++	idx_i = 0;
++	while (use_len > 0) {
++		pkg_size = (use_len < MAX_PACKET_SIZE) ?
++			use_len : MAX_PACKET_SIZE;
++
++		put_unaligned_be32(addr, buf);
++
++		/*set data bank*/
++		error = raydium_i2c_send(client, CMD_BANK_SWITCH,
++			(u8 *)buf, HEADER_SIZE);
++		/*read potints data*/
++		if (!error)
++			error = raydium_i2c_read(client, buf[ADDR_INDEX],
++				pkg_size,
++				data + idx_i*MAX_PACKET_SIZE);
++
++		pkg_size += MAX_PACKET_SIZE;
++		addr += MAX_PACKET_SIZE;
++		use_len = (use_len < MAX_PACKET_SIZE) ?
++			0 : (use_len - MAX_PACKET_SIZE);
++		idx_i++;
++	}
++
++	return error;
++}
++
++static int raydium_i2c_send_message(struct i2c_client *client,
++	size_t len, void *data)
++{
++	int error;
++	__le32 cmd;
++
++	cmd = get_unaligned_le32(data);
++
++	/*set data bank*/
++	error = raydium_i2c_send(client, CMD_BANK_SWITCH, (u8 *)&cmd,
++		HEADER_SIZE);
++
++	/*send message*/
++	if (!error)
++		error = raydium_i2c_send(client, ((u8 *)data)[ADDR_INDEX],
++			data + DATA_INDEX, len);
++
++	return error;
++}
++
++static int raydium_i2c_sw_reset(struct i2c_client *client)
++{
++	static const u8 soft_rst_cmd[] = {0x40, 0x00, 0x00, 0x04, 0x01};
++	int error;
++
++	error = raydium_i2c_send_message(client, ARRAY_SIZE(soft_rst_cmd),
++		(void *)soft_rst_cmd);
++	if (error) {
++		dev_err(&client->dev, "software reset failed: %d\n", error);
++		return error;
++	}
++
++	msleep(RAYDIUM_RESET_DELAY_MSEC);
++
++	return 0;
++}
++
++static int raydium_i2c_query_ts_info(struct raydium_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	int error, retry_cnt;
++
++	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
++		error = raydium_i2c_read(client, CMD_DATA_BANK,
++			sizeof(ts->obj), (void *)&ts->obj);
++			ts->obj.data_bank_addr =
++				get_unaligned_le32(&ts->obj.data_bank_addr);
++
++		if (!error) {
++			error = raydium_i2c_read(client, CMD_QUERY_BANK,
++				sizeof(ts->query_bank_info),
++				(void *)&ts->query_bank_info);
++			if (!error) {
++				error = raydium_i2c_read_message(client,
++					ts->query_bank_info, sizeof(ts->info),
++					(void *)&ts->info);
++
++				ts->info.hw_ver =
++					get_unaligned_le32(&ts->info.hw_ver);
++				ts->info.ft_ver =
++					get_unaligned_le16(&ts->info.ft_ver);
++				ts->info.x_max =
++					get_unaligned_le16(&ts->info.x_max);
++				ts->info.y_max =
++					get_unaligned_le16(&ts->info.y_max);
++
++				return 0;
++			}
++		}
++	}
++	dev_err(&client->dev, "Get touch data failed: %d\n", error);
++
++	return -EINVAL;
++}
++
++static int raydium_i2c_fastboot(struct i2c_client *client)
++{
++	static const u8 boot_cmd[] = { 0x50, 0x00, 0x06, 0x20 };
++	u8 buf[HEADER_SIZE];
++	int error;
++
++	error = raydium_i2c_read_message(client,
++		get_unaligned_be32(boot_cmd),
++		sizeof(boot_cmd), buf);
++
++	if (!error) {
++		if (buf[0] == RM_BOOT_BLDR) {
++			dev_dbg(&client->dev, "boot in fastboot mode\n");
++			return -EINVAL;
++		}
++		dev_dbg(&client->dev, "boot success -- 0x%x\n", client->addr);
 +		return 0;
- 
--	data->input = input;
-+	data->xport.input = input;
- 
- 	hid_dbg(hdev, "Opening low level driver\n");
- 	ret = hid_hw_open(hdev);
- 	if (ret)
- 		return ret;
- 
--	if (!(data->device_flags & RMI_DEVICE))
--		return 0;
--
- 	/* Allow incoming hid reports */
- 	hid_device_io_start(hdev);
- 
-@@ -1216,40 +506,10 @@ static int rmi_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 		goto exit;
- 	}
- 
--	ret = rmi_populate(hdev);
--	if (ret)
--		goto exit;
--
--	hid_info(hdev, "firmware id: %ld\n", data->firmware_id);
--
--	__set_bit(EV_ABS, input->evbit);
--	input_set_abs_params(input, ABS_MT_POSITION_X, 1, data->max_x, 0, 0);
--	input_set_abs_params(input, ABS_MT_POSITION_Y, 1, data->max_y, 0, 0);
--
--	if (data->x_size_mm && data->y_size_mm) {
--		res_x = (data->max_x - 1) / data->x_size_mm;
--		res_y = (data->max_y - 1) / data->y_size_mm;
--
--		input_abs_set_res(input, ABS_MT_POSITION_X, res_x);
--		input_abs_set_res(input, ABS_MT_POSITION_Y, res_y);
--	}
--
--	input_set_abs_params(input, ABS_MT_ORIENTATION, 0, 1, 0, 0);
--	input_set_abs_params(input, ABS_MT_PRESSURE, 0, 0xff, 0, 0);
--	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 0x0f, 0, 0);
--	input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 0x0f, 0, 0);
--
--	ret = input_mt_init_slots(input, data->max_fingers, INPUT_MT_POINTER);
--	if (ret < 0)
-+	ret = rmi_register_transport_device(&data->xport);
-+	if (ret < 0) {
-+		dev_err(&hdev->dev, "failed to register transport driver\n");
- 		goto exit;
--
--	if (data->button_count) {
--		__set_bit(EV_KEY, input->evbit);
--		for (i = 0; i < data->button_count; i++)
--			__set_bit(BTN_LEFT + i, input->keybit);
--
--		if (data->button_count == 1)
--			__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
- 	}
- 
- 	set_bit(RMI_STARTED, &data->flags);
-@@ -1298,6 +558,26 @@ static int rmi_check_valid_report_id(struct hid_device *hdev, unsigned type,
- 	return 0;
- }
- 
-+static struct rmi_2d_sensor_platform_data rmi_hid_2d_sensor_data = {
-+	.sensor_type = rmi_sensor_touchpad,
-+	.axis_align.flip_y = true,
-+	.kernel_tracking = true,
++	}
++
++	dev_err(&client->dev, "boot failed: %d\n", error);
++
++	return error;
++}
++
++static int raydium_i2c_initialize(struct raydium_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	int error, retry_cnt;
++	static const u8 recov_packet[] = { 0x04, 0x81 };
++	u8 buf[HEADER_SIZE];
++
++	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
++		error = raydium_i2c_fastboot(client);
++		if (error) {
++			/* Continue initializing if it's the last try */
++			if (retry_cnt < MAX_RETRIES - 1)
++				continue;
++		}
++		/* Wait for Hello packet */
++		msleep(BOOT_DELAY_MS);
++
++		error = raydium_i2c_read(client, recov_packet[0], 1,
++			(void *)buf);
++		if (error) {
++			dev_err(&client->dev,
++				"failed to read 'hello' packet: %d\n", error);
++		} else if (buf[0] == recov_packet[1]) {
++			ts->boot_mode = RAYDIUM_TS_MAIN;
++			break;
++		}
++	}
++
++	if (error)
++		ts->boot_mode = RAYDIUM_TS_BLDR;
++	else
++		raydium_i2c_query_ts_info(ts);
++
++	return error;
++}
++
++static int raydium_i2c_fw_write_page(struct i2c_client *client,
++				const void *page)
++{
++	static const u8 ack_ok[] = { 0x55, 0xAA };
++	u8 buf[2];
++	int retry;
++	int error;
++
++	for (retry = 0; retry < MAX_FW_UPDATE_RETRIES; retry++) {
++		error = raydium_i2c_send(client, CMD_BOOT_WRT,
++			(u8 *)page, RAYDIUM_FW_PAGESIZE);
++		if (error) {
++			dev_err(&client->dev,
++				"BLDR Write Page failed: %d\n", error);
++			continue;
++		}
++
++		error = raydium_i2c_read(client, CMD_BOOT_CHK, sizeof(ack_ok),
++			(void *)buf);
++		if (error) {
++			dev_err(&client->dev,
++				"BLDR Ack read failed: %d\n", error);
++			return error;
++		}
++
++		if (!memcmp(buf, ack_ok, sizeof(ack_ok)))
++			return 0;
++
++		error = -EIO;
++		dev_err(&client->dev,
++			"BLDR Get Ack Error [%02x:%02x]\n", buf[0], buf[1]);
++	}
++
++	return error;
++}
++
++static int raydium_i2c_do_update_firmware(struct i2c_client *client,
++					 const struct firmware *fw,
++					 bool force)
++{
++	static const u8 boot_cmd[] = { 0x50, 0x00, 0x06, 0x20 , RM_BOOT_BLDR };
++	static const u8 main_cmd[] = { 0x50, 0x00, 0x06, 0x20, RM_BOOT_MAIN };
++	static const u8 boot_ack[] = { 0x55, 0xAA, 0x00, 0xFF };
++	u8 buf[HEADER_SIZE];
++	int page, n_fw_pages;
++	int error;
++
++	/* Recovery mode detection! */
++	if (!force) {
++		/* Start boot loader Procedure */
++		dev_dbg(&client->dev, "Normal BLDR procedure\n");
++		/* switch to mode */
++		error = raydium_i2c_send_message(client, 1, (void *)boot_cmd);
++		if (error)
++			dev_err(&client->dev, "failed to send boot cmd: %d\n",
++				error);
++		msleep(60);
++		raydium_i2c_sw_reset(client);
++		msleep(RAYDIUM_RESET_DELAY_MSEC);
++		error = raydium_i2c_send_message(client, 1, (void *)boot_cmd);
++	}
++
++	if (error) {
++		dev_err(&client->dev, "failed to enter fastboot mode: %d\n",
++			error);
++		return error;
++	}
++
++	msleep(20);
++
++	/* check fastboot state */
++	error = raydium_i2c_read(client, CMD_BOOT_ACK,
++		sizeof(boot_ack), (void *)buf);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to read boot ack: %d\n", error);
++		return error;
++	}
++
++	if (memcmp(buf, boot_ack, sizeof(boot_ack))) {
++		dev_err(&client->dev,
++			"failed to enter fastboot: %*ph (expected %*ph)\n",
++			(int)sizeof(buf), buf, (int)sizeof(boot_ack), boot_ack);
++		return -EIO;
++	}
++
++	dev_info(&client->dev, "successfully entered fastboot mode");
++
++	n_fw_pages = fw->size / RAYDIUM_FW_PAGESIZE;
++	dev_dbg(&client->dev, "BLDR Pages = %d\n", n_fw_pages);
++
++	for (page = 0; page < n_fw_pages; page++) {
++		error = raydium_i2c_fw_write_page(client,
++					fw->data + page * RAYDIUM_FW_PAGESIZE);
++		if (error) {
++			dev_err(&client->dev,
++				"failed to write FW page %d: %d\n",
++				page, error);
++			return error;
++		}
++	}
++	error = raydium_i2c_send_message(client, 1, (void *)main_cmd);
++	msleep(20);
++	raydium_i2c_sw_reset(client);
++	dev_info(&client->dev, "firmware update completed\n");
++
++	return 0;
++}
++
++static int raydium_i2c_fw_update(struct raydium_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	const struct firmware *fw;
++	char *fw_name;
++	int error;
++
++	fw_name = kasprintf(GFP_KERNEL, "raydium_i2c_%04x.bin",
++		ts->info.hw_ver & 0xFFFF);
++	if (!fw_name)
++		return -ENOMEM;
++
++	dev_info(&client->dev, "requesting fw name = %s\n", fw_name);
++	error = request_firmware(&fw, fw_name, &client->dev);
++	kfree(fw_name);
++	if (error) {
++		dev_err(&client->dev, "failed to request firmware: %d\n",
++			error);
++		return error;
++	}
++
++	if (fw->size % RAYDIUM_FW_PAGESIZE) {
++		dev_err(&client->dev, "invalid firmware length: %zu\n",
++			fw->size);
++		error = -EINVAL;
++		goto out;
++	}
++
++	disable_irq(client->irq);
++	error = raydium_i2c_do_update_firmware(client, fw,
++					ts->boot_mode == RAYDIUM_TS_BLDR);
++	if (error) {
++		dev_err(&client->dev, "firmware update failed: %d\n", error);
++		ts->boot_mode = RAYDIUM_TS_BLDR;
++		goto out_enable_irq;
++	}
++	error = raydium_i2c_initialize(ts);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to initialize device after firmware update: %d\n",
++			error);
++		ts->boot_mode = RAYDIUM_TS_BLDR;
++		goto out_enable_irq;
++	}
++
++	ts->boot_mode = RAYDIUM_TS_MAIN;
++
++out_enable_irq:
++	enable_irq(client->irq);
++	msleep(100);
++out:
++	release_firmware(fw);
++	return error;
++}
++
++static void raydium_mt_event(struct raydium_data *ts)
++{
++	u8 data[MAX_PACKET_SIZE];
++	int error, i;
++	int x, y, f_state, pressure, wx, wy;
++
++	error = raydium_i2c_read_message(ts->client, ts->obj.data_bank_addr,
++		ts->obj.pkg_size, (void *)data);
++
++	if (error < 0) {
++		dev_err(&ts->client->dev, "%s: failed to read data: %d\n",
++			__func__, error);
++		return;
++	}
++
++	for (i = 0; i < MAX_TOUCH_NUM; i++) {
++		f_state = (data + i * ts->obj.tp_info_size)[POS_STATE];
++		pressure = (data + i * ts->obj.tp_info_size)[POS_PRESSURE];
++		wx = (data + i * ts->obj.tp_info_size)[WIDTH_X];
++		wy = (data + i * ts->obj.tp_info_size)[WIDTH_Y];
++
++		input_mt_slot(ts->input, i);
++		input_mt_report_slot_state(ts->input,
++				MT_TOOL_FINGER, f_state != 0);
++
++		if (!f_state)
++			continue;
++		x = get_unaligned_le16(&data[i * ts->obj.tp_info_size + POS_X]);
++		y = get_unaligned_le16(&data[i * ts->obj.tp_info_size + POS_Y]);
++
++		input_report_abs(ts->input, ABS_MT_POSITION_X, x);
++		input_report_abs(ts->input, ABS_MT_POSITION_Y, y);
++		input_report_abs(ts->input, ABS_MT_PRESSURE, pressure);
++		input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR,
++			max(wx, wy));
++		input_report_abs(ts->input, ABS_MT_TOUCH_MINOR,
++			min(wx, wy));
++	}
++
++	input_mt_sync_frame(ts->input);
++	input_sync(ts->input);
++}
++
++static irqreturn_t raydium_i2c_irq(int irq, void *_dev)
++{
++	struct raydium_data *ts = _dev;
++
++	if (ts->boot_mode != RAYDIUM_TS_BLDR)
++		raydium_mt_event(ts);
++
++	return IRQ_HANDLED;
++}
++
++static ssize_t write_update_fw(struct device *dev,
++			struct device_attribute *attr,
++			const char *buf, size_t count)
++{
++	struct raydium_data *ts = dev_get_drvdata(dev);
++	int error;
++
++	error = mutex_lock_interruptible(&ts->sysfs_mutex);
++	if (error)
++		return error;
++
++	error = raydium_i2c_fw_update(ts);
++	dev_dbg(dev, "firmware update result: %d\n", error);
++
++	mutex_unlock(&ts->sysfs_mutex);
++	return error ?: count;
++}
++
++static ssize_t raydium_bootmode_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct raydium_data *ts = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%s\n", ts->boot_mode == RAYDIUM_TS_MAIN ?
++		"Normal" : "Recovery");
++}
++
++static ssize_t raydium_fw_ver_show(struct device *dev,
++			struct device_attribute *attr, char *buf)
++{
++	struct raydium_data *ts = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%d.%d\n", ts->info.main_ver, ts->info.sub_ver);
++}
++
++static ssize_t raydium_hw_ver_show(struct device *dev,
++			struct device_attribute *attr, char *buf)
++{
++	struct raydium_data *ts = dev_get_drvdata(dev);
++
++	return sprintf(buf, "0x%04x\n", ts->info.hw_ver);
++}
++
++static DEVICE_ATTR(fw_version, S_IRUGO, raydium_fw_ver_show, NULL);
++static DEVICE_ATTR(hw_version, S_IRUGO, raydium_hw_ver_show, NULL);
++static DEVICE_ATTR(boot_mode, S_IRUGO, raydium_bootmode_show, NULL);
++static DEVICE_ATTR(update_fw, S_IWUSR, NULL, write_update_fw);
++
++static struct attribute *raydium_attributes[] = {
++	&dev_attr_update_fw.attr,
++	&dev_attr_boot_mode.attr,
++	&dev_attr_fw_version.attr,
++	&dev_attr_hw_version.attr,
++	NULL
 +};
 +
-+static struct rmi_f30_data rmi_hid_f30_data = {
++static struct attribute_group raydium_attribute_group = {
++	.attrs = raydium_attributes,
 +};
 +
-+static struct rmi_device_platform_data rmi_hid_pdata = {
-+	.sensor_pdata = &rmi_hid_2d_sensor_data,
-+	.f30_data = &rmi_hid_f30_data,
++static void raydium_i2c_remove_sysfs_group(void *_data)
++{
++	struct raydium_data *ts = _data;
++
++	sysfs_remove_group(&ts->client->dev.kobj, &raydium_attribute_group);
++}
++
++static int raydium_i2c_power_on(struct raydium_data *ts)
++{
++	int error;
++
++	if (IS_ERR_OR_NULL(ts->reset_gpio))
++		return 0;
++
++	gpiod_set_value_cansleep(ts->reset_gpio, 1);
++
++	error = regulator_enable(ts->avdd);
++	if (error) {
++		dev_err(&ts->client->dev,
++			"failed to enable avdd regulator: %d\n", error);
++		goto release_reset_gpio;
++	}
++
++	error = regulator_enable(ts->vccio);
++	if (error) {
++		regulator_disable(ts->avdd);
++		dev_err(&ts->client->dev,
++			"failed to enable vccio regulator: %d\n", error);
++		goto release_reset_gpio;
++	}
++
++	udelay(RAYDIUM_POWERON_DELAY_USEC);
++
++release_reset_gpio:
++	gpiod_set_value_cansleep(ts->reset_gpio, 0);
++
++	if (error)
++		return error;
++
++	msleep(RAYDIUM_RESET_DELAY_MSEC);
++
++	return 0;
++}
++
++static void raydium_i2c_power_off(void *_data)
++{
++	struct raydium_data *ts = _data;
++
++	if (!IS_ERR_OR_NULL(ts->reset_gpio)) {
++		gpiod_set_value_cansleep(ts->reset_gpio, 1);
++		regulator_disable(ts->vccio);
++		regulator_disable(ts->avdd);
++	}
++}
++
++static int raydium_i2c_probe(struct i2c_client *client,
++			    const struct i2c_device_id *id)
++{
++	union i2c_smbus_data dummy;
++	struct raydium_data *ts;
++	unsigned long irqflags;
++	int error;
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev,
++			"%s: i2c check functionality error\n", DEVICE_NAME);
++		return -ENXIO;
++	}
++
++	ts = devm_kzalloc(&client->dev, sizeof(struct raydium_data),
++		GFP_KERNEL);
++	if (!ts)
++		return -ENOMEM;
++
++	mutex_init(&ts->sysfs_mutex);
++	init_completion(&ts->cmd_done);
++
++	ts->client = client;
++	i2c_set_clientdata(client, ts);
++
++	ts->avdd = devm_regulator_get(&client->dev, "avdd");
++	if (IS_ERR(ts->avdd)) {
++		error = PTR_ERR(ts->avdd);
++		if (error != -EPROBE_DEFER)
++			dev_err(&client->dev,
++				"Failed to get 'avdd' regulator: %d\n", error);
++		return error;
++	}
++
++	ts->vccio = devm_regulator_get(&client->dev, "vccio");
++	if (IS_ERR(ts->vccio)) {
++		error = PTR_ERR(ts->vccio);
++		if (error != -EPROBE_DEFER)
++			dev_err(&client->dev,
++				"Failed to get 'vccio' regulator: %d\n", error);
++		return error;
++	}
++
++	ts->reset_gpio = devm_gpiod_get_optional(&client->dev, "reset",
++		GPIOD_OUT_LOW);
++	if (IS_ERR(ts->reset_gpio)) {
++		error = PTR_ERR(ts->reset_gpio);
++		if (error != -EPROBE_DEFER) {
++			dev_err(&client->dev,
++				"failed to get reset gpio: %d\n", error);
++			return error;
++		}
++	}
++
++	error = raydium_i2c_power_on(ts);
++	if (error)
++		return error;
++
++	error = devm_add_action(&client->dev, raydium_i2c_power_off, ts);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to install power off action: %d\n", error);
++		raydium_i2c_power_off(ts);
++		return error;
++	}
++
++	/* Make sure there is something at this address */
++	if (i2c_smbus_xfer(client->adapter, client->addr, 0,
++			I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &dummy) < 0) {
++		dev_err(&client->dev, "nothing at this address\n");
++		return -ENXIO;
++	}
++
++	error = raydium_i2c_initialize(ts);
++	if (error) {
++		dev_err(&client->dev, "failed to initialize: %d\n", error);
++		return error;
++	}
++
++	ts->input = devm_input_allocate_device(&client->dev);
++	if (!ts->input) {
++		dev_err(&client->dev, "Failed to allocate input device\n");
++		return -ENOMEM;
++	}
++
++	ts->input->name = "Raydium Touchscreen";
++	ts->input->id.bustype = BUS_I2C;
++
++	__set_bit(BTN_TOUCH, ts->input->keybit);
++	__set_bit(EV_ABS, ts->input->evbit);
++	__set_bit(EV_KEY, ts->input->evbit);
++
++	/* Multitouch input params setup */
++	input_set_abs_params(ts->input, ABS_MT_POSITION_X, 0,
++		ts->info.x_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_POSITION_Y,
++		0, ts->info.y_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_PRESSURE, 0, 255, 0, 0);
++	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->info.x_res);
++	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->info.y_res);
++
++	input_mt_init_slots(ts->input, MAX_TOUCH_NUM, 0);
++
++	input_set_drvdata(ts->input, ts);
++
++	error = input_mt_init_slots(ts->input, MAX_TOUCH_NUM,
++		INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to initialize MT slots: %d\n", error);
++		return error;
++	}
++
++	error = input_register_device(ts->input);
++	if (error) {
++		dev_err(&client->dev,
++			"unable to register input device: %d\n", error);
++		return error;
++	}
++
++	error = devm_request_threaded_irq(&client->dev, client->irq,
++			NULL, raydium_i2c_irq, irqflags | IRQF_ONESHOT,
++			client->name, ts);
++	if (error) {
++		dev_err(&client->dev, "Failed to register interrupt\n");
++		return error;
++	}
++
++	device_init_wakeup(&client->dev, true);
++
++	error = sysfs_create_group(&client->dev.kobj, &raydium_attribute_group);
++	if (error) {
++		dev_err(&client->dev, "failed to create sysfs attributes: %d\n",
++			error);
++		return error;
++	}
++
++	error = devm_add_action(&client->dev,
++				raydium_i2c_remove_sysfs_group, ts);
++	if (error) {
++		raydium_i2c_remove_sysfs_group(ts);
++		dev_err(&client->dev,
++			"Failed to add sysfs cleanup action: %d\n", error);
++		return error;
++	}
++
++	return 0;
++}
++
++static int raydium_i2c_remove(struct i2c_client *client)
++{
++	struct raydium_data *ts = i2c_get_clientdata(client);
++
++	input_unregister_device(ts->input);
++
++	device_init_wakeup(&client->dev, false);
++
++	mutex_destroy(&ts->sysfs_mutex);
++
++	return 0;
++}
++
++static void __maybe_unused raydium_enter_sleep(struct i2c_client *client)
++{
++	static const u8 sleep_cmd[] = { 0x5A, 0xff, 0x00, 0x0f };
++	int error;
++
++	error = raydium_i2c_send(client, CMD_ENTER_SLEEP, (u8 *)sleep_cmd,
++		sizeof(sleep_cmd));
++	if (error)
++		dev_err(&client->dev,
++			"Send sleep failed: %d\n", error);
++}
++
++static int __maybe_unused raydium_i2c_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct raydium_data *ts = i2c_get_clientdata(client);
++
++	/* Command not support in BLDR recovery mode */
++	if (ts->boot_mode != RAYDIUM_TS_MAIN)
++		return -EBUSY;
++
++	disable_irq(client->irq);
++
++	if (device_may_wakeup(dev)) {
++		raydium_enter_sleep(client);
++
++		ts->wake_irq_enabled = (enable_irq_wake(client->irq) == 0);
++	} else {
++		raydium_i2c_power_off(ts);
++	}
++
++	return 0;
++}
++
++static int __maybe_unused raydium_i2c_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct raydium_data *ts = i2c_get_clientdata(client);
++
++	if (device_may_wakeup(dev)) {
++		if (ts->wake_irq_enabled)
++			disable_irq_wake(client->irq);
++		raydium_i2c_sw_reset(client);
++	} else {
++		raydium_i2c_power_on(ts);
++		raydium_i2c_initialize(ts);
++	}
++
++	enable_irq(client->irq);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(raydium_i2c_pm_ops,
++			 raydium_i2c_suspend, raydium_i2c_resume);
++
++static const struct i2c_device_id raydium_i2c_id[] = {
++	{ DEVICE_NAME, 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, raydium_i2c_id);
++
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id raydium_acpi_id[] = {
++	{ "RAYD0001", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, raydium_acpi_id);
++#endif
++
++#ifdef CONFIG_OF
++static const struct of_device_id raydium_of_match[] = {
++	{ .compatible = "raydium,rm3xxxx",},
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, raydium_of_match);
++#endif
++
++static struct i2c_driver raydium_i2c_driver = {
++	.probe = raydium_i2c_probe,
++	.remove = raydium_i2c_remove,
++	.id_table = raydium_i2c_id,
++	.driver = {
++		.name = "raydium_ts",
++		.pm = &raydium_i2c_pm_ops,
++		.acpi_match_table = ACPI_PTR(raydium_acpi_id),
++		.of_match_table = of_match_ptr(raydium_of_match),
++	},
 +};
 +
-+static const struct rmi_transport_ops hid_rmi_ops = {
-+	.write_block	= rmi_hid_write_block,
-+	.read_block	= rmi_hid_read_block,
-+	.reset		= rmi_hid_reset,
-+};
++module_i2c_driver(raydium_i2c_driver);
 +
- static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	struct rmi_data *data = NULL;
-@@ -1312,6 +592,7 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return -ENOMEM;
- 
- 	INIT_WORK(&data->reset_work, rmi_reset_work);
-+	INIT_WORK(&data->attn_work, rmi_attn_work);
- 	data->hdev = hdev;
- 
- 	hid_set_drvdata(hdev, data);
-@@ -1369,6 +650,14 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	mutex_init(&data->page_mutex);
- 
-+	if (data->device_flags & RMI_DEVICE_HAS_PHYS_BUTTONS)
-+		rmi_hid_pdata.f30_data->disable = true;
-+
-+	data->xport.dev = hdev->dev.parent;
-+	data->xport.pdata = rmi_hid_pdata;
-+	data->xport.proto_name = "hid";
-+	data->xport.ops = &hid_rmi_ops;
-+
- start:
- 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 	if (ret) {
-@@ -1376,17 +665,6 @@ start:
- 		return ret;
- 	}
- 
--	if ((data->device_flags & RMI_DEVICE) &&
--	    !test_bit(RMI_STARTED, &data->flags))
--		/*
--		 * The device maybe in the bootloader if rmi_input_configured
--		 * failed to find F11 in the PDT. Print an error, but don't
--		 * return an error from rmi_probe so that hidraw will be
--		 * accessible from userspace. That way a userspace tool
--		 * can be used to reload working firmware on the touchpad.
--		 */
--		hid_err(hdev, "Device failed to be properly configured\n");
--
- 	return 0;
- }
- 
-@@ -1395,6 +673,9 @@ static void rmi_remove(struct hid_device *hdev)
- 	struct rmi_data *hdata = hid_get_drvdata(hdev);
- 
- 	clear_bit(RMI_STARTED, &hdata->flags);
-+	cancel_work_sync(&hdata->reset_work);
-+	cancel_work_sync(&hdata->attn_work);
-+	rmi_unregister_transport_device(&hdata->xport);
- 
- 	hid_hw_stop(hdev);
- }
-@@ -1419,7 +700,7 @@ static struct hid_driver rmi_driver = {
- #ifdef CONFIG_PM
- 	.suspend		= rmi_suspend,
- 	.resume			= rmi_post_resume,
--	.reset_resume		= rmi_post_reset,
-+	.reset_resume		= rmi_post_resume,
- #endif
- };
- 
++MODULE_AUTHOR("Raydium");
++MODULE_DESCRIPTION("Raydium I2c Touchscreen driver");
++MODULE_LICENSE("GPL v2");
 -- 
-2.5.0
+2.1.2
 

@@ -1,91 +1,133 @@
-From: Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 2/4] aiptek: stop saving struct usb_device
-Date: Tue, 22 Mar 2016 16:04:55 +0100
-Message-ID: <1458659097-8213-3-git-send-email-oneukum@suse.com>
+From: Oliver Neukum <oneukum-IBi9RG/b67k@public.gmane.org>
+Subject: [PATCH 3/4] gtco: stop saving struct usb_device
+Date: Tue, 22 Mar 2016 16:04:56 +0100
+Message-ID: <1458659097-8213-4-git-send-email-oneukum@suse.com>
 References: <1458659097-8213-1-git-send-email-oneukum@suse.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:56295 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751256AbcCVPHv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Mar 2016 11:07:51 -0400
-In-Reply-To: <1458659097-8213-1-git-send-email-oneukum@suse.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1458659097-8213-1-git-send-email-oneukum-IBi9RG/b67k@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: Oliver Neukum <oneukum-IBi9RG/b67k@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: Oliver Neukum <oneukum@suse.com>
 
 The device can now easily be derived from the interface.
 Stop leaving a private copy.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Oliver Neukum <oneukum-IBi9RG/b67k@public.gmane.org>
 ---
- drivers/input/tablet/aiptek.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/input/tablet/gtco.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
-index 78ca448..ee80c11 100644
---- a/drivers/input/tablet/aiptek.c
-+++ b/drivers/input/tablet/aiptek.c
-@@ -307,7 +307,6 @@ struct aiptek_settings {
+diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
+index 3a7f3a4..362ae3b 100644
+--- a/drivers/input/tablet/gtco.c
++++ b/drivers/input/tablet/gtco.c
+@@ -104,7 +104,6 @@ MODULE_DEVICE_TABLE (usb, gtco_usbid_table);
+ struct gtco {
  
- struct aiptek {
- 	struct input_dev *inputdev;		/* input device struct           */
--	struct usb_device *usbdev;		/* usb device struct             */
- 	struct usb_interface *intf;		/* usb interface struct          */
- 	struct urb *urb;			/* urb for incoming reports      */
- 	dma_addr_t data_dma;			/* our dma stuffage              */
-@@ -847,7 +846,7 @@ static int aiptek_open(struct input_dev *inputdev)
+ 	struct input_dev  *inputdevice; /* input device struct pointer  */
+-	struct usb_device *usbdev; /* the usb device for this device */
+ 	struct usb_interface *intf;	/* the usb interface for this device */
+ 	struct urb        *urbinfo;	 /* urb for incoming reports      */
+ 	dma_addr_t        buf_dma;  /* dma addr of the data buffer*/
+@@ -540,7 +539,7 @@ static int gtco_input_open(struct input_dev *inputdev)
  {
- 	struct aiptek *aiptek = input_get_drvdata(inputdev);
+ 	struct gtco *device = input_get_drvdata(inputdev);
  
--	aiptek->urb->dev = aiptek->usbdev;
-+	aiptek->urb->dev = interface_to_usbdev(aiptek->intf);;
- 	if (usb_submit_urb(aiptek->urb, GFP_KERNEL) != 0)
+-	device->urbinfo->dev = device->usbdev;
++	device->urbinfo->dev = interface_to_usbdev(device->intf);
+ 	if (usb_submit_urb(device->urbinfo, GFP_KERNEL))
  		return -EIO;
  
-@@ -873,8 +872,9 @@ aiptek_set_report(struct aiptek *aiptek,
- 		  unsigned char report_type,
- 		  unsigned char report_id, void *buffer, int size)
- {
--	return usb_control_msg(aiptek->usbdev,
--			       usb_sndctrlpipe(aiptek->usbdev, 0),
-+	struct usb_device *udev = interface_to_usbdev(aiptek->intf);
-+	return usb_control_msg(udev,
-+			       usb_sndctrlpipe(udev, 0),
- 			       USB_REQ_SET_REPORT,
- 			       USB_TYPE_CLASS | USB_RECIP_INTERFACE |
- 			       USB_DIR_OUT, (report_type << 8) + report_id,
-@@ -886,8 +886,9 @@ aiptek_get_report(struct aiptek *aiptek,
- 		  unsigned char report_type,
- 		  unsigned char report_id, void *buffer, int size)
- {
--	return usb_control_msg(aiptek->usbdev,
--			       usb_rcvctrlpipe(aiptek->usbdev, 0),
-+	struct usb_device *udev = interface_to_usbdev(aiptek->intf);
-+	return usb_control_msg(udev,
-+			       usb_rcvctrlpipe(udev, 0),
- 			       USB_REQ_GET_REPORT,
- 			       USB_TYPE_CLASS | USB_RECIP_INTERFACE |
- 			       USB_DIR_IN, (report_type << 8) + report_id,
-@@ -1729,7 +1730,6 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
+@@ -824,6 +823,7 @@ static int gtco_probe(struct usb_interface *usbinterface,
+ 	int                     result = 0, retry;
+ 	int			error;
+ 	struct usb_endpoint_descriptor *endpoint;
++	struct usb_device	*udev = interface_to_usbdev(usbinterface);
+ 
+ 	/* Allocate memory for device structure */
+ 	gtco = kzalloc(sizeof(struct gtco), GFP_KERNEL);
+@@ -838,11 +838,10 @@ static int gtco_probe(struct usb_interface *usbinterface,
+ 	gtco->inputdevice = input_dev;
+ 
+ 	/* Save interface information */
+-	gtco->usbdev = interface_to_usbdev(usbinterface);
+ 	gtco->intf = usbinterface;
+ 
+ 	/* Allocate some data for incoming reports */
+-	gtco->buffer = usb_alloc_coherent(gtco->usbdev, REPORT_MAX_SIZE,
++	gtco->buffer = usb_alloc_coherent(udev, REPORT_MAX_SIZE,
+ 					  GFP_KERNEL, &gtco->buf_dma);
+ 	if (!gtco->buffer) {
+ 		dev_err(&usbinterface->dev, "No more memory for us buffers\n");
+@@ -899,8 +898,8 @@ static int gtco_probe(struct usb_interface *usbinterface,
+ 
+ 	/* Couple of tries to get reply */
+ 	for (retry = 0; retry < 3; retry++) {
+-		result = usb_control_msg(gtco->usbdev,
+-					 usb_rcvctrlpipe(gtco->usbdev, 0),
++		result = usb_control_msg(udev,
++					 usb_rcvctrlpipe(udev, 0),
+ 					 USB_REQ_GET_DESCRIPTOR,
+ 					 USB_RECIP_INTERFACE | USB_DIR_IN,
+ 					 REPORT_DEVICE_TYPE << 8,
+@@ -928,7 +927,7 @@ static int gtco_probe(struct usb_interface *usbinterface,
  	}
  
- 	aiptek->inputdev = inputdev;
--	aiptek->usbdev = usbdev;
- 	aiptek->intf = intf;
- 	aiptek->ifnum = intf->altsetting[0].desc.bInterfaceNumber;
- 	aiptek->inDelay = 0;
-@@ -1833,8 +1833,8 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
- 	 * input.
- 	 */
- 	usb_fill_int_urb(aiptek->urb,
--			 aiptek->usbdev,
--			 usb_rcvintpipe(aiptek->usbdev,
-+			 usbdev,
-+			 usb_rcvintpipe(usbdev,
+ 	/* Create a device file node */
+-	usb_make_path(gtco->usbdev, gtco->usbpath, sizeof(gtco->usbpath));
++	usb_make_path(udev, gtco->usbpath, sizeof(gtco->usbpath));
+ 	strlcat(gtco->usbpath, "/input0", sizeof(gtco->usbpath));
+ 
+ 	/* Set Input device functions */
+@@ -945,15 +944,15 @@ static int gtco_probe(struct usb_interface *usbinterface,
+ 	gtco_setup_caps(input_dev);
+ 
+ 	/* Set input device required ID information */
+-	usb_to_input_id(gtco->usbdev, &input_dev->id);
++	usb_to_input_id(udev, &input_dev->id);
+ 	input_dev->dev.parent = &usbinterface->dev;
+ 
+ 	/* Setup the URB, it will be posted later on open of input device */
+ 	endpoint = &usbinterface->altsetting[0].endpoint[0].desc;
+ 
+ 	usb_fill_int_urb(gtco->urbinfo,
+-			 gtco->usbdev,
+-			 usb_rcvintpipe(gtco->usbdev,
++			 udev,
++			 usb_rcvintpipe(udev,
  					endpoint->bEndpointAddress),
- 			 aiptek->data, 8, aiptek_irq, aiptek,
- 			 endpoint->bInterval);
+ 			 gtco->buffer,
+ 			 REPORT_MAX_SIZE,
+@@ -977,7 +976,7 @@ static int gtco_probe(struct usb_interface *usbinterface,
+  err_free_urb:
+ 	usb_free_urb(gtco->urbinfo);
+  err_free_buf:
+-	usb_free_coherent(gtco->usbdev, REPORT_MAX_SIZE,
++	usb_free_coherent(udev, REPORT_MAX_SIZE,
+ 			  gtco->buffer, gtco->buf_dma);
+  err_free_devs:
+ 	input_free_device(input_dev);
+@@ -994,13 +993,14 @@ static void gtco_disconnect(struct usb_interface *interface)
+ {
+ 	/* Grab private device ptr */
+ 	struct gtco *gtco = usb_get_intfdata(interface);
++	struct usb_device *udev = interface_to_usbdev(interface);
+ 
+ 	/* Now reverse all the registration stuff */
+ 	if (gtco) {
+ 		input_unregister_device(gtco->inputdevice);
+ 		usb_kill_urb(gtco->urbinfo);
+ 		usb_free_urb(gtco->urbinfo);
+-		usb_free_coherent(gtco->usbdev, REPORT_MAX_SIZE,
++		usb_free_coherent(udev, REPORT_MAX_SIZE,
+ 				  gtco->buffer, gtco->buf_dma);
+ 		kfree(gtco);
+ 	}
 -- 
 2.1.4
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

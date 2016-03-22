@@ -1,132 +1,64 @@
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: [PATCH] Input: rotary_encoder - support binary encoding of states
-Date: Tue, 22 Mar 2016 22:08:34 +0100
-Message-ID: <1458680914-4533-1-git-send-email-u.kleine-koenig@pengutronix.de>
+From: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+Subject: Re: [PATCH] Input: rotary_encoder - support binary encoding of states
+Date: Tue, 22 Mar 2016 19:50:39 -0300
+Message-ID: <CAAEAJfDAg9aW62O8zNG3cGf207_azZYFja8jUgf+5xDAtzfbyg@mail.gmail.com>
+References: <1458680914-4533-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arcturus.kleine-koenig.org ([78.47.169.190]:56269 "EHLO
-	arcturus.kleine-koenig.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751286AbcCVVSj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Mar 2016 17:18:39 -0400
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1458680914-4533-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Sylvain Rochet <sylvain.rochet-ETtyaVkrhkNWk0Htik3J/w@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>, Rojhalat Ibrahim <imr-yYm5e5rpIQsb1SvskN2V4Q@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: kernel@pengutronix.de, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, Sylvain Rochet <sylvain.rochet@finsecur.com>, Johan Hovold <johan@kernel.org>, Daniel Mack <daniel@zonque.org>, Rojhalat Ibrahim <imr@rtschenk.de>
 
-A plain binary encoding has some downsides compared to the usual Gray
-encoding, but that doesn't stop hardware engineers to eventually use it=
-=2E
-So implement support for this encoding in the rotary encoder driver.
+(Adding DT people)
 
-Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
----
-Hello,
-
-an alternative to define this difference in the device tree is to use
-something like:
-
-	rotary-encoder,encoding =3D "binary";
-
-or
-
-	rotary-encoder,encoding =3D <ROTARY_ENCODER_ENCODING_BINARY>;
-
-instead of a property
-
-	rotary-encoder,encoding-binary;
-
-=2E While the two first solutions make it obvious that there can only b=
+On 22 March 2016 at 18:08, Uwe Kleine-K=C3=B6nig
+<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+> A plain binary encoding has some downsides compared to the usual Gray
+> encoding, but that doesn't stop hardware engineers to eventually use =
+it.
+> So implement support for this encoding in the rotary encoder driver.
+>
+> Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> ---
+> Hello,
+>
+> an alternative to define this difference in the device tree is to use
+> something like:
+>
+>         rotary-encoder,encoding =3D "binary";
+>
+> or
+>
+>         rotary-encoder,encoding =3D <ROTARY_ENCODER_ENCODING_BINARY>;
+>
+> instead of a property
+>
+>         rotary-encoder,encoding-binary;
+>
+> . While the two first solutions make it obvious that there can only b=
 e
-one encoding, they IMHO look ugly, so I went for the property without
-value. What do you think?
+> one encoding, they IMHO look ugly, so I went for the property without
+> value. What do you think?
+>
 
-Best regards
-Uwe
+Yes, picking something like:
 
- .../devicetree/bindings/input/rotary-encoder.txt      |  2 ++
- drivers/input/misc/rotary_encoder.c                   | 19 +++++++++++=
-+++++---
- 2 files changed, 18 insertions(+), 3 deletions(-)
+  rotary-encoder,encoding =3D "binary";
 
-diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt=
- b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-index 6c9f0c8a846c..4a96e4a32503 100644
---- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
-+++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-@@ -20,6 +20,8 @@ Optional properties:
-   2: Half-period mode
-   4: Quarter-period mode
- - wakeup-source: Boolean, rotary encoder can wake up the system.
-+- rotary-encoder,encoding-binary: The device uses binary states instea=
-d of
-+  gray encoding (which is the default).
-=20
- Deprecated properties:
- - rotary-encoder,half-period: Makes the driver work on half-period mod=
-e.
-diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/r=
-otary_encoder.c
-index 96c486de49e0..ce43a59ca41a 100644
---- a/drivers/input/misc/rotary_encoder.c
-+++ b/drivers/input/misc/rotary_encoder.c
-@@ -28,6 +28,11 @@
-=20
- #define DRV_NAME "rotary-encoder"
-=20
-+enum rotary_encoder_encoding {
-+	ROTENC_GRAY,
-+	ROTENC_BINARY,
-+};
-+
- struct rotary_encoder {
- 	struct input_dev *input;
-=20
-@@ -37,6 +42,7 @@ struct rotary_encoder {
- 	u32 axis;
- 	bool relative_axis;
- 	bool rollover;
-+	enum rotary_encoder_encoding encoding;
-=20
- 	unsigned int pos;
-=20
-@@ -57,9 +63,11 @@ static unsigned rotary_encoder_get_state(struct rota=
-ry_encoder *encoder)
-=20
- 	for (i =3D 0; i < encoder->gpios->ndescs; ++i) {
- 		int val =3D gpiod_get_value_cansleep(encoder->gpios->desc[i]);
--		/* convert from gray encoding to normal */
--		if (ret & 1)
--			val =3D !val;
-+
-+		if (encoder->encoding =3D=3D ROTENC_GRAY)
-+			/* convert from gray encoding to normal */
-+			if (ret & 1)
-+				val =3D !val;
-=20
- 		ret =3D ret << 1 | val;
- 	}
-@@ -213,6 +221,11 @@ static int rotary_encoder_probe(struct platform_de=
-vice *pdev)
- 	encoder->rollover =3D
- 		device_property_read_bool(dev, "rotary-encoder,rollover");
-=20
-+	if (device_property_read_bool(dev, "rotary-encoder,encoding-binary"))
-+		encoder->encoding =3D ROTENC_BINARY;
-+	else
-+		encoder->encoding =3D ROTENC_GRAY;
-+
- 	device_property_read_u32(dev, "linux,axis", &encoder->axis);
- 	encoder->relative_axis =3D
- 		device_property_read_bool(dev, "rotary-encoder,relative-axis");
+emphasizing the fact that only one encoding will be used,
+will work better, scaling well if we need to introduce some
+"foobar" encoding.
+
+IMHO, it's better to use boolean properties on boolean stuff only.
 --=20
-2.7.0
-
+Ezequiel Garc=C3=ADa, VanguardiaSur
+www.vanguardiasur.com.ar
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

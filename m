@@ -1,18 +1,18 @@
 From: Laison@seymour.toledo.br, Computech@seymour.toledo.br,
 	"Inc <support"@ensuretech.com
 Subject: CISCO IP PHONES AND CPU's
-Date: Thu, 24 Mar 2016 01:45:21 +0700
-Message-ID: <20160323200920.25EDBA66AB__31492.3177742914$1458765595$gmane$org@seymour.toledo.br>
+Date: Thu, 24 Mar 2016 02:12:04 +0700
+Message-ID: <20160323203603.9913EA7B60__39729.8302654692$1458768351$gmane$org@seymour.toledo.br>
 Reply-To: sales@laisoncomputertech.us
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seymour.toledo.br ([200.148.142.55]:34097 "EHLO
+Received: from seymour.toledo.br ([200.148.142.55]:47372 "EHLO
 	seymour.toledo.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756772AbcCWUi5 convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1757017AbcCWVYt convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Mar 2016 16:38:57 -0400
+	Wed, 23 Mar 2016 17:24:49 -0400
 Content-Description: Mail message body
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org

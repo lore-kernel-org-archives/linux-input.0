@@ -1,94 +1,87 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
-Date: Thu, 24 Mar 2016 01:05:00 +0530
-Message-ID: <CADYu309jySfvrQmdP4HK1so_+Wqf59rv6QbJh8nZwyBdoLLCZQ@mail.gmail.com>
-References: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
-	<CAKdAkRQT0R6peS8iO8PhQ4YoPMowt6voZJez4EubK7R0ZV_m4Q@mail.gmail.com>
-	<56E17A73.8090901@bitmath.org>
-	<CADYu30-b+5TFh2yy2SrGTJJ7FzvcezWut1XL3Ypno5R29hyYww@mail.gmail.com>
-	<CADYu30-CU+cy=N2O+S=__F774YeWiXF=KbQqXJi6aaxWx-pK1w@mail.gmail.com>
+From: Laison@seymour.toledo.br, Computech@seymour.toledo.br,
+	"Inc <support"@ensuretech.com
+Subject: CISCO IP PHONES AND CPU's
+Date: Thu, 24 Mar 2016 01:45:21 +0700
+Message-ID: <20160323200920.25EDBA66AB__31492.3177742914$1458765595$gmane$org@seymour.toledo.br>
+Reply-To: sales@laisoncomputertech.us
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f196.google.com ([209.85.214.196]:36802 "EHLO
-	mail-ob0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755798AbcCWTfB (ORCPT
+Received: from seymour.toledo.br ([200.148.142.55]:34097 "EHLO
+	seymour.toledo.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756772AbcCWUi5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Mar 2016 15:35:01 -0400
-In-Reply-To: <CADYu30-CU+cy=N2O+S=__F774YeWiXF=KbQqXJi6aaxWx-pK1w@mail.gmail.com>
+	Wed, 23 Mar 2016 16:38:57 -0400
+Content-Description: Mail message body
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
-Cc: Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Recipients <support@ensuretech.com>
 
-Hello Mr. Torokhov / Mr. Henry,
+Hi,
 
-On Wed, Mar 16, 2016 at 11:54 PM, Aniroop Mathur
-<aniroop.mathur@gmail.com> wrote:
-> Hello Mr. Torokhov,
->
-> Could you kindly help to update about this patch?
->
+Our Stock list.
 
-So is this patch concluded? Are you applying it?
+Brand NEW
+96 x Cisco 7900 IP Phone
+87 x Unified IP Phone 6900
+12 x Unified IP Phone 8900
+76 x Unified IP Phone 9900
+55 x Unified IP Phone 8800
+67 x Cisco 1921
+67 x Cisco 1941
+56 x Cisco CP-7961G 7961G
+34 x Cisco CP-7971G-GE 7971G
+19 x Cisco Unified IP Conference Station 7937G Model: 7937 CP-7937G
+20 x Cisco CP-7975G 7975G
 
-Thanks,
-Aniroop Mathur
+Brand New Sealed :
 
-> Thank you,
-> Aniroop Mathur
->
->
-> On Fri, Mar 11, 2016 at 12:26 AM, Aniroop Mathur
-> <aniroop.mathur@gmail.com> wrote:
->> Hi Henrik,
->>
->> On Thu, Mar 10, 2016 at 7:15 PM, Henrik Rydberg <rydberg@bitmath.org> wrote:
->>> Hi Dmitry,
->>>
->>>>> diff --git a/drivers/input/input.c b/drivers/input/input.c
->>>>> index 8806059..262ef77 100644
->>>>> --- a/drivers/input/input.c
->>>>> +++ b/drivers/input/input.c
->>>>> @@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
->>>>>                 if (dev->num_vals >= 2)
->>>>>                         input_pass_values(dev, dev->vals, dev->num_vals);
->>>>>                 dev->num_vals = 0;
->>>>> -       } else if (dev->num_vals >= dev->max_vals - 2) {
->>>>> -               dev->vals[dev->num_vals++] = input_value_sync;
->>>>> +       } else if (dev->num_vals >= dev->max_vals - 1) {
->>>>>                 input_pass_values(dev, dev->vals, dev->num_vals);
->>>>>                 dev->num_vals = 0;
->>>>>         }
->>>>
->>>> This makes sense to me. Henrik?
->>>
->>> I went through the commits that made these changes, and I cannot see any strong
->>> reason to keep it. However, this code path only triggers if no SYN events are
->>> seen, as in a driver that fails to emit them and consequently fills up the
->>> buffer. In other words, this change would only affect a device that is already,
->>> to some degree, broken.
->>>
->>> So, the question to Aniroop is: do you see this problem in practise, and in that
->>> case, for what driver?
->>>
->>
->> Nope. So far I have not dealt with any such driver.
->> I made this change because it is breaking protocol of SYN_REPORT event code.
->>
->> Further from the code, I could deduce that max_vals is just an estimation of
->> packet_size and it does not guarantee that packet_size is same as max_vals.
->> So real packet_size can be more than max_vals value and hence we could not
->> insert SYN_REPORT until packet ends really.
->> Further, if we consider that there exists a driver or will exist in future
->> which sets capability of x event code according to which max_value comes out to
->> y and the real packet size is z i.e. driver wants to send same event codes
->> again in the same packet, so input event reader would be expecting SYN_REPORT
->> after z events but due to current code SYN_REPORT will get inserted
->> automatically after y events, which is a wrong behaviour.
->>
->> Thanks,
->> Aniroop Mathur
->>
->>> Henrik
->>>
+23 x  CISCO1921-SEC/K9
+Conditions: Brand New Sealed
+Description: CISCO 1921 Security Bundle w/SEC license PAK
+
+45 x CISCO1921/K9
+Conditions: Brand New Sealed
+Description: CISCO 1921 Modular Router, 2 GE, 2 EHWIC slots, 512DRAM, IP Base
+
+(1)  WS-C4500X-16SFP+
+Serial number:  JAE183501L3
+US&#36;2600
+
+(1)  WS-C3850-48PW-S
+Serial number:  FCW1823C0EW
+US&#36;2650
+
+(1)  WS-X6908-10G-2T
+Serial number:  SAL1620CKUB
+US&#36;3650
+
+(1)  ASR1000-ESP10
+Serial number:  JAE181306C3
+US&#36;3800
+
+(1)  AIR-CT5508-250-K9   (this is new but box is open!)
+Serial number:  FCW1521L038
+US&#36;4000
+
+CPUs part number below
+
+89 x  X5650
+
+975 x  X5660
+
+150 x  X5680
+
+265 x  X5690
+
+Kindly make your price offers.
+
+Sincerely
+Barbara Johnson
+Laison Computech
+210 N Scoring Ave,
+Rialto California, 92376
+Tel: +1-657-232-7047
+Fax: +1-347-214-0478
+Email: sales@laisoncomputertech.us

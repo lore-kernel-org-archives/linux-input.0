@@ -1,87 +1,64 @@
-From: Laison@seymour.toledo.br, Computech@seymour.toledo.br,
-	"Inc <support"@ensuretech.com
-Subject: CISCO IP PHONES AND CPU's
-Date: Thu, 24 Mar 2016 02:12:04 +0700
-Message-ID: <20160323203603.9913EA7B60__39729.8302654692$1458768351$gmane$org@seymour.toledo.br>
-Reply-To: sales@laisoncomputertech.us
+From: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+Subject: [PATCH v5 0/3] Syscon support for iProc touchscreen driver
+Date: Thu, 24 Mar 2016 11:17:12 +0530
+Message-ID: <1458798435-20222-1-git-send-email-raveendra.padasalagi@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seymour.toledo.br ([200.148.142.55]:47372 "EHLO
-	seymour.toledo.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757017AbcCWVYt convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Mar 2016 17:24:49 -0400
-Content-Description: Mail message body
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King <linux@arm.linux.org.uk>, Rob Herring <robh+dt@kernel.org>, Arnd Bergmann <arnd@arndb.de>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>, Florian Fainelli <f.fainelli@gmail.com>, Anup Patel <anup.patel@broadcom.com>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Jon Mason <jonmason@broadcom.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, linux-kernel@vger.kernel.org, Jonathan Richardson <jonathar@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, Kumar Gala <galak@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
-To: Recipients <support@ensuretech.com>
 
-Hi,
+This patchset is based on v4.5-rc3 tag and its tested on
+Broadcom Cygnus SoC.
 
-Our Stock list.
+The patches can be fetched from iproc-tsc-v5 branch of
+https://github.com/Broadcom/arm64-linux.git
 
-Brand NEW
-96 x Cisco 7900 IP Phone
-87 x Unified IP Phone 6900
-12 x Unified IP Phone 8900
-76 x Unified IP Phone 9900
-55 x Unified IP Phone 8800
-67 x Cisco 1921
-67 x Cisco 1941
-56 x Cisco CP-7961G 7961G
-34 x Cisco CP-7971G-GE 7971G
-19 x Cisco Unified IP Conference Station 7937G Model: 7937 CP-7937G
-20 x Cisco CP-7975G 7975G
+Changes since v4:
+ - Fixed odd_ptr_err.cocci script warning
 
-Brand New Sealed :
+Changes since v3:
+ - Renamed touchscreen node "tsc" to "touchscreen" in dt binding document
+ - Added support for syscon only based register access in touch screen
+   driver and removed "regs" based register access. Updated dt binding
+   document to reflect the changes.
+ - Removed "brcm,iproc-touchscreen-syscon" compatible string support in
+   dt binding document and touchscreen driver implementation.
 
-23 x  CISCO1921-SEC/K9
-Conditions: Brand New Sealed
-Description: CISCO 1921 Security Bundle w/SEC license PAK
+Changes since v2:
+ - Omitted '0x' in "tsc node" definition in dt documentation file
+ - Omitted '0x' in "ts_adc_syscon" definition in dt documentation file
+ - Added "brcm,iproc-ts-adc-syscon" compatible string in "ts_adc_syscon"
+   node. Updated dt documentation file to reflect this change.
 
-45 x CISCO1921/K9
-Conditions: Brand New Sealed
-Description: CISCO 1921 Modular Router, 2 GE, 2 EHWIC slots, 512DRAM, IP Base
+Changes since v1:
+ - Enhanced touchscreen driver to handle syscon based register access if
+   "brcm,iproc-touchscreen-syscon" compatible string is provided in dt
+ - Normal register access is handled through readl and writel API's if
+   "brcm,iproc-touchscreen" compatible string is provided.
+ - Updated touchscreen dt node document to reflect the new changes.
+ - Updated change logs in each patchset to reflect the new changes
 
-(1)  WS-C4500X-16SFP+
-Serial number:  JAE183501L3
-US&#36;2600
+Raveendra Padasalagi (3):
+  input: cygnus-update touchscreen dt node document
+  input: syscon support in bcm_iproc_tsc driver
+  ARM: dts: use syscon in cygnus touchscreen dt node
 
-(1)  WS-C3850-48PW-S
-Serial number:  FCW1823C0EW
-US&#36;2650
+ .../input/touchscreen/brcm,iproc-touchscreen.txt   | 21 ++++--
+ arch/arm/boot/dts/bcm-cygnus.dtsi                  | 11 ++-
+ drivers/input/touchscreen/bcm_iproc_tsc.c          | 79 ++++++++++++----------
+ 3 files changed, 69 insertions(+), 42 deletions(-)
 
-(1)  WS-X6908-10G-2T
-Serial number:  SAL1620CKUB
-US&#36;3650
-
-(1)  ASR1000-ESP10
-Serial number:  JAE181306C3
-US&#36;3800
-
-(1)  AIR-CT5508-250-K9   (this is new but box is open!)
-Serial number:  FCW1521L038
-US&#36;4000
-
-CPUs part number below
-
-89 x  X5650
-
-975 x  X5660
-
-150 x  X5680
-
-265 x  X5690
-
-Kindly make your price offers.
-
-Sincerely
-Barbara Johnson
-Laison Computech
-210 N Scoring Ave,
-Rialto California, 92376
-Tel: +1-657-232-7047
-Fax: +1-347-214-0478
-Email: sales@laisoncomputertech.us
+-- 
+1.9.1

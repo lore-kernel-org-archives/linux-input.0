@@ -1,48 +1,48 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [REGRESSION] panic with Wacom One Tablet on 4.4.x kernel
-Date: Thu, 24 Mar 2016 15:43:04 +0100
-Message-ID: <20160324144304.GB7602@mail.corp.redhat.com>
-References: <56E9D929.70101@redhat.com>
- <CAF8JNhKJLzvj=Xe8ibNCJ6-U9fJqjHFzg0uibFTBSxR4t-AmXA@mail.gmail.com>
- <alpine.LNX.2.00.1603241530370.3656@cbobk.fhfr.pm>
+From: =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>
+Subject: Re: [PATCH 0/2] hid: corsair: Driver simplification and new supported device
+Date: Thu, 24 Mar 2016 16:19:28 +0100
+Message-ID: <CAM4jgCp5yPeRXHukGBLKYXOJev2VbrW5H4dREb_u=AX9vER_Tg@mail.gmail.com>
+References: <cover.1458744569.git.clement.vuchener@gmail.com>
+	<alpine.LNX.2.00.1603241527510.3656@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53478 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751805AbcCXOnJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Mar 2016 10:43:09 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1603241530370.3656@cbobk.fhfr.pm>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:35429 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751305AbcCXPTa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Mar 2016 11:19:30 -0400
+In-Reply-To: <alpine.LNX.2.00.1603241527510.3656@cbobk.fhfr.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>
-Cc: Ping Cheng <pinglinux@gmail.com>, Laura Abbott <labbott@redhat.com>, Ping Cheng <pingc@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input <linux-input@vger.kernel.org>
 
-On Mar 24 2016 or thereabouts, Jiri Kosina wrote:
-> On Wed, 16 Mar 2016, Ping Cheng wrote:
-> 
-> > Yes, please provide a bisect report so we get a clue.
-> > 
-> > I do not have a "Wacom One". I have a Wacom Bamboo Pen, which goes 
-> > through the same code base as "Wacom One". I tested kernel 4.4.4. I 
-> > don't see the issue.
-> 
-> Laura, do we have any result from the bisect please?
-> 
+2016-03-24 15:30 GMT+01:00 Jiri Kosina <jikos@kernel.org>:
+> On Wed, 23 Mar 2016, =?UTF-8?q?Cl=C3=A9ment=20Vuchener?= wrote:
+>
+>> So, I decided to move all USB related features in user-space (as far as
+>> I know, I was the only user, but if someone is looking for a
+>> replacement, I wrote a small tool available here:
+>> https://github.com/cvuchener/corsair-usb-config). This simplification
+>> only leaves the usage code remapping part and the driver no longer
+>> depends on USB and LED subsystems. This should make the driver easier to
+>> maintain or to add new supported devices.
+>
+> While you are performing this move, is there anything that's actually
+> preventing you from doing the remapping from userspace as well?
+>
+> HID subsystem has for long time been providing the setkeycode() hook for
+> remapping usages, and udev (well, more precisely, that s*****d thing) is
+> actually shipping a lot of hw-specific remap data these days.
 
-Well, there are two users with the problem, one on Arch (reported
-through linuxwacom[1]) and one on Fedora[2] that Laura mentioned. If you look
-at the Fedora bug, you'll see that I found an issue in the wacom driver
-that fixes the crash, and seems to make the Fedora user happy. However,
-the same patch is not sufficient for the Arch user, and we are trying to
-get to it in the meantime.
-I think I can safely send the fix for the oops now, but we need some
-clarifications on the linuxwacom issues we are seeing.
+Thanks for the tip, is it possible to ignore some usages with this
+method (done in the default case)?
 
-[1] https://sourceforge.net/p/linuxwacom/bugs/311/
-[2] https://bugzilla.redhat.com/show_bug.cgi?id=1317116
-
-Cheers,
-Benjamin
-
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>

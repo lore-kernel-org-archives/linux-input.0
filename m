@@ -1,38 +1,30 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 0/2] hid: corsair: Driver simplification and new supported
- device
-Date: Thu, 24 Mar 2016 15:30:20 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1603241527510.3656@cbobk.fhfr.pm>
-References: <cover.1458744569.git.clement.vuchener@gmail.com>
+Subject: Re: [REGRESSION] panic with Wacom One Tablet on 4.4.x kernel
+Date: Thu, 24 Mar 2016 15:31:11 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1603241530370.3656@cbobk.fhfr.pm>
+References: <56E9D929.70101@redhat.com> <CAF8JNhKJLzvj=Xe8ibNCJ6-U9fJqjHFzg0uibFTBSxR4t-AmXA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:43135 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:43246 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750818AbcCXOaW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Mar 2016 10:30:22 -0400
-In-Reply-To: <cover.1458744569.git.clement.vuchener@gmail.com>
+	id S1750818AbcCXObN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Mar 2016 10:31:13 -0400
+In-Reply-To: <CAF8JNhKJLzvj=Xe8ibNCJ6-U9fJqjHFzg0uibFTBSxR4t-AmXA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?q?Cl=C3=A9ment=20Vuchener?= <clement.vuchener@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Laura Abbott <labbott@redhat.com>, Ping Cheng <pingc@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Wed, 23 Mar 2016, =?UTF-8?q?Cl=C3=A9ment=20Vuchener?= wrote:
+On Wed, 16 Mar 2016, Ping Cheng wrote:
 
-> So, I decided to move all USB related features in user-space (as far as 
-> I know, I was the only user, but if someone is looking for a 
-> replacement, I wrote a small tool available here: 
-> https://github.com/cvuchener/corsair-usb-config). This simplification 
-> only leaves the usage code remapping part and the driver no longer 
-> depends on USB and LED subsystems. This should make the driver easier to 
-> maintain or to add new supported devices.
+> Yes, please provide a bisect report so we get a clue.
+> 
+> I do not have a "Wacom One". I have a Wacom Bamboo Pen, which goes 
+> through the same code base as "Wacom One". I tested kernel 4.4.4. I 
+> don't see the issue.
 
-While you are performing this move, is there anything that's actually 
-preventing you from doing the remapping from userspace as well?
-
-HID subsystem has for long time been providing the setkeycode() hook for 
-remapping usages, and udev (well, more precisely, that s*****d thing) is 
-actually shipping a lot of hw-specific remap data these days.
+Laura, do we have any result from the bisect please?
 
 Thanks,
 

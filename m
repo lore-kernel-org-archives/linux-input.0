@@ -1,11 +1,13 @@
 From: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
-Subject: [PATCH v5 0/3] Syscon support for iProc touchscreen driver
-Date: Thu, 24 Mar 2016 11:17:12 +0530
-Message-ID: <1458798435-20222-1-git-send-email-raveendra.padasalagi@broadcom.com>
+Subject: [PATCH v5 1/3] input: cygnus-update touchscreen dt node document
+Date: Thu, 24 Mar 2016 11:17:13 +0530
+Message-ID: <1458798435-20222-2-git-send-email-raveendra.padasalagi@broadcom.com>
+References: <1458798435-20222-1-git-send-email-raveendra.padasalagi@broadcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1458798435-20222-1-git-send-email-raveendra.padasalagi@broadcom.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -19,46 +21,69 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King <linux@arm.linux.o
 Cc: Mark Rutland <mark.rutland@arm.com>, Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>, Florian Fainelli <f.fainelli@gmail.com>, Anup Patel <anup.patel@broadcom.com>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Jon Mason <jonmason@broadcom.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, linux-kernel@vger.kernel.org, Jonathan Richardson <jonathar@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, Kumar Gala <galak@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
 
-This patchset is based on v4.5-rc3 tag and its tested on
-Broadcom Cygnus SoC.
+In Cygnus SOC touch screen controller registers are shared
+with ADC and flex timer. Using readl/writel could lead to
+race condition. So touch screen driver is enhanced to support
+register access using syscon framework API's to take care of
+mutually exclusive access.In addition to this existing touchscreen
+node name "tsc" is renamed to "touchscreen".
 
-The patches can be fetched from iproc-tsc-v5 branch of
-https://github.com/Broadcom/arm64-linux.git
+Hence touchscreen dt node bindings document is updated to take care
+of above changes in the touchscreen driver.
 
-Changes since v4:
- - Fixed odd_ptr_err.cocci script warning
+Signed-off-by: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+Reviewed-by: Ray Jui <ray.jui@broadcom.com>
+Reviewed-by: Scott Branden <scott.branden@broadcom.com>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ .../input/touchscreen/brcm,iproc-touchscreen.txt    | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-Changes since v3:
- - Renamed touchscreen node "tsc" to "touchscreen" in dt binding document
- - Added support for syscon only based register access in touch screen
-   driver and removed "regs" based register access. Updated dt binding
-   document to reflect the changes.
- - Removed "brcm,iproc-touchscreen-syscon" compatible string support in
-   dt binding document and touchscreen driver implementation.
-
-Changes since v2:
- - Omitted '0x' in "tsc node" definition in dt documentation file
- - Omitted '0x' in "ts_adc_syscon" definition in dt documentation file
- - Added "brcm,iproc-ts-adc-syscon" compatible string in "ts_adc_syscon"
-   node. Updated dt documentation file to reflect this change.
-
-Changes since v1:
- - Enhanced touchscreen driver to handle syscon based register access if
-   "brcm,iproc-touchscreen-syscon" compatible string is provided in dt
- - Normal register access is handled through readl and writel API's if
-   "brcm,iproc-touchscreen" compatible string is provided.
- - Updated touchscreen dt node document to reflect the new changes.
- - Updated change logs in each patchset to reflect the new changes
-
-Raveendra Padasalagi (3):
-  input: cygnus-update touchscreen dt node document
-  input: syscon support in bcm_iproc_tsc driver
-  ARM: dts: use syscon in cygnus touchscreen dt node
-
- .../input/touchscreen/brcm,iproc-touchscreen.txt   | 21 ++++--
- arch/arm/boot/dts/bcm-cygnus.dtsi                  | 11 ++-
- drivers/input/touchscreen/bcm_iproc_tsc.c          | 79 ++++++++++++----------
- 3 files changed, 69 insertions(+), 42 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
+index 34e3382..25541f3 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
+@@ -2,11 +2,17 @@
+ 
+ Required properties:
+ - compatible: must be "brcm,iproc-touchscreen"
+-- reg: physical base address of the controller and length of memory mapped
+-  region.
++- ts_syscon: handler of syscon node defining physical base
++  address of the controller and length of memory mapped region.
++  If this property is selected please make sure MFD_SYSCON config
++  is enabled in the defconfig file.
+ - clocks:  The clock provided by the SOC to driver the tsc
+ - clock-name:  name for the clock
+ - interrupts: The touchscreen controller's interrupt
++- address-cells: Specify the number of u32 entries needed in child nodes.
++  Should set to 1.
++- size-cells: Specify number of u32 entries needed to specify child nodes size
++  in reg property. Should set to 1.
+ 
+ Optional properties:
+ - scanning_period: Time between scans. Each step is 1024 us.  Valid 1-256.
+@@ -53,13 +59,18 @@ Optional properties:
+ - touchscreen-inverted-x: X axis is inverted (boolean)
+ - touchscreen-inverted-y: Y axis is inverted (boolean)
+ 
+-Example:
++Example: An example of touchscreen node
+ 
+-	touchscreen: tsc@0x180A6000 {
++	ts_adc_syscon: ts_adc_syscon@180a6000 {
++		compatible = "brcm,iproc-ts-adc-syscon","syscon";
++		reg = <0x180a6000 0xc30>;
++	};
++
++	touchscreen: touchscreen@180A6000 {
+ 		compatible = "brcm,iproc-touchscreen";
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		reg = <0x180A6000 0x40>;
++		ts_syscon = <&ts_adc_syscon>;
+ 		clocks = <&adc_clk>;
+ 		clock-names = "tsc_clk";
+ 		interrupts = <GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>;
 -- 
 1.9.1

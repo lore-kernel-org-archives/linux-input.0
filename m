@@ -1,492 +1,570 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCHv14 13/18] cec: adv7842: add cec support
-Date: Fri, 25 Mar 2016 14:10:11 +0100
-Message-ID: <1458911416-47981-14-git-send-email-hverkuil@xs4all.nl>
+Subject: [PATCHv14 18/18] cec: add ARC and CDC support
+Date: Fri, 25 Mar 2016 14:10:16 +0100
+Message-ID: <1458911416-47981-19-git-send-email-hverkuil@xs4all.nl>
 References: <1458911416-47981-1-git-send-email-hverkuil@xs4all.nl>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lb2-smtp-cloud2.xs4all.net ([194.109.24.25]:59754 "EHLO
+	lb2-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751091AbcCYNYr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Mar 2016 09:24:47 -0400
 In-Reply-To: <1458911416-47981-1-git-send-email-hverkuil@xs4all.nl>
-Sender: linux-samsung-soc-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-media@vger.kernel.org
 Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
-List-Id: linux-input@vger.kernel.org
 
 From: Hans Verkuil <hans.verkuil@cisco.com>
 
-Add CEC support to the adv7842 driver.
+Preliminary ARC and CDC support. Untested and experimental!
 
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 ---
- drivers/media/i2c/Kconfig   |   2 +-
- drivers/media/i2c/adv7842.c | 323 +++++++++++++++++++++++++++++++++++---------
- 2 files changed, 261 insertions(+), 64 deletions(-)
+ .../DocBook/media/v4l/cec-ioc-adap-g-caps.xml      |  10 ++
+ Documentation/DocBook/media/v4l/cec-ioc-g-mode.xml |  36 ++++
+ Documentation/cec.txt                              |  75 ++++++++
+ drivers/media/cec.c                                | 198 ++++++++++++++++++++-
+ drivers/media/pci/cobalt/cobalt-driver.c           |   4 +-
+ drivers/media/pci/cobalt/cobalt-v4l2.c             |  37 ++++
+ include/media/cec.h                                |  11 ++
+ include/uapi/linux/cec.h                           |   5 +
+ 8 files changed, 372 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
-index 3d01ffc..11ca81c 100644
---- a/drivers/media/i2c/Kconfig
-+++ b/drivers/media/i2c/Kconfig
-@@ -220,7 +220,7 @@ config VIDEO_ADV7604
+diff --git a/Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml
+index 7b22bf3..648ad3c 100644
+--- a/Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml
++++ b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml
+@@ -135,6 +135,16 @@
+ 	    <entry>This CEC adapter is an HDMI source, &ie; it has an HDMI output
+ 	    connector.</entry>
+ 	  </row>
++	  <row>
++	    <entry><constant>CEC_CAP_ARC</constant></entry>
++	    <entry>0x00000080</entry>
++	    <entry>This adapter supports the Audio Return Channel protocol.</entry>
++	  </row>
++	  <row>
++	    <entry><constant>CEC_CAP_CDC_HPD</constant></entry>
++	    <entry>0x00000100</entry>
++	    <entry>This adapter supports the hotplug detect protocol over CDC.</entry>
++	  </row>
+ 	</tbody>
+       </tgroup>
+     </table>
+diff --git a/Documentation/DocBook/media/v4l/cec-ioc-g-mode.xml b/Documentation/DocBook/media/v4l/cec-ioc-g-mode.xml
+index c6260ae..b08b0c4 100644
+--- a/Documentation/DocBook/media/v4l/cec-ioc-g-mode.xml
++++ b/Documentation/DocBook/media/v4l/cec-ioc-g-mode.xml
+@@ -187,6 +187,42 @@ The follower can of course always call &CEC-TRANSMIT;.</para>
+ 	&cs-def;
+ 	<tbody valign="top">
+ 	  <row>
++	    <entry><constant>CEC_MSG_INITIATE_ARC</constant></entry>
++	    <entry></entry>
++	  </row>
++	  <row>
++	    <entry><constant>CEC_MSG_TERMINATE_ARC</constant></entry>
++	    <entry></entry>
++	  </row>
++	  <row>
++	    <entry><constant>CEC_MSG_REQUEST_ARC_INITIATION</constant></entry>
++	    <entry></entry>
++	  </row>
++	  <row>
++	    <entry><constant>CEC_MSG_REQUEST_ARC_TERMINATION</constant></entry>
++	    <entry></entry>
++	  </row>
++	  <row>
++	    <entry><constant>CEC_MSG_REPORT_ARC_INITIATED</constant></entry>
++	    <entry></entry>
++	  </row>
++	  <row>
++	    <entry><constant>CEC_MSG_REPORT_ARC_TERMINATED</constant></entry>
++	    <entry>If <constant>CEC_CAP_ARC</constant> is not set, then just pass
++	    it on to userspace for processing. However, if <constant>CEC_CAP_ARC</constant> is
++	    set, then the core framework processes this message and userspace will
++	    not see it, not even in passthrough mode.</entry>
++	  </row>
++	  <row>
++	    <entry><constant>CEC_MSG_CDC_MESSAGE</constant></entry>
++	    <entry>If <constant>CEC_CAP_CDC_HPD</constant> is not set, then just pass
++	    it on to userspace for processing. Do the same if the CDC command is not
++	    one of <constant>CEC_MSG_CDC_HPD_REPORT_STATE</constant> or
++	    <constant>CEC_MSG_CDC_HPD_SET_STATE</constant>. Else the core framework
++	    processes this message and userspace will not see it, not even in passthrough
++	    mode.</entry>
++	  </row>
++	  <row>
+ 	    <entry><constant>CEC_MSG_GET_CEC_VERSION</constant></entry>
+ 	    <entry>When in passthrough mode this message has to be handled by userspace,
+ 	    otherwise the core will return the CEC version that was set with &CEC-ADAP-S-LOG-ADDRS;.</entry>
+diff --git a/Documentation/cec.txt b/Documentation/cec.txt
+index 9d62a02..52bf1f3 100644
+--- a/Documentation/cec.txt
++++ b/Documentation/cec.txt
+@@ -217,6 +217,16 @@ struct cec_adap_ops {
  
- config VIDEO_ADV7842
- 	tristate "Analog Devices ADV7842 decoder"
--	depends on VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API
-+	depends on VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API && MEDIA_CEC
- 	select HDMI
- 	---help---
- 	  Support for the Analog Devices ADV7842 video decoder.
-diff --git a/drivers/media/i2c/adv7842.c b/drivers/media/i2c/adv7842.c
-index 7ccb85d..32cfeca 100644
---- a/drivers/media/i2c/adv7842.c
-+++ b/drivers/media/i2c/adv7842.c
-@@ -39,6 +39,7 @@
- #include <linux/workqueue.h>
- #include <linux/v4l2-dv-timings.h>
- #include <linux/hdmi.h>
-+#include <media/cec.h>
- #include <media/v4l2-device.h>
- #include <media/v4l2-event.h>
- #include <media/v4l2-ctrls.h>
-@@ -79,6 +80,8 @@ MODULE_LICENSE("GPL");
- 
- #define ADV7842_OP_SWAP_CB_CR				(1 << 0)
- 
-+#define ADV7842_MAX_ADDRS (3)
+ 	/* High-level CEC message callback */
+ 	int (*received)(struct cec_adapter *adap, struct cec_msg *msg);
 +
- /*
- **********************************************************************
- *
-@@ -142,6 +145,10 @@ struct adv7842_state {
- 	struct v4l2_ctrl *free_run_color_ctrl_manual;
- 	struct v4l2_ctrl *free_run_color_ctrl;
- 	struct v4l2_ctrl *rgb_quantization_range_ctrl;
++	/* High-level CDC Hotplug Detect callbacks */
++	u8 (*source_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state);
++	void (*sink_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state, u8 cdc_hpd_error);
 +
-+	u8   cec_addr[ADV7842_MAX_ADDRS];
-+	u8   cec_valid_addrs;
-+	bool cec_enabled_adap;
++	/* High-level Audio Return Channel callbacks */
++	int (*sink_initiate_arc)(struct cec_adapter *adap);
++	int (*sink_terminate_arc)(struct cec_adapter *adap);
++	int (*source_arc_initiated)(struct cec_adapter *adap);
++	int (*source_arc_terminated)(struct cec_adapter *adap);
  };
  
- /* Unsupported timings. This device cannot support 720p30. */
-@@ -418,9 +425,9 @@ static inline int cec_write(struct v4l2_subdev *sd, u8 reg, u8 val)
- 	return adv_smbus_write_byte_data(state->i2c_cec, reg, val);
- }
+ The received() callback allows the driver to optionally handle a newly
+@@ -229,6 +239,62 @@ callback. If it doesn't want to handle this message, then it should return
+ -ENOMSG, otherwise the CEC framework assumes it processed this message and
+ it will not no anything with it.
  
--static inline int cec_write_and_or(struct v4l2_subdev *sd, u8 reg, u8 mask, u8 val)
-+static inline int cec_write_clr_set(struct v4l2_subdev *sd, u8 reg, u8 mask, u8 val)
- {
--	return cec_write(sd, reg, (cec_read(sd, reg) & mask) | val);
-+	return cec_write(sd, reg, (cec_read(sd, reg) & ~mask) | val);
- }
- 
- static inline int infoframe_read(struct v4l2_subdev *sd, u8 reg)
-@@ -696,6 +703,18 @@ adv7842_get_dv_timings_cap(struct v4l2_subdev *sd)
- 
- /* ----------------------------------------------------------------------- */
- 
-+static u16 adv7842_read_cable_det(struct v4l2_subdev *sd)
-+{
-+	u8 reg = io_read(sd, 0x6f);
-+	u16 val = 0;
++The other callbacks deal with two CEC features: CDC Hotplug Detect and
++Audio Return Channel. Here the framework takes care of handling these
++messages and it calls the callbacks to notify the driver when it needs
++to take action.
 +
-+	if (reg & 0x02)
-+		val |= 1; /* port A */
-+	if (reg & 0x01)
-+		val |= 2; /* port B */
-+	return val;
++CDC Hotplug Support
++-------------------
++
++A source received a hotplug state change message:
++
++	u8 (*source_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state);
++
++A source received a CEC_MSG_CDC_HPD_SET_STATE message. The framework will
++reply with a CEC_MSG_CDC_HPD_REPORT_STATE message and this callback is used
++to fill in the HPD Error Code Operand of the REPORT_STATE message. In addition,
++the driver can act in this callback on the hotplug state change.
++
++Only implement if CEC_CAP_CDC_HPD is set.
++
++A sink received a hotplug report state message:
++
++	void (*sink_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state, u8 cdc_hpd_error);
++
++A sink received a CEC_MSG_CDC_HPD_REPORT_STATE message. This callback will
++do anything necessary to implement this hotplug change. The two arguments
++are the HPD Error State and HPD Error Code Operands from the CEC_MSG_CDC_HPD_REPORT_STATE
++message.
++
++
++Audio Return Channel Support
++----------------------------
++
++Called if a CEC_MSG_INITIATE_ARC message is received by an HDMI sink.
++This callback should start sending audio over the audio return channel. If
++successful it should return 0.
++
++	int (*sink_initiate_arc)(struct cec_adapter *adap);
++
++Called if a CEC_MSG_TERMINATE_ARC message is received by an HDMI sink.
++This callback should stop sending audio over the audio return channel. If
++successful it should return 0.
++
++	void (*sink_terminate_arc)(struct cec_adapter *adap);
++
++Called if a CEC_MSG_REPORT_ARC_INITIATED message is received by an
++HDMI source. This callback can be used to enable receiving audio from
++the audio return channel.
++
++	void (*source_arc_initiated)(struct cec_adapter *adap);
++
++Called if a CEC_MSG_REPORT_ARC_TERMINATED message is received by an
++HDMI source. This callback can be used to disable receiving audio from
++the audio return channel.
++
++	void (*source_arc_terminated)(struct cec_adapter *adap);
++
+ 
+ CEC framework functions
+ -----------------------
+@@ -274,6 +340,15 @@ unconfiguring. This function will just return if the physical address is
+ invalid. Once the physical address becomes valid, then the framework will
+ attempt to claim these logical addresses.
+ 
++u8 cec_sink_cdc_hpd(struct cec_adapter *adap, u8 input_port, u8 cdc_hpd_state);
++
++If an HDMI receiver supports hotplug signalling over CDC (CEC_CAP_CDC_HPD is
++set), then the driver should call this function whenever the hotplug state
++changes for an input. This call will send an appropriate CDC message over
++the CEC line. It returns CEC_OP_HPD_ERROR_NONE on success, if the adapter
++is unconfigured it returns CEC_OP_HPD_ERROR_INITIATOR_WRONG_STATE and if
++the cec_transmit fails it returns CEC_OP_HPD_ERROR_OTHER.
++
+ void cec_log_status(struct cec_adapter *adap);
+ 
+ This logs the current CEC adapter status in the kernel log. Useful for
+diff --git a/drivers/media/cec.c b/drivers/media/cec.c
+index 55d5b86..09db8a6 100644
+--- a/drivers/media/cec.c
++++ b/drivers/media/cec.c
+@@ -160,6 +160,42 @@ u16 cec_phys_addr_parent(u16 phys_addr)
+ }
+ EXPORT_SYMBOL_GPL(cec_phys_addr_parent);
+ 
++/*
++ * Two physical addresses are adjacent if they have a direct link.
++ * So 0.0.0.0 and 1.0.0.0 are adjacent, but not 0.0.0.0 and 1.1.0.0.
++ * And 2.3.0.0 and 2.3.1.0 are adjacent, but not 2.3.0.0 and 2.4.0.0.
++ *
++ * In other words, the two addresses share the same prefix, but then
++ * one has a zero and the other has a non-zero value. And the remaining
++ * components are all zero for both.
++ */
++static bool cec_pa_are_adjacent(const struct cec_adapter *adap, u16 pa1, u16 pa2)
++{
++	u16 mask = 0xf000;
++	int i;
++
++	if (pa1 == CEC_PHYS_ADDR_INVALID || pa2 == CEC_PHYS_ADDR_INVALID)
++		return false;
++	for (i = 0; i < 3; i++) {
++		if ((pa1 & mask) != (pa2 & mask))
++			break;
++		mask = (mask >> 4) | 0xf000;
++	}
++	if ((pa1 & ~mask) || (pa2 & ~mask))
++		return false;
++	if (!(pa1 & mask) ^ !(pa2 & mask))
++		return true;
++	return false;
 +}
 +
- static void adv7842_delayed_work_enable_hotplug(struct work_struct *work)
++static bool cec_la_are_adjacent(const struct cec_adapter *adap, u8 la1, u8 la2)
++{
++	u16 pa1 = adap->phys_addrs[la1];
++	u16 pa2 = adap->phys_addrs[la2];
++
++	return cec_pa_are_adjacent(adap, pa1, pa2);
++}
++
+ static int cec_log_addr2idx(const struct cec_adapter *adap, u8 log_addr)
  {
- 	struct delayed_work *dwork = to_delayed_work(work);
-@@ -762,50 +781,17 @@ static int edid_write_vga_segment(struct v4l2_subdev *sd)
- 	return 0;
- }
- 
--static int edid_spa_location(const u8 *edid)
--{
--	u8 d;
--
--	/*
--	 * TODO, improve and update for other CEA extensions
--	 * currently only for 1 segment (256 bytes),
--	 * i.e. 1 extension block and CEA revision 3.
--	 */
--	if ((edid[0x7e] != 1) ||
--	    (edid[0x80] != 0x02) ||
--	    (edid[0x81] != 0x03)) {
--		return -EINVAL;
--	}
--	/*
--	 * search Vendor Specific Data Block (tag 3)
--	 */
--	d = edid[0x82] & 0x7f;
--	if (d > 4) {
--		int i = 0x84;
--		int end = 0x80 + d;
--		do {
--			u8 tag = edid[i]>>5;
--			u8 len = edid[i] & 0x1f;
--
--			if ((tag == 3) && (len >= 5))
--				return i + 4;
--			i += len + 1;
--		} while (i < end);
--	}
--	return -EINVAL;
--}
--
- static int edid_write_hdmi_segment(struct v4l2_subdev *sd, u8 port)
- {
- 	struct i2c_client *client = v4l2_get_subdevdata(sd);
- 	struct adv7842_state *state = to_state(sd);
--	const u8 *val = state->hdmi_edid.edid;
--	int spa_loc = edid_spa_location(val);
-+	const u8 *edid = state->hdmi_edid.edid;
-+	int spa_loc;
- 	int err = 0;
  	int i;
+@@ -1034,7 +1070,9 @@ static int cec_receive_notify(struct cec_adapter *adap, struct cec_msg *msg,
+ 	int la_idx = cec_log_addr2idx(adap, dest_laddr);
+ 	bool is_directed = la_idx >= 0;
+ 	bool from_unregistered = init_laddr == 0xf;
++	u16 cdc_phys_addr;
+ 	struct cec_msg tx_cec_msg = { };
++	u8 *tx_msg = tx_cec_msg.msg;
  
--	v4l2_dbg(2, debug, sd, "%s: write EDID on port %c (spa at 0x%x)\n",
--			__func__, (port == ADV7842_EDID_PORT_A) ? 'A' : 'B', spa_loc);
-+	v4l2_dbg(2, debug, sd, "%s: write EDID on port %c\n",
-+			__func__, (port == ADV7842_EDID_PORT_A) ? 'A' : 'B');
+ 	dprintk(1, "cec_receive_notify: %*ph\n", msg->len, msg->msg);
  
- 	/* HPA disable on port A and B */
- 	io_write_and_or(sd, 0x20, 0xcf, 0x00);
-@@ -816,24 +802,30 @@ static int edid_write_hdmi_segment(struct v4l2_subdev *sd, u8 port)
- 	if (!state->hdmi_edid.present)
+@@ -1045,12 +1083,57 @@ static int cec_receive_notify(struct cec_adapter *adap, struct cec_msg *msg,
+ 	}
+ 
+ 	/*
+-	 * REPORT_PHYSICAL_ADDR, CEC_MSG_USER_CONTROL_PRESSED and
++	 * ARC, CDC and REPORT_PHYSICAL_ADDR, CEC_MSG_USER_CONTROL_PRESSED and
+ 	 * CEC_MSG_USER_CONTROL_RELEASED messages always have to be
+ 	 * handled by the CEC core, even if the passthrough mode is on.
+-	 * The others are just ignored if passthrough mode is on.
++	 * ARC and CDC messages will never be seen even if passthrough is
++	 * on, but the others are just passed on normally after we processed
++	 * them.
+ 	 */
+ 	switch (msg->msg[1]) {
++	case CEC_MSG_INITIATE_ARC:
++	case CEC_MSG_TERMINATE_ARC:
++	case CEC_MSG_REQUEST_ARC_INITIATION:
++	case CEC_MSG_REQUEST_ARC_TERMINATION:
++	case CEC_MSG_REPORT_ARC_INITIATED:
++	case CEC_MSG_REPORT_ARC_TERMINATED:
++		/* ARC messages are never passed through if CAP_ARC is set */
++
++		/* Abort/ignore if ARC is not supported */
++		if (!(adap->capabilities & CEC_CAP_ARC)) {
++			/* Just abort if nobody is listening */
++			if (is_directed && !is_reply && !adap->cec_follower &&
++			    !adap->follower_cnt)
++				return cec_feature_abort(adap, msg);
++			goto skip_processing;
++		}
++		/* Ignore if addressing is wrong */
++		if (is_broadcast || from_unregistered)
++			return 0;
++		break;
++
++	case CEC_MSG_CDC_MESSAGE:
++		switch (msg->msg[4]) {
++		case CEC_MSG_CDC_HPD_REPORT_STATE:
++		case CEC_MSG_CDC_HPD_SET_STATE:
++			/*
++			 * CDC_HPD messages are never passed through if
++			 * CAP_CDC_HPD is set
++			 */
++
++			/* Ignore if CDC_HPD is not supported */
++			if (!(adap->capabilities & CEC_CAP_CDC_HPD))
++				goto skip_processing;
++			/* or the addressing is wrong */
++			if (!is_broadcast)
++				return 0;
++			break;
++		default:
++			/* Other CDC messages are ignored */
++			goto skip_processing;
++		}
++		break;
++
+ 	case CEC_MSG_GET_CEC_VERSION:
+ 	case CEC_MSG_GIVE_DEVICE_VENDOR_ID:
+ 	case CEC_MSG_ABORT:
+@@ -1186,6 +1269,97 @@ static int cec_receive_notify(struct cec_adapter *adap, struct cec_msg *msg,
+ 			return cec_report_features(adap, la_idx);
  		return 0;
  
-+	cec_get_edid_phys_addr(edid, 256, &spa_loc);
++	case CEC_MSG_REQUEST_ARC_INITIATION:
++		if (!adap->is_source ||
++		    !cec_la_are_adjacent(adap, dest_laddr, init_laddr))
++			return cec_feature_refused(adap, msg);
++		cec_msg_initiate_arc(&tx_cec_msg, false);
++		return cec_transmit_msg(adap, &tx_cec_msg, false);
 +
-+	/*
-+	 * Return an error if no location of the source physical address
-+	 * was found.
-+	 */
-+	if (spa_loc == 0)
-+		return -EINVAL;
++	case CEC_MSG_REQUEST_ARC_TERMINATION:
++		if (!adap->is_source ||
++		    !cec_la_are_adjacent(adap, dest_laddr, init_laddr))
++			return cec_feature_refused(adap, msg);
++		cec_msg_terminate_arc(&tx_cec_msg, false);
++		return cec_transmit_msg(adap, &tx_cec_msg, false);
 +
- 	/* edid segment pointer '0' for HDMI ports */
- 	rep_write_and_or(sd, 0x77, 0xef, 0x00);
- 
- 	for (i = 0; !err && i < 256; i += I2C_SMBUS_BLOCK_MAX)
- 		err = adv_smbus_write_i2c_block_data(state->i2c_edid, i,
--						     I2C_SMBUS_BLOCK_MAX, val + i);
-+						     I2C_SMBUS_BLOCK_MAX, edid + i);
- 	if (err)
- 		return err;
- 
--	if (spa_loc < 0)
--		spa_loc = 0xc0; /* Default value [REF_02, p. 199] */
--
- 	if (port == ADV7842_EDID_PORT_A) {
--		rep_write(sd, 0x72, val[spa_loc]);
--		rep_write(sd, 0x73, val[spa_loc + 1]);
-+		rep_write(sd, 0x72, edid[spa_loc]);
-+		rep_write(sd, 0x73, edid[spa_loc + 1]);
- 	} else {
--		rep_write(sd, 0x74, val[spa_loc]);
--		rep_write(sd, 0x75, val[spa_loc + 1]);
-+		rep_write(sd, 0x74, edid[spa_loc]);
-+		rep_write(sd, 0x75, edid[spa_loc + 1]);
- 	}
- 	rep_write(sd, 0x76, spa_loc & 0xff);
- 	rep_write_and_or(sd, 0x77, 0xbf, (spa_loc >> 2) & 0x40);
-@@ -983,20 +975,11 @@ static int adv7842_s_register(struct v4l2_subdev *sd,
- static int adv7842_s_detect_tx_5v_ctrl(struct v4l2_subdev *sd)
- {
- 	struct adv7842_state *state = to_state(sd);
--	int prev = v4l2_ctrl_g_ctrl(state->detect_tx_5v_ctrl);
--	u8 reg_io_6f = io_read(sd, 0x6f);
--	int val = 0;
--
--	if (reg_io_6f & 0x02)
--		val |= 1; /* port A */
--	if (reg_io_6f & 0x01)
--		val |= 2; /* port B */
-+	u16 cable_det = adv7842_read_cable_det(sd);
- 
--	v4l2_dbg(1, debug, sd, "%s: 0x%x -> 0x%x\n", __func__, prev, val);
-+	v4l2_dbg(1, debug, sd, "%s: 0x%x\n", __func__, cable_det);
- 
--	if (val != prev)
--		return v4l2_ctrl_s_ctrl(state->detect_tx_5v_ctrl, val);
--	return 0;
-+	return v4l2_ctrl_s_ctrl(state->detect_tx_5v_ctrl, cable_det);
- }
- 
- static int find_and_set_predefined_video_timings(struct v4l2_subdev *sd,
-@@ -2170,6 +2153,196 @@ static void adv7842_irq_enable(struct v4l2_subdev *sd, bool enable)
- 	}
- }
- 
-+static void adv7842_cec_tx_raw_status(struct v4l2_subdev *sd, u8 tx_raw_status)
-+{
-+	struct v4l2_subdev_cec_tx_done tx_done = {};
-+
-+	if ((cec_read(sd, 0x11) & 0x01) == 0) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: tx disabled\n", __func__);
-+		return;
-+	}
-+
-+	if (tx_raw_status & 0x02) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: arbitration lost\n",
-+			 __func__);
-+		tx_done.status = CEC_TX_STATUS_ARB_LOST;
-+		tx_done.arb_lost_cnt = 1;
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE, &tx_done);
-+		return;
-+	}
-+	if (tx_raw_status & 0x04) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: retry failed\n", __func__);
-+		/*
-+		 * We set this status bit since this hardware performs
-+		 * retransmissions.
-+		 */
-+		tx_done.status = CEC_TX_STATUS_MAX_RETRIES;
-+		tx_done.nack_cnt = cec_read(sd, 0x14) & 0xf;
-+		if (tx_done.nack_cnt)
-+			tx_done.status |= CEC_TX_STATUS_NACK;
-+		tx_done.low_drive_cnt = cec_read(sd, 0x14) >> 4;
-+		if (tx_done.low_drive_cnt)
-+			tx_done.status |= CEC_TX_STATUS_LOW_DRIVE;
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE, &tx_done);
-+		return;
-+	}
-+	if (tx_raw_status & 0x01) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: ready ok\n", __func__);
-+		tx_done.status = CEC_TX_STATUS_OK;
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE, &tx_done);
-+		return;
-+	}
-+}
-+
-+static void adv7842_cec_isr(struct v4l2_subdev *sd, bool *handled)
-+{
-+	u8 cec_irq;
-+
-+	/* cec controller */
-+	cec_irq = io_read(sd, 0x93) & 0x0f;
-+	if (!cec_irq)
-+		return;
-+
-+	v4l2_dbg(1, debug, sd, "%s: cec: irq 0x%x\n", __func__, cec_irq);
-+	adv7842_cec_tx_raw_status(sd, cec_irq);
-+	if (cec_irq & 0x08) {
-+		struct cec_msg msg;
-+
-+		msg.len = cec_read(sd, 0x25) & 0x1f;
-+		if (msg.len > 16)
-+			msg.len = 16;
-+
-+		if (msg.len) {
-+			u8 i;
-+
-+			for (i = 0; i < msg.len; i++)
-+				msg.msg[i] = cec_read(sd, i + 0x15);
-+			cec_write(sd, 0x26, 0x01); /* re-enable rx */
-+			v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_RX_MSG, &msg);
-+		}
-+	}
-+
-+	io_write(sd, 0x94, cec_irq);
-+
-+	if (handled)
-+		*handled = true;
-+}
-+
-+static unsigned adv7842_cec_adap_available_log_addrs(struct v4l2_subdev *sd)
-+{
-+	return ADV7842_MAX_ADDRS;
-+}
-+
-+static int adv7842_cec_adap_enable(struct v4l2_subdev *sd, bool enable)
-+{
-+	struct adv7842_state *state = to_state(sd);
-+
-+	if (!state->cec_enabled_adap && enable) {
-+		cec_write_clr_set(sd, 0x2a, 0x01, 0x01);	/* power up cec */
-+		cec_write(sd, 0x2c, 0x01);	/* cec soft reset */
-+		cec_write_clr_set(sd, 0x11, 0x01, 0);  /* initially disable tx */
-+		/* enabled irqs: */
-+		/* tx: ready */
-+		/* tx: arbitration lost */
-+		/* tx: retry timeout */
-+		/* rx: ready */
-+		io_write_clr_set(sd, 0x96, 0x0f, 0x0f);
-+		cec_write(sd, 0x26, 0x01);            /* enable rx */
-+	} else if (state->cec_enabled_adap && !enable) {
-+		/* disable cec interrupts */
-+		io_write_clr_set(sd, 0x96, 0x0f, 0x00);
-+		/* disable address mask 1-3 */
-+		cec_write_clr_set(sd, 0x27, 0x70, 0x00);
-+		/* power down cec section */
-+		cec_write_clr_set(sd, 0x2a, 0x01, 0x00);
-+		state->cec_valid_addrs = 0;
-+	}
-+	state->cec_enabled_adap = enable;
-+	return 0;
-+}
-+
-+static int adv7842_cec_adap_log_addr(struct v4l2_subdev *sd, u8 addr)
-+{
-+	struct adv7842_state *state = to_state(sd);
-+	unsigned i, free_idx = ADV7842_MAX_ADDRS;
-+
-+	if (!state->cec_enabled_adap)
-+		return -EIO;
-+
-+	if (addr == CEC_LOG_ADDR_INVALID) {
-+		cec_write_clr_set(sd, 0x27, 0x70, 0);
-+		state->cec_valid_addrs = 0;
-+		return 0;
-+	}
-+
-+	for (i = 0; i < ADV7842_MAX_ADDRS; i++) {
-+		bool is_valid = state->cec_valid_addrs & (1 << i);
-+
-+		if (free_idx == ADV7842_MAX_ADDRS && !is_valid)
-+			free_idx = i;
-+		if (is_valid && state->cec_addr[i] == addr)
++	case CEC_MSG_INITIATE_ARC:
++		if (adap->is_source ||
++		    !cec_la_are_adjacent(adap, dest_laddr, init_laddr))
++			return cec_feature_refused(adap, msg);
++		if (call_op(adap, sink_initiate_arc))
 +			return 0;
-+	}
-+	if (i == ADV7842_MAX_ADDRS) {
-+		i = free_idx;
-+		if (i == ADV7842_MAX_ADDRS)
-+			return -ENXIO;
-+	}
-+	state->cec_addr[i] = addr;
-+	state->cec_valid_addrs |= 1 << i;
++		cec_msg_report_arc_initiated(&tx_cec_msg);
++		return cec_transmit_msg(adap, &tx_cec_msg, false);
 +
-+	switch (i) {
-+	case 0:
-+		/* enable address mask 0 */
-+		cec_write_clr_set(sd, 0x27, 0x10, 0x10);
-+		/* set address for mask 0 */
-+		cec_write_clr_set(sd, 0x28, 0x0f, addr);
-+		break;
-+	case 1:
-+		/* enable address mask 1 */
-+		cec_write_clr_set(sd, 0x27, 0x20, 0x20);
-+		/* set address for mask 1 */
-+		cec_write_clr_set(sd, 0x28, 0xf0, addr << 4);
-+		break;
-+	case 2:
-+		/* enable address mask 2 */
-+		cec_write_clr_set(sd, 0x27, 0x40, 0x40);
-+		/* set address for mask 1 */
-+		cec_write_clr_set(sd, 0x29, 0x0f, addr);
-+		break;
-+	}
-+	return 0;
-+}
++	case CEC_MSG_TERMINATE_ARC:
++		if (adap->is_source ||
++		    !cec_la_are_adjacent(adap, dest_laddr, init_laddr))
++			return cec_feature_refused(adap, msg);
++		call_void_op(adap, sink_terminate_arc);
++		cec_msg_report_arc_terminated(&tx_cec_msg);
++		return cec_transmit_msg(adap, &tx_cec_msg, false);
 +
-+static int adv7842_cec_adap_transmit(struct v4l2_subdev *sd, u8 attempts,
-+				     u32 signal_free_time, struct cec_msg *msg)
++	case CEC_MSG_REPORT_ARC_INITIATED:
++		if (!adap->is_source ||
++		    !cec_la_are_adjacent(adap, dest_laddr, init_laddr))
++			return cec_feature_refused(adap, msg);
++		call_void_op(adap, source_arc_initiated);
++		return 0;
++
++	case CEC_MSG_REPORT_ARC_TERMINATED:
++		if (!adap->is_source ||
++		    !cec_la_are_adjacent(adap, dest_laddr, init_laddr))
++			return cec_feature_refused(adap, msg);
++		call_void_op(adap, source_arc_terminated);
++		return 0;
++
++	case CEC_MSG_CDC_MESSAGE: {
++		unsigned int shift;
++		unsigned int input_port;
++
++		cdc_phys_addr = (msg->msg[2] << 8) | msg->msg[3];
++		if (!cec_pa_are_adjacent(adap, cdc_phys_addr, adap->phys_addr))
++			return 0;
++
++		switch (msg->msg[4]) {
++		case CEC_MSG_CDC_HPD_REPORT_STATE:
++			/*
++			 * Ignore if we're not a sink or the message comes from
++			 * an upstream device.
++			 */
++			if (adap->is_source || cdc_phys_addr <= adap->phys_addr)
++				return 0;
++			adap->ops->sink_cdc_hpd(adap, msg->msg[5] >> 4, msg->msg[5] & 0xf);
++			return 0;
++		case CEC_MSG_CDC_HPD_SET_STATE:
++			/* Ignore if we're not a source */
++			if (!adap->is_source)
++				return 0;
++			break;
++		default:
++			return 0;
++		}
++
++		input_port = msg->msg[5] >> 4;
++		for (shift = 0; shift < 16; shift += 4) {
++			if (cdc_phys_addr & (0xf000 >> shift))
++				continue;
++			cdc_phys_addr |= input_port << (12 - shift);
++			break;
++		}
++		if (cdc_phys_addr != adap->phys_addr)
++			return 0;
++
++		tx_cec_msg.len = 6;
++		/* broadcast reply */
++		tx_msg[0] = (adap->log_addrs.log_addr[0] << 4) | 0xf;
++		cec_msg_cdc_hpd_report_state(&tx_cec_msg,
++			     msg->msg[5] & 0xf,
++			     adap->ops->source_cdc_hpd(adap, msg->msg[5] & 0xf));
++		return cec_transmit_msg(adap, &tx_cec_msg, false);
++	}
++
+ 	default:
+ 		/*
+ 		 * Unprocessed messages are aborted if userspace isn't doing
+@@ -1681,6 +1855,26 @@ void cec_log_status(struct cec_adapter *adap, struct cec_fh *fh)
+ }
+ EXPORT_SYMBOL_GPL(cec_log_status);
+ 
++/*
++ * Called by drivers to update the CDC HPD state of an input port.
++ */
++u8 cec_sink_cdc_hpd(struct cec_adapter *adap, u8 input_port, u8 cdc_hpd_state)
 +{
-+	u8 len = msg->len;
-+	unsigned i;
++	struct cec_msg msg = { };
++	int err;
 +
-+	/*
-+	 * The number of retries is the number of attempts - 1, but retry
-+	 * at least once. It's not clear if a value of 0 is allowed, so
-+	 * let's do at least one retry.
-+	 */
-+	cec_write_clr_set(sd, 0x12, 0x70, max(1, attempts - 1) << 4);
++	if (!adap->is_configured)
++		return CEC_OP_HPD_ERROR_INITIATOR_WRONG_STATE;
 +
-+	if (len > 16) {
-+		v4l2_err(sd, "%s: len exceeded 16 (%d)\n", __func__, len);
-+		return -EINVAL;
++	msg.msg[0] = (adap->log_addrs.log_addr[0] << 4) | 0xf;
++	cec_msg_cdc_hpd_set_state(&msg, input_port, cdc_hpd_state);
++	err = cec_transmit_msg(adap, &msg, false);
++	if (err)
++		return CEC_OP_HPD_ERROR_OTHER;
++	return CEC_OP_HPD_ERROR_NONE;
++}
++EXPORT_SYMBOL_GPL(cec_sink_cdc_hpd);
++
+ 
+ /* CEC file operations */
+ 
+diff --git a/drivers/media/pci/cobalt/cobalt-driver.c b/drivers/media/pci/cobalt/cobalt-driver.c
+index dff92ef..54ef6cc 100644
+--- a/drivers/media/pci/cobalt/cobalt-driver.c
++++ b/drivers/media/pci/cobalt/cobalt-driver.c
+@@ -517,10 +517,10 @@ static void cobalt_stream_struct_init(struct cobalt *cobalt)
+ static int cobalt_create_cec_adap(struct cobalt_stream *s)
+ {
+ 	u32 caps = CEC_CAP_TRANSMIT | CEC_CAP_LOG_ADDRS |
+-		CEC_CAP_PASSTHROUGH | CEC_CAP_RC;
++		CEC_CAP_PASSTHROUGH | CEC_CAP_RC | CEC_CAP_ARC;
+ 
+ 	if (s->is_output)
+-		caps |= CEC_CAP_IS_SOURCE;
++		caps |= CEC_CAP_IS_SOURCE | CEC_CAP_CDC_HPD;
+ 	s->cec_adap = cec_create_adapter(&cobalt_cec_adap_ops,
+ 				 s, s->vdev.name, caps, 1,
+ 				 &s->cobalt->pci_dev->dev);
+diff --git a/drivers/media/pci/cobalt/cobalt-v4l2.c b/drivers/media/pci/cobalt/cobalt-v4l2.c
+index 1c00748..47460338 100644
+--- a/drivers/media/pci/cobalt/cobalt-v4l2.c
++++ b/drivers/media/pci/cobalt/cobalt-v4l2.c
+@@ -1195,6 +1195,38 @@ static int cobalt_cec_adap_transmit(struct cec_adapter *adap, u8 attempts,
+ 				attempts, signal_free_time, msg);
+ }
+ 
++static u8 cobalt_cec_cdc_hpd(struct cec_adapter *adap, u8 cdc_hpd_state)
++{
++	switch (cdc_hpd_state) {
++	case CEC_OP_HPD_STATE_EDID_DISABLE:
++	case CEC_OP_HPD_STATE_EDID_ENABLE:
++	case CEC_OP_HPD_STATE_EDID_DISABLE_ENABLE:
++		return CEC_OP_HPD_ERROR_NONE;
++	case CEC_OP_HPD_STATE_CP_EDID_DISABLE:
++	case CEC_OP_HPD_STATE_CP_EDID_ENABLE:
++	case CEC_OP_HPD_STATE_CP_EDID_DISABLE_ENABLE:
++	default:
++		return CEC_OP_HPD_ERROR_INITIATOR_WRONG_STATE;
 +	}
++}
 +
-+	/* write data */
-+	for (i = 0; i < len; i++)
-+		cec_write(sd, i, msg->msg[i]);
-+
-+	/* set length (data + header) */
-+	cec_write(sd, 0x10, len);
-+	/* start transmit, enable tx */
-+	cec_write(sd, 0x11, 0x01);
++static int cobalt_sink_initiate_arc(struct cec_adapter *adap)
++{
 +	return 0;
 +}
 +
- static int adv7842_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
++static void cobalt_sink_terminate_arc(struct cec_adapter *adap)
++{
++}
++
++static void cobalt_source_arc_initiated(struct cec_adapter *adap)
++{
++}
++
++static void cobalt_source_arc_terminated(struct cec_adapter *adap)
++{
++}
++
+ static int cobalt_received(struct cec_adapter *adap, struct cec_msg *msg)
  {
- 	struct adv7842_state *state = to_state(sd);
-@@ -2241,6 +2414,9 @@ static int adv7842_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
- 			*handled = true;
- 	}
- 
-+	/* cec */
-+	adv7842_cec_isr(sd, handled);
-+
- 	/* tx 5v detect */
- 	if (irq_status[2] & 0x3) {
- 		v4l2_dbg(1, debug, sd, "%s: irq tx_5v\n", __func__);
-@@ -2321,10 +2497,12 @@ static int adv7842_set_edid(struct v4l2_subdev *sd, struct v4l2_edid *e)
- 	case ADV7842_EDID_PORT_A:
- 	case ADV7842_EDID_PORT_B:
- 		memset(&state->hdmi_edid.edid, 0, 256);
--		if (e->blocks)
-+		if (e->blocks) {
- 			state->hdmi_edid.present |= 0x04 << e->pad;
--		else
-+		} else {
- 			state->hdmi_edid.present &= ~(0x04 << e->pad);
-+			adv7842_s_detect_tx_5v_ctrl(sd);
-+		}
- 		memcpy(&state->hdmi_edid.edid, e->edid, 128 * e->blocks);
- 		err = edid_write_hdmi_segment(sd, e->pad);
- 		break;
-@@ -2509,8 +2687,19 @@ static int adv7842_cp_log_status(struct v4l2_subdev *sd)
- 	v4l2_info(sd, "HPD A %s, B %s\n",
- 		  reg_io_0x21 & 0x02 ? "enabled" : "disabled",
- 		  reg_io_0x21 & 0x01 ? "enabled" : "disabled");
--	v4l2_info(sd, "CEC %s\n", !!(cec_read(sd, 0x2a) & 0x01) ?
-+	v4l2_info(sd, "CEC: %s\n", state->cec_enabled_adap ?
- 			"enabled" : "disabled");
-+	if (state->cec_enabled_adap) {
-+		int i;
-+
-+		for (i = 0; i < ADV7842_MAX_ADDRS; i++) {
-+			bool is_valid = state->cec_valid_addrs & (1 << i);
-+
-+			if (is_valid)
-+				v4l2_info(sd, "CEC Logical Address: 0x%x\n",
-+					  state->cec_addr[i]);
-+		}
-+	}
- 
- 	v4l2_info(sd, "-----Signal status-----\n");
- 	if (state->hdmi_port_a) {
-@@ -3061,6 +3250,13 @@ static const struct v4l2_subdev_video_ops adv7842_video_ops = {
- 	.query_dv_timings = adv7842_query_dv_timings,
+ 	struct cec_msg reply;
+@@ -1223,6 +1255,11 @@ const struct cec_adap_ops cobalt_cec_adap_ops = {
+ 	.adap_enable = cobalt_cec_adap_enable,
+ 	.adap_log_addr = cobalt_cec_adap_log_addr,
+ 	.adap_transmit = cobalt_cec_adap_transmit,
++	.source_cdc_hpd = cobalt_cec_cdc_hpd,
++	.sink_initiate_arc = cobalt_sink_initiate_arc,
++	.sink_terminate_arc = cobalt_sink_terminate_arc,
++	.source_arc_initiated = cobalt_source_arc_initiated,
++	.source_arc_terminated = cobalt_source_arc_terminated,
+ 	.received = cobalt_received,
  };
  
-+static const struct v4l2_subdev_cec_ops adv7842_cec_ops = {
-+	.adap_available_log_addrs = adv7842_cec_adap_available_log_addrs,
-+	.adap_enable = adv7842_cec_adap_enable,
-+	.adap_log_addr = adv7842_cec_adap_log_addr,
-+	.adap_transmit = adv7842_cec_adap_transmit,
-+};
+diff --git a/include/media/cec.h b/include/media/cec.h
+index 899bccd..6ac367b 100644
+--- a/include/media/cec.h
++++ b/include/media/cec.h
+@@ -108,6 +108,16 @@ struct cec_adap_ops {
+ 
+ 	/* High-level CEC message callback */
+ 	int (*received)(struct cec_adapter *adap, struct cec_msg *msg);
 +
- static const struct v4l2_subdev_pad_ops adv7842_pad_ops = {
- 	.enum_mbus_code = adv7842_enum_mbus_code,
- 	.get_fmt = adv7842_get_format,
-@@ -3075,6 +3271,7 @@ static const struct v4l2_subdev_ops adv7842_ops = {
- 	.core = &adv7842_core_ops,
- 	.video = &adv7842_video_ops,
- 	.pad = &adv7842_pad_ops,
-+	.cec = &adv7842_cec_ops,
++	/* High-level CDC Hotplug Detect callbacks */
++	u8 (*source_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state);
++	void (*sink_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state, u8 cdc_hpd_error);
++
++	/* High-level Audio Return Channel callbacks */
++	int (*sink_initiate_arc)(struct cec_adapter *adap);
++	void (*sink_terminate_arc)(struct cec_adapter *adap);
++	void (*source_arc_initiated)(struct cec_adapter *adap);
++	void (*source_arc_terminated)(struct cec_adapter *adap);
  };
  
- /* -------------------------- custom ctrls ---------------------------------- */
-@@ -3361,7 +3558,7 @@ static int adv7842_remove(struct i2c_client *client)
- 	struct adv7842_state *state = to_state(sd);
+ /*
+@@ -194,6 +204,7 @@ void cec_s_available_log_addrs(struct cec_adapter *adap, u8 available_las);
+ int cec_transmit_msg(struct cec_adapter *adap, struct cec_msg *msg,
+ 		     bool block);
  
- 	adv7842_irq_enable(sd, false);
--
-+	adv7842_cec_adap_enable(sd, false);
- 	cancel_delayed_work(&state->delayed_work_enable_hotplug);
- 	destroy_workqueue(state->work_queues);
- 	v4l2_device_unregister_subdev(sd);
++u8 cec_sink_cdc_hpd(struct cec_adapter *adap, u8 input_port, u8 cdc_hpd_state);
+ void cec_log_status(struct cec_adapter *adap, struct cec_fh *fh);
+ 
+ /* Called by the adapter */
+diff --git a/include/uapi/linux/cec.h b/include/uapi/linux/cec.h
+index cf3d883..9ad3279 100644
+--- a/include/uapi/linux/cec.h
++++ b/include/uapi/linux/cec.h
+@@ -226,6 +226,7 @@ static inline bool cec_msg_status_is_ok(const struct cec_msg *msg)
+ #define CEC_CAP_TRANSMIT	(1 << 2)
+ /*
+  * Passthrough all messages instead of processing them.
++ * Note: ARC and CDC messages are always processed.
+  */
+ #define CEC_CAP_PASSTHROUGH	(1 << 3)
+ /* Supports remote control */
+@@ -234,6 +235,10 @@ static inline bool cec_msg_status_is_ok(const struct cec_msg *msg)
+ #define CEC_CAP_MONITOR_ALL	(1 << 5)
+ /* Is a source */
+ #define CEC_CAP_IS_SOURCE	(1 << 6)
++/* Supports ARC */
++#define CEC_CAP_ARC		(1 << 7)
++/* Supports CDC HPD */
++#define CEC_CAP_CDC_HPD		(1 << 8)
+ 
+ /**
+  * struct cec_caps - CEC capabilities structure.
 -- 
 2.7.0
+

@@ -1,54 +1,43 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCHv14 02/18] dts: exynos4: add node for the HDMI CEC device
-Date: Fri, 25 Mar 2016 14:10:00 +0100
-Message-ID: <1458911416-47981-3-git-send-email-hverkuil@xs4all.nl>
+Subject: [PATCHv14 03/18] dts: exynos4412-odroid*: enable the HDMI CEC device
+Date: Fri, 25 Mar 2016 14:10:01 +0100
+Message-ID: <1458911416-47981-4-git-send-email-hverkuil@xs4all.nl>
 References: <1458911416-47981-1-git-send-email-hverkuil@xs4all.nl>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb2-smtp-cloud2.xs4all.net ([194.109.24.25]:55500 "EHLO
-	lb2-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751379AbcCYNKc (ORCPT
+Received: from lb1-smtp-cloud2.xs4all.net ([194.109.24.21]:41674 "EHLO
+	lb1-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752392AbcCYNKf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Mar 2016 09:10:32 -0400
+	Fri, 25 Mar 2016 09:10:35 -0400
 In-Reply-To: <1458911416-47981-1-git-send-email-hverkuil@xs4all.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Marek Szyprowski <m.szyprowski@samsung.com>, Hans Verkuil <hans.verkuil@cisco.com>
 
-From: Kamil Debski <kamil@wypas.org>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-This patch adds HDMI CEC node specific to the Exynos4210/4x12 SoC series.
+Add a dts node entry and enable the HDMI CEC device present in the Exynos4
+family of SoCs.
 
-Signed-off-by: Kamil Debski <kamil@wypas.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Acked-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
- arch/arm/boot/dts/exynos4.dtsi | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/arm/boot/dts/exynos4412-odroid-common.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/exynos4.dtsi b/arch/arm/boot/dts/exynos4.dtsi
-index 045785c..8913408 100644
---- a/arch/arm/boot/dts/exynos4.dtsi
-+++ b/arch/arm/boot/dts/exynos4.dtsi
-@@ -751,6 +751,18 @@
- 		status = "disabled";
- 	};
- 
-+	hdmicec: cec@100B0000 {
-+		compatible = "samsung,s5p-cec";
-+		reg = <0x100B0000 0x200>;
-+		interrupts = <0 114 0>;
-+		clocks = <&clock CLK_HDMI_CEC>;
-+		clock-names = "hdmicec";
-+		samsung,syscon-phandle = <&pmu_system_controller>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&hdmi_cec>;
-+		status = "disabled";
-+	};
+diff --git a/arch/arm/boot/dts/exynos4412-odroid-common.dtsi b/arch/arm/boot/dts/exynos4412-odroid-common.dtsi
+index 395c3ca..c9b1425 100644
+--- a/arch/arm/boot/dts/exynos4412-odroid-common.dtsi
++++ b/arch/arm/boot/dts/exynos4412-odroid-common.dtsi
+@@ -500,3 +500,7 @@
+ &watchdog {
+ 	status = "okay";
+ };
 +
- 	mixer: mixer@12C10000 {
- 		compatible = "samsung,exynos4210-mixer";
- 		interrupts = <0 91 0>;
++&hdmicec {
++	status = "okay";
++};
 -- 
 2.7.0
 

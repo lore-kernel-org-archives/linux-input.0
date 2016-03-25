@@ -1,61 +1,66 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: wacom: fix Bamboo ONE oops
-Date: Fri, 25 Mar 2016 15:26:55 +0100
-Message-ID: <1458916015-27658-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [REGRESSION] panic with Wacom One Tablet on 4.4.x kernel
+Date: Fri, 25 Mar 2016 15:35:07 +0100
+Message-ID: <CAN+gG=G=cBVw2_xMfcddYuLEs=SHBccD3Q1jGG0XFyz4PbSb7w@mail.gmail.com>
+References: <56E9D929.70101@redhat.com>
+	<CAF8JNhKJLzvj=Xe8ibNCJ6-U9fJqjHFzg0uibFTBSxR4t-AmXA@mail.gmail.com>
+	<alpine.LNX.2.00.1603241530370.3656@cbobk.fhfr.pm>
+	<alpine.LNX.2.00.1603241534210.3656@cbobk.fhfr.pm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:37152 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751683AbcCYO1A (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Mar 2016 10:27:00 -0400
+Received: from mail-vk0-f46.google.com ([209.85.213.46]:36244 "EHLO
+	mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753234AbcCYOfJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Mar 2016 10:35:09 -0400
+In-Reply-To: <alpine.LNX.2.00.1603241534210.3656@cbobk.fhfr.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Ping Cheng <pinglinux@gmail.com>, Laura Abbott <labbott@redhat.com>, Ping Cheng <pingc@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Looks like recent changes in the Wacom driver made the Bamboo ONE crashes.
-The tablet behaves as if it was a regular Bamboo device with pen, touch
-and pad, but there is no physical pad connected to it.
-The weird part is that the pad is still sending events and given that
-there is no input node connected to it, we get  anull pointer exception.
+On Thu, Mar 24, 2016 at 3:37 PM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Thu, 24 Mar 2016, Jiri Kosina wrote:
+>
+>> > Yes, please provide a bisect report so we get a clue.
+>> >
+>> > I do not have a "Wacom One". I have a Wacom Bamboo Pen, which goes
+>> > through the same code base as "Wacom One". I tested kernel 4.4.4. I
+>> > don't see the issue.
+>>
+>> Laura, do we have any result from the bisect please?
+>
+> BTW seems like wacom_get_report() got EPIPE and bailed out.
+>
+> We used to retry on EPIPE before aef3156d72. Would it make sense to retest
+> with that commit reverted?
 
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1317116
+Well, the problem is the device exposes a useless interface that
+behaves like it should be working, but there are no sensors connected
+to it. I wouldn't be surprised if the device just complains when we
+are pocking at it when we should not.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
-Hi Jiri,
+>
+> Could be that the device is for some reason causing only temporary EPIPE
+> that eventually gets fixed over time.
+>
+> I still don't exactly see how that'd cause the null pointer dereference
+> later, but retval handling wacom_get_report() might possibly need some
+> loving care as well, looking quickly at the code. But that still needs to
+> be investigated.
 
-This fixes the oopses we saw on the Bamboo ONE.
-The fedora user is fine, and it appears the sourceforge user too, as the
-problems were due to misconfigurations on his end.
+See the patch I just sent. The difference from a HID point of view
+between a Bamboo Pen+Touch and a Bamboo ONE is null. However, the
+Bamboo ONE has no sensors connected to the Pad and Touch interface,
+and generates some spurious events. Given that all the protocol is
+hardcoded in the driver, wacom.ko tries to access the pad input node
+but there was none because the device is marked as "Pen only".
+
+The solution is to actually detect the Pen only devices and check that
+the HID report descriptor matches a Pen only (or detect touch+pad
+interface, like I did). This was, we just don't care about the events
+on the not-used interface and everybody lives happily ever after.
 
 Cheers,
 Benjamin
-
- drivers/hid/wacom_wac.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index bd198bb..02c4efe 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2426,6 +2426,17 @@ void wacom_setup_device_quirks(struct wacom *wacom)
- 	}
- 
- 	/*
-+	 * Hack for the Bamboo One:
-+	 * the device presents a PAD/Touch interface as most Bamboos and even
-+	 * sends ghosts PAD data on it. However, later, we must disable this
-+	 * ghost interface, and we can not detect it unless we set it here
-+	 * to WACOM_DEVICETYPE_PAD or WACOM_DEVICETYPE_TOUCH.
-+	 */
-+	if (features->type == BAMBOO_PEN &&
-+	    features->pktlen == WACOM_PKGLEN_BBTOUCH3)
-+		features->device_type |= WACOM_DEVICETYPE_PAD;
-+
-+	/*
- 	 * Raw Wacom-mode pen and touch events both come from interface
- 	 * 0, whose HID descriptor has an application usage of 0xFF0D
- 	 * (i.e., WACOM_VENDORDEFINED_PEN). We route pen packets back
--- 
-2.5.0
-

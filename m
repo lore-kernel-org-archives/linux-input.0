@@ -1,83 +1,64 @@
-From: sergk sergk2mail <sergk.admin@gmail.com>
-Subject: Re: How to setup Touchscreen IRQ mode?
-Date: Sun, 27 Mar 2016 00:05:27 +0000
-Message-ID: <CA+V1Lzph-W2eXhp22_jjObeu-ywzO===9EYWkKccuGuvdJDYRg@mail.gmail.com>
-References: <CA+V1LzrL6G1FJ6qXuTuiQQiMrZnj_QaHbGhFwBxpJrB9J=ZSGw@mail.gmail.com>
-	<56EF459E.8000808@gmail.com>
+From: "zhaoxiu.zeng" <zhaoxiu.zeng@gmail.com>
+Subject: [PATCH 17/31] input: joystick: use parity32 in grip_mp.c
+Date: Sun, 27 Mar 2016 15:13:08 +0800
+Message-ID: <56F78804.5060501@gmail.com>
+References: <1458788612-4367-1-git-send-email-zhaoxiu.zeng@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=gbk
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f44.google.com ([209.85.192.44]:33472 "EHLO
-	mail-qg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753975AbcC0AF2 (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:36848 "EHLO
+	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751297AbcC0HNh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Mar 2016 20:05:28 -0400
-Received: by mail-qg0-f44.google.com with SMTP id j35so84699199qge.0
-        for <linux-input@vger.kernel.org>; Sat, 26 Mar 2016 17:05:27 -0700 (PDT)
-In-Reply-To: <56EF459E.8000808@gmail.com>
+	Sun, 27 Mar 2016 03:13:37 -0400
+In-Reply-To: <1458788612-4367-1-git-send-email-zhaoxiu.zeng@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gregor Riepl <onitake@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Mika, Benjamin, Antonio.
-Kindly would like to invite all of you to this thread because it is
-very closely to http://www.spinics.net/lists/linux-input/msg35935.html
- : About Goodix-TS on Bay Trail, and ACPI and interrupts
-Let me briefly summarize:
-1) I have wrote driver that loads FW into the TS chip (icn8228), I am
-able to get polling mode, primary task at the moment is - to setup IRQ
-mode.
-2) No ACPI, but at the moment I do not take care because just taken
-and guessed all info and passed it hardcoded in my prototype of the
-chipone driver. - later I will back to ACPI moment or if it is not
-possible to setup IRQ in 1) without 2 - priorities will be changed.
+From: Zeng Zhaoxiu <zhaoxiu.zeng@gmail.com>
 
-DSDT for chipone icn8528 on Chuwi Vi10 (Baytrail Z3736F) is
-here:http://www.spinics.net/lists/linux-i2c/msg23520.html
+Signed-off-by: Zeng Zhaoxiu <zhaoxiu.zeng@gmail.com>
+---
+ drivers/input/joystick/grip_mp.c | 16 +---------------
+ 1 file changed, 1 insertion(+), 15 deletions(-)
 
-Please assists with in setuping IRQ mode for TS driver, possible IRQ
-is gpio based.
-What I have obtained from Android:  SB_GPO1 : gpio base 102 - > this
-means that gpio controller is used!
-Looking for corresponding gpiochip inside Linux 4.2.2 kernel: I have
-discovered suitable (the same amount of ngpio) this one: chip382,
-label: INT33FC:01.
-Also guessing (enumerating all)  gpios via userspace kernel interface
-I have discovered that gpios: 393 and 391,392 - blank off/on
-touchscreen by setting /sys/class/gpio39X/value to 0/1.
+diff --git a/drivers/input/joystick/grip_mp.c b/drivers/input/joystick/grip_mp.c
+index 573191d..3e29eb1 100644
+--- a/drivers/input/joystick/grip_mp.c
++++ b/drivers/input/joystick/grip_mp.c
+@@ -112,20 +112,6 @@ static const int axis_map[] = { 5, 9, 1, 5, 6, 10, 2, 6, 4, 8, 0, 4, 5, 9, 1, 5
+ static int register_slot(int i, struct grip_mp *grip);
+ 
+ /*
+- * Returns whether an odd or even number of bits are on in pkt.
+- */
+-
+-static int bit_parity(u32 pkt)
+-{
+-	int x = pkt ^ (pkt >> 16);
+-	x ^= x >> 8;
+-	x ^= x >> 4;
+-	x ^= x >> 2;
+-	x ^= x >> 1;
+-	return x & 1;
+-}
+-
+-/*
+  * Poll gameport; return true if all bits set in 'onbits' are on and
+  * all bits set in 'offbits' are off.
+  */
+@@ -235,7 +221,7 @@ static int mp_io(struct gameport* gameport, int sendflags, int sendcode, u32 *pa
+ 		pkt = (pkt >> 2) | 0xf0000000;
+ 	}
+ 
+-	if (bit_parity(pkt) == 1)
++	if (parity32(pkt))
+ 		return IO_RESET;
+ 
+ 	/* Acknowledge packet receipt */
+-- 
+2.5.5
 
-Here is my draft debug code of the driver prototype for Chipone
-icn8528 and irq NOT setuped at the moment :(.
-I think it should be gpio based, in Android it is so:  cat /proc/interrupts
-
-389  29 3 0 0  VLV-GPIO-gpio icn85xx_ts.
-
-Inside my code irq setuping:
-IRQ begin:
-https://gitlab.com/SergK/icn8528/blob/master/myicn.c#L1393
-
-icn85xx_request_irq
-https://gitlab.com/SergK/icn8528/blob/master/myicn.c#L993
-
-
-Thanks in advance for your help!
-
-Regards,
-                 Serge Kolotylo.
-
-On Mon, Mar 21, 2016 at 12:51 AM, Gregor Riepl <onitake@gmail.com> wrote:
->> err = request_irq(icn85xx_ts->irq, icn85xx_ts_interrupt,
->> IRQ_TYPE_EDGE_FALLING, "icn85xx_ts", icn85xx_ts);
->>     if (err < 0){
->>         icn85xx_error("icn85xx_ts_probe: request irq failed\n");
->>         return err;
->>     }
->>
->> 1) Does this correct IRQ settings for TS? If not - what is procedure?
->> What I have missed? H
->
-> I recommend using devm_request_threaded_irq instead.
-> The devm_* functions take care of deallocation automatically, and a threaded
-> IRQ handler is much better for slow operations like I2C access IMHO.
->

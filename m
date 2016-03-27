@@ -1,17 +1,17 @@
 From: "zhaoxiu.zeng" <zhaoxiu.zeng@gmail.com>
-Subject: [PATCH 18/31] input: joystick: use parity64 in sidewinder.c
-Date: Sun, 27 Mar 2016 15:15:41 +0800
-Message-ID: <56F7889D.7080300@gmail.com>
+Subject: [PATCH 19/31] input: serio: use parity16 in ams_delta_serio.c
+Date: Sun, 27 Mar 2016 15:18:18 +0800
+Message-ID: <56F7893A.2040902@gmail.com>
 References: <1458788612-4367-1-git-send-email-zhaoxiu.zeng@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=gbk
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f67.google.com ([209.85.220.67]:35428 "EHLO
-	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752280AbcC0HQF (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36441 "EHLO
+	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752280AbcC0HSq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 27 Mar 2016 03:16:05 -0400
+	Sun, 27 Mar 2016 03:18:46 -0400
 In-Reply-To: <1458788612-4367-1-git-send-email-zhaoxiu.zeng@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -22,72 +22,29 @@ From: Zeng Zhaoxiu <zhaoxiu.zeng@gmail.com>
 
 Signed-off-by: Zeng Zhaoxiu <zhaoxiu.zeng@gmail.com>
 ---
- drivers/input/joystick/sidewinder.c | 24 ++++--------------------
- 1 file changed, 4 insertions(+), 20 deletions(-)
+ drivers/input/serio/ams_delta_serio.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
-index 4a95b22..7ea486e 100644
---- a/drivers/input/joystick/sidewinder.c
-+++ b/drivers/input/joystick/sidewinder.c
-@@ -259,22 +259,6 @@ static void sw_init_digital(struct gameport *gameport)
- }
- 
- /*
-- * sw_parity() computes parity of __u64
-- */
--
--static int sw_parity(__u64 t)
--{
--	int x = t ^ (t >> 32);
--
--	x ^= x >> 16;
--	x ^= x >> 8;
--	x ^= x >> 4;
--	x ^= x >> 2;
--	x ^= x >> 1;
--	return x & 1;
--}
--
--/*
-  * sw_ccheck() checks synchronization bits and computes checksum of nibbles.
-  */
- 
-@@ -334,7 +318,7 @@ static int sw_parse(unsigned char *buf, struct sw *sw)
- 
- 			for (i = 0; i < sw->number; i ++) {
- 
--				if (sw_parity(GB(i*15,15)))
-+				if (parity64(GB(i*15,15)))
- 					return -1;
- 
- 				input_report_abs(sw->dev[i], ABS_X, GB(i*15+3,1) - GB(i*15+2,1));
-@@ -351,7 +335,7 @@ static int sw_parse(unsigned char *buf, struct sw *sw)
- 		case SW_ID_PP:
- 		case SW_ID_FFP:
- 
--			if (!sw_parity(GB(0,48)) || (hat = GB(42,4)) > 8)
-+			if (!parity64(GB(0,48)) || (hat = GB(42,4)) > 8)
- 				return -1;
- 
- 			dev = sw->dev[0];
-@@ -372,7 +356,7 @@ static int sw_parse(unsigned char *buf, struct sw *sw)
- 
- 		case SW_ID_FSP:
- 
--			if (!sw_parity(GB(0,43)) || (hat = GB(28,4)) > 8)
-+			if (!parity64(GB(0,43)) || (hat = GB(28,4)) > 8)
- 				return -1;
- 
- 			dev = sw->dev[0];
-@@ -397,7 +381,7 @@ static int sw_parse(unsigned char *buf, struct sw *sw)
- 
- 		case SW_ID_FFW:
- 
--			if (!sw_parity(GB(0,33)))
-+			if (!parity64(GB(0,33)))
- 				return -1;
- 
- 			dev = sw->dev[0];
+diff --git a/drivers/input/serio/ams_delta_serio.c b/drivers/input/serio/ams_delta_serio.c
+index 45887e3..85459b3 100644
+--- a/drivers/input/serio/ams_delta_serio.c
++++ b/drivers/input/serio/ams_delta_serio.c
+@@ -48,13 +48,9 @@ static int check_data(int data)
+ 				data);
+ 		return SERIO_FRAME;
+ 	}
+-	/* calculate the parity */
+-	for (i = 1; i < 10; i++) {
+-		if (data & (1 << i))
+-			parity++;
+-	}
+ 	/* it should be odd */
+-	if (!(parity & 0x01)) {
++	parity = parity16(data & 0x3fe);
++	if (!parity) {
+ 		dev_warn(&ams_delta_serio->dev,
+ 				"paritiy check failed, data=0x%X parity=0x%X\n",
+ 				data, parity);
 -- 
 2.5.5
 

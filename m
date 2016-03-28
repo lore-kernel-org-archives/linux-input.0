@@ -1,110 +1,72 @@
-From: Manuel Reimer <mail+linux-input@m-reimer.de>
-Subject: Re: uinput: ioctls for UI_BEGIN_FF_UPLOAD fails (returns -1). How to
- debug?
-Date: Mon, 28 Mar 2016 10:53:27 +0200
-Message-ID: <56F8F107.3050906@m-reimer.de>
-References: <56F82C42.6020002@m-reimer.de>
- <CAM4jgCp_t_mvayUbBnz_1aznbvZJz8jFLxbD49r=qLZCdOhH7Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Josh Boyer <jwboyer@fedoraproject.org>
+Subject: [PATCH] HID: lenovo: Don't use stack variables for DMA buffers
+Date: Mon, 28 Mar 2016 09:22:14 -0400
+Message-ID: <1459171334-22943-2-git-send-email-jwboyer@fedoraproject.org>
+References: <1459171334-22943-1-git-send-email-jwboyer@fedoraproject.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.mailbox.org ([80.241.60.212]:34529 "EHLO mx1.mailbox.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751488AbcC1JB6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Mar 2016 05:01:58 -0400
-In-Reply-To: <CAM4jgCp_t_mvayUbBnz_1aznbvZJz8jFLxbD49r=qLZCdOhH7Q@mail.gmail.com>
+Received: from mail-qk0-f171.google.com ([209.85.220.171]:34705 "EHLO
+	mail-qk0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753357AbcC1NWb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Mar 2016 09:22:31 -0400
+In-Reply-To: <1459171334-22943-1-git-send-email-jwboyer@fedoraproject.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?Q?Cl=c3=a9ment_VUCHENER?= <clement.vuchener@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 03/27/2016 09:11 PM, Cl=C3=A9ment VUCHENER wrote:
-> Check the value of errno just after the failed call (and use strerror
-> to get a nice error message).
+The lenovo_send_cmd_cptkbd function uses a stack variable to submit
+commands via hid_hw_raw_request.  Eventually this gets to the
+usb_hcd_map_urb_for_dma function, which causes a warning to be thrown
+if the CONFIG_DMA_API_DEBUG option is enabled.
 
-See the following output of my test program
+Fix this by allocating a temporary buffer instead.
 
+Reported-by: lejeczek <peljasz@yahoo.co.uk>
+Signed-off-by: Josh Boyer <jwboyer@fedoraproject.org>
+---
+ drivers/hid/hid-lenovo.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-UI_FF_UPLOAD start
-UI_FF_UPLOAD middle
-first ioctl failed -1 Inappropriate ioctl for device
-second ioctl failed -1 Inappropriate ioctl for device
-UI_FF_UPLOAD end
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index 0125e356bd8d..2ba5e8ea66a4 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -184,21 +184,31 @@ static int lenovo_send_cmd_cptkbd(struct hid_device *hdev,
+ 			unsigned char byte2, unsigned char byte3)
+ {
+ 	int ret;
+-	unsigned char buf[] = {0x18, byte2, byte3};
++	unsigned char *buf = NULL;
++
++	buf = kzalloc(3, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = 0x18;
++	buf[1] = byte2;
++	buf[2] = byte3;
+ 
+ 	switch (hdev->product) {
+ 	case USB_DEVICE_ID_LENOVO_CUSBKBD:
+-		ret = hid_hw_raw_request(hdev, 0x13, buf, sizeof(buf),
++		ret = hid_hw_raw_request(hdev, 0x13, buf, 3,
+ 					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+ 		break;
+ 	case USB_DEVICE_ID_LENOVO_CBTKBD:
+-		ret = hid_hw_output_report(hdev, buf, sizeof(buf));
++		ret = hid_hw_output_report(hdev, buf, 3);
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+ 		break;
+ 	}
+ 
++	kfree(buf);
++
+ 	return ret < 0 ? ret : 0; /* BT returns 0, USB returns sizeof(buf) */
+ }
+ 
+-- 
+2.5.5
 
-
-> You also need to check the event code, it must be UI_FF_UPLOAD.
-
-
-     else if (event.type =3D=3D EV_UINPUT) {
-       printf("EV_UINPUT %d\n", event.code);
-       if (event.code =3D=3D UI_FF_UPLOAD) {
-         printf("UI_FF_UPLOAD start\n");
-         struct uinput_ff_upload upload;
-         memset(&upload, 0, sizeof(upload));
-
-         upload.request_id =3D event.value;
-
-         printf("UI_FF_UPLOAD middle\n");
-         int ret;
-         ret =3D ioctl(args->fduinput, UI_BEGIN_FF_UPLOAD, &upload);
-         if (ret < 0) {
-           printf("first ioctl failed %d %s\n", ret, strerror(errno));
-         }
-
-         // Remember ID and motor values for playback
-         if (upload.effect.type =3D=3D FF_RUMBLE) {
-           effect_id =3D upload.effect.id;
-           strong =3D upload.effect.u.rumble.strong_magnitude;
-           weak =3D upload.effect.u.rumble.weak_magnitude;
-           printf("Effect uploaded\n");
-         }
-
-         ret =3D ioctl(args->fduinput, UI_END_FF_UPLOAD, &upload);
-         if (ret < 0) {
-           printf("second ioctl failed %d %s\n", ret, strerror(errno));
-         }
-         printf("UI_FF_UPLOAD end\n");
-       }
-       else if (event.code =3D=3D UI_FF_ERASE) {
-         struct uinput_ff_erase erase;
-         memset(&erase, 0, sizeof(erase));
-
-         erase.request_id =3D event.value;
-
-         // Doesn't make sense to actually erase something...
-         ioctl(args->fduinput, UI_BEGIN_FF_ERASE, &erase);
-         ioctl(args->fduinput, UI_END_FF_ERASE, &erase);
-         printf("Event erased\n");
-       }
-     }
-
-
-I report that my device only supports one effect at once. My idea was=20
-that I maybe try to get ff-memless connected to uinput at a later time=20
-to make it emulate the common "memless configuration" used by the kerne=
-l=20
-and operate my one-effect-rumble-only device.
-
-The above code works well as long as nothing was sent out to the open=20
-uinput file descriptor.
-
-As soon as I press a button on my USB input device, it "wakes up" and=20
-sends out information even if no button is pressed. This information is=
-=20
-also forwarded to uinput, so from this point on there is a regular=20
-information stream from my code to the uinput module.
-
-Maybe I have to add that I run dual-threaded. The above code is from my=
-=20
-"reception thread". The sending runs on a separate "sending thread".
-
-Did I currently find out that uinput is not multithread-safe?
-
-Manuel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

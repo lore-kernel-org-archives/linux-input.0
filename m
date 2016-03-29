@@ -1,36 +1,37 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: Re: [PATCHv14 02/18] dts: exynos4: add node for the HDMI CEC device
-Date: Tue, 29 Mar 2016 15:27:08 +0900
-Message-ID: <CAJKOXPcqY6cXnvuokVZ+nZpbHpoVQLPJKJR_5QDR4RTSabAApg@mail.gmail.com>
+Subject: Re: [PATCHv14 03/18] dts: exynos4412-odroid*: enable the HDMI CEC device
+Date: Tue, 29 Mar 2016 15:28:39 +0900
+Message-ID: <CAJKOXPdpkE5OdNEAVTsbQrjpZZgwDgY2=g9ocM0rFaOU-N=pEw@mail.gmail.com>
 References: <1458911416-47981-1-git-send-email-hverkuil@xs4all.nl>
-	<1458911416-47981-3-git-send-email-hverkuil@xs4all.nl>
+	<1458911416-47981-4-git-send-email-hverkuil@xs4all.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:34707 "EHLO
-	mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751041AbcC2G1J (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Mar 2016 02:27:09 -0400
-In-Reply-To: <1458911416-47981-3-git-send-email-hverkuil@xs4all.nl>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1458911416-47981-4-git-send-email-hverkuil@xs4all.nl>
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Marek Szyprowski <m.szyprowski@samsung.com>, Hans Verkuil <hans.verkuil@cisco.com>
+List-Id: linux-input@vger.kernel.org
 
 On Fri, Mar 25, 2016 at 10:10 PM, Hans Verkuil <hverkuil@xs4all.nl> wrote:
-> From: Kamil Debski <kamil@wypas.org>
+> From: Marek Szyprowski <m.szyprowski@samsung.com>
 >
-> This patch adds HDMI CEC node specific to the Exynos4210/4x12 SoC series.
+> Add a dts node entry and enable the HDMI CEC device present in the Exynos4
+> family of SoCs.
 >
-> Signed-off-by: Kamil Debski <kamil@wypas.org>
+> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
 > Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-> Acked-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 > ---
->  arch/arm/boot/dts/exynos4.dtsi | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
+>  arch/arm/boot/dts/exynos4412-odroid-common.dtsi | 4 ++++
+>  1 file changed, 4 insertions(+)
 
-Applied for v4.7 with a little bit different subject.
+Applied for v4.7 with a little bit different subject and the new node
+put in alphabetical order. Please don't include your original patch in
+your tree because any merging will probably end with having these
+nodes twice.
+
+https://git.kernel.org/cgit/linux/kernel/git/krzk/linux.git/log/?h=next/dt
+(but tell me if you need to base on this so I would prepare a tag)
 
 Best regards,
 Krzysztof

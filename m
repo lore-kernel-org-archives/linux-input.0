@@ -1,12 +1,12 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 39/46] leds: pwm: switch to the atomic PWM API
-Date: Wed, 30 Mar 2016 22:04:02 +0200
-Message-ID: <1459368249-13241-40-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 45/46] drm: i915: switch to the atomic PWM API
+Date: Wed, 30 Mar 2016 22:04:08 +0200
+Message-ID: <1459368249-13241-46-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBIHD6C3QKGQEXEFG45Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBPHD6C3QKGQEF4KWZTI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -24,34 +24,106 @@ by pwm_apply_state().
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/leds/leds-pwm.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/intel_panel.c | 39 +++++++++++++++++++++++++-------------
+ 1 file changed, 26 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/leds/leds-pwm.c b/drivers/leds/leds-pwm.c
-index b48231c..f69b222 100644
---- a/drivers/leds/leds-pwm.c
-+++ b/drivers/leds/leds-pwm.c
-@@ -40,13 +40,18 @@ struct led_pwm_priv {
- static void __led_pwm_set(struct led_pwm_data *led_dat)
+diff --git a/drivers/gpu/drm/i915/intel_panel.c b/drivers/gpu/drm/i915/intel_panel.c
+index 21ee647..b86bd20 100644
+--- a/drivers/gpu/drm/i915/intel_panel.c
++++ b/drivers/gpu/drm/i915/intel_panel.c
+@@ -538,10 +538,10 @@ static u32 bxt_get_backlight(struct intel_connector *connector)
+ static u32 pwm_get_backlight(struct intel_connector *connector)
  {
- 	int new_duty = led_dat->duty;
+ 	struct intel_panel *panel = &connector->panel;
+-	int duty_ns;
 +	struct pwm_state pstate;
  
--	pwm_config(led_dat->pwm, new_duty, led_dat->period);
-+	pwm_get_state(led_dat->pwm, &pstate);
-+	pstate.duty_cycle = new_duty;
-+	pstate.period = led_dat->period;
- 
- 	if (new_duty == 0)
--		pwm_disable(led_dat->pwm);
-+		pstate.enabled = false;
- 	else
--		pwm_enable(led_dat->pwm);
-+		pstate.enabled = true;
-+
-+	pwm_apply_state(led_dat->pwm, &pstate);
+-	duty_ns = pwm_get_duty_cycle(panel->backlight.pwm);
+-	return DIV_ROUND_UP(duty_ns * 100, CRC_PMIC_PWM_PERIOD_NS);
++	pwm_get_state(panel->backlight.pwm, &pstate);
++	return DIV_ROUND_UP(pstate.duty_cycle * 100, CRC_PMIC_PWM_PERIOD_NS);
  }
  
- static void led_pwm_set(struct led_classdev *led_cdev,
+ static u32 intel_panel_get_backlight(struct intel_connector *connector)
+@@ -630,9 +630,12 @@ static void bxt_set_backlight(struct intel_connector *connector, u32 level)
+ static void pwm_set_backlight(struct intel_connector *connector, u32 level)
+ {
+ 	struct intel_panel *panel = &connector->panel;
+-	int duty_ns = DIV_ROUND_UP(level * CRC_PMIC_PWM_PERIOD_NS, 100);
++	struct pwm_state pstate;
+ 
+-	pwm_config(panel->backlight.pwm, duty_ns, CRC_PMIC_PWM_PERIOD_NS);
++	pwm_get_state(panel->backlight.pwm, &pstate);
++	pstate.duty_cycle = DIV_ROUND_UP(level * CRC_PMIC_PWM_PERIOD_NS, 100);
++	pstate.period = CRC_PMIC_PWM_PERIOD_NS;
++	pwm_apply_state(panel->backlight.pwm, &pstate);
+ }
+ 
+ static void
+@@ -801,11 +804,15 @@ static void bxt_disable_backlight(struct intel_connector *connector)
+ static void pwm_disable_backlight(struct intel_connector *connector)
+ {
+ 	struct intel_panel *panel = &connector->panel;
++	struct pwm_state pstate;
+ 
+ 	/* Disable the backlight */
+-	pwm_config(panel->backlight.pwm, 0, CRC_PMIC_PWM_PERIOD_NS);
++	pwm_get_state(panel->backlight.pwm, &pstate);
++	pstate.duty_cycle = 0;
++	pwm_apply_state(panel->backlight.pwm, &pstate);
+ 	usleep_range(2000, 3000);
+-	pwm_disable(panel->backlight.pwm);
++	pstate.enabled = false;
++	pwm_apply_state(panel->backlight.pwm, &pstate);
+ }
+ 
+ void intel_panel_disable_backlight(struct intel_connector *connector)
+@@ -1068,8 +1075,11 @@ static void bxt_enable_backlight(struct intel_connector *connector)
+ static void pwm_enable_backlight(struct intel_connector *connector)
+ {
+ 	struct intel_panel *panel = &connector->panel;
++	struct pwm_state pstate;
+ 
+-	pwm_enable(panel->backlight.pwm);
++	pwm_get_state(panel->backlight.pwm, &pstate);
++	pstate.enabled = true;
++	pwm_apply_state(panel->backlight.pwm, &pstate);
+ 	intel_panel_actually_set_backlight(connector, panel->backlight.level);
+ }
+ 
+@@ -1630,6 +1640,7 @@ static int pwm_setup_backlight(struct intel_connector *connector,
+ {
+ 	struct drm_device *dev = connector->base.dev;
+ 	struct intel_panel *panel = &connector->panel;
++	struct pwm_state pstate;
+ 	int retval;
+ 
+ 	/* Get the PWM chip for backlight control */
+@@ -1640,8 +1651,10 @@ static int pwm_setup_backlight(struct intel_connector *connector,
+ 		return -ENODEV;
+ 	}
+ 
+-	retval = pwm_config(panel->backlight.pwm, CRC_PMIC_PWM_PERIOD_NS,
+-			    CRC_PMIC_PWM_PERIOD_NS);
++	pwm_get_state(panel->backlight.pwm, &pstate);
++	pstate.period = CRC_PMIC_PWM_PERIOD_NS;
++	pstate.duty_cycle = CRC_PMIC_PWM_PERIOD_NS;
++	retval = pwm_apply_state(panel->backlight.pwm, &pstate);
+ 	if (retval < 0) {
+ 		DRM_ERROR("Failed to configure the pwm chip\n");
+ 		pwm_put(panel->backlight.pwm);
+@@ -1651,9 +1664,9 @@ static int pwm_setup_backlight(struct intel_connector *connector,
+ 
+ 	panel->backlight.min = 0; /* 0% */
+ 	panel->backlight.max = 100; /* 100% */
+-	panel->backlight.level = DIV_ROUND_UP(
+-				 pwm_get_duty_cycle(panel->backlight.pwm) * 100,
+-				 CRC_PMIC_PWM_PERIOD_NS);
++	pwm_get_state(panel->backlight.pwm, &pstate);
++	panel->backlight.level = DIV_ROUND_UP(pstate.duty_cycle * 100,
++					      pstate.period);
+ 	panel->backlight.enabled = panel->backlight.level != 0;
+ 
+ 	return 0;
 -- 
 2.5.0

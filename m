@@ -1,12 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 23/46] pwm: rockchip: add support for atomic update
-Date: Wed, 30 Mar 2016 22:03:46 +0200
-Message-ID: <1459368249-13241-24-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 38/46] input: misc: pwm-beeper: switch to the
+ atomic PWM API
+Date: Wed, 30 Mar 2016 22:04:01 +0200
+Message-ID: <1459368249-13241-39-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBBPD6C3QKGQEPBP42LQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBH7D6C3QKGQEILDU7ZQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -19,155 +20,105 @@ To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, lin
 Cc: Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>linu
 List-Id: linux-input@vger.kernel.org
 
-Implement the ->apply() function to add support for atomic update.
+pwm_config/enable/disable() have been deprecated and should be replaced
+by pwm_apply_state().
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Tested-by: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
 ---
- drivers/pwm/pwm-rockchip.c | 63 ++++++++++++++++++++++++++++------------------
- 1 file changed, 39 insertions(+), 24 deletions(-)
+ drivers/input/misc/pwm-beeper.c | 46 +++++++++++++++++++++++++++--------------
+ 1 file changed, 31 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/pwm/pwm-rockchip.c b/drivers/pwm/pwm-rockchip.c
-index 5c7e79c..ed27740 100644
---- a/drivers/pwm/pwm-rockchip.c
-+++ b/drivers/pwm/pwm-rockchip.c
-@@ -50,7 +50,8 @@ struct rockchip_pwm_data {
- 	const struct pwm_ops *ops;
- 
- 	void (*set_enable)(struct pwm_chip *chip,
--			   struct pwm_device *pwm, bool enable);
-+			   struct pwm_device *pwm, bool enable,
-+			   enum pwm_polarity polarity);
- 	void (*get_state)(struct pwm_chip *chip, struct pwm_device *pwm,
- 			  struct pwm_state *pstate);
- };
-@@ -61,7 +62,8 @@ static inline struct rockchip_pwm_chip *to_rockchip_pwm_chip(struct pwm_chip *c)
- }
- 
- static void rockchip_pwm_set_enable_v1(struct pwm_chip *chip,
--				       struct pwm_device *pwm, bool enable)
-+				       struct pwm_device *pwm, bool enable,
-+				       enum pwm_polarity polarity)
+diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+index f2261ab..36c9897 100644
+--- a/drivers/input/misc/pwm-beeper.c
++++ b/drivers/input/misc/pwm-beeper.c
+@@ -34,7 +34,7 @@ static int pwm_beeper_event(struct input_dev *input,
  {
- 	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
- 	u32 enable_conf = PWM_CTRL_OUTPUT_EN | PWM_CTRL_TIMER_EN;
-@@ -91,14 +93,15 @@ static void rockchip_pwm_get_state_v1(struct pwm_chip *chip,
- }
+ 	int ret = 0;
+ 	struct pwm_beeper *beeper = input_get_drvdata(input);
+-	unsigned long period;
++	struct pwm_state pstate;
  
- static void rockchip_pwm_set_enable_v2(struct pwm_chip *chip,
--				       struct pwm_device *pwm, bool enable)
-+				       struct pwm_device *pwm, bool enable,
-+				       enum pwm_polarity polarity)
- {
- 	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
- 	u32 enable_conf = PWM_OUTPUT_LEFT | PWM_LP_DISABLE | PWM_ENABLE |
- 			  PWM_CONTINUOUS;
- 	u32 val;
+ 	if (type != EV_SND || value < 0)
+ 		return -EINVAL;
+@@ -49,19 +49,22 @@ static int pwm_beeper_event(struct input_dev *input,
+ 		return -EINVAL;
+ 	}
  
--	if (pwm_get_polarity(pwm) == PWM_POLARITY_INVERSED)
-+	if (polarity == PWM_POLARITY_INVERSED)
- 		enable_conf |= PWM_DUTY_NEGATIVE | PWM_INACTIVE_POSITIVE;
- 	else
- 		enable_conf |= PWM_DUTY_POSITIVE | PWM_INACTIVE_NEGATIVE;
-@@ -168,7 +171,6 @@ static int rockchip_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
- 	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
- 	unsigned long period, duty;
- 	u64 clk_rate, div;
--	int ret;
++	pwm_get_state(beeper->pwm, &pstate);
++
+ 	if (value == 0) {
+-		pwm_disable(beeper->pwm);
++		pstate.enabled = false;
+ 	} else {
+-		period = HZ_TO_NANOSECONDS(value);
+-		ret = pwm_config(beeper->pwm, period / 2, period);
+-		if (ret)
+-			return ret;
+-		ret = pwm_enable(beeper->pwm);
+-		if (ret)
+-			return ret;
+-		beeper->period = period;
++		pstate.enabled = false;
++		pstate.period = HZ_TO_NANOSECONDS(value);
++		pstate.duty_cycle = pstate.period / 2;
+ 	}
  
- 	clk_rate = clk_get_rate(pc->clk);
- 
-@@ -185,15 +187,8 @@ static int rockchip_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
- 	do_div(div, pc->data->prescaler * NSEC_PER_SEC);
- 	duty = div;
- 
--	ret = clk_enable(pc->clk);
--	if (ret)
--		return ret;
--
- 	writel(period, pc->base + pc->data->regs.period);
- 	writel(duty, pc->base + pc->data->regs.duty);
--	writel(0, pc->base + pc->data->regs.cntr);
--
--	clk_disable(pc->clk);
- 
- 	return 0;
- }
-@@ -211,43 +206,63 @@ static int rockchip_pwm_set_polarity(struct pwm_chip *chip,
++	ret = pwm_apply_state(beeper->pwm, &pstate);
++	if (ret)
++		return ret;
++
++	beeper->period = value ? pstate.period : 0;
++
  	return 0;
  }
  
--static int rockchip_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
-+static int rockchip_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
-+			      struct pwm_state *state)
+@@ -132,10 +135,13 @@ err_free:
+ static int pwm_beeper_remove(struct platform_device *pdev)
  {
- 	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
-+	struct pwm_state curstate;
-+	bool enabled;
- 	int ret;
+ 	struct pwm_beeper *beeper = platform_get_drvdata(pdev);
++	struct pwm_state pstate;
  
-+	pwm_get_state(pwm, &curstate);
-+	enabled = curstate.enabled;
+ 	input_unregister_device(beeper->input);
+ 
+-	pwm_disable(beeper->pwm);
++	pwm_get_state(beeper->pwm, &pstate);
++	pstate.enabled = false;
++	pwm_apply_state(beeper->pwm, &pstate);
+ 	pwm_free(beeper->pwm);
+ 
+ 	kfree(beeper);
+@@ -147,8 +153,13 @@ static int __maybe_unused pwm_beeper_suspend(struct device *dev)
+ {
+ 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
+ 
+-	if (beeper->period)
+-		pwm_disable(beeper->pwm);
++	if (beeper->period) {
++		struct pwm_state pstate;
 +
- 	ret = clk_enable(pc->clk);
- 	if (ret)
- 		return ret;
- 
--	pc->data->set_enable(chip, pwm, true);
-+	if (state->polarity != curstate.polarity && enabled) {
-+		pc->data->set_enable(chip, pwm, false, state->polarity);
-+		enabled = false;
++		pwm_get_state(beeper->pwm, &pstate);
++		pstate.enabled = false;
++		pwm_apply_state(beeper->pwm, &pstate);
 +	}
  
--	return 0;
--}
-+	ret = rockchip_pwm_config(chip, pwm, state->duty_cycle, state->period);
-+	if (ret) {
-+		if (enabled != curstate.enabled)
-+			pc->data->set_enable(chip, pwm, !enabled,
-+					     state->polarity);
- 
--static void rockchip_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
--{
--	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
-+		goto out;
-+	}
- 
--	pc->data->set_enable(chip, pwm, false);
-+	if (state->enabled != enabled)
-+		pc->data->set_enable(chip, pwm, state->enabled,
-+				     state->polarity);
- 
-+	/*
-+	 * Update the state with the real hardware, which can differ a bit
-+	 * because of period/duty_cycle approximation.
-+	 */
-+	rockchip_pwm_get_state(chip, pwm, state);
-+
-+out:
- 	clk_disable(pc->clk);
-+
-+	return ret;
+ 	return 0;
  }
+@@ -158,8 +169,13 @@ static int __maybe_unused pwm_beeper_resume(struct device *dev)
+ 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
  
- static const struct pwm_ops rockchip_pwm_ops_v1 = {
- 	.get_state = rockchip_pwm_get_state,
- 	.config = rockchip_pwm_config,
--	.enable = rockchip_pwm_enable,
--	.disable = rockchip_pwm_disable,
-+	.apply = rockchip_pwm_apply,
- 	.owner = THIS_MODULE,
- };
+ 	if (beeper->period) {
+-		pwm_config(beeper->pwm, beeper->period / 2, beeper->period);
+-		pwm_enable(beeper->pwm);
++		struct pwm_state pstate;
++
++		pwm_get_state(beeper->pwm, &pstate);
++		pstate.period = beeper->period;
++		pstate.duty_cycle = beeper->period / 2;
++		pstate.enabled = true;
++		pwm_apply_state(beeper->pwm, &pstate);
+ 	}
  
- static const struct pwm_ops rockchip_pwm_ops_v2 = {
- 	.get_state = rockchip_pwm_get_state,
- 	.config = rockchip_pwm_config,
-+	.apply = rockchip_pwm_apply,
- 	.set_polarity = rockchip_pwm_set_polarity,
--	.enable = rockchip_pwm_enable,
--	.disable = rockchip_pwm_disable,
- 	.owner = THIS_MODULE,
- };
- 
+ 	return 0;
 -- 
 2.5.0

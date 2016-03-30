@@ -1,13 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 38/46] input: misc: pwm-beeper: switch to the
- atomic PWM API
-Date: Wed, 30 Mar 2016 22:04:01 +0200
-Message-ID: <1459368249-13241-39-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 36/46] input: misc: max77693: switch to the
+ atomic API
+Date: Wed, 30 Mar 2016 22:03:59 +0200
+Message-ID: <1459368249-13241-37-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBH7D6C3QKGQEILDU7ZQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBGPD6C3QKGQELMW2J6Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -25,100 +25,76 @@ by pwm_apply_state().
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/input/misc/pwm-beeper.c | 46 +++++++++++++++++++++++++++--------------
- 1 file changed, 31 insertions(+), 15 deletions(-)
+ drivers/input/misc/max77693-haptic.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-index f2261ab..36c9897 100644
---- a/drivers/input/misc/pwm-beeper.c
-+++ b/drivers/input/misc/pwm-beeper.c
-@@ -34,7 +34,7 @@ static int pwm_beeper_event(struct input_dev *input,
+diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
+index cf6aac0..aef7dc4 100644
+--- a/drivers/input/misc/max77693-haptic.c
++++ b/drivers/input/misc/max77693-haptic.c
+@@ -70,13 +70,16 @@ struct max77693_haptic {
+ 
+ static int max77693_haptic_set_duty_cycle(struct max77693_haptic *haptic)
  {
- 	int ret = 0;
- 	struct pwm_beeper *beeper = input_get_drvdata(input);
--	unsigned long period;
 +	struct pwm_state pstate;
+ 	struct pwm_args pargs = { };
+-	int delta;
+ 	int error;
  
- 	if (type != EV_SND || value < 0)
- 		return -EINVAL;
-@@ -49,19 +49,22 @@ static int pwm_beeper_event(struct input_dev *input,
- 		return -EINVAL;
- 	}
- 
-+	pwm_get_state(beeper->pwm, &pstate);
+ 	pwm_get_args(haptic->pwm_dev, &pargs);
+-	delta = (pargs.period + haptic->pwm_duty) / 2;
+-	error = pwm_config(haptic->pwm_dev, delta, pargs.period);
++	pwm_get_state(haptic->pwm_dev, &pstate);
 +
- 	if (value == 0) {
--		pwm_disable(beeper->pwm);
-+		pstate.enabled = false;
- 	} else {
--		period = HZ_TO_NANOSECONDS(value);
--		ret = pwm_config(beeper->pwm, period / 2, period);
--		if (ret)
--			return ret;
--		ret = pwm_enable(beeper->pwm);
--		if (ret)
--			return ret;
--		beeper->period = period;
-+		pstate.enabled = false;
-+		pstate.period = HZ_TO_NANOSECONDS(value);
-+		pstate.duty_cycle = pstate.period / 2;
- 	}
++	pstate.period = pargs.period;
++	pstate.duty_cycle = (pargs.period + haptic->pwm_duty) / 2;
++	error = pwm_apply_state(haptic->pwm_dev, &pstate);
+ 	if (error) {
+ 		dev_err(haptic->dev, "failed to configure pwm: %d\n", error);
+ 		return error;
+@@ -161,12 +164,16 @@ static int max77693_haptic_lowsys(struct max77693_haptic *haptic, bool enable)
  
-+	ret = pwm_apply_state(beeper->pwm, &pstate);
-+	if (ret)
-+		return ret;
-+
-+	beeper->period = value ? pstate.period : 0;
-+
- 	return 0;
- }
- 
-@@ -132,10 +135,13 @@ err_free:
- static int pwm_beeper_remove(struct platform_device *pdev)
+ static void max77693_haptic_enable(struct max77693_haptic *haptic)
  {
- 	struct pwm_beeper *beeper = platform_get_drvdata(pdev);
 +	struct pwm_state pstate;
+ 	int error;
  
- 	input_unregister_device(beeper->input);
+ 	if (haptic->enabled)
+ 		return;
  
--	pwm_disable(beeper->pwm);
-+	pwm_get_state(beeper->pwm, &pstate);
+-	error = pwm_enable(haptic->pwm_dev);
++	pwm_get_state(haptic->pwm_dev, &pstate);
++	pstate.enabled = true;
++
++	error = pwm_apply_state(haptic->pwm_dev, &pstate);
+ 	if (error) {
+ 		dev_err(haptic->dev,
+ 			"failed to enable haptic pwm device: %d\n", error);
+@@ -188,11 +195,13 @@ static void max77693_haptic_enable(struct max77693_haptic *haptic)
+ err_enable_config:
+ 	max77693_haptic_lowsys(haptic, false);
+ err_enable_lowsys:
+-	pwm_disable(haptic->pwm_dev);
 +	pstate.enabled = false;
-+	pwm_apply_state(beeper->pwm, &pstate);
- 	pwm_free(beeper->pwm);
- 
- 	kfree(beeper);
-@@ -147,8 +153,13 @@ static int __maybe_unused pwm_beeper_suspend(struct device *dev)
- {
- 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
- 
--	if (beeper->period)
--		pwm_disable(beeper->pwm);
-+	if (beeper->period) {
-+		struct pwm_state pstate;
-+
-+		pwm_get_state(beeper->pwm, &pstate);
-+		pstate.enabled = false;
-+		pwm_apply_state(beeper->pwm, &pstate);
-+	}
- 
- 	return 0;
++	pwm_apply_state(haptic->pwm_dev, &pstate);
  }
-@@ -158,8 +169,13 @@ static int __maybe_unused pwm_beeper_resume(struct device *dev)
- 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
  
- 	if (beeper->period) {
--		pwm_config(beeper->pwm, beeper->period / 2, beeper->period);
--		pwm_enable(beeper->pwm);
-+		struct pwm_state pstate;
-+
-+		pwm_get_state(beeper->pwm, &pstate);
-+		pstate.period = beeper->period;
-+		pstate.duty_cycle = beeper->period / 2;
-+		pstate.enabled = true;
-+		pwm_apply_state(beeper->pwm, &pstate);
- 	}
+ static void max77693_haptic_disable(struct max77693_haptic *haptic)
+ {
++	struct pwm_state pstate;
+ 	int error;
  
- 	return 0;
+ 	if (!haptic->enabled)
+@@ -206,7 +215,9 @@ static void max77693_haptic_disable(struct max77693_haptic *haptic)
+ 	if (error)
+ 		goto err_disable_lowsys;
+ 
+-	pwm_disable(haptic->pwm_dev);
++	pwm_get_state(haptic->pwm_dev, &pstate);
++	pstate.enabled = false;
++	pwm_apply_state(haptic->pwm_dev, &pstate);
+ 	haptic->enabled = false;
+ 
+ 	return;
 -- 
 2.5.0

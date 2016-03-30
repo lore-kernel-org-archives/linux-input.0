@@ -1,101 +1,56 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
-Date: Wed, 30 Mar 2016 22:46:24 +0530
-Message-ID: <CADYu308R82BnOm-N6-w4=WSEJOwwOdwW_OgVg+WD_GeOtdysug@mail.gmail.com>
-References: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
-	<CAKdAkRQT0R6peS8iO8PhQ4YoPMowt6voZJez4EubK7R0ZV_m4Q@mail.gmail.com>
-	<56E17A73.8090901@bitmath.org>
-	<CADYu30-b+5TFh2yy2SrGTJJ7FzvcezWut1XL3Ypno5R29hyYww@mail.gmail.com>
-	<CADYu30-CU+cy=N2O+S=__F774YeWiXF=KbQqXJi6aaxWx-pK1w@mail.gmail.com>
-	<CADYu309jySfvrQmdP4HK1so_+Wqf59rv6QbJh8nZwyBdoLLCZQ@mail.gmail.com>
+From: Roderick Colenbrander <thunderbird2k@gmail.com>
+Subject: Uhid lock issue
+Date: Wed, 30 Mar 2016 11:31:50 -0700
+Message-ID: <CAEc3jaCATKZ=LF-S9DAj3PO9g-3wOKR=7v3OeVE67RZyAxzZHg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CADYu309jySfvrQmdP4HK1so_+Wqf59rv6QbJh8nZwyBdoLLCZQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
-Cc: Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f172.google.com ([209.85.192.172]:35544 "EHLO
+	mail-pf0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754301AbcC3Sbv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Mar 2016 14:31:51 -0400
+Received: by mail-pf0-f172.google.com with SMTP id n5so49099895pfn.2
+        for <linux-input@vger.kernel.org>; Wed, 30 Mar 2016 11:31:51 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-Hello Mr. Henrik,
+Hi David,
 
-So do you have any further comments on this patch please?
-It is pending for more than 20 days. It would be really appreciating
-if you could help out to conclude it as soon as possible.
+I'm debugging an issue related to uhid in combination with HID
+drivers, which perform HID feature requests as part of a uhid
+initiated HID request, which results in a deadlock situation. As the
+maintainer of uhid I would like to ask on how to deal with this
+situation.
 
-Regards,
-Aniroop Mathur
+The uhid driver has a lock 'devlock', which is held during read and
+write operations to uhid. As an uhid_write holds this lock during for
+example UHID_CREATE. During this operation a HID driver's '.probe' can
+kick off. As part of .probe, it is common for a HID driver to do a
+hid_hw_start, which results in uhid sending UHID_START, which
+userspace can pick up after UHID_CREATE is complete, because a
+uhid_read call can't complete due to the devlock, which is still held
+by uhid_write. In general this is not really a problem I think.
 
-On Thu, Mar 24, 2016 at 1:05 AM, Aniroop Mathur
-<aniroop.mathur@gmail.com> wrote:
-> Hello Mr. Torokhov / Mr. Henry,
->
-> On Wed, Mar 16, 2016 at 11:54 PM, Aniroop Mathur
-> <aniroop.mathur@gmail.com> wrote:
->> Hello Mr. Torokhov,
->>
->> Could you kindly help to update about this patch?
->>
->
-> So is this patch concluded? Are you applying it?
->
-> Thanks,
-> Aniroop Mathur
->
->> Thank you,
->> Aniroop Mathur
->>
->>
->> On Fri, Mar 11, 2016 at 12:26 AM, Aniroop Mathur
->> <aniroop.mathur@gmail.com> wrote:
->>> Hi Henrik,
->>>
->>> On Thu, Mar 10, 2016 at 7:15 PM, Henrik Rydberg <rydberg@bitmath.org> wrote:
->>>> Hi Dmitry,
->>>>
->>>>>> diff --git a/drivers/input/input.c b/drivers/input/input.c
->>>>>> index 8806059..262ef77 100644
->>>>>> --- a/drivers/input/input.c
->>>>>> +++ b/drivers/input/input.c
->>>>>> @@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
->>>>>>                 if (dev->num_vals >= 2)
->>>>>>                         input_pass_values(dev, dev->vals, dev->num_vals);
->>>>>>                 dev->num_vals = 0;
->>>>>> -       } else if (dev->num_vals >= dev->max_vals - 2) {
->>>>>> -               dev->vals[dev->num_vals++] = input_value_sync;
->>>>>> +       } else if (dev->num_vals >= dev->max_vals - 1) {
->>>>>>                 input_pass_values(dev, dev->vals, dev->num_vals);
->>>>>>                 dev->num_vals = 0;
->>>>>>         }
->>>>>
->>>>> This makes sense to me. Henrik?
->>>>
->>>> I went through the commits that made these changes, and I cannot see any strong
->>>> reason to keep it. However, this code path only triggers if no SYN events are
->>>> seen, as in a driver that fails to emit them and consequently fills up the
->>>> buffer. In other words, this change would only affect a device that is already,
->>>> to some degree, broken.
->>>>
->>>> So, the question to Aniroop is: do you see this problem in practise, and in that
->>>> case, for what driver?
->>>>
->>>
->>> Nope. So far I have not dealt with any such driver.
->>> I made this change because it is breaking protocol of SYN_REPORT event code.
->>>
->>> Further from the code, I could deduce that max_vals is just an estimation of
->>> packet_size and it does not guarantee that packet_size is same as max_vals.
->>> So real packet_size can be more than max_vals value and hence we could not
->>> insert SYN_REPORT until packet ends really.
->>> Further, if we consider that there exists a driver or will exist in future
->>> which sets capability of x event code according to which max_value comes out to
->>> y and the real packet size is z i.e. driver wants to send same event codes
->>> again in the same packet, so input event reader would be expecting SYN_REPORT
->>> after z events but due to current code SYN_REPORT will get inserted
->>> automatically after y events, which is a wrong behaviour.
->>>
->>> Thanks,
->>> Aniroop Mathur
->>>
->>>> Henrik
->>>>
+Problems happen if for example the .probe call sends a feature report
+to the device e.g. to obtain some device information. Such an
+operation triggers a request to userspace through uhid, but userspace
+can't pick it up, because the devlock is held. There is a temporary
+deadlock until some long timeout.
+
+In general this issue happens for any HID request by userspace, for
+which the kernel driver triggers another HID request as part of
+handling the original HID request from userspace. This is probably
+somewhat rare and the situation during .probe is likely the most
+common one.
+
+I'm not entirely sure what the proper way of addressing this issue is.
+The single devlock kept uhid simple, but I have a feeling it may need
+to be made more granular or maybe there is another way. I don't know
+the pitfalls you have seen with uhid over the years, so I'm wondering
+if you have some ideas.
+
+Thanks,
+Roderick

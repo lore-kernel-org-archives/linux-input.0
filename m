@@ -1,12 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 10/46] leds: pwm: use pwm_get_args() where appropriate
-Date: Wed, 30 Mar 2016 22:03:33 +0200
-Message-ID: <1459368249-13241-11-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 13/46] backlight: pwm_bl: use pwm_get_args()
+ where appropriate
+Date: Wed, 30 Mar 2016 22:03:36 +0200
+Message-ID: <1459368249-13241-14-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBXXC6C3QKGQEZYNEMJA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBZHC6C3QKGQER2OSPUY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -32,30 +33,30 @@ just been requested (before the user calls pwm_config/enable/disable()).
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/leds/leds-pwm.c | 4 +++-
+ drivers/video/backlight/pwm_bl.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/leds/leds-pwm.c b/drivers/leds/leds-pwm.c
-index 4783bac..b48231c 100644
---- a/drivers/leds/leds-pwm.c
-+++ b/drivers/leds/leds-pwm.c
-@@ -91,6 +91,7 @@ static int led_pwm_add(struct device *dev, struct led_pwm_priv *priv,
- 		       struct led_pwm *led, struct device_node *child)
- {
- 	struct led_pwm_data *led_data = &priv->leds[priv->num_leds];
+diff --git a/drivers/video/backlight/pwm_bl.c b/drivers/video/backlight/pwm_bl.c
+index a33a290..2479c11 100644
+--- a/drivers/video/backlight/pwm_bl.c
++++ b/drivers/video/backlight/pwm_bl.c
+@@ -201,6 +201,7 @@ static int pwm_backlight_probe(struct platform_device *pdev)
+ 	struct device_node *node = pdev->dev.of_node;
+ 	struct pwm_bl_data *pb;
+ 	int initial_blank = FB_BLANK_UNBLANK;
 +	struct pwm_args pargs = { };
  	int ret;
  
- 	led_data->active_low = led->active_low;
-@@ -117,7 +118,8 @@ static int led_pwm_add(struct device *dev, struct led_pwm_priv *priv,
- 	else
- 		led_data->cdev.brightness_set_blocking = led_pwm_set_blocking;
- 
--	led_data->period = pwm_get_period(led_data->pwm);
-+	pwm_get_args(led_data->pwm, &pargs);
-+	led_data->period = pargs.period;
- 	if (!led_data->period && (led->pwm_period_ns > 0))
- 		led_data->period = led->pwm_period_ns;
+ 	if (!data) {
+@@ -312,7 +313,8 @@ static int pwm_backlight_probe(struct platform_device *pdev)
+ 	 * set the period from platform data if it has not already been set
+ 	 * via the PWM lookup table.
+ 	 */
+-	pb->period = pwm_get_period(pb->pwm);
++	pwm_get_args(pb->pwm, &pargs);
++	pb->period = pargs.period;
+ 	if (!pb->period && (data->pwm_period_ns > 0))
+ 		pb->period = data->pwm_period_ns;
  
 -- 
 2.5.0

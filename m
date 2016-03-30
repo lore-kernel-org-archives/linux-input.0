@@ -1,13 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 22/46] pwm: rockchip: avoid glitches on
- already running PWMs
-Date: Wed, 30 Mar 2016 22:03:45 +0200
-Message-ID: <1459368249-13241-23-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 24/46] pwm: sti: add support for initial
+ state retrieval
+Date: Wed, 30 Mar 2016 22:03:47 +0200
+Message-ID: <1459368249-13241-25-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBB67C6C3QKGQENHXAGZY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBBPD6C3QKGQEPBP42LQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -20,70 +20,71 @@ To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, lin
 Cc: Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>linu
 List-Id: linux-input@vger.kernel.org
 
-The current logic will disable the PWM clk even if the PWM was left
-enabled by the bootloader (because it's controlling a critical device
-like a regulator for example).
-Keep the PWM clk enabled if the PWM is enabled to avoid any glitches.
+Implement ->get_state() to provide support for initial state retrieval.
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/pwm/pwm-rockchip.c | 24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ drivers/pwm/pwm-sti.c | 41 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
 
-diff --git a/drivers/pwm/pwm-rockchip.c b/drivers/pwm/pwm-rockchip.c
-index 6a1087c..5c7e79c 100644
---- a/drivers/pwm/pwm-rockchip.c
-+++ b/drivers/pwm/pwm-rockchip.c
-@@ -302,6 +302,7 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
- {
- 	const struct of_device_id *id;
- 	struct rockchip_pwm_chip *pc;
-+	struct pwm_state pstate;
- 	struct resource *r;
- 	int ret;
- 
-@@ -322,7 +323,7 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
- 	if (IS_ERR(pc->clk))
- 		return PTR_ERR(pc->clk);
- 
--	ret = clk_prepare(pc->clk);
-+	ret = clk_prepare_enable(pc->clk);
- 	if (ret)
- 		return ret;
- 
-@@ -345,12 +346,33 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "pwmchip_add() failed: %d\n", ret);
- 	}
- 
-+	/* Keep the PWM clk enabled if the PWM appears to be up and running. */
-+	pwm_get_state(pc->chip.pwms, &pstate);
-+	if (!pstate.enabled)
-+		clk_disable(pc->clk);
-+
- 	return ret;
+diff --git a/drivers/pwm/pwm-sti.c b/drivers/pwm/pwm-sti.c
+index 92abbd5..0fbca94 100644
+--- a/drivers/pwm/pwm-sti.c
++++ b/drivers/pwm/pwm-sti.c
+@@ -238,6 +238,46 @@ static void sti_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
+ 	mutex_unlock(&pc->sti_pwm_lock);
  }
  
- static int rockchip_pwm_remove(struct platform_device *pdev)
- {
- 	struct rockchip_pwm_chip *pc = platform_get_drvdata(pdev);
-+	struct pwm_state pstate;
++static void sti_pwm_get_state(struct pwm_chip *chip,
++			      struct pwm_device *pwm,
++			      struct pwm_state *pstate)
++{
++	struct sti_pwm_chip *pc = to_sti_pwmchip(chip);
++	unsigned int regval, prescaler;
++	u64 timens;
++	int ret;
 +
-+	/*
-+	 * Disable the PWM clk before unpreparing it if the PWM device is still
-+	 * running. This should only happen when the last PWM user left it
-+	 * enabled, or when nobody requested a PWM that was previously enabled
-+	 * by the bootloader.
-+	 *
-+	 * FIXME: Maybe the core should disable all PWM devices in
-+	 * pwmchip_remove(). In this case we'd only have to call
-+	 * clk_unprepare() after pwmchip_remove().
-+	 *
-+	 */
-+	pwm_get_state(pc->chip.pwms, &pstate);
-+	if (pstate.enabled)
-+		clk_disable(pc->clk);
- 
- 	clk_unprepare(pc->clk);
- 
++	/* The clock has to be enabled to access PWM registers */
++	ret = clk_enable(pc->clk);
++	if (ret) {
++		dev_err(chip->dev, "Failed to enable PWM clk");
++		return;
++	}
++
++	regmap_field_read(pc->prescale_high, &regval);
++	prescaler = regval << 4;
++	regmap_field_read(pc->prescale_low, &regval);
++	prescaler |= regval;
++
++	timens = (u64)(prescaler + 1) * NSEC_PER_SEC *
++		 (pc->cdata->max_pwm_cnt + 1);
++	do_div(timens, pc->clk_rate);
++
++	pstate->period = timens;
++
++	regmap_read(pc->regmap, STI_DS_REG(pwm->hwpwm), &regval);
++	timens = (u64)(regval + 1) * pstate->period;
++	do_div(timens, pc->cdata->max_pwm_cnt + 1);
++	pstate->duty_cycle = timens;
++
++	regmap_field_read(pc->pwm_en, &regval);
++	pstate->enabled = regval;
++
++	pstate->polarity = PWM_POLARITY_NORMAL;
++
++	clk_disable(pc->clk);
++}
++
+ static void sti_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
+ {
+ 	struct sti_pwm_chip *pc = to_sti_pwmchip(chip);
+@@ -249,6 +289,7 @@ static const struct pwm_ops sti_pwm_ops = {
+ 	.config = sti_pwm_config,
+ 	.enable = sti_pwm_enable,
+ 	.disable = sti_pwm_disable,
++	.get_state = sti_pwm_get_state,
+ 	.free = sti_pwm_free,
+ 	.owner = THIS_MODULE,
+ };
 -- 
 2.5.0

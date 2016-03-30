@@ -1,12 +1,19 @@
 From: Bjorn Andersson <bjorn.andersson@linaro.org>
 Subject: [PATCH] Input: synaptics-rmi4: Support regulator supplies
-Date: Wed, 30 Mar 2016 09:57:03 -0700
-Message-ID: <1459357023-5560-1-git-send-email-bjorn.andersson@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Date: Wed, 30 Mar 2016 09:57:29 -0700
+Message-ID: <1459357049-5608-1-git-send-email-bjorn.andersson@linaro.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f181.google.com ([209.85.192.181]:34063 "EHLO
+	mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932241AbcC3Q5d (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Mar 2016 12:57:33 -0400
+Received: by mail-pf0-f181.google.com with SMTP id x3so47476728pfb.1
+        for <linux-input@vger.kernel.org>; Wed, 30 Mar 2016 09:57:32 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Bjorn Andersson <bjorn.andersson@sonymobile.com>
-List-Id: linux-input@vger.kernel.org
 
 From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
 
@@ -14,6 +21,7 @@ Support the two supplies - vdd and vio - to make it possible to control
 power to the Synaptics chip.
 
 Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 ---
  .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |  7 ++++
  drivers/input/rmi4/rmi_i2c.c                       | 45 ++++++++++++++++++++++
@@ -144,3 +152,4 @@ index a96a326b53bd..a8c794daba04 100644
  	ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev);
 -- 
 2.5.0
+

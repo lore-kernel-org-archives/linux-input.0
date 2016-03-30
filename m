@@ -1,13 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 44/46] video: ssd1307fb: switch to the atomic
- PWM API
-Date: Wed, 30 Mar 2016 22:04:07 +0200
-Message-ID: <1459368249-13241-45-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 37/46] input: misc: max8997: switch to the
+ atomic PWM API
+Date: Wed, 30 Mar 2016 22:04:00 +0200
+Message-ID: <1459368249-13241-38-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBN7D6C3QKGQECRHMDZA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBG7D6C3QKGQES7F63EQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -25,66 +25,56 @@ by pwm_apply_state().
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/video/fbdev/ssd1307fb.c | 24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ drivers/input/misc/max8997_haptic.c | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/video/fbdev/ssd1307fb.c b/drivers/video/fbdev/ssd1307fb.c
-index df9c63a..ed9a115 100644
---- a/drivers/video/fbdev/ssd1307fb.c
-+++ b/drivers/video/fbdev/ssd1307fb.c
-@@ -289,6 +289,8 @@ static int ssd1307fb_init(struct ssd1307fb_par *par)
- 	struct pwm_args pargs = { };
+diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
+index a806ba3..fcc0eb7 100644
+--- a/drivers/input/misc/max8997_haptic.c
++++ b/drivers/input/misc/max8997_haptic.c
+@@ -72,8 +72,12 @@ static int max8997_haptic_set_duty_cycle(struct max8997_haptic *chip)
+ 	int ret = 0;
  
- 	if (par->device_info->need_pwm) {
+ 	if (chip->mode == MAX8997_EXTERNAL_MODE) {
+-		unsigned int duty = chip->pwm_period * chip->level / 100;
+-		ret = pwm_config(chip->pwm, duty, chip->pwm_period);
 +		struct pwm_state pstate;
 +
- 		par->pwm = pwm_get(&par->client->dev, NULL);
- 		if (IS_ERR(par->pwm)) {
- 			dev_err(&par->client->dev, "Could not get PWM from device tree!\n");
-@@ -296,10 +298,14 @@ static int ssd1307fb_init(struct ssd1307fb_par *par)
++		pwm_get_state(chip->pwm, &pstate);
++		pstate.period = chip->pwm_period;
++		pstate.duty_cycle = chip->pwm_period * chip->level / 100;
++		ret = pwm_apply_state(chip->pwm, &pstate);
+ 	} else {
+ 		int i;
+ 		u8 duty_index = 0;
+@@ -188,7 +192,11 @@ static void max8997_haptic_enable(struct max8997_haptic *chip)
  		}
- 
- 		pwm_get_args(par->pwm, &pargs);
-+		pwm_get_state(par->pwm, &pstate);
- 		par->pwm_period = pargs.period;
+ 		max8997_haptic_configure(chip);
+ 		if (chip->mode == MAX8997_EXTERNAL_MODE) {
+-			error = pwm_enable(chip->pwm);
++			struct pwm_state pstate;
 +
- 		/* Enable the PWM */
--		pwm_config(par->pwm, par->pwm_period / 2, par->pwm_period);
--		pwm_enable(par->pwm);
-+		pstate.period = pargs.period;
-+		pstate.duty_cycle = pstate.period / 2;
-+		pstate.enabled = true;
-+		pwm_apply_state(par->pwm, &pstate);
- 
- 		dev_dbg(&par->client->dev, "Using PWM%d with a %dns period.\n",
- 			par->pwm->pwm, par->pwm_period);
-@@ -685,8 +691,12 @@ static int ssd1307fb_probe(struct i2c_client *client,
- bl_init_error:
- 	unregister_framebuffer(info);
- panel_init_error:
--	if (par->device_info->need_pwm) {
--		pwm_disable(par->pwm);
-+	if (par->device_info->need_pwm && par->pwm) {
-+		struct pwm_state pstate;
++			pwm_get_state(chip->pwm, &pstate);
++			pstate.enabled = true;
++			error = pwm_apply_state(chip->pwm, &pstate);
+ 			if (error) {
+ 				dev_err(chip->dev, "Failed to enable PWM\n");
+ 				regulator_disable(chip->regulator);
+@@ -209,8 +217,13 @@ static void max8997_haptic_disable(struct max8997_haptic *chip)
+ 	if (chip->enabled) {
+ 		chip->enabled = false;
+ 		max8997_haptic_configure(chip);
+-		if (chip->mode == MAX8997_EXTERNAL_MODE)
+-			pwm_disable(chip->pwm);
++		if (chip->mode == MAX8997_EXTERNAL_MODE) {
++			struct pwm_state pstate;
 +
-+		pwm_get_state(par->pwm, &pstate);
-+		pstate.enabled = false;
-+		pwm_apply_state(par->pwm, &pstate);
- 		pwm_put(par->pwm);
- 	};
- reset_oled_error:
-@@ -707,7 +717,11 @@ static int ssd1307fb_remove(struct i2c_client *client)
++			pwm_get_state(chip->pwm, &pstate);
++			pstate.enabled = false;
++			pwm_apply_state(chip->pwm, &pstate);
++		}
+ 		regulator_disable(chip->regulator);
+ 	}
  
- 	unregister_framebuffer(info);
- 	if (par->device_info->need_pwm) {
--		pwm_disable(par->pwm);
-+		struct pwm_state pstate;
-+
-+		pwm_get_state(par->pwm, &pstate);
-+		pstate.enabled = false;
-+		pwm_apply_state(par->pwm, &pstate);
- 		pwm_put(par->pwm);
- 	};
- 	fb_deferred_io_cleanup(info);
 -- 
 2.5.0

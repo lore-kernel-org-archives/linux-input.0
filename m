@@ -1,12 +1,12 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 07/46] clk: pwm: use pwm_get_args() where appropriate
-Date: Wed, 30 Mar 2016 22:03:30 +0200
-Message-ID: <1459368249-13241-8-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 10/46] leds: pwm: use pwm_get_args() where appropriate
+Date: Wed, 30 Mar 2016 22:03:33 +0200
+Message-ID: <1459368249-13241-11-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBWHC6C3QKGQEGOHY3MI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBXXC6C3QKGQEZYNEMJA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -32,49 +32,30 @@ just been requested (before the user calls pwm_config/enable/disable()).
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/clk/clk-pwm.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/leds/leds-pwm.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-pwm.c b/drivers/clk/clk-pwm.c
-index 8830458..ebcd738 100644
---- a/drivers/clk/clk-pwm.c
-+++ b/drivers/clk/clk-pwm.c
-@@ -56,6 +56,7 @@ static const struct clk_ops clk_pwm_ops = {
- static int clk_pwm_probe(struct platform_device *pdev)
+diff --git a/drivers/leds/leds-pwm.c b/drivers/leds/leds-pwm.c
+index 4783bac..b48231c 100644
+--- a/drivers/leds/leds-pwm.c
++++ b/drivers/leds/leds-pwm.c
+@@ -91,6 +91,7 @@ static int led_pwm_add(struct device *dev, struct led_pwm_priv *priv,
+ 		       struct led_pwm *led, struct device_node *child)
  {
- 	struct device_node *node = pdev->dev.of_node;
+ 	struct led_pwm_data *led_data = &priv->leds[priv->num_leds];
 +	struct pwm_args pargs = { };
- 	struct clk_init_data init;
- 	struct clk_pwm *clk_pwm;
- 	struct pwm_device *pwm;
-@@ -71,22 +72,23 @@ static int clk_pwm_probe(struct platform_device *pdev)
- 	if (IS_ERR(pwm))
- 		return PTR_ERR(pwm);
+ 	int ret;
  
--	if (!pwm->period) {
-+	pwm_get_args(pwm, &pargs);
-+	if (!pargs.period) {
- 		dev_err(&pdev->dev, "invalid PWM period\n");
- 		return -EINVAL;
- 	}
+ 	led_data->active_low = led->active_low;
+@@ -117,7 +118,8 @@ static int led_pwm_add(struct device *dev, struct led_pwm_priv *priv,
+ 	else
+ 		led_data->cdev.brightness_set_blocking = led_pwm_set_blocking;
  
- 	if (of_property_read_u32(node, "clock-frequency", &clk_pwm->fixed_rate))
--		clk_pwm->fixed_rate = NSEC_PER_SEC / pwm->period;
-+		clk_pwm->fixed_rate = NSEC_PER_SEC / pargs.period;
- 
--	if (pwm->period != NSEC_PER_SEC / clk_pwm->fixed_rate &&
--	    pwm->period != DIV_ROUND_UP(NSEC_PER_SEC, clk_pwm->fixed_rate)) {
-+	if (pargs.period != NSEC_PER_SEC / clk_pwm->fixed_rate &&
-+	    pargs.period != DIV_ROUND_UP(NSEC_PER_SEC, clk_pwm->fixed_rate)) {
- 		dev_err(&pdev->dev,
- 			"clock-frequency does not match PWM period\n");
- 		return -EINVAL;
- 	}
- 
--	ret = pwm_config(pwm, (pwm->period + 1) >> 1, pwm->period);
-+	ret = pwm_config(pwm, (pargs.period + 1) >> 1, pargs.period);
- 	if (ret < 0)
- 		return ret;
+-	led_data->period = pwm_get_period(led_data->pwm);
++	pwm_get_args(led_data->pwm, &pargs);
++	led_data->period = pargs.period;
+ 	if (!led_data->period && (led->pwm_period_ns > 0))
+ 		led_data->period = led->pwm_period_ns;
  
 -- 
 2.5.0

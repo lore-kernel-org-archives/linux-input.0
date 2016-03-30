@@ -1,13 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 42/46] backlight: lp8788: switch to the
- atomic PWM API
-Date: Wed, 30 Mar 2016 22:04:05 +0200
-Message-ID: <1459368249-13241-43-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 44/46] video: ssd1307fb: switch to the atomic
+ PWM API
+Date: Wed, 30 Mar 2016 22:04:07 +0200
+Message-ID: <1459368249-13241-45-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBK7D6C3QKGQEIRA7FQA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBN7D6C3QKGQECRHMDZA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -25,50 +25,66 @@ by pwm_apply_state().
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/video/backlight/lp8788_bl.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/video/fbdev/ssd1307fb.c | 24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/video/backlight/lp8788_bl.c b/drivers/video/backlight/lp8788_bl.c
-index 5d583d7..521c730 100644
---- a/drivers/video/backlight/lp8788_bl.c
-+++ b/drivers/video/backlight/lp8788_bl.c
-@@ -124,16 +124,13 @@ static int lp8788_backlight_configure(struct lp8788_bl *bl)
+diff --git a/drivers/video/fbdev/ssd1307fb.c b/drivers/video/fbdev/ssd1307fb.c
+index df9c63a..ed9a115 100644
+--- a/drivers/video/fbdev/ssd1307fb.c
++++ b/drivers/video/fbdev/ssd1307fb.c
+@@ -289,6 +289,8 @@ static int ssd1307fb_init(struct ssd1307fb_par *par)
+ 	struct pwm_args pargs = { };
  
- static void lp8788_pwm_ctrl(struct lp8788_bl *bl, int br, int max_br)
- {
--	unsigned int period;
--	unsigned int duty;
- 	struct device *dev;
-+	struct pwm_state pstate;
- 	struct pwm_device *pwm;
- 
- 	if (!bl->pdata)
- 		return;
- 
--	period = bl->pdata->period_ns;
--	duty = br * period / max_br;
- 	dev = bl->lp->dev;
- 
- 	/* request PWM device with the consumer name */
-@@ -147,11 +144,15 @@ static void lp8788_pwm_ctrl(struct lp8788_bl *bl, int br, int max_br)
- 		bl->pwm = pwm;
- 	}
- 
--	pwm_config(bl->pwm, duty, period);
--	if (duty)
--		pwm_enable(bl->pwm);
-+	pwm_get_state(bl->pwm, &pstate);
-+	pstate.period = bl->pdata->period_ns;
-+	pstate.duty_cycle = br * pstate.period / max_br;
-+	if (pstate.duty_cycle)
-+		pstate.enabled = true;
- 	else
--		pwm_disable(bl->pwm);
-+		pstate.enabled = false;
+ 	if (par->device_info->need_pwm) {
++		struct pwm_state pstate;
 +
-+	pwm_apply_state(bl->pwm, &pstate);
- }
+ 		par->pwm = pwm_get(&par->client->dev, NULL);
+ 		if (IS_ERR(par->pwm)) {
+ 			dev_err(&par->client->dev, "Could not get PWM from device tree!\n");
+@@ -296,10 +298,14 @@ static int ssd1307fb_init(struct ssd1307fb_par *par)
+ 		}
  
- static int lp8788_bl_update_status(struct backlight_device *bl_dev)
+ 		pwm_get_args(par->pwm, &pargs);
++		pwm_get_state(par->pwm, &pstate);
+ 		par->pwm_period = pargs.period;
++
+ 		/* Enable the PWM */
+-		pwm_config(par->pwm, par->pwm_period / 2, par->pwm_period);
+-		pwm_enable(par->pwm);
++		pstate.period = pargs.period;
++		pstate.duty_cycle = pstate.period / 2;
++		pstate.enabled = true;
++		pwm_apply_state(par->pwm, &pstate);
+ 
+ 		dev_dbg(&par->client->dev, "Using PWM%d with a %dns period.\n",
+ 			par->pwm->pwm, par->pwm_period);
+@@ -685,8 +691,12 @@ static int ssd1307fb_probe(struct i2c_client *client,
+ bl_init_error:
+ 	unregister_framebuffer(info);
+ panel_init_error:
+-	if (par->device_info->need_pwm) {
+-		pwm_disable(par->pwm);
++	if (par->device_info->need_pwm && par->pwm) {
++		struct pwm_state pstate;
++
++		pwm_get_state(par->pwm, &pstate);
++		pstate.enabled = false;
++		pwm_apply_state(par->pwm, &pstate);
+ 		pwm_put(par->pwm);
+ 	};
+ reset_oled_error:
+@@ -707,7 +717,11 @@ static int ssd1307fb_remove(struct i2c_client *client)
+ 
+ 	unregister_framebuffer(info);
+ 	if (par->device_info->need_pwm) {
+-		pwm_disable(par->pwm);
++		struct pwm_state pstate;
++
++		pwm_get_state(par->pwm, &pstate);
++		pstate.enabled = false;
++		pwm_apply_state(par->pwm, &pstate);
+ 		pwm_put(par->pwm);
+ 	};
+ 	fb_deferred_io_cleanup(info);
 -- 
 2.5.0

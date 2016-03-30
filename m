@@ -1,16 +1,16 @@
 From: Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: Re: [PATCH v5 05/46] pwm: introduce the pwm_args concept
-Date: Wed, 30 Mar 2016 14:55:10 -0700
-Message-ID: <20160330215510.GS18567@codeaurora.org>
+Subject: Re: [PATCH v5 07/46] clk: pwm: use pwm_get_args() where appropriate
+Date: Wed, 30 Mar 2016 14:58:01 -0700
+Message-ID: <20160330215800.GT18567@codeaurora.org>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
- <1459368249-13241-6-git-send-email-boris.brezillon@free-electrons.com>
+ <1459368249-13241-8-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDHZXHXDRAMBBQMW6G3QKGQESPVBEBA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBDHZXHXDRAMBB3EX6G3QKGQEVLXVEGI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <1459368249-13241-6-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <1459368249-13241-8-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/linux-sunxi
@@ -22,36 +22,21 @@ Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, lin
 List-Id: linux-input@vger.kernel.org
 
 On 03/30, Boris Brezillon wrote:
-> @@ -74,6 +74,23 @@ enum pwm_polarity {
->  	PWM_POLARITY_INVERSED,
->  };
->  
-> +/**
-> + * struct pwm_args - PWM arguments
-> + * @period: reference period
-> + * @polarity: reference polarity
-> + *
-> + * This structure describe board-dependent arguments attached to a PWM
+> The PWM framework has clarified the concept of reference PWM config
+> (the platform dependent config retrieved from the DT or the PWM
+> lookup table) and real PWM state.
+> 
+> Use pwm_get_args() when the PWM user wants to retrieve this reference
+> config and not the current state.
+> 
+> This is part of the rework allowing the PWM framework to support
+> hardware readout and expose real PWM state even when the PWM has
+> just been requested (before the user calls pwm_config/enable/disable()).
+> 
+> Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> ---
 
-s/describe/describes/
-
-> + * device. Those arguments are usually retrieved from the PWM lookup table or
-> + * DT definition.
-> + * This should not be confused with the PWM state: PWM args not representing
-
-s/not representing/don't represent/ ?
-
-> + * the current PWM state, but the configuration the PWM user plan to use
-
-s/plan/plans/
-
-> + * on this PWM device.
-> + */
-> +struct pwm_args {
-> +	unsigned int period;
-> +	enum pwm_polarity polarity;
-> +};
-> +
+Acked-by: Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 
 -- 
 Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,

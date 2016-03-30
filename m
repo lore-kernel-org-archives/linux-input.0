@@ -1,162 +1,101 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH] Input: synaptics-rmi4: Support regulator supplies
-Date: Wed, 30 Mar 2016 10:02:47 -0700
-Message-ID: <CAOCOHw4sZapv9BzYeqsh-ni20AajkaXT0+cF8KdgNLXZC5Og5g@mail.gmail.com>
-References: <1459357023-5560-1-git-send-email-bjorn.andersson@linaro.org>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
+Date: Wed, 30 Mar 2016 22:46:24 +0530
+Message-ID: <CADYu308R82BnOm-N6-w4=WSEJOwwOdwW_OgVg+WD_GeOtdysug@mail.gmail.com>
+References: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
+	<CAKdAkRQT0R6peS8iO8PhQ4YoPMowt6voZJez4EubK7R0ZV_m4Q@mail.gmail.com>
+	<56E17A73.8090901@bitmath.org>
+	<CADYu30-b+5TFh2yy2SrGTJJ7FzvcezWut1XL3Ypno5R29hyYww@mail.gmail.com>
+	<CADYu30-CU+cy=N2O+S=__F774YeWiXF=KbQqXJi6aaxWx-pK1w@mail.gmail.com>
+	<CADYu309jySfvrQmdP4HK1so_+Wqf59rv6QbJh8nZwyBdoLLCZQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1459357023-5560-1-git-send-email-bjorn.andersson@linaro.org>
+In-Reply-To: <CADYu309jySfvrQmdP4HK1so_+Wqf59rv6QbJh8nZwyBdoLLCZQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@sonymobile.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
+Cc: Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 30, 2016 at 9:57 AM, Bjorn Andersson
-<bjorn.andersson@linaro.org> wrote:
-> From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
->
-> Support the two supplies - vdd and vio - to make it possible to control
-> power to the Synaptics chip.
->
-> Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Hello Mr. Henrik,
 
-Sorry for the spam, ^C'ed this and resent it with a valid
-Signed-off-by before I saw that this actually did hit the list.
-
-Please ignore this and consider the same patch sent 20 seconds later.
+So do you have any further comments on this patch please?
+It is pending for more than 20 days. It would be really appreciating
+if you could help out to conclude it as soon as possible.
 
 Regards,
-Bjorn
+Aniroop Mathur
 
-> ---
->  .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |  7 ++++
->  drivers/input/rmi4/rmi_i2c.c                       | 45 ++++++++++++++++++++++
->  2 files changed, 52 insertions(+)
+On Thu, Mar 24, 2016 at 1:05 AM, Aniroop Mathur
+<aniroop.mathur@gmail.com> wrote:
+> Hello Mr. Torokhov / Mr. Henry,
 >
-> diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
-> index 95fa715c6046..a8c31f40f816 100644
-> --- a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
-> +++ b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
-> @@ -22,6 +22,13 @@ See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
->  - syna,reset-delay-ms: The number of milliseconds to wait after resetting the
->                         device.
+> On Wed, Mar 16, 2016 at 11:54 PM, Aniroop Mathur
+> <aniroop.mathur@gmail.com> wrote:
+>> Hello Mr. Torokhov,
+>>
+>> Could you kindly help to update about this patch?
+>>
 >
-> +- vdd-supply: VDD power supply.
-> +See Documentation/devicetree/bindings/regulator/regulator.txt
-> +
-> +- vio-supply: VIO power supply
-> +See Documentation/devicetree/bindings/regulator/regulator.txt
-> +
-> +
->  Function Parameters:
->  Parameters specific to RMI functions are contained in child nodes of the rmi device
->   node. Documentation for the parameters of each function can be found in:
-> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-> index a96a326b53bd..a8c794daba04 100644
-> --- a/drivers/input/rmi4/rmi_i2c.c
-> +++ b/drivers/input/rmi4/rmi_i2c.c
-> @@ -11,6 +11,8 @@
->  #include <linux/rmi.h>
->  #include <linux/irq.h>
->  #include <linux/of.h>
-> +#include <linux/delay.h>
-> +#include <linux/regulator/consumer.h>
->  #include "rmi_driver.h"
+> So is this patch concluded? Are you applying it?
 >
->  #define BUFFER_SIZE_INCREMENT 32
-> @@ -37,6 +39,8 @@ struct rmi_i2c_xport {
+> Thanks,
+> Aniroop Mathur
 >
->         u8 *tx_buf;
->         size_t tx_buf_size;
-> +
-> +       struct regulator_bulk_data supplies[2];
->  };
->
->  #define RMI_PAGE_SELECT_REGISTER 0xff
-> @@ -246,6 +250,22 @@ static int rmi_i2c_probe(struct i2c_client *client,
->                 return -ENODEV;
->         }
->
-> +       rmi_i2c->supplies[0].supply = "vdd";
-> +       rmi_i2c->supplies[1].supply = "vio";
-> +       retval = devm_regulator_bulk_get(&client->dev,
-> +                                        ARRAY_SIZE(rmi_i2c->supplies),
-> +                                        rmi_i2c->supplies);
-> +       if (retval < 0)
-> +               return retval;
-> +
-> +       retval = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-> +                                      rmi_i2c->supplies);
-> +       if (retval < 0)
-> +               return retval;
-> +
-> +       /* Allow the firmware to get ready */
-> +       msleep(10);
-> +
->         rmi_i2c->client = client;
->         mutex_init(&rmi_i2c->page_mutex);
->
-> @@ -286,6 +306,8 @@ static int rmi_i2c_remove(struct i2c_client *client)
->         struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->
->         rmi_unregister_transport_device(&rmi_i2c->xport);
-> +       regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-> +                              rmi_i2c->supplies);
->
->         return 0;
->  }
-> @@ -308,6 +330,10 @@ static int rmi_i2c_suspend(struct device *dev)
->                         dev_warn(dev, "Failed to enable irq for wake: %d\n",
->                                 ret);
->         }
-> +
-> +       regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-> +                              rmi_i2c->supplies);
-> +
->         return ret;
->  }
->
-> @@ -317,6 +343,14 @@ static int rmi_i2c_resume(struct device *dev)
->         struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->         int ret;
->
-> +       ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-> +                                   rmi_i2c->supplies);
-> +       if (ret)
-> +               return ret;
-> +
-> +       /* Allow the firmware to get ready */
-> +       msleep(10);
-> +
->         enable_irq(rmi_i2c->irq);
->         if (device_may_wakeup(&client->dev)) {
->                 ret = disable_irq_wake(rmi_i2c->irq);
-> @@ -346,6 +380,9 @@ static int rmi_i2c_runtime_suspend(struct device *dev)
->
->         disable_irq(rmi_i2c->irq);
->
-> +       regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-> +                              rmi_i2c->supplies);
-> +
->         return 0;
->  }
->
-> @@ -355,6 +392,14 @@ static int rmi_i2c_runtime_resume(struct device *dev)
->         struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->         int ret;
->
-> +       ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-> +                                   rmi_i2c->supplies);
-> +       if (ret)
-> +               return ret;
-> +
-> +       /* Allow the firmware to get ready */
-> +       msleep(10);
-> +
->         enable_irq(rmi_i2c->irq);
->
->         ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev);
-> --
-> 2.5.0
->
+>> Thank you,
+>> Aniroop Mathur
+>>
+>>
+>> On Fri, Mar 11, 2016 at 12:26 AM, Aniroop Mathur
+>> <aniroop.mathur@gmail.com> wrote:
+>>> Hi Henrik,
+>>>
+>>> On Thu, Mar 10, 2016 at 7:15 PM, Henrik Rydberg <rydberg@bitmath.org> wrote:
+>>>> Hi Dmitry,
+>>>>
+>>>>>> diff --git a/drivers/input/input.c b/drivers/input/input.c
+>>>>>> index 8806059..262ef77 100644
+>>>>>> --- a/drivers/input/input.c
+>>>>>> +++ b/drivers/input/input.c
+>>>>>> @@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
+>>>>>>                 if (dev->num_vals >= 2)
+>>>>>>                         input_pass_values(dev, dev->vals, dev->num_vals);
+>>>>>>                 dev->num_vals = 0;
+>>>>>> -       } else if (dev->num_vals >= dev->max_vals - 2) {
+>>>>>> -               dev->vals[dev->num_vals++] = input_value_sync;
+>>>>>> +       } else if (dev->num_vals >= dev->max_vals - 1) {
+>>>>>>                 input_pass_values(dev, dev->vals, dev->num_vals);
+>>>>>>                 dev->num_vals = 0;
+>>>>>>         }
+>>>>>
+>>>>> This makes sense to me. Henrik?
+>>>>
+>>>> I went through the commits that made these changes, and I cannot see any strong
+>>>> reason to keep it. However, this code path only triggers if no SYN events are
+>>>> seen, as in a driver that fails to emit them and consequently fills up the
+>>>> buffer. In other words, this change would only affect a device that is already,
+>>>> to some degree, broken.
+>>>>
+>>>> So, the question to Aniroop is: do you see this problem in practise, and in that
+>>>> case, for what driver?
+>>>>
+>>>
+>>> Nope. So far I have not dealt with any such driver.
+>>> I made this change because it is breaking protocol of SYN_REPORT event code.
+>>>
+>>> Further from the code, I could deduce that max_vals is just an estimation of
+>>> packet_size and it does not guarantee that packet_size is same as max_vals.
+>>> So real packet_size can be more than max_vals value and hence we could not
+>>> insert SYN_REPORT until packet ends really.
+>>> Further, if we consider that there exists a driver or will exist in future
+>>> which sets capability of x event code according to which max_value comes out to
+>>> y and the real packet size is z i.e. driver wants to send same event codes
+>>> again in the same packet, so input event reader would be expecting SYN_REPORT
+>>> after z events but due to current code SYN_REPORT will get inserted
+>>> automatically after y events, which is a wrong behaviour.
+>>>
+>>> Thanks,
+>>> Aniroop Mathur
+>>>
+>>>> Henrik
+>>>>

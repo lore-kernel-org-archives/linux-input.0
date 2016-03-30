@@ -1,13 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 43/46] backlight: pwm_bl: switch to the
+Subject: [PATCH v5 42/46] backlight: lp8788: switch to the
  atomic PWM API
-Date: Wed, 30 Mar 2016 22:04:06 +0200
-Message-ID: <1459368249-13241-44-git-send-email-boris.brezillon@free-electrons.com>
+Date: Wed, 30 Mar 2016 22:04:05 +0200
+Message-ID: <1459368249-13241-43-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBMPD6C3QKGQEWGCD73Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBK7D6C3QKGQEIRA7FQA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -25,97 +25,50 @@ by pwm_apply_state().
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/video/backlight/pwm_bl.c | 43 ++++++++++++++++++++++------------------
- 1 file changed, 24 insertions(+), 19 deletions(-)
+ drivers/video/backlight/lp8788_bl.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/video/backlight/pwm_bl.c b/drivers/video/backlight/pwm_bl.c
-index 2479c11..b069fb2 100644
---- a/drivers/video/backlight/pwm_bl.c
-+++ b/drivers/video/backlight/pwm_bl.c
-@@ -43,8 +43,22 @@ struct pwm_bl_data {
- 	void			(*exit)(struct device *);
- };
+diff --git a/drivers/video/backlight/lp8788_bl.c b/drivers/video/backlight/lp8788_bl.c
+index 5d583d7..521c730 100644
+--- a/drivers/video/backlight/lp8788_bl.c
++++ b/drivers/video/backlight/lp8788_bl.c
+@@ -124,16 +124,13 @@ static int lp8788_backlight_configure(struct lp8788_bl *bl)
  
-+static int compute_duty_cycle(struct pwm_bl_data *pb, int brightness)
-+{
-+	unsigned int lth = pb->lth_brightness;
-+	int duty_cycle;
-+
-+	if (pb->levels)
-+		duty_cycle = pb->levels[brightness];
-+	else
-+		duty_cycle = brightness;
-+
-+	return (duty_cycle * (pb->period - lth) / pb->scale) + lth;
-+}
-+
- static void pwm_backlight_power_on(struct pwm_bl_data *pb, int brightness)
+ static void lp8788_pwm_ctrl(struct lp8788_bl *bl, int br, int max_br)
  {
+-	unsigned int period;
+-	unsigned int duty;
+ 	struct device *dev;
 +	struct pwm_state pstate;
- 	int err;
+ 	struct pwm_device *pwm;
  
- 	if (pb->enabled)
-@@ -57,17 +71,24 @@ static void pwm_backlight_power_on(struct pwm_bl_data *pb, int brightness)
- 	if (pb->enable_gpio)
- 		gpiod_set_value(pb->enable_gpio, 1);
- 
--	pwm_enable(pb->pwm);
-+	pwm_get_state(pb->pwm, &pstate);
-+	pstate.duty_cycle = compute_duty_cycle(pb, brightness);
-+	pstate.enabled = true;
-+	pwm_apply_state(pb->pwm, &pstate);
- 	pb->enabled = true;
- }
- 
- static void pwm_backlight_power_off(struct pwm_bl_data *pb)
- {
-+	struct pwm_state pstate;
-+
- 	if (!pb->enabled)
+ 	if (!bl->pdata)
  		return;
  
--	pwm_config(pb->pwm, 0, pb->period);
--	pwm_disable(pb->pwm);
-+	pwm_get_state(pb->pwm, &pstate);
-+	pstate.duty_cycle = 0;
-+	pstate.enabled = false;
-+	pwm_apply_state(pb->pwm, &pstate);
+-	period = bl->pdata->period_ns;
+-	duty = br * period / max_br;
+ 	dev = bl->lp->dev;
  
- 	if (pb->enable_gpio)
- 		gpiod_set_value(pb->enable_gpio, 0);
-@@ -76,24 +97,10 @@ static void pwm_backlight_power_off(struct pwm_bl_data *pb)
- 	pb->enabled = false;
+ 	/* request PWM device with the consumer name */
+@@ -147,11 +144,15 @@ static void lp8788_pwm_ctrl(struct lp8788_bl *bl, int br, int max_br)
+ 		bl->pwm = pwm;
+ 	}
+ 
+-	pwm_config(bl->pwm, duty, period);
+-	if (duty)
+-		pwm_enable(bl->pwm);
++	pwm_get_state(bl->pwm, &pstate);
++	pstate.period = bl->pdata->period_ns;
++	pstate.duty_cycle = br * pstate.period / max_br;
++	if (pstate.duty_cycle)
++		pstate.enabled = true;
+ 	else
+-		pwm_disable(bl->pwm);
++		pstate.enabled = false;
++
++	pwm_apply_state(bl->pwm, &pstate);
  }
  
--static int compute_duty_cycle(struct pwm_bl_data *pb, int brightness)
--{
--	unsigned int lth = pb->lth_brightness;
--	int duty_cycle;
--
--	if (pb->levels)
--		duty_cycle = pb->levels[brightness];
--	else
--		duty_cycle = brightness;
--
--	return (duty_cycle * (pb->period - lth) / pb->scale) + lth;
--}
--
- static int pwm_backlight_update_status(struct backlight_device *bl)
- {
- 	struct pwm_bl_data *pb = bl_get_data(bl);
- 	int brightness = bl->props.brightness;
--	int duty_cycle;
- 
- 	if (bl->props.power != FB_BLANK_UNBLANK ||
- 	    bl->props.fb_blank != FB_BLANK_UNBLANK ||
-@@ -104,8 +111,6 @@ static int pwm_backlight_update_status(struct backlight_device *bl)
- 		brightness = pb->notify(pb->dev, brightness);
- 
- 	if (brightness > 0) {
--		duty_cycle = compute_duty_cycle(pb, brightness);
--		pwm_config(pb->pwm, duty_cycle, pb->period);
- 		pwm_backlight_power_on(pb, brightness);
- 	} else
- 		pwm_backlight_power_off(pb);
+ static int lp8788_bl_update_status(struct backlight_device *bl_dev)
 -- 
 2.5.0

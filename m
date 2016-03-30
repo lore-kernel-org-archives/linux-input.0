@@ -1,12 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 34/46] clk: pwm: switch to the atomic API
-Date: Wed, 30 Mar 2016 22:03:57 +0200
-Message-ID: <1459368249-13241-35-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 40/46] backlight: lm3630a: switch to the
+ atomic PWM API
+Date: Wed, 30 Mar 2016 22:04:03 +0200
+Message-ID: <1459368249-13241-41-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBF7D6C3QKGQEIDZSEUY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBI7D6C3QKGQEL77F5CY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -24,66 +25,35 @@ by pwm_apply_state().
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/clk/clk-pwm.c | 26 +++++++++++++++++++++++---
- 1 file changed, 23 insertions(+), 3 deletions(-)
+ drivers/video/backlight/lm3630a_bl.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/clk/clk-pwm.c b/drivers/clk/clk-pwm.c
-index ebcd738..49ec5b1 100644
---- a/drivers/clk/clk-pwm.c
-+++ b/drivers/clk/clk-pwm.c
-@@ -28,15 +28,29 @@ static inline struct clk_pwm *to_clk_pwm(struct clk_hw *hw)
- static int clk_pwm_prepare(struct clk_hw *hw)
+diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
+index 3d16bd6..fdad23c 100644
+--- a/drivers/video/backlight/lm3630a_bl.c
++++ b/drivers/video/backlight/lm3630a_bl.c
+@@ -162,14 +162,16 @@ static int lm3630a_intr_config(struct lm3630a_chip *pchip)
+ 
+ static void lm3630a_pwm_ctrl(struct lm3630a_chip *pchip, int br, int br_max)
  {
- 	struct clk_pwm *clk_pwm = to_clk_pwm(hw);
+-	unsigned int period = pchip->pdata->pwm_period;
+-	unsigned int duty = br * period / br_max;
 +	struct pwm_state pstate;
  
--	return pwm_enable(clk_pwm->pwm);
-+	pwm_get_state(clk_pwm->pwm, &pstate);
-+	if (pstate.enabled)
-+		return 0;
-+
-+	pstate.enabled = true;
-+
-+	return pwm_apply_state(clk_pwm->pwm, &pstate);
+-	pwm_config(pchip->pwmd, duty, period);
+-	if (duty)
+-		pwm_enable(pchip->pwmd);
++	pwm_get_state(pchip->pwmd, &pstate);
++	pstate.period = pchip->pdata->pwm_period;
++	pstate.duty_cycle = br * pstate.period / br_max;
++	if (pstate.duty_cycle)
++		pstate.enabled = true;
+ 	else
+-		pwm_disable(pchip->pwmd);
++		pstate.enabled = false;
++	pwm_apply_state(pchip->pwmd, &pstate);
  }
  
- static void clk_pwm_unprepare(struct clk_hw *hw)
- {
- 	struct clk_pwm *clk_pwm = to_clk_pwm(hw);
-+	struct pwm_state pstate;
-+
-+	pwm_get_state(clk_pwm->pwm, &pstate);
-+	if (!pstate.enabled)
-+		return;
- 
--	pwm_disable(clk_pwm->pwm);
-+	pstate.enabled = false;
-+
-+	pwm_apply_state(clk_pwm->pwm, &pstate);
- }
- 
- static unsigned long clk_pwm_recalc_rate(struct clk_hw *hw,
-@@ -56,6 +70,7 @@ static const struct clk_ops clk_pwm_ops = {
- static int clk_pwm_probe(struct platform_device *pdev)
- {
- 	struct device_node *node = pdev->dev.of_node;
-+	struct pwm_state pstate;
- 	struct pwm_args pargs = { };
- 	struct clk_init_data init;
- 	struct clk_pwm *clk_pwm;
-@@ -88,7 +103,12 @@ static int clk_pwm_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	ret = pwm_config(pwm, (pargs.period + 1) >> 1, pargs.period);
-+	pwm_get_state(pwm, &pstate);
-+	pstate.period = pargs.period;
-+	pstate.polarity = pargs.polarity;
-+	pstate.duty_cycle = (pargs.period + 1) >> 1;
-+
-+	ret = pwm_apply_state(pwm, &pstate);
- 	if (ret < 0)
- 		return ret;
- 
+ /* update and get brightness */
 -- 
 2.5.0

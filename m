@@ -1,12 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 21/46] pwm: rockchip: add initial state retrieval
-Date: Wed, 30 Mar 2016 22:03:44 +0200
-Message-ID: <1459368249-13241-22-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 16/46] pwm: move the enabled/disabled info
+ into pwm_state
+Date: Wed, 30 Mar 2016 22:03:39 +0200
+Message-ID: <1459368249-13241-17-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBB5PC6C3QKGQECLHUUXI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBB2PC6C3QKGQEAOLV3OQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -19,141 +20,89 @@ To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, lin
 Cc: Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>linu
 List-Id: linux-input@vger.kernel.org
 
-Implement the ->get_state() function to expose initial state.
+Prepare the transition to PWM atomic update by moving the enabled/disabled
+state into the pwm_state struct. This way we can easily update the whole
+PWM state by copying the new state in the ->state field.
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/pwm/pwm-rockchip.c | 69 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 69 insertions(+)
+ drivers/pwm/core.c  | 13 +++++++++----
+ include/linux/pwm.h | 11 ++++++++---
+ 2 files changed, 17 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pwm/pwm-rockchip.c b/drivers/pwm/pwm-rockchip.c
-index 7d9cc90..6a1087c 100644
---- a/drivers/pwm/pwm-rockchip.c
-+++ b/drivers/pwm/pwm-rockchip.c
-@@ -51,6 +51,8 @@ struct rockchip_pwm_data {
+diff --git a/drivers/pwm/core.c b/drivers/pwm/core.c
+index f3f91e7..c240b54 100644
+--- a/drivers/pwm/core.c
++++ b/drivers/pwm/core.c
+@@ -499,10 +499,10 @@ int pwm_enable(struct pwm_device *pwm)
+ 	if (!pwm)
+ 		return -EINVAL;
  
- 	void (*set_enable)(struct pwm_chip *chip,
- 			   struct pwm_device *pwm, bool enable);
-+	void (*get_state)(struct pwm_chip *chip, struct pwm_device *pwm,
-+			  struct pwm_state *pstate);
- };
+-	if (!test_and_set_bit(PWMF_ENABLED, &pwm->flags)) {
++	if (!pwm_is_enabled(pwm)) {
+ 		err = pwm->chip->ops->enable(pwm->chip, pwm);
+-		if (err)
+-			clear_bit(PWMF_ENABLED, &pwm->flags);
++		if (!err)
++			pwm->state.enabled = true;
+ 	}
  
- static inline struct rockchip_pwm_chip *to_rockchip_pwm_chip(struct pwm_chip *c)
-@@ -75,6 +77,19 @@ static void rockchip_pwm_set_enable_v1(struct pwm_chip *chip,
- 	writel_relaxed(val, pc->base + pc->data->regs.ctrl);
- }
- 
-+static void rockchip_pwm_get_state_v1(struct pwm_chip *chip,
-+				      struct pwm_device *pwm,
-+				      struct pwm_state *pstate)
-+{
-+	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
-+	u32 enable_conf = PWM_CTRL_OUTPUT_EN | PWM_CTRL_TIMER_EN;
-+	u32 val;
-+
-+	val = readl(pc->base + pc->data->regs.ctrl);
-+	if ((val & enable_conf) == enable_conf)
-+		pstate->enabled = true;
-+}
-+
- static void rockchip_pwm_set_enable_v2(struct pwm_chip *chip,
- 				       struct pwm_device *pwm, bool enable)
+ 	return err;
+@@ -515,8 +515,13 @@ EXPORT_SYMBOL_GPL(pwm_enable);
+  */
+ void pwm_disable(struct pwm_device *pwm)
  {
-@@ -98,6 +113,55 @@ static void rockchip_pwm_set_enable_v2(struct pwm_chip *chip,
- 	writel_relaxed(val, pc->base + pc->data->regs.ctrl);
- }
- 
-+static void rockchip_pwm_get_state_v2(struct pwm_chip *chip,
-+				      struct pwm_device *pwm,
-+				      struct pwm_state *pstate)
-+{
-+	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
-+	u32 enable_conf = PWM_OUTPUT_LEFT | PWM_LP_DISABLE | PWM_ENABLE |
-+			  PWM_CONTINUOUS;
-+	u32 val;
-+
-+	val = readl(pc->base + pc->data->regs.ctrl);
-+	if ((val & enable_conf) != enable_conf)
+-	if (pwm && test_and_clear_bit(PWMF_ENABLED, &pwm->flags))
++	if (!pwm)
 +		return;
 +
-+	pstate->enabled = true;
-+
-+	if (!(val & PWM_DUTY_POSITIVE))
-+		pstate->polarity = PWM_POLARITY_INVERSED;
-+}
-+
-+static void rockchip_pwm_get_state(struct pwm_chip *chip,
-+				   struct pwm_device *pwm,
-+				   struct pwm_state *pstate)
-+{
-+	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
-+	unsigned long clk_rate;
-+	u64 tmp;
-+	int ret;
-+
-+	ret = clk_enable(pc->clk);
-+	if (ret)
-+		return;
-+
-+	clk_rate = clk_get_rate(pc->clk);
-+
-+	tmp = readl(pc->base + pc->data->regs.period);
-+	tmp *= pc->data->prescaler * NSEC_PER_SEC;
-+	do_div(tmp, clk_rate);
-+	pstate->period = tmp;
-+
-+	tmp = readl(pc->base + pc->data->regs.duty);
-+	tmp *= pc->data->prescaler * NSEC_PER_SEC;
-+	do_div(tmp, clk_rate);
-+	pstate->duty_cycle = tmp;
-+
-+	pc->data->get_state(chip, pwm, pstate);
-+
-+	clk_disable(pc->clk);
-+}
-+
- static int rockchip_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
- 			       int duty_ns, int period_ns)
++	if (pwm_is_enabled(pwm)) {
+ 		pwm->chip->ops->disable(pwm->chip, pwm);
++		pwm->state.enabled = false;
++	}
+ }
+ EXPORT_SYMBOL_GPL(pwm_disable);
+ 
+diff --git a/include/linux/pwm.h b/include/linux/pwm.h
+index f0f0f37..55bf463 100644
+--- a/include/linux/pwm.h
++++ b/include/linux/pwm.h
+@@ -93,8 +93,7 @@ struct pwm_args {
+ 
+ enum {
+ 	PWMF_REQUESTED = 1 << 0,
+-	PWMF_ENABLED = 1 << 1,
+-	PWMF_EXPORTED = 1 << 2,
++	PWMF_EXPORTED = 1 << 1,
+ };
+ 
+ /*
+@@ -102,11 +101,13 @@ enum {
+  * @period: PWM period (in nanoseconds)
+  * @duty_cycle: PWM duty cycle (in nanoseconds)
+  * @polarity: PWM polarity
++ * @enabled: PWM enabled status
+  */
+ struct pwm_state {
+ 	unsigned int period;
+ 	unsigned int duty_cycle;
+ 	enum pwm_polarity polarity;
++	bool enabled;
+ };
+ 
+ /**
+@@ -145,7 +146,11 @@ static inline void pwm_get_state(const struct pwm_device *pwm,
+ 
+ static inline bool pwm_is_enabled(const struct pwm_device *pwm)
  {
-@@ -171,6 +235,7 @@ static void rockchip_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
+-	return test_bit(PWMF_ENABLED, &pwm->flags);
++	struct pwm_state pstate;
++
++	pwm_get_state(pwm, &pstate);
++
++	return pstate.enabled;
  }
  
- static const struct pwm_ops rockchip_pwm_ops_v1 = {
-+	.get_state = rockchip_pwm_get_state,
- 	.config = rockchip_pwm_config,
- 	.enable = rockchip_pwm_enable,
- 	.disable = rockchip_pwm_disable,
-@@ -178,6 +243,7 @@ static const struct pwm_ops rockchip_pwm_ops_v1 = {
- };
- 
- static const struct pwm_ops rockchip_pwm_ops_v2 = {
-+	.get_state = rockchip_pwm_get_state,
- 	.config = rockchip_pwm_config,
- 	.set_polarity = rockchip_pwm_set_polarity,
- 	.enable = rockchip_pwm_enable,
-@@ -195,6 +261,7 @@ static const struct rockchip_pwm_data pwm_data_v1 = {
- 	.prescaler = 2,
- 	.ops = &rockchip_pwm_ops_v1,
- 	.set_enable = rockchip_pwm_set_enable_v1,
-+	.get_state = rockchip_pwm_get_state_v1,
- };
- 
- static const struct rockchip_pwm_data pwm_data_v2 = {
-@@ -207,6 +274,7 @@ static const struct rockchip_pwm_data pwm_data_v2 = {
- 	.prescaler = 1,
- 	.ops = &rockchip_pwm_ops_v2,
- 	.set_enable = rockchip_pwm_set_enable_v2,
-+	.get_state = rockchip_pwm_get_state_v2,
- };
- 
- static const struct rockchip_pwm_data pwm_data_vop = {
-@@ -219,6 +287,7 @@ static const struct rockchip_pwm_data pwm_data_vop = {
- 	.prescaler = 1,
- 	.ops = &rockchip_pwm_ops_v2,
- 	.set_enable = rockchip_pwm_set_enable_v2,
-+	.get_state = rockchip_pwm_get_state_v2,
- };
- 
- static const struct of_device_id rockchip_pwm_dt_ids[] = {
+ static inline void pwm_set_period(struct pwm_device *pwm, unsigned int period)
 -- 
 2.5.0

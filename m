@@ -1,13 +1,12 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 28/46] regulator: pwm: swith to the atomic
- PWM API
-Date: Wed, 30 Mar 2016 22:03:51 +0200
-Message-ID: <1459368249-13241-29-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 35/46] hwmon: pwm-fan: switch to the atomic API
+Date: Wed, 30 Mar 2016 22:03:58 +0200
+Message-ID: <1459368249-13241-36-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBD7D6C3QKGQEKYL2IMQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBGPD6C3QKGQELMW2J6Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -20,120 +19,176 @@ To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, lin
 Cc: Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>linu
 List-Id: linux-input@vger.kernel.org
 
-pwm_config/enable/disable() have been deprecated in favor of
-pwm_apply_state().
-Replace all those calls with the equivalent pwm_get/apply_state().
+pwm_config/enable/disable() have been deprecated and should be replaced
+by pwm_apply_state().
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/regulator/pwm-regulator.c | 54 ++++++++++++++++++++++++---------------
- 1 file changed, 34 insertions(+), 20 deletions(-)
+ drivers/hwmon/pwm-fan.c | 81 ++++++++++++++++++++++++++++---------------------
+ 1 file changed, 46 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/regulator/pwm-regulator.c b/drivers/regulator/pwm-regulator.c
-index 9590fb0..42cc312 100644
---- a/drivers/regulator/pwm-regulator.c
-+++ b/drivers/regulator/pwm-regulator.c
-@@ -59,16 +59,18 @@ static int pwm_regulator_set_voltage_sel(struct regulator_dev *rdev,
- 					 unsigned selector)
+diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
+index 82c5656..da4e4ab 100644
+--- a/drivers/hwmon/pwm-fan.c
++++ b/drivers/hwmon/pwm-fan.c
+@@ -40,8 +40,8 @@ struct pwm_fan_ctx {
+ 
+ static int  __set_pwm(struct pwm_fan_ctx *ctx, unsigned long pwm)
  {
- 	struct pwm_regulator_data *drvdata = rdev_get_drvdata(rdev);
--	struct pwm_args pargs = { };
--	int dutycycle;
-+	struct pwm_state pstate = { };
-+	u64 dutycycle;
- 	int ret;
++	struct pwm_state pstate;
+ 	struct pwm_args pargs = { };
+-	unsigned long duty;
+ 	int ret = 0;
  
--	pwm_get_args(drvdata->pwm, &pargs);
-+	pwm_get_state(drvdata->pwm, &pstate);
+ 	pwm_get_args(ctx->pwm, &pargs);
+@@ -50,19 +50,17 @@ static int  __set_pwm(struct pwm_fan_ctx *ctx, unsigned long pwm)
+ 	if (ctx->pwm_value == pwm)
+ 		goto exit_set_pwm_err;
  
--	dutycycle = (pargs.period *
--		    drvdata->duty_cycle_table[selector].dutycycle) / 100;
-+	dutycycle = drvdata->duty_cycle_table[selector].dutycycle;
-+	dutycycle *= pstate.period;
-+	do_div(dutycycle, 100);
-+	pstate.duty_cycle = dutycycle;
+-	duty = DIV_ROUND_UP(pwm * (pargs.period - 1), MAX_PWM);
+-	ret = pwm_config(ctx->pwm, duty, pargs.period);
+-	if (ret)
+-		goto exit_set_pwm_err;
+-
++	pwm_get_state(ctx->pwm, &pstate);
++	pstate.period = pargs.period;
++	pstate.duty_cycle = DIV_ROUND_UP(pwm * (pargs.period - 1), MAX_PWM);
+ 	if (pwm == 0)
+-		pwm_disable(ctx->pwm);
++		pstate.enabled = false;
++	else
++		pstate.enabled = true;
  
--	ret = pwm_config(drvdata->pwm, dutycycle, pargs.period);
-+	ret = pwm_apply_state(drvdata->pwm, &pstate);
- 	if (ret) {
- 		dev_err(&rdev->dev, "Failed to configure PWM\n");
- 		return ret;
-@@ -93,24 +95,39 @@ static int pwm_regulator_list_voltage(struct regulator_dev *rdev,
- static int pwm_regulator_enable(struct regulator_dev *dev)
+-	if (ctx->pwm_value == 0) {
+-		ret = pwm_enable(ctx->pwm);
+-		if (ret)
+-			goto exit_set_pwm_err;
+-	}
++	ret = pwm_apply_state(ctx->pwm, &pstate);
++	if (ret)
++		goto exit_set_pwm_err;
+ 
+ 	ctx->pwm_value = pwm;
+ exit_set_pwm_err:
+@@ -217,10 +215,10 @@ static int pwm_fan_of_get_cooling_data(struct device *dev,
+ static int pwm_fan_probe(struct platform_device *pdev)
  {
- 	struct pwm_regulator_data *drvdata = rdev_get_drvdata(dev);
-+	struct pwm_state pstate = { };
-+
-+	pwm_get_state(drvdata->pwm, &pstate);
-+	if (pstate.enabled)
-+		return 0;
-+
-+	pstate.enabled = true;
- 
--	return pwm_enable(drvdata->pwm);
-+	return pwm_apply_state(drvdata->pwm, &pstate);
- }
- 
- static int pwm_regulator_disable(struct regulator_dev *dev)
- {
- 	struct pwm_regulator_data *drvdata = rdev_get_drvdata(dev);
-+	struct pwm_state pstate = { };
- 
--	pwm_disable(drvdata->pwm);
-+	pwm_get_state(drvdata->pwm, &pstate);
-+	if (!pstate.enabled)
-+		return 0;
- 
--	return 0;
-+	pstate.enabled = false;
-+
-+	return pwm_apply_state(drvdata->pwm, &pstate);
- }
- 
- static int pwm_regulator_is_enabled(struct regulator_dev *dev)
- {
- 	struct pwm_regulator_data *drvdata = rdev_get_drvdata(dev);
-+	struct pwm_state pstate = { };
- 
--	return pwm_is_enabled(drvdata->pwm);
-+	pwm_get_state(drvdata->pwm, &pstate);
-+
-+	return pstate.enabled;
- }
- 
- /**
-@@ -138,25 +155,22 @@ static int pwm_regulator_set_voltage(struct regulator_dev *rdev,
- {
- 	struct pwm_regulator_data *drvdata = rdev_get_drvdata(rdev);
- 	unsigned int ramp_delay = rdev->constraints->ramp_delay;
--	struct pwm_args pargs = { };
+ 	struct thermal_cooling_device *cdev;
++	struct pwm_state pstate;
+ 	struct pwm_args pargs = { };
+ 	struct pwm_fan_ctx *ctx;
+ 	struct device *hwmon;
 -	int duty_cycle;
-+	struct pwm_state pstate = { };
-+	u64 duty_cycle;
  	int ret;
  
--	pwm_get_args(drvdata->pwm, &pargs);
-+	pwm_get_state(drvdata->pwm, &pstate);
- 	duty_cycle = pwm_voltage_to_duty_cycle_percentage(rdev, min_uV);
-+	duty_cycle *= pstate.period;
-+	do_div(duty_cycle, 100);
-+	pstate.duty_cycle = duty_cycle;
+ 	ctx = devm_kzalloc(&pdev->dev, sizeof(*ctx), GFP_KERNEL);
+@@ -239,27 +237,25 @@ static int pwm_fan_probe(struct platform_device *pdev)
  
--	ret = pwm_config(drvdata->pwm, (pargs.period / 100) * duty_cycle,
--			 pargs.period);
-+	ret = pwm_apply_state(drvdata->pwm, &pstate);
+ 	/* Set duty cycle to maximum allowed */
+ 	pwm_get_args(ctx->pwm, &pargs);
+-	duty_cycle = pargs.period - 1;
++	pwm_get_state(ctx->pwm, &pstate);
++
++	pstate.period = pargs.period;
++	pstate.duty_cycle = pargs.period - 1;
++	pstate.enabled = true;
+ 	ctx->pwm_value = MAX_PWM;
+ 
+-	ret = pwm_config(ctx->pwm, duty_cycle, pargs.period);
++	ret = pwm_apply_state(ctx->pwm, &pstate);
  	if (ret) {
- 		dev_err(&rdev->dev, "Failed to configure PWM\n");
+ 		dev_err(&pdev->dev, "Failed to configure PWM\n");
  		return ret;
  	}
  
--	ret = pwm_enable(drvdata->pwm);
+-	/* Enbale PWM output */
+-	ret = pwm_enable(ctx->pwm);
 -	if (ret) {
--		dev_err(&rdev->dev, "Failed to enable PWM\n");
+-		dev_err(&pdev->dev, "Failed to enable PWM\n");
 -		return ret;
 -	}
- 	drvdata->volt_uV = min_uV;
+-
+ 	hwmon = devm_hwmon_device_register_with_groups(&pdev->dev, "pwmfan",
+ 						       ctx, pwm_fan_groups);
+ 	if (IS_ERR(hwmon)) {
+ 		dev_err(&pdev->dev, "Failed to register hwmon device\n");
+-		pwm_disable(ctx->pwm);
++		pstate.enabled = false;
++		pwm_apply_state(ctx->pwm, &pstate);
+ 		return PTR_ERR(hwmon);
+ 	}
  
- 	/* Delay required by PWM regulator to settle to the new voltage */
+@@ -275,7 +271,8 @@ static int pwm_fan_probe(struct platform_device *pdev)
+ 		if (IS_ERR(cdev)) {
+ 			dev_err(&pdev->dev,
+ 				"Failed to register pwm-fan as cooling device");
+-			pwm_disable(ctx->pwm);
++			pstate.enabled = false;
++			pwm_apply_state(ctx->pwm, &pstate);
+ 			return PTR_ERR(cdev);
+ 		}
+ 		ctx->cdev = cdev;
+@@ -290,8 +287,14 @@ static int pwm_fan_remove(struct platform_device *pdev)
+ 	struct pwm_fan_ctx *ctx = platform_get_drvdata(pdev);
+ 
+ 	thermal_cooling_device_unregister(ctx->cdev);
+-	if (ctx->pwm_value)
+-		pwm_disable(ctx->pwm);
++	if (ctx->pwm_value) {
++		struct pwm_state pstate;
++
++		pwm_get_state(ctx->pwm, &pstate);
++		pstate.enabled = false;
++		pwm_apply_state(ctx->pwm, &pstate);
++	}
++
+ 	return 0;
+ }
+ 
+@@ -300,27 +303,35 @@ static int pwm_fan_suspend(struct device *dev)
+ {
+ 	struct pwm_fan_ctx *ctx = dev_get_drvdata(dev);
+ 
+-	if (ctx->pwm_value)
+-		pwm_disable(ctx->pwm);
++	if (ctx->pwm_value) {
++		struct pwm_state pstate;
++
++		pwm_get_state(ctx->pwm, &pstate);
++		pstate.enabled = false;
++		pwm_apply_state(ctx->pwm, &pstate);
++	}
++
+ 	return 0;
+ }
+ 
+ static int pwm_fan_resume(struct device *dev)
+ {
+ 	struct pwm_fan_ctx *ctx = dev_get_drvdata(dev);
++	struct pwm_state pstate;
+ 	struct pwm_args pargs = { };
+-	unsigned long duty;
+-	int ret;
+ 
+ 	if (ctx->pwm_value == 0)
+ 		return 0;
+ 
+ 	pwm_get_args(ctx->pwm, &pargs);
+-	duty = DIV_ROUND_UP(ctx->pwm_value * (pargs.period - 1), MAX_PWM);
+-	ret = pwm_config(ctx->pwm, duty, pargs.period);
+-	if (ret)
+-		return ret;
+-	return pwm_enable(ctx->pwm);
++	pwm_get_state(ctx->pwm, &pstate);
++
++	pstate.period = pargs.period;
++	pstate.duty_cycle = DIV_ROUND_UP(ctx->pwm_value * (pargs.period - 1),
++					 MAX_PWM);
++	pstate.enabled = true;
++
++	return pwm_apply_state(ctx->pwm, &pstate);
+ }
+ #endif
+ 
 -- 
 2.5.0

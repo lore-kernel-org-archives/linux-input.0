@@ -1,61 +1,58 @@
-From: Benson Leung <bleung@chromium.org>
-Subject: Re: [PATCH] HID: multitouch: Synchronize MT frame on reset_resume
-Date: Tue, 29 Mar 2016 13:36:11 -0700
-Message-ID: <CANLzEkv1gLe2Ay2OQLbgSOoYU9Ar1VN_xT7fAkzD=1QNYXjm7Q@mail.gmail.com>
-References: <1459282241-25154-1-git-send-email-gabriele.mzt@gmail.com>
+From: sergk sergk2mail <sergk.admin@gmail.com>
+Subject: Re: How to setup Touchscreen IRQ mode?
+Date: Wed, 30 Mar 2016 00:03:13 +0000
+Message-ID: <CA+V1LzqP+tzQ9b8=6xu9vjgYqM93zQXfJe5sUoYEArgzv+A5fw@mail.gmail.com>
+References: <CA+V1LzrL6G1FJ6qXuTuiQQiMrZnj_QaHbGhFwBxpJrB9J=ZSGw@mail.gmail.com>
+	<56EF459E.8000808@gmail.com>
+	<CA+V1Lzph-W2eXhp22_jjObeu-ywzO===9EYWkKccuGuvdJDYRg@mail.gmail.com>
+	<20160329095244.GI2099@lahna.fi.intel.com>
+	<CA+V1LzqzMyxoAQv=DDFvWr_MOTThVnhJwTt8uS_piwVhGJtWgQ@mail.gmail.com>
+	<20160329125642.GM2099@lahna.fi.intel.com>
+	<CA+V1Lzov4WXXjERAwAV03VdMEQKDC_=ADAgr2-0p-k=gYC8i3w@mail.gmail.com>
+	<20160329133307.GO2099@lahna.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f44.google.com ([209.85.213.44]:33650 "EHLO
-	mail-vk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753962AbcC2UgM (ORCPT
+Received: from mail-qk0-f196.google.com ([209.85.220.196]:34122 "EHLO
+	mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752438AbcC3ADO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Mar 2016 16:36:12 -0400
-Received: by mail-vk0-f44.google.com with SMTP id k1so35067667vkb.0
-        for <linux-input@vger.kernel.org>; Tue, 29 Mar 2016 13:36:12 -0700 (PDT)
-In-Reply-To: <1459282241-25154-1-git-send-email-gabriele.mzt@gmail.com>
+	Tue, 29 Mar 2016 20:03:14 -0400
+Received: by mail-qk0-f196.google.com with SMTP id u128so1651538qkh.1
+        for <linux-input@vger.kernel.org>; Tue, 29 Mar 2016 17:03:13 -0700 (PDT)
+In-Reply-To: <20160329133307.GO2099@lahna.fi.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dtor@chromium.org>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, Gregor Riepl <onitake@gmail.com>
 
-Hi Gabriele,
+Hi Mika,
+ full acpidump of the machine is located here
+https://gitlab.com/SergK/icn8528/blob/master/DSDT/dsdt.dsl
 
-Thanks for the fix!
+>From Android:
+"What does 'ls -l /sys/bus/i2c/devices' show under android?"
+1) sysi2cdev  /sys/bus/i2c/devices
+https://gitlab.com/SergK/icn8528/blob/master/Androiddata/sysi2cdev
 
-On Tue, Mar 29, 2016 at 1:10 PM, Gabriele Mazzotta
-<gabriele.mzt@gmail.com> wrote:
-> input_mt_get_slot_by_key() requires input_mt_sync_frame() to be called
-> at each frame. Do it when releasing the touches, or else we won't get
-> a proper slot number after mt_reset_resume().
->
-> Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+2) sysbusacpidev - /sys/bus/acpi/devices
+https://gitlab.com/SergK/icn8528/blob/master/Androiddata/sysbusacpidev
 
-Reviewed-by: Benson Leung <bleung@chromium.org>
+there is no nothing with CHPN0001 as it is under vanilla linux 4.2.2
 
-> ---
->  drivers/hid/hid-multitouch.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 25d3c43..c741f5e 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -1169,6 +1169,7 @@ static void mt_release_contacts(struct hid_device *hid)
->                                                            MT_TOOL_FINGER,
->                                                            false);
->                         }
-> +                       input_mt_sync_frame(input_dev);
->                         input_sync(input_dev);
->                 }
->         }
-> --
-> 2.8.0.rc3
->
+3) Dmesg  https://gitlab.com/SergK/icn8528/blob/master/Androiddata/andrdmesg
+please note - there is also in it focal_tech mention - it strange but
+the guys from Chuwi declared every possible variant in sysfs and  only
+that is present in tablet revision (my is rev11 with chipone
+icn8528.h) is initialized through corresponding linux module.
 
+<6> : input: chipone-ts as /devices/virtual/input/input3
+>> cat /devices/virtual/input/input3/modalias gives
+>>
+>> input:b000v0000p0000e0000-e0,1,3,k8B,9E,D9,ra2F,30,32,35,36,39,m1sfw
+>> - I guess the key is m1sfw which means loaded firmware.
 
+4) /proc/bus/input/devices
+https://gitlab.com/SergK/icn8528/blob/master/Androiddata/procbusinputdevices
 
--- 
-Benson Leung
-Senior Software Engineer, Chrom* OS
-bleung@chromium.org
+Kind regards,
+                      Serge Kolotylo

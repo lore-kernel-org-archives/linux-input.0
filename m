@@ -1,23 +1,13 @@
-From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 11/46] regulator: pwm: use pwm_get_args()
- where appropriate
-Date: Wed, 30 Mar 2016 22:03:34 +0200
-Message-ID: <1459368249-13241-12-git-send-email-boris.brezillon@free-electrons.com>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 08/46] hwmon: pwm-fan: use pwm_get_args() where appropriate
+Date: Wed, 30 Mar 2016 22:03:31 +0200
+Message-ID: <1459368249-13241-9-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
-Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBYHC6C3QKGQEY5RQLDQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>linu
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Thierry Reding <thierry.reding@gmail.com>, linux-pwm@vger.kernel.org
+Cc: Mike Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, linux-clk@vger.kernel.org, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Kamil Debski <k.debski@samsung.com>, lm-sensors@lm-sensors.org, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-sunxi@googlegroups.com, Joachim Eastwood <manabian@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Heiko Stuebner <heiko@sntech.de>, linux-rockchip@lists.infradead.org, Jingoo Han <jingoohan1@gmail.com>, Lee Jones <lee.jones@linaro.org>, linux-fbd
 List-Id: linux-input@vger.kernel.org
 
 The PWM framework has clarified the concept of reference PWM config
@@ -31,53 +21,76 @@ This is part of the rework allowing the PWM framework to support
 hardware readout and expose real PWM state even when the PWM has
 just been requested (before the user calls pwm_config/enable/disable()).
 
-Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 ---
- drivers/regulator/pwm-regulator.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/hwmon/pwm-fan.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/regulator/pwm-regulator.c b/drivers/regulator/pwm-regulator.c
-index 4689d62..9154c47 100644
---- a/drivers/regulator/pwm-regulator.c
-+++ b/drivers/regulator/pwm-regulator.c
-@@ -59,16 +59,16 @@ static int pwm_regulator_set_voltage_sel(struct regulator_dev *rdev,
- 					 unsigned selector)
+diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
+index 3e23003..82c5656 100644
+--- a/drivers/hwmon/pwm-fan.c
++++ b/drivers/hwmon/pwm-fan.c
+@@ -40,15 +40,18 @@ struct pwm_fan_ctx {
+ 
+ static int  __set_pwm(struct pwm_fan_ctx *ctx, unsigned long pwm)
  {
- 	struct pwm_regulator_data *drvdata = rdev_get_drvdata(rdev);
--	unsigned int pwm_reg_period;
 +	struct pwm_args pargs = { };
- 	int dutycycle;
- 	int ret;
+ 	unsigned long duty;
+ 	int ret = 0;
  
--	pwm_reg_period = pwm_get_period(drvdata->pwm);
-+	pwm_get_args(drvdata->pwm, &pargs);
++	pwm_get_args(ctx->pwm, &pargs);
++
+ 	mutex_lock(&ctx->lock);
+ 	if (ctx->pwm_value == pwm)
+ 		goto exit_set_pwm_err;
  
--	dutycycle = (pwm_reg_period *
-+	dutycycle = (pargs.period *
- 		    drvdata->duty_cycle_table[selector].dutycycle) / 100;
+-	duty = DIV_ROUND_UP(pwm * (ctx->pwm->period - 1), MAX_PWM);
+-	ret = pwm_config(ctx->pwm, duty, ctx->pwm->period);
++	duty = DIV_ROUND_UP(pwm * (pargs.period - 1), MAX_PWM);
++	ret = pwm_config(ctx->pwm, duty, pargs.period);
+ 	if (ret)
+ 		goto exit_set_pwm_err;
  
--	ret = pwm_config(drvdata->pwm, dutycycle, pwm_reg_period);
-+	ret = pwm_config(drvdata->pwm, dutycycle, pargs.period);
- 	if (ret) {
- 		dev_err(&rdev->dev, "Failed to configure PWM\n");
- 		return ret;
-@@ -138,13 +138,15 @@ static int pwm_regulator_set_voltage(struct regulator_dev *rdev,
+@@ -214,6 +217,7 @@ static int pwm_fan_of_get_cooling_data(struct device *dev,
+ static int pwm_fan_probe(struct platform_device *pdev)
  {
- 	struct pwm_regulator_data *drvdata = rdev_get_drvdata(rdev);
- 	unsigned int ramp_delay = rdev->constraints->ramp_delay;
--	unsigned int period = pwm_get_period(drvdata->pwm);
+ 	struct thermal_cooling_device *cdev;
 +	struct pwm_args pargs = { };
+ 	struct pwm_fan_ctx *ctx;
+ 	struct device *hwmon;
  	int duty_cycle;
+@@ -234,10 +238,11 @@ static int pwm_fan_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, ctx);
+ 
+ 	/* Set duty cycle to maximum allowed */
+-	duty_cycle = ctx->pwm->period - 1;
++	pwm_get_args(ctx->pwm, &pargs);
++	duty_cycle = pargs.period - 1;
+ 	ctx->pwm_value = MAX_PWM;
+ 
+-	ret = pwm_config(ctx->pwm, duty_cycle, ctx->pwm->period);
++	ret = pwm_config(ctx->pwm, duty_cycle, pargs.period);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to configure PWM\n");
+ 		return ret;
+@@ -303,14 +308,16 @@ static int pwm_fan_suspend(struct device *dev)
+ static int pwm_fan_resume(struct device *dev)
+ {
+ 	struct pwm_fan_ctx *ctx = dev_get_drvdata(dev);
++	struct pwm_args pargs = { };
+ 	unsigned long duty;
  	int ret;
  
-+	pwm_get_args(drvdata->pwm, &pargs);
- 	duty_cycle = pwm_voltage_to_duty_cycle_percentage(rdev, min_uV);
+ 	if (ctx->pwm_value == 0)
+ 		return 0;
  
--	ret = pwm_config(drvdata->pwm, (period / 100) * duty_cycle, period);
-+	ret = pwm_config(drvdata->pwm, (pargs.period / 100) * duty_cycle,
-+			 pargs.period);
- 	if (ret) {
- 		dev_err(&rdev->dev, "Failed to configure PWM\n");
+-	duty = DIV_ROUND_UP(ctx->pwm_value * (ctx->pwm->period - 1), MAX_PWM);
+-	ret = pwm_config(ctx->pwm, duty, ctx->pwm->period);
++	pwm_get_args(ctx->pwm, &pargs);
++	duty = DIV_ROUND_UP(ctx->pwm_value * (pargs.period - 1), MAX_PWM);
++	ret = pwm_config(ctx->pwm, duty, pargs.period);
+ 	if (ret)
  		return ret;
+ 	return pwm_enable(ctx->pwm);
 -- 
 2.5.0

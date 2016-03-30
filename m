@@ -1,12 +1,12 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 35/46] hwmon: pwm-fan: switch to the atomic API
-Date: Wed, 30 Mar 2016 22:03:58 +0200
-Message-ID: <1459368249-13241-36-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 23/46] pwm: rockchip: add support for atomic update
+Date: Wed, 30 Mar 2016 22:03:46 +0200
+Message-ID: <1459368249-13241-24-git-send-email-boris.brezillon@free-electrons.com>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBGPD6C3QKGQELMW2J6Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBBPD6C3QKGQEPBP42LQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1459368249-13241-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -19,176 +19,155 @@ To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, lin
 Cc: Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>linu
 List-Id: linux-input@vger.kernel.org
 
-pwm_config/enable/disable() have been deprecated and should be replaced
-by pwm_apply_state().
+Implement the ->apply() function to add support for atomic update.
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Tested-by: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
 ---
- drivers/hwmon/pwm-fan.c | 81 ++++++++++++++++++++++++++++---------------------
- 1 file changed, 46 insertions(+), 35 deletions(-)
+ drivers/pwm/pwm-rockchip.c | 63 ++++++++++++++++++++++++++++------------------
+ 1 file changed, 39 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
-index 82c5656..da4e4ab 100644
---- a/drivers/hwmon/pwm-fan.c
-+++ b/drivers/hwmon/pwm-fan.c
-@@ -40,8 +40,8 @@ struct pwm_fan_ctx {
+diff --git a/drivers/pwm/pwm-rockchip.c b/drivers/pwm/pwm-rockchip.c
+index 5c7e79c..ed27740 100644
+--- a/drivers/pwm/pwm-rockchip.c
++++ b/drivers/pwm/pwm-rockchip.c
+@@ -50,7 +50,8 @@ struct rockchip_pwm_data {
+ 	const struct pwm_ops *ops;
  
- static int  __set_pwm(struct pwm_fan_ctx *ctx, unsigned long pwm)
- {
-+	struct pwm_state pstate;
- 	struct pwm_args pargs = { };
--	unsigned long duty;
- 	int ret = 0;
- 
- 	pwm_get_args(ctx->pwm, &pargs);
-@@ -50,19 +50,17 @@ static int  __set_pwm(struct pwm_fan_ctx *ctx, unsigned long pwm)
- 	if (ctx->pwm_value == pwm)
- 		goto exit_set_pwm_err;
- 
--	duty = DIV_ROUND_UP(pwm * (pargs.period - 1), MAX_PWM);
--	ret = pwm_config(ctx->pwm, duty, pargs.period);
--	if (ret)
--		goto exit_set_pwm_err;
--
-+	pwm_get_state(ctx->pwm, &pstate);
-+	pstate.period = pargs.period;
-+	pstate.duty_cycle = DIV_ROUND_UP(pwm * (pargs.period - 1), MAX_PWM);
- 	if (pwm == 0)
--		pwm_disable(ctx->pwm);
-+		pstate.enabled = false;
-+	else
-+		pstate.enabled = true;
- 
--	if (ctx->pwm_value == 0) {
--		ret = pwm_enable(ctx->pwm);
--		if (ret)
--			goto exit_set_pwm_err;
--	}
-+	ret = pwm_apply_state(ctx->pwm, &pstate);
-+	if (ret)
-+		goto exit_set_pwm_err;
- 
- 	ctx->pwm_value = pwm;
- exit_set_pwm_err:
-@@ -217,10 +215,10 @@ static int pwm_fan_of_get_cooling_data(struct device *dev,
- static int pwm_fan_probe(struct platform_device *pdev)
- {
- 	struct thermal_cooling_device *cdev;
-+	struct pwm_state pstate;
- 	struct pwm_args pargs = { };
- 	struct pwm_fan_ctx *ctx;
- 	struct device *hwmon;
--	int duty_cycle;
- 	int ret;
- 
- 	ctx = devm_kzalloc(&pdev->dev, sizeof(*ctx), GFP_KERNEL);
-@@ -239,27 +237,25 @@ static int pwm_fan_probe(struct platform_device *pdev)
- 
- 	/* Set duty cycle to maximum allowed */
- 	pwm_get_args(ctx->pwm, &pargs);
--	duty_cycle = pargs.period - 1;
-+	pwm_get_state(ctx->pwm, &pstate);
-+
-+	pstate.period = pargs.period;
-+	pstate.duty_cycle = pargs.period - 1;
-+	pstate.enabled = true;
- 	ctx->pwm_value = MAX_PWM;
- 
--	ret = pwm_config(ctx->pwm, duty_cycle, pargs.period);
-+	ret = pwm_apply_state(ctx->pwm, &pstate);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to configure PWM\n");
- 		return ret;
- 	}
- 
--	/* Enbale PWM output */
--	ret = pwm_enable(ctx->pwm);
--	if (ret) {
--		dev_err(&pdev->dev, "Failed to enable PWM\n");
--		return ret;
--	}
--
- 	hwmon = devm_hwmon_device_register_with_groups(&pdev->dev, "pwmfan",
- 						       ctx, pwm_fan_groups);
- 	if (IS_ERR(hwmon)) {
- 		dev_err(&pdev->dev, "Failed to register hwmon device\n");
--		pwm_disable(ctx->pwm);
-+		pstate.enabled = false;
-+		pwm_apply_state(ctx->pwm, &pstate);
- 		return PTR_ERR(hwmon);
- 	}
- 
-@@ -275,7 +271,8 @@ static int pwm_fan_probe(struct platform_device *pdev)
- 		if (IS_ERR(cdev)) {
- 			dev_err(&pdev->dev,
- 				"Failed to register pwm-fan as cooling device");
--			pwm_disable(ctx->pwm);
-+			pstate.enabled = false;
-+			pwm_apply_state(ctx->pwm, &pstate);
- 			return PTR_ERR(cdev);
- 		}
- 		ctx->cdev = cdev;
-@@ -290,8 +287,14 @@ static int pwm_fan_remove(struct platform_device *pdev)
- 	struct pwm_fan_ctx *ctx = platform_get_drvdata(pdev);
- 
- 	thermal_cooling_device_unregister(ctx->cdev);
--	if (ctx->pwm_value)
--		pwm_disable(ctx->pwm);
-+	if (ctx->pwm_value) {
-+		struct pwm_state pstate;
-+
-+		pwm_get_state(ctx->pwm, &pstate);
-+		pstate.enabled = false;
-+		pwm_apply_state(ctx->pwm, &pstate);
-+	}
-+
- 	return 0;
+ 	void (*set_enable)(struct pwm_chip *chip,
+-			   struct pwm_device *pwm, bool enable);
++			   struct pwm_device *pwm, bool enable,
++			   enum pwm_polarity polarity);
+ 	void (*get_state)(struct pwm_chip *chip, struct pwm_device *pwm,
+ 			  struct pwm_state *pstate);
+ };
+@@ -61,7 +62,8 @@ static inline struct rockchip_pwm_chip *to_rockchip_pwm_chip(struct pwm_chip *c)
  }
  
-@@ -300,27 +303,35 @@ static int pwm_fan_suspend(struct device *dev)
+ static void rockchip_pwm_set_enable_v1(struct pwm_chip *chip,
+-				       struct pwm_device *pwm, bool enable)
++				       struct pwm_device *pwm, bool enable,
++				       enum pwm_polarity polarity)
  {
- 	struct pwm_fan_ctx *ctx = dev_get_drvdata(dev);
- 
--	if (ctx->pwm_value)
--		pwm_disable(ctx->pwm);
-+	if (ctx->pwm_value) {
-+		struct pwm_state pstate;
-+
-+		pwm_get_state(ctx->pwm, &pstate);
-+		pstate.enabled = false;
-+		pwm_apply_state(ctx->pwm, &pstate);
-+	}
-+
- 	return 0;
+ 	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
+ 	u32 enable_conf = PWM_CTRL_OUTPUT_EN | PWM_CTRL_TIMER_EN;
+@@ -91,14 +93,15 @@ static void rockchip_pwm_get_state_v1(struct pwm_chip *chip,
  }
  
- static int pwm_fan_resume(struct device *dev)
+ static void rockchip_pwm_set_enable_v2(struct pwm_chip *chip,
+-				       struct pwm_device *pwm, bool enable)
++				       struct pwm_device *pwm, bool enable,
++				       enum pwm_polarity polarity)
  {
- 	struct pwm_fan_ctx *ctx = dev_get_drvdata(dev);
-+	struct pwm_state pstate;
- 	struct pwm_args pargs = { };
--	unsigned long duty;
+ 	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
+ 	u32 enable_conf = PWM_OUTPUT_LEFT | PWM_LP_DISABLE | PWM_ENABLE |
+ 			  PWM_CONTINUOUS;
+ 	u32 val;
+ 
+-	if (pwm_get_polarity(pwm) == PWM_POLARITY_INVERSED)
++	if (polarity == PWM_POLARITY_INVERSED)
+ 		enable_conf |= PWM_DUTY_NEGATIVE | PWM_INACTIVE_POSITIVE;
+ 	else
+ 		enable_conf |= PWM_DUTY_POSITIVE | PWM_INACTIVE_NEGATIVE;
+@@ -168,7 +171,6 @@ static int rockchip_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
+ 	unsigned long period, duty;
+ 	u64 clk_rate, div;
 -	int ret;
  
- 	if (ctx->pwm_value == 0)
- 		return 0;
+ 	clk_rate = clk_get_rate(pc->clk);
  
- 	pwm_get_args(ctx->pwm, &pargs);
--	duty = DIV_ROUND_UP(ctx->pwm_value * (pargs.period - 1), MAX_PWM);
--	ret = pwm_config(ctx->pwm, duty, pargs.period);
+@@ -185,15 +187,8 @@ static int rockchip_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	do_div(div, pc->data->prescaler * NSEC_PER_SEC);
+ 	duty = div;
+ 
+-	ret = clk_enable(pc->clk);
 -	if (ret)
 -		return ret;
--	return pwm_enable(ctx->pwm);
-+	pwm_get_state(ctx->pwm, &pstate);
-+
-+	pstate.period = pargs.period;
-+	pstate.duty_cycle = DIV_ROUND_UP(ctx->pwm_value * (pargs.period - 1),
-+					 MAX_PWM);
-+	pstate.enabled = true;
-+
-+	return pwm_apply_state(ctx->pwm, &pstate);
+-
+ 	writel(period, pc->base + pc->data->regs.period);
+ 	writel(duty, pc->base + pc->data->regs.duty);
+-	writel(0, pc->base + pc->data->regs.cntr);
+-
+-	clk_disable(pc->clk);
+ 
+ 	return 0;
  }
- #endif
+@@ -211,43 +206,63 @@ static int rockchip_pwm_set_polarity(struct pwm_chip *chip,
+ 	return 0;
+ }
+ 
+-static int rockchip_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
++static int rockchip_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
++			      struct pwm_state *state)
+ {
+ 	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
++	struct pwm_state curstate;
++	bool enabled;
+ 	int ret;
+ 
++	pwm_get_state(pwm, &curstate);
++	enabled = curstate.enabled;
++
+ 	ret = clk_enable(pc->clk);
+ 	if (ret)
+ 		return ret;
+ 
+-	pc->data->set_enable(chip, pwm, true);
++	if (state->polarity != curstate.polarity && enabled) {
++		pc->data->set_enable(chip, pwm, false, state->polarity);
++		enabled = false;
++	}
+ 
+-	return 0;
+-}
++	ret = rockchip_pwm_config(chip, pwm, state->duty_cycle, state->period);
++	if (ret) {
++		if (enabled != curstate.enabled)
++			pc->data->set_enable(chip, pwm, !enabled,
++					     state->polarity);
+ 
+-static void rockchip_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
+-{
+-	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
++		goto out;
++	}
+ 
+-	pc->data->set_enable(chip, pwm, false);
++	if (state->enabled != enabled)
++		pc->data->set_enable(chip, pwm, state->enabled,
++				     state->polarity);
+ 
++	/*
++	 * Update the state with the real hardware, which can differ a bit
++	 * because of period/duty_cycle approximation.
++	 */
++	rockchip_pwm_get_state(chip, pwm, state);
++
++out:
+ 	clk_disable(pc->clk);
++
++	return ret;
+ }
+ 
+ static const struct pwm_ops rockchip_pwm_ops_v1 = {
+ 	.get_state = rockchip_pwm_get_state,
+ 	.config = rockchip_pwm_config,
+-	.enable = rockchip_pwm_enable,
+-	.disable = rockchip_pwm_disable,
++	.apply = rockchip_pwm_apply,
+ 	.owner = THIS_MODULE,
+ };
+ 
+ static const struct pwm_ops rockchip_pwm_ops_v2 = {
+ 	.get_state = rockchip_pwm_get_state,
+ 	.config = rockchip_pwm_config,
++	.apply = rockchip_pwm_apply,
+ 	.set_polarity = rockchip_pwm_set_polarity,
+-	.enable = rockchip_pwm_enable,
+-	.disable = rockchip_pwm_disable,
+ 	.owner = THIS_MODULE,
+ };
  
 -- 
 2.5.0

@@ -1,137 +1,193 @@
-From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v5 36/46] input: misc: max77693: switch to
- the atomic API
-Date: Thu, 31 Mar 2016 20:57:18 +0200
-Message-ID: <20160331205718.057a6f38@bbrezillon>
-References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
-	<1459368249-13241-37-git-send-email-boris.brezillon@free-electrons.com>
-	<20160331174801.GC39098@dtor-ws>
-Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: Re: [PATCH] Input: synaptics-rmi4: Support regulator supplies
+Date: Thu, 31 Mar 2016 12:14:21 -0700
+Message-ID: <20160331191421.GC8929@tuxbot>
+References: <1459357049-5608-1-git-send-email-bjorn.andersson@linaro.org>
+ <20160331181905.GJ39098@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBEPG6W3QKGQECBDIUNY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20160331174801.GC39098@dtor-ws>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones@lin>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f178.google.com ([209.85.192.178]:36345 "EHLO
+	mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756317AbcCaTOZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 31 Mar 2016 15:14:25 -0400
+Received: by mail-pf0-f178.google.com with SMTP id e128so54584801pfe.3
+        for <linux-input@vger.kernel.org>; Thu, 31 Mar 2016 12:14:24 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20160331181905.GJ39098@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Bjorn Andersson <bjorn.andersson@sonymobile.com>
 
-On Thu, 31 Mar 2016 10:48:01 -0700
-Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+On Thu 31 Mar 11:19 PDT 2016, Dmitry Torokhov wrote:
 
-> Hi Boris,
+> Hi Bjorn,
 > 
-> On Wed, Mar 30, 2016 at 10:03:59PM +0200, Boris Brezillon wrote:
-> > pwm_config/enable/disable() have been deprecated and should be replaced
-> > by pwm_apply_state().
+> On Wed, Mar 30, 2016 at 09:57:29AM -0700, Bjorn Andersson wrote:
+> > From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
 > > 
-> > Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> > Support the two supplies - vdd and vio - to make it possible to control
+> > power to the Synaptics chip.
+> > 
+> > Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+> > Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 > > ---
-> >  drivers/input/misc/max77693-haptic.c | 23 +++++++++++++++++------
-> >  1 file changed, 17 insertions(+), 6 deletions(-)
+> >  .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |  7 ++++
+> >  drivers/input/rmi4/rmi_i2c.c                       | 45 ++++++++++++++++++++++
+> 
+> Would not we need pretty much the same changes for SPI devices? Can this
+> be done in core?
+> 
+
+Yes, I believe it needs the exact same steps.
+
+I did a initial quick hack on v1 of the patchset and back then it was
+possible, when I rebased it a few weeks back I kept ending up in getting
+interrupts with the power off.
+
+Looking at the code this is likely because in the resume paths the IRQ
+is enabled before we jump to rmi_driver_resume(), so putting this in the
+core I ended up calling rmi_process_interrupt_requests() before powering
+up the chip.
+
+I assume it's done this way to allow incoming interrupts while functions
+are being resumed. Andrew, can you comment on this?
+
+Regards,
+Bjorn
+
+> Thanks.
+> 
+> >  2 files changed, 52 insertions(+)
 > > 
-> > diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
-> > index cf6aac0..aef7dc4 100644
-> > --- a/drivers/input/misc/max77693-haptic.c
-> > +++ b/drivers/input/misc/max77693-haptic.c
-> > @@ -70,13 +70,16 @@ struct max77693_haptic {
+> > diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
+> > index 95fa715c6046..a8c31f40f816 100644
+> > --- a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
+> > +++ b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
+> > @@ -22,6 +22,13 @@ See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
+> >  - syna,reset-delay-ms: The number of milliseconds to wait after resetting the
+> >  			device.
 > >  
-> >  static int max77693_haptic_set_duty_cycle(struct max77693_haptic *haptic)
-> >  {
-> > +	struct pwm_state pstate;
-> >  	struct pwm_args pargs = { };
-> > -	int delta;
-> >  	int error;
-> >  
-> >  	pwm_get_args(haptic->pwm_dev, &pargs);
-> > -	delta = (pargs.period + haptic->pwm_duty) / 2;
-> > -	error = pwm_config(haptic->pwm_dev, delta, pargs.period);
-> > +	pwm_get_state(haptic->pwm_dev, &pstate);
+> > +- vdd-supply: VDD power supply.
+> > +See Documentation/devicetree/bindings/regulator/regulator.txt
 > > +
-> > +	pstate.period = pargs.period;
-> > +	pstate.duty_cycle = (pargs.period + haptic->pwm_duty) / 2;
-> > +	error = pwm_apply_state(haptic->pwm_dev, &pstate);
-> 
-> This does not make sense with regard to the atomic API. If you look in
-> max77693_haptic_play_work(), right after calling
-> max77693_haptic_set_duty_cycle() we either try to enable or disable the
-> pwm. When switching to this new API we should combine both actions.
-
-True. I'll address that, unless Thierry is fine keeping the non-atomic
-API, in which case I'll just drop patches 32 to 46.
-
-> 
-> >  	if (error) {
-> >  		dev_err(haptic->dev, "failed to configure pwm: %d\n", error);
-> >  		return error;
-> > @@ -161,12 +164,16 @@ static int max77693_haptic_lowsys(struct max77693_haptic *haptic, bool enable)
-> >  
-> >  static void max77693_haptic_enable(struct max77693_haptic *haptic)
-> >  {
-> > +	struct pwm_state pstate;
-> >  	int error;
-> >  
-> >  	if (haptic->enabled)
-> >  		return;
-> >  
-> > -	error = pwm_enable(haptic->pwm_dev);
-> > +	pwm_get_state(haptic->pwm_dev, &pstate);
-> > +	pstate.enabled = true;
+> > +- vio-supply: VIO power supply
+> > +See Documentation/devicetree/bindings/regulator/regulator.txt
 > > +
-> > +	error = pwm_apply_state(haptic->pwm_dev, &pstate);
-> 
-> As I mentioned I'd rather we did not deprecate pwm_enable() and
-> pwm_disable() (and maybe others), as it forces us to add unnecessary
-> boilerplate code to the drivers.
->  
-> >  	if (error) {
-> >  		dev_err(haptic->dev,
-> >  			"failed to enable haptic pwm device: %d\n", error);
-> > @@ -188,11 +195,13 @@ static void max77693_haptic_enable(struct max77693_haptic *haptic)
-> >  err_enable_config:
-> >  	max77693_haptic_lowsys(haptic, false);
-> >  err_enable_lowsys:
-> > -	pwm_disable(haptic->pwm_dev);
-> > +	pstate.enabled = false;
-> > +	pwm_apply_state(haptic->pwm_dev, &pstate);
+> > +
+> >  Function Parameters:
+> >  Parameters specific to RMI functions are contained in child nodes of the rmi device
+> >   node. Documentation for the parameters of each function can be found in:
+> > diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+> > index a96a326b53bd..a8c794daba04 100644
+> > --- a/drivers/input/rmi4/rmi_i2c.c
+> > +++ b/drivers/input/rmi4/rmi_i2c.c
+> > @@ -11,6 +11,8 @@
+> >  #include <linux/rmi.h>
+> >  #include <linux/irq.h>
+> >  #include <linux/of.h>
+> > +#include <linux/delay.h>
+> > +#include <linux/regulator/consumer.h>
+> >  #include "rmi_driver.h"
+> >  
+> >  #define BUFFER_SIZE_INCREMENT 32
+> > @@ -37,6 +39,8 @@ struct rmi_i2c_xport {
+> >  
+> >  	u8 *tx_buf;
+> >  	size_t tx_buf_size;
+> > +
+> > +	struct regulator_bulk_data supplies[2];
+> >  };
+> >  
+> >  #define RMI_PAGE_SELECT_REGISTER 0xff
+> > @@ -246,6 +250,22 @@ static int rmi_i2c_probe(struct i2c_client *client,
+> >  		return -ENODEV;
+> >  	}
+> >  
+> > +	rmi_i2c->supplies[0].supply = "vdd";
+> > +	rmi_i2c->supplies[1].supply = "vio";
+> > +	retval = devm_regulator_bulk_get(&client->dev,
+> > +					 ARRAY_SIZE(rmi_i2c->supplies),
+> > +					 rmi_i2c->supplies);
+> > +	if (retval < 0)
+> > +		return retval;
+> > +
+> > +	retval = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
+> > +				       rmi_i2c->supplies);
+> > +	if (retval < 0)
+> > +		return retval;
+> > +
+> > +	/* Allow the firmware to get ready */
+> > +	msleep(10);
+> > +
+> >  	rmi_i2c->client = client;
+> >  	mutex_init(&rmi_i2c->page_mutex);
+> >  
+> > @@ -286,6 +306,8 @@ static int rmi_i2c_remove(struct i2c_client *client)
+> >  	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
+> >  
+> >  	rmi_unregister_transport_device(&rmi_i2c->xport);
+> > +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
+> > +			       rmi_i2c->supplies);
+> >  
+> >  	return 0;
+> >  }
+> > @@ -308,6 +330,10 @@ static int rmi_i2c_suspend(struct device *dev)
+> >  			dev_warn(dev, "Failed to enable irq for wake: %d\n",
+> >  				ret);
+> >  	}
+> > +
+> > +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
+> > +			       rmi_i2c->supplies);
+> > +
+> >  	return ret;
 > >  }
 > >  
-> >  static void max77693_haptic_disable(struct max77693_haptic *haptic)
-> >  {
-> > +	struct pwm_state pstate;
-> >  	int error;
+> > @@ -317,6 +343,14 @@ static int rmi_i2c_resume(struct device *dev)
+> >  	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
+> >  	int ret;
 > >  
-> >  	if (!haptic->enabled)
-> > @@ -206,7 +215,9 @@ static void max77693_haptic_disable(struct max77693_haptic *haptic)
-> >  	if (error)
-> >  		goto err_disable_lowsys;
+> > +	ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
+> > +				    rmi_i2c->supplies);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	/* Allow the firmware to get ready */
+> > +	msleep(10);
+> > +
+> >  	enable_irq(rmi_i2c->irq);
+> >  	if (device_may_wakeup(&client->dev)) {
+> >  		ret = disable_irq_wake(rmi_i2c->irq);
+> > @@ -346,6 +380,9 @@ static int rmi_i2c_runtime_suspend(struct device *dev)
 > >  
-> > -	pwm_disable(haptic->pwm_dev);
-> > +	pwm_get_state(haptic->pwm_dev, &pstate);
-> > +	pstate.enabled = false;
-> > +	pwm_apply_state(haptic->pwm_dev, &pstate);
-> 
-> Same here.
-> 
-> >  	haptic->enabled = false;
+> >  	disable_irq(rmi_i2c->irq);
 > >  
-> >  	return;
+> > +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
+> > +			       rmi_i2c->supplies);
+> > +
+> >  	return 0;
+> >  }
+> >  
+> > @@ -355,6 +392,14 @@ static int rmi_i2c_runtime_resume(struct device *dev)
+> >  	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
+> >  	int ret;
+> >  
+> > +	ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
+> > +				    rmi_i2c->supplies);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	/* Allow the firmware to get ready */
+> > +	msleep(10);
+> > +
+> >  	enable_irq(rmi_i2c->irq);
+> >  
+> >  	ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev);
 > > -- 
 > > 2.5.0
 > > 
 > 
-> Thanks.
-> 
-
-
-
--- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+> -- 
+> Dmitry

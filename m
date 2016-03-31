@@ -1,169 +1,142 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] Input: synaptics-rmi4: Support regulator supplies
-Date: Thu, 31 Mar 2016 11:19:05 -0700
-Message-ID: <20160331181905.GJ39098@dtor-ws>
-References: <1459357049-5608-1-git-send-email-bjorn.andersson@linaro.org>
+From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v5 32/46] pwm: deprecate pwm_config(),
+ pwm_enable() and pwm_disable()
+Date: Thu, 31 Mar 2016 20:54:54 +0200
+Message-ID: <20160331205454.630734ab@bbrezillon>
+References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1459368249-13241-33-git-send-email-boris.brezillon@free-electrons.com>
+	<20160331173858.GB39098@dtor-ws>
+Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1459357049-5608-1-git-send-email-bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>, Christopher Heiny <cheiny-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBAPF6W3QKGQEOEGJZTI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20160331173858.GB39098@dtor-ws>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones@lin>
 List-Id: linux-input@vger.kernel.org
 
-Hi Bjorn,
+Hi Dmitry,
 
-On Wed, Mar 30, 2016 at 09:57:29AM -0700, Bjorn Andersson wrote:
-> From: Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>
-> 
-> Support the two supplies - vdd and vio - to make it possible to control
-> power to the Synaptics chip.
-> 
-> Signed-off-by: Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>
-> Signed-off-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->  .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |  7 ++++
->  drivers/input/rmi4/rmi_i2c.c                       | 45 ++++++++++++++++++++++
+On Thu, 31 Mar 2016 10:38:58 -0700
+Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
 
-Would not we need pretty much the same changes for SPI devices? Can this
-be done in core?
-
-Thanks.
-
->  2 files changed, 52 insertions(+)
+> Hi Boris,
 > 
-> diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
-> index 95fa715c6046..a8c31f40f816 100644
-> --- a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
-> +++ b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
-> @@ -22,6 +22,13 @@ See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
->  - syna,reset-delay-ms: The number of milliseconds to wait after resetting the
->  			device.
->  
-> +- vdd-supply: VDD power supply.
-> +See Documentation/devicetree/bindings/regulator/regulator.txt
-> +
-> +- vio-supply: VIO power supply
-> +See Documentation/devicetree/bindings/regulator/regulator.txt
-> +
-> +
->  Function Parameters:
->  Parameters specific to RMI functions are contained in child nodes of the rmi device
->   node. Documentation for the parameters of each function can be found in:
-> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-> index a96a326b53bd..a8c794daba04 100644
-> --- a/drivers/input/rmi4/rmi_i2c.c
-> +++ b/drivers/input/rmi4/rmi_i2c.c
-> @@ -11,6 +11,8 @@
->  #include <linux/rmi.h>
->  #include <linux/irq.h>
->  #include <linux/of.h>
-> +#include <linux/delay.h>
-> +#include <linux/regulator/consumer.h>
->  #include "rmi_driver.h"
->  
->  #define BUFFER_SIZE_INCREMENT 32
-> @@ -37,6 +39,8 @@ struct rmi_i2c_xport {
->  
->  	u8 *tx_buf;
->  	size_t tx_buf_size;
-> +
-> +	struct regulator_bulk_data supplies[2];
->  };
->  
->  #define RMI_PAGE_SELECT_REGISTER 0xff
-> @@ -246,6 +250,22 @@ static int rmi_i2c_probe(struct i2c_client *client,
->  		return -ENODEV;
->  	}
->  
-> +	rmi_i2c->supplies[0].supply = "vdd";
-> +	rmi_i2c->supplies[1].supply = "vio";
-> +	retval = devm_regulator_bulk_get(&client->dev,
-> +					 ARRAY_SIZE(rmi_i2c->supplies),
-> +					 rmi_i2c->supplies);
-> +	if (retval < 0)
-> +		return retval;
-> +
-> +	retval = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-> +				       rmi_i2c->supplies);
-> +	if (retval < 0)
-> +		return retval;
-> +
-> +	/* Allow the firmware to get ready */
-> +	msleep(10);
-> +
->  	rmi_i2c->client = client;
->  	mutex_init(&rmi_i2c->page_mutex);
->  
-> @@ -286,6 +306,8 @@ static int rmi_i2c_remove(struct i2c_client *client)
->  	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->  
->  	rmi_unregister_transport_device(&rmi_i2c->xport);
-> +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-> +			       rmi_i2c->supplies);
->  
->  	return 0;
->  }
-> @@ -308,6 +330,10 @@ static int rmi_i2c_suspend(struct device *dev)
->  			dev_warn(dev, "Failed to enable irq for wake: %d\n",
->  				ret);
->  	}
-> +
-> +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-> +			       rmi_i2c->supplies);
-> +
->  	return ret;
->  }
->  
-> @@ -317,6 +343,14 @@ static int rmi_i2c_resume(struct device *dev)
->  	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->  	int ret;
->  
-> +	ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-> +				    rmi_i2c->supplies);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Allow the firmware to get ready */
-> +	msleep(10);
-> +
->  	enable_irq(rmi_i2c->irq);
->  	if (device_may_wakeup(&client->dev)) {
->  		ret = disable_irq_wake(rmi_i2c->irq);
-> @@ -346,6 +380,9 @@ static int rmi_i2c_runtime_suspend(struct device *dev)
->  
->  	disable_irq(rmi_i2c->irq);
->  
-> +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-> +			       rmi_i2c->supplies);
-> +
->  	return 0;
->  }
->  
-> @@ -355,6 +392,14 @@ static int rmi_i2c_runtime_resume(struct device *dev)
->  	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->  	int ret;
->  
-> +	ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-> +				    rmi_i2c->supplies);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Allow the firmware to get ready */
-> +	msleep(10);
-> +
->  	enable_irq(rmi_i2c->irq);
->  
->  	ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev);
-> -- 
-> 2.5.0
+> On Wed, Mar 30, 2016 at 10:03:55PM +0200, Boris Brezillon wrote:
+> > Prefix those function as deprecated to encourage all existing users to
+> > switch to pwm_apply_state().
 > 
+> Why not keep at least some of them as wrappers where we do not need to
+> chnage several parameters at once? It is much easier to have a driver
+> do:
+> 
+> 	error = pwm_enable(pwm);
+> 	if (error)
+> 		...
+> 
+> rather than declaring the state variable, fectch it, adjust and then
+> apply.
+
+True. Actually deprecating the non-atomic API was not my primary goal.
+Thierry would you mind if we keep both APIs around?
+
+> 
+> > 
+> > Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> > ---
+> >  include/linux/pwm.h | 24 ++++++++++++------------
+> >  1 file changed, 12 insertions(+), 12 deletions(-)
+> > 
+> > diff --git a/include/linux/pwm.h b/include/linux/pwm.h
+> > index 4aad4eb..9bac10f 100644
+> > --- a/include/linux/pwm.h
+> > +++ b/include/linux/pwm.h
+> > @@ -225,8 +225,8 @@ int pwm_apply_state(struct pwm_device *pwm, struct pwm_state *state);
+> >   *
+> >   * Returns: 0 on success or a negative error code on failure.
+> >   */
+> > -static inline int pwm_config(struct pwm_device *pwm, int duty_ns,
+> > -			     int period_ns)
+> > +static inline int __deprecated pwm_config(struct pwm_device *pwm, int duty_ns,
+> > +					  int period_ns)
+> >  {
+> >  	struct pwm_state pstate;
+> >  
+> > @@ -252,8 +252,8 @@ static inline int pwm_config(struct pwm_device *pwm, int duty_ns,
+> >   *
+> >   * Returns: 0 on success or a negative error code on failure.
+> >   */
+> > -static inline int pwm_set_polarity(struct pwm_device *pwm,
+> > -				   enum pwm_polarity polarity)
+> > +static inline int __deprecated pwm_set_polarity(struct pwm_device *pwm,
+> > +						enum pwm_polarity polarity)
+> >  {
+> >  	struct pwm_state pstate;
+> >  
+> > @@ -284,7 +284,7 @@ static inline int pwm_set_polarity(struct pwm_device *pwm,
+> >   *
+> >   * Returns: 0 on success or a negative error code on failure.
+> >   */
+> > -static inline int pwm_enable(struct pwm_device *pwm)
+> > +static inline int __deprecated pwm_enable(struct pwm_device *pwm)
+> >  {
+> >  	struct pwm_state pstate;
+> >  
+> > @@ -303,7 +303,7 @@ static inline int pwm_enable(struct pwm_device *pwm)
+> >   * pwm_disable() - stop a PWM output toggling
+> >   * @pwm: PWM device
+> >   */
+> > -static inline void pwm_disable(struct pwm_device *pwm)
+> > +static inline void __deprecated pwm_disable(struct pwm_device *pwm)
+> >  {
+> >  	struct pwm_state pstate;
+> >  
+> > @@ -360,24 +360,24 @@ static inline int pwm_apply_state(struct pwm_device *pwm,
+> >  	return -ENOTSUPP;
+> >  }
+> >  
+> > -static inline int pwm_config(struct pwm_device *pwm, int duty_ns,
+> > -			     int period_ns)
+> > +static inline int __deprecated pwm_config(struct pwm_device *pwm, int duty_ns,
+> > +					  int period_ns)
+> >  {
+> >  	return -EINVAL;
+> >  }
+> >  
+> > -static inline int pwm_set_polarity(struct pwm_device *pwm,
+> > -				   enum pwm_polarity polarity)
+> > +static inline int __deprecated pwm_set_polarity(struct pwm_device *pwm,
+> > +						enum pwm_polarity polarity)
+> >  {
+> >  	return -ENOTSUPP;
+> >  }
+> >  
+> > -static inline int pwm_enable(struct pwm_device *pwm)
+> > +static inline int __deprecated pwm_enable(struct pwm_device *pwm)
+> >  {
+> >  	return -EINVAL;
+> >  }
+> >  
+> > -static inline void pwm_disable(struct pwm_device *pwm)
+> > +static inline void __deprecated pwm_disable(struct pwm_device *pwm)
+> >  {
+> >  }
+> >  
+> > -- 
+> > 2.5.0
+> > 
+> 
+
+
 
 -- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com

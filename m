@@ -1,193 +1,86 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH] Input: synaptics-rmi4: Support regulator supplies
-Date: Thu, 31 Mar 2016 12:14:21 -0700
-Message-ID: <20160331191421.GC8929@tuxbot>
-References: <1459357049-5608-1-git-send-email-bjorn.andersson@linaro.org>
- <20160331181905.GJ39098@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCHv14 05/18] HID: add HDMI CEC specific keycodes
+Date: Thu, 31 Mar 2016 13:00:24 -0700
+Message-ID: <20160331200024.GL39098@dtor-ws>
+References: <1458911416-47981-1-git-send-email-hverkuil@xs4all.nl>
+ <1458911416-47981-6-git-send-email-hverkuil@xs4all.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f178.google.com ([209.85.192.178]:36345 "EHLO
-	mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756317AbcCaTOZ (ORCPT
+Received: from mail-pf0-f176.google.com ([209.85.192.176]:33598 "EHLO
+	mail-pf0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756166AbcCaUA2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Mar 2016 15:14:25 -0400
-Received: by mail-pf0-f178.google.com with SMTP id e128so54584801pfe.3
-        for <linux-input@vger.kernel.org>; Thu, 31 Mar 2016 12:14:24 -0700 (PDT)
+	Thu, 31 Mar 2016 16:00:28 -0400
 Content-Disposition: inline
-In-Reply-To: <20160331181905.GJ39098@dtor-ws>
+In-Reply-To: <1458911416-47981-6-git-send-email-hverkuil@xs4all.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Bjorn Andersson <bjorn.andersson@sonymobile.com>
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
 
-On Thu 31 Mar 11:19 PDT 2016, Dmitry Torokhov wrote:
-
-> Hi Bjorn,
+On Fri, Mar 25, 2016 at 02:10:03PM +0100, Hans Verkuil wrote:
+> From: Kamil Debski <kamil@wypas.org>
 > 
-> On Wed, Mar 30, 2016 at 09:57:29AM -0700, Bjorn Andersson wrote:
-> > From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> > 
-> > Support the two supplies - vdd and vio - to make it possible to control
-> > power to the Synaptics chip.
-> > 
-> > Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> > Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-> > ---
-> >  .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |  7 ++++
-> >  drivers/input/rmi4/rmi_i2c.c                       | 45 ++++++++++++++++++++++
+> Add HDMI CEC specific keycodes to the keycodes definition.
 > 
-> Would not we need pretty much the same changes for SPI devices? Can this
-> be done in core?
+> Signed-off-by: Kamil Debski <kamil@wypas.org>
+> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+> ---
+>  include/uapi/linux/input-event-codes.h | 30 ++++++++++++++++++++++++++++++
+>  1 file changed, 30 insertions(+)
 > 
-
-Yes, I believe it needs the exact same steps.
-
-I did a initial quick hack on v1 of the patchset and back then it was
-possible, when I rebased it a few weeks back I kept ending up in getting
-interrupts with the power off.
-
-Looking at the code this is likely because in the resume paths the IRQ
-is enabled before we jump to rmi_driver_resume(), so putting this in the
-core I ended up calling rmi_process_interrupt_requests() before powering
-up the chip.
-
-I assume it's done this way to allow incoming interrupts while functions
-are being resumed. Andrew, can you comment on this?
-
-Regards,
-Bjorn
-
-> Thanks.
-> 
-> >  2 files changed, 52 insertions(+)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
-> > index 95fa715c6046..a8c31f40f816 100644
-> > --- a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
-> > +++ b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
-> > @@ -22,6 +22,13 @@ See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
-> >  - syna,reset-delay-ms: The number of milliseconds to wait after resetting the
-> >  			device.
-> >  
-> > +- vdd-supply: VDD power supply.
-> > +See Documentation/devicetree/bindings/regulator/regulator.txt
-> > +
-> > +- vio-supply: VIO power supply
-> > +See Documentation/devicetree/bindings/regulator/regulator.txt
-> > +
-> > +
-> >  Function Parameters:
-> >  Parameters specific to RMI functions are contained in child nodes of the rmi device
-> >   node. Documentation for the parameters of each function can be found in:
-> > diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-> > index a96a326b53bd..a8c794daba04 100644
-> > --- a/drivers/input/rmi4/rmi_i2c.c
-> > +++ b/drivers/input/rmi4/rmi_i2c.c
-> > @@ -11,6 +11,8 @@
-> >  #include <linux/rmi.h>
-> >  #include <linux/irq.h>
-> >  #include <linux/of.h>
-> > +#include <linux/delay.h>
-> > +#include <linux/regulator/consumer.h>
-> >  #include "rmi_driver.h"
-> >  
-> >  #define BUFFER_SIZE_INCREMENT 32
-> > @@ -37,6 +39,8 @@ struct rmi_i2c_xport {
-> >  
-> >  	u8 *tx_buf;
-> >  	size_t tx_buf_size;
-> > +
-> > +	struct regulator_bulk_data supplies[2];
-> >  };
-> >  
-> >  #define RMI_PAGE_SELECT_REGISTER 0xff
-> > @@ -246,6 +250,22 @@ static int rmi_i2c_probe(struct i2c_client *client,
-> >  		return -ENODEV;
-> >  	}
-> >  
-> > +	rmi_i2c->supplies[0].supply = "vdd";
-> > +	rmi_i2c->supplies[1].supply = "vio";
-> > +	retval = devm_regulator_bulk_get(&client->dev,
-> > +					 ARRAY_SIZE(rmi_i2c->supplies),
-> > +					 rmi_i2c->supplies);
-> > +	if (retval < 0)
-> > +		return retval;
-> > +
-> > +	retval = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-> > +				       rmi_i2c->supplies);
-> > +	if (retval < 0)
-> > +		return retval;
-> > +
-> > +	/* Allow the firmware to get ready */
-> > +	msleep(10);
-> > +
-> >  	rmi_i2c->client = client;
-> >  	mutex_init(&rmi_i2c->page_mutex);
-> >  
-> > @@ -286,6 +306,8 @@ static int rmi_i2c_remove(struct i2c_client *client)
-> >  	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
-> >  
-> >  	rmi_unregister_transport_device(&rmi_i2c->xport);
-> > +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-> > +			       rmi_i2c->supplies);
-> >  
-> >  	return 0;
-> >  }
-> > @@ -308,6 +330,10 @@ static int rmi_i2c_suspend(struct device *dev)
-> >  			dev_warn(dev, "Failed to enable irq for wake: %d\n",
-> >  				ret);
-> >  	}
-> > +
-> > +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-> > +			       rmi_i2c->supplies);
-> > +
-> >  	return ret;
-> >  }
-> >  
-> > @@ -317,6 +343,14 @@ static int rmi_i2c_resume(struct device *dev)
-> >  	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
-> >  	int ret;
-> >  
-> > +	ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-> > +				    rmi_i2c->supplies);
-> > +	if (ret)
-> > +		return ret;
-> > +
-> > +	/* Allow the firmware to get ready */
-> > +	msleep(10);
-> > +
-> >  	enable_irq(rmi_i2c->irq);
-> >  	if (device_may_wakeup(&client->dev)) {
-> >  		ret = disable_irq_wake(rmi_i2c->irq);
-> > @@ -346,6 +380,9 @@ static int rmi_i2c_runtime_suspend(struct device *dev)
-> >  
-> >  	disable_irq(rmi_i2c->irq);
-> >  
-> > +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-> > +			       rmi_i2c->supplies);
-> > +
-> >  	return 0;
-> >  }
-> >  
-> > @@ -355,6 +392,14 @@ static int rmi_i2c_runtime_resume(struct device *dev)
-> >  	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
-> >  	int ret;
-> >  
-> > +	ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-> > +				    rmi_i2c->supplies);
-> > +	if (ret)
-> > +		return ret;
-> > +
-> > +	/* Allow the firmware to get ready */
-> > +	msleep(10);
-> > +
-> >  	enable_irq(rmi_i2c->irq);
-> >  
-> >  	ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev);
-> > -- 
-> > 2.5.0
-> > 
-> 
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index 87cf351..02b7b3a 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -611,6 +611,36 @@
+>  #define KEY_KBDINPUTASSIST_ACCEPT		0x264
+>  #define KEY_KBDINPUTASSIST_CANCEL		0x265
+>  
+> +/* Diagonal movement keys */
+> +#define KEY_RIGHT_UP			0x266
+> +#define KEY_RIGHT_DOWN			0x267
+> +#define KEY_LEFT_UP			0x268
+> +#define KEY_LEFT_DOWN			0x269
+> +
+> +#define KEY_ROOT_MENU			0x26a /* Show Device's Root Menu */
+> +#define KEY_MEDIA_TOP_MENU		0x26b /* Show Top Menu of the Media (e.g. DVD) */
+> +#define KEY_NUMERIC_11			0x26c
+> +#define KEY_NUMERIC_12			0x26d
+> +/*
+> + * Toggle Audio Description: refers to an audio service that helps blind and
+> + * visually impaired consumers understand the action in a program. Note: in
+> + * some countries this is referred to as "Video Description".
+> + */
+> +#define KEY_AUDIO_DESC			0x26e
+> +#define KEY_3D_MODE			0x26f
+> +#define KEY_NEXT_FAVORITE		0x270
+> +#define KEY_STOP_RECORD			0x271
+> +#define KEY_PAUSE_RECORD		0x272
+> +#define KEY_VOD				0x273 /* Video on Demand */
+> +#define KEY_UNMUTE			0x274
+> +#define KEY_FASTREVERSE			0x275
+> +#define KEY_SLOWREVERSE			0x276
+> +/*
+> + * Control a data application associated with the currently viewed channel,
+> + * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
+> + */
+> +#define KEY_DATA			0x275
+> +
+>  #define BTN_TRIGGER_HAPPY		0x2c0
+>  #define BTN_TRIGGER_HAPPY1		0x2c0
+>  #define BTN_TRIGGER_HAPPY2		0x2c1
 > -- 
-> Dmitry
+> 2.7.0
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
+Dmitry

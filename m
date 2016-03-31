@@ -1,121 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 32/46] pwm: deprecate pwm_config(), pwm_enable() and
- pwm_disable()
-Date: Thu, 31 Mar 2016 10:38:58 -0700
-Message-ID: <20160331173858.GB39098@dtor-ws>
-References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
- <1459368249-13241-33-git-send-email-boris.brezillon@free-electrons.com>
+From: Manuel Reimer <mail+linux-input@m-reimer.de>
+Subject: Re: uinput: ioctls for UI_BEGIN_FF_UPLOAD fails (returns -1). How to
+ debug?
+Date: Thu, 31 Mar 2016 19:46:50 +0200
+Message-ID: <56FD628A.6040606@m-reimer.de>
+References: <56F82C42.6020002@m-reimer.de>
+ <CAM4jgCp_t_mvayUbBnz_1aznbvZJz8jFLxbD49r=qLZCdOhH7Q@mail.gmail.com>
+ <56F8F107.3050906@m-reimer.de>
+ <CAM4jgCo9a-6ati0tQWCZqBRyxM6E6NrQK6Cj0uGQAogCRMgrOA@mail.gmail.com>
+ <56FAB1D3.5020003@m-reimer.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1459368249-13241-33-git-send-email-boris.brezillon@free-electrons.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>, linux-pwm@vger.kernel.org, Mike Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, linux-clk@vger.kernel.org, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Kamil Debski <k.debski@samsung.com>, lm-sensors@lm-sensors.org, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-sunxi@googlegroups.com, Joachim Eastwood <manabian@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Heiko Stuebner <heiko@sntech.de>, linux-rockchip@lists.infradead.org, Jingoo Han <jingoohan1@gmail.com>, Lee Jones <lee.jo>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.mailbox.org ([80.241.60.212]:50439 "EHLO mx1.mailbox.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753474AbcCaRqz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 31 Mar 2016 13:46:55 -0400
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [80.241.60.240])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.mailbox.org (Postfix) with ESMTPS id 738D843B1E
+	for <linux-input@vger.kernel.org>; Thu, 31 Mar 2016 19:46:53 +0200 (CEST)
+Received: from smtp1.mailbox.org ([80.241.60.240])
+	by hefe.heinlein-support.de (hefe.heinlein-support.de [91.198.250.172]) (amavisd-new, port 10030)
+	with ESMTP id AcQwjm1rxydm for <linux-input@vger.kernel.org>;
+	Thu, 31 Mar 2016 19:46:52 +0200 (CEST)
+In-Reply-To: <56FAB1D3.5020003@m-reimer.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input <linux-input@vger.kernel.org>
 
-Hi Boris,
+On 03/29/2016 06:48 PM, Manuel Reimer wrote:
+> As the idea was to publish this under GPL3 anyway, I've uploaded my
+> early development state:
+>
+> https://github.com/M-Reimer/pspaddrv
 
-On Wed, Mar 30, 2016 at 10:03:55PM +0200, Boris Brezillon wrote:
-> Prefix those function as deprecated to encourage all existing users to
-> switch to pwm_apply_state().
+I'm still getting the errors and I'm still not finding any reason for them.
 
-Why not keep at least some of them as wrappers where we do not need to
-chnage several parameters at once? It is much easier to have a driver
-do:
+I had a look at the kernel code and there are mutex locks, so at least 
+it seems like it should be thread-safe.
 
-	error = pwm_enable(pwm);
-	if (error)
-		...
+So what I don't understand is, if there are any limitations with the 
+function "mutex_lock_interruptible" used by the kernel.
 
-rather than declaring the state variable, fectch it, adjust and then
-apply.
+As I have a big list of "write" in here:
+https://github.com/M-Reimer/pspaddrv/blob/master/uinput.c#L170
+And this block is called at maximum speed the USB attached controller 
+can deliver. I guess there is a really good chance that this function is 
+hit between "EV_UINPUT" is received and my UI_BEGIN_FF_UPLOAD ioctl is 
+sent. Will this conflict in some way?
 
-> 
-> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-> ---
->  include/linux/pwm.h | 24 ++++++++++++------------
->  1 file changed, 12 insertions(+), 12 deletions(-)
-> 
-> diff --git a/include/linux/pwm.h b/include/linux/pwm.h
-> index 4aad4eb..9bac10f 100644
-> --- a/include/linux/pwm.h
-> +++ b/include/linux/pwm.h
-> @@ -225,8 +225,8 @@ int pwm_apply_state(struct pwm_device *pwm, struct pwm_state *state);
->   *
->   * Returns: 0 on success or a negative error code on failure.
->   */
-> -static inline int pwm_config(struct pwm_device *pwm, int duty_ns,
-> -			     int period_ns)
-> +static inline int __deprecated pwm_config(struct pwm_device *pwm, int duty_ns,
-> +					  int period_ns)
->  {
->  	struct pwm_state pstate;
->  
-> @@ -252,8 +252,8 @@ static inline int pwm_config(struct pwm_device *pwm, int duty_ns,
->   *
->   * Returns: 0 on success or a negative error code on failure.
->   */
-> -static inline int pwm_set_polarity(struct pwm_device *pwm,
-> -				   enum pwm_polarity polarity)
-> +static inline int __deprecated pwm_set_polarity(struct pwm_device *pwm,
-> +						enum pwm_polarity polarity)
->  {
->  	struct pwm_state pstate;
->  
-> @@ -284,7 +284,7 @@ static inline int pwm_set_polarity(struct pwm_device *pwm,
->   *
->   * Returns: 0 on success or a negative error code on failure.
->   */
-> -static inline int pwm_enable(struct pwm_device *pwm)
-> +static inline int __deprecated pwm_enable(struct pwm_device *pwm)
->  {
->  	struct pwm_state pstate;
->  
-> @@ -303,7 +303,7 @@ static inline int pwm_enable(struct pwm_device *pwm)
->   * pwm_disable() - stop a PWM output toggling
->   * @pwm: PWM device
->   */
-> -static inline void pwm_disable(struct pwm_device *pwm)
-> +static inline void __deprecated pwm_disable(struct pwm_device *pwm)
->  {
->  	struct pwm_state pstate;
->  
-> @@ -360,24 +360,24 @@ static inline int pwm_apply_state(struct pwm_device *pwm,
->  	return -ENOTSUPP;
->  }
->  
-> -static inline int pwm_config(struct pwm_device *pwm, int duty_ns,
-> -			     int period_ns)
-> +static inline int __deprecated pwm_config(struct pwm_device *pwm, int duty_ns,
-> +					  int period_ns)
->  {
->  	return -EINVAL;
->  }
->  
-> -static inline int pwm_set_polarity(struct pwm_device *pwm,
-> -				   enum pwm_polarity polarity)
-> +static inline int __deprecated pwm_set_polarity(struct pwm_device *pwm,
-> +						enum pwm_polarity polarity)
->  {
->  	return -ENOTSUPP;
->  }
->  
-> -static inline int pwm_enable(struct pwm_device *pwm)
-> +static inline int __deprecated pwm_enable(struct pwm_device *pwm)
->  {
->  	return -EINVAL;
->  }
->  
-> -static inline void pwm_disable(struct pwm_device *pwm)
-> +static inline void __deprecated pwm_disable(struct pwm_device *pwm)
->  {
->  }
->  
-> -- 
-> 2.5.0
-> 
+Of course, it is possible to prefilter the events, I plan to send to 
+uinput. I can keep a copy of the last sent event block and compare each 
+event to the old state before actually sending it. Is there any chance 
+that this could help in this case?
 
--- 
-Dmitry
+Thanks in advance
+
+Manuel

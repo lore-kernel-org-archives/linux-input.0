@@ -1,72 +1,45 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] Input: gtco: fix crash on detecting device without
- endpoints
-Date: Thu, 31 Mar 2016 10:57:35 -0700
-Message-ID: <20160331175735.GD39098@dtor-ws>
-References: <1458326100-14899-1-git-send-email-vdronov@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/4] tablet: remove private copy to USB device
+Date: Thu, 31 Mar 2016 11:02:32 -0700
+Message-ID: <20160331180232.GF39098@dtor-ws>
+References: <1458659097-8213-1-git-send-email-oneukum@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f178.google.com ([209.85.192.178]:34328 "EHLO
+	mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753043AbcCaSCf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 31 Mar 2016 14:02:35 -0400
 Content-Disposition: inline
-In-Reply-To: <1458326100-14899-1-git-send-email-vdronov-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vladis Dronov <vdronov-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1458659097-8213-1-git-send-email-oneukum@suse.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oliver Neukum <oneukum@suse.com>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, Mar 18, 2016 at 07:35:00PM +0100, Vladis Dronov wrote:
-> The gtco driver expects at least one valid endpoint. If given
-> malicious descriptors that specify 0 for the number of endpoints,
-> it will crash in the probe function. Ensure there is at least
-> one endpoint on the interface before using it. Fix minor coding
-> style issue.
-> 
-> The full report of this issue can be found here:
-> http://seclists.org/bugtraq/2016/Mar/86
-> 
-> Reported-by: Ralf Spenneberg <ralf-bSzMNvQHHtybz89kn3q7ow@public.gmane.org>
-> Signed-off-by: Vladis Dronov <vdronov-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+On Tue, Mar 22, 2016 at 04:04:53PM +0100, Oliver Neukum wrote:
+> We now have a macro to easily get to the USB device from the interface.
+> So we are cleaning up all drivers to not store a private pointer.
 
-Applied, thank you.
+Applied all 4, thank you.
 
-> ---
->  drivers/input/tablet/gtco.c | 10 +++++++++-
->  1 file changed, 9 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
-> index 3a7f3a4..7c18249 100644
-> --- a/drivers/input/tablet/gtco.c
-> +++ b/drivers/input/tablet/gtco.c
-> @@ -858,6 +858,14 @@ static int gtco_probe(struct usb_interface *usbinterface,
->  		goto err_free_buf;
->  	}
->  
-> +	/* Sanity check that a device has an endpoint */
-> +	if (usbinterface->altsetting[0].desc.bNumEndpoints < 1) {
-> +		dev_err(&usbinterface->dev,
-> +			"Invalid number of endpoints\n");
-> +		error = -EINVAL;
-> +		goto err_free_urb;
-> +	}
-> +
->  	/*
->  	 * The endpoint is always altsetting 0, we know this since we know
->  	 * this device only has one interrupt endpoint
-> @@ -879,7 +887,7 @@ static int gtco_probe(struct usb_interface *usbinterface,
->  	 * HID report descriptor
->  	 */
->  	if (usb_get_extra_descriptor(usbinterface->cur_altsetting,
-> -				     HID_DEVICE_TYPE, &hid_desc) != 0){
-> +				     HID_DEVICE_TYPE, &hid_desc) != 0) {
->  		dev_err(&usbinterface->dev,
->  			"Can't retrieve exta USB descriptor to get hid report descriptor length\n");
->  		error = -EIO;
+> Oliver Neukum (4):
+>   acecad: stop saving struct usb_device
+>   aiptek: stop saving struct usb_device
+>   gtco: stop saving struct usb_device
+>   kbtab: stop saving struct usb_device
+> 
+>  drivers/input/tablet/acecad.c | 12 ++++++------
+>  drivers/input/tablet/aiptek.c | 18 +++++++++---------
+>  drivers/input/tablet/gtco.c   | 24 ++++++++++++------------
+>  drivers/input/tablet/kbtab.c  |  8 ++++----
+>  4 files changed, 31 insertions(+), 31 deletions(-)
+> 
 > -- 
-> 2.5.0
+> 2.1.4
+> 
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

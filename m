@@ -1,45 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/4] tablet: remove private copy to USB device
-Date: Thu, 31 Mar 2016 11:02:32 -0700
-Message-ID: <20160331180232.GF39098@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/4] acecad: stop saving struct usb_device
+Date: Thu, 31 Mar 2016 11:03:42 -0700
+Message-ID: <20160331180342.GG39098@dtor-ws>
 References: <1458659097-8213-1-git-send-email-oneukum@suse.com>
+ <1458659097-8213-2-git-send-email-oneukum@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f178.google.com ([209.85.192.178]:34328 "EHLO
-	mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753043AbcCaSCf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Mar 2016 14:02:35 -0400
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1458659097-8213-1-git-send-email-oneukum@suse.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1458659097-8213-2-git-send-email-oneukum-IBi9RG/b67k@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oneukum-IBi9RG/b67k@public.gmane.org>
+Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.com>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Mar 22, 2016 at 04:04:53PM +0100, Oliver Neukum wrote:
-> We now have a macro to easily get to the USB device from the interface.
-> So we are cleaning up all drivers to not store a private pointer.
+On Tue, Mar 22, 2016 at 04:04:54PM +0100, Oliver Neukum wrote:
+>  static int usb_acecad_open(struct input_dev *dev)
+>  {
+>  	struct usb_acecad *acecad = input_get_drvdata(dev);
+>  
+> -	acecad->irq->dev = acecad->usbdev;
+> +	acecad->irq->dev = interface_to_usbdev(acecad->intf);
 
-Applied all 4, thank you.
+By the way, do we still need to do this assignment before submitting
+urb?
 
-> 
-> Oliver Neukum (4):
->   acecad: stop saving struct usb_device
->   aiptek: stop saving struct usb_device
->   gtco: stop saving struct usb_device
->   kbtab: stop saving struct usb_device
-> 
->  drivers/input/tablet/acecad.c | 12 ++++++------
->  drivers/input/tablet/aiptek.c | 18 +++++++++---------
->  drivers/input/tablet/gtco.c   | 24 ++++++++++++------------
->  drivers/input/tablet/kbtab.c  |  8 ++++----
->  4 files changed, 31 insertions(+), 31 deletions(-)
-> 
-> -- 
-> 2.1.4
-> 
+>  	if (usb_submit_urb(acecad->irq, GFP_KERNEL))
+>  		return -EIO;
+>  
+
+Thanks.
 
 -- 
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

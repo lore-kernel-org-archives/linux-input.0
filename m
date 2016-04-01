@@ -1,29 +1,47 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: Asus X205TA keyboard driver
-Date: Fri, 1 Apr 2016 11:48:37 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1604011148180.16158@cbobk.fhfr.pm>
-References: <1458544722-31997-1-git-send-email-usk.fujimaki@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: gpio irqchip initialization race
+Date: Fri, 1 Apr 2016 13:29:14 +0200
+Message-ID: <CACRpkdYeMdUtqizXGFzLDwbiL7=xDM+tt0kQU5S166AL13Y_1Q@mail.gmail.com>
+References: <44236018.b6N0xPzKYW@ws-stein>
+	<CACRpkdbfidnokJ2WyagdcEycDu3dXKVon2z4TKM7KhNg_Hyf9w@mail.gmail.com>
+	<CACRpkdZ32AAq2BfoEeyiBm1RiXQVkTO6gxsEuuMGhm7wuUXxgQ@mail.gmail.com>
+	<1587936.Xd43Z6OAxQ@ws-stein>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:45432 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753064AbcDAJsj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 1 Apr 2016 05:48:39 -0400
-In-Reply-To: <1458544722-31997-1-git-send-email-usk.fujimaki@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <1587936.Xd43Z6OAxQ@ws-stein>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Alexander Stein <alexander.stein@systec-electronic.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Alexandre Courbot <gnurou@gmail.com>, Linux Input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Yusuke Fujimaki <usk.fujimaki@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Mon, 21 Mar 2016, Yusuke Fujimaki wrote:
+On Fri, Apr 1, 2016 at 10:56 AM, Alexander Stein
+<alexander.stein@systec-electronic.com> wrote:
+> [Me]
+>> And in this case (if gpio_keys handle -EPROBE_DEFER gracefully)
+>> all should be fine with my oneliner patch.
+>>
+>> I am more uncertain about the -EINVAL (-22) we might need some
+>> more analysis there.
+>
+> I did 10 runs and got the following results:
+>> 3x  gpio-keys user_sw: Unable to claim irq 0; error -22
+>> 2x  gpio-keys user_sw: Unable to get irq number for GPIO 376, error -517
+>> 5x  ok
+>
+> So, for one gpio-keys seems not to handle -EPROBE_DEFER gracefully
 
-> Asus X205TA built-in keyboard contains wrong
-> logical maximum value in report descriptor.
+After reading the code the only problem seems to be that it prints that
+error. A small patch to silence that print should fix it then, can you
+confirm that in these cases the gpio-keys are retried later?
 
-Applied to hid.git#for-4.7/asus.
+> and it seem
+> still possible to get an invalid irq number.
 
--- 
-Jiri Kosina
-SUSE Labs
+I think this is because gpiolib initialize .to_irq() before setting up the
+irqdomain.
 
+I'm making a combined patch fixing both issues, send out in a few sec.
+
+Yours,
+Linus Walleij

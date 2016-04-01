@@ -1,50 +1,42 @@
-From: Alexander Stein <alexander.stein@systec-electronic.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 Subject: Re: [PATCH] gpiolib: handle probe deferrals better
-Date: Fri, 01 Apr 2016 16:35:22 +0200
-Message-ID: <3328895.pnRVlrd6Vm@ws-stein>
-References: <1459511048-24084-1-git-send-email-linus.walleij@linaro.org> <3233696.TZ7kbb7G3F@ws-stein> <56FE7F9C.9050902@ti.com>
+Date: Fri, 1 Apr 2016 10:52:37 -0700
+Message-ID: <20160401175237.GF8929@tuxbot>
+References: <1459511048-24084-1-git-send-email-linus.walleij@linaro.org>
+ <1766024.riJEdmHPZI@ws-stein>
+ <CACRpkdaynNEFGhCSkd7qAgxtNoRT=pRWbB0dJmjM89UM4NG_xQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <56FE7F9C.9050902@ti.com>
+Content-Disposition: inline
+In-Reply-To: <CACRpkdaynNEFGhCSkd7qAgxtNoRT=pRWbB0dJmjM89UM4NG_xQ@mail.gmail.com>
 Sender: linux-gpio-owner@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Alexandre Courbot <acourbot@nvidia.com>, Linux Input <linux-input@vger.kernel.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Guenter Roeck <linux@roeck-us.net>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Alexander Stein <alexander.stein@systec-electronic.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Alexandre Courbot <acourbot@nvidia.com>, Linux Input <linux-input@vger.kernel.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-input@vger.kernel.org
 
-On Friday 01 April 2016 17:03:08, Grygorii Strashko wrote:
-> > So in my case, I would expect that gpio-keys probe fails due to missing
-> > IRQ
-> > parent and gets deferred. Once the IRQ parent happen to be probed
-> > successfully at some point gpio-keys is probed again and succeeds.
+On Fri 01 Apr 06:03 PDT 2016, Linus Walleij wrote:
+
+> On Fri, Apr 1, 2016 at 2:16 PM, Alexander Stein
+> <alexander.stein@systec-electronic.com> wrote:
 > 
-> I assume in your case It's devm_gpio_request_one() first of all, which
-> follows by gpio_to_irq.
-
-I think nothing is wrong with that. The problem is that the former succeeds 
-while the latter doesn't although from a device view point the GPIO chip is 
-already there.
-
-> > Consider the following cascading GPIO chips:
-> >   /-------\                /---------\                 /--------\
-> > |
-> > |MCP23S17 + Pin1 <--> IRQ-+ PCA9555 + Pin 1 <--> IRQ + MCP23S17 +
-> > |
-> >   \-------/                 \-------/                  \--------/
-> > 
-> > Probing should still work for this scenario. This is something modprobe
-> > cannot fix.
+> > I noticed you fiddle with late_initcall_sync. Sorry, I did not mention it:
+> > gpio_mcp23s08 as well as gpio_keys are loaded as modules, so late_initcall_*
+> > should not affect it.
 > 
-> What I can see from my boot log is that at module loading time log output
-> from many drivers is mixed which makes me think that this parallel process
-> (udev) - and no I've not hit this issue..yet.
+> I don't get this. I think probe deferral is only used to defer
+> initcalls used for built-in drivers.
+> 
 
-I think parallel device probing is expectable and reasonable. I guess to hit 
-this issue you need a device which requires GPIOs and their corresponding IRQ 
-and probing of that must be done while GPIO chip is attached but not it's IRQ 
-chip.
+FWIW, upon matching a device to a driver you will end up in
+really_probe(), which if the called probe function returns -EPROBE_DEFER
+will put the device on a deferred-probe-list.
 
-Best regards,
-Alexander
+A worker is triggered upon subsequent binds that runs through this list
+and retries the probes, but only once something else successfully
+probes, potentially providing the missing resources.
 
+So it does not treat builtins and modules differently.
+
+Regards,
+Bjorn

@@ -1,45 +1,32 @@
-From: Alexander Stein <alexander.stein@systec-electronic.com>
-Subject: Re: gpio irqchip initialization race
-Date: Fri, 01 Apr 2016 10:56:12 +0200
-Message-ID: <1587936.Xd43Z6OAxQ@ws-stein>
-References: <44236018.b6N0xPzKYW@ws-stein> <CACRpkdbfidnokJ2WyagdcEycDu3dXKVon2z4TKM7KhNg_Hyf9w@mail.gmail.com> <CACRpkdZ32AAq2BfoEeyiBm1RiXQVkTO6gxsEuuMGhm7wuUXxgQ@mail.gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: multitouch: Synchronize MT frame on reset_resume
+Date: Fri, 1 Apr 2016 11:35:37 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1604011135030.16158@cbobk.fhfr.pm>
+References: <1459282241-25154-1-git-send-email-gabriele.mzt@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdZ32AAq2BfoEeyiBm1RiXQVkTO6gxsEuuMGhm7wuUXxgQ@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Alexandre Courbot <gnurou@gmail.com>, Linux Input <linux-input@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:43592 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752899AbcDAJfk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Apr 2016 05:35:40 -0400
+In-Reply-To: <1459282241-25154-1-git-send-email-gabriele.mzt@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, bleung@chromium.org
 
-On Friday 01 April 2016 10:47:42, Linus Walleij wrote:
-> On Fri, Apr 1, 2016 at 10:43 AM, Linus Walleij <linus.walleij@linaro.org> 
-wrote:
-> > I think the problem is that gpio-keys is calling gpio_to_irq(), and at
-> > that
-> > point between gpiochip_add_data() but before gpiochip_irqchip_add()
-> > it gets a bogus IRQ when it should be getting -EPROBE_DEFER.
-> 
-> Or not a bogus irqnumber really, it get -ENXIO (-6)
-> 
-> as in your example:
-> > gpio-keys user_sw: Unable to get irq number for GPIO 376, error -6
-> 
-> And in this case (if gpio_keys handle -EPROBE_DEFER gracefully)
-> all should be fine with my oneliner patch.
-> 
-> I am more uncertain about the -EINVAL (-22) we might need some
-> more analysis there.
+On Tue, 29 Mar 2016, Gabriele Mazzotta wrote:
 
-I did 10 runs and got the following results:
-> 3x  gpio-keys user_sw: Unable to claim irq 0; error -22
-> 2x  gpio-keys user_sw: Unable to get irq number for GPIO 376, error -517
-> 5x  ok
+> input_mt_get_slot_by_key() requires input_mt_sync_frame() to be called
+> at each frame. Do it when releasing the touches, or else we won't get
+> a proper slot number after mt_reset_resume().
+> 
+> Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
 
-So, for one gpio-keys seems not to handle -EPROBE_DEFER gracefully and it seem 
-still possible to get an invalid irq number.
+Queued for 4.6. Thanks,
 
-Best regards,
-Alexander
+-- 
+Jiri Kosina
+SUSE Labs
 

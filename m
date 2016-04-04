@@ -1,21 +1,32 @@
-From: =?utf-8?B?5oiR55qE54Wn54mH5ZyoOg==?= <vipservice@rainring.com.cn>
-Subject: =?utf-8?B?5oiR55qE54Wn54mH5ZyoOg==?=
-Date: Mon, 4 Apr 2016 12:19:22 +0800
-Message-ID: <20160404121935236845@rainring.com.cn>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [patch] HID: roccat: silence an uninitialized variable warning
+Date: Mon, 4 Apr 2016 09:50:01 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1604040949540.16158@cbobk.fhfr.pm>
+References: <20160402044432.GA11775@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [122.115.60.230] ([122.115.60.230]:4734 "HELO
-	mail.rainring.com.cn" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with SMTP id S1750737AbcDDEeN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 4 Apr 2016 00:34:13 -0400
+Received: from mx2.suse.de ([195.135.220.15]:51600 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751356AbcDDHuE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 Apr 2016 03:50:04 -0400
+In-Reply-To: <20160402044432.GA11775@mwanda>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Stefan Achatz <erazor_de@users.sourceforge.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-5L2g55qE6ICB5pyL5Y+L6YKA5L2g5p2lUee+pDozNDMyNTc3NTkNCg==
+On Sat, 2 Apr 2016, Dan Carpenter wrote:
 
+> My static checker complains because we use "dev_id" before we check for
+> errors so it could be uninitialized.  Fix this by moving the error
+> handling forward a couple lines.
+> 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+
+Applied, thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs
 

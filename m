@@ -1,32 +1,31 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [patch] HID: hidraw: silence an uninitialized variable warning
-Date: Mon, 4 Apr 2016 09:50:11 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1604040950030.16158@cbobk.fhfr.pm>
-References: <20160402044501.GB11775@mwanda>
+Subject: Re: [PATCH V2] HID: Asus X205TA keyboard driver
+Date: Mon, 4 Apr 2016 10:03:01 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1604041002270.16158@cbobk.fhfr.pm>
+References: <1459692916-3705-1-git-send-email-usk.fujimaki@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:51617 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:52261 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751356AbcDDHuN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 4 Apr 2016 03:50:13 -0400
-In-Reply-To: <20160402044501.GB11775@mwanda>
+	id S1750737AbcDDIDD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 Apr 2016 04:03:03 -0400
+In-Reply-To: <1459692916-3705-1-git-send-email-usk.fujimaki@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Yusuke Fujimaki <usk.fujimaki@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Sat, 2 Apr 2016, Dan Carpenter wrote:
+On Sun, 3 Apr 2016, Yusuke Fujimaki wrote:
 
-> My static checker complains that "devid" can be uninitialized if
-> alloc_chrdev_region() fails.  Fix this by moving the error hanling
-> forward a couple lines.
+> Asus X205TA and E200HA built-in keyboard contain
+> wrong logical maximum value in report descriptor.
 > 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> This patch correct wrong logical maximum in report
+> descriptor.
 
-Applied, thanks Dan.
+I've updated the subject line slightly to be more accurate and applied.
 
 -- 
 Jiri Kosina
 SUSE Labs
-

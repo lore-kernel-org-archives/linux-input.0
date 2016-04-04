@@ -1,56 +1,47 @@
-From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
-Date: Mon,  4 Apr 2016 22:59:14 +0530
-Message-ID: <1459790954-7428-1-git-send-email-a.mathur@samsung.com>
-References: <CADYu309K20ki1oMMTGmGQ+CmftCELoSFZfv704YZ_hzmzQG1kQ@mail.gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH v2 1/2] HID: wacom: Initialize hid_data.inputmode to -1
+Date: Mon,  4 Apr 2016 11:26:51 -0700
+Message-ID: <1459794412-10306-1-git-send-email-killertofu@gmail.com>
+References: <56FD84F4.6060707@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:33560 "EHLO
-	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754674AbcDDRZJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Apr 2016 13:25:09 -0400
-In-Reply-To: <CADYu309K20ki1oMMTGmGQ+CmftCELoSFZfv704YZ_hzmzQG1kQ@mail.gmail.com>
+Received: from mail-pa0-f65.google.com ([209.85.220.65]:35160 "EHLO
+	mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755401AbcDDS1P (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Apr 2016 14:27:15 -0400
+Received: by mail-pa0-f65.google.com with SMTP id zy2so4292641pac.2
+        for <linux-input@vger.kernel.org>; Mon, 04 Apr 2016 11:27:14 -0700 (PDT)
+In-Reply-To: <56FD84F4.6060707@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, aniroop.mathur@gmail.com, Aniroop Mathur <a.mathur@samsung.com>
+To: linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-As mentioned in documentation, SYN_REPORT should be used to separate two packets
-and should not be inserted in between a single packet as otherwise with multiple
-SYN_REPORT in a single packet, input reader would not be able to know when the
-packet ended really.
+Commit 5ae6e89 introduced hid_data.inputmode with a comment that it
+would have the value -1 if undefined, but then forgot to actually
+perform the initialization. Although this doesn't appear to have
+caused any problems in practice, it should still be remedied.
 
-Documentation snippet:
-* SYN_REPORT:
-  - Used to synchronize and separate events into packets of input data changes
-    occurring at the same moment in time. For example, motion of a mouse may set
-    the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
-    motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
-
-Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 ---
- drivers/input/input.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+Changes from v1:
+ * Introduce this patch
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 8806059..799941c 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -401,12 +401,11 @@ static void input_handle_event(struct input_dev *dev,
- 		if (dev->num_vals >= 2)
- 			input_pass_values(dev, dev->vals, dev->num_vals);
- 		dev->num_vals = 0;
--	} else if (dev->num_vals >= dev->max_vals - 2) {
--		dev->vals[dev->num_vals++] = input_value_sync;
--		input_pass_values(dev, dev->vals, dev->num_vals);
-+	} else if (dev->num_vals == dev->max_vals) {
-+		input_pass_values(dev, dev->vals, dev->num_vals - 1);
- 		dev->num_vals = 0;
-+		dev->vals[dev->num_vals++] = dev->vals[dev->max_vals - 1];
+ drivers/hid/wacom_sys.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 68a5609..b338bbf 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1817,6 +1817,8 @@ static int wacom_probe(struct hid_device *hdev,
+ 		goto fail_type;
  	}
--
- }
  
- /**
++	wacom_wac->hid_data.inputmode = -1;
++
+ 	wacom->usbdev = dev;
+ 	wacom->intf = intf;
+ 	mutex_init(&wacom->lock);
 -- 
-2.6.2
+2.7.3
 

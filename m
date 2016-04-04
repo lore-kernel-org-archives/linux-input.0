@@ -1,46 +1,33 @@
-From: Sistemas administrador <hardiyansyah@mail.binadarma.ac.id>
-Subject: =?utf-8?q?ATENCI=C3=93N=3B?=
-Date: Mon, 04 Apr 2016 17:56:04 +0530
-Message-ID: <20160404122610.66BD42290157@mail.binadarma.ac.id>
-Reply-To: web.upgradesss@barid.com
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] Handle more microsoft keyboards types.
+Date: Mon, 4 Apr 2016 16:00:50 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1604041600390.16158@cbobk.fhfr.pm>
+References: <BLU437-SMTP89274DA9727A72CF2D1E03939D0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.binadarma.ac.id ([118.97.174.133]:44185 "EHLO
-	mail.binadarma.ac.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751065AbcDDM7H convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Apr 2016 08:59:07 -0400
-Content-Description: Mail message body
+Received: from mx2.suse.de ([195.135.220.15]:50822 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932281AbcDDOA5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 Apr 2016 10:00:57 -0400
+In-Reply-To: <BLU437-SMTP89274DA9727A72CF2D1E03939D0@phx.gbl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Recipients <hardiyansyah@mail.binadarma.ac.id>
+To: Alistair Leslie-Hughes <leslie_alistair@hotmail.com>
+Cc: linux-input@vger.kernel.org
 
-ATENCI=D3N;
+On Mon, 4 Apr 2016, Alistair Leslie-Hughes wrote:
 
-Su buz=F3n ha superado el l=EDmite de almacenamiento, que es de 5 GB de=
-finidos por el administrador, quien actualmente est=E1 ejecutando en 10=
-=2E9GB, no puede ser capaz de enviar o recibir correo nuevo hasta que v=
-uelva a validar su buz=F3n de correo electr=F3nico. Para revalidar su b=
-uz=F3n de correo, env=EDe la siguiente informaci=F3n a continuaci=F3n:
+> Fixes https://bugzilla.kernel.org/show_bug.cgi?id=52841
+> 
+> Adds support for the Micrsift Digital 4K, Media 600 and Media 3000 V1 Keyboards,
+> which have the same quirks as the already existing hardware MS_NE4K.
+> 
+> Signed-off-by: Alistair Leslie-Hughes <leslie_alistair@hotmail.com>
 
-nombre:
-Nombre de usuario:
-contrase=F1a:
-Confirmar contrase=F1a:
-E-mail:
-tel=E9fono:
+Applied, thanks.
 
-Si usted no puede revalidar su buz=F3n, el buz=F3n se deshabilitar=E1!
+-- 
+Jiri Kosina
+SUSE Labs
 
-Disculpa las molestias.
-C=F3digo de verificaci=F3n: es: 006524
-Correo Soporte T=E9cnico =A9 2016
-
-=A1gracias
-Sistemas administrador
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

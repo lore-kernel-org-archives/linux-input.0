@@ -1,82 +1,219 @@
-From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 36/46] input: misc: max77693: switch to
- the atomic API
-Date: Mon, 4 Apr 2016 17:34:33 +0200
-Message-ID: <20160404153433.GD17856@ulmo>
-References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
- <1459368249-13241-37-git-send-email-boris.brezillon@free-electrons.com>
- <20160331174801.GC39098@dtor-ws>
- <20160331205718.057a6f38@bbrezillon>
-Reply-To: thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: Re: [PATCH] gpiolib: handle probe deferrals better
+Date: Mon, 4 Apr 2016 19:21:56 +0300
+Message-ID: <570294A4.2070801@ti.com>
+References: <1459511048-24084-1-git-send-email-linus.walleij@linaro.org>
+ <56FE7785.1010507@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="8w3uRX/HFJGApMzv"
-Return-path: <linux-sunxi+bncBDTKFPPJUEHRBDETRK4AKGQEP54XSRQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <20160331205718.057a6f38@bbrezillon>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jon>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <56FE7785.1010507@ti.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Alexandre Courbot <acourbot@nvidia.com>, Alexander Stein <alexander.stein@systec-electronic.com>Alexander Stein <alexander.stein@systec-electronic.com>
+Cc: linux-input@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Guenter Roeck <linux@roeck-us.net>, bjorn.andersson@linaro.org
 List-Id: linux-input@vger.kernel.org
 
---8w3uRX/HFJGApMzv
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Hi Linus,
 
-On Thu, Mar 31, 2016 at 08:57:18PM +0200, Boris Brezillon wrote:
-> On Thu, 31 Mar 2016 10:48:01 -0700
-> Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+On 04/01/2016 04:28 PM, Grygorii Strashko wrote:
+> On 04/01/2016 02:44 PM, Linus Walleij wrote:
+>> The gpiolib does not currently return probe deferrals from the
+>> .to_irq() hook while the GPIO drivers are being initialized.
+>> Further: it keeps returning -EPROBE_DEFER for gpio[d]_get()
+>> even after all builtin drivers have initialized.
+>>
+>> Fix this thusly:
+>>
+>> - Move the assignment of .to_irq() to the last step when
+>>     using gpiolib_irqchip_add() so we can't get spurious calls
+>>     into the .to_irq() function until all set-up is finished.
+>>
+>> - Put in a late_initcall_sync() to set a boolean state variable to
+>>     indicate that we're not gonna defer any longer. Since deferred
+>>     probe happens at late_initcall() time, using late_initcall_sync()
+>>     should be fine.
+>>
+>> - After this point, return hard errors (-ENXIO) from both
+>>     gpio[d]_get() and .to_irq().
+>>
+>> This way we should (at least for all drivers using GPIOLIB_IRQCHIP)
+>> be getting proper deferrals from both gpio[d]_get() and .to_irq()
+>> until the irqchip side is properly set up, and then proper
+>> errors after all drivers should have been probed.
+>>
+>> This problem was first seen with gpio-keys.
+>>
+>> Cc: linux-input@vger.kernel.org
+>> Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+>> Cc: Guenter Roeck <linux@roeck-us.net>
+>> Reported-by: Alexander Stein <alexander.stein@systec-electronic.com>
+>> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+>> ---
+>> Alexander: please test this, you need Guether's patches too,
+>> I have it all on my "fixes" branch in the GPIO git:
+>> https://git.kernel.org/cgit/linux/kernel/git/linusw/linux-gpio.git/log/?h=fixes
+>>
+>> Tomeu: I think you're the authority on deferred probe these days.
+>> Is this the right way for a subsystem to switch from returning
+>> -EPROBE_DEFER to instead returning an unrecoverable error?
+>>
+>> Guenther: I applied this on top of your patches, please check it
+>> if you can, you're smarter than me with this stuff.
+>> ---
+>>    drivers/gpio/gpiolib.c | 47 ++++++++++++++++++++++++++++++++++++++++-------
+>>    1 file changed, 40 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+>> index b747c76fd2b1..426a93f9d79e 100644
+>> --- a/drivers/gpio/gpiolib.c
+>> +++ b/drivers/gpio/gpiolib.c
+>> @@ -68,7 +68,9 @@ LIST_HEAD(gpio_devices);
+>>    static void gpiochip_free_hogs(struct gpio_chip *chip);
+>>    static void gpiochip_irqchip_remove(struct gpio_chip *gpiochip);
+>>    
+>> +/* These keep the state of the library */
+>>    static bool gpiolib_initialized;
+>> +static bool gpiolib_builtin_ready;
+>>    
+
+[..]
+
+>>    
+>>    int gpiod_request(struct gpio_desc *desc, const char *label)
+>>    {
+>> -	int status = -EPROBE_DEFER;
+>> +	int status;
+>>    	struct gpio_device *gdev;
+>>    
+>>    	VALIDATE_DESC(desc);
+>>    	gdev = desc->gdev;
+>>    
+>> +	/*
+>> +	 * Defer requests until all built-in drivers have had a chance
+>> +	 * to probe, then give up and return a hard error.
+>> +	 */
+>> +	if (!gpiolib_builtin_ready)
+>> +		status = -EPROBE_DEFER;
+>> +	else
+>> +		status = -ENXIO;
 > 
-> > Hi Boris,
-> > 
-> > On Wed, Mar 30, 2016 at 10:03:59PM +0200, Boris Brezillon wrote:
-> > > pwm_config/enable/disable() have been deprecated and should be replaced
-> > > by pwm_apply_state().
-> > > 
-> > > Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> > > ---
-> > >  drivers/input/misc/max77693-haptic.c | 23 +++++++++++++++++------
-> > >  1 file changed, 17 insertions(+), 6 deletions(-)
-> > > 
-> > > diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
-> > > index cf6aac0..aef7dc4 100644
-> > > --- a/drivers/input/misc/max77693-haptic.c
-> > > +++ b/drivers/input/misc/max77693-haptic.c
-> > > @@ -70,13 +70,16 @@ struct max77693_haptic {
-> > >  
-> > >  static int max77693_haptic_set_duty_cycle(struct max77693_haptic *haptic)
-> > >  {
-> > > +	struct pwm_state pstate;
-> > >  	struct pwm_args pargs = { };
-> > > -	int delta;
-> > >  	int error;
-> > >  
-> > >  	pwm_get_args(haptic->pwm_dev, &pargs);
-> > > -	delta = (pargs.period + haptic->pwm_duty) / 2;
-> > > -	error = pwm_config(haptic->pwm_dev, delta, pargs.period);
-> > > +	pwm_get_state(haptic->pwm_dev, &pstate);
-> > > +
-> > > +	pstate.period = pargs.period;
-> > > +	pstate.duty_cycle = (pargs.period + haptic->pwm_duty) / 2;
-> > > +	error = pwm_apply_state(haptic->pwm_dev, &pstate);
-> > 
-> > This does not make sense with regard to the atomic API. If you look in
-> > max77693_haptic_play_work(), right after calling
-> > max77693_haptic_set_duty_cycle() we either try to enable or disable the
-> > pwm. When switching to this new API we should combine both actions.
+> Probably It will work right if we will let gpiochip know that
+> it has irqchip companion.
+> With above knowledge the gpiod_request() can return -EPROBE_DEFER while
+> irqchip is not initialized. In other words:
+> - driver will set HAS_IRQ flag
+> - gpiolib will set gpio_chip->irqs_ready = 0 in gpiochip_add_data()
+> - gpiolib will set gpio_chip->irqs_ready = 1 in gpiochip_irqchip_add()
+> - gpiod_request() will do at the beginning:
+>    if (HAS_IRQ && !gpio_chip->irqs_ready)
+>     return  -EPROBE_DEFER
 > 
-> True. I'll address that, unless Thierry is fine keeping the non-atomic
-> API, in which case I'll just drop patches 32 to 46.
+> it might also required to combine
+> gpiochip_irqchip_add and gpiochip_set_chained_irqchip.
+> 
 
-I'm fine with keeping the pwm_enable(), pwm_disable() and pwm_config()
-APIs, but they should only be used as shortcuts. Where possible the new
-atomic API should be used to combine multiple operations into one.
+Below is RFC patch to prove above consent. I've had offlist 
+debugging session with Alexander and He mentioned that this change
+fixes boot issue for him.
 
-Thierry
---8w3uRX/HFJGApMzv--
+Of course, there are some question to discuss:
+1) [+] It should sync initialization of GPIOchip and GPIOirqchip 
+2) [+] This approach requires changes in gpiolib/gpio drivers only, from other side
+It will require to add fixes all over the Kernel if gpiod_to_irq() will 
+start returning -EPROBE_DEFER.
+3) [-] has_irq might need to be initialized by non-DT drivers
+4) [-] irq_ready might need to be set manually by drivers which do not use GPIO irq
+   helpers (see change in gpio-mpc8xxx.c)
+4) irq_ready access synchronization on SMP? atomic?
+
+job done with commit e6918cd 'gpiolib: handle probe deferrals better'
+reverted. 
+
+-----
+>From d3d486700351d55fd242c7d9494740b0534a2081 Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Date: Sat, 2 Apr 2016 14:55:31 +0300
+Subject: [RFC PATCH] gpiolib: sync gpiochip and irqchip initializtion
+
+TBD.
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+---
+ drivers/gpio/gpio-mpc8xxx.c |  2 ++
+ drivers/gpio/gpiolib.c      | 13 ++++++++++++-
+ include/linux/gpio/driver.h |  2 ++
+ 3 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
+index 425501c..3652b44 100644
+--- a/drivers/gpio/gpio-mpc8xxx.c
++++ b/drivers/gpio/gpio-mpc8xxx.c
+@@ -368,6 +368,8 @@ static int mpc8xxx_probe(struct platform_device *pdev)
+ 
+ 	irq_set_chained_handler_and_data(mpc8xxx_gc->irqn,
+ 					 mpc8xxx_gpio_irq_cascade, mpc8xxx_gc);
++
++	gc->irq_ready = true;
+ 	return 0;
+ err:
+ 	iounmap(mpc8xxx_gc->regs);
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index 7206553..9d24196 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -488,6 +488,11 @@ int gpiochip_add_data(struct gpio_chip *chip, void *data)
+ 			gdev->dev.of_node = chip->of_node;
+ #endif
+ 	}
++
++	chip->has_irq = of_get_property(gdev->dev.of_node,
++					"interrupt-controller", NULL) ?
++					true : false;
++
+ 	gdev->id = ida_simple_get(&gpio_ida, 0, 0, GFP_KERNEL);
+ 	if (gdev->id < 0) {
+ 		status = gdev->id;
+@@ -1092,6 +1097,9 @@ int _gpiochip_irqchip_add(struct gpio_chip *gpiochip,
+ 
+ 	acpi_gpiochip_request_interrupts(gpiochip);
+ 
++	if (gpiochip->has_irq)
++		gpiochip->irq_ready = true;
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(_gpiochip_irqchip_add);
+@@ -1335,7 +1343,10 @@ int gpiod_request(struct gpio_desc *desc, const char *label)
+ 	gdev = desc->gdev;
+ 
+ 	if (try_module_get(gdev->owner)) {
+-		status = __gpiod_request(desc, label);
++		if (!gdev->chip->has_irq)
++			status = __gpiod_request(desc, label);
++		else if (gdev->chip->has_irq && gdev->chip->irq_ready)
++			status = __gpiod_request(desc, label);
+ 		if (status < 0)
+ 			module_put(gdev->owner);
+ 		else
+diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
+index bee976f..134be32 100644
+--- a/include/linux/gpio/driver.h
++++ b/include/linux/gpio/driver.h
+@@ -141,6 +141,8 @@ struct gpio_chip {
+ 	const char		*const *names;
+ 	bool			can_sleep;
+ 	bool			irq_not_threaded;
++	bool			has_irq;
++	bool			irq_ready;
+ 
+ #if IS_ENABLED(CONFIG_GPIO_GENERIC)
+ 	unsigned long (*read_reg)(void __iomem *reg);
+-- 
+2.8.0
+
+
+
+-- 
+regards,
+-grygorii

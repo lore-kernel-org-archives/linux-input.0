@@ -1,55 +1,47 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH 1/2] HID: Use multitouch driver for Type Covers
-Date: Tue, 05 Apr 2016 14:42:14 +0200
-Message-ID: <1459860134.22718.3.camel@hadess.net>
-References: <1450097429-4959-1-git-send-email-akihiko.odaki.4i@stu.hosei.ac.jp>
-	 <1450451202.24419.13.camel@hadess.net> <5674B41A.3090904@stu.hosei.ac.jp>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2 2/2] HID: wacom: Support switching from vendor-defined
+ device mode on G9 and G11
+Date: Tue, 5 Apr 2016 17:22:29 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1604051722170.27368@cbobk.fhfr.pm>
+References: <56FD84F4.6060707@gmail.com> <1459794412-10306-1-git-send-email-killertofu@gmail.com> <1459794412-10306-2-git-send-email-killertofu@gmail.com> <20160404205452.GC3443@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5674B41A.3090904@stu.hosei.ac.jp>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Akihiko Odaki <akihiko.odaki.4i@stu.hosei.ac.jp>, jikos@kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:56357 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750973AbcDEPWc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Apr 2016 11:22:32 -0400
+In-Reply-To: <20160404205452.GC3443@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Sat, 2015-12-19 at 10:34 +0900, Akihiko Odaki wrote:
-> No, it doesn't work.
+On Mon, 4 Apr 2016, Benjamin Tissoires wrote:
 
-According to:
-https://github.com/jimdigriz/debian-mssp4
+> On Apr 04 2016 or thereabouts, Jason Gerecke wrote:
+> > A tablet PC booted into Windows may have its pen/touch hardware switched
+> > into "Wacom mode" similar to what we do with explicitly-supported hardware.
+> > Some devices appear to maintain this state across reboots, preventing their
+> > use with the generic HID driver. This patch adds support for detecting the
+> > presence of the mode switch feature report used by devices based on the G9
+> > and G11 chips and has the HID codepath always attempt to reset the device
+> > back to sending standard HID reports.
+> > 
+> > Fixes: https://sourceforge.net/p/linuxwacom/bugs/307/
+> > Fixes: https://sourceforge.net/p/linuxwacom/bugs/310/
+> > Fixes: https://github.com/linuxwacom/input-wacom/issues/15
+> > 
+> > Co-authored-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> > ---
+> 
+> Not sure how much this matters now, but for the series:
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Running "kbd_mode -u" afterwards would fix the Caps-Lock key not
-working. I have no idea what the wider consequence of this would be
-though[1].
+Both applied to for-4.6/upstream-fixes, thanks.
 
-Anything we can do in the kernel to have that working by default?
+-- 
+Jiri Kosina
+SUSE Labs
 
-[1]: kbd_mode calls=C2=A0ioctl(fd, KDSKBMODE, K_UNICODE) with fd being =
-the
-console's fd.
-
-> On 12/19/2015 12:06 AM, Bastien Nocera wrote:
-> >=20
-> > On Mon, 2015-12-14 at 21:50 +0900, Akihiko Odaki wrote:
-> > >=20
-> > > Use multitouch driver instead of microsoft one for Microsoft
-> > > Surface
-> > > Type Covers.
-> > >=20
-> > > By using MT_CLS_EXPORT_ALL_INPUTS, the keyboards function as well
-> > > as
-> > > the multitouch pads do.
-> > >=20
-> > > Signed-off-by: Akihiko Odaki <akihiko.odaki.4i@stu.hosei.ac.jp>
-> > All the multimedia keys work, and MT support also works, on my
-> > Surface
-> > 3 cover (045e:07de).
-> >=20
-> > *But* the Caps-Lock key's LED doesn't light up anymore. Can you
-> > verify
-> > it does on yours as well?
-> >=20
-> > Cheers
-> >=20

@@ -1,42 +1,55 @@
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: Re: [PATCH 1/5] mfd: tps65217: Add support for IRQs
-Date: Tue, 5 Apr 2016 13:16:04 +0200
-Message-ID: <57039E74.7030704@grinn-global.com>
-References: <1459789865-3704-1-git-send-email-m.niestroj@grinn-global.com>
- <1459789865-3704-3-git-send-email-m.niestroj@grinn-global.com>
- <57038E46.9070204@ti.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH 1/2] HID: Use multitouch driver for Type Covers
+Date: Tue, 05 Apr 2016 14:42:14 +0200
+Message-ID: <1459860134.22718.3.camel@hadess.net>
+References: <1450097429-4959-1-git-send-email-akihiko.odaki.4i@stu.hosei.ac.jp>
+	 <1450451202.24419.13.camel@hadess.net> <5674B41A.3090904@stu.hosei.ac.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <57038E46.9070204@ti.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>, Lee Jones <lee.jones@linaro.org>
-Cc: Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <5674B41A.3090904@stu.hosei.ac.jp>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Akihiko Odaki <akihiko.odaki.4i@stu.hosei.ac.jp>, jikos@kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On Sat, 2015-12-19 at 10:34 +0900, Akihiko Odaki wrote:
+> No, it doesn't work.
 
+According to:
+https://github.com/jimdigriz/debian-mssp4
 
-On 05.04.2016 12:07, Grygorii Strashko wrote:
-> On 04/04/2016 08:11 PM, Marcin Niestroj wrote:
->> Add support for handling IRQs: power button, AC and USB power state
->> changes. Mask and interrupt bits are shared within one register, which
->> prevents us to use regmap_irq implementation. New irq_domain is
->> created in
->> order to add interrupt handling for each tps65217's subsystem. IRQ
->> resources have been added for charger subsystem to be able to notify
->> about
->> AC and USB state changes.
->>
->> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
->> ---
->
-> Just curious Why not use a regmap_irq?
->
+Running "kbd_mode -u" afterwards would fix the Caps-Lock key not
+working. I have no idea what the wider consequence of this would be
+though[1].
 
-tps65217 has IRQ mask and status bits in a single register. regmap_irq 
-works in case of two different registers (one mask, one status), but 
-with the same layout of mask and status bits in both.
+Anything we can do in the kernel to have that working by default?
 
--- 
-Marcin Niestroj
+[1]: kbd_mode calls=C2=A0ioctl(fd, KDSKBMODE, K_UNICODE) with fd being =
+the
+console's fd.
+
+> On 12/19/2015 12:06 AM, Bastien Nocera wrote:
+> >=20
+> > On Mon, 2015-12-14 at 21:50 +0900, Akihiko Odaki wrote:
+> > >=20
+> > > Use multitouch driver instead of microsoft one for Microsoft
+> > > Surface
+> > > Type Covers.
+> > >=20
+> > > By using MT_CLS_EXPORT_ALL_INPUTS, the keyboards function as well
+> > > as
+> > > the multitouch pads do.
+> > >=20
+> > > Signed-off-by: Akihiko Odaki <akihiko.odaki.4i@stu.hosei.ac.jp>
+> > All the multimedia keys work, and MT support also works, on my
+> > Surface
+> > 3 cover (045e:07de).
+> >=20
+> > *But* the Caps-Lock key's LED doesn't light up anymore. Can you
+> > verify
+> > it does on yours as well?
+> >=20
+> > Cheers
+> >=20

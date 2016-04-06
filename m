@@ -1,75 +1,37 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
-Date: Thu, 7 Apr 2016 02:13:37 +0530
-Message-ID: <CADYu30_KXBSVTvrZVgt4aSk=Lc+64KZGf8ZBoTrD5dXSoFq+2w@mail.gmail.com>
-References: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
-	<CAKdAkRQT0R6peS8iO8PhQ4YoPMowt6voZJez4EubK7R0ZV_m4Q@mail.gmail.com>
-	<56E17A73.8090901@bitmath.org>
-	<CADYu30-b+5TFh2yy2SrGTJJ7FzvcezWut1XL3Ypno5R29hyYww@mail.gmail.com>
-	<20160401215128.GA5216@dtor-ws>
-	<CADYu309K20ki1oMMTGmGQ+CmftCELoSFZfv704YZ_hzmzQG1kQ@mail.gmail.com>
-	<CADYu3083da+hW_uLg3WWqgotvOZD1f3V3TdabgX6gDTY93GB7w@mail.gmail.com>
-	<20160406173848.GC38452@dtor-ws>
-	<CADYu308OF98jdbsqpSVdQpTa0sEafuQmVuC=ttN3-1u59_QvmA@mail.gmail.com>
-	<570568AB.8010501@bitmath.org>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH] HID: simplify implement() a bit
+Date: Wed, 6 Apr 2016 14:31:18 -0700
+Message-ID: <CAD=FV=UuiHGEeAq_265tBK0vmeZcdFcfs+Z7R54m=JcmmW-zAA@mail.gmail.com>
+References: <20160406171958.GA39482@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34143 "EHLO
-	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753328AbcDFUnq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2016 16:43:46 -0400
-In-Reply-To: <570568AB.8010501@bitmath.org>
+Received: from mail-vk0-f44.google.com ([209.85.213.44]:33640 "EHLO
+	mail-vk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753348AbcDFVbU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2016 17:31:20 -0400
+Received: by mail-vk0-f44.google.com with SMTP id k1so75632745vkb.0
+        for <linux-input@vger.kernel.org>; Wed, 06 Apr 2016 14:31:19 -0700 (PDT)
+In-Reply-To: <20160406171958.GA39482@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hello Mr. Henrik,
+Dmitry,
 
-On Thu, Apr 7, 2016 at 1:21 AM, Henrik Rydberg <rydberg@bitmath.org> wrote:
-> Hi Aniroop,
+On Wed, Apr 6, 2016 at 10:19 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> The 'size' variable is not really needed, and we can also shift constant
+> in the loop body when masking off existing bits.
 >
->>> I am not sure what the urgency is. It is more of a theoretical problem
->>> ans so far the proposed solutions were actually introducing more
->>> problems than they were solving.
->>>
->>> I am sorry, bit this particular topic is not a priority for me.
->>>
->>
->> There is no hurry at all. :-) As you know request is made a long time ago,
->> so I am only very curious to complete it.
+> Also we do not have to us 64 bit calculations if we take an extra
+> branch.
 >
-> This kind of patch is not liked by any maintainer, because it does not solve any
-> immediate problem, but instead may create one. If such a simple patch takes
-> three of four tries to look right, it only adds to the perception that the code
-> is best left alone.
->
-> I think the solution at this stage is to say no to this patch.
->
-> If there is ever a driver for which the input_estimate_events_per_packet()
-> function returns less than the actual maximum number of events per frame, this
-> issue can be revisited and resolved in a number of different ways.
->
-> Sorry, and thanks for your work.
->
+> Suggested-by: Doug Anderson <dianders@chromium.org>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/hid/hid-core.c | 33 +++++++++++++++------------------
+>  1 file changed, 15 insertions(+), 18 deletions(-)
 
-Well, I agree this code might not be used by any driver so far.
-But if some driver developer writes such a driver, then it definitely cannot
-work well because of the bug in input subsystem code. So I am afraid that it
-is not a good idea to wait for someone to report this bug when we already know
-that the bug does exist in input core.
-
-Secondly, I submitted this patch not only because it breaks protocol of
-SYN_REPORT event but also because without this bug fix, another bug could not
-be concluded which depends on when the input event packet ended really.
-Bug:
-Input: evdev: fix bug of dropping valid packet after syn_dropped event
-https://patchwork.kernel.org/patch/8083641/
-So to fix this bug, we need to fix SYN_REPORT bug first.
-
-It would be appreciating of you if you could give it one more spin.
-
-
-> Henrik
->
+Reviewed-by: Douglas Anderson <dianders@chromium.org>

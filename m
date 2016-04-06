@@ -1,45 +1,50 @@
-From: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4 3/3] ARM: dts: use syscon in cygnus touchscreen dt node
-Date: Wed, 6 Apr 2016 13:25:52 -0700
-Message-ID: <CAGVrzcbCZn6RYFwJTkffkct1DiiG+tBJnKELDn32T38_s5mjOg@mail.gmail.com>
-References: <1456556396-4759-1-git-send-email-raveendra.padasalagi@broadcom.com>
- <1456556396-4759-4-git-send-email-raveendra.padasalagi@broadcom.com> <20160406173140.GB38452@dtor-ws>
+From: "Mr.David Zuma " <davidz@hjcghgdcf.website.tk>
+Subject: Your first payment of $7000  is about to send,
+Date: Wed, 6 Apr 2016 13:05:35 -0700
+Message-ID: <BM1PR01MB0001B2373B7133DAF49AE2B7F29F0@BM1PR01MB0001.INDPRD01.PROD.OUTLOOK.COM>
+Reply-To: <money.gram123466@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160406173140.GB38452@dtor-ws>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Raveendra Padasalagi <raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jonathan Richardson <jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Jon Mason <jonmason-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Anup Patel <anup.patel-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, bcm-kernel-feedback-list <bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ma1ind01hn0215.outbound.protection.outlook.com ([104.47.100.215]:19194
+	"EHLO IND01-MA1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750971AbcDFUgJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2016 16:36:09 -0400
+Content-Description: Mail message body
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: alex <davidz@hjcghgdcf.website.tk>
 
-2016-04-06 10:31 GMT-07:00 Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
-> On Sat, Feb 27, 2016 at 12:29:56PM +0530, Raveendra Padasalagi wrote:
->> In Cygnus SOC touch screen controller registers are shared
->> with ADC and flex timer. Using readl/writel could lead to
->> race condition. So touchscreen driver is enhanced to support
->> syscon based register access to take care of mutually exclusive
->> access.
->>
->> This patch enables syscon support in touchscreen driver
->> by adding necessary properties in touchscreen dt node and
->> in addition to this renamed existing "tsc" touchscreen node
->> name to "touchscreen".
->>
->> Signed-off-by: Raveendra Padasalagi <raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
->> Reviewed-by: Ray Jui <ray.jui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
->> Reviewed-by: Scott Branden <scott.branden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
->
-> OK, since the new dts is really needed for the driver I'll be folding
-> this into the touchscreen driver patch unless I hear someone yelling at
-> me.
+Your first payment of $7000  is about to send,
 
-Works for me:
+We have deposited the check of your fund (4.700,000,00USD) through
+Money Gram after our
 
-Acked-by: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
---
-Florian
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+finally meeting regarding your fund, All you will do is to contact
+Money Gram director
+
+Mr.Alex Kelly via E-  money.gram123466@gmail.com ; He will give you
+more direction on how you will
+
+be receiving the funds daily. Remember to send him your Full
+information to avoid wrong
+
+transfer such as:
+
+Receiver's Name___
+Address: __
+Country: __
+Phone Number: __
+I.D Card:__
+Though Mrs. Susan Kent has sent $7000 in your name today So contact
+their Director Hilary
+
+Samson as soon as you receive this email or call him +229-99098369  him ive you
+
+the Mtcn, to pick the $7000 Please let us know as soon as you received
+all your fund,
+
+Best regard
+MONEY GRAM AGENT

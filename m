@@ -1,68 +1,81 @@
-From: Sedat Dilek <sedat.dilek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [Linux-v4.6-rc2] atkbd serio0: Unknown key pressed (translated
- set 2, code 0xa8 on isa0060/serio0).
-Date: Wed, 6 Apr 2016 12:43:11 +0200
-Message-ID: <CA+icZUVMT2gSBCMrSkCQX6zhJWLKPZav1kuayQwxVa+CBZZfFw@mail.gmail.com>
-References: <CA+icZUV0MGYme3EvLwYaW7HaAdKq7KQm6jgbcy58z4Vk3+n7qg@mail.gmail.com>
-	<CA+icZUVZ05ri=Vs6UGWN0ks74_R2Q48u0=xoh2LSFwSLhpfabg@mail.gmail.com>
-	<CA+icZUW0MFrV5gcVy=R6Jh+Fr7=5cr-ns0_ZXUjuY=LuiduLYw@mail.gmail.com>
-	<alpine.LNX.2.00.1604061233270.27368@cbobk.fhfr.pm>
-Reply-To: sedat.dilek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Nava kishore Manne <nava.manne@xilinx.com>
+Subject: RE: [LINUX PATCH v2] gpio_keys: Added support to read the IRQ_FLAGS
+ from devicetree
+Date: Wed, 6 Apr 2016 11:32:55 +0000
+Message-ID: <C89496FEAE474D468F30D558A9468D9F26CCF95F@XAP-PVEXMBX01.xlnx.xilinx.com>
+References: <1459763770-2296-1-git-send-email-navam@xilinx.com>
+ <CACRpkdZ9pqgScTV_z9TLyBgB39vuj6SGCSpz2pYj89O6XDnFrA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1604061233270.27368-YHPUNQjx9ReKbouaWp301Q@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-sn1nam02on0060.outbound.protection.outlook.com ([104.47.36.60]:2164
+	"EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751827AbcDFMGO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Apr 2016 08:06:14 -0400
+In-Reply-To: <CACRpkdZ9pqgScTV_z9TLyBgB39vuj6SGCSpz2pYj89O6XDnFrA@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?utf-8?B?QW5kZXJzc29uLCBCasO2cm4=?= <bjorn.andersson@sonymobile.com>, Peng Fan <van.freenix@gmail.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Wed, Apr 6, 2016 at 12:33 PM, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
-> On Wed, 6 Apr 2016, Sedat Dilek wrote:
->
->> >> I cannot use cursor up and down on my notebook and see this in my dmesg.
->> >>
->> >> [  685.425634] atkbd serio0: Unknown key pressed (translated set 2,
->> >> code 0xa8 on isa0060/serio0).
->> >> [  685.425648] atkbd serio0: Use 'setkeycodes e028 <keycode>' to make it known.
->> >>
->> >> Known issue?
->> >>
->> >> Do you need more input?
->> >>
->> >> Linux-config and dmesg-output attached.
->> >>
->> >> Regards,
->> >> - Sedat Dilek -
->> >
->> > Attached is output of...
->> >
->> >    $ xmodmap -pke > /tmp/xmodmap-pke.txt
->> >
->>
->> [ CC (USB)HID folks ]
->>
->> I forgot to tell that I have some patches on top of vanilla Linux v4.6-rc2.
->>
->> Dropping the patches from <jikos/hid.git#for-4.6/upstream-fixes> makes
->> the issue go away.
->
-> Thanks for the useful report!
->
->> Unsure what is the cause. On the way, try to look this evening or
->> tommorrow into this.
->
-> I don't seem to see the beginning of this thread anywhere.
->
-> What hardware is this?
->
-
-OK, OK.
-As said I am on the run - my train is going in 40mins-
-I try to write some better report.
-
-- Sedat -
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SGkgTGludXMgd2FsbGVpaiwNCg0KCU9uZSBvZiBPdXIgZ3Bpby1jb250cm9sbGVyIHdhcyBzdXBw
+b3J0aW5nIG9ubHkgZWRnZSByaXNpbmcgICBpbnRlcnJ1cHRzLiBGb3IgdGhhdCByZWFzb24gSSBp
+bXBsZW1lbnRpbmcgdGhlIGJlbG93IGxvZ2ljIHRvIHJlYWQgdGhlIGludGVycnVwdCB0cmlnZ2Vy
+IGxldmVsIGZyb20gdGhlIERULiBJZiBpdCBpcyB3cm9uZyBjb3VsZCB5b3UgcGxlYXNlIHByb3Zp
+ZGUgdGhlIHBvaW50ZXIgdG8gc29sdmUgdGhpcyBpc3N1ZT8NCg0KUmVnYXJkcywNCk5hdmFraXNo
+b3JlLg0KDQoNCg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBMaW51cyBX
+YWxsZWlqIFttYWlsdG86bGludXMud2FsbGVpakBsaW5hcm8ub3JnXQ0KPiBTZW50OiBNb25kYXks
+IEFwcmlsIDA0LCAyMDE2IDQ6MzggUE0NCj4gVG86IE5hdmEga2lzaG9yZSBNYW5uZQ0KPiBDYzog
+RG1pdHJ5IFRvcm9raG92OyBBbmRlcnNzb24sIEJqw7ZybjsgTmF2YSBraXNob3JlIE1hbm5lOyBQ
+ZW5nIEZhbjsNCj4gTGludXggSW5wdXQ7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCj4g
+U3ViamVjdDogUmU6IFtMSU5VWCBQQVRDSCB2Ml0gZ3Bpb19rZXlzOiBBZGRlZCBzdXBwb3J0IHRv
+IHJlYWQgdGhlDQo+IElSUV9GTEFHUyBmcm9tIGRldmljZXRyZWUNCj4gDQo+IE9uIE1vbiwgQXBy
+IDQsIDIwMTYgYXQgMTE6NTYgQU0sIE5hdmEga2lzaG9yZSBNYW5uZQ0KPiA8bmF2YS5tYW5uZUB4
+aWxpbnguY29tPiB3cm90ZToNCj4gDQo+ID4gVGhpcyBwYXRjaCBhZGRzIHRoZSBzdXBwb3J0IHRv
+IHJlYWQgdGhlIElSUV9GTEFHUyBmcm9tIHRoZSBkZXZpY2UNCj4gPiBpbnN0ZWFkIG9mIGhhcmQg
+Y29kZSB0aGUgZmxhZ3MgaW4gZ3Bpb19rZXlzX3NldHVwX2tleSgpLg0KPiANCj4gTkFDSw0KPiAN
+Cj4gPiAgICAgICAgICAgICAgICAgc3cxNCB7DQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAg
+bGFiZWwgPSAic3cxNCI7DQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgZ3Bpb3MgPSA8Jmdw
+aW8wIDEyIDE+Ow0KPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIC8qDQo+ID4gICAgICAgICAg
+ICAgICAgICAgICAgICAgICogVHJpZ2dlcmluZyBUeXBlOg0KPiA+ICAgICAgICAgICAgICAgICAg
+ICAgICAgICAqDQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICogMSAtIGVkZ2UgcmlzaW5n
+DQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICogMiAtIGVkZ2UgZmFsbGluZw0KPiA+ICAg
+ICAgICAgICAgICAgICAgICAgICAgICAqIDQgLSBsZXZlbCBhY3RpdmUgaGlnaA0KPiA+ICAgICAg
+ICAgICAgICAgICAgICAgICAgICAqIDggLSBsZXZlbCBhY3RpdmUgbG93DQo+ID4gICAgICAgICAg
+ICAgICAgICAgICAgICAgICoNCj4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgKi8NCj4gDQo+
+IFlvdSBhcmUgY29tcGxldGVseSB2aW9sYXRpbmcgdGhlIGV4aXN0aW5nIEdQSU8gZmxhZ3MgZnJv
+bSBpbmNsdWRlL2R0LQ0KPiBiaW5kaW5ncy9ncGlvL2dwaW8uaA0KPiANCj4gQXMgeW91IHdpbGwg
+c2VlLCBmb3IgYSB0d29jZWxsIEdQSU8gZmxhZ3MgYXJlIGFscmVhZHkgY2xlYXJseSBkZWZpbmVk
+IGZvciAwLDEsMg0KPiBhbmQgMy4gKEJpdCAwICYgMSkuDQo+IA0KPiBGdXJ0aGVyLCB0aGVzZSBJ
+UlEgZWRnZS9sZXZlbCBmbGFncyBhbHJlYWR5IGV4aXN0IGluIGluY2x1ZGUvZHQtDQo+IGJpbmRp
+bmdzL2ludGVycnVwdC1jb250cm9sbGVyL2lycS5oDQo+IGJ1dCB5b3Ugc2hvdWxkIG5vdCBiZSB1
+c2luZyB0aG9zZSBlaXRoZXIsIGJlY2F1c2UgdGhleSBkbyBub3QgbWl4IHdpdGggYQ0KPiBHUElP
+IHNwZWNpZmllciwgaXQncyBhIGJpdCBsaWtlIG9pbCBhbmQgd2F0ZXIuDQo+IA0KPiBUaGUgc3Rh
+bmRhcmQgR1BJTyBiaW5kaW5ncyBhbHJlYWR5IGhhcw0KPiBHUElPX0FDVElWRV9ISUdIIGFuZCBH
+UElPX0FDVElWRV9MT1cNCj4gd2hpY2ggbWFrZXMgaXQgcHJldHR5IGNsZWFyIHRoYXQgYSBHUElP
+IGxpbmUgbWFya2VkIGFzIEdQSU9fQUNUSVZFX0hJR0gNCj4gc2hvdWxkIHRyaWdnZXIgZWl0aGVy
+IG9uIHJpc2luZyBlZGdlIG9yIGxldmVsIGFjdGl2ZSBoaWdoIGFuZCB2aWNlIHZlcnNhLg0KPiAN
+Cj4gVGhlIG9ubHkgaW5mb3JtYXRpb24geW91IGNvdWxkICpwb3NzaWJseSogbGFjayBpcyB3aGV0
+aGVyIHRoZSBJUlEgc2hvdWxkIGJlDQo+IGVkZ2Ugb3IgbGV2ZWwgdHJpZ2dlcmVkLg0KPiANCj4g
+QnV0IGxldmVsIHRyaWdnZXJlZCBHUElPIGJ1dHRvbnMgKmRvZXMqICpub3QqICptYWtlKg0KPiAq
+c2Vuc2UqICphdCogKmFsbCouDQo+IA0KPiBUaGluayBhYm91dCBpdDoNCj4gDQo+IFRoZSBJUlEg
+bGluZSBnb2VzIGxldmVsIGhpZ2ggb3IgbG93IGJlY2F1c2UgYSB1c2VyIHByZXNzZWQgYSBidXR0
+b24gd2l0aA0KPiBoaXMvaGVyIHRodW1iLiBUaGVuIHRoYXQgaXMgd2lyZWQgaW4gYXMgYSBsZXZl
+bCBJUlEuIFNvIHdoYXQgYXJlIHdlIGdvaW5nIHRvDQo+IGRvPyBXYWl0IGluIHRoZSBpbnRlcnJ1
+cHQgaGFuZGxlciB1bnRpbCB0aGUgdXNlciByZW1vdmVzIGhpcy9oZXIgdGh1bWI/DQo+IA0KPiBM
+ZXZlbCBJUlFzIG9uIEdQSU9zIG9ubHkgbWFrZXMgc2Vuc2UgZm9yIGRldmljZXMgb2ZmLWNoaXAg
+d2hlcmUgeW91IGNhbg0KPiB0YWxrIHRvIHRoZSBkZXZpY2UgYW5kIEFDSyB0aGUgaW50ZXJydXB0
+LCBhbmQgaW4gdGhpcyBjYXNlICJ0YWxrIiBkb2VzIG5vdA0KPiBtZWFuIHdpcmUgdXAgYSBzcGVh
+a2VyIHRlbGxpbmcgdGhlIHVzZXIgdG8gcmVtb3ZlIHRoZSB0aHVtYiBmcm9tIHRoZQ0KPiBidXR0
+b24gYmVjYXVzZSB3ZSBoYXZlIHJlY2lldmVkIHRoZSBpbnRlcnJ1cHQsIGFsYmVpdCB0aGF0IHdv
+dWxkIGJlIHRoZQ0KPiByZWFsLXdvcmxkIGFuYWxvZ3kuDQo+IA0KPiBQbGVhc2UgdGVsbCB1cyB3
+aGF0IHlvdSBhcmUgYWN0dWFsbHkgdHJ5aW5nIHRvIHNvbHZlLg0KDQoNCglPbmUgb2YgT3VyIGdw
+aW8tY29udHJvbGxlciB3YXMgc3VwcG9ydGluZyBvbmx5IGVkZ2UgcmlzaW5nICAgaW50ZXJydXB0
+cy4gRm9yIHRoYXQgcmVhc29uIEkgaW1wbGVtZW50aW5nIHRoZSBiZWxvdyBsb2dpYyB0byByZWFk
+IHRoZSBpbnRlcnJ1cHQgdHJpZ2dlciBsZXZlbCBmcm9tIHRoZSBEVC4gSWYgaXQgaXMgd3Jvbmcg
+Y291bGQgeW91IHBsZWFzZSBwcm92aWRlIHRoZSBwb2ludGVyIHRvIHNvbHZlIHRoaXMgaXNzdWU/
+DQoNClJlZ2FyZHMsDQpOYXZha2lzaG9yZS4NCg0KPiANCj4gWW91cnMsDQo+IExpbnVzIFdhbGxl
+aWoNCg==

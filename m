@@ -1,75 +1,155 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4 3/3] ARM: dts: use syscon in cygnus touchscreen dt node
-Date: Wed, 6 Apr 2016 10:31:40 -0700
-Message-ID: <20160406173140.GB38452@dtor-ws>
-References: <1456556396-4759-1-git-send-email-raveendra.padasalagi@broadcom.com>
- <1456556396-4759-4-git-send-email-raveendra.padasalagi@broadcom.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet
+ data
+Date: Wed, 6 Apr 2016 10:38:48 -0700
+Message-ID: <20160406173848.GC38452@dtor-ws>
+References: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
+ <CAKdAkRQT0R6peS8iO8PhQ4YoPMowt6voZJez4EubK7R0ZV_m4Q@mail.gmail.com>
+ <56E17A73.8090901@bitmath.org>
+ <CADYu30-b+5TFh2yy2SrGTJJ7FzvcezWut1XL3Ypno5R29hyYww@mail.gmail.com>
+ <20160401215128.GA5216@dtor-ws>
+ <CADYu309K20ki1oMMTGmGQ+CmftCELoSFZfv704YZ_hzmzQG1kQ@mail.gmail.com>
+ <CADYu3083da+hW_uLg3WWqgotvOZD1f3V3TdabgX6gDTY93GB7w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f170.google.com ([209.85.192.170]:35304 "EHLO
+	mail-pf0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751914AbcDFRjI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2016 13:39:08 -0400
 Content-Disposition: inline
-In-Reply-To: <1456556396-4759-4-git-send-email-raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Raveendra Padasalagi <raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jonathan Richardson <jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Jon Mason <jonmason-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Anup Patel <anup.patel-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
+In-Reply-To: <CADYu3083da+hW_uLg3WWqgotvOZD1f3V3TdabgX6gDTY93GB7w@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Aniroop Mathur <aniroop.mathur@gmail.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
-On Sat, Feb 27, 2016 at 12:29:56PM +0530, Raveendra Padasalagi wrote:
-> In Cygnus SOC touch screen controller registers are shared
-> with ADC and flex timer. Using readl/writel could lead to
-> race condition. So touchscreen driver is enhanced to support
-> syscon based register access to take care of mutually exclusive
-> access.
-> 
-> This patch enables syscon support in touchscreen driver
-> by adding necessary properties in touchscreen dt node and
-> in addition to this renamed existing "tsc" touchscreen node
-> name to "touchscreen".
-> 
-> Signed-off-by: Raveendra Padasalagi <raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-> Reviewed-by: Ray Jui <ray.jui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-> Reviewed-by: Scott Branden <scott.branden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+On Wed, Apr 06, 2016 at 08:26:39PM +0530, Aniroop Mathur wrote:
+> On Sat, Apr 2, 2016 at 10:31 PM, Aniroop Mathur
+> <aniroop.mathur@gmail.com> wrote:
+> > Hello Mr. Torokhov,
+> >
+> > First of all, Thank you for your reply.
+> >
+> > On Sat, Apr 2, 2016 at 3:21 AM, Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> >> On Fri, Mar 11, 2016 at 12:26:57AM +0530, Aniroop Mathur wrote:
+> >>> Hi Henrik,
+> >>>
+> >>> On Thu, Mar 10, 2016 at 7:15 PM, Henrik Rydberg <rydberg@bitmath.org> wrote:
+> >>> > Hi Dmitry,
+> >>> >
+> >>> >>> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> >>> >>> index 8806059..262ef77 100644
+> >>> >>> --- a/drivers/input/input.c
+> >>> >>> +++ b/drivers/input/input.c
+> >>> >>> @@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
+> >>> >>>                 if (dev->num_vals >= 2)
+> >>> >>>                         input_pass_values(dev, dev->vals, dev->num_vals);
+> >>> >>>                 dev->num_vals = 0;
+> >>> >>> -       } else if (dev->num_vals >= dev->max_vals - 2) {
+> >>> >>> -               dev->vals[dev->num_vals++] = input_value_sync;
+> >>> >>> +       } else if (dev->num_vals >= dev->max_vals - 1) {
+> >>> >>>                 input_pass_values(dev, dev->vals, dev->num_vals);
+> >>> >>>                 dev->num_vals = 0;
+> >>> >>>         }
+> >>> >>
+> >>> >> This makes sense to me. Henrik?
+> >>> >
+> >>> > I went through the commits that made these changes, and I cannot see any strong
+> >>> > reason to keep it. However, this code path only triggers if no SYN events are
+> >>> > seen, as in a driver that fails to emit them and consequently fills up the
+> >>> > buffer. In other words, this change would only affect a device that is already,
+> >>> > to some degree, broken.
+> >>> >
+> >>> > So, the question to Aniroop is: do you see this problem in practise, and in that
+> >>> > case, for what driver?
+> >>> >
+> >>>
+> >>> Nope. So far I have not dealt with any such driver.
+> >>> I made this change because it is breaking protocol of SYN_REPORT event code.
+> >>>
+> >>> Further from the code, I could deduce that max_vals is just an estimation of
+> >>> packet_size and it does not guarantee that packet_size is same as max_vals.
+> >>> So real packet_size can be more than max_vals value and hence we could not
+> >>> insert SYN_REPORT until packet ends really.
+> >>> Further, if we consider that there exists a driver or will exist in future
+> >>> which sets capability of x event code according to which max_value comes out to
+> >>> y and the real packet size is z i.e. driver wants to send same event codes
+> >>> again in the same packet, so input event reader would be expecting SYN_REPORT
+> >>> after z events but due to current code SYN_REPORT will get inserted
+> >>> automatically after y events, which is a wrong behaviour.
+> >>
+> >> Well, I think I agree with Aniroop that even if driver is to a degree
+> >> broken we should not be inserting random SYN_REPORT events into the
+> >> stream. I wonder if we should not add WARN_ONCE() there to highlight
+> >> potential problems with the way we estimate the number of events.
+> >>
+> >> However I think there is an issue with the patch. If we happen to pass
+> >> values just before the final SYN_REPORT sent by the driver then we reset
+> >> dev->num_vals to 0 and will essentially suppress the final SYN_REPORT
+> >> event, which is not good either.
+> >>
+> >
+> > Yes, right!
+> >
+> > I think it can be fixed by sending the rest of events but not the last event
+> > in case number of events becomes greater than max_vals. The last event will be
+> > saved to be sent in next set of events. This way immediate SYN_REPORT will not
+> > be suppressed and duplicate SYN_REPORT event will not be sent as well.
+> >
+> > Change:
+> > @@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
+> >                 if (dev->num_vals >= 2)
+> >                         input_pass_values(dev, dev->vals, dev->num_vals);
+> >                 dev->num_vals = 0;
+> > -       } else if (dev->num_vals >= dev->max_vals - 2) {
+> > -               dev->vals[dev->num_vals++] = input_value_sync;
+> > -               input_pass_values(dev, dev->vals, dev->num_vals);
+> > -               dev->num_vals = 0;
+> > +       } else if (dev->num_vals == dev->max_vals) {
+> > +                input_pass_values(dev, dev->vals, dev->num_vals - 1);
+> > +                dev->num_vals = 0;
+> > +                dev->vals[dev->num_vals++] = dev->vals[dev->max_vals - 1];
+> >         }
+> >
+> > So, does the above patch looks good now?
+> >
 
-OK, since the new dts is really needed for the driver I'll be folding
-this into the touchscreen driver patch unless I hear someone yelling at
-me.
+No, consider what will happen if you need to switch slot when your queue
+is at dev->max_vals - 1. With your patch you will end up with out of
+bounds write.
 
-Thanks!
+> 
+> 
+> Hello Mr. Torokhov,
+> 
+> Could you please update about this?
+> It would be appreciating if you could help out to conclude it quickly.  Thanks!
 
-> ---
->  arch/arm/boot/dts/bcm-cygnus.dtsi | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
+I am not sure what the urgency is. It is more of a theoretical problem
+ans so far the proposed solutions were actually introducing more
+problems than they were solving.
+
+I am sorry, bit this particular topic is not a priority for me.
+
 > 
-> diff --git a/arch/arm/boot/dts/bcm-cygnus.dtsi b/arch/arm/boot/dts/bcm-cygnus.dtsi
-> index 3878793..b42fe55 100644
-> --- a/arch/arm/boot/dts/bcm-cygnus.dtsi
-> +++ b/arch/arm/boot/dts/bcm-cygnus.dtsi
-> @@ -351,9 +351,16 @@
->  					<&pinctrl 142 10 1>;
->  		};
->  
-> -		touchscreen: tsc@180a6000 {
-> +		ts_adc_syscon: ts_adc_syscon@180a6000 {
-> +			compatible = "brcm,iproc-ts-adc-syscon", "syscon";
-> +			reg = <0x180a6000 0xc30>;
-> +		};
-> +
-> +		touchscreen: touchscreen@180a6000 {
->  			compatible = "brcm,iproc-touchscreen";
-> -			reg = <0x180a6000 0x40>;
-> +			#address-cells = <1>;
-> +			#size-cells = <1>;
-> +			ts_syscon = <&ts_adc_syscon>;
->  			clocks = <&asiu_clks BCM_CYGNUS_ASIU_ADC_CLK>;
->  			clock-names = "tsc_clk";
->  			interrupts = <GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>;
-> -- 
-> 1.9.1
 > 
+> > And may be about WARN_ONCE, do you mean to add something like below in above
+> > code?
+> > WARN_ONCE(1, "Packet did not complete yet but generally expected to be
+> > completed before generation of %d events.\n", dev->max_vals);
+> >
+> >
+> > Thanks,
+> > Aniroop Mathur
+> >
+> >> Thanks.
+> >>
+> >> --
+> >> Dmitry
+
+Thanks.
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

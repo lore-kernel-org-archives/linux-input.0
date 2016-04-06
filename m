@@ -1,55 +1,45 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet
- data
-Date: Wed, 6 Apr 2016 21:51:07 +0200
-Message-ID: <570568AB.8010501@bitmath.org>
-References: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
- <CAKdAkRQT0R6peS8iO8PhQ4YoPMowt6voZJez4EubK7R0ZV_m4Q@mail.gmail.com>
- <56E17A73.8090901@bitmath.org>
- <CADYu30-b+5TFh2yy2SrGTJJ7FzvcezWut1XL3Ypno5R29hyYww@mail.gmail.com>
- <20160401215128.GA5216@dtor-ws>
- <CADYu309K20ki1oMMTGmGQ+CmftCELoSFZfv704YZ_hzmzQG1kQ@mail.gmail.com>
- <CADYu3083da+hW_uLg3WWqgotvOZD1f3V3TdabgX6gDTY93GB7w@mail.gmail.com>
- <20160406173848.GC38452@dtor-ws>
- <CADYu308OF98jdbsqpSVdQpTa0sEafuQmVuC=ttN3-1u59_QvmA@mail.gmail.com>
+From: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 3/3] ARM: dts: use syscon in cygnus touchscreen dt node
+Date: Wed, 6 Apr 2016 13:25:52 -0700
+Message-ID: <CAGVrzcbCZn6RYFwJTkffkct1DiiG+tBJnKELDn32T38_s5mjOg@mail.gmail.com>
+References: <1456556396-4759-1-git-send-email-raveendra.padasalagi@broadcom.com>
+ <1456556396-4759-4-git-send-email-raveendra.padasalagi@broadcom.com> <20160406173140.GB38452@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailrelay7.public.one.com ([91.198.169.215]:53620 "EHLO
-	mailrelay7.public.one.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752333AbcDFTux (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2016 15:50:53 -0400
-In-Reply-To: <CADYu308OF98jdbsqpSVdQpTa0sEafuQmVuC=ttN3-1u59_QvmA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160406173140.GB38452@dtor-ws>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Raveendra Padasalagi <raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jonathan Richardson <jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Jon Mason <jonmason-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Anup Patel <anup.patel-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, bcm-kernel-feedback-list <bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <aniroop.mathur@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
-Hi Aniroop,
-
->> I am not sure what the urgency is. It is more of a theoretical problem
->> ans so far the proposed solutions were actually introducing more
->> problems than they were solving.
+2016-04-06 10:31 GMT-07:00 Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
+> On Sat, Feb 27, 2016 at 12:29:56PM +0530, Raveendra Padasalagi wrote:
+>> In Cygnus SOC touch screen controller registers are shared
+>> with ADC and flex timer. Using readl/writel could lead to
+>> race condition. So touchscreen driver is enhanced to support
+>> syscon based register access to take care of mutually exclusive
+>> access.
 >>
->> I am sorry, bit this particular topic is not a priority for me.
+>> This patch enables syscon support in touchscreen driver
+>> by adding necessary properties in touchscreen dt node and
+>> in addition to this renamed existing "tsc" touchscreen node
+>> name to "touchscreen".
 >>
-> 
-> There is no hurry at all. :-) As you know request is made a long time ago,
-> so I am only very curious to complete it.
+>> Signed-off-by: Raveendra Padasalagi <raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+>> Reviewed-by: Ray Jui <ray.jui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+>> Reviewed-by: Scott Branden <scott.branden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+>
+> OK, since the new dts is really needed for the driver I'll be folding
+> this into the touchscreen driver patch unless I hear someone yelling at
+> me.
 
-This kind of patch is not liked by any maintainer, because it does not solve any
-immediate problem, but instead may create one. If such a simple patch takes
-three of four tries to look right, it only adds to the perception that the code
-is best left alone.
+Works for me:
 
-I think the solution at this stage is to say no to this patch.
-
-If there is ever a driver for which the input_estimate_events_per_packet()
-function returns less than the actual maximum number of events per frame, this
-issue can be revisited and resolved in a number of different ways.
-
-Sorry, and thanks for your work.
-
-Henrik
-
+Acked-by: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+--
+Florian
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

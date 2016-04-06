@@ -1,155 +1,124 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet
- data
-Date: Wed, 6 Apr 2016 10:38:48 -0700
-Message-ID: <20160406173848.GC38452@dtor-ws>
-References: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
- <CAKdAkRQT0R6peS8iO8PhQ4YoPMowt6voZJez4EubK7R0ZV_m4Q@mail.gmail.com>
- <56E17A73.8090901@bitmath.org>
- <CADYu30-b+5TFh2yy2SrGTJJ7FzvcezWut1XL3Ypno5R29hyYww@mail.gmail.com>
- <20160401215128.GA5216@dtor-ws>
- <CADYu309K20ki1oMMTGmGQ+CmftCELoSFZfv704YZ_hzmzQG1kQ@mail.gmail.com>
- <CADYu3083da+hW_uLg3WWqgotvOZD1f3V3TdabgX6gDTY93GB7w@mail.gmail.com>
+Subject: Re: [LINUX PATCH v2] gpio_keys: Added support to read the IRQ_FLAGS
+ from devicetree
+Date: Wed, 6 Apr 2016 10:45:12 -0700
+Message-ID: <20160406174512.GD38452@dtor-ws>
+References: <1459763770-2296-1-git-send-email-navam@xilinx.com>
+ <CACRpkdZ9pqgScTV_z9TLyBgB39vuj6SGCSpz2pYj89O6XDnFrA@mail.gmail.com>
+ <C89496FEAE474D468F30D558A9468D9F26CCF95F@XAP-PVEXMBX01.xlnx.xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f170.google.com ([209.85.192.170]:35304 "EHLO
-	mail-pf0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751914AbcDFRjI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2016 13:39:08 -0400
+Received: from mail-pf0-f175.google.com ([209.85.192.175]:34652 "EHLO
+	mail-pf0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751507AbcDFRpW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2016 13:45:22 -0400
 Content-Disposition: inline
-In-Reply-To: <CADYu3083da+hW_uLg3WWqgotvOZD1f3V3TdabgX6gDTY93GB7w@mail.gmail.com>
+In-Reply-To: <C89496FEAE474D468F30D558A9468D9F26CCF95F@XAP-PVEXMBX01.xlnx.xilinx.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Nava kishore Manne <nava.manne@xilinx.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, =?iso-8859-1?Q?Andersson=2C_Bj=F6rn?= <bjorn.andersson@sonymobile.com>, Peng Fan <van.freenix@gmail.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Wed, Apr 06, 2016 at 08:26:39PM +0530, Aniroop Mathur wrote:
-> On Sat, Apr 2, 2016 at 10:31 PM, Aniroop Mathur
-> <aniroop.mathur@gmail.com> wrote:
-> > Hello Mr. Torokhov,
-> >
-> > First of all, Thank you for your reply.
-> >
-> > On Sat, Apr 2, 2016 at 3:21 AM, Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> >> On Fri, Mar 11, 2016 at 12:26:57AM +0530, Aniroop Mathur wrote:
-> >>> Hi Henrik,
-> >>>
-> >>> On Thu, Mar 10, 2016 at 7:15 PM, Henrik Rydberg <rydberg@bitmath.org> wrote:
-> >>> > Hi Dmitry,
-> >>> >
-> >>> >>> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> >>> >>> index 8806059..262ef77 100644
-> >>> >>> --- a/drivers/input/input.c
-> >>> >>> +++ b/drivers/input/input.c
-> >>> >>> @@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
-> >>> >>>                 if (dev->num_vals >= 2)
-> >>> >>>                         input_pass_values(dev, dev->vals, dev->num_vals);
-> >>> >>>                 dev->num_vals = 0;
-> >>> >>> -       } else if (dev->num_vals >= dev->max_vals - 2) {
-> >>> >>> -               dev->vals[dev->num_vals++] = input_value_sync;
-> >>> >>> +       } else if (dev->num_vals >= dev->max_vals - 1) {
-> >>> >>>                 input_pass_values(dev, dev->vals, dev->num_vals);
-> >>> >>>                 dev->num_vals = 0;
-> >>> >>>         }
-> >>> >>
-> >>> >> This makes sense to me. Henrik?
-> >>> >
-> >>> > I went through the commits that made these changes, and I cannot see any strong
-> >>> > reason to keep it. However, this code path only triggers if no SYN events are
-> >>> > seen, as in a driver that fails to emit them and consequently fills up the
-> >>> > buffer. In other words, this change would only affect a device that is already,
-> >>> > to some degree, broken.
-> >>> >
-> >>> > So, the question to Aniroop is: do you see this problem in practise, and in that
-> >>> > case, for what driver?
-> >>> >
-> >>>
-> >>> Nope. So far I have not dealt with any such driver.
-> >>> I made this change because it is breaking protocol of SYN_REPORT event code.
-> >>>
-> >>> Further from the code, I could deduce that max_vals is just an estimation of
-> >>> packet_size and it does not guarantee that packet_size is same as max_vals.
-> >>> So real packet_size can be more than max_vals value and hence we could not
-> >>> insert SYN_REPORT until packet ends really.
-> >>> Further, if we consider that there exists a driver or will exist in future
-> >>> which sets capability of x event code according to which max_value comes out to
-> >>> y and the real packet size is z i.e. driver wants to send same event codes
-> >>> again in the same packet, so input event reader would be expecting SYN_REPORT
-> >>> after z events but due to current code SYN_REPORT will get inserted
-> >>> automatically after y events, which is a wrong behaviour.
-> >>
-> >> Well, I think I agree with Aniroop that even if driver is to a degree
-> >> broken we should not be inserting random SYN_REPORT events into the
-> >> stream. I wonder if we should not add WARN_ONCE() there to highlight
-> >> potential problems with the way we estimate the number of events.
-> >>
-> >> However I think there is an issue with the patch. If we happen to pass
-> >> values just before the final SYN_REPORT sent by the driver then we reset
-> >> dev->num_vals to 0 and will essentially suppress the final SYN_REPORT
-> >> event, which is not good either.
-> >>
-> >
-> > Yes, right!
-> >
-> > I think it can be fixed by sending the rest of events but not the last event
-> > in case number of events becomes greater than max_vals. The last event will be
-> > saved to be sent in next set of events. This way immediate SYN_REPORT will not
-> > be suppressed and duplicate SYN_REPORT event will not be sent as well.
-> >
-> > Change:
-> > @@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
-> >                 if (dev->num_vals >= 2)
-> >                         input_pass_values(dev, dev->vals, dev->num_vals);
-> >                 dev->num_vals = 0;
-> > -       } else if (dev->num_vals >= dev->max_vals - 2) {
-> > -               dev->vals[dev->num_vals++] = input_value_sync;
-> > -               input_pass_values(dev, dev->vals, dev->num_vals);
-> > -               dev->num_vals = 0;
-> > +       } else if (dev->num_vals == dev->max_vals) {
-> > +                input_pass_values(dev, dev->vals, dev->num_vals - 1);
-> > +                dev->num_vals = 0;
-> > +                dev->vals[dev->num_vals++] = dev->vals[dev->max_vals - 1];
-> >         }
-> >
-> > So, does the above patch looks good now?
-> >
+On Wed, Apr 06, 2016 at 11:32:55AM +0000, Nava kishore Manne wrote:
+> > -----Original Message-----
+> > From: Linus Walleij [mailto:linus.walleij@linaro.org]
+> > Sent: Monday, April 04, 2016 4:38 PM
+> > To: Nava kishore Manne
+> > Cc: Dmitry Torokhov; Andersson, Bj=F6rn; Nava kishore Manne; Peng F=
+an;
+> > Linux Input; linux-kernel@vger.kernel.org
+> > Subject: Re: [LINUX PATCH v2] gpio_keys: Added support to read the
+> > IRQ_FLAGS from devicetree
+> >=20
+> > On Mon, Apr 4, 2016 at 11:56 AM, Nava kishore Manne
+> > <nava.manne@xilinx.com> wrote:
+> >=20
+> > > This patch adds the support to read the IRQ_FLAGS from the device
+> > > instead of hard code the flags in gpio_keys_setup_key().
+> >=20
+> > NACK
+> >=20
+> > >                 sw14 {
+> > >                         label =3D "sw14";
+> > >                         gpios =3D <&gpio0 12 1>;
+> > >                         /*
+> > >                          * Triggering Type:
+> > >                          *
+> > >                          * 1 - edge rising
+> > >                          * 2 - edge falling
+> > >                          * 4 - level active high
+> > >                          * 8 - level active low
+> > >                          *
+> > >                          */
+> >=20
+> > You are completely violating the existing GPIO flags from include/d=
+t-
+> > bindings/gpio/gpio.h
+> >=20
+> > As you will see, for a twocell GPIO flags are already clearly defin=
+ed for 0,1,2
+> > and 3. (Bit 0 & 1).
+> >=20
+> > Further, these IRQ edge/level flags already exist in include/dt-
+> > bindings/interrupt-controller/irq.h
+> > but you should not be using those either, because they do not mix w=
+ith a
+> > GPIO specifier, it's a bit like oil and water.
+> >=20
+> > The standard GPIO bindings already has
+> > GPIO_ACTIVE_HIGH and GPIO_ACTIVE_LOW
+> > which makes it pretty clear that a GPIO line marked as GPIO_ACTIVE_=
+HIGH
+> > should trigger either on rising edge or level active high and vice =
+versa.
+> >=20
+> > The only information you could *possibly* lack is whether the IRQ s=
+hould be
+> > edge or level triggered.
+> >=20
+> > But level triggered GPIO buttons *does* *not* *make*
+> > *sense* *at* *all*.
+> >=20
+> > Think about it:
+> >=20
+> > The IRQ line goes level high or low because a user pressed a button=
+ with
+> > his/her thumb. Then that is wired in as a level IRQ. So what are we=
+ going to
+> > do? Wait in the interrupt handler until the user removes his/her th=
+umb?
+> >=20
+> > Level IRQs on GPIOs only makes sense for devices off-chip where you=
+ can
+> > talk to the device and ACK the interrupt, and in this case "talk" d=
+oes not
+> > mean wire up a speaker telling the user to remove the thumb from th=
+e
+> > button because we have recieved the interrupt, albeit that would be=
+ the
+> > real-world analogy.
+> >=20
+> > Please tell us what you are actually trying to solve.
+>=20
+>=20
+> One of Our gpio-controller was supporting only edge rising interrupts=
+=2E
+> For that reason I implementing the below logic to read the interrupt
+> trigger level from the DT. If it is wrong could you please provide th=
+e
+> pointer to solve this issue?
 
-No, consider what will happen if you need to switch slot when your queue
-is at dev->max_vals - 1. With your patch you will end up with out of
-bounds write.
-
-> 
-> 
-> Hello Mr. Torokhov,
-> 
-> Could you please update about this?
-> It would be appreciating if you could help out to conclude it quickly.  Thanks!
-
-I am not sure what the urgency is. It is more of a theoretical problem
-ans so far the proposed solutions were actually introducing more
-problems than they were solving.
-
-I am sorry, bit this particular topic is not a priority for me.
-
-> 
-> 
-> > And may be about WARN_ONCE, do you mean to add something like below in above
-> > code?
-> > WARN_ONCE(1, "Packet did not complete yet but generally expected to be
-> > completed before generation of %d events.\n", dev->max_vals);
-> >
-> >
-> > Thanks,
-> > Aniroop Mathur
-> >
-> >> Thanks.
-> >>
-> >> --
-> >> Dmitry
+How will you handle key releases if you can only signal key presses?
+gpio-keys driver needs to be notified about both edges.
 
 Thanks.
 
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

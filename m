@@ -1,134 +1,79 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
-Date: Wed, 6 Apr 2016 20:26:39 +0530
-Message-ID: <CADYu3083da+hW_uLg3WWqgotvOZD1f3V3TdabgX6gDTY93GB7w@mail.gmail.com>
-References: <1457372672-884-1-git-send-email-a.mathur@samsung.com>
-	<CAKdAkRQT0R6peS8iO8PhQ4YoPMowt6voZJez4EubK7R0ZV_m4Q@mail.gmail.com>
-	<56E17A73.8090901@bitmath.org>
-	<CADYu30-b+5TFh2yy2SrGTJJ7FzvcezWut1XL3Ypno5R29hyYww@mail.gmail.com>
-	<20160401215128.GA5216@dtor-ws>
-	<CADYu309K20ki1oMMTGmGQ+CmftCELoSFZfv704YZ_hzmzQG1kQ@mail.gmail.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: Re: [PATCH] gpiolib: handle probe deferrals better
+Date: Wed, 6 Apr 2016 18:42:31 +0300
+Message-ID: <57052E67.4050206@ti.com>
+References: <1459511048-24084-1-git-send-email-linus.walleij@linaro.org>
+ <56FE7785.1010507@ti.com> <570294A4.2070801@ti.com>
+ <CACRpkdbzRPfEgdcPrQzDBQxVUnpdJFoGSFqeQ82tohfCAE11_g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:35148 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752361AbcDFO4k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2016 10:56:40 -0400
-In-Reply-To: <CADYu309K20ki1oMMTGmGQ+CmftCELoSFZfv704YZ_hzmzQG1kQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdbzRPfEgdcPrQzDBQxVUnpdJFoGSFqeQ82tohfCAE11_g@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Alexandre Courbot <acourbot@nvidia.com>, Alexander Stein <alexander.stein@systec-electronic.com>, Linux Input <linux-input@vger.kernel.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Guenter Roeck <linux@roeck-us.net>, Bjorn Andersson <bjorn.andersson@linaro.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
-On Sat, Apr 2, 2016 at 10:31 PM, Aniroop Mathur
-<aniroop.mathur@gmail.com> wrote:
-> Hello Mr. Torokhov,
->
-> First of all, Thank you for your reply.
->
-> On Sat, Apr 2, 2016 at 3:21 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Fri, Mar 11, 2016 at 12:26:57AM +0530, Aniroop Mathur wrote:
->>> Hi Henrik,
->>>
->>> On Thu, Mar 10, 2016 at 7:15 PM, Henrik Rydberg <rydberg@bitmath.org> wrote:
->>> > Hi Dmitry,
->>> >
->>> >>> diff --git a/drivers/input/input.c b/drivers/input/input.c
->>> >>> index 8806059..262ef77 100644
->>> >>> --- a/drivers/input/input.c
->>> >>> +++ b/drivers/input/input.c
->>> >>> @@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
->>> >>>                 if (dev->num_vals >= 2)
->>> >>>                         input_pass_values(dev, dev->vals, dev->num_vals);
->>> >>>                 dev->num_vals = 0;
->>> >>> -       } else if (dev->num_vals >= dev->max_vals - 2) {
->>> >>> -               dev->vals[dev->num_vals++] = input_value_sync;
->>> >>> +       } else if (dev->num_vals >= dev->max_vals - 1) {
->>> >>>                 input_pass_values(dev, dev->vals, dev->num_vals);
->>> >>>                 dev->num_vals = 0;
->>> >>>         }
->>> >>
->>> >> This makes sense to me. Henrik?
->>> >
->>> > I went through the commits that made these changes, and I cannot see any strong
->>> > reason to keep it. However, this code path only triggers if no SYN events are
->>> > seen, as in a driver that fails to emit them and consequently fills up the
->>> > buffer. In other words, this change would only affect a device that is already,
->>> > to some degree, broken.
->>> >
->>> > So, the question to Aniroop is: do you see this problem in practise, and in that
->>> > case, for what driver?
->>> >
->>>
->>> Nope. So far I have not dealt with any such driver.
->>> I made this change because it is breaking protocol of SYN_REPORT event code.
->>>
->>> Further from the code, I could deduce that max_vals is just an estimation of
->>> packet_size and it does not guarantee that packet_size is same as max_vals.
->>> So real packet_size can be more than max_vals value and hence we could not
->>> insert SYN_REPORT until packet ends really.
->>> Further, if we consider that there exists a driver or will exist in future
->>> which sets capability of x event code according to which max_value comes out to
->>> y and the real packet size is z i.e. driver wants to send same event codes
->>> again in the same packet, so input event reader would be expecting SYN_REPORT
->>> after z events but due to current code SYN_REPORT will get inserted
->>> automatically after y events, which is a wrong behaviour.
->>
->> Well, I think I agree with Aniroop that even if driver is to a degree
->> broken we should not be inserting random SYN_REPORT events into the
->> stream. I wonder if we should not add WARN_ONCE() there to highlight
->> potential problems with the way we estimate the number of events.
->>
->> However I think there is an issue with the patch. If we happen to pass
->> values just before the final SYN_REPORT sent by the driver then we reset
->> dev->num_vals to 0 and will essentially suppress the final SYN_REPORT
->> event, which is not good either.
->>
->
-> Yes, right!
->
-> I think it can be fixed by sending the rest of events but not the last event
-> in case number of events becomes greater than max_vals. The last event will be
-> saved to be sent in next set of events. This way immediate SYN_REPORT will not
-> be suppressed and duplicate SYN_REPORT event will not be sent as well.
->
-> Change:
-> @@ -401,8 +401,7 @@ static void input_handle_event(struct input_dev *dev,
->                 if (dev->num_vals >= 2)
->                         input_pass_values(dev, dev->vals, dev->num_vals);
->                 dev->num_vals = 0;
-> -       } else if (dev->num_vals >= dev->max_vals - 2) {
-> -               dev->vals[dev->num_vals++] = input_value_sync;
-> -               input_pass_values(dev, dev->vals, dev->num_vals);
-> -               dev->num_vals = 0;
-> +       } else if (dev->num_vals == dev->max_vals) {
-> +                input_pass_values(dev, dev->vals, dev->num_vals - 1);
-> +                dev->num_vals = 0;
-> +                dev->vals[dev->num_vals++] = dev->vals[dev->max_vals - 1];
->         }
->
-> So, does the above patch looks good now?
->
+On 04/06/2016 04:39 PM, Linus Walleij wrote:
+> On Mon, Apr 4, 2016 at 6:21 PM, Grygorii Strashko
+> <grygorii.strashko@ti.com> wrote:
+> 
+>> Below is RFC patch to prove above consent. I've had offlist
+>> debugging session with Alexander and He mentioned that this change
+>> fixes boot issue for him.
+> 
+> Thanks for looking into this.
+> 
+>> Of course, there are some question to discuss:
+>> 1) [+] It should sync initialization of GPIOchip and GPIOirqchip
+>> 2) [+] This approach requires changes in gpiolib/gpio drivers only, from other side
+>> It will require to add fixes all over the Kernel if gpiod_to_irq() will
+>> start returning -EPROBE_DEFER.
+> 
+> Yes, so it will need to be cross-coordinated with IRQ maintainers
+> Marc and TGLX.
+
+Seems, I have to study how to be more clear :(
+This +/- are all about my RFC patch.
+My patch limits the scope of problem to GPIO subsystem/drivers only.
+As opposite, if we will touch gpiod_to_irq() - it will affect on whole
+kernel.
+
+> 
+>> 3) [-] has_irq might need to be initialized by non-DT drivers
+> 
+> Yes. Every driver in the kernel need to be audited.
+
+With my patch only GPIO drivers need to be checked, especially GPIO
+drivers which:
+ - are non-DT based;
+ - do not use GPIO irq helpers
+ - can make IRQ functionality optional using Kconfig/sysfs/module parameters
+
+> 
+>> 4) [-] irq_ready might need to be set manually by drivers which do not use GPIO irq
+>>     helpers (see change in gpio-mpc8xxx.c)
+> 
+> Yes. That too. Every driver in the kernel need to be audited.
+> 
+>> 4) irq_ready access synchronization on SMP? atomic?
+> 
+> Uhhh.... I don't even understand the question.
+
+in my patch the irq_ready is set from _gpiochip_irqchip_add() and
+read from gpiod_request() without any kind of protection and those
+two functions can be executed in parallel.
+
+> 
+>> job done with commit e6918cd 'gpiolib: handle probe deferrals better'
+>> reverted.
+> 
+> I have taken that out of my tree as well. My naive approach
+> doesn't work.
+> 
 
 
-Hello Mr. Torokhov,
-
-Could you please update about this?
-It would be appreciating if you could help out to conclude it quickly.  Thanks!
-
-
-> And may be about WARN_ONCE, do you mean to add something like below in above
-> code?
-> WARN_ONCE(1, "Packet did not complete yet but generally expected to be
-> completed before generation of %d events.\n", dev->max_vals);
->
->
-> Thanks,
-> Aniroop Mathur
->
->> Thanks.
->>
->> --
->> Dmitry
+-- 
+regards,
+-grygorii

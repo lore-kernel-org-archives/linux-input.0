@@ -1,62 +1,56 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Linux-v4.6-rc2] atkbd serio0: Unknown key pressed (translated
- set 2, code 0xa8 on isa0060/serio0).
-Date: Wed, 6 Apr 2016 10:08:58 -0700
-Message-ID: <CAKdAkRRT=Vq_X9Un3Zk-an42WR+ECKt-h6JxALK=4MkJkdgnow@mail.gmail.com>
-References: <CA+icZUV0MGYme3EvLwYaW7HaAdKq7KQm6jgbcy58z4Vk3+n7qg@mail.gmail.com>
-	<CA+icZUVZ05ri=Vs6UGWN0ks74_R2Q48u0=xoh2LSFwSLhpfabg@mail.gmail.com>
-	<CA+icZUW0MFrV5gcVy=R6Jh+Fr7=5cr-ns0_ZXUjuY=LuiduLYw@mail.gmail.com>
+Subject: Re: [PATCH] Documentation: event-codes.txt: clarify we want
+ BTN_TOOL_<name> on proximity
+Date: Wed, 6 Apr 2016 10:16:13 -0700
+Message-ID: <20160406171613.GA38452@dtor-ws>
+References: <20160223230855.GD30638@dtor-ws>
+ <20160224041203.GA32566@jelly.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f51.google.com ([209.85.213.51]:35794 "EHLO
-	mail-vk0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751358AbcDFRI7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2016 13:08:59 -0400
-In-Reply-To: <CA+icZUW0MFrV5gcVy=R6Jh+Fr7=5cr-ns0_ZXUjuY=LuiduLYw@mail.gmail.com>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:33602 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750847AbcDFRQR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2016 13:16:17 -0400
+Received: by mail-pa0-f45.google.com with SMTP id zm5so37011219pac.0
+        for <linux-input@vger.kernel.org>; Wed, 06 Apr 2016 10:16:17 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20160224041203.GA32566@jelly.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: sedat.dilek@gmail.com
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, USB list <linux-usb@vger.kernel.org>
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Charles Mooney <charliemooney@google.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, Linux Input <linux-input@vger.kernel.org>
 
-On Wed, Apr 6, 2016 at 3:27 AM, Sedat Dilek <sedat.dilek@gmail.com> wrote:
-> On Wed, Apr 6, 2016 at 11:35 AM, Sedat Dilek <sedat.dilek@gmail.com> wrote:
->> On Wed, Apr 6, 2016 at 11:27 AM, Sedat Dilek <sedat.dilek@gmail.com> wrote:
->>> Hi,
->>>
->>> I cannot use cursor up and down on my notebook and see this in my dmesg.
->>>
->>> [  685.425634] atkbd serio0: Unknown key pressed (translated set 2,
->>> code 0xa8 on isa0060/serio0).
->>> [  685.425648] atkbd serio0: Use 'setkeycodes e028 <keycode>' to make it known.
->>>
->>> Known issue?
->>>
->>> Do you need more input?
->>>
->>> Linux-config and dmesg-output attached.
->>>
->>> Regards,
->>> - Sedat Dilek -
->>
->> Attached is output of...
->>
->>    $ xmodmap -pke > /tmp/xmodmap-pke.txt
->>
->
-> [ CC (USB)HID folks ]
->
-> I forgot to tell that I have some patches on top of vanilla Linux v4.6-rc2.
->
-> Dropping the patches from <jikos/hid.git#for-4.6/upstream-fixes> makes
-> the issue go away.
-> Unsure what is the cause.
+On Wed, Feb 24, 2016 at 02:12:03PM +1000, Peter Hutterer wrote:
+> This explicitly states behavior we already use for some touchpads and tablet
+> devices.
+> 
+> Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
 
-Hmm, this is quite curious, none of the recent patches in
-for-4.6/upstream-fixes touches atkbd. I'd be very interested in which
-one exactly causes this.
+Applied, thank you.
 
-Thanks.
+> ---
+>  Documentation/input/event-codes.txt | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
+> index 3f0f5ce..36ea940 100644
+> --- a/Documentation/input/event-codes.txt
+> +++ b/Documentation/input/event-codes.txt
+> @@ -173,6 +173,10 @@ A few EV_ABS codes have special meanings:
+>      proximity of the device and while the value of the BTN_TOUCH code is 0. If
+>      the input device may be used freely in three dimensions, consider ABS_Z
+>      instead.
+> +  - BTN_TOOL_<name> should be set to 1 when the tool comes into detectable
+> +    proximity and set to 0 when the tool leaves detectable proximity.
+> +    BTN_TOOL_<name> signals the type of tool that is currently detected by the
+> +    hardware and is otherwise independent of ABS_DISTANCE and/or BTN_TOUCH.
+>  
+>  * ABS_MT_<name>:
+>    - Used to describe multitouch input events. Please see
+> -- 
+> 2.5.0
+> 
 
 -- 
 Dmitry

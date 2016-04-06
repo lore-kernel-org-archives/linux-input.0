@@ -1,104 +1,75 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] HID: simplify implement() a bit
-Date: Wed, 6 Apr 2016 10:19:58 -0700
-Message-ID: <20160406171958.GA39482@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 3/3] ARM: dts: use syscon in cygnus touchscreen dt node
+Date: Wed, 6 Apr 2016 10:31:40 -0700
+Message-ID: <20160406173140.GB38452@dtor-ws>
+References: <1456556396-4759-1-git-send-email-raveendra.padasalagi@broadcom.com>
+ <1456556396-4759-4-git-send-email-raveendra.padasalagi@broadcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f177.google.com ([209.85.192.177]:35317 "EHLO
-	mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751310AbcDFRUC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2016 13:20:02 -0400
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1456556396-4759-4-git-send-email-raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Raveendra Padasalagi <raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jonathan Richardson <jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Jon Mason <jonmason-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Anup Patel <anup.patel-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Doug Anderson <dianders@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The 'size' variable is not really needed, and we can also shift constant
-in the loop body when masking off existing bits.
+On Sat, Feb 27, 2016 at 12:29:56PM +0530, Raveendra Padasalagi wrote:
+> In Cygnus SOC touch screen controller registers are shared
+> with ADC and flex timer. Using readl/writel could lead to
+> race condition. So touchscreen driver is enhanced to support
+> syscon based register access to take care of mutually exclusive
+> access.
+> 
+> This patch enables syscon support in touchscreen driver
+> by adding necessary properties in touchscreen dt node and
+> in addition to this renamed existing "tsc" touchscreen node
+> name to "touchscreen".
+> 
+> Signed-off-by: Raveendra Padasalagi <raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+> Reviewed-by: Ray Jui <ray.jui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+> Reviewed-by: Scott Branden <scott.branden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 
-Also we do not have to us 64 bit calculations if we take an extra
-branch.
+OK, since the new dts is really needed for the driver I'll be folding
+this into the touchscreen driver patch unless I hear someone yelling at
+me.
 
-Suggested-by: Doug Anderson <dianders@chromium.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/hid/hid-core.c | 33 +++++++++++++++------------------
- 1 file changed, 15 insertions(+), 18 deletions(-)
+Thanks!
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 264cc49..9673dea 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1129,49 +1129,46 @@ EXPORT_SYMBOL_GPL(hid_field_extract);
- static void __implement(u8 *report, unsigned offset, int n, u32 value)
- {
- 	unsigned int idx = offset / 8;
--	unsigned int size = offset + n;
- 	unsigned int bit_shift = offset % 8;
- 	int bits_to_set = 8 - bit_shift;
--	u8 bit_mask = 0xff << bit_shift;
- 
- 	while (n - bits_to_set >= 0) {
--		report[idx] &= ~bit_mask;
-+		report[idx] &= ~(0xff << bit_shift);
- 		report[idx] |= value << bit_shift;
- 		value >>= bits_to_set;
- 		n -= bits_to_set;
- 		bits_to_set = 8;
--		bit_mask = 0xff;
- 		bit_shift = 0;
- 		idx++;
- 	}
- 
- 	/* last nibble */
- 	if (n) {
--		if (size % 8)
--			bit_mask &= (1U << (size % 8)) - 1;
--		report[idx] &= ~bit_mask;
--		report[idx] |= (value << bit_shift) & bit_mask;
-+		u8 bit_mask = ((1U << n) - 1);
-+		report[idx] &= ~(bit_mask << bit_shift);
-+		report[idx] |= value << bit_shift;
- 	}
- }
- 
- static void implement(const struct hid_device *hid, u8 *report,
- 		      unsigned offset, unsigned n, u32 value)
- {
--	u64 m;
--
--	if (n > 32) {
-+	if (unlikely(n > 32)) {
- 		hid_warn(hid, "%s() called with n (%d) > 32! (%s)\n",
- 			 __func__, n, current->comm);
- 		n = 32;
-+	} else if (n < 32) {
-+		u32 m = (1U << n) - 1;
-+
-+		if (unlikely(value > m)) {
-+			hid_warn(hid,
-+				 "%s() called with too large value %d (n: %d)! (%s)\n",
-+				 __func__, value, n, current->comm);
-+			WARN_ON(1);
-+			value &= m;
-+		}
- 	}
- 
--	m = (1ULL << n) - 1;
--	if (value > m)
--		hid_warn(hid, "%s() called with too large value %d! (%s)\n",
--			 __func__, value, current->comm);
--	WARN_ON(value > m);
--	value &= m;
--
- 	__implement(report, offset, n, value);
- }
- 
--- 
-2.8.0.rc3.226.g39d4020
-
+> ---
+>  arch/arm/boot/dts/bcm-cygnus.dtsi | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/arm/boot/dts/bcm-cygnus.dtsi b/arch/arm/boot/dts/bcm-cygnus.dtsi
+> index 3878793..b42fe55 100644
+> --- a/arch/arm/boot/dts/bcm-cygnus.dtsi
+> +++ b/arch/arm/boot/dts/bcm-cygnus.dtsi
+> @@ -351,9 +351,16 @@
+>  					<&pinctrl 142 10 1>;
+>  		};
+>  
+> -		touchscreen: tsc@180a6000 {
+> +		ts_adc_syscon: ts_adc_syscon@180a6000 {
+> +			compatible = "brcm,iproc-ts-adc-syscon", "syscon";
+> +			reg = <0x180a6000 0xc30>;
+> +		};
+> +
+> +		touchscreen: touchscreen@180a6000 {
+>  			compatible = "brcm,iproc-touchscreen";
+> -			reg = <0x180a6000 0x40>;
+> +			#address-cells = <1>;
+> +			#size-cells = <1>;
+> +			ts_syscon = <&ts_adc_syscon>;
+>  			clocks = <&asiu_clks BCM_CYGNUS_ASIU_ADC_CLK>;
+>  			clock-names = "tsc_clk";
+>  			interrupts = <GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>;
+> -- 
+> 1.9.1
+> 
 
 -- 
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,79 +1,62 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: Re: [PATCH] gpiolib: handle probe deferrals better
-Date: Wed, 6 Apr 2016 18:42:31 +0300
-Message-ID: <57052E67.4050206@ti.com>
-References: <1459511048-24084-1-git-send-email-linus.walleij@linaro.org>
- <56FE7785.1010507@ti.com> <570294A4.2070801@ti.com>
- <CACRpkdbzRPfEgdcPrQzDBQxVUnpdJFoGSFqeQ82tohfCAE11_g@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [Linux-v4.6-rc2] atkbd serio0: Unknown key pressed (translated
+ set 2, code 0xa8 on isa0060/serio0).
+Date: Wed, 6 Apr 2016 10:08:58 -0700
+Message-ID: <CAKdAkRRT=Vq_X9Un3Zk-an42WR+ECKt-h6JxALK=4MkJkdgnow@mail.gmail.com>
+References: <CA+icZUV0MGYme3EvLwYaW7HaAdKq7KQm6jgbcy58z4Vk3+n7qg@mail.gmail.com>
+	<CA+icZUVZ05ri=Vs6UGWN0ks74_R2Q48u0=xoh2LSFwSLhpfabg@mail.gmail.com>
+	<CA+icZUW0MFrV5gcVy=R6Jh+Fr7=5cr-ns0_ZXUjuY=LuiduLYw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdbzRPfEgdcPrQzDBQxVUnpdJFoGSFqeQ82tohfCAE11_g@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Alexandre Courbot <acourbot@nvidia.com>, Alexander Stein <alexander.stein@systec-electronic.com>, Linux Input <linux-input@vger.kernel.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Guenter Roeck <linux@roeck-us.net>, Bjorn Andersson <bjorn.andersson@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vk0-f51.google.com ([209.85.213.51]:35794 "EHLO
+	mail-vk0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751358AbcDFRI7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2016 13:08:59 -0400
+In-Reply-To: <CA+icZUW0MFrV5gcVy=R6Jh+Fr7=5cr-ns0_ZXUjuY=LuiduLYw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: sedat.dilek@gmail.com
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, USB list <linux-usb@vger.kernel.org>
 
-On 04/06/2016 04:39 PM, Linus Walleij wrote:
-> On Mon, Apr 4, 2016 at 6:21 PM, Grygorii Strashko
-> <grygorii.strashko@ti.com> wrote:
-> 
->> Below is RFC patch to prove above consent. I've had offlist
->> debugging session with Alexander and He mentioned that this change
->> fixes boot issue for him.
-> 
-> Thanks for looking into this.
-> 
->> Of course, there are some question to discuss:
->> 1) [+] It should sync initialization of GPIOchip and GPIOirqchip
->> 2) [+] This approach requires changes in gpiolib/gpio drivers only, from other side
->> It will require to add fixes all over the Kernel if gpiod_to_irq() will
->> start returning -EPROBE_DEFER.
-> 
-> Yes, so it will need to be cross-coordinated with IRQ maintainers
-> Marc and TGLX.
+On Wed, Apr 6, 2016 at 3:27 AM, Sedat Dilek <sedat.dilek@gmail.com> wrote:
+> On Wed, Apr 6, 2016 at 11:35 AM, Sedat Dilek <sedat.dilek@gmail.com> wrote:
+>> On Wed, Apr 6, 2016 at 11:27 AM, Sedat Dilek <sedat.dilek@gmail.com> wrote:
+>>> Hi,
+>>>
+>>> I cannot use cursor up and down on my notebook and see this in my dmesg.
+>>>
+>>> [  685.425634] atkbd serio0: Unknown key pressed (translated set 2,
+>>> code 0xa8 on isa0060/serio0).
+>>> [  685.425648] atkbd serio0: Use 'setkeycodes e028 <keycode>' to make it known.
+>>>
+>>> Known issue?
+>>>
+>>> Do you need more input?
+>>>
+>>> Linux-config and dmesg-output attached.
+>>>
+>>> Regards,
+>>> - Sedat Dilek -
+>>
+>> Attached is output of...
+>>
+>>    $ xmodmap -pke > /tmp/xmodmap-pke.txt
+>>
+>
+> [ CC (USB)HID folks ]
+>
+> I forgot to tell that I have some patches on top of vanilla Linux v4.6-rc2.
+>
+> Dropping the patches from <jikos/hid.git#for-4.6/upstream-fixes> makes
+> the issue go away.
+> Unsure what is the cause.
 
-Seems, I have to study how to be more clear :(
-This +/- are all about my RFC patch.
-My patch limits the scope of problem to GPIO subsystem/drivers only.
-As opposite, if we will touch gpiod_to_irq() - it will affect on whole
-kernel.
+Hmm, this is quite curious, none of the recent patches in
+for-4.6/upstream-fixes touches atkbd. I'd be very interested in which
+one exactly causes this.
 
-> 
->> 3) [-] has_irq might need to be initialized by non-DT drivers
-> 
-> Yes. Every driver in the kernel need to be audited.
-
-With my patch only GPIO drivers need to be checked, especially GPIO
-drivers which:
- - are non-DT based;
- - do not use GPIO irq helpers
- - can make IRQ functionality optional using Kconfig/sysfs/module parameters
-
-> 
->> 4) [-] irq_ready might need to be set manually by drivers which do not use GPIO irq
->>     helpers (see change in gpio-mpc8xxx.c)
-> 
-> Yes. That too. Every driver in the kernel need to be audited.
-> 
->> 4) irq_ready access synchronization on SMP? atomic?
-> 
-> Uhhh.... I don't even understand the question.
-
-in my patch the irq_ready is set from _gpiochip_irqchip_add() and
-read from gpiod_request() without any kind of protection and those
-two functions can be executed in parallel.
-
-> 
->> job done with commit e6918cd 'gpiolib: handle probe deferrals better'
->> reverted.
-> 
-> I have taken that out of my tree as well. My naive approach
-> doesn't work.
-> 
-
+Thanks.
 
 -- 
-regards,
--grygorii
+Dmitry

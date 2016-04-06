@@ -1,70 +1,55 @@
-From: zengzhaoxiu@163.com
-Subject: [PATCH v2 29/30] input: use parity8 in elantech
-Date: Wed,  6 Apr 2016 18:20:14 +0800
-Message-ID: <1459938014-8603-1-git-send-email-zengzhaoxiu@163.com>
-References: <57031D9D.801@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m50-133.163.com ([123.125.50.133]:38736 "EHLO m50-133.163.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752694AbcDFKVa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 Apr 2016 06:21:30 -0400
-In-Reply-To: <57031D9D.801@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Sedat Dilek <sedat.dilek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [Linux-v4.6-rc2] atkbd serio0: Unknown key pressed (translated
+ set 2, code 0xa8 on isa0060/serio0).
+Date: Wed, 6 Apr 2016 12:27:46 +0200
+Message-ID: <CA+icZUW0MFrV5gcVy=R6Jh+Fr7=5cr-ns0_ZXUjuY=LuiduLYw@mail.gmail.com>
+References: <CA+icZUV0MGYme3EvLwYaW7HaAdKq7KQm6jgbcy58z4Vk3+n7qg@mail.gmail.com>
+	<CA+icZUVZ05ri=Vs6UGWN0ks74_R2Q48u0=xoh2LSFwSLhpfabg@mail.gmail.com>
+Reply-To: sedat.dilek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CA+icZUVZ05ri=Vs6UGWN0ks74_R2Q48u0=xoh2LSFwSLhpfabg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, ulrik.debie-os@e2big.org, hdegoede@redhat.com, peter.hutterer@who-t.net, tiwai@suse.de, dusonlin@emc.com.tw
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
 
-From: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
+On Wed, Apr 6, 2016 at 11:35 AM, Sedat Dilek <sedat.dilek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> On Wed, Apr 6, 2016 at 11:27 AM, Sedat Dilek <sedat.dilek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>> Hi,
+>>
+>> I cannot use cursor up and down on my notebook and see this in my dmesg.
+>>
+>> [  685.425634] atkbd serio0: Unknown key pressed (translated set 2,
+>> code 0xa8 on isa0060/serio0).
+>> [  685.425648] atkbd serio0: Use 'setkeycodes e028 <keycode>' to make it known.
+>>
+>> Known issue?
+>>
+>> Do you need more input?
+>>
+>> Linux-config and dmesg-output attached.
+>>
+>> Regards,
+>> - Sedat Dilek -
+>
+> Attached is output of...
+>
+>    $ xmodmap -pke > /tmp/xmodmap-pke.txt
+>
 
-Remove even parity table, use parity8 instead.
+[ CC (USB)HID folks ]
 
-Signed-off-by: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
----
- drivers/input/mouse/elantech.c | 10 +++-------
- drivers/input/mouse/elantech.h |  1 -
- 2 files changed, 3 insertions(+), 8 deletions(-)
+I forgot to tell that I have some patches on top of vanilla Linux v4.6-rc2.
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 78f93cf..bbb4aa6 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -693,9 +693,9 @@ static int elantech_packet_check_v1(struct psmouse *psmouse)
- 
- 	p3 = (packet[0] & 0x04) >> 2;
- 
--	return etd->parity[packet[1]] == p1 &&
--	       etd->parity[packet[2]] == p2 &&
--	       etd->parity[packet[3]] == p3;
-+	return parity8(packet[1]) != p1 &&
-+	       parity8(packet[2]) != p2 &&
-+	       parity8(packet[3]) != p3;
- }
- 
- static int elantech_debounce_check_v2(struct psmouse *psmouse)
-@@ -1635,10 +1635,6 @@ int elantech_init(struct psmouse *psmouse)
- 
- 	psmouse_reset(psmouse);
- 
--	etd->parity[0] = 1;
--	for (i = 1; i < 256; i++)
--		etd->parity[i] = etd->parity[i & (i - 1)] ^ 1;
--
- 	/*
- 	 * Do the version query again so we can store the result
- 	 */
-diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
-index e1cbf40..542c5d9 100644
---- a/drivers/input/mouse/elantech.h
-+++ b/drivers/input/mouse/elantech.h
-@@ -141,7 +141,6 @@ struct elantech_data {
- 	unsigned int y_max;
- 	unsigned int width;
- 	struct finger_pos mt[ETP_MAX_FINGERS];
--	unsigned char parity[256];
- 	int (*send_cmd)(struct psmouse *psmouse, unsigned char c, unsigned char *param);
- 	void (*original_set_rate)(struct psmouse *psmouse, unsigned int rate);
- };
--- 
-2.5.0
+Dropping the patches from <jikos/hid.git#for-4.6/upstream-fixes> makes
+the issue go away.
+Unsure what is the cause.
+On the way, try to look this evening or tommorrow into this.
 
-
+- Sedat -
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,63 +1,59 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] gpiolib: handle probe deferrals better
-Date: Thu, 7 Apr 2016 19:09:06 +0200
-Message-ID: <CACRpkdZYyZG9=mXdWi3bnfvOqc6LFE1FykTU-QirQOJLv=Z2=A@mail.gmail.com>
-References: <1459511048-24084-1-git-send-email-linus.walleij@linaro.org>
-	<56FE7785.1010507@ti.com>
-	<570294A4.2070801@ti.com>
-	<CACRpkdbzRPfEgdcPrQzDBQxVUnpdJFoGSFqeQ82tohfCAE11_g@mail.gmail.com>
-	<57052E67.4050206@ti.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 5/5] Input: Add tps65217 power button driver
+Date: Thu, 7 Apr 2016 12:57:32 -0500
+Message-ID: <20160407175732.GH32257@rob-hp-laptop>
+References: <1459789865-3704-1-git-send-email-m.niestroj@grinn-global.com>
+ <1459789865-3704-7-git-send-email-m.niestroj@grinn-global.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <57052E67.4050206@ti.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Alexandre Courbot <acourbot@nvidia.com>, Alexander Stein <alexander.stein@systec-electronic.com>, Linux Input <linux-input@vger.kernel.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Guenter Roeck <linux@roeck-us.net>, Bjorn Andersson <bjorn.andersson@linaro.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:60345 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932251AbcDGR5h (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 Apr 2016 13:57:37 -0400
+Content-Disposition: inline
+In-Reply-To: <1459789865-3704-7-git-send-email-m.niestroj@grinn-global.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Marcin Niestroj <m.niestroj@grinn-global.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-On Wed, Apr 6, 2016 at 5:42 PM, Grygorii Strashko
-<grygorii.strashko@ti.com> wrote:
-> On 04/06/2016 04:39 PM, Linus Walleij wrote:
+On Mon, Apr 04, 2016 at 07:11:05PM +0200, Marcin Niestroj wrote:
+> This driver enables us to use tps65217's power button as KEY_POWER on
+> am335x boards (directly connected button in chiliboard, accessible pin
+> via expansion header in beaglebone). This patch has been tested with
+> chiliboard.
+> 
+> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+> ---
+>  .../bindings/input/tps65217-pwrbutton.txt          |  14 +++
+>  drivers/input/misc/Kconfig                         |  10 ++
+>  drivers/input/misc/Makefile                        |   1 +
+>  drivers/input/misc/tps65217-pwrbutton.c            | 131 +++++++++++++++++++++
+>  4 files changed, 156 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/tps65217-pwrbutton.txt
+>  create mode 100644 drivers/input/misc/tps65217-pwrbutton.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/tps65217-pwrbutton.txt b/Documentation/devicetree/bindings/input/tps65217-pwrbutton.txt
+> new file mode 100644
+> index 0000000..6cba51d
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/tps65217-pwrbutton.txt
+> @@ -0,0 +1,14 @@
+> +Texas Instruments TPS65217 power button
+> +
+> +This driver provides a simple power button event via an Interrupt.
 
->>> Of course, there are some question to discuss:
->>> 1) [+] It should sync initialization of GPIOchip and GPIOirqchip
->>> 2) [+] This approach requires changes in gpiolib/gpio drivers only, from other side
->>> It will require to add fixes all over the Kernel if gpiod_to_irq() will
->>> start returning -EPROBE_DEFER.
->>
->> Yes, so it will need to be cross-coordinated with IRQ maintainers
->> Marc and TGLX.
->
-> Seems, I have to study how to be more clear :(
-> This +/- are all about my RFC patch.
-> My patch limits the scope of problem to GPIO subsystem/drivers only.
-> As opposite, if we will touch gpiod_to_irq() - it will affect on whole
-> kernel.
+Please specify what exactly this is a sub-node of.
 
-OK I get it now, good.
-
->> Yes. Every driver in the kernel need to be audited.
->
-> With my patch only GPIO drivers need to be checked, especially GPIO
-> drivers which:
->  - are non-DT based;
->  - do not use GPIO irq helpers
->  - can make IRQ functionality optional using Kconfig/sysfs/module parameters
-
-Yeah. I mean you have to look at all of them, not patch all of
-them. It's a lot but not unberably much. < 300 files.
-
->>> 4) irq_ready access synchronization on SMP? atomic?
->>
->> Uhhh.... I don't even understand the question.
->
-> in my patch the irq_ready is set from _gpiochip_irqchip_add() and
-> read from gpiod_request() without any kind of protection and those
-> two functions can be executed in parallel.
-
-Aha. Well I don't know if that is really a big problem?
-Does that really happen in practice?
-
-Yours,
-Linus Walleij
+> +
+> +Required properties:
+> +- compatible: should be "ti,tps65217-pwrbutton"
+> +
+> +Example:
+> +
+> +&tps {
+> +	tps65217-pwrbutton {
+> +		compatible = "ti,tps65217-pwrbutton";
+> +	};
+> +};

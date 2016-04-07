@@ -1,63 +1,38 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [Linux-v4.6-rc2] atkbd serio0: Unknown key pressed (translated
- set 2, code 0xa8 on isa0060/serio0).
-Date: Wed, 6 Apr 2016 23:34:58 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1604062334030.27368@cbobk.fhfr.pm>
-References: <CA+icZUV0MGYme3EvLwYaW7HaAdKq7KQm6jgbcy58z4Vk3+n7qg@mail.gmail.com> <CA+icZUVZ05ri=Vs6UGWN0ks74_R2Q48u0=xoh2LSFwSLhpfabg@mail.gmail.com> <CA+icZUW0MFrV5gcVy=R6Jh+Fr7=5cr-ns0_ZXUjuY=LuiduLYw@mail.gmail.com>
- <CAKdAkRRT=Vq_X9Un3Zk-an42WR+ECKt-h6JxALK=4MkJkdgnow@mail.gmail.com>
+From: Sekhar Nori <nsekhar@ti.com>
+Subject: Re: [PATCH 3/3] ARM: DTS: da850: add DT node for tps6507x-ts
+Date: Thu, 7 Apr 2016 15:06:14 +0530
+Message-ID: <57062A0E.6070501@ti.com>
+References: <1454308130-12452-1-git-send-email-sushaanth.s@ti.com>
+ <1454308130-12452-5-git-send-email-sushaanth.s@ti.com>
+ <56C474EF.5040006@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:52294 "EHLO mx2.suse.de"
+Received: from comal.ext.ti.com ([198.47.26.152]:39973 "EHLO comal.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753318AbcDFVfA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 Apr 2016 17:35:00 -0400
-In-Reply-To: <CAKdAkRRT=Vq_X9Un3Zk-an42WR+ECKt-h6JxALK=4MkJkdgnow@mail.gmail.com>
+	id S1753931AbcDGJiJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 Apr 2016 05:38:09 -0400
+In-Reply-To: <56C474EF.5040006@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: sedat.dilek@gmail.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, USB list <linux-usb@vger.kernel.org>
+To: Sushaanth Srirangapathi <sushaanth.s@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joe Perches <joe@perches.com>, Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Wed, 6 Apr 2016, Dmitry Torokhov wrote:
-
-> >>> [  685.425634] atkbd serio0: Unknown key pressed (translated set 2,
-> >>> code 0xa8 on isa0060/serio0).
-> >>> [  685.425648] atkbd serio0: Use 'setkeycodes e028 <keycode>' to make it known.
-> >>>
-> >>> Known issue?
-> >>>
-> >>> Do you need more input?
-> >>>
-> >>> Linux-config and dmesg-output attached.
-> >>>
-> >>> Regards,
-> >>> - Sedat Dilek -
-> >>
-> >> Attached is output of...
-> >>
-> >>    $ xmodmap -pke > /tmp/xmodmap-pke.txt
-> >>
-> >
-> > [ CC (USB)HID folks ]
-> >
-> > I forgot to tell that I have some patches on top of vanilla Linux v4.6-rc2.
-> >
-> > Dropping the patches from <jikos/hid.git#for-4.6/upstream-fixes> makes
-> > the issue go away.
-> > Unsure what is the cause.
+On Wednesday 17 February 2016 06:56 PM, Sekhar Nori wrote:
+> On Monday 01 February 2016 11:58 AM, Sushaanth Srirangapathi wrote:
+>> add tps6507x touchscreen device tree node information to
+>> DA850 EVM
+>>
+>> Signed-off-by: Sushaanth Srirangapathi <sushaanth.s@ti.com>
 > 
-> Hmm, this is quite curious, none of the recent patches in
-> for-4.6/upstream-fixes touches atkbd. I'd be very interested in which
-> one exactly causes this.
+> Acked-by: Sekhar Nori <nsekhar@ti.com>
+> 
+> I can queue 3/3 once driver changes are accepted (let me know about that
+> because I am not copied on this series).
 
-It's indeed odd.
-
-Sedat, the kernel in question is compiled by gcc, right? (just making sure 
-given the past experience :) ).
+This missed v4.6 merge window. So it should probably be resent for v4.7
+after rebasing to v4.6-rc1
 
 Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
-
+Sekhar

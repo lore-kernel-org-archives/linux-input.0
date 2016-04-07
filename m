@@ -1,60 +1,57 @@
-From: Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH v3] Input: rotary_encoder - support binary encoding of states
-Date: Thu, 7 Apr 2016 17:45:00 -0500
-Message-ID: <CAL_JsqLfQQu69LcsFuJkKmjppp047vW5Ga+y5XiDAAG-Weh6ug@mail.gmail.com>
-References: <1460055528-13814-1-git-send-email-u.kleine-koenig@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Tom Rini <trini@konsulko.com>
+Subject: [PATCH] Revert "Input: atmel_mxt_ts - disable interrupt for 50ms after reset"
+Date: Thu,  7 Apr 2016 18:52:25 -0400
+Message-ID: <1460069545-10322-1-git-send-email-trini@konsulko.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:48308 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753278AbcDGWpX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Apr 2016 18:45:23 -0400
-In-Reply-To: <1460055528-13814-1-git-send-email-u.kleine-koenig@pengutronix.de>
+Received: from mail-yw0-f193.google.com ([209.85.161.193]:36259 "EHLO
+	mail-yw0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751895AbcDGWu5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Apr 2016 18:50:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "kernel@pengutronix.de" <kernel@pengutronix.de>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Olof Johansson <olof@lixom.net>, Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
 
-On Thu, Apr 7, 2016 at 1:58 PM, Uwe Kleine-K=C3=B6nig
-<u.kleine-koenig@pengutronix.de> wrote:
-> It's not advisable to use this encoding, but to support existing devi=
-ces
-> add support for this to the driver.
->
-> Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
-> ---
+This reverts commit 885f3fb9fa1f9e185e8a4e905157087495734349 due to this
+change breaking the touchpad on the Chromebook Pixel 2015 on resume from
+sleep or warm resets.
 
-Ack for the binding, but...
+Cc: Olof Johansson <olof@lixom.net>
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>
+Signed-off-by: Tom Rini <trini@konsulko.com>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c |    9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-> @@ -213,6 +222,17 @@ static int rotary_encoder_probe(struct platform_=
-device *pdev)
->         encoder->rollover =3D
->                 device_property_read_bool(dev, "rotary-encoder,rollov=
-er");
->
-> +       err =3D device_property_read_string(dev, "rotary-encoder,enco=
-ding",
-> +                                         &encoding);
-> +       if (!err && !strcmp(encoding, "binary")) {
-> +               encoder->encoding =3D ROTENC_BINARY;
-> +       } else if (err || !strcmp(encoding, "gray")) {
-> +               encoder->encoding =3D ROTENC_GRAY;
-> +       } else {
-> +               dev_err(dev, "unknown encoding setting");
-> +               return -EINVAL;
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 2160512..9b92b60 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -1098,9 +1098,7 @@ static int mxt_soft_reset(struct mxt_data *data)
+ 	struct device *dev = &data->client->dev;
+ 	int ret = 0;
+ 
+-	dev_info(dev, "Resetting device\n");
+-
+-	disable_irq(data->irq);
++	dev_info(dev, "Resetting chip\n");
+ 
+ 	reinit_completion(&data->reset_completion);
+ 
+@@ -1108,11 +1106,6 @@ static int mxt_soft_reset(struct mxt_data *data)
+ 	if (ret)
+ 		return ret;
+ 
+-	/* Ignore CHG line for 100ms after reset */
+-	msleep(100);
+-
+-	enable_irq(data->irq);
+-
+ 	ret = mxt_wait_for_completion(data, &data->reset_completion,
+ 				      MXT_RESET_TIMEOUT);
+ 	if (ret)
+-- 
+1.7.9.5
 
-device_property_match_string() here instead.
-
-> +       }
-> +
->         device_property_read_u32(dev, "linux,axis", &encoder->axis);
->         encoder->relative_axis =3D
->                 device_property_read_bool(dev, "rotary-encoder,relati=
-ve-axis");
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

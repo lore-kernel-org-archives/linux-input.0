@@ -1,22 +1,24 @@
-From: =?utf-8?B?5oiR55qE55u45YaM5Zyo?= <cmm@hbsyny.gov.cn>
-Subject: =?utf-8?B?5oiR55qE55u45YaM5Zyo?=
-Date: Fri, 8 Apr 2016 08:44:02 +0800
-Message-ID: <20160408084415561571@hbsyny.gov.cn>
+From: tmn_mz_a13@aptekam.ru
+Subject: It's me michela
+Date: Fri, 08 Apr 2016 03:27:02 +0000
+Message-ID: <20160408032706.2F96EB666B0@mail.aptekam.ru>
+Reply-To: michelapeterson1987@foxmail.com
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [61.184.93.75] ([61.184.93.75]:3151 "HELO hbsyny.gov.cn"
-	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with SMTP
-	id S1756802AbcDHAyL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 7 Apr 2016 20:54:11 -0400
+Received: from mail.aptekam.ru ([83.222.15.120]:59989 "EHLO mail.aptekam.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752046AbcDHDeQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Apr 2016 23:34:16 -0400
+Content-Description: Mail message body
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Recipients <tmn_mz_a13@aptekam.ru>
 
-5L2g55qE6ICB5pyL5Y+L6YKA5L2g5p2lUee+pDozNDMyNTc3NTkg5oqi57qi5YyFIOaKouenkuad
-gCDmiqJ2aXAg5LuA5LmI6YO96KaB5oqi44CC5aSq5Yi65r+A5LqG44CC5LiN6Z2g5omL5rCU5Y+q
-5ou85omL6YCfDQo=
+Hello Dear,
 
+Its me Michela, are you getting my email? please write me back immediately to let me know, kisses.
 
+Michela.
+Waiting.

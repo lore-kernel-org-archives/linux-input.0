@@ -1,77 +1,79 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
+From: Tom Rini <trini@konsulko.com>
 Subject: Re: [PATCH] Revert "Input: atmel_mxt_ts - disable interrupt for 50ms
  after reset"
-Date: Fri, 8 Apr 2016 10:10:06 +0100
-Message-ID: <5707756E.30506@itdev.co.uk>
+Date: Fri, 8 Apr 2016 08:14:18 -0400
+Message-ID: <20160408121418.GT23166@bill-the-cat>
 References: <1460069545-10322-1-git-send-email-trini@konsulko.com>
+ <5707756E.30506@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zencphosting06.zen.co.uk ([82.71.204.9]:45819 "EHLO
-	zencphosting06.zen.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753088AbcDHJKI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Apr 2016 05:10:08 -0400
-In-Reply-To: <1460069545-10322-1-git-send-email-trini@konsulko.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mBUZ9KluUNbPxGHh"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <5707756E.30506@itdev.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
 List-Id: linux-input@vger.kernel.org
-To: Tom Rini <trini@konsulko.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Olof Johansson <olof@lixom.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
 
-On 2016-04-07 23:52, Tom Rini wrote:
-> This reverts commit 885f3fb9fa1f9e185e8a4e905157087495734349 due to this
-> change breaking the touchpad on the Chromebook Pixel 2015 on resume from
-> sleep or warm resets.
-> 
-> Cc: Olof Johansson <olof@lixom.net>
-> Cc: Nick Dyer <nick.dyer@itdev.co.uk>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Henrik Rydberg <rydberg@bitmath.org>
-> Signed-off-by: Tom Rini <trini@konsulko.com>
 
-Hi Tom-
+--mBUZ9KluUNbPxGHh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Sorry that this has caused a problem. I suggest we try and find a 3rd
-option other than reverting this patch, because otherwise we will cause
-problems on other platforms.
+On Fri, Apr 08, 2016 at 10:10:06AM +0100, Nick Dyer wrote:
+> On 2016-04-07 23:52, Tom Rini wrote:
+> > This reverts commit 885f3fb9fa1f9e185e8a4e905157087495734349 due to this
+> > change breaking the touchpad on the Chromebook Pixel 2015 on resume from
+> > sleep or warm resets.
+> >=20
+> > Cc: Olof Johansson <olof@lixom.net>
+> > Cc: Nick Dyer <nick.dyer@itdev.co.uk>
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Cc: Henrik Rydberg <rydberg@bitmath.org>
+> > Signed-off-by: Tom Rini <trini@konsulko.com>
+>=20
+> Hi Tom-
+>=20
+> Sorry that this has caused a problem. I suggest we try and find a 3rd
+> option other than reverting this patch, because otherwise we will cause
+> problems on other platforms.
 
-I have a Pixel 2 here - can you advise how to reproduce?
+Yeah, it would be good to fix all platforms.  I'm curious, was there an
+observed problem on another platform or just a theoretical problem?
 
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c |    9 +--------
->  1 file changed, 1 insertion(+), 8 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 2160512..9b92b60 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -1098,9 +1098,7 @@ static int mxt_soft_reset(struct mxt_data *data)
->  	struct device *dev = &data->client->dev;
->  	int ret = 0;
->  
-> -	dev_info(dev, "Resetting device\n");
-> -
-> -	disable_irq(data->irq);
-> +	dev_info(dev, "Resetting chip\n");
->  
->  	reinit_completion(&data->reset_completion);
->  
-> @@ -1108,11 +1106,6 @@ static int mxt_soft_reset(struct mxt_data *data)
->  	if (ret)
->  		return ret;
->  
-> -	/* Ignore CHG line for 100ms after reset */
-> -	msleep(100);
-> -
-> -	enable_irq(data->irq);
+> I have a Pixel 2 here - can you advise how to reproduce?
 
-I suspect what is going on here is that Pixel 2 is using edge triggering
-and we are missing the edge during the 100ms delay. Could you try just
-changing this from "enable_irq" to
- mxt_acquire_irq(data);
+I (and a bunch of other folks, the linux-samus people now point people
+at using mxt-app every boot to reset the device) see this every time I
+either suspend the laptop or do a warm boot into a new kernel (I didn't
+try kexec but it too is probably broken).  Note that I'm not using
+mainline to boot ChromeOS but I've got a regular Linux distro in ROOT-C.
 
-> -
->  	ret = mxt_wait_for_completion(data, &data->reset_completion,
->  				      MXT_RESET_TIMEOUT);
->  	if (ret)
-> 
+--=20
+Tom
+
+--mBUZ9KluUNbPxGHh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQIcBAEBAgAGBQJXB6CaAAoJEIf59jXTHXZSUcEP/2aE2BS2vamjeF6TFYfkZ4wL
+U04//fUt3KRD80F+Rr9znMGTUdD5dIs15tUX6XgOLNWqxtZA2a7/l3MZdV7+ru9i
+q7j+L1fEvRpBOjgABcj2bdC0o4+QrZLe3RXOcGRfR/nlHp/dnIxpbJsWOG1d/kYd
+DM3rQfOgbXNL587zW4kITcEU9lx1UnAPU8Y1BIirxmO8SMQI/+C3WthPLhrIz+Tt
+wVExGzlXcb3rw1FVOQuudPQBUciXHPMWjSV4RyzYmutrogQ6SgLA06Vbpfb8Nf9r
+ankq1oHbDqKiTWdOAAFOgWu0I7MsET49YAoH3UY0YRvWfByFqMaKvNRqitnIH1bJ
+x+iQrB9gWP6MAtKhAaZs05JgeuFCUhHoYzg5GcZwXMf67v+9vLgG2q3k69f7bRRm
+Vacakgxumy0ODBIkvx3wrIwsNmAuHlLbH/qTEOAJYl1erXylAwV/0CzfU+6A+mDc
+/sLIy5l52BAvYkCKVLCP9FlSeNtGsLZXHIw+YAHfRz1knSGxeDQF6FecUFqxHC7/
+ALfnhHEkd+n7yTv4PCLXTYlZIyn6cab9ta6q9vO4KVGIEW5qgWalSGXfgKSZZB30
+kNvbtvNQWwKeGHiH3+UNrTnAsPFASED9uSh6DE/kpGdx03/bYUzfQ4XAsTB0zwNh
+IFmhtXk8xN5Eyfk8FO6A
+=xIqh
+-----END PGP SIGNATURE-----
+
+--mBUZ9KluUNbPxGHh--

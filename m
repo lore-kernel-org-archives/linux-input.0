@@ -1,75 +1,51 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v3] Input: rotary_encoder - support binary encoding of
- states
-Date: Fri, 8 Apr 2016 08:40:58 +0200
-Message-ID: <20160408064058.GC10108@pengutronix.de>
-References: <1460055528-13814-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <CAL_JsqLfQQu69LcsFuJkKmjppp047vW5Ga+y5XiDAAG-Weh6ug@mail.gmail.com>
+From: Sedat Dilek <sedat.dilek@gmail.com>
+Subject: Re: [Linux-v4.6-rc2] atkbd serio0: Unknown key pressed (translated
+ set 2, code 0xa8 on isa0060/serio0).
+Date: Fri, 8 Apr 2016 10:58:17 +0200
+Message-ID: <CA+icZUV69RhvfgKD8a5Bm6PPvFikq6JGUP3_q0kUj9rd=Y+JVQ@mail.gmail.com>
+References: <CA+icZUV0MGYme3EvLwYaW7HaAdKq7KQm6jgbcy58z4Vk3+n7qg@mail.gmail.com>
+	<CA+icZUVZ05ri=Vs6UGWN0ks74_R2Q48u0=xoh2LSFwSLhpfabg@mail.gmail.com>
+	<CA+icZUW0MFrV5gcVy=R6Jh+Fr7=5cr-ns0_ZXUjuY=LuiduLYw@mail.gmail.com>
+	<CAKdAkRRT=Vq_X9Un3Zk-an42WR+ECKt-h6JxALK=4MkJkdgnow@mail.gmail.com>
+	<alpine.LNX.2.00.1604072210110.27368@cbobk.fhfr.pm>
+Reply-To: sedat.dilek@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAL_JsqLfQQu69LcsFuJkKmjppp047vW5Ga+y5XiDAAG-Weh6ug-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vk0-f50.google.com ([209.85.213.50]:35805 "EHLO
+	mail-vk0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755381AbcDHI6S (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Apr 2016 04:58:18 -0400
+In-Reply-To: <alpine.LNX.2.00.1604072210110.27368@cbobk.fhfr.pm>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, USB list <linux-usb@vger.kernel.org>
 
-Hello Rob,
+On Thu, Apr 7, 2016 at 10:11 PM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Wed, 6 Apr 2016, Dmitry Torokhov wrote:
+>
+>> > I forgot to tell that I have some patches on top of vanilla Linux v4.6-rc2.
+>> >
+>> > Dropping the patches from <jikos/hid.git#for-4.6/upstream-fixes> makes
+>> > the issue go away.
+>> > Unsure what is the cause.
+>>
+>> Hmm, this is quite curious, none of the recent patches in
+>> for-4.6/upstream-fixes touches atkbd. I'd be very interested in which
+>> one exactly causes this.
+>
+> Exactly, I don't see any possible relationship whatsoever.
+>
+> Sedat, for-4.6/upstream-fixes branch has only a couple of commits, so it
+> should take just a very short while to bisect.
+>
+> Thanks,
+>
 
-On Thu, Apr 07, 2016 at 05:45:00PM -0500, Rob Herring wrote:
-> On Thu, Apr 7, 2016 at 1:58 PM, Uwe Kleine-K=F6nig
-> <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> > It's not advisable to use this encoding, but to support existing de=
-vices
-> > add support for this to the driver.
-> >
-> > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > ---
->=20
-> Ack for the binding, but...
+Hmm, I could not reproduce it again.
+Cursor up/down (pageup/pagedown) works again - unsure if the dmesg
+outputs are related to this.
+( And I have some (rfc) locking patches from PeterZ on top. )
 
-Thanks. Actually I already had your ack for v2 and only dropped it to
-make you look over the patch again :-)
-=20
-> > @@ -213,6 +222,17 @@ static int rotary_encoder_probe(struct platfor=
-m_device *pdev)
-> >         encoder->rollover =3D
-> >                 device_property_read_bool(dev, "rotary-encoder,roll=
-over");
-> >
-> > +       err =3D device_property_read_string(dev, "rotary-encoder,en=
-coding",
-> > +                                         &encoding);
-> > +       if (!err && !strcmp(encoding, "binary")) {
-> > +               encoder->encoding =3D ROTENC_BINARY;
-> > +       } else if (err || !strcmp(encoding, "gray")) {
-> > +               encoder->encoding =3D ROTENC_GRAY;
-> > +       } else {
-> > +               dev_err(dev, "unknown encoding setting");
-> > +               return -EINVAL;
->=20
-> device_property_match_string() here instead.
-
-With the added downside that the property is parsed at least twice from
-dt, right? This is not a hot path, but still I wonder if it simplyfies
-the driver code enough to be worth the effort?
-
-Also this seems to have a different semantic and allows the property to
-be an array.
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+- sed@ -

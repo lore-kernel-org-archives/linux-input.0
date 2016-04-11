@@ -1,47 +1,84 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: Re: [PATCH 1/5] mfd: tps65217: Add support for IRQs
-Date: Mon, 11 Apr 2016 11:48:12 +0300
-Message-ID: <570B64CC.9040105@ti.com>
-References: <1459789865-3704-1-git-send-email-m.niestroj@grinn-global.com>
- <1459789865-3704-3-git-send-email-m.niestroj@grinn-global.com>
- <57038E46.9070204@ti.com> <57039E74.7030704@grinn-global.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <57039E74.7030704@grinn-global.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Marcin Niestroj <m.niestroj@grinn-global.com>, Lee Jones <lee.jones@linaro.org>
-Cc: Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: [PATCH] Input: atmel_mxt_ts - use mxt_acquire_irq in mxt_soft_reset
+Date: Mon, 11 Apr 2016 10:31:45 +0100
+Message-ID: <1460367105-29258-1-git-send-email-nick.dyer@itdev.co.uk>
+References: <20160408233034.GN23166@bill-the-cat>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160408233034.GN23166@bill-the-cat>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Tom Rini <trini@konsulko.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, simon.raphael@gmail.com, Olof Johansson <olof@lixom.net>, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-On 04/05/2016 02:16 PM, Marcin Niestroj wrote:
->
->
-> On 05.04.2016 12:07, Grygorii Strashko wrote:
->> On 04/04/2016 08:11 PM, Marcin Niestroj wrote:
->>> Add support for handling IRQs: power button, AC and USB power state
->>> changes. Mask and interrupt bits are shared within one register, which
->>> prevents us to use regmap_irq implementation. New irq_domain is
->>> created in
->>> order to add interrupt handling for each tps65217's subsystem. IRQ
->>> resources have been added for charger subsystem to be able to notify
->>> about
->>> AC and USB state changes.
->>>
->>> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
->>> ---
->>
->> Just curious Why not use a regmap_irq?
->>
->
-> tps65217 has IRQ mask and status bits in a single register. regmap_irq
-> works in case of two different registers (one mask, one status), but
-> with the same layout of mask and status bits in both.
->
+If using IRQF_TRIGGER_FALLING, then there is a race here: if the reset
+completes before we enable the IRQ, then CHG is already low and touch
+will be broken.
 
-Thanks for the info.
+This has been seen on Chromebook Pixel 2.
 
+A workaround is to reconfig T18 COMMSCONFIG to enable the RETRIGEN bit
+using mxt-app:
+    mxt-app -W -T18 44
+    mxt-app --backup
+
+Tested-by: Tom Rini <trini@konsulko.com>
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 2160512..5af7907 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -1093,6 +1093,19 @@ static int mxt_t6_command(struct mxt_data *data, u16 cmd_offset,
+ 	return 0;
+ }
+ 
++static int mxt_acquire_irq(struct mxt_data *data)
++{
++	int error;
++
++	enable_irq(data->irq);
++
++	error = mxt_process_messages_until_invalid(data);
++	if (error)
++		return error;
++
++	return 0;
++}
++
+ static int mxt_soft_reset(struct mxt_data *data)
+ {
+ 	struct device *dev = &data->client->dev;
+@@ -1111,7 +1124,7 @@ static int mxt_soft_reset(struct mxt_data *data)
+ 	/* Ignore CHG line for 100ms after reset */
+ 	msleep(100);
+ 
+-	enable_irq(data->irq);
++	mxt_acquire_irq(data);
+ 
+ 	ret = mxt_wait_for_completion(data, &data->reset_completion,
+ 				      MXT_RESET_TIMEOUT);
+@@ -1466,19 +1479,6 @@ release_mem:
+ 	return ret;
+ }
+ 
+-static int mxt_acquire_irq(struct mxt_data *data)
+-{
+-	int error;
+-
+-	enable_irq(data->irq);
+-
+-	error = mxt_process_messages_until_invalid(data);
+-	if (error)
+-		return error;
+-
+-	return 0;
+-}
+-
+ static int mxt_get_info(struct mxt_data *data)
+ {
+ 	struct i2c_client *client = data->client;
 -- 
-regards,
--grygorii
+2.5.0

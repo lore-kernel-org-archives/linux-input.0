@@ -1,84 +1,63 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH] Input: atmel_mxt_ts - use mxt_acquire_irq in mxt_soft_reset
-Date: Mon, 11 Apr 2016 10:31:45 +0100
-Message-ID: <1460367105-29258-1-git-send-email-nick.dyer@itdev.co.uk>
-References: <20160408233034.GN23166@bill-the-cat>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160408233034.GN23166@bill-the-cat>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Tom Rini <trini@konsulko.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, simon.raphael@gmail.com, Olof Johansson <olof@lixom.net>, Nick Dyer <nick.dyer@itdev.co.uk>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/5] mfd: tps65217: Add support for IRQs
+Date: Mon, 11 Apr 2016 10:44:26 +0100
+Message-ID: <20160411094426.GB8094@x1>
+References: <1459789865-3704-1-git-send-email-m.niestroj@grinn-global.com>
+ <1459789865-3704-3-git-send-email-m.niestroj@grinn-global.com>
+ <57038E46.9070204@ti.com>
+ <57039E74.7030704@grinn-global.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f48.google.com ([74.125.82.48]:33166 "EHLO
+	mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750951AbcDKJob (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Apr 2016 05:44:31 -0400
+Received: by mail-wm0-f48.google.com with SMTP id f198so137744303wme.0
+        for <linux-input@vger.kernel.org>; Mon, 11 Apr 2016 02:44:30 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <57039E74.7030704@grinn-global.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Marcin Niestroj <m.niestroj@grinn-global.com>, broonie@kernel.org
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>, Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-If using IRQF_TRIGGER_FALLING, then there is a race here: if the reset
-completes before we enable the IRQ, then CHG is already low and touch
-will be broken.
+=46AO Mark,
 
-This has been seen on Chromebook Pixel 2.
+> On 05.04.2016 12:07, Grygorii Strashko wrote:
+> >On 04/04/2016 08:11 PM, Marcin Niestroj wrote:
+> >>Add support for handling IRQs: power button, AC and USB power state
+> >>changes. Mask and interrupt bits are shared within one register, wh=
+ich
+> >>prevents us to use regmap_irq implementation. New irq_domain is
+> >>created in
+> >>order to add interrupt handling for each tps65217's subsystem. IRQ
+> >>resources have been added for charger subsystem to be able to notif=
+y
+> >>about
+> >>AC and USB state changes.
+> >>
+> >>Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+> >>---
+> >
+> >Just curious Why not use a regmap_irq?
+>=20
+> tps65217 has IRQ mask and status bits in a single register.
+> regmap_irq works in case of two different registers (one mask, one
+> status), but with the same layout of mask and status bits in both.
 
-A workaround is to reconfig T18 COMMSCONFIG to enable the RETRIGEN bit
-using mxt-app:
-    mxt-app -W -T18 44
-    mxt-app --backup
+Mark, is this the right approach?  Or is there another way regmap_irq
+can be manipulated to support this configuration?
 
-Tested-by: Tom Rini <trini@konsulko.com>
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 2160512..5af7907 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1093,6 +1093,19 @@ static int mxt_t6_command(struct mxt_data *data, u16 cmd_offset,
- 	return 0;
- }
- 
-+static int mxt_acquire_irq(struct mxt_data *data)
-+{
-+	int error;
-+
-+	enable_irq(data->irq);
-+
-+	error = mxt_process_messages_until_invalid(data);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
- static int mxt_soft_reset(struct mxt_data *data)
- {
- 	struct device *dev = &data->client->dev;
-@@ -1111,7 +1124,7 @@ static int mxt_soft_reset(struct mxt_data *data)
- 	/* Ignore CHG line for 100ms after reset */
- 	msleep(100);
- 
--	enable_irq(data->irq);
-+	mxt_acquire_irq(data);
- 
- 	ret = mxt_wait_for_completion(data, &data->reset_completion,
- 				      MXT_RESET_TIMEOUT);
-@@ -1466,19 +1479,6 @@ release_mem:
- 	return ret;
- }
- 
--static int mxt_acquire_irq(struct mxt_data *data)
--{
--	int error;
--
--	enable_irq(data->irq);
--
--	error = mxt_process_messages_until_invalid(data);
--	if (error)
--		return error;
--
--	return 0;
--}
--
- static int mxt_get_info(struct mxt_data *data)
- {
- 	struct i2c_client *client = data->client;
--- 
-2.5.0
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

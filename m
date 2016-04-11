@@ -1,55 +1,66 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/5] mfd: tps65217: Add support for IRQs
-Date: Mon, 11 Apr 2016 10:44:26 +0100
-Message-ID: <20160411094426.GB8094@x1>
+Subject: Re: [PATCH 4/5] mfd: tps65217: Add power button as subdevice
+Date: Mon, 11 Apr 2016 10:44:52 +0100
+Message-ID: <20160411094452.GC8094@x1>
 References: <1459789865-3704-1-git-send-email-m.niestroj@grinn-global.com>
- <1459789865-3704-3-git-send-email-m.niestroj@grinn-global.com>
- <57038E46.9070204@ti.com>
- <57039E74.7030704@grinn-global.com>
+ <1459789865-3704-6-git-send-email-m.niestroj@grinn-global.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f48.google.com ([74.125.82.48]:33166 "EHLO
-	mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750951AbcDKJob (ORCPT
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:34894 "EHLO
+	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750890AbcDKJo4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Apr 2016 05:44:31 -0400
-Received: by mail-wm0-f48.google.com with SMTP id f198so137744303wme.0
-        for <linux-input@vger.kernel.org>; Mon, 11 Apr 2016 02:44:30 -0700 (PDT)
+	Mon, 11 Apr 2016 05:44:56 -0400
+Received: by mail-wm0-f45.google.com with SMTP id a140so5203343wma.0
+        for <linux-input@vger.kernel.org>; Mon, 11 Apr 2016 02:44:55 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <57039E74.7030704@grinn-global.com>
+In-Reply-To: <1459789865-3704-6-git-send-email-m.niestroj@grinn-global.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marcin Niestroj <m.niestroj@grinn-global.com>, broonie@kernel.org
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>, Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+To: Marcin Niestroj <m.niestroj@grinn-global.com>
+Cc: Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-=46AO Mark,
+On Mon, 04 Apr 2016, Marcin Niestroj wrote:
 
-> On 05.04.2016 12:07, Grygorii Strashko wrote:
-> >On 04/04/2016 08:11 PM, Marcin Niestroj wrote:
-> >>Add support for handling IRQs: power button, AC and USB power state
-> >>changes. Mask and interrupt bits are shared within one register, wh=
-ich
-> >>prevents us to use regmap_irq implementation. New irq_domain is
-> >>created in
-> >>order to add interrupt handling for each tps65217's subsystem. IRQ
-> >>resources have been added for charger subsystem to be able to notif=
-y
-> >>about
-> >>AC and USB state changes.
-> >>
-> >>Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
-> >>---
-> >
-> >Just curious Why not use a regmap_irq?
+> Add tps65217 power buttor subdevice with assigned IRQ resources.
 >=20
-> tps65217 has IRQ mask and status bits in a single register.
-> regmap_irq works in case of two different registers (one mask, one
-> status), but with the same layout of mask and status bits in both.
+> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+> ---
+>  drivers/mfd/tps65217.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
 
-Mark, is this the right approach?  Or is there another way regmap_irq
-can be manipulated to support this configuration?
+Applied, thanks.
+
+> diff --git a/drivers/mfd/tps65217.c b/drivers/mfd/tps65217.c
+> index a20980f..fd3b5d8 100644
+> --- a/drivers/mfd/tps65217.c
+> +++ b/drivers/mfd/tps65217.c
+> @@ -38,6 +38,10 @@ static struct resource charger_resources[] =3D {
+>  	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_USB, "USB"),
+>  };
+> =20
+> +static struct resource pb_resources[] =3D {
+> +	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_PB, "PB"),
+> +};
+> +
+>  struct tps65217_irq {
+>  	int mask;
+>  	int interrupt;
+> @@ -122,6 +126,12 @@ static struct mfd_cell tps65217s[] =3D {
+>  		.resources =3D charger_resources,
+>  		.of_compatible =3D "ti,tps65217-charger",
+>  	},
+> +	{
+> +		.name =3D "tps65217-pwrbutton",
+> +		.num_resources =3D ARRAY_SIZE(pb_resources),
+> +		.resources =3D pb_resources,
+> +		.of_compatible =3D "ti,tps65217-pwrbutton",
+> +	},
+>  };
+> =20
+>  static irqreturn_t tps65217_irq_thread(int irq, void *data)
 
 --=20
 Lee Jones

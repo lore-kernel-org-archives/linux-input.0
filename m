@@ -1,86 +1,81 @@
-From: Lee Jones <lee.jones@linaro.org>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 Subject: Re: [PATCH 4/5] mfd: tps65217: Add power button as subdevice
-Date: Mon, 11 Apr 2016 11:37:24 +0100
-Message-ID: <20160411103724.GD8094@x1>
+Date: Mon, 11 Apr 2016 14:05:01 +0300
+Message-ID: <570B84DD.6040003@ti.com>
 References: <1459789865-3704-1-git-send-email-m.niestroj@grinn-global.com>
  <1459789865-3704-6-git-send-email-m.niestroj@grinn-global.com>
- <20160411094452.GC8094@x1>
- <570B7BFE.6000501@ti.com>
+ <20160411094452.GC8094@x1> <570B7BFE.6000501@ti.com>
+ <20160411103724.GD8094@x1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f44.google.com ([74.125.82.44]:34209 "EHLO
-	mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750839AbcDKKh2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Apr 2016 06:37:28 -0400
-Received: by mail-wm0-f44.google.com with SMTP id l6so139823103wml.1
-        for <linux-input@vger.kernel.org>; Mon, 11 Apr 2016 03:37:27 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <570B7BFE.6000501@ti.com>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:37502 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753098AbcDKLFo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Apr 2016 07:05:44 -0400
+In-Reply-To: <20160411103724.GD8094@x1>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>
+To: Lee Jones <lee.jones@linaro.org>
 Cc: Marcin Niestroj <m.niestroj@grinn-global.com>, Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-On Mon, 11 Apr 2016, Grygorii Strashko wrote:
+On 04/11/2016 01:37 PM, Lee Jones wrote:
+> On Mon, 11 Apr 2016, Grygorii Strashko wrote:
+>
+>> On 04/11/2016 12:44 PM, Lee Jones wrote:
+>>> On Mon, 04 Apr 2016, Marcin Niestroj wrote:
+>>>
+>>>> Add tps65217 power buttor subdevice with assigned IRQ resources.
+>>>>
+>>>> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+>>>> ---
+>>>>   drivers/mfd/tps65217.c | 10 ++++++++++
+>>>>   1 file changed, 10 insertions(+)
+>>>
+>>> Applied, thanks.
+>>
+>> Seems there is dependency from patch 1 :(
+>
+> What is the dependency?
 
-> On 04/11/2016 12:44 PM, Lee Jones wrote:
-> >On Mon, 04 Apr 2016, Marcin Niestroj wrote:
-> >
-> >>Add tps65217 power buttor subdevice with assigned IRQ resources.
-> >>
-> >>Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
-> >>---
-> >>  drivers/mfd/tps65217.c | 10 ++++++++++
-> >>  1 file changed, 10 insertions(+)
-> >
-> >Applied, thanks.
->=20
-> Seems there is dependency from patch 1 :(
+TPS65217_IRQ_PB definition added in patch 1.
 
-What is the dependency?
+>
+>>>> diff --git a/drivers/mfd/tps65217.c b/drivers/mfd/tps65217.c
+>>>> index a20980f..fd3b5d8 100644
+>>>> --- a/drivers/mfd/tps65217.c
+>>>> +++ b/drivers/mfd/tps65217.c
+>>>> @@ -38,6 +38,10 @@ static struct resource charger_resources[] = {
+>>>>   	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_USB, "USB"),
+>>>>   };
+>>>>
+>>>> +static struct resource pb_resources[] = {
+>>>> +	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_PB, "PB"),
+>>>> +};
+>>>> +
+>>>>   struct tps65217_irq {
+>>>>   	int mask;
+>>>>   	int interrupt;
+>>>> @@ -122,6 +126,12 @@ static struct mfd_cell tps65217s[] = {
+>>>>   		.resources = charger_resources,
+>>>>   		.of_compatible = "ti,tps65217-charger",
+>>>>   	},
+>>>> +	{
+>>>> +		.name = "tps65217-pwrbutton",
+>>>> +		.num_resources = ARRAY_SIZE(pb_resources),
+>>>> +		.resources = pb_resources,
+>>>> +		.of_compatible = "ti,tps65217-pwrbutton",
+>>>> +	},
+>>>>   };
+>>>>
+>>>>   static irqreturn_t tps65217_irq_thread(int irq, void *data)
+>>>
+>>
+>>
+>
 
-> >>diff --git a/drivers/mfd/tps65217.c b/drivers/mfd/tps65217.c
-> >>index a20980f..fd3b5d8 100644
-> >>--- a/drivers/mfd/tps65217.c
-> >>+++ b/drivers/mfd/tps65217.c
-> >>@@ -38,6 +38,10 @@ static struct resource charger_resources[] =3D {
-> >>  	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_USB, "USB"),
-> >>  };
-> >>
-> >>+static struct resource pb_resources[] =3D {
-> >>+	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_PB, "PB"),
-> >>+};
-> >>+
-> >>  struct tps65217_irq {
-> >>  	int mask;
-> >>  	int interrupt;
-> >>@@ -122,6 +126,12 @@ static struct mfd_cell tps65217s[] =3D {
-> >>  		.resources =3D charger_resources,
-> >>  		.of_compatible =3D "ti,tps65217-charger",
-> >>  	},
-> >>+	{
-> >>+		.name =3D "tps65217-pwrbutton",
-> >>+		.num_resources =3D ARRAY_SIZE(pb_resources),
-> >>+		.resources =3D pb_resources,
-> >>+		.of_compatible =3D "ti,tps65217-pwrbutton",
-> >>+	},
-> >>  };
-> >>
-> >>  static irqreturn_t tps65217_irq_thread(int irq, void *data)
-> >
->=20
->=20
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+regards,
+-grygorii

@@ -1,7 +1,8 @@
-From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 15/46] pwm: introduce the pwm_state concept
-Date: Tue, 12 Apr 2016 16:05:46 +0200
-Message-ID: <20160412140546.GS18882@ulmo.ba.sec>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: Re: [PATCH v5 15/46] pwm: introduce the pwm_state
+	concept
+Date: Tue, 12 Apr 2016 16:13:01 +0200
+Message-ID: <20160412161301.30b0dc4f@bbrezillon>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
  <1459368249-13241-16-git-send-email-boris.brezillon@free-electrons.com>
  <20160412114904.GM18882@ulmo.ba.sec>
@@ -10,145 +11,137 @@ References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.co
  <20160412144508.2ee181fe@bbrezillon>
  <20160412131118.GQ18882@ulmo.ba.sec>
  <20160412152644.45ff517a@bbrezillon>
-Reply-To: thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+ <20160412140546.GS18882@ulmo.ba.sec>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="b2ktwntdbf0dPnbx"
-Return-path: <linux-sunxi+bncBDTKFPPJUEHRBPUBWS4AKGQE5ZSCAKI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <20160412152644.45ff517a@bbrezillon>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jo>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20160412140546.GS18882@ulmo.ba.sec>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Milo Kim <milo.kim@ti.com>, Kamil Debski <k.debski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, linux-doc@vger.kernel.org, David Airlie <airlied@linux.ie>, Mike Turquette <mturquette@baylibre.com>, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Daniel Vetter <daniel.vetter@intel.com>, Lee Jones <lee.jones@linaro.org>, linux-clk@vger.kernel.org, linux-leds@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-samsung-soc@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>, Jonathan Corbet <corbet@lwn.net>, Robert Jarzmik <robert.jarzmik@free.fr>, lm-sensors@lm-sensors.org, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-input@vger.kernel.org, Jean-Christophe
 List-Id: linux-input@vger.kernel.org
 
---b2ktwntdbf0dPnbx
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
-
-On Tue, Apr 12, 2016 at 03:26:44PM +0200, Boris Brezillon wrote:
-> On Tue, 12 Apr 2016 15:11:18 +0200
-> Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> 
-> > On Tue, Apr 12, 2016 at 02:45:08PM +0200, Boris Brezillon wrote:
-> > > On Tue, 12 Apr 2016 14:21:41 +0200
-> > > Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > > 
-> > > > On Tue, Apr 12, 2016 at 02:17:18PM +0200, Boris Brezillon wrote:
-> > > > > On Tue, 12 Apr 2016 13:49:04 +0200
-> > > > > Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > > > > 
-> > > > > > On Wed, Mar 30, 2016 at 10:03:38PM +0200, Boris Brezillon wrote:
-> > > > > > > The PWM state, represented by its period, duty_cycle and polarity,
-> > > > > > > is currently directly stored in the PWM device.
-> > > > > > > Declare a pwm_state structure embedding those field so that we can later
-> > > > > > > use this struct to atomically update all the PWM parameters at once.
-> > > > > > > 
-> > > > > > > All pwm_get_xxx() helpers are now implemented as wrappers around
-> > > > > > > pwm_get_state().
-> > > > > > > 
-> > > > > > > Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> > > > > > > ---
-> > > > > > >  drivers/pwm/core.c  |  8 ++++----
-> > > > > > >  include/linux/pwm.h | 54 +++++++++++++++++++++++++++++++++++++++++------------
-> > > > > > >  2 files changed, 46 insertions(+), 16 deletions(-)
-> > > > > > > 
-> > > > > > > diff --git a/drivers/pwm/core.c b/drivers/pwm/core.c
-> > > > > > > index 6433059..f3f91e7 100644
-> > > > > > > --- a/drivers/pwm/core.c
-> > > > > > > +++ b/drivers/pwm/core.c
-> > > > > > > @@ -268,7 +268,7 @@ int pwmchip_add_with_polarity(struct pwm_chip *chip,
-> > > > > > >  		pwm->chip = chip;
-> > > > > > >  		pwm->pwm = chip->base + i;
-> > > > > > >  		pwm->hwpwm = i;
-> > > > > > > -		pwm->polarity = polarity;
-> > > > > > > +		pwm->state.polarity = polarity;
-> > > > > > 
-> > > > > > Would this not more correctly be assigned to pwm->args.polarity? After
-> > > > > > all this is setting up the "initial" state, much like DT or the lookup
-> > > > > > tables would for duty cycle and period.
-> > > > > 
-> > > > > Yes, I wasn't sure about the pwm_add_with_polarity() meaning. To me,
-> > > > > all the reference info should be extracted from DT, PWM lookup table or
-> > > > > driver specific ->request() implementation, but I can definitely
-> > > > > initialize the args.polarity here too.
-> > > > > 
-> > > > > Should I keep the pwm->state.polarity assignment (to set the initial
-> > > > > polarity when the driver does not support hardware readout)?
-> > > > 
-> > > > Wouldn't this work automatically as part of the pwm_apply_args() helper
-> > > > if we extended it with this setting?
-> > > 
-> > > Well, as you explained in you answer to patch 5, pwm_apply_args()
-> > > should be called on a per-request basis (each time a PWM device is
-> > > requested), while the initial polarity setting should only be applied
-> > > when registering the PWM chip (and its devices). After that, the
-> > > framework takes care of keeping the PWM state in sync with the hardware
-> > > state.
-> > > 
-> > > Let's take a real (though a bit unusual) example. Say you have a single
-> > > PWM device referenced by two different users. Only one user can be
-> > > enabled at a time, but each of them has its own reference config
-> > > (different polarity, different period).
-> > > 
-> > > User1 calls pwm_get() and applies its own polarity and period. Then
-> > > user1 is unregistered and release the PWM device, leaving the polarity
-> > > and period untouched.
-> > > 
-> > > User2 is registered and request the same PWM device, but user2 is
-> > > smarter and tries to extract the current PWM state before adapting the
-> > > config according to pwm_args. If you just reset pwm->state.polarity
-> > > each time pwm_apply_args() is called (and you suggested to call it as
-> > > part of the request procedure), then this means the PWM state is no
-> > > longer in sync with the hardware state.
-> > 
-> > In that case neither will be the period or duty cycle. Essentially this
-> > gets us back to square one where we need to decide how to handle current
-> > state vs. initial arguments.
-> 
-> That's not true. Now we clearly differentiate the reference config
-> (content of pwm_args which is only a subset of what you'll find in
-> pwm_state) and the PWM state (represented by pwm_state).
-> 
-> We should be safe as long as we keep those 2 elements as 2 orthogonal
-> concepts:
-> - pwm_args is supposed to give some hint to the PWM user to help him
->   configure it's PWM appropriately
-> - pwm_state is here to reflect the real PWM state, and apply new
->   configs
-> 
-> > 
-> > But I don't think this is really going to be an issue because this is
-> > all moot until we've moved over to the atomic API, at which point this
-> > is all going to go away anyway.
-> 
-> As stated in my answer to patch 5, I think I misunderstood your
-> suggestion. pwm_apply_args() is supposed to adjust the PWM config to
-> match the period and polarity specified in pwm_args, right?
-> 
-> If that's the case, my question is, should we really call this function
-> each time a new user requests a PWM instead of letting those users call
-> the function on-demand (not all users want to adapt the current PWM
-> config to the pwm_args, some may just want to apply a completely new
-> config).
-
-I think we're still talking past each other. I didn't mean for this to
-be a proper part of the API. Like you said the struct pwm_args doesn't
-contain enough data to construct a complete state and apply it.
-
-What I was suggesting is to factor out the individual calls to the
-various pwm_set_*() functions into a single call. So we wouldn't be
-changing semantics, just refactoring to make it easier to get rid of
-again in one of the subsequent patches.
-
-That is, pwm_apply_args() would go away again within this very series,
-at the same point that you're currently removing the pwm_set_*() calls.
-
-Thierry
---b2ktwntdbf0dPnbx--
+T24gVHVlLCAxMiBBcHIgMjAxNiAxNjowNTo0NiArMDIwMApUaGllcnJ5IFJlZGluZyA8dGhpZXJy
+eS5yZWRpbmdAZ21haWwuY29tPiB3cm90ZToKCj4gT24gVHVlLCBBcHIgMTIsIDIwMTYgYXQgMDM6
+MjY6NDRQTSArMDIwMCwgQm9yaXMgQnJlemlsbG9uIHdyb3RlOgo+ID4gT24gVHVlLCAxMiBBcHIg
+MjAxNiAxNToxMToxOCArMDIwMAo+ID4gVGhpZXJyeSBSZWRpbmcgPHRoaWVycnkucmVkaW5nQGdt
+YWlsLmNvbT4gd3JvdGU6Cj4gPiAKPiA+ID4gT24gVHVlLCBBcHIgMTIsIDIwMTYgYXQgMDI6NDU6
+MDhQTSArMDIwMCwgQm9yaXMgQnJlemlsbG9uIHdyb3RlOgo+ID4gPiA+IE9uIFR1ZSwgMTIgQXBy
+IDIwMTYgMTQ6MjE6NDEgKzAyMDAKPiA+ID4gPiBUaGllcnJ5IFJlZGluZyA8dGhpZXJyeS5yZWRp
+bmdAZ21haWwuY29tPiB3cm90ZToKPiA+ID4gPiAKPiA+ID4gPiA+IE9uIFR1ZSwgQXByIDEyLCAy
+MDE2IGF0IDAyOjE3OjE4UE0gKzAyMDAsIEJvcmlzIEJyZXppbGxvbiB3cm90ZToKPiA+ID4gPiA+
+ID4gT24gVHVlLCAxMiBBcHIgMjAxNiAxMzo0OTowNCArMDIwMAo+ID4gPiA+ID4gPiBUaGllcnJ5
+IFJlZGluZyA8dGhpZXJyeS5yZWRpbmdAZ21haWwuY29tPiB3cm90ZToKPiA+ID4gPiA+ID4gCj4g
+PiA+ID4gPiA+ID4gT24gV2VkLCBNYXIgMzAsIDIwMTYgYXQgMTA6MDM6MzhQTSArMDIwMCwgQm9y
+aXMgQnJlemlsbG9uIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gVGhlIFBXTSBzdGF0ZSwgcmVwcmVz
+ZW50ZWQgYnkgaXRzIHBlcmlvZCwgZHV0eV9jeWNsZSBhbmQgcG9sYXJpdHksCj4gPiA+ID4gPiA+
+ID4gPiBpcyBjdXJyZW50bHkgZGlyZWN0bHkgc3RvcmVkIGluIHRoZSBQV00gZGV2aWNlLgo+ID4g
+PiA+ID4gPiA+ID4gRGVjbGFyZSBhIHB3bV9zdGF0ZSBzdHJ1Y3R1cmUgZW1iZWRkaW5nIHRob3Nl
+IGZpZWxkIHNvIHRoYXQgd2UgY2FuIGxhdGVyCj4gPiA+ID4gPiA+ID4gPiB1c2UgdGhpcyBzdHJ1
+Y3QgdG8gYXRvbWljYWxseSB1cGRhdGUgYWxsIHRoZSBQV00gcGFyYW1ldGVycyBhdCBvbmNlLgo+
+ID4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gPiBBbGwgcHdtX2dldF94eHgoKSBoZWxwZXJz
+IGFyZSBub3cgaW1wbGVtZW50ZWQgYXMgd3JhcHBlcnMgYXJvdW5kCj4gPiA+ID4gPiA+ID4gPiBw
+d21fZ2V0X3N0YXRlKCkuCj4gPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+IFNpZ25lZC1v
+ZmYtYnk6IEJvcmlzIEJyZXppbGxvbiA8Ym9yaXMuYnJlemlsbG9uQGZyZWUtZWxlY3Ryb25zLmNv
+bT4KPiA+ID4gPiA+ID4gPiA+IC0tLQo+ID4gPiA+ID4gPiA+ID4gIGRyaXZlcnMvcHdtL2NvcmUu
+YyAgfCAgOCArKysrLS0tLQo+ID4gPiA+ID4gPiA+ID4gIGluY2x1ZGUvbGludXgvcHdtLmggfCA1
+NCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLQo+
+ID4gPiA+ID4gPiA+ID4gIDIgZmlsZXMgY2hhbmdlZCwgNDYgaW5zZXJ0aW9ucygrKSwgMTYgZGVs
+ZXRpb25zKC0pCj4gPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9k
+cml2ZXJzL3B3bS9jb3JlLmMgYi9kcml2ZXJzL3B3bS9jb3JlLmMKPiA+ID4gPiA+ID4gPiA+IGlu
+ZGV4IDY0MzMwNTkuLmYzZjkxZTcgMTAwNjQ0Cj4gPiA+ID4gPiA+ID4gPiAtLS0gYS9kcml2ZXJz
+L3B3bS9jb3JlLmMKPiA+ID4gPiA+ID4gPiA+ICsrKyBiL2RyaXZlcnMvcHdtL2NvcmUuYwo+ID4g
+PiA+ID4gPiA+ID4gQEAgLTI2OCw3ICsyNjgsNyBAQCBpbnQgcHdtY2hpcF9hZGRfd2l0aF9wb2xh
+cml0eShzdHJ1Y3QgcHdtX2NoaXAgKmNoaXAsCj4gPiA+ID4gPiA+ID4gPiAgCQlwd20tPmNoaXAg
+PSBjaGlwOwo+ID4gPiA+ID4gPiA+ID4gIAkJcHdtLT5wd20gPSBjaGlwLT5iYXNlICsgaTsKPiA+
+ID4gPiA+ID4gPiA+ICAJCXB3bS0+aHdwd20gPSBpOwo+ID4gPiA+ID4gPiA+ID4gLQkJcHdtLT5w
+b2xhcml0eSA9IHBvbGFyaXR5Owo+ID4gPiA+ID4gPiA+ID4gKwkJcHdtLT5zdGF0ZS5wb2xhcml0
+eSA9IHBvbGFyaXR5Owo+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+IFdvdWxkIHRoaXMgbm90
+IG1vcmUgY29ycmVjdGx5IGJlIGFzc2lnbmVkIHRvIHB3bS0+YXJncy5wb2xhcml0eT8gQWZ0ZXIK
+PiA+ID4gPiA+ID4gPiBhbGwgdGhpcyBpcyBzZXR0aW5nIHVwIHRoZSAiaW5pdGlhbCIgc3RhdGUs
+IG11Y2ggbGlrZSBEVCBvciB0aGUgbG9va3VwCj4gPiA+ID4gPiA+ID4gdGFibGVzIHdvdWxkIGZv
+ciBkdXR5IGN5Y2xlIGFuZCBwZXJpb2QuCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiBZZXMsIEkg
+d2Fzbid0IHN1cmUgYWJvdXQgdGhlIHB3bV9hZGRfd2l0aF9wb2xhcml0eSgpIG1lYW5pbmcuIFRv
+IG1lLAo+ID4gPiA+ID4gPiBhbGwgdGhlIHJlZmVyZW5jZSBpbmZvIHNob3VsZCBiZSBleHRyYWN0
+ZWQgZnJvbSBEVCwgUFdNIGxvb2t1cCB0YWJsZSBvcgo+ID4gPiA+ID4gPiBkcml2ZXIgc3BlY2lm
+aWMgLT5yZXF1ZXN0KCkgaW1wbGVtZW50YXRpb24sIGJ1dCBJIGNhbiBkZWZpbml0ZWx5Cj4gPiA+
+ID4gPiA+IGluaXRpYWxpemUgdGhlIGFyZ3MucG9sYXJpdHkgaGVyZSB0b28uCj4gPiA+ID4gPiA+
+IAo+ID4gPiA+ID4gPiBTaG91bGQgSSBrZWVwIHRoZSBwd20tPnN0YXRlLnBvbGFyaXR5IGFzc2ln
+bm1lbnQgKHRvIHNldCB0aGUgaW5pdGlhbAo+ID4gPiA+ID4gPiBwb2xhcml0eSB3aGVuIHRoZSBk
+cml2ZXIgZG9lcyBub3Qgc3VwcG9ydCBoYXJkd2FyZSByZWFkb3V0KT8KPiA+ID4gPiA+IAo+ID4g
+PiA+ID4gV291bGRuJ3QgdGhpcyB3b3JrIGF1dG9tYXRpY2FsbHkgYXMgcGFydCBvZiB0aGUgcHdt
+X2FwcGx5X2FyZ3MoKSBoZWxwZXIKPiA+ID4gPiA+IGlmIHdlIGV4dGVuZGVkIGl0IHdpdGggdGhp
+cyBzZXR0aW5nPwo+ID4gPiA+IAo+ID4gPiA+IFdlbGwsIGFzIHlvdSBleHBsYWluZWQgaW4geW91
+IGFuc3dlciB0byBwYXRjaCA1LCBwd21fYXBwbHlfYXJncygpCj4gPiA+ID4gc2hvdWxkIGJlIGNh
+bGxlZCBvbiBhIHBlci1yZXF1ZXN0IGJhc2lzIChlYWNoIHRpbWUgYSBQV00gZGV2aWNlIGlzCj4g
+PiA+ID4gcmVxdWVzdGVkKSwgd2hpbGUgdGhlIGluaXRpYWwgcG9sYXJpdHkgc2V0dGluZyBzaG91
+bGQgb25seSBiZSBhcHBsaWVkCj4gPiA+ID4gd2hlbiByZWdpc3RlcmluZyB0aGUgUFdNIGNoaXAg
+KGFuZCBpdHMgZGV2aWNlcykuIEFmdGVyIHRoYXQsIHRoZQo+ID4gPiA+IGZyYW1ld29yayB0YWtl
+cyBjYXJlIG9mIGtlZXBpbmcgdGhlIFBXTSBzdGF0ZSBpbiBzeW5jIHdpdGggdGhlIGhhcmR3YXJl
+Cj4gPiA+ID4gc3RhdGUuCj4gPiA+ID4gCj4gPiA+ID4gTGV0J3MgdGFrZSBhIHJlYWwgKHRob3Vn
+aCBhIGJpdCB1bnVzdWFsKSBleGFtcGxlLiBTYXkgeW91IGhhdmUgYSBzaW5nbGUKPiA+ID4gPiBQ
+V00gZGV2aWNlIHJlZmVyZW5jZWQgYnkgdHdvIGRpZmZlcmVudCB1c2Vycy4gT25seSBvbmUgdXNl
+ciBjYW4gYmUKPiA+ID4gPiBlbmFibGVkIGF0IGEgdGltZSwgYnV0IGVhY2ggb2YgdGhlbSBoYXMg
+aXRzIG93biByZWZlcmVuY2UgY29uZmlnCj4gPiA+ID4gKGRpZmZlcmVudCBwb2xhcml0eSwgZGlm
+ZmVyZW50IHBlcmlvZCkuCj4gPiA+ID4gCj4gPiA+ID4gVXNlcjEgY2FsbHMgcHdtX2dldCgpIGFu
+ZCBhcHBsaWVzIGl0cyBvd24gcG9sYXJpdHkgYW5kIHBlcmlvZC4gVGhlbgo+ID4gPiA+IHVzZXIx
+IGlzIHVucmVnaXN0ZXJlZCBhbmQgcmVsZWFzZSB0aGUgUFdNIGRldmljZSwgbGVhdmluZyB0aGUg
+cG9sYXJpdHkKPiA+ID4gPiBhbmQgcGVyaW9kIHVudG91Y2hlZC4KPiA+ID4gPiAKPiA+ID4gPiBV
+c2VyMiBpcyByZWdpc3RlcmVkIGFuZCByZXF1ZXN0IHRoZSBzYW1lIFBXTSBkZXZpY2UsIGJ1dCB1
+c2VyMiBpcwo+ID4gPiA+IHNtYXJ0ZXIgYW5kIHRyaWVzIHRvIGV4dHJhY3QgdGhlIGN1cnJlbnQg
+UFdNIHN0YXRlIGJlZm9yZSBhZGFwdGluZyB0aGUKPiA+ID4gPiBjb25maWcgYWNjb3JkaW5nIHRv
+IHB3bV9hcmdzLiBJZiB5b3UganVzdCByZXNldCBwd20tPnN0YXRlLnBvbGFyaXR5Cj4gPiA+ID4g
+ZWFjaCB0aW1lIHB3bV9hcHBseV9hcmdzKCkgaXMgY2FsbGVkIChhbmQgeW91IHN1Z2dlc3RlZCB0
+byBjYWxsIGl0IGFzCj4gPiA+ID4gcGFydCBvZiB0aGUgcmVxdWVzdCBwcm9jZWR1cmUpLCB0aGVu
+IHRoaXMgbWVhbnMgdGhlIFBXTSBzdGF0ZSBpcyBubwo+ID4gPiA+IGxvbmdlciBpbiBzeW5jIHdp
+dGggdGhlIGhhcmR3YXJlIHN0YXRlLgo+ID4gPiAKPiA+ID4gSW4gdGhhdCBjYXNlIG5laXRoZXIg
+d2lsbCBiZSB0aGUgcGVyaW9kIG9yIGR1dHkgY3ljbGUuIEVzc2VudGlhbGx5IHRoaXMKPiA+ID4g
+Z2V0cyB1cyBiYWNrIHRvIHNxdWFyZSBvbmUgd2hlcmUgd2UgbmVlZCB0byBkZWNpZGUgaG93IHRv
+IGhhbmRsZSBjdXJyZW50Cj4gPiA+IHN0YXRlIHZzLiBpbml0aWFsIGFyZ3VtZW50cy4KPiA+IAo+
+ID4gVGhhdCdzIG5vdCB0cnVlLiBOb3cgd2UgY2xlYXJseSBkaWZmZXJlbnRpYXRlIHRoZSByZWZl
+cmVuY2UgY29uZmlnCj4gPiAoY29udGVudCBvZiBwd21fYXJncyB3aGljaCBpcyBvbmx5IGEgc3Vi
+c2V0IG9mIHdoYXQgeW91J2xsIGZpbmQgaW4KPiA+IHB3bV9zdGF0ZSkgYW5kIHRoZSBQV00gc3Rh
+dGUgKHJlcHJlc2VudGVkIGJ5IHB3bV9zdGF0ZSkuCj4gPiAKPiA+IFdlIHNob3VsZCBiZSBzYWZl
+IGFzIGxvbmcgYXMgd2Uga2VlcCB0aG9zZSAyIGVsZW1lbnRzIGFzIDIgb3J0aG9nb25hbAo+ID4g
+Y29uY2VwdHM6Cj4gPiAtIHB3bV9hcmdzIGlzIHN1cHBvc2VkIHRvIGdpdmUgc29tZSBoaW50IHRv
+IHRoZSBQV00gdXNlciB0byBoZWxwIGhpbQo+ID4gICBjb25maWd1cmUgaXQncyBQV00gYXBwcm9w
+cmlhdGVseQo+ID4gLSBwd21fc3RhdGUgaXMgaGVyZSB0byByZWZsZWN0IHRoZSByZWFsIFBXTSBz
+dGF0ZSwgYW5kIGFwcGx5IG5ldwo+ID4gICBjb25maWdzCj4gPiAKPiA+ID4gCj4gPiA+IEJ1dCBJ
+IGRvbid0IHRoaW5rIHRoaXMgaXMgcmVhbGx5IGdvaW5nIHRvIGJlIGFuIGlzc3VlIGJlY2F1c2Ug
+dGhpcyBpcwo+ID4gPiBhbGwgbW9vdCB1bnRpbCB3ZSd2ZSBtb3ZlZCBvdmVyIHRvIHRoZSBhdG9t
+aWMgQVBJLCBhdCB3aGljaCBwb2ludCB0aGlzCj4gPiA+IGlzIGFsbCBnb2luZyB0byBnbyBhd2F5
+IGFueXdheS4KPiA+IAo+ID4gQXMgc3RhdGVkIGluIG15IGFuc3dlciB0byBwYXRjaCA1LCBJIHRo
+aW5rIEkgbWlzdW5kZXJzdG9vZCB5b3VyCj4gPiBzdWdnZXN0aW9uLiBwd21fYXBwbHlfYXJncygp
+IGlzIHN1cHBvc2VkIHRvIGFkanVzdCB0aGUgUFdNIGNvbmZpZyB0bwo+ID4gbWF0Y2ggdGhlIHBl
+cmlvZCBhbmQgcG9sYXJpdHkgc3BlY2lmaWVkIGluIHB3bV9hcmdzLCByaWdodD8KPiA+IAo+ID4g
+SWYgdGhhdCdzIHRoZSBjYXNlLCBteSBxdWVzdGlvbiBpcywgc2hvdWxkIHdlIHJlYWxseSBjYWxs
+IHRoaXMgZnVuY3Rpb24KPiA+IGVhY2ggdGltZSBhIG5ldyB1c2VyIHJlcXVlc3RzIGEgUFdNIGlu
+c3RlYWQgb2YgbGV0dGluZyB0aG9zZSB1c2VycyBjYWxsCj4gPiB0aGUgZnVuY3Rpb24gb24tZGVt
+YW5kIChub3QgYWxsIHVzZXJzIHdhbnQgdG8gYWRhcHQgdGhlIGN1cnJlbnQgUFdNCj4gPiBjb25m
+aWcgdG8gdGhlIHB3bV9hcmdzLCBzb21lIG1heSBqdXN0IHdhbnQgdG8gYXBwbHkgYSBjb21wbGV0
+ZWx5IG5ldwo+ID4gY29uZmlnKS4KPiAKPiBJIHRoaW5rIHdlJ3JlIHN0aWxsIHRhbGtpbmcgcGFz
+dCBlYWNoIG90aGVyLiBJIGRpZG4ndCBtZWFuIGZvciB0aGlzIHRvCj4gYmUgYSBwcm9wZXIgcGFy
+dCBvZiB0aGUgQVBJLiBMaWtlIHlvdSBzYWlkIHRoZSBzdHJ1Y3QgcHdtX2FyZ3MgZG9lc24ndAo+
+IGNvbnRhaW4gZW5vdWdoIGRhdGEgdG8gY29uc3RydWN0IGEgY29tcGxldGUgc3RhdGUgYW5kIGFw
+cGx5IGl0Lgo+IAo+IFdoYXQgSSB3YXMgc3VnZ2VzdGluZyBpcyB0byBmYWN0b3Igb3V0IHRoZSBp
+bmRpdmlkdWFsIGNhbGxzIHRvIHRoZQo+IHZhcmlvdXMgcHdtX3NldF8qKCkgZnVuY3Rpb25zIGlu
+dG8gYSBzaW5nbGUgY2FsbC4gU28gd2Ugd291bGRuJ3QgYmUKPiBjaGFuZ2luZyBzZW1hbnRpY3Ms
+IGp1c3QgcmVmYWN0b3JpbmcgdG8gbWFrZSBpdCBlYXNpZXIgdG8gZ2V0IHJpZCBvZgo+IGFnYWlu
+IGluIG9uZSBvZiB0aGUgc3Vic2VxdWVudCBwYXRjaGVzLgo+IAo+IFRoYXQgaXMsIHB3bV9hcHBs
+eV9hcmdzKCkgd291bGQgZ28gYXdheSBhZ2FpbiB3aXRoaW4gdGhpcyB2ZXJ5IHNlcmllcywKPiBh
+dCB0aGUgc2FtZSBwb2ludCB0aGF0IHlvdSdyZSBjdXJyZW50bHkgcmVtb3ZpbmcgdGhlIHB3bV9z
+ZXRfKigpIGNhbGxzLgoKT2theSwgZXZlbnR1YWxseSBnb3QgaXQgOikuCgotLSAKQm9yaXMgQnJl
+emlsbG9uLCBGcmVlIEVsZWN0cm9ucwpFbWJlZGRlZCBMaW51eCBhbmQgS2VybmVsIGVuZ2luZWVy
+aW5nCmh0dHA6Ly9mcmVlLWVsZWN0cm9ucy5jb20KX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4v
+bGlzdGluZm8vaW50ZWwtZ2Z4Cg==

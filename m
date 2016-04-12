@@ -1,77 +1,116 @@
-From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 15/46] pwm: introduce the pwm_state concept
-Date: Tue, 12 Apr 2016 14:21:41 +0200
-Message-ID: <20160412122141.GP18882@ulmo.ba.sec>
-References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
- <1459368249-13241-16-git-send-email-boris.brezillon@free-electrons.com>
- <20160412114904.GM18882@ulmo.ba.sec>
- <20160412141718.5fe4cf24@bbrezillon>
-Reply-To: thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="6sj9mcRtP+pTWLOo"
-Return-path: <linux-sunxi+bncBDTKFPPJUEHRBV6QWO4AKGQEDB5THRY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <20160412141718.5fe4cf24@bbrezillon>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jo>
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: [PATCH v8 0/7] EC-based USB Power Delivery support for Chrome machines
+Date: Tue, 12 Apr 2016 14:32:23 +0200
+Message-ID: <1460464350-30414-1-git-send-email-tomeu.vizoso@collabora.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:36795 "EHLO
+	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932392AbcDLMc4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Apr 2016 08:32:56 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Sameer Nanda <snanda@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>, Benson Leung <bleung@chromium.org>, =?UTF-8?q?Enric=20Balletb=C3=B2?= <enric.balletbo@collabora.co.uk>, Vic Yang <victoryang@chromium.org>, Stephen Boyd <sboyd@codeaurora.org>, Vincent Palatin <vpalatin@chromium.org>, Randall Spangler <rspangler@chromium.org>, Todd Broch <tbroch@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-pm@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-input@vger.kernel.org, Olof Johansson <olof@lixom.net>
 
---6sj9mcRtP+pTWLOo
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Hi,
 
-On Tue, Apr 12, 2016 at 02:17:18PM +0200, Boris Brezillon wrote:
-> On Tue, 12 Apr 2016 13:49:04 +0200
-> Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> 
-> > On Wed, Mar 30, 2016 at 10:03:38PM +0200, Boris Brezillon wrote:
-> > > The PWM state, represented by its period, duty_cycle and polarity,
-> > > is currently directly stored in the PWM device.
-> > > Declare a pwm_state structure embedding those field so that we can later
-> > > use this struct to atomically update all the PWM parameters at once.
-> > > 
-> > > All pwm_get_xxx() helpers are now implemented as wrappers around
-> > > pwm_get_state().
-> > > 
-> > > Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> > > ---
-> > >  drivers/pwm/core.c  |  8 ++++----
-> > >  include/linux/pwm.h | 54 +++++++++++++++++++++++++++++++++++++++++------------
-> > >  2 files changed, 46 insertions(+), 16 deletions(-)
-> > > 
-> > > diff --git a/drivers/pwm/core.c b/drivers/pwm/core.c
-> > > index 6433059..f3f91e7 100644
-> > > --- a/drivers/pwm/core.c
-> > > +++ b/drivers/pwm/core.c
-> > > @@ -268,7 +268,7 @@ int pwmchip_add_with_polarity(struct pwm_chip *chip,
-> > >  		pwm->chip = chip;
-> > >  		pwm->pwm = chip->base + i;
-> > >  		pwm->hwpwm = i;
-> > > -		pwm->polarity = polarity;
-> > > +		pwm->state.polarity = polarity;
-> > 
-> > Would this not more correctly be assigned to pwm->args.polarity? After
-> > all this is setting up the "initial" state, much like DT or the lookup
-> > tables would for duty cycle and period.
-> 
-> Yes, I wasn't sure about the pwm_add_with_polarity() meaning. To me,
-> all the reference info should be extracted from DT, PWM lookup table or
-> driver specific ->request() implementation, but I can definitely
-> initialize the args.polarity here too.
-> 
-> Should I keep the pwm->state.polarity assignment (to set the initial
-> polarity when the driver does not support hardware readout)?
+this series contains a driver that exposes a power_supply to userspace
+representing a port that support USB PD charging.
 
-Wouldn't this work automatically as part of the pwm_apply_args() helper
-if we extended it with this setting?
+Allows userspace to display to the user if the machine is charging and
+on which port, and if another device is being charged by a port.
 
-Thierry
---6sj9mcRtP+pTWLOo--
+This series may be best integrated through the MFD tree, for which we'll
+need ACKs from Olof (for the changes to platform/chrome), from Dmitry
+(for changes to cros_ec_keyb.c) and from Sebastian Reichel for the
+new driver.
+
+Patches 1 and 2 need to be taken together because in the first the MFD
+driver handles the EC interrupt and only in the second patch the
+keyboard driver stops handling it and using the notifier instead.
+
+Thanks,
+
+Tomeu
+
+Changes in v8:
+- Split out changes to drivers/input/keyboard
+- Improved error messages
+- Fixed kerneldoc comments
+- Don't call cros_ec_cmd_xfer from declaration block
+- Remove unnecessary variable host_event
+- Don't add stuff to cros_ec_commands.h not needed in this series
+
+Changes in v7:
+- Rebased onto 4.6-rc1, with no conflicts.
+
+Changes in v6:
+- Return 0 if the EC doesn't support MKBP, as expected by callers.
+
+Changes in v5:
+- Check explicitly for !EC_RES_SUCCESS as suggested by Benson Leung.
+- Fix type of variable passed to do_div.
+
+Changes in v4:
+- Calculate correctly the size of the payloads in
+  cros_ec_get_host_command_version_mask.
+- Declare size parameters in ec_command as size_t
+
+Changes in v3:
+- Remove duplicated prototype of cros_ec_get_host_event.
+- Use do_div so it builds on 32bit (suggested by 0-day kbuild bot).
+- Remove sysfs attributes ext_current_lim and ext_voltage_lim because
+  I don't know yet where they should be placed (and don't have HW to
+  test them).
+- Remove superfluous pre-allocated buffers ec_inbuf and ec_outbuf.
+- Lots of misc comments from Stephen Boyd were addressed.
+- Unregister notification listener in .remove callback.
+- Only register the PD charger device if there are any PD ports in this
+  EC.
+- Dropped patch using EC_CMD_GET_FEATURES to decide whether to create a
+  charger device because we are now only creating one if a EC has any PD
+  ports.
+- Dropped patch adding power_supply types because it has been merged
+  already.
+
+Changes in v2:
+- Allocate enough for the structs in
+  cros_ec_get_host_command_version_mask,
+  not their pointers.
+- Allocate msg in the stack in get_next_event and
+  get_keyboard_state_event, as suggested by Gwendal.
+- Split out changes to cros_ec_commands.h and the helpers added to
+  mfd/cros_ec.h from the patch that adds the charger driver, as
+  suggested by Lee.
+- Actually call get_ec_num_ports.
+- Move cros_ec_usb_pd_charger_register into cros_ec_dev.c.
+
+Sameer Nanda (1):
+  power: cros_usbpd-charger: Add EC-based USB PD charger driver
+
+Tomeu Vizoso (4):
+  mfd: cros_ec: Add cros_ec_cmd_xfer_status helper
+  mfd: cros_ec: Add cros_ec_get_host_event
+  mfd: cros_ec: Add more definitions for PD commands
+  platform/chrome: Register USB PD charger device
+
+Vic Yang (2):
+  mfd: cros_ec: Add MKBP event support
+  Input: cros_ec_keyb - Stop handling interrupts directly
+
+ drivers/input/keyboard/cros_ec_keyb.c   | 135 ++----
+ drivers/mfd/cros_ec.c                   |  58 ++-
+ drivers/platform/chrome/cros_ec_dev.c   |  44 ++
+ drivers/platform/chrome/cros_ec_proto.c | 127 ++++++
+ drivers/power/Kconfig                   |  10 +
+ drivers/power/Makefile                  |   1 +
+ drivers/power/cros_usbpd-charger.c      | 780 ++++++++++++++++++++++++++++++++
+ include/linux/mfd/cros_ec.h             |  45 ++
+ include/linux/mfd/cros_ec_commands.h    | 216 +++++++++
+ 9 files changed, 1309 insertions(+), 107 deletions(-)
+ create mode 100644 drivers/power/cros_usbpd-charger.c
+
+-- 
+2.5.5
+

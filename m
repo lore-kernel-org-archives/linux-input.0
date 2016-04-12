@@ -1,75 +1,103 @@
-From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 04/46] pwm: get rid of pwm->lock
-Date: Tue, 12 Apr 2016 13:46:00 +0200
-Message-ID: <20160412114600.GL18882@ulmo.ba.sec>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v5 15/46] pwm: introduce the pwm_state
+	concept
+Date: Tue, 12 Apr 2016 13:49:04 +0200
+Message-ID: <20160412114904.GM18882@ulmo.ba.sec>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
- <1459368249-13241-5-git-send-email-boris.brezillon@free-electrons.com>
- <20160412112246.GJ18882@ulmo.ba.sec>
- <20160412133255.73cea027@bbrezillon>
-Reply-To: thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+ <1459368249-13241-16-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Mit9XoPEfICDqq/V"
-Return-path: <linux-sunxi+bncBDTKFPPJUEHRB657WO4AKGQETS3EHIY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <20160412133255.73cea027@bbrezillon>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jo>
+Content-Type: multipart/mixed; boundary="===============0432456923=="
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <1459368249-13241-16-git-send-email-boris.brezillon@free-electrons.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Milo Kim <milo.kim@ti.com>, Kamil Debski <k.debski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, linux-doc@vger.kernel.org, David Airlie <airlied@linux.ie>, Mike Turquette <mturquette@baylibre.com>, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Daniel Vetter <daniel.vetter@intel.com>, Lee Jones <lee.jones@linaro.org>, linux-clk@vger.kernel.org, linux-leds@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-samsung-soc@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>, Jonathan Corbet <corbet@lwn.net>, Robert Jarzmik <robert.jarzmik@free.fr>, lm-sensors@lm-sensors.org, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-input@vger.kernel.org, Jean-Christophe
 List-Id: linux-input@vger.kernel.org
 
---Mit9XoPEfICDqq/V
-Content-Type: text/plain; charset=UTF-8
+
+--===============0432456923==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="bPrm2PuLP7ysUh6c"
 Content-Disposition: inline
 
-On Tue, Apr 12, 2016 at 01:32:55PM +0200, Boris Brezillon wrote:
-> Hi Thierry,
-> 
-> On Tue, 12 Apr 2016 13:22:46 +0200
-> Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> 
-> > On Wed, Mar 30, 2016 at 10:03:27PM +0200, Boris Brezillon wrote:
-> > > PWM devices are not protected against concurrent accesses. The lock in
-> > > pwm_device might let PWM users think it is, but it's actually only
-> > > protecting the enabled state.
-> > > 
-> > > Removing this lock should be fine as long as all PWM users are aware that
-> > > accesses to the PWM device have to be serialized, which seems to be the
-> > > case for all of them except the sysfs interface.
-> > > Patch the sysfs code by adding a lock to the pwm_export struct and making
-> > > sure it's taken for all accesses to the exported PWM device.
-> > > 
-> > > Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> > > ---
-> > >  drivers/pwm/core.c  | 19 ++++--------------
-> > >  drivers/pwm/sysfs.c | 57 ++++++++++++++++++++++++++++++++++++++++++-----------
-> > >  include/linux/pwm.h |  2 --
-> > >  3 files changed, 50 insertions(+), 28 deletions(-)
-> > 
-> > This is a little overzealous. Only accesses that can cause races need to
-> > be protected by the lock. All of the *_show() callbacks don't modify the
-> > PWM device in any way, so there is no need to protect them against
-> > concurrent accesses.
-> 
-> This is probably true for this set of changes, but what will happen
-> when we'll switch to the atomic API? There's no guarantee that
-> pwm->state = *newstate is done atomically, and you may see a partially
-> updated state when calling pwm_get_state() while another thread is
-> calling pwm_apply_state().
 
-I'd argue that for sysfs it doesn't matter since the userspace API is
-non-atomic anyway. As such it doesn't really matter which part of the
-state you're getting because only one field from the query is exposed
-to userspace, hence the coherence of the state is irrelevant.
+--bPrm2PuLP7ysUh6c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-All other users should be taking care of the serialization themselves
-already.
+On Wed, Mar 30, 2016 at 10:03:38PM +0200, Boris Brezillon wrote:
+> The PWM state, represented by its period, duty_cycle and polarity,
+> is currently directly stored in the PWM device.
+> Declare a pwm_state structure embedding those field so that we can later
+> use this struct to atomically update all the PWM parameters at once.
+>=20
+> All pwm_get_xxx() helpers are now implemented as wrappers around
+> pwm_get_state().
+>=20
+> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+> ---
+>  drivers/pwm/core.c  |  8 ++++----
+>  include/linux/pwm.h | 54 +++++++++++++++++++++++++++++++++++++++++------=
+------
+>  2 files changed, 46 insertions(+), 16 deletions(-)
+>=20
+> diff --git a/drivers/pwm/core.c b/drivers/pwm/core.c
+> index 6433059..f3f91e7 100644
+> --- a/drivers/pwm/core.c
+> +++ b/drivers/pwm/core.c
+> @@ -268,7 +268,7 @@ int pwmchip_add_with_polarity(struct pwm_chip *chip,
+>  		pwm->chip =3D chip;
+>  		pwm->pwm =3D chip->base + i;
+>  		pwm->hwpwm =3D i;
+> -		pwm->polarity =3D polarity;
+> +		pwm->state.polarity =3D polarity;
+
+Would this not more correctly be assigned to pwm->args.polarity? After
+all this is setting up the "initial" state, much like DT or the lookup
+tables would for duty cycle and period.
 
 Thierry
---Mit9XoPEfICDqq/V--
+
+--bPrm2PuLP7ysUh6c
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAABCAAGBQJXDOCwAAoJEN0jrNd/PrOhF68QAKrMJWoxnwNOpnE/XLaupLry
+RUQQTeF+cQA1lO4lHfFVMv0XWggtYkblrnI3hvNeG+MBjKBnRHSj2JCruLITHkKw
+cxWH6brZ6e7hB/0zSe/sBxlpzm9ujTSzkwVAJ0WnznqhuOU8fFYALw4tMLu37q8d
+whp1cmw3lhaIvgtUJS1DeY0EKl5jBcI71045hZPPPuQ5dYUqj3n5l8MZha8FG0Rl
+r9XoPzYk2gTXX/9CrEcluXzPF9hmkgOsHBPjZpIx7fb0dutR3GWSbdj1tS/jk4wt
+Yu/co8aokTh/kkL5E+lh4c48FvLePfkDIyYqLUsX+LzvReixnyN4gy7neV3GJ7v6
+6+QWZdqQN5GSiH82iYIKn7Ej2KTqPgOY1ZNP7i6C2cjLajKcVSNhmeCwYK53sRCa
+YdGpxEqy5TRmtnaUu4kgVJjCRWzysk++1OZufUBl9E0AivAD/6z/4eXaPLYUafjN
+Rz9vSozXE0kiyLVaZVx7EVlLIpygsb1kDZZJHCJAIa/MTltiIjfw2MPfVYKmK+jk
+6n8Si072Aisr32K8Zj0k/djbTeYpIY1C1egGcPQaKef6xOs38FB/mJE66VeuYMvr
+ImzlLDT6ISDX68KzUTBEJMy0hmpcA9V2tnIzFthzxHaToUG/tkMbby8scysoQxxP
+flcXc/+fg+cX8lgFJkKR
+=SGvk
+-----END PGP SIGNATURE-----
+
+--bPrm2PuLP7ysUh6c--
+
+--===============0432456923==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4
+IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==
+
+--===============0432456923==--

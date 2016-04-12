@@ -1,62 +1,83 @@
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: Re: [PATCH v5 15/46] pwm: introduce the pwm_state
-	concept
-Date: Tue, 12 Apr 2016 14:17:18 +0200
-Message-ID: <20160412141718.5fe4cf24@bbrezillon>
+From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v5 05/46] pwm: introduce the pwm_args concept
+Date: Tue, 12 Apr 2016 14:20:29 +0200
+Message-ID: <20160412122029.GO18882@ulmo.ba.sec>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
- <1459368249-13241-16-git-send-email-boris.brezillon@free-electrons.com>
- <20160412114904.GM18882@ulmo.ba.sec>
+ <1459368249-13241-6-git-send-email-boris.brezillon@free-electrons.com>
+ <20160412113912.GK18882@ulmo.ba.sec>
+ <20160412140412.42704302@bbrezillon>
+Reply-To: thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20160412114904.GM18882@ulmo.ba.sec>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: Milo Kim <milo.kim@ti.com>, Kamil Debski <k.debski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, linux-doc@vger.kernel.org, David Airlie <airlied@linux.ie>, Mike Turquette <mturquette@baylibre.com>, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Daniel Vetter <daniel.vetter@intel.com>, Lee Jones <lee.jones@linaro.org>, linux-clk@vger.kernel.org, linux-leds@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-samsung-soc@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>, Jonathan Corbet <corbet@lwn.net>, Robert Jarzmik <robert.jarzmik@free.fr>, lm-sensors@lm-sensors.org, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-input@vger.kernel.org, Jean-Christophe
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="7gLe/sNPhR777EPF"
+Return-path: <linux-sunxi+bncBDTKFPPJUEHRBEGQWO4AKGQEAC77K4Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Disposition: inline
+In-Reply-To: <20160412140412.42704302@bbrezillon>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jo>
 List-Id: linux-input@vger.kernel.org
 
-T24gVHVlLCAxMiBBcHIgMjAxNiAxMzo0OTowNCArMDIwMApUaGllcnJ5IFJlZGluZyA8dGhpZXJy
-eS5yZWRpbmdAZ21haWwuY29tPiB3cm90ZToKCj4gT24gV2VkLCBNYXIgMzAsIDIwMTYgYXQgMTA6
-MDM6MzhQTSArMDIwMCwgQm9yaXMgQnJlemlsbG9uIHdyb3RlOgo+ID4gVGhlIFBXTSBzdGF0ZSwg
-cmVwcmVzZW50ZWQgYnkgaXRzIHBlcmlvZCwgZHV0eV9jeWNsZSBhbmQgcG9sYXJpdHksCj4gPiBp
-cyBjdXJyZW50bHkgZGlyZWN0bHkgc3RvcmVkIGluIHRoZSBQV00gZGV2aWNlLgo+ID4gRGVjbGFy
-ZSBhIHB3bV9zdGF0ZSBzdHJ1Y3R1cmUgZW1iZWRkaW5nIHRob3NlIGZpZWxkIHNvIHRoYXQgd2Ug
-Y2FuIGxhdGVyCj4gPiB1c2UgdGhpcyBzdHJ1Y3QgdG8gYXRvbWljYWxseSB1cGRhdGUgYWxsIHRo
-ZSBQV00gcGFyYW1ldGVycyBhdCBvbmNlLgo+ID4gCj4gPiBBbGwgcHdtX2dldF94eHgoKSBoZWxw
-ZXJzIGFyZSBub3cgaW1wbGVtZW50ZWQgYXMgd3JhcHBlcnMgYXJvdW5kCj4gPiBwd21fZ2V0X3N0
-YXRlKCkuCj4gPiAKPiA+IFNpZ25lZC1vZmYtYnk6IEJvcmlzIEJyZXppbGxvbiA8Ym9yaXMuYnJl
-emlsbG9uQGZyZWUtZWxlY3Ryb25zLmNvbT4KPiA+IC0tLQo+ID4gIGRyaXZlcnMvcHdtL2NvcmUu
-YyAgfCAgOCArKysrLS0tLQo+ID4gIGluY2x1ZGUvbGludXgvcHdtLmggfCA1NCArKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLQo+ID4gIDIgZmlsZXMg
-Y2hhbmdlZCwgNDYgaW5zZXJ0aW9ucygrKSwgMTYgZGVsZXRpb25zKC0pCj4gPiAKPiA+IGRpZmYg
-LS1naXQgYS9kcml2ZXJzL3B3bS9jb3JlLmMgYi9kcml2ZXJzL3B3bS9jb3JlLmMKPiA+IGluZGV4
-IDY0MzMwNTkuLmYzZjkxZTcgMTAwNjQ0Cj4gPiAtLS0gYS9kcml2ZXJzL3B3bS9jb3JlLmMKPiA+
-ICsrKyBiL2RyaXZlcnMvcHdtL2NvcmUuYwo+ID4gQEAgLTI2OCw3ICsyNjgsNyBAQCBpbnQgcHdt
-Y2hpcF9hZGRfd2l0aF9wb2xhcml0eShzdHJ1Y3QgcHdtX2NoaXAgKmNoaXAsCj4gPiAgCQlwd20t
-PmNoaXAgPSBjaGlwOwo+ID4gIAkJcHdtLT5wd20gPSBjaGlwLT5iYXNlICsgaTsKPiA+ICAJCXB3
-bS0+aHdwd20gPSBpOwo+ID4gLQkJcHdtLT5wb2xhcml0eSA9IHBvbGFyaXR5Owo+ID4gKwkJcHdt
-LT5zdGF0ZS5wb2xhcml0eSA9IHBvbGFyaXR5Owo+IAo+IFdvdWxkIHRoaXMgbm90IG1vcmUgY29y
-cmVjdGx5IGJlIGFzc2lnbmVkIHRvIHB3bS0+YXJncy5wb2xhcml0eT8gQWZ0ZXIKPiBhbGwgdGhp
-cyBpcyBzZXR0aW5nIHVwIHRoZSAiaW5pdGlhbCIgc3RhdGUsIG11Y2ggbGlrZSBEVCBvciB0aGUg
-bG9va3VwCj4gdGFibGVzIHdvdWxkIGZvciBkdXR5IGN5Y2xlIGFuZCBwZXJpb2QuCgpZZXMsIEkg
-d2Fzbid0IHN1cmUgYWJvdXQgdGhlIHB3bV9hZGRfd2l0aF9wb2xhcml0eSgpIG1lYW5pbmcuIFRv
-IG1lLAphbGwgdGhlIHJlZmVyZW5jZSBpbmZvIHNob3VsZCBiZSBleHRyYWN0ZWQgZnJvbSBEVCwg
-UFdNIGxvb2t1cCB0YWJsZSBvcgpkcml2ZXIgc3BlY2lmaWMgLT5yZXF1ZXN0KCkgaW1wbGVtZW50
-YXRpb24sIGJ1dCBJIGNhbiBkZWZpbml0ZWx5CmluaXRpYWxpemUgdGhlIGFyZ3MucG9sYXJpdHkg
-aGVyZSB0b28uCgpTaG91bGQgSSBrZWVwIHRoZSBwd20tPnN0YXRlLnBvbGFyaXR5IGFzc2lnbm1l
-bnQgKHRvIHNldCB0aGUgaW5pdGlhbApwb2xhcml0eSB3aGVuIHRoZSBkcml2ZXIgZG9lcyBub3Qg
-c3VwcG9ydCBoYXJkd2FyZSByZWFkb3V0KT8KCi0tIApCb3JpcyBCcmV6aWxsb24sIEZyZWUgRWxl
-Y3Ryb25zCkVtYmVkZGVkIExpbnV4IGFuZCBLZXJuZWwgZW5naW5lZXJpbmcKaHR0cDovL2ZyZWUt
-ZWxlY3Ryb25zLmNvbQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0CkludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5v
-cmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1n
-ZngK
+--7gLe/sNPhR777EPF
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
+
+On Tue, Apr 12, 2016 at 02:04:12PM +0200, Boris Brezillon wrote:
+> On Tue, 12 Apr 2016 13:39:12 +0200
+> Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> 
+> > On Wed, Mar 30, 2016 at 10:03:28PM +0200, Boris Brezillon wrote:
+> > > Currently the PWM core mixes the current PWM state with the per-platform
+> > > reference config (specified through the PWM lookup table, DT definition or
+> > > directly hardcoded in PWM drivers).
+> > > 
+> > > Create a pwm_args struct to store this reference config, so that PWM users
+> > > can differentiate the current config from the reference one.
+> > > 
+> > > Patch all places where pwm->args should be initialized. We keep the
+> > > pwm_set_polarity/period() calls until all PWM users are patched to
+> > > use pwm_args instead of pwm_get_period/polarity().
+> > 
+> > Perhaps a helper would be useful? Something like:
+> > 
+> > 	static inline void
+> > 	pwm_apply_args(struct pwm_device *pwm, const struct pwm_args *args)
+> > 	{
+> > 		pwm_set_duty_cycle(pwm, args->duty_cycle);
+> > 		pwm_set_period(pwm, args->period);
+> > 	}
+> > 
+> > ? That would make it slightly easier to get rid of it again after all
+> > clients have been converted.
+> 
+> Sure. I'll add this helper.
+> 
+> > 
+> > With the exception of pwm-clps711x all of these args are set at of_xlate
+> > time (for DT) or from the lookup table in pwm_get() (for non-DT), so it
+> > might even be possible to move this call to the core, so that removal of
+> > it will be a one-liner.
+> 
+> Not sure I get that one. Some drivers are implementing their own
+> ->of_xlate() method, how would you get rid of this pwm_apply_args() in
+> those custom implementations?
+
+I was proposing to have pwm_apply_args() called from the core.
+of_pwm_get() is where ->of_xlate() is called from, and the lookup table
+arguments would be applied in pwm_get(). Taking into account clps711x,
+which sets the arguments in ->request() it might be possible to simply
+call pwm_apply_args() from pwm_device_request(), since that's also
+called by all other request functions, even the legacy ones.
+
+That said, the amount of code to modify isn't that large, so I'm fine if
+you want to keep sprinkling the calls across multiple files, especially
+since it's temporary.
+
+Thierry
+--7gLe/sNPhR777EPF--

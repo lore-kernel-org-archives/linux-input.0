@@ -1,72 +1,114 @@
-From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v5 05/46] pwm: introduce the pwm_args concept
-Date: Tue, 12 Apr 2016 15:06:27 +0200
-Message-ID: <20160412150627.7084665d@bbrezillon>
+From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v5 15/46] pwm: introduce the pwm_state concept
+Date: Tue, 12 Apr 2016 15:11:18 +0200
+Message-ID: <20160412131118.GQ18882@ulmo.ba.sec>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
-	<1459368249-13241-6-git-send-email-boris.brezillon@free-electrons.com>
-	<20160412113912.GK18882@ulmo.ba.sec>
-Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+ <1459368249-13241-16-git-send-email-boris.brezillon@free-electrons.com>
+ <20160412114904.GM18882@ulmo.ba.sec>
+ <20160412141718.5fe4cf24@bbrezillon>
+ <20160412122141.GP18882@ulmo.ba.sec>
+ <20160412144508.2ee181fe@bbrezillon>
+Reply-To: thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBX7FWO4AKGQEW7T6HGQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="V2tfspbppmK1TQo2"
+Return-path: <linux-sunxi+bncBDTKFPPJUEHRB6PHWO4AKGQEX5TI56Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20160412113912.GK18882-EkSeR96xj6Pcmrwk2tT4+A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20160412144508.2ee181fe@bbrezillon>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/linux-sunxi
 List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
  <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones@li>
+To: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jo>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 12 Apr 2016 13:39:12 +0200
-Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+--V2tfspbppmK1TQo2
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-> On Wed, Mar 30, 2016 at 10:03:28PM +0200, Boris Brezillon wrote:
-> > Currently the PWM core mixes the current PWM state with the per-platform
-> > reference config (specified through the PWM lookup table, DT definition or
-> > directly hardcoded in PWM drivers).
+On Tue, Apr 12, 2016 at 02:45:08PM +0200, Boris Brezillon wrote:
+> On Tue, 12 Apr 2016 14:21:41 +0200
+> Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> 
+> > On Tue, Apr 12, 2016 at 02:17:18PM +0200, Boris Brezillon wrote:
+> > > On Tue, 12 Apr 2016 13:49:04 +0200
+> > > Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> > > 
+> > > > On Wed, Mar 30, 2016 at 10:03:38PM +0200, Boris Brezillon wrote:
+> > > > > The PWM state, represented by its period, duty_cycle and polarity,
+> > > > > is currently directly stored in the PWM device.
+> > > > > Declare a pwm_state structure embedding those field so that we can later
+> > > > > use this struct to atomically update all the PWM parameters at once.
+> > > > > 
+> > > > > All pwm_get_xxx() helpers are now implemented as wrappers around
+> > > > > pwm_get_state().
+> > > > > 
+> > > > > Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> > > > > ---
+> > > > >  drivers/pwm/core.c  |  8 ++++----
+> > > > >  include/linux/pwm.h | 54 +++++++++++++++++++++++++++++++++++++++++------------
+> > > > >  2 files changed, 46 insertions(+), 16 deletions(-)
+> > > > > 
+> > > > > diff --git a/drivers/pwm/core.c b/drivers/pwm/core.c
+> > > > > index 6433059..f3f91e7 100644
+> > > > > --- a/drivers/pwm/core.c
+> > > > > +++ b/drivers/pwm/core.c
+> > > > > @@ -268,7 +268,7 @@ int pwmchip_add_with_polarity(struct pwm_chip *chip,
+> > > > >  		pwm->chip = chip;
+> > > > >  		pwm->pwm = chip->base + i;
+> > > > >  		pwm->hwpwm = i;
+> > > > > -		pwm->polarity = polarity;
+> > > > > +		pwm->state.polarity = polarity;
+> > > > 
+> > > > Would this not more correctly be assigned to pwm->args.polarity? After
+> > > > all this is setting up the "initial" state, much like DT or the lookup
+> > > > tables would for duty cycle and period.
+> > > 
+> > > Yes, I wasn't sure about the pwm_add_with_polarity() meaning. To me,
+> > > all the reference info should be extracted from DT, PWM lookup table or
+> > > driver specific ->request() implementation, but I can definitely
+> > > initialize the args.polarity here too.
+> > > 
+> > > Should I keep the pwm->state.polarity assignment (to set the initial
+> > > polarity when the driver does not support hardware readout)?
 > > 
-> > Create a pwm_args struct to store this reference config, so that PWM users
-> > can differentiate the current config from the reference one.
-> > 
-> > Patch all places where pwm->args should be initialized. We keep the
-> > pwm_set_polarity/period() calls until all PWM users are patched to
-> > use pwm_args instead of pwm_get_period/polarity().
+> > Wouldn't this work automatically as part of the pwm_apply_args() helper
+> > if we extended it with this setting?
 > 
-> Perhaps a helper would be useful? Something like:
+> Well, as you explained in you answer to patch 5, pwm_apply_args()
+> should be called on a per-request basis (each time a PWM device is
+> requested), while the initial polarity setting should only be applied
+> when registering the PWM chip (and its devices). After that, the
+> framework takes care of keeping the PWM state in sync with the hardware
+> state.
 > 
-> 	static inline void
-> 	pwm_apply_args(struct pwm_device *pwm, const struct pwm_args *args)
-> 	{
-> 		pwm_set_duty_cycle(pwm, args->duty_cycle);
-> 		pwm_set_period(pwm, args->period);
-> 	}
+> Let's take a real (though a bit unusual) example. Say you have a single
+> PWM device referenced by two different users. Only one user can be
+> enabled at a time, but each of them has its own reference config
+> (different polarity, different period).
 > 
-> ? That would make it slightly easier to get rid of it again after all
-> clients have been converted.
+> User1 calls pwm_get() and applies its own polarity and period. Then
+> user1 is unregistered and release the PWM device, leaving the polarity
+> and period untouched.
 > 
-> With the exception of pwm-clps711x all of these args are set at of_xlate
-> time (for DT) or from the lookup table in pwm_get() (for non-DT), so it
-> might even be possible to move this call to the core, so that removal of
-> it will be a one-liner.
+> User2 is registered and request the same PWM device, but user2 is
+> smarter and tries to extract the current PWM state before adapting the
+> config according to pwm_args. If you just reset pwm->state.polarity
+> each time pwm_apply_args() is called (and you suggested to call it as
+> part of the request procedure), then this means the PWM state is no
+> longer in sync with the hardware state.
 
-Okay, I think I misunderstood your suggestion. I thought you wanted
-this helper to set the reference config, but you actually want to apply
-a new state based on the PWM reference values.
+In that case neither will be the period or duty cycle. Essentially this
+gets us back to square one where we need to decide how to handle current
+state vs. initial arguments.
 
-Except that pwm_args does not contain all the required information to
-apply a full config (args->duty_cycle and args->enable do not exist).
+But I don't think this is really going to be an issue because this is
+all moot until we've moved over to the atomic API, at which point this
+is all going to go away anyway.
 
-This being said, in my v6 I moved the content of
-pwm_regulator_adjust_pwm_config() (patch 27) into a generic helper
-(pwm_adjust_config()). This helper is doing pretty much what you're
-suggesting here (but again, I'm not sure I correctly understood your
-suggestion :-/).
-
--- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Thierry
+--V2tfspbppmK1TQo2--

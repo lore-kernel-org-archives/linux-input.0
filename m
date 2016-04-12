@@ -1,116 +1,234 @@
 From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: [PATCH v8 0/7] EC-based USB Power Delivery support for Chrome machines
-Date: Tue, 12 Apr 2016 14:32:23 +0200
-Message-ID: <1460464350-30414-1-git-send-email-tomeu.vizoso@collabora.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:36795 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932392AbcDLMc4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Apr 2016 08:32:56 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v8 2/7] Input: cros_ec_keyb - Stop handling interrupts directly
+Date: Tue, 12 Apr 2016 14:32:25 +0200
+Message-ID: <1460464350-30414-3-git-send-email-tomeu.vizoso@collabora.com>
+References: <1460464350-30414-1-git-send-email-tomeu.vizoso@collabora.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1460464350-30414-1-git-send-email-tomeu.vizoso@collabora.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Sameer Nanda <snanda@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>, Benson Leung <bleung@chromium.org>, =?UTF-8?q?Enric=20Balletb=C3=B2?= <enric.balletbo@collabora.co.uk>, Vic Yang <victoryang@chromium.org>, Stephen Boyd <sboyd@codeaurora.org>, Vincent Palatin <vpalatin@chromium.org>, Randall Spangler <rspangler@chromium.org>, Todd Broch <tbroch@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-pm@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-input@vger.kernel.org, Olof Johansson <olof@lixom.net>
+Cc: Sameer Nanda <snanda@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>, Benson Leung <bleung@chromium.org>, =?UTF-8?q?Enric=20Balletb=C3=B2?= <enric.balletbo@collabora.co.uk>, Vic Yang <victoryang@chromium.org>, Stephen Boyd <sboyd@codeaurora.org>, Vincent Palatin <vpalatin@chromium.org>, Randall Spangler <rspangler@chromium.org>, Todd Broch <tbroch@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Vic Yang <victoryang@google.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Hi,
+From: Vic Yang <victoryang@google.com>
 
-this series contains a driver that exposes a power_supply to userspace
-representing a port that support USB PD charging.
+Because events other that keyboard ones will be handled by now on by
+other drivers, stop directly handling interrupts and instead listen to
+the new notifier in the MFD driver.
 
-Allows userspace to display to the user if the machine is charging and
-on which port, and if another device is being charged by a port.
+Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+---
 
-This series may be best integrated through the MFD tree, for which we'll
-need ACKs from Olof (for the changes to platform/chrome), from Dmitry
-(for changes to cros_ec_keyb.c) and from Sebastian Reichel for the
-new driver.
+Changes in v8: None
+Changes in v7: None
+Changes in v6: None
+Changes in v5: None
+Changes in v4: None
+Changes in v3: None
+Changes in v2: None
 
-Patches 1 and 2 need to be taken together because in the first the MFD
-driver handles the EC interrupt and only in the second patch the
-keyboard driver stops handling it and using the notifier instead.
+ drivers/input/keyboard/cros_ec_keyb.c | 135 ++++++++--------------------------
+ 1 file changed, 31 insertions(+), 104 deletions(-)
 
-Thanks,
-
-Tomeu
-
-Changes in v8:
-- Split out changes to drivers/input/keyboard
-- Improved error messages
-- Fixed kerneldoc comments
-- Don't call cros_ec_cmd_xfer from declaration block
-- Remove unnecessary variable host_event
-- Don't add stuff to cros_ec_commands.h not needed in this series
-
-Changes in v7:
-- Rebased onto 4.6-rc1, with no conflicts.
-
-Changes in v6:
-- Return 0 if the EC doesn't support MKBP, as expected by callers.
-
-Changes in v5:
-- Check explicitly for !EC_RES_SUCCESS as suggested by Benson Leung.
-- Fix type of variable passed to do_div.
-
-Changes in v4:
-- Calculate correctly the size of the payloads in
-  cros_ec_get_host_command_version_mask.
-- Declare size parameters in ec_command as size_t
-
-Changes in v3:
-- Remove duplicated prototype of cros_ec_get_host_event.
-- Use do_div so it builds on 32bit (suggested by 0-day kbuild bot).
-- Remove sysfs attributes ext_current_lim and ext_voltage_lim because
-  I don't know yet where they should be placed (and don't have HW to
-  test them).
-- Remove superfluous pre-allocated buffers ec_inbuf and ec_outbuf.
-- Lots of misc comments from Stephen Boyd were addressed.
-- Unregister notification listener in .remove callback.
-- Only register the PD charger device if there are any PD ports in this
-  EC.
-- Dropped patch using EC_CMD_GET_FEATURES to decide whether to create a
-  charger device because we are now only creating one if a EC has any PD
-  ports.
-- Dropped patch adding power_supply types because it has been merged
-  already.
-
-Changes in v2:
-- Allocate enough for the structs in
-  cros_ec_get_host_command_version_mask,
-  not their pointers.
-- Allocate msg in the stack in get_next_event and
-  get_keyboard_state_event, as suggested by Gwendal.
-- Split out changes to cros_ec_commands.h and the helpers added to
-  mfd/cros_ec.h from the patch that adds the charger driver, as
-  suggested by Lee.
-- Actually call get_ec_num_ports.
-- Move cros_ec_usb_pd_charger_register into cros_ec_dev.c.
-
-Sameer Nanda (1):
-  power: cros_usbpd-charger: Add EC-based USB PD charger driver
-
-Tomeu Vizoso (4):
-  mfd: cros_ec: Add cros_ec_cmd_xfer_status helper
-  mfd: cros_ec: Add cros_ec_get_host_event
-  mfd: cros_ec: Add more definitions for PD commands
-  platform/chrome: Register USB PD charger device
-
-Vic Yang (2):
-  mfd: cros_ec: Add MKBP event support
-  Input: cros_ec_keyb - Stop handling interrupts directly
-
- drivers/input/keyboard/cros_ec_keyb.c   | 135 ++----
- drivers/mfd/cros_ec.c                   |  58 ++-
- drivers/platform/chrome/cros_ec_dev.c   |  44 ++
- drivers/platform/chrome/cros_ec_proto.c | 127 ++++++
- drivers/power/Kconfig                   |  10 +
- drivers/power/Makefile                  |   1 +
- drivers/power/cros_usbpd-charger.c      | 780 ++++++++++++++++++++++++++++++++
- include/linux/mfd/cros_ec.h             |  45 ++
- include/linux/mfd/cros_ec_commands.h    | 216 +++++++++
- 9 files changed, 1309 insertions(+), 107 deletions(-)
- create mode 100644 drivers/power/cros_usbpd-charger.c
-
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index b01966dc7eb3..b891503143dc 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -27,6 +27,7 @@
+ #include <linux/input.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
++#include <linux/notifier.h>
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
+ #include <linux/input/matrix_keypad.h>
+@@ -44,6 +45,7 @@
+  * @dev: Device pointer
+  * @idev: Input device
+  * @ec: Top level ChromeOS device to use to talk to EC
++ * @notifier: interrupt event notifier for transport devices
+  */
+ struct cros_ec_keyb {
+ 	unsigned int rows;
+@@ -57,6 +59,7 @@ struct cros_ec_keyb {
+ 	struct device *dev;
+ 	struct input_dev *idev;
+ 	struct cros_ec_device *ec;
++	struct notifier_block notifier;
+ };
+ 
+ 
+@@ -146,67 +149,44 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
+ 	input_sync(ckdev->idev);
+ }
+ 
+-static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uint8_t *kb_state)
+-{
+-	int ret = 0;
+-	struct cros_ec_command *msg;
+-
+-	msg = kmalloc(sizeof(*msg) + ckdev->cols, GFP_KERNEL);
+-	if (!msg)
+-		return -ENOMEM;
+-
+-	msg->version = 0;
+-	msg->command = EC_CMD_MKBP_STATE;
+-	msg->insize = ckdev->cols;
+-	msg->outsize = 0;
+-
+-	ret = cros_ec_cmd_xfer(ckdev->ec, msg);
+-	if (ret < 0) {
+-		dev_err(ckdev->dev, "Error transferring EC message %d\n", ret);
+-		goto exit;
+-	}
+-
+-	memcpy(kb_state, msg->data, ckdev->cols);
+-exit:
+-	kfree(msg);
+-	return ret;
+-}
+-
+-static irqreturn_t cros_ec_keyb_irq(int irq, void *data)
++static int cros_ec_keyb_open(struct input_dev *dev)
+ {
+-	struct cros_ec_keyb *ckdev = data;
+-	struct cros_ec_device *ec = ckdev->ec;
+-	int ret;
+-	uint8_t kb_state[ckdev->cols];
+-
+-	if (device_may_wakeup(ec->dev))
+-		pm_wakeup_event(ec->dev, 0);
+-
+-	ret = cros_ec_keyb_get_state(ckdev, kb_state);
+-	if (ret >= 0)
+-		cros_ec_keyb_process(ckdev, kb_state, ret);
+-	else
+-		dev_err(ec->dev, "failed to get keyboard state: %d\n", ret);
++	struct cros_ec_keyb *ckdev = input_get_drvdata(dev);
+ 
+-	return IRQ_HANDLED;
++	return blocking_notifier_chain_register(&ckdev->ec->event_notifier,
++						&ckdev->notifier);
+ }
+ 
+-static int cros_ec_keyb_open(struct input_dev *dev)
++static void cros_ec_keyb_close(struct input_dev *dev)
+ {
+ 	struct cros_ec_keyb *ckdev = input_get_drvdata(dev);
+-	struct cros_ec_device *ec = ckdev->ec;
+ 
+-	return request_threaded_irq(ec->irq, NULL, cros_ec_keyb_irq,
+-					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+-					"cros_ec_keyb", ckdev);
++	blocking_notifier_chain_unregister(&ckdev->ec->event_notifier,
++					   &ckdev->notifier);
+ }
+ 
+-static void cros_ec_keyb_close(struct input_dev *dev)
++static int cros_ec_keyb_work(struct notifier_block *nb,
++			     unsigned long queued_during_suspend, void *_notify)
+ {
+-	struct cros_ec_keyb *ckdev = input_get_drvdata(dev);
+-	struct cros_ec_device *ec = ckdev->ec;
++	struct cros_ec_keyb *ckdev = container_of(nb, struct cros_ec_keyb,
++						  notifier);
+ 
+-	free_irq(ec->irq, ckdev);
++	if (ckdev->ec->event_data.event_type != EC_MKBP_EVENT_KEY_MATRIX)
++		return NOTIFY_DONE;
++	/*
++	 * If EC is not the wake source, discard key state changes during
++	 * suspend.
++	 */
++	if (queued_during_suspend)
++		return NOTIFY_OK;
++	if (ckdev->ec->event_size != ckdev->cols) {
++		dev_err(ckdev->dev,
++			"Discarded incomplete key matrix event.\n");
++		return NOTIFY_OK;
++	}
++	cros_ec_keyb_process(ckdev, ckdev->ec->event_data.data.key_matrix,
++			     ckdev->ec->event_size);
++	return NOTIFY_OK;
+ }
+ 
+ /*
+@@ -266,12 +246,8 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+ 	if (!idev)
+ 		return -ENOMEM;
+ 
+-	if (!ec->irq) {
+-		dev_err(dev, "no EC IRQ specified\n");
+-		return -EINVAL;
+-	}
+-
+ 	ckdev->ec = ec;
++	ckdev->notifier.notifier_call = cros_ec_keyb_work;
+ 	ckdev->dev = dev;
+ 	dev_set_drvdata(&pdev->dev, ckdev);
+ 
+@@ -312,54 +288,6 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_PM_SLEEP
+-/* Clear any keys in the buffer */
+-static void cros_ec_keyb_clear_keyboard(struct cros_ec_keyb *ckdev)
+-{
+-	uint8_t old_state[ckdev->cols];
+-	uint8_t new_state[ckdev->cols];
+-	unsigned long duration;
+-	int i, ret;
+-
+-	/*
+-	 * Keep reading until we see that the scan state does not change.
+-	 * That indicates that we are done.
+-	 *
+-	 * Assume that the EC keyscan buffer is at most 32 deep.
+-	 */
+-	duration = jiffies;
+-	ret = cros_ec_keyb_get_state(ckdev, new_state);
+-	for (i = 1; !ret && i < 32; i++) {
+-		memcpy(old_state, new_state, sizeof(old_state));
+-		ret = cros_ec_keyb_get_state(ckdev, new_state);
+-		if (0 == memcmp(old_state, new_state, sizeof(old_state)))
+-			break;
+-	}
+-	duration = jiffies - duration;
+-	dev_info(ckdev->dev, "Discarded %d keyscan(s) in %dus\n", i,
+-		jiffies_to_usecs(duration));
+-}
+-
+-static int cros_ec_keyb_resume(struct device *dev)
+-{
+-	struct cros_ec_keyb *ckdev = dev_get_drvdata(dev);
+-
+-	/*
+-	 * When the EC is not a wake source, then it could not have caused the
+-	 * resume, so we clear the EC's key scan buffer. If the EC was a
+-	 * wake source (e.g. the lid is open and the user might press a key to
+-	 * wake) then the key scan buffer should be preserved.
+-	 */
+-	if (!ckdev->ec->was_wake_device)
+-		cros_ec_keyb_clear_keyboard(ckdev);
+-
+-	return 0;
+-}
+-
+-#endif
+-
+-static SIMPLE_DEV_PM_OPS(cros_ec_keyb_pm_ops, NULL, cros_ec_keyb_resume);
+-
+ #ifdef CONFIG_OF
+ static const struct of_device_id cros_ec_keyb_of_match[] = {
+ 	{ .compatible = "google,cros-ec-keyb" },
+@@ -373,7 +301,6 @@ static struct platform_driver cros_ec_keyb_driver = {
+ 	.driver = {
+ 		.name = "cros-ec-keyb",
+ 		.of_match_table = of_match_ptr(cros_ec_keyb_of_match),
+-		.pm	= &cros_ec_keyb_pm_ops,
+ 	},
+ };
+ 
 -- 
 2.5.5
-

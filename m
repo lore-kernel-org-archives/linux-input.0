@@ -1,14 +1,14 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v5 01/46] pwm: rcar: make use of
-	pwm_is_enabled()
-Date: Tue, 12 Apr 2016 13:01:52 +0200
-Message-ID: <20160412110152.GG18882@ulmo.ba.sec>
+Subject: Re: [PATCH v5 02/46] backlight: pwm_bl: remove useless
+ call to pwm_set_period()
+Date: Tue, 12 Apr 2016 13:03:50 +0200
+Message-ID: <20160412110350.GH18882@ulmo.ba.sec>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
- <1459368249-13241-2-git-send-email-boris.brezillon@free-electrons.com>
+ <1459368249-13241-3-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2081931328=="
+Content-Type: multipart/mixed; boundary="===============1269682818=="
 Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <1459368249-13241-2-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1459368249-13241-3-git-send-email-boris.brezillon@free-electrons.com>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
  <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
 List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
@@ -23,59 +23,55 @@ Cc: Milo Kim <milo.kim@ti.com>, Kamil Debski <k.debski@samsung.com>, Heiko Stueb
 List-Id: linux-input@vger.kernel.org
 
 
---===============2081931328==
+--===============1269682818==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="JbKQpFqZXJ2T76Sg"
+	protocol="application/pgp-signature"; boundary="LZFKeWUZP29EKQNE"
 Content-Disposition: inline
 
 
---JbKQpFqZXJ2T76Sg
+--LZFKeWUZP29EKQNE
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 30, 2016 at 10:03:24PM +0200, Boris Brezillon wrote:
-> Commit 5c31252c4a86 ("pwm: Add the pwm_is_enabled() helper") introduced a
-> new function to test whether a PWM device is enabled or not without
-> manipulating PWM internal fields.
-> Hiding this is necessary if we want to smoothly move to the atomic PWM
-> config approach without impacting PWM drivers.
-> Fix this driver to use pwm_is_enabled() instead of directly accessing the
-> ->flags field.
+On Wed, Mar 30, 2016 at 10:03:25PM +0200, Boris Brezillon wrote:
+> The PWM period will be set when calling pwm_config. Remove this useless
+> call to pwm_set_period(), which might mess up with the internal PWM state.
 >=20
 > Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+> Acked-by: Lee Jones <lee.jones@linaro.org>
 > ---
->  drivers/pwm/pwm-rcar.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/video/backlight/pwm_bl.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 
 Applied, thanks.
 
 Thierry
 
---JbKQpFqZXJ2T76Sg
+--LZFKeWUZP29EKQNE
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAABCAAGBQJXDNWfAAoJEN0jrNd/PrOhoj8QAK4UAz8ugmWPS9xJCHiJvCsZ
-cz4yyDzOQVaVTNHNEruFT+v1XMvaogalyvNxUR0z8fXpRzAj9vZyGm3VXD2CJcam
-/FvxqFKAodcSy5PjYSLoD/0bpeYpAiILFhxPTkKGFaR8vRnvY8HL7BWWM8ReXly+
-m+bPRy/JtAMpsFfYTgNGtXV101lkn8ZIvhJSCNwDwCWHAPN1q/c+XxikTuonrKiX
-p0f9SB74YUtq7gh5HE1vfrSFs2ozDXFDBfEbgTk9vfEL2O0E2gUkVF8yyLWHGUSu
-lfQB/A65nYFzn8tAqd97/RzMXeHMB9u+/FI7bwfvxK+hnRys3sxaS/5knlSe+Nzc
-EAnnoG0VEibaNctVC5ACumPP5eqS9ejMVYmenKiq7TyAM/3DhI4ZISsm/NUrmkke
-HhWUJs8U38hUK9pVHp94i63vQzLX9MWsAHXxXuTeCgkPgkklou+87nnPpcW3PWbq
-m6Bgpqijcx1OAW4ooJMpt4vls578/yFbguAGJzdm3QbB9jKMa/w4iGbuRfYiCowL
-cHLWFPSIGZrX3SXVfVNqSAHIhA1Jkaj1Ipku8+mz+SI/ai5Iitcnwe9QMBX1ttIh
-lQ5RaQmxpp6U0cxZno9Tb1lI7GEmxa0MaZnU2wmgcbDYleyg1Hp0W0eVVeIKcFi+
-5NcgYEiaLV56dufi0Vhm
-=gjRe
+iQIcBAABCAAGBQJXDNYWAAoJEN0jrNd/PrOhi/wQALBmuyKE4RytME0ICIXFzQsQ
+jGXlqKggBvhkFVyrU+QtjfimQZjUhgRSntTt1KajJATlQ0lXrZvLIQUgBH4hQZkr
+TBSN8zXMJGj7HOcHLa+lgOVQFcGYUIDU1rBW9SnI2thj0IQn3Zaya2KTDKizoGKT
+dgSREYXCwtPaf7s8Paqe6T0jkrWfUc4Y/GA+H8uNpTo7FVf/n7KNaCTUzBPwekqE
+UTD41WhqxgpfJaanIyWyspVyk7P3YKwPip++wpHTTXLM0MfQThliq2t7e/PxkT1C
+rGe6rTdMmmwUy7BULhWBzntaTTnJtlodLkaKr0I/n0nhi8whqBVSj+JH6KPdivCB
+tYSf8V5tA9Dl7yA4E8Jw0kvxvQGpFzDzCiwF4dxV5nysKy4wyrOdznAOeA4gZMje
+z9g4XYPATKxkge2WCROg96iE5WlX4FWV3PyK5fhANgFD2lWLYL9S2g6z43rXjkRY
+CzQopq6dn7WvIa4IigxbppZMzrRxGs1ZGWSlqU3RRiGqSAl4s5snSsZBZnjLIaiw
+p5Fc15lG9MBkck/V5d8R7LwqqKYYmKCfTjOIXDNIhbFr3AKl+OrIx69fNJ8fVPh+
+z1eiYWmkP5hOXUVFZFZuwp4ErzP32Zmk7ntPZ/1IkHXaVg1UCHqmM9AmXWSJWxXc
+rU52OTaDF3TxRqKcXwAb
+=iDpn
 -----END PGP SIGNATURE-----
 
---JbKQpFqZXJ2T76Sg--
+--LZFKeWUZP29EKQNE--
 
---===============2081931328==
+--===============1269682818==
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
@@ -85,4 +81,4 @@ X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4
 IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
 dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==
 
---===============2081931328==--
+--===============1269682818==--

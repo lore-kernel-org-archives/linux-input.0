@@ -1,79 +1,163 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v5 03/46] backlight: lm3630a_bl: stop
- messing with the pwm->period field
-Date: Wed, 13 Apr 2016 09:26:13 +0100
-Message-ID: <20160413082613.GM8094@x1>
-References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
- <1459368249-13241-4-git-send-email-boris.brezillon@free-electrons.com>
- <20160412110809.GI18882@ulmo.ba.sec>
- <20160412141613.GI8094@x1>
- <20160412142608.GB25006@ulmo.ba.sec>
- <20160413082511.GL8094@x1>
-Reply-To: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+From: Andrea <andrea.deangelis93@gmail.com>
+Subject: Re: keyboard problem on linux
+Date: Wed, 13 Apr 2016 13:43:51 +0200
+Message-ID: <570E30F7.8040700@gmail.com>
+References: <569E3B62.6050407@gmail.com> <20160120001340.GC31589@dtor-ws>
+ <569F5389.8040800@gmail.com> <56A92E09.9020009@gmail.com>
+ <56CB1C44.8000004@gmail.com> <56CC5480.6080305@gmail.com>
+ <56D55119.4050009@gmail.com> <56D6ECBD.3020809@gmail.com>
+ <56EFC064.8070903@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-sunxi+bncBDA7X7F2WUEBBKMFXC4AKGQEXZQ7KYI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <20160413082511.GL8094@x1>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:37776 "EHLO
+	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759810AbcDMLnz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Apr 2016 07:43:55 -0400
+Received: by mail-wm0-f52.google.com with SMTP id n3so72788642wmn.0
+        for <linux-input@vger.kernel.org>; Wed, 13 Apr 2016 04:43:54 -0700 (PDT)
+In-Reply-To: <56EFC064.8070903@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Wed, 13 Apr 2016, Lee Jones wrote:
+i've installed linux kernel 4.6 RC3, but the problem persist
+please give me some informations
 
-> On Tue, 12 Apr 2016, Thierry Reding wrote:
->=20
-> > On Tue, Apr 12, 2016 at 03:16:13PM +0100, Lee Jones wrote:
-> > > On Tue, 12 Apr 2016, Thierry Reding wrote:
-> > >=20
-> > > > On Wed, Mar 30, 2016 at 10:03:26PM +0200, Boris Brezillon wrote:
-> > > > > pwm->period field is not supposed to be changed by PWM users. The=
- only
-> > > > > ones authorized to change it are the PWM core and PWM drivers.
-> > > > >=20
-> > > > > Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTGGXanvQGlWp@public.gmane.org=
-m>
-> > > > > ---
-> > > > >  drivers/video/backlight/lm3630a_bl.c | 3 +--
-> > > > >  1 file changed, 1 insertion(+), 2 deletions(-)
-> > > >=20
-> > > > Applied, thanks.
-> > >=20
-> > > Applied?
-> >=20
-> > You didn't specifically Ack this one, but I presumed that since the
-> > change is essentially the same as for pwm-backlight, and this is anothe=
-r
-> > prerequisite for the remainder of the series it should go in through th=
-e
-> > PWM tree as well.
->=20
-> If you're taking Backlight patches through a !Backlight tree, you're
-> going to have to send out a pull-request.  There are no conflicts
-> currently, so I won't use it right away, but I need it in my arsenal
-> if they do occur.
 
-... also, don't forget to change the subject line to make the
-rest of the patches in Backlight.  The subject description needs to
-start with an uppercase char.
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
-You received this message because you are subscribed to the Google Groups "=
-linux-sunxi" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+Il 21/03/2016 10:35, Andrea ha scritto:
+> the problem still present also on kernel 4.5
+> and I noticed that after momentarily solved the issue pressing the LEFT
+> SHIFT key, if i press CAPS LOCK or BLOCK NUM keys, the problem came back
+> immediately.
+> on launchpad, there are other user with HP Pavilion 15, with the same
+> problem
+>
+> I hope you can help me to fix the issue.
+>
+> tell me if i can do something to help
+>
+> thanks for help
+>
+>
+>
+> Il 02/03/2016 14:38, Andrea ha scritto:
+>> on launchpad an user with the same notebook and the same problems,
+>> posted some results of keyboard events
+>>
+>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1532746/comments/11
+>>
+>> i hope this can be usefult to fix the problem
+>>
+>>
+>>
+>>
+>> Il 01/03/2016 09:21, Andrea ha scritto:
+>>> i'm not the only with this problem.
+>>> on HP forum, another user with the same notebook, has the same problem.
+>>>
+>>> http://h30434.www3.hp.com/t5/Notebook-Operating-System-and-Recovery/HP-Pavilion-15-ab062nl-SHIFT-CTRL-ALT-keys-problems-on-linux/m-p/5522283/highlight/false#M429851
+>>>
+>>>
+>>>
+>>>
+>>>
+>>> Il 23/02/2016 13:45, Andrea ha scritto:
+>>>> seems that when i play game (on steam), i haven't any problem when i'm
+>>>> playing, but i'm not sure
+>>>>
+>>>>
+>>>>
+>>>> Il 22/02/2016 15:33, Andrea ha scritto:
+>>>>> the problem occurs also when i logout to login manager.
+>>>>>
+>>>>> for example if in this moment i haven't the problem (because i've
+>>>>> pressed for some seconds MAIUSC key) and i logout, the problem occurs
+>>>>> again infact sometimes, when i logout, and then i try to login again,
+>>>>> the login manager doesn't accpet the password because the passowrd
+>>>>> contains uppercase letters, but sometimes the OS don't take maiusc key
+>>>>> (I hope I explained well)
+>>>>>
+>>>>> i hope that this information can be useful.
+>>>>> thanks
+>>>>>
+>>>>> Il 27/01/2016 21:52, Andrea ha scritto:
+>>>>>> i've installed the new kernel 4.5 RC1, but i've the same problem.
+>>>>>> i've also tried start ubuntu with upstart, same problem.
+>>>>>> i don't know why i've this strange problem.
+>>>>>>
+>>>>>> i've also tried GhostBSD on live (i don't know if this information
+>>>>>> can
+>>>>>> be useful), the problems occurs also on BSD but seem that is less
+>>>>>> severe
+>>>>>> than on Linux, because on BSD seems that the problem occurs only one
+>>>>>> time every boot, then disappears without do nothing (don't need to
+>>>>>> press
+>>>>>> MAIUSC key for some seconds).
+>>>>>>
+>>>>>> I hope that this bug can be solved.
+>>>>>>
+>>>>>>
+>>>>>> Il 20/01/2016 10:29, Andrea ha scritto:
+>>>>>>> Hi, Dmitry
+>>>>>>> i've the same problem on console without X.
+>>>>>>> this is an output of evtest on console:
+>>>>>>> http://pastebin.com/4aWYYhwN
+>>>>>>> (as you can see, after a while i'm pressing Left_Alt (from line
+>>>>>>> 434 of
+>>>>>>> pastebin) or Left_Ctrl (from line 605 of pastebin) or Left_Shift
+>>>>>>> (from
+>>>>>>> line 786 of pastebin), these keys are released and then pressed
+>>>>>>> again.
+>>>>>>> but when i press only left_shift for some seconds, the issue don't
+>>>>>>> occurs.)
+>>>>>>>
+>>>>>>> i haven't found nothing on BIOS settings, the only options
+>>>>>>> relative to
+>>>>>>> keyboard is:
+>>>>>>>
+>>>>>>> Action Keys Mode:
+>>>>>>> [Enabled]: Requires pressing only F1 throug F12 to activate action
+>>>>>>> keys
+>>>>>>> [Disabled]: Requires pressing FN Key + F1 throug F12 to activate
+>>>>>>> action
+>>>>>>> keys
+>>>>>>>
+>>>>>>> but the problem occurs in both modes
+>>>>>>>
+>>>>>>>
+>>>>>>> Il 20/01/2016 01:13, Dmitry Torokhov ha scritto:
+>>>>>>>> Hi Andera,
+>>>>>>>>
+>>>>>>>> On Tue, Jan 19, 2016 at 02:34:26PM +0100, Andrea wrote:
+>>>>>>>>> [1.] i've a problem with keyboard of my notebook HP Pavilion 15
+>>>>>>>>> ab062nl; CTRL SHIFT and ALT buttons not works as they should. in
+>>>>>>>>> particular, it is as if these keys are pressed and released alone.
+>>>>>>>>> isn't an hardware problem, because on windows 10 and windows 8.1 i
+>>>>>>>>> haven't these problems, is only a linux problem (all distro).
+>>>>>>>>>
+>>>>>>>>> [2.] the bug is always active, every time i start a linux Distro
+>>>>>>>>> (also from live, and also without DE/WM) i've this problem with
+>>>>>>>>> keyboard, the only way to fix temporarily the bug, is pressing the
+>>>>>>>>> only Left SHIFT key for some seconds, then all problems disappear
+>>>>>>>>> indefinitely, and in any case, if i shutdown or if i reboot the
+>>>>>>>>> PC,
+>>>>>>>>> the problem recurs.
+>>>>>>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1532746
+>>>>>>>>
+>>>>>>>> Hmm, this is weird. Do you observe the same issue in text console
+>>>>>>>> (not
+>>>>>>>> in X)? It would be nice to see events as emitted by the kernel -
+>>>>>>>> you
+>>>>>>>> can
+>>>>>>>> use evtest utility for that.
+>>>>>>>>
+>>>>>>>> Is sounds like some accessibility feature, is there anything in
+>>>>>>>> BIOS to
+>>>>>>>> that effect?
+>>>>>>>>
+>>>>>>>> Thanks.
+>>>>>>>>

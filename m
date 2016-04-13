@@ -1,53 +1,79 @@
-From: Lee Jones <lee.jones@linaro.org>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Subject: Re: [PATCH v5 03/46] backlight: lm3630a_bl: stop
  messing with the pwm->period field
-Date: Wed, 13 Apr 2016 09:25:11 +0100
-Message-ID: <20160413082511.GL8094@x1>
+Date: Wed, 13 Apr 2016 09:26:13 +0100
+Message-ID: <20160413082613.GM8094@x1>
 References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
  <1459368249-13241-4-git-send-email-boris.brezillon@free-electrons.com>
- <20160412110809.GI18882@ulmo.ba.sec> <20160412141613.GI8094@x1>
+ <20160412110809.GI18882@ulmo.ba.sec>
+ <20160412141613.GI8094@x1>
  <20160412142608.GB25006@ulmo.ba.sec>
+ <20160413082511.GL8094@x1>
+Reply-To: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-sunxi+bncBDA7X7F2WUEBBKMFXC4AKGQEXZQ7KYI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <20160412142608.GB25006@ulmo.ba.sec>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: Milo Kim <milo.kim@ti.com>, Kamil Debski <k.debski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, linux-doc@vger.kernel.org, David Airlie <airlied@linux.ie>, Mike Turquette <mturquette@baylibre.com>, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Daniel Vetter <daniel.vetter@intel.com>, Robert Jarzmik <robert.jarzmik@free.fr>, linux-clk@vger.kernel.org, linux-leds@vger.kernel.org, Boris Brezillon <boris.brezillon@free-electrons.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-samsung-soc@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>, Jonathan Corbet <corbet@lwn.net>, lm-sensors@lm-sensors.org, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-input@vger.kernel.
+In-Reply-To: <20160413082511.GL8094@x1>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-T24gVHVlLCAxMiBBcHIgMjAxNiwgVGhpZXJyeSBSZWRpbmcgd3JvdGU6Cgo+IE9uIFR1ZSwgQXBy
-IDEyLCAyMDE2IGF0IDAzOjE2OjEzUE0gKzAxMDAsIExlZSBKb25lcyB3cm90ZToKPiA+IE9uIFR1
-ZSwgMTIgQXByIDIwMTYsIFRoaWVycnkgUmVkaW5nIHdyb3RlOgo+ID4gCj4gPiA+IE9uIFdlZCwg
-TWFyIDMwLCAyMDE2IGF0IDEwOjAzOjI2UE0gKzAyMDAsIEJvcmlzIEJyZXppbGxvbiB3cm90ZToK
-PiA+ID4gPiBwd20tPnBlcmlvZCBmaWVsZCBpcyBub3Qgc3VwcG9zZWQgdG8gYmUgY2hhbmdlZCBi
-eSBQV00gdXNlcnMuIFRoZSBvbmx5Cj4gPiA+ID4gb25lcyBhdXRob3JpemVkIHRvIGNoYW5nZSBp
-dCBhcmUgdGhlIFBXTSBjb3JlIGFuZCBQV00gZHJpdmVycy4KPiA+ID4gPiAKPiA+ID4gPiBTaWdu
-ZWQtb2ZmLWJ5OiBCb3JpcyBCcmV6aWxsb24gPGJvcmlzLmJyZXppbGxvbkBmcmVlLWVsZWN0cm9u
-cy5jb20+Cj4gPiA+ID4gLS0tCj4gPiA+ID4gIGRyaXZlcnMvdmlkZW8vYmFja2xpZ2h0L2xtMzYz
-MGFfYmwuYyB8IDMgKy0tCj4gPiA+ID4gIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwg
-MiBkZWxldGlvbnMoLSkKPiA+ID4gCj4gPiA+IEFwcGxpZWQsIHRoYW5rcy4KPiA+IAo+ID4gQXBw
-bGllZD8KPiAKPiBZb3UgZGlkbid0IHNwZWNpZmljYWxseSBBY2sgdGhpcyBvbmUsIGJ1dCBJIHBy
-ZXN1bWVkIHRoYXQgc2luY2UgdGhlCj4gY2hhbmdlIGlzIGVzc2VudGlhbGx5IHRoZSBzYW1lIGFz
-IGZvciBwd20tYmFja2xpZ2h0LCBhbmQgdGhpcyBpcyBhbm90aGVyCj4gcHJlcmVxdWlzaXRlIGZv
-ciB0aGUgcmVtYWluZGVyIG9mIHRoZSBzZXJpZXMgaXQgc2hvdWxkIGdvIGluIHRocm91Z2ggdGhl
-Cj4gUFdNIHRyZWUgYXMgd2VsbC4KCklmIHlvdSdyZSB0YWtpbmcgQmFja2xpZ2h0IHBhdGNoZXMg
-dGhyb3VnaCBhICFCYWNrbGlnaHQgdHJlZSwgeW91J3JlCmdvaW5nIHRvIGhhdmUgdG8gc2VuZCBv
-dXQgYSBwdWxsLXJlcXVlc3QuICBUaGVyZSBhcmUgbm8gY29uZmxpY3RzCmN1cnJlbnRseSwgc28g
-SSB3b24ndCB1c2UgaXQgcmlnaHQgYXdheSwgYnV0IEkgbmVlZCBpdCBpbiBteSBhcnNlbmFsCmlm
-IHRoZXkgZG8gb2NjdXIuCgotLSAKTGVlIEpvbmVzCkxpbmFybyBTVE1pY3JvZWxlY3Ryb25pY3Mg
-TGFuZGluZyBUZWFtIExlYWQKTGluYXJvLm9yZyDilIIgT3BlbiBzb3VyY2Ugc29mdHdhcmUgZm9y
-IEFSTSBTb0NzCkZvbGxvdyBMaW5hcm86IEZhY2Vib29rIHwgVHdpdHRlciB8IEJsb2cKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxp
-bmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJl
-ZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==
+On Wed, 13 Apr 2016, Lee Jones wrote:
+
+> On Tue, 12 Apr 2016, Thierry Reding wrote:
+>=20
+> > On Tue, Apr 12, 2016 at 03:16:13PM +0100, Lee Jones wrote:
+> > > On Tue, 12 Apr 2016, Thierry Reding wrote:
+> > >=20
+> > > > On Wed, Mar 30, 2016 at 10:03:26PM +0200, Boris Brezillon wrote:
+> > > > > pwm->period field is not supposed to be changed by PWM users. The=
+ only
+> > > > > ones authorized to change it are the PWM core and PWM drivers.
+> > > > >=20
+> > > > > Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTGGXanvQGlWp@public.gmane.org=
+m>
+> > > > > ---
+> > > > >  drivers/video/backlight/lm3630a_bl.c | 3 +--
+> > > > >  1 file changed, 1 insertion(+), 2 deletions(-)
+> > > >=20
+> > > > Applied, thanks.
+> > >=20
+> > > Applied?
+> >=20
+> > You didn't specifically Ack this one, but I presumed that since the
+> > change is essentially the same as for pwm-backlight, and this is anothe=
+r
+> > prerequisite for the remainder of the series it should go in through th=
+e
+> > PWM tree as well.
+>=20
+> If you're taking Backlight patches through a !Backlight tree, you're
+> going to have to send out a pull-request.  There are no conflicts
+> currently, so I won't use it right away, but I need it in my arsenal
+> if they do occur.
+
+... also, don't forget to change the subject line to make the
+rest of the patches in Backlight.  The subject description needs to
+start with an uppercase char.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+You received this message because you are subscribed to the Google Groups "=
+linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

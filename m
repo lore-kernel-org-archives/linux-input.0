@@ -1,12 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 03/24] clk: pwm: use pwm_get_args() where appropriate
-Date: Thu, 14 Apr 2016 21:17:23 +0200
-Message-ID: <1460661464-11216-4-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 08/24] fbdev: ssd1307fb: use pwm_get_args()
+ where appropriate
+Date: Thu, 14 Apr 2016 21:17:28 +0200
+Message-ID: <1460661464-11216-9-git-send-email-boris.brezillon@free-electrons.com>
 References: <1460661464-11216-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBB4GZX64AKGQEPXICYCQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBAG2X64AKGQEMSP5SZA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1460661464-11216-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -31,56 +32,38 @@ hardware readout and expose real PWM state even when the PWM has
 just been requested (before the user calls pwm_config/enable/disable()).
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Acked-by: Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 ---
- drivers/clk/clk-pwm.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/video/fbdev/ssd1307fb.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-pwm.c b/drivers/clk/clk-pwm.c
-index 8830458..1630a1f 100644
---- a/drivers/clk/clk-pwm.c
-+++ b/drivers/clk/clk-pwm.c
-@@ -59,6 +59,7 @@ static int clk_pwm_probe(struct platform_device *pdev)
- 	struct clk_init_data init;
- 	struct clk_pwm *clk_pwm;
- 	struct pwm_device *pwm;
-+	struct pwm_args pargs;
- 	const char *clk_name;
- 	struct clk *clk;
+diff --git a/drivers/video/fbdev/ssd1307fb.c b/drivers/video/fbdev/ssd1307fb.c
+index fa34808..652f688 100644
+--- a/drivers/video/fbdev/ssd1307fb.c
++++ b/drivers/video/fbdev/ssd1307fb.c
+@@ -286,6 +286,7 @@ static int ssd1307fb_init(struct ssd1307fb_par *par)
+ {
  	int ret;
-@@ -71,22 +72,28 @@ static int clk_pwm_probe(struct platform_device *pdev)
- 	if (IS_ERR(pwm))
- 		return PTR_ERR(pwm);
+ 	u32 precharge, dclk, com_invdir, compins;
++	struct pwm_args pargs;
  
--	if (!pwm->period) {
-+	pwm_get_args(pwm, &pargs);
-+	if (!pargs.period) {
- 		dev_err(&pdev->dev, "invalid PWM period\n");
- 		return -EINVAL;
- 	}
+ 	if (par->device_info->need_pwm) {
+ 		par->pwm = pwm_get(&par->client->dev, NULL);
+@@ -294,7 +295,15 @@ static int ssd1307fb_init(struct ssd1307fb_par *par)
+ 			return PTR_ERR(par->pwm);
+ 		}
  
- 	if (of_property_read_u32(node, "clock-frequency", &clk_pwm->fixed_rate))
--		clk_pwm->fixed_rate = NSEC_PER_SEC / pwm->period;
-+		clk_pwm->fixed_rate = NSEC_PER_SEC / pargs.period;
- 
--	if (pwm->period != NSEC_PER_SEC / clk_pwm->fixed_rate &&
--	    pwm->period != DIV_ROUND_UP(NSEC_PER_SEC, clk_pwm->fixed_rate)) {
-+	if (pargs.period != NSEC_PER_SEC / clk_pwm->fixed_rate &&
-+	    pargs.period != DIV_ROUND_UP(NSEC_PER_SEC, clk_pwm->fixed_rate)) {
- 		dev_err(&pdev->dev,
- 			"clock-frequency does not match PWM period\n");
- 		return -EINVAL;
- 	}
- 
--	ret = pwm_config(pwm, (pwm->period + 1) >> 1, pwm->period);
-+	/*
-+	 * FIXME: pwm_apply_args() should be removed when switching to the
-+	 * atomic PWM API.
-+	 */
-+	pwm_apply_args(pwm);
-+	ret = pwm_config(pwm, (pargs.period + 1) >> 1, pargs.period);
- 	if (ret < 0)
- 		return ret;
- 
+-		par->pwm_period = pwm_get_period(par->pwm);
++		/*
++		 * FIXME: pwm_apply_args() should be removed when switching to
++		 * the atomic PWM API.
++		 */
++		pwm_apply_args(par->pwm);
++
++		pwm_get_args(par->pwm, &pargs);
++
++		par->pwm_period = pargs.period;
+ 		/* Enable the PWM */
+ 		pwm_config(par->pwm, par->pwm_period / 2, par->pwm_period);
+ 		pwm_enable(par->pwm);
 -- 
 2.5.0

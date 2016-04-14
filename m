@@ -1,13 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 11/24] backlight: lp855x: explicitly apply
+Subject: [PATCH v5 13/24] input: misc: max8997: explicitly apply
  PWM config extracted from pwm_args
-Date: Thu, 14 Apr 2016 21:17:31 +0200
-Message-ID: <1460661464-11216-12-git-send-email-boris.brezillon@free-electrons.com>
+Date: Thu, 14 Apr 2016 21:17:33 +0200
+Message-ID: <1460661464-11216-14-git-send-email-boris.brezillon@free-electrons.com>
 References: <1460661464-11216-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBBO2X64AKGQEKM3IBNQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBCG2X64AKGQEHMYDVCI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1460661464-11216-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -30,25 +30,25 @@ use of it.
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/video/backlight/lp855x_bl.c | 6 ++++++
+ drivers/input/misc/max8997_haptic.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/drivers/video/backlight/lp855x_bl.c b/drivers/video/backlight/lp855x_bl.c
-index daca9e6..e5b14f5 100644
---- a/drivers/video/backlight/lp855x_bl.c
-+++ b/drivers/video/backlight/lp855x_bl.c
-@@ -246,6 +246,12 @@ static void lp855x_pwm_ctrl(struct lp855x *lp, int br, int max_br)
- 			return;
- 
- 		lp->pwm = pwm;
+diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
+index a806ba3..bf17f65 100644
+--- a/drivers/input/misc/max8997_haptic.c
++++ b/drivers/input/misc/max8997_haptic.c
+@@ -304,6 +304,12 @@ static int max8997_haptic_probe(struct platform_device *pdev)
+ 				error);
+ 			goto err_free_mem;
+ 		}
 +
 +		/*
 +		 * FIXME: pwm_apply_args() should be removed when switching to
 +		 * the atomic PWM API.
 +		 */
-+		pwm_apply_args(pwm);
- 	}
++		pwm_apply_args(chip->pwm);
+ 		break;
  
- 	pwm_config(lp->pwm, duty, period);
+ 	default:
 -- 
 2.5.0

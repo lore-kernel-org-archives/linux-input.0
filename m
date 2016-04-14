@@ -1,44 +1,101 @@
 From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH v5 14/24] input: misc: pwm-beeper: explicitly apply PWM config extracted from pwm_args
-Date: Thu, 14 Apr 2016 21:17:34 +0200
-Message-ID: <1460661464-11216-15-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 18/24] pwm: introduce the pwm_state concept
+Date: Thu, 14 Apr 2016 21:17:38 +0200
+Message-ID: <1460661464-11216-19-git-send-email-boris.brezillon@free-electrons.com>
 References: <1460661464-11216-1-git-send-email-boris.brezillon@free-electrons.com>
-Return-path: <linux-leds-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 In-Reply-To: <1460661464-11216-1-git-send-email-boris.brezillon@free-electrons.com>
-Sender: linux-leds-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
 To: Thierry Reding <thierry.reding@gmail.com>, linux-pwm@vger.kernel.org
-Cc: Mike Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, linux-clk@vger.kernel.org, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Kamil Debski <k.debski@samsung.com>, lm-sensors@lm-sensors.org, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-sunxi@googlegroups.com, Joachim Eastwood <manabian@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Heiko Stuebner <heiko@sntech.de>, linux-rockchip@lists.infradead.org, Jingoo Han <jingoohan1@gmail.com>, Lee Jones <lee.jones@linaro.org>, linux-fbd
+Cc: Milo Kim <milo.kim@ti.com>, Kamil Debski <k.debski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, linux-doc@vger.kernel.org, Mike Turquette <mturquette@baylibre.com>, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Daniel Vetter <daniel.vetter@intel.com>, Stephen Barber <smbarber@chromium.org>, Lee Jones <lee.jones@linaro.org>, linux-clk@vger.kernel.org, linux-leds@vger.kernel.org, Boris Brezillon <boris.brezillon@free-electrons.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-samsung-soc@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>, Jonathan Corbet <corbet@lwn.net>, Robert Jarzmik <robert.jarzmik@free.fr>, lm-sensors@lm-sensors.org, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-input@vger
 List-Id: linux-input@vger.kernel.org
 
-Call pwm_apply_args() just after requesting the PWM device so that the
-polarity and period are initialized according to the information provided
-in pwm_args.
-
-This is an intermediate state, and pwm_apply_args() should be dropped as
-soon as the atomic PWM infrastructure is in place and the driver makes
-use of it.
-
-Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
----
- drivers/input/misc/pwm-beeper.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-index f2261ab..8d71332 100644
---- a/drivers/input/misc/pwm-beeper.c
-+++ b/drivers/input/misc/pwm-beeper.c
-@@ -87,6 +87,12 @@ static int pwm_beeper_probe(struct platform_device *pdev)
- 		goto err_free;
- 	}
- 
-+	/*
-+	 * FIXME: pwm_apply_args() should be removed when switching to
-+	 * the atomic PWM API.
-+	 */
-+	pwm_apply_args(beeper->pwm);
-+
- 	beeper->input = input_allocate_device();
- 	if (!beeper->input) {
- 		dev_err(&pdev->dev, "Failed to allocate input device\n");
--- 
-2.5.0
+VGhlIFBXTSBzdGF0ZSwgcmVwcmVzZW50ZWQgYnkgaXRzIHBlcmlvZCwgZHV0eV9jeWNsZSBhbmQg
+cG9sYXJpdHksCmlzIGN1cnJlbnRseSBkaXJlY3RseSBzdG9yZWQgaW4gdGhlIFBXTSBkZXZpY2Uu
+CkRlY2xhcmUgYSBwd21fc3RhdGUgc3RydWN0dXJlIGVtYmVkZGluZyB0aG9zZSBmaWVsZCBzbyB0
+aGF0IHdlIGNhbiBsYXRlcgp1c2UgdGhpcyBzdHJ1Y3QgdG8gYXRvbWljYWxseSB1cGRhdGUgYWxs
+IHRoZSBQV00gcGFyYW1ldGVycyBhdCBvbmNlLgoKQWxsIHB3bV9nZXRfeHh4KCkgaGVscGVycyBh
+cmUgbm93IGltcGxlbWVudGVkIGFzIHdyYXBwZXJzIGFyb3VuZApwd21fZ2V0X3N0YXRlKCkuCgpT
+aWduZWQtb2ZmLWJ5OiBCb3JpcyBCcmV6aWxsb24gPGJvcmlzLmJyZXppbGxvbkBmcmVlLWVsZWN0
+cm9ucy5jb20+Ci0tLQogZHJpdmVycy9wd20vY29yZS5jICB8ICA4ICsrKystLS0tCiBpbmNsdWRl
+L2xpbnV4L3B3bS5oIHwgNTQgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KystLS0tLS0tLS0tLS0KIDIgZmlsZXMgY2hhbmdlZCwgNDYgaW5zZXJ0aW9ucygrKSwgMTYgZGVs
+ZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9wd20vY29yZS5jIGIvZHJpdmVycy9wd20v
+Y29yZS5jCmluZGV4IDI2YzNjZjUuLjU5YmNlY2UgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvcHdtL2Nv
+cmUuYworKysgYi9kcml2ZXJzL3B3bS9jb3JlLmMKQEAgLTI2OCw3ICsyNjgsNyBAQCBpbnQgcHdt
+Y2hpcF9hZGRfd2l0aF9wb2xhcml0eShzdHJ1Y3QgcHdtX2NoaXAgKmNoaXAsCiAJCXB3bS0+Y2hp
+cCA9IGNoaXA7CiAJCXB3bS0+cHdtID0gY2hpcC0+YmFzZSArIGk7CiAJCXB3bS0+aHdwd20gPSBp
+OwotCQlwd20tPnBvbGFyaXR5ID0gcG9sYXJpdHk7CisJCXB3bS0+c3RhdGUucG9sYXJpdHkgPSBw
+b2xhcml0eTsKIAogCQlyYWRpeF90cmVlX2luc2VydCgmcHdtX3RyZWUsIHB3bS0+cHdtLCBwd20p
+OwogCX0KQEAgLTQ0Niw4ICs0NDYsOCBAQCBpbnQgcHdtX2NvbmZpZyhzdHJ1Y3QgcHdtX2Rldmlj
+ZSAqcHdtLCBpbnQgZHV0eV9ucywgaW50IHBlcmlvZF9ucykKIAlpZiAoZXJyKQogCQlyZXR1cm4g
+ZXJyOwogCi0JcHdtLT5kdXR5X2N5Y2xlID0gZHV0eV9uczsKLQlwd20tPnBlcmlvZCA9IHBlcmlv
+ZF9uczsKKwlwd20tPnN0YXRlLmR1dHlfY3ljbGUgPSBkdXR5X25zOworCXB3bS0+c3RhdGUucGVy
+aW9kID0gcGVyaW9kX25zOwogCiAJcmV0dXJuIDA7CiB9CkBAIC00ODAsNyArNDgwLDcgQEAgaW50
+IHB3bV9zZXRfcG9sYXJpdHkoc3RydWN0IHB3bV9kZXZpY2UgKnB3bSwgZW51bSBwd21fcG9sYXJp
+dHkgcG9sYXJpdHkpCiAJaWYgKGVycikKIAkJcmV0dXJuIGVycjsKIAotCXB3bS0+cG9sYXJpdHkg
+PSBwb2xhcml0eTsKKwlwd20tPnN0YXRlLnBvbGFyaXR5ID0gcG9sYXJpdHk7CiAKIAlyZXR1cm4g
+MDsKIH0KZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvcHdtLmggYi9pbmNsdWRlL2xpbnV4L3B3
+bS5oCmluZGV4IDJmNTAwYTUuLjMwMjJjMDUgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvcHdt
+LmgKKysrIGIvaW5jbHVkZS9saW51eC9wd20uaApAQCAtOTcsNiArOTcsMTggQEAgZW51bSB7CiAJ
+UFdNRl9FWFBPUlRFRCA9IDEgPDwgMiwKIH07CiAKKy8qCisgKiBzdHJ1Y3QgcHdtX3N0YXRlIC0g
+c3RhdGUgb2YgYSBQV00gY2hhbm5lbAorICogQHBlcmlvZDogUFdNIHBlcmlvZCAoaW4gbmFub3Nl
+Y29uZHMpCisgKiBAZHV0eV9jeWNsZTogUFdNIGR1dHkgY3ljbGUgKGluIG5hbm9zZWNvbmRzKQor
+ICogQHBvbGFyaXR5OiBQV00gcG9sYXJpdHkKKyAqLworc3RydWN0IHB3bV9zdGF0ZSB7CisJdW5z
+aWduZWQgaW50IHBlcmlvZDsKKwl1bnNpZ25lZCBpbnQgZHV0eV9jeWNsZTsKKwllbnVtIHB3bV9w
+b2xhcml0eSBwb2xhcml0eTsKK307CisKIC8qKgogICogc3RydWN0IHB3bV9kZXZpY2UgLSBQV00g
+Y2hhbm5lbCBvYmplY3QKICAqIEBsYWJlbDogbmFtZSBvZiB0aGUgUFdNIGRldmljZQpAQCAtMTA1
+LDEwICsxMTcsOCBAQCBlbnVtIHsKICAqIEBwd206IGdsb2JhbCBpbmRleCBvZiB0aGUgUFdNIGRl
+dmljZQogICogQGNoaXA6IFBXTSBjaGlwIHByb3ZpZGluZyB0aGlzIFBXTSBkZXZpY2UKICAqIEBj
+aGlwX2RhdGE6IGNoaXAtcHJpdmF0ZSBkYXRhIGFzc29jaWF0ZWQgd2l0aCB0aGUgUFdNIGRldmlj
+ZQotICogQHBlcmlvZDogcGVyaW9kIG9mIHRoZSBQV00gc2lnbmFsIChpbiBuYW5vc2Vjb25kcykK
+LSAqIEBkdXR5X2N5Y2xlOiBkdXR5IGN5Y2xlIG9mIHRoZSBQV00gc2lnbmFsIChpbiBuYW5vc2Vj
+b25kcykKLSAqIEBwb2xhcml0eTogcG9sYXJpdHkgb2YgdGhlIFBXTSBzaWduYWwKICAqIEBhcmdz
+OiBQV00gYXJndW1lbnRzCisgKiBAc3RhdGU6IGN1cmVudCBQV00gY2hhbm5lbCBzdGF0ZQogICov
+CiBzdHJ1Y3QgcHdtX2RldmljZSB7CiAJY29uc3QgY2hhciAqbGFiZWw7CkBAIC0xMTgsMTMgKzEy
+OCwyMSBAQCBzdHJ1Y3QgcHdtX2RldmljZSB7CiAJc3RydWN0IHB3bV9jaGlwICpjaGlwOwogCXZv
+aWQgKmNoaXBfZGF0YTsKIAotCXVuc2lnbmVkIGludCBwZXJpb2Q7Ci0JdW5zaWduZWQgaW50IGR1
+dHlfY3ljbGU7Ci0JZW51bSBwd21fcG9sYXJpdHkgcG9sYXJpdHk7Ci0KIAlzdHJ1Y3QgcHdtX2Fy
+Z3MgYXJnczsKKwlzdHJ1Y3QgcHdtX3N0YXRlIHN0YXRlOwogfTsKIAorLyoqCisgKiBwd21fZ2V0
+X3N0YXRlKCkgLSByZXRyaWV2ZSB0aGUgY3VycmVudCBQV00gc3RhdGUKKyAqIEBwd206IFBXTSBk
+ZXZpY2UKKyAqIEBzdGF0ZTogc3RhdGUgdG8gZmlsbCB3aXRoIHRoZSBjdXJyZW50IFBXTSBzdGF0
+ZQorICovCitzdGF0aWMgaW5saW5lIHZvaWQgcHdtX2dldF9zdGF0ZShjb25zdCBzdHJ1Y3QgcHdt
+X2RldmljZSAqcHdtLAorCQkJCSBzdHJ1Y3QgcHdtX3N0YXRlICpzdGF0ZSkKK3sKKwkqc3RhdGUg
+PSBwd20tPnN0YXRlOworfQorCiBzdGF0aWMgaW5saW5lIGJvb2wgcHdtX2lzX2VuYWJsZWQoY29u
+c3Qgc3RydWN0IHB3bV9kZXZpY2UgKnB3bSkKIHsKIAlyZXR1cm4gdGVzdF9iaXQoUFdNRl9FTkFC
+TEVELCAmcHdtLT5mbGFncyk7CkBAIC0xMzMsMjMgKzE1MSwzMSBAQCBzdGF0aWMgaW5saW5lIGJv
+b2wgcHdtX2lzX2VuYWJsZWQoY29uc3Qgc3RydWN0IHB3bV9kZXZpY2UgKnB3bSkKIHN0YXRpYyBp
+bmxpbmUgdm9pZCBwd21fc2V0X3BlcmlvZChzdHJ1Y3QgcHdtX2RldmljZSAqcHdtLCB1bnNpZ25l
+ZCBpbnQgcGVyaW9kKQogewogCWlmIChwd20pCi0JCXB3bS0+cGVyaW9kID0gcGVyaW9kOworCQlw
+d20tPnN0YXRlLnBlcmlvZCA9IHBlcmlvZDsKIH0KIAogc3RhdGljIGlubGluZSB1bnNpZ25lZCBp
+bnQgcHdtX2dldF9wZXJpb2QoY29uc3Qgc3RydWN0IHB3bV9kZXZpY2UgKnB3bSkKIHsKLQlyZXR1
+cm4gcHdtID8gcHdtLT5wZXJpb2QgOiAwOworCXN0cnVjdCBwd21fc3RhdGUgc3RhdGU7CisKKwlw
+d21fZ2V0X3N0YXRlKHB3bSwgJnN0YXRlKTsKKworCXJldHVybiBzdGF0ZS5wZXJpb2Q7CiB9CiAK
+IHN0YXRpYyBpbmxpbmUgdm9pZCBwd21fc2V0X2R1dHlfY3ljbGUoc3RydWN0IHB3bV9kZXZpY2Ug
+KnB3bSwgdW5zaWduZWQgaW50IGR1dHkpCiB7CiAJaWYgKHB3bSkKLQkJcHdtLT5kdXR5X2N5Y2xl
+ID0gZHV0eTsKKwkJcHdtLT5zdGF0ZS5kdXR5X2N5Y2xlID0gZHV0eTsKIH0KIAogc3RhdGljIGlu
+bGluZSB1bnNpZ25lZCBpbnQgcHdtX2dldF9kdXR5X2N5Y2xlKGNvbnN0IHN0cnVjdCBwd21fZGV2
+aWNlICpwd20pCiB7Ci0JcmV0dXJuIHB3bSA/IHB3bS0+ZHV0eV9jeWNsZSA6IDA7CisJc3RydWN0
+IHB3bV9zdGF0ZSBzdGF0ZTsKKworCXB3bV9nZXRfc3RhdGUocHdtLCAmc3RhdGUpOworCisJcmV0
+dXJuIHN0YXRlLmR1dHlfY3ljbGU7CiB9CiAKIC8qCkBAIC0xNTksNyArMTg1LDExIEBAIGludCBw
+d21fc2V0X3BvbGFyaXR5KHN0cnVjdCBwd21fZGV2aWNlICpwd20sIGVudW0gcHdtX3BvbGFyaXR5
+IHBvbGFyaXR5KTsKIAogc3RhdGljIGlubGluZSBlbnVtIHB3bV9wb2xhcml0eSBwd21fZ2V0X3Bv
+bGFyaXR5KGNvbnN0IHN0cnVjdCBwd21fZGV2aWNlICpwd20pCiB7Ci0JcmV0dXJuIHB3bSA/IHB3
+bS0+cG9sYXJpdHkgOiBQV01fUE9MQVJJVFlfTk9STUFMOworCXN0cnVjdCBwd21fc3RhdGUgc3Rh
+dGU7CisKKwlwd21fZ2V0X3N0YXRlKHB3bSwgJnN0YXRlKTsKKworCXJldHVybiBzdGF0ZS5wb2xh
+cml0eTsKIH0KIAogc3RhdGljIGlubGluZSB2b2lkIHB3bV9nZXRfYXJncyhjb25zdCBzdHJ1Y3Qg
+cHdtX2RldmljZSAqcHdtLAotLSAKMi41LjAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fCkludGVsLWdmeCBtYWlsaW5nIGxpc3QKSW50ZWwtZ2Z4QGxpc3Rz
+LmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL2ludGVsLWdmeAo=

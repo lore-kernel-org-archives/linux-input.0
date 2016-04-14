@@ -1,47 +1,34 @@
 From: zengzhaoxiu@163.com
-Subject: [PATCH V3 17/29] input: use parity16 in ams_delta_serio
-Date: Thu, 14 Apr 2016 11:10:28 +0800
-Message-ID: <1460603429-5317-1-git-send-email-zengzhaoxiu@163.com>
+Subject: [PATCH V3 25/29] input: use parity8 in sa1111ps2
+Date: Thu, 14 Apr 2016 11:11:58 +0800
+Message-ID: <1460603521-5684-1-git-send-email-zengzhaoxiu@163.com>
 References: <1460601525-3822-1-git-send-email-zengzhaoxiu@163.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m50-132.163.com ([123.125.50.132]:36055 "EHLO m50-132.163.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751872AbcDNDKh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Apr 2016 23:10:37 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1460601525-3822-1-git-send-email-zengzhaoxiu@163.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
 From: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
 
 Signed-off-by: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
 ---
- drivers/input/serio/ams_delta_serio.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/input/serio/sa1111ps2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/serio/ams_delta_serio.c b/drivers/input/serio/ams_delta_serio.c
-index 45887e3..85459b3 100644
---- a/drivers/input/serio/ams_delta_serio.c
-+++ b/drivers/input/serio/ams_delta_serio.c
-@@ -48,13 +48,9 @@ static int check_data(int data)
- 				data);
- 		return SERIO_FRAME;
- 	}
--	/* calculate the parity */
--	for (i = 1; i < 10; i++) {
--		if (data & (1 << i))
--			parity++;
--	}
- 	/* it should be odd */
--	if (!(parity & 0x01)) {
-+	parity = parity16(data & 0x3fe);
-+	if (!parity) {
- 		dev_warn(&ams_delta_serio->dev,
- 				"paritiy check failed, data=0x%X parity=0x%X\n",
- 				data, parity);
+diff --git a/drivers/input/serio/sa1111ps2.c b/drivers/input/serio/sa1111ps2.c
+index b3e6889..324b193 100644
+--- a/drivers/input/serio/sa1111ps2.c
++++ b/drivers/input/serio/sa1111ps2.c
+@@ -74,7 +74,7 @@ static irqreturn_t ps2_rxint(int irq, void *dev_id)
+ 
+ 		scancode = sa1111_readl(ps2if->base + PS2DATA) & 0xff;
+ 
+-		if (hweight8(scancode) & 1)
++		if (parity8(scancode))
+ 			flag ^= SERIO_PARITY;
+ 
+ 		serio_interrupt(ps2if->io, scancode, flag);
 -- 
 2.5.0
-
-

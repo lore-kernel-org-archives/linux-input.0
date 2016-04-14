@@ -1,13 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 07/24] regulator: pwm: use pwm_get_args()
+Subject: [PATCH v5 09/24] backlight: pwm_bl: use pwm_get_args()
  where appropriate
-Date: Thu, 14 Apr 2016 21:17:27 +0200
-Message-ID: <1460661464-11216-8-git-send-email-boris.brezillon@free-electrons.com>
+Date: Thu, 14 Apr 2016 21:17:29 +0200
+Message-ID: <1460661464-11216-10-git-send-email-boris.brezillon@free-electrons.com>
 References: <1460661464-11216-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBB7WZX64AKGQECOTF3VA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBAW2X64AKGQEIPRSWFA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1460661464-11216-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -33,64 +33,41 @@ just been requested (before the user calls pwm_config/enable/disable()).
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/regulator/pwm-regulator.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/video/backlight/pwm_bl.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/pwm-regulator.c b/drivers/regulator/pwm-regulator.c
-index 4689d62..ffdb895 100644
---- a/drivers/regulator/pwm-regulator.c
-+++ b/drivers/regulator/pwm-regulator.c
-@@ -59,16 +59,16 @@ static int pwm_regulator_set_voltage_sel(struct regulator_dev *rdev,
- 					 unsigned selector)
- {
- 	struct pwm_regulator_data *drvdata = rdev_get_drvdata(rdev);
--	unsigned int pwm_reg_period;
+diff --git a/drivers/video/backlight/pwm_bl.c b/drivers/video/backlight/pwm_bl.c
+index a33a290..b2b366b 100644
+--- a/drivers/video/backlight/pwm_bl.c
++++ b/drivers/video/backlight/pwm_bl.c
+@@ -201,6 +201,7 @@ static int pwm_backlight_probe(struct platform_device *pdev)
+ 	struct device_node *node = pdev->dev.of_node;
+ 	struct pwm_bl_data *pb;
+ 	int initial_blank = FB_BLANK_UNBLANK;
 +	struct pwm_args pargs;
- 	int dutycycle;
  	int ret;
  
--	pwm_reg_period = pwm_get_period(drvdata->pwm);
-+	pwm_get_args(drvdata->pwm, &pargs);
+ 	if (!data) {
+@@ -307,12 +308,19 @@ static int pwm_backlight_probe(struct platform_device *pdev)
+ 	dev_dbg(&pdev->dev, "got pwm for backlight\n");
  
--	dutycycle = (pwm_reg_period *
-+	dutycycle = (pargs.period *
- 		    drvdata->duty_cycle_table[selector].dutycycle) / 100;
- 
--	ret = pwm_config(drvdata->pwm, dutycycle, pwm_reg_period);
-+	ret = pwm_config(drvdata->pwm, dutycycle, pargs.period);
- 	if (ret) {
- 		dev_err(&rdev->dev, "Failed to configure PWM\n");
- 		return ret;
-@@ -138,13 +138,15 @@ static int pwm_regulator_set_voltage(struct regulator_dev *rdev,
- {
- 	struct pwm_regulator_data *drvdata = rdev_get_drvdata(rdev);
- 	unsigned int ramp_delay = rdev->constraints->ramp_delay;
--	unsigned int period = pwm_get_period(drvdata->pwm);
-+	struct pwm_args pargs;
- 	int duty_cycle;
- 	int ret;
- 
-+	pwm_get_args(drvdata->pwm, &pargs);
- 	duty_cycle = pwm_voltage_to_duty_cycle_percentage(rdev, min_uV);
- 
--	ret = pwm_config(drvdata->pwm, (period / 100) * duty_cycle, period);
-+	ret = pwm_config(drvdata->pwm, (pargs.period / 100) * duty_cycle,
-+			 pargs.period);
- 	if (ret) {
- 		dev_err(&rdev->dev, "Failed to configure PWM\n");
- 		return ret;
-@@ -281,6 +283,12 @@ static int pwm_regulator_probe(struct platform_device *pdev)
- 		return PTR_ERR(drvdata->pwm);
- 	}
- 
-+	/*
-+	 * FIXME: pwm_apply_args() should be removed when switching to the
-+	 * atomic PWM API.
+ 	/*
++	 * FIXME: pwm_apply_args() should be removed when switching to
++	 * the atomic PWM API.
 +	 */
-+	pwm_apply_args(drvdata->pwm);
++	pwm_apply_args(pb->pwm);
 +
- 	regulator = devm_regulator_register(&pdev->dev,
- 					    &drvdata->desc, &config);
- 	if (IS_ERR(regulator)) {
++	/*
+ 	 * The DT case will set the pwm_period_ns field to 0 and store the
+ 	 * period, parsed from the DT, in the PWM device. For the non-DT case,
+ 	 * set the period from platform data if it has not already been set
+ 	 * via the PWM lookup table.
+ 	 */
+-	pb->period = pwm_get_period(pb->pwm);
++	pwm_get_args(pb->pwm, &pargs);
++	pb->period = pargs.period;
+ 	if (!pb->period && (data->pwm_period_ns > 0))
+ 		pb->period = data->pwm_period_ns;
+ 
 -- 
 2.5.0

@@ -1,85 +1,57 @@
-From: =?big5?B?SmVmZnJleSBMaW4gKKpMuHGzuSk=?= <Jeffrey.Lin@rad-ic.com>
-Subject: RE: [PATCH] driver: input :touchscreen : add Raydium I2C touch
- driver
-Date: Thu, 14 Apr 2016 09:28:58 +0000
-Message-ID: <9BE4B49389AB2F41A64A32DFC844F1DF73F1D907@RADHCMS5.corp.rad-ic.com>
-References: <1458883269-3218-1-git-send-email-jeffrey.lin@rad-ic.com>
- <20160411082428.GA26066@dtor-ws>
+From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v5 01/46] pwm: rcar: make use of pwm_is_enabled()
+Date: Thu, 14 Apr 2016 13:05:39 +0200
+Message-ID: <20160414130539.272166b0@bbrezillon>
+References: <1459368249-13241-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1459368249-13241-2-git-send-email-boris.brezillon@free-electrons.com>
+	<20160412110152.GG18882@ulmo.ba.sec>
+Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="big5"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 219-80-251-50.static.tfn.net.tw ([219.80.251.50]:15991 "EHLO
-	mse2.corp.rad-ic.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752498AbcDNJ3J (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Apr 2016 05:29:09 -0400
-Content-Language: zh-TW
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBBXTXW4AKGQEMAI22VI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20160412110152.GG18882-EkSeR96xj6Pcmrwk2tT4+A@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones@li>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "jeffrey.lin" <yajohn@gmail.com>
-Cc: "rydberg@euromail.se" <rydberg@euromail.se>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "jeesw@melfas.com" <jeesw@melfas.com>, "bleung@chromium.org" <bleung@chromium.org>, "scott.liu@emc.com.tw" <scott.liu@emc.com.tw>, =?big5?B?Um9nZXIgWWFuZyAot6jC7d6zKQ==?= <Roger.Yang@rad-ic.com>, =?big5?B?S1AgTGkgKKf1qfitvyk=?= <KP.Li@rad-ic.com>, =?big5?B?QWxiZXJ0IFNoaWVoICjBwqpZ3rMp?= <Albert.Shieh@rad-ic.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-SGkgRG1pdHJ5Og0KT3VyIG5ldyBzdWJtaXNzaW9uIG5vdyBpcyBpbiBwcm9ncmVzcy4gRG8geW91
-IGhhdmUgYW55IGZ1cnRoZXIgc3VnZ2VzdGlvbnMgZm9yIG15IHN1Ym1pc3Npb24gYW5kIHdoZW4g
-Y2FuIEkgc3VibWl0IG15IG5ldyB1cGRhdGU/DQoNClRoYW5rIHlvdS4NCg0KQmVzdCBSZWdhcmRz
-DQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tDQpKZWZmcmV5IExpbiyqTLhxs7kNCrfnuams7KfeDQpSYXlkaXVtIFNl
-bWljb25kdWN0b3IgQ29ycG9yYXRpb24NClRlbDooMDMpNjY2LTE4MTggRXh0LjQxNjMNCkZheDoo
-MDMpNjY2LTE5MTkNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IEplZmZyZXkg
-TGluICiqTLhxs7kpIA0KU2VudDogTW9uZGF5LCBBcHJpbCAxMSwgMjAxNiA1OjU3IFBNDQpUbzog
-J0RtaXRyeSBUb3Jva2hvdic7IGplZmZyZXkubGluDQpDYzogcnlkYmVyZ0BldXJvbWFpbC5zZTsg
-Z3JhbnQubGlrZWx5QGxpbmFyby5vcmc7IHJvYmgrZHRAa2VybmVsLm9yZzsgamVlc3dAbWVsZmFz
-LmNvbTsgYmxldW5nQGNocm9taXVtLm9yZzsgc2NvdHQubGl1QGVtYy5jb20udHc7IFJvZ2VyIFlh
-bmcgKLeowu3esyk7IEtQIExpICin9an4rb8pOyBBbGJlcnQgU2hpZWggKMHCqlnesyk7IGxpbnV4
-LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgZGV2
-aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJFOiBbUEFUQ0hdIGRyaXZlcjogaW5w
-dXQgOnRvdWNoc2NyZWVuIDogYWRkIFJheWRpdW0gSTJDIHRvdWNoIGRyaXZlcg0KDQpIaSBEbWl0
-cnk6DQpUaGFuayB5b3UgZm9yIHlvdXIgcmVzcG9uc2UuDQoJQWN0dWFsbHksIHdlIGRpZG4ndCBp
-bXBsZW1lbnQgRlcgdXBkYXRlIGZ1bmN0aW9uIG9uIHRoZSBjaHJvbWVvcyBkZXZpY2UsIHdlIGp1
-c3QgY29weSBmdW5jdGlvbiBmcm9tIG91ciBwcmV2aW91cyBhbmRyb2lkIGRldmljZS4gSSdsbCBm
-aXggdGhhdCBvbiB0aGUgbmV4dCB2ZXJzaW9uLiBSYXlkaXVtIGNvbnRyb2xsZXIgZG9lc24ndCBo
-YXZlIGFjY2VzcyBieXRlcyBsaW1pdCwgYnV0IG15IHByZXZpb3VzIGFuZHJvaWQgZXhwZXJpbWVu
-dGFsIGRldmljZSBoYWQgNjAgYnl0ZXMgbGltaXQuDQoJDQpBYm91dCByZWZvcm1hdHRpbmcgY29t
-bWFuZCBzdHJ1Y3R1cmUsIGRvIHlvdSB3YW50IG1lIHRvIHJlZm9ybSBhbGwgbXkgY29tbWFuZHMg
-YXMgeW91IHNhaWQgaW4gdGhlIG1haWwgb3IganVzdCBpbiBjYXNlIG9mIGZ3IHVwZGF0ZSBmdW5j
-dGlvbj8gSWYgbm90IGp1c3QgaW4gY2FzZSBvZiBGVyB1cGRhdGUsIGl0J3MgYmV0dGVyIHRvIG1l
-ZXQgbWF4aW11bSBidWZmZXIgc2l6ZSwgbGlrZSAiTUFYX1BBQ0tFVF9TSVpFIi4NCg0KDQpCZXN0
-IFJlZ2FyZHMNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCkplZmZyZXkgTGluLKpMuHGzuQ0Kt+e5qazsp94NClJh
-eWRpdW0gU2VtaWNvbmR1Y3RvciBDb3Jwb3JhdGlvbg0KVGVsOigwMyk2NjYtMTgxOCBFeHQuNDE2
-Mw0KRmF4OigwMyk2NjYtMTkxOQ0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTog
-RG1pdHJ5IFRvcm9raG92IFttYWlsdG86ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbV0gDQpTZW50
-OiBNb25kYXksIEFwcmlsIDExLCAyMDE2IDQ6MjQgUE0NClRvOiBqZWZmcmV5Lmxpbg0KQ2M6IHJ5
-ZGJlcmdAZXVyb21haWwuc2U7IGdyYW50Lmxpa2VseUBsaW5hcm8ub3JnOyByb2JoK2R0QGtlcm5l
-bC5vcmc7IGplZXN3QG1lbGZhcy5jb207IGJsZXVuZ0BjaHJvbWl1bS5vcmc7IHNjb3R0LmxpdUBl
-bWMuY29tLnR3OyBKZWZmcmV5IExpbiAoqky4cbO5KTsgUm9nZXIgWWFuZyAot6jC7d6zKTsgS1Ag
-TGkgKKf1qfitvyk7IEFsYmVydCBTaGllaCAowcKqWd6zKTsgbGludXgta2VybmVsQHZnZXIua2Vy
-bmVsLm9yZzsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBkZXZpY2V0cmVlQHZnZXIua2Vy
-bmVsLm9yZw0KU3ViamVjdDogUmU6IFtQQVRDSF0gZHJpdmVyOiBpbnB1dCA6dG91Y2hzY3JlZW4g
-OiBhZGQgUmF5ZGl1bSBJMkMgdG91Y2ggZHJpdmVyDQoNCkhpIEplZmZyZXksDQoNCk9uIEZyaSwg
-TWFyIDI1LCAyMDE2IGF0IDAxOjIxOjA5UE0gKzA4MDAsIGplZmZyZXkubGluIHdyb3RlOg0KPiAr
-I2RlZmluZSBNQVhfUEFDS0VUX1NJWkUJCTYwDQouLi4NCj4gKyNkZWZpbmUgUkFZRElVTV9GV19Q
-QUdFU0laRQkxMjgNCi4uLg0KPiArDQo+ICtzdGF0aWMgaW50IHJheWRpdW1faTJjX3NlbmQoc3Ry
-dWN0IGkyY19jbGllbnQgKmNsaWVudCwNCj4gKwl1OCBhZGRyLCB1OCAqZGF0YSwgc2l6ZV90IGxl
-bikNCj4gK3sNCj4gKwl1OCBidWZbTUFYX1BBQ0tFVF9TSVpFICsgMV07DQo+ICsJaW50IHRyaWVz
-ID0gMDsNCj4gKw0KPiArCWlmIChsZW4gPiBNQVhfUEFDS0VUX1NJWkUpDQo+ICsJCXJldHVybiAt
-RUlOVkFMOw0KLi4uDQo+ICtzdGF0aWMgaW50IHJheWRpdW1faTJjX2Z3X3dyaXRlX3BhZ2Uoc3Ry
-dWN0IGkyY19jbGllbnQgKmNsaWVudCwNCj4gKwkJCQljb25zdCB2b2lkICpwYWdlKQ0KPiArew0K
-PiArCXN0YXRpYyBjb25zdCB1OCBhY2tfb2tbXSA9IHsgMHg1NSwgMHhBQSB9Ow0KPiArCXU4IGJ1
-ZlsyXTsNCj4gKwlpbnQgcmV0cnk7DQo+ICsJaW50IGVycm9yOw0KPiArDQo+ICsJZm9yIChyZXRy
-eSA9IDA7IHJldHJ5IDwgTUFYX0ZXX1VQREFURV9SRVRSSUVTOyByZXRyeSsrKSB7DQo+ICsJCWVy
-cm9yID0gcmF5ZGl1bV9pMmNfc2VuZChjbGllbnQsIENNRF9CT09UX1dSVCwNCj4gKwkJCSh1OCAq
-KXBhZ2UsIFJBWURJVU1fRldfUEFHRVNJWkUpOw0KPiArCQlpZiAoZXJyb3IpIHsNCj4gKwkJCWRl
-dl9lcnIoJmNsaWVudC0+ZGV2LA0KPiArCQkJCSJCTERSIFdyaXRlIFBhZ2UgZmFpbGVkOiAlZFxu
-IiwgZXJyb3IpOw0KPiArCQkJY29udGludWU7DQo+ICsJCX0NCg0KR2l2ZW4gdGhlIGFib3ZlIGRl
-ZmluaXRpb25zIG9mIE1BWF9QQUNLRVRfU0laRSBhbmQgUkFZRElVTV9GV19QQUdFU0laRSBJIGRv
-IG5vdCBiZWxpZXZlIHRoYXQgZmlybXdhcmUgdXBkYXRlIGlzIHdvcmtpbmcuDQpXaGF0IGlzIHRo
-ZSBiaWdnZXN0IGJ1ZmZlciB0aGF0IGNhbiBiZSBzZW50IHRvIHRoZSBkZXZpY2U/IE1heWJlIHdl
-IHNob3VsZCBhbGxvY2F0ZSBpdCBkeW5hbWljYWxseT8NCg0KSSBhbSBhbHNvIHdvbmRlcmluZyBh
-Ym91dCBmb3JtYXR0aW5nIGNvbW1hbmQgc3RydWN0dXJlIGFzIGJ5dGUgc2VxdWVuY2UuDQpXb3Vs
-ZCBpdCBiZSBiZXR0ZXIgdG8gZGVmaW5lIGl0IGFzOg0KDQpzdHJ1Y3QgcmFpZGl1bV9jbWQgew0K
-CXUzMiBiYW5rOw0KCWludCBsZW47DQoJdTggY21kW1JBSURJVU1fTUFYX0NNRF9MRU5dOw0KfQ0K
-DQpXaGF0IGlzIHRoZSBsb25nZXN0IGNvbW1hbmQgdGhhdCB0aGUgY29udHJvbGxlciBzdXBwb3J0
-cz8NCg0KKERvIG5vdCByZXN1Ym1pdCB0aGUgZHJpdmVyIHlldCwgbGV0J3MgZGlzY3VzcyBmaXJz
-dCkuDQoNClRoYW5rcy4NCg0KLS0NCkRtaXRyeQ0K
+Hi Thierry
+
+On Tue, 12 Apr 2016 13:01:52 +0200
+Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+
+> On Wed, Mar 30, 2016 at 10:03:24PM +0200, Boris Brezillon wrote:
+> > Commit 5c31252c4a86 ("pwm: Add the pwm_is_enabled() helper") introduced a
+> > new function to test whether a PWM device is enabled or not without
+> > manipulating PWM internal fields.
+> > Hiding this is necessary if we want to smoothly move to the atomic PWM
+> > config approach without impacting PWM drivers.
+> > Fix this driver to use pwm_is_enabled() instead of directly accessing the
+> > ->flags field.
+> > 
+> > Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> > ---
+> >  drivers/pwm/pwm-rcar.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Applied, thanks.
+
+I'd like to rebase my atomic series on top of pwm/for-next but I don't
+see the 4 patches you said you applied. Did you forget to push
+your local branch, or did you decide to revert them based on Lee's
+comments?
+
+Regards,
+
+Boris
+
+-- 
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com

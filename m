@@ -1,13 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 10/24] backlight: lp8788: explicitly apply
- PWM config extracted from pwm_args
-Date: Thu, 14 Apr 2016 21:17:30 +0200
-Message-ID: <1460661464-11216-11-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 15/24] drm: i915: explicitly apply PWM config
+ extracted from pwm_args
+Date: Thu, 14 Apr 2016 21:17:35 +0200
+Message-ID: <1460661464-11216-16-git-send-email-boris.brezillon@free-electrons.com>
 References: <1460661464-11216-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBA62X64AKGQETK43KHI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBDO2X64AKGQE6DVXGDY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1460661464-11216-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -30,25 +30,25 @@ use of it.
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/video/backlight/lp8788_bl.c | 6 ++++++
+ drivers/gpu/drm/i915/intel_panel.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/drivers/video/backlight/lp8788_bl.c b/drivers/video/backlight/lp8788_bl.c
-index 5d583d7..cf869ec 100644
---- a/drivers/video/backlight/lp8788_bl.c
-+++ b/drivers/video/backlight/lp8788_bl.c
-@@ -145,6 +145,12 @@ static void lp8788_pwm_ctrl(struct lp8788_bl *bl, int br, int max_br)
- 		}
- 
- 		bl->pwm = pwm;
-+
-+		/*
-+		 * FIXME: pwm_apply_args() should be removed when switching to
-+		 * the atomic PWM API.
-+		 */
-+		pwm_apply_args(pwm);
+diff --git a/drivers/gpu/drm/i915/intel_panel.c b/drivers/gpu/drm/i915/intel_panel.c
+index 21ee647..dc3a2e4 100644
+--- a/drivers/gpu/drm/i915/intel_panel.c
++++ b/drivers/gpu/drm/i915/intel_panel.c
+@@ -1640,6 +1640,12 @@ static int pwm_setup_backlight(struct intel_connector *connector,
+ 		return -ENODEV;
  	}
  
- 	pwm_config(bl->pwm, duty, period);
++	/*
++	 * FIXME: pwm_apply_args() should be removed when switching to
++	 * the atomic PWM API.
++	 */
++	pwm_apply_args(panel->backlight.pwm);
++
+ 	retval = pwm_config(panel->backlight.pwm, CRC_PMIC_PWM_PERIOD_NS,
+ 			    CRC_PMIC_PWM_PERIOD_NS);
+ 	if (retval < 0) {
 -- 
 2.5.0

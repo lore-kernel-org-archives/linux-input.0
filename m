@@ -1,7 +1,7 @@
 From: zengzhaoxiu@163.com
-Subject: [PATCH V3 15/29] input: use parity32 in grip_mp
-Date: Thu, 14 Apr 2016 11:10:03 +0800
-Message-ID: <1460603405-5220-1-git-send-email-zengzhaoxiu@163.com>
+Subject: [PATCH V3 16/29] input: use parity64 in sidewinder
+Date: Thu, 14 Apr 2016 11:10:15 +0800
+Message-ID: <1460603417-5266-1-git-send-email-zengzhaoxiu@163.com>
 References: <1460601525-3822-1-git-send-email-zengzhaoxiu@163.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1460601525-3822-1-git-send-email-zengzhaoxiu@163.com>
@@ -14,23 +14,25 @@ From: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
 
 Signed-off-by: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
 ---
- drivers/input/joystick/grip_mp.c | 16 +---------------
- 1 file changed, 1 insertion(+), 15 deletions(-)
+ drivers/input/joystick/sidewinder.c | 24 ++++--------------------
+ 1 file changed, 4 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/input/joystick/grip_mp.c b/drivers/input/joystick/grip_mp.c
-index 573191d..3e29eb1 100644
---- a/drivers/input/joystick/grip_mp.c
-+++ b/drivers/input/joystick/grip_mp.c
-@@ -112,20 +112,6 @@ static const int axis_map[] = { 5, 9, 1, 5, 6, 10, 2, 6, 4, 8, 0, 4, 5, 9, 1, 5
- static int register_slot(int i, struct grip_mp *grip);
+diff --git a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
+index 4a95b22..7ea486e 100644
+--- a/drivers/input/joystick/sidewinder.c
++++ b/drivers/input/joystick/sidewinder.c
+@@ -259,22 +259,6 @@ static void sw_init_digital(struct gameport *gameport)
+ }
  
  /*
-- * Returns whether an odd or even number of bits are on in pkt.
+- * sw_parity() computes parity of __u64
 - */
 -
--static int bit_parity(u32 pkt)
+-static int sw_parity(__u64 t)
 -{
--	int x = pkt ^ (pkt >> 16);
+-	int x = t ^ (t >> 32);
+-
+-	x ^= x >> 16;
 -	x ^= x >> 8;
 -	x ^= x >> 4;
 -	x ^= x >> 2;
@@ -39,17 +41,44 @@ index 573191d..3e29eb1 100644
 -}
 -
 -/*
-  * Poll gameport; return true if all bits set in 'onbits' are on and
-  * all bits set in 'offbits' are off.
+  * sw_ccheck() checks synchronization bits and computes checksum of nibbles.
   */
-@@ -235,7 +221,7 @@ static int mp_io(struct gameport* gameport, int sendflags, int sendcode, u32 *pa
- 		pkt = (pkt >> 2) | 0xf0000000;
- 	}
  
--	if (bit_parity(pkt) == 1)
-+	if (parity32(pkt))
- 		return IO_RESET;
+@@ -334,7 +318,7 @@ static int sw_parse(unsigned char *buf, struct sw *sw)
  
- 	/* Acknowledge packet receipt */
+ 			for (i = 0; i < sw->number; i ++) {
+ 
+-				if (sw_parity(GB(i*15,15)))
++				if (parity64(GB(i*15,15)))
+ 					return -1;
+ 
+ 				input_report_abs(sw->dev[i], ABS_X, GB(i*15+3,1) - GB(i*15+2,1));
+@@ -351,7 +335,7 @@ static int sw_parse(unsigned char *buf, struct sw *sw)
+ 		case SW_ID_PP:
+ 		case SW_ID_FFP:
+ 
+-			if (!sw_parity(GB(0,48)) || (hat = GB(42,4)) > 8)
++			if (!parity64(GB(0,48)) || (hat = GB(42,4)) > 8)
+ 				return -1;
+ 
+ 			dev = sw->dev[0];
+@@ -372,7 +356,7 @@ static int sw_parse(unsigned char *buf, struct sw *sw)
+ 
+ 		case SW_ID_FSP:
+ 
+-			if (!sw_parity(GB(0,43)) || (hat = GB(28,4)) > 8)
++			if (!parity64(GB(0,43)) || (hat = GB(28,4)) > 8)
+ 				return -1;
+ 
+ 			dev = sw->dev[0];
+@@ -397,7 +381,7 @@ static int sw_parse(unsigned char *buf, struct sw *sw)
+ 
+ 		case SW_ID_FFW:
+ 
+-			if (!sw_parity(GB(0,33)))
++			if (!parity64(GB(0,33)))
+ 				return -1;
+ 
+ 			dev = sw->dev[0];
 -- 
 2.5.0

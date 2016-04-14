@@ -1,91 +1,78 @@
-From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 05/24] input: misc: max77693: use
- pwm_get_args() where appropriate
-Date: Thu, 14 Apr 2016 21:17:25 +0200
-Message-ID: <1460661464-11216-6-git-send-email-boris.brezillon@free-electrons.com>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 04/24] hwmon: pwm-fan: use pwm_get_args()
+	where appropriate
+Date: Thu, 14 Apr 2016 21:17:24 +0200
+Message-ID: <1460661464-11216-5-git-send-email-boris.brezillon@free-electrons.com>
 References: <1460661464-11216-1-git-send-email-boris.brezillon@free-electrons.com>
-Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBB56ZX64AKGQEEITMBLA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1460661464-11216-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>linu
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <1460661464-11216-1-git-send-email-boris.brezillon@free-electrons.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Thierry Reding <thierry.reding@gmail.com>, linux-pwm@vger.kernel.org
+Cc: Milo Kim <milo.kim@ti.com>, Kamil Debski <k.debski@samsung.com>, Heiko Stuebner <heiko@sntech.de>, linux-doc@vger.kernel.org, Mike Turquette <mturquette@baylibre.com>, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Daniel Vetter <daniel.vetter@intel.com>, Stephen Barber <smbarber@chromium.org>, Lee Jones <lee.jones@linaro.org>, linux-clk@vger.kernel.org, linux-leds@vger.kernel.org, Boris Brezillon <boris.brezillon@free-electrons.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-samsung-soc@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>, Jonathan Corbet <corbet@lwn.net>, Robert Jarzmik <robert.jarzmik@free.fr>, lm-sensors@lm-sensors.org, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-input@vger
 List-Id: linux-input@vger.kernel.org
 
-The PWM framework has clarified the concept of reference PWM config
-(the platform dependent config retrieved from the DT or the PWM
-lookup table) and real PWM state.
-
-Use pwm_get_args() when the PWM user wants to retrieve this reference
-config and not the current state.
-
-This is part of the rework allowing the PWM framework to support
-hardware readout and expose real PWM state even when the PWM has
-just been requested (before the user calls pwm_config/enable/disable()).
-
-Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
----
- drivers/input/misc/max77693-haptic.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
-index 6d96bff..29ddeb7 100644
---- a/drivers/input/misc/max77693-haptic.c
-+++ b/drivers/input/misc/max77693-haptic.c
-@@ -70,10 +70,13 @@ struct max77693_haptic {
- 
- static int max77693_haptic_set_duty_cycle(struct max77693_haptic *haptic)
- {
--	int delta = (haptic->pwm_dev->period + haptic->pwm_duty) / 2;
-+	struct pwm_args pargs;
-+	int delta;
- 	int error;
- 
--	error = pwm_config(haptic->pwm_dev, delta, haptic->pwm_dev->period);
-+	pwm_get_args(haptic->pwm_dev, &pargs);
-+	delta = (pargs.period + haptic->pwm_duty) / 2;
-+	error = pwm_config(haptic->pwm_dev, delta, pargs.period);
- 	if (error) {
- 		dev_err(haptic->dev, "failed to configure pwm: %d\n", error);
- 		return error;
-@@ -234,6 +237,7 @@ static int max77693_haptic_play_effect(struct input_dev *dev, void *data,
- 				       struct ff_effect *effect)
- {
- 	struct max77693_haptic *haptic = input_get_drvdata(dev);
-+	struct pwm_args pargs;
- 	u64 period_mag_multi;
- 
- 	haptic->magnitude = effect->u.rumble.strong_magnitude;
-@@ -245,7 +249,8 @@ static int max77693_haptic_play_effect(struct input_dev *dev, void *data,
- 	 * The formula to convert magnitude to pwm_duty as follows:
- 	 * - pwm_duty = (magnitude * pwm_period) / MAX_MAGNITUDE(0xFFFF)
- 	 */
--	period_mag_multi = (u64)haptic->pwm_dev->period * haptic->magnitude;
-+	pwm_get_args(haptic->pwm_dev, &pargs);
-+	period_mag_multi = (u64)pargs.period * haptic->magnitude;
- 	haptic->pwm_duty = (unsigned int)(period_mag_multi >>
- 						MAX_MAGNITUDE_SHIFT);
- 
-@@ -329,6 +334,12 @@ static int max77693_haptic_probe(struct platform_device *pdev)
- 		return PTR_ERR(haptic->pwm_dev);
- 	}
- 
-+	/*
-+	 * FIXME: pwm_apply_args() should be removed when switching to the
-+	 * atomic PWM API.
-+	 */
-+	pwm_apply_args(haptic->pwm_dev);
-+
- 	haptic->motor_reg = devm_regulator_get(&pdev->dev, "haptic");
- 	if (IS_ERR(haptic->motor_reg)) {
- 		dev_err(&pdev->dev, "failed to get regulator\n");
--- 
-2.5.0
+VGhlIFBXTSBmcmFtZXdvcmsgaGFzIGNsYXJpZmllZCB0aGUgY29uY2VwdCBvZiByZWZlcmVuY2Ug
+UFdNIGNvbmZpZwoodGhlIHBsYXRmb3JtIGRlcGVuZGVudCBjb25maWcgcmV0cmlldmVkIGZyb20g
+dGhlIERUIG9yIHRoZSBQV00KbG9va3VwIHRhYmxlKSBhbmQgcmVhbCBQV00gc3RhdGUuCgpVc2Ug
+cHdtX2dldF9hcmdzKCkgd2hlbiB0aGUgUFdNIHVzZXIgd2FudHMgdG8gcmV0cmlldmUgdGhpcyBy
+ZWZlcmVuY2UKY29uZmlnIGFuZCBub3QgdGhlIGN1cnJlbnQgc3RhdGUuCgpUaGlzIGlzIHBhcnQg
+b2YgdGhlIHJld29yayBhbGxvd2luZyB0aGUgUFdNIGZyYW1ld29yayB0byBzdXBwb3J0CmhhcmR3
+YXJlIHJlYWRvdXQgYW5kIGV4cG9zZSByZWFsIFBXTSBzdGF0ZSBldmVuIHdoZW4gdGhlIFBXTSBo
+YXMKanVzdCBiZWVuIHJlcXVlc3RlZCAoYmVmb3JlIHRoZSB1c2VyIGNhbGxzIHB3bV9jb25maWcv
+ZW5hYmxlL2Rpc2FibGUoKSkuCgpTaWduZWQtb2ZmLWJ5OiBCb3JpcyBCcmV6aWxsb24gPGJvcmlz
+LmJyZXppbGxvbkBmcmVlLWVsZWN0cm9ucy5jb20+CkFja2VkLWJ5OiBLYW1pbCBEZWJza2kgPGsu
+ZGVic2tpQHNhbXN1bmcuY29tPgotLS0KIGRyaXZlcnMvaHdtb24vcHdtLWZhbi5jIHwgMjYgKysr
+KysrKysrKysrKysrKysrKystLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAyMCBpbnNlcnRpb25zKCsp
+LCA2IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaHdtb24vcHdtLWZhbi5jIGIv
+ZHJpdmVycy9od21vbi9wd20tZmFuLmMKaW5kZXggM2UyMzAwMy4uZjlhZjM5MyAxMDA2NDQKLS0t
+IGEvZHJpdmVycy9od21vbi9wd20tZmFuLmMKKysrIGIvZHJpdmVycy9od21vbi9wd20tZmFuLmMK
+QEAgLTQwLDE1ICs0MCwxOCBAQCBzdHJ1Y3QgcHdtX2Zhbl9jdHggewogCiBzdGF0aWMgaW50ICBf
+X3NldF9wd20oc3RydWN0IHB3bV9mYW5fY3R4ICpjdHgsIHVuc2lnbmVkIGxvbmcgcHdtKQogewor
+CXN0cnVjdCBwd21fYXJncyBwYXJnczsKIAl1bnNpZ25lZCBsb25nIGR1dHk7CiAJaW50IHJldCA9
+IDA7CiAKKwlwd21fZ2V0X2FyZ3MoY3R4LT5wd20sICZwYXJncyk7CisKIAltdXRleF9sb2NrKCZj
+dHgtPmxvY2spOwogCWlmIChjdHgtPnB3bV92YWx1ZSA9PSBwd20pCiAJCWdvdG8gZXhpdF9zZXRf
+cHdtX2VycjsKIAotCWR1dHkgPSBESVZfUk9VTkRfVVAocHdtICogKGN0eC0+cHdtLT5wZXJpb2Qg
+LSAxKSwgTUFYX1BXTSk7Ci0JcmV0ID0gcHdtX2NvbmZpZyhjdHgtPnB3bSwgZHV0eSwgY3R4LT5w
+d20tPnBlcmlvZCk7CisJZHV0eSA9IERJVl9ST1VORF9VUChwd20gKiAocGFyZ3MucGVyaW9kIC0g
+MSksIE1BWF9QV00pOworCXJldCA9IHB3bV9jb25maWcoY3R4LT5wd20sIGR1dHksIHBhcmdzLnBl
+cmlvZCk7CiAJaWYgKHJldCkKIAkJZ290byBleGl0X3NldF9wd21fZXJyOwogCkBAIC0yMTUsNiAr
+MjE4LDcgQEAgc3RhdGljIGludCBwd21fZmFuX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2Ug
+KnBkZXYpCiB7CiAJc3RydWN0IHRoZXJtYWxfY29vbGluZ19kZXZpY2UgKmNkZXY7CiAJc3RydWN0
+IHB3bV9mYW5fY3R4ICpjdHg7CisJc3RydWN0IHB3bV9hcmdzIHBhcmdzOwogCXN0cnVjdCBkZXZp
+Y2UgKmh3bW9uOwogCWludCBkdXR5X2N5Y2xlOwogCWludCByZXQ7CkBAIC0yMzMsMTEgKzIzNywx
+OSBAQCBzdGF0aWMgaW50IHB3bV9mYW5fcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRl
+dikKIAogCXBsYXRmb3JtX3NldF9kcnZkYXRhKHBkZXYsIGN0eCk7CiAKKwkvKgorCSAqIEZJWE1F
+OiBwd21fYXBwbHlfYXJncygpIHNob3VsZCBiZSByZW1vdmVkIHdoZW4gc3dpdGNoaW5nIHRvIHRo
+ZQorCSAqIGF0b21pYyBQV00gQVBJLgorCSAqLworCXB3bV9hcHBseV9hcmdzKGN0eC0+cHdtKTsK
+KwogCS8qIFNldCBkdXR5IGN5Y2xlIHRvIG1heGltdW0gYWxsb3dlZCAqLwotCWR1dHlfY3ljbGUg
+PSBjdHgtPnB3bS0+cGVyaW9kIC0gMTsKKwlwd21fZ2V0X2FyZ3MoY3R4LT5wd20sICZwYXJncyk7
+CisKKwlkdXR5X2N5Y2xlID0gcGFyZ3MucGVyaW9kIC0gMTsKIAljdHgtPnB3bV92YWx1ZSA9IE1B
+WF9QV007CiAKLQlyZXQgPSBwd21fY29uZmlnKGN0eC0+cHdtLCBkdXR5X2N5Y2xlLCBjdHgtPnB3
+bS0+cGVyaW9kKTsKKwlyZXQgPSBwd21fY29uZmlnKGN0eC0+cHdtLCBkdXR5X2N5Y2xlLCBwYXJn
+cy5wZXJpb2QpOwogCWlmIChyZXQpIHsKIAkJZGV2X2VycigmcGRldi0+ZGV2LCAiRmFpbGVkIHRv
+IGNvbmZpZ3VyZSBQV01cbiIpOwogCQlyZXR1cm4gcmV0OwpAQCAtMzAzLDE0ICszMTUsMTYgQEAg
+c3RhdGljIGludCBwd21fZmFuX3N1c3BlbmQoc3RydWN0IGRldmljZSAqZGV2KQogc3RhdGljIGlu
+dCBwd21fZmFuX3Jlc3VtZShzdHJ1Y3QgZGV2aWNlICpkZXYpCiB7CiAJc3RydWN0IHB3bV9mYW5f
+Y3R4ICpjdHggPSBkZXZfZ2V0X2RydmRhdGEoZGV2KTsKKwlzdHJ1Y3QgcHdtX2FyZ3MgcGFyZ3M7
+CiAJdW5zaWduZWQgbG9uZyBkdXR5OwogCWludCByZXQ7CiAKIAlpZiAoY3R4LT5wd21fdmFsdWUg
+PT0gMCkKIAkJcmV0dXJuIDA7CiAKLQlkdXR5ID0gRElWX1JPVU5EX1VQKGN0eC0+cHdtX3ZhbHVl
+ICogKGN0eC0+cHdtLT5wZXJpb2QgLSAxKSwgTUFYX1BXTSk7Ci0JcmV0ID0gcHdtX2NvbmZpZyhj
+dHgtPnB3bSwgZHV0eSwgY3R4LT5wd20tPnBlcmlvZCk7CisJcHdtX2dldF9hcmdzKGN0eC0+cHdt
+LCAmcGFyZ3MpOworCWR1dHkgPSBESVZfUk9VTkRfVVAoY3R4LT5wd21fdmFsdWUgKiAocGFyZ3Mu
+cGVyaW9kIC0gMSksIE1BWF9QV00pOworCXJldCA9IHB3bV9jb25maWcoY3R4LT5wd20sIGR1dHks
+IHBhcmdzLnBlcmlvZCk7CiAJaWYgKHJldCkKIAkJcmV0dXJuIHJldDsKIAlyZXR1cm4gcHdtX2Vu
+YWJsZShjdHgtPnB3bSk7Ci0tIAoyLjUuMAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMu
+ZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlz
+dGluZm8vaW50ZWwtZ2Z4Cg==

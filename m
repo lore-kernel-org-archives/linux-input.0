@@ -1,13 +1,14 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 00/24] pwm: add support for atomic update
-Date: Thu, 14 Apr 2016 21:17:20 +0200
-Message-ID: <1460661464-11216-1-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v5 01/24] pwm: introduce the pwm_args concept
+Date: Thu, 14 Apr 2016 21:17:21 +0200
+Message-ID: <1460661464-11216-2-git-send-email-boris.brezillon@free-electrons.com>
+References: <1460661464-11216-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBB2GZX64AKGQEMS5WRPY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBB2WZX64AKGQEKX6KQFQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1460661464-11216-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/linux-sunxi
@@ -18,133 +19,175 @@ To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, lin
 Cc: Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>linu
 List-Id: linux-input@vger.kernel.org
 
-Hello,
+Currently the PWM core mixes the current PWM state with the per-platform
+reference config (specified through the PWM lookup table, DT definition or
+directly hardcoded in PWM drivers).
 
-This series adds support for atomic PWM update, or IOW, the capability
-to update all the parameters of a PWM device (enabled/disabled, period,
-duty and polarity) in one go.
+Create a pwm_args struct to store this reference config, so that PWM users
+can differentiate the current config from the reference one.
 
-It also adds support for initial PWM state retrieval (or hardware
-readout), which should allow smooth handover between the bootloader and
-Linux. For example, critical PWM users (like critical regulators
-controlled by a PWM) can query the current PWM state, and adapt the PWM
-config without having to disable/enable the PWM, or abruptly change the
-period/dutycyle/polarity config.
+Patch all places where pwm->args should be initialized. We keep the
+pwm_set_polarity/period() calls until all PWM users are patched to
+use pwm_args instead of pwm_get_period/polarity().
 
-In this version, I dropped all patches converting PWM users and PWM
-drivers to the atomic API in order to limit the number of patches and
-ease review. I plan to send the remaining patches once these ones have
-been accepted.
+Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+---
+ drivers/pwm/core.c         | 22 +++++++++++++++-------
+ drivers/pwm/pwm-clps711x.c |  2 +-
+ drivers/pwm/pwm-pxa.c      |  2 +-
+ include/linux/pwm.h        | 32 ++++++++++++++++++++++++++++++++
+ 4 files changed, 49 insertions(+), 9 deletions(-)
 
-If you want to test the series, or see the big picture, you can have a
-look at this branch [1].
-
-Best Regards,
-
-Boris
-
-[1]https://github.com/bbrezillon/linux-rk/tree/atomic-pwm
-
-Changes since v5:
-- fix bugs in pwm_apply_state() implementation
-- drop already applied patches
-- s/pstate/state/
-- add pwm_apply_args() helper
-- limit the series to core changes and required changes in PWM users code
-
-Changes since v4:
-- introduce pwm_args to expose per-board/platform config
-- deprecate non-atomic APIs
-- implement non-atomic functions as wrappers around atomic ones
-- patch all PWM users to use the atomic API
-- rename the ->reset_state() hook into ->get_state()
-- drop most acks
-- rework PWM config in the pwm-regulator driver
-- patch sun4i and sti PWM drivers to support HW readout
-
-Changes since v3:
-- rebased on pwm/for-next after pulling 4.4-rc1
-- replace direct access to pwm fields by pwm_get/set_xxx() helpers, thus
-  fixing some build errors
-- split changes to allow each maintainer to review/ack or take the
-  modification through its subsystem
-
-Changes since v2:
-- rebased on top of 4.3-rc2
-- reintroduced pwm-regulator patches
-
-Changes since v1:
-- dropped applied patches
-- squashed Heiko's fixes into the rockchip driver changes
-- made a few cosmetic changes
-- added kerneldoc comments
-- added Heiko's patch to display more information in debugfs
-- dropped pwm-regulator patches (should be submitted separately)
-
-Boris Brezillon (23):
-  pwm: introduce the pwm_args concept
-  pwm: use pwm_get/set_xxx() helpers where appropriate
-  clk: pwm: use pwm_get_args() where appropriate
-  hwmon: pwm-fan: use pwm_get_args() where appropriate
-  input: misc: max77693: use pwm_get_args() where appropriate
-  leds: pwm: use pwm_get_args() where appropriate
-  regulator: pwm: use pwm_get_args() where appropriate
-  fbdev: ssd1307fb: use pwm_get_args() where appropriate
-  backlight: pwm_bl: use pwm_get_args() where appropriate
-  backlight: lp8788: explicitly apply PWM config extracted from pwm_args
-  backlight: lp855x: explicitly apply PWM config extracted from pwm_args
-  backlight: lm3630a: explicitly apply PWM config extracted from
-    pwm_args
-  input: misc: max8997: explicitly apply PWM config extracted from
-    pwm_args
-  input: misc: pwm-beeper: explicitly apply PWM config extracted from
-    pwm_args
-  drm: i915: explicitly apply PWM config extracted from pwm_args
-  ARM: explicitly apply PWM config extracted from pwm_args
-  pwm: keep PWM state in sync with hardware state
-  pwm: introduce the pwm_state concept
-  pwm: move the enabled/disabled info into pwm_state
-  pwm: add the PWM initial state retrieval infra
-  pwm: add the core infrastructure to allow atomic update
-  pwm: update documentation
-  pwm: switch to the atomic API
-
-Heiko St=C3=BCbner (1):
-  pwm: add information about polarity, duty cycle and period to debugfs
-
- Documentation/pwm.txt                |  30 +++-
- arch/arm/mach-s3c24xx/mach-rx1950.c  |   6 +
- drivers/clk/clk-pwm.c                |  17 +-
- drivers/gpu/drm/i915/intel_panel.c   |   6 +
- drivers/hwmon/pwm-fan.c              |  26 ++-
- drivers/input/misc/max77693-haptic.c |  17 +-
- drivers/input/misc/max8997_haptic.c  |   6 +
- drivers/input/misc/pwm-beeper.c      |   6 +
- drivers/leds/leds-pwm.c              |  11 +-
- drivers/pwm/core.c                   | 214 ++++++++++++++--------
- drivers/pwm/pwm-clps711x.c           |   2 +-
- drivers/pwm/pwm-crc.c                |   2 +-
- drivers/pwm/pwm-lpc18xx-sct.c        |   2 +-
- drivers/pwm/pwm-omap-dmtimer.c       |   2 +-
- drivers/pwm/pwm-pxa.c                |   2 +-
- drivers/pwm/pwm-sun4i.c              |   3 +-
- drivers/pwm/sysfs.c                  |  61 ++++---
- drivers/regulator/pwm-regulator.c    |  20 ++-
- drivers/video/backlight/lm3630a_bl.c |   6 +
- drivers/video/backlight/lp855x_bl.c  |   6 +
- drivers/video/backlight/lp8788_bl.c  |   6 +
- drivers/video/backlight/pwm_bl.c     |  10 +-
- drivers/video/fbdev/ssd1307fb.c      |  11 +-
- include/linux/pwm.h                  | 335 +++++++++++++++++++++++++++----=
-----
- 24 files changed, 606 insertions(+), 201 deletions(-)
-
---=20
+diff --git a/drivers/pwm/core.c b/drivers/pwm/core.c
+index 7c330ff..ac89529 100644
+--- a/drivers/pwm/core.c
++++ b/drivers/pwm/core.c
+@@ -128,6 +128,14 @@ static int pwm_device_request(struct pwm_device *pwm, const char *label)
+ 	set_bit(PWMF_REQUESTED, &pwm->flags);
+ 	pwm->label = label;
+ 
++	/*
++	 * FIXME: this should be removed as soon as all PWM users are
++	 * properly making use of pwm_args to initialize the PWM device.
++	 * If we don't get rid of it, then PWM state and hardware can be
++	 * desynchronized.
++	 */
++	pwm_apply_args(pwm);
++
+ 	return 0;
+ }
+ 
+@@ -146,12 +154,12 @@ of_pwm_xlate_with_flags(struct pwm_chip *pc, const struct of_phandle_args *args)
+ 	if (IS_ERR(pwm))
+ 		return pwm;
+ 
+-	pwm_set_period(pwm, args->args[1]);
++	pwm->args.period = args->args[1];
+ 
+ 	if (args->args[2] & PWM_POLARITY_INVERTED)
+-		pwm_set_polarity(pwm, PWM_POLARITY_INVERSED);
++		pwm->args.polarity = PWM_POLARITY_INVERSED;
+ 	else
+-		pwm_set_polarity(pwm, PWM_POLARITY_NORMAL);
++		pwm->args.polarity = PWM_POLARITY_NORMAL;
+ 
+ 	return pwm;
+ }
+@@ -172,7 +180,7 @@ of_pwm_simple_xlate(struct pwm_chip *pc, const struct of_phandle_args *args)
+ 	if (IS_ERR(pwm))
+ 		return pwm;
+ 
+-	pwm_set_period(pwm, args->args[1]);
++	pwm->args.period = args->args[1];
+ 
+ 	return pwm;
+ }
+@@ -736,13 +744,13 @@ struct pwm_device *pwm_get(struct device *dev, const char *con_id)
+ 	if (!chip)
+ 		goto out;
+ 
++	pwm->args.period = chosen->period;
++	pwm->args.polarity = chosen->polarity;
++
+ 	pwm = pwm_request_from_chip(chip, chosen->index, con_id ?: dev_id);
+ 	if (IS_ERR(pwm))
+ 		goto out;
+ 
+-	pwm_set_period(pwm, chosen->period);
+-	pwm_set_polarity(pwm, chosen->polarity);
+-
+ out:
+ 	mutex_unlock(&pwm_lookup_lock);
+ 	return pwm;
+diff --git a/drivers/pwm/pwm-clps711x.c b/drivers/pwm/pwm-clps711x.c
+index a80c108..7d33542 100644
+--- a/drivers/pwm/pwm-clps711x.c
++++ b/drivers/pwm/pwm-clps711x.c
+@@ -60,7 +60,7 @@ static int clps711x_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
+ 		return -EINVAL;
+ 
+ 	/* Store constant period value */
+-	pwm_set_period(pwm, DIV_ROUND_CLOSEST(NSEC_PER_SEC, freq));
++	pwm->args.period = DIV_ROUND_CLOSEST(NSEC_PER_SEC, freq);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/pwm/pwm-pxa.c b/drivers/pwm/pwm-pxa.c
+index cb2f702..58b709f 100644
+--- a/drivers/pwm/pwm-pxa.c
++++ b/drivers/pwm/pwm-pxa.c
+@@ -160,7 +160,7 @@ pxa_pwm_of_xlate(struct pwm_chip *pc, const struct of_phandle_args *args)
+ 	if (IS_ERR(pwm))
+ 		return pwm;
+ 
+-	pwm_set_period(pwm, args->args[0]);
++	pwm->args.period = args->args[0];
+ 
+ 	return pwm;
+ }
+diff --git a/include/linux/pwm.h b/include/linux/pwm.h
+index 6555f01..c8859b7 100644
+--- a/include/linux/pwm.h
++++ b/include/linux/pwm.h
+@@ -74,6 +74,23 @@ enum pwm_polarity {
+ 	PWM_POLARITY_INVERSED,
+ };
+ 
++/**
++ * struct pwm_args - PWM arguments
++ * @period: reference period
++ * @polarity: reference polarity
++ *
++ * This structure describes board-dependent arguments attached to a PWM
++ * device. Those arguments are usually retrieved from the PWM lookup table or
++ * DT definition.
++ * This should not be confused with the PWM state: PWM args don't represent
++ * the current PWM state, but the configuration the PWM user plans to use
++ * on this PWM device.
++ */
++struct pwm_args {
++	unsigned int period;
++	enum pwm_polarity polarity;
++};
++
+ enum {
+ 	PWMF_REQUESTED = 1 << 0,
+ 	PWMF_ENABLED = 1 << 1,
+@@ -91,6 +108,7 @@ enum {
+  * @period: period of the PWM signal (in nanoseconds)
+  * @duty_cycle: duty cycle of the PWM signal (in nanoseconds)
+  * @polarity: polarity of the PWM signal
++ * @args: PWM arguments
+  */
+ struct pwm_device {
+ 	const char *label;
+@@ -103,6 +121,8 @@ struct pwm_device {
+ 	unsigned int period;
+ 	unsigned int duty_cycle;
+ 	enum pwm_polarity polarity;
++
++	struct pwm_args args;
+ };
+ 
+ static inline bool pwm_is_enabled(const struct pwm_device *pwm)
+@@ -142,6 +162,18 @@ static inline enum pwm_polarity pwm_get_polarity(const struct pwm_device *pwm)
+ 	return pwm ? pwm->polarity : PWM_POLARITY_NORMAL;
+ }
+ 
++static inline void pwm_get_args(const struct pwm_device *pwm,
++				struct pwm_args *args)
++{
++	*args = pwm->args;
++}
++
++static inline void pwm_apply_args(struct pwm_device *pwm)
++{
++	pwm_set_period(pwm, pwm->args.period);
++	pwm_set_polarity(pwm, pwm->args.polarity);
++}
++
+ /**
+  * struct pwm_ops - PWM controller operations
+  * @request: optional hook for requesting a PWM
+-- 
 2.5.0
-
---=20
-You received this message because you are subscribed to the Google Groups "=
-linux-sunxi" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.

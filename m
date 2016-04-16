@@ -1,22 +1,36 @@
-From: =?utf-8?B?5oiR55qE55u45YaM5Zyo?= <104@dc56.com>
-Subject: =?utf-8?B?5oiR55qE55u45YaM5Zyo?=
-Date: Sun, 17 Apr 2016 04:55:08 +0800
-Message-ID: <20160417045521870742@dc56.com>
+From: <lawty05@gmx.com>
+Subject: DREAM TO SHARE WITH YOU
+Date: Sun, 17 Apr 2016 01:33:26 +0200
+Message-ID: <90fd5ac7-153d-4904-a65b-d76147dd73ae@GSCADMINS22.gsc.org.uk>
+Reply-To: <lawrencetyman@gmx.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [180.168.61.14] ([180.168.61.14]:30401 "HELO dc56.com"
-	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with SMTP
-	id S1752026AbcDPVKX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 16 Apr 2016 17:10:23 -0400
+Received: from mail-db3hn0252.outbound.protection.outlook.com ([157.55.234.252]:4992
+	"EHLO emea01-db3-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752007AbcDPXdt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 16 Apr 2016 19:33:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-5L2g55qE6ICB5pyL5Y+L6YKA5L2g5p2lUee+pDozNDMyNTc3NTkg5oqi57qi5YyFIOaKouenkuad
-gCDmiqJ2aXAg5LuA5LmI6YO96KaB5oqi44CC5aSq5Yi65r+A5LqG44CC5LiN6Z2g5omL5rCU5Y+q
-5ou85omL6YCfDQo=
+I am Capt. Lawrence Tyman, an officer in US Army,and also a West Point
+Graduate, serving in the Military with the 82nd Air Borne Division
+Peace keeping force deployed from Afganistan to Syria.  
+We were moved to Syria from Iraq as the last batch just left,and i
+really need your help in assisting me with the safe keeping of 1 military
+trunk box contain funds amount of $8.2M which i secured on a raiding we carried out in 
+January in one of the chief Syrian IsIs base which i headed the squard as the 
+Captain.  With every possible arrangement to lift this box out, is intended to arrive 
+Belgium or Spain and from there a diplomat will deliver it to your designated location
+I hope you can be trusted? You will be rewarded handsomely if you could help
+me secure the funds until I conclude my service here in 3 month to meet you while we can 
+plan head to head on a good and profitable business or company i can invest my funds in your country.
+If you can be trusted and willing to support me in securing this safely kindly indicate 
+by Letting me know this (1) Your name (2) Your address (3) Age (4) Occupation and 
+i will explain further when i get a response from you
+kindly contact me in this my private email address below: lawrencetyman@gmx.com
 
-
+Regards,
+Capt. Lawrence Tyman

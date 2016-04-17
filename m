@@ -1,59 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2 v2] device-tree: nexus7-flo: Remove power gpio key
- entry and use pmic8xxx-pwrkey
-Date: Sun, 17 Apr 2016 05:24:18 -0700
-Message-ID: <20160417122418.GC33215@dtor-ws>
-References: <1460668031-12384-1-git-send-email-john.stultz@linaro.org>
- <20160415172212.GW391@tuxbot>
- <20160415185927.GN14441@codeaurora.org>
- <20160415220106.GZ391@tuxbot>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH V3 00/29] bitops: add parity functions
+Date: Sun, 17 Apr 2016 05:38:57 -0700
+Message-ID: <20160417123857.GD33215@dtor-ws>
+References: <1460601525-3822-1-git-send-email-zengzhaoxiu@163.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-mips-bounce@linux-mips.org>
 Content-Disposition: inline
-In-Reply-To: <20160415220106.GZ391@tuxbot>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, John Stultz <john.stultz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stephen Boyd <stephen.boyd-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd.bergmann-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Andy Gross <agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Vinay Simha BN <simhavcs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1460601525-3822-1-git-send-email-zengzhaoxiu@163.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: zengzhaoxiu@163.com
+Cc: linux-kernel@vger.kernel.org, Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, Andrew Morton <akpm@linux-foundation.org>, Anton Blanchard <anton@samba.org>, Arnd Bergmann <arnd@arndb.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Borislav Petkov <bp@suse.de>, Bruce Allan <bruce.w.allan@intel.com>, Christophe Leroy <christophe.leroy@c-s.fr>, David Herrmann <dh.herrmann@gmail.com>, "David S. Miller" <davem@davemloft.net>, Denys Vlasenko <dvlasenk@redhat.com>, Duson Lin <dusonlin@emc.com.tw>, Guenter Roeck <linux@roeck-us.net>, Hans de Goede <hdegoede@redhat.com>, Hans Verkuil <hans.verkuil@cisco.com>, Hartmut Knaack <knaack.h@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Hendrik
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Apr 15, 2016 at 03:01:06PM -0700, Bjorn Andersson wrote:
-> On Fri 15 Apr 11:59 PDT 2016, Stephen Boyd wrote:
-> 
-> [..]
-> 
-> > ----8<-----
-> > From: Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-> > Subject: [PATCH] Input: pmic8xxx-pwrkey: Fix algorithm for converting trigger
-> >  delay
-> > 
-> > The trigger delay algorithm that converts from microseconds to
-> > the register value looks incorrect. According to most of the PMIC
-> > documentation, the equation is
-> > 
-> > 	delay (Seconds) = (1 / 1024) * 2 ^ (x + 4)
-> > 
-> > except for one case where the documentation looks to have a
-> > formatting issue and the equation looks like
-> > 
-> > 	delay (Seconds) = (1 / 1024) * 2 x + 4
-> > 
-> > Most likely this driver was written with the improper
-> > documentation to begin with. According to the downstream sources
-> > the valid delays are from 2 seconds to 1/64 second, and the
-> > latter equation just doesn't make sense for that. Let's fix the
-> > algorithm and the range check to match the documentation and the
-> > downstream sources.
-> > 
-> > Reported-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> 
-> Acked-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+On Thu, Apr 14, 2016 at 10:36:41AM +0800, zengzhaoxiu@163.com wrote:
+>  drivers/input/joystick/grip_mp.c             |  16 +--
+>  drivers/input/joystick/sidewinder.c          |  24 +----
+>  drivers/input/mouse/elantech.c               |  10 +-
+>  drivers/input/mouse/elantech.h               |   1 -
+>  drivers/input/serio/ams_delta_serio.c        |   8 +-
+>  drivers/input/serio/pcips2.c                 |   2 +-
+>  drivers/input/serio/sa1111ps2.c              |   2 +-
 
-Applied, thank you.
+For input bits:
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Thanks.
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

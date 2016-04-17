@@ -1,61 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 13/24] input: misc: max8997: explicitly
- apply PWM config extracted from pwm_args
-Date: Sun, 17 Apr 2016 05:45:48 -0700
-Message-ID: <20160417124548.GE33215@dtor-ws>
-References: <1460661464-11216-1-git-send-email-boris.brezillon@free-electrons.com>
- <1460661464-11216-14-git-send-email-boris.brezillon@free-electrons.com>
-Reply-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Lauri Kasanen <cand@gmx.com>
+Subject: [hid-sony] sony_controller_battery led triggers not working
+Date: Sun, 17 Apr 2016 17:27:16 +0300
+Message-ID: <20160417172716.b9ba5813cab5d26a6a3bb8ca@gmx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDP6N55ZUYDRBAELZ24AKGQE4G2DHLI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <1460661464-11216-14-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.gmx.net ([212.227.15.19]:64059 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750831AbcDQO1N (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 17 Apr 2016 10:27:13 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: ao2@ao2.it, frank.praznik@oh.rr.com
 
-On Thu, Apr 14, 2016 at 09:17:33PM +0200, Boris Brezillon wrote:
-> Call pwm_apply_args() just after requesting the PWM device so that the
-> polarity and period are initialized according to the information provided
-> in pwm_args.
-> 
-> This is an intermediate state, and pwm_apply_args() should be dropped as
-> soon as the atomic PWM infrastructure is in place and the driver makes
-> use of it.
-> 
-> Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> ---
->  drivers/input/misc/max8997_haptic.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
-> index a806ba3..bf17f65 100644
-> --- a/drivers/input/misc/max8997_haptic.c
-> +++ b/drivers/input/misc/max8997_haptic.c
-> @@ -304,6 +304,12 @@ static int max8997_haptic_probe(struct platform_device *pdev)
->  				error);
->  			goto err_free_mem;
->  		}
-> +
-> +		/*
-> +		 * FIXME: pwm_apply_args() should be removed when switching to
-> +		 * the atomic PWM API.
-> +		 */
-> +		pwm_apply_args(chip->pwm);
+Hi,
 
-I do not understand. We did not fetch/modify any args, what are we
-applying and why? Especially since we saying we want to remove this
-later.
+The battery triggers aren't working for some reason, trying to write
+them comes back with -EINVAL. I'm on somewhat old kernel, 3.17, but the
+relevant parts haven't changed from the commit Frank made in 2014
+adding the MAC address to the name.
 
-Thanks.
+# cat trigger
+none timer heartbeat backlight [default-on]
+sony_controller_battery_00:26:5c:31:a2:c8-charging-or-full
+sony_controller_battery_00:26:5c:31:a2:c8-charging
+sony_controller_battery_00:26:5c:31:a2:c8-full
+sony_controller_battery_00:26:5c:31:a2:c8-charging-blink-full-solid
 
--- 
-Dmitry
+# echo sony_controller_battery_00:26:5c:31:a2:c8-charging-blink-full-solid > trigger
+bash: echo: write error: Invalid argument
+
+The shorter triggers do work. Is it something caused by the long name,
+or the colons? Do they work for others?
+
+My controller is the Gasia one:
+sony 0003:054C:0268.0005: input: USB HID v1.11 Joystick [Gasia Co.,Ltd
+PS(R) Gamepad] on usb-0000:00:12.2-2.3/input0
+
+- Lauri

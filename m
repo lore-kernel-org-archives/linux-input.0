@@ -1,107 +1,54 @@
-From: Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RFT 2/5] iio: mxs-lradc: move TS config into suitable
- function
-Date: Sun, 17 Apr 2016 05:19:12 -0700
-Message-ID: <20160417121912.GA33215@dtor-ws>
-References: <1460648909-2657-1-git-send-email-stefan.wahren@i2se.com>
- <1460648909-2657-3-git-send-email-stefan.wahren@i2se.com>
- <570FF737.4050606@denx.de>
- <571361DD.1090001@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: arizona-haptic - Don't assign input_dev parent
+Date: Sun, 17 Apr 2016 05:21:30 -0700
+Message-ID: <20160417122130.GB33215@dtor-ws>
+References: <1460722549-31804-1-git-send-email-ckeepax@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f169.google.com ([209.85.192.169]:34224 "EHLO
-	mail-pf0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751474AbcDQMTP (ORCPT
+Received: from mail-pf0-f173.google.com ([209.85.192.173]:33336 "EHLO
+	mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751498AbcDQMVd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Apr 2016 08:19:15 -0400
+	Sun, 17 Apr 2016 08:21:33 -0400
+Received: by mail-pf0-f173.google.com with SMTP id 184so71828890pff.0
+        for <linux-input@vger.kernel.org>; Sun, 17 Apr 2016 05:21:33 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <571361DD.1090001@kernel.org>
+In-Reply-To: <1460722549-31804-1-git-send-email-ckeepax@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Marek Vasut <marex@denx.de>, Stefan Wahren <stefan.wahren@i2se.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, Fabio Estevam <fabio.estevam@nxp.com>, Juergen Borleis <jbe@pengutronix.de>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com
 
-On Sun, Apr 17, 2016 at 11:13:49AM +0100, Jonathan Cameron wrote:
-> On 14/04/16 21:01, Marek Vasut wrote:
-> > On 04/14/2016 05:48 PM, Stefan Wahren wrote:
-> >> This patch moves the touchscreen type configuration into
-> >> a more suitable function. Btw this simplifies PM ops later.
-> >>
-> >> Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-> > 
-> > Looks OK
-> > 
-> > Reviewed-by: Marek Vasut <marex@denx.de>
-> Please do CC Dmitry and linux-input on any patches 'touching' the
-> touchscreen parts of the driver.  I'm happy this one is simple
-> enough to apply anyway, but best to make sure everyone is in the
-> loop.
+On Fri, Apr 15, 2016 at 01:15:49PM +0100, Charles Keepax wrote:
+> We shouldn't assign the parent device of the input_dev to be the
+> parent MFD device, because this will be used for devres which causes
+> input_unregister_device to run after the haptics device has been
+> removed, since it is itself a child of the MFD device. The default
+> of using the haptics device itself as the parent is correct.
+> 
+> Signed-off-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 
-FWIW:
+Applied, thank you.
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
+> ---
+>  drivers/input/misc/arizona-haptics.c | 1 -
+>  1 file changed, 1 deletion(-)
 > 
-> Something a little odd happened when applying the patch.  Automerging
-> failed so I did it by hand. Not sure what had changed!
-> 
-> Anyhow, please sanity check I haven't messed it up.
-> 
-> Applied to the togreg branch of iio.git - initially pushed out as
-> testing for the autobuilders to play with it.
-> 
-> Thanks,
-> 
-> 
-> Jonathan
-> > 
-> >> ---
-> >>  drivers/iio/adc/mxs-lradc.c |   21 +++++++++++----------
-> >>  1 file changed, 11 insertions(+), 10 deletions(-)
-> >>
-> >> diff --git a/drivers/iio/adc/mxs-lradc.c b/drivers/iio/adc/mxs-lradc.c
-> >> index 0576953..7118fca 100644
-> >> --- a/drivers/iio/adc/mxs-lradc.c
-> >> +++ b/drivers/iio/adc/mxs-lradc.c
-> >> @@ -686,6 +686,17 @@ static void mxs_lradc_prepare_pressure(struct mxs_lradc *lradc)
-> >>  
-> >>  static void mxs_lradc_enable_touch_detection(struct mxs_lradc *lradc)
-> >>  {
-> >> +	/* Configure the touchscreen type */
-> >> +	if (lradc->soc == IMX28_LRADC) {
-> >> +		mxs_lradc_reg_clear(lradc, LRADC_CTRL0_MX28_TOUCH_SCREEN_TYPE,
-> >> +				    LRADC_CTRL0);
-> >> +
-> >> +		if (lradc->use_touchscreen == MXS_LRADC_TOUCHSCREEN_5WIRE)
-> >> +			mxs_lradc_reg_set(lradc,
-> >> +					  LRADC_CTRL0_MX28_TOUCH_SCREEN_TYPE,
-> >> +					  LRADC_CTRL0);
-> >> +	}
-> >> +
-> >>  	mxs_lradc_setup_touch_detection(lradc);
-> >>  
-> >>  	lradc->cur_plate = LRADC_TOUCH;
-> >> @@ -1491,16 +1502,6 @@ static int mxs_lradc_hw_init(struct mxs_lradc *lradc)
-> >>  	mxs_lradc_reg_wrt(lradc, 0, LRADC_DELAY(2));
-> >>  	mxs_lradc_reg_wrt(lradc, 0, LRADC_DELAY(3));
-> >>  
-> >> -	/* Configure the touchscreen type */
-> >> -	if (lradc->soc == IMX28_LRADC) {
-> >> -		mxs_lradc_reg_clear(lradc, LRADC_CTRL0_MX28_TOUCH_SCREEN_TYPE,
-> >> -				    LRADC_CTRL0);
-> >> -
-> >> -	if (lradc->use_touchscreen == MXS_LRADC_TOUCHSCREEN_5WIRE)
-> >> -		mxs_lradc_reg_set(lradc, LRADC_CTRL0_MX28_TOUCH_SCREEN_TYPE,
-> >> -				  LRADC_CTRL0);
-> >> -	}
-> >> -
-> >>  	/* Start internal temperature sensing. */
-> >>  	mxs_lradc_reg_wrt(lradc, 0, LRADC_CTRL2);
-> >>  
-> >>
-> > 
-> > 
+> diff --git a/drivers/input/misc/arizona-haptics.c b/drivers/input/misc/arizona-haptics.c
+> index d5994a7..9829363 100644
+> --- a/drivers/input/misc/arizona-haptics.c
+> +++ b/drivers/input/misc/arizona-haptics.c
+> @@ -178,7 +178,6 @@ static int arizona_haptics_probe(struct platform_device *pdev)
+>  	input_set_drvdata(haptics->input_dev, haptics);
+>  
+>  	haptics->input_dev->name = "arizona:haptics";
+> -	haptics->input_dev->dev.parent = pdev->dev.parent;
+>  	haptics->input_dev->close = arizona_haptics_close;
+>  	__set_bit(FF_RUMBLE, haptics->input_dev->ffbit);
+>  
+> -- 
+> 2.1.4
 > 
 
 -- 

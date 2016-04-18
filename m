@@ -1,43 +1,32 @@
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH 1/5] input: twl6040-vibra: fix DT node memory management
-Date: Mon, 18 Apr 2016 21:55:37 +0200
-Message-ID: <fa39d5e67bd71ba0cde980313747f5b4d2f9be94.1461009340.git.hns@goldelico.com>
-References: <cover.1461009340.git.hns@goldelico.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1461009340.git.hns@goldelico.com>
-In-Reply-To: <cover.1461009340.git.hns@goldelico.com>
-References: <cover.1461009340.git.hns@goldelico.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fabio Estevam <fabio.estevam@freescale.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@pyra-handheld.com, letux-kernel@openphoenux.org
+From: andreas122@elisaandreas.biz
+Subject: Greetings!!!
+Date: Mon, 18 Apr 2016 21:12:04 +0100
+Message-ID: <777136.35773.qm__32404.573824215$1461010775$gmane$org@smtp105.biz.mail.ne1.yahoo.com>
+Reply-To: J_ericdaniels111@outlook.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp105.biz.mail.ne1.yahoo.com ([98.138.207.12]:27583 "EHLO
+	smtp105.biz.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752547AbcDRUTL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Apr 2016 16:19:11 -0400
+Content-Description: Mail message body
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Mr. Eric" <andreas122@elisaandreas.biz>
 
-commit e7ec014a47e4 ("Input: twl6040-vibra - update for device tree support")
-
-made the separate vibra DT node to a subnode of the twl6040.
-
-It now calls of_find_node_by_name() to locate the "vibra" subnode.
-This function has a side effect to call of_node_put on() for the twl6040
-parent node passed in as a parameter. This causes trouble later on.
-
-Solution: we must call of_node_get() before of_find_node_by_name()
-
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
----
- drivers/input/misc/twl6040-vibra.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
-index ea63fad..7221a00 100644
---- a/drivers/input/misc/twl6040-vibra.c
-+++ b/drivers/input/misc/twl6040-vibra.c
-@@ -262,6 +262,7 @@ static int twl6040_vibra_probe(struct platform_device *pdev)
- 	int vddvibr_uV = 0;
- 	int error;
- 
-+	of_node_get(twl6040_core_dev->of_node);
- 	twl6040_core_node = of_find_node_by_name(twl6040_core_dev->of_node,
- 						 "vibra");
- 	if (!twl6040_core_node) {
--- 
-2.7.3
+Hi, how are you? My name is J Eric Denials, External Financial Auditor =
+at Lloyds Banking Group plc., London. It is a pleasure to contact you a=
+t this time through this medium. I have a cool and legitimate deal to d=
+o with you as you're a foreigner, it will be mutually beneficial to bot=
+h. If you=E2=80=99re interested, urgently, get back to me for more expl=
+anation about the deal.
+Regards
+Eric
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

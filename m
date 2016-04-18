@@ -1,32 +1,57 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 1/2] hid: thingm: factor out duplicated code to
- thingm_init_led
-Date: Mon, 18 Apr 2016 13:03:10 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1604181302530.27368@cbobk.fhfr.pm>
-References: <5713F643.80408@gmail.com>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH RFT 0/5] iio: mxs-lradc: fix leak and implement PM ops
+Date: Mon, 18 Apr 2016 12:44:09 +0200
+Message-ID: <5714BA79.40803@denx.de>
+References: <1460648909-2657-1-git-send-email-stefan.wahren@i2se.com> <570FF5AF.7010801@denx.de> <57147BEF.4070606@i2se.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49418 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752015AbcDRLDN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Apr 2016 07:03:13 -0400
-In-Reply-To: <5713F643.80408@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <57147BEF.4070606-eS4NqCHxEME@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
+Cc: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Sun, 17 Apr 2016, Heiner Kallweit wrote:
-
-> Simplify thingm_init_rgb by factoring out duplicated code
-> to thingm_init_led.
+On 04/18/2016 08:17 AM, Stefan Wahren wrote:
+> Am 14.04.2016 um 21:55 schrieb Marek Vasut:
+>> On 04/14/2016 05:48 PM, Stefan Wahren wrote:
+>>> This patch series fix a memory leak and implements suspend/resume
+>>> support for mxs-lradc.
+>>>
+>>> Patch 1: fix the memory leak
+>>> Patch 2-4: refactor mxs-lradc in order to prepare PM implementation
+>>> Patch 5: implement suspend/resume support
+>>>
+>>> These patches has been tested with i.MX23 and i.MX28 but without
+>>> a touchscreen. I added only a bogus touchscreen in devicetree.
+>>>
+>>> It would be nice if someone with a real touchscreen could test it.
+>>>
+>>> Stefan Wahren (5):
+>>>   iio: mxs-lradc: fix memory leak
+>>>   iio: mxs-lradc: move TS config into suitable function
+>>>   iio: mxs-lradc: move STMP reset out of ADC init
+>>>   iio: mxs-lradc: disable only mapped channels in mxs_lradc_hw_stop
+>>>   iio: mxs-lradc: implement suspend/resume support
+>>>
+>>>  drivers/iio/adc/mxs-lradc.c |  116 ++++++++++++++++++++++++++++++-------------
+>>>  1 file changed, 82 insertions(+), 34 deletions(-)
+>>>
+>> On M28EVK:
+>>
+>> Tested-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+>>
 > 
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> 
+> Thanks. Only one question, does it imply a test with a touchscreen?
+> 
 
-Both patches applied to for-4.7/thingm.
+Yes, this one [1]. It's an Ampire 800480 display and resistive touch
+on top of it.
+
+[1] http://www.denx-cs.de/?q=MxxDK
 
 -- 
-Jiri Kosina
-SUSE Labs
-
+Best regards,
+Marek Vasut

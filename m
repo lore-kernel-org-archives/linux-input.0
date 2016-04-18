@@ -1,35 +1,55 @@
 From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH 0/5] fixes for twl6040-vibra
-Date: Mon, 18 Apr 2016 21:55:36 +0200
-Message-ID: <cover.1461009340.git.hns@goldelico.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.218]:8420 "EHLO
-	mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751660AbcDRTzt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Apr 2016 15:55:49 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 3/5] input: twl6040-vibra: fix NULL pointer dereference by removing workqueue
+Date: Mon, 18 Apr 2016 21:55:39 +0200
+Message-ID: <d07616ce9098dde03f2aa8b54368714313557e38.1461009340.git.hns@goldelico.com>
+References: <cover.1461009340.git.hns@goldelico.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1461009340.git.hns@goldelico.com>
+In-Reply-To: <cover.1461009340.git.hns@goldelico.com>
+References: <cover.1461009340.git.hns@goldelico.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fabio Estevam <fabio.estevam@freescale.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, "H. Nikolaus Schaller" <hns@goldelico.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@pyra-handheld.com, letux-kernel@openphoenux.org
+List-Id: linux-input@vger.kernel.org
 
-There are some small bugs in the twl6040-vibra driver and differences to how twl4030 vibra works.
+commit 21fb9f0d5e91 ("Input: twl6040-vibra - use system workqueue")
 
-This patch series addresses them.
+says that it switches to use the system workqueue but it did neither
 
+- remove the workqueue struct variable
+- replace code to really use the system workqueue
 
-H. Nikolaus Schaller (5):
-  input: twl6040-vibra: fix DT node memory management
-  input: twl6040-vibra: add handler to unregister input if module is
-    removed
-  input: twl6040-vibra: fix NULL pointer dereference by removing
-    workqueue
-  input: twl6040-vibra: ignore return value of schedule_work
-  input: twl6040-vibra: remove mutex
+Instead it calls queue_work() on uninitialized info->workqueue.
 
- drivers/input/misc/twl6040-vibra.c | 33 +++++++++++++--------------------
- 1 file changed, 13 insertions(+), 20 deletions(-)
+The result is a NULL pointer dereference in vibra_play().
 
+Solution: use schedule_work
+
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+---
+ drivers/input/misc/twl6040-vibra.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
+index 1e9902d..3805129 100644
+--- a/drivers/input/misc/twl6040-vibra.c
++++ b/drivers/input/misc/twl6040-vibra.c
+@@ -45,7 +45,6 @@
+ struct vibra_info {
+ 	struct device *dev;
+ 	struct input_dev *input_dev;
+-	struct workqueue_struct *workqueue;
+ 	struct work_struct play_work;
+ 	struct mutex mutex;
+ 	int irq;
+@@ -213,7 +212,7 @@ static int vibra_play(struct input_dev *input, void *data,
+ 	info->strong_speed = effect->u.rumble.strong_magnitude;
+ 	info->direction = effect->direction < EFFECT_DIR_180_DEG ? 1 : -1;
+ 
+-	ret = queue_work(info->workqueue, &info->play_work);
++	ret = schedule_work(&info->play_work);
+ 	if (!ret) {
+ 		dev_info(&input->dev, "work is already on queue\n");
+ 		return ret;
 -- 
 2.7.3
-

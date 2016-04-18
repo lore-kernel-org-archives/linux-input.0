@@ -1,70 +1,111 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/5] input: twl6040-vibra: add handler to unregister
- input if module is removed
-Date: Mon, 18 Apr 2016 14:12:57 -0700
-Message-ID: <20160418211257.GA1006@dtor-ws>
+Subject: Re: [PATCH 5/5] input: twl6040-vibra: remove mutex
+Date: Mon, 18 Apr 2016 14:20:48 -0700
+Message-ID: <20160418212048.GB1006@dtor-ws>
 References: <cover.1461009340.git.hns@goldelico.com>
- <89f53877b821049c789256dd1b0c0b1dbb604de9.1461009340.git.hns@goldelico.com>
+ <592912a81a86fe0c9b5eaf3407cc5c4e1bfef9fe.1461009340.git.hns@goldelico.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:35463 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751703AbcDRVNC (ORCPT
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:34163 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751164AbcDRVUw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Apr 2016 17:13:02 -0400
+	Mon, 18 Apr 2016 17:20:52 -0400
 Content-Disposition: inline
-In-Reply-To: <89f53877b821049c789256dd1b0c0b1dbb604de9.1461009340.git.hns@goldelico.com>
+In-Reply-To: <592912a81a86fe0c9b5eaf3407cc5c4e1bfef9fe.1461009340.git.hns@goldelico.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: "H. Nikolaus Schaller" <hns@goldelico.com>
 Cc: Fabio Estevam <fabio.estevam@freescale.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@pyra-handheld.com, letux-kernel@openphoenux.org
 
-On Mon, Apr 18, 2016 at 09:55:38PM +0200, H. Nikolaus Schaller wrote:
-> commit 1f9e1470ab34 ("Input: twl6040-vibra - use devm functions")
-> 
-> converted everything to devm but we still need to call
-> input_unregister_device(info->input_dev)
+On Mon, Apr 18, 2016 at 09:55:41PM +0200, H. Nikolaus Schaller wrote:
+> The mutex does not seem to be needed.
 
-No, this is not needed, because devm-managed input devices will be
-unregistered automatically.
+twl6040_vibra_suspend() and vibra_play_work() may run concurrently, no?
 
-> 
-> Solution: add back twl6040_vibra_remove to call input_unregister_device
+> twl4030-vibra doesn't
+> use one either.
+
+It probably should.
+
+Thanks.
+
 > 
 > Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 > ---
->  drivers/input/misc/twl6040-vibra.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
+>  drivers/input/misc/twl6040-vibra.c | 15 +--------------
+>  1 file changed, 1 insertion(+), 14 deletions(-)
 > 
 > diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
-> index 7221a00..1e9902d 100644
+> index 69c5940..dcc926b 100644
 > --- a/drivers/input/misc/twl6040-vibra.c
 > +++ b/drivers/input/misc/twl6040-vibra.c
-> @@ -384,8 +384,18 @@ static int twl6040_vibra_probe(struct platform_device *pdev)
+> @@ -46,7 +46,7 @@ struct vibra_info {
+>  	struct device *dev;
+>  	struct input_dev *input_dev;
+>  	struct work_struct play_work;
+> -	struct mutex mutex;
+> +
+>  	int irq;
+>  
+>  	bool enabled;
+> @@ -182,8 +182,6 @@ static void vibra_play_work(struct work_struct *work)
+>  	struct vibra_info *info = container_of(work,
+>  				struct vibra_info, play_work);
+>  
+> -	mutex_lock(&info->mutex);
+> -
+>  	if (info->weak_speed || info->strong_speed) {
+>  		if (!info->enabled)
+>  			twl6040_vibra_enable(info);
+> @@ -192,7 +190,6 @@ static void vibra_play_work(struct work_struct *work)
+>  	} else if (info->enabled)
+>  		twl6040_vibra_disable(info);
+>  
+> -	mutex_unlock(&info->mutex);
+>  }
+>  
+>  static int vibra_play(struct input_dev *input, void *data,
+> @@ -223,12 +220,8 @@ static void twl6040_vibra_close(struct input_dev *input)
+>  
+>  	cancel_work_sync(&info->play_work);
+>  
+> -	mutex_lock(&info->mutex);
+> -
+>  	if (info->enabled)
+>  		twl6040_vibra_disable(info);
+> -
+> -	mutex_unlock(&info->mutex);
+>  }
+>  
+>  static int __maybe_unused twl6040_vibra_suspend(struct device *dev)
+> @@ -236,13 +229,9 @@ static int __maybe_unused twl6040_vibra_suspend(struct device *dev)
+>  	struct platform_device *pdev = to_platform_device(dev);
+>  	struct vibra_info *info = platform_get_drvdata(pdev);
+>  
+> -	mutex_lock(&info->mutex);
+> -
+>  	if (info->enabled)
+>  		twl6040_vibra_disable(info);
+>  
+> -	mutex_unlock(&info->mutex);
+> -
 >  	return 0;
 >  }
 >  
-> +static int twl6040_vibra_remove(struct platform_device *pdev)
-> +{
-> +	struct vibra_info *info = platform_get_drvdata(pdev);
-> +
-> +	input_unregister_device(info->input_dev);
-> +
-> +	return 0;
-> +	}
-> +
->  static struct platform_driver twl6040_vibra_driver = {
->  	.probe		= twl6040_vibra_probe,
-> +	.remove		= twl6040_vibra_remove,
->  	.driver		= {
->  		.name	= "twl6040-vibra",
->  		.pm	= &twl6040_vibra_pm_ops,
+> @@ -301,8 +290,6 @@ static int twl6040_vibra_probe(struct platform_device *pdev)
+>  		return -EINVAL;
+>  	}
+>  
+> -	mutex_init(&info->mutex);
+> -
+>  	error = devm_request_threaded_irq(&pdev->dev, info->irq, NULL,
+>  					  twl6040_vib_irq_handler,
+>  					  IRQF_ONESHOT,
 > -- 
 > 2.7.3
 > 
-
-Thanks.
 
 -- 
 Dmitry

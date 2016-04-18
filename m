@@ -1,32 +1,44 @@
-From: andreas122@elisaandreas.biz
-Subject: Greetings!!!
-Date: Mon, 18 Apr 2016 21:12:04 +0100
-Message-ID: <777136.35773.qm__32404.573824215$1461010775$gmane$org@smtp105.biz.mail.ne1.yahoo.com>
-Reply-To: J_ericdaniels111@outlook.com
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH] Input: i8042 - Fix console keyboard support on Gen2
+ Hyper-V VMs
+Date: Mon, 18 Apr 2016 23:36:01 +0300
+Message-ID: <20160418203600.GH4298@mwanda>
+References: <1407814240-4275-1-git-send-email-decui@microsoft.com>
+ <cover.1460985538.git.mdl@60hz.org>
+ <341e0bb72d58c1c7d72ad5352f4bb364d939c0a8.1460985538.git.mdl@60hz.org>
+ <20160418165456.GG4298@mwanda>
+ <CADemMPN5wPjDzrLnsWgBHKZt3JNN-tYeJ8B+waFVsizZJdi2tA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp105.biz.mail.ne1.yahoo.com ([98.138.207.12]:27583 "EHLO
-	smtp105.biz.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752547AbcDRUTL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Apr 2016 16:19:11 -0400
-Content-Description: Mail message body
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+In-Reply-To: <CADemMPN5wPjDzrLnsWgBHKZt3JNN-tYeJ8B+waFVsizZJdi2tA@mail.gmail.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: Mark Laws <mdl@60hz.org>
+Cc: devel@linuxdriverproject.org, haiyangz@microsoft.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Mr. Eric" <andreas122@elisaandreas.biz>
 
-Hi, how are you? My name is J Eric Denials, External Financial Auditor =
-at Lloyds Banking Group plc., London. It is a pleasure to contact you a=
-t this time through this medium. I have a cool and legitimate deal to d=
-o with you as you're a foreigner, it will be mutually beneficial to bot=
-h. If you=E2=80=99re interested, urgently, get back to me for more expl=
-anation about the deal.
-Regards
-Eric
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Tue, Apr 19, 2016 at 02:24:47AM +0900, Mark Laws wrote:
+> On Tue, Apr 19, 2016 at 1:54 AM, Dan Carpenter <dan.carpenter@oracle.com> wrote:
+> > So if the user inserts the module without a keyboard then in the
+> > original code they would just put a keyboard in and try again.  Now they
+> > have to do an extra rmmod.  What about if we just removed the test for
+> > if the keyboard is present?
+> 
+> Sorry, I don't understand--which part are you suggesting we remove?
+> 
+
+The call to i8042_controller_check() or move it to the probe function or
+something.  Why must we have the hardware to load the module?
+
+regards,
+dan carpenter

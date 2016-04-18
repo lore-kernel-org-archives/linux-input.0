@@ -1,55 +1,108 @@
-From: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Subject: Re: [PATCH RFT 4/5] iio: mxs-lradc: disable only mapped channels in
- mxs_lradc_hw_stop
-Date: Mon, 18 Apr 2016 08:36:48 +0200
-Message-ID: <57148080.4010200@i2se.com>
-References: <1460648909-2657-1-git-send-email-stefan.wahren@i2se.com>
- <1460648909-2657-5-git-send-email-stefan.wahren@i2se.com>
- <571369AA.8060106@kernel.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/2] hid: thingm: factor out duplicated code to
+ thingm_init_led
+Date: Mon, 18 Apr 2016 09:34:28 +0200
+Message-ID: <20160418073428.GF21012@mail.corp.redhat.com>
+References: <5713F643.80408@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <571369AA.8060106-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:53584 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751174AbcDRHed (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Apr 2016 03:34:33 -0400
+Content-Disposition: inline
+In-Reply-To: <5713F643.80408@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-Hi Jonathan,
+On Apr 17 2016 or thereabouts, Heiner Kallweit wrote:
+> Simplify thingm_init_rgb by factoring out duplicated code
+> to thingm_init_led.
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 
-Am 17.04.2016 um 12:47 schrieb Jonathan Cameron:
-> On 14/04/16 16:48, Stefan Wahren wrote:
->> Disabling of the touchscreen IRQs is already done in
->> mxs_lradc_disable_ts. There is no need to disable them in
->> mxs_lradc_hw_stop again.
-> We could do with a little more documentation in the driver on
-> which bits in this register are doing what.
->
-> The disable_ts deals with bits 22-24... 
-> The only other bit I think is ever used by the driver currently is
-> 16 (channel 0).  
->
-> So whilst this change probably works, I'm not sure of the logic behind it.
-> As far as I can tell your new clear is fine but in reality you could
-> just clear (0x3f << 16) and get the same result (which would be clearer
-> to my mind).
->
-> The key think here is that we don't support the higher bits on i.mx28
-> yet... Which are for button detection and threshold detection.
->
-> Have I understood this correctly?
+Both patches are:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Yes, you are. I've have looked to long in the reference manual instead
-of the code.
-I've missed the point that virtual channel 6 and 7 are used in case of a
-connected touchscreen.
+Cheers,
+Benjamin
 
-I should use the member buffer_vchans for masking the enable IRQs.
-
-Regards
-Stefan
-
->
-> Jonathan
->  So we only need to care of the
+> ---
+>  drivers/hid/hid-thingm.c | 43 +++++++++++++++----------------------------
+>  1 file changed, 15 insertions(+), 28 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
+> index 847a497..a90463e 100644
+> --- a/drivers/hid/hid-thingm.c
+> +++ b/drivers/hid/hid-thingm.c
+> @@ -157,48 +157,35 @@ static int thingm_led_set(struct led_classdev *ldev,
+>  	return ret;
+>  }
+>  
+> +static int thingm_init_led(struct thingm_led *led, const char *color_name,
+> +			   struct thingm_rgb *rgb, int minor)
+> +{
+> +	snprintf(led->name, sizeof(led->name), "thingm%d:%s:led%d",
+> +		 minor, color_name, rgb->num);
+> +	led->ldev.name = led->name;
+> +	led->ldev.max_brightness = 255;
+> +	led->ldev.brightness_set_blocking = thingm_led_set;
+> +	led->rgb = rgb;
+> +	return devm_led_classdev_register(&rgb->tdev->hdev->dev, &led->ldev);
+> +}
+> +
+>  static int thingm_init_rgb(struct thingm_rgb *rgb)
+>  {
+>  	const int minor = ((struct hidraw *) rgb->tdev->hdev->hidraw)->minor;
+>  	int err;
+>  
+>  	/* Register the red diode */
+> -	snprintf(rgb->red.name, sizeof(rgb->red.name),
+> -			"thingm%d:red:led%d", minor, rgb->num);
+> -	rgb->red.ldev.name = rgb->red.name;
+> -	rgb->red.ldev.max_brightness = 255;
+> -	rgb->red.ldev.brightness_set_blocking = thingm_led_set;
+> -	rgb->red.rgb = rgb;
+> -
+> -	err = devm_led_classdev_register(&rgb->tdev->hdev->dev,
+> -					 &rgb->red.ldev);
+> +	err = thingm_init_led(&rgb->red, "red", rgb, minor);
+>  	if (err)
+>  		return err;
+>  
+>  	/* Register the green diode */
+> -	snprintf(rgb->green.name, sizeof(rgb->green.name),
+> -			"thingm%d:green:led%d", minor, rgb->num);
+> -	rgb->green.ldev.name = rgb->green.name;
+> -	rgb->green.ldev.max_brightness = 255;
+> -	rgb->green.ldev.brightness_set_blocking = thingm_led_set;
+> -	rgb->green.rgb = rgb;
+> -
+> -	err = devm_led_classdev_register(&rgb->tdev->hdev->dev,
+> -					 &rgb->green.ldev);
+> +	err = thingm_init_led(&rgb->green, "green", rgb, minor);
+>  	if (err)
+>  		return err;
+>  
+>  	/* Register the blue diode */
+> -	snprintf(rgb->blue.name, sizeof(rgb->blue.name),
+> -			"thingm%d:blue:led%d", minor, rgb->num);
+> -	rgb->blue.ldev.name = rgb->blue.name;
+> -	rgb->blue.ldev.max_brightness = 255;
+> -	rgb->blue.ldev.brightness_set_blocking = thingm_led_set;
+> -	rgb->blue.rgb = rgb;
+> -
+> -	err = devm_led_classdev_register(&rgb->tdev->hdev->dev,
+> -					 &rgb->blue.ldev);
+> -	return err;
+> +	return thingm_init_led(&rgb->blue, "blue", rgb, minor);
+>  }
+>  
+>  static int thingm_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> -- 
+> 2.8.0
+> 
+> 

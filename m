@@ -1,57 +1,46 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH RFT 0/5] iio: mxs-lradc: fix leak and implement PM ops
-Date: Mon, 18 Apr 2016 12:44:09 +0200
-Message-ID: <5714BA79.40803@denx.de>
-References: <1460648909-2657-1-git-send-email-stefan.wahren@i2se.com> <570FF5AF.7010801@denx.de> <57147BEF.4070606@i2se.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <57147BEF.4070606-eS4NqCHxEME@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
-Cc: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Mark Laws <mdl@60hz.org>
+Subject: [PATCH] Input: i8042 - Fix console keyboard support on Gen2 Hyper-V VMs
+Date: Tue, 19 Apr 2016 00:23:35 +0900
+Message-ID: <cover.1460985538.git.mdl@60hz.org>
+References: <1407814240-4275-1-git-send-email-decui@microsoft.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33133 "EHLO
+	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751984AbcDRPXz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Apr 2016 11:23:55 -0400
+Received: by mail-pf0-f196.google.com with SMTP id e190so17258460pfe.0
+        for <linux-input@vger.kernel.org>; Mon, 18 Apr 2016 08:23:55 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: kys@microsoft.com, haiyangz@microsoft.com
+Cc: Mark Laws <mdl@60hz.org>, devel@linuxdriverproject.org, linux-input@vger.kernel.org
 
-On 04/18/2016 08:17 AM, Stefan Wahren wrote:
-> Am 14.04.2016 um 21:55 schrieb Marek Vasut:
->> On 04/14/2016 05:48 PM, Stefan Wahren wrote:
->>> This patch series fix a memory leak and implements suspend/resume
->>> support for mxs-lradc.
->>>
->>> Patch 1: fix the memory leak
->>> Patch 2-4: refactor mxs-lradc in order to prepare PM implementation
->>> Patch 5: implement suspend/resume support
->>>
->>> These patches has been tested with i.MX23 and i.MX28 but without
->>> a touchscreen. I added only a bogus touchscreen in devicetree.
->>>
->>> It would be nice if someone with a real touchscreen could test it.
->>>
->>> Stefan Wahren (5):
->>>   iio: mxs-lradc: fix memory leak
->>>   iio: mxs-lradc: move TS config into suitable function
->>>   iio: mxs-lradc: move STMP reset out of ADC init
->>>   iio: mxs-lradc: disable only mapped channels in mxs_lradc_hw_stop
->>>   iio: mxs-lradc: implement suspend/resume support
->>>
->>>  drivers/iio/adc/mxs-lradc.c |  116 ++++++++++++++++++++++++++++++-------------
->>>  1 file changed, 82 insertions(+), 34 deletions(-)
->>>
->> On M28EVK:
->>
->> Tested-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
->>
-> 
-> 
-> Thanks. Only one question, does it imply a test with a touchscreen?
-> 
+Hi,
 
-Yes, this one [1]. It's an Ampire 800480 display and resistive touch
-on top of it.
+Please keep me Cc:ed in any replies as I'm not on these lists.
 
-[1] http://www.denx-cs.de/?q=MxxDK
+Description of the fix is in the commit message for the patch.
+
+Discussion:
+
+Given that most distributions were already statically linking i8042.c,
+having it not unload even if there is no i8042 device seems a better fix
+than the alternatives:
+
+a) requiring users build a kernel with CONFIG_SERIO_I8042=y;
+b) duplicating the needed bits from atkbd.c in hyperv-keyboard, or;
+c) this patch, but with a "stay_resident=1" option to enable the
+   workaround.  Detecting presence of Hyper-V could be handled by udev,
+   which would pass this option, but every distribution would need to
+   fix their rules (certainly we don't want to check for Hyper-V in
+   i8042.c)
+
+Mark Laws (1):
+  Input: i8042 - Fix console keyboard support on Gen2 Hyper-V VMs
+
+ drivers/input/serio/i8042.c | 43 +++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 35 insertions(+), 8 deletions(-)
 
 -- 
-Best regards,
-Marek Vasut
+2.8.0

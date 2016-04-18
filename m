@@ -1,7 +1,7 @@
 From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH 2/5] input: twl6040-vibra: add handler to unregister input if module is removed
-Date: Mon, 18 Apr 2016 21:55:38 +0200
-Message-ID: <89f53877b821049c789256dd1b0c0b1dbb604de9.1461009340.git.hns@goldelico.com>
+Subject: [PATCH 1/5] input: twl6040-vibra: fix DT node memory management
+Date: Mon, 18 Apr 2016 21:55:37 +0200
+Message-ID: <fa39d5e67bd71ba0cde980313747f5b4d2f9be94.1461009340.git.hns@goldelico.com>
 References: <cover.1461009340.git.hns@goldelico.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1461009340.git.hns@goldelico.com>
@@ -12,40 +12,32 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fabio Estevam <fabio.estevam@fr
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@pyra-handheld.com, letux-kernel@openphoenux.org
 List-Id: linux-input@vger.kernel.org
 
-commit 1f9e1470ab34 ("Input: twl6040-vibra - use devm functions")
+commit e7ec014a47e4 ("Input: twl6040-vibra - update for device tree support")
 
-converted everything to devm but we still need to call
-input_unregister_device(info->input_dev)
+made the separate vibra DT node to a subnode of the twl6040.
 
-Solution: add back twl6040_vibra_remove to call input_unregister_device
+It now calls of_find_node_by_name() to locate the "vibra" subnode.
+This function has a side effect to call of_node_put on() for the twl6040
+parent node passed in as a parameter. This causes trouble later on.
+
+Solution: we must call of_node_get() before of_find_node_by_name()
 
 Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 ---
- drivers/input/misc/twl6040-vibra.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/input/misc/twl6040-vibra.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
-index 7221a00..1e9902d 100644
+index ea63fad..7221a00 100644
 --- a/drivers/input/misc/twl6040-vibra.c
 +++ b/drivers/input/misc/twl6040-vibra.c
-@@ -384,8 +384,18 @@ static int twl6040_vibra_probe(struct platform_device *pdev)
- 	return 0;
- }
+@@ -262,6 +262,7 @@ static int twl6040_vibra_probe(struct platform_device *pdev)
+ 	int vddvibr_uV = 0;
+ 	int error;
  
-+static int twl6040_vibra_remove(struct platform_device *pdev)
-+{
-+	struct vibra_info *info = platform_get_drvdata(pdev);
-+
-+	input_unregister_device(info->input_dev);
-+
-+	return 0;
-+	}
-+
- static struct platform_driver twl6040_vibra_driver = {
- 	.probe		= twl6040_vibra_probe,
-+	.remove		= twl6040_vibra_remove,
- 	.driver		= {
- 		.name	= "twl6040-vibra",
- 		.pm	= &twl6040_vibra_pm_ops,
++	of_node_get(twl6040_core_dev->of_node);
+ 	twl6040_core_node = of_find_node_by_name(twl6040_core_dev->of_node,
+ 						 "vibra");
+ 	if (!twl6040_core_node) {
 -- 
 2.7.3

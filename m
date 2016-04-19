@@ -1,53 +1,113 @@
-From: Mark Laws <mdl@60hz.org>
-Subject: Re: [PATCH] Input: i8042 - Fix console keyboard support on Gen2
- Hyper-V VMs
-Date: Tue, 19 Apr 2016 19:46:09 +0900
-Message-ID: <CADemMPMSYfdbt5U6mgj=kdbBQKP_nWrah3M5ZuyZZk6soWJGjg@mail.gmail.com>
-References: <1407814240-4275-1-git-send-email-decui@microsoft.com>
-	<cover.1460985538.git.mdl@60hz.org>
-	<341e0bb72d58c1c7d72ad5352f4bb364d939c0a8.1460985538.git.mdl@60hz.org>
-	<20160418165456.GG4298@mwanda>
-	<CADemMPN5wPjDzrLnsWgBHKZt3JNN-tYeJ8B+waFVsizZJdi2tA@mail.gmail.com>
-	<20160418203600.GH4298@mwanda>
-	<CADemMPNu2KuQgwyzLjr+L5ngbLxbOTpM0sKF2TLeZBvpvJjZKQ@mail.gmail.com>
-	<20160419082235.GP4247@mwanda>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/5] input: twl6040-vibra: add handler to unregister
+ input if module is removed
+Date: Tue, 19 Apr 2016 09:53:25 -0700
+Message-ID: <20160419165325.GA2881@dtor-ws>
+References: <cover.1461009340.git.hns@goldelico.com>
+ <89f53877b821049c789256dd1b0c0b1dbb604de9.1461009340.git.hns@goldelico.com>
+ <20160418211257.GA1006@dtor-ws>
+ <E0529B06-0584-49B9-976A-368875810385@goldelico.com>
+ <20160419075705.GA13933@dtor-ws>
+ <2C8A7B47-516D-4AA0-8231-16015387FA86@goldelico.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f194.google.com ([209.85.213.194]:33700 "EHLO
-	mail-ig0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752381AbcDSKqL (ORCPT
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:33321 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753303AbcDSQx3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Apr 2016 06:46:11 -0400
-Received: by mail-ig0-f194.google.com with SMTP id g8so1931087igr.0
-        for <linux-input@vger.kernel.org>; Tue, 19 Apr 2016 03:46:10 -0700 (PDT)
-In-Reply-To: <20160419082235.GP4247@mwanda>
+	Tue, 19 Apr 2016 12:53:29 -0400
+Content-Disposition: inline
+In-Reply-To: <2C8A7B47-516D-4AA0-8231-16015387FA86@goldelico.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: devel@linuxdriverproject.org, haiyangz@microsoft.com, linux-input@vger.kernel.org
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Fabio Estevam <fabio.estevam@freescale.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@pyra-handheld.com, letux-kernel@openphoenux.org
 
-On Tue, Apr 19, 2016 at 5:22 PM, Dan Carpenter <dan.carpenter@oracle.com> wrote:
-> Yeah.  Just remove the call to i8042_controller_check().  Wouldn't
-> everyone be happy with that situation?
+On Tue, Apr 19, 2016 at 10:05:08AM +0200, H. Nikolaus Schaller wrote:
+> 
+> > Am 19.04.2016 um 09:57 schrieb Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> > 
+> > On Tue, Apr 19, 2016 at 09:33:10AM +0200, H. Nikolaus Schaller wrote:
+> >> 
+> >>> Am 18.04.2016 um 23:12 schrieb Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> >>> 
+> >>> On Mon, Apr 18, 2016 at 09:55:38PM +0200, H. Nikolaus Schaller wrote:
+> >>>> commit 1f9e1470ab34 ("Input: twl6040-vibra - use devm functions")
+> >>>> 
+> >>>> converted everything to devm but we still need to call
+> >>>> input_unregister_device(info->input_dev)
+> >>> 
+> >>> No, this is not needed, because devm-managed input devices will be
+> >>> unregistered automatically.
+> >> 
+> >> Well, it would, if the current driver would use devm for registration. But it appears not to do it that way (line 375):
+> >> 
+> >> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/input/misc/twl6040-vibra.c?id=refs/tags/v4.6-rc4#n375
+> >> 
+> >> So we either have to fix line 375 or add the proposed explicit unregister call.
+> >> 
+> >> Research shows me that you did propose devm_input_register_device() some years ago but this API was never included:
+> >> 
+> >> https://lkml.org/lkml/2012/10/29/855
+> > 
+> > That's because we have what I mentioned in _OR_ portion of that email:
+> > 
+> > /**
+> > * devm_input_allocate_device - allocate managed input device
+> > * @dev: device owning the input device being created
+> > *
+> > * Returns prepared struct input_dev or %NULL.
+> > *
+> > * Managed input devices do not need to be explicitly unregistered or
+> >                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > * freed as it will be done automatically when owner device unbinds from
+> > * its driver (or binding fails). Once managed input device is allocated,
+> > * it is ready to be set up and registered in the same fashion as regular
+> > * input device. There are no special devm_input_device_[un]register()
+> > * variants, regular ones work with both managed and unmanaged devices,
+> > * should you need them. In most cases however, managed input device need
+> > * not be explicitly unregistered or freed.
+> > *
+> > * NOTE: the owner device is set up as parent of input device and users
+> > * should not override it.
+> > */
+> > 
+> 
+> Hm. If I remember correctly (it is a while ago) we had to add this explicit
+> unregister mechanism because we got ugly kernel panics otherwise. Indicating
+> that the input device was still registered and *not* unregistered automatically.
 
-No problem, I agree this is better--just wasn't sure what you meant initially.
+Ah, it is probably because we are messing up with input device's parent.
+Can you please try the patch below?
 
-> Your patch makes life slightly more complicated for people who want to
-> use the original hardware if the load the module but the hardware isn't
-> detected.
-
-That is true, but apparently nobody can think of a better solution
-(including me :)) and this bug has been open for two years. Having to
-rmmod in the corner case where the module gets loaded but no i8042 is
-present seems a small price to pay for having the keyboard work
-regardless of CONFIG_I8042=y or m. Right now, any distribution with
-CONFIG_I8042=m has a non-functional keyboard on Hyper-V Gen2 VMs,
-which is probably frustrating for (e.g.) Arch Linux users who find
-themselves unable to type and thus can't install their distribution.
-
-Regards,
-Mark Laws
+Thanks.
 
 -- 
-|v\ /\ |\ |< |_ /\ \^| //
+Dmitry
+
+
+Input: twl6040-vibra - do not reparent to grandparent
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+For devm-managed input devices we should not modify input device's parent,
+otherwise automatic release of resources will not work properly.
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/misc/twl6040-vibra.c |    1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
+index 0c853c2..53e33fa 100644
+--- a/drivers/input/misc/twl6040-vibra.c
++++ b/drivers/input/misc/twl6040-vibra.c
+@@ -357,7 +357,6 @@ static int twl6040_vibra_probe(struct platform_device *pdev)
+ 
+ 	info->input_dev->name = "twl6040:vibrator";
+ 	info->input_dev->id.version = 1;
+-	info->input_dev->dev.parent = pdev->dev.parent;
+ 	info->input_dev->close = twl6040_vibra_close;
+ 	__set_bit(FF_RUMBLE, info->input_dev->ffbit);
+ 

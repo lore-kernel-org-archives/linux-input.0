@@ -1,7 +1,7 @@
 From: Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 10/14] misc: sram: DT spelling s/#adress-cells/#address-cells/
-Date: Wed, 20 Apr 2016 17:32:15 +0200
-Message-ID: <1461166339-11109-11-git-send-email-geert+renesas@glider.be>
+Subject: [PATCH 09/14] Input: touchscreen: Broadcom iProc: DT spelling s/clock-name/clock-names/
+Date: Wed, 20 Apr 2016 17:32:14 +0200
+Message-ID: <1461166339-11109-10-git-send-email-geert+renesas@glider.be>
 References: <1461166339-11109-1-git-send-email-geert+renesas@glider.be>
 Return-path: <linux-pci-owner@vger.kernel.org>
 In-Reply-To: <1461166339-11109-1-git-send-email-geert+renesas@glider.be>
@@ -12,21 +12,21 @@ List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- Documentation/devicetree/bindings/sram/sram.txt | 2 +-
+ .../devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt    | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/sram/sram.txt b/Documentation/devicetree/bindings/sram/sram.txt
-index 227e3a341af1e2b5..add48f09015e212e 100644
---- a/Documentation/devicetree/bindings/sram/sram.txt
-+++ b/Documentation/devicetree/bindings/sram/sram.txt
-@@ -51,7 +51,7 @@ sram: sram@5c000000 {
- 	compatible = "mmio-sram";
- 	reg = <0x5c000000 0x40000>; /* 256 KiB SRAM at address 0x5c000000 */
- 
--	#adress-cells = <1>;
-+	#address-cells = <1>;
- 	#size-cells = <1>;
- 	ranges = <0 0x5c000000 0x40000>;
- 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
+index 25541f30e38701f2..ac5dff412e25266f 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
+@@ -7,7 +7,7 @@ Required properties:
+   If this property is selected please make sure MFD_SYSCON config
+   is enabled in the defconfig file.
+ - clocks:  The clock provided by the SOC to driver the tsc
+-- clock-name:  name for the clock
++- clock-names:  name for the clock
+ - interrupts: The touchscreen controller's interrupt
+ - address-cells: Specify the number of u32 entries needed in child nodes.
+   Should set to 1.
 -- 
 1.9.1

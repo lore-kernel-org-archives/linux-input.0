@@ -1,7 +1,7 @@
 From: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Subject: [PATCH 07/14] dt: booting-without-of: DT spelling s/#interrupt-cell/#interrupt-cells/
-Date: Wed, 20 Apr 2016 17:32:12 +0200
-Message-ID: <1461166339-11109-8-git-send-email-geert+renesas@glider.be>
+Subject: [PATCH 08/14] powerpc: dts: acadia: DT spelling s/#interrupts-parent/#interrupt-parent/
+Date: Wed, 20 Apr 2016 17:32:13 +0200
+Message-ID: <1461166339-11109-9-git-send-email-geert+renesas@glider.be>
 References: <1461166339-11109-1-git-send-email-geert+renesas@glider.be>
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1461166339-11109-1-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
@@ -12,22 +12,22 @@ List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 ---
- Documentation/devicetree/booting-without-of.txt | 2 +-
+ arch/powerpc/boot/dts/acadia.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/booting-without-of.txt b/Documentation/devicetree/booting-without-of.txt
-index 3f1437fbca6b49f3..5bcea91c0cc65af2 100644
---- a/Documentation/devicetree/booting-without-of.txt
-+++ b/Documentation/devicetree/booting-without-of.txt
-@@ -1302,7 +1302,7 @@ number and level/sense information. All interrupt children in an
- OpenPIC interrupt domain use 2 cells per interrupt in their interrupts
- property.
+diff --git a/arch/powerpc/boot/dts/acadia.dts b/arch/powerpc/boot/dts/acadia.dts
+index 57291f61ffe7021a..86266159521edac2 100644
+--- a/arch/powerpc/boot/dts/acadia.dts
++++ b/arch/powerpc/boot/dts/acadia.dts
+@@ -183,7 +183,7 @@
+ 			usb@ef603000 {
+ 				compatible = "ohci-be";
+ 				reg = <0xef603000 0x80>;
+-				interrupts-parent = <&UIC0>;
++				interrupt-parent = <&UIC0>;
+ 				interrupts = <0xd 0x4 0xe 0x4>;
+ 			};
  
--The PCI bus binding specifies a #interrupt-cell value of 1 to encode
-+The PCI bus binding specifies a #interrupt-cells value of 1 to encode
- which interrupt pin (INTA,INTB,INTC,INTD) is used.
- 
- 2) interrupt-parent property
 -- 
 1.9.1
 

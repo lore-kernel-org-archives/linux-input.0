@@ -1,242 +1,207 @@
-From: Dirk Behme <dirk.behme@de.bosch.com>
-Subject: [PATCH 1/5] Input: zforce_ts: Reinitialize touch controller when BOOT_COMPLETE received
-Date: Wed, 20 Apr 2016 08:54:41 +0200
-Message-ID: <1461135285-17582-1-git-send-email-dirk.behme@de.bosch.com>
+From: Andrea <andrea.deangelis93@gmail.com>
+Subject: Re: keyboard problem on linux
+Date: Wed, 20 Apr 2016 09:05:01 +0200
+Message-ID: <8cb9a835-7f0e-78ce-63cb-e300e617d2df@gmail.com>
+References: <569E3B62.6050407@gmail.com> <20160120001340.GC31589@dtor-ws>
+ <569F5389.8040800@gmail.com> <56A92E09.9020009@gmail.com>
+ <56CB1C44.8000004@gmail.com> <56CC5480.6080305@gmail.com>
+ <56D55119.4050009@gmail.com> <56D6ECBD.3020809@gmail.com>
+ <56EFC064.8070903@gmail.com> <570E30F7.8040700@gmail.com>
+ <5715DD26.5000400@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:55481 "EHLO
-	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752813AbcDTGyw (ORCPT
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:32894 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752806AbcDTHFG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Apr 2016 02:54:52 -0400
-Received: from vsmta14.fe.internet.bosch.com (unknown [10.4.98.54])
-	by imta23.fe.bosch.de (Postfix) with ESMTP id 855321580227
-	for <linux-input@vger.kernel.org>; Wed, 20 Apr 2016 08:54:50 +0200 (CEST)
-Received: from SI-HUB1001.de.bosch.com (vsgw24.fe.internet.bosch.com [10.4.98.24])
-	by vsmta14.fe.internet.bosch.com (Postfix) with ESMTP id 33C60A404E4
-	for <linux-input@vger.kernel.org>; Wed, 20 Apr 2016 08:54:50 +0200 (CEST)
+	Wed, 20 Apr 2016 03:05:06 -0400
+Received: by mail-wm0-f65.google.com with SMTP id r12so460081wme.0
+        for <linux-input@vger.kernel.org>; Wed, 20 Apr 2016 00:05:04 -0700 (PDT)
+In-Reply-To: <5715DD26.5000400@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Marcel Grosshans <MarcelViktor.Grosshans@de.bosch.com>, Knut Wohlrab <Knut.Wohlrab@de.bosch.com>, Oleksij Rempel <linux@rempel-privat.de>, Dirk Behme <dirk.behme@de.bosch.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-From: Marcel Grosshans <MarcelViktor.Grosshans@de.bosch.com>
+i've tried to add this parameter to kernel
 
-Unexpected power interruption or reset of the touch controller may disable
-touch panel function. To avoid this situation, the touch controller is
-completely reinitialized if BOOT_COMPLETE notification occurs. To make
-it possible we process reinitialization in a separate queue.
+i8042.direct
 
-Signed-off-by: Marcel Grosshans <MarcelViktor.Grosshans@de.bosch.com>
-Signed-off-by: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
-Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
----
- drivers/input/touchscreen/zforce_ts.c | 127 +++++++++++++++++++++++++++-------
- 1 file changed, 102 insertions(+), 25 deletions(-)
+and in this way the problem disappears completely, but the caps lock LED 
+won't turn on.
 
-diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
-index 9bbadaa..0c08220 100644
---- a/drivers/input/touchscreen/zforce_ts.c
-+++ b/drivers/input/touchscreen/zforce_ts.c
-@@ -31,6 +31,7 @@
- #include <linux/platform_data/zforce_ts.h>
- #include <linux/regulator/consumer.h>
- #include <linux/of.h>
-+#include <linux/workqueue.h>
- 
- #define WAIT_TIMEOUT		msecs_to_jiffies(1000)
- 
-@@ -98,6 +99,12 @@ struct zforce_point {
- 	int prblty;
- };
- 
-+enum zforce_state {
-+	ZF_STATE_UNINITIALZED = 0,
-+	ZF_STATE_PROBE_COMPLETE,
-+	ZF_STATE_DEV_OPENED,
-+};
-+
- /*
-  * @client		the i2c_client
-  * @input		the input device
-@@ -138,6 +145,11 @@ struct zforce_ts {
- 	struct mutex		command_mutex;
- 	int			command_waiting;
- 	int			command_result;
-+
-+	struct work_struct	ts_workq;
-+	int			notification;
-+
-+	enum zforce_state	state;
- };
- 
- static int zforce_command(struct zforce_ts *ts, u8 cmd)
-@@ -188,6 +200,7 @@ static int zforce_send_wait(struct zforce_ts *ts, const char *buf, int len)
- 		buf[1], buf[2]);
- 
- 	ts->command_waiting = buf[2];
-+	reinit_completion(&ts->command_done);
- 
- 	mutex_lock(&ts->access_mutex);
- 	ret = i2c_master_send(client, buf, len);
-@@ -471,6 +484,15 @@ static void zforce_complete(struct zforce_ts *ts, int cmd, int result)
- 		dev_dbg(&client->dev, "completing command 0x%x\n", cmd);
- 		ts->command_result = result;
- 		complete(&ts->command_done);
-+	} else if (cmd == NOTIFICATION_BOOTCOMPLETE) {
-+		dev_dbg(&client->dev, "got notification 0x%x\n", cmd);
-+
-+		/* abourt previous waiting command if any available */
-+		ts->command_result = -ECONNABORTED;
-+		ts->notification = cmd;
-+		complete(&ts->command_done);
-+
-+		queue_work(system_long_wq, &ts->ts_workq);
- 	} else {
- 		dev_dbg(&client->dev, "command %d not for us\n", cmd);
- 	}
-@@ -596,11 +618,85 @@ static irqreturn_t zforce_irq_thread(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+/*
-+ * This device is used in automotive environment. In this
-+ * we should never fail. Some connection issues caused by vibration
-+ * should be ignored and can be recoverable.
-+ */
-+static void zforce_boot(struct zforce_ts *ts)
-+{
-+	struct device *dev = &ts->client->dev;
-+	int ret;
-+
-+	/* need to start device to get version information */
-+	ret = zforce_command_wait(ts, COMMAND_INITIALIZE);
-+	if (ret)
-+		dev_err(dev, "unable to initialize, %d\n", ret);
-+
-+	switch (ts->state) {
-+	case ZF_STATE_UNINITIALZED:
-+		ret = zforce_command_wait(ts, COMMAND_STATUS);
-+		if (ret)
-+			dev_err(dev, "couldn't get status, %d\n", ret);
-+		/* fallthrough, we need zforce_stop to complete. */
-+	case ZF_STATE_PROBE_COMPLETE:
-+		/* stop device and put it into sleep until it is opened */
-+		ret = zforce_stop(ts);
-+		if (ret)
-+			dev_err(dev, "couldn't stop zforce, %d\n", ret);
-+
-+		ts->state = ZF_STATE_PROBE_COMPLETE;
-+		break;
-+	case ZF_STATE_DEV_OPENED:
-+		ret = zforce_start(ts);
-+		if (ret)
-+			dev_err(dev, "Failed to restart, %d\n", ret);
-+		break;
-+	}
-+}
-+
-+static void zforce_notification_queue(struct work_struct *work)
-+{
-+	struct zforce_ts *ts = container_of(work, struct zforce_ts, ts_workq);
-+	struct i2c_client *client = ts->client;
-+	struct input_dev *input = ts->input;
-+
-+	if (device_may_wakeup(&client->dev)) {
-+		if (!ts->suspending)
-+			pm_stay_awake(&client->dev);
-+		else
-+			pm_wakeup_event(&client->dev, 500);
-+	}
-+
-+	mutex_lock(&input->mutex);
-+
-+	switch (ts->notification) {
-+	case NOTIFICATION_BOOTCOMPLETE:
-+		zforce_boot(ts);
-+		break;
-+	default:
-+		dev_err(&client->dev,
-+			"unknown notification: %#x\n", ts->notification);
-+	}
-+
-+	mutex_unlock(&input->mutex);
-+
-+	if (!ts->suspending && device_may_wakeup(&client->dev))
-+		pm_relax(&client->dev);
-+}
-+
- static int zforce_input_open(struct input_dev *dev)
- {
- 	struct zforce_ts *ts = input_get_drvdata(dev);
-+	int ret;
-+
-+	ret = zforce_start(ts);
-+	if (ret)
-+		return ret;
- 
--	return zforce_start(ts);
-+	ts->state = ZF_STATE_DEV_OPENED;
-+
-+	return 0;
- }
- 
- static void zforce_input_close(struct input_dev *dev)
-@@ -613,6 +709,8 @@ static void zforce_input_close(struct input_dev *dev)
- 	if (ret)
- 		dev_warn(&client->dev, "stopping zforce failed\n");
- 
-+	ts->state = ZF_STATE_PROBE_COMPLETE;
-+
- 	return;
- }
- 
-@@ -875,6 +973,7 @@ static int zforce_probe(struct i2c_client *client,
- 	input_set_drvdata(ts->input, ts);
- 
- 	init_completion(&ts->command_done);
-+	INIT_WORK(&ts->ts_workq, zforce_notification_queue);
- 
- 	/*
- 	 * The zforce pulls the interrupt low when it has data ready.
-@@ -894,33 +993,11 @@ static int zforce_probe(struct i2c_client *client,
- 
- 	i2c_set_clientdata(client, ts);
- 
-+	ts->state = ZF_STATE_UNINITIALZED;
-+
- 	/* let the controller boot */
- 	zforce_reset_deassert(ts);
- 
--	ts->command_waiting = NOTIFICATION_BOOTCOMPLETE;
--	if (wait_for_completion_timeout(&ts->command_done, WAIT_TIMEOUT) == 0)
--		dev_warn(&client->dev, "bootcomplete timed out\n");
--
--	/* need to start device to get version information */
--	ret = zforce_command_wait(ts, COMMAND_INITIALIZE);
--	if (ret) {
--		dev_err(&client->dev, "unable to initialize, %d\n", ret);
--		return ret;
--	}
--
--	/* this gets the firmware version among other information */
--	ret = zforce_command_wait(ts, COMMAND_STATUS);
--	if (ret < 0) {
--		dev_err(&client->dev, "couldn't get status, %d\n", ret);
--		zforce_stop(ts);
--		return ret;
--	}
--
--	/* stop device and put it into sleep until it is opened */
--	ret = zforce_stop(ts);
--	if (ret < 0)
--		return ret;
--
- 	device_set_wakeup_capable(&client->dev, true);
- 
- 	ret = input_register_device(input_dev);
--- 
-2.8.0
+so i think that there is a problem with the keyboard controller
 
+
+
+
+Il 19/04/2016 09:24, Andrea ha scritto:
+> when i'm into grub EDIT Selection (pressing E on grub interface) and
+> into GRUB CommandLine, i haven't these problems.
+>
+> furthermore, i've tried to add to /etd/default/grub
+>
+> i8042.nomux=1 i8042.reset i8042.direct
+>
+> and the problem is almost solved, now when i start PC i haven't
+> problems, the problems occurs only 1 time when i press block num key or
+> block maiusc key, but then the problem disappear alone, without pressing
+> maiusc key for 2 seconds.
+>
+> i hope that these information can be useful, and i hope that you will
+> answer me.
+>
+>
+> Il 13/04/2016 13:43, Andrea ha scritto:
+>> i've installed linux kernel 4.6 RC3, but the problem persist
+>> please give me some informations
+>>
+>>
+>> Il 21/03/2016 10:35, Andrea ha scritto:
+>>> the problem still present also on kernel 4.5
+>>> and I noticed that after momentarily solved the issue pressing the LEFT
+>>> SHIFT key, if i press CAPS LOCK or BLOCK NUM keys, the problem came back
+>>> immediately.
+>>> on launchpad, there are other user with HP Pavilion 15, with the same
+>>> problem
+>>>
+>>> I hope you can help me to fix the issue.
+>>>
+>>> tell me if i can do something to help
+>>>
+>>> thanks for help
+>>>
+>>>
+>>>
+>>> Il 02/03/2016 14:38, Andrea ha scritto:
+>>>> on launchpad an user with the same notebook and the same problems,
+>>>> posted some results of keyboard events
+>>>>
+>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1532746/comments/11
+>>>>
+>>>>
+>>>> i hope this can be usefult to fix the problem
+>>>>
+>>>>
+>>>>
+>>>>
+>>>> Il 01/03/2016 09:21, Andrea ha scritto:
+>>>>> i'm not the only with this problem.
+>>>>> on HP forum, another user with the same notebook, has the same
+>>>>> problem.
+>>>>>
+>>>>> http://h30434.www3.hp.com/t5/Notebook-Operating-System-and-Recovery/HP-Pavilion-15-ab062nl-SHIFT-CTRL-ALT-keys-problems-on-linux/m-p/5522283/highlight/false#M429851
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>> Il 23/02/2016 13:45, Andrea ha scritto:
+>>>>>> seems that when i play game (on steam), i haven't any problem when
+>>>>>> i'm
+>>>>>> playing, but i'm not sure
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> Il 22/02/2016 15:33, Andrea ha scritto:
+>>>>>>> the problem occurs also when i logout to login manager.
+>>>>>>>
+>>>>>>> for example if in this moment i haven't the problem (because i've
+>>>>>>> pressed for some seconds MAIUSC key) and i logout, the problem
+>>>>>>> occurs
+>>>>>>> again infact sometimes, when i logout, and then i try to login
+>>>>>>> again,
+>>>>>>> the login manager doesn't accpet the password because the passowrd
+>>>>>>> contains uppercase letters, but sometimes the OS don't take maiusc
+>>>>>>> key
+>>>>>>> (I hope I explained well)
+>>>>>>>
+>>>>>>> i hope that this information can be useful.
+>>>>>>> thanks
+>>>>>>>
+>>>>>>> Il 27/01/2016 21:52, Andrea ha scritto:
+>>>>>>>> i've installed the new kernel 4.5 RC1, but i've the same problem.
+>>>>>>>> i've also tried start ubuntu with upstart, same problem.
+>>>>>>>> i don't know why i've this strange problem.
+>>>>>>>>
+>>>>>>>> i've also tried GhostBSD on live (i don't know if this information
+>>>>>>>> can
+>>>>>>>> be useful), the problems occurs also on BSD but seem that is less
+>>>>>>>> severe
+>>>>>>>> than on Linux, because on BSD seems that the problem occurs only
+>>>>>>>> one
+>>>>>>>> time every boot, then disappears without do nothing (don't need to
+>>>>>>>> press
+>>>>>>>> MAIUSC key for some seconds).
+>>>>>>>>
+>>>>>>>> I hope that this bug can be solved.
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> Il 20/01/2016 10:29, Andrea ha scritto:
+>>>>>>>>> Hi, Dmitry
+>>>>>>>>> i've the same problem on console without X.
+>>>>>>>>> this is an output of evtest on console:
+>>>>>>>>> http://pastebin.com/4aWYYhwN
+>>>>>>>>> (as you can see, after a while i'm pressing Left_Alt (from line
+>>>>>>>>> 434 of
+>>>>>>>>> pastebin) or Left_Ctrl (from line 605 of pastebin) or Left_Shift
+>>>>>>>>> (from
+>>>>>>>>> line 786 of pastebin), these keys are released and then pressed
+>>>>>>>>> again.
+>>>>>>>>> but when i press only left_shift for some seconds, the issue don't
+>>>>>>>>> occurs.)
+>>>>>>>>>
+>>>>>>>>> i haven't found nothing on BIOS settings, the only options
+>>>>>>>>> relative to
+>>>>>>>>> keyboard is:
+>>>>>>>>>
+>>>>>>>>> Action Keys Mode:
+>>>>>>>>> [Enabled]: Requires pressing only F1 throug F12 to activate action
+>>>>>>>>> keys
+>>>>>>>>> [Disabled]: Requires pressing FN Key + F1 throug F12 to activate
+>>>>>>>>> action
+>>>>>>>>> keys
+>>>>>>>>>
+>>>>>>>>> but the problem occurs in both modes
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> Il 20/01/2016 01:13, Dmitry Torokhov ha scritto:
+>>>>>>>>>> Hi Andera,
+>>>>>>>>>>
+>>>>>>>>>> On Tue, Jan 19, 2016 at 02:34:26PM +0100, Andrea wrote:
+>>>>>>>>>>> [1.] i've a problem with keyboard of my notebook HP Pavilion 15
+>>>>>>>>>>> ab062nl; CTRL SHIFT and ALT buttons not works as they should. in
+>>>>>>>>>>> particular, it is as if these keys are pressed and released
+>>>>>>>>>>> alone.
+>>>>>>>>>>> isn't an hardware problem, because on windows 10 and windows
+>>>>>>>>>>> 8.1 i
+>>>>>>>>>>> haven't these problems, is only a linux problem (all distro).
+>>>>>>>>>>>
+>>>>>>>>>>> [2.] the bug is always active, every time i start a linux Distro
+>>>>>>>>>>> (also from live, and also without DE/WM) i've this problem with
+>>>>>>>>>>> keyboard, the only way to fix temporarily the bug, is pressing
+>>>>>>>>>>> the
+>>>>>>>>>>> only Left SHIFT key for some seconds, then all problems
+>>>>>>>>>>> disappear
+>>>>>>>>>>> indefinitely, and in any case, if i shutdown or if i reboot the
+>>>>>>>>>>> PC,
+>>>>>>>>>>> the problem recurs.
+>>>>>>>>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1532746
+>>>>>>>>>>
+>>>>>>>>>> Hmm, this is weird. Do you observe the same issue in text console
+>>>>>>>>>> (not
+>>>>>>>>>> in X)? It would be nice to see events as emitted by the kernel -
+>>>>>>>>>> you
+>>>>>>>>>> can
+>>>>>>>>>> use evtest utility for that.
+>>>>>>>>>>
+>>>>>>>>>> Is sounds like some accessibility feature, is there anything in
+>>>>>>>>>> BIOS to
+>>>>>>>>>> that effect?
+>>>>>>>>>>
+>>>>>>>>>> Thanks.
+>>>>>>>>>>

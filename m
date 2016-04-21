@@ -1,53 +1,67 @@
-From: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Subject: [PATCH RFT V2 2/3] iio: mxs-lradc: disable only masked channels in mxs_lradc_hw_stop
-Date: Thu, 21 Apr 2016 20:11:17 +0000
-Message-ID: <1461269478-449-3-git-send-email-stefan.wahren@i2se.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
+Subject: [PATCH RFT V2 1/3] iio: mxs-lradc: simplify TS registration
+Date: Thu, 21 Apr 2016 20:11:16 +0000
+Message-ID: <1461269478-449-2-git-send-email-stefan.wahren@i2se.com>
 References: <1461269478-449-1-git-send-email-stefan.wahren@i2se.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1461269478-449-1-git-send-email-stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.17.24]:58485 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751658AbcDUUMX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 Apr 2016 16:12:23 -0400
+In-Reply-To: <1461269478-449-1-git-send-email-stefan.wahren@i2se.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Marek Vasut <marex@denx.de>
+Cc: Fabio Estevam <fabio.estevam@nxp.com>, Juergen Borleis <jbe@pengutronix.de>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Stefan Wahren <stefan.wahren@i2se.com>
 
-Disabling of the touchscreen IRQs should be done in
-mxs_lradc_disable_ts. So disable only the masked virtual channels
-in mxs_lradc_hw_stop and finally remove the unused function
-mxs_lradc_irq_en_mask.
+This patch simplifies the TS registration of mxs-lradc by
+using devm_input_allocate_device.
 
-Signed-off-by: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
 ---
- drivers/iio/adc/mxs-lradc.c |   11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ drivers/iio/adc/mxs-lradc.c |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/iio/adc/mxs-lradc.c b/drivers/iio/adc/mxs-lradc.c
-index 223650b..cfc558f 100644
+index ad26da1..223650b 100644
 --- a/drivers/iio/adc/mxs-lradc.c
 +++ b/drivers/iio/adc/mxs-lradc.c
-@@ -373,13 +373,6 @@ static u32 mxs_lradc_plate_mask(struct mxs_lradc *lradc)
- 	return LRADC_CTRL0_MX28_PLATE_MASK;
+@@ -1120,12 +1120,11 @@ static int mxs_lradc_ts_register(struct mxs_lradc *lradc)
+ {
+ 	struct input_dev *input;
+ 	struct device *dev = lradc->dev;
+-	int ret;
+ 
+ 	if (!lradc->use_touchscreen)
+ 		return 0;
+ 
+-	input = input_allocate_device();
++	input = devm_input_allocate_device(dev);
+ 	if (!input)
+ 		return -ENOMEM;
+ 
+@@ -1146,11 +1145,8 @@ static int mxs_lradc_ts_register(struct mxs_lradc *lradc)
+ 
+ 	lradc->ts_input = input;
+ 	input_set_drvdata(input, lradc);
+-	ret = input_register_device(input);
+-	if (ret)
+-		input_free_device(lradc->ts_input);
+ 
+-	return ret;
++	return input_register_device(input);
  }
  
--static u32 mxs_lradc_irq_en_mask(struct mxs_lradc *lradc)
--{
--	if (lradc->soc == IMX23_LRADC)
--		return LRADC_CTRL1_MX23_LRADC_IRQ_EN_MASK;
--	return LRADC_CTRL1_MX28_LRADC_IRQ_EN_MASK;
--}
--
- static u32 mxs_lradc_irq_mask(struct mxs_lradc *lradc)
- {
- 	if (lradc->soc == IMX23_LRADC)
-@@ -1505,7 +1498,9 @@ static void mxs_lradc_hw_stop(struct mxs_lradc *lradc)
- {
- 	int i;
+ static void mxs_lradc_ts_unregister(struct mxs_lradc *lradc)
+@@ -1159,7 +1155,6 @@ static void mxs_lradc_ts_unregister(struct mxs_lradc *lradc)
+ 		return;
  
--	mxs_lradc_reg_clear(lradc, mxs_lradc_irq_en_mask(lradc), LRADC_CTRL1);
-+	mxs_lradc_reg_clear(lradc,
-+		lradc->buffer_vchans << LRADC_CTRL1_LRADC_IRQ_EN_OFFSET,
-+		LRADC_CTRL1);
+ 	mxs_lradc_disable_ts(lradc);
+-	input_unregister_device(lradc->ts_input);
+ }
  
- 	for (i = 0; i < LRADC_MAX_DELAY_CHANS; i++)
- 		mxs_lradc_reg_wrt(lradc, 0, LRADC_DELAY(i));
+ /*
 -- 
 1.7.9.5
+

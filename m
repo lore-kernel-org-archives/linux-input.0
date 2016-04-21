@@ -1,125 +1,94 @@
-From: roderick@gaikai.com
-Subject: [PATCH] HID: uhid: Fixes a bug with userspace bluetooth stacks, which causes hangs during certain operations v2
-Date: Thu, 21 Apr 2016 14:57:55 -0700
-Message-ID: <1461275875-9321-1-git-send-email-roderick@gaikai.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [100.42.98.7] ([100.42.98.7]:39915 "EHLO smtp.gaikai.biz"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751707AbcDUV6l (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Apr 2016 17:58:41 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: Re: [PATCH] Input: synaptics-rmi4: Support regulator supplies
+Date: Thu, 21 Apr 2016 15:37:55 -0700
+Message-ID: <20160421223755.GB3202@tuxbot>
+References: <1459357049-5608-1-git-send-email-bjorn.andersson@linaro.org>
+ <20160331181905.GJ39098@dtor-ws>
+ <20160331191421.GC8929@tuxbot>
+ <56FDD345.20605@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <56FDD345.20605@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Bjorn Andersson <bjorn.andersson@sonymobile.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dh.herrmann@gmail.com, tim.bird@sonymobile.com, linux-kernel@vger.kernel.org, Roderick Colenbrander <roderick.colenbrander@sony.com>, stable@vger.kernel.org
 
-From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+On Thu 31 Mar 18:47 PDT 2016, Andrew Duggan wrote:
 
-Many devices use userspace bluetooth stacks like BlueZ or Bluedroid in combination
-with uhid. If any of these stacks is used with a HID device for which the driver
-performs a HID request as part .probe (or technically another HID operation),
-this results in a deadlock situation. The deadlock results in a 5 second timeout
-for I/O operations in HID drivers, so isn't fatal, but none of the I/O operations
-have a chance of succeeding.
+> On 03/31/2016 12:14 PM, Bjorn Andersson wrote:
+> >On Thu 31 Mar 11:19 PDT 2016, Dmitry Torokhov wrote:
+> >
+> >>Hi Bjorn,
+> >>
+> >>On Wed, Mar 30, 2016 at 09:57:29AM -0700, Bjorn Andersson wrote:
+> >>>From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+> >>>
+> >>>Support the two supplies - vdd and vio - to make it possible to control
+> >>>power to the Synaptics chip.
+> >>>
+> >>>Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+> >>>Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> >>>---
+> >>>  .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |  7 ++++
+> >>>  drivers/input/rmi4/rmi_i2c.c                       | 45 ++++++++++++++++++++++
+> >>Would not we need pretty much the same changes for SPI devices? Can this
+> >>be done in core?
+> >>
+> >Yes, I believe it needs the exact same steps.
+> >
+> >I did a initial quick hack on v1 of the patchset and back then it was
+> >possible, when I rebased it a few weeks back I kept ending up in getting
+> >interrupts with the power off.
+> >
+> >Looking at the code this is likely because in the resume paths the IRQ
+> >is enabled before we jump to rmi_driver_resume(), so putting this in the
+> >core I ended up calling rmi_process_interrupt_requests() before powering
+> >up the chip.
+> 
+> Actually, I don't think the irq needs to be enabled before calling
+> rmi_driver_resume(). Typically, the functions are just reading and writing
+> to registers and do not need to handle interrupts. We could probably call to
+> rmi_driver_resume() before enabling the irq. I can double check that there
+> are not any exceptions to this.
+> 
 
-The root cause for the problem is that uhid only allows for one request to be
-processed at a time per uhid instance and locks out other operations. This means
-that if a user space is creating a new HID device through 'UHID_CREATE', which
-ultimately triggers '.probe' through the HID layer. Then any HID request e.g. a
-read for calibration data would trigger a HID operation on uhid again, but it
-won't go out to userspace, because it is still stuck in UHID_CREATE.
-In addition bluetooth stacks are typically single threaded, so they wouldn't be
-able to handle any requests while waiting on uhid.
+I finally got back to giving this a spin.
 
-Lucikly the UHID spec is somewhat flexible and allows for fixing the issue,
-without breaking user space. The idea which the patch implements as discussed
-with David Herrmann is to decouple adding of a hid device (which triggers .probe)
-from UHID_CREATE. The work will kick off roughly once UHID_CREATE completed (or
-else will wait a tiny bit of time in .probe for a lock). A HID driver has to call
-HID to call 'hid_hw_start()' as part of .probe once it is ready for I/O, which
-triggers UHID_START to user space. Any HID operations should function now within
-.probe and won't deadlock because userspace is stuck on UHID_CREATE.
+The problem is that we register the transport device with the driver,
+which triggers the rmi_driver probe() which resolves the resources. We
+then continue on and call rmi_i2c_init_irq() which will (implicitly)
+enable the irq. So if the rmi_driver probe() does not finish in a serial
+fashion we will enable interrupts before we have fully initialized the
+core.
 
-We verified this patch on Bluedroid with Android 6.0 and on desktop Linux with
-BlueZ stacks. Prior to the patch they had the deadlock issue.
+I don't know if this causes other issues, but with the required delay
+after enabling the regulators we always get an interrupt before the
+rmi_driver probe() function is finished.
 
-Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-Cc: stable@vger.kernel.org
----
- drivers/hid/uhid.c | 33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+> I have also considered adding a power callback to the core so that the
+> transport drivers can set the power independently of suspend and resume. One
+> example would be to shut off power to a touchpad if a mouse is connected. If
+> we do need to have the irq enabled before calling rmi_driver_resume() we
+> could still move regulator support to the core and call the power callback
+> from the transport drivers.
+> 
 
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 16b6f11..99ec3ff 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -51,10 +51,26 @@ struct uhid_device {
- 	u32 report_id;
- 	u32 report_type;
- 	struct uhid_event report_buf;
-+	struct work_struct worker;
- };
- 
- static struct miscdevice uhid_misc;
- 
-+static void uhid_device_add_worker(struct work_struct *work)
-+{
-+	struct uhid_device *uhid = container_of(work, struct uhid_device, worker);
-+	int ret;
-+
-+	ret = hid_add_device(uhid->hid);
-+	if (ret) {
-+		hid_err(uhid->hid, "Cannot register HID device: error %d\n", ret);
-+
-+		hid_destroy_device(uhid->hid);
-+		uhid->hid = NULL;
-+		uhid->running = false;
-+	}
-+}
-+
- static void uhid_queue(struct uhid_device *uhid, struct uhid_event *ev)
- {
- 	__u8 newhead;
-@@ -498,18 +514,14 @@ static int uhid_dev_create2(struct uhid_device *uhid,
- 	uhid->hid = hid;
- 	uhid->running = true;
- 
--	ret = hid_add_device(hid);
--	if (ret) {
--		hid_err(hid, "Cannot register HID device\n");
--		goto err_hid;
--	}
-+	/* Adding of a HID device is done through a worker, to allow HID drivers
-+	 * which use feature requests during .probe to work, without they would
-+	 * be blocked on devlock, which is held by uhid_char_write.
-+	 */
-+	schedule_work(&uhid->worker);
- 
- 	return 0;
- 
--err_hid:
--	hid_destroy_device(hid);
--	uhid->hid = NULL;
--	uhid->running = false;
- err_free:
- 	kfree(uhid->rd_data);
- 	uhid->rd_data = NULL;
-@@ -550,6 +562,8 @@ static int uhid_dev_destroy(struct uhid_device *uhid)
- 	uhid->running = false;
- 	wake_up_interruptible(&uhid->report_wait);
- 
-+	cancel_work_sync(&uhid->worker);
-+
- 	hid_destroy_device(uhid->hid);
- 	kfree(uhid->rd_data);
- 
-@@ -612,6 +626,7 @@ static int uhid_char_open(struct inode *inode, struct file *file)
- 	init_waitqueue_head(&uhid->waitq);
- 	init_waitqueue_head(&uhid->report_wait);
- 	uhid->running = false;
-+	INIT_WORK(&uhid->worker, uhid_device_add_worker);
- 
- 	file->private_data = uhid;
- 	nonseekable_open(inode, file);
--- 
-2.5.5
+I see no (sane) way of waiting for the rmi_driver to finish probeing;
+there could be cases where it's powered by a regulator (or reset gpio)
+that is not yet probed. EPROBE_DEFER will handle this, but we can't wait
+for it in the transport driver.
 
+
+I therefor think these physical resources should be handled in the
+context of the transport layer, to make sure we don't have temporal
+dependencies to the other layers.
+
+Or we should not have the rmi_driver as a separate device driver at all
+- it could be a "library" that runs in the context of the transport
+device.
+
+Regards,
+Bjorn

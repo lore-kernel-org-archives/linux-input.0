@@ -1,90 +1,109 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 5/8] Input: atmel_mxt_ts - add diagnostic data support for mXT1386
-Date: Thu, 21 Apr 2016 10:31:38 +0100
-Message-ID: <1461231101-1237-6-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 8/8] Input: atmel_mxt_ts - add v4l pixelformat definition for touch refs output
+Date: Thu, 21 Apr 2016 10:31:41 +0100
+Message-ID: <1461231101-1237-9-git-send-email-nick.dyer@itdev.co.uk>
 References: <1461231101-1237-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:46681 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751683AbcDUJb6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 Apr 2016 05:31:58 -0400
 In-Reply-To: <1461231101-1237-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, Nick Dyer <nick.dyer@itdev.co.uk>
-List-Id: linux-input@vger.kernel.org
 
-The mXT1386 family of chips have a different architecture which splits
-the diagnostic data into 3 columns.
-
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 29 ++++++++++++++++++++++++++---
- 1 file changed, 26 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 33 ++++++++++++++++++++++++--------
+ include/uapi/linux/videodev2.h           |  1 +
+ 2 files changed, 26 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 3dd312f..bac0aa0 100644
+index 3bb1179..94ed8bd 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -137,6 +137,10 @@ struct t9_range {
- #define MXT_DIAGNOSTIC_DELTAS 0x10
- #define MXT_DIAGNOSTIC_SIZE    128
+@@ -2396,21 +2396,24 @@ static int mxt_set_input(struct mxt_data *data, unsigned int i)
+ 	if (i >= MXT_V4L_INPUT_MAX)
+ 		return -EINVAL;
  
-+#define MXT_FAMILY_1386			160
-+#define MXT1386_COLUMNS			3
-+#define MXT1386_PAGES_PER_COLUMN	8
++	f->pixelformat = V4L2_PIX_FMT_Y16;
 +
- struct t37_debug {
- 	u8 mode;
- 	u8 page;
-@@ -2135,13 +2139,27 @@ recheck:
- static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
- 			       unsigned int y)
+ 	switch (i) {
+-	case MXT_V4L_INPUT_REFS:
+ 	case MXT_V4L_INPUT_DELTAS:
++		f->pixelformat = V4L2_PIX_FMT_YS16; /* fall-through */
++	case MXT_V4L_INPUT_REFS:
+ 		f->width = data->xy_switch ? data->ysize : data->xsize;
+ 		f->height = data->xy_switch ? data->xsize : data->ysize;
+ 		break;
+ 
+-	case MXT_V4L_INPUT_REFS_SINGLE:
+ 	case MXT_V4L_INPUT_DELTAS_SINGLE:
++		f->pixelformat = V4L2_PIX_FMT_YS16; /* fall-through */
++	case MXT_V4L_INPUT_REFS_SINGLE:
+ 		f->width = 1;
+ 		f->height = 1;
+ 		break;
+ 	}
+ 
+-	f->pixelformat = V4L2_PIX_FMT_Y16;
+ 	f->field = V4L2_FIELD_NONE;
+ 	f->colorspace = V4L2_COLORSPACE_SRGB;
+ 	f->bytesperline = f->width * sizeof(u16);
+@@ -2447,12 +2450,26 @@ static int mxt_vidioc_fmt(struct file *file, void *priv, struct v4l2_format *f)
+ static int mxt_vidioc_enum_fmt(struct file *file, void *priv,
+ 				 struct v4l2_fmtdesc *fmt)
  {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	unsigned int ofs, page;
-+	unsigned int col = 0;
-+	unsigned int col_width;
+-	if (fmt->index > 0 || fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
++	if (fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+ 		return -EINVAL;
+ 
+-	fmt->pixelformat = V4L2_PIX_FMT_Y16;
+-	strlcpy(fmt->description, "16-bit raw debug data",
+-		sizeof(fmt->description));
++	switch (fmt->index) {
++	case 0:
++		fmt->pixelformat = V4L2_PIX_FMT_Y16;
++		strlcpy(fmt->description, "16-bit unsigned raw debug data",
++			sizeof(fmt->description));
++		break;
 +
-+	if (info->family_id == MXT_FAMILY_1386) {
-+		col_width = info->matrix_ysize / MXT1386_COLUMNS;
-+		col = y / col_width;
-+		y = y % col_width;
-+	} else {
-+		col_width = info->matrix_ysize;
++	case 1:
++		fmt->pixelformat = V4L2_PIX_FMT_YS16;
++		strlcpy(fmt->description, "16-bit signed raw debug data",
++			sizeof(fmt->description));
++		break;
++
++	default:
++		return -EINVAL;
 +	}
- 
--	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
-+	ofs = (y + (x * col_width)) * sizeof(u16);
- 	page = ofs / MXT_DIAGNOSTIC_SIZE;
- 	ofs %= MXT_DIAGNOSTIC_SIZE;
- 
-+	if (info->family_id == MXT_FAMILY_1386)
-+		page += col * MXT1386_PAGES_PER_COLUMN;
 +
- 	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
+ 	fmt->flags = 0;
+ 	return 0;
  }
- 
-@@ -2435,6 +2453,7 @@ static const struct video_device mxt_video_device = {
- 
- static void mxt_debug_init(struct mxt_data *data)
+@@ -2484,7 +2501,7 @@ static int mxt_vidioc_enum_framesizes(struct file *file, void *priv,
+ static int mxt_vidioc_enum_frameintervals(struct file *file, void *priv,
+ 					  struct v4l2_frmivalenum *f)
  {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	struct mxt_object *object;
- 	int error;
-@@ -2458,9 +2477,13 @@ static void mxt_debug_init(struct mxt_data *data)
+-	if ((f->index > 0) || (f->pixel_format != V4L2_PIX_FMT_Y16))
++	if (f->index > 0)
+ 		return -EINVAL;
  
- 	/* Calculate size of data and allocate buffer */
- 	dbg->t37_nodes = data->xsize * data->ysize;
--	dbg->t37_pages = ((data->xsize * data->info.matrix_ysize)
--			  * sizeof(u16) / sizeof(dbg->t37_buf->data)) + 1;
+ 	f->type = V4L2_FRMIVAL_TYPE_DISCRETE;
+diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
+index 14cd5eb..ab577dd 100644
+--- a/include/uapi/linux/videodev2.h
++++ b/include/uapi/linux/videodev2.h
+@@ -496,6 +496,7 @@ struct v4l2_pix_format {
+ #define V4L2_PIX_FMT_Y12     v4l2_fourcc('Y', '1', '2', ' ') /* 12  Greyscale     */
+ #define V4L2_PIX_FMT_Y16     v4l2_fourcc('Y', '1', '6', ' ') /* 16  Greyscale     */
+ #define V4L2_PIX_FMT_Y16_BE  v4l2_fourcc_be('Y', '1', '6', ' ') /* 16  Greyscale BE  */
++#define V4L2_PIX_FMT_YS16    v4l2_fourcc('Y', 'S', '1', '6') /* signed 16-bit Greyscale */
  
-+	if (info->family_id == MXT_FAMILY_1386)
-+		dbg->t37_pages = MXT1386_COLUMNS * MXT1386_PAGES_PER_COLUMN;
-+	else
-+		dbg->t37_pages = ((data->xsize * info->matrix_ysize)
-+				   * sizeof(u16) / sizeof(dbg->t37_buf->data))
-+				   + 1;
- 
- 	dbg->t37_buf = devm_kzalloc(&data->client->dev,
- 				     sizeof(struct t37_debug) * dbg->t37_pages,
+ /* Grey bit-packed formats */
+ #define V4L2_PIX_FMT_Y10BPACK    v4l2_fourcc('Y', '1', '0', 'B') /* 10  Greyscale bit-packed */
 -- 
 2.5.0
+

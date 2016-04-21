@@ -1,37 +1,53 @@
 From: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Subject: [PATCH RFT V2 0/3] iio: mxs-lradc: implement PM ops
-Date: Thu, 21 Apr 2016 20:11:15 +0000
-Message-ID: <1461269478-449-1-git-send-email-stefan.wahren@i2se.com>
+Subject: [PATCH RFT V2 2/3] iio: mxs-lradc: disable only masked channels in mxs_lradc_hw_stop
+Date: Thu, 21 Apr 2016 20:11:17 +0000
+Message-ID: <1461269478-449-3-git-send-email-stefan.wahren@i2se.com>
+References: <1461269478-449-1-git-send-email-stefan.wahren@i2se.com>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1461269478-449-1-git-send-email-stefan.wahren-eS4NqCHxEME@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
 Cc: Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-This patch series simplifies TS registration and implements suspend/resume
-support for mxs-lradc.
+Disabling of the touchscreen IRQs should be done in
+mxs_lradc_disable_ts. So disable only the masked virtual channels
+in mxs_lradc_hw_stop and finally remove the unused function
+mxs_lradc_irq_en_mask.
 
-Patch 1: simplify TS registration
-Patch 2: refactor mxs-lradc in order to prepare PM implementation
-Patch 3: implement suspend/resume support
+Signed-off-by: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+---
+ drivers/iio/adc/mxs-lradc.c |   11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-These patches has been tested with i.MX23 and i.MX28 but without
-a touchscreen. I added only a bogus touchscreen in devicetree.
-
-It would be nice if someone with a real touchscreen could test it.
-
-Changes in V2:
-- rebase on iio/testing since patch 2 and 3 from V1 has been applied
-- also remove input_unregister_device in patch 1
-- use mask of virtual channels for IRQ disabling in patch 2
-
-Stefan Wahren (3):
-  iio: mxs-lradc: simplify TS registration
-  iio: mxs-lradc: disable only masked channels in mxs_lradc_hw_stop
-  iio: mxs-lradc: implement suspend/resume support
-
- drivers/iio/adc/mxs-lradc.c |   81 +++++++++++++++++++++++++++++++++++--------
- 1 file changed, 66 insertions(+), 15 deletions(-)
-
+diff --git a/drivers/iio/adc/mxs-lradc.c b/drivers/iio/adc/mxs-lradc.c
+index 223650b..cfc558f 100644
+--- a/drivers/iio/adc/mxs-lradc.c
++++ b/drivers/iio/adc/mxs-lradc.c
+@@ -373,13 +373,6 @@ static u32 mxs_lradc_plate_mask(struct mxs_lradc *lradc)
+ 	return LRADC_CTRL0_MX28_PLATE_MASK;
+ }
+ 
+-static u32 mxs_lradc_irq_en_mask(struct mxs_lradc *lradc)
+-{
+-	if (lradc->soc == IMX23_LRADC)
+-		return LRADC_CTRL1_MX23_LRADC_IRQ_EN_MASK;
+-	return LRADC_CTRL1_MX28_LRADC_IRQ_EN_MASK;
+-}
+-
+ static u32 mxs_lradc_irq_mask(struct mxs_lradc *lradc)
+ {
+ 	if (lradc->soc == IMX23_LRADC)
+@@ -1505,7 +1498,9 @@ static void mxs_lradc_hw_stop(struct mxs_lradc *lradc)
+ {
+ 	int i;
+ 
+-	mxs_lradc_reg_clear(lradc, mxs_lradc_irq_en_mask(lradc), LRADC_CTRL1);
++	mxs_lradc_reg_clear(lradc,
++		lradc->buffer_vchans << LRADC_CTRL1_LRADC_IRQ_EN_OFFSET,
++		LRADC_CTRL1);
+ 
+ 	for (i = 0; i < LRADC_MAX_DELAY_CHANS; i++)
+ 		mxs_lradc_reg_wrt(lradc, 0, LRADC_DELAY(i));
 -- 
 1.7.9.5

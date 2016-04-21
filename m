@@ -1,40 +1,43 @@
 From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH v2 3/4] Input: twl6040-vibra - do not reparent to grandparent
-Date: Thu, 21 Apr 2016 13:43:49 +0200
-Message-ID: <beec1481d138da719264083d4c1102451e63d788.1461239029.git.hns@goldelico.com>
+Subject: [PATCH v2 1/4] input: twl6040-vibra: fix DT node memory management
+Date: Thu, 21 Apr 2016 13:43:47 +0200
+Message-ID: <c2392b32fb29d82ca99833cd90132c9a7865d6ec.1461239029.git.hns@goldelico.com>
 References: <cover.1461239029.git.hns@goldelico.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.160]:10436 "EHLO
-	mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751485AbcDULoB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Apr 2016 07:44:01 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1461239029.git.hns@goldelico.com>
 In-Reply-To: <cover.1461239029.git.hns@goldelico.com>
 References: <cover.1461239029.git.hns@goldelico.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fabio Estevam <fabio.estevam@freescale.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, "H. Nikolaus Schaller" <hns@goldelico.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@pyra-handheld.com, letux-kernel@openphoenux.org
+List-Id: linux-input@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+commit e7ec014a47e4 ("Input: twl6040-vibra - update for device tree support")
 
+made the separate vibra DT node to a subnode of the twl6040.
+
+It now calls of_find_node_by_name() to locate the "vibra" subnode.
+This function has a side effect to call of_node_put on() for the twl6040
+parent node passed in as a parameter. This causes trouble later on.
+
+Solution: we must call of_node_get() before of_find_node_by_name()
+
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 ---
- drivers/input/misc/twl6040-vibra.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/input/misc/twl6040-vibra.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
-index f7e0d17..f4384b7 100644
+index 0c853c2..ad15498 100644
 --- a/drivers/input/misc/twl6040-vibra.c
 +++ b/drivers/input/misc/twl6040-vibra.c
-@@ -347,7 +347,6 @@ static int twl6040_vibra_probe(struct platform_device *pdev)
+@@ -257,6 +257,7 @@ static int twl6040_vibra_probe(struct platform_device *pdev)
+ 	int vddvibr_uV = 0;
+ 	int error;
  
- 	info->input_dev->name = "twl6040:vibrator";
- 	info->input_dev->id.version = 1;
--	info->input_dev->dev.parent = pdev->dev.parent;
- 	info->input_dev->close = twl6040_vibra_close;
- 	__set_bit(FF_RUMBLE, info->input_dev->ffbit);
- 
++	of_node_get(twl6040_core_dev->of_node);
+ 	twl6040_core_node = of_find_node_by_name(twl6040_core_dev->of_node,
+ 						 "vibra");
+ 	if (!twl6040_core_node) {
 -- 
 2.7.3
-

@@ -1,39 +1,37 @@
-From: Vladimir Zapolskiy <vz@mleia.com>
-Subject: [PATCH] Input: byd: don't wipe dynamically allocated memory twice
-Date: Thu, 21 Apr 2016 22:58:17 +0300
-Message-ID: <1461268697-30735-1-git-send-email-vz@mleia.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mleia.com ([178.79.152.223]:56892 "EHLO mail.mleia.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751485AbcDUT6X (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Apr 2016 15:58:23 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+Subject: [PATCH RFT V2 0/3] iio: mxs-lradc: implement PM ops
+Date: Thu, 21 Apr 2016 20:11:15 +0000
+Message-ID: <1461269478-449-1-git-send-email-stefan.wahren@i2se.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Pospesel <pospeselr@gmail.com>, Chris Diamand <chris@diamand.org>
-Cc: linux-input@vger.kernel.org
 
-Since memory for a private data is allocated by kzalloc() there is no
-need to fill it with zeroes immediately after the allocation.
+This patch series simplifies TS registration and implements suspend/resume
+support for mxs-lradc.
 
-Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
----
- drivers/input/mouse/byd.c | 1 -
- 1 file changed, 1 deletion(-)
+Patch 1: simplify TS registration
+Patch 2: refactor mxs-lradc in order to prepare PM implementation
+Patch 3: implement suspend/resume support
 
-diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
-index fdc243c..ec73f75 100644
---- a/drivers/input/mouse/byd.c
-+++ b/drivers/input/mouse/byd.c
-@@ -473,9 +473,8 @@ int byd_init(struct psmouse *psmouse)
- 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
- 
--	memset(priv, 0, sizeof(*priv));
- 	setup_timer(&priv->timer, byd_clear_touch, (unsigned long) psmouse);
- 
- 	psmouse->private = priv;
- 	psmouse->disconnect = byd_disconnect;
+These patches has been tested with i.MX23 and i.MX28 but without
+a touchscreen. I added only a bogus touchscreen in devicetree.
+
+It would be nice if someone with a real touchscreen could test it.
+
+Changes in V2:
+- rebase on iio/testing since patch 2 and 3 from V1 has been applied
+- also remove input_unregister_device in patch 1
+- use mask of virtual channels for IRQ disabling in patch 2
+
+Stefan Wahren (3):
+  iio: mxs-lradc: simplify TS registration
+  iio: mxs-lradc: disable only masked channels in mxs_lradc_hw_stop
+  iio: mxs-lradc: implement suspend/resume support
+
+ drivers/iio/adc/mxs-lradc.c |   81 +++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 66 insertions(+), 15 deletions(-)
+
 -- 
-2.1.4
-
+1.7.9.5

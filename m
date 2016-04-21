@@ -1,23 +1,29 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH RFT V2 1/3] iio: mxs-lradc: simplify TS registration
-Date: Thu, 21 Apr 2016 22:39:24 +0200
-Message-ID: <57193A7C.9050607@denx.de>
-References: <1461269478-449-1-git-send-email-stefan.wahren@i2se.com> <1461269478-449-2-git-send-email-stefan.wahren@i2se.com>
+Date: Thu, 21 Apr 2016 14:06:04 -0700
+Message-ID: <20160421210604.GB25466@dtor-ws>
+References: <1461269478-449-1-git-send-email-stefan.wahren@i2se.com>
+ <1461269478-449-2-git-send-email-stefan.wahren@i2se.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1461269478-449-2-git-send-email-stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
-Cc: Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f171.google.com ([209.85.192.171]:36307 "EHLO
+	mail-pf0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751571AbcDUVGI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 Apr 2016 17:06:08 -0400
+Content-Disposition: inline
+In-Reply-To: <1461269478-449-2-git-send-email-stefan.wahren@i2se.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Marek Vasut <marex@denx.de>, Fabio Estevam <fabio.estevam@nxp.com>, Juergen Borleis <jbe@pengutronix.de>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On 04/21/2016 10:11 PM, Stefan Wahren wrote:
+On Thu, Apr 21, 2016 at 08:11:16PM +0000, Stefan Wahren wrote:
 > This patch simplifies the TS registration of mxs-lradc by
 > using devm_input_allocate_device.
 > 
-> Signed-off-by: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+> Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
 > ---
 >  drivers/iio/adc/mxs-lradc.c |    9 ++-------
 >  1 file changed, 2 insertions(+), 7 deletions(-)
@@ -37,6 +43,9 @@ On 04/21/2016 10:11 PM, Stefan Wahren wrote:
 >  
 > -	input = input_allocate_device();
 > +	input = devm_input_allocate_device(dev);
+
+Also please drop "input->dev.parent = dev;" below.
+
 >  	if (!input)
 >  		return -ENOMEM;
 >  
@@ -57,15 +66,21 @@ On 04/21/2016 10:11 PM, Stefan Wahren wrote:
 >  		return;
 >  
 >  	mxs_lradc_disable_ts(lradc);
+
+I do not think this is needed, since mxs_lradc_ts_close() does this for
+us (and it will be called automatically if input device is open at
+unregistration time), and if you remove this you can remove
+mxs_lradc_ts_unregister() altogether.
+
 > -	input_unregister_device(lradc->ts_input);
 >  }
 >  
 >  /*
+> -- 
+> 1.7.9.5
 > 
-This seems to be done right now :)
 
-Reviewed-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Thanks.
 
 -- 
-Best regards,
-Marek Vasut
+Dmitry

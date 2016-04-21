@@ -1,129 +1,64 @@
-From: roderick@gaikai.com
-Subject: [PATCH] HID: uhid: Fixes a bug with userspace bluetooth stacks, which causes hangs during certain operations
-Date: Thu, 21 Apr 2016 13:54:27 -0700
-Message-ID: <1461272067-17624-1-git-send-email-roderick@gaikai.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dh.herrmann@gmail.com, tim.bird@sonymobile.com, linux-kernel@vger.kernel.org, Roderick Colenbrander <roderick.colenbrander@sony.com>, stable@vger.kernel.org
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH RFT V2 2/3] iio: mxs-lradc: disable only masked channels
+ in mxs_lradc_hw_stop
+Date: Thu, 21 Apr 2016 22:44:01 +0200
+Message-ID: <57193B91.9030704@denx.de>
+References: <1461269478-449-1-git-send-email-stefan.wahren@i2se.com> <1461269478-449-3-git-send-email-stefan.wahren@i2se.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1461269478-449-3-git-send-email-stefan.wahren-eS4NqCHxEME@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
+Cc: Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+On 04/21/2016 10:11 PM, Stefan Wahren wrote:
+> Disabling of the touchscreen IRQs should be done in
+> mxs_lradc_disable_ts. So disable only the masked virtual channels
+> in mxs_lradc_hw_stop and finally remove the unused function
+> mxs_lradc_irq_en_mask.
+> 
+> Signed-off-by: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+> ---
+>  drivers/iio/adc/mxs-lradc.c |   11 +++--------
+>  1 file changed, 3 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/iio/adc/mxs-lradc.c b/drivers/iio/adc/mxs-lradc.c
+> index 223650b..cfc558f 100644
+> --- a/drivers/iio/adc/mxs-lradc.c
+> +++ b/drivers/iio/adc/mxs-lradc.c
+> @@ -373,13 +373,6 @@ static u32 mxs_lradc_plate_mask(struct mxs_lradc *lradc)
+>  	return LRADC_CTRL0_MX28_PLATE_MASK;
+>  }
+>  
+> -static u32 mxs_lradc_irq_en_mask(struct mxs_lradc *lradc)
+> -{
+> -	if (lradc->soc == IMX23_LRADC)
+> -		return LRADC_CTRL1_MX23_LRADC_IRQ_EN_MASK;
+> -	return LRADC_CTRL1_MX28_LRADC_IRQ_EN_MASK;
+> -}
+> -
+>  static u32 mxs_lradc_irq_mask(struct mxs_lradc *lradc)
+>  {
+>  	if (lradc->soc == IMX23_LRADC)
+> @@ -1505,7 +1498,9 @@ static void mxs_lradc_hw_stop(struct mxs_lradc *lradc)
+>  {
+>  	int i;
+>  
+> -	mxs_lradc_reg_clear(lradc, mxs_lradc_irq_en_mask(lradc), LRADC_CTRL1);
+> +	mxs_lradc_reg_clear(lradc,
+> +		lradc->buffer_vchans << LRADC_CTRL1_LRADC_IRQ_EN_OFFSET,
+> +		LRADC_CTRL1);
+>  
+>  	for (i = 0; i < LRADC_MAX_DELAY_CHANS; i++)
+>  		mxs_lradc_reg_wrt(lradc, 0, LRADC_DELAY(i));
+> 
+Looks sane too:
 
-Many devices use userspace bluetooth stacks like BlueZ or Bluedroid in combination
-with uhid. If any of these stacks is used with a HID device for which the driver
-performs a HID request as part .probe (or technically another HID operation),
-this results in a deadlock situation. The deadlock results in a 5 second timeout
-for I/O operations in HID drivers, so isn't fatal, but none of the I/O operations
-have a chance of succeeding.
+Reviewed-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
 
-The root cause for the problem is that uhid only allows for one request to be
-processed at a time per uhid instance and locks out other operations. This means
-that if a user space is creating a new HID device through 'UHID_CREATE', which
-ultimately triggers '.probe' through the HID layer. Then any HID request e.g. a
-read for calibration data would trigger a HID operation on uhid again, but it
-won't go out to userspace, because it is still stuck in UHID_CREATE.
-In addition bluetooth stacks are typically single threaded, so they wouldn't be
-able to handle any requests while waiting on uhid.
-
-Lucikly the UHID spec is somewhat flexible and allows for fixing the issue,
-without breaking user space. The idea which the patch implements as discussed
-with David Herrmann is to decouple adding of a hid device (which triggers .probe)
-from UHID_CREATE. The work will kick off roughly once UHID_CREATE completed (or
-else will wait a tiny bit of time in .probe for a lock). A HID driver has to call
-HID to call 'hid_hw_start()' as part of .probe once it is ready for I/O, which
-triggers UHID_START to user space. Any HID operations should function now within
-.probe and won't deadlock because userspace is stuck on UHID_CREATE.
-
-We verified this patch on Bluedroid with Android 6.0 and on desktop Linux with
-BlueZ stacks. Prior to the patch they had the deadlock issue.
-
-Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-Cc: stable@vger.kernel.org
----
- drivers/hid/uhid.c | 35 +++++++++++++++++++++++++----------
- 1 file changed, 25 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 16b6f11..1a2032c 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -51,10 +51,26 @@ struct uhid_device {
- 	u32 report_id;
- 	u32 report_type;
- 	struct uhid_event report_buf;
-+	struct work_struct worker;
- };
- 
- static struct miscdevice uhid_misc;
- 
-+static void uhid_device_add_worker(struct work_struct *work)
-+{
-+	struct uhid_device *uhid = container_of(work, struct uhid_device, worker);
-+	int ret;
-+
-+	ret = hid_add_device(uhid->hid);
-+	if (ret) {
-+		hid_err(uhid->hid, "Cannot register HID device: error %d\n", ret);
-+
-+		hid_destroy_device(uhid->hid);
-+		uhid->hid = NULL;
-+		uhid->running = false;
-+	}
-+}
-+
- static void uhid_queue(struct uhid_device *uhid, struct uhid_event *ev)
- {
- 	__u8 newhead;
-@@ -384,7 +400,7 @@ struct uhid_create_req_compat {
- static int uhid_event_from_user(const char __user *buffer, size_t len,
- 				struct uhid_event *event)
- {
--	if (in_compat_syscall()) {
-+	if (is_compat_task()) {
- 		u32 type;
- 
- 		if (get_user(type, buffer))
-@@ -498,18 +514,14 @@ static int uhid_dev_create2(struct uhid_device *uhid,
- 	uhid->hid = hid;
- 	uhid->running = true;
- 
--	ret = hid_add_device(hid);
--	if (ret) {
--		hid_err(hid, "Cannot register HID device\n");
--		goto err_hid;
--	}
-+	/* Adding of a HID device is done through a worker, to allow HID drivers
-+	 * which use feature requests during .probe to work, without they would
-+	 * be blocked on devlock, which is held by uhid_char_write.
-+	 */
-+	schedule_work(&uhid->worker);
- 
- 	return 0;
- 
--err_hid:
--	hid_destroy_device(hid);
--	uhid->hid = NULL;
--	uhid->running = false;
- err_free:
- 	kfree(uhid->rd_data);
- 	uhid->rd_data = NULL;
-@@ -550,6 +562,8 @@ static int uhid_dev_destroy(struct uhid_device *uhid)
- 	uhid->running = false;
- 	wake_up_interruptible(&uhid->report_wait);
- 
-+	cancel_work_sync(&uhid->worker);
-+
- 	hid_destroy_device(uhid->hid);
- 	kfree(uhid->rd_data);
- 
-@@ -612,6 +626,7 @@ static int uhid_char_open(struct inode *inode, struct file *file)
- 	init_waitqueue_head(&uhid->waitq);
- 	init_waitqueue_head(&uhid->report_wait);
- 	uhid->running = false;
-+	INIT_WORK(&uhid->worker, uhid_device_add_worker);
- 
- 	file->private_data = uhid;
- 	nonseekable_open(inode, file);
 -- 
-2.5.5
+Best regards,
+Marek Vasut

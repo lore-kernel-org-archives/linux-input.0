@@ -1,139 +1,101 @@
-From: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-Subject: Re: [PATCH 0/8] Input: atmel_mxt_ts - output raw touch diagnostic
- data via V4L
-Date: Fri, 22 Apr 2016 12:44:25 -0300
-Message-ID: <20160422124425.39ac140f@recife.lan>
-References: <1461231101-1237-1-git-send-email-nick.dyer@itdev.co.uk>
-	<5719E03D.2010201@xs4all.nl>
-	<20160422114517.0e7430bd@recife.lan>
-	<571A3E3E.60601@itdev.co.uk>
-	<571A40C0.90208@xs4all.nl>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: hid-multitouch stuck taps, possibly 4.5 regression?
+Date: Fri, 22 Apr 2016 09:37:03 -0700
+Message-ID: <CALCETrVfp0LcLxbgHAnkyi8o+rzxOmTFZkE5E-5sU2wU8hSi3A@mail.gmail.com>
+References: <CALCETrXDiW4ZyHhqt2gWwwgVYmdup27f3MsyEY9y+=EjrgJBJg@mail.gmail.com>
+ <20160316084716.GR22340@mail.corp.redhat.com> <CALCETrWRi8nM6h234ppeQZ3VaAqL4d37VmZvt6HSYwDYddO3Kw@mail.gmail.com>
+ <20160317080612.GN1793@lahna.fi.intel.com> <CALCETrWzDhwMP6Ld4U_OO0Q+Bpb=tmb01iC2xRTpjfY6=p_8cg@mail.gmail.com>
+ <CAE7eX3+WOOO=6KVpFaqVDeEegRjz5Atofj8r-bEGfn6KshyDEQ@mail.gmail.com>
+ <CALCETrWsxoL83fNRFrv5ga1mNc=Uh+263T+qXajHNt+9YkYfAA@mail.gmail.com> <CAE7eX3K8XKc2aFbL61btco0aRSUi-+ZUsgsMZ4YKPi7b-Qc=MA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <571A40C0.90208@xs4all.nl>
-Sender: linux-media-owner@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f172.google.com ([209.85.214.172]:33961 "EHLO
+	mail-ob0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751946AbcDVQhX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Apr 2016 12:37:23 -0400
+Received: by mail-ob0-f172.google.com with SMTP id bg3so51563780obb.1
+        for <linux-input@vger.kernel.org>; Fri, 22 Apr 2016 09:37:23 -0700 (PDT)
+In-Reply-To: <CAE7eX3K8XKc2aFbL61btco0aRSUi-+ZUsgsMZ4YKPi7b-Qc=MA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Duggan <andrew.duggan@gmail.com>, Mario Limonciello <mario_limonciello@dell.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Benjamin Tissoires <btissoir@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Jingoo Han <jingoohan1@gmail.com>, Pratyush Anand <pratyush.anand@gmail.com>
 
-Em Fri, 22 Apr 2016 17:18:24 +0200
-Hans Verkuil <hverkuil@xs4all.nl> escreveu:
+Adding Mario.
 
-> On 04/22/2016 05:07 PM, Nick Dyer wrote:
-> > On 22/04/2016 15:45, Mauro Carvalho Chehab wrote:  
-> >> Em Fri, 22 Apr 2016 10:26:37 +0200
-> >> Hans Verkuil <hverkuil@xs4all.nl> escreveu:  
-> >>> On 04/21/2016 11:31 AM, Nick Dyer wrote:  
-> >>>> This is a series of patches to add diagnostic data support to the Atmel
-> >>>> maXTouch driver. It's a rewrite of the previous implementation which output via
-> >>>> debugfs: it now uses a V4L2 device in a similar way to the sur40 driver.
-> >>>>
-> >>>> There are significant performance advantages to putting this code into the
-> >>>> driver. The algorithm for retrieving the data has been fairly consistent across
-> >>>> a range of chips, with the exception of the mXT1386 series (see patch).
-> >>>>
-> >>>> We have a utility which can read the data and display it in a useful format:
-> >>>> 	https://github.com/ndyer/heatmap/commits/heatmap-v4l
-> >>>>
-> >>>> These patches are also available from
-> >>>> 	https://github.com/ndyer/linux/commits/diagnostic-v4l
-> >>>>
-> >>>> Any feedback appreciated.    
-> >>>
-> >>> FYI: we're working on a new buffer type for meta data:
-> >>>
-> >>> https://patchwork.linuxtv.org/patch/33938/
-> >>> https://patchwork.linuxtv.org/patch/33939/  
-> >>
-> >> One of the things I missed on your patchset is the content of the
-> >> new format you added (V4L2_PIX_FMT_YS16). You should be patching
-> >> the V4L2 docbook too, in order to add it there.  
-> > 
-> > OK, will do. I also see that I forgot Kconfig changes for CONFIG_VIDEO_V4L2
-> > etc.
-> >   
-> >> That's said, if the output is really an image, I don't think it
-> >> should be mapped via the new V4L2_BUF_TYPE_META_CAPTURE. This type of
-> >> buffer is meant to be used on non-image metadata, like image statistics
-> >> to feed auto whitebalance and other similar AAA algorithms.  
-> > 
-> > The output is raw touch data - i.e. a rectangular grid of nodes each having
-> > an integer value. I think it is an image in some senses, although perhaps
-> > it's a matter of opinion!
-> > 
-> > You can see an example of a Atmel MXT capacitive touch device here (using
-> > this patchset):
-> > https://www.youtube.com/watch?v=Uj4T6fUCySw
-> > 
-> > There are touch devices which can deliver much higher resolution/framerate.
-> > For example here's the data coming from a SUR40 which is an optical touch
-> > sensor but uses V4L in a similar way:
-> > https://www.youtube.com/watch?v=e-JNqTY_3b0
-> >   
-> >> It could still make sense to use the new device type (VFL_TYPE_META) for
-> >> such drivers, as we don't want applications to identify those devices as
-> >> if they are a webcam.  
-> > 
-> > I agree it may be a little confusing if things like Skype start picking up
-> > these devices. Could we #define V4L2_INPUT_TYPE_TOUCH_SENSOR to solve that
-> > problem?
-> >   
-> 
-> That might be an idea. I have to admit that I didn't look at the patches in
-> detail. It mentioned diagnostics, so I didn't realize that it is a image
-> with a width and height, even though it is not a regular video input.
-> 
-> Adding a new input type won't prevent anyone from picking it up, since
-> nobody tests that field :-)
-
-Yeah, I agree.
-
-> On the other hand, it would be a good place to tell the user that it
-> is from a touch sensor.
-> 
-> Using the upcoming metadata feature wouldn't work since there is no width
-> and height in the metadata format.
-> 
-> I wonder what others think about adding a new type value.
-
-IMO, two things should be done here:
-
-1) Add some caps flag to help userspace to identify what's there
-   on those devices;
-
-2) Make sure that udev/systemd won't be naming the devnodes as
-   "/dev/video";
+On Fri, Mar 18, 2016 at 11:53 AM, Andrew Duggan <andrew.duggan@gmail.com> wrote:
+> On Fri, Mar 18, 2016 at 10:42 AM, Andy Lutomirski <luto@amacapital.net> wrote:
+>> On Thu, Mar 17, 2016 at 1:24 PM, Andrew Duggan <andrew.duggan@gmail.com> wrote:
+>>> On Thu, Mar 17, 2016 at 11:43 AM, Andy Lutomirski <luto@amacapital.net> wrote:
+>>>> On Thu, Mar 17, 2016 at 1:06 AM, Mika Westerberg
+>>>> <mika.westerberg@linux.intel.com> wrote:
+>>>>> On Wed, Mar 16, 2016 at 02:59:48PM -0700, Andy Lutomirski wrote:
+>>>>>> [add i2c-designware maintainers]
+>>>>>>
+>>>>>> On Wed, Mar 16, 2016 at 1:47 AM, Benjamin Tissoires <btissoir@redhat.com> wrote:
+>>>>>> > Hi Andy,
+>>>>>> >
+>>>>>> > On Mar 15 2016 or thereabouts, Andy Lutomirski wrote:
+>>>>>> >> Hi-
+>>>>>> >>
+>>>>>> >> In 4.5 and several 4.5 rcs, I see occasional stuck taps (I think) on
+>>>>>> >> my XPS 13 9350's touchpad.  The effect is that trying to left-click
+>>>>>> >> ends up middle-clicking.  I think it's a kernel issue and not a
+>>>>>> >> hardware or libinput issue, but I'm not 100% sure.  I don't think I
+>>>>>> >> had this issue in 4.4.
+>>>>>> >>
+>>>>>> >> I've attached what I think is an evtest issue of my fixing the issue
+>>>>>> >> by pressing three fingers down in sequence and then releasing them.
+>>>>>> >> After doing that, left-clicks worked.
+>>>>>> >
+>>>>>> > I think I already have been reported the issue here:
+>>>>>> > https://bugs.freedesktop.org/show_bug.cgi?id=93948
+>>>>>> >
+>>>>>> > The result was that it was more likely an I2C transport bug than a
+>>>>>> > hid-multitouch one (see comment #8 in the fdo bug).
+>>>>>> >
+>>>>>> > You can try to run hid-recorder when you see the problems, and then
+>>>>>> > parse the output (or just send it to me). There is huge chances that
+>>>>>> > there will be no events from I2C sending the release.
+>>>>>> >
+>>>>>> > And again, I am not sure how we could end up debugging this in the
+>>>>>> > i2c-designware driver :(
+>>>>>> >
+>>>>>>
+>>>>>> Does this ring a bell?
+>>>>>
+>>>>> i2c-designware usually prints errors to dmesg if it fails to transfer
+>>>>> messages. Can you include dmesg of the failure as well?
+>>>>
+>>>> Nothing shows up at all.  All I have is:
+>>>>
+>>>> input: DLL0704:01 06CB:76AE Touchpad as
+>>>> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/i2c-DLL0704:01/0018:06CB:76AE.0001/input/input12
+>>>
+>>> What is the fw id? I have a 9343 with the same touchpad and have not
+>>> noticed an issue. This is the dmesg output for my touchpad.
+>>>
+>>> [    5.216319] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1,
+>>> id: 0x1e2b1, caps: 0xd00123/0x840300/0x12e800/0x0, board id: 3038, fw
+>>> id: 1832324
+>>
+>> Mine is shinier and newer, apparently.
+>>
+>> psmouse serio1: synaptics: Touchpad model: 1, fw: 8.2, id: 0x1e2a1,
+>> caps: 0xf00223/0x840300/0x12e800/0x0, board id: 3038, fw id: 2011643
+>
+> It looks like you actually have a slightly newer revision of the
+> module (76AE vs my 76AD). So I can't quite do a direct comparison.
+> However, the 9350 system listed in the bug does have my exact module.
+> Which is why we think it might be a problem with the embedded I2C
+> chipset in the 9350.
+>
+> Andrew
 
 
-The latter one could be solved with either the new dev meta or
-with another VFL_TYPE for input systems (like VFL_TYPE_TOUCH_SENSOR)
-and use this code snippet:
 
-diff --git a/drivers/media/v4l2-core/v4l2-dev.c b/drivers/media/v4l2-core/v4l2-dev.c
-index d8e5994cccf1..4d3e574eba49 100644
---- a/drivers/media/v4l2-core/v4l2-dev.c
-+++ b/drivers/media/v4l2-core/v4l2-dev.c
-@@ -887,6 +887,9 @@ int __video_register_device(struct video_device *vdev, int type, int nr,
-                /* Use device name 'swradio' because 'sdr' was already taken. */
-                name_base = "swradio";
-                break;
-+       case VFL_TYPE_TOUCH_SENSOR:
-+               name_base = "v4l-touch";
-+               break;
-        default:
-                printk(KERN_ERR "%s called with unknown type: %d\n",
-                       __func__, type);
-
-
-Such change would cause __video_register_device() to pass a different
-name_base to:
-	dev_set_name(&vdev->dev, "%s%d", name_base, vdev->num);
-
-This way, udev/systemd will use a different name (by default, 
-/dev/v4l-touch0), and existing apps won't identify this as a
-webcam.
-
-Regards,
-Mauro
+-- 
+Andy Lutomirski
+AMA Capital Management, LLC

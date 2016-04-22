@@ -1,132 +1,78 @@
-From: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Subject: Re: [PATCH RFT V2 3/3] iio: mxs-lradc: implement suspend/resume
- support
-Date: Fri, 22 Apr 2016 15:57:12 +0200
-Message-ID: <571A2DB8.9050509@i2se.com>
-References: <1461269478-449-1-git-send-email-stefan.wahren@i2se.com>
- <1461269478-449-4-git-send-email-stefan.wahren@i2se.com>
- <57193C01.20709@denx.de>
+From: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Subject: Re: [PATCH 0/8] Input: atmel_mxt_ts - output raw touch diagnostic
+ data via V4L
+Date: Fri, 22 Apr 2016 11:45:17 -0300
+Message-ID: <20160422114517.0e7430bd@recife.lan>
+References: <1461231101-1237-1-git-send-email-nick.dyer@itdev.co.uk>
+	<5719E03D.2010201@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <57193C01.20709-ynQEQJNshbs@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
-Cc: Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <5719E03D.2010201@xs4all.nl>
+Sender: linux-media-owner@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Marek,
+Em Fri, 22 Apr 2016 10:26:37 +0200
+Hans Verkuil <hverkuil@xs4all.nl> escreveu:
 
-Am 21.04.2016 um 22:45 schrieb Marek Vasut:
-> On 04/21/2016 10:11 PM, Stefan Wahren wrote:
->> This patch implements suspend/resume support for mxs-lradc.
->> It's possible to use the touchscreen as wakeup source.
->>
->> Signed-off-by: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
->> ---
->>  drivers/iio/adc/mxs-lradc.c |   61 +++++++++++++++++++++++++++++++++++++++++++
->>  1 file changed, 61 insertions(+)
->>
->> diff --git a/drivers/iio/adc/mxs-lradc.c b/drivers/iio/adc/mxs-lradc.c
->> index cfc558f..6bd387f 100644
->> --- a/drivers/iio/adc/mxs-lradc.c
->> +++ b/drivers/iio/adc/mxs-lradc.c
->> @@ -29,6 +29,7 @@
->>  #include <linux/of.h>
->>  #include <linux/of_device.h>
->>  #include <linux/platform_device.h>
->> +#include <linux/pm.h>
->>  #include <linux/slab.h>
->>  #include <linux/stmp_device.h>
->>  #include <linux/sysfs.h>
->> @@ -1745,10 +1746,70 @@ static int mxs_lradc_remove(struct platform_device *pdev)
->>  	return 0;
->>  }
->>  
->> +static int __maybe_unused mxs_lradc_suspend(struct device *dev)
->> +{
->> +	struct iio_dev *iio = dev_get_drvdata(dev);
->> +	struct mxs_lradc *lradc = iio_priv(iio);
->> +	struct input_dev *input = lradc->ts_input;
-> Can lradc->ts_input contain some non-valid pointer ? You should make
-> sure it's either inited to NULL or valid pointer, which I'm not sure
-> you do.
+> Hi Nick,
+> 
+> On 04/21/2016 11:31 AM, Nick Dyer wrote:
+> > This is a series of patches to add diagnostic data support to the Atmel
+> > maXTouch driver. It's a rewrite of the previous implementation which output via
+> > debugfs: it now uses a V4L2 device in a similar way to the sur40 driver.
+> > 
+> > There are significant performance advantages to putting this code into the
+> > driver. The algorithm for retrieving the data has been fairly consistent across
+> > a range of chips, with the exception of the mXT1386 series (see patch).
+> > 
+> > We have a utility which can read the data and display it in a useful format:
+> > 	https://github.com/ndyer/heatmap/commits/heatmap-v4l
+> > 
+> > These patches are also available from
+> > 	https://github.com/ndyer/linux/commits/diagnostic-v4l
+> > 
+> > Any feedback appreciated.  
+> 
+> FYI: we're working on a new buffer type for meta data:
+> 
+> https://patchwork.linuxtv.org/patch/33938/
+> https://patchwork.linuxtv.org/patch/33939/
 
-the whole content of lradc get initialized with zero by
-devm_iio_device_alloc.
+Nick,
 
-Or do you mean the error case that input registration failed and a
-suspend occur (if it's possible)|?
+One of the things I missed on your patchset is the content of the
+new format you added (V4L2_PIX_FMT_YS16). You should be patching
+the V4L2 docbook too, in order to add it there.
 
-Stefan
+That's said, if the output is really an image, I don't think it
+should be mapped via the new V4L2_BUF_TYPE_META_CAPTURE. This type of
+buffer is meant to be used on non-image metadata, like image statistics
+to feed auto whitebalance and other similar AAA algorithms.
 
-|
->
->> +	int ret = 0;
->> +
->> +	if (input) {
->> +		mutex_lock(&input->mutex);
->> +
->> +		/* Enable touchscreen wakeup irq */
->> +		if (input->users && device_may_wakeup(dev))
->> +			ret = enable_irq_wake(lradc->irq[0]);
->> +		else
->> +			mxs_lradc_disable_ts(lradc);
->> +
->> +		mutex_unlock(&input->mutex);
->> +	}
->> +
->> +	if (ret)
->> +		return ret;
->> +
->> +	mxs_lradc_hw_stop(lradc);
->> +
->> +	clk_disable_unprepare(lradc->clk);
->> +
->> +	return ret;
->> +}
->> +
->> +static int __maybe_unused mxs_lradc_resume(struct device *dev)
->> +{
->> +	struct iio_dev *iio = dev_get_drvdata(dev);
->> +	struct mxs_lradc *lradc = iio_priv(iio);
->> +	struct input_dev *input = lradc->ts_input;
->> +	int ret;
->> +
->> +	ret = clk_prepare_enable(lradc->clk);
->> +	if (ret)
->> +		return ret;
->> +
->> +	mxs_lradc_hw_init(lradc);
->> +
->> +	if (input) {
->> +		mutex_lock(&input->mutex);
->> +
->> +		/* Disable touchscreen wakeup irq */
->> +		if (input->users && device_may_wakeup(dev))
->> +			ret = disable_irq_wake(lradc->irq[0]);
->> +		else
->> +			mxs_lradc_enable_touch_detection(lradc);
->> +
->> +		mutex_unlock(&input->mutex);
->> +	}
->> +
->> +	return ret;
->> +}
->> +
->> +static SIMPLE_DEV_PM_OPS(mxs_lradc_pm_ops, mxs_lradc_suspend, mxs_lradc_resume);
->> +
->>  static struct platform_driver mxs_lradc_driver = {
->>  	.driver	= {
->>  		.name	= DRIVER_NAME,
->>  		.of_match_table = mxs_lradc_dt_ids,
->> +		.pm	= &mxs_lradc_pm_ops,
->>  	},
->>  	.probe	= mxs_lradc_probe,
->>  	.remove	= mxs_lradc_remove,
->>
-> Looks OK otherwise:
->
-> Reviewed-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
->
+It could still make sense to use the new device type (VFL_TYPE_META) for
+such drivers, as we don't want applications to identify those devices as
+if they are a webcam.
+
+> 
+> This would be an excellent fit for you. I expect that this new feature would be
+> merged soon (for 4.7 or 4.8 at the latest) since it looks all pretty good to me.
+> 
+> So let's wait for this to be merged and then you can migrate to the new buffer
+> type.
+> 
+> Regards,
+> 
+> 	Hans
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-media" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+-- 
+Thanks,
+Mauro

@@ -1,155 +1,1240 @@
-From: Marty Plummer <netz.kernel@gmail.com>
-Subject: hid-sony feature request: module parameters
-Date: Fri, 22 Apr 2016 16:55:27 -0500
-Message-ID: <777c0d46-f396-b4e1-49cf-6460d210be5a@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
+Date: Fri, 22 Apr 2016 15:50:48 -0700
+Message-ID: <20160422225048.GA30342@dtor-ws>
+References: <1461319268-362-1-git-send-email-dan.huang@rad-ic.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="3JqfjAK1JlaxHwH5iEsgFXkDM5MTFpOQr"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:34481 "EHLO
-	mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752555AbcDVVzh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Apr 2016 17:55:37 -0400
-Received: by mail-oi0-f68.google.com with SMTP id b10so15898685oig.1
-        for <linux-input@vger.kernel.org>; Fri, 22 Apr 2016 14:55:37 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: frank.praznik@gmail.com, linux-input@vger.kernel.org
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---3JqfjAK1JlaxHwH5iEsgFXkDM5MTFpOQr
-Content-Type: multipart/mixed; boundary="94MEKKSXGp1SdGgSDEex8FgxlI1TjhVWT"
-From: Marty Plummer <netz.kernel@gmail.com>
-To: frank.praznik@gmail.com, linux-input@vger.kernel.org
-Message-ID: <777c0d46-f396-b4e1-49cf-6460d210be5a@gmail.com>
-Subject: hid-sony feature request: module parameters
-
---94MEKKSXGp1SdGgSDEex8FgxlI1TjhVWT
-Content-Type: multipart/mixed;
- boundary="------------51ED4F3C484028CE92A8563D"
-
-This is a multi-part message in MIME format.
---------------51ED4F3C484028CE92A8563D
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1461319268-362-1-git-send-email-dan.huang-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "dan.huang" <yajohn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jeesw-iQTvn4YitUrQT0dZR+AlfA@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, jeffrey.lin-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, roger.yang-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, KP.li-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, albert.shieh-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+List-Id: linux-input@vger.kernel.org
 
-Greetings.
-	I was wondering if it would be possible to include a kernel module
-parameter to be able to disable a given axis on the dualshock 4/etc. In
-particular I'm concerned with the accelerometer and/or gyroscope axis, as=
+Hi Dan,
 
-at times it can be a bit bothersome to configure certain games which do n=
-ot
-support the dualshock 4 out of box, in that the typical method of "click
-this to configure this button, then press the button on the joystick you
-wish to use to set" method has a tendency to set it to one of the
-orientation sensors (or even the touchpad, if you've touched it and set i=
-t
-away from its default values)
+On Fri, Apr 22, 2016 at 06:01:08PM +0800, dan.huang wrote:
+> From: "jeffrey.lin" <jeffrey.lin-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org>
+>=20
+> Raydium I2C touch driver.
+>=20
+> Signed-off-by: jeffrey.lin <jeffrey.lin-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org>
 
-	It would be of great help to me (and likely other users with similar
-issues) to be able to just null these.
+When you are sending a patch over you need to add your sign-off to it.
 
---------------51ED4F3C484028CE92A8563D
-Content-Type: application/pgp-keys;
- name="0xC030918D.asc"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
- filename="0xC030918D.asc"
+Also I am still getting compile errors/warnings:
 
------BEGIN PGP PUBLIC KEY BLOCK-----
-Version: GnuPG v2
+  CC [M]  drivers/input/touchscreen/raydium_i2c_ts.o
+drivers/input/touchscreen/raydium_i2c_ts.c: In function
+=E2=80=98raydium_i2c_probe=E2=80=99:
+drivers/input/touchscreen/raydium_i2c_ts.c:1036:35: warning: =E2=80=98i=
+rqflags=E2=80=99
+may be used uninitialized in this function [-Wmaybe-uninitialized]
+  error =3D devm_request_threaded_irq(&client->dev, client->irq,
 
-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
-6bHvAnTue6j5eKZcjA=3D=3D
-=3Dd06F
------END PGP PUBLIC KEY BLOCK-----
+Also please mention what is changed between previous and new version so
+I do not need to hunt for surprises.
 
---------------51ED4F3C484028CE92A8563D--
+> +/*I2C command */
+> +#define CMD_BOOT_WRT		0x11
+> +#define CMD_BOOT_ACK		0x22
+> +#define CMD_BOOT_CHK		0x33
+> +#define CMD_BOOT_READ		0x44
+> +#define CMD_BOOT_WAIT_READY	0x1A
+> +#define CMD_BOOT_PATH_READY	0x1B
 
---94MEKKSXGp1SdGgSDEex8FgxlI1TjhVWT--
+I see that in this version the command codes are completely redone. Why
+is this? I think there is general confusion as to the encoding of the
+"header" for the command message little endian vs big endian) and
+position of the register in the header.
 
---3JqfjAK1JlaxHwH5iEsgFXkDM5MTFpOQr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Would you mind spelling out the format of command message, please?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+> +#define BOOT_RDY		0xFF
+> +#define CMD_QUERY_BANK		0x2B
+> +#define CMD_DATA_BANK		0x4D
+> +#define CMD_ENTER_SLEEP		0x4E
+> +#define CMD_BANK_SWITCH		0xAA
+> +
+> +/* Touch relative info */
+> +#define MAX_RETRIES		3
+> +#define MAX_FW_UPDATE_RETRIES	30
+> +#define MAX_TOUCH_NUM		10
+> +#define MAX_PACKET_SIZE		32
+> +#define BOOT_DELAY_MS	100
+> +
+> +#define RAYDIUM_FW_PAGESIZE		128
+> +#define RAYDIUM_POWERON_DELAY_USEC	500
+> +#define RAYDIUM_RESET_DELAY_MSEC	50
+> +
+> +#define ADDR_INDEX		0x03
+> +#define DATA_INDEX		0x04
+> +
+> +#define HEADER_SIZE		4
+> +
+> +enum raydium_boot_mode {
+> +	RAYDIUM_TS_MAIN =3D 0,
+> +	RAYDIUM_TS_BLDR,
+> +};
+> +
+> +enum raydium_abs_idx {
+> +	POS_STATE =3D 0,/*1:touch, 0:no touch*/
+> +	POS_X,
+> +	POS_Y =3D 3,
+> +	POS_PRESSURE,
+> +	WIDTH_X,
+> +	WIDTH_Y,
+> +};
+> +
+> +struct raydium_info {
+> +	u32 hw_ver;	/*device ver, __le32*/
+> +	u8 main_ver;
+> +	u8 sub_ver;
+> +	u16 ft_ver;	/*test ver, __le16*/
+> +	u8 x_num;
+> +	u8 y_num;
+> +	u16 x_max;	/*disp reso, __le16*/
+> +	u16 y_max;	/*disp reso, __le16*/
+> +	u8 x_res;		/* units/mm */
+> +	u8 y_res;		/* units/mm */
+> +};
+> +
+> +struct raydium_object {
+> +	u32 data_bank_addr;
+> +	u8 pkg_size;
+> +	u8 tp_info_size;
+> +};
+> +
+> +/* struct raydium_data - represents state of Raydium touchscreen dev=
+ice */
+> +struct raydium_data {
+> +	struct i2c_client *client;
+> +	struct input_dev *input;
+> +
+> +	struct regulator *avdd;
+> +	struct regulator *vccio;
+> +	struct gpio_desc *reset_gpio;
+> +
+> +	u32 query_bank_info;
+> +
+> +	struct raydium_info info;
+> +	struct raydium_object obj;
+> +	enum raydium_boot_mode boot_mode;
+> +
+> +	struct mutex sysfs_mutex;
+> +	struct completion cmd_done;
+> +
+> +	bool wake_irq_enabled;
+> +};
+> +
+> +static int raydium_i2c_send(struct i2c_client *client,
+> +	u8 addr, u8 *data, size_t len)
+> +{
+> +	u8 buf[MAX_PACKET_SIZE + 1], idx_i;
+> +	u16 pkg_len, use_len;
+> +	int tries =3D 0;
+> +
+> +	buf[0] =3D addr;
+> +	use_len =3D len;
+> +	use_len =3D 0;
+> +
+> +	while (use_len) {
+> +		pkg_len =3D (use_len < MAX_PACKET_SIZE) ?
+> +			use_len : MAX_PACKET_SIZE;
+> +		memcpy(&buf[1], data + idx_i*MAX_PACKET_SIZE, pkg_len);
+> +
+> +		tries =3D 0;
+> +		do {
+> +			if (i2c_master_send(client, buf, pkg_len + 1)
+> +				=3D=3D (pkg_len + 1))
+> +				break;
+> +			msleep(20);
+> +		} while (++tries < MAX_RETRIES);
+> +		idx_i++;
+> +		use_len =3D (use_len < MAX_PACKET_SIZE) ?
+> +			0 : (use_len - MAX_PACKET_SIZE);
+> +	}
+> +
+> +	dev_err(&client->dev, "%s: i2c send failed\n", __func__);
+> +
+> +	return -EIO;
+> +}
+> +
+> +static int raydium_i2c_read(struct i2c_client *client,
+> +	u8 addr, size_t len, void *data)
+> +{
+> +	struct i2c_msg xfer[2];
+> +	int ret;
+> +
+> +	/* Write register */
+> +	xfer[0].addr =3D client->addr;
+> +	xfer[0].flags =3D 0;
+> +	xfer[0].len =3D 1;
+> +	xfer[0].buf =3D &addr;
+> +
+> +	/* Read data */
+> +	xfer[1].addr =3D client->addr;
+> +	xfer[1].flags =3D I2C_M_RD;
+> +	xfer[1].len =3D len;
+> +	xfer[1].buf =3D data;
+> +
+> +	ret =3D i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (ret !=3D ARRAY_SIZE(xfer))
+> +		return -EIO;
+> +
+> +	return 0;
+> +}
+> +
+> +static int raydium_i2c_read_message(struct i2c_client *client,
+> +	u32 addr, size_t len, void *data)
+> +{
+> +	u16 pkg_size, use_len;
+> +	u8 buf[HEADER_SIZE], idx_i;
+> +	int error;
+> +
+> +	use_len =3D len;
+> +	idx_i =3D 0;
+> +	while (use_len > 0) {
+> +		pkg_size =3D (use_len < MAX_PACKET_SIZE) ?
+> +			use_len : MAX_PACKET_SIZE;
+> +
+> +		put_unaligned_be32(addr, buf);
+> +
+> +		/*set data bank*/
+> +		error =3D raydium_i2c_send(client, CMD_BANK_SWITCH,
+> +			(u8 *)buf, HEADER_SIZE);
+> +		/*read potints data*/
+> +		if (!error)
+> +			error =3D raydium_i2c_read(client, buf[ADDR_INDEX],
+> +				pkg_size,
+> +				data + idx_i*MAX_PACKET_SIZE);
+> +
+> +		pkg_size +=3D MAX_PACKET_SIZE;
+> +		addr +=3D MAX_PACKET_SIZE;
+> +		use_len =3D (use_len < MAX_PACKET_SIZE) ?
+> +			0 : (use_len - MAX_PACKET_SIZE);
+> +		idx_i++;
+> +	}
+> +
+> +	return error;
+> +}
+> +
+> +static int raydium_i2c_send_message(struct i2c_client *client,
+> +	size_t len, void *data)
+> +{
+> +	int error;
+> +	__le32 cmd;
+> +
+> +	cmd =3D get_unaligned_le32(data);
+> +
+> +	/*set data bank*/
+> +	error =3D raydium_i2c_send(client, CMD_BANK_SWITCH, (u8 *)&cmd,
+> +		HEADER_SIZE);
+> +
+> +	/*send message*/
+> +	if (!error)
+> +		error =3D raydium_i2c_send(client, ((u8 *)data)[ADDR_INDEX],
+> +			data + DATA_INDEX, len);
+> +
+> +	return error;
+> +}
+> +
+> +static int raydium_i2c_sw_reset(struct i2c_client *client)
+> +{
+> +	static const u8 soft_rst_cmd[] =3D {0x40, 0x00, 0x00, 0x04, 0x01};
+> +	int error;
+> +
+> +	error =3D raydium_i2c_send_message(client, ARRAY_SIZE(soft_rst_cmd)=
+,
+> +		(void *)soft_rst_cmd);
+> +	if (error) {
+> +		dev_err(&client->dev, "software reset failed: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	msleep(RAYDIUM_RESET_DELAY_MSEC);
+> +
+> +	return 0;
+> +}
+> +
+> +static int raydium_i2c_query_ts_info(struct raydium_data *ts)
+> +{
+> +	struct i2c_client *client =3D ts->client;
+> +	int error, retry_cnt;
+> +
+> +	for (retry_cnt =3D 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
+> +		error =3D raydium_i2c_read(client, CMD_DATA_BANK,
+> +			sizeof(ts->obj), (void *)&ts->obj);
+> +			ts->obj.data_bank_addr =3D
+> +				get_unaligned_le32(&ts->obj.data_bank_addr);
+> +
+> +		if (!error) {
+> +			error =3D raydium_i2c_read(client, CMD_QUERY_BANK,
+> +				sizeof(ts->query_bank_info),
+> +				(void *)&ts->query_bank_info);
+> +			if (!error) {
+> +				error =3D raydium_i2c_read_message(client,
+> +					ts->query_bank_info, sizeof(ts->info),
+> +					(void *)&ts->info);
+> +
+> +				ts->info.hw_ver =3D
+> +					get_unaligned_le32(&ts->info.hw_ver);
+> +				ts->info.ft_ver =3D
+> +					get_unaligned_le16(&ts->info.ft_ver);
+> +				ts->info.x_max =3D
+> +					get_unaligned_le16(&ts->info.x_max);
+> +				ts->info.y_max =3D
+> +					get_unaligned_le16(&ts->info.y_max);
+> +				return 0;
+> +			}
+> +		}
+> +	}
+> +	dev_err(&client->dev, "Get touch data failed: %d\n", error);
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +static int raydium_i2c_fastboot(struct i2c_client *client)
+> +{
+> +	static const u8 boot_cmd[] =3D { 0x50, 0x00, 0x06, 0x20 };
+> +	u8 buf[HEADER_SIZE];
+> +	int error;
+> +
+> +	error =3D raydium_i2c_read_message(client,
+> +		get_unaligned_be32(boot_cmd),
+> +		sizeof(boot_cmd), buf);
+> +
+> +	if (!error) {
+> +		if (buf[0] =3D=3D RM_BOOT_BLDR) {
+> +			dev_dbg(&client->dev, "boot in fastboot mode\n");
+> +			return -EINVAL;
+> +		}
+> +		dev_dbg(&client->dev, "boot success -- 0x%x\n", client->addr);
+> +		return 0;
+> +	}
+> +
+> +	dev_err(&client->dev, "boot failed: %d\n", error);
+> +
+> +	return error;
+> +}
+> +
+> +static int raydium_i2c_check_fw_status(struct raydium_data *ts)
+> +{
+> +	struct i2c_client *client =3D ts->client;
+> +	static const u8 bl_area[] =3D {0x62, 0x6f, 0x6f, 0x74};
+> +	static const u8 main_area[] =3D {0x66, 0x69, 0x72, 0x6d};
+> +	u8 buf[HEADER_SIZE];
+> +	int error;
+> +
+> +	error =3D raydium_i2c_read(client, CMD_BOOT_READ, HEADER_SIZE,
+> +		(void *)buf);
+> +	if (!error) {
+> +		if (memcmp(buf, bl_area, sizeof(bl_area)))
+> +			ts->boot_mode =3D RAYDIUM_TS_BLDR;
+> +		else if (memcmp(buf, main_area, sizeof(main_area)))
+> +			ts->boot_mode =3D RAYDIUM_TS_MAIN;
+> +		else
+> +			return -EINVAL;
+> +
+> +		return 0;
+> +	}
+> +
+> +	dev_err(&client->dev, "check bl status failed: %d\n", error);
+> +
+> +	return error;
+> +}
+> +
+> +static int raydium_i2c_initialize(struct raydium_data *ts)
+> +{
+> +	struct i2c_client *client =3D ts->client;
+> +	int error, retry_cnt;
+> +
+> +	for (retry_cnt =3D 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
+> +		error =3D raydium_i2c_fastboot(client);
+> +		if (error) {
+> +			/* Continue initializing if it's the last try */
+> +			if (retry_cnt < MAX_RETRIES - 1)
+> +				continue;
+> +		}
+> +		/* Wait for Hello packet */
+> +		msleep(BOOT_DELAY_MS);
+> +
+> +		error =3D raydium_i2c_check_fw_status(ts);
+> +		if (error) {
+> +			dev_err(&client->dev,
+> +				"failed to read 'hello' packet: %d\n", error);
+> +		}
+> +	}
+> +
+> +	if (error)
+> +		ts->boot_mode =3D RAYDIUM_TS_BLDR;
+> +	else
+> +		raydium_i2c_query_ts_info(ts);
+> +
+> +	return error;
+> +}
+> +
+> +static int raydium_i2c_recv(struct i2c_client *client, u8 *buf, size=
+_t count)
+> +{
+> +	int error =3D 0;
+> +
+> +	error =3D i2c_master_recv(client, buf, count);
+> +
+> +	if (error =3D=3D count) {
+> +		error =3D 0;
+> +	} else if (error !=3D count) {
+> +		error =3D (error < 0) ? error : -EIO;
+> +		dev_err(&client->dev, "i2c recv failed (%d)\n", error);
+> +	}
+> +
+> +	return error;
+> +}
+> +
+> +static int raydium_i2c_bl_chk_state(struct i2c_client *client, u8 st=
+ate)
+> +{
+> +	static const u8 ack_ok[] =3D { 0xFF, 0x39, 0x30, 0x30, 0x54 };
+> +	u8 rbuf[5];
+> +	u8 retry;
+> +	int error;
+> +
+> +	for (retry =3D 0; retry < MAX_FW_UPDATE_RETRIES; retry++) {
+> +		if (state =3D=3D CMD_BOOT_WAIT_READY) {
+> +			error =3D raydium_i2c_recv(client, &rbuf[0], 1);
+> +			if (!error) {
+> +				if (rbuf[0] =3D=3D BOOT_RDY)
+> +					return 0;
+> +			}
+> +		} else if (state =3D=3D CMD_BOOT_WAIT_READY) {
 
-iQIcBAEBCAAGBQJXGp3WAAoJEHWEtN3AMJGNkaoP/3FeNZSIMOwqMarEJrnWAgpy
-WABkjNs6yqQa4TNkhkdk+BvawqQhRssrTKNXreQpSQ7qEK23kchzRkct6d0O1ioF
-T7zzGPHAwrBeod+jAlZTAaKeoUvdwd6xDJeydTZJIU7DRKOyfPb5awglip+mXko4
-vjCQ44fSs4A2hKLloMcgoukvZiYxFmfMVbjt363SX0YpEgXZsi5XGOMLBp0h/DeM
-XJocW9gFJjSArv9Hi6V0pHjr9vj7hP1zO1zwtTGY/M2h50f+091mW2ZYGTFSA+Oj
-eJjgutZWlUKVZ9PHaKHyDU6GLG3MOySP+FXCH8Nk12yYDMH6eGDJsi+TgPyCWspd
-bzj7SLIti8d1zN1pRvgwm3F+yxhMP5weeaKMdndqjA1/Hrb5J+rqDlr9iAAQsSqg
-HVYUyuSJ5hezB9RdfAP99pvmB7WKTypANy7sgxLJ+EvJ9XWI5NMJ/3zikLVgp7YE
-kfI9TsbO6SKOGstFl9N9glpSq+UUMX1qSOe/jhGhi5RAJfJPiYKkU5G6yuNY/QxE
-iS1jlnq5qSP/niHTDAkBFk+94Sm/AfCuTK1jxgZxKDfGGTn/QkWBUSffEvYumhjI
-DTGQLlRpf5Z3rMVpGJ7MOpTPUhOYmUSKKBnR8hXO6B7wZlb+6EOEew0//5LTq3Y9
-NTSVIkMBxmBgqpnVAj2W
-=hM6Q
------END PGP SIGNATURE-----
+The condition on branches is the same (CMD_BOOT_WAIT_READY).
 
---3JqfjAK1JlaxHwH5iEsgFXkDM5MTFpOQr--
+> +			error =3D raydium_i2c_recv(client, &rbuf[0],
+> +				sizeof(ack_ok));
+> +			if (!error) {
+> +				if (memcmp(rbuf, ack_ok, sizeof(ack_ok)))
+> +					return 0;
+> +			}
+> +		} else
+> +			return -EINVAL;
+> +
+> +		msleep(20);
+> +	}
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +static int raydium_i2c_wrt_object(struct i2c_client *client,
+> +	u8 *data, size_t len, u8 state)
+> +{
+> +	int error =3D 0;
+> +
+> +	error =3D raydium_i2c_send(client, CMD_BOOT_WRT, data, len);
+> +	if (error) {
+> +		dev_err(&client->dev, "WRT obj command failed: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	error =3D raydium_i2c_send(client, CMD_BOOT_ACK, (u8 *)NULL, 0);
+> +	if (error) {
+> +		dev_err(&client->dev, "Ack obj command failed: %d\n", error);
+> +		return error;
+> +	}
+
+I am looking at raydium_i2c_send() implementation and it seemd to be a
+no-op with len =3D=3D 0, what gives?
+
+> +
+> +	error =3D raydium_i2c_send(client, CMD_BOOT_CHK, (u8 *)NULL, 0);
+> +	if (error) {
+> +		dev_err(&client->dev, "Boot chk failed: %d\n", error);
+> +		return error;
+> +	}
+
+Same here.
+
+> +
+> +	error =3D raydium_i2c_bl_chk_state(client, state);
+> +	if (error) {
+> +		dev_err(&client->dev, "boot trigger state failed: %d\n", error);
+> +		return error;
+> +	}
+> +	return 0;
+> +}
+> +
+> +static bool raydium_i2c_boot_trigger(struct i2c_client *client)
+> +{
+> +	int error;
+> +	u8 u8_idx;
+> +	static const u8 cmd[7][6] =3D {
+> +			{0x08, 0x0C, 0x09, 0x00, 0x50, 0xD7},
+> +			{0x08, 0x04, 0x09, 0x00, 0x50, 0xA5},
+> +			{0x08, 0x04, 0x09, 0x00, 0x50, 0x00},
+> +			{0x08, 0x04, 0x09, 0x00, 0x50, 0xA5},
+> +			{0x08, 0x0C, 0x09, 0x00, 0x50, 0x00},
+> +			{0x06, 0x01},
+> +			{0x02, 0xA2},
+> +		};
+> +
+> +	for (u8_idx =3D 0 ; u8_idx < 7 ; u8_idx++) {
+> +		error =3D raydium_i2c_wrt_object(client, (u8 *)cmd[u8_idx],
+> +			sizeof(cmd[u8_idx]), CMD_BOOT_WAIT_READY);
+
+If you expect that for last 2 elements the sizeof(cmd[u8_idx]) will
+return 2 you are mistaken, they all will be 6.
+
+> +		if (error) {
+> +			dev_err(&client->dev, "send boot trigger cmd failed: %d\n",
+> +				error);
+> +			return error;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int raydium_i2c_check_path(struct i2c_client *client)
+> +{
+> +	static const u8 cmd[] =3D {0x09, 0x00, 0x09, 0x00, 0x50, 0x10, 0x00=
+};
+> +	int error;
+> +
+> +	error =3D raydium_i2c_wrt_object(client, (u8 *)cmd, sizeof(cmd),
+> +		CMD_BOOT_PATH_READY);
+> +	if (error) {
+> +		dev_err(&client->dev, "send chk path cmd fail: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	return error;
+> +}
+> +
+> +static int raydium_i2c_enter_bl(struct i2c_client *client)
+> +{
+> +	static const u8 cal_cmd[] =3D {0x00, 0x01, 0x52};
+> +	int error;
+> +
+> +	error =3D raydium_i2c_wrt_object(client, (u8 *)cal_cmd,
+> +		sizeof(cal_cmd), CMD_BOOT_WAIT_READY);
+> +	if (error) {
+> +		dev_err(&client->dev, "send jump loader cmd fail: %d\n", error);
+> +		return error;
+> +	}
+> +	return 0;
+> +}
+> +
+> +static int raydium_i2c_leave_bl(struct i2c_client *client)
+> +{
+> +	static const u8 leave_cmd[] =3D {0x05, 0x00};
+> +	int error;
+> +
+> +	error =3D raydium_i2c_wrt_object(client, (u8 *)leave_cmd,
+> +		sizeof(leave_cmd), CMD_BOOT_WAIT_READY);
+> +	if (error) {
+> +		dev_err(&client->dev, "send leave bl cmd fail: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int raydium_i2c_write_checksum(struct i2c_client *client,
+> +	u16 length, u16 checksum)
+> +{
+> +	u8 checksum_cmd[] =3D {0x00, 0x05, 0x6D, 0x00, 0x00, 0x00, 0x00};
+> +	int error =3D 0;
+> +
+> +	checksum_cmd[3] =3D (u8)(length & 0xFF);
+> +	checksum_cmd[4] =3D (u8)((length & 0xFF00) >> 8);
+> +	checksum_cmd[5] =3D (u8)(checksum & 0xFF);
+> +	checksum_cmd[6] =3D (u8)((checksum & 0xFF00) >> 8);
+> +
+> +	error =3D raydium_i2c_wrt_object(client, (u8 *)checksum_cmd,
+> +		sizeof(checksum_cmd), CMD_BOOT_WAIT_READY);
+> +	if (error) {
+> +		dev_err(&client->dev, "send wrt checksum cmd fail: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int raydium_i2c_disable_watch_dog(struct i2c_client *client)
+> +{
+> +	static const u8 cmd[] =3D {0x0A, 0xAA};
+> +	int error =3D 0;
+> +
+> +	error =3D raydium_i2c_wrt_object(client, (u8 *)cmd, sizeof(cmd),
+> +		CMD_BOOT_WAIT_READY);
+> +	if (error) {
+> +		dev_err(&client->dev, "send disable watchdog cmd fail: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int raydium_i2c_fw_write_page(struct i2c_client *client,
+> +				const void *page, size_t len)
+> +{
+> +	int error;
+> +
+> +	error =3D raydium_i2c_wrt_object(client,  (u8 *)page, len,
+> +		CMD_BOOT_WAIT_READY);
+> +	if (error) {
+> +		dev_err(&client->dev, "send page wrt cmd failed: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	return error;
+> +}
+> +
+> +static int raydium_i2c_do_update_firmware(struct raydium_data *ts,
+> +					 const struct firmware *fw)
+> +{
+> +	struct i2c_client *client =3D ts->client;
+> +	u8 u8_idx;
+> +	u16 fw_length;
+> +	u16 fw_checksum;
+> +	u8 buf[RAYDIUM_FW_PAGESIZE + 2];
+> +	int page, n_fw_pages;
+> +	int error;
+> +
+> +	fw_length =3D (int)(fw->size);
+> +	if (fw_length =3D=3D 0) {
+> +		dev_err(&client->dev, "Invalid firmware length\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (fw_length % RAYDIUM_FW_PAGESIZE)
+> +		n_fw_pages =3D fw_length/RAYDIUM_FW_PAGESIZE;
+> +	else
+> +		n_fw_pages =3D fw_length/RAYDIUM_FW_PAGESIZE + 1;
+> +
+> +	error =3D raydium_i2c_check_fw_status(ts);
+> +	if (error) {
+> +		dev_err(&client->dev, "Unable to access IC %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	if (ts->boot_mode =3D=3D RAYDIUM_TS_MAIN) {
+> +		error =3D raydium_i2c_enter_bl(client);
+> +		if (error) {
+> +			dev_err(&client->dev, "Unable jump to boot loader %d\n",
+> +				error);
+> +			return error;
+> +		}
+> +	}
+> +
+> +	error =3D raydium_i2c_disable_watch_dog(client);
+> +	if (error) {
+> +		dev_err(&client->dev, "send disable watchdog cmd fail, %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+> +	error =3D raydium_i2c_check_path(client);
+> +	if (error) {
+> +		dev_err(&client->dev, "send chk path fail, %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	error =3D raydium_i2c_boot_trigger(client);
+> +	if (error) {
+> +		dev_err(&client->dev, "send boot trigger fail, %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	fw_checksum =3D 0;
+> +	for (page =3D 0 ; page < n_fw_pages ; page++) {
+> +		memset(buf, 0xFF, sizeof(buf));
+> +		buf[0] =3D 0x03;
+> +		if (page =3D=3D 0)
+> +			buf[1] =3D 0x00;
+> +
+> +		memcpy(&buf[2], fw->data + page * RAYDIUM_FW_PAGESIZE,
+> +			RAYDIUM_FW_PAGESIZE);
+> +		/*calculate chksum*/
+> +		for (u8_idx =3D 0; u8_idx < RAYDIUM_FW_PAGESIZE; u8_idx++)
+> +			fw_checksum +=3D buf[2 + u8_idx];
+> +
+> +		error =3D raydium_i2c_fw_write_page(client, (const void *)buf,
+> +			sizeof(buf));
+> +		if (error) {
+> +			dev_err(&client->dev, "flash page write fail, %d\n",
+> +				error);
+> +			return error;
+> +		}
+> +
+> +		msleep(20);
+> +	}
+> +
+> +	error =3D raydium_i2c_leave_bl(client);
+> +	if (error) {
+> +		dev_err(&client->dev, "leave boot loader fail: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	msleep(BOOT_DELAY_MS);
+> +
+> +	error =3D raydium_i2c_check_fw_status(ts);
+> +	if (error) {
+> +		dev_err(&client->dev, "Unable to access IC %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	if (ts->boot_mode =3D=3D RAYDIUM_TS_MAIN) {
+> +		error =3D raydium_i2c_write_checksum(client, fw_length,
+> +			fw_checksum);
+> +		if (error) {
+> +			dev_err(&client->dev, "write checksum fail %d\n",
+> +				error);
+> +			return error;
+> +		}
+> +	} else {
+> +		dev_err(&client->dev, "switch to main_fw fail %d\n", error);
+> +		return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int raydium_i2c_fw_update(struct raydium_data *ts)
+> +{
+> +	struct i2c_client *client =3D ts->client;
+> +	const struct firmware *fw =3D NULL;
+> +	const char *fn =3D "raydium.fw";
+> +	int error;
+> +
+> +	error =3D request_firmware(&fw, fn, &client->dev);
+> +	if (error) {
+> +		dev_err(&client->dev, "Unable to open firmware %s\n", fn);
+> +		return error;
+> +	}
+> +	/*disable irq*/
+> +	disable_irq(client->irq);
+> +
+> +	error =3D raydium_i2c_do_update_firmware(ts, fw);
+> +	if (error) {
+> +		dev_err(&client->dev, "firmware update failed: %d\n", error);
+> +		ts->boot_mode =3D RAYDIUM_TS_BLDR;
+> +		goto out_enable_irq;
+> +	}
+> +
+> +	error =3D raydium_i2c_initialize(ts);
+> +	if (error) {
+> +		dev_err(&client->dev,
+> +			"failed to initialize device after firmware update: %d\n",
+> +			error);
+> +		ts->boot_mode =3D RAYDIUM_TS_BLDR;
+> +		goto out_enable_irq;
+> +	}
+> +
+> +	ts->boot_mode =3D RAYDIUM_TS_MAIN;
+> +
+> +out_enable_irq:
+> +	enable_irq(client->irq);
+> +	msleep(100);
+> +
+> +	return error;
+> +}
+> +
+> +static void raydium_mt_event(struct raydium_data *ts)
+> +{
+> +	u8 data[MAX_PACKET_SIZE];
+> +	int error, i;
+> +	int x, y, f_state, pressure, wx, wy;
+> +
+> +	error =3D raydium_i2c_read_message(ts->client, ts->obj.data_bank_ad=
+dr,
+> +		ts->obj.pkg_size, (void *)data);
+> +
+> +	if (error < 0) {
+> +		dev_err(&ts->client->dev, "%s: failed to read data: %d\n",
+> +			__func__, error);
+> +		return;
+> +	}
+> +
+> +	for (i =3D 0; i < MAX_TOUCH_NUM; i++) {
+> +		f_state =3D (data + i * ts->obj.tp_info_size)[POS_STATE];
+> +		pressure =3D (data + i * ts->obj.tp_info_size)[POS_PRESSURE];
+> +		wx =3D (data + i * ts->obj.tp_info_size)[WIDTH_X];
+> +		wy =3D (data + i * ts->obj.tp_info_size)[WIDTH_Y];
+> +
+> +		input_mt_slot(ts->input, i);
+> +		input_mt_report_slot_state(ts->input,
+> +				MT_TOOL_FINGER, f_state !=3D 0);
+> +
+> +		if (!f_state)
+> +			continue;
+> +		x =3D get_unaligned_le16(&data[i * ts->obj.tp_info_size + POS_X]);
+> +		y =3D get_unaligned_le16(&data[i * ts->obj.tp_info_size + POS_Y]);
+> +
+> +		input_report_abs(ts->input, ABS_MT_POSITION_X, x);
+> +		input_report_abs(ts->input, ABS_MT_POSITION_Y, y);
+> +		input_report_abs(ts->input, ABS_MT_PRESSURE, pressure);
+> +		input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR,
+> +			max(wx, wy));
+> +		input_report_abs(ts->input, ABS_MT_TOUCH_MINOR,
+> +			min(wx, wy));
+> +	}
+> +
+> +	input_mt_sync_frame(ts->input);
+> +	input_sync(ts->input);
+> +}
+> +
+> +static irqreturn_t raydium_i2c_irq(int irq, void *_dev)
+> +{
+> +	struct raydium_data *ts =3D _dev;
+> +
+> +	if (ts->boot_mode !=3D RAYDIUM_TS_BLDR)
+> +		raydium_mt_event(ts);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static ssize_t raydium_calibrate(struct device *dev,
+> +				   struct device_attribute *attr,
+> +				   const char *buf, size_t count)
+> +{
+> +	struct raydium_data *ts =3D dev_get_drvdata(dev);
+> +	struct i2c_client *client =3D ts->client;
+> +
+> +	static const u8 cal_cmd[] =3D {0x00, 0x01, 0x9E};
+> +	int error =3D 0;
+> +
+> +	error =3D raydium_i2c_wrt_object(client, (u8 *)cal_cmd, sizeof(cal_=
+cmd),
+> +		CMD_BOOT_WAIT_READY);
+> +	if (error) {
+> +		dev_err(&client->dev, "send chk path cmd fail: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	return error;
+> +}
+> +
+> +static ssize_t write_update_fw(struct device *dev,
+> +			struct device_attribute *attr,
+> +			const char *buf, size_t count)
+> +{
+> +	struct raydium_data *ts =3D dev_get_drvdata(dev);
+> +	int error;
+> +
+> +	error =3D mutex_lock_interruptible(&ts->sysfs_mutex);
+> +	if (error)
+> +		return error;
+> +
+> +	error =3D raydium_i2c_fw_update(ts);
+> +	dev_dbg(dev, "firmware update result: %d\n", error);
+> +
+> +	mutex_unlock(&ts->sysfs_mutex);
+> +	return error ?: count;
+> +}
+> +
+> +static ssize_t raydium_bootmode_show(struct device *dev,
+> +		struct device_attribute *attr, char *buf)
+> +{
+> +	struct raydium_data *ts =3D dev_get_drvdata(dev);
+> +
+> +	return sprintf(buf, "%s\n", ts->boot_mode =3D=3D RAYDIUM_TS_MAIN ?
+> +		"Normal" : "Recovery");
+> +}
+> +
+> +static ssize_t raydium_fw_ver_show(struct device *dev,
+> +			struct device_attribute *attr, char *buf)
+> +{
+> +	struct raydium_data *ts =3D dev_get_drvdata(dev);
+> +
+> +	return sprintf(buf, "%d.%d\n", ts->info.main_ver, ts->info.sub_ver)=
+;
+> +}
+> +
+> +static ssize_t raydium_hw_ver_show(struct device *dev,
+> +			struct device_attribute *attr, char *buf)
+> +{
+> +	struct raydium_data *ts =3D dev_get_drvdata(dev);
+> +
+> +	return sprintf(buf, "0x%04x\n", ts->info.hw_ver);
+
+"%#04x\n"
+
+> +}
+> +
+> +static DEVICE_ATTR(fw_version, S_IRUGO, raydium_fw_ver_show, NULL);
+> +static DEVICE_ATTR(hw_version, S_IRUGO, raydium_hw_ver_show, NULL);
+> +static DEVICE_ATTR(boot_mode, S_IRUGO, raydium_bootmode_show, NULL);
+> +static DEVICE_ATTR(update_fw, S_IWUSR, NULL, write_update_fw);
+> +static DEVICE_ATTR(calibrate, S_IWUSR, NULL, raydium_calibrate);
+> +
+> +static struct attribute *raydium_attributes[] =3D {
+> +	&dev_attr_update_fw.attr,
+> +	&dev_attr_boot_mode.attr,
+> +	&dev_attr_fw_version.attr,
+> +	&dev_attr_hw_version.attr,
+> +	&dev_attr_calibrate.attr,
+> +	NULL
+> +};
+> +
+> +static struct attribute_group raydium_attribute_group =3D {
+> +	.attrs =3D raydium_attributes,
+> +};
+> +
+> +static void raydium_i2c_remove_sysfs_group(void *_data)
+> +{
+> +	struct raydium_data *ts =3D _data;
+> +
+> +	sysfs_remove_group(&ts->client->dev.kobj, &raydium_attribute_group)=
+;
+> +}
+> +
+> +static int raydium_i2c_power_on(struct raydium_data *ts)
+> +{
+> +	int error;
+> +
+> +	if (IS_ERR_OR_NULL(ts->reset_gpio))
+> +		return 0;
+> +
+> +	gpiod_set_value_cansleep(ts->reset_gpio, 1);
+> +
+> +	error =3D regulator_enable(ts->avdd);
+> +	if (error) {
+> +		dev_err(&ts->client->dev,
+> +			"failed to enable avdd regulator: %d\n", error);
+> +		goto release_reset_gpio;
+> +	}
+> +
+> +	error =3D regulator_enable(ts->vccio);
+> +	if (error) {
+> +		regulator_disable(ts->avdd);
+> +		dev_err(&ts->client->dev,
+> +			"failed to enable vccio regulator: %d\n", error);
+> +		goto release_reset_gpio;
+> +	}
+> +
+> +	udelay(RAYDIUM_POWERON_DELAY_USEC);
+> +
+> +release_reset_gpio:
+> +	gpiod_set_value_cansleep(ts->reset_gpio, 0);
+> +
+> +	if (error)
+> +		return error;
+> +
+> +	msleep(RAYDIUM_RESET_DELAY_MSEC);
+> +
+> +	return 0;
+> +}
+> +
+> +static void raydium_i2c_power_off(void *_data)
+> +{
+> +	struct raydium_data *ts =3D _data;
+> +
+> +	if (!IS_ERR_OR_NULL(ts->reset_gpio)) {
+> +		gpiod_set_value_cansleep(ts->reset_gpio, 1);
+> +		regulator_disable(ts->vccio);
+> +		regulator_disable(ts->avdd);
+> +	}
+> +}
+> +
+> +static int raydium_i2c_probe(struct i2c_client *client,
+> +			    const struct i2c_device_id *id)
+> +{
+> +	union i2c_smbus_data dummy;
+> +	struct raydium_data *ts;
+> +	unsigned long irqflags;
+> +	int error;
+> +
+> +	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+> +		dev_err(&client->dev,
+> +			"%s: i2c check functionality error\n", DEVICE_NAME);
+> +		return -ENXIO;
+> +	}
+> +
+> +	ts =3D devm_kzalloc(&client->dev, sizeof(struct raydium_data),
+> +		GFP_KERNEL);
+> +	if (!ts)
+> +		return -ENOMEM;
+> +
+> +	mutex_init(&ts->sysfs_mutex);
+> +	init_completion(&ts->cmd_done);
+> +
+> +	ts->client =3D client;
+> +	i2c_set_clientdata(client, ts);
+> +
+> +	ts->avdd =3D devm_regulator_get(&client->dev, "avdd");
+> +	if (IS_ERR(ts->avdd)) {
+> +		error =3D PTR_ERR(ts->avdd);
+> +		if (error !=3D -EPROBE_DEFER)
+> +			dev_err(&client->dev,
+> +				"Failed to get 'avdd' regulator: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	ts->vccio =3D devm_regulator_get(&client->dev, "vccio");
+> +	if (IS_ERR(ts->vccio)) {
+> +		error =3D PTR_ERR(ts->vccio);
+> +		if (error !=3D -EPROBE_DEFER)
+> +			dev_err(&client->dev,
+> +				"Failed to get 'vccio' regulator: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	ts->reset_gpio =3D devm_gpiod_get_optional(&client->dev, "reset",
+> +		GPIOD_OUT_LOW);
+> +	if (IS_ERR(ts->reset_gpio)) {
+> +		error =3D PTR_ERR(ts->reset_gpio);
+> +		if (error !=3D -EPROBE_DEFER) {
+> +			dev_err(&client->dev,
+> +				"failed to get reset gpio: %d\n", error);
+> +			return error;
+> +		}
+> +	}
+> +
+> +	error =3D raydium_i2c_power_on(ts);
+> +	if (error)
+> +		return error;
+> +
+> +	error =3D devm_add_action(&client->dev, raydium_i2c_power_off, ts);
+> +	if (error) {
+> +		dev_err(&client->dev,
+> +			"failed to install power off action: %d\n", error);
+> +		raydium_i2c_power_off(ts);
+> +		return error;
+> +	}
+> +
+> +	/* Make sure there is something at this address */
+> +	if (i2c_smbus_xfer(client->adapter, client->addr, 0,
+> +			I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &dummy) < 0) {
+> +		dev_err(&client->dev, "nothing at this address\n");
+> +		return -ENXIO;
+> +	}
+> +
+> +	error =3D raydium_i2c_initialize(ts);
+> +	if (error) {
+> +		dev_err(&client->dev, "failed to initialize: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	ts->input =3D devm_input_allocate_device(&client->dev);
+> +	if (!ts->input) {
+> +		dev_err(&client->dev, "Failed to allocate input device\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	ts->input->name =3D "Raydium Touchscreen";
+> +	ts->input->id.bustype =3D BUS_I2C;
+> +
+> +	__set_bit(BTN_TOUCH, ts->input->keybit);
+> +	__set_bit(EV_ABS, ts->input->evbit);
+> +	__set_bit(EV_KEY, ts->input->evbit);
+
+These 3 __set_bits() are not needed, the calls below will take care of
+setting needed bits.
+
+> +
+> +	/* Multitouch input params setup */
+> +	input_set_abs_params(ts->input, ABS_MT_POSITION_X, 0,
+> +		ts->info.x_max, 0, 0);
+> +	input_set_abs_params(ts->input, ABS_MT_POSITION_Y,
+> +		0, ts->info.y_max, 0, 0);
+> +	input_set_abs_params(ts->input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
+> +	input_set_abs_params(ts->input, ABS_MT_PRESSURE, 0, 255, 0, 0);
+> +	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->info.x_res);
+> +	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->info.y_res);
+> +
+> +	input_set_drvdata(ts->input, ts);
+> +
+> +	error =3D input_mt_init_slots(ts->input, MAX_TOUCH_NUM,
+> +		INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+> +	if (error) {
+> +		dev_err(&client->dev,
+> +			"failed to initialize MT slots: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	error =3D input_register_device(ts->input);
+> +	if (error) {
+> +		dev_err(&client->dev,
+> +			"unable to register input device: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	error =3D devm_request_threaded_irq(&client->dev, client->irq,
+> +			NULL, raydium_i2c_irq, irqflags | IRQF_ONESHOT,
+> +			client->name, ts);
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to register interrupt\n");
+> +		return error;
+> +	}
+> +
+> +	device_init_wakeup(&client->dev, true);
+
+Please remove and rely on I2C core to enable wakeup for the device.
+I know that is does not do that for ACPI-backed devices yet, but that i=
+s
+something that we need to change there, not in the driver.
+
+> +
+> +	error =3D sysfs_create_group(&client->dev.kobj, &raydium_attribute_=
+group);
+> +	if (error) {
+> +		dev_err(&client->dev, "failed to create sysfs attributes: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+> +	error =3D devm_add_action(&client->dev,
+> +				raydium_i2c_remove_sysfs_group, ts);
+> +	if (error) {
+> +		raydium_i2c_remove_sysfs_group(ts);
+> +		dev_err(&client->dev,
+> +			"Failed to add sysfs cleanup action: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int raydium_i2c_remove(struct i2c_client *client)
+> +{
+> +	struct raydium_data *ts =3D i2c_get_clientdata(client);
+> +
+> +	input_unregister_device(ts->input);
+
+This call is not needed.
+
+> +
+> +	device_init_wakeup(&client->dev, false);
+
+If we rely on platform/i2c core to set up wakeup flag we do not need to
+reset it here.
+
+> +
+> +	mutex_destroy(&ts->sysfs_mutex);
+
+This is not needed. Because nothing in raydium_i2c_remove() is needed
+you can remove to altogether.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static void __maybe_unused raydium_enter_sleep(struct i2c_client *cl=
+ient)
+> +{
+> +	static const u8 sleep_cmd[] =3D { 0x5A, 0xff, 0x00, 0x0f };
+> +	int error;
+> +
+> +	error =3D raydium_i2c_send(client, CMD_ENTER_SLEEP, (u8 *)sleep_cmd=
+,
+> +		sizeof(sleep_cmd));
+> +	if (error)
+> +		dev_err(&client->dev,
+> +			"Send sleep failed: %d\n", error);
+> +}
+> +
+> +static int __maybe_unused raydium_i2c_suspend(struct device *dev)
+> +{
+> +	struct i2c_client *client =3D to_i2c_client(dev);
+> +	struct raydium_data *ts =3D i2c_get_clientdata(client);
+> +
+> +	/* Command not support in BLDR recovery mode */
+> +	if (ts->boot_mode !=3D RAYDIUM_TS_MAIN)
+> +		return -EBUSY;
+> +
+> +	disable_irq(client->irq);
+> +
+> +	if (device_may_wakeup(dev)) {
+> +		raydium_enter_sleep(client);
+> +
+> +		ts->wake_irq_enabled =3D (enable_irq_wake(client->irq) =3D=3D 0);
+> +	} else {
+> +		raydium_i2c_power_off(ts);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused raydium_i2c_resume(struct device *dev)
+> +{
+> +	struct i2c_client *client =3D to_i2c_client(dev);
+> +	struct raydium_data *ts =3D i2c_get_clientdata(client);
+> +
+> +	if (device_may_wakeup(dev)) {
+> +		if (ts->wake_irq_enabled)
+> +			disable_irq_wake(client->irq);
+> +		raydium_i2c_sw_reset(client);
+> +	} else {
+> +		raydium_i2c_power_on(ts);
+> +		raydium_i2c_initialize(ts);
+> +	}
+> +
+> +	enable_irq(client->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static SIMPLE_DEV_PM_OPS(raydium_i2c_pm_ops,
+> +			 raydium_i2c_suspend, raydium_i2c_resume);
+> +
+> +static const struct i2c_device_id raydium_i2c_id[] =3D {
+> +	{ DEVICE_NAME, 0 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, raydium_i2c_id);
+> +
+> +#ifdef CONFIG_ACPI
+> +static const struct acpi_device_id raydium_acpi_id[] =3D {
+> +	{ "RAYD0001", 0 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(acpi, raydium_acpi_id);
+> +#endif
+> +
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id raydium_of_match[] =3D {
+> +	{ .compatible =3D "raydium,rm32380",},
+> +	{ /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, raydium_of_match);
+> +#endif
+> +
+> +static struct i2c_driver raydium_i2c_driver =3D {
+> +	.probe =3D raydium_i2c_probe,
+> +	.remove =3D raydium_i2c_remove,
+> +	.id_table =3D raydium_i2c_id,
+> +	.driver =3D {
+> +		.name =3D "raydium_ts",
+> +		.pm =3D &raydium_i2c_pm_ops,
+> +		.acpi_match_table =3D ACPI_PTR(raydium_acpi_id),
+> +		.of_match_table =3D of_match_ptr(raydium_of_match),
+> +	},
+> +};
+> +
+> +module_i2c_driver(raydium_i2c_driver);
+> +
+> +MODULE_AUTHOR("Raydium");
+> +MODULE_DESCRIPTION("Raydium I2c Touchscreen driver");
+> +MODULE_LICENSE("GPL v2");
+> --=20
+> 2.1.2
+>=20
+
+Thanks.
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

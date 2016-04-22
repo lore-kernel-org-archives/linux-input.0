@@ -1,101 +1,146 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: hid-multitouch stuck taps, possibly 4.5 regression?
-Date: Fri, 22 Apr 2016 09:37:03 -0700
-Message-ID: <CALCETrVfp0LcLxbgHAnkyi8o+rzxOmTFZkE5E-5sU2wU8hSi3A@mail.gmail.com>
-References: <CALCETrXDiW4ZyHhqt2gWwwgVYmdup27f3MsyEY9y+=EjrgJBJg@mail.gmail.com>
- <20160316084716.GR22340@mail.corp.redhat.com> <CALCETrWRi8nM6h234ppeQZ3VaAqL4d37VmZvt6HSYwDYddO3Kw@mail.gmail.com>
- <20160317080612.GN1793@lahna.fi.intel.com> <CALCETrWzDhwMP6Ld4U_OO0Q+Bpb=tmb01iC2xRTpjfY6=p_8cg@mail.gmail.com>
- <CAE7eX3+WOOO=6KVpFaqVDeEegRjz5Atofj8r-bEGfn6KshyDEQ@mail.gmail.com>
- <CALCETrWsxoL83fNRFrv5ga1mNc=Uh+263T+qXajHNt+9YkYfAA@mail.gmail.com> <CAE7eX3K8XKc2aFbL61btco0aRSUi-+ZUsgsMZ4YKPi7b-Qc=MA@mail.gmail.com>
+From: Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH RFT V2 3/3] iio: mxs-lradc: implement suspend/resume support
+Date: Fri, 22 Apr 2016 17:47:13 +0200
+Message-ID: <571A4781.5020407@denx.de>
+References: <1461269478-449-1-git-send-email-stefan.wahren@i2se.com> <1461269478-449-4-git-send-email-stefan.wahren@i2se.com> <57193C01.20709@denx.de> <571A2DB8.9050509@i2se.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f172.google.com ([209.85.214.172]:33961 "EHLO
-	mail-ob0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751946AbcDVQhX (ORCPT
+Received: from mail-out.m-online.net ([212.18.0.9]:59165 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754142AbcDVQyX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Apr 2016 12:37:23 -0400
-Received: by mail-ob0-f172.google.com with SMTP id bg3so51563780obb.1
-        for <linux-input@vger.kernel.org>; Fri, 22 Apr 2016 09:37:23 -0700 (PDT)
-In-Reply-To: <CAE7eX3K8XKc2aFbL61btco0aRSUi-+ZUsgsMZ4YKPi7b-Qc=MA@mail.gmail.com>
+	Fri, 22 Apr 2016 12:54:23 -0400
+In-Reply-To: <571A2DB8.9050509@i2se.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <andrew.duggan@gmail.com>, Mario Limonciello <mario_limonciello@dell.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Benjamin Tissoires <btissoir@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Jingoo Han <jingoohan1@gmail.com>, Pratyush Anand <pratyush.anand@gmail.com>
+To: Stefan Wahren <stefan.wahren@i2se.com>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>
+Cc: Fabio Estevam <fabio.estevam@nxp.com>, Juergen Borleis <jbe@pengutronix.de>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Adding Mario.
-
-On Fri, Mar 18, 2016 at 11:53 AM, Andrew Duggan <andrew.duggan@gmail.com> wrote:
-> On Fri, Mar 18, 2016 at 10:42 AM, Andy Lutomirski <luto@amacapital.net> wrote:
->> On Thu, Mar 17, 2016 at 1:24 PM, Andrew Duggan <andrew.duggan@gmail.com> wrote:
->>> On Thu, Mar 17, 2016 at 11:43 AM, Andy Lutomirski <luto@amacapital.net> wrote:
->>>> On Thu, Mar 17, 2016 at 1:06 AM, Mika Westerberg
->>>> <mika.westerberg@linux.intel.com> wrote:
->>>>> On Wed, Mar 16, 2016 at 02:59:48PM -0700, Andy Lutomirski wrote:
->>>>>> [add i2c-designware maintainers]
->>>>>>
->>>>>> On Wed, Mar 16, 2016 at 1:47 AM, Benjamin Tissoires <btissoir@redhat.com> wrote:
->>>>>> > Hi Andy,
->>>>>> >
->>>>>> > On Mar 15 2016 or thereabouts, Andy Lutomirski wrote:
->>>>>> >> Hi-
->>>>>> >>
->>>>>> >> In 4.5 and several 4.5 rcs, I see occasional stuck taps (I think) on
->>>>>> >> my XPS 13 9350's touchpad.  The effect is that trying to left-click
->>>>>> >> ends up middle-clicking.  I think it's a kernel issue and not a
->>>>>> >> hardware or libinput issue, but I'm not 100% sure.  I don't think I
->>>>>> >> had this issue in 4.4.
->>>>>> >>
->>>>>> >> I've attached what I think is an evtest issue of my fixing the issue
->>>>>> >> by pressing three fingers down in sequence and then releasing them.
->>>>>> >> After doing that, left-clicks worked.
->>>>>> >
->>>>>> > I think I already have been reported the issue here:
->>>>>> > https://bugs.freedesktop.org/show_bug.cgi?id=93948
->>>>>> >
->>>>>> > The result was that it was more likely an I2C transport bug than a
->>>>>> > hid-multitouch one (see comment #8 in the fdo bug).
->>>>>> >
->>>>>> > You can try to run hid-recorder when you see the problems, and then
->>>>>> > parse the output (or just send it to me). There is huge chances that
->>>>>> > there will be no events from I2C sending the release.
->>>>>> >
->>>>>> > And again, I am not sure how we could end up debugging this in the
->>>>>> > i2c-designware driver :(
->>>>>> >
->>>>>>
->>>>>> Does this ring a bell?
->>>>>
->>>>> i2c-designware usually prints errors to dmesg if it fails to transfer
->>>>> messages. Can you include dmesg of the failure as well?
->>>>
->>>> Nothing shows up at all.  All I have is:
->>>>
->>>> input: DLL0704:01 06CB:76AE Touchpad as
->>>> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/i2c-DLL0704:01/0018:06CB:76AE.0001/input/input12
+On 04/22/2016 03:57 PM, Stefan Wahren wrote:
+> Hi Marek,
+> 
+> Am 21.04.2016 um 22:45 schrieb Marek Vasut:
+>> On 04/21/2016 10:11 PM, Stefan Wahren wrote:
+>>> This patch implements suspend/resume support for mxs-lradc.
+>>> It's possible to use the touchscreen as wakeup source.
 >>>
->>> What is the fw id? I have a 9343 with the same touchpad and have not
->>> noticed an issue. This is the dmesg output for my touchpad.
+>>> Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+>>> ---
+>>>  drivers/iio/adc/mxs-lradc.c |   61 +++++++++++++++++++++++++++++++++++++++++++
+>>>  1 file changed, 61 insertions(+)
 >>>
->>> [    5.216319] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1,
->>> id: 0x1e2b1, caps: 0xd00123/0x840300/0x12e800/0x0, board id: 3038, fw
->>> id: 1832324
->>
->> Mine is shinier and newer, apparently.
->>
->> psmouse serio1: synaptics: Touchpad model: 1, fw: 8.2, id: 0x1e2a1,
->> caps: 0xf00223/0x840300/0x12e800/0x0, board id: 3038, fw id: 2011643
->
-> It looks like you actually have a slightly newer revision of the
-> module (76AE vs my 76AD). So I can't quite do a direct comparison.
-> However, the 9350 system listed in the bug does have my exact module.
-> Which is why we think it might be a problem with the embedded I2C
-> chipset in the 9350.
->
-> Andrew
+>>> diff --git a/drivers/iio/adc/mxs-lradc.c b/drivers/iio/adc/mxs-lradc.c
+>>> index cfc558f..6bd387f 100644
+>>> --- a/drivers/iio/adc/mxs-lradc.c
+>>> +++ b/drivers/iio/adc/mxs-lradc.c
+>>> @@ -29,6 +29,7 @@
+>>>  #include <linux/of.h>
+>>>  #include <linux/of_device.h>
+>>>  #include <linux/platform_device.h>
+>>> +#include <linux/pm.h>
+>>>  #include <linux/slab.h>
+>>>  #include <linux/stmp_device.h>
+>>>  #include <linux/sysfs.h>
+>>> @@ -1745,10 +1746,70 @@ static int mxs_lradc_remove(struct platform_device *pdev)
+>>>  	return 0;
+>>>  }
+>>>  
+>>> +static int __maybe_unused mxs_lradc_suspend(struct device *dev)
+>>> +{
+>>> +	struct iio_dev *iio = dev_get_drvdata(dev);
+>>> +	struct mxs_lradc *lradc = iio_priv(iio);
+>>> +	struct input_dev *input = lradc->ts_input;
+>> Can lradc->ts_input contain some non-valid pointer ? You should make
+>> sure it's either inited to NULL or valid pointer, which I'm not sure
+>> you do.
+> 
+> the whole content of lradc get initialized with zero by
+> devm_iio_device_alloc.
 
+Ah, good.
+
+> Or do you mean the error case that input registration failed and a
+> suspend occur (if it's possible)|?
+
+No, you cannot get suspend call before you registered the device.
+
+> Stefan
+> 
+> |
+>>
+>>> +	int ret = 0;
+>>> +
+>>> +	if (input) {
+>>> +		mutex_lock(&input->mutex);
+>>> +
+>>> +		/* Enable touchscreen wakeup irq */
+>>> +		if (input->users && device_may_wakeup(dev))
+>>> +			ret = enable_irq_wake(lradc->irq[0]);
+>>> +		else
+>>> +			mxs_lradc_disable_ts(lradc);
+>>> +
+>>> +		mutex_unlock(&input->mutex);
+>>> +	}
+>>> +
+>>> +	if (ret)
+>>> +		return ret;
+>>> +
+>>> +	mxs_lradc_hw_stop(lradc);
+>>> +
+>>> +	clk_disable_unprepare(lradc->clk);
+>>> +
+>>> +	return ret;
+>>> +}
+>>> +
+>>> +static int __maybe_unused mxs_lradc_resume(struct device *dev)
+>>> +{
+>>> +	struct iio_dev *iio = dev_get_drvdata(dev);
+>>> +	struct mxs_lradc *lradc = iio_priv(iio);
+>>> +	struct input_dev *input = lradc->ts_input;
+>>> +	int ret;
+>>> +
+>>> +	ret = clk_prepare_enable(lradc->clk);
+>>> +	if (ret)
+>>> +		return ret;
+>>> +
+>>> +	mxs_lradc_hw_init(lradc);
+>>> +
+>>> +	if (input) {
+>>> +		mutex_lock(&input->mutex);
+>>> +
+>>> +		/* Disable touchscreen wakeup irq */
+>>> +		if (input->users && device_may_wakeup(dev))
+>>> +			ret = disable_irq_wake(lradc->irq[0]);
+>>> +		else
+>>> +			mxs_lradc_enable_touch_detection(lradc);
+>>> +
+>>> +		mutex_unlock(&input->mutex);
+>>> +	}
+>>> +
+>>> +	return ret;
+>>> +}
+>>> +
+>>> +static SIMPLE_DEV_PM_OPS(mxs_lradc_pm_ops, mxs_lradc_suspend, mxs_lradc_resume);
+>>> +
+>>>  static struct platform_driver mxs_lradc_driver = {
+>>>  	.driver	= {
+>>>  		.name	= DRIVER_NAME,
+>>>  		.of_match_table = mxs_lradc_dt_ids,
+>>> +		.pm	= &mxs_lradc_pm_ops,
+>>>  	},
+>>>  	.probe	= mxs_lradc_probe,
+>>>  	.remove	= mxs_lradc_remove,
+>>>
+>> Looks OK otherwise:
+>>
+>> Reviewed-by: Marek Vasut <marex@denx.de>
+>>
+> 
+> 
 
 
 -- 
-Andy Lutomirski
-AMA Capital Management, LLC
+Best regards,
+Marek Vasut

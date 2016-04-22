@@ -1,378 +1,155 @@
-From: Mark Laws <mdl@60hz.org>
-Subject: [PATCH] Input: i8042 - Fix console keyboard support on Gen2 Hyper-V VMs
-Date: Sat, 23 Apr 2016 02:30:16 +0900
-Message-ID: <1461346216-55780-2-git-send-email-mdl@60hz.org>
-References: <20160422131746.GI4298@mwanda>
- <1461346216-55780-1-git-send-email-mdl@60hz.org>
+From: Marty Plummer <netz.kernel@gmail.com>
+Subject: hid-sony feature request: module parameters
+Date: Fri, 22 Apr 2016 16:55:27 -0500
+Message-ID: <777c0d46-f396-b4e1-49cf-6460d210be5a@gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="3JqfjAK1JlaxHwH5iEsgFXkDM5MTFpOQr"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:35095 "EHLO
-	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932091AbcDVRa6 (ORCPT
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:34481 "EHLO
+	mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752555AbcDVVzh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Apr 2016 13:30:58 -0400
-Received: by mail-pf0-f194.google.com with SMTP id r187so10639099pfr.2
-        for <linux-input@vger.kernel.org>; Fri, 22 Apr 2016 10:30:58 -0700 (PDT)
-In-Reply-To: <1461346216-55780-1-git-send-email-mdl@60hz.org>
+	Fri, 22 Apr 2016 17:55:37 -0400
+Received: by mail-oi0-f68.google.com with SMTP id b10so15898685oig.1
+        for <linux-input@vger.kernel.org>; Fri, 22 Apr 2016 14:55:37 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: haiyangz@microsoft.com, dan.carpenter@oracle.com
-Cc: Mark Laws <mdl@60hz.org>, devel@linuxdriverproject.org, linux-input@vger.kernel.org
+To: frank.praznik@gmail.com, linux-input@vger.kernel.org
 
-As explained in 1407814240-4275-1-git-send-email-decui@microsoft.com:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--3JqfjAK1JlaxHwH5iEsgFXkDM5MTFpOQr
+Content-Type: multipart/mixed; boundary="94MEKKSXGp1SdGgSDEex8FgxlI1TjhVWT"
+From: Marty Plummer <netz.kernel@gmail.com>
+To: frank.praznik@gmail.com, linux-input@vger.kernel.org
+Message-ID: <777c0d46-f396-b4e1-49cf-6460d210be5a@gmail.com>
+Subject: hid-sony feature request: module parameters
 
-> hyperv_keyboard invokes serio_interrupt(), which needs a valid serio
-> driver like atkbd.c.  atkbd.c depends on libps2.c because it invokes
-> ps2_command().  libps2.c depends on i8042.c because it invokes
-> i8042_check_port_owner().  As a result, hyperv_keyboard actually
-> depends on i8042.c.
->
-> For a Generation 2 Hyper-V VM (meaning no i8042 device emulated), if a
-> Linux VM (like Arch Linux) happens to configure CONFIG_SERIO_I8042=m
-> rather than =y, atkbd.ko can't load because i8042.ko can't load(due to
-> no i8042 device emulated) and finally hyperv_keyboard can't work and
-> the user can't input: https://bugs.archlinux.org/task/39820
-> (Ubuntu/RHEL/SUSE aren't affected since they use CONFIG_SERIO_I8042=y)
+--94MEKKSXGp1SdGgSDEex8FgxlI1TjhVWT
+Content-Type: multipart/mixed;
+ boundary="------------51ED4F3C484028CE92A8563D"
 
-This eliminates the transitive dependency on i8042.c by moving the
-symbols libps2.c depends on to a new module, libi8042.c.
+This is a multi-part message in MIME format.
+--------------51ED4F3C484028CE92A8563D
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Mark Laws <mdl@60hz.org>
----
- drivers/input/serio/Kconfig    |  7 ++++-
- drivers/input/serio/Makefile   |  1 +
- drivers/input/serio/i8042.c    | 48 ---------------------------------
- drivers/input/serio/i8042.h    |  7 -----
- drivers/input/serio/libi8042.c | 60 ++++++++++++++++++++++++++++++++++++++++++
- drivers/input/serio/libps2.c   |  2 +-
- include/linux/i8042.h          | 17 +-----------
- include/linux/libi8042.h       | 55 ++++++++++++++++++++++++++++++++++++++
- 8 files changed, 124 insertions(+), 73 deletions(-)
- create mode 100644 drivers/input/serio/libi8042.c
- create mode 100644 include/linux/libi8042.h
+Greetings.
+	I was wondering if it would be possible to include a kernel module
+parameter to be able to disable a given axis on the dualshock 4/etc. In
+particular I'm concerned with the accelerometer and/or gyroscope axis, as=
 
-diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-index c3d05b4..a8ca89c 100644
---- a/drivers/input/serio/Kconfig
-+++ b/drivers/input/serio/Kconfig
-@@ -25,10 +25,15 @@ config ARCH_MIGHT_HAVE_PC_SERIO
- 
- if SERIO
- 
-+config SERIO_LIBI8042
-+	tristate "i8042 driver library"
-+	default y
-+
- config SERIO_I8042
- 	tristate "i8042 PC Keyboard controller"
- 	default y
- 	depends on ARCH_MIGHT_HAVE_PC_SERIO
-+	select SERIO_LIBI8042
- 	help
- 	  i8042 is the chip over which the standard AT keyboard and PS/2
- 	  mouse are connected to the computer. If you use these devices,
-@@ -176,7 +181,7 @@ config SERIO_MACEPS2
- 
- config SERIO_LIBPS2
- 	tristate "PS/2 driver library"
--	depends on SERIO_I8042 || SERIO_I8042=n
-+	depends on SERIO_LIBI8042 || SERIO_LIBI8042=n
- 	help
- 	  Say Y here if you are using a driver for device connected
- 	  to a PS/2 port, such as PS/2 mouse or standard AT keyboard.
-diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
-index 2374ef9..b3a806f 100644
---- a/drivers/input/serio/Makefile
-+++ b/drivers/input/serio/Makefile
-@@ -5,6 +5,7 @@
- # Each configuration option enables a list of files.
- 
- obj-$(CONFIG_SERIO)		+= serio.o
-+obj-$(CONFIG_SERIO_LIBI8042)	+= libi8042.o
- obj-$(CONFIG_SERIO_I8042)	+= i8042.o
- obj-$(CONFIG_SERIO_PARKBD)	+= parkbd.o
- obj-$(CONFIG_SERIO_SERPORT)	+= serport.o
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 4541957..707bb19 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -107,30 +107,9 @@ static char i8042_aux_firmware_id[128];
-  */
- static DEFINE_SPINLOCK(i8042_lock);
- 
--/*
-- * Writers to AUX and KBD ports as well as users issuing i8042_command
-- * directly should acquire i8042_mutex (by means of calling
-- * i8042_lock_chip() and i8042_unlock_ship() helpers) to ensure that
-- * they do not disturb each other (unfortunately in many i8042
-- * implementations write to one of the ports will immediately abort
-- * command that is being processed by another port).
-- */
--static DEFINE_MUTEX(i8042_mutex);
--
--struct i8042_port {
--	struct serio *serio;
--	int irq;
--	bool exists;
--	bool driver_bound;
--	signed char mux;
--};
--
- #define I8042_KBD_PORT_NO	0
- #define I8042_AUX_PORT_NO	1
- #define I8042_MUX_PORT_NO	2
--#define I8042_NUM_PORTS		(I8042_NUM_MUX_PORTS + 2)
--
--static struct i8042_port i8042_ports[I8042_NUM_PORTS];
- 
- static unsigned char i8042_initial_ctr;
- static unsigned char i8042_ctr;
-@@ -145,18 +124,6 @@ static irqreturn_t i8042_interrupt(int irq, void *dev_id);
- static bool (*i8042_platform_filter)(unsigned char data, unsigned char str,
- 				     struct serio *serio);
- 
--void i8042_lock_chip(void)
--{
--	mutex_lock(&i8042_mutex);
--}
--EXPORT_SYMBOL(i8042_lock_chip);
--
--void i8042_unlock_chip(void)
--{
--	mutex_unlock(&i8042_mutex);
--}
--EXPORT_SYMBOL(i8042_unlock_chip);
--
- int i8042_install_filter(bool (*filter)(unsigned char data, unsigned char str,
- 					struct serio *serio))
- {
-@@ -1373,21 +1340,6 @@ static void i8042_unregister_ports(void)
- 	}
- }
- 
--/*
-- * Checks whether port belongs to i8042 controller.
-- */
--bool i8042_check_port_owner(const struct serio *port)
--{
--	int i;
--
--	for (i = 0; i < I8042_NUM_PORTS; i++)
--		if (i8042_ports[i].serio == port)
--			return true;
--
--	return false;
--}
--EXPORT_SYMBOL(i8042_check_port_owner);
--
- static void i8042_free_irqs(void)
- {
- 	if (i8042_aux_irq_registered)
-diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
-index 1db0a40..7de98ac 100644
---- a/drivers/input/serio/i8042.h
-+++ b/drivers/input/serio/i8042.h
-@@ -54,13 +54,6 @@
- #define I8042_BUFFER_SIZE	16
- 
- /*
-- * Number of AUX ports on controllers supporting active multiplexing
-- * specification
-- */
--
--#define I8042_NUM_MUX_PORTS	4
--
--/*
-  * Debug.
-  */
- 
-diff --git a/drivers/input/serio/libi8042.c b/drivers/input/serio/libi8042.c
-new file mode 100644
-index 0000000..4505bac
---- /dev/null
-+++ b/drivers/input/serio/libi8042.c
-@@ -0,0 +1,60 @@
-+/*
-+ *  i8042 driver shared dependencies
-+ *
-+ *  Copyright (c) 1999-2004 Vojtech Pavlik
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/types.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/libi8042.h>
-+
-+MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
-+MODULE_DESCRIPTION("i8042 driver shared dependencies");
-+MODULE_LICENSE("GPL");
-+
-+/*
-+ * Writers to AUX and KBD ports as well as users issuing i8042_command
-+ * directly should acquire i8042_mutex (by means of calling
-+ * i8042_lock_chip() and i8042_unlock_ship() helpers) to ensure that
-+ * they do not disturb each other (unfortunately in many i8042
-+ * implementations write to one of the ports will immediately abort
-+ * command that is being processed by another port).
-+ */
-+static DEFINE_MUTEX(i8042_mutex);
-+
-+struct i8042_port i8042_ports[I8042_NUM_PORTS];
-+EXPORT_SYMBOL(i8042_ports);
-+
-+void i8042_lock_chip(void)
-+{
-+	mutex_lock(&i8042_mutex);
-+}
-+EXPORT_SYMBOL(i8042_lock_chip);
-+
-+void i8042_unlock_chip(void)
-+{
-+	mutex_unlock(&i8042_mutex);
-+}
-+EXPORT_SYMBOL(i8042_unlock_chip);
-+
-+/*
-+ * Checks whether port belongs to i8042 controller.
-+ */
-+bool i8042_check_port_owner(const struct serio *port)
-+{
-+	int i;
-+
-+	for (i = 0; i < I8042_NUM_PORTS; i++)
-+		if (i8042_ports[i].serio == port)
-+			return true;
-+
-+	return false;
-+}
-+EXPORT_SYMBOL(i8042_check_port_owner);
-diff --git a/drivers/input/serio/libps2.c b/drivers/input/serio/libps2.c
-index 316f2c8..62c0059 100644
---- a/drivers/input/serio/libps2.c
-+++ b/drivers/input/serio/libps2.c
-@@ -17,7 +17,7 @@
- #include <linux/interrupt.h>
- #include <linux/input.h>
- #include <linux/serio.h>
--#include <linux/i8042.h>
-+#include <linux/libi8042.h>
- #include <linux/libps2.h>
- 
- #define DRIVER_DESC	"PS/2 driver library"
-diff --git a/include/linux/i8042.h b/include/linux/i8042.h
-index 0f9bafa..77aed40 100644
---- a/include/linux/i8042.h
-+++ b/include/linux/i8042.h
-@@ -8,6 +8,7 @@
-  */
- 
- #include <linux/types.h>
-+#include <linux/libi8042.h>
- 
- /*
-  * Standard commands.
-@@ -59,10 +60,7 @@ struct serio;
- 
- #if defined(CONFIG_SERIO_I8042) || defined(CONFIG_SERIO_I8042_MODULE)
- 
--void i8042_lock_chip(void);
--void i8042_unlock_chip(void);
- int i8042_command(unsigned char *param, int command);
--bool i8042_check_port_owner(const struct serio *);
- int i8042_install_filter(bool (*filter)(unsigned char data, unsigned char str,
- 					struct serio *serio));
- int i8042_remove_filter(bool (*filter)(unsigned char data, unsigned char str,
-@@ -70,24 +68,11 @@ int i8042_remove_filter(bool (*filter)(unsigned char data, unsigned char str,
- 
- #else
- 
--static inline void i8042_lock_chip(void)
--{
--}
--
--static inline void i8042_unlock_chip(void)
--{
--}
--
- static inline int i8042_command(unsigned char *param, int command)
- {
- 	return -ENODEV;
- }
- 
--static inline bool i8042_check_port_owner(const struct serio *serio)
--{
--	return false;
--}
--
- static inline int i8042_install_filter(bool (*filter)(unsigned char data, unsigned char str,
- 					struct serio *serio))
- {
-diff --git a/include/linux/libi8042.h b/include/linux/libi8042.h
-new file mode 100644
-index 0000000..5a730f0
---- /dev/null
-+++ b/include/linux/libi8042.h
-@@ -0,0 +1,55 @@
-+#ifndef _LINUX_LIBI8042_H
-+#define _LINUX_LIBI8042_H
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/types.h>
-+
-+/*
-+ * Number of AUX ports on controllers supporting active multiplexing
-+ * specification
-+ */
-+
-+#define I8042_NUM_MUX_PORTS	4
-+#define I8042_NUM_PORTS		(I8042_NUM_MUX_PORTS + 2)
-+
-+struct serio;
-+
-+struct i8042_port {
-+	struct serio *serio;
-+	int irq;
-+	bool exists;
-+	bool driver_bound;
-+	signed char mux;
-+};
-+
-+#if defined(CONFIG_SERIO_I8042) || defined(CONFIG_SERIO_I8042_MODULE)
-+
-+extern struct i8042_port i8042_ports[I8042_NUM_PORTS];
-+
-+void i8042_lock_chip(void);
-+void i8042_unlock_chip(void);
-+bool i8042_check_port_owner(const struct serio *);
-+
-+#else
-+
-+static inline void i8042_lock_chip(void)
-+{
-+}
-+
-+static inline void i8042_unlock_chip(void)
-+{
-+}
-+
-+static inline bool i8042_check_port_owner(const struct serio *serio)
-+{
-+	return false;
-+}
-+
-+#endif
-+
-+#endif
--- 
-2.8.0
+at times it can be a bit bothersome to configure certain games which do n=
+ot
+support the dualshock 4 out of box, in that the typical method of "click
+this to configure this button, then press the button on the joystick you
+wish to use to set" method has a tendency to set it to one of the
+orientation sensors (or even the touchpad, if you've touched it and set i=
+t
+away from its default values)
 
+	It would be of great help to me (and likely other users with similar
+issues) to be able to just null these.
+
+--------------51ED4F3C484028CE92A8563D
+Content-Type: application/pgp-keys;
+ name="0xC030918D.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="0xC030918D.asc"
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v2
+
+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
+6bHvAnTue6j5eKZcjA=3D=3D
+=3Dd06F
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------51ED4F3C484028CE92A8563D--
+
+--94MEKKSXGp1SdGgSDEex8FgxlI1TjhVWT--
+
+--3JqfjAK1JlaxHwH5iEsgFXkDM5MTFpOQr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJXGp3WAAoJEHWEtN3AMJGNkaoP/3FeNZSIMOwqMarEJrnWAgpy
+WABkjNs6yqQa4TNkhkdk+BvawqQhRssrTKNXreQpSQ7qEK23kchzRkct6d0O1ioF
+T7zzGPHAwrBeod+jAlZTAaKeoUvdwd6xDJeydTZJIU7DRKOyfPb5awglip+mXko4
+vjCQ44fSs4A2hKLloMcgoukvZiYxFmfMVbjt363SX0YpEgXZsi5XGOMLBp0h/DeM
+XJocW9gFJjSArv9Hi6V0pHjr9vj7hP1zO1zwtTGY/M2h50f+091mW2ZYGTFSA+Oj
+eJjgutZWlUKVZ9PHaKHyDU6GLG3MOySP+FXCH8Nk12yYDMH6eGDJsi+TgPyCWspd
+bzj7SLIti8d1zN1pRvgwm3F+yxhMP5weeaKMdndqjA1/Hrb5J+rqDlr9iAAQsSqg
+HVYUyuSJ5hezB9RdfAP99pvmB7WKTypANy7sgxLJ+EvJ9XWI5NMJ/3zikLVgp7YE
+kfI9TsbO6SKOGstFl9N9glpSq+UUMX1qSOe/jhGhi5RAJfJPiYKkU5G6yuNY/QxE
+iS1jlnq5qSP/niHTDAkBFk+94Sm/AfCuTK1jxgZxKDfGGTn/QkWBUSffEvYumhjI
+DTGQLlRpf5Z3rMVpGJ7MOpTPUhOYmUSKKBnR8hXO6B7wZlb+6EOEew0//5LTq3Y9
+NTSVIkMBxmBgqpnVAj2W
+=hM6Q
+-----END PGP SIGNATURE-----
+
+--3JqfjAK1JlaxHwH5iEsgFXkDM5MTFpOQr--

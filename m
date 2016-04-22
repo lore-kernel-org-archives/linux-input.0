@@ -1,146 +1,46 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH RFT V2 3/3] iio: mxs-lradc: implement suspend/resume support
-Date: Fri, 22 Apr 2016 17:47:13 +0200
-Message-ID: <571A4781.5020407@denx.de>
-References: <1461269478-449-1-git-send-email-stefan.wahren@i2se.com> <1461269478-449-4-git-send-email-stefan.wahren@i2se.com> <57193C01.20709@denx.de> <571A2DB8.9050509@i2se.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Mark Laws <mdl@60hz.org>
+Subject: [PATCH] Input: i8042 - Fix console keyboard support on Gen2 Hyper-V VMs
+Date: Sat, 23 Apr 2016 02:30:15 +0900
+Message-ID: <1461346216-55780-1-git-send-email-mdl@60hz.org>
+References: <20160422131746.GI4298@mwanda>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:59165 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754142AbcDVQyX (ORCPT
+Received: from mail-pa0-f67.google.com ([209.85.220.67]:36508 "EHLO
+	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932091AbcDVRan (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Apr 2016 12:54:23 -0400
-In-Reply-To: <571A2DB8.9050509@i2se.com>
+	Fri, 22 Apr 2016 13:30:43 -0400
+Received: by mail-pa0-f67.google.com with SMTP id i5so9134082pag.3
+        for <linux-input@vger.kernel.org>; Fri, 22 Apr 2016 10:30:43 -0700 (PDT)
+In-Reply-To: <20160422131746.GI4298@mwanda>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Wahren <stefan.wahren@i2se.com>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>
-Cc: Fabio Estevam <fabio.estevam@nxp.com>, Juergen Borleis <jbe@pengutronix.de>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: haiyangz@microsoft.com, dan.carpenter@oracle.com
+Cc: Mark Laws <mdl@60hz.org>, devel@linuxdriverproject.org, linux-input@vger.kernel.org
 
-On 04/22/2016 03:57 PM, Stefan Wahren wrote:
-> Hi Marek,
-> 
-> Am 21.04.2016 um 22:45 schrieb Marek Vasut:
->> On 04/21/2016 10:11 PM, Stefan Wahren wrote:
->>> This patch implements suspend/resume support for mxs-lradc.
->>> It's possible to use the touchscreen as wakeup source.
->>>
->>> Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
->>> ---
->>>  drivers/iio/adc/mxs-lradc.c |   61 +++++++++++++++++++++++++++++++++++++++++++
->>>  1 file changed, 61 insertions(+)
->>>
->>> diff --git a/drivers/iio/adc/mxs-lradc.c b/drivers/iio/adc/mxs-lradc.c
->>> index cfc558f..6bd387f 100644
->>> --- a/drivers/iio/adc/mxs-lradc.c
->>> +++ b/drivers/iio/adc/mxs-lradc.c
->>> @@ -29,6 +29,7 @@
->>>  #include <linux/of.h>
->>>  #include <linux/of_device.h>
->>>  #include <linux/platform_device.h>
->>> +#include <linux/pm.h>
->>>  #include <linux/slab.h>
->>>  #include <linux/stmp_device.h>
->>>  #include <linux/sysfs.h>
->>> @@ -1745,10 +1746,70 @@ static int mxs_lradc_remove(struct platform_device *pdev)
->>>  	return 0;
->>>  }
->>>  
->>> +static int __maybe_unused mxs_lradc_suspend(struct device *dev)
->>> +{
->>> +	struct iio_dev *iio = dev_get_drvdata(dev);
->>> +	struct mxs_lradc *lradc = iio_priv(iio);
->>> +	struct input_dev *input = lradc->ts_input;
->> Can lradc->ts_input contain some non-valid pointer ? You should make
->> sure it's either inited to NULL or valid pointer, which I'm not sure
->> you do.
-> 
-> the whole content of lradc get initialized with zero by
-> devm_iio_device_alloc.
+A few tripels later and the patch has been completely rewritten.
+The problem symbols have been moved to a new module, libi8042.c, which
+both libps2.c and i8042.c use.  libps2.c no longer depends on i8042.c,
+and i8042.c no longer needs the gross hack of the previous patch.
 
-Ah, good.
+Since I didn't write anything new, just shuffled things around, I
+haven't changed any copyrights.  I have no idea what the right procedure
+is here, so please let me know, since I'm probably screwing up somehow.
 
-> Or do you mean the error case that input registration failed and a
-> suspend occur (if it's possible)|?
+Mark Laws (1):
+  Input: i8042 - Fix console keyboard support on Gen2 Hyper-V VMs
 
-No, you cannot get suspend call before you registered the device.
-
-> Stefan
-> 
-> |
->>
->>> +	int ret = 0;
->>> +
->>> +	if (input) {
->>> +		mutex_lock(&input->mutex);
->>> +
->>> +		/* Enable touchscreen wakeup irq */
->>> +		if (input->users && device_may_wakeup(dev))
->>> +			ret = enable_irq_wake(lradc->irq[0]);
->>> +		else
->>> +			mxs_lradc_disable_ts(lradc);
->>> +
->>> +		mutex_unlock(&input->mutex);
->>> +	}
->>> +
->>> +	if (ret)
->>> +		return ret;
->>> +
->>> +	mxs_lradc_hw_stop(lradc);
->>> +
->>> +	clk_disable_unprepare(lradc->clk);
->>> +
->>> +	return ret;
->>> +}
->>> +
->>> +static int __maybe_unused mxs_lradc_resume(struct device *dev)
->>> +{
->>> +	struct iio_dev *iio = dev_get_drvdata(dev);
->>> +	struct mxs_lradc *lradc = iio_priv(iio);
->>> +	struct input_dev *input = lradc->ts_input;
->>> +	int ret;
->>> +
->>> +	ret = clk_prepare_enable(lradc->clk);
->>> +	if (ret)
->>> +		return ret;
->>> +
->>> +	mxs_lradc_hw_init(lradc);
->>> +
->>> +	if (input) {
->>> +		mutex_lock(&input->mutex);
->>> +
->>> +		/* Disable touchscreen wakeup irq */
->>> +		if (input->users && device_may_wakeup(dev))
->>> +			ret = disable_irq_wake(lradc->irq[0]);
->>> +		else
->>> +			mxs_lradc_enable_touch_detection(lradc);
->>> +
->>> +		mutex_unlock(&input->mutex);
->>> +	}
->>> +
->>> +	return ret;
->>> +}
->>> +
->>> +static SIMPLE_DEV_PM_OPS(mxs_lradc_pm_ops, mxs_lradc_suspend, mxs_lradc_resume);
->>> +
->>>  static struct platform_driver mxs_lradc_driver = {
->>>  	.driver	= {
->>>  		.name	= DRIVER_NAME,
->>>  		.of_match_table = mxs_lradc_dt_ids,
->>> +		.pm	= &mxs_lradc_pm_ops,
->>>  	},
->>>  	.probe	= mxs_lradc_probe,
->>>  	.remove	= mxs_lradc_remove,
->>>
->> Looks OK otherwise:
->>
->> Reviewed-by: Marek Vasut <marex@denx.de>
->>
-> 
-> 
-
+ drivers/input/serio/Kconfig    |  7 ++++-
+ drivers/input/serio/Makefile   |  1 +
+ drivers/input/serio/i8042.c    | 48 ---------------------------------
+ drivers/input/serio/i8042.h    |  7 -----
+ drivers/input/serio/libi8042.c | 60 ++++++++++++++++++++++++++++++++++++++++++
+ drivers/input/serio/libps2.c   |  2 +-
+ include/linux/i8042.h          | 17 +-----------
+ include/linux/libi8042.h       | 55 ++++++++++++++++++++++++++++++++++++++
+ 8 files changed, 124 insertions(+), 73 deletions(-)
+ create mode 100644 drivers/input/serio/libi8042.c
+ create mode 100644 include/linux/libi8042.h
 
 -- 
-Best regards,
-Marek Vasut
+2.8.0
+

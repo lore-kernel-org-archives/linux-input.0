@@ -1,331 +1,535 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCHv15 10/15] cec: adv7842: add cec support
-Date: Mon, 25 Apr 2016 14:24:37 +0200
-Message-ID: <1461587082-48041-11-git-send-email-hverkuil@xs4all.nl>
+Subject: [PATCHv15 14/15] pulse8-cec: add new driver
+Date: Mon, 25 Apr 2016 14:24:41 +0200
+Message-ID: <1461587082-48041-15-git-send-email-hverkuil@xs4all.nl>
 References: <1461587082-48041-1-git-send-email-hverkuil@xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lb1-smtp-cloud6.xs4all.net ([194.109.24.24]:54907 "EHLO
+	lb1-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754484AbcDYMaR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Apr 2016 08:30:17 -0400
 In-Reply-To: <1461587082-48041-1-git-send-email-hverkuil@xs4all.nl>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: linux-media@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, linux@arm.linux.org.uk, dri-devel@lists.freedesktop.org, lars@opdenkamp.eu, Hans Verkuil <hans.verkuil@cisco.com>, linux-input@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-media@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
 
-RnJvbTogSGFucyBWZXJrdWlsIDxoYW5zLnZlcmt1aWxAY2lzY28uY29tPgoKQWRkIENFQyBzdXBw
-b3J0IHRvIHRoZSBhZHY3ODQyIGRyaXZlci4KClNpZ25lZC1vZmYtYnk6IEhhbnMgVmVya3VpbCA8
-aGFucy52ZXJrdWlsQGNpc2NvLmNvbT4KLS0tCiBkcml2ZXJzL21lZGlhL2kyYy9LY29uZmlnICAg
-fCAgIDkgKysKIGRyaXZlcnMvbWVkaWEvaTJjL2Fkdjc2MDQuYyB8ICAxMCArLQogZHJpdmVycy9t
-ZWRpYS9pMmMvYWR2Nzg0Mi5jIHwgMzY4ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKy0tLS0tLS0tCiAzIGZpbGVzIGNoYW5nZWQsIDMxOSBpbnNlcnRpb25zKCspLCA2OCBkZWxl
-dGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL21lZGlhL2kyYy9LY29uZmlnIGIvZHJpdmVy
-cy9tZWRpYS9pMmMvS2NvbmZpZwppbmRleCBjYmExZmM3Li41MTY4NDU0IDEwMDY0NAotLS0gYS9k
-cml2ZXJzL21lZGlhL2kyYy9LY29uZmlnCisrKyBiL2RyaXZlcnMvbWVkaWEvaTJjL0tjb25maWcK
-QEAgLTIzMSw2ICsyMzEsNyBAQCBjb25maWcgVklERU9fQURWNzg0MgogCXRyaXN0YXRlICJBbmFs
-b2cgRGV2aWNlcyBBRFY3ODQyIGRlY29kZXIiCiAJZGVwZW5kcyBvbiBWSURFT19WNEwyICYmIEky
-QyAmJiBWSURFT19WNEwyX1NVQkRFVl9BUEkKIAlzZWxlY3QgSERNSQorCXNlbGVjdCBNRURJQV9D
-RUNfRURJRAogCS0tLWhlbHAtLS0KIAkgIFN1cHBvcnQgZm9yIHRoZSBBbmFsb2cgRGV2aWNlcyBB
-RFY3ODQyIHZpZGVvIGRlY29kZXIuCiAKQEAgLTI0MCw2ICsyNDEsMTQgQEAgY29uZmlnIFZJREVP
-X0FEVjc4NDIKIAkgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIgYXMgYSBtb2R1bGUsIGNob29zZSBN
-IGhlcmU6IHRoZQogCSAgbW9kdWxlIHdpbGwgYmUgY2FsbGVkIGFkdjc4NDIuCiAKK2NvbmZpZyBW
-SURFT19BRFY3ODQyX0NFQworCWJvb2wgIkVuYWJsZSBBbmFsb2cgRGV2aWNlcyBBRFY3ODQyIENF
-QyBzdXBwb3J0IgorCWRlcGVuZHMgb24gVklERU9fQURWNzg0MiAmJiBNRURJQV9DRUMKKwlkZWZh
-dWx0IHkKKwktLS1oZWxwLS0tCisJICBXaGVuIHNlbGVjdGVkIHRoZSBhZHY3ODQyIHdpbGwgc3Vw
-cG9ydCB0aGUgb3B0aW9uYWwKKwkgIEhETUkgQ0VDIGZlYXR1cmUuCisKIGNvbmZpZyBWSURFT19C
-VDgxOQogCXRyaXN0YXRlICJCVDgxOUEgVmlkZW9TdHJlYW0gZGVjb2RlciIKIAlkZXBlbmRzIG9u
-IFZJREVPX1Y0TDIgJiYgSTJDCmRpZmYgLS1naXQgYS9kcml2ZXJzL21lZGlhL2kyYy9hZHY3NjA0
-LmMgYi9kcml2ZXJzL21lZGlhL2kyYy9hZHY3NjA0LmMKaW5kZXggZDk5ZjMwYS4uY2Y5ZGI4NiAx
-MDA2NDQKLS0tIGEvZHJpdmVycy9tZWRpYS9pMmMvYWR2NzYwNC5jCisrKyBiL2RyaXZlcnMvbWVk
-aWEvaTJjL2Fkdjc2MDQuYwpAQCAtMjY0MSw2ICsyNjQxLDExIEBAIHN0YXRpYyBjb25zdCBzdHJ1
-Y3QgdjRsMl9zdWJkZXZfb3BzIGFkdjc2eHhfb3BzID0gewogCS5wYWQgPSAmYWR2NzZ4eF9wYWRf
-b3BzLAogfTsKIAorc3RhdGljIGNvbnN0IHN0cnVjdCB2NGwyX3N1YmRldl9pbnRlcm5hbF9vcHMg
-YWR2NzZ4eF9pbnRfb3BzID0geworCS5yZWdpc3RlcmVkID0gYWR2NzZ4eF9yZWdpc3RlcmVkLAor
-CS51bnJlZ2lzdGVyZWQgPSBhZHY3Nnh4X3VucmVnaXN0ZXJlZCwKK307CisKIC8qIC0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tIGN1c3RvbSBjdHJscyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tICovCiAKIHN0YXRpYyBjb25zdCBzdHJ1Y3QgdjRsMl9jdHJsX2NvbmZpZyBhZHY3
-NjA0X2N0cmxfYW5hbG9nX3NhbXBsaW5nX3BoYXNlID0gewpAQCAtMjY3NiwxMSArMjY4MSw2IEBA
-IHN0YXRpYyBjb25zdCBzdHJ1Y3QgdjRsMl9jdHJsX2NvbmZpZyBhZHY3Nnh4X2N0cmxfZnJlZV9y
-dW5fY29sb3IgPSB7CiAJLmRlZiA9IDB4MCwKIH07CiAKLXN0YXRpYyBjb25zdCBzdHJ1Y3QgdjRs
-Ml9zdWJkZXZfaW50ZXJuYWxfb3BzIGFkdjc2eHhfaW50X29wcyA9IHsKLQkucmVnaXN0ZXJlZCA9
-IGFkdjc2eHhfcmVnaXN0ZXJlZCwKLQkudW5yZWdpc3RlcmVkID0gYWR2NzZ4eF91bnJlZ2lzdGVy
-ZWQsCi19OwotCiAvKiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAqLwogCiBzdGF0aWMgaW50IGFkdjc2eHhfY29y
-ZV9pbml0KHN0cnVjdCB2NGwyX3N1YmRldiAqc2QpCmRpZmYgLS1naXQgYS9kcml2ZXJzL21lZGlh
-L2kyYy9hZHY3ODQyLmMgYi9kcml2ZXJzL21lZGlhL2kyYy9hZHY3ODQyLmMKaW5kZXggN2NjYjg1
-ZC4uNDI0YmY4NyAxMDA2NDQKLS0tIGEvZHJpdmVycy9tZWRpYS9pMmMvYWR2Nzg0Mi5jCisrKyBi
-L2RyaXZlcnMvbWVkaWEvaTJjL2Fkdjc4NDIuYwpAQCAtMzksNiArMzksNyBAQAogI2luY2x1ZGUg
-PGxpbnV4L3dvcmtxdWV1ZS5oPgogI2luY2x1ZGUgPGxpbnV4L3Y0bDItZHYtdGltaW5ncy5oPgog
-I2luY2x1ZGUgPGxpbnV4L2hkbWkuaD4KKyNpbmNsdWRlIDxtZWRpYS9jZWMuaD4KICNpbmNsdWRl
-IDxtZWRpYS92NGwyLWRldmljZS5oPgogI2luY2x1ZGUgPG1lZGlhL3Y0bDItZXZlbnQuaD4KICNp
-bmNsdWRlIDxtZWRpYS92NGwyLWN0cmxzLmg+CkBAIC03OSw2ICs4MCw4IEBAIE1PRFVMRV9MSUNF
-TlNFKCJHUEwiKTsKIAogI2RlZmluZSBBRFY3ODQyX09QX1NXQVBfQ0JfQ1IJCQkJKDEgPDwgMCkK
-IAorI2RlZmluZSBBRFY3ODQyX01BWF9BRERSUyAoMykKKwogLyoKICoqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioKICoK
-QEAgLTE0Miw2ICsxNDUsMTEgQEAgc3RydWN0IGFkdjc4NDJfc3RhdGUgewogCXN0cnVjdCB2NGwy
-X2N0cmwgKmZyZWVfcnVuX2NvbG9yX2N0cmxfbWFudWFsOwogCXN0cnVjdCB2NGwyX2N0cmwgKmZy
-ZWVfcnVuX2NvbG9yX2N0cmw7CiAJc3RydWN0IHY0bDJfY3RybCAqcmdiX3F1YW50aXphdGlvbl9y
-YW5nZV9jdHJsOworCisJc3RydWN0IGNlY19hZGFwdGVyICpjZWNfYWRhcDsKKwl1OCAgIGNlY19h
-ZGRyW0FEVjc4NDJfTUFYX0FERFJTXTsKKwl1OCAgIGNlY192YWxpZF9hZGRyczsKKwlib29sIGNl
-Y19lbmFibGVkX2FkYXA7CiB9OwogCiAvKiBVbnN1cHBvcnRlZCB0aW1pbmdzLiBUaGlzIGRldmlj
-ZSBjYW5ub3Qgc3VwcG9ydCA3MjBwMzAuICovCkBAIC00MTgsOSArNDI2LDkgQEAgc3RhdGljIGlu
-bGluZSBpbnQgY2VjX3dyaXRlKHN0cnVjdCB2NGwyX3N1YmRldiAqc2QsIHU4IHJlZywgdTggdmFs
-KQogCXJldHVybiBhZHZfc21idXNfd3JpdGVfYnl0ZV9kYXRhKHN0YXRlLT5pMmNfY2VjLCByZWcs
-IHZhbCk7CiB9CiAKLXN0YXRpYyBpbmxpbmUgaW50IGNlY193cml0ZV9hbmRfb3Ioc3RydWN0IHY0
-bDJfc3ViZGV2ICpzZCwgdTggcmVnLCB1OCBtYXNrLCB1OCB2YWwpCitzdGF0aWMgaW5saW5lIGlu
-dCBjZWNfd3JpdGVfY2xyX3NldChzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkLCB1OCByZWcsIHU4IG1h
-c2ssIHU4IHZhbCkKIHsKLQlyZXR1cm4gY2VjX3dyaXRlKHNkLCByZWcsIChjZWNfcmVhZChzZCwg
-cmVnKSAmIG1hc2spIHwgdmFsKTsKKwlyZXR1cm4gY2VjX3dyaXRlKHNkLCByZWcsIChjZWNfcmVh
-ZChzZCwgcmVnKSAmIH5tYXNrKSB8IHZhbCk7CiB9CiAKIHN0YXRpYyBpbmxpbmUgaW50IGluZm9m
-cmFtZV9yZWFkKHN0cnVjdCB2NGwyX3N1YmRldiAqc2QsIHU4IHJlZykKQEAgLTY5Niw2ICs3MDQs
-MTggQEAgYWR2Nzg0Ml9nZXRfZHZfdGltaW5nc19jYXAoc3RydWN0IHY0bDJfc3ViZGV2ICpzZCkK
-IAogLyogLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0gKi8KIAorc3RhdGljIHUxNiBhZHY3ODQyX3JlYWRfY2FibGVf
-ZGV0KHN0cnVjdCB2NGwyX3N1YmRldiAqc2QpCit7CisJdTggcmVnID0gaW9fcmVhZChzZCwgMHg2
-Zik7CisJdTE2IHZhbCA9IDA7CisKKwlpZiAocmVnICYgMHgwMikKKwkJdmFsIHw9IDE7IC8qIHBv
-cnQgQSAqLworCWlmIChyZWcgJiAweDAxKQorCQl2YWwgfD0gMjsgLyogcG9ydCBCICovCisJcmV0
-dXJuIHZhbDsKK30KKwogc3RhdGljIHZvaWQgYWR2Nzg0Ml9kZWxheWVkX3dvcmtfZW5hYmxlX2hv
-dHBsdWcoc3RydWN0IHdvcmtfc3RydWN0ICp3b3JrKQogewogCXN0cnVjdCBkZWxheWVkX3dvcmsg
-KmR3b3JrID0gdG9fZGVsYXllZF93b3JrKHdvcmspOwpAQCAtNzYyLDUwICs3ODIsMTggQEAgc3Rh
-dGljIGludCBlZGlkX3dyaXRlX3ZnYV9zZWdtZW50KHN0cnVjdCB2NGwyX3N1YmRldiAqc2QpCiAJ
-cmV0dXJuIDA7CiB9CiAKLXN0YXRpYyBpbnQgZWRpZF9zcGFfbG9jYXRpb24oY29uc3QgdTggKmVk
-aWQpCi17Ci0JdTggZDsKLQotCS8qCi0JICogVE9ETywgaW1wcm92ZSBhbmQgdXBkYXRlIGZvciBv
-dGhlciBDRUEgZXh0ZW5zaW9ucwotCSAqIGN1cnJlbnRseSBvbmx5IGZvciAxIHNlZ21lbnQgKDI1
-NiBieXRlcyksCi0JICogaS5lLiAxIGV4dGVuc2lvbiBibG9jayBhbmQgQ0VBIHJldmlzaW9uIDMu
-Ci0JICovCi0JaWYgKChlZGlkWzB4N2VdICE9IDEpIHx8Ci0JICAgIChlZGlkWzB4ODBdICE9IDB4
-MDIpIHx8Ci0JICAgIChlZGlkWzB4ODFdICE9IDB4MDMpKSB7Ci0JCXJldHVybiAtRUlOVkFMOwot
-CX0KLQkvKgotCSAqIHNlYXJjaCBWZW5kb3IgU3BlY2lmaWMgRGF0YSBCbG9jayAodGFnIDMpCi0J
-ICovCi0JZCA9IGVkaWRbMHg4Ml0gJiAweDdmOwotCWlmIChkID4gNCkgewotCQlpbnQgaSA9IDB4
-ODQ7Ci0JCWludCBlbmQgPSAweDgwICsgZDsKLQkJZG8gewotCQkJdTggdGFnID0gZWRpZFtpXT4+
-NTsKLQkJCXU4IGxlbiA9IGVkaWRbaV0gJiAweDFmOwotCi0JCQlpZiAoKHRhZyA9PSAzKSAmJiAo
-bGVuID49IDUpKQotCQkJCXJldHVybiBpICsgNDsKLQkJCWkgKz0gbGVuICsgMTsKLQkJfSB3aGls
-ZSAoaSA8IGVuZCk7Ci0JfQotCXJldHVybiAtRUlOVkFMOwotfQotCiBzdGF0aWMgaW50IGVkaWRf
-d3JpdGVfaGRtaV9zZWdtZW50KHN0cnVjdCB2NGwyX3N1YmRldiAqc2QsIHU4IHBvcnQpCiB7CiAJ
-c3RydWN0IGkyY19jbGllbnQgKmNsaWVudCA9IHY0bDJfZ2V0X3N1YmRldmRhdGEoc2QpOwogCXN0
-cnVjdCBhZHY3ODQyX3N0YXRlICpzdGF0ZSA9IHRvX3N0YXRlKHNkKTsKLQljb25zdCB1OCAqdmFs
-ID0gc3RhdGUtPmhkbWlfZWRpZC5lZGlkOwotCWludCBzcGFfbG9jID0gZWRpZF9zcGFfbG9jYXRp
-b24odmFsKTsKKwljb25zdCB1OCAqZWRpZCA9IHN0YXRlLT5oZG1pX2VkaWQuZWRpZDsKKwlpbnQg
-c3BhX2xvYzsKKwl1MTYgcGE7CiAJaW50IGVyciA9IDA7CiAJaW50IGk7CiAKLQl2NGwyX2RiZygy
-LCBkZWJ1Zywgc2QsICIlczogd3JpdGUgRURJRCBvbiBwb3J0ICVjIChzcGEgYXQgMHgleClcbiIs
-Ci0JCQlfX2Z1bmNfXywgKHBvcnQgPT0gQURWNzg0Ml9FRElEX1BPUlRfQSkgPyAnQScgOiAnQics
-IHNwYV9sb2MpOworCXY0bDJfZGJnKDIsIGRlYnVnLCBzZCwgIiVzOiB3cml0ZSBFRElEIG9uIHBv
-cnQgJWNcbiIsCisJCQlfX2Z1bmNfXywgKHBvcnQgPT0gQURWNzg0Ml9FRElEX1BPUlRfQSkgPyAn
-QScgOiAnQicpOwogCiAJLyogSFBBIGRpc2FibGUgb24gcG9ydCBBIGFuZCBCICovCiAJaW9fd3Jp
-dGVfYW5kX29yKHNkLCAweDIwLCAweGNmLCAweDAwKTsKQEAgLTgxNiwyNCArODA0LDMzIEBAIHN0
-YXRpYyBpbnQgZWRpZF93cml0ZV9oZG1pX3NlZ21lbnQoc3RydWN0IHY0bDJfc3ViZGV2ICpzZCwg
-dTggcG9ydCkKIAlpZiAoIXN0YXRlLT5oZG1pX2VkaWQucHJlc2VudCkKIAkJcmV0dXJuIDA7CiAK
-KwlwYSA9IGNlY19nZXRfZWRpZF9waHlzX2FkZHIoZWRpZCwgMjU2LCAmc3BhX2xvYyk7CisJZXJy
-ID0gY2VjX3BoeXNfYWRkcl92YWxpZGF0ZShwYSwgJnBhLCBOVUxMKTsKKwlpZiAoZXJyKQorCQly
-ZXR1cm4gZXJyOworCisJLyoKKwkgKiBSZXR1cm4gYW4gZXJyb3IgaWYgbm8gbG9jYXRpb24gb2Yg
-dGhlIHNvdXJjZSBwaHlzaWNhbCBhZGRyZXNzCisJICogd2FzIGZvdW5kLgorCSAqLworCWlmIChz
-cGFfbG9jID09IDApCisJCXJldHVybiAtRUlOVkFMOworCiAJLyogZWRpZCBzZWdtZW50IHBvaW50
-ZXIgJzAnIGZvciBIRE1JIHBvcnRzICovCiAJcmVwX3dyaXRlX2FuZF9vcihzZCwgMHg3NywgMHhl
-ZiwgMHgwMCk7CiAKIAlmb3IgKGkgPSAwOyAhZXJyICYmIGkgPCAyNTY7IGkgKz0gSTJDX1NNQlVT
-X0JMT0NLX01BWCkKIAkJZXJyID0gYWR2X3NtYnVzX3dyaXRlX2kyY19ibG9ja19kYXRhKHN0YXRl
-LT5pMmNfZWRpZCwgaSwKLQkJCQkJCSAgICAgSTJDX1NNQlVTX0JMT0NLX01BWCwgdmFsICsgaSk7
-CisJCQkJCQkgICAgIEkyQ19TTUJVU19CTE9DS19NQVgsIGVkaWQgKyBpKTsKIAlpZiAoZXJyKQog
-CQlyZXR1cm4gZXJyOwogCi0JaWYgKHNwYV9sb2MgPCAwKQotCQlzcGFfbG9jID0gMHhjMDsgLyog
-RGVmYXVsdCB2YWx1ZSBbUkVGXzAyLCBwLiAxOTldICovCi0KIAlpZiAocG9ydCA9PSBBRFY3ODQy
-X0VESURfUE9SVF9BKSB7Ci0JCXJlcF93cml0ZShzZCwgMHg3MiwgdmFsW3NwYV9sb2NdKTsKLQkJ
-cmVwX3dyaXRlKHNkLCAweDczLCB2YWxbc3BhX2xvYyArIDFdKTsKKwkJcmVwX3dyaXRlKHNkLCAw
-eDcyLCBlZGlkW3NwYV9sb2NdKTsKKwkJcmVwX3dyaXRlKHNkLCAweDczLCBlZGlkW3NwYV9sb2Mg
-KyAxXSk7CiAJfSBlbHNlIHsKLQkJcmVwX3dyaXRlKHNkLCAweDc0LCB2YWxbc3BhX2xvY10pOwot
-CQlyZXBfd3JpdGUoc2QsIDB4NzUsIHZhbFtzcGFfbG9jICsgMV0pOworCQlyZXBfd3JpdGUoc2Qs
-IDB4NzQsIGVkaWRbc3BhX2xvY10pOworCQlyZXBfd3JpdGUoc2QsIDB4NzUsIGVkaWRbc3BhX2xv
-YyArIDFdKTsKIAl9CiAJcmVwX3dyaXRlKHNkLCAweDc2LCBzcGFfbG9jICYgMHhmZik7CiAJcmVw
-X3dyaXRlX2FuZF9vcihzZCwgMHg3NywgMHhiZiwgKHNwYV9sb2MgPj4gMikgJiAweDQwKTsKQEAg
-LTg1Myw2ICs4NTAsNyBAQCBzdGF0aWMgaW50IGVkaWRfd3JpdGVfaGRtaV9zZWdtZW50KHN0cnVj
-dCB2NGwyX3N1YmRldiAqc2QsIHU4IHBvcnQpCiAJCQkJKHBvcnQgPT0gQURWNzg0Ml9FRElEX1BP
-UlRfQSkgPyAnQScgOiAnQicpOwogCQlyZXR1cm4gLUVJTzsKIAl9CisJY2VjX3NfcGh5c19hZGRy
-KHN0YXRlLT5jZWNfYWRhcCwgcGEsIGZhbHNlKTsKIAogCS8qIGVuYWJsZSBob3RwbHVnIGFmdGVy
-IDIwMCBtcyAqLwogCXF1ZXVlX2RlbGF5ZWRfd29yayhzdGF0ZS0+d29ya19xdWV1ZXMsCkBAIC05
-ODMsMjAgKzk4MSwxMSBAQCBzdGF0aWMgaW50IGFkdjc4NDJfc19yZWdpc3RlcihzdHJ1Y3QgdjRs
-Ml9zdWJkZXYgKnNkLAogc3RhdGljIGludCBhZHY3ODQyX3NfZGV0ZWN0X3R4XzV2X2N0cmwoc3Ry
-dWN0IHY0bDJfc3ViZGV2ICpzZCkKIHsKIAlzdHJ1Y3QgYWR2Nzg0Ml9zdGF0ZSAqc3RhdGUgPSB0
-b19zdGF0ZShzZCk7Ci0JaW50IHByZXYgPSB2NGwyX2N0cmxfZ19jdHJsKHN0YXRlLT5kZXRlY3Rf
-dHhfNXZfY3RybCk7Ci0JdTggcmVnX2lvXzZmID0gaW9fcmVhZChzZCwgMHg2Zik7Ci0JaW50IHZh
-bCA9IDA7Ci0KLQlpZiAocmVnX2lvXzZmICYgMHgwMikKLQkJdmFsIHw9IDE7IC8qIHBvcnQgQSAq
-LwotCWlmIChyZWdfaW9fNmYgJiAweDAxKQotCQl2YWwgfD0gMjsgLyogcG9ydCBCICovCisJdTE2
-IGNhYmxlX2RldCA9IGFkdjc4NDJfcmVhZF9jYWJsZV9kZXQoc2QpOwogCi0JdjRsMl9kYmcoMSwg
-ZGVidWcsIHNkLCAiJXM6IDB4JXggLT4gMHgleFxuIiwgX19mdW5jX18sIHByZXYsIHZhbCk7CisJ
-djRsMl9kYmcoMSwgZGVidWcsIHNkLCAiJXM6IDB4JXhcbiIsIF9fZnVuY19fLCBjYWJsZV9kZXQp
-OwogCi0JaWYgKHZhbCAhPSBwcmV2KQotCQlyZXR1cm4gdjRsMl9jdHJsX3NfY3RybChzdGF0ZS0+
-ZGV0ZWN0X3R4XzV2X2N0cmwsIHZhbCk7Ci0JcmV0dXJuIDA7CisJcmV0dXJuIHY0bDJfY3RybF9z
-X2N0cmwoc3RhdGUtPmRldGVjdF90eF81dl9jdHJsLCBjYWJsZV9kZXQpOwogfQogCiBzdGF0aWMg
-aW50IGZpbmRfYW5kX3NldF9wcmVkZWZpbmVkX3ZpZGVvX3RpbWluZ3Moc3RydWN0IHY0bDJfc3Vi
-ZGV2ICpzZCwKQEAgLTIxNzAsNiArMjE1OSwyMDcgQEAgc3RhdGljIHZvaWQgYWR2Nzg0Ml9pcnFf
-ZW5hYmxlKHN0cnVjdCB2NGwyX3N1YmRldiAqc2QsIGJvb2wgZW5hYmxlKQogCX0KIH0KIAorI2lm
-IElTX0VOQUJMRUQoQ09ORklHX1ZJREVPX0FEVjc4NDJfQ0VDKQorc3RhdGljIHZvaWQgYWR2Nzg0
-Ml9jZWNfdHhfcmF3X3N0YXR1cyhzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkLCB1OCB0eF9yYXdfc3Rh
-dHVzKQoreworCXN0cnVjdCBhZHY3ODQyX3N0YXRlICpzdGF0ZSA9IHRvX3N0YXRlKHNkKTsKKwor
-CWlmICgoY2VjX3JlYWQoc2QsIDB4MTEpICYgMHgwMSkgPT0gMCkgeworCQl2NGwyX2RiZygxLCBk
-ZWJ1Zywgc2QsICIlczogdHggcmF3OiB0eCBkaXNhYmxlZFxuIiwgX19mdW5jX18pOworCQlyZXR1
-cm47CisJfQorCisJaWYgKHR4X3Jhd19zdGF0dXMgJiAweDAyKSB7CisJCXY0bDJfZGJnKDEsIGRl
-YnVnLCBzZCwgIiVzOiB0eCByYXc6IGFyYml0cmF0aW9uIGxvc3RcbiIsCisJCQkgX19mdW5jX18p
-OworCQljZWNfdHJhbnNtaXRfZG9uZShzdGF0ZS0+Y2VjX2FkYXAsIENFQ19UWF9TVEFUVVNfQVJC
-X0xPU1QsCisJCQkJICAxLCAwLCAwLCAwKTsKKwkJcmV0dXJuOworCX0KKwlpZiAodHhfcmF3X3N0
-YXR1cyAmIDB4MDQpIHsKKwkJdTggc3RhdHVzOworCQl1OCBuYWNrX2NudDsKKwkJdTggbG93X2Ry
-aXZlX2NudDsKKworCQl2NGwyX2RiZygxLCBkZWJ1Zywgc2QsICIlczogdHggcmF3OiByZXRyeSBm
-YWlsZWRcbiIsIF9fZnVuY19fKTsKKwkJLyoKKwkJICogV2Ugc2V0IHRoaXMgc3RhdHVzIGJpdCBz
-aW5jZSB0aGlzIGhhcmR3YXJlIHBlcmZvcm1zCisJCSAqIHJldHJhbnNtaXNzaW9ucy4KKwkJICov
-CisJCXN0YXR1cyA9IENFQ19UWF9TVEFUVVNfTUFYX1JFVFJJRVM7CisJCW5hY2tfY250ID0gY2Vj
-X3JlYWQoc2QsIDB4MTQpICYgMHhmOworCQlpZiAobmFja19jbnQpCisJCQlzdGF0dXMgfD0gQ0VD
-X1RYX1NUQVRVU19OQUNLOworCQlsb3dfZHJpdmVfY250ID0gY2VjX3JlYWQoc2QsIDB4MTQpID4+
-IDQ7CisJCWlmIChsb3dfZHJpdmVfY250KQorCQkJc3RhdHVzIHw9IENFQ19UWF9TVEFUVVNfTE9X
-X0RSSVZFOworCQljZWNfdHJhbnNtaXRfZG9uZShzdGF0ZS0+Y2VjX2FkYXAsIHN0YXR1cywKKwkJ
-CQkgIDAsIG5hY2tfY250LCBsb3dfZHJpdmVfY250LCAwKTsKKwkJcmV0dXJuOworCX0KKwlpZiAo
-dHhfcmF3X3N0YXR1cyAmIDB4MDEpIHsKKwkJdjRsMl9kYmcoMSwgZGVidWcsIHNkLCAiJXM6IHR4
-IHJhdzogcmVhZHkgb2tcbiIsIF9fZnVuY19fKTsKKwkJY2VjX3RyYW5zbWl0X2RvbmUoc3RhdGUt
-PmNlY19hZGFwLCBDRUNfVFhfU1RBVFVTX09LLCAwLCAwLCAwLCAwKTsKKwkJcmV0dXJuOworCX0K
-K30KKworc3RhdGljIHZvaWQgYWR2Nzg0Ml9jZWNfaXNyKHN0cnVjdCB2NGwyX3N1YmRldiAqc2Qs
-IGJvb2wgKmhhbmRsZWQpCit7CisJdTggY2VjX2lycTsKKworCS8qIGNlYyBjb250cm9sbGVyICov
-CisJY2VjX2lycSA9IGlvX3JlYWQoc2QsIDB4OTMpICYgMHgwZjsKKwlpZiAoIWNlY19pcnEpCisJ
-CXJldHVybjsKKworCXY0bDJfZGJnKDEsIGRlYnVnLCBzZCwgIiVzOiBjZWM6IGlycSAweCV4XG4i
-LCBfX2Z1bmNfXywgY2VjX2lycSk7CisJYWR2Nzg0Ml9jZWNfdHhfcmF3X3N0YXR1cyhzZCwgY2Vj
-X2lycSk7CisJaWYgKGNlY19pcnEgJiAweDA4KSB7CisJCXN0cnVjdCBhZHY3ODQyX3N0YXRlICpz
-dGF0ZSA9IHRvX3N0YXRlKHNkKTsKKwkJc3RydWN0IGNlY19tc2cgbXNnOworCisJCW1zZy5sZW4g
-PSBjZWNfcmVhZChzZCwgMHgyNSkgJiAweDFmOworCQlpZiAobXNnLmxlbiA+IDE2KQorCQkJbXNn
-LmxlbiA9IDE2OworCisJCWlmIChtc2cubGVuKSB7CisJCQl1OCBpOworCisJCQlmb3IgKGkgPSAw
-OyBpIDwgbXNnLmxlbjsgaSsrKQorCQkJCW1zZy5tc2dbaV0gPSBjZWNfcmVhZChzZCwgaSArIDB4
-MTUpOworCQkJY2VjX3dyaXRlKHNkLCAweDI2LCAweDAxKTsgLyogcmUtZW5hYmxlIHJ4ICovCisJ
-CQljZWNfcmVjZWl2ZWRfbXNnKHN0YXRlLT5jZWNfYWRhcCwgJm1zZyk7CisJCX0KKwl9CisKKwlp
-b193cml0ZShzZCwgMHg5NCwgY2VjX2lycSk7CisKKwlpZiAoaGFuZGxlZCkKKwkJKmhhbmRsZWQg
-PSB0cnVlOworfQorCitzdGF0aWMgaW50IGFkdjc4NDJfY2VjX2FkYXBfZW5hYmxlKHN0cnVjdCBj
-ZWNfYWRhcHRlciAqYWRhcCwgYm9vbCBlbmFibGUpCit7CisJc3RydWN0IGFkdjc4NDJfc3RhdGUg
-KnN0YXRlID0gYWRhcC0+cHJpdjsKKwlzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkID0gJnN0YXRlLT5z
-ZDsKKworCWlmICghc3RhdGUtPmNlY19lbmFibGVkX2FkYXAgJiYgZW5hYmxlKSB7CisJCWNlY193
-cml0ZV9jbHJfc2V0KHNkLCAweDJhLCAweDAxLCAweDAxKTsJLyogcG93ZXIgdXAgY2VjICovCisJ
-CWNlY193cml0ZShzZCwgMHgyYywgMHgwMSk7CS8qIGNlYyBzb2Z0IHJlc2V0ICovCisJCWNlY193
-cml0ZV9jbHJfc2V0KHNkLCAweDExLCAweDAxLCAwKTsgIC8qIGluaXRpYWxseSBkaXNhYmxlIHR4
-ICovCisJCS8qIGVuYWJsZWQgaXJxczogKi8KKwkJLyogdHg6IHJlYWR5ICovCisJCS8qIHR4OiBh
-cmJpdHJhdGlvbiBsb3N0ICovCisJCS8qIHR4OiByZXRyeSB0aW1lb3V0ICovCisJCS8qIHJ4OiBy
-ZWFkeSAqLworCQlpb193cml0ZV9jbHJfc2V0KHNkLCAweDk2LCAweDBmLCAweDBmKTsKKwkJY2Vj
-X3dyaXRlKHNkLCAweDI2LCAweDAxKTsgICAgICAgICAgICAvKiBlbmFibGUgcnggKi8KKwl9IGVs
-c2UgaWYgKHN0YXRlLT5jZWNfZW5hYmxlZF9hZGFwICYmICFlbmFibGUpIHsKKwkJLyogZGlzYWJs
-ZSBjZWMgaW50ZXJydXB0cyAqLworCQlpb193cml0ZV9jbHJfc2V0KHNkLCAweDk2LCAweDBmLCAw
-eDAwKTsKKwkJLyogZGlzYWJsZSBhZGRyZXNzIG1hc2sgMS0zICovCisJCWNlY193cml0ZV9jbHJf
-c2V0KHNkLCAweDI3LCAweDcwLCAweDAwKTsKKwkJLyogcG93ZXIgZG93biBjZWMgc2VjdGlvbiAq
-LworCQljZWNfd3JpdGVfY2xyX3NldChzZCwgMHgyYSwgMHgwMSwgMHgwMCk7CisJCXN0YXRlLT5j
-ZWNfdmFsaWRfYWRkcnMgPSAwOworCX0KKwlzdGF0ZS0+Y2VjX2VuYWJsZWRfYWRhcCA9IGVuYWJs
-ZTsKKwlyZXR1cm4gMDsKK30KKworc3RhdGljIGludCBhZHY3ODQyX2NlY19hZGFwX2xvZ19hZGRy
-KHN0cnVjdCBjZWNfYWRhcHRlciAqYWRhcCwgdTggYWRkcikKK3sKKwlzdHJ1Y3QgYWR2Nzg0Ml9z
-dGF0ZSAqc3RhdGUgPSBhZGFwLT5wcml2OworCXN0cnVjdCB2NGwyX3N1YmRldiAqc2QgPSAmc3Rh
-dGUtPnNkOworCXVuc2lnbmVkIGksIGZyZWVfaWR4ID0gQURWNzg0Ml9NQVhfQUREUlM7CisKKwlp
-ZiAoIXN0YXRlLT5jZWNfZW5hYmxlZF9hZGFwKQorCQlyZXR1cm4gLUVJTzsKKworCWlmIChhZGRy
-ID09IENFQ19MT0dfQUREUl9JTlZBTElEKSB7CisJCWNlY193cml0ZV9jbHJfc2V0KHNkLCAweDI3
-LCAweDcwLCAwKTsKKwkJc3RhdGUtPmNlY192YWxpZF9hZGRycyA9IDA7CisJCXJldHVybiAwOwor
-CX0KKworCWZvciAoaSA9IDA7IGkgPCBBRFY3ODQyX01BWF9BRERSUzsgaSsrKSB7CisJCWJvb2wg
-aXNfdmFsaWQgPSBzdGF0ZS0+Y2VjX3ZhbGlkX2FkZHJzICYgKDEgPDwgaSk7CisKKwkJaWYgKGZy
-ZWVfaWR4ID09IEFEVjc4NDJfTUFYX0FERFJTICYmICFpc192YWxpZCkKKwkJCWZyZWVfaWR4ID0g
-aTsKKwkJaWYgKGlzX3ZhbGlkICYmIHN0YXRlLT5jZWNfYWRkcltpXSA9PSBhZGRyKQorCQkJcmV0
-dXJuIDA7CisJfQorCWlmIChpID09IEFEVjc4NDJfTUFYX0FERFJTKSB7CisJCWkgPSBmcmVlX2lk
-eDsKKwkJaWYgKGkgPT0gQURWNzg0Ml9NQVhfQUREUlMpCisJCQlyZXR1cm4gLUVOWElPOworCX0K
-KwlzdGF0ZS0+Y2VjX2FkZHJbaV0gPSBhZGRyOworCXN0YXRlLT5jZWNfdmFsaWRfYWRkcnMgfD0g
-MSA8PCBpOworCisJc3dpdGNoIChpKSB7CisJY2FzZSAwOgorCQkvKiBlbmFibGUgYWRkcmVzcyBt
-YXNrIDAgKi8KKwkJY2VjX3dyaXRlX2Nscl9zZXQoc2QsIDB4MjcsIDB4MTAsIDB4MTApOworCQkv
-KiBzZXQgYWRkcmVzcyBmb3IgbWFzayAwICovCisJCWNlY193cml0ZV9jbHJfc2V0KHNkLCAweDI4
-LCAweDBmLCBhZGRyKTsKKwkJYnJlYWs7CisJY2FzZSAxOgorCQkvKiBlbmFibGUgYWRkcmVzcyBt
-YXNrIDEgKi8KKwkJY2VjX3dyaXRlX2Nscl9zZXQoc2QsIDB4MjcsIDB4MjAsIDB4MjApOworCQkv
-KiBzZXQgYWRkcmVzcyBmb3IgbWFzayAxICovCisJCWNlY193cml0ZV9jbHJfc2V0KHNkLCAweDI4
-LCAweGYwLCBhZGRyIDw8IDQpOworCQlicmVhazsKKwljYXNlIDI6CisJCS8qIGVuYWJsZSBhZGRy
-ZXNzIG1hc2sgMiAqLworCQljZWNfd3JpdGVfY2xyX3NldChzZCwgMHgyNywgMHg0MCwgMHg0MCk7
-CisJCS8qIHNldCBhZGRyZXNzIGZvciBtYXNrIDEgKi8KKwkJY2VjX3dyaXRlX2Nscl9zZXQoc2Qs
-IDB4MjksIDB4MGYsIGFkZHIpOworCQlicmVhazsKKwl9CisJcmV0dXJuIDA7Cit9CisKK3N0YXRp
-YyBpbnQgYWR2Nzg0Ml9jZWNfYWRhcF90cmFuc21pdChzdHJ1Y3QgY2VjX2FkYXB0ZXIgKmFkYXAs
-IHU4IGF0dGVtcHRzLAorCQkJCSAgICAgdTMyIHNpZ25hbF9mcmVlX3RpbWUsIHN0cnVjdCBjZWNf
-bXNnICptc2cpCit7CisJc3RydWN0IGFkdjc4NDJfc3RhdGUgKnN0YXRlID0gYWRhcC0+cHJpdjsK
-KwlzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkID0gJnN0YXRlLT5zZDsKKwl1OCBsZW4gPSBtc2ctPmxl
-bjsKKwl1bnNpZ25lZCBpOworCisJLyoKKwkgKiBUaGUgbnVtYmVyIG9mIHJldHJpZXMgaXMgdGhl
-IG51bWJlciBvZiBhdHRlbXB0cyAtIDEsIGJ1dCByZXRyeQorCSAqIGF0IGxlYXN0IG9uY2UuIEl0
-J3Mgbm90IGNsZWFyIGlmIGEgdmFsdWUgb2YgMCBpcyBhbGxvd2VkLCBzbworCSAqIGxldCdzIGRv
-IGF0IGxlYXN0IG9uZSByZXRyeS4KKwkgKi8KKwljZWNfd3JpdGVfY2xyX3NldChzZCwgMHgxMiwg
-MHg3MCwgbWF4KDEsIGF0dGVtcHRzIC0gMSkgPDwgNCk7CisKKwlpZiAobGVuID4gMTYpIHsKKwkJ
-djRsMl9lcnIoc2QsICIlczogbGVuIGV4Y2VlZGVkIDE2ICglZClcbiIsIF9fZnVuY19fLCBsZW4p
-OworCQlyZXR1cm4gLUVJTlZBTDsKKwl9CisKKwkvKiB3cml0ZSBkYXRhICovCisJZm9yIChpID0g
-MDsgaSA8IGxlbjsgaSsrKQorCQljZWNfd3JpdGUoc2QsIGksIG1zZy0+bXNnW2ldKTsKKworCS8q
-IHNldCBsZW5ndGggKGRhdGEgKyBoZWFkZXIpICovCisJY2VjX3dyaXRlKHNkLCAweDEwLCBsZW4p
-OworCS8qIHN0YXJ0IHRyYW5zbWl0LCBlbmFibGUgdHggKi8KKwljZWNfd3JpdGUoc2QsIDB4MTEs
-IDB4MDEpOworCXJldHVybiAwOworfQorCitzdGF0aWMgY29uc3Qgc3RydWN0IGNlY19hZGFwX29w
-cyBhZHY3ODQyX2NlY19hZGFwX29wcyA9IHsKKwkuYWRhcF9lbmFibGUgPSBhZHY3ODQyX2NlY19h
-ZGFwX2VuYWJsZSwKKwkuYWRhcF9sb2dfYWRkciA9IGFkdjc4NDJfY2VjX2FkYXBfbG9nX2FkZHIs
-CisJLmFkYXBfdHJhbnNtaXQgPSBhZHY3ODQyX2NlY19hZGFwX3RyYW5zbWl0LAorfTsKKyNlbmRp
-ZgorCiBzdGF0aWMgaW50IGFkdjc4NDJfaXNyKHN0cnVjdCB2NGwyX3N1YmRldiAqc2QsIHUzMiBz
-dGF0dXMsIGJvb2wgKmhhbmRsZWQpCiB7CiAJc3RydWN0IGFkdjc4NDJfc3RhdGUgKnN0YXRlID0g
-dG9fc3RhdGUoc2QpOwpAQCAtMjI0MSw2ICsyNDMxLDExIEBAIHN0YXRpYyBpbnQgYWR2Nzg0Ml9p
-c3Ioc3RydWN0IHY0bDJfc3ViZGV2ICpzZCwgdTMyIHN0YXR1cywgYm9vbCAqaGFuZGxlZCkKIAkJ
-CSpoYW5kbGVkID0gdHJ1ZTsKIAl9CiAKKyNpZiBJU19FTkFCTEVEKENPTkZJR19WSURFT19BRFY3
-ODQyX0NFQykKKwkvKiBjZWMgKi8KKwlhZHY3ODQyX2NlY19pc3Ioc2QsIGhhbmRsZWQpOworI2Vu
-ZGlmCisKIAkvKiB0eCA1diBkZXRlY3QgKi8KIAlpZiAoaXJxX3N0YXR1c1syXSAmIDB4Mykgewog
-CQl2NGwyX2RiZygxLCBkZWJ1Zywgc2QsICIlczogaXJxIHR4XzV2XG4iLCBfX2Z1bmNfXyk7CkBA
-IC0yMzIxLDEwICsyNTE2LDEyIEBAIHN0YXRpYyBpbnQgYWR2Nzg0Ml9zZXRfZWRpZChzdHJ1Y3Qg
-djRsMl9zdWJkZXYgKnNkLCBzdHJ1Y3QgdjRsMl9lZGlkICplKQogCWNhc2UgQURWNzg0Ml9FRElE
-X1BPUlRfQToKIAljYXNlIEFEVjc4NDJfRURJRF9QT1JUX0I6CiAJCW1lbXNldCgmc3RhdGUtPmhk
-bWlfZWRpZC5lZGlkLCAwLCAyNTYpOwotCQlpZiAoZS0+YmxvY2tzKQorCQlpZiAoZS0+YmxvY2tz
-KSB7CiAJCQlzdGF0ZS0+aGRtaV9lZGlkLnByZXNlbnQgfD0gMHgwNCA8PCBlLT5wYWQ7Ci0JCWVs
-c2UKKwkJfSBlbHNlIHsKIAkJCXN0YXRlLT5oZG1pX2VkaWQucHJlc2VudCAmPSB+KDB4MDQgPDwg
-ZS0+cGFkKTsKKwkJCWFkdjc4NDJfc19kZXRlY3RfdHhfNXZfY3RybChzZCk7CisJCX0KIAkJbWVt
-Y3B5KCZzdGF0ZS0+aGRtaV9lZGlkLmVkaWQsIGUtPmVkaWQsIDEyOCAqIGUtPmJsb2Nrcyk7CiAJ
-CWVyciA9IGVkaWRfd3JpdGVfaGRtaV9zZWdtZW50KHNkLCBlLT5wYWQpOwogCQlicmVhazsKQEAg
-LTI1MDksOCArMjcwNiwxOSBAQCBzdGF0aWMgaW50IGFkdjc4NDJfY3BfbG9nX3N0YXR1cyhzdHJ1
-Y3QgdjRsMl9zdWJkZXYgKnNkKQogCXY0bDJfaW5mbyhzZCwgIkhQRCBBICVzLCBCICVzXG4iLAog
-CQkgIHJlZ19pb18weDIxICYgMHgwMiA/ICJlbmFibGVkIiA6ICJkaXNhYmxlZCIsCiAJCSAgcmVn
-X2lvXzB4MjEgJiAweDAxID8gImVuYWJsZWQiIDogImRpc2FibGVkIik7Ci0JdjRsMl9pbmZvKHNk
-LCAiQ0VDICVzXG4iLCAhIShjZWNfcmVhZChzZCwgMHgyYSkgJiAweDAxKSA/CisJdjRsMl9pbmZv
-KHNkLCAiQ0VDOiAlc1xuIiwgc3RhdGUtPmNlY19lbmFibGVkX2FkYXAgPwogCQkJImVuYWJsZWQi
-IDogImRpc2FibGVkIik7CisJaWYgKHN0YXRlLT5jZWNfZW5hYmxlZF9hZGFwKSB7CisJCWludCBp
-OworCisJCWZvciAoaSA9IDA7IGkgPCBBRFY3ODQyX01BWF9BRERSUzsgaSsrKSB7CisJCQlib29s
-IGlzX3ZhbGlkID0gc3RhdGUtPmNlY192YWxpZF9hZGRycyAmICgxIDw8IGkpOworCisJCQlpZiAo
-aXNfdmFsaWQpCisJCQkJdjRsMl9pbmZvKHNkLCAiQ0VDIExvZ2ljYWwgQWRkcmVzczogMHgleFxu
-IiwKKwkJCQkJICBzdGF0ZS0+Y2VjX2FkZHJbaV0pOworCQl9CisJfQogCiAJdjRsMl9pbmZvKHNk
-LCAiLS0tLS1TaWduYWwgc3RhdHVzLS0tLS1cbiIpOwogCWlmIChzdGF0ZS0+aGRtaV9wb3J0X2Ep
-IHsKQEAgLTMwMzEsNiArMzIzOSwyNCBAQCBzdGF0aWMgaW50IGFkdjc4NDJfc3Vic2NyaWJlX2V2
-ZW50KHN0cnVjdCB2NGwyX3N1YmRldiAqc2QsCiAJfQogfQogCitzdGF0aWMgaW50IGFkdjc4NDJf
-cmVnaXN0ZXJlZChzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkKQoreworCXN0cnVjdCBhZHY3ODQyX3N0
-YXRlICpzdGF0ZSA9IHRvX3N0YXRlKHNkKTsKKwlpbnQgZXJyOworCisJZXJyID0gY2VjX3JlZ2lz
-dGVyX2FkYXB0ZXIoc3RhdGUtPmNlY19hZGFwKTsKKwlpZiAoZXJyKQorCQljZWNfZGVsZXRlX2Fk
-YXB0ZXIoc3RhdGUtPmNlY19hZGFwKTsKKwlyZXR1cm4gZXJyOworfQorCitzdGF0aWMgdm9pZCBh
-ZHY3ODQyX3VucmVnaXN0ZXJlZChzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkKQoreworCXN0cnVjdCBh
-ZHY3ODQyX3N0YXRlICpzdGF0ZSA9IHRvX3N0YXRlKHNkKTsKKworCWNlY191bnJlZ2lzdGVyX2Fk
-YXB0ZXIoc3RhdGUtPmNlY19hZGFwKTsKK30KKwogLyogLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gKi8KIAogc3Rh
-dGljIGNvbnN0IHN0cnVjdCB2NGwyX2N0cmxfb3BzIGFkdjc4NDJfY3RybF9vcHMgPSB7CkBAIC0z
-MDc3LDYgKzMzMDMsMTEgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCB2NGwyX3N1YmRldl9vcHMgYWR2
-Nzg0Ml9vcHMgPSB7CiAJLnBhZCA9ICZhZHY3ODQyX3BhZF9vcHMsCiB9OwogCitzdGF0aWMgY29u
-c3Qgc3RydWN0IHY0bDJfc3ViZGV2X2ludGVybmFsX29wcyBhZHY3ODQyX2ludF9vcHMgPSB7CisJ
-LnJlZ2lzdGVyZWQgPSBhZHY3ODQyX3JlZ2lzdGVyZWQsCisJLnVucmVnaXN0ZXJlZCA9IGFkdjc4
-NDJfdW5yZWdpc3RlcmVkLAorfTsKKwogLyogLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gY3Vz
-dG9tIGN0cmxzIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gKi8KIAogc3RhdGlj
-IGNvbnN0IHN0cnVjdCB2NGwyX2N0cmxfY29uZmlnIGFkdjc4NDJfY3RybF9hbmFsb2dfc2FtcGxp
-bmdfcGhhc2UgPSB7CkBAIC0zMjQxLDYgKzM0NzIsNyBAQCBzdGF0aWMgaW50IGFkdjc4NDJfcHJv
-YmUoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwKIAlzZCA9ICZzdGF0ZS0+c2Q7CiAJdjRsMl9p
-MmNfc3ViZGV2X2luaXQoc2QsIGNsaWVudCwgJmFkdjc4NDJfb3BzKTsKIAlzZC0+ZmxhZ3MgfD0g
-VjRMMl9TVUJERVZfRkxfSEFTX0RFVk5PREUgfCBWNEwyX1NVQkRFVl9GTF9IQVNfRVZFTlRTOwor
-CXNkLT5pbnRlcm5hbF9vcHMgPSAmYWR2Nzg0Ml9pbnRfb3BzOwogCXN0YXRlLT5tb2RlID0gcGRh
-dGEtPm1vZGU7CiAKIAlzdGF0ZS0+aGRtaV9wb3J0X2EgPSBwZGF0YS0+aW5wdXQgPT0gQURWNzg0
-Ml9TRUxFQ1RfSERNSV9QT1JUX0E7CkBAIC0zMzM3LDYgKzM1NjksMTcgQEAgc3RhdGljIGludCBh
-ZHY3ODQyX3Byb2JlKHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQsCiAJaWYgKGVycikKIAkJZ290
-byBlcnJfZW50aXR5OwogCisjaWYgSVNfRU5BQkxFRChDT05GSUdfVklERU9fQURWNzg0Ml9DRUMp
-CisJc3RhdGUtPmNlY19hZGFwID0gY2VjX2FsbG9jYXRlX2FkYXB0ZXIoJmFkdjc4NDJfY2VjX2Fk
-YXBfb3BzLAorCQlzdGF0ZSwgZGV2X25hbWUoJmNsaWVudC0+ZGV2KSwKKwkJQ0VDX0NBUF9UUkFO
-U01JVCB8IENFQ19DQVBfTE9HX0FERFJTIHwKKwkJQ0VDX0NBUF9QQVNTVEhST1VHSCB8IENFQ19D
-QVBfUkMsIEFEVjc4NDJfTUFYX0FERFJTLAorCQkmY2xpZW50LT5kZXYpOworCWVyciA9IFBUUl9F
-UlJfT1JfWkVSTyhzdGF0ZS0+Y2VjX2FkYXApOworCWlmIChlcnIpCisJCWdvdG8gZXJyX2VudGl0
-eTsKKyNlbmRpZgorCiAJdjRsMl9pbmZvKHNkLCAiJXMgZm91bmQgQCAweCV4ICglcylcbiIsIGNs
-aWVudC0+bmFtZSwKIAkJICBjbGllbnQtPmFkZHIgPDwgMSwgY2xpZW50LT5hZGFwdGVyLT5uYW1l
-KTsKIAlyZXR1cm4gMDsKQEAgLTMzNjEsNyArMzYwNCw2IEBAIHN0YXRpYyBpbnQgYWR2Nzg0Ml9y
-ZW1vdmUoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCkKIAlzdHJ1Y3QgYWR2Nzg0Ml9zdGF0ZSAq
-c3RhdGUgPSB0b19zdGF0ZShzZCk7CiAKIAlhZHY3ODQyX2lycV9lbmFibGUoc2QsIGZhbHNlKTsK
-LQogCWNhbmNlbF9kZWxheWVkX3dvcmsoJnN0YXRlLT5kZWxheWVkX3dvcmtfZW5hYmxlX2hvdHBs
-dWcpOwogCWRlc3Ryb3lfd29ya3F1ZXVlKHN0YXRlLT53b3JrX3F1ZXVlcyk7CiAJdjRsMl9kZXZp
-Y2VfdW5yZWdpc3Rlcl9zdWJkZXYoc2QpOwotLSAKMi44LjEKCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRl
-dmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9t
-YWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
+From: Hans Verkuil <hans.verkuil@cisco.com>
+
+Alpha quality only at the moment.
+
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+---
+ MAINTAINERS                           |   7 +
+ drivers/media/usb/Kconfig             |   5 +
+ drivers/media/usb/Makefile            |   1 +
+ drivers/media/usb/pulse8/Kconfig      |  10 +
+ drivers/media/usb/pulse8/Makefile     |   1 +
+ drivers/media/usb/pulse8/pulse8-cec.c | 412 ++++++++++++++++++++++++++++++++++
+ include/uapi/linux/serio.h            |   1 +
+ 7 files changed, 437 insertions(+)
+ create mode 100644 drivers/media/usb/pulse8/Kconfig
+ create mode 100644 drivers/media/usb/pulse8/Makefile
+ create mode 100644 drivers/media/usb/pulse8/pulse8-cec.c
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 0e43b30..734d177 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8962,6 +8962,13 @@ F:	include/linux/tracehook.h
+ F:	include/uapi/linux/ptrace.h
+ F:	kernel/ptrace.c
+ 
++PULSE8-CEC DRIVER
++M:	Hans Verkuil <hverkuil@xs4all.nl>
++L:	linux-media@vger.kernel.org
++T:	git git://linuxtv.org/media_tree.git
++S:	Maintained
++F:	drivers/media/usb/pulse8
++
+ PVRUSB2 VIDEO4LINUX DRIVER
+ M:	Mike Isely <isely@pobox.com>
+ L:	pvrusb2@isely.net	(subscribers-only)
+diff --git a/drivers/media/usb/Kconfig b/drivers/media/usb/Kconfig
+index 7496f33..9301961 100644
+--- a/drivers/media/usb/Kconfig
++++ b/drivers/media/usb/Kconfig
+@@ -60,5 +60,10 @@ source "drivers/media/usb/hackrf/Kconfig"
+ source "drivers/media/usb/msi2500/Kconfig"
+ endif
+ 
++if MEDIA_CEC
++	comment "HDMI CEC USB devices"
++source "drivers/media/usb/pulse8/Kconfig"
++endif
++
+ endif #MEDIA_USB_SUPPORT
+ endif #USB
+diff --git a/drivers/media/usb/Makefile b/drivers/media/usb/Makefile
+index 8874ba7..468e541 100644
+--- a/drivers/media/usb/Makefile
++++ b/drivers/media/usb/Makefile
+@@ -12,6 +12,7 @@ obj-$(CONFIG_USB_PWC)           += pwc/
+ obj-$(CONFIG_USB_AIRSPY)        += airspy/
+ obj-$(CONFIG_USB_HACKRF)        += hackrf/
+ obj-$(CONFIG_USB_MSI2500)       += msi2500/
++obj-$(CONFIG_USB_PULSE8_CEC)    += pulse8/
+ obj-$(CONFIG_VIDEO_CPIA2) += cpia2/
+ obj-$(CONFIG_VIDEO_AU0828) += au0828/
+ obj-$(CONFIG_VIDEO_HDPVR)	+= hdpvr/
+diff --git a/drivers/media/usb/pulse8/Kconfig b/drivers/media/usb/pulse8/Kconfig
+new file mode 100644
+index 0000000..c6aa2d1
+--- /dev/null
++++ b/drivers/media/usb/pulse8/Kconfig
+@@ -0,0 +1,10 @@
++config USB_PULSE8_CEC
++	tristate "Pulse Eight HDMI CEC"
++	depends on USB_ACM && MEDIA_CEC
++	select SERIO
++	select SERIO_SERPORT
++	---help---
++	  This is a cec driver for the Pulse Eight HDMI CEC device.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called pulse8-cec.
+diff --git a/drivers/media/usb/pulse8/Makefile b/drivers/media/usb/pulse8/Makefile
+new file mode 100644
+index 0000000..dd52d42
+--- /dev/null
++++ b/drivers/media/usb/pulse8/Makefile
+@@ -0,0 +1 @@
++obj-$(CONFIG_USB_PULSE8_CEC)              += pulse8-cec.o
+diff --git a/drivers/media/usb/pulse8/pulse8-cec.c b/drivers/media/usb/pulse8/pulse8-cec.c
+new file mode 100644
+index 0000000..d02e5df
+--- /dev/null
++++ b/drivers/media/usb/pulse8/pulse8-cec.c
+@@ -0,0 +1,412 @@
++/*
++ * Pulse Eight HDMI CEC driver
++ *
++ * Copyright 2016 Hans Verkuil <hverkuil@xs4all.nl
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version of 2 of the License, or (at your
++ * option) any later version. See the file COPYING in the main directory of
++ * this archive for more details.
++ */
++
++#include <linux/completion.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/workqueue.h>
++#include <linux/serio.h>
++#include <linux/slab.h>
++#include <linux/time.h>
++
++#include <media/cec.h>
++
++MODULE_AUTHOR("Hans Verkuil <hverkuil@xs4all.nl>");
++MODULE_DESCRIPTION("Pulse Eight HDMI CEC driver");
++MODULE_LICENSE("GPL");
++
++enum pulse8_msgcodes
++{
++	MSGCODE_NOTHING = 0,
++	MSGCODE_PING,
++	MSGCODE_TIMEOUT_ERROR,
++	MSGCODE_HIGH_ERROR,
++	MSGCODE_LOW_ERROR,
++	MSGCODE_FRAME_START,
++	MSGCODE_FRAME_DATA,
++	MSGCODE_RECEIVE_FAILED,
++	MSGCODE_COMMAND_ACCEPTED,	/* 0x08 */
++	MSGCODE_COMMAND_REJECTED,
++	MSGCODE_SET_ACK_MASK,
++	MSGCODE_TRANSMIT,
++	MSGCODE_TRANSMIT_EOM,
++	MSGCODE_TRANSMIT_IDLETIME,
++	MSGCODE_TRANSMIT_ACK_POLARITY,
++	MSGCODE_TRANSMIT_LINE_TIMEOUT,
++	MSGCODE_TRANSMIT_SUCCEEDED,	/* 0x10 */
++	MSGCODE_TRANSMIT_FAILED_LINE,
++	MSGCODE_TRANSMIT_FAILED_ACK,
++	MSGCODE_TRANSMIT_FAILED_TIMEOUT_DATA,
++	MSGCODE_TRANSMIT_FAILED_TIMEOUT_LINE,
++	MSGCODE_FIRMWARE_VERSION,
++	MSGCODE_START_BOOTLOADER,
++	MSGCODE_GET_BUILDDATE,
++	MSGCODE_SET_CONTROLLED,		/* 0x18 */
++	MSGCODE_GET_AUTO_ENABLED,
++	MSGCODE_SET_AUTO_ENABLED,
++	MSGCODE_GET_DEFAULT_LOGICAL_ADDRESS,
++	MSGCODE_SET_DEFAULT_LOGICAL_ADDRESS,
++	MSGCODE_GET_LOGICAL_ADDRESS_MASK,
++	MSGCODE_SET_LOGICAL_ADDRESS_MASK,
++	MSGCODE_GET_PHYSICAL_ADDRESS,
++	MSGCODE_SET_PHYSICAL_ADDRESS,	/* 0x20 */
++	MSGCODE_GET_DEVICE_TYPE,
++	MSGCODE_SET_DEVICE_TYPE,
++	MSGCODE_GET_HDMI_VERSION,
++	MSGCODE_SET_HDMI_VERSION,
++	MSGCODE_GET_OSD_NAME,
++	MSGCODE_SET_OSD_NAME,
++	MSGCODE_WRITE_EEPROM,
++	MSGCODE_GET_ADAPTER_TYPE,	/* 0x28 */
++	MSGCODE_SET_ACTIVE_SOURCE,
++
++	MSGCODE_FRAME_EOM = 0x80,
++	MSGCODE_FRAME_ACK = 0x40,
++};
++
++#define DATA_SIZE 256
++
++struct pulse8 {
++	struct device *dev;
++	struct serio *serio;
++	struct cec_adapter *adap;
++	struct completion cmd_done;
++	struct work_struct work;
++	struct cec_msg rx_msg;
++	u8 data[DATA_SIZE];
++	unsigned int len;
++	u8 buf[DATA_SIZE];
++	unsigned int idx;
++	bool escape;
++	bool started;
++};
++
++void pulse8_irq_work_handler(struct work_struct *work)
++{
++	struct pulse8 *pulse8 =
++		container_of(work, struct pulse8, work);
++
++	switch (pulse8->data[0]) {
++	case MSGCODE_FRAME_START:
++		break;
++	case MSGCODE_FRAME_DATA:
++		break;
++	case MSGCODE_TRANSMIT_SUCCEEDED:
++		cec_transmit_done(pulse8->adap, CEC_TX_STATUS_OK, 0, 0, 0, 0);
++		break;
++	case MSGCODE_TRANSMIT_FAILED_LINE:
++		cec_transmit_done(pulse8->adap, CEC_TX_STATUS_ARB_LOST, 1, 0, 0, 0);
++		break;
++	case MSGCODE_TRANSMIT_FAILED_ACK:
++		cec_transmit_done(pulse8->adap, CEC_TX_STATUS_NACK, 0, 1, 0, 0);
++		break;
++	case MSGCODE_TRANSMIT_FAILED_TIMEOUT_DATA:
++	case MSGCODE_TRANSMIT_FAILED_TIMEOUT_LINE:
++		cec_transmit_done(pulse8->adap, CEC_TX_STATUS_ERROR, 0, 0, 0, 1);
++		break;
++	}
++}
++
++static irqreturn_t pulse8_interrupt(struct serio *serio, unsigned char data,
++				   unsigned int flags)
++{
++	struct pulse8 *pulse8 = serio_get_drvdata(serio);
++
++	if (!pulse8->started && data != 0xff)
++		return IRQ_HANDLED;
++	if (data == 0xfd) {
++		pulse8->escape = true;
++		return IRQ_HANDLED;
++	}
++	if (pulse8->escape) {
++		data += 0xfd;
++		pulse8->escape = false;
++	} else if (data == 0xfe) {
++		if (pulse8->idx) {
++			dev_info(pulse8->dev, "received: %*ph\n", pulse8->idx, pulse8->buf);
++			memcpy(pulse8->data, pulse8->buf, pulse8->idx);
++			pulse8->len = pulse8->idx;
++			complete(&pulse8->cmd_done);
++		}
++		pulse8->idx = 0;
++		pulse8->started = false;
++		switch (pulse8->data[0]) {
++		case MSGCODE_FRAME_START:
++		case MSGCODE_FRAME_DATA:
++		case MSGCODE_TRANSMIT_SUCCEEDED:
++		case MSGCODE_TRANSMIT_FAILED_LINE:
++		case MSGCODE_TRANSMIT_FAILED_ACK:
++		case MSGCODE_TRANSMIT_FAILED_TIMEOUT_DATA:
++		case MSGCODE_TRANSMIT_FAILED_TIMEOUT_LINE:
++			schedule_work(&pulse8->work);
++			break;
++		case MSGCODE_COMMAND_ACCEPTED:
++		case MSGCODE_COMMAND_REJECTED:
++		default:
++			break;
++		}
++		return IRQ_HANDLED;
++	} else if (data == 0xff) {
++		pulse8->idx = 0;
++		pulse8->started = true;
++		return IRQ_HANDLED;
++	}
++
++	if (pulse8->idx >= DATA_SIZE) {
++		dev_dbg(pulse8->dev,
++			"throwing away %d bytes of garbage\n", pulse8->idx);
++		pulse8->idx = 0;
++	}
++	pulse8->buf[pulse8->idx++] = data;
++	return IRQ_HANDLED;
++}
++
++static void pulse8_disconnect(struct serio *serio)
++{
++	struct pulse8 *pulse8 = serio_get_drvdata(serio);
++
++	cec_unregister_adapter(pulse8->adap);
++	dev_info(&serio->dev, "disconnected\n");
++	serio_close(serio);
++	serio_set_drvdata(serio, NULL);
++	kfree(pulse8);
++}
++
++static int pulse8_send(struct serio *serio, const u8 *command, u8 cmd_len)
++{
++	int err = 0;
++
++	err = serio_write(serio, 0xff);
++	if (err)
++		return err;
++	for (; !err && cmd_len; command++, cmd_len--) {
++		if (*command >= 0xfd) {
++			err = serio_write(serio, 0xfd);
++			if (!err)
++				err = serio_write(serio, *command - 0xfd);
++		} else {
++			err = serio_write(serio, *command);
++		}
++	}
++	if (!err)
++		err = serio_write(serio, 0xfe);
++
++	return err;
++}
++
++static int pulse8_send_and_wait(struct pulse8 *pulse8,
++				 const u8 *cmd, u8 cmd_len, u8 response, u8 size)
++{
++	int err;
++
++	init_completion(&pulse8->cmd_done);
++
++	err = pulse8_send(pulse8->serio, cmd, cmd_len);
++	if (err)
++		return err;
++
++	if (!wait_for_completion_timeout(&pulse8->cmd_done, HZ))
++		return -ETIMEDOUT;
++	if (response && ((pulse8->data[0] & 0x3f) != response || pulse8->len < size + 1))
++		return -EIO;
++	return 0;
++}
++
++static int pulse8_setup(struct pulse8 *pulse8, struct serio *serio)
++{
++	u8 *data = pulse8->data + 1;
++	unsigned int vers = 0;
++	u8 cmd[2];
++	int err;
++
++	cmd[0] = MSGCODE_PING;
++	err = pulse8_send_and_wait(pulse8, cmd, 1,
++				   MSGCODE_COMMAND_ACCEPTED, 0);
++	cmd[0] = MSGCODE_FIRMWARE_VERSION;
++	if (!err)
++		err = pulse8_send_and_wait(pulse8, cmd, 1, cmd[0], 2);
++	if (!err) {
++		vers = (data[0] << 8) | data[1];
++
++		dev_info(pulse8->dev, "Firmware version %04x\n", vers);
++		if (vers < 2)
++			return 0;
++	}
++	if (vers >= 2) {
++		cmd[0] = MSGCODE_SET_CONTROLLED;
++		cmd[1] = 1;
++		if (!err)
++			err = pulse8_send_and_wait(pulse8, cmd, 2,
++						   MSGCODE_COMMAND_ACCEPTED, 1);
++	}
++
++	cmd[0] = MSGCODE_GET_BUILDDATE;
++	if (!err)
++		err = pulse8_send_and_wait(pulse8, cmd, 1, cmd[0], 4);
++	if (!err) {
++		time_t date = (data[0] << 24) | (data[1] << 16) |
++			(data[2] << 8) | data[3];
++		struct tm tm;
++
++		time_to_tm(date, 0, &tm);
++
++		dev_info(pulse8->dev, "Firmware build date %04ld.%02d.%02d %02d:%02d:%02d\n",
++			 tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
++			 tm.tm_hour, tm.tm_min, tm.tm_sec);
++	}
++	return err;
++}
++
++static int pulse8_cec_adap_enable(struct cec_adapter *adap, bool enable)
++{
++	return 0;
++}
++
++static int pulse8_cec_adap_log_addr(struct cec_adapter *adap, u8 log_addr)
++{
++	struct pulse8 *pulse8 = adap->priv;
++	u16 mask = 0;
++	u8 cmd[3];
++	int err;
++
++	if (log_addr != CEC_LOG_ADDR_INVALID)
++		mask = 1 << log_addr;
++	cmd[0] = MSGCODE_SET_ACK_MASK;
++	cmd[1] = mask >> 8;
++	cmd[2] = mask & 0xff;
++	err = pulse8_send_and_wait(pulse8, cmd, 3,
++				   MSGCODE_COMMAND_ACCEPTED, 0);
++	if (mask == 0)
++		return 0;
++	return err;
++}
++
++static int pulse8_cec_adap_transmit(struct cec_adapter *adap, u8 attempts,
++				   u32 signal_free_time, struct cec_msg *msg)
++{
++	struct pulse8 *pulse8 = adap->priv;
++	u8 cmd[2];
++	unsigned int i;
++	int err;
++
++	cmd[0] = MSGCODE_TRANSMIT_ACK_POLARITY;
++	cmd[1] = cec_msg_is_broadcast(msg);
++	err = pulse8_send_and_wait(pulse8, cmd, 2,
++				   MSGCODE_COMMAND_ACCEPTED, 1);
++	cmd[0] = msg->len == 0 ? MSGCODE_TRANSMIT_EOM : MSGCODE_TRANSMIT;
++	cmd[1] = msg->msg[0];
++	if (!err)
++		err = pulse8_send_and_wait(pulse8, cmd, 2,
++					   MSGCODE_COMMAND_ACCEPTED, 1);
++	if (!err && msg->len) {
++		cmd[0] = msg->len == 1 ? MSGCODE_TRANSMIT_EOM : MSGCODE_TRANSMIT;
++		cmd[1] = msg->msg[1];
++		err = pulse8_send_and_wait(pulse8, cmd, 2,
++					   MSGCODE_COMMAND_ACCEPTED, 1);
++		for (i = 0; !err && i + 2 < msg->len; i++) {
++			cmd[0] = (i + 2 == msg->len - 1) ?
++				MSGCODE_TRANSMIT_EOM : MSGCODE_TRANSMIT;
++			cmd[1] = msg->msg[i + 2];
++			err = pulse8_send_and_wait(pulse8, cmd, 2,
++						   MSGCODE_COMMAND_ACCEPTED, 1);
++		}
++	}
++
++	return err;
++}
++
++static int pulse8_received(struct cec_adapter *adap, struct cec_msg *msg)
++{
++	return -ENOMSG;
++}
++
++const struct cec_adap_ops pulse8_cec_adap_ops = {
++	.adap_enable = pulse8_cec_adap_enable,
++	.adap_log_addr = pulse8_cec_adap_log_addr,
++	.adap_transmit = pulse8_cec_adap_transmit,
++	.received = pulse8_received,
++};
++
++static int pulse8_connect(struct serio *serio, struct serio_driver *drv)
++{
++	u32 caps = CEC_CAP_TRANSMIT | CEC_CAP_LOG_ADDRS | CEC_CAP_PHYS_ADDR |
++		CEC_CAP_PASSTHROUGH | CEC_CAP_RC | CEC_CAP_MONITOR_ALL;
++	struct pulse8 *pulse8;
++	int err = -ENOMEM;
++
++	pulse8 = kzalloc(sizeof(struct pulse8), GFP_KERNEL);
++
++	if (!pulse8)
++		return -ENOMEM;
++
++	pulse8->serio = serio;
++	pulse8->adap = cec_allocate_adapter(&pulse8_cec_adap_ops, pulse8,
++		"HDMI CEC", caps, 1, &serio->dev);
++	err = PTR_ERR_OR_ZERO(pulse8->adap);
++	if (err < 0)
++		goto free_device;
++
++	pulse8->dev = &serio->dev;
++	serio_set_drvdata(serio, pulse8);
++	INIT_WORK(&pulse8->work, pulse8_irq_work_handler);
++
++	err = serio_open(serio, drv);
++	if (err)
++		goto delete_adap;
++
++	err = pulse8_setup(pulse8, serio);
++	if (err)
++		goto close_serio;
++
++	err = cec_register_adapter(pulse8->adap);
++	if (err < 0)
++		goto close_serio;
++
++	pulse8->dev = &pulse8->adap->devnode.dev;
++	return 0;
++
++close_serio:
++	serio_close(serio);
++delete_adap:
++	cec_delete_adapter(pulse8->adap);
++	serio_set_drvdata(serio, NULL);
++free_device:
++	kfree(pulse8);
++	return err;
++}
++
++static struct serio_device_id pulse8_serio_ids[] = {
++	{
++		.type	= SERIO_RS232,
++		.proto	= SERIO_PULSE8_CEC,
++		.id	= SERIO_ANY,
++		.extra	= SERIO_ANY,
++	},
++	{ 0 }
++};
++
++MODULE_DEVICE_TABLE(serio, pulse8_serio_ids);
++
++static struct serio_driver pulse8_drv = {
++	.driver		= {
++		.name	= "pulse8-cec",
++	},
++	.description	= "Pulse Eight HDMI CEC driver",
++	.id_table	= pulse8_serio_ids,
++	.interrupt	= pulse8_interrupt,
++	.connect	= pulse8_connect,
++	.disconnect	= pulse8_disconnect,
++};
++
++module_serio_driver(pulse8_drv);
+diff --git a/include/uapi/linux/serio.h b/include/uapi/linux/serio.h
+index c2ea169..f2447a8 100644
+--- a/include/uapi/linux/serio.h
++++ b/include/uapi/linux/serio.h
+@@ -78,5 +78,6 @@
+ #define SERIO_TSC40	0x3d
+ #define SERIO_WACOM_IV	0x3e
+ #define SERIO_EGALAX	0x3f
++#define SERIO_PULSE8_CEC	0x40
+ 
+ #endif /* _UAPI_SERIO_H */
+-- 
+2.8.1
+

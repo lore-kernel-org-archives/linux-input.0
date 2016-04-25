@@ -1,42 +1,66 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCHv15 01/15] input.h: add BUS_CEC type
-Date: Mon, 25 Apr 2016 14:24:28 +0200
-Message-ID: <1461587082-48041-2-git-send-email-hverkuil@xs4all.nl>
+Subject: [PATCHv15 02/15] HID: add HDMI CEC specific keycodes
+Date: Mon, 25 Apr 2016 14:24:29 +0200
+Message-ID: <1461587082-48041-3-git-send-email-hverkuil@xs4all.nl>
 References: <1461587082-48041-1-git-send-email-hverkuil@xs4all.nl>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb3-smtp-cloud6.xs4all.net ([194.109.24.31]:58682 "EHLO
-	lb3-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932162AbcDYMYz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Apr 2016 08:24:55 -0400
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 In-Reply-To: <1461587082-48041-1-git-send-email-hverkuil@xs4all.nl>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
+List-Id: linux-input@vger.kernel.org
 
-From: Hans Verkuil <hans.verkuil@cisco.com>
+From: Kamil Debski <kamil@wypas.org>
 
-Inputs can come in over the HDMI CEC bus, so add a new type for this.
+Add HDMI CEC specific keycodes to the keycodes definition.
 
+Signed-off-by: Kamil Debski <kamil@wypas.org>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- include/uapi/linux/input.h | 1 +
- 1 file changed, 1 insertion(+)
+ include/uapi/linux/input-event-codes.h | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 0111384..c514941 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -247,6 +247,7 @@ struct input_mask {
- #define BUS_ATARI		0x1B
- #define BUS_SPI			0x1C
- #define BUS_RMI			0x1D
-+#define BUS_CEC			0x1E
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 87cf351..02b7b3a 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -611,6 +611,36 @@
+ #define KEY_KBDINPUTASSIST_ACCEPT		0x264
+ #define KEY_KBDINPUTASSIST_CANCEL		0x265
  
- /*
-  * MT_TOOL types
++/* Diagonal movement keys */
++#define KEY_RIGHT_UP			0x266
++#define KEY_RIGHT_DOWN			0x267
++#define KEY_LEFT_UP			0x268
++#define KEY_LEFT_DOWN			0x269
++
++#define KEY_ROOT_MENU			0x26a /* Show Device's Root Menu */
++#define KEY_MEDIA_TOP_MENU		0x26b /* Show Top Menu of the Media (e.g. DVD) */
++#define KEY_NUMERIC_11			0x26c
++#define KEY_NUMERIC_12			0x26d
++/*
++ * Toggle Audio Description: refers to an audio service that helps blind and
++ * visually impaired consumers understand the action in a program. Note: in
++ * some countries this is referred to as "Video Description".
++ */
++#define KEY_AUDIO_DESC			0x26e
++#define KEY_3D_MODE			0x26f
++#define KEY_NEXT_FAVORITE		0x270
++#define KEY_STOP_RECORD			0x271
++#define KEY_PAUSE_RECORD		0x272
++#define KEY_VOD				0x273 /* Video on Demand */
++#define KEY_UNMUTE			0x274
++#define KEY_FASTREVERSE			0x275
++#define KEY_SLOWREVERSE			0x276
++/*
++ * Control a data application associated with the currently viewed channel,
++ * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
++ */
++#define KEY_DATA			0x275
++
+ #define BTN_TRIGGER_HAPPY		0x2c0
+ #define BTN_TRIGGER_HAPPY1		0x2c0
+ #define BTN_TRIGGER_HAPPY2		0x2c1
 -- 
 2.8.1
-

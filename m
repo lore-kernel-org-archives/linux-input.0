@@ -1,256 +1,101 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v8 2/7] Input: cros_ec_keyb - Stop handling interrupts
- directly
-Date: Mon, 25 Apr 2016 14:17:35 -0700
-Message-ID: <20160425211735.GG26059@dtor-ws>
-References: <1460464350-30414-1-git-send-email-tomeu.vizoso@collabora.com>
- <1460464350-30414-3-git-send-email-tomeu.vizoso@collabora.com>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - use mxt_acquire_irq in
+ mxt_soft_reset
+Date: Mon, 25 Apr 2016 14:28:53 -0700
+Message-ID: <20160425212853.GI26059@dtor-ws>
+References: <20160408233034.GN23166@bill-the-cat>
+ <1460367105-29258-1-git-send-email-nick.dyer@itdev.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f178.google.com ([209.85.192.178]:33222 "EHLO
-	mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933361AbcDYVRi (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:36619 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933361AbcDYV25 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Apr 2016 17:17:38 -0400
+	Mon, 25 Apr 2016 17:28:57 -0400
 Content-Disposition: inline
-In-Reply-To: <1460464350-30414-3-git-send-email-tomeu.vizoso@collabora.com>
+In-Reply-To: <1460367105-29258-1-git-send-email-nick.dyer@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: linux-kernel@vger.kernel.org, Sameer Nanda <snanda@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>, Benson Leung <bleung@chromium.org>, Enric =?iso-8859-1?Q?Balletb=F2?= <enric.balletbo@collabora.co.uk>, Vic Yang <victoryang@chromium.org>, Stephen Boyd <sboyd@codeaurora.org>, Vincent Palatin <vpalatin@chromium.org>, Randall Spangler <rspangler@chromium.org>, Todd Broch <tbroch@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Vic Yang <victoryang@google.com>, linux-input@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Tom Rini <trini@konsulko.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, simon.raphael@gmail.com, Olof Johansson <olof@lixom.net>
 
-On Tue, Apr 12, 2016 at 02:32:25PM +0200, Tomeu Vizoso wrote:
-> From: Vic Yang <victoryang@google.com>
+On Mon, Apr 11, 2016 at 10:31:45AM +0100, Nick Dyer wrote:
+> If using IRQF_TRIGGER_FALLING, then there is a race here: if the reset
+> completes before we enable the IRQ, then CHG is already low and touch
+> will be broken.
 > 
-> Because events other that keyboard ones will be handled by now on by
-> other drivers, stop directly handling interrupts and instead listen to
-> the new notifier in the MFD driver.
+> This has been seen on Chromebook Pixel 2.
 > 
+> A workaround is to reconfig T18 COMMSCONFIG to enable the RETRIGEN bit
+> using mxt-app:
+>     mxt-app -W -T18 44
+>     mxt-app --backup
+> 
+> Tested-by: Tom Rini <trini@konsulko.com>
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Hmm, where did Vic's sign-off go?
-
-> Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Please merge through whatever tree takes the rest of the patches.
+Applied, thank you.
 
 > ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 28 ++++++++++++++--------------
+>  1 file changed, 14 insertions(+), 14 deletions(-)
 > 
-> Changes in v8: None
-> Changes in v7: None
-> Changes in v6: None
-> Changes in v5: None
-> Changes in v4: None
-> Changes in v3: None
-> Changes in v2: None
-> 
->  drivers/input/keyboard/cros_ec_keyb.c | 135 ++++++++--------------------------
->  1 file changed, 31 insertions(+), 104 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> index b01966dc7eb3..b891503143dc 100644
-> --- a/drivers/input/keyboard/cros_ec_keyb.c
-> +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> @@ -27,6 +27,7 @@
->  #include <linux/input.h>
->  #include <linux/interrupt.h>
->  #include <linux/kernel.h>
-> +#include <linux/notifier.h>
->  #include <linux/platform_device.h>
->  #include <linux/slab.h>
->  #include <linux/input/matrix_keypad.h>
-> @@ -44,6 +45,7 @@
->   * @dev: Device pointer
->   * @idev: Input device
->   * @ec: Top level ChromeOS device to use to talk to EC
-> + * @notifier: interrupt event notifier for transport devices
->   */
->  struct cros_ec_keyb {
->  	unsigned int rows;
-> @@ -57,6 +59,7 @@ struct cros_ec_keyb {
->  	struct device *dev;
->  	struct input_dev *idev;
->  	struct cros_ec_device *ec;
-> +	struct notifier_block notifier;
->  };
->  
->  
-> @@ -146,67 +149,44 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
->  	input_sync(ckdev->idev);
->  }
->  
-> -static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uint8_t *kb_state)
-> -{
-> -	int ret = 0;
-> -	struct cros_ec_command *msg;
-> -
-> -	msg = kmalloc(sizeof(*msg) + ckdev->cols, GFP_KERNEL);
-> -	if (!msg)
-> -		return -ENOMEM;
-> -
-> -	msg->version = 0;
-> -	msg->command = EC_CMD_MKBP_STATE;
-> -	msg->insize = ckdev->cols;
-> -	msg->outsize = 0;
-> -
-> -	ret = cros_ec_cmd_xfer(ckdev->ec, msg);
-> -	if (ret < 0) {
-> -		dev_err(ckdev->dev, "Error transferring EC message %d\n", ret);
-> -		goto exit;
-> -	}
-> -
-> -	memcpy(kb_state, msg->data, ckdev->cols);
-> -exit:
-> -	kfree(msg);
-> -	return ret;
-> -}
-> -
-> -static irqreturn_t cros_ec_keyb_irq(int irq, void *data)
-> +static int cros_ec_keyb_open(struct input_dev *dev)
->  {
-> -	struct cros_ec_keyb *ckdev = data;
-> -	struct cros_ec_device *ec = ckdev->ec;
-> -	int ret;
-> -	uint8_t kb_state[ckdev->cols];
-> -
-> -	if (device_may_wakeup(ec->dev))
-> -		pm_wakeup_event(ec->dev, 0);
-> -
-> -	ret = cros_ec_keyb_get_state(ckdev, kb_state);
-> -	if (ret >= 0)
-> -		cros_ec_keyb_process(ckdev, kb_state, ret);
-> -	else
-> -		dev_err(ec->dev, "failed to get keyboard state: %d\n", ret);
-> +	struct cros_ec_keyb *ckdev = input_get_drvdata(dev);
->  
-> -	return IRQ_HANDLED;
-> +	return blocking_notifier_chain_register(&ckdev->ec->event_notifier,
-> +						&ckdev->notifier);
->  }
->  
-> -static int cros_ec_keyb_open(struct input_dev *dev)
-> +static void cros_ec_keyb_close(struct input_dev *dev)
->  {
->  	struct cros_ec_keyb *ckdev = input_get_drvdata(dev);
-> -	struct cros_ec_device *ec = ckdev->ec;
->  
-> -	return request_threaded_irq(ec->irq, NULL, cros_ec_keyb_irq,
-> -					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> -					"cros_ec_keyb", ckdev);
-> +	blocking_notifier_chain_unregister(&ckdev->ec->event_notifier,
-> +					   &ckdev->notifier);
->  }
->  
-> -static void cros_ec_keyb_close(struct input_dev *dev)
-> +static int cros_ec_keyb_work(struct notifier_block *nb,
-> +			     unsigned long queued_during_suspend, void *_notify)
->  {
-> -	struct cros_ec_keyb *ckdev = input_get_drvdata(dev);
-> -	struct cros_ec_device *ec = ckdev->ec;
-> +	struct cros_ec_keyb *ckdev = container_of(nb, struct cros_ec_keyb,
-> +						  notifier);
->  
-> -	free_irq(ec->irq, ckdev);
-> +	if (ckdev->ec->event_data.event_type != EC_MKBP_EVENT_KEY_MATRIX)
-> +		return NOTIFY_DONE;
-> +	/*
-> +	 * If EC is not the wake source, discard key state changes during
-> +	 * suspend.
-> +	 */
-> +	if (queued_during_suspend)
-> +		return NOTIFY_OK;
-> +	if (ckdev->ec->event_size != ckdev->cols) {
-> +		dev_err(ckdev->dev,
-> +			"Discarded incomplete key matrix event.\n");
-> +		return NOTIFY_OK;
-> +	}
-> +	cros_ec_keyb_process(ckdev, ckdev->ec->event_data.data.key_matrix,
-> +			     ckdev->ec->event_size);
-> +	return NOTIFY_OK;
->  }
->  
->  /*
-> @@ -266,12 +246,8 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
->  	if (!idev)
->  		return -ENOMEM;
->  
-> -	if (!ec->irq) {
-> -		dev_err(dev, "no EC IRQ specified\n");
-> -		return -EINVAL;
-> -	}
-> -
->  	ckdev->ec = ec;
-> +	ckdev->notifier.notifier_call = cros_ec_keyb_work;
->  	ckdev->dev = dev;
->  	dev_set_drvdata(&pdev->dev, ckdev);
->  
-> @@ -312,54 +288,6 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 2160512..5af7907 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -1093,6 +1093,19 @@ static int mxt_t6_command(struct mxt_data *data, u16 cmd_offset,
 >  	return 0;
 >  }
 >  
-> -#ifdef CONFIG_PM_SLEEP
-> -/* Clear any keys in the buffer */
-> -static void cros_ec_keyb_clear_keyboard(struct cros_ec_keyb *ckdev)
+> +static int mxt_acquire_irq(struct mxt_data *data)
+> +{
+> +	int error;
+> +
+> +	enable_irq(data->irq);
+> +
+> +	error = mxt_process_messages_until_invalid(data);
+> +	if (error)
+> +		return error;
+> +
+> +	return 0;
+> +}
+> +
+>  static int mxt_soft_reset(struct mxt_data *data)
+>  {
+>  	struct device *dev = &data->client->dev;
+> @@ -1111,7 +1124,7 @@ static int mxt_soft_reset(struct mxt_data *data)
+>  	/* Ignore CHG line for 100ms after reset */
+>  	msleep(100);
+>  
+> -	enable_irq(data->irq);
+> +	mxt_acquire_irq(data);
+>  
+>  	ret = mxt_wait_for_completion(data, &data->reset_completion,
+>  				      MXT_RESET_TIMEOUT);
+> @@ -1466,19 +1479,6 @@ release_mem:
+>  	return ret;
+>  }
+>  
+> -static int mxt_acquire_irq(struct mxt_data *data)
 > -{
-> -	uint8_t old_state[ckdev->cols];
-> -	uint8_t new_state[ckdev->cols];
-> -	unsigned long duration;
-> -	int i, ret;
+> -	int error;
 > -
-> -	/*
-> -	 * Keep reading until we see that the scan state does not change.
-> -	 * That indicates that we are done.
-> -	 *
-> -	 * Assume that the EC keyscan buffer is at most 32 deep.
-> -	 */
-> -	duration = jiffies;
-> -	ret = cros_ec_keyb_get_state(ckdev, new_state);
-> -	for (i = 1; !ret && i < 32; i++) {
-> -		memcpy(old_state, new_state, sizeof(old_state));
-> -		ret = cros_ec_keyb_get_state(ckdev, new_state);
-> -		if (0 == memcmp(old_state, new_state, sizeof(old_state)))
-> -			break;
-> -	}
-> -	duration = jiffies - duration;
-> -	dev_info(ckdev->dev, "Discarded %d keyscan(s) in %dus\n", i,
-> -		jiffies_to_usecs(duration));
-> -}
+> -	enable_irq(data->irq);
 > -
-> -static int cros_ec_keyb_resume(struct device *dev)
-> -{
-> -	struct cros_ec_keyb *ckdev = dev_get_drvdata(dev);
-> -
-> -	/*
-> -	 * When the EC is not a wake source, then it could not have caused the
-> -	 * resume, so we clear the EC's key scan buffer. If the EC was a
-> -	 * wake source (e.g. the lid is open and the user might press a key to
-> -	 * wake) then the key scan buffer should be preserved.
-> -	 */
-> -	if (!ckdev->ec->was_wake_device)
-> -		cros_ec_keyb_clear_keyboard(ckdev);
+> -	error = mxt_process_messages_until_invalid(data);
+> -	if (error)
+> -		return error;
 > -
 > -	return 0;
 > -}
 > -
-> -#endif
-> -
-> -static SIMPLE_DEV_PM_OPS(cros_ec_keyb_pm_ops, NULL, cros_ec_keyb_resume);
-> -
->  #ifdef CONFIG_OF
->  static const struct of_device_id cros_ec_keyb_of_match[] = {
->  	{ .compatible = "google,cros-ec-keyb" },
-> @@ -373,7 +301,6 @@ static struct platform_driver cros_ec_keyb_driver = {
->  	.driver = {
->  		.name = "cros-ec-keyb",
->  		.of_match_table = of_match_ptr(cros_ec_keyb_of_match),
-> -		.pm	= &cros_ec_keyb_pm_ops,
->  	},
->  };
->  
+>  static int mxt_get_info(struct mxt_data *data)
+>  {
+>  	struct i2c_client *client = data->client;
 > -- 
-> 2.5.5
+> 2.5.0
 > 
 
 -- 

@@ -1,40 +1,58 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Cypress APA cursor jumps (fdo bug #94910)
-Date: Mon, 25 Apr 2016 09:33:43 +0200
-Message-ID: <CAN+gG=GeBP=tb6S3N1zPxaUwbO=wtEBufnSJ42NXe9e4qmre6g@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] hid: thingm: remove not needed error message
+Date: Mon, 25 Apr 2016 09:35:37 +0200
+Message-ID: <20160425073537.GB23234@mail.corp.redhat.com>
+References: <5717CB61.3080603@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f174.google.com ([209.85.161.174]:36421 "EHLO
-	mail-yw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752245AbcDYHdo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Apr 2016 03:33:44 -0400
-Received: by mail-yw0-f174.google.com with SMTP id o66so193274763ywc.3
-        for <linux-input@vger.kernel.org>; Mon, 25 Apr 2016 00:33:43 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:54702 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753703AbcDYHfl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Apr 2016 03:35:41 -0400
+Content-Disposition: inline
+In-Reply-To: <5717CB61.3080603@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dudley Du <dudl@cypress.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Benson Leung <bleung@chromium.org>, linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-Hi Dudley,
+On Apr 20 2016 or thereabouts, Heiner Kallweit wrote:
+> LED core takes care of handling failed calls to thingm_let_set.
+> - print error message in set_brightness_delayed or
+> - pass error to caller in led_set_brightness_sync
+> Also the error message here doesn't provide any hint what actually
+> went wrong. Therefore remove it.
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 
-[Also including the Chromium team, as this is related to a Chromebook].
+Works for me:
 
-A user reported that his HP Chromebook 14 (Falco) experiences some
-cursor jumps with the integrated cyapa touchpad[1].
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@rehat.com>
 
->From what we can gather, there is a jump from the cursor when the user
-tries to click on the clickpad (see the bug for an evemu recording).
-Is it something known? and is there some work around we could use?
-
-The ultimate solution will be to activate the in-kernel tracking, but
-these events seem to be just wrong, and the kernel tracking might
-corrupt even more the data stream.
-
-Any help would be appreciated :)
-
-Cheers,
-Benjamin
-
-[1] https://bugs.freedesktop.org/show_bug.cgi?id=94910
+> ---
+>  drivers/hid/hid-thingm.c | 7 +------
+>  1 file changed, 1 insertion(+), 6 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
+> index 2507bbe..9ad9c6e 100644
+> --- a/drivers/hid/hid-thingm.c
+> +++ b/drivers/hid/hid-thingm.c
+> @@ -148,13 +148,8 @@ static int thingm_led_set(struct led_classdev *ldev,
+>  			  enum led_brightness brightness)
+>  {
+>  	struct thingm_led *led = container_of(ldev, struct thingm_led, ldev);
+> -	int ret;
+> -
+> -	ret = thingm_write_color(led->rgb);
+> -	if (ret)
+> -		hid_err(led->rgb->tdev->hdev, "failed to write color\n");
+>  
+> -	return ret;
+> +	return thingm_write_color(led->rgb);
+>  }
+>  
+>  static int thingm_init_led(struct thingm_led *led, const char *color_name,
+> -- 
+> 2.8.0
+> 

@@ -1,63 +1,72 @@
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: Re: [PATCH 1/5] mfd: tps65217: Add support for IRQs
-Date: Mon, 25 Apr 2016 12:50:58 +0200
-Message-ID: <24ac37c7-a318-a145-0123-001947909d7b@grinn-global.com>
-References: <1459789865-3704-1-git-send-email-m.niestroj@grinn-global.com>
- <1459789865-3704-3-git-send-email-m.niestroj@grinn-global.com>
- <57038E46.9070204@ti.com> <57039E74.7030704@grinn-global.com>
- <20160411094426.GB8094@x1>
+From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH] hid: Fix boot delay for Creative SB Omni Surround 5.1
+ with quirk
+Date: Mon, 25 Apr 2016 14:24:34 +0200
+Message-ID: <20160425122434.GE23234@mail.corp.redhat.com>
+References: <0f11d1a2-a565-0ac2-2e27-b87c1705370a@mokrynskyi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 2780.rev.megiteam.pl ([91.227.39.128]:40511 "EHLO
-	vk1046.megiteam.com.pl" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754469AbcDYKvE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Apr 2016 06:51:04 -0400
-In-Reply-To: <20160411094426.GB8094@x1>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <0f11d1a2-a565-0ac2-2e27-b87c1705370a-yn5EusZxFslygrA4Gshslw@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nazar Mokrynskyi <nazar-yn5EusZxFslygrA4Gshslw@public.gmane.org>
+Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>, broonie@kernel.org
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>, Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-ping
+On Apr 25 2016 or thereabouts, Nazar Mokrynskyi wrote:
+> Needed for v2 of the device firmware, otherwise kernel will stuck for few
+> seconds and throw "usb_submit_urb(ctrl) failed: -1" early on system boot.
+> 
+> Signed-off-by: Nazar Mokrynskyi <nazar-yn5EusZxFslygrA4Gshslw@public.gmane.org>
+> ---
 
-On 11.04.2016 11:44, Lee Jones wrote:
-> FAO Mark,
->
->> On 05.04.2016 12:07, Grygorii Strashko wrote:
->>> On 04/04/2016 08:11 PM, Marcin Niestroj wrote:
->>>> Add support for handling IRQs: power button, AC and USB power stat=
-e
->>>> changes. Mask and interrupt bits are shared within one register, w=
-hich
->>>> prevents us to use regmap_irq implementation. New irq_domain is
->>>> created in
->>>> order to add interrupt handling for each tps65217's subsystem. IRQ
->>>> resources have been added for charger subsystem to be able to noti=
-fy
->>>> about
->>>> AC and USB state changes.
->>>>
->>>> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
->>>> ---
->>>
->>> Just curious Why not use a regmap_irq?
->>
->> tps65217 has IRQ mask and status bits in a single register.
->> regmap_irq works in case of two different registers (one mask, one
->> status), but with the same layout of mask and status bits in both.
->
-> Mark, is this the right approach?  Or is there another way regmap_irq
-> can be manipulated to support this configuration?
->
+Looks good to me but your mailer might have mangled the lines.
 
---=20
-Marcin Niestr=C3=B3j
+Jiri might be able to apply the patch, but next time, please make sure
+the mailer client does not break lines.
+
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+
+Cheers,
+Benjamin
+
+>  drivers/hid/hid-ids.h           | 1 +
+>  drivers/hid/usbhid/hid-quirks.c | 1 +
+>  2 files changed, 2 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index c6eaff5..0238f01 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -259,6 +259,7 @@
+>  #define USB_DEVICE_ID_CORSAIR_K90    0x1b02
+> 
+>  #define USB_VENDOR_ID_CREATIVELABS    0x041e
+> +#define USB_DEVICE_ID_CREATIVE_SB_OMNI_SURROUND_51    0x322c
+>  #define USB_DEVICE_ID_PRODIKEYS_PCMIDI    0x2801
+> 
+>  #define USB_VENDOR_ID_CVTOUCH        0x1ff7
+> diff --git a/drivers/hid/usbhid/hid-quirks.c
+> b/drivers/hid/usbhid/hid-quirks.c
+> index ed2f68e..53fc856 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -71,6 +71,7 @@ static const struct hid_blacklist {
+>      { USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_3AXIS_5BUTTON_STICK,
+> HID_QUIRK_NOGET },
+>      { USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_AXIS_295, HID_QUIRK_NOGET },
+>      { USB_VENDOR_ID_CHICONY,
+> USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
+> +    { USB_VENDOR_ID_CREATIVELABS,
+> USB_DEVICE_ID_CREATIVE_SB_OMNI_SURROUND_51, HID_QUIRK_NOGET },
+>      { USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
+>      { USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_WIIU,
+> HID_QUIRK_MULTI_INPUT },
+>      { USB_VENDOR_ID_ELAN, HID_ANY_ID, HID_QUIRK_ALWAYS_POLL },
+> -- 
+> 2.7.4
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

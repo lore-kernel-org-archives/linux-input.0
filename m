@@ -1,708 +1,229 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCHv15 11/15] cec: adv7511: add cec support.
-Date: Mon, 25 Apr 2016 14:24:38 +0200
-Message-ID: <1461587082-48041-12-git-send-email-hverkuil@xs4all.nl>
+Subject: [PATCHv15 07/15] cec.txt: add CEC framework documentation
+Date: Mon, 25 Apr 2016 14:24:34 +0200
+Message-ID: <1461587082-48041-8-git-send-email-hverkuil@xs4all.nl>
 References: <1461587082-48041-1-git-send-email-hverkuil@xs4all.nl>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb1-smtp-cloud6.xs4all.net ([194.109.24.24]:52030 "EHLO
-	lb1-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932401AbcDYMZM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Apr 2016 08:25:12 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 In-Reply-To: <1461587082-48041-1-git-send-email-hverkuil@xs4all.nl>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: linux-samsung-soc@vger.kernel.org, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, dri-devel@lists.freedesktop.org, Hans Verkuil <hansverk@cisco.com>, lars@opdenkamp.eu, Hans Verkuil <hans.verkuil@cisco.com>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-From: Hans Verkuil <hans.verkuil@cisco.com>
-
-Add CEC support to the adv7511 driver.
-
-Signed-off-by: Hans Verkuil <hansverk@cisco.com>
-[k.debski@samsung.com: Merged changes from CEC Updates commit by Hans Verkuil]
-Signed-off-by: Kamil Debski <kamil@wypas.org>
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
----
- drivers/media/i2c/Kconfig   |   9 +
- drivers/media/i2c/adv7511.c | 401 +++++++++++++++++++++++++++++++++++++++++++-
- include/media/i2c/adv7511.h |   6 +-
- 3 files changed, 403 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
-index 5168454..6c2acb6 100644
---- a/drivers/media/i2c/Kconfig
-+++ b/drivers/media/i2c/Kconfig
-@@ -465,6 +465,7 @@ config VIDEO_ADV7511
- 	tristate "Analog Devices ADV7511 encoder"
- 	depends on VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API
- 	select HDMI
-+	select MEDIA_CEC_EDID
- 	---help---
- 	  Support for the Analog Devices ADV7511 video encoder.
- 
-@@ -473,6 +474,14 @@ config VIDEO_ADV7511
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called adv7511.
- 
-+config VIDEO_ADV7511_CEC
-+	bool "Enable Analog Devices ADV7511 CEC support"
-+	depends on VIDEO_ADV7511 && MEDIA_CEC
-+	default y
-+	---help---
-+	  When selected the adv7511 will support the optional
-+	  HDMI CEC feature.
-+
- config VIDEO_AD9389B
- 	tristate "Analog Devices AD9389B encoder"
- 	depends on VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API
-diff --git a/drivers/media/i2c/adv7511.c b/drivers/media/i2c/adv7511.c
-index bd822f0..38a1002 100644
---- a/drivers/media/i2c/adv7511.c
-+++ b/drivers/media/i2c/adv7511.c
-@@ -33,6 +33,7 @@
- #include <media/v4l2-ctrls.h>
- #include <media/v4l2-dv-timings.h>
- #include <media/i2c/adv7511.h>
-+#include <media/cec.h>
- 
- static int debug;
- module_param(debug, int, 0644);
-@@ -59,6 +60,8 @@ MODULE_LICENSE("GPL v2");
- #define ADV7511_MIN_PIXELCLOCK 20000000
- #define ADV7511_MAX_PIXELCLOCK 225000000
- 
-+#define ADV7511_MAX_ADDRS (3)
-+
- /*
- **********************************************************************
- *
-@@ -90,12 +93,20 @@ struct adv7511_state {
- 	struct v4l2_ctrl_handler hdl;
- 	int chip_revision;
- 	u8 i2c_edid_addr;
--	u8 i2c_cec_addr;
- 	u8 i2c_pktmem_addr;
-+	u8 i2c_cec_addr;
-+
-+	struct i2c_client *i2c_cec;
-+	struct cec_adapter *cec_adap;
-+	u8   cec_addr[ADV7511_MAX_ADDRS];
-+	u8   cec_valid_addrs;
-+	bool cec_enabled_adap;
-+
- 	/* Is the adv7511 powered on? */
- 	bool power_on;
- 	/* Did we receive hotplug and rx-sense signals? */
- 	bool have_monitor;
-+	bool enabled_irq;
- 	/* timings from s_dv_timings */
- 	struct v4l2_dv_timings dv_timings;
- 	u32 fmt_code;
-@@ -227,7 +238,7 @@ static int adv_smbus_read_i2c_block_data(struct i2c_client *client,
- 	return ret;
- }
- 
--static inline void adv7511_edid_rd(struct v4l2_subdev *sd, u16 len, u8 *buf)
-+static void adv7511_edid_rd(struct v4l2_subdev *sd, uint16_t len, uint8_t *buf)
- {
- 	struct adv7511_state *state = get_adv7511_state(sd);
- 	int i;
-@@ -242,6 +253,34 @@ static inline void adv7511_edid_rd(struct v4l2_subdev *sd, u16 len, u8 *buf)
- 		v4l2_err(sd, "%s: i2c read error\n", __func__);
- }
- 
-+static inline int adv7511_cec_read(struct v4l2_subdev *sd, u8 reg)
-+{
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+
-+	return i2c_smbus_read_byte_data(state->i2c_cec, reg);
-+}
-+
-+static int adv7511_cec_write(struct v4l2_subdev *sd, u8 reg, u8 val)
-+{
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+	int ret;
-+	int i;
-+
-+	for (i = 0; i < 3; i++) {
-+		ret = i2c_smbus_write_byte_data(state->i2c_cec, reg, val);
-+		if (ret == 0)
-+			return 0;
-+	}
-+	v4l2_err(sd, "%s: I2C Write Problem\n", __func__);
-+	return ret;
-+}
-+
-+static inline int adv7511_cec_write_and_or(struct v4l2_subdev *sd, u8 reg, u8 mask,
-+				   u8 val)
-+{
-+	return adv7511_cec_write(sd, reg, (adv7511_cec_read(sd, reg) & mask) | val);
-+}
-+
- static int adv7511_pktmem_rd(struct v4l2_subdev *sd, u8 reg)
- {
- 	struct adv7511_state *state = get_adv7511_state(sd);
-@@ -425,16 +464,28 @@ static const struct v4l2_ctrl_ops adv7511_ctrl_ops = {
- #ifdef CONFIG_VIDEO_ADV_DEBUG
- static void adv7511_inv_register(struct v4l2_subdev *sd)
- {
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+
- 	v4l2_info(sd, "0x000-0x0ff: Main Map\n");
-+	if (state->i2c_cec)
-+		v4l2_info(sd, "0x100-0x1ff: CEC Map\n");
- }
- 
- static int adv7511_g_register(struct v4l2_subdev *sd, struct v4l2_dbg_register *reg)
- {
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+
- 	reg->size = 1;
- 	switch (reg->reg >> 8) {
- 	case 0:
- 		reg->val = adv7511_rd(sd, reg->reg & 0xff);
- 		break;
-+	case 1:
-+		if (state->i2c_cec) {
-+			reg->val = adv7511_cec_read(sd, reg->reg & 0xff);
-+			break;
-+		}
-+		/* fall through */
- 	default:
- 		v4l2_info(sd, "Register %03llx not supported\n", reg->reg);
- 		adv7511_inv_register(sd);
-@@ -445,10 +496,18 @@ static int adv7511_g_register(struct v4l2_subdev *sd, struct v4l2_dbg_register *
- 
- static int adv7511_s_register(struct v4l2_subdev *sd, const struct v4l2_dbg_register *reg)
- {
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+
- 	switch (reg->reg >> 8) {
- 	case 0:
- 		adv7511_wr(sd, reg->reg & 0xff, reg->val & 0xff);
- 		break;
-+	case 1:
-+		if (state->i2c_cec) {
-+			adv7511_cec_write(sd, reg->reg & 0xff, reg->val & 0xff);
-+			break;
-+		}
-+		/* fall through */
- 	default:
- 		v4l2_info(sd, "Register %03llx not supported\n", reg->reg);
- 		adv7511_inv_register(sd);
-@@ -536,6 +595,7 @@ static int adv7511_log_status(struct v4l2_subdev *sd)
- {
- 	struct adv7511_state *state = get_adv7511_state(sd);
- 	struct adv7511_state_edid *edid = &state->edid;
-+	int i;
- 
- 	static const char * const states[] = {
- 		"in reset",
-@@ -605,7 +665,23 @@ static int adv7511_log_status(struct v4l2_subdev *sd)
- 	else
- 		v4l2_info(sd, "no timings set\n");
- 	v4l2_info(sd, "i2c edid addr: 0x%x\n", state->i2c_edid_addr);
-+
-+	if (state->i2c_cec == NULL)
-+		return 0;
-+
- 	v4l2_info(sd, "i2c cec addr: 0x%x\n", state->i2c_cec_addr);
-+
-+	v4l2_info(sd, "CEC: %s\n", state->cec_enabled_adap ?
-+			"enabled" : "disabled");
-+	if (state->cec_enabled_adap) {
-+		for (i = 0; i < ADV7511_MAX_ADDRS; i++) {
-+			bool is_valid = state->cec_valid_addrs & (1 << i);
-+
-+			if (is_valid)
-+				v4l2_info(sd, "CEC Logical Address: 0x%x\n",
-+					  state->cec_addr[i]);
-+		}
-+	}
- 	v4l2_info(sd, "i2c pktmem addr: 0x%x\n", state->i2c_pktmem_addr);
- 	return 0;
- }
-@@ -663,15 +739,197 @@ static int adv7511_s_power(struct v4l2_subdev *sd, int on)
- 	return true;
- }
- 
-+#if IS_ENABLED(CONFIG_VIDEO_ADV7511_CEC)
-+static int adv7511_cec_adap_enable(struct cec_adapter *adap, bool enable)
-+{
-+	struct adv7511_state *state = adap->priv;
-+	struct v4l2_subdev *sd = &state->sd;
-+
-+	if (state->i2c_cec == NULL)
-+		return -EIO;
-+
-+	if (!state->cec_enabled_adap && enable) {
-+		/* power up cec section */
-+		adv7511_cec_write_and_or(sd, 0x4e, 0xfc, 0x01);
-+		/* legacy mode and clear all rx buffers */
-+		adv7511_cec_write(sd, 0x4a, 0x07);
-+		adv7511_cec_write(sd, 0x4a, 0);
-+		adv7511_cec_write_and_or(sd, 0x11, 0xfe, 0); /* initially disable tx */
-+		/* enabled irqs: */
-+		/* tx: ready */
-+		/* tx: arbitration lost */
-+		/* tx: retry timeout */
-+		/* rx: ready 1 */
-+		if (state->enabled_irq)
-+			adv7511_wr_and_or(sd, 0x95, 0xc0, 0x39);
-+	} else if (state->cec_enabled_adap && !enable) {
-+		if (state->enabled_irq)
-+			adv7511_wr_and_or(sd, 0x95, 0xc0, 0x00);
-+		/* disable address mask 1-3 */
-+		adv7511_cec_write_and_or(sd, 0x4b, 0x8f, 0x00);
-+		/* power down cec section */
-+		adv7511_cec_write_and_or(sd, 0x4e, 0xfc, 0x00);
-+		state->cec_valid_addrs = 0;
-+	}
-+	state->cec_enabled_adap = enable;
-+	return 0;
-+}
-+
-+static int adv7511_cec_adap_log_addr(struct cec_adapter *adap, u8 addr)
-+{
-+	struct adv7511_state *state = adap->priv;
-+	struct v4l2_subdev *sd = &state->sd;
-+	unsigned i, free_idx = ADV7511_MAX_ADDRS;
-+
-+	if (!state->cec_enabled_adap)
-+		return -EIO;
-+
-+	if (addr == CEC_LOG_ADDR_INVALID) {
-+		adv7511_cec_write_and_or(sd, 0x4b, 0x8f, 0);
-+		state->cec_valid_addrs = 0;
-+		return 0;
-+	}
-+
-+	for (i = 0; i < ADV7511_MAX_ADDRS; i++) {
-+		bool is_valid = state->cec_valid_addrs & (1 << i);
-+
-+		if (free_idx == ADV7511_MAX_ADDRS && !is_valid)
-+			free_idx = i;
-+		if (is_valid && state->cec_addr[i] == addr)
-+			return 0;
-+	}
-+	if (i == ADV7511_MAX_ADDRS) {
-+		i = free_idx;
-+		if (i == ADV7511_MAX_ADDRS)
-+			return -ENXIO;
-+	}
-+	state->cec_addr[i] = addr;
-+	state->cec_valid_addrs |= 1 << i;
-+
-+	switch (i) {
-+	case 0:
-+		/* enable address mask 0 */
-+		adv7511_cec_write_and_or(sd, 0x4b, 0xef, 0x10);
-+		/* set address for mask 0 */
-+		adv7511_cec_write_and_or(sd, 0x4c, 0xf0, addr);
-+		break;
-+	case 1:
-+		/* enable address mask 1 */
-+		adv7511_cec_write_and_or(sd, 0x4b, 0xdf, 0x20);
-+		/* set address for mask 1 */
-+		adv7511_cec_write_and_or(sd, 0x4c, 0x0f, addr << 4);
-+		break;
-+	case 2:
-+		/* enable address mask 2 */
-+		adv7511_cec_write_and_or(sd, 0x4b, 0xbf, 0x40);
-+		/* set address for mask 1 */
-+		adv7511_cec_write_and_or(sd, 0x4d, 0xf0, addr);
-+		break;
-+	}
-+	return 0;
-+}
-+
-+static int adv7511_cec_adap_transmit(struct cec_adapter *adap, u8 attempts,
-+				     u32 signal_free_time, struct cec_msg *msg)
-+{
-+	struct adv7511_state *state = adap->priv;
-+	struct v4l2_subdev *sd = &state->sd;
-+	u8 len = msg->len;
-+	unsigned i;
-+
-+	v4l2_dbg(1, debug, sd, "%s: len %d\n", __func__, len);
-+
-+	if (len > 16) {
-+		v4l2_err(sd, "%s: len exceeded 16 (%d)\n", __func__, len);
-+		return -EINVAL;
-+	}
-+
-+	/*
-+	 * The number of retries is the number of attempts - 1, but retry
-+	 * at least once. It's not clear if a value of 0 is allowed, so
-+	 * let's do at least one retry.
-+	 */
-+	adv7511_cec_write_and_or(sd, 0x12, ~0x70, max(1, attempts - 1) << 4);
-+
-+	/* blocking, clear cec tx irq status */
-+	adv7511_wr_and_or(sd, 0x97, 0xc7, 0x38);
-+
-+	/* write data */
-+	for (i = 0; i < len; i++)
-+		adv7511_cec_write(sd, i, msg->msg[i]);
-+
-+	/* set length (data + header) */
-+	adv7511_cec_write(sd, 0x10, len);
-+	/* start transmit, enable tx */
-+	adv7511_cec_write(sd, 0x11, 0x01);
-+	return 0;
-+}
-+
-+static void adv_cec_tx_raw_status(struct v4l2_subdev *sd, u8 tx_raw_status)
-+{
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+
-+	if ((adv7511_cec_read(sd, 0x11) & 0x01) == 0) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: tx disabled\n", __func__);
-+		return;
-+	}
-+
-+	if (tx_raw_status & 0x10) {
-+		v4l2_dbg(1, debug, sd,
-+			 "%s: tx raw: arbitration lost\n", __func__);
-+		cec_transmit_done(state->cec_adap, CEC_TX_STATUS_ARB_LOST,
-+				  1, 0, 0, 0);
-+		return;
-+	}
-+	if (tx_raw_status & 0x08) {
-+		u8 status;
-+		u8 nack_cnt;
-+		u8 low_drive_cnt;
-+
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: retry failed\n", __func__);
-+		/*
-+		 * We set this status bit since this hardware performs
-+		 * retransmissions.
-+		 */
-+		status = CEC_TX_STATUS_MAX_RETRIES;
-+		nack_cnt = adv7511_cec_read(sd, 0x14) & 0xf;
-+		if (nack_cnt)
-+			status |= CEC_TX_STATUS_NACK;
-+		low_drive_cnt = adv7511_cec_read(sd, 0x14) >> 4;
-+		if (low_drive_cnt)
-+			status |= CEC_TX_STATUS_LOW_DRIVE;
-+		cec_transmit_done(state->cec_adap, status,
-+				  0, nack_cnt, low_drive_cnt, 0);
-+		return;
-+	}
-+	if (tx_raw_status & 0x20) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: ready ok\n", __func__);
-+		cec_transmit_done(state->cec_adap, CEC_TX_STATUS_OK, 0, 0, 0, 0);
-+		return;
-+	}
-+}
-+
-+static const struct cec_adap_ops adv7511_cec_adap_ops = {
-+	.adap_enable = adv7511_cec_adap_enable,
-+	.adap_log_addr = adv7511_cec_adap_log_addr,
-+	.adap_transmit = adv7511_cec_adap_transmit,
-+};
-+#endif
-+
- /* Enable interrupts */
- static void adv7511_set_isr(struct v4l2_subdev *sd, bool enable)
- {
-+	struct adv7511_state *state = get_adv7511_state(sd);
- 	u8 irqs = MASK_ADV7511_HPD_INT | MASK_ADV7511_MSEN_INT;
- 	u8 irqs_rd;
- 	int retries = 100;
- 
- 	v4l2_dbg(2, debug, sd, "%s: %s\n", __func__, enable ? "enable" : "disable");
- 
-+	if (state->enabled_irq == enable)
-+		return;
-+	state->enabled_irq = enable;
-+
- 	/* The datasheet says that the EDID ready interrupt should be
- 	   disabled if there is no hotplug. */
- 	if (!enable)
-@@ -679,6 +937,9 @@ static void adv7511_set_isr(struct v4l2_subdev *sd, bool enable)
- 	else if (adv7511_have_hotplug(sd))
- 		irqs |= MASK_ADV7511_EDID_RDY_INT;
- 
-+	if (state->cec_enabled_adap)
-+		adv7511_wr_and_or(sd, 0x95, 0xc0, enable ? 0x39 : 0x00);
-+
- 	/*
- 	 * This i2c write can fail (approx. 1 in 1000 writes). But it
- 	 * is essential that this register is correct, so retry it
-@@ -701,20 +962,53 @@ static void adv7511_set_isr(struct v4l2_subdev *sd, bool enable)
- static int adv7511_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
- {
- 	u8 irq_status;
-+	u8 cec_irq;
- 
- 	/* disable interrupts to prevent a race condition */
- 	adv7511_set_isr(sd, false);
- 	irq_status = adv7511_rd(sd, 0x96);
-+	cec_irq = adv7511_rd(sd, 0x97);
- 	/* clear detected interrupts */
- 	adv7511_wr(sd, 0x96, irq_status);
-+	adv7511_wr(sd, 0x97, cec_irq);
- 
--	v4l2_dbg(1, debug, sd, "%s: irq 0x%x\n", __func__, irq_status);
-+	v4l2_dbg(1, debug, sd, "%s: irq 0x%x, cec-irq 0x%x\n", __func__,
-+		 irq_status, cec_irq);
- 
- 	if (irq_status & (MASK_ADV7511_HPD_INT | MASK_ADV7511_MSEN_INT))
- 		adv7511_check_monitor_present_status(sd);
- 	if (irq_status & MASK_ADV7511_EDID_RDY_INT)
- 		adv7511_check_edid_status(sd);
- 
-+#if IS_ENABLED(CONFIG_VIDEO_ADV7511_CEC)
-+	if (cec_irq & 0x38)
-+		adv_cec_tx_raw_status(sd, cec_irq);
-+
-+	if (cec_irq & 1) {
-+		struct adv7511_state *state = get_adv7511_state(sd);
-+		struct cec_msg msg;
-+
-+		msg.len = adv7511_cec_read(sd, 0x25) & 0x1f;
-+
-+		v4l2_dbg(1, debug, sd, "%s: cec msg len %d\n", __func__,
-+			 msg.len);
-+
-+		if (msg.len > 16)
-+			msg.len = 16;
-+
-+		if (msg.len) {
-+			u8 i;
-+
-+			for (i = 0; i < msg.len; i++)
-+				msg.msg[i] = adv7511_cec_read(sd, i + 0x15);
-+
-+			adv7511_cec_write(sd, 0x4a, 1); /* toggle to re-enable rx 1 */
-+			adv7511_cec_write(sd, 0x4a, 0);
-+			cec_received_msg(state->cec_adap, &msg);
-+		}
-+	}
-+#endif
-+
- 	/* enable interrupts */
- 	adv7511_set_isr(sd, true);
- 
-@@ -1183,6 +1477,8 @@ static void adv7511_notify_no_edid(struct v4l2_subdev *sd)
- 	/* We failed to read the EDID, so send an event for this. */
- 	ed.present = false;
- 	ed.segment = adv7511_rd(sd, 0xc4);
-+	ed.phys_addr = CEC_PHYS_ADDR_INVALID;
-+	cec_s_phys_addr(state->cec_adap, ed.phys_addr, false);
- 	v4l2_subdev_notify(sd, ADV7511_EDID_DETECT, (void *)&ed);
- 	v4l2_ctrl_s_ctrl(state->have_edid0_ctrl, 0x0);
- }
-@@ -1406,13 +1702,16 @@ static bool adv7511_check_edid_status(struct v4l2_subdev *sd)
- 
- 		v4l2_dbg(1, debug, sd, "%s: edid complete with %d segment(s)\n", __func__, state->edid.segments);
- 		state->edid.complete = true;
--
-+		ed.phys_addr = cec_get_edid_phys_addr(state->edid.data,
-+						      state->edid.segments * 256,
-+						      NULL);
- 		/* report when we have all segments
- 		   but report only for segment 0
- 		 */
- 		ed.present = true;
- 		ed.segment = 0;
- 		state->edid_detect_counter++;
-+		cec_s_phys_addr(state->cec_adap, ed.phys_addr, false);
- 		v4l2_subdev_notify(sd, ADV7511_EDID_DETECT, (void *)&ed);
- 		return ed.present;
- 	}
-@@ -1420,17 +1719,43 @@ static bool adv7511_check_edid_status(struct v4l2_subdev *sd)
- 	return false;
- }
- 
-+static int adv7511_registered(struct v4l2_subdev *sd)
-+{
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+	int err;
-+
-+	err = cec_register_adapter(state->cec_adap);
-+	if (err)
-+		cec_delete_adapter(state->cec_adap);
-+	return err;
-+}
-+
-+static void adv7511_unregistered(struct v4l2_subdev *sd)
-+{
-+	struct adv7511_state *state = get_adv7511_state(sd);
-+
-+	cec_unregister_adapter(state->cec_adap);
-+}
-+
-+static const struct v4l2_subdev_internal_ops adv7511_int_ops = {
-+	.registered = adv7511_registered,
-+	.unregistered = adv7511_unregistered,
-+};
-+
- /* ----------------------------------------------------------------------- */
- /* Setup ADV7511 */
- static void adv7511_init_setup(struct v4l2_subdev *sd)
- {
- 	struct adv7511_state *state = get_adv7511_state(sd);
- 	struct adv7511_state_edid *edid = &state->edid;
-+	u32 cec_clk = state->pdata.cec_clk;
-+	u8 ratio;
- 
- 	v4l2_dbg(1, debug, sd, "%s\n", __func__);
- 
- 	/* clear all interrupts */
- 	adv7511_wr(sd, 0x96, 0xff);
-+	adv7511_wr(sd, 0x97, 0xff);
- 	/*
- 	 * Stop HPD from resetting a lot of registers.
- 	 * It might leave the chip in a partly un-initialized state,
-@@ -1442,6 +1767,25 @@ static void adv7511_init_setup(struct v4l2_subdev *sd)
- 	adv7511_set_isr(sd, false);
- 	adv7511_s_stream(sd, false);
- 	adv7511_s_audio_stream(sd, false);
-+
-+	if (state->i2c_cec == NULL)
-+		return;
-+
-+	v4l2_dbg(1, debug, sd, "%s: cec_clk %d\n", __func__, cec_clk);
-+
-+	/* cec soft reset */
-+	adv7511_cec_write(sd, 0x50, 0x01);
-+	adv7511_cec_write(sd, 0x50, 0x00);
-+
-+	/* legacy mode */
-+	adv7511_cec_write(sd, 0x4a, 0x00);
-+
-+	if (cec_clk % 750000 != 0)
-+		v4l2_err(sd, "%s: cec_clk %d, not multiple of 750 Khz\n",
-+			 __func__, cec_clk);
-+
-+	ratio = (cec_clk / 750000) - 1;
-+	adv7511_cec_write(sd, 0x4e, ratio << 2);
- }
- 
- static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *id)
-@@ -1476,6 +1820,7 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
- 			 client->addr << 1);
- 
- 	v4l2_i2c_subdev_init(sd, client, &adv7511_ops);
-+	sd->internal_ops = &adv7511_int_ops;
- 
- 	hdl = &state->hdl;
- 	v4l2_ctrl_handler_init(hdl, 10);
-@@ -1522,26 +1867,47 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
- 	chip_id[0] = adv7511_rd(sd, 0xf5);
- 	chip_id[1] = adv7511_rd(sd, 0xf6);
- 	if (chip_id[0] != 0x75 || chip_id[1] != 0x11) {
--		v4l2_err(sd, "chip_id != 0x7511, read 0x%02x%02x\n", chip_id[0], chip_id[1]);
-+		v4l2_err(sd, "chip_id != 0x7511, read 0x%02x%02x\n", chip_id[0],
-+			 chip_id[1]);
- 		err = -EIO;
- 		goto err_entity;
- 	}
- 
--	state->i2c_edid = i2c_new_dummy(client->adapter, state->i2c_edid_addr >> 1);
-+	state->i2c_edid = i2c_new_dummy(client->adapter,
-+					state->i2c_edid_addr >> 1);
- 	if (state->i2c_edid == NULL) {
- 		v4l2_err(sd, "failed to register edid i2c client\n");
- 		err = -ENOMEM;
- 		goto err_entity;
- 	}
- 
-+	adv7511_wr(sd, 0xe1, state->i2c_cec_addr);
-+	if (state->pdata.cec_clk < 3000000 ||
-+	    state->pdata.cec_clk > 100000000) {
-+		v4l2_err(sd, "%s: cec_clk %u outside range, disabling cec\n",
-+				__func__, state->pdata.cec_clk);
-+		state->pdata.cec_clk = 0;
-+	}
-+
-+	if (state->pdata.cec_clk) {
-+		state->i2c_cec = i2c_new_dummy(client->adapter,
-+					       state->i2c_cec_addr >> 1);
-+		if (state->i2c_cec == NULL) {
-+			v4l2_err(sd, "failed to register cec i2c client\n");
-+			goto err_unreg_edid;
-+		}
-+		adv7511_wr(sd, 0xe2, 0x00); /* power up cec section */
-+	} else {
-+		adv7511_wr(sd, 0xe2, 0x01); /* power down cec section */
-+	}
-+
- 	state->i2c_pktmem = i2c_new_dummy(client->adapter, state->i2c_pktmem_addr >> 1);
- 	if (state->i2c_pktmem == NULL) {
- 		v4l2_err(sd, "failed to register pktmem i2c client\n");
- 		err = -ENOMEM;
--		goto err_unreg_edid;
-+		goto err_unreg_cec;
- 	}
- 
--	adv7511_wr(sd, 0xe2, 0x01); /* power down cec section */
- 	state->work_queue = create_singlethread_workqueue(sd->name);
- 	if (state->work_queue == NULL) {
- 		v4l2_err(sd, "could not create workqueue\n");
-@@ -1552,6 +1918,19 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
- 	INIT_DELAYED_WORK(&state->edid_handler, adv7511_edid_handler);
- 
- 	adv7511_init_setup(sd);
-+
-+#if IS_ENABLED(CONFIG_VIDEO_ADV7511_CEC)
-+	state->cec_adap = cec_allocate_adapter(&adv7511_cec_adap_ops,
-+		state, dev_name(&client->dev), CEC_CAP_TRANSMIT | CEC_CAP_LOG_ADDRS |
-+		CEC_CAP_PASSTHROUGH | CEC_CAP_RC,
-+		ADV7511_MAX_ADDRS, &client->dev);
-+	err = PTR_ERR_OR_ZERO(state->cec_adap);
-+	if (err) {
-+		destroy_workqueue(state->work_queue);
-+		goto err_unreg_pktmem;
-+	}
-+#endif
-+
- 	adv7511_set_isr(sd, true);
- 	adv7511_check_monitor_present_status(sd);
- 
-@@ -1561,6 +1940,9 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
- 
- err_unreg_pktmem:
- 	i2c_unregister_device(state->i2c_pktmem);
-+err_unreg_cec:
-+	if (state->i2c_cec)
-+		i2c_unregister_device(state->i2c_cec);
- err_unreg_edid:
- 	i2c_unregister_device(state->i2c_edid);
- err_entity:
-@@ -1582,9 +1964,12 @@ static int adv7511_remove(struct i2c_client *client)
- 	v4l2_dbg(1, debug, sd, "%s removed @ 0x%x (%s)\n", client->name,
- 		 client->addr << 1, client->adapter->name);
- 
-+	adv7511_set_isr(sd, false);
- 	adv7511_init_setup(sd);
- 	cancel_delayed_work(&state->edid_handler);
- 	i2c_unregister_device(state->i2c_edid);
-+	if (state->i2c_cec)
-+		i2c_unregister_device(state->i2c_cec);
- 	i2c_unregister_device(state->i2c_pktmem);
- 	destroy_workqueue(state->work_queue);
- 	v4l2_device_unregister_subdev(sd);
-diff --git a/include/media/i2c/adv7511.h b/include/media/i2c/adv7511.h
-index d83b91d..61c3d71 100644
---- a/include/media/i2c/adv7511.h
-+++ b/include/media/i2c/adv7511.h
-@@ -32,11 +32,7 @@ struct adv7511_monitor_detect {
- struct adv7511_edid_detect {
- 	int present;
- 	int segment;
--};
--
--struct adv7511_cec_arg {
--	void *arg;
--	u32 f_flags;
-+	uint16_t phys_addr;
- };
- 
- struct adv7511_platform_data {
--- 
-2.8.1
-
+RnJvbTogSGFucyBWZXJrdWlsIDxoYW5zdmVya0BjaXNjby5jb20+CgpEb2N1bWVudCB0aGUgbmV3
+IEhETUkgQ0VDIGZyYW1ld29yay4KClNpZ25lZC1vZmYtYnk6IEhhbnMgVmVya3VpbCA8aGFuc3Zl
+cmtAY2lzY28uY29tPgpbay5kZWJza2lAc2Ftc3VuZy5jb206IGFkZCBEb2NCb29rIGRvY3VtZW50
+YXRpb24gYnkgSGFucyBWZXJrdWlsLCB3aXRoClNpZ25lZC1vZmYtYnk6IEthbWlsIERlYnNraSA8
+a2FtaWxAd3lwYXMub3JnPgpTaWduZWQtb2ZmLWJ5OiBIYW5zIFZlcmt1aWwgPGhhbnMudmVya3Vp
+bEBjaXNjby5jb20+Ci0tLQogRG9jdW1lbnRhdGlvbi9jZWMudHh0IHwgMjY3ICsrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCiAxIGZpbGUgY2hhbmdlZCwg
+MjY3IGluc2VydGlvbnMoKykKIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL2NlYy50
+eHQKCmRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2NlYy50eHQgYi9Eb2N1bWVudGF0aW9uL2Nl
+Yy50eHQKbmV3IGZpbGUgbW9kZSAxMDA2NDQKaW5kZXggMDAwMDAwMC4uNzUxNTVmZQotLS0gL2Rl
+di9udWxsCisrKyBiL0RvY3VtZW50YXRpb24vY2VjLnR4dApAQCAtMCwwICsxLDI2NyBAQAorQ0VD
+IEtlcm5lbCBTdXBwb3J0Cis9PT09PT09PT09PT09PT09PT0KKworVGhlIENFQyBmcmFtZXdvcmsg
+cHJvdmlkZXMgYSB1bmlmaWVkIGtlcm5lbCBpbnRlcmZhY2UgZm9yIHVzZSB3aXRoIEhETUkgQ0VD
+CitoYXJkd2FyZS4gSXQgaXMgZGVzaWduZWQgdG8gaGFuZGxlIGEgbXVsdGlwbGUgdHlwZXMgb2Yg
+aGFyZHdhcmUgKHJlY2VpdmVycywKK3RyYW5zbWl0dGVycywgVVNCIGRvbmdsZXMpLiBUaGUgZnJh
+bWV3b3JrIGFsc28gZ2l2ZXMgdGhlIG9wdGlvbiB0byBkZWNpZGUKK3doYXQgdG8gZG8gaW4gdGhl
+IGtlcm5lbCBkcml2ZXIgYW5kIHdoYXQgc2hvdWxkIGJlIGhhbmRsZWQgYnkgdXNlcnNwYWNlCith
+cHBsaWNhdGlvbnMuIEluIGFkZGl0aW9uIGl0IGludGVncmF0ZXMgdGhlIHJlbW90ZSBjb250cm9s
+IHBhc3N0aHJvdWdoCitmZWF0dXJlIGludG8gdGhlIGtlcm5lbCdzIHJlbW90ZSBjb250cm9sIGZy
+YW1ld29yay4KKworCitUaGUgQ0VDIFByb3RvY29sCistLS0tLS0tLS0tLS0tLS0tCisKK1RoZSBD
+RUMgcHJvdG9jb2wgZW5hYmxlcyBjb25zdW1lciBlbGVjdHJvbmljIGRldmljZXMgdG8gY29tbXVu
+aWNhdGUgd2l0aCBlYWNoCitvdGhlciB0aHJvdWdoIHRoZSBIRE1JIGNvbm5lY3Rpb24uIFRoZSBw
+cm90b2NvbCB1c2VzIGxvZ2ljYWwgYWRkcmVzc2VzIGluIHRoZQorY29tbXVuaWNhdGlvbi4gVGhl
+IGxvZ2ljYWwgYWRkcmVzcyBpcyBzdHJpY3RseSBjb25uZWN0ZWQgd2l0aCB0aGUgZnVuY3Rpb25h
+bGl0eQorcHJvdmlkZWQgYnkgdGhlIGRldmljZS4gVGhlIFRWIGFjdGluZyBhcyB0aGUgY29tbXVu
+aWNhdGlvbiBodWIgaXMgYWx3YXlzCithc3NpZ25lZCBhZGRyZXNzIDAuIFRoZSBwaHlzaWNhbCBh
+ZGRyZXNzIGlzIGRldGVybWluZWQgYnkgdGhlIHBoeXNpY2FsCitjb25uZWN0aW9uIGJldHdlZW4g
+ZGV2aWNlcy4KKworVGhlIENFQyBmcmFtZXdvcmsgZGVzY3JpYmVkIGhlcmUgaXMgdXAgdG8gZGF0
+ZSB3aXRoIHRoZSBDRUMgMi4wIHNwZWNpZmljYXRpb24uCitJdCBpcyBkb2N1bWVudGVkIGluIHRo
+ZSBIRE1JIDEuNCBzcGVjaWZpY2F0aW9uIHdpdGggdGhlIG5ldyAyLjAgYml0cyBkb2N1bWVudGVk
+CitpbiB0aGUgSERNSSAyLjAgc3BlY2lmaWNhdGlvbi4gQnV0IGZvciBtb3N0IG9mIHRoZSBmZWF0
+dXJlcyB0aGUgZnJlZWx5IGF2YWlsYWJsZQorSERNSSAxLjNhIHNwZWNpZmljYXRpb24gaXMgc3Vm
+ZmljaWVudDoKKworaHR0cDovL3d3dy5taWNyb3Byb2Nlc3Nvci5vcmcvSERNSVNwZWNpZmljYXRp
+b24xM2EucGRmCisKKworVGhlIEtlcm5lbCBJbnRlcmZhY2UKKz09PT09PT09PT09PT09PT09PT09
+CisKK0NFQyBBZGFwdGVyCistLS0tLS0tLS0tLQorCitUaGUgc3RydWN0IGNlY19hZGFwdGVyIHJl
+cHJlc2VudHMgdGhlIENFQyBhZGFwdGVyIGhhcmR3YXJlLiBJdCBpcyBjcmVhdGVkIGJ5CitjYWxs
+aW5nIGNlY19hbGxvY2F0ZV9hZGFwdGVyKCkgYW5kIGRlbGV0ZWQgYnkgY2FsbGluZyBjZWNfZGVs
+ZXRlX2FkYXB0ZXIoKToKKworc3RydWN0IGNlY19hZGFwdGVyICpjZWNfYWxsb2NhdGVfYWRhcHRl
+cihjb25zdCBzdHJ1Y3QgY2VjX2FkYXBfb3BzICpvcHMsCisJICAgICAgIHZvaWQgKnByaXYsIGNv
+bnN0IGNoYXIgKm5hbWUsIHUzMiBjYXBzLCB1OCBhdmFpbGFibGVfbGFzLAorCSAgICAgICBzdHJ1
+Y3QgZGV2aWNlICpwYXJlbnQpOwordm9pZCBjZWNfZGVsZXRlX2FkYXB0ZXIoc3RydWN0IGNlY19h
+ZGFwdGVyICphZGFwKTsKKworVG8gY3JlYXRlIGFuIGFkYXB0ZXIgeW91IG5lZWQgdG8gcGFzcyB0
+aGUgZm9sbG93aW5nIGluZm9ybWF0aW9uOgorCitvcHM6IGFkYXB0ZXIgb3BlcmF0aW9ucyB3aGlj
+aCBhcmUgY2FsbGVkIGJ5IHRoZSBDRUMgZnJhbWV3b3JrIGFuZCB0aGF0IHlvdQoraGF2ZSB0byBp
+bXBsZW1lbnQuCisKK3ByaXY6IHdpbGwgYmUgc3RvcmVkIGluIGFkYXAtPnByaXYgYW5kIGNhbiBi
+ZSB1c2VkIGJ5IHRoZSBhZGFwdGVyIG9wcy4KKworbmFtZTogdGhlIG5hbWUgb2YgdGhlIENFQyBh
+ZGFwdGVyLiBOb3RlOiB0aGlzIG5hbWUgd2lsbCBiZSBjb3BpZWQuCisKK2NhcHM6IGNhcGFiaWxp
+dGllcyBvZiB0aGUgQ0VDIGFkYXB0ZXIuIFRoZXNlIGNhcGFiaWxpdGllcyBkZXRlcm1pbmUgdGhl
+CisJY2FwYWJpbGl0aWVzIG9mIHRoZSBoYXJkd2FyZSBhbmQgd2hpY2ggcGFydHMgYXJlIHRvIGJl
+IGhhbmRsZWQKKwlieSB1c2Vyc3BhY2UgYW5kIHdoaWNoIHBhcnRzIGFyZSBoYW5kbGVkIGJ5IGtl
+cm5lbHNwYWNlLiBUaGUKKwljYXBhYmlsaXRpZXMgYXJlIHJldHVybmVkIGJ5IENFQ19BREFQX0df
+Q0FQUy4KKworYXZhaWxhYmxlX2xhczogdGhlIG51bWJlciBvZiBzaW11bHRhbmVvdXMgbG9naWNh
+bCBhZGRyZXNzZXMgdGhhdCB0aGlzCisJYWRhcHRlciBjYW4gaGFuZGxlLiBNdXN0IGJlIDEgPD0g
+YXZhaWxhYmxlX2xhcyA8PSBDRUNfTUFYX0xPR19BRERSUy4KKworcGFyZW50OiB0aGUgcGFyZW50
+IGRldmljZS4KKworCitUbyByZWdpc3RlciB0aGUgL2Rldi9jZWNYIGRldmljZSBub2RlIGFuZCB0
+aGUgcmVtb3RlIGNvbnRyb2wgZGV2aWNlIChpZgorQ0VDX0NBUF9SQyBpcyBzZXQpIHlvdSBjYWxs
+OgorCitpbnQgY2VjX3JlZ2lzdGVyX2FkYXB0ZXIoc3RydWN0IGNlY19hZGFwdGVyICphZGFwKTsK
+KworVG8gdW5yZWdpc3RlciB0aGUgZGV2aWNlcyBjYWxsOgorCit2b2lkIGNlY191bnJlZ2lzdGVy
+X2FkYXB0ZXIoc3RydWN0IGNlY19hZGFwdGVyICphZGFwKTsKKworTm90ZTogaWYgY2VjX3JlZ2lz
+dGVyX2FkYXB0ZXIoKSBmYWlscywgdGhlbiBjYWxsIGNlY19kZWxldGVfYWRhcHRlcigpIHRvCitj
+bGVhbiB1cC4gQnV0IGlmIGNlY19yZWdpc3Rlcl9hZGFwdGVyKCkgc3VjY2VlZGVkLCB0aGVuIG9u
+bHkgY2FsbAorY2VjX3VucmVnaXN0ZXJfYWRhcHRlcigpIHRvIGNsZWFuIHVwLCBuZXZlciBjZWNf
+ZGVsZXRlX2FkYXB0ZXIoKS4gVGhlCit1bnJlZ2lzdGVyIGZ1bmN0aW9uIHdpbGwgZGVsZXRlIHRo
+ZSBhZGFwdGVyIGF1dG9tYXRpY2FsbHkgb25jZSB0aGUgbGFzdCB1c2VyCitvZiB0aGF0IC9kZXYv
+Y2VjWCBkZXZpY2UgaGFzIGNsb3NlZCBpdHMgZmlsZSBoYW5kbGUuCisKKworSW1wbGVtZW50aW5n
+IHRoZSBMb3ctTGV2ZWwgQ0VDIEFkYXB0ZXIKKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tCisKK1RoZSBmb2xsb3dpbmcgbG93LWxldmVsIGFkYXB0ZXIgb3BlcmF0aW9ucyBo
+YXZlIHRvIGJlIGltcGxlbWVudGVkIGluCit5b3VyIGRyaXZlcjoKKworc3RydWN0IGNlY19hZGFw
+X29wcyB7CisJLyogTG93LWxldmVsIGNhbGxiYWNrcyAqLworCWludCAoKmFkYXBfZW5hYmxlKShz
+dHJ1Y3QgY2VjX2FkYXB0ZXIgKmFkYXAsIGJvb2wgZW5hYmxlKTsKKwlpbnQgKCphZGFwX21vbml0
+b3JfYWxsX2VuYWJsZSkoc3RydWN0IGNlY19hZGFwdGVyICphZGFwLCBib29sIGVuYWJsZSk7CisJ
+aW50ICgqYWRhcF9sb2dfYWRkcikoc3RydWN0IGNlY19hZGFwdGVyICphZGFwLCB1OCBsb2dpY2Fs
+X2FkZHIpOworCWludCAoKmFkYXBfdHJhbnNtaXQpKHN0cnVjdCBjZWNfYWRhcHRlciAqYWRhcCwg
+dTggYXR0ZW1wdHMsCisJCQkgICAgIHUzMiBzaWduYWxfZnJlZV90aW1lLCBzdHJ1Y3QgY2VjX21z
+ZyAqbXNnKTsKKwl2b2lkICgqYWRhcF9sb2dfc3RhdHVzKShzdHJ1Y3QgY2VjX2FkYXB0ZXIgKmFk
+YXApOworCisJLyogSGlnaC1sZXZlbCBjYWxsYmFja3MgKi8KKwkuLi4KK307CisKK1RoZSB0aHJl
+ZSBsb3ctbGV2ZWwgb3BzIGRlYWwgd2l0aCB2YXJpb3VzIGFzcGVjdHMgb2YgY29udHJvbGxpbmcg
+dGhlIENFQyBhZGFwdGVyCitoYXJkd2FyZToKKworCitUbyBlbmFibGUvZGlzYWJsZSB0aGUgaGFy
+ZHdhcmU6CisKKwlpbnQgKCphZGFwX2VuYWJsZSkoc3RydWN0IGNlY19hZGFwdGVyICphZGFwLCBi
+b29sIGVuYWJsZSk7CisKK1RoaXMgY2FsbGJhY2sgZW5hYmxlcyBvciBkaXNhYmxlcyB0aGUgQ0VD
+IGhhcmR3YXJlLiBFbmFibGluZyB0aGUgQ0VDIGhhcmR3YXJlCittZWFucyBwb3dlcmluZyBpdCB1
+cCBpbiBhIHN0YXRlIHdoZXJlIG5vIGxvZ2ljYWwgYWRkcmVzc2VzIGFyZSBjbGFpbWVkLiBUaGlz
+CitvcCBhc3N1bWVzIHRoYXQgdGhlIHBoeXNpY2FsIGFkZHJlc3MgKGFkYXAtPnBoeXNfYWRkcikg
+aXMgdmFsaWQgd2hlbiBlbmFibGUgaXMKK3RydWUgYW5kIHdpbGwgbm90IGNoYW5nZSB3aGlsZSB0
+aGUgQ0VDIGFkYXB0ZXIgcmVtYWlucyBlbmFibGVkLiBUaGUgaW5pdGlhbAorc3RhdGUgb2YgdGhl
+IENFQyBhZGFwdGVyIGFmdGVyIGNhbGxpbmcgY2VjX2FsbG9jYXRlX2FkYXB0ZXIoKSBpcyBkaXNh
+YmxlZC4KKworTm90ZSB0aGF0IGFkYXBfZW5hYmxlIG11c3QgcmV0dXJuIDAgaWYgZW5hYmxlIGlz
+IGZhbHNlLgorCisKK1RvIGVuYWJsZS9kaXNhYmxlIHRoZSAnbW9uaXRvciBhbGwnIG1vZGU6CisK
+KwlpbnQgKCphZGFwX21vbml0b3JfYWxsX2VuYWJsZSkoc3RydWN0IGNlY19hZGFwdGVyICphZGFw
+LCBib29sIGVuYWJsZSk7CisKK0lmIGVuYWJsZWQsIHRoZW4gdGhlIGFkYXB0ZXIgc2hvdWxkIGJl
+IHB1dCBpbiBhIG1vZGUgdG8gYWxzbyBtb25pdG9yIG1lc3NhZ2VzCit0aGF0IG5vdCBmb3IgdXMu
+IE5vdCBhbGwgaGFyZHdhcmUgc3VwcG9ydHMgdGhpcyBhbmQgdGhpcyBmdW5jdGlvbiBpcyBvbmx5
+CitjYWxsZWQgaWYgdGhlIENFQ19DQVBfTU9OSVRPUl9BTEwgY2FwYWJpbGl0eSBpcyBzZXQuIFRo
+aXMgY2FsbGJhY2sgaXMgb3B0aW9uYWwKKyhzb21lIGhhcmR3YXJlIG1heSBhbHdheXMgYmUgaW4g
+J21vbml0b3IgYWxsJyBtb2RlKS4KKworTm90ZSB0aGF0IGFkYXBfbW9uaXRvcl9hbGxfZW5hYmxl
+IG11c3QgcmV0dXJuIDAgaWYgZW5hYmxlIGlzIGZhbHNlLgorCisKK1RvIHByb2dyYW0gYSBuZXcg
+bG9naWNhbCBhZGRyZXNzOgorCisJaW50ICgqYWRhcF9sb2dfYWRkcikoc3RydWN0IGNlY19hZGFw
+dGVyICphZGFwLCB1OCBsb2dpY2FsX2FkZHIpOworCitJZiBsb2dpY2FsX2FkZHIgPT0gQ0VDX0xP
+R19BRERSX0lOVkFMSUQgdGhlbiBhbGwgcHJvZ3JhbW1lZCBsb2dpY2FsIGFkZHJlc3NlcworYXJl
+IHRvIGJlIGVyYXNlZC4gT3RoZXJ3aXNlIHRoZSBnaXZlbiBsb2dpY2FsIGFkZHJlc3Mgc2hvdWxk
+IGJlIHByb2dyYW1tZWQuCitJZiB0aGUgbWF4aW11bSBudW1iZXIgb2YgYXZhaWxhYmxlIGxvZ2lj
+YWwgYWRkcmVzc2VzIGlzIGV4Y2VlZGVkLCB0aGVuIGl0CitzaG91bGQgcmV0dXJuIC1FTlhJTy4g
+T25jZSBhIGxvZ2ljYWwgYWRkcmVzcyBpcyBwcm9ncmFtbWVkIHRoZSBDRUMgaGFyZHdhcmUKK2Nh
+biByZWNlaXZlIGRpcmVjdGVkIG1lc3NhZ2VzIHRvIHRoYXQgYWRkcmVzcy4KKworTm90ZSB0aGF0
+IGFkYXBfbG9nX2FkZHIgbXVzdCByZXR1cm4gMCBpZiBsb2dpY2FsX2FkZHIgaXMgQ0VDX0xPR19B
+RERSX0lOVkFMSUQuCisKKworVG8gdHJhbnNtaXQgYSBuZXcgbWVzc2FnZToKKworCWludCAoKmFk
+YXBfdHJhbnNtaXQpKHN0cnVjdCBjZWNfYWRhcHRlciAqYWRhcCwgdTggYXR0ZW1wdHMsCisJCQkg
+ICAgIHUzMiBzaWduYWxfZnJlZV90aW1lLCBzdHJ1Y3QgY2VjX21zZyAqbXNnKTsKKworVGhpcyB0
+cmFuc21pdHMgYSBuZXcgbWVzc2FnZS4gVGhlIGF0dGVtcHRzIGFyZ3VtZW50IGlzIHRoZSBzdWdn
+ZXN0ZWQgbnVtYmVyIG9mCithdHRlbXB0cyBmb3IgdGhlIHRyYW5zbWl0LgorCitUaGUgc2lnbmFs
+X2ZyZWVfdGltZSBpcyB0aGUgbnVtYmVyIG9mIGRhdGEgYml0IHBlcmlvZHMgdGhhdCB0aGUgYWRh
+cHRlciBzaG91bGQKK3dhaXQgd2hlbiB0aGUgbGluZSBpcyBmcmVlIGJlZm9yZSBhdHRlbXB0aW5n
+IHRvIHNlbmQgYSBtZXNzYWdlLiBUaGlzIHZhbHVlCitkZXBlbmRzIG9uIHdoZXRoZXIgdGhpcyB0
+cmFuc21pdCBpcyBhIHJldHJ5LCBhIG1lc3NhZ2UgZnJvbSBhIG5ldyBpbml0aWF0b3Igb3IKK2Eg
+bmV3IG1lc3NhZ2UgZm9yIHRoZSBzYW1lIGluaXRpYXRvci4gTW9zdCBoYXJkd2FyZSB3aWxsIGhh
+bmRsZSB0aGlzCithdXRvbWF0aWNhbGx5LCBidXQgaW4gc29tZSBjYXNlcyB0aGlzIGluZm9ybWF0
+aW9uIGlzIG5lZWRlZC4KKworVGhlIENFQ19GUkVFX1RJTUVfVE9fVVNFQyBtYWNybyBjYW4gYmUg
+dXNlZCB0byBjb252ZXJ0IHNpZ25hbF9mcmVlX3RpbWUgdG8KK21pY3Jvc2Vjb25kcyAob25lIGRh
+dGEgYml0IHBlcmlvZCBpcyAyLjQgbXMpLgorCisKK1RvIGxvZyB0aGUgY3VycmVudCBDRUMgaGFy
+ZHdhcmUgc3RhdHVzOgorCisJdm9pZCAoKmFkYXBfc3RhdHVzKShzdHJ1Y3QgY2VjX2FkYXB0ZXIg
+KmFkYXAsIHN0cnVjdCBzZXFfZmlsZSAqZmlsZSk7CisKK1RoaXMgb3B0aW9uYWwgY2FsbGJhY2sg
+Y2FuIGJlIHVzZWQgdG8gc2hvdyB0aGUgc3RhdHVzIG9mIHRoZSBDRUMgaGFyZHdhcmUuCitUaGUg
+c3RhdHVzIGlzIGF2YWlsYWJsZSB0aHJvdWdoIGRlYnVnZnM6IGNhdCAvc3lzL2tlcm5lbC9kZWJ1
+Zy9jZWMvY2VjWC9zdGF0dXMKKworCitZb3VyIGFkYXB0ZXIgZHJpdmVyIHdpbGwgYWxzbyBoYXZl
+IHRvIHJlYWN0IHRvIGV2ZW50cyAodHlwaWNhbGx5IGludGVycnVwdAorZHJpdmVuKSBieSBjYWxs
+aW5nIGludG8gdGhlIGZyYW1ld29yayBpbiB0aGUgZm9sbG93aW5nIHNpdHVhdGlvbnM6CisKK1do
+ZW4gYSB0cmFuc21pdCBmaW5pc2hlZCAoc3VjY2Vzc2Z1bGx5IG9yIG90aGVyd2lzZSk6CisKK3Zv
+aWQgY2VjX3RyYW5zbWl0X2RvbmUoc3RydWN0IGNlY19hZGFwdGVyICphZGFwLCB1OCBzdGF0dXMs
+IHU4IGFyYl9sb3N0X2NudCwKKwkJICAgICAgIHU4IG5hY2tfY250LCB1OCBsb3dfZHJpdmVfY250
+LCB1OCBlcnJvcl9jbnQpOworCitUaGUgc3RhdHVzIGNhbiBiZSBvbmUgb2Y6CisKK0NFQ19UWF9T
+VEFUVVNfT0s6IHRoZSB0cmFuc21pdCB3YXMgc3VjY2Vzc2Z1bC4KK0NFQ19UWF9TVEFUVVNfQVJC
+X0xPU1Q6IGFyYml0cmF0aW9uIHdhcyBsb3N0OiBhbm90aGVyIENFQyBpbml0aWF0b3IKK3Rvb2sg
+Y29udHJvbCBvZiB0aGUgQ0VDIGxpbmUgYW5kIHlvdSBsb3N0IHRoZSBhcmJpdHJhdGlvbi4KK0NF
+Q19UWF9TVEFUVVNfTkFDSzogdGhlIG1lc3NhZ2Ugd2FzIG5hY2tlZCAoZm9yIGEgZGlyZWN0ZWQg
+bWVzc2FnZSkgb3IKK2Fja2VkIChmb3IgYSBicm9hZGNhc3QgbWVzc2FnZSkuIEEgcmV0cmFuc21p
+c3Npb24gaXMgbmVlZGVkLgorQ0VDX1RYX1NUQVRVU19MT1dfRFJJVkU6IGxvdyBkcml2ZSB3YXMg
+ZGV0ZWN0ZWQgb24gdGhlIENFQyBidXMuIFRoaXMKK2luZGljYXRlcyB0aGF0IGEgZm9sbG93ZXIg
+ZGV0ZWN0ZWQgYW4gZXJyb3Igb24gdGhlIGJ1cyBhbmQgcmVxdWVzdGVkIGEKK3JldHJhbnNtaXNz
+aW9uLgorQ0VDX1RYX1NUQVRVU19FUlJPUjogc29tZSB1bnNwZWNpZmllZCBlcnJvciBvY2N1cnJl
+ZDogdGhpcyBjYW4gYmUgb25lIG9mCit0aGUgcHJldmlvdXMgdHdvIGlmIHRoZSBoYXJkd2FyZSBj
+YW5ub3QgZGlmZmVyZW50aWF0ZSBvciBzb21ldGhpbmcgZWxzZQorZW50aXJlbHkuCitDRUNfVFhf
+U1RBVFVTX01BWF9SRVRSSUVTOiBjb3VsZCBub3QgdHJhbnNtaXQgdGhlIG1lc3NhZ2UgYWZ0ZXIK
+K3RyeWluZyBtdWx0aXBsZSB0aW1lcy4gU2hvdWxkIG9ubHkgYmUgc2V0IGJ5IHRoZSBkcml2ZXIg
+aWYgaXQgaGFzIGhhcmR3YXJlCitzdXBwb3J0IGZvciByZXRyeWluZyBtZXNzYWdlcy4gSWYgc2V0
+LCB0aGVuIHRoZSBmcmFtZXdvcmsgYXNzdW1lcyB0aGF0IGl0Citkb2Vzbid0IGhhdmUgdG8gbWFr
+ZSBhbm90aGVyIGF0dGVtcHQgdG8gdHJhbnNtaXQgdGhlIG1lc3NhZ2Ugc2luY2UgdGhlCitoYXJk
+d2FyZSBkaWQgdGhhdCBhbHJlYWR5LgorCitUaGUgKl9jbnQgYXJndW1lbnRzIGFyZSB0aGUgbnVt
+YmVyIG9mIGVycm9yIGNvbmRpdGlvbnMgdGhhdCB3ZXJlIHNlZW4uCitUaGlzIG1heSBiZSAwIGlm
+IG5vIGluZm9ybWF0aW9uIGlzIGF2YWlsYWJsZS4gRHJpdmVycyB0aGF0IGRvIG5vdCBzdXBwb3J0
+CitoYXJkd2FyZSByZXRyeSBjYW4ganVzdCBzZXQgdGhlIGNvdW50ZXIgY29ycmVzcG9uZGluZyB0
+byB0aGUgdHJhbnNtaXQgZXJyb3IKK3RvIDEsIGlmIHRoZSBoYXJkd2FyZSBkb2VzIHN1cHBvcnQg
+cmV0cnkgdGhlbiBlaXRoZXIgc2V0IHRoZXNlIGNvdW50ZXJzIHRvCiswIGlmIHRoZSBoYXJkd2Fy
+ZSBwcm92aWRlcyBubyBmZWVkYmFjayBvZiB3aGljaCBlcnJvcnMgb2NjdXJyZWQgYW5kIGhvdyBt
+YW55Cit0aW1lcywgb3IgZmlsbCBpbiB0aGUgY29ycmVjdCB2YWx1ZXMgYXMgcmVwb3J0ZWQgYnkg
+dGhlIGhhcmR3YXJlLgorCitXaGVuIGEgQ0VDIG1lc3NhZ2Ugd2FzIHJlY2VpdmVkOgorCit2b2lk
+IGNlY19yZWNlaXZlZF9tc2coc3RydWN0IGNlY19hZGFwdGVyICphZGFwLCBzdHJ1Y3QgY2VjX21z
+ZyAqbXNnKTsKKworU3BlYWtzIGZvciBpdHNlbGYuCisKK0ltcGxlbWVudGluZyB0aGUgSGlnaC1M
+ZXZlbCBDRUMgQWRhcHRlcgorLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+CisKK1RoZSBsb3ctbGV2ZWwgb3BlcmF0aW9ucyBkcml2ZSB0aGUgaGFyZHdhcmUsIHRoZSBoaWdo
+LWxldmVsIG9wZXJhdGlvbnMgYXJlCitDRUMgcHJvdG9jb2wgZHJpdmVuLiBUaGUgZm9sbG93aW5n
+IGhpZ2gtbGV2ZWwgY2FsbGJhY2tzIGFyZSBhdmFpbGFibGU6CisKK3N0cnVjdCBjZWNfYWRhcF9v
+cHMgeworCS8qIExvdy1sZXZlbCBjYWxsYmFja3MgKi8KKwkuLi4KKworCS8qIEhpZ2gtbGV2ZWwg
+Q0VDIG1lc3NhZ2UgY2FsbGJhY2sgKi8KKwlpbnQgKCpyZWNlaXZlZCkoc3RydWN0IGNlY19hZGFw
+dGVyICphZGFwLCBzdHJ1Y3QgY2VjX21zZyAqbXNnKTsKK307CisKK1RoZSByZWNlaXZlZCgpIGNh
+bGxiYWNrIGFsbG93cyB0aGUgZHJpdmVyIHRvIG9wdGlvbmFsbHkgaGFuZGxlIGEgbmV3bHkKK3Jl
+Y2VpdmVkIENFQyBtZXNzYWdlCisKKwlpbnQgKCpyZWNlaXZlZCkoc3RydWN0IGNlY19hZGFwdGVy
+ICphZGFwLCBzdHJ1Y3QgY2VjX21zZyAqbXNnKTsKKworSWYgdGhlIGRyaXZlciB3YW50cyB0byBw
+cm9jZXNzIGEgQ0VDIG1lc3NhZ2UsIHRoZW4gaXQgY2FuIGltcGxlbWVudCB0aGlzCitjYWxsYmFj
+ay4gSWYgaXQgZG9lc24ndCB3YW50IHRvIGhhbmRsZSB0aGlzIG1lc3NhZ2UsIHRoZW4gaXQgc2hv
+dWxkIHJldHVybgorLUVOT01TRywgb3RoZXJ3aXNlIHRoZSBDRUMgZnJhbWV3b3JrIGFzc3VtZXMg
+aXQgcHJvY2Vzc2VkIHRoaXMgbWVzc2FnZSBhbmQKK2l0IHdpbGwgbm90IG5vIGFueXRoaW5nIHdp
+dGggaXQuCisKKworQ0VDIGZyYW1ld29yayBmdW5jdGlvbnMKKy0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tCisKK0NFQyBBZGFwdGVyIGRyaXZlcnMgY2FuIGNhbGwgdGhlIGZvbGxvd2luZyBDRUMgZnJh
+bWV3b3JrIGZ1bmN0aW9uczoKKworaW50IGNlY190cmFuc21pdF9tc2coc3RydWN0IGNlY19hZGFw
+dGVyICphZGFwLCBzdHJ1Y3QgY2VjX21zZyAqbXNnLAorCQkgICAgIGJvb2wgYmxvY2spOworCitU
+cmFuc21pdCBhIENFQyBtZXNzYWdlLiBJZiBibG9jayBpcyB0cnVlLCB0aGVuIHdhaXQgdW50aWwg
+dGhlIG1lc3NhZ2UgaGFzIGJlZW4KK3RyYW5zbWl0dGVkLCBvdGhlcndpc2UganVzdCBxdWV1ZSBp
+dCBhbmQgcmV0dXJuLgorCit2b2lkIGNlY19zX3BoeXNfYWRkcihzdHJ1Y3QgY2VjX2FkYXB0ZXIg
+KmFkYXAsIHUxNiBwaHlzX2FkZHIsIGJvb2wgYmxvY2spOworCitDaGFuZ2UgdGhlIHBoeXNpY2Fs
+IGFkZHJlc3MuIFRoaXMgZnVuY3Rpb24gd2lsbCBzZXQgYWRhcC0+cGh5c19hZGRyIGFuZAorc2Vu
+ZCBhbiBldmVudCBpZiBpdCBoYXMgY2hhbmdlZC4gSWYgY2VjX3NfbG9nX2FkZHJzKCkgaGFzIGJl
+ZW4gY2FsbGVkIGFuZAordGhlIHBoeXNpY2FsIGFkZHJlc3MgaGFzIGJlY29tZSB2YWxpZCwgdGhl
+biB0aGUgQ0VDIGZyYW1ld29yayB3aWxsIHN0YXJ0CitjbGFpbWluZyB0aGUgbG9naWNhbCBhZGRy
+ZXNzZXMuIElmIGJsb2NrIGlzIHRydWUsIHRoZW4gdGhpcyBmdW5jdGlvbiB3b24ndAorcmV0dXJu
+IHVudGlsIHRoaXMgcHJvY2VzcyBoYXMgZmluaXNoZWQuCisKK1doZW4gdGhlIHBoeXNpY2FsIGFk
+ZHJlc3MgaXMgc2V0IHRvIGEgdmFsaWQgdmFsdWUgdGhlIENFQyBhZGFwdGVyIHdpbGwKK2JlIGVu
+YWJsZWQgKHNlZSB0aGUgYWRhcF9lbmFibGUgb3ApLiBXaGVuIGl0IGlzIHNldCB0byBDRUNfUEhZ
+U19BRERSX0lOVkFMSUQsCit0aGVuIHRoZSBDRUMgYWRhcHRlciB3aWxsIGJlIGRpc2FibGVkLiBJ
+ZiB5b3UgY2hhbmdlIGEgdmFsaWQgcGh5c2ljYWwgYWRkcmVzcwordG8gYW5vdGhlciB2YWxpZCBw
+aHlzaWNhbCBhZGRyZXNzLCB0aGVuIHRoaXMgZnVuY3Rpb24gd2lsbCBmaXJzdCBzZXQgdGhlCith
+ZGRyZXNzIHRvIENFQ19QSFlTX0FERFJfSU5WQUxJRCBiZWZvcmUgZW5hYmxpbmcgdGhlIG5ldyBw
+aHlzaWNhbCBhZGRyZXNzLgorCitpbnQgY2VjX3NfbG9nX2FkZHJzKHN0cnVjdCBjZWNfYWRhcHRl
+ciAqYWRhcCwKKwkJICAgIHN0cnVjdCBjZWNfbG9nX2FkZHJzICpsb2dfYWRkcnMsIGJvb2wgYmxv
+Y2spOworCitDbGFpbSB0aGUgQ0VDIGxvZ2ljYWwgYWRkcmVzc2VzLiBTaG91bGQgbmV2ZXIgYmUg
+Y2FsbGVkIGlmIENFQ19DQVBfTE9HX0FERFJTCitpcyBzZXQuIElmIGJsb2NrIGlzIHRydWUsIHRo
+ZW4gd2FpdCB1bnRpbCB0aGUgbG9naWNhbCBhZGRyZXNzZXMgaGF2ZSBiZWVuCitjbGFpbWVkLCBv
+dGhlcndpc2UganVzdCBxdWV1ZSBpdCBhbmQgcmV0dXJuLiBUbyB1bmNvbmZpZ3VyZSBhbGwgbG9n
+aWNhbAorYWRkcmVzc2VzIGNhbGwgdGhpcyBmdW5jdGlvbiB3aXRoIGxvZ19hZGRycyBzZXQgdG8g
+TlVMTCBvciB3aXRoCitsb2dfYWRkcnMtPm51bV9sb2dfYWRkcnMgc2V0IHRvIDAuIFRoZSBibG9j
+ayBhcmd1bWVudCBpcyBpZ25vcmVkIHdoZW4KK3VuY29uZmlndXJpbmcuIFRoaXMgZnVuY3Rpb24g
+d2lsbCBqdXN0IHJldHVybiBpZiB0aGUgcGh5c2ljYWwgYWRkcmVzcyBpcworaW52YWxpZC4gT25j
+ZSB0aGUgcGh5c2ljYWwgYWRkcmVzcyBiZWNvbWVzIHZhbGlkLCB0aGVuIHRoZSBmcmFtZXdvcmsg
+d2lsbAorYXR0ZW1wdCB0byBjbGFpbSB0aGVzZSBsb2dpY2FsIGFkZHJlc3Nlcy4KLS0gCjIuOC4x
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2
+ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9s
+aXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK

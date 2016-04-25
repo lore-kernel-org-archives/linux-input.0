@@ -1,115 +1,80 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] HID: wacom: Add fuzz factor to distance and tilt axes
-Date: Mon, 25 Apr 2016 11:27:40 -0700
-Message-ID: <CANRwn3SMQ2mtCHQw3YKt6dt+KvNpe0yzxVMGvNRNstzwT9um4w@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V3 1/3] iio: mxs-lradc: simplify TS registration
+Date: Mon, 25 Apr 2016 14:00:06 -0700
+Message-ID: <20160425210006.GA26059@dtor-ws>
+References: <1461441479-23218-1-git-send-email-stefan.wahren@i2se.com>
+ <1461441479-23218-2-git-send-email-stefan.wahren@i2se.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001a113ec790f7504e0531535422
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f41.google.com ([209.85.213.41]:34916 "EHLO
-	mail-vk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754810AbcDYS1m (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Apr 2016 14:27:42 -0400
-Received: by mail-vk0-f41.google.com with SMTP id u23so1508787vkb.2
-        for <linux-input@vger.kernel.org>; Mon, 25 Apr 2016 11:27:41 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1461441479-23218-2-git-send-email-stefan.wahren-eS4NqCHxEME@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Input <linux-input@vger.kernel.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
---001a113ec790f7504e0531535422
-Content-Type: text/plain; charset=UTF-8
+On Sat, Apr 23, 2016 at 07:57:57PM +0000, Stefan Wahren wrote:
+> This patch simplifies the TS registration of mxs-lradc by
+> using devm_input_allocate_device.
+> 
+> Signed-off-by: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+> Reviewed-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
 
-The fuzz present on the distance and tilt axes is noticable when a puck is
-present, and userspace (specifically libinput) would like the ability to
-filter out the noise. To facilitate this, we assign a fuzz value of '1'
-for the distance and tilt axes. This is large enough to cover most of the
-natural variation in distance value as the puck is moved around, and
-enough to cover the jitter in rotation (reported through tilt axes) when
-the puck is left alone.
+Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
----
-Apologies for attaching rather than inlining the patch. I'm stuck with
-using GMail's web interface instead of 'git-send-email' or a real
-client at the moment...
+> ---
+>  drivers/iio/adc/mxs-lradc.c |   10 ++--------
+>  1 file changed, 2 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/iio/adc/mxs-lradc.c b/drivers/iio/adc/mxs-lradc.c
+> index ad26da1..3d1d370 100644
+> --- a/drivers/iio/adc/mxs-lradc.c
+> +++ b/drivers/iio/adc/mxs-lradc.c
+> @@ -1120,18 +1120,16 @@ static int mxs_lradc_ts_register(struct mxs_lradc *lradc)
+>  {
+>  	struct input_dev *input;
+>  	struct device *dev = lradc->dev;
+> -	int ret;
+>  
+>  	if (!lradc->use_touchscreen)
+>  		return 0;
+>  
+> -	input = input_allocate_device();
+> +	input = devm_input_allocate_device(dev);
+>  	if (!input)
+>  		return -ENOMEM;
+>  
+>  	input->name = DRIVER_NAME;
+>  	input->id.bustype = BUS_HOST;
+> -	input->dev.parent = dev;
+>  	input->open = mxs_lradc_ts_open;
+>  	input->close = mxs_lradc_ts_close;
+>  
+> @@ -1146,11 +1144,8 @@ static int mxs_lradc_ts_register(struct mxs_lradc *lradc)
+>  
+>  	lradc->ts_input = input;
+>  	input_set_drvdata(input, lradc);
+> -	ret = input_register_device(input);
+> -	if (ret)
+> -		input_free_device(lradc->ts_input);
+>  
+> -	return ret;
+> +	return input_register_device(input);
+>  }
+>  
+>  static void mxs_lradc_ts_unregister(struct mxs_lradc *lradc)
+> @@ -1159,7 +1154,6 @@ static void mxs_lradc_ts_unregister(struct mxs_lradc *lradc)
+>  		return;
+>  
+>  	mxs_lradc_disable_ts(lradc);
+> -	input_unregister_device(lradc->ts_input);
+>  }
+>  
+>  /*
+> -- 
+> 1.7.9.5
+> 
 
---001a113ec790f7504e0531535422
-Content-Type: text/x-patch; charset=US-ASCII;
-	name="0001-HID-wacom-Add-fuzz-factor-to-distance-and-tilt-axes.patch"
-Content-Disposition: attachment;
-	filename="0001-HID-wacom-Add-fuzz-factor-to-distance-and-tilt-axes.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ingc1hby0
-
-RnJvbSBhMmFhOWQwNGQ2OTE4MTY5ZmQwZmJmMjliZjdjZjllMTcyMzIwODQ0IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBKYXNvbiBHZXJlY2tlIDxraWxsZXJ0b2Z1QGdtYWlsLmNvbT4K
-RGF0ZTogRnJpLCAyMiBBcHIgMjAxNiAxNDozMDo1MyAtMDcwMApTdWJqZWN0OiBbUEFUQ0hdIEhJ
-RDogd2Fjb206IEFkZCBmdXp6IGZhY3RvciB0byBkaXN0YW5jZSBhbmQgdGlsdCBheGVzCgpUaGUg
-ZnV6eiBwcmVzZW50IG9uIHRoZSBkaXN0YW5jZSBhbmQgdGlsdCBheGVzIGlzIG5vdGljYWJsZSB3
-aGVuIGEgcHVjayBpcwpwcmVzZW50LCBhbmQgdXNlcnNwYWNlIChzcGVjaWZpY2FsbHkgbGliaW5w
-dXQpIHdvdWxkIGxpa2UgdGhlIGFiaWxpdHkgdG8KZmlsdGVyIG91dCB0aGUgbm9pc2UuIFRvIGZh
-Y2lsaXRhdGUgdGhpcywgd2UgYXNzaWduIGEgZnV6eiB2YWx1ZSBvZiAnMScKZm9yIHRoZSBkaXN0
-YW5jZSBhbmQgdGlsdCBheGVzLiBUaGlzIGlzIGxhcmdlIGVub3VnaCB0byBjb3ZlciBtb3N0IG9m
-IHRoZQpuYXR1cmFsIHZhcmlhdGlvbiBpbiBkaXN0YW5jZSB2YWx1ZSBhcyB0aGUgcHVjayBpcyBt
-b3ZlZCBhcm91bmQsIGFuZAplbm91Z2ggdG8gY292ZXIgdGhlIGppdHRlciBpbiByb3RhdGlvbiAo
-cmVwb3J0ZWQgdGhyb3VnaCB0aWx0IGF4ZXMpIHdoZW4KdGhlIHB1Y2sgaXMgbGVmdCBhbG9uZS4K
-ClNpZ25lZC1vZmYtYnk6IEphc29uIEdlcmVja2UgPGphc29uLmdlcmVja2VAd2Fjb20uY29tPgot
-LS0KIGRyaXZlcnMvaGlkL3dhY29tX3N5cy5jIHwgIDMgKystCiBkcml2ZXJzL2hpZC93YWNvbV93
-YWMuYyB8IDEzICsrKysrKystLS0tLS0KIGRyaXZlcnMvaGlkL3dhY29tX3dhYy5oIHwgIDEgKwog
-MyBmaWxlcyBjaGFuZ2VkLCAxMCBpbnNlcnRpb25zKCspLCA3IGRlbGV0aW9ucygtKQoKZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvaGlkL3dhY29tX3N5cy5jIGIvZHJpdmVycy9oaWQvd2Fjb21fc3lzLmMK
-aW5kZXggY2NmMTg4My4uNDk5Y2M4MiAxMDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvd2Fjb21fc3lz
-LmMKKysrIGIvZHJpdmVycy9oaWQvd2Fjb21fc3lzLmMKQEAgLTQ5Myw3ICs0OTMsOCBAQCBzdGF0
-aWMgdm9pZCB3YWNvbV9yZXRyaWV2ZV9oaWRfZGVzY3JpcHRvcihzdHJ1Y3QgaGlkX2RldmljZSAq
-aGRldiwKIAlmZWF0dXJlcy0+eF9mdXp6ID0gNDsKIAlmZWF0dXJlcy0+eV9mdXp6ID0gNDsKIAlm
-ZWF0dXJlcy0+cHJlc3N1cmVfZnV6eiA9IDA7Ci0JZmVhdHVyZXMtPmRpc3RhbmNlX2Z1enogPSAw
-OworCWZlYXR1cmVzLT5kaXN0YW5jZV9mdXp6ID0gMTsKKwlmZWF0dXJlcy0+dGlsdF9mdXp6ID0g
-MTsKIAogCS8qCiAJICogVGhlIHdpcmVsZXNzIGRldmljZSBISUQgaXMgYmFzaWMgYW5kIGxheW91
-dCBjb25mbGljdHMgd2l0aApkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvd2Fjb21fd2FjLmMgYi9k
-cml2ZXJzL2hpZC93YWNvbV93YWMuYwppbmRleCBlOTkwMmYyLi4yNWZkZDk3IDEwMDY0NAotLS0g
-YS9kcml2ZXJzL2hpZC93YWNvbV93YWMuYworKysgYi9kcml2ZXJzL2hpZC93YWNvbV93YWMuYwpA
-QCAtMjM0MywxMiArMjM0MywxMyBAQCBzdGF0aWMgdm9pZCB3YWNvbV9zZXR1cF9iYXNpY19wcm9f
-cGVuKHN0cnVjdCB3YWNvbV93YWMgKndhY29tX3dhYykKIAlfX3NldF9iaXQoQlROX1NUWUxVUzIs
-IGlucHV0X2Rldi0+a2V5Yml0KTsKIAogCWlucHV0X3NldF9hYnNfcGFyYW1zKGlucHV0X2Rldiwg
-QUJTX0RJU1RBTkNFLAotCQkJICAgICAwLCB3YWNvbV93YWMtPmZlYXR1cmVzLmRpc3RhbmNlX21h
-eCwgMCwgMCk7CisJCQkgICAgIDAsIHdhY29tX3dhYy0+ZmVhdHVyZXMuZGlzdGFuY2VfbWF4LCB3
-YWNvbV93YWMtPmZlYXR1cmVzLmRpc3RhbmNlX2Z1enosIDApOwogfQogCiBzdGF0aWMgdm9pZCB3
-YWNvbV9zZXR1cF9jaW50aXEoc3RydWN0IHdhY29tX3dhYyAqd2Fjb21fd2FjKQogewogCXN0cnVj
-dCBpbnB1dF9kZXYgKmlucHV0X2RldiA9IHdhY29tX3dhYy0+cGVuX2lucHV0OworCXN0cnVjdCB3
-YWNvbV9mZWF0dXJlcyAqZmVhdHVyZXMgPSAmd2Fjb21fd2FjLT5mZWF0dXJlczsKIAogCXdhY29t
-X3NldHVwX2Jhc2ljX3Byb19wZW4od2Fjb21fd2FjKTsKIApAQCAtMjM1OCw5ICsyMzU5LDkgQEAg
-c3RhdGljIHZvaWQgd2Fjb21fc2V0dXBfY2ludGlxKHN0cnVjdCB3YWNvbV93YWMgKndhY29tX3dh
-YykKIAlfX3NldF9iaXQoQlROX1RPT0xfQUlSQlJVU0gsIGlucHV0X2Rldi0+a2V5Yml0KTsKIAog
-CWlucHV0X3NldF9hYnNfcGFyYW1zKGlucHV0X2RldiwgQUJTX1dIRUVMLCAwLCAxMDIzLCAwLCAw
-KTsKLQlpbnB1dF9zZXRfYWJzX3BhcmFtcyhpbnB1dF9kZXYsIEFCU19USUxUX1gsIC02NCwgNjMs
-IDAsIDApOworCWlucHV0X3NldF9hYnNfcGFyYW1zKGlucHV0X2RldiwgQUJTX1RJTFRfWCwgLTY0
-LCA2MywgZmVhdHVyZXMtPnRpbHRfZnV6eiwgMCk7CiAJaW5wdXRfYWJzX3NldF9yZXMoaW5wdXRf
-ZGV2LCBBQlNfVElMVF9YLCA1Nyk7Ci0JaW5wdXRfc2V0X2Fic19wYXJhbXMoaW5wdXRfZGV2LCBB
-QlNfVElMVF9ZLCAtNjQsIDYzLCAwLCAwKTsKKwlpbnB1dF9zZXRfYWJzX3BhcmFtcyhpbnB1dF9k
-ZXYsIEFCU19USUxUX1ksIC02NCwgNjMsIGZlYXR1cmVzLT50aWx0X2Z1enosIDApOwogCWlucHV0
-X2Fic19zZXRfcmVzKGlucHV0X2RldiwgQUJTX1RJTFRfWSwgNTcpOwogfQogCkBAIC0yNTA2LDcg
-KzI1MDcsNyBAQCBpbnQgd2Fjb21fc2V0dXBfcGVuX2lucHV0X2NhcGFiaWxpdGllcyhzdHJ1Y3Qg
-aW5wdXRfZGV2ICppbnB1dF9kZXYsCiAJY2FzZSBXQUNPTV9HNDoKIAkJaW5wdXRfc2V0X2Fic19w
-YXJhbXMoaW5wdXRfZGV2LCBBQlNfRElTVEFOQ0UsIDAsCiAJCQkJCSAgICAgIGZlYXR1cmVzLT5k
-aXN0YW5jZV9tYXgsCi0JCQkJCSAgICAgIDAsIDApOworCQkJCQkgICAgICBmZWF0dXJlcy0+ZGlz
-dGFuY2VfZnV6eiwgMCk7CiAJCS8qIGZhbGwgdGhyb3VnaCAqLwogCiAJY2FzZSBHUkFQSElSRToK
-QEAgLTI1NjgsNyArMjU2OSw3IEBAIGludCB3YWNvbV9zZXR1cF9wZW5faW5wdXRfY2FwYWJpbGl0
-aWVzKHN0cnVjdCBpbnB1dF9kZXYgKmlucHV0X2RldiwKIAogCQlpbnB1dF9zZXRfYWJzX3BhcmFt
-cyhpbnB1dF9kZXYsIEFCU19ESVNUQU5DRSwgMCwKIAkJCQkgICAgICBmZWF0dXJlcy0+ZGlzdGFu
-Y2VfbWF4LAotCQkJCSAgICAgIDAsIDApOworCQkJCSAgICAgIGZlYXR1cmVzLT5kaXN0YW5jZV9m
-dXp6LCAwKTsKIAogCQlpbnB1dF9zZXRfYWJzX3BhcmFtcyhpbnB1dF9kZXYsIEFCU19aLCAtOTAw
-LCA4OTksIDAsIDApOwogCQlpbnB1dF9hYnNfc2V0X3JlcyhpbnB1dF9kZXYsIEFCU19aLCAyODcp
-OwpAQCAtMjYyNyw3ICsyNjI4LDcgQEAgaW50IHdhY29tX3NldHVwX3Blbl9pbnB1dF9jYXBhYmls
-aXRpZXMoc3RydWN0IGlucHV0X2RldiAqaW5wdXRfZGV2LAogCQkJX19zZXRfYml0KEJUTl9TVFlM
-VVMyLCBpbnB1dF9kZXYtPmtleWJpdCk7CiAJCQlpbnB1dF9zZXRfYWJzX3BhcmFtcyhpbnB1dF9k
-ZXYsIEFCU19ESVNUQU5DRSwgMCwKIAkJCQkgICAgICBmZWF0dXJlcy0+ZGlzdGFuY2VfbWF4LAot
-CQkJCSAgICAgIDAsIDApOworCQkJCSAgICAgIGZlYXR1cmVzLT5kaXN0YW5jZV9mdXp6LCAwKTsK
-IAkJfQogCQlicmVhazsKIAljYXNlIEJBTUJPT19QQUQ6CmRpZmYgLS1naXQgYS9kcml2ZXJzL2hp
-ZC93YWNvbV93YWMuaCBiL2RyaXZlcnMvaGlkL3dhY29tX3dhYy5oCmluZGV4IGUyMDg0ZDkuLjUz
-ZDE2NTMgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaGlkL3dhY29tX3dhYy5oCisrKyBiL2RyaXZlcnMv
-aGlkL3dhY29tX3dhYy5oCkBAIC0xNzcsNiArMTc3LDcgQEAgc3RydWN0IHdhY29tX2ZlYXR1cmVz
-IHsKIAlpbnQgeV9mdXp6OwogCWludCBwcmVzc3VyZV9mdXp6OwogCWludCBkaXN0YW5jZV9mdXp6
-OworCWludCB0aWx0X2Z1eno7CiAJdW5zaWduZWQgcXVpcmtzOwogCXVuc2lnbmVkIHRvdWNoX21h
-eDsKIAlpbnQgb1ZpZDsKLS0gCjIuOC4wCgo=
---001a113ec790f7504e0531535422--
+-- 
+Dmitry

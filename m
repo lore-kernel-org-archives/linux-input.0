@@ -1,48 +1,57 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 12/14] phy: phy-stih41x-usb: DT spelling
- s/#phy-cell/#phy-cells/
-Date: Mon, 25 Apr 2016 08:45:00 -0500
-Message-ID: <20160425134500.GA5523@rob-hp-laptop>
-References: <1461166339-11109-1-git-send-email-geert+renesas@glider.be>
- <1461166339-11109-13-git-send-email-geert+renesas@glider.be>
+Subject: Re: [PATCH 12/41] Documentation: dt: input: fix spelling mistakes
+Date: Mon, 25 Apr 2016 08:49:52 -0500
+Message-ID: <20160425134952.GA8393@rob-hp-laptop>
+References: <1461543878-3639-1-git-send-email-eric@engestrom.ch>
+ <1461543878-3639-13-git-send-email-eric@engestrom.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:56352 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754637AbcDYNpG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Apr 2016 09:45:06 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1461166339-11109-13-git-send-email-geert+renesas@glider.be>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1461543878-3639-13-git-send-email-eric@engestrom.ch>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Eric Engestrom <eric@engestrom.ch>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Markus Pargmann <mpa@pengutronix.de>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, Zhou Wang <wangzhou1@hisilicon.com>, Tony Lindgren <tony@atomide.com>, Srinivas Kandagatla <srinivas.kandagatla@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Vinod Koul <vinod.koul@intel.com>, Mark Brown <broonie@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Joe Perches <joe@perches.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, dmaengine@vger.kernel.org
 
-On Wed, Apr 20, 2016 at 05:32:17PM +0200, Geert Uytterhoeven wrote:
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+On Mon, Apr 25, 2016 at 01:24:09AM +0100, Eric Engestrom wrote:
+> Signed-off-by: Eric Engestrom <eric@engestrom.ch>
 
 Applied, thanks.
 
 Rob
 
 > ---
->  Documentation/devicetree/bindings/phy/phy-stih41x-usb.txt | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  Documentation/devicetree/bindings/input/ads7846.txt                  | 2 +-
+>  Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/phy/phy-stih41x-usb.txt b/Documentation/devicetree/bindings/phy/phy-stih41x-usb.txt
-> index 00944a05ee6b4998..744b4809542edd3b 100644
-> --- a/Documentation/devicetree/bindings/phy/phy-stih41x-usb.txt
-> +++ b/Documentation/devicetree/bindings/phy/phy-stih41x-usb.txt
-> @@ -17,7 +17,7 @@ Example:
->  
->  usb2_phy: usb2phy@0 {
->  	compatible	= "st,stih416-usb-phy";
-> -	#phy-cell	= <0>;
-> +	#phy-cells	= <0>;
->  	st,syscfg	= <&syscfg_rear>;
->  	clocks		= <&clk_sysin>;
->  	clock-names	= "osc_phy";
+> diff --git a/Documentation/devicetree/bindings/input/ads7846.txt b/Documentation/devicetree/bindings/input/ads7846.txt
+> index c6cfe2e..9fc47b0 100644
+> --- a/Documentation/devicetree/bindings/input/ads7846.txt
+> +++ b/Documentation/devicetree/bindings/input/ads7846.txt
+> @@ -29,7 +29,7 @@ Optional properties:
+>  	ti,vref-delay-usecs		vref supply delay in usecs, 0 for
+>  					external vref (u16).
+>  	ti,vref-mv			The VREF voltage, in millivolts (u16).
+> -					Set to 0 to use internal refernce
+> +					Set to 0 to use internal references
+>  					(ADS7846).
+>  	ti,keep-vref-on			set to keep vref on for differential
+>  					measurements as well
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
+> index cdf05f9..abfcab3 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
+> @@ -15,7 +15,7 @@ Optional properties:
+>   - fsl,pen-debounce-ns: Pen debounce time in nanoseconds.
+>   - fsl,pen-threshold: Pen-down threshold for the touchscreen. This is a value
+>     between 1 and 4096. It is the ratio between the internal reference voltage
+> -   and the measured voltage after the plate was precharged. Resistence between
+> +   and the measured voltage after the plate was precharged. Resistance between
+>     plates and therefore the voltage decreases with pressure so that a smaller
+>     value is equivalent to a higher pressure.
+>   - fsl,settling-time-ns: Settling time in nanoseconds. The settling time is before
 > -- 
-> 1.9.1
+> 2.8.0
 > 

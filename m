@@ -1,79 +1,44 @@
-From: Nazar Mokrynskyi <nazar-yn5EusZxFslygrA4Gshslw@public.gmane.org>
-Subject: Re: [PATCH] hid: Fix boot delay for Creative SB Omni Surround 5.1
- with quirk
-Date: Mon, 25 Apr 2016 15:37:01 +0300
-Message-ID: <11f4dd07-5244-ba92-1338-8cde54e9ef45@mokrynskyi.com>
-References: <0f11d1a2-a565-0ac2-2e27-b87c1705370a@mokrynskyi.com>
- <20160425122434.GE23234@mail.corp.redhat.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 10/14] misc: sram: DT spelling
+ s/#adress-cells/#address-cells/
+Date: Mon, 25 Apr 2016 08:44:09 -0500
+Message-ID: <20160425134409.GA4060@rob-hp-laptop>
+References: <1461166339-11109-1-git-send-email-geert+renesas@glider.be>
+ <1461166339-11109-11-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160425122434.GE23234-/m+UfqrgI5QNLKR9yMNcA1aTQe2KTcn/@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-pci-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1461166339-11109-11-git-send-email-geert+renesas@glider.be>
+Sender: linux-pci-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, Zhou Wang <wangzhou1@hisilicon.com>, Tony Lindgren <tony@atomide.com>, Srinivas Kandagatla <srinivas.kandagatla@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Vinod Koul <vinod.koul@intel.com>, Mark Brown <broonie@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Joe Perches <joe@perches.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, dmaengine@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 25.04.16 15:24, Benjamin Tissoires wrote:
-> On Apr 25 2016 or thereabouts, Nazar Mokrynskyi wrote:
->> Needed for v2 of the device firmware, otherwise kernel will stuck for few
->> seconds and throw "usb_submit_urb(ctrl) failed: -1" early on system boot.
->>
->> Signed-off-by: Nazar Mokrynskyi <nazar-yn5EusZxFslygrA4Gshslw@public.gmane.org>
->> ---
-> Looks good to me but your mailer might have mangled the lines.
->
-> Jiri might be able to apply the patch, but next time, please make sure
-> the mailer client does not break lines.
->
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
->
-> Cheers,
-> Benjamin
-This is the first time doing contribution to kernel, didn't know
-Thunderbird will break lines, but looks like I've just configured it
-correctly now, so should not happen again.
+On Wed, Apr 20, 2016 at 05:32:15PM +0200, Geert Uytterhoeven wrote:
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-I can re-send it if absolutely necessary.
->>  drivers/hid/hid-ids.h           | 1 +
->>  drivers/hid/usbhid/hid-quirks.c | 1 +
->>  2 files changed, 2 insertions(+)
->>
->> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
->> index c6eaff5..0238f01 100644
->> --- a/drivers/hid/hid-ids.h
->> +++ b/drivers/hid/hid-ids.h
->> @@ -259,6 +259,7 @@
->>  #define USB_DEVICE_ID_CORSAIR_K90    0x1b02
->>
->>  #define USB_VENDOR_ID_CREATIVELABS    0x041e
->> +#define USB_DEVICE_ID_CREATIVE_SB_OMNI_SURROUND_51    0x322c
->>  #define USB_DEVICE_ID_PRODIKEYS_PCMIDI    0x2801
->>
->>  #define USB_VENDOR_ID_CVTOUCH        0x1ff7
->> diff --git a/drivers/hid/usbhid/hid-quirks.c
->> b/drivers/hid/usbhid/hid-quirks.c
->> index ed2f68e..53fc856 100644
->> --- a/drivers/hid/usbhid/hid-quirks.c
->> +++ b/drivers/hid/usbhid/hid-quirks.c
->> @@ -71,6 +71,7 @@ static const struct hid_blacklist {
->>      { USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_3AXIS_5BUTTON_STICK,
->> HID_QUIRK_NOGET },
->>      { USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_AXIS_295, HID_QUIRK_NOGET },
->>      { USB_VENDOR_ID_CHICONY,
->> USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
->> +    { USB_VENDOR_ID_CREATIVELABS,
->> USB_DEVICE_ID_CREATIVE_SB_OMNI_SURROUND_51, HID_QUIRK_NOGET },
->>      { USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
->>      { USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_WIIU,
->> HID_QUIRK_MULTI_INPUT },
->>      { USB_VENDOR_ID_ELAN, HID_ANY_ID, HID_QUIRK_ALWAYS_POLL },
->> -- 
->> 2.7.4
+Applied, thanks.
 
+Rob
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> ---
+>  Documentation/devicetree/bindings/sram/sram.txt | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/sram/sram.txt b/Documentation/devicetree/bindings/sram/sram.txt
+> index 227e3a341af1e2b5..add48f09015e212e 100644
+> --- a/Documentation/devicetree/bindings/sram/sram.txt
+> +++ b/Documentation/devicetree/bindings/sram/sram.txt
+> @@ -51,7 +51,7 @@ sram: sram@5c000000 {
+>  	compatible = "mmio-sram";
+>  	reg = <0x5c000000 0x40000>; /* 256 KiB SRAM at address 0x5c000000 */
+>  
+> -	#adress-cells = <1>;
+> +	#address-cells = <1>;
+>  	#size-cells = <1>;
+>  	ranges = <0 0x5c000000 0x40000>;
+>  
+> -- 
+> 1.9.1
+> 

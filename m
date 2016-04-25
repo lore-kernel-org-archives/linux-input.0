@@ -1,72 +1,42 @@
-From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] hid: Fix boot delay for Creative SB Omni Surround 5.1
- with quirk
-Date: Mon, 25 Apr 2016 14:24:34 +0200
-Message-ID: <20160425122434.GE23234@mail.corp.redhat.com>
-References: <0f11d1a2-a565-0ac2-2e27-b87c1705370a@mokrynskyi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <0f11d1a2-a565-0ac2-2e27-b87c1705370a-yn5EusZxFslygrA4Gshslw@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nazar Mokrynskyi <nazar-yn5EusZxFslygrA4Gshslw@public.gmane.org>
-Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: [PATCHv15 01/15] input.h: add BUS_CEC type
+Date: Mon, 25 Apr 2016 14:24:28 +0200
+Message-ID: <1461587082-48041-2-git-send-email-hverkuil@xs4all.nl>
+References: <1461587082-48041-1-git-send-email-hverkuil@xs4all.nl>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lb3-smtp-cloud6.xs4all.net ([194.109.24.31]:58682 "EHLO
+	lb3-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932162AbcDYMYz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Apr 2016 08:24:55 -0400
+In-Reply-To: <1461587082-48041-1-git-send-email-hverkuil@xs4all.nl>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-media@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
 
-On Apr 25 2016 or thereabouts, Nazar Mokrynskyi wrote:
-> Needed for v2 of the device firmware, otherwise kernel will stuck for few
-> seconds and throw "usb_submit_urb(ctrl) failed: -1" early on system boot.
-> 
-> Signed-off-by: Nazar Mokrynskyi <nazar-yn5EusZxFslygrA4Gshslw@public.gmane.org>
-> ---
+From: Hans Verkuil <hans.verkuil@cisco.com>
 
-Looks good to me but your mailer might have mangled the lines.
+Inputs can come in over the HDMI CEC bus, so add a new type for this.
 
-Jiri might be able to apply the patch, but next time, please make sure
-the mailer client does not break lines.
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ include/uapi/linux/input.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 0111384..c514941 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -247,6 +247,7 @@ struct input_mask {
+ #define BUS_ATARI		0x1B
+ #define BUS_SPI			0x1C
+ #define BUS_RMI			0x1D
++#define BUS_CEC			0x1E
+ 
+ /*
+  * MT_TOOL types
+-- 
+2.8.1
 
-Cheers,
-Benjamin
-
->  drivers/hid/hid-ids.h           | 1 +
->  drivers/hid/usbhid/hid-quirks.c | 1 +
->  2 files changed, 2 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index c6eaff5..0238f01 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -259,6 +259,7 @@
->  #define USB_DEVICE_ID_CORSAIR_K90    0x1b02
-> 
->  #define USB_VENDOR_ID_CREATIVELABS    0x041e
-> +#define USB_DEVICE_ID_CREATIVE_SB_OMNI_SURROUND_51    0x322c
->  #define USB_DEVICE_ID_PRODIKEYS_PCMIDI    0x2801
-> 
->  #define USB_VENDOR_ID_CVTOUCH        0x1ff7
-> diff --git a/drivers/hid/usbhid/hid-quirks.c
-> b/drivers/hid/usbhid/hid-quirks.c
-> index ed2f68e..53fc856 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -71,6 +71,7 @@ static const struct hid_blacklist {
->      { USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_3AXIS_5BUTTON_STICK,
-> HID_QUIRK_NOGET },
->      { USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_AXIS_295, HID_QUIRK_NOGET },
->      { USB_VENDOR_ID_CHICONY,
-> USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
-> +    { USB_VENDOR_ID_CREATIVELABS,
-> USB_DEVICE_ID_CREATIVE_SB_OMNI_SURROUND_51, HID_QUIRK_NOGET },
->      { USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
->      { USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_WIIU,
-> HID_QUIRK_MULTI_INPUT },
->      { USB_VENDOR_ID_ELAN, HID_ANY_ID, HID_QUIRK_ALWAYS_POLL },
-> -- 
-> 2.7.4
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

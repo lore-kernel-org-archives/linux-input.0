@@ -1,77 +1,63 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH V3 2/3] iio: mxs-lradc: remove mxs_lradc_ts_unregister
-Date: Mon, 25 Apr 2016 14:00:41 -0700
-Message-ID: <20160425210041.GB26059@dtor-ws>
-References: <1461441479-23218-1-git-send-email-stefan.wahren@i2se.com>
- <1461441479-23218-3-git-send-email-stefan.wahren@i2se.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 5/5] Input: zforce_ts: Fix dual touch recognition
+Date: Mon, 25 Apr 2016 14:08:43 -0700
+Message-ID: <20160425210843.GC26059@dtor-ws>
+References: <1461135285-17582-1-git-send-email-dirk.behme@de.bosch.com>
+ <1461135285-17582-5-git-send-email-dirk.behme@de.bosch.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f181.google.com ([209.85.192.181]:35103 "EHLO
+	mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964811AbcDYVIs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Apr 2016 17:08:48 -0400
+Received: by mail-pf0-f181.google.com with SMTP id n1so73602084pfn.2
+        for <linux-input@vger.kernel.org>; Mon, 25 Apr 2016 14:08:47 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1461441479-23218-3-git-send-email-stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+In-Reply-To: <1461135285-17582-5-git-send-email-dirk.behme@de.bosch.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dirk Behme <dirk.behme@de.bosch.com>
+Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Knut Wohlrab <Knut.Wohlrab@de.bosch.com>, Oleksij Rempel <linux@rempel-privat.de>
 
-On Sat, Apr 23, 2016 at 07:57:58PM +0000, Stefan Wahren wrote:
-> After using devm_input_allocate_device for registration
-> the function mxs_lradc_ts_unregister isn't necessary anymore
-> since mxs_lradc_ts_close already does the job.
+On Wed, Apr 20, 2016 at 08:54:45AM +0200, Dirk Behme wrote:
+> From: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
 > 
-> Signed-off-by: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
-> Suggested-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> A wrong decoding of the touch coordinate message causes a wrong touch
+> ID. Touch ID for dual touch must be 0 or 1.
+> 
+> According to the actual Neonode nine byte touch coordinate coding,
+> the state is transported in the lower nibble and the touch ID in
+> the higher nibble of payload byte five.
+> 
+> Signed-off-by: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
+> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+> Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Applied, thank you.
 
 > ---
->  drivers/iio/adc/mxs-lradc.c |   13 +------------
->  1 file changed, 1 insertion(+), 12 deletions(-)
+>  drivers/input/touchscreen/zforce_ts.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/iio/adc/mxs-lradc.c b/drivers/iio/adc/mxs-lradc.c
-> index 3d1d370..90242ba 100644
-> --- a/drivers/iio/adc/mxs-lradc.c
-> +++ b/drivers/iio/adc/mxs-lradc.c
-> @@ -1148,14 +1148,6 @@ static int mxs_lradc_ts_register(struct mxs_lradc *lradc)
->  	return input_register_device(input);
->  }
+> diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
+> index fd435fe..9790d7a 100644
+> --- a/drivers/input/touchscreen/zforce_ts.c
+> +++ b/drivers/input/touchscreen/zforce_ts.c
+> @@ -412,8 +412,8 @@ static int zforce_touch_event(struct zforce_ts *ts, u8 *payload)
+>  			point.coord_x = point.coord_y = 0;
+>  		}
 >  
-> -static void mxs_lradc_ts_unregister(struct mxs_lradc *lradc)
-> -{
-> -	if (!lradc->use_touchscreen)
-> -		return;
-> -
-> -	mxs_lradc_disable_ts(lradc);
-> -}
-> -
->  /*
->   * IRQ Handling
->   */
-> @@ -1715,13 +1707,11 @@ static int mxs_lradc_probe(struct platform_device *pdev)
->  	ret = iio_device_register(iio);
->  	if (ret) {
->  		dev_err(dev, "Failed to register IIO device\n");
-> -		goto err_ts;
-> +		return ret;
->  	}
+> -		point.state = payload[9 * i + 5] & 0x03;
+> -		point.id = (payload[9 * i + 5] & 0xfc) >> 2;
+> +		point.state = payload[9 * i + 5] & 0x0f;
+> +		point.id = (payload[9 * i + 5] & 0xf0) >> 4;
 >  
->  	return 0;
->  
-> -err_ts:
-> -	mxs_lradc_ts_unregister(lradc);
->  err_ts_register:
->  	mxs_lradc_hw_stop(lradc);
->  err_dev:
-> @@ -1739,7 +1729,6 @@ static int mxs_lradc_remove(struct platform_device *pdev)
->  	struct mxs_lradc *lradc = iio_priv(iio);
->  
->  	iio_device_unregister(iio);
-> -	mxs_lradc_ts_unregister(lradc);
->  	mxs_lradc_hw_stop(lradc);
->  	mxs_lradc_trigger_remove(iio);
->  	iio_triggered_buffer_cleanup(iio);
+>  		/* determine touch major, minor and orientation */
+>  		point.area_major = max(payload[9 * i + 6],
 > -- 
-> 1.7.9.5
+> 2.8.0
 > 
 
 -- 

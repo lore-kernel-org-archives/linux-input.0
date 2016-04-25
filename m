@@ -1,39 +1,60 @@
-From: Nazar Mokrynskyi <nazar-yn5EusZxFslygrA4Gshslw@public.gmane.org>
-Subject: Re: [PATCH v2] hid: Fix boot delay for Creative SB Omni Surround 5.1
- with quirk
-Date: Mon, 25 Apr 2016 17:46:14 +0300
-Message-ID: <e0ac2349-9e21-92a5-3cff-8c604037c6cb@mokrynskyi.com>
-References: <7b30aa00-7085-1f6f-7bad-ac19532cc611@mokrynskyi.com>
- <alpine.LNX.2.00.1604251641340.27368@cbobk.fhfr.pm>
+From: Vinod Koul <vinod.koul@intel.com>
+Subject: Re: [PATCH 06/14] dmaengine: bcm2835: DT spelling
+ s/interrupts-names/interrupt-names/
+Date: Mon, 25 Apr 2016 20:56:43 +0530
+Message-ID: <20160425152643.GZ2274@localhost>
+References: <1461166339-11109-1-git-send-email-geert+renesas@glider.be>
+ <1461166339-11109-7-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1604251641340.27368-YHPUNQjx9ReKbouaWp301Q@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-pci-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1461166339-11109-7-git-send-email-geert+renesas@glider.be>
+Sender: linux-pci-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Lee Jones <lee@kernel.org>, Zhou Wang <wangzhou1@hisilicon.com>, Tony Lindgren <tony@atomide.com>, Srinivas Kandagatla <srinivas.kandagatla@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Mark Brown <broonie@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Joe Perches <joe@perches.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, dmaengine@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 25.04.16 17:42, Jiri Kosina wrote:
-> On Mon, 25 Apr 2016, Nazar Mokrynskyi wrote:
->
->> Needed for v2 of the device firmware, otherwise kernel will stuck for few
->> seconds and throw "usb_submit_urb(ctrl) failed: -1" early on system boot.
->>
->> Signed-off-by: Nazar Mokrynskyi <nazar-yn5EusZxFslygrA4Gshslw@public.gmane.org>
->> ---
->> No changes, just resubmission to ensure absence of undesired line breaks
-> Line breaks are OK, but still your mailer converted tabs to space, which 
-> equally breaks the application process.
->
-> I've fixed that up manually and applied, but please look into 
-> reconfiguring your MUA for any future submissions.
->
-> Thanks,
->
-Thank you, I'll try to fix tabs as well for the next time.
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Wed, Apr 20, 2016 at 05:32:11PM +0200, Geert Uytterhoeven wrote:
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
+>  Documentation/devicetree/bindings/sound/davinci-mcbsp.txt | 2 +-
+
+This change does not apply for me, can you please split it up and send the
+sound ones thru sound tree
+
+-- 
+~Vinod
+
+>  drivers/dma/bcm2835-dma.c                                 | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/sound/davinci-mcbsp.txt b/Documentation/devicetree/bindings/sound/davinci-mcbsp.txt
+> index 55b53e1fd72c9d6e..e0b6165c9cfcec19 100644
+> --- a/Documentation/devicetree/bindings/sound/davinci-mcbsp.txt
+> +++ b/Documentation/devicetree/bindings/sound/davinci-mcbsp.txt
+> @@ -43,7 +43,7 @@ mcbsp0: mcbsp@1d10000 {
+>  		<0x00310000 0x1000>;
+>  	reg-names = "mpu", "dat";
+>  	interrupts = <97 98>;
+> -	interrupts-names = "rx", "tx";
+> +	interrupt-names = "rx", "tx";
+>  	dmas = <&edma0 3 1
+>  		&edma0 2 1>;
+>  	dma-names = "tx", "rx";
+> diff --git a/drivers/dma/bcm2835-dma.c b/drivers/dma/bcm2835-dma.c
+> index 974015193b93cdb3..d724393e904e9a41 100644
+> --- a/drivers/dma/bcm2835-dma.c
+> +++ b/drivers/dma/bcm2835-dma.c
+> @@ -974,7 +974,7 @@ static int bcm2835_dma_probe(struct platform_device *pdev)
+>  
+>  		/* legacy device tree case handling */
+>  		dev_warn_once(&pdev->dev,
+> -			      "missing interrupts-names property in device tree - legacy interpretation is used");
+> +			      "missing interrupt-names property in device tree - legacy interpretation is used");
+>  		/*
+>  		 * in case of channel >= 11
+>  		 * use the 11th interrupt and that is shared
+> -- 
+> 1.9.1
+> 

@@ -1,60 +1,44 @@
-From: Vinod Koul <vinod.koul@intel.com>
-Subject: Re: [PATCH 06/14] dmaengine: bcm2835: DT spelling
- s/interrupts-names/interrupt-names/
-Date: Mon, 25 Apr 2016 20:56:43 +0530
-Message-ID: <20160425152643.GZ2274@localhost>
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Subject: Re: [PATCH 06/14] dmaengine: bcm2835: DT spelling s/interrupts-names/interrupt-names/
+Date: Mon, 25 Apr 2016 18:30:58 +0200
+Message-ID: <CAMuHMdWsAj2Tmp3hQQAwZaB39j0KM=kcsobf+NtnrAG-aX5ohg@mail.gmail.com>
 References: <1461166339-11109-1-git-send-email-geert+renesas@glider.be>
- <1461166339-11109-7-git-send-email-geert+renesas@glider.be>
+	<1461166339-11109-7-git-send-email-geert+renesas@glider.be>
+	<20160425152643.GZ2274@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pci-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1461166339-11109-7-git-send-email-geert+renesas@glider.be>
-Sender: linux-pci-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Lee Jones <lee@kernel.org>, Zhou Wang <wangzhou1@hisilicon.com>, Tony Lindgren <tony@atomide.com>, Srinivas Kandagatla <srinivas.kandagatla@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Mark Brown <broonie@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Joe Perches <joe@perches.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, dmaengine@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160425152643.GZ2274@localhost>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lee Jones <lee-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Zhou Wang <wangzhou1-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Srinivas Kandagatla <srinivas.kandagatla-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Michael Ellerman <mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-pci <linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Apr 20, 2016 at 05:32:11PM +0200, Geert Uytterhoeven wrote:
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> ---
->  Documentation/devicetree/bindings/sound/davinci-mcbsp.txt | 2 +-
+Hi Vinod,
 
-This change does not apply for me, can you please split it up and send the
-sound ones thru sound tree
+On Mon, Apr 25, 2016 at 5:26 PM, Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+> On Wed, Apr 20, 2016 at 05:32:11PM +0200, Geert Uytterhoeven wrote:
+>> Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+>> ---
+>>  Documentation/devicetree/bindings/sound/davinci-mcbsp.txt | 2 +-
+>
+> This change does not apply for me, can you please split it up and send the
+> sound ones thru sound tree
 
--- 
-~Vinod
+Sorry, I seem to have mixed two unrelated drivers.
+Will split and resend...
 
->  drivers/dma/bcm2835-dma.c                                 | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/sound/davinci-mcbsp.txt b/Documentation/devicetree/bindings/sound/davinci-mcbsp.txt
-> index 55b53e1fd72c9d6e..e0b6165c9cfcec19 100644
-> --- a/Documentation/devicetree/bindings/sound/davinci-mcbsp.txt
-> +++ b/Documentation/devicetree/bindings/sound/davinci-mcbsp.txt
-> @@ -43,7 +43,7 @@ mcbsp0: mcbsp@1d10000 {
->  		<0x00310000 0x1000>;
->  	reg-names = "mpu", "dat";
->  	interrupts = <97 98>;
-> -	interrupts-names = "rx", "tx";
-> +	interrupt-names = "rx", "tx";
->  	dmas = <&edma0 3 1
->  		&edma0 2 1>;
->  	dma-names = "tx", "rx";
-> diff --git a/drivers/dma/bcm2835-dma.c b/drivers/dma/bcm2835-dma.c
-> index 974015193b93cdb3..d724393e904e9a41 100644
-> --- a/drivers/dma/bcm2835-dma.c
-> +++ b/drivers/dma/bcm2835-dma.c
-> @@ -974,7 +974,7 @@ static int bcm2835_dma_probe(struct platform_device *pdev)
->  
->  		/* legacy device tree case handling */
->  		dev_warn_once(&pdev->dev,
-> -			      "missing interrupts-names property in device tree - legacy interpretation is used");
-> +			      "missing interrupt-names property in device tree - legacy interpretation is used");
->  		/*
->  		 * in case of channel >= 11
->  		 * use the 11th interrupt and that is shared
-> -- 
-> 1.9.1
-> 
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,34 +1,63 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hid: thingm: remove not needed error message
-Date: Mon, 25 Apr 2016 11:31:40 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1604251131290.27368@cbobk.fhfr.pm>
-References: <5717CB61.3080603@gmail.com>
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Subject: Re: [PATCH 1/5] mfd: tps65217: Add support for IRQs
+Date: Mon, 25 Apr 2016 12:50:58 +0200
+Message-ID: <24ac37c7-a318-a145-0123-001947909d7b@grinn-global.com>
+References: <1459789865-3704-1-git-send-email-m.niestroj@grinn-global.com>
+ <1459789865-3704-3-git-send-email-m.niestroj@grinn-global.com>
+ <57038E46.9070204@ti.com> <57039E74.7030704@grinn-global.com>
+ <20160411094426.GB8094@x1>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:55115 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753617AbcDYJbl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Apr 2016 05:31:41 -0400
-In-Reply-To: <5717CB61.3080603@gmail.com>
+Received: from 2780.rev.megiteam.pl ([91.227.39.128]:40511 "EHLO
+	vk1046.megiteam.com.pl" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754469AbcDYKvE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Apr 2016 06:51:04 -0400
+In-Reply-To: <20160411094426.GB8094@x1>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, broonie@kernel.org
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>, Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-On Wed, 20 Apr 2016, Heiner Kallweit wrote:
+ping
 
-> LED core takes care of handling failed calls to thingm_let_set.
-> - print error message in set_brightness_delayed or
-> - pass error to caller in led_set_brightness_sync
-> Also the error message here doesn't provide any hint what actually
-> went wrong. Therefore remove it.
-> 
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+On 11.04.2016 11:44, Lee Jones wrote:
+> FAO Mark,
+>
+>> On 05.04.2016 12:07, Grygorii Strashko wrote:
+>>> On 04/04/2016 08:11 PM, Marcin Niestroj wrote:
+>>>> Add support for handling IRQs: power button, AC and USB power stat=
+e
+>>>> changes. Mask and interrupt bits are shared within one register, w=
+hich
+>>>> prevents us to use regmap_irq implementation. New irq_domain is
+>>>> created in
+>>>> order to add interrupt handling for each tps65217's subsystem. IRQ
+>>>> resources have been added for charger subsystem to be able to noti=
+fy
+>>>> about
+>>>> AC and USB state changes.
+>>>>
+>>>> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+>>>> ---
+>>>
+>>> Just curious Why not use a regmap_irq?
+>>
+>> tps65217 has IRQ mask and status bits in a single register.
+>> regmap_irq works in case of two different registers (one mask, one
+>> status), but with the same layout of mask and status bits in both.
+>
+> Mark, is this the right approach?  Or is there another way regmap_irq
+> can be manipulated to support this configuration?
+>
 
-Applied, thanks.
-
--- 
-Jiri Kosina
-SUSE Labs
-
+--=20
+Marcin Niestr=C3=B3j
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,46 +1,40 @@
-From: Eric Engestrom <eric@engestrom.ch>
-Subject: [PATCH 12/41] Documentation: dt: input: fix spelling mistakes
-Date: Mon, 25 Apr 2016 01:24:09 +0100
-Message-ID: <1461543878-3639-13-git-send-email-eric@engestrom.ch>
-References: <1461543878-3639-1-git-send-email-eric@engestrom.ch>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1461543878-3639-1-git-send-email-eric@engestrom.ch>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Eric Engestrom <eric@engestrom.ch>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Markus Pargmann <mpa@pengutronix.de>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Cypress APA cursor jumps (fdo bug #94910)
+Date: Mon, 25 Apr 2016 09:33:43 +0200
+Message-ID: <CAN+gG=GeBP=tb6S3N1zPxaUwbO=wtEBufnSJ42NXe9e4qmre6g@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f174.google.com ([209.85.161.174]:36421 "EHLO
+	mail-yw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752245AbcDYHdo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Apr 2016 03:33:44 -0400
+Received: by mail-yw0-f174.google.com with SMTP id o66so193274763ywc.3
+        for <linux-input@vger.kernel.org>; Mon, 25 Apr 2016 00:33:43 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dudley Du <dudl@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Benson Leung <bleung@chromium.org>, linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
 
-Signed-off-by: Eric Engestrom <eric@engestrom.ch>
----
- Documentation/devicetree/bindings/input/ads7846.txt                  | 2 +-
- Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Hi Dudley,
 
-diff --git a/Documentation/devicetree/bindings/input/ads7846.txt b/Documentation/devicetree/bindings/input/ads7846.txt
-index c6cfe2e..9fc47b0 100644
---- a/Documentation/devicetree/bindings/input/ads7846.txt
-+++ b/Documentation/devicetree/bindings/input/ads7846.txt
-@@ -29,7 +29,7 @@ Optional properties:
- 	ti,vref-delay-usecs		vref supply delay in usecs, 0 for
- 					external vref (u16).
- 	ti,vref-mv			The VREF voltage, in millivolts (u16).
--					Set to 0 to use internal refernce
-+					Set to 0 to use internal references
- 					(ADS7846).
- 	ti,keep-vref-on			set to keep vref on for differential
- 					measurements as well
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
-index cdf05f9..abfcab3 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
-@@ -15,7 +15,7 @@ Optional properties:
-  - fsl,pen-debounce-ns: Pen debounce time in nanoseconds.
-  - fsl,pen-threshold: Pen-down threshold for the touchscreen. This is a value
-    between 1 and 4096. It is the ratio between the internal reference voltage
--   and the measured voltage after the plate was precharged. Resistence between
-+   and the measured voltage after the plate was precharged. Resistance between
-    plates and therefore the voltage decreases with pressure so that a smaller
-    value is equivalent to a higher pressure.
-  - fsl,settling-time-ns: Settling time in nanoseconds. The settling time is before
--- 
-2.8.0
+[Also including the Chromium team, as this is related to a Chromebook].
+
+A user reported that his HP Chromebook 14 (Falco) experiences some
+cursor jumps with the integrated cyapa touchpad[1].
+
+>From what we can gather, there is a jump from the cursor when the user
+tries to click on the clickpad (see the bug for an evemu recording).
+Is it something known? and is there some work around we could use?
+
+The ultimate solution will be to activate the in-kernel tracking, but
+these events seem to be just wrong, and the kernel tracking might
+corrupt even more the data stream.
+
+Any help would be appreciated :)
+
+Cheers,
+Benjamin
+
+[1] https://bugs.freedesktop.org/show_bug.cgi?id=94910

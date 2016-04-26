@@ -1,51 +1,74 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 04/14] ARM: dts: OMAP36xx: : DT spelling
- s/#address-cell/#address-cells/
-Date: Tue, 26 Apr 2016 09:08:31 -0700
-Message-ID: <20160426160831.GT5995@atomide.com>
-References: <1461166339-11109-1-git-send-email-geert+renesas@glider.be>
- <1461166339-11109-5-git-send-email-geert+renesas@glider.be>
- <CAL_JsqKSbGPKNZdZnowGpdF8zxXbh6g-wkq96+KmBNLwp7n=HQ@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] drivers/input: Macros with complex values should be
+ enclosed in parentheses
+Date: Tue, 26 Apr 2016 09:50:09 -0700
+Message-ID: <20160426165009.GB30010@dtor-ws>
+References: <1461639170-1359-1-git-send-email-rui.teng@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAL_JsqKSbGPKNZdZnowGpdF8zxXbh6g-wkq96+KmBNLwp7n=HQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Zhou Wang <wangzhou1-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>, Srinivas Kandagatla <srinivas.kandagatla-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Michael Ellerman <mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org>, Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linuxppc-dev <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1461639170-1359-1-git-send-email-rui.teng@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rui Teng <rui.teng@linux.vnet.ibm.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-* Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> [160420 16:48]:
-> On Wed, Apr 20, 2016 at 10:32 AM, Geert Uytterhoeven
-> <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org> wrote:
-> > Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-> > ---
-> >  arch/arm/boot/dts/omap36xx.dtsi | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/arch/arm/boot/dts/omap36xx.dtsi b/arch/arm/boot/dts/omap36xx.dtsi
-> > index ce1e242d4dc07ea8..8b797915300894d8 100644
-> > --- a/arch/arm/boot/dts/omap36xx.dtsi
-> > +++ b/arch/arm/boot/dts/omap36xx.dtsi
-> > @@ -44,7 +44,7 @@
-> >                 abb_mpu_iva: regulator-abb-mpu {
-> >                         compatible = "ti,abb-v1";
-> >                         regulator-name = "abb_mpu_iva";
-> > -                       #address-cell = <0>;
-> > +                       #address-cells = <0>;
+On Tue, Apr 26, 2016 at 10:52:50AM +0800, Rui Teng wrote:
+> The bitwise shift operator has lower priority than plus operator. So the values on macros
+> should be enclosed in parentheses.
 > 
-> dtc should flag this if it was really needed. However, it looks like
-> it isn't as there are no child nodes (unless the board files add
-> them).
+> For example, "(1 << 4 + 1)" means "(1 << (4 + 1))", but it is not expected by the macros.
 > 
-> A nice dtc check would be to flag unnecessary #address-cells or
-> #size-cells. That would only help here after your fix though.
+> And also fix other two coding style problems reported by scripts/checkpatch.pl.
+> 
+> Signed-off-by: Rui Teng <rui.teng@linux.vnet.ibm.com>
 
-Yeah. Applying patches 2 - 4 into omap-for-v4.7/dt thanks.
+Applied, thank you.
 
-Tony
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> ---
+>  drivers/input/keyboard/twl4030_keypad.c | 11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
+> index bbcccd6..8d061c0 100644
+> --- a/drivers/input/keyboard/twl4030_keypad.c
+> +++ b/drivers/input/keyboard/twl4030_keypad.c
+> @@ -61,9 +61,9 @@ struct twl4030_keypad {
+>  	unsigned short	keymap[TWL4030_KEYMAP_SIZE];
+>  	u16		kp_state[TWL4030_MAX_ROWS];
+>  	bool		autorepeat;
+> -	unsigned	n_rows;
+> -	unsigned	n_cols;
+> -	unsigned	irq;
+> +	unsigned int	n_rows;
+> +	unsigned int	n_cols;
+> +	unsigned int	irq;
+>  
+>  	struct device *dbg_dev;
+>  	struct input_dev *input;
+> @@ -110,7 +110,7 @@ struct twl4030_keypad {
+>  #define KEYP_CTRL_KBD_ON		BIT(6)
+>  
+>  /* KEYP_DEB, KEYP_LONG_KEY, KEYP_TIMEOUT_x*/
+> -#define KEYP_PERIOD_US(t, prescale)	((t) / (31 << (prescale + 1)) - 1)
+> +#define KEYP_PERIOD_US(t, prescale)	((t) / (31 << ((prescale) + 1)) - 1)
+>  
+>  /* KEYP_LK_PTV_REG Fields */
+>  #define KEYP_LK_PTV_PTV_SHIFT		5
+> @@ -263,7 +263,8 @@ static irqreturn_t do_kp_irq(int irq, void *_kp)
+>  	ret = twl4030_kpread(kp, &reg, KEYP_ISR1, 1);
+>  
+>  	/* Release all keys if I2C has gone bad or
+> -	 * the KEYP has gone to idle state */
+> +	 * the KEYP has gone to idle state
+> +	 */
+>  	if (ret >= 0 && (reg & KEYP_IMR1_KP))
+>  		twl4030_kp_scan(kp, false);
+>  	else
+> -- 
+> 2.5.0
+> 
+
+-- 
+Dmitry

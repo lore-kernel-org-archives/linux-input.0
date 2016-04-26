@@ -1,73 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] drivers/input: Macros with complex values should be
- enclosed in parentheses
-Date: Tue, 26 Apr 2016 09:50:09 -0700
-Message-ID: <20160426165009.GB30010@dtor-ws>
-References: <1461639170-1359-1-git-send-email-rui.teng@linux.vnet.ibm.com>
+Subject: Re: [PATCH] Input: byd: don't wipe dynamically allocated memory twice
+Date: Tue, 26 Apr 2016 09:50:47 -0700
+Message-ID: <20160426165047.GC30010@dtor-ws>
+References: <1461268697-30735-1-git-send-email-vz@mleia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f170.google.com ([209.85.192.170]:34229 "EHLO
+	mail-pf0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752661AbcDZQuu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Apr 2016 12:50:50 -0400
+Received: by mail-pf0-f170.google.com with SMTP id y69so8984288pfb.1
+        for <linux-input@vger.kernel.org>; Tue, 26 Apr 2016 09:50:50 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1461639170-1359-1-git-send-email-rui.teng@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rui Teng <rui.teng@linux.vnet.ibm.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1461268697-30735-1-git-send-email-vz@mleia.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Richard Pospesel <pospeselr@gmail.com>, Chris Diamand <chris@diamand.org>, linux-input@vger.kernel.org
 
-On Tue, Apr 26, 2016 at 10:52:50AM +0800, Rui Teng wrote:
-> The bitwise shift operator has lower priority than plus operator. So the values on macros
-> should be enclosed in parentheses.
+On Thu, Apr 21, 2016 at 10:58:17PM +0300, Vladimir Zapolskiy wrote:
+> Since memory for a private data is allocated by kzalloc() there is no
+> need to fill it with zeroes immediately after the allocation.
 > 
-> For example, "(1 << 4 + 1)" means "(1 << (4 + 1))", but it is not expected by the macros.
-> 
-> And also fix other two coding style problems reported by scripts/checkpatch.pl.
-> 
-> Signed-off-by: Rui Teng <rui.teng@linux.vnet.ibm.com>
+> Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/keyboard/twl4030_keypad.c | 11 ++++++-----
->  1 file changed, 6 insertions(+), 5 deletions(-)
+>  drivers/input/mouse/byd.c | 1 -
+>  1 file changed, 1 deletion(-)
 > 
-> diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
-> index bbcccd6..8d061c0 100644
-> --- a/drivers/input/keyboard/twl4030_keypad.c
-> +++ b/drivers/input/keyboard/twl4030_keypad.c
-> @@ -61,9 +61,9 @@ struct twl4030_keypad {
->  	unsigned short	keymap[TWL4030_KEYMAP_SIZE];
->  	u16		kp_state[TWL4030_MAX_ROWS];
->  	bool		autorepeat;
-> -	unsigned	n_rows;
-> -	unsigned	n_cols;
-> -	unsigned	irq;
-> +	unsigned int	n_rows;
-> +	unsigned int	n_cols;
-> +	unsigned int	irq;
+> diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
+> index fdc243c..ec73f75 100644
+> --- a/drivers/input/mouse/byd.c
+> +++ b/drivers/input/mouse/byd.c
+> @@ -473,9 +473,8 @@ int byd_init(struct psmouse *psmouse)
+>  	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+>  	if (!priv)
+>  		return -ENOMEM;
 >  
->  	struct device *dbg_dev;
->  	struct input_dev *input;
-> @@ -110,7 +110,7 @@ struct twl4030_keypad {
->  #define KEYP_CTRL_KBD_ON		BIT(6)
+> -	memset(priv, 0, sizeof(*priv));
+>  	setup_timer(&priv->timer, byd_clear_touch, (unsigned long) psmouse);
 >  
->  /* KEYP_DEB, KEYP_LONG_KEY, KEYP_TIMEOUT_x*/
-> -#define KEYP_PERIOD_US(t, prescale)	((t) / (31 << (prescale + 1)) - 1)
-> +#define KEYP_PERIOD_US(t, prescale)	((t) / (31 << ((prescale) + 1)) - 1)
->  
->  /* KEYP_LK_PTV_REG Fields */
->  #define KEYP_LK_PTV_PTV_SHIFT		5
-> @@ -263,7 +263,8 @@ static irqreturn_t do_kp_irq(int irq, void *_kp)
->  	ret = twl4030_kpread(kp, &reg, KEYP_ISR1, 1);
->  
->  	/* Release all keys if I2C has gone bad or
-> -	 * the KEYP has gone to idle state */
-> +	 * the KEYP has gone to idle state
-> +	 */
->  	if (ret >= 0 && (reg & KEYP_IMR1_KP))
->  		twl4030_kp_scan(kp, false);
->  	else
+>  	psmouse->private = priv;
+>  	psmouse->disconnect = byd_disconnect;
 > -- 
-> 2.5.0
+> 2.1.4
 > 
 
 -- 

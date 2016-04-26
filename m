@@ -1,102 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: atmel_mxt_ts - use mxt_acquire_irq in
- mxt_soft_reset
-Date: Mon, 25 Apr 2016 14:28:53 -0700
-Message-ID: <20160425212853.GI26059@dtor-ws>
-References: <20160408233034.GN23166@bill-the-cat>
- <1460367105-29258-1-git-send-email-nick.dyer@itdev.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:36619 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933361AbcDYV25 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Apr 2016 17:28:57 -0400
-Content-Disposition: inline
-In-Reply-To: <1460367105-29258-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+From: Rui Teng <rui.teng@linux.vnet.ibm.com>
+Subject: [PATCH] drivers/input: Macros with complex values should be enclosed in parentheses
+Date: Tue, 26 Apr 2016 10:52:50 +0800
+Message-ID: <1461639170-1359-1-git-send-email-rui.teng@linux.vnet.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Rui Teng <rui.teng@linux.vnet.ibm.com>
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Tom Rini <trini@konsulko.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, simon.raphael@gmail.com, Olof Johansson <olof@lixom.net>
 
-On Mon, Apr 11, 2016 at 10:31:45AM +0100, Nick Dyer wrote:
-> If using IRQF_TRIGGER_FALLING, then there is a race here: if the reset
-> completes before we enable the IRQ, then CHG is already low and touch
-> will be broken.
-> 
-> This has been seen on Chromebook Pixel 2.
-> 
-> A workaround is to reconfig T18 COMMSCONFIG to enable the RETRIGEN bit
-> using mxt-app:
->     mxt-app -W -T18 44
->     mxt-app --backup
-> 
-> Tested-by: Tom Rini <trini@konsulko.com>
-> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+The bitwise shift operator has lower priority than plus operator. So the values on macros
+should be enclosed in parentheses.
 
-Applied, thank you.
+For example, "(1 << 4 + 1)" means "(1 << (4 + 1))", but it is not expected by the macros.
 
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 28 ++++++++++++++--------------
->  1 file changed, 14 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 2160512..5af7907 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -1093,6 +1093,19 @@ static int mxt_t6_command(struct mxt_data *data, u16 cmd_offset,
->  	return 0;
->  }
->  
-> +static int mxt_acquire_irq(struct mxt_data *data)
-> +{
-> +	int error;
-> +
-> +	enable_irq(data->irq);
-> +
-> +	error = mxt_process_messages_until_invalid(data);
-> +	if (error)
-> +		return error;
-> +
-> +	return 0;
-> +}
-> +
->  static int mxt_soft_reset(struct mxt_data *data)
->  {
->  	struct device *dev = &data->client->dev;
-> @@ -1111,7 +1124,7 @@ static int mxt_soft_reset(struct mxt_data *data)
->  	/* Ignore CHG line for 100ms after reset */
->  	msleep(100);
->  
-> -	enable_irq(data->irq);
-> +	mxt_acquire_irq(data);
->  
->  	ret = mxt_wait_for_completion(data, &data->reset_completion,
->  				      MXT_RESET_TIMEOUT);
-> @@ -1466,19 +1479,6 @@ release_mem:
->  	return ret;
->  }
->  
-> -static int mxt_acquire_irq(struct mxt_data *data)
-> -{
-> -	int error;
-> -
-> -	enable_irq(data->irq);
-> -
-> -	error = mxt_process_messages_until_invalid(data);
-> -	if (error)
-> -		return error;
-> -
-> -	return 0;
-> -}
-> -
->  static int mxt_get_info(struct mxt_data *data)
->  {
->  	struct i2c_client *client = data->client;
-> -- 
-> 2.5.0
-> 
+And also fix other two coding style problems reported by scripts/checkpatch.pl.
 
+Signed-off-by: Rui Teng <rui.teng@linux.vnet.ibm.com>
+---
+ drivers/input/keyboard/twl4030_keypad.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
+index bbcccd6..8d061c0 100644
+--- a/drivers/input/keyboard/twl4030_keypad.c
++++ b/drivers/input/keyboard/twl4030_keypad.c
+@@ -61,9 +61,9 @@ struct twl4030_keypad {
+ 	unsigned short	keymap[TWL4030_KEYMAP_SIZE];
+ 	u16		kp_state[TWL4030_MAX_ROWS];
+ 	bool		autorepeat;
+-	unsigned	n_rows;
+-	unsigned	n_cols;
+-	unsigned	irq;
++	unsigned int	n_rows;
++	unsigned int	n_cols;
++	unsigned int	irq;
+ 
+ 	struct device *dbg_dev;
+ 	struct input_dev *input;
+@@ -110,7 +110,7 @@ struct twl4030_keypad {
+ #define KEYP_CTRL_KBD_ON		BIT(6)
+ 
+ /* KEYP_DEB, KEYP_LONG_KEY, KEYP_TIMEOUT_x*/
+-#define KEYP_PERIOD_US(t, prescale)	((t) / (31 << (prescale + 1)) - 1)
++#define KEYP_PERIOD_US(t, prescale)	((t) / (31 << ((prescale) + 1)) - 1)
+ 
+ /* KEYP_LK_PTV_REG Fields */
+ #define KEYP_LK_PTV_PTV_SHIFT		5
+@@ -263,7 +263,8 @@ static irqreturn_t do_kp_irq(int irq, void *_kp)
+ 	ret = twl4030_kpread(kp, &reg, KEYP_ISR1, 1);
+ 
+ 	/* Release all keys if I2C has gone bad or
+-	 * the KEYP has gone to idle state */
++	 * the KEYP has gone to idle state
++	 */
+ 	if (ret >= 0 && (reg & KEYP_IMR1_KP))
+ 		twl4030_kp_scan(kp, false);
+ 	else
 -- 
-Dmitry
+2.5.0

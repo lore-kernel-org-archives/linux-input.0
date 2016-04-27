@@ -1,54 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: byd: don't wipe dynamically allocated memory twice
-Date: Tue, 26 Apr 2016 09:50:47 -0700
-Message-ID: <20160426165047.GC30010@dtor-ws>
-References: <1461268697-30735-1-git-send-email-vz@mleia.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 3/5] Input: zforce_ts: Add device tree support for
+ scanning frequency
+Date: Wed, 27 Apr 2016 09:44:02 -0500
+Message-ID: <CAL_JsqJhtBp6vp6AL4=gKTbvzm_ae0TGzHHitc4=6pdiE=V_sA@mail.gmail.com>
+References: <1461135285-17582-1-git-send-email-dirk.behme@de.bosch.com>
+ <1461135285-17582-3-git-send-email-dirk.behme@de.bosch.com> <20160425211122.GD26059@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f170.google.com ([209.85.192.170]:34229 "EHLO
-	mail-pf0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752661AbcDZQuu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Apr 2016 12:50:50 -0400
-Received: by mail-pf0-f170.google.com with SMTP id y69so8984288pfb.1
-        for <linux-input@vger.kernel.org>; Tue, 26 Apr 2016 09:50:50 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1461268697-30735-1-git-send-email-vz@mleia.com>
+Received: from mail.kernel.org ([198.145.29.136]:47834 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752758AbcD0OoZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Apr 2016 10:44:25 -0400
+In-Reply-To: <20160425211122.GD26059@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vladimir Zapolskiy <vz@mleia.com>
-Cc: Richard Pospesel <pospeselr@gmail.com>, Chris Diamand <chris@diamand.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dirk Behme <dirk.behme@de.bosch.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Knut Wohlrab <Knut.Wohlrab@de.bosch.com>, Oleksij Rempel <linux@rempel-privat.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-On Thu, Apr 21, 2016 at 10:58:17PM +0300, Vladimir Zapolskiy wrote:
-> Since memory for a private data is allocated by kzalloc() there is no
-> need to fill it with zeroes immediately after the allocation.
-> 
-> Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+On Mon, Apr 25, 2016 at 4:11 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Adding devicetree overlords...
+>
+> On Wed, Apr 20, 2016 at 08:54:43AM +0200, Dirk Behme wrote:
+>> From: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
+>>
+>> Add device tree support for idle and finger scanning frequency.
+>>
+>> Signed-off-by: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
+>> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+>> Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
+>> ---
+>>  .../devicetree/bindings/input/touchscreen/zforce_ts.txt   |  4 ++++
+>>  drivers/input/touchscreen/zforce_ts.c                     | 15 ++++++++++++++-
+>>  include/linux/platform_data/zforce_ts.h                   |  2 ++
+>>  3 files changed, 20 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
+>> index e3c27c4..09ead84 100644
+>> --- a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
+>> +++ b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
+>> @@ -11,6 +11,8 @@ Required properties:
+>>  Optional properties:
+>>  - irq-gpios : interrupt gpio the chip is connected to
 
-Applied, thank you.
+BTW, this should really be an "interrupts" property
 
-> ---
->  drivers/input/mouse/byd.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
-> index fdc243c..ec73f75 100644
-> --- a/drivers/input/mouse/byd.c
-> +++ b/drivers/input/mouse/byd.c
-> @@ -473,9 +473,8 @@ int byd_init(struct psmouse *psmouse)
->  	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
->  	if (!priv)
->  		return -ENOMEM;
->  
-> -	memset(priv, 0, sizeof(*priv));
->  	setup_timer(&priv->timer, byd_clear_touch, (unsigned long) psmouse);
->  
->  	psmouse->private = priv;
->  	psmouse->disconnect = byd_disconnect;
-> -- 
-> 2.1.4
-> 
+>>  - vdd-supply: Regulator controlling the controller supply
+>> +- scan-freq-idle: idle scanning frequency in Hz (0 - 65535 Hz; default 10 Hz)
+>> +- scan-freq-finger: touch scanning frequeny in Hz (0 - 65535 Hz; default 50 Hz)
 
--- 
-Dmitry
+I use my toes for touchscreens.
+
+Can you really scan at 65kHz?
+
+a typo here as well.
+
+> Should we cal it scan-freq-active instead?
+
+Don't we have a standard property for this?  These should really have
+-hz appended. So scan-idle-hz and scan-active-hz, but at least the
+active case should be common IMO. Idle scan seems a bit unusual unless
+you don't have an interrupt.
+
+Rob

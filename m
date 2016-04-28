@@ -1,45 +1,58 @@
 From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH 0/4] Input: xpad: extend device support
-Date: Thu, 28 Apr 2016 22:43:15 +0200
-Message-ID: <1461876199-6992-1-git-send-email-rojtberg@gmail.com>
+Subject: [PATCH 4/4] Input: xpad: xbox one elite controller support
+Date: Thu, 28 Apr 2016 22:43:19 +0200
+Message-ID: <1461876199-6992-5-git-send-email-rojtberg@gmail.com>
+References: <1461876199-6992-1-git-send-email-rojtberg@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f42.google.com ([74.125.82.42]:36911 "EHLO
-	mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752414AbcD1UnZ (ORCPT
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:34043 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752414AbcD1Un2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Apr 2016 16:43:25 -0400
-Received: by mail-wm0-f42.google.com with SMTP id a17so5131912wme.0
-        for <linux-input@vger.kernel.org>; Thu, 28 Apr 2016 13:43:25 -0700 (PDT)
+	Thu, 28 Apr 2016 16:43:28 -0400
+Received: by mail-wm0-f66.google.com with SMTP id n129so666859wmn.1
+        for <linux-input@vger.kernel.org>; Thu, 28 Apr 2016 13:43:28 -0700 (PDT)
+In-Reply-To: <1461876199-6992-1-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: Pavel Rojtberg <rojtberg@gmail.com>
+Cc: Pavel Rojtberg <rojtberg@gmail.com>, "Pierre-Loup A. Griffais" <eduke32@plagman.net>
 
 From: Pavel Rojtberg <rojtberg@gmail.com>
 
-This series contains minor changes that extend the range of supported devices.
+added the according id and incresed XPAD_PKT_LEN to 64 as the elite
+controller sends at least 33 byte messages [1].
+Verified to be working by [2].
 
-Patch 1 filters spurious packets similar to the x360w path.
+[1]: https://franticrain.github.io/sniffs/XboxOneSniff.html
+[2]: https://github.com/paroj/xpad/issues/23
 
-Patch 2 adds some third party controller ids
+Signed-off-by: Pierre-Loup A. Griffais <eduke32@plagman.net>
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Patch 3 fixes the vendor id sorting
-
-Patch 4 adds support for the elite controller
-
-Cameron Gutman (1):
-  Input: xpad - prevent spurious input from wired Xbox 360 controllers
-
-Daniel Tobias (1):
-  Input: xpad: correctly sort vendor id's
-
-Pavel Rojtberg (2):
-  Input: xpad: add more third-party controllers
-  Input: xpad: xbox one elite controller support
-
- drivers/input/joystick/xpad.c | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
-
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index b3819e0..c7f235d 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -87,7 +87,7 @@
+ #define DRIVER_AUTHOR "Marko Friedemann <mfr@bmx-chemnitz.de>"
+ #define DRIVER_DESC "X-Box pad driver"
+ 
+-#define XPAD_PKT_LEN 32
++#define XPAD_PKT_LEN 64
+ 
+ /* xbox d-pads should map to buttons, as is required for DDR pads
+    but we map them to axes when possible to simplify things */
+@@ -129,6 +129,7 @@ static const struct xpad_device {
+ 	{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", 0, XTYPE_XBOX360 },
+ 	{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 0, XTYPE_XBOXONE },
++	{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver (XBOX)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
 -- 
 1.9.1
 

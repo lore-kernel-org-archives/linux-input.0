@@ -1,61 +1,67 @@
-From: Alex Henrie <alexhenrie24@gmail.com>
-Subject: Re: I'd like to donate an Asus Q500A laptop
-Date: Wed, 27 Apr 2016 22:54:55 -0600
-Message-ID: <CAMMLpeScA1qMpe07m92N_h+bPC13qmyuOKBF+5VSu63T0uAY_Q@mail.gmail.com>
-References: <CAMMLpeSMi_pXSwHgMUy3MS_c0gaQgtSU6DHO1cN4qgAHC_dnmQ@mail.gmail.com>
- <CAMMLpeSFSsn14C_pp4dpPPs3rAsripMXetV0GJg9kM-gOvvt_w@mail.gmail.com> <57171045.5050507@de.bosch.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Pavel Rojtberg <rojtberg@gmail.com>
+Subject: [PATCH 1/4] Input: xpad - prevent spurious input from wired Xbox 360 controllers
+Date: Thu, 28 Apr 2016 22:43:16 +0200
+Message-ID: <1461876199-6992-2-git-send-email-rojtberg@gmail.com>
+References: <1461876199-6992-1-git-send-email-rojtberg@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f41.google.com ([74.125.82.41]:37184 "EHLO
-	mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750761AbcD1EzR (ORCPT
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33995 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753162AbcD1Un0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Apr 2016 00:55:17 -0400
-Received: by mail-wm0-f41.google.com with SMTP id a17so44947383wme.0
-        for <linux-input@vger.kernel.org>; Wed, 27 Apr 2016 21:55:16 -0700 (PDT)
-In-Reply-To: <57171045.5050507@de.bosch.com>
+	Thu, 28 Apr 2016 16:43:26 -0400
+Received: by mail-wm0-f65.google.com with SMTP id n129so666594wmn.1
+        for <linux-input@vger.kernel.org>; Thu, 28 Apr 2016 13:43:26 -0700 (PDT)
+In-Reply-To: <1461876199-6992-1-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "fixed-term.Oleksij.Rempel" <fixed-term.Oleksij.Rempel@de.bosch.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Corentin Chary <corentin.chary@gmail.com>, linux@rempel-privat.de
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: Cameron Gutman <aicommander@gmail.com>, Pavel Rojtberg <rojtberg@gmail.com>
 
-2016-04-19 23:14 GMT-06:00 fixed-term.Oleksij.Rempel
-<fixed-term.Oleksij.Rempel@de.bosch.com>:
->
->
-> On 20.04.2016 07:04, Alex Henrie wrote:
->> 2016-04-19 15:14 GMT-06:00 Alex Henrie <alexhenrie24@gmail.com>:
->>> Dear kernel developers,
->>>
->>> I have been trying to use Linux on an Asus Q500A laptop, but ran into
->>> a couple of problems:
->>>
->>> 1. The Caps Lock and Num Lock LEDs do not turn on
->>> 2. The volume control keys act like stuck letter keys (see
->>> http://ubuntuforums.org/showthread.php?t=2170285 for an example of
->>> another Q500A owner complaining about this)
->>>
->>> I am quite certain that these are both kernel bugs. I contacted the
->>> Asus platform driver maintainer, Corentin Chary, but he said that the
->>> bugs are more likely problems in the input drivers. If you are a
->>> kernel developer interested in looking into them, the Q500A is
->>> currently going for about $200-300 on eBay, which is low enough that
->>> it would not be a problem at all for me to just buy one and send it to
->>> you as a donation.
->>>
->>> Let me know, and thank you for your work on Linux!
->>
->> Correction: The Caps Lock LED works, the Num Lock LED does not. There
->> is no Scroll Lock LED.
->
->
-> Hm... somewhat similar i already did for ASUS Zenbook ux31a. May be it
-> is about ACPI and not about Input device driver. I can take this challenge.
+From: Cameron Gutman <aicommander@gmail.com>
 
-Okay, this is weird: The Q500A-BSI5N04 has the bug, but the
-Q500A-BHI5N01 does not have the bug. They look identical, and I
-flashed the same BIOS firmware onto both. Maybe I should send you both
-models so that you can compare the two...
+After initially connecting a wired Xbox 360 controller or sending it
+a command to change LEDs, a status/response packet is interpreted as
+controller input. This causes the state of buttons represented in
+byte 2 of the controller data packet to be incorrect until the next
+valid input packet. Wireless Xbox 360 controllers are not affected.
 
--Alex
+Writing a new value to the LED device while holding the Start button
+and running jstest is sufficient to reproduce this bug. An event will
+come through with the Start button released.
+
+Xboxdrv also won't attempt to read controller input from a packet
+where byte 0 is non-zero. It also checks that byte 1 is 0x14, but
+that value differs between wired and wireless controllers and this
+code is shared by both. I think just checking byte 0 is enough to
+eliminate unwanted packets.
+
+The following are some examples of 3-byte status packets I saw:
+01 03 02
+02 03 00
+03 03 03
+08 03 00
+
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 1142a93..0259d6d 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -457,6 +457,10 @@ static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *d
+ static void xpad360_process_packet(struct usb_xpad *xpad, struct input_dev *dev,
+ 				   u16 cmd, unsigned char *data)
+ {
++	/* valid pad data */
++	if (data[0] != 0x00)
++		return;
++
+ 	/* digital pad */
+ 	if (xpad->mapping & MAP_DPAD_TO_BUTTONS) {
+ 		/* dpad as buttons (left, right, up, down) */
+-- 
+1.9.1
+

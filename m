@@ -1,144 +1,101 @@
-From: Harald Geyer <harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 1/3] mfd: mxs-lradc: Add support for mxs-lradc MFD
-Date: Fri, 29 Apr 2016 19:19:57 +0200
-Message-ID: <e16045de7488e8e1b157292b3bd4388e@ccbib.org>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 3/3] input: touchscreen: mxs-lradc: Add support for
+ touchscreen
+Date: Fri, 29 Apr 2016 16:36:16 -0700
+Message-ID: <20160429233616.GA13361@dtor-ws>
 References: <cover.1461930102.git.ksenija.stanojevic@gmail.com>
- <a93050366ed452b147652abfad21a87f4af87bfb.1461930102.git.ksenija.stanojevic@gmail.com>
+ <61fe1da2e8d82921f3222ec939047b6823f695e1.1461930102.git.ksenija.stanojevic@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <a93050366ed452b147652abfad21a87f4af87bfb.1461930102.git.ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <61fe1da2e8d82921f3222ec939047b6823f695e1.1461930102.git.ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
 Hi Ksenija,
 
-thanks for working on this.
-
-A bit of nit picking inline.
-
-On 29.04.2016 13:47, Ksenija Stanojevic wrote:
-> Add core files for mxs-lradc MFD driver.
->
+On Fri, Apr 29, 2016 at 01:49:11PM +0200, Ksenija Stanojevic wrote:
+> Add mxs-lradc touchscreen driver.
+> 
 > Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
->  drivers/mfd/Kconfig           |  33 +++++--
->  drivers/mfd/Makefile          |   1 +
->  drivers/mfd/mxs-lradc.c       | 213
-> ++++++++++++++++++++++++++++++++++++++++++
->  include/linux/mfd/mxs-lradc.h | 210
-> +++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 449 insertions(+), 8 deletions(-)
->  create mode 100644 drivers/mfd/mxs-lradc.c
->  create mode 100644 include/linux/mfd/mxs-lradc.h
->
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index eea61e3..fff44d6 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -16,7 +16,7 @@ config MFD_CS5535
->  	depends on PCI && (X86_32 || (X86 && COMPILE_TEST))
->  	---help---
->  	  This is the core driver for CS5535/CS5536 MFD functions.  This is
-> -          necessary for using the board's GPIO and MFGPT 
-> functionality.
-> +	  necessary for using the board's GPIO and MFGPT functionality.
->
->  config MFD_ACT8945A
->  	tristate "Active-semi ACT8945A"
-> @@ -319,6 +319,23 @@ config MFD_HI6421_PMIC
->  	  menus in order to enable them.
->  	  We communicate with the Hi6421 via memory-mapped I/O.
->
-> +config MFD_MXS_LRADC
-> +	tristate "Freescale i.MX23/i.MX28 LRADC"
-> +	depends on ARCH_MXS || COMPILE_TEST
-> +	select MFD_CORE
-> +	select STMP_DEVICE
+>  drivers/input/touchscreen/Kconfig        |  14 +-
+>  drivers/input/touchscreen/Makefile       |   1 +
+>  drivers/input/touchscreen/mxs-lradc-ts.c | 729 +++++++++++++++++++++++++++++++
+>  3 files changed, 742 insertions(+), 2 deletions(-)
+>  create mode 100644 drivers/input/touchscreen/mxs-lradc-ts.c
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 8ecdc38..d614d248 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -566,7 +566,7 @@ config TOUCHSCREEN_HP600
+>  	depends on SH_HP6XX && SH_ADC
+>  	help
+>  	  Say Y here if you have a HP Jornada 620/660/680/690 and want to
+> -          support the built-in touchscreen.
+> +	  support the built-in touchscreen.
+>  
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called hp680_ts_input.
+> @@ -685,7 +685,7 @@ config TOUCHSCREEN_UCB1400
+>  	  This enables support for the Philips UCB1400 touchscreen interface.
+>  	  The UCB1400 is an AC97 audio codec.  The touchscreen interface
+>  	  will be initialized only after the ALSA subsystem has been
+> -	  brought up and the UCB1400 detected.  You therefore have to
+> +	  brought up and the UCB1400 detected.	You therefore have to
+
+Why do we have the tab in the middle of the text?
+
+>  	  configure ALSA support as well (either built-in or modular,
+>  	  independently of whether this driver is itself built-in or
+>  	  modular) for this driver to work.
+> @@ -842,6 +842,16 @@ config TOUCHSCREEN_MX25
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called fsl-imx25-tcq.
+>  
+> +config TOUCHSCREEN_MXS_LRADC
+> +	tristate "Freescale i.MX23/i.MX28 LRADC touchscreen"
+> +	depends on MFD_MXS_LRADC
 > +	help
-> +	  Say yes here to build support for the low-resolution
-> +	  analog-to-digital converter (LRADC) found on the i.MX23 and 
-> i.MX28
-> +	  processors. This driver provides common support for accessing the
-> +	  device, additional drivers must be enabled in order to use the
-> +	  functionality of the device:
-> +		mxs-lradc-adc for ADC readings
-> +		mxs-lradc-ts  for touchscreen support
+> +	  Say Y here if you have a touchscreen connected to the low-resolution
+> +	  analog-to-digital converter (LRADC) on an i.MX23 or i.MX28 processor.
 > +
-> +	  This driver can also be built as a module. If so, the module will 
-> be
-> +	  called mxs-lradc.
+> +	  To compile this driver as a module, choose M here: the module will be
+> +	  called mxs-lradc-ts.
 > +
->  config HTC_EGPIO
->  	bool "HTC EGPIO support"
->  	depends on GPIOLIB && ARM
-> @@ -650,7 +667,7 @@ config EZX_PCAP
->  	  needed for MMC, TouchScreen, Sound, USB, etc..
->
->  config MFD_VIPERBOARD
-> -        tristate "Nano River Technologies Viperboard"
-> +	tristate "Nano River Technologies Viperboard"
->  	select MFD_CORE
->  	depends on USB
->  	default n
-> @@ -898,11 +915,11 @@ config MFD_SMSC
->         select MFD_CORE
->         select REGMAP_I2C
->         help
-> -        If you say yes here you get support for the
-> -        ece1099 chips from SMSC.
-> +	If you say yes here you get support for the
-> +	ece1099 chips from SMSC.
->
-> -        To compile this driver as a module, choose M here: the
-> -        module will be called smsc.
-> +	To compile this driver as a module, choose M here: the
-> +	module will be called smsc.
->
->  config ABX500_CORE
->  	bool "ST-Ericsson ABX500 Mixed Signal Circuit register functions"
-> @@ -956,8 +973,8 @@ config AB8500_DEBUG
->         depends on AB8500_GPADC && DEBUG_FS
->         default y if DEBUG_FS
->         help
-> -         Select this option if you want debug information using the 
-> debug
-> -         filesystem, debugfs.
-> +	 Select this option if you want debug information using the debug
-> +	 filesystem, debugfs.
->
->  config AB8500_GPADC
->  	bool "ST-Ericsson AB8500 GPADC driver"
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index 5eaa6465d..236b831 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -203,3 +203,4 @@ intel-soc-pmic-objs		:= intel_soc_pmic_core.o
-> intel_soc_pmic_crc.o
->  intel-soc-pmic-$(CONFIG_INTEL_PMC_IPC)	+= intel_soc_pmic_bxtwc.o
->  obj-$(CONFIG_INTEL_SOC_PMIC)	+= intel-soc-pmic.o
->  obj-$(CONFIG_MFD_MT6397)	+= mt6397-core.o
-> +obj-$(CONFIG_MFD_MXS_LRADC)	+= mxs-lradc.o
-> diff --git a/drivers/mfd/mxs-lradc.c b/drivers/mfd/mxs-lradc.c
+>  config TOUCHSCREEN_MC13783
+>  	tristate "Freescale MC13783 touchscreen input driver"
+>  	depends on MFD_MC13XXX
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index f42975e..513a6ff 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -54,6 +54,7 @@ obj-$(CONFIG_TOUCHSCREEN_MIGOR)		+= migor_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_MMS114)	+= mms114.o
+>  obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+= mtouch.o
+>  obj-$(CONFIG_TOUCHSCREEN_MK712)		+= mk712.o
+> +obj-$(CONFIG_TOUCHSCREEN_MXS_LRADC)	+= mxs-lradc-ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_HP600)		+= hp680_ts_input.o
+>  obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+= jornada720_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_IPAQ_MICRO)	+= ipaq-micro-ts.o
+> diff --git a/drivers/input/touchscreen/mxs-lradc-ts.c b/drivers/input/touchscreen/mxs-lradc-ts.c
 > new file mode 100644
-> index 0000000..e1c8f9e
+> index 0000000..27abb8e
 > --- /dev/null
-> +++ b/drivers/mfd/mxs-lradc.c
-> @@ -0,0 +1,213 @@
+> +++ b/drivers/input/touchscreen/mxs-lradc-ts.c
+> @@ -0,0 +1,729 @@
 > +/*
 > + * Freescale MXS LRADC driver
 > + *
 > + * Copyright (c) 2012 DENX Software Engineering, GmbH.
 > + * Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
 > + *
-> + * This program is free software; you can redistribute it and/or 
-> modify
-> + * it under the terms of the GNU General Public License as published 
-> by
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
 > + * the Free Software Foundation; either version 2 of the License, or
 > + * (at your option) any later version.
 > + *
@@ -148,449 +105,747 @@ On 29.04.2016 13:47, Ksenija Stanojevic wrote:
 > + * GNU General Public License for more details.
 > + */
 > +
-> +#include <linux/clk.h>
-> +#include <linux/device.h>
-> +#include <linux/mfd/core.h>
+> +#include <linux/module.h>
 > +#include <linux/mfd/mxs-lradc.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
 > +#include <linux/platform_device.h>
-> +#include <linux/slab.h>
-
-IIRC all necessary header files should be included directly from
-the source file instead of being pulled in by other header files.
-
-> +static struct mfd_cell lradc_adc_dev = {
-> +	.name = DRIVER_NAME_ADC,
-> +};
 > +
-> +static struct mfd_cell lradc_ts_dev = {
-> +	.name = DRIVER_NAME_TS,
-> +};
-
-All chips using this driver have only one instance of this, so
-the above static structs are fine. However below
-struct mxs-lradc is allocated dynamically (to allow for
-multiple lradc blocks in theory I suppose). I don't have
-strong feelings either way, but I think you should make up
-your mind one way or the other.
-
-I'd make these structs either members of mxs-lradc or even
-allocate them dynamically.
-
-Thanks,
-Harald
-
-> +static const char * const mx23_lradc_irq_names[] = {
-> +	"mxs-lradc-touchscreen",
-> +	"mxs-lradc-channel0",
-> +	"mxs-lradc-channel1",
-> +	"mxs-lradc-channel2",
-> +	"mxs-lradc-channel3",
-> +	"mxs-lradc-channel4",
-> +	"mxs-lradc-channel5",
-> +	"mxs-lradc-channel6",
-> +	"mxs-lradc-channel7",
-> +};
-> +
-> +static const char * const mx28_lradc_irq_names[] = {
-> +	"mxs-lradc-touchscreen",
-> +	"mxs-lradc-thresh0",
-> +	"mxs-lradc-thresh1",
-> +	"mxs-lradc-channel0",
-> +	"mxs-lradc-channel1",
-> +	"mxs-lradc-channel2",
-> +	"mxs-lradc-channel3",
-> +	"mxs-lradc-channel4",
-> +	"mxs-lradc-channel5",
-> +	"mxs-lradc-channel6",
-> +	"mxs-lradc-channel7",
-> +	"mxs-lradc-button0",
-> +	"mxs-lradc-button1",
-> +};
-> +
-> +struct mxs_lradc_of_config {
-> +	const int		irq_count;
-> +	const char * const	*irq_name;
-> +};
-> +
-> +static const struct mxs_lradc_of_config mxs_lradc_of_config[] = {
-> +	[IMX23_LRADC] = {
-> +		.irq_count	= ARRAY_SIZE(mx23_lradc_irq_names),
-> +		.irq_name	= mx23_lradc_irq_names,
-> +	},
-> +	[IMX28_LRADC] = {
-> +		.irq_count	= ARRAY_SIZE(mx28_lradc_irq_names),
-> +		.irq_name	= mx28_lradc_irq_names,
-> +	},
-> +};
-> +
-> +static const struct of_device_id mxs_lradc_dt_ids[] = {
-> +	{ .compatible = "fsl,imx23-lradc", .data = (void *)IMX23_LRADC, },
-> +	{ .compatible = "fsl,imx28-lradc", .data = (void *)IMX28_LRADC, },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, mxs_lradc_dt_ids);
-> +
-> +static int mxs_lradc_probe(struct platform_device *pdev)
-> +{
-> +	const struct of_device_id *of_id =
-> +		of_match_device(mxs_lradc_dt_ids, &pdev->dev);
-> +	const struct mxs_lradc_of_config *of_cfg =
-> +		&mxs_lradc_of_config[(enum mxs_lradc_id)of_id->data];
-> +	struct device *dev = &pdev->dev;
-> +	struct device_node *node = dev->of_node;
-> +	struct mxs_lradc *lradc;
-> +	struct resource *iores;
-> +	int ret = 0, touch_ret, i;
-> +	u32 ts_wires = 0;
-> +
-> +	lradc = devm_kzalloc(&pdev->dev, sizeof(*lradc), GFP_KERNEL);
-> +	if (!lradc)
-> +		return -ENOMEM;
-> +	lradc->soc = (enum mxs_lradc_id)of_id->data;
-> +
-> +	/* Grab the memory area */
-> +	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	lradc->base = devm_ioremap_resource(dev, iores);
-> +	if (IS_ERR(lradc->base))
-> +		return PTR_ERR(lradc->base);
-> +
-> +	lradc->clk = devm_clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(lradc->clk)) {
-> +		dev_err(dev, "Failed to get the delay unit clock\n");
-> +		return PTR_ERR(lradc->clk);
-> +	}
-> +	ret = clk_prepare_enable(lradc->clk);
-> +	if (ret != 0) {
-> +		dev_err(dev, "Failed to enable the delay unit clock\n");
-> +		return ret;
-> +	}
-> +
-> +	touch_ret = of_property_read_u32(node, 
-> "fsl,lradc-touchscreen-wires",
-> +					 &ts_wires);
-> +
-> +	if (touch_ret == 0)
-> +		lradc->buffer_vchans = BUFFER_VCHANS_LIMITED;
-> +	else
-> +		lradc->buffer_vchans = BUFFER_VCHANS_ALL;
-> +
-> +	lradc->irq_count = of_cfg->irq_count;
-> +	lradc->irq_name = of_cfg->irq_name;
-> +	for (i = 0; i < lradc->irq_count; i++) {
-> +		lradc->irq[i] = platform_get_irq(pdev, i);
-> +		if (lradc->irq[i] < 0) {
-> +			ret = lradc->irq[i];
-> +			goto err_clk;
-> +		}
-> +	}
-> +
-> +	platform_set_drvdata(pdev, lradc);
-> +
-> +	ret = stmp_reset_block(lradc->base);
-> +
-> +	if (ret)
-> +		return ret;
-> +
-> +	lradc_adc_dev.platform_data = lradc;
-> +	lradc_adc_dev.pdata_size = sizeof(*lradc);
-> +
-> +	ret = mfd_add_devices(&pdev->dev, -1, &lradc_adc_dev, 1, NULL, 0, 
-> NULL);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to add the ADC subdevice\n");
-> +		return ret;
-> +	}
-> +
-> +	lradc_ts_dev.platform_data = lradc;
-> +	lradc_ts_dev.pdata_size = sizeof(*lradc);
-> +
-> +	switch (ts_wires) {
-> +	case 4:
-> +		lradc->use_touchscreen = MXS_LRADC_TOUCHSCREEN_4WIRE;
-> +		break;
-> +	case 5:
-> +		if (lradc->soc == IMX28_LRADC) {
-> +			lradc->use_touchscreen = MXS_LRADC_TOUCHSCREEN_5WIRE;
-> +			break;
-> +		}
-> +		/* fall through an error message for i.MX23 */
-> +	default:
-> +		dev_err(&pdev->dev,
-> +			"Unsupported number of touchscreen wires (%d)\n",
-> +			ts_wires);
-> +		return -EINVAL;
-> +	}
-> +
-> +	ret = mfd_add_devices(&pdev->dev, -1, &lradc_ts_dev, 1, NULL, 0, 
-> NULL);
-> +	if (ret) {
-> +		dev_err(&pdev->dev,
-> +			"Failed to add the touchscreen subdevice\n");
-> +		goto err_remove_adc;
-> +	}
-> +
-> +	return 0;
-> +
-> +err_remove_adc:
-> +	mfd_remove_devices(&pdev->dev);
-> +err_clk:
-> +	clk_disable_unprepare(lradc->clk);
-> +	return ret;
-> +}
-> +
-> +static int mxs_lradc_remove(struct platform_device *pdev)
-> +{
-> +	struct mxs_lradc *lradc = platform_get_drvdata(pdev);
-> +
-> +	mfd_remove_devices(&pdev->dev);
-> +	clk_disable_unprepare(lradc->clk);
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver mxs_lradc_driver = {
-> +	.driver = {
-> +		.name = "mxs-lradc",
-> +		.of_match_table = mxs_lradc_dt_ids,
-> +	},
-> +	.probe = mxs_lradc_probe,
-> +	.remove = mxs_lradc_remove,
-> +};
-> +
-> +module_platform_driver(mxs_lradc_driver);
-> +
-> +MODULE_DESCRIPTION("Freescale i.MX23/i.MX28 LRADC driver");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_ALIAS("platform:mxs-lradc");
-> diff --git a/include/linux/mfd/mxs-lradc.h 
-> b/include/linux/mfd/mxs-lradc.h
-> new file mode 100644
-> index 0000000..c062969
-> --- /dev/null
-> +++ b/include/linux/mfd/mxs-lradc.h
-> @@ -0,0 +1,210 @@
 > +/*
-> + * Freescale MXS LRADC driver
-> + *
-> + * Copyright (c) 2012 DENX Software Engineering, GmbH.
-> + * Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-> + *
-> + * This program is free software; you can redistribute it and/or 
-> modify
-> + * it under the terms of the GNU General Public License as published 
-> by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> + * GNU General Public License for more details.
+> + * Touchscreen handling
 > + */
-> +
-> +#ifndef __MXS_LRADC_H
-> +#define __MXS_LRADC_H
-> +
-> +#include <linux/bitops.h>
-> +#include <linux/clk.h>
-> +#include <linux/completion.h>
-> +#include <linux/device.h>
-> +#include <linux/err.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/io.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/mutex.h>
-> +#include <linux/of.h>
-> +#include <linux/of_device.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/slab.h>
-> +#include <linux/stmp_device.h>
-> +#include <linux/sysfs.h>
-> +
-> +#define DRIVER_NAME_ADC "mxs-lradc-adc"
-> +#define DRIVER_NAME_TS "mxs-lradc-ts"
-> +
-> +#define LRADC_MAX_DELAY_CHANS	4
-> +#define LRADC_MAX_MAPPED_CHANS	8
-> +#define LRADC_MAX_TOTAL_CHANS	16
-> +
-> +#define LRADC_DELAY_TIMER_HZ	2000
-> +
-> +#define LRADC_CTRL0				0x00
-> +# define LRADC_CTRL0_MX28_TOUCH_DETECT_ENABLE	BIT(23)
-> +# define LRADC_CTRL0_MX28_TOUCH_SCREEN_TYPE	BIT(22)
-> +# define LRADC_CTRL0_MX28_YNNSW /* YM */	BIT(21)
-> +# define LRADC_CTRL0_MX28_YPNSW /* YP */	BIT(20)
-> +# define LRADC_CTRL0_MX28_YPPSW /* YP */	BIT(19)
-> +# define LRADC_CTRL0_MX28_XNNSW /* XM */	BIT(18)
-> +# define LRADC_CTRL0_MX28_XNPSW /* XM */	BIT(17)
-> +# define LRADC_CTRL0_MX28_XPPSW /* XP */	BIT(16)
-> +
-> +# define LRADC_CTRL0_MX23_TOUCH_DETECT_ENABLE	BIT(20)
-> +# define LRADC_CTRL0_MX23_YM			BIT(19)
-> +# define LRADC_CTRL0_MX23_XM			BIT(18)
-> +# define LRADC_CTRL0_MX23_YP			BIT(17)
-> +# define LRADC_CTRL0_MX23_XP			BIT(16)
-> +
-> +# define LRADC_CTRL0_MX28_PLATE_MASK \
-> +		(LRADC_CTRL0_MX28_TOUCH_DETECT_ENABLE | \
-> +		LRADC_CTRL0_MX28_YNNSW | LRADC_CTRL0_MX28_YPNSW | \
-> +		LRADC_CTRL0_MX28_YPPSW | LRADC_CTRL0_MX28_XNNSW | \
-> +		LRADC_CTRL0_MX28_XNPSW | LRADC_CTRL0_MX28_XPPSW)
-> +
-> +# define LRADC_CTRL0_MX23_PLATE_MASK \
-> +		(LRADC_CTRL0_MX23_TOUCH_DETECT_ENABLE | \
-> +		LRADC_CTRL0_MX23_YM | LRADC_CTRL0_MX23_XM | \
-> +		LRADC_CTRL0_MX23_YP | LRADC_CTRL0_MX23_XP)
-> +
-> +#define LRADC_CTRL1				0x10
-> +#define LRADC_CTRL1_TOUCH_DETECT_IRQ_EN		BIT(24)
-> +#define LRADC_CTRL1_LRADC_IRQ_EN(n)		(1 << ((n) + 16))
-> +#define LRADC_CTRL1_MX28_LRADC_IRQ_EN_MASK	(0x1fff << 16)
-> +#define LRADC_CTRL1_MX23_LRADC_IRQ_EN_MASK	(0x01ff << 16)
-> +#define LRADC_CTRL1_LRADC_IRQ_EN_OFFSET		16
-> +#define LRADC_CTRL1_TOUCH_DETECT_IRQ		BIT(8)
-> +#define LRADC_CTRL1_LRADC_IRQ(n)		(1 << (n))
-> +#define LRADC_CTRL1_MX28_LRADC_IRQ_MASK		0x1fff
-> +#define LRADC_CTRL1_MX23_LRADC_IRQ_MASK		0x01ff
-> +#define LRADC_CTRL1_LRADC_IRQ_OFFSET		0
-> +
-> +#define LRADC_CTRL2				0x20
-> +#define LRADC_CTRL2_DIVIDE_BY_TWO_OFFSET	24
-> +#define LRADC_CTRL2_TEMPSENSE_PWD		BIT(15)
-> +
-> +#define LRADC_STATUS				0x40
-> +#define LRADC_STATUS_TOUCH_DETECT_RAW		BIT(0)
-> +
-> +#define LRADC_CH(n)				(0x50 + (0x10 * (n)))
-> +#define LRADC_CH_ACCUMULATE			BIT(29)
-> +#define LRADC_CH_NUM_SAMPLES_MASK		(0x1f << 24)
-> +#define LRADC_CH_NUM_SAMPLES_OFFSET		24
-> +#define LRADC_CH_NUM_SAMPLES(x) \
-> +				((x) << LRADC_CH_NUM_SAMPLES_OFFSET)
-> +#define LRADC_CH_VALUE_MASK			0x3ffff
-> +#define LRADC_CH_VALUE_OFFSET			0
-> +
-> +#define LRADC_DELAY(n)				(0xd0 + (0x10 * (n)))
-> +#define LRADC_DELAY_TRIGGER_LRADCS_MASK		(0xffUL << 24)
-> +#define LRADC_DELAY_TRIGGER_LRADCS_OFFSET	24
-> +#define LRADC_DELAY_TRIGGER(x) \
-> +				(((x) << LRADC_DELAY_TRIGGER_LRADCS_OFFSET) & \
-> +				LRADC_DELAY_TRIGGER_LRADCS_MASK)
-> +#define LRADC_DELAY_KICK			BIT(20)
-> +#define LRADC_DELAY_TRIGGER_DELAYS_MASK		(0xf << 16)
-> +#define LRADC_DELAY_TRIGGER_DELAYS_OFFSET	16
-> +#define LRADC_DELAY_TRIGGER_DELAYS(x) \
-> +				(((x) << LRADC_DELAY_TRIGGER_DELAYS_OFFSET) & \
-> +				LRADC_DELAY_TRIGGER_DELAYS_MASK)
-> +#define LRADC_DELAY_LOOP_COUNT_MASK		(0x1f << 11)
-> +#define LRADC_DELAY_LOOP_COUNT_OFFSET		11
-> +#define LRADC_DELAY_LOOP(x) \
-> +				(((x) << LRADC_DELAY_LOOP_COUNT_OFFSET) & \
-> +				LRADC_DELAY_LOOP_COUNT_MASK)
-> +#define LRADC_DELAY_DELAY_MASK			0x7ff
-> +#define LRADC_DELAY_DELAY_OFFSET		0
-> +#define LRADC_DELAY_DELAY(x) \
-> +				(((x) << LRADC_DELAY_DELAY_OFFSET) & \
-> +				LRADC_DELAY_DELAY_MASK)
-> +
-> +#define LRADC_CTRL4				0x140
-> +#define LRADC_CTRL4_LRADCSELECT_MASK(n)		(0xf << ((n) * 4))
-> +#define LRADC_CTRL4_LRADCSELECT_OFFSET(n)	((n) * 4)
-> +#define LRADC_CTRL4_LRADCSELECT(n, x) \
-> +				(((x) << LRADC_CTRL4_LRADCSELECT_OFFSET(n)) & \
-> +				LRADC_CTRL4_LRADCSELECT_MASK(n))
-> +
-> +#define LRADC_RESOLUTION			12
-> +#define LRADC_SINGLE_SAMPLE_MASK		((1 << LRADC_RESOLUTION) - 1)
-> +
-> +enum mxs_lradc_id {
-> +	IMX23_LRADC,
-> +	IMX28_LRADC,
+> +enum mxs_lradc_ts_plate {
+> +	LRADC_TOUCH = 0,
+> +	LRADC_SAMPLE_X,
+> +	LRADC_SAMPLE_Y,
+> +	LRADC_SAMPLE_PRESSURE,
+> +	LRADC_SAMPLE_VALID,
 > +};
 > +
-> +enum mxs_lradc_ts_wires {
-> +	MXS_LRADC_TOUCHSCREEN_NONE = 0,
-> +	MXS_LRADC_TOUCHSCREEN_4WIRE,
-> +	MXS_LRADC_TOUCHSCREEN_5WIRE,
-> +};
-> +
-> +struct mxs_lradc {
-> +	enum mxs_lradc_id	soc;
-> +
-> +	void __iomem		*base;
-> +	struct clk		*clk;
-> +
-> +	int			irq[13];
-> +	const char * const	*irq_name;
-> +	int			irq_count;
-> +
-> +#define BUFFER_VCHANS_LIMITED		0x3f
-> +#define BUFFER_VCHANS_ALL		0xff
-> +	u8			buffer_vchans;
-> +
+> +struct mxs_lradc_ts {
+> +	struct mxs_lradc	*lradc;
+> +	struct device		*dev;
 > +	/*
-> +	 * Certain LRADC channels are shared between touchscreen
-> +	 * and/or touch-buttons and generic LRADC block. Therefore when 
-> using
-> +	 * either of these, these channels are not available for the 
-> regular
-> +	 * sampling. The shared channels are as follows:
-> +	 *
-> +	 * CH0 -- Touch button #0
-> +	 * CH1 -- Touch button #1
-> +	 * CH2 -- Touch screen XPUL
-> +	 * CH3 -- Touch screen YPLL
-> +	 * CH4 -- Touch screen XNUL
-> +	 * CH5 -- Touch screen YNLR
-> +	 * CH6 -- Touch screen WIPER (5-wire only)
-> +	 *
-> +	 * The bit fields below represents which parts of the LRADC block 
-> are
-> +	 * switched into special mode of operation. These channels can not
-> +	 * be sampled as regular LRADC channels. The driver will refuse any
-> +	 * attempt to sample these channels.
+> +	 * When the touchscreen is enabled, we give it two private virtual
+> +	 * channels: #6 and #7. This means that only 6 virtual channels (instead
+> +	 * of 8) will be available for buffered capture.
 > +	 */
-> +#define CHAN_MASK_TOUCHBUTTON		(BIT(1) | BIT(0))
-> +#define CHAN_MASK_TOUCHSCREEN_4WIRE	(0xf << 2)
-> +#define CHAN_MASK_TOUCHSCREEN_5WIRE	(0x1f << 2)
-> +	enum mxs_lradc_ts_wires	use_touchscreen;
-> +	bool			use_touchbutton;
+> +#define TOUCHSCREEN_VCHANNEL1		7
+> +#define TOUCHSCREEN_VCHANNEL2		6
+> +
+> +	struct input_dev	*ts_input;
+> +
+> +	enum mxs_lradc_ts_plate	cur_plate; /* state machine */
+> +	bool			ts_valid;
+> +	unsigned		ts_x_pos;
+> +	unsigned		ts_y_pos;
+> +	unsigned		ts_pressure;
+> +
+> +	/* handle touchscreen's physical behaviour */
+> +	/* samples per coordinate */
+> +	unsigned		over_sample_cnt;
+> +	/* time clocks between samples */
+> +	unsigned		over_sample_delay;
+> +	/* time in clocks to wait after the plates where switched */
+> +	unsigned		settling_delay;
 > +};
 > +
-> +static inline void mxs_lradc_reg_set(struct mxs_lradc *lradc, u32
-> val, u32 reg)
-> +{
-> +	writel(val, lradc->base + reg + STMP_OFFSET_REG_SET);
-> +}
-> +
-> +static inline void mxs_lradc_reg_clear(struct mxs_lradc *lradc, u32 
-> val,
-> +				       u32 reg)
-> +{
-> +	writel(val, lradc->base + reg + STMP_OFFSET_REG_CLR);
-> +}
-> +
-> +static inline void mxs_lradc_reg_wrt(struct mxs_lradc *lradc, u32
-> val, u32 reg)
-> +{
-> +	writel(val, lradc->base + reg);
-> +}
-> +
-> +static inline u32 mxs_lradc_irq_mask(struct mxs_lradc *lradc)
+> +static u32 mxs_lradc_plate_mask(struct mxs_lradc *lradc)
 > +{
 > +	if (lradc->soc == IMX23_LRADC)
-> +		return LRADC_CTRL1_MX23_LRADC_IRQ_MASK;
-> +	return LRADC_CTRL1_MX28_LRADC_IRQ_MASK;
+> +		return LRADC_CTRL0_MX23_PLATE_MASK;
+> +	return LRADC_CTRL0_MX28_PLATE_MASK;
 > +}
 > +
-> +#endif /* __MXS_LRADC_H */
+> +static u32 mxs_lradc_touch_detect_bit(struct mxs_lradc *lradc)
+> +{
+> +	if (lradc->soc == IMX23_LRADC)
+> +		return LRADC_CTRL0_MX23_TOUCH_DETECT_ENABLE;
+> +	return LRADC_CTRL0_MX28_TOUCH_DETECT_ENABLE;
+> +}
+> +
+> +static u32 mxs_lradc_drive_x_plate(struct mxs_lradc *lradc)
+> +{
+> +	if (lradc->soc == IMX23_LRADC)
+> +		return LRADC_CTRL0_MX23_XP | LRADC_CTRL0_MX23_XM;
+> +	return LRADC_CTRL0_MX28_XPPSW | LRADC_CTRL0_MX28_XNNSW;
+> +}
+> +
+> +static u32 mxs_lradc_drive_y_plate(struct mxs_lradc *lradc)
+> +{
+> +	if (lradc->soc == IMX23_LRADC)
+> +		return LRADC_CTRL0_MX23_YP | LRADC_CTRL0_MX23_YM;
+> +	return LRADC_CTRL0_MX28_YPPSW | LRADC_CTRL0_MX28_YNNSW;
+> +}
+> +
+> +static u32 mxs_lradc_drive_pressure(struct mxs_lradc *lradc)
+> +{
+> +	if (lradc->soc == IMX23_LRADC)
+> +		return LRADC_CTRL0_MX23_YP | LRADC_CTRL0_MX23_XM;
+> +	return LRADC_CTRL0_MX28_YPPSW | LRADC_CTRL0_MX28_XNNSW;
+> +}
+> +
+> +static bool mxs_lradc_check_touch_event(struct mxs_lradc *lradc)
+> +{
+> +	return !!(readl(lradc->base + LRADC_STATUS) &
+> +					LRADC_STATUS_TOUCH_DETECT_RAW);
+> +}
+> +
+> +static void mxs_lradc_map_ts_channel(struct mxs_lradc *lradc, unsigned vch,
+> +				     unsigned ch)
+> +{
+> +	mxs_lradc_reg_clear(lradc, LRADC_CTRL4_LRADCSELECT_MASK(vch),
+> +			    LRADC_CTRL4);
+> +	mxs_lradc_reg_set(lradc, LRADC_CTRL4_LRADCSELECT(vch, ch), LRADC_CTRL4);
+> +}
+> +
+> +static void mxs_lradc_setup_ts_channel(struct mxs_lradc_ts *ts, unsigned ch)
+> +{
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	/*
+> +	 * prepare for oversampling conversion
+> +	 *
+> +	 * from the datasheet:
+> +	 * "The ACCUMULATE bit in the appropriate channel register
+> +	 * HW_LRADC_CHn must be set to 1 if NUM_SAMPLES is greater then 0;
+> +	 * otherwise, the IRQs will not fire."
+> +	 */
+> +	mxs_lradc_reg_wrt(lradc, LRADC_CH_ACCUMULATE |
+> +			  LRADC_CH_NUM_SAMPLES(ts->over_sample_cnt - 1),
+> +			  LRADC_CH(ch));
+> +
+> +	/* from the datasheet:
+> +	 * "Software must clear this register in preparation for a
+> +	 * multi-cycle accumulation.
+> +	 */
+> +	mxs_lradc_reg_clear(lradc, LRADC_CH_VALUE_MASK, LRADC_CH(ch));
+> +
+> +	/*
+> +	 * prepare the delay/loop unit according to the oversampling count
+> +	 *
+> +	 * from the datasheet:
+> +	 * "The DELAY fields in HW_LRADC_DELAY0, HW_LRADC_DELAY1,
+> +	 * HW_LRADC_DELAY2, and HW_LRADC_DELAY3 must be non-zero; otherwise,
+> +	 * the LRADC will not trigger the delay group."
+> +	 */
+> +	mxs_lradc_reg_wrt(lradc, LRADC_DELAY_TRIGGER(1 << ch) |
+> +			  LRADC_DELAY_TRIGGER_DELAYS(0) |
+> +			  LRADC_DELAY_LOOP(ts->over_sample_cnt - 1) |
+> +			  LRADC_DELAY_DELAY(ts->over_sample_delay - 1),
+> +			  LRADC_DELAY(3));
+> +
+> +	mxs_lradc_reg_clear(lradc, LRADC_CTRL1_LRADC_IRQ(ch), LRADC_CTRL1);
+> +
+> +	/*
+> +	 * after changing the touchscreen plates setting
+> +	 * the signals need some initial time to settle. Start the
+> +	 * SoC's delay unit and start the conversion later
+> +	 * and automatically.
+> +	 */
+> +	mxs_lradc_reg_wrt(
+> +		lradc,
+> +		LRADC_DELAY_TRIGGER(0) | /* don't trigger ADC */
+> +		LRADC_DELAY_TRIGGER_DELAYS(BIT(3)) | /* trigger DELAY unit#3 */
+> +		LRADC_DELAY_KICK |
+> +		LRADC_DELAY_DELAY(ts->settling_delay),
+> +		LRADC_DELAY(2));
+> +}
+> +
+> +/*
+> + * Pressure detection is special:
+> + * We want to do both required measurements for the pressure detection in
+> + * one turn. Use the hardware features to chain both conversions and let the
+> + * hardware report one interrupt if both conversions are done
+> + */
+> +static void mxs_lradc_setup_ts_pressure(struct mxs_lradc_ts *ts, unsigned ch1,
+> +					unsigned ch2)
+> +{
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +	u32 reg;
+> +
+> +	/*
+> +	 * prepare for oversampling conversion
+> +	 *
+> +	 * from the datasheet:
+> +	 * "The ACCUMULATE bit in the appropriate channel register
+> +	 * HW_LRADC_CHn must be set to 1 if NUM_SAMPLES is greater then 0;
+> +	 * otherwise, the IRQs will not fire."
+> +	 */
+> +	reg = LRADC_CH_ACCUMULATE |
+> +		LRADC_CH_NUM_SAMPLES(ts->over_sample_cnt - 1);
+> +	mxs_lradc_reg_wrt(lradc, reg, LRADC_CH(ch1));
+> +	mxs_lradc_reg_wrt(lradc, reg, LRADC_CH(ch2));
+> +
+> +	/* from the datasheet:
+> +	 * "Software must clear this register in preparation for a
+> +	 * multi-cycle accumulation.
+> +	 */
+> +	mxs_lradc_reg_clear(lradc, LRADC_CH_VALUE_MASK, LRADC_CH(ch1));
+> +	mxs_lradc_reg_clear(lradc, LRADC_CH_VALUE_MASK, LRADC_CH(ch2));
+> +
+> +	/* prepare the delay/loop unit according to the oversampling count */
+> +	mxs_lradc_reg_wrt(
+> +		    lradc,
+> +		    LRADC_DELAY_TRIGGER(1 << ch1) |
+> +		    LRADC_DELAY_TRIGGER(1 << ch2) | /* start both channels */
+> +		    LRADC_DELAY_TRIGGER_DELAYS(0) |
+> +		    LRADC_DELAY_LOOP(ts->over_sample_cnt - 1) |
+> +		    LRADC_DELAY_DELAY(ts->over_sample_delay - 1),
+> +		    LRADC_DELAY(3));
+> +
+> +	mxs_lradc_reg_clear(lradc, LRADC_CTRL1_LRADC_IRQ(ch2), LRADC_CTRL1);
+> +
+> +	/*
+> +	 * after changing the touchscreen plates setting
+> +	 * the signals need some initial time to settle. Start the
+> +	 * SoC's delay unit and start the conversion later
+> +	 * and automatically.
+> +	 */
+> +	mxs_lradc_reg_wrt(
+> +		lradc,
+> +		LRADC_DELAY_TRIGGER(0) | /* don't trigger ADC */
+> +		LRADC_DELAY_TRIGGER_DELAYS(BIT(3)) | /* trigger DELAY unit#3 */
+> +		LRADC_DELAY_KICK |
+> +		LRADC_DELAY_DELAY(ts->settling_delay), LRADC_DELAY(2));
+> +}
+> +
+> +static unsigned mxs_lradc_ts_read_raw_channel(struct mxs_lradc_ts *ts,
+> +					      unsigned channel)
+> +{
+> +	u32 reg;
+> +	unsigned num_samples, val;
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	reg = readl(lradc->base + LRADC_CH(channel));
+> +	if (reg & LRADC_CH_ACCUMULATE)
+> +		num_samples = ts->over_sample_cnt;
+> +	else
+> +		num_samples = 1;
+> +
+> +	val = (reg & LRADC_CH_VALUE_MASK) >> LRADC_CH_VALUE_OFFSET;
+> +	return val / num_samples;
+> +}
+> +
+> +static unsigned mxs_lradc_read_ts_pressure(struct mxs_lradc_ts *ts,
+> +					   unsigned ch1, unsigned ch2)
+> +{
+> +	u32 reg, mask;
+> +	unsigned pressure, m1, m2;
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	mask = LRADC_CTRL1_LRADC_IRQ(ch1) | LRADC_CTRL1_LRADC_IRQ(ch2);
+> +	reg = readl(lradc->base + LRADC_CTRL1) & mask;
+> +
+> +	while (reg != mask) {
+> +		reg = readl(lradc->base + LRADC_CTRL1) & mask;
+> +		dev_dbg(ts->dev, "One channel is still busy: %X\n", reg);
+> +	}
+> +
+> +	m1 = mxs_lradc_ts_read_raw_channel(ts, ch1);
+> +	m2 = mxs_lradc_ts_read_raw_channel(ts, ch2);
+> +
+> +	if (m2 == 0) {
+> +		dev_warn(ts->dev, "Cannot calculate pressure\n");
+> +		return 1 << (LRADC_RESOLUTION - 1);
+> +	}
+> +
+> +	/* simply scale the value from 0 ... max ADC resolution */
+> +	pressure = m1;
+> +	pressure *= (1 << LRADC_RESOLUTION);
+> +	pressure /= m2;
+> +
+> +	dev_dbg(ts->dev, "Pressure = %u\n", pressure);
+> +	return pressure;
+> +}
+> +
+> +#define TS_CH_XP 2
+> +#define TS_CH_YP 3
+> +#define TS_CH_XM 4
+> +#define TS_CH_YM 5
+> +
+> +/*
+> + * YP(open)--+-------------+
+> + *	     |		   |--+
+> + *	     |		   |  |
+> + *    YM(-)--+-------------+  |
+> + *	       +--------------+
+> + *	       |	      |
+> + *	   XP(weak+)	    XM(open)
+> + *
+> + * "weak+" means 200k Ohm VDDIO
+> + * (-) means GND
+> + */
+> +static void mxs_lradc_setup_touch_detection(struct mxs_lradc_ts *ts)
+> +{
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	/*
+> +	 * In order to detect a touch event the 'touch detect enable' bit
+> +	 * enables:
+> +	 *  - a weak pullup to the X+ connector
+> +	 *  - a strong ground at the Y- connector
+> +	 */
+> +	mxs_lradc_reg_clear(lradc, mxs_lradc_plate_mask(lradc), LRADC_CTRL0);
+> +	mxs_lradc_reg_set(lradc, mxs_lradc_touch_detect_bit(lradc),
+> +			  LRADC_CTRL0);
+> +}
+> +
+> +/*
+> + * YP(meas)--+-------------+
+> + *	     |		   |--+
+> + *	     |		   |  |
+> + * YM(open)--+-------------+  |
+> + *	       +--------------+
+> + *	       |	      |
+> + *	     XP(+)	    XM(-)
+> + *
+> + * (+) means here 1.85 V
+> + * (-) means here GND
+> + */
+> +static void mxs_lradc_prepare_x_pos(struct mxs_lradc_ts *ts)
+> +{
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	mxs_lradc_reg_clear(lradc, mxs_lradc_plate_mask(lradc), LRADC_CTRL0);
+> +	mxs_lradc_reg_set(lradc, mxs_lradc_drive_x_plate(lradc), LRADC_CTRL0);
+> +
+> +	ts->cur_plate = LRADC_SAMPLE_X;
+> +	mxs_lradc_map_ts_channel(lradc, TOUCHSCREEN_VCHANNEL1, TS_CH_YP);
+> +	mxs_lradc_setup_ts_channel(ts, TOUCHSCREEN_VCHANNEL1);
+> +}
+> +
+> +/*
+> + *   YP(+)--+-------------+
+> + *	    |		  |--+
+> + *	    |		  |  |
+> + *   YM(-)--+-------------+  |
+> + *	      +--------------+
+> + *	      |		     |
+> + *	   XP(open)	   XM(meas)
+> + *
+> + * (+) means here 1.85 V
+> + * (-) means here GND
+> + */
+> +static void mxs_lradc_prepare_y_pos(struct mxs_lradc_ts *ts)
+> +{
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	mxs_lradc_reg_clear(lradc, mxs_lradc_plate_mask(lradc), LRADC_CTRL0);
+> +	mxs_lradc_reg_set(lradc, mxs_lradc_drive_y_plate(lradc), LRADC_CTRL0);
+> +
+> +	ts->cur_plate = LRADC_SAMPLE_Y;
+> +	mxs_lradc_map_ts_channel(lradc, TOUCHSCREEN_VCHANNEL1, TS_CH_XM);
+> +	mxs_lradc_setup_ts_channel(ts, TOUCHSCREEN_VCHANNEL1);
+> +}
+> +
+> +/*
+> + *    YP(+)--+-------------+
+> + *	     |		   |--+
+> + *	     |		   |  |
+> + * YM(meas)--+-------------+  |
+> + *	       +--------------+
+> + *	       |	      |
+> + *	    XP(meas)	    XM(-)
+> + *
+> + * (+) means here 1.85 V
+> + * (-) means here GND
+> + */
+> +static void mxs_lradc_prepare_pressure(struct mxs_lradc_ts *ts)
+> +{
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	mxs_lradc_reg_clear(lradc, mxs_lradc_plate_mask(lradc), LRADC_CTRL0);
+> +	mxs_lradc_reg_set(lradc, mxs_lradc_drive_pressure(lradc), LRADC_CTRL0);
+> +
+> +	ts->cur_plate = LRADC_SAMPLE_PRESSURE;
+> +	mxs_lradc_map_ts_channel(lradc, TOUCHSCREEN_VCHANNEL1, TS_CH_YM);
+> +	mxs_lradc_map_ts_channel(lradc, TOUCHSCREEN_VCHANNEL2, TS_CH_XP);
+> +	mxs_lradc_setup_ts_pressure(ts, TOUCHSCREEN_VCHANNEL2,
+> +				    TOUCHSCREEN_VCHANNEL1);
+> +}
+> +
+> +static void mxs_lradc_enable_touch_detection(struct mxs_lradc_ts *ts)
+> +{
+> +	mxs_lradc_setup_touch_detection(ts);
+> +
+> +	ts->cur_plate = LRADC_TOUCH;
+> +	mxs_lradc_reg_clear(ts->lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ |
+> +			    LRADC_CTRL1_TOUCH_DETECT_IRQ_EN, LRADC_CTRL1);
+> +	mxs_lradc_reg_set(ts->lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ_EN,
+> +			  LRADC_CTRL1);
+> +}
+> +
+> +static void mxs_lradc_start_touch_event(struct mxs_lradc_ts *ts)
+> +{
+> +	mxs_lradc_reg_clear(ts->lradc,
+> +			    LRADC_CTRL1_TOUCH_DETECT_IRQ_EN,
+> +			    LRADC_CTRL1);
+> +	mxs_lradc_reg_set(ts->lradc,
+> +			  LRADC_CTRL1_LRADC_IRQ_EN(TOUCHSCREEN_VCHANNEL1),
+> +			  LRADC_CTRL1);
+> +	/*
+> +	 * start with the Y-pos, because it uses nearly the same plate
+> +	 * settings like the touch detection
+> +	 */
+> +	mxs_lradc_prepare_y_pos(ts);
+> +}
+> +
+> +static void mxs_lradc_report_ts_event(struct mxs_lradc_ts *ts)
+> +{
+> +	input_report_abs(ts->ts_input, ABS_X, ts->ts_x_pos);
+> +	input_report_abs(ts->ts_input, ABS_Y, ts->ts_y_pos);
+> +	input_report_abs(ts->ts_input, ABS_PRESSURE, ts->ts_pressure);
+> +	input_report_key(ts->ts_input, BTN_TOUCH, 1);
+> +	input_sync(ts->ts_input);
+> +}
+> +
+> +static void mxs_lradc_complete_touch_event(struct mxs_lradc_ts *ts)
+> +{
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	mxs_lradc_setup_touch_detection(ts);
+> +	ts->cur_plate = LRADC_SAMPLE_VALID;
+> +	/*
+> +	 * start a dummy conversion to burn time to settle the signals
+> +	 * note: we are not interested in the conversion's value
+> +	 */
+> +	mxs_lradc_reg_wrt(lradc, 0, LRADC_CH(TOUCHSCREEN_VCHANNEL1));
+> +	mxs_lradc_reg_clear(lradc,
+> +			    LRADC_CTRL1_LRADC_IRQ(TOUCHSCREEN_VCHANNEL1) |
+> +			    LRADC_CTRL1_LRADC_IRQ(TOUCHSCREEN_VCHANNEL2),
+> +			    LRADC_CTRL1);
+> +	mxs_lradc_reg_wrt(
+> +		    lradc,
+> +		    LRADC_DELAY_TRIGGER(1 << TOUCHSCREEN_VCHANNEL1) |
+> +		    LRADC_DELAY_KICK | LRADC_DELAY_DELAY(10), /* waste 5 ms */
+> +		    LRADC_DELAY(2));
+> +}
+> +
+> +/*
+> + * in order to avoid false measurements, report only samples where
+> + * the surface is still touched after the position measurement
+> + */
+> +static void mxs_lradc_finish_touch_event(struct mxs_lradc_ts *ts, bool valid)
+> +{
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	/* if it is still touched, report the sample */
+> +	if (valid && mxs_lradc_check_touch_event(lradc)) {
+> +		ts->ts_valid = true;
+> +		mxs_lradc_report_ts_event(ts);
+> +	}
+> +
+> +	/* if it is even still touched, continue with the next measurement */
+> +	if (mxs_lradc_check_touch_event(lradc)) {
+> +		mxs_lradc_prepare_y_pos(ts);
+> +		return;
+> +	}
+> +
+> +	if (ts->ts_valid) {
+> +		/* signal the release */
+> +		ts->ts_valid = false;
+> +		input_report_key(ts->ts_input, BTN_TOUCH, 0);
+> +		input_sync(ts->ts_input);
+> +	}
+> +
+> +	/* if it is released, wait for the next touch via IRQ */
+> +	ts->cur_plate = LRADC_TOUCH;
+> +	mxs_lradc_reg_wrt(lradc, 0, LRADC_DELAY(2));
+> +	mxs_lradc_reg_wrt(lradc, 0, LRADC_DELAY(3));
+> +	mxs_lradc_reg_clear(lradc,
+> +			    LRADC_CTRL1_TOUCH_DETECT_IRQ |
+> +			    LRADC_CTRL1_LRADC_IRQ_EN(TOUCHSCREEN_VCHANNEL1) |
+> +			    LRADC_CTRL1_LRADC_IRQ(TOUCHSCREEN_VCHANNEL1),
+> +			    LRADC_CTRL1);
+> +	mxs_lradc_reg_set(lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ_EN, LRADC_CTRL1);
+> +}
+> +
+> +/* touchscreen's state machine */
+> +static void mxs_lradc_handle_touch(struct mxs_lradc_ts *ts)
+> +{
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	switch (ts->cur_plate) {
+> +	case LRADC_TOUCH:
+> +		if (mxs_lradc_check_touch_event(lradc))
+> +			mxs_lradc_start_touch_event(ts);
+> +		mxs_lradc_reg_clear(lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ,
+> +				    LRADC_CTRL1);
+> +		return;
+> +
+> +	case LRADC_SAMPLE_Y:
+> +		ts->ts_y_pos =
+> +		    mxs_lradc_ts_read_raw_channel(ts, TOUCHSCREEN_VCHANNEL1);
+> +		mxs_lradc_prepare_x_pos(ts);
+> +		return;
+> +
+> +	case LRADC_SAMPLE_X:
+> +		ts->ts_x_pos =
+> +		    mxs_lradc_ts_read_raw_channel(ts, TOUCHSCREEN_VCHANNEL1);
+> +		mxs_lradc_prepare_pressure(ts);
+> +		return;
+> +
+> +	case LRADC_SAMPLE_PRESSURE:
+> +		ts->ts_pressure =
+> +		    mxs_lradc_read_ts_pressure(ts,
+> +					       TOUCHSCREEN_VCHANNEL2,
+> +					       TOUCHSCREEN_VCHANNEL1);
+> +		mxs_lradc_complete_touch_event(ts);
+> +		return;
+> +
+> +	case LRADC_SAMPLE_VALID:
+> +		mxs_lradc_finish_touch_event(ts, 1);
+> +		break;
+> +	}
+> +}
+> +
+> +/*
+> + * IRQ Handling
+> + */
+> +static irqreturn_t mxs_lradc_ts_handle_irq(int irq, void *data)
+> +{
+> +	struct mxs_lradc_ts *ts = data;
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +	unsigned long reg = readl(lradc->base + LRADC_CTRL1);
+> +	u32 clr_irq = mxs_lradc_irq_mask(lradc);
+> +	const u32 ts_irq_mask =
+> +		LRADC_CTRL1_TOUCH_DETECT_IRQ |
+> +		LRADC_CTRL1_LRADC_IRQ(TOUCHSCREEN_VCHANNEL1) |
+> +		LRADC_CTRL1_LRADC_IRQ(TOUCHSCREEN_VCHANNEL2);
+> +
+> +	if (!(reg & mxs_lradc_irq_mask(lradc)))
+> +		return IRQ_NONE;
+> +
+> +	if (lradc->use_touchscreen && (reg & ts_irq_mask)) {
+
+Why do we have this flag instead of not creating the platform device by
+MFD parent when touchscreen is not in use?
+
+> +		mxs_lradc_handle_touch(ts);
+> +
+> +		/* Make sure we don't clear the next conversion's interrupt. */
+> +		clr_irq &= ~(LRADC_CTRL1_LRADC_IRQ(TOUCHSCREEN_VCHANNEL1) |
+> +				LRADC_CTRL1_LRADC_IRQ(TOUCHSCREEN_VCHANNEL2));
+> +		mxs_lradc_reg_clear(lradc, reg & clr_irq, LRADC_CTRL1);
+> +	}
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int mxs_lradc_ts_open(struct input_dev *dev)
+> +{
+> +	struct mxs_lradc_ts *ts = input_get_drvdata(dev);
+> +
+> +	/* Enable the touch-detect circuitry. */
+> +	mxs_lradc_enable_touch_detection(ts);
+> +
+> +	return 0;
+> +}
+> +
+> +static void mxs_lradc_disable_ts(struct mxs_lradc_ts *ts)
+> +{
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	/* stop all interrupts from firing */
+> +	mxs_lradc_reg_clear(lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ_EN |
+> +		LRADC_CTRL1_LRADC_IRQ_EN(TOUCHSCREEN_VCHANNEL1) |
+> +		LRADC_CTRL1_LRADC_IRQ_EN(TOUCHSCREEN_VCHANNEL2), LRADC_CTRL1);
+> +
+> +	/* Power-down touchscreen touch-detect circuitry. */
+> +	mxs_lradc_reg_clear(lradc, mxs_lradc_plate_mask(lradc), LRADC_CTRL0);
+> +}
+> +
+> +static void mxs_lradc_ts_close(struct input_dev *dev)
+> +{
+> +	struct mxs_lradc_ts *ts = input_get_drvdata(dev);
+> +
+> +	mxs_lradc_disable_ts(ts);
+> +}
+> +
+> +static void mxs_lradc_ts_hw_init(struct mxs_lradc_ts *ts)
+> +{
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	/* Configure the touchscreen type */
+> +	if (lradc->soc == IMX28_LRADC) {
+> +		mxs_lradc_reg_clear(lradc, LRADC_CTRL0_MX28_TOUCH_SCREEN_TYPE,
+> +				    LRADC_CTRL0);
+> +
+> +		if (lradc->use_touchscreen == MXS_LRADC_TOUCHSCREEN_5WIRE)
+> +			mxs_lradc_reg_set(lradc,
+> +					  LRADC_CTRL0_MX28_TOUCH_SCREEN_TYPE,
+> +					  LRADC_CTRL0);
+> +	}
+> +}
+> +
+> +static void mxs_lradc_ts_hw_stop(struct mxs_lradc_ts *ts)
+> +{
+> +	int i;
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	mxs_lradc_reg_clear(lradc,
+> +			lradc->buffer_vchans << LRADC_CTRL1_LRADC_IRQ_EN_OFFSET,
+> +			LRADC_CTRL1);
+> +
+> +	for (i = 1; i < LRADC_MAX_DELAY_CHANS; i++)
+> +		mxs_lradc_reg_wrt(ts->lradc, 0, LRADC_DELAY(i));
+> +}
+> +
+> +static int mxs_lradc_ts_register(struct mxs_lradc_ts *ts)
+> +{
+> +	struct input_dev *input = ts->ts_input;
+> +	struct device *dev = ts->dev;
+> +	struct mxs_lradc *lradc = ts->lradc;
+> +
+> +	if (!lradc->use_touchscreen)
+> +		return 0;
+> +
+> +	input->name = DRIVER_NAME_TS;
+> +	input->id.bustype = BUS_HOST;
+> +	input->dev.parent = dev;
+
+Not needed for devm-managed input devices.
+
+> +	input->open = mxs_lradc_ts_open;
+> +	input->close = mxs_lradc_ts_close;
+> +
+> +	__set_bit(EV_ABS, input->evbit);
+> +	__set_bit(EV_KEY, input->evbit);
+> +	__set_bit(BTN_TOUCH, input->keybit);
+> +	__set_bit(INPUT_PROP_DIRECT, input->propbit);
+> +	input_set_abs_params(input, ABS_X, 0, LRADC_SINGLE_SAMPLE_MASK, 0, 0);
+> +	input_set_abs_params(input, ABS_Y, 0, LRADC_SINGLE_SAMPLE_MASK, 0, 0);
+> +	input_set_abs_params(input, ABS_PRESSURE, 0, LRADC_SINGLE_SAMPLE_MASK,
+> +			     0, 0);
+> +
+> +	ts->ts_input = input;
+> +	input_set_drvdata(input, ts);
+> +
+> +	return input_register_device(input);
+> +}
+> +
+> +static int mxs_lradc_ts_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	struct device_node *node = dev->parent->of_node;
+> +	struct mxs_lradc *lradc = dev_get_platdata(dev);
+> +	struct mxs_lradc_ts *ts;
+> +	struct input_dev *input;
+> +	int touch_ret, ret, i;
+> +	u32 ts_wires = 0, adapt;
+> +
+> +	ts = devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
+> +	input = devm_input_allocate_device(dev);
+
+I'd expect input allocation be done in mxs_lradc_ts_register().
+
+> +	if (!ts || !input)
+> +		return -ENOMEM;
+> +
+> +	ts->lradc = lradc;
+> +	ts->dev = dev;
+> +	ts->ts_input = input;
+> +	platform_set_drvdata(pdev, ts);
+> +	input_set_drvdata(input, ts);
+> +
+> +	touch_ret = of_property_read_u32(node, "fsl,lradc-touchscreen-wires",
+> +					 &ts_wires);
+> +
+> +	if (of_property_read_u32(node, "fsl,ave-ctrl", &adapt)) {
+> +		ts->over_sample_cnt = 4;
+> +	} else {
+> +		if (adapt < 1 || adapt > 32) {
+> +			dev_err(ts->dev, "Invalid sample count (%u)\n",
+> +				adapt);
+> +			touch_ret = -EINVAL;
+> +		} else {
+> +			ts->over_sample_cnt = adapt;
+> +		}
+> +	}
+> +
+> +	if (of_property_read_u32(node, "fsl,ave-delay", &adapt)) {
+> +		ts->over_sample_delay = 2;
+> +	} else {
+> +		if (adapt < 2 || adapt > LRADC_DELAY_DELAY_MASK + 1) {
+> +			dev_err(ts->dev, "Invalid sample delay (%u)\n",
+> +				adapt);
+> +			touch_ret = -EINVAL;
+> +		} else {
+> +			ts->over_sample_delay = adapt;
+> +		}
+> +	}
+> +
+> +	if (of_property_read_u32(node, "fsl,settling", &adapt)) {
+> +		ts->settling_delay = 10;
+> +	} else {
+> +		if (adapt < 1 || adapt > LRADC_DELAY_DELAY_MASK) {
+> +			dev_err(ts->dev, "Invalid settling delay (%u)\n",
+> +				adapt);
+> +			touch_ret = -EINVAL;
+
+Why are we not aborting here?
+
+> +		} else {
+> +			ts->settling_delay = adapt;
+> +		}
+> +	}
+> +
+> +	mxs_lradc_ts_hw_init(ts);
+> +	for (i = 0; i < lradc->irq_count; i++) {
+> +		ret = devm_request_irq(dev, lradc->irq[i],
+> +				       mxs_lradc_ts_handle_irq,
+
+Hmm, if you have several interrupts handled by the same interrupt
+handler you'd need some locking there.
+
+> +				       IRQF_SHARED, lradc->irq_name[i], ts);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	if (!touch_ret) {
+> +		ret = mxs_lradc_ts_register(ts);
+> +		if (!ret)
+> +			goto err_ts_register;
+> +	}
+> +
+> +	return 0;
+> +
+> +err_ts_register:
+> +	mxs_lradc_ts_hw_stop(ts);
+> +	return ret;
+
+Would prefer calling this variable "error".
+
+> +}
+> +
+> +static int mxs_lradc_ts_remove(struct platform_device *pdev)
+> +{
+> +	struct mxs_lradc_ts *ts = platform_get_drvdata(pdev);
+> +
+> +	mxs_lradc_ts_hw_stop(ts);
+
+I wonder if mxs_lradc_ts_hw_stop() can be combined with
+mxs_lradc_disable_ts() which is called automatically if input device is
+opened? This way we'd be able to get rid of mxs_lradc_ts_remove(). 
+
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver mxs_lradc_ts_driver = {
+> +	.driver	= {
+> +		.name = DRIVER_NAME_TS,
+> +	},
+> +	.probe	= mxs_lradc_ts_probe,
+> +	.remove	= mxs_lradc_ts_remove,
+> +};
+> +module_platform_driver(mxs_lradc_ts_driver);
+> +
+> +MODULE_LICENSE("GPL v2");
+
+"GPL" since you are not limiting to v2 only.
+
+Thanks.
 
 -- 
-If you want to support my work:
-see http://friends.ccbib.org/harald/supporting/
-or donate via peercoin to P98LRdhit3gZbHDBe7ta5jtXrMJUms4p7w
-or bitcoin 1FUtd8T9jRN1rFz63vZz7s2fDtB6d6A7aS
+Dmitry

@@ -1,70 +1,49 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 0/8] Input: atmel_mxt_ts - output raw touch diagnostic
- data via V4L
-Date: Fri, 29 Apr 2016 13:14:12 +0100
-Message-ID: <57235014.8060304@itdev.co.uk>
-References: <1461231101-1237-1-git-send-email-nick.dyer@itdev.co.uk>
- <5719E03D.2010201@xs4all.nl> <20160422114517.0e7430bd@recife.lan>
- <571A3E3E.60601@itdev.co.uk> <571A40C0.90208@xs4all.nl>
- <20160422124425.39ac140f@recife.lan>
+From: Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH 3/3] input: touchscreen: mxs-lradc: Add support for touchscreen
+Date: Fri, 29 Apr 2016 15:22:36 +0200
+Message-ID: <5723601C.8030900@denx.de>
+References: <cover.1461930102.git.ksenija.stanojevic@gmail.com> <61fe1da2e8d82921f3222ec939047b6823f695e1.1461930102.git.ksenija.stanojevic@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20160422124425.39ac140f@recife.lan>
-Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-out.m-online.net ([212.18.0.9]:44547 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753038AbcD2NXH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 Apr 2016 09:23:07 -0400
+In-Reply-To: <61fe1da2e8d82921f3222ec939047b6823f695e1.1461930102.git.ksenija.stanojevic@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, linux-kernel@vger.kernel.org
+Cc: lee.jones@linaro.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, harald@ccbib.org
 
-On 22/04/2016 16:44, Mauro Carvalho Chehab wrote:
->> On the other hand, it would be a good place to tell the user that it
->> is from a touch sensor.
->>
->> Using the upcoming metadata feature wouldn't work since there is no width
->> and height in the metadata format.
->>
->> I wonder what others think about adding a new type value.
+On 04/29/2016 01:49 PM, Ksenija Stanojevic wrote:
+> Add mxs-lradc touchscreen driver.
 > 
-> IMO, two things should be done here:
+> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+> ---
+>  drivers/input/touchscreen/Kconfig        |  14 +-
+>  drivers/input/touchscreen/Makefile       |   1 +
+>  drivers/input/touchscreen/mxs-lradc-ts.c | 729 +++++++++++++++++++++++++++++++
+>  3 files changed, 742 insertions(+), 2 deletions(-)
+>  create mode 100644 drivers/input/touchscreen/mxs-lradc-ts.c
 > 
-> 1) Add some caps flag to help userspace to identify what's there
->    on those devices;
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 8ecdc38..d614d248 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -566,7 +566,7 @@ config TOUCHSCREEN_HP600
+>  	depends on SH_HP6XX && SH_ADC
+>  	help
+>  	  Say Y here if you have a HP Jornada 620/660/680/690 and want to
+> -          support the built-in touchscreen.
+> +	  support the built-in touchscreen.
 
-In the patches I have written so far, I have used inputs to select between
-different types of data, so I believe there's no real need for this yet.
-Did you have anything else in mind?
+Grumble.
 
-> 2) Make sure that udev/systemd won't be naming the devnodes as
->    "/dev/video";
-> 
-> 
-> The latter one could be solved with either the new dev meta or
-> with another VFL_TYPE for input systems (like VFL_TYPE_TOUCH_SENSOR)
-> and use this code snippet:
-> 
-> diff --git a/drivers/media/v4l2-core/v4l2-dev.c b/drivers/media/v4l2-core/v4l2-dev.c
-> index d8e5994cccf1..4d3e574eba49 100644
-> --- a/drivers/media/v4l2-core/v4l2-dev.c
-> +++ b/drivers/media/v4l2-core/v4l2-dev.c
-> @@ -887,6 +887,9 @@ int __video_register_device(struct video_device *vdev, int type, int nr,
->                 /* Use device name 'swradio' because 'sdr' was already taken. */
->                 name_base = "swradio";
->                 break;
-> +       case VFL_TYPE_TOUCH_SENSOR:
-> +               name_base = "v4l-touch";
-> +               break;
->         default:
->                 printk(KERN_ERR "%s called with unknown type: %d\n",
->                        __func__, type);
-> 
-> 
-> Such change would cause __video_register_device() to pass a different
-> name_base to:
-> 	dev_set_name(&vdev->dev, "%s%d", name_base, vdev->num);
-> 
-> This way, udev/systemd will use a different name (by default, 
-> /dev/v4l-touch0), and existing apps won't identify this as a
-> webcam.
+This patch looks good otherwise, thanks!
 
-Thanks - this sounds like a good approach to me. I will update.
+-- 
+Best regards,
+Marek Vasut

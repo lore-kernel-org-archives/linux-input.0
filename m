@@ -1,376 +1,442 @@
-From: =?UTF-8?Q?Ksenija_Stanojevi=C4=87?= <ksenija.stanojevic@gmail.com>
-Subject: Re: [PATCH 1/3] mfd: mxs-lradc: Add support for mxs-lradc MFD
-Date: Fri, 29 Apr 2016 15:43:28 +0200
-Message-ID: <CAL7P5j+E1WzC9AsS=ge4oHVTwq7Tov=kGbfJSKGyRzjg6Arg5Q@mail.gmail.com>
-References: <cover.1461930102.git.ksenija.stanojevic@gmail.com>
-	<a93050366ed452b147652abfad21a87f4af87bfb.1461930102.git.ksenija.stanojevic@gmail.com>
-	<57235E75.9060409@denx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: [PATCHv16 00/13] HDMI CEC framework
+Date: Fri, 29 Apr 2016 15:52:15 +0200
+Message-ID: <1461937948-22936-1-git-send-email-hverkuil@xs4all.nl>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:33739 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753586AbcD2Nna (ORCPT
+Received: from lb2-smtp-cloud3.xs4all.net ([194.109.24.26]:38027 "EHLO
+	lb2-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753247AbcD2Nwg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Apr 2016 09:43:30 -0400
-In-Reply-To: <57235E75.9060409@denx.de>
+	Fri, 29 Apr 2016 09:52:36 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marex@denx.de>
-Cc: linux-kernel@vger.kernel.org, lee.jones@linaro.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, Harald Geyer <harald@ccbib.org>
+To: linux-media@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk
 
-On Fri, Apr 29, 2016 at 3:15 PM, Marek Vasut <marex@denx.de> wrote:
-> On 04/29/2016 01:47 PM, Ksenija Stanojevic wrote:
->> Add core files for mxs-lradc MFD driver.
->>
->> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
->> ---
->>  drivers/mfd/Kconfig           |  33 +++++--
->>  drivers/mfd/Makefile          |   1 +
->>  drivers/mfd/mxs-lradc.c       | 213 ++++++++++++++++++++++++++++++++++++++++++
->>  include/linux/mfd/mxs-lradc.h | 210 +++++++++++++++++++++++++++++++++++++++++
->>  4 files changed, 449 insertions(+), 8 deletions(-)
->>  create mode 100644 drivers/mfd/mxs-lradc.c
->>  create mode 100644 include/linux/mfd/mxs-lradc.h
->
-> Is there any chance you can also remove the same code from lradc ?
+From: Hans Verkuil <hans.verkuil@cisco.com>
 
-You mean drivers/iio/adc/mxs-lradc.c. I thought to remove it once this
-patch set was accepted,
-but I can include that in patch set.
+Hi all,
 
->> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
->> index eea61e3..fff44d6 100644
->> --- a/drivers/mfd/Kconfig
->> +++ b/drivers/mfd/Kconfig
->> @@ -16,7 +16,7 @@ config MFD_CS5535
->>       depends on PCI && (X86_32 || (X86 && COMPILE_TEST))
->>       ---help---
->>         This is the core driver for CS5535/CS5536 MFD functions.  This is
->> -          necessary for using the board's GPIO and MFGPT functionality.
->> +       necessary for using the board's GPIO and MFGPT functionality.
->
-> Probably shouldn't be part of the patch ?
+The sixteenth version of this patchset does some final cleanup and
+I'll post a pull request on the linux-media list for this patch series.
 
-Yeah, sorry about that.
+At first I didn't want to post a v16 at all, but there were just a bit
+too many changes, even though each change itself was trivial.
 
->>  config MFD_ACT8945A
->>       tristate "Active-semi ACT8945A"
->> @@ -319,6 +319,23 @@ config MFD_HI6421_PMIC
->>         menus in order to enable them.
->>         We communicate with the Hi6421 via memory-mapped I/O.
->>
->> +config MFD_MXS_LRADC
->> +     tristate "Freescale i.MX23/i.MX28 LRADC"
->> +     depends on ARCH_MXS || COMPILE_TEST
->> +     select MFD_CORE
->> +     select STMP_DEVICE
->> +     help
->> +       Say yes here to build support for the low-resolution
->> +       analog-to-digital converter (LRADC) found on the i.MX23 and i.MX28
->> +       processors. This driver provides common support for accessing the
->> +       device, additional drivers must be enabled in order to use the
->> +       functionality of the device:
->> +             mxs-lradc-adc for ADC readings
->> +             mxs-lradc-ts  for touchscreen support
->> +
->> +       This driver can also be built as a module. If so, the module will be
->> +       called mxs-lradc.
->> +
->>  config HTC_EGPIO
->>       bool "HTC EGPIO support"
->>       depends on GPIOLIB && ARM
->> @@ -650,7 +667,7 @@ config EZX_PCAP
->>         needed for MMC, TouchScreen, Sound, USB, etc..
->>
->>  config MFD_VIPERBOARD
->> -        tristate "Nano River Technologies Viperboard"
->> +     tristate "Nano River Technologies Viperboard"
->
-> Shouldn't be part of this patch
+While the pull request will be for 4.7 I think it is more likely that
+it will end up in 4.8 given how late we are in the 4.7 cycle.
 
-No, I should have check it twice.
+I dropped the RFC patches for the pulse8 and ARC/CDC support since those
+aren't ready for mainlining. Same for the omap4 support patches I posted
+today.
 
->>       select MFD_CORE
->>       depends on USB
->>       default n
->> @@ -898,11 +915,11 @@ config MFD_SMSC
->>         select MFD_CORE
->>         select REGMAP_I2C
->>         help
->> -        If you say yes here you get support for the
->> -        ece1099 chips from SMSC.
->> +     If you say yes here you get support for the
->> +     ece1099 chips from SMSC.
->
-> DTTO
->
->> -        To compile this driver as a module, choose M here: the
->> -        module will be called smsc.
->> +     To compile this driver as a module, choose M here: the
->> +     module will be called smsc.
->>
->>  config ABX500_CORE
->>       bool "ST-Ericsson ABX500 Mixed Signal Circuit register functions"
->> @@ -956,8 +973,8 @@ config AB8500_DEBUG
->>         depends on AB8500_GPADC && DEBUG_FS
->>         default y if DEBUG_FS
->>         help
->> -         Select this option if you want debug information using the debug
->> -         filesystem, debugfs.
->> +      Select this option if you want debug information using the debug
->> +      filesystem, debugfs.
->
-> Same here
->
->>  config AB8500_GPADC
->>       bool "ST-Ericsson AB8500 GPADC driver"
->> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
->> index 5eaa6465d..236b831 100644
->> --- a/drivers/mfd/Makefile
->> +++ b/drivers/mfd/Makefile
->> @@ -203,3 +203,4 @@ intel-soc-pmic-objs               := intel_soc_pmic_core.o intel_soc_pmic_crc.o
->>  intel-soc-pmic-$(CONFIG_INTEL_PMC_IPC)       += intel_soc_pmic_bxtwc.o
->>  obj-$(CONFIG_INTEL_SOC_PMIC) += intel-soc-pmic.o
->>  obj-$(CONFIG_MFD_MT6397)     += mt6397-core.o
->> +obj-$(CONFIG_MFD_MXS_LRADC)  += mxs-lradc.o
->> diff --git a/drivers/mfd/mxs-lradc.c b/drivers/mfd/mxs-lradc.c
->> new file mode 100644
->> index 0000000..e1c8f9e
->> --- /dev/null
->> +++ b/drivers/mfd/mxs-lradc.c
->> @@ -0,0 +1,213 @@
->> +/*
->> + * Freescale MXS LRADC driver
->> + *
->> + * Copyright (c) 2012 DENX Software Engineering, GmbH.
->> + * Marek Vasut <marex@denx.de>
->> + *
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of the GNU General Public License as published by
->> + * the Free Software Foundation; either version 2 of the License, or
->> + * (at your option) any later version.
->> + *
->> + * This program is distributed in the hope that it will be useful,
->> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
->> + * GNU General Public License for more details.
->> + */
->> +
->> +#include <linux/clk.h>
->> +#include <linux/device.h>
->> +#include <linux/mfd/core.h>
->> +#include <linux/mfd/mxs-lradc.h>
->> +#include <linux/module.h>
->> +#include <linux/of.h>
->> +#include <linux/platform_device.h>
->> +#include <linux/slab.h>
->> +
->> +static struct mfd_cell lradc_adc_dev = {
->> +     .name = DRIVER_NAME_ADC,
->> +};
->> +
->> +static struct mfd_cell lradc_ts_dev = {
->> +     .name = DRIVER_NAME_TS,
->> +};
->> +
->> +static const char * const mx23_lradc_irq_names[] = {
->> +     "mxs-lradc-touchscreen",
->> +     "mxs-lradc-channel0",
->> +     "mxs-lradc-channel1",
->> +     "mxs-lradc-channel2",
->> +     "mxs-lradc-channel3",
->> +     "mxs-lradc-channel4",
->> +     "mxs-lradc-channel5",
->> +     "mxs-lradc-channel6",
->> +     "mxs-lradc-channel7",
->> +};
->> +
->> +static const char * const mx28_lradc_irq_names[] = {
->> +     "mxs-lradc-touchscreen",
->> +     "mxs-lradc-thresh0",
->> +     "mxs-lradc-thresh1",
->> +     "mxs-lradc-channel0",
->> +     "mxs-lradc-channel1",
->> +     "mxs-lradc-channel2",
->> +     "mxs-lradc-channel3",
->> +     "mxs-lradc-channel4",
->> +     "mxs-lradc-channel5",
->> +     "mxs-lradc-channel6",
->> +     "mxs-lradc-channel7",
->> +     "mxs-lradc-button0",
->> +     "mxs-lradc-button1",
->> +};
->> +
->> +struct mxs_lradc_of_config {
->> +     const int               irq_count;
->> +     const char * const      *irq_name;
->> +};
->> +
->> +static const struct mxs_lradc_of_config mxs_lradc_of_config[] = {
->> +     [IMX23_LRADC] = {
->> +             .irq_count      = ARRAY_SIZE(mx23_lradc_irq_names),
->> +             .irq_name       = mx23_lradc_irq_names,
->> +     },
->> +     [IMX28_LRADC] = {
->> +             .irq_count      = ARRAY_SIZE(mx28_lradc_irq_names),
->> +             .irq_name       = mx28_lradc_irq_names,
->> +     },
->> +};
->> +
->> +static const struct of_device_id mxs_lradc_dt_ids[] = {
->> +     { .compatible = "fsl,imx23-lradc", .data = (void *)IMX23_LRADC, },
->> +     { .compatible = "fsl,imx28-lradc", .data = (void *)IMX28_LRADC, },
->> +     { /* sentinel */ }
->> +};
->> +MODULE_DEVICE_TABLE(of, mxs_lradc_dt_ids);
->> +
->> +static int mxs_lradc_probe(struct platform_device *pdev)
->> +{
->> +     const struct of_device_id *of_id =
->> +             of_match_device(mxs_lradc_dt_ids, &pdev->dev);
->> +     const struct mxs_lradc_of_config *of_cfg =
->> +             &mxs_lradc_of_config[(enum mxs_lradc_id)of_id->data];
->> +     struct device *dev = &pdev->dev;
->> +     struct device_node *node = dev->of_node;
->> +     struct mxs_lradc *lradc;
->> +     struct resource *iores;
->> +     int ret = 0, touch_ret, i;
->> +     u32 ts_wires = 0;
->> +
->> +     lradc = devm_kzalloc(&pdev->dev, sizeof(*lradc), GFP_KERNEL);
->> +     if (!lradc)
->> +             return -ENOMEM;
->> +     lradc->soc = (enum mxs_lradc_id)of_id->data;
->> +
->> +     /* Grab the memory area */
->> +     iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->> +     lradc->base = devm_ioremap_resource(dev, iores);
->> +     if (IS_ERR(lradc->base))
->> +             return PTR_ERR(lradc->base);
->> +
->> +     lradc->clk = devm_clk_get(&pdev->dev, NULL);
->> +     if (IS_ERR(lradc->clk)) {
->> +             dev_err(dev, "Failed to get the delay unit clock\n");
->> +             return PTR_ERR(lradc->clk);
->> +     }
->> +     ret = clk_prepare_enable(lradc->clk);
->> +     if (ret != 0) {
->> +             dev_err(dev, "Failed to enable the delay unit clock\n");
->> +             return ret;
->> +     }
->> +
->> +     touch_ret = of_property_read_u32(node, "fsl,lradc-touchscreen-wires",
->> +                                      &ts_wires);
->> +
->> +     if (touch_ret == 0)
->> +             lradc->buffer_vchans = BUFFER_VCHANS_LIMITED;
->> +     else
->> +             lradc->buffer_vchans = BUFFER_VCHANS_ALL;
->> +
->> +     lradc->irq_count = of_cfg->irq_count;
->> +     lradc->irq_name = of_cfg->irq_name;
->> +     for (i = 0; i < lradc->irq_count; i++) {
->> +             lradc->irq[i] = platform_get_irq(pdev, i);
->> +             if (lradc->irq[i] < 0) {
->> +                     ret = lradc->irq[i];
->> +                     goto err_clk;
->> +             }
->> +     }
->> +
->> +     platform_set_drvdata(pdev, lradc);
->> +
->> +     ret = stmp_reset_block(lradc->base);
->> +
->
-> Drop this newline here
->
->> +     if (ret)
->> +             return ret;
->> +
->> +     lradc_adc_dev.platform_data = lradc;
->> +     lradc_adc_dev.pdata_size = sizeof(*lradc);
->> +
->> +     ret = mfd_add_devices(&pdev->dev, -1, &lradc_adc_dev, 1, NULL, 0, NULL);
->
-> devm_mfd_add_devices()?
->
->> +     if (ret) {
->> +             dev_err(&pdev->dev, "Failed to add the ADC subdevice\n");
->> +             return ret;
->> +     }
->> +
->> +     lradc_ts_dev.platform_data = lradc;
->> +     lradc_ts_dev.pdata_size = sizeof(*lradc);
->> +
->> +     switch (ts_wires) {
->> +     case 4:
->> +             lradc->use_touchscreen = MXS_LRADC_TOUCHSCREEN_4WIRE;
->> +             break;
->> +     case 5:
->> +             if (lradc->soc == IMX28_LRADC) {
->> +                     lradc->use_touchscreen = MXS_LRADC_TOUCHSCREEN_5WIRE;
->> +                     break;
->> +             }
->> +             /* fall through an error message for i.MX23 */
->> +     default:
->> +             dev_err(&pdev->dev,
->> +                     "Unsupported number of touchscreen wires (%d)\n",
->> +                     ts_wires);
->> +             return -EINVAL;
->> +     }
->> +
->> +     ret = mfd_add_devices(&pdev->dev, -1, &lradc_ts_dev, 1, NULL, 0, NULL);
->
-> devm_mfd_add_devices()?
->
-> You might want to split registration of each MFD subdev into separate
-> function.
+See the changelog below for more details.
 
-Ok, I will fix it in v2
+The cec-ctl and cec-compliance utilities used to test the CEC framework
+can be found here:
+  
+http://git.linuxtv.org/cgit.cgi/hverkuil/v4l-utils.git/log/?h=cec
 
->> +     if (ret) {
->> +             dev_err(&pdev->dev,
->> +                     "Failed to add the touchscreen subdevice\n");
->> +             goto err_remove_adc;
->> +     }
->> +
->> +     return 0;
->> +
->> +err_remove_adc:
->> +     mfd_remove_devices(&pdev->dev);
->> +err_clk:
->> +     clk_disable_unprepare(lradc->clk);
->> +     return ret;
->> +}
->> +
->> +static int mxs_lradc_remove(struct platform_device *pdev)
->> +{
->> +     struct mxs_lradc *lradc = platform_get_drvdata(pdev);
->> +
->> +     mfd_remove_devices(&pdev->dev);
->> +     clk_disable_unprepare(lradc->clk);
->> +     return 0;
->> +}
->> +
->> +static struct platform_driver mxs_lradc_driver = {
->> +     .driver = {
->> +             .name = "mxs-lradc",
->> +             .of_match_table = mxs_lradc_dt_ids,
->> +     },
->> +     .probe = mxs_lradc_probe,
->> +     .remove = mxs_lradc_remove,
->> +};
->> +
->> +module_platform_driver(mxs_lradc_driver);
->> +
->> +MODULE_DESCRIPTION("Freescale i.MX23/i.MX28 LRADC driver");
->> +MODULE_LICENSE("GPL v2");
->> +MODULE_ALIAS("platform:mxs-lradc");
->
-> [...]
->
->
-> --
-> Best regards,
-> Marek Vasut
+Best regards,
+
+        Hans
+
+Changes since v15
+=================
+
+- Properly document cec-edid.h
+- Fix various sparse/smatch warnings
+- Fixed several DocBook issues
+- Fixed incorrect return values in the adv drivers that caused an
+  otherwise harmless WARN_ON.
+
+Changes since v14
+=================
+- Dropped the Samsung dts patches, these will go in via the samsung tree.
+- CEC_LOG_STATUS is replaced by a debugfs status file.
+- Dropped the reserved fields in the API, use versioning instead. Two
+  flags field were added instead.
+- Extended cec_caps with a version field.
+- Dropped CEC_CAP_IS_SOURCE as it is not needed in practice.
+- The adv drivers now create the CEC adapter themselves instead of leaving
+  that to the bridge. It greatly simplifies the code and it was really a
+  left-over from the early days of the framework.
+- The CEC implementation of the adv drivers is now configured through
+  a separate config option. CEC is an optional HDMI feature and you may not
+  want to compile this in if your hardware hasn't hooked up the CEC pin.
+- The EDID CEC helper functions have been split off into their own cec-edid
+  module. You likely need them even if MEDIA_CEC is not set.
+- Added missing copyright statements.
+- Added RFC code for the pulse-eight USB CEC adapter.
+
+Changes since v13
+=================
+- Removed CEC_CAP_STATE and _VENDOR_ID
+- Removed CEC_ADAP_G/S_STATE and CEC_ADAP_G/S_VENDOR_ID
+- Add vendor_id to struct cec_log_addrs
+- CEC_EVENT_STATE_CHANGE now reports the physical address, the logical
+  address mask and the logical address type mask.
+- Add the logical address mask and the logical address type mask to
+  struct cec_log_addrs.
+- Dropped cec_enable, instead enable/disable the adapter based on the
+  physical address.
+- Once a valid physical address is available and userspace or driver
+  specified the requested logical address configuration the framework
+  will automatically claim the needed logical addresses. It will retry
+  the last used addresses first, as per the recommendation in the CEC
+  specification.
+- Dropped CEC power status handling: it's not clear if the kernel should
+  handle that, and if it has to, whether this is the correct way.
+- Dropped CEC_EVENT_PHYS_ADDR_CHANGE, this is now handled by
+  CEC_EVENT_STATE_CHANGE.
+- Add helper functions for manipulating physical addresses.
+- Updated documentation.
+- Dropped ninputs field in struct cec_caps.
+- Dropped CEC_EVENT_INPUTS_CHANGE, was never used and it is unclear if it
+  is needed.
+
+Changes since v12
+=================
+- Added driver and name fields to the cec_caps struct. Without this it was
+  very difficult to tell CEC adapters apart in a human readable manner.
+- Renamed CEC_CAP_IO to CEC_CAP_TRANSMIT, which better describes this
+  capability. 
+- Added the CEC_ADAP_LOG_STATUS to log the current status of the CEC adapter.
+  Very useful when debugging.
+- Added comments to the cec.c source.
+- Added a timeout when waiting for a transmit to finish. Without the timeout
+  the state machine could lock up when dealing with broken CEC adapter drivers
+  or just unlucky situations.
+- Commenting the code also found a number of bugs which have been fixed.
+- Trying to poll yourself is now handled by the framework since different
+  hardware would give different results. The framework will just NACK it.
+- Disabling the CEC adapter doesn't clear the physical address anymore.
+  This turned out to be quite painful for applications.
+- Merged the CLAIM/RELEASE, G/S_MONITOR and G_PASSTHROUGH ioctls into two
+  G/S_MODE ioctls. This allows you to tell the driver which initiator and
+  follower modes you want, and greatly simplifies how these modes are
+  handled.
+
+Changes since v11
+=================
+- Add a new CEC_EVENT_PHYS_ADDR_CHANGED to report when the physical address
+  of the CEC adapter changes. Since the physical address is obtained from the
+  EDID the application has to be informed when the kernel (or userspace for
+  that matter) sets that.
+- Add a new internal cec_set_phys_addr() function to change the physical
+  address and post the event.
+- Modified the retry-transmit mechanism: the framework will do the retry if
+  the low-level driver returns a TX_STATUS error, but does not set the
+  CEC_TX_STATUS_MAX_RETRIES status bit. In that case the framework assumes
+  that there is no hardware retry and it will retry itself. This used to be
+  through the 'retries' pointer argument (set to 0 if there is no retry support)
+  but that doesn't work for hardware that does retry for some error conditions
+  but not for others.
+- Added the missing CEC_TX_STATUS_LOW_DRIVE bit and low_drive_cnt error counter.
+  I missed that potential CEC bus error condition.
+- By passing a NULL pointer to cec_claim_log_addrs() drivers can clear the
+  logical addresses.
+- When a source loses the HPD the source has to clear the logical addresses
+  and update its physical address. Implement this in the cobalt driver.
+- Improve tx_status handling in the various low-level drivers.
+
+Changes since v10
+=================
+- Split the msg.status field into tx_status and rx_status.
+- Add counters for various CEC protocol errors that can occur during
+  transmit.
+- Add tx_status bits for the ARB_LOST and NACK status and add a generic
+  CEC_TX_STATUS_ERROR bit.
+- Add retry support to the CEC framework for hardware that does not have
+  retry support.
+- Improve event handling: on open() generate events that report the initial
+  CEC adapter status and the number of connected inputs. Also ensure that
+  you never loose important events (intermediate events may be lost, but
+  never the last event). The basic mechanism has been taken from the V4L2
+  event implementation which works very well.
+- CEC emulation support was added to vivid which makes it much easier to
+  test CEC applications without having hardware present.
+- Improve handling of timings and timeouts in the cec framework.
+- Improve locking.
+- Fixed buggy rc cleanup.
+- All CEC messages are now fully supported in cec-funcs.h (specifically
+  handling of UI Commands and short audio descriptors).
+
+Changes since v9
+================
+- Updated cec.txt
+- Added a promiscuous capability to signal those adapters that can monitor
+  all CEC traffic, not just directed and broadcast messages. I have one
+  adapter that can do this. Added code in the framework to handle such
+  messages correctly.
+- The status field is now value and no longer a bitmask.
+- Renamed the kernel config from CEC to MEDIA_CEC
+- The adap_transmit() callback now has a retries argument.
+- Use the new CEC_MAX_MSG_SIZE define instead of hardcoding it as 16
+- Add support to wait for a reply after a broadcast message: this was
+  forbidden, but it is a valid use-case.
+- Make sure you can't send a message to yourself.
+- Waiting for a transmit to succeed would never timeout (and couldn't be
+  interrupted). Fixed.
+- The message status was not updated correctly if it was CEC_MSG_FEATURE_ABORTed.
+- Fixed a nasty kernel oops when deleting a cec adapter.
+- Removed the owner check: the module owner is NULL if it is compiled into
+  the kernel instead of as a module.
+- Added separate register/unregister calls: this is safer and actually made
+  it possible to drop the ugly 'cec_ready' v4l2_subdev op. Suggested by
+  Russell, and that was a good idea.
+- Added missing support for 32-bit to 64-bit ioctl conversion.
+- Move the v4l2_subdev cec ops into a v4l2_subdev_cec_ops struct.
+
+Changes since v8
+================
+- Addressed the comments Russell King made about how the cec character
+  devices should be allocated/freed.
+- Updated the DocBook documentation.
+
+Changes since v7
+================
+
+- I thought that the core thread could handle out-of-order messages, but that
+  turned out to be wrong. After careful analysis I realized that I had to
+  rewrite this part in cec.c in order to make it work.
+- Added new CEC-specific keys to input.h and use them in the CEC rc keymap.
+  Replaced KEY_PLAY/PAUSE/STOP with KEY_PLAYCD/PAUSECD/STOPCD to clarify that
+  these are media operations and not the Pause key on the keyboard.
+- Added CEC_PHYS_ADDR_INVALID (0xffff)
+- Added monitor support to monitor CEC traffic
+- Replaced CAP_TRANSMIT and CAP_RECEIVE by a single CAP_IO.
+- Replaced CAP_CDC by CAP_CDC_HPD since this only applies to the HPD part of
+  the CDC messages.
+- Add CAP_IS_SOURCE.
+- Add ninputs field to cec_caps to export the number of inputs of the device.
+- Drop CEC_LOG_ADDRS_FL_HANDLE_MSGS and the flags field (see next change for
+  more info).
+- Add CEC_CLAIM and CEC_RELEASE to explicitly start/stop processing CEC messages.
+  This also implies ownership of the CEC interface, so other filehandles can
+  only receive but not transmit.
+- Reworked event handling: report adapter state changes, input changes and
+  if the message receive queue is full.
+- cec-funcs.h: added CDC HEC support.
+- Renamed G/S_ADAP ioctls to ADAP_G/S: this made it clearer which ioctls deal
+  with the adapter configuration and which deal with CEC messages/events.
+- Clarified which CEC messages are passed on to userspace and which aren't.
+  Specifically if CAP_ARC is set, then all ARC messages are handled by the kernel.
+  If CAP_CDC_HPD is set, then all CDC hotplug messages are handled by the kernel.
+  Otherwise these messages are passed on to userspace.
+
+Changes since v6
+================
+- added cec-funcs.h to provide wrapper functions that fill in the cec_msg struct.
+  This header is needed both by the kernel and by applications.
+- fix a missing rc_unregister_device call.
+- added CEC support for the adv7842 and cobalt drivers.
+- added CEC operand defines. Rename CEC message defines to CEC_MSG_ and operand
+  defines now use CEC_OP_.
+- the CEC_VERSION defines are dropped since we now have the CEC_OP_VERSION defines.
+- ditto: CEC_PRIM_DEVTYPE_ is now CEC_OP_PRIM_DEVTYPE.
+- ditto: CEC_FL_ALL_DEVTYPE_ is now CEC_OP_ALL_DEVTYPE.
+- cec-ioc-g-adap-log-addrs.xml: document cec_versions field.
+- cec-ioc-g-caps.xml: drop vendor_id and version fields.
+- add MAINTAINERS entry.
+- add CDC support (not yet fully functional).
+- add a second debug level for message debugging.
+- fix a nasty kernel Oops in cec_transmit_msg while waiting for transmit completion
+  (adap->tx_queue[idx].func wasn't set to NULL).
+- add support for CEC_MSG_REPORT_FEATURES (CEC 2.0 only).
+- correctly abort unsupported messages.
+- add support for the device power status feature.
+- add support for the audio return channel (preliminary).
+- add support for the CDC hotplug message (preliminary).
+- added osd_name to struct cec_log_addrs.
+- reported physical addresses are stored internally.
+- fix enabling/disabling the CEC adapter (internal fields weren't cleared correctly).
+- zero reserved fields.
+- return an error if you try to receive/transmit and the adapter isn't configured.
+- when creating the adapter provide the owner module and the parent device.
+- add a CEC_VENDOR_ID_NONE define to signal if no vendor ID was set.
+- add new capabilities: RC (remote control), ARC (audio return channel) and CDC
+  (Capability Discovery and Control).
+- applications that want to handle messages for a logical address need to set the
+  CEC_LOG_ADDRS_FL_HANDLE_MSGS flag. Otherwise the CEC core will be the one handling
+  all messages.
+- Each logical address has its own all_device_types value. So this should be an array,
+  not a single value.
+- I'm sure I've forgotten some changes...
+
+Changes since v5
+================
+- drop struct cec_timeval in favour of a __u64 that keeps the timestamp in ns
+- remove userspace documentation from Documentation/cec.txt as userspace API
+  is described in the DocBook
+- add missing documentation for the passthrough mode to the DocBook
+- add information about the number of events that can be queued
+- fix misspelling of reply
+- fix behaviour of posting an event in cec_received_msg, such that the behaviour
+  is consistent with the documentation
+
+Changes since v4
+================
+- add sequence numbering to transmitted messages
+- add sequence number handling to event hanlding
+- add passthrough mode
+- change reserved field sizes
+- fixed CEC version defines and addec CEC 2.0 commands
+- add DocBook documentation
+
+Changes since v3
+================
+- remove the promiscuous mode
+- rewrite the devicetree patches
+- fixes, expansion and partial rewrite of the documentation
+- reorder of API structures and addition of reserved fields
+- use own struct to report time (32/64 bit safe)
+- fix of handling events
+- add cec.h to include/uapi/linux/Kbuild
+- fixes in the adv76xx driver (add missing methods, change adv7604 to adv76xx)
+- cleanup of debug messages in s5p-cec driver
+- remove non necessary claiming of a gpio in the s5p-cec driver
+- cleanup headers of the s5p-cec driver
+
+Changes since v2
+===============-
+- added promiscuous mode
+- added new key codes to the input framework
+- add vendor ID reporting
+- add the possibility to clear assigned logical addresses
+- cleanup of the rc cec map
+
+Changes since v1
+================
+- documentation edited and moved to the Documentation folder
+- added key up/down message handling
+- add missing CEC commands to the cec.h file
+
+Background
+==========
+
+The work on a common CEC framework was started over three years ago by Hans
+Verkuil. Unfortunately the work has stalled. As I have received the task of
+creating a driver for the CEC interface module present on the Exynos range of
+SoCs, I got in touch with Hans. He replied that the work stalled due to his
+lack of time.
+
+Original RFC by Hans Verkuil/Martin Bugge
+=========================================
+https://www.mail-archive.com/linux-media@vger.kernel.org/msg28735.html
+
+
+Hans Verkuil (10):
+  input.h: add BUS_CEC type
+  cec: add HDMI CEC framework
+  cec/TODO: add TODO file so we know why this is still in staging
+  cec: add compat32 ioctl support
+  cec.txt: add CEC framework documentation
+  DocBook/media: add CEC documentation
+  cec: adv7604: add cec support.
+  cec: adv7842: add cec support
+  cec: adv7511: add cec support.
+  vivid: add CEC emulation
+
+Kamil Debski (3):
+  HID: add HDMI CEC specific keycodes
+  rc: Add HDMI CEC protocol handling
+  cec: s5p-cec: Add s5p-cec driver
+
+ Documentation/DocBook/device-drivers.tmpl          |    4 +
+ Documentation/DocBook/media/Makefile               |    2 +
+ Documentation/DocBook/media/v4l/biblio.xml         |   10 +
+ Documentation/DocBook/media/v4l/cec-api.xml        |   72 +
+ Documentation/DocBook/media/v4l/cec-func-close.xml |   59 +
+ Documentation/DocBook/media/v4l/cec-func-ioctl.xml |   73 +
+ Documentation/DocBook/media/v4l/cec-func-open.xml  |   94 +
+ Documentation/DocBook/media/v4l/cec-func-poll.xml  |   89 +
+ .../DocBook/media/v4l/cec-ioc-adap-g-caps.xml      |  140 ++
+ .../DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml |  324 +++
+ .../DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml |   82 +
+ .../DocBook/media/v4l/cec-ioc-dqevent.xml          |  190 ++
+ Documentation/DocBook/media/v4l/cec-ioc-g-mode.xml |  245 ++
+ .../DocBook/media/v4l/cec-ioc-receive.xml          |  260 ++
+ Documentation/DocBook/media_api.tmpl               |    6 +-
+ Documentation/cec.txt                              |  267 +++
+ .../devicetree/bindings/media/s5p-cec.txt          |   31 +
+ Documentation/video4linux/vivid.txt                |   36 +-
+ MAINTAINERS                                        |   23 +
+ drivers/media/Kconfig                              |    3 +
+ drivers/media/Makefile                             |    2 +
+ drivers/media/cec-edid.c                           |  139 ++
+ drivers/media/i2c/Kconfig                          |   27 +
+ drivers/media/i2c/adv7511.c                        |  401 +++-
+ drivers/media/i2c/adv7604.c                        |  332 ++-
+ drivers/media/i2c/adv7842.c                        |  368 ++-
+ drivers/media/platform/Kconfig                     |   11 +
+ drivers/media/platform/Makefile                    |    1 +
+ drivers/media/platform/s5p-cec/Makefile            |    2 +
+ drivers/media/platform/s5p-cec/exynos_hdmi_cec.h   |   38 +
+ .../media/platform/s5p-cec/exynos_hdmi_cecctrl.c   |  209 ++
+ drivers/media/platform/s5p-cec/regs-cec.h          |   96 +
+ drivers/media/platform/s5p-cec/s5p_cec.c           |  295 +++
+ drivers/media/platform/s5p-cec/s5p_cec.h           |   76 +
+ drivers/media/platform/vivid/Kconfig               |    9 +
+ drivers/media/platform/vivid/Makefile              |    4 +
+ drivers/media/platform/vivid/vivid-cec.c           |  254 ++
+ drivers/media/platform/vivid/vivid-cec.h           |   33 +
+ drivers/media/platform/vivid/vivid-core.c          |  119 +-
+ drivers/media/platform/vivid/vivid-core.h          |   27 +
+ drivers/media/platform/vivid/vivid-kthread-cap.c   |   11 +
+ drivers/media/platform/vivid/vivid-vid-cap.c       |   23 +-
+ drivers/media/platform/vivid/vivid-vid-common.c    |    7 +
+ drivers/media/rc/keymaps/Makefile                  |    1 +
+ drivers/media/rc/keymaps/rc-cec.c                  |  174 ++
+ drivers/media/rc/rc-main.c                         |    1 +
+ drivers/staging/media/Kconfig                      |    2 +
+ drivers/staging/media/Makefile                     |    1 +
+ drivers/staging/media/cec/Kconfig                  |    8 +
+ drivers/staging/media/cec/Makefile                 |    1 +
+ drivers/staging/media/cec/TODO                     |   13 +
+ drivers/staging/media/cec/cec.c                    | 2481 ++++++++++++++++++++
+ fs/compat_ioctl.c                                  |   12 +
+ include/linux/cec-funcs.h                          | 1871 +++++++++++++++
+ include/linux/cec.h                                |  985 ++++++++
+ include/media/cec-edid.h                           |  103 +
+ include/media/cec.h                                |  236 ++
+ include/media/i2c/adv7511.h                        |    6 +-
+ include/media/rc-map.h                             |    5 +-
+ include/uapi/linux/input-event-codes.h             |   30 +
+ include/uapi/linux/input.h                         |    1 +
+ 61 files changed, 10296 insertions(+), 129 deletions(-)
+ create mode 100644 Documentation/DocBook/media/v4l/cec-api.xml
+ create mode 100644 Documentation/DocBook/media/v4l/cec-func-close.xml
+ create mode 100644 Documentation/DocBook/media/v4l/cec-func-ioctl.xml
+ create mode 100644 Documentation/DocBook/media/v4l/cec-func-open.xml
+ create mode 100644 Documentation/DocBook/media/v4l/cec-func-poll.xml
+ create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml
+ create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml
+ create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml
+ create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-dqevent.xml
+ create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-mode.xml
+ create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-receive.xml
+ create mode 100644 Documentation/cec.txt
+ create mode 100644 Documentation/devicetree/bindings/media/s5p-cec.txt
+ create mode 100644 drivers/media/cec-edid.c
+ create mode 100644 drivers/media/platform/s5p-cec/Makefile
+ create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+ create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+ create mode 100644 drivers/media/platform/s5p-cec/regs-cec.h
+ create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.c
+ create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.h
+ create mode 100644 drivers/media/platform/vivid/vivid-cec.c
+ create mode 100644 drivers/media/platform/vivid/vivid-cec.h
+ create mode 100644 drivers/media/rc/keymaps/rc-cec.c
+ create mode 100644 drivers/staging/media/cec/Kconfig
+ create mode 100644 drivers/staging/media/cec/Makefile
+ create mode 100644 drivers/staging/media/cec/TODO
+ create mode 100644 drivers/staging/media/cec/cec.c
+ create mode 100644 include/linux/cec-funcs.h
+ create mode 100644 include/linux/cec.h
+ create mode 100644 include/media/cec-edid.h
+ create mode 100644 include/media/cec.h
+
+-- 
+2.8.1
+

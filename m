@@ -1,56 +1,39 @@
-From: Manuel Reimer <mail+linux-input@m-reimer.de>
-Subject: How to properly extend uinput API
-Date: Sat, 30 Apr 2016 11:36:24 +0200
-Message-ID: <51caa374-1fdc-bcc0-3aac-20292a77571b@m-reimer.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Muhammad Falak R Wani <falakreyaz@gmail.com>
+Subject: [PATCH] Input: evdev - use RCU_INIT_POINTER() when NULLing
+Date: Sun,  1 May 2016 17:47:23 +0530
+Message-ID: <1462105043-8642-1-git-send-email-falakreyaz@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.mailbox.org ([80.241.60.212]:33109 "EHLO mx1.mailbox.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752101AbcD3Jg3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 30 Apr 2016 05:36:29 -0400
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [80.241.60.240])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.mailbox.org (Postfix) with ESMTPS id C7B1E43AE5
-	for <linux-input@vger.kernel.org>; Sat, 30 Apr 2016 11:36:26 +0200 (CEST)
-Received: from smtp1.mailbox.org ([80.241.60.240])
-	by gerste.heinlein-support.de (gerste.heinlein-support.de [91.198.250.173]) (amavisd-new, port 10030)
-	with ESMTP id AhXNuIm70Plf for <linux-input@vger.kernel.org>;
-	Sat, 30 Apr 2016 11:36:25 +0200 (CEST)
+Received: from mail-pa0-f67.google.com ([209.85.220.67]:33002 "EHLO
+	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752065AbcEAMRs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 May 2016 08:17:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Muhammad Falak R Wani <falakreyaz@gmail.com>
 
-Hello,
+It is safe to use RCU_INIT_POINTER() to NULL a pointer, instead of
+rcu_assign_pointer().
+This results in slightly smaller/faster code.
 
-I'm currently trying to somehow get uinput connected with ff-memless.
+Signed-off-by: Muhammad Falak R Wani <falakreyaz@gmail.com>
+---
+ drivers/input/evdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-My first try (which is some kind of hack which prevents API changes and 
-doesn't work at all) failed. Now my idea is to add some more simple (and 
-probably working) API for this. All, I need in the "memless case", is 
-some way to get two motor speeds sent to usermode, which doesn't require 
-all this callback stuff.
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index e9ae3d5..51875b5 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -392,7 +392,7 @@ static int evdev_ungrab(struct evdev *evdev, struct evdev_client *client)
+ 	if (grab != client)
+ 		return  -EINVAL;
+ 
+-	rcu_assign_pointer(evdev->grab, NULL);
++	RCU_INIT_POINTER(evdev->grab, NULL);
+ 	synchronize_rcu();
+ 	input_release_device(&evdev->handle);
+ 
+-- 
+1.9.1
 
-There is a new API which, as far as I understand, is meant to be easier 
-extendable:
-https://github.com/torvalds/linux/commit/052876f8e5
-
-What I need is some way to pass an additional boolean to tell the kernel 
-module that usermode wants to use ff-memless. Device setup is done with 
-an struct "uinput_setup". As far as I know it isn't easily possible to 
-extend this without breaking existing stuff.
-
-It would be possible to write some hack which passes this information 
-via magic-value through ff_effects_max but I think there has to be some 
-nicer way.
-
-So how to pass one more piece of information from usermode to kernel 
-module while setup without breaking existing (probably closed-source) 
-stuff? Keep a definition of the old struct version and decide which one 
-to use based on size?
-
-Thank you very much in advance for any help.
-
-Manuel

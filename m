@@ -1,68 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Manuel Reimer <mail+linux-input@m-reimer.de>
 Subject: Re: How to properly extend uinput API
-Date: Mon, 2 May 2016 11:35:42 -0700
-Message-ID: <20160502183542.GC37394@dtor-ws>
+Date: Mon, 2 May 2016 23:57:21 +0200
+Message-ID: <74df5cb0-9bbb-835a-82ca-aa8527f4d024@m-reimer.de>
 References: <51caa374-1fdc-bcc0-3aac-20292a77571b@m-reimer.de>
+ <20160502183542.GC37394@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f177.google.com ([209.85.192.177]:32859 "EHLO
-	mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754655AbcEBSfq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 May 2016 14:35:46 -0400
-Received: by mail-pf0-f177.google.com with SMTP id 206so82670654pfu.0
-        for <linux-input@vger.kernel.org>; Mon, 02 May 2016 11:35:46 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <51caa374-1fdc-bcc0-3aac-20292a77571b@m-reimer.de>
+Received: from mx2.mailbox.org ([80.241.60.215]:53168 "EHLO mx2.mailbox.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754411AbcEBV50 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 May 2016 17:57:26 -0400
+In-Reply-To: <20160502183542.GC37394@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Manuel Reimer <mail+linux-input@m-reimer.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input <linux-input@vger.kernel.org>
 
-Hi Manuel,
+On 05/02/2016 08:35 PM, Dmitry Torokhov wrote:
+> I am not sure that exposing ff-memless to userspace is a good idea.
 
-On Sat, Apr 30, 2016 at 11:36:24AM +0200, Manuel Reimer wrote:
-> Hello,
-> 
-> I'm currently trying to somehow get uinput connected with ff-memless.
+It would prevent code-duplication, as something, that already exists, 
+would be usable for user mode drivers.
 
-I am not sure that exposing ff-memless to userspace is a good idea.
-Right now what we have is a supporting library for several kernel
-modules and there were considerations to change it to work differently.
+> Right now what we have is a supporting library for several kernel
+> modules and there were considerations to change it to work differently.
 
-I'd rather userspace took care of handling dumb devices if t decided to
-handle device communication instead of leaving it to the kernel.
+But even then there would still be a need for support for input devices 
+with just two rumble motors. I guess this is the most common case.
 
-Thanks.
+While developing my own uinput driver, I had a look at some different 
+projects and all of them at least try to somehow limit the complexity of 
+the existing API. Many of them doing it wrong as simulating all the 
+events, ff-memless can do, on two motors isn't an easy task.
 
-> 
-> My first try (which is some kind of hack which prevents API changes
-> and doesn't work at all) failed. Now my idea is to add some more
-> simple (and probably working) API for this. All, I need in the
-> "memless case", is some way to get two motor speeds sent to
-> usermode, which doesn't require all this callback stuff.
-> 
-> There is a new API which, as far as I understand, is meant to be
-> easier extendable:
-> https://github.com/torvalds/linux/commit/052876f8e5
-> 
-> What I need is some way to pass an additional boolean to tell the
-> kernel module that usermode wants to use ff-memless. Device setup is
-> done with an struct "uinput_setup". As far as I know it isn't easily
-> possible to extend this without breaking existing stuff.
-> 
-> It would be possible to write some hack which passes this
-> information via magic-value through ff_effects_max but I think there
-> has to be some nicer way.
-> 
-> So how to pass one more piece of information from usermode to kernel
-> module while setup without breaking existing (probably
-> closed-source) stuff? Keep a definition of the old struct version
-> and decide which one to use based on size?
-> 
-> Thank you very much in advance for any help.
-> 
-> Manuel
+> I'd rather userspace took care of handling dumb devices if t decided to
+> handle device communication instead of leaving it to the kernel.
 
--- 
-Dmitry
+I considered that and I don't have any clue on how to port the 
+ff-memless code to work in usermode. It uses too much kernel specific 
+features.
+
+
+The easiest way to extend the uinput API could be to introduce a new 
+ioctl call to initialize a "memless" device. This way the uinput-module 
+knows it has to use ff-memless for this device.
+
+And to get the events back to usermode, the simplest way is to just pass 
+the two motor values (both 16 bits) in the value field of an input event 
+(32 bits). This doesn't need all the callback stuff and probably even is 
+more robust (current API tends to create non-killable processes if the 
+uinput daemon exits before the last application, using the device, exits).
+
+I already have some test code running. So far I didn't try with real 
+hardware, but my current results look promising.
+
+
+Does your response mean, that there is no chance to get a patch for this 
+accepted? If so, my only choice would be to ship this as patch with my 
+own code, requiring the user to compile his own kernel.
+
+Manuel

@@ -1,396 +1,71 @@
-From: Grant Grundler <grundler@chromium.org>
-Subject: Input: add Atmel Atmegaxx captouch driver
-Date: Tue,  3 May 2016 10:13:31 -0700
-Message-ID: <1462295611-49684-1-git-send-email-grundler@chromium.org>
+From: Manuel Reimer <mail+linux-input@m-reimer.de>
+Subject: Re: How to properly extend uinput API
+Date: Tue, 3 May 2016 19:22:47 +0200
+Message-ID: <eab9d60a-9632-4478-1636-31ede3d1effa@m-reimer.de>
+References: <51caa374-1fdc-bcc0-3aac-20292a77571b@m-reimer.de>
+ <20160502183542.GC37394@dtor-ws>
+ <74df5cb0-9bbb-835a-82ca-aa8527f4d024@m-reimer.de>
+ <20160502225147.GD37394@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f173.google.com ([209.85.192.173]:33855 "EHLO
-	mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755920AbcECROP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 May 2016 13:14:15 -0400
-Received: by mail-pf0-f173.google.com with SMTP id y69so12897280pfb.1
-        for <linux-input@vger.kernel.org>; Tue, 03 May 2016 10:14:14 -0700 (PDT)
+Received: from mx2.mailbox.org ([80.241.60.215]:47516 "EHLO mx2.mailbox.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933319AbcECRWv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 May 2016 13:22:51 -0400
+In-Reply-To: <20160502225147.GD37394@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Grant Likely <grant.likely@linaro.org>, LKML <linux-kernel@vger.kernel.org>, devicetree@vger.kernel.org, Hung-yu Wu <hywu@google.com>, Grant Grundler <grundler@chromium.org>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-Add I2C driver for AtmegaXX capacitive touch device.
+On 05/03/2016 12:51 AM, Dmitry Torokhov wrote:
+> Nowhere in the memoryless code we have "2 motor values".
 
-Signed-off-by: Hung-yu Wu <hywu@google.com>
-Signed-off-by: Grant Grundler <grundler@chromium.org>
----
- .../bindings/input/atmel,atmegaxx_captouch.txt     |  34 +++
- drivers/input/misc/Kconfig                         |  11 +
- drivers/input/misc/Makefile                        |   1 +
- drivers/input/misc/atmegaxx_captouch.c             | 278 +++++++++++++++++++++
- 4 files changed, 324 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
- create mode 100644 drivers/input/misc/atmegaxx_captouch.c
+But it simulates a few supported events with FF_RUMBLE events.
 
-For those that like to know how sausage is made, ChromeOS code review history here:
-   https://chromium-review.googlesource.com/339950
+> You are
+> basically designing an API for single device and that is not a good
+> idea.
 
-Driver was tested with prototype HW and it reliably reports events correctly.
-Manual testing was just using "evtest /dev/input/event0" and watch for events.
+Not for a single device, but for a big (if not the biggest) group of 
+game controllers.
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt b/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
-new file mode 100644
-index 0000000..07a4b0b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
-@@ -0,0 +1,34 @@
-+Device tree bindings for Atmel AtmegaXX capacitive touch sensor
-+
-+The node for this device must be a child of a I2C controller node, as the
-+device communicates via I2C.
-+
-+Required properties:
-+
-+	compatible:	Must be "atmel,atmegaxx_captouch".
-+	reg:		The I2C slave address of the device.
-+	interrupts:	Property describing the interrupt line the device
-+			is connected to. The device only has one interrupt
-+			source.
-+	linux,keycodes:	Specifies an array of numeric keycode values to
-+			be used for reporting button presses. The array can
-+			contain up to 8 entries.
-+
-+Optional properties:
-+
-+	autorepeat:	Enables the Linux input system's autorepeat
-+			feature on the input device.
-+
-+Example:
-+
-+	atmegaxx_captouch@51 {
-+		compatible = "atmel,atmegaxx_captouch";
-+		reg = <0x51>;
-+		interrupt-parent = <&tlmm>;
-+		interrupts = <67 IRQ_TYPE_EDGE_FALLING>;
-+		linux,keycodes = <BTN_0>, <BTN_1>,
-+			<BTN_2>, <BTN_3>,
-+			<BTN_4>, <BTN_5>,
-+			<BTN_6>, <BTN_7>;
-+		autorepeat;
-+	};
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 838824b..4cee1ac 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -82,6 +82,17 @@ config INPUT_ARIZONA_HAPTICS
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called arizona-haptics.
- 
-+config INPUT_ATMEGAXX_CAPTOUCH
-+	tristate "Atmel AtmegaXX Capacitive Touch"
-+	depends on OF || COMPILE_TEST
-+	help
-+	  Say Y here if an Atmel Capacitive Touch device is connected to
-+	  an I2C bus. One should find "atmel,atmegaxx_captouch" node in
-+	  the board specific DTS.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called atmegaxx_captouch.
-+
- config INPUT_BMA150
- 	tristate "BMA150/SMB380 acceleration sensor support"
- 	depends on I2C
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index f77268e..7254bd6c 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -17,6 +17,7 @@ obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
- obj-$(CONFIG_INPUT_ARIZONA_HAPTICS)	+= arizona-haptics.o
- obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
- obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
-+obj-$(CONFIG_INPUT_ATMEGAXX_CAPTOUCH)	+= atmegaxx_captouch.o
- obj-$(CONFIG_INPUT_BFIN_ROTARY)		+= bfin_rotary.o
- obj-$(CONFIG_INPUT_BMA150)		+= bma150.o
- obj-$(CONFIG_INPUT_CM109)		+= cm109.o
-diff --git a/drivers/input/misc/atmegaxx_captouch.c b/drivers/input/misc/atmegaxx_captouch.c
-new file mode 100644
-index 0000000..bd886c1
---- /dev/null
-+++ b/drivers/input/misc/atmegaxx_captouch.c
-@@ -0,0 +1,278 @@
-+/*
-+ * Atmel Atmegaxx Capacitive Touch Driver
-+ *
-+ * Copyright (C) 2016 Google, inc.
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+/*
-+ * For raw i2c access from userspace, use i2cset/i2cget
-+ * to poke at /dev/i2c-N devices.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/slab.h>
-+
-+/* Maximum number of buttons supported */
-+#define MAX_NUM_OF_BUTTONS		8
-+
-+/* Registers */
-+#define REG_KEY1_THRESHOLD		0x02
-+#define REG_KEY2_THRESHOLD		0x03
-+#define REG_KEY3_THRESHOLD		0x04
-+#define REG_KEY4_THRESHOLD		0x05
-+
-+#define REG_KEY1_REF_H			0x20
-+#define REG_KEY1_REF_L			0x21
-+#define REG_KEY2_REF_H			0x22
-+#define REG_KEY2_REF_L			0x23
-+#define REG_KEY3_REF_H			0x24
-+#define REG_KEY3_REF_L			0x25
-+#define REG_KEY4_REF_H			0x26
-+#define REG_KEY4_REF_L			0x27
-+
-+#define REG_KEY1_DLT_H			0x30
-+#define REG_KEY1_DLT_L			0x31
-+#define REG_KEY2_DLT_H			0x32
-+#define REG_KEY2_DLT_L			0x33
-+#define REG_KEY3_DLT_H			0x34
-+#define REG_KEY3_DLT_L			0x35
-+#define REG_KEY4_DLT_H			0x36
-+#define REG_KEY4_DLT_L			0x37
-+
-+#define REG_KEY_STATE			0x3C
-+
-+/*
-+ * @i2c_client: I2C slave device client pointer
-+ * @input: Input device pointer
-+ * @num_btn: Number of buttons
-+ * @keycodes: map of button# to KeyCode
-+ * @prev_btn: Previous key state to detect button "press" or "release"
-+ * @xfer_buf: I2C transfer buffer
-+ */
-+struct atmegaxx_captouch_device {
-+	struct i2c_client *client;
-+	struct input_dev *input;
-+	u32 num_btn;
-+	u32 keycodes[MAX_NUM_OF_BUTTONS];
-+	u8 prev_btn;
-+	u8 xfer_buf[8] ____cacheline_aligned;
-+};
-+
-+/*
-+ * Read from I2C slave device
-+ * The protocol is that the client has to provide both the register address
-+ * and the length, and while reading back the device would prepend the data
-+ * with address and length for verification.
-+ */
-+static int atmegaxx_read(struct atmegaxx_captouch_device *atmegaxx,
-+			 u8 reg, u8 *data, size_t len)
-+{
-+	struct i2c_client *client = atmegaxx->client;
-+	struct device *dev = &client->dev;
-+	struct i2c_msg msg[2];
-+	int err;
-+
-+	if (len > sizeof(atmegaxx->xfer_buf) - 2)
-+		return -EINVAL;
-+
-+	atmegaxx->xfer_buf[0] = reg;
-+	atmegaxx->xfer_buf[1] = len;
-+
-+	msg[0].addr = client->addr;
-+	msg[0].flags = 0;
-+	msg[0].buf = atmegaxx->xfer_buf;
-+	msg[0].len = 2;
-+
-+	msg[1].addr = client->addr;
-+	msg[1].flags = I2C_M_RD;
-+	msg[1].buf = atmegaxx->xfer_buf;
-+	msg[1].len = len + 2;
-+
-+	err = i2c_transfer(client->adapter, msg, ARRAY_SIZE(msg));
-+	if (err != ARRAY_SIZE(msg))
-+		return err < 0 ? err : -EIO;
-+
-+	if (atmegaxx->xfer_buf[0] != reg) {
-+		dev_err(dev, "I2C read error: register address does not match\n");
-+		return -ECOMM;
-+	}
-+
-+	memcpy(data, &atmegaxx->xfer_buf[2], len);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Handle interrupt and report the key changes to the input system.
-+ * Multi-touch can be supported; however, it really depends on whether
-+ * the device can multi-touch.
-+ */
-+static irqreturn_t atmegaxx_captouch_isr(int irq, void *data)
-+{
-+	struct atmegaxx_captouch_device *atmegaxx = data;
-+	struct device *dev = &atmegaxx->client->dev;
-+	int error;
-+	int i;
-+	u8 new_btn;
-+	u8 changed_btn;
-+
-+	error = atmegaxx_read(atmegaxx, REG_KEY_STATE, &new_btn, 1);
-+	if (error) {
-+		dev_err(dev, "failed to read button state: %d\n", error);
-+		goto out;
-+	}
-+
-+	dev_dbg(dev, "%s: button state %#02x\n", __func__, new_btn);
-+
-+	changed_btn = new_btn ^ atmegaxx->prev_btn;
-+	atmegaxx->prev_btn = new_btn;
-+
-+	for (i = 0; i < atmegaxx->num_btn; i++) {
-+		if (changed_btn & BIT(i))
-+			input_report_key(atmegaxx->input,
-+					 atmegaxx->keycodes[i],
-+					 new_btn & BIT(i));
-+	}
-+
-+	input_sync(atmegaxx->input);
-+
-+out:
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ * Probe function to setup the device, input system and interrupt
-+ */
-+static int atmegaxx_captouch_probe(struct i2c_client *client,
-+		const struct i2c_device_id *id)
-+{
-+	struct atmegaxx_captouch_device *atmegaxx;
-+	struct device *dev = &client->dev;
-+	struct device_node *node;
-+	int i;
-+	int err;
-+
-+	if (!i2c_check_functionality(client->adapter,
-+				     I2C_FUNC_SMBUS_BYTE_DATA |
-+					I2C_FUNC_SMBUS_WORD_DATA |
-+					I2C_FUNC_SMBUS_I2C_BLOCK)) {
-+		dev_err(dev, "needed i2c functionality is not supported\n");
-+		return -EINVAL;
-+	}
-+
-+	atmegaxx = devm_kzalloc(dev, sizeof(*atmegaxx), GFP_KERNEL);
-+	if (!atmegaxx)
-+		return -ENOMEM;
-+
-+	atmegaxx->client = client;
-+	i2c_set_clientdata(client, atmegaxx);
-+
-+	err = atmegaxx_read(atmegaxx, REG_KEY_STATE,
-+			    &atmegaxx->prev_btn, sizeof(atmegaxx->prev_btn));
-+	if (err) {
-+		dev_err(dev, "failed to read initial button state: %d\n", err);
-+		return err;
-+	}
-+
-+	atmegaxx->input = devm_input_allocate_device(dev);
-+	if (!atmegaxx->input) {
-+		dev_err(dev, "failed to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	atmegaxx->input->id.bustype = BUS_I2C;
-+	atmegaxx->input->id.product = 0x880A;
-+	atmegaxx->input->id.version = 0;
-+	atmegaxx->input->name = "ATMegaXX Capacitive Button Controller";
-+	__set_bit(EV_KEY, atmegaxx->input->evbit);
-+
-+	node = dev->of_node;
-+	if (!node) {
-+		dev_err(dev, "failed to find matching node in device tree\n");
-+		return -EINVAL;
-+	}
-+
-+	if (of_property_read_bool(node, "autorepeat"))
-+		__set_bit(EV_REP, atmegaxx->input->evbit);
-+
-+	atmegaxx->num_btn = of_property_count_u32_elems(node, "linux,keymap");
-+	if (atmegaxx->num_btn > MAX_NUM_OF_BUTTONS)
-+		atmegaxx->num_btn = MAX_NUM_OF_BUTTONS;
-+
-+	err = of_property_read_u32_array(node, "linux,keycodes",
-+					 atmegaxx->keycodes,
-+					 atmegaxx->num_btn);
-+	if (err) {
-+		dev_err(dev,
-+			"failed to read linux,keycode property: %d\n", err);
-+		return err;
-+	}
-+
-+	for (i = 0; i < atmegaxx->num_btn; i++)
-+		__set_bit(atmegaxx->keycodes[i], atmegaxx->input->keybit);
-+
-+	atmegaxx->input->keycode = atmegaxx->keycodes;
-+	atmegaxx->input->keycodesize = sizeof(atmegaxx->keycodes[0]);
-+	atmegaxx->input->keycodemax = atmegaxx->num_btn;
-+
-+	err = input_register_device(atmegaxx->input);
-+	if (err)
-+		return err;
-+
-+	err = devm_request_threaded_irq(dev, client->irq, NULL,
-+				atmegaxx_captouch_isr, IRQF_ONESHOT,
-+				"atmegaxx_captouch", atmegaxx);
-+	if (err) {
-+		dev_err(dev, "failed to request irq %d: %d\n",
-+			client->irq, err);
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id atmegaxx_captouch_of_id[] = {
-+	{
-+		.compatible = "atmel,atmegaxx_captouch",
-+	},
-+	{ /* sentinel */ }
-+}
-+MODULE_DEVICE_TABLE(of, atmegaxx_captouch_of_id);
-+#endif
-+
-+static const struct i2c_device_id atmegaxx_captouch_id[] = {
-+	{ "atmegaxx_captouch", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, atmegaxx_captouch_id);
-+
-+static struct i2c_driver atmegaxx_captouch_driver = {
-+	.probe		= atmegaxx_captouch_probe,
-+	.id_table	= atmegaxx_captouch_id,
-+	.driver		= {
-+		.name	= "atmegaxx_captouch",
-+		.of_match_table = of_match_ptr(atmegaxx_captouch_of_id),
-+	},
-+};
-+module_i2c_driver(atmegaxx_captouch_driver);
-+
-+/* Module information */
-+MODULE_AUTHOR("Hung-yu Wu <hywu@google.com>");
-+MODULE_DESCRIPTION("Atmel ATmegaXX Capacitance Touch Sensor I2C Driver");
-+MODULE_LICENSE("GPL v2");
--- 
-2.1.2
+> Hmm, it should not, can you post some traces to show where it gets
+> stuck so we can fix it?
 
+Some time ago, Elias Vanderstuyft sent me a link to this thread:
+
+http://comments.gmane.org/gmane.linux.kernel.input/44528
+
+Maybe this helps to track down this problem?
+
+> You should be able to take cues from the kernel code and create
+> userspace library providing similar features, but in the way that is
+> flexible and make sense in userspace.
+
+Of course this should be possible. It just is far more difficult than 
+just using what is already there.
+
+While searching for examples to learn from, I've collected a few 
+existing uinput projects using force feedback. 100% of them somehow try 
+to drive two motors and would profit from some API making this common 
+case more easy.
+
+But if the recommended way is to do this in userspace, I will try to 
+understand how ff-memless works to port it 1:1 to userspace. 
+Unfortunately the kernel documentation 
+(https://www.kernel.org/doc/Documentation/input/ff.txt) says:
+
+| Note: In most cases you should use FF_PERIODIC instead of FF_RUMBLE.
+|       *All* devices that support FF_RUMBLE support FF_PERIODIC
+|       (square, triangle, sine) and the other way around.
+
+So I guess game developers will not just send FF_RUMBLE and so I have to 
+do some kind of simulation to get my rumble working.
+
+If someone already has simple code which can be used from plain C, I 
+would be happy to get a link to the repository.
+
+Manuel

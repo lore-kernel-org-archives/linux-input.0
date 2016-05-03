@@ -1,158 +1,396 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 4/4] Input: zforce_ts: Add support for minimum touch
- size limit
-Date: Tue, 3 May 2016 09:12:20 -0700
-Message-ID: <20160503161220.GB21565@dtor-ws>
-References: <1462272110-24610-1-git-send-email-dirk.behme@de.bosch.com>
- <1462272110-24610-5-git-send-email-dirk.behme@de.bosch.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Grant Grundler <grundler@chromium.org>
+Subject: Input: add Atmel Atmegaxx captouch driver
+Date: Tue,  3 May 2016 10:13:31 -0700
+Message-ID: <1462295611-49684-1-git-send-email-grundler@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:34540 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755920AbcECQMY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 May 2016 12:12:24 -0400
-Received: by mail-pa0-f47.google.com with SMTP id r5so12116738pag.1
-        for <linux-input@vger.kernel.org>; Tue, 03 May 2016 09:12:24 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1462272110-24610-5-git-send-email-dirk.behme@de.bosch.com>
+Received: from mail-pf0-f173.google.com ([209.85.192.173]:33855 "EHLO
+	mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755920AbcECROP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 May 2016 13:14:15 -0400
+Received: by mail-pf0-f173.google.com with SMTP id y69so12897280pfb.1
+        for <linux-input@vger.kernel.org>; Tue, 03 May 2016 10:14:14 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dirk Behme <dirk.behme@de.bosch.com>
-Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Knut Wohlrab <Knut.Wohlrab@de.bosch.com>, Oleksij Rempel <linux@rempel-privat.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Grant Likely <grant.likely@linaro.org>, LKML <linux-kernel@vger.kernel.org>, devicetree@vger.kernel.org, Hung-yu Wu <hywu@google.com>, Grant Grundler <grundler@chromium.org>
 
-On Tue, May 03, 2016 at 12:41:50PM +0200, Dirk Behme wrote:
-> From: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
-> 
-> The minimum touch size can be set to support more reliable touch
-> detection under difficult conditions (e.g. dust on touch panel surface).
-> 
-> For usage details see documentation.
-> 
-> Signed-off-by: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
-> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
-> ---
->  .../bindings/input/touchscreen/zforce_ts.txt       |  2 ++
->  drivers/input/touchscreen/zforce_ts.c              | 29 ++++++++++++++++++++++
->  include/linux/platform_data/zforce_ts.h            |  1 +
->  3 files changed, 32 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
-> index d8d57ba..60dd78b 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
-> @@ -13,6 +13,7 @@ Optional properties:
->  - vdd-supply: Regulator controlling the controller supply
->  - scan-idle-hz: idle scanning frequency in Hz (0 - 65535 Hz; default 10 Hz)
->  - scan-active-hz: touch scanning frequeny in Hz (0 - 65535 Hz; default 50 Hz)
-> +- touch-size-min: minimun touch size limit in mm (0 - 255 mm; 0 = no limit (default))
+Add I2C driver for AtmegaXX capacitive touch device.
 
-minimum
+Signed-off-by: Hung-yu Wu <hywu@google.com>
+Signed-off-by: Grant Grundler <grundler@chromium.org>
+---
+ .../bindings/input/atmel,atmegaxx_captouch.txt     |  34 +++
+ drivers/input/misc/Kconfig                         |  11 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/atmegaxx_captouch.c             | 278 +++++++++++++++++++++
+ 4 files changed, 324 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
+ create mode 100644 drivers/input/misc/atmegaxx_captouch.c
 
-Also it should probably be touch-size-min-mm if I understand devicetree
-guys.
+For those that like to know how sausage is made, ChromeOS code review history here:
+   https://chromium-review.googlesource.com/339950
 
->  
->  Example:
->  
-> @@ -32,6 +33,7 @@ Example:
->  			y-size = <600>;
->  			scan-idle-hz = <50>;
->  			scan-active-hz = <250>;
-> +			touch-size-min = <5>;
->  		};
->  
->  		/* ... */
-> diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
-> index 2a818d4..99fe7b6 100644
-> --- a/drivers/input/touchscreen/zforce_ts.c
-> +++ b/drivers/input/touchscreen/zforce_ts.c
-> @@ -54,6 +54,7 @@
->  #define COMMAND_SETCONFIG	0x03
->  #define COMMAND_DATAREQUEST	0x04
->  #define COMMAND_SCANFREQ	0x08
-> +#define COMMAND_TOUCH_SIZE	0x09
->  #define COMMAND_STATUS		0X1e
->  
->  /*
-> @@ -65,6 +66,7 @@
->  #define RESPONSE_RESOLUTION	0x02
->  #define RESPONSE_SETCONFIG	0x03
->  #define RESPONSE_SCANFREQ	0x08
-> +#define RESPONSE_TOUCH_SIZE	0x09
->  #define RESPONSE_STATUS		0X1e
->  
->  /*
-> @@ -276,6 +278,21 @@ static int zforce_scan_frequency(struct zforce_ts *ts, u16 idle, u16 finger,
->  	return zforce_send_wait(ts, &buf[0], ARRAY_SIZE(buf));
->  }
->  
-> +static int zforce_touch_size_limit(struct zforce_ts *ts, u8 limit)
-> +{
-> +	struct i2c_client *client = ts->client;
-> +	u8 buf[] = { FRAME_START, 5, COMMAND_TOUCH_SIZE,
-> +		     0, 0, /* maximum size limit off */
-> +		     1, limit }; /* set minimum size limit */
-> +
-> +	if (!limit)
-> +		return 0;
-> +
-> +	dev_dbg(&client->dev, "set min. touch size limit to %d mm\n", limit);
-> +
-> +	return zforce_send_wait(ts, &buf[0], ARRAY_SIZE(buf));
-> +}
-> +
->  static int zforce_setconfig(struct zforce_ts *ts, char b1)
->  {
->  	struct i2c_client *client = ts->client;
-> @@ -316,6 +333,13 @@ static int zforce_start(struct zforce_ts *ts)
->  		goto error;
->  	}
->  
-> +	ret = zforce_touch_size_limit(ts, pdata->touch_size_min);
-> +	if (ret) {
-> +		dev_err(&client->dev, "Unable to set min. touch size, %d\n",
-> +			ret);
-> +		goto error;
-> +	}
-> +
->  	ret = zforce_setconfig(ts, SETCONFIG_DUALTOUCH);
->  	if (ret) {
->  		dev_err(&client->dev, "Unable to set config\n");
-> @@ -577,6 +601,7 @@ static irqreturn_t zforce_irq_thread(int irq, void *dev_id)
->  		case RESPONSE_SETCONFIG:
->  		case RESPONSE_RESOLUTION:
->  		case RESPONSE_SCANFREQ:
-> +		case RESPONSE_TOUCH_SIZE:
->  			zforce_complete(ts, payload[RESPONSE_ID],
->  					payload[RESPONSE_DATA]);
->  			break;
-> @@ -852,6 +877,10 @@ static struct zforce_ts_platdata *zforce_parse_dt(struct device *dev)
->  				 &pdata->scan_freq_finger))
->  		pdata->scan_freq_finger = SCAN_FREQ_DEFAULT_FINGER;
->  
-> +	if (of_property_read_u8(np, "touch-size-min",
-> +				&pdata->touch_size_min))
-> +		pdata->touch_size_min = 0;
-> +
->  	return pdata;
->  }
->  
-> diff --git a/include/linux/platform_data/zforce_ts.h b/include/linux/platform_data/zforce_ts.h
-> index 90a1181..75e1a49 100644
-> --- a/include/linux/platform_data/zforce_ts.h
-> +++ b/include/linux/platform_data/zforce_ts.h
-> @@ -20,6 +20,7 @@ struct zforce_ts_platdata {
->  	unsigned int y_max;
->  	u16 scan_freq_idle;
->  	u16 scan_freq_finger;
-> +	u8 touch_size_min;
->  };
->  
->  #endif /* _LINUX_INPUT_ZFORCE_TS_H */
-> -- 
-> 1.9.1
-> 
+Driver was tested with prototype HW and it reliably reports events correctly.
+Manual testing was just using "evtest /dev/input/event0" and watch for events.
 
+diff --git a/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt b/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
+new file mode 100644
+index 0000000..07a4b0b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
+@@ -0,0 +1,34 @@
++Device tree bindings for Atmel AtmegaXX capacitive touch sensor
++
++The node for this device must be a child of a I2C controller node, as the
++device communicates via I2C.
++
++Required properties:
++
++	compatible:	Must be "atmel,atmegaxx_captouch".
++	reg:		The I2C slave address of the device.
++	interrupts:	Property describing the interrupt line the device
++			is connected to. The device only has one interrupt
++			source.
++	linux,keycodes:	Specifies an array of numeric keycode values to
++			be used for reporting button presses. The array can
++			contain up to 8 entries.
++
++Optional properties:
++
++	autorepeat:	Enables the Linux input system's autorepeat
++			feature on the input device.
++
++Example:
++
++	atmegaxx_captouch@51 {
++		compatible = "atmel,atmegaxx_captouch";
++		reg = <0x51>;
++		interrupt-parent = <&tlmm>;
++		interrupts = <67 IRQ_TYPE_EDGE_FALLING>;
++		linux,keycodes = <BTN_0>, <BTN_1>,
++			<BTN_2>, <BTN_3>,
++			<BTN_4>, <BTN_5>,
++			<BTN_6>, <BTN_7>;
++		autorepeat;
++	};
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 838824b..4cee1ac 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -82,6 +82,17 @@ config INPUT_ARIZONA_HAPTICS
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called arizona-haptics.
+ 
++config INPUT_ATMEGAXX_CAPTOUCH
++	tristate "Atmel AtmegaXX Capacitive Touch"
++	depends on OF || COMPILE_TEST
++	help
++	  Say Y here if an Atmel Capacitive Touch device is connected to
++	  an I2C bus. One should find "atmel,atmegaxx_captouch" node in
++	  the board specific DTS.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called atmegaxx_captouch.
++
+ config INPUT_BMA150
+ 	tristate "BMA150/SMB380 acceleration sensor support"
+ 	depends on I2C
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index f77268e..7254bd6c 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -17,6 +17,7 @@ obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
+ obj-$(CONFIG_INPUT_ARIZONA_HAPTICS)	+= arizona-haptics.o
+ obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
+ obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
++obj-$(CONFIG_INPUT_ATMEGAXX_CAPTOUCH)	+= atmegaxx_captouch.o
+ obj-$(CONFIG_INPUT_BFIN_ROTARY)		+= bfin_rotary.o
+ obj-$(CONFIG_INPUT_BMA150)		+= bma150.o
+ obj-$(CONFIG_INPUT_CM109)		+= cm109.o
+diff --git a/drivers/input/misc/atmegaxx_captouch.c b/drivers/input/misc/atmegaxx_captouch.c
+new file mode 100644
+index 0000000..bd886c1
+--- /dev/null
++++ b/drivers/input/misc/atmegaxx_captouch.c
+@@ -0,0 +1,278 @@
++/*
++ * Atmel Atmegaxx Capacitive Touch Driver
++ *
++ * Copyright (C) 2016 Google, inc.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++/*
++ * For raw i2c access from userspace, use i2cset/i2cget
++ * to poke at /dev/i2c-N devices.
++ */
++
++#include <linux/device.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/slab.h>
++
++/* Maximum number of buttons supported */
++#define MAX_NUM_OF_BUTTONS		8
++
++/* Registers */
++#define REG_KEY1_THRESHOLD		0x02
++#define REG_KEY2_THRESHOLD		0x03
++#define REG_KEY3_THRESHOLD		0x04
++#define REG_KEY4_THRESHOLD		0x05
++
++#define REG_KEY1_REF_H			0x20
++#define REG_KEY1_REF_L			0x21
++#define REG_KEY2_REF_H			0x22
++#define REG_KEY2_REF_L			0x23
++#define REG_KEY3_REF_H			0x24
++#define REG_KEY3_REF_L			0x25
++#define REG_KEY4_REF_H			0x26
++#define REG_KEY4_REF_L			0x27
++
++#define REG_KEY1_DLT_H			0x30
++#define REG_KEY1_DLT_L			0x31
++#define REG_KEY2_DLT_H			0x32
++#define REG_KEY2_DLT_L			0x33
++#define REG_KEY3_DLT_H			0x34
++#define REG_KEY3_DLT_L			0x35
++#define REG_KEY4_DLT_H			0x36
++#define REG_KEY4_DLT_L			0x37
++
++#define REG_KEY_STATE			0x3C
++
++/*
++ * @i2c_client: I2C slave device client pointer
++ * @input: Input device pointer
++ * @num_btn: Number of buttons
++ * @keycodes: map of button# to KeyCode
++ * @prev_btn: Previous key state to detect button "press" or "release"
++ * @xfer_buf: I2C transfer buffer
++ */
++struct atmegaxx_captouch_device {
++	struct i2c_client *client;
++	struct input_dev *input;
++	u32 num_btn;
++	u32 keycodes[MAX_NUM_OF_BUTTONS];
++	u8 prev_btn;
++	u8 xfer_buf[8] ____cacheline_aligned;
++};
++
++/*
++ * Read from I2C slave device
++ * The protocol is that the client has to provide both the register address
++ * and the length, and while reading back the device would prepend the data
++ * with address and length for verification.
++ */
++static int atmegaxx_read(struct atmegaxx_captouch_device *atmegaxx,
++			 u8 reg, u8 *data, size_t len)
++{
++	struct i2c_client *client = atmegaxx->client;
++	struct device *dev = &client->dev;
++	struct i2c_msg msg[2];
++	int err;
++
++	if (len > sizeof(atmegaxx->xfer_buf) - 2)
++		return -EINVAL;
++
++	atmegaxx->xfer_buf[0] = reg;
++	atmegaxx->xfer_buf[1] = len;
++
++	msg[0].addr = client->addr;
++	msg[0].flags = 0;
++	msg[0].buf = atmegaxx->xfer_buf;
++	msg[0].len = 2;
++
++	msg[1].addr = client->addr;
++	msg[1].flags = I2C_M_RD;
++	msg[1].buf = atmegaxx->xfer_buf;
++	msg[1].len = len + 2;
++
++	err = i2c_transfer(client->adapter, msg, ARRAY_SIZE(msg));
++	if (err != ARRAY_SIZE(msg))
++		return err < 0 ? err : -EIO;
++
++	if (atmegaxx->xfer_buf[0] != reg) {
++		dev_err(dev, "I2C read error: register address does not match\n");
++		return -ECOMM;
++	}
++
++	memcpy(data, &atmegaxx->xfer_buf[2], len);
++
++	return 0;
++}
++
++/*
++ * Handle interrupt and report the key changes to the input system.
++ * Multi-touch can be supported; however, it really depends on whether
++ * the device can multi-touch.
++ */
++static irqreturn_t atmegaxx_captouch_isr(int irq, void *data)
++{
++	struct atmegaxx_captouch_device *atmegaxx = data;
++	struct device *dev = &atmegaxx->client->dev;
++	int error;
++	int i;
++	u8 new_btn;
++	u8 changed_btn;
++
++	error = atmegaxx_read(atmegaxx, REG_KEY_STATE, &new_btn, 1);
++	if (error) {
++		dev_err(dev, "failed to read button state: %d\n", error);
++		goto out;
++	}
++
++	dev_dbg(dev, "%s: button state %#02x\n", __func__, new_btn);
++
++	changed_btn = new_btn ^ atmegaxx->prev_btn;
++	atmegaxx->prev_btn = new_btn;
++
++	for (i = 0; i < atmegaxx->num_btn; i++) {
++		if (changed_btn & BIT(i))
++			input_report_key(atmegaxx->input,
++					 atmegaxx->keycodes[i],
++					 new_btn & BIT(i));
++	}
++
++	input_sync(atmegaxx->input);
++
++out:
++	return IRQ_HANDLED;
++}
++
++/*
++ * Probe function to setup the device, input system and interrupt
++ */
++static int atmegaxx_captouch_probe(struct i2c_client *client,
++		const struct i2c_device_id *id)
++{
++	struct atmegaxx_captouch_device *atmegaxx;
++	struct device *dev = &client->dev;
++	struct device_node *node;
++	int i;
++	int err;
++
++	if (!i2c_check_functionality(client->adapter,
++				     I2C_FUNC_SMBUS_BYTE_DATA |
++					I2C_FUNC_SMBUS_WORD_DATA |
++					I2C_FUNC_SMBUS_I2C_BLOCK)) {
++		dev_err(dev, "needed i2c functionality is not supported\n");
++		return -EINVAL;
++	}
++
++	atmegaxx = devm_kzalloc(dev, sizeof(*atmegaxx), GFP_KERNEL);
++	if (!atmegaxx)
++		return -ENOMEM;
++
++	atmegaxx->client = client;
++	i2c_set_clientdata(client, atmegaxx);
++
++	err = atmegaxx_read(atmegaxx, REG_KEY_STATE,
++			    &atmegaxx->prev_btn, sizeof(atmegaxx->prev_btn));
++	if (err) {
++		dev_err(dev, "failed to read initial button state: %d\n", err);
++		return err;
++	}
++
++	atmegaxx->input = devm_input_allocate_device(dev);
++	if (!atmegaxx->input) {
++		dev_err(dev, "failed to allocate input device\n");
++		return -ENOMEM;
++	}
++
++	atmegaxx->input->id.bustype = BUS_I2C;
++	atmegaxx->input->id.product = 0x880A;
++	atmegaxx->input->id.version = 0;
++	atmegaxx->input->name = "ATMegaXX Capacitive Button Controller";
++	__set_bit(EV_KEY, atmegaxx->input->evbit);
++
++	node = dev->of_node;
++	if (!node) {
++		dev_err(dev, "failed to find matching node in device tree\n");
++		return -EINVAL;
++	}
++
++	if (of_property_read_bool(node, "autorepeat"))
++		__set_bit(EV_REP, atmegaxx->input->evbit);
++
++	atmegaxx->num_btn = of_property_count_u32_elems(node, "linux,keymap");
++	if (atmegaxx->num_btn > MAX_NUM_OF_BUTTONS)
++		atmegaxx->num_btn = MAX_NUM_OF_BUTTONS;
++
++	err = of_property_read_u32_array(node, "linux,keycodes",
++					 atmegaxx->keycodes,
++					 atmegaxx->num_btn);
++	if (err) {
++		dev_err(dev,
++			"failed to read linux,keycode property: %d\n", err);
++		return err;
++	}
++
++	for (i = 0; i < atmegaxx->num_btn; i++)
++		__set_bit(atmegaxx->keycodes[i], atmegaxx->input->keybit);
++
++	atmegaxx->input->keycode = atmegaxx->keycodes;
++	atmegaxx->input->keycodesize = sizeof(atmegaxx->keycodes[0]);
++	atmegaxx->input->keycodemax = atmegaxx->num_btn;
++
++	err = input_register_device(atmegaxx->input);
++	if (err)
++		return err;
++
++	err = devm_request_threaded_irq(dev, client->irq, NULL,
++				atmegaxx_captouch_isr, IRQF_ONESHOT,
++				"atmegaxx_captouch", atmegaxx);
++	if (err) {
++		dev_err(dev, "failed to request irq %d: %d\n",
++			client->irq, err);
++		return err;
++	}
++
++	return 0;
++}
++
++#ifdef CONFIG_OF
++static const struct of_device_id atmegaxx_captouch_of_id[] = {
++	{
++		.compatible = "atmel,atmegaxx_captouch",
++	},
++	{ /* sentinel */ }
++}
++MODULE_DEVICE_TABLE(of, atmegaxx_captouch_of_id);
++#endif
++
++static const struct i2c_device_id atmegaxx_captouch_id[] = {
++	{ "atmegaxx_captouch", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, atmegaxx_captouch_id);
++
++static struct i2c_driver atmegaxx_captouch_driver = {
++	.probe		= atmegaxx_captouch_probe,
++	.id_table	= atmegaxx_captouch_id,
++	.driver		= {
++		.name	= "atmegaxx_captouch",
++		.of_match_table = of_match_ptr(atmegaxx_captouch_of_id),
++	},
++};
++module_i2c_driver(atmegaxx_captouch_driver);
++
++/* Module information */
++MODULE_AUTHOR("Hung-yu Wu <hywu@google.com>");
++MODULE_DESCRIPTION("Atmel ATmegaXX Capacitance Touch Sensor I2C Driver");
++MODULE_LICENSE("GPL v2");
 -- 
-Dmitry
+2.1.2
+

@@ -1,47 +1,58 @@
-From: TJ <linux@iam.tj>
-Subject: [bug 117601]  ELAN 3320KD-3100 'Smart-Pad' not supported (in Asus  T300CHI)
-Date: Tue, 03 May 2016 23:24:17 +0100
-Message-ID: <c740769b3960f99619149e467aa390a9@iam.tj>
+From: Gregor Riepl <onitake@gmail.com>
+Subject: Re: Chipone icn85xx support in x86 linux kernel
+Date: Wed, 4 May 2016 01:35:48 +0200
+Message-ID: <572935D4.6050303@gmail.com>
+References: <CA+V1LzoXvWO1FROO2z7tFc-0zoM_Ur+B1iiar+EJ4uvn+DWGdQ@mail.gmail.com>
+ <CA+V1LzpHBvYQ78Ky1XALvYZDy25NSP58upvue6GJCGQk+iE0fQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yes.iam.tj ([109.74.197.121]:59912 "EHLO iam.tj"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1756519AbcECWYT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 May 2016 18:24:19 -0400
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:36578 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756833AbcECXfv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 May 2016 19:35:51 -0400
+Received: by mail-wm0-f67.google.com with SMTP id w143so6801521wmw.3
+        for <linux-input@vger.kernel.org>; Tue, 03 May 2016 16:35:50 -0700 (PDT)
+In-Reply-To: <CA+V1LzpHBvYQ78Ky1XALvYZDy25NSP58upvue6GJCGQk+iE0fQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: sergk sergk2mail <sergk.admin@gmail.com>, linux-input@vger.kernel.org
 
-https://bugzilla.kernel.org/show_bug.cgi?id=117601
+> At last I am releasing my icn85xx (tested on icn8528 on Chuwi Vi10,
+> Baytrail) kernel space driver.
+> It is unfortunately polling mode, but at the moment, I am happy with
+> it and have no enough time to dig in with irq mode.
+> 
+> https://gitlab.com/SergK/icn85xx/tree/master
 
-Summary:
+Good work!
 
-The ELAN 3320KD-3100 multi-touch controller chip is a 64-pin QFD 
-package. In the Asus T300CHI it is behind a BCM20730-A1KFBG Bluetooth 
-radio controller in a detachable keyboard/trackpad dock.
+A few comments - but bear in mind that I'm not an experienced kernel
+developer. Someone else may be able to give better advice.
 
-It identifies with the Asus ID 0B05:8502.
+First: Patches to the kernel should be submitted according to these guidelines
+at https://www.kernel.org/doc/Documentation/SubmittingPatches
+In particular, a new driver should be a patch against the respective kernel
+branch, which means it should live in the appropriate directory in the kernel
+tree and include an addendum to the Kconfig/Makefile there. Standalone
+Makefiles are nice when building drivers out-of-tree, but they are not
+suitable for kernel code. This doesn't apply to your development repo, of
+course. Testing may be easier when a driver can be built standalone.
 
-It works as a mouse but there is no scroll or gesture support.
+Second: The patch should be formatted according to the Linux kernel coding
+style at https://www.kernel.org/doc/Documentation/CodingStyle
+There's also the checkpatch.pl utility in the kernel tree that can help you
+find and fix mistakes.
 
-$ cat /proc/bus/input/devices
-...
-I: Bus=0005 Vendor=0b05 Product=8502 Version=0001
-N: Name="ASUS T300CHI DOCKING"
-P: Phys=34:02:86:fc:ad:59
-S: 
-Sysfs=/devices/pci0000:00/0000:00:14.0/usb1/1-4/1-4:1.0/bluetooth/hci0/hci0:256/0005:0B05:8502.002B/input/input57
-U: Uniq=1c:b7:2c:04:c7:fe
-H: Handlers=sysrq kbd mouse3 event15 leds
-B: PROP=0
-B: EV=12001f
-B: KEY=20 0 0 2000 40000000000000 30000 1000002000007 ff9f387ad9405fff 
-febeffdfffefffff fffffffffffffffe
-B: REL=303
-B: ABS=70000000000
-B: MSC=10
-B: LED=1f
+But don't be discouraged by the lenghty guides - it's not that hard and
+checkpatch helps a lot.
+
+One thing I noticed on a quick glance is that line 833 in your code is
+redundant. kzalloc aready clears the memory (hence, k_z_alloc).
+
+Also: I highly recommend using devm_ variants of constructors, where
+available. If you use those, you can reduce the footprint of your _remove()
+function or even remove it completely. devm_input_allocate_device() is a good
+example. You should use it instead of input_allocate_device(), and it will
+take care of unregistering and deallocation automatically.

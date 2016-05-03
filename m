@@ -1,31 +1,50 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: wacom: add missed stylus_in_proximity line back
-Date: Tue, 3 May 2016 12:06:05 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1605031159140.27942@cbobk.fhfr.pm>
-References: <1462249054-3515-1-git-send-email-pingc@wacom.com>
+From: Dirk Behme <dirk.behme@de.bosch.com>
+Subject: [PATCH v2 0/4] zForce upstreaming
+Date: Tue, 3 May 2016 12:41:46 +0200
+Message-ID: <1462272110-24610-1-git-send-email-dirk.behme@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:42520 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755546AbcECKGG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 May 2016 06:06:06 -0400
-In-Reply-To: <1462249054-3515-1-git-send-email-pingc@wacom.com>
+Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:47306 "EHLO
+	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755900AbcECKlz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 May 2016 06:41:55 -0400
+Received: from vsmta12.fe.internet.bosch.com (unknown [10.4.98.52])
+	by imta24.fe.bosch.de (Postfix) with ESMTP id A7E55D8019D
+	for <linux-input@vger.kernel.org>; Tue,  3 May 2016 12:41:53 +0200 (CEST)
+Received: from SI-HUB1000.de.bosch.com (vsgw22.fe.internet.bosch.com [10.4.98.11])
+	by vsmta12.fe.internet.bosch.com (Postfix) with ESMTP id 551F11B8056F
+	for <linux-input@vger.kernel.org>; Tue,  3 May 2016 12:41:53 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: benjamin.tissoires@gmail.com, linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Oleksij Rempel <linux@rempel-privat.de>
 
-On Mon, 2 May 2016, Ping Cheng wrote:
+From: Oleksij Rempel <linux@rempel-privat.de>
 
-> Patch 7e12978 removed stylus_in_proximity flag for Intuos series.
-> 
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
+Changelog:
+v2
+ - rename scan-freq-idle and scan-freq-finger
+   to scan-idle-hz and scan-active-hz.
+ - rebase with already acked "Input: zforce_ts: Fix dual touch recognition"
+   from previous patchset.
 
-The changelog and metadata deserved some more love. I've fixed that up and 
-applied to for-4.6/upstream-fixes.
+Knut Wohlrab (2):
+  Input: zforce_ts: Add device tree support for scanning frequency
+  Input: zforce_ts: Add support for minimum touch size limit
+
+Marcel Grosshans (1):
+  Input: zforce_ts: Reinitialize touch controller when  BOOT_COMPLETE
+    received
+
+Oleksij Rempel (1):
+  Input: zforce_ts: Reject open if initialization not finished
+
+ .../bindings/input/touchscreen/zforce_ts.txt       |   6 +
+ drivers/input/touchscreen/zforce_ts.c              | 175 ++++++++++++++++++---
+ include/linux/platform_data/zforce_ts.h            |   3 +
+ 3 files changed, 158 insertions(+), 26 deletions(-)
 
 -- 
-Jiri Kosina
-SUSE Labs
+1.9.1
 

@@ -1,71 +1,84 @@
-From: Manuel Reimer <mail+linux-input@m-reimer.de>
-Subject: Re: How to properly extend uinput API
-Date: Tue, 3 May 2016 19:22:47 +0200
-Message-ID: <eab9d60a-9632-4478-1636-31ede3d1effa@m-reimer.de>
-References: <51caa374-1fdc-bcc0-3aac-20292a77571b@m-reimer.de>
- <20160502183542.GC37394@dtor-ws>
- <74df5cb0-9bbb-835a-82ca-aa8527f4d024@m-reimer.de>
- <20160502225147.GD37394@dtor-ws>
+From: sergk sergk2mail <sergk.admin@gmail.com>
+Subject: Re: Chipone icn85xx support in x86 linux kernel
+Date: Tue, 3 May 2016 21:38:12 +0000
+Message-ID: <CA+V1LzpHBvYQ78Ky1XALvYZDy25NSP58upvue6GJCGQk+iE0fQ@mail.gmail.com>
+References: <CA+V1LzoXvWO1FROO2z7tFc-0zoM_Ur+B1iiar+EJ4uvn+DWGdQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.mailbox.org ([80.241.60.215]:47516 "EHLO mx2.mailbox.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933319AbcECRWv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 May 2016 13:22:51 -0400
-In-Reply-To: <20160502225147.GD37394@dtor-ws>
+Received: from mail-qk0-f194.google.com ([209.85.220.194]:35342 "EHLO
+	mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756430AbcECViN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 May 2016 17:38:13 -0400
+Received: by mail-qk0-f194.google.com with SMTP id z3so1668302qkb.2
+        for <linux-input@vger.kernel.org>; Tue, 03 May 2016 14:38:13 -0700 (PDT)
+In-Reply-To: <CA+V1LzoXvWO1FROO2z7tFc-0zoM_Ur+B1iiar+EJ4uvn+DWGdQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
 
-On 05/03/2016 12:51 AM, Dmitry Torokhov wrote:
-> Nowhere in the memoryless code we have "2 motor values".
+Hi all,
+At last I am releasing my icn85xx (tested on icn8528 on Chuwi Vi10,
+Baytrail) kernel space driver.
+It is unfortunately polling mode, but at the moment, I am happy with
+it and have no enough time to dig in with irq mode.
 
-But it simulates a few supported events with FF_RUMBLE events.
+https://gitlab.com/SergK/icn85xx/tree/master
 
-> You are
-> basically designing an API for single device and that is not a good
-> idea.
+My special thanks for their help to:
+Gregor Riepl
+Mika Westerberg
+linux-input
 
-Not for a single device, but for a big (if not the biggest) group of 
-game controllers.
+PS: further contribution are welcome! And regarding irq I will reply
+later, ;-) JavaEE steal me from linuxC world.
 
-> Hmm, it should not, can you post some traces to show where it gets
-> stuck so we can fix it?
+Kind regards,
+                   Serge Kolotylo.
 
-Some time ago, Elias Vanderstuyft sent me a link to this thread:
-
-http://comments.gmane.org/gmane.linux.kernel.input/44528
-
-Maybe this helps to track down this problem?
-
-> You should be able to take cues from the kernel code and create
-> userspace library providing similar features, but in the way that is
-> flexible and make sense in userspace.
-
-Of course this should be possible. It just is far more difficult than 
-just using what is already there.
-
-While searching for examples to learn from, I've collected a few 
-existing uinput projects using force feedback. 100% of them somehow try 
-to drive two motors and would profit from some API making this common 
-case more easy.
-
-But if the recommended way is to do this in userspace, I will try to 
-understand how ff-memless works to port it 1:1 to userspace. 
-Unfortunately the kernel documentation 
-(https://www.kernel.org/doc/Documentation/input/ff.txt) says:
-
-| Note: In most cases you should use FF_PERIODIC instead of FF_RUMBLE.
-|       *All* devices that support FF_RUMBLE support FF_PERIODIC
-|       (square, triangle, sine) and the other way around.
-
-So I guess game developers will not just send FF_RUMBLE and so I have to 
-do some kind of simulation to get my rumble working.
-
-If someone already has simple code which can be used from plain C, I 
-would be happy to get a link to the repository.
-
-Manuel
+On Sun, Feb 14, 2016 at 11:03 PM, sergk sergk2mail
+<sergk.admin@gmail.com> wrote:
+> Hello All,
+> Please advice whether it is supported touch screen icn85xx in anykind
+> of x86 (baytrail interested in!) kernel?
+>
+> I have discovered in Vanilla chipone_icn8318.c  kernel driver from Hans de Goede
+> but this driver in contrast to arm available icn83xx.c looks really
+> strange, it is even excluded from Kconfig by default in 4.4.1: it has
+> no firmware load while at the same time android driver
+> https://android.googlesource.com/kernel/bcm/+/android-bcm-tetra-3.10-lollipop-wear-release/drivers/input/touchscreen/icn83xx.c
+> has.
+> Also for rtk3128 chip there is!  icn85xx driver:
+> https://github.com/bbelos/rk3188-kernel/blob/master/drivers/input/touchscreen/ICN8503/icn85xx.c
+>
+> I am trying to make it working my touch on Chuwi Vi10 (Baytrail
+> Z3536), Archlinux, custom 4.4.1 (from Vanilla) kernel.
+> What I have discovered from Windows and Android: I2c address of TS is
+> 0x48, in Android it is located under i2c-4 0x48
+>
+>>: cat /sys/bus/i2c/devices/i2c-4/4-0048/name
+> chipone-icn85xx.
+>
+> Under windows 8.1 there is icnfirmware.sys for it. (;-) no need to
+> grab it!), fw also present in .h file of rtk3128 github repo.
+> GPIO pin I have guessing to enable TS is 393 (stupid looking over all
+> gpios via sysfs and enabling each to 1).
+>
+> So my farther additional questions are:
+>
+> 2) Could be icn8318 by Hans de Goede be adopted for icn85xx?
+> 3) Looks currently kernel is not supported ACPII for icn85xx
+> 4) Please advice how to (if possible) having windows and android with
+> working touch to grab all needed information for makes device working
+> with kernel (gpio pins).
+> 5) In Windows driver is myi2c.sys and reports that this is chipone ts,
+> in Android is loaded atmel_mxt_ts module and the most strange thing
+> afrer rmmod touch is working.
+> dmesg under android shows: input: chipone-ts as /devices/virtual/input/input5.
+> modalis: input:b0000v0000p0000-e0,1,3,k8b,9e,d9,ra2f,30,32,35,36,39,m1sfw
+> how it is possible to use atmel_mxt_ts module for chipone? or what is the trick?
+>
+> Thanks in advance,
+>       hope together we will make it working under x86!
+> Regards,
+>                  Serge Kolotylo.

@@ -1,214 +1,112 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH v2 1/8] Input: atmel_mxt_ts - add support for T37 diagnostic data
-Date: Wed,  4 May 2016 18:07:11 +0100
-Message-ID: <1462381638-7818-2-git-send-email-nick.dyer@itdev.co.uk>
-References: <1462381638-7818-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1462381638-7818-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, hverkuil@xs4all.nl, Nick Dyer <nick.dyer@itdev.co.uk>
+From: Florian Euchner <florian.euchner@gmail.com>
+Subject: [PATCH v2] Input: CM109: Fix handling of volume and mute buttons
+Date: Wed,  4 May 2016 22:25:11 +0200
+Message-ID: <1462393511-20979-1-git-send-email-florian.euchner@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:33301 "EHLO
+	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752666AbcEDU0E (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 May 2016 16:26:04 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Florian Euchner <florian.euchner@gmail.com>
 
-Atmel maXTouch devices have a T37 object which can be used to read raw
-touch deltas from the device. This consists of an array of 16-bit
-integers, one for each node on the touchscreen matrix.
+The CM109 driver reported key press events of volume up / down and
+record / playback mute buttons, but no release events. Report those events
+properly by handling volume and mute keys seperately. For the record and
+playback mute buttons, only presses are registered by the CM109, therefore
+simulate press-n-release. This fixes the volume control buttons of various
+USB headsets.
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Signed-off-by: Florian Euchner <florian.euchner@gmail.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 152 +++++++++++++++++++++++++++++++
- 1 file changed, 152 insertions(+)
+Thank you very much for your response to my first patch, Dmitry.
+I didn't realize input_report_key already does all of the logic to
+make sure keypresses are not reported twice, which made my code more
+complicated than it had to be. I have applied your code with some
+adjustments:
+* The for loop should only count to 4, not to 8. There are only four keys,
+otherwise this would cause reading outside the bounds of the keymap[] array
+and bits 4-7 of HID_IR0 are not used for keys according to the datasheet.
+* The RECORD_MUTE key should mute the microphone, not the speaker.
+* There only need to be 15 slots in the keymap for special keys since
+"no special key pressed" is not a valid combination anymore.
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 2160512..cd97713 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -124,6 +124,17 @@ struct t9_range {
- #define MXT_COMMS_CTRL		0
- #define MXT_COMMS_CMD		1
+I hope those adjustments make sense.
+
+ drivers/input/misc/cm109.c | 37 ++++++++++++++++++++++++++++++-------
+ 1 file changed, 30 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/input/misc/cm109.c b/drivers/input/misc/cm109.c
+index 9365535..ee1bedd 100644
+--- a/drivers/input/misc/cm109.c
++++ b/drivers/input/misc/cm109.c
+@@ -76,8 +76,8 @@ enum {
  
-+/* MXT_DEBUG_DIAGNOSTIC_T37 */
-+#define MXT_DIAGNOSTIC_PAGEUP	0x01
-+#define MXT_DIAGNOSTIC_DELTAS	0x10
-+#define MXT_DIAGNOSTIC_SIZE	128
-+
-+struct t37_debug {
-+	u8 mode;
-+	u8 page;
-+	u8 data[MXT_DIAGNOSTIC_SIZE];
-+};
-+
- /* Define for MXT_GEN_COMMAND_T6 */
- #define MXT_BOOT_VALUE		0xa5
- #define MXT_RESET_VALUE		0x01
-@@ -205,6 +216,14 @@ struct mxt_object {
- 	u8 num_report_ids;
- } __packed;
+ 	BUZZER_ON = 1 << 5,
  
-+struct mxt_dbg {
-+	u16 t37_address;
-+	u16 diag_cmd_address;
-+	struct t37_debug *t37_buf;
-+	unsigned int t37_pages;
-+	unsigned int t37_nodes;
-+};
-+
- /* Each client has this additional data */
- struct mxt_data {
- 	struct i2c_client *client;
-@@ -233,6 +252,7 @@ struct mxt_data {
- 	u8 num_touchids;
- 	u8 multitouch;
- 	struct t7_config t7_cfg;
-+	struct mxt_dbg dbg;
+-	/* up to 256 normal keys, up to 16 special keys */
+-	KEYMAP_SIZE = 256 + 16,
++	/* up to 256 normal keys, up to 15 special key combinations */
++	KEYMAP_SIZE = 256 + 15,
+ };
  
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -2043,6 +2063,136 @@ recheck:
- 	return 0;
+ /* CM109 protocol packet */
+@@ -139,7 +139,7 @@ static unsigned short special_keymap(int code)
+ {
+ 	if (code > 0xff) {
+ 		switch (code - 0xff) {
+-		case RECORD_MUTE:	return KEY_MUTE;
++		case RECORD_MUTE:	return KEY_MICMUTE;
+ 		case PLAYBACK_MUTE:	return KEY_MUTE;
+ 		case VOLUME_DOWN:	return KEY_VOLUMEDOWN;
+ 		case VOLUME_UP:		return KEY_VOLUMEUP;
+@@ -312,6 +312,32 @@ static void report_key(struct cm109_dev *dev, int key)
+ 	input_sync(idev);
  }
  
-+static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
-+			       unsigned int y)
++/*
++ * Converts data of special key presses (volume, mute) into events
++ * for the input subsystem, sends press-n-release for mute keys.
++ */
++static void cm109_report_special(struct cm109_dev *dev)
 +{
-+	struct mxt_dbg *dbg = &data->dbg;
-+	unsigned int ofs, page;
++	static const u8 autorelease = RECORD_MUTE | PLAYBACK_MUTE;
++	struct input_dev *idev = dev->idev;
++	u8 data = dev->irq_data->byte[HID_IR0];
++	unsigned short keycode;
++	int i;
 +
-+	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
-+	page = ofs / MXT_DIAGNOSTIC_SIZE;
-+	ofs %= MXT_DIAGNOSTIC_SIZE;
++	for (i = 0; i < 4; i++) {
++		keycode = dev->keymap[0xff + BIT(i)];
++		if (keycode == KEY_RESERVED)
++			continue;
 +
-+	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
-+}
-+
-+static int mxt_convert_debug_pages(struct mxt_data *data, u16 *outbuf)
-+{
-+	struct mxt_dbg *dbg = &data->dbg;
-+	unsigned int x = 0;
-+	unsigned int y = 0;
-+	unsigned int i;
-+
-+	for (i = 0; i < dbg->t37_nodes; i++) {
-+		outbuf[i] = mxt_get_debug_value(data, x, y);
-+
-+		/* Next value */
-+		if (++x >= data->info.matrix_xsize) {
-+			x = 0;
-+			y++;
++		input_report_key(idev, keycode, data & BIT(i));
++		if (data & autorelease & BIT(i)) {
++			input_sync(idev);
++			input_report_key(idev, keycode, 0);
 +		}
 +	}
-+
-+	return 0;
++	input_sync(idev);
 +}
 +
-+static int mxt_read_diagnostic_debug(struct mxt_data *data, u8 mode,
-+				     u16 *outbuf)
-+{
-+	struct mxt_dbg *dbg = &data->dbg;
-+	int retries = 0;
-+	int page;
-+	int ret;
-+	u8 cmd = mode;
-+	struct t37_debug *p;
-+	u8 cmd_poll;
-+
-+	for (page = 0; page < dbg->t37_pages; page++) {
-+		p = dbg->t37_buf + page;
-+
-+		ret = mxt_write_reg(data->client, dbg->diag_cmd_address,
-+				    cmd);
-+		if (ret)
-+			return ret;
-+
-+		retries = 0;
-+		msleep(20);
-+wait_cmd:
-+		/* Read back command byte */
-+		ret = __mxt_read_reg(data->client, dbg->diag_cmd_address,
-+				     sizeof(cmd_poll), &cmd_poll);
-+		if (ret)
-+			return ret;
-+
-+		/* Field is cleared once the command has been processed */
-+		if (cmd_poll) {
-+			if (retries++ > 100)
-+				return -EINVAL;
-+
-+			msleep(20);
-+			goto wait_cmd;
-+		}
-+
-+		/* Read T37 page */
-+		ret = __mxt_read_reg(data->client, dbg->t37_address,
-+				sizeof(struct t37_debug), p);
-+		if (ret)
-+			return ret;
-+
-+		if ((p->mode != mode) || (p->page != page)) {
-+			dev_err(&data->client->dev, "T37 page mismatch\n");
-+			return -EINVAL;
-+		}
-+
-+		dev_dbg(&data->client->dev, "%s page:%d retries:%d\n",
-+			__func__, page, retries);
-+
-+		/* For remaining pages, write PAGEUP rather than mode */
-+		cmd = MXT_DIAGNOSTIC_PAGEUP;
-+	}
-+
-+	return mxt_convert_debug_pages(data, outbuf);
-+}
-+
-+static void mxt_debug_init(struct mxt_data *data)
-+{
-+	struct mxt_dbg *dbg = &data->dbg;
-+	struct mxt_object *object;
-+
-+	object = mxt_get_object(data, MXT_GEN_COMMAND_T6);
-+	if (!object)
-+		return;
-+
-+	dbg->diag_cmd_address = object->start_address + MXT_COMMAND_DIAGNOSTIC;
-+
-+	object = mxt_get_object(data, MXT_DEBUG_DIAGNOSTIC_T37);
-+	if (!object)
-+		return;
-+
-+	if (mxt_obj_size(object) != sizeof(struct t37_debug)) {
-+		dev_warn(&data->client->dev, "Bad T37 size");
-+		return;
-+	}
-+
-+	dbg->t37_address = object->start_address;
-+
-+	/* Calculate size of data and allocate buffer */
-+	dbg->t37_nodes = data->info.matrix_xsize * data->info.matrix_ysize;
-+	dbg->t37_pages = dbg->t37_nodes * sizeof(u16)
-+					/ sizeof(dbg->t37_buf->data) + 1;
-+
-+	dbg->t37_buf = devm_kzalloc(&data->client->dev,
-+				     sizeof(struct t37_debug) * dbg->t37_pages,
-+				     GFP_KERNEL);
-+	if (!dbg->t37_buf)
-+		goto error;
-+
-+	return;
-+
-+error:
-+	dev_err(&data->client->dev, "Error initialising T37 diagnostic data\n");
-+}
-+
- static int mxt_configure_objects(struct mxt_data *data,
- 				 const struct firmware *cfg)
- {
-@@ -2070,6 +2220,8 @@ static int mxt_configure_objects(struct mxt_data *data,
- 		dev_warn(dev, "No touch object detected\n");
+ /******************************************************************************
+  * CM109 usb communication interface
+  *****************************************************************************/
+@@ -357,10 +383,7 @@ static void cm109_urb_irq_callback(struct urb *urb)
  	}
  
-+	mxt_debug_init(data);
-+
- 	dev_info(dev,
- 		 "Family: %u Variant: %u Firmware V%u.%u.%02X Objects: %u\n",
- 		 info->family_id, info->variant_id, info->version >> 4,
+ 	/* Special keys */
+-	if (dev->irq_data->byte[HID_IR0] & 0x0f) {
+-		const int code = (dev->irq_data->byte[HID_IR0] & 0x0f);
+-		report_key(dev, dev->keymap[0xff + code]);
+-	}
++	cm109_report_special(dev);
+ 
+ 	/* Scan key column */
+ 	if (dev->keybit == 0xf) {
 -- 
-2.5.0
+2.8.2
+

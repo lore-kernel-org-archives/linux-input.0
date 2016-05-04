@@ -1,56 +1,92 @@
-From: Dirk Behme <dirk.behme@de.bosch.com>
-Subject: [PATCH v3 0/4] zForce upstreaming
-Date: Wed, 4 May 2016 12:24:37 +0200
-Message-ID: <1462357481-16258-1-git-send-email-dirk.behme@de.bosch.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: Input: add Atmel Atmegaxx captouch driver
+Date: Wed, 4 May 2016 08:51:23 -0500
+Message-ID: <20160504135123.GA4567@rob-hp-laptop>
+References: <1462295611-49684-1-git-send-email-grundler@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:42112 "EHLO
-	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757377AbcEDKYq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 May 2016 06:24:46 -0400
-Received: from vsmta12.fe.internet.bosch.com (unknown [10.4.98.52])
-	by imta24.fe.bosch.de (Postfix) with ESMTP id 8CC3FD80212
-	for <linux-input@vger.kernel.org>; Wed,  4 May 2016 12:24:44 +0200 (CEST)
-Received: from SI-HUB1001.de.bosch.com (vsgw22.fe.internet.bosch.com [10.4.98.11])
-	by vsmta12.fe.internet.bosch.com (Postfix) with ESMTP id 49E401B80325
-	for <linux-input@vger.kernel.org>; Wed,  4 May 2016 12:24:44 +0200 (CEST)
+Received: from mail.kernel.org ([198.145.29.136]:49153 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750735AbcEDNv2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 May 2016 09:51:28 -0400
+Content-Disposition: inline
+In-Reply-To: <1462295611-49684-1-git-send-email-grundler@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Oleksij Rempel <linux@rempel-privat.de>
+To: Grant Grundler <grundler@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Grant Likely <grant.likely@linaro.org>, LKML <linux-kernel@vger.kernel.org>, devicetree@vger.kernel.org, Hung-yu Wu <hywu@google.com>
 
-From: Oleksij Rempel <linux@rempel-privat.de>
+On Tue, May 03, 2016 at 10:13:31AM -0700, Grant Grundler wrote:
+> Add I2C driver for AtmegaXX capacitive touch device.
+> 
+> Signed-off-by: Hung-yu Wu <hywu@google.com>
+> Signed-off-by: Grant Grundler <grundler@chromium.org>
+> ---
+>  .../bindings/input/atmel,atmegaxx_captouch.txt     |  34 +++
 
-Changelog:
-v2
- - rename scan-freq-idle and scan-freq-finger
-   to scan-idle-hz and scan-active-hz.
- - rebase with already acked "Input: zforce_ts: Fix dual touch recognition"
-   from previous patchset.
+It is generally preferred that bindings are a separate patch.
 
-v3
- - rename touch-size-min to touch-size-min-mm
- - fix typo
- - replace "zforce_ts: Reject open if initialization not finished" patch.
-   Instead of reject open event, we will call zforce_start() from zforce_boot().
+>  drivers/input/misc/Kconfig                         |  11 +
+>  drivers/input/misc/Makefile                        |   1 +
+>  drivers/input/misc/atmegaxx_captouch.c             | 278 +++++++++++++++++++++
+>  4 files changed, 324 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
+>  create mode 100644 drivers/input/misc/atmegaxx_captouch.c
+> 
+> For those that like to know how sausage is made, ChromeOS code review history here:
+>    https://chromium-review.googlesource.com/339950
+> 
+> Driver was tested with prototype HW and it reliably reports events correctly.
+> Manual testing was just using "evtest /dev/input/event0" and watch for events.
+> 
+> diff --git a/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt b/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
+> new file mode 100644
+> index 0000000..07a4b0b
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
+> @@ -0,0 +1,34 @@
+> +Device tree bindings for Atmel AtmegaXX capacitive touch sensor
+> +
+> +The node for this device must be a child of a I2C controller node, as the
+> +device communicates via I2C.
+> +
+> +Required properties:
+> +
+> +	compatible:	Must be "atmel,atmegaxx_captouch".
 
-Knut Wohlrab (2):
-  Input: zforce_ts: Add device tree support for scanning frequency
-  Input: zforce_ts: Add support for minimum touch size limit
+No wildcards in the compatible strings. Use the specific devices.
 
-Marcel Grosshans (1):
-  Input: zforce_ts: Reinitialize touch controller when  BOOT_COMPLETE
-    received
+Also, use hyphen rather than underscore. However, if the device is only 
+a touch controller, then '_captouch' is not needed. The part number is 
+sufficient to identify the device.
 
-Oleksij Rempel (1):
-  Input: zforce_ts: allow open even if initialisation is not completed
+> +	reg:		The I2C slave address of the device.
+> +	interrupts:	Property describing the interrupt line the device
+> +			is connected to. The device only has one interrupt
+> +			source.
+> +	linux,keycodes:	Specifies an array of numeric keycode values to
+> +			be used for reporting button presses. The array can
+> +			contain up to 8 entries.
+> +
+> +Optional properties:
+> +
+> +	autorepeat:	Enables the Linux input system's autorepeat
+> +			feature on the input device.
+> +
+> +Example:
+> +
+> +	atmegaxx_captouch@51 {
 
- .../bindings/input/touchscreen/zforce_ts.txt       |   6 +
- drivers/input/touchscreen/zforce_ts.c              | 174 ++++++++++++++++++---
- include/linux/platform_data/zforce_ts.h            |   3 +
- 3 files changed, 157 insertions(+), 26 deletions(-)
+atmegaxx@51 (with actual part number)
 
--- 
-1.9.1
-
+> +		compatible = "atmel,atmegaxx_captouch";
+> +		reg = <0x51>;
+> +		interrupt-parent = <&tlmm>;
+> +		interrupts = <67 IRQ_TYPE_EDGE_FALLING>;
+> +		linux,keycodes = <BTN_0>, <BTN_1>,
+> +			<BTN_2>, <BTN_3>,
+> +			<BTN_4>, <BTN_5>,
+> +			<BTN_6>, <BTN_7>;
+> +		autorepeat;
+> +	};

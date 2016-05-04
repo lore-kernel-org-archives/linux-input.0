@@ -1,112 +1,71 @@
-From: Florian Euchner <florian.euchner@gmail.com>
-Subject: [PATCH v2] Input: CM109: Fix handling of volume and mute buttons
-Date: Wed,  4 May 2016 22:25:11 +0200
-Message-ID: <1462393511-20979-1-git-send-email-florian.euchner@gmail.com>
+From: sergk sergk2mail <sergk.admin@gmail.com>
+Subject: Re: Chipone icn85xx support in x86 linux kernel
+Date: Wed, 4 May 2016 21:41:15 +0000
+Message-ID: <CA+V1LzowegY1NUHad2St+=NhCg=ZUfNPbMgZ6m_Rqur06JHoyw@mail.gmail.com>
+References: <CA+V1LzoXvWO1FROO2z7tFc-0zoM_Ur+B1iiar+EJ4uvn+DWGdQ@mail.gmail.com>
+	<CA+V1LzpHBvYQ78Ky1XALvYZDy25NSP58upvue6GJCGQk+iE0fQ@mail.gmail.com>
+	<572935D4.6050303@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:33301 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752666AbcEDU0E (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 May 2016 16:26:04 -0400
+Received: from mail-qg0-f68.google.com ([209.85.192.68]:33331 "EHLO
+	mail-qg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753028AbcEDVlQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 May 2016 17:41:16 -0400
+Received: by mail-qg0-f68.google.com with SMTP id 90so3841720qgz.0
+        for <linux-input@vger.kernel.org>; Wed, 04 May 2016 14:41:15 -0700 (PDT)
+In-Reply-To: <572935D4.6050303@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Florian Euchner <florian.euchner@gmail.com>
+To: Gregor Riepl <onitake@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-The CM109 driver reported key press events of volume up / down and
-record / playback mute buttons, but no release events. Report those events
-properly by handling volume and mute keys seperately. For the record and
-playback mute buttons, only presses are registered by the CM109, therefore
-simulate press-n-release. This fixes the volume control buttons of various
-USB headsets.
+"But don't be discouraged by the lenghty guides - it's not that hard and
+checkpatch helps a lot."
 
-Signed-off-by: Florian Euchner <florian.euchner@gmail.com>
----
-Thank you very much for your response to my first patch, Dmitry.
-I didn't realize input_report_key already does all of the logic to
-make sure keypresses are not reported twice, which made my code more
-complicated than it had to be. I have applied your code with some
-adjustments:
-* The for loop should only count to 4, not to 8. There are only four keys,
-otherwise this would cause reading outside the bounds of the keymap[] array
-and bits 4-7 of HID_IR0 are not used for keys according to the datasheet.
-* The RECORD_MUTE key should mute the microphone, not the speaker.
-* There only need to be 15 slots in the keymap for special keys since
-"no special key pressed" is not a valid combination anymore.
+Gregor, ,on the contrary ;-) u r welcome! My main goal with publishing
+it - to do not waste time and waiting till one person finish
+everything - join efforts in making icn85xx driver for x86.
+My end goal also is more global - full linux on Chuwi Vi10, ;-) next
+round sound ESSX8316.
+Regards,
+              Serge.
 
-I hope those adjustments make sense.
-
- drivers/input/misc/cm109.c | 37 ++++++++++++++++++++++++++++++-------
- 1 file changed, 30 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/input/misc/cm109.c b/drivers/input/misc/cm109.c
-index 9365535..ee1bedd 100644
---- a/drivers/input/misc/cm109.c
-+++ b/drivers/input/misc/cm109.c
-@@ -76,8 +76,8 @@ enum {
- 
- 	BUZZER_ON = 1 << 5,
- 
--	/* up to 256 normal keys, up to 16 special keys */
--	KEYMAP_SIZE = 256 + 16,
-+	/* up to 256 normal keys, up to 15 special key combinations */
-+	KEYMAP_SIZE = 256 + 15,
- };
- 
- /* CM109 protocol packet */
-@@ -139,7 +139,7 @@ static unsigned short special_keymap(int code)
- {
- 	if (code > 0xff) {
- 		switch (code - 0xff) {
--		case RECORD_MUTE:	return KEY_MUTE;
-+		case RECORD_MUTE:	return KEY_MICMUTE;
- 		case PLAYBACK_MUTE:	return KEY_MUTE;
- 		case VOLUME_DOWN:	return KEY_VOLUMEDOWN;
- 		case VOLUME_UP:		return KEY_VOLUMEUP;
-@@ -312,6 +312,32 @@ static void report_key(struct cm109_dev *dev, int key)
- 	input_sync(idev);
- }
- 
-+/*
-+ * Converts data of special key presses (volume, mute) into events
-+ * for the input subsystem, sends press-n-release for mute keys.
-+ */
-+static void cm109_report_special(struct cm109_dev *dev)
-+{
-+	static const u8 autorelease = RECORD_MUTE | PLAYBACK_MUTE;
-+	struct input_dev *idev = dev->idev;
-+	u8 data = dev->irq_data->byte[HID_IR0];
-+	unsigned short keycode;
-+	int i;
-+
-+	for (i = 0; i < 4; i++) {
-+		keycode = dev->keymap[0xff + BIT(i)];
-+		if (keycode == KEY_RESERVED)
-+			continue;
-+
-+		input_report_key(idev, keycode, data & BIT(i));
-+		if (data & autorelease & BIT(i)) {
-+			input_sync(idev);
-+			input_report_key(idev, keycode, 0);
-+		}
-+	}
-+	input_sync(idev);
-+}
-+
- /******************************************************************************
-  * CM109 usb communication interface
-  *****************************************************************************/
-@@ -357,10 +383,7 @@ static void cm109_urb_irq_callback(struct urb *urb)
- 	}
- 
- 	/* Special keys */
--	if (dev->irq_data->byte[HID_IR0] & 0x0f) {
--		const int code = (dev->irq_data->byte[HID_IR0] & 0x0f);
--		report_key(dev, dev->keymap[0xff + code]);
--	}
-+	cm109_report_special(dev);
- 
- 	/* Scan key column */
- 	if (dev->keybit == 0xf) {
--- 
-2.8.2
-
+On Tue, May 3, 2016 at 11:35 PM, Gregor Riepl <onitake@gmail.com> wrote:
+>> At last I am releasing my icn85xx (tested on icn8528 on Chuwi Vi10,
+>> Baytrail) kernel space driver.
+>> It is unfortunately polling mode, but at the moment, I am happy with
+>> it and have no enough time to dig in with irq mode.
+>>
+>> https://gitlab.com/SergK/icn85xx/tree/master
+>
+> Good work!
+>
+> A few comments - but bear in mind that I'm not an experienced kernel
+> developer. Someone else may be able to give better advice.
+>
+> First: Patches to the kernel should be submitted according to these guidelines
+> at https://www.kernel.org/doc/Documentation/SubmittingPatches
+> In particular, a new driver should be a patch against the respective kernel
+> branch, which means it should live in the appropriate directory in the kernel
+> tree and include an addendum to the Kconfig/Makefile there. Standalone
+> Makefiles are nice when building drivers out-of-tree, but they are not
+> suitable for kernel code. This doesn't apply to your development repo, of
+> course. Testing may be easier when a driver can be built standalone.
+>
+> Second: The patch should be formatted according to the Linux kernel coding
+> style at https://www.kernel.org/doc/Documentation/CodingStyle
+> There's also the checkpatch.pl utility in the kernel tree that can help you
+> find and fix mistakes.
+>
+> But don't be discouraged by the lenghty guides - it's not that hard and
+> checkpatch helps a lot.
+>
+> One thing I noticed on a quick glance is that line 833 in your code is
+> redundant. kzalloc aready clears the memory (hence, k_z_alloc).
+>
+> Also: I highly recommend using devm_ variants of constructors, where
+> available. If you use those, you can reduce the footprint of your _remove()
+> function or even remove it completely. devm_input_allocate_device() is a good
+> example. You should use it instead of input_allocate_device(), and it will
+> take care of unregistering and deallocation automatically.

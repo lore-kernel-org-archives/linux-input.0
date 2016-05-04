@@ -1,60 +1,126 @@
-From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
-Date: Wed,  4 May 2016 21:12:51 +0530
-Message-ID: <1462376571-4280-1-git-send-email-a.mathur@samsung.com>
+From: Grant Grundler <grundler@chromium.org>
+Subject: Re: Input: add Atmel Atmegaxx captouch driver
+Date: Wed, 4 May 2016 09:43:35 -0700
+Message-ID: <CANEJEGvZyU6-P8FcR7Z7GriJw3Pj32f5hnJRkbYxoE-t0yXy7g@mail.gmail.com>
+References: <1462295611-49684-1-git-send-email-grundler@chromium.org>
+	<20160504135123.GA4567@rob-hp-laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:33293 "EHLO
-	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751088AbcEDPiN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 May 2016 11:38:13 -0400
-Received: by mail-pf0-f193.google.com with SMTP id y7so5239289pfb.0
-        for <linux-input@vger.kernel.org>; Wed, 04 May 2016 08:38:13 -0700 (PDT)
+Received: from mail-yw0-f180.google.com ([209.85.161.180]:35247 "EHLO
+	mail-yw0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754123AbcEDQnh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 May 2016 12:43:37 -0400
+Received: by mail-yw0-f180.google.com with SMTP id g133so92138090ywb.2
+        for <linux-input@vger.kernel.org>; Wed, 04 May 2016 09:43:36 -0700 (PDT)
+In-Reply-To: <20160504135123.GA4567@rob-hp-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, aniroop.mathur@gmail.com, Aniroop Mathur <a.mathur@samsung.com>
+To: Rob Herring <robh@kernel.org>
+Cc: Grant Grundler <grundler@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Grant Likely <grant.likely@linaro.org>, LKML <linux-kernel@vger.kernel.org>, Linux DeviceTree <devicetree@vger.kernel.org>, Hung-yu Wu <hywu@google.com>
 
-As mentioned in documentation, SYN_REPORT should be used to separate two packets
-and should not be inserted in between a single packet as otherwise with multiple
-SYN_REPORT in a single packet, input reader would not be able to know when the
-packet ended really.
+On Wed, May 4, 2016 at 6:51 AM, Rob Herring <robh@kernel.org> wrote:
+> On Tue, May 03, 2016 at 10:13:31AM -0700, Grant Grundler wrote:
+>> Add I2C driver for AtmegaXX capacitive touch device.
+>>
+>> Signed-off-by: Hung-yu Wu <hywu@google.com>
+>> Signed-off-by: Grant Grundler <grundler@chromium.org>
+>> ---
+>>  .../bindings/input/atmel,atmegaxx_captouch.txt     |  34 +++
+>
+> It is generally preferred that bindings are a separate patch.
 
-Documentation snippet:
-* SYN_REPORT:
-  - Used to synchronize and separate events into packets of input data changes
-    occurring at the same moment in time. For example, motion of a mouse may set
-    the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
-    motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
+ACK - I just discovered Documentation/devicetree/bindings/submitting-patches.txt
+(which explains this in more detail)
 
-Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
----
- drivers/input/input.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+>>  drivers/input/misc/Kconfig                         |  11 +
+>>  drivers/input/misc/Makefile                        |   1 +
+>>  drivers/input/misc/atmegaxx_captouch.c             | 278 +++++++++++++++++++++
+>>  4 files changed, 324 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
+>>  create mode 100644 drivers/input/misc/atmegaxx_captouch.c
+>>
+>> For those that like to know how sausage is made, ChromeOS code review history here:
+>>    https://chromium-review.googlesource.com/339950
+>>
+>> Driver was tested with prototype HW and it reliably reports events correctly.
+>> Manual testing was just using "evtest /dev/input/event0" and watch for events.
+>>
+>> diff --git a/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt b/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
+>> new file mode 100644
+>> index 0000000..07a4b0b
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
+>> @@ -0,0 +1,34 @@
+>> +Device tree bindings for Atmel AtmegaXX capacitive touch sensor
+>> +
+>> +The node for this device must be a child of a I2C controller node, as the
+>> +device communicates via I2C.
+>> +
+>> +Required properties:
+>> +
+>> +     compatible:     Must be "atmel,atmegaxx_captouch".
+>
+> No wildcards in the compatible strings. Use the specific devices.
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 8806059..5b0b1ae 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -401,12 +401,14 @@ static void input_handle_event(struct input_dev *dev,
- 		if (dev->num_vals >= 2)
- 			input_pass_values(dev, dev->vals, dev->num_vals);
- 		dev->num_vals = 0;
--	} else if (dev->num_vals >= dev->max_vals - 2) {
--		dev->vals[dev->num_vals++] = input_value_sync;
--		input_pass_values(dev, dev->vals, dev->num_vals);
--		dev->num_vals = 0;
-+	} else if (dev->num_vals >= dev->max_vals - 1) {
-+		/* Pass all events except the newest event in order to
-+		 * not suppress the immediate EV_SYN/SYN_REPORT event.
-+		 */
-+		input_pass_values(dev, dev->vals, dev->num_vals - 1);
-+		dev->vals[0] = dev->vals[dev->num_vals - 1];
-+		dev->num_vals = 1;
- 	}
--
- }
- 
- /**
--- 
-2.6.2
+Sorry, I don't understand - What is a wildcard in this context?
 
+I also just discovered
+Documentation/devicetree/bindings/submitting-patches.txt and the "5)
+the wildcard" text doesn't seem to match the usage here.
+
+> Also, use hyphen rather than underscore.
+
+ACK - I have no clue why - I've been scrounging around in
+Documentation and haven't stumbled across "coding style" for device
+tree document.
+
+
+> However, if the device is only a touch controller, then '_captouch' is not needed.
+> The part number is sufficient to identify the device.
+
+atmegaxx is an Atmel microcontroller series and in this particular
+case used to drive a capacitive touch input device (just buttons).
+Since the microcontroller can be used for "anything", "captouch" is
+sort of the "model" of this implementation.
+
+
+>> +     reg:            The I2C slave address of the device.
+>> +     interrupts:     Property describing the interrupt line the device
+>> +                     is connected to. The device only has one interrupt
+>> +                     source.
+>> +     linux,keycodes: Specifies an array of numeric keycode values to
+>> +                     be used for reporting button presses. The array can
+>> +                     contain up to 8 entries.
+>> +
+>> +Optional properties:
+>> +
+>> +     autorepeat:     Enables the Linux input system's autorepeat
+>> +                     feature on the input device.
+>> +
+>> +Example:
+>> +
+>> +     atmegaxx_captouch@51 {
+>
+> atmegaxx@51 (with actual part number)
+
+atmegaxx_captouch (or -captouch) is how Atmel has been referring to
+this implementation. I'm not aware of any other part number or model
+number.
+
+>> +             compatible = "atmel,atmegaxx_captouch";
+>> +             reg = <0x51>;
+>> +             interrupt-parent = <&tlmm>;
+>> +             interrupts = <67 IRQ_TYPE_EDGE_FALLING>;
+>> +             linux,keycodes = <BTN_0>, <BTN_1>,
+>> +                     <BTN_2>, <BTN_3>,
+>> +                     <BTN_4>, <BTN_5>,
+>> +                     <BTN_6>, <BTN_7>;
+>> +             autorepeat;
+>> +     };
+
+Thanks for the feedback!
+I'll repost with s/_/-/ fix after naming is clear.
+
+thanks,
+grant

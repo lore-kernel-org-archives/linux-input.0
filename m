@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH v2 2/8] [media] Add signed 16-bit pixel format
-Date: Wed,  4 May 2016 18:07:12 +0100
-Message-ID: <1462381638-7818-3-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH v2 7/8] Input: atmel_mxt_ts - add diagnostic data support for mXT1386
+Date: Wed,  4 May 2016 18:07:17 +0100
+Message-ID: <1462381638-7818-8-git-send-email-nick.dyer@itdev.co.uk>
 References: <1462381638-7818-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1462381638-7818-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,137 +10,81 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, hverkuil@xs4all.nl, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-This will be used for output of raw touch data.
+The mXT1386 family of chips have a different architecture which splits
+the diagnostic data into 3 columns.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- Documentation/DocBook/media/v4l/pixfmt-ys16.xml | 79 +++++++++++++++++++++++++
- Documentation/DocBook/media/v4l/pixfmt.xml      |  1 +
- drivers/media/v4l2-core/v4l2-ioctl.c            |  1 +
- include/uapi/linux/videodev2.h                  |  1 +
- 4 files changed, 82 insertions(+)
- create mode 100644 Documentation/DocBook/media/v4l/pixfmt-ys16.xml
+ drivers/input/touchscreen/atmel_mxt_ts.c | 29 ++++++++++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/DocBook/media/v4l/pixfmt-ys16.xml b/Documentation/DocBook/media/v4l/pixfmt-ys16.xml
-new file mode 100644
-index 0000000..f92d65e
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/pixfmt-ys16.xml
-@@ -0,0 +1,79 @@
-+<refentry id="V4L2-PIX-FMT-YS16">
-+  <refmeta>
-+    <refentrytitle>V4L2_PIX_FMT_YS16 ('YS16')</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+  <refnamediv>
-+    <refname><constant>V4L2_PIX_FMT_YS16</constant></refname>
-+    <refpurpose>Grey-scale image</refpurpose>
-+  </refnamediv>
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>This is a signed grey-scale image with a depth of 16 bits per
-+pixel. The most significant byte is stored at higher memory addresses
-+(little-endian).</para>
-+
-+    <example>
-+      <title><constant>V4L2_PIX_FMT_YS16</constant> 4 &times; 4
-+pixel image</title>
-+
-+      <formalpara>
-+	<title>Byte Order.</title>
-+	<para>Each cell is one byte.
-+	  <informaltable frame="none">
-+	    <tgroup cols="9" align="center">
-+	      <colspec align="left" colwidth="2*" />
-+	      <tbody valign="top">
-+		<row>
-+		  <entry>start&nbsp;+&nbsp;0:</entry>
-+		  <entry>Y'<subscript>00low</subscript></entry>
-+		  <entry>Y'<subscript>00high</subscript></entry>
-+		  <entry>Y'<subscript>01low</subscript></entry>
-+		  <entry>Y'<subscript>01high</subscript></entry>
-+		  <entry>Y'<subscript>02low</subscript></entry>
-+		  <entry>Y'<subscript>02high</subscript></entry>
-+		  <entry>Y'<subscript>03low</subscript></entry>
-+		  <entry>Y'<subscript>03high</subscript></entry>
-+		</row>
-+		<row>
-+		  <entry>start&nbsp;+&nbsp;8:</entry>
-+		  <entry>Y'<subscript>10low</subscript></entry>
-+		  <entry>Y'<subscript>10high</subscript></entry>
-+		  <entry>Y'<subscript>11low</subscript></entry>
-+		  <entry>Y'<subscript>11high</subscript></entry>
-+		  <entry>Y'<subscript>12low</subscript></entry>
-+		  <entry>Y'<subscript>12high</subscript></entry>
-+		  <entry>Y'<subscript>13low</subscript></entry>
-+		  <entry>Y'<subscript>13high</subscript></entry>
-+		</row>
-+		<row>
-+		  <entry>start&nbsp;+&nbsp;16:</entry>
-+		  <entry>Y'<subscript>20low</subscript></entry>
-+		  <entry>Y'<subscript>20high</subscript></entry>
-+		  <entry>Y'<subscript>21low</subscript></entry>
-+		  <entry>Y'<subscript>21high</subscript></entry>
-+		  <entry>Y'<subscript>22low</subscript></entry>
-+		  <entry>Y'<subscript>22high</subscript></entry>
-+		  <entry>Y'<subscript>23low</subscript></entry>
-+		  <entry>Y'<subscript>23high</subscript></entry>
-+		</row>
-+		<row>
-+		  <entry>start&nbsp;+&nbsp;24:</entry>
-+		  <entry>Y'<subscript>30low</subscript></entry>
-+		  <entry>Y'<subscript>30high</subscript></entry>
-+		  <entry>Y'<subscript>31low</subscript></entry>
-+		  <entry>Y'<subscript>31high</subscript></entry>
-+		  <entry>Y'<subscript>32low</subscript></entry>
-+		  <entry>Y'<subscript>32high</subscript></entry>
-+		  <entry>Y'<subscript>33low</subscript></entry>
-+		  <entry>Y'<subscript>33high</subscript></entry>
-+		</row>
-+	      </tbody>
-+	    </tgroup>
-+	  </informaltable>
-+	</para>
-+      </formalpara>
-+    </example>
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/pixfmt.xml b/Documentation/DocBook/media/v4l/pixfmt.xml
-index d871245..6f7aa0e 100644
---- a/Documentation/DocBook/media/v4l/pixfmt.xml
-+++ b/Documentation/DocBook/media/v4l/pixfmt.xml
-@@ -1619,6 +1619,7 @@ information.</para>
-     &sub-y12;
-     &sub-y10b;
-     &sub-y16;
-+    &sub-ys16;
-     &sub-y16-be;
-     &sub-uv8;
-     &sub-yuyv;
-diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index 8a018c6..c7dabaa 100644
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -1154,6 +1154,7 @@ static void v4l_fill_fmtdesc(struct v4l2_fmtdesc *fmt)
- 	case V4L2_PIX_FMT_Y10:		descr = "10-bit Greyscale"; break;
- 	case V4L2_PIX_FMT_Y12:		descr = "12-bit Greyscale"; break;
- 	case V4L2_PIX_FMT_Y16:		descr = "16-bit Greyscale"; break;
-+	case V4L2_PIX_FMT_YS16:		descr = "16-bit Greyscale (Signed)"; break;
- 	case V4L2_PIX_FMT_Y16_BE:	descr = "16-bit Greyscale BE"; break;
- 	case V4L2_PIX_FMT_Y10BPACK:	descr = "10-bit Greyscale (Packed)"; break;
- 	case V4L2_PIX_FMT_PAL8:		descr = "8-bit Palette"; break;
-diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
-index 14cd5eb..ab577dd 100644
---- a/include/uapi/linux/videodev2.h
-+++ b/include/uapi/linux/videodev2.h
-@@ -496,6 +496,7 @@ struct v4l2_pix_format {
- #define V4L2_PIX_FMT_Y12     v4l2_fourcc('Y', '1', '2', ' ') /* 12  Greyscale     */
- #define V4L2_PIX_FMT_Y16     v4l2_fourcc('Y', '1', '6', ' ') /* 16  Greyscale     */
- #define V4L2_PIX_FMT_Y16_BE  v4l2_fourcc_be('Y', '1', '6', ' ') /* 16  Greyscale BE  */
-+#define V4L2_PIX_FMT_YS16    v4l2_fourcc('Y', 'S', '1', '6') /* signed 16-bit Greyscale */
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index b4abd78..fca1096 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -137,6 +137,10 @@ struct t9_range {
+ #define MXT_DIAGNOSTIC_DELTAS	0x10
+ #define MXT_DIAGNOSTIC_SIZE	128
  
- /* Grey bit-packed formats */
- #define V4L2_PIX_FMT_Y10BPACK    v4l2_fourcc('Y', '1', '0', 'B') /* 10  Greyscale bit-packed */
++#define MXT_FAMILY_1386			160
++#define MXT1386_COLUMNS			3
++#define MXT1386_PAGES_PER_COLUMN	8
++
+ struct t37_debug {
+ 	u8 mode;
+ 	u8 page;
+@@ -2135,13 +2139,27 @@ recheck:
+ static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
+ 			       unsigned int y)
+ {
++	struct mxt_info *info = &data->info;
+ 	struct mxt_dbg *dbg = &data->dbg;
+ 	unsigned int ofs, page;
++	unsigned int col = 0;
++	unsigned int col_width;
++
++	if (info->family_id == MXT_FAMILY_1386) {
++		col_width = info->matrix_ysize / MXT1386_COLUMNS;
++		col = y / col_width;
++		y = y % col_width;
++	} else {
++		col_width = info->matrix_ysize;
++	}
+ 
+-	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
++	ofs = (y + (x * col_width)) * sizeof(u16);
+ 	page = ofs / MXT_DIAGNOSTIC_SIZE;
+ 	ofs %= MXT_DIAGNOSTIC_SIZE;
+ 
++	if (info->family_id == MXT_FAMILY_1386)
++		page += col * MXT1386_PAGES_PER_COLUMN;
++
+ 	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
+ }
+ 
+@@ -2435,6 +2453,7 @@ static const struct video_device mxt_video_device = {
+ 
+ static void mxt_debug_init(struct mxt_data *data)
+ {
++	struct mxt_info *info = &data->info;
+ 	struct mxt_dbg *dbg = &data->dbg;
+ 	struct mxt_object *object;
+ 	int error;
+@@ -2458,9 +2477,13 @@ static void mxt_debug_init(struct mxt_data *data)
+ 
+ 	/* Calculate size of data and allocate buffer */
+ 	dbg->t37_nodes = data->xsize * data->ysize;
+-	dbg->t37_pages = ((data->xsize * data->info.matrix_ysize)
+-			  * sizeof(u16) / sizeof(dbg->t37_buf->data)) + 1;
+ 
++	if (info->family_id == MXT_FAMILY_1386)
++		dbg->t37_pages = MXT1386_COLUMNS * MXT1386_PAGES_PER_COLUMN;
++	else
++		dbg->t37_pages = ((data->xsize * info->matrix_ysize)
++				   * sizeof(u16) / sizeof(dbg->t37_buf->data))
++				   + 1;
+ 
+ 	dbg->t37_buf = devm_kzalloc(&data->client->dev,
+ 				     sizeof(struct t37_debug) * dbg->t37_pages,
 -- 
 2.5.0

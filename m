@@ -1,71 +1,95 @@
-From: sergk sergk2mail <sergk.admin@gmail.com>
-Subject: Re: Chipone icn85xx support in x86 linux kernel
-Date: Wed, 4 May 2016 21:41:15 +0000
-Message-ID: <CA+V1LzowegY1NUHad2St+=NhCg=ZUfNPbMgZ6m_Rqur06JHoyw@mail.gmail.com>
-References: <CA+V1LzoXvWO1FROO2z7tFc-0zoM_Ur+B1iiar+EJ4uvn+DWGdQ@mail.gmail.com>
-	<CA+V1LzpHBvYQ78Ky1XALvYZDy25NSP58upvue6GJCGQk+iE0fQ@mail.gmail.com>
-	<572935D4.6050303@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
+Date: Wed, 4 May 2016 15:58:46 -0700
+Message-ID: <20160504225846.GA17403@dtor-ws>
+References: <1461923113-426-1-git-send-email-jeffrey.lin@rad-ic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f68.google.com ([209.85.192.68]:33331 "EHLO
-	mail-qg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753028AbcEDVlQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 May 2016 17:41:16 -0400
-Received: by mail-qg0-f68.google.com with SMTP id 90so3841720qgz.0
-        for <linux-input@vger.kernel.org>; Wed, 04 May 2016 14:41:15 -0700 (PDT)
-In-Reply-To: <572935D4.6050303@gmail.com>
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:34933 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755101AbcEDW6u (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 May 2016 18:58:50 -0400
+Content-Disposition: inline
+In-Reply-To: <1461923113-426-1-git-send-email-jeffrey.lin@rad-ic.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gregor Riepl <onitake@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: "jeffrey.lin" <yajohn@gmail.com>
+Cc: rydberg@euromail.se, grant.likely@linaro.org, robh+dt@kernel.org, jeesw@melfas.com, bleung@chromium.org, jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, albert.shieh@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-"But don't be discouraged by the lenghty guides - it's not that hard and
-checkpatch helps a lot."
+Hi Jeffrey,
 
-Gregor, ,on the contrary ;-) u r welcome! My main goal with publishing
-it - to do not waste time and waiting till one person finish
-everything - join efforts in making icn85xx driver for x86.
-My end goal also is more global - full linux on Chuwi Vi10, ;-) next
-round sound ESSX8316.
-Regards,
-              Serge.
+On Fri, Apr 29, 2016 at 05:45:13PM +0800, jeffrey.lin wrote:
+> Raydium I2C touch driver.
+> 
 
-On Tue, May 3, 2016 at 11:35 PM, Gregor Riepl <onitake@gmail.com> wrote:
->> At last I am releasing my icn85xx (tested on icn8528 on Chuwi Vi10,
->> Baytrail) kernel space driver.
->> It is unfortunately polling mode, but at the moment, I am happy with
->> it and have no enough time to dig in with irq mode.
->>
->> https://gitlab.com/SergK/icn85xx/tree/master
->
-> Good work!
->
-> A few comments - but bear in mind that I'm not an experienced kernel
-> developer. Someone else may be able to give better advice.
->
-> First: Patches to the kernel should be submitted according to these guidelines
-> at https://www.kernel.org/doc/Documentation/SubmittingPatches
-> In particular, a new driver should be a patch against the respective kernel
-> branch, which means it should live in the appropriate directory in the kernel
-> tree and include an addendum to the Kconfig/Makefile there. Standalone
-> Makefiles are nice when building drivers out-of-tree, but they are not
-> suitable for kernel code. This doesn't apply to your development repo, of
-> course. Testing may be easier when a driver can be built standalone.
->
-> Second: The patch should be formatted according to the Linux kernel coding
-> style at https://www.kernel.org/doc/Documentation/CodingStyle
-> There's also the checkpatch.pl utility in the kernel tree that can help you
-> find and fix mistakes.
->
-> But don't be discouraged by the lenghty guides - it's not that hard and
-> checkpatch helps a lot.
->
-> One thing I noticed on a quick glance is that line 833 in your code is
-> redundant. kzalloc aready clears the memory (hence, k_z_alloc).
->
-> Also: I highly recommend using devm_ variants of constructors, where
-> available. If you use those, you can reduce the footprint of your _remove()
-> function or even remove it completely. devm_input_allocate_device() is a good
-> example. You should use it instead of input_allocate_device(), and it will
-> take care of unregistering and deallocation automatically.
+In my previous e-mail I requested you to enumerate changes that are made
+to the driver, compared to the previous version(s). There were also a
+few questions that I did not get answer for.
+
+Also:
+
+> +static int raydium_i2c_query_ts_info(struct raydium_data *ts)
+> +{
+> +	struct i2c_client *client = ts->client;
+> +	int error, retry_cnt;
+> +
+> +	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
+> +		error = raydium_i2c_read(client, CMD_DATA_BANK,
+> +			sizeof(ts->obj), (void *)&ts->obj);
+> +			ts->obj.data_bank_addr =
+> +				get_unaligned_le32(&ts->obj.data_bank_addr);
+> +
+> +		if (!error) {
+> +			error = raydium_i2c_read(client, CMD_QUERY_BANK,
+> +				sizeof(ts->query_bank_info),
+> +				(void *)&ts->query_bank_info);
+> +			if (!error) {
+> +				error = raydium_i2c_read_message(client,
+> +					ts->query_bank_info, sizeof(ts->info),
+> +					(void *)&ts->info);
+> +
+> +				ts->info.hw_ver =
+> +					get_unaligned_le32(&ts->info.hw_ver);
+> +				ts->info.ft_ver =
+> +					get_unaligned_le16(&ts->info.ft_ver);
+> +				ts->info.x_max =
+> +					get_unaligned_le16(&ts->info.x_max);
+> +				ts->info.y_max =
+> +					get_unaligned_le16(&ts->info.y_max);
+> +				return 0;
+> +			}
+> +		}
+> +	}
+> +	dev_err(&client->dev, "Get touch data failed: %d\n", error);
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +static int raydium_i2c_fastboot(struct i2c_client *client)
+> +{
+> +	static const u8 boot_cmd[] = { 0x50, 0x00, 0x06, 0x20 };
+> +	u8 buf[HEADER_SIZE];
+> +	int error;
+> +
+> +	error = raydium_i2c_read_message(client,
+> +		get_unaligned_be32(boot_cmd),
+> +		sizeof(boot_cmd), buf);
+
+I still can't figure out the logic in read/write mesage handling. Here
+we see that device is supposedly reporting data_bank_addr as LE integer,
+but query_bank_info is returned in native CPU endianness. With fastboot
+command we assume that we are dealing with BE-encoded data and convert
+it to CPU-endianness before using it.
+
+However in raydium_i2c_read_message() we convert from CPU endianness to
+BE and this comfuses me (does the device really return data in one
+endianness but accepts in another endianness?
+
+By the way, why do you have raydium_i2c_read_message() handle reads
+above MAX_PKG_SIZE? There are no callers that want it.
+
+Thanks.
+
+-- 
+Dmitry

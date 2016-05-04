@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH v2 3/8] [media] v4l2-core: Add VFL_TYPE_TOUCH_SENSOR
-Date: Wed,  4 May 2016 18:07:13 +0100
-Message-ID: <1462381638-7818-4-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH v2 2/8] [media] Add signed 16-bit pixel format
+Date: Wed,  4 May 2016 18:07:12 +0100
+Message-ID: <1462381638-7818-3-git-send-email-nick.dyer@itdev.co.uk>
 References: <1462381638-7818-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1462381638-7818-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,149 +10,137 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, hverkuil@xs4all.nl, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-Some touch controllers send out raw touch data in a similar way to a
-greyscale frame grabber. Add a new device type for these devices.
-
-Use a new device prefix v4l-touch for these devices, to stop generic
-capture software from treating them as webcams.
+This will be used for output of raw touch data.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/sur40.c    |  2 +-
- drivers/media/v4l2-core/v4l2-dev.c   | 13 ++++++++++---
- drivers/media/v4l2-core/v4l2-ioctl.c |  6 ++++--
- include/media/v4l2-dev.h             |  3 ++-
- 4 files changed, 17 insertions(+), 7 deletions(-)
+ Documentation/DocBook/media/v4l/pixfmt-ys16.xml | 79 +++++++++++++++++++++++++
+ Documentation/DocBook/media/v4l/pixfmt.xml      |  1 +
+ drivers/media/v4l2-core/v4l2-ioctl.c            |  1 +
+ include/uapi/linux/videodev2.h                  |  1 +
+ 4 files changed, 82 insertions(+)
+ create mode 100644 Documentation/DocBook/media/v4l/pixfmt-ys16.xml
 
-diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-index 880c40b..7e5fe2b 100644
---- a/drivers/input/touchscreen/sur40.c
-+++ b/drivers/input/touchscreen/sur40.c
-@@ -599,7 +599,7 @@ static int sur40_probe(struct usb_interface *interface,
- 	sur40->vdev.queue = &sur40->queue;
- 	video_set_drvdata(&sur40->vdev, sur40);
- 
--	error = video_register_device(&sur40->vdev, VFL_TYPE_GRABBER, -1);
-+	error = video_register_device(&sur40->vdev, VFL_TYPE_TOUCH_SENSOR, -1);
- 	if (error) {
- 		dev_err(&interface->dev,
- 			"Unable to register video subdevice.");
-diff --git a/drivers/media/v4l2-core/v4l2-dev.c b/drivers/media/v4l2-core/v4l2-dev.c
-index d8e5994..8d41248 100644
---- a/drivers/media/v4l2-core/v4l2-dev.c
-+++ b/drivers/media/v4l2-core/v4l2-dev.c
-@@ -529,6 +529,7 @@ static void determine_valid_ioctls(struct video_device *vdev)
- 	bool is_sdr = vdev->vfl_type == VFL_TYPE_SDR;
- 	bool is_rx = vdev->vfl_dir != VFL_DIR_TX;
- 	bool is_tx = vdev->vfl_dir != VFL_DIR_RX;
-+	bool is_touch = vdev->vfl_type == VFL_TYPE_TOUCH_SENSOR;
- 
- 	bitmap_zero(valid_ioctls, BASE_VIDIOC_PRIVATE);
- 
-@@ -573,7 +574,7 @@ static void determine_valid_ioctls(struct video_device *vdev)
- 	if (ops->vidioc_enum_freq_bands || ops->vidioc_g_tuner || ops->vidioc_g_modulator)
- 		set_bit(_IOC_NR(VIDIOC_ENUM_FREQ_BANDS), valid_ioctls);
- 
--	if (is_vid) {
-+	if (is_vid || is_touch) {
- 		/* video specific ioctls */
- 		if ((is_rx && (ops->vidioc_enum_fmt_vid_cap ||
- 			       ops->vidioc_enum_fmt_vid_cap_mplane ||
-@@ -662,7 +663,7 @@ static void determine_valid_ioctls(struct video_device *vdev)
- 			set_bit(_IOC_NR(VIDIOC_TRY_FMT), valid_ioctls);
- 	}
- 
--	if (is_vid || is_vbi || is_sdr) {
-+	if (is_vid || is_vbi || is_sdr || is_touch) {
- 		/* ioctls valid for video, vbi or sdr */
- 		SET_VALID_IOCTL(ops, VIDIOC_REQBUFS, vidioc_reqbufs);
- 		SET_VALID_IOCTL(ops, VIDIOC_QUERYBUF, vidioc_querybuf);
-@@ -675,7 +676,7 @@ static void determine_valid_ioctls(struct video_device *vdev)
- 		SET_VALID_IOCTL(ops, VIDIOC_STREAMOFF, vidioc_streamoff);
- 	}
- 
--	if (is_vid || is_vbi) {
-+	if (is_vid || is_vbi || is_touch) {
- 		/* ioctls valid for video or vbi */
- 		if (ops->vidioc_s_std)
- 			set_bit(_IOC_NR(VIDIOC_ENUMSTD), valid_ioctls);
-@@ -738,6 +739,7 @@ static int video_register_media_controller(struct video_device *vdev, int type)
- 	vdev->entity.function = MEDIA_ENT_F_UNKNOWN;
- 
- 	switch (type) {
-+	case VFL_TYPE_TOUCH_SENSOR:
- 	case VFL_TYPE_GRABBER:
- 		intf_type = MEDIA_INTF_T_V4L_VIDEO;
- 		vdev->entity.function = MEDIA_ENT_F_IO_V4L;
-@@ -844,6 +846,8 @@ static int video_register_media_controller(struct video_device *vdev, int type)
-  *	%VFL_TYPE_SUBDEV - A subdevice
-  *
-  *	%VFL_TYPE_SDR - Software Defined Radio
-+ *
-+ *	%VFL_TYPE_TOUCH_SENSOR - A touch sensor
-  */
- int __video_register_device(struct video_device *vdev, int type, int nr,
- 		int warn_if_nr_in_use, struct module *owner)
-@@ -887,6 +891,9 @@ int __video_register_device(struct video_device *vdev, int type, int nr,
- 		/* Use device name 'swradio' because 'sdr' was already taken. */
- 		name_base = "swradio";
- 		break;
-+	case VFL_TYPE_TOUCH_SENSOR:
-+		name_base = "v4l-touch";
-+		break;
- 	default:
- 		printk(KERN_ERR "%s called with unknown type: %d\n",
- 		       __func__, type);
+diff --git a/Documentation/DocBook/media/v4l/pixfmt-ys16.xml b/Documentation/DocBook/media/v4l/pixfmt-ys16.xml
+new file mode 100644
+index 0000000..f92d65e
+--- /dev/null
++++ b/Documentation/DocBook/media/v4l/pixfmt-ys16.xml
+@@ -0,0 +1,79 @@
++<refentry id="V4L2-PIX-FMT-YS16">
++  <refmeta>
++    <refentrytitle>V4L2_PIX_FMT_YS16 ('YS16')</refentrytitle>
++    &manvol;
++  </refmeta>
++  <refnamediv>
++    <refname><constant>V4L2_PIX_FMT_YS16</constant></refname>
++    <refpurpose>Grey-scale image</refpurpose>
++  </refnamediv>
++  <refsect1>
++    <title>Description</title>
++
++    <para>This is a signed grey-scale image with a depth of 16 bits per
++pixel. The most significant byte is stored at higher memory addresses
++(little-endian).</para>
++
++    <example>
++      <title><constant>V4L2_PIX_FMT_YS16</constant> 4 &times; 4
++pixel image</title>
++
++      <formalpara>
++	<title>Byte Order.</title>
++	<para>Each cell is one byte.
++	  <informaltable frame="none">
++	    <tgroup cols="9" align="center">
++	      <colspec align="left" colwidth="2*" />
++	      <tbody valign="top">
++		<row>
++		  <entry>start&nbsp;+&nbsp;0:</entry>
++		  <entry>Y'<subscript>00low</subscript></entry>
++		  <entry>Y'<subscript>00high</subscript></entry>
++		  <entry>Y'<subscript>01low</subscript></entry>
++		  <entry>Y'<subscript>01high</subscript></entry>
++		  <entry>Y'<subscript>02low</subscript></entry>
++		  <entry>Y'<subscript>02high</subscript></entry>
++		  <entry>Y'<subscript>03low</subscript></entry>
++		  <entry>Y'<subscript>03high</subscript></entry>
++		</row>
++		<row>
++		  <entry>start&nbsp;+&nbsp;8:</entry>
++		  <entry>Y'<subscript>10low</subscript></entry>
++		  <entry>Y'<subscript>10high</subscript></entry>
++		  <entry>Y'<subscript>11low</subscript></entry>
++		  <entry>Y'<subscript>11high</subscript></entry>
++		  <entry>Y'<subscript>12low</subscript></entry>
++		  <entry>Y'<subscript>12high</subscript></entry>
++		  <entry>Y'<subscript>13low</subscript></entry>
++		  <entry>Y'<subscript>13high</subscript></entry>
++		</row>
++		<row>
++		  <entry>start&nbsp;+&nbsp;16:</entry>
++		  <entry>Y'<subscript>20low</subscript></entry>
++		  <entry>Y'<subscript>20high</subscript></entry>
++		  <entry>Y'<subscript>21low</subscript></entry>
++		  <entry>Y'<subscript>21high</subscript></entry>
++		  <entry>Y'<subscript>22low</subscript></entry>
++		  <entry>Y'<subscript>22high</subscript></entry>
++		  <entry>Y'<subscript>23low</subscript></entry>
++		  <entry>Y'<subscript>23high</subscript></entry>
++		</row>
++		<row>
++		  <entry>start&nbsp;+&nbsp;24:</entry>
++		  <entry>Y'<subscript>30low</subscript></entry>
++		  <entry>Y'<subscript>30high</subscript></entry>
++		  <entry>Y'<subscript>31low</subscript></entry>
++		  <entry>Y'<subscript>31high</subscript></entry>
++		  <entry>Y'<subscript>32low</subscript></entry>
++		  <entry>Y'<subscript>32high</subscript></entry>
++		  <entry>Y'<subscript>33low</subscript></entry>
++		  <entry>Y'<subscript>33high</subscript></entry>
++		</row>
++	      </tbody>
++	    </tgroup>
++	  </informaltable>
++	</para>
++      </formalpara>
++    </example>
++  </refsect1>
++</refentry>
+diff --git a/Documentation/DocBook/media/v4l/pixfmt.xml b/Documentation/DocBook/media/v4l/pixfmt.xml
+index d871245..6f7aa0e 100644
+--- a/Documentation/DocBook/media/v4l/pixfmt.xml
++++ b/Documentation/DocBook/media/v4l/pixfmt.xml
+@@ -1619,6 +1619,7 @@ information.</para>
+     &sub-y12;
+     &sub-y10b;
+     &sub-y16;
++    &sub-ys16;
+     &sub-y16-be;
+     &sub-uv8;
+     &sub-yuyv;
 diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index c7dabaa..4a1093a 100644
+index 8a018c6..c7dabaa 100644
 --- a/drivers/media/v4l2-core/v4l2-ioctl.c
 +++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -925,13 +925,14 @@ static int check_fmt(struct file *file, enum v4l2_buf_type type)
- 	bool is_sdr = vfd->vfl_type == VFL_TYPE_SDR;
- 	bool is_rx = vfd->vfl_dir != VFL_DIR_TX;
- 	bool is_tx = vfd->vfl_dir != VFL_DIR_RX;
-+	bool is_touch = vfd->vfl_type == VFL_TYPE_TOUCH_SENSOR;
+@@ -1154,6 +1154,7 @@ static void v4l_fill_fmtdesc(struct v4l2_fmtdesc *fmt)
+ 	case V4L2_PIX_FMT_Y10:		descr = "10-bit Greyscale"; break;
+ 	case V4L2_PIX_FMT_Y12:		descr = "12-bit Greyscale"; break;
+ 	case V4L2_PIX_FMT_Y16:		descr = "16-bit Greyscale"; break;
++	case V4L2_PIX_FMT_YS16:		descr = "16-bit Greyscale (Signed)"; break;
+ 	case V4L2_PIX_FMT_Y16_BE:	descr = "16-bit Greyscale BE"; break;
+ 	case V4L2_PIX_FMT_Y10BPACK:	descr = "10-bit Greyscale (Packed)"; break;
+ 	case V4L2_PIX_FMT_PAL8:		descr = "8-bit Palette"; break;
+diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
+index 14cd5eb..ab577dd 100644
+--- a/include/uapi/linux/videodev2.h
++++ b/include/uapi/linux/videodev2.h
+@@ -496,6 +496,7 @@ struct v4l2_pix_format {
+ #define V4L2_PIX_FMT_Y12     v4l2_fourcc('Y', '1', '2', ' ') /* 12  Greyscale     */
+ #define V4L2_PIX_FMT_Y16     v4l2_fourcc('Y', '1', '6', ' ') /* 16  Greyscale     */
+ #define V4L2_PIX_FMT_Y16_BE  v4l2_fourcc_be('Y', '1', '6', ' ') /* 16  Greyscale BE  */
++#define V4L2_PIX_FMT_YS16    v4l2_fourcc('Y', 'S', '1', '6') /* signed 16-bit Greyscale */
  
- 	if (ops == NULL)
- 		return -EINVAL;
- 
- 	switch (type) {
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
--		if (is_vid && is_rx &&
-+		if ((is_vid || is_touch) && is_rx &&
- 		    (ops->vidioc_g_fmt_vid_cap || ops->vidioc_g_fmt_vid_cap_mplane))
- 			return 0;
- 		break;
-@@ -1349,6 +1350,7 @@ static int v4l_g_fmt(const struct v4l2_ioctl_ops *ops,
- 	struct video_device *vfd = video_devdata(file);
- 	bool is_vid = vfd->vfl_type == VFL_TYPE_GRABBER;
- 	bool is_sdr = vfd->vfl_type == VFL_TYPE_SDR;
-+	bool is_touch = vfd->vfl_type == VFL_TYPE_TOUCH_SENSOR;
- 	bool is_rx = vfd->vfl_dir != VFL_DIR_TX;
- 	bool is_tx = vfd->vfl_dir != VFL_DIR_RX;
- 	int ret;
-@@ -1379,7 +1381,7 @@ static int v4l_g_fmt(const struct v4l2_ioctl_ops *ops,
- 
- 	switch (p->type) {
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
--		if (unlikely(!is_rx || !is_vid || !ops->vidioc_g_fmt_vid_cap))
-+		if (unlikely(!is_rx || (!is_vid && !is_touch) || !ops->vidioc_g_fmt_vid_cap))
- 			break;
- 		p->fmt.pix.priv = V4L2_PIX_FMT_PRIV_MAGIC;
- 		ret = ops->vidioc_g_fmt_vid_cap(file, fh, arg);
-diff --git a/include/media/v4l2-dev.h b/include/media/v4l2-dev.h
-index eeabf20..8a4e446 100644
---- a/include/media/v4l2-dev.h
-+++ b/include/media/v4l2-dev.h
-@@ -25,7 +25,8 @@
- #define VFL_TYPE_RADIO		2
- #define VFL_TYPE_SUBDEV		3
- #define VFL_TYPE_SDR		4
--#define VFL_TYPE_MAX		5
-+#define VFL_TYPE_TOUCH_SENSOR	5
-+#define VFL_TYPE_MAX		6
- 
- /* Is this a receiver, transmitter or mem-to-mem? */
- /* Ignored for VFL_TYPE_SUBDEV. */
+ /* Grey bit-packed formats */
+ #define V4L2_PIX_FMT_Y10BPACK    v4l2_fourcc('Y', '1', '0', 'B') /* 10  Greyscale bit-packed */
 -- 
 2.5.0

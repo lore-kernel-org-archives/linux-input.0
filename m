@@ -1,126 +1,35 @@
-From: Grant Grundler <grundler@chromium.org>
-Subject: Re: Input: add Atmel Atmegaxx captouch driver
-Date: Wed, 4 May 2016 09:43:35 -0700
-Message-ID: <CANEJEGvZyU6-P8FcR7Z7GriJw3Pj32f5hnJRkbYxoE-t0yXy7g@mail.gmail.com>
-References: <1462295611-49684-1-git-send-email-grundler@chromium.org>
-	<20160504135123.GA4567@rob-hp-laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: [PATCH v2 0/8] Input: atmel_mxt_ts - output raw touch diagnostic data via V4L
+Date: Wed,  4 May 2016 18:07:10 +0100
+Message-ID: <1462381638-7818-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f180.google.com ([209.85.161.180]:35247 "EHLO
-	mail-yw0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754123AbcEDQnh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 May 2016 12:43:37 -0400
-Received: by mail-yw0-f180.google.com with SMTP id g133so92138090ywb.2
-        for <linux-input@vger.kernel.org>; Wed, 04 May 2016 09:43:36 -0700 (PDT)
-In-Reply-To: <20160504135123.GA4567@rob-hp-laptop>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:62402 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752292AbcEDRH1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 May 2016 13:07:27 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Grant Grundler <grundler@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Grant Likely <grant.likely@linaro.org>, LKML <linux-kernel@vger.kernel.org>, Linux DeviceTree <devicetree@vger.kernel.org>, Hung-yu Wu <hywu@google.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, hverkuil@xs4all.nl
 
-On Wed, May 4, 2016 at 6:51 AM, Rob Herring <robh@kernel.org> wrote:
-> On Tue, May 03, 2016 at 10:13:31AM -0700, Grant Grundler wrote:
->> Add I2C driver for AtmegaXX capacitive touch device.
->>
->> Signed-off-by: Hung-yu Wu <hywu@google.com>
->> Signed-off-by: Grant Grundler <grundler@chromium.org>
->> ---
->>  .../bindings/input/atmel,atmegaxx_captouch.txt     |  34 +++
->
-> It is generally preferred that bindings are a separate patch.
+This is a series of patches to add diagnostic data support to the Atmel
+maXTouch driver. It's a rewrite of the previous implementation which output via
+debugfs: it now uses a V4L2 device in a similar way to the sur40 driver.
 
-ACK - I just discovered Documentation/devicetree/bindings/submitting-patches.txt
-(which explains this in more detail)
+There are significant performance advantages to putting this code into the
+driver.  The algorithm for retrieving the data has been fairly consistent
+across a range of chips, with the exception of the mXT1386 series (see patch).
 
->>  drivers/input/misc/Kconfig                         |  11 +
->>  drivers/input/misc/Makefile                        |   1 +
->>  drivers/input/misc/atmegaxx_captouch.c             | 278 +++++++++++++++++++++
->>  4 files changed, 324 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
->>  create mode 100644 drivers/input/misc/atmegaxx_captouch.c
->>
->> For those that like to know how sausage is made, ChromeOS code review history here:
->>    https://chromium-review.googlesource.com/339950
->>
->> Driver was tested with prototype HW and it reliably reports events correctly.
->> Manual testing was just using "evtest /dev/input/event0" and watch for events.
->>
->> diff --git a/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt b/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
->> new file mode 100644
->> index 0000000..07a4b0b
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/input/atmel,atmegaxx_captouch.txt
->> @@ -0,0 +1,34 @@
->> +Device tree bindings for Atmel AtmegaXX capacitive touch sensor
->> +
->> +The node for this device must be a child of a I2C controller node, as the
->> +device communicates via I2C.
->> +
->> +Required properties:
->> +
->> +     compatible:     Must be "atmel,atmegaxx_captouch".
->
-> No wildcards in the compatible strings. Use the specific devices.
+We have a utility which can read the data and display it in a useful format:
+    https://github.com/ndyer/heatmap/commits/heatmap-v4l
 
-Sorry, I don't understand - What is a wildcard in this context?
+These patches are also available from
+    https://github.com/ndyer/linux/commits/diagnostic-v4l
 
-I also just discovered
-Documentation/devicetree/bindings/submitting-patches.txt and the "5)
-the wildcard" text doesn't seem to match the usage here.
+Changes in v2:
+- Split pixfmt changes into separate commit and add DocBook
+- Introduce VFL_TYPE_TOUCH_SENSOR and /dev/v4l-touch
+- Remove "single node" support for now, it may be better to treat it as metadata later
+- Explicitly set VFL_DIR_RX
+- Fix Kconfig
 
-> Also, use hyphen rather than underscore.
-
-ACK - I have no clue why - I've been scrounging around in
-Documentation and haven't stumbled across "coding style" for device
-tree document.
-
-
-> However, if the device is only a touch controller, then '_captouch' is not needed.
-> The part number is sufficient to identify the device.
-
-atmegaxx is an Atmel microcontroller series and in this particular
-case used to drive a capacitive touch input device (just buttons).
-Since the microcontroller can be used for "anything", "captouch" is
-sort of the "model" of this implementation.
-
-
->> +     reg:            The I2C slave address of the device.
->> +     interrupts:     Property describing the interrupt line the device
->> +                     is connected to. The device only has one interrupt
->> +                     source.
->> +     linux,keycodes: Specifies an array of numeric keycode values to
->> +                     be used for reporting button presses. The array can
->> +                     contain up to 8 entries.
->> +
->> +Optional properties:
->> +
->> +     autorepeat:     Enables the Linux input system's autorepeat
->> +                     feature on the input device.
->> +
->> +Example:
->> +
->> +     atmegaxx_captouch@51 {
->
-> atmegaxx@51 (with actual part number)
-
-atmegaxx_captouch (or -captouch) is how Atmel has been referring to
-this implementation. I'm not aware of any other part number or model
-number.
-
->> +             compatible = "atmel,atmegaxx_captouch";
->> +             reg = <0x51>;
->> +             interrupt-parent = <&tlmm>;
->> +             interrupts = <67 IRQ_TYPE_EDGE_FALLING>;
->> +             linux,keycodes = <BTN_0>, <BTN_1>,
->> +                     <BTN_2>, <BTN_3>,
->> +                     <BTN_4>, <BTN_5>,
->> +                     <BTN_6>, <BTN_7>;
->> +             autorepeat;
->> +     };
-
-Thanks for the feedback!
-I'll repost with s/_/-/ fix after naming is clear.
-
-thanks,
-grant

@@ -1,84 +1,92 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH V3 2/3] iio: mxs-lradc: remove mxs_lradc_ts_unregister
-Date: Wed, 4 May 2016 10:39:19 +0100
-Message-ID: <e1309837-633e-60db-3368-eaad6373dc35@kernel.org>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V3 0/3] iio: mxs-lradc: simplify TS handling
+Date: Wed, 4 May 2016 10:40:08 +0100
+Message-ID: <e0989150-8f22-4f36-fea7-65a86973833d@kernel.org>
 References: <1461441479-23218-1-git-send-email-stefan.wahren@i2se.com>
- <1461441479-23218-3-git-send-email-stefan.wahren@i2se.com>
- <20160425210041.GB26059@dtor-ws>
+ <500c5874-4ef8-b37b-e12f-80fd5205c172@kernel.org>
+ <CAL7P5jJF9EL4Zk-AC9csyadfrmUp4R+6ceVAN_kNm7dKgo+ZgQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:35796 "EHLO
-	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752554AbcEDOiB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 May 2016 10:38:01 -0400
-In-Reply-To: <20160425210041.GB26059@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAL7P5jJF9EL4Zk-AC9csyadfrmUp4R+6ceVAN_kNm7dKgo+ZgQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?UTF-8?Q?Ksenija_Stanojevi=c4=87?= <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, Juergen Borleis <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stefan Wahren <stefan.wahren@i2se.com>
-Cc: Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Marek Vasut <marex@denx.de>, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, Fabio Estevam <fabio.estevam@nxp.com>, Juergen Borleis <jbe@pengutronix.de>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On 25/04/16 22:00, Dmitry Torokhov wrote:
-> On Sat, Apr 23, 2016 at 07:57:58PM +0000, Stefan Wahren wrote:
->> After using devm_input_allocate_device for registration
->> the function mxs_lradc_ts_unregister isn't necessary anymore
->> since mxs_lradc_ts_close already does the job.
+On 02/05/16 07:06, Ksenija Stanojevi=C4=87 wrote:
+> Hi Jonathan,
+>=20
+> On Sun, May 1, 2016 at 10:08 PM, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> =
+wrote:
+>> Ksenija,
 >>
->> Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
->> Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Applied.
-> 
->> ---
->>  drivers/iio/adc/mxs-lradc.c |   13 +------------
->>  1 file changed, 1 insertion(+), 12 deletions(-)
+>> How would you prefer we handle this interaction of this set and your=
+ series.
+>> Options are:
 >>
->> diff --git a/drivers/iio/adc/mxs-lradc.c b/drivers/iio/adc/mxs-lradc.c
->> index 3d1d370..90242ba 100644
->> --- a/drivers/iio/adc/mxs-lradc.c
->> +++ b/drivers/iio/adc/mxs-lradc.c
->> @@ -1148,14 +1148,6 @@ static int mxs_lradc_ts_register(struct mxs_lradc *lradc)
->>  	return input_register_device(input);
->>  }
->>  
->> -static void mxs_lradc_ts_unregister(struct mxs_lradc *lradc)
->> -{
->> -	if (!lradc->use_touchscreen)
->> -		return;
->> -
->> -	mxs_lradc_disable_ts(lradc);
->> -}
->> -
->>  /*
->>   * IRQ Handling
->>   */
->> @@ -1715,13 +1707,11 @@ static int mxs_lradc_probe(struct platform_device *pdev)
->>  	ret = iio_device_register(iio);
->>  	if (ret) {
->>  		dev_err(dev, "Failed to register IIO device\n");
->> -		goto err_ts;
->> +		return ret;
->>  	}
->>  
->>  	return 0;
->>  
->> -err_ts:
->> -	mxs_lradc_ts_unregister(lradc);
->>  err_ts_register:
->>  	mxs_lradc_hw_stop(lradc);
->>  err_dev:
->> @@ -1739,7 +1729,6 @@ static int mxs_lradc_remove(struct platform_device *pdev)
->>  	struct mxs_lradc *lradc = iio_priv(iio);
->>  
->>  	iio_device_unregister(iio);
->> -	mxs_lradc_ts_unregister(lradc);
->>  	mxs_lradc_hw_stop(lradc);
->>  	mxs_lradc_trigger_remove(iio);
->>  	iio_triggered_buffer_cleanup(iio);
->> -- 
->> 1.7.9.5
+>> 1. I apply these now and you rebase on top of the result.
+>> 2. You pull these into your series, probably after the driver split =
+making sure these
+>>    improvements end up in the new drivers.
+>> 3. We ask Stephan to re roll them at a later date (least preferred o=
+ption as that adds
+>> another person we need to chase down to get to the end of this proce=
+ss!)
 >>
-> 
+>> No immediate rush on any of the above as we've probably missed this =
+cycle now anyway.
+>> I've been cut off today so not sure what Linus has said today.
+>=20
+> My understanding was that you will take this patch series so I alread=
+y included
+> changes made by this patch set in touchscreen part, I will check if I=
+ missed
+> something.
+> I think the best is to apply these now.
+Cool - that's even easier ;)
 
+Jonathan
+>=20
+> Thanks,
+> Ksenija
+>=20
+>> Jonathan
+>> On 23/04/16 20:57, Stefan Wahren wrote:
+>>> This patch series simplifies TS handling of mxs-lradc.
+>>>
+>>> These patches has been tested with i.MX23 and i.MX28 but without
+>>> a touchscreen. I added only a bogus touchscreen in devicetree.
+>>>
+>>> It would be nice if someone with a real touchscreen could test it.
+>>>
+>>> Changes in V3:
+>>> - remove dev.parent assignment as suggested by Dimitry
+>>> - add new patch to remove mxs_lradc_ts_unregister
+>>> - remove PM implementation from series in order to wait until
+>>>   Ksenija has split the driver
+>>>
+>>> Changes in V2:
+>>> - rebase on iio/testing since patch 2 and 3 from V1 has been applie=
+d
+>>> - also remove input_unregister_device in patch 1
+>>> - use mask of virtual channels for IRQ disabling in patch 2
+>>>
+>>> Stefan Wahren (3):
+>>>   iio: mxs-lradc: simplify TS registration
+>>>   iio: mxs-lradc: remove mxs_lradc_ts_unregister
+>>>   iio: mxs-lradc: disable only masked channels in
+>>>     mxs_lradc_hw_stop
+>>>
+>>>  drivers/iio/adc/mxs-lradc.c |   34 ++++++-------------------------=
+---
+>>>  1 file changed, 6 insertions(+), 28 deletions(-)
+>>>
+>>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" =
+in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>=20

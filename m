@@ -1,120 +1,67 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: CM109: Fix handling of volume and mute buttons
-Date: Wed, 4 May 2016 17:18:20 -0700
-Message-ID: <20160505001820.GA15115@dtor-ws>
-References: <1462393511-20979-1-git-send-email-florian.euchner@gmail.com>
+From: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+Subject: Re: [PATCH v4 3/3] ARM: dts: use syscon in cygnus touchscreen dt node
+Date: Thu, 5 May 2016 11:17:00 +0530
+Message-ID: <CAAFb_vp+oxHc6YD24zPr0o6Pt9Jt1_LsT14VUQGBKXBpvNAj_Q@mail.gmail.com>
+References: <1456556396-4759-1-git-send-email-raveendra.padasalagi@broadcom.com>
+	<1456556396-4759-4-git-send-email-raveendra.padasalagi@broadcom.com>
+	<20160406173140.GB38452@dtor-ws>
+	<CAGVrzcbCZn6RYFwJTkffkct1DiiG+tBJnKELDn32T38_s5mjOg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1462393511-20979-1-git-send-email-florian.euchner@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Florian Euchner <florian.euchner@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f176.google.com ([209.85.161.176]:36336 "EHLO
+	mail-yw0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750802AbcEEFrC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 May 2016 01:47:02 -0400
+Received: by mail-yw0-f176.google.com with SMTP id o66so129677304ywc.3
+        for <linux-input@vger.kernel.org>; Wed, 04 May 2016 22:47:01 -0700 (PDT)
+In-Reply-To: <CAGVrzcbCZn6RYFwJTkffkct1DiiG+tBJnKELDn32T38_s5mjOg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King <linux@arm.linux.org.uk>, Rob Herring <robh+dt@kernel.org>, Arnd Bergmann <arnd@arndb.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jonathan Richardson <jonathar@broadcom.com>, Jon Mason <jonmason@broadcom.com>, Anup Patel <anup.patel@broadcom.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>
 
-On Wed, May 04, 2016 at 10:25:11PM +0200, Florian Euchner wrote:
-> The CM109 driver reported key press events of volume up / down and
-> record / playback mute buttons, but no release events. Report those events
-> properly by handling volume and mute keys seperately. For the record and
-> playback mute buttons, only presses are registered by the CM109, therefore
-> simulate press-n-release. This fixes the volume control buttons of various
-> USB headsets.
-> 
-> Signed-off-by: Florian Euchner <florian.euchner@gmail.com>
+Thanks Dmitry and Florian.
 
-Applied, thank you.
+Hi Dmitry,
 
-> ---
-> Thank you very much for your response to my first patch, Dmitry.
-> I didn't realize input_report_key already does all of the logic to
-> make sure keypresses are not reported twice, which made my code more
-> complicated than it had to be. I have applied your code with some
-> adjustments:
-> * The for loop should only count to 4, not to 8. There are only four keys,
-> otherwise this would cause reading outside the bounds of the keymap[] array
-> and bits 4-7 of HID_IR0 are not used for keys according to the datasheet.
-> * The RECORD_MUTE key should mute the microphone, not the speaker.
-> * There only need to be 15 slots in the keymap for special keys since
-> "no special key pressed" is not a valid combination anymore.
-> 
-> I hope those adjustments make sense.
-> 
->  drivers/input/misc/cm109.c | 37 ++++++++++++++++++++++++++++++-------
->  1 file changed, 30 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/misc/cm109.c b/drivers/input/misc/cm109.c
-> index 9365535..ee1bedd 100644
-> --- a/drivers/input/misc/cm109.c
-> +++ b/drivers/input/misc/cm109.c
-> @@ -76,8 +76,8 @@ enum {
->  
->  	BUZZER_ON = 1 << 5,
->  
-> -	/* up to 256 normal keys, up to 16 special keys */
-> -	KEYMAP_SIZE = 256 + 16,
-> +	/* up to 256 normal keys, up to 15 special key combinations */
-> +	KEYMAP_SIZE = 256 + 15,
->  };
->  
->  /* CM109 protocol packet */
-> @@ -139,7 +139,7 @@ static unsigned short special_keymap(int code)
->  {
->  	if (code > 0xff) {
->  		switch (code - 0xff) {
-> -		case RECORD_MUTE:	return KEY_MUTE;
-> +		case RECORD_MUTE:	return KEY_MICMUTE;
->  		case PLAYBACK_MUTE:	return KEY_MUTE;
->  		case VOLUME_DOWN:	return KEY_VOLUMEDOWN;
->  		case VOLUME_UP:		return KEY_VOLUMEUP;
-> @@ -312,6 +312,32 @@ static void report_key(struct cm109_dev *dev, int key)
->  	input_sync(idev);
->  }
->  
-> +/*
-> + * Converts data of special key presses (volume, mute) into events
-> + * for the input subsystem, sends press-n-release for mute keys.
-> + */
-> +static void cm109_report_special(struct cm109_dev *dev)
-> +{
-> +	static const u8 autorelease = RECORD_MUTE | PLAYBACK_MUTE;
-> +	struct input_dev *idev = dev->idev;
-> +	u8 data = dev->irq_data->byte[HID_IR0];
-> +	unsigned short keycode;
-> +	int i;
-> +
-> +	for (i = 0; i < 4; i++) {
-> +		keycode = dev->keymap[0xff + BIT(i)];
-> +		if (keycode == KEY_RESERVED)
-> +			continue;
-> +
-> +		input_report_key(idev, keycode, data & BIT(i));
-> +		if (data & autorelease & BIT(i)) {
-> +			input_sync(idev);
-> +			input_report_key(idev, keycode, 0);
-> +		}
-> +	}
-> +	input_sync(idev);
-> +}
-> +
->  /******************************************************************************
->   * CM109 usb communication interface
->   *****************************************************************************/
-> @@ -357,10 +383,7 @@ static void cm109_urb_irq_callback(struct urb *urb)
->  	}
->  
->  	/* Special keys */
-> -	if (dev->irq_data->byte[HID_IR0] & 0x0f) {
-> -		const int code = (dev->irq_data->byte[HID_IR0] & 0x0f);
-> -		report_key(dev, dev->keymap[0xff + code]);
-> -	}
-> +	cm109_report_special(dev);
->  
->  	/* Scan key column */
->  	if (dev->keybit == 0xf) {
-> -- 
-> 2.8.2
-> 
+I understand the dts changes are really needed for the touch screen
+driver changes made in this patch. But currently there are no deployed
+systems/customer's using this driver. So please pull the driver changes
+and I will follow up to make sure dts changes also goes in.
 
--- 
-Dmitry
+Below is the latest patch set pushed.
+
+https://lkml.org/lkml/2016/3/24/45
+
+
+Thanks ,
+Raveendra
+
+On Thu, Apr 7, 2016 at 1:55 AM, Florian Fainelli <f.fainelli@gmail.com> wrote:
+> 2016-04-06 10:31 GMT-07:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+>> On Sat, Feb 27, 2016 at 12:29:56PM +0530, Raveendra Padasalagi wrote:
+>>> In Cygnus SOC touch screen controller registers are shared
+>>> with ADC and flex timer. Using readl/writel could lead to
+>>> race condition. So touchscreen driver is enhanced to support
+>>> syscon based register access to take care of mutually exclusive
+>>> access.
+>>>
+>>> This patch enables syscon support in touchscreen driver
+>>> by adding necessary properties in touchscreen dt node and
+>>> in addition to this renamed existing "tsc" touchscreen node
+>>> name to "touchscreen".
+>>>
+>>> Signed-off-by: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+>>> Reviewed-by: Ray Jui <ray.jui@broadcom.com>
+>>> Reviewed-by: Scott Branden <scott.branden@broadcom.com>
+>>
+>> OK, since the new dts is really needed for the driver I'll be folding
+>> this into the touchscreen driver patch unless I hear someone yelling at
+>> me.
+>
+> Works for me:
+>
+> Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+> --
+> Florian

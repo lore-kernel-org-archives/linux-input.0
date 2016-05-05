@@ -1,72 +1,48 @@
-From: Grant Grundler <grundler@chromium.org>
-Subject: Re: Input: add Atmel Atmegaxx captouch driver
-Date: Thu, 5 May 2016 09:04:39 -0700
-Message-ID: <CANEJEGt1Ri7Q-g25U8_KTAb9Z8MfVWH0N5QLaLcdnDuF_wwrtw@mail.gmail.com>
-References: <1462295611-49684-1-git-send-email-grundler@chromium.org>
-	<20160504135123.GA4567@rob-hp-laptop>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 3/3] ARM: dts: use syscon in cygnus touchscreen dt node
+Date: Thu, 5 May 2016 11:44:38 -0700
+Message-ID: <20160505184438.GA25689@dtor-ws>
+References: <1456556396-4759-1-git-send-email-raveendra.padasalagi@broadcom.com>
+ <1456556396-4759-4-git-send-email-raveendra.padasalagi@broadcom.com>
+ <20160406173140.GB38452@dtor-ws>
+ <CAGVrzcbCZn6RYFwJTkffkct1DiiG+tBJnKELDn32T38_s5mjOg@mail.gmail.com>
+ <CAAFb_vp+oxHc6YD24zPr0o6Pt9Jt1_LsT14VUQGBKXBpvNAj_Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f48.google.com ([209.85.213.48]:33206 "EHLO
-	mail-vk0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756605AbcEEQEk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 May 2016 12:04:40 -0400
-Received: by mail-vk0-f48.google.com with SMTP id o133so31274013vka.0
-        for <linux-input@vger.kernel.org>; Thu, 05 May 2016 09:04:40 -0700 (PDT)
-In-Reply-To: <20160504135123.GA4567@rob-hp-laptop>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAAFb_vp+oxHc6YD24zPr0o6Pt9Jt1_LsT14VUQGBKXBpvNAj_Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Raveendra Padasalagi <raveendra.padasalagi-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Cc: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jonathan Richardson <jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Jon Mason <jonmason-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Anup Patel <anup.patel-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, bcm-kernel-feedback-list <bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Grant Grundler <grundler@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Grant Likely <grant.likely@linaro.org>, LKML <linux-kernel@vger.kernel.org>, Linux DeviceTree <devicetree@vger.kernel.org>, Hung-yu Wu <hywu@google.com>
 
-On Wed, May 4, 2016 at 6:51 AM, Rob Herring <robh@kernel.org> wrote:
-...
->> +Required properties:
->> +
->> +     compatible:     Must be "atmel,atmegaxx_captouch".
->
-> No wildcards in the compatible strings. Use the specific devices.
->
-> Also, use hyphen rather than underscore. However, if the device is only
-> a touch controller, then '_captouch' is not needed. The part number is
-> sufficient to identify the device.
+Hi Raveendra,
 
-The primary part used on the board is AtMega88PA. Details of that SoC
-are public:
-    http://www.atmel.com/devices/ATMEGA88PA.aspx
+On Thu, May 05, 2016 at 11:17:00AM +0530, Raveendra Padasalagi wrote:
+> Thanks Dmitry and Florian.
+> 
+> Hi Dmitry,
+> 
+> I understand the dts changes are really needed for the touch screen
+> driver changes made in this patch. But currently there are no deployed
+> systems/customer's using this driver. So please pull the driver changes
+> and I will follow up to make sure dts changes also goes in.
+> 
+> Below is the latest patch set pushed.
+> 
+> https://lkml.org/lkml/2016/3/24/45
 
-I don't see why the exact chip is relevant to the driver. The driver
-is just talking to an I2C device that reports button events.  The
-protocol across the I2C determines what this driver has to do and that
-protocol is implemented by the on-board firmware (supplied by Atmel).
-Any AVR CPU could implement this same protocol.
+I have the driver, binding doc changes, and changes to
+arch/arm/boot/dts/bcm-cygnus.dtsi as
+74813cebd678dd471b4fcd7d3019aecab9dbcedd in my 'next' branch, so it will
+be merged in the next merge window.
 
-Can we call this "atmel,qtouch-buttons-v2" or something like that?
+Thanks.
 
-I personally don't have anything invested in any particular name. Feel
-free to suggest a different one. I'm perfectly happy with any color
-paint on the shed.
-
-...
->> +Example:
->> +
->> +     atmegaxx_captouch@51 {
->
-> atmegaxx@51 (with actual part number)
-
-Is "qtouch-buttons@51" ok?
-
->
->> +             compatible = "atmel,atmegaxx_captouch";
->> +             reg = <0x51>;
->> +             interrupt-parent = <&tlmm>;
->> +             interrupts = <67 IRQ_TYPE_EDGE_FALLING>;
->> +             linux,keycodes = <BTN_0>, <BTN_1>,
->> +                     <BTN_2>, <BTN_3>,
->> +                     <BTN_4>, <BTN_5>,
->> +                     <BTN_6>, <BTN_7>;
->> +             autorepeat;
->> +     };
-
-cheers,
-grant
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

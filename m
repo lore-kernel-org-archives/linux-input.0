@@ -1,36 +1,43 @@
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH v6 6/9] rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
-Date: Fri, 06 May 2016 09:27:13 +0200
-Message-ID: <1462519636-3250-5-git-send-email-k.kozlowski@samsung.com>
+From: Jacek Anaszewski <j.anaszewski@samsung.com>
+Subject: Re: [PATCH v6 2/9] mfd: max8997: Use regmap to access registers
+Date: Fri, 06 May 2016 10:04:32 +0200
+Message-ID: <572C5010.1090102@samsung.com>
 References: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
  <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-leds-owner@vger.kernel.org>
 In-reply-to: <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
-Cc: r.baldyga@hackerion.com, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com, r.baldyga@hackerion.com, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-The regmap_irq_get_virq() can return zero or negative ERRNO, so it is
-insufficient to check only for non-zero value.
+Hi Krzysztof,
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
----
- drivers/rtc/rtc-max8997.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 05/06/2016 09:27 AM, Krzysztof Kozlowski wrote:
+> From: Robert Baldyga <r.baldyga@samsung.com>
+>
+> This patch modifies max8997 driver and each associated function driver,
+> to use regmap instead of operating directly on i2c bus. It will allow to
+> simplify IRQ handling using regmap-irq.
+>
+> Signed-off-by: Robert Baldyga <r.baldyga@samsung.com>
+> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>
+> [For extcon part]
+> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+>
+> [For leds part]
+> Acked-by: Bryan Wu <cooloney@gmail.com>
+>
 
-diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
-index 4998aee0f07f..1a06e17ebe9b 100644
---- a/drivers/rtc/rtc-max8997.c
-+++ b/drivers/rtc/rtc-max8997.c
-@@ -497,7 +497,7 @@ static int max8997_rtc_probe(struct platform_device *pdev)
- 	}
- 
- 	virq = regmap_irq_get_virq(max8997->irq_data, MAX8997_PMICIRQ_RTCA1);
--	if (!virq) {
-+	if (virq <= 0) {
- 		dev_err(&pdev->dev, "Failed to create mapping alarm IRQ\n");
- 		ret = -ENXIO;
- 		goto err_out;
+Since I've replaced Bryan on the position of LED subsystem maintainer
+feel free to use my ack:
+
+Acked-by: Jacek Anaszewski <j.anaszewski@samsung.com>
+
 -- 
-1.9.1
+Best regards,
+Jacek Anaszewski

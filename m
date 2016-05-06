@@ -1,86 +1,68 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH v6 0/9] mfd: max8997: Add regmap support
-Date: Fri, 06 May 2016 09:21:20 +0200
-Message-ID: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.w1.samsung.com ([210.118.77.11]:57921 "EHLO
-	mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751232AbcEFHVl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 May 2016 03:21:41 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v6 1/9] input: max8997-haptic: Fix NULL pointer dereference
+Date: Fri, 06 May 2016 09:21:21 +0200
+Message-ID: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
+References: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
-Cc: r.baldyga@hackerion.com, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: r.baldyga@hackerion.com, Marek Szyprowski <m.szyprowski@samsung.com>, stable@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+List-Id: linux-input@vger.kernel.org
 
-Hi,
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
+NULL pointer derefence happens when booting with DTB because the
+platform data for haptic device is not set in supplied data from parent
+MFD device.
 
-This is a rebase and extension of old Robert Baldyga's work. [0]
+The MFD device creates only platform data (from Device Tree) for itself,
+not for haptic child.
 
-Robert no longer works in Samsung.
+Unable to handle kernel NULL pointer dereference at virtual address 0000009c
+pgd = c0004000
+	[0000009c] *pgd=00000000
+	Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+	(max8997_haptic_probe) from [<c03f9cec>] (platform_drv_probe+0x4c/0xb0)
+	(platform_drv_probe) from [<c03f8440>] (driver_probe_device+0x214/0x2c0)
+	(driver_probe_device) from [<c03f8598>] (__driver_attach+0xac/0xb0)
+	(__driver_attach) from [<c03f67ac>] (bus_for_each_dev+0x68/0x9c)
+	(bus_for_each_dev) from [<c03f7a38>] (bus_add_driver+0x1a0/0x218)
+	(bus_add_driver) from [<c03f8db0>] (driver_register+0x78/0xf8)
+	(driver_register) from [<c0101774>] (do_one_initcall+0x90/0x1d8)
+	(do_one_initcall) from [<c0a00dbc>] (kernel_init_freeable+0x15c/0x1fc)
+	(kernel_init_freeable) from [<c06bb5b4>] (kernel_init+0x8/0x114)
+	(kernel_init) from [<c0107938>] (ret_from_fork+0x14/0x3c)
 
->From the original cover letter:
-"This patchset modifies max8997 driver and associated function drivers to use
-register maps instead of operating directly on i2c bus. This change allowed
-to simplify irq handling, and to move some initializations to individual
-function drivers. Hence now when some functions are not enabled, their i2c
-clients, regmaps and irqs are not registered."
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 104594b01ce7 ("Input: add driver support for MAX8997-haptic")
+[k.kozlowski: Write commit message, add CC-stable]
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+---
+ drivers/input/misc/max8997_haptic.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-
-My changes (since Robert's v5)
-==============================
-1. Rebase on v4.6-rc6.
-2. Collect more acks.
-3. Add few fixes:
-   a. Haptic fix from Marek,
-   b. Extcon and RTC fix from me,
-   c. DTS fixes from Marek.
-
-DTS changes are independent but rest of them (extcon/input/MFD) rely
-on each other.
-
-One way of merging would be to pick everything (except DTS) through
-one tree. Or use tags.
-
-
-Best regards,
-Krzysztof
-
-[0] http://lkml.iu.edu/hypermail//linux/kernel/1411.1/03152.html
-
-
-Krzysztof Kozlowski (3):
-  extcon: max8997: Fix handling error code of regmap_irq_get_virq()
-  rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
-  extcon: max8997: Fix inconsistent indenting
-
-Marek Szyprowski (3):
-  input: max8997-haptic: Fix NULL pointer dereference
-  ARM: dts: exynos: Fix regulator name to avoid forbidden character on
-    exynos4210-trats
-  ARM: dts: exynos: Add interrupt line to MAX8997 PMIC on
-    exynos4210-trats
-
-Robert Baldyga (3):
-  mfd: max8997: Use regmap to access registers
-  mfd: max8997: handle IRQs using regmap
-  mfd: max8997: Change irq names to upper case
-
- arch/arm/boot/dts/exynos4210-trats.dts |   4 +-
- drivers/extcon/extcon-max8997.c        |  72 ++++---
- drivers/input/misc/max8997_haptic.c    |  40 ++--
- drivers/leds/leds-max8997.c            |  13 +-
- drivers/mfd/Kconfig                    |   3 +-
- drivers/mfd/Makefile                   |   2 +-
- drivers/mfd/max8997-irq.c              | 383 ---------------------------------
- drivers/mfd/max8997.c                  | 245 ++++++++++++++-------
- drivers/power/max8997_charger.c        |  33 +--
- drivers/regulator/max8997.c            |  87 ++++----
- drivers/rtc/rtc-max8997.c              |  60 +++---
- include/linux/mfd/max8997-private.h    |  82 +++++--
- 12 files changed, 392 insertions(+), 632 deletions(-)
- delete mode 100644 drivers/mfd/max8997-irq.c
-
+diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
+index a806ba3818f7..8d6326d7e7be 100644
+--- a/drivers/input/misc/max8997_haptic.c
++++ b/drivers/input/misc/max8997_haptic.c
+@@ -255,12 +255,14 @@ static int max8997_haptic_probe(struct platform_device *pdev)
+ 	struct max8997_dev *iodev = dev_get_drvdata(pdev->dev.parent);
+ 	const struct max8997_platform_data *pdata =
+ 					dev_get_platdata(iodev->dev);
+-	const struct max8997_haptic_platform_data *haptic_pdata =
+-					pdata->haptic_pdata;
++	const struct max8997_haptic_platform_data *haptic_pdata = NULL;
+ 	struct max8997_haptic *chip;
+ 	struct input_dev *input_dev;
+ 	int error;
+ 
++	if (pdata)
++		haptic_pdata = pdata->haptic_pdata;
++
+ 	if (!haptic_pdata) {
+ 		dev_err(&pdev->dev, "no haptic platform data\n");
+ 		return -EINVAL;
 -- 
 1.9.1
-

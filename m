@@ -1,11 +1,11 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 Subject: [PATCH v6 1/9] input: max8997-haptic: Fix NULL pointer dereference
-Date: Fri, 06 May 2016 09:21:21 +0200
-Message-ID: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
-References: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
+Date: Fri, 06 May 2016 09:24:56 +0200
+Message-ID: <1462519504-3092-1-git-send-email-k.kozlowski@samsung.com>
+References: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-reply-to: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
+Sender: linux-pm-owner@vger.kernel.org
 To: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
 Cc: r.baldyga@hackerion.com, Marek Szyprowski <m.szyprowski@samsung.com>, stable@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 List-Id: linux-input@vger.kernel.org
@@ -66,3 +66,4 @@ index a806ba3818f7..8d6326d7e7be 100644
  		return -EINVAL;
 -- 
 1.9.1
+

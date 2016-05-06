@@ -1,7 +1,7 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH v6 7/9] extcon: max8997: Fix inconsistent indenting
-Date: Fri, 06 May 2016 09:27:14 +0200
-Message-ID: <1462519636-3250-6-git-send-email-k.kozlowski@samsung.com>
+Subject: [PATCH v6 4/9] mfd: max8997: Change irq names to upper case
+Date: Fri, 06 May 2016 09:27:11 +0200
+Message-ID: <1462519636-3250-3-git-send-email-k.kozlowski@samsung.com>
 References: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
  <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
@@ -22,26 +22,106 @@ To: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>
 Cc: r.baldyga@hackerion.com, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-Fix smatch warning:
-	max8997_muic_probe() warn: inconsistent indenting
+From: Robert Baldyga <r.baldyga@samsung.com>
 
+This patch changes naming convention of MUIC interrupts form CamelCase
+to upper case. It makes names more readable and consistent with another
+interrupt names in max8997 driver.
+
+Signed-off-by: Robert Baldyga <r.baldyga@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+
+[For the mfd part]
+Acked-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+[k.kozlowski: Collect acks, rebase on v4.6-rc6]
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
- drivers/extcon/extcon-max8997.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/extcon/extcon-max8997.c     | 32 ++++++++++++++++----------------
+ include/linux/mfd/max8997-private.h | 16 ++++++++--------
+ 2 files changed, 24 insertions(+), 24 deletions(-)
 
 diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
-index 0afa3e8b5dc3..cf8de5be2405 100644
+index 9d27cc23038f..68754ac2c8ea 100644
 --- a/drivers/extcon/extcon-max8997.c
 +++ b/drivers/extcon/extcon-max8997.c
-@@ -737,7 +737,7 @@ static int max8997_muic_probe(struct platform_device *pdev)
+@@ -46,15 +46,15 @@ struct max8997_muic_irq {
+ };
+ 
+ static struct max8997_muic_irq muic_irqs[] = {
+-	{ MAX8997_MUICIRQ_ADCError,	"muic-ADCERROR" },
+-	{ MAX8997_MUICIRQ_ADCLow,	"muic-ADCLOW" },
+-	{ MAX8997_MUICIRQ_ADC,		"muic-ADC" },
+-	{ MAX8997_MUICIRQ_VBVolt,	"muic-VBVOLT" },
+-	{ MAX8997_MUICIRQ_DBChg,	"muic-DBCHG" },
+-	{ MAX8997_MUICIRQ_DCDTmr,	"muic-DCDTMR" },
+-	{ MAX8997_MUICIRQ_ChgDetRun,	"muic-CHGDETRUN" },
+-	{ MAX8997_MUICIRQ_ChgTyp,	"muic-CHGTYP" },
+-	{ MAX8997_MUICIRQ_OVP,		"muic-OVP" },
++	{ MAX8997_MUICIRQ_ADCERROR,	"MUIC-ADCERROR" },
++	{ MAX8997_MUICIRQ_ADCLOW,	"MUIC-ADCLOW" },
++	{ MAX8997_MUICIRQ_ADC,		"MUIC-ADC" },
++	{ MAX8997_MUICIRQ_VBVOLT,	"MUIC-VBVOLT" },
++	{ MAX8997_MUICIRQ_DBCHG,	"MUIC-DBCHG" },
++	{ MAX8997_MUICIRQ_DCDTMR,	"MUIC-DCDTMR" },
++	{ MAX8997_MUICIRQ_CHGDETRUN,	"MUIC-CHGDETRUN" },
++	{ MAX8997_MUICIRQ_CHGTYP,	"MUIC-CHGTYP" },
++	{ MAX8997_MUICIRQ_OVP,		"MUIC-OVP" },
+ };
+ 
+ /* Define supported cable type */
+@@ -540,17 +540,17 @@ static void max8997_muic_irq_work(struct work_struct *work)
  	}
  
- 	/* Set initial path for UART */
--	 max8997_muic_set_path(info, info->path_uart, true);
-+	max8997_muic_set_path(info, info->path_uart, true);
+ 	switch (irq_type) {
+-	case MAX8997_MUICIRQ_ADCError:
+-	case MAX8997_MUICIRQ_ADCLow:
++	case MAX8997_MUICIRQ_ADCERROR:
++	case MAX8997_MUICIRQ_ADCLOW:
+ 	case MAX8997_MUICIRQ_ADC:
+ 		/* Handle all of cable except for charger cable */
+ 		ret = max8997_muic_adc_handler(info);
+ 		break;
+-	case MAX8997_MUICIRQ_VBVolt:
+-	case MAX8997_MUICIRQ_DBChg:
+-	case MAX8997_MUICIRQ_DCDTmr:
+-	case MAX8997_MUICIRQ_ChgDetRun:
+-	case MAX8997_MUICIRQ_ChgTyp:
++	case MAX8997_MUICIRQ_VBVOLT:
++	case MAX8997_MUICIRQ_DBCHG:
++	case MAX8997_MUICIRQ_DCDTMR:
++	case MAX8997_MUICIRQ_CHGDETRUN:
++	case MAX8997_MUICIRQ_CHGTYP:
+ 		/* Handle charger cable */
+ 		ret = max8997_muic_chg_handler(info);
+ 		break;
+diff --git a/include/linux/mfd/max8997-private.h b/include/linux/mfd/max8997-private.h
+index f42ea222988f..2817fa69383e 100644
+--- a/include/linux/mfd/max8997-private.h
++++ b/include/linux/mfd/max8997-private.h
+@@ -411,14 +411,14 @@ enum max8997_irq {
  
- 	/* Set ADC debounce time */
- 	max8997_muic_set_debounce_time(info, ADC_DEBOUNCE_TIME_25MS);
+ enum max8997_irq_muic {
+ 	MAX8997_MUICIRQ_ADC,
+-	MAX8997_MUICIRQ_ADCLow,
+-	MAX8997_MUICIRQ_ADCError,
+-
+-	MAX8997_MUICIRQ_ChgTyp,
+-	MAX8997_MUICIRQ_ChgDetRun,
+-	MAX8997_MUICIRQ_DCDTmr,
+-	MAX8997_MUICIRQ_DBChg,
+-	MAX8997_MUICIRQ_VBVolt,
++	MAX8997_MUICIRQ_ADCLOW,
++	MAX8997_MUICIRQ_ADCERROR,
++
++	MAX8997_MUICIRQ_CHGTYP,
++	MAX8997_MUICIRQ_CHGDETRUN,
++	MAX8997_MUICIRQ_DCDTMR,
++	MAX8997_MUICIRQ_DBCHG,
++	MAX8997_MUICIRQ_VBVOLT,
+ 
+ 	MAX8997_MUICIRQ_OVP,
+ 
 -- 
 1.9.1

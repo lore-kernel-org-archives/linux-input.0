@@ -1,54 +1,36 @@
-From: "R, Vignesh" <vigneshr@ti.com>
-Subject: Re: [PATCH] Input: ti_am335x_tsc - Mark IRQ as wakeup capable
-Date: Fri, 6 May 2016 21:20:23 +0530
-Message-ID: <572CBD3F.9010204@ti.com>
-References: <1462529801-8986-1-git-send-email-vigneshr@ti.com>
+From: Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Input: add Atmel Atmegaxx captouch driver
+Date: Fri, 6 May 2016 11:29:14 -0700
+Message-ID: <CANEJEGtDSGL0gWVsHP8Dyy5n8s7juYhTVLJUmHq8Mn8Xf67_xA@mail.gmail.com>
+References: <1462295611-49684-1-git-send-email-grundler@chromium.org>
+	<20160504135123.GA4567@rob-hp-laptop>
+	<CANEJEGt1Ri7Q-g25U8_KTAb9Z8MfVWH0N5QLaLcdnDuF_wwrtw@mail.gmail.com>
+	<572C61B1.2040508@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1462529801-8986-1-git-send-email-vigneshr@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Dave Gerlach <d-gerlach@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <572C61B1.2040508-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux DeviceTree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Hung-yu Wu <hywu-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
+On Fri, May 6, 2016 at 2:19 AM, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org> wrote:
+...
+> Is it different from the Atmel QT1070 or QT2160 which have drivers
+> already available in Linux:  drivers/input/keyboard/qt1070.c
 
+Yes.  What Daniel said.  I would describe it as "probe code and
+interrupt handling protocol are different" from both qt1070 and
+qt2160.
 
-On 5/6/2016 3:46 PM, Vignesh R wrote:
-> On AM335x, ti_am335x_tsc can wake up the system from suspend, mark the
-> IRQ as wakeup capable, so that device irq is not disabled during system
-> suspend.
-> 
-> Signed-off-by: Vignesh R <vigneshr@ti.com>
-> ---
->  drivers/input/touchscreen/ti_am335x_tsc.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-> index 8b3f15ca7725..423f275ffab8 100644
-> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
-> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-> @@ -27,6 +27,7 @@
->  #include <linux/of.h>
->  #include <linux/of_device.h>
->  #include <linux/sort.h>
-> +#include <linux/pm_wakeirq.h>
->  
->  #include <linux/mfd/ti_am335x_tscadc.h>
->  
-> @@ -432,6 +433,12 @@ static int titsc_probe(struct platform_device *pdev)
->  		goto err_free_mem;
->  	}
->  
-> +	if (device_may_wakeup(tscadc_dev->dev)) {
-> +		err = dev_pm_set_wake_irq(tscadc_dev->dev, ts_dev->irq);
-> +		if (err)
-> +			dev_err(&pdev->dev, "irq wake enable failed.\n");
-> +	}
-> +
+I'll add qt2160 is quite a bit more complex by adding LED driver
+support in a separate work handler and can handle a matrix of key
+codes. So very different protocol and linux device driver.
 
-I forgot dev_pm_clear_wake_irq() here. Will repost, sorry for the noise.
-
-Regards
-Vignesh
+cheers,
+grant
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

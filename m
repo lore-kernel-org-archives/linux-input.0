@@ -1,88 +1,98 @@
-From: "jeffrey.lin" <yajohn@gmail.com>
-Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
-Date: Fri,  6 May 2016 16:24:14 +0800
-Message-ID: <1462523054-435-1-git-send-email-jeffrey.lin@rad-ic.com>
-References: <1461923113-426-1-git-send-email-jeffrey.lin@rad-ic.com>
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
+Subject: Re: Input: add Atmel Atmegaxx captouch driver
+Date: Fri, 6 May 2016 11:19:45 +0200
+Message-ID: <572C61B1.2040508@atmel.com>
+References: <1462295611-49684-1-git-send-email-grundler@chromium.org>
+ <20160504135123.GA4567@rob-hp-laptop>
+ <CANEJEGt1Ri7Q-g25U8_KTAb9Z8MfVWH0N5QLaLcdnDuF_wwrtw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1461923113-426-1-git-send-email-jeffrey.lin@rad-ic.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rydberg@euromail.se, grant.likely@linaro.org, robh+dt@kernel.org, jeesw@melfas.com, bleung@chromium.org
-Cc: jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, albert.shieh@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eusmtp01.atmel.com ([212.144.249.242]:12997 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751789AbcEFJUE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 May 2016 05:20:04 -0400
+In-Reply-To: <CANEJEGt1Ri7Q-g25U8_KTAb9Z8MfVWH0N5QLaLcdnDuF_wwrtw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Grant Grundler <grundler@chromium.org>, Rob Herring <robh@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Grant Likely <grant.likely@linaro.org>, LKML <linux-kernel@vger.kernel.org>, Linux DeviceTree <devicetree@vger.kernel.org>, Hung-yu Wu <hywu@google.com>
 
-Hi Dmitry:
+Le 05/05/2016 18:04, Grant Grundler a =C3=A9crit :
+> On Wed, May 4, 2016 at 6:51 AM, Rob Herring <robh@kernel.org> wrote:
+> ...
+>>> +Required properties:
+>>> +
+>>> +     compatible:     Must be "atmel,atmegaxx_captouch".
+>>
+>> No wildcards in the compatible strings. Use the specific devices.
+>>
+>> Also, use hyphen rather than underscore. However, if the device is o=
+nly
+>> a touch controller, then '_captouch' is not needed. The part number =
+is
+>> sufficient to identify the device.
+>=20
+> The primary part used on the board is AtMega88PA. Details of that SoC
+> are public:
+>     http://www.atmel.com/devices/ATMEGA88PA.aspx
+>=20
+> I don't see why the exact chip is relevant to the driver. The driver
+> is just talking to an I2C device that reports button events.  The
+> protocol across the I2C determines what this driver has to do and tha=
+t
+> protocol is implemented by the on-board firmware (supplied by Atmel).
+> Any AVR CPU could implement this same protocol.
+>=20
+> Can we call this "atmel,qtouch-buttons-v2" or something like that?
 
-About question "In my previous e-mail I requested you to enumerate chan=
-ges that are made to the driver, compared to the previous version(s). T=
-here were also a few questions that I did not get answer for."
+Is it different from the Atmel QT1070 or QT2160 which have drivers
+already available in Linux:
+drivers/input/keyboard/qt1070.c
 
-In order to improve flash read/write security of boot loader. We increa=
-se handshake flow and command sequence complexity. Our previous flash w=
-rite functions are single side action. New version we increase more han=
-dshake flow to check data accuracy. Firmware update flow increases as b=
-elow:
+Bye,
 
-    1.Check firmware file size, if file size is null, return fail.
-    2.Check touch MCU run on main firmware or boot loader. Both cases h=
-ave different return values. In case of flash write function, if touch =
-MCU work on main code, touch driver need issue enter boot loader comman=
-d to touch MCU and wait for MCU boot mode ready.
-    3.Turn off touch MCU watchdog function to prevent interference.
-    4.Check boot loader write state path ready.
-    5.Send boot mode trigger command to unlock flash-write-protection.
-    6.Execute page write command. Each write command will wait touch MC=
-U acknowledge and then execute next step.
-    7.Leave boot loader to check firmware work.
-    8.Raydium touch driver check touch MCU work on main firmware or not=
-=2E If touch MCU work on main firmware and return correct acknowledge t=
-o kernel, this means flash write command success.
-    9.Write checksum information to flash.
+> I personally don't have anything invested in any particular name. Fee=
+l
+> free to suggest a different one. I'm perfectly happy with any color
+> paint on the shed.
+>=20
+> ...
+>>> +Example:
+>>> +
+>>> +     atmegaxx_captouch@51 {
+>>
+>> atmegaxx@51 (with actual part number)
+>=20
+> Is "qtouch-buttons@51" ok?
+>=20
+>>
+>>> +             compatible =3D "atmel,atmegaxx_captouch";
+>>> +             reg =3D <0x51>;
+>>> +             interrupt-parent =3D <&tlmm>;
+>>> +             interrupts =3D <67 IRQ_TYPE_EDGE_FALLING>;
+>>> +             linux,keycodes =3D <BTN_0>, <BTN_1>,
+>>> +                     <BTN_2>, <BTN_3>,
+>>> +                     <BTN_4>, <BTN_5>,
+>>> +                     <BTN_6>, <BTN_7>;
+>>> +             autorepeat;
+>>> +     };
+>=20
+> cheers,
+> grant
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree"=
+ in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>=20
 
-Every touch driver flash write command accompany write command, acknowl=
-edge byte and wait for acknowledge command. Different sequences have di=
-fferent write commands and different state to return ack.
 
-Previous version as below :
-
-    1.Get firmware data
-    2.Force jump to boot loader by soft reset command
-    3.Wait for boot loader acknowledge
-    4.Flash page write data directly
-    5.Force jump to main firmware if page write data finish.
-
-=20
-New flow increase more acknowledges for each I2C command to make sure b=
-oot loader got the message and finish the actions. After finish flash w=
-rite data, new flow will le touch MCU jump to main firmware and check m=
-ain code work well. Then write the total checksum to flash and check th=
-e consistence of flash code in every boot time.
-=20
-New flash write flow is very different form previous version, but more =
-safe. The difference is big. Sorry make you confuse.
-
-The question "I still can't figure out the logic in read/write mesage h=
-andling. Here we see that device is supposedly reporting data_bank_addr=
- as LE integer, but query_bank_info is returned in native CPU endiannes=
-s. With fastboot command we assume that we are dealing with BE-encoded =
-data and convert it to CPU-endianness before using it.
-=20
-However in raydium_i2c_read_message() we convert from CPU endianness to=
- BE and this comfuses me (does the device really return data in one end=
-ianness but accepts in another endianness?"
-
-Raydium MCU support direct access mode by I2C bus to access register or=
- physical buffer directly. In this direct access mode, our touch MCU us=
-e BE integer by using commands of raydium_i2c_read_message/ raydium_i2c=
-_send_message. Otherwise, raydum I2C normal mode use LE integer. By the=
- way, the command buffer of soft_rst_cmd[] is upside down.
-
-The question "By the way, why do you have raydium_i2c_read_message() ha=
-ndle reads above MAX_PKG_SIZE? There are no callers that want it."
-
-Generally, I2C bus has maximum packet size but total touch report point=
-s maybe exceed this size. Unfortunately my experimental chromebook devi=
-ce exceed this size. So that I=E2=80=99ll split this read command two o=
-r more to make sure all data are read.
+--=20
+Nicolas Ferre
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

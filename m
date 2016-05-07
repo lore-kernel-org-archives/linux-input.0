@@ -1,75 +1,138 @@
 From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH v2 3/3] input: rmi4: Remove set_page() call before core is initialized
-Date: Fri,  6 May 2016 21:40:08 -0700
-Message-ID: <1462596008-21381-4-git-send-email-bjorn.andersson@linaro.org>
+Subject: [PATCH v2 2/3] input: rmi4: Acquire and enable VDD and VIO supplies
+Date: Fri,  6 May 2016 21:40:07 -0700
+Message-ID: <1462596008-21381-3-git-send-email-bjorn.andersson@linaro.org>
 References: <1462596008-21381-1-git-send-email-bjorn.andersson@linaro.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f174.google.com ([209.85.192.174]:34962 "EHLO
-	mail-pf0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751566AbcEGEkQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 May 2016 00:40:16 -0400
-Received: by mail-pf0-f174.google.com with SMTP id 77so56174946pfv.2
-        for <linux-input@vger.kernel.org>; Fri, 06 May 2016 21:40:15 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1462596008-21381-1-git-send-email-bjorn.andersson@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-In the case of the chip not already being powered we can't call
-set_page() before we're letting the core driver enable power to the
-chip.
+For systems where the rmi4 device is not powered by always-on regulators
+we need to acquire handles to VDD and VIO and enable these.
 
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 ---
- drivers/input/rmi4/rmi_i2c.c | 11 ++---------
- drivers/input/rmi4/rmi_spi.c | 11 ++---------
- 2 files changed, 4 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-index 18f6a9f4aeef..3e32b320c8d2 100644
---- a/drivers/input/rmi4/rmi_i2c.c
-+++ b/drivers/input/rmi4/rmi_i2c.c
-@@ -215,15 +215,8 @@ static int rmi_i2c_probe(struct i2c_client *client,
+Changes since v1:
+- Added patch 1 and 3
+- Moved regulator handling to the core driver
+
+ .../devicetree/bindings/input/rmi4/rmi_i2c.txt       |  6 ++++++
+ .../devicetree/bindings/input/rmi4/rmi_spi.txt       |  6 ++++++
+ drivers/input/rmi4/rmi_driver.c                      | 20 ++++++++++++++++++++
+ include/linux/rmi.h                                  |  4 +++-
+ 4 files changed, 35 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
+index 95fa715c6046..29aedd05cb81 100644
+--- a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
++++ b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
+@@ -22,6 +22,12 @@ See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
+ - syna,reset-delay-ms: The number of milliseconds to wait after resetting the
+ 			device.
  
- 	i2c_set_clientdata(client, rmi_i2c);
++- vdd-supply: VDD power supply.
++See Documentation/devicetree/bindings/regulator/regulator.txt
++
++- vio-supply: VIO power supply
++See Documentation/devicetree/bindings/regulator/regulator.txt
++
+ Function Parameters:
+ Parameters specific to RMI functions are contained in child nodes of the rmi device
+  node. Documentation for the parameters of each function can be found in:
+diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
+index a4ca7828f21d..71388bac4bc7 100644
+--- a/Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
++++ b/Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
+@@ -22,6 +22,12 @@ See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
+ - spi-rx-delay-us: microsecond delay after a read transfer.
+ - spi-tx-delay-us: microsecond delay after a write transfer.
  
--	/*
--	 * Setting the page to zero will (a) make sure the PSR is in a
--	 * known state, and (b) make sure we can talk to the device.
--	 */
--	retval = rmi_set_page(rmi_i2c, 0);
--	if (retval) {
--		dev_err(&client->dev, "Failed to set page select to 0.\n");
--		return retval;
--	}
-+	/* Invalidate current page to force rmi_set_page() on next access */
-+	rmi_i2c->page = -1;
++- vdd-supply: VDD power supply.
++See Documentation/devicetree/bindings/regulator/regulator.txt
++
++- vio-supply: VIO power supply
++See Documentation/devicetree/bindings/regulator/regulator.txt
++
+ Function Parameters:
+ Parameters specific to RMI functions are contained in child nodes of the rmi device
+  node. Documentation for the parameters of each function can be found in:
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 48c7991c9898..7e73539719cb 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -24,6 +24,7 @@
+ #include <linux/of.h>
+ #include <uapi/linux/input.h>
+ #include <linux/rmi.h>
++#include <linux/regulator/consumer.h>
+ #include "rmi_bus.h"
+ #include "rmi_driver.h"
  
- 	retval = rmi_register_transport_device(&rmi_i2c->xport);
- 	if (retval) {
-diff --git a/drivers/input/rmi4/rmi_spi.c b/drivers/input/rmi4/rmi_spi.c
-index f3e9e488635c..36c6912685a7 100644
---- a/drivers/input/rmi4/rmi_spi.c
-+++ b/drivers/input/rmi4/rmi_spi.c
-@@ -410,15 +410,8 @@ static int rmi_spi_probe(struct spi_device *spi)
- 	if (retval)
- 		return retval;
+@@ -875,6 +876,9 @@ static int rmi_driver_remove(struct device *dev)
  
--	/*
--	 * Setting the page to zero will (a) make sure the PSR is in a
--	 * known state, and (b) make sure we can talk to the device.
--	 */
--	retval = rmi_set_page(rmi_spi, 0);
--	if (retval) {
--		dev_err(&spi->dev, "Failed to set page select to 0.\n");
--		return retval;
--	}
-+	/* Invalidate current page to force rmi_set_page() on next access */
-+	rmi_spi->page = -1;
+ 	rmi_free_function_list(rmi_dev);
  
- 	retval = rmi_register_transport_device(&rmi_spi->xport);
- 	if (retval) {
++	regulator_bulk_disable(ARRAY_SIZE(rmi_dev->supplies),
++			       rmi_dev->supplies);
++
+ 	return 0;
+ }
+ 
+@@ -938,6 +942,22 @@ static int rmi_driver_probe(struct device *dev)
+ 	data->rmi_dev = rmi_dev;
+ 	dev_set_drvdata(&rmi_dev->dev, data);
+ 
++	rmi_dev->supplies[0].supply = "vdd";
++	rmi_dev->supplies[1].supply = "vio";
++	retval = devm_regulator_bulk_get(rmi_dev->xport->dev,
++					 ARRAY_SIZE(rmi_dev->supplies),
++					 rmi_dev->supplies);
++	if (retval < 0)
++		return retval;
++
++	retval = regulator_bulk_enable(ARRAY_SIZE(rmi_dev->supplies),
++				       rmi_dev->supplies);
++	if (retval < 0)
++		return retval;
++
++	/* Allow the firmware to get ready */
++	msleep(10);
++
+ 	/*
+ 	 * Right before a warm boot, the sensor might be in some unusual state,
+ 	 * such as F54 diagnostics, or F34 bootloader mode after a firmware
+diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+index 5944e6c2470d..38ff4c1d31d4 100644
+--- a/include/linux/rmi.h
++++ b/include/linux/rmi.h
+@@ -16,6 +16,7 @@
+ #include <linux/list.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
++#include <linux/regulator/consumer.h>
+ 
+ #define NAME_BUFFER_SIZE 256
+ 
+@@ -315,7 +316,7 @@ struct rmi_driver {
+  * @number: Unique number for the device on the bus.
+  * @driver: Pointer to associated driver
+  * @xport: Pointer to the transport interface
+- *
++ * @supplies: vdd and vdio regulator supplies
+  */
+ struct rmi_device {
+ 	struct device dev;
+@@ -324,6 +325,7 @@ struct rmi_device {
+ 	struct rmi_driver *driver;
+ 	struct rmi_transport_dev *xport;
+ 
++	struct regulator_bulk_data supplies[2];
+ };
+ 
+ struct rmi_driver_data {
 -- 
 2.5.0
-

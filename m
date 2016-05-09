@@ -1,56 +1,65 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: New HID++ 2.0 mouse, Logitech G602
-Date: Mon, 9 May 2016 10:40:16 +0200
-Message-ID: <CAN+gG=GTUkDg_Ah-zO9nGrrXFwYeEKEwuv1pMby0VcPU5e0kPg@mail.gmail.com>
-References: <6d3c32d0-6905-22d1-a391-4f1256695cd1@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/1] HID: usbhid: enable keyboard on Surface Book
+Date: Mon,  9 May 2016 17:50:40 +0300
+Message-ID: <1462805440-72759-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f54.google.com ([209.85.213.54]:36011 "EHLO
-	mail-vk0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750919AbcEIIkR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2016 04:40:17 -0400
-Received: by mail-vk0-f54.google.com with SMTP id s184so57350804vkb.3
-        for <linux-input@vger.kernel.org>; Mon, 09 May 2016 01:40:16 -0700 (PDT)
-In-Reply-To: <6d3c32d0-6905-22d1-a391-4f1256695cd1@gmail.com>
+Received: from mga11.intel.com ([192.55.52.93]:12353 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750919AbcEIOup (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 9 May 2016 10:50:45 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marty Plummer <netz.kernel@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
+To: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Hi Marty,
+Microsoft Surface Book has a keyboard attached to USB as a HID device.
+Enable it here.
 
-On Mon, May 9, 2016 at 10:32 AM, Marty Plummer <netz.kernel@gmail.com> wrote:
-> Greetings
->         Your name seems to come up most frequently in regards to the various
-> logitech kernel modules, and I figured I should ping you regarding it.
->
-> The Logitech G602 mouse apparently speaks the HID++ 2.0 protocol, and supports
-> on-device remapping of its 11 buttons to either standard 'mouse' buttons or
-> keyboard keys, plus a few custom functions related to the mouse itself (dpi
-> control and other things), however these can only be easily remapped using the
-> official Logitech software on windows (and maybe mac), so I'm interested in
-> better kernel support for this device.
+The change has been tested on bare metal.
 
-We are actually working on a user-space library to handle programmable
-mice, and this include the HID++ 2.0 devices. Feel free to have a look
-at libratbag[1]. We even have a gui for it[2] (well, not so sure it
-will work completely).
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/hid/hid-core.c          | 1 +
+ drivers/hid/hid-ids.h           | 1 +
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ 3 files changed, 3 insertions(+)
 
-I think with latest master branch, the G602 should work out of the box
-for remapping buttons (you can use the CLI tool ratbag-command).
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8ea3a26..dac091d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -728,6 +728,7 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2 ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
++	     hid->product == USB_DEVICE_ID_MS_SURFACE_BOOK ||
+ 	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
+ 	    hid->group == HID_GROUP_MULTITOUCH)
+ 		hid->group = HID_GROUP_GENERIC;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 3eec09a1..1bbc795 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -704,6 +704,7 @@
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
+ #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
++#define USB_DEVICE_ID_MS_SURFACE_BOOK		0x07cd
+ #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+ 
+ #define USB_VENDOR_ID_MOJO		0x8282
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index b4b8c6a..6940956 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -99,6 +99,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
++	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_SURFACE_BOOK, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
+-- 
+2.8.1
 
->
-> Don't misunderstand, the device is pretty solid in usage already, but I find
-> the need to boot a vm just for the sake of tweaking it to be a bit exasperating.
-> I've been doing a bit of reverse engineering on the device already and would
-> be glad to provide any information you may require for full support of
-> the device.
-
-Yes, we know it can be exasperating, and that's why we started libratbag :)
-
-Cheers,
-Benjamin
-
-[1] https://github.com/libratbag/libratbag
-[2] https://github.com/libratbag/piper

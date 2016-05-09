@@ -1,108 +1,162 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v6 0/9] mfd: max8997: Add regmap support
-Date: Mon, 9 May 2016 08:35:49 +0100
-Message-ID: <20160509073549.GC8324@dell>
-References: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
+From: Marty Plummer <netz.kernel@gmail.com>
+Subject: New HID++ 2.0 mouse, Logitech G602
+Date: Mon, 9 May 2016 03:32:09 -0500
+Message-ID: <6d3c32d0-6905-22d1-a391-4f1256695cd1@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="ufbCsFKnkeLGqtai0whnqiqVBT3q8ww3i"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:35755 "EHLO
-	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752557AbcEIHfk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2016 03:35:40 -0400
-Received: by mail-wm0-f52.google.com with SMTP id e201so124867213wme.0
-        for <linux-input@vger.kernel.org>; Mon, 09 May 2016 00:35:39 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
+Received: from mail-ob0-f195.google.com ([209.85.214.195]:34382 "EHLO
+	mail-ob0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751332AbcEIIcW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2016 04:32:22 -0400
+Received: by mail-ob0-f195.google.com with SMTP id n2so9950954obo.1
+        for <linux-input@vger.kernel.org>; Mon, 09 May 2016 01:32:21 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com, r.baldyga@hackerion.com, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+To: benjamin.tissoires@gmail.com, linux-input@vger.kernel.org
 
-On Fri, 06 May 2016, Krzysztof Kozlowski wrote:
-> This is a rebase and extension of old Robert Baldyga's work. [0]
->=20
-> Robert no longer works in Samsung.
->=20
-> From the original cover letter:
-> "This patchset modifies max8997 driver and associated function driver=
-s to use
-> register maps instead of operating directly on i2c bus. This change a=
-llowed
-> to simplify irq handling, and to move some initializations to individ=
-ual
-> function drivers. Hence now when some functions are not enabled, thei=
-r i2c
-> clients, regmaps and irqs are not registered."
->=20
->=20
-> My changes (since Robert's v5)
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D
-> 1. Rebase on v4.6-rc6.
-> 2. Collect more acks.
-> 3. Add few fixes:
->    a. Haptic fix from Marek,
->    b. Extcon and RTC fix from me,
->    c. DTS fixes from Marek.
->=20
-> DTS changes are independent but rest of them (extcon/input/MFD) rely
-> on each other.
->=20
-> One way of merging would be to pick everything (except DTS) through
-> one tree. Or use tags.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--ufbCsFKnkeLGqtai0whnqiqVBT3q8ww3i
+Content-Type: multipart/mixed; boundary="7bXgtg03xVWeHlEFuq7xFXm7dhuWnuDEg"
+From: Marty Plummer <netz.kernel@gmail.com>
+To: benjamin.tissoires@gmail.com, linux-input@vger.kernel.org
+Message-ID: <6d3c32d0-6905-22d1-a391-4f1256695cd1@gmail.com>
+Subject: New HID++ 2.0 mouse, Logitech G602
 
-I'd be happy to take the set, once you have collected all Acks.
+--7bXgtg03xVWeHlEFuq7xFXm7dhuWnuDEg
+Content-Type: multipart/mixed;
+ boundary="------------BD0B95D73CCBA2AE0050F53C"
 
-> Best regards,
-> Krzysztof
->=20
-> [0] http://lkml.iu.edu/hypermail//linux/kernel/1411.1/03152.html
->=20
->=20
-> Krzysztof Kozlowski (3):
->   extcon: max8997: Fix handling error code of regmap_irq_get_virq()
->   rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
->   extcon: max8997: Fix inconsistent indenting
->=20
-> Marek Szyprowski (3):
->   input: max8997-haptic: Fix NULL pointer dereference
->   ARM: dts: exynos: Fix regulator name to avoid forbidden character o=
-n
->     exynos4210-trats
->   ARM: dts: exynos: Add interrupt line to MAX8997 PMIC on
->     exynos4210-trats
->=20
-> Robert Baldyga (3):
->   mfd: max8997: Use regmap to access registers
->   mfd: max8997: handle IRQs using regmap
->   mfd: max8997: Change irq names to upper case
->=20
->  arch/arm/boot/dts/exynos4210-trats.dts |   4 +-
->  drivers/extcon/extcon-max8997.c        |  72 ++++---
->  drivers/input/misc/max8997_haptic.c    |  40 ++--
->  drivers/leds/leds-max8997.c            |  13 +-
->  drivers/mfd/Kconfig                    |   3 +-
->  drivers/mfd/Makefile                   |   2 +-
->  drivers/mfd/max8997-irq.c              | 383 -----------------------=
-----------
->  drivers/mfd/max8997.c                  | 245 ++++++++++++++-------
->  drivers/power/max8997_charger.c        |  33 +--
->  drivers/regulator/max8997.c            |  87 ++++----
->  drivers/rtc/rtc-max8997.c              |  60 +++---
->  include/linux/mfd/max8997-private.h    |  82 +++++--
->  12 files changed, 392 insertions(+), 632 deletions(-)
->  delete mode 100644 drivers/mfd/max8997-irq.c
->=20
+This is a multi-part message in MIME format.
+--------------BD0B95D73CCBA2AE0050F53C
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
+Greetings
+	Your name seems to come up most frequently in regards to the various
+logitech kernel modules, and I figured I should ping you regarding it.
+
+The Logitech G602 mouse apparently speaks the HID++ 2.0 protocol, and sup=
+ports
+on-device remapping of its 11 buttons to either standard 'mouse' buttons =
+or
+keyboard keys, plus a few custom functions related to the mouse itself (d=
+pi
+control and other things), however these can only be easily remapped usin=
+g the
+official Logitech software on windows (and maybe mac), so I'm interested =
 in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+better kernel support for this device.
+
+Don't misunderstand, the device is pretty solid in usage already, but I f=
+ind
+the need to boot a vm just for the sake of tweaking it to be a bit exaspe=
+rating.
+I've been doing a bit of reverse engineering on the device already and wo=
+uld
+be glad to provide any information you may require for full support of
+the device.
+
+--------------BD0B95D73CCBA2AE0050F53C
+Content-Type: application/pgp-keys;
+ name="0xC030918D.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="0xC030918D.asc"
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v2
+
+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
+6bHvAnTue6j5eKZcjA=3D=3D
+=3Dd06F
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------BD0B95D73CCBA2AE0050F53C--
+
+--7bXgtg03xVWeHlEFuq7xFXm7dhuWnuDEg--
+
+--ufbCsFKnkeLGqtai0whnqiqVBT3q8ww3i
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJXMEsSAAoJEHWEtN3AMJGNnpgP/jyS8Wf0Ls8DQZuGlB7f5Qv0
+qaVrMOS6e/C748kMPSkxhMiQGHxavfXKz6zu0duI91tTSnms3EDxkIBKoHq10PpW
+2s9AgwfqdBnC4GQH80JR4xmHlPRj+kOc3WsIgugdc1RPjGWNt7CD7kQJz4MBztMp
+p84+dIzxjstau4Ssuqj2PMz67HY4g3F/0vDLEgfnmgWTQFv0BcZasmaN0NEZhJOf
+kV9N7RHTQIGna3+bDrgF5bYGhe8MGG/wBaKmWS9KICXSb8+nAnKVUJDHarhAVsuT
+R6NKd4pjbGvTiBrtKr4/Uvgfhs4eGzHNsaVudUQJ6MjyrR33OruIq1NMRSb4Lupb
+WnmqLf3ZrIqJLEH8V78lKJEFJmzhk9WPOB8XL4csjbx1usPrvr5v57eHcCNjPSTh
+qoBVTJPHTAHdcBH0N7fWsaZKMVAvcqXIVb80MbuRAx1w2De5TJqDRQy5EQv/iGa1
+oA+FpQ3FOKiXbMm19kIOj8hQvNShvR07Qya1kQ+2clMYpP16kVfk6ory0/RbMnd0
+9c0SlSFQK/+SX1tezbZq/5xM7bzkWnrYzGqzfzZLzPn6IStsSvnN6FVCJNAcUjan
+yYfpi8XT8mjOZGrTnHPdgXgSrCs0kLL+wKuBFpzRzIh1Sxnmug1fFV6byKl5Jsk/
+Q0tvNx6XjG28yXfYL0FC
+=elXq
+-----END PGP SIGNATURE-----
+
+--ufbCsFKnkeLGqtai0whnqiqVBT3q8ww3i--

@@ -1,55 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: byd - update copyright header
-Date: Mon, 9 May 2016 09:32:55 -0700
-Message-ID: <20160509163255.GC15535@dtor-ws>
-References: <1462491979-21271-1-git-send-email-chris@diamand.org>
+From: Grant Grundler <grundler@chromium.org>
+Subject: Re: Input: add Atmel Atmegaxx captouch driver
+Date: Mon, 9 May 2016 09:44:57 -0700
+Message-ID: <CANEJEGu=QkYwrDeS08JdNaUis1aVpOs_xnZCdFmC4FHF8uSRHA@mail.gmail.com>
+References: <1462295611-49684-1-git-send-email-grundler@chromium.org>
+	<20160504135123.GA4567@rob-hp-laptop>
+	<CANEJEGt1Ri7Q-g25U8_KTAb9Z8MfVWH0N5QLaLcdnDuF_wwrtw@mail.gmail.com>
+	<572C61B1.2040508@atmel.com>
+	<CAHHoo-j7145vPFNmJH=CvPu-BRCgRe0WNKH8QDkSc+c3koxHAQ@mail.gmail.com>
+	<20160509162948.GA15535@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f170.google.com ([209.85.192.170]:35183 "EHLO
-	mail-pf0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751080AbcEIQc7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2016 12:32:59 -0400
-Received: by mail-pf0-f170.google.com with SMTP id 77so77557340pfv.2
-        for <linux-input@vger.kernel.org>; Mon, 09 May 2016 09:32:58 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1462491979-21271-1-git-send-email-chris@diamand.org>
+Received: from mail-vk0-f51.google.com ([209.85.213.51]:35958 "EHLO
+	mail-vk0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751080AbcEIQo6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2016 12:44:58 -0400
+Received: by mail-vk0-f51.google.com with SMTP id s184so72999742vkb.3
+        for <linux-input@vger.kernel.org>; Mon, 09 May 2016 09:44:58 -0700 (PDT)
+In-Reply-To: <20160509162948.GA15535@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Diamand <chris@diamand.org>
-Cc: Richard Pospesel <pospeselr@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Hung-yu Wu <hywu@google.com>, Nicolas Ferre <nicolas.ferre@atmel.com>, Grant Grundler <grundler@chromium.org>, Rob Herring <robh@kernel.org>, linux-input <linux-input@vger.kernel.org>, Grant Likely <grant.likely@linaro.org>, LKML <linux-kernel@vger.kernel.org>, Linux DeviceTree <devicetree@vger.kernel.org>
 
-On Fri, May 06, 2016 at 12:46:19AM +0100, Chris Diamand wrote:
-> As pointed out by Richard, the changes to the comment got missed off
-> the absolute mode patch somehow.
-> 
-> CC: Richard Pospesel <pospeselr@gmail.com>
-> Signed-off-by: Chris Diamand <chris@diamand.org>
+On Mon, May 9, 2016 at 9:29 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Fri, May 06, 2016 at 11:14:12PM +0800, Daniel Hung-yu Wu wrote:
+>> The register set is different, and this chip does not support calibration.
+>> The I2C protocol is not the same as well; there is an additional byte
+>> indicating data length.
+>>
+>> Atmega88PA is a general-purpose MCU. In the future, we will add more
+>> functionalities, such as firmware upgrade through I2C.
+>
+> Is it Google who will be maintaining and extending the protocol or
+> Atmel? If it is Google then maybe we should switch compat string to
+> "google,captouch" or similar.
 
-Applied, thank you.
+My understanding was Atmel would extend the protocol to support FW update.
+No other extensions are planned.
 
-> ---
->  drivers/input/mouse/byd.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
-> index ec73f75..b27aa63 100644
-> --- a/drivers/input/mouse/byd.c
-> +++ b/drivers/input/mouse/byd.c
-> @@ -2,6 +2,10 @@
->   * BYD TouchPad PS/2 mouse driver
->   *
->   * Copyright (C) 2015 Chris Diamand <chris@diamand.org>
-> + * Copyright (C) 2015 Richard Pospesel
-> + * Copyright (C) 2015 Tai Chi Minh Ralph Eastwood
-> + * Copyright (C) 2015 Martin Wimpress
-> + * Copyright (C) 2015 Jay Kuri
->   *
->   * This program is free software; you can redistribute it and/or modify it
->   * under the terms of the GNU General Public License version 2 as published by
-> -- 
-> 2.8.1
-> 
-
--- 
-Dmitry
+cheers,
+grant

@@ -1,139 +1,108 @@
-From: Manuel Reimer <mail+linux-input@m-reimer.de>
-Subject: [PATCH] uinput: RFC uinput memless support
-Date: Sun, 8 May 2016 18:31:09 +0200
-Message-ID: <dbaeaf57-68d7-1fc7-9f6b-d3c07c1d1147@m-reimer.de>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v6 0/9] mfd: max8997: Add regmap support
+Date: Mon, 9 May 2016 08:35:49 +0100
+Message-ID: <20160509073549.GC8324@dell>
+References: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.mailbox.org ([80.241.60.212]:60923 "EHLO mx1.mailbox.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750841AbcEHQbO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 8 May 2016 12:31:14 -0400
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [80.241.60.240])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.mailbox.org (Postfix) with ESMTPS id CAC3E423C1
-	for <linux-input@vger.kernel.org>; Sun,  8 May 2016 18:31:11 +0200 (CEST)
-Received: from smtp1.mailbox.org ([80.241.60.240])
-	by hefe.heinlein-support.de (hefe.heinlein-support.de [91.198.250.172]) (amavisd-new, port 10030)
-	with ESMTP id Pw3DFVvLk1oL for <linux-input@vger.kernel.org>;
-	Sun,  8 May 2016 18:31:10 +0200 (CEST)
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:35755 "EHLO
+	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752557AbcEIHfk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2016 03:35:40 -0400
+Received: by mail-wm0-f52.google.com with SMTP id e201so124867213wme.0
+        for <linux-input@vger.kernel.org>; Mon, 09 May 2016 00:35:39 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1462519289-2356-1-git-send-email-k.kozlowski@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com, r.baldyga@hackerion.com, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 
-Hello,
+On Fri, 06 May 2016, Krzysztof Kozlowski wrote:
+> This is a rebase and extension of old Robert Baldyga's work. [0]
+>=20
+> Robert no longer works in Samsung.
+>=20
+> From the original cover letter:
+> "This patchset modifies max8997 driver and associated function driver=
+s to use
+> register maps instead of operating directly on i2c bus. This change a=
+llowed
+> to simplify irq handling, and to move some initializations to individ=
+ual
+> function drivers. Hence now when some functions are not enabled, thei=
+r i2c
+> clients, regmaps and irqs are not registered."
+>=20
+>=20
+> My changes (since Robert's v5)
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D
+> 1. Rebase on v4.6-rc6.
+> 2. Collect more acks.
+> 3. Add few fixes:
+>    a. Haptic fix from Marek,
+>    b. Extcon and RTC fix from me,
+>    c. DTS fixes from Marek.
+>=20
+> DTS changes are independent but rest of them (extcon/input/MFD) rely
+> on each other.
+>=20
+> One way of merging would be to pick everything (except DTS) through
+> one tree. Or use tags.
 
-in the following, I want to show a proof of concept to get pre-made 
-rumble events, created by ff-memless on kernel-side, via uinput to usermode.
+I'd be happy to take the set, once you have collected all Acks.
 
-- All information is passed in the input_event. Currently I use only one 
-event, as the int32 value can hold an ff_rumble_effect struct, but, of 
-course, it would also be possible to send one event per value with a 
-final event to tell usermode to play the last submitted values.
-- Does not block kernel-side code.
-- Stable. I tried to kill my uinput driver while a game is still 
-running, disconnected the gamepad while playing, ... No problems at all.
+> Best regards,
+> Krzysztof
+>=20
+> [0] http://lkml.iu.edu/hypermail//linux/kernel/1411.1/03152.html
+>=20
+>=20
+> Krzysztof Kozlowski (3):
+>   extcon: max8997: Fix handling error code of regmap_irq_get_virq()
+>   rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
+>   extcon: max8997: Fix inconsistent indenting
+>=20
+> Marek Szyprowski (3):
+>   input: max8997-haptic: Fix NULL pointer dereference
+>   ARM: dts: exynos: Fix regulator name to avoid forbidden character o=
+n
+>     exynos4210-trats
+>   ARM: dts: exynos: Add interrupt line to MAX8997 PMIC on
+>     exynos4210-trats
+>=20
+> Robert Baldyga (3):
+>   mfd: max8997: Use regmap to access registers
+>   mfd: max8997: handle IRQs using regmap
+>   mfd: max8997: Change irq names to upper case
+>=20
+>  arch/arm/boot/dts/exynos4210-trats.dts |   4 +-
+>  drivers/extcon/extcon-max8997.c        |  72 ++++---
+>  drivers/input/misc/max8997_haptic.c    |  40 ++--
+>  drivers/leds/leds-max8997.c            |  13 +-
+>  drivers/mfd/Kconfig                    |   3 +-
+>  drivers/mfd/Makefile                   |   2 +-
+>  drivers/mfd/max8997-irq.c              | 383 -----------------------=
+----------
+>  drivers/mfd/max8997.c                  | 245 ++++++++++++++-------
+>  drivers/power/max8997_charger.c        |  33 +--
+>  drivers/regulator/max8997.c            |  87 ++++----
+>  drivers/rtc/rtc-max8997.c              |  60 +++---
+>  include/linux/mfd/max8997-private.h    |  82 +++++--
+>  12 files changed, 392 insertions(+), 632 deletions(-)
+>  delete mode 100644 drivers/mfd/max8997-irq.c
+>=20
 
-This first patch is meant to be a basis for discussion. I just did the 
-absolute minimum changes to get something, I can test with. If you like 
-to see a uinput driver, actually using this, you may have a look at this:
-
-https://github.com/M-Reimer/pspaddrv/blob/memless/device-handler.c#L68
-
-I tried this with Portal 2 and rumble works exactly the same way as it 
-does with an Xbox 360 gamepad.
-
-Doing everything in usermode would, of course, be possible. Probably by 
-creating a library which can be used from many different drivers. But 
-for this to make sense, at first the existing problems with the uinput 
-force feedback API would have to be fixed. It isn't much fun to reboot 
-the system several times as crashes of the uinput driver daemon 
-currently have impact on the uinput kernel module.
-
-Signed-off-by: Manuel Reimer <mail@m-reimer.de>
-
-diff -uprN a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
---- a/drivers/input/misc/Kconfig	2016-05-08 11:40:03.211939178 +0200
-+++ b/drivers/input/misc/Kconfig	2016-05-08 14:28:33.505991640 +0200
-@@ -492,6 +492,7 @@ config INPUT_TWL6040_VIBRA
-
-  config INPUT_UINPUT
-  	tristate "User level driver support"
-+	select INPUT_FF_MEMLESS
-  	help
-  	  Say Y here if you want to support user level drivers for input
-  	  subsystem accessible under char device 10:223 - /dev/input/uinput.
-diff -uprN a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
---- a/drivers/input/misc/uinput.c	2016-05-08 11:40:03.215272511 +0200
-+++ b/drivers/input/misc/uinput.c	2016-05-08 18:05:24.138270997 +0200
-@@ -230,6 +230,18 @@ static int uinput_dev_erase_effect(struc
-  	return uinput_request_submit(udev, &request);
-  }
-
-+static int uinput_play_effect(struct input_dev *dev,
-+				void *data, struct ff_effect *effect)
-+{
-+	int value;
-+
-+	if (effect->type != FF_RUMBLE)
-+		return 0;
-+
-+	memcpy(&value, &effect->u.rumble, sizeof(struct ff_rumble_effect));
-+	return uinput_dev_event(dev, EV_UINPUT_MEMLESS, 0, value);
-+}
-+
-  static void uinput_destroy_device(struct uinput_device *udev)
-  {
-  	const char *name, *phys;
-@@ -253,7 +265,7 @@ static void uinput_destroy_device(struct
-  	}
-  }
-
--static int uinput_create_device(struct uinput_device *udev)
-+static int uinput_create_device(struct uinput_device *udev, int memless)
-  {
-  	struct input_dev *dev = udev->dev;
-  	int error, nslot;
-@@ -279,7 +291,12 @@ static int uinput_create_device(struct u
-  		goto fail1;
-  	}
-
--	if (udev->ff_effects_max) {
-+	if (memless) {
-+		input_set_capability(dev, EV_FF, FF_RUMBLE);
-+		error = input_ff_create_memless(dev, NULL, uinput_play_effect);
-+		if (error)
-+			goto fail1;
-+	} else if (udev->ff_effects_max) {
-  		error = input_ff_create(dev, udev->ff_effects_max);
-  		if (error)
-  			goto fail1;
-@@ -806,7 +823,11 @@ static long uinput_ioctl_handler(struct
-  			goto out;
-
-  		case UI_DEV_CREATE:
--			retval = uinput_create_device(udev);
-+			retval = uinput_create_device(udev, 0);
-+			goto out;
-+
-+		case UI_DEV_CREATE_MEMLESS:
-+			retval = uinput_create_device(udev, 1);
-  			goto out;
-
-  		case UI_DEV_DESTROY:
-diff -uprN a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
---- a/include/uapi/linux/uinput.h	2016-05-08 11:45:02.451934943 +0200
-+++ b/include/uapi/linux/uinput.h	2016-05-08 18:05:56.344937754 +0200
-@@ -219,6 +219,10 @@ struct uinput_abs_setup {
-  #define UI_FF_UPLOAD		1
-  #define UI_FF_ERASE		2
-
-+/* Memless devices support */
-+#define UI_DEV_CREATE_MEMLESS _IO(UINPUT_IOCTL_BASE, 5)
-+#define EV_UINPUT_MEMLESS		(EV_UINPUT + 1)
-+
-  struct uinput_user_dev {
-  	char name[UINPUT_MAX_NAME_SIZE];
-  	struct input_id id;
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

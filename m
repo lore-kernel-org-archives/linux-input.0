@@ -1,46 +1,39 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 1/1] HID: multitouch: enable touchpad on Surface Book
-Date: Mon,  9 May 2016 17:57:01 +0300
-Message-ID: <1462805821-73087-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:11949 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751026AbcEIO5F (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 9 May 2016 10:57:05 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Input: add Atmel Atmegaxx captouch driver
+Date: Mon, 9 May 2016 09:29:48 -0700
+Message-ID: <20160509162948.GA15535@dtor-ws>
+References: <1462295611-49684-1-git-send-email-grundler@chromium.org>
+ <20160504135123.GA4567@rob-hp-laptop>
+ <CANEJEGt1Ri7Q-g25U8_KTAb9Z8MfVWH0N5QLaLcdnDuF_wwrtw@mail.gmail.com>
+ <572C61B1.2040508@atmel.com>
+ <CAHHoo-j7145vPFNmJH=CvPu-BRCgRe0WNKH8QDkSc+c3koxHAQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAHHoo-j7145vPFNmJH=CvPu-BRCgRe0WNKH8QDkSc+c3koxHAQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Daniel Hung-yu Wu <hywu-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Cc: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux DeviceTree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Microsoft Surface Book has HID multitouch connected device. Enable it here.
+On Fri, May 06, 2016 at 11:14:12PM +0800, Daniel Hung-yu Wu wrote:
+> The register set is different, and this chip does not support calibration.
+> The I2C protocol is not the same as well; there is an additional byte
+> indicating data length.
+> 
+> Atmega88PA is a general-purpose MCU. In the future, we will add more
+> functionalities, such as firmware upgrade through I2C.
 
-The change has been tested on bare metal by reading raw data from
-/dev/input/event4.
+Is it Google who will be maintaining and extending the protocol or
+Atmel? If it is Google then maybe we should switch compat string to
+"google,captouch" or similar.
 
-The patch uses HID device ID submitted earlier here:
-http://marc.info/?l=linux-input&m=146280544721389&w=2
+Thanks.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/hid/hid-multitouch.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index c741f5e..c3df02d 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1377,6 +1377,11 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_ILITEK,
- 			USB_DEVICE_ID_ILITEK_MULTITOUCH) },
- 
-+	/* Microsoft Surface Book */
-+	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-+			USB_DEVICE_ID_MS_SURFACE_BOOK) },
-+
- 	/* MosArt panels */
- 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
- 		MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
 -- 
-2.8.1
-
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

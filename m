@@ -1,60 +1,31 @@
-From: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 0/3] input: rmi4: Regulator supply support
-Date: Tue, 10 May 2016 08:49:04 -0700
-Message-ID: <20160510154904.GI1256@tuxbot>
-References: <1462596008-21381-1-git-send-email-bjorn.andersson@linaro.org>
- <57312CFB.2040304@synaptics.com>
+From: Fabio Estevam <festevam@gmail.com>
+Subject: Re: [PATCH 1/3] Input - soc_button_array: use gpio_is_valid()
+Date: Tue, 10 May 2016 12:56:18 -0300
+Message-ID: <CAOMZO5Avvy1BicUD-SwvUofpLtcEVyZHoceXSibq9wd1i7fX5A@mail.gmail.com>
+References: <1462894673-26560-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1462894673-26560-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <57312CFB.2040304-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Christopher Heiny <cheiny-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-io0-f179.google.com ([209.85.223.179]:34060 "EHLO
+	mail-io0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751036AbcEJP4T (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 May 2016 11:56:19 -0400
+In-Reply-To: <1462894673-26560-2-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wei Yongjun <yongjun_wei@trendmicro.com.cn>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, Bastien Nocera <hadess@hadess.net>, Alexandre Courbot <acourbot@nvidia.com>, Lejun Zhu <lejun.zhu@linux.intel.com>
 
-On Mon 09 May 17:36 PDT 2016, Andrew Duggan wrote:
+On Tue, May 10, 2016 at 12:37 PM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
 
-> Hi Bjorn,
-> 
-> On 05/06/2016 09:40 PM, Bjorn Andersson wrote:
-> >The first version of the regulator support patch suffered from being
-> >implemented in the transport driver, as a work around for resource availability
-> >racing (EPROBE_DEFER of the core driver) with the interrupt handler.
-> >
-> >After reconsidering the solutions discussed following that I concluded that the
-> >interrupt management is not really part of the transport, neither conceptually
-> >or electrically. I therefor here suggest (patch 1/3) to move the interrupt
-> >registration and handling to the core rmi driver.
-> 
-> My concern with moving interrupt processing to the core is that not all
-> transports report attn to the rmi core using an irq. The HID and SMBus
-> transports which are currently in development, reside a little higher in the
-> stack and attention is reported using different mechanisms. We moved
-> interrupt handling to the transport drivers so that they could handle the
-> differences in how attn is reported.
-> 
+> @@ -92,7 +93,7 @@ soc_button_device_create(struct platform_device *pdev,
+>                         continue;
+>
+>                 gpio = soc_button_lookup_gpio(&pdev->dev, info->acpi_index);
+> -               if (gpio < 0)
+> +               if (gpio_is_valid(gpio))
 
-I suspected that to be the case.
-
-> This message has some of the previous discussion regarding interrupt
-> processing:
-> https://lkml.org/lkml/2015/11/28/123
-> 
-> Similarly, not all transports will need support for regulators. Implementing
-> both in the transport drivers avoids the EPROBE_DEFER racing and avoids
-> adding checks in the core to see if it needs to handle interrupts and manage
-> regulators.
-> 
-
-So either we duplicate the regulator support in spi/i2c or we make them
-optional in the core driver. Sounds like you prefer the prior, i.e. v1
-of my patch.
-
-Regards,
-Bjorn
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Shouldn't it be "if (!gpio_is_valid(gpio))" ?

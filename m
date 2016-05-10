@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/3] Input - soc_button_array: bail out earlier if gpiod_count is null
-Date: Tue, 10 May 2016 17:37:52 +0200
-Message-ID: <1462894673-26560-3-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/3] Input - soc_button_array: use gpio_is_valid()
+Date: Tue, 10 May 2016 17:37:51 +0200
+Message-ID: <1462894673-26560-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1462894673-26560-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1462894673-26560-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,30 +10,34 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wei Yongjun <yongjun_wei@trendm
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Alexandre Courbot <acourbot@nvidia.com>, Lejun Zhu <lejun.zhu@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-The PNP0C40 device of the Surface 3 doesn't have any GPIO attached to it.
-Instead of trying to access the GPIO, request the count beforehand and
-bail out if it is null or if an error is returned.
+gpio_keys will later use gpio_is_valid(). To match the actual
+behavior, we should use it here too.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/misc/soc_button_array.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/input/misc/soc_button_array.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index 9cbe874..70002a3 100644
+index c14b827..9cbe874 100644
 --- a/drivers/input/misc/soc_button_array.c
 +++ b/drivers/input/misc/soc_button_array.c
-@@ -165,6 +165,11 @@ static int soc_button_probe(struct platform_device *pdev)
- 	if (!id)
- 		return -ENODEV;
+@@ -17,6 +17,7 @@
+ #include <linux/acpi.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/gpio_keys.h>
++#include <linux/gpio.h>
+ #include <linux/platform_device.h>
  
-+	if (gpiod_count(&pdev->dev, KBUILD_MODNAME) <= 0) {
-+		dev_info(&pdev->dev, "no GPIO attached, ignoring...\n");
-+		return -ENODEV;
-+	}
-+
- 	button_info = (struct soc_button_info *)id->driver_data;
+ /*
+@@ -92,7 +93,7 @@ soc_button_device_create(struct platform_device *pdev,
+ 			continue;
  
- 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+ 		gpio = soc_button_lookup_gpio(&pdev->dev, info->acpi_index);
+-		if (gpio < 0)
++		if (gpio_is_valid(gpio))
+ 			continue;
+ 
+ 		gpio_keys[n_buttons].type = info->event_type;
 -- 
 2.5.0

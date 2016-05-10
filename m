@@ -1,38 +1,69 @@
-From: Alex Henrie <alexhenrie24@gmail.com>
-Subject: Re: I'd like to donate an Asus Q500A laptop
-Date: Mon, 9 May 2016 20:38:24 -0600
-Message-ID: <CAMMLpeQwQ-CzpdjCxeJFjp5_BUE74u2Kup=CQzmtCFiKzvnnPw@mail.gmail.com>
-References: <CAMMLpeSMi_pXSwHgMUy3MS_c0gaQgtSU6DHO1cN4qgAHC_dnmQ@mail.gmail.com>
- <CAMMLpeSFSsn14C_pp4dpPPs3rAsripMXetV0GJg9kM-gOvvt_w@mail.gmail.com>
- <57171045.5050507@de.bosch.com> <CAMMLpeScA1qMpe07m92N_h+bPC13qmyuOKBF+5VSu63T0uAY_Q@mail.gmail.com>
- <57219D21.2040406@de.bosch.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v1 1/1] HID: multitouch: enable touchpad on Surface Book
+Date: Tue, 10 May 2016 16:21:32 +0200
+Message-ID: <20160510142132.GP23234@mail.corp.redhat.com>
+References: <1462805821-73087-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:35120 "EHLO
-	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751698AbcEJCip (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2016 22:38:45 -0400
-Received: by mail-wm0-f47.google.com with SMTP id e201so159333785wme.0
-        for <linux-input@vger.kernel.org>; Mon, 09 May 2016 19:38:44 -0700 (PDT)
-In-Reply-To: <57219D21.2040406@de.bosch.com>
+Received: from mx1.redhat.com ([209.132.183.28]:57996 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751740AbcEJOVh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 May 2016 10:21:37 -0400
+Content-Disposition: inline
+In-Reply-To: <1462805821-73087-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "fixed-term.Oleksij.Rempel" <fixed-term.Oleksij.Rempel@de.bosch.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Corentin Chary <corentin.chary@gmail.com>, linux@rempel-privat.de
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Hi Oleksij,
+Hi Andy,
 
-I have a Q500A-BSI5N04 ready to send to you now, but frustratingly,
-the only keyboard problem that I can reproduce on it is that Fn+F8
-behaves identically to the P key. My best guess is that you have to do
-something specific to trigger the other Fn key problems, but I can't
-figure out what it is.
+On May 09 2016 or thereabouts, Andy Shevchenko wrote:
+> Microsoft Surface Book has HID multitouch connected device. Enable it here.
+> 
+> The change has been tested on bare metal by reading raw data from
+> /dev/input/event4.
+> 
+> The patch uses HID device ID submitted earlier here:
+> http://marc.info/?l=linux-input&m=146280544721389&w=2
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/hid/hid-multitouch.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index c741f5e..c3df02d 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -1377,6 +1377,11 @@ static const struct hid_device_id mt_devices[] = {
+>  		MT_USB_DEVICE(USB_VENDOR_ID_ILITEK,
+>  			USB_DEVICE_ID_ILITEK_MULTITOUCH) },
+>  
+> +	/* Microsoft Surface Book */
+> +	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
+> +		MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> +			USB_DEVICE_ID_MS_SURFACE_BOOK) },
+> +
 
-Anyway, I will mail you the Q500A-BSI5N04 and the Q500A-BHI5N01
-tomorrow. If you can at least fix the Fn+F8 problem, that's a step in
-the right direction.
+I am a little bit lost here. In your previous patch, you unset the group
+MULTITOUCH to the USB_DEVICE_ID_MS_SURFACE_BOOK. But here, you bind a
+device to it which will never been present according to
+http://marc.info/?l=linux-input&m=146280544721389&w=2
 
-Thanks for your willingness to look into this for me.
+Also, please make sure all features are working on the keyboard (special
+functions/LEDs).
+The good news is I have been sent a Surface 3 with the typecover. So I
+intend to work on either fixing hid-multitouch or enabling multitouch
+for hid-microsoft depending on which makes more sense.
 
--Alex
+Cheers,
+Benjamin
+
+>  	/* MosArt panels */
+>  	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
+>  		MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
+> -- 
+> 2.8.1
+> 

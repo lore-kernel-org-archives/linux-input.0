@@ -1,75 +1,65 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH v2 0/3] input: rmi4: Regulator supply support
-Date: Mon, 9 May 2016 17:36:11 -0700
-Message-ID: <57312CFB.2040304@synaptics.com>
-References: <1462596008-21381-1-git-send-email-bjorn.andersson@linaro.org>
+From: Chanwoo Choi <cw00.choi@samsung.com>
+Subject: Re: [PATCH v6 5/9] extcon: max8997: Fix handling error code of
+ regmap_irq_get_virq()
+Date: Tue, 10 May 2016 10:23:45 +0900
+Message-ID: <57313821.4050309@samsung.com>
+References: <1462519289-2356-2-git-send-email-k.kozlowski@samsung.com>
+ <1462519636-3250-1-git-send-email-k.kozlowski@samsung.com>
+ <1462519636-3250-4-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:50409 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1752896AbcEJAgM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2016 20:36:12 -0400
-In-Reply-To: <1462596008-21381-1-git-send-email-bjorn.andersson@linaro.org>
+Received: from mailout4.samsung.com ([203.254.224.34]:44073 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751766AbcEJBXu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2016 21:23:50 -0400
+In-reply-to: <1462519636-3250-4-git-send-email-k.kozlowski@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Christopher Heiny <cheiny@synaptics.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: r.baldyga@hackerion.com, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 
-Hi Bjorn,
+Hi Krzysztof,
 
-On 05/06/2016 09:40 PM, Bjorn Andersson wrote:
-> The first version of the regulator support patch suffered from being
-> implemented in the transport driver, as a work around for resource availability
-> racing (EPROBE_DEFER of the core driver) with the interrupt handler.
->
-> After reconsidering the solutions discussed following that I concluded that the
-> interrupt management is not really part of the transport, neither conceptually
-> or electrically. I therefor here suggest (patch 1/3) to move the interrupt
-> registration and handling to the core rmi driver.
+On 2016=EB=85=84 05=EC=9B=94 06=EC=9D=BC 16:27, Krzysztof Kozlowski wro=
+te:
+> The regmap_irq_get_virq() can return negative ERRNO, so its result
+> should not be stored in unsigned int because error would be ignored.
+>=20
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> ---
+>  drivers/extcon/extcon-max8997.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-=
+max8997.c
+> index 68754ac2c8ea..0afa3e8b5dc3 100644
+> --- a/drivers/extcon/extcon-max8997.c
+> +++ b/drivers/extcon/extcon-max8997.c
+> @@ -660,11 +660,11 @@ static int max8997_muic_probe(struct platform_d=
+evice *pdev)
+> =20
+>  	for (i =3D 0; i < ARRAY_SIZE(muic_irqs); i++) {
+>  		struct max8997_muic_irq *muic_irq =3D &muic_irqs[i];
+> -		unsigned int virq =3D 0;
+> +		int virq =3D 0;
+> =20
+>  		virq =3D regmap_irq_get_virq(max8997->irq_data_muic,
+>  					muic_irq->irq);
+> -		if (!virq) {
+> +		if (virq <=3D 0) {
+>  			ret =3D -EINVAL;
+>  			goto err_irq;
+>  		}
+>=20
 
-My concern with moving interrupt processing to the core is that not all 
-transports report attn to the rmi core using an irq. The HID and SMBus 
-transports which are currently in development, reside a little higher in 
-the stack and attention is reported using different mechanisms. We moved 
-interrupt handling to the transport drivers so that they could handle 
-the differences in how attn is reported.
-
-This message has some of the previous discussion regarding interrupt 
-processing:
-https://lkml.org/lkml/2015/11/28/123
-
-Similarly, not all transports will need support for regulators. 
-Implementing both in the transport drivers avoids the EPROBE_DEFER 
-racing and avoids adding checks in the core to see if it needs to handle 
-interrupts and manage regulators.
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
 
 Thanks,
-Andrew
-
-> This solves the potential race of interrupts being delivered in the transport
-> driver before the core driver have been given a chance to recover from probe
-> deferral.
->
-> Patch 2/3 then add the necessary code for acquiring regulator handles and
-> enabling these.
->
-> Patch 3/3 removes the set_page() done in the transport drivers, as we can't
-> rely on the chip becoming available at any time during the initialization/probe
-> phase.
->
-> Bjorn Andersson (3):
->    input: rmi4: Move IRQ handling to rmi_driver
->    input: rmi4: Acquire and enable VDD and VIO supplies
->    input: rmi4: Remove set_page() call before core is initialized
->
->   .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |  6 ++
->   .../devicetree/bindings/input/rmi4/rmi_spi.txt     |  6 ++
->   drivers/input/rmi4/rmi_driver.c                    | 89 +++++++++++++++++++++-
->   drivers/input/rmi4/rmi_i2c.c                       | 84 ++------------------
->   drivers/input/rmi4/rmi_spi.c                       | 83 ++------------------
->   include/linux/rmi.h                                | 11 ++-
->   6 files changed, 118 insertions(+), 161 deletions(-)
->
-
+Chanwoo Choi
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

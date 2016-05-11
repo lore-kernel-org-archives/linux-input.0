@@ -1,35 +1,65 @@
 From: zengzhaoxiu@163.com
-Subject: [patch V4 24/31] input: use parity8 in pcips2
-Date: Wed, 11 May 2016 17:22:30 +0800
-Message-ID: <1462958552-25843-1-git-send-email-zengzhaoxiu@163.com>
+Subject: [patch V4 28/31] input: use parity8 in elantech
+Date: Wed, 11 May 2016 17:24:17 +0800
+Message-ID: <1462958661-26047-1-git-send-email-zengzhaoxiu@163.com>
 References: <1462955158-28394-1-git-send-email-zengzhaoxiu@163.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1462955158-28394-1-git-send-email-zengzhaoxiu@163.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Takashi Iwai <tiwai@suse.de>, Peter Hutterer <peter.hutterer@who-t.net>, Duson Lin <dusonlin@emc.com.tw>, Ulrik De Bie <ulrik.debie-os@e2big.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 From: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
 
+Remove the parity lookup table, use parity8 instead.
+
 Signed-off-by: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
 Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/serio/pcips2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/elantech.c | 10 +++-------
+ drivers/input/mouse/elantech.h |  1 -
+ 2 files changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/input/serio/pcips2.c b/drivers/input/serio/pcips2.c
-index e862c6e..a51e7f0 100644
---- a/drivers/input/serio/pcips2.c
-+++ b/drivers/input/serio/pcips2.c
-@@ -77,7 +77,7 @@ static irqreturn_t pcips2_interrupt(int irq, void *devid)
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 78f93cf..bbb4aa6 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -693,9 +693,9 @@ static int elantech_packet_check_v1(struct psmouse *psmouse)
  
- 		flag = (status & PS2_STAT_PARITY) ? 0 : SERIO_PARITY;
+ 	p3 = (packet[0] & 0x04) >> 2;
  
--		if (hweight8(scancode) & 1)
-+		if (parity8(scancode))
- 			flag ^= SERIO_PARITY;
+-	return etd->parity[packet[1]] == p1 &&
+-	       etd->parity[packet[2]] == p2 &&
+-	       etd->parity[packet[3]] == p3;
++	return parity8(packet[1]) != p1 &&
++	       parity8(packet[2]) != p2 &&
++	       parity8(packet[3]) != p3;
+ }
  
- 		serio_interrupt(ps2if->io, scancode, flag);
+ static int elantech_debounce_check_v2(struct psmouse *psmouse)
+@@ -1635,10 +1635,6 @@ int elantech_init(struct psmouse *psmouse)
+ 
+ 	psmouse_reset(psmouse);
+ 
+-	etd->parity[0] = 1;
+-	for (i = 1; i < 256; i++)
+-		etd->parity[i] = etd->parity[i & (i - 1)] ^ 1;
+-
+ 	/*
+ 	 * Do the version query again so we can store the result
+ 	 */
+diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
+index e1cbf40..542c5d9 100644
+--- a/drivers/input/mouse/elantech.h
++++ b/drivers/input/mouse/elantech.h
+@@ -141,7 +141,6 @@ struct elantech_data {
+ 	unsigned int y_max;
+ 	unsigned int width;
+ 	struct finger_pos mt[ETP_MAX_FINGERS];
+-	unsigned char parity[256];
+ 	int (*send_cmd)(struct psmouse *psmouse, unsigned char c, unsigned char *param);
+ 	void (*original_set_rate)(struct psmouse *psmouse, unsigned int rate);
+ };
 -- 
 2.7.4

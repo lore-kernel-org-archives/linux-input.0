@@ -1,78 +1,127 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
-Date: Wed, 11 May 2016 19:40:18 +0530
-Message-ID: <CADYu30_21fFCswd3dCsaqUUg1fEVKBxazMPpSOURzNBA10UnSQ@mail.gmail.com>
-References: <1462376571-4280-1-git-send-email-a.mathur@samsung.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 1/1] HID: multitouch: enable input devices on Surface
+ Book
+Date: Wed, 11 May 2016 17:33:49 +0200
+Message-ID: <20160511153349.GW23234@mail.corp.redhat.com>
+References: <1462971693-21923-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33028 "EHLO
-	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932723AbcEKOKT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 May 2016 10:10:19 -0400
-Received: by mail-wm0-f66.google.com with SMTP id r12so9703226wme.0
-        for <linux-input@vger.kernel.org>; Wed, 11 May 2016 07:10:19 -0700 (PDT)
-In-Reply-To: <1462376571-4280-1-git-send-email-a.mathur@samsung.com>
+Received: from mx1.redhat.com ([209.132.183.28]:59200 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751693AbcEKPdx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 May 2016 11:33:53 -0400
+Content-Disposition: inline
+In-Reply-To: <1462971693-21923-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <a.mathur@samsung.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Hello Mr. Torokhov,
+On May 11 2016 or thereabouts, Andy Shevchenko wrote:
+> Microsoft Surface Book has a nulti-functional input device attached to USB as a
+> HID device, in particular it includes keyboard and touchpad. Enable it here.
+> 
+> The change has been tested on bare metal.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Would you please provide update for this patch?
-As you can notice it is really pending for a long time,
-I'll be grateful if you could update and conclude it quickly.
+Thanks for the respin. I finally had a look at the type cover and
+understood why the LEDs are not working while everything else is
+working.
 
-Thank you.
+The issue is that the quirk HID_QUIRK_MULTI_INPUT is incompatible with
+LEDs. With this quirk activated, we iterate over the INPUT reports,
+allocate a new input for each and register it. Then we iterate over the
+OUTPUT reports (which contains the LED), and allocate/register an input
+for it too. In the end we have 2 keyboard input devices, and the first
+one doesn't have the LED capabilities attached, which means X11 can't
+turn the LED on/off.
 
-BR,
-Aniroop Mathur
+A solution would be to rework the way we iterate over the INPUT/OUTPUT
+reports by making sure we associate INPUT & OUTPUT reports on the same
+hidinput node. It will require a little work in hid-input.c but should
+be beneficial for everybody.
 
+Also, now that I get this, I wouldn't mind having hid-multitouch
+accepting by default keyboards and consumer devices. A patch like
 
-On Wed, May 4, 2016 at 9:12 PM, Aniroop Mathur <a.mathur@samsung.com> wrote:
-> As mentioned in documentation, SYN_REPORT should be used to separate two packets
-> and should not be inserted in between a single packet as otherwise with multiple
-> SYN_REPORT in a single packet, input reader would not be able to know when the
-> packet ended really.
->
-> Documentation snippet:
-> * SYN_REPORT:
->   - Used to synchronize and separate events into packets of input data changes
->     occurring at the same moment in time. For example, motion of a mouse may set
->     the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
->     motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
->
-> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+---
+
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index c741f5e..cd385c0 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -835,6 +835,8 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+        if (!td->mtclass.export_all_inputs &&
+            field->application != HID_DG_TOUCHSCREEN &&
+            field->application != HID_DG_PEN &&
++           field->application != HID_GD_KEYBOARD &&
++           field->application != HID_CP_CONSUMER_CONTROL &&
+            field->application != HID_DG_TOUCHPAD)
+                return -1;
+ 
+---
+
+Would be acceptable as we would still remove the mouse collection but
+keep the rest. The good part is that you won't need to add a special
+entry for the surface cover as it will be handle properly directly.
+
+Once we fix hid-input to properly iterate over the reports, we should be
+able to move the other Type cover from hid-microsoft to hid-multitouch
+(i.e. remove their special handling in hid-core.c).
+
+Cheers,
+Benjamin
+
 > ---
->  drivers/input/input.c | 12 +++++++-----
->  1 file changed, 7 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index 8806059..5b0b1ae 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -401,12 +401,14 @@ static void input_handle_event(struct input_dev *dev,
->                 if (dev->num_vals >= 2)
->                         input_pass_values(dev, dev->vals, dev->num_vals);
->                 dev->num_vals = 0;
-> -       } else if (dev->num_vals >= dev->max_vals - 2) {
-> -               dev->vals[dev->num_vals++] = input_value_sync;
-> -               input_pass_values(dev, dev->vals, dev->num_vals);
-> -               dev->num_vals = 0;
-> +       } else if (dev->num_vals >= dev->max_vals - 1) {
-> +               /* Pass all events except the newest event in order to
-> +                * not suppress the immediate EV_SYN/SYN_REPORT event.
-> +                */
-> +               input_pass_values(dev, dev->vals, dev->num_vals - 1);
-> +               dev->vals[0] = dev->vals[dev->num_vals - 1];
-> +               dev->num_vals = 1;
->         }
-> -
->  }
->
->  /**
-> --
-> 2.6.2
->
+> In v2:
+> - combine to one patch and remove unneded hunk
+>  drivers/hid/hid-ids.h           | 1 +
+>  drivers/hid/hid-multitouch.c    | 5 +++++
+>  drivers/hid/usbhid/hid-quirks.c | 1 +
+>  3 files changed, 7 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 3eec09a1..1bbc795 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -704,6 +704,7 @@
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
+> +#define USB_DEVICE_ID_MS_SURFACE_BOOK		0x07cd
+>  #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+>  
+>  #define USB_VENDOR_ID_MOJO		0x8282
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index c741f5e..c3df02d 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -1377,6 +1377,11 @@ static const struct hid_device_id mt_devices[] = {
+>  		MT_USB_DEVICE(USB_VENDOR_ID_ILITEK,
+>  			USB_DEVICE_ID_ILITEK_MULTITOUCH) },
+>  
+> +	/* Microsoft Surface Book */
+> +	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
+> +		MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> +			USB_DEVICE_ID_MS_SURFACE_BOOK) },
+> +
+>  	/* MosArt panels */
+>  	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
+>  		MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index b4b8c6a..6940956 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -99,6 +99,7 @@ static const struct hid_blacklist {
+>  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
+> +	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_SURFACE_BOOK, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
+> -- 
+> 2.8.1
+> 

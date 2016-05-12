@@ -1,196 +1,115 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 1/2] HID: input: rework HID_QUIRK_MULTI_INPUT
-Date: Thu, 12 May 2016 16:12:42 +0200
-Message-ID: <1463062363-12405-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 2/2] HID: multitouch: enable the Surface 3 Type Cover to report multitouch data
+Date: Thu, 12 May 2016 16:12:43 +0200
+Message-ID: <1463062363-12405-2-git-send-email-benjamin.tissoires@redhat.com>
+References: <1463062363-12405-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42379 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:33477 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751491AbcELOMr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 May 2016 10:12:47 -0400
+	id S1751891AbcELOMs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 May 2016 10:12:48 -0400
+In-Reply-To: <1463062363-12405-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The purpose of HID_QUIRK_MULTI_INPUT is to have an input device per
-report id. This is useful when the HID device presents several HID
-collections of different device types.
+There is no reasons to filter out keyboard and consumer control collections
+in hid-multitouch.
+With the previous hid-input fix, there is now a full support of the Type
+Cover and we can remove all specific bits from hid-core and hid-microsoft.
 
-The current implementation of hid-input creates one input node per id per
-type (input or output). This is problematic for the LEDs of a keyboard as
-they are often set through an output report. The current code creates
-one input node with all the keyboard keys, and one other with only the
-LEDs.
-
-To solve this, we use a two-passes way:
-- first, we initialize all input nodes and associate one per report id
-- then, we register all the input nodes
+hid-multitouch will automatically set HID_QUIRK_NO_INIT_REPORTS so we can
+also remove it from the list of ushbid quirks.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-input.c | 95 ++++++++++++++++++++++++++++---------------------
- include/linux/hid.h     |  1 +
- 2 files changed, 55 insertions(+), 41 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index bcfaf32..bb2ec45 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1458,6 +1458,31 @@ static void hidinput_cleanup_hidinput(struct hid_device *hid,
- 	kfree(hidinput);
- }
+Andy, would you mind checking if this series is sufficient to enable the
+TypeCover of the Surface Book?
+
+Cheers,
+Benjamin
+
+ drivers/hid/hid-core.c          | 2 --
+ drivers/hid/hid-ids.h           | 1 -
+ drivers/hid/hid-microsoft.c     | 2 --
+ drivers/hid/hid-multitouch.c    | 4 +++-
+ drivers/hid/usbhid/hid-quirks.c | 1 -
+ 5 files changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8ea3a26..f055a68 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -727,7 +727,6 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+ 	    (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3 ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2 ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
+-	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
+ 	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
+ 	    hid->group == HID_GROUP_MULTITOUCH)
+ 		hid->group = HID_GROUP_GENERIC;
+@@ -1976,7 +1975,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3KV1) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 3eec09a1..99e9852 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -703,7 +703,6 @@
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3    0x07dc
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
+-#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
+ #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
  
-+static struct hid_input *hidinput_match(struct hid_report *report)
-+{
-+	struct hid_device *hid = report->device;
-+	struct hid_input *hidinput;
-+
-+	list_for_each_entry(hidinput, &hid->inputs, list) {
-+		if (hidinput->report &&
-+		    hidinput->report->id == report->id)
-+			return hidinput;
-+	}
-+
-+	return NULL;
-+}
-+
-+static inline void hidinput_configure_usages(struct hid_input *hidinput,
-+					     struct hid_report *report)
-+{
-+	int i, j;
-+
-+	for (i = 0; i < report->maxfield; i++)
-+		for (j = 0; j < report->field[i]->maxusage; j++)
-+			hidinput_configure_usage(hidinput, report->field[i],
-+						 report->field[i]->usage + j);
-+}
-+
- /*
-  * Register the input device; print a message.
-  * Configure the input layer interface
-@@ -1468,8 +1493,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
- {
- 	struct hid_driver *drv = hid->driver;
- 	struct hid_report *report;
--	struct hid_input *hidinput = NULL;
--	int i, j, k;
-+	struct hid_input *next, *hidinput = NULL;
-+	int i, k;
+ #define USB_VENDOR_ID_MOJO		0x8282
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index e924d55..cf6920b 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -288,8 +288,6 @@ static const struct hid_device_id ms_devices[] = {
+ 		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP),
+ 		.driver_data = MS_HIDINPUT },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
+-		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER),
+ 		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_KEYBOARD),
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index c741f5e..ac35731 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -835,7 +835,9 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	if (!td->mtclass.export_all_inputs &&
+ 	    field->application != HID_DG_TOUCHSCREEN &&
+ 	    field->application != HID_DG_PEN &&
+-	    field->application != HID_DG_TOUCHPAD)
++	    field->application != HID_DG_TOUCHPAD &&
++	    field->application != HID_GD_KEYBOARD &&
++	    field->application != HID_CP_CONSUMER_CONTROL)
+ 		return -1;
  
- 	INIT_LIST_HEAD(&hid->inputs);
- 	INIT_WORK(&hid->led_work, hidinput_led_worker);
-@@ -1499,43 +1524,40 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
- 			if (!report->maxfield)
- 				continue;
- 
-+			/*
-+			 * Find the previous hidinput report attached
-+			 * to this report id.
-+			 */
-+			if (hid->quirks & HID_QUIRK_MULTI_INPUT)
-+				hidinput = hidinput_match(report);
-+
- 			if (!hidinput) {
- 				hidinput = hidinput_allocate(hid);
- 				if (!hidinput)
- 					goto out_unwind;
- 			}
- 
--			for (i = 0; i < report->maxfield; i++)
--				for (j = 0; j < report->field[i]->maxusage; j++)
--					hidinput_configure_usage(hidinput, report->field[i],
--								 report->field[i]->usage + j);
--
--			if ((hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
--			    !hidinput_has_been_populated(hidinput))
--				continue;
-+			hidinput_configure_usages(hidinput, report);
- 
--			if (hid->quirks & HID_QUIRK_MULTI_INPUT) {
--				/* This will leave hidinput NULL, so that it
--				 * allocates another one if we have more inputs on
--				 * the same interface. Some devices (e.g. Happ's
--				 * UGCI) cram a lot of unrelated inputs into the
--				 * same interface. */
-+			if (hid->quirks & HID_QUIRK_MULTI_INPUT)
- 				hidinput->report = report;
--				if (drv->input_configured &&
--				    drv->input_configured(hid, hidinput))
--					goto out_cleanup;
--				if (input_register_device(hidinput->input))
--					goto out_cleanup;
--				hidinput = NULL;
--			}
- 		}
- 	}
- 
--	if (hidinput && (hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
--	    !hidinput_has_been_populated(hidinput)) {
--		/* no need to register an input device not populated */
--		hidinput_cleanup_hidinput(hid, hidinput);
--		hidinput = NULL;
-+	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
-+		if ((hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
-+		    !hidinput_has_been_populated(hidinput)) {
-+			/* no need to register an input device not populated */
-+			hidinput_cleanup_hidinput(hid, hidinput);
-+			continue;
-+		}
-+
-+		if (drv->input_configured &&
-+		    drv->input_configured(hid, hidinput))
-+			goto out_unwind;
-+		if (input_register_device(hidinput->input))
-+			goto out_unwind;
-+		hidinput->registered = true;
- 	}
- 
- 	if (list_empty(&hid->inputs)) {
-@@ -1543,20 +1565,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
- 		goto out_unwind;
- 	}
- 
--	if (hidinput) {
--		if (drv->input_configured &&
--		    drv->input_configured(hid, hidinput))
--			goto out_cleanup;
--		if (input_register_device(hidinput->input))
--			goto out_cleanup;
--	}
--
- 	return 0;
- 
--out_cleanup:
--	list_del(&hidinput->list);
--	input_free_device(hidinput->input);
--	kfree(hidinput);
- out_unwind:
- 	/* unwind the ones we already registered */
- 	hidinput_disconnect(hid);
-@@ -1573,7 +1583,10 @@ void hidinput_disconnect(struct hid_device *hid)
- 
- 	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
- 		list_del(&hidinput->list);
--		input_unregister_device(hidinput->input);
-+		if (hidinput->registered)
-+			input_unregister_device(hidinput->input);
-+		else
-+			input_free_device(hidinput->input);
- 		kfree(hidinput);
- 	}
- 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 75b66ec..8a5d697 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -479,6 +479,7 @@ struct hid_input {
- 	struct list_head list;
- 	struct hid_report *report;
- 	struct input_dev *input;
-+	bool registered;
- };
- 
- enum hid_type {
+ 	/*
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index b4b8c6a..baf2bad 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -98,7 +98,6 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
+-	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
 -- 
 2.5.0
 

@@ -1,86 +1,41 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] dt: add Atmel Captouch bindings
-Date: Fri, 13 May 2016 11:38:21 -0700
-Message-ID: <CAKdAkRSZq6pjx1aWfkyhV_=mPCQ=w_9hM0FsukZVQn19B5FFnA@mail.gmail.com>
-References: <1462932469-122552-1-git-send-email-grundler@chromium.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1462932469-122552-1-git-send-email-grundler@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>
-Cc: Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Hung-yu Wu <hywu@google.com>, Kumar Gala <galak@codeaurora.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>, Grant Grundler <grundler@chromium.org>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: [PATCH 2/3] lower poll interval to fix occasional FPS drops to ~56 FPS
+Date: Fri, 13 May 2016 11:41:45 -0700
+Message-ID: <1463164906-6273-2-git-send-email-floe@butterbrot.org>
+References: <1463164906-6273-1-git-send-email-floe@butterbrot.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from butterbrot.org ([176.9.106.16]:33795 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753443AbcEMSrm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 May 2016 14:47:42 -0400
+In-Reply-To: <1463164906-6273-1-git-send-email-floe@butterbrot.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, hverkuil@xs4all.nl
+Cc: Florian Echtler <floe@butterbrot.org>, Martin Kaltenbrunner <modin@yuri.at>
 
-On Tue, May 10, 2016 at 7:07 PM, Grant Grundler <grundler@chromium.org> wrote:
-> From: Daniel Hung-yu Wu <hywu@google.com>
->
-> Add binding for Atmel Capacitive Touch Button device.
->
-> Signed-off-by: Daniel Hung-yu Wu <hywu@google.com>
-> Signed-off-by: Grant Grundler <grundler@chromium.org>
-> ---
->  .../devicetree/bindings/input/atmel,captouch.txt   | 34 ++++++++++++++++++++++
->  1 file changed, 34 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/atmel,captouch.txt
->
-> I haven't posted the corresponding device driver and dtsi changes yet but will shortly.
->
-> V2: split Documentation/devicetree/bindings from driver patch
->     rename "atmel,atmegaxx_captouch" to "atmel,captouch" since it's irrelevant
->            which controller implements the register set/controller.
+The framerate sometimes drops below 60 Hz if the poll interval is too high.
+Lowering it to the minimum of 1 ms fixes this.
 
-Rob, are you OK with the new bindings? I'd like to merge the driver if
-there are no objections from DT folks...
+Signed-off-by: Martin Kaltenbrunner <modin@yuri.at>
+Signed-off-by: Florian Echtler <floe@butterbrot.org>
+---
+ drivers/input/touchscreen/sur40.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->
-> V1: posted https://lkml.org/lkml/2016/5/3/613
->
-> diff --git a/Documentation/devicetree/bindings/input/atmel,captouch.txt b/Documentation/devicetree/bindings/input/atmel,captouch.txt
-> new file mode 100644
-> index 0000000..405d287
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/atmel,captouch.txt
-> @@ -0,0 +1,34 @@
-> +Device tree bindings for Atmel AtmegaXX capacitive touch sensor
-> +
-> +The node for this device must be a child of a I2C controller node, as the
-> +device communicates via I2C.
-> +
-> +Required properties:
-> +
-> +       compatible:     Must be "atmel,captouch".
-> +       reg:            The I2C slave address of the device.
-> +       interrupts:     Property describing the interrupt line the device
-> +                       is connected to. The device only has one interrupt
-> +                       source.
-> +       linux,keycodes: Specifies an array of numeric keycode values to
-> +                       be used for reporting button presses. The array can
-> +                       contain up to 8 entries.
-> +
-> +Optional properties:
-> +
-> +       autorepeat:     Enables the Linux input system's autorepeat
-> +                       feature on the input device.
-> +
-> +Example:
-> +
-> +       atmel_captouch@51 {
-> +               compatible = "atmel,captouch";
-> +               reg = <0x51>;
-> +               interrupt-parent = <&tlmm>;
-> +               interrupts = <67 IRQ_TYPE_EDGE_FALLING>;
-> +               linux,keycodes = <BTN_0>, <BTN_1>,
-> +                       <BTN_2>, <BTN_3>,
-> +                       <BTN_4>, <BTN_5>,
-> +                       <BTN_6>, <BTN_7>;
-> +               autorepeat;
-> +       };
-> --
-> 2.1.2
->
-
-
-
+diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
+index fcc5934..7b1052a1 100644
+--- a/drivers/input/touchscreen/sur40.c
++++ b/drivers/input/touchscreen/sur40.c
+@@ -126,7 +126,7 @@ struct sur40_image_header {
+ #define VIDEO_PACKET_SIZE  16384
+ 
+ /* polling interval (ms) */
+-#define POLL_INTERVAL 4
++#define POLL_INTERVAL 1
+ 
+ /* maximum number of contacts FIXME: this is a guess? */
+ #define MAX_CONTACTS 64
 -- 
-Dmitry
+1.9.1
+

@@ -1,144 +1,67 @@
-From: Florian Echtler <floe-H5Ww8s0cz1NjHglVgfe8mg@public.gmane.org>
-Subject: Re: [PATCH 1/3] properly report a single frame rate of 60 FPS
-Date: Fri, 13 May 2016 15:23:00 -0700
-Message-ID: <573653C4.3090302@butterbrot.org>
-References: <1463164906-6273-1-git-send-email-floe@butterbrot.org>
- <573622A4.3020602@xs4all.nl>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: Re: [PATCH v2 0/3] input: rmi4: Regulator supply support
+Date: Fri, 13 May 2016 15:29:48 -0700
+Message-ID: <20160513222948.GD1256@tuxbot>
+References: <1462596008-21381-1-git-send-email-bjorn.andersson@linaro.org>
+ <57312CFB.2040304@synaptics.com>
+ <20160510154904.GI1256@tuxbot>
+ <5733C088.1090700@synaptics.com>
+ <20160512030524.GA1256@tuxbot>
+ <57352536.7040909@synaptics.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="Plg1VIxESSMmqVIuOhvm6mh1oRfDD9HkE"
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <573622A4.3020602-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: Martin Kaltenbrunner <modin-tqKo2siBSQY@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f170.google.com ([209.85.192.170]:34592 "EHLO
+	mail-pf0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750896AbcEMW3x (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 May 2016 18:29:53 -0400
+Received: by mail-pf0-f170.google.com with SMTP id y69so46239599pfb.1
+        for <linux-input@vger.kernel.org>; Fri, 13 May 2016 15:29:52 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <57352536.7040909@synaptics.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---Plg1VIxESSMmqVIuOhvm6mh1oRfDD9HkE
-Content-Type: multipart/mixed; boundary="2TofxULRxf38dslLbJWg6LSqeJTSlnPko"
-From: Florian Echtler <floe-H5Ww8s0cz1NjHglVgfe8mg@public.gmane.org>
-To: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org,
- linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: Martin Kaltenbrunner <modin-tqKo2siBSQY@public.gmane.org>
-Message-ID: <573653C4.3090302-H5Ww8s0cz1NjHglVgfe8mg@public.gmane.org>
-Subject: Re: [PATCH 1/3] properly report a single frame rate of 60 FPS
-References: <1463164906-6273-1-git-send-email-floe-H5Ww8s0cz1NjHglVgfe8mg@public.gmane.org>
- <573622A4.3020602-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
-In-Reply-To: <573622A4.3020602-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
+On Thu 12 May 17:52 PDT 2016, Andrew Duggan wrote:
 
---2TofxULRxf38dslLbJWg6LSqeJTSlnPko
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+> On 05/11/2016 08:05 PM, Bjorn Andersson wrote:
+> >On Wed 11 May 16:30 PDT 2016, Andrew Duggan wrote:
+> >
+> >>Hi Bjorn,
+> >>
+> >>On 05/10/2016 08:49 AM, Bjorn Andersson wrote:
+> >[..]
+> >>>So either we duplicate the regulator support in spi/i2c or we make them
+> >>>optional in the core driver. Sounds like you prefer the prior, i.e. v1
+> >>>of my patch.
+> >>Yes, after all this I think it makes sense to put regulator support in the
+> >>spi/i2c transports like in your v1 patch. I essentially duplicated the irq
+> >>handling code in both transports so I would be ok with duplicating regulator
+> >>support too. It doesn't seem like that much code. But, if this is too much
+> >>duplication we could create some sort of common file and put the common irq
+> >>and regulator support functions which could be called in the transports.
+> >>Similar to how rmi_2d_sensor.c defines some common functions shared between
+> >>rmi_f11 and rmi_f12.
+> >>
+> >Sounds reasonable, I'm okay with this. Did you have any comments on the
+> >implementation I had in v1?
+> 
+> I tested on a device which has an always on regulators so I didn't add
+> anything to device tree for the device. But, it returned 0 when it didn't
+> find anything which seems to be the correct behavior. Is there an easy way
+> to avoid sleeping for 10ms when there are no regulators? Maybe check if both
+> the supplies .consumer pointer is null?
+> 
 
-Fixed, sorry for the noise. One more question: Martin and I would also
-like to see these patches in the 4.4 longterm kernel; do we have to
-submit them separately, or will Greg KH pick them up eventually?
+I did look at this as well, but unfortunately the regulators does not
+come back as NULL, but rather as dummy regulators.
 
-Thanks & best regards, Florian
+The delay matches Tpowerup (iirc) from the data sheet, which I assume is
+firmware/hardware dependant. Should we provide a knob for that and
+default the sleep to 0ms?
 
-On 13.05.2016 11:53, Hans Verkuil wrote:
-> On 05/13/2016 08:41 PM, Florian Echtler wrote:
->> The device hardware is always running at 60 FPS, so report this both v=
-ia
->> PARM_IOCTL and ENUM_FRAMEINTERVALS.
->=20
-> Florian, can you post these three patches to linux-media as well? These=
- are all V4L2 related
-> so they should be reviewed there.
->=20
-> By posting to linux-media these pathes will automatically turn up in pa=
-tchwork, that way
-> they won't be forgotten.
->=20
-> Regards,
->=20
-> 	Hans
->=20
->>
->> Signed-off-by: Martin Kaltenbrunner <modin-tqKo2siBSQY@public.gmane.org>
->> Signed-off-by: Florian Echtler <floe-H5Ww8s0cz1NjHglVgfe8mg@public.gmane.org>
->> ---
->>  drivers/input/touchscreen/sur40.c | 17 +++++++++++++++--
->>  1 file changed, 15 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchsc=
-reen/sur40.c
->> index 880c40b..fcc5934 100644
->> --- a/drivers/input/touchscreen/sur40.c
->> +++ b/drivers/input/touchscreen/sur40.c
->> @@ -788,6 +788,16 @@ static int sur40_vidioc_fmt(struct file *file, vo=
-id *priv,
->>  	return 0;
->>  }
->> =20
->> +static int sur40_ioctl_parm(struct file *file, void *priv,
->> +			    struct v4l2_streamparm *p)
->> +{
->> +	if (p->type =3D=3D V4L2_BUF_TYPE_VIDEO_CAPTURE) {
->> +		p->parm.capture.timeperframe.numerator =3D 1;
->> +		p->parm.capture.timeperframe.denominator =3D 60;
->> +	}
->> +	return 0;
->> +}
->> +
->>  static int sur40_vidioc_enum_fmt(struct file *file, void *priv,
->>  				 struct v4l2_fmtdesc *f)
->>  {
->> @@ -814,13 +824,13 @@ static int sur40_vidioc_enum_framesizes(struct f=
-ile *file, void *priv,
->>  static int sur40_vidioc_enum_frameintervals(struct file *file, void *=
-priv,
->>  					    struct v4l2_frmivalenum *f)
->>  {
->> -	if ((f->index > 1) || (f->pixel_format !=3D V4L2_PIX_FMT_GREY)
->> +	if ((f->index > 0) || (f->pixel_format !=3D V4L2_PIX_FMT_GREY)
->>  		|| (f->width  !=3D sur40_video_format.width)
->>  		|| (f->height !=3D sur40_video_format.height))
->>  			return -EINVAL;
->> =20
->>  	f->type =3D V4L2_FRMIVAL_TYPE_DISCRETE;
->> -	f->discrete.denominator  =3D 60/(f->index+1);
->> +	f->discrete.denominator  =3D 60;
->>  	f->discrete.numerator =3D 1;
->>  	return 0;
->>  }
->> @@ -880,6 +890,9 @@ static const struct v4l2_ioctl_ops sur40_video_ioc=
-tl_ops =3D {
->>  	.vidioc_enum_framesizes =3D sur40_vidioc_enum_framesizes,
->>  	.vidioc_enum_frameintervals =3D sur40_vidioc_enum_frameintervals,
->> =20
->> +	.vidioc_g_parm =3D sur40_ioctl_parm,
->> +	.vidioc_s_parm =3D sur40_ioctl_parm,
->> +
->>  	.vidioc_enum_input	=3D sur40_vidioc_enum_input,
->>  	.vidioc_g_input		=3D sur40_vidioc_g_input,
->>  	.vidioc_s_input		=3D sur40_vidioc_s_input,
->>
-
-
---=20
-SENT FROM MY DEC VT50 TERMINAL
-
-
---2TofxULRxf38dslLbJWg6LSqeJTSlnPko--
-
---Plg1VIxESSMmqVIuOhvm6mh1oRfDD9HkE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iEYEARECAAYFAlc2U8QACgkQ7CzyshGvatjSIQCfeV/gIOEqCc5Mjef71YBKChf2
-xvkAn0futXzBNrmeYz9L6nQhDzXa4f0w
-=t8oH
------END PGP SIGNATURE-----
-
---Plg1VIxESSMmqVIuOhvm6mh1oRfDD9HkE--
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+Bjorn

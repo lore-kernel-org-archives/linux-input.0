@@ -1,48 +1,44 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 0/3] Input: soc_button_array fixes and question
-Date: Fri, 13 May 2016 17:57:42 +0200
-Message-ID: <CAN+gG=EruMOcE=OjwSwVT89K4xgLtbYUz1wxLhLa_9MnSeE8XA@mail.gmail.com>
-References: <1462894673-26560-1-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 0/6] Input: soc_button_array fixes and support of the Surface 3
+Date: Fri, 13 May 2016 18:05:48 +0200
+Message-ID: <1463155554-11747-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f68.google.com ([209.85.213.68]:34253 "EHLO
-	mail-vk0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751242AbcEMP5o (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 May 2016 11:57:44 -0400
-In-Reply-To: <1462894673-26560-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:44448 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751187AbcEMQF6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 May 2016 12:05:58 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wei Yongjun <yongjun_wei@trendmicro.com.cn>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Bastien Nocera <hadess@hadess.net>, Alexandre Courbot <acourbot@nvidia.com>, Lejun Zhu <lejun.zhu@linux.intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Lejun Zhu <lejun.zhu@linux.intel.com>, Fabio Estevam <festevam@gmail.com>
 
-On Tue, May 10, 2016 at 5:37 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Hi,
->
-> This series has been triggered by the Surface 3 I have been given.
-> The way Microsoft follows its own specs is always intriguing. As
-> written in drivers/platform/x86/surfacepro3_button.c, the PNP0C40
-> ACPI device which should follow the specification doesn't have any
-> GPIO listed (thus the first 2 patches).
->
-> Also, the actual ACPI device that has the GPIO described is declared
-> as an I2C one, even if there is no such device attached to the bus.
-> This particular device could use the soc_button_array driver after a
-> little bit of ACPI magic (patches to follow, later), but each GPIO in
-> this device is declared twice (as Int and Io), so the 3rd patch.
->
-> Here is my question mentioned in $subject:
->
-> Why are we using gpiod_get_index(dev, KBUILD_MODNAME, acpi_index, GPIOD_ASIS);
-> in soc_button_lookup_gpio()?
->
+Hi,
 
-I'll leave the question open and send a v2 with an actual support of
-the Surface 3 buttons soon.
-I'll remove most of the CC-ed people as it might be considered as spam
-for most of you.
+This is the v2 of the series with 3 extra patches to add support of the buttons
+found on the Surface 3.
 
 Cheers,
 Benjamin
+
+
+Benjamin Tissoires (6):
+  Input - soc_button_array: use gpio_is_valid()
+  Input - soc_button_array: bail out earlier if gpiod_count is null
+  Input - soc_button_array: make sure one GPIO is not assigned twice
+  Input - soc_button_array: allow to specify active_low
+  Input - soc_button_array: export part of the internals
+  Input - surface3_button_array: Introduce button support for the
+    Surface 3
+
+ drivers/input/misc/Kconfig                 |   9 ++
+ drivers/input/misc/Makefile                |   1 +
+ drivers/input/misc/soc_button_array.c      | 128 ++++++++++++++++++-----------
+ drivers/input/misc/surface3_button_array.c | 115 ++++++++++++++++++++++++++
+ include/linux/input/soc_button_array.h     |  37 +++++++++
+ 5 files changed, 240 insertions(+), 50 deletions(-)
+ create mode 100644 drivers/input/misc/surface3_button_array.c
+ create mode 100644 include/linux/input/soc_button_array.h
+
+-- 
+2.5.0
+

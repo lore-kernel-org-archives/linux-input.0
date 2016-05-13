@@ -1,268 +1,42 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 5/6] Input - soc_button_array: export part of the internals
-Date: Fri, 13 May 2016 18:05:53 +0200
-Message-ID: <1463155554-11747-6-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 2/6] Input - soc_button_array: bail out earlier if gpiod_count is null
+Date: Fri, 13 May 2016 18:05:50 +0200
+Message-ID: <1463155554-11747-3-git-send-email-benjamin.tissoires@redhat.com>
 References: <1463155554-11747-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:39000 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932089AbcEMQGH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 May 2016 12:06:07 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1463155554-11747-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Lejun Zhu <lejun.zhu@linux.intel.com>, Fabio Estevam <festevam@gmail.com>
+List-Id: linux-input@vger.kernel.org
 
-The MS Surfaces are not directly using the PNP0C40 device for the buttons
-but instead a MSHW0028. This one is bound on a I2C bus and so we need to
-use a separate driver for it.
-
-One noticeable change is that the original soc_button_array fails
-to rmmod and then modprobe when using KBUILD_MODNAME as the gpiod con_id
-with the Surface 3. Add this as a parameter of the new API.
+The PNP0C40 device of the Surface 3 doesn't have any GPIO attached to it.
+Instead of trying to access the GPIO, request the count beforehand and
+bail out if it is null or if an error is returned.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
-new in v2
+changes in v2:
+- hunk moved down for better integration with later patches
 
- drivers/input/misc/soc_button_array.c  | 108 +++++++++++++++++++--------------
- include/linux/input/soc_button_array.h |  37 +++++++++++
- 2 files changed, 98 insertions(+), 47 deletions(-)
- create mode 100644 include/linux/input/soc_button_array.h
+ drivers/input/misc/soc_button_array.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index 077e06e4..96012f9 100644
+index bbd433c..5467d04 100644
 --- a/drivers/input/misc/soc_button_array.c
 +++ b/drivers/input/misc/soc_button_array.c
-@@ -19,23 +19,7 @@
- #include <linux/gpio_keys.h>
- #include <linux/gpio.h>
- #include <linux/platform_device.h>
--
--/*
-- * Definition of buttons on the tablet. The ACPI index of each button
-- * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
-- * Platforms"
-- */
--#define MAX_NBUTTONS	5
--
--struct soc_button_info {
--	const char *name;
--	int acpi_index;
--	unsigned int event_type;
--	unsigned int event_code;
--	bool autorepeat;
--	bool wakeup;
--	bool active_low;
--};
-+#include <linux/input/soc_button_array.h>
+@@ -167,6 +167,11 @@ static int soc_button_probe(struct platform_device *pdev)
  
- /*
-  * Some of the buttons like volume up/down are auto repeat, while others
-@@ -51,12 +35,13 @@ struct soc_button_data {
- /*
-  * Get the Nth GPIO number from the ACPI object.
-  */
--static int soc_button_lookup_gpio(struct device *dev, int acpi_index)
-+static int soc_button_lookup_gpio(struct device *dev, const char *con_id,
-+				  int acpi_index)
- {
- 	struct gpio_desc *desc;
- 	int gpio;
+ 	button_info = (struct soc_button_info *)id->driver_data;
  
--	desc = gpiod_get_index(dev, KBUILD_MODNAME, acpi_index, GPIOD_ASIS);
-+	desc = gpiod_get_index(dev, con_id, acpi_index, GPIOD_ASIS);
- 	if (IS_ERR(desc))
- 		return PTR_ERR(desc);
- 
-@@ -68,7 +53,8 @@ static int soc_button_lookup_gpio(struct device *dev, int acpi_index)
- }
- 
- static struct platform_device *
--soc_button_device_create(struct platform_device *pdev,
-+soc_button_device_create(struct device *dev,
-+			 const char *gpiod_con_id,
- 			 const struct soc_button_info *button_info,
- 			 bool autorepeat)
- {
-@@ -80,7 +66,7 @@ soc_button_device_create(struct platform_device *pdev,
- 	int gpio;
- 	int i, error;
- 
--	gpio_keys_pdata = devm_kzalloc(&pdev->dev,
-+	gpio_keys_pdata = devm_kzalloc(dev,
- 				       sizeof(*gpio_keys_pdata) +
- 					sizeof(*gpio_keys) * MAX_NBUTTONS,
- 				       GFP_KERNEL);
-@@ -93,7 +79,9 @@ soc_button_device_create(struct platform_device *pdev,
- 		if (info->autorepeat != autorepeat)
- 			continue;
- 
--		gpio = soc_button_lookup_gpio(&pdev->dev, info->acpi_index);
-+		gpio = soc_button_lookup_gpio(dev,
-+					      gpiod_con_id,
-+					      info->acpi_index);
- 		if (!gpio_is_valid(gpio))
- 			continue;
- 
-@@ -142,14 +130,12 @@ soc_button_device_create(struct platform_device *pdev,
- err_free_pdev:
- 	platform_device_put(pd);
- err_free_mem:
--	devm_kfree(&pdev->dev, gpio_keys_pdata);
-+	devm_kfree(dev, gpio_keys_pdata);
- 	return ERR_PTR(error);
- }
- 
--static int soc_button_remove(struct platform_device *pdev)
-+int soc_dev_button_remove(struct soc_button_data *priv)
- {
--	struct soc_button_data *priv = platform_get_drvdata(pdev);
--
- 	int i;
- 
- 	for (i = 0; i < BUTTON_TYPES; i++)
-@@ -158,40 +144,28 @@ static int soc_button_remove(struct platform_device *pdev)
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(soc_dev_button_remove);
- 
--static int soc_button_probe(struct platform_device *pdev)
-+int soc_dev_button_enumerate(struct device *dev, struct soc_button_data *priv,
-+			     const char *gpiod_con_id,
-+			     struct soc_button_info *button_info)
- {
--	struct device *dev = &pdev->dev;
--	const struct acpi_device_id *id;
--	struct soc_button_info *button_info;
--	struct soc_button_data *priv;
- 	struct platform_device *pd;
- 	int i;
- 	int error;
- 
--	id = acpi_match_device(dev->driver->acpi_match_table, dev);
--	if (!id)
--		return -ENODEV;
--
--	button_info = (struct soc_button_info *)id->driver_data;
--
--	if (gpiod_count(&pdev->dev, KBUILD_MODNAME) <= 0) {
--		dev_info(&pdev->dev, "no GPIO attached, ignoring...\n");
-+	if (gpiod_count(dev, gpiod_con_id) <= 0) {
-+		dev_info(dev, "no GPIO attached, ignoring...\n");
- 		return -ENODEV;
- 	}
- 
--	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
--	if (!priv)
--		return -ENOMEM;
--
--	platform_set_drvdata(pdev, priv);
--
- 	for (i = 0; i < BUTTON_TYPES; i++) {
--		pd = soc_button_device_create(pdev, button_info, i == 0);
-+		pd = soc_button_device_create(dev, gpiod_con_id, button_info,
-+					      i == 0);
- 		if (IS_ERR(pd)) {
- 			error = PTR_ERR(pd);
- 			if (error != -ENODEV) {
--				soc_button_remove(pdev);
-+				soc_dev_button_remove(priv);
- 				return error;
- 			}
- 			continue;
-@@ -205,6 +179,46 @@ static int soc_button_probe(struct platform_device *pdev)
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(soc_dev_button_enumerate);
-+
-+struct soc_button_data *soc_dev_button_data_allocate(struct device *dev)
-+{
-+	return devm_kzalloc(dev, sizeof(struct soc_button_data), GFP_KERNEL);
-+}
-+EXPORT_SYMBOL_GPL(soc_dev_button_data_allocate);
-+
-+static int soc_button_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	const struct acpi_device_id *id;
-+	struct soc_button_info *button_info;
-+	struct soc_button_data *priv;
-+	int error;
-+
-+	id = acpi_match_device(dev->driver->acpi_match_table, dev);
-+	if (!id)
++	if (gpiod_count(&pdev->dev, KBUILD_MODNAME) <= 0) {
++		dev_info(&pdev->dev, "no GPIO attached, ignoring...\n");
 +		return -ENODEV;
++	}
 +
-+	button_info = (struct soc_button_info *)id->driver_data;
-+
-+	priv = soc_dev_button_data_allocate(dev);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	error = soc_dev_button_enumerate(dev, priv, KBUILD_MODNAME,
-+					 button_info);
-+	if (error)
-+		return error;
-+
-+	platform_set_drvdata(pdev, priv);
-+
-+	return 0;
-+}
-+
-+static int soc_button_remove(struct platform_device *pdev)
-+{
-+	return soc_dev_button_remove(platform_get_drvdata(pdev));
-+}
- 
- static struct soc_button_info soc_button_PNP0C40[] = {
- 	{ "power", 0, EV_KEY, KEY_POWER, false, true, true },
-diff --git a/include/linux/input/soc_button_array.h b/include/linux/input/soc_button_array.h
-new file mode 100644
-index 0000000..634ce90
---- /dev/null
-+++ b/include/linux/input/soc_button_array.h
-@@ -0,0 +1,37 @@
-+/*
-+ * Supports for the button array on SoC tablets originally running
-+ * Windows 8.
-+ *
-+ * (C) Copyright 2014 Intel Corporation
-+ * (C) Copyright 2016 Red Hat, Inc
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; version 2
-+ * of the License.
-+ */
-+
-+/*
-+ * Definition of buttons on the tablet. The ACPI index of each button
-+ * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
-+ * Platforms"
-+ */
-+#define MAX_NBUTTONS	5
-+
-+struct soc_button_info {
-+	const char *name;
-+	int acpi_index;
-+	unsigned int event_type;
-+	unsigned int event_code;
-+	bool autorepeat;
-+	bool wakeup;
-+	bool active_low;
-+};
-+
-+struct soc_button_data;
-+
-+struct soc_button_data *soc_dev_button_data_allocate(struct device *dev);
-+int soc_dev_button_remove(struct soc_button_data *priv);
-+int soc_dev_button_enumerate(struct device *dev, struct soc_button_data *priv,
-+			     const char *gpiod_con_id,
-+			     struct soc_button_info *button_info);
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
 -- 
 2.5.0
-

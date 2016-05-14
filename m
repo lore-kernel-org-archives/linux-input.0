@@ -1,37 +1,67 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 resend 0/4] of_touchscreen-helpers: Add support for axis inversion / swapping
-Date: Sat, 14 May 2016 20:08:18 +0200
-Message-ID: <1463249302-16899-1-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH v2 resend 2/4] touchscreen: ft5x06: Add support for axis inversion / swapping
+Date: Sat, 14 May 2016 20:08:20 +0200
+Message-ID: <1463249302-16899-3-git-send-email-hdegoede@redhat.com>
+References: <1463249302-16899-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44398 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:53357 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753790AbcENSI1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 May 2016 14:08:27 -0400
+	id S1753861AbcENSId (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 14 May 2016 14:08:33 -0400
+In-Reply-To: <1463249302-16899-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Hi Dmitry,
+Add support for axis inversion / swapping using the new
+touchscreen_parse_properties and touchscreen_apply_prop_to_x_y
+functionality.
 
-This the third resend of this patchset (I'm not seeing it in -next, so
-hence this resend), this time rebased on top of 4.6.0-rc6.
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/touchscreen/edt-ft5x06.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-I'm assuming that so far this has just fallen through the cracks. If
-there is any reason why you're not applying it please let me know
-and I'll fix it.
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index e8825e5..864a7e0 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -86,6 +86,7 @@ struct edt_reg_addr {
+ struct edt_ft5x06_ts_data {
+ 	struct i2c_client *client;
+ 	struct input_dev *input;
++	struct touchscreen_properties prop;
+ 	u16 num_x;
+ 	u16 num_y;
+ 
+@@ -173,7 +174,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 	struct device *dev = &tsdata->client->dev;
+ 	u8 cmd;
+ 	u8 rdbuf[63];
+-	int i, type, x, y, id;
++	s16 x, y;
++	int i, type, id;
+ 	int offset, tplen, datalen, crclen;
+ 	int error;
+ 
+@@ -246,6 +248,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 		if (!down)
+ 			continue;
+ 
++		touchscreen_apply_prop_to_x_y(&tsdata->prop, &x, &y);
+ 		input_report_abs(tsdata->input, ABS_MT_POSITION_X, x);
+ 		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, y);
+ 	}
+@@ -972,7 +975,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 	input_set_abs_params(input, ABS_MT_POSITION_Y,
+ 			     0, tsdata->num_y * 64 - 1, 0, 0);
+ 
+-	touchscreen_parse_properties(input, true, NULL);
++	touchscreen_parse_properties(input, true, &tsdata->prop);
+ 
+ 	error = input_mt_init_slots(input, tsdata->max_support_points,
+ 				INPUT_MT_DIRECT);
+-- 
+2.7.4
 
-Last time one remark you made was:
-
-+#include <asm/types.h>
-
-> If you are trying to add this to have s32 typedefs
-> then I think it is wrong one.
-
-I've double checked and I believe it is the right one, s32 is
-typedef-ed in <asm-generic/int-ll64.h> but no-one is including
-that directly.
-
-Regards,
-
-Hans

@@ -1,72 +1,72 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 resend 4/4] touchscreen: pixcir_ts: Add support for axis inversion / swapping
-Date: Sat, 14 May 2016 20:08:22 +0200
-Message-ID: <1463249302-16899-5-git-send-email-hdegoede@redhat.com>
-References: <1463249302-16899-1-git-send-email-hdegoede@redhat.com>
+From: Vignesh R <vigneshr@ti.com>
+Subject: [PATCH 1/3] Input: ti_am335x_tsc - Mark IRQ as wakeup capable
+Date: Mon, 16 May 2016 16:56:22 +0530
+Message-ID: <1463397984-15766-2-git-send-email-vigneshr@ti.com>
+References: <1463397984-15766-1-git-send-email-vigneshr@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52123 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753861AbcENSIh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 May 2016 14:08:37 -0400
-In-Reply-To: <1463249302-16899-1-git-send-email-hdegoede@redhat.com>
+Received: from devils.ext.ti.com ([198.47.26.153]:57929 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753109AbcEPL0r (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 May 2016 07:26:47 -0400
+In-Reply-To: <1463397984-15766-1-git-send-email-vigneshr@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>
+Cc: Vignesh R <vigneshr@ti.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Dave Gerlach <d-gerlach@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Add support for axis inversion / swapping using the new
-touchscreen_parse_properties and touchscreen_apply_prop_to_x_y
-functionality.
+On AM335x, ti_am335x_tsc can wake up the system from suspend, mark the
+IRQ as wakeup capable, so that device irq is not disabled during system
+suspend.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Vignesh R <vigneshr@ti.com>
 ---
-Changes in v2:
--Add a fix which actually makes this patch compile, which accidentally ended
- up in a later commit in my tree
----
- drivers/input/touchscreen/pixcir_i2c_ts.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/ti_am335x_tsc.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index f58784d..0321be3 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -41,13 +41,14 @@ struct pixcir_i2c_ts_data {
- 	struct gpio_desc *gpio_enable;
- 	struct gpio_desc *gpio_wake;
- 	const struct pixcir_i2c_chip_data *chip;
-+	struct touchscreen_properties prop;
- 	int max_fingers;	/* Max fingers supported in this instance */
- 	bool running;
- };
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+index 8b3f15ca7725..f9fefbe337b9 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -27,6 +27,7 @@
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/sort.h>
++#include <linux/pm_wakeirq.h>
  
- struct pixcir_touch {
--	int x;
--	int y;
-+	s16 x;
-+	s16 y;
- 	int id;
- };
+ #include <linux/mfd/ti_am335x_tscadc.h>
  
-@@ -100,6 +101,9 @@ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
- 	for (i = 0; i < touch; i++) {
- 		report->touches[i].x = (bufptr[1] << 8) | bufptr[0];
- 		report->touches[i].y = (bufptr[3] << 8) | bufptr[2];
-+		touchscreen_apply_prop_to_x_y(&tsdata->prop,
-+					      &report->touches[i].x,
-+					      &report->touches[i].y);
+@@ -432,6 +433,12 @@ static int titsc_probe(struct platform_device *pdev)
+ 		goto err_free_mem;
+ 	}
  
- 		if (chip->has_hw_ids) {
- 			report->touches[i].id = bufptr[4];
-@@ -515,7 +519,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 	} else {
- 		input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
- 		input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
--		touchscreen_parse_properties(input, true, NULL);
-+		touchscreen_parse_properties(input, true, &tsdata->prop);
- 		if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
- 		    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
- 			dev_err(dev, "Touchscreen size is not specified\n");
++	if (device_may_wakeup(tscadc_dev->dev)) {
++		err = dev_pm_set_wake_irq(tscadc_dev->dev, ts_dev->irq);
++		if (err)
++			dev_err(&pdev->dev, "irq wake enable failed.\n");
++	}
++
+ 	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
+ 	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_EOS);
+ 	err = titsc_config_wires(ts_dev);
+@@ -462,6 +469,7 @@ static int titsc_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ err_free_irq:
++	dev_pm_clear_wake_irq(tscadc_dev->dev);
+ 	free_irq(ts_dev->irq, ts_dev);
+ err_free_mem:
+ 	input_free_device(input_dev);
+@@ -474,6 +482,7 @@ static int titsc_remove(struct platform_device *pdev)
+ 	struct titsc *ts_dev = platform_get_drvdata(pdev);
+ 	u32 steps;
+ 
++	dev_pm_clear_wake_irq(ts_dev->mfd_tscadc->dev);
+ 	free_irq(ts_dev->irq, ts_dev);
+ 
+ 	/* total steps followed by the enable mask */
 -- 
-2.7.4
+2.8.2
 

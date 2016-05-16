@@ -1,429 +1,372 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input - surface3_spi: add new driver for the Surface 3
-Date: Mon, 16 May 2016 12:51:18 -0700
-Message-ID: <20160516195118.GG12752@dtor-ws>
-References: <1463153826-10283-1-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Grant Grundler <grundler@chromium.org>
+Subject: [PATCH 2/2 V3] Input: add Atmel Captouch Button driver
+Date: Mon, 16 May 2016 13:54:54 -0700
+Message-ID: <1463432094-146726-2-git-send-email-grundler@chromium.org>
+References: <1463432094-146726-1-git-send-email-grundler@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:36636 "EHLO
-	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754492AbcEPTva (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:32897 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750941AbcEPU4H (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 May 2016 15:51:30 -0400
-Content-Disposition: inline
-In-Reply-To: <1463153826-10283-1-git-send-email-benjamin.tissoires@redhat.com>
+	Mon, 16 May 2016 16:56:07 -0400
+Received: by mail-pa0-f50.google.com with SMTP id xk12so68685640pac.0
+        for <linux-input@vger.kernel.org>; Mon, 16 May 2016 13:56:02 -0700 (PDT)
+In-Reply-To: <1463432094-146726-1-git-send-email-grundler@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree <devicetree@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Hung-yu Wu <hywu@google.com>, Kumar Gala <galak@codeaurora.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>, Grant Grundler <grundler@chromium.org>
 
-On Fri, May 13, 2016 at 05:37:06PM +0200, Benjamin Tissoires wrote:
-> This is a basic driver for the Surface 3. I am not so sure it will work
-> with any firmwares as most values are encoded, but given that I only have
-> access to my current device with its firmware and I don't have the
-> datasheet, it should be OK for now.
-> 
-> The Surface Pen is not supported (if it is supposed to be). I'll work on
-> this when I get one.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> 
-> Changes in v2:
-> 
-> - module renamed from ntrig_spi to surface3_spi
-> - took into account Dmitry's remarks
-> - kept the retrieval of the GPIO as mandatory as otherwise the device fails to work
-> 
->  drivers/input/touchscreen/Kconfig        |  11 ++
->  drivers/input/touchscreen/Makefile       |   1 +
->  drivers/input/touchscreen/surface3_spi.c | 320 +++++++++++++++++++++++++++++++
->  3 files changed, 332 insertions(+)
->  create mode 100644 drivers/input/touchscreen/surface3_spi.c
-> 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 8ecdc38..30ffc38 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -1094,6 +1094,17 @@ config TOUCHSCREEN_SUR40
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called sur40.
->  
-> +config TOUCHSCREEN_SURFACE3_SPI
-> +	tristate "Ntrig/Microsoft Surface 3 SPI touchscreen"
-> +	help
-> +	  Say Y here if you have the Ntrig/Microsoft SPI touchscreen
-> +	  controller chip as found on the Surface 3 in your system.
-> +
-> +	  If unsure, say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called surface3_spi.
-> +
->  config TOUCHSCREEN_SX8654
->  	tristate "Semtech SX8654 touchscreen"
->  	depends on I2C
-> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-> index f42975e..3f8ee86 100644
-> --- a/drivers/input/touchscreen/Makefile
-> +++ b/drivers/input/touchscreen/Makefile
-> @@ -67,6 +67,7 @@ obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
->  obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
->  obj-$(CONFIG_TOUCHSCREEN_SUN4I)		+= sun4i-ts.o
->  obj-$(CONFIG_TOUCHSCREEN_SUR40)		+= sur40.o
-> +obj-$(CONFIG_TOUCHSCREEN_SURFACE3_SPI)	+= surface3_spi.o
->  obj-$(CONFIG_TOUCHSCREEN_TI_AM335X_TSC)	+= ti_am335x_tsc.o
->  obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+= touchit213.o
->  obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
-> diff --git a/drivers/input/touchscreen/surface3_spi.c b/drivers/input/touchscreen/surface3_spi.c
-> new file mode 100644
-> index 0000000..06679ff
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/surface3_spi.c
-> @@ -0,0 +1,320 @@
-> +/*
-> + *  Driver for Ntrig/Microsoft Touchscreens over SPI
-> + *
-> + *  Copyright (c) 2016 Red Hat Inc.
-> + *
-> + */
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation; version 2 of the License.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +
-> +#include <asm/unaligned.h>
+From: Daniel Hung-yu Wu <hywu@google.com>
 
-asm goes after linux.
+Add I2C driver for Atmel Capacitive Touch Button device.
 
-> +#include <linux/delay.h>
-> +#include <linux/gpio/consumer.h>
-> +#include <linux/input.h>
-> +#include <linux/input/mt.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/module.h>
-> +#include <linux/slab.h>
-> +#include <linux/spi/spi.h>
-> +#include <linux/acpi.h>
-> +
-> +#define SURFACE3_PACKET_SIZE	264
-> +
-> +struct surface3_ts_data {
-> +	struct spi_device *spi;
-> +	struct gpio_desc *gpiod_int;
-> +	struct gpio_desc *gpiod_rst[2];
-> +	struct input_dev *input_dev;
-> +
-> +	u8 rd_buf[SURFACE3_PACKET_SIZE]		____cacheline_aligned;
-> +};
-> +
-> +struct surface3_ts_data_finger {
-> +	u8 status;
-> +	u16 __le_tracking_id;
+Signed-off-by: Hung-yu Wu <hywu@google.com>
+Signed-off-by: Grant Grundler <grundler@chromium.org>
+---
+ drivers/input/misc/Kconfig          |  13 ++
+ drivers/input/misc/Makefile         |   1 +
+ drivers/input/misc/atmel_captouch.c | 287 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 299 insertions(+)
+ create mode 100644 drivers/input/misc/atmel_captouch.c
 
-I meant
+V3: use dash, not underscore in nodename. Wordsmith Kconfig help text.
 
-	__le16 tracking_id;
+V2: split Documentation/devicetree/bindings from driver patch.
+    rename "atmel,atmegaxx_captouch" to "atmel,captouch" since it's irrelevant
+    which controller implements the register set/controller.
 
-so that sparse will warn us.
+V1: posted https://lkml.org/lkml/2016/5/3/613
 
-> +	u16 __le_x;
-> +	u16 __le_cx;
-> +	u16 __le_y;
-> +	u16 __le_cy;
-> +	u16 __le_width;
-> +	u16 __le_height;
-> +	u32 padding;
-> +} __packed;
-> +
-> +static int surface3_spi_read(struct surface3_ts_data *ts_data)
-> +{
-> +	struct spi_device *spi = ts_data->spi;
-> +
-> +	memset(ts_data->rd_buf, 0, sizeof(ts_data->rd_buf));
-> +	return spi_read(spi, ts_data->rd_buf, sizeof(ts_data->rd_buf));
-> +}
-> +
-> +static void surface3_spi_report_touch(struct surface3_ts_data *ts_data,
-> +				   struct surface3_ts_data_finger *finger)
-> +{
-> +	int st = finger->status & 0x01;
-> +	int id = get_unaligned_le16(&finger->__le_tracking_id);
-> +	int slot, x, y, w, h;
-> +
-> +	slot = input_mt_get_slot_by_key(ts_data->input_dev, id);
-> +	if (slot < 0)
-> +		return;
-> +
-> +	input_mt_slot(ts_data->input_dev, slot);
-> +	input_mt_report_slot_state(ts_data->input_dev, MT_TOOL_FINGER, st);
-> +	if (st) {
-> +		x = get_unaligned_le16(&finger->__le_x);
-> +		y = get_unaligned_le16(&finger->__le_y);
-> +		w = get_unaligned_le16(&finger->__le_width);
-> +		h = get_unaligned_le16(&finger->__le_height);
-> +
-> +		input_report_abs(ts_data->input_dev, ABS_MT_POSITION_X, x);
-> +		input_report_abs(ts_data->input_dev, ABS_MT_POSITION_Y, y);
-> +		input_report_abs(ts_data->input_dev, ABS_MT_WIDTH_MAJOR, w);
-> +		input_report_abs(ts_data->input_dev, ABS_MT_WIDTH_MINOR, h);
-
-Could do conversions inline and drop temps.
-
-> +	}
-> +}
-> +
-> +static void surface3_spi_process(struct surface3_ts_data *ts_data)
-> +{
-> +	const char header[] = {0xff, 0xff, 0xff, 0xff, 0xa5, 0x5a, 0xe7, 0x7e,
-> +			       0x01, 0xd2, 0x00, 0x80, 0x01, 0x03, 0x03};
-> +	u8 *data = ts_data->rd_buf;
-> +	u16 timestamp;
-> +	unsigned int i;
-> +
-> +	if (memcmp(header, data, sizeof(header)))
-> +		dev_err(&ts_data->spi->dev,
-> +			"%s header error: %*ph, ignoring...\n",
-> +			__func__, (int)sizeof(header), data);
-> +
-> +	timestamp = get_unaligned_le16(&data[15]);
-> +
-> +	for (i = 0; i < 13; i++) {
-> +		struct surface3_ts_data_finger *finger;
-> +
-> +		finger = (struct surface3_ts_data_finger *)&data[17 +
-> +				i * sizeof(struct surface3_ts_data_finger)];
-> +
-> +		/*
-> +		 * When bit 5 of status is 1, it marks the end of the report:
-> +		 * - touch present: 0xe7
-> +		 * - touch released: 0xe4
-> +		 * - nothing valuable: 0xff
-> +		 */
-> +		if (finger->status & 0x10)
-> +			break;
-> +
-> +		surface3_spi_report_touch(ts_data, finger);
-> +	}
-> +
-> +	input_mt_sync_frame(ts_data->input_dev);
-> +	input_sync(ts_data->input_dev);
-> +}
-> +
-> +static irqreturn_t surface3_spi_irq_handler(int irq, void *dev_id)
-> +{
-> +	struct surface3_ts_data *data = dev_id;
-> +
-> +	if (surface3_spi_read(data))
-> +		return IRQ_HANDLED;
-> +
-> +	dev_dbg(&data->spi->dev, "%s received -> %*ph\n",
-> +		__func__, SURFACE3_PACKET_SIZE, data->rd_buf);
-> +	surface3_spi_process(data);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static void surface3_spi_power(struct surface3_ts_data *data, bool on)
-> +{
-> +	gpiod_set_value(data->gpiod_rst[0], on);
-> +	gpiod_set_value(data->gpiod_rst[1], on);
-> +	/* let the device settle a little */
-> +	msleep(20);
-> +}
-> +
-> +/**
-> + * surface3_spi_get_gpio_config - Get GPIO config from ACPI/DT
-> + *
-> + * @ts: surface3_spi_ts_data pointer
-> + */
-> +static int surface3_spi_get_gpio_config(struct surface3_ts_data *data)
-> +{
-> +	int error;
-> +	struct device *dev;
-> +	struct gpio_desc *gpiod;
-> +	int i;
-> +
-> +	dev = &data->spi->dev;
-> +
-> +	/* Get the interrupt GPIO pin number */
-> +	gpiod = devm_gpiod_get_index(dev, NULL, 2, GPIOD_IN);
-> +	if (IS_ERR(gpiod)) {
-> +		error = PTR_ERR(gpiod);
-> +		if (error != -EPROBE_DEFER)
-> +			dev_err(dev, "Failed to get int GPIO: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	data->gpiod_int = gpiod;
-> +
-> +	/* Get the reset lines GPIO pin number */
-> +	for (i = 0; i < 2; i++) {
-> +		gpiod = devm_gpiod_get_index(dev, NULL, i, GPIOD_OUT_LOW);
-> +		if (IS_ERR(gpiod)) {
-> +			error = PTR_ERR(gpiod);
-> +			if (error != -EPROBE_DEFER)
-> +				dev_err(dev,
-> +					"Failed to get power GPIO %d: %d\n",
-> +					i,
-> +					error);
-> +			return error;
-> +		}
-> +
-> +		data->gpiod_rst[i] = gpiod;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int surface3_spi_create_input(struct surface3_ts_data *data)
-> +{
-> +	struct input_dev *input;
-> +	int error;
-> +
-> +	input = devm_input_allocate_device(&data->spi->dev);
-> +	if (!input)
-> +		return -ENOMEM;
-> +
-> +	data->input_dev = input;
-> +
-> +	input_set_abs_params(input, ABS_MT_POSITION_X, 0, 9600, 0, 0);
-> +	input_abs_set_res(input, ABS_MT_POSITION_X, 40);
-> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, 7200, 0, 0);
-> +	input_abs_set_res(input, ABS_MT_POSITION_Y, 48);
-> +	input_set_abs_params(input, ABS_MT_WIDTH_MAJOR, 0, 1024, 0, 0);
-> +	input_set_abs_params(input, ABS_MT_WIDTH_MINOR, 0, 1024, 0, 0);
-> +	input_mt_init_slots(input, 10, INPUT_MT_DIRECT);
-> +
-> +	input->name = "Surface3 SPI Capacitive TouchScreen";
-> +	input->phys = "input/ts";
-> +	input->id.bustype = BUS_SPI;
-> +	input->id.vendor = 0x045e;	/* Microsoft */
-> +	input->id.product = 0x0000;
-> +	input->id.version = 0x0000;
-> +
-> +	error = input_register_device(input);
-> +	if (error) {
-> +		dev_err(&data->spi->dev,
-> +			"Failed to register input device: %d", error);
-> +		return error;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int surface3_spi_request_irq(struct surface3_ts_data *data)
-> +{
-> +	struct spi_device *spi = data->spi;
-> +
-> +	return devm_request_threaded_irq(&spi->dev, spi->irq,
-> +					  NULL, surface3_spi_irq_handler,
-> +					  IRQ_TYPE_EDGE_RISING | IRQF_ONESHOT,
-> +					  "Surface3-irq", data);
-> +}
-
-Please just call devm_request_threaded_irq directly in probe.
-
-Do you really need to specify IRQ_TYPE_EDGE_RISING? Does not ACPI has
-proper trigger specifier for the IRQ?
-
-> +
-> +static int surface3_spi_probe(struct spi_device *spi)
-> +{
-> +	struct surface3_ts_data *data;
-> +	int error;
-> +
-> +	/* Set up SPI*/
-> +	spi->bits_per_word = 8;
-> +	spi->mode = SPI_MODE_0;
-> +	error = spi_setup(spi);
-> +	if (error)
-> +		return error;
-> +
-> +	data = devm_kzalloc(&spi->dev, sizeof(*data), GFP_KERNEL);
-> +	if (!data)
-> +		return -ENOMEM;
-> +
-> +	data->spi = spi;
-> +	spi_set_drvdata(spi, data);
-> +
-> +	error = surface3_spi_get_gpio_config(data);
-> +	if (error)
-> +		return error;
-> +
-> +	surface3_spi_power(data, true);
-> +	surface3_spi_power(data, false);
-> +	surface3_spi_power(data, true);
-> +
-> +	error = surface3_spi_create_input(data);
-> +	if (error)
-> +		return error;
-> +
-> +	error = surface3_spi_request_irq(data);
-> +	if (error)
-> +		return error;
-> +
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused surface3_spi_suspend(struct device *dev)
-> +{
-> +	struct spi_device *spi = to_spi_device(dev);
-> +	struct surface3_ts_data *data = spi_get_drvdata(spi);
-> +
-> +	disable_irq(data->spi->irq);
-> +
-> +	surface3_spi_power(data, false);
-> +
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused surface3_spi_resume(struct device *dev)
-> +{
-> +	struct spi_device *spi = to_spi_device(dev);
-> +	struct surface3_ts_data *data = spi_get_drvdata(spi);
-> +
-> +	surface3_spi_power(data, true);
-> +
-> +	enable_irq(data->spi->irq);
-> +
-> +	return 0;
-> +}
-> +
-> +static SIMPLE_DEV_PM_OPS(surface3_spi_pm_ops,
-> +			 surface3_spi_suspend,
-> +			 surface3_spi_resume);
-> +
-> +#ifdef CONFIG_ACPI
-> +static const struct acpi_device_id surface3_spi_acpi_match[] = {
-> +	{ "MSHW0037", 0 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(acpi, surface3_spi_acpi_match);
-> +#endif
-> +
-> +static struct spi_driver surface3_spi_driver = {
-> +	.driver = {
-> +		.name	= "Surface3-spi",
-> +		.acpi_match_table = ACPI_PTR(surface3_spi_acpi_match),
-> +		.pm = &surface3_spi_pm_ops,
-> +	},
-> +	.probe = surface3_spi_probe,
-> +};
-> +
-> +module_spi_driver(surface3_spi_driver);
-> +
-> +MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
-> +MODULE_DESCRIPTION("Surface 3 SPI touchscreen driver");
-> +MODULE_LICENSE("GPL v2");
-> -- 
-> 2.5.0
-> 
-
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 838824b..d8b6620 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -82,6 +82,19 @@ config INPUT_ARIZONA_HAPTICS
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called arizona-haptics.
+ 
++config INPUT_ATMEL_CAPTOUCH
++	tristate "Atmel Capacitive Touch Button Driver"
++	depends on OF || COMPILE_TEST
++	help
++	  Say Y here if an Atmel Capacitive Touch Button device which
++	  implements "captouch" protocol is connected to I2C bus. Typically
++	  this device consists of Atmel Touch sensor controlled by AtMegaXX
++	  MCU running firmware based on Qtouch library.
++	  One should find "atmel,captouch" node in the board specific DTS.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called atmel_captouch.
++
+ config INPUT_BMA150
+ 	tristate "BMA150/SMB380 acceleration sensor support"
+ 	depends on I2C
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index f77268e..b5ec626 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -17,6 +17,7 @@ obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
+ obj-$(CONFIG_INPUT_ARIZONA_HAPTICS)	+= arizona-haptics.o
+ obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
+ obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
++obj-$(CONFIG_INPUT_ATMEL_CAPTOUCH)	+= atmel_captouch.o
+ obj-$(CONFIG_INPUT_BFIN_ROTARY)		+= bfin_rotary.o
+ obj-$(CONFIG_INPUT_BMA150)		+= bma150.o
+ obj-$(CONFIG_INPUT_CM109)		+= cm109.o
+diff --git a/drivers/input/misc/atmel_captouch.c b/drivers/input/misc/atmel_captouch.c
+new file mode 100644
+index 0000000..91bfc73
+--- /dev/null
++++ b/drivers/input/misc/atmel_captouch.c
+@@ -0,0 +1,287 @@
++/*
++ * Atmel Atmegaxx Capacitive Touch Button Driver
++ *
++ * Copyright (C) 2016 Google, inc.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++/*
++ * It's irrelevant the HW used to develop captouch driver is based
++ * on Atmega88PA part and uses QtouchADC parts for sensing touch.
++ * Calling this driver "captouch" is an arbitrary way to distinguish
++ * the protocol this driver supported by other atmel/qtouch drivers.
++ *
++ * captouch driver supports a newer/different version of the I2C
++ * registers/commands than the qt1070.c driver.
++ * Don't let the similarity of the general driver structure fool you. :)
++ *
++ * For raw i2c access from userspace, use i2cset/i2cget
++ * to poke at /dev/i2c-N devices.
++ */
++
++#include <linux/device.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/slab.h>
++
++/* Maximum number of buttons supported */
++#define MAX_NUM_OF_BUTTONS		8
++
++/* Registers */
++#define REG_KEY1_THRESHOLD		0x02
++#define REG_KEY2_THRESHOLD		0x03
++#define REG_KEY3_THRESHOLD		0x04
++#define REG_KEY4_THRESHOLD		0x05
++
++#define REG_KEY1_REF_H			0x20
++#define REG_KEY1_REF_L			0x21
++#define REG_KEY2_REF_H			0x22
++#define REG_KEY2_REF_L			0x23
++#define REG_KEY3_REF_H			0x24
++#define REG_KEY3_REF_L			0x25
++#define REG_KEY4_REF_H			0x26
++#define REG_KEY4_REF_L			0x27
++
++#define REG_KEY1_DLT_H			0x30
++#define REG_KEY1_DLT_L			0x31
++#define REG_KEY2_DLT_H			0x32
++#define REG_KEY2_DLT_L			0x33
++#define REG_KEY3_DLT_H			0x34
++#define REG_KEY3_DLT_L			0x35
++#define REG_KEY4_DLT_H			0x36
++#define REG_KEY4_DLT_L			0x37
++
++#define REG_KEY_STATE			0x3C
++
++/*
++ * @i2c_client: I2C slave device client pointer
++ * @input: Input device pointer
++ * @num_btn: Number of buttons
++ * @keycodes: map of button# to KeyCode
++ * @prev_btn: Previous key state to detect button "press" or "release"
++ * @xfer_buf: I2C transfer buffer
++ */
++struct atmel_captouch_device {
++	struct i2c_client *client;
++	struct input_dev *input;
++	u32 num_btn;
++	u32 keycodes[MAX_NUM_OF_BUTTONS];
++	u8 prev_btn;
++	u8 xfer_buf[8] ____cacheline_aligned;
++};
++
++/*
++ * Read from I2C slave device
++ * The protocol is that the client has to provide both the register address
++ * and the length, and while reading back the device would prepend the data
++ * with address and length for verification.
++ */
++static int atmel_read(struct atmel_captouch_device *capdev,
++			 u8 reg, u8 *data, size_t len)
++{
++	struct i2c_client *client = capdev->client;
++	struct device *dev = &client->dev;
++	struct i2c_msg msg[2];
++	int err;
++
++	if (len > sizeof(capdev->xfer_buf) - 2)
++		return -EINVAL;
++
++	capdev->xfer_buf[0] = reg;
++	capdev->xfer_buf[1] = len;
++
++	msg[0].addr = client->addr;
++	msg[0].flags = 0;
++	msg[0].buf = capdev->xfer_buf;
++	msg[0].len = 2;
++
++	msg[1].addr = client->addr;
++	msg[1].flags = I2C_M_RD;
++	msg[1].buf = capdev->xfer_buf;
++	msg[1].len = len + 2;
++
++	err = i2c_transfer(client->adapter, msg, ARRAY_SIZE(msg));
++	if (err != ARRAY_SIZE(msg))
++		return err < 0 ? err : -EIO;
++
++	if (capdev->xfer_buf[0] != reg) {
++		dev_err(dev, "I2C read error: register address does not match\n");
++		return -ECOMM;
++	}
++
++	memcpy(data, &capdev->xfer_buf[2], len);
++
++	return 0;
++}
++
++/*
++ * Handle interrupt and report the key changes to the input system.
++ * Multi-touch can be supported; however, it really depends on whether
++ * the device can multi-touch.
++ */
++static irqreturn_t atmel_captouch_isr(int irq, void *data)
++{
++	struct atmel_captouch_device *capdev = data;
++	struct device *dev = &capdev->client->dev;
++	int error;
++	int i;
++	u8 new_btn;
++	u8 changed_btn;
++
++	error = atmel_read(capdev, REG_KEY_STATE, &new_btn, 1);
++	if (error) {
++		dev_err(dev, "failed to read button state: %d\n", error);
++		goto out;
++	}
++
++	dev_dbg(dev, "%s: button state %#02x\n", __func__, new_btn);
++
++	changed_btn = new_btn ^ capdev->prev_btn;
++	capdev->prev_btn = new_btn;
++
++	for (i = 0; i < capdev->num_btn; i++) {
++		if (changed_btn & BIT(i))
++			input_report_key(capdev->input,
++					 capdev->keycodes[i],
++					 new_btn & BIT(i));
++	}
++
++	input_sync(capdev->input);
++
++out:
++	return IRQ_HANDLED;
++}
++
++/*
++ * Probe function to setup the device, input system and interrupt
++ */
++static int atmel_captouch_probe(struct i2c_client *client,
++		const struct i2c_device_id *id)
++{
++	struct atmel_captouch_device *capdev;
++	struct device *dev = &client->dev;
++	struct device_node *node;
++	int i;
++	int err;
++
++	if (!i2c_check_functionality(client->adapter,
++				     I2C_FUNC_SMBUS_BYTE_DATA |
++					I2C_FUNC_SMBUS_WORD_DATA |
++					I2C_FUNC_SMBUS_I2C_BLOCK)) {
++		dev_err(dev, "needed i2c functionality is not supported\n");
++		return -EINVAL;
++	}
++
++	capdev = devm_kzalloc(dev, sizeof(*capdev), GFP_KERNEL);
++	if (!capdev)
++		return -ENOMEM;
++
++	capdev->client = client;
++	i2c_set_clientdata(client, capdev);
++
++	err = atmel_read(capdev, REG_KEY_STATE,
++			    &capdev->prev_btn, sizeof(capdev->prev_btn));
++	if (err) {
++		dev_err(dev, "failed to read initial button state: %d\n", err);
++		return err;
++	}
++
++	capdev->input = devm_input_allocate_device(dev);
++	if (!capdev->input) {
++		dev_err(dev, "failed to allocate input device\n");
++		return -ENOMEM;
++	}
++
++	capdev->input->id.bustype = BUS_I2C;
++	capdev->input->id.product = 0x880A;
++	capdev->input->id.version = 0;
++	capdev->input->name = "ATMegaXX Capacitive Button Controller";
++	__set_bit(EV_KEY, capdev->input->evbit);
++
++	node = dev->of_node;
++	if (!node) {
++		dev_err(dev, "failed to find matching node in device tree\n");
++		return -EINVAL;
++	}
++
++	if (of_property_read_bool(node, "autorepeat"))
++		__set_bit(EV_REP, capdev->input->evbit);
++
++	capdev->num_btn = of_property_count_u32_elems(node, "linux,keymap");
++	if (capdev->num_btn > MAX_NUM_OF_BUTTONS)
++		capdev->num_btn = MAX_NUM_OF_BUTTONS;
++
++	err = of_property_read_u32_array(node, "linux,keycodes",
++					 capdev->keycodes,
++					 capdev->num_btn);
++	if (err) {
++		dev_err(dev,
++			"failed to read linux,keycode property: %d\n", err);
++		return err;
++	}
++
++	for (i = 0; i < capdev->num_btn; i++)
++		__set_bit(capdev->keycodes[i], capdev->input->keybit);
++
++	capdev->input->keycode = capdev->keycodes;
++	capdev->input->keycodesize = sizeof(capdev->keycodes[0]);
++	capdev->input->keycodemax = capdev->num_btn;
++
++	err = input_register_device(capdev->input);
++	if (err)
++		return err;
++
++	err = devm_request_threaded_irq(dev, client->irq, NULL,
++				atmel_captouch_isr, IRQF_ONESHOT,
++				"atmel_captouch", capdev);
++	if (err) {
++		dev_err(dev, "failed to request irq %d: %d\n",
++			client->irq, err);
++		return err;
++	}
++
++	return 0;
++}
++
++#ifdef CONFIG_OF
++static const struct of_device_id atmel_captouch_of_id[] = {
++	{
++		.compatible = "atmel,captouch",
++	},
++	{ /* sentinel */ }
++}
++MODULE_DEVICE_TABLE(of, atmel_captouch_of_id);
++#endif
++
++static const struct i2c_device_id atmel_captouch_id[] = {
++	{ "atmel_captouch", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, atmel_captouch_id);
++
++static struct i2c_driver atmel_captouch_driver = {
++	.probe		= atmel_captouch_probe,
++	.id_table	= atmel_captouch_id,
++	.driver		= {
++		.name	= "atmel_captouch",
++		.of_match_table = of_match_ptr(atmel_captouch_of_id),
++	},
++};
++module_i2c_driver(atmel_captouch_driver);
++
++/* Module information */
++MODULE_AUTHOR("Hung-yu Wu <hywu@google.com>");
++MODULE_DESCRIPTION("Atmel ATmegaXX Capacitance Touch Sensor I2C Driver");
++MODULE_LICENSE("GPL v2");
 -- 
-Dmitry
+2.1.2
+

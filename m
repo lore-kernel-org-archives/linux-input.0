@@ -1,94 +1,64 @@
-From: Grant Grundler <grundler@chromium.org>
-Subject: Re: [PATCH] dt: add Atmel Captouch bindings
-Date: Mon, 16 May 2016 09:50:58 -0700
-Message-ID: <CANEJEGv0F-8zD7s8_gmFhQ-o8EYoMHyRCWARg19kLT46GUZKZA@mail.gmail.com>
-References: <1462932469-122552-1-git-send-email-grundler@chromium.org>
-	<20160514145205.GA31009@rob-hp-laptop>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: Change BTN_TOOL_FINGER flag when hover event
+ trigger
+Date: Mon, 16 May 2016 10:53:42 -0700
+Message-ID: <20160516175342.GD12752@dtor-ws>
+References: <C2DEC699-8A1A-484D-83F2-637F5EF94C7B@emc.com.tw>
+ <006901d1acea$8207d090$861771b0$@emc.com.tw>
+ <00be01d1af65$ec37c290$c4a747b0$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160514145205.GA31009@rob-hp-laptop>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Grant Grundler <grundler@chromium.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree <devicetree@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Hung-yu Wu <hywu@google.com>, Kumar Gala <galak@codeaurora.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:34279 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754398AbcEPRxp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 May 2016 13:53:45 -0400
+Content-Disposition: inline
+In-Reply-To: <00be01d1af65$ec37c290$c4a747b0$@emc.com.tw>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zac.hsieh@emc.com.tw, =?utf-8?B?6buD5LiW6bWsIOe2k+eQhg==?= <phoenix@emc.com.tw>, 'Charles Mooney' <charliemooney@google.com>, 'Agnes Cheng' <agnescheng@google.com>
 
-On Sat, May 14, 2016 at 7:52 AM, Rob Herring <robh@kernel.org> wrote:
-> On Tue, May 10, 2016 at 07:07:48PM -0700, Grant Grundler wrote:
->> From: Daniel Hung-yu Wu <hywu@google.com>
->>
->> Add binding for Atmel Capacitive Touch Button device.
->>
->> Signed-off-by: Daniel Hung-yu Wu <hywu@google.com>
->> Signed-off-by: Grant Grundler <grundler@chromium.org>
->> ---
->>  .../devicetree/bindings/input/atmel,captouch.txt   | 34 ++++++++++++++++++++++
->>  1 file changed, 34 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/input/atmel,captouch.txt
->>
->> I haven't posted the corresponding device driver and dtsi changes yet but will shortly.
->>
->> V2: split Documentation/devicetree/bindings from driver patch
->>     rename "atmel,atmegaxx_captouch" to "atmel,captouch" since it's irrelevant
->>            which controller implements the register set/controller.
->
-> Is there any notion of firmware versions though?
+Hi Kt,
 
-There currently is not. This is something we need to add - future patch.
+On Mon, May 16, 2016 at 07:27:25PM +0800, =E5=BB=96=E5=B4=87=E6=A6=AE w=
+rote:
+>=20
+> Only ABS_DISTANCE is not enough for upper OS to distingiush hover eve=
+nt be
+> triggered from object from faraway to and close touchpad surface or f=
+rom
+> object prepare to leave the touchpad surface. Add BTN_TOOL_FINGER fla=
+g to
+> help it.
+>=20
+>                  object_from_faraway    object_inside_hover_area
+> object_touch_surface
+> BTN_TOUCH                 0                          0             1
+> BTN_TOOL_FINGER           0                          1              1
+> ABS_DISTANCE               0                           1             =
+0
+>=20
+> Signed-off by: Duson Lin <dusonlin@emc.com.tw>
 
->
->>
->> V1: posted https://lkml.org/lkml/2016/5/3/613
->>
->> diff --git a/Documentation/devicetree/bindings/input/atmel,captouch.txt b/Documentation/devicetree/bindings/input/atmel,captouch.txt
->> new file mode 100644
->> index 0000000..405d287
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/input/atmel,captouch.txt
->> @@ -0,0 +1,34 @@
->> +Device tree bindings for Atmel AtmegaXX capacitive touch sensor
->> +
->> +The node for this device must be a child of a I2C controller node, as the
->> +device communicates via I2C.
->> +
->> +Required properties:
->> +
->> +     compatible:     Must be "atmel,captouch".
->> +     reg:            The I2C slave address of the device.
->> +     interrupts:     Property describing the interrupt line the device
->> +                     is connected to. The device only has one interrupt
->> +                     source.
->> +     linux,keycodes: Specifies an array of numeric keycode values to
->> +                     be used for reporting button presses. The array can
->> +                     contain up to 8 entries.
->> +
->> +Optional properties:
->> +
->> +     autorepeat:     Enables the Linux input system's autorepeat
->> +                     feature on the input device.
->> +
->> +Example:
->> +
->> +     atmel_captouch@51 {
->
-> No underscores in node names please.
+I was wondering if we could do without modifying all the drivers that
+are using input_mt_report_pointer_emulation(), by figuring out if we
+should be emitting BTN_TOOL_FINGER right there:
 
-Aaahh! Sorry! you told me that before. Will post V3 with dash in node name.
+"If device supports ABS_DISTANCE and does not support ABS_MT_DISTANCE a=
+nd
+ABS_DISTANCE !=3D 0 is reported in current frame and there are no other
+contacts then report BTN_TOOL_FINGER."
 
-cheers,
-grant
+Thanks.
 
->
->> +             compatible = "atmel,captouch";
->> +             reg = <0x51>;
->> +             interrupt-parent = <&tlmm>;
->> +             interrupts = <67 IRQ_TYPE_EDGE_FALLING>;
->> +             linux,keycodes = <BTN_0>, <BTN_1>,
->> +                     <BTN_2>, <BTN_3>,
->> +                     <BTN_4>, <BTN_5>,
->> +                     <BTN_6>, <BTN_7>;
->> +             autorepeat;
->> +     };
->> --
->> 2.1.2
->>
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

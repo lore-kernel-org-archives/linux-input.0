@@ -1,310 +1,94 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
-Date: Mon, 16 May 2016 09:43:36 -0700
-Message-ID: <20160516164336.GB12752@dtor-ws>
-References: <20160513041852.GA8932@dtor-ws>
- <1463413611-367-1-git-send-email-jeffrey.lin@rad-ic.com>
- <20160516164145.GA12752@dtor-ws>
+From: Grant Grundler <grundler@chromium.org>
+Subject: Re: [PATCH] dt: add Atmel Captouch bindings
+Date: Mon, 16 May 2016 09:50:58 -0700
+Message-ID: <CANEJEGv0F-8zD7s8_gmFhQ-o8EYoMHyRCWARg19kLT46GUZKZA@mail.gmail.com>
+References: <1462932469-122552-1-git-send-email-grundler@chromium.org>
+	<20160514145205.GA31009@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160516164145.GA12752@dtor-ws>
+In-Reply-To: <20160514145205.GA31009@rob-hp-laptop>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "jeffrey.lin" <yajohn@gmail.com>
-Cc: rydberg@euromail.se, grant.likely@linaro.org, robh+dt@kernel.org, jeesw@melfas.com, bleung@chromium.org, jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, albert.shieh@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: Grant Grundler <grundler@chromium.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree <devicetree@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Hung-yu Wu <hywu@google.com>, Kumar Gala <galak@codeaurora.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, May 16, 2016 at 09:41:45AM -0700, Dmitry Torokhov wrote:
-> On Mon, May 16, 2016 at 11:46:51PM +0800, jeffrey.lin wrote:
-> > Hi Dmitry:
-> > I've finished issues under the format you suggested as below.
-> > 
-> > >#define RM_RESET_MSG_ADDR	0x40000004
-> > >#define RM_FASTBOOT_MSG_ADDR	0x50000620
-> > 
-> > >#define RM_MAX_READ_SIZE	63
-> > change maximum read size to 56 bytes
-> > #define RM_MAX_READ_SIZE	56
-> 
-> OK.
-> 
-> > 
-> > >#define RM_CONTACT_X_POS	1
-> > >#define RM_CONTACT_Y_POS	3
-> > >#define RM_CONTACT_PRESSURE_POS	5 // XXX - check - original was 4
-> > #define RM_CONTACT_PRESSURE_POS	5	/*FIXME, correct 5*/
-> 
-> OK.
-> 
-> > 
-> > >#define RM_BL_WRT_CMD_SIZE	3	/* bl flash wrt cmd size */
-> > >#define RM_BL_WRT_PKG_SIZE	32	/* bl wrt pkg size */
-> > >#define RM_BL_WRT_LEN		(RM_BL_WRT_PKG_SIZE + RM_BL_WRT_CMD_SIZE)
-> > >#define RM_FW_PAGE_SIZE		128
-> > >#define RM_MAX_FW_RETRIES	30
-> > additional maximum firmware size for protection
-> > #define RM_MAX_FW_SIZE		(0xD000)	/*define max firmware size*/
-> 
-> OK.
-> 
-> > 
-> > >static int raydium_i2c_read_message(struct i2c_client *client,
-> > >				    u32 addr, void *data, size_t len)
-> > >{
-> > >	__be32 be_addr;
-> > >	size_t xfer_len;
-> > >	int error;
-> > >	while (len) {
-> > >		xfer_len = min_t(size_t, len, RM_MAX_READ_SIZE);
-> > >
-> > >		be_addr = cpu_to_be32(addr);
-> > >
-> > >		error = raydium_i2c_send(client, RM_CMD_BANK_SWITCH,
-> > >					 &be_addr, sizeof(be_addr));
-> > >		if (!error)
-> > >			error = raydium_i2c_read(client, addr & 0xff,
-> > >						 data, xfer_len);
-> > Change as:
-> > 		if (!error)
-> > 			error = raydium_i2c_read(client, (be_addr >> 24) & 0xff,
-> > 						 data, xfer_len);
-> 
-> I think it is the same on LE, and I suspect it will not work correctly
-> on BE... You want to have the 8 least significant bits of the bank to be
-> used as the address, right?
-> 
-> > 
-> > >static int raydium_i2c_send_message(struct i2c_client *client,
-> > >				    u32 addr, const void *data, size_t len)
-> > >{
-> > >	__be32 be_addr = cpu_to_be32(addr);
-> > >	int error;
-> > >	error = raydium_i2c_send(client, RM_CMD_BANK_SWITCH,
-> > >				 &be_addr, sizeof(be_addr));
-> > >	if (!error)
-> > >		error = raydium_i2c_send(client, addr & 0xff, data, len);
-> > Change as:
-> > 		error = raydium_i2c_send(client, (be_addr >> 24) & 0xff,
-> > 				data, len);
-> 
-> Same here.
-> 
-> > 
-> > 
-> > >static int raydium_i2c_fastboot(struct i2c_client *client)
-> > >{
-> > 	/*FIXME;Correct, direct access mode is word alignment*/
-> > >	u8 buf[4];
-> > >	int error;
-> > >
-> > >	error = raydium_i2c_read_message(client, RM_FASTBOOT_MSG_ADDR,
-> > >					 buf, sizeof(buf));
-> > 
-> > >static int raydium_i2c_check_fw_status(struct raydium_data *ts)
-> > >{
-> > >	struct i2c_client *client = ts->client;
-> > >	static const u8 bl_area[] = { 0x62, 0x6f, 0x6f, 0x74 };
-> > >	static const u8 main_area[] = { 0x66, 0x69, 0x72, 0x6d };
-> > >	u8 buf[4];
-> > >	int error;
-> > >
-> > >	error = raydium_i2c_read(client, RM_CMD_BOOT_READ, buf, sizeof(buf));
-> > >	if (!error) {
-> > >		// XXX FIXME: why do we compare only 1st bytes? Do we even
-> > >		// need 4-byte constants?
-> > >		if (buf[0] == bl_area[0])
-> > >			ts->boot_mode = RAYDIUM_TS_BLDR;
-> > >		else if (buf[0] == main_area[0])
-> > >			ts->boot_mode = RAYDIUM_TS_MAIN;
-> > >		return 0;
-> > >	}
-> > >
-> > >	return error;
-> > >}
-> > Change as below,
-> > static int raydium_i2c_check_fw_status(struct raydium_data *ts)
-> > {
-> > 	struct i2c_client *client = ts->client;
-> > 	static const u8 bl_ack = 0x62;
-> > 	static const u8 main_ack = 0x66;
-> > 	u8 buf[4];
-> > 	int error;
-> > 
-> > 	error = raydium_i2c_read(client, RM_CMD_BOOT_READ, buf, sizeof(buf));
-> > 	if (!error) {
-> > 		/*FIXME, changed as one byte comparison*/
-> > 		if (buf[0] == bl_ack)
-> > 			ts->boot_mode = RAYDIUM_TS_BLDR;
-> > 		else if (buf[0] == main_ack)
-> > 			ts->boot_mode = RAYDIUM_TS_MAIN;
-> > 		return 0;
-> > 	}
-> > 
-> > 	return error;
-> > }
-> > 
-> > >static int raydium_i2c_fw_write_page(struct i2c_client *client,
-> > >				     u8 page_idx, void *data, size_t len)
-> > >{
-> > >	u8 buf[RM_BL_WRT_LEN];
-> > >	u8 pkg_idx = 1;
-> > >	size_t xfer_len;
-> > >	int error;
-> > >
-> > >	while (len) {
-> > >		xfer_len = min_t(size_t, len, RM_BL_WRT_PKG_SIZE);
-> > >
-> > >		buf[BL_HEADER] = 0x0b;
-> > >		// XXX FIXME: is this correct? Do we really want all pages
-> > >		// after 1st to have 0xff? Should it be a counter?
-> > >		// Why do we need both pages and packages within pages?
-> > >		buf[BL_PAGE_STR] = page_idx ? 0 : 0xff;
-> > >		buf[BL_PKG_IDX] = pkg_idx;
-> > >		memcpy(&buf[BL_DATA_STR], data, xfer_len);
-> > >
-> > >		error = raydium_i2c_write_object(client, buf, xfer_len,
-> > >						 RAYDIUM_WAIT_READY);
-> > >		if (error) {
-> > >			dev_err(&client->dev,
-> > >				"page write command failed for page %d, chunk %d: %d\n",
-> > >				page_idx, pkg_idx, error);
-> > >			return error;
-> > >		}
-> > >
-> > >		msleep(20);
-> > >
-> > >		data += xfer_len;
-> > >		len -= xfer_len;
-> > >		pkg_idx++;
-> > >	}
-> > >
-> > >	return error;
-> > >}
-> > Because of need fully fill 128bytes in pages, so that function change as below:
-> 
-> I see. In this case, how about we do:
-> 
-> > static int raydium_i2c_fw_write_page(struct i2c_client *client,
-> > 				     u16 page_idx, const void *data, size_t len)
-> > {
-> > 	u8 buf[RM_BL_WRT_LEN];
-> > 	u8 pkg_idx = 1;
-> > 	u8 div_cnt;
-> > 	size_t xfer_len;
-> > 	int error;
-> > 	int i;
-> > 
-> > 	div_cnt = len % RM_BL_WRT_PKG_SIZE ?
-> > 		len / RM_BL_WRT_PKG_SIZE + 1:len / RM_BL_WRT_PKG_SIZE;
-> 
-> Drop this. BTW, if you ever need it we have DIV_ROUND_UP macro.
-> 
-> > 
-> > 	for (i = 0; i < div_cnt; i++) {
-> 
-> 	while (len) {
-> 
-> > 		xfer_len = min_t(size_t, len, RM_BL_WRT_PKG_SIZE);
-> > 		buf[BL_HEADER] = RM_CMD_BOOT_PAGE_WRT;
-> > 		/*FIXME,Touch MCU need zero index as start page*/
-> > 		buf[BL_PAGE_STR] = page_idx ? 0xff : 0;
-> > 		buf[BL_PKG_IDX] = pkg_idx++;
-> > 
-> > 		memcpy(&buf[BL_DATA_STR], data, xfer_len);
-> 
-> 		/* we need to pad to full page size */
-> 		if (len < RM_BL_WRT_PKG_SIZE)
-> 			memset(&buf[BL_DATA_STR] + len, 0xff,
-> 				RM_BL_WRT_PKG_SIZE - len);
-> > 
-> > 		if (len == 0)
-> > 			memset(buf + BL_DATA_STR, 0xff, RM_BL_WRT_PKG_SIZE);
-> > 		else if (len < RM_BL_WRT_PKG_SIZE)
-> > 			memset(buf + BL_DATA_STR + xfer_len, 0xff,
-> > 			RM_BL_WRT_PKG_SIZE - xfer_len);
-> > 
-> > 		error = raydium_i2c_write_object(client, buf, RM_BL_WRT_LEN,
-> > 						 RAYDIUM_WAIT_READY);
-> > 		if (error) {
-> > 			dev_err(&client->dev,
-> > 				"page write command failed for page %d, chunk %d: %d\n",
-> > 				page_idx, pkg_idx, error);
-> > 			return error;
-> > 		}
-> > 		data += RM_BL_WRT_PKG_SIZE;
-> > 		len -= RM_BL_WRT_PKG_SIZE;
-> > 	}
-> > 
-> > 	return error;
-> > }
-> > 
-> > >static void raydium_mt_event(struct raydium_data *ts)
-> > >{
-> > >	int i;
-> > >	int error;
-> > memory allocate
-> > 	ts->report_data = kmalloc(ts->report_size, GFP_KERNEL);
-> > 	if (!ts->report_data)
-> > 		return;
-> 
-> I thought I was allocating it after I queried the touchscreen
-> parameters... If not it was oversight. I do not think we should be
-> doing this on every interrupt, so please do the allocation in ->probe()
-> code.
-> 
-> > >
-> > >	error = raydium_i2c_read_message(ts->client, ts->data_bank_addr,
-> > >					 ts->report_data, ts->report_size);
-> > >	if (error) {
-> > >		dev_err(&ts->client->dev, "%s: failed to read data: %d\n",
-> > >			__func__, error);
-> > >		return;
-> > 		goto out_of_event;
-> > >	}
-> > >
-> > >
-> > >	for (i = 0; i < ts->report_size / ts->contact_size; i++) {
-> > >		u8 *contact = &ts->report_data[ts->contact_size * i];
-> > >		bool state = contact[RM_CONTACT_STATE_POS];
-> > >		u8 wx, wy;
-> > >
-> > >		input_mt_slot(ts->input, i);
-> > >		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, state);
-> > >
-> > >		if (!state)
-> > >			continue;
-> > >
-> > >		input_report_abs(ts->input, ABS_MT_POSITION_X,
-> > >				get_unaligned_le16(&contact[RM_CONTACT_X_POS]));
-> > >		input_report_abs(ts->input, ABS_MT_POSITION_Y,
-> > >				get_unaligned_le16(&contact[RM_CONTACT_Y_POS]));
-> > >		input_report_abs(ts->input, ABS_MT_PRESSURE,
-> > >				contact[RM_CONTACT_PRESSURE_POS]);
-> > >
-> > >		wx = contact[RM_CONTACT_WIDTH_X_POS];
-> > >		wy = contact[RM_CONTACT_WIDTH_Y_POS];
-> > >
-> > >		input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR, max(wx, wy));
-> > >		input_report_abs(ts->input, ABS_MT_TOUCH_MINOR, min(wx, wy));
-> > >	}
-> > >
-> > >	input_mt_sync_frame(ts->input);
-> > >	input_sync(ts->input);
-> > out_of_event:
-> > 	kfree(ts->report_data);
-> > >}
-> > 
-> > 
-> 
-> Please prepare full new patch and post it so I can give it one more look
-> over before I can merge it.
-> 
-> Thanks!
+On Sat, May 14, 2016 at 7:52 AM, Rob Herring <robh@kernel.org> wrote:
+> On Tue, May 10, 2016 at 07:07:48PM -0700, Grant Grundler wrote:
+>> From: Daniel Hung-yu Wu <hywu@google.com>
+>>
+>> Add binding for Atmel Capacitive Touch Button device.
+>>
+>> Signed-off-by: Daniel Hung-yu Wu <hywu@google.com>
+>> Signed-off-by: Grant Grundler <grundler@chromium.org>
+>> ---
+>>  .../devicetree/bindings/input/atmel,captouch.txt   | 34 ++++++++++++++++++++++
+>>  1 file changed, 34 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/input/atmel,captouch.txt
+>>
+>> I haven't posted the corresponding device driver and dtsi changes yet but will shortly.
+>>
+>> V2: split Documentation/devicetree/bindings from driver patch
+>>     rename "atmel,atmegaxx_captouch" to "atmel,captouch" since it's irrelevant
+>>            which controller implements the register set/controller.
+>
+> Is there any notion of firmware versions though?
 
-Also please prepare binding documentation for the device, similar to
-Documentation/devicetree/bindings/input/elants_i2c.txt (but have it in
-Documentation/devicetree/bindings/input/touchscreen/).
+There currently is not. This is something we need to add - future patch.
 
--- 
-Dmitry
+>
+>>
+>> V1: posted https://lkml.org/lkml/2016/5/3/613
+>>
+>> diff --git a/Documentation/devicetree/bindings/input/atmel,captouch.txt b/Documentation/devicetree/bindings/input/atmel,captouch.txt
+>> new file mode 100644
+>> index 0000000..405d287
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/input/atmel,captouch.txt
+>> @@ -0,0 +1,34 @@
+>> +Device tree bindings for Atmel AtmegaXX capacitive touch sensor
+>> +
+>> +The node for this device must be a child of a I2C controller node, as the
+>> +device communicates via I2C.
+>> +
+>> +Required properties:
+>> +
+>> +     compatible:     Must be "atmel,captouch".
+>> +     reg:            The I2C slave address of the device.
+>> +     interrupts:     Property describing the interrupt line the device
+>> +                     is connected to. The device only has one interrupt
+>> +                     source.
+>> +     linux,keycodes: Specifies an array of numeric keycode values to
+>> +                     be used for reporting button presses. The array can
+>> +                     contain up to 8 entries.
+>> +
+>> +Optional properties:
+>> +
+>> +     autorepeat:     Enables the Linux input system's autorepeat
+>> +                     feature on the input device.
+>> +
+>> +Example:
+>> +
+>> +     atmel_captouch@51 {
+>
+> No underscores in node names please.
+
+Aaahh! Sorry! you told me that before. Will post V3 with dash in node name.
+
+cheers,
+grant
+
+>
+>> +             compatible = "atmel,captouch";
+>> +             reg = <0x51>;
+>> +             interrupt-parent = <&tlmm>;
+>> +             interrupts = <67 IRQ_TYPE_EDGE_FALLING>;
+>> +             linux,keycodes = <BTN_0>, <BTN_1>,
+>> +                     <BTN_2>, <BTN_3>,
+>> +                     <BTN_4>, <BTN_5>,
+>> +                     <BTN_6>, <BTN_7>;
+>> +             autorepeat;
+>> +     };
+>> --
+>> 2.1.2
+>>

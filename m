@@ -1,73 +1,63 @@
-From: Grant Grundler <grundler@chromium.org>
-Subject: [PATCH 1/2 V3] dt: add Atmel Captouch bindings
-Date: Mon, 16 May 2016 13:54:53 -0700
-Message-ID: <1463432094-146726-1-git-send-email-grundler@chromium.org>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH v2 0/3] input: rmi4: Regulator supply support
+Date: Mon, 16 May 2016 16:55:51 -0700
+Message-ID: <573A5E07.4010500@synaptics.com>
+References: <1462596008-21381-1-git-send-email-bjorn.andersson@linaro.org>
+ <57312CFB.2040304@synaptics.com> <20160510154904.GI1256@tuxbot>
+ <5733C088.1090700@synaptics.com> <20160512030524.GA1256@tuxbot>
+ <57352536.7040909@synaptics.com> <20160513222948.GD1256@tuxbot>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160513222948.GD1256@tuxbot>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: devicetree <devicetree@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Hung-yu Wu <hywu@google.com>, Kumar Gala <galak@codeaurora.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>, Grant Grundler <grundler@chromium.org>
+To: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Daniel Hung-yu Wu <hywu@google.com>
+On 05/13/2016 03:29 PM, Bjorn Andersson wrote:
+> On Thu 12 May 17:52 PDT 2016, Andrew Duggan wrote:
+>
+>> On 05/11/2016 08:05 PM, Bjorn Andersson wrote:
+>>> On Wed 11 May 16:30 PDT 2016, Andrew Duggan wrote:
+>>>
+>>>> Hi Bjorn,
+>>>>
+>>>> On 05/10/2016 08:49 AM, Bjorn Andersson wrote:
+>>> [..]
+>>>>> So either we duplicate the regulator support in spi/i2c or we make them
+>>>>> optional in the core driver. Sounds like you prefer the prior, i.e. v1
+>>>>> of my patch.
+>>>> Yes, after all this I think it makes sense to put regulator support in the
+>>>> spi/i2c transports like in your v1 patch. I essentially duplicated the irq
+>>>> handling code in both transports so I would be ok with duplicating regulator
+>>>> support too. It doesn't seem like that much code. But, if this is too much
+>>>> duplication we could create some sort of common file and put the common irq
+>>>> and regulator support functions which could be called in the transports.
+>>>> Similar to how rmi_2d_sensor.c defines some common functions shared between
+>>>> rmi_f11 and rmi_f12.
+>>>>
+>>> Sounds reasonable, I'm okay with this. Did you have any comments on the
+>>> implementation I had in v1?
+>> I tested on a device which has an always on regulators so I didn't add
+>> anything to device tree for the device. But, it returned 0 when it didn't
+>> find anything which seems to be the correct behavior. Is there an easy way
+>> to avoid sleeping for 10ms when there are no regulators? Maybe check if both
+>> the supplies .consumer pointer is null?
+>>
+> I did look at this as well, but unfortunately the regulators does not
+> come back as NULL, but rather as dummy regulators.
+>
+> The delay matches Tpowerup (iirc) from the data sheet, which I assume is
+> firmware/hardware dependant. Should we provide a knob for that and
+> default the sleep to 0ms?
 
-Add binding for Atmel Capacitive Touch Button device.
+Making  the default 0 and then setting an appropriate time out for 
+devices which need it sounds like a good idea to me.
 
-Signed-off-by: Daniel Hung-yu Wu <hywu@google.com>
-Signed-off-by: Grant Grundler <grundler@chromium.org>
----
- .../devicetree/bindings/input/atmel,captouch.txt   | 36 ++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/atmel,captouch.txt
+Thanks,
+Andrew
 
-V3: doh! use dash, not underscore in node names. Wordsmith description.
-
-V2: split Documentation/devicetree/bindings from driver patch
-    rename "atmel,atmegaxx_captouch" to "atmel,captouch" since it's irrelevant
-           which controller implements the register set/controller.
-
-V1: posted https://lkml.org/lkml/2016/5/3/613
-
-diff --git a/Documentation/devicetree/bindings/input/atmel,captouch.txt b/Documentation/devicetree/bindings/input/atmel,captouch.txt
-new file mode 100644
-index 0000000..405d287
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/atmel,captouch.txt
-@@ -0,0 +1,36 @@
-+Device tree bindings for Atmel capacitive touch device, typically
-+an Atmel touch sensor connected to AtmegaXX MCU running firmware
-+based on Qtouch library.
-+
-+The node for this device must be a child of a I2C controller node, as the
-+device communicates via I2C.
-+
-+Required properties:
-+
-+	compatible:	Must be "atmel,captouch".
-+	reg:		The I2C slave address of the device.
-+	interrupts:	Property describing the interrupt line the device
-+			is connected to. The device only has one interrupt
-+			source.
-+	linux,keycodes:	Specifies an array of numeric keycode values to
-+			be used for reporting button presses. The array can
-+			contain up to 8 entries.
-+
-+Optional properties:
-+
-+	autorepeat:	Enables the Linux input system's autorepeat
-+			feature on the input device.
-+
-+Example:
-+
-+	atmel-captouch@51 {
-+		compatible = "atmel,captouch";
-+		reg = <0x51>;
-+		interrupt-parent = <&tlmm>;
-+		interrupts = <67 IRQ_TYPE_EDGE_FALLING>;
-+		linux,keycodes = <BTN_0>, <BTN_1>,
-+			<BTN_2>, <BTN_3>,
-+			<BTN_4>, <BTN_5>,
-+			<BTN_6>, <BTN_7>;
-+		autorepeat;
-+	};
--- 
-2.1.2
+> Regards,
+> Bjorn

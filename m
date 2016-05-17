@@ -1,79 +1,124 @@
-From: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Subject: RE: [PATCH] Input: Change BTN_TOOL_FINGER flag when hover event trigger
-Date: Tue, 17 May 2016 22:20:40 +0800
-Message-ID: <00c901d1b047$4a2d3ba0$de87b2e0$@emc.com.tw>
-References: <C2DEC699-8A1A-484D-83F2-637F5EF94C7B@emc.com.tw> <006901d1acea$8207d090$861771b0$@emc.com.tw> <00be01d1af65$ec37c290$c4a747b0$@emc.com.tw> <20160516175342.GD12752@dtor-ws>
+From: <Allen_Hung@Dell.com>
+Subject: RE: Dell Latitude E7470 touchpad status
+Date: Tue, 17 May 2016 22:46:31 +0800
+Message-ID: <23E0F704395E694FA4710C833FA087E50D40B8C592@TPEX7ADC101.APAC.DELL.COM>
+References: <87eg9j6zf7.fsf@smart-cactus.org>
+ <23E0F704395E694FA4710C833FA087E50D40B8BF13@TPEX7ADC101.APAC.DELL.COM>
+ <87bn45gr0e.fsf@smart-cactus.org> <20160517082309.GZ29844@pali>
+ <877fet10a9.fsf@smart-cactus.org> <20160517131629.GE29844@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:33369 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751583AbcEQOUq convert rfc822-to-8bit (ORCPT
+Received: from ausxipps301.us.dell.com ([143.166.148.223]:53218 "EHLO
+	ausxipps301.us.dell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754884AbcEQOqj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 May 2016 10:20:46 -0400
-In-Reply-To: <20160516175342.GD12752@dtor-ws>
-Content-Language: zh-tw
+	Tue, 17 May 2016 10:46:39 -0400
+In-Reply-To: <20160517131629.GE29844@pali>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zac.hsieh@emc.com.tw, =?UTF-8?B?J+m7g+S4lum1rCDntpPnkIYn?= <phoenix@emc.com.tw>, 'Charles Mooney' <charliemooney@google.com>, 'Agnes Cheng' <agnescheng@google.com>, 'jeff' <jeff.chuang@emc.com.tw>
+To: pali.rohar@gmail.com, ben@smart-cactus.org
+Cc: Mario_Limonciello@Dell.com, linux-input@vger.kernel.org
 
-Hi Dmitry,
+Dell - Internal Use - Confidential=20
 
-I want to confirm my thought for your idea to avoid misunderstanding.
-I think you want to encapsulate " BTN_TOOL_FINGER" in the [input_mt_rep=
-ort_pointer_emulation] if hover happen.
-Vendor driver only report "ABS_DISTANCE" and let [input_mt_report_point=
-er_emulation] emit BTN_TOOL_FINGER report without change function param=
-eter.
+On 05/17/2016 09:16 PM, Pali Roh=E1r wrote:
+> On Tuesday 17 May 2016 11:50:06 Ben Gamari wrote:
+>> Pali Roh=E1r <pali.rohar@gmail.com> writes:
+>>
+>>> Hi Ben!
+>>>
+>>> Maybe it could help you, look at my email sent to linux-input ML ye=
+ar
+>>> ago: http://thread.gmane.org/gmane.linux.kernel.input/41210
+>> Hi Pali!
+>>
+>> Thanks, this looks great (assuming this is in fact the protocol spok=
+en
+>> by the E7470 hardware; perhaps Allen could confirm this?). I'll have=
+ a
+>> go at rebasing this sometime soon, although it looks like this may t=
+ake
+>> a fair bit of work as the patch is of the usual... questionable qual=
+ity
+>> that you'd expect from a hardware vendor and on top of that the driv=
+er
+>> itself seems to have evolved significantly.
+> First you need to identify if your touchpad is ALPS or not. If not th=
+en
+> work on rebasing is useless.
+>
+> To identify your touchpad there are two ways:
+>
+> 1) Disassemble laptop and look what is under palmrest/keyboard. Latit=
+ude
+> laptops used to have good documentation how to do it (on official del=
+l
+> site) and older Exx40 series is not hard to detect it...
+>
+> 2) Look at ALPS detection code. Basically all (known) ALPS touchpad
+> response to some PS/2 sequence with specific answer. So you can compi=
+le
+> psmouse.ko/alps.c in debug mode and look if it fit detection or not.
+>
+> I suggest you to do this first investigation step. If touchpad is ALP=
+S
+> or not. I read that some Dell laptops uses synaptics touchpads, so th=
+ere
+> is non zero chance that touchpad could not be ALPS.
+>
+>>> Also try to look at dell drivers page, there could be linux package=
+ for
+>>> your laptop with drivers. Lot of them used to be in dkms format
+>>> (upstream source code with dell changes).
+>>>
+>> I've been unable to find a support package for my machine on the web
+>> site. However, I'm also in touch with Dell through the usual support
+>> channel so perhaps they'll be able to provide a more up-to-date code
+>> drop.
+> IIRC All (new) Latitude laptops can be configured with Ubuntu and in
+> this case they come with preinstalled Ubuntu with that support packag=
+e.
+>
+> So for sure contact Dell support and ask for it! You can also see Ubu=
+ntu
+> as supported system in PDF material about those Latitudes...
+>
+>>> ALPS code from Dell were open source, it was just hard to find it a=
+nd
+>>> compile it on other then one kernel version. And harder to generate
+>>> patch (like I did in above email)...
+>>>
+>> Right, as I said it looks like rebasing this code drop onto a recent
+>> kernel might require quite some effort.
+> Yes, it would not be simple. Plus for including into mainline kernel
+> needs lot of cleaning (see that email thread).
+>
+>> I do wish that Dell would apply more pressure on their input device
+>> vendors to take upstream support (or open protocol documentation)
+>> seriously. It's very frustrating that we need to go through this sam=
+e
+>> process with every hardware iteration.
+> If you will be 100% sure that touchpad is ALPS, I could contact ALPS
+> people. They helped me a lot with fixing ALPS touchpad support for my
+> E6440...
+>
+>> Thanks again for the reference, Pali!
+>>
+>> Cheers,
+>>
+>> - Ben
+>>
 
-Please let me know if my misunderstand about your idea.
+I am confirming with Alps team for what protocol version the E7470 devi=
+ce is speaking. In fact, they sent me the alps.c which support up to V8=
+ and they said it's their latest one. It seems the driver is older than=
+ the patch provided in Pali's link (that support up to V9) so I didn't =
+put it here. Will get the answer back to you once they confirm with me.
 
-Thanks  KT
-
------Original Message-----
-=46rom: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]=20
-Sent: Tuesday, May 17, 2016 1:54 AM
-To: =E5=BB=96=E5=B4=87=E6=A6=AE
-Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; zac.hsie=
-h@emc.com.tw; =E9=BB=83=E4=B8=96=E9=B5=AC =E7=B6=93=E7=90=86; 'Charles =
-Mooney'; 'Agnes Cheng'
-Subject: Re: [PATCH] Input: Change BTN_TOOL_FINGER flag when hover even=
-t trigger
-
-Hi Kt,
-
-On Mon, May 16, 2016 at 07:27:25PM +0800, =E5=BB=96=E5=B4=87=E6=A6=AE w=
-rote:
->=20
-> Only ABS_DISTANCE is not enough for upper OS to distingiush hover=20
-> event be triggered from object from faraway to and close touchpad=20
-> surface or from object prepare to leave the touchpad surface. Add=20
-> BTN_TOOL_FINGER flag to help it.
->=20
->                  object_from_faraway    object_inside_hover_area
-> object_touch_surface
-> BTN_TOUCH                 0                          0             1
-> BTN_TOOL_FINGER           0                          1              1
-> ABS_DISTANCE               0                           1             =
-0
->=20
-> Signed-off by: Duson Lin <dusonlin@emc.com.tw>
-
-I was wondering if we could do without modifying all the drivers that a=
-re using input_mt_report_pointer_emulation(), by figuring out if we sho=
-uld be emitting BTN_TOOL_FINGER right there:
-
-"If device supports ABS_DISTANCE and does not support ABS_MT_DISTANCE a=
-nd ABS_DISTANCE !=3D 0 is reported in current frame and there are no ot=
-her contacts then report BTN_TOOL_FINGER."
-
-Thanks.
-
---
-Dmitry
-
+- Allen
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

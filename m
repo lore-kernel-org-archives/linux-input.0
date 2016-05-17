@@ -1,122 +1,83 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: Dell Latitude E7470 touchpad status
-Date: Tue, 17 May 2016 15:16:29 +0200
-Message-ID: <20160517131629.GE29844@pali>
-References: <87eg9j6zf7.fsf@smart-cactus.org>
- <23E0F704395E694FA4710C833FA087E50D40B8BF13@TPEX7ADC101.APAC.DELL.COM>
- <87bn45gr0e.fsf@smart-cactus.org>
- <20160517082309.GZ29844@pali>
- <877fet10a9.fsf@smart-cactus.org>
+From: Ben Gamari <ben@smart-cactus.org>
+Subject: RE: [PATCH] Alps source code update
+Date: Tue, 17 May 2016 15:58:45 +0200
+Message-ID: <87mvnozsyy.fsf@smart-cactus.org>
+References: <1414102883-11084-1-git-send-email-masaki.ota@jp.alps.com> <20141024071852.GA10616@ndevos-x240.usersys.redhat.com> <1414405705437.30455@jp.alps.com> <87mvnp58r5.fsf@smart-cactus.org> <OSXPR01MB0408237FB2D7A7605D4FB67BC7480@OSXPR01MB0408.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha256; protocol="application/pgp-signature"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:37601 "EHLO
-	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751443AbcEQNQe (ORCPT
+Received: from mail.smart-cactus.org ([54.187.36.80]:56035 "EHLO
+	mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750758AbcEQN6x (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 May 2016 09:16:34 -0400
-Received: by mail-wm0-f47.google.com with SMTP id a17so30529516wme.0
-        for <linux-input@vger.kernel.org>; Tue, 17 May 2016 06:16:33 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <877fet10a9.fsf@smart-cactus.org>
+	Tue, 17 May 2016 09:58:53 -0400
+In-Reply-To: <OSXPR01MB0408237FB2D7A7605D4FB67BC7480@OSXPR01MB0408.jpnprd01.prod.outlook.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Gamari <ben@smart-cactus.org>
-Cc: Allen_Hung@Dell.com, Mario_Limonciello@Dell.com, linux-input@vger.kernel.org
+To: Masaki Ota <masaki.ota@jp.alps.com>, Niels de Vos <ndevos@redhat.com>, Masaki Ota <012nexus@gmail.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "cernekee@gmail.com" <cernekee@gmail.com>, "dturvene@dahetral.com" <dturvene@dahetral.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jclift@redhat.com" <jclift@redhat.com>
 
-On Tuesday 17 May 2016 11:50:06 Ben Gamari wrote:
-> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
->=20
-> > Hi Ben!
-> >
-> > Maybe it could help you, look at my email sent to linux-input ML ye=
-ar
-> > ago: http://thread.gmane.org/gmane.linux.kernel.input/41210
->=20
-> Hi Pali!
->=20
-> Thanks, this looks great (assuming this is in fact the protocol spoke=
-n
-> by the E7470 hardware; perhaps Allen could confirm this?). I'll have =
-a
-> go at rebasing this sometime soon, although it looks like this may ta=
-ke
-> a fair bit of work as the patch is of the usual... questionable quali=
-ty
-> that you'd expect from a hardware vendor and on top of that the drive=
-r
-> itself seems to have evolved significantly.
+--=-=-=
+Content-Type: text/plain
 
-=46irst you need to identify if your touchpad is ALPS or not. If not th=
-en
-work on rebasing is useless.
+Masaki Ota <masaki.ota@jp.alps.com> writes:
 
-To identify your touchpad there are two ways:
+> Hi, Ben,
+>
+> I would like to submit this modification, but it is not completed yet
+>
+Alright.
 
-1) Disassemble laptop and look what is under palmrest/keyboard. Latitud=
-e
-laptops used to have good documentation how to do it (on official dell
-site) and older Exx40 series is not hard to detect it...
+> Attached file is Touchpad device driver code for our I2C HID device.
+> This device is I2C HID Touchpad + StickPointer.
+>
+Fair enough.
 
-2) Look at ALPS detection code. Basically all (known) ALPS touchpad
-response to some PS/2 sequence with specific answer. So you can compile
-psmouse.ko/alps.c in debug mode and look if it fit detection or not.
+What about the PS/2 driver? The patch which gave rise to this thread was
+to drivers/input/mouse/alps.c, which supports devices with PS/2
+interfaces. I know for a fact that there are still new devices produced
+with this hardware (for instance, the Dell Latitude E7470). Do you
+intend on adding further protocol support for these newer PS/2 devices?
 
-I suggest you to do this first investigation step. If touchpad is ALPS
-or not. I read that some Dell laptops uses synaptics touchpads, so ther=
-e
-is non zero chance that touchpad could not be ALPS.
+> I made the Touchpad code and it can work on Linux.
+> But StickPointer cannot work.(Actually one device can work, another device cannot work)
+>
+> I attached the source code.(Please change .zap -> .zip)
+> Could you just check this source code?
+>
+I'm afraid I can't do a proper review without a proper patch. However,
+it sounds like your intuition is correct: the device is exposing two
+physical devices, therefore it should be exposed to the kernel as
+two input devices.
 
-> > Also try to look at dell drivers page, there could be linux package=
- for
-> > your laptop with drivers. Lot of them used to be in dkms format
-> > (upstream source code with dell changes).
-> >
-> I've been unable to find a support package for my machine on the web
-> site. However, I'm also in touch with Dell through the usual support
-> channel so perhaps they'll be able to provide a more up-to-date code
-> drop.
+A maintainer would likely be better equipped to provide guidance here,
+but my guess would be you want to simply allocate a second input device,
+as is done in the dualpoint codepath in the alps PS/2 driver [1].
 
-IIRC All (new) Latitude laptops can be configured with Ubuntu and in
-this case they come with preinstalled Ubuntu with that support package.
+Also, note that you will want to clean up the DOS line endings in
+hid-alps.c before submitting this for review.
 
-So for sure contact Dell support and ask for it! You can also see Ubunt=
-u
-as supported system in PDF material about those Latitudes...
+Cheers,
 
-> > ALPS code from Dell were open source, it was just hard to find it a=
-nd
-> > compile it on other then one kernel version. And harder to generate
-> > patch (like I did in above email)...
-> >
-> Right, as I said it looks like rebasing this code drop onto a recent
-> kernel might require quite some effort.
+- Ben
 
-Yes, it would not be simple. Plus for including into mainline kernel
-needs lot of cleaning (see that email thread).
 
-> I do wish that Dell would apply more pressure on their input device
-> vendors to take upstream support (or open protocol documentation)
-> seriously. It's very frustrating that we need to go through this same
-> process with every hardware iteration.
+[1] https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/input/mouse/alps.c#n2923
 
-If you will be 100% sure that touchpad is ALPS, I could contact ALPS
-people. They helped me a lot with fixing ALPS touchpad support for my
-E6440...
 
-> Thanks again for the reference, Pali!
->=20
-> Cheers,
->=20
-> - Ben
->=20
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXOyOVAAoJEHPt6ejPuu8BbOsH/jxnMXLD941OmFH5Owy1Za/N
+JBknEcP79N44tOwyWjbzkBD4FdXP7XPo9Ox/upFmWsqBmEkTDAjojOYI4GRBGU+U
+nflVN7aoi0P0Xf5J8sJg7AsEmFH+zEuUd842uBDewAQyoVBXurEEXvo18sG18x98
+RKIGd04iVA0H9VnZ+uvHN9MkVPJPEaGr4F3P1Ae0i+xR4NmEzl/xie2NjTmCVf6R
+lE/UxOkTwFLhwdf/KqC1pXMG7Ok/TxBdFECv6blsGz/MIILY7gvRwaoPMPJwbMUF
+RpcV81SeBCW6w36rOLphczsnmYslTxc8PQenAIaPBqVpGAqaxSJQV5Lul2z7g2U=
+=cWqU
+-----END PGP SIGNATURE-----
+--=-=-=--

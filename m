@@ -1,54 +1,59 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH 2/2] Input: migor-ts - fix error for modular build
-Date: Tue, 17 May 2016 12:32:38 -0400
-Message-ID: <1463502759-14393-2-git-send-email-javier@osg.samsung.com>
-References: <1463502759-14393-1-git-send-email-javier@osg.samsung.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH v2 0/6] Input: soc_button_array fixes and support of the
+ Surface 3
+Date: Tue, 17 May 2016 19:45:31 +0200
+Message-ID: <1463507131.3440.7.camel@hadess.net>
+References: <1463155554-11747-1-git-send-email-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:53946 "EHLO lists.s-osg.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756374AbcEQQc5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 May 2016 12:32:57 -0400
-In-Reply-To: <1463502759-14393-1-git-send-email-javier@osg.samsung.com>
+Received: from slow1-d.mail.gandi.net ([217.70.178.86]:38356 "EHLO
+	slow1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750800AbcEQRvs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 May 2016 13:51:48 -0400
+In-Reply-To: <1463155554-11747-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Magnus Damm <magnus.damm@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Lejun Zhu <lejun.zhu@linux.intel.com>, Fabio Estevam <festevam@gmail.com>
 
-There is a typo in the driver for the I2C device table that is passed to
-the MODULE_DEVICE_TABLE() macro, this leads to the following build error:
+On Fri, 2016-05-13 at 18:05 +0200, Benjamin Tissoires wrote:
+> Hi,
+>=20
+> This is the v2 of the series with 3 extra patches to add support of
+> the buttons
+> found on the Surface 3.
+>=20
+> Cheers,
+> Benjamin
+>=20
+>=20
+> Benjamin Tissoires (6):
+> =C2=A0 Input - soc_button_array: use gpio_is_valid()
+> =C2=A0 Input - soc_button_array: bail out earlier if gpiod_count is n=
+ull
+> =C2=A0 Input - soc_button_array: make sure one GPIO is not assigned t=
+wice
+> =C2=A0 Input - soc_button_array: allow to specify active_low
+> =C2=A0 Input - soc_button_array: export part of the internals
+> =C2=A0 Input - surface3_button_array: Introduce button support for th=
+e
+> =C2=A0=C2=A0=C2=A0=C2=A0Surface 3
 
-  CC [M]  drivers/input/touchscreen//migor_ts.o
-drivers/input/touchscreen//migor_ts.c:233:21: error: 'migor_ts' undeclared here (not in a function)
- MODULE_DEVICE_TABLE(i2c, migor_ts);
-                     ^
-drivers/input/touchscreen//migor_ts.c:233:31: error: '__mod_i2c__migor_ts_device_table' aliased to undefined symbol 'migor_ts'
- MODULE_DEVICE_TABLE(i2c, migor_ts);
-                               ^
-scripts/Makefile.build:295: recipe for target 'drivers/input/touchscreen//migor_ts.o' failed
-make[1]: *** [drivers/input/touchscreen//migor_ts.o] Error 1
-Makefile:1446: recipe for target '_module_drivers/input/touchscreen/' failed
-make: *** [_module_drivers/input/touchscreen/] Error 2
+Works on my Surface 3, the volume buttons, and the Windows button work
+as expected. Note that the power button does not send out any events on
+my machine, but that might be due to firmware differences.
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+My BIOS is listed as version 1.51116.78 released 03/09/2015.
 
----
+As there's no errors generated, it would be fine to look at it as a bug
+fix later on (or for me to updated my system).
 
- drivers/input/touchscreen/migor_ts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/touchscreen/migor_ts.c b/drivers/input/touchscreen/migor_ts.c
-index c038db93e2c3..e4b92c4cae3b 100644
---- a/drivers/input/touchscreen/migor_ts.c
-+++ b/drivers/input/touchscreen/migor_ts.c
-@@ -230,7 +230,7 @@ static const struct i2c_device_id migor_ts_id[] = {
- 	{ "migor_ts", 0 },
- 	{ }
- };
--MODULE_DEVICE_TABLE(i2c, migor_ts);
-+MODULE_DEVICE_TABLE(i2c, migor_ts_id);
- 
- static struct i2c_driver migor_ts_driver = {
- 	.driver = {
--- 
-2.5.5
-
+Tested-by: Bastien Nocera <hadess@hadess.net>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

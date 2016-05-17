@@ -1,96 +1,66 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 3/3] Input: ti_am335x_tsc - Ack pending IRQs at probe and
- before suspend
-Date: Tue, 17 May 2016 06:56:43 +0100
-Message-ID: <20160517055643.GA17238@dell>
-References: <1463397984-15766-1-git-send-email-vigneshr@ti.com>
- <1463397984-15766-4-git-send-email-vigneshr@ti.com>
+From: Ben Gamari <ben@smart-cactus.org>
+Subject: RE: Dell Latitude E7470 touchpad status
+Date: Tue, 17 May 2016 08:03:45 +0200
+Message-ID: <87bn45gr0e.fsf@smart-cactus.org>
+References: <87eg9j6zf7.fsf@smart-cactus.org> <23E0F704395E694FA4710C833FA087E50D40B8BF13@TPEX7ADC101.APAC.DELL.COM>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha256; protocol="application/pgp-signature"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f51.google.com ([74.125.82.51]:34954 "EHLO
-	mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752879AbcEQF42 (ORCPT
+Received: from mail.smart-cactus.org ([54.187.36.80]:55993 "EHLO
+	mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753752AbcEQGDx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 May 2016 01:56:28 -0400
-Received: by mail-wm0-f51.google.com with SMTP id e201so124934812wme.0
-        for <linux-input@vger.kernel.org>; Mon, 16 May 2016 22:56:28 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1463397984-15766-4-git-send-email-vigneshr@ti.com>
+	Tue, 17 May 2016 02:03:53 -0400
+In-Reply-To: <23E0F704395E694FA4710C833FA087E50D40B8BF13@TPEX7ADC101.APAC.DELL.COM>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Dave Gerlach <d-gerlach@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Allen_Hung@Dell.com, Mario_Limonciello@Dell.com
+Cc: linux-input@vger.kernel.org
 
-On Mon, 16 May 2016, Vignesh R wrote:
+--=-=-=
+Content-Type: text/plain
 
-> From: Grygorii Strashko <grygorii.strashko@ti.com>
->=20
-> It is seen that just enabling the TSC module triggers a HW_PEN IRQ
-> without any interaction with touchscreen by user. This results in fir=
-st
-> suspend/resume sequence to fail as system immediately wakes up from
-> suspend as soon as HW_PEN IRQ is enabled in suspend handler. due to t=
-he
-> pending IRQ. Therefore clear all IRQs at probe and also in suspend
-> callback for sanity.
->=20
-> Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-> Signed-off-by: Vignesh R <vigneshr@ti.com>
-> ---
->  drivers/input/touchscreen/ti_am335x_tsc.c | 2 ++
->  include/linux/mfd/ti_am335x_tscadc.h      | 1 +
+Allen_Hung@Dell.com writes:
 
-=46or the MFD change:
-  Acked-by: Lee Jones <lee.jones@linaro.org>
+> Dell - Internal Use - Confidential
+> Hi Ben,
+>
+> We have just confirmed the touchpad on Latitude E7470 is a PS/2
+> device, not an I2C-HID input device. The code you listed is common
+> among many Dell products and the value of SDS0 should be provided
+> somewhere (I can't find it out) to specify a PS/2 device.
+>
+Thanks Allen,
 
->  2 files changed, 3 insertions(+)
->=20
-> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/inpu=
-t/touchscreen/ti_am335x_tsc.c
-> index 4683ed18b9f8..d2c55b5730e6 100644
-> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
-> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-> @@ -441,6 +441,7 @@ static int titsc_probe(struct platform_device *pd=
-ev)
->  			dev_err(&pdev->dev, "irq wake enable failed.\n");
->  	}
-> =20
-> +	titsc_writel(ts_dev, REG_IRQSTATUS, IRQENB_MASK);
->  	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
->  	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_EOS);
->  	err =3D titsc_config_wires(ts_dev);
-> @@ -506,6 +507,7 @@ static int __maybe_unused titsc_suspend(struct de=
-vice *dev)
-> =20
->  	tscadc_dev =3D ti_tscadc_dev_get(to_platform_device(dev));
->  	if (device_may_wakeup(tscadc_dev->dev)) {
-> +		titsc_writel(ts_dev, REG_IRQSTATUS, IRQENB_MASK);
->  		idle =3D titsc_readl(ts_dev, REG_IRQENABLE);
->  		titsc_writel(ts_dev, REG_IRQENABLE,
->  				(idle | IRQENB_HW_PEN));
-> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd=
-/ti_am335x_tscadc.h
-> index 1fd50dcfe47c..a7ca0f908ba8 100644
-> --- a/include/linux/mfd/ti_am335x_tscadc.h
-> +++ b/include/linux/mfd/ti_am335x_tscadc.h
-> @@ -60,6 +60,7 @@
->  #define IRQENB_FIFO1OVRRUN	BIT(6)
->  #define IRQENB_FIFO1UNDRFLW	BIT(7)
->  #define IRQENB_PENUP		BIT(9)
-> +#define IRQENB_MASK		(0x7FF)
-> =20
->  /* Step Configuration */
->  #define STEPCONFIG_MODE_MASK	(3 << 0)
+I rather suspected this; I suppose it's probably hard to find I2C-HID
+hardware that integrates a touchstick. This explains why SDS0 is 0 on my
+hardware.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+In this case I suppose this is yet another Alps device? I've tried
+bringing it up with all of the recent Alps protocols supported by the
+alps.ko driver but sadly nothing seems to emit multitouch events, so
+it seems likely that there is yet another protocol variant waiting to be
+implemented. Is there any chance you could see whether Alps might now be
+more willing to provide protocol documentation? If not, perhaps there's
+a Linux binary driver available?
+
+Cheers,
+
+- Ben
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXOrRCAAoJEHPt6ejPuu8BqZMIAK7X3YIfQYWyACurpfjWugXu
+dYez9MuSkGEv299aIKpOmMxR+koU9d3ch9QGCXrlnSAc1Vgu89FcikMtBfklEhUw
+rCvpKTgFJY8iUsGE958iSM34FtFq/im6nCRdsHe25BGsxDHQha0QmLqmUyvoWjzf
+N+8lKwSLg1ztQ6aRFX+diQ6FQIt1ghEJtZ9AC3QKwCcyF1BviIQveaQAVC5105vR
++LiyY4eggY6N2o8v5ylAUd8Eutg0HaPkqxTksHyRCfX4BgTM3ABIRwsdWjd0fl0+
+BlN9UTO+vBm7/+bGz+3mn1y7mq250TqiGz6hTzZGuTAbvEFXtjKOkX+Y6TSKpEU=
+=knxT
+-----END PGP SIGNATURE-----
+--=-=-=--

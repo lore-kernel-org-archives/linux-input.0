@@ -1,102 +1,123 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 4.7-rc0
-Date: Wed, 18 May 2016 11:35:42 -0700
-Message-ID: <20160518183542.GA6829@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+Subject: [PATCH] HID: uhid: Fixes a bug with userspace bluetooth stacks, which causes hangs during certain operations
+Date: Wed, 18 May 2016 13:11:09 -0700
+Message-ID: <1463602269-19844-1-git-send-email-roderick.colenbrander@sony.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:36572 "EHLO
-	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751933AbcERSfq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 May 2016 14:35:46 -0400
-Content-Disposition: inline
+Received: from [100.42.98.7] ([100.42.98.7]:52448 "EHLO smtp.gaikai.biz"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932496AbcERUSk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 May 2016 16:18:40 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: dh.herrmann@googlemail.com, jikos@kernel.org
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Roderick Colenbrander <roderick.colenbrander@sony.com>, stable@vger.kernel.org
 
-Hi Linus,
+Many devices use userspace bluetooth stacks like BlueZ or Bluedroid in combination
+with uhid. If any of these stacks is used with a HID device for which the driver
+performs a HID request as part .probe (or technically another HID operation),
+this results in a deadlock situation. The deadlock results in a 5 second timeout
+for I/O operations in HID drivers, so isn't fatal, but none of the I/O operations
+have a chance of succeeding.
 
-Please pull from:
+The root cause for the problem is that uhid only allows for one request to be
+processed at a time per uhid instance and locks out other operations. This means
+that if a user space is creating a new HID device through 'UHID_CREATE', which
+ultimately triggers '.probe' through the HID layer. Then any HID request e.g. a
+read for calibration data would trigger a HID operation on uhid again, but it
+won't go out to userspace, because it is still stuck in UHID_CREATE.
+In addition bluetooth stacks are typically single threaded, so they wouldn't be
+able to handle any requests while waiting on uhid.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Lucikly the UHID spec is somewhat flexible and allows for fixing the issue,
+without breaking user space. The idea which the patch implements as discussed
+with David Herrmann is to decouple adding of a hid device (which triggers .probe)
+from UHID_CREATE. The work will kick off roughly once UHID_CREATE completed (or
+else will wait a tiny bit of time in .probe for a lock). A HID driver has to call
+HID to call 'hid_hw_start()' as part of .probe once it is ready for I/O, which
+triggers UHID_START to user space. Any HID operations should function now within
+.probe and won't deadlock because userspace is stuck on UHID_CREATE.
 
-to receive first round of updates for the input subsystem. No new
-drivers here, just some driver fixes.
+We verified this patch on Bluedroid with Android 6.0 and on desktop Linux with
+BlueZ stacks. Prior to the patch they had the deadlock issue.
 
-Changelog:
----------
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/hid/uhid.c | 33 ++++++++++++++++++++++++---------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
-Andreas F=E4rber (1):
-      Input: gpio-keys - clean up device tree binding example
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index 16b6f11..99ec3ff 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -51,10 +51,26 @@ struct uhid_device {
+ 	u32 report_id;
+ 	u32 report_type;
+ 	struct uhid_event report_buf;
++	struct work_struct worker;
+ };
+ 
+ static struct miscdevice uhid_misc;
+ 
++static void uhid_device_add_worker(struct work_struct *work)
++{
++	struct uhid_device *uhid = container_of(work, struct uhid_device, worker);
++	int ret;
++
++	ret = hid_add_device(uhid->hid);
++	if (ret) {
++		hid_err(uhid->hid, "Cannot register HID device: error %d\n", ret);
++
++		hid_destroy_device(uhid->hid);
++		uhid->hid = NULL;
++		uhid->running = false;
++	}
++}
++
+ static void uhid_queue(struct uhid_device *uhid, struct uhid_event *ev)
+ {
+ 	__u8 newhead;
+@@ -498,18 +514,14 @@ static int uhid_dev_create2(struct uhid_device *uhid,
+ 	uhid->hid = hid;
+ 	uhid->running = true;
+ 
+-	ret = hid_add_device(hid);
+-	if (ret) {
+-		hid_err(hid, "Cannot register HID device\n");
+-		goto err_hid;
+-	}
++	/* Adding of a HID device is done through a worker, to allow HID drivers
++	 * which use feature requests during .probe to work, without they would
++	 * be blocked on devlock, which is held by uhid_char_write.
++	 */
++	schedule_work(&uhid->worker);
+ 
+ 	return 0;
+ 
+-err_hid:
+-	hid_destroy_device(hid);
+-	uhid->hid = NULL;
+-	uhid->running = false;
+ err_free:
+ 	kfree(uhid->rd_data);
+ 	uhid->rd_data = NULL;
+@@ -550,6 +562,8 @@ static int uhid_dev_destroy(struct uhid_device *uhid)
+ 	uhid->running = false;
+ 	wake_up_interruptible(&uhid->report_wait);
+ 
++	cancel_work_sync(&uhid->worker);
++
+ 	hid_destroy_device(uhid->hid);
+ 	kfree(uhid->rd_data);
+ 
+@@ -612,6 +626,7 @@ static int uhid_char_open(struct inode *inode, struct file *file)
+ 	init_waitqueue_head(&uhid->waitq);
+ 	init_waitqueue_head(&uhid->report_wait);
+ 	uhid->running = false;
++	INIT_WORK(&uhid->worker, uhid_device_add_worker);
+ 
+ 	file->private_data = uhid;
+ 	nonseekable_open(inode, file);
+-- 
+2.5.5
 
-Clifton Barnes (1):
-      Input: rotary-encoder - fix bare use of 'unsigned'
-
-Dmitry Torokhov (4):
-      Input: omap-keypad - remove adjusting of scan delay
-      Input: omap-keypad - drop empty PM stubs
-      Input: omap-keypad - remove set_col_gpio_val() and get_row_gpio_v=
-al()
-      Input: ti_am335x_tsc - use SIMPLE_DEV_PM_OPS
-
-=46lorian Euchner (1):
-      Input: cm109 - fix handling of volume and mute buttons
-
-Geert Uytterhoeven (1):
-      Input: bcm_iproc_tsc - DT spelling s/clock-name/clock-names/
-
-H. Nikolaus Schaller (1):
-      Input: twl6040-vibra - remove mutex
-
-Ming Lei (1):
-      Input: cm109 - spin_lock in complete() cleanup
-
-Oliver Neukum (4):
-      Input: acecad - stop saving struct usb_device
-      Input: aiptek - stop saving struct usb_device
-      Input: gtco - stop saving struct usb_device
-      Input: kbtab - stop saving struct usb_device
-
-Raveendra Padasalagi (1):
-      Input: bcm_iproc_tsc - use syscon to access shared registers
-
-Rui Teng (1):
-      Input: twl4030 - fix unsafe macro definition
-
-Vladimir Zapolskiy (1):
-      Input: byd - don't wipe dynamically allocated memory twice
-
-
-Diffstat:
---------
-
- .../devicetree/bindings/input/gpio-keys.txt        | 10 +--
- .../input/touchscreen/brcm,iproc-touchscreen.txt   | 23 +++++--
- arch/arm/boot/dts/bcm-cygnus.dtsi                  | 11 +++-
- drivers/input/keyboard/omap-keypad.c               | 52 +-------------=
--
- drivers/input/keyboard/twl4030_keypad.c            | 28 ++++----
- drivers/input/misc/cm109.c                         | 47 +++++++++----
- drivers/input/misc/rotary_encoder.c                |  8 +--
- drivers/input/misc/twl6040-vibra.c                 | 15 +----
- drivers/input/mouse/byd.c                          |  1 -
- drivers/input/tablet/acecad.c                      | 12 ++--
- drivers/input/tablet/aiptek.c                      | 20 +++---
- drivers/input/tablet/gtco.c                        | 24 +++----
- drivers/input/tablet/kbtab.c                       |  8 +--
- drivers/input/touchscreen/bcm_iproc_tsc.c          | 77 ++++++++++++--=
---------
- drivers/input/touchscreen/ti_am335x_tsc.c          | 16 ++---
- 15 files changed, 170 insertions(+), 182 deletions(-)
-
---=20
-Dmitry
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

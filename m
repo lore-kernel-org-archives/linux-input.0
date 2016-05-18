@@ -1,66 +1,42 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: feed more data into entropy pool
-Date: Wed, 18 May 2016 14:32:44 -0700
-Message-ID: <20160518213244.GA3167@dtor-ws>
+Subject: Re: [PATCH 1/2 V3] dt: add Atmel Captouch bindings
+Date: Wed, 18 May 2016 14:59:14 -0700
+Message-ID: <20160518215914.GA4081@dtor-ws>
+References: <1463432094-146726-1-git-send-email-grundler@chromium.org>
+ <20160518164404.GA31862@rob-hp-laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:33545 "EHLO
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:34998 "EHLO
 	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752008AbcERVcs (ORCPT
+	with ESMTP id S1752603AbcERV7R (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 May 2016 17:32:48 -0400
-Received: by mail-pf0-f196.google.com with SMTP id y7so6067947pfb.0
-        for <linux-input@vger.kernel.org>; Wed, 18 May 2016 14:32:48 -0700 (PDT)
+	Wed, 18 May 2016 17:59:17 -0400
 Content-Disposition: inline
+In-Reply-To: <20160518164404.GA31862@rob-hp-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, djkurtz@chromium.org
+To: Rob Herring <robh@kernel.org>
+Cc: Grant Grundler <grundler@chromium.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Hung-yu Wu <hywu@google.com>, Kumar Gala <galak@codeaurora.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>
 
-Commit 4369c64c79a22 ("Input: Send events one packet at a time")
-significantly reduced amount of entropy input core was feeding to the rest
-of the system, because only the very first event in the event block would
-be used as source of entropy.
+On Wed, May 18, 2016 at 11:44:04AM -0500, Rob Herring wrote:
+> On Mon, May 16, 2016 at 01:54:53PM -0700, Grant Grundler wrote:
+> > From: Daniel Hung-yu Wu <hywu@google.com>
+> > 
+> > Add binding for Atmel Capacitive Touch Button device.
+> > 
+> > Signed-off-by: Daniel Hung-yu Wu <hywu@google.com>
+> > Signed-off-by: Grant Grundler <grundler@chromium.org>
+> > ---
+> >  .../devicetree/bindings/input/atmel,captouch.txt   | 36 ++++++++++++++++++++++
+> >  1 file changed, 34 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/input/atmel,captouch.txt
+> 
+> Acked-by: Rob Herring <robh@kernel.org>
 
-With this change we will be calling add_input_randomness() for every event
-that is not filtered by the input core as a duplicate. In addition, all
-EV_SYN events are ignored.
+Folded into the driver patch and applied.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/input.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index b87ffbd..d95c34e 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -153,8 +153,6 @@ static void input_pass_values(struct input_dev *dev,
- 
- 	rcu_read_unlock();
- 
--	add_input_randomness(vals->type, vals->code, vals->value);
--
- 	/* trigger auto repeat for key events */
- 	if (test_bit(EV_REP, dev->evbit) && test_bit(EV_KEY, dev->evbit)) {
- 		for (v = vals; v != vals + count; v++) {
-@@ -371,9 +369,10 @@ static int input_get_disposition(struct input_dev *dev,
- static void input_handle_event(struct input_dev *dev,
- 			       unsigned int type, unsigned int code, int value)
- {
--	int disposition;
-+	int disposition = input_get_disposition(dev, type, code, &value);
- 
--	disposition = input_get_disposition(dev, type, code, &value);
-+	if (disposition != INPUT_IGNORE_EVENT && type != EV_SYN)
-+		add_input_randomness(type, code, value);
- 
- 	if ((disposition & INPUT_PASS_TO_DEVICE) && dev->event)
- 		dev->event(dev, type, code, value);
--- 
-2.8.0.rc3.226.g39d4020
-
+Thanks.
 
 -- 
 Dmitry

@@ -1,86 +1,160 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3] Input - surface3_spi: add new driver for the Surface 3
-Date: Wed, 18 May 2016 15:31:38 +0200
-Message-ID: <20160518133137.GE23234@mail.corp.redhat.com>
-References: <1463480179-11974-1-git-send-email-benjamin.tissoires@redhat.com>
- <20160517180428.GA9007@dtor-ws>
- <20160517191355.GD23234@mail.corp.redhat.com>
+From: Manfred Schlaegl <manfred.schlaegl@gmx.at>
+Subject: [PATCH] Input: pwm-beeper - fix: scheduling while atomic
+Date: Wed, 18 May 2016 17:16:49 +0200
+Message-ID: <573C8761.9070601@gmx.at>
+References: <56C4735E.6020300@gmx.at> <20160222194639.GD26177@dtor-ws>
+ <20160512121852.GB26824@ulmo.ba.sec> <5735F4E3.20008@gmx.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42849 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.20]:55313 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752533AbcERNbm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 May 2016 09:31:42 -0400
-Content-Disposition: inline
-In-Reply-To: <20160517191355.GD23234@mail.corp.redhat.com>
+	id S1751736AbcERPRC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 May 2016 11:17:02 -0400
+In-Reply-To: <5735F4E3.20008@gmx.at>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Manfred Schlaegl <manfred.schlaegl@ginzinger.com>, Luis de Bethencourt <luis@debethencourt.com>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On May 17 2016 or thereabouts, Benjamin Tissoires wrote:
-> On May 17 2016 or thereabouts, Dmitry Torokhov wrote:
-> > Hi Benjamin,
-> > 
-> > On Tue, May 17, 2016 at 12:16:19PM +0200, Benjamin Tissoires wrote:
-> > > This is a basic driver for the Surface 3. I am not so sure it will work
-> > > with any firmwares as most values are encoded, but given that I only have
-> > > access to my current device with its firmware and I don't have the
-> > > datasheet, it should be OK for now.
-> > > 
-> > > The Surface Pen is not supported (if it is supposed to be). I'll work on
-> > > this when I get one.
-> > > 
-> > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > ---
-> > > Changes in v2:
-> > > 
-> > > - module renamed from ntrig_spi to surface3_spi
-> > > - took into account Dmitry's remarks
-> > > - kept the retrieval of the GPIO as mandatory as otherwise the device fails to work
-> > > 
-> > > Changes in v3:
-> > > 
-> > > - asm include put at the end
-> > > - used proper types in struct surfacae3_ts_data_finger
-> > > - dropped temps in surface3_spi_report_touch()
-> > > - inlined surface3_spi_request_irq()
-> > > - detect IRQ type (falling/rising) depending on the gpiod active low parameter
-> > 
-> > I do not think that this should be done in the driver. The device either
-> > has interrupt descriptor or GpioInt decriptor in DSDT and SPI core/ACPI
-> > should do the right thing and configure GPIO as input and set interrupt
-> > polarity accordingly, so when you do request_threaded_irq() you only
-> > need to specify IRQF_ONESHOT.
-> > 
-> > See drivers/spi/spi.c - in case there is no interrupt specified we call
-> > acpi_dev_gpio_irq_get(). Do you see it called in your case? Or your DSDT
-> > has interrupt for the touchscreen device and acpi_spi_add_resource() and
-> > acpi_dev_resource_interrupt() are called? You need to trace it and
-> > figure out if there is an issue there with setting up interrupt
-> > properly.
-> 
-> Looks like I need to push further the tests. From what I can see, using
-> just IRQF_ONESHOT is not sufficient enough and I need to add the trigger
-> falling manually (thus this way of doing).
-> 
+Pwm config may sleep so defer it using a worker.
 
-I think I finally got it: I traced irq_get_irq_type() just before
-calling devm_request_threaded_irq(), and the trigger flag was properly set.
-The thing is that the IRQ was triggered only if I actually set the
-trigger in the flag (using "IRQF_ONESHOT | irq_get_irq_type(spi->irq)"
-was making it working).
+Trigger:
+On a Freescale i.MX53 based board we ran into "BUG: scheduling while
+atomic" because input_inject_event locks interrupts, but
+imx_pwm_config_v2 sleeps.
 
-And the final problem I had was that I was requesting the gpiod
-for the interrupt. I think this just messed up the gpiochip
-configuration and the request irq needs to reset it properly.
+Tested on Freescale i.MX53 SoC with 4.6.0 and 4.1.24.
 
-So removing a bunch of lines of code solves it :)
-(I know, you already told me to remove it in v1, but it did not work at
-that time :-P ).
+Unmodified applicable to
+ * 4.6    (stable)
+ * 4.5.4  (stable)
+ * 4.4.10 (longterm)
+ * 4.1.24 (longterm)
 
-v4 on its way after a few more tests.
+Modified applicable to
+ * 3.18.33 (longterm)
 
-Cheers,
-Benjamin
+Signed-off-by: Manfred Schlaegl <manfred.schlaegl@gmx.at>
+---
+ drivers/input/misc/pwm-beeper.c | 54 +++++++++++++++++++++++++++--------------
+ 1 file changed, 36 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+index f2261ab..7d783c8 100644
+--- a/drivers/input/misc/pwm-beeper.c
++++ b/drivers/input/misc/pwm-beeper.c
+@@ -20,21 +20,41 @@
+ #include <linux/platform_device.h>
+ #include <linux/pwm.h>
+ #include <linux/slab.h>
++#include <linux/workqueue.h>
+ 
+ struct pwm_beeper {
+ 	struct input_dev *input;
+ 	struct pwm_device *pwm;
++	struct work_struct work;
+ 	unsigned long period;
+ };
+ 
+ #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
+ 
++static void __pwm_beeper_set(struct pwm_beeper *beeper)
++{
++	unsigned long period = beeper->period;
++
++	pwm_config(beeper->pwm, period / 2, period);
++
++	if (period == 0)
++		pwm_disable(beeper->pwm);
++	else
++		pwm_enable(beeper->pwm);
++}
++
++static void pwm_beeper_work(struct work_struct *work)
++{
++	struct pwm_beeper *beeper =
++		container_of(work, struct pwm_beeper, work);
++
++	__pwm_beeper_set(beeper);
++}
++
+ static int pwm_beeper_event(struct input_dev *input,
+ 			    unsigned int type, unsigned int code, int value)
+ {
+-	int ret = 0;
+ 	struct pwm_beeper *beeper = input_get_drvdata(input);
+-	unsigned long period;
+ 
+ 	if (type != EV_SND || value < 0)
+ 		return -EINVAL;
+@@ -49,18 +69,12 @@ static int pwm_beeper_event(struct input_dev *input,
+ 		return -EINVAL;
+ 	}
+ 
+-	if (value == 0) {
+-		pwm_disable(beeper->pwm);
+-	} else {
+-		period = HZ_TO_NANOSECONDS(value);
+-		ret = pwm_config(beeper->pwm, period / 2, period);
+-		if (ret)
+-			return ret;
+-		ret = pwm_enable(beeper->pwm);
+-		if (ret)
+-			return ret;
+-		beeper->period = period;
+-	}
++	if (value == 0)
++		beeper->period = 0;
++	else
++		beeper->period = HZ_TO_NANOSECONDS(value);
++
++	schedule_work(&beeper->work);
+ 
+ 	return 0;
+ }
+@@ -87,6 +101,8 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+ 		goto err_free;
+ 	}
+ 
++	INIT_WORK(&beeper->work, pwm_beeper_work);
++
+ 	beeper->input = input_allocate_device();
+ 	if (!beeper->input) {
+ 		dev_err(&pdev->dev, "Failed to allocate input device\n");
+@@ -133,6 +149,8 @@ static int pwm_beeper_remove(struct platform_device *pdev)
+ {
+ 	struct pwm_beeper *beeper = platform_get_drvdata(pdev);
+ 
++	cancel_work_sync(&beeper->work);
++
+ 	input_unregister_device(beeper->input);
+ 
+ 	pwm_disable(beeper->pwm);
+@@ -147,6 +165,8 @@ static int __maybe_unused pwm_beeper_suspend(struct device *dev)
+ {
+ 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
+ 
++	cancel_work_sync(&beeper->work);
++
+ 	if (beeper->period)
+ 		pwm_disable(beeper->pwm);
+ 
+@@ -157,10 +177,8 @@ static int __maybe_unused pwm_beeper_resume(struct device *dev)
+ {
+ 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
+ 
+-	if (beeper->period) {
+-		pwm_config(beeper->pwm, beeper->period / 2, beeper->period);
+-		pwm_enable(beeper->pwm);
+-	}
++	if (beeper->period)
++		__pwm_beeper_set(beeper);
+ 
+ 	return 0;
+ }
+-- 
+2.1.4
+
+

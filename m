@@ -1,123 +1,66 @@
-From: Roderick Colenbrander <roderick.colenbrander@sony.com>
-Subject: [PATCH] HID: uhid: Fixes a bug with userspace bluetooth stacks, which causes hangs during certain operations
-Date: Wed, 18 May 2016 13:11:09 -0700
-Message-ID: <1463602269-19844-1-git-send-email-roderick.colenbrander@sony.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: feed more data into entropy pool
+Date: Wed, 18 May 2016 14:32:44 -0700
+Message-ID: <20160518213244.GA3167@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [100.42.98.7] ([100.42.98.7]:52448 "EHLO smtp.gaikai.biz"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932496AbcERUSk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 May 2016 16:18:40 -0400
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33545 "EHLO
+	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752008AbcERVcs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 May 2016 17:32:48 -0400
+Received: by mail-pf0-f196.google.com with SMTP id y7so6067947pfb.0
+        for <linux-input@vger.kernel.org>; Wed, 18 May 2016 14:32:48 -0700 (PDT)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dh.herrmann@googlemail.com, jikos@kernel.org
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Roderick Colenbrander <roderick.colenbrander@sony.com>, stable@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, djkurtz@chromium.org
 
-Many devices use userspace bluetooth stacks like BlueZ or Bluedroid in combination
-with uhid. If any of these stacks is used with a HID device for which the driver
-performs a HID request as part .probe (or technically another HID operation),
-this results in a deadlock situation. The deadlock results in a 5 second timeout
-for I/O operations in HID drivers, so isn't fatal, but none of the I/O operations
-have a chance of succeeding.
+Commit 4369c64c79a22 ("Input: Send events one packet at a time")
+significantly reduced amount of entropy input core was feeding to the rest
+of the system, because only the very first event in the event block would
+be used as source of entropy.
 
-The root cause for the problem is that uhid only allows for one request to be
-processed at a time per uhid instance and locks out other operations. This means
-that if a user space is creating a new HID device through 'UHID_CREATE', which
-ultimately triggers '.probe' through the HID layer. Then any HID request e.g. a
-read for calibration data would trigger a HID operation on uhid again, but it
-won't go out to userspace, because it is still stuck in UHID_CREATE.
-In addition bluetooth stacks are typically single threaded, so they wouldn't be
-able to handle any requests while waiting on uhid.
+With this change we will be calling add_input_randomness() for every event
+that is not filtered by the input core as a duplicate. In addition, all
+EV_SYN events are ignored.
 
-Lucikly the UHID spec is somewhat flexible and allows for fixing the issue,
-without breaking user space. The idea which the patch implements as discussed
-with David Herrmann is to decouple adding of a hid device (which triggers .probe)
-from UHID_CREATE. The work will kick off roughly once UHID_CREATE completed (or
-else will wait a tiny bit of time in .probe for a lock). A HID driver has to call
-HID to call 'hid_hw_start()' as part of .probe once it is ready for I/O, which
-triggers UHID_START to user space. Any HID operations should function now within
-.probe and won't deadlock because userspace is stuck on UHID_CREATE.
-
-We verified this patch on Bluedroid with Android 6.0 and on desktop Linux with
-BlueZ stacks. Prior to the patch they had the deadlock issue.
-
-Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/uhid.c | 33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ drivers/input/input.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 16b6f11..99ec3ff 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -51,10 +51,26 @@ struct uhid_device {
- 	u32 report_id;
- 	u32 report_type;
- 	struct uhid_event report_buf;
-+	struct work_struct worker;
- };
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index b87ffbd..d95c34e 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -153,8 +153,6 @@ static void input_pass_values(struct input_dev *dev,
  
- static struct miscdevice uhid_misc;
+ 	rcu_read_unlock();
  
-+static void uhid_device_add_worker(struct work_struct *work)
-+{
-+	struct uhid_device *uhid = container_of(work, struct uhid_device, worker);
-+	int ret;
-+
-+	ret = hid_add_device(uhid->hid);
-+	if (ret) {
-+		hid_err(uhid->hid, "Cannot register HID device: error %d\n", ret);
-+
-+		hid_destroy_device(uhid->hid);
-+		uhid->hid = NULL;
-+		uhid->running = false;
-+	}
-+}
-+
- static void uhid_queue(struct uhid_device *uhid, struct uhid_event *ev)
+-	add_input_randomness(vals->type, vals->code, vals->value);
+-
+ 	/* trigger auto repeat for key events */
+ 	if (test_bit(EV_REP, dev->evbit) && test_bit(EV_KEY, dev->evbit)) {
+ 		for (v = vals; v != vals + count; v++) {
+@@ -371,9 +369,10 @@ static int input_get_disposition(struct input_dev *dev,
+ static void input_handle_event(struct input_dev *dev,
+ 			       unsigned int type, unsigned int code, int value)
  {
- 	__u8 newhead;
-@@ -498,18 +514,14 @@ static int uhid_dev_create2(struct uhid_device *uhid,
- 	uhid->hid = hid;
- 	uhid->running = true;
+-	int disposition;
++	int disposition = input_get_disposition(dev, type, code, &value);
  
--	ret = hid_add_device(hid);
--	if (ret) {
--		hid_err(hid, "Cannot register HID device\n");
--		goto err_hid;
--	}
-+	/* Adding of a HID device is done through a worker, to allow HID drivers
-+	 * which use feature requests during .probe to work, without they would
-+	 * be blocked on devlock, which is held by uhid_char_write.
-+	 */
-+	schedule_work(&uhid->worker);
+-	disposition = input_get_disposition(dev, type, code, &value);
++	if (disposition != INPUT_IGNORE_EVENT && type != EV_SYN)
++		add_input_randomness(type, code, value);
  
- 	return 0;
- 
--err_hid:
--	hid_destroy_device(hid);
--	uhid->hid = NULL;
--	uhid->running = false;
- err_free:
- 	kfree(uhid->rd_data);
- 	uhid->rd_data = NULL;
-@@ -550,6 +562,8 @@ static int uhid_dev_destroy(struct uhid_device *uhid)
- 	uhid->running = false;
- 	wake_up_interruptible(&uhid->report_wait);
- 
-+	cancel_work_sync(&uhid->worker);
-+
- 	hid_destroy_device(uhid->hid);
- 	kfree(uhid->rd_data);
- 
-@@ -612,6 +626,7 @@ static int uhid_char_open(struct inode *inode, struct file *file)
- 	init_waitqueue_head(&uhid->waitq);
- 	init_waitqueue_head(&uhid->report_wait);
- 	uhid->running = false;
-+	INIT_WORK(&uhid->worker, uhid_device_add_worker);
- 
- 	file->private_data = uhid;
- 	nonseekable_open(inode, file);
+ 	if ((disposition & INPUT_PASS_TO_DEVICE) && dev->event)
+ 		dev->event(dev, type, code, value);
 -- 
-2.5.5
+2.8.0.rc3.226.g39d4020
 
+
+-- 
+Dmitry

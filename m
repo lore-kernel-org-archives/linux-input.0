@@ -1,60 +1,48 @@
-From: Dirk Behme <dirk.behme@de.bosch.com>
-Subject: Re: [PATCH v3 0/4] zForce upstreaming
-Date: Thu, 19 May 2016 07:26:06 +0200
-Message-ID: <bb194907-8541-f7c1-5c66-85a896eb14c1@de.bosch.com>
-References: <1462357481-16258-1-git-send-email-dirk.behme@de.bosch.com>
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: [PATCH] Input: feed more data into entropy pool
+Date: Thu, 19 May 2016 08:46:34 +0200
+Message-ID: <ba503db5-c438-429a-f968-fde9b4a089f0@bitmath.org>
+References: <20160518213244.GA3167@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:54670 "EHLO
-	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750739AbcESF0J (ORCPT
+Received: from mailrelay7.public.one.com ([91.198.169.215]:48518 "EHLO
+	mailrelay7.public.one.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752344AbcESHCM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 May 2016 01:26:09 -0400
-In-Reply-To: <1462357481-16258-1-git-send-email-dirk.behme@de.bosch.com>
+	Thu, 19 May 2016 03:02:12 -0400
+In-Reply-To: <20160518213244.GA3167@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Oleksij Rempel <linux@rempel-privat.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, djkurtz@chromium.org
 
-On 04.05.2016 12:24, Dirk Behme wrote:
-> From: Oleksij Rempel <linux@rempel-privat.de>
->
-> Changelog:
-> v2
->  - rename scan-freq-idle and scan-freq-finger
->    to scan-idle-hz and scan-active-hz.
->  - rebase with already acked "Input: zforce_ts: Fix dual touch recognition"
->    from previous patchset.
->
-> v3
->  - rename touch-size-min to touch-size-min-mm
->  - fix typo
->  - replace "zforce_ts: Reject open if initialization not finished" patch.
->    Instead of reject open event, we will call zforce_start() from zforce_boot().
->
-> Knut Wohlrab (2):
->   Input: zforce_ts: Add device tree support for scanning frequency
->   Input: zforce_ts: Add support for minimum touch size limit
->
-> Marcel Grosshans (1):
->   Input: zforce_ts: Reinitialize touch controller when  BOOT_COMPLETE
->     received
->
-> Oleksij Rempel (1):
->   Input: zforce_ts: allow open even if initialisation is not completed
->
->  .../bindings/input/touchscreen/zforce_ts.txt       |   6 +
->  drivers/input/touchscreen/zforce_ts.c              | 174 ++++++++++++++++++---
->  include/linux/platform_data/zforce_ts.h            |   3 +
->  3 files changed, 157 insertions(+), 26 deletions(-)
+Hi Dmitry,
 
+On 05/18/2016 11:32 PM, Dmitry Torokhov wrote:
+> Commit 4369c64c79a22 ("Input: Send events one packet at a time")
+> significantly reduced amount of entropy input core was feeding to the rest
+> of the system, because only the very first event in the event block would
+> be used as source of entropy.
+> 
+> With this change we will be calling add_input_randomness() for every event
+> that is not filtered by the input core as a duplicate. In addition, all
+> EV_SYN events are ignored.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Any further comments for this series? Or could it be applied, now?
+Acked-by: Henrik Rydberg <rydberg@bitmath.org>
 
+Thanks for this, it has been nagging me as well.
 
-Best regards
+> -	disposition = input_get_disposition(dev, type, code, &value);
+> +	if (disposition != INPUT_IGNORE_EVENT && type != EV_SYN)
+> +		add_input_randomness(type, code, value);
 
-Dirk
+As a comment, it is not immediately clear to me how this will affect latency,
+although it appears rather harmless.
+
+Thanks,
+Henrik
 

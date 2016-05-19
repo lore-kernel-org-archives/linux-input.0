@@ -1,123 +1,55 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - fix spelling in defines
-Date: Thu, 19 May 2016 09:32:48 -0700
-Message-ID: <20160519163248.GC38800@dtor-ws>
-References: <1463646466-893-1-git-send-email-nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH 1/2] Input: migor-ts - allow driver to build if
+ COMPILE_TEST is enabled
+Date: Thu, 19 May 2016 09:34:19 -0700
+Message-ID: <20160519163419.GD38800@dtor-ws>
+References: <1463502759-14393-1-git-send-email-javier@osg.samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34374 "EHLO
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:33970 "EHLO
 	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753613AbcESQcw (ORCPT
+	with ESMTP id S1754300AbcESQeX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 May 2016 12:32:52 -0400
-Received: by mail-pf0-f193.google.com with SMTP id 145so8647249pfz.1
-        for <linux-input@vger.kernel.org>; Thu, 19 May 2016 09:32:52 -0700 (PDT)
+	Thu, 19 May 2016 12:34:23 -0400
 Content-Disposition: inline
-In-Reply-To: <1463646466-893-1-git-send-email-nick.dyer@itdev.co.uk>
+In-Reply-To: <1463502759-14393-1-git-send-email-javier@osg.samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: linux-input@vger.kernel.org, Chris Healy <cphealy@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-input@vger.kernel.org
 
-On Thu, May 19, 2016 at 09:27:46AM +0100, Nick Dyer wrote:
-> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-> Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
+On Tue, May 17, 2016 at 12:32:37PM -0400, Javier Martinez Canillas wrote:
+> The driver only has runtime but no build time dependency with SH_MIGOR, so
+> it can be built for testing purposes if the COMPILE_TEST option is enabled.
+> 
+> This is useful to have more build coverage and make sure that drivers are
+> not affected by changes that could cause build regressions.
+> 
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/rmi4/rmi_f01.c | 22 +++++++++++-----------
->  1 file changed, 11 insertions(+), 11 deletions(-)
 > 
-> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-> index eb362bc..fac81fc 100644
-> --- a/drivers/input/rmi4/rmi_f01.c
-> +++ b/drivers/input/rmi4/rmi_f01.c
-> @@ -81,26 +81,26 @@ struct f01_basic_properties {
->   * This bit disables whatever sleep mode may be selected by the sleep_mode
->   * field and forces the device to run at full power without sleeping.
->   */
-> -#define RMI_F01_CRTL0_NOSLEEP_BIT	BIT(2)
-> +#define RMI_F01_CTRL0_NOSLEEP_BIT	BIT(2)
+>  drivers/input/touchscreen/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 8ecdc38fd489..9f6f001ccf07 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -632,7 +632,7 @@ config TOUCHSCREEN_EDT_FT5X06
 >  
->  /*
->   * When this bit is set, the touch controller employs a noise-filtering
->   * algorithm designed for use with a connected battery charger.
->   */
-> -#define RMI_F01_CRTL0_CHARGER_BIT	BIT(5)
-> +#define RMI_F01_CTRL0_CHARGER_BIT	BIT(5)
+>  config TOUCHSCREEN_MIGOR
+>  	tristate "Renesas MIGO-R touchscreen"
+> -	depends on SH_MIGOR && I2C
+> +	depends on (SH_MIGOR || COMPILE_TEST) && I2C
+>  	help
+>  	  Say Y here to enable MIGO-R touchscreen support.
 >  
->  /*
->   * Sets the report rate for the device. The effect of this setting is
->   * highly product dependent. Check the spec sheet for your particular
->   * touch sensor.
->   */
-> -#define RMI_F01_CRTL0_REPORTRATE_BIT	BIT(6)
-> +#define RMI_F01_CTRL0_REPORTRATE_BIT	BIT(6)
->  
->  /*
->   * Written by the host as an indicator that the device has been
->   * successfully configured.
->   */
-> -#define RMI_F01_CRTL0_CONFIGURED_BIT	BIT(7)
-> +#define RMI_F01_CTRL0_CONFIGURED_BIT	BIT(7)
->  
->  /**
->   * @ctrl0 - see the bit definitions above.
-> @@ -330,10 +330,10 @@ static int rmi_f01_probe(struct rmi_function *fn)
->  	case RMI_F01_NOSLEEP_DEFAULT:
->  		break;
->  	case RMI_F01_NOSLEEP_OFF:
-> -		f01->device_control.ctrl0 &= ~RMI_F01_CRTL0_NOSLEEP_BIT;
-> +		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_NOSLEEP_BIT;
->  		break;
->  	case RMI_F01_NOSLEEP_ON:
-> -		f01->device_control.ctrl0 |= RMI_F01_CRTL0_NOSLEEP_BIT;
-> +		f01->device_control.ctrl0 |= RMI_F01_CTRL0_NOSLEEP_BIT;
->  		break;
->  	}
->  
-> @@ -349,7 +349,7 @@ static int rmi_f01_probe(struct rmi_function *fn)
->  		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
->  	}
->  
-> -	f01->device_control.ctrl0 |= RMI_F01_CRTL0_CONFIGURED_BIT;
-> +	f01->device_control.ctrl0 |= RMI_F01_CTRL0_CONFIGURED_BIT;
->  
->  	error = rmi_write(rmi_dev, fn->fd.control_base_addr,
->  			  f01->device_control.ctrl0);
-> @@ -535,8 +535,8 @@ static int rmi_f01_suspend(struct rmi_function *fn)
->  	int error;
->  
->  	f01->old_nosleep =
-> -		f01->device_control.ctrl0 & RMI_F01_CRTL0_NOSLEEP_BIT;
-> -	f01->device_control.ctrl0 &= ~RMI_F01_CRTL0_NOSLEEP_BIT;
-> +		f01->device_control.ctrl0 & RMI_F01_CTRL0_NOSLEEP_BIT;
-> +	f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_NOSLEEP_BIT;
->  
->  	f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
->  	if (device_may_wakeup(fn->rmi_dev->xport->dev))
-> @@ -549,7 +549,7 @@ static int rmi_f01_suspend(struct rmi_function *fn)
->  	if (error) {
->  		dev_err(&fn->dev, "Failed to write sleep mode: %d.\n", error);
->  		if (f01->old_nosleep)
-> -			f01->device_control.ctrl0 |= RMI_F01_CRTL0_NOSLEEP_BIT;
-> +			f01->device_control.ctrl0 |= RMI_F01_CTRL0_NOSLEEP_BIT;
->  		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
->  		f01->device_control.ctrl0 |= RMI_SLEEP_MODE_NORMAL;
->  		return error;
-> @@ -564,7 +564,7 @@ static int rmi_f01_resume(struct rmi_function *fn)
->  	int error;
->  
->  	if (f01->old_nosleep)
-> -		f01->device_control.ctrl0 |= RMI_F01_CRTL0_NOSLEEP_BIT;
-> +		f01->device_control.ctrl0 |= RMI_F01_CTRL0_NOSLEEP_BIT;
->  
->  	f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
->  	f01->device_control.ctrl0 |= RMI_SLEEP_MODE_NORMAL;
 > -- 
-> 2.5.0
+> 2.5.5
 > 
 
 -- 

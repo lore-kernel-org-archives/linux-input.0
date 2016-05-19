@@ -1,34 +1,58 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Input: feed more data into entropy pool
-Date: Thu, 19 May 2016 09:15:54 +0200
-Message-ID: <20160519071554.GG23234@mail.corp.redhat.com>
-References: <20160518213244.GA3167@dtor-ws>
+From: Manfred Schlaegl <manfred.schlaegl@gmx.at>
+Subject: Re: [PATCH] Input: pwm-beeper - fix: scheduling while atomic
+Date: Thu, 19 May 2016 09:52:53 +0200
+Message-ID: <573D70D5.7070401@gmx.at>
+References: <56C4735E.6020300@gmx.at> <20160222194639.GD26177@dtor-ws>
+ <20160512121852.GB26824@ulmo.ba.sec> <5735F4E3.20008@gmx.at>
+ <573C8761.9070601@gmx.at> <20160518160601.GB5407@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54609 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.18]:54076 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753849AbcESHP7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 May 2016 03:15:59 -0400
-Content-Disposition: inline
-In-Reply-To: <20160518213244.GA3167@dtor-ws>
+	id S1751362AbcESHxF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 May 2016 03:53:05 -0400
+In-Reply-To: <20160518160601.GB5407@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, djkurtz@chromium.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Manfred Schlaegl <manfred.schlaegl@ginzinger.com>, Luis de Bethencourt <luis@debethencourt.com>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On May 18 2016 or thereabouts, Dmitry Torokhov wrote:
-> Commit 4369c64c79a22 ("Input: Send events one packet at a time")
-> significantly reduced amount of entropy input core was feeding to the rest
-> of the system, because only the very first event in the event block would
-> be used as source of entropy.
+On 2016-05-18 18:06, Greg Kroah-Hartman wrote:
+> On Wed, May 18, 2016 at 05:16:49PM +0200, Manfred Schlaegl wrote:
+>> Pwm config may sleep so defer it using a worker.
+>>
+>> Trigger:
+>> On a Freescale i.MX53 based board we ran into "BUG: scheduling while
+>> atomic" because input_inject_event locks interrupts, but
+>> imx_pwm_config_v2 sleeps.
+>>
+>> Tested on Freescale i.MX53 SoC with 4.6.0 and 4.1.24.
+>>
+>> Unmodified applicable to
+>>  * 4.6    (stable)
+>>  * 4.5.4  (stable)
+>>  * 4.4.10 (longterm)
+>>  * 4.1.24 (longterm)
+>>
+>> Modified applicable to
+>>  * 3.18.33 (longterm)
 > 
-> With this change we will be calling add_input_randomness() for every event
-> that is not filtered by the input core as a duplicate. In addition, all
-> EV_SYN events are ignored.
+> What does this all mean?  Have you read
+> Documentation/stable_kernel_rules.txt for how to mark things for stable
+> inclusion?
 > 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> thanks,
+> 
+> greg k-h
+> 
 
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Sorry, I'm afraid I missed that. Thanks for the clarification. I will respect that in the future.
 
-Thanks!
+Should I resend the patch with a cleaned up message (without "Unmodified applicable to" and "Modified applicable to" stuff)?
+Is the rest of message (formally) ok?
+
+thanks,
+manfred
+

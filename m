@@ -1,58 +1,110 @@
-From: Manfred Schlaegl <manfred.schlaegl@gmx.at>
-Subject: Re: [PATCH] Input: pwm-beeper - fix: scheduling while atomic
-Date: Thu, 19 May 2016 09:52:53 +0200
-Message-ID: <573D70D5.7070401@gmx.at>
-References: <56C4735E.6020300@gmx.at> <20160222194639.GD26177@dtor-ws>
- <20160512121852.GB26824@ulmo.ba.sec> <5735F4E3.20008@gmx.at>
- <573C8761.9070601@gmx.at> <20160518160601.GB5407@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: [PATCH] Input: synaptics-rmi4 - fix spelling in defines
+Date: Thu, 19 May 2016 09:27:46 +0100
+Message-ID: <1463646466-893-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.15.18]:54076 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751362AbcESHxF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 May 2016 03:53:05 -0400
-In-Reply-To: <20160518160601.GB5407@kroah.com>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:29562 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753712AbcESI2H (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 May 2016 04:28:07 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Manfred Schlaegl <manfred.schlaegl@ginzinger.com>, Luis de Bethencourt <luis@debethencourt.com>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Chris Healy <cphealy@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Nick Dyer <nick.dyer@itdev.co.uk>
 
-On 2016-05-18 18:06, Greg Kroah-Hartman wrote:
-> On Wed, May 18, 2016 at 05:16:49PM +0200, Manfred Schlaegl wrote:
->> Pwm config may sleep so defer it using a worker.
->>
->> Trigger:
->> On a Freescale i.MX53 based board we ran into "BUG: scheduling while
->> atomic" because input_inject_event locks interrupts, but
->> imx_pwm_config_v2 sleeps.
->>
->> Tested on Freescale i.MX53 SoC with 4.6.0 and 4.1.24.
->>
->> Unmodified applicable to
->>  * 4.6    (stable)
->>  * 4.5.4  (stable)
->>  * 4.4.10 (longterm)
->>  * 4.1.24 (longterm)
->>
->> Modified applicable to
->>  * 3.18.33 (longterm)
-> 
-> What does this all mean?  Have you read
-> Documentation/stable_kernel_rules.txt for how to mark things for stable
-> inclusion?
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
+---
+ drivers/input/rmi4/rmi_f01.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-Sorry, I'm afraid I missed that. Thanks for the clarification. I will respect that in the future.
-
-Should I resend the patch with a cleaned up message (without "Unmodified applicable to" and "Modified applicable to" stuff)?
-Is the rest of message (formally) ok?
-
-thanks,
-manfred
+diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+index eb362bc..fac81fc 100644
+--- a/drivers/input/rmi4/rmi_f01.c
++++ b/drivers/input/rmi4/rmi_f01.c
+@@ -81,26 +81,26 @@ struct f01_basic_properties {
+  * This bit disables whatever sleep mode may be selected by the sleep_mode
+  * field and forces the device to run at full power without sleeping.
+  */
+-#define RMI_F01_CRTL0_NOSLEEP_BIT	BIT(2)
++#define RMI_F01_CTRL0_NOSLEEP_BIT	BIT(2)
+ 
+ /*
+  * When this bit is set, the touch controller employs a noise-filtering
+  * algorithm designed for use with a connected battery charger.
+  */
+-#define RMI_F01_CRTL0_CHARGER_BIT	BIT(5)
++#define RMI_F01_CTRL0_CHARGER_BIT	BIT(5)
+ 
+ /*
+  * Sets the report rate for the device. The effect of this setting is
+  * highly product dependent. Check the spec sheet for your particular
+  * touch sensor.
+  */
+-#define RMI_F01_CRTL0_REPORTRATE_BIT	BIT(6)
++#define RMI_F01_CTRL0_REPORTRATE_BIT	BIT(6)
+ 
+ /*
+  * Written by the host as an indicator that the device has been
+  * successfully configured.
+  */
+-#define RMI_F01_CRTL0_CONFIGURED_BIT	BIT(7)
++#define RMI_F01_CTRL0_CONFIGURED_BIT	BIT(7)
+ 
+ /**
+  * @ctrl0 - see the bit definitions above.
+@@ -330,10 +330,10 @@ static int rmi_f01_probe(struct rmi_function *fn)
+ 	case RMI_F01_NOSLEEP_DEFAULT:
+ 		break;
+ 	case RMI_F01_NOSLEEP_OFF:
+-		f01->device_control.ctrl0 &= ~RMI_F01_CRTL0_NOSLEEP_BIT;
++		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_NOSLEEP_BIT;
+ 		break;
+ 	case RMI_F01_NOSLEEP_ON:
+-		f01->device_control.ctrl0 |= RMI_F01_CRTL0_NOSLEEP_BIT;
++		f01->device_control.ctrl0 |= RMI_F01_CTRL0_NOSLEEP_BIT;
+ 		break;
+ 	}
+ 
+@@ -349,7 +349,7 @@ static int rmi_f01_probe(struct rmi_function *fn)
+ 		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
+ 	}
+ 
+-	f01->device_control.ctrl0 |= RMI_F01_CRTL0_CONFIGURED_BIT;
++	f01->device_control.ctrl0 |= RMI_F01_CTRL0_CONFIGURED_BIT;
+ 
+ 	error = rmi_write(rmi_dev, fn->fd.control_base_addr,
+ 			  f01->device_control.ctrl0);
+@@ -535,8 +535,8 @@ static int rmi_f01_suspend(struct rmi_function *fn)
+ 	int error;
+ 
+ 	f01->old_nosleep =
+-		f01->device_control.ctrl0 & RMI_F01_CRTL0_NOSLEEP_BIT;
+-	f01->device_control.ctrl0 &= ~RMI_F01_CRTL0_NOSLEEP_BIT;
++		f01->device_control.ctrl0 & RMI_F01_CTRL0_NOSLEEP_BIT;
++	f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_NOSLEEP_BIT;
+ 
+ 	f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
+ 	if (device_may_wakeup(fn->rmi_dev->xport->dev))
+@@ -549,7 +549,7 @@ static int rmi_f01_suspend(struct rmi_function *fn)
+ 	if (error) {
+ 		dev_err(&fn->dev, "Failed to write sleep mode: %d.\n", error);
+ 		if (f01->old_nosleep)
+-			f01->device_control.ctrl0 |= RMI_F01_CRTL0_NOSLEEP_BIT;
++			f01->device_control.ctrl0 |= RMI_F01_CTRL0_NOSLEEP_BIT;
+ 		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
+ 		f01->device_control.ctrl0 |= RMI_SLEEP_MODE_NORMAL;
+ 		return error;
+@@ -564,7 +564,7 @@ static int rmi_f01_resume(struct rmi_function *fn)
+ 	int error;
+ 
+ 	if (f01->old_nosleep)
+-		f01->device_control.ctrl0 |= RMI_F01_CRTL0_NOSLEEP_BIT;
++		f01->device_control.ctrl0 |= RMI_F01_CTRL0_NOSLEEP_BIT;
+ 
+ 	f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
+ 	f01->device_control.ctrl0 |= RMI_SLEEP_MODE_NORMAL;
+-- 
+2.5.0
 

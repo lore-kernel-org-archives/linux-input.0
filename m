@@ -1,54 +1,79 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [RFC PATCH 1/2] Input: rotary-encoder- Add support for absolute
- encoder
-Date: Fri, 20 May 2016 16:49:06 -0500
-Message-ID: <20160520214906.GA20973@rob-hp-laptop>
-References: <1463648641-6931-1-git-send-email-vigneshr@ti.com>
- <1463648641-6931-2-git-send-email-vigneshr@ti.com>
+Subject: Re: [PATCH 1/2 V3] dt: add Atmel Captouch bindings
+Date: Fri, 20 May 2016 17:12:55 -0500
+Message-ID: <CAL_Jsq+dDLnQQOrsDqXfCbU1pBFjM2qQ98PDQjg3=49WTjawRw@mail.gmail.com>
+References: <1463432094-146726-1-git-send-email-grundler@chromium.org>
+ <20160518164404.GA31862@rob-hp-laptop> <20160518215914.GA4081@dtor-ws>
+ <CAL_Jsq+zBQ-Z3eEouQHxSiH9jxbTMYuGUurnXwiAoXijgC3MfA@mail.gmail.com> <20160520161603.GA14951@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1463648641-6931-2-git-send-email-vigneshr@ti.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Jonathan Corbet <corbet@lwn.net>, Johan Hovold <johan@kernel.org>, Sylvain Rochet <sylvain.rochet@finsecur.com>, Masanari Iida <standby24x7@gmail.com>, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, S Twiss <stwiss.opensource@diasemi.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Moritz Fischer <moritz.fischer@ettus.com>, Arnd Bergmann <arnd@arndb.de>, Geert Uytterhoeven <geert@linux-m68k.org>, Timo Teras <timo.teras@iki.fi>, Guido Martinez <guido@vanguardiasur.com.ar>, Clifton Barnes <clifton.a.barnes@gmail.com>, Uwe Kleine-Konig <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:60168 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751215AbcETWNU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 May 2016 18:13:20 -0400
+In-Reply-To: <20160520161603.GA14951@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Grant Grundler <grundler@chromium.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Hung-yu Wu <hywu@google.com>, Kumar Gala <galak@codeaurora.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>
 
-On Thu, May 19, 2016 at 02:34:00PM +0530, Vignesh R wrote:
-> There are rotary-encoders where GPIO lines reflect the actual position
-> of the rotary encoder dial. For example, if dial points to 9, then four
-> GPIO lines connected to the rotary encoder will read HLLH(1001b = 9).
-> Add support for such rotary-encoder.
-> The driver relies on rotary-encoder,absolute-encoder DT property to
-> detect such encoders.
-> Since, GPIO IRQs are not necessary to work with
-> such encoders, optional polling mode support is added using
-> input_poll_dev skeleton. This is can be used by enabling
-> CONFIG_INPUT_GPIO_ROTARY_ENCODER_POLL_MODE_SUPPORT.
-> 
-> Signed-off-by: Vignesh R <vigneshr@ti.com>
-> ---
->  .../devicetree/bindings/input/rotary-encoder.txt   |   4 +
->  Documentation/input/rotary-encoder.txt             |   9 ++
->  drivers/input/misc/Kconfig                         |  11 ++
->  drivers/input/misc/rotary_encoder.c                | 165 ++++++++++++++++-----
->  4 files changed, 155 insertions(+), 34 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> index 6c9f0c8a846c..9c928dbd1500 100644
-> --- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> +++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> @@ -12,6 +12,10 @@ Optional properties:
->  - rotary-encoder,relative-axis: register a relative axis rather than an
->    absolute one. Relative axis will only generate +1/-1 events on the input
->    device, hence no steps need to be passed.
-> +- rotary-encoder,absolute-encoder: support encoders where GPIO lines
-> +  reflect the actual position of the rotary encoder dial. For example,
-> +  if dial points to 9, then four GPIO lines read HLLH(1001b = 9).
-> +  In this case, rotary-encoder,steps-per-period needed not be defined.
+On Fri, May 20, 2016 at 11:16 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Fri, May 20, 2016 at 07:56:51AM -0500, Rob Herring wrote:
+>> On Wed, May 18, 2016 at 4:59 PM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>> > On Wed, May 18, 2016 at 11:44:04AM -0500, Rob Herring wrote:
+>> >> On Mon, May 16, 2016 at 01:54:53PM -0700, Grant Grundler wrote:
+>> >> > From: Daniel Hung-yu Wu <hywu@google.com>
+>> >> >
+>> >> > Add binding for Atmel Capacitive Touch Button device.
+>> >> >
+>> >> > Signed-off-by: Daniel Hung-yu Wu <hywu@google.com>
+>> >> > Signed-off-by: Grant Grundler <grundler@chromium.org>
+>> >> > ---
+>> >> >  .../devicetree/bindings/input/atmel,captouch.txt   | 36 ++++++++++++++++++++++
+>> >> >  1 file changed, 34 insertions(+)
+>> >> >  create mode 100644 Documentation/devicetree/bindings/input/atmel,captouch.txt
+>> >>
+>> >> Acked-by: Rob Herring <robh@kernel.org>
+>> >
+>> > Folded into the driver patch and applied.
+>>
+>> Folded why? Please don't do that. You should be committing what is
+>> posted as is for the most part. We specifically ask that binding
+>> changes are kept separate commits. It also messes up the ability to
+>
+> I know that you ask for binding docs to be posted separately (I guess
+> so that devicetree list is not overrun with driver code mails),
 
-I think this should be done as a new compatible string rather than a 
-property. It seems like fundamentally different h/w.
+And because we're really only reviewing the binding, so putting my ack
+on the driver is not really correct.
+
+> but
+> logically driver patch and binding doc patch are a single change and
+> should be committed together, so that when I am researching the history
+> I can easily see what was introduced and when. You do not require header
+> changes to be submitted separately form .c files, do you?
+
+Yes, for include/dt-bindings we ask that they are part of the binding
+doc, not the driver even though both use it. You can also certainly
+have bindings without drivers though generally we require them. I
+would not if they had a driver in BSD or u-boot for example.
+
+You can already easily see when things are introduced because they
+will be next to each other in the git history.
+
+>> correlate git commits to patchworks or mail searches.
+>
+> The fact that it was applied can be found in mail archives.
+
+Yes, with extra effort reading the history you can, but not with a
+script. There's a patchwork script to add commit hashes to patchwork
+which works all based on the subject.
+
+Regardless of one commit or two, you simply shouldn't be changing what
+you commit. Either commit what was posted or require the author to
+combine things and repost. That's our job as patch monkeys.
 
 Rob

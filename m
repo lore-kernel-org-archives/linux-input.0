@@ -1,74 +1,101 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 0/6] Input: soc_button_array fixes and support of the
- Surface 3
-Date: Fri, 20 May 2016 09:53:48 +0200
-Message-ID: <20160520075348.GI23234@mail.corp.redhat.com>
-References: <1463155554-11747-1-git-send-email-benjamin.tissoires@redhat.com>
- <1463507131.3440.7.camel@hadess.net>
+Subject: Re: [PATCH 2/2] HID: multitouch: enable the Surface 3 Type Cover to
+ report multitouch data
+Date: Fri, 20 May 2016 09:58:35 +0200
+Message-ID: <20160520075835.GJ23234@mail.corp.redhat.com>
+References: <1463062363-12405-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1463062363-12405-2-git-send-email-benjamin.tissoires@redhat.com>
+ <1463149818.17131.349.camel@linux.intel.com>
+ <20160513144927.GZ23234@mail.corp.redhat.com>
+ <1463155787.17131.351.camel@linux.intel.com>
+ <1463156908.17131.353.camel@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:49782 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755615AbcETHxy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 May 2016 03:53:54 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1463507131.3440.7.camel@hadess.net>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1463156908.17131.353.camel@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Lejun Zhu <lejun.zhu@linux.intel.com>, Fabio Estevam <festevam@gmail.com>
 
-On May 17 2016 or thereabouts, Bastien Nocera wrote:
-> On Fri, 2016-05-13 at 18:05 +0200, Benjamin Tissoires wrote:
-> > Hi,
-> >=20
-> > This is the v2 of the series with 3 extra patches to add support of
-> > the buttons
-> > found on the Surface 3.
-> >=20
-> > Cheers,
-> > Benjamin
-> >=20
-> >=20
-> > Benjamin Tissoires (6):
-> > =C2=A0 Input - soc_button_array: use gpio_is_valid()
-> > =C2=A0 Input - soc_button_array: bail out earlier if gpiod_count is=
- null
-> > =C2=A0 Input - soc_button_array: make sure one GPIO is not assigned=
- twice
-> > =C2=A0 Input - soc_button_array: allow to specify active_low
-> > =C2=A0 Input - soc_button_array: export part of the internals
-> > =C2=A0 Input - surface3_button_array: Introduce button support for =
-the
-> > =C2=A0=C2=A0=C2=A0=C2=A0Surface 3
+On May 13 2016 or thereabouts, Andy Shevchenko wrote:
+> On Fri, 2016-05-13 at 19:09 +0300, Andy Shevchenko wrote:
+> > On Fri, 2016-05-13 at 16:49 +0200, Benjamin Tissoires wrote:
+> > >=20
+> > > On May 13 2016 or thereabouts, Andy Shevchenko wrote:
+> > > >=20
+> > > >=20
+> > > > On Thu, 2016-05-12 at 16:12 +0200, Benjamin Tissoires wrote:
+> > > > >=20
+> > > > >=20
+> > > > > There is no reasons to filter out keyboard and consumer contr=
+ol
+> > > > > collections
+> > > > > in hid-multitouch.
+> > > > > With the previous hid-input fix, there is now a full support =
+of
+> > > > > the
+> > > > > Type
+> > > > > Cover and we can remove all specific bits from hid-core and h=
+id-
+> > > > > microsoft.
+> > > > >=20
+> > > > > hid-multitouch will automatically set HID_QUIRK_NO_INIT_REPOR=
+TS
+> > > > > so
+> > > > > we
+> > > > > can
+> > > > > also remove it from the list of ushbid quirks.
+> > > > >=20
+> > > > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.=
+com
+> > > > > >
+> > > > > ---
+> > > > >=20
+> > > > > Andy, would you mind checking if this series is sufficient to
+> > > > > enable
+> > > > > the
+> > > > > TypeCover of the Surface Book?
+> > > > Tested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > > >=20
+> > > > Noticed little difference that there is no event for the device
+> > > > anymore,
+> > > > just /dev/usb/hiddev0. Would it work properly under X?
+> > > Not sure what you mean.
+> > > I get 3 input nodes:
+> > > Microsoft Surface Type Cover Keyboard
+> > > Microsoft Surface Type Cover Consumer Control
+> > > Microsoft Surface Type Cover Touchpad
+> > >=20
+> > > Each on this input device is properly assigned an event node and =
+X
+> > > works
+> > > with them.
+> > >=20
+> > > If there is no /dev/input/eventX created for your cover, then thi=
+s
+> > > is
+> > > not normal and needs to be investigated.
+> > There is no /dev/input/eventX for the touchpad.=C2=A0
+> > It prints that input device is under /usb.../input8, but the actual
+> > node
+> > I got events from is /dev/usb/hiddev0.
 >=20
-> Works on my Surface 3, the volume buttons, and the Windows button wor=
-k
-> as expected. Note that the power button does not send out any events =
-on
-> my machine, but that might be due to firmware differences.
->=20
-> My BIOS is listed as version 1.51116.78 released 03/09/2015.
->=20
-> As there's no errors generated, it would be fine to look at it as a b=
-ug
-> fix later on (or for me to updated my system).
->=20
-> Tested-by: Bastien Nocera <hadess@hadess.net>
+> Correction, it seems the event node is there (event6), but I got noth=
+ing
+> from it
 
-Bastien told me in a different thread that the power button is not
-working only after a reboot from Windows. After a cold start, it works
-fine. There might be something that needs to be set at the I2C level,
-but I think while we don't know much about the I2C protocol there, it
-should be safe to still get this upstream.
+Would you mind sending me a hid-recorder[1] trace of the device while
+typing few keys and using the touchpad?
+
+Not receiving events from the actual touchpad node means that the
+device did not switch to the mutlitouch mode, or that something else
+is going on. I should be able to see that in the hid-recorder log.
+
+
+[1] http://bentiss.github.io/hid-replay-docs/
 
 Cheers,
 Benjamin
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

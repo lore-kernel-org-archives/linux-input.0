@@ -1,77 +1,72 @@
-From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Change BTN_TOOL_FINGER flag when hover event
- trigger
-Date: Thu, 19 May 2016 17:51:37 -0700
-Message-ID: <20160520005137.GA39923@dtor-ws>
-References: <C2DEC699-8A1A-484D-83F2-637F5EF94C7B@emc.com.tw>
- <006901d1acea$8207d090$861771b0$@emc.com.tw>
- <00be01d1af65$ec37c290$c4a747b0$@emc.com.tw>
- <20160516175342.GD12752@dtor-ws>
- <00c901d1b047$4a2d3ba0$de87b2e0$@emc.com.tw>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 0/6] Input: soc_button_array fixes and support of the
+ Surface 3
+Date: Fri, 20 May 2016 09:53:48 +0200
+Message-ID: <20160520075348.GI23234@mail.corp.redhat.com>
+References: <1463155554-11747-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1463507131.3440.7.camel@hadess.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:34533 "EHLO
-	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753929AbcETAvl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 May 2016 20:51:41 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:49782 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755615AbcETHxy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 May 2016 03:53:54 -0400
 Content-Disposition: inline
-In-Reply-To: <00c901d1b047$4a2d3ba0$de87b2e0$@emc.com.tw>
+In-Reply-To: <1463507131.3440.7.camel@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zac.hsieh@emc.com.tw, =?utf-8?B?J+m7g+S4lum1rCDntpPnkIYn?= <phoenix@emc.com.tw>, 'Charles Mooney' <charliemooney@google.com>, 'Agnes Cheng' <agnescheng@google.com>, 'jeff' <jeff.chuang@emc.com.tw>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Lejun Zhu <lejun.zhu@linux.intel.com>, Fabio Estevam <festevam@gmail.com>
 
-On Tue, May 17, 2016 at 10:20:40PM +0800, =E5=BB=96=E5=B4=87=E6=A6=AE w=
-rote:
-> Hi Dmitry,
+On May 17 2016 or thereabouts, Bastien Nocera wrote:
+> On Fri, 2016-05-13 at 18:05 +0200, Benjamin Tissoires wrote:
+> > Hi,
+> >=20
+> > This is the v2 of the series with 3 extra patches to add support of
+> > the buttons
+> > found on the Surface 3.
+> >=20
+> > Cheers,
+> > Benjamin
+> >=20
+> >=20
+> > Benjamin Tissoires (6):
+> > =C2=A0 Input - soc_button_array: use gpio_is_valid()
+> > =C2=A0 Input - soc_button_array: bail out earlier if gpiod_count is=
+ null
+> > =C2=A0 Input - soc_button_array: make sure one GPIO is not assigned=
+ twice
+> > =C2=A0 Input - soc_button_array: allow to specify active_low
+> > =C2=A0 Input - soc_button_array: export part of the internals
+> > =C2=A0 Input - surface3_button_array: Introduce button support for =
+the
+> > =C2=A0=C2=A0=C2=A0=C2=A0Surface 3
 >=20
-> I want to confirm my thought for your idea to avoid misunderstanding.
-> I think you want to encapsulate " BTN_TOOL_FINGER" in the [input_mt_r=
-eport_pointer_emulation] if hover happen.
-> Vendor driver only report "ABS_DISTANCE" and let [input_mt_report_poi=
-nter_emulation] emit BTN_TOOL_FINGER report without change function par=
-ameter.
+> Works on my Surface 3, the volume buttons, and the Windows button wor=
+k
+> as expected. Note that the power button does not send out any events =
+on
+> my machine, but that might be due to firmware differences.
 >=20
-> Please let me know if my misunderstand about your idea.
+> My BIOS is listed as version 1.51116.78 released 03/09/2015.
+>=20
+> As there's no errors generated, it would be fine to look at it as a b=
+ug
+> fix later on (or for me to updated my system).
+>=20
+> Tested-by: Bastien Nocera <hadess@hadess.net>
 
-Yes, that is correct. Something like this:
+Bastien told me in a different thread that the power button is not
+working only after a reboot from Windows. After a cold start, it works
+fine. There might be something that needs to be set at the I2C level,
+but I think while we don't know much about the I2C protocol there, it
+should be safe to still get this upstream.
 
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index 54fce56..a1bbec9 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -218,8 +218,23 @@ void input_mt_report_pointer_emulation(struct inpu=
-t_dev *dev, bool use_count)
- 	}
-=20
- 	input_event(dev, EV_KEY, BTN_TOUCH, count > 0);
--	if (use_count)
-+
-+	if (use_count) {
-+		if (count =3D=3D 0 &&
-+		    !test_bit(ABS_MT_DISTANCE, dev->absbit) &&
-+		    test_bit(ABS_DISTANCE, dev->absbit) &&
-+		    input_abs_get_val(dev, ABS_DISTANCE) !=3D 0) {
-+			/*
-+			 * Force reporting BTN_TOOL_FINGER for devices that
-+			 * only report general hover (and not per-contact
-+			 * distance) when contact is in proximity but not
-+			 * on the surface.
-+			 */
-+			count =3D 1;
-+		}
-+
- 		input_mt_report_finger_count(dev, count);
-+	}
-=20
- 	if (oldest) {
- 		int x =3D input_mt_get_value(oldest, ABS_MT_POSITION_X);
+Cheers,
+Benjamin
 
---=20
-Dmitry
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

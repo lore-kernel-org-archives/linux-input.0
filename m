@@ -1,56 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 21/54] MAINTAINERS: Add file patterns for serio device
- tree bindings
-Date: Mon, 23 May 2016 15:52:12 -0700
-Message-ID: <20160523225212.GE20465@dtor-ws>
-References: <1463907991-7916-1-git-send-email-geert@linux-m68k.org>
- <1463907991-7916-22-git-send-email-geert@linux-m68k.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: tc3589x-keypad - remove stray ')'
+Date: Mon, 23 May 2016 15:52:26 -0700
+Message-ID: <20160523225226.GF20465@dtor-ws>
+References: <1463926811-2921-1-git-send-email-clifton.a.barnes@gmail.com>
+ <CACRpkdZQZBwJFnKsh9D5R_AE5iNTe2c5Nh7fkvSFVOj62-m4Jg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:33193 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752088AbcEWWw3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 May 2016 18:52:29 -0400
 Content-Disposition: inline
-In-Reply-To: <1463907991-7916-22-git-send-email-geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <CACRpkdZQZBwJFnKsh9D5R_AE5iNTe2c5Nh7fkvSFVOj62-m4Jg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Clifton Barnes <clifton.a.barnes@gmail.com>, Himangi Saraogi <himangi774@gmail.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Sun, May 22, 2016 at 11:05:58AM +0200, Geert Uytterhoeven wrote:
-> Submitters of device tree binding documentation may forget to CC
-> the subsystem maintainer if this is missing.
+On Mon, May 23, 2016 at 03:26:56PM +0200, Linus Walleij wrote:
+> On Sun, May 22, 2016 at 4:20 PM, Clifton Barnes
+> <clifton.a.barnes@gmail.com> wrote:
 > 
-> Signed-off-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-> Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > The end ')' needs to be removed if the macro is ever used or there
+> > would be a compiler error as it does not have a matching '('.
+> >
+> > Signed-off-by: Clifton Barnes <clifton.a.barnes@gmail.com>
+> 
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-> ---
-> Please apply this patch directly if you want to be involved in device
-> tree binding documentation for your subsystem.
-> ---
->  MAINTAINERS | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 5cf50bf461c4255e..528c5ecd59d50ab5 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -5885,6 +5885,7 @@ F:	include/linux/input.h
->  F:	include/uapi/linux/input.h
->  F:	include/linux/input/
->  F:	Documentation/devicetree/bindings/input/
-> +F:	Documentation/devicetree/bindings/serio/
->  
->  INPUT MULTITOUCH (MT) PROTOCOL
->  M:	Henrik Rydberg <rydberg-FFUHeuDi6mxAfugRpC6u6w@public.gmane.org>
-> -- 
-> 1.9.1
-> 
+Applied, thank you.
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

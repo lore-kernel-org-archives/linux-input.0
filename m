@@ -1,79 +1,106 @@
-From: Martin Kepplinger <martink@posteo.de>
-Subject: Re: [PATCH v3] input: tablet: add Pegasus Notetaker tablet driver
-Date: Mon, 23 May 2016 19:19:01 +0200
-Message-ID: <57433B85.1050301@posteo.de>
-References: <1464003592-24043-1-git-send-email-martink@posteo.de>
- <1464006414.12181.53.camel@suse.com> <5742FB0F.5070508@posteo.de>
- <1464008447.12181.58.camel@suse.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: re: Input: elo - add support for non-pressure-sensitive touchscreens
+Date: Mon, 23 May 2016 20:30:26 +0300
+Message-ID: <20160523173026.GA24864@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1464008447.12181.58.camel@suse.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.com>
-Cc: dmitry.torokhov@gmail.com, kernel-testers@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from aserp1040.oracle.com ([141.146.126.69]:35120 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753066AbcEWRai (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 May 2016 13:30:38 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: sjackman@gmail.com
+Cc: linux-input@vger.kernel.org
 
-Am 2016-05-23 um 15:00 schrieb Oliver Neukum:
-> On Mon, 2016-05-23 at 14:43 +0200, Martin Kepplinger wrote:
->> Am 2016-05-23 um 14:26 schrieb Oliver Neukum:
->>> On Mon, 2016-05-23 at 13:39 +0200, Martin Kepplinger wrote:
->>>
->>>> It's *really* fun to use as an input tablet though! So let's support this
->>>> for everybody.
->>>
->>> Hi,
->>>
->>> I am afraid there are a few issues.
->>
->> Thanks for having a look, comments below.
->>
->>>
->>> 1. Why the kernel thread?
->>
->> I provide switching to the xy tablet mode by pressing a button during
->> runtime. So usb_control_msg() is called from the thread, not the
->> interrupt routine.
->>
->> We don't get in the way of any user app. If we leave that functionality
->> out, users may have to un- and replug in the device after using
->> userspace apps that transfer data or the like.
-> 
-> The functionality is OK, but the implementation, though creative,
-> is buggy.
-> 
-> a - multiple devices will fail
-> b - you have a race condition that will fail to wake the thread
->     if it is still running when the button is pressed again
-> 
-> Kernel threads are wasteful. Using the normal system work queue might be
-> much easier
+Hello Shaun Jackman,
 
-You're right. I'll definitely change this.
+The patch fae3006e4b42: "Input: elo - add support for
+non-pressure-sensitive touchscreens" from Aug 5, 2006, leads to the
+following static checker warning:
 
-> 
->>> 2. This driver has questionable power management.
->>
->> I think I do it how others do it. Suspend/resume works. Anything
->> specific required here?
-> 
-> Runtime PM is missing.
+	drivers/input/touchscreen/elo.c:349 elo_connect()
+	warn: missing error code here? 'elo_setup_10()' failed. 'err' = '0'
 
-There is no way to turn the device off. So like any other mouse or input
-tablet we don't use runtime PM.
+drivers/input/touchscreen/elo.c
+   308  static int elo_connect(struct serio *serio, struct serio_driver *drv)
+   309  {
+   310          struct elo *elo;
+   311          struct input_dev *input_dev;
+   312          int err;
+   313  
+   314          elo = kzalloc(sizeof(struct elo), GFP_KERNEL);
+   315          input_dev = input_allocate_device();
+   316          if (!elo || !input_dev) {
+   317                  err = -ENOMEM;
+   318                  goto fail1;
+   319          }
+   320  
+   321          elo->serio = serio;
+   322          elo->id = serio->id.id;
+   323          elo->dev = input_dev;
+   324          elo->expected_packet = ELO10_TOUCH_PACKET;
+   325          mutex_init(&elo->cmd_mutex);
+   326          init_completion(&elo->cmd_done);
+   327          snprintf(elo->phys, sizeof(elo->phys), "%s/input0", serio->phys);
+   328  
+   329          input_dev->name = "Elo Serial TouchScreen";
+   330          input_dev->phys = elo->phys;
+   331          input_dev->id.bustype = BUS_RS232;
+   332          input_dev->id.vendor = SERIO_ELO;
+   333          input_dev->id.product = elo->id;
+   334          input_dev->id.version = 0x0100;
+   335          input_dev->dev.parent = &serio->dev;
+   336  
+   337          input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+   338          input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+   339  
+   340          serio_set_drvdata(serio, elo);
+   341          err = serio_open(serio, drv);
+   342          if (err)
+   343                  goto fail2;
+   344  
+   345          switch (elo->id) {
+   346  
+   347          case 0: /* 10-byte protocol */
+   348                  if (elo_setup_10(elo))
+   349                          goto fail3;
 
-In case the Pen is out of range or off, we just don't handle URBs and do
-nothing.
+This should return -1 (or -EPERM, I guess, if you want to avoid magic
+numbers).
 
-... but I may miss something, so in this case please get back to me.
+   350  
+   351                  break;
+   352  
+   353          case 1: /* 6-byte protocol */
+   354                  input_set_abs_params(input_dev, ABS_PRESSURE, 0, 15, 0, 0);
+   355  
+   356          case 2: /* 4-byte protocol */
+   357                  input_set_abs_params(input_dev, ABS_X, 96, 4000, 0, 0);
+   358                  input_set_abs_params(input_dev, ABS_Y, 96, 4000, 0, 0);
+   359                  break;
+   360  
+   361          case 3: /* 3-byte protocol */
+   362                  input_set_abs_params(input_dev, ABS_X, 0, 255, 0, 0);
+   363                  input_set_abs_params(input_dev, ABS_Y, 0, 255, 0, 0);
+   364                  break;
+   365          }
+   366  
+   367          err = input_register_device(elo->dev);
+   368          if (err)
+   369                  goto fail3;
+   370  
+   371          return 0;
+   372  
+   373   fail3: serio_close(serio);
+   374   fail2: serio_set_drvdata(serio, NULL);
+   375   fail1: input_free_device(input_dev);
+   376          kfree(elo);
+   377          return err;
+   378  }
 
-thanks
-
-                       martin
-
-> 
-> 	Regards
-> 		Oliver
-> 
-> 
+regards,
+dan carpenter

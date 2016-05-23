@@ -1,70 +1,79 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: wacom_w8001 - Ignore bogus idx values in interrupt
-Date: Mon, 23 May 2016 09:52:26 -0700
-Message-ID: <20160523165226.GC20465@dtor-ws>
-References: <1463967746-15336-1-git-send-email-christopherarges@gmail.com>
- <CAF8JNhLzEKmQ-D-o6TYkerJ+=PfLYdHKpB40yU3ohP=sp00ozQ@mail.gmail.com>
+From: Martin Kepplinger <martink@posteo.de>
+Subject: Re: [PATCH v3] input: tablet: add Pegasus Notetaker tablet driver
+Date: Mon, 23 May 2016 19:19:01 +0200
+Message-ID: <57433B85.1050301@posteo.de>
+References: <1464003592-24043-1-git-send-email-martink@posteo.de>
+ <1464006414.12181.53.camel@suse.com> <5742FB0F.5070508@posteo.de>
+ <1464008447.12181.58.camel@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAF8JNhLzEKmQ-D-o6TYkerJ+=PfLYdHKpB40yU3ohP=sp00ozQ@mail.gmail.com>
+In-Reply-To: <1464008447.12181.58.camel@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Chris J Arges <christopherarges@gmail.com>, linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Ping Cheng <pingc@wacom.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Oliver Neukum <oneukum@suse.com>
+Cc: dmitry.torokhov@gmail.com, kernel-testers@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, May 22, 2016 at 10:21:45PM -0700, Ping Cheng wrote:
-> Hi Chris,
+Am 2016-05-23 um 15:00 schrieb Oliver Neukum:
+> On Mon, 2016-05-23 at 14:43 +0200, Martin Kepplinger wrote:
+>> Am 2016-05-23 um 14:26 schrieb Oliver Neukum:
+>>> On Mon, 2016-05-23 at 13:39 +0200, Martin Kepplinger wrote:
+>>>
+>>>> It's *really* fun to use as an input tablet though! So let's support this
+>>>> for everybody.
+>>>
+>>> Hi,
+>>>
+>>> I am afraid there are a few issues.
+>>
+>> Thanks for having a look, comments below.
+>>
+>>>
+>>> 1. Why the kernel thread?
+>>
+>> I provide switching to the xy tablet mode by pressing a button during
+>> runtime. So usb_control_msg() is called from the thread, not the
+>> interrupt routine.
+>>
+>> We don't get in the way of any user app. If we leave that functionality
+>> out, users may have to un- and replug in the device after using
+>> userspace apps that transfer data or the like.
 > 
-> On Sun, May 22, 2016 at 6:42 PM, Chris J Arges
-> <christopherarges@gmail.com> wrote:
-> > I've noticed crashes when using my x60t using a coreboot bios. When using
-> > the pen I can produce a crash simply by tapping a few times. This
-> > generates an event which has an idx of 0xc. This in turn crashes the
-> > machine because the array access is greater than W8001_MAX_LENGTH. This
-> > patch checks for bogus values and filters them in order to prevent crashes.
+> The functionality is OK, but the implementation, though creative,
+> is buggy.
 > 
-> Thank you for submitting a patch in addition to reporting the issue.
+> a - multiple devices will fail
+> b - you have a race condition that will fail to wake the thread
+>     if it is still running when the button is pressed again
 > 
-> > Signed-off-by: Chris J Arges <christopherarges@gmail.com>
-> > ---
-> >  drivers/input/touchscreen/wacom_w8001.c | 9 +++++++++
-> >  1 file changed, 9 insertions(+)
-> >
-> > diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
-> > index bab3c6a..c858200 100644
-> > --- a/drivers/input/touchscreen/wacom_w8001.c
-> > +++ b/drivers/input/touchscreen/wacom_w8001.c
-> > @@ -283,6 +283,15 @@ static irqreturn_t w8001_interrupt(struct serio *serio,
-> >         unsigned char tmp;
-> >
-> >         w8001->data[w8001->idx] = data;
-> > +
-> > +       /* ignore bogus idx values */
-> > +       if (w8001->idx >= W8001_MAX_LENGTH) {
-> > +               pr_info("w8001: ignored interrupt: data 0x%02x idx %d\n", data,
-> > +                       w8001->idx);
-> > +               w8001->idx = 0;
-> > +               return IRQ_HANDLED;
-> > +       }
-> > +
-> 
-> I don't have an x60t system to test with. I wonder if your system
-> supports two finger touch or not. We at least have a bug in the code
-> since W8001_MAX_LENGTH should be 13 instead of 11. How come no one had
-> encountered that issue before?
-> 
-> I'm going to email a patch to the list. Please test it and let us know
-> your result. Maybe we still need your patch if your device doesn't
-> support two finger touch or the idx=0xc can't be fixed by
-> W8001_MAX_LENGTH=13.
+> Kernel threads are wasteful. Using the normal system work queue might be
+> much easier
 
-Just so we are clear this version of the patch is buggy as we check the
-index only after [potentially] writing past the array bounds of
-w8001->data[].
+You're right. I'll definitely change this.
 
-Thanks.
+> 
+>>> 2. This driver has questionable power management.
+>>
+>> I think I do it how others do it. Suspend/resume works. Anything
+>> specific required here?
+> 
+> Runtime PM is missing.
 
--- 
-Dmitry
+There is no way to turn the device off. So like any other mouse or input
+tablet we don't use runtime PM.
+
+In case the Pen is out of range or off, we just don't handle URBs and do
+nothing.
+
+... but I may miss something, so in this case please get back to me.
+
+thanks
+
+                       martin
+
+> 
+> 	Regards
+> 		Oliver
+> 
+> 

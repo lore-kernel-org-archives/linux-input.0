@@ -1,97 +1,136 @@
-From: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Subject: RE: [PATCH] Input: Change BTN_TOOL_FINGER flag when hover event trigger
-Date: Mon, 23 May 2016 22:28:59 +0800
-Message-ID: <000001d1b4ff$71ee0720$55ca1560$@emc.com.tw>
-References: <C2DEC699-8A1A-484D-83F2-637F5EF94C7B@emc.com.tw> <006901d1acea$8207d090$861771b0$@emc.com.tw> <00be01d1af65$ec37c290$c4a747b0$@emc.com.tw> <20160516175342.GD12752@dtor-ws> <00c901d1b047$4a2d3ba0$de87b2e0$@emc.com.tw> <20160520005137.GA39923@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: "jeffrey.lin" <yajohn@gmail.com>
+Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
+Date: Mon, 23 May 2016 22:43:53 +0800
+Message-ID: <1464014633-20829-1-git-send-email-jeffrey.lin@rad-ic.com>
+References: <20160513041852.GA8932@dtor-ws>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160520005137.GA39923@dtor-ws>
-Content-Language: zh-tw
+In-Reply-To: <20160513041852.GA8932@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zac.hsieh@emc.com.tw, =?UTF-8?B?J+m7g+S4lum1rCDntpPnkIYn?= <phoenix@emc.com.tw>, 'Charles Mooney' <charliemooney@google.com>, 'Agnes Cheng' <agnescheng@google.com>, 'jeff' <jeff.chuang@emc.com.tw>
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se, grant.likely@linaro.org, robh+dt@kernel.org, jeesw@melfas.com, bleung@chromium.org
+Cc: jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, albert.shieh@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi Dmitry:
 
-Thanks for your confirmation.
+>static int raydium_i2c_read_message(struct i2c_client *client,
+>				    u32 addr, void *data, size_t len)
+>{
+>	__le32 le_addr;
+>	size_t xfer_len;
+>	u32 shift_addr;
+>	int error;
+>
+>	while (len) {
+>		xfer_len = min_t(size_t, len, RM_MAX_READ_SIZE);
+>
+>		le_addr = cpu_to_le32(addr);
+>
+>		shift_addr = le_addr >> 8;/*send the first 3rd byte addr.*/
+Drop this. Change touch MCU setting to solve this issue
+>		error = raydium_i2c_send(client, RM_CMD_BANK_SWITCH,
+>					 &shift_addr, sizeof(le_addr));
+>		if (!error)/*read from last byte addr.*/
+>			error = raydium_i2c_read(client, le_addr & 0xff,
+>						 data, xfer_len);
+>		if (error)
+>			return error;
+>
+>		len -= xfer_len;
+>		data += xfer_len;
+>		addr += xfer_len;
+>	}
+>
+>	return 0;
+>}
+modify as below.
 
-I think the best and simplest way is to add below code to emit BTN_TOOL=
-_FINGER if hover condition meets.
+static int raydium_i2c_read_message(struct i2c_client *client,
+				    u32 addr, void *data, size_t len)
+{
+	__le32 le_addr;
+	size_t xfer_len;
+	int error;
 
-input_report_key(dev, BTN_TOOL_FINGER, input_mt_get_value(dev, ABS_DIST=
-ANCE));
+	while (len) {
+		xfer_len = min_t(size_t, len, RM_MAX_READ_SIZE);
 
-Is it ok for you?
+		le_addr = cpu_to_le32(addr);
 
-	if (use_count) {
-		if (count =3D=3D 0 &&
-		    !test_bit(ABS_MT_DISTANCE, dev->absbit) &&
-		    test_bit(ABS_DISTANCE, dev->absbit) &&
-		    input_abs_get_val(dev, ABS_DISTANCE) !=3D 0) {
+		error = raydium_i2c_send(client, RM_CMD_BANK_SWITCH,
+					 &le_addr, sizeof(le_addr));
+		if (!error)/*read from last byte addr.*/
+			error = raydium_i2c_read(client, le_addr & 0xff,
+						 data, xfer_len);
+		if (error)
+			return error;
 
-			/* Emit BTN_TOOL_FINGER*/
-			input_report_key(dev, BTN_TOOL_FINGER, input_mt_get_value(dev, ABS_D=
-ISTANCE));
+		len -= xfer_len;
+		data += xfer_len;
+		addr += xfer_len;
+	}
 
-			count =3D 1;
+	return 0;
+}
+
+>
+>>> static int raydium_i2c_fw_write_page(struct i2c_client *client,
+>>> 				     u16 page_idx, const void *data, size_t len)
+>>> {
+>>> 	u8 buf[RM_BL_WRT_LEN];
+>>> 	u8 pkg_idx = 1;
+>>> 	size_t xfer_len;
+>>> 	int error;
+>>> 
+>>> 	while (len) {
+>>> 		xfer_len = min_t(size_t, len, RM_BL_WRT_PKG_SIZE);
+>>> 		buf[BL_HEADER] = RM_CMD_BOOT_PAGE_WRT;
+>>> 		/*FIXME,Touch MCU need zero index as start page*/
+>>> 		buf[BL_PAGE_STR] = page_idx ? 0xff : 0;
+>>> 		buf[BL_PKG_IDX] = pkg_idx++;
+>>> 
+>>> 		memcpy(&buf[BL_DATA_STR], data, xfer_len);
+>>> 
+>>> 		if (len < RM_BL_WRT_PKG_SIZE) {
+>>> 			buf[BL_PKG_IDX] = 4;
+Drop this one. Modfy boot loader firmware to meet this issue. So final function as below.
+static int raydium_i2c_fw_write_page(struct i2c_client *client,
+				     u16 page_idx, const void *data, size_t len)
+{
+	u8 buf[RM_BL_WRT_LEN];
+	u8 pkg_idx = 1;
+	size_t xfer_len;
+	int error;
+
+	while (len) {
+		xfer_len = min_t(size_t, len, RM_BL_WRT_PKG_SIZE);
+		buf[BL_HEADER] = RM_CMD_BOOT_PAGE_WRT;
+		/*FIXME,Touch MCU need zero index as start page*/
+		buf[BL_PAGE_STR] = page_idx ? 0xff : 0;
+		buf[BL_PKG_IDX] = pkg_idx++;
+
+		memcpy(&buf[BL_DATA_STR], data, xfer_len);
+
+		if (len < RM_BL_WRT_PKG_SIZE) {
+			memset(buf + BL_DATA_STR + xfer_len, 0xff,
+				RM_BL_WRT_PKG_SIZE - xfer_len);
 		}
 
-B.R  KT
------Original Message-----
-=46rom: 'Dmitry Torokhov' [mailto:dmitry.torokhov@gmail.com]=20
-Sent: Friday, May 20, 2016 8:52 AM
-To: =E5=BB=96=E5=B4=87=E6=A6=AE
-Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; zac.hsie=
-h@emc.com.tw; '=E9=BB=83=E4=B8=96=E9=B5=AC =E7=B6=93=E7=90=86'; 'Charle=
-s Mooney'; 'Agnes Cheng'; 'jeff'
-Subject: Re: [PATCH] Input: Change BTN_TOOL_FINGER flag when hover even=
-t trigger
+		error = raydium_i2c_write_object(client, buf, RM_BL_WRT_LEN,
+						 RAYDIUM_WAIT_READY);
+		if (error) {
+			dev_err(&client->dev,
+				"page write command failed for page %d, chunk %d: %d\n",
+				page_idx, pkg_idx, error);
+			return error;
+		}
+		data += xfer_len;
+		len -= xfer_len;
+	}
 
-On Tue, May 17, 2016 at 10:20:40PM +0800, =E5=BB=96=E5=B4=87=E6=A6=AE w=
-rote:
-> Hi Dmitry,
->=20
-> I want to confirm my thought for your idea to avoid misunderstanding.
-> I think you want to encapsulate " BTN_TOOL_FINGER" in the [input_mt_r=
-eport_pointer_emulation] if hover happen.
-> Vendor driver only report "ABS_DISTANCE" and let [input_mt_report_poi=
-nter_emulation] emit BTN_TOOL_FINGER report without change function par=
-ameter.
->=20
-> Please let me know if my misunderstand about your idea.
+	return error;
+}
+Otherwise, Do you have any concern about my patch? If not, I'll send new patch soon.
 
-Yes, that is correct. Something like this:
+Thanks.
 
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c index =
-54fce56..a1bbec9 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -218,8 +218,23 @@ void input_mt_report_pointer_emulation(struct inpu=
-t_dev *dev, bool use_count)
- 	}
-=20
- 	input_event(dev, EV_KEY, BTN_TOUCH, count > 0);
--	if (use_count)
-+
-+	if (use_count) {
-+		if (count =3D=3D 0 &&
-+		    !test_bit(ABS_MT_DISTANCE, dev->absbit) &&
-+		    test_bit(ABS_DISTANCE, dev->absbit) &&
-+		    input_abs_get_val(dev, ABS_DISTANCE) !=3D 0) {
-+			/*
-+			 * Force reporting BTN_TOOL_FINGER for devices that
-+			 * only report general hover (and not per-contact
-+			 * distance) when contact is in proximity but not
-+			 * on the surface.
-+			 */
-+			count =3D 1;
-+		}
-+
- 		input_mt_report_finger_count(dev, count);
-+	}
-=20
- 	if (oldest) {
- 		int x =3D input_mt_get_value(oldest, ABS_MT_POSITION_X);
+Jeffrey

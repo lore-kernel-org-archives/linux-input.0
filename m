@@ -1,32 +1,49 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] i2c_hid: enable i2c-hid devices to suspend/resume
- asynchronously
-Date: Mon, 23 May 2016 11:22:31 +0300
-Message-ID: <20160523082231.GC2037@lahna.fi.intel.com>
-References: <573D2900.6090903@linux.intel.com>
+From: "R, Vignesh" <vigneshr@ti.com>
+Subject: Re: [RFC PATCH 1/2] Input: rotary-encoder- Add support for absolute
+ encoder
+Date: Mon, 23 May 2016 14:48:59 +0530
+Message-ID: <5742CB03.8010805@ti.com>
+References: <1463648641-6931-1-git-send-email-vigneshr@ti.com>
+ <1463648641-6931-2-git-send-email-vigneshr@ti.com>
+ <20160520163404.GC14951@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:47859 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752999AbcEWIWh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 May 2016 04:22:37 -0400
-Content-Disposition: inline
-In-Reply-To: <573D2900.6090903@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20160520163404.GC14951@dtor-ws>
+Sender: linux-doc-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Jonathan Corbet <corbet@lwn.net>, Johan Hovold <johan@kernel.org>, Sylvain Rochet <sylvain.rochet@finsecur.com>, Masanari Iida <standby24x7@gmail.com>, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, S Twiss <stwiss.opensource@diasemi.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Moritz Fischer <moritz.fischer@ettus.com>, Arnd Bergmann <arnd@arndb.de>, Geert Uytterhoeven <geert@linux-m68k.org>, Timo Teras <timo.teras@iki.fi>, Guido Martinez <guido@vanguardiasur.com.ar>, Clifton Barnes <clifton.a.barnes@gmail.com>, Uwe Kleine-Konig <u.kleine-koenig@pengutronix.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kern>
 List-Id: linux-input@vger.kernel.org
-To: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
-Cc: Jiri Kosina <jikos@kernel.org>, benjamin.tissoires@redhat.com, dtor@chromium.org, bleung@chromium.org, aduggan@synaptics.com, k.kozlowski@samsung.com, dianders@chromium.org, gabriele.mzt@gmail.com, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Thu, May 19, 2016 at 10:46:24AM +0800, Fu, Zhonghui wrote:
-> i2c-hid devices' suspend/resume are usually time-consuming process.
-> For example, the touch controller(i2c-ATML1000:00) on ASUS T100 tablet
-> takes about 160ms for suspending and 120ms for resuming. This patch
-> enables i2c-hid devices to suspend/resume asynchronously. This will
-> take advantage of multicore and speed up system suspend/resume process.
+
+
+On 5/20/2016 10:04 PM, Dmitry Torokhov wrote:
+> On Thu, May 19, 2016 at 02:34:00PM +0530, Vignesh R wrote:
+>> There are rotary-encoders where GPIO lines reflect the actual position
+>> of the rotary encoder dial. For example, if dial points to 9, then four
+>> GPIO lines connected to the rotary encoder will read HLLH(1001b = 9).
+>> Add support for such rotary-encoder.
+>> The driver relies on rotary-encoder,absolute-encoder DT property to
+>> detect such encoders.
+>> Since, GPIO IRQs are not necessary to work with
+>> such encoders, optional polling mode support is added using
+>> input_poll_dev skeleton. This is can be used by enabling
+>> CONFIG_INPUT_GPIO_ROTARY_ENCODER_POLL_MODE_SUPPORT.
 > 
-> Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
+> Does this really belong to a rotary encoder and not a new driver that
+> simply translates gpio-encoded value into ABS* event?
+> 
 
-Looks reasonable to me,
+Currently rotary encoder driver only supports incremental/step counting
+rotary devices. However, the device that is there on am335x-ice is an
+absolute encoder but, IMO, nevertheless a kind of rotary encoder. The
+only difference is that there is no need to count steps and the absolute
+position value is always available as binary encoded state of connected
+GPIOs.
+The hardware on am335x-ice is a mechanical rotary encoder switch
+connected over 4 GPIOs. It is same as binary encoder described at [1]
+(except there are 4 GPIO lines), so this lead me to add support in
+rotary-encoder.
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+[1]https://en.wikipedia.org/wiki/Rotary_encoder#Standard_binary_encoding

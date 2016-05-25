@@ -1,47 +1,119 @@
 From: Stephen Just <stephenjust@gmail.com>
-Subject: [PATCH v3 0/2] Input: surface3_spi: Surface Pen Support
-Date: Wed, 25 May 2016 05:40:03 -0600
-Message-ID: <1464176406-9917-1-git-send-email-stephenjust@gmail.com>
+Subject: [PATCH v3 1/2] Input - surface3_spi: Prepare to add support for Surface Pen
+Date: Wed, 25 May 2016 05:40:04 -0600
+Message-ID: <1464176406-9917-2-git-send-email-stephenjust@gmail.com>
+References: <1464176406-9917-1-git-send-email-stephenjust@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f68.google.com ([209.85.214.68]:32855 "EHLO
-	mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753324AbcEYRlG (ORCPT
+Received: from mail-ig0-f195.google.com ([209.85.213.195]:34734 "EHLO
+	mail-ig0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932622AbcEYRlw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 May 2016 13:41:06 -0400
-Received: by mail-it0-f68.google.com with SMTP id l63so6296754ita.0
-        for <linux-input@vger.kernel.org>; Wed, 25 May 2016 10:41:06 -0700 (PDT)
+	Wed, 25 May 2016 13:41:52 -0400
+Received: by mail-ig0-f195.google.com with SMTP id lp2so5873802igb.1
+        for <linux-input@vger.kernel.org>; Wed, 25 May 2016 10:41:51 -0700 (PDT)
+In-Reply-To: <1464176406-9917-1-git-send-email-stephenjust@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Stephen Just <stephenjust@gmail.com>, Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>
 
-This series adds support for Surface Pen devices to the Surface 3
-touchscreen input driver.
+Surface Pens can be supported by handling a second report type. Prepare
+for this change.
 
-This series works with both styles of pen:
-the old style with pressure sensitive tip, an eraser button, and a 
-secondary input button, as well as the new style pen which does not
-have a dedicated eraser button.
+Signed-off-by: Stephen Just <stephenjust@gmail.com>
+---
+v1 -> v3: No change
 
-The top button on the pen is not supported by this patch. Those
-buttons are a separate Bluetooth device.
+ drivers/input/touchscreen/surface3_spi.c | 38 +++++++++++++++++++++-----------
+ 1 file changed, 25 insertions(+), 13 deletions(-)
 
-Changes in v2: Code cleanup
-Changes in v3: Send proximity-out report when switching tools
-
-See evemu-record example:
-https://gist.github.com/stephenjust/08f67f1668aa116c78be4412610ad4d0
-
-Regards,
-Stephen Just
-
-Stephen Just (2):
-  Input - surface3_spi: Prepare to add support for Surface Pen
-  Input - surface3_spi: add surface pen support for Surface 3
-
- drivers/input/touchscreen/surface3_spi.c | 148 ++++++++++++++++++++++++++++---
- 1 file changed, 135 insertions(+), 13 deletions(-)
-
+diff --git a/drivers/input/touchscreen/surface3_spi.c b/drivers/input/touchscreen/surface3_spi.c
+index 58631d1..204a162 100644
+--- a/drivers/input/touchscreen/surface3_spi.c
++++ b/drivers/input/touchscreen/surface3_spi.c
+@@ -27,6 +27,8 @@
+ 
+ #define SURFACE3_PACKET_SIZE	264
+ 
++#define SURFACE3_REPORT_TOUCH	0xd2
++
+ struct surface3_ts_data {
+ 	struct spi_device *spi;
+ 	struct gpio_desc *gpiod_rst[2];
+@@ -84,19 +86,10 @@ static void surface3_spi_report_touch(struct surface3_ts_data *ts_data,
+ 	}
+ }
+ 
+-static void surface3_spi_process(struct surface3_ts_data *ts_data)
++static void surface3_spi_process_touch(struct surface3_ts_data *ts_data, u8 *data)
+ {
+-	const char header[] = {0xff, 0xff, 0xff, 0xff, 0xa5, 0x5a, 0xe7, 0x7e,
+-			       0x01, 0xd2, 0x00, 0x80, 0x01, 0x03, 0x03};
+-	u8 *data = ts_data->rd_buf;
+ 	u16 timestamp;
+ 	unsigned int i;
+-
+-	if (memcmp(header, data, sizeof(header)))
+-		dev_err(&ts_data->spi->dev,
+-			"%s header error: %*ph, ignoring...\n",
+-			__func__, (int)sizeof(header), data);
+-
+ 	timestamp = get_unaligned_le16(&data[15]);
+ 
+ 	for (i = 0; i < 13; i++) {
+@@ -121,6 +114,25 @@ static void surface3_spi_process(struct surface3_ts_data *ts_data)
+ 	input_sync(ts_data->input_dev);
+ }
+ 
++static void surface3_spi_process(struct surface3_ts_data *ts_data)
++{
++	const char header[] = {0xff, 0xff, 0xff, 0xff, 0xa5, 0x5a, 0xe7, 0x7e, 0x01};
++
++	u8 *data = ts_data->rd_buf;
++
++	if (memcmp(header, data, sizeof(header)))
++		dev_err(&ts_data->spi->dev,
++			"%s header error: %*ph, ignoring...\n",
++			__func__, (int)sizeof(header), data);
++
++	if (data[9] == SURFACE3_REPORT_TOUCH)
++		surface3_spi_process_touch(ts_data, data);
++	else
++		dev_err(&ts_data->spi->dev,
++			"%s unknown packet type: %x, ignoring...\n",
++			__func__, data[9]);
++}
++
+ static irqreturn_t surface3_spi_irq_handler(int irq, void *dev_id)
+ {
+ 	struct surface3_ts_data *data = dev_id;
+@@ -176,7 +188,7 @@ static int surface3_spi_get_gpio_config(struct surface3_ts_data *data)
+ 	return 0;
+ }
+ 
+-static int surface3_spi_create_input(struct surface3_ts_data *data)
++static int surface3_spi_create_touch_input(struct surface3_ts_data *data)
+ {
+ 	struct input_dev *input;
+ 	int error;
+@@ -199,7 +211,7 @@ static int surface3_spi_create_input(struct surface3_ts_data *data)
+ 	input->phys = "input/ts";
+ 	input->id.bustype = BUS_SPI;
+ 	input->id.vendor = 0x045e;	/* Microsoft */
+-	input->id.product = 0x0000;
++	input->id.product = 0x0001;
+ 	input->id.version = 0x0000;
+ 
+ 	error = input_register_device(input);
+@@ -239,7 +251,7 @@ static int surface3_spi_probe(struct spi_device *spi)
+ 	surface3_spi_power(data, false);
+ 	surface3_spi_power(data, true);
+ 
+-	error = surface3_spi_create_input(data);
++	error = surface3_spi_create_touch_input(data);
+ 	if (error)
+ 		return error;
+ 
 -- 
 2.8.2
 

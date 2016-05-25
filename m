@@ -1,184 +1,473 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: Dell Latitude E7470 touchpad status
-Date: Wed, 25 May 2016 09:39:49 +0200
-Message-ID: <20160525073949.GY29844@pali>
-References: <87eg9j6zf7.fsf@smart-cactus.org>
- <23E0F704395E694FA4710C833FA087E50D40B8BF13@TPEX7ADC101.APAC.DELL.COM>
- <87bn45gr0e.fsf@smart-cactus.org>
- <20160517082309.GZ29844@pali>
- <877fet10a9.fsf@smart-cactus.org>
- <20160517131629.GE29844@pali>
- <23E0F704395E694FA4710C833FA087E50D40B8C592@TPEX7ADC101.APAC.DELL.COM>
- <20160517152239.GF29844@pali>
- <23E0F704395E694FA4710C833FA087E50D40D0723A@TPEX7ADC101.APAC.DELL.COM>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:36723 "EHLO
-	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752085AbcEYHjx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 May 2016 03:39:53 -0400
-Received: by mail-wm0-f52.google.com with SMTP id n129so166465469wmn.1
-        for <linux-input@vger.kernel.org>; Wed, 25 May 2016 00:39:52 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <23E0F704395E694FA4710C833FA087E50D40D0723A@TPEX7ADC101.APAC.DELL.COM>
-Sender: linux-input-owner@vger.kernel.org
+From: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
+Subject: [PATCH v4] input: tablet: add Pegasus Notetaker tablet driver
+Date: Wed, 25 May 2016 09:44:34 +0200
+Message-ID: <1464162274-18424-1-git-send-email-martink@posteo.de>
+Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Allen_Hung@Dell.com, ben@smart-cactus.org
-Cc: Mario_Limonciello@Dell.com, linux-input@vger.kernel.org
 
-On Wednesday 25 May 2016 12:38:15 Allen_Hung@Dell.com wrote:
-> Dell - Internal Use - Confidential=20
->=20
-> On 05/17/2016 11:22 PM, Pali Roh=C3=A1r wrote:
-> > On Tuesday 17 May 2016 22:46:31 Allen_Hung@Dell.com wrote:
-> >> Dell - Internal Use - Confidential=20
-> >>
-> >> On 05/17/2016 09:16 PM, Pali Roh=C3=A1r wrote:
-> >>> On Tuesday 17 May 2016 11:50:06 Ben Gamari wrote:
-> >>>> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
-> >>>>
-> >>>>> Hi Ben!
-> >>>>>
-> >>>>> Maybe it could help you, look at my email sent to linux-input M=
-L year
-> >>>>> ago: http://thread.gmane.org/gmane.linux.kernel.input/41210
-> >>>> Hi Pali!
-> >>>>
-> >>>> Thanks, this looks great (assuming this is in fact the protocol =
-spoken
-> >>>> by the E7470 hardware; perhaps Allen could confirm this?). I'll =
-have a
-> >>>> go at rebasing this sometime soon, although it looks like this m=
-ay take
-> >>>> a fair bit of work as the patch is of the usual... questionable =
-quality
-> >>>> that you'd expect from a hardware vendor and on top of that the =
-driver
-> >>>> itself seems to have evolved significantly.
-> >>> First you need to identify if your touchpad is ALPS or not. If no=
-t then
-> >>> work on rebasing is useless.
-> >>>
-> >>> To identify your touchpad there are two ways:
-> >>>
-> >>> 1) Disassemble laptop and look what is under palmrest/keyboard. L=
-atitude
-> >>> laptops used to have good documentation how to do it (on official=
- dell
-> >>> site) and older Exx40 series is not hard to detect it...
-> >>>
-> >>> 2) Look at ALPS detection code. Basically all (known) ALPS touchp=
-ad
-> >>> response to some PS/2 sequence with specific answer. So you can c=
-ompile
-> >>> psmouse.ko/alps.c in debug mode and look if it fit detection or n=
-ot.
-> >>>
-> >>> I suggest you to do this first investigation step. If touchpad is=
- ALPS
-> >>> or not. I read that some Dell laptops uses synaptics touchpads, s=
-o there
-> >>> is non zero chance that touchpad could not be ALPS.
-> >>>
-> >>>>> Also try to look at dell drivers page, there could be linux pac=
-kage for
-> >>>>> your laptop with drivers. Lot of them used to be in dkms format
-> >>>>> (upstream source code with dell changes).
-> >>>>>
-> >>>> I've been unable to find a support package for my machine on the=
- web
-> >>>> site. However, I'm also in touch with Dell through the usual sup=
-port
-> >>>> channel so perhaps they'll be able to provide a more up-to-date =
-code
-> >>>> drop.
-> >>> IIRC All (new) Latitude laptops can be configured with Ubuntu and=
- in
-> >>> this case they come with preinstalled Ubuntu with that support pa=
-ckage.
-> >>>
-> >>> So for sure contact Dell support and ask for it! You can also see=
- Ubuntu
-> >>> as supported system in PDF material about those Latitudes...
-> >>>
-> >>>>> ALPS code from Dell were open source, it was just hard to find =
-it and
-> >>>>> compile it on other then one kernel version. And harder to gene=
-rate
-> >>>>> patch (like I did in above email)...
-> >>>>>
-> >>>> Right, as I said it looks like rebasing this code drop onto a re=
-cent
-> >>>> kernel might require quite some effort.
-> >>> Yes, it would not be simple. Plus for including into mainline ker=
-nel
-> >>> needs lot of cleaning (see that email thread).
-> >>>
-> >>>> I do wish that Dell would apply more pressure on their input dev=
-ice
-> >>>> vendors to take upstream support (or open protocol documentation=
-)
-> >>>> seriously. It's very frustrating that we need to go through this=
- same
-> >>>> process with every hardware iteration.
-> >>> If you will be 100% sure that touchpad is ALPS, I could contact A=
-LPS
-> >>> people. They helped me a lot with fixing ALPS touchpad support fo=
-r my
-> >>> E6440...
-> >>>
-> >>>> Thanks again for the reference, Pali!
-> >>>>
-> >>>> Cheers,
-> >>>>
-> >>>> - Ben
-> >>>>
-> >> I am confirming with Alps team for what protocol version the E7470
-> > Great!
-> >
-> >> device is speaking. In fact, they sent me the alps.c which support=
- up
-> >> to V8 and they said it's their latest one.
-> > Currently alps.c in mainline kernel supports protocol versions V1 t=
-o V8.
-> > So V9 is missing.
-> >
-> >> It seems the driver is older than the patch provided in Pali's lin=
-k
-> >> (that support up to V9) so I didn't put it here.
-> > That patch which I sent was generated from Ubuntu support package
-> > provided by Dell drivers download package. So somebody in Dell shou=
-ld
-> > know more about it...
-> >
-> >> Will get the answer back to you once they confirm with me.
-> >>
-> >> - Allen
-> > Ok, thanks!
-> >
->=20
-> I got responds from Alps and they confirmed that the Alps devices in =
-Dell systems are speaking in protocol V8. The devices that speak in pro=
-tocol V9 are using different ASIC hardware and they are not used in Del=
-l systems..
->=20
-> - Allen
+This adds a driver for the Pegasus Notetaker Pen. When connected,
+this uses the Pen as an input tablet.
 
-Hi Allen, thank you for confirmation.
+This device was sold in various different brandings, for example
+	"Pegasus Mobile Notetaker M210",
+	"Genie e-note The Notetaker",
+	"Staedtler Digital ballpoint pen 990 01",
+	"IRISnotes Express" or
+	"NEWLink Digital Note Taker".
 
-Ben, V8 protocol is supported by linux kernel since version 4.1. Do you
-have needed version? If yes and your touchpad does not work, please
-compile psmouse.ko in debug mode and send us dmesg output. Maybe there
-can be something interesting...
+Here's an example, so that you know what we are talking about:
+http://www.staedtler.com/en/products/ink-writing-instruments/ballpoint-pens/digital-pen-990-01-digital-ballpoint-pen
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+http://pegatech.blogspot.com/ seems to be a remaining official resource.
+
+This device can also transfer saved (offline recorded handwritten) data and
+there are userspace programs that do this, see https://launchpad.net/m210
+(Well, alternatively there are really fast scanners out there :)
+
+It's *really* fun to use as an input tablet though! So let's support this
+for everybody.
+
+There's no way to disable the device. When the pen is out of range, we just
+don't get any URBs and don't do anything.
+Like all other mouses or input tablets, we don't use runtime PM.
+
+Signed-off-by: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
+---
+
+Thanks for having a look. Any more suggestions on this?
+
+revision history
+================
+v4 use normal work queue instead of a kernel thread (thanks to Oliver Neukum)
+v3 fix reporting low pen battery and add USB list to CC
+v2 minor cleanup (remove unnecessary variables)
+v1 initial release
+
+
+
+ drivers/input/tablet/Kconfig             |  15 ++
+ drivers/input/tablet/Makefile            |   1 +
+ drivers/input/tablet/pegasus_notetaker.c | 373 +++++++++++++++++++++++++++++++
+ 3 files changed, 389 insertions(+)
+ create mode 100644 drivers/input/tablet/pegasus_notetaker.c
+
+diff --git a/drivers/input/tablet/Kconfig b/drivers/input/tablet/Kconfig
+index 623bb9e..a2b9f97 100644
+--- a/drivers/input/tablet/Kconfig
++++ b/drivers/input/tablet/Kconfig
+@@ -73,6 +73,21 @@ config TABLET_USB_KBTAB
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called kbtab.
+ 
++config TABLET_USB_PEGASUS
++	tristate "Pegasus Mobile Notetaker Pen input tablet support"
++	depends on USB_ARCH_HAS_HCD
++	select USB
++	help
++	  Say Y here if you want to use the Pegasus Mobile Notetaker,
++	  also known as:
++	  Genie e-note The Notetaker,
++	  Staedtler Digital ballpoint pen 990 01,
++	  IRISnotes Express or
++	  NEWLink Digital Note Taker.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called pegasus_notetaker.
++
+ config TABLET_SERIAL_WACOM4
+ 	tristate "Wacom protocol 4 serial tablet support"
+ 	select SERIO
+diff --git a/drivers/input/tablet/Makefile b/drivers/input/tablet/Makefile
+index 2e13010..200fc4e 100644
+--- a/drivers/input/tablet/Makefile
++++ b/drivers/input/tablet/Makefile
+@@ -8,4 +8,5 @@ obj-$(CONFIG_TABLET_USB_AIPTEK)	+= aiptek.o
+ obj-$(CONFIG_TABLET_USB_GTCO)	+= gtco.o
+ obj-$(CONFIG_TABLET_USB_HANWANG) += hanwang.o
+ obj-$(CONFIG_TABLET_USB_KBTAB)	+= kbtab.o
++obj-$(CONFIG_TABLET_USB_PEGASUS) += pegasus_notetaker.o
+ obj-$(CONFIG_TABLET_SERIAL_WACOM4) += wacom_serial4.o
+diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
+new file mode 100644
+index 0000000..b7bf585
+--- /dev/null
++++ b/drivers/input/tablet/pegasus_notetaker.c
+@@ -0,0 +1,373 @@
++/*
++ * Pegasus Mobile Notetaker Pen input tablet driver
++ *
++ * Copyright (c) 2016 Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
++ */
++
++/*
++ * request packet (control endpoint):
++ * |-------------------------------------|
++ * | Report ID | Nr of bytes | command   |
++ * | (1 byte)  | (1 byte)    | (n bytes) |
++ * |-------------------------------------|
++ * | 0x02      | n           |           |
++ * |-------------------------------------|
++ *
++ * data packet after set xy mode command, 0x80 0xb5 0x02 0x01
++ * and pen is in range:
++ *
++ * byte	byte name		value (bits)
++ * --------------------------------------------
++ * 0	status			0 1 0 0 0 0 X X
++ * 1	color			0 0 0 0 H 0 S T
++ * 2	X low
++ * 3	X high
++ * 4	Y low
++ * 5	Y high
++ *
++ * X X	battery state:
++ *	no state reported	0x00
++ *	battery low		0x01
++ *	battery good		0x02
++ *
++ * H	Hovering
++ * S	Switch 1 (pen button)
++ * T	Tip
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/hid.h>
++#include <linux/usb/input.h>
++
++/* USB HID defines */
++#define USB_REQ_GET_REPORT		0x01
++#define USB_REQ_SET_REPORT		0x09
++
++#define USB_VENDOR_ID_PEGASUSTECH	0x0e20
++#define USB_DEVICE_ID_PEGASUS_NOTETAKER_EN100	0x0101
++
++/* device specific defines */
++#define NOTETAKER_REPORT_ID		0x02
++#define NOTETAKER_SET_CMD		0x80
++#define NOTETAKER_SET_MODE		0xb5
++
++#define NOTETAKER_LED_MOUSE             0x02
++#define PEN_MODE_XY                     0x01
++
++#define SPECIAL_COMMAND			0x80
++#define BUTTON_PRESSED			0xb5
++#define COMMAND_VERSION			0xa9
++
++/* in xy data packet */
++#define BATTERY_NO_REPORT		0x40
++#define BATTERY_LOW			0x41
++#define BATTERY_GOOD			0x42
++#define PEN_BUTTON_PRESSED		BIT(1)
++#define PEN_TIP				BIT(0)
++
++struct pegasus {
++	unsigned char *data;
++	u8 data_len;
++	dma_addr_t data_dma;
++	struct input_dev *dev;
++	struct usb_device *usbdev;
++	struct urb *irq;
++	char name[128];
++	char phys[64];
++	struct work_struct init;
++};
++
++static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
++{
++	const int sizeof_buf = len * sizeof(u8) + 2;
++	int result;
++	u8 *cmd_buf;
++
++	cmd_buf = kmalloc(sizeof_buf, GFP_KERNEL);
++	if (!cmd_buf)
++		return;
++
++	cmd_buf[0] = NOTETAKER_REPORT_ID;
++	cmd_buf[1] = len;
++	memcpy(cmd_buf + 2, data, len);
++
++	result = usb_control_msg(pegasus->usbdev,
++				 usb_sndctrlpipe(pegasus->usbdev, 0),
++				 USB_REQ_SET_REPORT,
++				 USB_TYPE_VENDOR | USB_DIR_OUT,
++				 0, 0, cmd_buf, sizeof_buf,
++				 USB_CTRL_SET_TIMEOUT);
++
++	if (result != sizeof_buf)
++		dev_err(&pegasus->usbdev->dev, "control msg error\n");
++
++	kfree(cmd_buf);
++}
++
++static void pegasus_set_mode(struct pegasus *pegasus, u8 mode, u8 led)
++{
++	static u8 cmd[4] = {NOTETAKER_SET_CMD, NOTETAKER_SET_MODE, 0x00, 0x00};
++
++	cmd[2] = led;
++	cmd[3] = mode;
++
++	pegasus_control_msg(pegasus, cmd, sizeof(cmd));
++}
++
++static void pegasus_parse_packet(struct pegasus *pegasus)
++{
++	unsigned char *data = pegasus->data;
++	struct input_dev *dev = pegasus->dev;
++	u16 x, y = 0;
++
++	switch (data[0]) {
++	case SPECIAL_COMMAND:
++		/* device button pressed */
++		if (data[1] == BUTTON_PRESSED)
++			schedule_work(&pegasus->init);
++
++		break;
++	/* xy data */
++	case BATTERY_LOW:
++		dev_warn_once(&dev->dev, "Pen battery low\n");
++	case BATTERY_NO_REPORT:
++	case BATTERY_GOOD:
++		memcpy(&x, data + 2, 2);
++		memcpy(&y, data + 4, 2);
++
++		/* ignore pen up events */
++		if (x == 0 && y == 0)
++			break;
++
++		if (data[1] & PEN_BUTTON_PRESSED) {
++			input_report_key(dev, BTN_TOUCH, 0);
++			input_report_key(dev, BTN_RIGHT, 1);
++		} else if (data[1] & PEN_TIP) {
++			input_report_key(dev, BTN_TOUCH, 1);
++			input_report_key(dev, BTN_RIGHT, 0);
++		} else {
++			input_report_key(dev, BTN_TOUCH, 0);
++			input_report_key(dev, BTN_RIGHT, 0);
++		}
++
++		input_report_key(dev, BTN_TOOL_PEN, 1);
++		input_report_abs(dev, ABS_X, (s16)le16_to_cpu(x));
++		input_report_abs(dev, ABS_Y, le16_to_cpu(y));
++
++		input_sync(dev);
++		break;
++	default:
++		dev_warn_once(&pegasus->usbdev->dev,
++			      "unknown answer from device\n");
++	}
++}
++
++static void pegasus_irq(struct urb *urb)
++{
++	struct pegasus *pegasus = urb->context;
++	struct usb_device *dev = pegasus->usbdev;
++	int retval;
++
++	switch (urb->status) {
++	case 0:
++		pegasus_parse_packet(pegasus);
++		usb_mark_last_busy(pegasus->usbdev);
++
++		break;
++	case -ECONNRESET:
++	case -ENOENT:
++	case -ESHUTDOWN:
++		dev_err(&dev->dev, "%s - urb shutting down with status: %d",
++			__func__, urb->status);
++		return;
++	default:
++		dev_err(&dev->dev, "%s - nonzero urb status received: %d",
++			__func__, urb->status);
++		break;
++	}
++
++	retval = usb_submit_urb(urb, GFP_ATOMIC);
++	if (retval)
++		dev_err(&dev->dev, "%s - usb_submit_urb failed with result %d",
++			__func__, retval);
++}
++
++static void pegasus_init(struct work_struct *work)
++{
++	struct pegasus *pegasus = container_of(work, struct pegasus, init);
++
++	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
++}
++
++static int pegasus_open(struct input_dev *dev)
++{
++	struct pegasus *pegasus = input_get_drvdata(dev);
++
++	pegasus->irq->dev = pegasus->usbdev;
++	if (usb_submit_urb(pegasus->irq, GFP_KERNEL))
++		return -EIO;
++
++	return 0;
++}
++
++static void pegasus_close(struct input_dev *dev)
++{
++	struct pegasus *pegasus = input_get_drvdata(dev);
++
++	cancel_work_sync(&pegasus->init);
++
++	usb_kill_urb(pegasus->irq);
++}
++
++static int pegasus_probe(struct usb_interface *intf,
++			 const struct usb_device_id *id)
++{
++	struct usb_device *dev = interface_to_usbdev(intf);
++	struct usb_endpoint_descriptor *endpoint;
++	struct pegasus *pegasus;
++	struct input_dev *input_dev;
++	int error;
++	int pipe, maxp;
++
++	/* we control interface 0 */
++	if (intf->cur_altsetting->desc.bInterfaceNumber == 1)
++		return -ENODEV;
++
++	endpoint = &intf->cur_altsetting->endpoint[0].desc;
++
++	pegasus = kzalloc(sizeof(*pegasus), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!pegasus || !input_dev) {
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	pegasus->usbdev = dev;
++	pegasus->dev = input_dev;
++
++	pegasus->data = usb_alloc_coherent(dev, endpoint->wMaxPacketSize,
++					   GFP_KERNEL, &pegasus->data_dma);
++	if (!pegasus->data) {
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	pegasus->irq = usb_alloc_urb(0, GFP_KERNEL);
++	if (!pegasus->irq) {
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	pipe = usb_rcvintpipe(dev, endpoint->bEndpointAddress);
++	maxp = usb_maxpacket(dev, pipe, usb_pipeout(pipe));
++	pegasus->data_len = maxp;
++
++	usb_fill_int_urb(pegasus->irq, dev, pipe, pegasus->data, maxp,
++			 pegasus_irq, pegasus, endpoint->bInterval);
++
++	pegasus->irq->transfer_dma = pegasus->data_dma;
++	pegasus->irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++
++	if (dev->manufacturer)
++		strlcpy(pegasus->name, dev->manufacturer,
++			sizeof(pegasus->name));
++
++	if (dev->product) {
++		if (dev->manufacturer)
++			strlcat(pegasus->name, " ", sizeof(pegasus->name));
++		strlcat(pegasus->name, dev->product, sizeof(pegasus->name));
++	}
++
++	if (!strlen(pegasus->name))
++		snprintf(pegasus->name, sizeof(pegasus->name),
++			 "USB Pegasus Device %04x:%04x",
++			 le16_to_cpu(dev->descriptor.idVendor),
++			 le16_to_cpu(dev->descriptor.idProduct));
++
++	usb_make_path(dev, pegasus->phys, sizeof(pegasus->phys));
++	strlcat(pegasus->phys, "/input0", sizeof(pegasus->phys));
++
++	INIT_WORK(&pegasus->init, pegasus_init);
++
++	usb_set_intfdata(intf, pegasus);
++
++	input_dev->name = pegasus->name;
++	input_dev->phys = pegasus->phys;
++	usb_to_input_id(dev, &input_dev->id);
++	input_dev->dev.parent = &intf->dev;
++
++	input_set_drvdata(input_dev, pegasus);
++
++	input_dev->open = pegasus_open;
++	input_dev->close = pegasus_close;
++
++	__set_bit(EV_ABS, input_dev->evbit);
++	__set_bit(EV_KEY, input_dev->evbit);
++
++	__set_bit(ABS_X, input_dev->absbit);
++	__set_bit(ABS_Y, input_dev->absbit);
++
++	__set_bit(BTN_TOUCH, input_dev->keybit);
++	__set_bit(BTN_RIGHT, input_dev->keybit);
++	__set_bit(BTN_TOOL_PEN, input_dev->keybit);
++
++	__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
++	__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
++
++	input_set_abs_params(input_dev, ABS_X, -1500, 1500, 8, 0);
++	input_set_abs_params(input_dev, ABS_Y, 1600, 3000, 8, 0);
++
++	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
++
++	error = input_register_device(pegasus->dev);
++	if (error)
++		goto err_free_dma;
++
++	return 0;
++
++err_free_dma:
++	usb_free_coherent(dev, pegasus->data_len,
++			  pegasus->data, pegasus->data_dma);
++
++	usb_free_urb(pegasus->irq);
++err_free_mem:
++	kfree(pegasus);
++	usb_set_intfdata(intf, NULL);
++
++	return error;
++}
++
++static void pegasus_disconnect(struct usb_interface *intf)
++{
++	struct pegasus *pegasus = usb_get_intfdata(intf);
++
++	input_unregister_device(pegasus->dev);
++
++	usb_free_urb(pegasus->irq);
++	usb_free_coherent(interface_to_usbdev(intf),
++			  pegasus->data_len, pegasus->data,
++			  pegasus->data_dma);
++	kfree(pegasus);
++	usb_set_intfdata(intf, NULL);
++}
++
++static const struct usb_device_id pegasus_ids[] = {
++	{ USB_DEVICE(USB_VENDOR_ID_PEGASUSTECH,
++		     USB_DEVICE_ID_PEGASUS_NOTETAKER_EN100) },
++	{ }
++};
++MODULE_DEVICE_TABLE(usb, pegasus_ids);
++
++static struct usb_driver pegasus_driver = {
++	.name		= "pegasus_notetaker",
++	.probe		= pegasus_probe,
++	.disconnect	= pegasus_disconnect,
++	.id_table	= pegasus_ids,
++};
++
++module_usb_driver(pegasus_driver);
++
++MODULE_AUTHOR("Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>");
++MODULE_DESCRIPTION("Pegasus Mobile Notetaker Pen tablet driver");
++MODULE_LICENSE("GPL");
+-- 
+2.1.4

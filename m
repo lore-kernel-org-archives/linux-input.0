@@ -1,144 +1,92 @@
-From: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Subject: [PATCH] Emit BTN_TOO_FINGER in function input_mt_report_pointer_emulation if touchpad meets hover condition
-Date: Wed, 25 May 2016 19:44:57 +0800
-Message-ID: <003101d1b67a$dce6e5c0$96b4b140$@emc.com.tw>
+From: Ben Gamari <ben@smart-cactus.org>
+Subject: Re: Dell Latitude E7470 touchpad status
+Date: Wed, 25 May 2016 14:09:57 +0200
+Message-ID: <87a8jejq3u.fsf@smart-cactus.org>
+References: <87eg9j6zf7.fsf@smart-cactus.org> <23E0F704395E694FA4710C833FA087E50D40B8BF13@TPEX7ADC101.APAC.DELL.COM> <87bn45gr0e.fsf@smart-cactus.org> <20160517082309.GZ29844@pali> <877fet10a9.fsf@smart-cactus.org> <20160517131629.GE29844@pali> <23E0F704395E694FA4710C833FA087E50D40B8C592@TPEX7ADC101.APAC.DELL.COM> <20160517152239.GF29844@pali> <23E0F704395E694FA4710C833FA087E50D40D0723A@TPEX7ADC101.APAC.DELL.COM> <20160525073949.GY29844@pali>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0032_01D1B6BD.EB0A9AF0"
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha256; protocol="application/pgp-signature"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:44585 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753510AbcEYLpB (ORCPT
+Received: from mail.smart-cactus.org ([54.187.36.80]:56170 "EHLO
+	mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751868AbcEYMKH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 May 2016 07:45:01 -0400
-Content-Language: zh-tw
+	Wed, 25 May 2016 08:10:07 -0400
+In-Reply-To: <20160525073949.GY29844@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zac.hsieh@emc.com.tw, =?UTF-8?B?J+m7g+S4lum1rCDntpPnkIYn?= <phoenix@emc.com.tw>, 'Charles Mooney' <charliemooney@google.com>, 'Agnes Cheng' <agnescheng@google.com>, 'jeff' <jeff.chuang@emc.com.tw>
+To: Pali =?utf-8?Q?Roh=C3=A1r?= <pali.rohar@gmail.com>, Allen_Hung@Dell.com
+Cc: Mario_Limonciello@Dell.com, linux-input@vger.kernel.org
 
-This is a multipart message in MIME format.
-
-------=_NextPart_000_0032_01D1B6BD.EB0A9AF0
-Content-Type: text/plain;
-	charset="UTF-8"
+--=-=-=
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-Hi Dmitry,
+Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
 
-Update /input/mouse/input-mt.c
-Emit BTN_TOO_FINGER in input_mt_report_pointer_emulation if touchpad =
-meets hover condition.
+> On Wednesday 25 May 2016 12:38:15 Allen_Hung@Dell.com wrote:
+>>=20
+>> I got responds from Alps and they confirmed that the Alps devices in
+>> Dell systems are speaking in protocol V8. The devices that speak in
+>> protocol V9 are using different ASIC hardware and they are not used
+>> in Dell systems..
+>>=20
 
-Thanks & BR	KT
+Thanks Allen!
 
------Original Message-----
-From: 'Dmitry Torokhov' [mailto:dmitry.torokhov@gmail.com]=20
-Sent: Friday, May 20, 2016 8:52 AM
-To: =E5=BB=96=E5=B4=87=E6=A6=AE
-Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; =
-zac.hsieh@emc.com.tw; '=E9=BB=83=E4=B8=96=E9=B5=AC =E7=B6=93=E7=90=86'; =
-'Charles Mooney'; 'Agnes Cheng'; 'jeff'
-Subject: Re: [PATCH] Input: Change BTN_TOOL_FINGER flag when hover event =
-trigger
+>
+> Hi Allen, thank you for confirmation.
+>
+> Ben, V8 protocol is supported by linux kernel since version 4.1. Do you
+> have needed version?
 
-On Tue, May 17, 2016 at 10:20:40PM +0800, =E5=BB=96=E5=B4=87=E6=A6=AE =
-wrote:
-> Hi Dmitry,
->=20
-> I want to confirm my thought for your idea to avoid misunderstanding.
-> I think you want to encapsulate " BTN_TOOL_FINGER" in the =
-[input_mt_report_pointer_emulation] if hover happen.
-> Vendor driver only report "ABS_DISTANCE" and let =
-[input_mt_report_pointer_emulation] emit BTN_TOOL_FINGER report without =
-change function parameter.
->=20
-> Please let me know if my misunderstand about your idea.
+Yes, I have been running 4.5 and 4.6.
 
-Yes, that is correct. Something like this:
+> If yes and your touchpad does not work, please compile psmouse.ko in
+> debug mode and send us dmesg output. Maybe there can be something
+> interesting...
+>
+As I mentioned earlier, the device is certainly not recognized as an
+ALPS device,
 
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c index =
-54fce56..a1bbec9 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -218,8 +218,23 @@ void input_mt_report_pointer_emulation(struct =
-input_dev *dev, bool use_count)
- 	}
-=20
- 	input_event(dev, EV_KEY, BTN_TOUCH, count > 0);
--	if (use_count)
-+
-+	if (use_count) {
-+		if (count =3D=3D 0 &&
-+		    !test_bit(ABS_MT_DISTANCE, dev->absbit) &&
-+		    test_bit(ABS_DISTANCE, dev->absbit) &&
-+		    input_abs_get_val(dev, ABS_DISTANCE) !=3D 0) {
-+			/*
-+			 * Force reporting BTN_TOOL_FINGER for devices that
-+			 * only report general hover (and not per-contact
-+			 * distance) when contact is in proximity but not
-+			 * on the surface.
-+			 */
-+			count =3D 1;
-+		}
-+
- 		input_mt_report_finger_count(dev, count);
-+	}
-=20
- 	if (oldest) {
- 		int x =3D input_mt_get_value(oldest, ABS_MT_POSITION_X);
+     [  367.097253] input: ImPS/2 BYD TouchPad as /devices/platform/i8042/s=
+erio1/input/input21
 
---
-Dmitry
+If I `rmmod psmouse; modprobe psmouse dyndbg=3D=3Dpm` I find this,
 
-------=_NextPart_000_0032_01D1B6BD.EB0A9AF0
-Content-Type: application/octet-stream;
-	name="0001-Input-drivers-input-input-mt.c.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="0001-Input-drivers-input-input-mt.c.patch"
+    [  714.520655] psmouse: psmouse serio1: cypress_ps2: send extension cmd=
+ 0x00, [0 0 0 0]
+    [  714.748482] psmouse: psmouse serio1: cypress_ps2: Command 0x00 respo=
+nse data (0x): 00 00 14
+    [  714.781858] psmouse: psmouse serio1: alps: E6 report: 00 00 64
+    [  714.804749] psmouse: psmouse serio1: alps: E7 report: 73 03 28
+    [  714.830829] psmouse: psmouse serio1: alps: EC report: 73 01 13
+    [  714.833568] psmouse: psmouse serio1: alps: Likely not an ALPS touchp=
+ad: E7=3D73 03 28, EC=3D73 01 13
+    [  714.860923] psmouse: psmouse serio1: elantech: unexpected magic knoc=
+k result 0x00, 0x02, 0x64.
+    [  714.947527] psmouse: psmouse serio1: byd: BYD touchpad detected
+    [  715.869113] input: ImPS/2 BYD TouchPad as /devices/platform/i8042/se=
+rio1/input/input24
 
->From 6097f617de49db3592322da66253a1b88090d157 Mon Sep 17 00:00:00 2001=0A=
-From: KT Liao <kt.liao@emc.com.tw>=0A=
-Date: Wed, 25 May 2016 15:52:09 +0800=0A=
-Subject: [PATCH] Input: drivers/input/input-mt.c Emit BTN_TOO_FINGER in=0A=
- function input_mt_report_pointer_emulation if touchpad meets hover =
-condition=0A=
- Signed-off-by: KT Liao <kt.liao@emc.com.tw>=0A=
-=0A=
----=0A=
- drivers/input/input-mt.c | 13 +++++++++++--=0A=
- 1 file changed, 11 insertions(+), 2 deletions(-)=0A=
-=0A=
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c=0A=
-index 54fce56..486b1ca 100644=0A=
---- a/drivers/input/input-mt.c=0A=
-+++ b/drivers/input/input-mt.c=0A=
-@@ -218,8 +218,17 @@ void input_mt_report_pointer_emulation(struct =
-input_dev *dev, bool use_count)=0A=
- 	}=0A=
- =0A=
- 	input_event(dev, EV_KEY, BTN_TOUCH, count > 0);=0A=
--	if (use_count)=0A=
--		input_mt_report_finger_count(dev, count);=0A=
-+=0A=
-+	if (use_count) {=0A=
-+		if (count =3D=3D 0 &&=0A=
-+		    !test_bit(ABS_MT_DISTANCE, dev->absbit) &&=0A=
-+		    test_bit(ABS_DISTANCE, dev->absbit) &&=0A=
-+		    input_abs_get_val(dev, ABS_DISTANCE) !=3D 0) {=0A=
-+			input_report_key(dev, BTN_TOOL_FINGER, input_abs_get_val(dev, =
-ABS_DISTANCE));=0A=
-+			count =3D 1;=0A=
-+		}=0A=
-+ 		input_mt_report_finger_count(dev, count);=0A=
-+	}=0A=
- =0A=
- 	if (oldest) {=0A=
- 		int x =3D input_mt_get_value(oldest, ABS_MT_POSITION_X);=0A=
--- =0A=
-2.7.4=0A=
-=0A=
+This seems like quite a hint.
 
-------=_NextPart_000_0032_01D1B6BD.EB0A9AF0--
+Cheers,
 
+=2D Ben
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXRZYVAAoJEHPt6ejPuu8BFwgH/2uUyW3Z9wAM0LuMw/mwrfCr
+GxbTAaYOmvoMCWFOTM7lJOpRtbl2/z8759pddNk4ErAeJimo7zn0zXzEnO2/PNtF
+0wX+IuH/MC1LguSqUN0/aO5sV93KmkEnYR9Zo7GsmFqVliEkNfpQiQWJyxhYwfHQ
+DWSDOUzRKYwQ/nTNjMnHYiwYlDKk5MaoAsa7gQS+glXYk2ftTVNo7vIiE37O6caP
+ADjq3prMiJmnYmFYJN130RNe6XuQrVJGiBMPaV5Ln2xiCw5lRR9K/0Y0vA6SNas1
+tvrIV0bi3Ggzqv4rGq/60dFKmAeZmhklwcs9+V4qn/mOmkno+UuctAFcy9LI/58=
+=SbQq
+-----END PGP SIGNATURE-----
+--=-=-=--

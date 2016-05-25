@@ -1,51 +1,34 @@
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ben Gamari <ben@smart-cactus.org>
 Subject: Re: Dell Latitude E7470 touchpad status
-Date: Wed, 25 May 2016 17:47:41 +0200
-Message-ID: <146264cd-158b-7159-99db-71c29a40d41a@redhat.com>
-References: <23E0F704395E694FA4710C833FA087E50D40B8BF13@TPEX7ADC101.APAC.DELL.COM>
- <87bn45gr0e.fsf@smart-cactus.org> <20160517082309.GZ29844@pali>
- <877fet10a9.fsf@smart-cactus.org> <20160517131629.GE29844@pali>
- <23E0F704395E694FA4710C833FA087E50D40B8C592@TPEX7ADC101.APAC.DELL.COM>
- <20160517152239.GF29844@pali>
- <23E0F704395E694FA4710C833FA087E50D40D0723A@TPEX7ADC101.APAC.DELL.COM>
- <20160525073949.GY29844@pali> <877feijp2b.fsf@smart-cactus.org>
- <20160525154310.GZ29844@pali>
+Date: Wed, 25 May 2016 17:53:22 +0200
+Message-ID: <8737p6jfrh.fsf@smart-cactus.org>
+References: <23E0F704395E694FA4710C833FA087E50D40B8BF13@TPEX7ADC101.APAC.DELL.COM> <87bn45gr0e.fsf@smart-cactus.org> <20160517082309.GZ29844@pali> <877fet10a9.fsf@smart-cactus.org> <20160517131629.GE29844@pali> <23E0F704395E694FA4710C833FA087E50D40B8C592@TPEX7ADC101.APAC.DELL.COM> <20160517152239.GF29844@pali> <23E0F704395E694FA4710C833FA087E50D40D0723A@TPEX7ADC101.APAC.DELL.COM> <20160525073949.GY29844@pali> <877feijp2b.fsf@smart-cactus.org> <20160525154310.GZ29844@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha256; protocol="application/pgp-signature"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54847 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755217AbcEYPrx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 May 2016 11:47:53 -0400
+Received: from mail.smart-cactus.org ([54.187.36.80]:56177 "EHLO
+	mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750856AbcEYPxe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 May 2016 11:53:34 -0400
 In-Reply-To: <20160525154310.GZ29844@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, Ben Gamari <ben@smart-cactus.org>
+To: Pali =?utf-8?Q?Roh=C3=A1r?= <pali.rohar@gmail.com>, Hans de Goede <hdegoede@redhat.com>
 Cc: Allen_Hung@Dell.com, Mario_Limonciello@Dell.com, linux-input@vger.kernel.org, Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi,
+--=-=-=
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 25-05-16 17:43, Pali Roh=C3=A1r wrote:
+Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
+
 > On Wednesday 25 May 2016 14:32:28 Ben Gamari wrote:
->> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
->>
->>> Hi Allen, thank you for confirmation.
->>>
->>> Ben, V8 protocol is supported by linux kernel since version 4.1. Do=
- you
->>> have needed version? If yes and your touchpad does not work, please
->>> compile psmouse.ko in debug mode and send us dmesg output. Maybe th=
-ere
->>> can be something interesting...
->>>
->> The first attached patch gets me partly there; I see multitouch even=
-ts,
->> the pressure appears to reflect reality, and things generally work a=
-s
->> expected. That is, until I try to touch the touchstick, which causes=
- the
+>>=20
+>> The first attached patch gets me partly there; I see multitouch events,
+>> the pressure appears to reflect reality, and things generally work as
+>> expected. That is, until I try to touch the touchstick, which causes the
 >> pointer to jump around wildly.
 >
 > So with first patch touchpad starts working fine and just trackstick
@@ -55,81 +38,50 @@ s
 > support trackstick in V8 protocol. So you even does not see second
 > (trackstick) input device, right?
 >
+Correct.
+
 >> The second attached patch makes things behave slightly better,
 >
 > Looking at the alps.c code it should act exactly same. V8 does not
-> support trackpoint, so ALPS_DUALPOINT has no effect. There should not=
- be
+> support trackpoint, so ALPS_DUALPOINT has no effect. There should not be
 > any difference between your first and second patch. Can you play more
 > and confirm it?
 >
+Ahh, so you are right. I apparently misread the code.
+
 >> but the touchstick still does not work as expected. Settting
 >> ALPS_PS2_INTERLEAVED as well doesn't appear to change anything.
 >
 > ALPS_PS2_INTERLEAVED is just for V2 protocol. It does not have any
 > effect for other protocols.
 >
+Good to know. It would be nice if there were a comment indicating this
+in alps.c.
+
 >> Ideas?
 >
 > I think now we just need description of trackstick format for V8
 > protocol. And then implement it in alps V8 parser.
 >
-> Anyway, now I'm looking at Documentation/input/alps.txt file and ther=
-e
-> is no info about V8 protocol :-(
->
-> Hans, do you have "compact" description of V8 protocol? So it can be
-> added into that alps.txt file. Also do you have description of that
-> missing trackstick V8 format?
+Lovely. I'd be happy to carry out the implementation if protocol
+documentation is available.
 
-No, sorry the V8 code was submitted by alps themselves, so 'm not famil=
-iar
-with it.
+Cheers,
 
-Regards,
+=2D Ben
 
-Hans
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-
->
->> Cheers,
->>
->> - Ben
->>
->>
->>
->> From 73f99f86c77d39ff512f2064ca9f2002c6404dd9 Mon Sep 17 00:00:00 20=
-01
->> From: Ben Gamari <ben@smart-cactus.org>
->> Date: Wed, 25 May 2016 14:19:53 +0200
->> Subject: [PATCH 1/2] alps: Add touchpad for Dell Latitude E7470
->>
->> However, this still isn't quite right as the touchstick appears to
->> corrupt the event stream.
->> ---
->>  drivers/input/mouse/alps.c | 3 +++
->>  1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
->> index 936f07a..a0c5dfe 100644
->> --- a/drivers/input/mouse/alps.c
->> +++ b/drivers/input/mouse/alps.c
->> @@ -2767,6 +2767,9 @@ static int alps_identify(struct psmouse *psmou=
-se, struct alps_data *priv)
->>  		} else if (e7[0] =3D=3D 0x73 && e7[1] =3D=3D 0x03 &&
->>  			   e7[2] =3D=3D 0x14 && ec[1] =3D=3D 0x02) {
->>  			protocol =3D &alps_v8_protocol_data;
->> +		} else if (e7[0] =3D=3D 0x73 && e7[1] =3D=3D 0x03 &&
->> +               e7[2] =3D=3D 0x28 && ec[1] =3D=3D 0x01) {
->> +      protocol =3D &alps_v8_protocol_data;
->>  		} else {
->>  			psmouse_dbg(psmouse,
->>  				    "Likely not an ALPS touchpad: E7=3D%3ph, EC=3D%3ph\n", e7, =
-ec);
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+iQEcBAEBCAAGBQJXRcpyAAoJEHPt6ejPuu8B+UMIAJ9O4qHPClfBLv+zPg6mBlEz
+SadJK6xBttwu8NIFqvBprcJGKdI5pwKSfjo3hSavL5JuCAS+Lp3EOWZOHwIH/oXz
+/BmhZkKtwLStAXPKRpjGd/a/HpH+t1KPZiLmd5HyoMsJqxC32/ffsn6Uiu2+KvVL
+QUQirvqCbJjEkyKePpfuEfVhUtiRzrciXb+0YQ7aCXzsFAvp5c5Z8Vk2QSpWdvmO
+4ZRUuhkNduf0+b5zaOKDhoAOJVDrAO31kOWtNz3qonEocnY4XjoIXjKYafRkHcUz
+FuR0MUoSaPp2LWef/QkuvseN/599ms4VfJnsaYQQHYTKbPHCjtC4qsWdJqWF+WU=
+=Q6iN
+-----END PGP SIGNATURE-----
+--=-=-=--

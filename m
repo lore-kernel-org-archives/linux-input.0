@@ -1,71 +1,73 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: Re: [RFC PATCH 1/2] Input: rotary-encoder- Add support for absolute
- encoder
-Date: Wed, 25 May 2016 14:14:29 +0530
-Message-ID: <574565ED.3060205@ti.com>
-References: <1463648641-6931-1-git-send-email-vigneshr@ti.com>
- <1463648641-6931-2-git-send-email-vigneshr@ti.com>
- <20160520163404.GC14951@dtor-ws> <5742CB03.8010805@ti.com>
+From: Oliver Neukum <oneukum-IBi9RG/b67k@public.gmane.org>
+Subject: Re: [PATCH v4] input: tablet: add Pegasus Notetaker tablet driver
+Date: Wed, 25 May 2016 10:46:12 +0200
+Message-ID: <1464165972.2132.5.camel@suse.com>
+References: <1464162274-18424-1-git-send-email-martink@posteo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <5742CB03.8010805@ti.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Guido Martinez <guido@vanguardiasur.com.ar>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Tony Lindgren <tony@atomide.com>, Masanari Iida <standby24x7@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Timo Teras <timo.teras@iki.fi>, Geert Uytterhoeven <geert@linux-m68k.org>, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Sylvain Rochet <sylvain.rochet@finsecur.com>, Uwe Kleine-Konig <u.kleine-koenig@pengutronix.de>, Johan Hovold <johan@kernel.org>, Rob Herring <robh+dt@kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Moritz Fischer <moritz.fischer@ettus.com>linu
+Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1464162274-18424-1-git-send-email-martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
+Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
+Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Wed, 2016-05-25 at 09:44 +0200, Martin Kepplinger wrote:
+> This adds a driver for the Pegasus Notetaker Pen. When connected,
+> this uses the Pen as an input tablet.
+> 
+> This device was sold in various different brandings, for example
+> 	"Pegasus Mobile Notetaker M210",
+> 	"Genie e-note The Notetaker",
+> 	"Staedtler Digital ballpoint pen 990 01",
+> 	"IRISnotes Express" or
+> 	"NEWLink Digital Note Taker".
+> 
+> Here's an example, so that you know what we are talking about:
+> http://www.staedtler.com/en/products/ink-writing-instruments/ballpoint-pens/digital-pen-990-01-digital-ballpoint-pen
+> 
+> http://pegatech.blogspot.com/ seems to be a remaining official resource.
+> 
+> This device can also transfer saved (offline recorded handwritten) data and
+> there are userspace programs that do this, see https://launchpad.net/m210
+> (Well, alternatively there are really fast scanners out there :)
+> 
+> It's *really* fun to use as an input tablet though! So let's support this
+> for everybody.
+> 
+> There's no way to disable the device. When the pen is out of range, we just
+> don't get any URBs and don't do anything.
+> Like all other mouses or input tablets, we don't use runtime PM.
+> 
+> Signed-off-by: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
+> ---
+> 
+> Thanks for having a look. Any more suggestions on this?
+> 
+> revision history
+> ================
+> v4 use normal work queue instead of a kernel thread (thanks to Oliver Neukum)
+> v3 fix reporting low pen battery and add USB list to CC
+> v2 minor cleanup (remove unnecessary variables)
+> v1 initial release
+> 
 
-On 05/23/2016 02:48 PM, R, Vignesh wrote:
-> 
-> 
-> On 5/20/2016 10:04 PM, Dmitry Torokhov wrote:
->> On Thu, May 19, 2016 at 02:34:00PM +0530, Vignesh R wrote:
->>> There are rotary-encoders where GPIO lines reflect the actual position
->>> of the rotary encoder dial. For example, if dial points to 9, then four
->>> GPIO lines connected to the rotary encoder will read HLLH(1001b = 9).
->>> Add support for such rotary-encoder.
->>> The driver relies on rotary-encoder,absolute-encoder DT property to
->>> detect such encoders.
->>> Since, GPIO IRQs are not necessary to work with
->>> such encoders, optional polling mode support is added using
->>> input_poll_dev skeleton. This is can be used by enabling
->>> CONFIG_INPUT_GPIO_ROTARY_ENCODER_POLL_MODE_SUPPORT.
->>
->> Does this really belong to a rotary encoder and not a new driver that
->> simply translates gpio-encoded value into ABS* event?
->>
-> 
-> Currently rotary encoder driver only supports incremental/step counting
-> rotary devices. However, the device that is there on am335x-ice is an
-> absolute encoder but, IMO, nevertheless a kind of rotary encoder. The
-> only difference is that there is no need to count steps and the absolute
-> position value is always available as binary encoded state of connected
-> GPIOs.
-> The hardware on am335x-ice is a mechanical rotary encoder switch
-> connected over 4 GPIOs. It is same as binary encoder described at [1]
-> (except there are 4 GPIO lines), so this lead me to add support in
-> rotary-encoder.
-> 
-> [1]https://en.wikipedia.org/wiki/Rotary_encoder#Standard_binary_encoding
-> 
+Hi,
 
-Could you please comment on how would you like to support above
-described encoder: As a new driver or with existing driver with new
-compatible/mode setting via DT or as suggest by Uwe in another reply?
-IMHO, supporting using existing driver with new mode/compatible string
-looks a better option as the hardware is a kind of rotary-encoder.
+almost there.
 
--- 
-Regards
-Vignesh
+	Regards
+		Oliver
+
+> +static void pegasus_close(struct input_dev *dev)
+> +{
+> +	struct pegasus *pegasus = input_get_drvdata(dev);
+> +
+> +	cancel_work_sync(&pegasus->init);
+> +
+> +	usb_kill_urb(pegasus->irq);
+> +}
+
+This is a race condition. The URB can trigger the work.
+Therefore the URB needs to die first.

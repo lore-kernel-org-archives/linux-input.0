@@ -1,226 +1,144 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 2/2] Input - surface3_spi: add surface pen support for
- Surface 3
-Date: Wed, 25 May 2016 11:24:47 +0200
-Message-ID: <20160525092447.GO23234@mail.corp.redhat.com>
-References: <1464011734-18657-1-git-send-email-stephenjust@gmail.com>
- <1464097434-10063-1-git-send-email-stephenjust@gmail.com>
- <1464097434-10063-3-git-send-email-stephenjust@gmail.com>
+From: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
+Subject: [PATCH] Emit BTN_TOO_FINGER in function input_mt_report_pointer_emulation if touchpad meets hover condition
+Date: Wed, 25 May 2016 19:44:57 +0800
+Message-ID: <003101d1b67a$dce6e5c0$96b4b140$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0032_01D1B6BD.EB0A9AF0"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34002 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750738AbcEYJYy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 May 2016 05:24:54 -0400
-Content-Disposition: inline
-In-Reply-To: <1464097434-10063-3-git-send-email-stephenjust@gmail.com>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:44585 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753510AbcEYLpB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 May 2016 07:45:01 -0400
+Content-Language: zh-tw
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Just <stephenjust@gmail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zac.hsieh@emc.com.tw, =?UTF-8?B?J+m7g+S4lum1rCDntpPnkIYn?= <phoenix@emc.com.tw>, 'Charles Mooney' <charliemooney@google.com>, 'Agnes Cheng' <agnescheng@google.com>, 'jeff' <jeff.chuang@emc.com.tw>
 
-Hi Stephen,
+This is a multipart message in MIME format.
 
-On May 24 2016 or thereabouts, Stephen Just wrote:
-> This change creates a second input device which will handle input from
-> a Surface Pen. The Surface Pen supplies a different packet header than
-> touch events, so it is simple to handle one or the other.
-> 
-> This patch handles both the newer Surface Pen with one button, and the
-> older variant with a second button to switch to Eraser mode.
-> 
-> Signed-off-by: Stephen Just <stephenjust@gmail.com>
-> ---
->  drivers/input/touchscreen/surface3_spi.c | 111 ++++++++++++++++++++++++++++++-
->  1 file changed, 109 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/surface3_spi.c b/drivers/input/touchscreen/surface3_spi.c
-> index 204a162..665b02c 100644
-> --- a/drivers/input/touchscreen/surface3_spi.c
-> +++ b/drivers/input/touchscreen/surface3_spi.c
-> @@ -28,11 +28,13 @@
->  #define SURFACE3_PACKET_SIZE	264
->  
->  #define SURFACE3_REPORT_TOUCH	0xd2
-> +#define SURFACE3_REPORT_PEN	0x16
->  
->  struct surface3_ts_data {
->  	struct spi_device *spi;
->  	struct gpio_desc *gpiod_rst[2];
->  	struct input_dev *input_dev;
-> +	struct input_dev *pen_input_dev;
->  
->  	u8 rd_buf[SURFACE3_PACKET_SIZE]		____cacheline_aligned;
->  };
-> @@ -49,6 +51,14 @@ struct surface3_ts_data_finger {
->  	u32 padding;
->  } __packed;
->  
-> +struct surface3_ts_data_pen {
-> +	u8 status;
-> +	__le16 x;
-> +	__le16 y;
-> +	__le16 pressure;
-> +	u8 padding;
-> +} __packed;
-> +
->  static int surface3_spi_read(struct surface3_ts_data *ts_data)
->  {
->  	struct spi_device *spi = ts_data->spi;
-> @@ -114,6 +124,52 @@ static void surface3_spi_process_touch(struct surface3_ts_data *ts_data, u8 *dat
->  	input_sync(ts_data->input_dev);
->  }
->  
-> +static void surface3_spi_report_pen(struct surface3_ts_data *ts_data,
-> +				    struct surface3_ts_data_pen *pen)
-> +{
-> +	int st = pen->status;
-> +	int prox = st & 0x01;
-> +	int rubber = st & 0x18;
-> +
-> +	input_report_key(ts_data->pen_input_dev,
-> +			 BTN_TOUCH,
-> +			 (st & 0x12));
-> +
-> +	input_report_key(ts_data->pen_input_dev,
-> +			 BTN_TOOL_PEN,
-> +			 prox && !rubber);
-> +
-> +	input_report_key(ts_data->pen_input_dev,
-> +			 BTN_TOOL_RUBBER,
-> +			 prox && rubber);
+------=_NextPart_000_0032_01D1B6BD.EB0A9AF0
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-I just had a call with Peter, and I noticed a small issue here (see
-https://bugs.freedesktop.org/show_bug.cgi?id=96182)
+Hi Dmitry,
 
-On the out of proximity event, we switches back from tool_pen and
-release the tool_rubber in the very same frame, and this messes things
-in user space.
+Update /input/mouse/input-mt.c
+Emit BTN_TOO_FINGER in input_mt_report_pointer_emulation if touchpad =
+meets hover condition.
 
-I first thought it was easier to fix libinput, but this behavior (having
-a tool in/out prox in its own prox) is the de facto standard and the
-current stylus (new style) behavior will break xorg-evdev, xorg-wacom
-and libinput.
+Thanks & BR	KT
 
-Would you mind adding a check in the driver if the tool changed and add
-the input_sync() accordingly?
+-----Original Message-----
+From: 'Dmitry Torokhov' [mailto:dmitry.torokhov@gmail.com]=20
+Sent: Friday, May 20, 2016 8:52 AM
+To: =E5=BB=96=E5=B4=87=E6=A6=AE
+Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; =
+zac.hsieh@emc.com.tw; '=E9=BB=83=E4=B8=96=E9=B5=AC =E7=B6=93=E7=90=86'; =
+'Charles Mooney'; 'Agnes Cheng'; 'jeff'
+Subject: Re: [PATCH] Input: Change BTN_TOOL_FINGER flag when hover event =
+trigger
 
-Cheers,
-Benjamin
+On Tue, May 17, 2016 at 10:20:40PM +0800, =E5=BB=96=E5=B4=87=E6=A6=AE =
+wrote:
+> Hi Dmitry,
+>=20
+> I want to confirm my thought for your idea to avoid misunderstanding.
+> I think you want to encapsulate " BTN_TOOL_FINGER" in the =
+[input_mt_report_pointer_emulation] if hover happen.
+> Vendor driver only report "ABS_DISTANCE" and let =
+[input_mt_report_pointer_emulation] emit BTN_TOOL_FINGER report without =
+change function parameter.
+>=20
+> Please let me know if my misunderstand about your idea.
 
+Yes, that is correct. Something like this:
 
-> +
-> +	if (st) {
-> +		input_report_key(ts_data->pen_input_dev,
-> +				 BTN_STYLUS,
-> +				 st & 0x04);
-> +
-> +		input_report_abs(ts_data->pen_input_dev,
-> +				 ABS_X,
-> +				 get_unaligned_le16(&pen->x));
-> +		input_report_abs(ts_data->pen_input_dev,
-> +				 ABS_Y,
-> +				 get_unaligned_le16(&pen->y));
-> +		input_report_abs(ts_data->pen_input_dev,
-> +				 ABS_PRESSURE,
-> +				 get_unaligned_le16(&pen->pressure));
-> +	}
-> +}
-> +
-> +static void surface3_spi_process_pen(struct surface3_ts_data *ts_data, u8 *data)
-> +{
-> +	struct surface3_ts_data_pen *pen;
-> +
-> +	pen = (struct surface3_ts_data_pen *)&data[15];
-> +
-> +	surface3_spi_report_pen(ts_data, pen);
-> +	input_sync(ts_data->pen_input_dev);
-> +}
-> +
->  static void surface3_spi_process(struct surface3_ts_data *ts_data)
->  {
->  	const char header[] = {0xff, 0xff, 0xff, 0xff, 0xa5, 0x5a, 0xe7, 0x7e, 0x01};
-> @@ -125,12 +181,19 @@ static void surface3_spi_process(struct surface3_ts_data *ts_data)
->  			"%s header error: %*ph, ignoring...\n",
->  			__func__, (int)sizeof(header), data);
->  
-> -	if (data[9] == SURFACE3_REPORT_TOUCH)
-> +	switch (data[9]) {
-> +	case SURFACE3_REPORT_TOUCH:
->  		surface3_spi_process_touch(ts_data, data);
-> -	else
-> +		break;
-> +	case SURFACE3_REPORT_PEN:
-> +		surface3_spi_process_pen(ts_data, data);
-> +		break;
-> +	default:
->  		dev_err(&ts_data->spi->dev,
->  			"%s unknown packet type: %x, ignoring...\n",
->  			__func__, data[9]);
-> +		break;
-> +	}
->  }
->  
->  static irqreturn_t surface3_spi_irq_handler(int irq, void *dev_id)
-> @@ -224,6 +287,46 @@ static int surface3_spi_create_touch_input(struct surface3_ts_data *data)
->  	return 0;
->  }
->  
-> +static int surface3_spi_create_pen_input(struct surface3_ts_data *data)
-> +{
-> +	struct input_dev *input;
-> +	int error;
-> +
-> +	input = devm_input_allocate_device(&data->spi->dev);
-> +	if (!input)
-> +		return -ENOMEM;
-> +
-> +	data->pen_input_dev = input;
-> +
-> +	__set_bit(INPUT_PROP_DIRECT, input->propbit);
-> +	__set_bit(INPUT_PROP_POINTER, input->propbit);
-> +	input_set_abs_params(input, ABS_X, 0, 9600, 0, 0);
-> +	input_abs_set_res(input, ABS_X, 40);
-> +	input_set_abs_params(input, ABS_Y, 0, 7200, 0, 0);
-> +	input_abs_set_res(input, ABS_Y, 48);
-> +	input_set_abs_params(input, ABS_PRESSURE, 0, 1024, 0, 0);
-> +	input_set_capability(input, EV_KEY, BTN_TOUCH);
-> +	input_set_capability(input, EV_KEY, BTN_STYLUS);
-> +	input_set_capability(input, EV_KEY, BTN_TOOL_PEN);
-> +	input_set_capability(input, EV_KEY, BTN_TOOL_RUBBER);
-> +
-> +	input->name = "Surface3 SPI Pen Input";
-> +	input->phys = "input/ts";
-> +	input->id.bustype = BUS_SPI;
-> +	input->id.vendor = 0x045e;     /* Microsoft */
-> +	input->id.product = 0x0002;
-> +	input->id.version = 0x0000;
-> +
-> +	error = input_register_device(input);
-> +	if (error) {
-> +		dev_err(&data->spi->dev,
-> +			"Failed to register input device: %d", error);
-> +		return error;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  static int surface3_spi_probe(struct spi_device *spi)
->  {
->  	struct surface3_ts_data *data;
-> @@ -255,6 +358,10 @@ static int surface3_spi_probe(struct spi_device *spi)
->  	if (error)
->  		return error;
->  
-> +	error = surface3_spi_create_pen_input(data);
-> +	if (error)
-> +		return error;
-> +
->  	error = devm_request_threaded_irq(&spi->dev, spi->irq,
->  					  NULL, surface3_spi_irq_handler,
->  					  IRQF_ONESHOT,
-> -- 
-> 2.8.2
-> 
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c index =
+54fce56..a1bbec9 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -218,8 +218,23 @@ void input_mt_report_pointer_emulation(struct =
+input_dev *dev, bool use_count)
+ 	}
+=20
+ 	input_event(dev, EV_KEY, BTN_TOUCH, count > 0);
+-	if (use_count)
++
++	if (use_count) {
++		if (count =3D=3D 0 &&
++		    !test_bit(ABS_MT_DISTANCE, dev->absbit) &&
++		    test_bit(ABS_DISTANCE, dev->absbit) &&
++		    input_abs_get_val(dev, ABS_DISTANCE) !=3D 0) {
++			/*
++			 * Force reporting BTN_TOOL_FINGER for devices that
++			 * only report general hover (and not per-contact
++			 * distance) when contact is in proximity but not
++			 * on the surface.
++			 */
++			count =3D 1;
++		}
++
+ 		input_mt_report_finger_count(dev, count);
++	}
+=20
+ 	if (oldest) {
+ 		int x =3D input_mt_get_value(oldest, ABS_MT_POSITION_X);
+
+--
+Dmitry
+
+------=_NextPart_000_0032_01D1B6BD.EB0A9AF0
+Content-Type: application/octet-stream;
+	name="0001-Input-drivers-input-input-mt.c.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="0001-Input-drivers-input-input-mt.c.patch"
+
+>From 6097f617de49db3592322da66253a1b88090d157 Mon Sep 17 00:00:00 2001=0A=
+From: KT Liao <kt.liao@emc.com.tw>=0A=
+Date: Wed, 25 May 2016 15:52:09 +0800=0A=
+Subject: [PATCH] Input: drivers/input/input-mt.c Emit BTN_TOO_FINGER in=0A=
+ function input_mt_report_pointer_emulation if touchpad meets hover =
+condition=0A=
+ Signed-off-by: KT Liao <kt.liao@emc.com.tw>=0A=
+=0A=
+---=0A=
+ drivers/input/input-mt.c | 13 +++++++++++--=0A=
+ 1 file changed, 11 insertions(+), 2 deletions(-)=0A=
+=0A=
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c=0A=
+index 54fce56..486b1ca 100644=0A=
+--- a/drivers/input/input-mt.c=0A=
++++ b/drivers/input/input-mt.c=0A=
+@@ -218,8 +218,17 @@ void input_mt_report_pointer_emulation(struct =
+input_dev *dev, bool use_count)=0A=
+ 	}=0A=
+ =0A=
+ 	input_event(dev, EV_KEY, BTN_TOUCH, count > 0);=0A=
+-	if (use_count)=0A=
+-		input_mt_report_finger_count(dev, count);=0A=
++=0A=
++	if (use_count) {=0A=
++		if (count =3D=3D 0 &&=0A=
++		    !test_bit(ABS_MT_DISTANCE, dev->absbit) &&=0A=
++		    test_bit(ABS_DISTANCE, dev->absbit) &&=0A=
++		    input_abs_get_val(dev, ABS_DISTANCE) !=3D 0) {=0A=
++			input_report_key(dev, BTN_TOOL_FINGER, input_abs_get_val(dev, =
+ABS_DISTANCE));=0A=
++			count =3D 1;=0A=
++		}=0A=
++ 		input_mt_report_finger_count(dev, count);=0A=
++	}=0A=
+ =0A=
+ 	if (oldest) {=0A=
+ 		int x =3D input_mt_get_value(oldest, ABS_MT_POSITION_X);=0A=
+-- =0A=
+2.7.4=0A=
+=0A=
+
+------=_NextPart_000_0032_01D1B6BD.EB0A9AF0--
+

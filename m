@@ -1,206 +1,61 @@
-From: Stephen Just <stephenjust@gmail.com>
-Subject: [PATCH v3 2/2] Input - surface3_spi: add surface pen support for Surface 3
-Date: Wed, 25 May 2016 05:40:05 -0600
-Message-ID: <1464176406-9917-3-git-send-email-stephenjust@gmail.com>
-References: <1464176406-9917-1-git-send-email-stephenjust@gmail.com>
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Subject: Re: Support Alps I2C HID Touchpad-Stick device
+Date: Wed, 25 May 2016 17:15:30 -0700
+Message-ID: <20160526001530.GC22369@dtor-ws>
+References: <1464143627-3773-1-git-send-email-masaki.ota@jp.alps.com>
+ <OSXPR01MB04088A6376ED331FFF89737DC7400@OSXPR01MB0408.jpnprd01.prod.outlook.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f196.google.com ([209.85.213.196]:35326 "EHLO
-	mail-ig0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932622AbcEYRl4 (ORCPT
+Received: from mail-pf0-f181.google.com ([209.85.192.181]:35219 "EHLO
+	mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751829AbcEZAPe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 May 2016 13:41:56 -0400
-Received: by mail-ig0-f196.google.com with SMTP id i11so5898647igh.2
-        for <linux-input@vger.kernel.org>; Wed, 25 May 2016 10:41:55 -0700 (PDT)
-In-Reply-To: <1464176406-9917-1-git-send-email-stephenjust@gmail.com>
+	Wed, 25 May 2016 20:15:34 -0400
+Received: by mail-pf0-f181.google.com with SMTP id g64so24761162pfb.2
+        for <linux-input@vger.kernel.org>; Wed, 25 May 2016 17:15:34 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <OSXPR01MB04088A6376ED331FFF89737DC7400@OSXPR01MB0408.jpnprd01.prod.outlook.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Stephen Just <stephenjust@gmail.com>, Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>
+To: Masaki Ota <masaki.ota@jp.alps.com>
+Cc: "jikos@kernel.org" <jikos@kernel.org>, "benjamin.tissorires@redhat.com" <benjamin.tissorires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hdegoede@redhat.com" <hdegoede@redhat.com>
 
-This change creates a second input device which will handle input from
-a Surface Pen. The Surface Pen supplies a different packet header than
-touch events, so it is simple to handle one or the other.
+Hi Masaki,
 
-This patch handles both the newer Surface Pen with one button, and the
-older variant with a second button to switch to Eraser mode.
+On Wed, May 25, 2016 at 02:41:35AM +0000, Masaki Ota wrote:
+> Best Regards,
+> -----------------------------
+> Masaki Ota
+> Engineering Dept.M8
+> Alps Electric Co., Ltd.
+> Tel: +81-246-58-6464
+> Fax: +81-246-58-8326
+> -----------------------------
+> -----Original Message-----
+> From: Masaki Ota [mailto:012nexus@gmail.com]=20
+> Sent: Wednesday, May 25, 2016 11:34 AM
+> To: jikos@kernel.org; benjamin.tissorires@redhat.com
+> Cc: linux-input@vger.kernel.org; peter.hutterer@who-t.net; hdegoede@r=
+edhat.com; dmitry.torokhov@gmail.com; =E5=A4=AA=E7=94=B0 =E7=9C=9F=E5=96=
+=9C Masaki Ota
+> Subject: Support Alps I2C HID Touchpad-Stick device=20
+>=20
+> Hi, all,
+>=20
+> Here is the patch for Alps I2C HID Touchpad-Stick support.
+> Most of this device is attached in Dell laptop PC of this year model.
 
-Signed-off-by: Stephen Just <stephenjust@gmail.com>
----
-v1 -> v2: Code cleanup w/ switch/case
-v2 -> v3: Send proximity-out event when switching tools
+Please do not send patches as attachments but rather send them inline.
+Consider using "git send-email".
 
- drivers/input/touchscreen/surface3_spi.c | 114 ++++++++++++++++++++++++++++++-
- 1 file changed, 112 insertions(+), 2 deletions(-)
+Thanks.
 
-diff --git a/drivers/input/touchscreen/surface3_spi.c b/drivers/input/touchscreen/surface3_spi.c
-index 204a162..63548743 100644
---- a/drivers/input/touchscreen/surface3_spi.c
-+++ b/drivers/input/touchscreen/surface3_spi.c
-@@ -28,11 +28,14 @@
- #define SURFACE3_PACKET_SIZE	264
- 
- #define SURFACE3_REPORT_TOUCH	0xd2
-+#define SURFACE3_REPORT_PEN	0x16
- 
- struct surface3_ts_data {
- 	struct spi_device *spi;
- 	struct gpio_desc *gpiod_rst[2];
- 	struct input_dev *input_dev;
-+	struct input_dev *pen_input_dev;
-+	int pen_tool;
- 
- 	u8 rd_buf[SURFACE3_PACKET_SIZE]		____cacheline_aligned;
- };
-@@ -49,6 +52,14 @@ struct surface3_ts_data_finger {
- 	u32 padding;
- } __packed;
- 
-+struct surface3_ts_data_pen {
-+	u8 status;
-+	__le16 x;
-+	__le16 y;
-+	__le16 pressure;
-+	u8 padding;
-+} __packed;
-+
- static int surface3_spi_read(struct surface3_ts_data *ts_data)
- {
- 	struct spi_device *spi = ts_data->spi;
-@@ -114,6 +125,53 @@ static void surface3_spi_process_touch(struct surface3_ts_data *ts_data, u8 *dat
- 	input_sync(ts_data->input_dev);
- }
- 
-+static void surface3_spi_report_pen(struct surface3_ts_data *ts_data,
-+				    struct surface3_ts_data_pen *pen)
-+{
-+	struct input_dev *dev = ts_data->pen_input_dev;
-+	int st = pen->status;
-+	int prox = st & 0x01;
-+	int rubber = st & 0x18;
-+	int tool = (prox && rubber) ? BTN_TOOL_RUBBER : BTN_TOOL_PEN;
-+
-+	/* fake proximity out to switch tools */
-+	if (ts_data->pen_tool != tool) {
-+		input_report_key(dev, ts_data->pen_tool, 0);
-+		input_sync(dev);
-+		ts_data->pen_tool = tool;
-+	}
-+
-+	input_report_key(dev, BTN_TOUCH, st & 0x12);
-+
-+	input_report_key(dev, ts_data->pen_tool, prox);
-+
-+	if (st) {
-+		input_report_key(dev,
-+				 BTN_STYLUS,
-+				 st & 0x04);
-+
-+		input_report_abs(dev,
-+				 ABS_X,
-+				 get_unaligned_le16(&pen->x));
-+		input_report_abs(dev,
-+				 ABS_Y,
-+				 get_unaligned_le16(&pen->y));
-+		input_report_abs(dev,
-+				 ABS_PRESSURE,
-+				 get_unaligned_le16(&pen->pressure));
-+	}
-+}
-+
-+static void surface3_spi_process_pen(struct surface3_ts_data *ts_data, u8 *data)
-+{
-+	struct surface3_ts_data_pen *pen;
-+
-+	pen = (struct surface3_ts_data_pen *)&data[15];
-+
-+	surface3_spi_report_pen(ts_data, pen);
-+	input_sync(ts_data->pen_input_dev);
-+}
-+
- static void surface3_spi_process(struct surface3_ts_data *ts_data)
- {
- 	const char header[] = {0xff, 0xff, 0xff, 0xff, 0xa5, 0x5a, 0xe7, 0x7e, 0x01};
-@@ -125,12 +183,19 @@ static void surface3_spi_process(struct surface3_ts_data *ts_data)
- 			"%s header error: %*ph, ignoring...\n",
- 			__func__, (int)sizeof(header), data);
- 
--	if (data[9] == SURFACE3_REPORT_TOUCH)
-+	switch (data[9]) {
-+	case SURFACE3_REPORT_TOUCH:
- 		surface3_spi_process_touch(ts_data, data);
--	else
-+		break;
-+	case SURFACE3_REPORT_PEN:
-+		surface3_spi_process_pen(ts_data, data);
-+		break;
-+	default:
- 		dev_err(&ts_data->spi->dev,
- 			"%s unknown packet type: %x, ignoring...\n",
- 			__func__, data[9]);
-+		break;
-+	}
- }
- 
- static irqreturn_t surface3_spi_irq_handler(int irq, void *dev_id)
-@@ -224,6 +289,47 @@ static int surface3_spi_create_touch_input(struct surface3_ts_data *data)
- 	return 0;
- }
- 
-+static int surface3_spi_create_pen_input(struct surface3_ts_data *data)
-+{
-+	struct input_dev *input;
-+	int error;
-+
-+	input = devm_input_allocate_device(&data->spi->dev);
-+	if (!input)
-+		return -ENOMEM;
-+
-+	data->pen_input_dev = input;
-+	data->pen_tool = BTN_TOOL_PEN;
-+
-+	__set_bit(INPUT_PROP_DIRECT, input->propbit);
-+	__set_bit(INPUT_PROP_POINTER, input->propbit);
-+	input_set_abs_params(input, ABS_X, 0, 9600, 0, 0);
-+	input_abs_set_res(input, ABS_X, 40);
-+	input_set_abs_params(input, ABS_Y, 0, 7200, 0, 0);
-+	input_abs_set_res(input, ABS_Y, 48);
-+	input_set_abs_params(input, ABS_PRESSURE, 0, 1024, 0, 0);
-+	input_set_capability(input, EV_KEY, BTN_TOUCH);
-+	input_set_capability(input, EV_KEY, BTN_STYLUS);
-+	input_set_capability(input, EV_KEY, BTN_TOOL_PEN);
-+	input_set_capability(input, EV_KEY, BTN_TOOL_RUBBER);
-+
-+	input->name = "Surface3 SPI Pen Input";
-+	input->phys = "input/ts";
-+	input->id.bustype = BUS_SPI;
-+	input->id.vendor = 0x045e;     /* Microsoft */
-+	input->id.product = 0x0002;
-+	input->id.version = 0x0000;
-+
-+	error = input_register_device(input);
-+	if (error) {
-+		dev_err(&data->spi->dev,
-+			"Failed to register input device: %d", error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
- static int surface3_spi_probe(struct spi_device *spi)
- {
- 	struct surface3_ts_data *data;
-@@ -255,6 +361,10 @@ static int surface3_spi_probe(struct spi_device *spi)
- 	if (error)
- 		return error;
- 
-+	error = surface3_spi_create_pen_input(data);
-+	if (error)
-+		return error;
-+
- 	error = devm_request_threaded_irq(&spi->dev, spi->irq,
- 					  NULL, surface3_spi_irq_handler,
- 					  IRQF_ONESHOT,
--- 
-2.8.2
-
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

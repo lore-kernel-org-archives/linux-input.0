@@ -1,100 +1,59 @@
-From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Emit BTN_TOO_FINGER in function
- input_mt_report_pointer_emulation if touchpad meets hover condition
-Date: Wed, 25 May 2016 17:13:50 -0700
-Message-ID: <20160526001350.GB22369@dtor-ws>
-References: <003101d1b67a$dce6e5c0$96b4b140$@emc.com.tw>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: pwm-beeper - fix: scheduling while atomic
+Date: Wed, 25 May 2016 17:36:15 -0700
+Message-ID: <20160526003615.GE22369@dtor-ws>
+References: <56C4735E.6020300@gmx.at>
+ <20160222194639.GD26177@dtor-ws>
+ <20160512121852.GB26824@ulmo.ba.sec>
+ <5735F4E3.20008@gmx.at>
+ <573C8761.9070601@gmx.at>
+ <20160520165918.GE14951@dtor-ws>
+ <574411B5.2010407@gmx.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f65.google.com ([209.85.220.65]:36002 "EHLO
+	mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751836AbcEZAgT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 May 2016 20:36:19 -0400
 Content-Disposition: inline
-In-Reply-To: <003101d1b67a$dce6e5c0$96b4b140$@emc.com.tw>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zac.hsieh@emc.com.tw, =?utf-8?B?J+m7g+S4lum1rCDntpPnkIYn?= <phoenix@emc.com.tw>, 'Charles Mooney' <charliemooney@google.com>, 'Agnes Cheng' <agnescheng@google.com>, 'jeff' <jeff.chuang@emc.com.tw>
+In-Reply-To: <574411B5.2010407@gmx.at>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Manfred Schlaegl <manfred.schlaegl@gmx.at>
+Cc: Thierry Reding <thierry.reding@gmail.com>, Manfred Schlaegl <manfred.schlaegl@ginzinger.com>, Luis de Bethencourt <luis@debethencourt.com>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Hi KT,
-
-On Wed, May 25, 2016 at 07:44:57PM +0800, =E5=BB=96=E5=B4=87=E6=A6=AE w=
-rote:
+On Tue, May 24, 2016 at 10:32:53AM +0200, Manfred Schlaegl wrote:
+> On 2016-05-20 18:59, Dmitry Torokhov wrote:
+> > Hi Manfred,
+> > 
+> > On Wed, May 18, 2016 at 05:16:49PM +0200, Manfred Schlaegl wrote:
+> >> @@ -133,6 +149,8 @@ static int pwm_beeper_remove(struct platform_device *pdev)
+> >>  {
+> >>  	struct pwm_beeper *beeper = platform_get_drvdata(pdev);
+> >>  
+> >> +	cancel_work_sync(&beeper->work);
+> >> +
+> >>  	input_unregister_device(beeper->input);
+> > 
+> > This is racy, request to play may come in after cancel_work_sync()
+> > returns but before we unregistered input device. I think you want the
+> > version below.
+> > 
+> 
 > Hi Dmitry,
->=20
-> Update /input/mouse/input-mt.c
-> Emit BTN_TOO_FINGER in input_mt_report_pointer_emulation if touchpad =
-meets hover condition.
+> 
+> yes you are right. Thank you for your feedback.
+> I also see that point, but I think it would be a simpler change just
+> to cancel the worker after unregistering the device (to reorder 
+> cancel_work_sync and input_unregister_device).
 
-Please do not top-post and also do not send patches as attachments,
-they should be sent inline. Please take a look at "git send-email"
-command.
+That is an option, but I wanter to have close() because I also want to
+convert the driver to used devm for allocating resources, and then we'd
+need close() anyway so that we can get rid of remove() method.
 
 Thanks.
 
->=20
-> Thanks & BR	KT
->=20
-> -----Original Message-----
-> From: 'Dmitry Torokhov' [mailto:dmitry.torokhov@gmail.com]=20
-> Sent: Friday, May 20, 2016 8:52 AM
-> To: =E5=BB=96=E5=B4=87=E6=A6=AE
-> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; zac.hs=
-ieh@emc.com.tw; '=E9=BB=83=E4=B8=96=E9=B5=AC =E7=B6=93=E7=90=86'; 'Char=
-les Mooney'; 'Agnes Cheng'; 'jeff'
-> Subject: Re: [PATCH] Input: Change BTN_TOOL_FINGER flag when hover ev=
-ent trigger
->=20
-> On Tue, May 17, 2016 at 10:20:40PM +0800, =E5=BB=96=E5=B4=87=E6=A6=AE=
- wrote:
-> > Hi Dmitry,
-> >=20
-> > I want to confirm my thought for your idea to avoid misunderstandin=
-g.
-> > I think you want to encapsulate " BTN_TOOL_FINGER" in the [input_mt=
-_report_pointer_emulation] if hover happen.
-> > Vendor driver only report "ABS_DISTANCE" and let [input_mt_report_p=
-ointer_emulation] emit BTN_TOOL_FINGER report without change function p=
-arameter.
-> >=20
-> > Please let me know if my misunderstand about your idea.
->=20
-> Yes, that is correct. Something like this:
->=20
-> diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c inde=
-x 54fce56..a1bbec9 100644
-> --- a/drivers/input/input-mt.c
-> +++ b/drivers/input/input-mt.c
-> @@ -218,8 +218,23 @@ void input_mt_report_pointer_emulation(struct in=
-put_dev *dev, bool use_count)
->  	}
-> =20
->  	input_event(dev, EV_KEY, BTN_TOUCH, count > 0);
-> -	if (use_count)
-> +
-> +	if (use_count) {
-> +		if (count =3D=3D 0 &&
-> +		    !test_bit(ABS_MT_DISTANCE, dev->absbit) &&
-> +		    test_bit(ABS_DISTANCE, dev->absbit) &&
-> +		    input_abs_get_val(dev, ABS_DISTANCE) !=3D 0) {
-> +			/*
-> +			 * Force reporting BTN_TOOL_FINGER for devices that
-> +			 * only report general hover (and not per-contact
-> +			 * distance) when contact is in proximity but not
-> +			 * on the surface.
-> +			 */
-> +			count =3D 1;
-> +		}
-> +
->  		input_mt_report_finger_count(dev, count);
-> +	}
-> =20
->  	if (oldest) {
->  		int x =3D input_mt_get_value(oldest, ABS_MT_POSITION_X);
->=20
-> --
-> Dmitry
-
-
-
---=20
+-- 
 Dmitry

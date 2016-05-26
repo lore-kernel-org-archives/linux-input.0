@@ -1,62 +1,185 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH 3/3] input/alps: Add device description for Dell Latitude
- E7470
-Date: Thu, 26 May 2016 11:05:09 +0200
-Message-ID: <20160526090509.GE29844@pali>
-References: <201605251801.45240@pali>
- <1464252914-11450-1-git-send-email-ben@smart-cactus.org>
- <1464252914-11450-4-git-send-email-ben@smart-cactus.org>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] Alps I2C HID Touchpad-Stick support
+Date: Thu, 26 May 2016 13:12:19 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1605261126510.31937@cbobk.fhfr.pm>
+References: <1464237655-2242-1-git-send-email-masaki.ota@jp.alps.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:32924 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751100AbcEZJFS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 May 2016 05:05:18 -0400
-Received: by mail-wm0-f65.google.com with SMTP id a136so3284935wme.0
-        for <linux-input@vger.kernel.org>; Thu, 26 May 2016 02:05:17 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1464252914-11450-4-git-send-email-ben@smart-cactus.org>
+Received: from mx2.suse.de ([195.135.220.15]:47728 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751627AbcEZLMT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 May 2016 07:12:19 -0400
+In-Reply-To: <1464237655-2242-1-git-send-email-masaki.ota@jp.alps.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Gamari <ben@smart-cactus.org>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>
+To: Masaki Ota <012nexus@gmail.com>
+Cc: benjamin.tissorires@redhat.com, linux-input@vger.kernel.org, peter.hutterer@who-t.net, hdegoede@redhat.com, dmitry.torokhov@gmail.com, masaki.ota@jp.alps.com
 
-On Thursday 26 May 2016 10:55:14 Ben Gamari wrote:
+On Thu, 26 May 2016, Masaki Ota wrote:
+
+> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+
+Thanks for the patch. However, please supply a changelog; the driver is 
+doing non-trivial operations, so at least a bit of explanation (why 
+generic HID can't be used, what are interesting high-level properties of 
+the protocol, etc.) would be appreciated.
+
 > ---
->  drivers/input/mouse/alps.c | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 10e6836..eb4bf31 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -143,6 +143,7 @@ static const struct alps_model_info alps_model_da=
-ta[] =3D {
->  	{ { 0x52, 0x01, 0x14 }, 0x00, { ALPS_PROTO_V2, 0xff, 0xff,
->  		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED } },				/* Toshi=
-ba Tecra A11-11L */
->  	{ { 0x73, 0x02, 0x64 }, 0x8a, { ALPS_PROTO_V4, 0x8f, 0x8f, 0 } },
-> +	{ { 0x73, 0x03, 0x28 }, 0x00, { ALPS_PROTO_V8, 0x18, 0x18, ALPS_SS4=
-_V2_ALT_DECODING | ALPS_DUALPOINT } }, /* Dell Latitude E7470 */
->  };
-> =20
->  static const struct alps_protocol_info alps_v3_protocol_data =3D {
+>  drivers/hid/Makefile   |   1 +
+>  drivers/hid/hid-alps.c | 513 +++++++++++++++++++++++++++++++++++++++++++++++++
+>  drivers/hid/hid-core.c |   5 +
+>  drivers/hid/hid-ids.h  |   2 +
+>  include/linux/hid.h    |   1 +
 
-Hi! I would rather move this code into alps_identify and probably creat=
-e
-alps_v8_ss<name>_data structure for it.
+You need to update Kconfig as well, otherwise CONFIG_HID_ALPS wouldn't be 
+selectable.
 
-Above alps_model_data list looks like hooks for special touchpads which
-needs more flags to work correctly...
+[ .. snip .. ]
+> +struct u1_dev *priv;
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Having this global is odd. How do you handle multiple devices connected to 
+the machine? Is there a reason not to use hid_set_drvdata() / 
+hid_get_drvdata() for this?
+
+[ .. snip .. ]
+> +static int u1_write_register(struct hid_device *hdev, u32 address, u8 value)
+> +{
+> +	int ret, i;
+> +	u8 input[8];
+> +	u8 check_sum;
+> +
+> +	input[0] = U1_FEATURE_REPORT_ID;
+> +	input[1] = U1_CMD_REGISTER_WRITE;
+> +	input[2] = address & 0x000000FF;
+> +	input[3] = (address & 0x0000FF00) >> 8;
+> +	input[4] = (address & 0x00FF0000) >> 16;
+> +	input[5] = (address & 0xFF000000) >> 24;
+> +	input[6] = value;
+> +
+> +	/* Calculate the checksum */
+> +	check_sum = U1_FEATURE_REPORT_LEN_ALL;
+> +	for (i = 0; i < U1_FEATURE_REPORT_LEN - 1; i++)
+> +		check_sum += input[i];
+> +
+> +	input[7] = check_sum;
+> +
+> +	ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, input,
+
+Looks like on-stack DMA here.
+
+> +static int u1_read_register(struct hid_device *hdev, u32 address, u8 *value)
+> +{
+> +	int ret, i;
+> +	u8 input[8];
+> +	u8 readbuf[8];
+> +	u8 check_sum;
+> +
+> +	input[0] = U1_FEATURE_REPORT_ID;
+> +	input[1] = U1_CMD_REGISTER_READ;
+> +	input[2] = address & 0x000000FF;
+> +	input[3] = (address & 0x0000FF00) >> 8;
+> +	input[4] = (address & 0x00FF0000) >> 16;
+> +	input[5] = (address & 0xFF000000) >> 24;
+> +	input[6] = 0x00;
+> +
+> +	/* Calculate the checksum */
+> +	check_sum = U1_FEATURE_REPORT_LEN_ALL;
+> +	for (i = 0; i < U1_FEATURE_REPORT_LEN - 1; i++)
+> +		check_sum += input[i];
+> +
+> +	input[7] = check_sum;
+> +
+> +	ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, input,
+
+The same here.
+
+[ .. snip .. ]
+
+> +static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+> +{
+> +	struct u1_dev *data = hid_get_drvdata(hdev);
+> +	struct input_dev *input = hi->input, *input2;
+> +	struct u1_dev devInfo;
+> +	int ret;
+> +	int res_x, res_y, i;
+> +
+> +	/* Check device product ID*/
+
+Nit: space before the second asterisk please.
+
+> +	switch (hdev->product) {
+> +	case HID_PRODUCT_ID_U1:
+> +	case HID_PRODUCT_ID_U1_DUAL:
+> +		break;
+> +	default:
+> +		return 0;
+> +	}
+> +
+> +	priv = kzalloc(sizeof(struct u1_dev), GFP_KERNEL);
+> +	input2 = input_allocate_device();
+> +	if (!priv || !input2)
+> +		return 0;
+
+You leak memory in case the kzalloc() succeeds but input_allocate_device() 
+fails.
+
+> +
+> +	priv->input2 = input2;
+> +	data->input = input;
+> +
+> +	hid_dbg(hdev, "Opening low level driver\n");
+> +	ret = hid_hw_open(hdev);
+> +	if (ret)
+> +		return ret;
+
+Looks like another priv/input2 leak here in case hid_hw_open() fails.
+
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 7e89288..124fc38 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -833,6 +833,11 @@ static int hid_scan_report(struct hid_device *hid)
+>  				 */
+>  				hid->group = HID_GROUP_RMI;
+>  		break;
+> +	case USB_VENDOR_ID_ALPS_JP:
+> +		if ((hid->group == HID_GROUP_GENERIC) &&
+> +			(hid->bus == BUS_I2C))
+> +			hid->group = HID_GROUP_ALPS;
+> +		break;
+>  	}
+>  
+>  	vfree(parser);
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index b6ff6e7..cac68c7 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -67,6 +67,8 @@
+>  #define USB_VENDOR_ID_ALPS		0x0433
+>  #define USB_DEVICE_ID_IBM_GAMEPAD	0x1101
+>  
+> +#define USB_VENDOR_ID_ALPS_JP		0x044E
+> +
+>  #define USB_VENDOR_ID_ANTON		0x1130
+>  #define USB_DEVICE_ID_ANTON_TOUCH_PAD	0x3101
+>  
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index 75b66ec..e35cabf 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -345,6 +345,7 @@ struct hid_item {
+>  #define HID_GROUP_RMI				0x0100
+>  #define HID_GROUP_WACOM				0x0101
+>  #define HID_GROUP_LOGITECH_DJ_DEVICE		0x0102
+> +#define HID_GROUP_ALPS				0x0103
+
+Especially the explanation why you need a separate HID group needs to be 
+in the changelog.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
+

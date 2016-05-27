@@ -1,80 +1,91 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH v2 2/8] [media] Add signed 16-bit pixel format
-Date: Fri, 27 May 2016 14:31:46 +0100
-Message-ID: <46e56172-75fa-72f3-c7ce-a036cc42ec99@itdev.co.uk>
-References: <1462381638-7818-1-git-send-email-nick.dyer@itdev.co.uk>
- <1462381638-7818-3-git-send-email-nick.dyer@itdev.co.uk>
- <57483FD1.9080704@xs4all.nl>
- <82b68931-0da1-bd26-87c1-1cd9e2296f71@itdev.co.uk>
- <57484926.9040109@xs4all.nl>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
+Date: Fri, 27 May 2016 09:34:12 -0700
+Message-ID: <20160527163412.GA25540@dtor-ws>
+References: <20160513041852.GA8932@dtor-ws>
+ <1464082301-11539-1-git-send-email-jeffrey.lin@rad-ic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zencphosting06.zen.co.uk ([82.71.204.9]:57666 "EHLO
-	zencphosting06.zen.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752237AbcE0NcG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 May 2016 09:32:06 -0400
-In-Reply-To: <57484926.9040109@xs4all.nl>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1464082301-11539-1-git-send-email-jeffrey.lin-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "jeffrey.lin" <yajohn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jeesw-iQTvn4YitUrQT0dZR+AlfA@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, jeffrey.lin-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, roger.yang-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, KP.li-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, albert.shieh-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
 
-On 27/05/2016 14:18, Hans Verkuil wrote:
-> On 05/27/2016 02:52 PM, Nick Dyer wrote:
->> On 27/05/2016 13:38, Hans Verkuil wrote:
->>> On 05/04/2016 07:07 PM, Nick Dyer wrote:
->>>> +    <refname><constant>V4L2_PIX_FMT_YS16</constant></refname>
->>>> +    <refpurpose>Grey-scale image</refpurpose>
->>>> +  </refnamediv>
->>>> +  <refsect1>
->>>> +    <title>Description</title>
->>>> +
->>>> +    <para>This is a signed grey-scale image with a depth of 16 bits per
->>>> +pixel. The most significant byte is stored at higher memory addresses
->>>> +(little-endian).</para>
->>>
->>> I'm not sure this should be described in terms of grey-scale, since negative
->>> values make no sense for that. How are these values supposed to be interpreted
->>> if you want to display them? -32768 == black and 32767 is white?
->>
->> We have written a utility to display this data and it is able to display
->> the values mapped to grayscale or color:
->> https://github.com/ndyer/heatmap/blob/master/src/display.c#L44
->>
->> An example of the output is here:
->> https://www.youtube.com/watch?v=Uj4T6fUCySw
->>
->> The data is intrinsically signed because that's how the low level touch
->> controller treats it. I'm happy to change it to "Signed image" if you think
->> that would be better.
-> 
-> A V4L2_PIX_FMT_ definition must specify the format unambiguously. So it is not
-> enough to just say that the data is a signed 16 bit value, you need to document
-> exactly how it should be interpreted. Looking at the code it seems that the
-> signed values are within a certain range and are normalized to 0-max by this line:
-> 
-> ssize_t gray = (data[i] - cfg->min) * max / (cfg->max - cfg->min);
-> 
-> Are the min/max values defined by the hardware? Because in that case this pixel
-> format has to be a hardware-specific define (e.g. V4L2_PIX_FMT_FOO_S16).
-> 
-> Only if the min/max values are -32768 and 32767 can you really use YS16 (not sure
-> yet about that name, but that's another issue).
+Hi Jeffrey,
 
-I'm sorry, perhaps that is slightly misleading.
+On Tue, May 24, 2016 at 05:31:41PM +0800, jeffrey.lin wrote:
+> Hi Dmitry:
+> >
+> >	BUILD_BUG_ON((RM_FW_PAGE_SIZE % RM_BL_WRT_PKG_SIZE) != 0);
+> >
+> >	for (i = 0; i < RM_FW_PAGE_SIZE / RM_BL_WRT_PKG_SIZE; i++) {
+> >		buf[BL_HEADER] = RM_CMD_BOOT_PAGE_WRT;
+> >		buf[BL_PAGE_STR] = i ? 0xff : 0;
+> Change to buf[BL_PAGE_STR] = page_idx ? 0xff : 0;
+> >		buf[BL_PKG_IDX] = i;
+> >
+> >		xfer_len = min_t(size_t, len, RM_BL_WRT_PKG_SIZE);
+> >		memcpy(&buf[BL_DATA_STR], data, xfer_len);
+> >		if (len < RM_BL_WRT_PKG_SIZE)
+> >			memset(&buf[BL_DATA_STR + xfer_len], 0xff,
+> >				RM_BL_WRT_PKG_SIZE - xfer_len);
+> >
+> >		error = raydium_i2c_write_object(client, buf, RM_BL_WRT_LEN,
+> >						 RAYDIUM_WAIT_READY);
+> >		if (error) {
+> >			dev_err(&client->dev,
+> >				"page write command failed for page %d, chunk %d: %d\n",
+> >				page_idx, pkg_idx, error);
+> >			return error;
+> >		}
+> >
+> >		data += xfer_len;
+> >		len -= xfer_len;
+> >	}
+> This work on my hand chromebook.
+> 
+> > static int raydium_i2c_read_message(struct i2c_client *client,
+> > 				    u32 addr, void *data, size_t len)
+> > {
+> > 	__le32 le_addr;
+> > 	size_t xfer_len;
+> > 	int error;
+> > 
+> > 	while (len) {
+> > 		xfer_len = min_t(size_t, len, RM_MAX_READ_SIZE);
+> > 
+> > 		le_addr = cpu_to_le32(addr);
+> > 
+> > 		error = raydium_i2c_send(client, RM_CMD_BANK_SWITCH,
+> > 					 &le_addr, sizeof(le_addr));
+> > 		if (!error)/*read from last byte addr.*/
+> > 			error = raydium_i2c_read(client, le_addr & 0xff,
+> > 						 data, xfer_len)
+> Change as
+> 			error = raydium_i2c_read(client, addr & 0xff,
+> 						 data, xfer_len);
+> 
+> I've fixed this issues and submit new patch to upstream. Please help check that.
 
-The data being output is the raw capacitance values from the analogue
-front-end in the touch controller. Due to the physical characteristics,
-there is a small range in the middle of the possible outputs of the ADC
-which is interesting, and the heatmap tool allows mapping just that range
-to the possible colors, otherwise everything would look mid-grey. So
-heatmap is doing a job conceptually like adjusting the black point and
-white point of a greyscale image to bring out the detail.
+I do not think that we want the gratuitous change from BE to LE here, as
+this will give users trouble with devices that still use older
+bootloader firmwares.
 
-So the hardware itself doesn't have a conception of what those min/max
-values are - from the hardware point of view the values may range from
--32768 to 32767 (in fact such values are commonly seen when one of the
-touchscreen lines has a fault or is not connected).
+I did change this back to BE, along with a couple of other tweaks, and
+uploaded what I hope is the final version of the patch to "raydium"
+branch of git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+
+Please give it a try on your side and if everything works I will queue
+the driver to be merged in the next merge window.
+
+Thanks!
+
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

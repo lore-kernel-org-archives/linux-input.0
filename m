@@ -1,59 +1,54 @@
 From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH 5/7] Input: xpad: correctly sort vendor id's
-Date: Fri, 27 May 2016 02:12:53 +0200
-Message-ID: <1464307975-25890-6-git-send-email-rojtberg@gmail.com>
+Subject: Re: [PATCH 0/4] Input: xpad: extend device support
+Date: Fri, 27 May 2016 02:16:08 +0200
+Message-ID: <CA+b0ujdfg82DcWkmTqtjwUTLZgQC5NjOks3ssWrMjv95fguiPQ@mail.gmail.com>
 References: <1464307975-25890-1-git-send-email-rojtberg@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:35896 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755453AbcE0ANP (ORCPT
+Received: from mail-yw0-f172.google.com ([209.85.161.172]:33665 "EHLO
+	mail-yw0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755598AbcE0AQ2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 May 2016 20:13:15 -0400
-Received: by mail-wm0-f65.google.com with SMTP id q62so9970489wmg.3
-        for <linux-input@vger.kernel.org>; Thu, 26 May 2016 17:13:14 -0700 (PDT)
+	Thu, 26 May 2016 20:16:28 -0400
+Received: by mail-yw0-f172.google.com with SMTP id h19so92233230ywc.0
+        for <linux-input@vger.kernel.org>; Thu, 26 May 2016 17:16:28 -0700 (PDT)
 In-Reply-To: <1464307975-25890-1-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: Daniel Tobias <dan.g.tob@gmail.com>, Pavel Rojtberg <rojtberg@gmail.com>
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-From: Daniel Tobias <dan.g.tob@gmail.com>
+sorry, I messed up the cover letter. this is the correct one:
 
-Signed-off-by: Daniel Tobias <dan.g.tob@gmail.com>
-Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
----
- drivers/input/joystick/xpad.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+to be applied on the for-linus branch.
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 804dbcc..ba3ac27 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -315,18 +315,19 @@ static struct usb_device_id xpad_table[] = {
- 	XPAD_XBOXONE_VENDOR(0x0738),		/* Mad Catz FightStick TE 2 */
- 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
- 	XPAD_XBOXONE_VENDOR(0x0e6f),		/* 0x0e6f X-Box One controllers */
-+	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori Controllers */
-+	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori Controllers */
- 	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
- 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x146b),		/* BigBen Interactive Controllers */
--	XPAD_XBOX360_VENDOR(0x1bad),		/* Harminix Rock Band Guitar and Drums */
--	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori Controllers */
--	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori Controllers */
--	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
--	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
- 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
- 	XPAD_XBOX360_VENDOR(0x1532),		/* Razer Sabertooth */
- 	XPAD_XBOX360_VENDOR(0x15e4),		/* Numark X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x162e),		/* Joytech X-Box 360 controllers */
-+	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
-+	XPAD_XBOX360_VENDOR(0x1bad),		/* Harminix Rock Band Guitar and Drums */
-+	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
-+	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
- 	{ }
- };
- 
+Patch 1 corrects a bug that caused packets to be dropped if they were sent
+immediately one after the other.
+
+Patch 2 filters spurious packets similar to the x360w path.
+
+Patch 3 adds more third party controller ids
+
+Patch 4 adds support for the elite controller
+
+Patches 5-7 contain some minor code cleanup and can be applied to taste.
+
+Cameron Gutman (1):
+  Input: xpad: prevent spurious input from wired Xbox 360 controllers
+
+Daniel Tobias (2):
+  Input: xpad: correctly sort vendor id's
+  Input: xpad: move reporting xbox one home button to common function
+
+Pavel Rojtberg (4):
+  Input: xpad: move pending clear to the correct location
+  Input: xpad: add more third-party controllers
+  Input: xpad: xbox one elite controller support
+  Input: xpad: simplify error condition in init_output
+
+ drivers/input/joystick/xpad.c | 90
+++++++++++++++++++++++++++++++++----------------------------------
+ 1 file changed, 43 insertions(+), 47 deletions(-)
+
 -- 
 2.7.4
-

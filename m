@@ -1,467 +1,269 @@
-From: Martin Kepplinger <martink@posteo.de>
-Subject: [PATCH v5] input: tablet: add Pegasus Notetaker tablet driver
-Date: Fri, 27 May 2016 20:34:57 +0200
-Message-ID: <1464374097-6594-1-git-send-email-martink@posteo.de>
-References: <1464342381-2939-1-git-send-email-martink@posteo.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1464342381-2939-1-git-send-email-martink@posteo.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, kernel-testers@vger.kernel.org, linux-usb@vger.kernel.org, Martin Kepplinger <martink@posteo.de>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH] hid: migrate Riso Kagaku LED driver from USB misc to HID
+Date: Fri, 27 May 2016 23:36:34 +0200
+Message-ID: <3f0cf36d-16cf-0404-4b2d-0106a6f7616c@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-leds-owner@vger.kernel.org>
+Sender: linux-leds-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Jacek Anaszewski <j.anaszewski@samsung.com>, Christian Vogel <vogelchr@vogel.cx>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, Linux USB Mailing List <linux-usb@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-This adds a driver for the Pegasus Notetaker Pen. When connected,
-this uses the Pen as an input tablet.
+The Riso Kagaku Webmail Notifier (and its clones) is supported as part of
+usb/misc/usbled driver currently. This patch migrates the driver for this
+device to the HID subsystem.
 
-This device was sold in various different brandings, for example
-	"Pegasus Mobile Notetaker M210",
-	"Genie e-note The Notetaker",
-	"Staedtler Digital ballpoint pen 990 01",
-	"IRISnotes Express" or
-	"NEWLink Digital Note Taker".
+Benefits:
+- Avoid using USB low-level calls and use the HID subsystem instead
+  (as this device provides a USB HID interface)
+- Use standard LED subsystem instead of proprietary sysfs entries,
+  this allows e.g. to use the device with features like triggers
 
-Here's an example, so that you know what we are talking about:
-http://www.genie-online.de/genie-e-note-2/
+I know at least one cheap clone coming with green and blue LED switched.
+There's a module paramater to deal with this.
 
-https://pegatech.blogspot.com/ seems to be a remaining official resource.
+There might be users of the current module, therefore so far allow
+compilation of the new driver only if the old one is disabled.
 
-This device can also transfer saved (offline recorded handwritten) data and
-there are userspace programs that do this, see https://launchpad.net/m210
-(Well, alternatively there are really fast scanners out there :)
-
-It's *really* fun to use as an input tablet though! So let's support this
-for everybody.
-
-There's no way to disable the device. When the pen is out of range, we just
-don't get any URBs and don't do anything.
-Like all other mouses or input tablets, we don't use runtime PM.
-
-Signed-off-by: Martin Kepplinger <martink@posteo.de>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
+ drivers/hid/Kconfig    |   9 +++
+ drivers/hid/Makefile   |   1 +
+ drivers/hid/hid-core.c |   2 +-
+ drivers/hid/hid-rika.c | 171 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 182 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/hid/hid-rika.c
 
-This is *exactly* v5 again, only with updated commit message third-party
-links that broke in the meantime.
-
-Again, all is tested and should apply to any recent tree. If not, please
-just complain.
-
-revision history
-================
-v5 fix various bugs (thanks Oliver and Dmitry)
-v4 use normal work queue instead of a kernel thread (thanks to Oliver Neukum)
-v3 fix reporting low pen battery and add USB list to CC
-v2 minor cleanup (remove unnecessary variables)
-v1 initial release
-
-
- drivers/input/tablet/Kconfig             |  15 ++
- drivers/input/tablet/Makefile            |   1 +
- drivers/input/tablet/pegasus_notetaker.c | 361 +++++++++++++++++++++++++++++++
- 3 files changed, 377 insertions(+)
- create mode 100644 drivers/input/tablet/pegasus_notetaker.c
-
-diff --git a/drivers/input/tablet/Kconfig b/drivers/input/tablet/Kconfig
-index 623bb9e..a2b9f97 100644
---- a/drivers/input/tablet/Kconfig
-+++ b/drivers/input/tablet/Kconfig
-@@ -73,6 +73,21 @@ config TABLET_USB_KBTAB
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called kbtab.
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 5646ca4..5ba75de 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -784,6 +784,15 @@ config HID_HYPERV_MOUSE
+ 	---help---
+ 	Select this option to enable the Hyper-V mouse driver.
  
-+config TABLET_USB_PEGASUS
-+	tristate "Pegasus Mobile Notetaker Pen input tablet support"
-+	depends on USB_ARCH_HAS_HCD
-+	select USB
-+	help
-+	  Say Y here if you want to use the Pegasus Mobile Notetaker,
-+	  also known as:
-+	  Genie e-note The Notetaker,
-+	  Staedtler Digital ballpoint pen 990 01,
-+	  IRISnotes Express or
-+	  NEWLink Digital Note Taker.
++config HID_RIKA
++	tristate "Riso Kaguku Webmail Notifier USB LED"
++	depends on HIDRAW
++	depends on LEDS_CLASS
++	depends on USB_LED = 'n'
++	---help---
++	Support for the Riso Kagaku Webmail Notifier. This driver registers
++	a LED class instance for red, green, and blue color component.
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called pegasus_notetaker.
-+
- config TABLET_SERIAL_WACOM4
- 	tristate "Wacom protocol 4 serial tablet support"
- 	select SERIO
-diff --git a/drivers/input/tablet/Makefile b/drivers/input/tablet/Makefile
-index 2e13010..200fc4e 100644
---- a/drivers/input/tablet/Makefile
-+++ b/drivers/input/tablet/Makefile
-@@ -8,4 +8,5 @@ obj-$(CONFIG_TABLET_USB_AIPTEK)	+= aiptek.o
- obj-$(CONFIG_TABLET_USB_GTCO)	+= gtco.o
- obj-$(CONFIG_TABLET_USB_HANWANG) += hanwang.o
- obj-$(CONFIG_TABLET_USB_KBTAB)	+= kbtab.o
-+obj-$(CONFIG_TABLET_USB_PEGASUS) += pegasus_notetaker.o
- obj-$(CONFIG_TABLET_SERIAL_WACOM4) += wacom_serial4.o
-diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
+ config HID_SMARTJOYPLUS
+ 	tristate "SmartJoy PLUS PS2/USB adapter support"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index a2fb562..406f6d0 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -91,6 +91,7 @@ obj-$(CONFIG_HID_STEELSERIES)	+= hid-steelseries.o
+ obj-$(CONFIG_HID_SUNPLUS)	+= hid-sunplus.o
+ obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
+ obj-$(CONFIG_HID_THINGM)	+= hid-thingm.o
++obj-$(CONFIG_HID_RIKA)		+= hid-rika.o
+ obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tmff.o
+ obj-$(CONFIG_HID_TIVO)		+= hid-tivo.o
+ obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8ea3a26..db929dc 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2008,6 +2008,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_RISO_KAGAKU, USB_DEVICE_ID_RI_KA_WEBMAIL) },
+ #if IS_ENABLED(CONFIG_HID_ROCCAT)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ARVO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ISKU) },
+@@ -2486,7 +2487,6 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_DPAD) },
+ #endif
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_YEALINK, USB_DEVICE_ID_YEALINK_P1K_P4K_B2K) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_RISO_KAGAKU, USB_DEVICE_ID_RI_KA_WEBMAIL) },
+ 	{ }
+ };
+ 
+diff --git a/drivers/hid/hid-rika.c b/drivers/hid/hid-rika.c
 new file mode 100644
-index 0000000..e211601
+index 0000000..d4d2087
 --- /dev/null
-+++ b/drivers/input/tablet/pegasus_notetaker.c
-@@ -0,0 +1,361 @@
++++ b/drivers/hid/hid-rika.c
+@@ -0,0 +1,171 @@
 +/*
-+ * Pegasus Mobile Notetaker Pen input tablet driver
++ * Riso Kagaku Webmail Notifier USB RGB LED driver
 + *
-+ * Copyright (c) 2016 Martin Kepplinger <martink@posteo.de>
++ * Copyright 2016 Heiner Kallweit <hkallweit1@gmail.com>
++ * Based on drivers/hid/hid-thingm.c and
++ * drivers/usb/misc/usbled.c
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation, version 2.
 + */
 +
-+/*
-+ * request packet (control endpoint):
-+ * |-------------------------------------|
-+ * | Report ID | Nr of bytes | command   |
-+ * | (1 byte)  | (1 byte)    | (n bytes) |
-+ * |-------------------------------------|
-+ * | 0x02      | n           |           |
-+ * |-------------------------------------|
-+ *
-+ * data packet after set xy mode command, 0x80 0xb5 0x02 0x01
-+ * and pen is in range:
-+ *
-+ * byte	byte name		value (bits)
-+ * --------------------------------------------
-+ * 0	status			0 1 0 0 0 0 X X
-+ * 1	color			0 0 0 0 H 0 S T
-+ * 2	X low
-+ * 3	X high
-+ * 4	Y low
-+ * 5	Y high
-+ *
-+ * X X	battery state:
-+ *	no state reported	0x00
-+ *	battery low		0x01
-+ *	battery good		0x02
-+ *
-+ * H	Hovering
-+ * S	Switch 1 (pen button)
-+ * T	Tip
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
 +#include <linux/hid.h>
-+#include <linux/usb/input.h>
++#include <linux/hidraw.h>
++#include <linux/leds.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
 +
-+/* USB HID defines */
-+#define USB_REQ_GET_REPORT		0x01
-+#define USB_REQ_SET_REPORT		0x09
++#include "hid-ids.h"
 +
-+#define USB_VENDOR_ID_PEGASUSTECH	0x0e20
-+#define USB_DEVICE_ID_PEGASUS_NOTETAKER_EN100	0x0101
++#define REPORT_SIZE	6
 +
-+/* device specific defines */
-+#define NOTETAKER_REPORT_ID		0x02
-+#define NOTETAKER_SET_CMD		0x80
-+#define NOTETAKER_SET_MODE		0xb5
-+
-+#define NOTETAKER_LED_MOUSE             0x02
-+#define PEN_MODE_XY                     0x01
-+
-+#define SPECIAL_COMMAND			0x80
-+#define BUTTON_PRESSED			0xb5
-+#define COMMAND_VERSION			0xa9
-+
-+/* in xy data packet */
-+#define BATTERY_NO_REPORT		0x40
-+#define BATTERY_LOW			0x41
-+#define BATTERY_GOOD			0x42
-+#define PEN_BUTTON_PRESSED		BIT(1)
-+#define PEN_TIP				BIT(0)
-+
-+struct pegasus {
-+	unsigned char *data;
-+	u8 data_len;
-+	dma_addr_t data_dma;
-+	struct input_dev *dev;
-+	struct usb_device *usbdev;
-+	struct urb *irq;
-+	char name[128];
-+	char phys[64];
-+	struct work_struct init;
++static unsigned const char riso_kagaku_tbl[] = {
++/* R+2G+4B -> riso kagaku color index */
++	[0] = 0, /* black   */
++	[1] = 2, /* red     */
++	[2] = 1, /* green   */
++	[3] = 5, /* yellow  */
++	[4] = 3, /* blue    */
++	[5] = 6, /* magenta */
++	[6] = 4, /* cyan    */
++	[7] = 7  /* white   */
 +};
 +
-+static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
++#define RISO_KAGAKU_IX(r, g, b) riso_kagaku_tbl[((r)?1:0)+((g)?2:0)+((b)?4:0)]
++
++struct rika_led {
++	struct led_classdev	cdev;
++	struct rika_device	*rdev;
++	char			name[32];
++};
++
++struct rika_device {
++	struct rika_led		red;
++	struct rika_led		green;
++	struct rika_led		blue;
++	struct hid_device       *hdev;
++	struct mutex		lock;
++};
++
++#define to_rika_led(arg) container_of(arg, struct rika_led, cdev)
++
++static bool switch_green_blue;
++module_param(switch_green_blue, bool, 0);
++MODULE_PARM_DESC(switch_green_blue, "switch green and blue RGB component");
++
++static u8 rika_index(struct rika_device *rdev)
 +{
-+	const int sizeof_buf = len * sizeof(u8) + 2;
-+	int result;
-+	u8 *cmd_buf;
++	enum led_brightness r, g, b;
 +
-+	cmd_buf = kmalloc(sizeof_buf, GFP_KERNEL);
-+	if (!cmd_buf)
-+		return;
++	r = rdev->red.cdev.brightness;
++	g = rdev->green.cdev.brightness;
++	b = rdev->blue.cdev.brightness;
 +
-+	cmd_buf[0] = NOTETAKER_REPORT_ID;
-+	cmd_buf[1] = len;
-+	memcpy(cmd_buf + 2, data, len);
-+
-+	result = usb_control_msg(pegasus->usbdev,
-+				 usb_sndctrlpipe(pegasus->usbdev, 0),
-+				 USB_REQ_SET_REPORT,
-+				 USB_TYPE_VENDOR | USB_DIR_OUT,
-+				 0, 0, cmd_buf, sizeof_buf,
-+				 USB_CTRL_SET_TIMEOUT);
-+
-+	if (result != sizeof_buf)
-+		dev_err(&pegasus->usbdev->dev, "control msg error\n");
-+
-+	kfree(cmd_buf);
++	if (switch_green_blue)
++		return RISO_KAGAKU_IX(r, b, g);
++	else
++		return RISO_KAGAKU_IX(r, g, b);
 +}
 +
-+static void pegasus_set_mode(struct pegasus *pegasus, u8 mode, u8 led)
++static int rika_write_color(struct led_classdev *cdev, enum led_brightness br)
 +{
-+	u8 cmd[] = {NOTETAKER_SET_CMD, NOTETAKER_SET_MODE, led, mode};
++	struct rika_led *rled = to_rika_led(cdev);
++	struct rika_device *rdev = rled->rdev;
++	__u8 buf[REPORT_SIZE] = {};
++	int ret;
 +
-+	pegasus_control_msg(pegasus, cmd, sizeof(cmd));
++	buf[1] = rika_index(rdev);
++
++	mutex_lock(&rdev->lock);
++	ret = hid_hw_output_report(rdev->hdev, buf, REPORT_SIZE);
++	mutex_unlock(&rdev->lock);
++
++	if (ret < 0)
++		return ret;
++
++	return (ret == REPORT_SIZE) ? 0 : -EMSGSIZE;
 +}
 +
-+static void pegasus_parse_packet(struct pegasus *pegasus)
++static int rika_init_led(struct rika_led *led, const char *color_name,
++			 struct rika_device *rdev, int minor)
 +{
-+	unsigned char *data = pegasus->data;
-+	struct input_dev *dev = pegasus->dev;
-+	u16 x, y;
++	snprintf(led->name, sizeof(led->name), "rika%d:%s", minor, color_name);
++	led->cdev.name = led->name;
++	led->cdev.max_brightness = 1;
++	led->cdev.brightness_set_blocking = rika_write_color;
++	led->cdev.flags = LED_HW_PLUGGABLE;
++	led->rdev = rdev;
 +
-+	switch (data[0]) {
-+	case SPECIAL_COMMAND:
-+		/* device button pressed */
-+		if (data[1] == BUTTON_PRESSED)
-+			schedule_work(&pegasus->init);
++	return devm_led_classdev_register(&rdev->hdev->dev, &led->cdev);
++}
 +
-+		break;
-+	/* xy data */
-+	case BATTERY_LOW:
-+		dev_warn_once(&dev->dev, "Pen battery low\n");
-+	case BATTERY_NO_REPORT:
-+	case BATTERY_GOOD:
-+		x = le16_to_cpup((__le16 *)&data[2]);
-+		y = le16_to_cpup((__le16 *)&data[4]);
++static int rika_init_rgb(struct rika_device *rdev, int minor)
++{
++	int ret;
 +
-+		/* ignore pen up events */
-+		if (x == 0 && y == 0)
-+			break;
++	/* Register the red diode */
++	ret = rika_init_led(&rdev->red, "red", rdev, minor);
++	if (ret)
++		return ret;
 +
-+		input_report_key(dev, BTN_TOUCH, data[1] & PEN_TIP);
-+		input_report_key(dev, BTN_RIGHT, data[1] & PEN_BUTTON_PRESSED);
-+		input_report_key(dev, BTN_TOOL_PEN, 1);
-+		input_report_abs(dev, ABS_X, (s16)x);
-+		input_report_abs(dev, ABS_Y, y);
++	/* Register the green diode */
++	ret = rika_init_led(&rdev->green, "green", rdev, minor);
++	if (ret)
++		return ret;
 +
-+		input_sync(dev);
-+		break;
-+	default:
-+		dev_warn_once(&pegasus->usbdev->dev,
-+			      "unknown answer from device\n");
++	/* Register the blue diode */
++	return rika_init_led(&rdev->blue, "blue", rdev, minor);
++}
++
++static int rika_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	struct rika_device *rdev;
++	int ret, minor;
++
++	rdev = devm_kzalloc(&hdev->dev, sizeof(*rdev), GFP_KERNEL);
++	if (!rdev)
++		return -ENOMEM;
++
++	ret = hid_parse(hdev);
++	if (ret)
++		return ret;
++
++	rdev->hdev = hdev;
++	mutex_init(&rdev->lock);
++
++	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
++	if (ret)
++		return ret;
++
++	minor = ((struct hidraw *) hdev->hidraw)->minor;
++
++	ret = rika_init_rgb(rdev, minor);
++	if (ret) {
++		hid_hw_stop(hdev);
++		return ret;
 +	}
-+}
 +
-+static void pegasus_irq(struct urb *urb)
-+{
-+	struct pegasus *pegasus = urb->context;
-+	struct usb_device *dev = pegasus->usbdev;
-+	int retval;
-+
-+	switch (urb->status) {
-+	case 0:
-+		pegasus_parse_packet(pegasus);
-+		usb_mark_last_busy(pegasus->usbdev);
-+
-+		break;
-+	case -ECONNRESET:
-+	case -ENOENT:
-+	case -ESHUTDOWN:
-+		dev_err(&dev->dev, "%s - urb shutting down with status: %d",
-+			__func__, urb->status);
-+		return;
-+	default:
-+		dev_err(&dev->dev, "%s - nonzero urb status received: %d",
-+			__func__, urb->status);
-+		break;
-+	}
-+
-+	retval = usb_submit_urb(urb, GFP_ATOMIC);
-+	if (retval)
-+		dev_err(&dev->dev, "%s - usb_submit_urb failed with result %d",
-+			__func__, retval);
-+}
-+
-+static void pegasus_init(struct work_struct *work)
-+{
-+	struct pegasus *pegasus = container_of(work, struct pegasus, init);
-+
-+	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
-+}
-+
-+static int pegasus_open(struct input_dev *dev)
-+{
-+	struct pegasus *pegasus = input_get_drvdata(dev);
-+
-+	pegasus->irq->dev = pegasus->usbdev;
-+	if (usb_submit_urb(pegasus->irq, GFP_KERNEL))
-+		return -EIO;
++	dev_info(&hdev->dev, "RiKa Webmail Notifier %d initialized\n", minor);
 +
 +	return 0;
 +}
 +
-+static void pegasus_close(struct input_dev *dev)
-+{
-+	struct pegasus *pegasus = input_get_drvdata(dev);
-+
-+	usb_kill_urb(pegasus->irq);
-+	cancel_work_sync(&pegasus->init);
-+}
-+
-+static int pegasus_probe(struct usb_interface *intf,
-+			 const struct usb_device_id *id)
-+{
-+	struct usb_device *dev = interface_to_usbdev(intf);
-+	struct usb_endpoint_descriptor *endpoint;
-+	struct pegasus *pegasus;
-+	struct input_dev *input_dev;
-+	int error;
-+	int pipe, maxp;
-+
-+	/* we control interface 0 */
-+	if (intf->cur_altsetting->desc.bInterfaceNumber == 1)
-+		return -ENODEV;
-+
-+	endpoint = &intf->cur_altsetting->endpoint[0].desc;
-+
-+	pegasus = kzalloc(sizeof(*pegasus), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!pegasus || !input_dev) {
-+		error = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
-+	pegasus->usbdev = dev;
-+	pegasus->dev = input_dev;
-+
-+	pegasus->data = usb_alloc_coherent(dev, endpoint->wMaxPacketSize,
-+					   GFP_KERNEL, &pegasus->data_dma);
-+	if (!pegasus->data) {
-+		error = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
-+	pegasus->irq = usb_alloc_urb(0, GFP_KERNEL);
-+	if (!pegasus->irq) {
-+		error = -ENOMEM;
-+		goto err_free_dma;
-+	}
-+
-+	pipe = usb_rcvintpipe(dev, endpoint->bEndpointAddress);
-+	maxp = usb_maxpacket(dev, pipe, usb_pipeout(pipe));
-+	pegasus->data_len = maxp;
-+
-+	usb_fill_int_urb(pegasus->irq, dev, pipe, pegasus->data, maxp,
-+			 pegasus_irq, pegasus, endpoint->bInterval);
-+
-+	pegasus->irq->transfer_dma = pegasus->data_dma;
-+	pegasus->irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-+
-+	if (dev->manufacturer)
-+		strlcpy(pegasus->name, dev->manufacturer,
-+			sizeof(pegasus->name));
-+
-+	if (dev->product) {
-+		if (dev->manufacturer)
-+			strlcat(pegasus->name, " ", sizeof(pegasus->name));
-+		strlcat(pegasus->name, dev->product, sizeof(pegasus->name));
-+	}
-+
-+	if (!strlen(pegasus->name))
-+		snprintf(pegasus->name, sizeof(pegasus->name),
-+			 "USB Pegasus Device %04x:%04x",
-+			 le16_to_cpu(dev->descriptor.idVendor),
-+			 le16_to_cpu(dev->descriptor.idProduct));
-+
-+	usb_make_path(dev, pegasus->phys, sizeof(pegasus->phys));
-+	strlcat(pegasus->phys, "/input0", sizeof(pegasus->phys));
-+
-+	INIT_WORK(&pegasus->init, pegasus_init);
-+
-+	usb_set_intfdata(intf, pegasus);
-+
-+	input_dev->name = pegasus->name;
-+	input_dev->phys = pegasus->phys;
-+	usb_to_input_id(dev, &input_dev->id);
-+	input_dev->dev.parent = &intf->dev;
-+
-+	input_set_drvdata(input_dev, pegasus);
-+
-+	input_dev->open = pegasus_open;
-+	input_dev->close = pegasus_close;
-+
-+	__set_bit(EV_ABS, input_dev->evbit);
-+	__set_bit(EV_KEY, input_dev->evbit);
-+
-+	__set_bit(ABS_X, input_dev->absbit);
-+	__set_bit(ABS_Y, input_dev->absbit);
-+
-+	__set_bit(BTN_TOUCH, input_dev->keybit);
-+	__set_bit(BTN_RIGHT, input_dev->keybit);
-+	__set_bit(BTN_TOOL_PEN, input_dev->keybit);
-+
-+	__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
-+	__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-+
-+	input_set_abs_params(input_dev, ABS_X, -1500, 1500, 8, 0);
-+	input_set_abs_params(input_dev, ABS_Y, 1600, 3000, 8, 0);
-+
-+	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
-+
-+	error = input_register_device(pegasus->dev);
-+	if (error)
-+		goto err_free_urb;
-+
-+	return 0;
-+
-+err_free_urb:
-+	usb_free_urb(pegasus->irq);
-+err_free_dma:
-+	usb_free_coherent(dev, pegasus->data_len,
-+			  pegasus->data, pegasus->data_dma);
-+err_free_mem:
-+	input_free_device(input_dev);
-+	kfree(pegasus);
-+	usb_set_intfdata(intf, NULL);
-+
-+	return error;
-+}
-+
-+static void pegasus_disconnect(struct usb_interface *intf)
-+{
-+	struct pegasus *pegasus = usb_get_intfdata(intf);
-+
-+	input_unregister_device(pegasus->dev);
-+
-+	usb_free_urb(pegasus->irq);
-+	usb_free_coherent(interface_to_usbdev(intf),
-+			  pegasus->data_len, pegasus->data,
-+			  pegasus->data_dma);
-+	kfree(pegasus);
-+	usb_set_intfdata(intf, NULL);
-+}
-+
-+static const struct usb_device_id pegasus_ids[] = {
-+	{ USB_DEVICE(USB_VENDOR_ID_PEGASUSTECH,
-+		     USB_DEVICE_ID_PEGASUS_NOTETAKER_EN100) },
++static const struct hid_device_id rika_table[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_RISO_KAGAKU,
++	  USB_DEVICE_ID_RI_KA_WEBMAIL) },
 +	{ }
 +};
-+MODULE_DEVICE_TABLE(usb, pegasus_ids);
++MODULE_DEVICE_TABLE(hid, rika_table);
 +
-+static struct usb_driver pegasus_driver = {
-+	.name		= "pegasus_notetaker",
-+	.probe		= pegasus_probe,
-+	.disconnect	= pegasus_disconnect,
-+	.id_table	= pegasus_ids,
++static struct hid_driver rika_driver = {
++	.name = "rika",
++	.probe = rika_probe,
++	.id_table = rika_table,
 +};
 +
-+module_usb_driver(pegasus_driver);
++module_hid_driver(rika_driver);
 +
-+MODULE_AUTHOR("Martin Kepplinger <martink@posteo.de>");
-+MODULE_DESCRIPTION("Pegasus Mobile Notetaker Pen tablet driver");
 +MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Heiner Kallweit <hkallweit1@gmail.com>");
++MODULE_DESCRIPTION("Riso Kagaku Webmail Notifier USB RGB LED driver");
 -- 
-2.1.4
+2.8.2

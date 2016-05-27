@@ -1,178 +1,463 @@
-From: Manfred Schlaegl <manfred.schlaegl@gmx.at>
-Subject: Re: [PATCH] Input: pwm-beeper - fix: scheduling while atomic
-Date: Fri, 27 May 2016 11:14:27 +0200
-Message-ID: <57480FF3.9060107@gmx.at>
-References: <56C4735E.6020300@gmx.at> <20160222194639.GD26177@dtor-ws>
- <20160512121852.GB26824@ulmo.ba.sec> <5735F4E3.20008@gmx.at>
- <573C8761.9070601@gmx.at> <20160520165918.GE14951@dtor-ws>
- <574411B5.2010407@gmx.at> <20160526003615.GE22369@dtor-ws>
- <57480B5C.7080409@gmx.at> <57480F45.7070106@gmx.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.17.22]:51280 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932463AbcE0JOv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 May 2016 05:14:51 -0400
-In-Reply-To: <57480F45.7070106@gmx.at>
-Sender: linux-input-owner@vger.kernel.org
+From: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
+Subject: [PATCH v5] input: tablet: add Pegasus Notetaker tablet driver
+Date: Fri, 27 May 2016 11:46:21 +0200
+Message-ID: <1464342381-2939-1-git-send-email-martink@posteo.de>
+Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>, Manfred Schlaegl <manfred.schlaegl@ginzinger.com>, Luis de Bethencourt <luis@debethencourt.com>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Pwm config may sleep so defer it using a worker.
+This adds a driver for the Pegasus Notetaker Pen. When connected,
+this uses the Pen as an input tablet.
 
-On a Freescale i.MX53 based board we ran into "BUG: scheduling while
-atomic" because input_inject_event locks interrupts, but
-imx_pwm_config_v2 sleeps.
+This device was sold in various different brandings, for example
+	"Pegasus Mobile Notetaker M210",
+	"Genie e-note The Notetaker",
+	"Staedtler Digital ballpoint pen 990 01",
+	"IRISnotes Express" or
+	"NEWLink Digital Note Taker".
 
-Tested on Freescale i.MX53 SoC with 4.6.0.
+Here's an example, so that you know what we are talking about:
+http://www.staedtler.com/en/products/ink-writing-instruments/ballpoint-pens/digital-pen-990-01-digital-ballpoint-pen
 
-Signed-off-by: Manfred Schlaegl <manfred.schlaegl@gmx.at>
+http://pegatech.blogspot.com/ seems to be a remaining official resource.
+
+This device can also transfer saved (offline recorded handwritten) data and
+there are userspace programs that do this, see https://launchpad.net/m210
+(Well, alternatively there are really fast scanners out there :)
+
+It's *really* fun to use as an input tablet though! So let's support this
+for everybody.
+
+There's no way to disable the device. When the pen is out of range, we just
+don't get any URBs and don't do anything.
+Like all other mouses or input tablets, we don't use runtime PM.
+
+Signed-off-by: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
 ---
- drivers/input/misc/pwm-beeper.c | 69 ++++++++++++++++++++++++++++-------------
- 1 file changed, 48 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-index 8d71332..5f9655d 100644
---- a/drivers/input/misc/pwm-beeper.c
-+++ b/drivers/input/misc/pwm-beeper.c
-@@ -20,21 +20,40 @@
- #include <linux/platform_device.h>
- #include <linux/pwm.h>
- #include <linux/slab.h>
-+#include <linux/workqueue.h>
+Thanks for reviewing! Dmitry's and Oliver's changes to v4 made it even
+smaller now. All is tested again and should apply to any recent tree.
+If not, please just complain.
+
+revision history
+================
+v5 fix various bugs (thanks Oliver and Dmitry)
+v4 use normal work queue instead of a kernel thread (thanks to Oliver Neukum)
+v3 fix reporting low pen battery and add USB list to CC
+v2 minor cleanup (remove unnecessary variables)
+v1 initial release
+
+
+ drivers/input/tablet/Kconfig             |  15 ++
+ drivers/input/tablet/Makefile            |   1 +
+ drivers/input/tablet/pegasus_notetaker.c | 361 +++++++++++++++++++++++++++++++
+ 3 files changed, 377 insertions(+)
+ create mode 100644 drivers/input/tablet/pegasus_notetaker.c
+
+diff --git a/drivers/input/tablet/Kconfig b/drivers/input/tablet/Kconfig
+index 623bb9e..a2b9f97 100644
+--- a/drivers/input/tablet/Kconfig
++++ b/drivers/input/tablet/Kconfig
+@@ -73,6 +73,21 @@ config TABLET_USB_KBTAB
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called kbtab.
  
- struct pwm_beeper {
- 	struct input_dev *input;
- 	struct pwm_device *pwm;
-+	struct work_struct work;
- 	unsigned long period;
- };
- 
- #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
- 
-+static void __pwm_beeper_set(struct pwm_beeper *beeper)
-+{
-+	unsigned long period = beeper->period;
++config TABLET_USB_PEGASUS
++	tristate "Pegasus Mobile Notetaker Pen input tablet support"
++	depends on USB_ARCH_HAS_HCD
++	select USB
++	help
++	  Say Y here if you want to use the Pegasus Mobile Notetaker,
++	  also known as:
++	  Genie e-note The Notetaker,
++	  Staedtler Digital ballpoint pen 990 01,
++	  IRISnotes Express or
++	  NEWLink Digital Note Taker.
 +
-+	if (period) {
-+		pwm_config(beeper->pwm, period / 2, period);
-+		pwm_enable(beeper->pwm);
-+	} else
-+		pwm_disable(beeper->pwm);
++	  To compile this driver as a module, choose M here: the
++	  module will be called pegasus_notetaker.
++
+ config TABLET_SERIAL_WACOM4
+ 	tristate "Wacom protocol 4 serial tablet support"
+ 	select SERIO
+diff --git a/drivers/input/tablet/Makefile b/drivers/input/tablet/Makefile
+index 2e13010..200fc4e 100644
+--- a/drivers/input/tablet/Makefile
++++ b/drivers/input/tablet/Makefile
+@@ -8,4 +8,5 @@ obj-$(CONFIG_TABLET_USB_AIPTEK)	+= aiptek.o
+ obj-$(CONFIG_TABLET_USB_GTCO)	+= gtco.o
+ obj-$(CONFIG_TABLET_USB_HANWANG) += hanwang.o
+ obj-$(CONFIG_TABLET_USB_KBTAB)	+= kbtab.o
++obj-$(CONFIG_TABLET_USB_PEGASUS) += pegasus_notetaker.o
+ obj-$(CONFIG_TABLET_SERIAL_WACOM4) += wacom_serial4.o
+diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
+new file mode 100644
+index 0000000..e211601
+--- /dev/null
++++ b/drivers/input/tablet/pegasus_notetaker.c
+@@ -0,0 +1,361 @@
++/*
++ * Pegasus Mobile Notetaker Pen input tablet driver
++ *
++ * Copyright (c) 2016 Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
++ */
++
++/*
++ * request packet (control endpoint):
++ * |-------------------------------------|
++ * | Report ID | Nr of bytes | command   |
++ * | (1 byte)  | (1 byte)    | (n bytes) |
++ * |-------------------------------------|
++ * | 0x02      | n           |           |
++ * |-------------------------------------|
++ *
++ * data packet after set xy mode command, 0x80 0xb5 0x02 0x01
++ * and pen is in range:
++ *
++ * byte	byte name		value (bits)
++ * --------------------------------------------
++ * 0	status			0 1 0 0 0 0 X X
++ * 1	color			0 0 0 0 H 0 S T
++ * 2	X low
++ * 3	X high
++ * 4	Y low
++ * 5	Y high
++ *
++ * X X	battery state:
++ *	no state reported	0x00
++ *	battery low		0x01
++ *	battery good		0x02
++ *
++ * H	Hovering
++ * S	Switch 1 (pen button)
++ * T	Tip
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/hid.h>
++#include <linux/usb/input.h>
++
++/* USB HID defines */
++#define USB_REQ_GET_REPORT		0x01
++#define USB_REQ_SET_REPORT		0x09
++
++#define USB_VENDOR_ID_PEGASUSTECH	0x0e20
++#define USB_DEVICE_ID_PEGASUS_NOTETAKER_EN100	0x0101
++
++/* device specific defines */
++#define NOTETAKER_REPORT_ID		0x02
++#define NOTETAKER_SET_CMD		0x80
++#define NOTETAKER_SET_MODE		0xb5
++
++#define NOTETAKER_LED_MOUSE             0x02
++#define PEN_MODE_XY                     0x01
++
++#define SPECIAL_COMMAND			0x80
++#define BUTTON_PRESSED			0xb5
++#define COMMAND_VERSION			0xa9
++
++/* in xy data packet */
++#define BATTERY_NO_REPORT		0x40
++#define BATTERY_LOW			0x41
++#define BATTERY_GOOD			0x42
++#define PEN_BUTTON_PRESSED		BIT(1)
++#define PEN_TIP				BIT(0)
++
++struct pegasus {
++	unsigned char *data;
++	u8 data_len;
++	dma_addr_t data_dma;
++	struct input_dev *dev;
++	struct usb_device *usbdev;
++	struct urb *irq;
++	char name[128];
++	char phys[64];
++	struct work_struct init;
++};
++
++static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
++{
++	const int sizeof_buf = len * sizeof(u8) + 2;
++	int result;
++	u8 *cmd_buf;
++
++	cmd_buf = kmalloc(sizeof_buf, GFP_KERNEL);
++	if (!cmd_buf)
++		return;
++
++	cmd_buf[0] = NOTETAKER_REPORT_ID;
++	cmd_buf[1] = len;
++	memcpy(cmd_buf + 2, data, len);
++
++	result = usb_control_msg(pegasus->usbdev,
++				 usb_sndctrlpipe(pegasus->usbdev, 0),
++				 USB_REQ_SET_REPORT,
++				 USB_TYPE_VENDOR | USB_DIR_OUT,
++				 0, 0, cmd_buf, sizeof_buf,
++				 USB_CTRL_SET_TIMEOUT);
++
++	if (result != sizeof_buf)
++		dev_err(&pegasus->usbdev->dev, "control msg error\n");
++
++	kfree(cmd_buf);
 +}
 +
-+static void pwm_beeper_work(struct work_struct *work)
++static void pegasus_set_mode(struct pegasus *pegasus, u8 mode, u8 led)
 +{
-+	struct pwm_beeper *beeper =
-+		container_of(work, struct pwm_beeper, work);
++	u8 cmd[] = {NOTETAKER_SET_CMD, NOTETAKER_SET_MODE, led, mode};
 +
-+	__pwm_beeper_set(beeper);
++	pegasus_control_msg(pegasus, cmd, sizeof(cmd));
 +}
 +
- static int pwm_beeper_event(struct input_dev *input,
- 			    unsigned int type, unsigned int code, int value)
- {
--	int ret = 0;
- 	struct pwm_beeper *beeper = input_get_drvdata(input);
--	unsigned long period;
- 
- 	if (type != EV_SND || value < 0)
- 		return -EINVAL;
-@@ -49,22 +68,31 @@ static int pwm_beeper_event(struct input_dev *input,
- 		return -EINVAL;
- 	}
- 
--	if (value == 0) {
--		pwm_disable(beeper->pwm);
--	} else {
--		period = HZ_TO_NANOSECONDS(value);
--		ret = pwm_config(beeper->pwm, period / 2, period);
--		if (ret)
--			return ret;
--		ret = pwm_enable(beeper->pwm);
--		if (ret)
--			return ret;
--		beeper->period = period;
--	}
-+	if (value == 0)
-+		beeper->period = 0;
-+	else
-+		beeper->period = HZ_TO_NANOSECONDS(value);
-+
-+	schedule_work(&beeper->work);
- 
- 	return 0;
- }
- 
-+static void pwm_beeper_stop(struct pwm_beeper *beeper)
++static void pegasus_parse_packet(struct pegasus *pegasus)
 +{
-+	cancel_work_sync(&beeper->work);
++	unsigned char *data = pegasus->data;
++	struct input_dev *dev = pegasus->dev;
++	u16 x, y;
 +
-+	if (beeper->period)
-+		pwm_disable(beeper->pwm);
++	switch (data[0]) {
++	case SPECIAL_COMMAND:
++		/* device button pressed */
++		if (data[1] == BUTTON_PRESSED)
++			schedule_work(&pegasus->init);
++
++		break;
++	/* xy data */
++	case BATTERY_LOW:
++		dev_warn_once(&dev->dev, "Pen battery low\n");
++	case BATTERY_NO_REPORT:
++	case BATTERY_GOOD:
++		x = le16_to_cpup((__le16 *)&data[2]);
++		y = le16_to_cpup((__le16 *)&data[4]);
++
++		/* ignore pen up events */
++		if (x == 0 && y == 0)
++			break;
++
++		input_report_key(dev, BTN_TOUCH, data[1] & PEN_TIP);
++		input_report_key(dev, BTN_RIGHT, data[1] & PEN_BUTTON_PRESSED);
++		input_report_key(dev, BTN_TOOL_PEN, 1);
++		input_report_abs(dev, ABS_X, (s16)x);
++		input_report_abs(dev, ABS_Y, y);
++
++		input_sync(dev);
++		break;
++	default:
++		dev_warn_once(&pegasus->usbdev->dev,
++			      "unknown answer from device\n");
++	}
 +}
 +
-+static void pwm_beeper_close(struct input_dev *input)
++static void pegasus_irq(struct urb *urb)
 +{
-+	struct pwm_beeper *beeper = input_get_drvdata(input);
++	struct pegasus *pegasus = urb->context;
++	struct usb_device *dev = pegasus->usbdev;
++	int retval;
 +
-+	pwm_beeper_stop(beeper);
++	switch (urb->status) {
++	case 0:
++		pegasus_parse_packet(pegasus);
++		usb_mark_last_busy(pegasus->usbdev);
++
++		break;
++	case -ECONNRESET:
++	case -ENOENT:
++	case -ESHUTDOWN:
++		dev_err(&dev->dev, "%s - urb shutting down with status: %d",
++			__func__, urb->status);
++		return;
++	default:
++		dev_err(&dev->dev, "%s - nonzero urb status received: %d",
++			__func__, urb->status);
++		break;
++	}
++
++	retval = usb_submit_urb(urb, GFP_ATOMIC);
++	if (retval)
++		dev_err(&dev->dev, "%s - usb_submit_urb failed with result %d",
++			__func__, retval);
 +}
 +
- static int pwm_beeper_probe(struct platform_device *pdev)
- {
- 	unsigned long pwm_id = (unsigned long)dev_get_platdata(&pdev->dev);
-@@ -93,6 +121,8 @@ static int pwm_beeper_probe(struct platform_device *pdev)
- 	 */
- 	pwm_apply_args(beeper->pwm);
- 
-+	INIT_WORK(&beeper->work, pwm_beeper_work);
++static void pegasus_init(struct work_struct *work)
++{
++	struct pegasus *pegasus = container_of(work, struct pegasus, init);
 +
- 	beeper->input = input_allocate_device();
- 	if (!beeper->input) {
- 		dev_err(&pdev->dev, "Failed to allocate input device\n");
-@@ -112,6 +142,7 @@ static int pwm_beeper_probe(struct platform_device *pdev)
- 	beeper->input->sndbit[0] = BIT(SND_TONE) | BIT(SND_BELL);
- 
- 	beeper->input->event = pwm_beeper_event;
-+	beeper->input->close = pwm_beeper_close;
- 
- 	input_set_drvdata(beeper->input, beeper);
- 
-@@ -141,7 +172,6 @@ static int pwm_beeper_remove(struct platform_device *pdev)
- 
- 	input_unregister_device(beeper->input);
- 
--	pwm_disable(beeper->pwm);
- 	pwm_free(beeper->pwm);
- 
- 	kfree(beeper);
-@@ -153,8 +183,7 @@ static int __maybe_unused pwm_beeper_suspend(struct device *dev)
- {
- 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
- 
--	if (beeper->period)
--		pwm_disable(beeper->pwm);
-+	pwm_beeper_stop(beeper);
- 
- 	return 0;
- }
-@@ -163,10 +192,8 @@ static int __maybe_unused pwm_beeper_resume(struct device *dev)
- {
- 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
- 
--	if (beeper->period) {
--		pwm_config(beeper->pwm, beeper->period / 2, beeper->period);
--		pwm_enable(beeper->pwm);
--	}
-+	if (beeper->period)
-+		__pwm_beeper_set(beeper);
- 
- 	return 0;
- }
++	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
++}
++
++static int pegasus_open(struct input_dev *dev)
++{
++	struct pegasus *pegasus = input_get_drvdata(dev);
++
++	pegasus->irq->dev = pegasus->usbdev;
++	if (usb_submit_urb(pegasus->irq, GFP_KERNEL))
++		return -EIO;
++
++	return 0;
++}
++
++static void pegasus_close(struct input_dev *dev)
++{
++	struct pegasus *pegasus = input_get_drvdata(dev);
++
++	usb_kill_urb(pegasus->irq);
++	cancel_work_sync(&pegasus->init);
++}
++
++static int pegasus_probe(struct usb_interface *intf,
++			 const struct usb_device_id *id)
++{
++	struct usb_device *dev = interface_to_usbdev(intf);
++	struct usb_endpoint_descriptor *endpoint;
++	struct pegasus *pegasus;
++	struct input_dev *input_dev;
++	int error;
++	int pipe, maxp;
++
++	/* we control interface 0 */
++	if (intf->cur_altsetting->desc.bInterfaceNumber == 1)
++		return -ENODEV;
++
++	endpoint = &intf->cur_altsetting->endpoint[0].desc;
++
++	pegasus = kzalloc(sizeof(*pegasus), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!pegasus || !input_dev) {
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	pegasus->usbdev = dev;
++	pegasus->dev = input_dev;
++
++	pegasus->data = usb_alloc_coherent(dev, endpoint->wMaxPacketSize,
++					   GFP_KERNEL, &pegasus->data_dma);
++	if (!pegasus->data) {
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	pegasus->irq = usb_alloc_urb(0, GFP_KERNEL);
++	if (!pegasus->irq) {
++		error = -ENOMEM;
++		goto err_free_dma;
++	}
++
++	pipe = usb_rcvintpipe(dev, endpoint->bEndpointAddress);
++	maxp = usb_maxpacket(dev, pipe, usb_pipeout(pipe));
++	pegasus->data_len = maxp;
++
++	usb_fill_int_urb(pegasus->irq, dev, pipe, pegasus->data, maxp,
++			 pegasus_irq, pegasus, endpoint->bInterval);
++
++	pegasus->irq->transfer_dma = pegasus->data_dma;
++	pegasus->irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++
++	if (dev->manufacturer)
++		strlcpy(pegasus->name, dev->manufacturer,
++			sizeof(pegasus->name));
++
++	if (dev->product) {
++		if (dev->manufacturer)
++			strlcat(pegasus->name, " ", sizeof(pegasus->name));
++		strlcat(pegasus->name, dev->product, sizeof(pegasus->name));
++	}
++
++	if (!strlen(pegasus->name))
++		snprintf(pegasus->name, sizeof(pegasus->name),
++			 "USB Pegasus Device %04x:%04x",
++			 le16_to_cpu(dev->descriptor.idVendor),
++			 le16_to_cpu(dev->descriptor.idProduct));
++
++	usb_make_path(dev, pegasus->phys, sizeof(pegasus->phys));
++	strlcat(pegasus->phys, "/input0", sizeof(pegasus->phys));
++
++	INIT_WORK(&pegasus->init, pegasus_init);
++
++	usb_set_intfdata(intf, pegasus);
++
++	input_dev->name = pegasus->name;
++	input_dev->phys = pegasus->phys;
++	usb_to_input_id(dev, &input_dev->id);
++	input_dev->dev.parent = &intf->dev;
++
++	input_set_drvdata(input_dev, pegasus);
++
++	input_dev->open = pegasus_open;
++	input_dev->close = pegasus_close;
++
++	__set_bit(EV_ABS, input_dev->evbit);
++	__set_bit(EV_KEY, input_dev->evbit);
++
++	__set_bit(ABS_X, input_dev->absbit);
++	__set_bit(ABS_Y, input_dev->absbit);
++
++	__set_bit(BTN_TOUCH, input_dev->keybit);
++	__set_bit(BTN_RIGHT, input_dev->keybit);
++	__set_bit(BTN_TOOL_PEN, input_dev->keybit);
++
++	__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
++	__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
++
++	input_set_abs_params(input_dev, ABS_X, -1500, 1500, 8, 0);
++	input_set_abs_params(input_dev, ABS_Y, 1600, 3000, 8, 0);
++
++	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
++
++	error = input_register_device(pegasus->dev);
++	if (error)
++		goto err_free_urb;
++
++	return 0;
++
++err_free_urb:
++	usb_free_urb(pegasus->irq);
++err_free_dma:
++	usb_free_coherent(dev, pegasus->data_len,
++			  pegasus->data, pegasus->data_dma);
++err_free_mem:
++	input_free_device(input_dev);
++	kfree(pegasus);
++	usb_set_intfdata(intf, NULL);
++
++	return error;
++}
++
++static void pegasus_disconnect(struct usb_interface *intf)
++{
++	struct pegasus *pegasus = usb_get_intfdata(intf);
++
++	input_unregister_device(pegasus->dev);
++
++	usb_free_urb(pegasus->irq);
++	usb_free_coherent(interface_to_usbdev(intf),
++			  pegasus->data_len, pegasus->data,
++			  pegasus->data_dma);
++	kfree(pegasus);
++	usb_set_intfdata(intf, NULL);
++}
++
++static const struct usb_device_id pegasus_ids[] = {
++	{ USB_DEVICE(USB_VENDOR_ID_PEGASUSTECH,
++		     USB_DEVICE_ID_PEGASUS_NOTETAKER_EN100) },
++	{ }
++};
++MODULE_DEVICE_TABLE(usb, pegasus_ids);
++
++static struct usb_driver pegasus_driver = {
++	.name		= "pegasus_notetaker",
++	.probe		= pegasus_probe,
++	.disconnect	= pegasus_disconnect,
++	.id_table	= pegasus_ids,
++};
++
++module_usb_driver(pegasus_driver);
++
++MODULE_AUTHOR("Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>");
++MODULE_DESCRIPTION("Pegasus Mobile Notetaker Pen tablet driver");
++MODULE_LICENSE("GPL");
 -- 
 2.1.4
-

@@ -1,227 +1,186 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 2/2] Input - surface3_spi: add surface pen support for
- Surface 3
-Date: Fri, 27 May 2016 16:31:47 -0700
-Message-ID: <20160527233147.GA7249@dtor-ws>
-References: <1464176406-9917-1-git-send-email-stephenjust@gmail.com>
- <1464176406-9917-3-git-send-email-stephenjust@gmail.com>
- <20160526150640.GP23234@mail.corp.redhat.com>
+Subject: Re: [PATCH] Input: pwm-beeper - fix: scheduling while atomic
+Date: Fri, 27 May 2016 16:38:44 -0700
+Message-ID: <20160527233844.GB7249@dtor-ws>
+References: <20160222194639.GD26177@dtor-ws>
+ <20160512121852.GB26824@ulmo.ba.sec>
+ <5735F4E3.20008@gmx.at>
+ <573C8761.9070601@gmx.at>
+ <20160520165918.GE14951@dtor-ws>
+ <574411B5.2010407@gmx.at>
+ <20160526003615.GE22369@dtor-ws>
+ <57480B5C.7080409@gmx.at>
+ <57480F45.7070106@gmx.at>
+ <57480FF3.9060107@gmx.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f68.google.com ([209.85.220.68]:35338 "EHLO
-	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751769AbcE0Xbv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 May 2016 19:31:51 -0400
-Received: by mail-pa0-f68.google.com with SMTP id gp3so7262589pac.2
-        for <linux-input@vger.kernel.org>; Fri, 27 May 2016 16:31:51 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160526150640.GP23234@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <57480FF3.9060107@gmx.at>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Manfred Schlaegl <manfred.schlaegl@gmx.at>
+Cc: Thierry Reding <thierry.reding@gmail.com>, Manfred Schlaegl <manfred.schlaegl@ginzinger.com>, Luis de Bethencourt <luis@debethencourt.com>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Stephen Just <stephenjust@gmail.com>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Thu, May 26, 2016 at 05:06:40PM +0200, Benjamin Tissoires wrote:
-> On May 25 2016 or thereabouts, Stephen Just wrote:
-> > This change creates a second input device which will handle input from
-> > a Surface Pen. The Surface Pen supplies a different packet header than
-> > touch events, so it is simple to handle one or the other.
-> > 
-> > This patch handles both the newer Surface Pen with one button, and the
-> > older variant with a second button to switch to Eraser mode.
-> > 
-> > Signed-off-by: Stephen Just <stephenjust@gmail.com>
-> > ---
-> > v1 -> v2: Code cleanup w/ switch/case
-> > v2 -> v3: Send proximity-out event when switching tools
+On Fri, May 27, 2016 at 11:14:27AM +0200, Manfred Schlaegl wrote:
+> Pwm config may sleep so defer it using a worker.
 > 
-> Thanks. Tested and everything is fine. For the series:
-> Reviewed-and-tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> On a Freescale i.MX53 based board we ran into "BUG: scheduling while
+> atomic" because input_inject_event locks interrupts, but
+> imx_pwm_config_v2 sleeps.
+> 
+> Tested on Freescale i.MX53 SoC with 4.6.0.
+> 
+> Signed-off-by: Manfred Schlaegl <manfred.schlaegl@gmx.at>
 
-Applied both, thank you.
+Applied, thank you.
 
+> ---
+>  drivers/input/misc/pwm-beeper.c | 69 ++++++++++++++++++++++++++++-------------
+>  1 file changed, 48 insertions(+), 21 deletions(-)
 > 
-> Cheers,
-> Benjamin
+> diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+> index 8d71332..5f9655d 100644
+> --- a/drivers/input/misc/pwm-beeper.c
+> +++ b/drivers/input/misc/pwm-beeper.c
+> @@ -20,21 +20,40 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/pwm.h>
+>  #include <linux/slab.h>
+> +#include <linux/workqueue.h>
+>  
+>  struct pwm_beeper {
+>  	struct input_dev *input;
+>  	struct pwm_device *pwm;
+> +	struct work_struct work;
+>  	unsigned long period;
+>  };
+>  
+>  #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
+>  
+> +static void __pwm_beeper_set(struct pwm_beeper *beeper)
+> +{
+> +	unsigned long period = beeper->period;
+> +
+> +	if (period) {
+> +		pwm_config(beeper->pwm, period / 2, period);
+> +		pwm_enable(beeper->pwm);
+> +	} else
+> +		pwm_disable(beeper->pwm);
+> +}
+> +
+> +static void pwm_beeper_work(struct work_struct *work)
+> +{
+> +	struct pwm_beeper *beeper =
+> +		container_of(work, struct pwm_beeper, work);
+> +
+> +	__pwm_beeper_set(beeper);
+> +}
+> +
+>  static int pwm_beeper_event(struct input_dev *input,
+>  			    unsigned int type, unsigned int code, int value)
+>  {
+> -	int ret = 0;
+>  	struct pwm_beeper *beeper = input_get_drvdata(input);
+> -	unsigned long period;
+>  
+>  	if (type != EV_SND || value < 0)
+>  		return -EINVAL;
+> @@ -49,22 +68,31 @@ static int pwm_beeper_event(struct input_dev *input,
+>  		return -EINVAL;
+>  	}
+>  
+> -	if (value == 0) {
+> -		pwm_disable(beeper->pwm);
+> -	} else {
+> -		period = HZ_TO_NANOSECONDS(value);
+> -		ret = pwm_config(beeper->pwm, period / 2, period);
+> -		if (ret)
+> -			return ret;
+> -		ret = pwm_enable(beeper->pwm);
+> -		if (ret)
+> -			return ret;
+> -		beeper->period = period;
+> -	}
+> +	if (value == 0)
+> +		beeper->period = 0;
+> +	else
+> +		beeper->period = HZ_TO_NANOSECONDS(value);
+> +
+> +	schedule_work(&beeper->work);
+>  
+>  	return 0;
+>  }
+>  
+> +static void pwm_beeper_stop(struct pwm_beeper *beeper)
+> +{
+> +	cancel_work_sync(&beeper->work);
+> +
+> +	if (beeper->period)
+> +		pwm_disable(beeper->pwm);
+> +}
+> +
+> +static void pwm_beeper_close(struct input_dev *input)
+> +{
+> +	struct pwm_beeper *beeper = input_get_drvdata(input);
+> +
+> +	pwm_beeper_stop(beeper);
+> +}
+> +
+>  static int pwm_beeper_probe(struct platform_device *pdev)
+>  {
+>  	unsigned long pwm_id = (unsigned long)dev_get_platdata(&pdev->dev);
+> @@ -93,6 +121,8 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+>  	 */
+>  	pwm_apply_args(beeper->pwm);
+>  
+> +	INIT_WORK(&beeper->work, pwm_beeper_work);
+> +
+>  	beeper->input = input_allocate_device();
+>  	if (!beeper->input) {
+>  		dev_err(&pdev->dev, "Failed to allocate input device\n");
+> @@ -112,6 +142,7 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+>  	beeper->input->sndbit[0] = BIT(SND_TONE) | BIT(SND_BELL);
+>  
+>  	beeper->input->event = pwm_beeper_event;
+> +	beeper->input->close = pwm_beeper_close;
+>  
+>  	input_set_drvdata(beeper->input, beeper);
+>  
+> @@ -141,7 +172,6 @@ static int pwm_beeper_remove(struct platform_device *pdev)
+>  
+>  	input_unregister_device(beeper->input);
+>  
+> -	pwm_disable(beeper->pwm);
+>  	pwm_free(beeper->pwm);
+>  
+>  	kfree(beeper);
+> @@ -153,8 +183,7 @@ static int __maybe_unused pwm_beeper_suspend(struct device *dev)
+>  {
+>  	struct pwm_beeper *beeper = dev_get_drvdata(dev);
+>  
+> -	if (beeper->period)
+> -		pwm_disable(beeper->pwm);
+> +	pwm_beeper_stop(beeper);
+>  
+>  	return 0;
+>  }
+> @@ -163,10 +192,8 @@ static int __maybe_unused pwm_beeper_resume(struct device *dev)
+>  {
+>  	struct pwm_beeper *beeper = dev_get_drvdata(dev);
+>  
+> -	if (beeper->period) {
+> -		pwm_config(beeper->pwm, beeper->period / 2, beeper->period);
+> -		pwm_enable(beeper->pwm);
+> -	}
+> +	if (beeper->period)
+> +		__pwm_beeper_set(beeper);
+>  
+>  	return 0;
+>  }
+> -- 
+> 2.1.4
 > 
-> > 
-> >  drivers/input/touchscreen/surface3_spi.c | 114 ++++++++++++++++++++++++++++++-
-> >  1 file changed, 112 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/input/touchscreen/surface3_spi.c b/drivers/input/touchscreen/surface3_spi.c
-> > index 204a162..63548743 100644
-> > --- a/drivers/input/touchscreen/surface3_spi.c
-> > +++ b/drivers/input/touchscreen/surface3_spi.c
-> > @@ -28,11 +28,14 @@
-> >  #define SURFACE3_PACKET_SIZE	264
-> >  
-> >  #define SURFACE3_REPORT_TOUCH	0xd2
-> > +#define SURFACE3_REPORT_PEN	0x16
-> >  
-> >  struct surface3_ts_data {
-> >  	struct spi_device *spi;
-> >  	struct gpio_desc *gpiod_rst[2];
-> >  	struct input_dev *input_dev;
-> > +	struct input_dev *pen_input_dev;
-> > +	int pen_tool;
-> >  
-> >  	u8 rd_buf[SURFACE3_PACKET_SIZE]		____cacheline_aligned;
-> >  };
-> > @@ -49,6 +52,14 @@ struct surface3_ts_data_finger {
-> >  	u32 padding;
-> >  } __packed;
-> >  
-> > +struct surface3_ts_data_pen {
-> > +	u8 status;
-> > +	__le16 x;
-> > +	__le16 y;
-> > +	__le16 pressure;
-> > +	u8 padding;
-> > +} __packed;
-> > +
-> >  static int surface3_spi_read(struct surface3_ts_data *ts_data)
-> >  {
-> >  	struct spi_device *spi = ts_data->spi;
-> > @@ -114,6 +125,53 @@ static void surface3_spi_process_touch(struct surface3_ts_data *ts_data, u8 *dat
-> >  	input_sync(ts_data->input_dev);
-> >  }
-> >  
-> > +static void surface3_spi_report_pen(struct surface3_ts_data *ts_data,
-> > +				    struct surface3_ts_data_pen *pen)
-> > +{
-> > +	struct input_dev *dev = ts_data->pen_input_dev;
-> > +	int st = pen->status;
-> > +	int prox = st & 0x01;
-> > +	int rubber = st & 0x18;
-> > +	int tool = (prox && rubber) ? BTN_TOOL_RUBBER : BTN_TOOL_PEN;
-> > +
-> > +	/* fake proximity out to switch tools */
-> > +	if (ts_data->pen_tool != tool) {
-> > +		input_report_key(dev, ts_data->pen_tool, 0);
-> > +		input_sync(dev);
-> > +		ts_data->pen_tool = tool;
-> > +	}
-> > +
-> > +	input_report_key(dev, BTN_TOUCH, st & 0x12);
-> > +
-> > +	input_report_key(dev, ts_data->pen_tool, prox);
-> > +
-> > +	if (st) {
-> > +		input_report_key(dev,
-> > +				 BTN_STYLUS,
-> > +				 st & 0x04);
-> > +
-> > +		input_report_abs(dev,
-> > +				 ABS_X,
-> > +				 get_unaligned_le16(&pen->x));
-> > +		input_report_abs(dev,
-> > +				 ABS_Y,
-> > +				 get_unaligned_le16(&pen->y));
-> > +		input_report_abs(dev,
-> > +				 ABS_PRESSURE,
-> > +				 get_unaligned_le16(&pen->pressure));
-> > +	}
-> > +}
-> > +
-> > +static void surface3_spi_process_pen(struct surface3_ts_data *ts_data, u8 *data)
-> > +{
-> > +	struct surface3_ts_data_pen *pen;
-> > +
-> > +	pen = (struct surface3_ts_data_pen *)&data[15];
-> > +
-> > +	surface3_spi_report_pen(ts_data, pen);
-> > +	input_sync(ts_data->pen_input_dev);
-> > +}
-> > +
-> >  static void surface3_spi_process(struct surface3_ts_data *ts_data)
-> >  {
-> >  	const char header[] = {0xff, 0xff, 0xff, 0xff, 0xa5, 0x5a, 0xe7, 0x7e, 0x01};
-> > @@ -125,12 +183,19 @@ static void surface3_spi_process(struct surface3_ts_data *ts_data)
-> >  			"%s header error: %*ph, ignoring...\n",
-> >  			__func__, (int)sizeof(header), data);
-> >  
-> > -	if (data[9] == SURFACE3_REPORT_TOUCH)
-> > +	switch (data[9]) {
-> > +	case SURFACE3_REPORT_TOUCH:
-> >  		surface3_spi_process_touch(ts_data, data);
-> > -	else
-> > +		break;
-> > +	case SURFACE3_REPORT_PEN:
-> > +		surface3_spi_process_pen(ts_data, data);
-> > +		break;
-> > +	default:
-> >  		dev_err(&ts_data->spi->dev,
-> >  			"%s unknown packet type: %x, ignoring...\n",
-> >  			__func__, data[9]);
-> > +		break;
-> > +	}
-> >  }
-> >  
-> >  static irqreturn_t surface3_spi_irq_handler(int irq, void *dev_id)
-> > @@ -224,6 +289,47 @@ static int surface3_spi_create_touch_input(struct surface3_ts_data *data)
-> >  	return 0;
-> >  }
-> >  
-> > +static int surface3_spi_create_pen_input(struct surface3_ts_data *data)
-> > +{
-> > +	struct input_dev *input;
-> > +	int error;
-> > +
-> > +	input = devm_input_allocate_device(&data->spi->dev);
-> > +	if (!input)
-> > +		return -ENOMEM;
-> > +
-> > +	data->pen_input_dev = input;
-> > +	data->pen_tool = BTN_TOOL_PEN;
-> > +
-> > +	__set_bit(INPUT_PROP_DIRECT, input->propbit);
-> > +	__set_bit(INPUT_PROP_POINTER, input->propbit);
-> > +	input_set_abs_params(input, ABS_X, 0, 9600, 0, 0);
-> > +	input_abs_set_res(input, ABS_X, 40);
-> > +	input_set_abs_params(input, ABS_Y, 0, 7200, 0, 0);
-> > +	input_abs_set_res(input, ABS_Y, 48);
-> > +	input_set_abs_params(input, ABS_PRESSURE, 0, 1024, 0, 0);
-> > +	input_set_capability(input, EV_KEY, BTN_TOUCH);
-> > +	input_set_capability(input, EV_KEY, BTN_STYLUS);
-> > +	input_set_capability(input, EV_KEY, BTN_TOOL_PEN);
-> > +	input_set_capability(input, EV_KEY, BTN_TOOL_RUBBER);
-> > +
-> > +	input->name = "Surface3 SPI Pen Input";
-> > +	input->phys = "input/ts";
-> > +	input->id.bustype = BUS_SPI;
-> > +	input->id.vendor = 0x045e;     /* Microsoft */
-> > +	input->id.product = 0x0002;
-> > +	input->id.version = 0x0000;
-> > +
-> > +	error = input_register_device(input);
-> > +	if (error) {
-> > +		dev_err(&data->spi->dev,
-> > +			"Failed to register input device: %d", error);
-> > +		return error;
-> > +	}
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >  static int surface3_spi_probe(struct spi_device *spi)
-> >  {
-> >  	struct surface3_ts_data *data;
-> > @@ -255,6 +361,10 @@ static int surface3_spi_probe(struct spi_device *spi)
-> >  	if (error)
-> >  		return error;
-> >  
-> > +	error = surface3_spi_create_pen_input(data);
-> > +	if (error)
-> > +		return error;
-> > +
-> >  	error = devm_request_threaded_irq(&spi->dev, spi->irq,
-> >  					  NULL, surface3_spi_irq_handler,
-> >  					  IRQF_ONESHOT,
-> > -- 
-> > 2.8.2
-> > 
 
 -- 
 Dmitry

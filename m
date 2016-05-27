@@ -1,80 +1,178 @@
 From: Manfred Schlaegl <manfred.schlaegl@gmx.at>
 Subject: Re: [PATCH] Input: pwm-beeper - fix: scheduling while atomic
-Date: Fri, 27 May 2016 11:11:33 +0200
-Message-ID: <57480F45.7070106@gmx.at>
+Date: Fri, 27 May 2016 11:14:27 +0200
+Message-ID: <57480FF3.9060107@gmx.at>
 References: <56C4735E.6020300@gmx.at> <20160222194639.GD26177@dtor-ws>
  <20160512121852.GB26824@ulmo.ba.sec> <5735F4E3.20008@gmx.at>
  <573C8761.9070601@gmx.at> <20160520165918.GE14951@dtor-ws>
  <574411B5.2010407@gmx.at> <20160526003615.GE22369@dtor-ws>
- <57480B5C.7080409@gmx.at>
+ <57480B5C.7080409@gmx.at> <57480F45.7070106@gmx.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <57480B5C.7080409@gmx.at>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.gmx.net ([212.227.17.22]:51280 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932463AbcE0JOv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 May 2016 05:14:51 -0400
+In-Reply-To: <57480F45.7070106@gmx.at>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Thierry Reding <thierry.reding@gmail.com>, Manfred Schlaegl <manfred.schlaegl@ginzinger.com>, Luis de Bethencourt <luis@debethencourt.com>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-List-Id: linux-input@vger.kernel.org
 
-On 2016-05-27 10:54, Manfred Schlaegl wrote:
-> 
-> Ok. Thanks for clarification.
-> I will send a patch with the modifications you suggested before.
-> 
-> The following patch will also have some slight modifications in line numbers to make it apply after
-> cfae56f18 (input: misc: pwm-beeper: Explicitly apply PWM config extracted from pwm_args).
-> 
-> best regards,
-> Manfred
-> 
-While testing the patch I found another problem.
+Pwm config may sleep so defer it using a worker.
 
-calling 
-pwm_config(beeper->pwm, period / 2, period) with periode=0 leads to 
+On a Freescale i.MX53 based board we ran into "BUG: scheduling while
+atomic" because input_inject_event locks interrupts, but
+imx_pwm_config_v2 sleeps.
 
-[  199.964836] Division by zero in kernel.
-[  199.964875] CPU: 0 PID: 277 Comm: kworker/0:1 Not tainted 4.6.0-general-1-11011-g928f0cf #24
-[  199.964887] Hardware name: Freescale i.MX53 (Device Tree Support)
-[  199.964925] Workqueue: events pwm_beeper_work
-[  199.964937] Backtrace: 
-[  199.964970] [<c010a73c>] (dump_backtrace) from [<c010a920>] (show_stack+0x18/0x1c)
-[  199.964980]  r6:00000000 r5:ce9fed9c r4:00000000 r3:00000000
-[  199.965018] [<c010a908>] (show_stack) from [<c031ca78>] (dump_stack+0x20/0x28)
-[  199.965037] [<c031ca58>] (dump_stack) from [<c010a888>] (__div0+0x18/0x20)
-[  199.965053] [<c010a870>] (__div0) from [<c031b86c>] (Ldiv0+0x8/0x14)
-[  199.965080] [<c034bbec>] (imx_pwm_config_v2) from [<c034bfb8>] (imx_pwm_config+0x68/0x88)
-[  199.965088]  r9:00000000 r8:ceabf2c0 r7:00000000 r6:00000000 r5:ceabf440 r4:ce9fed9c
-[  199.965121] [<c034bf50>] (imx_pwm_config) from [<c034b288>] (pwm_apply_state+0xfc/0x188)
-[  199.965129]  r9:00000000 r8:cedd9a00 r7:00000000 r6:ceabf2e0 r5:ce9f7ec0 r4:ceabf2c0
-[  199.965164] [<c034b18c>] (pwm_apply_state) from [<c0475b28>] (__pwm_beeper_set+0x60/0xd8)
-[  199.965172]  r7:00000000 r6:ceabf2c0 r5:00000000 r4:cea92e80
-[  199.965200] [<c0475ac8>] (__pwm_beeper_set) from [<c0475bb4>] (pwm_beeper_work+0x14/0x18)
-[  199.965209]  r7:ce9da998 r6:c0908a80 r5:cea92e88 r4:ce9da980
-[  199.965240] [<c0475ba0>] (pwm_beeper_work) from [<c01315c8>] (process_one_work+0x1f4/0x334)
-[  199.965255] [<c01313d4>] (process_one_work) from [<c0131dc4>] (worker_thread+0x330/0x4ac)
-[  199.965264]  r10:00000000 r9:00000008 r8:c0908a94 r7:ce9da998 r6:c0908a80 r5:c0908a80
-[  199.965289]  r4:ce9da980
-[  199.965311] [<c0131a94>] (worker_thread) from [<c0136308>] (kthread+0xe4/0xf8)
-[  199.965319]  r10:00000000 r9:00000000 r8:00000000 r7:c0131a94 r6:ce9da980 r5:00000000
-[  199.965342]  r4:cea7d900 r3:ce9f6000
-[  199.965364] [<c0136224>] (kthread) from [<c01073b8>] (ret_from_fork+0x14/0x3c)
-[  199.965372]  r7:00000000 r6:00000000 r5:c0136224 r4:cea7d900
+Tested on Freescale i.MX53 SoC with 4.6.0.
 
-I modified the patch, so that pwm_config is called only with periode >0
+Signed-off-by: Manfred Schlaegl <manfred.schlaegl@gmx.at>
+---
+ drivers/input/misc/pwm-beeper.c | 69 ++++++++++++++++++++++++++++-------------
+ 1 file changed, 48 insertions(+), 21 deletions(-)
 
--       pwm_config(beeper->pwm, period / 2, period);
--
--       if (period == 0)
--               pwm_disable(beeper->pwm);
--       else
-+       if (period) {
-+               pwm_config(beeper->pwm, period / 2, period);
-                pwm_enable(beeper->pwm);
-+       } else
-+               pwm_disable(beeper->pwm);
+diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+index 8d71332..5f9655d 100644
+--- a/drivers/input/misc/pwm-beeper.c
++++ b/drivers/input/misc/pwm-beeper.c
+@@ -20,21 +20,40 @@
+ #include <linux/platform_device.h>
+ #include <linux/pwm.h>
+ #include <linux/slab.h>
++#include <linux/workqueue.h>
+ 
+ struct pwm_beeper {
+ 	struct input_dev *input;
+ 	struct pwm_device *pwm;
++	struct work_struct work;
+ 	unsigned long period;
+ };
+ 
+ #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
+ 
++static void __pwm_beeper_set(struct pwm_beeper *beeper)
++{
++	unsigned long period = beeper->period;
++
++	if (period) {
++		pwm_config(beeper->pwm, period / 2, period);
++		pwm_enable(beeper->pwm);
++	} else
++		pwm_disable(beeper->pwm);
++}
++
++static void pwm_beeper_work(struct work_struct *work)
++{
++	struct pwm_beeper *beeper =
++		container_of(work, struct pwm_beeper, work);
++
++	__pwm_beeper_set(beeper);
++}
++
+ static int pwm_beeper_event(struct input_dev *input,
+ 			    unsigned int type, unsigned int code, int value)
+ {
+-	int ret = 0;
+ 	struct pwm_beeper *beeper = input_get_drvdata(input);
+-	unsigned long period;
+ 
+ 	if (type != EV_SND || value < 0)
+ 		return -EINVAL;
+@@ -49,22 +68,31 @@ static int pwm_beeper_event(struct input_dev *input,
+ 		return -EINVAL;
+ 	}
+ 
+-	if (value == 0) {
+-		pwm_disable(beeper->pwm);
+-	} else {
+-		period = HZ_TO_NANOSECONDS(value);
+-		ret = pwm_config(beeper->pwm, period / 2, period);
+-		if (ret)
+-			return ret;
+-		ret = pwm_enable(beeper->pwm);
+-		if (ret)
+-			return ret;
+-		beeper->period = period;
+-	}
++	if (value == 0)
++		beeper->period = 0;
++	else
++		beeper->period = HZ_TO_NANOSECONDS(value);
++
++	schedule_work(&beeper->work);
+ 
+ 	return 0;
+ }
+ 
++static void pwm_beeper_stop(struct pwm_beeper *beeper)
++{
++	cancel_work_sync(&beeper->work);
++
++	if (beeper->period)
++		pwm_disable(beeper->pwm);
++}
++
++static void pwm_beeper_close(struct input_dev *input)
++{
++	struct pwm_beeper *beeper = input_get_drvdata(input);
++
++	pwm_beeper_stop(beeper);
++}
++
+ static int pwm_beeper_probe(struct platform_device *pdev)
+ {
+ 	unsigned long pwm_id = (unsigned long)dev_get_platdata(&pdev->dev);
+@@ -93,6 +121,8 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+ 	 */
+ 	pwm_apply_args(beeper->pwm);
+ 
++	INIT_WORK(&beeper->work, pwm_beeper_work);
++
+ 	beeper->input = input_allocate_device();
+ 	if (!beeper->input) {
+ 		dev_err(&pdev->dev, "Failed to allocate input device\n");
+@@ -112,6 +142,7 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+ 	beeper->input->sndbit[0] = BIT(SND_TONE) | BIT(SND_BELL);
+ 
+ 	beeper->input->event = pwm_beeper_event;
++	beeper->input->close = pwm_beeper_close;
+ 
+ 	input_set_drvdata(beeper->input, beeper);
+ 
+@@ -141,7 +172,6 @@ static int pwm_beeper_remove(struct platform_device *pdev)
+ 
+ 	input_unregister_device(beeper->input);
+ 
+-	pwm_disable(beeper->pwm);
+ 	pwm_free(beeper->pwm);
+ 
+ 	kfree(beeper);
+@@ -153,8 +183,7 @@ static int __maybe_unused pwm_beeper_suspend(struct device *dev)
+ {
+ 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
+ 
+-	if (beeper->period)
+-		pwm_disable(beeper->pwm);
++	pwm_beeper_stop(beeper);
+ 
+ 	return 0;
+ }
+@@ -163,10 +192,8 @@ static int __maybe_unused pwm_beeper_resume(struct device *dev)
+ {
+ 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
+ 
+-	if (beeper->period) {
+-		pwm_config(beeper->pwm, beeper->period / 2, beeper->period);
+-		pwm_enable(beeper->pwm);
+-	}
++	if (beeper->period)
++		__pwm_beeper_set(beeper);
+ 
+ 	return 0;
+ }
+-- 
+2.1.4
 
-I will send the corrected patch shortly.
-
-Best regards,
-Manfred

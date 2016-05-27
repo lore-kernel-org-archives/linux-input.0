@@ -1,54 +1,59 @@
-From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: Re: [PATCH 0/4] Input: xpad: extend device support
-Date: Fri, 27 May 2016 02:16:08 +0200
-Message-ID: <CA+b0ujdfg82DcWkmTqtjwUTLZgQC5NjOks3ssWrMjv95fguiPQ@mail.gmail.com>
-References: <1464307975-25890-1-git-send-email-rojtberg@gmail.com>
+From: Manfred Schlaegl <manfred.schlaegl@gmx.at>
+Subject: Re: [PATCH] Input: pwm-beeper - fix: scheduling while atomic
+Date: Fri, 27 May 2016 10:54:52 +0200
+Message-ID: <57480B5C.7080409@gmx.at>
+References: <56C4735E.6020300@gmx.at> <20160222194639.GD26177@dtor-ws>
+ <20160512121852.GB26824@ulmo.ba.sec> <5735F4E3.20008@gmx.at>
+ <573C8761.9070601@gmx.at> <20160520165918.GE14951@dtor-ws>
+ <574411B5.2010407@gmx.at> <20160526003615.GE22369@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f172.google.com ([209.85.161.172]:33665 "EHLO
-	mail-yw0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755598AbcE0AQ2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 May 2016 20:16:28 -0400
-Received: by mail-yw0-f172.google.com with SMTP id h19so92233230ywc.0
-        for <linux-input@vger.kernel.org>; Thu, 26 May 2016 17:16:28 -0700 (PDT)
-In-Reply-To: <1464307975-25890-1-git-send-email-rojtberg@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160526003615.GE22369@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Thierry Reding <thierry.reding@gmail.com>, Manfred Schlaegl <manfred.schlaegl@ginzinger.com>, Luis de Bethencourt <luis@debethencourt.com>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-sorry, I messed up the cover letter. this is the correct one:
+On 2016-05-26 02:36, Dmitry Torokhov wrote:
+> On Tue, May 24, 2016 at 10:32:53AM +0200, Manfred Schlaegl wrote:
+>> On 2016-05-20 18:59, Dmitry Torokhov wrote:
+>>> Hi Manfred,
+>>>
+>>> On Wed, May 18, 2016 at 05:16:49PM +0200, Manfred Schlaegl wrote:
+>>>> @@ -133,6 +149,8 @@ static int pwm_beeper_remove(struct platform_device *pdev)
+>>>>  {
+>>>>  	struct pwm_beeper *beeper = platform_get_drvdata(pdev);
+>>>>  
+>>>> +	cancel_work_sync(&beeper->work);
+>>>> +
+>>>>  	input_unregister_device(beeper->input);
+>>>
+>>> This is racy, request to play may come in after cancel_work_sync()
+>>> returns but before we unregistered input device. I think you want the
+>>> version below.
+>>>
+>>
+>> Hi Dmitry,
+>>
+>> yes you are right. Thank you for your feedback.
+>> I also see that point, but I think it would be a simpler change just
+>> to cancel the worker after unregistering the device (to reorder 
+>> cancel_work_sync and input_unregister_device).
+> 
+> That is an option, but I wanter to have close() because I also want to
+> convert the driver to used devm for allocating resources, and then we'd
+> need close() anyway so that we can get rid of remove() method.
+> 
+> Thanks.
+> 
 
-to be applied on the for-linus branch.
+Ok. Thanks for clarification.
+I will send a patch with the modifications you suggested before.
 
-Patch 1 corrects a bug that caused packets to be dropped if they were sent
-immediately one after the other.
+The following patch will also have some slight modifications in line numbers to make it apply after
+cfae56f18 (input: misc: pwm-beeper: Explicitly apply PWM config extracted from pwm_args).
 
-Patch 2 filters spurious packets similar to the x360w path.
-
-Patch 3 adds more third party controller ids
-
-Patch 4 adds support for the elite controller
-
-Patches 5-7 contain some minor code cleanup and can be applied to taste.
-
-Cameron Gutman (1):
-  Input: xpad: prevent spurious input from wired Xbox 360 controllers
-
-Daniel Tobias (2):
-  Input: xpad: correctly sort vendor id's
-  Input: xpad: move reporting xbox one home button to common function
-
-Pavel Rojtberg (4):
-  Input: xpad: move pending clear to the correct location
-  Input: xpad: add more third-party controllers
-  Input: xpad: xbox one elite controller support
-  Input: xpad: simplify error condition in init_output
-
- drivers/input/joystick/xpad.c | 90
-++++++++++++++++++++++++++++++++----------------------------------
- 1 file changed, 43 insertions(+), 47 deletions(-)
-
--- 
-2.7.4
+best regards,
+Manfred

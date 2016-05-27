@@ -1,143 +1,227 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5] input: tablet: add Pegasus Notetaker tablet driver
-Date: Fri, 27 May 2016 14:59:07 -0700
-Message-ID: <20160527215907.GD25540@dtor-ws>
-References: <1464342381-2939-1-git-send-email-martink@posteo.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3 2/2] Input - surface3_spi: add surface pen support for
+ Surface 3
+Date: Fri, 27 May 2016 16:31:47 -0700
+Message-ID: <20160527233147.GA7249@dtor-ws>
+References: <1464176406-9917-1-git-send-email-stephenjust@gmail.com>
+ <1464176406-9917-3-git-send-email-stephenjust@gmail.com>
+ <20160526150640.GP23234@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:35338 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751769AbcE0Xbv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 May 2016 19:31:51 -0400
+Received: by mail-pa0-f68.google.com with SMTP id gp3so7262589pac.2
+        for <linux-input@vger.kernel.org>; Fri, 27 May 2016 16:31:51 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1464342381-2939-1-git-send-email-martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20160526150640.GP23234@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Stephen Just <stephenjust@gmail.com>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>
 
-Hi Martin,
-
-On Fri, May 27, 2016 at 11:46:21AM +0200, Martin Kepplinger wrote:
-> This adds a driver for the Pegasus Notetaker Pen. When connected,
-> this uses the Pen as an input tablet.
+On Thu, May 26, 2016 at 05:06:40PM +0200, Benjamin Tissoires wrote:
+> On May 25 2016 or thereabouts, Stephen Just wrote:
+> > This change creates a second input device which will handle input from
+> > a Surface Pen. The Surface Pen supplies a different packet header than
+> > touch events, so it is simple to handle one or the other.
+> > 
+> > This patch handles both the newer Surface Pen with one button, and the
+> > older variant with a second button to switch to Eraser mode.
+> > 
+> > Signed-off-by: Stephen Just <stephenjust@gmail.com>
+> > ---
+> > v1 -> v2: Code cleanup w/ switch/case
+> > v2 -> v3: Send proximity-out event when switching tools
 > 
-> This device was sold in various different brandings, for example
-> 	"Pegasus Mobile Notetaker M210",
-> 	"Genie e-note The Notetaker",
-> 	"Staedtler Digital ballpoint pen 990 01",
-> 	"IRISnotes Express" or
-> 	"NEWLink Digital Note Taker".
+> Thanks. Tested and everything is fine. For the series:
+> Reviewed-and-tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Applied both, thank you.
+
 > 
-> Here's an example, so that you know what we are talking about:
-> http://www.staedtler.com/en/products/ink-writing-instruments/ballpoint-pens/digital-pen-990-01-digital-ballpoint-pen
+> Cheers,
+> Benjamin
 > 
-> http://pegatech.blogspot.com/ seems to be a remaining official resource.
-> 
-> This device can also transfer saved (offline recorded handwritten) data and
-> there are userspace programs that do this, see https://launchpad.net/m210
-> (Well, alternatively there are really fast scanners out there :)
-> 
-> It's *really* fun to use as an input tablet though! So let's support this
-> for everybody.
-> 
-> There's no way to disable the device. When the pen is out of range, we just
-> don't get any URBs and don't do anything.
-> Like all other mouses or input tablets, we don't use runtime PM.
-> 
-> Signed-off-by: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-> ---
-> 
-> Thanks for reviewing! Dmitry's and Oliver's changes to v4 made it even
-> smaller now. All is tested again and should apply to any recent tree.
-> If not, please just complain.
-
-Couple of minor comments:
-
-> +
-> +static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
-> +{
-> +	const int sizeof_buf = len * sizeof(u8) + 2;
-
-Just do "len + 2".
-
-> +static void pegasus_parse_packet(struct pegasus *pegasus)
-> +{
-> +	unsigned char *data = pegasus->data;
-> +	struct input_dev *dev = pegasus->dev;
-> +	u16 x, y;
-> +
-> +	switch (data[0]) {
-> +	case SPECIAL_COMMAND:
-> +		/* device button pressed */
-> +		if (data[1] == BUTTON_PRESSED)
-> +			schedule_work(&pegasus->init);
-> +
-> +		break;
-> +	/* xy data */
-> +	case BATTERY_LOW:
-> +		dev_warn_once(&dev->dev, "Pen battery low\n");
-> +	case BATTERY_NO_REPORT:
-> +	case BATTERY_GOOD:
-> +		x = le16_to_cpup((__le16 *)&data[2]);
-> +		y = le16_to_cpup((__le16 *)&data[4]);
-> +
-> +		/* ignore pen up events */
-> +		if (x == 0 && y == 0)
-
-Why are we ignoring pen-up events? I'd at least send
-EV_KEY/BTN_TOOL_PEN/0 and maybe the rest of BTN* events.
-
-> +			break;
-> +
-> +		input_report_key(dev, BTN_TOUCH, data[1] & PEN_TIP);
-> +		input_report_key(dev, BTN_RIGHT, data[1] & PEN_BUTTON_PRESSED);
-> +		input_report_key(dev, BTN_TOOL_PEN, 1);
-> +		input_report_abs(dev, ABS_X, (s16)x);
-> +		input_report_abs(dev, ABS_Y, y);
-> +
-> +		input_sync(dev);
-> +		break;
-> +	default:
-> +		dev_warn_once(&pegasus->usbdev->dev,
-> +			      "unknown answer from device\n");
-> +	}
-> +}
-> +
-> +static void pegasus_irq(struct urb *urb)
-> +{
-> +	struct pegasus *pegasus = urb->context;
-> +	struct usb_device *dev = pegasus->usbdev;
-> +	int retval;
-> +
-> +	switch (urb->status) {
-> +	case 0:
-> +		pegasus_parse_packet(pegasus);
-> +		usb_mark_last_busy(pegasus->usbdev);
-
-Since the driver does not use runtime-PM I do not think you need to call
-usb_mark_last_busy().
-
-> +static int pegasus_probe(struct usb_interface *intf,
-> +			 const struct usb_device_id *id)
-> +{
-> +	struct usb_device *dev = interface_to_usbdev(intf);
-> +	struct usb_endpoint_descriptor *endpoint;
-> +	struct pegasus *pegasus;
-> +	struct input_dev *input_dev;
-> +	int error;
-> +	int pipe, maxp;
-> +
-> +	/* we control interface 0 */
-> +	if (intf->cur_altsetting->desc.bInterfaceNumber == 1)
-> +		return -ENODEV;
-
-Please add:
-
-	/* Sanity check that the device has an endpoint */
-	if (usbinterface->altsetting[0].desc.bNumEndpoints < 1) {
-		dev_err(&usbinterface->dev, "Invalid number of endpoints\n");
-		return -EINVAL;
-	}
-
-Thanks.
+> > 
+> >  drivers/input/touchscreen/surface3_spi.c | 114 ++++++++++++++++++++++++++++++-
+> >  1 file changed, 112 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/surface3_spi.c b/drivers/input/touchscreen/surface3_spi.c
+> > index 204a162..63548743 100644
+> > --- a/drivers/input/touchscreen/surface3_spi.c
+> > +++ b/drivers/input/touchscreen/surface3_spi.c
+> > @@ -28,11 +28,14 @@
+> >  #define SURFACE3_PACKET_SIZE	264
+> >  
+> >  #define SURFACE3_REPORT_TOUCH	0xd2
+> > +#define SURFACE3_REPORT_PEN	0x16
+> >  
+> >  struct surface3_ts_data {
+> >  	struct spi_device *spi;
+> >  	struct gpio_desc *gpiod_rst[2];
+> >  	struct input_dev *input_dev;
+> > +	struct input_dev *pen_input_dev;
+> > +	int pen_tool;
+> >  
+> >  	u8 rd_buf[SURFACE3_PACKET_SIZE]		____cacheline_aligned;
+> >  };
+> > @@ -49,6 +52,14 @@ struct surface3_ts_data_finger {
+> >  	u32 padding;
+> >  } __packed;
+> >  
+> > +struct surface3_ts_data_pen {
+> > +	u8 status;
+> > +	__le16 x;
+> > +	__le16 y;
+> > +	__le16 pressure;
+> > +	u8 padding;
+> > +} __packed;
+> > +
+> >  static int surface3_spi_read(struct surface3_ts_data *ts_data)
+> >  {
+> >  	struct spi_device *spi = ts_data->spi;
+> > @@ -114,6 +125,53 @@ static void surface3_spi_process_touch(struct surface3_ts_data *ts_data, u8 *dat
+> >  	input_sync(ts_data->input_dev);
+> >  }
+> >  
+> > +static void surface3_spi_report_pen(struct surface3_ts_data *ts_data,
+> > +				    struct surface3_ts_data_pen *pen)
+> > +{
+> > +	struct input_dev *dev = ts_data->pen_input_dev;
+> > +	int st = pen->status;
+> > +	int prox = st & 0x01;
+> > +	int rubber = st & 0x18;
+> > +	int tool = (prox && rubber) ? BTN_TOOL_RUBBER : BTN_TOOL_PEN;
+> > +
+> > +	/* fake proximity out to switch tools */
+> > +	if (ts_data->pen_tool != tool) {
+> > +		input_report_key(dev, ts_data->pen_tool, 0);
+> > +		input_sync(dev);
+> > +		ts_data->pen_tool = tool;
+> > +	}
+> > +
+> > +	input_report_key(dev, BTN_TOUCH, st & 0x12);
+> > +
+> > +	input_report_key(dev, ts_data->pen_tool, prox);
+> > +
+> > +	if (st) {
+> > +		input_report_key(dev,
+> > +				 BTN_STYLUS,
+> > +				 st & 0x04);
+> > +
+> > +		input_report_abs(dev,
+> > +				 ABS_X,
+> > +				 get_unaligned_le16(&pen->x));
+> > +		input_report_abs(dev,
+> > +				 ABS_Y,
+> > +				 get_unaligned_le16(&pen->y));
+> > +		input_report_abs(dev,
+> > +				 ABS_PRESSURE,
+> > +				 get_unaligned_le16(&pen->pressure));
+> > +	}
+> > +}
+> > +
+> > +static void surface3_spi_process_pen(struct surface3_ts_data *ts_data, u8 *data)
+> > +{
+> > +	struct surface3_ts_data_pen *pen;
+> > +
+> > +	pen = (struct surface3_ts_data_pen *)&data[15];
+> > +
+> > +	surface3_spi_report_pen(ts_data, pen);
+> > +	input_sync(ts_data->pen_input_dev);
+> > +}
+> > +
+> >  static void surface3_spi_process(struct surface3_ts_data *ts_data)
+> >  {
+> >  	const char header[] = {0xff, 0xff, 0xff, 0xff, 0xa5, 0x5a, 0xe7, 0x7e, 0x01};
+> > @@ -125,12 +183,19 @@ static void surface3_spi_process(struct surface3_ts_data *ts_data)
+> >  			"%s header error: %*ph, ignoring...\n",
+> >  			__func__, (int)sizeof(header), data);
+> >  
+> > -	if (data[9] == SURFACE3_REPORT_TOUCH)
+> > +	switch (data[9]) {
+> > +	case SURFACE3_REPORT_TOUCH:
+> >  		surface3_spi_process_touch(ts_data, data);
+> > -	else
+> > +		break;
+> > +	case SURFACE3_REPORT_PEN:
+> > +		surface3_spi_process_pen(ts_data, data);
+> > +		break;
+> > +	default:
+> >  		dev_err(&ts_data->spi->dev,
+> >  			"%s unknown packet type: %x, ignoring...\n",
+> >  			__func__, data[9]);
+> > +		break;
+> > +	}
+> >  }
+> >  
+> >  static irqreturn_t surface3_spi_irq_handler(int irq, void *dev_id)
+> > @@ -224,6 +289,47 @@ static int surface3_spi_create_touch_input(struct surface3_ts_data *data)
+> >  	return 0;
+> >  }
+> >  
+> > +static int surface3_spi_create_pen_input(struct surface3_ts_data *data)
+> > +{
+> > +	struct input_dev *input;
+> > +	int error;
+> > +
+> > +	input = devm_input_allocate_device(&data->spi->dev);
+> > +	if (!input)
+> > +		return -ENOMEM;
+> > +
+> > +	data->pen_input_dev = input;
+> > +	data->pen_tool = BTN_TOOL_PEN;
+> > +
+> > +	__set_bit(INPUT_PROP_DIRECT, input->propbit);
+> > +	__set_bit(INPUT_PROP_POINTER, input->propbit);
+> > +	input_set_abs_params(input, ABS_X, 0, 9600, 0, 0);
+> > +	input_abs_set_res(input, ABS_X, 40);
+> > +	input_set_abs_params(input, ABS_Y, 0, 7200, 0, 0);
+> > +	input_abs_set_res(input, ABS_Y, 48);
+> > +	input_set_abs_params(input, ABS_PRESSURE, 0, 1024, 0, 0);
+> > +	input_set_capability(input, EV_KEY, BTN_TOUCH);
+> > +	input_set_capability(input, EV_KEY, BTN_STYLUS);
+> > +	input_set_capability(input, EV_KEY, BTN_TOOL_PEN);
+> > +	input_set_capability(input, EV_KEY, BTN_TOOL_RUBBER);
+> > +
+> > +	input->name = "Surface3 SPI Pen Input";
+> > +	input->phys = "input/ts";
+> > +	input->id.bustype = BUS_SPI;
+> > +	input->id.vendor = 0x045e;     /* Microsoft */
+> > +	input->id.product = 0x0002;
+> > +	input->id.version = 0x0000;
+> > +
+> > +	error = input_register_device(input);
+> > +	if (error) {
+> > +		dev_err(&data->spi->dev,
+> > +			"Failed to register input device: %d", error);
+> > +		return error;
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> >  static int surface3_spi_probe(struct spi_device *spi)
+> >  {
+> >  	struct surface3_ts_data *data;
+> > @@ -255,6 +361,10 @@ static int surface3_spi_probe(struct spi_device *spi)
+> >  	if (error)
+> >  		return error;
+> >  
+> > +	error = surface3_spi_create_pen_input(data);
+> > +	if (error)
+> > +		return error;
+> > +
+> >  	error = devm_request_threaded_irq(&spi->dev, spi->irq,
+> >  					  NULL, surface3_spi_irq_handler,
+> >  					  IRQF_ONESHOT,
+> > -- 
+> > 2.8.2
+> > 
 
 -- 
 Dmitry

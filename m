@@ -1,170 +1,66 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v2 8/8] Input: atmel_mxt_ts - add support for reference
- data
-Date: Fri, 27 May 2016 14:56:18 +0200
-Message-ID: <574843F2.9060309@xs4all.nl>
+Subject: Re: [PATCH v2 2/8] [media] Add signed 16-bit pixel format
+Date: Fri, 27 May 2016 15:18:30 +0200
+Message-ID: <57484926.9040109@xs4all.nl>
 References: <1462381638-7818-1-git-send-email-nick.dyer@itdev.co.uk>
- <1462381638-7818-9-git-send-email-nick.dyer@itdev.co.uk>
+ <1462381638-7818-3-git-send-email-nick.dyer@itdev.co.uk>
+ <57483FD1.9080704@xs4all.nl>
+ <82b68931-0da1-bd26-87c1-1cd9e2296f71@itdev.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1462381638-7818-9-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lb3-smtp-cloud6.xs4all.net ([194.109.24.31]:56538 "EHLO
+	lb3-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751250AbcE0NSg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 May 2016 09:18:36 -0400
+In-Reply-To: <82b68931-0da1-bd26-87c1-1cd9e2296f71@itdev.co.uk>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
-List-Id: linux-input@vger.kernel.org
 
-On 05/04/2016 07:07 PM, Nick Dyer wrote:
-> There are different datatypes available from a maXTouch chip. Add
-> support to retrieve reference data as well.
+On 05/27/2016 02:52 PM, Nick Dyer wrote:
+> On 27/05/2016 13:38, Hans Verkuil wrote:
+>> On 05/04/2016 07:07 PM, Nick Dyer wrote:
+>>> +    <refname><constant>V4L2_PIX_FMT_YS16</constant></refname>
+>>> +    <refpurpose>Grey-scale image</refpurpose>
+>>> +  </refnamediv>
+>>> +  <refsect1>
+>>> +    <title>Description</title>
+>>> +
+>>> +    <para>This is a signed grey-scale image with a depth of 16 bits per
+>>> +pixel. The most significant byte is stored at higher memory addresses
+>>> +(little-endian).</para>
+>>
+>> I'm not sure this should be described in terms of grey-scale, since negative
+>> values make no sense for that. How are these values supposed to be interpreted
+>> if you want to display them? -32768 == black and 32767 is white?
 > 
-> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 66 +++++++++++++++++++++++++++-----
->  1 file changed, 56 insertions(+), 10 deletions(-)
+> We have written a utility to display this data and it is able to display
+> the values mapped to grayscale or color:
+> https://github.com/ndyer/heatmap/blob/master/src/display.c#L44
 > 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index fca1096..1d9909f 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -135,6 +135,7 @@ struct t9_range {
->  /* MXT_DEBUG_DIAGNOSTIC_T37 */
->  #define MXT_DIAGNOSTIC_PAGEUP	0x01
->  #define MXT_DIAGNOSTIC_DELTAS	0x10
-> +#define MXT_DIAGNOSTIC_REFS	0x11
->  #define MXT_DIAGNOSTIC_SIZE	128
->  
->  #define MXT_FAMILY_1386			160
-> @@ -247,6 +248,12 @@ struct mxt_dbg {
->  	int input;
->  };
->  
-> +enum v4l_dbg_inputs {
-> +	MXT_V4L_INPUT_DELTAS,
-> +	MXT_V4L_INPUT_REFS,
-> +	MXT_V4L_INPUT_MAX,
-> +};
-> +
->  static const struct v4l2_file_operations mxt_video_fops = {
->  	.owner = THIS_MODULE,
->  	.open = v4l2_fh_open,
-> @@ -2270,6 +2277,7 @@ static void mxt_buffer_queue(struct vb2_buffer *vb)
->  	struct mxt_data *data = vb2_get_drv_priv(vb->vb2_queue);
->  	u16 *ptr;
->  	int ret;
-> +	u8 mode;
->  
->  	ptr = vb2_plane_vaddr(vb, 0);
->  	if (!ptr) {
-> @@ -2277,7 +2285,18 @@ static void mxt_buffer_queue(struct vb2_buffer *vb)
->  		goto fault;
->  	}
->  
-> -	ret = mxt_read_diagnostic_debug(data, MXT_DIAGNOSTIC_DELTAS, ptr);
-> +	switch (data->dbg.input) {
-> +	case MXT_V4L_INPUT_DELTAS:
-> +	default:
-> +		mode = MXT_DIAGNOSTIC_DELTAS;
-> +		break;
-> +
-> +	case MXT_V4L_INPUT_REFS:
-> +		mode = MXT_DIAGNOSTIC_REFS;
-> +		break;
-> +	}
-> +
-> +	ret = mxt_read_diagnostic_debug(data, mode, ptr);
->  	if (ret)
->  		goto fault;
->  
-> @@ -2327,13 +2346,22 @@ static int mxt_vidioc_querycap(struct file *file, void *priv,
->  static int mxt_vidioc_enum_input(struct file *file, void *priv,
->  				   struct v4l2_input *i)
->  {
-> -	if (i->index > 0)
-> +	if (i->index >= MXT_V4L_INPUT_MAX)
->  		return -EINVAL;
->  
->  	i->type = V4L2_INPUT_TYPE_CAMERA;
->  	i->std = V4L2_STD_UNKNOWN;
->  	i->capabilities = 0;
-> -	strlcpy(i->name, "Mutual References", sizeof(i->name));
-> +
-> +	switch (i->index) {
-> +	case MXT_V4L_INPUT_REFS:
-> +		strlcpy(i->name, "Mutual References", sizeof(i->name));
-> +		break;
-> +	case MXT_V4L_INPUT_DELTAS:
-> +		strlcpy(i->name, "Mutual Deltas", sizeof(i->name));
-> +		break;
-> +	}
-> +
->  	return 0;
->  }
->  
-> @@ -2341,12 +2369,16 @@ static int mxt_set_input(struct mxt_data *data, unsigned int i)
->  {
->  	struct v4l2_pix_format *f = &data->dbg.format;
->  
-> -	if (i > 0)
-> +	if (i >= MXT_V4L_INPUT_MAX)
->  		return -EINVAL;
->  
-> +	if (i == MXT_V4L_INPUT_DELTAS)
-> +		f->pixelformat = V4L2_PIX_FMT_YS16;
-> +	else
-> +		f->pixelformat = V4L2_PIX_FMT_Y16;
-> +
->  	f->width = data->xy_switch ? data->ysize : data->xsize;
->  	f->height = data->xy_switch ? data->xsize : data->ysize;
-> -	f->pixelformat = V4L2_PIX_FMT_YS16;
->  	f->field = V4L2_FIELD_NONE;
->  	f->colorspace = V4L2_COLORSPACE_SRGB;
->  	f->bytesperline = f->width * sizeof(u16);
-> @@ -2383,12 +2415,26 @@ static int mxt_vidioc_fmt(struct file *file, void *priv, struct v4l2_format *f)
->  static int mxt_vidioc_enum_fmt(struct file *file, void *priv,
->  				 struct v4l2_fmtdesc *fmt)
->  {
-> -	if (fmt->index > 0 || fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
-> +	if (fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
-> +		return -EINVAL;
-> +
-> +	switch (fmt->index) {
-> +	case 0:
-> +		fmt->pixelformat = V4L2_PIX_FMT_Y16;
-> +		strlcpy(fmt->description, "16-bit unsigned raw debug data",
-> +			sizeof(fmt->description));
-> +		break;
-> +
-> +	case 1:
-> +		fmt->pixelformat = V4L2_PIX_FMT_YS16;
-> +		strlcpy(fmt->description, "16-bit signed raw debug data",
-> +			sizeof(fmt->description));
-> +		break;
+> An example of the output is here:
+> https://www.youtube.com/watch?v=Uj4T6fUCySw
+> 
+> The data is intrinsically signed because that's how the low level touch
+> controller treats it. I'm happy to change it to "Signed image" if you think
+> that would be better.
 
-Same as I mentioned in the other patch: don't set the description here.
+A V4L2_PIX_FMT_ definition must specify the format unambiguously. So it is not
+enough to just say that the data is a signed 16 bit value, you need to document
+exactly how it should be interpreted. Looking at the code it seems that the
+signed values are within a certain range and are normalized to 0-max by this line:
 
-> +
-> +	default:
->  		return -EINVAL;
-> +	}
->  
-> -	fmt->pixelformat = V4L2_PIX_FMT_YS16;
-> -	strlcpy(fmt->description, "16-bit raw debug data",
-> -		sizeof(fmt->description));
->  	fmt->flags = 0;
->  	return 0;
->  }
-> @@ -2410,7 +2456,7 @@ static int mxt_vidioc_enum_framesizes(struct file *file, void *priv,
->  static int mxt_vidioc_enum_frameintervals(struct file *file, void *priv,
->  					  struct v4l2_frmivalenum *f)
->  {
-> -	if ((f->index > 0) || (f->pixel_format != V4L2_PIX_FMT_YS16))
-> +	if (f->index > 0)
->  		return -EINVAL;
->  
->  	f->type = V4L2_FRMIVAL_TYPE_DISCRETE;
-> 
+ssize_t gray = (data[i] - cfg->min) * max / (cfg->max - cfg->min);
+
+Are the min/max values defined by the hardware? Because in that case this pixel
+format has to be a hardware-specific define (e.g. V4L2_PIX_FMT_FOO_S16).
+
+Only if the min/max values are -32768 and 32767 can you really use YS16 (not sure
+yet about that name, but that's another issue).
 
 Regards,
 

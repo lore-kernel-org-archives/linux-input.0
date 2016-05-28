@@ -1,58 +1,60 @@
 From: Ben Gamari <ben@smart-cactus.org>
-Subject: [PATCH 4/4] input/alps: Set DualPoint flag for 74 03 28 devices
-Date: Sat, 28 May 2016 14:01:02 +0200
-Message-ID: <1464436862-2649-5-git-send-email-ben@smart-cactus.org>
+Subject: [PATCH 3/4] input/alps: Allow touchsticks to report pressure
+Date: Sat, 28 May 2016 14:01:01 +0200
+Message-ID: <1464436862-2649-4-git-send-email-ben@smart-cactus.org>
 References: <1464436862-2649-1-git-send-email-ben@smart-cactus.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.smart-cactus.org ([54.187.36.80]:56308 "EHLO
+Received: from mail.smart-cactus.org ([54.187.36.80]:56303 "EHLO
 	mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752720AbcE1MBW (ORCPT
+	with ESMTP id S1752720AbcE1MBT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 May 2016 08:01:22 -0400
+	Sat, 28 May 2016 08:01:19 -0400
 In-Reply-To: <1464436862-2649-1-git-send-email-ben@smart-cactus.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org
 Cc: Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>, Ben Gamari <ben@smart-cactus.org>
 
-Here we introduce logic in alps_identify to set the ALPS_DUALPOINT flag
-for touchpad hardware responding to E7 report with 73 03 28, as is found
-in the Dell Latitude E7470.
+The SS5 hardware can report this.
 ---
- drivers/input/mouse/alps.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/input/mouse/alps.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 25d2cad..431bc26 100644
+index 7874f4f..25d2cad 100644
 --- a/drivers/input/mouse/alps.c
 +++ b/drivers/input/mouse/alps.c
-@@ -2776,6 +2776,7 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
- 	const struct alps_protocol_info *protocol;
- 	unsigned char e6[4], e7[4], ec[4];
- 	int error;
-+	int flags = 0;
+@@ -103,6 +103,7 @@ static const struct alps_nibble_commands alps_v6_nibble_commands[] = {
+ 					   6-byte ALPS packet */
+ #define ALPS_STICK_BITS		0x100	/* separate stick button bits */
+ #define ALPS_BUTTONPAD		0x200	/* device is a clickpad */
++#define ALPS_DUALPOINT_WITH_PRESSURE		0x400	/* device can report trackpoint pressure */
  
- 	/*
- 	 * First try "E6 report".
-@@ -2817,6 +2818,10 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
- 		} else if (e7[0] == 0x73 && e7[1] == 0x03 &&
- 			   e7[2] == 0x14 && ec[1] == 0x02) {
- 			protocol = &alps_v8_protocol_data;
-+		} else if (e7[0] == 0x73 && e7[1] == 0x03 &&
-+			   e7[2] == 0x28 && ec[1] == 0x01) {
-+			protocol = &alps_v8_protocol_data;
-+			flags |= ALPS_DUALPOINT | ALPS_DUALPOINT_WITH_PRESSURE;
+ static const struct alps_model_info alps_model_data[] = {
+ 	{ { 0x32, 0x02, 0x14 }, 0x00, { ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT } },	/* Toshiba Salellite Pro M10 */
+@@ -1270,9 +1271,11 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
  		} else {
- 			psmouse_dbg(psmouse,
- 				    "Likely not an ALPS touchpad: E7=%3ph, EC=%3ph\n", e7, ec);
-@@ -2830,6 +2835,7 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
- 		error = alps_set_protocol(psmouse, priv, protocol);
- 		if (error)
- 			return error;
-+		priv->flags |= flags;
- 	}
+ 			int x = (s8)(((p[0] & 1) << 7) | (p[1] & 0x7f));
+ 			int y = (s8)(((p[3] & 1) << 7) | (p[2] & 0x7f));
++			int pressure = (s8)(p[4] & 0x7f);
  
- 	return 0;
+ 			input_report_rel(priv->dev2, REL_X, x);
+ 			input_report_rel(priv->dev2, REL_Y, -y);
++			input_report_abs(priv->dev2, ABS_PRESSURE, pressure);
+ 		}
+ 		break;
+ 
+@@ -2996,6 +2999,10 @@ int alps_init(struct psmouse *psmouse)
+ 
+ 		input_set_capability(dev2, EV_REL, REL_X);
+ 		input_set_capability(dev2, EV_REL, REL_Y);
++		if (priv->flags & ALPS_DUALPOINT_WITH_PRESSURE) {
++			input_set_capability(dev2, EV_ABS, ABS_PRESSURE);
++			input_set_abs_params(dev2, ABS_PRESSURE, 0, 127, 0, 0);
++		}
+ 		input_set_capability(dev2, EV_KEY, BTN_LEFT);
+ 		input_set_capability(dev2, EV_KEY, BTN_RIGHT);
+ 		input_set_capability(dev2, EV_KEY, BTN_MIDDLE);
 -- 
 2.8.1
 

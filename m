@@ -1,28 +1,27 @@
 From: =?UTF-8?Q?Ksenija_Stanojevi=C4=87?= <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH 3/3] input: touchscreen: mxs-lradc: Add support for touchscreen
-Date: Sat, 28 May 2016 19:45:32 +0200
-Message-ID: <CAL7P5jKukmxbK92oei+hOtsqcHjiBjKs2g7d7B7JsjgUxKRYAA@mail.gmail.com>
+Date: Sat, 28 May 2016 19:46:07 +0200
+Message-ID: <CAL7P5j+WhTGyn2gZRX9pvyrPss_PfwrvXHRMKmhR+=De2gSsRA@mail.gmail.com>
 References: <cover.1461930102.git.ksenija.stanojevic@gmail.com>
 	<61fe1da2e8d82921f3222ec939047b6823f695e1.1461930102.git.ksenija.stanojevic@gmail.com>
-	<bad220c7-7f72-55e8-fe41-e3a6ae7d7d2f@kernel.org>
+	<20160429233616.GA13361@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <bad220c7-7f72-55e8-fe41-e3a6ae7d7d2f-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20160429233616.GA13361@dtor-ws>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, =?UTF-8?B?TWFyZWsgVmHFoXV0?= <marex-ynQEQJNshbs@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Harald Geyer <harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, =?UTF-8?B?TWFyZWsgVmHFoXV0?= <marex-ynQEQJNshbs@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Harald Geyer <harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, May 1, 2016 at 6:47 PM, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
-> On 29/04/16 12:49, Ksenija Stanojevic wrote:
+On Sat, Apr 30, 2016 at 1:36 AM, Dmitry Torokhov
+<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> Hi Ksenija,
+>
+> On Fri, Apr 29, 2016 at 01:49:11PM +0200, Ksenija Stanojevic wrote:
 >> Add mxs-lradc touchscreen driver.
 >>
 >> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> The only real thing this raises for me is why we are grabbing IRQs that I
-> don't think this driver even cares about...
->
-> Jonathan
 >> ---
 >>  drivers/input/touchscreen/Kconfig        |  14 +-
 >>  drivers/input/touchscreen/Makefile       |   1 +
@@ -49,6 +48,9 @@ On Sun, May 1, 2016 at 6:47 PM, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@p
 >>         will be initialized only after the ALSA subsystem has been
 >> -       brought up and the UCB1400 detected.  You therefore have to
 >> +       brought up and the UCB1400 detected.  You therefore have to
+>
+> Why do we have the tab in the middle of the text?
+>
 >>         configure ALSA support as well (either built-in or modular,
 >>         independently of whether this driver is itself built-in or
 >>         modular) for this driver to work.
@@ -615,6 +617,10 @@ On Sun, May 1, 2016 at 6:47 PM, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@p
 >> +             return IRQ_NONE;
 >> +
 >> +     if (lradc->use_touchscreen && (reg & ts_irq_mask)) {
+>
+> Why do we have this flag instead of not creating the platform device by
+> MFD parent when touchscreen is not in use?
+>
 >> +             mxs_lradc_handle_touch(ts);
 >> +
 >> +             /* Make sure we don't clear the next conversion's interrupt. */
@@ -697,6 +703,9 @@ On Sun, May 1, 2016 at 6:47 PM, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@p
 >> +     input->name = DRIVER_NAME_TS;
 >> +     input->id.bustype = BUS_HOST;
 >> +     input->dev.parent = dev;
+>
+> Not needed for devm-managed input devices.
+>
 >> +     input->open = mxs_lradc_ts_open;
 >> +     input->close = mxs_lradc_ts_close;
 >> +
@@ -727,6 +736,9 @@ On Sun, May 1, 2016 at 6:47 PM, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@p
 >> +
 >> +     ts = devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
 >> +     input = devm_input_allocate_device(dev);
+>
+> I'd expect input allocation be done in mxs_lradc_ts_register().
+>
 >> +     if (!ts || !input)
 >> +             return -ENOMEM;
 >> +
@@ -770,6 +782,9 @@ On Sun, May 1, 2016 at 6:47 PM, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@p
 >> +                     dev_err(ts->dev, "Invalid settling delay (%u)\n",
 >> +                             adapt);
 >> +                     touch_ret = -EINVAL;
+>
+> Why are we not aborting here?
+>
 >> +             } else {
 >> +                     ts->settling_delay = adapt;
 >> +             }
@@ -779,47 +794,15 @@ On Sun, May 1, 2016 at 6:47 PM, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@p
 >> +     for (i = 0; i < lradc->irq_count; i++) {
 >> +             ret = devm_request_irq(dev, lradc->irq[i],
 >> +                                    mxs_lradc_ts_handle_irq,
+>
+> Hmm, if you have several interrupts handled by the same interrupt
+> handler you'd need some locking there.
+
+same interrupt handler can run concurrently only on multi cores, so
+why do we need locking?
+
+>
 >> +                                    IRQF_SHARED, lradc->irq_name[i], ts);
-> As with the adc driver, are we actually using all of these?  I'd prefer we
-> only grab the ones that are actually relevant.
-
-Only irq lines relevant for touchscreen are:
-mxs-lradc-touchscreen, mxs-lradc-channel6 and mxs-lradc-channel7
-But not all interrupts are beiing used even when I enabled all remaining
-channels (not used by touchscreen) for bufferd capture via
-echo 1 >/sys/bus/iio/devices/iio\:device0/scan_elements/in_voltagexx_en
-
-So I don't know if it's supposed to work like this...
-(It works the same on the original code)
-
-root@cfa100xx:~# cat /proc/interrupts
-           CPU0
- 16:      13108         -  48 Edge      MXS Timer Tick
- 17:       4240         -  82 Edge      mxs-dma
- 25:          6         -  96 Edge      80010000.ssp
-196:          0         -  68 Edge      mxs-dma
-210:         13         -  10 Edge      mxs-lradc-touchscreen
-211:          0         -  14 Edge      mxs-lradc-thresh0
-212:          0         -  15 Edge      mxs-lradc-thresh1
-213:         10         -  16 Edge      mxs-lradc-channel0
-214:         10         -  17 Edge      mxs-lradc-channel1
-215:          0         -  18 Edge      mxs-lradc-channel2
-216:          0         -  19 Edge      mxs-lradc-channel3
-217:          0         -  20 Edge      mxs-lradc-channel4
-218:          0         -  21 Edge      mxs-lradc-channel5
-219:          0         -  22 Edge      mxs-lradc-channel6
-220:        412         -  23 Edge      mxs-lradc-channel7
-221:          0         -  24 Edge      mxs-lradc-button0
-222:          0         -  25 Edge      mxs-lradc-button1
-223:          0         -  29 Edge      RTC alarm
-224:          0         - 111 Edge      80058000.i2c
-228:        174         -  47 Edge      uart-pl011
-229:        439         -  93 Edge      80080000.usb
-230:          0         -  92 Edge      80090000.usb
-231:       3610         - 101 Edge      800f0000.ethernet
-232:         10  80050000.lradc-dev0 Edge
-Err:          0
-
 >> +             if (ret)
 >> +                     return ret;
 >> +     }
@@ -835,6 +818,9 @@ Err:          0
 >> +err_ts_register:
 >> +     mxs_lradc_ts_hw_stop(ts);
 >> +     return ret;
+>
+> Would prefer calling this variable "error".
+>
 >> +}
 >> +
 >> +static int mxs_lradc_ts_remove(struct platform_device *pdev)
@@ -842,6 +828,11 @@ Err:          0
 >> +     struct mxs_lradc_ts *ts = platform_get_drvdata(pdev);
 >> +
 >> +     mxs_lradc_ts_hw_stop(ts);
+>
+> I wonder if mxs_lradc_ts_hw_stop() can be combined with
+> mxs_lradc_disable_ts() which is called automatically if input device is
+> opened? This way we'd be able to get rid of mxs_lradc_ts_remove().
+>
 >> +
 >> +     return 0;
 >> +}
@@ -856,5 +847,10 @@ Err:          0
 >> +module_platform_driver(mxs_lradc_ts_driver);
 >> +
 >> +MODULE_LICENSE("GPL v2");
->>
 >
+> "GPL" since you are not limiting to v2 only.
+>
+> Thanks.
+>
+> --
+> Dmitry

@@ -1,58 +1,88 @@
-From: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH v5] input: tablet: add Pegasus Notetaker tablet driver
-Date: Sat, 28 May 2016 12:37:47 +0200
-Message-ID: <574974FB.7070308@posteo.de>
-References: <1464342381-2939-1-git-send-email-martink@posteo.de>
- <20160527215907.GD25540@dtor-ws>
+From: Ben Gamari <ben@smart-cactus.org>
+Subject: Should touchsticks really be relative input devices?
+Date: Sat, 28 May 2016 13:31:30 +0200
+Message-ID: <87inxyo1v1.fsf@smart-cactus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160527215907.GD25540@dtor-ws>
-Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha256; protocol="application/pgp-signature"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.smart-cactus.org ([54.187.36.80]:56279 "EHLO
+	mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750953AbcE1Lbk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 28 May 2016 07:31:40 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org
+Cc: xorg@lists.freedesktop.org
 
-Hi Dmitry,
+--=-=-=
+Content-Type: text/plain
 
-Thanks again for your help! Only one comment below...
 
-Am 2016-05-27 um 23:59 schrieb Dmitry Torokhov:
-> Hi Martin,
-> 
+Hello input people,
 
->> +static void pegasus_parse_packet(struct pegasus *pegasus)
->> +{
->> +	unsigned char *data = pegasus->data;
->> +	struct input_dev *dev = pegasus->dev;
->> +	u16 x, y;
->> +
->> +	switch (data[0]) {
->> +	case SPECIAL_COMMAND:
->> +		/* device button pressed */
->> +		if (data[1] == BUTTON_PRESSED)
->> +			schedule_work(&pegasus->init);
->> +
->> +		break;
->> +	/* xy data */
->> +	case BATTERY_LOW:
->> +		dev_warn_once(&dev->dev, "Pen battery low\n");
->> +	case BATTERY_NO_REPORT:
->> +	case BATTERY_GOOD:
->> +		x = le16_to_cpup((__le16 *)&data[2]);
->> +		y = le16_to_cpup((__le16 *)&data[4]);
->> +
->> +		/* ignore pen up events */
->> +		if (x == 0 && y == 0)
-> 
-> Why are we ignoring pen-up events? I'd at least send
-> EV_KEY/BTN_TOOL_PEN/0 and maybe the rest of BTN* events.
+Recently I've been bringing up the touchstick hardware in the Dell
+Latitude E7470 and have noticed that the existing drivers for this sort
+of input device typically expose EV_REL events. Unfortunately,
+it seems that exposing the hardware in this way leads to some rather
+unfortunate hacks. Namely, you find things like this in the Alps driver,
 
-I tried a few things, but I found them not to be useful in our case. To
-the contrary, they seem to happen at random (or wrongly) too. They seem
-to be there to seperate lines in drawings or whatever, but I'm not sure
-exactly when they are valuable.
+    /*
+    * The x and y values tend to be quite large, and when used
+    * alone the trackstick is difficult to use. Scale them down
+    * to compensate.
+    */
+    x /= 8;
+    y /= 8;
 
-As an input device I get the best user experience when we ignore them. I
-don't want them to break "clicking" or the like.
+    input_report_rel(dev, REL_X, x);
+    input_report_rel(dev, REL_Y, -y);
+
+Seeing this made me think back to experiences with touchsticks in
+previous Dell laptops, which require an annoyingly high force to begin
+movement. This is presumably due to the fact that the bottom few bits of
+resolution are being needlessly thrown away.
+
+Unfortunately, it doesn't seem that relative devices currently have much
+choice but to scale their input space; it seems there is no way for a
+device to expose its "range" to user mode (as you might do with
+input_set_abs_params in the case of an absolute device).
+
+Honestly, it's not even clear to me that touchstick devices should
+produce relative events. It seems like they are somewhere between a
+touchpad and mouse. Like a mouse, there is no absolute mapping between
+points in the input device space and the work space. However, like a
+touchpad the input space is bounded.
+
+Perhaps these devices should instead produce absolute events and be
+marked with INPUT_PROP_POINTING_STICK so that user land code can produce
+the expected relative behavior normalized to the range of the device.
+Has this been considered in the past?
+
+Alternatively, perhaps relative devices ought to also be able to expose
+their range.
+
+Regardless of what happens, it would be great if some guidance for
+touchsticks could be added to the "Guidelines" section of the kernel's
+Documentation/input/event-codes.txt.
+
+Cheers,
+
+Ben
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXSYGSAAoJEHPt6ejPuu8Bbi8H/RpAJSAZOM0l4cj240r2zpdX
+mEx4XxBXExeWqMq19Er/jy+qtD6LqQbugpGE8hH1m2kKRzGXRkofRxN2ZH3G12M+
+khIg+MatP3B/L3IJqlqnCOI2NeO4vAVo+rZ2nWB/eQcNuwvtZFxgstX4Zjwviypw
+C0xULriFZZtmcov0cr/y690rf6RQMdMrGjNGs+kUCEnWbHW3qV/qVfBNhPk8q61s
+SqKPr6upZwO2fiDL6OqLnFNSQ9TSsDAS5w9SmmbliYd/C+GzzYOLrVoa1+4hwm6k
+Qy3GY0V6zR2mhRThLWVkQgdRSmfC5NpnHB4XR5D46K5wM3eUOED24DZmUxQ5MvQ=
+=Eo8B
+-----END PGP SIGNATURE-----
+--=-=-=--

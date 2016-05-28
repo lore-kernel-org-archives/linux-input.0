@@ -1,67 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 4.7-rc0 (part 2)
-Date: Fri, 27 May 2016 17:19:25 -0700
-Message-ID: <20160528001925.GA38861@dtor-ws>
+From: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH v5] input: tablet: add Pegasus Notetaker tablet driver
+Date: Sat, 28 May 2016 12:37:47 +0200
+Message-ID: <574974FB.7070308@posteo.de>
+References: <1464342381-2939-1-git-send-email-martink@posteo.de>
+ <20160527215907.GD25540@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f66.google.com ([209.85.220.66]:34407 "EHLO
-	mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754082AbcE1AT3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 May 2016 20:19:29 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160527215907.GD25540@dtor-ws>
+Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Linus,
+Hi Dmitry,
 
-Please pull from:
+Thanks again for your help! Only one comment below...
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Am 2016-05-27 um 23:59 schrieb Dmitry Torokhov:
+> Hi Martin,
+> 
 
-to receive updates for the input subsystem. Just a few more driver
-fixes; new drivers will be coming in the next merge window.
+>> +static void pegasus_parse_packet(struct pegasus *pegasus)
+>> +{
+>> +	unsigned char *data = pegasus->data;
+>> +	struct input_dev *dev = pegasus->dev;
+>> +	u16 x, y;
+>> +
+>> +	switch (data[0]) {
+>> +	case SPECIAL_COMMAND:
+>> +		/* device button pressed */
+>> +		if (data[1] == BUTTON_PRESSED)
+>> +			schedule_work(&pegasus->init);
+>> +
+>> +		break;
+>> +	/* xy data */
+>> +	case BATTERY_LOW:
+>> +		dev_warn_once(&dev->dev, "Pen battery low\n");
+>> +	case BATTERY_NO_REPORT:
+>> +	case BATTERY_GOOD:
+>> +		x = le16_to_cpup((__le16 *)&data[2]);
+>> +		y = le16_to_cpup((__le16 *)&data[4]);
+>> +
+>> +		/* ignore pen up events */
+>> +		if (x == 0 && y == 0)
+> 
+> Why are we ignoring pen-up events? I'd at least send
+> EV_KEY/BTN_TOOL_PEN/0 and maybe the rest of BTN* events.
 
-There will be a trivial conflict in drivers/input/misc/pwm-beeper.c,
-please keep both parts so you'll end up with the following chunk:
+I tried a few things, but I found them not to be useful in our case. To
+the contrary, they seem to happen at random (or wrongly) too. They seem
+to be there to seperate lines in drawings or whatever, but I'm not sure
+exactly when they are valuable.
 
-	/*
-	 * FIXME: pwm_apply_args() should be removed when switching to
-	 * the atomic PWM API.
-	 */
-	pwm_apply_args(beeper->pwm);
-
-	INIT_WORK(&beeper->work, pwm_beeper_work);
-
-
-Changelog:
----------
-
-Cameron Gutman (1):
-      Input: xpad - prevent spurious input from wired Xbox 360 controllers
-
-Manfred Schlaegl (1):
-      Input: pwm-beeper - fix - scheduling while atomic
-
-Pavel Rojtberg (3):
-      Input: xpad - move pending clear to the correct location
-      Input: xpad - add more third-party controllers
-      Input: xpad - xbox one elite controller support
-
-Ricky Liang (1):
-      Input: uinput - handle compat ioctl for UI_SET_PHYS
-
-
-Diffstat:
---------
-
- drivers/input/joystick/xpad.c   | 18 +++++++++--
- drivers/input/misc/pwm-beeper.c | 69 ++++++++++++++++++++++++++++-------------
- drivers/input/misc/uinput.c     |  6 ++++
- 3 files changed, 70 insertions(+), 23 deletions(-)
-
--- 
-Dmitry
+As an input device I get the best user experience when we ignore them. I
+don't want them to break "clicking" or the like.

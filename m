@@ -1,85 +1,1094 @@
-From: Manuel Reimer <mail+linux-input@m-reimer.de>
-Subject: [PATCH] hid-sony: Prevent crash when rumble effects are still loaded
- at USB disconnect
-Date: Sun, 29 May 2016 14:11:24 +0200
-Message-ID: <a9a2689b-5af7-9676-67fd-5d911fcc9501@m-reimer.de>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 2/3] iio: adc: mxs-lradc: Add support for adc driver
+Date: Sun, 29 May 2016 17:46:56 +0100
+Message-ID: <af4bdc5b-2401-8c50-a749-374948eb5f63@kernel.org>
+References: <cover.1461930102.git.ksenija.stanojevic@gmail.com>
+ <eef892ac7b6e1efa0dcbff50f9b3e8f9a9489fbc.1461930102.git.ksenija.stanojevic@gmail.com>
+ <9fc189a7-bcb0-4b1c-e63c-efbc275eb05f@kernel.org>
+ <CAL7P5j+Kp+wh9Br8STddbCwCohxs6b3yQS-mnN0Sb+PtSJCVnA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.mailbox.org ([80.241.60.212]:49330 "EHLO mx1.mailbox.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932137AbcE2MLe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 May 2016 08:11:34 -0400
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:33565 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752798AbcE2Qq7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 May 2016 12:46:59 -0400
+In-Reply-To: <CAL7P5j+Kp+wh9Br8STddbCwCohxs6b3yQS-mnN0Sb+PtSJCVnA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
-Cc: jikos@kernel.org
+To: =?UTF-8?Q?Ksenija_Stanojevi=c4=87?= <ksenija.stanojevic@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, =?UTF-8?Q?Marek_Va=c5=a1ut?= <marex@denx.de>, linux-iio@vger.kernel.org, Harald Geyer <harald@ccbib.org>
 
-Hello,
+On 28/05/16 18:49, Ksenija Stanojevi=C4=87 wrote:
+> On Sun, May 1, 2016 at 6:38 PM, Jonathan Cameron <jic23@kernel.org> w=
+rote:
+>> On 29/04/16 12:48, Ksenija Stanojevic wrote:
+>>> Add mxs-lradc adc driver.
+>>>
+>>> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+>> Mostly looking good.  A few nitpicks and suggestions inline.
+>>
+>> Jonathan
+>>> ---
+>>>  drivers/iio/adc/Kconfig         |  37 +-
+>>>  drivers/iio/adc/Makefile        |   1 +
+>>>  drivers/iio/adc/mxs-lradc-adc.c | 832 ++++++++++++++++++++++++++++=
+++++++++++++
+>>>  3 files changed, 858 insertions(+), 12 deletions(-)
+>>>  create mode 100644 drivers/iio/adc/mxs-lradc-adc.c
+>>>
+>>> diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
+>>> index 82c718c..50847b8 100644
+>>> --- a/drivers/iio/adc/Kconfig
+>>> +++ b/drivers/iio/adc/Kconfig
+>>> @@ -233,6 +233,19 @@ config IMX7D_ADC
+>>>         This driver can also be built as a module. If so, the modul=
+e will be
+>>>         called imx7d_adc.
+>>>
+>>> +config MXS_LRADC_ADC
+>>> +     tristate "Freescale i.MX23/i.MX28 LRADC ADC"
+>>> +     depends on MFD_MXS_LRADC
+>>> +     select IIO_BUFFER
+>>> +     select IIO_TRIGGERED_BUFFER
+>>> +     help
+>>> +       Say yes here to build support for the ADC functions of the
+>>> +       i.MX23/i.MX28 LRADC. This includes general-purpose ADC read=
+ings,
+>>> +       battery voltage measurement, and die temperature measuremen=
+t.
+>>> +
+>>> +       This driver can also be built as a module. If so, the modul=
+e will be
+>>> +       called mxs-lradc-adc.
+>>> +
+>>>  config LP8788_ADC
+>>>       tristate "LP8788 ADC driver"
+>>>       depends on MFD_LP8788
+>>> @@ -306,18 +319,18 @@ config MEN_Z188_ADC
+>>>         called men_z188_adc.
+>>>
+>>>  config MXS_LRADC
+>>> -        tristate "Freescale i.MX23/i.MX28 LRADC"
+>>> -        depends on (ARCH_MXS || COMPILE_TEST) && HAS_IOMEM
+>>> -        depends on INPUT
+>>> -        select STMP_DEVICE
+>>> -        select IIO_BUFFER
+>>> -        select IIO_TRIGGERED_BUFFER
+>>> -        help
+>>> -          Say yes here to build support for i.MX23/i.MX28 LRADC co=
+nvertor
+>>> -          built into these chips.
+>>> -
+>>> -          To compile this driver as a module, choose M here: the
+>>> -          module will be called mxs-lradc.
+>>> +     tristate "Freescale i.MX23/i.MX28 LRADC"
+>>> +     depends on (ARCH_MXS || COMPILE_TEST) && HAS_IOMEM
+>>> +     depends on INPUT
+>>> +     select STMP_DEVICE
+>>> +     select IIO_BUFFER
+>>> +     select IIO_TRIGGERED_BUFFER
+>>> +     help
+>>> +       Say yes here to build support for i.MX23/i.MX28 LRADC conve=
+rtor
+>>> +       built into these chips.
+>>> +
+>>> +       To compile this driver as a module, choose M here: the
+>>> +       module will be called mxs-lradc.
+>>>
+>>>  config NAU7802
+>>>       tristate "Nuvoton NAU7802 ADC driver"
+>>> diff --git a/drivers/iio/adc/Makefile b/drivers/iio/adc/Makefile
+>>> index 0cb7921..ca7d6aa 100644
+>>> --- a/drivers/iio/adc/Makefile
+>>> +++ b/drivers/iio/adc/Makefile
+>>> @@ -31,6 +31,7 @@ obj-$(CONFIG_MCP320X) +=3D mcp320x.o
+>>>  obj-$(CONFIG_MCP3422) +=3D mcp3422.o
+>>>  obj-$(CONFIG_MEN_Z188_ADC) +=3D men_z188_adc.o
+>>>  obj-$(CONFIG_MXS_LRADC) +=3D mxs-lradc.o
+>>> +obj-$(CONFIG_MXS_LRADC_ADC) +=3D mxs-lradc-adc.o
+>>>  obj-$(CONFIG_NAU7802) +=3D nau7802.o
+>>>  obj-$(CONFIG_PALMAS_GPADC) +=3D palmas_gpadc.o
+>>>  obj-$(CONFIG_QCOM_SPMI_IADC) +=3D qcom-spmi-iadc.o
+>>> diff --git a/drivers/iio/adc/mxs-lradc-adc.c b/drivers/iio/adc/mxs-=
+lradc-adc.c
+>>> new file mode 100644
+>>> index 0000000..793c369
+>>> --- /dev/null
+>>> +++ b/drivers/iio/adc/mxs-lradc-adc.c
+>>> @@ -0,0 +1,832 @@
+>>> +/*
+>>> + * Freescale MXS LRADC ADC driver
+>>> + *
+>>> + * Copyright (c) 2012 DENX Software Engineering, GmbH.
+>>> + * Marek Vasut <marex@denx.de>
+>> You should probably add your own copyright as you are making substan=
+tial
+>> improvements!
+>>
+>>> + *
+>>> + * This program is free software; you can redistribute it and/or m=
+odify
+>>> + * it under the terms of the GNU General Public License as publish=
+ed by
+>>> + * the Free Software Foundation; either version 2 of the License, =
+or
+>>> + * (at your option) any later version.
+>>> + *
+>>> + * This program is distributed in the hope that it will be useful,
+>>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+>>> + * GNU General Public License for more details.
+>>> + */
+>>> +
+>>> +#include <linux/mfd/mxs-lradc.h>
+>>> +#include <linux/module.h>
+>>> +#include <linux/platform_device.h>
+>>> +
+>>> +#include <linux/iio/buffer.h>
+>>> +#include <linux/iio/iio.h>
+>>> +#include <linux/iio/trigger.h>
+>>> +#include <linux/iio/trigger_consumer.h>
+>>> +#include <linux/iio/triggered_buffer.h>
+>>> +#include <linux/iio/sysfs.h>
+>>> +
+>>> +/*
+>>> + * Make this runtime configurable if necessary. Currently, if the =
+buffered mode
+>>> + * is enabled, the LRADC takes LRADC_DELAY_TIMER_LOOP samples of d=
+ata before
+>>> + * triggering IRQ. The sampling happens every (LRADC_DELAY_TIMER_P=
+ER / 2000)
+>>> + * seconds. The result is that the samples arrive every 500mS.
+>>> + */
+>>> +#define LRADC_DELAY_TIMER_PER        200
+>>> +#define LRADC_DELAY_TIMER_LOOP       5
+>>> +
+>>> +#define VREF_MV_BASE 1850
+>>> +
+>>> +static const u32 mxs_lradc_adc_vref_mv[][LRADC_MAX_TOTAL_CHANS] =3D=
+ {
+>>> +     [IMX23_LRADC] =3D {
+>>> +             VREF_MV_BASE,           /* CH0 */
+>>> +             VREF_MV_BASE,           /* CH1 */
+>>> +             VREF_MV_BASE,           /* CH2 */
+>>> +             VREF_MV_BASE,           /* CH3 */
+>>> +             VREF_MV_BASE,           /* CH4 */
+>>> +             VREF_MV_BASE,           /* CH5 */
+>>> +             VREF_MV_BASE * 2,       /* CH6 VDDIO */
+>>> +             VREF_MV_BASE * 4,       /* CH7 VBATT */
+>>> +             VREF_MV_BASE,           /* CH8 Temp sense 0 */
+>>> +             VREF_MV_BASE,           /* CH9 Temp sense 1 */
+>>> +             VREF_MV_BASE,           /* CH10 */
+>>> +             VREF_MV_BASE,           /* CH11 */
+>>> +             VREF_MV_BASE,           /* CH12 USB_DP */
+>>> +             VREF_MV_BASE,           /* CH13 USB_DN */
+>>> +             VREF_MV_BASE,           /* CH14 VBG */
+>>> +             VREF_MV_BASE * 4,       /* CH15 VDD5V */
+>>> +     },
+>>> +     [IMX28_LRADC] =3D {
+>>> +             VREF_MV_BASE,           /* CH0 */
+>>> +             VREF_MV_BASE,           /* CH1 */
+>>> +             VREF_MV_BASE,           /* CH2 */
+>>> +             VREF_MV_BASE,           /* CH3 */
+>>> +             VREF_MV_BASE,           /* CH4 */
+>>> +             VREF_MV_BASE,           /* CH5 */
+>>> +             VREF_MV_BASE,           /* CH6 */
+>>> +             VREF_MV_BASE * 4,       /* CH7 VBATT */
+>>> +             VREF_MV_BASE,           /* CH8 Temp sense 0 */
+>>> +             VREF_MV_BASE,           /* CH9 Temp sense 1 */
+>>> +             VREF_MV_BASE * 2,       /* CH10 VDDIO */
+>>> +             VREF_MV_BASE,           /* CH11 VTH */
+>>> +             VREF_MV_BASE * 2,       /* CH12 VDDA */
+>>> +             VREF_MV_BASE,           /* CH13 VDDD */
+>>> +             VREF_MV_BASE,           /* CH14 VBG */
+>>> +             VREF_MV_BASE * 4,       /* CH15 VDD5V */
+>>> +     },
+>>> +};
+>>> +
+>>> +enum mxs_lradc_divbytwo {
+>>> +     MXS_LRADC_DIV_DISABLED =3D 0,
+>>> +     MXS_LRADC_DIV_ENABLED,
+>>> +};
+>>> +
+>>> +struct mxs_lradc_scale {
+>>> +     unsigned int            integer;
+>>> +     unsigned int            nano;
+>>> +};
+>>> +
+>>> +struct mxs_lradc_adc {
+>>> +     struct mxs_lradc        *lradc;
+>>> +     struct device           *dev;
+>>> +
+>>> +     u32                     *buffer;
+>>> +     struct iio_trigger      *trig;
+>>> +     struct mutex            lock;
+>>> +     struct completion       completion;
+>>> +
+>>> +     const u32               *vref_mv;
+>>> +     struct mxs_lradc_scale  scale_avail[LRADC_MAX_TOTAL_CHANS][2]=
+;
+>>> +     unsigned long           is_divided;
+>>> +};
+>>> +
+>>> +/*
+>>> + * Raw I/O operations
+>>> + */
+>>> +static int mxs_lradc_adc_read_single(struct iio_dev *iio_dev, int =
+chan,
+>>> +                                  int *val)
+>>> +{
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio_dev);
+>>> +     struct mxs_lradc *lradc =3D adc->lradc;
+>>> +     int ret;
+>>> +
+>>> +     /*
+>>> +      * See if there is no buffered operation in progress. If ther=
+e is simply
+>>> +      * bail out. This can be improved to support both buffered an=
+d raw IO at
+>>> +      * the same time, yet the code becomes horribly complicated. =
+Therefore I
+>>> +      * applied KISS principle here.
+>> This is true in lots of devices!  Hence we often have a similar chec=
+k.
+>>> +      */
+>>> +     ret =3D mutex_trylock(&adc->lock);
+>>> +     if (!ret)
+>>> +             return -EBUSY;
+>> We have standard core infrastructure for this now that should do the=
+ trick.
+>> iio_device_claim_direct_mode() etc.
+>>> +
+>>> +     reinit_completion(&adc->completion);
+>>> +
+>>> +     /*
+>>> +      * No buffered operation in progress, map the channel and tri=
+gger it.
+>>> +      * Virtual channel 0 is always used here as the others are al=
+ways not
+>>> +      * used if doing raw sampling.
+>>> +      */
+>>> +     if (lradc->soc =3D=3D IMX28_LRADC)
+>>> +             mxs_lradc_reg_clear(lradc, LRADC_CTRL1_LRADC_IRQ_EN(0=
+),
+>>> +                                 LRADC_CTRL1);
+>>> +     mxs_lradc_reg_clear(lradc, 0x1, LRADC_CTRL0);
+>>> +
+>>> +     /* Enable / disable the divider per requirement */
+>>> +     if (test_bit(chan, &adc->is_divided))
+>>> +             mxs_lradc_reg_set(lradc,
+>>> +                               1 << LRADC_CTRL2_DIVIDE_BY_TWO_OFFS=
+ET,
+>>> +                               LRADC_CTRL2);
+>>> +     else
+>>> +             mxs_lradc_reg_clear(lradc,
+>>> +                                 1 << LRADC_CTRL2_DIVIDE_BY_TWO_OF=
+=46SET,
+>>> +                                 LRADC_CTRL2);
+>>> +
+>>> +     /* Clean the slot's previous content, then set new one. */
+>>> +     mxs_lradc_reg_clear(lradc, LRADC_CTRL4_LRADCSELECT_MASK(0),
+>>> +                         LRADC_CTRL4);
+>>> +     mxs_lradc_reg_set(lradc, chan, LRADC_CTRL4);
+>>> +
+>>> +     mxs_lradc_reg_wrt(lradc, 0, LRADC_CH(0));
+>>> +
+>>> +     /* Enable the IRQ and start sampling the channel. */
+>>> +     mxs_lradc_reg_set(lradc, LRADC_CTRL1_LRADC_IRQ_EN(0), LRADC_C=
+TRL1);
+>>> +     mxs_lradc_reg_set(lradc, BIT(0), LRADC_CTRL0);
+>>> +
+>>> +     /* Wait for completion on the channel, 1 second max. */
+>>> +     ret =3D wait_for_completion_killable_timeout(&adc->completion=
+, HZ);
+>>> +     if (!ret)
+>>> +             ret =3D -ETIMEDOUT;
+>>> +     if (ret < 0)
+>>> +             goto err;
+>>> +
+>>> +     /* Read the data. */
+>>> +     *val =3D readl(lradc->base + LRADC_CH(0)) & LRADC_CH_VALUE_MA=
+SK;
+>>> +     ret =3D IIO_VAL_INT;
+>>> +
+>>> +err:
+>>> +     mxs_lradc_reg_clear(lradc, LRADC_CTRL1_LRADC_IRQ_EN(0), LRADC=
+_CTRL1);
+>>> +
+>>> +     mutex_unlock(&adc->lock);
+>>> +
+>>> +     return ret;
+>>> +}
+>>> +
+>>> +static int mxs_lradc_adc_read_temp(struct iio_dev *iio_dev, int *v=
+al)
+>>> +{
+>>> +     int ret, min, max;
+>>> +
+>>> +     ret =3D mxs_lradc_adc_read_single(iio_dev, 8, &min);
+>>> +     if (ret !=3D IIO_VAL_INT)
+>>> +             return ret;
+>>> +
+>>> +     ret =3D mxs_lradc_adc_read_single(iio_dev, 9, &max);
+>>> +     if (ret !=3D IIO_VAL_INT)
+>>> +             return ret;
+>>> +
+>>> +     *val =3D max - min;
+>>> +
+>>> +     return IIO_VAL_INT;
+>>> +}
+>>> +
+>>> +static int mxs_lradc_adc_read_raw(struct iio_dev *iio_dev,
+>>> +                           const struct iio_chan_spec *chan,
+>>> +                           int *val, int *val2, long m)
+>>> +{
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio_dev);
+>>> +
+>>> +     switch (m) {
+>>> +     case IIO_CHAN_INFO_RAW:
+>>> +             if (chan->type =3D=3D IIO_TEMP)
+>>> +                     return mxs_lradc_adc_read_temp(iio_dev, val);
+>>> +
+>>> +             return mxs_lradc_adc_read_single(iio_dev, chan->chann=
+el, val);
+>>> +
+>>> +     case IIO_CHAN_INFO_SCALE:
+>>> +             if (chan->type =3D=3D IIO_TEMP) {
+>>> +                     /* From the datasheet, we have to multiply by=
+ 1.012 and
+>>> +                      * divide by 4
+>>> +                      */
+>>> +                     *val =3D 0;
+>>> +                     *val2 =3D 253000;
+>>> +                     return IIO_VAL_INT_PLUS_MICRO;
+>>> +             }
+>>> +
+>>> +             *val =3D adc->vref_mv[chan->channel];
+>>> +             *val2 =3D chan->scan_type.realbits -
+>>> +                     test_bit(chan->channel, &adc->is_divided);
+>> blank line here as you have done elsewhere...
+>>> +             return IIO_VAL_FRACTIONAL_LOG2;
+>>> +
+>>> +     case IIO_CHAN_INFO_OFFSET:
+>>> +             if (chan->type =3D=3D IIO_TEMP) {
+>> standard multiline comment syntax please.  Please fix this throughou=
+t.
+>>
+>> /*
+>>  * The ...
+>>> +                     /* The calculated value from the ADC is in Ke=
+lvin, we
+>>> +                      * want Celsius for hwmon so the offset is -2=
+73.15
+>>> +                      * The offset is applied before scaling so it=
+ is
+>>> +                      * actually -213.15 * 4 / 1.012 =3D -1079.644=
+268
+>>> +                      */
+>>> +                     *val =3D -1079;
+>>> +                     *val2 =3D 644268;
+>>> +
+>>> +                     return IIO_VAL_INT_PLUS_MICRO;
+>>> +             }
+>>> +
+>>> +             return -EINVAL;
+>>> +
+>>> +     default:
+>>> +             break;
+>>> +     }
+>>> +
+>>> +     return -EINVAL;
+>>> +}
+>>> +
+>>> +static int mxs_lradc_adc_write_raw(struct iio_dev *iio_dev,
+>>> +                                const struct iio_chan_spec *chan,
+>>> +                                int val, int val2, long m)
+>>> +{
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio_dev);
+>>> +     struct mxs_lradc_scale *scale_avail =3D
+>>> +                     adc->scale_avail[chan->channel];
+>>> +     int ret;
+>>> +
+>>> +     ret =3D mutex_trylock(&adc->lock);
+>>> +     if (!ret)
+>>> +             return -EBUSY;
+>>> +
+>>> +     switch (m) {
+>>> +     case IIO_CHAN_INFO_SCALE:
+>>> +             ret =3D -EINVAL;
+>>> +             if (val =3D=3D scale_avail[MXS_LRADC_DIV_DISABLED].in=
+teger &&
+>>> +                 val2 =3D=3D scale_avail[MXS_LRADC_DIV_DISABLED].n=
+ano) {
+>>> +                     /* divider by two disabled */
+>>> +                     clear_bit(chan->channel, &adc->is_divided);
+>>> +                     ret =3D 0;
+>>> +             } else if (val =3D=3D scale_avail[MXS_LRADC_DIV_ENABL=
+ED].integer &&
+>>> +                        val2 =3D=3D scale_avail[MXS_LRADC_DIV_ENAB=
+LED].nano) {
+>>> +                     /* divider by two enabled */
+>>> +                     set_bit(chan->channel, &adc->is_divided);
+>>> +                     ret =3D 0;
+>>> +             }
+>>> +
+>>> +             break;
+>>> +     default:
+>>> +             ret =3D -EINVAL;
+>>> +             break;
+>>> +     }
+>>> +
+>>> +     mutex_unlock(&adc->lock);
+>>> +
+>>> +     return ret;
+>>> +}
+>>> +
+>>> +static int mxs_lradc_adc_write_raw_get_fmt(struct iio_dev *iio_dev=
+,
+>>> +                                        const struct iio_chan_spec=
+ *chan,
+>>> +                                        long m)
+>>> +{
+>>> +     return IIO_VAL_INT_PLUS_NANO;
+>>> +}
+>>> +
+>>> +static ssize_t mxs_lradc_adc_show_scale_avail_ch(struct device *de=
+v,
+>>> +                                              struct device_attrib=
+ute *attr,
+>>> +                                              char *buf,
+>>> +                                              int ch)
+>>> +{
+>>> +     struct iio_dev *iio =3D dev_to_iio_dev(dev);
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio);
+>>> +     int i, len =3D 0;
+>>> +
+>>> +     for (i =3D 0; i < ARRAY_SIZE(adc->scale_avail[ch]); i++)
+>>> +             len +=3D sprintf(buf + len, "%u.%09u ",
+>>> +                            adc->scale_avail[ch][i].integer,
+>>> +                            adc->scale_avail[ch][i].nano);
+>>> +
+>>> +     len +=3D sprintf(buf + len, "\n");
+>>> +
+>>> +     return len;
+>>> +}
+>>> +
+>> I'm unconvinced this wrapper adds anything...
+>>> +static ssize_t mxs_lradc_adc_show_scale_avail(struct device *dev,
+>>> +                                           struct device_attribute=
+ *attr,
+>>> +                                           char *buf)
+>>> +{
+>>> +     struct iio_dev_attr *iio_attr =3D to_iio_dev_attr(attr);
+>>> +
+>>> +     return mxs_lradc_adc_show_scale_avail_ch(dev, attr, buf,
+>>> +                                              iio_attr->address);
+>>> +}
+>>> +
+>>> +#define SHOW_SCALE_AVAILABLE_ATTR(ch)                             =
+           \
+>>> +static IIO_DEVICE_ATTR(in_voltage##ch##_scale_available, S_IRUGO, =
+   \
+>>> +                    mxs_lradc_adc_show_scale_avail, NULL, ch)
+>>> +
+>>> +SHOW_SCALE_AVAILABLE_ATTR(0);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(1);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(2);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(3);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(4);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(5);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(6);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(7);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(10);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(11);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(12);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(13);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(14);
+>>> +SHOW_SCALE_AVAILABLE_ATTR(15);
+>>> +
+>>> +static struct attribute *mxs_lradc_adc_attributes[] =3D {
+>>> +     &iio_dev_attr_in_voltage0_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage1_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage2_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage3_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage4_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage5_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage6_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage7_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage10_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage11_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage12_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage13_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage14_scale_available.dev_attr.attr,
+>>> +     &iio_dev_attr_in_voltage15_scale_available.dev_attr.attr,
+>>> +     NULL
+>>> +};
+>>> +
+>>> +static const struct attribute_group mxs_lradc_adc_attribute_group =
+=3D {
+>>> +     .attrs =3D mxs_lradc_adc_attributes,
+>>> +};
+>>> +
+>>> +static const struct iio_info mxs_lradc_adc_iio_info =3D {
+>>> +     .driver_module          =3D THIS_MODULE,
+>>> +     .read_raw               =3D mxs_lradc_adc_read_raw,
+>>> +     .write_raw              =3D mxs_lradc_adc_write_raw,
+>>> +     .write_raw_get_fmt      =3D mxs_lradc_adc_write_raw_get_fmt,
+>>> +     .attrs                  =3D &mxs_lradc_adc_attribute_group,
+>>> +};
+>>> +
+>>> +/*
+>>> + * IRQ Handling
+>>> + */
+>> Single line comment syntax preferred.
+>>> +static irqreturn_t mxs_lradc_adc_handle_irq(int irq, void *data)
+>>> +{
+>>> +     struct iio_dev *iio =3D data;
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio);
+>>> +     struct mxs_lradc *lradc =3D adc->lradc;
+>>> +     unsigned long reg =3D readl(lradc->base + LRADC_CTRL1);
+>>> +
+>>> +     if (!(reg & mxs_lradc_irq_mask(lradc)))
+>>> +             return IRQ_NONE;
+>>> +
+>>> +     if (iio_buffer_enabled(iio)) {
+>>> +             if (reg & lradc->buffer_vchans)
+>>> +                     iio_trigger_poll(iio->trig);
+>>> +     } else if (reg & LRADC_CTRL1_LRADC_IRQ(0)) {
+>>> +             complete(&adc->completion);
+>>> +     }
+>>> +
+>>> +     mxs_lradc_reg_clear(lradc, reg & mxs_lradc_irq_mask(lradc),
+>>> +                         LRADC_CTRL1);
+>>> +
+>>> +     return IRQ_HANDLED;
+>>> +}
+>>> +
+>>> +/*
+>>> + * Trigger handling
+>> Single line comment - Clearly it's kind of more of a heading but I'd=
+ rather
+>> not deal with the inevitable patch converting it to the standard sin=
+gle line
+>> format!
+>>> + */
+>>> +static irqreturn_t mxs_lradc_adc_trigger_handler(int irq, void *p)
+>>> +{
+>>> +     struct iio_poll_func *pf =3D p;
+>>> +     struct iio_dev *iio =3D pf->indio_dev;
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio);
+>>> +     const u32 chan_value =3D LRADC_CH_ACCUMULATE |
+>>> +             ((LRADC_DELAY_TIMER_LOOP - 1) << LRADC_CH_NUM_SAMPLES=
+_OFFSET);
+>>> +     unsigned int i, j =3D 0;
+>>> +
+>>> +     for_each_set_bit(i, iio->active_scan_mask, LRADC_MAX_TOTAL_CH=
+ANS) {
+>>> +             adc->buffer[j] =3D readl(adc->lradc->base + LRADC_CH(=
+j));
+>>> +             mxs_lradc_reg_wrt(adc->lradc, chan_value, LRADC_CH(j)=
+);
+>>> +             adc->buffer[j] &=3D LRADC_CH_VALUE_MASK;
+>>> +             adc->buffer[j] /=3D LRADC_DELAY_TIMER_LOOP;
+>>> +             j++;
+>>> +     }
+>>> +
+>>> +     iio_push_to_buffers_with_timestamp(iio, adc->buffer, pf->time=
+stamp);
+>>> +
+>>> +     iio_trigger_notify_done(iio->trig);
+>>> +
+>>> +     return IRQ_HANDLED;
+>>> +}
+>>> +
+>>> +static int mxs_lradc_adc_configure_trigger(struct iio_trigger *tri=
+g, bool state)
+>>> +{
+>>> +     struct iio_dev *iio =3D iio_trigger_get_drvdata(trig);
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio);
+>>> +     const u32 st =3D state ? STMP_OFFSET_REG_SET : STMP_OFFSET_RE=
+G_CLR;
+>>> +
+>>> +     mxs_lradc_reg_wrt(adc->lradc, LRADC_DELAY_KICK, LRADC_DELAY(0=
+) + st);
+>>> +
+>>> +     return 0;
+>>> +}
+>>> +
+>>> +static const struct iio_trigger_ops mxs_lradc_adc_trigger_ops =3D =
+{
+>>> +     .owner =3D THIS_MODULE,
+>>> +     .set_trigger_state =3D &mxs_lradc_adc_configure_trigger,
+>>> +};
+>>> +
+>>> +static int mxs_lradc_adc_trigger_init(struct iio_dev *iio)
+>>> +{
+>>> +     int ret;
+>>> +     struct iio_trigger *trig;
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio);
+>>> +
+>> Could simplify things ever so slightly by using devm_iio_trigger_all=
+oc if you
+>> were to reorder the trigger init to be before the buffer setup (whic=
+h I think
+>> should be fine).  Perhaps it is not worth the hassle...
+>>> +     trig =3D iio_trigger_alloc("%s-dev%i", iio->name, iio->id);
+>>> +     if (!trig)
+>>> +             return -ENOMEM;
+>>> +
+>>> +     trig->dev.parent =3D adc->dev;
+>>> +     iio_trigger_set_drvdata(trig, iio);
+>>> +     trig->ops =3D &mxs_lradc_adc_trigger_ops;
+>>> +
+>>> +     ret =3D iio_trigger_register(trig);
+>>> +     if (ret) {
+>>> +             iio_trigger_free(trig);
+>>> +             return ret;
+>>> +     }
+>>> +
+>>> +     adc->trig =3D trig;
+>>> +
+>>> +     return 0;
+>>> +}
+>>> +
+>>> +static void mxs_lradc_adc_trigger_remove(struct iio_dev *iio)
+>>> +{
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio);
+>>> +
+>>> +     iio_trigger_unregister(adc->trig);
+>>> +     iio_trigger_free(adc->trig);
+>>> +}
+>>> +
+>>> +static int mxs_lradc_adc_buffer_preenable(struct iio_dev *iio)
+>>> +{
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio);
+>>> +     struct mxs_lradc *lradc =3D adc->lradc;
+>>> +     int ret =3D 0, chan, ofs =3D 0;
+>>> +     unsigned long enable =3D 0;
+>>> +     u32 ctrl4_set =3D 0;
+>>> +     u32 ctrl4_clr =3D 0;
+>>> +     u32 ctrl1_irq =3D 0;
+>>> +     const u32 chan_value =3D LRADC_CH_ACCUMULATE |
+>>> +             ((LRADC_DELAY_TIMER_LOOP - 1) << LRADC_CH_NUM_SAMPLES=
+_OFFSET);
+>>> +     const int len =3D bitmap_weight(iio->active_scan_mask,
+>>> +                     LRADC_MAX_TOTAL_CHANS);
+>>> +
+>>> +     if (!len)
+>>> +             return -EINVAL;
+>>> +
+>>> +     /*
+>>> +      * Lock the driver so raw access can not be done during buffe=
+red
+>>> +      * operation. This simplifies the code a lot.
+>>> +      */
+>>> +     ret =3D mutex_trylock(&adc->lock);
+>>> +     if (!ret)
+>>> +             return -EBUSY;
+>> Hmm. could this use iio_dev->mlock?  That is what that particular lo=
+ck is
+>> for and it has nice wrapper functions to make it clear.
+>>> +
+>>> +     adc->buffer =3D kmalloc_array(len, sizeof(*adc->buffer), GFP_=
+KERNEL);
+>>> +     if (!adc->buffer) {
+>>> +             ret =3D -ENOMEM;
+>>> +             goto err_mem;
+>>> +     }
+>> I wonder if it's worth the hassel of doing this dynamically.  Maybe =
+just have a
+>> buffer that is big enough to take all possibilities as part of the a=
+dc
+>> struct?
+>>> +
+>>> +     if (lradc->soc =3D=3D IMX28_LRADC)
+>>> +             mxs_lradc_reg_clear(
+>>> +                     lradc,
+>>> +                     lradc->buffer_vchans << LRADC_CTRL1_LRADC_IRQ=
+_EN_OFFSET,
+>>> +                     LRADC_CTRL1);
+>>> +     mxs_lradc_reg_clear(lradc, lradc->buffer_vchans, LRADC_CTRL0)=
+;
+>>> +
+>>> +     for_each_set_bit(chan, iio->active_scan_mask, LRADC_MAX_TOTAL=
+_CHANS) {
+>>> +             ctrl4_set |=3D chan << LRADC_CTRL4_LRADCSELECT_OFFSET=
+(ofs);
+>>> +             ctrl4_clr |=3D LRADC_CTRL4_LRADCSELECT_MASK(ofs);
+>>> +             ctrl1_irq |=3D LRADC_CTRL1_LRADC_IRQ_EN(ofs);
+>>> +             mxs_lradc_reg_wrt(lradc, chan_value, LRADC_CH(ofs));
+>>> +             bitmap_set(&enable, ofs, 1);
+>>> +             ofs++;
+>>> +     }
+>>> +
+>>> +     mxs_lradc_reg_clear(lradc, LRADC_DELAY_TRIGGER_LRADCS_MASK |
+>>> +                         LRADC_DELAY_KICK, LRADC_DELAY(0));
+>>> +     mxs_lradc_reg_clear(lradc, ctrl4_clr, LRADC_CTRL4);
+>>> +     mxs_lradc_reg_set(lradc, ctrl4_set, LRADC_CTRL4);
+>>> +     mxs_lradc_reg_set(lradc, ctrl1_irq, LRADC_CTRL1);
+>>> +     mxs_lradc_reg_set(lradc, enable << LRADC_DELAY_TRIGGER_LRADCS=
+_OFFSET,
+>>> +                       LRADC_DELAY(0));
+>>> +
+>>> +     return 0;
+>>> +
+>>> +err_mem:
+>>> +     mutex_unlock(&adc->lock);
+>>> +     return ret;
+>>> +}
+>>> +
+>>> +static int mxs_lradc_adc_buffer_postdisable(struct iio_dev *iio)
+>>> +{
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio);
+>>> +     struct mxs_lradc *lradc =3D adc->lradc;
+>>> +
+>>> +     mxs_lradc_reg_clear(lradc, LRADC_DELAY_TRIGGER_LRADCS_MASK |
+>>> +                         LRADC_DELAY_KICK, LRADC_DELAY(0));
+>>> +
+>>> +     mxs_lradc_reg_clear(lradc, lradc->buffer_vchans, LRADC_CTRL0)=
+;
+>>> +     if (lradc->soc =3D=3D IMX28_LRADC)
+>>> +             mxs_lradc_reg_clear(
+>>> +                     lradc,
+>>> +                     lradc->buffer_vchans << LRADC_CTRL1_LRADC_IRQ=
+_EN_OFFSET,
+>>> +                     LRADC_CTRL1);
+>>> +
+>>> +     kfree(adc->buffer);
+>>> +     mutex_unlock(&adc->lock);
+>>> +
+>>> +     return 0;
+>>> +}
+>>> +
+>>> +static bool mxs_lradc_adc_validate_scan_mask(struct iio_dev *iio,
+>>> +                                          const unsigned long *mas=
+k)
+>>> +{
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio);
+>>> +     struct mxs_lradc *lradc =3D adc->lradc;
+>>> +     const int map_chans =3D bitmap_weight(mask, LRADC_MAX_TOTAL_C=
+HANS);
+>>> +     int rsvd_chans =3D 0;
+>>> +     unsigned long rsvd_mask =3D 0;
+>>> +
+>>> +     if (lradc->use_touchbutton)
+>>> +             rsvd_mask |=3D CHAN_MASK_TOUCHBUTTON;
+>>> +     if (lradc->use_touchscreen =3D=3D MXS_LRADC_TOUCHSCREEN_4WIRE=
+)
+>>> +             rsvd_mask |=3D CHAN_MASK_TOUCHSCREEN_4WIRE;
+>>> +     if (lradc->use_touchscreen =3D=3D MXS_LRADC_TOUCHSCREEN_5WIRE=
+)
+>>> +             rsvd_mask |=3D CHAN_MASK_TOUCHSCREEN_5WIRE;
+>>> +
+>>> +     if (lradc->use_touchbutton)
+>>> +             rsvd_chans++;
+>>> +     if (lradc->use_touchscreen)
+>>> +             rsvd_chans +=3D 2;
+>>> +
+>>> +     /* Test for attempts to map channels with special mode of ope=
+ration. */
+>>> +     if (bitmap_intersects(mask, &rsvd_mask, LRADC_MAX_TOTAL_CHANS=
+))
+>>> +             return false;
+>>> +
+>>> +     /* Test for attempts to map more channels then available slot=
+s. */
+>>> +     if (map_chans + rsvd_chans > LRADC_MAX_MAPPED_CHANS)
+>>> +             return false;
+>>> +
+>>> +     return true;
+>>> +}
+>>> +
+>>> +static const struct iio_buffer_setup_ops mxs_lradc_adc_buffer_ops =
+=3D {
+>>> +     .preenable =3D &mxs_lradc_adc_buffer_preenable,
+>>> +     .postenable =3D &iio_triggered_buffer_postenable,
+>>> +     .predisable =3D &iio_triggered_buffer_predisable,
+>>> +     .postdisable =3D &mxs_lradc_adc_buffer_postdisable,
+>>> +     .validate_scan_mask =3D &mxs_lradc_adc_validate_scan_mask,
+>>> +};
+>>> +
+>>> +/*
+>>> + * Driver initialization
+>>> + */
+>>> +
+>>> +#define MXS_ADC_CHAN(idx, chan_type, name) {                 \
+>>> +     .type =3D (chan_type),                                    \
+>>> +     .indexed =3D 1,                                           \
+>>> +     .scan_index =3D (idx),                                    \
+>>> +     .info_mask_separate =3D BIT(IIO_CHAN_INFO_RAW) |          \
+>>> +                           BIT(IIO_CHAN_INFO_SCALE),         \
+>>> +     .channel =3D (idx),                                       \
+>>> +     .address =3D (idx),                                       \
+>>> +     .scan_type =3D {                                          \
+>>> +             .sign =3D 'u',                                    \
+>>> +             .realbits =3D LRADC_RESOLUTION,                   \
+>>> +             .storagebits =3D 32,                              \
+>>> +     },                                                      \
+>>> +     .datasheet_name =3D (name),                               \
+>>> +}
+>>> +
+>>> +static const struct iio_chan_spec mx23_lradc_chan_spec[] =3D {
+>>> +     MXS_ADC_CHAN(0, IIO_VOLTAGE, "LRADC0"),
+>>> +     MXS_ADC_CHAN(1, IIO_VOLTAGE, "LRADC1"),
+>>> +     MXS_ADC_CHAN(2, IIO_VOLTAGE, "LRADC2"),
+>>> +     MXS_ADC_CHAN(3, IIO_VOLTAGE, "LRADC3"),
+>>> +     MXS_ADC_CHAN(4, IIO_VOLTAGE, "LRADC4"),
+>>> +     MXS_ADC_CHAN(5, IIO_VOLTAGE, "LRADC5"),
+>>> +     MXS_ADC_CHAN(6, IIO_VOLTAGE, "VDDIO"),
+>>> +     MXS_ADC_CHAN(7, IIO_VOLTAGE, "VBATT"),
+>>> +     /* Combined Temperature sensors */
+>>> +     {
+>>> +             .type =3D IIO_TEMP,
+>>> +             .indexed =3D 1,
+>>> +             .scan_index =3D 8,
+>>> +             .info_mask_separate =3D BIT(IIO_CHAN_INFO_RAW) |
+>>> +                                   BIT(IIO_CHAN_INFO_OFFSET) |
+>>> +                                   BIT(IIO_CHAN_INFO_SCALE),
+>>> +             .channel =3D 8,
+>>> +             .scan_type =3D {.sign =3D 'u', .realbits =3D 18, .sto=
+ragebits =3D 32,},
+>>> +             .datasheet_name =3D "TEMP_DIE",
+>>> +     },
+>>> +     /* Hidden channel to keep indexes */
+>>> +     {
+>>> +             .type =3D IIO_TEMP,
+>>> +             .indexed =3D 1,
+>>> +             .scan_index =3D -1,
+>>> +             .channel =3D 9,
+>>> +     },
+>>> +     MXS_ADC_CHAN(10, IIO_VOLTAGE, NULL),
+>>> +     MXS_ADC_CHAN(11, IIO_VOLTAGE, NULL),
+>>> +     MXS_ADC_CHAN(12, IIO_VOLTAGE, "USB_DP"),
+>>> +     MXS_ADC_CHAN(13, IIO_VOLTAGE, "USB_DN"),
+>>> +     MXS_ADC_CHAN(14, IIO_VOLTAGE, "VBG"),
+>>> +     MXS_ADC_CHAN(15, IIO_VOLTAGE, "VDD5V"),
+>>> +};
+>>> +
+>>> +static const struct iio_chan_spec mx28_lradc_chan_spec[] =3D {
+>>> +     MXS_ADC_CHAN(0, IIO_VOLTAGE, "LRADC0"),
+>>> +     MXS_ADC_CHAN(1, IIO_VOLTAGE, "LRADC1"),
+>>> +     MXS_ADC_CHAN(2, IIO_VOLTAGE, "LRADC2"),
+>>> +     MXS_ADC_CHAN(3, IIO_VOLTAGE, "LRADC3"),
+>>> +     MXS_ADC_CHAN(4, IIO_VOLTAGE, "LRADC4"),
+>>> +     MXS_ADC_CHAN(5, IIO_VOLTAGE, "LRADC5"),
+>>> +     MXS_ADC_CHAN(6, IIO_VOLTAGE, "LRADC6"),
+>>> +     MXS_ADC_CHAN(7, IIO_VOLTAGE, "VBATT"),
+>>> +     /* Combined Temperature sensors */
+>>> +     {
+>>> +             .type =3D IIO_TEMP,
+>>> +             .indexed =3D 1,
+>>> +             .scan_index =3D 8,
+>>> +             .info_mask_separate =3D BIT(IIO_CHAN_INFO_RAW) |
+>>> +                                   BIT(IIO_CHAN_INFO_OFFSET) |
+>>> +                                   BIT(IIO_CHAN_INFO_SCALE),
+>>> +             .channel =3D 8,
+>>> +             .scan_type =3D {.sign =3D 'u', .realbits =3D 18, .sto=
+ragebits =3D 32,},
+>>> +             .datasheet_name =3D "TEMP_DIE",
+>>> +     },
+>>> +     /* Hidden channel to keep indexes */
+>>> +     {
+>>> +             .type =3D IIO_TEMP,
+>>> +             .indexed =3D 1,
+>>> +             .scan_index =3D -1,
+>>> +             .channel =3D 9,
+>>> +     },
+>>> +     MXS_ADC_CHAN(10, IIO_VOLTAGE, "VDDIO"),
+>>> +     MXS_ADC_CHAN(11, IIO_VOLTAGE, "VTH"),
+>>> +     MXS_ADC_CHAN(12, IIO_VOLTAGE, "VDDA"),
+>>> +     MXS_ADC_CHAN(13, IIO_VOLTAGE, "VDDD"),
+>>> +     MXS_ADC_CHAN(14, IIO_VOLTAGE, "VBG"),
+>>> +     MXS_ADC_CHAN(15, IIO_VOLTAGE, "VDD5V"),
+>>> +};
+>>> +
+>>> +static void mxs_lradc_adc_hw_init(struct mxs_lradc_adc *adc)
+>>> +{
+>>> +     struct mxs_lradc *lradc =3D adc->lradc;
+>>> +
+>>> +     /* The ADC always uses DELAY CHANNEL 0. */
+>>> +     const u32 adc_cfg =3D
+>>> +             (1 << (LRADC_DELAY_TRIGGER_DELAYS_OFFSET + 0)) |
+>>> +             (LRADC_DELAY_TIMER_PER << LRADC_DELAY_DELAY_OFFSET);
+>>> +
+>>> +     /* Configure DELAY CHANNEL 0 for generic ADC sampling. */
+>>> +     mxs_lradc_reg_wrt(lradc, adc_cfg, LRADC_DELAY(0));
+>>> +
+>>> +     /* Start internal temperature sensing. */
+>> We start internal temperature sensing, do we ever want to stop it?
+>=20
+> According to manual[1] there is no need to:
+> To use the internal die temperature sensor,
+> HW_LRADC_CTRL2_TEMPSENSE_PWD should be cleared. (This bit can be left
+> cleared after power up. There is no need to toggle it on and off.)
+=46air enough - perhaps a note here to make that clear to future reader=
+s?
+>=20
+>>> +     mxs_lradc_reg_wrt(lradc, 0, LRADC_CTRL2);
+>>> +}
+>>> +
+>>> +static void mxs_lradc_adc_hw_stop(struct mxs_lradc_adc *adc)
+>>> +{
+>>> +     mxs_lradc_reg_wrt(adc->lradc, 0, LRADC_DELAY(0));
+>>> +}
+>>> +
+>>> +static int mxs_lradc_adc_probe(struct platform_device *pdev)
+>>> +{
+>>> +     struct device *dev =3D &pdev->dev;
+>>> +     struct mxs_lradc *lradc =3D dev_get_platdata(dev);
+>>> +     struct mxs_lradc_adc *adc;
+>>> +     struct iio_dev *iio;
+>>> +     int ret, i, s;
+>>> +     u64 scale_uv;
+>>> +
+>>> +     /* Allocate the IIO device. */
+>>> +     iio =3D devm_iio_device_alloc(dev, sizeof(*adc));
+>>> +     if (!iio) {
+>>> +             dev_err(dev, "Failed to allocate IIO device\n");
+>>> +             return -ENOMEM;
+>>> +     }
+>>> +
+>>> +     adc =3D iio_priv(iio);
+>>> +     adc->lradc =3D lradc;
+>>> +     adc->dev =3D dev;
+>>> +
+>>> +     init_completion(&adc->completion);
+>>> +     mutex_init(&adc->lock);
+>>> +
+>>> +     for (i =3D 0; i < lradc->irq_count; i++) {
+>>> +             ret =3D devm_request_irq(dev, lradc->irq[i],
+>>> +                                    mxs_lradc_adc_handle_irq,
+>>> +                                    IRQF_SHARED, lradc->irq_name[i=
+], iio);
+>>> +             if (ret)
+>>> +                     return ret;
+>> This seems to be getting a whole load of irq's whether or not they a=
+re actually
+>> going to be used by the ADC?  Aren't some of these going to be typic=
+ally used by
+>> the touchscreen?
+>>> +     }
+>>> +
+>>> +     platform_set_drvdata(pdev, iio);
+>>> +
+>>> +     iio->name =3D pdev->name;
+>>> +     iio->dev.parent =3D dev;
+>>> +     iio->dev.of_node =3D dev->parent->of_node;
+>>> +     iio->info =3D &mxs_lradc_adc_iio_info;
+>>> +     iio->modes =3D INDIO_DIRECT_MODE;
+>>> +     iio->masklength =3D LRADC_MAX_TOTAL_CHANS;
+>>> +
+>>> +     if (lradc->soc =3D=3D IMX23_LRADC) {
+>>> +             iio->channels =3D mx23_lradc_chan_spec;
+>>> +             iio->num_channels =3D ARRAY_SIZE(mx23_lradc_chan_spec=
+);
+>>> +     } else {
+>>> +             iio->channels =3D mx28_lradc_chan_spec;
+>>> +             iio->num_channels =3D ARRAY_SIZE(mx28_lradc_chan_spec=
+);
+>>> +     }
+>>> +
+>>> +     ret =3D iio_triggered_buffer_setup(iio, &iio_pollfunc_store_t=
+ime,
+>>> +                                      &mxs_lradc_adc_trigger_handl=
+er,
+>>> +                                      &mxs_lradc_adc_buffer_ops);
+>>> +     if (ret)
+>>> +             return ret;
+>>> +
+>>> +     ret =3D mxs_lradc_adc_trigger_init(iio);
+>>> +     if (ret)
+>>> +             goto err_trig;
+>>> +
+>>> +     adc->vref_mv =3D mxs_lradc_adc_vref_mv[lradc->soc];
+>>> +
+>>> +     /* Populate available ADC input ranges */
+>>> +     for (i =3D 0; i < LRADC_MAX_TOTAL_CHANS; i++) {
+>>> +             for (s =3D 0; s < ARRAY_SIZE(adc->scale_avail[i]); s+=
++) {
+>>> +                     /*
+>>> +                      * [s=3D0] =3D optional divider by two disabl=
+ed (default)
+>>> +                      * [s=3D1] =3D optional divider by two enable=
+d
+>>> +                      *
+>>> +                      * The scale is calculated by doing:
+>>> +                      *   Vref >> (realbits - s)
+>>> +                      * which multiplies by two on the second comp=
+onent
+>>> +                      * of the array.
+>>> +                      */
+>>> +                     scale_uv =3D ((u64)adc->vref_mv[i] * 10000000=
+0) >>
+>>> +                                (LRADC_RESOLUTION - s);
+>>> +                     adc->scale_avail[i][s].nano =3D
+>>> +                                     do_div(scale_uv, 100000000) *=
+ 10;
+>>> +                     adc->scale_avail[i][s].integer =3D scale_uv;
+>>> +             }
+>>> +     }
+>>> +
+>>> +     /* Configure the hardware. */
+>>> +     mxs_lradc_adc_hw_init(adc);
+>>> +
+>>> +     /* Register IIO device. */
+>>> +     ret =3D iio_device_register(iio);
+>>> +     if (ret) {
+>>> +             dev_err(dev, "Failed to register IIO device\n");
+>>> +             goto err_dev;
+>>> +     }
+>>> +
+>>> +     return 0;
+>>> +
+>>> +err_dev:
+>>> +     mxs_lradc_adc_hw_stop(adc);
+>>> +     mxs_lradc_adc_trigger_remove(iio);
+>>> +err_trig:
+>>> +     iio_triggered_buffer_cleanup(iio);
+>>> +     return ret;
+>>> +}
+>>> +
+>>> +static int mxs_lradc_adc_remove(struct platform_device *pdev)
+>>> +{
+>>> +     struct iio_dev *iio =3D platform_get_drvdata(pdev);
+>>> +     struct mxs_lradc_adc *adc =3D iio_priv(iio);
+>>> +
+>>> +     iio_device_unregister(iio);
+>>> +     mxs_lradc_adc_hw_stop(adc);
+>>> +     mxs_lradc_adc_trigger_remove(iio);
+>>> +     iio_triggered_buffer_cleanup(iio);
+>>> +
+>>> +     return 0;
+>>> +}
+>>> +
+>>> +static struct platform_driver mxs_lradc_adc_driver =3D {
+>>> +     .driver =3D {
+>>> +             .name   =3D DRIVER_NAME_ADC,
+>>> +     },
+>>> +     .probe  =3D mxs_lradc_adc_probe,
+>>> +     .remove =3D mxs_lradc_adc_remove,
+>>> +};
+>>> +
+>>> +module_platform_driver(mxs_lradc_adc_driver);
+>>> +
+>>> +MODULE_AUTHOR("Marek Vasut <marex@denx.de>");
+>>> +MODULE_DESCRIPTION("Freescale MXS LRADC driver general purpose ADC=
+ driver");
+>>> +MODULE_LICENSE("GPL v2");
+>>> +MODULE_ALIAS("platform:" DRIVER_NAME_ADC);
+>>> +
+>> Bonus blank line at end of file...
+>>> +
+>>>
+>>
+> [1] http://cache.freescale.com/files/dsp/doc/ref_manual/MCIMX28RM.pdf
+>=20
 
-I had a deeper look at the kernel panic, happening if there are rumble 
-effects loaded and the USB plug is pulled.
-
-The reason for this is similar to the one, I fixed in uinput some days ago.
-
-In "sony_remove" the memory for "output_report_dmabuf" is freed.
-Then, a few lines later, "hid_hw_stop" is called.
-This now tries to cleanup and causes ff_memless to try to send out a new 
-rumble event which should turn both motor speeds to zero.
-To get this processed, "sc->send_output_report" is called, which, for 
-example, ends up in "dualshock4_send_output_report".
-This function will now use the, already freed, "output_report_dmabuf".
-
-My patch zeroes out "output_report_dmabuf" after freeing and checks for 
-this in the "send_output_report" functions. There may be other ways to 
-fix this, so please tell me if you prefer some other way.
-
-I've added a one-line comment above the memory pointer check, as, in my 
-opinion, it is not obvious what is happening here.
-
-Signed-off-by: Manuel Reimer <mail@m-reimer.de>
-
---- a/drivers/hid/hid-sony.c	2016-05-13 16:13:00.339346161 +0200
-+++ b/drivers/hid/hid-sony.c	2016-05-29 13:54:25.452029787 +0200
-@@ -1809,6 +1809,10 @@ static void sixaxis_send_output_report(s
-  		(struct sixaxis_output_report *)sc->output_report_dmabuf;
-  	int n;
-
-+	/* If called via hid_hw_stop, then our memory is already gone! */
-+	if (!report)
-+		return;
-+
-  	/* Initialize the report with default values */
-  	memcpy(report, &default_report, sizeof(struct sixaxis_output_report));
-
-@@ -1853,6 +1857,10 @@ static void dualshock4_send_output_repor
-  	__u8 *buf = sc->output_report_dmabuf;
-  	int offset;
-
-+	/* If called via hid_hw_stop, then our memory is already gone! */
-+	if (!buf)
-+		return;
-+
-  	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
-  		memset(buf, 0, DS4_REPORT_0x05_SIZE);
-  		buf[0] = 0x05;
-@@ -1899,6 +1907,10 @@ static void motion_send_output_report(st
-  	struct motion_output_report_02 *report =
-  		(struct motion_output_report_02 *)sc->output_report_dmabuf;
-
-+	/* If called via hid_hw_stop, then our memory is already gone! */
-+	if (!report)
-+		return;
-+
-  	memset(report, 0, MOTION_REPORT_0x02_SIZE);
-
-  	report->type = 0x02; /* set leds */
-@@ -2426,6 +2438,7 @@ static void sony_remove(struct hid_devic
-  	sony_cancel_work_sync(sc);
-
-  	kfree(sc->output_report_dmabuf);
-+	sc->output_report_dmabuf = NULL;
-
-  	sony_remove_dev_list(sc);
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

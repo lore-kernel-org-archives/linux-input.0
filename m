@@ -1,147 +1,88 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 3/3] input: touchscreen: mxs-lradc: Add support for
- touchscreen
-Date: Sun, 29 May 2016 20:53:01 +0100
-Message-ID: <509a10d9-fe46-b159-86be-12de0ccf5a5a@kernel.org>
-References: <cover.1461930102.git.ksenija.stanojevic@gmail.com>
- <61fe1da2e8d82921f3222ec939047b6823f695e1.1461930102.git.ksenija.stanojevic@gmail.com>
- <bad220c7-7f72-55e8-fe41-e3a6ae7d7d2f@kernel.org>
- <CAL7P5jKukmxbK92oei+hOtsqcHjiBjKs2g7d7B7JsjgUxKRYAA@mail.gmail.com>
- <e2e0aa2d-dc26-cd23-1d45-837456104286@kernel.org>
- <CAL7P5jJYptf4OQE+d1AFLy92uajDTUD-B5Qsk-noBx36k3rGsg@mail.gmail.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: Should touchsticks really be relative input devices?
+Date: Mon, 30 May 2016 11:39:22 +1000
+Message-ID: <20160530013922.GA26944@jelly>
+References: <87inxyo1v1.fsf@smart-cactus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAL7P5jJYptf4OQE+d1AFLy92uajDTUD-B5Qsk-noBx36k3rGsg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Ksenija_Stanojevi=c4=87?= <ksenija.stanojevic@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, =?UTF-8?Q?Marek_Va=c5=a1ut?= <marex@denx.de>, linux-iio@vger.kernel.org, Harald Geyer <harald@ccbib.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xorg-bounces@lists.x.org>
+Content-Disposition: inline
+In-Reply-To: <87inxyo1v1.fsf@smart-cactus.org>
+List-Unsubscribe: <https://lists.x.org/mailman/options/xorg>,
+ <mailto:xorg-request@lists.x.org?subject=unsubscribe>
+List-Archive: <https://lists.x.org/archives/xorg>
+List-Post: <mailto:xorg@lists.x.org>
+List-Help: <mailto:xorg-request@lists.x.org?subject=help>
+List-Subscribe: <https://lists.x.org/mailman/listinfo/xorg>,
+ <mailto:xorg-request@lists.x.org?subject=subscribe>
+Errors-To: xorg-bounces@lists.x.org
+Sender: "xorg" <xorg-bounces@lists.x.org>
+To: Ben Gamari <ben@smart-cactus.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, xorg@lists.freedesktop.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-<snip>
->>>>> +     if (of_property_read_u32(node, "fsl,settling", &adapt)) {
->>>>> +             ts->settling_delay = 10;
->>>>> +     } else {
->>>>> +             if (adapt < 1 || adapt > LRADC_DELAY_DELAY_MASK) {
->>>>> +                     dev_err(ts->dev, "Invalid settling delay (%u)\n",
->>>>> +                             adapt);
->>>>> +                     touch_ret = -EINVAL;
->>>>> +             } else {
->>>>> +                     ts->settling_delay = adapt;
->>>>> +             }
->>>>> +     }
->>>>> +
->>>>> +     mxs_lradc_ts_hw_init(ts);
->>>>> +     for (i = 0; i < lradc->irq_count; i++) {
->>>>> +             ret = devm_request_irq(dev, lradc->irq[i],
->>>>> +                                    mxs_lradc_ts_handle_irq,
->>>>> +                                    IRQF_SHARED, lradc->irq_name[i], ts);
->>>> As with the adc driver, are we actually using all of these?  I'd prefer we
->>>> only grab the ones that are actually relevant.
->>>
->>> Only irq lines relevant for touchscreen are:
->>> mxs-lradc-touchscreen, mxs-lradc-channel6 and mxs-lradc-channel7
->>> But not all interrupts are beiing used even when I enabled all remaining
->>> channels (not used by touchscreen) for bufferd capture via
->>> echo 1 >/sys/bus/iio/devices/iio\:device0/scan_elements/in_voltagexx_en
->>>
->>> So I don't know if it's supposed to work like this...
->>> (It works the same on the original code)
->> Certainly should only grab the relevant ones to touch screen use in here..
->> Original code probably being overly enthusiastic and we never noticed ;)
-> 
-> Sorry for being unclear...
-> The point I was trying to make was that even though touchscreen and
-> adc don't share irq lines, irqs mxs-lradc-channel(2,3,4,5,6) are never
-> being used.
-> So touchscreen is only use 2 out of 3 irqs assigned to it:
-> mxs-lradc-touchscreen and mxs-lradc-channel7  . And adc
-> is only using 2 irq lines mxs-lradc-channel(0,1) during buffered
-> capture, even when all virtal channels are enabled.
-> I found that odd...
-odd indeed. It's odd hardware ;)
-
->From what I recall this hardware is capable of scheduling things in really
-complex ways, but the driver elects not to use that, basically because it became
-unmanageably complex and KISS was applied....
-
-If there is an application needing that complexity we can revisit.
-
-Of course there may be a better explanation ;)
-
-Jonathan
-> 
->>> root@cfa100xx:~# cat /proc/interrupts
->>>            CPU0
->>>  16:      13108         -  48 Edge      MXS Timer Tick
->>>  17:       4240         -  82 Edge      mxs-dma
->>>  25:          6         -  96 Edge      80010000.ssp
->>> 196:          0         -  68 Edge      mxs-dma
->>> 210:         13         -  10 Edge      mxs-lradc-touchscreen
->>> 211:          0         -  14 Edge      mxs-lradc-thresh0
->>> 212:          0         -  15 Edge      mxs-lradc-thresh1
->>> 213:         10         -  16 Edge      mxs-lradc-channel0
->>> 214:         10         -  17 Edge      mxs-lradc-channel1
->>> 215:          0         -  18 Edge      mxs-lradc-channel2
->>> 216:          0         -  19 Edge      mxs-lradc-channel3
->>> 217:          0         -  20 Edge      mxs-lradc-channel4
->>> 218:          0         -  21 Edge      mxs-lradc-channel5
->>> 219:          0         -  22 Edge      mxs-lradc-channel6
->>> 220:        412         -  23 Edge      mxs-lradc-channel7
->>> 221:          0         -  24 Edge      mxs-lradc-button0
->>> 222:          0         -  25 Edge      mxs-lradc-button1
->>> 223:          0         -  29 Edge      RTC alarm
->>> 224:          0         - 111 Edge      80058000.i2c
->>> 228:        174         -  47 Edge      uart-pl011
->>> 229:        439         -  93 Edge      80080000.usb
->>> 230:          0         -  92 Edge      80090000.usb
->>> 231:       3610         - 101 Edge      800f0000.ethernet
->>> 232:         10  80050000.lradc-dev0 Edge
->>> Err:          0
->>>
->>>>> +             if (ret)
->>>>> +                     return ret;
->>>>> +     }
->>>>> +
->>>>> +     if (!touch_ret) {
->>>>> +             ret = mxs_lradc_ts_register(ts);
->>>>> +             if (!ret)
->>>>> +                     goto err_ts_register;
->>>>> +     }
->>>>> +
->>>>> +     return 0;
->>>>> +
->>>>> +err_ts_register:
->>>>> +     mxs_lradc_ts_hw_stop(ts);
->>>>> +     return ret;
->>>>> +}
->>>>> +
->>>>> +static int mxs_lradc_ts_remove(struct platform_device *pdev)
->>>>> +{
->>>>> +     struct mxs_lradc_ts *ts = platform_get_drvdata(pdev);
->>>>> +
->>>>> +     mxs_lradc_ts_hw_stop(ts);
->>>>> +
->>>>> +     return 0;
->>>>> +}
->>>>> +
->>>>> +static struct platform_driver mxs_lradc_ts_driver = {
->>>>> +     .driver = {
->>>>> +             .name = DRIVER_NAME_TS,
->>>>> +     },
->>>>> +     .probe  = mxs_lradc_ts_probe,
->>>>> +     .remove = mxs_lradc_ts_remove,
->>>>> +};
->>>>> +module_platform_driver(mxs_lradc_ts_driver);
->>>>> +
->>>>> +MODULE_LICENSE("GPL v2");
->>>>>
->>>>
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>
->>
-> 
+T24gU2F0LCBNYXkgMjgsIDIwMTYgYXQgMDE6MzE6MzBQTSArMDIwMCwgQmVuIEdhbWFyaSB3cm90
+ZToKPiAKPiBIZWxsbyBpbnB1dCBwZW9wbGUsCj4gCj4gUmVjZW50bHkgSSd2ZSBiZWVuIGJyaW5n
+aW5nIHVwIHRoZSB0b3VjaHN0aWNrIGhhcmR3YXJlIGluIHRoZSBEZWxsCj4gTGF0aXR1ZGUgRTc0
+NzAgYW5kIGhhdmUgbm90aWNlZCB0aGF0IHRoZSBleGlzdGluZyBkcml2ZXJzIGZvciB0aGlzIHNv
+cnQKPiBvZiBpbnB1dCBkZXZpY2UgdHlwaWNhbGx5IGV4cG9zZSBFVl9SRUwgZXZlbnRzLiBVbmZv
+cnR1bmF0ZWx5LAo+IGl0IHNlZW1zIHRoYXQgZXhwb3NpbmcgdGhlIGhhcmR3YXJlIGluIHRoaXMg
+d2F5IGxlYWRzIHRvIHNvbWUgcmF0aGVyCj4gdW5mb3J0dW5hdGUgaGFja3MuIE5hbWVseSwgeW91
+IGZpbmQgdGhpbmdzIGxpa2UgdGhpcyBpbiB0aGUgQWxwcyBkcml2ZXIsCj4gCj4gICAgIC8qCj4g
+ICAgICogVGhlIHggYW5kIHkgdmFsdWVzIHRlbmQgdG8gYmUgcXVpdGUgbGFyZ2UsIGFuZCB3aGVu
+IHVzZWQKPiAgICAgKiBhbG9uZSB0aGUgdHJhY2tzdGljayBpcyBkaWZmaWN1bHQgdG8gdXNlLiBT
+Y2FsZSB0aGVtIGRvd24KPiAgICAgKiB0byBjb21wZW5zYXRlLgo+ICAgICAqLwo+ICAgICB4IC89
+IDg7Cj4gICAgIHkgLz0gODsKPiAKPiAgICAgaW5wdXRfcmVwb3J0X3JlbChkZXYsIFJFTF9YLCB4
+KTsKPiAgICAgaW5wdXRfcmVwb3J0X3JlbChkZXYsIFJFTF9ZLCAteSk7Cj4gCj4gU2VlaW5nIHRo
+aXMgbWFkZSBtZSB0aGluayBiYWNrIHRvIGV4cGVyaWVuY2VzIHdpdGggdG91Y2hzdGlja3MgaW4K
+PiBwcmV2aW91cyBEZWxsIGxhcHRvcHMsIHdoaWNoIHJlcXVpcmUgYW4gYW5ub3lpbmdseSBoaWdo
+IGZvcmNlIHRvIGJlZ2luCj4gbW92ZW1lbnQuIFRoaXMgaXMgcHJlc3VtYWJseSBkdWUgdG8gdGhl
+IGZhY3QgdGhhdCB0aGUgYm90dG9tIGZldyBiaXRzIG9mCj4gcmVzb2x1dGlvbiBhcmUgYmVpbmcg
+bmVlZGxlc3NseSB0aHJvd24gYXdheS4KPiAKPiBVbmZvcnR1bmF0ZWx5LCBpdCBkb2Vzbid0IHNl
+ZW0gdGhhdCByZWxhdGl2ZSBkZXZpY2VzIGN1cnJlbnRseSBoYXZlIG11Y2gKPiBjaG9pY2UgYnV0
+IHRvIHNjYWxlIHRoZWlyIGlucHV0IHNwYWNlOyBpdCBzZWVtcyB0aGVyZSBpcyBubyB3YXkgZm9y
+IGEKPiBkZXZpY2UgdG8gZXhwb3NlIGl0cyAicmFuZ2UiIHRvIHVzZXIgbW9kZSAoYXMgeW91IG1p
+Z2h0IGRvIHdpdGgKPiBpbnB1dF9zZXRfYWJzX3BhcmFtcyBpbiB0aGUgY2FzZSBvZiBhbiBhYnNv
+bHV0ZSBkZXZpY2UpLgo+IAo+IEhvbmVzdGx5LCBpdCdzIG5vdCBldmVuIGNsZWFyIHRvIG1lIHRo
+YXQgdG91Y2hzdGljayBkZXZpY2VzIHNob3VsZAo+IHByb2R1Y2UgcmVsYXRpdmUgZXZlbnRzLiBJ
+dCBzZWVtcyBsaWtlIHRoZXkgYXJlIHNvbWV3aGVyZSBiZXR3ZWVuIGEKPiB0b3VjaHBhZCBhbmQg
+bW91c2UuIExpa2UgYSBtb3VzZSwgdGhlcmUgaXMgbm8gYWJzb2x1dGUgbWFwcGluZyBiZXR3ZWVu
+Cj4gcG9pbnRzIGluIHRoZSBpbnB1dCBkZXZpY2Ugc3BhY2UgYW5kIHRoZSB3b3JrIHNwYWNlLiBI
+b3dldmVyLCBsaWtlIGEKPiB0b3VjaHBhZCB0aGUgaW5wdXQgc3BhY2UgaXMgYm91bmRlZC4KPiAK
+PiBQZXJoYXBzIHRoZXNlIGRldmljZXMgc2hvdWxkIGluc3RlYWQgcHJvZHVjZSBhYnNvbHV0ZSBl
+dmVudHMgYW5kIGJlCj4gbWFya2VkIHdpdGggSU5QVVRfUFJPUF9QT0lOVElOR19TVElDSyBzbyB0
+aGF0IHVzZXIgbGFuZCBjb2RlIGNhbiBwcm9kdWNlCj4gdGhlIGV4cGVjdGVkIHJlbGF0aXZlIGJl
+aGF2aW9yIG5vcm1hbGl6ZWQgdG8gdGhlIHJhbmdlIG9mIHRoZSBkZXZpY2UuCj4gSGFzIHRoaXMg
+YmVlbiBjb25zaWRlcmVkIGluIHRoZSBwYXN0PwoKbm90IHJlYWxseS4gYmFzaWNhbGx5IGFuIGlu
+dGVyZXN0aW5nIGlkZWEgYW5kIHlvdSdkIGVuZCB1cCB0cmVhdGluZyB0aGVtCmxpa2Ugam95c3Rp
+Y2tzLiBidXQgdGhlIHRoaW5nIHdpdGggdHJhY2tzdGlja3MgaXMgdGhhdCB5b3UgZ2V0IHJlbGF0
+aXZlCmV2ZW50cyBmcm9tIHRoZSBoYXJkd2FyZSBhbmQgd2l0aG91dCBoZWFwcyBvZiBoYW5kLWNv
+bGxlY3RlZCB0YWJsZXMKeW91IHdvbid0IGtub3cgdGhlIHJhbmdlIHRoZSB0cmFja3N0aWNrIHN1
+cHBvcnRzLiBzbyB0aGUgYWJzIGlkZWEganVzdCB3b24ndAp3b3JrLgoKV2UndmUgYmVlbiBwdXNo
+aW5nIHByb3BlcnRpZXMgaW50byB0aGUgdWRldiBod2RiIHRvIHNvbWV3aGF0IG5vcm1hbGlzZSB0
+aGUKbW90aW9uIGFuZCBzZXQgdGhlIHNlbnNpdGl2eSBzbyB0aGF0IHRoZSB2YXJpb3VzIHN0aWNr
+cyBmZWVsIHRoZSBzYW1lIG91dCBvZgp0aGUgYm94LiBUaGlzIGlzIGluaGVyZW50bHkgcHJvYmxl
+bWF0aWMsIHdpdGhvdXQgYSBzdGFuZGFyZGlzZWQgd2F5IHRvIGFwcGx5CmZvcmNlIHlvdSBjYW4n
+dCBiZSBleGFjdCwgZXZlbiBsZXNzIHNvIHdoZW4geW91IGFzayBkaWZmZXJlbnQgdXNlcnMgdG8g
+cGljawphIHNlbnNpdGl2aXR5IHRoYXQgcHJvdmlkZXMgImdvb2QgbW92ZW1lbnQgYXQgbm9ybWFs
+IHByZXNzdXJlIiAKCmdvb2QgaWRlYXMgdG8gZml4IHRoaXMgYXJlIHdlbGNvbWUsIGxpYmlucHV0
+J3MgdHJhY2tzdGljayBoYW5kbGluZyBpcyBvbmUgZm8KdGhlIHNvcmUgc3BvcnRzIGJ1dCBzaG9y
+dCBvZiB0aGUgImV4cG9zZSBldmVyeXRoaW5nIGFzIGNvbmZpZyBrbm9iIiBJCmhhdmVuJ3Qgc2Vl
+biBnb29kIHNvbHV0aW9ucyB5ZXQuIEFuZCB0aGF0J3MgYW4gaW5oZXJlbnRseSBiYWQgc29sdXRp
+b24sIGF0CmxlYXN0IGZvciBtZSBhcyB0aGUgbWFpbnRhaW5lciA6KQoKPiBBbHRlcm5hdGl2ZWx5
+LCBwZXJoYXBzIHJlbGF0aXZlIGRldmljZXMgb3VnaHQgdG8gYWxzbyBiZSBhYmxlIHRvIGV4cG9z
+ZQo+IHRoZWlyIHJhbmdlLgoKdGhhdCB3b3VsZCBiZSBpbnRlcmVzdGluZyBlc3BlY2lhbGx5IGZv
+ciB0aGUgcmVzb2x1dGlvbiBwYXJhbWV0ZXIgKG1pbi9tYXgKZG9lc24ndCBtYWtlIHNlbnNlIGlu
+IHJlbGF0aXZlIGRldmljZXMpLiBidXQgeW91J2xsIGZpbmQgdGhhdCB0aGF0IHZhbHVlIGlzCmp1
+c3Qgbm90IGF2YWlsYWJsZSBmb3IgcmVsYXRpdiBkZXZpY2VzLiBWZXJ5IGZldyBtaWNlIGZvciBl
+eGFtcGxlIHdpbGwgdGVsbAp5b3Ugd2hhdCB0aGVpciBwaHlzaWNhbCBEUEkgaXMgKGFuZCBpdCdz
+IHN3aXRjaGFibGUgaW4gYSBsb3Qgb2YgdGhlbSBhbnl3YXkpLgoKQ2hlZXJzLAogICBQZXRlcgoK
+PiBSZWdhcmRsZXNzIG9mIHdoYXQgaGFwcGVucywgaXQgd291bGQgYmUgZ3JlYXQgaWYgc29tZSBn
+dWlkYW5jZSBmb3IKPiB0b3VjaHN0aWNrcyBjb3VsZCBiZSBhZGRlZCB0byB0aGUgIkd1aWRlbGlu
+ZXMiIHNlY3Rpb24gb2YgdGhlIGtlcm5lbCdzCj4gRG9jdW1lbnRhdGlvbi9pbnB1dC9ldmVudC1j
+b2Rlcy50eHQuCj4gCj4gQ2hlZXJzLAo+IAo+IEJlbgoKCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fCnhvcmdAbGlzdHMueC5vcmc6IFguT3JnIHN1cHBvcnQK
+QXJjaGl2ZXM6IGh0dHA6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvYXJjaGl2ZXMveG9yZwpJbmZv
+OiBodHRwczovL2xpc3RzLngub3JnL21haWxtYW4vbGlzdGluZm8veG9yZwpZb3VyIHN1YnNjcmlw
+dGlvbiBhZGRyZXNzOiAlKHVzZXJfYWRkcmVzcylz

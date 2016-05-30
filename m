@@ -1,88 +1,124 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: Should touchsticks really be relative input devices?
-Date: Mon, 30 May 2016 11:39:22 +1000
-Message-ID: <20160530013922.GA26944@jelly>
-References: <87inxyo1v1.fsf@smart-cactus.org>
+From: mail@m-reimer.de
+Subject: Re: [PATCH] hid-sony: Prevent crash when rumble effects are still loaded at USB disconnect
+Date: Mon, 30 May 2016 06:45:32 +0200
+Message-ID: <0F0640EB-1D5E-40F5-A422-45BCBE62DAA7@m-reimer.de>
+References: <a9a2689b-5af7-9676-67fd-5d911fcc9501@m-reimer.de> <856C5FBA-EA87-4D24-BB29-433FF5437518@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xorg-bounces@lists.x.org>
-Content-Disposition: inline
-In-Reply-To: <87inxyo1v1.fsf@smart-cactus.org>
-List-Unsubscribe: <https://lists.x.org/mailman/options/xorg>,
- <mailto:xorg-request@lists.x.org?subject=unsubscribe>
-List-Archive: <https://lists.x.org/archives/xorg>
-List-Post: <mailto:xorg@lists.x.org>
-List-Help: <mailto:xorg-request@lists.x.org?subject=help>
-List-Subscribe: <https://lists.x.org/mailman/listinfo/xorg>,
- <mailto:xorg-request@lists.x.org?subject=subscribe>
-Errors-To: xorg-bounces@lists.x.org
-Sender: "xorg" <xorg-bounces@lists.x.org>
-To: Ben Gamari <ben@smart-cactus.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, xorg@lists.freedesktop.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.mailbox.org ([80.241.60.215]:52128 "EHLO mx2.mailbox.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750890AbcE3Epr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 May 2016 00:45:47 -0400
+In-Reply-To: <856C5FBA-EA87-4D24-BB29-433FF5437518@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Cameron Gutman <aicommander@gmail.com>, Manuel Reimer <mail+linux-input@m-reimer.de>
+Cc: linux-input <linux-input@vger.kernel.org>, jikos@kernel.org
 
-T24gU2F0LCBNYXkgMjgsIDIwMTYgYXQgMDE6MzE6MzBQTSArMDIwMCwgQmVuIEdhbWFyaSB3cm90
-ZToKPiAKPiBIZWxsbyBpbnB1dCBwZW9wbGUsCj4gCj4gUmVjZW50bHkgSSd2ZSBiZWVuIGJyaW5n
-aW5nIHVwIHRoZSB0b3VjaHN0aWNrIGhhcmR3YXJlIGluIHRoZSBEZWxsCj4gTGF0aXR1ZGUgRTc0
-NzAgYW5kIGhhdmUgbm90aWNlZCB0aGF0IHRoZSBleGlzdGluZyBkcml2ZXJzIGZvciB0aGlzIHNv
-cnQKPiBvZiBpbnB1dCBkZXZpY2UgdHlwaWNhbGx5IGV4cG9zZSBFVl9SRUwgZXZlbnRzLiBVbmZv
-cnR1bmF0ZWx5LAo+IGl0IHNlZW1zIHRoYXQgZXhwb3NpbmcgdGhlIGhhcmR3YXJlIGluIHRoaXMg
-d2F5IGxlYWRzIHRvIHNvbWUgcmF0aGVyCj4gdW5mb3J0dW5hdGUgaGFja3MuIE5hbWVseSwgeW91
-IGZpbmQgdGhpbmdzIGxpa2UgdGhpcyBpbiB0aGUgQWxwcyBkcml2ZXIsCj4gCj4gICAgIC8qCj4g
-ICAgICogVGhlIHggYW5kIHkgdmFsdWVzIHRlbmQgdG8gYmUgcXVpdGUgbGFyZ2UsIGFuZCB3aGVu
-IHVzZWQKPiAgICAgKiBhbG9uZSB0aGUgdHJhY2tzdGljayBpcyBkaWZmaWN1bHQgdG8gdXNlLiBT
-Y2FsZSB0aGVtIGRvd24KPiAgICAgKiB0byBjb21wZW5zYXRlLgo+ICAgICAqLwo+ICAgICB4IC89
-IDg7Cj4gICAgIHkgLz0gODsKPiAKPiAgICAgaW5wdXRfcmVwb3J0X3JlbChkZXYsIFJFTF9YLCB4
-KTsKPiAgICAgaW5wdXRfcmVwb3J0X3JlbChkZXYsIFJFTF9ZLCAteSk7Cj4gCj4gU2VlaW5nIHRo
-aXMgbWFkZSBtZSB0aGluayBiYWNrIHRvIGV4cGVyaWVuY2VzIHdpdGggdG91Y2hzdGlja3MgaW4K
-PiBwcmV2aW91cyBEZWxsIGxhcHRvcHMsIHdoaWNoIHJlcXVpcmUgYW4gYW5ub3lpbmdseSBoaWdo
-IGZvcmNlIHRvIGJlZ2luCj4gbW92ZW1lbnQuIFRoaXMgaXMgcHJlc3VtYWJseSBkdWUgdG8gdGhl
-IGZhY3QgdGhhdCB0aGUgYm90dG9tIGZldyBiaXRzIG9mCj4gcmVzb2x1dGlvbiBhcmUgYmVpbmcg
-bmVlZGxlc3NseSB0aHJvd24gYXdheS4KPiAKPiBVbmZvcnR1bmF0ZWx5LCBpdCBkb2Vzbid0IHNl
-ZW0gdGhhdCByZWxhdGl2ZSBkZXZpY2VzIGN1cnJlbnRseSBoYXZlIG11Y2gKPiBjaG9pY2UgYnV0
-IHRvIHNjYWxlIHRoZWlyIGlucHV0IHNwYWNlOyBpdCBzZWVtcyB0aGVyZSBpcyBubyB3YXkgZm9y
-IGEKPiBkZXZpY2UgdG8gZXhwb3NlIGl0cyAicmFuZ2UiIHRvIHVzZXIgbW9kZSAoYXMgeW91IG1p
-Z2h0IGRvIHdpdGgKPiBpbnB1dF9zZXRfYWJzX3BhcmFtcyBpbiB0aGUgY2FzZSBvZiBhbiBhYnNv
-bHV0ZSBkZXZpY2UpLgo+IAo+IEhvbmVzdGx5LCBpdCdzIG5vdCBldmVuIGNsZWFyIHRvIG1lIHRo
-YXQgdG91Y2hzdGljayBkZXZpY2VzIHNob3VsZAo+IHByb2R1Y2UgcmVsYXRpdmUgZXZlbnRzLiBJ
-dCBzZWVtcyBsaWtlIHRoZXkgYXJlIHNvbWV3aGVyZSBiZXR3ZWVuIGEKPiB0b3VjaHBhZCBhbmQg
-bW91c2UuIExpa2UgYSBtb3VzZSwgdGhlcmUgaXMgbm8gYWJzb2x1dGUgbWFwcGluZyBiZXR3ZWVu
-Cj4gcG9pbnRzIGluIHRoZSBpbnB1dCBkZXZpY2Ugc3BhY2UgYW5kIHRoZSB3b3JrIHNwYWNlLiBI
-b3dldmVyLCBsaWtlIGEKPiB0b3VjaHBhZCB0aGUgaW5wdXQgc3BhY2UgaXMgYm91bmRlZC4KPiAK
-PiBQZXJoYXBzIHRoZXNlIGRldmljZXMgc2hvdWxkIGluc3RlYWQgcHJvZHVjZSBhYnNvbHV0ZSBl
-dmVudHMgYW5kIGJlCj4gbWFya2VkIHdpdGggSU5QVVRfUFJPUF9QT0lOVElOR19TVElDSyBzbyB0
-aGF0IHVzZXIgbGFuZCBjb2RlIGNhbiBwcm9kdWNlCj4gdGhlIGV4cGVjdGVkIHJlbGF0aXZlIGJl
-aGF2aW9yIG5vcm1hbGl6ZWQgdG8gdGhlIHJhbmdlIG9mIHRoZSBkZXZpY2UuCj4gSGFzIHRoaXMg
-YmVlbiBjb25zaWRlcmVkIGluIHRoZSBwYXN0PwoKbm90IHJlYWxseS4gYmFzaWNhbGx5IGFuIGlu
-dGVyZXN0aW5nIGlkZWEgYW5kIHlvdSdkIGVuZCB1cCB0cmVhdGluZyB0aGVtCmxpa2Ugam95c3Rp
-Y2tzLiBidXQgdGhlIHRoaW5nIHdpdGggdHJhY2tzdGlja3MgaXMgdGhhdCB5b3UgZ2V0IHJlbGF0
-aXZlCmV2ZW50cyBmcm9tIHRoZSBoYXJkd2FyZSBhbmQgd2l0aG91dCBoZWFwcyBvZiBoYW5kLWNv
-bGxlY3RlZCB0YWJsZXMKeW91IHdvbid0IGtub3cgdGhlIHJhbmdlIHRoZSB0cmFja3N0aWNrIHN1
-cHBvcnRzLiBzbyB0aGUgYWJzIGlkZWEganVzdCB3b24ndAp3b3JrLgoKV2UndmUgYmVlbiBwdXNo
-aW5nIHByb3BlcnRpZXMgaW50byB0aGUgdWRldiBod2RiIHRvIHNvbWV3aGF0IG5vcm1hbGlzZSB0
-aGUKbW90aW9uIGFuZCBzZXQgdGhlIHNlbnNpdGl2eSBzbyB0aGF0IHRoZSB2YXJpb3VzIHN0aWNr
-cyBmZWVsIHRoZSBzYW1lIG91dCBvZgp0aGUgYm94LiBUaGlzIGlzIGluaGVyZW50bHkgcHJvYmxl
-bWF0aWMsIHdpdGhvdXQgYSBzdGFuZGFyZGlzZWQgd2F5IHRvIGFwcGx5CmZvcmNlIHlvdSBjYW4n
-dCBiZSBleGFjdCwgZXZlbiBsZXNzIHNvIHdoZW4geW91IGFzayBkaWZmZXJlbnQgdXNlcnMgdG8g
-cGljawphIHNlbnNpdGl2aXR5IHRoYXQgcHJvdmlkZXMgImdvb2QgbW92ZW1lbnQgYXQgbm9ybWFs
-IHByZXNzdXJlIiAKCmdvb2QgaWRlYXMgdG8gZml4IHRoaXMgYXJlIHdlbGNvbWUsIGxpYmlucHV0
-J3MgdHJhY2tzdGljayBoYW5kbGluZyBpcyBvbmUgZm8KdGhlIHNvcmUgc3BvcnRzIGJ1dCBzaG9y
-dCBvZiB0aGUgImV4cG9zZSBldmVyeXRoaW5nIGFzIGNvbmZpZyBrbm9iIiBJCmhhdmVuJ3Qgc2Vl
-biBnb29kIHNvbHV0aW9ucyB5ZXQuIEFuZCB0aGF0J3MgYW4gaW5oZXJlbnRseSBiYWQgc29sdXRp
-b24sIGF0CmxlYXN0IGZvciBtZSBhcyB0aGUgbWFpbnRhaW5lciA6KQoKPiBBbHRlcm5hdGl2ZWx5
-LCBwZXJoYXBzIHJlbGF0aXZlIGRldmljZXMgb3VnaHQgdG8gYWxzbyBiZSBhYmxlIHRvIGV4cG9z
-ZQo+IHRoZWlyIHJhbmdlLgoKdGhhdCB3b3VsZCBiZSBpbnRlcmVzdGluZyBlc3BlY2lhbGx5IGZv
-ciB0aGUgcmVzb2x1dGlvbiBwYXJhbWV0ZXIgKG1pbi9tYXgKZG9lc24ndCBtYWtlIHNlbnNlIGlu
-IHJlbGF0aXZlIGRldmljZXMpLiBidXQgeW91J2xsIGZpbmQgdGhhdCB0aGF0IHZhbHVlIGlzCmp1
-c3Qgbm90IGF2YWlsYWJsZSBmb3IgcmVsYXRpdiBkZXZpY2VzLiBWZXJ5IGZldyBtaWNlIGZvciBl
-eGFtcGxlIHdpbGwgdGVsbAp5b3Ugd2hhdCB0aGVpciBwaHlzaWNhbCBEUEkgaXMgKGFuZCBpdCdz
-IHN3aXRjaGFibGUgaW4gYSBsb3Qgb2YgdGhlbSBhbnl3YXkpLgoKQ2hlZXJzLAogICBQZXRlcgoK
-PiBSZWdhcmRsZXNzIG9mIHdoYXQgaGFwcGVucywgaXQgd291bGQgYmUgZ3JlYXQgaWYgc29tZSBn
-dWlkYW5jZSBmb3IKPiB0b3VjaHN0aWNrcyBjb3VsZCBiZSBhZGRlZCB0byB0aGUgIkd1aWRlbGlu
-ZXMiIHNlY3Rpb24gb2YgdGhlIGtlcm5lbCdzCj4gRG9jdW1lbnRhdGlvbi9pbnB1dC9ldmVudC1j
-b2Rlcy50eHQuCj4gCj4gQ2hlZXJzLAo+IAo+IEJlbgoKCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fCnhvcmdAbGlzdHMueC5vcmc6IFguT3JnIHN1cHBvcnQK
-QXJjaGl2ZXM6IGh0dHA6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvYXJjaGl2ZXMveG9yZwpJbmZv
-OiBodHRwczovL2xpc3RzLngub3JnL21haWxtYW4vbGlzdGluZm8veG9yZwpZb3VyIHN1YnNjcmlw
-dGlvbiBhZGRyZXNzOiAlKHVzZXJfYWRkcmVzcylz
+Am 29. Mai 2016 19:11:45 MESZ, schrieb Cameron Gutman <aicommander@gmai=
+l.com>:
+>
+>> On May 29, 2016, at 7:11 AM, Manuel Reimer
+><mail+linux-input@m-reimer.de> wrote:
+>>=20
+>> Hello,
+>>=20
+>> I had a deeper look at the kernel panic, happening if there are
+>rumble effects loaded and the USB plug is pulled.
+>>=20
+>> The reason for this is similar to the one, I fixed in uinput some
+>days ago.
+>>=20
+>> In "sony_remove" the memory for "output_report_dmabuf" is freed.
+>> Then, a few lines later, "hid_hw_stop" is called.
+>> This now tries to cleanup and causes ff_memless to try to send out a
+>new rumble event which should turn both motor speeds to zero.
+>> To get this processed, "sc->send_output_report" is called, which, fo=
+r
+>example, ends up in "dualshock4_send_output_report".
+>> This function will now use the, already freed,
+>"output_report_dmabuf".
+>>=20
+>> My patch zeroes out "output_report_dmabuf" after freeing and checks
+>for this in the "send_output_report" functions. There may be other way=
+s
+>to fix this, so please tell me if you prefer some other way.
+>>=20
+>> I've added a one-line comment above the memory pointer check, as, in
+>my opinion, it is not obvious what is happening here.
+>>=20
+>> Signed-off-by: Manuel Reimer <mail@m-reimer.de>
+>>=20
+>> --- a/drivers/hid/hid-sony.c	2016-05-13 16:13:00.339346161 +0200
+>> +++ b/drivers/hid/hid-sony.c	2016-05-29 13:54:25.452029787 +0200
+>> @@ -1809,6 +1809,10 @@ static void sixaxis_send_output_report(s
+>> 		(struct sixaxis_output_report *)sc->output_report_dmabuf;
+>> 	int n;
+>>=20
+>> +	/* If called via hid_hw_stop, then our memory is already gone! */
+>> +	if (!report)
+>> +		return;
+>> +
+>> 	/* Initialize the report with default values */
+>> 	memcpy(report, &default_report, sizeof(struct
+>sixaxis_output_report));
+>>=20
+>> @@ -1853,6 +1857,10 @@ static void dualshock4_send_output_repor
+>> 	__u8 *buf =3D sc->output_report_dmabuf;
+>> 	int offset;
+>>=20
+>> +	/* If called via hid_hw_stop, then our memory is already gone! */
+>> +	if (!buf)
+>> +		return;
+>> +
+>> 	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+>> 		memset(buf, 0, DS4_REPORT_0x05_SIZE);
+>> 		buf[0] =3D 0x05;
+>> @@ -1899,6 +1907,10 @@ static void motion_send_output_report(st
+>> 	struct motion_output_report_02 *report =3D
+>> 		(struct motion_output_report_02 *)sc->output_report_dmabuf;
+>>=20
+>> +	/* If called via hid_hw_stop, then our memory is already gone! */
+>> +	if (!report)
+>> +		return;
+>> +
+>> 	memset(report, 0, MOTION_REPORT_0x02_SIZE);
+>>=20
+>> 	report->type =3D 0x02; /* set leds */
+>> @@ -2426,6 +2438,7 @@ static void sony_remove(struct hid_devic
+>> 	sony_cancel_work_sync(sc);
+>>=20
+>> 	kfree(sc->output_report_dmabuf);
+>> +	sc->output_report_dmabuf =3D NULL;
+>
+>What prevents one of the send_output_report() functions from accessing
+>sc->output_report_dmabuf after it=E2=80=99s been passed to kfree() but=
+ before
+>you=E2=80=99ve set it to NULL? Why not simply wait to free output_repo=
+rt_dmabuf
+>until after hid_hw_stop returns?
+
+
+Good point! But I'm unsure how these workqueues work in kernel. Isn't i=
+t possible that send_output_report is called after sony_remove already =
+finished executing (still a task in queue) and so the already freed mem=
+ory is accessed, again?
+
+>
+>>=20
+>> 	sony_remove_dev_list(sc);
+>>=20
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe
+>linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

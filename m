@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v7 4/4] Input: synaptics-rmi4 - add SMBus support
-Date: Tue, 31 May 2016 12:03:05 +0200
-Message-ID: <1464688985-19102-5-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v7 3/4] i2c: i801: add support of Host Notify
+Date: Tue, 31 May 2016 12:03:04 +0200
+Message-ID: <1464688985-19102-4-git-send-email-benjamin.tissoires@redhat.com>
 References: <1464688985-19102-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1464688985-19102-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,558 +10,265 @@ To: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Mi
 Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Code obtained from https://raw.githubusercontent.com/mightybigcar/synaptics-rmi4/jf/drivers/input/rmi4/rmi_smbus.c
-and updated to match upstream. And fixed to make it work.
+The i801 chip can handle the Host Notify feature since ICH 3 as mentioned
+in http://www.intel.com/content/dam/doc/datasheet/82801ca-io-controller-hub-3-datasheet.pdf
 
+Enable the functionality unconditionally and propagate the alert
+on each notification.
+
+With a T440s and a Synaptics touchpad that implements Host Notify, the
+payload data is always 0x0000, so I am not sure if the device actually
+sends the payload or if there is a problem regarding the implementation.
+
+Tested-by: Andrew Duggan <aduggan@synaptics.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 ---
-new in v5
-
-no changes in v6
-
-changes in v7:
-- fixed typos as per Andrew's requests
-- changed module author from Allie to Andrew as per Andrew's request
-- add suspend/resume callbacks to match upstream rmi4 behavior
-
- drivers/input/rmi4/Kconfig     |  12 ++
- drivers/input/rmi4/Makefile    |   1 +
- drivers/input/rmi4/rmi_bus.h   |  12 ++
- drivers/input/rmi4/rmi_smbus.c | 470 +++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 495 insertions(+)
- create mode 100644 drivers/input/rmi4/rmi_smbus.c
-
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index f73df24..86a180b 100644
---- a/drivers/input/rmi4/Kconfig
-+++ b/drivers/input/rmi4/Kconfig
-@@ -27,6 +27,18 @@ config RMI4_SPI
+changes in v2:
+- removed the description of the Slave functionality support in the chip table
+  (the table shows what is supported, not what the hardware is capable of)
+- use i2c-smbus to forward the notification
+- remove the fifo, and directly retrieve the address and payload in the worker
+- do not check for Host Notification is the feature is not enabled
+- use inw_p() to read the payload instead of 2 inb_p() calls
+- add /* fall-through */ comment
+- unconditionally enable Host Notify if the hardware supports it (can be
+  disabled by the user)
  
- 	  If unsure, say N.
+no changes in v3
+
+changes in v4:
+- make use of the new API -> no more worker spawning here
+- solved a race between the access of the Host Notify registers and the actual
+  I2C transfers.
+
+changes in v5:
+- added SKL Host Notify support
+
+changes in v6:
+- select I2C_SMBUS in Kconfig to prevent an undefined reference when I2C_I801
+  is set to 'Y' while I2C_SMBUS is set to 'M'
+
+no changes in v7
+
+ drivers/i2c/busses/Kconfig    |  1 +
+ drivers/i2c/busses/i2c-i801.c | 85 +++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 83 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 0967e1a..0466a4f 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -91,6 +91,7 @@ config I2C_I801
+ 	tristate "Intel 82801 (ICH/PCH)"
+ 	depends on PCI
+ 	select CHECK_SIGNATURE if X86 && DMI
++	select I2C_SMBUS
+ 	help
+ 	  If you say yes to this option, support will be included for the Intel
+ 	  801 family of mainboard I2C interfaces.  Specifically, the following
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 585a3b7..b244aa40 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -72,6 +72,7 @@
+  * Block process call transaction	no
+  * I2C block read transaction		yes (doesn't use the block buffer)
+  * Slave mode				no
++ * SMBus Host Notify			yes
+  * Interrupt processing			yes
+  *
+  * See the file Documentation/i2c/busses/i2c-i801 for details.
+@@ -86,6 +87,7 @@
+ #include <linux/ioport.h>
+ #include <linux/init.h>
+ #include <linux/i2c.h>
++#include <linux/i2c-smbus.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
+ #include <linux/dmi.h>
+@@ -112,6 +114,10 @@
+ #define SMBPEC(p)	(8 + (p)->smba)		/* ICH3 and later */
+ #define SMBAUXSTS(p)	(12 + (p)->smba)	/* ICH4 and later */
+ #define SMBAUXCTL(p)	(13 + (p)->smba)	/* ICH4 and later */
++#define SMBSLVSTS(p)	(16 + (p)->smba)	/* ICH3 and later */
++#define SMBSLVCMD(p)	(17 + (p)->smba)	/* ICH3 and later */
++#define SMBNTFDADD(p)	(20 + (p)->smba)	/* ICH3 and later */
++#define SMBNTFDDAT(p)	(22 + (p)->smba)	/* ICH3 and later */
  
-+config RMI4_SMB
-+	tristate "RMI4 SMB Support"
-+	depends on RMI4_CORE && I2C
-+	help
-+	  Say Y here if you want to support RMI4 devices connected to an SMB
-+	  bus.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the module will be
-+	  called rmi_smbus.
-+
- config RMI4_2D_SENSOR
- 	bool
- 	depends on RMI4_CORE
-diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-index 95c00a7..3c8ebf2 100644
---- a/drivers/input/rmi4/Makefile
-+++ b/drivers/input/rmi4/Makefile
-@@ -11,3 +11,4 @@ rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
- # Transports
- obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
- obj-$(CONFIG_RMI4_SPI) += rmi_spi.o
-+obj-$(CONFIG_RMI4_SMB) += rmi_smbus.o
-diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
-index 8995798..b7625a9 100644
---- a/drivers/input/rmi4/rmi_bus.h
-+++ b/drivers/input/rmi4/rmi_bus.h
-@@ -105,6 +105,18 @@ rmi_get_platform_data(struct rmi_device *d)
- bool rmi_is_physical_device(struct device *dev);
+ /* PCI Address Constants */
+ #define SMBBAR		4
+@@ -176,6 +182,12 @@
+ #define SMBHSTSTS_INTR		0x02
+ #define SMBHSTSTS_HOST_BUSY	0x01
  
- /**
-+ * rmi_reset - reset a RMI4 device
-+ * @d: Pointer to an RMI device
++/* Host Notify Status registers bits */
++#define SMBSLVSTS_HST_NTFY_STS	1
++
++/* Host Notify Command registers bits */
++#define SMBSLVCMD_HST_NTFY_INTREN	0x01
++
+ #define STATUS_ERROR_FLAGS	(SMBHSTSTS_FAILED | SMBHSTSTS_BUS_ERR | \
+ 				 SMBHSTSTS_DEV_ERR)
+ 
+@@ -244,13 +256,18 @@ struct i801_priv {
+ 	struct platform_device *mux_pdev;
+ #endif
+ 	struct platform_device *tco_pdev;
++
++	struct smbus_host_notify *host_notify;
+ };
+ 
++#define SMBHSTNTFY_SIZE		8
++
+ #define FEATURE_SMBUS_PEC	(1 << 0)
+ #define FEATURE_BLOCK_BUFFER	(1 << 1)
+ #define FEATURE_BLOCK_PROC	(1 << 2)
+ #define FEATURE_I2C_BLOCK_READ	(1 << 3)
+ #define FEATURE_IRQ		(1 << 4)
++#define FEATURE_HOST_NOTIFY	(1 << 5)
+ /* Not really a feature, but it's convenient to handle it as such */
+ #define FEATURE_IDF		(1 << 15)
+ #define FEATURE_TCO		(1 << 16)
+@@ -261,6 +278,7 @@ static const char *i801_feature_names[] = {
+ 	"Block process call",
+ 	"I2C block read",
+ 	"Interrupt",
++	"SMBus Host Notify",
+ };
+ 
+ static unsigned int disable_features;
+@@ -269,7 +287,8 @@ MODULE_PARM_DESC(disable_features, "Disable selected driver features:\n"
+ 	"\t\t  0x01  disable SMBus PEC\n"
+ 	"\t\t  0x02  disable the block buffer\n"
+ 	"\t\t  0x08  disable the I2C block read functionality\n"
+-	"\t\t  0x10  don't use interrupts ");
++	"\t\t  0x10  don't use interrupts\n"
++	"\t\t  0x20  disable SMBus Host Notify ");
+ 
+ /* Make sure the SMBus host is ready to start transmitting.
+    Return 0 if it is, -EBUSY if it is not. */
+@@ -503,8 +522,23 @@ static void i801_isr_byte_done(struct i801_priv *priv)
+ 	outb_p(SMBHSTSTS_BYTE_DONE, SMBHSTSTS(priv));
+ }
+ 
++static irqreturn_t i801_host_notify_isr(struct i801_priv *priv)
++{
++	unsigned short addr;
++	unsigned int data;
++
++	addr = inb_p(SMBNTFDADD(priv)) >> 1;
++	data = inw_p(SMBNTFDDAT(priv));
++
++	i2c_handle_smbus_host_notify(priv->host_notify, addr, data);
++
++	/* clear Host Notify bit and return */
++	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
++	return IRQ_HANDLED;
++}
++
+ /*
+- * There are two kinds of interrupts:
++ * There are three kinds of interrupts:
+  *
+  * 1) i801 signals transaction completion with one of these interrupts:
+  *      INTR - Success
+@@ -516,6 +550,8 @@ static void i801_isr_byte_done(struct i801_priv *priv)
+  *
+  * 2) For byte-by-byte (I2C read/write) transactions, one BYTE_DONE interrupt
+  *    occurs for each byte of a byte-by-byte to prepare the next byte.
 + *
-+ * Calls for a reset of each function implemented by a specific device.
-+ * Returns 0 on success or a negative error code.
-+ */
-+static inline int rmi_reset(struct rmi_device *d)
-+{
-+	return d->driver->reset_handler(d);
-+}
-+
-+/**
-  * rmi_read - read a single byte
-  * @d: Pointer to an RMI device
-  * @addr: The address to read from
-diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-new file mode 100644
-index 0000000..d60b0e9
---- /dev/null
-+++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -0,0 +1,470 @@
-+/*
-+ * Copyright (c) 2015 - 2016 Red Hat, Inc
-+ * Copyright (c) 2011, 2012 Synaptics Incorporated
-+ * Copyright (c) 2011 Unixphere
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/delay.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/kconfig.h>
-+#include <linux/lockdep.h>
-+#include <linux/module.h>
-+#include <linux/pm.h>
-+#include <linux/rmi.h>
-+#include <linux/slab.h>
-+#include "rmi_driver.h"
-+
-+#define SMB_PROTOCOL_VERSION_ADDRESS	0xfd
-+#define SMB_MAX_COUNT			32
-+#define RMI_SMB2_MAP_SIZE		8 /* 8 entry of 4 bytes each */
-+#define RMI_SMB2_MAP_FLAGS_WE		0x01
-+
-+struct mapping_table_entry {
-+	u16 rmiaddr;
-+	u8 readcount;
-+	u8 flags;
-+};
-+
-+struct rmi_smb_xport {
-+	struct rmi_transport_dev xport;
-+	struct i2c_client *client;
-+
-+	struct mutex page_mutex;
-+	int page;
-+	u8 table_index;
-+	struct mutex mappingtable_mutex;
-+	struct mapping_table_entry mapping_table[RMI_SMB2_MAP_SIZE];
-+};
-+
-+static int rmi_smb_get_version(struct rmi_smb_xport *rmi_smb)
-+{
-+	struct i2c_client *client = rmi_smb->client;
-+	int retval;
-+
-+	/* Check if for SMBus new version device by reading version byte. */
-+	retval = i2c_smbus_read_byte_data(client, SMB_PROTOCOL_VERSION_ADDRESS);
-+	if (retval < 0) {
-+		dev_err(&client->dev, "failed to get SMBus version number!\n");
-+		return retval;
-+	}
-+	return retval + 1;
-+}
-+
-+/* SMB block write - wrapper over ic2_smb_write_block */
-+static int smb_block_write(struct rmi_transport_dev *xport,
-+			      u8 commandcode, const void *buf, size_t len)
-+{
-+	struct rmi_smb_xport *rmi_smb =
-+		container_of(xport, struct rmi_smb_xport, xport);
-+	struct i2c_client *client = rmi_smb->client;
-+	int retval;
-+
-+	retval = i2c_smbus_write_block_data(client, commandcode, len, buf);
-+
-+	rmi_dbg(RMI_DEBUG_XPORT, &client->dev,
-+		"wrote %zd bytes at %#04x: %d (%*ph)\n",
-+		len, commandcode, retval, (int)len, buf);
-+
-+	return retval;
-+}
-+
-+/*
-+ * The function to get command code for smbus operations and keeps
-+ * records to the driver mapping table
-+ */
-+static int rmi_smb_get_command_code(struct rmi_transport_dev *xport,
-+		u16 rmiaddr, int bytecount, bool isread, u8 *commandcode)
-+{
-+	struct rmi_smb_xport *rmi_smb =
-+		container_of(xport, struct rmi_smb_xport, xport);
-+	int i;
-+	int retval;
-+	struct mapping_table_entry mapping_data[1];
-+
-+	mutex_lock(&rmi_smb->mappingtable_mutex);
-+	for (i = 0; i < RMI_SMB2_MAP_SIZE; i++) {
-+		if (rmi_smb->mapping_table[i].rmiaddr == rmiaddr) {
-+			if (isread) {
-+				if (rmi_smb->mapping_table[i].readcount
-+							== bytecount) {
-+					*commandcode = i;
-+					retval = 0;
-+					goto exit;
-+				}
-+			} else {
-+				if (rmi_smb->mapping_table[i].flags &
-+							RMI_SMB2_MAP_FLAGS_WE) {
-+					*commandcode = i;
-+					retval = 0;
-+					goto exit;
-+				}
-+			}
-+		}
-+	}
-+	i = rmi_smb->table_index;
-+	rmi_smb->table_index = (i + 1) % RMI_SMB2_MAP_SIZE;
-+
-+	/* constructs mapping table data entry. 4 bytes each entry */
-+	memset(mapping_data, 0, sizeof(mapping_data));
-+
-+	mapping_data[0].rmiaddr = cpu_to_le16(rmiaddr);
-+	mapping_data[0].readcount = bytecount;
-+	mapping_data[0].flags = !isread ? RMI_SMB2_MAP_FLAGS_WE : 0;
-+
-+	retval = smb_block_write(xport, i + 0x80, mapping_data,
-+				 sizeof(mapping_data));
-+
-+	if (retval < 0) {
-+		/*
-+		 * if not written to device mapping table
-+		 * clear the driver mapping table records
-+		 */
-+		rmi_smb->mapping_table[i].rmiaddr = 0x0000;
-+		rmi_smb->mapping_table[i].readcount = 0;
-+		rmi_smb->mapping_table[i].flags = 0;
-+		goto exit;
-+	}
-+	/* save to the driver level mapping table */
-+	rmi_smb->mapping_table[i].rmiaddr = rmiaddr;
-+	rmi_smb->mapping_table[i].readcount = bytecount;
-+	rmi_smb->mapping_table[i].flags = !isread ? RMI_SMB2_MAP_FLAGS_WE : 0;
-+	*commandcode = i;
-+
-+exit:
-+	mutex_unlock(&rmi_smb->mappingtable_mutex);
-+
-+	return retval;
-+}
-+
-+static int rmi_smb_write_block(struct rmi_transport_dev *xport, u16 rmiaddr,
-+				const void *databuff, size_t len)
-+{
-+	int retval = 0;
-+	u8 commandcode;
-+	struct rmi_smb_xport *rmi_smb =
-+		container_of(xport, struct rmi_smb_xport, xport);
-+	int cur_len = (int)len;
-+
-+	mutex_lock(&rmi_smb->page_mutex);
-+
-+	while (cur_len > 0) {
-+		/*
-+		 * break into 32 bytes chunks to write get command code
-+		 */
-+		int block_len = min_t(int, len, SMB_MAX_COUNT);
-+
-+		retval = rmi_smb_get_command_code(xport, rmiaddr, block_len,
-+						  false, &commandcode);
-+		if (retval < 0)
-+			goto exit;
-+
-+		retval = smb_block_write(xport, commandcode,
-+					 databuff, block_len);
-+		if (retval < 0)
-+			goto exit;
-+
-+		/* prepare to write next block of bytes */
-+		cur_len -= SMB_MAX_COUNT;
-+		databuff += SMB_MAX_COUNT;
-+		rmiaddr += SMB_MAX_COUNT;
-+	}
-+exit:
-+	mutex_unlock(&rmi_smb->page_mutex);
-+	return retval;
-+}
-+
-+/* SMB block read - wrapper over ic2_smb_read_block */
-+static int smb_block_read(struct rmi_transport_dev *xport,
-+			     u8 commandcode, void *buf, size_t len)
-+{
-+	struct rmi_smb_xport *rmi_smb =
-+		container_of(xport, struct rmi_smb_xport, xport);
-+	struct i2c_client *client = rmi_smb->client;
-+	int retval;
-+
-+	retval = i2c_smbus_read_block_data(client, commandcode, buf);
-+	if (retval < 0)
-+		return retval;
-+
-+	return retval;
-+}
-+
-+static int rmi_smb_read_block(struct rmi_transport_dev *xport, u16 rmiaddr,
-+			      void *databuff, size_t len)
-+{
-+	struct rmi_smb_xport *rmi_smb =
-+		container_of(xport, struct rmi_smb_xport, xport);
-+	int retval;
-+	u8 commandcode;
-+	int cur_len = (int)len;
-+
-+	mutex_lock(&rmi_smb->page_mutex);
-+	memset(databuff, 0, len);
-+
-+	while (cur_len > 0) {
-+		/* break into 32 bytes chunks to write get command code */
-+		int block_len =  min_t(int, cur_len, SMB_MAX_COUNT);
-+
-+		retval = rmi_smb_get_command_code(xport, rmiaddr, block_len,
-+						  true, &commandcode);
-+		if (retval < 0)
-+			goto exit;
-+
-+		retval = smb_block_read(xport, commandcode,
-+					databuff, block_len);
-+		if (retval < 0)
-+			goto exit;
-+
-+		/* prepare to read next block of bytes */
-+		cur_len -= SMB_MAX_COUNT;
-+		databuff += SMB_MAX_COUNT;
-+		rmiaddr += SMB_MAX_COUNT;
++ * 3) Host Notify interrupts
+  */
+ static irqreturn_t i801_isr(int irq, void *dev_id)
+ {
+@@ -528,6 +564,12 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
+ 	if (!(pcists & SMBPCISTS_INTS))
+ 		return IRQ_NONE;
+ 
++	if (priv->features & FEATURE_HOST_NOTIFY) {
++		status = inb_p(SMBSLVSTS(priv));
++		if (status & SMBSLVSTS_HST_NTFY_STS)
++			return i801_host_notify_isr(priv);
 +	}
 +
-+	retval = 0;
-+
-+exit:
-+	mutex_unlock(&rmi_smb->page_mutex);
-+	return retval;
+ 	status = inb_p(SMBHSTSTS(priv));
+ 	if (status & SMBHSTSTS_BYTE_DONE)
+ 		i801_isr_byte_done(priv);
+@@ -825,7 +867,29 @@ static u32 i801_func(struct i2c_adapter *adapter)
+ 	       I2C_FUNC_SMBUS_BLOCK_DATA | I2C_FUNC_SMBUS_WRITE_I2C_BLOCK |
+ 	       ((priv->features & FEATURE_SMBUS_PEC) ? I2C_FUNC_SMBUS_PEC : 0) |
+ 	       ((priv->features & FEATURE_I2C_BLOCK_READ) ?
+-		I2C_FUNC_SMBUS_READ_I2C_BLOCK : 0);
++		I2C_FUNC_SMBUS_READ_I2C_BLOCK : 0) |
++	       ((priv->features & FEATURE_HOST_NOTIFY) ?
++		I2C_FUNC_SMBUS_HOST_NOTIFY : 0);
 +}
 +
-+static void rmi_smb_clear_state(struct rmi_smb_xport *rmi_smb)
++static int i801_enable_host_notify(struct i2c_adapter *adapter)
 +{
-+	/* the mapping table has been flushed, discard the current one */
-+	mutex_lock(&rmi_smb->mappingtable_mutex);
-+	memset(rmi_smb->mapping_table, 0, sizeof(rmi_smb->mapping_table));
-+	mutex_unlock(&rmi_smb->mappingtable_mutex);
-+}
++	struct i801_priv *priv = i2c_get_adapdata(adapter);
 +
-+static int rmi_smb_enable_smbus_mode(struct rmi_smb_xport *rmi_smb)
-+{
-+	int retval;
++	if (!(priv->features & FEATURE_HOST_NOTIFY))
++		return -ENOTSUPP;
 +
-+	/* we need to get the smbus version to activate the touchpad */
-+	retval = rmi_smb_get_version(rmi_smb);
-+	if (retval < 0)
-+		return retval;
++	if (!priv->host_notify)
++		priv->host_notify = i2c_setup_smbus_host_notify(adapter);
++
++	if (!priv->host_notify)
++		return -ENOMEM;
++
++	outb_p(SMBSLVCMD_HST_NTFY_INTREN, SMBSLVCMD(priv));
++	/* clear Host Notify bit to allow a new notification */
++	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
 +
 +	return 0;
-+}
-+
-+static int rmi_smb_reset(struct rmi_transport_dev *xport, u16 reset_addr)
-+{
-+	struct rmi_smb_xport *rmi_smb =
-+		container_of(xport, struct rmi_smb_xport, xport);
-+
-+	rmi_smb_clear_state(rmi_smb);
-+
+ }
+ 
+ static const struct i2c_algorithm smbus_algorithm = {
+@@ -1279,6 +1343,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		priv->features |= FEATURE_SMBUS_PEC;
+ 		priv->features |= FEATURE_BLOCK_BUFFER;
+ 		priv->features |= FEATURE_TCO;
++		priv->features |= FEATURE_HOST_NOTIFY;
+ 		break;
+ 
+ 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF0:
+@@ -1298,6 +1363,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		priv->features |= FEATURE_BLOCK_BUFFER;
+ 		/* fall through */
+ 	case PCI_DEVICE_ID_INTEL_82801CA_3:
++		priv->features |= FEATURE_HOST_NOTIFY;
++		/* fall through */
+ 	case PCI_DEVICE_ID_INTEL_82801BA_2:
+ 	case PCI_DEVICE_ID_INTEL_82801AB_3:
+ 	case PCI_DEVICE_ID_INTEL_82801AA_3:
+@@ -1407,6 +1474,15 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		return err;
+ 	}
+ 
 +	/*
-+	 * we do not call the actual reset command, it has to be handled in
-+	 * PS/2 or there will be races between PS/2 and SMBus.
-+	 * PS/2 should ensure that a psmouse_reset is called before
-+	 * intializing the device and after it has been removed to be in a known
-+	 * state.
++	 * Enable Host Notify for chips that supports it.
++	 * It is done after i2c_add_adapter() so that we are sure the work queue
++	 * is not used if i2c_add_adapter() fails.
 +	 */
-+	return rmi_smb_enable_smbus_mode(rmi_smb);
-+}
++	err = i801_enable_host_notify(&priv->adapter);
++	if (err && err != -ENOTSUPP)
++		dev_warn(&dev->dev, "Unable to enable SMBus Host Notify\n");
 +
-+static const struct rmi_transport_ops rmi_smb_ops = {
-+	.write_block	= rmi_smb_write_block,
-+	.read_block	= rmi_smb_read_block,
-+	.reset		= rmi_smb_reset,
-+};
+ 	i801_probe_optional_slaves(priv);
+ 	/* We ignore errors - multiplexing is optional */
+ 	i801_add_mux(priv);
+@@ -1445,8 +1521,11 @@ static int i801_suspend(struct pci_dev *dev, pm_message_t mesg)
+ 
+ static int i801_resume(struct pci_dev *dev)
+ {
++	struct i801_priv *priv = pci_get_drvdata(dev);
 +
-+static void rmi_smb_alert(struct i2c_client *client,
-+			  enum i2c_alert_protocol type, unsigned int data)
-+{
-+	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
-+	struct rmi_device *rmi_dev = rmi_smb->xport.rmi_dev;
-+	struct rmi_driver_data *drv_data = dev_get_drvdata(&rmi_dev->dev);
-+
-+	if (type != I2C_PROTOCOL_SMBUS_HOST_NOTIFY)
-+		return;
-+
-+	if (!drv_data) {
-+		dev_err(&client->dev,
-+			"Something went wrong, driver data is NULL.\n");
-+		return;
-+	}
-+
-+	rmi_process_interrupt_requests(rmi_dev);
-+}
-+
-+static struct i2c_driver rmi_smb_driver;
-+
-+static int rmi_smb_probe(struct i2c_client *client,
-+			 const struct i2c_device_id *id)
-+{
-+	struct rmi_device_platform_data *pdata = dev_get_platdata(&client->dev);
-+	struct rmi_smb_xport *rmi_smb;
-+	int retval;
-+	int smbus_version;
-+
-+	if (!i2c_check_functionality(client->adapter,
-+				     I2C_FUNC_SMBUS_READ_BLOCK_DATA |
-+				     I2C_FUNC_SMBUS_HOST_NOTIFY)) {
-+		dev_err(&client->dev,
-+			"adapter does not support required functionality.\n");
-+		return -ENODEV;
-+	}
-+
-+	rmi_smb = devm_kzalloc(&client->dev, sizeof(struct rmi_smb_xport),
-+				GFP_KERNEL);
-+	if (!rmi_smb)
-+		return -ENOMEM;
-+
-+	if (!pdata) {
-+		dev_err(&client->dev, "no platform data, aborting\n");
-+		return -ENOMEM;
-+	}
-+
-+	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Probing %s.\n",
-+		dev_name(&client->dev));
-+
-+	rmi_smb->client = client;
-+	mutex_init(&rmi_smb->page_mutex);
-+	mutex_init(&rmi_smb->mappingtable_mutex);
-+
-+	rmi_smb->xport.dev = &client->dev;
-+	rmi_smb->xport.pdata = *pdata;
-+	rmi_smb->xport.proto_name = "smb2";
-+	rmi_smb->xport.ops = &rmi_smb_ops;
-+
-+	/* Check if for SMBus new version device by reading version byte. */
-+	retval = rmi_smb_get_version(rmi_smb);
-+	if (retval < 0)
-+		return retval;
-+
-+	smbus_version = retval;
-+	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Smbus version is %d",
-+		smbus_version);
-+
-+	if (smbus_version != 2) {
-+		dev_err(&client->dev, "Unrecognized SMB version %d.\n",
-+				smbus_version);
-+		return -ENODEV;
-+	}
-+
-+	i2c_set_clientdata(client, rmi_smb);
-+
-+	retval = rmi_register_transport_device(&rmi_smb->xport);
-+	if (retval) {
-+		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
-+			client->addr);
-+		i2c_set_clientdata(client, NULL);
-+		return retval;
-+	}
-+
-+	dev_info(&client->dev, "registered rmi smb driver at %#04x.\n",
-+			client->addr);
-+	return 0;
-+
-+}
-+
-+static int rmi_smb_remove(struct i2c_client *client)
-+{
-+	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
-+
-+	rmi_unregister_transport_device(&rmi_smb->xport);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int rmi_smb_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
-+	int ret;
-+
-+	ret = rmi_driver_suspend(rmi_smb->xport.rmi_dev);
-+	if (ret)
-+		dev_warn(dev, "Failed to suspend device: %d\n", ret);
-+
-+	return ret;
-+}
-+#endif
-+
-+#ifdef CONFIG_PM
-+static int rmi_smb_runtime_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
-+	int ret;
-+
-+	ret = rmi_driver_suspend(rmi_smb->xport.rmi_dev);
-+	if (ret)
-+		dev_warn(dev, "Failed to suspend device: %d\n", ret);
-+
-+	return 0;
-+}
-+
-+static int rmi_smb_runtime_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
-+	int ret;
-+
-+	ret = rmi_driver_resume(rmi_smb->xport.rmi_dev);
-+	if (ret)
-+		dev_warn(dev, "Failed to resume device: %d\n", ret);
-+
-+	return 0;
-+}
-+#endif
-+
-+static const struct dev_pm_ops rmi_smb_pm = {
-+	SET_SYSTEM_SLEEP_PM_OPS(rmi_smb_suspend, NULL)
-+	SET_RUNTIME_PM_OPS(rmi_smb_runtime_suspend, rmi_smb_runtime_resume,
-+			   NULL)
-+};
-+
-+static int rmi_smb_resume(struct device *dev)
-+{
-+	struct i2c_client *client = container_of(dev, struct i2c_client, dev);
-+	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
-+	struct rmi_device *rmi_dev = rmi_smb->xport.rmi_dev;
-+	int ret;
-+
-+	rmi_smb_reset(&rmi_smb->xport, 0);
-+
-+	rmi_reset(rmi_dev);
-+
-+	ret = rmi_driver_resume(rmi_smb->xport.rmi_dev);
-+	if (ret)
-+		dev_warn(dev, "Failed to resume device: %d\n", ret);
-+
-+	return 0;
-+}
-+
-+static const struct i2c_device_id rmi_id[] = {
-+	{ "rmi4_smbus", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, rmi_id);
-+
-+static struct i2c_driver rmi_smb_driver = {
-+	.driver = {
-+		.owner	= THIS_MODULE,
-+		.name	= "rmi4_smbus",
-+		.pm	= &rmi_smb_pm,
-+		.resume	= rmi_smb_resume,
-+	},
-+	.id_table	= rmi_id,
-+	.probe		= rmi_smb_probe,
-+	.remove		= rmi_smb_remove,
-+	.alert		= rmi_smb_alert,
-+};
-+
-+module_i2c_driver(rmi_smb_driver);
-+
-+MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com>");
-+MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@redhat.com>");
-+MODULE_DESCRIPTION("RMI4 SMBus driver");
-+MODULE_LICENSE("GPL");
+ 	pci_set_power_state(dev, PCI_D0);
+ 	pci_restore_state(dev);
++	i801_enable_host_notify(&priv->adapter);
+ 	return 0;
+ }
+ #else
 -- 
 2.5.0

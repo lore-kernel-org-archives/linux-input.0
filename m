@@ -1,44 +1,57 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: multitouch: Add MT_QUIRK_NOT_SEEN_MEANS_UP to Surface Pro 3
-Date: Tue, 31 May 2016 17:31:15 +0200
-Message-ID: <1464708675-25273-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] hid-elo: kill not flush the work
+Date: Tue, 31 May 2016 17:39:17 +0200
+Message-ID: <CAN+gG=GUn3hbd8BCHTN2tSKFrvemo__L+AmHMzmMKWrXsRok8w@mail.gmail.com>
+References: <1464698895-6788-1-git-send-email-oneukum@suse.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48704 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751273AbcEaPbU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 May 2016 11:31:20 -0400
+Received: from mail-vk0-f66.google.com ([209.85.213.66]:34519 "EHLO
+	mail-vk0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750730AbcEaPjT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 31 May 2016 11:39:19 -0400
+In-Reply-To: <1464698895-6788-1-git-send-email-oneukum@suse.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Daniel Martin <consume.noise@gmail.com>, Romain Sahut <romain.sahut@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Oliver Neukum <oneukum@suse.com>
+Cc: Jiri Slaby <jslaby@suse.com>, Jiri Kosina <jikos@kernel.org>, linux-input <linux-input@vger.kernel.org>, stable@vger.kernel.org
 
-The firmware found in the touch screen of an SP3 is buggy and may miss
-to send lift off reports for contacts. Try to work around that issue by
-using MT_QUIRK_NOT_SEEN_MEANS_UP.
+On Tue, May 31, 2016 at 2:48 PM, Oliver Neukum <oneukum@suse.com> wrote:
+> Flushing a work that reschedules itself is not a sensible
+> operation. It needs to be killed. Failure to do so leads
+> to a kernel panic in the timer code.
+>
+> Signed-off-by: Oliver Neukum <ONeukum@suse.com>
+> CC: stable@vger.kernel.org
 
-based on a patch from: Daniel Martin <consume.noise@gmail.com>
+Good catch.
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-multitouch.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Thanks!
+Benjamin
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index c741f5e..95b7d61 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1401,6 +1401,11 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_NOVATEK,
- 			USB_DEVICE_ID_NOVATEK_PCT) },
- 
-+	/* Ntrig Panel */
-+	{ .driver_data = MT_CLS_NSMU,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_NTRIG, 0x1b05) },
-+
- 	/* PixArt optical touch screen */
- 	{ .driver_data = MT_CLS_INRANGE_CONTACTNUMBER,
- 		MT_USB_DEVICE(USB_VENDOR_ID_PIXART,
--- 
-2.5.0
-
+> ---
+>  drivers/hid/hid-elo.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-elo.c b/drivers/hid/hid-elo.c
+> index aad8c16..0cd4f72 100644
+> --- a/drivers/hid/hid-elo.c
+> +++ b/drivers/hid/hid-elo.c
+> @@ -261,7 +261,7 @@ static void elo_remove(struct hid_device *hdev)
+>         struct elo_priv *priv = hid_get_drvdata(hdev);
+>
+>         hid_hw_stop(hdev);
+> -       flush_workqueue(wq);
+> +       cancel_delayed_work_sync(&priv->work);
+>         kfree(priv);
+>  }
+>
+> --
+> 2.1.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

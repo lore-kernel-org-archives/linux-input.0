@@ -1,215 +1,554 @@
-From: Dave Gerlach <d-gerlach@ti.com>
-Subject: Re: [PATCH 4/8] mfd: ti_am335x_tscadc: Unify variable naming when
- refrencing ti_tscadc_dev
-Date: Tue, 31 May 2016 12:53:58 -0500
-Message-ID: <574DCFB6.6040303@ti.com>
-References: <20160531170013.2649-1-afd@ti.com>
- <20160531170013.2649-5-afd@ti.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 2/2] HID: multitouch: enable the Surface 3 Type Cover to
+ report multitouch data
+Date: Tue, 31 May 2016 20:56:39 +0300
+Message-ID: <1464717399.1767.1.camel@linux.intel.com>
+References: <1463062363-12405-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1463062363-12405-2-git-send-email-benjamin.tissoires@redhat.com>
+ <1463149818.17131.349.camel@linux.intel.com>
+ <20160513144927.GZ23234@mail.corp.redhat.com>
+ <1463155787.17131.351.camel@linux.intel.com>
+ <1463156908.17131.353.camel@linux.intel.com>
+ <20160520075835.GJ23234@mail.corp.redhat.com>
+	 <20160531160741.GX23234@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:34212 "EHLO comal.ext.ti.com"
+Received: from mga09.intel.com ([134.134.136.24]:27070 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751133AbcEaRyW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 May 2016 13:54:22 -0400
-In-Reply-To: <20160531170013.2649-5-afd@ti.com>
+	id S1755409AbcEaRz0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 31 May 2016 13:55:26 -0400
+In-Reply-To: <20160531160741.GX23234@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Andrew F. Davis" <afd@ti.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>
-Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
-On 05/31/2016 12:00 PM, Andrew F. Davis wrote:
-> All functions in this driver reference the same ti_tscadc_dev per device
-> but use several different names for this structure pointer, this can
-> be confusing when following the code. Use the name 'tscadc' everywhere.
->
+On Tue, 2016-05-31 at 18:07 +0200, Benjamin Tissoires wrote:
+> On May 20 2016 or thereabouts, Benjamin Tissoires wrote:
+> > On May 13 2016 or thereabouts, Andy Shevchenko wrote:
+> > > On Fri, 2016-05-13 at 19:09 +0300, Andy Shevchenko wrote:
+> > > > On Fri, 2016-05-13 at 16:49 +0200, Benjamin Tissoires wrote:
+> > > > >=20
+> > > > > On May 13 2016 or thereabouts, Andy Shevchenko wrote:
+> > > > > >=20
+> > > > > >=20
+> > > > > > On Thu, 2016-05-12 at 16:12 +0200, Benjamin Tissoires wrote=
+:
+> > > > > > >=20
+> > > > > > >=20
+> > > > > > > There is no reasons to filter out keyboard and consumer
+> > > > > > > control
+> > > > > > > collections
+> > > > > > > in hid-multitouch.
+> > > > > > > With the previous hid-input fix, there is now a full
+> > > > > > > support of
+> > > > > > > the
+> > > > > > > Type
+> > > > > > > Cover and we can remove all specific bits from hid-core
+> > > > > > > and hid-
+> > > > > > > microsoft.
+> > > > > > >=20
+> > > > > > > hid-multitouch will automatically set
+> > > > > > > HID_QUIRK_NO_INIT_REPORTS
+> > > > > > > so
+> > > > > > > we
+> > > > > > > can
+> > > > > > > also remove it from the list of ushbid quirks.
+> > > > > > >=20
+> > > > > > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@red=
+h
+> > > > > > > at.com
+> > > > > > > >=20
+> > > > > > > ---
+> > > > > > >=20
+> > > > > > > Andy, would you mind checking if this series is sufficien=
+t
+> > > > > > > to
+> > > > > > > enable
+> > > > > > > the
+> > > > > > > TypeCover of the Surface Book?
+> > > > > > Tested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.c=
+o
+> > > > > > m>
+> > > > > >=20
+> > > > > > Noticed little difference that there is no event for the
+> > > > > > device
+> > > > > > anymore,
+> > > > > > just /dev/usb/hiddev0. Would it work properly under X?
+> > > > > Not sure what you mean.
+> > > > > I get 3 input nodes:
+> > > > > Microsoft Surface Type Cover Keyboard
+> > > > > Microsoft Surface Type Cover Consumer Control
+> > > > > Microsoft Surface Type Cover Touchpad
+> > > > >=20
+> > > > > Each on this input device is properly assigned an event node
+> > > > > and X
+> > > > > works
+> > > > > with them.
+> > > > >=20
+> > > > > If there is no /dev/input/eventX created for your cover, then
+> > > > > this
+> > > > > is
+> > > > > not normal and needs to be investigated.
+> > > > There is no /dev/input/eventX for the touchpad.=C2=A0
+> > > > It prints that input device is under /usb.../input8, but the
+> > > > actual
+> > > > node
+> > > > I got events from is /dev/usb/hiddev0.
+> > >=20
+> > > Correction, it seems the event node is there (event6), but I got
+> > > nothing
+> > > from it
+> >=20
+> > Would you mind sending me a hid-recorder[1] trace of the device
+> > while
+> > typing few keys and using the touchpad?
+>=20
+> Ping?
+>=20
+> Without those logs, I can not do further debugging and Jiri can't tak=
+e
+> the
+> series...
 
-$subject typo: "refrencing" should be "referencing"
+Sorry for delay.
 
-Regards,
-Dave
+Here we are:
+D: 0
+R: 1057 05 01 09 06 a1 01 85 01 15 00 25 01 75 01 95 08 05 07 19 e0 29
+e7 81 02 75 08 95 0a 19 00 29 91 26 ff 00 81 00 05 0c 0a c0 02 a1 02 1a
+c1 02 2a c6 02 95 06 b1 03 c0 05 08 19 01 29 03 75 01 95 03 25 01 91 02
+95 05 91 01 c0 05 01 09 02 a1 01 85 02 05 09 19 01 29 05 81 02 95 01 75
+03 81 03 15 81 25 7f 75 08 95 02 05 01 09 30 09 31 81 06 a1 02 09 48 15
+00 25 01 35 01 45 10 75 02 95 01 a4 b1 02 09 38 15 81 25 7f 35 00 45 00
+75 08 81 06 c0 a1 02 09 48 b4 b1 02 35 00 45 00 75 04 b1 03 05 0c 0a 38
+02 15 81 25 7f 75 08 81 06 c0 c0 05 0c 09 01 a1 01 85 03 75 10 15 00 26
+ff 03 19 00 2a ff 03 81 00 c0 06 05 ff 09 01 a1 01 85 0d 25 ff 95 02 75
+08 09 20 81 02 09 22 91 02 15 81 25 7f 95 20 75 08 09 21 81 02 09 23 91
+02 c0 09 02 a1 01 85 0c 15 00 25 ff 95 01 09 00 91 02 c0 05 0d 09 05 a1
+01 85 04 09 22 a1 02 25 01 09 47 09 42 95 02 75 01 81 02 95 01 75 03 25
+03 09 51 81 02 75 01 95 03 81 03 05 01 26 e4 07 75 10 55 0e 65 11 09 30
+46 f2 03 95 01 81 02 46 94 02 26 29 05 09 31 81 02 45 00 55 00 65 00 c0
+05 0d 09 22 a1 02 25 01 09 47 09 42 95 02 75 01 81 02 95 01 75 03 25 03
+09 51 81 02 75 01 95 03 81 03 05 01 26 e4 07 75 10 55 0e 65 11 09 30 46
+f2 03 95 01 81 02 46 94 02 26 29 05 09 31 81 02 45 00 55 00 65 00 c0 05
+0d 09 22 a1 02 25 01 09 47 09 42 95 02 75 01 81 02 95 01 75 03 25 03 09
+51 81 02 75 01 95 03 81 03 05 01 26 e4 07 75 10 55 0e 65 11 09 30 46 f2
+03 95 01 81 02 46 94 02 26 29 05 09 31 81 02 c0 05 0d 09 22 a1 02 25 01
+09 47 09 42 95 02 75 01 81 02 95 01 75 03 25 03 09 51 81 02 75 01 95 03
+81 03 05 01 26 e4 07 75 10 55 0e 65 11 09 30 46 f2 03 95 01 81 02 46 94
+02 26 29 05 09 31 81 02 45 00 55 00 65 00 c0 05 0d 09 22 a1 02 25 01 09
+47 09 42 95 02 75 01 81 02 95 01 75 03 25 03 09 51 81 02 75 01 95 03 81
+03 05 01 26 e4 07 75 10 55 0e 65 11 09 30 46 f2 03 95 01 81 02 46 94 02
+26 29 05 09 31 81 02 c0 05 0d 55 0c 66 01 10 47 ff ff 00 00 27 ff ff 00
+00 09 56 81 02 09 54 25 7f 75 08 81 02 05 09 09 01 25 01 75 01 81 02 95
+07 81 03 05 0d 85 04 09 55 09 59 75 04 95 02 25 0f b1 02 06 00 ff 09 c6
+85 05 15 00 25 08 75 08 95 01 b1 02 09 c7 26 ff 00 75 08 95 20 b1 02 c0
+05 0d 09 0e a1 01 85 07 09 22 a1 02 09 52 15 00 25 0a 75 08 95 01 b1 02
+c0 09 22 a1 00 85 08 09 57 09 58 75 01 95 02 25 01 b1 02 95 06 b1 03 c0
+c0 06 07 ff 09 01 a1 01 85 0a 09 02 26 ff 00 75 08 95 14 91 02 85 09 09
+03 91 02 85 0a 09 04 95 26 81 02 85 09 09 05 81 02 85 09 09 06 95 01 b1
+02 85 0b 09 07 b1 02 c0 06 05 ff 09 04 a1 01 85 0e 09 31 91 02 09 31 81
+03 09 30 91 02 09 30 81 02 95 39 09 32 92 02 01 09 32 82 02 01 c0 06 05
+ff 09 50 a1 01 85 20 15 00 27 ff ff ff ff 75 08 95 3c 09 60 82 02 01 09
+61 92 02 01 09 62 b2 02 01 85 21 09 63 82 02 01 09 64 92 02 01 09 65 b2
+02 01 85 22 27 ff ff ff ff 75 20 95 04 19 66 29 69 81 02 19 6a 29 6d 91
+02 19 6e 29 71 b1 02 85 23 19 72 29 75 81 02 19 76 29 79 91 02 19 7a 29
+7d b1 02 85 24 19 7e 29 81 81 02 19 82 29 85 91 02 19 86 29 89 b1 02 85
+25 19 8a 29 8d 81 02 19 8e 29 91 91 02 19 92 29 95 b1 02 85 26 19 96 29
+99 81 02 19 9a 29 9d 91 02 19 9e 29 a1 b1 02 85 27 19 a2 29 a5 81 02 19
+a6 29 a9 91 02 19 aa 29 ad b1 02 85 28 19 ae 29 b1 81 02 19 b2 29 b5 91
+02 19 b6 29 b9 b1 02 85 29 19 ba 29 bd 81 02 19 be 29 c1 91 02 19 c2 29
+c5 b1 02 c0
+N: Microsoft Surface Keyboard
+P: usb-0000:00:14.0-1.4/input0
+I: 3 045e 07cd
+D: 0
+E: 0.000000 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 4.260012 12 01 20 00 00 00 00 00 00 00 00 00 00
+E: 4.440019 12 01 20 10 00 00 00 00 00 00 00 00 00
+E: 4.500005 12 01 00 10 00 00 00 00 00 00 00 00 00
+E: 4.549996 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 4.740009 12 01 00 0c 00 00 00 00 00 00 00 00 00
+E: 4.870011 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 5.010018 12 01 00 06 00 00 00 00 00 00 00 00 00
+E: 5.110018 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 5.260016 12 01 00 15 00 00 00 00 00 00 00 00 00
+E: 5.330021 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 5.380008 12 01 00 12 00 00 00 00 00 00 00 00 00
+E: 5.460012 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 5.600016 12 01 00 07 00 00 00 00 00 00 00 00 00
+E: 5.630002 3 03 00 00
+E: 5.680009 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 5.710014 12 01 00 12 00 00 00 00 00 00 00 00 00
+E: 5.800012 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 5.860014 12 01 00 09 00 00 00 00 00 00 00 00 00
+E: 5.960010 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 6.110013 12 01 00 17 00 00 00 00 00 00 00 00 00
+E: 6.190009 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 6.510012 12 01 00 2c 00 00 00 00 00 00 00 00 00
+E: 6.590009 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 7.289990 12 01 20 00 00 00 00 00 00 00 00 00 00
+E: 7.629994 3 03 00 00
+E: 7.830015 12 01 20 16 00 00 00 00 00 00 00 00 00
+E: 7.930008 12 01 20 00 00 00 00 00 00 00 00 00 00
+E: 7.939995 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 8.610009 12 01 00 18 00 00 00 00 00 00 00 00 00
+E: 8.634001 3 03 00 00
+E: 8.710010 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 8.850007 12 01 00 15 00 00 00 00 00 00 00 00 00
+E: 8.940011 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 9.080011 12 01 00 09 00 00 00 00 00 00 00 00 00
+E: 9.160014 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 9.289994 12 01 00 04 00 00 00 00 00 00 00 00 00
+E: 9.400013 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 9.489995 12 01 00 06 00 00 00 00 00 00 00 00 00
+E: 9.633994 3 03 00 00
+E: 9.639990 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 9.649996 12 01 00 15 00 00 00 00 00 00 00 00 00
+E: 9.730004 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 10.060007 12 01 00 2a 00 00 00 00 00 00 00 00 00
+E: 10.180010 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 10.189995 12 01 00 08 00 00 00 00 00 00 00 00 00
+E: 10.270006 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 10.970010 12 01 00 2c 00 00 00 00 00 00 00 00 00
+E: 11.060017 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 11.260007 12 01 20 00 00 00 00 00 00 00 00 00 00
+E: 11.319995 12 01 20 05 00 00 00 00 00 00 00 00 00
+E: 11.379897 12 01 00 05 00 00 00 00 00 00 00 00 00
+E: 11.399890 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 11.559894 12 01 00 12 00 00 00 00 00 00 00 00 00
+E: 11.628891 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 11.708889 12 01 00 12 00 00 00 00 00 00 00 00 00
+E: 11.840014 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 11.929011 12 01 00 0e 00 00 00 00 00 00 00 00 00
+E: 12.039880 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 12.789011 12 01 00 2c 00 00 00 00 00 00 00 00 00
+E: 12.888997 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 13.189011 12 01 20 00 00 00 00 00 00 00 00 00 00
+E: 13.319997 12 01 20 17 00 00 00 00 00 00 00 00 00
+E: 13.389008 12 01 00 17 00 00 00 00 00 00 00 00 00
+E: 13.429009 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 13.519989 12 01 00 08 00 00 00 00 00 00 00 00 00
+E: 13.629011 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 13.729009 12 01 00 16 00 00 00 00 00 00 00 00 00
+E: 13.809011 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 13.909012 12 01 00 17 00 00 00 00 00 00 00 00 00
+E: 13.989010 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 14.839007 12 01 00 28 00 00 00 00 00 00 00 00 00
+E: 14.969002 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 15.879010 12 01 20 00 00 00 00 00 00 00 00 00 00
+E: 16.128876 12 01 20 11 00 00 00 00 00 00 00 00 00
+E: 16.189009 12 01 00 11 00 00 00 00 00 00 00 00 00
+E: 16.229007 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 16.369006 12 01 00 12 00 00 00 00 00 00 00 00 00
+E: 16.479010 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 16.539014 12 01 00 1a 00 00 00 00 00 00 00 00 00
+E: 16.629009 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 16.698999 12 01 00 2c 00 00 00 00 00 00 00 00 00
+E: 16.789008 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 17.058999 12 01 00 17 00 00 00 00 00 00 00 00 00
+E: 17.139004 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 17.229011 12 01 00 12 00 00 00 00 00 00 00 00 00
+E: 17.319004 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 17.949025 12 01 00 18 00 00 00 00 00 00 00 00 00
+E: 18.039003 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 18.098999 12 01 00 06 00 00 00 00 00 00 00 00 00
+E: 18.169005 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 18.439016 12 01 00 0b 00 00 00 00 00 00 00 00 00
+E: 18.548990 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 19.588998 12 01 00 13 00 00 00 00 00 00 00 00 00
+E: 19.640989 3 03 00 00
+E: 19.719007 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 19.779009 12 01 00 04 00 00 00 00 00 00 00 00 00
+E: 19.899004 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 22.078888 12 01 00 07 00 00 00 00 00 00 00 00 00
+E: 22.198888 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 22.569003 12 01 00 28 00 00 00 00 00 00 00 00 00
+E: 22.640986 3 03 00 00
+E: 22.679011 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 23.984993 6 02 00 fd 01 00 00
+E: 23.999979 6 02 00 00 01 00 00
+E: 24.007972 6 02 00 00 01 00 00
+E: 24.014976 6 02 00 00 03 00 00
+E: 24.021954 6 02 00 00 04 00 00
+E: 24.029974 6 02 00 fe 05 00 00
+E: 24.036975 6 02 00 ff 06 00 00
+E: 24.043949 6 02 00 ff 0a 00 00
+E: 24.051973 6 02 00 00 0a 00 00
+E: 24.058972 6 02 00 ff 0c 00 00
+E: 24.065969 6 02 00 ff 0b 00 00
+E: 24.073971 6 02 00 00 0b 00 00
+E: 24.080953 6 02 00 fe 0f 00 00
+E: 24.087977 6 02 00 ff 0e 00 00
+E: 24.095974 6 02 00 fe 0a 00 00
+E: 24.102953 6 02 00 ff 0e 00 00
+E: 24.109974 6 02 00 ff 0d 00 00
+E: 24.117953 6 02 00 ff 0a 00 00
+E: 24.124951 6 02 00 00 08 00 00
+E: 24.131970 6 02 00 ff 0c 00 00
+E: 24.139960 6 02 00 00 0c 00 00
+E: 24.146952 6 02 00 00 0c 00 00
+E: 24.153975 6 02 00 00 0a 00 00
+E: 24.161978 6 02 00 02 0f 00 00
+E: 24.168956 6 02 00 02 10 00 00
+E: 24.175956 6 02 00 04 0e 00 00
+E: 24.183979 6 02 00 02 09 00 00
+E: 24.190977 6 02 00 06 11 00 00
+E: 24.197972 6 02 00 04 0f 00 00
+E: 24.205956 6 02 00 05 09 00 00
+E: 24.212960 6 02 00 06 0a 00 00
+E: 24.220974 6 02 00 0a 0b 00 00
+E: 24.227971 6 02 00 08 09 00 00
+E: 24.234972 6 02 00 0b 08 00 00
+E: 24.241951 6 02 00 0a 03 00 00
+E: 24.469988 6 02 00 fa fe 00 00
+E: 24.477957 6 02 00 fd fe 00 00
+E: 24.484978 6 02 00 fd 00 00 00
+E: 24.491972 6 02 00 fe ff 00 00
+E: 24.506962 6 02 00 00 ff 00 00
+E: 24.513972 6 02 00 ff 00 00 00
+E: 24.528980 6 02 00 00 ff 00 00
+E: 24.535969 6 02 00 00 ff 00 00
+E: 24.543965 6 02 00 02 fd 00 00
+E: 24.550971 6 02 00 07 f7 00 00
+E: 24.557976 6 02 00 06 f6 00 00
+E: 24.565971 6 02 00 07 f5 00 00
+E: 24.572954 6 02 00 07 f5 00 00
+E: 24.579973 6 02 00 0b f1 00 00
+E: 24.587972 6 02 00 0d ee 00 00
+E: 24.594976 6 02 00 0c ef 00 00
+E: 24.601953 6 02 00 0b ed 00 00
+E: 24.609962 6 02 00 0c f0 00 00
+E: 24.616971 6 02 00 09 f7 00 00
+E: 24.624953 6 02 00 0e f3 00 00
+E: 24.631977 6 02 00 07 f8 00 00
+E: 24.638976 6 02 00 0f f4 00 00
+E: 24.836990 6 02 00 ff 00 00 00
+E: 24.866994 6 02 00 ff 00 00 00
+E: 24.873970 6 02 00 00 01 00 00
+E: 24.880970 6 02 00 ff 01 00 00
+E: 24.888975 6 02 00 ff 03 00 00
+E: 24.895978 6 02 00 fc 09 00 00
+E: 24.902972 6 02 00 fb 0a 00 00
+E: 24.910979 6 02 00 fa 0d 00 00
+E: 24.917974 6 02 00 f9 17 00 00
+E: 24.924952 6 02 00 f7 13 00 00
+E: 24.932974 6 02 00 f5 21 00 00
+E: 24.939978 6 02 00 f7 19 00 00
+E: 24.946976 6 02 00 fa 25 00 00
+E: 24.954976 6 02 00 fa 26 00 00
+E: 24.961973 6 02 00 fd 22 00 00
+E: 24.968971 6 02 00 fd 2d 00 00
+E: 24.976955 6 02 00 ff 25 00 00
+E: 24.983971 6 02 00 03 2a 00 00
+E: 24.990975 6 02 00 03 1f 00 00
+E: 24.998953 6 02 00 06 1d 00 00
+E: 25.005970 6 02 00 0c 19 00 00
+E: 25.012985 6 02 00 0c 11 00 00
+E: 25.020970 6 02 00 12 13 00 00
+E: 25.027953 6 02 00 16 0b 00 00
+E: 25.034973 6 02 00 17 02 00 00
+E: 25.042950 6 02 00 12 fe 00 00
+E: 25.049972 6 02 00 14 fa 00 00
+E: 25.145989 6 02 00 00 ff 00 00
+E: 25.189992 6 02 00 ff 00 00 00
+E: 25.203978 6 02 00 ff 00 00 00
+E: 25.211975 6 02 00 fa 04 00 00
+E: 25.218975 6 02 00 fa 04 00 00
+E: 25.226976 6 02 00 f9 05 00 00
+E: 25.233978 6 02 00 fd 03 00 00
+E: 25.240955 6 02 00 f5 05 00 00
+E: 25.248952 6 02 00 f7 02 00 00
+E: 25.255957 6 02 00 f5 02 00 00
+E: 25.262974 6 02 00 f3 00 00 00
+E: 25.270973 6 02 00 f2 fe 00 00
+E: 25.277973 6 02 00 ef fb 00 00
+E: 25.284946 6 02 00 ec fa 00 00
+E: 25.292975 6 02 00 eb f7 00 00
+E: 25.299969 6 02 00 e4 f6 00 00
+E: 25.306951 6 02 00 e3 f5 00 00
+E: 25.314973 6 02 00 de f6 00 00
+E: 25.321957 6 02 00 de f1 00 00
+E: 25.328980 6 02 00 d8 ef 00 00
+E: 25.359000 6 02 00 f2 01 00 00
+E: 25.365978 6 02 00 f2 01 00 00
+E: 25.372951 6 02 00 f4 02 00 00
+E: 25.380953 6 02 00 f3 02 00 00
+E: 25.387971 6 02 00 f6 04 00 00
+E: 25.394950 6 02 00 e8 0a 00 00
+E: 25.402971 6 02 00 f6 05 00 00
+E: 25.409956 6 02 00 fb 03 00 00
+E: 25.416972 6 02 00 fb 05 00 00
+E: 25.424980 6 02 00 f8 07 00 00
+E: 25.438983 6 02 00 f6 11 00 00
+E: 25.946989 6 02 00 fe fd 00 00
+E: 25.961979 6 02 00 fc fe 00 00
+E: 25.968970 6 02 00 ff ff 00 00
+E: 25.975953 6 02 00 ff 00 00 00
+E: 25.983972 6 02 00 ff 00 00 00
+E: 25.990972 6 02 00 ff 00 00 00
+E: 25.997972 6 02 00 ff 01 00 00
+E: 26.005972 6 02 00 00 01 00 00
+E: 26.012969 6 02 00 ff 05 00 00
+E: 26.020973 6 02 00 00 03 00 00
+E: 26.027972 6 02 00 02 08 00 00
+E: 26.034952 6 02 00 00 07 00 00
+E: 26.042968 6 02 00 00 06 00 00
+E: 26.049951 6 02 00 03 0a 00 00
+E: 26.056951 6 02 00 03 0a 00 00
+E: 26.063973 6 02 00 05 0c 00 00
+E: 26.071972 6 02 00 00 01 00 00
+E: 26.254993 6 02 01 fd fc 00 00
+E: 26.269981 6 02 01 ff 00 00 00
+E: 26.276971 6 02 01 ff 00 00 00
+E: 26.284944 6 02 00 00 00 00 00
+E: 26.291975 6 02 00 00 00 00 00
+E: 26.423989 6 02 01 00 00 00 00
+E: 26.445983 6 02 01 ff 00 00 00
+E: 26.467981 6 02 01 00 01 00 00
+E: 26.497978 6 02 00 00 00 00 00
+E: 26.504970 6 02 00 00 00 00 00
+E: 26.636985 6 02 01 00 fd 00 00
+E: 26.688971 6 02 01 00 01 00 00
+E: 26.710985 6 02 00 00 00 00 00
+E: 26.717973 6 02 00 00 00 00 00
+E: 26.746980 6 02 00 00 01 00 00
+E: 26.754979 6 02 00 02 02 00 00
+E: 26.761950 6 02 00 01 00 00 00
+E: 27.098981 6 02 00 05 04 00 00
+E: 27.113981 6 02 00 03 00 00 00
+E: 27.121950 6 02 00 02 00 00 00
+E: 27.136980 6 02 01 0a 01 00 00
+E: 27.143966 6 02 01 01 01 00 00
+E: 27.150973 6 02 01 02 01 00 00
+E: 27.179993 6 02 01 00 01 00 00
+E: 27.194980 6 02 01 00 01 00 00
+E: 27.201969 6 02 01 00 01 00 00
+E: 27.208985 6 02 01 00 01 00 00
+E: 27.216971 6 02 01 ff 02 00 00
+E: 27.231978 6 02 01 ff 03 00 00
+E: 27.238974 6 02 01 ff 02 00 00
+E: 27.246978 6 02 01 ff 02 00 00
+E: 27.253972 6 02 01 ff 02 00 00
+E: 27.260972 6 02 01 fe 02 00 00
+E: 27.268971 6 02 01 ff 02 00 00
+E: 27.275952 6 02 01 ff 02 00 00
+E: 27.282961 6 02 01 ff 01 00 00
+E: 27.290956 6 02 01 fe 01 00 00
+E: 27.304985 6 02 01 ff 00 00 00
+E: 27.311967 6 02 01 ff 00 00 00
+E: 27.326982 6 02 01 fa fd 00 00
+E: 27.340957 6 02 00 00 00 00 00
+E: 27.348953 6 02 00 00 00 00 00
+E: 27.392983 6 02 00 fe 00 00 00
+E: 27.399973 6 02 00 ff 00 00 00
+E: 27.406954 6 02 00 ff 00 00 00
+E: 27.414971 6 02 00 ff 00 00 00
+E: 27.429982 6 02 01 ff 06 00 00
+E: 27.451983 6 02 01 ff 00 00 00
+E: 27.466976 6 02 01 00 01 00 00
+E: 27.473957 6 02 01 00 01 00 00
+E: 27.480973 6 02 01 00 01 00 00
+E: 27.488969 6 02 01 00 01 00 00
+E: 27.502977 6 02 01 00 01 00 00
+E: 27.510975 6 02 01 00 01 00 00
+E: 27.517977 6 02 01 02 02 00 00
+E: 27.525973 6 02 01 01 00 00 00
+E: 27.546872 6 02 01 00 01 00 00
+E: 27.575989 6 02 00 00 00 00 00
+E: 27.583973 6 02 00 00 00 00 00
+E: 27.774985 6 02 00 00 01 00 00
+E: 27.810986 6 02 02 00 01 00 00
+E: 27.825986 6 02 02 ff 01 00 00
+E: 27.832970 6 02 02 ff 01 00 00
+E: 27.840971 6 02 02 fe 04 00 00
+E: 27.847971 6 02 02 ff 03 00 00
+E: 27.854973 6 02 02 ff 02 00 00
+E: 27.862952 6 02 02 00 01 00 00
+E: 27.869974 6 02 02 00 02 00 00
+E: 27.876970 6 02 02 00 01 00 00
+E: 27.891983 6 02 02 00 01 00 00
+E: 27.906961 6 02 02 00 01 00 00
+E: 27.950987 6 02 02 01 00 00 00
+E: 27.957977 6 02 02 01 00 00 00
+E: 27.965974 6 02 02 01 00 00 00
+E: 27.972971 6 02 00 00 00 00 00
+E: 27.979968 6 02 00 00 00 00 00
+E: 28.075985 6 02 02 fd ff 00 00
+E: 28.089959 6 02 02 ff 00 00 00
+E: 28.104981 6 02 02 00 01 00 00
+E: 28.112974 6 02 02 00 01 00 00
+E: 28.133988 6 02 02 00 01 00 00
+E: 28.148979 6 02 02 01 00 00 00
+E: 28.156950 6 02 02 01 00 00 00
+E: 28.163948 6 02 02 01 00 00 00
+E: 28.170971 6 02 02 01 fe 00 00
+E: 28.178971 6 02 02 01 ff 00 00
+E: 28.185969 6 02 02 01 ff 00 00
+E: 28.192984 6 02 02 06 fc 00 00
+E: 28.200959 6 02 02 06 ff 00 00
+E: 28.207972 6 02 00 00 00 00 00
+E: 28.214971 6 02 00 00 00 00 00
+E: 31.738879 12 01 20 00 00 00 00 00 00 00 00 00 00
+E: 31.878882 12 01 20 17 00 00 00 00 00 00 00 00 00
+E: 31.928999 12 01 00 17 00 00 00 00 00 00 00 00 00
+E: 31.978996 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 32.119000 12 01 00 0b 00 00 00 00 00 00 00 00 00
+E: 32.199003 12 01 00 0b 04 00 00 00 00 00 00 00 00
+E: 32.208986 12 01 00 04 00 00 00 00 00 00 00 00 00
+E: 32.338995 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 32.719009 12 01 00 17 00 00 00 00 00 00 00 00 00
+E: 32.808982 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 33.298997 12 01 00 32 00 00 00 00 00 00 00 00 00
+E: 33.408979 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 33.809000 12 01 00 2a 00 00 00 00 00 00 00 00 00
+E: 33.939001 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 34.018998 12 01 00 34 00 00 00 00 00 00 00 00 00
+E: 34.128999 12 01 00 34 16 00 00 00 00 00 00 00 00
+E: 34.138984 12 01 00 16 00 00 00 00 00 00 00 00 00
+E: 34.238999 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 34.749000 12 01 00 2c 00 00 00 00 00 00 00 00 00
+E: 34.848997 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 35.088987 12 01 00 04 00 00 00 00 00 00 00 00 00
+E: 35.199001 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 35.408980 12 01 00 0f 00 00 00 00 00 00 00 00 00
+E: 35.499007 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 35.568999 12 01 00 0f 00 00 00 00 00 00 00 00 00
+E: 35.638999 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 40.378997 12 01 00 28 00 00 00 00 00 00 00 00 00
+E: 40.468997 12 01 00 00 00 00 00 00 00 00 00 00 00
+E: 51.408872 12 01 01 00 00 00 00 00 00 00 00 00 00
+E: 51.642858 3 03 00 00
 
-> Signed-off-by: Andrew F. Davis <afd@ti.com>
-> ---
->   drivers/mfd/ti_am335x_tscadc.c | 88 +++++++++++++++++++++---------------------
->   1 file changed, 44 insertions(+), 44 deletions(-)
->
-> diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-> index 613f15d..9b293b1 100644
-> --- a/drivers/mfd/ti_am335x_tscadc.c
-> +++ b/drivers/mfd/ti_am335x_tscadc.c
-> @@ -34,89 +34,89 @@ static const struct regmap_config tscadc_regmap_config = {
->   	.val_bits = 32,
->   };
->
-> -void am335x_tsc_se_set_cache(struct ti_tscadc_dev *tsadc, u32 val)
-> +void am335x_tsc_se_set_cache(struct ti_tscadc_dev *tscadc, u32 val)
->   {
->   	unsigned long flags;
->
-> -	spin_lock_irqsave(&tsadc->reg_lock, flags);
-> -	tsadc->reg_se_cache |= val;
-> -	if (tsadc->adc_waiting)
-> -		wake_up(&tsadc->reg_se_wait);
-> -	else if (!tsadc->adc_in_use)
-> -		regmap_write(tsadc->regmap_tscadc, REG_SE, tsadc->reg_se_cache);
-> +	spin_lock_irqsave(&tscadc->reg_lock, flags);
-> +	tscadc->reg_se_cache |= val;
-> +	if (tscadc->adc_waiting)
-> +		wake_up(&tscadc->reg_se_wait);
-> +	else if (!tscadc->adc_in_use)
-> +		regmap_write(tscadc->regmap_tscadc, REG_SE, tscadc->reg_se_cache);
->
-> -	spin_unlock_irqrestore(&tsadc->reg_lock, flags);
-> +	spin_unlock_irqrestore(&tscadc->reg_lock, flags);
->   }
->   EXPORT_SYMBOL_GPL(am335x_tsc_se_set_cache);
->
-> -static void am335x_tscadc_need_adc(struct ti_tscadc_dev *tsadc)
-> +static void am335x_tscadc_need_adc(struct ti_tscadc_dev *tscadc)
->   {
->   	DEFINE_WAIT(wait);
->   	u32 reg;
->
-> -	regmap_read(tsadc->regmap_tscadc, REG_ADCFSM, &reg);
-> +	regmap_read(tscadc->regmap_tscadc, REG_ADCFSM, &reg);
->   	if (reg & SEQ_STATUS) {
-> -		tsadc->adc_waiting = true;
-> -		prepare_to_wait(&tsadc->reg_se_wait, &wait,
-> +		tscadc->adc_waiting = true;
-> +		prepare_to_wait(&tscadc->reg_se_wait, &wait,
->   				TASK_UNINTERRUPTIBLE);
-> -		spin_unlock_irq(&tsadc->reg_lock);
-> +		spin_unlock_irq(&tscadc->reg_lock);
->
->   		schedule();
->
-> -		spin_lock_irq(&tsadc->reg_lock);
-> -		finish_wait(&tsadc->reg_se_wait, &wait);
-> +		spin_lock_irq(&tscadc->reg_lock);
-> +		finish_wait(&tscadc->reg_se_wait, &wait);
->
->   		/*
->   		 * Sequencer should either be idle or
->   		 * busy applying the charge step.
->   		 */
-> -		regmap_read(tsadc->regmap_tscadc, REG_ADCFSM, &reg);
-> +		regmap_read(tscadc->regmap_tscadc, REG_ADCFSM, &reg);
->   		WARN_ON((reg & SEQ_STATUS) && !(reg & CHARGE_STEP));
-> -		tsadc->adc_waiting = false;
-> +		tscadc->adc_waiting = false;
->   	}
-> -	tsadc->adc_in_use = true;
-> +	tscadc->adc_in_use = true;
->   }
->
-> -void am335x_tsc_se_set_once(struct ti_tscadc_dev *tsadc, u32 val)
-> +void am335x_tsc_se_set_once(struct ti_tscadc_dev *tscadc, u32 val)
->   {
-> -	spin_lock_irq(&tsadc->reg_lock);
-> -	am335x_tscadc_need_adc(tsadc);
-> +	spin_lock_irq(&tscadc->reg_lock);
-> +	am335x_tscadc_need_adc(tscadc);
->
-> -	regmap_write(tsadc->regmap_tscadc, REG_SE, val);
-> -	spin_unlock_irq(&tsadc->reg_lock);
-> +	regmap_write(tscadc->regmap_tscadc, REG_SE, val);
-> +	spin_unlock_irq(&tscadc->reg_lock);
->   }
->   EXPORT_SYMBOL_GPL(am335x_tsc_se_set_once);
->
-> -void am335x_tsc_se_adc_done(struct ti_tscadc_dev *tsadc)
-> +void am335x_tsc_se_adc_done(struct ti_tscadc_dev *tscadc)
->   {
->   	unsigned long flags;
->
-> -	spin_lock_irqsave(&tsadc->reg_lock, flags);
-> -	tsadc->adc_in_use = false;
-> -	regmap_write(tsadc->regmap_tscadc, REG_SE, tsadc->reg_se_cache);
-> -	spin_unlock_irqrestore(&tsadc->reg_lock, flags);
-> +	spin_lock_irqsave(&tscadc->reg_lock, flags);
-> +	tscadc->adc_in_use = false;
-> +	regmap_write(tscadc->regmap_tscadc, REG_SE, tscadc->reg_se_cache);
-> +	spin_unlock_irqrestore(&tscadc->reg_lock, flags);
->   }
->   EXPORT_SYMBOL_GPL(am335x_tsc_se_adc_done);
->
-> -void am335x_tsc_se_clr(struct ti_tscadc_dev *tsadc, u32 val)
-> +void am335x_tsc_se_clr(struct ti_tscadc_dev *tscadc, u32 val)
->   {
->   	unsigned long flags;
->
-> -	spin_lock_irqsave(&tsadc->reg_lock, flags);
-> -	tsadc->reg_se_cache &= ~val;
-> -	regmap_write(tsadc->regmap_tscadc, REG_SE, tsadc->reg_se_cache);
-> -	spin_unlock_irqrestore(&tsadc->reg_lock, flags);
-> +	spin_lock_irqsave(&tscadc->reg_lock, flags);
-> +	tscadc->reg_se_cache &= ~val;
-> +	regmap_write(tscadc->regmap_tscadc, REG_SE, tscadc->reg_se_cache);
-> +	spin_unlock_irqrestore(&tscadc->reg_lock, flags);
->   }
->   EXPORT_SYMBOL_GPL(am335x_tsc_se_clr);
->
-> -static void tscadc_idle_config(struct ti_tscadc_dev *config)
-> +static void tscadc_idle_config(struct ti_tscadc_dev *tscadc)
->   {
->   	unsigned int idleconfig;
->
->   	idleconfig = STEPCONFIG_YNN | STEPCONFIG_INM_ADCREFM |
->   			STEPCONFIG_INP_ADCREFM | STEPCONFIG_YPN;
->
-> -	regmap_write(config->regmap_tscadc, REG_IDLECONFIG, idleconfig);
-> +	regmap_write(tscadc->regmap_tscadc, REG_IDLECONFIG, idleconfig);
->   }
->
->   static	int ti_tscadc_probe(struct platform_device *pdev)
-> @@ -298,9 +298,9 @@ static int ti_tscadc_remove(struct platform_device *pdev)
->
->   static int __maybe_unused tscadc_suspend(struct device *dev)
->   {
-> -	struct ti_tscadc_dev	*tscadc_dev = dev_get_drvdata(dev);
-> +	struct ti_tscadc_dev	*tscadc = dev_get_drvdata(dev);
->
-> -	regmap_write(tscadc_dev->regmap_tscadc, REG_SE, 0x00);
-> +	regmap_write(tscadc->regmap_tscadc, REG_SE, 0x00);
->   	pm_runtime_put_sync(dev);
->
->   	return 0;
-> @@ -308,26 +308,26 @@ static int __maybe_unused tscadc_suspend(struct device *dev)
->
->   static int __maybe_unused tscadc_resume(struct device *dev)
->   {
-> -	struct ti_tscadc_dev	*tscadc_dev = dev_get_drvdata(dev);
-> +	struct ti_tscadc_dev	*tscadc = dev_get_drvdata(dev);
->   	u32 ctrl;
->
->   	pm_runtime_get_sync(dev);
->
->   	/* context restore */
->   	ctrl = CNTRLREG_STEPCONFIGWRT |	CNTRLREG_STEPID;
-> -	regmap_write(tscadc_dev->regmap_tscadc, REG_CTRL, ctrl);
-> +	regmap_write(tscadc->regmap_tscadc, REG_CTRL, ctrl);
->
-> -	if (tscadc_dev->tsc_cell != -1) {
-> -		if (tscadc_dev->tsc_wires == 5)
-> +	if (tscadc->tsc_cell != -1) {
-> +		if (tscadc->tsc_wires == 5)
->   			ctrl |= CNTRLREG_5WIRE | CNTRLREG_TSCENB;
->   		else
->   			ctrl |= CNTRLREG_4WIRE | CNTRLREG_TSCENB;
-> -		tscadc_idle_config(tscadc_dev);
-> +		tscadc_idle_config(tscadc);
->   	}
->   	ctrl |= CNTRLREG_TSCSSENB;
-> -	regmap_write(tscadc_dev->regmap_tscadc, REG_CTRL, ctrl);
-> +	regmap_write(tscadc->regmap_tscadc, REG_CTRL, ctrl);
->
-> -	regmap_write(tscadc_dev->regmap_tscadc, REG_CLKDIV, tscadc_dev->clk_div);
-> +	regmap_write(tscadc->regmap_tscadc, REG_CLKDIV, tscadc->clk_div);
->
->   	return 0;
->   }
->
 
+
+P.S. I have sent you privately the fix to hid-replay to be built under
+ucLibc.
+
+>=20
+> Cheers,
+> Benjamin
+>=20
+> >=20
+> > Not receiving events from the actual touchpad node means that the
+> > device did not switch to the mutlitouch mode, or that something els=
+e
+> > is going on. I should be able to see that in the hid-recorder log.
+> >=20
+> >=20
+> > [1] http://bentiss.github.io/hid-replay-docs/
+> >=20
+> > Cheers,
+> > Benjamin
+
+--=20
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

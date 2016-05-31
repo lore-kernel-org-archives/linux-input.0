@@ -1,7 +1,7 @@
 From: "Andrew F. Davis" <afd@ti.com>
-Subject: [PATCH 6/8] mfd: ti_am335x_tscadc: use variable name for sizeof() operator
-Date: Tue, 31 May 2016 12:00:11 -0500
-Message-ID: <20160531170013.2649-7-afd@ti.com>
+Subject: [PATCH 8/8] Input: ti_am335x_tsc - use variable name for sizeof() operator
+Date: Tue, 31 May 2016 12:00:13 -0500
+Message-ID: <20160531170013.2649-9-afd@ti.com>
 References: <20160531170013.2649-1-afd@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -18,22 +18,21 @@ the sizeof() operator.
 
 Signed-off-by: Andrew F. Davis <afd@ti.com>
 ---
- drivers/mfd/ti_am335x_tscadc.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/input/touchscreen/ti_am335x_tsc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index d30bea5..c8f027b 100644
---- a/drivers/mfd/ti_am335x_tscadc.c
-+++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -168,8 +168,7 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+index 8b3f15c..7953381 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -406,7 +406,7 @@ static int titsc_probe(struct platform_device *pdev)
+ 	int err;
  
  	/* Allocate memory for device */
--	tscadc = devm_kzalloc(&pdev->dev,
--			sizeof(struct ti_tscadc_dev), GFP_KERNEL);
-+	tscadc = devm_kzalloc(&pdev->dev, sizeof(*tscadc), GFP_KERNEL);
- 	if (!tscadc) {
+-	ts_dev = kzalloc(sizeof(struct titsc), GFP_KERNEL);
++	ts_dev = kzalloc(sizeof(*ts_dev), GFP_KERNEL);
+ 	input_dev = input_allocate_device();
+ 	if (!ts_dev || !input_dev) {
  		dev_err(&pdev->dev, "failed to allocate memory.\n");
- 		return -ENOMEM;
 -- 
 2.8.3

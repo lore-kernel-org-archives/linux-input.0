@@ -1,7 +1,7 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [RFC 2/4] hid: intel_ish-hid: ISH Transport layer
-Date: Mon, 30 May 2016 21:27:56 -0700
-Message-ID: <1464668878-17113-3-git-send-email-srinivas.pandruvada@linux.intel.com>
+Subject: [RFC 3/4] hid: intel-ish-hid: ipc layer
+Date: Mon, 30 May 2016 21:27:57 -0700
+Message-ID: <1464668878-17113-4-git-send-email-srinivas.pandruvada@linux.intel.com>
 References: <1464668878-17113-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1464668878-17113-1-git-send-email-srinivas.pandruvada@linux.intel.com>
@@ -12,120 +12,72 @@ List-Id: linux-input@vger.kernel.org
 
 From: Daniel Drubin <daniel.drubin@intel.com>
 
-The ISH transport layer (ishtp) is a bi-directional protocol implemented
-on the top of PCI based inter processor communication layer. This layer
-offers:
-- Connection management
-- Flow control with the firmware
-- Multiple client sessions
-- Client message transfer
-- Client message reception
-- DMA for RX and TX for fast data transfer
-
-Refer to Documentation/hid/intel-ish-hid.txt for
-overview of the functionality implemented in this layer.
+This layer is responsible for
+- Enumerating over PCI bus
+- Inform FW about host readiness
+- Provide HW interface to transport layer for control and messages
+- Interrupt handling and routing
 
 Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/Kconfig                         |    2 +
- drivers/hid/Makefile                        |    2 +
- drivers/hid/intel-ish-hid/Kconfig           |   22 +
- drivers/hid/intel-ish-hid/Makefile          |   10 +
- drivers/hid/intel-ish-hid/ishtp/bus.c       |  670 ++++++++++++++++
- drivers/hid/intel-ish-hid/ishtp/bus.h       |   99 +++
- drivers/hid/intel-ish-hid/ishtp/client.c    | 1131 +++++++++++++++++++++++++++
- drivers/hid/intel-ish-hid/ishtp/client.h    |  196 +++++
- drivers/hid/intel-ish-hid/ishtp/dma-if.c    |  175 +++++
- drivers/hid/intel-ish-hid/ishtp/hbm.c       |  911 +++++++++++++++++++++
- drivers/hid/intel-ish-hid/ishtp/hbm.h       |  319 ++++++++
- drivers/hid/intel-ish-hid/ishtp/init.c      |   94 +++
- drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h |  276 +++++++
- 13 files changed, 3907 insertions(+)
- create mode 100644 drivers/hid/intel-ish-hid/Kconfig
- create mode 100644 drivers/hid/intel-ish-hid/Makefile
- create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.c
- create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.h
- create mode 100644 drivers/hid/intel-ish-hid/ishtp/client.c
- create mode 100644 drivers/hid/intel-ish-hid/ishtp/client.h
- create mode 100644 drivers/hid/intel-ish-hid/ishtp/dma-if.c
- create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.c
- create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.h
- create mode 100644 drivers/hid/intel-ish-hid/ishtp/init.c
- create mode 100644 drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
+ drivers/hid/intel-ish-hid/Kconfig           |   5 +
+ drivers/hid/intel-ish-hid/Makefile          |   6 +
+ drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h | 220 +++++++++
+ drivers/hid/intel-ish-hid/ipc/hw-ish.h      |  71 +++
+ drivers/hid/intel-ish-hid/ipc/ipc.c         | 710 ++++++++++++++++++++++++++++
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c     | 238 ++++++++++
+ drivers/hid/intel-ish-hid/ipc/utils.h       |  65 +++
+ include/trace/events/intel_ish.h            |  30 ++
+ 8 files changed, 1345 insertions(+)
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish.h
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/ipc.c
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/pci-ish.c
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/utils.h
+ create mode 100644 include/trace/events/intel_ish.h
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 5646ca4..56e69b4 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -944,4 +944,6 @@ source "drivers/hid/usbhid/Kconfig"
- 
- source "drivers/hid/i2c-hid/Kconfig"
- 
-+source "drivers/hid/intel-ish-hid/Kconfig"
-+
- endmenu
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index a2fb562..404b288 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -112,3 +112,5 @@ obj-$(CONFIG_USB_MOUSE)		+= usbhid/
- obj-$(CONFIG_USB_KBD)		+= usbhid/
- 
- obj-$(CONFIG_I2C_HID)		+= i2c-hid/
-+
-+obj-$(CONFIG_INTEL_ISH_HID)	+= intel-ish-hid/
 diff --git a/drivers/hid/intel-ish-hid/Kconfig b/drivers/hid/intel-ish-hid/Kconfig
-new file mode 100644
-index 0000000..8914f3b
---- /dev/null
+index 8914f3b..88967a1 100644
+--- a/drivers/hid/intel-ish-hid/Kconfig
 +++ b/drivers/hid/intel-ish-hid/Kconfig
-@@ -0,0 +1,22 @@
-+menu "Intel ISH HID support"
-+	depends on X86 && PCI
-+
-+config INTEL_ISH_HID_TRANSPORT
+@@ -5,10 +5,15 @@ config INTEL_ISH_HID_TRANSPORT
+ 	bool
+ 	default n
+ 
++config INTEL_ISH_HID_IPC
 +	bool
 +	default n
 +
-+config INTEL_ISH_HID
-+	bool "Intel Integrated Sensor Hub"
-+	default n
-+	select INTEL_ISH_HID_TRANSPORT
-+	help
-+	  The Integrated Sensor Hub (ISH) enables the ability to offload
-+	  sensor polling and algorithm processing to a dedicated low power
-+	  processor in the chipset. This allows the core processor to go into
-+	  low power modes more often, resulting in the increased battery life.
-+	  The current processors that support ISH are: Cherrytrail, Skylake,
-+	  Broxton and Kaby Lake.
-+
-+	  Say Y here if you want to support Intel ISH. If unsure, say N.
-+
-+endmenu
+ config INTEL_ISH_HID
+ 	bool "Intel Integrated Sensor Hub"
+ 	default n
+ 	select INTEL_ISH_HID_TRANSPORT
++	select INTEL_ISH_HID_IPC
+ 	help
+ 	  The Integrated Sensor Hub (ISH) enables the ability to offload
+ 	  sensor polling and algorithm processing to a dedicated low power
 diff --git a/drivers/hid/intel-ish-hid/Makefile b/drivers/hid/intel-ish-hid/Makefile
-new file mode 100644
-index 0000000..a5eaa6e
---- /dev/null
+index a5eaa6e..2c83cb9 100644
+--- a/drivers/hid/intel-ish-hid/Makefile
 +++ b/drivers/hid/intel-ish-hid/Makefile
-@@ -0,0 +1,10 @@
-+#
-+# Makefile - Intel ISH HID drivers
-+# Copyright (c) 2014-2016, Intel Corporation.
-+#
-+obj-$(CONFIG_INTEL_ISH_HID_TRANSPORT) += intel-ishtp.o
-+intel-ishtp-objs := ishtp/init.o
-+intel-ishtp-objs += ishtp/hbm.o
-+intel-ishtp-objs += ishtp/client.o
-+intel-ishtp-objs += ishtp/bus.o
-+intel-ishtp-objs += ishtp/dma-if.o
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -8,3 +8,9 @@ intel-ishtp-objs += ishtp/hbm.o
+ intel-ishtp-objs += ishtp/client.o
+ intel-ishtp-objs += ishtp/bus.o
+ intel-ishtp-objs += ishtp/dma-if.o
++
++obj-$(CONFIG_INTEL_ISH_HID_IPC) += intel-ish-ipc.o
++intel-ish-ipc-objs := ipc/ipc.o
++intel-ish-ipc-objs += ipc/pci-ish.o
++
++ccflags-y += -Idrivers/hid/intel-ish-hid/ishtp
+diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h b/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
 new file mode 100644
-index 0000000..59e01114
+index 0000000..f6eac6d
 --- /dev/null
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -0,0 +1,670 @@
++++ b/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
+@@ -0,0 +1,220 @@
 +/*
-+ * ISHTP bus driver
++ * ISH registers definitions
 + *
 + * Copyright (c) 2012-2016, Intel Corporation.
 + *
@@ -139,669 +91,219 @@ index 0000000..59e01114
 + * more details.
 + */
 +
-+#include <linux/kernel.h>
-+#include <linux/device.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include "bus.h"
-+#include "ishtp-dev.h"
-+#include "client.h"
-+#include "hbm.h"
++#ifndef _ISHTP_ISH_REGS_H_
++#define _ISHTP_ISH_REGS_H_
++
++
++/*** IPC PCI Offsets and sizes ***/
++/* ISH IPC Base Address */
++#define IPC_REG_BASE		0x0000
++/* Peripheral Interrupt Status Register */
++#define IPC_REG_PISR_CHV_AB      (IPC_REG_BASE + 0x00)
++/* Peripheral Interrupt Mask Register */
++#define IPC_REG_PIMR_CHV_AB      (IPC_REG_BASE + 0x04)
++/*BXT, CHV_K0*/
++/*Peripheral Interrupt Status Register */
++#define IPC_REG_PISR_BXT	 (IPC_REG_BASE + 0x0C)
++/*Peripheral Interrupt Mask Register */
++#define IPC_REG_PIMR_BXT	 (IPC_REG_BASE + 0x08)
++/***********************************/
++/* ISH Host Firmware status Register */
++#define IPC_REG_ISH_HOST_FWSTS	(IPC_REG_BASE + 0x34)
++/* Host Communication Register */
++#define IPC_REG_HOST_COMM	(IPC_REG_BASE + 0x38)
++/* Reset register */
++#define IPC_REG_ISH_RST		(IPC_REG_BASE + 0x44)
++
++/* Inbound doorbell register Host to ISH */
++#define IPC_REG_HOST2ISH_DRBL	(IPC_REG_BASE + 0x48)
++/* Outbound doorbell register ISH to Host */
++#define IPC_REG_ISH2HOST_DRBL	(IPC_REG_BASE + 0x54)
++/* ISH to HOST message registers */
++#define IPC_REG_ISH2HOST_MSG	(IPC_REG_BASE + 0x60)
++/* HOST to ISH message registers */
++#define IPC_REG_HOST2ISH_MSG	(IPC_REG_BASE + 0xE0)
++/* REMAP2 to enable DMA (D3 RCR) */
++#define	IPC_REG_ISH_RMP2	(IPC_REG_BASE + 0x368)
++
++#define	IPC_REG_MAX		(IPC_REG_BASE + 0x400)
++
++/*** register bits - HISR ***/
++/* bit corresponds HOST2ISH interrupt in PISR and PIMR registers */
++#define IPC_INT_HOST2ISH_BIT            (1<<0)
++/***********************************/
++/*CHV_A0, CHV_B0*/
++/* bit corresponds ISH2HOST interrupt in PISR and PIMR registers */
++#define IPC_INT_ISH2HOST_BIT_CHV_AB	(1<<3)
++/*BXT, CHV_K0*/
++/* bit corresponds ISH2HOST interrupt in PISR and PIMR registers */
++#define IPC_INT_ISH2HOST_BIT_BXT	(1<<0)
++/***********************************/
++
++/* bit corresponds ISH2HOST busy clear interrupt in PIMR register */
++#define IPC_INT_ISH2HOST_CLR_MASK_BIT	(1<<11)
++
++/* offset of ISH2HOST busy clear interrupt in IPC_BUSY_CLR register */
++#define IPC_INT_ISH2HOST_CLR_OFFS	(0)
++
++/* bit corresponds ISH2HOST busy clear interrupt in IPC_BUSY_CLR register */
++#define IPC_INT_ISH2HOST_CLR_BIT	(1<<IPC_INT_ISH2HOST_CLR_OFFS)
++
++/* bit corresponds busy bit in doorbell registers */
++#define IPC_DRBL_BUSY_OFFS		(31)
++#define IPC_DRBL_BUSY_BIT		(1<<IPC_DRBL_BUSY_OFFS)
++
++#define	IPC_HOST_OWNS_MSG_OFFS		(30)
 +
-+#define to_ishtp_cl_driver(d) container_of(d, struct ishtp_cl_driver, driver)
-+#define to_ishtp_cl_device(d) container_of(d, struct ishtp_cl_device, dev)
-+
-+/**
-+ * ishtp_recv() - process ishtp message
-+ *
-+ * @dev: ishtp device
-+ *
-+ * If a message with valid header and size is received, then
-+ * this function calls appropriate handler. The host or firmware
-+ * address is zero, then they are host bus management message,
-+ * otherwise they are message fo clients.
-+ */
-+void	ishtp_recv(struct ishtp_device *dev)
-+{
-+	uint32_t	msg_hdr;
-+	struct ishtp_msg_hdr	*ishtp_hdr;
-+
-+	/* Read ISHTP header dword */
-+	msg_hdr = dev->ops->ishtp_read_hdr(dev);
-+	if (!msg_hdr)
-+		return;
-+
-+	dev->ops->sync_fw_clock(dev);
-+
-+	ishtp_hdr = (struct ishtp_msg_hdr *)&msg_hdr;
-+	dev->ishtp_msg_hdr = msg_hdr;
-+
-+	/* Sanity check: ISHTP frag. length in header */
-+	if (ishtp_hdr->length > dev->mtu) {
-+		dev_err(dev->devc,
-+			"ISHTP hdr - bad length: %u; dropped [%08X]\n",
-+			(unsigned int)ishtp_hdr->length, msg_hdr);
-+		return;
-+	}
-+
-+	/* ISHTP bus message */
-+	if (!ishtp_hdr->host_addr && !ishtp_hdr->fw_addr)
-+		recv_hbm(dev, ishtp_hdr);
-+	/* ISHTP fixed-client message */
-+	else if (!ishtp_hdr->host_addr)
-+		recv_fixed_cl_msg(dev, ishtp_hdr);
-+	else
-+		/* ISHTP client message */
-+		recv_ishtp_cl_msg(dev, ishtp_hdr);
-+}
-+EXPORT_SYMBOL(ishtp_recv);
-+
-+/**
-+ * ishtp_send_msg() - Send ishtp message
-+ *
-+ * @dev: ishtp device
-+ * @hdr: Message header
-+ * @msg: Message contents
-+ * @ipc_send_compl: completion callback
-+ * @ipc_send_compl_param: completion callback parameter
-+ *
-+ * Send a multi fragment message via IPC. After sending the first fragment
-+ * the completion callback is called to schedule transmit of next fragment.
-+ * This returns IPC send message status.
-+ */
-+int	ishtp_send_msg(struct ishtp_device *dev, struct ishtp_msg_hdr *hdr,
-+		       void *msg, void(*ipc_send_compl)(void *),
-+		       void *ipc_send_compl_prm)
-+{
-+	unsigned char	ipc_msg[IPC_FULL_MSG_SIZE];
-+	uint32_t	drbl_val;
-+
-+	drbl_val = dev->ops->ipc_get_header(dev, hdr->length +
-+					    sizeof(struct ishtp_msg_hdr),
-+					    1);
-+
-+	memcpy(ipc_msg, &drbl_val, sizeof(uint32_t));
-+	memcpy(ipc_msg + sizeof(uint32_t), hdr, sizeof(uint32_t));
-+	memcpy(ipc_msg + 2 * sizeof(uint32_t), msg, hdr->length);
-+	return	dev->ops->write(dev, ipc_send_compl, ipc_send_compl_prm,
-+				ipc_msg, 2 * sizeof(uint32_t) + hdr->length);
-+}
-+
-+/**
-+ * ishtp_write_message() - Send ishtp single fragment message
-+ *
-+ * @dev: ishtp device
-+ * @hdr: Message header
-+ * @msg: Message contents
-+ *
-+ * Send a single fragment message via IPC.  This returns IPC send message
-+ * status.
-+ */
-+int ishtp_write_message(struct ishtp_device *dev, struct ishtp_msg_hdr *hdr,
-+			unsigned char *buf)
-+{
-+	return ishtp_send_msg(dev, hdr, buf, NULL, NULL);
-+}
-+
-+/**
-+ * ishtp_fw_cl_by_uuid() - locate index of fw client
-+ *
-+ * @dev: ishtp device
-+ * @uuid: uuid of the client to search
-+ * returns fw client index or -ENOENT if not found
-+ */
-+int ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const uuid_le *uuid)
-+{
-+	int i, res = -ENOENT;
-+
-+	for (i = 0; i < dev->fw_clients_num; ++i) {
-+		if (uuid_le_cmp(*uuid, dev->fw_clients[i].props.protocol_name)
-+				== 0) {
-+			res = i;
-+			break;
-+		}
-+	}
-+	return res;
-+}
-+EXPORT_SYMBOL(ishtp_fw_cl_by_uuid);
-+
-+/**
-+ * ishtp_fw_cl_by_id() - return index to fw_clients for client_id
-+ *
-+ * @dev: the ishtp device structure
-+ * @client_id: fw client id to search
-+ *
-+ * returns index on success, -ENOENT on failure.
-+ */
-+int ishtp_fw_cl_by_id(struct ishtp_device *dev, uint8_t client_id)
-+{
-+	int i, res = -ENOENT;
-+	unsigned long	flags;
-+
-+	spin_lock_irqsave(&dev->fw_clients_lock, flags);
-+	for (i = 0; i < dev->fw_clients_num; i++) {
-+		if (dev->fw_clients[i].client_id == client_id) {
-+			res = i;
-+			break;
-+		}
-+	}
-+	spin_unlock_irqrestore(&dev->fw_clients_lock, flags);
-+
-+	return res;
-+}
-+
-+/**
-+ * ishtp_cl_device_probe() - Bus probe() callback
-+ *
-+ * @dev: the device structure
-+ *
-+ * This is a bus probe callback and calls the drive probe function.
-+ */
-+static int ishtp_cl_device_probe(struct device *dev)
-+{
-+	struct ishtp_cl_device *device = to_ishtp_cl_device(dev);
-+	struct ishtp_cl_driver *driver;
-+
-+	if (!device)
-+		return 0;
-+
-+	/* in many cases here will be NULL */
-+	driver = to_ishtp_cl_driver(dev->driver);
-+	if (!driver || !driver->probe)
-+		return -ENODEV;
-+
-+	return driver->probe(device);
-+}
-+
-+/**
-+ * ishtp_cl_device_remove() - Bus remove() callback
-+ *
-+ * @dev: the device structure
-+ *
-+ * This is a bus remove callback and calls the drive remove function.
-+ * Since the ISH driver model supports only built in, this is
-+ * primarily can be called during pci driver init failure.
-+ */
-+static int ishtp_cl_device_remove(struct device *dev)
-+{
-+	struct ishtp_cl_device *device = to_ishtp_cl_device(dev);
-+	struct ishtp_cl_driver *driver;
-+
-+	if (!device || !dev->driver)
-+		return 0;
-+
-+	if (device->event_cb) {
-+		device->event_cb = NULL;
-+		cancel_work_sync(&device->event_work);
-+	}
-+
-+	driver = to_ishtp_cl_driver(dev->driver);
-+	if (!driver->remove) {
-+		dev->driver = NULL;
-+
-+		return 0;
-+	}
-+
-+	return driver->remove(device);
-+}
-+
-+static struct bus_type ishtp_cl_bus_type = {
-+	.name		= "ishtp",
-+	.probe		= ishtp_cl_device_probe,
-+	.remove		= ishtp_cl_device_remove,
-+};
-+
-+static void ishtp_cl_dev_release(struct device *dev)
-+{
-+	kfree(to_ishtp_cl_device(dev));
-+}
-+
-+static struct device_type ishtp_cl_device_type = {
-+	.release	= ishtp_cl_dev_release,
-+};
-+
-+/**
-+ * ishtp_cl_bus_init() - Function to register bus
-+ *
-+ * This register a bus during driver init
-+ */
-+int  ishtp_cl_bus_init(void)
-+{
-+	int	rv;
-+
-+	rv = bus_register(&ishtp_cl_bus_type);
-+	return	rv;
-+}
-+EXPORT_SYMBOL(ishtp_cl_bus_init);
-+
-+/**
-+ * ishtp_cl_bus_exit() - Function to unregister bus
-+ *
-+ * This unregister a bus during driver exit via failure
-+ * path. Since there is no built in model, the driver
-+ * can't be unloaded.
-+ */
-+void ishtp_cl_bus_exit(void)
-+{
-+	bus_unregister(&ishtp_cl_bus_type);
-+}
-+EXPORT_SYMBOL(ishtp_cl_bus_exit);
-+
-+/**
-+ * ishtp_bus_add_device() - Function to create device on bus
-+ *
-+ * @dev:	ishtp device
-+ * @uuid:	uuid of the client
-+ * @name:	Name of the client
-+ *
-+ * Allocate ISHTP bus client device, attach it to uuid
-+ * and register with ISHTP bus.
-+ */
-+struct ishtp_cl_device *ishtp_bus_add_device(struct ishtp_device *dev,
-+					     uuid_le uuid, char *name)
-+{
-+	struct ishtp_cl_device *device;
-+	int status;
-+	unsigned long flags;
-+
-+	device = kzalloc(sizeof(struct ishtp_cl_device), GFP_KERNEL);
-+	if (!device)
-+		return NULL;
-+
-+	device->dev.parent = dev->devc;
-+	device->dev.bus = &ishtp_cl_bus_type;
-+	device->dev.type = &ishtp_cl_device_type;
-+	device->ishtp_dev = dev;
-+
-+	device->fw_client =
-+		&dev->fw_clients[dev->fw_client_presentation_num - 1];
-+
-+	dev_set_name(&device->dev, "%s", name);
-+
-+	spin_lock_irqsave(&dev->device_list_lock, flags);
-+	list_add_tail(&device->device_link, &dev->device_list);
-+	spin_unlock_irqrestore(&dev->device_list_lock, flags);
-+
-+	status = device_register(&device->dev);
-+	if (status) {
-+		spin_lock_irqsave(&dev->device_list_lock, flags);
-+		list_del(&device->device_link);
-+		spin_unlock_irqrestore(&dev->device_list_lock, flags);
-+		dev_err(dev->devc, "Failed to register ISHTP client device\n");
-+		kfree(device);
-+		return NULL;
-+	}
-+	return device;
-+}
-+
-+/**
-+ * ishtp_bus_remove_device() - Function to relase device on bus
-+ *
-+ * @device:	client device instance
-+ *
-+ * This is a counterpart of ishtp_bus_add_device.
-+ * Device is unregistered.
-+ * the device structure is freed in 'ishtp_cl_dev_release' function
-+ * Called only during error in pci driver init path.
-+ */
-+void ishtp_bus_remove_device(struct ishtp_cl_device *device)
-+{
-+	device_unregister(&device->dev);
-+}
-+
-+/**
-+ * __ishtp_cl_driver_register() - Client driver register
-+ *
-+ * @driver:	the client driver instance
-+ * @owner:	Owner of this driver module
-+ *
-+ * Once a client driver is probed, it created a client
-+ * instance and registers with the bus.
-+ */
-+int __ishtp_cl_driver_register(struct ishtp_cl_driver *driver,
-+	struct module *owner)
-+{
-+	int err;
-+
-+	driver->driver.name = driver->name;
-+	driver->driver.owner = owner;
-+	driver->driver.bus = &ishtp_cl_bus_type;
-+
-+	err = driver_register(&driver->driver);
-+	if (err)
-+		return err;
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(__ishtp_cl_driver_register);
-+
-+/**
-+ * ishtp_cl_driver_unregister() - Client driver unregister
-+ *
-+ * @driver:	the client driver instance
-+ *
-+ * Unregister client during device removal process.
-+ */
-+void ishtp_cl_driver_unregister(struct ishtp_cl_driver *driver)
-+{
-+	driver_unregister(&driver->driver);
-+}
-+EXPORT_SYMBOL(ishtp_cl_driver_unregister);
-+
-+/**
-+ * ishtp_bus_event_work() - event work function
-+ *
-+ * @work:	work struct pointer
-+ *
-+ * Once an event is received for a client this work
-+ * function is called. If the device has registered a
-+ * callback then the callback is called.
-+ */
-+static void ishtp_bus_event_work(struct work_struct *work)
-+{
-+	struct ishtp_cl_device *device;
-+
-+	device = container_of(work, struct ishtp_cl_device, event_work);
-+
-+	if (device->event_cb)
-+		device->event_cb(device);
-+}
-+
-+/**
-+ * ishtp_cl_bus_rx_event() - schedule event work
-+ *
-+ * @device:	client device instance
-+ *
-+ * Once an event is received for a client this schedules
-+ * a work function to process.
-+ */
-+void ishtp_cl_bus_rx_event(struct ishtp_cl_device *device)
-+{
-+	if (!device || !device->event_cb)
-+		return;
-+
-+	if (device->event_cb)
-+		schedule_work(&device->event_work);
-+}
-+
-+/**
-+ * ishtp_register_event_cb() - Register callback
-+ *
-+ * @device:	client device instance
-+ * @event_cb:	Event processor for an client
-+ *
-+ * Register a callback for events, called from client driver
-+ */
-+int ishtp_register_event_cb(struct ishtp_cl_device *device,
-+	void (*event_cb)(struct ishtp_cl_device *))
-+{
-+	if (device->event_cb)
-+		return -EALREADY;
-+
-+	device->event_cb = event_cb;
-+	INIT_WORK(&device->event_work, ishtp_bus_event_work);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(ishtp_register_event_cb);
-+
-+/**
-+ * ishtp_bus_new_client() - Create a new client
-+ *
-+ * @dev:	ISHTP device instance
-+ *
-+ * Once bus protocol enumerates a client, this is called
-+ * to add a device for the client.
-+ */
-+int	ishtp_bus_new_client(struct ishtp_device *dev)
-+{
-+	int	i;
-+	char	*dev_name;
-+	struct ishtp_cl_device	*cl_device;
-+	uuid_le	device_uuid;
-+
-+	/*
-+	 * For all reported clients, create an unconnected client and add its
-+	 * device to ISHTP bus.
-+	 * If appropriate driver has loaded, this will trigger its probe().
-+	 * Otherwise, probe() will be called when driver is loaded
-+	 */
-+	i = dev->fw_client_presentation_num - 1;
-+	device_uuid = dev->fw_clients[i].props.protocol_name;
-+	dev_name = kasprintf(GFP_KERNEL,
-+		"{%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
-+		device_uuid.b[3], device_uuid.b[2], device_uuid.b[1],
-+		device_uuid.b[0], device_uuid.b[5], device_uuid.b[4],
-+		device_uuid.b[7], device_uuid.b[6], device_uuid.b[8],
-+		device_uuid.b[9], device_uuid.b[10], device_uuid.b[11],
-+		device_uuid.b[12], device_uuid.b[13], device_uuid.b[14],
-+		device_uuid.b[15]);
-+	if (!dev_name)
-+		return	-ENOMEM;
-+
-+	cl_device = ishtp_bus_add_device(dev, device_uuid, dev_name);
-+	if (!cl_device) {
-+		kfree(dev_name);
-+		return	-ENOENT;
-+	}
-+
-+	kfree(dev_name);
-+
-+	return	0;
-+}
-+
-+/**
-+ * does_driver_bind_uuid() - Check if uuid matches
-+ *
-+ * @dev:	device instance
-+ * @id:		uuid
-+ *
-+ * Check if the driver is bounded to an uuid.
-+ */
-+static int	does_driver_bind_uuid(struct device *dev, void *id)
-+{
-+	uuid_le	*uuid = id;
-+	struct ishtp_cl_device	*device;
-+
-+	if (!dev->driver)
-+		return	0;
-+
-+	device = to_ishtp_cl_device(dev);
-+	if (!uuid_le_cmp(device->fw_client->props.protocol_name, *uuid))
-+		return	1;
-+
-+	return	0;
-+}
-+
-+/**
-+ * ishtp_can_client_connect() - Check if driver exist for an uuid
-+ *
-+ * @dev:	device instance
-+ * @id:		uuid
-+ *
-+ * Check if the driver is attached to an uuid.
-+ */
-+int	ishtp_can_client_connect(struct ishtp_device *ishtp_dev, uuid_le *uuid)
-+{
-+	int	rv;
-+
-+	rv = bus_for_each_dev(&ishtp_cl_bus_type, NULL, uuid,
-+		does_driver_bind_uuid);
-+
-+	return	!rv;
-+}
-+
-+/**
-+ * ishtp_cl_device_bind() - bind a device
-+ *
-+ * @cl:		ishtp client device
-+ *
-+ * Binds connected ishtp_cl to ISHTP bus device
-+ */
-+int	ishtp_cl_device_bind(struct ishtp_cl *cl)
-+{
-+	struct ishtp_cl_device	*cl_device;
-+	unsigned long flags;
-+	int	rv;
-+
-+	if (!cl->fw_client_id || cl->state != ISHTP_CL_CONNECTED)
-+		return	-EFAULT;
-+
-+	rv = -ENOENT;
-+	spin_lock_irqsave(&cl->dev->device_list_lock, flags);
-+	list_for_each_entry(cl_device, &cl->dev->device_list,
-+			device_link) {
-+		if (cl_device->fw_client->client_id == cl->fw_client_id) {
-+			cl->device = cl_device;
-+			rv = 0;
-+			break;
-+		}
-+	}
-+	spin_unlock_irqrestore(&cl->dev->device_list_lock, flags);
-+	return	rv;
-+}
-+
-+/**
-+ * ishtp_bus_remove_all_clients() - Remove all clients
-+ *
-+ * @ishtp_dev:		ishtp device
-+ *
-+ * This is part of reset flow. This function the main processing
-+ * only targets error processing, if the FW has forced reset or
-+ * error to remove connected clients.
-+ * Need to revisit this again to make sure whether if this really
-+ * happens after a client is enunmerated after successful FW startup,
-+ * where we have to remove clients in our built in driver model !
-+ */
-+void	ishtp_bus_remove_all_clients(struct ishtp_device *ishtp_dev)
-+{
-+	struct ishtp_cl_device	*cl_device;
-+	struct ishtp_cl	*cl;
-+	unsigned long	flags;
-+
-+	spin_lock_irqsave(&ishtp_dev->cl_list_lock, flags);
-+	list_for_each_entry(cl, &ishtp_dev->cl_list, link) {
-+		cl->state = ISHTP_CL_DISCONNECTED;
-+
-+		/*
-+		 * Wake any pending process. The waiter would check dev->state
-+		 * and determine that it's not enabled already,
-+		 * and will return error to its caller
-+		 */
-+		wake_up(&cl->wait_ctrl_res);
-+
-+		/* Disband any pending read/write requests and free rb */
-+		ishtp_cl_flush_queues(cl);
-+
-+		/* Remove read_rb for user-mode API clients */
-+		if (cl->read_rb) {
-+			struct ishtp_cl_rb *rb = NULL;
-+
-+			rb = ishtp_cl_find_read_rb(cl);
-+			/* Remove entry from read list */
-+			if (rb)
-+				list_del(&rb->list);
-+
-+			rb = cl->read_rb;
-+			cl->read_rb = NULL;
-+
-+			if (rb) {
-+				ishtp_io_rb_free(rb);
-+				rb = NULL;
-+			}
-+		}
-+
-+		/* Remove all free and in_process rings, both Rx and Tx */
-+		ishtp_cl_free_rx_ring(cl);
-+		ishtp_cl_free_tx_ring(cl);
-+
-+		/*
-+		 * Free client and ISHTP bus client device structures
-+		 * don't free host client because it is part of the OS fd
-+		 * structure
-+		 */
-+	}
-+	spin_unlock_irqrestore(&ishtp_dev->cl_list_lock, flags);
-+
-+	/* Release DMA buffers for client messages */
-+	ishtp_cl_free_dma_buf(ishtp_dev);
-+
-+	/* remove bus clients */
-+	spin_lock_irqsave(&ishtp_dev->device_list_lock, flags);
-+
-+	while (!list_empty(&ishtp_dev->device_list)) {
-+		cl_device = list_first_entry(&ishtp_dev->device_list,
-+			struct ishtp_cl_device, device_link);
-+		list_del(&cl_device->device_link);
-+		spin_unlock_irqrestore(&ishtp_dev->device_list_lock, flags);
-+		ishtp_bus_remove_device(cl_device);
-+		spin_lock_irqsave(&ishtp_dev->device_list_lock, flags);
-+	}
-+	spin_unlock_irqrestore(&ishtp_dev->device_list_lock, flags);
-+
-+	/* Free all client structures */
-+	spin_lock_irqsave(&ishtp_dev->fw_clients_lock, flags);
-+	kfree(ishtp_dev->fw_clients);
-+	ishtp_dev->fw_clients = NULL;
-+	ishtp_dev->fw_clients_num = 0;
-+	ishtp_dev->fw_client_presentation_num = 0;
-+	ishtp_dev->fw_client_index = 0;
-+	bitmap_zero(ishtp_dev->fw_clients_map, ISHTP_CLIENTS_MAX);
-+	spin_unlock_irqrestore(&ishtp_dev->fw_clients_lock, flags);
-+}
-+EXPORT_SYMBOL(ishtp_bus_remove_all_clients);
-+
-+/**
-+ * ishtp_reset_handler() - IPC reset handler
-+ *
-+ * @dev:	ishtp device
-+ *
-+ * ISHTP Handler for IPC_RESET notification
-+ */
-+int	ishtp_reset_handler(struct ishtp_device *dev)
-+{
-+	unsigned long	flags;
-+
-+	/* Handle FW-initiated reset */
-+	dev->dev_state = ISHTP_DEV_RESETTING;
-+
-+	/* Clear BH processing queue - no further HBMs */
-+	spin_lock_irqsave(&dev->rd_msg_spinlock, flags);
-+	dev->rd_msg_fifo_head = dev->rd_msg_fifo_tail = 0;
-+	spin_unlock_irqrestore(&dev->rd_msg_spinlock, flags);
-+
-+	/* Handle ISH FW reset against upper layers */
-+	ishtp_bus_remove_all_clients(dev);
-+
-+	return	0;
-+}
-+EXPORT_SYMBOL(ishtp_reset_handler);
-+
-+/**
-+ * ishtp_reset_compl_handler() - Reset completion handler
-+ *
-+ * @dev:	ishtp device
-+ *
-+ * ISHTP handler for IPC_RESET sequence completion to start
-+ * host message bus start protocol sequence.
-+ */
-+int	ishtp_reset_compl_handler(struct ishtp_device *dev)
-+{
-+	dev->dev_state = ISHTP_DEV_INIT_CLIENTS;
-+	dev->hbm_state = ISHTP_HBM_START;
-+	ishtp_hbm_start_req(dev);
-+
-+	return	0;
-+}
-+EXPORT_SYMBOL(ishtp_reset_compl_handler);
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.h b/drivers/hid/intel-ish-hid/ishtp/bus.h
-new file mode 100644
-index 0000000..eb1d774
---- /dev/null
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.h
-@@ -0,0 +1,99 @@
 +/*
-+ * ISHTP bus definitions
++ * A0: bit means that host owns MSGnn registers and is reading them.
++ * ISH FW may not write to them
++ */
++#define	IPC_HOST_OWNS_MSG_BIT		(1<<IPC_HOST_OWNS_MSG_OFFS)
++
++/*
++ * Host status bits (HOSTCOMM)
++ */
++/* bit corresponds host ready bit in Host Status Register (HOST_COMM) */
++#define IPC_HOSTCOMM_READY_OFFS		(7)
++#define IPC_HOSTCOMM_READY_BIT		(1<<IPC_HOSTCOMM_READY_OFFS)
++
++/***********************************/
++/*CHV_A0, CHV_B0*/
++#define	IPC_HOSTCOMM_INT_EN_OFFS_CHV_AB	(31)
++#define	IPC_HOSTCOMM_INT_EN_BIT_CHV_AB		\
++	(1<<IPC_HOSTCOMM_INT_EN_OFFS_CHV_AB)
++/*BXT, CHV_K0*/
++#define IPC_PIMR_INT_EN_OFFS_BXT	(0)
++#define IPC_PIMR_INT_EN_BIT_BXT		(1<<IPC_PIMR_INT_EN_OFFS_BXT)
++
++#define IPC_HOST2ISH_BUSYCLEAR_MASK_OFFS_BXT	(8)
++#define IPC_HOST2ISH_BUSYCLEAR_MASK_BIT		\
++	(1<<IPC_HOST2ISH_BUSYCLEAR_MASK_OFFS_BXT)
++/***********************************/
++/*
++ * both Host and ISH have ILUP at bit 0
++ * bit corresponds host ready bit in both status registers
++ */
++#define IPC_ILUP_OFFS			(0)
++#define IPC_ILUP_BIT			(1<<IPC_ILUP_OFFS)
++
++/*
++ * FW status bits (relevant)
++ */
++#define	IPC_FWSTS_ILUP		0x1
++#define	IPC_FWSTS_ISHTP_UP	(1<<1)
++#define	IPC_FWSTS_DMA0		(1<<16)
++#define	IPC_FWSTS_DMA1		(1<<17)
++#define	IPC_FWSTS_DMA2		(1<<18)
++#define	IPC_FWSTS_DMA3		(1<<19)
++
++#define	IPC_ISH_IN_DMA		\
++	(IPC_FWSTS_DMA0 | IPC_FWSTS_DMA1 | IPC_FWSTS_DMA2 | IPC_FWSTS_DMA3)
++
++/* bit corresponds host ready bit in ISH FW Status Register */
++#define IPC_ISH_ISHTP_READY_OFFS		(1)
++#define IPC_ISH_ISHTP_READY_BIT		(1<<IPC_ISH_ISHTP_READY_OFFS)
++
++#define	IPC_RMP2_DMA_ENABLED	0x1	/* Value to enable DMA, per D3 RCR */
++
++#define IPC_MSG_MAX_SIZE	0x80
++
++
++#define IPC_HEADER_LENGTH_MASK		0x03FF
++#define IPC_HEADER_PROTOCOL_MASK	0x0F
++#define IPC_HEADER_MNG_CMD_MASK		0x0F
++
++#define IPC_HEADER_LENGTH_OFFSET	0
++#define IPC_HEADER_PROTOCOL_OFFSET	10
++#define IPC_HEADER_MNG_CMD_OFFSET	16
++
++#define IPC_HEADER_GET_LENGTH(drbl_reg)		\
++	(((drbl_reg) >> IPC_HEADER_LENGTH_OFFSET)&IPC_HEADER_LENGTH_MASK)
++#define IPC_HEADER_GET_PROTOCOL(drbl_reg)	\
++	(((drbl_reg) >> IPC_HEADER_PROTOCOL_OFFSET)&IPC_HEADER_PROTOCOL_MASK)
++#define IPC_HEADER_GET_MNG_CMD(drbl_reg)	\
++	(((drbl_reg) >> IPC_HEADER_MNG_CMD_OFFSET)&IPC_HEADER_MNG_CMD_MASK)
++
++#define IPC_IS_BUSY(drbl_reg)			\
++	(((drbl_reg)&IPC_DRBL_BUSY_BIT) == ((uint32_t)IPC_DRBL_BUSY_BIT))
++
++/***********************************/
++/*CHV_A0, CHV_B0*/
++#define IPC_INT_FROM_ISH_TO_HOST_CHV_AB(drbl_reg) \
++	(((drbl_reg)&IPC_INT_ISH2HOST_BIT_CHV_AB) == \
++	((u32)IPC_INT_ISH2HOST_BIT_CHV_AB))
++/*BXT, CHV_K0*/
++#define IPC_INT_FROM_ISH_TO_HOST_BXT(drbl_reg) \
++	(((drbl_reg)&IPC_INT_ISH2HOST_BIT_BXT) == \
++	((u32)IPC_INT_ISH2HOST_BIT_BXT))
++/***********************************/
++
++#define IPC_BUILD_HEADER(length, protocol, busy)		\
++	(((busy)<<IPC_DRBL_BUSY_OFFS) |				\
++	((protocol) << IPC_HEADER_PROTOCOL_OFFSET) |		\
++	((length)<<IPC_HEADER_LENGTH_OFFSET))
++
++#define IPC_BUILD_MNG_MSG(cmd, length)				\
++	(((1)<<IPC_DRBL_BUSY_OFFS)|				\
++	((IPC_PROTOCOL_MNG)<<IPC_HEADER_PROTOCOL_OFFSET)|	\
++	((cmd)<<IPC_HEADER_MNG_CMD_OFFSET)|((length)<<IPC_HEADER_LENGTH_OFFSET))
++
++
++#define IPC_SET_HOST_READY(host_status)		\
++				((host_status) |= (IPC_HOSTCOMM_READY_BIT))
++
++#define IPC_SET_HOST_ILUP(host_status)		\
++				((host_status) |= (IPC_ILUP_BIT))
++
++#define IPC_CLEAR_HOST_READY(host_status)	\
++				((host_status) ^= (IPC_HOSTCOMM_READY_BIT))
++
++#define IPC_CLEAR_HOST_ILUP(host_status)	\
++				((host_status) ^= (IPC_ILUP_BIT))
++
++/* todo - temp until PIMR HW ready */
++#define IPC_HOST_BUSY_READING_OFFS	6
++
++/* bit corresponds host ready bit in Host Status Register (HOST_COMM) */
++#define IPC_HOST_BUSY_READING_BIT	(1<<IPC_HOST_BUSY_READING_OFFS)
++
++#define IPC_SET_HOST_BUSY_READING(host_status)	\
++				((host_status) |= (IPC_HOST_BUSY_READING_BIT))
++
++#define IPC_CLEAR_HOST_BUSY_READING(host_status)\
++				((host_status) ^= (IPC_HOST_BUSY_READING_BIT))
++
++
++#define IPC_IS_ISH_ISHTP_READY(ish_status)	\
++		(((ish_status) & IPC_ISH_ISHTP_READY_BIT) ==	\
++			((uint32_t)IPC_ISH_ISHTP_READY_BIT))
++
++#define IPC_IS_ISH_ILUP(ish_status)		\
++		(((ish_status) & IPC_ILUP_BIT) == ((uint32_t)IPC_ILUP_BIT))
++
++
++#define IPC_PROTOCOL_ISHTP		1
++#define IPC_PROTOCOL_MNG		3
++
++#define MNG_RX_CMPL_ENABLE		0
++#define MNG_RX_CMPL_DISABLE		1
++#define MNG_RX_CMPL_INDICATION		2
++#define MNG_RESET_NOTIFY		3
++#define MNG_RESET_NOTIFY_ACK		4
++#define MNG_SYNC_FW_CLOCK		5
++#define MNG_ILLEGAL_CMD			0xFF
++
++#endif /* _ISHTP_ISH_REGS_H_ */
++
+diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+new file mode 100644
+index 0000000..21c3c5d3
+--- /dev/null
++++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+@@ -0,0 +1,71 @@
++/*
++ * H/W layer of ISHTP provider device (ISH)
 + *
 + * Copyright (c) 2014-2016, Intel Corporation.
 + *
@@ -814,1440 +316,73 @@ index 0000000..eb1d774
 + * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 + * more details.
 + */
-+#ifndef _LINUX_ISHTP_CL_BUS_H
-+#define _LINUX_ISHTP_CL_BUS_H
 +
-+#include <linux/device.h>
-+#include <linux/mod_devicetable.h>
++#ifndef _ISHTP_HW_ISH_H_
++#define _ISHTP_HW_ISH_H_
 +
-+struct ishtp_cl;
-+struct ishtp_cl_device;
-+struct ishtp_device;
-+struct ishtp_msg_hdr;
-+
-+/**
-+ * struct ishtp_cl_device - ISHTP device handle
-+ * @dev:	device pointer
-+ * @ishtp_dev:	pointer to ishtp device structure to primarily to access
-+ *		hw device operation callbacks and properties
-+ * @fw_client:	fw_client pointer to get fw information like protocol name
-+ *		max message length etc.
-+ * @device_link: Link to next client in the list on a bus
-+ * @event_work:	Used to schedule rx event for client
-+ * @driver_data: Storage driver private data
-+ * @event_cb:	Callback to driver to send events
-+ *
-+ * An ishtp_cl_device pointer is returned from ishtp_add_device()
-+ * and links ISHTP bus clients to their actual host client pointer.
-+ * Drivers for ISHTP devices will get an ishtp_cl_device pointer
-+ * when being probed and shall use it for doing bus I/O.
-+ */
-+struct ishtp_cl_device {
-+	struct device		dev;
-+	struct ishtp_device	*ishtp_dev;
-+	struct ishtp_fw_client	*fw_client;
-+	struct list_head	device_link;
-+	struct work_struct	event_work;
-+	void			*driver_data;
-+	void (*event_cb)(struct ishtp_cl_device *device);
-+};
-+
-+/**
-+ * struct ishtp_cl_device - ISHTP device handle
-+ * @driver:	driver instance on a bus
-+ * @name:	Name of the device for probe
-+ * @probe:	driver callback for device probe
-+ * @remove:	driver callback on device removal
-+ *
-+ * Client drivers defines to get probed/removed for ISHTP client device.
-+ */
-+struct ishtp_cl_driver {
-+	struct device_driver driver;
-+	const char *name;
-+	int (*probe)(struct ishtp_cl_device *dev);
-+	int (*remove)(struct ishtp_cl_device *dev);
-+};
-+
-+int	__ishtp_cl_driver_register(struct ishtp_cl_driver *driver,
-+	struct module *owner);
-+#define ishtp_cl_driver_register(driver)		\
-+	__ishtp_cl_driver_register(driver, THIS_MODULE)
-+void	ishtp_cl_driver_unregister(struct ishtp_cl_driver *driver);
-+
-+int	ishtp_register_event_cb(struct ishtp_cl_device *device,
-+	void (*read_cb)(struct ishtp_cl_device *));
-+
-+int	ishtp_cl_bus_init(void);
-+void	ishtp_cl_bus_exit(void);
-+int	ishtp_bus_new_client(struct ishtp_device *dev);
-+void	ishtp_remove_all_clients(struct ishtp_device *dev);
-+int	ishtp_cl_device_bind(struct ishtp_cl *cl);
-+void	ishtp_cl_bus_rx_event(struct ishtp_cl_device *device);
-+int	ishtp_reset_handler(struct ishtp_device *dev);
-+int	ishtp_reset_compl_handler(struct ishtp_device *dev);
-+void	ishtp_recv(struct ishtp_device *dev);
-+
-+/* Write a multi-fragment message */
-+int	ishtp_send_msg(struct ishtp_device *dev,
-+		       struct ishtp_msg_hdr *hdr, void *msg,
-+		       void (*ipc_send_compl)(void *),
-+		       void *ipc_send_compl_prm);
-+
-+/* Write a single-fragment message */
-+int	ishtp_write_message(struct ishtp_device *dev,
-+			    struct ishtp_msg_hdr *hdr,
-+			    unsigned char *buf);
-+
-+#endif /* _LINUX_ISHTP_CL_BUS_H */
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-new file mode 100644
-index 0000000..a4874d6
---- /dev/null
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -0,0 +1,1131 @@
-+/*
-+ * ISHTP client logic
-+ *
-+ * Copyright (c) 2003-2016, Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-+ * more details.
-+ *
-+ */
-+
-+#include <linux/slab.h>
-+#include <linux/sched.h>
-+#include <linux/wait.h>
-+#include <linux/delay.h>
-+#include <linux/dma-mapping.h>
-+#include "hbm.h"
-+#include "client.h"
-+
-+/* ishtp_read_list_flush - removes list entry belonging to cl */
-+void ishtp_read_list_flush(struct ishtp_cl *cl)
-+{
-+	struct ishtp_cl_rb *rb;
-+	struct ishtp_cl_rb *next;
-+	unsigned long	flags;
-+
-+	spin_lock_irqsave(&cl->dev->read_list_spinlock, flags);
-+	list_for_each_entry_safe(rb, next, &cl->dev->read_list.list, list)
-+		if (rb->cl && ishtp_cl_cmp_id(cl, rb->cl)) {
-+			list_del(&rb->list);
-+			ishtp_io_rb_free(rb);
-+		}
-+	spin_unlock_irqrestore(&cl->dev->read_list_spinlock, flags);
-+}
-+
-+/* ishtp_io_rb_free - free ishtp_rb_private related memory */
-+void ishtp_io_rb_free(struct ishtp_cl_rb *rb)
-+{
-+	if (rb == NULL)
-+		return;
-+
-+	kfree(rb->buffer.data);
-+	kfree(rb);
-+}
-+
-+/**
-+ * ishtp_io_rb_init - allocate and initialize request block
-+ *
-+ * returns ishtp_cl_rb pointer or NULL;
-+ */
-+struct ishtp_cl_rb *ishtp_io_rb_init(struct ishtp_cl *cl)
-+{
-+	struct ishtp_cl_rb *rb;
-+
-+	rb = kzalloc(sizeof(struct ishtp_cl_rb), GFP_KERNEL);
-+	if (!rb)
-+		return NULL;
-+
-+	INIT_LIST_HEAD(&rb->list);
-+	rb->cl = cl;
-+	rb->buf_idx = 0;
-+	return rb;
-+}
-+
-+/* ishtp_io_rb_alloc_buf - allocate respose buffer */
-+int ishtp_io_rb_alloc_buf(struct ishtp_cl_rb *rb, size_t length)
-+{
-+	if (!rb)
-+		return -EINVAL;
-+
-+	if (length == 0)
-+		return 0;
-+
-+	rb->buffer.data = kmalloc(length, GFP_KERNEL);
-+	if (!rb->buffer.data)
-+		return -ENOMEM;
-+
-+	rb->buffer.size = length;
-+	return 0;
-+}
-+
-+/*
-+ * ishtp_io_rb_recycle - re-append rb to its client's free list
-+ * and send flow control if needed
-+ */
-+int ishtp_io_rb_recycle(struct ishtp_cl_rb *rb)
-+{
-+	struct ishtp_cl *cl;
-+	int	rets = 0;
-+	unsigned long	flags;
-+
-+	if (!rb || !rb->cl)
-+		return	-EFAULT;
-+
-+	cl = rb->cl;
-+	spin_lock_irqsave(&cl->free_list_spinlock, flags);
-+	list_add_tail(&rb->list, &cl->free_rb_list.list);
-+	spin_unlock_irqrestore(&cl->free_list_spinlock, flags);
-+
-+	/*
-+	 * If we returned the first buffer to empty 'free' list,
-+	 * send flow control
-+	 */
-+	if (!cl->out_flow_ctrl_creds)
-+		rets = ishtp_cl_read_start(cl);
-+
-+	return	rets;
-+}
-+EXPORT_SYMBOL(ishtp_io_rb_recycle);
-+
-+/* ishtp_cl_flush_queues - flushes queue lists belonging to cl */
-+int ishtp_cl_flush_queues(struct ishtp_cl *cl)
-+{
-+	if (WARN_ON(!cl || !cl->dev))
-+		return -EINVAL;
-+
-+	ishtp_read_list_flush(cl);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(ishtp_cl_flush_queues);
-+
-+/* ishtp_cl_init - initializes cl */
-+void ishtp_cl_init(struct ishtp_cl *cl, struct ishtp_device *dev)
-+{
-+	memset(cl, 0, sizeof(struct ishtp_cl));
-+	init_waitqueue_head(&cl->wait_ctrl_res);
-+	spin_lock_init(&cl->free_list_spinlock);
-+	spin_lock_init(&cl->in_process_spinlock);
-+	spin_lock_init(&cl->tx_list_spinlock);
-+	spin_lock_init(&cl->tx_free_list_spinlock);
-+	spin_lock_init(&cl->fc_spinlock);
-+	INIT_LIST_HEAD(&cl->link);
-+	cl->dev = dev;
-+
-+	INIT_LIST_HEAD(&cl->free_rb_list.list);
-+	INIT_LIST_HEAD(&cl->tx_list.list);
-+	INIT_LIST_HEAD(&cl->tx_free_list.list);
-+	INIT_LIST_HEAD(&cl->in_process_list.list);
-+
-+	cl->rx_ring_size = CL_DEF_RX_RING_SIZE;
-+	cl->tx_ring_size = CL_DEF_TX_RING_SIZE;
-+
-+	/* dma */
-+	cl->last_tx_path = CL_TX_PATH_IPC;
-+	cl->last_dma_acked = 1;
-+	cl->last_dma_addr = NULL;
-+	cl->last_ipc_acked = 1;
-+}
-+
-+int	ishtp_cl_free_rx_ring(struct ishtp_cl *cl)
-+{
-+	struct ishtp_cl_rb *rb;
-+	unsigned long	flags;
-+
-+	/* release allocated memory - pass over free_rb_list */
-+	spin_lock_irqsave(&cl->free_list_spinlock, flags);
-+	while (!list_empty(&cl->free_rb_list.list)) {
-+		rb = list_entry(cl->free_rb_list.list.next, struct ishtp_cl_rb,
-+				list);
-+		list_del(&rb->list);
-+		kfree(rb->buffer.data);
-+		kfree(rb);
-+	}
-+	spin_unlock_irqrestore(&cl->free_list_spinlock, flags);
-+	/* release allocated memory - pass over in_process_list */
-+	spin_lock_irqsave(&cl->in_process_spinlock, flags);
-+	while (!list_empty(&cl->in_process_list.list)) {
-+		rb = list_entry(cl->in_process_list.list.next,
-+				struct ishtp_cl_rb, list);
-+		list_del(&rb->list);
-+		kfree(rb->buffer.data);
-+		kfree(rb);
-+	}
-+	spin_unlock_irqrestore(&cl->in_process_spinlock, flags);
-+	return	0;
-+}
-+
-+int	ishtp_cl_free_tx_ring(struct ishtp_cl *cl)
-+{
-+	struct ishtp_cl_tx_ring	*tx_buf;
-+	unsigned long	flags;
-+
-+	spin_lock_irqsave(&cl->tx_free_list_spinlock, flags);
-+	/* release allocated memory - pass over tx_free_list */
-+	while (!list_empty(&cl->tx_free_list.list)) {
-+		tx_buf = list_entry(cl->tx_free_list.list.next,
-+				    struct ishtp_cl_tx_ring, list);
-+		list_del(&tx_buf->list);
-+		kfree(tx_buf->send_buf.data);
-+		kfree(tx_buf);
-+	}
-+	spin_unlock_irqrestore(&cl->tx_free_list_spinlock, flags);
-+
-+	spin_lock_irqsave(&cl->tx_list_spinlock, flags);
-+	/* release allocated memory - pass over tx_list */
-+	while (!list_empty(&cl->tx_list.list)) {
-+		tx_buf = list_entry(cl->tx_list.list.next,
-+				    struct ishtp_cl_tx_ring, list);
-+		list_del(&tx_buf->list);
-+		kfree(tx_buf->send_buf.data);
-+		kfree(tx_buf);
-+	}
-+	spin_unlock_irqrestore(&cl->tx_list_spinlock, flags);
-+
-+	return	0;
-+}
-+
-+int	ishtp_cl_alloc_rx_ring(struct ishtp_cl *cl)
-+{
-+	size_t	len = cl->device->fw_client->props.max_msg_length;
-+	int	j;
-+	struct ishtp_cl_rb *rb;
-+	int	ret = 0;
-+	unsigned long	flags;
-+
-+	for (j = 0; j < cl->rx_ring_size; ++j) {
-+		rb = ishtp_io_rb_init(cl);
-+		if (!rb) {
-+			ret = -ENOMEM;
-+			goto out;
-+		}
-+		ret = ishtp_io_rb_alloc_buf(rb, len);
-+		if (ret)
-+			goto out;
-+		spin_lock_irqsave(&cl->free_list_spinlock, flags);
-+		list_add_tail(&rb->list, &cl->free_rb_list.list);
-+		spin_unlock_irqrestore(&cl->free_list_spinlock, flags);
-+	}
-+
-+	return	0;
-+
-+out:
-+	dev_err(&cl->device->dev, "error in allocating Rx buffers\n");
-+	ishtp_cl_free_rx_ring(cl);
-+	return	ret;
-+}
-+
-+int	ishtp_cl_alloc_tx_ring(struct ishtp_cl *cl)
-+{
-+	size_t	len = cl->device->fw_client->props.max_msg_length;
-+	int	j;
-+	unsigned long	flags;
-+
-+	/* Allocate pool to free Tx bufs */
-+	for (j = 0; j < cl->tx_ring_size; ++j) {
-+		struct ishtp_cl_tx_ring	*tx_buf;
-+
-+		tx_buf = kmalloc(sizeof(struct ishtp_cl_tx_ring), GFP_KERNEL);
-+		if (!tx_buf)
-+			goto	out;
-+
-+		memset(tx_buf, 0, sizeof(struct ishtp_cl_tx_ring));
-+		tx_buf->send_buf.data = kmalloc(len, GFP_KERNEL);
-+		if (!tx_buf->send_buf.data) {
-+			kfree(tx_buf);
-+			goto	out;
-+		}
-+
-+		spin_lock_irqsave(&cl->tx_free_list_spinlock, flags);
-+		list_add_tail(&tx_buf->list, &cl->tx_free_list.list);
-+		spin_unlock_irqrestore(&cl->tx_free_list_spinlock, flags);
-+	}
-+	return	0;
-+out:
-+	dev_err(&cl->device->dev, "error in allocating Tx pool\n");
-+	ishtp_cl_free_rx_ring(cl);
-+	return	-ENOMEM;
-+}
-+
-+/**
-+ * ishtp_cl_allocate - allocates cl structure and sets it up.
-+ * returns The allocated file or NULL on failure
-+ */
-+struct ishtp_cl *ishtp_cl_allocate(struct ishtp_device *dev)
-+{
-+	struct ishtp_cl *cl;
-+
-+	cl = kmalloc(sizeof(struct ishtp_cl), GFP_KERNEL);
-+	if (!cl)
-+		return NULL;
-+
-+	ishtp_cl_init(cl, dev);
-+	return cl;
-+}
-+EXPORT_SYMBOL(ishtp_cl_allocate);
-+
-+void	ishtp_cl_free(struct ishtp_cl *cl)
-+{
-+	struct ishtp_device *dev;
-+	unsigned long flags;
-+
-+	if (!cl)
-+		return;
-+
-+	dev = cl->dev;
-+	if (!dev)
-+		return;
-+
-+	spin_lock_irqsave(&dev->cl_list_lock, flags);
-+	ishtp_cl_free_rx_ring(cl);
-+	ishtp_cl_free_tx_ring(cl);
-+	kfree(cl);
-+	spin_unlock_irqrestore(&dev->cl_list_lock, flags);
-+}
-+EXPORT_SYMBOL(ishtp_cl_free);
-+
-+/**
-+ * ishtp_cl_find_read_rb - find this cl's callback in the read list
-+ * returns rb on success, NULL on error
-+ */
-+struct ishtp_cl_rb *ishtp_cl_find_read_rb(struct ishtp_cl *cl)
-+{
-+	struct ishtp_device *dev = cl->dev;
-+	struct ishtp_cl_rb *rb = NULL;
-+	unsigned long	dev_flags;
-+
-+	spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
-+	list_for_each_entry(rb, &dev->read_list.list, list)
-+		if (ishtp_cl_cmp_id(cl, rb->cl)) {
-+			spin_unlock_irqrestore(&dev->read_list_spinlock,
-+				dev_flags);
-+			return rb;
-+		}
-+	spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
-+	return NULL;
-+}
-+
-+/**
-+ * ishtp_cl_link: allocate host id in the host map
-+ * @id - fixed host id or (-1) for generating one
-+ */
-+int ishtp_cl_link(struct ishtp_cl *cl, int id)
-+{
-+	struct ishtp_device *dev;
-+	unsigned long	flags, flags_cl;
-+	int	ret = 0;
-+
-+	if (WARN_ON(!cl || !cl->dev))
-+		return -EINVAL;
-+
-+	dev = cl->dev;
-+
-+	spin_lock_irqsave(&dev->device_lock, flags);
-+
-+	if (dev->open_handle_count >= ISHTP_MAX_OPEN_HANDLE_COUNT) {
-+		ret = -EMFILE;
-+		goto unlock_dev;
-+	}
-+
-+	/* If Id is not assigned get one*/
-+	if (id == ISHTP_HOST_CLIENT_ID_ANY)
-+		id = find_first_zero_bit(dev->host_clients_map,
-+			ISHTP_CLIENTS_MAX);
-+
-+	if (id >= ISHTP_CLIENTS_MAX) {
-+		spin_unlock_irqrestore(&dev->device_lock, flags);
-+		dev_err(&cl->device->dev, "id exceeded %d", ISHTP_CLIENTS_MAX);
-+		return -ENOENT;
-+	}
-+
-+	dev->open_handle_count++;
-+	cl->host_client_id = id;
-+	spin_lock_irqsave(&dev->cl_list_lock, flags_cl);
-+	if (dev->dev_state != ISHTP_DEV_ENABLED) {
-+		ret = -ENODEV;
-+		goto unlock_cl;
-+	}
-+	list_add_tail(&cl->link, &dev->cl_list);
-+	set_bit(id, dev->host_clients_map);
-+	cl->state = ISHTP_CL_INITIALIZING;
-+
-+unlock_cl:
-+	spin_unlock_irqrestore(&dev->cl_list_lock, flags_cl);
-+unlock_dev:
-+	spin_unlock_irqrestore(&dev->device_lock, flags);
-+	return ret;
-+}
-+EXPORT_SYMBOL(ishtp_cl_link);
-+
-+/* ishtp_cl_unlink - remove fw_cl from the list */
-+int ishtp_cl_unlink(struct ishtp_cl *cl)
-+{
-+	struct ishtp_device *dev;
-+	struct ishtp_cl *pos;
-+	unsigned long	flags;
-+
-+	/* don't shout on error exit path */
-+	if (!cl || !cl->dev)
-+		return 0;
-+
-+	dev = cl->dev;
-+
-+	spin_lock_irqsave(&dev->device_lock, flags);
-+	if (dev->open_handle_count > 0) {
-+		clear_bit(cl->host_client_id, dev->host_clients_map);
-+		dev->open_handle_count--;
-+	}
-+	spin_unlock_irqrestore(&dev->device_lock, flags);
-+
-+	/*
-+	 * This checks that 'cl' is actually linked into device's structure,
-+	 * before attempting 'list_del'
-+	 */
-+	spin_lock_irqsave(&dev->cl_list_lock, flags);
-+	list_for_each_entry(pos, &dev->cl_list, link)
-+		if (cl->host_client_id == pos->host_client_id) {
-+			list_del_init(&pos->link);
-+			break;
-+		}
-+	spin_unlock_irqrestore(&dev->cl_list_lock, flags);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(ishtp_cl_unlink);
-+
-+/* ishtp_cl_disconnect - disconnect host client form the fw one */
-+int ishtp_cl_disconnect(struct ishtp_cl *cl)
-+{
-+	struct ishtp_device *dev;
-+	int err;
-+
-+	if (WARN_ON(!cl || !cl->dev))
-+		return -ENODEV;
-+
-+	dev = cl->dev;
-+
-+	if (cl->state != ISHTP_CL_DISCONNECTING)
-+		return 0;
-+
-+	if (ishtp_hbm_cl_disconnect_req(dev, cl)) {
-+		dev_err(&cl->device->dev, "failed to disconnect.\n");
-+		return -ENODEV;
-+	}
-+
-+	err = wait_event_timeout(cl->wait_ctrl_res,
-+			(dev->dev_state != ISHTP_DEV_ENABLED ||
-+			cl->state == ISHTP_CL_DISCONNECTED),
-+			ishtp_secs_to_jiffies(ISHTP_CL_CONNECT_TIMEOUT));
-+
-+	/*
-+	 * If FW reset arrived, this will happen. Don't check cl->,
-+	 * as 'cl' may be freed already
-+	 */
-+	if (dev->dev_state != ISHTP_DEV_ENABLED)
-+		return -ENODEV;
-+
-+	if (cl->state == ISHTP_CL_DISCONNECTED)
-+		return 0;
-+
-+	return -ENODEV;
-+}
-+
-+/**
-+ * ishtp_cl_is_other_connecting - checks if other
-+ * client with the same fw client id is connecting
-+ * returns true if other client is connected, 0 - otherwise.
-+ */
-+bool ishtp_cl_is_other_connecting(struct ishtp_cl *cl)
-+{
-+	struct ishtp_device *dev;
-+	struct ishtp_cl *pos;
-+	unsigned long	flags;
-+
-+	if (WARN_ON(!cl || !cl->dev))
-+		return false;
-+
-+	dev = cl->dev;
-+	spin_lock_irqsave(&dev->cl_list_lock, flags);
-+	list_for_each_entry(pos, &dev->cl_list, link) {
-+		if ((pos->state == ISHTP_CL_CONNECTING) && (pos != cl) &&
-+				cl->fw_client_id == pos->fw_client_id) {
-+			spin_unlock_irqrestore(&dev->cl_list_lock, flags);
-+			return true;
-+		}
-+	}
-+	spin_unlock_irqrestore(&dev->cl_list_lock, flags);
-+
-+	return false;
-+}
-+
-+/* ishtp_cl_connect - connect host client to the fw one */
-+int ishtp_cl_connect(struct ishtp_cl *cl)
-+{
-+	struct ishtp_device *dev;
-+	int rets;
-+
-+	if (WARN_ON(!cl || !cl->dev))
-+		return -ENODEV;
-+
-+	if (ishtp_cl_is_other_connecting(cl))
-+		return	-EBUSY;
-+
-+	dev = cl->dev;
-+
-+	if (ishtp_hbm_cl_connect_req(dev, cl))
-+		return -ENODEV;
-+
-+
-+	rets = wait_event_timeout(cl->wait_ctrl_res,
-+		(dev->dev_state == ISHTP_DEV_ENABLED &&
-+		(cl->state == ISHTP_CL_CONNECTED ||
-+		cl->state == ISHTP_CL_DISCONNECTED)),
-+		ishtp_secs_to_jiffies(ISHTP_CL_CONNECT_TIMEOUT));
-+	/*
-+	 * If FW reset arrived, this will happen. Don't check cl->,
-+	 * as 'cl' may be freed already
-+	 */
-+	if (dev->dev_state != ISHTP_DEV_ENABLED)
-+		return -EFAULT;
-+
-+	if (cl->state != ISHTP_CL_CONNECTED)
-+		return -EFAULT;
-+
-+	rets = cl->status;
-+	if (rets)
-+		return rets;
-+
-+	rets = ishtp_cl_device_bind(cl);
-+	if (rets) {
-+		ishtp_cl_disconnect(cl);
-+		return rets;
-+	}
-+
-+	rets = ishtp_cl_alloc_rx_ring(cl);
-+	if (rets) {
-+		/* if failed allocation, disconnect */
-+		ishtp_cl_disconnect(cl);
-+		return rets;
-+	}
-+
-+	rets = ishtp_cl_alloc_tx_ring(cl);
-+	if (rets) {
-+		/* if failed allocation, disconnect */
-+		ishtp_cl_free_rx_ring(cl);
-+		ishtp_cl_disconnect(cl);
-+		return rets;
-+	}
-+
-+	/* Upon successful connection and allocation, emit flow-control */
-+	rets = ishtp_cl_read_start(cl);
-+	return rets;
-+}
-+EXPORT_SYMBOL(ishtp_cl_connect);
-+
-+/* ishtp_cl_read_start - start to read client message */
-+int ishtp_cl_read_start(struct ishtp_cl *cl)
-+{
-+	struct ishtp_device *dev;
-+	struct ishtp_cl_rb *rb;
-+	int rets;
-+	int i;
-+	unsigned long	flags;
-+	unsigned long	dev_flags;
-+
-+	if (WARN_ON(!cl || !cl->dev))
-+		return -ENODEV;
-+
-+	dev = cl->dev;
-+
-+	if (cl->state != ISHTP_CL_CONNECTED)
-+		return -ENODEV;
-+
-+	if (dev->dev_state != ISHTP_DEV_ENABLED)
-+		return -ENODEV;
-+
-+	i = ishtp_fw_cl_by_id(dev, cl->fw_client_id);
-+	if (i < 0) {
-+		dev_err(&cl->device->dev, "no such fw client %d\n",
-+			cl->fw_client_id);
-+		return -ENODEV;
-+	}
-+
-+	/* The current rb is the head of the free rb list */
-+	spin_lock_irqsave(&cl->free_list_spinlock, flags);
-+	if (list_empty(&cl->free_rb_list.list)) {
-+		dev_warn(&cl->device->dev,
-+			 "[ishtp-ish] Rx buffers pool is empty\n");
-+		rets = -ENOMEM;
-+		rb = NULL;
-+		spin_unlock_irqrestore(&cl->free_list_spinlock, flags);
-+		goto out;
-+	}
-+	rb = list_entry(cl->free_rb_list.list.next, struct ishtp_cl_rb, list);
-+	list_del_init(&rb->list);
-+	spin_unlock_irqrestore(&cl->free_list_spinlock, flags);
-+
-+	rb->cl = cl;
-+	rb->buf_idx = 0;
-+
-+	INIT_LIST_HEAD(&rb->list);
-+	rets = 0;
-+
-+	/*
-+	 * This must be BEFORE sending flow control -
-+	 * response in ISR may come too fast...
-+	 */
-+	spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
-+	list_add_tail(&rb->list, &dev->read_list.list);
-+	spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
-+	if (ishtp_hbm_cl_flow_control_req(dev, cl)) {
-+		rets = -ENODEV;
-+		goto out;
-+	}
-+out:
-+	/* if ishtp_hbm_cl_flow_control_req failed, return rb to free list */
-+	if (rets && rb) {
-+		spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
-+		list_del(&rb->list);
-+		spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
-+
-+		spin_lock_irqsave(&cl->free_list_spinlock, flags);
-+		list_add_tail(&rb->list, &cl->free_rb_list.list);
-+		spin_unlock_irqrestore(&cl->free_list_spinlock, flags);
-+	}
-+	return rets;
-+}
-+
-+int ishtp_cl_send(struct ishtp_cl *cl, uint8_t *buf, size_t length)
-+{
-+	struct ishtp_device	*dev;
-+	int	id;
-+	struct ishtp_cl_tx_ring	*cl_msg;
-+	int	have_msg_to_send = 0;
-+	unsigned long	tx_flags, tx_free_flags;
-+
-+	if (WARN_ON(!cl || !cl->dev))
-+		return -ENODEV;
-+
-+	dev = cl->dev;
-+
-+	if (cl->state != ISHTP_CL_CONNECTED) {
-+		++cl->err_send_msg;
-+		return -EPIPE;
-+	}
-+
-+	if (dev->dev_state != ISHTP_DEV_ENABLED) {
-+		++cl->err_send_msg;
-+		return -ENODEV;
-+	}
-+
-+	/* Check if we have fw client device */
-+	id = ishtp_fw_cl_by_id(dev, cl->fw_client_id);
-+	if (id < 0) {
-+		++cl->err_send_msg;
-+		return -ENOENT;
-+	}
-+
-+	if (length > dev->fw_clients[id].props.max_msg_length) {
-+		++cl->err_send_msg;
-+		return -EMSGSIZE;
-+	}
-+
-+	/* No free bufs */
-+	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
-+	if (list_empty(&cl->tx_free_list.list)) {
-+		spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
-+			tx_free_flags);
-+		++cl->err_send_msg;
-+		return	-ENOMEM;
-+	}
-+
-+	cl_msg = list_first_entry(&cl->tx_free_list.list,
-+		struct ishtp_cl_tx_ring, list);
-+	if (!cl_msg->send_buf.data) {
-+		spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
-+			tx_free_flags);
-+		return	-EIO;
-+		/* Should not happen, as free list is pre-allocated */
-+	}
-+	/*
-+	 * This is safe, as 'length' is already checked for not exceeding
-+	 * max ISHTP message size per client
-+	 */
-+	list_del_init(&cl_msg->list);
-+	spin_unlock_irqrestore(&cl->tx_free_list_spinlock, tx_free_flags);
-+	memcpy(cl_msg->send_buf.data, buf, length);
-+	cl_msg->send_buf.size = length;
-+	spin_lock_irqsave(&cl->tx_list_spinlock, tx_flags);
-+	have_msg_to_send = !list_empty(&cl->tx_list.list);
-+	list_add_tail(&cl_msg->list, &cl->tx_list.list);
-+	spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+
-+	if (!have_msg_to_send && cl->ishtp_flow_ctrl_creds > 0)
-+		ishtp_cl_send_msg(dev, cl);
-+
-+	return	0;
-+}
-+EXPORT_SYMBOL(ishtp_cl_send);
-+
-+/* ishtp_cl_read_complete - processes completed operation for a client */
-+void ishtp_cl_read_complete(struct ishtp_cl_rb *rb)
-+{
-+	unsigned long	flags;
-+	int	schedule_work_flag = 0;
-+	struct ishtp_cl	*cl = rb->cl;
-+
-+	spin_lock_irqsave(&cl->in_process_spinlock, flags);
-+	/*
-+	 * if in-process list is empty, then need to schedule
-+	 * the processing thread
-+	 */
-+	schedule_work_flag = list_empty(&cl->in_process_list.list);
-+	list_add_tail(&rb->list, &cl->in_process_list.list);
-+	spin_unlock_irqrestore(&cl->in_process_spinlock, flags);
-+
-+	if (schedule_work_flag)
-+		ishtp_cl_bus_rx_event(cl->device);
-+}
-+
-+/* ishtp_cl_all_disconnect - disconnect forcefully all connected clients */
-+void ishtp_cl_all_disconnect(struct ishtp_device *dev)
-+{
-+	struct ishtp_cl *cl;
-+	unsigned long	flags;
-+
-+	spin_lock_irqsave(&dev->cl_list_lock, flags);
-+	list_for_each_entry(cl, &dev->cl_list, link) {
-+		cl->state = ISHTP_CL_DISCONNECTED;
-+		cl->ishtp_flow_ctrl_creds = 0;
-+		cl->read_rb = NULL;
-+	}
-+	spin_unlock_irqrestore(&dev->cl_list_lock, flags);
-+}
-+
-+static void	ipc_tx_callback(void *prm)
-+{
-+	struct ishtp_cl	*cl = prm;
-+	struct ishtp_cl_tx_ring	*cl_msg;
-+	size_t	rem;
-+	struct ishtp_device	*dev = (cl ? cl->dev : NULL);
-+	struct ishtp_msg_hdr	ishtp_hdr;
-+	unsigned long	tx_flags, tx_free_flags;
-+	unsigned char	*pmsg;
-+
-+	if (!dev)
-+		return;
-+
-+	/*
-+	 * Other conditions if some critical error has
-+	 * occurred before this callback is called
-+	 */
-+	if (dev->dev_state != ISHTP_DEV_ENABLED)
-+		return;
-+
-+	if (cl->state != ISHTP_CL_CONNECTED)
-+		return;
-+
-+	spin_lock_irqsave(&cl->tx_list_spinlock, tx_flags);
-+	if (list_empty(&cl->tx_list.list)) {
-+		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+		return;
-+	}
-+
-+	if (cl->ishtp_flow_ctrl_creds != 1 && !cl->sending) {
-+		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+		return;
-+	}
-+
-+	if (!cl->sending) {
-+		--cl->ishtp_flow_ctrl_creds;
-+		cl->last_ipc_acked = 0;
-+		cl->last_tx_path = CL_TX_PATH_IPC;
-+		cl->sending = 1;
-+	}
-+
-+	cl_msg = list_entry(cl->tx_list.list.next, struct ishtp_cl_tx_ring,
-+			    list);
-+	rem = cl_msg->send_buf.size - cl->tx_offs;
-+
-+	ishtp_hdr.host_addr = cl->host_client_id;
-+	ishtp_hdr.fw_addr = cl->fw_client_id;
-+	ishtp_hdr.reserved = 0;
-+	pmsg = cl_msg->send_buf.data + cl->tx_offs;
-+
-+	if (rem <= dev->mtu) {
-+		ishtp_hdr.length = rem;
-+		ishtp_hdr.msg_complete = 1;
-+		cl->sending = 0;
-+		list_del_init(&cl_msg->list);	/* Must be before write */
-+		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+		/* Submit to IPC queue with no callback */
-+		ishtp_write_message(dev, &ishtp_hdr, pmsg);
-+		spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
-+		list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
-+		spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
-+			tx_free_flags);
-+	} else {
-+		/* Send IPC fragment */
-+		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+		cl->tx_offs += dev->mtu;
-+		ishtp_hdr.length = dev->mtu;
-+		ishtp_hdr.msg_complete = 0;
-+		ishtp_send_msg(dev, &ishtp_hdr, pmsg, ipc_tx_callback, cl);
-+	}
-+}
-+
-+static void	ishtp_cl_send_msg_ipc(struct ishtp_device *dev,
-+	struct ishtp_cl *cl)
-+{
-+	/* If last DMA message wasn't acked yet, leave this one in Tx queue */
-+	if (cl->last_tx_path == CL_TX_PATH_DMA && cl->last_dma_acked == 0)
-+		return;
-+
-+	cl->tx_offs = 0;
-+	ipc_tx_callback(cl);
-+	++cl->send_msg_cnt_ipc;
-+}
-+
-+static void	ishtp_cl_send_msg_dma(struct ishtp_device *dev,
-+	struct ishtp_cl *cl)
-+{
-+	struct ishtp_msg_hdr	hdr;
-+	struct dma_xfer_hbm	dma_xfer;
-+	unsigned char	*msg_addr;
-+	int off;
-+	struct ishtp_cl_tx_ring	*cl_msg;
-+	unsigned long tx_flags, tx_free_flags;
-+
-+	/* If last IPC message wasn't acked yet, leave this one in Tx queue */
-+	if (cl->last_tx_path == CL_TX_PATH_IPC && cl->last_ipc_acked == 0)
-+		return;
-+
-+	spin_lock_irqsave(&cl->tx_list_spinlock, tx_flags);
-+	if (list_empty(&cl->tx_list.list)) {
-+		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+		return;
-+	}
-+
-+	cl_msg = list_entry(cl->tx_list.list.next, struct ishtp_cl_tx_ring,
-+		list);
-+
-+	msg_addr = ishtp_cl_get_dma_send_buf(dev, cl_msg->send_buf.size);
-+	if (!msg_addr) {
-+		spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+		if (dev->transfer_path == CL_TX_PATH_DEFAULT)
-+			ishtp_cl_send_msg_ipc(dev, cl);
-+		return;
-+	}
-+
-+	list_del_init(&cl_msg->list);	/* Must be before write */
-+	spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+
-+	--cl->ishtp_flow_ctrl_creds;
-+	cl->last_dma_acked = 0;
-+	cl->last_dma_addr = msg_addr;
-+	cl->last_tx_path = CL_TX_PATH_DMA;
-+
-+	/* write msg to dma buf */
-+	memcpy(msg_addr, cl_msg->send_buf.data, cl_msg->send_buf.size);
-+
-+	/* send dma_xfer hbm msg */
-+	off = msg_addr - (unsigned char *)dev->ishtp_host_dma_tx_buf;
-+	ishtp_hbm_hdr(&hdr, sizeof(struct dma_xfer_hbm));
-+	dma_xfer.hbm = DMA_XFER;
-+	dma_xfer.fw_client_id = cl->fw_client_id;
-+	dma_xfer.host_client_id = cl->host_client_id;
-+	dma_xfer.reserved = 0;
-+	dma_xfer.msg_addr = dev->ishtp_host_dma_tx_buf_phys + off;
-+	dma_xfer.msg_length = cl_msg->send_buf.size;
-+	dma_xfer.reserved2 = 0;
-+	ishtp_write_message(dev, &hdr, (unsigned char *)&dma_xfer);
-+	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
-+	list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
-+	spin_unlock_irqrestore(&cl->tx_free_list_spinlock, tx_free_flags);
-+	++cl->send_msg_cnt_dma;
-+}
-+
-+void ishtp_cl_send_msg(struct ishtp_device *dev, struct ishtp_cl *cl)
-+{
-+	if (dev->transfer_path == CL_TX_PATH_DMA)
-+		ishtp_cl_send_msg_dma(dev, cl);
-+	else
-+		ishtp_cl_send_msg_ipc(dev, cl);
-+}
-+EXPORT_SYMBOL(ishtp_cl_send_msg);
-+
-+/*
-+ * Receive and dispatch ISHTP client messages
-+ *
-+ * (!) ISR context
-+ */
-+void	recv_ishtp_cl_msg(struct ishtp_device *dev,
-+		struct ishtp_msg_hdr *ishtp_hdr)
-+{
-+	struct ishtp_cl *cl;
-+	struct ishtp_cl_rb *rb;
-+	struct ishtp_cl_rb *new_rb;
-+	unsigned char *buffer = NULL;
-+	struct ishtp_cl_rb *complete_rb = NULL;
-+	unsigned long	dev_flags;
-+	unsigned long	flags;
-+	int	rb_count;
-+
-+
-+	if (ishtp_hdr->reserved) {
-+		dev_err(dev->devc, "corrupted message header.\n");
-+		goto	eoi;
-+	}
-+
-+	if (ishtp_hdr->length > IPC_PAYLOAD_SIZE) {
-+		dev_err(dev->devc,
-+			"ISHTP message length in hdr exceeds IPC MTU\n");
-+		goto	eoi;
-+	}
-+
-+	spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
-+	rb_count = -1;
-+	list_for_each_entry(rb, &dev->read_list.list, list) {
-+		++rb_count;
-+		cl = rb->cl;
-+		if (!cl || !(cl->host_client_id == ishtp_hdr->host_addr &&
-+				cl->fw_client_id == ishtp_hdr->fw_addr) ||
-+				!(cl->state == ISHTP_CL_CONNECTED))
-+			continue;
-+
-+		 /* If no Rx buffer is allocated, disband the rb */
-+		if (rb->buffer.size == 0 || rb->buffer.data == NULL) {
-+			spin_unlock_irqrestore(&dev->read_list_spinlock,
-+				dev_flags);
-+			dev_err(&cl->device->dev,
-+				"Rx buffer is not allocated.\n");
-+			list_del(&rb->list);
-+			ishtp_io_rb_free(rb);
-+			cl->status = -ENOMEM;
-+			goto	eoi;
-+		}
-+
-+		/*
-+		 * If message buffer overflown (exceeds max. client msg
-+		 * size, drop message and return to free buffer.
-+		 * Do we need to disconnect such a client? (We don't send
-+		 * back FC, so communication will be stuck anyway)
-+		 */
-+		if (rb->buffer.size < ishtp_hdr->length + rb->buf_idx) {
-+			spin_unlock_irqrestore(&dev->read_list_spinlock,
-+				dev_flags);
-+			dev_err(&cl->device->dev,
-+				"message overflow. size %d len %d idx %ld\n",
-+				rb->buffer.size, ishtp_hdr->length,
-+				rb->buf_idx);
-+			list_del(&rb->list);
-+			ishtp_io_rb_recycle(rb);
-+			cl->status = -EIO;
-+			goto	eoi;
-+		}
-+
-+		buffer = rb->buffer.data + rb->buf_idx;
-+		dev->ops->ishtp_read(dev, buffer, ishtp_hdr->length);
-+
-+		rb->buf_idx += ishtp_hdr->length;
-+		if (ishtp_hdr->msg_complete) {
-+			/* Last fragment in message - it's complete */
-+			cl->status = 0;
-+			list_del(&rb->list);
-+			complete_rb = rb;
-+
-+			--cl->out_flow_ctrl_creds;
-+			/*
-+			 * the whole msg arrived, send a new FC, and add a new
-+			 * rb buffer for the next coming msg
-+			 */
-+			spin_lock_irqsave(&cl->free_list_spinlock, flags);
-+
-+			if (!list_empty(&cl->free_rb_list.list)) {
-+				new_rb = list_entry(cl->free_rb_list.list.next,
-+					struct ishtp_cl_rb, list);
-+				list_del_init(&new_rb->list);
-+				spin_unlock_irqrestore(&cl->free_list_spinlock,
-+					flags);
-+				new_rb->cl = cl;
-+				new_rb->buf_idx = 0;
-+				INIT_LIST_HEAD(&new_rb->list);
-+				list_add_tail(&new_rb->list,
-+					&dev->read_list.list);
-+
-+				ishtp_hbm_cl_flow_control_req(dev, cl);
-+			} else {
-+				spin_unlock_irqrestore(&cl->free_list_spinlock,
-+					flags);
-+			}
-+		}
-+		/* One more fragment in message (even if this was last) */
-+		++cl->recv_msg_num_frags;
-+
-+		/*
-+		 * We can safely break here (and in BH too),
-+		 * a single input message can go only to a single request!
-+		 */
-+		break;
-+	}
-+
-+	spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
-+	/* If it's nobody's message, just read and discard it */
-+	if (!buffer) {
-+		uint8_t	rd_msg_buf[ISHTP_RD_MSG_BUF_SIZE];
-+
-+		dev_err(dev->devc, "Dropped Rx msg - no request\n");
-+		dev->ops->ishtp_read(dev, rd_msg_buf, ishtp_hdr->length);
-+		goto	eoi;
-+	}
-+
-+	if (complete_rb) {
-+		getnstimeofday(&cl->ts_rx);
-+		++cl->recv_msg_cnt_ipc;
-+		ishtp_cl_read_complete(complete_rb);
-+	}
-+eoi:
-+	return;
-+}
-+
-+/*
-+ * Receive and dispatch ISHTP client dma message
-+ *
-+ * (!) ISR context
-+ */
-+void	recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
-+	struct dma_xfer_hbm *hbm)
-+{
-+	struct ishtp_cl *cl;
-+	struct ishtp_cl_rb *rb;
-+	struct ishtp_cl_rb *new_rb;
-+	unsigned char *buffer = NULL;
-+	struct ishtp_cl_rb *complete_rb = NULL;
-+	unsigned long	dev_flags;
-+	unsigned long	flags;
-+
-+	spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
-+	list_for_each_entry(rb, &dev->read_list.list, list) {
-+		cl = rb->cl;
-+		if (!cl || !(cl->host_client_id == hbm->host_client_id &&
-+				cl->fw_client_id == hbm->fw_client_id) ||
-+				!(cl->state == ISHTP_CL_CONNECTED))
-+			continue;
-+
-+		/*
-+		 * If no Rx buffer is allocated, disband the rb
-+		 */
-+		if (rb->buffer.size == 0 || rb->buffer.data == NULL) {
-+			spin_unlock_irqrestore(&dev->read_list_spinlock,
-+				dev_flags);
-+			dev_err(&cl->device->dev,
-+				"response buffer is not allocated.\n");
-+			list_del(&rb->list);
-+			ishtp_io_rb_free(rb);
-+			cl->status = -ENOMEM;
-+			goto	eoi;
-+		}
-+
-+		/*
-+		 * If message buffer overflown (exceeds max. client msg
-+		 * size, drop message and return to free buffer.
-+		 * Do we need to disconnect such a client? (We don't send
-+		 * back FC, so communication will be stuck anyway)
-+		 */
-+		if (rb->buffer.size < hbm->msg_length) {
-+			spin_unlock_irqrestore(&dev->read_list_spinlock,
-+				dev_flags);
-+			dev_err(&cl->device->dev,
-+				"message overflow. size %d len %d idx %ld\n",
-+				rb->buffer.size, hbm->msg_length, rb->buf_idx);
-+			list_del(&rb->list);
-+			ishtp_io_rb_recycle(rb);
-+			cl->status = -EIO;
-+			goto	eoi;
-+		}
-+
-+		buffer = rb->buffer.data;
-+		memcpy(buffer, msg, hbm->msg_length);
-+		rb->buf_idx = hbm->msg_length;
-+
-+		/* Last fragment in message - it's complete */
-+		cl->status = 0;
-+		list_del(&rb->list);
-+		complete_rb = rb;
-+
-+		--cl->out_flow_ctrl_creds;
-+		/*
-+		 * the whole msg arrived, send a new FC, and add a new
-+		 * rb buffer for the next coming msg
-+		 */
-+		spin_lock_irqsave(&cl->free_list_spinlock, flags);
-+
-+		if (!list_empty(&cl->free_rb_list.list)) {
-+			new_rb = list_entry(cl->free_rb_list.list.next,
-+				struct ishtp_cl_rb, list);
-+			list_del_init(&new_rb->list);
-+			spin_unlock_irqrestore(&cl->free_list_spinlock,
-+				flags);
-+			new_rb->cl = cl;
-+			new_rb->buf_idx = 0;
-+			INIT_LIST_HEAD(&new_rb->list);
-+			list_add_tail(&new_rb->list,
-+				&dev->read_list.list);
-+
-+			ishtp_hbm_cl_flow_control_req(dev, cl);
-+		} else {
-+			spin_unlock_irqrestore(&cl->free_list_spinlock,
-+				flags);
-+		}
-+
-+		/* One more fragment in message (this is always last) */
-+		++cl->recv_msg_num_frags;
-+
-+		/*
-+		 * We can safely break here (and in BH too),
-+		 * a single input message can go only to a single request!
-+		 */
-+		break;
-+	}
-+
-+	spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
-+	/* If it's nobody's message, just read and discard it */
-+	if (!buffer) {
-+		dev_err(dev->devc, "Dropped Rx (DMA) msg - no request\n");
-+		goto	eoi;
-+	}
-+
-+	if (complete_rb) {
-+		getnstimeofday(&cl->ts_rx);
-+		++cl->recv_msg_cnt_dma;
-+		ishtp_cl_read_complete(complete_rb);
-+	}
-+eoi:
-+	return;
-+}
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
-new file mode 100644
-index 0000000..f963af5
---- /dev/null
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.h
-@@ -0,0 +1,196 @@
-+/*
-+ * ISHTP client logic
-+ *
-+ * Copyright (c) 2003-2016, Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ */
-+
-+#ifndef _ISHTP_CLIENT_H_
-+#define _ISHTP_CLIENT_H_
-+
-+#include <linux/types.h>
++#include <linux/pci.h>
++#include <linux/interrupt.h>
++#include "hw-ish-regs.h"
 +#include "ishtp-dev.h"
 +
-+/* Client state */
-+enum cl_state {
-+	ISHTP_CL_INITIALIZING = 0,
-+	ISHTP_CL_CONNECTING,
-+	ISHTP_CL_CONNECTED,
-+	ISHTP_CL_DISCONNECTING,
-+	ISHTP_CL_DISCONNECTED
++#define CHV_DEVICE_ID		0x22D8
++#define BXT_Ax_DEVICE_ID	0x0AA2
++#define BXT_Bx_DEVICE_ID	0x1AA2
++#define BXTP_Ax_DEVICE_ID	0x5AA2
++#define SPT_Ax_DEVICE_ID	0x9D35
++
++#define	REVISION_ID_CHT_A0	0x6
++#define	REVISION_ID_CHT_Ax_SI	0x0
++#define	REVISION_ID_CHT_Bx_SI	0x10
++#define	REVISION_ID_CHT_Kx_SI	0x20
++#define	REVISION_ID_CHT_Dx_SI	0x30
++#define	REVISION_ID_CHT_B0	0xB0
++#define	REVISION_ID_SI_MASK	0x70
++
++struct ipc_rst_payload_type {
++	uint16_t	reset_id;
++	uint16_t	reserved;
 +};
 +
-+/* Tx and Rx ring size */
-+#define	CL_DEF_RX_RING_SIZE	2
-+#define	CL_DEF_TX_RING_SIZE	2
-+#define	CL_MAX_RX_RING_SIZE	32
-+#define	CL_MAX_TX_RING_SIZE	32
++struct time_sync_format {
++	uint8_t ts1_source;
++	uint8_t ts2_source;
++	uint16_t reserved;
++} __packed;
 +
-+#define DMA_SLOT_SIZE		4096
-+/* Number of IPC fragments after which it's worth sending via DMA */
-+#define	DMA_WORTH_THRESHOLD	3
++struct ipc_time_update_msg {
++	uint64_t primary_host_time;
++	struct time_sync_format sync_info;
++	uint64_t secondary_host_time;
++} __packed;
 +
-+/* DMA/IPC Tx paths. Other the default means enforcement */
-+#define	CL_TX_PATH_DEFAULT	0
-+#define	CL_TX_PATH_IPC		1
-+#define	CL_TX_PATH_DMA		2
-+
-+/* Client Tx buffer list entry */
-+struct ishtp_cl_tx_ring {
-+	struct list_head	list;
-+	struct ishtp_msg_data	send_buf;
++enum {
++	HOST_UTC_TIME_USEC = 0,
++	HOST_SYSTEM_TIME_USEC = 1
 +};
 +
-+/* ISHTP client instance */
-+struct ishtp_cl {
-+	struct list_head	link;
-+	struct ishtp_device	*dev;
-+	enum cl_state		state;
-+	int			status;
-+
-+	/* Link to ISHTP bus device */
-+	struct ishtp_cl_device	*device;
-+
-+	/* ID of client connected */
-+	uint8_t	host_client_id;
-+	uint8_t	fw_client_id;
-+	uint8_t	ishtp_flow_ctrl_creds;
-+	uint8_t	out_flow_ctrl_creds;
-+
-+	struct ishtp_cl_rb	*read_rb;
-+
-+	/* dma */
-+	int	last_tx_path;
-+	/* 0: ack wasn't received,1:ack was received */
-+	int	last_dma_acked;
-+	unsigned char	*last_dma_addr;
-+	/* 0: ack wasn't received,1:ack was received */
-+	int	last_ipc_acked;
-+
-+	/* Rx ring buffer pool */
-+	unsigned int	rx_ring_size;
-+	struct ishtp_cl_rb	free_rb_list;
-+	spinlock_t	free_list_spinlock;
-+	/* Rx in-process list */
-+	struct ishtp_cl_rb	in_process_list;
-+	spinlock_t	in_process_spinlock;
-+
-+	/* Client Tx buffers list */
-+	unsigned int	tx_ring_size;
-+	struct ishtp_cl_tx_ring	tx_list, tx_free_list;
-+	spinlock_t	tx_list_spinlock;
-+	spinlock_t	tx_free_list_spinlock;
-+	size_t	tx_offs;	/* Offset in buffer at head of 'tx_list' */
-+
-+	/**
-+	 * if we get a FC, and the list is not empty, we must know whether we
-+	 * are at the middle of sending.
-+	 * if so -need to increase FC counter, otherwise, need to start sending
-+	 * the first msg in list
-+	 * (!)This is for counting-FC implementation only. Within single-FC the
-+	 * other party may NOT send FC until it receives complete message
-+	 */
-+	int	sending;
-+
-+	/* Send FC spinlock */
-+	spinlock_t	fc_spinlock;
-+
-+	/* wait queue for connect and disconnect response from FW */
-+	wait_queue_head_t	wait_ctrl_res;
-+
-+	/* Error stats */
-+	unsigned int	err_send_msg;
-+	unsigned int	err_send_fc;
-+
-+	/* Send/recv stats */
-+	unsigned int	send_msg_cnt_ipc;
-+	unsigned int	send_msg_cnt_dma;
-+	unsigned int	recv_msg_cnt_ipc;
-+	unsigned int	recv_msg_cnt_dma;
-+	unsigned int	recv_msg_num_frags;
-+	unsigned int	ishtp_flow_ctrl_cnt;
-+	unsigned int	out_flow_ctrl_cnt;
-+
-+	/* Rx msg ... out FC timing */
-+	struct timespec ts_rx;
-+	struct timespec ts_out_fc;
-+	struct timespec ts_max_fc_delay;
-+	void *client_data;
++struct ish_hw {
++	void __iomem *mem_addr;
 +};
 +
-+int ishtp_can_client_connect(struct ishtp_device *ishtp_dev, uuid_le *uuid);
-+int ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const uuid_le *cuuid);
-+int ishtp_fw_cl_by_id(struct ishtp_device *dev, uint8_t client_id);
++#define to_ish_hw(dev) (struct ish_hw *)((dev)->hw)
 +
-+/*
-+ * ISHTP IO Functions
-+ */
-+struct ishtp_cl_rb	*ishtp_io_rb_init(struct ishtp_cl *cl);
-+void	ishtp_io_rb_free(struct ishtp_cl_rb *priv_rb);
-+int	ishtp_io_rb_alloc_buf(struct ishtp_cl_rb *rb, size_t length);
-+int	ishtp_io_rb_recycle(struct ishtp_cl_rb *rb);
++irqreturn_t ish_irq_handler(int irq, void *dev_id);
++struct ishtp_device *ish_dev_init(struct pci_dev *pdev);
++int ish_hw_start(struct ishtp_device *dev);
 +
-+/*
-+ * ISHTP Host Client Functions
-+ */
-+struct ishtp_cl	*ishtp_cl_allocate(struct ishtp_device *dev);
-+void	ishtp_cl_init(struct ishtp_cl *cl, struct ishtp_device *dev);
-+void	ishtp_cl_free(struct ishtp_cl *cl);
++#endif /* _ISHTP_HW_ISH_H_ */
 +
-+int	ishtp_cl_alloc_rx_ring(struct ishtp_cl *cl);
-+int	ishtp_cl_alloc_tx_ring(struct ishtp_cl *cl);
-+int	ishtp_cl_free_rx_ring(struct ishtp_cl *cl);
-+int	ishtp_cl_free_tx_ring(struct ishtp_cl *cl);
-+
-+int	ishtp_cl_link(struct ishtp_cl *cl, int id);
-+int	ishtp_cl_unlink(struct ishtp_cl *cl);
-+
-+int	ishtp_cl_flush_queues(struct ishtp_cl *cl);
-+struct ishtp_cl_rb	*ishtp_cl_find_read_rb(struct ishtp_cl *cl);
-+void	ishtp_read_list_flush(struct ishtp_cl *cl);
-+
-+/*
-+ *  ISHTP input output function prototype
-+ */
-+bool	ishtp_cl_is_other_connecting(struct ishtp_cl *cl);
-+int	ishtp_cl_disconnect(struct ishtp_cl *cl);
-+int	ishtp_cl_connect(struct ishtp_cl *cl);
-+int	ishtp_cl_read_start(struct ishtp_cl *cl);
-+int	ishtp_cl_send(struct ishtp_cl *cl, uint8_t *buf, size_t length);
-+void	ishtp_cl_read_complete(struct ishtp_cl_rb *rb);
-+void	ishtp_cl_all_disconnect(struct ishtp_device *dev);
-+void	ishtp_cl_all_read_wakeup(struct ishtp_device *dev);
-+void	ishtp_cl_send_msg(struct ishtp_device *dev, struct ishtp_cl *cl);
-+void	recv_ishtp_cl_msg(struct ishtp_device *dev,
-+			  struct ishtp_msg_hdr *ishtp_hdr);
-+void	recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
-+			      struct dma_xfer_hbm *hbm);
-+void	ishtp_cl_alloc_dma_buf(struct ishtp_device *dev);
-+void	ishtp_cl_free_dma_buf(struct ishtp_device *dev);
-+void	*ishtp_cl_get_dma_send_buf(struct ishtp_device *dev,
-+				   uint32_t size);
-+void	ishtp_cl_release_dma_acked_mem(struct ishtp_device *dev,
-+				       void *msg_addr,
-+				       uint8_t size);
-+
-+/**
-+ * ishtp_cl_cmp_id - tells if file private data have same id
-+ * returns true  - if ids are the same and not NULL
-+ */
-+static inline bool ishtp_cl_cmp_id(const struct ishtp_cl *cl1,
-+				   const struct ishtp_cl *cl2)
-+{
-+	return cl1 && cl2 &&
-+		(cl1->host_client_id == cl2->host_client_id) &&
-+		(cl1->fw_client_id == cl2->fw_client_id);
-+}
-+
-+#endif /* _ISHTP_CLIENT_H_ */
-diff --git a/drivers/hid/intel-ish-hid/ishtp/dma-if.c b/drivers/hid/intel-ish-hid/ishtp/dma-if.c
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
 new file mode 100644
-index 0000000..d1e9e32
+index 0000000..fdc242a
 --- /dev/null
-+++ b/drivers/hid/intel-ish-hid/ishtp/dma-if.c
-@@ -0,0 +1,175 @@
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -0,0 +1,710 @@
 +/*
-+ * ISHTP DMA I/F functions
++ * H/W layer of ISHTP provider device (ISH)
 + *
-+ * Copyright (c) 2003-2016, Intel Corporation.
++ * Copyright (c) 2014-2016, Intel Corporation.
 + *
 + * This program is free software; you can redistribute it and/or modify it
 + * under the terms and conditions of the GNU General Public License,
@@ -2257,1520 +392,713 @@ index 0000000..d1e9e32
 + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 + * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 + * more details.
-+ *
 + */
 +
-+#include <linux/slab.h>
 +#include <linux/sched.h>
-+#include <linux/wait.h>
-+#include <linux/delay.h>
-+#include <linux/dma-mapping.h>
-+#include "ishtp-dev.h"
-+#include "client.h"
-+
-+/**
-+ * ishtp_cl_alloc_dma_buf() - Allocate DMA RX and TX buffer
-+ *
-+ * @dev: ishtp device
-+ *
-+ * Allocate RX and TX DMA buffer once during bus setup.
-+ * It allocates 1MB, RX and TX DMA buffer, which are divided
-+ * into slots.
-+ */
-+void	ishtp_cl_alloc_dma_buf(struct ishtp_device *dev)
-+{
-+	dma_addr_t	h;
-+
-+	if (dev->ishtp_host_dma_tx_buf)
-+		return;
-+
-+	dev->ishtp_host_dma_tx_buf_size = 1024*1024;
-+	dev->ishtp_host_dma_rx_buf_size = 1024*1024;
-+
-+	/* Allocate Tx buffer and init usage bitmap */
-+	dev->ishtp_host_dma_tx_buf = dma_alloc_coherent(dev->devc,
-+					dev->ishtp_host_dma_tx_buf_size,
-+					&h, GFP_KERNEL);
-+	if (dev->ishtp_host_dma_tx_buf)
-+		dev->ishtp_host_dma_tx_buf_phys = h;
-+
-+	dev->ishtp_dma_num_slots = dev->ishtp_host_dma_tx_buf_size /
-+						DMA_SLOT_SIZE;
-+
-+	dev->ishtp_dma_tx_map = kcalloc(dev->ishtp_dma_num_slots,
-+					sizeof(uint8_t),
-+					GFP_KERNEL);
-+	spin_lock_init(&dev->ishtp_dma_tx_lock);
-+
-+	/* Allocate Rx buffer */
-+	dev->ishtp_host_dma_rx_buf = dma_alloc_coherent(dev->devc,
-+					dev->ishtp_host_dma_rx_buf_size,
-+					 &h, GFP_KERNEL);
-+
-+	if (dev->ishtp_host_dma_rx_buf)
-+		dev->ishtp_host_dma_rx_buf_phys = h;
-+}
-+
-+/**
-+ * ishtp_cl_free_dma_buf() - Free DMA RX and TX buffer
-+ *
-+ * @dev: ishtp device
-+ *
-+ * Free DMA buffer when all clients are released. This is
-+ * only happens during error path in ISH built in driver
-+ * model
-+ */
-+void	ishtp_cl_free_dma_buf(struct ishtp_device *dev)
-+{
-+	dma_addr_t	h;
-+
-+	if (dev->ishtp_host_dma_tx_buf) {
-+		h = dev->ishtp_host_dma_tx_buf_phys;
-+		dma_free_coherent(dev->devc, dev->ishtp_host_dma_tx_buf_size,
-+				  dev->ishtp_host_dma_tx_buf, h);
-+	}
-+
-+	if (dev->ishtp_host_dma_rx_buf) {
-+		h = dev->ishtp_host_dma_rx_buf_phys;
-+		dma_free_coherent(dev->devc, dev->ishtp_host_dma_rx_buf_size,
-+				  dev->ishtp_host_dma_rx_buf, h);
-+	}
-+
-+	kfree(dev->ishtp_dma_tx_map);
-+}
-+
-+/*
-+ * ishtp_cl_get_dma_send_buf() - Get a DMA memory slot
-+ *
-+ * @dev:	ishtp device
-+ * @size:	Size of memory to get
-+ *
-+ * Find and return free address of "size" bytes in dma tx buffer.
-+ * the function will mark this address as "in-used" memory.
-+ * Returns NULL when no free buffer
-+ */
-+void *ishtp_cl_get_dma_send_buf(struct ishtp_device *dev,
-+				uint32_t size)
-+{
-+	unsigned long	flags;
-+	int i, j, free;
-+	/* additional slot is needed if there is rem */
-+	int required_slots = (size / DMA_SLOT_SIZE)
-+		+ 1 * (size % DMA_SLOT_SIZE != 0);
-+
-+	spin_lock_irqsave(&dev->ishtp_dma_tx_lock, flags);
-+	for (i = 0; i <= (dev->ishtp_dma_num_slots - required_slots); i++) {
-+		free = 1;
-+		for (j = 0; j < required_slots; j++)
-+			if (dev->ishtp_dma_tx_map[i+j]) {
-+				free = 0;
-+				i += j;
-+				break;
-+			}
-+		if (free) {
-+			/* mark memory as "caught" */
-+			for (j = 0; j < required_slots; j++)
-+				dev->ishtp_dma_tx_map[i+j] = 1;
-+			spin_unlock_irqrestore(&dev->ishtp_dma_tx_lock, flags);
-+			return (i * DMA_SLOT_SIZE) +
-+				(unsigned char *)dev->ishtp_host_dma_tx_buf;
-+		}
-+	}
-+	spin_unlock_irqrestore(&dev->ishtp_dma_tx_lock, flags);
-+	dev_err(dev->devc, "No free DMA buffer to send msg\n");
-+	return NULL;
-+}
-+
-+/*
-+ * ishtp_cl_release_dma_acked_mem() - Release DMA memory slot
-+ *
-+ * @dev:	ishtp device
-+ * @msg_addr:	message address of slot
-+ * @size:	Size of memory to get
-+ *
-+ * Release_dma_acked_mem - returnes the acked memory to free list.
-+ * (from msg_addr, size bytes long)
-+ */
-+void ishtp_cl_release_dma_acked_mem(struct ishtp_device *dev,
-+				    void *msg_addr,
-+				    uint8_t size)
-+{
-+	unsigned long	flags;
-+	int acked_slots = (size / DMA_SLOT_SIZE)
-+		+ 1 * (size % DMA_SLOT_SIZE != 0);
-+	int i, j;
-+
-+	if ((msg_addr - dev->ishtp_host_dma_tx_buf) % DMA_SLOT_SIZE) {
-+		dev_err(dev->devc, "Bad DMA Tx ack address\n");
-+		return;
-+	}
-+
-+	i = (msg_addr - dev->ishtp_host_dma_tx_buf) / DMA_SLOT_SIZE;
-+	spin_lock_irqsave(&dev->ishtp_dma_tx_lock, flags);
-+	for (j = 0; j < acked_slots; j++) {
-+		if ((i + j) >= dev->ishtp_dma_num_slots ||
-+					!dev->ishtp_dma_tx_map[i+j]) {
-+			/* no such slot, or memory is already free */
-+			spin_unlock_irqrestore(&dev->ishtp_dma_tx_lock, flags);
-+			dev_err(dev->devc, "Bad DMA Tx ack address\n");
-+			return;
-+		}
-+		dev->ishtp_dma_tx_map[i+j] = 0;
-+	}
-+	spin_unlock_irqrestore(&dev->ishtp_dma_tx_lock, flags);
-+}
-diff --git a/drivers/hid/intel-ish-hid/ishtp/hbm.c b/drivers/hid/intel-ish-hid/ishtp/hbm.c
-new file mode 100644
-index 0000000..9779e25
---- /dev/null
-+++ b/drivers/hid/intel-ish-hid/ishtp/hbm.c
-@@ -0,0 +1,911 @@
-+/*
-+ * ISHTP bus layer messages handling
-+ *
-+ * Copyright (c) 2003-2016, Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-+ * more details.
-+ *
-+ */
-+
-+#include <linux/export.h>
-+#include <linux/slab.h>
-+#include <linux/sched.h>
-+#include <linux/wait.h>
 +#include <linux/spinlock.h>
-+#include <linux/miscdevice.h>
-+#include "ishtp-dev.h"
-+#include "hbm.h"
++#include <linux/delay.h>
++#include <linux/jiffies.h>
 +#include "client.h"
++#include "hw-ish.h"
++#include "utils.h"
++#include "hbm.h"
 +
-+/* ishtp_hbm_fw_cl_allocate - allocates storage for fw clients */
-+static void ishtp_hbm_fw_cl_allocate(struct ishtp_device *dev)
++/* For FW reset flow */
++static struct work_struct fw_reset_work;
++static struct ishtp_device *ishtp_dev;
++
++/* ish_reg_read - reads 32bit register */
++static inline uint32_t ish_reg_read(const struct ishtp_device *dev,
++	unsigned long offset)
 +{
-+	struct ishtp_fw_client *clients;
-+	int b;
++	struct ish_hw *hw = to_ish_hw(dev);
 +
-+	/* count how many ISH clients we have */
-+	for_each_set_bit(b, dev->fw_clients_map, ISHTP_CLIENTS_MAX)
-+		dev->fw_clients_num++;
++	return readl(hw->mem_addr + offset);
++}
 +
-+	if (dev->fw_clients_num <= 0)
-+		return;
++/* ish_reg_write - writes 32bit register */
++static inline void ish_reg_write(struct ishtp_device *dev, unsigned long offset,
++	uint32_t value)
++{
++	struct ish_hw *hw = to_ish_hw(dev);
 +
-+	/* allocate storage for fw clients representation */
-+	clients = kcalloc(dev->fw_clients_num, sizeof(struct ishtp_fw_client),
-+			  GFP_KERNEL);
-+	if (!clients) {
-+		dev->dev_state = ISHTP_DEV_RESETTING;
-+		ish_hw_reset(dev);
-+		return;
++	writel(value, hw->mem_addr + offset);
++}
++
++static inline uint32_t _ish_read_fw_sts_reg(struct ishtp_device *dev)
++{
++	return ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++}
++
++bool check_generated_interrupt(struct ishtp_device *dev)
++{
++	bool interrupt_generated = true;
++	uint32_t pisr_val = 0;
++
++	if (dev->pdev->device == CHV_DEVICE_ID) {
++		pisr_val = ish_reg_read(dev, IPC_REG_PISR_CHV_AB);
++		interrupt_generated = IPC_INT_FROM_ISH_TO_HOST_CHV_AB(pisr_val);
++	} else {
++		pisr_val = ish_reg_read(dev, IPC_REG_PISR_BXT);
++		interrupt_generated = IPC_INT_FROM_ISH_TO_HOST_BXT(pisr_val);
 +	}
-+	dev->fw_clients = clients;
++
++	return interrupt_generated;
++}
++
++/* ish_is_input_ready - check if ISH FW is ready for receiving data */
++static bool ish_is_input_ready(struct ishtp_device *dev)
++{
++	uint32_t doorbell_val;
++
++	doorbell_val = ish_reg_read(dev, IPC_REG_HOST2ISH_DRBL);
++	return !IPC_IS_BUSY(doorbell_val);
++}
++
++/* set_host_ready - set host ready indication to FW */
++void set_host_ready(struct ishtp_device *dev)
++{
++	if (dev->pdev->device == CHV_DEVICE_ID) {
++		if (dev->pdev->revision == REVISION_ID_CHT_A0 ||
++				(dev->pdev->revision & REVISION_ID_SI_MASK) ==
++				REVISION_ID_CHT_Ax_SI)
++			ish_reg_write(dev, IPC_REG_HOST_COMM, 0x81);
++		else if (dev->pdev->revision == REVISION_ID_CHT_B0 ||
++				(dev->pdev->revision & REVISION_ID_SI_MASK) ==
++				REVISION_ID_CHT_Bx_SI ||
++				(dev->pdev->revision & REVISION_ID_SI_MASK) ==
++				REVISION_ID_CHT_Kx_SI ||
++				(dev->pdev->revision & REVISION_ID_SI_MASK) ==
++				REVISION_ID_CHT_Dx_SI) {
++			uint32_t host_comm_val;
++
++			host_comm_val = ish_reg_read(dev, IPC_REG_HOST_COMM);
++			host_comm_val |= IPC_HOSTCOMM_INT_EN_BIT_CHV_AB | 0x81;
++			ish_reg_write(dev, IPC_REG_HOST_COMM, host_comm_val);
++		}
++	} else {
++			uint32_t host_pimr_val;
++
++			host_pimr_val = ish_reg_read(dev, IPC_REG_PIMR_BXT);
++			host_pimr_val |= IPC_PIMR_INT_EN_BIT_BXT;
++			/*
++			 * disable interrupt generated instead of
++			 * RX_complete_msg
++			 */
++			host_pimr_val &= ~IPC_HOST2ISH_BUSYCLEAR_MASK_BIT;
++
++			ish_reg_write(dev, IPC_REG_PIMR_BXT, host_pimr_val);
++	}
++}
++
++/* ishtp_fw_is_ready - check if the hw is ready */
++static bool ishtp_fw_is_ready(struct ishtp_device *dev)
++{
++	uint32_t ish_status = _ish_read_fw_sts_reg(dev);
++
++	return IPC_IS_ISH_ILUP(ish_status) &&
++		IPC_IS_ISH_ISHTP_READY(ish_status);
++}
++
++/* Indicate to FW that the host is ready */
++static void ish_set_host_rdy(struct ishtp_device *dev)
++{
++	uint32_t host_status = ish_reg_read(dev, IPC_REG_HOST_COMM);
++
++	IPC_SET_HOST_READY(host_status);
++	ish_reg_write(dev, IPC_REG_HOST_COMM, host_status);
++}
++
++void ish_clr_host_rdy(struct ishtp_device *dev)
++{
++	uint32_t host_status = ish_reg_read(dev, IPC_REG_HOST_COMM);
++
++	IPC_CLEAR_HOST_READY(host_status);
++	ish_reg_write(dev, IPC_REG_HOST_COMM, host_status);
++}
++
++/* _ish_read_hdr - reads hdr of 32 bit length. */
++static uint32_t _ishtp_read_hdr(const struct ishtp_device *dev)
++{
++	return ish_reg_read(dev, IPC_REG_ISH2HOST_MSG);
++}
++
++/* ish_read - reads a message from ishtp device. */
++static int _ishtp_read(struct ishtp_device *dev, unsigned char *buffer,
++	unsigned long buffer_length)
++{
++	uint32_t	i;
++	uint32_t	*r_buf = (uint32_t *)buffer;
++	uint32_t	msg_offs;
++
++	msg_offs = IPC_REG_ISH2HOST_MSG + sizeof(struct ishtp_msg_hdr);
++	for (i = 0; i < buffer_length; i += sizeof(uint32_t))
++		*r_buf++ = ish_reg_read(dev, msg_offs + i);
++
++	return 0;
 +}
 +
 +/**
-+ * ishtp_hbm_cl_hdr - construct client hbm header
-+ * @cl: client
-+ * @hbm_cmd: host bus message command
-+ * @buf: buffer for cl header
-+ * @len: buffer length
++ * write_ipc_from_queue() - try to write ipc msg from Tx queue to device
++ * @dev:	ishtp device pointer
++ *
++ * Check if DRBL is cleared. if it is - write the first IPC msg,  then call
++ * the callback function (unless it's NULL)
 + */
-+static inline void ishtp_hbm_cl_hdr(struct ishtp_cl *cl, uint8_t hbm_cmd,
-+	void *buf, size_t len)
++int write_ipc_from_queue(struct ishtp_device *dev)
 +{
-+	struct ishtp_hbm_cl_cmd *cmd = buf;
-+
-+	memset(cmd, 0, len);
-+
-+	cmd->hbm_cmd = hbm_cmd;
-+	cmd->host_addr = cl->host_client_id;
-+	cmd->fw_addr = cl->fw_client_id;
-+}
-+
-+/* ishtp_hbm_cl_addr_equal - tells if they have the same address */
-+static inline bool ishtp_hbm_cl_addr_equal(struct ishtp_cl *cl, void *buf)
-+{
-+	struct ishtp_hbm_cl_cmd *cmd = buf;
-+
-+	return cl->host_client_id == cmd->host_addr &&
-+		cl->fw_client_id == cmd->fw_addr;
-+}
-+
-+int ishtp_hbm_start_wait(struct ishtp_device *dev)
-+{
-+	int ret;
-+
-+	if (dev->hbm_state > ISHTP_HBM_START)
-+		return 0;
-+
-+	dev_dbg(dev->devc, "Going to wait for ishtp start. hbm_state=%08X\n",
-+		dev->hbm_state);
-+	ret = wait_event_timeout(dev->wait_hbm_recvd_msg,
-+			dev->hbm_state >= ISHTP_HBM_STARTED,
-+			(ISHTP_INTEROP_TIMEOUT * HZ));
-+
-+	dev_dbg(dev->devc,
-+		"Woke up from waiting for ishtp start. hbm_state=%08X\n",
-+		dev->hbm_state);
-+
-+	if (ret <= 0 && (dev->hbm_state <= ISHTP_HBM_START)) {
-+		dev->hbm_state = ISHTP_HBM_IDLE;
-+		dev_err(dev->devc,
-+		"waiting for ishtp start failed. ret=%d hbm_state=%08X\n",
-+			ret, dev->hbm_state);
-+		return -ETIMEDOUT;
-+	}
-+	return 0;
-+}
-+
-+/* ishtp_hbm_start_req - sends start request message */
-+int ishtp_hbm_start_req(struct ishtp_device *dev)
-+{
-+	struct ishtp_msg_hdr hdr;
-+	unsigned char data[128];
-+	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
-+	struct hbm_host_version_request *start_req;
-+	const size_t len = sizeof(struct hbm_host_version_request);
-+
-+	ishtp_hbm_hdr(ishtp_hdr, len);
-+
-+	/* host start message */
-+	start_req = (struct hbm_host_version_request *)data;
-+	memset(start_req, 0, len);
-+	start_req->hbm_cmd = HOST_START_REQ_CMD;
-+	start_req->host_version.major_version = HBM_MAJOR_VERSION;
-+	start_req->host_version.minor_version = HBM_MINOR_VERSION;
-+
-+	/*
-+	 * (!) Response to HBM start may be so quick that this thread would get
-+	 * preempted BEFORE managing to set hbm_state = ISHTP_HBM_START.
-+	 * So set it at first, change back to ISHTP_HBM_IDLE upon failure
-+	 */
-+	dev->hbm_state = ISHTP_HBM_START;
-+	if (ishtp_write_message(dev, ishtp_hdr, data)) {
-+		dev_err(dev->devc, "version message send failed\n");
-+		dev->dev_state = ISHTP_DEV_RESETTING;
-+		dev->hbm_state = ISHTP_HBM_IDLE;
-+		ish_hw_reset(dev);
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(ishtp_hbm_start_req);
-+
-+/* ishtp_hbm_enum_clients_req - sends enumeration client request message */
-+void ishtp_hbm_enum_clients_req(struct ishtp_device *dev)
-+{
-+	struct ishtp_msg_hdr hdr;
-+	unsigned char data[128];
-+	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
-+	struct hbm_host_enum_request *enum_req;
-+	const size_t len = sizeof(struct hbm_host_enum_request);
-+
-+	/* enumerate clients */
-+	ishtp_hbm_hdr(ishtp_hdr, len);
-+
-+	enum_req = (struct hbm_host_enum_request *)data;
-+	memset(enum_req, 0, len);
-+	enum_req->hbm_cmd = HOST_ENUM_REQ_CMD;
-+
-+	if (ishtp_write_message(dev, ishtp_hdr, data)) {
-+		dev->dev_state = ISHTP_DEV_RESETTING;
-+		dev_err(dev->devc, "enumeration request send failed\n");
-+		ish_hw_reset(dev);
-+	}
-+	dev->hbm_state = ISHTP_HBM_ENUM_CLIENTS;
-+}
-+
-+/* ishtp_hbm_prop_requsest - request property for a single client */
-+static int ishtp_hbm_prop_req(struct ishtp_device *dev)
-+{
-+
-+	struct ishtp_msg_hdr hdr;
-+	unsigned char data[128];
-+	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
-+	struct hbm_props_request *prop_req;
-+	const size_t len = sizeof(struct hbm_props_request);
-+	unsigned long next_client_index;
-+	uint8_t client_num;
-+
-+	client_num = dev->fw_client_presentation_num;
-+
-+	next_client_index = find_next_bit(dev->fw_clients_map,
-+		ISHTP_CLIENTS_MAX, dev->fw_client_index);
-+
-+	/* We got all client properties */
-+	if (next_client_index == ISHTP_CLIENTS_MAX) {
-+		dev->hbm_state = ISHTP_HBM_WORKING;
-+		dev->dev_state = ISHTP_DEV_ENABLED;
-+
-+		for (dev->fw_client_presentation_num = 1;
-+			dev->fw_client_presentation_num < client_num + 1;
-+				++dev->fw_client_presentation_num)
-+			/* Add new client device */
-+			ishtp_bus_new_client(dev);
-+		return 0;
-+	}
-+
-+	dev->fw_clients[client_num].client_id = next_client_index;
-+
-+	ishtp_hbm_hdr(ishtp_hdr, len);
-+	prop_req = (struct hbm_props_request *)data;
-+
-+	memset(prop_req, 0, sizeof(struct hbm_props_request));
-+
-+	prop_req->hbm_cmd = HOST_CLIENT_PROPERTIES_REQ_CMD;
-+	prop_req->address = next_client_index;
-+
-+	if (ishtp_write_message(dev, ishtp_hdr, data)) {
-+		dev->dev_state = ISHTP_DEV_RESETTING;
-+		dev_err(dev->devc, "properties request send failed\n");
-+		ish_hw_reset(dev);
-+		return -EIO;
-+	}
-+
-+	dev->fw_client_index = next_client_index;
-+
-+	return 0;
-+}
-+
-+/* ishtp_hbm_stop_req - send stop request message */
-+static void ishtp_hbm_stop_req(struct ishtp_device *dev)
-+{
-+	struct ishtp_msg_hdr hdr;
-+	unsigned char data[128];
-+	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
-+	struct hbm_host_stop_request *req;
-+	const size_t len = sizeof(struct hbm_host_stop_request);
-+
-+	ishtp_hbm_hdr(ishtp_hdr, len);
-+	req = (struct hbm_host_stop_request *)data;
-+
-+	memset(req, 0, sizeof(struct hbm_host_stop_request));
-+	req->hbm_cmd = HOST_STOP_REQ_CMD;
-+	req->reason = DRIVER_STOP_REQUEST;
-+
-+	ishtp_write_message(dev, ishtp_hdr, data);
-+}
-+
-+/* ishtp_hbm_cl_flow_control_req - sends flow control request */
-+int ishtp_hbm_cl_flow_control_req(struct ishtp_device *dev,
-+				  struct ishtp_cl *cl)
-+{
-+	struct ishtp_msg_hdr hdr;
-+	unsigned char data[128];
-+	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
-+	const size_t len = sizeof(struct hbm_flow_control);
-+	int	rv;
-+	unsigned int	num_frags;
++	struct wr_msg_ctl_info	*ipc_link;
++	unsigned long	length;
++	unsigned long	rem;
 +	unsigned long	flags;
++	uint32_t	doorbell_val;
++	uint32_t	*r_buf;
++	uint32_t	reg_addr;
++	int	i;
++	void	(*ipc_send_compl)(void *);
++	void	*ipc_send_compl_prm;
++	static int	out_ipc_locked;
++	unsigned long	out_ipc_flags;
 +
-+	spin_lock_irqsave(&cl->fc_spinlock, flags);
-+	ishtp_hbm_hdr(ishtp_hdr, len);
-+	ishtp_hbm_cl_hdr(cl, ISHTP_FLOW_CONTROL_CMD, data, len);
++	if (dev->dev_state == ISHTP_DEV_DISABLED)
++		return	-EINVAL;
 +
++	spin_lock_irqsave(&dev->out_ipc_spinlock, out_ipc_flags);
++	if (out_ipc_locked) {
++		spin_unlock_irqrestore(&dev->out_ipc_spinlock, out_ipc_flags);
++		return -EBUSY;
++	}
++	out_ipc_locked = 1;
++	if (!ish_is_input_ready(dev)) {
++		out_ipc_locked = 0;
++		spin_unlock_irqrestore(&dev->out_ipc_spinlock, out_ipc_flags);
++		return -EBUSY;
++	}
++	spin_unlock_irqrestore(&dev->out_ipc_spinlock, out_ipc_flags);
++
++	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
 +	/*
-+	 * Sync possible race when RB recycle and packet receive paths
-+	 * both try to send an out FC
++	 * if tx send list is empty - return 0;
++	 * may happen, as RX_COMPLETE handler doesn't check list emptiness.
 +	 */
-+	if (cl->out_flow_ctrl_creds) {
-+		spin_unlock_irqrestore(&cl->fc_spinlock, flags);
++	if (list_empty(&dev->wr_processing_list_head.link)) {
++		spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
++		out_ipc_locked = 0;
 +		return	0;
 +	}
 +
-+	num_frags = cl->recv_msg_num_frags;
-+	cl->recv_msg_num_frags = 0;
++	ipc_link = list_entry(dev->wr_processing_list_head.link.next,
++			      struct wr_msg_ctl_info, link);
++	/* first 4 bytes of the data is the doorbell value (IPC header) */
++	length = ipc_link->length - sizeof(uint32_t);
++	doorbell_val = *(uint32_t *)ipc_link->inline_data;
++	r_buf = (uint32_t *)(ipc_link->inline_data + sizeof(uint32_t));
 +
-+	rv = ishtp_write_message(dev, ishtp_hdr, data);
-+	if (!rv) {
-+		++cl->out_flow_ctrl_creds;
-+		++cl->out_flow_ctrl_cnt;
-+		getnstimeofday(&cl->ts_out_fc);
-+		if (cl->ts_rx.tv_sec && cl->ts_rx.tv_nsec) {
-+			struct timespec ts_diff;
++	/* If sending MNG_SYNC_FW_CLOCK, update clock again */
++	if (IPC_HEADER_GET_PROTOCOL(doorbell_val) == IPC_PROTOCOL_MNG &&
++		IPC_HEADER_GET_MNG_CMD(doorbell_val) == MNG_SYNC_FW_CLOCK) {
++		struct timespec ts_system;
++		struct timeval tv_utc;
++		uint64_t        usec_system, usec_utc;
++		struct ipc_time_update_msg time_update;
++		struct time_sync_format ts_format;
 +
-+			ts_diff = timespec_sub(cl->ts_out_fc, cl->ts_rx);
-+			if (timespec_compare(&ts_diff, &cl->ts_max_fc_delay)
-+					> 0)
-+				cl->ts_max_fc_delay = ts_diff;
-+		}
-+	} else {
-+		++cl->err_send_fc;
++		get_monotonic_boottime(&ts_system);
++		do_gettimeofday(&tv_utc);
++		usec_system = (timespec_to_ns(&ts_system)) / NSEC_PER_USEC;
++		usec_utc = (uint64_t)tv_utc.tv_sec * 1000000 +
++						((uint32_t)tv_utc.tv_usec);
++		ts_format.ts1_source = HOST_SYSTEM_TIME_USEC;
++		ts_format.ts2_source = HOST_UTC_TIME_USEC;
++
++		time_update.primary_host_time = usec_system;
++		time_update.secondary_host_time = usec_utc;
++		time_update.sync_info = ts_format;
++
++		memcpy(r_buf, &time_update, sizeof(struct ipc_time_update_msg));
 +	}
 +
-+	spin_unlock_irqrestore(&cl->fc_spinlock, flags);
-+	return	rv;
-+}
-+EXPORT_SYMBOL(ishtp_hbm_cl_flow_control_req);
++	for (i = 0, reg_addr = IPC_REG_HOST2ISH_MSG; i < length >> 2; i++,
++			reg_addr += 4)
++		ish_reg_write(dev, reg_addr, r_buf[i]);
 +
-+/* ishtp_hbm_cl_disconnect_req - sends disconnect message to fw */
-+int ishtp_hbm_cl_disconnect_req(struct ishtp_device *dev, struct ishtp_cl *cl)
-+{
-+	struct ishtp_msg_hdr hdr;
-+	unsigned char data[128];
-+	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
-+	const size_t len = sizeof(struct hbm_client_connect_request);
++	rem = length & 0x3;
++	if (rem > 0) {
++		uint32_t reg = 0;
 +
-+	ishtp_hbm_hdr(ishtp_hdr, len);
-+	ishtp_hbm_cl_hdr(cl, CLIENT_DISCONNECT_REQ_CMD, data, len);
-+
-+	return ishtp_write_message(dev, ishtp_hdr, data);
-+}
-+
-+/*
-+ * ishtp_hbm_cl_disconnect_res - disconnect response from FW
-+ *
-+ * @rs: disconnect response bus message
-+ */
-+static void ishtp_hbm_cl_disconnect_res(struct ishtp_device *dev,
-+	struct hbm_client_connect_response *rs)
-+{
-+	struct ishtp_cl *cl = NULL;
-+	unsigned long	flags;
-+
-+	spin_lock_irqsave(&dev->cl_list_lock, flags);
-+	list_for_each_entry(cl, &dev->cl_list, link) {
-+		if (!rs->status && ishtp_hbm_cl_addr_equal(cl, rs)) {
-+			cl->state = ISHTP_CL_DISCONNECTED;
-+			break;
-+		}
++		memcpy(&reg, &r_buf[length >> 2], rem);
++		ish_reg_write(dev, reg_addr, reg);
 +	}
-+	if (cl)
-+		wake_up(&cl->wait_ctrl_res);
-+	spin_unlock_irqrestore(&dev->cl_list_lock, flags);
-+}
++	/* Flush writes to msg registers and doorbell */
++	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
 +
-+/* ishtp_hbm_cl_connect_req - send connection request to specific fw client */
-+int ishtp_hbm_cl_connect_req(struct ishtp_device *dev, struct ishtp_cl *cl)
-+{
-+	struct ishtp_msg_hdr hdr;
-+	unsigned char data[128];
-+	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
-+	const size_t len = sizeof(struct hbm_client_connect_request);
++	/* Update IPC counters */
++	++dev->ipc_tx_cnt;
++	dev->ipc_tx_bytes_cnt += IPC_HEADER_GET_LENGTH(doorbell_val);
 +
-+	ishtp_hbm_hdr(ishtp_hdr, len);
-+	ishtp_hbm_cl_hdr(cl, CLIENT_CONNECT_REQ_CMD, data, len);
++	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, doorbell_val);
++	out_ipc_locked = 0;
 +
-+	return ishtp_write_message(dev, ishtp_hdr, data);
-+}
-+EXPORT_SYMBOL(ishtp_hbm_cl_connect_req);
-+
-+/**
-+ * ishtp_hbm_cl_connect_res - connect resposne from the FW
-+ *
-+ * @rs: connect response bus message
-+ */
-+static void ishtp_hbm_cl_connect_res(struct ishtp_device *dev,
-+	struct hbm_client_connect_response *rs)
-+{
-+	struct ishtp_cl *cl = NULL;
-+	unsigned long	flags;
-+
-+	spin_lock_irqsave(&dev->cl_list_lock, flags);
-+	list_for_each_entry(cl, &dev->cl_list, link) {
-+		if (ishtp_hbm_cl_addr_equal(cl, rs)) {
-+			if (!rs->status) {
-+				cl->state = ISHTP_CL_CONNECTED;
-+				cl->status = 0;
-+			} else {
-+				cl->state = ISHTP_CL_DISCONNECTED;
-+				cl->status = -ENODEV;
-+			}
-+			break;
-+		}
-+	}
-+	if (cl)
-+		wake_up(&cl->wait_ctrl_res);
-+	spin_unlock_irqrestore(&dev->cl_list_lock, flags);
-+}
-+
-+/**
-+ * ishtp_client_disconnect_request - disconnect request initiated by fw
-+ * host sends disconnect response
-+ *
-+ * @dev: the device structure.
-+ * @disconnect_req: disconnect request bus message from the fw
-+ */
-+static void ishtp_hbm_fw_disconnect_req(struct ishtp_device *dev,
-+	struct hbm_client_connect_request *disconnect_req)
-+{
-+	struct ishtp_cl *cl;
-+	const size_t len = sizeof(struct hbm_client_connect_response);
-+	unsigned long	flags;
-+	struct ishtp_msg_hdr hdr;
-+	unsigned char data[4];	/* All HBM messages are 4 bytes */
-+
-+	spin_lock_irqsave(&dev->cl_list_lock, flags);
-+	list_for_each_entry(cl, &dev->cl_list, link) {
-+		if (ishtp_hbm_cl_addr_equal(cl, disconnect_req)) {
-+			cl->state = ISHTP_CL_DISCONNECTED;
-+
-+			/* send disconnect response */
-+			ishtp_hbm_hdr(&hdr, len);
-+			ishtp_hbm_cl_hdr(cl, CLIENT_DISCONNECT_RES_CMD, data,
-+				len);
-+			ishtp_write_message(dev, &hdr, data);
-+			break;
-+		}
-+	}
-+	spin_unlock_irqrestore(&dev->cl_list_lock, flags);
-+}
-+
-+/*
-+ * ishtp_hbm_dma_xfer_ack - receive ack for ISHTP-over-DMA client message
-+ *
-+ * Constraint:
-+ * First implementation is one ISHTP message per DMA transfer
-+ */
-+void ishtp_hbm_dma_xfer_ack(struct ishtp_device *dev,
-+	struct dma_xfer_hbm *dma_xfer)
-+{
-+	void	*msg;
-+	uint64_t	offs;
-+	struct ishtp_msg_hdr	*ishtp_hdr =
-+		(struct ishtp_msg_hdr *)&dev->ishtp_msg_hdr;
-+	unsigned int	msg_offs;
-+	struct ishtp_cl *cl;
-+
-+	for (msg_offs = 0; msg_offs < ishtp_hdr->length;
-+		msg_offs += sizeof(struct dma_xfer_hbm)) {
-+		offs = dma_xfer->msg_addr - dev->ishtp_host_dma_tx_buf_phys;
-+		if (offs > dev->ishtp_host_dma_tx_buf_size) {
-+			dev_err(dev->devc, "Bad DMA Tx ack message address\n");
-+			return;
-+		}
-+		if (dma_xfer->msg_length >
-+				dev->ishtp_host_dma_tx_buf_size - offs) {
-+			dev_err(dev->devc, "Bad DMA Tx ack message size\n");
-+			return;
-+		}
-+
-+		/* logical address of the acked mem */
-+		msg = (unsigned char *)dev->ishtp_host_dma_tx_buf + offs;
-+		ishtp_cl_release_dma_acked_mem(dev, msg, dma_xfer->msg_length);
-+
-+		list_for_each_entry(cl, &dev->cl_list, link) {
-+			if (cl->fw_client_id == dma_xfer->fw_client_id &&
-+			    cl->host_client_id == dma_xfer->host_client_id)
-+				/*
-+				 * in case that a single ack may be sent
-+				 * over several dma transfers, and the last msg
-+				 * addr was inside the acked memory, but not in
-+				 * its start
-+				 */
-+				if (cl->last_dma_addr >=
-+							(unsigned char *)msg &&
-+						cl->last_dma_addr <
-+						(unsigned char *)msg +
-+						dma_xfer->msg_length) {
-+					cl->last_dma_acked = 1;
-+
-+					if (!list_empty(&cl->tx_list.list) &&
-+						cl->ishtp_flow_ctrl_creds) {
-+						/*
-+						 * start sending the first msg
-+						 */
-+						ishtp_cl_send_msg(dev, cl);
-+					}
-+				}
-+		}
-+		++dma_xfer;
-+	}
-+}
-+
-+/* ishtp_hbm_dma_xfer - receive ISHTP-over-DMA client message */
-+void ishtp_hbm_dma_xfer(struct ishtp_device *dev,
-+			struct dma_xfer_hbm *dma_xfer)
-+{
-+	void	*msg;
-+	uint64_t	offs;
-+	struct ishtp_msg_hdr	hdr;
-+	struct ishtp_msg_hdr	*ishtp_hdr =
-+		(struct ishtp_msg_hdr *) &dev->ishtp_msg_hdr;
-+	struct dma_xfer_hbm	*prm = dma_xfer;
-+	unsigned int	msg_offs;
-+
-+	for (msg_offs = 0; msg_offs < ishtp_hdr->length;
-+		msg_offs += sizeof(struct dma_xfer_hbm)) {
-+
-+		offs = dma_xfer->msg_addr - dev->ishtp_host_dma_rx_buf_phys;
-+		if (offs > dev->ishtp_host_dma_rx_buf_size) {
-+			dev_err(dev->devc, "Bad DMA Rx message address\n");
-+			return;
-+		}
-+		if (dma_xfer->msg_length >
-+				dev->ishtp_host_dma_rx_buf_size - offs) {
-+			dev_err(dev->devc, "Bad DMA Rx message size\n");
-+			return;
-+		}
-+		msg = dev->ishtp_host_dma_rx_buf + offs;
-+		recv_ishtp_cl_msg_dma(dev, msg, dma_xfer);
-+		dma_xfer->hbm = DMA_XFER_ACK;	/* Prepare for response */
-+		++dma_xfer;
-+	}
-+
-+	/* Send DMA_XFER_ACK [...] */
-+	ishtp_hbm_hdr(&hdr, ishtp_hdr->length);
-+	ishtp_write_message(dev, &hdr, (unsigned char *)prm);
-+}
-+
-+/*
-+ * ishtp_hbm_dispatch - bottom half read routine after ISR to
-+ * handle the read bus message cmd processing.
-+ */
-+void ishtp_hbm_dispatch(struct ishtp_device *dev,
-+			struct ishtp_bus_message *hdr)
-+{
-+	struct ishtp_bus_message *ishtp_msg;
-+	struct ishtp_fw_client *fw_client;
-+	struct hbm_host_version_response *version_res;
-+	struct hbm_client_connect_response *connect_res;
-+	struct hbm_client_connect_response *disconnect_res;
-+	struct hbm_client_connect_request *disconnect_req;
-+	struct hbm_props_response *props_res;
-+	struct hbm_host_enum_response *enum_res;
-+	struct ishtp_msg_hdr ishtp_hdr;
-+	struct dma_alloc_notify	dma_alloc_notify;
-+	struct dma_xfer_hbm	*dma_xfer;
-+
-+	ishtp_msg = hdr;
-+
-+	switch (ishtp_msg->hbm_cmd) {
-+	case HOST_START_RES_CMD:
-+		version_res = (struct hbm_host_version_response *)ishtp_msg;
-+		if (!version_res->host_version_supported) {
-+			dev->version = version_res->fw_max_version;
-+
-+			dev->hbm_state = ISHTP_HBM_STOPPED;
-+			ishtp_hbm_stop_req(dev);
-+			return;
-+		}
-+
-+		dev->version.major_version = HBM_MAJOR_VERSION;
-+		dev->version.minor_version = HBM_MINOR_VERSION;
-+		if (dev->dev_state == ISHTP_DEV_INIT_CLIENTS &&
-+				dev->hbm_state == ISHTP_HBM_START) {
-+			dev->hbm_state = ISHTP_HBM_STARTED;
-+			ishtp_hbm_enum_clients_req(dev);
-+		} else {
-+			dev_err(dev->devc,
-+				"reset: wrong host start response\n");
-+			/* BUG: why do we arrive here? */
-+			ish_hw_reset(dev);
-+			return;
-+		}
-+
-+		wake_up(&dev->wait_hbm_recvd_msg);
-+		break;
-+
-+	case CLIENT_CONNECT_RES_CMD:
-+		connect_res = (struct hbm_client_connect_response *)ishtp_msg;
-+		ishtp_hbm_cl_connect_res(dev, connect_res);
-+		break;
-+
-+	case CLIENT_DISCONNECT_RES_CMD:
-+		disconnect_res =
-+			(struct hbm_client_connect_response *)ishtp_msg;
-+		ishtp_hbm_cl_disconnect_res(dev, disconnect_res);
-+		break;
-+
-+	case HOST_CLIENT_PROPERTIES_RES_CMD:
-+		props_res = (struct hbm_props_response *)ishtp_msg;
-+		fw_client = &dev->fw_clients[dev->fw_client_presentation_num];
-+
-+		if (props_res->status || !dev->fw_clients) {
-+			dev_err(dev->devc,
-+			"reset: properties response hbm wrong status\n");
-+			ish_hw_reset(dev);
-+			return;
-+		}
-+
-+		if (fw_client->client_id != props_res->address) {
-+			dev_err(dev->devc,
-+				"reset: host properties response address "
-+				"mismatch [%02X %02X]\n",
-+				fw_client->client_id, props_res->address);
-+			ish_hw_reset(dev);
-+			return;
-+		}
-+
-+		if (dev->dev_state != ISHTP_DEV_INIT_CLIENTS ||
-+			dev->hbm_state != ISHTP_HBM_CLIENT_PROPERTIES) {
-+			dev_err(dev->devc,
-+				"reset: unexpected properties response\n");
-+			ish_hw_reset(dev);
-+			return;
-+		}
-+
-+		fw_client->props = props_res->client_properties;
-+		dev->fw_client_index++;
-+		dev->fw_client_presentation_num++;
-+
-+		/* request property for the next client */
-+		ishtp_hbm_prop_req(dev);
-+
-+		if (dev->dev_state != ISHTP_DEV_ENABLED)
-+			break;
-+
-+		ishtp_cl_alloc_dma_buf(dev);
-+		if (dev->ishtp_host_dma_rx_buf) {
-+			const size_t len = sizeof(dma_alloc_notify);
-+
-+			memset(&dma_alloc_notify, 0, sizeof(dma_alloc_notify));
-+			dma_alloc_notify.hbm = DMA_BUFFER_ALLOC_NOTIFY;
-+			dma_alloc_notify.buf_size =
-+						dev->ishtp_host_dma_rx_buf_size;
-+			dma_alloc_notify.buf_address =
-+						dev->ishtp_host_dma_rx_buf_phys;
-+			ishtp_hbm_hdr(&ishtp_hdr, len);
-+			ishtp_write_message(dev, &ishtp_hdr,
-+				(unsigned char *)&dma_alloc_notify);
-+		}
-+
-+		break;
-+
-+	case HOST_ENUM_RES_CMD:
-+		enum_res = (struct hbm_host_enum_response *) ishtp_msg;
-+		memcpy(dev->fw_clients_map, enum_res->valid_addresses, 32);
-+		if (dev->dev_state == ISHTP_DEV_INIT_CLIENTS &&
-+			dev->hbm_state == ISHTP_HBM_ENUM_CLIENTS) {
-+			dev->fw_client_presentation_num = 0;
-+			dev->fw_client_index = 0;
-+
-+			ishtp_hbm_fw_cl_allocate(dev);
-+			dev->hbm_state = ISHTP_HBM_CLIENT_PROPERTIES;
-+
-+			/* first property request */
-+			ishtp_hbm_prop_req(dev);
-+		} else {
-+			dev_err(dev->devc,
-+			      "reset: unexpected enumeration response hbm\n");
-+			ish_hw_reset(dev);
-+			return;
-+		}
-+		break;
-+
-+	case HOST_STOP_RES_CMD:
-+		if (dev->hbm_state != ISHTP_HBM_STOPPED)
-+			dev_err(dev->devc, "unexpected stop response\n");
-+
-+		dev->dev_state = ISHTP_DEV_DISABLED;
-+		dev_info(dev->devc, "reset: FW stop response\n");
-+		ish_hw_reset(dev);
-+		break;
-+
-+	case CLIENT_DISCONNECT_REQ_CMD:
-+		/* search for client */
-+		disconnect_req =
-+			(struct hbm_client_connect_request *)ishtp_msg;
-+		ishtp_hbm_fw_disconnect_req(dev, disconnect_req);
-+		break;
-+
-+	case FW_STOP_REQ_CMD:
-+		dev->hbm_state = ISHTP_HBM_STOPPED;
-+		break;
-+
-+	case DMA_BUFFER_ALLOC_RESPONSE:
-+		dev->ishtp_host_dma_enabled = 1;
-+		break;
-+
-+	case DMA_XFER:
-+		dma_xfer = (struct dma_xfer_hbm *)ishtp_msg;
-+		if (!dev->ishtp_host_dma_enabled) {
-+			dev_err(dev->devc,
-+				"DMA XFER requested but DMA is not enabled\n");
-+			break;
-+		}
-+		ishtp_hbm_dma_xfer(dev, dma_xfer);
-+		break;
-+
-+	case DMA_XFER_ACK:
-+		dma_xfer = (struct dma_xfer_hbm *)ishtp_msg;
-+		if (!dev->ishtp_host_dma_enabled ||
-+		    !dev->ishtp_host_dma_tx_buf) {
-+			dev_err(dev->devc,
-+				"DMA XFER acked but DMA Tx is not enabled\n");
-+			break;
-+		}
-+		ishtp_hbm_dma_xfer_ack(dev, dma_xfer);
-+		break;
-+
-+	default:
-+		dev_err(dev->devc, "unknown HBM: %u\n",
-+			(unsigned int)ishtp_msg->hbm_cmd);
-+
-+		break;
-+	}
-+}
-+
-+/*
-+ * BH processing work function (instead of thread handler)
-+ * for processing hbm messages
-+ */
-+void	bh_hbm_work_fn(struct work_struct *work)
-+{
-+	unsigned long	flags;
-+	struct ishtp_device	*dev;
-+	unsigned char	hbm[IPC_PAYLOAD_SIZE];
-+
-+	dev = container_of(work, struct ishtp_device, bh_hbm_work);
-+	spin_lock_irqsave(&dev->rd_msg_spinlock, flags);
-+	if (dev->rd_msg_fifo_head != dev->rd_msg_fifo_tail) {
-+		memcpy(hbm, dev->rd_msg_fifo + dev->rd_msg_fifo_head,
-+			IPC_PAYLOAD_SIZE);
-+		dev->rd_msg_fifo_head =
-+			(dev->rd_msg_fifo_head + IPC_PAYLOAD_SIZE) %
-+			(RD_INT_FIFO_SIZE * IPC_PAYLOAD_SIZE);
-+		spin_unlock_irqrestore(&dev->rd_msg_spinlock, flags);
-+		ishtp_hbm_dispatch(dev, (struct ishtp_bus_message *)hbm);
-+	} else {
-+		spin_unlock_irqrestore(&dev->rd_msg_spinlock, flags);
-+	}
-+}
-+
-+/*
-+ *	Receive and process ISHTP bus messages
-+ *
-+ *	(!) ISR context
-+ */
-+void	recv_hbm(struct ishtp_device *dev, struct ishtp_msg_hdr *ishtp_hdr)
-+{
-+	uint8_t	rd_msg_buf[ISHTP_RD_MSG_BUF_SIZE];
-+	struct ishtp_bus_message	*ishtp_msg =
-+		(struct ishtp_bus_message *)rd_msg_buf;
-+	unsigned long	flags;
-+
-+	dev->ops->ishtp_read(dev, rd_msg_buf, ishtp_hdr->length);
-+
-+	/* Flow control - handle in place */
-+	if (ishtp_msg->hbm_cmd == ISHTP_FLOW_CONTROL_CMD) {
-+		struct hbm_flow_control *flow_control =
-+			(struct hbm_flow_control *)ishtp_msg;
-+		struct ishtp_cl *cl = NULL;
-+		unsigned long	flags, tx_flags;
-+
-+		spin_lock_irqsave(&dev->cl_list_lock, flags);
-+		list_for_each_entry(cl, &dev->cl_list, link) {
-+			if (cl->host_client_id == flow_control->host_addr &&
-+					cl->fw_client_id ==
-+					flow_control->fw_addr) {
-+				/*
-+				 * NOTE: It's valid only for counting
-+				 * flow-control implementation to receive a
-+				 * FC in the middle of sending. Meanwhile not
-+				 * supported
-+				 */
-+				if (cl->ishtp_flow_ctrl_creds)
-+					dev_err(dev->devc,
-+					 "recv extra FC from FW client "
-+					 "%u (host client %u) "
-+					 "(FC count was %d)\n",
-+					 (unsigned int)cl->fw_client_id,
-+					 (unsigned int)cl->host_client_id,
-+					 cl->ishtp_flow_ctrl_creds);
-+				else {
-+					++cl->ishtp_flow_ctrl_creds;
-+					++cl->ishtp_flow_ctrl_cnt;
-+					cl->last_ipc_acked = 1;
-+					spin_lock_irqsave(
-+							&cl->tx_list_spinlock,
-+							tx_flags);
-+					if (!list_empty(&cl->tx_list.list)) {
-+						/*
-+						 * start sending the first msg
-+						 *	= the callback function
-+						 */
-+						spin_unlock_irqrestore(
-+							&cl->tx_list_spinlock,
-+							tx_flags);
-+						ishtp_cl_send_msg(dev, cl);
-+					} else {
-+						spin_unlock_irqrestore(
-+							&cl->tx_list_spinlock,
-+							tx_flags);
-+					}
-+				}
-+				break;
-+			}
-+		}
-+		spin_unlock_irqrestore(&dev->cl_list_lock, flags);
-+		goto	eoi;
-+	}
++	ipc_send_compl = ipc_link->ipc_send_compl;
++	ipc_send_compl_prm = ipc_link->ipc_send_compl_prm;
++	list_del_init(&ipc_link->link);
++	list_add_tail(&ipc_link->link, &dev->wr_free_list_head.link);
++	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
 +
 +	/*
-+	 * Some messages that are safe for ISR processing and important
-+	 * to be done "quickly" and in-order, go here
++	 * callback will be called out of spinlock,
++	 * after ipc_link returned to free list
 +	 */
-+	if (ishtp_msg->hbm_cmd == CLIENT_CONNECT_RES_CMD ||
-+			ishtp_msg->hbm_cmd == CLIENT_DISCONNECT_RES_CMD ||
-+			ishtp_msg->hbm_cmd == CLIENT_DISCONNECT_REQ_CMD ||
-+			ishtp_msg->hbm_cmd == DMA_XFER) {
-+		ishtp_hbm_dispatch(dev, ishtp_msg);
-+		goto	eoi;
-+	}
-+
-+	/*
-+	 * All other HBMs go here.
-+	 * We schedule HBMs for processing serially by using system wq,
-+	 * possibly there will be multiple HBMs scheduled at the same time.
-+	 */
-+	spin_lock_irqsave(&dev->rd_msg_spinlock, flags);
-+	if ((dev->rd_msg_fifo_tail + IPC_PAYLOAD_SIZE) %
-+			(RD_INT_FIFO_SIZE * IPC_PAYLOAD_SIZE) ==
-+			dev->rd_msg_fifo_head) {
-+		spin_unlock_irqrestore(&dev->rd_msg_spinlock, flags);
-+		dev_err(dev->devc, "BH buffer overflow, dropping HBM %u\n",
-+			(unsigned int)ishtp_msg->hbm_cmd);
-+		goto	eoi;
-+	}
-+	memcpy(dev->rd_msg_fifo + dev->rd_msg_fifo_tail, ishtp_msg,
-+		ishtp_hdr->length);
-+	dev->rd_msg_fifo_tail = (dev->rd_msg_fifo_tail + IPC_PAYLOAD_SIZE) %
-+		(RD_INT_FIFO_SIZE * IPC_PAYLOAD_SIZE);
-+	spin_unlock_irqrestore(&dev->rd_msg_spinlock, flags);
-+	schedule_work(&dev->bh_hbm_work);
-+eoi:
-+	return;
-+}
-+
-+/*
-+ * Receive and process ISHTP fixed client messages
-+ *
-+ * (!) ISR context
-+ */
-+void recv_fixed_cl_msg(struct ishtp_device *dev,
-+	struct ishtp_msg_hdr *ishtp_hdr)
-+{
-+	uint8_t rd_msg_buf[ISHTP_RD_MSG_BUF_SIZE];
-+
-+	dev->print_log(dev,
-+		"%s() got fixed client msg from client #%d\n",
-+		__func__, ishtp_hdr->fw_addr);
-+	dev->ops->ishtp_read(dev, rd_msg_buf, ishtp_hdr->length);
-+	if (ishtp_hdr->fw_addr == ISHTP_SYSTEM_STATE_CLIENT_ADDR) {
-+		struct ish_system_states_header *msg_hdr =
-+			(struct ish_system_states_header *)rd_msg_buf;
-+		if (msg_hdr->cmd == SYSTEM_STATE_SUBSCRIBE)
-+			ishtp_send_resume(dev);
-+		/* if FW request arrived here, the system is not suspended */
-+		else
-+			dev_err(dev->devc, "unknown fixed client msg [%02X]\n",
-+				msg_hdr->cmd);
-+	}
-+}
-+
-+static inline void fix_cl_hdr(struct ishtp_msg_hdr *hdr, size_t length,
-+	uint8_t cl_addr)
-+{
-+	hdr->host_addr = 0;
-+	hdr->fw_addr = cl_addr;
-+	hdr->length = length;
-+	hdr->msg_complete = 1;
-+	hdr->reserved = 0;
-+}
-+
-+/*** Suspend and resume notification ***/
-+
-+static uint32_t current_state;
-+static uint32_t supported_states = 0 | SUSPEND_STATE_BIT;
-+
-+void ishtp_send_suspend(struct ishtp_device *dev)
-+{
-+	struct ishtp_msg_hdr	ishtp_hdr;
-+	struct ish_system_states_status state_status_msg;
-+	const size_t len = sizeof(struct ish_system_states_status);
-+
-+	fix_cl_hdr(&ishtp_hdr, len, ISHTP_SYSTEM_STATE_CLIENT_ADDR);
-+
-+	memset(&state_status_msg, 0, len);
-+	state_status_msg.hdr.cmd = SYSTEM_STATE_STATUS;
-+	state_status_msg.supported_states = supported_states;
-+	current_state |= SUSPEND_STATE_BIT;
-+	dev->print_log(dev, "%s() sends SUSPEND notification\n", __func__);
-+	state_status_msg.states_status = current_state;
-+
-+	ishtp_write_message(dev, &ishtp_hdr,
-+		(unsigned char *)&state_status_msg);
-+}
-+EXPORT_SYMBOL(ishtp_send_suspend);
-+
-+void ishtp_send_resume(struct ishtp_device *dev)
-+{
-+	struct ishtp_msg_hdr	ishtp_hdr;
-+	struct ish_system_states_status state_status_msg;
-+	const size_t len = sizeof(struct ish_system_states_status);
-+
-+	fix_cl_hdr(&ishtp_hdr, len, ISHTP_SYSTEM_STATE_CLIENT_ADDR);
-+
-+	memset(&state_status_msg, 0, len);
-+	state_status_msg.hdr.cmd = SYSTEM_STATE_STATUS;
-+	state_status_msg.supported_states = supported_states;
-+	current_state &= ~SUSPEND_STATE_BIT;
-+	dev->print_log(dev, "%s() sends RESUME notification\n", __func__);
-+	state_status_msg.states_status = current_state;
-+
-+	ishtp_write_message(dev, &ishtp_hdr,
-+		(unsigned char *)&state_status_msg);
-+}
-+EXPORT_SYMBOL(ishtp_send_resume);
-+
-+void ishtp_query_subscribers(struct ishtp_device *dev)
-+{
-+	struct ishtp_msg_hdr	ishtp_hdr;
-+	struct ish_system_states_query_subscribers query_subscribers_msg;
-+	const size_t len = sizeof(struct ish_system_states_query_subscribers);
-+
-+	fix_cl_hdr(&ishtp_hdr, len, ISHTP_SYSTEM_STATE_CLIENT_ADDR);
-+
-+	memset(&query_subscribers_msg, 0, len);
-+	query_subscribers_msg.hdr.cmd = SYSTEM_STATE_QUERY_SUBSCRIBERS;
-+
-+	ishtp_write_message(dev, &ishtp_hdr,
-+		(unsigned char *)&query_subscribers_msg);
-+}
-diff --git a/drivers/hid/intel-ish-hid/ishtp/hbm.h b/drivers/hid/intel-ish-hid/ishtp/hbm.h
-new file mode 100644
-index 0000000..d8ed76b
---- /dev/null
-+++ b/drivers/hid/intel-ish-hid/ishtp/hbm.h
-@@ -0,0 +1,319 @@
-+/*
-+ * ISHTP bus layer messages handling
-+ *
-+ * Copyright (c) 2003-2016, Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-+ * more details.
-+ */
-+
-+#ifndef _ISHTP_HBM_H_
-+#define _ISHTP_HBM_H_
-+
-+#include <linux/uuid.h>
-+
-+struct ishtp_device;
-+struct ishtp_msg_hdr;
-+struct ishtp_cl;
-+
-+/*
-+ * Timeouts in Seconds
-+ */
-+#define ISHTP_INTEROP_TIMEOUT		7 /* Timeout on ready message */
-+
-+#define ISHTP_CL_CONNECT_TIMEOUT	15 /* HPS: Client Connect Timeout */
-+
-+/*
-+ * ISHTP Version
-+ */
-+#define HBM_MINOR_VERSION		0
-+#define HBM_MAJOR_VERSION		1
-+
-+/* Host bus message command opcode */
-+#define ISHTP_HBM_CMD_OP_MSK		0x7f
-+/* Host bus message command RESPONSE */
-+#define ISHTP_HBM_CMD_RES_MSK		0x80
-+
-+/*
-+ * ISHTP Bus Message Command IDs
-+ */
-+#define HOST_START_REQ_CMD		0x01
-+#define HOST_START_RES_CMD		0x81
-+
-+#define HOST_STOP_REQ_CMD		0x02
-+#define HOST_STOP_RES_CMD		0x82
-+
-+#define FW_STOP_REQ_CMD			0x03
-+
-+#define HOST_ENUM_REQ_CMD		0x04
-+#define HOST_ENUM_RES_CMD		0x84
-+
-+#define HOST_CLIENT_PROPERTIES_REQ_CMD	0x05
-+#define HOST_CLIENT_PROPERTIES_RES_CMD	0x85
-+
-+#define CLIENT_CONNECT_REQ_CMD		0x06
-+#define CLIENT_CONNECT_RES_CMD		0x86
-+
-+#define CLIENT_DISCONNECT_REQ_CMD	0x07
-+#define CLIENT_DISCONNECT_RES_CMD	0x87
-+
-+#define ISHTP_FLOW_CONTROL_CMD		0x08
-+
-+#define DMA_BUFFER_ALLOC_NOTIFY		0x11
-+#define DMA_BUFFER_ALLOC_RESPONSE	0x91
-+
-+#define DMA_XFER			0x12
-+#define DMA_XFER_ACK			0x92
-+
-+/*
-+ * ISHTP Stop Reason
-+ * used by hbm_host_stop_request.reason
-+ */
-+#define	DRIVER_STOP_REQUEST		0x00
-+
-+/*
-+ * ISHTP BUS Interface Section
-+ */
-+struct ishtp_msg_hdr {
-+	uint32_t fw_addr:8;
-+	uint32_t host_addr:8;
-+	uint32_t length:9;
-+	uint32_t reserved:6;
-+	uint32_t msg_complete:1;
-+} __packed;
-+
-+struct ishtp_bus_message {
-+	uint8_t hbm_cmd;
-+	uint8_t data[0];
-+} __packed;
-+
-+/**
-+ * struct hbm_cl_cmd - client specific host bus command
-+ *	CONNECT, DISCONNECT, and FlOW CONTROL
-+ *
-+ * @hbm_cmd - bus message command header
-+ * @fw_addr - address of the fw client
-+ * @host_addr - address of the client in the driver
-+ * @data
-+ */
-+struct ishtp_hbm_cl_cmd {
-+	uint8_t hbm_cmd;
-+	uint8_t fw_addr;
-+	uint8_t host_addr;
-+	uint8_t data;
-+};
-+
-+struct hbm_version {
-+	uint8_t minor_version;
-+	uint8_t major_version;
-+} __packed;
-+
-+struct hbm_host_version_request {
-+	uint8_t hbm_cmd;
-+	uint8_t reserved;
-+	struct hbm_version host_version;
-+} __packed;
-+
-+struct hbm_host_version_response {
-+	uint8_t hbm_cmd;
-+	uint8_t host_version_supported;
-+	struct hbm_version fw_max_version;
-+} __packed;
-+
-+struct hbm_host_stop_request {
-+	uint8_t hbm_cmd;
-+	uint8_t reason;
-+	uint8_t reserved[2];
-+} __packed;
-+
-+struct hbm_host_stop_response {
-+	uint8_t hbm_cmd;
-+	uint8_t reserved[3];
-+} __packed;
-+
-+struct hbm_host_enum_request {
-+	uint8_t hbm_cmd;
-+	uint8_t reserved[3];
-+} __packed;
-+
-+struct hbm_host_enum_response {
-+	uint8_t hbm_cmd;
-+	uint8_t reserved[3];
-+	uint8_t valid_addresses[32];
-+} __packed;
-+
-+struct ishtp_client_properties {
-+	uuid_le protocol_name;
-+	uint8_t protocol_version;
-+	uint8_t max_number_of_connections;
-+	uint8_t fixed_address;
-+	uint8_t single_recv_buf;
-+	uint32_t max_msg_length;
-+	uint8_t dma_hdr_len;
-+#define	ISHTP_CLIENT_DMA_ENABLED	0x80
-+	uint8_t reserved4;
-+	uint8_t reserved5;
-+	uint8_t reserved6;
-+} __packed;
-+
-+struct hbm_props_request {
-+	uint8_t hbm_cmd;
-+	uint8_t address;
-+	uint8_t reserved[2];
-+} __packed;
-+
-+struct hbm_props_response {
-+	uint8_t hbm_cmd;
-+	uint8_t address;
-+	uint8_t status;
-+	uint8_t reserved[1];
-+	struct ishtp_client_properties client_properties;
-+} __packed;
-+
-+/**
-+ * struct hbm_client_connect_request - connect/disconnect request
-+ *
-+ * @hbm_cmd - bus message command header
-+ * @fw_addr - address of the fw client
-+ * @host_addr - address of the client in the driver
-+ * @reserved
-+ */
-+struct hbm_client_connect_request {
-+	uint8_t hbm_cmd;
-+	uint8_t fw_addr;
-+	uint8_t host_addr;
-+	uint8_t reserved;
-+} __packed;
-+
-+/**
-+ * struct hbm_client_connect_response - connect/disconnect response
-+ *
-+ * @hbm_cmd - bus message command header
-+ * @fw_addr - address of the fw client
-+ * @host_addr - address of the client in the driver
-+ * @status - status of the request
-+ */
-+struct hbm_client_connect_response {
-+	uint8_t hbm_cmd;
-+	uint8_t fw_addr;
-+	uint8_t host_addr;
-+	uint8_t status;
-+} __packed;
-+
-+
-+#define ISHTP_FC_MESSAGE_RESERVED_LENGTH		5
-+
-+struct hbm_flow_control {
-+	uint8_t hbm_cmd;
-+	uint8_t fw_addr;
-+	uint8_t host_addr;
-+	uint8_t reserved[ISHTP_FC_MESSAGE_RESERVED_LENGTH];
-+} __packed;
-+
-+struct dma_alloc_notify {
-+	uint8_t hbm;
-+	uint8_t status;
-+	uint8_t reserved[2];
-+	uint32_t buf_size;
-+	uint64_t buf_address;
-+	/* [...] May come more size/address pairs */
-+} __packed;
-+
-+struct dma_xfer_hbm {
-+	uint8_t hbm;
-+	uint8_t fw_client_id;
-+	uint8_t host_client_id;
-+	uint8_t reserved;
-+	uint64_t msg_addr;
-+	uint32_t msg_length;
-+	uint32_t reserved2;
-+} __packed;
-+
-+/* System state */
-+#define ISHTP_SYSTEM_STATE_CLIENT_ADDR		13
-+
-+#define SYSTEM_STATE_SUBSCRIBE			0x1
-+#define SYSTEM_STATE_STATUS			0x2
-+#define SYSTEM_STATE_QUERY_SUBSCRIBERS		0x3
-+#define SYSTEM_STATE_STATE_CHANGE_REQ		0x4
-+/*indicates suspend and resume states*/
-+#define SUSPEND_STATE_BIT			(1<<1)
-+
-+struct ish_system_states_header {
-+	uint32_t cmd;
-+	uint32_t cmd_status;	/*responses will have this set*/
-+} __packed;
-+
-+struct ish_system_states_subscribe {
-+	struct ish_system_states_header hdr;
-+	uint32_t states;
-+} __packed;
-+
-+struct ish_system_states_status {
-+	struct ish_system_states_header hdr;
-+	uint32_t supported_states;
-+	uint32_t states_status;
-+} __packed;
-+
-+struct ish_system_states_query_subscribers {
-+	struct ish_system_states_header hdr;
-+} __packed;
-+
-+struct ish_system_states_state_change_req {
-+	struct ish_system_states_header hdr;
-+	uint32_t requested_states;
-+	uint32_t states_status;
-+} __packed;
-+
-+/**
-+ * enum ishtp_hbm_state - host bus message protocol state
-+ *
-+ * @ISHTP_HBM_IDLE : protocol not started
-+ * @ISHTP_HBM_START : start request message was sent
-+ * @ISHTP_HBM_ENUM_CLIENTS : enumeration request was sent
-+ * @ISHTP_HBM_CLIENT_PROPERTIES : acquiring clients properties
-+ */
-+enum ishtp_hbm_state {
-+	ISHTP_HBM_IDLE = 0,
-+	ISHTP_HBM_START,
-+	ISHTP_HBM_STARTED,
-+	ISHTP_HBM_ENUM_CLIENTS,
-+	ISHTP_HBM_CLIENT_PROPERTIES,
-+	ISHTP_HBM_WORKING,
-+	ISHTP_HBM_STOPPED,
-+};
-+
-+static inline void ishtp_hbm_hdr(struct ishtp_msg_hdr *hdr, size_t length)
-+{
-+	hdr->host_addr = 0;
-+	hdr->fw_addr = 0;
-+	hdr->length = length;
-+	hdr->msg_complete = 1;
-+	hdr->reserved = 0;
-+}
-+
-+int ishtp_hbm_start_req(struct ishtp_device *dev);
-+int ishtp_hbm_start_wait(struct ishtp_device *dev);
-+int ishtp_hbm_cl_flow_control_req(struct ishtp_device *dev,
-+	struct ishtp_cl *cl);
-+int ishtp_hbm_cl_disconnect_req(struct ishtp_device *dev, struct ishtp_cl *cl);
-+int ishtp_hbm_cl_connect_req(struct ishtp_device *dev, struct ishtp_cl *cl);
-+void ishtp_hbm_enum_clients_req(struct ishtp_device *dev);
-+void bh_hbm_work_fn(struct work_struct *work);
-+void recv_hbm(struct ishtp_device *dev, struct ishtp_msg_hdr *ishtp_hdr);
-+void recv_fixed_cl_msg(struct ishtp_device *dev,
-+	struct ishtp_msg_hdr *ishtp_hdr);
-+void ishtp_hbm_dispatch(struct ishtp_device *dev,
-+	struct ishtp_bus_message *hdr);
-+
-+void ishtp_send_suspend(struct ishtp_device *dev);
-+void ishtp_send_resume(struct ishtp_device *dev);
-+void ishtp_query_subscribers(struct ishtp_device *dev);
-+
-+#endif /* _ISHTP_HBM_H_ */
-diff --git a/drivers/hid/intel-ish-hid/ishtp/init.c b/drivers/hid/intel-ish-hid/ishtp/init.c
-new file mode 100644
-index 0000000..14e0a88
---- /dev/null
-+++ b/drivers/hid/intel-ish-hid/ishtp/init.c
-@@ -0,0 +1,94 @@
-+/*
-+ * Initialization protocol for ISHTP driver
-+ *
-+ * Copyright (c) 2003-2016, Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-+ * more details.
-+ */
-+
-+#include <linux/export.h>
-+#include <linux/slab.h>
-+#include <linux/sched.h>
-+#include <linux/miscdevice.h>
-+#include "ishtp-dev.h"
-+#include "hbm.h"
-+#include "client.h"
-+
-+const char *ishtp_dev_state_str(int state)
-+{
-+	switch (state) {
-+	case ISHTP_DEV_INITIALIZING:
-+		return	"INITIALIZING";
-+	case ISHTP_DEV_INIT_CLIENTS:
-+		return	"INIT_CLIENTS";
-+	case ISHTP_DEV_ENABLED:
-+		return	"ENABLED";
-+	case ISHTP_DEV_RESETTING:
-+		return	"RESETTING";
-+	case ISHTP_DEV_DISABLED:
-+		return	"DISABLED";
-+	case ISHTP_DEV_POWER_DOWN:
-+		return	"POWER_DOWN";
-+	case ISHTP_DEV_POWER_UP:
-+		return	"POWER_UP";
-+	default:
-+		return "unknown";
-+	}
-+}
-+EXPORT_SYMBOL(ishtp_dev_state_str);
-+
-+void ishtp_device_init(struct ishtp_device *dev)
-+{
-+	dev->dev_state = ISHTP_DEV_INITIALIZING;
-+	INIT_LIST_HEAD(&dev->cl_list);
-+	INIT_LIST_HEAD(&dev->device_list);
-+	dev->rd_msg_fifo_head = 0;
-+	dev->rd_msg_fifo_tail = 0;
-+	spin_lock_init(&dev->rd_msg_spinlock);
-+
-+	init_waitqueue_head(&dev->wait_hbm_recvd_msg);
-+	spin_lock_init(&dev->read_list_spinlock);
-+	spin_lock_init(&dev->device_lock);
-+	spin_lock_init(&dev->device_list_lock);
-+	spin_lock_init(&dev->cl_list_lock);
-+	spin_lock_init(&dev->fw_clients_lock);
-+	INIT_WORK(&dev->bh_hbm_work, bh_hbm_work_fn);
-+
-+	bitmap_zero(dev->host_clients_map, ISHTP_CLIENTS_MAX);
-+	dev->open_handle_count = 0;
-+
-+	/*
-+	 * Reserving client ID 0 for ISHTP Bus Message communications
-+	 */
-+	bitmap_set(dev->host_clients_map, 0, 1);
-+
-+	INIT_LIST_HEAD(&dev->read_list.list);
-+
-+}
-+EXPORT_SYMBOL(ishtp_device_init);
-+
-+/* ishtp_start - initializes host and fw to start work */
-+int ishtp_start(struct ishtp_device *dev)
-+{
-+	if (ishtp_hbm_start_wait(dev)) {
-+		dev_err(dev->devc, "HBM haven't started");
-+		goto err;
-+	}
-+
-+	/* suspend & resume notification - send QUERY_SUBSCRIBERS msg */
-+	ishtp_query_subscribers(dev);
++	if (ipc_send_compl)
++		ipc_send_compl(ipc_send_compl_prm);
 +
 +	return 0;
-+err:
-+	dev_err(dev->devc, "link layer initialization failed.\n");
-+	dev->dev_state = ISHTP_DEV_DISABLED;
-+	return -ENODEV;
 +}
-+EXPORT_SYMBOL(ishtp_start);
-diff --git a/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h b/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
-new file mode 100644
-index 0000000..ed7179f
---- /dev/null
-+++ b/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
-@@ -0,0 +1,276 @@
-+/*
-+ * Most ISHTP provider device and ISHTP logic declarations
++
++/**
++ * write_ipc_to_queue() - write ipc msg to Tx queue
++ * @dev:		ishtp device instance
++ * @ipc_send_compl:	Send complete callback
++ * @ipc_send_compl_prm:	Parameter to send in complete callback
++ * @msg:		Pointer to message
++ * @length:		Length of message
 + *
-+ * Copyright (c) 2003-2016, Intel Corporation.
++ * Recived msg with IPC (and upper protocol) header  and add it to the device
++ *  Tx-to-write list then try to send the first IPC waiting msg
++ *  (if DRBL is cleared)
++ * This function returns negative value for failure (means free list
++ *  is empty, or msg too long) and 0 for success.
++ */
++static int write_ipc_to_queue(struct ishtp_device *dev,
++	void (*ipc_send_compl)(void *), void *ipc_send_compl_prm,
++	unsigned char *msg, int length)
++{
++	struct wr_msg_ctl_info *ipc_link;
++	unsigned long	flags;
++
++	if (length > IPC_FULL_MSG_SIZE)
++		return -EMSGSIZE;
++
++	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
++	if (list_empty(&dev->wr_free_list_head.link)) {
++		spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
++		return -ENOMEM;
++	}
++	ipc_link = list_entry(dev->wr_free_list_head.link.next,
++		struct wr_msg_ctl_info, link);
++	list_del_init(&ipc_link->link);
++
++	ipc_link->ipc_send_compl = ipc_send_compl;
++	ipc_link->ipc_send_compl_prm = ipc_send_compl_prm;
++	ipc_link->length = length;
++	memcpy(ipc_link->inline_data, msg, length);
++
++	list_add_tail(&ipc_link->link, &dev->wr_processing_list_head.link);
++	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
++
++	write_ipc_from_queue(dev);
++
++	return 0;
++}
++
++/* Send a bus management message */
++static int ipc_send_mng_msg(struct ishtp_device *dev, uint32_t msg_code,
++	void *msg, size_t size)
++{
++	unsigned char	ipc_msg[IPC_FULL_MSG_SIZE];
++	uint32_t	drbl_val = IPC_BUILD_MNG_MSG(msg_code, size);
++
++	memcpy(ipc_msg, &drbl_val, sizeof(uint32_t));
++	memcpy(ipc_msg + sizeof(uint32_t), msg, size);
++	return	write_ipc_to_queue(dev, NULL, NULL, ipc_msg,
++		sizeof(uint32_t) + size);
++}
++
++static int ish_fw_reset_handler(struct ishtp_device *dev)
++{
++	uint32_t	reset_id;
++	unsigned long	flags;
++	struct wr_msg_ctl_info *processing, *next;
++
++	/* Read reset ID */
++	reset_id = ish_reg_read(dev, IPC_REG_ISH2HOST_MSG) & 0xFFFF;
++
++	/* Clear IPC output queue */
++	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
++	list_for_each_entry_safe(processing, next,
++			&dev->wr_processing_list_head.link, link) {
++		list_del(&processing->link);
++		list_add_tail(&processing->link, &dev->wr_free_list_head.link);
++	}
++	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
++
++	/* ISHTP notification in IPC_RESET */
++	ishtp_reset_handler(dev);
++
++	if (!ish_is_input_ready(dev))
++		timed_wait_for_timeout(WAIT_FOR_SEND_SLICE,
++			ish_is_input_ready(dev), (2 * HZ));
++
++	/* ISH FW is dead */
++	if (!ish_is_input_ready(dev))
++		return	-EPIPE;
++	/*
++	 * Set HOST2ISH.ILUP. Apparently we need this BEFORE sending
++	 * RESET_NOTIFY_ACK - FW will be checking for it
++	 */
++	ish_set_host_rdy(dev);
++	/* Send RESET_NOTIFY_ACK (with reset_id) */
++	ipc_send_mng_msg(dev, MNG_RESET_NOTIFY_ACK, &reset_id,
++			 sizeof(uint32_t));
++
++	/* Wait for ISH FW'es ILUP and ISHTP_READY */
++	timed_wait_for_timeout(WAIT_FOR_SEND_SLICE, ishtp_fw_is_ready(dev),
++		(2 * HZ));
++	if (!ishtp_fw_is_ready(dev)) {
++		/* ISH FW is dead */
++		uint32_t	ish_status;
++
++		ish_status = _ish_read_fw_sts_reg(dev);
++		dev_err(dev->devc,
++			"[ishtp-ish]: completed reset, ISH is dead "
++			"(FWSTS = %08X)\n",
++			ish_status);
++		return -ENODEV;
++	}
++	return	0;
++}
++
++static void fw_reset_work_fn(struct work_struct *unused)
++{
++	int	rv;
++
++	rv = ish_fw_reset_handler(ishtp_dev);
++	if (!rv) {
++		/* ISH is ILUP & ISHTP-ready. Restart ISHTP */
++		schedule_timeout(HZ / 3);
++		ishtp_dev->recvd_hw_ready = 1;
++		wake_up(&ishtp_dev->wait_hw_ready);
++
++		/* ISHTP notification in IPC_RESET sequence completion */
++		ishtp_reset_compl_handler(ishtp_dev);
++	} else
++		dev_err(ishtp_dev->devc, "[ishtp-ish]: FW reset failed (%d)\n",
++			rv);
++}
++
++static void _ish_sync_fw_clock(struct ishtp_device *dev)
++{
++	static unsigned long	prev_sync;
++	struct timespec	ts;
++	uint64_t	usec;
++
++	if (prev_sync && jiffies - prev_sync < 20 * HZ)
++		return;
++
++	prev_sync = jiffies;
++	get_monotonic_boottime(&ts);
++	usec = (timespec_to_ns(&ts)) / NSEC_PER_USEC;
++	ipc_send_mng_msg(dev, MNG_SYNC_FW_CLOCK, &usec, sizeof(uint64_t));
++}
++
++/*
++ * recv_ipc() - Receive and process IPC management messages
++ * @dev:		ishtp device instance
++ * @doorbell_val:	doorbell value
++ *
++ * This function runs in ISR context.
++ * NOTE: Any other mng command than reset_notify and reset_notify_ack
++ * won't wake BH handler
++ */
++static void	recv_ipc(struct ishtp_device *dev, uint32_t doorbell_val)
++{
++	uint32_t	mng_cmd;
++
++	mng_cmd = IPC_HEADER_GET_MNG_CMD(doorbell_val);
++
++	switch (mng_cmd) {
++	default:
++		break;
++
++	case MNG_RX_CMPL_INDICATION:
++		if (dev->suspend_flag) {
++			dev->suspend_flag = 0;
++			wake_up(&dev->suspend_wait);
++		}
++		write_ipc_from_queue(dev);
++		break;
++
++	case MNG_RESET_NOTIFY:
++		if (!ishtp_dev) {
++			ishtp_dev = dev;
++			INIT_WORK(&fw_reset_work, fw_reset_work_fn);
++		}
++		schedule_work(&fw_reset_work);
++		break;
++
++	case MNG_RESET_NOTIFY_ACK:
++		dev->recvd_hw_ready = 1;
++		wake_up(&dev->wait_hw_ready);
++		break;
++	}
++}
++
++/* ish_irq_handler - ISR of the ISHTP device */
++irqreturn_t ish_irq_handler(int irq, void *dev_id)
++{
++	struct ishtp_device	*dev = dev_id;
++	uint32_t	doorbell_val;
++	bool	interrupt_generated;
++
++	/* Check that it's interrupt from ISH (may be shared) */
++	interrupt_generated = check_generated_interrupt(dev);
++
++	if (!interrupt_generated)
++		return IRQ_NONE;
++
++	doorbell_val = ish_reg_read(dev, IPC_REG_ISH2HOST_DRBL);
++	if (!IPC_IS_BUSY(doorbell_val))
++		return IRQ_HANDLED;
++
++	if (dev->dev_state == ISHTP_DEV_DISABLED)
++		return	IRQ_HANDLED;
++
++	/* Sanity check: IPC dgram length in header */
++	if (IPC_HEADER_GET_LENGTH(doorbell_val) > IPC_PAYLOAD_SIZE) {
++		dev_err(dev->devc,
++			"IPC hdr - bad length: %u; dropped\n",
++			(unsigned int)IPC_HEADER_GET_LENGTH(doorbell_val));
++		goto	eoi;
++	}
++
++	switch (IPC_HEADER_GET_PROTOCOL(doorbell_val)) {
++	default:
++		break;
++	case IPC_PROTOCOL_MNG:
++		recv_ipc(dev, doorbell_val);
++		break;
++	case IPC_PROTOCOL_ISHTP:
++		ishtp_recv(dev);
++		break;
++	}
++
++eoi:
++	/* Update IPC counters */
++	++dev->ipc_rx_cnt;
++	dev->ipc_rx_bytes_cnt += IPC_HEADER_GET_LENGTH(doorbell_val);
++
++	ish_reg_write(dev, IPC_REG_ISH2HOST_DRBL, 0);
++	/* Flush write to doorbell */
++	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++
++	return	IRQ_HANDLED;
++}
++
++static int _ish_hw_reset(struct ishtp_device *dev)
++{
++	struct pci_dev *pdev = dev->pdev;
++	int	rv;
++	unsigned int	dma_delay;
++	uint16_t csr;
++
++	if (!pdev)
++		return	-ENODEV;
++
++	rv = pci_reset_function(pdev);
++	if (!rv)
++		dev->dev_state = ISHTP_DEV_RESETTING;
++
++	if (!pdev->pm_cap) {
++		dev_err(&pdev->dev, "Can't reset - no PM caps\n");
++		return	-EINVAL;
++	}
++
++	/* Now trigger reset to FW */
++	ish_reg_write(dev, IPC_REG_ISH_RMP2, 0);
++
++	for (dma_delay = 0; dma_delay < MAX_DMA_DELAY &&
++		_ish_read_fw_sts_reg(dev) & (IPC_ISH_IN_DMA);
++		dma_delay += 5)
++		mdelay(5);
++
++	if (dma_delay >= MAX_DMA_DELAY) {
++		dev_err(&pdev->dev,
++			"Can't reset - stuck with DMA in-progress\n");
++		return	-EBUSY;
++	}
++
++	pci_read_config_word(pdev, pdev->pm_cap + PCI_PM_CTRL, &csr);
++
++	csr &= ~PCI_PM_CTRL_STATE_MASK;
++	csr |= PCI_D3hot;
++	pci_write_config_word(pdev, pdev->pm_cap + PCI_PM_CTRL, csr);
++
++	mdelay(pdev->d3_delay);
++
++	csr &= ~PCI_PM_CTRL_STATE_MASK;
++	csr |= PCI_D0;
++	pci_write_config_word(pdev, pdev->pm_cap + PCI_PM_CTRL, csr);
++
++	ish_reg_write(dev, IPC_REG_ISH_RMP2, IPC_RMP2_DMA_ENABLED);
++
++	/*
++	 * Send 0 IPC message so that ISH FW wakes up if it was already
++	 * asleep
++	 */
++	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, IPC_DRBL_BUSY_BIT);
++
++	/* Flush writes to doorbell and REMAP2 */
++	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++
++	return	0;
++}
++
++/* _ish_ipc_reset - resets host and fw IPC and upper layers. */
++static int _ish_ipc_reset(struct ishtp_device *dev)
++{
++	struct ipc_rst_payload_type ipc_mng_msg;
++	int	rv = 0;
++
++	ipc_mng_msg.reset_id = 1;
++	ipc_mng_msg.reserved = 0;
++
++	set_host_ready(dev);
++
++	/* Clear the incoming doorbell */
++	ish_reg_write(dev, IPC_REG_ISH2HOST_DRBL, 0);
++	/* Flush write to doorbell */
++	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++
++	dev->recvd_hw_ready = 0;
++
++	/* send message */
++	rv = ipc_send_mng_msg(dev, MNG_RESET_NOTIFY, &ipc_mng_msg,
++		sizeof(struct ipc_rst_payload_type));
++	if (rv) {
++		dev_err(dev->devc, "Failed to send IPC MNG_RESET_NOTIFY\n");
++		return	rv;
++	}
++
++	wait_event_timeout(dev->wait_hw_ready, dev->recvd_hw_ready, 2 * HZ);
++	if (!dev->recvd_hw_ready) {
++		dev_err(dev->devc, "Timed out waiting for HW ready\n");
++		rv = -ENODEV;
++	}
++
++	return rv;
++}
++
++int ish_hw_start(struct ishtp_device *dev)
++{
++	ish_set_host_rdy(dev);
++	/* After that we can enable ISH DMA operation */
++	ish_reg_write(dev, IPC_REG_ISH_RMP2, IPC_RMP2_DMA_ENABLED);
++
++	/*
++	 * Send 0 IPC message so that ISH FW wakes up if it was already
++	 * asleep
++	 */
++	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, IPC_DRBL_BUSY_BIT);
++	/* Flush write to doorbell */
++	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++
++	set_host_ready(dev);
++
++	/* wait for FW-initiated reset flow */
++	if (!dev->recvd_hw_ready)
++		wait_event_timeout(dev->wait_hw_ready, dev->recvd_hw_ready,
++			10 * HZ);
++
++	if (!dev->recvd_hw_ready) {
++		dev_err(dev->devc,
++			"[ishtp-ish]: Timed out waiting for "
++			"FW-initiated reset\n");
++		return	-ENODEV;
++	}
++
++	return 0;
++}
++
++static uint32_t ish_ipc_get_header(struct ishtp_device *dev, int length,
++				   int busy)
++{
++	uint32_t drbl_val;
++
++	drbl_val = IPC_BUILD_HEADER(length, IPC_PROTOCOL_ISHTP, busy);
++
++	return drbl_val;
++}
++
++static const struct ishtp_hw_ops ish_hw_ops = {
++	.hw_reset = _ish_hw_reset,
++	.ipc_reset = _ish_ipc_reset,
++	.ipc_get_header = ish_ipc_get_header,
++	.ishtp_read = _ishtp_read,
++	.write = write_ipc_to_queue,
++	.get_fw_status = _ish_read_fw_sts_reg,
++	.sync_fw_clock = _ish_sync_fw_clock,
++	.ishtp_read_hdr = _ishtp_read_hdr
++};
++
++struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
++{
++	struct ishtp_device *dev;
++	int	i;
++
++	dev = kzalloc(sizeof(struct ishtp_device) + sizeof(struct ish_hw),
++		GFP_KERNEL);
++	if (!dev)
++		return NULL;
++
++	ishtp_device_init(dev);
++
++	init_waitqueue_head(&dev->wait_hw_ready);
++
++	spin_lock_init(&dev->wr_processing_spinlock);
++	spin_lock_init(&dev->out_ipc_spinlock);
++
++	/* Init IPC processing and free lists */
++	INIT_LIST_HEAD(&dev->wr_processing_list_head.link);
++	INIT_LIST_HEAD(&dev->wr_free_list_head.link);
++	for (i = 0; i < IPC_TX_FIFO_SIZE; ++i) {
++		struct wr_msg_ctl_info	*tx_buf;
++
++		tx_buf = kzalloc(sizeof(struct wr_msg_ctl_info), GFP_KERNEL);
++		if (!tx_buf) {
++			/*
++			 * IPC buffers may be limited or not available
++			 * at all - although this shouldn't happen
++			 */
++			dev_err(dev->devc,
++				"[ishtp-ish]: failure in Tx FIFO "
++				"allocations (%d)\n", i);
++			break;
++		}
++		list_add_tail(&tx_buf->link, &dev->wr_free_list_head.link);
++	}
++
++	dev->ops = &ish_hw_ops;
++	dev->devc = &pdev->dev;
++	dev->mtu = IPC_PAYLOAD_SIZE - sizeof(struct ishtp_msg_hdr);
++	return dev;
++}
++
++void	ishtp_device_disable(struct ishtp_device *dev)
++{
++	dev->dev_state = ISHTP_DEV_DISABLED;
++	ish_clr_host_rdy(dev);
++	kfree(dev->fw_clients);
++}
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+new file mode 100644
+index 0000000..e4d00d2
+--- /dev/null
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -0,0 +1,238 @@
++/*
++ * PCI glue for ISHTP provider device (ISH) driver
++ *
++ * Copyright (c) 2014-2016, Intel Corporation.
 + *
 + * This program is free software; you can redistribute it and/or modify it
 + * under the terms and conditions of the GNU General Public License,
@@ -3782,266 +1110,335 @@ index 0000000..ed7179f
 + * more details.
 + */
 +
-+#ifndef _ISHTP_DEV_H_
-+#define _ISHTP_DEV_H_
-+
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/kernel.h>
++#include <linux/device.h>
++#include <linux/fs.h>
++#include <linux/errno.h>
 +#include <linux/types.h>
-+#include <linux/spinlock.h>
-+#include "bus.h"
-+#include "hbm.h"
++#include <linux/pci.h>
++#include <linux/sched.h>
++#include <linux/interrupt.h>
++#include <linux/workqueue.h>
++#include <linux/miscdevice.h>
++#define CREATE_TRACE_POINTS
++#include <trace/events/intel_ish.h>
++#include "ishtp-dev.h"
++#include "hw-ish.h"
 +
-+#define	IPC_PAYLOAD_SIZE	128
-+#define ISHTP_RD_MSG_BUF_SIZE	IPC_PAYLOAD_SIZE
-+#define	IPC_FULL_MSG_SIZE	132
-+
-+/* Number of messages to be held in ISR->BH FIFO */
-+#define	RD_INT_FIFO_SIZE	64
-+
-+/*
-+ * Number of IPC messages to be held in Tx FIFO, to be sent by ISR -
-+ * Tx complete interrupt or RX_COMPLETE handler
-+ */
-+#define	IPC_TX_FIFO_SIZE	512
-+
-+/*
-+ * Number of Maximum ISHTP Clients
-+ */
-+#define ISHTP_CLIENTS_MAX 256
-+
-+/*
-+ * Number of File descriptors/handles
-+ * that can be opened to the driver.
-+ *
-+ * Limit to 255: 256 Total Clients
-+ * minus internal client for ISHTP Bus Messages
-+ */
-+#define ISHTP_MAX_OPEN_HANDLE_COUNT (ISHTP_CLIENTS_MAX - 1)
-+
-+/* Internal Clients Number */
-+#define ISHTP_HOST_CLIENT_ID_ANY		(-1)
-+#define ISHTP_HBM_HOST_CLIENT_ID		0
-+
-+#define	MAX_DMA_DELAY	20
-+
-+/* ISHTP device states */
-+enum ishtp_dev_state {
-+	ISHTP_DEV_INITIALIZING = 0,
-+	ISHTP_DEV_INIT_CLIENTS,
-+	ISHTP_DEV_ENABLED,
-+	ISHTP_DEV_RESETTING,
-+	ISHTP_DEV_DISABLED,
-+	ISHTP_DEV_POWER_DOWN,
-+	ISHTP_DEV_POWER_UP
++static const struct pci_device_id ish_pci_tbl[] = {
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CHV_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, BXT_Ax_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, BXT_Bx_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, BXTP_Ax_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, SPT_Ax_DEVICE_ID)},
++	{0, }
 +};
-+const char *ishtp_dev_state_str(int state);
++MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
 +
-+struct ishtp_cl;
++static void ish_event_tracer(struct ishtp_device *dev, char *format, ...)
++{
++	if (trace_ishtp_dump_enabled()) {
++		va_list args;
++		char tmp_buf[100];
 +
-+/**
-+ * struct ishtp_fw_client - representation of fw client
-+ *
-+ * @props - client properties
-+ * @client_id - fw client id
-+ */
-+struct ishtp_fw_client {
-+	struct ishtp_client_properties props;
-+	uint8_t client_id;
-+};
++		va_start(args, format);
++		vsnprintf(tmp_buf, sizeof(tmp_buf), format, args);
++		va_end(args);
 +
-+/**
-+ * struct ishtp_msg_data - ISHTP message data struct
-+ * @size:	Size of data in the *data
-+ * @data:	Pointer to data
-+ */
-+struct ishtp_msg_data {
-+	uint32_t size;
-+	unsigned char *data;
-+};
++		trace_ishtp_dump(tmp_buf);
++	}
++}
 +
-+/*
-+ * struct ishtp_cl_rb - request block structure
-+ * @list:	Link to list members
-+ * @cl:		ISHTP client instance
-+ * @buffer:	message header
-+ * @buf_idx:	Index into buffer
-+ * @read_time:	 unused at this time
-+ */
-+struct ishtp_cl_rb {
-+	struct list_head list;
-+	struct ishtp_cl *cl;
-+	struct ishtp_msg_data buffer;
-+	unsigned long buf_idx;
-+	unsigned long read_time;
-+};
++static int ish_init(struct ishtp_device *dev)
++{
++	int ret;
 +
-+/*
-+ * Control info for IPC messages ISHTP/IPC sending FIFO -
-+ * list with inline data buffer
-+ * This structure will be filled with parameters submitted
-+ * by the caller glue layer
-+ * 'buf' may be pointing to the external buffer or to 'inline_data'
-+ * 'offset' will be initialized to 0 by submitting
-+ *
-+ * 'ipc_send_compl' is intended for use by clients that send fragmented
-+ * messages. When a fragment is sent down to IPC msg regs,
-+ * it will be called.
-+ * If it has more fragments to send, it will do it. With last fragment
-+ * it will send appropriate ISHTP "message-complete" flag.
-+ * It will remove the outstanding message
-+ * (mark outstanding buffer as available).
-+ * If counting flow control is in work and there are more flow control
-+ * credits, it can put the next client message queued in cl.
-+ * structure for IPC processing.
-+ *
-+ */
-+struct wr_msg_ctl_info {
-+	/* Will be called with 'ipc_send_compl_prm' as parameter */
-+	void (*ipc_send_compl)(void *);
++	dev_set_drvdata(dev->devc, dev);
 +
-+	void *ipc_send_compl_prm;
-+	size_t length;
-+	struct list_head	link;
-+	unsigned char	inline_data[IPC_FULL_MSG_SIZE];
-+};
++	init_waitqueue_head(&dev->suspend_wait);
 +
-+/*
-+ * The ISHTP layer talks to hardware IPC message using the following
-+ * callbacks
-+ */
-+struct ishtp_hw_ops {
-+	int	(*hw_reset)(struct ishtp_device *dev);
-+	int	(*ipc_reset)(struct ishtp_device *dev);
-+	uint32_t (*ipc_get_header)(struct ishtp_device *dev, int length,
-+				   int busy);
-+	int	(*write)(struct ishtp_device *dev,
-+		void (*ipc_send_compl)(void *), void *ipc_send_compl_prm,
-+		unsigned char *msg, int length);
-+	uint32_t	(*ishtp_read_hdr)(const struct ishtp_device *dev);
-+	int	(*ishtp_read)(struct ishtp_device *dev, unsigned char *buffer,
-+			unsigned long buffer_length);
-+	uint32_t	(*get_fw_status)(struct ishtp_device *dev);
-+	void	(*sync_fw_clock)(struct ishtp_device *dev);
-+};
++	/* Register ishtp bus */
++	ret = ishtp_cl_bus_init();
++	if (ret) {
++		dev_err(dev->devc, "ISH: Init hw failed.\n");
++		return ret;
++	}
 +
-+/**
-+ * struct ishtp_device - ISHTP private device struct
-+ */
-+struct ishtp_device {
-+	struct device *devc;	/* pointer to lowest device */
-+	struct pci_dev *pdev;	/* PCI device to get device ids */
++	/* Set the state of ISH HW to start */
++	ret = ish_hw_start(dev);
++	if (ret) {
++		dev_err(dev->devc, "ISH: Init hw failed.\n");
++		goto bus_unreg;
++	}
 +
-+	/* waitq for waiting for suspend response */
-+	wait_queue_head_t suspend_wait;
-+	bool suspend_flag;	/* Suspend is active */
++	/* Start the inter process communication to ISH processor */
++	ret = ishtp_start(dev);
++	if (ret) {
++		dev_err(dev->devc, "ISHTP: Protocol init failed.\n");
++		goto bus_unreg;
++	}
++
++	return 0;
++
++bus_unreg:
++	ishtp_cl_bus_exit();
++
++	return ret;
++}
++
++static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
++{
++	struct ishtp_device *dev;
++	struct ish_hw *hw;
++	int	ret;
++
++	/* enable pci dev */
++	ret = pci_enable_device(pdev);
++	if (ret) {
++		dev_err(&pdev->dev, "ISH: Failed to enable PCI device\n");
++		return ret;
++	}
++
++	/* set PCI host mastering */
++	pci_set_master(pdev);
++
++	/* pci request regions for ISH driver */
++	ret = pci_request_regions(pdev, KBUILD_MODNAME);
++	if (ret) {
++		dev_err(&pdev->dev, "ISH: Failed to get PCI regions\n");
++		goto disable_device;
++	}
++
++	/* allocates and initializes the ISH dev structure */
++	dev = ish_dev_init(pdev);
++	if (!dev) {
++		ret = -ENOMEM;
++		goto release_regions;
++	}
++	hw = to_ish_hw(dev);
++	dev->print_log = ish_event_tracer;
++
++	/* mapping IO device memory */
++	hw->mem_addr = pci_iomap(pdev, 0, 0);
++	if (!hw->mem_addr) {
++		dev_err(&pdev->dev, "ISH: mapping I/O range failure\n");
++		ret = -ENOMEM;
++		goto free_device;
++	}
++
++	dev->pdev = pdev;
 +
 +	/*
-+	 * lock for the device, for everything that doesn't have
-+	 * a dedicated spinlock
++	 * PCI quirk: prevent from being put into D3 state. ISH has internal
++	 * power management logic to transition to low power state based
++	 * on the usage. So no explicit action is required to change the
++	 * state to D3.
 +	 */
-+	spinlock_t device_lock;
++	pdev->dev_flags |= PCI_DEV_FLAGS_NO_D3;
 +
-+	bool recvd_hw_ready;
-+	struct hbm_version version;
-+	int transfer_path; /* Choice of transfer path: IPC or DMA */
 +
-+	/* ishtp device states */
-+	enum ishtp_dev_state dev_state;
-+	enum ishtp_hbm_state hbm_state;
++	/* request and enable interrupt */
++	ret = request_irq(pdev->irq, ish_irq_handler, IRQF_NO_SUSPEND,
++			  KBUILD_MODNAME, dev);
++	if (ret) {
++		dev_err(&pdev->dev, "ISH: request IRQ failure (%d)\n",
++			pdev->irq);
++		goto free_device;
++	}
 +
-+	/* driver read queue */
-+	struct ishtp_cl_rb read_list;
-+	spinlock_t read_list_spinlock;
++	ret = ish_init(dev);
++	if (ret)
++		goto free_device;
 +
-+	/* list of ishtp_cl's */
-+	struct list_head cl_list;
-+	spinlock_t cl_list_lock;
-+	long open_handle_count;
++	return 0;
 +
-+	/* List of bus devices */
-+	struct list_head device_list;
-+	spinlock_t device_list_lock;
++free_device:
++	pci_iounmap(pdev, hw->mem_addr);
++	kfree(dev);
++release_regions:
++	pci_release_regions(pdev);
++disable_device:
++	pci_disable_device(pdev);
++	dev_err(&pdev->dev, "ISH: PCI driver initialization failed.\n");
 +
-+	/* waiting queues for receive message from FW */
-+	wait_queue_head_t wait_hw_ready;
-+	wait_queue_head_t wait_hbm_recvd_msg;
++	return ret;
++}
 +
-+	/* FIFO for input messages for BH processing */
-+	unsigned char rd_msg_fifo[RD_INT_FIFO_SIZE * IPC_PAYLOAD_SIZE];
-+	unsigned int rd_msg_fifo_head, rd_msg_fifo_tail;
-+	spinlock_t rd_msg_spinlock;
-+	struct work_struct bh_hbm_work;
++static int ish_suspend(struct device *device)
++{
++	struct pci_dev *pdev = to_pci_dev(device);
++	struct ishtp_device *dev = pci_get_drvdata(pdev);
 +
-+	/* IPC write queue */
-+	struct wr_msg_ctl_info wr_processing_list_head, wr_free_list_head;
-+	/* For both processing list  and free list */
-+	spinlock_t wr_processing_spinlock;
++	enable_irq_wake(pdev->irq);
++	/*
++	 * If previous suspend hasn't been asnwered then ISH is likely dead,
++	 * don't attempt nested notification
++	 */
++	if (dev->suspend_flag)
++		return	0;
 +
-+	spinlock_t out_ipc_spinlock;
++	dev->suspend_flag = 1;
++	ishtp_send_suspend(dev);
 +
-+	struct ishtp_fw_client *fw_clients; /*Note:memory has to be allocated*/
-+	DECLARE_BITMAP(fw_clients_map, ISHTP_CLIENTS_MAX);
-+	DECLARE_BITMAP(host_clients_map, ISHTP_CLIENTS_MAX);
-+	uint8_t fw_clients_num;
-+	uint8_t fw_client_presentation_num;
-+	uint8_t fw_client_index;
-+	spinlock_t fw_clients_lock;
++	/* 25 ms should be enough for live ISH to flush all IPC buf */
++	if (dev->suspend_flag)
++		wait_event_timeout(dev->suspend_wait, !dev->suspend_flag,
++				   msecs_to_jiffies(25));
 +
-+	/* TX DMA buffers and slots */
-+	int ishtp_host_dma_enabled;
-+	void *ishtp_host_dma_tx_buf;
-+	unsigned int ishtp_host_dma_tx_buf_size;
-+	uint64_t ishtp_host_dma_tx_buf_phys;
-+	int ishtp_dma_num_slots;
++	return 0;
++}
 +
-+	/* map of 4k blocks in Tx dma buf: 0-free, 1-used */
-+	uint8_t *ishtp_dma_tx_map;
-+	spinlock_t ishtp_dma_tx_lock;
++static int ish_resume(struct device *device)
++{
++	struct pci_dev *pdev = to_pci_dev(device);
++	struct ishtp_device *dev = pci_get_drvdata(pdev);
 +
-+	/* RX DMA buffers and slots */
-+	void *ishtp_host_dma_rx_buf;
-+	unsigned int ishtp_host_dma_rx_buf_size;
-+	uint64_t ishtp_host_dma_rx_buf_phys;
++	disable_irq_wake(pdev->irq);
++	ishtp_send_resume(dev);
++	dev->suspend_flag = 0;
 +
-+	/* Dump to trace buffers if enabled*/
-+	void (*print_log)(struct ishtp_device *dev, char *format, ...);
++	return 0;
++}
 +
-+	/* Debug stats */
-+	unsigned int	ipc_rx_cnt;
-+	unsigned long long	ipc_rx_bytes_cnt;
-+	unsigned int	ipc_tx_cnt;
-+	unsigned long long	ipc_tx_bytes_cnt;
++#ifdef CONFIG_PM
++static const struct dev_pm_ops ish_pm_ops = {
++	.suspend = ish_suspend,
++	.resume = ish_resume,
++};
++#define ISHTP_ISH_PM_OPS	(&ish_pm_ops)
++#else
++#define ISHTP_ISH_PM_OPS	NULL
++#endif
 +
-+	const struct ishtp_hw_ops *ops;
-+	size_t	mtu;
-+	uint32_t	ishtp_msg_hdr;
-+	char hw[0] __aligned(sizeof(void *));
++static struct pci_driver ish_driver = {
++	.name = KBUILD_MODNAME,
++	.id_table = ish_pci_tbl,
++	.probe = ish_probe,
++	.driver.pm = ISHTP_ISH_PM_OPS,
 +};
 +
-+void	ishtp_device_init(struct ishtp_device *dev);
-+int	ishtp_start(struct ishtp_device *dev);
-+void	ishtp_device_disable(struct ishtp_device *dev);
-+void	ishtp_bus_remove_all_clients(struct ishtp_device *ishtp_dev);
-+int	ishtp_register(struct ishtp_device *dev);
-+void	ishtp_deregister(struct ishtp_device *dev);
-+
-+static inline unsigned long ishtp_secs_to_jiffies(unsigned long sec)
++static int __init ish_driver_init(void)
 +{
-+	return msecs_to_jiffies(sec * MSEC_PER_SEC);
++	return pci_register_driver(&ish_driver);
 +}
++device_initcall(ish_driver_init);
++
++/* Primary author */
++MODULE_AUTHOR("Daniel Drubin <daniel.drubin@intel.com>");
++/* Adoption to upstream Linux kernel */
++MODULE_AUTHOR("Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>");
++
++MODULE_DESCRIPTION("Intel(R) Integrated Sensor Hub PCI Device Driver");
++MODULE_LICENSE("GPL");
++
+diff --git a/drivers/hid/intel-ish-hid/ipc/utils.h b/drivers/hid/intel-ish-hid/ipc/utils.h
+new file mode 100644
+index 0000000..cc646de
+--- /dev/null
++++ b/drivers/hid/intel-ish-hid/ipc/utils.h
+@@ -0,0 +1,65 @@
++/*
++ * Utility macros of ISH
++ *
++ * Copyright (c) 2014-2016, Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
++ * more details.
++ */
++#ifndef UTILS__H
++#define UTILS__H
++
++#define	WAIT_FOR_SEND_SLICE	(HZ / 10)
++#define	WAIT_FOR_CONNECT_SLICE	(HZ / 10)
 +
 +/*
-+ * Register Access Function
++ * Waits for specified event when a thread that triggers event can't signal
++ * Also, waits *at_least* `timeinc` after condition is satisfied
 + */
-+static inline int ish_ipc_reset(struct ishtp_device *dev)
-+{
-+	return dev->ops->ipc_reset(dev);
-+}
++#define	timed_wait_for(timeinc, condition)			\
++	do {							\
++		int completed = 0;				\
++		do {						\
++			unsigned long	j;			\
++			int	done = 0;			\
++								\
++			completed = (condition);		\
++			for (j = jiffies, done = 0; !done; ) {	\
++				schedule_timeout(timeinc);	\
++				if (time_is_before_eq_jiffies(j + timeinc)) \
++					done = 1;		\
++			}					\
++		} while (!(completed));				\
++	} while (0)
 +
-+static inline int ish_hw_reset(struct ishtp_device *dev)
-+{
-+	return dev->ops->hw_reset(dev);
-+}
 +
-+#endif /*_ISHTP_DEV_H_*/
++/*
++ * Waits for specified event when a thread that triggers event
++ * can't signal with timeout (use whenever we may hang)
++ */
++#define	timed_wait_for_timeout(timeinc, condition, timeout)	\
++	do {							\
++		int	t = timeout;				\
++		do {						\
++			unsigned long	j;			\
++			int	done = 0;			\
++								\
++			for (j = jiffies, done = 0; !done; ) {	\
++				schedule_timeout(timeinc);	\
++				if (time_is_before_eq_jiffies(j + timeinc)) \
++					done = 1;		\
++			} \
++			t -= timeinc;				\
++			if (t <= 0)				\
++				break;				\
++		} while (!(condition));				\
++	} while (0)
++
++#endif /* UTILS__H */
++
+diff --git a/include/trace/events/intel_ish.h b/include/trace/events/intel_ish.h
+new file mode 100644
+index 0000000..92f7d5b
+--- /dev/null
++++ b/include/trace/events/intel_ish.h
+@@ -0,0 +1,30 @@
++#undef TRACE_SYSTEM
++#define TRACE_SYSTEM intel_ish
++
++#if !defined(_TRACE_INTEL_ISH_H) || defined(TRACE_HEADER_MULTI_READ)
++#define _TRACE_INTEL_ISH_H
++
++#include <linux/tracepoint.h>
++
++TRACE_EVENT(ishtp_dump,
++
++	TP_PROTO(const char *message),
++
++	TP_ARGS(message),
++
++	TP_STRUCT__entry(
++		__string(message, message)
++	),
++
++	TP_fast_assign(
++		__assign_str(message, message);
++	),
++
++	TP_printk("%s", __get_str(message))
++);
++
++
++#endif /* _TRACE_INTEL_ISH_H */
++
++/* This part must be outside protection */
++#include <trace/define_trace.h>
 -- 
 1.9.1

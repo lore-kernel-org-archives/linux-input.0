@@ -1,7 +1,7 @@
 From: Florian Echtler <floe@butterbrot.org>
-Subject: [PATCH v2 2/3] sur40: lower poll interval to fix occasional FPS drops to ~56 FPS
-Date: Tue, 31 May 2016 22:15:32 +0200
-Message-ID: <1464725733-22119-2-git-send-email-floe@butterbrot.org>
+Subject: [PATCH v2 3/3] sur40: fix occasional oopses on device close
+Date: Tue, 31 May 2016 22:15:33 +0200
+Message-ID: <1464725733-22119-3-git-send-email-floe@butterbrot.org>
 References: <1464725733-22119-1-git-send-email-floe@butterbrot.org>
 Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <1464725733-22119-1-git-send-email-floe@butterbrot.org>
@@ -10,27 +10,35 @@ To: linux-media@vger.kernel.org, hverkuil@xs4all.nl
 Cc: linux-input@vger.kernel.org, Florian Echtler <floe@butterbrot.org>, Martin Kaltenbrunner <modin@yuri.at>
 List-Id: linux-input@vger.kernel.org
 
-The framerate sometimes drops below 60 Hz if the poll interval is too high.
-Lowering it to the minimum of 1 ms fixes this.
+Closing the V4L2 device sometimes triggers a kernel oops.
+Present patch fixes this.
 
 Signed-off-by: Martin Kaltenbrunner <modin@yuri.at>
 Signed-off-by: Florian Echtler <floe@butterbrot.org>
 ---
- drivers/input/touchscreen/sur40.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/sur40.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-index 4b1f703..64e588c 100644
+index 64e588c..85dedc1 100644
 --- a/drivers/input/touchscreen/sur40.c
 +++ b/drivers/input/touchscreen/sur40.c
-@@ -126,7 +126,7 @@ struct sur40_image_header {
- #define VIDEO_PACKET_SIZE  16384
+@@ -448,7 +448,7 @@ static void sur40_process_video(struct sur40_state *sur40)
  
- /* polling interval (ms) */
--#define POLL_INTERVAL 4
-+#define POLL_INTERVAL 1
+ 	/* return error if streaming was stopped in the meantime */
+ 	if (sur40->sequence == -1)
+-		goto err_poll;
++		return;
  
- /* maximum number of contacts FIXME: this is a guess? */
- #define MAX_CONTACTS 64
+ 	/* mark as finished */
+ 	new_buf->vb.vb2_buf.timestamp = ktime_get_ns();
+@@ -736,6 +736,7 @@ static int sur40_start_streaming(struct vb2_queue *vq, unsigned int count)
+ static void sur40_stop_streaming(struct vb2_queue *vq)
+ {
+ 	struct sur40_state *sur40 = vb2_get_drv_priv(vq);
++	vb2_wait_for_all_buffers(vq);
+ 	sur40->sequence = -1;
+ 
+ 	/* Release all active buffers */
 -- 
 1.9.1

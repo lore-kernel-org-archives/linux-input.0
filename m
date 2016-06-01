@@ -1,101 +1,84 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: Re: [PATCH] Input: xpad - fix rumble on Xbox One controllers with
- 2015 firmware
-Date: Tue, 31 May 2016 18:04:18 -0500
-Message-ID: <574E1872.80906@gmail.com>
-References: <574E0E07.9090303@gmail.com> <20160531223205.GA28457@dtor-ws>
- <574E14F8.6050605@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: raydium_i2c_ts - do not ignore EPROBE_DEFER from
+ gpiod_get_optional
+Date: Tue, 31 May 2016 18:30:07 -0700
+Message-ID: <20160601013007.GA13021@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:33635 "EHLO
-	mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750813AbcEaXEU (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:35754 "EHLO
+	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757040AbcFABaL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 May 2016 19:04:20 -0400
-Received: by mail-oi0-f68.google.com with SMTP id m198so402316oig.0
-        for <linux-input@vger.kernel.org>; Tue, 31 May 2016 16:04:20 -0700 (PDT)
-In-Reply-To: <574E14F8.6050605@gmail.com>
+	Tue, 31 May 2016 21:30:11 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, rojtberg@gmail.com
+To: linux-input@vger.kernel.org
+Cc: Jeffrey Lin <jeffrey.lin@rad-ic.com>, Guenter Roeck <groeck@chromium.org>, linux-kernel@vger.kernel.org
 
-Sorry, I realized I didn't directly answer the question you were asking.
+We should not be ignoring -EPROBE_DEFER reported by
+devm_gpiod_get_optional(), but report it as any other error to the upper
+layers. While we are at it simplify check for the presence of reset GPIO
+and instead of using IS_ERR_OR_NULL just use boolean.
 
-To clarify my point,
-Valve's rumble code was committed in 2014 for the original Xbox One controller
-(before the 2015 firmware existed). It continues to work with the latest
-firmware versions. It's our different implementation that isn't working
-with the newer firmware.
+Also do not return -ENOMEM from suspend handler when the device in
+bootloader mode as that does not make sense and switch to -EBUSY instead.
 
-Thanks,
-Cameron
+Reported-by: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/raydium_i2c_ts.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+index 1ae65f6..f3076d9 100644
+--- a/drivers/input/touchscreen/raydium_i2c_ts.c
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -930,7 +930,7 @@ static int raydium_i2c_power_on(struct raydium_data *ts)
+ {
+ 	int error;
+ 
+-	if (IS_ERR_OR_NULL(ts->reset_gpio))
++	if (!ts->reset_gpio)
+ 		return 0;
+ 
+ 	gpiod_set_value_cansleep(ts->reset_gpio, 1);
+@@ -967,7 +967,7 @@ static void raydium_i2c_power_off(void *_data)
+ {
+ 	struct raydium_data *ts = _data;
+ 
+-	if (!IS_ERR_OR_NULL(ts->reset_gpio)) {
++	if (ts->reset_gpio) {
+ 		gpiod_set_value_cansleep(ts->reset_gpio, 1);
+ 		regulator_disable(ts->vccio);
+ 		regulator_disable(ts->avdd);
+@@ -1018,11 +1018,10 @@ static int raydium_i2c_probe(struct i2c_client *client,
+ 						 GPIOD_OUT_LOW);
+ 	if (IS_ERR(ts->reset_gpio)) {
+ 		error = PTR_ERR(ts->reset_gpio);
+-		if (error != -EPROBE_DEFER) {
++		if (error != -EPROBE_DEFER)
+ 			dev_err(&client->dev,
+ 				"failed to get reset gpio: %d\n", error);
+-			return error;
+-		}
++		return error;
+ 	}
+ 
+ 	error = raydium_i2c_power_on(ts);
+@@ -1138,7 +1137,7 @@ static int __maybe_unused raydium_i2c_suspend(struct device *dev)
+ 
+ 	/* Sleep is not available in BLDR recovery mode */
+ 	if (ts->boot_mode != RAYDIUM_TS_MAIN)
+-		return -ENOMEM;
++		return -EBUSY;
+ 
+ 	disable_irq(client->irq);
+ 
+-- 
+2.8.0.rc3.226.g39d4020
 
 
-On 05/31/2016 05:49 PM, Cameron Gutman wrote:
-> It looks like SteamOS has always used this rumble packet for Xbox One per [0].
-> Commit 0604949ce3b9a59c ("Input: xpad - add rumble support for Xbox One
-> controller") implemented a different rumble packet than Valve did in
-> their fork. Pierre-Loup A. Griffais pushed some of their changes upstream in
-> commit 2a6d7527b35cf987 ("Input: xpad - update Xbox One Force Feedback
-> Support") but seemed to have missed these differences in the packet format.
-> 
-> 
-> [0]: https://github.com/ValveSoftware/steamos_kernel/commit/f5f73eb889cac32cbabfc40362fe5635a2255836
-> 
-> On 05/31/2016 05:32 PM, Dmitry Torokhov wrote:
->> Hi Cameron,
->>
->> On Tue, May 31, 2016 at 05:19:51PM -0500, Cameron Gutman wrote:
->>> Xbox One controllers that shipped with or were upgraded to the 2015
->>> firmware discard the current rumble packets we send. This patch changes
->>> the Xbox One rumble packet to a form that the newer firmware will accept.
->>
->> But what do we do with the older devices?
->>
->> Thanks.
->>
->>>
->>> It is based on changes made to support newer Xbox One controllers in
->>> the SteamOS brewmaster-4.1 kernel branch.
->>>
->>> Signed-off-by: Cameron Gutman <aicommander@gmail.com>
->>> ---
->>>  drivers/input/joystick/xpad.c | 16 ++++++++--------
->>>  1 file changed, 8 insertions(+), 8 deletions(-)
->>>
->>> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
->>> index 804dbcc..923c572 100644
->>> --- a/drivers/input/joystick/xpad.c
->>> +++ b/drivers/input/joystick/xpad.c
->>> @@ -1031,17 +1031,17 @@ static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect
->>>  
->>>  	case XTYPE_XBOXONE:
->>>  		packet->data[0] = 0x09; /* activate rumble */
->>> -		packet->data[1] = 0x08;
->>> +		packet->data[1] = 0x00;
->>>  		packet->data[2] = xpad->odata_serial++;
->>> -		packet->data[3] = 0x08; /* continuous effect */
->>> -		packet->data[4] = 0x00; /* simple rumble mode */
->>> -		packet->data[5] = 0x03; /* L and R actuator only */
->>> -		packet->data[6] = 0x00; /* TODO: LT actuator */
->>> -		packet->data[7] = 0x00; /* TODO: RT actuator */
->>> +		packet->data[3] = 0x09;
->>> +		packet->data[4] = 0x00;
->>> +		packet->data[5] = 0x0F;
->>> +		packet->data[6] = 0x00;
->>> +		packet->data[7] = 0x00;
->>>  		packet->data[8] = strong / 512;	/* left actuator */
->>>  		packet->data[9] = weak / 512;	/* right actuator */
->>> -		packet->data[10] = 0x80;	/* length of pulse */
->>> -		packet->data[11] = 0x00;	/* stop period of pulse */
->>> +		packet->data[10] = 0xFF;
->>> +		packet->data[11] = 0x00;
->>>  		packet->data[12] = 0x00;
->>>  		packet->len = 13;
->>>  		packet->pending = true;
->>> -- 
->>> 2.7.4
->>
+-- 
+Dmitry

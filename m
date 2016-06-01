@@ -1,104 +1,239 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH v3 6/8] Input: atmel_mxt_ts - handle diagnostic data orientation
-Date: Wed,  1 Jun 2016 17:39:50 +0100
-Message-ID: <1464799192-28034-7-git-send-email-nick.dyer@itdev.co.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3 1/8] Input: atmel_mxt_ts - add support for T37
+ diagnostic data
+Date: Wed, 1 Jun 2016 11:12:13 -0700
+Message-ID: <20160601181213.GA4114@dtor-ws>
 References: <1464799192-28034-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1464799192-28034-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, Nick Dyer <nick.dyer@itdev.co.uk>
+ <1464799192-28034-2-git-send-email-nick.dyer@itdev.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1464799192-28034-2-git-send-email-nick.dyer@itdev.co.uk>
+Sender: linux-media-owner@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Hans Verkuil <hverkuil@xs4all.nl>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
 List-Id: linux-input@vger.kernel.org
 
-Invert the diagnostic data to match the orientation of the input device.
+Hi Nick,
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+On Wed, Jun 01, 2016 at 05:39:45PM +0100, Nick Dyer wrote:
+> Atmel maXTouch devices have a T37 object which can be used to read raw
+> touch deltas from the device. This consists of an array of 16-bit
+> integers, one for each node on the touchscreen matrix.
+> 
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+> ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 152 +++++++++++++++++++++++++++++++
+>  1 file changed, 152 insertions(+)
+> 
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 5af7907..21f42ed 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -124,6 +124,17 @@ struct t9_range {
+>  #define MXT_COMMS_CTRL		0
+>  #define MXT_COMMS_CMD		1
+>  
+> +/* MXT_DEBUG_DIAGNOSTIC_T37 */
+> +#define MXT_DIAGNOSTIC_PAGEUP	0x01
+> +#define MXT_DIAGNOSTIC_DELTAS	0x10
+> +#define MXT_DIAGNOSTIC_SIZE	128
+> +
+> +struct t37_debug {
+> +	u8 mode;
+> +	u8 page;
+> +	u8 data[MXT_DIAGNOSTIC_SIZE];
+> +};
+> +
+>  /* Define for MXT_GEN_COMMAND_T6 */
+>  #define MXT_BOOT_VALUE		0xa5
+>  #define MXT_RESET_VALUE		0x01
+> @@ -205,6 +216,14 @@ struct mxt_object {
+>  	u8 num_report_ids;
+>  } __packed;
+>  
+> +struct mxt_dbg {
+> +	u16 t37_address;
+> +	u16 diag_cmd_address;
+> +	struct t37_debug *t37_buf;
+> +	unsigned int t37_pages;
+> +	unsigned int t37_nodes;
+> +};
+> +
+>  /* Each client has this additional data */
+>  struct mxt_data {
+>  	struct i2c_client *client;
+> @@ -233,6 +252,7 @@ struct mxt_data {
+>  	u8 num_touchids;
+>  	u8 multitouch;
+>  	struct t7_config t7_cfg;
+> +	struct mxt_dbg dbg;
+>  
+>  	/* Cached parameters from object table */
+>  	u16 T5_address;
+> @@ -2043,6 +2063,136 @@ recheck:
+>  	return 0;
+>  }
+>  
+> +static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
+> +			       unsigned int y)
+> +{
+> +	struct mxt_dbg *dbg = &data->dbg;
+> +	unsigned int ofs, page;
+> +
+> +	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
+> +	page = ofs / MXT_DIAGNOSTIC_SIZE;
+> +	ofs %= MXT_DIAGNOSTIC_SIZE;
+> +
+> +	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
+> +}
+> +
+> +static int mxt_convert_debug_pages(struct mxt_data *data, u16 *outbuf)
+> +{
+> +	struct mxt_dbg *dbg = &data->dbg;
+> +	unsigned int x = 0;
+> +	unsigned int y = 0;
+> +	unsigned int i;
+> +
+> +	for (i = 0; i < dbg->t37_nodes; i++) {
+> +		outbuf[i] = mxt_get_debug_value(data, x, y);
+> +
+> +		/* Next value */
+> +		if (++x >= data->info.matrix_xsize) {
+> +			x = 0;
+> +			y++;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int mxt_read_diagnostic_debug(struct mxt_data *data, u8 mode,
+> +				     u16 *outbuf)
+> +{
+> +	struct mxt_dbg *dbg = &data->dbg;
+> +	int retries = 0;
+> +	int page;
+> +	int ret;
+> +	u8 cmd = mode;
+> +	struct t37_debug *p;
+> +	u8 cmd_poll;
+> +
+> +	for (page = 0; page < dbg->t37_pages; page++) {
+> +		p = dbg->t37_buf + page;
+> +
+> +		ret = mxt_write_reg(data->client, dbg->diag_cmd_address,
+> +				    cmd);
+> +		if (ret)
+> +			return ret;
+> +
+> +		retries = 0;
+> +		msleep(20);
+> +wait_cmd:
+> +		/* Read back command byte */
+> +		ret = __mxt_read_reg(data->client, dbg->diag_cmd_address,
+> +				     sizeof(cmd_poll), &cmd_poll);
+> +		if (ret)
+> +			return ret;
+> +
+> +		/* Field is cleared once the command has been processed */
+> +		if (cmd_poll) {
+> +			if (retries++ > 100)
+> +				return -EINVAL;
+> +
+> +			msleep(20);
+> +			goto wait_cmd;
+> +		}
+> +
+> +		/* Read T37 page */
+> +		ret = __mxt_read_reg(data->client, dbg->t37_address,
+> +				sizeof(struct t37_debug), p);
+> +		if (ret)
+> +			return ret;
+> +
+> +		if ((p->mode != mode) || (p->page != page)) {
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index ac4126c..eced661 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -125,6 +125,8 @@ struct t9_range {
- 
- /* MXT_TOUCH_MULTI_T9 orient */
- #define MXT_T9_ORIENT_SWITCH	(1 << 0)
-+#define MXT_T9_ORIENT_INVERTX	(1 << 1)
-+#define MXT_T9_ORIENT_INVERTY	(1 << 2)
- 
- /* MXT_SPT_COMMSCONFIG_T18 */
- #define MXT_COMMS_CTRL		0
-@@ -156,6 +158,8 @@ struct t37_debug {
- #define MXT_T100_YRANGE		24
- 
- #define MXT_T100_CFG_SWITCHXY	BIT(5)
-+#define MXT_T100_CFG_INVERTY	BIT(6)
-+#define MXT_T100_CFG_INVERTX	BIT(7)
- 
- #define MXT_T100_TCHAUX_VECT	BIT(0)
- #define MXT_T100_TCHAUX_AMPL	BIT(1)
-@@ -260,6 +264,8 @@ struct mxt_data {
- 	unsigned int irq;
- 	unsigned int max_x;
- 	unsigned int max_y;
-+	bool invertx;
-+	bool inverty;
- 	bool xy_switch;
- 	u8 xsize;
- 	u8 ysize;
-@@ -1743,6 +1749,8 @@ static int mxt_read_t9_resolution(struct mxt_data *data)
- 		return error;
- 
- 	data->xy_switch = orient & MXT_T9_ORIENT_SWITCH;
-+	data->invertx = orient & MXT_T9_ORIENT_INVERTX;
-+	data->inverty = orient & MXT_T9_ORIENT_INVERTY;
- 
- 	return 0;
- }
-@@ -1797,6 +1805,8 @@ static int mxt_read_t100_config(struct mxt_data *data)
- 		return error;
- 
- 	data->xy_switch = cfg & MXT_T100_CFG_SWITCHXY;
-+	data->invertx = cfg & MXT_T100_CFG_INVERTX;
-+	data->inverty = cfg & MXT_T100_CFG_INVERTY;
- 
- 	/* allocate aux bytes */
- 	error =  __mxt_read_reg(client,
-@@ -2140,13 +2150,19 @@ static int mxt_convert_debug_pages(struct mxt_data *data, u16 *outbuf)
- 	struct mxt_dbg *dbg = &data->dbg;
- 	unsigned int x = 0;
- 	unsigned int y = 0;
--	unsigned int i;
-+	unsigned int i, rx, ry;
- 
- 	for (i = 0; i < dbg->t37_nodes; i++) {
--		outbuf[i] = mxt_get_debug_value(data, x, y);
-+		/* Handle orientation */
-+		rx = data->xy_switch ? y : x;
-+		ry = data->xy_switch ? x : y;
-+		rx = data->invertx ? (data->xsize - 1 - rx) : rx;
-+		ry = data->inverty ? (data->ysize - 1 - ry) : ry;
-+
-+		outbuf[i] = mxt_get_debug_value(data, rx, ry);
- 
- 		/* Next value */
--		if (++x >= data->xsize) {
-+		if (++x >= (data->xy_switch ? data->ysize : data->xsize)) {
- 			x = 0;
- 			y++;
- 		}
-@@ -2301,8 +2317,8 @@ static int mxt_set_input(struct mxt_data *data, unsigned int i)
- 	if (i > 0)
- 		return -EINVAL;
- 
--	f->width = data->xsize;
--	f->height = data->ysize;
-+	f->width = data->xy_switch ? data->ysize : data->xsize;
-+	f->height = data->xy_switch ? data->xsize : data->ysize;
- 	f->pixelformat = V4L2_PIX_FMT_YS16;
- 	f->field = V4L2_FIELD_NONE;
- 	f->colorspace = V4L2_COLORSPACE_RAW;
+No need for extra parenthesis.
+
+> +			dev_err(&data->client->dev, "T37 page mismatch\n");
+> +			return -EINVAL;
+> +		}
+> +
+> +		dev_dbg(&data->client->dev, "%s page:%d retries:%d\n",
+> +			__func__, page, retries);
+> +
+> +		/* For remaining pages, write PAGEUP rather than mode */
+> +		cmd = MXT_DIAGNOSTIC_PAGEUP;
+> +	}
+> +
+> +	return mxt_convert_debug_pages(data, outbuf);
+> +}
+> +
+> +static void mxt_debug_init(struct mxt_data *data)
+> +{
+> +	struct mxt_dbg *dbg = &data->dbg;
+> +	struct mxt_object *object;
+> +
+> +	object = mxt_get_object(data, MXT_GEN_COMMAND_T6);
+> +	if (!object)
+> +		return;
+> +
+> +	dbg->diag_cmd_address = object->start_address + MXT_COMMAND_DIAGNOSTIC;
+> +
+> +	object = mxt_get_object(data, MXT_DEBUG_DIAGNOSTIC_T37);
+> +	if (!object)
+> +		return;
+> +
+> +	if (mxt_obj_size(object) != sizeof(struct t37_debug)) {
+> +		dev_warn(&data->client->dev, "Bad T37 size");
+> +		return;
+> +	}
+> +
+> +	dbg->t37_address = object->start_address;
+> +
+> +	/* Calculate size of data and allocate buffer */
+> +	dbg->t37_nodes = data->info.matrix_xsize * data->info.matrix_ysize;
+> +	dbg->t37_pages = dbg->t37_nodes * sizeof(u16)
+> +					/ sizeof(dbg->t37_buf->data) + 1;
+> +
+> +	dbg->t37_buf = devm_kzalloc(&data->client->dev,
+> +				     sizeof(struct t37_debug) * dbg->t37_pages,
+> +				     GFP_KERNEL);
+
+devm_kcalloc() or devm_kmalloc_array() if memory does not need to be
+zeroed out.
+
+> +	if (!dbg->t37_buf)
+> +		goto error;
+> +
+> +	return;
+> +
+> +error:
+> +	dev_err(&data->client->dev, "Error initialising T37 diagnostic data\n");
+
+Why do we only emit this message if memory allocation fails? And if it
+is intentional why don't we do it inline?
+
+> +}
+> +
+>  static int mxt_configure_objects(struct mxt_data *data,
+>  				 const struct firmware *cfg)
+>  {
+> @@ -2070,6 +2220,8 @@ static int mxt_configure_objects(struct mxt_data *data,
+>  		dev_warn(dev, "No touch object detected\n");
+>  	}
+>  
+> +	mxt_debug_init(data);
+> +
+>  	dev_info(dev,
+>  		 "Family: %u Variant: %u Firmware V%u.%u.%02X Objects: %u\n",
+>  		 info->family_id, info->variant_id, info->version >> 4,
+> -- 
+> 2.5.0
+> 
+
+Thanks.
+
 -- 
-2.5.0
+Dmitry

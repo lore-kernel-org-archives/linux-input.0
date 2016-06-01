@@ -1,54 +1,84 @@
-From: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
-Subject: Re: [PATCH] i2c_hid: enable i2c-hid devices to suspend/resume
- asynchronously
-Date: Wed, 1 Jun 2016 10:04:17 +0800
-Message-ID: <574E42A0.9080902@linux.intel.com>
-References: <573D2900.6090903@linux.intel.com>
- <alpine.LNX.2.00.1605241223460.31937@cbobk.fhfr.pm>
- <CAE_wzQ-Rwpf3Cb8cpw11s=rcRTMZ5kpod7jLAhF84A82CLaVcA@mail.gmail.com>
+From: Guenter Roeck <groeck@google.com>
+Subject: Re: [PATCH] Input: raydium_i2c_ts - do not ignore EPROBE_DEFER from gpiod_get_optional
+Date: Tue, 31 May 2016 21:06:30 -0700
+Message-ID: <CABXOdTdo_k0VR27yrS8X7Lz1TQ-mCnTBLK=gMJ7oOjU97b+bAw@mail.gmail.com>
+References: <20160601013007.GA13021@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAE_wzQ-Rwpf3Cb8cpw11s=rcRTMZ5kpod7jLAhF84A82CLaVcA@mail.gmail.com>
+In-Reply-To: <20160601013007.GA13021@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dtor@chromium.org>, Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andrew Duggan <aduggan@synaptics.com>, k.kozlowski@samsung.com, Doug Anderson <dianders@chromium.org>, gabriele.mzt@gmail.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Jeffrey Lin <jeffrey.lin@rad-ic.com>, Guenter Roeck <groeck@chromium.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-
-
-On 5/25/2016 1:31 AM, Dmitry Torokhov wrote:
-> On Tue, May 24, 2016 at 3:24 AM, Jiri Kosina <jikos@kernel.org> wrote:
+On Tue, May 31, 2016 at 6:30 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> We should not be ignoring -EPROBE_DEFER reported by
+> devm_gpiod_get_optional(), but report it as any other error to the upper
+> layers. While we are at it simplify check for the presence of reset GPIO
+> and instead of using IS_ERR_OR_NULL just use boolean.
 >
->> On Thu, 19 May 2016, Fu, Zhonghui wrote:
->>
->>> i2c-hid devices' suspend/resume are usually time-consuming process.
->>> For example, the touch controller(i2c-ATML1000:00) on ASUS T100 tablet
->>> takes about 160ms for suspending and 120ms for resuming. This patch
->>> enables i2c-hid devices to suspend/resume asynchronously. This will
->>> take advantage of multicore and speed up system suspend/resume process.
->> Umm, why do we need this in the first place, given the fact that we are
->> enabling async suspend for each and every HID device allocated via
->> hid_allocate_device() already?
->>
-> i2c-hid is not a HID but I2C device on I2C bus and is currently resumed
-> synchronously, in-line. Since it tries to reset device as part of resume it
-> may take a while for the device to respond.
-Sorry for late reply.
-Yes, the devices driven by i2c-hid driver are I2C devices, not HID devices.
+> Also do not return -ENOMEM from suspend handler when the device in
+> bootloader mode as that does not make sense and switch to -EBUSY instead.
 >
-> BTW, I am not quite sure what async suspend enabled
-> in hid_allocate_device() does for us, given that I do not see HID bus
-> implementing the suspend/resume support for its devices (as far as I
-> remember we rely on underlying transports - USB or I2C - to resume the
-> devices properly).
-Even if HID bus does not implement the suspend/resume support for its devices, the power domain, device type, device class or device driver subsystem related to HID devices can still implement the suspend/resume support for HID devices.
+> Reported-by: Guenter Roeck <groeck@chromium.org>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
 
-Thanks,
-Zhonghui
+> ---
+>  drivers/input/touchscreen/raydium_i2c_ts.c | 11 +++++------
+>  1 file changed, 5 insertions(+), 6 deletions(-)
 >
-> Thanks,
+> diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+> index 1ae65f6..f3076d9 100644
+> --- a/drivers/input/touchscreen/raydium_i2c_ts.c
+> +++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+> @@ -930,7 +930,7 @@ static int raydium_i2c_power_on(struct raydium_data *ts)
+>  {
+>         int error;
+>
+> -       if (IS_ERR_OR_NULL(ts->reset_gpio))
+> +       if (!ts->reset_gpio)
+>                 return 0;
+>
+>         gpiod_set_value_cansleep(ts->reset_gpio, 1);
+> @@ -967,7 +967,7 @@ static void raydium_i2c_power_off(void *_data)
+>  {
+>         struct raydium_data *ts = _data;
+>
+> -       if (!IS_ERR_OR_NULL(ts->reset_gpio)) {
+> +       if (ts->reset_gpio) {
+>                 gpiod_set_value_cansleep(ts->reset_gpio, 1);
+>                 regulator_disable(ts->vccio);
+>                 regulator_disable(ts->avdd);
+> @@ -1018,11 +1018,10 @@ static int raydium_i2c_probe(struct i2c_client *client,
+>                                                  GPIOD_OUT_LOW);
+>         if (IS_ERR(ts->reset_gpio)) {
+>                 error = PTR_ERR(ts->reset_gpio);
+> -               if (error != -EPROBE_DEFER) {
+> +               if (error != -EPROBE_DEFER)
+>                         dev_err(&client->dev,
+>                                 "failed to get reset gpio: %d\n", error);
+> -                       return error;
+> -               }
+> +               return error;
+>         }
+>
+>         error = raydium_i2c_power_on(ts);
+> @@ -1138,7 +1137,7 @@ static int __maybe_unused raydium_i2c_suspend(struct device *dev)
+>
+>         /* Sleep is not available in BLDR recovery mode */
+>         if (ts->boot_mode != RAYDIUM_TS_MAIN)
+> -               return -ENOMEM;
+> +               return -EBUSY;
+>
+>         disable_irq(client->irq);
+>
+> --
+> 2.8.0.rc3.226.g39d4020
+>
+>
+> --
 > Dmitry
->

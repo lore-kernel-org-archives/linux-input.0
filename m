@@ -1,148 +1,38 @@
-From: Ville Ranki <ville.ranki@iki.fi>
-Subject: Device file not created for TRC rudder
-Date: Wed, 1 Jun 2016 19:00:32 +0300
-Message-ID: <574F06A0.5020904@iki.fi>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH v2 4/8] Input: atmel_mxt_ts - output diagnostic debug via
+ v4l2 device
+Date: Wed, 1 Jun 2016 17:22:56 +0100
+Message-ID: <64eabe26-1140-6d6e-e379-e54525c3e53e@itdev.co.uk>
+References: <1462381638-7818-1-git-send-email-nick.dyer@itdev.co.uk>
+ <1462381638-7818-5-git-send-email-nick.dyer@itdev.co.uk>
+ <57484386.2050809@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.cs.tut.fi ([130.230.4.42]:41709 "HELO mail.cs.tut.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1751727AbcFAQHJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 Jun 2016 12:07:09 -0400
-Received: from amavis1.cs.tut.fi (amavis1.cs.tut.fi [130.230.4.69])
-	by mail.cs.tut.fi (Postfix) with ESMTP id E9B3B137
-	for <linux-input@vger.kernel.org>; Wed,  1 Jun 2016 19:00:36 +0300 (EEST)
-Received: from mail.cs.tut.fi ([130.230.4.42])
- by amavis1.cs.tut.fi (amavis1.cs.tut.fi [130.230.4.69]) (amavisd-maia, port 10024)
- with ESMTP id 05656-25 for <linux-input@vger.kernel.org>;
- Wed,  1 Jun 2016 19:00:36 +0300 (EEST)
-Received: from modeemi.modeemi.fi (modeemi.modeemi.fi [130.230.72.134])
-	by mail.cs.tut.fi (Postfix) with SMTP id ECAE0136
-	for <linux-input@vger.kernel.org>; Wed,  1 Jun 2016 19:00:35 +0300 (EEST)
-Received: from [IPv6:2001:708:310:3430::140] (unknown [IPv6:2001:708:310:3430::140])
-	by modeemi.modeemi.fi (Postfix) with ESMTP id F1A293A916
-	for <linux-input@vger.kernel.org>; Wed,  1 Jun 2016 19:00:33 +0300 (EEST)
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <57484386.2050809@xs4all.nl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 27/05/2016 13:54, Hans Verkuil wrote:
+> Hi Nick,
 
+Thanks for the useful review. Most of it is straightforward and I've
+updated it in a new version of these patches which I will post now.
 
-Hello,
+I think the open question is whether you're happy with the
+V4L2_PIX_FMT_YS16 or whether I need to rename it. For what it's worth,
+Synaptics RMI4 also emits 16 bit signed, see
 
-I have a USB HID joystick (professional grade rudder pedals) which
-are not properly recognized as joystick. Event device is created,
-but no /dev/input/jsX device node file. Other USB joysticks are
-recognized and proper node files are created, so I suppose this
-is a kernel issue. If not, could you point me to right direction?
+https://github.com/wanam/Adam-Kernel-GS4/blob/master/drivers/input/touchscreen/rmi_f54.c#L1831
 
+> On 05/04/2016 07:07 PM, Nick Dyer wrote:
+> BTW, did you run v4l2-compliance? I think it should work if you just do:
+> 
+> v4l2-compliance -d /dev/v4l-touch0
 
-Here's all info i could dig out of the device. Tested on kernel
-4.4.0-22-generic on Ubuntu 16.04. The pedals output sane events
-when testing with evtest, but are not found by applications as
-the jsX file is missing.
-
-
-Kernel output:
-[27824.110672] usb 3-2.1.4: new low-speed USB device number 10 using
-xhci_hcd
-[27824.203250] usb 3-2.1.4: New USB device found, idVendor=0d59,
-idProduct=0145
-[27824.203255] usb 3-2.1.4: New USB device strings: Mfr=1, Product=2,
-SerialNumber=0
-[27824.203257] usb 3-2.1.4: Product: TRC RUDDER v2
-[27824.203259] usb 3-2.1.4: Manufacturer: TRC
-[27824.207307] input: TRC TRC RUDDER v2 as
-/devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2.1/3-2.1.4/3-2.1.4:1.0/0003:0D59:0145.0003/input/input17
-[27824.207468] hid-generic 0003:0D59:0145.0003: input,hidraw2: USB HID
-v1.00 Joystick [TRC TRC RUDDER v2] on usb-0000:00:14.0-2.1.4/input0
-
-lsinput:
-/dev/input/event16
-   bustype : BUS_USB
-   vendor  : 0xd59
-   product : 0x145
-   version : 256
-   name    : "TRC TRC RUDDER v2"
-   phys    : "usb-0000:00:14.0-2.1.4/input0"
-   uniq    : ""
-   bits ev : EV_SYN EV_ABS
-
-
-udevadm:
-P:
-/devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2.1/3-2.1.4/3-2.1.4:1.0/0003:0D59:0145.0003/input/input17/event16
-N: input/event16
-S: input/by-id/usb-TRC_TRC_RUDDER_v2-event-if00
-S: input/by-path/pci-0000:00:14.0-usb-0:2.1.4:1.0-event
-E: DEVLINKS=/dev/input/by-path/pci-0000:00:14.0-usb-0:2.1.4:1.0-event
-/dev/input/by-id/usb-TRC_TRC_RUDDER_v2-event-if00
-E: DEVNAME=/dev/input/event16
-E:
-DEVPATH=/devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2.1/3-2.1.4/3-2.1.4:1.0/0003:0D59:0145.0003/input/input17/event16
-E: ID_BUS=usb
-E: ID_INPUT=1
-E: ID_MODEL=TRC_RUDDER_v2
-E: ID_MODEL_ENC=TRC\x20RUDDER\x20v2
-E: ID_MODEL_ID=0145
-E: ID_PATH=pci-0000:00:14.0-usb-0:2.1.4:1.0
-E: ID_PATH_TAG=pci-0000_00_14_0-usb-0_2_1_4_1_0
-E: ID_REVISION=0001
-E: ID_SERIAL=TRC_TRC_RUDDER_v2
-E: ID_TYPE=hid
-E: ID_USB_DRIVER=usbhid
-E: ID_USB_INTERFACES=:030000:
-E: ID_USB_INTERFACE_NUM=00
-E: ID_VENDOR=TRC
-E: ID_VENDOR_ENC=TRC
-E: ID_VENDOR_ID=0d59
-E: MAJOR=13
-E: MINOR=80
-E: SUBSYSTEM=input
-E: USEC_INITIALIZED=27821308664
-
-udevadm test-builtin:
-calling: test-builtin
-=== trie on-disk ===
-tool version:          229
-file size:         7058303 bytes
-header size             80 bytes
-strings            1762191 bytes
-nodes              5296032 bytes
-Load module index
-timestamp of '/etc/systemd/network' changed
-timestamp of '/lib/systemd/network' changed
-Parsed configuration file /lib/systemd/network/99-default.link
-Created link configuration context.
-ID_INPUT=1
-capabilities/ev raw kernel attribute: 9
-capabilities/ev decoded bit map:
-  bit    0: 0000000000000009
-capabilities/abs raw kernel attribute: 1c
-capabilities/abs decoded bit map:
-  bit    0: 000000000000001C
-capabilities/rel raw kernel attribute: 0
-capabilities/rel decoded bit map:
-capabilities/key raw kernel attribute: 0
-capabilities/key decoded bit map:
-properties raw kernel attribute: 0
-properties decoded bit map:
-test_key: no EV_KEY capability
-Unload module index
-Unloaded link configuration context.
-
-
-- -- 
-Ville Ranki <ville.ranki@iki.fi>
-http://www.iki.fi/~cos
-PGP public key: http://www.iki.fi/~cos/vranki_pub.asc
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAldPBp8ACgkQVm11nqR7UVymsQCfVY4GGAYHXYta2B17diX8iTze
-LzEAniA0cUMcgRThVXVQLd1/XE4nY8Hl
-=qAoi
------END PGP SIGNATURE-----
+Yes, and I've now fixed all issues that I could find with it. I had to do
+some minor updates to support the touch sensor stuff, see:
+    https://github.com/ndyer/v4l-utils/commits/touch-sensor

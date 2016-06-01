@@ -1,12 +1,12 @@
 From: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH v7 6/6] extcon: max8997: Fix inconsistent indenting
-Date: Wed, 01 Jun 2016 11:54:01 +0200
-Message-ID: <1464774841-1439-6-git-send-email-k.kozlowski@samsung.com>
+Subject: [PATCH v7 5/6] rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
+Date: Wed, 01 Jun 2016 11:54:00 +0200
+Message-ID: <1464774841-1439-5-git-send-email-k.kozlowski@samsung.com>
 References: <1464774841-1439-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDKZNNNLXAHBBV7BXK5AKGQECTZL5AI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDKZNNNLXAHBBVXBXK5AKGQE7IZOJII-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-reply-to: <1464774841-1439-1-git-send-email-k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 In-reply-to: <1464773339-756-1-git-send-email-k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
@@ -21,28 +21,28 @@ To: Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlow
 Cc: r.baldyga-anjuHVi6/WSaMJb+Lgu22Q@public.gmane.org, Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Fix smatch warning:
-	max8997_muic_probe() warn: inconsistent indenting
+The regmap_irq_get_virq() can return zero or negative ERRNO, so it is
+insufficient to check only for non-zero value.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Acked-by: Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Acked-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/extcon/extcon-max8997.c | 2 +-
+ drivers/rtc/rtc-max8997.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
-index 0afa3e8b5dc3..cf8de5be2405 100644
---- a/drivers/extcon/extcon-max8997.c
-+++ b/drivers/extcon/extcon-max8997.c
-@@ -737,7 +737,7 @@ static int max8997_muic_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
+index 4998aee0f07f..1a06e17ebe9b 100644
+--- a/drivers/rtc/rtc-max8997.c
++++ b/drivers/rtc/rtc-max8997.c
+@@ -497,7 +497,7 @@ static int max8997_rtc_probe(struct platform_device *pdev)
  	}
  
- 	/* Set initial path for UART */
--	 max8997_muic_set_path(info, info->path_uart, true);
-+	max8997_muic_set_path(info, info->path_uart, true);
- 
- 	/* Set ADC debounce time */
- 	max8997_muic_set_debounce_time(info, ADC_DEBOUNCE_TIME_25MS);
+ 	virq = regmap_irq_get_virq(max8997->irq_data, MAX8997_PMICIRQ_RTCA1);
+-	if (!virq) {
++	if (virq <= 0) {
+ 		dev_err(&pdev->dev, "Failed to create mapping alarm IRQ\n");
+ 		ret = -ENXIO;
+ 		goto err_out;
 -- 
 1.9.1
 

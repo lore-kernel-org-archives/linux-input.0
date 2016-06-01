@@ -1,57 +1,111 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] input: touchscreen: mxs-lradc: Add support for
- touchscreen
-Date: Wed, 1 Jun 2016 11:29:49 -0700
-Message-ID: <20160601182949.GE4114@dtor-ws>
-References: <cover.1461930102.git.ksenija.stanojevic@gmail.com>
- <61fe1da2e8d82921f3222ec939047b6823f695e1.1461930102.git.ksenija.stanojevic@gmail.com>
- <20160429233616.GA13361@dtor-ws>
- <CAL7P5j+WhTGyn2gZRX9pvyrPss_PfwrvXHRMKmhR+=De2gSsRA@mail.gmail.com>
+Subject: Re: [PATCH] Input: xpad - fix rumble on Xbox One controllers with
+ 2015 firmware
+Date: Wed, 1 Jun 2016 11:34:23 -0700
+Message-ID: <20160601183423.GF4114@dtor-ws>
+References: <574E0E07.9090303@gmail.com>
+ <20160531223205.GA28457@dtor-ws>
+ <574E14F8.6050605@gmail.com>
+ <574E1872.80906@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:36061 "EHLO
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:36728 "EHLO
 	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750720AbcFAS3y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2016 14:29:54 -0400
+	with ESMTP id S1750740AbcFASe1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2016 14:34:27 -0400
+Received: by mail-pf0-f195.google.com with SMTP id 62so4853204pfd.3
+        for <linux-input@vger.kernel.org>; Wed, 01 Jun 2016 11:34:26 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAL7P5j+WhTGyn2gZRX9pvyrPss_PfwrvXHRMKmhR+=De2gSsRA@mail.gmail.com>
+In-Reply-To: <574E1872.80906@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ksenija =?utf-8?Q?Stanojevi=C4=87?= <ksenija.stanojevic@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Marek =?utf-8?B?VmHFoXV0?= <marex@denx.de>, linux-iio@vger.kernel.org, Harald Geyer <harald@ccbib.org>
+To: Cameron Gutman <aicommander@gmail.com>
+Cc: linux-input@vger.kernel.org, rojtberg@gmail.com
 
-On Sat, May 28, 2016 at 07:46:07PM +0200, Ksenija Stanojevi=C4=87 wrote=
-:
-> On Sat, Apr 30, 2016 at 1:36 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Ksenija,
-> >
-> > On Fri, Apr 29, 2016 at 01:49:11PM +0200, Ksenija Stanojevic wrote:
-> >> +
-> >> +     mxs_lradc_ts_hw_init(ts);
-> >> +     for (i =3D 0; i < lradc->irq_count; i++) {
-> >> +             ret =3D devm_request_irq(dev, lradc->irq[i],
-> >> +                                    mxs_lradc_ts_handle_irq,
-> >
-> > Hmm, if you have several interrupts handled by the same interrupt
-> > handler you'd need some locking there.
->=20
-> same interrupt handler can run concurrently only on multi cores, so
-> why do we need locking?
+On Tue, May 31, 2016 at 06:04:18PM -0500, Cameron Gutman wrote:
+> Sorry, I realized I didn't directly answer the question you were asking.
+> 
+> To clarify my point,
+> Valve's rumble code was committed in 2014 for the original Xbox One controller
+> (before the 2015 firmware existed). It continues to work with the latest
+> firmware versions. It's our different implementation that isn't working
+> with the newer firmware.
 
-We do not necessarily need it on single core (unless someone will turn
-it int threaded IRQ down the road), but adding it costs almost nothing
-and will ensure that the driver will continue working even if block is
-moved to multi-core SOC in the future...
+I see. I will tweak the commit message then.
 
-Thanks.
+Thanks!
 
---=20
+> 
+> Thanks,
+> Cameron
+> 
+> 
+> On 05/31/2016 05:49 PM, Cameron Gutman wrote:
+> > It looks like SteamOS has always used this rumble packet for Xbox One per [0].
+> > Commit 0604949ce3b9a59c ("Input: xpad - add rumble support for Xbox One
+> > controller") implemented a different rumble packet than Valve did in
+> > their fork. Pierre-Loup A. Griffais pushed some of their changes upstream in
+> > commit 2a6d7527b35cf987 ("Input: xpad - update Xbox One Force Feedback
+> > Support") but seemed to have missed these differences in the packet format.
+> > 
+> > 
+> > [0]: https://github.com/ValveSoftware/steamos_kernel/commit/f5f73eb889cac32cbabfc40362fe5635a2255836
+> > 
+> > On 05/31/2016 05:32 PM, Dmitry Torokhov wrote:
+> >> Hi Cameron,
+> >>
+> >> On Tue, May 31, 2016 at 05:19:51PM -0500, Cameron Gutman wrote:
+> >>> Xbox One controllers that shipped with or were upgraded to the 2015
+> >>> firmware discard the current rumble packets we send. This patch changes
+> >>> the Xbox One rumble packet to a form that the newer firmware will accept.
+> >>
+> >> But what do we do with the older devices?
+> >>
+> >> Thanks.
+> >>
+> >>>
+> >>> It is based on changes made to support newer Xbox One controllers in
+> >>> the SteamOS brewmaster-4.1 kernel branch.
+> >>>
+> >>> Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+> >>> ---
+> >>>  drivers/input/joystick/xpad.c | 16 ++++++++--------
+> >>>  1 file changed, 8 insertions(+), 8 deletions(-)
+> >>>
+> >>> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> >>> index 804dbcc..923c572 100644
+> >>> --- a/drivers/input/joystick/xpad.c
+> >>> +++ b/drivers/input/joystick/xpad.c
+> >>> @@ -1031,17 +1031,17 @@ static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect
+> >>>  
+> >>>  	case XTYPE_XBOXONE:
+> >>>  		packet->data[0] = 0x09; /* activate rumble */
+> >>> -		packet->data[1] = 0x08;
+> >>> +		packet->data[1] = 0x00;
+> >>>  		packet->data[2] = xpad->odata_serial++;
+> >>> -		packet->data[3] = 0x08; /* continuous effect */
+> >>> -		packet->data[4] = 0x00; /* simple rumble mode */
+> >>> -		packet->data[5] = 0x03; /* L and R actuator only */
+> >>> -		packet->data[6] = 0x00; /* TODO: LT actuator */
+> >>> -		packet->data[7] = 0x00; /* TODO: RT actuator */
+> >>> +		packet->data[3] = 0x09;
+> >>> +		packet->data[4] = 0x00;
+> >>> +		packet->data[5] = 0x0F;
+> >>> +		packet->data[6] = 0x00;
+> >>> +		packet->data[7] = 0x00;
+> >>>  		packet->data[8] = strong / 512;	/* left actuator */
+> >>>  		packet->data[9] = weak / 512;	/* right actuator */
+> >>> -		packet->data[10] = 0x80;	/* length of pulse */
+> >>> -		packet->data[11] = 0x00;	/* stop period of pulse */
+> >>> +		packet->data[10] = 0xFF;
+> >>> +		packet->data[11] = 0x00;
+> >>>  		packet->data[12] = 0x00;
+> >>>  		packet->len = 13;
+> >>>  		packet->pending = true;
+> >>> -- 
+> >>> 2.7.4
+> >>
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

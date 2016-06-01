@@ -1,84 +1,71 @@
-From: Guenter Roeck <groeck@google.com>
-Subject: Re: [PATCH] Input: raydium_i2c_ts - do not ignore EPROBE_DEFER from gpiod_get_optional
-Date: Tue, 31 May 2016 21:06:30 -0700
-Message-ID: <CABXOdTdo_k0VR27yrS8X7Lz1TQ-mCnTBLK=gMJ7oOjU97b+bAw@mail.gmail.com>
-References: <20160601013007.GA13021@dtor-ws>
+From: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH v7 0/6] mfd: (multiple trees): max8997: Add regmap
+Date: Wed, 01 Jun 2016 11:28:53 +0200
+Message-ID: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160601013007.GA13021@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jeffrey Lin <jeffrey.lin@rad-ic.com>, Guenter Roeck <groeck@chromium.org>, linux-kernel@vger.kernel.org
+Return-path: <rtc-linux+bncBDKZNNNLXAHBB2GVXK5AKGQEJGMMJAQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, May 31, 2016 at 6:30 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> We should not be ignoring -EPROBE_DEFER reported by
-> devm_gpiod_get_optional(), but report it as any other error to the upper
-> layers. While we are at it simplify check for the presence of reset GPIO
-> and instead of using IS_ERR_OR_NULL just use boolean.
->
-> Also do not return -ENOMEM from suspend handler when the device in
-> bootloader mode as that does not make sense and switch to -EBUSY instead.
->
-> Reported-by: Guenter Roeck <groeck@chromium.org>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Hi,
 
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
 
-> ---
->  drivers/input/touchscreen/raydium_i2c_ts.c | 11 +++++------
->  1 file changed, 5 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-> index 1ae65f6..f3076d9 100644
-> --- a/drivers/input/touchscreen/raydium_i2c_ts.c
-> +++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-> @@ -930,7 +930,7 @@ static int raydium_i2c_power_on(struct raydium_data *ts)
->  {
->         int error;
->
-> -       if (IS_ERR_OR_NULL(ts->reset_gpio))
-> +       if (!ts->reset_gpio)
->                 return 0;
->
->         gpiod_set_value_cansleep(ts->reset_gpio, 1);
-> @@ -967,7 +967,7 @@ static void raydium_i2c_power_off(void *_data)
->  {
->         struct raydium_data *ts = _data;
->
-> -       if (!IS_ERR_OR_NULL(ts->reset_gpio)) {
-> +       if (ts->reset_gpio) {
->                 gpiod_set_value_cansleep(ts->reset_gpio, 1);
->                 regulator_disable(ts->vccio);
->                 regulator_disable(ts->avdd);
-> @@ -1018,11 +1018,10 @@ static int raydium_i2c_probe(struct i2c_client *client,
->                                                  GPIOD_OUT_LOW);
->         if (IS_ERR(ts->reset_gpio)) {
->                 error = PTR_ERR(ts->reset_gpio);
-> -               if (error != -EPROBE_DEFER) {
-> +               if (error != -EPROBE_DEFER)
->                         dev_err(&client->dev,
->                                 "failed to get reset gpio: %d\n", error);
-> -                       return error;
-> -               }
-> +               return error;
->         }
->
->         error = raydium_i2c_power_on(ts);
-> @@ -1138,7 +1137,7 @@ static int __maybe_unused raydium_i2c_suspend(struct device *dev)
->
->         /* Sleep is not available in BLDR recovery mode */
->         if (ts->boot_mode != RAYDIUM_TS_MAIN)
-> -               return -ENOMEM;
-> +               return -EBUSY;
->
->         disable_irq(client->irq);
->
-> --
-> 2.8.0.rc3.226.g39d4020
->
->
-> --
-> Dmitry
+I'm pushing old Robert's work. I miss only ack from regulator subsystem.
+Mark, could you take a look at patch 1/6?
+
+Changes since v6
+================
+1. Add some acks.
+2. Remove patches already applied.
+
+
+Best regards,
+Krzysztof
+
+
+Krzysztof Kozlowski (3):
+  extcon: max8997: Fix handling error code of regmap_irq_get_virq()
+  rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
+  extcon: max8997: Fix inconsistent indenting
+
+Robert Baldyga (3):
+  mfd: max8997: Use regmap to access registers
+  mfd: max8997: handle IRQs using regmap
+  mfd: max8997: Change irq names to upper case
+
+ drivers/extcon/extcon-max8997.c       |  72 +++----
+ drivers/input/misc/max8997_haptic.c   |  34 +--
+ drivers/leds/leds-max8997.c           |  13 +-
+ drivers/mfd/Kconfig                   |   3 +-
+ drivers/mfd/Makefile                  |   2 +-
+ drivers/mfd/max8997-irq.c             | 383 ----------------------------------
+ drivers/mfd/max8997.c                 | 245 +++++++++++++++-------
+ drivers/power/max8997_charger.c       |  33 +--
+ drivers/regulator/max8997-regulator.c |  87 ++++----
+ drivers/rtc/rtc-max8997.c             |  60 +++---
+ include/linux/mfd/max8997-private.h   |  82 ++++++--
+ 11 files changed, 385 insertions(+), 629 deletions(-)
+ delete mode 100644 drivers/mfd/max8997-irq.c
+
+-- 
+1.9.1
+
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

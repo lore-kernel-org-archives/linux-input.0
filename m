@@ -1,38 +1,40 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH v2 4/8] Input: atmel_mxt_ts - output diagnostic debug via
- v4l2 device
-Date: Wed, 1 Jun 2016 17:22:56 +0100
-Message-ID: <64eabe26-1140-6d6e-e379-e54525c3e53e@itdev.co.uk>
-References: <1462381638-7818-1-git-send-email-nick.dyer@itdev.co.uk>
- <1462381638-7818-5-git-send-email-nick.dyer@itdev.co.uk>
- <57484386.2050809@xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <57484386.2050809@xs4all.nl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
+Subject: [PATCH v3 0/8] Input: atmel_mxt_ts - output raw touch diagnostic data via V4L
+Date: Wed,  1 Jun 2016 17:39:44 +0100
+Message-ID: <1464799192-28034-1-git-send-email-nick.dyer@itdev.co.uk>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:47163 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932108AbcFAQkE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2016 12:40:04 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
 
-On 27/05/2016 13:54, Hans Verkuil wrote:
-> Hi Nick,
+This is a series of patches to add diagnostic data support to the Atmel
+maXTouch driver. It's a rewrite of the previous implementation which output via
+debugfs: it now uses a V4L2 device in a similar way to the sur40 driver.
 
-Thanks for the useful review. Most of it is straightforward and I've
-updated it in a new version of these patches which I will post now.
+There are significant performance advantages to putting this code into the
+driver.  The algorithm for retrieving the data has been fairly consistent
+across a range of chips, with the exception of the mXT1386 series (see patch).
 
-I think the open question is whether you're happy with the
-V4L2_PIX_FMT_YS16 or whether I need to rename it. For what it's worth,
-Synaptics RMI4 also emits 16 bit signed, see
+We have a utility which can read the data and display it in a useful format:
+    https://github.com/ndyer/heatmap/commits/heatmap-v4l
 
-https://github.com/wanam/Adam-Kernel-GS4/blob/master/drivers/input/touchscreen/rmi_f54.c#L1831
+These patches are also available from
+    https://github.com/ndyer/linux/commits/diagnostic-v4l
 
-> On 05/04/2016 07:07 PM, Nick Dyer wrote:
-> BTW, did you run v4l2-compliance? I think it should work if you just do:
-> 
-> v4l2-compliance -d /dev/v4l-touch0
+Changes in v3:
+- Address V4L2 review comments from Hans Verkuil
+- Run v4l-compliance and fix all issues - needs minor patch here:
+  https://github.com/ndyer/v4l-utils/commit/cf50469773f
 
-Yes, and I've now fixed all issues that I could find with it. I had to do
-some minor updates to support the touch sensor stuff, see:
-    https://github.com/ndyer/v4l-utils/commits/touch-sensor
+Changes in v2:
+- Split pixfmt changes into separate commit and add DocBook
+- Introduce VFL_TYPE_TOUCH_SENSOR and /dev/v4l-touch
+- Remove "single node" support for now, it may be better to treat it as metadata later
+- Explicitly set VFL_DIR_RX
+- Fix Kconfig
+

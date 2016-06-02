@@ -1,112 +1,147 @@
-From: Manuel Reimer <mail+linux-input@m-reimer.de>
-Subject: Re: [PATCH v2] hid-sony: Prevent crash when rumble effects are still
- loaded at USB disconnect
-Date: Thu, 2 Jun 2016 19:53:27 +0200
-Message-ID: <01146ebc-3710-e3cd-812a-ca4f0ef84372@m-reimer.de>
-References: <a9a2689b-5af7-9676-67fd-5d911fcc9501@m-reimer.de>
- <856C5FBA-EA87-4D24-BB29-433FF5437518@gmail.com>
- <d9be52d5-7aed-4852-a339-18eea3d346ed@m-reimer.de>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] Input: Do not add SYN_REPORT in between a single packet data
+Date: Fri, 3 Jun 2016 01:52:37 +0530
+Message-ID: <CADYu30-T1bw1Wuoj_nbvTWjYDHnWokez8j5YJaBh4zwacvrNEg@mail.gmail.com>
+References: <1462376571-4280-1-git-send-email-a.mathur@samsung.com>
+	<CADYu30_21fFCswd3dCsaqUUg1fEVKBxazMPpSOURzNBA10UnSQ@mail.gmail.com>
+	<CADYu308HQxPfq-C3ccS_n-=DO0xFdK9vr5XmyAx3kWeryKFfyA@mail.gmail.com>
+	<20160512223159.GA12463@dtor-ws>
+	<CADYu3093GqD6vNSq083uP85HmphKGxJ6wmrNN6AhoEnjZVPqqA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.mailbox.org ([80.241.60.212]:36003 "EHLO mx1.mailbox.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932967AbcFBRxj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 Jun 2016 13:53:39 -0400
-In-Reply-To: <d9be52d5-7aed-4852-a339-18eea3d346ed@m-reimer.de>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:35780 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932593AbcFBUWi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Jun 2016 16:22:38 -0400
+Received: by mail-wm0-f66.google.com with SMTP id e3so18631999wme.2
+        for <linux-input@vger.kernel.org>; Thu, 02 Jun 2016 13:22:38 -0700 (PDT)
+In-Reply-To: <CADYu3093GqD6vNSq083uP85HmphKGxJ6wmrNN6AhoEnjZVPqqA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Cameron Gutman <aicommander@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, jikos@kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Aniroop Mathur <a.mathur@samsung.com>
 
-On 05/30/2016 09:15 PM, Manuel Reimer wrote:
-> It may now actually be possible that the memory has been freed again and
-> some event in the queue kicked in after that. It may also be possible
-> that the hid driver subsystem doesn't really like this case, that the
-> device is stopped, but someone still sends to it.
+Hello Mr. Torokhov,
 
-It definitively seems to be a bad idea to continue to interact with the 
-HID device as soon as hid_hw_stop was called.
 
-"Somewhere" while hid_hw_stop is running, the cleanup of loaded force 
-feedback events is happening. I don't know if schedule_work will run the 
-work asynchronously. If so, then calls could be triggered even after 
-hid_hw_stop is already finished.
+On Fri, May 13, 2016 at 8:34 PM, Aniroop Mathur
+<aniroop.mathur@gmail.com> wrote:
+> On Fri, May 13, 2016 at 4:01 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> Hi Aniroop,
+>>
+>> On Fri, May 13, 2016 at 03:57:06AM +0530, Aniroop Mathur wrote:
+>>> Hello Mr. Torokhov,
+>>>
+>>> Would you please help to update on the below patch?
+>>> I have fixed the out of bound error which you mentioned last time.
+>>> I have been really waiting for a long time. Please be kind to conclude it.
+>>
+>> I believe that this problem is a best theoretical and does not cause
+>> issues with any of the drivers at present and therefore is not a
+>> priority. Given that we already took quite a few iterations trying to
+>> fix the issue without introducing worse regressions I'd like to leave
+>> the code as is for now.
+>>
+>
+> I agree that this part of code is not used by any driver so far but there
+> are other factors to consider as well. There are many people in the
+> world who develop concepts about kernel by reading the code as this
+> is the best way to do so. If someone (especially beginners) read this
+> part of code then he/she will learn wrong concept for SYN_REPORT
+> event and "as more time passes more people will read this code
+> and hence more will end up in a state of doubt whether it is correct to
+> insert SYN_REPORT event in between a single packet or not?" This
+> looks more dangerous to me.
+> So to avoid that this code misguides someone now and in future, I
+> believe it is very good reason to fix it. I believe that whether some
+> driver uses it or not is a second concern and foremost concern is
+> that code should follow protocol and should not mislead someone
+> to develop wrong concepts.
+>
+> It happened many times that people needed more than 3 iterations
+> to submit a patch so it looks normal to me that this patch too took 3
+> iterations (especially when people are in the phase of learning kernel)
+> and now the fix looks good to apply with no problems.
+> I am sure you agree on the part that code review, code reading are
+> best ways to learn concepts about kernel core and so kernel
+> subsystem protocols should be given priority. Keeping this in mind,
+> I request you again to kindly consider the patch for submission
+> to fix this protocol part.
+>
+> Hope to hear positive reply from you. Have a good day!
+>
 
-One possible option would be to add a input_unregister_device into 
-sony_remove right before the call to "sony_cancel_work_sync". A call to 
-input_unregister_device triggers the cleanup, too and so allows to move 
-this to a point earlier in the shutdown procedure. But I don't know if 
-this is actually a good idea to do this here.
+How about above? Isn't this sufficient enough reason to fix this bug?
 
-At the end of this mail is a second attempt for a fix. The idea of this 
-is, that after "sony_cancel_work_sync" was called, the worker itself 
-shouldn't be able to take any new work. To do this, I set 
-worker_initialized back to zero and check for this in a newly introduced 
-function sony_schedule_work. This seems to fix the problem. If I pull 
-the plug while effects are loaded or playing, then I get one or more of 
-my added error messages, but, so far, no more kernel panic.
-
-So finally I am at a point where I need feedback to continue my work. 
-Would be great if someone could offer some help.
-
-Signed-off-by: Manuel Reimer <mail@m-reimer.de>
-
---- a/drivers/hid/hid-sony.c	2016-05-13 16:13:00.339346161 +0200
-+++ b/drivers/hid/hid-sony.c	2016-06-02 19:33:59.621212336 +0200
-@@ -1051,6 +1051,14 @@ struct sony_sc {
-  	__u8 led_count;
-  };
-
-+static inline void sony_schedule_work(struct sony_sc *sc)
-+{
-+	if (sc->worker_initialized)
-+		schedule_work(&sc->state_worker);
-+	else
-+		printk(KERN_ERR "hid-sony: Sending to uninitialized device failed!\n");
-+}
-+
-  static __u8 *sixaxis_fixup(struct hid_device *hdev, __u8 *rdesc,
-  			     unsigned int *rsize)
-  {
-@@ -1542,7 +1550,7 @@ static void buzz_set_leds(struct sony_sc
-  static void sony_set_leds(struct sony_sc *sc)
-  {
-  	if (!(sc->quirks & BUZZ_CONTROLLER))
--		schedule_work(&sc->state_worker);
-+		sony_schedule_work(sc);
-  	else
-  		buzz_set_leds(sc);
-  }
-@@ -1653,7 +1661,7 @@ static int sony_led_blink_set(struct led
-  		new_off != drv_data->led_delay_off[n]) {
-  		drv_data->led_delay_on[n] = new_on;
-  		drv_data->led_delay_off[n] = new_off;
--		schedule_work(&drv_data->state_worker);
-+		sony_schedule_work(drv_data);
-  	}
-
-  	return 0;
-@@ -1963,7 +1971,7 @@ static int sony_play_effect(struct input
-  	sc->left = effect->u.rumble.strong_magnitude / 256;
-  	sc->right = effect->u.rumble.weak_magnitude / 256;
-
--	schedule_work(&sc->state_worker);
-+	sony_schedule_work(sc);
-  	return 0;
-  }
-
-@@ -2265,8 +2273,10 @@ static inline void sony_init_output_repo
-
-  static inline void sony_cancel_work_sync(struct sony_sc *sc)
-  {
--	if (sc->worker_initialized)
-+	if (sc->worker_initialized) {
-+		sc->worker_initialized = 0;
-  		cancel_work_sync(&sc->state_worker);
-+	}
-  }
-
-  static int sony_probe(struct hid_device *hdev, const struct 
-hid_device_id *id)
+> Thanks,
+> Aniroop Mathur
+>> Thanks.
+>>
+>>>
+>>> Thanks,
+>>> Aniroop Mathur
+>>>
+>>> On Wed, May 11, 2016 at 7:40 PM, Aniroop Mathur
+>>> <aniroop.mathur@gmail.com> wrote:
+>>> > Hello Mr. Torokhov,
+>>> >
+>>> > Would you please provide update for this patch?
+>>> > As you can notice it is really pending for a long time,
+>>> > I'll be grateful if you could update and conclude it quickly.
+>>> >
+>>> > Thank you.
+>>> >
+>>> > BR,
+>>> > Aniroop Mathur
+>>> >
+>>> >
+>>> > On Wed, May 4, 2016 at 9:12 PM, Aniroop Mathur <a.mathur@samsung.com> wrote:
+>>> >> As mentioned in documentation, SYN_REPORT should be used to separate two packets
+>>> >> and should not be inserted in between a single packet as otherwise with multiple
+>>> >> SYN_REPORT in a single packet, input reader would not be able to know when the
+>>> >> packet ended really.
+>>> >>
+>>> >> Documentation snippet:
+>>> >> * SYN_REPORT:
+>>> >>   - Used to synchronize and separate events into packets of input data changes
+>>> >>     occurring at the same moment in time. For example, motion of a mouse may set
+>>> >>     the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
+>>> >>     motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
+>>> >>
+>>> >> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+>>> >> ---
+>>> >>  drivers/input/input.c | 12 +++++++-----
+>>> >>  1 file changed, 7 insertions(+), 5 deletions(-)
+>>> >>
+>>> >> diff --git a/drivers/input/input.c b/drivers/input/input.c
+>>> >> index 8806059..5b0b1ae 100644
+>>> >> --- a/drivers/input/input.c
+>>> >> +++ b/drivers/input/input.c
+>>> >> @@ -401,12 +401,14 @@ static void input_handle_event(struct input_dev *dev,
+>>> >>                 if (dev->num_vals >= 2)
+>>> >>                         input_pass_values(dev, dev->vals, dev->num_vals);
+>>> >>                 dev->num_vals = 0;
+>>> >> -       } else if (dev->num_vals >= dev->max_vals - 2) {
+>>> >> -               dev->vals[dev->num_vals++] = input_value_sync;
+>>> >> -               input_pass_values(dev, dev->vals, dev->num_vals);
+>>> >> -               dev->num_vals = 0;
+>>> >> +       } else if (dev->num_vals >= dev->max_vals - 1) {
+>>> >> +               /* Pass all events except the newest event in order to
+>>> >> +                * not suppress the immediate EV_SYN/SYN_REPORT event.
+>>> >> +                */
+>>> >> +               input_pass_values(dev, dev->vals, dev->num_vals - 1);
+>>> >> +               dev->vals[0] = dev->vals[dev->num_vals - 1];
+>>> >> +               dev->num_vals = 1;
+>>> >>         }
+>>> >> -
+>>> >>  }
+>>> >>
+>>> >>  /**
+>>> >> --
+>>> >> 2.6.2
+>>> >>
+>>
+>> --
+>> Dmitry

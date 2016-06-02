@@ -1,89 +1,112 @@
-From: Florian Fischer <fischer@wivw.de>
-Subject: [PATCH 1/1] Force feedback for Fanatec Clubsport wheel
-Date: Thu, 2 Jun 2016 17:56:08 +0200
-Message-ID: <72d04420-1f2c-62fe-8b41-42c8260650e5@wivw.de>
+From: Manuel Reimer <mail+linux-input@m-reimer.de>
+Subject: Re: [PATCH v2] hid-sony: Prevent crash when rumble effects are still
+ loaded at USB disconnect
+Date: Thu, 2 Jun 2016 19:53:27 +0200
+Message-ID: <01146ebc-3710-e3cd-812a-ca4f0ef84372@m-reimer.de>
+References: <a9a2689b-5af7-9676-67fd-5d911fcc9501@m-reimer.de>
+ <856C5FBA-EA87-4D24-BB29-433FF5437518@gmail.com>
+ <d9be52d5-7aed-4852-a339-18eea3d346ed@m-reimer.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------439F71FE5DC96456F14B5318"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.133]:59538 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752210AbcFBP4N (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Jun 2016 11:56:13 -0400
-Received: from [10.1.1.17] ([93.104.238.242]) by mrelayeu.kundenserver.de
- (mreue004) with ESMTPSA (Nemesis) id 0M1kaM-1bSvJ52H2Q-00tlXW for
- <linux-input@vger.kernel.org>; Thu, 02 Jun 2016 17:56:09 +0200
+Received: from mx1.mailbox.org ([80.241.60.212]:36003 "EHLO mx1.mailbox.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932967AbcFBRxj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Jun 2016 13:53:39 -0400
+In-Reply-To: <d9be52d5-7aed-4852-a339-18eea3d346ed@m-reimer.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Cameron Gutman <aicommander@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, jikos@kernel.org
 
-This is a multi-part message in MIME format.
---------------439F71FE5DC96456F14B5318
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+On 05/30/2016 09:15 PM, Manuel Reimer wrote:
+> It may now actually be possible that the memory has been freed again and
+> some event in the queue kicked in after that. It may also be possible
+> that the hid driver subsystem doesn't really like this case, that the
+> device is stopped, but someone still sends to it.
 
-Hi!
+It definitively seems to be a bad idea to continue to interact with the 
+HID device as soon as hid_hw_stop was called.
 
-I am trying to add support for force feedback for the "Fanatec Clubsport
-Wheel Base V2". (More information at
-http://www.fanatec.com/eu-de/wheel-bases/clubsport-wheel-base-v2-eu-eu.html
-)
-It is a configurable racing wheel for enthusiasts.
+"Somewhere" while hid_hw_stop is running, the cleanup of loaded force 
+feedback events is happening. I don't know if schedule_work will run the 
+work asynchronously. If so, then calls could be triggered even after 
+hid_hw_stop is already finished.
 
-Using a simple hack (by handling it somewhat like a Logitech G27, see
-patch below) I managed to get constant force effects working.
-However, the wheel only ever moves towards the right (no matter which
-effect direction or value is specified). Also (less important), the
-spring centering isn't turned off automatically like it is for Logitech
-wheels.
->From looking at the kernel source, I get the impression that there's no
-real standard for HID force feedback... so is there anything I can try
-except USB debugging (which I can't) and contacting the manufacturer
-(who seem to have no interest in supporting Linux)?
+One possible option would be to add a input_unregister_device into 
+sony_remove right before the call to "sony_cancel_work_sync". A call to 
+input_unregister_device triggers the cleanup, too and so allows to move 
+this to a point earlier in the shutdown procedure. But I don't know if 
+this is actually a good idea to do this here.
 
-Best regards,
-  Florian
+At the end of this mail is a second attempt for a fix. The idea of this 
+is, that after "sony_cancel_work_sync" was called, the worker itself 
+shouldn't be able to take any new work. To do this, I set 
+worker_initialized back to zero and check for this in a newly introduced 
+function sony_schedule_work. This seems to fix the problem. If I pull 
+the plug while effects are loaded or playing, then I get one or more of 
+my added error messages, but, so far, no more kernel panic.
 
+So finally I am at a point where I need feedback to continue my work. 
+Would be great if someone could offer some help.
 
--- 
-Dipl.-Inform. Florian Fischer
-Würzburger Institut für Verkehrswissenschaften GmbH (WIVW)
-Robert-Bosch-Str. 4            97209 Veitshöchheim
-Tel:   0931-78009105           Fax:   0931-78009150
-E-Mail: fischer@wivw.de        Homepage: www.wivw.de
-Handelsregister HRB 6430 Sitz Würzburg
-Umsatzsteuer ID: DE 198235088
-Geschäftsführung: Dr. Armin Kaussner, Alexandra Neukum
+Signed-off-by: Manuel Reimer <mail@m-reimer.de>
 
+--- a/drivers/hid/hid-sony.c	2016-05-13 16:13:00.339346161 +0200
++++ b/drivers/hid/hid-sony.c	2016-06-02 19:33:59.621212336 +0200
+@@ -1051,6 +1051,14 @@ struct sony_sc {
+  	__u8 led_count;
+  };
 
---------------439F71FE5DC96456F14B5318
-Content-Type: text/plain; charset=UTF-8;
- name="linux-fanatec.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="linux-fanatec.patch"
++static inline void sony_schedule_work(struct sony_sc *sc)
++{
++	if (sc->worker_initialized)
++		schedule_work(&sc->state_worker);
++	else
++		printk(KERN_ERR "hid-sony: Sending to uninitialized device failed!\n");
++}
++
+  static __u8 *sixaxis_fixup(struct hid_device *hdev, __u8 *rdesc,
+  			     unsigned int *rsize)
+  {
+@@ -1542,7 +1550,7 @@ static void buzz_set_leds(struct sony_sc
+  static void sony_set_leds(struct sony_sc *sc)
+  {
+  	if (!(sc->quirks & BUZZ_CONTROLLER))
+-		schedule_work(&sc->state_worker);
++		sony_schedule_work(sc);
+  	else
+  		buzz_set_leds(sc);
+  }
+@@ -1653,7 +1661,7 @@ static int sony_led_blink_set(struct led
+  		new_off != drv_data->led_delay_off[n]) {
+  		drv_data->led_delay_on[n] = new_on;
+  		drv_data->led_delay_off[n] = new_off;
+-		schedule_work(&drv_data->state_worker);
++		sony_schedule_work(drv_data);
+  	}
 
-LS0tIG9yaWdpbmFsL2xpbnV4LTQuNC42L2RyaXZlcnMvaGlkL2hpZC1sZy5jCTIwMTYtMDMt
-MTYgMTY6NDM6MTcuMDAwMDAwMDAwICswMTAwCisrKyBsaW51eC00LjQuNi9kcml2ZXJzL2hp
-ZC9oaWQtbGcuYwkyMDE2LTA2LTAyIDE0OjU1OjI3LjQwNTMzMDEyNiArMDIwMApAQCAtODE4
-LDYgKzgxOCw5IEBACiAJCS5kcml2ZXJfZGF0YSA9IExHX1JERVNDX1JFTF9BQlMgfSwKIAl7
-IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfTE9HSVRFQ0gsIFVTQl9ERVZJQ0VfSURf
-U1BBQ0VUUkFWRUxMRVIpLAogCQkuZHJpdmVyX2RhdGEgPSBMR19SREVTQ19SRUxfQUJTIH0s
-CisJLy8gRkYgVEVTVAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9FTkRPUiwg
-VVNCX0RFVklDRV9JRF9FTkRPUl9DTFVCU1BPUlRfV0hFRUwpLAorCQkuZHJpdmVyX2RhdGEg
-PSBMR19GRjQgfSwgCiAJeyB9CiB9OwogCi0tLSBvcmlnaW5hbC9saW51eC00LjQuNi9kcml2
-ZXJzL2hpZC9oaWQtbGc0ZmYuYwkyMDE2LTAzLTE2IDE2OjQzOjE3LjAwMDAwMDAwMCArMDEw
-MAorKysgbGludXgtNC40LjYvZHJpdmVycy9oaWQvaGlkLWxnNGZmLmMJMjAxNi0wNi0wMiAx
-NDo1NTozNi4zNTczMzAxMDEgKzAyMDAKQEAgLTE0Niw3ICsxNDYsOCBAQAogCXtVU0JfREVW
-SUNFX0lEX0xPR0lURUNIX0cyN19XSEVFTCwgICBsZzRmZl93aGVlbF9lZmZlY3RzLCA0MCwg
-OTAwLCBsZzRmZl9zZXRfcmFuZ2VfZzI1fSwKIAl7VVNCX0RFVklDRV9JRF9MT0dJVEVDSF9H
-MjlfV0hFRUwsICAgbGc0ZmZfd2hlZWxfZWZmZWN0cywgNDAsIDkwMCwgbGc0ZmZfc2V0X3Jh
-bmdlX2cyNX0sCiAJe1VTQl9ERVZJQ0VfSURfTE9HSVRFQ0hfTU9NT19XSEVFTDIsIGxnNGZm
-X3doZWVsX2VmZmVjdHMsIDQwLCAyNzAsIE5VTEx9LAotCXtVU0JfREVWSUNFX0lEX0xPR0lU
-RUNIX1dJSV9XSEVFTCwgICBsZzRmZl93aGVlbF9lZmZlY3RzLCA0MCwgMjcwLCBOVUxMfQor
-CXtVU0JfREVWSUNFX0lEX0xPR0lURUNIX1dJSV9XSEVFTCwgICBsZzRmZl93aGVlbF9lZmZl
-Y3RzLCA0MCwgMjcwLCBOVUxMfSwKKwl7VVNCX0RFVklDRV9JRF9FTkRPUl9DTFVCU1BPUlRf
-V0hFRUwsIGxnNGZmX3doZWVsX2VmZmVjdHMsIDQwLCA5MDAsIE5VTEx9IAogfTsKIAogc3Rh
-dGljIGNvbnN0IHN0cnVjdCBsZzRmZl9tdWx0aW1vZGVfd2hlZWwgbGc0ZmZfbXVsdGltb2Rl
-X3doZWVsc1tdID0gewo=
---------------439F71FE5DC96456F14B5318--
+  	return 0;
+@@ -1963,7 +1971,7 @@ static int sony_play_effect(struct input
+  	sc->left = effect->u.rumble.strong_magnitude / 256;
+  	sc->right = effect->u.rumble.weak_magnitude / 256;
+
+-	schedule_work(&sc->state_worker);
++	sony_schedule_work(sc);
+  	return 0;
+  }
+
+@@ -2265,8 +2273,10 @@ static inline void sony_init_output_repo
+
+  static inline void sony_cancel_work_sync(struct sony_sc *sc)
+  {
+-	if (sc->worker_initialized)
++	if (sc->worker_initialized) {
++		sc->worker_initialized = 0;
+  		cancel_work_sync(&sc->state_worker);
++	}
+  }
+
+  static int sony_probe(struct hid_device *hdev, const struct 
+hid_device_id *id)

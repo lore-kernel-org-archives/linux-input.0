@@ -1,80 +1,121 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/8] iio: adc: ti_am335x_adc: use SIMPLE_DEV_PM_OPS helper
- macro
-Date: Fri, 3 Jun 2016 13:16:25 +0100
-Message-ID: <803110b4-997e-d8d0-dc3e-1ff6279ad202@kernel.org>
-References: <20160531170013.2649-1-afd@ti.com>
- <20160531170013.2649-3-afd@ti.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/2] HID: multitouch: enable the Surface 3 Type Cover to
+ report multitouch data
+Date: Fri, 3 Jun 2016 14:23:05 +0200
+Message-ID: <20160603122305.GH6063@mail.corp.redhat.com>
+References: <20160513144927.GZ23234@mail.corp.redhat.com>
+ <1463155787.17131.351.camel@linux.intel.com>
+ <1463156908.17131.353.camel@linux.intel.com>
+ <20160520075835.GJ23234@mail.corp.redhat.com>
+ <20160531160741.GX23234@mail.corp.redhat.com>
+ <1464717399.1767.1.camel@linux.intel.com>
+ <20160602141127.GZ23234@mail.corp.redhat.com>
+ <1464878415.1767.27.camel@linux.intel.com>
+ <20160603093855.GC6063@mail.corp.redhat.com>
+ <1464955145.1767.44.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160531170013.2649-3-afd-l0cyMroinI0@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Andrew F. Davis" <afd-l0cyMroinI0@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Dave Gerlach <d-gerlach-l0cyMroinI0@public.gmane.org>
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:53688 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751626AbcFCMXK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Jun 2016 08:23:10 -0400
+Content-Disposition: inline
+In-Reply-To: <1464955145.1767.44.camel@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 31/05/16 18:00, Andrew F. Davis wrote:
-> Replace ifdefs with SIMPLE_DEV_PM_OPS helper macro.
-> 
-> Signed-off-by: Andrew F. Davis <afd-l0cyMroinI0@public.gmane.org>
-Applied to the togreg branch of iio.git - initially pushed out as testing
-for the autobuilders to play with it.
+On Jun 03 2016 or thereabouts, Andy Shevchenko wrote:
+> On Fri, 2016-06-03 at 11:38 +0200, Benjamin Tissoires wrote:
+> > On Jun 02 2016 or thereabouts, Andy Shevchenko wrote:
+> > > On Thu, 2016-06-02 at 16:11 +0200, Benjamin Tissoires wrote:
+> > > > > > > > =C2=A0
+> > > > On May 31 2016 or thereabouts, Andy Shevchenko wrote:
+> > > > > On Tue, 2016-05-31 at 18:07 +0200, Benjamin Tissoires wrote:
+> > > > > > On May 20 2016 or thereabouts, Benjamin Tissoires wrote:
+> > > > > > > On May 13 2016 or thereabouts, Andy Shevchenko wrote:
+> > > > > > > Would you mind sending me a hid-recorder[1] trace of the
+> > > > > > > device
+> > > > > > > while
+> > > > > > > typing few keys and using the touchpad?
+> > > > > > =C2=A0
+> > >=20
+> > > > OK, so it looks like your touchpad stays in the mouse emulation
+> > > > mode
+> > > > for
+> > > > some reasons. Did you do the recordings with hid-multitouch
+> > > > patched,
+> > > > or
+> > > > with plain hid-generic or an other one?
+> > >=20
+> > > I take linux-next + your two patches from this thread (+ some
+> > > unrelated
+> > > to HID patches).
+> >=20
+> > OK. I think I know what happened:
+> > - Microsoft forgot to put the Win 8 certification blob in this
+> > =C2=A0 particular device (of course, because Microsoft)
+> > - we do not detect it as a Win 8 certified and do not set the
+> > =C2=A0 HID_QUIRK_NO_INIT_REPORTS flag
+> > - your dmesg should show some error on plug, and then hid can't set
+> > the
+> > =C2=A0 input mode
+> > - I can't add a "if win 8 then show the mouse collection" because y=
+our
+> > =C2=A0 device doesn't report itself as win 8 :)
+> >=20
+> > Anyway, could you try applying this small diff after my 2 patches a=
+nd
+> > report if you now have a working touchpad?:
+>=20
+> Nope. There is still no /dev/input/eventX associated with touchpad.
 
-Thanks,
+Weird. On my system, if I replay your logs, I see 4 new nodes:
+/dev/input/event21:	Microsoft Surface Keyboard Keyboard
+/dev/input/event22:	Microsoft Surface Keyboard Consumer Control
+/dev/input/event23:	Microsoft Surface Keyboard Touchpad
+/dev/input/event24:	Microsoft Surface Keyboard Keyboard
 
-Jonathan
-> ---
->  drivers/iio/adc/ti_am335x_adc.c | 16 ++++------------
->  1 file changed, 4 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-> index c1e0553..18af71d 100644
-> --- a/drivers/iio/adc/ti_am335x_adc.c
-> +++ b/drivers/iio/adc/ti_am335x_adc.c
-> @@ -531,8 +531,7 @@ static int tiadc_remove(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> -#ifdef CONFIG_PM
-> -static int tiadc_suspend(struct device *dev)
-> +static int __maybe_unused tiadc_suspend(struct device *dev)
->  {
->  	struct iio_dev *indio_dev = dev_get_drvdata(dev);
->  	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-> @@ -550,7 +549,7 @@ static int tiadc_suspend(struct device *dev)
->  	return 0;
->  }
->  
-> -static int tiadc_resume(struct device *dev)
-> +static int __maybe_unused tiadc_resume(struct device *dev)
->  {
->  	struct iio_dev *indio_dev = dev_get_drvdata(dev);
->  	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-> @@ -567,14 +566,7 @@ static int tiadc_resume(struct device *dev)
->  	return 0;
->  }
->  
-> -static const struct dev_pm_ops tiadc_pm_ops = {
-> -	.suspend = tiadc_suspend,
-> -	.resume = tiadc_resume,
-> -};
-> -#define TIADC_PM_OPS (&tiadc_pm_ops)
-> -#else
-> -#define TIADC_PM_OPS NULL
-> -#endif
-> +static SIMPLE_DEV_PM_OPS(tiadc_pm_ops, tiadc_suspend, tiadc_resume);
->  
->  static const struct of_device_id ti_adc_dt_ids[] = {
->  	{ .compatible = "ti,am3359-adc", },
-> @@ -585,7 +577,7 @@ MODULE_DEVICE_TABLE(of, ti_adc_dt_ids);
->  static struct platform_driver tiadc_driver = {
->  	.driver = {
->  		.name   = "TI-am335x-adc",
-> -		.pm	= TIADC_PM_OPS,
-> +		.pm	= &tiadc_pm_ops,
->  		.of_match_table = ti_adc_dt_ids,
->  	},
->  	.probe	= tiadc_probe,
-> 
+Can you attach the dmesg when plugging in the type cover?
+
+Cheers,
+Benjamin
+
+>=20
+> >=20
+> > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-
+> > multitouch.c
+> > index ac35731..e51a753 100644
+> > --- a/drivers/hid/hid-multitouch.c
+> > +++ b/drivers/hid/hid-multitouch.c
+> > @@ -1379,6 +1379,10 @@ static const struct hid_device_id mt_devices=
+[]
+> > =3D {
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0MT_USB_DEVICE(USB_VENDOR_ID_ILITEK,
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0USB_DEVICE_ID_ILITEK_MULTITOUCH) },
+> > =C2=A0
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0/* Microsoft */
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0{ .driver_data =3D MT_CL=
+S_WIN_8,
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 0x07cd) =
+},
+> > +
+>=20
+>=20
+>=20
+>=20
+> --=20
+> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Intel Finland Oy
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

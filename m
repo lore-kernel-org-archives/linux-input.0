@@ -1,7 +1,7 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH 0/7] Input: synaptics-rmi4: Reimplement functionality from hid-rmi
-Date: Fri, 3 Jun 2016 11:38:47 -0700
-Message-ID: <1464979127-2327-1-git-send-email-aduggan@synaptics.com>
+Subject: [PATCH 1/7] Input: synaptics-rmi4: Increment the refcount of the transport dev's of_node
+Date: Fri, 3 Jun 2016 11:39:13 -0700
+Message-ID: <1464979153-2386-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -10,37 +10,33 @@ To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-The majority of this patch is reimplementing some of the functionality
-which was initially implemented in hid-rmi and reimplements it in the
-core. When hid-rmi is converted into a transport for rmi_core the
-functionality of existing touchpads should not change.
+Increment the refcount for the transport device's of_node before calling
+of_find_node_by_name(). Since of_find_node_by_name() assumes the refcount
+was incremented by the caller and calls of_node_put() when it is done.
 
-Several of these patches address the feedback in the message:
-https://lkml.org/lkml/2016/4/12/434
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
+ drivers/input/rmi4/rmi_bus.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Andrew Duggan (7):
-  Input: synaptics-rmi4: Increment the refcount of the transport dev's
-    of_node
-  Input: synaptics-rmi4: Add parameters for dribble packets and palm
-    detect gesture
-  Input: synaptics-rmi4: Add dribble and palm gesture parameters to
-    devicetree
-  Input: synaptics-rmi4: Add support for controlling dribble packets in
-    F12
-  Input: synaptics-rmi4: Remove pointer to rmi_function in f12_data
-  Input: synaptics-rmi4: Remove unneeded variable
-  Input: synaptics-rmi4: Handle incomplete input data
-
- .../bindings/input/rmi4/rmi_2d_sensor.txt          |  5 ++
- drivers/input/rmi4/rmi_2d_sensor.c                 | 14 ++++
- drivers/input/rmi4/rmi_2d_sensor.h                 |  2 +
- drivers/input/rmi4/rmi_bus.c                       |  5 +-
- drivers/input/rmi4/rmi_f01.c                       |  6 +-
- drivers/input/rmi4/rmi_f11.c                       | 95 +++++++++++++++------
- drivers/input/rmi4/rmi_f12.c                       | 98 ++++++++++++++++++++--
- drivers/input/rmi4/rmi_f30.c                       |  4 +
- include/linux/rmi.h                                | 21 +++--
- 9 files changed, 205 insertions(+), 45 deletions(-)
-
+diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+index b368b05..55b5336 100644
+--- a/drivers/input/rmi4/rmi_bus.c
++++ b/drivers/input/rmi4/rmi_bus.c
+@@ -157,11 +157,12 @@ static int rmi_function_match(struct device *dev, struct device_driver *drv)
+ static void rmi_function_of_probe(struct rmi_function *fn)
+ {
+ 	char of_name[9];
++	struct device_node *node = fn->rmi_dev->xport->dev->of_node;
+ 
+ 	snprintf(of_name, sizeof(of_name), "rmi4-f%02x",
+ 		fn->fd.function_number);
+-	fn->dev.of_node = of_find_node_by_name(
+-				fn->rmi_dev->xport->dev->of_node, of_name);
++	of_node_get(node);
++	fn->dev.of_node = of_find_node_by_name(node, of_name);
+ }
+ #else
+ static inline void rmi_function_of_probe(struct rmi_function *fn)
 -- 
 2.5.0

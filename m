@@ -1,96 +1,55 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 2/2] HID: multitouch: enable the Surface 3 Type Cover to
- report multitouch data
-Date: Fri, 03 Jun 2016 14:59:05 +0300
-Message-ID: <1464955145.1767.44.camel@linux.intel.com>
-References: <1463062363-12405-2-git-send-email-benjamin.tissoires@redhat.com>
- <1463149818.17131.349.camel@linux.intel.com>
- <20160513144927.GZ23234@mail.corp.redhat.com>
- <1463155787.17131.351.camel@linux.intel.com>
- <1463156908.17131.353.camel@linux.intel.com>
- <20160520075835.GJ23234@mail.corp.redhat.com>
- <20160531160741.GX23234@mail.corp.redhat.com>
- <1464717399.1767.1.camel@linux.intel.com>
- <20160602141127.GZ23234@mail.corp.redhat.com>
- <1464878415.1767.27.camel@linux.intel.com>
-	 <20160603093855.GC6063@mail.corp.redhat.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 7/8] iio: adc: ti_am335x_adc: use variable names for
+ sizeof() operator
+Date: Fri, 3 Jun 2016 13:15:04 +0100
+Message-ID: <fb3ab1bb-4c06-1361-6675-f950216565d0@kernel.org>
+References: <20160531170013.2649-1-afd@ti.com>
+ <20160531170013.2649-8-afd@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160603093855.GC6063@mail.corp.redhat.com>
+In-Reply-To: <20160531170013.2649-8-afd@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Andrew F. Davis" <afd@ti.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Dave Gerlach <d-gerlach@ti.com>
+Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 2016-06-03 at 11:38 +0200, Benjamin Tissoires wrote:
-> On Jun 02 2016 or thereabouts, Andy Shevchenko wrote:
-> > On Thu, 2016-06-02 at 16:11 +0200, Benjamin Tissoires wrote:
-> > > > > > > =C2=A0
-> > > On May 31 2016 or thereabouts, Andy Shevchenko wrote:
-> > > > On Tue, 2016-05-31 at 18:07 +0200, Benjamin Tissoires wrote:
-> > > > > On May 20 2016 or thereabouts, Benjamin Tissoires wrote:
-> > > > > > On May 13 2016 or thereabouts, Andy Shevchenko wrote:
-> > > > > > Would you mind sending me a hid-recorder[1] trace of the
-> > > > > > device
-> > > > > > while
-> > > > > > typing few keys and using the touchpad?
-> > > > > =C2=A0
-> >=20
-> > > OK, so it looks like your touchpad stays in the mouse emulation
-> > > mode
-> > > for
-> > > some reasons. Did you do the recordings with hid-multitouch
-> > > patched,
-> > > or
-> > > with plain hid-generic or an other one?
-> >=20
-> > I take linux-next + your two patches from this thread (+ some
-> > unrelated
-> > to HID patches).
->=20
-> OK. I think I know what happened:
-> - Microsoft forgot to put the Win 8 certification blob in this
-> =C2=A0 particular device (of course, because Microsoft)
-> - we do not detect it as a Win 8 certified and do not set the
-> =C2=A0 HID_QUIRK_NO_INIT_REPORTS flag
-> - your dmesg should show some error on plug, and then hid can't set
-> the
-> =C2=A0 input mode
-> - I can't add a "if win 8 then show the mouse collection" because you=
-r
-> =C2=A0 device doesn't report itself as win 8 :)
->=20
-> Anyway, could you try applying this small diff after my 2 patches and
-> report if you now have a working touchpad?:
+On 31/05/16 18:00, Andrew F. Davis wrote:
+> Fix the code formatting to use the kernel preferred style
+> of using the actual variables to determize the size using
+> the sizeof() operator.
+> 
+> Signed-off-by: Andrew F. Davis <afd@ti.com>
+Applied - thanks,
 
-Nope. There is still no /dev/input/eventX associated with touchpad.
-
->=20
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-
-> multitouch.c
-> index ac35731..e51a753 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -1379,6 +1379,10 @@ static const struct hid_device_id mt_devices[]
-> =3D {
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0MT_USB_DEVICE(USB_VENDOR_ID_ILITEK,
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0USB_DEVICE_ID_ILITEK_MULTITOUCH) },
-> =C2=A0
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0/* Microsoft */
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0{ .driver_data =3D MT_CLS_=
-WIN_8,
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 0x07cd) },
-> +
-
-
-
-
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Jonathan
+> ---
+>  drivers/iio/adc/ti_am335x_adc.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+> index 18af71d..8a36875 100644
+> --- a/drivers/iio/adc/ti_am335x_adc.c
+> +++ b/drivers/iio/adc/ti_am335x_adc.c
+> @@ -326,8 +326,7 @@ static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
+>  	int i;
+>  
+>  	indio_dev->num_channels = channels;
+> -	chan_array = kcalloc(channels,
+> -			sizeof(struct iio_chan_spec), GFP_KERNEL);
+> +	chan_array = kcalloc(channels, sizeof(*chan_array), GFP_KERNEL);
+>  	if (chan_array == NULL)
+>  		return -ENOMEM;
+>  
+> @@ -467,8 +466,7 @@ static int tiadc_probe(struct platform_device *pdev)
+>  		return -EINVAL;
+>  	}
+>  
+> -	indio_dev = devm_iio_device_alloc(&pdev->dev,
+> -					  sizeof(struct tiadc_device));
+> +	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*indio_dev));
+>  	if (indio_dev == NULL) {
+>  		dev_err(&pdev->dev, "failed to allocate iio device\n");
+>  		return -ENOMEM;
+> 

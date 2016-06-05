@@ -1,101 +1,60 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: [PATCH] Input: xpad - fix oops when attaching an unknown Xbox One
- gamepad
-Date: Sun, 5 Jun 2016 00:10:09 -0500
-Message-ID: <5753B431.2040908@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v7 0/4] i2c-smbus: add support for HOST NOTIFY
+Date: Sun, 5 Jun 2016 09:13:28 +0200
+Message-ID: <20160605071325.GB2722@katana>
+References: <1464688985-19102-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f66.google.com ([209.85.218.66]:35957 "EHLO
-	mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751342AbcFEFKM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Jun 2016 01:10:12 -0400
-Received: by mail-oi0-f66.google.com with SMTP id n3so3469916oig.3
-        for <linux-input@vger.kernel.org>; Sat, 04 Jun 2016 22:10:12 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ADZbWkCsHQ7r3kzd"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1464688985-19102-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-Xbox One controllers have multiple interfaces which all have the
-same class, subclass, and protocol. One of the these interfaces
-has only a single endpoint. When Xpad attempts to bind to this
-interface, it causes an oops when trying initialize the output URB
-by trying to access the second endpoint's descriptor.
 
-This situation was avoided for known Xbox One devices by checking
-the XTYPE constant associated with the VID and PID tuple. However,
-this breaks when new or previously unknown Xbox One controllers
-are attached to the system.
+--ADZbWkCsHQ7r3kzd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This change addresses the problem by deriving the XTYPE for Xbox
-One controllers based on the interface protocol before checking
-the interface number.
+Hi Benjamin,
 
-Fixes: 1a48ff81b391 ("Input: xpad - add support for Xbox One controllers")
-Signed-off-by: Cameron Gutman <aicommander@gmail.com>
-Cc: stable@vger.kernel.org
----
-This bug affects kernels since 3.18. Controllers upgraded to the 2015
-firmware will trigger the oops on affected kernels (up to 4.4 when the
-new device ID was added). The Xbox One Elite controller will likely
-also trigger the oops up to 4.6 (though I've not tested myself) along
-with any new third-party Xbox One controllers that are released.
+> this is mostly a resubmission of the v6 with the acks, tested-by and few typos
+> here and there.
 
-There are a few ways we could address it, but this one seems nice
-because it allows the controller to work correctly (as opposed to simply
-kicking out interfaces without enough endpoints).
----
- drivers/input/joystick/xpad.c | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+I actually reviewed v6 but got an NMI so writing the mails fell through
+the cracks :( Sorry about that! Good news is that the code is fine from
+my point of view, some documentation updates I'd request. After updating
+those, I will pick up the core patches right away. Note that while the
+i801 patch looks good to me, I need Jean's review here. There are other
+patches pending for i801, that needs to be coordinated by him.
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 923c572..3438e98 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1437,16 +1437,6 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 			break;
- 	}
- 
--	if (xpad_device[i].xtype == XTYPE_XBOXONE &&
--	    intf->cur_altsetting->desc.bInterfaceNumber != 0) {
--		/*
--		 * The Xbox One controller lists three interfaces all with the
--		 * same interface class, subclass and protocol. Differentiate by
--		 * interface number.
--		 */
--		return -ENODEV;
--	}
--
- 	xpad = kzalloc(sizeof(struct usb_xpad), GFP_KERNEL);
- 	if (!xpad)
- 		return -ENOMEM;
-@@ -1478,6 +1468,8 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 		if (intf->cur_altsetting->desc.bInterfaceClass == USB_CLASS_VENDOR_SPEC) {
- 			if (intf->cur_altsetting->desc.bInterfaceProtocol == 129)
- 				xpad->xtype = XTYPE_XBOX360W;
-+			else if (intf->cur_altsetting->desc.bInterfaceProtocol == 208)
-+				xpad->xtype = XTYPE_XBOXONE;
- 			else
- 				xpad->xtype = XTYPE_XBOX360;
- 		} else {
-@@ -1492,6 +1484,17 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 			xpad->mapping |= MAP_STICKS_TO_NULL;
- 	}
- 
-+	if (xpad->xtype == XTYPE_XBOXONE &&
-+	    intf->cur_altsetting->desc.bInterfaceNumber != 0) {
-+		/*
-+		 * The Xbox One controller lists three interfaces all with the
-+		 * same interface class, subclass and protocol. Differentiate by
-+		 * interface number.
-+		 */
-+		error = -ENODEV;
-+		goto err_free_in_urb;
-+	}
-+
- 	error = xpad_init_output(intf, xpad);
- 	if (error)
- 		goto err_free_in_urb;
--- 
-2.7.4
+Thanks,
+
+   Wolfram
+
+
+--ADZbWkCsHQ7r3kzd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXU9EUAAoJEBQN5MwUoCm2hBIP/j+w32sjOJ4o4YCjZ3pgl/wd
+6lPpwHqxw2aNLwxCmZtzISbw6e7CK912nCoJDR/KKItrlrkmlQ6VBc7TkDK7EGfX
+M6yUlhhPPJhyb3e0CphPh7ydvNZvm1qDzvPU+ezNTQ5AHd0A8FEYfjgnPrDzeWLv
+aYvL2z/ePfysZ3W5maXhH0KkhTCpHJvhijvj6ddKrTpmZB8Ee4YzjCm5WwvQ1E9F
+lD3Z6/jyZWI68e1eJdnbxLJLEtFWkvwpL4KCIB+4gzTBLlfFejL1fDnUDWNIVjG9
+Z48dIAdLyD6MRZE4e5h7zm0zH5yA7hYzOwZ6RwKMiyDZvIemYAKrL4N2yQ69LqpJ
+0XMYImQvC5ZsWQ9P0FFUm9bcGw/tgedBF8pvwieOPF7COqVOQRT7bLN9E1TerQEL
+Hv5s3ln3n/+Cdw3s9Hpxt6YJ06AMC5tYJXO/mUhaA1OsAULWXxOnZYsMeXvM0Baj
+lHftiaC8wQL0r8ltV4QyUk2C/49Yo4kCNdRfvo4FI3r4ev+uNns7Wq1bCgD9U/5t
+NDuPf138nE1OND2qX3+WmBMJd6cgOkJIkouHn8jCYWGjaxIfy8I8yhhHWPpN1kqo
+ys/jYHiYUtaXJwFyhsadgQeIananGhXilS6M0q1ayIfi6ESqPaZ4Pf/Yk4M6qBAa
+L9DxGfNRVdWTMQYlw++H
+=Q2fF
+-----END PGP SIGNATURE-----
+
+--ADZbWkCsHQ7r3kzd--

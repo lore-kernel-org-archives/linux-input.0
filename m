@@ -1,75 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v7 2/4] i2c-smbus: add SMBus Host Notify support
-Date: Sun, 5 Jun 2016 09:23:15 +0200
-Message-ID: <20160605072315.GD2722@katana>
+Subject: Re: [PATCH v7 3/4] i2c: i801: add support of Host Notify
+Date: Sun, 5 Jun 2016 09:25:41 +0200
+Message-ID: <20160605072541.GE2722@katana>
 References: <1464688985-19102-1-git-send-email-benjamin.tissoires@redhat.com>
- <1464688985-19102-3-git-send-email-benjamin.tissoires@redhat.com>
+ <1464688985-19102-4-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Xm/fll+QQv+hsKip"
-Return-path: <linux-i2c-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="mR8QP4gmHujQHb1c"
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1464688985-19102-3-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1464688985-19102-4-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-doc-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 
---Xm/fll+QQv+hsKip
+--mR8QP4gmHujQHb1c
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-> diff --git a/Documentation/i2c/smbus-protocol b/Documentation/i2c/smbus-p=
-rotocol
-> index 6012b12..4e07848 100644
-> --- a/Documentation/i2c/smbus-protocol
-> +++ b/Documentation/i2c/smbus-protocol
-> @@ -199,6 +199,9 @@ alerting device's address.
-> =20
->  [S] [HostAddr] [Wr] A [DevAddr] A [DataLow] A [DataHigh] A [P]
-> =20
-> +I2C drivers for devices which can trigger SMBus Host Notify should imple=
-ment
-> +the optional alert() callback.
-> +
+On Tue, May 31, 2016 at 12:03:04PM +0200, Benjamin Tissoires wrote:
+> The i801 chip can handle the Host Notify feature since ICH 3 as mentioned
+> in http://www.intel.com/content/dam/doc/datasheet/82801ca-io-controller-h=
+ub-3-datasheet.pdf
+>=20
+> Enable the functionality unconditionally and propagate the alert
+> on each notification.
+>=20
+> With a T440s and a Synaptics touchpad that implements Host Notify, the
+> payload data is always 0x0000, so I am not sure if the device actually
+> sends the payload or if there is a problem regarding the implementation.
+>=20
+> Tested-by: Andrew Duggan <aduggan@synaptics.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-I'd like a similar "This is implemented the following way in the Linux
-kernel:" paragraph here as in the alert section. The item what bus
-drivers should do is missing.
+Did some high level review. Did not dig into datasheets.
 
-> +	if (host_notify->pending) {
-> +		spin_unlock_irqrestore(&host_notify->lock, flags);
-> +		dev_warn(&adapter->dev, "Host Notify already scheduled.\n");
-> +		return -EFAULT;
-
-Very minor nit: -EBUSY?
-
-> +#if defined(CONFIG_I2C_SMBUS) || defined(CONFIG_I2C_SMBUS_MODULE)
-
-IS_ENABLED()?
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
 
---Xm/fll+QQv+hsKip
+--mR8QP4gmHujQHb1c
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXU9NjAAoJEBQN5MwUoCm2iJkQAKNpc02aJr1fesuB8KnkQRIW
-DutycDKXIj/0a+eRLDj7kA0dCoq9vHJ2nbSRtPV89LYSdZ8SHPOcR6CzJM0eSckb
-4Aqgw0AUtZYsCjPYb4hvyNXkxJOknIhblvdfBAkWUS9zRakezl0N1H18MuTs8GVv
-5hHT/8NAa7knvfmTjdp1krW5gOBZ2bo4OS8jqFa+7sAtzEQaJsMwinwt508b6k0x
-kguBeibNC8sjrxH9mbLEmAgVG9b3WXM66WNSiU9Rb3so4ICYBApgQu95/FEP+7us
-nRE3VYdXbuTy5PGI8l0UVetCixEIliRwXYd8WljLFXdGJdem5Zps60H5QekC6c0v
-ho1jbSLIf9UKILkAa2T0wCTJZqugbn+vRJcxL9I63XpYzE0Y4+JSFjXNaUa1dI/b
-+3n+UlZQlPJMWdTXcxONARpzkTc/e70L59se2Co/iaMCBekN/D4GyYoxAd58CnYF
-gCcRy4Vzi8dBkSVtqwKmfeB47x1ODTfo2OtQt1cPVvPSn/IkyGLz2PMMGy7lN7VS
-hLYycrt/PVZxKmd9PsuGJxDiNWpA2KqUU5u7DtT9sQywuPMPOUJravISQlt6bpPY
-sfBfvnOH1LnOVKkOD4QhCfnq1Tfn4pM6SDRDi6LtQngxjv+Rkhw4uByxrG/FB7r/
-n0PHNc4d+TSw310Sf3z9
-=syEy
+iQIcBAEBAgAGBQJXU9P1AAoJEBQN5MwUoCm2FG8P/j5/QC808vRUQUEm0Jv5oFpy
+w3E1Fr2keaZTtt9KY275ZS1WXUUJOHZKgMg/R4VJ/7aPbGIGjsKfZLKZ1aoANkKF
+3t95+cAaU7Goxjmpb9TjghXeqRT0XXqAMl615dCqnBsHOxrQai5LIGfVHmrbYw35
+4k2bj8qFeO+sLdxE1GVPCQpwAUSCpiMWVPETmdEfOaz/T2EXERZ38903wZ653sQ/
+mSgiunrhduG2RAGifsXLWmQDRb8Dxg5FpScMyOMpgdWmBZgs/1//VCE+1mIWBGRb
+4vTlO5mU+ljajUjFGX+4ZZ/ZxLJGjGrlm8TXPA8WNAbT9eF/WihMF9K2/fOoVBIw
+Lt2ev/0TRqsqaSoWyOE/lvpUvlI4Vj3o7B2SQVOewtdM7w7yXJfy8WdPcujG7Nf4
+cJbLpv1TqgLQ7rc2/XG9uHhX95NetNMpGzls6MwJN6cLPTQ+iJmh6QQGyTrjL824
+EKA/63eb+0J6+odGxIXPA/DL8JfM0pGMJ65q4kyKeijsrTAYuOnOhGx5yUjT5qzg
+IXZvd2/BbHRrpTRydQQiAag6jdKhLyYim2/viRa8aZ6CHuwmSbxplDQGl2SpF0IG
+9c2Khfq93d7LMx6HgxrVFTg75wtTMvp2HDUYZ7m+E4FGy0mm4/P18KNASEwe9Bpp
+HAK//XXdvejRuy6e0AVd
+=Gy1u
 -----END PGP SIGNATURE-----
 
---Xm/fll+QQv+hsKip--
+--mR8QP4gmHujQHb1c--

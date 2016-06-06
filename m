@@ -1,40 +1,45 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 0/5] Input: alps - cleanup
-Date: Mon, 6 Jun 2016 13:32:31 +0200
-Message-ID: <b938b267-6d6e-4397-3af2-c76deaae1f38@redhat.com>
-References: <1465212241-14702-1-git-send-email-pali.rohar@gmail.com>
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: [PATCH] MAINTAINERS: Add me as reviewer of ALPS PS/2 touchpad driver
+Date: Mon,  6 Jun 2016 14:03:01 +0200
+Message-ID: <1465214581-22327-1-git-send-email-pali.rohar@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1465212241-14702-1-git-send-email-pali.rohar@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ben Gamari <ben@smart-cactus.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:33353 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751915AbcFFMEB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jun 2016 08:04:01 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
 
-Hi,
+Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+---
+ MAINTAINERS |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-On 06-06-16 13:23, Pali Roh=C3=A1r wrote:
-> This patch series cleanup usage of alps_model_data table.
->
-> Pali Roh=C3=A1r (5):
->   Input: alps - move ALPS_PROTO_V6 out of alps_model_data table
->   Input: alps - move ALPS_PROTO_V4 out of alps_model_data table
->   Input: alps - move ALPS_PROTO_V1 out of alps_model_data table
->   Input: alps - warn about unsupported ALPS V9 touchpad
->   Input: alps - cleanup ALPS_PROTO_V2 detection
->
->  drivers/input/mouse/alps.c |   99 ++++++++++++++++++++++++++--------=
-----------
->  drivers/input/mouse/alps.h |   10 ++---
->  2 files changed, 62 insertions(+), 47 deletions(-)
+diff --git a/MAINTAINERS b/MAINTAINERS
+index ed1229e..057c626 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -595,6 +595,10 @@ S:	Odd Fixes
+ L:	linux-alpha@vger.kernel.org
+ F:	arch/alpha/
+=20
++ALPS PS/2 TOUCHPAD DRIVER
++R:	Pali Roh=C3=A1r <pali.rohar@gmail.com>
++F:	drivers/input/mouse/alps.*
++
+ ALTERA MAILBOX DRIVER
+ M:	Ley Foon Tan <lftan@altera.com>
+ L:	nios2-dev@lists.rocketboards.org (moderated for non-subscribers)
+--=20
+1.7.9.5
 
-Series looks good to me:
-
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-
-Thanks & Regards,
-
-Hans
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

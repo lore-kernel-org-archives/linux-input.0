@@ -1,90 +1,46 @@
-From: Manuel Reimer <mail+linux-input@m-reimer.de>
-Subject: Re: [PATCH] uinput: Fix module crash on driver exit with force
- feedback effects still loaded
-Date: Sun, 5 Jun 2016 15:01:15 +0200
-Message-ID: <6d67480a-e3fb-e0ed-40d7-083fdda1e102@m-reimer.de>
-References: <e9e2b6b9-83d6-fab7-88db-9e0e6a2b0185@m-reimer.de>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] i2c_hid: enable i2c-hid devices to suspend/resume
+ asynchronously
+Date: Mon, 6 Jun 2016 10:41:54 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1606061041360.11844@cbobk.fhfr.pm>
+References: <573D2900.6090903@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.mailbox.org ([80.241.60.212]:50501 "EHLO mx1.mailbox.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750911AbcFENBY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 5 Jun 2016 09:01:24 -0400
-In-Reply-To: <e9e2b6b9-83d6-fab7-88db-9e0e6a2b0185@m-reimer.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <573D2900.6090903@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
+Cc: benjamin.tissoires@redhat.com, dtor@chromium.org, bleung@chromium.org, Mika Westerberg <mika.westerberg@linux.intel.com>, aduggan@synaptics.com, k.kozlowski@samsung.com, dianders@chromium.org, gabriele.mzt@gmail.com, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>, dmitry.torokhov@gmail.com
 
-On 05/22/2016 08:22 PM, Manuel Reimer wrote:
-> Hello,
->
-> I had a deeper look into the uinput kernel module crash problem, which
-> happens when a game loads effects and the driver exits while the game is
-> still running.
->
-> The actual problem is, that "input_unregister_device", which is called
-> in "uinput_destroy_device", seems to include some "cleanup routine"
-> which includes erasing loaded force feedback effects. This cleanup
-> routine causes the "uinput_dev_erase_effect" routine to be called, which
-> will wait for the, already exited, daemon to answer this request.
->
-> The existing code contains a device state test, but this test is placed
-> wrong. My patch moves the device state test, which was in
-> "uinput_request_send", to the "uinput_request_submit" function. This way
-> the erase requests, triggered by "input_unregister_device", are rejected
-> immediately, so they no longer cause any trouble.
->
-> Should I have added a one-line comment above the device state test,
-> mentioning the cleanup routine in "input_unregister_device"?
->
-> Signed-off-by: Manuel Reimer <mail@m-reimer.de>
->
-> --- a/drivers/input/misc/uinput.c    2016-05-13 16:06:31.919351656 +0200
-> +++ b/drivers/input/misc/uinput.c    2016-05-22 19:33:30.814403482 +0200
-> @@ -117,11 +117,6 @@ static int uinput_request_send(struct ui
->      if (retval)
->          return retval;
->
-> -    if (udev->state != UIST_CREATED) {
-> -        retval = -ENODEV;
-> -        goto out;
-> -    }
-> -
->      init_completion(&request->done);
->
->      /*
-> @@ -130,7 +125,6 @@ static int uinput_request_send(struct ui
->       */
->      uinput_dev_event(udev->dev, EV_UINPUT, request->code, request->id);
->
-> - out:
->      mutex_unlock(&udev->mutex);
->      return retval;
->  }
-> @@ -140,6 +134,9 @@ static int uinput_request_submit(struct
->  {
->      int error;
->
-> +    if (udev->state != UIST_CREATED)
-> +        return -ENODEV;
-> +
->      error = uinput_request_reserve_slot(udev, request);
->      if (error)
->          return error;
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Thu, 19 May 2016, Fu, Zhonghui wrote:
 
+> i2c-hid devices' suspend/resume are usually time-consuming process.
+> For example, the touch controller(i2c-ATML1000:00) on ASUS T100 tablet
+> takes about 160ms for suspending and 120ms for resuming. This patch
+> enables i2c-hid devices to suspend/resume asynchronously. This will
+> take advantage of multicore and speed up system suspend/resume process.
+> 
+> Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 2e021ba..cc41e1e 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -1020,6 +1020,7 @@ static int i2c_hid_probe(struct i2c_client *client,
+>  	pm_runtime_get_noresume(&client->dev);
+>  	pm_runtime_set_active(&client->dev);
+>  	pm_runtime_enable(&client->dev);
+> +	device_enable_async_suspend(&client->dev);
+>  
+>  	ret = i2c_hid_fetch_hid_descriptor(ihid);
+>  	if (ret < 0)
 
-Hello,
+Applied to hid.git#for-4.8/i2c-hid.
 
-did I use the correct list of recipients? This is my first try to fix 
-something in kernel code, so it would really help me to get some 
-suggestions about the right way to get something reviewed.
-
-Thanks in advance
-
-Manuel
+-- 
+Jiri Kosina
+SUSE Labs

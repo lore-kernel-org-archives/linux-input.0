@@ -1,53 +1,39 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: rmi: Make hid-rmi a transport driver for
- synaptics-rmi4
-Date: Mon, 6 Jun 2016 11:25:44 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1606061124500.11844@cbobk.fhfr.pm>
-References: <201606040447.LMmbn7qw%fengguang.wu@intel.com>
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: [PATCH 0/5] Input: alps - cleanup
+Date: Mon,  6 Jun 2016 13:23:56 +0200
+Message-ID: <1465212241-14702-1-git-send-email-pali.rohar@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201606040447.LMmbn7qw%fengguang.wu@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: kbuild test robot <lkp@intel.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, kbuild-all@01.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick.dyer@itdev.co.uk>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f53.google.com ([74.125.82.53]:38612 "EHLO
+	mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751385AbcFFLYW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jun 2016 07:24:22 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Ben Gamari <ben@smart-cactus.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
 
-On Sat, 4 Jun 2016, kbuild test robot wrote:
+This patch series cleanup usage of alps_model_data table.
 
-> Hi,
-> 
-> [auto build test ERROR on hid/for-next]
-> [also build test ERROR on v4.7-rc1 next-20160603]
-> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
-> 
-> url:    https://github.com/0day-ci/linux/commits/Andrew-Duggan/HID-rmi-Make-hid-rmi-a-transport-driver-for-synaptics-rmi4/20160604-024428
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git for-next
-> config: x86_64-randconfig-s4-06040320 (attached as .config)
-> compiler: gcc-6 (Debian 6.1.1-1) 6.1.1 20160430
-> reproduce:
->         # save the attached .config to linux build tree
->         make ARCH=x86_64 
-> 
-> All errors (new ones prefixed by >>):
-> 
-> >> drivers/hid/hid-rmi.c:572:2: error: unknown field 'dribble' specified in initializer
->      .dribble = RMI_REG_STATE_OFF,
->      ^
-> >> drivers/hid/hid-rmi.c:572:13: error: 'RMI_REG_STATE_OFF' undeclared here (not in a function)
->      .dribble = RMI_REG_STATE_OFF,
->                 ^~~~~~~~~~~~~~~~~
-> >> drivers/hid/hid-rmi.c:573:2: error: unknown field 'palm_detect' specified in initializer
->      .palm_detect = RMI_REG_STATE_OFF,
->      ^
+Pali Roh=C3=A1r (5):
+  Input: alps - move ALPS_PROTO_V6 out of alps_model_data table
+  Input: alps - move ALPS_PROTO_V4 out of alps_model_data table
+  Input: alps - move ALPS_PROTO_V1 out of alps_model_data table
+  Input: alps - warn about unsupported ALPS V9 touchpad
+  Input: alps - cleanup ALPS_PROTO_V2 detection
 
-This patch depends on this series:
+ drivers/input/mouse/alps.c |   99 ++++++++++++++++++++++++++----------=
+--------
+ drivers/input/mouse/alps.h |   10 ++---
+ 2 files changed, 62 insertions(+), 47 deletions(-)
 
-	http://lkml.kernel.org/r/1464979127-2327-1-git-send-email-aduggan@synaptics.com
+--=20
+1.7.9.5
 
-but there is unfortunately no way for your robot to recognize this 
-dependency.
-
--- 
-Jiri Kosina
-SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

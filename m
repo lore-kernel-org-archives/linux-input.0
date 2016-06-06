@@ -1,45 +1,28 @@
-From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: [PATCH] MAINTAINERS: Add me as reviewer of ALPS PS/2 touchpad driver
-Date: Mon,  6 Jun 2016 14:03:01 +0200
-Message-ID: <1465214581-22327-1-git-send-email-pali.rohar@gmail.com>
+From: Fabio Estevam <festevam@gmail.com>
+Subject: MX25 Touch on 4.7-rc
+Date: Mon, 6 Jun 2016 13:52:40 -0300
+Message-ID: <CAOMZO5BrXsBVr7ny7r7LtHOoyxYZALik1N7P+F93dnQEPxKDxw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:33353 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751915AbcFFMEB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jun 2016 08:04:01 -0400
+Received: from mail-io0-f174.google.com ([209.85.223.174]:36415 "EHLO
+	mail-io0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751105AbcFFQwl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jun 2016 12:52:41 -0400
+Received: by mail-io0-f174.google.com with SMTP id n127so21981128iof.3
+        for <linux-input@vger.kernel.org>; Mon, 06 Jun 2016 09:52:41 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+To: Markus Pargmann <mpa@pengutronix.de>
+Cc: linux-input@vger.kernel.org
 
-Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
----
- MAINTAINERS |    4 ++++
- 1 file changed, 4 insertions(+)
+Hi Markus,
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index ed1229e..057c626 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -595,6 +595,10 @@ S:	Odd Fixes
- L:	linux-alpha@vger.kernel.org
- F:	arch/alpha/
-=20
-+ALPS PS/2 TOUCHPAD DRIVER
-+R:	Pali Roh=C3=A1r <pali.rohar@gmail.com>
-+F:	drivers/input/mouse/alps.*
-+
- ALTERA MAILBOX DRIVER
- M:	Ley Foon Tan <lftan@altera.com>
- L:	nios2-dev@lists.rocketboards.org (moderated for non-subscribers)
---=20
-1.7.9.5
+I am trying your mx25 touchscreen driver on 4.7-rc1, but it fails as:
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+mx25-tcq 50030000.tscadc:tcq@50030400: invalid resource
+mx25-tcq: probe of 50030000.tscadc:tcq@50030400 failed with error -22
+
+Do we have missing patches for this?
+
+Thanks

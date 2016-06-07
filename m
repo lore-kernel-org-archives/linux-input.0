@@ -1,57 +1,48 @@
-From: Chris Chiu <chiu@endlessm.com>
-Subject: [PATCH] Input: elan_i2c - +200 ms delay before setting to ABS mode
-Date: Tue,  7 Jun 2016 21:34:09 +0800
-Message-ID: <1465306449-28256-1-git-send-email-chiu@endlessm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, duson <dusonlin@emc.com.tw>, Charlie Mooney <charliemooney@chromium.org>, Michele Curti <michele.curti@gmail.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linux@endlessm.com, Chris Chiu <chiu@endlessm.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v7 0/4] i2c-smbus: add support for HOST NOTIFY
+Date: Tue, 7 Jun 2016 16:01:45 +0200
+Message-ID: <20160607140145.GA19237@mail.corp.redhat.com>
+References: <1464688985-19102-1-git-send-email-benjamin.tissoires@redhat.com>
+ <20160605071325.GB2722@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160605071325.GB2722@katana>
+Sender: linux-i2c-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-When performing a warm reboot from a system which does not correctly
-support ELAN I2C touchpads, the touchpad will sometimes enter standard
-mouse mode, cursor then never respond to touchpad event, and making the
-driver discard the HID reports and flood dmesg with following error
-messages.
-"elan_i2c i2c-ELAN1000:00: invalid report id data (1)"
+Hi Wolfram,
 
-This change is from ELAN's correction. It needs 200ms delay before
-set_mode() so that the mode setting will correctly take effect.
+On Jun 05 2016 or thereabouts, Wolfram Sang wrote:
+> Hi Benjamin,
+> 
+> > this is mostly a resubmission of the v6 with the acks, tested-by and few typos
+> > here and there.
+> 
+> I actually reviewed v6 but got an NMI so writing the mails fell through
+> the cracks :( Sorry about that! Good news is that the code is fine from
+> my point of view, some documentation updates I'd request. After updating
+> those, I will pick up the core patches right away. Note that while the
 
-Signed-off-by: Chris Chiu <chiu@endlessm.com>
----
- drivers/input/mouse/elan_i2c_core.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+Great, many thanks!
+The documentation fixes look simple enough to do. However, I just
+realized a conflict in the i801 which requires tests (in the resume
+call).
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 2f58985..95080f9 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -210,18 +210,20 @@ static int __elan_initialize(struct elan_tp_data *data)
- 		return error;
- 	}
- 
--	data->mode |= ETP_ENABLE_ABS;
--	error = data->ops->set_mode(client, data->mode);
-+	error = data->ops->sleep_control(client, false);
- 	if (error) {
- 		dev_err(&client->dev,
--			"failed to switch to absolute mode: %d\n", error);
-+			"failed to wake device up: %d\n", error);
- 		return error;
- 	}
- 
--	error = data->ops->sleep_control(client, false);
-+	msleep(200);
-+
-+	data->mode |= ETP_ENABLE_ABS;
-+	error = data->ops->set_mode(client, data->mode);
- 	if (error) {
- 		dev_err(&client->dev,
--			"failed to wake device up: %d\n", error);
-+			"failed to switch to absolute mode: %d\n", error);
- 		return error;
- 	}
- 
--- 
-2.1.4
+> i801 patch looks good to me, I need Jean's review here. There are other
+> patches pending for i801, that needs to be coordinated by him.
+
+OK. I'll try to fetch those pending patches on patchwork and see how the
+merge would behave.
+
+Cheers,
+Benjamin
+
+> 
+> Thanks,
+> 
+>    Wolfram
+> 

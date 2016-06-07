@@ -1,80 +1,117 @@
-From: Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
-Subject: Re: [PATCH 3/7] Input: synaptics-rmi4: Add dribble and palm gesture
- parameters to devicetree
-Date: Tue, 7 Jun 2016 12:11:47 -0700
-Message-ID: <57571C73.4080209@synaptics.com>
-References: <1464979228-2497-1-git-send-email-aduggan@synaptics.com>
- <20160603185720.GA5204@leverpostej>
+From: singu.b@gmail.com
+Subject: Bug in hid sony driver while connecting two pieces of same hardware
+Date: Tue, 7 Jun 2016 23:53:42 +0200
+Message-ID: <CAJ05J9fFa26Y3ZyOOYaTMehTXp9+S55q7XoownaSOqtmX8Zetg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160603185720.GA5204@leverpostej>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Vincent Huang <vincent.huang-8LB1SX4YFO85ffrT631h+Q@public.gmane.org>, Nick Dyer <nick.dyer-8YpZQSjhsQH10XsdtD+oqA@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-it0-f46.google.com ([209.85.214.46]:37802 "EHLO
+	mail-it0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932806AbcFGWBT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jun 2016 18:01:19 -0400
+Received: by mail-it0-f46.google.com with SMTP id z123so110860116itg.0
+        for <linux-input@vger.kernel.org>; Tue, 07 Jun 2016 15:01:18 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi Mark,
+The patch [1] [2] was intended to prevent duplicate connection of one
+piece of hardware via bluetooth and usb at the same time. But the code
+is too restrictive and forbids the connection of two identical pieces
+of hardware (Future Max Dance Mat) on different usb ports too. The
+second device is fully setup and then dropped by the sony driver.
 
-Thanks for reviewing.
+Below is my dmesg output from a current 4.4.0 kernel and from the last
+working 3.14.56 from here [3]
 
-On 06/03/2016 11:57 AM, Mark Rutland wrote:
-> On Fri, Jun 03, 2016 at 11:40:28AM -0700, Andrew Duggan wrote:
->> Signed-off-by: Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
->> ---
->>   .../devicetree/bindings/input/rmi4/rmi_2d_sensor.txt       |  5 +++++
->>   drivers/input/rmi4/rmi_2d_sensor.c                         | 14 ++++++++++++++
->>   2 files changed, 19 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
->> index f2c30c8..822df11 100644
->> --- a/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
->> +++ b/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
->> @@ -37,6 +37,11 @@ Optional Properties:
->>   				disable reporing absolute position data.
->>   - syna,rezero-wait-ms: Time in miliseconds to wait after issuing a rezero
->>   				command.
->> +- syna,dribble: Control reporting of dribble packets. Values are 0 for
->> +		default, 1 for explicitly disable, 2 for explicitly enable.
-> This sounds like a driver option one might choose at runtime, not a
-> fixed hardware/integration property.
->
-> Why does this belong in the DT?
+dmesg output with kernel 4.4.0
+[12125.194368] usb 2-1.2: new full-speed USB device number 3 using ehci-pci
+[12125.290910] usb 2-1.2: New USB device found, idVendor=22ba, idProduct=0109
+[12125.290917] usb 2-1.2: New USB device strings: Mfr=1, Product=2,
+SerialNumber=0
+[12125.290922] usb 2-1.2: Product: Generic USB Hub
+[12125.290925] usb 2-1.2: Manufacturer: Rui Da
+[12125.291508] hub 2-1.2:1.0: USB hub found
+[12125.291768] hub 2-1.2:1.0: 3 ports detected
+[12125.562392] usb 2-1.2.1: new full-speed USB device number 4 using ehci-pci
+[12125.657451] usb 2-1.2.1: New USB device found, idVendor=054c, idProduct=0268
+[12125.657458] usb 2-1.2.1: New USB device strings: Mfr=0, Product=2,
+SerialNumber=0
+[12125.657463] usb 2-1.2.1: Product: FutureMax Dance Mat
+[12126.341649] hidraw: raw HID events driver (C) Jiri Kosina
+[12126.348524] usbcore: registered new interface driver usbhid
+[12126.348528] usbhid: USB HID core driver
+[12126.360569] input: FutureMax Dance Mat as
+/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.2/2-1.2.1/2-1.2.1:1.0/0003:054C:0268.0001/input/input16
+[12126.416043] sony 0003:054C:0268.0001: input,hiddev0,hidraw0: USB
+HID v1.11 Joystick [FutureMax Dance Mat] on
+usb-0000:00:1d.0-1.2.1/input0
+[12138.967099] usb 2-1.5: new full-speed USB device number 5 using ehci-pci
+[12139.063843] usb 2-1.5: New USB device found, idVendor=22ba, idProduct=0109
+[12139.063851] usb 2-1.5: New USB device strings: Mfr=1, Product=2,
+SerialNumber=0
+[12139.063855] usb 2-1.5: Product: Generic USB Hub
+[12139.063859] usb 2-1.5: Manufacturer: Rui Da
+[12139.064433] hub 2-1.5:1.0: USB hub found
+[12139.064686] hub 2-1.5:1.0: 3 ports detected
+[12139.335121] usb 2-1.5.1: new full-speed USB device number 6 using ehci-pci
+[12139.430400] usb 2-1.5.1: New USB device found, idVendor=054c, idProduct=0268
+[12139.430407] usb 2-1.5.1: New USB device strings: Mfr=0, Product=2,
+SerialNumber=0
+[12139.430412] usb 2-1.5.1: Product: FutureMax Dance Mat
+[12139.434055] input: FutureMax Dance Mat as
+/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.5/2-1.5.1/2-1.5.1:1.0/0003:054C:0268.0002/input/input17
+[12139.434496] sony 0003:054C:0268.0002: input,hiddev0,hidraw1: USB
+HID v1.11 Joystick [FutureMax Dance Mat] on
+usb-0000:00:1d.0-1.5.1/input0
+[12139.437030] sony 0003:054C:0268.0002: controller with MAC address
+00:1b:fb:00:00:00 already connected
+[12139.519506] sony: probe of 0003:054C:0268.0002 failed with error -17
 
-My intention is to enable or disable these properties on a platform 
-basis. Dribble packets could be enabled on platforms which have issues 
-reliably reporting data. Dribble packets report multiple finger lift 
-events when a finger leaves the touchpad. The default will be to disable 
-them, but if a platform does not reliably report data (examples we have 
-observed are issues with the I2C controller) then the additional finger 
-lift events could avoid fingers from becoming "stuck" when the host does 
-not receive a finger lift event.
+dmesg output with kernel 3.14.56
+[  196.032269] usb 2-1.1: new full-speed USB device number 3 using ehci-pci
+[  196.129199] usb 2-1.1: New USB device found, idVendor=22ba, idProduct=0109
+[  196.129205] usb 2-1.1: New USB device strings: Mfr=1, Product=2,
+SerialNumber=0
+[  196.129209] usb 2-1.1: Product: Generic USB Hub
+[  196.129214] usb 2-1.1: Manufacturer: Rui Da
+[  196.130461] hub 2-1.1:1.0: USB hub found
+[  196.131299] hub 2-1.1:1.0: 3 ports detected
+[  196.404621] usb 2-1.1.1: new full-speed USB device number 4 using ehci-pci
+[  196.499645] usb 2-1.1.1: New USB device found, idVendor=054c, idProduct=0268
+[  196.499652] usb 2-1.1.1: New USB device strings: Mfr=0, Product=2,
+SerialNumber=0
+[  196.499656] usb 2-1.1.1: Product: FutureMax Dance Mat
+[  197.179980] hidraw: raw HID events driver (C) Jiri Kosina
+[  197.185726] usbcore: registered new interface driver usbhid
+[  197.185732] usbhid: USB HID core driver
+[  197.197779] input: FutureMax Dance Mat as
+/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.1/2-1.1.1/2-1.1.1:1.0/0003:054C:0268.0001/input/input16
+[  197.198194] sony 0003:054C:0268.0001: input,hiddev0,hidraw0: USB
+HID v1.11 Joystick [FutureMax Dance Mat] on
+usb-0000:00:1d.0-1.1.1/input0
+[  231.062851] usb 2-1.2: new full-speed USB device number 5 using ehci-pci
+[  231.160153] usb 2-1.2: New USB device found, idVendor=22ba, idProduct=0109
+[  231.160159] usb 2-1.2: New USB device strings: Mfr=1, Product=2,
+SerialNumber=0
+[  231.160163] usb 2-1.2: Product: Generic USB Hub
+[  231.160167] usb 2-1.2: Manufacturer: Rui Da
+[  231.160782] hub 2-1.2:1.0: USB hub found
+[  231.161087] hub 2-1.2:1.0: 3 ports detected
+[  231.431179] usb 2-1.2.1: new full-speed USB device number 6 using ehci-pci
+[  231.526072] usb 2-1.2.1: New USB device found, idVendor=054c, idProduct=0268
+[  231.526078] usb 2-1.2.1: New USB device strings: Mfr=0, Product=2,
+SerialNumber=0
+[  231.526083] usb 2-1.2.1: Product: FutureMax Dance Mat
+[  231.528057] input: FutureMax Dance Mat as
+/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.2/2-1.2.1/2-1.2.1:1.0/0003:054C:0268.0002/input/input17
+[  231.528452] sony 0003:054C:0268.0002: input,hiddev0,hidraw1: USB
+HID v1.11 Joystick [FutureMax Dance Mat] on
+usb-0000:00:1d.0-1.2.1/input0
 
->> +- syna,palm_detect: Control reporting of the palm detect gesture. Values
->> +			are 0 for default, 1 for explicitly disable, 2 for
->> +			explicitly enable.
-> Likewise, same question here.
 
-Similarly, this property was added to disable this functionality on a 
-particular platform where it was causing interference.
+Please send answers and requests also directly to me: singu.b@gmail.com
 
-Since there properties are set in firmware which is generally configured 
-per platform I went ahead and added them to the device tree bindings.
-
-> Additionally, please use '-', not '_' in property names.
-
-Sorry, Rob gave me similar feedback for previous properties. But, I must 
-have forgotten when making this change. I can fix this if we decide to 
-keep these properties in devicetree.
-
-Thanks,
-Andrew
-
-> Thanks,
-> Mark.
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+[1] https://www.spinics.net/lists/linux-input/msg29895.html
+[2] https://github.com/torvalds/linux/commit/d2d782fccee4f699a35e2d0cdbb2b19bdaec95a4
+[3] http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.14.56-utopic/

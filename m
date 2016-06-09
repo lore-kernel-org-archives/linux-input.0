@@ -1,223 +1,201 @@
-From: Oliver Neukum <oneukum-IBi9RG/b67k@public.gmane.org>
-Subject: Re: [PATCH v7] input: tablet: add Pegasus Notetaker tablet driver
-Date: Thu, 09 Jun 2016 17:00:29 +0200
-Message-ID: <1465484429.17248.13.camel@suse.com>
-References: <1464785703-5555-1-git-send-email-martink@posteo.de>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH] Input: Adding 2 bytes ahead of the input report which
+ describes the length of the packet meeting HID-over-I2C spec
+Date: Thu, 9 Jun 2016 14:44:55 -0700
+Message-ID: <e0a1b792-de63-f687-b08b-1f1ea2dc425d@gmail.com>
+References: <1465458818-14104-1-git-send-email-tobita.tatsunosuke@wacom.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1464785703-5555-1-git-send-email-martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:36846 "EHLO
+	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752705AbcFIVpE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jun 2016 17:45:04 -0400
+Received: by mail-pf0-f194.google.com with SMTP id 62so3582618pfd.3
+        for <linux-input@vger.kernel.org>; Thu, 09 Jun 2016 14:45:03 -0700 (PDT)
+In-Reply-To: <1465458818-14104-1-git-send-email-tobita.tatsunosuke@wacom.co.jp>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Tatsunosuke Tobita <junkpainting@gmail.com>, Linux Input <linux-input@vger.kernel.org>
+Cc: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Ping Cheng <pinglinux@gmail.com>
 
-On Wed, 2016-06-01 at 14:55 +0200, Martin Kepplinger wrote:
+On 06/09/2016 12:53 AM, Tatsunosuke Tobita wrote:
+> HID-over-I2C requires data at the first two bytes for describing
+> the input report length, but the current wacom.ko doesn't have
+> such space and this makes the input outcome messed.
+> Also, another report ID for Wacom AES type device is defined.
+>=20
+> Signed-off-by: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
+> ---
 
-> It's *really* fun to use as an input tablet though! So let's support this
-> for everybody.
+I must admit I'm confused by this patch...
 
-Nice job, but a few issues are left. I'll comment in the code.
+=46irstly, I2C devices should be using the HID_GENERIC codepath, but no=
+ne
+of the changes here are to that codepath, so I don't see how this would
+fix anything. Secondly, the HID subsystem itself should already be
+taking into account the two byte header for I2C devices (see the
+i2c_hid_get_input function in  drivers/hid/i2c-hid/i2c-hid.c); at least=
+,
+I haven't seen any strange behavior with the I2C devices I've used with
+wacom.ko...
 
-
-> +static void pegasus_close(struct input_dev *dev)
-> +{
-> +	struct pegasus *pegasus = input_get_drvdata(dev);
-> +	int autopm_error;
-> +
-> +	autopm_error = usb_autopm_get_interface(pegasus->intf);
-
-There is no need for this.
-
-> +	usb_kill_urb(pegasus->irq);
-> +	cancel_work_sync(&pegasus->init);
-> +
-> +	if (!autopm_error)
-> +		usb_autopm_put_interface(pegasus->intf);
-> +}
-> +
-> +static int pegasus_probe(struct usb_interface *intf,
-> +			 const struct usb_device_id *id)
-> +{
-> +	struct usb_device *dev = interface_to_usbdev(intf);
-> +	struct usb_endpoint_descriptor *endpoint;
-> +	struct pegasus *pegasus;
-> +	struct input_dev *input_dev;
-> +	int error;
-> +	int pipe, maxp;
-> +
-> +	/* We control interface 0 */
-> +	if (intf->cur_altsetting->desc.bInterfaceNumber == 1)
-> +		return -ENODEV;
-> +
-> +	/* Sanity check that the device has an endpoint */
-> +	if (intf->altsetting[0].desc.bNumEndpoints < 1) {
-> +		dev_err(&intf->dev, "Invalid number of endpoints\n");
-> +		return -EINVAL;
-> +	}
-> +	endpoint = &intf->cur_altsetting->endpoint[0].desc;
-> +
-> +	pegasus = kzalloc(sizeof(*pegasus), GFP_KERNEL);
-> +	input_dev = input_allocate_device();
-> +	if (!pegasus || !input_dev) {
-> +		error = -ENOMEM;
-> +		goto err_free_mem;
-> +	}
-> +
-> +	pegasus->usbdev = dev;
-> +	pegasus->dev = input_dev;
-> +	pegasus->intf = intf;
-> +
-> +	pegasus->data = usb_alloc_coherent(dev, endpoint->wMaxPacketSize,
-> +					   GFP_KERNEL, &pegasus->data_dma);
-> +	if (!pegasus->data) {
-> +		error = -ENOMEM;
-> +		goto err_free_mem;
-> +	}
-> +
-> +	pegasus->irq = usb_alloc_urb(0, GFP_KERNEL);
-> +	if (!pegasus->irq) {
-> +		error = -ENOMEM;
-> +		goto err_free_dma;
-> +	}
-> +
-> +	pipe = usb_rcvintpipe(dev, endpoint->bEndpointAddress);
-> +	maxp = usb_maxpacket(dev, pipe, usb_pipeout(pipe));
-> +	pegasus->data_len = maxp;
-> +
-> +	usb_fill_int_urb(pegasus->irq, dev, pipe, pegasus->data, maxp,
-> +			 pegasus_irq, pegasus, endpoint->bInterval);
-> +
-> +	pegasus->irq->transfer_dma = pegasus->data_dma;
-> +	pegasus->irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-> +
-> +	if (dev->manufacturer)
-> +		strlcpy(pegasus->name, dev->manufacturer,
-> +			sizeof(pegasus->name));
-> +
-> +	if (dev->product) {
-> +		if (dev->manufacturer)
-> +			strlcat(pegasus->name, " ", sizeof(pegasus->name));
-> +		strlcat(pegasus->name, dev->product, sizeof(pegasus->name));
-> +	}
-> +
-> +	if (!strlen(pegasus->name))
-> +		snprintf(pegasus->name, sizeof(pegasus->name),
-> +			 "USB Pegasus Device %04x:%04x",
-> +			 le16_to_cpu(dev->descriptor.idVendor),
-> +			 le16_to_cpu(dev->descriptor.idProduct));
-> +
-> +	usb_make_path(dev, pegasus->phys, sizeof(pegasus->phys));
-> +	strlcat(pegasus->phys, "/input0", sizeof(pegasus->phys));
-> +
-> +	INIT_WORK(&pegasus->init, pegasus_init);
-> +
-> +	usb_set_intfdata(intf, pegasus);
-> +
-> +	input_dev->name = pegasus->name;
-> +	input_dev->phys = pegasus->phys;
-> +	usb_to_input_id(dev, &input_dev->id);
-> +	input_dev->dev.parent = &intf->dev;
-> +
-> +	input_set_drvdata(input_dev, pegasus);
-> +
-> +	input_dev->open = pegasus_open;
-> +	input_dev->close = pegasus_close;
-> +
-> +	__set_bit(EV_ABS, input_dev->evbit);
-> +	__set_bit(EV_KEY, input_dev->evbit);
-> +
-> +	__set_bit(ABS_X, input_dev->absbit);
-> +	__set_bit(ABS_Y, input_dev->absbit);
-> +
-> +	__set_bit(BTN_TOUCH, input_dev->keybit);
-> +	__set_bit(BTN_RIGHT, input_dev->keybit);
-> +	__set_bit(BTN_TOOL_PEN, input_dev->keybit);
-> +
-> +	__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
-> +	__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-> +
-> +	input_set_abs_params(input_dev, ABS_X, -1500, 1500, 8, 0);
-> +	input_set_abs_params(input_dev, ABS_Y, 1600, 3000, 8, 0);
-> +
-> +	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
-
-If you need to do this here. It is also needed in reset_resume()
-
-> +	error = input_register_device(pegasus->dev);
-> +	if (error)
-> +		goto err_free_urb;
-> +
-> +	return 0;
-> +
-> +err_free_urb:
-> +	usb_free_urb(pegasus->irq);
-> +err_free_dma:
-> +	usb_free_coherent(dev, pegasus->data_len,
-> +			  pegasus->data, pegasus->data_dma);
-> +err_free_mem:
-> +	input_free_device(input_dev);
-> +	kfree(pegasus);
-> +	usb_set_intfdata(intf, NULL);
-> +
-> +	return error;
-> +}
-> +
-> +static void pegasus_disconnect(struct usb_interface *intf)
-> +{
-> +	struct pegasus *pegasus = usb_get_intfdata(intf);
-> +
-> +	input_unregister_device(pegasus->dev);
-> +
-> +	usb_free_urb(pegasus->irq);
-> +	usb_free_coherent(interface_to_usbdev(intf),
-> +			  pegasus->data_len, pegasus->data,
-> +			  pegasus->data_dma);
-> +	kfree(pegasus);
-> +	usb_set_intfdata(intf, NULL);
-> +}
-> +
-> +static int pegasus_suspend(struct usb_interface *intf, pm_message_t message)
-> +{
-> +	struct pegasus *pegasus = usb_get_intfdata(intf);
-> +
-> +	mutex_lock(&pegasus->dev->mutex);
-> +	usb_kill_urb(pegasus->irq);
-
-You must also stop the scheduled work.
-
-> +	mutex_unlock(&pegasus->dev->mutex);
-> +
-> +	return 0;
-> +}
-> +
-> +static int pegasus_resume(struct usb_interface *intf)
-> +{
-> +	struct pegasus *pegasus = usb_get_intfdata(intf);
-> +	int retval = 0;
-> +
-> +	mutex_lock(&pegasus->dev->mutex);
-> +	if (pegasus->dev->users && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
-> +		retval = -EIO;
-> +	mutex_unlock(&pegasus->dev->mutex);
-> +
-> +	return retval;
-> +}
-> +
-> +static int pegasus_reset_resume(struct usb_interface *intf)
-> +{
-
-Either the mode must be set on fresh hardware, or this is unnecessary.
-
-> +	return pegasus_resume(intf);
-> +}
-
-	HTH
-		Oliver
+Jason
+---
+Now instead of four in the eights place /
+you=92ve got three, =91Cause you added one /
+(That is to say, eight) to the two, /
+But you can=92t take seven from three, /
+So you look at the sixty-fours....
 
 
+>  drivers/hid/wacom_sys.c |  6 +++++-
+>  drivers/hid/wacom_wac.c | 28 ++++++++++++++++------------
+>  drivers/hid/wacom_wac.h |  2 ++
+>  3 files changed, 23 insertions(+), 13 deletions(-)
+>=20
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 499cc82..95be318 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -1886,7 +1886,11 @@ static int wacom_probe(struct hid_device *hdev=
+,
+>  			hid_warn(hdev,
+>  				 "can't create sysfs speed attribute err: %d\n",
+>  				 error);
+> -	}
+> +
+> +	/*HID Over I2C spec requires 2 bytes at the head of*/
+> +	/*Input report for length description*/
+> +	} else if (hdev->bus =3D=3D BUS_I2C)
+> +		wacom_wac->data_head =3D 2;
+> =20
+>  	return 0;
+> =20
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 1eae13c..c352d40 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1229,8 +1229,9 @@ static int wacom_mt_touch(struct wacom_wac *wac=
+om)
+>  {
+>  	struct input_dev *input =3D wacom->touch_input;
+>  	unsigned char *data =3D wacom->data;
+> +	unsigned char data_head =3D wacom->data_head;
+>  	int i;
+> -	int current_num_contacts =3D data[2];
+> +	int current_num_contacts =3D data[data_head + 2];
+>  	int contacts_to_send =3D 0;
+>  	int x_offset =3D 0;
+> =20
+> @@ -1249,7 +1250,8 @@ static int wacom_mt_touch(struct wacom_wac *wac=
+om)
+>  	contacts_to_send =3D min(5, wacom->num_contacts_left);
+> =20
+>  	for (i =3D 0; i < contacts_to_send; i++) {
+> -		int offset =3D (WACOM_BYTES_PER_MT_PACKET + x_offset) * i + 3;
+> +		int offset =3D (WACOM_BYTES_PER_MT_PACKET
+> +				+ x_offset) * (data_head + i) + 3;
+>  		bool touch =3D (data[offset] & 0x1) && !wacom->shared->stylus_in_p=
+roximity;
+>  		int id =3D get_unaligned_le16(&data[offset + 1]);
+>  		int slot =3D input_mt_get_slot_by_key(input, id);
+> @@ -1343,25 +1344,31 @@ static int wacom_tpc_single_touch(struct waco=
+m_wac *wacom, size_t len)
+>  static int wacom_tpc_pen(struct wacom_wac *wacom)
+>  {
+>  	unsigned char *data =3D wacom->data;
+> +	unsigned char data_head =3D wacom->data_head;
+>  	struct input_dev *input =3D wacom->pen_input;
+> -	bool prox =3D data[1] & 0x20;
+> +	bool prox =3D data[data_head + 1] & 0x20;
+> =20
+>  	if (!wacom->shared->stylus_in_proximity) /* first in prox */
+>  		/* Going into proximity select tool */
+> -		wacom->tool[0] =3D (data[1] & 0x0c) ? BTN_TOOL_RUBBER : BTN_TOOL_P=
+EN;
+> +		wacom->tool[data_head]
+> +		=3D (data[data_head + 1] & 0x0c) ? BTN_TOOL_RUBBER : BTN_TOOL_PEN;
+> =20
+>  	/* keep pen state for touch events */
+>  	wacom->shared->stylus_in_proximity =3D prox;
+> =20
+>  	/* send pen events only when touch is up or forced out */
+>  	if (!wacom->shared->touch_down) {
+> -		input_report_key(input, BTN_STYLUS, data[1] & 0x02);
+> -		input_report_key(input, BTN_STYLUS2, data[1] & 0x10);
+> -		input_report_abs(input, ABS_X, le16_to_cpup((__le16 *)&data[2]));
+> -		input_report_abs(input, ABS_Y, le16_to_cpup((__le16 *)&data[4]));
+> -		input_report_abs(input, ABS_PRESSURE, ((data[7] & 0x07) << 8) | da=
+ta[6]);
+> -		input_report_key(input, BTN_TOUCH, data[1] & 0x05);
+> -		input_report_key(input, wacom->tool[0], prox);
+> +		input_report_key(input, BTN_STYLUS, data[data_head + 1] & 0x02);
+> +		input_report_key(input, BTN_STYLUS2,
+> +					data[data_head + 1] & 0x10);
+> +		input_report_abs(input, ABS_X,
+> +					le16_to_cpup((__le16 *)&data[data_head + 2]));
+> +		input_report_abs(input, ABS_Y,
+> +					le16_to_cpup((__le16 *)&data[data_head + 4]));
+> +		input_report_abs(input, ABS_PRESSURE, ((data[data_head + 7]
+> +					& 0x07) << 8) | data[data_head + 6]);
+> +		input_report_key(input, BTN_TOUCH, data[data_head + 1] & 0x05);
+> +		input_report_key(input, wacom->tool[data_head], prox);
+>  		return 1;
+>  	}
+> =20
+> @@ -1371,6 +1373,7 @@ static int wacom_tpc_pen(struct wacom_wac *waco=
+m)
+>  static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
+>  {
+>  	unsigned char *data =3D wacom->data;
+> +	unsigned char data_head =3D wacom->data_head;
+> =20
+>  	if (wacom->pen_input)
+>  		dev_dbg(wacom->pen_input->dev.parent,
+> @@ -1390,7 +1393,7 @@ static int wacom_tpc_irq(struct wacom_wac *waco=
+m, size_t len)
+>  		return wacom_tpc_pen(wacom);
+> =20
+>  	default:
+> -		switch (data[0]) {
+> +		switch (data[data_head]) {
+>  		case WACOM_REPORT_TPC1FG:
+>  		case WACOM_REPORT_TPCHID:
+>  		case WACOM_REPORT_TPCST:
+> @@ -1399,6 +1402,7 @@ static int wacom_tpc_irq(struct wacom_wac *waco=
+m, size_t len)
+> =20
+>  		case WACOM_REPORT_TPCMT:
+>  		case WACOM_REPORT_TPCMT2:
+> +		case WACOM_REPORT_TPCMTHID:
+>  			return wacom_mt_touch(wacom);
+> =20
+>  		case WACOM_REPORT_PENABLED:
+> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+> index 53d1653..c992c2c 100644
+> --- a/drivers/hid/wacom_wac.h
+> +++ b/drivers/hid/wacom_wac.h
+> @@ -71,6 +71,7 @@
+>  #define WACOM_REPORT_INTUOS_PEN		16
+>  #define WACOM_REPORT_REMOTE		17
+>  #define WACOM_REPORT_INTUOSHT2_ID	8
+> +#define WACOM_REPORT_TPCMTHID           12
+> =20
+>  /* device quirks */
+>  #define WACOM_QUIRK_BBTOUCH_LOWRES	0x0001
+> @@ -248,6 +249,7 @@ struct wacom_wac {
+>  	int mode_report;
+>  	int mode_value;
+>  	struct hid_data hid_data;
+> +	unsigned char data_head;
+>  };
+> =20
+>  #endif
+>=20
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

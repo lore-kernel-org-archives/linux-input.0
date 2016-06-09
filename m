@@ -1,60 +1,134 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v8 0/4] i2c-smbus: add support for HOST NOTIFY
-Date: Thu,  9 Jun 2016 16:53:46 +0200
-Message-ID: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50787 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752152AbcFIOx4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 9 Jun 2016 10:53:56 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v8 1/4] i2c: add a protocol parameter to the alert callback
+Date: Thu,  9 Jun 2016 16:53:47 +0200
+Message-ID: <1465484030-28838-2-git-send-email-benjamin.tissoires@redhat.com>
+References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-doc-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
 Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Hi,
+.alert() is meant to be generic, but there is currently no way
+for the device driver to know which protocol generated the alert.
+Add a parameter in .alert() to help the device driver to understand
+what is given in data.
 
-and here comes the v8 of Host Notify.
+This patch is required to have the support of SMBus Host Notify protocol
+through .alert().
 
-To minimize the merge conflicts, I first applied the following 2 patches:
-http://patchwork.ozlabs.org/patch/632768/
-http://patchwork.ozlabs.org/patch/626051/
+Tested-by: Andrew Duggan <aduggan@synaptics.com>
+For hwmon:
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+For IPMI:
+Acked-by: Corey Minyard <cminyard@mvista.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+new in v2
 
-The series Corey sent (http://patchwork.ozlabs.org/patch/627567/ and the 9
-after) does not conflict with the i2c-i801 patch (3/4).
+changes in v3:
+- added also lm90.c to support the new API
+ 
+no changes in v4
+ 
+no changes in v5
 
-I haven't seen any other pending i801 patches in the recent history, but please
-tell me if you need extra eyes on some others.
+changes in v6:
+- made sure lm90 also checks for the type of alert first
 
-I guess you won't take 4/4 in the I2C tree (unless Dmitry gives his ACK), but
-I felt it was important to have one driver submitted with the use of this "new"
-feature.
+no changes in v7
 
-Cheers,
-Benjamin
+changes in v8:
+- fixed Andrew's email address
 
-Benjamin Tissoires (4):
-  i2c: add a protocol parameter to the alert callback
-  i2c-smbus: add SMBus Host Notify support
-  i2c: i801: add support of Host Notify
-  Input: synaptics-rmi4 - add SMBus support
+ drivers/char/ipmi/ipmi_ssif.c | 6 +++++-
+ drivers/hwmon/lm90.c          | 6 +++++-
+ drivers/i2c/i2c-smbus.c       | 3 ++-
+ include/linux/i2c.h           | 7 ++++++-
+ 4 files changed, 18 insertions(+), 4 deletions(-)
 
- Documentation/i2c/smbus-protocol |   6 +
- drivers/char/ipmi/ipmi_ssif.c    |   6 +-
- drivers/hwmon/lm90.c             |   6 +-
- drivers/i2c/busses/Kconfig       |   1 +
- drivers/i2c/busses/i2c-i801.c    |  79 ++++++-
- drivers/i2c/i2c-smbus.c          | 112 +++++++++-
- drivers/input/rmi4/Kconfig       |  12 +
- drivers/input/rmi4/Makefile      |   1 +
- drivers/input/rmi4/rmi_bus.h     |  12 +
- drivers/input/rmi4/rmi_smbus.c   | 470 +++++++++++++++++++++++++++++++++++++++
- include/linux/i2c-smbus.h        |  44 ++++
- include/linux/i2c.h              |  10 +-
- include/uapi/linux/i2c.h         |   1 +
- 13 files changed, 750 insertions(+), 10 deletions(-)
- create mode 100644 drivers/input/rmi4/rmi_smbus.c
-
+diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
+index 097c868..5673fff 100644
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -568,12 +568,16 @@ static void retry_timeout(unsigned long data)
+ }
+ 
+ 
+-static void ssif_alert(struct i2c_client *client, unsigned int data)
++static void ssif_alert(struct i2c_client *client, enum i2c_alert_protocol type,
++		       unsigned int data)
+ {
+ 	struct ssif_info *ssif_info = i2c_get_clientdata(client);
+ 	unsigned long oflags, *flags;
+ 	bool do_get = false;
+ 
++	if (type != I2C_PROTOCOL_SMBUS_ALERT)
++		return;
++
+ 	ssif_inc_stat(ssif_info, alerts);
+ 
+ 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
+diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
+index c9ff08d..a00fd38 100644
+--- a/drivers/hwmon/lm90.c
++++ b/drivers/hwmon/lm90.c
+@@ -1624,10 +1624,14 @@ static int lm90_remove(struct i2c_client *client)
+ 	return 0;
+ }
+ 
+-static void lm90_alert(struct i2c_client *client, unsigned int flag)
++static void lm90_alert(struct i2c_client *client, enum i2c_alert_protocol type,
++		       unsigned int flag)
+ {
+ 	u16 alarms;
+ 
++	if (type != I2C_PROTOCOL_SMBUS_ALERT)
++		return;
++
+ 	if (lm90_is_tripped(client, &alarms)) {
+ 		/*
+ 		 * Disable ALERT# output, because these chips don't implement
+diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+index abb55d3..3b6765a 100644
+--- a/drivers/i2c/i2c-smbus.c
++++ b/drivers/i2c/i2c-smbus.c
+@@ -56,7 +56,8 @@ static int smbus_do_alert(struct device *dev, void *addrp)
+ 	if (client->dev.driver) {
+ 		driver = to_i2c_driver(client->dev.driver);
+ 		if (driver->alert)
+-			driver->alert(client, data->flag);
++			driver->alert(client, I2C_PROTOCOL_SMBUS_ALERT,
++				      data->flag);
+ 		else
+ 			dev_warn(&client->dev, "no driver alert()!\n");
+ 	} else
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 96a25ae..29a2d3b7c 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -126,6 +126,10 @@ i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+ 					  u8 command, u8 length, u8 *values);
+ #endif /* I2C */
+ 
++enum i2c_alert_protocol {
++	I2C_PROTOCOL_SMBUS_ALERT,
++};
++
+ /**
+  * struct i2c_driver - represent an I2C device driver
+  * @class: What kind of i2c device we instantiate (for detect)
+@@ -181,7 +185,8 @@ struct i2c_driver {
+ 	 * For the SMBus alert protocol, there is a single bit of data passed
+ 	 * as the alert response's low bit ("event flag").
+ 	 */
+-	void (*alert)(struct i2c_client *, unsigned int data);
++	void (*alert)(struct i2c_client *, enum i2c_alert_protocol protocol,
++		      unsigned int data);
+ 
+ 	/* a ioctl like command that can be used to perform specific functions
+ 	 * with the device.
 -- 
 2.5.0
 

@@ -1,234 +1,175 @@
-From: Martin Kepplinger <martink@posteo.de>
-Subject: Re: [PATCH v7] input: tablet: add Pegasus Notetaker tablet driver
-Date: Fri, 10 Jun 2016 15:27:24 +0200
-Message-ID: <575AC03C.2010306@posteo.de>
-References: <1464785703-5555-1-git-send-email-martink@posteo.de>
- <1465484429.17248.13.camel@suse.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [RFC 0/4] Intel Integrated Sensor Hub Support (ISH)
+Date: Fri, 10 Jun 2016 06:55:04 -0700
+Message-ID: <1465566904.10525.11.camel@linux.intel.com>
+References: <1464668878-17113-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+	 <CACxGe6udQ9H5_OBg+h8BB4Bru5Air0LYxtGQkUvr91ebtUE+SA@mail.gmail.com>
+	 <1465509287.24319.3.camel@linux.intel.com>
+	 <CACxGe6vq-FDpjG8WtrraveQo+ZT3MHMDFzrA5-qqNLEwcbmNhw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1465484429.17248.13.camel@suse.com>
+In-Reply-To: <CACxGe6vq-FDpjG8WtrraveQo+ZT3MHMDFzrA5-qqNLEwcbmNhw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.com>
-Cc: dmitry.torokhov@gmail.com, kernel-testers@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: Jiri Kosina <jikos@kernel.org>, benjamin.tissoires@redhat.com, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, chaya.golan@intel.com, daniel.drubin@intel.com, Darren Hart <darren@dvhart.com>
 List-Id: linux-input@vger.kernel.org
 
-Am 2016-06-09 um 17:00 schrieb Oliver Neukum:
-> On Wed, 2016-06-01 at 14:55 +0200, Martin Kepplinger wrote:
-> 
->> It's *really* fun to use as an input tablet though! So let's support this
->> for everybody.
-> 
-> Nice job, but a few issues are left. I'll comment in the code.
-> 
+On Fri, 2016-06-10 at 10:44 +0100, Grant Likely wrote:
+[...]
+>=20
+> Yes, I do see the in_*_raw_* files in sysfs, and I'm able to get data
+> out of them. Gnome also seems to recognize that the accelerometers
+> are
+> there because it adds a rotation lock button to the system menu.
+>=20
+> However, the events are getting through yet. It may be that I'm
+> missing something in my kernel config. I'm rebuilding the kernel with
+> Debian's config for the 4.5.5 kernel as a quick sanity test. I'll
+> report back when I've tried.
+>=20
+You need to add in /usr/lib/system/systemd/iio-sensor-*
 
-Hi Oliver,
+After=3Dmulti-user.target
 
-Thanks for reviewing again. I'll change PM a little.
 
-                   martin
+This service starts too early.
 
-> 
->> +static void pegasus_close(struct input_dev *dev)
->> +{
->> +	struct pegasus *pegasus = input_get_drvdata(dev);
->> +	int autopm_error;
->> +
->> +	autopm_error = usb_autopm_get_interface(pegasus->intf);
-> 
-> There is no need for this.
-> 
->> +	usb_kill_urb(pegasus->irq);
->> +	cancel_work_sync(&pegasus->init);
->> +
->> +	if (!autopm_error)
->> +		usb_autopm_put_interface(pegasus->intf);
->> +}
->> +
->> +static int pegasus_probe(struct usb_interface *intf,
->> +			 const struct usb_device_id *id)
->> +{
->> +	struct usb_device *dev = interface_to_usbdev(intf);
->> +	struct usb_endpoint_descriptor *endpoint;
->> +	struct pegasus *pegasus;
->> +	struct input_dev *input_dev;
->> +	int error;
->> +	int pipe, maxp;
->> +
->> +	/* We control interface 0 */
->> +	if (intf->cur_altsetting->desc.bInterfaceNumber == 1)
->> +		return -ENODEV;
->> +
->> +	/* Sanity check that the device has an endpoint */
->> +	if (intf->altsetting[0].desc.bNumEndpoints < 1) {
->> +		dev_err(&intf->dev, "Invalid number of endpoints\n");
->> +		return -EINVAL;
->> +	}
->> +	endpoint = &intf->cur_altsetting->endpoint[0].desc;
->> +
->> +	pegasus = kzalloc(sizeof(*pegasus), GFP_KERNEL);
->> +	input_dev = input_allocate_device();
->> +	if (!pegasus || !input_dev) {
->> +		error = -ENOMEM;
->> +		goto err_free_mem;
->> +	}
->> +
->> +	pegasus->usbdev = dev;
->> +	pegasus->dev = input_dev;
->> +	pegasus->intf = intf;
->> +
->> +	pegasus->data = usb_alloc_coherent(dev, endpoint->wMaxPacketSize,
->> +					   GFP_KERNEL, &pegasus->data_dma);
->> +	if (!pegasus->data) {
->> +		error = -ENOMEM;
->> +		goto err_free_mem;
->> +	}
->> +
->> +	pegasus->irq = usb_alloc_urb(0, GFP_KERNEL);
->> +	if (!pegasus->irq) {
->> +		error = -ENOMEM;
->> +		goto err_free_dma;
->> +	}
->> +
->> +	pipe = usb_rcvintpipe(dev, endpoint->bEndpointAddress);
->> +	maxp = usb_maxpacket(dev, pipe, usb_pipeout(pipe));
->> +	pegasus->data_len = maxp;
->> +
->> +	usb_fill_int_urb(pegasus->irq, dev, pipe, pegasus->data, maxp,
->> +			 pegasus_irq, pegasus, endpoint->bInterval);
->> +
->> +	pegasus->irq->transfer_dma = pegasus->data_dma;
->> +	pegasus->irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
->> +
->> +	if (dev->manufacturer)
->> +		strlcpy(pegasus->name, dev->manufacturer,
->> +			sizeof(pegasus->name));
->> +
->> +	if (dev->product) {
->> +		if (dev->manufacturer)
->> +			strlcat(pegasus->name, " ", sizeof(pegasus->name));
->> +		strlcat(pegasus->name, dev->product, sizeof(pegasus->name));
->> +	}
->> +
->> +	if (!strlen(pegasus->name))
->> +		snprintf(pegasus->name, sizeof(pegasus->name),
->> +			 "USB Pegasus Device %04x:%04x",
->> +			 le16_to_cpu(dev->descriptor.idVendor),
->> +			 le16_to_cpu(dev->descriptor.idProduct));
->> +
->> +	usb_make_path(dev, pegasus->phys, sizeof(pegasus->phys));
->> +	strlcat(pegasus->phys, "/input0", sizeof(pegasus->phys));
->> +
->> +	INIT_WORK(&pegasus->init, pegasus_init);
->> +
->> +	usb_set_intfdata(intf, pegasus);
->> +
->> +	input_dev->name = pegasus->name;
->> +	input_dev->phys = pegasus->phys;
->> +	usb_to_input_id(dev, &input_dev->id);
->> +	input_dev->dev.parent = &intf->dev;
->> +
->> +	input_set_drvdata(input_dev, pegasus);
->> +
->> +	input_dev->open = pegasus_open;
->> +	input_dev->close = pegasus_close;
->> +
->> +	__set_bit(EV_ABS, input_dev->evbit);
->> +	__set_bit(EV_KEY, input_dev->evbit);
->> +
->> +	__set_bit(ABS_X, input_dev->absbit);
->> +	__set_bit(ABS_Y, input_dev->absbit);
->> +
->> +	__set_bit(BTN_TOUCH, input_dev->keybit);
->> +	__set_bit(BTN_RIGHT, input_dev->keybit);
->> +	__set_bit(BTN_TOOL_PEN, input_dev->keybit);
->> +
->> +	__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
->> +	__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
->> +
->> +	input_set_abs_params(input_dev, ABS_X, -1500, 1500, 8, 0);
->> +	input_set_abs_params(input_dev, ABS_Y, 1600, 3000, 8, 0);
->> +
->> +	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
-> 
-> If you need to do this here. It is also needed in reset_resume()
-> 
+> I'll also take some time and review the patch series later this
+> afternoon.
 
-This is done in open() now.
+Atri Bhattacharya reported issues with suspend/resume. With my test
+patches it is fixed for him
 
->> +	error = input_register_device(pegasus->dev);
->> +	if (error)
->> +		goto err_free_urb;
->> +
->> +	return 0;
->> +
->> +err_free_urb:
->> +	usb_free_urb(pegasus->irq);
->> +err_free_dma:
->> +	usb_free_coherent(dev, pegasus->data_len,
->> +			  pegasus->data, pegasus->data_dma);
->> +err_free_mem:
->> +	input_free_device(input_dev);
->> +	kfree(pegasus);
->> +	usb_set_intfdata(intf, NULL);
->> +
->> +	return error;
->> +}
->> +
->> +static void pegasus_disconnect(struct usb_interface *intf)
->> +{
->> +	struct pegasus *pegasus = usb_get_intfdata(intf);
->> +
->> +	input_unregister_device(pegasus->dev);
->> +
->> +	usb_free_urb(pegasus->irq);
->> +	usb_free_coherent(interface_to_usbdev(intf),
->> +			  pegasus->data_len, pegasus->data,
->> +			  pegasus->data_dma);
->> +	kfree(pegasus);
->> +	usb_set_intfdata(intf, NULL);
->> +}
->> +
->> +static int pegasus_suspend(struct usb_interface *intf, pm_message_t message)
->> +{
->> +	struct pegasus *pegasus = usb_get_intfdata(intf);
->> +
->> +	mutex_lock(&pegasus->dev->mutex);
->> +	usb_kill_urb(pegasus->irq);
-> 
-> You must also stop the scheduled work.
+If you want to hold on, I will repost with fixes for susend/resume.
 
-thanks!
+Thanks,
+Srinivas
 
-> 
->> +	mutex_unlock(&pegasus->dev->mutex);
->> +
->> +	return 0;
->> +}
->> +
->> +static int pegasus_resume(struct usb_interface *intf)
->> +{
->> +	struct pegasus *pegasus = usb_get_intfdata(intf);
->> +	int retval = 0;
->> +
->> +	mutex_lock(&pegasus->dev->mutex);
->> +	if (pegasus->dev->users && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
->> +		retval = -EIO;
->> +	mutex_unlock(&pegasus->dev->mutex);
->> +
->> +	return retval;
->> +}
->> +
->> +static int pegasus_reset_resume(struct usb_interface *intf)
->> +{
-> 
-> Either the mode must be set on fresh hardware, or this is unnecessary.
-> 
->> +	return pegasus_resume(intf);
->> +}
-> 
-> 	HTH
-> 		Oliver
-> 
-> 
+>=20
+
+> g.
+>=20
+> >=20
+> > Thanks,
+> > Srinivas
+> >=20
+> >=20
+> > > Thanks,
+> > > g.
+> > >=20
+> > > >=20
+> > > >=20
+> > > > This series is tested on:
+> > > > - Lenovo Yoga 260 with Skylake processor
+> > > > - HP Pavilion x2 detachable with Cherrytrail
+> > > >=20
+> > > > The user mode ABI is still same as external sensor hubs using
+> > > > Linux
+> > > > IIO. So existing user mode software should still work without
+> > > > change.
+> > > > This series primarily brings in new HID transport used in ISH.
+> > > >=20
+> > > > This series submitted as a RFC to try on several devices. We
+> > > > have
+> > > > received request from Linux users who wanted this support. So I
+> > > > hope all
+> > > > those users try and give feedback.
+> > > >=20
+> > > > Daniel Drubin (3):
+> > > > =C2=A0 hid: intel_ish-hid: ISH Transport layer
+> > > > =C2=A0 hid: intel-ish-hid: ipc layer
+> > > > =C2=A0 hid: intel-ish-hid: ISH HID client driver
+> > > >=20
+> > > > Srinivas Pandruvada (1):
+> > > > =C2=A0 Documentation: hid: Intel ISH HID document
+> > > >=20
+> > > > =C2=A0Documentation/hid/intel-ish-hid.txt=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0375 +++++++++
+> > > > =C2=A0drivers/hid/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0=C2=A0=C2=A02=
+ +
+> > > > =C2=A0drivers/hid/Makefile=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0=C2=A0=C2=A02 +
+> > > > =C2=A0drivers/hid/intel-ish-hid/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0=C2=A027 +
+> > > > =C2=A0drivers/hid/intel-ish-hid/Makefile=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0=C2=A020 +
+> > > > =C2=A0drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h=C2=A0=C2=A0|=C2=
+=A0=C2=A0220 +++++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ipc/hw-ish.h=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0=C2=A071 ++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ipc/ipc.c=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0710
+> > > > ++++++++++++++++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ipc/pci-ish.c=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0238 ++++++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ipc/utils.h=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0=C2=A065 ++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ishtp-hid-client.c |=C2=A0=C2=A0=
+672
+> > > > +++++++++++++++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ishtp-hid.c=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0201 +++++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ishtp-hid.h=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0157 ++++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ishtp/bus.c=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0670
+> > > > +++++++++++++++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ishtp/bus.h=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0=C2=A099 +++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ishtp/client.c=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0| 1131
+> > > > ++++++++++++++++++++++++++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ishtp/client.h=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0|=C2=A0=C2=A0196 +++++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ishtp/dma-if.c=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0|=C2=A0=C2=A0175 ++++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ishtp/hbm.c=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0911
+> > > > +++++++++++++++++++++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ishtp/hbm.h=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0319 ++++++++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ishtp/init.c=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0=C2=A094 +++
+> > > > =C2=A0drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h=C2=A0=C2=A0|=C2=
+=A0=C2=A0276 +++++++
+> > > > =C2=A0include/trace/events/intel_ish.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0=C2=A03=
+0 +
+> > > > =C2=A023 files changed, 6661 insertions(+)
+> > > > =C2=A0create mode 100644 Documentation/hid/intel-ish-hid.txt
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/Kconfig
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/Makefile
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish-r=
+egs.h
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish.h
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ipc/ipc.c
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ipc/pci-ish.=
+c
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ipc/utils.h
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid-
+> > > > client.c
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.c
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.h
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.c
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.h
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ishtp/client=
+=2Ec
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ishtp/client=
+=2Eh
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ishtp/dma-if=
+=2Ec
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.c
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.h
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ishtp/init.c
+> > > > =C2=A0create mode 100644 drivers/hid/intel-ish-hid/ishtp/ishtp-=
+dev.h
+> > > > =C2=A0create mode 100644 include/trace/events/intel_ish.h
+> > > >=20
+> > > > --
+> > > > 1.9.1
+> > > >=20

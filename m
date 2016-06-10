@@ -1,162 +1,72 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [RFC 0/4] Intel Integrated Sensor Hub Support (ISH)
-Date: Fri, 10 Jun 2016 10:44:31 +0100
-Message-ID: <CACxGe6vq-FDpjG8WtrraveQo+ZT3MHMDFzrA5-qqNLEwcbmNhw@mail.gmail.com>
-References: <1464668878-17113-1-git-send-email-srinivas.pandruvada@linux.intel.com>
- <CACxGe6udQ9H5_OBg+h8BB4Bru5Air0LYxtGQkUvr91ebtUE+SA@mail.gmail.com> <1465509287.24319.3.camel@linux.intel.com>
+From: Ben Gamari <ben@smart-cactus.org>
+Subject: Re: [PATCH 3/4] input/alps: Allow touchsticks to report pressure
+Date: Fri, 10 Jun 2016 12:21:56 +0200
+Message-ID: <871t45xs1n.fsf@smart-cactus.org>
+References: <1464436862-2649-1-git-send-email-ben@smart-cactus.org> <1464436862-2649-4-git-send-email-ben@smart-cactus.org> <625ba798-bec9-7dfe-ba9d-55a8c3ba347e@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1465509287.24319.3.camel-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, chaya.golan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, daniel.drubin-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Darren Hart <darren-P76s1CtE8BHQT0dZR+AlfA@public.gmane.org>
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha256; protocol="application/pgp-signature"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.smart-cactus.org ([54.187.36.80]:56431 "EHLO
+	mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752222AbcFJKW5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Jun 2016 06:22:57 -0400
+In-Reply-To: <625ba798-bec9-7dfe-ba9d-55a8c3ba347e@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Pali =?utf-8?Q?Roh=C3=A1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org
+Cc: Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>
 
-On Thu, Jun 9, 2016 at 10:54 PM, Srinivas Pandruvada
-<srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+--=-=-=
+Content-Type: text/plain
+
+Hans de Goede <hdegoede@redhat.com> writes:
+
 > Hi,
-> On Thu, 2016-06-09 at 22:45 +0100, Grant Likely wrote:
->> On Tue, May 31, 2016 at 5:27 AM, Srinivas Pandruvada
->> <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
->> >
->> > Starting from Cherrytrail, multiple generation of Intel processors
->> > offers
->> > on package sensor hub. Several recent tablets, 2-in-1 convertible
->> > laptops
->> > are using ISH instead of external sensor hubs. This resulted in
->> > lack of
->> > support of sensor function like device rotation and auto backlight
->> > adjustment. In addition, depending on the OEM implementation,
->> > support of ISH
->> > is required to support low power sleep states.
->> >
->> > The support of ISH on Linux platforms is not new. Android platforms
->> > with
->> > Intel SoCs had this support for a while submitted by Daniel Drubin.
->> > This patcheset is reusing most of those changes with  clean up and
->> > removing Android platform specific changes.
->> Hi Srinivas,
 >>
->> Thanks for this patch series. I've got an HP Spectre x360 G2
->> (skylake), and I've built a 4.6.0 kernel with this driver patched in.
->> It detects the sensors hub, and creates IIO devices under
->> /sys/bus/iio/devices:
+>> @@ -2996,6 +2999,10 @@ int alps_init(struct psmouse *psmouse)
 >>
->> $ ls /sys/bus/iio/devices/
->> iio:device0  iio:device1  iio:device2  iio:device3  iio:device4
->> iio:device5  iio:device6  iio:device7  iio:device8  iio:device9
->> trigger0  trigger1  trigger2  trigger3  trigger4  trigger5  trigger6
->> trigger7  trigger8  trigger9
->>
->> However, I haven't figured out how to test it yet. (This is the first
->> time I'm working with IIO). Do you have any test code or test
->> procedures to show if it is working?
->>
-> If you use Fedora 23 (or any distro with iio-sensor-proxy with gnome
-> rotation stuff), you should be able to do screen rotation and
-> brightness using ALS.
-> Each of these folders should have some raw sysfs files
-> in_xxx_raw_xx
+>>  		input_set_capability(dev2, EV_REL, REL_X);
+>>  		input_set_capability(dev2, EV_REL, REL_Y);
+>> +		if (priv->flags & ALPS_DUALPOINT_WITH_PRESSURE) {
+>> +			input_set_capability(dev2, EV_ABS, ABS_PRESSURE);
+>> +			input_set_abs_params(dev2, ABS_PRESSURE, 0, 127, 0, 0);
+>> +		}
+>>  		input_set_capability(dev2, EV_KEY, BTN_LEFT);
+>>  		input_set_capability(dev2, EV_KEY, BTN_RIGHT);
+>>  		input_set_capability(dev2, EV_KEY, BTN_MIDDLE);
 >
-> You should be able to use "cat" on them.
-
-Yes, I do see the in_*_raw_* files in sysfs, and I'm able to get data
-out of them. Gnome also seems to recognize that the accelerometers are
-there because it adds a rotation lock button to the system menu.
-
-However, the events are getting through yet. It may be that I'm
-missing something in my kernel config. I'm rebuilding the kernel with
-Debian's config for the 4.5.5 kernel as a quick sanity test. I'll
-report back when I've tried.
-
-I'll also take some time and review the patch series later this afternoon.
-
-g.
-
+> This seems wrong, reporting ABS_PRESSURE on a relative device. And yes, this
+> really is a relative device (it sends repeated delta events when you
+> keep pushing at the same force, rather then sending a single coordinate
+> value).
 >
-> Thanks,
-> Srinivas
+> Maybe we need a REL_PRESSURE for cases like this ?
 >
->
->> Thanks,
->> g.
->>
->> >
->> >
->> > This series is tested on:
->> > - Lenovo Yoga 260 with Skylake processor
->> > - HP Pavilion x2 detachable with Cherrytrail
->> >
->> > The user mode ABI is still same as external sensor hubs using Linux
->> > IIO. So existing user mode software should still work without
->> > change.
->> > This series primarily brings in new HID transport used in ISH.
->> >
->> > This series submitted as a RFC to try on several devices. We have
->> > received request from Linux users who wanted this support. So I
->> > hope all
->> > those users try and give feedback.
->> >
->> > Daniel Drubin (3):
->> >   hid: intel_ish-hid: ISH Transport layer
->> >   hid: intel-ish-hid: ipc layer
->> >   hid: intel-ish-hid: ISH HID client driver
->> >
->> > Srinivas Pandruvada (1):
->> >   Documentation: hid: Intel ISH HID document
->> >
->> >  Documentation/hid/intel-ish-hid.txt          |  375 +++++++++
->> >  drivers/hid/Kconfig                          |    2 +
->> >  drivers/hid/Makefile                         |    2 +
->> >  drivers/hid/intel-ish-hid/Kconfig            |   27 +
->> >  drivers/hid/intel-ish-hid/Makefile           |   20 +
->> >  drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h  |  220 +++++
->> >  drivers/hid/intel-ish-hid/ipc/hw-ish.h       |   71 ++
->> >  drivers/hid/intel-ish-hid/ipc/ipc.c          |  710
->> > ++++++++++++++++
->> >  drivers/hid/intel-ish-hid/ipc/pci-ish.c      |  238 ++++++
->> >  drivers/hid/intel-ish-hid/ipc/utils.h        |   65 ++
->> >  drivers/hid/intel-ish-hid/ishtp-hid-client.c |  672
->> > +++++++++++++++
->> >  drivers/hid/intel-ish-hid/ishtp-hid.c        |  201 +++++
->> >  drivers/hid/intel-ish-hid/ishtp-hid.h        |  157 ++++
->> >  drivers/hid/intel-ish-hid/ishtp/bus.c        |  670
->> > +++++++++++++++
->> >  drivers/hid/intel-ish-hid/ishtp/bus.h        |   99 +++
->> >  drivers/hid/intel-ish-hid/ishtp/client.c     | 1131
->> > ++++++++++++++++++++++++++
->> >  drivers/hid/intel-ish-hid/ishtp/client.h     |  196 +++++
->> >  drivers/hid/intel-ish-hid/ishtp/dma-if.c     |  175 ++++
->> >  drivers/hid/intel-ish-hid/ishtp/hbm.c        |  911
->> > +++++++++++++++++++++
->> >  drivers/hid/intel-ish-hid/ishtp/hbm.h        |  319 ++++++++
->> >  drivers/hid/intel-ish-hid/ishtp/init.c       |   94 +++
->> >  drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h  |  276 +++++++
->> >  include/trace/events/intel_ish.h             |   30 +
->> >  23 files changed, 6661 insertions(+)
->> >  create mode 100644 Documentation/hid/intel-ish-hid.txt
->> >  create mode 100644 drivers/hid/intel-ish-hid/Kconfig
->> >  create mode 100644 drivers/hid/intel-ish-hid/Makefile
->> >  create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
->> >  create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish.h
->> >  create mode 100644 drivers/hid/intel-ish-hid/ipc/ipc.c
->> >  create mode 100644 drivers/hid/intel-ish-hid/ipc/pci-ish.c
->> >  create mode 100644 drivers/hid/intel-ish-hid/ipc/utils.h
->> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid-client.c
->> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.c
->> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.h
->> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.c
->> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.h
->> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/client.c
->> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/client.h
->> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/dma-if.c
->> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.c
->> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.h
->> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/init.c
->> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
->> >  create mode 100644 include/trace/events/intel_ish.h
->> >
->> > --
->> > 1.9.1
->> >
+Fair enough. However, if such a thing were added how would one specify
+the range of the value (which seems necessary for the pressure to have
+any meaning whatsoever)? It seems odd that the distinctions of
+absolute/relative and bounded/unbounded values are conflated in the
+event interface. It's not clear to me what input_set_abs_params isn't
+instead input_set_params.
+
+Cheers
+
+- Ben
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXWpTEAAoJEAiHZbT6yZE31uIIAMAhUZJepbChFs3WJ3BMfhxT
+SYNCbSR0R4EmP2nPxNxtOERl4Iu7IwqSCbqLAwtxUHQpI1BV2pSErdO2kXeBSI/K
+mObftOiPXz6NhpcV42VLNpQPcfSNKQ5olE2LU/KXnR/SICNwmcTTUayKMLDfZ2VW
+uORljs6U+RxcmYFfEWTEtTCR8FVjv+x0JNMggi/zsoWmoK6wIYwY56qSKaQGlnHP
+cEL+2ZmENDS9QtcfB9RhZAbNhHUSjXyFFQ1DIPl9gX6hZ6AawRvpKKsVHpuVNKMQ
+aAd/vBX1uYskzlRehFWT+jsV2MqSvE55rshcja60fDstS6mnV8Za35gDH9XAOJk=
+=Xgy7
+-----END PGP SIGNATURE-----
+--=-=-=--

@@ -1,89 +1,162 @@
-From: "FIXED-TERM Rempel Oleksij (CM/ESO3)"
-	<fixed-term.Oleksij.Rempel@de.bosch.com>
-Subject: AW: [PATCH v3 0/4] zForce upstreaming
-Date: Fri, 10 Jun 2016 07:43:43 +0000
-Message-ID: <d0168a6a18874defb6dbb5e71c3baa77@FE-MBX1024.de.bosch.com>
-References: <1462357481-16258-1-git-send-email-dirk.behme@de.bosch.com>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [RFC 0/4] Intel Integrated Sensor Hub Support (ISH)
+Date: Fri, 10 Jun 2016 10:44:31 +0100
+Message-ID: <CACxGe6vq-FDpjG8WtrraveQo+ZT3MHMDFzrA5-qqNLEwcbmNhw@mail.gmail.com>
+References: <1464668878-17113-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+ <CACxGe6udQ9H5_OBg+h8BB4Bru5Air0LYxtGQkUvr91ebtUE+SA@mail.gmail.com> <1465509287.24319.3.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:13207 "EHLO
-	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750871AbcFJHnr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jun 2016 03:43:47 -0400
-In-Reply-To: <1462357481-16258-1-git-send-email-dirk.behme@de.bosch.com>
-Content-Language: de-DE
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1465509287.24319.3.camel-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, chaya.golan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, daniel.drubin-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Darren Hart <darren-P76s1CtE8BHQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: "Behme Dirk (CM/ESO2)" <Dirk.Behme@de.bosch.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Oleksij Rempel <linux@rempel-privat.de>
 
-ping
+On Thu, Jun 9, 2016 at 10:54 PM, Srinivas Pandruvada
+<srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+> Hi,
+> On Thu, 2016-06-09 at 22:45 +0100, Grant Likely wrote:
+>> On Tue, May 31, 2016 at 5:27 AM, Srinivas Pandruvada
+>> <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+>> >
+>> > Starting from Cherrytrail, multiple generation of Intel processors
+>> > offers
+>> > on package sensor hub. Several recent tablets, 2-in-1 convertible
+>> > laptops
+>> > are using ISH instead of external sensor hubs. This resulted in
+>> > lack of
+>> > support of sensor function like device rotation and auto backlight
+>> > adjustment. In addition, depending on the OEM implementation,
+>> > support of ISH
+>> > is required to support low power sleep states.
+>> >
+>> > The support of ISH on Linux platforms is not new. Android platforms
+>> > with
+>> > Intel SoCs had this support for a while submitted by Daniel Drubin.
+>> > This patcheset is reusing most of those changes with  clean up and
+>> > removing Android platform specific changes.
+>> Hi Srinivas,
+>>
+>> Thanks for this patch series. I've got an HP Spectre x360 G2
+>> (skylake), and I've built a 4.6.0 kernel with this driver patched in.
+>> It detects the sensors hub, and creates IIO devices under
+>> /sys/bus/iio/devices:
+>>
+>> $ ls /sys/bus/iio/devices/
+>> iio:device0  iio:device1  iio:device2  iio:device3  iio:device4
+>> iio:device5  iio:device6  iio:device7  iio:device8  iio:device9
+>> trigger0  trigger1  trigger2  trigger3  trigger4  trigger5  trigger6
+>> trigger7  trigger8  trigger9
+>>
+>> However, I haven't figured out how to test it yet. (This is the first
+>> time I'm working with IIO). Do you have any test code or test
+>> procedures to show if it is working?
+>>
+> If you use Fedora 23 (or any distro with iio-sensor-proxy with gnome
+> rotation stuff), you should be able to do screen rotation and
+> brightness using ALS.
+> Each of these folders should have some raw sysfs files
+> in_xxx_raw_xx
+>
+> You should be able to use "cat" on them.
 
-Mit freundlichen Gr=FC=DFen / Best regards
+Yes, I do see the in_*_raw_* files in sysfs, and I'm able to get data
+out of them. Gnome also seems to recognize that the accelerometers are
+there because it adds a rotation lock button to the system menu.
 
-Oleksij Rempel
-CM/ESO3 =20
+However, the events are getting through yet. It may be that I'm
+missing something in my kernel config. I'm rebuilding the kernel with
+Debian's config for the 4.5.5 kernel as a quick sanity test. I'll
+report back when I've tried.
 
-Tel. +49(5121)49-0=20
+I'll also take some time and review the patch series later this afternoon.
 
+g.
 
------Urspr=FCngliche Nachricht-----
-Von: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.k=
-ernel.org] Im Auftrag von Dirk Behme
-Gesendet: Mittwoch, 4. Mai 2016 12:25
-An: linux-input@vger.kernel.org; Dmitry Torokhov <dmitry.torokhov@gmail=
-=2Ecom>; Henrik Rydberg <rydberg@bitmath.org>; Javier Martinez Canillas=
- <javier@osg.samsung.com>
-Cc: Oleksij Rempel <linux@rempel-privat.de>
-Betreff: [PATCH v3 0/4] zForce upstreaming
-
-=46rom: Oleksij Rempel <linux@rempel-privat.de>
-
-Changelog:
-v2
- - rename scan-freq-idle and scan-freq-finger
-   to scan-idle-hz and scan-active-hz.
- - rebase with already acked "Input: zforce_ts: Fix dual touch recognit=
-ion"
-   from previous patchset.
-
-v3
- - rename touch-size-min to touch-size-min-mm
- - fix typo
- - replace "zforce_ts: Reject open if initialization not finished" patc=
-h.
-   Instead of reject open event, we will call zforce_start() from zforc=
-e_boot().
-
-Knut Wohlrab (2):
-  Input: zforce_ts: Add device tree support for scanning frequency
-  Input: zforce_ts: Add support for minimum touch size limit
-
-Marcel Grosshans (1):
-  Input: zforce_ts: Reinitialize touch controller when  BOOT_COMPLETE
-    received
-
-Oleksij Rempel (1):
-  Input: zforce_ts: allow open even if initialisation is not completed
-
- .../bindings/input/touchscreen/zforce_ts.txt       |   6 +
- drivers/input/touchscreen/zforce_ts.c              | 174 +++++++++++++=
-+++++---
- include/linux/platform_data/zforce_ts.h            |   3 +
- 3 files changed, 157 insertions(+), 26 deletions(-)
-
---
-1.9.1
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in the body of a message to majordomo@vger.kernel.org More majordomo in=
-fo at  http://vger.kernel.org/majordomo-info.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+> Thanks,
+> Srinivas
+>
+>
+>> Thanks,
+>> g.
+>>
+>> >
+>> >
+>> > This series is tested on:
+>> > - Lenovo Yoga 260 with Skylake processor
+>> > - HP Pavilion x2 detachable with Cherrytrail
+>> >
+>> > The user mode ABI is still same as external sensor hubs using Linux
+>> > IIO. So existing user mode software should still work without
+>> > change.
+>> > This series primarily brings in new HID transport used in ISH.
+>> >
+>> > This series submitted as a RFC to try on several devices. We have
+>> > received request from Linux users who wanted this support. So I
+>> > hope all
+>> > those users try and give feedback.
+>> >
+>> > Daniel Drubin (3):
+>> >   hid: intel_ish-hid: ISH Transport layer
+>> >   hid: intel-ish-hid: ipc layer
+>> >   hid: intel-ish-hid: ISH HID client driver
+>> >
+>> > Srinivas Pandruvada (1):
+>> >   Documentation: hid: Intel ISH HID document
+>> >
+>> >  Documentation/hid/intel-ish-hid.txt          |  375 +++++++++
+>> >  drivers/hid/Kconfig                          |    2 +
+>> >  drivers/hid/Makefile                         |    2 +
+>> >  drivers/hid/intel-ish-hid/Kconfig            |   27 +
+>> >  drivers/hid/intel-ish-hid/Makefile           |   20 +
+>> >  drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h  |  220 +++++
+>> >  drivers/hid/intel-ish-hid/ipc/hw-ish.h       |   71 ++
+>> >  drivers/hid/intel-ish-hid/ipc/ipc.c          |  710
+>> > ++++++++++++++++
+>> >  drivers/hid/intel-ish-hid/ipc/pci-ish.c      |  238 ++++++
+>> >  drivers/hid/intel-ish-hid/ipc/utils.h        |   65 ++
+>> >  drivers/hid/intel-ish-hid/ishtp-hid-client.c |  672
+>> > +++++++++++++++
+>> >  drivers/hid/intel-ish-hid/ishtp-hid.c        |  201 +++++
+>> >  drivers/hid/intel-ish-hid/ishtp-hid.h        |  157 ++++
+>> >  drivers/hid/intel-ish-hid/ishtp/bus.c        |  670
+>> > +++++++++++++++
+>> >  drivers/hid/intel-ish-hid/ishtp/bus.h        |   99 +++
+>> >  drivers/hid/intel-ish-hid/ishtp/client.c     | 1131
+>> > ++++++++++++++++++++++++++
+>> >  drivers/hid/intel-ish-hid/ishtp/client.h     |  196 +++++
+>> >  drivers/hid/intel-ish-hid/ishtp/dma-if.c     |  175 ++++
+>> >  drivers/hid/intel-ish-hid/ishtp/hbm.c        |  911
+>> > +++++++++++++++++++++
+>> >  drivers/hid/intel-ish-hid/ishtp/hbm.h        |  319 ++++++++
+>> >  drivers/hid/intel-ish-hid/ishtp/init.c       |   94 +++
+>> >  drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h  |  276 +++++++
+>> >  include/trace/events/intel_ish.h             |   30 +
+>> >  23 files changed, 6661 insertions(+)
+>> >  create mode 100644 Documentation/hid/intel-ish-hid.txt
+>> >  create mode 100644 drivers/hid/intel-ish-hid/Kconfig
+>> >  create mode 100644 drivers/hid/intel-ish-hid/Makefile
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish.h
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ipc/ipc.c
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ipc/pci-ish.c
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ipc/utils.h
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid-client.c
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.c
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.h
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.c
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.h
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/client.c
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/client.h
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/dma-if.c
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.c
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.h
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/init.c
+>> >  create mode 100644 drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
+>> >  create mode 100644 include/trace/events/intel_ish.h
+>> >
+>> > --
+>> > 1.9.1
+>> >

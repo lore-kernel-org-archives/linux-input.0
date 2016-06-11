@@ -1,7 +1,7 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 4/6] hid: intel-ish-hid: ISH HID client driver
-Date: Sat, 11 Jun 2016 05:13:37 -0700
-Message-ID: <1465647219-7798-5-git-send-email-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 3/6] hid: intel-ish-hid: ipc layer
+Date: Sat, 11 Jun 2016 05:13:36 -0700
+Message-ID: <1465647219-7798-4-git-send-email-srinivas.pandruvada@linux.intel.com>
 References: <1465647219-7798-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1465647219-7798-1-git-send-email-srinivas.pandruvada@linux.intel.com>
@@ -12,44 +12,1100 @@ List-Id: linux-input@vger.kernel.org
 
 From: Daniel Drubin <daniel.drubin@intel.com>
 
-This driver is responsible for implementing ISH HID client, which
-gets HID description and report. Once it has completely gets
-report descriptors, it registers as a HID LL drivers. This implements
-necessary callbacks so that it can be used by HID sensor hub driver.
+This layer is responsible for
+- Enumerating over PCI bus
+- Inform FW about host readiness
+- Provide HW interface to transport layer for control and messages
+- Interrupt handling and routing
 
 Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/intel-ish-hid/Makefile           |   4 +
- drivers/hid/intel-ish-hid/ishtp-hid-client.c | 922 +++++++++++++++++++++++++++
- drivers/hid/intel-ish-hid/ishtp-hid.c        | 231 +++++++
- drivers/hid/intel-ish-hid/ishtp-hid.h        | 182 ++++++
- include/uapi/linux/input.h                   |   1 +
- 5 files changed, 1340 insertions(+)
- create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid-client.c
- create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.c
- create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.h
+ drivers/hid/intel-ish-hid/Kconfig           |   5 +
+ drivers/hid/intel-ish-hid/Makefile          |   6 +
+ drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h | 220 +++++++++
+ drivers/hid/intel-ish-hid/ipc/hw-ish.h      |  70 +++
+ drivers/hid/intel-ish-hid/ipc/ipc.c         | 720 ++++++++++++++++++++++++++++
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c     | 305 ++++++++++++
+ drivers/hid/intel-ish-hid/ipc/utils.h       |  64 +++
+ include/trace/events/intel_ish.h            |  30 ++
+ 8 files changed, 1420 insertions(+)
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish.h
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/ipc.c
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/pci-ish.c
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/utils.h
+ create mode 100644 include/trace/events/intel_ish.h
 
+diff --git a/drivers/hid/intel-ish-hid/Kconfig b/drivers/hid/intel-ish-hid/Kconfig
+index 8914f3b..88967a1 100644
+--- a/drivers/hid/intel-ish-hid/Kconfig
++++ b/drivers/hid/intel-ish-hid/Kconfig
+@@ -5,10 +5,15 @@ config INTEL_ISH_HID_TRANSPORT
+ 	bool
+ 	default n
+ 
++config INTEL_ISH_HID_IPC
++	bool
++	default n
++
+ config INTEL_ISH_HID
+ 	bool "Intel Integrated Sensor Hub"
+ 	default n
+ 	select INTEL_ISH_HID_TRANSPORT
++	select INTEL_ISH_HID_IPC
+ 	help
+ 	  The Integrated Sensor Hub (ISH) enables the ability to offload
+ 	  sensor polling and algorithm processing to a dedicated low power
 diff --git a/drivers/hid/intel-ish-hid/Makefile b/drivers/hid/intel-ish-hid/Makefile
-index 2c83cb9..6727c66 100644
+index a5eaa6e..2c83cb9 100644
 --- a/drivers/hid/intel-ish-hid/Makefile
 +++ b/drivers/hid/intel-ish-hid/Makefile
-@@ -13,4 +13,8 @@ obj-$(CONFIG_INTEL_ISH_HID_IPC) += intel-ish-ipc.o
- intel-ish-ipc-objs := ipc/ipc.o
- intel-ish-ipc-objs += ipc/pci-ish.o
- 
-+obj-$(CONFIG_INTEL_ISH_HID) += intel-ishtp-hid.o
-+intel-ishtp-hid-objs := ishtp-hid.o
-+intel-ishtp-hid-objs += ishtp-hid-client.o
+@@ -8,3 +8,9 @@ intel-ishtp-objs += ishtp/hbm.o
+ intel-ishtp-objs += ishtp/client.o
+ intel-ishtp-objs += ishtp/bus.o
+ intel-ishtp-objs += ishtp/dma-if.o
 +
- ccflags-y += -Idrivers/hid/intel-ish-hid/ishtp
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
++obj-$(CONFIG_INTEL_ISH_HID_IPC) += intel-ish-ipc.o
++intel-ish-ipc-objs := ipc/ipc.o
++intel-ish-ipc-objs += ipc/pci-ish.o
++
++ccflags-y += -Idrivers/hid/intel-ish-hid/ishtp
+diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h b/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
 new file mode 100644
-index 0000000..0a81a47
+index 0000000..ab68afc
 --- /dev/null
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -0,0 +1,922 @@
++++ b/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
+@@ -0,0 +1,220 @@
 +/*
-+ * ISHTP client driver for HID (ISH)
++ * ISH registers definitions
++ *
++ * Copyright (c) 2012-2016, Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
++ * more details.
++ */
++
++#ifndef _ISHTP_ISH_REGS_H_
++#define _ISHTP_ISH_REGS_H_
++
++
++/*** IPC PCI Offsets and sizes ***/
++/* ISH IPC Base Address */
++#define IPC_REG_BASE		0x0000
++/* Peripheral Interrupt Status Register */
++#define IPC_REG_PISR_CHV_AB      (IPC_REG_BASE + 0x00)
++/* Peripheral Interrupt Mask Register */
++#define IPC_REG_PIMR_CHV_AB      (IPC_REG_BASE + 0x04)
++/*BXT, CHV_K0*/
++/*Peripheral Interrupt Status Register */
++#define IPC_REG_PISR_BXT	 (IPC_REG_BASE + 0x0C)
++/*Peripheral Interrupt Mask Register */
++#define IPC_REG_PIMR_BXT	 (IPC_REG_BASE + 0x08)
++/***********************************/
++/* ISH Host Firmware status Register */
++#define IPC_REG_ISH_HOST_FWSTS	(IPC_REG_BASE + 0x34)
++/* Host Communication Register */
++#define IPC_REG_HOST_COMM	(IPC_REG_BASE + 0x38)
++/* Reset register */
++#define IPC_REG_ISH_RST		(IPC_REG_BASE + 0x44)
++
++/* Inbound doorbell register Host to ISH */
++#define IPC_REG_HOST2ISH_DRBL	(IPC_REG_BASE + 0x48)
++/* Outbound doorbell register ISH to Host */
++#define IPC_REG_ISH2HOST_DRBL	(IPC_REG_BASE + 0x54)
++/* ISH to HOST message registers */
++#define IPC_REG_ISH2HOST_MSG	(IPC_REG_BASE + 0x60)
++/* HOST to ISH message registers */
++#define IPC_REG_HOST2ISH_MSG	(IPC_REG_BASE + 0xE0)
++/* REMAP2 to enable DMA (D3 RCR) */
++#define	IPC_REG_ISH_RMP2	(IPC_REG_BASE + 0x368)
++
++#define	IPC_REG_MAX		(IPC_REG_BASE + 0x400)
++
++/*** register bits - HISR ***/
++/* bit corresponds HOST2ISH interrupt in PISR and PIMR registers */
++#define IPC_INT_HOST2ISH_BIT            (1<<0)
++/***********************************/
++/*CHV_A0, CHV_B0*/
++/* bit corresponds ISH2HOST interrupt in PISR and PIMR registers */
++#define IPC_INT_ISH2HOST_BIT_CHV_AB	(1<<3)
++/*BXT, CHV_K0*/
++/* bit corresponds ISH2HOST interrupt in PISR and PIMR registers */
++#define IPC_INT_ISH2HOST_BIT_BXT	(1<<0)
++/***********************************/
++
++/* bit corresponds ISH2HOST busy clear interrupt in PIMR register */
++#define IPC_INT_ISH2HOST_CLR_MASK_BIT	(1<<11)
++
++/* offset of ISH2HOST busy clear interrupt in IPC_BUSY_CLR register */
++#define IPC_INT_ISH2HOST_CLR_OFFS	(0)
++
++/* bit corresponds ISH2HOST busy clear interrupt in IPC_BUSY_CLR register */
++#define IPC_INT_ISH2HOST_CLR_BIT	(1<<IPC_INT_ISH2HOST_CLR_OFFS)
++
++/* bit corresponds busy bit in doorbell registers */
++#define IPC_DRBL_BUSY_OFFS		(31)
++#define IPC_DRBL_BUSY_BIT		(1<<IPC_DRBL_BUSY_OFFS)
++
++#define	IPC_HOST_OWNS_MSG_OFFS		(30)
++
++/*
++ * A0: bit means that host owns MSGnn registers and is reading them.
++ * ISH FW may not write to them
++ */
++#define	IPC_HOST_OWNS_MSG_BIT		(1<<IPC_HOST_OWNS_MSG_OFFS)
++
++/*
++ * Host status bits (HOSTCOMM)
++ */
++/* bit corresponds host ready bit in Host Status Register (HOST_COMM) */
++#define IPC_HOSTCOMM_READY_OFFS		(7)
++#define IPC_HOSTCOMM_READY_BIT		(1<<IPC_HOSTCOMM_READY_OFFS)
++
++/***********************************/
++/*CHV_A0, CHV_B0*/
++#define	IPC_HOSTCOMM_INT_EN_OFFS_CHV_AB	(31)
++#define	IPC_HOSTCOMM_INT_EN_BIT_CHV_AB		\
++	(1<<IPC_HOSTCOMM_INT_EN_OFFS_CHV_AB)
++/*BXT, CHV_K0*/
++#define IPC_PIMR_INT_EN_OFFS_BXT	(0)
++#define IPC_PIMR_INT_EN_BIT_BXT		(1<<IPC_PIMR_INT_EN_OFFS_BXT)
++
++#define IPC_HOST2ISH_BUSYCLEAR_MASK_OFFS_BXT	(8)
++#define IPC_HOST2ISH_BUSYCLEAR_MASK_BIT		\
++	(1<<IPC_HOST2ISH_BUSYCLEAR_MASK_OFFS_BXT)
++/***********************************/
++/*
++ * both Host and ISH have ILUP at bit 0
++ * bit corresponds host ready bit in both status registers
++ */
++#define IPC_ILUP_OFFS			(0)
++#define IPC_ILUP_BIT			(1<<IPC_ILUP_OFFS)
++
++/*
++ * FW status bits (relevant)
++ */
++#define	IPC_FWSTS_ILUP		0x1
++#define	IPC_FWSTS_ISHTP_UP	(1<<1)
++#define	IPC_FWSTS_DMA0		(1<<16)
++#define	IPC_FWSTS_DMA1		(1<<17)
++#define	IPC_FWSTS_DMA2		(1<<18)
++#define	IPC_FWSTS_DMA3		(1<<19)
++
++#define	IPC_ISH_IN_DMA		\
++	(IPC_FWSTS_DMA0 | IPC_FWSTS_DMA1 | IPC_FWSTS_DMA2 | IPC_FWSTS_DMA3)
++
++/* bit corresponds host ready bit in ISH FW Status Register */
++#define IPC_ISH_ISHTP_READY_OFFS		(1)
++#define IPC_ISH_ISHTP_READY_BIT		(1<<IPC_ISH_ISHTP_READY_OFFS)
++
++#define	IPC_RMP2_DMA_ENABLED	0x1	/* Value to enable DMA, per D3 RCR */
++
++#define IPC_MSG_MAX_SIZE	0x80
++
++
++#define IPC_HEADER_LENGTH_MASK		0x03FF
++#define IPC_HEADER_PROTOCOL_MASK	0x0F
++#define IPC_HEADER_MNG_CMD_MASK		0x0F
++
++#define IPC_HEADER_LENGTH_OFFSET	0
++#define IPC_HEADER_PROTOCOL_OFFSET	10
++#define IPC_HEADER_MNG_CMD_OFFSET	16
++
++#define IPC_HEADER_GET_LENGTH(drbl_reg)		\
++	(((drbl_reg) >> IPC_HEADER_LENGTH_OFFSET)&IPC_HEADER_LENGTH_MASK)
++#define IPC_HEADER_GET_PROTOCOL(drbl_reg)	\
++	(((drbl_reg) >> IPC_HEADER_PROTOCOL_OFFSET)&IPC_HEADER_PROTOCOL_MASK)
++#define IPC_HEADER_GET_MNG_CMD(drbl_reg)	\
++	(((drbl_reg) >> IPC_HEADER_MNG_CMD_OFFSET)&IPC_HEADER_MNG_CMD_MASK)
++
++#define IPC_IS_BUSY(drbl_reg)			\
++	(((drbl_reg)&IPC_DRBL_BUSY_BIT) == ((uint32_t)IPC_DRBL_BUSY_BIT))
++
++/***********************************/
++/*CHV_A0, CHV_B0*/
++#define IPC_INT_FROM_ISH_TO_HOST_CHV_AB(drbl_reg) \
++	(((drbl_reg)&IPC_INT_ISH2HOST_BIT_CHV_AB) == \
++	((u32)IPC_INT_ISH2HOST_BIT_CHV_AB))
++/*BXT, CHV_K0*/
++#define IPC_INT_FROM_ISH_TO_HOST_BXT(drbl_reg) \
++	(((drbl_reg)&IPC_INT_ISH2HOST_BIT_BXT) == \
++	((u32)IPC_INT_ISH2HOST_BIT_BXT))
++/***********************************/
++
++#define IPC_BUILD_HEADER(length, protocol, busy)		\
++	(((busy)<<IPC_DRBL_BUSY_OFFS) |				\
++	((protocol) << IPC_HEADER_PROTOCOL_OFFSET) |		\
++	((length)<<IPC_HEADER_LENGTH_OFFSET))
++
++#define IPC_BUILD_MNG_MSG(cmd, length)				\
++	(((1)<<IPC_DRBL_BUSY_OFFS)|				\
++	((IPC_PROTOCOL_MNG)<<IPC_HEADER_PROTOCOL_OFFSET)|	\
++	((cmd)<<IPC_HEADER_MNG_CMD_OFFSET)|			\
++	 ((length)<<IPC_HEADER_LENGTH_OFFSET))
++
++
++#define IPC_SET_HOST_READY(host_status)		\
++				((host_status) |= (IPC_HOSTCOMM_READY_BIT))
++
++#define IPC_SET_HOST_ILUP(host_status)		\
++				((host_status) |= (IPC_ILUP_BIT))
++
++#define IPC_CLEAR_HOST_READY(host_status)	\
++				((host_status) ^= (IPC_HOSTCOMM_READY_BIT))
++
++#define IPC_CLEAR_HOST_ILUP(host_status)	\
++				((host_status) ^= (IPC_ILUP_BIT))
++
++/* todo - temp until PIMR HW ready */
++#define IPC_HOST_BUSY_READING_OFFS	6
++
++/* bit corresponds host ready bit in Host Status Register (HOST_COMM) */
++#define IPC_HOST_BUSY_READING_BIT	(1<<IPC_HOST_BUSY_READING_OFFS)
++
++#define IPC_SET_HOST_BUSY_READING(host_status)	\
++				((host_status) |= (IPC_HOST_BUSY_READING_BIT))
++
++#define IPC_CLEAR_HOST_BUSY_READING(host_status)\
++				((host_status) ^= (IPC_HOST_BUSY_READING_BIT))
++
++
++#define IPC_IS_ISH_ISHTP_READY(ish_status)	\
++		(((ish_status) & IPC_ISH_ISHTP_READY_BIT) ==	\
++			((uint32_t)IPC_ISH_ISHTP_READY_BIT))
++
++#define IPC_IS_ISH_ILUP(ish_status)		\
++		(((ish_status) & IPC_ILUP_BIT) == ((uint32_t)IPC_ILUP_BIT))
++
++
++#define IPC_PROTOCOL_ISHTP		1
++#define IPC_PROTOCOL_MNG		3
++
++#define MNG_RX_CMPL_ENABLE		0
++#define MNG_RX_CMPL_DISABLE		1
++#define MNG_RX_CMPL_INDICATION		2
++#define MNG_RESET_NOTIFY		3
++#define MNG_RESET_NOTIFY_ACK		4
++#define MNG_SYNC_FW_CLOCK		5
++#define MNG_ILLEGAL_CMD			0xFF
++
++#endif /* _ISHTP_ISH_REGS_H_ */
+diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+new file mode 100644
+index 0000000..02f68ad
+--- /dev/null
++++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+@@ -0,0 +1,70 @@
++/*
++ * H/W layer of ISHTP provider device (ISH)
++ *
++ * Copyright (c) 2014-2016, Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
++ * more details.
++ */
++
++#ifndef _ISHTP_HW_ISH_H_
++#define _ISHTP_HW_ISH_H_
++
++#include <linux/pci.h>
++#include <linux/interrupt.h>
++#include "hw-ish-regs.h"
++#include "ishtp-dev.h"
++
++#define CHV_DEVICE_ID		0x22D8
++#define BXT_Ax_DEVICE_ID	0x0AA2
++#define BXT_Bx_DEVICE_ID	0x1AA2
++#define BXTP_Ax_DEVICE_ID	0x5AA2
++#define SPT_Ax_DEVICE_ID	0x9D35
++
++#define	REVISION_ID_CHT_A0	0x6
++#define	REVISION_ID_CHT_Ax_SI	0x0
++#define	REVISION_ID_CHT_Bx_SI	0x10
++#define	REVISION_ID_CHT_Kx_SI	0x20
++#define	REVISION_ID_CHT_Dx_SI	0x30
++#define	REVISION_ID_CHT_B0	0xB0
++#define	REVISION_ID_SI_MASK	0x70
++
++struct ipc_rst_payload_type {
++	uint16_t	reset_id;
++	uint16_t	reserved;
++};
++
++struct time_sync_format {
++	uint8_t ts1_source;
++	uint8_t ts2_source;
++	uint16_t reserved;
++} __packed;
++
++struct ipc_time_update_msg {
++	uint64_t primary_host_time;
++	struct time_sync_format sync_info;
++	uint64_t secondary_host_time;
++} __packed;
++
++enum {
++	HOST_UTC_TIME_USEC = 0,
++	HOST_SYSTEM_TIME_USEC = 1
++};
++
++struct ish_hw {
++	void __iomem *mem_addr;
++};
++
++#define to_ish_hw(dev) (struct ish_hw *)((dev)->hw)
++
++irqreturn_t ish_irq_handler(int irq, void *dev_id);
++struct ishtp_device *ish_dev_init(struct pci_dev *pdev);
++int ish_hw_start(struct ishtp_device *dev);
++
++#endif /* _ISHTP_HW_ISH_H_ */
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
+new file mode 100644
+index 0000000..dd5df4b
+--- /dev/null
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -0,0 +1,720 @@
++/*
++ * H/W layer of ISHTP provider device (ISH)
++ *
++ * Copyright (c) 2014-2016, Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
++ * more details.
++ */
++
++#include <linux/sched.h>
++#include <linux/spinlock.h>
++#include <linux/delay.h>
++#include <linux/jiffies.h>
++#include "client.h"
++#include "hw-ish.h"
++#include "utils.h"
++#include "hbm.h"
++
++/* For FW reset flow */
++static struct work_struct fw_reset_work;
++static struct ishtp_device *ishtp_dev;
++
++/* ish_reg_read - reads 32bit register */
++static inline uint32_t ish_reg_read(const struct ishtp_device *dev,
++	unsigned long offset)
++{
++	struct ish_hw *hw = to_ish_hw(dev);
++
++	return readl(hw->mem_addr + offset);
++}
++
++/* ish_reg_write - writes 32bit register */
++static inline void ish_reg_write(struct ishtp_device *dev,
++				 unsigned long offset,
++				 uint32_t value)
++{
++	struct ish_hw *hw = to_ish_hw(dev);
++
++	writel(value, hw->mem_addr + offset);
++}
++
++static inline uint32_t _ish_read_fw_sts_reg(struct ishtp_device *dev)
++{
++	return ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++}
++
++bool check_generated_interrupt(struct ishtp_device *dev)
++{
++	bool interrupt_generated = true;
++	uint32_t pisr_val = 0;
++
++	if (dev->pdev->device == CHV_DEVICE_ID) {
++		pisr_val = ish_reg_read(dev, IPC_REG_PISR_CHV_AB);
++		interrupt_generated =
++			IPC_INT_FROM_ISH_TO_HOST_CHV_AB(pisr_val);
++	} else {
++		pisr_val = ish_reg_read(dev, IPC_REG_PISR_BXT);
++		interrupt_generated = IPC_INT_FROM_ISH_TO_HOST_BXT(pisr_val);
++	}
++
++	return interrupt_generated;
++}
++
++/* ish_is_input_ready - check if ISH FW is ready for receiving data */
++static bool ish_is_input_ready(struct ishtp_device *dev)
++{
++	uint32_t doorbell_val;
++
++	doorbell_val = ish_reg_read(dev, IPC_REG_HOST2ISH_DRBL);
++	return !IPC_IS_BUSY(doorbell_val);
++}
++
++/* set_host_ready - set host ready indication to FW */
++void set_host_ready(struct ishtp_device *dev)
++{
++	if (dev->pdev->device == CHV_DEVICE_ID) {
++		if (dev->pdev->revision == REVISION_ID_CHT_A0 ||
++				(dev->pdev->revision & REVISION_ID_SI_MASK) ==
++				REVISION_ID_CHT_Ax_SI)
++			ish_reg_write(dev, IPC_REG_HOST_COMM, 0x81);
++		else if (dev->pdev->revision == REVISION_ID_CHT_B0 ||
++				(dev->pdev->revision & REVISION_ID_SI_MASK) ==
++				REVISION_ID_CHT_Bx_SI ||
++				(dev->pdev->revision & REVISION_ID_SI_MASK) ==
++				REVISION_ID_CHT_Kx_SI ||
++				(dev->pdev->revision & REVISION_ID_SI_MASK) ==
++				REVISION_ID_CHT_Dx_SI) {
++			uint32_t host_comm_val;
++
++			host_comm_val = ish_reg_read(dev, IPC_REG_HOST_COMM);
++			host_comm_val |= IPC_HOSTCOMM_INT_EN_BIT_CHV_AB | 0x81;
++			ish_reg_write(dev, IPC_REG_HOST_COMM, host_comm_val);
++		}
++	} else {
++			uint32_t host_pimr_val;
++
++			host_pimr_val = ish_reg_read(dev, IPC_REG_PIMR_BXT);
++			host_pimr_val |= IPC_PIMR_INT_EN_BIT_BXT;
++			/*
++			 * disable interrupt generated instead of
++			 * RX_complete_msg
++			 */
++			host_pimr_val &= ~IPC_HOST2ISH_BUSYCLEAR_MASK_BIT;
++
++			ish_reg_write(dev, IPC_REG_PIMR_BXT, host_pimr_val);
++	}
++}
++
++/* ishtp_fw_is_ready - check if the hw is ready */
++static bool ishtp_fw_is_ready(struct ishtp_device *dev)
++{
++	uint32_t ish_status = _ish_read_fw_sts_reg(dev);
++
++	return IPC_IS_ISH_ILUP(ish_status) &&
++		IPC_IS_ISH_ISHTP_READY(ish_status);
++}
++
++/* Indicate to FW that the host is ready */
++static void ish_set_host_rdy(struct ishtp_device *dev)
++{
++	uint32_t host_status = ish_reg_read(dev, IPC_REG_HOST_COMM);
++
++	IPC_SET_HOST_READY(host_status);
++	ish_reg_write(dev, IPC_REG_HOST_COMM, host_status);
++}
++
++void ish_clr_host_rdy(struct ishtp_device *dev)
++{
++	uint32_t host_status = ish_reg_read(dev, IPC_REG_HOST_COMM);
++
++	IPC_CLEAR_HOST_READY(host_status);
++	ish_reg_write(dev, IPC_REG_HOST_COMM, host_status);
++}
++
++/* _ish_read_hdr - reads hdr of 32 bit length. */
++static uint32_t _ishtp_read_hdr(const struct ishtp_device *dev)
++{
++	return ish_reg_read(dev, IPC_REG_ISH2HOST_MSG);
++}
++
++/* ish_read - reads a message from ishtp device. */
++static int _ishtp_read(struct ishtp_device *dev, unsigned char *buffer,
++	unsigned long buffer_length)
++{
++	uint32_t	i;
++	uint32_t	*r_buf = (uint32_t *)buffer;
++	uint32_t	msg_offs;
++
++	msg_offs = IPC_REG_ISH2HOST_MSG + sizeof(struct ishtp_msg_hdr);
++	for (i = 0; i < buffer_length; i += sizeof(uint32_t))
++		*r_buf++ = ish_reg_read(dev, msg_offs + i);
++
++	return 0;
++}
++
++/**
++ * write_ipc_from_queue() - try to write ipc msg from Tx queue to device
++ * @dev:	ishtp device pointer
++ *
++ * Check if DRBL is cleared. if it is - write the first IPC msg,  then call
++ * the callback function (unless it's NULL)
++ */
++int write_ipc_from_queue(struct ishtp_device *dev)
++{
++	struct wr_msg_ctl_info	*ipc_link;
++	unsigned long	length;
++	unsigned long	rem;
++	unsigned long	flags;
++	uint32_t	doorbell_val;
++	uint32_t	*r_buf;
++	uint32_t	reg_addr;
++	int	i;
++	void	(*ipc_send_compl)(void *);
++	void	*ipc_send_compl_prm;
++	static int	out_ipc_locked;
++	unsigned long	out_ipc_flags;
++
++	if (dev->dev_state == ISHTP_DEV_DISABLED)
++		return	-EINVAL;
++
++	spin_lock_irqsave(&dev->out_ipc_spinlock, out_ipc_flags);
++	if (out_ipc_locked) {
++		spin_unlock_irqrestore(&dev->out_ipc_spinlock, out_ipc_flags);
++		return -EBUSY;
++	}
++	out_ipc_locked = 1;
++	if (!ish_is_input_ready(dev)) {
++		out_ipc_locked = 0;
++		spin_unlock_irqrestore(&dev->out_ipc_spinlock, out_ipc_flags);
++		return -EBUSY;
++	}
++	spin_unlock_irqrestore(&dev->out_ipc_spinlock, out_ipc_flags);
++
++	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
++	/*
++	 * if tx send list is empty - return 0;
++	 * may happen, as RX_COMPLETE handler doesn't check list emptiness.
++	 */
++	if (list_empty(&dev->wr_processing_list_head.link)) {
++		spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
++		out_ipc_locked = 0;
++		return	0;
++	}
++
++	ipc_link = list_entry(dev->wr_processing_list_head.link.next,
++			      struct wr_msg_ctl_info, link);
++	/* first 4 bytes of the data is the doorbell value (IPC header) */
++	length = ipc_link->length - sizeof(uint32_t);
++	doorbell_val = *(uint32_t *)ipc_link->inline_data;
++	r_buf = (uint32_t *)(ipc_link->inline_data + sizeof(uint32_t));
++
++	/* If sending MNG_SYNC_FW_CLOCK, update clock again */
++	if (IPC_HEADER_GET_PROTOCOL(doorbell_val) == IPC_PROTOCOL_MNG &&
++		IPC_HEADER_GET_MNG_CMD(doorbell_val) == MNG_SYNC_FW_CLOCK) {
++		struct timespec ts_system;
++		struct timeval tv_utc;
++		uint64_t        usec_system, usec_utc;
++		struct ipc_time_update_msg time_update;
++		struct time_sync_format ts_format;
++
++		get_monotonic_boottime(&ts_system);
++		do_gettimeofday(&tv_utc);
++		usec_system = (timespec_to_ns(&ts_system)) / NSEC_PER_USEC;
++		usec_utc = (uint64_t)tv_utc.tv_sec * 1000000 +
++						((uint32_t)tv_utc.tv_usec);
++		ts_format.ts1_source = HOST_SYSTEM_TIME_USEC;
++		ts_format.ts2_source = HOST_UTC_TIME_USEC;
++
++		time_update.primary_host_time = usec_system;
++		time_update.secondary_host_time = usec_utc;
++		time_update.sync_info = ts_format;
++
++		memcpy(r_buf, &time_update,
++		       sizeof(struct ipc_time_update_msg));
++	}
++
++	for (i = 0, reg_addr = IPC_REG_HOST2ISH_MSG; i < length >> 2; i++,
++			reg_addr += 4)
++		ish_reg_write(dev, reg_addr, r_buf[i]);
++
++	rem = length & 0x3;
++	if (rem > 0) {
++		uint32_t reg = 0;
++
++		memcpy(&reg, &r_buf[length >> 2], rem);
++		ish_reg_write(dev, reg_addr, reg);
++	}
++	/* Flush writes to msg registers and doorbell */
++	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++
++	/* Update IPC counters */
++	++dev->ipc_tx_cnt;
++	dev->ipc_tx_bytes_cnt += IPC_HEADER_GET_LENGTH(doorbell_val);
++
++	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, doorbell_val);
++	out_ipc_locked = 0;
++
++	ipc_send_compl = ipc_link->ipc_send_compl;
++	ipc_send_compl_prm = ipc_link->ipc_send_compl_prm;
++	list_del_init(&ipc_link->link);
++	list_add_tail(&ipc_link->link, &dev->wr_free_list_head.link);
++	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
++
++	/*
++	 * callback will be called out of spinlock,
++	 * after ipc_link returned to free list
++	 */
++	if (ipc_send_compl)
++		ipc_send_compl(ipc_send_compl_prm);
++
++	return 0;
++}
++
++/**
++ * write_ipc_to_queue() - write ipc msg to Tx queue
++ * @dev:		ishtp device instance
++ * @ipc_send_compl:	Send complete callback
++ * @ipc_send_compl_prm:	Parameter to send in complete callback
++ * @msg:		Pointer to message
++ * @length:		Length of message
++ *
++ * Recived msg with IPC (and upper protocol) header  and add it to the device
++ *  Tx-to-write list then try to send the first IPC waiting msg
++ *  (if DRBL is cleared)
++ * This function returns negative value for failure (means free list
++ *  is empty, or msg too long) and 0 for success.
++ */
++static int write_ipc_to_queue(struct ishtp_device *dev,
++	void (*ipc_send_compl)(void *), void *ipc_send_compl_prm,
++	unsigned char *msg, int length)
++{
++	struct wr_msg_ctl_info *ipc_link;
++	unsigned long	flags;
++
++	if (length > IPC_FULL_MSG_SIZE)
++		return -EMSGSIZE;
++
++	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
++	if (list_empty(&dev->wr_free_list_head.link)) {
++		spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
++		return -ENOMEM;
++	}
++	ipc_link = list_entry(dev->wr_free_list_head.link.next,
++		struct wr_msg_ctl_info, link);
++	list_del_init(&ipc_link->link);
++
++	ipc_link->ipc_send_compl = ipc_send_compl;
++	ipc_link->ipc_send_compl_prm = ipc_send_compl_prm;
++	ipc_link->length = length;
++	memcpy(ipc_link->inline_data, msg, length);
++
++	list_add_tail(&ipc_link->link, &dev->wr_processing_list_head.link);
++	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
++
++	write_ipc_from_queue(dev);
++
++	return 0;
++}
++
++/* Send a bus management message */
++static int ipc_send_mng_msg(struct ishtp_device *dev, uint32_t msg_code,
++	void *msg, size_t size)
++{
++	unsigned char	ipc_msg[IPC_FULL_MSG_SIZE];
++	uint32_t	drbl_val = IPC_BUILD_MNG_MSG(msg_code, size);
++
++	memcpy(ipc_msg, &drbl_val, sizeof(uint32_t));
++	memcpy(ipc_msg + sizeof(uint32_t), msg, size);
++	return	write_ipc_to_queue(dev, NULL, NULL, ipc_msg,
++		sizeof(uint32_t) + size);
++}
++
++static int ish_fw_reset_handler(struct ishtp_device *dev)
++{
++	uint32_t	reset_id;
++	unsigned long	flags;
++	struct wr_msg_ctl_info *processing, *next;
++
++	/* Read reset ID */
++	reset_id = ish_reg_read(dev, IPC_REG_ISH2HOST_MSG) & 0xFFFF;
++
++	/* Clear IPC output queue */
++	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
++	list_for_each_entry_safe(processing, next,
++			&dev->wr_processing_list_head.link, link) {
++		list_del(&processing->link);
++		list_add_tail(&processing->link, &dev->wr_free_list_head.link);
++	}
++	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
++
++	/* ISHTP notification in IPC_RESET */
++	ishtp_reset_handler(dev);
++
++	if (!ish_is_input_ready(dev))
++		timed_wait_for_timeout(WAIT_FOR_SEND_SLICE,
++			ish_is_input_ready(dev), (2 * HZ));
++
++	/* ISH FW is dead */
++	if (!ish_is_input_ready(dev))
++		return	-EPIPE;
++	/*
++	 * Set HOST2ISH.ILUP. Apparently we need this BEFORE sending
++	 * RESET_NOTIFY_ACK - FW will be checking for it
++	 */
++	ish_set_host_rdy(dev);
++	/* Send RESET_NOTIFY_ACK (with reset_id) */
++	ipc_send_mng_msg(dev, MNG_RESET_NOTIFY_ACK, &reset_id,
++			 sizeof(uint32_t));
++
++	/* Wait for ISH FW'es ILUP and ISHTP_READY */
++	timed_wait_for_timeout(WAIT_FOR_SEND_SLICE, ishtp_fw_is_ready(dev),
++		(2 * HZ));
++	if (!ishtp_fw_is_ready(dev)) {
++		/* ISH FW is dead */
++		uint32_t	ish_status;
++
++		ish_status = _ish_read_fw_sts_reg(dev);
++		dev_err(dev->devc,
++			"[ishtp-ish]: completed reset, ISH is dead "
++			"(FWSTS = %08X)\n",
++			ish_status);
++		return -ENODEV;
++	}
++	return	0;
++}
++
++static void fw_reset_work_fn(struct work_struct *unused)
++{
++	int	rv;
++
++	rv = ish_fw_reset_handler(ishtp_dev);
++	if (!rv) {
++		/* ISH is ILUP & ISHTP-ready. Restart ISHTP */
++		schedule_timeout(HZ / 3);
++		ishtp_dev->recvd_hw_ready = 1;
++		wake_up_interruptible(&ishtp_dev->wait_hw_ready);
++
++		/* ISHTP notification in IPC_RESET sequence completion */
++		ishtp_reset_compl_handler(ishtp_dev);
++	} else
++		dev_err(ishtp_dev->devc, "[ishtp-ish]: FW reset failed (%d)\n",
++			rv);
++}
++
++static void _ish_sync_fw_clock(struct ishtp_device *dev)
++{
++	static unsigned long	prev_sync;
++	struct timespec	ts;
++	uint64_t	usec;
++
++	if (prev_sync && jiffies - prev_sync < 20 * HZ)
++		return;
++
++	prev_sync = jiffies;
++	get_monotonic_boottime(&ts);
++	usec = (timespec_to_ns(&ts)) / NSEC_PER_USEC;
++	ipc_send_mng_msg(dev, MNG_SYNC_FW_CLOCK, &usec, sizeof(uint64_t));
++}
++
++/*
++ * recv_ipc() - Receive and process IPC management messages
++ * @dev:		ishtp device instance
++ * @doorbell_val:	doorbell value
++ *
++ * This function runs in ISR context.
++ * NOTE: Any other mng command than reset_notify and reset_notify_ack
++ * won't wake BH handler
++ */
++static void	recv_ipc(struct ishtp_device *dev, uint32_t doorbell_val)
++{
++	uint32_t	mng_cmd;
++
++	mng_cmd = IPC_HEADER_GET_MNG_CMD(doorbell_val);
++
++	switch (mng_cmd) {
++	default:
++		break;
++
++	case MNG_RX_CMPL_INDICATION:
++		if (dev->suspend_flag) {
++			dev->suspend_flag = 0;
++			wake_up_interruptible(&dev->suspend_wait);
++		}
++		if (dev->resume_flag) {
++			dev->resume_flag = 0;
++			wake_up_interruptible(&dev->resume_wait);
++		}
++
++		write_ipc_from_queue(dev);
++		break;
++
++	case MNG_RESET_NOTIFY:
++		if (!ishtp_dev) {
++			ishtp_dev = dev;
++			INIT_WORK(&fw_reset_work, fw_reset_work_fn);
++		}
++		schedule_work(&fw_reset_work);
++		break;
++
++	case MNG_RESET_NOTIFY_ACK:
++		dev->recvd_hw_ready = 1;
++		wake_up_interruptible(&dev->wait_hw_ready);
++		break;
++	}
++}
++
++/* ish_irq_handler - ISR of the ISHTP device */
++irqreturn_t ish_irq_handler(int irq, void *dev_id)
++{
++	struct ishtp_device	*dev = dev_id;
++	uint32_t	doorbell_val;
++	bool	interrupt_generated;
++
++	/* Check that it's interrupt from ISH (may be shared) */
++	interrupt_generated = check_generated_interrupt(dev);
++
++	if (!interrupt_generated)
++		return IRQ_NONE;
++
++	doorbell_val = ish_reg_read(dev, IPC_REG_ISH2HOST_DRBL);
++	if (!IPC_IS_BUSY(doorbell_val))
++		return IRQ_HANDLED;
++
++	if (dev->dev_state == ISHTP_DEV_DISABLED)
++		return	IRQ_HANDLED;
++
++	/* Sanity check: IPC dgram length in header */
++	if (IPC_HEADER_GET_LENGTH(doorbell_val) > IPC_PAYLOAD_SIZE) {
++		dev_err(dev->devc,
++			"IPC hdr - bad length: %u; dropped\n",
++			(unsigned int)IPC_HEADER_GET_LENGTH(doorbell_val));
++		goto	eoi;
++	}
++
++	switch (IPC_HEADER_GET_PROTOCOL(doorbell_val)) {
++	default:
++		break;
++	case IPC_PROTOCOL_MNG:
++		recv_ipc(dev, doorbell_val);
++		break;
++	case IPC_PROTOCOL_ISHTP:
++		ishtp_recv(dev);
++		break;
++	}
++
++eoi:
++	/* Update IPC counters */
++	++dev->ipc_rx_cnt;
++	dev->ipc_rx_bytes_cnt += IPC_HEADER_GET_LENGTH(doorbell_val);
++
++	ish_reg_write(dev, IPC_REG_ISH2HOST_DRBL, 0);
++	/* Flush write to doorbell */
++	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++
++	return	IRQ_HANDLED;
++}
++
++static int _ish_hw_reset(struct ishtp_device *dev)
++{
++	struct pci_dev *pdev = dev->pdev;
++	int	rv;
++	unsigned int	dma_delay;
++	uint16_t csr;
++
++	if (!pdev)
++		return	-ENODEV;
++
++	rv = pci_reset_function(pdev);
++	if (!rv)
++		dev->dev_state = ISHTP_DEV_RESETTING;
++
++	if (!pdev->pm_cap) {
++		dev_err(&pdev->dev, "Can't reset - no PM caps\n");
++		return	-EINVAL;
++	}
++
++	/* Now trigger reset to FW */
++	ish_reg_write(dev, IPC_REG_ISH_RMP2, 0);
++
++	for (dma_delay = 0; dma_delay < MAX_DMA_DELAY &&
++		_ish_read_fw_sts_reg(dev) & (IPC_ISH_IN_DMA);
++		dma_delay += 5)
++		mdelay(5);
++
++	if (dma_delay >= MAX_DMA_DELAY) {
++		dev_err(&pdev->dev,
++			"Can't reset - stuck with DMA in-progress\n");
++		return	-EBUSY;
++	}
++
++	pci_read_config_word(pdev, pdev->pm_cap + PCI_PM_CTRL, &csr);
++
++	csr &= ~PCI_PM_CTRL_STATE_MASK;
++	csr |= PCI_D3hot;
++	pci_write_config_word(pdev, pdev->pm_cap + PCI_PM_CTRL, csr);
++
++	mdelay(pdev->d3_delay);
++
++	csr &= ~PCI_PM_CTRL_STATE_MASK;
++	csr |= PCI_D0;
++	pci_write_config_word(pdev, pdev->pm_cap + PCI_PM_CTRL, csr);
++
++	ish_reg_write(dev, IPC_REG_ISH_RMP2, IPC_RMP2_DMA_ENABLED);
++
++	/*
++	 * Send 0 IPC message so that ISH FW wakes up if it was already
++	 * asleep
++	 */
++	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, IPC_DRBL_BUSY_BIT);
++
++	/* Flush writes to doorbell and REMAP2 */
++	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++
++	return	0;
++}
++
++/* _ish_ipc_reset - resets host and fw IPC and upper layers. */
++static int _ish_ipc_reset(struct ishtp_device *dev)
++{
++	struct ipc_rst_payload_type ipc_mng_msg;
++	int	rv = 0;
++
++	ipc_mng_msg.reset_id = 1;
++	ipc_mng_msg.reserved = 0;
++
++	set_host_ready(dev);
++
++	/* Clear the incoming doorbell */
++	ish_reg_write(dev, IPC_REG_ISH2HOST_DRBL, 0);
++	/* Flush write to doorbell */
++	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++
++	dev->recvd_hw_ready = 0;
++
++	/* send message */
++	rv = ipc_send_mng_msg(dev, MNG_RESET_NOTIFY, &ipc_mng_msg,
++		sizeof(struct ipc_rst_payload_type));
++	if (rv) {
++		dev_err(dev->devc, "Failed to send IPC MNG_RESET_NOTIFY\n");
++		return	rv;
++	}
++
++	wait_event_interruptible_timeout(dev->wait_hw_ready,
++					 dev->recvd_hw_ready, 2 * HZ);
++	if (!dev->recvd_hw_ready) {
++		dev_err(dev->devc, "Timed out waiting for HW ready\n");
++		rv = -ENODEV;
++	}
++
++	return rv;
++}
++
++int ish_hw_start(struct ishtp_device *dev)
++{
++	ish_set_host_rdy(dev);
++	/* After that we can enable ISH DMA operation */
++	ish_reg_write(dev, IPC_REG_ISH_RMP2, IPC_RMP2_DMA_ENABLED);
++
++	/*
++	 * Send 0 IPC message so that ISH FW wakes up if it was already
++	 * asleep
++	 */
++	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, IPC_DRBL_BUSY_BIT);
++	/* Flush write to doorbell */
++	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++
++	set_host_ready(dev);
++
++	/* wait for FW-initiated reset flow */
++	if (!dev->recvd_hw_ready)
++		wait_event_interruptible_timeout(dev->wait_hw_ready,
++						 dev->recvd_hw_ready,
++						 10 * HZ);
++
++	if (!dev->recvd_hw_ready) {
++		dev_err(dev->devc,
++			"[ishtp-ish]: Timed out waiting for "
++			"FW-initiated reset\n");
++		return	-ENODEV;
++	}
++
++	return 0;
++}
++
++static uint32_t ish_ipc_get_header(struct ishtp_device *dev, int length,
++				   int busy)
++{
++	uint32_t drbl_val;
++
++	drbl_val = IPC_BUILD_HEADER(length, IPC_PROTOCOL_ISHTP, busy);
++
++	return drbl_val;
++}
++
++static const struct ishtp_hw_ops ish_hw_ops = {
++	.hw_reset = _ish_hw_reset,
++	.ipc_reset = _ish_ipc_reset,
++	.ipc_get_header = ish_ipc_get_header,
++	.ishtp_read = _ishtp_read,
++	.write = write_ipc_to_queue,
++	.get_fw_status = _ish_read_fw_sts_reg,
++	.sync_fw_clock = _ish_sync_fw_clock,
++	.ishtp_read_hdr = _ishtp_read_hdr
++};
++
++struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
++{
++	struct ishtp_device *dev;
++	int	i;
++
++	dev = kzalloc(sizeof(struct ishtp_device) + sizeof(struct ish_hw),
++		GFP_KERNEL);
++	if (!dev)
++		return NULL;
++
++	ishtp_device_init(dev);
++
++	init_waitqueue_head(&dev->wait_hw_ready);
++
++	spin_lock_init(&dev->wr_processing_spinlock);
++	spin_lock_init(&dev->out_ipc_spinlock);
++
++	/* Init IPC processing and free lists */
++	INIT_LIST_HEAD(&dev->wr_processing_list_head.link);
++	INIT_LIST_HEAD(&dev->wr_free_list_head.link);
++	for (i = 0; i < IPC_TX_FIFO_SIZE; ++i) {
++		struct wr_msg_ctl_info	*tx_buf;
++
++		tx_buf = kzalloc(sizeof(struct wr_msg_ctl_info), GFP_KERNEL);
++		if (!tx_buf) {
++			/*
++			 * IPC buffers may be limited or not available
++			 * at all - although this shouldn't happen
++			 */
++			dev_err(dev->devc,
++				"[ishtp-ish]: failure in Tx FIFO "
++				"allocations (%d)\n", i);
++			break;
++		}
++		list_add_tail(&tx_buf->link, &dev->wr_free_list_head.link);
++	}
++
++	dev->ops = &ish_hw_ops;
++	dev->devc = &pdev->dev;
++	dev->mtu = IPC_PAYLOAD_SIZE - sizeof(struct ishtp_msg_hdr);
++	return dev;
++}
++
++void	ishtp_device_disable(struct ishtp_device *dev)
++{
++	dev->dev_state = ISHTP_DEV_DISABLED;
++	ish_clr_host_rdy(dev);
++	kfree(dev->fw_clients);
++}
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+new file mode 100644
+index 0000000..e737992
+--- /dev/null
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -0,0 +1,305 @@
++/*
++ * PCI glue for ISHTP provider device (ISH) driver
 + *
 + * Copyright (c) 2014-2016, Intel Corporation.
 + *
@@ -64,1157 +1120,303 @@ index 0000000..0a81a47
 + */
 +
 +#include <linux/module.h>
-+#include <linux/hid.h>
-+#include "ishtp/ishtp-dev.h"
-+#include "ishtp/client.h"
-+#include "ishtp-hid.h"
++#include <linux/moduleparam.h>
++#include <linux/kernel.h>
++#include <linux/device.h>
++#include <linux/fs.h>
++#include <linux/errno.h>
++#include <linux/types.h>
++#include <linux/pci.h>
++#include <linux/sched.h>
++#include <linux/interrupt.h>
++#include <linux/workqueue.h>
++#include <linux/miscdevice.h>
++#define CREATE_TRACE_POINTS
++#include <trace/events/intel_ish.h>
++#include "ishtp-dev.h"
++#include "hw-ish.h"
 +
-+/* Rx ring buffer pool size */
-+#define HID_CL_RX_RING_SIZE	32
-+#define HID_CL_TX_RING_SIZE	16
++static const struct pci_device_id ish_pci_tbl[] = {
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CHV_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, BXT_Ax_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, BXT_Bx_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, BXTP_Ax_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, SPT_Ax_DEVICE_ID)},
++	{0, }
++};
++MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
 +
 +/**
-+ * report_bad_packets() - Report bad packets
-+ * @hid_ishtp_cl:	Client instance to get stats
-+ * @recv_buf:		Raw received host interface message
-+ * @cur_pos:		Current position index in payload
-+ * @payload_len:	Length of payload expected
++ * ish_event_tracer() - Callback function to dump trace messages
 + *
-+ * Dumps error in case bad packet is received
++ * @dev:	ishtp device
++ * @format:	printf style format
++ *
++ * Callback to direct log messages to Linux trace buffers
 + */
-+static void report_bad_packet(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
-+			      size_t cur_pos,  size_t payload_len)
++static void ish_event_tracer(struct ishtp_device *dev, char *format, ...)
 +{
-+	struct hostif_msg *recv_msg = recv_buf;
-+	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++	if (trace_ishtp_dump_enabled()) {
++		va_list args;
++		char tmp_buf[100];
 +
-+	dev_err(&hid_ishtp_cl->device->dev, "[hid-ish]: BAD packet %02X\n"
-+		"total_bad=%u cur_pos=%u\n"
-+		"[%02X %02X %02X %02X]\n"
-+		"payload_len=%u\n"
-+		"multi_packet_cnt=%u\n"
-+		"is_response=%02X\n",
-+		recv_msg->hdr.command, client_data->bad_recv_cnt,
-+		(unsigned int)cur_pos,
-+		((unsigned char *)recv_msg)[0], ((unsigned char *)recv_msg)[1],
-+		((unsigned char *)recv_msg)[2], ((unsigned char *)recv_msg)[3],
-+		(unsigned int)payload_len, client_data->multi_packet_cnt,
-+		recv_msg->hdr.command & ~CMD_MASK);
++		va_start(args, format);
++		vsnprintf(tmp_buf, sizeof(tmp_buf), format, args);
++		va_end(args);
++
++		trace_ishtp_dump(tmp_buf);
++	}
 +}
 +
 +/**
-+ * process_recv() - Received and parse incoming packet
-+ * @hid_ishtp_cl:	Client instance to get stats
-+ * @recv_buf:		Raw received host interface message
-+ * @data_len:		length of the message
++ * ish_init() - Init function
 + *
-+ * Parse the incoming packet. If it is a response packet then it will update
-+ * per instance flags and wake up the caller waiting to for the response.
++ * @dev:	ishtp device
++ *
++ * This function initialize wait queues for suspend/resume and call
++ * calls hadware initialization function. This will initiate
++ * startup sequence
 + */
-+static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
-+			 size_t data_len)
++static int ish_init(struct ishtp_device *dev)
 +{
-+	struct hostif_msg *recv_msg;
-+	unsigned char *payload;
-+	struct device_info *dev_info;
-+	int i, j;
-+	size_t	payload_len, total_len, cur_pos;
-+	int report_type;
-+	struct report_list *reports_list;
-+	char *reports;
-+	size_t report_len;
-+	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
-+	int curr_hid_dev = client_data->cur_hid_dev;
++	int ret;
 +
-+	if (data_len < sizeof(struct hostif_msg_hdr)) {
-+		dev_err(&hid_ishtp_cl->device->dev,
-+			"[hid-ish]: error, received %u which is less than data header %u\n",
-+			(unsigned int)data_len,
-+			(unsigned int)sizeof(struct hostif_msg_hdr));
-+		++client_data->bad_recv_cnt;
-+		ish_hw_reset(hid_ishtp_cl->dev);
-+		return;
++	dev_set_drvdata(dev->devc, dev);
++
++	init_waitqueue_head(&dev->suspend_wait);
++	init_waitqueue_head(&dev->resume_wait);
++
++	/* Register ishtp bus */
++	ret = ishtp_cl_bus_init();
++	if (ret) {
++		dev_err(dev->devc, "ISH: Init hw failed.\n");
++		return ret;
 +	}
 +
-+	payload = recv_buf + sizeof(struct hostif_msg_hdr);
-+	total_len = data_len;
-+	cur_pos = 0;
-+
-+	do {
-+		recv_msg = (struct hostif_msg *)(recv_buf + cur_pos);
-+		payload_len = recv_msg->hdr.size;
-+
-+		/* Sanity checks */
-+		if (cur_pos + payload_len + sizeof(struct hostif_msg) >
-+				total_len) {
-+			++client_data->bad_recv_cnt;
-+			report_bad_packet(hid_ishtp_cl, recv_msg, cur_pos,
-+					  payload_len);
-+			ish_hw_reset(hid_ishtp_cl->dev);
-+			break;
-+		}
-+
-+		hid_ishtp_trace(client_data,  "%s %d\n",
-+				__func__, recv_msg->hdr.command & CMD_MASK);
-+
-+		switch (recv_msg->hdr.command & CMD_MASK) {
-+		case HOSTIF_DM_ENUM_DEVICES:
-+			if ((!(recv_msg->hdr.command & ~CMD_MASK) ||
-+					client_data->init_done)) {
-+				++client_data->bad_recv_cnt;
-+				report_bad_packet(hid_ishtp_cl, recv_msg,
-+						  cur_pos,
-+						  payload_len);
-+				ish_hw_reset(hid_ishtp_cl->dev);
-+				break;
-+			}
-+			client_data->hid_dev_count = (unsigned int)*payload;
-+			if (!client_data->hid_devices)
-+				client_data->hid_devices = devm_kzalloc(
-+						&hid_ishtp_cl->device->dev,
-+						client_data->hid_dev_count *
-+						sizeof(struct device_info),
-+						GFP_KERNEL);
-+			if (!client_data->hid_devices) {
-+				dev_err(&hid_ishtp_cl->device->dev,
-+				"Mem alloc failed for hid device info\n");
-+				wake_up_interruptible(&client_data->init_wait);
-+				break;
-+			}
-+			for (i = 0; i < client_data->hid_dev_count; ++i) {
-+				if (1 + sizeof(struct device_info) * i >=
-+						payload_len) {
-+					dev_err(&hid_ishtp_cl->device->dev,
-+						"[hid-ish]: [ENUM_DEVICES]: content size %lu is bigger than payload_len %u\n",
-+						1 + sizeof(struct device_info)
-+						* i,
-+						(unsigned int)payload_len);
-+				}
-+
-+				if (1 + sizeof(struct device_info) * i >=
-+						data_len)
-+					break;
-+
-+				dev_info = (struct device_info *)(payload + 1 +
-+					sizeof(struct device_info) * i);
-+				if (client_data->hid_devices)
-+					memcpy(client_data->hid_devices + i,
-+					       dev_info,
-+					       sizeof(struct device_info));
-+			}
-+
-+			client_data->enum_devices_done = true;
-+			wake_up_interruptible(&client_data->init_wait);
-+
-+			break;
-+
-+		case HOSTIF_GET_HID_DESCRIPTOR:
-+			if ((!(recv_msg->hdr.command & ~CMD_MASK) ||
-+					client_data->init_done)) {
-+				++client_data->bad_recv_cnt;
-+				report_bad_packet(hid_ishtp_cl, recv_msg,
-+						  cur_pos,
-+						  payload_len);
-+				ish_hw_reset(hid_ishtp_cl->dev);
-+				break;
-+			}
-+			if (!client_data->hid_descr[curr_hid_dev])
-+				client_data->hid_descr[curr_hid_dev] =
-+				devm_kmalloc(&hid_ishtp_cl->device->dev,
-+					     payload_len, GFP_KERNEL);
-+			if (client_data->hid_descr[curr_hid_dev]) {
-+				memcpy(client_data->hid_descr[curr_hid_dev],
-+				       payload, payload_len);
-+				client_data->hid_descr_size[curr_hid_dev] =
-+					payload_len;
-+				client_data->hid_descr_done = true;
-+			}
-+			wake_up_interruptible(&client_data->init_wait);
-+
-+			break;
-+
-+		case HOSTIF_GET_REPORT_DESCRIPTOR:
-+			if ((!(recv_msg->hdr.command & ~CMD_MASK) ||
-+					client_data->init_done)) {
-+				++client_data->bad_recv_cnt;
-+				report_bad_packet(hid_ishtp_cl, recv_msg,
-+						  cur_pos,
-+						  payload_len);
-+				ish_hw_reset(hid_ishtp_cl->dev);
-+				break;
-+			}
-+			if (!client_data->report_descr[curr_hid_dev])
-+				client_data->report_descr[curr_hid_dev] =
-+				devm_kmalloc(&hid_ishtp_cl->device->dev,
-+					     payload_len, GFP_KERNEL);
-+			if (client_data->report_descr[curr_hid_dev])  {
-+				memcpy(client_data->report_descr[curr_hid_dev],
-+				       payload,
-+				       payload_len);
-+				client_data->report_descr_size[curr_hid_dev] =
-+					payload_len;
-+				client_data->report_descr_done = true;
-+			}
-+			wake_up_interruptible(&client_data->init_wait);
-+
-+			break;
-+
-+		case HOSTIF_GET_FEATURE_REPORT:
-+			report_type = HID_FEATURE_REPORT;
-+			goto	do_get_report;
-+
-+		case HOSTIF_GET_INPUT_REPORT:
-+			report_type = HID_INPUT_REPORT;
-+do_get_report:
-+			/* Get index of device that matches this id */
-+			for (i = 0; i < client_data->num_hid_devices; ++i) {
-+				if (recv_msg->hdr.device_id ==
-+					client_data->hid_devices[i].dev_id)
-+					if (client_data->hid_sensor_hubs[i]) {
-+						hid_input_report(
-+						client_data->hid_sensor_hubs[
-+									i],
-+						report_type, payload,
-+						payload_len, 0);
-+						ishtp_hid_wakeup(
-+						client_data->hid_sensor_hubs[
-+							i]);
-+						break;
-+					}
-+			}
-+			break;
-+
-+		case HOSTIF_SET_FEATURE_REPORT:
-+			/* Get index of device that matches this id */
-+			for (i = 0; i < client_data->num_hid_devices; ++i) {
-+				if (recv_msg->hdr.device_id ==
-+					client_data->hid_devices[i].dev_id)
-+					if (client_data->hid_sensor_hubs[i]) {
-+						ishtp_hid_wakeup(
-+						client_data->hid_sensor_hubs[
-+							i]);
-+						break;
-+					}
-+			}
-+			break;
-+
-+		case HOSTIF_PUBLISH_INPUT_REPORT:
-+			report_type = HID_INPUT_REPORT;
-+			for (i = 0; i < client_data->num_hid_devices; ++i)
-+				if (recv_msg->hdr.device_id ==
-+					client_data->hid_devices[i].dev_id)
-+					if (client_data->hid_sensor_hubs[i])
-+						hid_input_report(
-+						client_data->hid_sensor_hubs[
-+									i],
-+						report_type, payload,
-+						payload_len, 0);
-+			break;
-+
-+		case HOSTIF_PUBLISH_INPUT_REPORT_LIST:
-+			report_type = HID_INPUT_REPORT;
-+			reports_list = (struct report_list *)payload;
-+			reports = (char *)reports_list->reports;
-+
-+			for (j = 0; j < reports_list->num_of_reports; j++) {
-+				recv_msg = (struct hostif_msg *)(reports +
-+					sizeof(uint16_t));
-+				report_len = *(uint16_t *)reports;
-+				payload = reports + sizeof(uint16_t) +
-+					sizeof(struct hostif_msg_hdr);
-+				payload_len = report_len -
-+					sizeof(struct hostif_msg_hdr);
-+
-+				for (i = 0; i < client_data->num_hid_devices;
-+				     ++i)
-+					if (recv_msg->hdr.device_id ==
-+					client_data->hid_devices[i].dev_id &&
-+					client_data->hid_sensor_hubs[i]) {
-+						hid_input_report(
-+						client_data->hid_sensor_hubs[
-+									i],
-+						report_type,
-+						payload, payload_len,
-+						0);
-+					}
-+
-+				reports += sizeof(uint16_t) + report_len;
-+			}
-+			break;
-+		default:
-+			++client_data->bad_recv_cnt;
-+			report_bad_packet(hid_ishtp_cl, recv_msg, cur_pos,
-+					  payload_len);
-+			ish_hw_reset(hid_ishtp_cl->dev);
-+			break;
-+
-+		}
-+
-+		if (!cur_pos && cur_pos + payload_len +
-+				sizeof(struct hostif_msg) < total_len)
-+			++client_data->multi_packet_cnt;
-+
-+		cur_pos += payload_len + sizeof(struct hostif_msg);
-+		payload += payload_len + sizeof(struct hostif_msg);
-+
-+	} while (cur_pos < total_len);
-+}
-+
-+/**
-+ * ish_cl_event_cb() - bus driver callback for incoming message/packet
-+ * @device:	Pointer to the the ishtp client device for which this message
-+ *		is targeted
-+ *
-+ * Remove the packet from the list and process the message by calling
-+ * process_recv
-+ */
-+static void ish_cl_event_cb(struct ishtp_cl_device *device)
-+{
-+	struct ishtp_cl	*hid_ishtp_cl = device->driver_data;
-+	struct ishtp_cl_rb *rb_in_proc;
-+	size_t r_length;
-+	unsigned long flags;
-+
-+	if (!hid_ishtp_cl)
-+		return;
-+
-+	spin_lock_irqsave(&hid_ishtp_cl->in_process_spinlock, flags);
-+	while (!list_empty(&hid_ishtp_cl->in_process_list.list)) {
-+		rb_in_proc = list_entry(
-+			hid_ishtp_cl->in_process_list.list.next,
-+			struct ishtp_cl_rb, list);
-+		list_del_init(&rb_in_proc->list);
-+		spin_unlock_irqrestore(&hid_ishtp_cl->in_process_spinlock,
-+			flags);
-+
-+		if (!rb_in_proc->buffer.data)
-+			return;
-+
-+		r_length = rb_in_proc->buf_idx;
-+
-+		/* decide what to do with received data */
-+		process_recv(hid_ishtp_cl, rb_in_proc->buffer.data, r_length);
-+
-+		ishtp_io_rb_recycle(rb_in_proc);
-+		spin_lock_irqsave(&hid_ishtp_cl->in_process_spinlock, flags);
-+	}
-+	spin_unlock_irqrestore(&hid_ishtp_cl->in_process_spinlock, flags);
-+}
-+
-+/**
-+ * hid_ishtp_set_feature() - send request to ISH FW to set a feature request
-+ * @hid:	hid device instance for this request
-+ * @buf:	feature buffer
-+ * @len:	Length of feature buffer
-+ * @report_id:	Report id for the feature set request
-+ *
-+ * This is called from hid core .request() callback. This function doesn't wait
-+ * for response.
-+ */
-+void hid_ishtp_set_feature(struct hid_device *hid, char *buf, unsigned int len,
-+			   int report_id)
-+{
-+	struct ishtp_hid_data *hid_data =  hid->driver_data;
-+	struct ishtp_cl_data *client_data = hid_data->client_data;
-+	struct hostif_msg *msg = (struct hostif_msg *)buf;
-+	int	rv;
-+	int	i;
-+
-+	hid_ishtp_trace(client_data,  "%s hid %p\n", __func__, hid);
-+
-+	rv = ishtp_hid_link_ready_wait(client_data);
-+	if (rv) {
-+		hid_ishtp_trace(client_data,  "%s hid %p link not ready\n",
-+				__func__, hid);
-+		return;
++	/* Set the state of ISH HW to start */
++	ret = ish_hw_start(dev);
++	if (ret) {
++		dev_err(dev->devc, "ISH: Init hw failed.\n");
++		goto bus_unreg;
 +	}
 +
-+	memset(msg, 0, sizeof(struct hostif_msg));
-+	msg->hdr.command = HOSTIF_SET_FEATURE_REPORT;
-+	for (i = 0; i < client_data->num_hid_devices; ++i) {
-+		if (hid == client_data->hid_sensor_hubs[i]) {
-+			msg->hdr.device_id =
-+				client_data->hid_devices[i].dev_id;
-+			break;
-+		}
-+	}
-+
-+	if (i == client_data->num_hid_devices)
-+		return;
-+
-+	rv = ishtp_cl_send(client_data->hid_ishtp_cl, buf, len);
-+	if (rv)
-+		hid_ishtp_trace(client_data,  "%s hid %p send failed\n",
-+				__func__, hid);
-+}
-+
-+/**
-+ * hid_ishtp_get_report() - request to get feature/input report
-+ * @hid:	hid device instance for this request
-+ * @report_id:	Report id for the get request
-+ * @report_type:	Report type for the this request
-+ *
-+ * This is called from hid core .request() callback. This function will send
-+ * request to FW and return without waiting for response.
-+ */
-+void hid_ishtp_get_report(struct hid_device *hid, int report_id,
-+			  int report_type)
-+{
-+	struct ishtp_hid_data *hid_data =  hid->driver_data;
-+	struct ishtp_cl_data *client_data = hid_data->client_data;
-+	static unsigned char	buf[10];
-+	unsigned int	len;
-+	struct hostif_msg_to_sensor *msg = (struct hostif_msg_to_sensor *)buf;
-+	int	rv;
-+	int	i;
-+
-+	hid_ishtp_trace(client_data,  "%s hid %p\n", __func__, hid);
-+	rv = ishtp_hid_link_ready_wait(client_data);
-+	if (rv) {
-+		hid_ishtp_trace(client_data,  "%s hid %p link not ready\n",
-+				__func__, hid);
-+		return;
-+	}
-+
-+	len = sizeof(struct hostif_msg_to_sensor);
-+
-+	memset(msg, 0, sizeof(struct hostif_msg_to_sensor));
-+	msg->hdr.command = (report_type == HID_FEATURE_REPORT) ?
-+		HOSTIF_GET_FEATURE_REPORT : HOSTIF_GET_INPUT_REPORT;
-+	for (i = 0; i < client_data->num_hid_devices; ++i) {
-+		if (hid == client_data->hid_sensor_hubs[i]) {
-+			msg->hdr.device_id =
-+				client_data->hid_devices[i].dev_id;
-+			break;
-+		}
-+	}
-+
-+	if (i == client_data->num_hid_devices)
-+		return;
-+
-+	msg->report_id = report_id;
-+	rv = ishtp_cl_send(client_data->hid_ishtp_cl, buf, len);
-+	if (rv)
-+		hid_ishtp_trace(client_data,  "%s hid %p send failed\n",
-+				__func__, hid);
-+}
-+
-+/**
-+ * ishtp_hid_link_ready_wait() - Wait for link ready
-+ *
-+ * @client_data:	client data instance
-+ *
-+ * If the transport link started suspend process, then wait, till either
-+ * resumed or timeout
-+ */
-+int ishtp_hid_link_ready_wait(struct ishtp_cl_data *client_data)
-+{
-+	int rc;
-+
-+	if (client_data->suspended) {
-+		hid_ishtp_trace(client_data,  "wait for link ready\n");
-+		rc = wait_event_interruptible_timeout(
-+					client_data->ishtp_resume_wait,
-+					!client_data->suspended,
-+					5 * HZ);
-+
-+		if (rc == 0) {
-+			hid_ishtp_trace(client_data,  "link not ready\n");
-+			return -EIO;
-+		}
-+		hid_ishtp_trace(client_data,  "link ready\n");
++	/* Start the inter process communication to ISH processor */
++	ret = ishtp_start(dev);
++	if (ret) {
++		dev_err(dev->devc, "ISHTP: Protocol init failed.\n");
++		goto bus_unreg;
 +	}
 +
 +	return 0;
++
++bus_unreg:
++	ishtp_cl_bus_exit();
++
++	return ret;
 +}
 +
 +/**
-+ * ishtp_enum_enum_devices() - Enumerate hid devices
++ * ish_probe() - PCI driver probe callback
 + *
-+ * @client_data:	client data instance
++ * @pdev:	pci device
++ * @ent:	pci device id
 + *
-+ * Helper function to send request to firmware to enumerate HID devices
++ * Initialize PCI function, setup interrupt and call for ISH initialization
 + */
-+static int ishtp_enum_enum_devices(struct ishtp_cl *hid_ishtp_cl)
-+{
-+	struct hostif_msg msg;
-+	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
-+	int retry_count;
-+	int rv;
-+
-+	/* Send HOSTIF_DM_ENUM_DEVICES */
-+	memset(&msg, 0, sizeof(struct hostif_msg));
-+	msg.hdr.command = HOSTIF_DM_ENUM_DEVICES;
-+	rv = ishtp_cl_send(hid_ishtp_cl, (unsigned char *)&msg,
-+			   sizeof(struct hostif_msg));
-+	if (rv)
-+		return rv;
-+
-+	retry_count = 0;
-+	while (!client_data->enum_devices_done &&
-+	       retry_count < 10) {
-+		wait_event_interruptible_timeout(client_data->init_wait,
-+					 client_data->enum_devices_done,
-+					 3 * HZ);
-+		++retry_count;
-+		if (!client_data->enum_devices_done)
-+			/* Send HOSTIF_DM_ENUM_DEVICES */
-+			rv = ishtp_cl_send(hid_ishtp_cl,
-+					   (unsigned char *) &msg,
-+					   sizeof(struct hostif_msg));
-+	}
-+	if (!client_data->enum_devices_done) {
-+		dev_err(&hid_ishtp_cl->device->dev,
-+			"[hid-ish]: timed out waiting for enum_devices\n");
-+		return -ETIMEDOUT;
-+	}
-+	if (!client_data->hid_devices) {
-+		dev_err(&hid_ishtp_cl->device->dev,
-+			"[hid-ish]: failed to allocate HID dev structures\n");
-+		return -ENOMEM;
-+	}
-+
-+	client_data->num_hid_devices = client_data->hid_dev_count;
-+	dev_info(&hid_ishtp_cl->device->dev,
-+		"[hid-ish]: enum_devices_done OK, num_hid_devices=%d\n",
-+		client_data->num_hid_devices);
-+
-+	return	0;
-+}
-+
-+/**
-+ * ishtp_get_hid_descriptor() - Get hid descriptor
-+ *
-+ * @client_data:	client data instance
-+ *
-+ * Helper function to send request to firmware get HID descriptor of a device
-+ */
-+static int ishtp_get_hid_descriptor(struct ishtp_cl *hid_ishtp_cl, int index)
-+{
-+	struct hostif_msg msg;
-+	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
-+	int rv;
-+
-+	/* Get HID descriptor */
-+	client_data->hid_descr_done = false;
-+	memset(&msg, 0, sizeof(struct hostif_msg));
-+	msg.hdr.command = HOSTIF_GET_HID_DESCRIPTOR;
-+	msg.hdr.device_id = client_data->hid_devices[index].dev_id;
-+	rv = ishtp_cl_send(hid_ishtp_cl, (unsigned char *) &msg,
-+			   sizeof(struct hostif_msg));
-+	if (rv)
-+		return rv;
-+
-+	if (!client_data->hid_descr_done) {
-+		wait_event_interruptible_timeout(client_data->init_wait,
-+						 client_data->hid_descr_done,
-+						 3 * HZ);
-+		if (!client_data->hid_descr_done) {
-+			dev_err(&hid_ishtp_cl->device->dev,
-+				"[hid-ish]: timed out for hid_descr_done\n");
-+			return -EIO;
-+		}
-+
-+		if (!client_data->hid_descr[index]) {
-+			dev_err(&hid_ishtp_cl->device->dev,
-+				"[hid-ish]: allocation HID desc fail\n");
-+			return -ENOMEM;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * ishtp_get_report_descriptor() - Get report descriptor
-+ *
-+ * @client_data:	client data instance
-+ *
-+ * Helper function to send request to firmware get HID report descriptor of
-+ * a device
-+ */
-+static int ishtp_get_report_descriptor(struct ishtp_cl *hid_ishtp_cl,
-+				       int index)
-+{
-+	struct hostif_msg msg;
-+	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
-+	int rv;
-+
-+	/* Get report descriptor */
-+	client_data->report_descr_done = false;
-+	memset(&msg, 0, sizeof(struct hostif_msg));
-+	msg.hdr.command = HOSTIF_GET_REPORT_DESCRIPTOR;
-+	msg.hdr.device_id = client_data->hid_devices[index].dev_id;
-+	rv = ishtp_cl_send(hid_ishtp_cl, (unsigned char *) &msg,
-+			   sizeof(struct hostif_msg));
-+	if (rv)
-+		return rv;
-+
-+	if (!client_data->report_descr_done)
-+		wait_event_interruptible_timeout(client_data->init_wait,
-+					 client_data->report_descr_done,
-+					 3 * HZ);
-+	if (!client_data->report_descr_done) {
-+		dev_err(&hid_ishtp_cl->device->dev,
-+				"[hid-ish]: timed out for report descr\n");
-+		return -EIO;
-+	}
-+	if (!client_data->report_descr[index]) {
-+		dev_err(&hid_ishtp_cl->device->dev,
-+			"[hid-ish]: failed to alloc report descr\n");
-+		return -ENOMEM;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * hid_ishtp_cl_init() - Init function for ISHTP client
-+ * @hid_istp_cl:	ISHTP client instance
-+ *
-+ * This function complete the initializtion of the client. The summary of
-+ * processing:
-+ * - Send request to enumerate the hid clients
-+ *	Get the HID descriptor for each enumearated device
-+ *	Get report description of each device
-+ *	Register each device wik hid core by calling ishtp_hid_probe
-+ */
-+static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
++static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 +{
 +	struct ishtp_device *dev;
-+	unsigned long flags;
-+	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
-+	int i;
-+	int rv;
++	struct ish_hw *hw;
++	int	ret;
 +
-+	hid_ishtp_trace(client_data,  "%s reset flag: %d\n", __func__, reset);
-+
-+	rv = ishtp_cl_link(hid_ishtp_cl, ISHTP_HOST_CLIENT_ID_ANY);
-+	if (rv) {
-+		dev_err(&hid_ishtp_cl->device->dev,
-+			"ishtp_cl_link failed\n");
-+		return	-ENOMEM;
++	/* enable pci dev */
++	ret = pci_enable_device(pdev);
++	if (ret) {
++		dev_err(&pdev->dev, "ISH: Failed to enable PCI device\n");
++		return ret;
 +	}
 +
-+	client_data->init_done = 0;
++	/* set PCI host mastering */
++	pci_set_master(pdev);
 +
-+	dev = hid_ishtp_cl->dev;
-+
-+	/* Connect to FW client */
-+	hid_ishtp_cl->rx_ring_size = HID_CL_RX_RING_SIZE;
-+	hid_ishtp_cl->tx_ring_size = HID_CL_TX_RING_SIZE;
-+
-+	spin_lock_irqsave(&dev->fw_clients_lock, flags);
-+	i = ishtp_fw_cl_by_uuid(dev, &hid_ishtp_guid);
-+	if (i < 0) {
-+		spin_unlock_irqrestore(&dev->fw_clients_lock, flags);
-+		dev_err(&hid_ishtp_cl->device->dev,
-+			"ish client uuid not found\n");
-+		return i;
-+	}
-+	hid_ishtp_cl->fw_client_id = dev->fw_clients[i].client_id;
-+	spin_unlock_irqrestore(&dev->fw_clients_lock, flags);
-+	hid_ishtp_cl->state = ISHTP_CL_CONNECTING;
-+
-+	rv = ishtp_cl_connect(hid_ishtp_cl);
-+	if (rv) {
-+		dev_err(&hid_ishtp_cl->device->dev,
-+			"client connect fail\n");
-+		goto err_cl_unlink;
++	/* pci request regions for ISH driver */
++	ret = pci_request_regions(pdev, KBUILD_MODNAME);
++	if (ret) {
++		dev_err(&pdev->dev, "ISH: Failed to get PCI regions\n");
++		goto disable_device;
 +	}
 +
-+	hid_ishtp_trace(client_data,  "%s client connected\n", __func__);
++	/* allocates and initializes the ISH dev structure */
++	dev = ish_dev_init(pdev);
++	if (!dev) {
++		ret = -ENOMEM;
++		goto release_regions;
++	}
++	hw = to_ish_hw(dev);
++	dev->print_log = ish_event_tracer;
 +
-+	/* Register read callback */
-+	ishtp_register_event_cb(hid_ishtp_cl->device, ish_cl_event_cb);
++	/* mapping IO device memory */
++	hw->mem_addr = pci_iomap(pdev, 0, 0);
++	if (!hw->mem_addr) {
++		dev_err(&pdev->dev, "ISH: mapping I/O range failure\n");
++		ret = -ENOMEM;
++		goto free_device;
++	}
 +
-+	rv = ishtp_enum_enum_devices(hid_ishtp_cl);
-+	if (rv)
-+		goto err_cl_disconnect;
++	dev->pdev = pdev;
 +
-+	hid_ishtp_trace(client_data,  "%s enumerated device count %d\n",
-+			__func__, client_data->num_hid_devices);
++	/* request and enable interrupt */
++	ret = request_irq(pdev->irq, ish_irq_handler, IRQF_NO_SUSPEND,
++			  KBUILD_MODNAME, dev);
++	if (ret) {
++		dev_err(&pdev->dev, "ISH: request IRQ failure (%d)\n",
++			pdev->irq);
++		goto free_device;
++	}
 +
-+	for (i = 0; i < client_data->num_hid_devices; ++i) {
-+		client_data->cur_hid_dev = i;
++	ret = ish_init(dev);
++	if (ret)
++		goto free_device;
 +
-+		rv = ishtp_get_hid_descriptor(hid_ishtp_cl, i);
-+		if (rv)
-+			goto err_cl_disconnect;
-+
-+		rv = ishtp_get_report_descriptor(hid_ishtp_cl, i);
-+		if (rv)
-+			goto err_cl_disconnect;
-+
-+		if (!reset) {
-+			rv = ishtp_hid_probe(i, client_data);
-+			if (rv) {
-+				dev_err(&hid_ishtp_cl->device->dev,
-+				"[hid-ish]: HID probe for #%u failed: %d\n",
-+				i, rv);
-+				goto err_cl_disconnect;
-+			}
-+		}
-+	} /* for() on all hid devices */
-+
-+	client_data->init_done = 1;
-+	client_data->suspended = false;
-+	wake_up_interruptible(&client_data->ishtp_resume_wait);
-+	hid_ishtp_trace(client_data,  "%s successful init\n", __func__);
 +	return 0;
 +
-+err_cl_disconnect:
-+	hid_ishtp_cl->state = ISHTP_CL_DISCONNECTING;
-+	ishtp_cl_disconnect(hid_ishtp_cl);
-+err_cl_unlink:
-+	ishtp_cl_unlink(hid_ishtp_cl);
-+	return rv;
++free_device:
++	pci_iounmap(pdev, hw->mem_addr);
++	kfree(dev);
++release_regions:
++	pci_release_regions(pdev);
++disable_device:
++	pci_disable_device(pdev);
++	dev_err(&pdev->dev, "ISH: PCI driver initialization failed.\n");
++
++	return ret;
 +}
 +
-+void hid_ishtp_cl_deinit(struct ishtp_cl *hid_ishtp_cl)
++static struct device *ish_resume_device;
++
++/**
++ * ish_resume_handler() - Work function to complete resume
++ *
++ * @work:	work struct
++ *
++ * The resume work function to complete resume function asynchronously.
++ * There are two types of platforms, one where ISH is not powered off,
++ * in that case a simple resume message is enough, others we need
++ * a reset sequence.
++ */
++static void ish_resume_handler(struct work_struct *work)
 +{
-+	ishtp_cl_unlink(hid_ishtp_cl);
-+	ishtp_cl_flush_queues(hid_ishtp_cl);
++	struct pci_dev *pdev = to_pci_dev(ish_resume_device);
++	struct ishtp_device *dev = pci_get_drvdata(pdev);
++	int ret;
 +
-+	/* disband and free all Tx and Rx client-level rings */
-+	ishtp_cl_free(hid_ishtp_cl);
-+}
++	ishtp_send_resume(dev);
 +
-+static void hid_ishtp_cl_reset_handler(struct work_struct *work)
-+{
-+	struct ishtp_cl_data *client_data;
-+	struct ishtp_cl *hid_ishtp_cl;
-+	struct ishtp_cl_device *cl_device;
-+	int retry;
-+	int rv;
++	/* 50 ms to get resume response */
++	if (dev->resume_flag)
++		ret = wait_event_interruptible_timeout(dev->resume_wait,
++						       !dev->resume_flag,
++						       msecs_to_jiffies(50));
 +
-+	client_data = container_of(work, struct ishtp_cl_data, work);
-+
-+
-+	hid_ishtp_cl = client_data->hid_ishtp_cl;
-+	cl_device = client_data->cl_device;
-+
-+	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
-+			hid_ishtp_cl);
-+
-+	hid_ishtp_cl_deinit(hid_ishtp_cl);
-+
-+	hid_ishtp_cl = ishtp_cl_allocate(cl_device->ishtp_dev);
-+	if (!hid_ishtp_cl)
-+		return;
-+
-+	cl_device->driver_data = hid_ishtp_cl;
-+	hid_ishtp_cl->client_data = client_data;
-+	client_data->hid_ishtp_cl = hid_ishtp_cl;
-+
-+	client_data->num_hid_devices = 0;
-+
-+	for (retry = 0; retry < 3; ++retry) {
-+		rv = hid_ishtp_cl_init(hid_ishtp_cl, 1);
-+		if (!rv)
-+			break;
-+		dev_err(&hid_ishtp_cl->device->dev, "Retry reset init\n");
-+	}
-+	if (rv) {
-+		dev_err(&hid_ishtp_cl->device->dev, "Reset Failed\n");
-+		hid_ishtp_trace(client_data, "%s Failed hid_ishtp_cl %p\n",
-+				__func__, hid_ishtp_cl);
++	if (dev->resume_flag) {
++		ish_hw_reset(dev);
++		ish_ipc_reset(dev);
 +	}
 +}
 +
 +/**
-+ * hid_ishtp_cl_probe() - ISHTP client driver probe
-+ * @cl_device:		ISHTP client device instance
++ * ish_suspend() - ISH suspend callback
 + *
-+ * This function calls on device create on ISHTP bus
++ * @device:	device pointer
++ *
++ * ISH suspend callback
 + */
-+static int hid_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
++static int ish_suspend(struct device *device)
 +{
-+	struct ishtp_cl *hid_ishtp_cl;
-+	struct ishtp_cl_data *client_data;
-+	int rv;
++	struct pci_dev *pdev = to_pci_dev(device);
++	struct ishtp_device *dev = pci_get_drvdata(pdev);
 +
-+	if (!cl_device)
-+		return	-ENODEV;
++	enable_irq_wake(pdev->irq);
++	/*
++	 * If previous suspend hasn't been asnwered then ISH is likely dead,
++	 * don't attempt nested notification
++	 */
++	if (dev->suspend_flag)
++		return	0;
 +
-+	if (uuid_le_cmp(hid_ishtp_guid,
-+			cl_device->fw_client->props.protocol_name) != 0)
-+		return	-ENODEV;
++	dev->resume_flag = 0;
++	dev->suspend_flag = 1;
++	ishtp_send_suspend(dev);
 +
-+	client_data = devm_kzalloc(&cl_device->dev, sizeof(*client_data),
-+				   GFP_KERNEL);
-+	if (!client_data)
-+		return -ENOMEM;
-+
-+	hid_ishtp_cl = ishtp_cl_allocate(cl_device->ishtp_dev);
-+	if (!hid_ishtp_cl)
-+		return -ENOMEM;
-+
-+	cl_device->driver_data = hid_ishtp_cl;
-+	hid_ishtp_cl->client_data = client_data;
-+	client_data->hid_ishtp_cl = hid_ishtp_cl;
-+	client_data->cl_device = cl_device;
-+
-+	init_waitqueue_head(&client_data->init_wait);
-+	init_waitqueue_head(&client_data->ishtp_resume_wait);
-+
-+	INIT_WORK(&client_data->work, hid_ishtp_cl_reset_handler);
-+
-+	rv = hid_ishtp_cl_init(hid_ishtp_cl, 0);
-+	if (rv) {
-+		ishtp_cl_free(hid_ishtp_cl);
-+		return rv;
-+	}
-+	ishtp_get_device(cl_device);
++	/* 25 ms should be enough for live ISH to flush all IPC buf */
++	if (dev->suspend_flag)
++		wait_event_interruptible_timeout(dev->suspend_wait,
++						 !dev->suspend_flag,
++						  msecs_to_jiffies(25));
 +
 +	return 0;
 +}
 +
++static DECLARE_WORK(resume_work, ish_resume_handler);
 +/**
-+ * hid_ishtp_cl_remove() - ISHTP client driver remove
-+ * @cl_device:		ISHTP client device instance
++ * ish_resume() - ISH resume callback
 + *
-+ * This function calls on device create on ISHTP bus
++ * @device:	device pointer
++ *
++ * ISH resume callback
 + */
-+static int hid_ishtp_cl_remove(struct ishtp_cl_device *cl_device)
++static int ish_resume(struct device *device)
 +{
-+	struct ishtp_cl *hid_ishtp_cl = cl_device->driver_data;
-+	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++	struct pci_dev *pdev = to_pci_dev(device);
++	struct ishtp_device *dev = pci_get_drvdata(pdev);
 +
-+	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
-+			hid_ishtp_cl);
++	ish_resume_device = device;
++	dev->resume_flag = 1;
 +
-+	ishtp_put_device(cl_device);
-+	ishtp_hid_remove(client_data);
-+	hid_ishtp_cl_deinit(hid_ishtp_cl);
-+
-+	hid_ishtp_cl = NULL;
-+
-+	client_data->num_hid_devices = 0;
++	disable_irq_wake(pdev->irq);
++	schedule_work(&resume_work);
 +
 +	return 0;
 +}
 +
-+static int hid_ishtp_cl_reset(struct ishtp_cl_device *cl_device)
-+{
-+	struct ishtp_cl *hid_ishtp_cl = cl_device->driver_data;
-+	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++#ifdef CONFIG_PM
++static const struct dev_pm_ops ish_pm_ops = {
++	.suspend = ish_suspend,
++	.resume = ish_resume,
++};
++#define ISHTP_ISH_PM_OPS	(&ish_pm_ops)
++#else
++#define ISHTP_ISH_PM_OPS	NULL
++#endif
 +
-+	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
-+			hid_ishtp_cl);
-+
-+	schedule_work(&client_data->work);
-+
-+	return 0;
-+}
-+
-+#define to_ishtp_cl_device(d) container_of(d, struct ishtp_cl_device, dev)
-+
-+static int hid_ishtp_cl_suspend(struct device *device)
-+{
-+	struct ishtp_cl_device *cl_device = to_ishtp_cl_device(device);
-+	struct ishtp_cl *hid_ishtp_cl = cl_device->driver_data;
-+	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
-+
-+	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
-+			hid_ishtp_cl);
-+	client_data->suspended = true;
-+
-+	return 0;
-+}
-+
-+static int hid_ishtp_cl_resume(struct device *device)
-+{
-+	struct ishtp_cl_device *cl_device = to_ishtp_cl_device(device);
-+	struct ishtp_cl *hid_ishtp_cl = cl_device->driver_data;
-+	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
-+
-+	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
-+			hid_ishtp_cl);
-+	client_data->suspended = false;
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops hid_ishtp_pm_ops = {
-+	.suspend = hid_ishtp_cl_suspend,
-+	.resume = hid_ishtp_cl_resume,
++static struct pci_driver ish_driver = {
++	.name = KBUILD_MODNAME,
++	.id_table = ish_pci_tbl,
++	.probe = ish_probe,
++	.driver.pm = ISHTP_ISH_PM_OPS,
 +};
 +
-+struct ishtp_cl_driver	hid_ishtp_cl_driver = {
-+	.name = "ish",
-+	.probe = hid_ishtp_cl_probe,
-+	.remove = hid_ishtp_cl_remove,
-+	.reset = hid_ishtp_cl_reset,
-+	.driver.pm = &hid_ishtp_pm_ops,
-+};
-+
-+static int __init ish_hid_init(void)
++static int __init ish_driver_init(void)
 +{
-+	int	rv;
-+
-+	/* Register ISHTP client device driver with ISHTP Bus */
-+	rv = ishtp_cl_driver_register(&hid_ishtp_cl_driver);
-+
-+	return rv;
-+
++	return pci_register_driver(&ish_driver);
 +}
-+late_initcall(ish_hid_init);
++device_initcall(ish_driver_init);
 +
-+MODULE_DESCRIPTION("ISH ISHTP HID client driver");
 +/* Primary author */
 +MODULE_AUTHOR("Daniel Drubin <daniel.drubin@intel.com>");
-+/*
-+ * Several modification for multi instance support
-+ * suspend/resume and clean up
-+ */
++/* Adoption to upstream Linux kernel */
 +MODULE_AUTHOR("Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>");
 +
++MODULE_DESCRIPTION("Intel(R) Integrated Sensor Hub PCI Device Driver");
 +MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.c b/drivers/hid/intel-ish-hid/ishtp-hid.c
+diff --git a/drivers/hid/intel-ish-hid/ipc/utils.h b/drivers/hid/intel-ish-hid/ipc/utils.h
 new file mode 100644
-index 0000000..351c497
+index 0000000..5a82123
 --- /dev/null
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid.c
-@@ -0,0 +1,231 @@
++++ b/drivers/hid/intel-ish-hid/ipc/utils.h
+@@ -0,0 +1,64 @@
 +/*
-+ * ISHTP-HID glue driver.
-+ *
-+ * Copyright (c) 2012-2016, Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-+ * more details.
-+ */
-+
-+#include <linux/hid.h>
-+#include <uapi/linux/input.h>
-+#include "ishtp/client.h"
-+#include "ishtp-hid.h"
-+
-+/**
-+ * ishtp_hid_parse() - hid-core .parse() callback
-+ * @hid:	hid device instance
-+ *
-+ * This function gets called during call to hid_add_device
-+ */
-+static int ishtp_hid_parse(struct hid_device *hid)
-+{
-+	struct ishtp_hid_data *hid_data =  hid->driver_data;
-+	struct ishtp_cl_data *client_data = hid_data->client_data;
-+	int rv;
-+
-+	rv = hid_parse_report(hid, client_data->report_descr[hid_data->index],
-+			      client_data->report_descr_size[hid_data->index]);
-+	if (rv)
-+		return	rv;
-+
-+	return 0;
-+}
-+
-+/* Empty callbacks with success return code */
-+static int ishtp_hid_start(struct hid_device *hid)
-+{
-+	return 0;
-+}
-+
-+static void ishtp_hid_stop(struct hid_device *hid)
-+{
-+}
-+
-+static int ishtp_hid_open(struct hid_device *hid)
-+{
-+	return 0;
-+}
-+
-+static void ishtp_hid_close(struct hid_device *hid)
-+{
-+}
-+
-+static int ishtp_raw_request(struct hid_device *hdev, unsigned char reportnum,
-+	__u8 *buf, size_t len, unsigned char rtype, int reqtype)
-+{
-+	return 0;
-+}
-+
-+/**
-+ * ishtp_hid_request() - hid-core .request() callback
-+ * @hid:	hid device instance
-+ * @rep:	pointer to hid_report
-+ * @reqtype:	type of req. [GET|SET]_REPORT
-+ *
-+ * This function is used to set/get feaure/input report.
-+ */
-+static void ishtp_hid_request(struct hid_device *hid, struct hid_report *rep,
-+	int reqtype)
-+{
-+	/* the specific report length, just HID part of it */
-+	unsigned int len = ((rep->size - 1) >> 3) + 1 + (rep->id > 0);
-+	char *buf;
-+	unsigned int header_size = sizeof(struct hostif_msg);
-+
-+	len += header_size;
-+
-+	switch (reqtype) {
-+	case HID_REQ_GET_REPORT:
-+		hid_ishtp_get_report(hid, rep->id, rep->type);
-+		break;
-+	case HID_REQ_SET_REPORT:
-+		/*
-+		 * Spare 7 bytes for 64b accesses through
-+		 * get/put_unaligned_le64()
-+		 */
-+		buf = kzalloc(len + 7, GFP_KERNEL);
-+		if (!buf)
-+			return;
-+
-+		hid_output_report(rep, buf + header_size);
-+		hid_ishtp_set_feature(hid, buf, len, rep->id);
-+		kfree(buf);
-+		break;
-+	}
-+}
-+
-+/**
-+ * ishtp_wait_for_response() - hid-core .wait() callback
-+ * @hid:	hid device instance
-+ *
-+ * This function is used to wait after get feaure/input report.
-+ */
-+static int ishtp_wait_for_response(struct hid_device *hid)
-+{
-+	struct ishtp_hid_data *hid_data =  hid->driver_data;
-+	struct ishtp_cl_data *client_data = hid_data->client_data;
-+	int rv;
-+
-+	hid_ishtp_trace(client_data,  "%s hid %p\n", __func__, hid);
-+
-+	rv = ishtp_hid_link_ready_wait(hid_data->client_data);
-+	if (rv)
-+		return rv;
-+
-+	if (!hid_data->request_done)
-+		wait_event_interruptible_timeout(hid_data->hid_wait,
-+					hid_data->request_done, 3 * HZ);
-+
-+	if (!hid_data->request_done) {
-+		hid_err(hid,
-+			"timeout waiting for response from ISHTP device\n");
-+		return -ETIMEDOUT;
-+	}
-+	hid_ishtp_trace(client_data,  "%s hid %p done\n", __func__, hid);
-+
-+	hid_data->request_done = 0;
-+
-+	return 0;
-+}
-+
-+void ishtp_hid_wakeup(struct hid_device *hid)
-+{
-+	struct ishtp_hid_data *hid_data = hid->driver_data;
-+
-+	hid_data->request_done = 1;
-+	wake_up_interruptible(&hid_data->hid_wait);
-+}
-+
-+static struct hid_ll_driver ishtp_hid_ll_driver = {
-+	.parse = ishtp_hid_parse,
-+	.start = ishtp_hid_start,
-+	.stop = ishtp_hid_stop,
-+	.open = ishtp_hid_open,
-+	.close = ishtp_hid_close,
-+	.request = ishtp_hid_request,
-+	.wait = ishtp_wait_for_response,
-+	.raw_request = ishtp_raw_request
-+};
-+
-+/**
-+ * ishtp_hid_probe() - hid register ll driver
-+ * @curr_hid_dev:	Index of hid device calling to register
-+ * @hid_ishtp_cl:	ISHTP Client instance
-+ *
-+ * This function is used to allocate and add HID device.
-+ */
-+int ishtp_hid_probe(unsigned int cur_hid_dev, struct ishtp_cl_data *client_data)
-+{
-+	int rv;
-+	struct hid_device *hid;
-+	struct ishtp_hid_data *hid_data;
-+
-+	hid = hid_allocate_device();
-+	if (IS_ERR(hid)) {
-+		rv = PTR_ERR(hid);
-+		return	-ENOMEM;
-+	}
-+
-+	hid_data = kzalloc(sizeof(*hid_data), GFP_KERNEL);
-+	if (!hid_data) {
-+		rv = -ENOMEM;
-+		goto err_hid_data;
-+	}
-+
-+	hid_data->index = cur_hid_dev;
-+	hid_data->client_data = client_data;
-+	init_waitqueue_head(&hid_data->hid_wait);
-+
-+	hid->driver_data = hid_data;
-+
-+	client_data->hid_sensor_hubs[cur_hid_dev] = hid;
-+
-+	hid->ll_driver = &ishtp_hid_ll_driver;
-+	hid->bus = BUS_INTEL_ISHTP;
-+	hid->dev.parent = &client_data->cl_device->dev;
-+	hid->version = le16_to_cpu(ISH_HID_VERSION);
-+	hid->vendor = le16_to_cpu(ISH_HID_VENDOR);
-+	hid->product = le16_to_cpu(ISH_HID_PRODUCT);
-+	snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX", "hid-ishtp",
-+		hid->vendor, hid->product);
-+
-+	rv = hid_add_device(hid);
-+	if (rv)
-+		goto err_hid_device;
-+
-+	hid_ishtp_trace(client_data,  "%s allocated hid %p\n", __func__, hid);
-+
-+	return 0;
-+
-+err_hid_device:
-+	kfree(hid_data);
-+err_hid_data:
-+	kfree(hid);
-+	return rv;
-+}
-+
-+/**
-+ * ishtp_hid_probe() - Remove registered hid device
-+ * @hid_ishtp_cl:	ISHTP Client instance
-+ *
-+ * This function is used to destroy allocatd HID device.
-+ */
-+void ishtp_hid_remove(struct ishtp_cl_data *client_data)
-+{
-+	int i;
-+
-+	for (i = 0; i < client_data->num_hid_devices; ++i) {
-+		if (client_data->hid_sensor_hubs[i]) {
-+			kfree(client_data->hid_sensor_hubs[i]->driver_data);
-+			hid_destroy_device(client_data->hid_sensor_hubs[i]);
-+			client_data->hid_sensor_hubs[i] = NULL;
-+		}
-+	}
-+}
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.h b/drivers/hid/intel-ish-hid/ishtp-hid.h
-new file mode 100644
-index 0000000..f5c7eb7
---- /dev/null
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid.h
-@@ -0,0 +1,182 @@
-+/*
-+ * ISHTP-HID glue driver's definitions.
++ * Utility macros of ISH
 + *
 + * Copyright (c) 2014-2016, Intel Corporation.
 + *
@@ -1227,185 +1429,91 @@ index 0000000..f5c7eb7
 + * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 + * more details.
 + */
-+#ifndef ISHTP_HID__H
-+#define	ISHTP_HID__H
++#ifndef UTILS__H
++#define UTILS__H
 +
-+/* The fixed ISH product and vendor id */
-+#define	ISH_HID_VENDOR	0x8086
-+#define	ISH_HID_PRODUCT	0x22D8
-+#define	ISH_HID_VERSION	0x0200
++#define	WAIT_FOR_SEND_SLICE	(HZ / 10)
++#define	WAIT_FOR_CONNECT_SLICE	(HZ / 10)
 +
-+#define	CMD_MASK	0x7F
-+#define	IS_RESPONSE	0x80
-+
-+/* Used to dump to Linux trace buffer, if enabled */
-+#define hid_ishtp_trace(client, ...)	\
-+	client->cl_device->ishtp_dev->print_log(\
-+		client->cl_device->ishtp_dev, __VA_ARGS__)
-+
-+/* ISH Transport protocol (ISHTP in short) GUID */
-+static const uuid_le hid_ishtp_guid = UUID_LE(0x33AECD58, 0xB679, 0x4E54,
-+					      0x9B, 0xD9, 0xA0, 0x4D, 0x34,
-+					      0xF0, 0xC2, 0x26);
-+
-+/* ISH HID message structure */
-+struct hostif_msg_hdr {
-+	uint8_t	command; /* Bit 7: is_response */
-+	uint8_t	device_id;
-+	uint8_t	status;
-+	uint8_t	flags;
-+	uint16_t size;
-+} __packed;
-+
-+struct hostif_msg {
-+	struct hostif_msg_hdr	hdr;
-+} __packed;
-+
-+struct hostif_msg_to_sensor {
-+	struct hostif_msg_hdr	hdr;
-+	uint8_t	report_id;
-+} __packed;
-+
-+struct device_info {
-+	uint32_t dev_id;
-+	uint8_t dev_class;
-+	uint16_t pid;
-+	uint16_t vid;
-+} __packed;
-+
-+struct ishtp_version {
-+	uint8_t	major;
-+	uint8_t	minor;
-+	uint8_t	hotfix;
-+	uint16_t build;
-+} __packed;
-+
-+/* struct for ISHTP aggregated input data */
-+struct report_list {
-+	uint16_t total_size;
-+	uint8_t	num_of_reports;
-+	uint8_t	flags;
-+	struct {
-+		uint16_t	size_of_report;
-+		uint8_t report[1];
-+	} __packed reports[1];
-+} __packed;
-+
-+/* HOSTIF commands */
-+#define	HOSTIF_HID_COMMAND_BASE			0
-+#define	HOSTIF_GET_HID_DESCRIPTOR		0
-+#define	HOSTIF_GET_REPORT_DESCRIPTOR		1
-+#define HOSTIF_GET_FEATURE_REPORT		2
-+#define	HOSTIF_SET_FEATURE_REPORT		3
-+#define	HOSTIF_GET_INPUT_REPORT			4
-+#define	HOSTIF_PUBLISH_INPUT_REPORT		5
-+#define	HOSTIF_PUBLISH_INPUT_REPORT_LIST	6
-+#define	HOSTIF_DM_COMMAND_BASE			32
-+#define	HOSTIF_DM_ENUM_DEVICES			33
-+#define	HOSTIF_DM_ADD_DEVICE			34
-+
-+#define	MAX_HID_DEVICES				32
-+
-+/**
-+ * struct ishtp_cl_data - Encapsulate per ISH TP HID Client
-+ * @enum_device_done:	Enum devices response complete flag
-+ * @hid_descr_done:	HID descriptor complete flag
-+ * @report_descr_done:	Get report descriptor complete flag
-+ * @init_done:		Init process completed successfully
-+ * @suspended:		System is under suspend state or in progress
-+ * @num_hid_devices:	Number of HID devices enumerated in this client
-+ * @cur_hid_dev:	This keeps track of the device index for which
-+ *			initialization and registration with HID core
-+ *			in progress.
-+ * @hid_devices:	Store vid/pid/devid for each enumerated HID device
-+ * @report_descr:	Stores the raw report descriptors for each HID device
-+ * @report_descr_size:	Report description of size of above repo_descr[]
-+ * @hid_sensor_hubs:	Pointer to hid_device for all HID device, so that
-+ *			when clients are removed, they can be freed
-+ * @hid_descr:		Pointer to hid descriptor for each enumerated hid
-+ *			device
-+ * @hid_descr_size:	Size of each above report descriptor
-+ * @init_wait:		Wait queue to wait during initialization, where the
-+ *			client send message to ISH FW and wait for response
-+ * @ishtp_hid_wait:	The wait for get report during wait callback from hid
-+ *			core
-+ * @bad_recv_cnt:	Running count of packets received with error
-+ * @multi_packet_cnt:	Count of fragmented packet count
-+ *
-+ * This structure is used to store completion flags and per client data like
-+ * like report description, number of HID devices etc.
++/*
++ * Waits for specified event when a thread that triggers event can't signal
++ * Also, waits *at_least* `timeinc` after condition is satisfied
 + */
-+struct ishtp_cl_data {
-+	/* completion flags */
-+	bool enum_devices_done;
-+	bool hid_descr_done;
-+	bool report_descr_done;
-+	bool init_done;
-+	bool suspended;
++#define	timed_wait_for(timeinc, condition)			\
++	do {							\
++		int completed = 0;				\
++		do {						\
++			unsigned long	j;			\
++			int	done = 0;			\
++								\
++			completed = (condition);		\
++			for (j = jiffies, done = 0; !done; ) {	\
++				schedule_timeout(timeinc);	\
++				if (time_is_before_eq_jiffies(j + timeinc)) \
++					done = 1;		\
++			}					\
++		} while (!(completed));				\
++	} while (0)
 +
-+	unsigned int num_hid_devices;
-+	unsigned int cur_hid_dev;
-+	unsigned int hid_dev_count;
 +
-+	struct device_info *hid_devices;
-+	unsigned char *report_descr[MAX_HID_DEVICES];
-+	int report_descr_size[MAX_HID_DEVICES];
-+	struct hid_device *hid_sensor_hubs[MAX_HID_DEVICES];
-+	unsigned char *hid_descr[MAX_HID_DEVICES];
-+	int hid_descr_size[MAX_HID_DEVICES];
-+
-+	wait_queue_head_t init_wait;
-+	wait_queue_head_t ishtp_resume_wait;
-+	struct ishtp_cl *hid_ishtp_cl;
-+
-+	/* Statistics */
-+	unsigned int bad_recv_cnt;
-+	int multi_packet_cnt;
-+
-+	struct work_struct work;
-+	struct ishtp_cl_device *cl_device;
-+};
-+
-+/**
-+ * struct ishtp_hid_data - Per instance HID data
-+ * @index:		Device index in the order of enumeration
-+ * @request_done:	Get Feature/Input report complete flag
-+ *			used during get/set request from hid core
-+ * @client_data:	Link to the client instance
-+ * @hid_wait:		Completion waitq
-+ *
-+ * Used to tie hid hid->driver data to driver client instance
++/*
++ * Waits for specified event when a thread that triggers event
++ * can't signal with timeout (use whenever we may hang)
 + */
-+struct ishtp_hid_data {
-+	int index;
-+	bool request_done;
-+	struct ishtp_cl_data *client_data;
-+	wait_queue_head_t hid_wait;
-+};
++#define	timed_wait_for_timeout(timeinc, condition, timeout)	\
++	do {							\
++		int	t = timeout;				\
++		do {						\
++			unsigned long	j;			\
++			int	done = 0;			\
++								\
++			for (j = jiffies, done = 0; !done; ) {	\
++				schedule_timeout(timeinc);	\
++				if (time_is_before_eq_jiffies(j + timeinc)) \
++					done = 1;		\
++			} \
++			t -= timeinc;				\
++			if (t <= 0)				\
++				break;				\
++		} while (!(condition));				\
++	} while (0)
 +
-+/* Interface functions between HID LL driver and ISH TP client */
-+void hid_ishtp_set_feature(struct hid_device *hid, char *buf, unsigned int len,
-+			   int report_id);
-+void hid_ishtp_get_report(struct hid_device *hid, int report_id,
-+			  int report_type);
-+int ishtp_hid_probe(unsigned int cur_hid_dev,
-+		    struct ishtp_cl_data *client_data);
-+void ishtp_hid_remove(struct ishtp_cl_data *client_data);
-+int ishtp_hid_link_ready_wait(struct ishtp_cl_data *client_data);
-+void ishtp_hid_wakeup(struct hid_device *hid);
++#endif /* UTILS__H */
+diff --git a/include/trace/events/intel_ish.h b/include/trace/events/intel_ish.h
+new file mode 100644
+index 0000000..92f7d5b
+--- /dev/null
++++ b/include/trace/events/intel_ish.h
+@@ -0,0 +1,30 @@
++#undef TRACE_SYSTEM
++#define TRACE_SYSTEM intel_ish
 +
-+#endif	/* ISHTP_HID__H */
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 0111384..1b7bfc6 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -247,6 +247,7 @@ struct input_mask {
- #define BUS_ATARI		0x1B
- #define BUS_SPI			0x1C
- #define BUS_RMI			0x1D
-+#define BUS_INTEL_ISHTP		0x1E
- 
- /*
-  * MT_TOOL types
++#if !defined(_TRACE_INTEL_ISH_H) || defined(TRACE_HEADER_MULTI_READ)
++#define _TRACE_INTEL_ISH_H
++
++#include <linux/tracepoint.h>
++
++TRACE_EVENT(ishtp_dump,
++
++	TP_PROTO(const char *message),
++
++	TP_ARGS(message),
++
++	TP_STRUCT__entry(
++		__string(message, message)
++	),
++
++	TP_fast_assign(
++		__assign_str(message, message);
++	),
++
++	TP_printk("%s", __get_str(message))
++);
++
++
++#endif /* _TRACE_INTEL_ISH_H */
++
++/* This part must be outside protection */
++#include <trace/define_trace.h>
 -- 
 2.5.5

@@ -1,346 +1,98 @@
-From: Manuel Reimer <mail+linux-input@m-reimer.de>
-Subject: Re: [PATCH v3] hid-sony: Prevent crash when rumble effects are still
- loaded at USB disconnect
-Date: Sat, 11 Jun 2016 12:00:24 +0200
-Message-ID: <a5670e69-cd2b-36c1-a3b6-5a11afedc16d@m-reimer.de>
-References: <a9a2689b-5af7-9676-67fd-5d911fcc9501@m-reimer.de>
- <856C5FBA-EA87-4D24-BB29-433FF5437518@gmail.com>
- <d9be52d5-7aed-4852-a339-18eea3d346ed@m-reimer.de>
- <01146ebc-3710-e3cd-812a-ca4f0ef84372@m-reimer.de>
- <768f4bf0-4b8d-7036-7ddd-1dc9ff4a171b@m-reimer.de>
- <650C9404-0604-4783-B8AC-A7FEC9A73676@gmail.com>
- <29a17dba-d98d-65a1-5949-2b74e00ecdf5@m-reimer.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.mailbox.org ([80.241.60.215]:46077 "EHLO mx2.mailbox.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750973AbcFKKAo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Jun 2016 06:00:44 -0400
-In-Reply-To: <29a17dba-d98d-65a1-5949-2b74e00ecdf5@m-reimer.de>
-Sender: linux-input-owner@vger.kernel.org
+From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH 0/6] Intel Integrated Sensor Hub Support (ISH)
+Date: Sat, 11 Jun 2016 05:13:33 -0700
+Message-ID: <1465647219-7798-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, chaya.golan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, daniel.drubin-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, A.Bhattacharya-pDTOvDb+uMmzQB+pC5nmwQ@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Cameron Gutman <aicommander@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, jikos@kernel.org
 
-Hello,
+Starting from Cherrytrail, multiple generation of Intel processors offers
+on package sensor hub. Several recent tablets, 2-in-1 convertible laptops
+are using ISH instead of external sensor hubs. This resulted in lack of
+support of sensor function like device rotation and auto backlight
+adjustment.
+In addition, depending on the OEM implementation, support of ISH is required
+to support low power sleep states.
 
-I did some more testing. Now I added printk messages to start and end of 
-ml_effect_timer and to hl_ff_destroy. Result:
+The support of ISH on Linux platforms is not new. Android platforms with
+Intel SoCs had this support for a while submitted by Daniel Drubin. 
+This patcheset is reusing most of those changes with  clean up and
+removing Android platform specific changes.
 
-[  513.493511] ml_effect_timer start
-[  513.746964] ml_effect_timer end
-[  515.107003] hid-sony: Sending to uninitialized device failed!
-[  515.333520] hid-sony: Sending to uninitialized device failed!
-[  515.415381] hid-sony: Sending to uninitialized device failed!
-[  520.476860] ml_effect_timer start
-[  520.677003] BUG: unable to handle kernel NULL pointer dereference at 
-00000000000000d8
+The user mode ABI is still same as external sensor hubs using Linux
+IIO. So existing user mode software should still work.
+This series primarily brings in new HID transport used in ISH.
 
-The hid-sony messages are created by my last patch to fix the hid-sony 
-driver. They show that some sending attempts have been cancelled, as the 
-device is about to be destroyed.
+Thanks to the community members who tested RFC patches and provided
+feedback.
 
-Quite some time after that there in fact is another attempt to call 
-ml_effect_timer, so the timer still was active. Tomorrow I'll add 
-additional printk lines to the hid-sony destroy function to see if this 
-finished executing before this unwanted timer call arrives.
+For users testing on Linux distributions using IIO sensor proxy,
+a short term work around is required till we have debugged this issue.
+In systemd unit file iio-sensor-proxy.service
+In the section "[Unit]" add
+After=multi-user.target
 
-This also shows that ml_ff_destroy is not the right place to cancel the 
-timer. ml_ff_destroy is called as soon as I exit fftest. It is not 
-called at all on USB disconnect.
+Daniel Drubin (3):
+  hid: intel_ish-hid: ISH Transport layer
+  hid: intel-ish-hid: ipc layer
+  hid: intel-ish-hid: ISH HID client driver
 
-I now guess this can also be reproduced with the xpad driver, but it 
-requires some fiddling with fftest. It took me ten minutes this time to 
-get the bug triggered. I think the way to trigger the bug is to start 
-effect 5 and shortly after that effect 4. With some luck the USB plug is 
-pulled before event 4 is actually started.
+Srinivas Pandruvada (3):
+  Documentation: hid: Intel ISH HID document
+  iio: hid-sensors: use asynchronous resume
+  hid: hid-sensor-hub: Add ISH quirk
 
-Manuel
+ Documentation/hid/intel-ish-hid.txt                |  417 ++++++++
+ drivers/hid/Kconfig                                |    2 +
+ drivers/hid/Makefile                               |    2 +
+ drivers/hid/hid-sensor-hub.c                       |    4 +
+ drivers/hid/intel-ish-hid/Kconfig                  |   27 +
+ drivers/hid/intel-ish-hid/Makefile                 |   20 +
+ drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h        |  220 ++++
+ drivers/hid/intel-ish-hid/ipc/hw-ish.h             |   70 ++
+ drivers/hid/intel-ish-hid/ipc/ipc.c                |  720 +++++++++++++
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c            |  305 ++++++
+ drivers/hid/intel-ish-hid/ipc/utils.h              |   64 ++
+ drivers/hid/intel-ish-hid/ishtp-hid-client.c       |  922 ++++++++++++++++
+ drivers/hid/intel-ish-hid/ishtp-hid.c              |  231 ++++
+ drivers/hid/intel-ish-hid/ishtp-hid.h              |  182 ++++
+ drivers/hid/intel-ish-hid/ishtp/bus.c              |  774 ++++++++++++++
+ drivers/hid/intel-ish-hid/ishtp/bus.h              |  105 ++
+ drivers/hid/intel-ish-hid/ishtp/client.c           | 1129 ++++++++++++++++++++
+ drivers/hid/intel-ish-hid/ishtp/client.h           |  194 ++++
+ drivers/hid/intel-ish-hid/ishtp/dma-if.c           |  178 +++
+ drivers/hid/intel-ish-hid/ishtp/hbm.c              |  911 ++++++++++++++++
+ drivers/hid/intel-ish-hid/ishtp/hbm.h              |  319 ++++++
+ drivers/hid/intel-ish-hid/ishtp/init.c             |   94 ++
+ drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h        |  280 +++++
+ .../iio/common/hid-sensors/hid-sensor-trigger.c    |   21 +-
+ include/linux/hid-sensor-hub.h                     |    1 +
+ include/trace/events/intel_ish.h                   |   30 +
+ include/uapi/linux/input.h                         |    1 +
+ 27 files changed, 7222 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/hid/intel-ish-hid.txt
+ create mode 100644 drivers/hid/intel-ish-hid/Kconfig
+ create mode 100644 drivers/hid/intel-ish-hid/Makefile
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish.h
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/ipc.c
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/pci-ish.c
+ create mode 100644 drivers/hid/intel-ish-hid/ipc/utils.h
+ create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid-client.c
+ create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.c
+ create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.h
+ create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.c
+ create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.h
+ create mode 100644 drivers/hid/intel-ish-hid/ishtp/client.c
+ create mode 100644 drivers/hid/intel-ish-hid/ishtp/client.h
+ create mode 100644 drivers/hid/intel-ish-hid/ishtp/dma-if.c
+ create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.c
+ create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.h
+ create mode 100644 drivers/hid/intel-ish-hid/ishtp/init.c
+ create mode 100644 drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
+ create mode 100644 include/trace/events/intel_ish.h
 
-On 06/07/2016 05:55 PM, Manuel Reimer wrote:
-> Hello,
->
-> this may be true. I didn't expect that this is actually possible. For a
-> kernel newbie it is very difficult to know where new threads are started
-> and in which cases they are stopped.
->
-> The only thing, that happens in the "destroy" callback of ff-memless,
-> is, again, that kernel memory is freed. If timers really keep running,
-> then this would be a second possibility for a "use after free" bug. I
-> think even if the timers are deleted before this, there is still a small
-> chance that the timer callback already was triggered at the point where
-> kfree is called.
->
->
-> To reproduce this, I did the following:
->
-> - Open fftest
-> --> Now, with ff-memless devices, we can use effect 4 or 5
-> - Start several effects. Meaning: Press 4 + Enter and/or 5 + Enter
-> repeatedly several times.
-> - Finally pull the USB plug as fast as possible
->
-> It doesn't happen every time and may need some retries. I don't know if
-> it is actually possible to get the crash using the xpad driver.
->
-> Manuel
->
->
-> On 06/07/2016 07:38 AM, Cameron Gutman wrote:
->> This looks like the ff-memless effect timer is going off and invoking
->> your effect callback
->> after sony_remove() has returned. No amount of locking is going to fix
->> a callback to a
->> device that has been freed.
->>
->> I took a look in ff-memless.c and I did not see any obvious code path
->> where the effect
->> timer is stopped when the device is destroyed. That would explain the
->> crashes you are
->> getting. Maybe I am missing something though.
->>
->> Someone with some experience in the force feedback code could probably
->> be more helpful.
->>
->> I tried for a little while to reproduce this bug with fftest and xpad
->> and never managed it.
->> What were you doing to trigger the bug?
->>
->>
->> Cameron
->>
->>> On Jun 5, 2016, at 7:59 AM, Manuel Reimer
->>> <mail+linux-input@m-reimer.de> wrote:
->>>
->>> Hello,
->>>
->>> in the meantime, I got private mail with the suggestion, that I
->>> should have a look at spinlocks for my last change, so this is what I
->>> came up with:
->>>
->>>
->>>
->>>
->>> --- a/drivers/hid/hid-sony.c    2016-05-13 16:13:00.339346161 +0200
->>> +++ b/drivers/hid/hid-sony.c    2016-06-03 16:56:13.642143935 +0200
->>> @@ -1023,6 +1023,7 @@ static DEFINE_IDA(sony_device_id_allocat
->>>
->>> struct sony_sc {
->>>     spinlock_t lock;
->>> +    spinlock_t worker_initialized_lock;
->>>     struct list_head list_node;
->>>     struct hid_device *hdev;
->>>     struct led_classdev *leds[MAX_LEDS];
->>> @@ -1051,6 +1052,20 @@ struct sony_sc {
->>>     __u8 led_count;
->>> };
->>>
->>> +static inline void sony_schedule_work(struct sony_sc *sc)
->>> +{
->>> +    unsigned long flags;
->>> +
->>> +    spin_lock_irqsave(&sc->worker_initialized_lock, flags);
->>> +
->>> +    if (sc->worker_initialized)
->>> +        schedule_work(&sc->state_worker);
->>> +    else
->>> +        printk(KERN_ERR "hid-sony: Sending to uninitialized device
->>> failed!\n");
->>> +
->>> +    spin_unlock_irqrestore(&sc->worker_initialized_lock, flags);
->>> +}
->>> +
->>> static __u8 *sixaxis_fixup(struct hid_device *hdev, __u8 *rdesc,
->>>                  unsigned int *rsize)
->>> {
->>> @@ -1542,7 +1557,7 @@ static void buzz_set_leds(struct sony_sc
->>> static void sony_set_leds(struct sony_sc *sc)
->>> {
->>>     if (!(sc->quirks & BUZZ_CONTROLLER))
->>> -        schedule_work(&sc->state_worker);
->>> +        sony_schedule_work(sc);
->>>     else
->>>         buzz_set_leds(sc);
->>> }
->>> @@ -1653,7 +1668,7 @@ static int sony_led_blink_set(struct led
->>>         new_off != drv_data->led_delay_off[n]) {
->>>         drv_data->led_delay_on[n] = new_on;
->>>         drv_data->led_delay_off[n] = new_off;
->>> -        schedule_work(&drv_data->state_worker);
->>> +        sony_schedule_work(drv_data);
->>>     }
->>>
->>>     return 0;
->>> @@ -1963,7 +1978,7 @@ static int sony_play_effect(struct input
->>>     sc->left = effect->u.rumble.strong_magnitude / 256;
->>>     sc->right = effect->u.rumble.weak_magnitude / 256;
->>>
->>> -    schedule_work(&sc->state_worker);
->>> +    sony_schedule_work(sc);
->>>     return 0;
->>> }
->>>
->>> @@ -2255,18 +2270,30 @@ static void sony_release_device_id(struc
->>> static inline void sony_init_output_report(struct sony_sc *sc,
->>>                 void(*send_output_report)(struct sony_sc*))
->>> {
->>> +    unsigned long flags;
->>> +
->>>     sc->send_output_report = send_output_report;
->>>
->>> +    spin_lock_irqsave(&sc->worker_initialized_lock, flags);
->>> +
->>>     if (!sc->worker_initialized)
->>>         INIT_WORK(&sc->state_worker, sony_state_worker);
->>>
->>>     sc->worker_initialized = 1;
->>> +
->>> +    spin_unlock_irqrestore(&sc->worker_initialized_lock, flags);
->>> }
->>>
->>> static inline void sony_cancel_work_sync(struct sony_sc *sc)
->>> {
->>> -    if (sc->worker_initialized)
->>> +    unsigned long flags;
->>> +
->>> +    spin_lock_irqsave(&sc->worker_initialized_lock, flags);
->>> +    if (sc->worker_initialized) {
->>> +        sc->worker_initialized = 0;
->>>         cancel_work_sync(&sc->state_worker);
->>> +    }
->>> +    spin_unlock_irqrestore(&sc->worker_initialized_lock, flags);
->>> }
->>>
->>> static int sony_probe(struct hid_device *hdev, const struct
->>> hid_device_id *id)
->>> @@ -2283,6 +2310,7 @@ static int sony_probe(struct hid_device
->>>     }
->>>
->>>     spin_lock_init(&sc->lock);
->>> +    spin_lock_init(&sc->worker_initialized_lock);
->>>
->>>     sc->quirks = quirks;
->>>     hid_set_drvdata(hdev, sc);
->>>
->>>
->>>
->>>
->>>
->>>
->>> Result:
->>>
->>>
->>>
->>>
->>>
->>> [   67.956856] BUG: unable to handle kernel NULL pointer dereference
->>> at 00000000000000d8
->>> [   68.380234] IP: [<ffffffffa036933d>] sony_play_effect+0x2d/0x90
->>> [hid_sony]
->>> [   68.380234] PGD 0
->>> [   68.380234] Oops: 0002 [#1] PREEMPT SMP
->>> [   68.380234] Modules linked in: hid_sony ff_memless cfg80211 rfkill
->>> crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel
->>> aes_x86_64 ppdev lrw gf128mul glue_helper ablk_helper cryptd psmouse
->>> input_leds joydev led_class acpi_cpufreq serio_raw mousedev pcspkr
->>> mac_hid i2c_piix4 e1000 intel_agp intel_gtt tpm_tis tpm fjes video
->>> battery parport_pc parport button processor ac evdev sch_fq_codel
->>> vboxvideo(O) ttm drm_kms_helper drm syscopyarea sysfillrect sysimgblt
->>> fb_sys_fops vboxsf(O) vboxguest(O) ip_tables x_tables xfs libcrc32c
->>> hid_generic usbhid hid sr_mod cdrom sd_mod ata_generic pata_acpi
->>> atkbd libps2 ohci_pci ohci_hcd ata_piix ahci libahci usbcore
->>> crc32c_intel usb_common libata scsi_mod i8042 serio
->>> [   68.380234] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O
->>> 4.5.4-1-ARCH #1
->>> [   68.380234] Hardware name: innotek GmbH VirtualBox/VirtualBox,
->>> BIOS VirtualBox 12/01/2006
->>> [   68.380234] task: ffffffff81811500 ti: ffffffff81800000 task.ti:
->>> ffffffff81800000
->>> [   68.380234] RIP: 0010:[<ffffffffa036933d>]  [<ffffffffa036933d>]
->>> sony_play_effect+0x2d/0x90 [hid_sony]
->>> [   68.380234] RSP: 0018:ffff88003fc03da0  EFLAGS: 00010046
->>> [   68.380234] RAX: 0000000000000000 RBX: 0000000000000000 RCX:
->>> 000000000000ffff
->>> [   68.380234] RDX: ffff88003fc03df0 RSI: 0000000000000000 RDI:
->>> ffff88003d09d800
->>> [   68.380234] RBP: ffff88003fc03db8 R08: ffff880037bf3100 R09:
->>> 0000000000000000
->>> [   68.380234] R10: 0000000000000020 R11: 0000000000000000 R12:
->>> 0000000000000004
->>> [   68.380234] R13: ffff880039980c00 R14: ffff88003fc03df0 R15:
->>> 00000000000000b4
->>> [   68.380234] FS:  00007f1a3b54a780(0000) GS:ffff88003fc00000(0000)
->>> knlGS:0000000000000000
->>> [   68.380234] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
->>> [   68.380234] CR2: 00000000000000d8 CR3: 000000003ceb7000 CR4:
->>> 00000000000406f0
->>> [   68.380234] Stack:
->>> [   68.380234]  0000000000000010 ffff880039980f08 ffff880039980c00
->>> ffff88003fc03e50
->>> [   68.380234]  ffffffffa036475a 0000000000000002 0000000000015740
->>> 0000000000000046
->>> [   68.380234]  ffff880039980c08 000000000000ffff 0000000000000050
->>> 0000000000000000
->>> [   68.380234] Call Trace:
->>> [   68.380234]  <IRQ>
->>> [   68.380234]  [<ffffffffa036475a>] ml_play_effects+0x10a/0x700
->>> [ff_memless]
->>> [   68.380234]  [<ffffffffa0364e90>] ? ml_ff_playback+0x100/0x100
->>> [ff_memless]
->>> [   68.380234]  [<ffffffffa0364ecf>] ml_effect_timer+0x3f/0x170
->>> [ff_memless]
->>> [   68.380234]  [<ffffffff810e3cc5>] call_timer_fn+0x35/0x150
->>> [   68.380234]  [<ffffffffa0364e90>] ? ml_ff_playback+0x100/0x100
->>> [ff_memless]
->>> [   68.380234]  [<ffffffff810e4016>] run_timer_softirq+0x236/0x2e0
->>> [   68.380234]  [<ffffffff8107d3e6>] __do_softirq+0xe6/0x2f0
->>> [   68.380234]  [<ffffffff8107d763>] irq_exit+0xa3/0xb0
->>> [   68.380234]  [<ffffffff815b8112>] smp_apic_timer_interrupt+0x42/0x50
->>> [   68.380234]  [<ffffffff815b63f2>] apic_timer_interrupt+0x82/0x90
->>> [   68.380234]  <EOI>
->>> [   68.380234]  [<ffffffff8105f896>] ? native_safe_halt+0x6/0x10
->>> [   68.380234]  [<ffffffff81021c30>] default_idle+0x20/0x110
->>> [   68.380234]  [<ffffffff8102246f>] arch_cpu_idle+0xf/0x20
->>> [   68.380234]  [<ffffffff810baf0a>] default_idle_call+0x2a/0x40
->>> [   68.380234]  [<ffffffff810bb264>] cpu_startup_entry+0x344/0x3b0
->>> [   68.380234]  [<ffffffff815a8c19>] rest_init+0x89/0x90
->>> [   68.380234]  [<ffffffff8190c012>] start_kernel+0x46a/0x48b
->>> [   68.380234]  [<ffffffff8190b120>] ?
->>> early_idt_handler_array+0x120/0x120
->>> [   68.380234]  [<ffffffff8190b332>] x86_64_start_reservations+0x2a/0x2c
->>> [   68.380234]  [<ffffffff8190b480>] x86_64_start_kernel+0x14c/0x16f
->>> [   68.380234] Code: 44 00 00 66 83 3a 50 74 03 31 c0 c3 55 48 89 e5
->>> 41 55 41 54 53 48 8b 87 e8 02 00 00 48 8b 98 88 19 00 00 0f b6 42 11
->>> 4c 8d 63 04 <88> 83 d8 00 00 00 0f b6 42 13 4c 89 e7 88 83 d9 00 00
->>> 00 e8 2b
->>> [   68.380234] RIP  [<ffffffffa036933d>] sony_play_effect+0x2d/0x90
->>> [hid_sony]
->>> [   68.380234]  RSP <ffff88003fc03da0>
->>> [   68.380234] CR2: 00000000000000d8
->>> [   68.380234] ---[ end trace 3e201de0e22c4c6e ]---
->>> [   68.380234] Kernel panic - not syncing: Fatal exception in interrupt
->>> [   68.380234] Kernel Offset: disabled
->>> [   68.380234] ---[ end Kernel panic - not syncing: Fatal exception
->>> in interrupt
->>>
->>>
->>>
->>>
->>>
->>> So either the underlying bug is still there or my usage of spinlocks
->>> is totally wrong.
->>>
->>> I would be really happy to get some feedback....
->>>
->>> Thank you very much in advance.
->>>
->>> Manuel
->>
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+-- 
+2.5.5

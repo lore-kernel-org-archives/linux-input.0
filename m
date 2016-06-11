@@ -1,446 +1,519 @@
-From: Atri Bhattacharya <badshah400@aim.com>
-Subject: Re: [PATCH 0/6] Intel Integrated Sensor Hub Support (ISH)
-Date: Sat, 11 Jun 2016 15:10:38 +0200
-Message-ID: <1465650638.20649.8.camel@aim.com>
-References: <1465647219-7798-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 1/4] mfd: mxs-lradc: Add support for mxs-lradc MFD
+Date: Sat, 11 Jun 2016 16:32:39 +0100
+Message-ID: <d63185b9-4161-4815-9388-a4bd1c371922@kernel.org>
+References: <cover.1465396835.git.ksenija.stanojevic@gmail.com>
+ <ff8e494d6dbb4fad74e86c27d7823dfa6ff70f7a.1465396835.git.ksenija.stanojevic@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-VJC24tq2F3BwFca4feYw"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:45378 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750995AbcFKNLW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Jun 2016 09:11:22 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <glki-linux-input-2@m.gmane.org>)
-	id 1bBih4-0004VD-Ve
-	for linux-input@vger.kernel.org; Sat, 11 Jun 2016 15:11:19 +0200
-Received: from 91.178.106.13 ([91.178.106.13])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Sat, 11 Jun 2016 15:11:18 +0200
-Received: from badshah400 by 91.178.106.13 with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Sat, 11 Jun 2016 15:11:18 +0200
-In-Reply-To: <1465647219-7798-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <ff8e494d6dbb4fad74e86c27d7823dfa6ff70f7a.1465396835.git.ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org, stefan.wahren-eS4NqCHxEME@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
+On 08/06/16 15:45, Ksenija Stanojevic wrote:
+> Add core files for mxs-lradc MFD driver.
+> 
+> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+One really minor point inline that would make for a slighlty more
+'obviously correct' driver.  I haven't absolutely established there
+isn't a race (which not using the devm form of the device add
+would have made obvious), but I think you are probably fine anyway.
 
---=-VJC24tq2F3BwFca4feYw
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Otherwise, looking nice to me.
 
-Hi Srinivas,
-
-On Sat, 2016-06-11 at 05:13 -0700, Srinivas Pandruvada wrote:
-> Starting from Cherrytrail, multiple generation of Intel processors
-> offers
-> on package sensor hub. Several recent tablets, 2-in-1 convertible
-> laptops
-> are using ISH instead of external sensor hubs. This resulted in lack
-> of
-> support of sensor function like device rotation and auto backlight
-> adjustment.
-> In addition, depending on the OEM implementation, support of ISH is
-> required
-> to support low power sleep states.
->=20
-> The support of ISH on Linux platforms is not new. Android platforms
-> with
-> Intel SoCs had this support for a while submitted by Daniel Drubin.=C2=A0
-> This patcheset is reusing most of those changes with=C2=A0=C2=A0clean up =
-and
-> removing Android platform specific changes.
->=20
-> The user mode ABI is still same as external sensor hubs using Linux
-> IIO. So existing user mode software should still work.
-> This series primarily brings in new HID transport used in ISH.
->=20
-> Thanks to the community members who tested RFC patches and provided
-> feedback.
->=20
-> For users testing on Linux distributions using IIO sensor proxy,
-> a short term work around is required till we have debugged this
-> issue.
-> In systemd unit file iio-sensor-proxy.service
-> In the section "[Unit]" add
-> After=3Dmulti-user.target
->=20
-
-Thank you so much for the updated patchset. It works! Auto
-rotation and brightness work out of a cold boot and also after waking
-up from suspend. Suspend/Wakeup is also back to usual speed.
-
-One minor gripe I have is that the brightness seems to be set to 100%
-every time upon reboot. So if I set brightness to 50% e.g., and reboot,
-the brightness is reset to 100% again (not initially but right after
-iio-sensor-monitor loads). Of course, this might not have anything to
-do with the driver, but I just thought I should mention it here as long
-as I am not sure about the cause. I attach journal logs for your
-perusal.
-
-I have now tested the patches both against kernel 4.7rc2 and 4.6.2, and
-it works just fine in both cases. My test device is a Lenovo Thinkpad
-Yoga 260.
-
-Thanks and best wishes.
---=20
-Atri Bhattacharya
-Sat 11 Jun 15:00:41 CEST 2016
-
-Sent from openSUSE Tumbleweed (20160609) (x86_64) on my laptop.
---=-VJC24tq2F3BwFca4feYw
-Content-Type: application/x-bzip-compressed-tar; name="journal-ish--success.log.tar.bz2"
-Content-Disposition: attachment; filename="journal-ish--success.log.tar.bz2"
-Content-Transfer-Encoding: base64
-
-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
-
-
---=-VJC24tq2F3BwFca4feYw--
-
-
+Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Changes in v2:
+>  - do not change spacing in Kconfig
+>  - make struct mfd_cell part of struct mxs_lradc
+>  - use switch instead of if in mxs_lradc_irq_mask
+>  - use only necessary header files in mxs_lradc.h
+>  - use devm_mfd_add_device
+>  - use separate function to register mfd device
+>  - change licence to GPL
+>  - add copyright
+> 
+>  drivers/mfd/Kconfig           |  17 ++++
+>  drivers/mfd/Makefile          |   1 +
+>  drivers/mfd/mxs-lradc.c       | 215 ++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/mfd/mxs-lradc.h | 204 +++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 437 insertions(+)
+>  create mode 100644 drivers/mfd/mxs-lradc.c
+>  create mode 100644 include/linux/mfd/mxs-lradc.h
+> 
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index 9ca66de..62593ad 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -271,6 +271,23 @@ config MFD_MC13XXX_I2C
+>  	help
+>  	  Select this if your MC13xxx is connected via an I2C bus.
+>  
+> +config MFD_MXS_LRADC
+> +	tristate "Freescale i.MX23/i.MX28 LRADC"
+> +	depends on ARCH_MXS || COMPILE_TEST
+> +	select MFD_CORE
+> +	select STMP_DEVICE
+> +	help
+> +	  Say yes here to build support for the low-resolution
+> +	  analog-to-digital converter (LRADC) found on the i.MX23 and i.MX28
+> +	  processors. This driver provides common support for accessing the
+> +	  device, additional drivers must be enabled in order to use the
+> +	  functionality of the device:
+> +		mxs-lradc-adc for ADC readings
+> +		mxs-lradc-ts  for touchscreen support
+> +
+> +	  This driver can also be built as a module. If so, the module will be
+> +	  called mxs-lradc.
+> +
+>  config MFD_HI6421_PMIC
+>  	tristate "HiSilicon Hi6421 PMU/Codec IC"
+>  	depends on OF
+> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+> index 0f230a6..ecf6399 100644
+> --- a/drivers/mfd/Makefile
+> +++ b/drivers/mfd/Makefile
+> @@ -198,3 +198,4 @@ intel-soc-pmic-objs		:= intel_soc_pmic_core.o intel_soc_pmic_crc.o
+>  intel-soc-pmic-$(CONFIG_INTEL_PMC_IPC)	+= intel_soc_pmic_bxtwc.o
+>  obj-$(CONFIG_INTEL_SOC_PMIC)	+= intel-soc-pmic.o
+>  obj-$(CONFIG_MFD_MT6397)	+= mt6397-core.o
+> +obj-$(CONFIG_MFD_MXS_LRADC)	+= mxs-lradc.o
+> diff --git a/drivers/mfd/mxs-lradc.c b/drivers/mfd/mxs-lradc.c
+> new file mode 100644
+> index 0000000..5e894bb
+> --- /dev/null
+> +++ b/drivers/mfd/mxs-lradc.c
+> @@ -0,0 +1,215 @@
+> +/*
+> + * Freescale MXS LRADC driver
+> + *
+> + * Copyright (c) 2012 DENX Software Engineering, GmbH.
+> + * Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> + * Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/clk.h>
+> +#include <linux/device.h>
+> +#include <linux/mfd/core.h>
+> +#include <linux/mfd/mxs-lradc.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/slab.h>
+> +
+> +static const char * const mx23_lradc_irq_names[] = {
+> +	"mxs-lradc-touchscreen",
+> +	"mxs-lradc-channel0",
+> +	"mxs-lradc-channel1",
+> +	"mxs-lradc-channel2",
+> +	"mxs-lradc-channel3",
+> +	"mxs-lradc-channel4",
+> +	"mxs-lradc-channel5",
+> +	"mxs-lradc-channel6",
+> +	"mxs-lradc-channel7",
+> +};
+> +
+> +static const char * const mx28_lradc_irq_names[] = {
+> +	"mxs-lradc-touchscreen",
+> +	"mxs-lradc-thresh0",
+> +	"mxs-lradc-thresh1",
+> +	"mxs-lradc-channel0",
+> +	"mxs-lradc-channel1",
+> +	"mxs-lradc-channel2",
+> +	"mxs-lradc-channel3",
+> +	"mxs-lradc-channel4",
+> +	"mxs-lradc-channel5",
+> +	"mxs-lradc-channel6",
+> +	"mxs-lradc-channel7",
+> +	"mxs-lradc-button0",
+> +	"mxs-lradc-button1",
+> +};
+> +
+> +struct mxs_lradc_of_config {
+> +	const int		irq_count;
+> +	const char * const	*irq_name;
+> +};
+> +
+> +static const struct mxs_lradc_of_config mxs_lradc_of_config[] = {
+> +	[IMX23_LRADC] = {
+> +		.irq_count	= ARRAY_SIZE(mx23_lradc_irq_names),
+> +		.irq_name	= mx23_lradc_irq_names,
+> +	},
+> +	[IMX28_LRADC] = {
+> +		.irq_count	= ARRAY_SIZE(mx28_lradc_irq_names),
+> +		.irq_name	= mx28_lradc_irq_names,
+> +	},
+> +};
+> +
+> +static const struct of_device_id mxs_lradc_dt_ids[] = {
+> +	{ .compatible = "fsl,imx23-lradc", .data = (void *)IMX23_LRADC, },
+> +	{ .compatible = "fsl,imx28-lradc", .data = (void *)IMX28_LRADC, },
+> +	{ /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, mxs_lradc_dt_ids);
+> +
+> +static int mxs_lradc_add_device(struct platform_device *pdev,
+> +				struct mxs_lradc *lradc, char *name, int i)
+> +{
+> +	struct mfd_cell *cell;
+> +
+> +	cell = &lradc->cells[i];
+> +	cell->name = name;
+> +	cell->platform_data = lradc;
+> +	cell->pdata_size = sizeof(*lradc);
+> +
+> +	return devm_mfd_add_devices(&pdev->dev, -1, cell, 1, NULL, 0, NULL);
+> +}
+> +
+> +static int mxs_lradc_probe(struct platform_device *pdev)
+> +{
+> +	const struct of_device_id *of_id =
+> +		of_match_device(mxs_lradc_dt_ids, &pdev->dev);
+> +	const struct mxs_lradc_of_config *of_cfg =
+> +		&mxs_lradc_of_config[(enum mxs_lradc_id)of_id->data];
+> +	struct device *dev = &pdev->dev;
+> +	struct device_node *node = dev->of_node;
+> +	struct mxs_lradc *lradc;
+> +	struct resource *iores;
+> +	int ret = 0, touch_ret, i;
+> +	u32 ts_wires = 0;
+> +
+> +	lradc = devm_kzalloc(&pdev->dev, sizeof(*lradc), GFP_KERNEL);
+> +	if (!lradc)
+> +		return -ENOMEM;
+> +	lradc->soc = (enum mxs_lradc_id)of_id->data;
+> +
+> +	/* Grab the memory area */
+> +	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	lradc->base = devm_ioremap_resource(dev, iores);
+> +	if (IS_ERR(lradc->base))
+> +		return PTR_ERR(lradc->base);
+> +
+> +	lradc->clk = devm_clk_get(&pdev->dev, NULL);
+> +	if (IS_ERR(lradc->clk)) {
+> +		dev_err(dev, "Failed to get the delay unit clock\n");
+> +		return PTR_ERR(lradc->clk);
+> +	}
+> +	ret = clk_prepare_enable(lradc->clk);
+> +	if (ret != 0) {
+> +		dev_err(dev, "Failed to enable the delay unit clock\n");
+> +		return ret;
+> +	}
+> +
+> +	touch_ret = of_property_read_u32(node, "fsl,lradc-touchscreen-wires",
+> +					 &ts_wires);
+> +
+> +	if (touch_ret == 0)
+> +		lradc->buffer_vchans = BUFFER_VCHANS_LIMITED;
+> +	else
+> +		lradc->buffer_vchans = BUFFER_VCHANS_ALL;
+> +
+> +	lradc->irq_count = of_cfg->irq_count;
+> +	lradc->irq_name = of_cfg->irq_name;
+> +	for (i = 0; i < lradc->irq_count; i++) {
+> +		lradc->irq[i] = platform_get_irq(pdev, i);
+> +		if (lradc->irq[i] < 0) {
+> +			ret = lradc->irq[i];
+> +			goto err_clk;
+> +		}
+> +	}
+> +
+> +	platform_set_drvdata(pdev, lradc);
+> +
+> +	ret = stmp_reset_block(lradc->base);
+> +	if (ret)
+> +		return ret;
+> +
+> +	switch (ts_wires) {
+> +	case 4:
+> +		lradc->use_touchscreen = MXS_LRADC_TOUCHSCREEN_4WIRE;
+> +		break;
+> +	case 5:
+> +		if (lradc->soc == IMX28_LRADC) {
+> +			lradc->use_touchscreen = MXS_LRADC_TOUCHSCREEN_5WIRE;
+> +			break;
+> +		}
+> +		/* fall through an error message for i.MX23 */
+> +	default:
+> +		dev_err(&pdev->dev,
+> +			"Unsupported number of touchscreen wires (%d)\n",
+> +			ts_wires);
+> +		return -EINVAL;
+> +	}
+> +
+> +	ret = mxs_lradc_add_device(pdev, lradc, DRIVER_NAME_ADC, 0);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Failed to add the ADC subdevice\n");
+> +		goto err_clk;
+> +	}
+> +
+> +	if (!lradc->use_touchscreen)
+> +		return 0;
+> +
+> +	ret = mxs_lradc_add_device(pdev, lradc, DRIVER_NAME_TS, 1);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"Failed to add the touchscreen subdevice\n");
+> +		goto err_clk;
+> +	}
+> +
+> +	return 0;
+> +
+> +err_clk:
+> +	clk_disable_unprepare(lradc->clk);
+> +
+> +	return ret;
+> +}
+> +
+> +static int mxs_lradc_remove(struct platform_device *pdev)
+> +{
+> +	struct mxs_lradc *lradc = platform_get_drvdata(pdev);
+> +
+> +	clk_disable_unprepare(lradc->clk);
+A possible slight issue with the interaction of this and
+devm_mfd_add_devices.  The add devices will unwind after this. It shouldn't
+cause trouble I think, but breaks the 'obviously correct' 'rule'. 
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver mxs_lradc_driver = {
+> +	.driver = {
+> +		.name = "mxs-lradc",
+> +		.of_match_table = mxs_lradc_dt_ids,
+> +	},
+> +	.probe = mxs_lradc_probe,
+> +	.remove = mxs_lradc_remove,
+> +};
+> +
+> +module_platform_driver(mxs_lradc_driver);
+> +
+> +MODULE_DESCRIPTION("Freescale i.MX23/i.MX28 LRADC driver");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:mxs-lradc");
+> diff --git a/include/linux/mfd/mxs-lradc.h b/include/linux/mfd/mxs-lradc.h
+> new file mode 100644
+> index 0000000..c1475c0
+> --- /dev/null
+> +++ b/include/linux/mfd/mxs-lradc.h
+> @@ -0,0 +1,204 @@
+> +/*
+> + * Freescale MXS LRADC driver
+> + *
+> + * Copyright (c) 2012 DENX Software Engineering, GmbH.
+> + * Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#ifndef __MXS_LRADC_H
+> +#define __MXS_LRADC_H
+> +
+> +#include <linux/bitops.h>
+> +#include <linux/io.h>
+> +#include <linux/stmp_device.h>
+> +
+> +#define DRIVER_NAME_ADC "mxs-lradc-adc"
+> +#define DRIVER_NAME_TS "mxs-lradc-ts"
+> +
+> +#define LRADC_MAX_DELAY_CHANS	4
+> +#define LRADC_MAX_MAPPED_CHANS	8
+> +#define LRADC_MAX_TOTAL_CHANS	16
+> +
+> +#define LRADC_DELAY_TIMER_HZ	2000
+> +
+> +#define LRADC_CTRL0				0x00
+> +# define LRADC_CTRL0_MX28_TOUCH_DETECT_ENABLE	BIT(23)
+> +# define LRADC_CTRL0_MX28_TOUCH_SCREEN_TYPE	BIT(22)
+> +# define LRADC_CTRL0_MX28_YNNSW /* YM */	BIT(21)
+> +# define LRADC_CTRL0_MX28_YPNSW /* YP */	BIT(20)
+> +# define LRADC_CTRL0_MX28_YPPSW /* YP */	BIT(19)
+> +# define LRADC_CTRL0_MX28_XNNSW /* XM */	BIT(18)
+> +# define LRADC_CTRL0_MX28_XNPSW /* XM */	BIT(17)
+> +# define LRADC_CTRL0_MX28_XPPSW /* XP */	BIT(16)
+> +
+> +# define LRADC_CTRL0_MX23_TOUCH_DETECT_ENABLE	BIT(20)
+> +# define LRADC_CTRL0_MX23_YM			BIT(19)
+> +# define LRADC_CTRL0_MX23_XM			BIT(18)
+> +# define LRADC_CTRL0_MX23_YP			BIT(17)
+> +# define LRADC_CTRL0_MX23_XP			BIT(16)
+> +
+> +# define LRADC_CTRL0_MX28_PLATE_MASK \
+> +		(LRADC_CTRL0_MX28_TOUCH_DETECT_ENABLE | \
+> +		LRADC_CTRL0_MX28_YNNSW | LRADC_CTRL0_MX28_YPNSW | \
+> +		LRADC_CTRL0_MX28_YPPSW | LRADC_CTRL0_MX28_XNNSW | \
+> +		LRADC_CTRL0_MX28_XNPSW | LRADC_CTRL0_MX28_XPPSW)
+> +
+> +# define LRADC_CTRL0_MX23_PLATE_MASK \
+> +		(LRADC_CTRL0_MX23_TOUCH_DETECT_ENABLE | \
+> +		LRADC_CTRL0_MX23_YM | LRADC_CTRL0_MX23_XM | \
+> +		LRADC_CTRL0_MX23_YP | LRADC_CTRL0_MX23_XP)
+> +
+> +#define LRADC_CTRL1				0x10
+> +#define LRADC_CTRL1_TOUCH_DETECT_IRQ_EN		BIT(24)
+> +#define LRADC_CTRL1_LRADC_IRQ_EN(n)		(1 << ((n) + 16))
+> +#define LRADC_CTRL1_MX28_LRADC_IRQ_EN_MASK	(0x1fff << 16)
+> +#define LRADC_CTRL1_MX23_LRADC_IRQ_EN_MASK	(0x01ff << 16)
+> +#define LRADC_CTRL1_LRADC_IRQ_EN_OFFSET		16
+> +#define LRADC_CTRL1_TOUCH_DETECT_IRQ		BIT(8)
+> +#define LRADC_CTRL1_LRADC_IRQ(n)		(1 << (n))
+> +#define LRADC_CTRL1_MX28_LRADC_IRQ_MASK		0x1fff
+> +#define LRADC_CTRL1_MX23_LRADC_IRQ_MASK		0x01ff
+> +#define LRADC_CTRL1_LRADC_IRQ_OFFSET		0
+> +
+> +#define LRADC_CTRL2				0x20
+> +#define LRADC_CTRL2_DIVIDE_BY_TWO_OFFSET	24
+> +#define LRADC_CTRL2_TEMPSENSE_PWD		BIT(15)
+> +
+> +#define LRADC_STATUS				0x40
+> +#define LRADC_STATUS_TOUCH_DETECT_RAW		BIT(0)
+> +
+> +#define LRADC_CH(n)				(0x50 + (0x10 * (n)))
+> +#define LRADC_CH_ACCUMULATE			BIT(29)
+> +#define LRADC_CH_NUM_SAMPLES_MASK		(0x1f << 24)
+> +#define LRADC_CH_NUM_SAMPLES_OFFSET		24
+> +#define LRADC_CH_NUM_SAMPLES(x) \
+> +				((x) << LRADC_CH_NUM_SAMPLES_OFFSET)
+> +#define LRADC_CH_VALUE_MASK			0x3ffff
+> +#define LRADC_CH_VALUE_OFFSET			0
+> +
+> +#define LRADC_DELAY(n)				(0xd0 + (0x10 * (n)))
+> +#define LRADC_DELAY_TRIGGER_LRADCS_MASK		(0xffUL << 24)
+> +#define LRADC_DELAY_TRIGGER_LRADCS_OFFSET	24
+> +#define LRADC_DELAY_TRIGGER(x) \
+> +				(((x) << LRADC_DELAY_TRIGGER_LRADCS_OFFSET) & \
+> +				LRADC_DELAY_TRIGGER_LRADCS_MASK)
+> +#define LRADC_DELAY_KICK			BIT(20)
+> +#define LRADC_DELAY_TRIGGER_DELAYS_MASK		(0xf << 16)
+> +#define LRADC_DELAY_TRIGGER_DELAYS_OFFSET	16
+> +#define LRADC_DELAY_TRIGGER_DELAYS(x) \
+> +				(((x) << LRADC_DELAY_TRIGGER_DELAYS_OFFSET) & \
+> +				LRADC_DELAY_TRIGGER_DELAYS_MASK)
+> +#define LRADC_DELAY_LOOP_COUNT_MASK		(0x1f << 11)
+> +#define LRADC_DELAY_LOOP_COUNT_OFFSET		11
+> +#define LRADC_DELAY_LOOP(x) \
+> +				(((x) << LRADC_DELAY_LOOP_COUNT_OFFSET) & \
+> +				LRADC_DELAY_LOOP_COUNT_MASK)
+> +#define LRADC_DELAY_DELAY_MASK			0x7ff
+> +#define LRADC_DELAY_DELAY_OFFSET		0
+> +#define LRADC_DELAY_DELAY(x) \
+> +				(((x) << LRADC_DELAY_DELAY_OFFSET) & \
+> +				LRADC_DELAY_DELAY_MASK)
+> +
+> +#define LRADC_CTRL4				0x140
+> +#define LRADC_CTRL4_LRADCSELECT_MASK(n)		(0xf << ((n) * 4))
+> +#define LRADC_CTRL4_LRADCSELECT_OFFSET(n)	((n) * 4)
+> +#define LRADC_CTRL4_LRADCSELECT(n, x) \
+> +				(((x) << LRADC_CTRL4_LRADCSELECT_OFFSET(n)) & \
+> +				LRADC_CTRL4_LRADCSELECT_MASK(n))
+> +
+> +#define LRADC_RESOLUTION			12
+> +#define LRADC_SINGLE_SAMPLE_MASK		((1 << LRADC_RESOLUTION) - 1)
+> +
+> +enum mxs_lradc_id {
+> +	IMX23_LRADC,
+> +	IMX28_LRADC,
+> +};
+> +
+> +enum mxs_lradc_ts_wires {
+> +	MXS_LRADC_TOUCHSCREEN_NONE = 0,
+> +	MXS_LRADC_TOUCHSCREEN_4WIRE,
+> +	MXS_LRADC_TOUCHSCREEN_5WIRE,
+> +};
+> +
+> +struct mxs_lradc {
+> +	enum mxs_lradc_id	soc;
+> +
+> +	void __iomem		*base;
+> +	struct clk		*clk;
+> +
+> +	int			irq[13];
+> +	const char * const	*irq_name;
+> +	int			irq_count;
+> +
+> +#define BUFFER_VCHANS_LIMITED		0x3f
+> +#define BUFFER_VCHANS_ALL		0xff
+> +	u8			buffer_vchans;
+> +
+> +	/*
+> +	 * Certain LRADC channels are shared between touchscreen
+> +	 * and/or touch-buttons and generic LRADC block. Therefore when using
+> +	 * either of these, these channels are not available for the regular
+> +	 * sampling. The shared channels are as follows:
+> +	 *
+> +	 * CH0 -- Touch button #0
+> +	 * CH1 -- Touch button #1
+> +	 * CH2 -- Touch screen XPUL
+> +	 * CH3 -- Touch screen YPLL
+> +	 * CH4 -- Touch screen XNUL
+> +	 * CH5 -- Touch screen YNLR
+> +	 * CH6 -- Touch screen WIPER (5-wire only)
+> +	 *
+> +	 * The bit fields below represents which parts of the LRADC block are
+> +	 * switched into special mode of operation. These channels can not
+> +	 * be sampled as regular LRADC channels. The driver will refuse any
+> +	 * attempt to sample these channels.
+> +	 */
+> +#define CHAN_MASK_TOUCHBUTTON		(BIT(1) | BIT(0))
+> +#define CHAN_MASK_TOUCHSCREEN_4WIRE	(0xf << 2)
+> +#define CHAN_MASK_TOUCHSCREEN_5WIRE	(0x1f << 2)
+> +	enum mxs_lradc_ts_wires	use_touchscreen;
+> +	bool			use_touchbutton;
+> +
+> +#define MXS_LRADC_CELLS			2
+> +	struct mfd_cell cells[MXS_LRADC_CELLS];
+> +};
+> +
+> +static inline void mxs_lradc_reg_set(struct mxs_lradc *lradc, u32 val, u32 reg)
+> +{
+> +	writel(val, lradc->base + reg + STMP_OFFSET_REG_SET);
+> +}
+> +
+> +static inline void mxs_lradc_reg_clear(struct mxs_lradc *lradc, u32 val,
+> +				       u32 reg)
+> +{
+> +	writel(val, lradc->base + reg + STMP_OFFSET_REG_CLR);
+> +}
+> +
+> +static inline void mxs_lradc_reg_wrt(struct mxs_lradc *lradc, u32 val, u32 reg)
+> +{
+> +	writel(val, lradc->base + reg);
+> +}
+> +
+> +static inline u32 mxs_lradc_irq_mask(struct mxs_lradc *lradc)
+> +{
+> +	switch (lradc->soc) {
+> +	case IMX23_LRADC:
+> +		return LRADC_CTRL1_MX23_LRADC_IRQ_MASK;
+> +	case IMX28_LRADC:
+> +		return LRADC_CTRL1_MX28_LRADC_IRQ_MASK;
+> +	default:
+> +		return 0;
+> +	}
+> +}
+> +
+> +#endif /* __MXS_LRADC_H */
+> 

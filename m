@@ -1,8 +1,8 @@
 From: Cameron Gutman <aicommander@gmail.com>
 Subject: Re: [PATCH v3] hid-sony: Prevent crash when rumble effects are still
  loaded at USB disconnect
-Date: Sat, 11 Jun 2016 12:37:08 -0500
-Message-ID: <575C4C44.4070401@gmail.com>
+Date: Sat, 11 Jun 2016 14:15:17 -0500
+Message-ID: <575C6345.6040203@gmail.com>
 References: <a9a2689b-5af7-9676-67fd-5d911fcc9501@m-reimer.de>
  <856C5FBA-EA87-4D24-BB29-433FF5437518@gmail.com>
  <d9be52d5-7aed-4852-a339-18eea3d346ed@m-reimer.de>
@@ -11,58 +11,85 @@ References: <a9a2689b-5af7-9676-67fd-5d911fcc9501@m-reimer.de>
  <650C9404-0604-4783-B8AC-A7FEC9A73676@gmail.com>
  <29a17dba-d98d-65a1-5949-2b74e00ecdf5@m-reimer.de>
  <a5670e69-cd2b-36c1-a3b6-5a11afedc16d@m-reimer.de>
+ <575C4C44.4070401@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f66.google.com ([209.85.218.66]:36295 "EHLO
-	mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751182AbcFKRhL (ORCPT
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:36632 "EHLO
+	mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751823AbcFKTPU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Jun 2016 13:37:11 -0400
-Received: by mail-oi0-f66.google.com with SMTP id d132so18464951oig.3
-        for <linux-input@vger.kernel.org>; Sat, 11 Jun 2016 10:37:11 -0700 (PDT)
-In-Reply-To: <a5670e69-cd2b-36c1-a3b6-5a11afedc16d@m-reimer.de>
+	Sat, 11 Jun 2016 15:15:20 -0400
+Received: by mail-oi0-f68.google.com with SMTP id d132so18710324oig.3
+        for <linux-input@vger.kernel.org>; Sat, 11 Jun 2016 12:15:20 -0700 (PDT)
+In-Reply-To: <575C4C44.4070401@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Manuel Reimer <mail+linux-input@m-reimer.de>
-Cc: linux-input <linux-input@vger.kernel.org>, jikos@kernel.org
+Cc: linux-input <linux-input@vger.kernel.org>, jikos@kernel.org, dmitry.torokhov@gmail.com
 
 
 
-On 06/11/2016 05:00 AM, Manuel Reimer wrote:
-> Hello,
+On 06/11/2016 12:37 PM, Cameron Gutman wrote:
 > 
-> I did some more testing. Now I added printk messages to start and end of ml_effect_timer and to hl_ff_destroy. Result:
 > 
-> [  513.493511] ml_effect_timer start
-> [  513.746964] ml_effect_timer end
-> [  515.107003] hid-sony: Sending to uninitialized device failed!
-> [  515.333520] hid-sony: Sending to uninitialized device failed!
-> [  515.415381] hid-sony: Sending to uninitialized device failed!
-> [  520.476860] ml_effect_timer start
-> [  520.677003] BUG: unable to handle kernel NULL pointer dereference at 00000000000000d8
+> On 06/11/2016 05:00 AM, Manuel Reimer wrote:
+>> Hello,
+>>
+>> I did some more testing. Now I added printk messages to start and end of ml_effect_timer and to hl_ff_destroy. Result:
+>>
+>> [  513.493511] ml_effect_timer start
+>> [  513.746964] ml_effect_timer end
+>> [  515.107003] hid-sony: Sending to uninitialized device failed!
+>> [  515.333520] hid-sony: Sending to uninitialized device failed!
+>> [  515.415381] hid-sony: Sending to uninitialized device failed!
+>> [  520.476860] ml_effect_timer start
+>> [  520.677003] BUG: unable to handle kernel NULL pointer dereference at 00000000000000d8
+>>
+>> The hid-sony messages are created by my last patch to fix the hid-sony driver. They show that some sending attempts have been cancelled, as the device is about to be destroyed.
+>>
+>> Quite some time after that there in fact is another attempt to call ml_effect_timer, so the timer still was active. Tomorrow I'll add additional printk lines to the hid-sony destroy function to see if this finished executing before this unwanted timer call arrives.
+>>
+>> This also shows that ml_ff_destroy is not the right place to cancel the timer. ml_ff_destroy is called as soon as I exit fftest. It is not called at all on USB disconnect.
+>>
+>> I now guess this can also be reproduced with the xpad driver, but it requires some fiddling with fftest. It took me ten minutes this time to get the bug triggered. I think the way to trigger the bug is to start effect 5 and shortly after that effect 4. With some luck the USB plug is pulled before event 4 is actually started.
+>>
 > 
-> The hid-sony messages are created by my last patch to fix the hid-sony driver. They show that some sending attempts have been cancelled, as the device is about to be destroyed.
+> Can you try applying the following patch on a clean source tree and see if it resolves your issue?
 > 
-> Quite some time after that there in fact is another attempt to call ml_effect_timer, so the timer still was active. Tomorrow I'll add additional printk lines to the hid-sony destroy function to see if this finished executing before this unwanted timer call arrives.
-> 
-> This also shows that ml_ff_destroy is not the right place to cancel the timer. ml_ff_destroy is called as soon as I exit fftest. It is not called at all on USB disconnect.
-> 
-> I now guess this can also be reproduced with the xpad driver, but it requires some fiddling with fftest. It took me ten minutes this time to get the bug triggered. I think the way to trigger the bug is to start effect 5 and shortly after that effect 4. With some luck the USB plug is pulled before event 4 is actually started.
+> diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+> index fcc6c33..6366e9a 100644
+> --- a/drivers/input/ff-memless.c
+> +++ b/drivers/input/ff-memless.c
+> @@ -501,6 +501,7 @@ static void ml_ff_destroy(struct ff_device *ff)
+>  {
+>         struct ml_device *ml = ff->private;
+>  
+> +       del_timer_sync(&ml->timer);
+>         kfree(ml->private);
+>  }
 > 
 
-Can you try applying the following patch on a clean source tree and see if it resolves your issue?
+Sorry, I misremembered what I thought I read in your email - you said you didn't see a call to ml_ff_destroy()
+in the disconnect case.
 
-diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
-index fcc6c33..6366e9a 100644
---- a/drivers/input/ff-memless.c
-+++ b/drivers/input/ff-memless.c
-@@ -501,6 +501,7 @@ static void ml_ff_destroy(struct ff_device *ff)
- {
-        struct ml_device *ml = ff->private;
- 
-+       del_timer_sync(&ml->timer);
-        kfree(ml->private);
- }
+Though that is quite strange to me, as the comments on ff_device indicate that it should be the right spot:
 
+483  * @destroy: called by input core when parent input device is being
+484  *      destroyed
+
+The input core will call input_ff_destroy() immediately when an input device's release function is called, which
+happens when input_unregister_device() is called. Xpad calls that almost immediately when xpad_disconnect() is
+called. The HID case is a bit more complex but seems to make sense too: sony_remove() -> hid_hw_stop() ->
+hid_disconnect() -> hidinput_disconnect() -> input_unregister_device().
+
+My concern is that, as we thought before, hid_hw_stop() is being called too late in the teardown process in
+the hid-sony module. This means input_ff_destroy() doesn't get called until after all the state needed to
+send FF events is already freed, leaving the window where you oops before your ml_ff_destroy() printk fires.
+
+I want to be sure we're on the right track though. Can you please resolve the address in the RIP register to a
+line number in hid-sony.c?
+
+
+Cameron

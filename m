@@ -1,48 +1,42 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH v3 0/8] Input: atmel_mxt_ts - output raw touch diagnostic
- data via V4L
-Date: Mon, 13 Jun 2016 17:40:52 +0100
-Message-ID: <65c7873a-439d-fc84-50b4-f63a7934e9db@itdev.co.uk>
-References: <1464799192-28034-1-git-send-email-nick.dyer@itdev.co.uk>
- <20160601181700.GD4114@dtor-ws>
- <d8c40054-359c-5e21-6c1f-be38fd2368db@itdev.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+From: Mark Laws <mdl@60hz.org>
+Subject: [PATCH] [PATCH] Input: i8042 - Fix console keyboard support on
+Date: Tue, 14 Jun 2016 05:45:50 +0900
+Message-ID: <20160613204551.1746-1-mdl@60hz.org>
+References: <20160613143841.531-2-mdl@60hz.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zencphosting06.zen.co.uk ([82.71.204.9]:54646 "EHLO
-	zencphosting06.zen.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932082AbcFMQlJ (ORCPT
+Received: from mail-pf0-f178.google.com ([209.85.192.178]:36722 "EHLO
+	mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422893AbcFMUqN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jun 2016 12:41:09 -0400
-In-Reply-To: <d8c40054-359c-5e21-6c1f-be38fd2368db@itdev.co.uk>
+	Mon, 13 Jun 2016 16:46:13 -0400
+Received: by mail-pf0-f178.google.com with SMTP id t190so49537984pfb.3
+        for <linux-input@vger.kernel.org>; Mon, 13 Jun 2016 13:46:13 -0700 (PDT)
+In-Reply-To: <20160613143841.531-2-mdl@60hz.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
+To: linux-input@vger.kernel.org
+Cc: Mark Laws <mdl@60hz.org>, kys@microsoft.com, dmitry.torokhov@gmail.com, arjan.van.de.ven@intel.com
 
-On 02/06/2016 16:14, Nick Dyer wrote:
-> On 01/06/2016 19:17, Dmitry Torokhov wrote:
->> On Wed, Jun 01, 2016 at 05:39:44PM +0100, Nick Dyer wrote:
->>> This is a series of patches to add diagnostic data support to the Atmel
->>> maXTouch driver. It's a rewrite of the previous implementation which output via
->>> debugfs: it now uses a V4L2 device in a similar way to the sur40 driver.
->>
->> I do not have any objections other than some nits form the input side;
->> majority of the review should come from V4L2 side here...
-> 
-> Thanks for the review. I've hopefully fixed the issues you raised and
-> pushed it to
->     https://github.com/ndyer/linux/commits/diagnostic-v4l-20160602
-> 
-> I will wait for the V4L2 folks to comment before posting a [PATCH v4]
+Small fix to drivers/input/keyboard/Kconfig: select SERIO_LIBI8042 (not
+SERIO_I8042) under config KEYBOARD_ATKBD so that i8042 can be a module
+when hyperv-keyboard is linked in.
 
-Hi Hans-
+Mark Laws (1):
+  Input: i8042 - Fix console keyboard support on Gen2 Hyper-V VMs
 
-I've done a bit of further work on this now, so unless you have any
-conerns, I'm going to post an update to the patch set in the next couple of
-days.
+ drivers/input/keyboard/Kconfig |  2 +-
+ drivers/input/serio/Kconfig    |  7 ++++-
+ drivers/input/serio/Makefile   |  1 +
+ drivers/input/serio/i8042.c    | 48 ---------------------------------
+ drivers/input/serio/i8042.h    |  7 -----
+ drivers/input/serio/libi8042.c | 60 ++++++++++++++++++++++++++++++++++++++++++
+ drivers/input/serio/libps2.c   |  2 +-
+ include/linux/i8042.h          | 17 +-----------
+ include/linux/libi8042.h       | 55 ++++++++++++++++++++++++++++++++++++++
+ 9 files changed, 125 insertions(+), 74 deletions(-)
+ create mode 100644 drivers/input/serio/libi8042.c
+ create mode 100644 include/linux/libi8042.h
 
-cheers
+-- 
+2.8.3
 
-Nick

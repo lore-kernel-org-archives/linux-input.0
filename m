@@ -1,84 +1,47 @@
-From: =?big5?B?ufmxUrph?= <kt.liao@emc.com.tw>
-Subject: RE: [PATCH] Input: /input/input-mt.c Emit BTN_TOO_FINGER in function input_mt_report_pointer_emulation if touchpad meets hover condition Signed-off-by: KT Liao <kt.liao@emc.com.tw>
-Date: Mon, 13 Jun 2016 15:29:00 +0800
-Message-ID: <003901d1c545$4104e470$c30ead50$@emc.com.tw>
-References: <1464493153-2509-1-git-send-email-kt.liao@emc.com.tw>
+From: Daniel Jansen <djaniboe@gmail.com>
+Subject: [PATCH v4 0/1] input: touchscreen: Add generic driver for Silead touchscreens
+Date: Mon, 13 Jun 2016 12:46:49 +0200
+Message-ID: <1465814810-7151-1-git-send-email-djaniboe@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=big5
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: 
-Content-Language: zh-tw
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: phoenix@emc.com.tw, charliemooney@google.com, agnescheng@google.com, 'jeff' <jeff.chuang@emc.com.tw>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:36013 "EHLO
+	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964910AbcFMKq5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Jun 2016 06:46:57 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Robert Dolca <robert.dolca@gmail.com>, Gregor Riepl <onitake@gmail.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, Daniel Jansen <djaniboe@gmail.com>, Wessel Blokzijl <wesselb94@gmail.com>
 
-Hi Dmitry,
+Hi all,
 
-	We would like to follow up if there is any update or feedback for
-this patch.
+We=E2=80=99re hereby submitting a driver for gsl1680 based touchscreens=
+ for merging
+into the upstream kernel.
 
-Thanks & B.R  KT
+The gsl1680 family of touchscreen controllers is very popular in cheap
+tablets, as such there have been multiple attempts to write a driver
+for it. This submission is based on Robert Dolca's work on this:
+https://lkml.org/lkml/2015/8/25/738
 
------Original Message-----
-=46rom: =B9=F9=B1R=BAa [mailto:kt.liao@emc.com.tw]=20
-Sent: Thursday, June 02, 2016 7:57 PM
-To: 'linux-kernel@vger.kernel.org'; 'linux-input@vger.kernel.org';
-'dmitry.torokhov@gmail.com'
-Cc: 'phoenix@emc.com.tw'; 'jeff.chung@emc.com.tw';
-'charliemooney@google.com'; 'agnescheng@google.com'; 'jeff'
-Subject: RE: [PATCH] Input: /input/input-mt.c Emit BTN_TOO_FINGER in
-function input_mt_report_pointer_emulation if touchpad meets hover cond=
-ition
-Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+This driver has been picked up and improved by Sigurd B=C3=B8e:
+https://github.com/sigboe/gslX68X
 
-Hi Dmitry,
+And since seen minor improvements from: Gregor Riepl, Hans de Goede
+and ourselves.
 
-I up-streamed the patch last Sunday, please let me know if you have oth=
-er
-concern.
+The driver as submitted today has been tested on a wide variety of ARM
+based tablet using devicetree for instantiation. It has been tested
+with the gsl1680, gsl3670 and gsl3675 variants of the gsl1680 controlle=
+r.
 
-Thanks your support   KT
-
------Original Message-----
-=46rom: KT Liao [mailto:ktalex.liao@gmail.com]=20
-Sent: Sunday, May 29, 2016 11:39 AM
-To: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org;
-dmitry.torokhov@gmail.com
-Cc: phoenix@emc.com.tw; kt.liao@emc.com.tw; jeff.chung@emc.com.tw;
-charliemooney@google.com
-Subject: [PATCH] Input: /input/input-mt.c Emit BTN_TOO_FINGER in functi=
-on
-input_mt_report_pointer_emulation if touchpad meets hover condition
-Signed-off-by: KT Liao <kt.liao@emc.com.tw>
-
----
- drivers/input/input-mt.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c index
-54fce56..b89aaa7 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -218,8 +218,17 @@ void input_mt_report_pointer_emulation(struct inpu=
-t_dev
-*dev, bool use_count)
- 	}
-=20
- 	input_event(dev, EV_KEY, BTN_TOUCH, count > 0);
--	if (use_count)
-+
-+	if (use_count) {
-+		if (count =3D=3D 0 &&
-+		    !test_bit(ABS_MT_DISTANCE, dev->absbit) &&
-+		    test_bit(ABS_DISTANCE, dev->absbit) &&
-+		    input_abs_get_val(dev, ABS_DISTANCE) !=3D 0) {
-+			count =3D 1;
-+		}
- 		input_mt_report_finger_count(dev, count);
-+	}
-+
-=20
- 	if (oldest) {
- 		int x =3D input_mt_get_value(oldest, ABS_MT_POSITION_X);
+Please review en merge,
+Robert Wessel Blokzijl and Daniel Jansen
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

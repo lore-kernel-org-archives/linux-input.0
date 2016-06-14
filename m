@@ -1,53 +1,161 @@
-From: Oliver Neukum <oneukum@suse.com>
-Subject: Re: [PATCH] hid: migrate Dream Cheeky LED driver from USB misc to
- HID
-Date: Tue, 14 Jun 2016 10:05:15 +0200
-Message-ID: <1465891515.29352.3.camel@suse.com>
-References: <8474eef0-3895-70db-c21a-3040417157df@gmail.com>
+From: Masaki Ota <masaki.ota@jp.alps.com>
+Subject: RE: [PATCH] Alps I2C HID Touchad-Stick support
+Date: Tue, 14 Jun 2016 08:03:44 +0000
+Message-ID: <OSXPR01MB04086A33D420C26506F1BDF8C7540@OSXPR01MB0408.jpnprd01.prod.outlook.com>
+References: <1464601398-8085-1-git-send-email-masaki.ota@jp.alps.com>
+ <OSXPR01MB040899934F12D66E75E6D600C7450@OSXPR01MB0408.jpnprd01.prod.outlook.com>
+ <alpine.LNX.2.00.1606011520390.11844@cbobk.fhfr.pm>
+ <OSXPR01MB0408CB1262F438E79F98204EC7590@OSXPR01MB0408.jpnprd01.prod.outlook.com>
+ <alpine.LNX.2.00.1606140115120.6874@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="_002_OSXPR01MB04086A33D420C26506F1BDF8C7540OSXPR01MB0408jpnp_"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37324 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750703AbcFNIJF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2016 04:09:05 -0400
-In-Reply-To: <8474eef0-3895-70db-c21a-3040417157df@gmail.com>
+Received: from mail-ty1jpn01on0083.outbound.protection.outlook.com ([104.47.93.83]:58653
+	"EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750886AbcFNISx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Jun 2016 04:18:53 -0400
+In-Reply-To: <alpine.LNX.2.00.1606140115120.6874@cbobk.fhfr.pm>
+Content-Language: ja-JP
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, Linux USB Mailing List <linux-usb@vger.kernel.org>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: "benjamin.tissorires@redhat.com" <benjamin.tissorires@redhat.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, 2016-06-14 at 07:51 +0200, Heiner Kallweit wrote:
+--_002_OSXPR01MB04086A33D420C26506F1BDF8C7540OSXPR01MB0408jpnp_
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: quoted-printable
 
-> +	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-> +	if (ret)
-> +		return ret;
-> +
-> +	minor = ((struct hidraw *) hdev->hidraw)->minor;
-> +
-> +	ret = dc_init_device(dcdev);
+Hi, Jiri,
 
-That is a race condition. You announced an uninitialized device to the
-rest of the system.
+I have made the document for this device.
+Actually, the device structure is the same as PS2 Touchpad + Stickpinter.
+You can see StickPointer code in alps.c
 
-> +	if (ret)
-> +		goto err;
-> +
-> +	ret = dc_init_rgb(dcdev, minor);
-> +	if (ret)
-> +		goto err;
-> +
-> +	dev_info(&hdev->dev, "Dream Cheeky Webmail Notifier %d initialized\n", minor);
-> +
-> +	return 0;
-> +
-> +err:
-> +	hid_hw_stop(hdev);
-> +	return ret;
-> +}
-
-	Regards
-		Oliver
+Best Regards,
+Masaki Ota
+-----Original Message-----
+From: Jiri Kosina [mailto:jikos@kernel.org]=20
+Sent: Tuesday, June 14, 2016 8:17 AM
+To: =1B$BB@ED=1B(B =1B$B??4n=1B(B Masaki Ota
+Cc: benjamin.tissorires@redhat.com; peter.hutterer@who-t.net; hdegoede@redh=
+at.com; dmitry.torokhov@gmail.com
+Subject: RE: [PATCH] Alps I2C HID Touchad-Stick support
 
 
+[ is there any reason why you dropped malinglist(s) from CC? ]
+
+On Fri, 3 Jun 2016, Masaki Ota wrote:
+
+> > Is it absolutely impossible to have two such devices connected to one s=
+ystem?
+> We cannot connect two devices to one system.
+
+Is this due to a HW design? Could you be perhaps more specific?
+
+This needs to be documented in a detailed manner then, otherwise everybody =
+would be wondering about exactly the same thing I did wrt. the global varia=
+ble when looking at the code.
+
+>=20
+> > You just have to make sure that the buffer you're performing DMA to/fro=
+m is not allocated on stack.
+> I have modified the code.
+> How about the below?
+
+Yes, that code looks correct wrt DMA memory requirements.
+
+Thanks,
+
+--
+Jiri Kosina
+SUSE Labs
+
+
+--_002_OSXPR01MB04086A33D420C26506F1BDF8C7540OSXPR01MB0408jpnp_
+Content-Type: text/plain; name="hid-alps.txt"
+Content-Description: hid-alps.txt
+Content-Disposition: attachment; filename="hid-alps.txt"; size=4301;
+	creation-date="Tue, 14 Jun 2016 04:31:42 GMT";
+	modification-date="Tue, 14 Jun 2016 07:56:29 GMT"
+Content-Transfer-Encoding: base64
+
+QUxQUyBISUQgVG91Y2hwYWQgUHJvdG9jb2wKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQoKSW50cm9k
+dWN0aW9uCi0tLS0tLS0tLS0tLQpDdXJyZW50bHkgQUxQUyBISUQgZHJpdmVyIHN1cHBvcnRzIFUx
+IFRvdWNocGFkIGRldmljZS4KClUxIGRldnVjZSBiYXNpYyBpbmZvcm1hdGlvbnMuClZlbmRlciBJ
+RAkweDA0NEUKUHJvZHVjdCBJRAkweDEyMEIKVmVyc2lvbiBJRAkweDAxMjEKCgpISUQgRGVzY3Jp
+cHRvcgotLS0tLS0tLS0tLS0KQnl0ZQlGaWVsZAkJCVZhbHVlCU5vdGVzCjAJd0hJRERlc2NMZW5n
+dGgJCTAwMUUJTGVuZ3RoIG9mIEhJRCBEZXNjcmlwdG9yIDogMzAgYnl0ZXMKMgliY2RWZXJzaW9u
+CQkwMTAwCUNvbXBsaWFudCB3aXRoIFZlcnNpb24gMS4wMAo0CXdSZXBvcnREZXNjTGVuZ3RoCTAw
+QjIJUmVwb3J0IERlc2NyaXB0b3IgaXMgMTc4IEJ5dGVzICgweDAwQjIpCjYJd1JlcG9ydERlc2NS
+ZWdpc3RlcgkwMDAyCUlkZW50aWZpZXIgdG8gcmVhZCBSZXBvcnQgRGVzY3JpcHRvcgo4CXdJbnB1
+dFJlZ2lzdGVyCQkwMDAzCUlkZW50aWZpZXIgdG8gcmVhZCBJbnB1dCBSZXBvcnQKMTAJd01heElu
+cHV0TGVuZ3RoCQkwMDUzCUlucHV0IFJlcG9ydCBpcyA4MCBCeXRlcyArIDIKMTIJd091dHB1dFJl
+Z2lzdGVyCQkwMDAwCUlkZW50aWZpZXIgdG8gcmVhZCBPdXRwdXQgUmVwb3J0CjE0CXdNYXhPdXRw
+dXRMZW5ndGgJMDAwMAlObyBPdXRwdXQgUmVwb3J0cwoxNgl3Q29tbWFuZFJlZ2lzdGVyCTAwMDUJ
+SWRlbnRpZmllciBmb3IgQ29tbWFuZCBSZWdpc3RlcgoxOAl3RGF0YVJlZ2lzdGVyCQkwMDA2CUlk
+ZW50aWZpZXIgZm9yIERhdGEgUmVnaXN0ZXIKMjAJd1ZlbmRvcklECQkwNDRFCVZlbmRvciBJRCAw
+eDA0NEUKMjIJd1Byb2R1Y3RJRAkJMTIwQglQcm9kdWN0IElEIDB4MTIwQgoyNAl3VmVyc2lvbklE
+CQkwMTIxCVZlcnNpb24gMDEuMjEKMjYJUkVTRVJWRUQJCTAwMDAJUkVTRVJWRUQKCgpSZXBvcnQg
+SUQKLS0tLS0tLS0tLS0tClJlcG9ydElELTEJKElucHV0IFJlcG9ydHMpCShISURVc2FnZS1Nb3Vz
+ZSkgZm9yIFRQJlNQClJlcG9ydElELTIJKElucHV0IFJlcG9ydHMpCShISURVc2FnZS1rZXlib2Fy
+ZCkgZm9yIFRQClJlcG9ydElELTMJKElucHV0IFJlcG9ydHMpCShWZW5kb3IgVXNhZ2U6IE1heCAx
+MCBmaW5nZXIgZGF0YSkgZm9yIFRQClJlcG9ydElELTQJKElucHV0IFJlcG9ydHMpCShWZW5kb3Ig
+VXNhZ2U6IE9OIGJpdCBkYXRhKSBmb3IgR1AKUmVwb3J0SUQtNQkoRmVhdHVyZSBSZXBvcnRzKQlG
+ZWF0dXJlIFJlcG9ydHMKUmVwb3J0SUQtNgkoSW5wdXQgUmVwb3J0cykJKFZlbmRvciBVc2FnZTog
+U3RpY2tQb2ludGVyIGRhdGEpIGZvciBTUApSZXBvcnRJRC03CShGZWF0dXJlIFJlcG9ydHMpCUZs
+YXNoIHVwZGF0ZSAoQm9vdGxvYWRlcikKCgpEYXRhIHBhdHRlcm4KLS0tLS0tLS0tLS0tCkNhc2Ux
+CVJlcG9ydElEXzEJVFAvU1AJUmVsYXRpdmUvUmVsYXRpdmUKQ2FzZTIJUmVwb3J0SURfMwlUUAlB
+YnNvbHV0ZQoJUmVwb3J0SURfNglTUAlBYnNvbHV0ZQoKCkNvbW1hbmQgUmVhZC9Xcml0ZQotLS0t
+LS0tLS0tLS0tLS0tLS0KVG8gcmVhZC93cml0ZSB0byBSQU0sIG5lZWQgdG8gc2VuZCBhIGNvbW1h
+bmRzIHRvIHRoZSBkZXZpY2UuClRoZSBjb21tYW5kIGZvcm1hdCBpcyBhcyBiZWxvdy4KCkRhdGFC
+eXRlKFNFVF9SRVBPUlQpCkJ5dGUxCUNvbW1hbmQgQnl0ZQpCeXRlMglBZGRyZXNzIC0gQnl0ZSAw
+IChMU0IpCkJ5dGUzCUFkZHJlc3MgLSBCeXRlIDEKQnl0ZTQJQWRkcmVzcyAtIEJ5dGUgMgpCeXRl
+NQlBZGRyZXNzIC0gQnl0ZSAzIChNU0IpCkJ5dGU2CVZhbHVlIEJ5dGUKQnl0ZTcJQ2hlY2tzdW0K
+CkNvbW1hbmQgQnl0ZSBpcyByZWFkPTB4RDEvd3JpdGU9MHhEMiAuCkFkZHJlc3MgaXMgcmVhZC93
+cml0ZSBSQU0gYWRkcmVzcy4KVmFsdWUgQnl0ZSBpcyB3cml0aW5nIGRhdGEgd2hlbiB5b3Ugc2Vu
+ZCB0aGUgd3JpdGUgY29tbWFuZHMuCldoZW4geW91IHJlYWQgUkFNLCB0aGVyZSBpcyBubyBtZWFu
+aW5nLgoKRGF0YUJ5dGUoR0VUX1JFUE9SVCkKQnl0ZTEJUmVzcG9uc2UgQnl0ZQpCeXRlMglBZGRy
+ZXNzIC0gQnl0ZSAwIChMU0IpCkJ5dGUzCUFkZHJlc3MgLSBCeXRlIDEKQnl0ZTQJQWRkcmVzcyAt
+IEJ5dGUgMgpCeXRlNQlBZGRyZXNzIC0gQnl0ZSAzIChNU0IpCkJ5dGU2CVZhbHVlIEJ5dGUKQnl0
+ZTcJQ2hlY2tzdW0KClJlYWQgdmFsdWUgaXMgc3RvcmVkIGluIFZhbHVlIEJ5dGUuCgoKUGFja2V0
+IEZvcm1hdApUb3VjaHBhZCBkYXRhIGJ5dGUKLS0tLS0tLS0tLS0tLS0tLS0tCgliNwliNgliNQli
+NAliMwliMgliMQliMAoxCTAJMAlTVzYJU1c1CVNXNAlTVzMJU1cyCVNXMQoyCTAJMAkwCUZjdglG
+bjMJRm4yCUZuMQlGbjAKMwlYYTBfNwlYYTBfNglYYTBfNQlYYTBfNAlYYTBfMwlYYTBfMglYYTBf
+MQlYYTBfMAo0CVhhMF8xNQlYYTBfMTQJWGEwXzEzCVhhMF8xMglYYTBfMTEJWGEwXzEwCVhhMF85
+CVhhMF84CjUJWWEwXzcJWWEwXzYJWWEwXzUJWWEwXzQJWWEwXzMJWWEwXzIJWWEwXzEJWWEwXzAK
+NglZYTBfMTUJWWEwXzE0CVlhMF8xMwlZYTBfMTIJWWEwXzExCVlhMF8xMAlZYTBfOQlZYTBfOAo3
+CUxGQjAJWnMwXzYJWnMwXzUJWnMwXzQJWnMwXzMJWnMwXzIJWnMwXzEJWnMwXzAKCQkJCQkJCQkK
+OAlYYTFfNwlYYTFfNglYYTFfNQlYYTFfNAlYYTFfMwlYYTFfMglYYTFfMQlYYTFfMAo5CVhhMV8x
+NQlYYTFfMTQJWGExXzEzCVhhMV8xMglYYTFfMTEJWGExXzEwCVhhMV85CVhhMV84CjEwCVlhMV83
+CVlhMV82CVlhMV81CVlhMV80CVlhMV8zCVlhMV8yCVlhMV8xCVlhMV8wCjExCVlhMV8xNQlZYTFf
+MTQJWWExXzEzCVlhMV8xMglZYTFfMTEJWWExXzEwCVlhMV85CVlhMV84CjEyCUxGQjEJWnMxXzYJ
+WnMxXzUJWnMxXzQJWnMxXzMJWnMxXzIJWnMxXzEJWnMxXzAKCQkJCQkJCQkKMTMJWGEyXzcJWGEy
+XzYJWGEyXzUJWGEyXzQJWGEyXzMJWGEyXzIJWGEyXzEJWGEyXzAKMTQJWGEyXzE1CVhhMl8xNAlY
+YTJfMTMJWGEyXzEyCVhhMl8xMQlYYTJfMTAJWGEyXzkJWGEyXzgKMTUJWWEyXzcJWWEyXzYJWWEy
+XzUJWWEyXzQJWWEyXzMJWWEyXzIJWWEyXzEJWWEyXzAKMTYJWWEyXzE1CVlhMl8xNAlZYTJfMTMJ
+WWEyXzEyCVlhMl8xMQlZYTJfMTAJWWEyXzkJWWEyXzgKMTcJTEZCMglaczJfNglaczJfNQlaczJf
+NAlaczJfMwlaczJfMglaczJfMQlaczJfMAoJCQkJCQkJCQoxOAlYYTNfNwlYYTNfNglYYTNfNQlY
+YTNfNAlYYTNfMwlYYTNfMglYYTNfMQlYYTNfMAoxOQlYYTNfMTUJWGEzXzE0CVhhM18xMwlYYTNf
+MTIJWGEzXzExCVhhM18xMAlYYTNfOQlYYTNfOAoyMAlZYTNfNwlZYTNfNglZYTNfNQlZYTNfNAlZ
+YTNfMwlZYTNfMglZYTNfMQlZYTNfMAoyMQlZYTNfMTUJWWEzXzE0CVlhM18xMwlZYTNfMTIJWWEz
+XzExCVlhM18xMAlZYTNfOQlZYTNfOAoyMglMRkIzCVpzM182CVpzM181CVpzM180CVpzM18zCVpz
+M18yCVpzM18xCVpzM18wCgkJCQkJCQkJCjIzCVhhNF83CVhhNF82CVhhNF81CVhhNF80CVhhNF8z
+CVhhNF8yCVhhNF8xCVhhNF8wCjI0CVhhNF8xNQlYYTRfMTQJWGE0XzEzCVhhNF8xMglYYTRfMTEJ
+WGE0XzEwCVhhNF85CVhhNF84CjI1CVlhNF83CVlhNF82CVlhNF81CVlhNF80CVlhNF8zCVlhNF8y
+CVlhNF8xCVlhNF8wCjI2CVlhNF8xNQlZYTRfMTQJWWE0XzEzCVlhNF8xMglZYTRfMTEJWWE0XzEw
+CVlhNF85CVlhNF84CjI3CUxGQjQJWnM0XzYJWnM0XzUJWnM0XzQJWnM0XzMJWnM0XzIJWnM0XzEJ
+WnM0XzAKCgpTVzEtU1c2OglTVyBPTi9PRkYgc3RhdHVzClhhbl8xNS0wKDE2Yml0KTpYIEFic29s
+dXRlIGRhdGEgb2YgdGhlIIFnboFodGggZmluZ2VyCllhbl8xNS0wKDE2Yml0KTpZIEFic29sdXRl
+IGRhdGEgb2YgdGhlIIFnboFodGggZmluZ2VyClpzbl82LTAoN2JpdCk6CU9wZXJhdGlvbiBhcmVh
+IG9mIHRoZSCBZ26BaHRoIGZpbmdlcgoKClN0aWNrUG9pbnRlciBkYXRhIGJ5dGUKLS0tLS0tLS0t
+LS0tLS0tLS0tCgliNwliNgliNQliNAliMwliMgliMQliMApCeXRlMQkxCTEJMQkwCTEJU1czCVNX
+MglTVzEKQnl0ZTIJWDcJWDYJWDUJWDQJWDMJWDIJWDEJWDAKQnl0ZTMJWDE1CVgxNAlYMTMJWDEy
+CVgxMQlYMTAJWDkJWDgKQnl0ZTQJWTcJWTYJWTUJWTQJWTMJWTIJWTEJWTAKQnl0ZTUJWTE1CVkx
+NAlZMTMJWTEyCVkxMQlZMTAJWTkJWTgKQnl0ZTYJWjcJWjYJWjUJWjQJWjMJWjIJWjEJWjAKQnl0
+ZTcJVCZQCVoxNAlaMTMJWjEyCVoxMQlaMTAJWjkJWjgKClNXMS1TVzM6CVNXIE9OL09GRiBzdGF0
+dXMKWG5fMTUtMCgxNmJpdCk6WCBBYnNvbHV0ZSBkYXRhClluXzE1LTAoMTZiaXQpOlkgQWJzb2x1
+dGUgZGF0YQpabl8xNC0wKDE1Yml0KTpaIAo=
+
+--_002_OSXPR01MB04086A33D420C26506F1BDF8C7540OSXPR01MB0408jpnp_--

@@ -1,67 +1,65 @@
-From: Antony Pavlov <antonynpavlov@gmail.com>
-Subject: Re: [PATCH] Documentation: dt: gpio-keys-polled: add missed "label"
- property description
-Date: Tue, 14 Jun 2016 15:52:58 +0300
-Message-ID: <20160614155258.390200bf66e02966d17e3544@gmail.com>
-References: <1465905151-1960-1-git-send-email-antonynpavlov@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:34637 "EHLO
-	mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751029AbcFNMv1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2016 08:51:27 -0400
-In-Reply-To: <1465905151-1960-1-git-send-email-antonynpavlov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Subject: [PATCH v2 2/5] power_supply: tps65217-charger: Fix NULL deref during property export
+Date: Tue, 14 Jun 2016 15:29:24 +0200
+Message-ID: <20160614132927.3309-3-m.niestroj@grinn-global.com>
+References: <20160614132927.3309-1-m.niestroj@grinn-global.com>
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20160614132927.3309-1-m.niestroj@grinn-global.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Marcin Niestroj <m.niestroj@grinn-global.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Alexandre Pereira da Silva <aletes.xgr@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
 
-On Tue, 14 Jun 2016 14:52:31 +0300
-Antony Pavlov <antonynpavlov@gmail.com> wrote:
+This bug leads to:
 
-Please ignore previous email.
+[    1.906411] Unable to handle kernel NULL pointer dereference at virtual address 0000000c
+[    1.914878] pgd = c0004000
+[    1.917786] [0000000c] *pgd=00000000
+[    1.921536] Internal error: Oops: 5 [#1] SMP ARM
+[    1.926357] Modules linked in:
+[    1.929556] CPU: 0 PID: 14 Comm: kworker/0:1 Not tainted 4.4.5 #18
+[    1.936006] Hardware name: Generic AM33XX (Flattened Device Tree)
+[    1.942383] Workqueue: events power_supply_changed_work
+[    1.947842] task: de2c41c0 ti: de2c8000 task.ti: de2c8000
+[    1.953483] PC is at tps65217_ac_get_property+0x14/0x28
+[    1.958937] LR is at tps65217_ac_get_property+0x10/0x28
 
-The "label" property description is not missed.
+Driver was trying to use drv_data in property get handler. However drv_data
+was not set, so it caused NULL pointer dereference. This patch properly
+sets drv_data during probe by power_supply_config parameter, so the
+property get handler works as desired.
 
-Sorry.
+Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+---
+ drivers/power/tps65217_charger.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-> Signed-off-by: Antony Pavlov <antonynpavlov@gmail.com>
-> Cc: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: linux-input@vger.kernel.org
-> Cc: devicetree@vger.kernel.org
-> ---
->  Documentation/devicetree/bindings/input/gpio-keys-polled.txt | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/input/gpio-keys-polled=
-=2Etxt b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
-> index 95d0fb1..e84d3eb 100644
-> --- a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
-> +++ b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
-> @@ -7,6 +7,7 @@ Required properties:
->  Optional properties:
->  	- autorepeat: Boolean, Enable auto repeat feature of Linux input
->  	  subsystem.
-> +	- label: String, name of the input device.
-> =20
->  Each button (key) is represented as a sub-node of "gpio-keys-polled"=
-:
->  Subnode properties:
-> --=20
-> 2.7.0
->=20
+diff --git a/drivers/power/tps65217_charger.c b/drivers/power/tps65217_charger.c
+index d9f5673..73dfae4 100644
+--- a/drivers/power/tps65217_charger.c
++++ b/drivers/power/tps65217_charger.c
+@@ -197,6 +197,7 @@ static int tps65217_charger_probe(struct platform_device *pdev)
+ {
+ 	struct tps65217 *tps = dev_get_drvdata(pdev->dev.parent);
+ 	struct tps65217_charger *charger;
++	struct power_supply_config cfg = {};
+ 	int ret;
+ 
+ 	dev_dbg(&pdev->dev, "%s\n", __func__);
+@@ -208,9 +209,12 @@ static int tps65217_charger_probe(struct platform_device *pdev)
+ 	charger->tps = tps;
+ 	charger->dev = &pdev->dev;
+ 
++	cfg.of_node = pdev->dev.of_node;
++	cfg.drv_data = charger;
++
+ 	charger->ac = devm_power_supply_register(&pdev->dev,
+ 						 &tps65217_charger_desc,
+-						 NULL);
++						 &cfg);
+ 	if (IS_ERR(charger->ac)) {
+ 		dev_err(&pdev->dev, "failed: power supply register\n");
+ 		return PTR_ERR(charger->ac);
+-- 
+2.8.3
 
-
---=20
---=A0
-Best regards,
-=A0 Antony Pavlov
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

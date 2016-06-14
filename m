@@ -1,71 +1,50 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [RFC 0/4] Intel Integrated Sensor Hub Support (ISH)
-Date: Tue, 14 Jun 2016 17:12:03 +0200
-Message-ID: <1465917123.606.11.camel@hadess.net>
-References: <1464668878-17113-1-git-send-email-srinivas.pandruvada@linux.intel.com>	
- <CACxGe6udQ9H5_OBg+h8BB4Bru5Air0LYxtGQkUvr91ebtUE+SA@mail.gmail.com>	
- <1465509287.24319.3.camel@linux.intel.com>
-	 <CACxGe6vq-FDpjG8WtrraveQo+ZT3MHMDFzrA5-qqNLEwcbmNhw@mail.gmail.com>	
- <1465566904.10525.11.camel@linux.intel.com>
-	 <1465568791.7409.38.camel@hadess.net>	
- <1465569941.10525.17.camel@linux.intel.com>
-	 <1465571076.7409.39.camel@hadess.net>	
- <1465572227.24319.7.camel@linux.intel.com>
-	 <1465572452.7409.41.camel@hadess.net>
-	 <CACxGe6sjFHS9VaeWUY1PsJXhTW1Nvkuoqutty9oSX2Ywj+yV9g@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: Mainlining of Pyra nub joystick driver
+Date: Tue, 14 Jun 2016 17:14:52 +0200
+Message-ID: <5881169.t4LCy37Pi6@wuerfel>
+References: <20160614114523.GC4820@zver>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACxGe6sjFHS9VaeWUY1PsJXhTW1Nvkuoqutty9oSX2Ywj+yV9g@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, benjamin.tissoires@redhat.com, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, chaya.golan@intel.com, daniel.drubin@intel.com, Darren Hart <darren@dvhart.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([217.72.192.74]:51607 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750789AbcFNPN4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Jun 2016 11:13:56 -0400
+In-Reply-To: <20160614114523.GC4820@zver>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrey Utkin <andrey_utkin@fastmail.com>
+Cc: linux-input@vger.kernel.org, devel@driverdev.osuosl.org, kernel-mentors@selenic.com, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org, kernel@pyra-handheld.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Mark Brown <broonie@kernel.org>, Daniel Hung-yu Wu <hywu@google.com>, Moritz Fischer <moritz.fischer@ettus.com>, Geert Uytterhoeven <geert@linux-m68k.org>, S Twiss <stwiss.opensource@diasemi.com>, Rob Herring <robh@kernel.org>, Grant Grundler <grundler@chromium.org>
 
-On Tue, 2016-06-14 at 14:44 +0100, Grant Likely wrote:
-> On Fri, Jun 10, 2016 at 4:27 PM, Bastien Nocera <hadess@hadess.net>
-> wrote:
-> > On Fri, 2016-06-10 at 08:23 -0700, Srinivas Pandruvada wrote:
-> > > On Fri, 2016-06-10 at 17:04 +0200, Bastien Nocera wrote:
-> > > > > 
-> > > 
-> > > [...]
-> > > 
-> > > > Are there any errors when setting the triggers?
-> > > > 
-> > > Is there any debug option in this service to give more verbose
-> > > output?
-> > 
-> > Add:
-> > Environment="G_MESSAGES_DEBUG=all"
-> > 
-> > To the service file. You should see the debug in systemctl:
-> > systemctl status iio-sensor-proxy.service
-> > 
-> > Or in journalctl if there's too much data:
-> > journalctl --reverse -u iio-sensor-proxy.service
+On Tuesday, June 14, 2016 2:45:23 PM CEST Andrey Utkin wrote:
+> There's a pair of "nub" devices on Pyra handheld PC
+> (https://pyra-handheld.com/), and there's driver for nub, which is going
+> to be reworked for upstreaming. While the device itself fits most to
+> "joystick" category, the computer itself lacks touchpad and mouse
+> buttons, and the existing driver is capable of switching between modes, in
+> which it shows up like one of the following:
+>  - scrolling wheel,
+>  - mouse buttons set,
+>  - pointer updating its absolute position (graphic pad alike AFAIU),
+>  - pointer device behaving like actual joystick / pointing stick.
 > 
-> Still no joy on the sensors. The proxy starts up and detects the
-> sensors, but I don't see any sensor events occurring:
+> Currently modes switching happens through r/w file in /proc, which is of
+> couse going to be changed.
+> 
+> I wonder if such mode switching mechanism is tolerable for inclusion to
+> upstream kernel in this case. I'd like some advice how to rearrange the
+> driver to save most of flexibility while matching upstream kernel
+> conventions. I am especially interested in comments from subsystem
+> maintainers.
+> 
 
-Could you try again with the current master of iio-sensor-proxy? Make
-sure to install the file in the same location as in your distro
-provided package.
+My best idea for this is that the device driver should just report one
+type of device, with the other modes being handled on top of that,
+by a generic kernel framework or in user space.
 
-I've added more debug/warnings to a few cases where it would have
-silently failed in the past.
+Code for registering the same inputs to all those frameworks doesn't
+seem to belong into a driver.
 
-In particular, I don't see any messages that would be coming out of:
-https://github.com/hadess/iio-sensor-proxy/blob/master/src/iio-buffer-utils.c#L512
-
-Could it be that the sub-directory is populated after the device is
-created in the kernel, causing a race?
-
-Either that, or the contents of the scan_elements/ directory is not the
-one expected by this code.
-
-The output of this command should us that:
-ls /sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0001/HID-SENSOR-200073.8.auto/iio:device1/scan_elements
-
-Cheers
+	Arnd

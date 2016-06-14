@@ -1,102 +1,20 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [RFC 0/4] Intel Integrated Sensor Hub Support (ISH)
-Date: Tue, 14 Jun 2016 19:01:05 +0200
-Message-ID: <1465923665.606.19.camel@hadess.net>
-References: <1464668878-17113-1-git-send-email-srinivas.pandruvada@linux.intel.com>	
- <CACxGe6udQ9H5_OBg+h8BB4Bru5Air0LYxtGQkUvr91ebtUE+SA@mail.gmail.com>	
- <1465509287.24319.3.camel@linux.intel.com>
-	 <CACxGe6vq-FDpjG8WtrraveQo+ZT3MHMDFzrA5-qqNLEwcbmNhw@mail.gmail.com>	
- <1465566904.10525.11.camel@linux.intel.com>
-	 <1465568791.7409.38.camel@hadess.net>	
- <1465569941.10525.17.camel@linux.intel.com>
-	 <1465571076.7409.39.camel@hadess.net>	
- <1465572227.24319.7.camel@linux.intel.com>
-	 <1465572452.7409.41.camel@hadess.net>	
- <CACxGe6sjFHS9VaeWUY1PsJXhTW1Nvkuoqutty9oSX2Ywj+yV9g@mail.gmail.com>
-	 <1465917123.606.11.camel@hadess.net>
-	 <CACxGe6siZMA3GX=M8=07GbHsnzRzq0=dKQ8aeC_VN=9iPcc=Ew@mail.gmail.com>
+From: Andrey Utkin <andrey_utkin@fastmail.com>
+Subject: Re: [Kernel] Mainlining of Pyra nub joystick driver
+Date: Tue, 14 Jun 2016 20:02:06 +0300
+Message-ID: <20160614170206.GE4820@zver>
+References: <20160614114523.GC4820@zver>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACxGe6siZMA3GX=M8=07GbHsnzRzq0=dKQ8aeC_VN=9iPcc=Ew@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20160614114523.GC4820@zver>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, benjamin.tissoires@redhat.com, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, chaya.golan@intel.com, daniel.drubin@intel.com, Darren Hart <darren@dvhart.com>
+To: linux-input@vger.kernel.org, devel@driverdev.osuosl.org, kernel-mentors@selenic.com, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org, kernel@pyra-handheld.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>, Daniel Hung-yu Wu <hywu@google.com>, Moritz Fischer <moritz.fischer@ettus.com>, Geert Uytterhoeven <geert@linux-m68k.org>, S Twiss <stwiss.opensource@diasemi.com>, Rob Herring <robh@kernel.org>, Grant Grundler <grundler@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 2016-06-14 at 17:08 +0100, Grant Likely wrote:
-> On Tue, Jun 14, 2016 at 4:12 PM, Bastien Nocera <hadess@hadess.net>
-> wrote:
-> > On Tue, 2016-06-14 at 14:44 +0100, Grant Likely wrote:
-> > > On Fri, Jun 10, 2016 at 4:27 PM, Bastien Nocera <hadess@hadess.ne
-> > > t>
-> > > wrote:
-> > > > On Fri, 2016-06-10 at 08:23 -0700, Srinivas Pandruvada wrote:
-> > > > > On Fri, 2016-06-10 at 17:04 +0200, Bastien Nocera wrote:
-> > > > > > > 
-> > > > > 
-> > > > > [...]
-> > > > > 
-> > > > > > Are there any errors when setting the triggers?
-> > > > > > 
-> > > > > Is there any debug option in this service to give more
-> > > > > verbose
-> > > > > output?
-> > > > 
-> > > > Add:
-> > > > Environment="G_MESSAGES_DEBUG=all"
-> > > > 
-> > > > To the service file. You should see the debug in systemctl:
-> > > > systemctl status iio-sensor-proxy.service
-> > > > 
-> > > > Or in journalctl if there's too much data:
-> > > > journalctl --reverse -u iio-sensor-proxy.service
-> > > 
-> > > Still no joy on the sensors. The proxy starts up and detects the
-> > > sensors, but I don't see any sensor events occurring:
-> > 
-> > Could you try again with the current master of iio-sensor-proxy?
-> > Make
-> > sure to install the file in the same location as in your distro
-> > provided package.
-> > 
-> > I've added more debug/warnings to a few cases where it would have
-> > silently failed in the past.
-> > 
-> > In particular, I don't see any messages that would be coming out
-> > of:
-> > https://github.com/hadess/iio-sensor-proxy/blob/master/src/iio-buff
-> > er-utils.c#L512
-> > 
-> > Could it be that the sub-directory is populated after the device is
-> > created in the kernel, causing a race?
-> > 
-> > Either that, or the contents of the scan_elements/ directory is not
-> > the
-> > one expected by this code.
-> > 
-> > The output of this command should us that:
-> > ls /sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-
-> > A04D34F0C226}/001E:8086:22D8.0001/HID-SENSOR-
-> > 200073.8.auto/iio:device1/scan_elements
-> 
-> Hmmm, this is interesting. I fetched, built and ran the latest
-> iio-sensor-proxy. It quit with the following error. However,
-> immediately afterwards, I ran the Debian packaged version (1.1-1),
-> and
-> the sensors started to work. Something in the latest master activates
-> the sensors enough for the older version to work.
+On Tue, Jun 14, 2016 at 02:45:23PM +0300, Andrey Utkin wrote:
+> There's a pair of "nub" devices on Pyra handheld PC
+> ...
 
-There's no changes in that code other than me introducing a bug that'd
-make it throw a warning when the sensor was already enabled. Fixed now.
-
-Could you try again, but make sure to replace the existing iio-sensor-
-proxy so it's started on boot, when the device appears. If you see the
-warning again, please attach the output out from "ls" as requested in
-the earlier mail.
-
-If it doesn't warn on startup, and it fails to work, then we're
-probably looking at a bug in the kernel...
-
-Cheers
+Update: found drivers/input/joystick/as5011.c in mainline kernel,
+will look how it works with as5013 hardware.

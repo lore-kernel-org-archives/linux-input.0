@@ -1,161 +1,74 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: [PATCH] Alps I2C HID Touchad-Stick support
-Date: Tue, 14 Jun 2016 08:03:44 +0000
-Message-ID: <OSXPR01MB04086A33D420C26506F1BDF8C7540@OSXPR01MB0408.jpnprd01.prod.outlook.com>
-References: <1464601398-8085-1-git-send-email-masaki.ota@jp.alps.com>
- <OSXPR01MB040899934F12D66E75E6D600C7450@OSXPR01MB0408.jpnprd01.prod.outlook.com>
- <alpine.LNX.2.00.1606011520390.11844@cbobk.fhfr.pm>
- <OSXPR01MB0408CB1262F438E79F98204EC7590@OSXPR01MB0408.jpnprd01.prod.outlook.com>
- <alpine.LNX.2.00.1606140115120.6874@cbobk.fhfr.pm>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="_002_OSXPR01MB04086A33D420C26506F1BDF8C7540OSXPR01MB0408jpnp_"
+From: Martin Kepplinger <martink@posteo.de>
+Subject: [PATCH v2] input: tablet: pegasus_notetaker: USB PM fixes
+Date: Tue, 14 Jun 2016 13:20:15 +0200
+Message-ID: <1465903215-2351-1-git-send-email-martink@posteo.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ty1jpn01on0083.outbound.protection.outlook.com ([104.47.93.83]:58653
-	"EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750886AbcFNISx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2016 04:18:53 -0400
-In-Reply-To: <alpine.LNX.2.00.1606140115120.6874@cbobk.fhfr.pm>
-Content-Language: ja-JP
+Received: from mout01.posteo.de ([185.67.36.65]:49551 "EHLO mout01.posteo.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751886AbcFNLU0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Jun 2016 07:20:26 -0400
+Received: from dovecot03.posteo.de (dovecot03.posteo.de [172.16.0.13])
+	by mout01.posteo.de (Postfix) with ESMTPS id B9D8720B4A
+	for <linux-input@vger.kernel.org>; Tue, 14 Jun 2016 13:20:22 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: "benjamin.tissorires@redhat.com" <benjamin.tissorires@redhat.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: dmitry.torokhov@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, kernel-testers@vger.kernel.org, linux-usb@vger.kernel.org, Martin Kepplinger <martink@posteo.de>
 
---_002_OSXPR01MB04086A33D420C26506F1BDF8C7540OSXPR01MB0408jpnp_
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: quoted-printable
+ * Fix usb_autopm calls to be balanced
+ * In reset_resume() we need to set the device mode
+ * In suspend() we must cancel the workqueue's work
 
-Hi, Jiri,
+Signed-off-by: Martin Kepplinger <martink@posteo.de>
+---
+Thanks Oliver, I think I got it now.
 
-I have made the document for this device.
-Actually, the device structure is the same as PS2 Touchpad + Stickpinter.
-You can see StickPointer code in alps.c
-
-Best Regards,
-Masaki Ota
------Original Message-----
-From: Jiri Kosina [mailto:jikos@kernel.org]=20
-Sent: Tuesday, June 14, 2016 8:17 AM
-To: =1B$BB@ED=1B(B =1B$B??4n=1B(B Masaki Ota
-Cc: benjamin.tissorires@redhat.com; peter.hutterer@who-t.net; hdegoede@redh=
-at.com; dmitry.torokhov@gmail.com
-Subject: RE: [PATCH] Alps I2C HID Touchad-Stick support
+Dmitry, again, do you want to have a new version of the whole driver
+instead of this?
 
 
-[ is there any reason why you dropped malinglist(s) from CC? ]
+ drivers/input/tablet/pegasus_notetaker.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-On Fri, 3 Jun 2016, Masaki Ota wrote:
+diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
+index 83aa583..0c000d8 100644
+--- a/drivers/input/tablet/pegasus_notetaker.c
++++ b/drivers/input/tablet/pegasus_notetaker.c
+@@ -211,14 +211,9 @@ static int pegasus_open(struct input_dev *dev)
+ static void pegasus_close(struct input_dev *dev)
+ {
+ 	struct pegasus *pegasus = input_get_drvdata(dev);
+-	int autopm_error;
+ 
+-	autopm_error = usb_autopm_get_interface(pegasus->intf);
+ 	usb_kill_urb(pegasus->irq);
+ 	cancel_work_sync(&pegasus->init);
+-
+-	if (!autopm_error)
+-		usb_autopm_put_interface(pegasus->intf);
+ }
+ 
+ static int pegasus_probe(struct usb_interface *intf,
+@@ -364,6 +359,7 @@ static int pegasus_suspend(struct usb_interface *intf, pm_message_t message)
+ 
+ 	mutex_lock(&pegasus->dev->mutex);
+ 	usb_kill_urb(pegasus->irq);
++	cancel_work_sync(&pegasus->init);
+ 	mutex_unlock(&pegasus->dev->mutex);
+ 
+ 	return 0;
+@@ -384,6 +380,11 @@ static int pegasus_resume(struct usb_interface *intf)
+ 
+ static int pegasus_reset_resume(struct usb_interface *intf)
+ {
++	struct pegasus *pegasus = usb_get_intfdata(intf);
++
++	if (pegasus->dev->users)
++		pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
++
+ 	return pegasus_resume(intf);
+ }
+ 
+-- 
+2.1.4
 
-> > Is it absolutely impossible to have two such devices connected to one s=
-ystem?
-> We cannot connect two devices to one system.
-
-Is this due to a HW design? Could you be perhaps more specific?
-
-This needs to be documented in a detailed manner then, otherwise everybody =
-would be wondering about exactly the same thing I did wrt. the global varia=
-ble when looking at the code.
-
->=20
-> > You just have to make sure that the buffer you're performing DMA to/fro=
-m is not allocated on stack.
-> I have modified the code.
-> How about the below?
-
-Yes, that code looks correct wrt DMA memory requirements.
-
-Thanks,
-
---
-Jiri Kosina
-SUSE Labs
-
-
---_002_OSXPR01MB04086A33D420C26506F1BDF8C7540OSXPR01MB0408jpnp_
-Content-Type: text/plain; name="hid-alps.txt"
-Content-Description: hid-alps.txt
-Content-Disposition: attachment; filename="hid-alps.txt"; size=4301;
-	creation-date="Tue, 14 Jun 2016 04:31:42 GMT";
-	modification-date="Tue, 14 Jun 2016 07:56:29 GMT"
-Content-Transfer-Encoding: base64
-
-QUxQUyBISUQgVG91Y2hwYWQgUHJvdG9jb2wKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQoKSW50cm9k
-dWN0aW9uCi0tLS0tLS0tLS0tLQpDdXJyZW50bHkgQUxQUyBISUQgZHJpdmVyIHN1cHBvcnRzIFUx
-IFRvdWNocGFkIGRldmljZS4KClUxIGRldnVjZSBiYXNpYyBpbmZvcm1hdGlvbnMuClZlbmRlciBJ
-RAkweDA0NEUKUHJvZHVjdCBJRAkweDEyMEIKVmVyc2lvbiBJRAkweDAxMjEKCgpISUQgRGVzY3Jp
-cHRvcgotLS0tLS0tLS0tLS0KQnl0ZQlGaWVsZAkJCVZhbHVlCU5vdGVzCjAJd0hJRERlc2NMZW5n
-dGgJCTAwMUUJTGVuZ3RoIG9mIEhJRCBEZXNjcmlwdG9yIDogMzAgYnl0ZXMKMgliY2RWZXJzaW9u
-CQkwMTAwCUNvbXBsaWFudCB3aXRoIFZlcnNpb24gMS4wMAo0CXdSZXBvcnREZXNjTGVuZ3RoCTAw
-QjIJUmVwb3J0IERlc2NyaXB0b3IgaXMgMTc4IEJ5dGVzICgweDAwQjIpCjYJd1JlcG9ydERlc2NS
-ZWdpc3RlcgkwMDAyCUlkZW50aWZpZXIgdG8gcmVhZCBSZXBvcnQgRGVzY3JpcHRvcgo4CXdJbnB1
-dFJlZ2lzdGVyCQkwMDAzCUlkZW50aWZpZXIgdG8gcmVhZCBJbnB1dCBSZXBvcnQKMTAJd01heElu
-cHV0TGVuZ3RoCQkwMDUzCUlucHV0IFJlcG9ydCBpcyA4MCBCeXRlcyArIDIKMTIJd091dHB1dFJl
-Z2lzdGVyCQkwMDAwCUlkZW50aWZpZXIgdG8gcmVhZCBPdXRwdXQgUmVwb3J0CjE0CXdNYXhPdXRw
-dXRMZW5ndGgJMDAwMAlObyBPdXRwdXQgUmVwb3J0cwoxNgl3Q29tbWFuZFJlZ2lzdGVyCTAwMDUJ
-SWRlbnRpZmllciBmb3IgQ29tbWFuZCBSZWdpc3RlcgoxOAl3RGF0YVJlZ2lzdGVyCQkwMDA2CUlk
-ZW50aWZpZXIgZm9yIERhdGEgUmVnaXN0ZXIKMjAJd1ZlbmRvcklECQkwNDRFCVZlbmRvciBJRCAw
-eDA0NEUKMjIJd1Byb2R1Y3RJRAkJMTIwQglQcm9kdWN0IElEIDB4MTIwQgoyNAl3VmVyc2lvbklE
-CQkwMTIxCVZlcnNpb24gMDEuMjEKMjYJUkVTRVJWRUQJCTAwMDAJUkVTRVJWRUQKCgpSZXBvcnQg
-SUQKLS0tLS0tLS0tLS0tClJlcG9ydElELTEJKElucHV0IFJlcG9ydHMpCShISURVc2FnZS1Nb3Vz
-ZSkgZm9yIFRQJlNQClJlcG9ydElELTIJKElucHV0IFJlcG9ydHMpCShISURVc2FnZS1rZXlib2Fy
-ZCkgZm9yIFRQClJlcG9ydElELTMJKElucHV0IFJlcG9ydHMpCShWZW5kb3IgVXNhZ2U6IE1heCAx
-MCBmaW5nZXIgZGF0YSkgZm9yIFRQClJlcG9ydElELTQJKElucHV0IFJlcG9ydHMpCShWZW5kb3Ig
-VXNhZ2U6IE9OIGJpdCBkYXRhKSBmb3IgR1AKUmVwb3J0SUQtNQkoRmVhdHVyZSBSZXBvcnRzKQlG
-ZWF0dXJlIFJlcG9ydHMKUmVwb3J0SUQtNgkoSW5wdXQgUmVwb3J0cykJKFZlbmRvciBVc2FnZTog
-U3RpY2tQb2ludGVyIGRhdGEpIGZvciBTUApSZXBvcnRJRC03CShGZWF0dXJlIFJlcG9ydHMpCUZs
-YXNoIHVwZGF0ZSAoQm9vdGxvYWRlcikKCgpEYXRhIHBhdHRlcm4KLS0tLS0tLS0tLS0tCkNhc2Ux
-CVJlcG9ydElEXzEJVFAvU1AJUmVsYXRpdmUvUmVsYXRpdmUKQ2FzZTIJUmVwb3J0SURfMwlUUAlB
-YnNvbHV0ZQoJUmVwb3J0SURfNglTUAlBYnNvbHV0ZQoKCkNvbW1hbmQgUmVhZC9Xcml0ZQotLS0t
-LS0tLS0tLS0tLS0tLS0KVG8gcmVhZC93cml0ZSB0byBSQU0sIG5lZWQgdG8gc2VuZCBhIGNvbW1h
-bmRzIHRvIHRoZSBkZXZpY2UuClRoZSBjb21tYW5kIGZvcm1hdCBpcyBhcyBiZWxvdy4KCkRhdGFC
-eXRlKFNFVF9SRVBPUlQpCkJ5dGUxCUNvbW1hbmQgQnl0ZQpCeXRlMglBZGRyZXNzIC0gQnl0ZSAw
-IChMU0IpCkJ5dGUzCUFkZHJlc3MgLSBCeXRlIDEKQnl0ZTQJQWRkcmVzcyAtIEJ5dGUgMgpCeXRl
-NQlBZGRyZXNzIC0gQnl0ZSAzIChNU0IpCkJ5dGU2CVZhbHVlIEJ5dGUKQnl0ZTcJQ2hlY2tzdW0K
-CkNvbW1hbmQgQnl0ZSBpcyByZWFkPTB4RDEvd3JpdGU9MHhEMiAuCkFkZHJlc3MgaXMgcmVhZC93
-cml0ZSBSQU0gYWRkcmVzcy4KVmFsdWUgQnl0ZSBpcyB3cml0aW5nIGRhdGEgd2hlbiB5b3Ugc2Vu
-ZCB0aGUgd3JpdGUgY29tbWFuZHMuCldoZW4geW91IHJlYWQgUkFNLCB0aGVyZSBpcyBubyBtZWFu
-aW5nLgoKRGF0YUJ5dGUoR0VUX1JFUE9SVCkKQnl0ZTEJUmVzcG9uc2UgQnl0ZQpCeXRlMglBZGRy
-ZXNzIC0gQnl0ZSAwIChMU0IpCkJ5dGUzCUFkZHJlc3MgLSBCeXRlIDEKQnl0ZTQJQWRkcmVzcyAt
-IEJ5dGUgMgpCeXRlNQlBZGRyZXNzIC0gQnl0ZSAzIChNU0IpCkJ5dGU2CVZhbHVlIEJ5dGUKQnl0
-ZTcJQ2hlY2tzdW0KClJlYWQgdmFsdWUgaXMgc3RvcmVkIGluIFZhbHVlIEJ5dGUuCgoKUGFja2V0
-IEZvcm1hdApUb3VjaHBhZCBkYXRhIGJ5dGUKLS0tLS0tLS0tLS0tLS0tLS0tCgliNwliNgliNQli
-NAliMwliMgliMQliMAoxCTAJMAlTVzYJU1c1CVNXNAlTVzMJU1cyCVNXMQoyCTAJMAkwCUZjdglG
-bjMJRm4yCUZuMQlGbjAKMwlYYTBfNwlYYTBfNglYYTBfNQlYYTBfNAlYYTBfMwlYYTBfMglYYTBf
-MQlYYTBfMAo0CVhhMF8xNQlYYTBfMTQJWGEwXzEzCVhhMF8xMglYYTBfMTEJWGEwXzEwCVhhMF85
-CVhhMF84CjUJWWEwXzcJWWEwXzYJWWEwXzUJWWEwXzQJWWEwXzMJWWEwXzIJWWEwXzEJWWEwXzAK
-NglZYTBfMTUJWWEwXzE0CVlhMF8xMwlZYTBfMTIJWWEwXzExCVlhMF8xMAlZYTBfOQlZYTBfOAo3
-CUxGQjAJWnMwXzYJWnMwXzUJWnMwXzQJWnMwXzMJWnMwXzIJWnMwXzEJWnMwXzAKCQkJCQkJCQkK
-OAlYYTFfNwlYYTFfNglYYTFfNQlYYTFfNAlYYTFfMwlYYTFfMglYYTFfMQlYYTFfMAo5CVhhMV8x
-NQlYYTFfMTQJWGExXzEzCVhhMV8xMglYYTFfMTEJWGExXzEwCVhhMV85CVhhMV84CjEwCVlhMV83
-CVlhMV82CVlhMV81CVlhMV80CVlhMV8zCVlhMV8yCVlhMV8xCVlhMV8wCjExCVlhMV8xNQlZYTFf
-MTQJWWExXzEzCVlhMV8xMglZYTFfMTEJWWExXzEwCVlhMV85CVlhMV84CjEyCUxGQjEJWnMxXzYJ
-WnMxXzUJWnMxXzQJWnMxXzMJWnMxXzIJWnMxXzEJWnMxXzAKCQkJCQkJCQkKMTMJWGEyXzcJWGEy
-XzYJWGEyXzUJWGEyXzQJWGEyXzMJWGEyXzIJWGEyXzEJWGEyXzAKMTQJWGEyXzE1CVhhMl8xNAlY
-YTJfMTMJWGEyXzEyCVhhMl8xMQlYYTJfMTAJWGEyXzkJWGEyXzgKMTUJWWEyXzcJWWEyXzYJWWEy
-XzUJWWEyXzQJWWEyXzMJWWEyXzIJWWEyXzEJWWEyXzAKMTYJWWEyXzE1CVlhMl8xNAlZYTJfMTMJ
-WWEyXzEyCVlhMl8xMQlZYTJfMTAJWWEyXzkJWWEyXzgKMTcJTEZCMglaczJfNglaczJfNQlaczJf
-NAlaczJfMwlaczJfMglaczJfMQlaczJfMAoJCQkJCQkJCQoxOAlYYTNfNwlYYTNfNglYYTNfNQlY
-YTNfNAlYYTNfMwlYYTNfMglYYTNfMQlYYTNfMAoxOQlYYTNfMTUJWGEzXzE0CVhhM18xMwlYYTNf
-MTIJWGEzXzExCVhhM18xMAlYYTNfOQlYYTNfOAoyMAlZYTNfNwlZYTNfNglZYTNfNQlZYTNfNAlZ
-YTNfMwlZYTNfMglZYTNfMQlZYTNfMAoyMQlZYTNfMTUJWWEzXzE0CVlhM18xMwlZYTNfMTIJWWEz
-XzExCVlhM18xMAlZYTNfOQlZYTNfOAoyMglMRkIzCVpzM182CVpzM181CVpzM180CVpzM18zCVpz
-M18yCVpzM18xCVpzM18wCgkJCQkJCQkJCjIzCVhhNF83CVhhNF82CVhhNF81CVhhNF80CVhhNF8z
-CVhhNF8yCVhhNF8xCVhhNF8wCjI0CVhhNF8xNQlYYTRfMTQJWGE0XzEzCVhhNF8xMglYYTRfMTEJ
-WGE0XzEwCVhhNF85CVhhNF84CjI1CVlhNF83CVlhNF82CVlhNF81CVlhNF80CVlhNF8zCVlhNF8y
-CVlhNF8xCVlhNF8wCjI2CVlhNF8xNQlZYTRfMTQJWWE0XzEzCVlhNF8xMglZYTRfMTEJWWE0XzEw
-CVlhNF85CVlhNF84CjI3CUxGQjQJWnM0XzYJWnM0XzUJWnM0XzQJWnM0XzMJWnM0XzIJWnM0XzEJ
-WnM0XzAKCgpTVzEtU1c2OglTVyBPTi9PRkYgc3RhdHVzClhhbl8xNS0wKDE2Yml0KTpYIEFic29s
-dXRlIGRhdGEgb2YgdGhlIIFnboFodGggZmluZ2VyCllhbl8xNS0wKDE2Yml0KTpZIEFic29sdXRl
-IGRhdGEgb2YgdGhlIIFnboFodGggZmluZ2VyClpzbl82LTAoN2JpdCk6CU9wZXJhdGlvbiBhcmVh
-IG9mIHRoZSCBZ26BaHRoIGZpbmdlcgoKClN0aWNrUG9pbnRlciBkYXRhIGJ5dGUKLS0tLS0tLS0t
-LS0tLS0tLS0tCgliNwliNgliNQliNAliMwliMgliMQliMApCeXRlMQkxCTEJMQkwCTEJU1czCVNX
-MglTVzEKQnl0ZTIJWDcJWDYJWDUJWDQJWDMJWDIJWDEJWDAKQnl0ZTMJWDE1CVgxNAlYMTMJWDEy
-CVgxMQlYMTAJWDkJWDgKQnl0ZTQJWTcJWTYJWTUJWTQJWTMJWTIJWTEJWTAKQnl0ZTUJWTE1CVkx
-NAlZMTMJWTEyCVkxMQlZMTAJWTkJWTgKQnl0ZTYJWjcJWjYJWjUJWjQJWjMJWjIJWjEJWjAKQnl0
-ZTcJVCZQCVoxNAlaMTMJWjEyCVoxMQlaMTAJWjkJWjgKClNXMS1TVzM6CVNXIE9OL09GRiBzdGF0
-dXMKWG5fMTUtMCgxNmJpdCk6WCBBYnNvbHV0ZSBkYXRhClluXzE1LTAoMTZiaXQpOlkgQWJzb2x1
-dGUgZGF0YQpabl8xNC0wKDE1Yml0KTpaIAo=
-
---_002_OSXPR01MB04086A33D420C26506F1BDF8C7540OSXPR01MB0408jpnp_--

@@ -1,306 +1,355 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v2] hid: migrate Dream Cheeky LED driver from USB misc to HID
-Date: Tue, 14 Jun 2016 23:05:15 +0200
-Message-ID: <4d61b468-845d-7a7a-d18a-b68244270a75@gmail.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [RFC 0/4] Intel Integrated Sensor Hub Support (ISH)
+Date: Tue, 14 Jun 2016 22:33:46 +0100
+Message-ID: <CACxGe6sE0oWRXd+vAERQQvQoW52+cfEJ19T_KzLN9bbpTWLnbg@mail.gmail.com>
+References: <1464668878-17113-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+ <CACxGe6udQ9H5_OBg+h8BB4Bru5Air0LYxtGQkUvr91ebtUE+SA@mail.gmail.com>
+ <1465509287.24319.3.camel@linux.intel.com> <CACxGe6vq-FDpjG8WtrraveQo+ZT3MHMDFzrA5-qqNLEwcbmNhw@mail.gmail.com>
+ <1465566904.10525.11.camel@linux.intel.com> <1465568791.7409.38.camel@hadess.net>
+ <1465569941.10525.17.camel@linux.intel.com> <1465571076.7409.39.camel@hadess.net>
+ <1465572227.24319.7.camel@linux.intel.com> <1465572452.7409.41.camel@hadess.net>
+ <CACxGe6sjFHS9VaeWUY1PsJXhTW1Nvkuoqutty9oSX2Ywj+yV9g@mail.gmail.com>
+ <1465917123.606.11.camel@hadess.net> <CACxGe6siZMA3GX=M8=07GbHsnzRzq0=dKQ8aeC_VN=9iPcc=Ew@mail.gmail.com>
+ <1465923665.606.19.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:35977 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752162AbcFNVFZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2016 17:05:25 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1465923665.606.19.camel@hadess.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, benjamin.tissoires@redhat.com, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, chaya.golan@intel.com, daniel.drubin@intel.com, Darren Hart <darren@dvhart.com>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, Linux USB Mailing List <linux-usb@vger.kernel.org>, Oliver Neukum <oneukum@suse.com>
 
-The Dream Cheeky Webmail Notifier and Friends Alert are supported as part
-of usb/misc/usbled driver currently. This patch migrates the driver for
-these devices to the HID subsystem.
+On Tue, Jun 14, 2016 at 6:01 PM, Bastien Nocera <hadess@hadess.net> wrote:
+> On Tue, 2016-06-14 at 17:08 +0100, Grant Likely wrote:
+>> On Tue, Jun 14, 2016 at 4:12 PM, Bastien Nocera <hadess@hadess.net>
+>> wrote:
+>> > On Tue, 2016-06-14 at 14:44 +0100, Grant Likely wrote:
+>> > > On Fri, Jun 10, 2016 at 4:27 PM, Bastien Nocera <hadess@hadess.ne
+>> > > t>
+>> > > wrote:
+>> > > > On Fri, 2016-06-10 at 08:23 -0700, Srinivas Pandruvada wrote:
+>> > > > > On Fri, 2016-06-10 at 17:04 +0200, Bastien Nocera wrote:
+>> > > > > > >
+>> > > > >
+>> > > > > [...]
+>> > > > >
+>> > > > > > Are there any errors when setting the triggers?
+>> > > > > >
+>> > > > > Is there any debug option in this service to give more
+>> > > > > verbose
+>> > > > > output?
+>> > > >
+>> > > > Add:
+>> > > > Environment="G_MESSAGES_DEBUG=all"
+>> > > >
+>> > > > To the service file. You should see the debug in systemctl:
+>> > > > systemctl status iio-sensor-proxy.service
+>> > > >
+>> > > > Or in journalctl if there's too much data:
+>> > > > journalctl --reverse -u iio-sensor-proxy.service
+>> > >
+>> > > Still no joy on the sensors. The proxy starts up and detects the
+>> > > sensors, but I don't see any sensor events occurring:
+>> >
+>> > Could you try again with the current master of iio-sensor-proxy?
+>> > Make
+>> > sure to install the file in the same location as in your distro
+>> > provided package.
+>> >
+>> > I've added more debug/warnings to a few cases where it would have
+>> > silently failed in the past.
+>> >
+>> > In particular, I don't see any messages that would be coming out
+>> > of:
+>> > https://github.com/hadess/iio-sensor-proxy/blob/master/src/iio-buff
+>> > er-utils.c#L512
+>> >
+>> > Could it be that the sub-directory is populated after the device is
+>> > created in the kernel, causing a race?
+>> >
+>> > Either that, or the contents of the scan_elements/ directory is not
+>> > the
+>> > one expected by this code.
+>> >
+>> > The output of this command should us that:
+>> > ls /sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-
+>> > A04D34F0C226}/001E:8086:22D8.0001/HID-SENSOR-
+>> > 200073.8.auto/iio:device1/scan_elements
+>>
+>> Hmmm, this is interesting. I fetched, built and ran the latest
+>> iio-sensor-proxy. It quit with the following error. However,
+>> immediately afterwards, I ran the Debian packaged version (1.1-1),
+>> and
+>> the sensors started to work. Something in the latest master activates
+>> the sensors enough for the older version to work.
+>
+> There's no changes in that code other than me introducing a bug that'd
+> make it throw a warning when the sensor was already enabled. Fixed now.
+>
+> Could you try again, but make sure to replace the existing iio-sensor-
+> proxy so it's started on boot, when the device appears. If you see the
+> warning again, please attach the output out from "ls" as requested in
+> the earlier mail.
 
-Benefits:
-- Avoid using USB low-level calls and use the HID subsystem instead
-  (as this device provides a USB HID interface)
-- Use standard LED subsystem instead of proprietary sysfs entries,
-  this allows e.g. to use the device with features like triggers
+Oops, missed that the first time. Here you go:
 
-There might be users of the current driver, therefore so far allow
-compilation of the new driver only if the old one is disabled.
+root@gladys:~# ls
+/sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0001/HID-SENSOR-200073.8.auto/iio:device1/scan_elements
+in_accel_x_en     in_accel_y_en     in_accel_z_en
+in_accel_x_index  in_accel_y_index  in_accel_z_index
+in_accel_x_type   in_accel_y_type   in_accel_z_type
 
-Successfully tested with a Dream Cheeky Webmail Notifier.
+> If it doesn't warn on startup, and it fails to work, then we're
+> probably looking at a bug in the kernel...
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
-v2:
-- move hid_hw_start after dc_init_device to avoid a potential race
----
- drivers/hid/Kconfig            |   8 ++
- drivers/hid/Makefile           |   1 +
- drivers/hid/hid-core.c         |   6 +-
- drivers/hid/hid-dream-cheeky.c | 175 +++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h          |   2 +
- 5 files changed, 190 insertions(+), 2 deletions(-)
- create mode 100644 drivers/hid/hid-dream-cheeky.c
+Here is the output. The latest master still doesn't work. However, it
+has the same behaviour that running the broken version of
+iio-sensors-proxy (207b5bbd8) will cause the good one start working
+(92fa6ea9e).
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 16fe27d..5618a61 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -247,6 +247,14 @@ config DRAGONRISE_FF
- 	Say Y here if you want to enable force feedback support for DragonRise Inc.
- 	game controllers.
- 
-+config HID_DREAM_CHEEKY
-+	tristate "Dream Cheeky Webmail Notifier USB RGB LED"
-+	depends on HID
-+	depends on USB_LED = 'n'
-+	---help---
-+	Support for the Dream Cheeky Webmail Notifier. This driver registers
-+	a LED class instance for red, green, and blue color component.
-+
- config HID_EMS_FF
- 	tristate "EMS Production Inc. force feedback support"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 90300f3..2878739 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -35,6 +35,7 @@ obj-$(CONFIG_HID_CORSAIR)	+= hid-corsair.o
- obj-$(CONFIG_HID_CP2112)	+= hid-cp2112.o
- obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
- obj-$(CONFIG_HID_DRAGONRISE)	+= hid-dr.o
-+obj-$(CONFIG_HID_DREAM_CHEEKY)	+= hid-dream-cheeky.o
- obj-$(CONFIG_HID_EMS_FF)	+= hid-emsff.o
- obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
- obj-$(CONFIG_HID_ELO)		+= hid-elo.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 730589a..c24f758 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1879,6 +1879,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_WN) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_FA) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0030) },
-@@ -2349,8 +2351,6 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DEALEXTREAME, USB_DEVICE_ID_DEALEXTREAME_RADIO_SI4701) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EARTHMATE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x0004) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x000a) },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0400) },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0401) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
-@@ -2489,6 +2489,8 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_YEALINK, USB_DEVICE_ID_YEALINK_P1K_P4K_B2K) },
- #if IS_ENABLED(CONFIG_USB_LED)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_RISO_KAGAKU, USB_DEVICE_ID_RI_KA_WEBMAIL) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_WN) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_FA) },
- #endif
- 	{ }
- };
-diff --git a/drivers/hid/hid-dream-cheeky.c b/drivers/hid/hid-dream-cheeky.c
-new file mode 100644
-index 0000000..9806de4
---- /dev/null
-+++ b/drivers/hid/hid-dream-cheeky.c
-@@ -0,0 +1,175 @@
-+/*
-+ * Dream Cheeka Webmail Notifier USB RGB LED driver
-+ *
-+ * Copyright 2016 Heiner Kallweit <hkallweit1@gmail.com>
-+ * Based on drivers/hid/hid-thingm.c and
-+ * drivers/usb/misc/usbled.c
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation, version 2.
-+ */
-+
-+#include <linux/hid.h>
-+#include <linux/hidraw.h>
-+#include <linux/leds.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+
-+#include "hid-ids.h"
-+
-+#define REPORT_SIZE	9
-+#define REPORT_ID	0
-+
-+#define DC_MAX_BRIGHTNESS 0x1f
-+
-+struct dc_led {
-+	struct led_classdev	cdev;
-+	struct dc_device	*dcdev;
-+	char			name[32];
-+};
-+
-+struct dc_device {
-+	struct dc_led		red;
-+	struct dc_led		green;
-+	struct dc_led		blue;
-+	struct hid_device       *hdev;
-+	struct mutex		lock;
-+};
-+
-+#define to_dc_led(arg) container_of(arg, struct dc_led, cdev)
-+
-+static int dc_send(struct dc_device *dcdev, __u8 buf[REPORT_SIZE])
-+{
-+	int ret;
-+
-+	mutex_lock(&dcdev->lock);
-+
-+	ret = hid_hw_raw_request(dcdev->hdev, buf[0], buf, REPORT_SIZE,
-+			HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+
-+	mutex_unlock(&dcdev->lock);
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	return ret == REPORT_SIZE ? 0 : -EMSGSIZE;
-+}
-+
-+static int dc_write_color(struct led_classdev *cdev, enum led_brightness br)
-+{
-+	struct dc_led *dcled = to_dc_led(cdev);
-+	struct dc_device *dcdev = dcled->dcdev;
-+	__u8 buf[REPORT_SIZE] = { REPORT_ID };
-+
-+	buf[1] = dcdev->red.cdev.brightness;
-+	buf[2] = dcdev->green.cdev.brightness;
-+	buf[3] = dcdev->blue.cdev.brightness;
-+	buf[7] = 0x1a;
-+	buf[8] = 0x05;
-+
-+	return dc_send(dcdev, buf);
-+}
-+
-+static int dc_init_device(struct dc_device *dcdev)
-+{
-+	__u8 buf[REPORT_SIZE] = { REPORT_ID };
-+
-+	/* Dream Cheeky magic */
-+	buf[1] = 0x1f;
-+	buf[2] = 0x02;
-+	buf[4] = 0x5f;
-+	buf[7] = 0x1a;
-+	buf[8] = 0x03;
-+
-+	return dc_send(dcdev, buf);
-+}
-+
-+static int dc_init_led(struct dc_led *led, const char *color_name,
-+		       struct dc_device *dcdev, int minor)
-+{
-+	snprintf(led->name, sizeof(led->name), "dream_cheeky%d:%s", minor, color_name);
-+	led->cdev.name = led->name;
-+	led->cdev.max_brightness = DC_MAX_BRIGHTNESS;
-+	led->cdev.brightness_set_blocking = dc_write_color;
-+	led->cdev.flags = LED_HW_PLUGGABLE;
-+	led->dcdev = dcdev;
-+
-+	return devm_led_classdev_register(&dcdev->hdev->dev, &led->cdev);
-+}
-+
-+static int dc_init_rgb(struct dc_device *dcdev, int minor)
-+{
-+	int ret;
-+
-+	/* Register the red diode */
-+	ret = dc_init_led(&dcdev->red, "red", dcdev, minor);
-+	if (ret)
-+		return ret;
-+
-+	/* Register the green diode */
-+	ret = dc_init_led(&dcdev->green, "green", dcdev, minor);
-+	if (ret)
-+		return ret;
-+
-+	/* Register the blue diode */
-+	return dc_init_led(&dcdev->blue, "blue", dcdev, minor);
-+}
-+
-+static int dc_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	struct dc_device *dcdev;
-+	int ret, minor;
-+
-+	dcdev = devm_kzalloc(&hdev->dev, sizeof(*dcdev), GFP_KERNEL);
-+	if (!dcdev)
-+		return -ENOMEM;
-+
-+	ret = hid_parse(hdev);
-+	if (ret)
-+		return ret;
-+
-+	dcdev->hdev = hdev;
-+	mutex_init(&dcdev->lock);
-+
-+	ret = dc_init_device(dcdev);
-+	if (ret)
-+		return ret;
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-+	if (ret)
-+		return ret;
-+
-+	minor = ((struct hidraw *) hdev->hidraw)->minor;
-+
-+	ret = dc_init_rgb(dcdev, minor);
-+	if (ret) {
-+		hid_hw_stop(hdev);
-+		return ret;
-+	}
-+
-+	dev_info(&hdev->dev, "Dream Cheeky Webmail Notifier %d initialized\n", minor);
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id dc_table[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY,
-+	  USB_DEVICE_ID_DREAM_CHEEKY_WN) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY,
-+	  USB_DEVICE_ID_DREAM_CHEEKY_FA) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, dc_table);
-+
-+static struct hid_driver dc_driver = {
-+	.name = "dream-cheeky",
-+	.probe = dc_probe,
-+	.id_table = dc_table,
-+};
-+
-+module_hid_driver(dc_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Heiner Kallweit <hkallweit1@gmail.com>");
-+MODULE_DESCRIPTION("Dream Cheeky Webmail Notifier USB RGB LED driver");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 3eec09a..e104aba 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -334,6 +334,8 @@
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
- 
- #define USB_VENDOR_ID_DREAM_CHEEKY	0x1d34
-+#define USB_DEVICE_ID_DREAM_CHEEKY_WN	0x0004
-+#define USB_DEVICE_ID_DREAM_CHEEKY_FA	0x000a
- 
- #define USB_VENDOR_ID_ELITEGROUP	0x03fc
- #define USB_DEVICE_ID_ELITEGROUP_05D8	0x05d8
--- 
-2.8.3
+-- Logs begin at Tue 2016-06-14 22:19:47 BST, end at Tue 2016-06-14
+22:20:52 BST. --
+Jun 14 22:19:48 gladys systemd[1]: Starting IIO Sensor Proxy service...
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Found accel_3d at
+/sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0001/HID-SENSOR-200073.8.auto/iio:device1
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Found device /sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0001/HID-SENSOR-200073.8.auto/iio:device1
+of type accelerometer at IIO Buffer accelerometer
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Found magn_3d at
+/sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0003/HID-SENSOR-200083.27.auto/iio:device6
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Found device /sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0003/HID-SENSOR-200083.27.auto/iio:device6
+of type compass at IIO Buffer Compass
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Found associated trigger at
+/sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0001/HID-SENSOR-200073.8.auto/trigger1
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Enabled sensor /sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0001/HID-SENSOR-200073.8.auto/iio:device1/scan_elements/in_accel_x_en
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Enabled sensor /sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0001/HID-SENSOR-200073.8.auto/iio:device1/scan_elements/in_accel_y_en
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Enabled sensor /sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0001/HID-SENSOR-200073.8.auto/iio:device1/scan_elements/in_accel_z_en
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Got type for in_accel_x: is signed: 1, bytes: 4, bits_used: 32, shift:
+0, mask: 0x0, be: 0
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Got type for in_accel_y: is signed: 1, bytes: 4, bits_used: 32, shift:
+0, mask: 0x0, be: 0
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Got type for in_accel_z: is signed: 1, bytes: 4, bits_used: 32, shift:
+0, mask: 0x0, be: 0
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Built channel array for in_accel_x: is signed: 1, bytes: 4, bits_used:
+32, shift: 0, mask: 0x0, be: 0
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Built channel array for in_accel_y: is signed: 1, bytes: 4, bits_used:
+32, shift: 0, mask: 0x0, be: 0
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Built channel array for in_accel_z: is signed: 1, bytes: 4, bits_used:
+32, shift: 0, mask: 0x0, be: 0
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Found associated trigger at
+/sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0003/HID-SENSOR-200083.27.auto/trigger6
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Enabled sensor /sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0003/HID-SENSOR-200083.27.auto/iio:device6/scan_elements/in_magn_x_en
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Enabled sensor /sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0003/HID-SENSOR-200083.27.auto/iio:device6/scan_elements/in_magn_y_en
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Enabled sensor /sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0003/HID-SENSOR-200083.27.auto/iio:device6/scan_elements/in_magn_z_en
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Enabled sensor /sys/devices/pci0000:00/0000:00:13.0/{33AECD58-B679-4E54-9BD9-A04D34F0C226}/001E:8086:22D8.0003/HID-SENSOR-200083.27.auto/iio:device6/scan_elements/in_rot_from_north_magnetic_tilt_comp_en
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Got type for in_magn_x: is signed: 1, bytes: 4, bits_used: 32, shift:
+0, mask: 0x0, be: 0
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Got type for in_magn_y: is signed: 1, bytes: 4, bits_used: 32, shift:
+0, mask: 0x0, be: 0
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Got type for in_magn_z: is signed: 1, bytes: 4, bits_used: 32, shift:
+0, mask: 0x0, be: 0
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Got type for in_rot_from_north_magnetic_tilt_comp: is signed: 1,
+bytes: 4, bits_used: 32, shift: 0, mask: 0x0, be: 0
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Built channel array for in_magn_x: is signed: 1, bytes: 4, bits_used:
+32, shift: 0, mask: 0x0, be: 0
+Jun 14 22:19:48 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Built channel array for in_magn_y: is signed: 1, bytes: 4, bits_used:
+32, shift: 0, mask: 0x0, be: 0
+Jun 14 22:19:48 gladys systemd[1]: Started IIO Sensor Proxy service.
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Built channel array for in_magn_z: is signed: 1, bytes: 4, bits_used:
+32, shift: 0, mask: 0x0, be: 0
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Built channel array for in_rot_from_north_magnetic_tilt_comp: is
+signed: 1, bytes: 4, bits_used: 32, shift: 0, mask: 0x0, be: 0
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Handling driver refcounting method 'ClaimAccelerometer' for
+accelerometer device
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Handling driver refcounting method 'ReleaseLight' for ambient light
+sensor device
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+Handling driver refcounting method 'ClaimAccelerometer' for
+accelerometer device
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:44 gladys iio-sensor-proxy[577]: ** (process:577): DEBUG:
+No new data available
+Jun 14 22:20:47 gladys systemd[1]: Stopping IIO Sensor Proxy service...
+Jun 14 22:20:47 gladys iio-sensor-proxy[577]: ** (process:577):
+Jun 14 22:20:47 gladys systemd[1]: Stopped IIO Sensor Proxy service.
 
 
+
+>
+> Cheers

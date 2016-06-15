@@ -1,73 +1,58 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v8 3/4] i2c: i801: add support of Host Notify
-Date: Wed, 15 Jun 2016 10:12:47 +0200
-Message-ID: <20160615081247.GQ24234@mail.corp.redhat.com>
-References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
- <1465484030-28838-4-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/7] Input: synaptics-rmi4: Increment the refcount of the
+ transport dev's of_node
+Date: Wed, 15 Jun 2016 11:24:26 +0200
+Message-ID: <20160615092426.GS24234@mail.corp.redhat.com>
+References: <1464979153-2386-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1465484030-28838-4-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
-Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <1464979153-2386-1-git-send-email-aduggan@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-On Jun 09 2016 or thereabouts, Benjamin Tissoires wrote:
-> The i801 chip can handle the Host Notify feature since ICH 3 as mentioned
-> in http://www.intel.com/content/dam/doc/datasheet/82801ca-io-controller-hub-3-datasheet.pdf
-> 
-> Enable the functionality unconditionally and propagate the alert
-> on each notification.
-> 
-> With a T440s and a Synaptics touchpad that implements Host Notify, the
-> payload data is always 0x0000, so I am not sure if the device actually
-> sends the payload or if there is a problem regarding the implementation.
-> 
-> Tested-by: Andrew Duggan <aduggan@synaptics.com>
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> changes in v2:
-> - removed the description of the Slave functionality support in the chip table
->   (the table shows what is supported, not what the hardware is capable of)
-> - use i2c-smbus to forward the notification
-> - remove the fifo, and directly retrieve the address and payload in the worker
-> - do not check for Host Notification is the feature is not enabled
-> - use inw_p() to read the payload instead of 2 inb_p() calls
-> - add /* fall-through */ comment
-> - unconditionally enable Host Notify if the hardware supports it (can be
->   disabled by the user)
->  
-> no changes in v3
-> 
-> changes in v4:
-> - make use of the new API -> no more worker spawning here
-> - solved a race between the access of the Host Notify registers and the actual
->   I2C transfers.
-> 
-> changes in v5:
-> - added SKL Host Notify support
-> 
-> changes in v6:
-> - select I2C_SMBUS in Kconfig to prevent an undefined reference when I2C_I801
->   is set to 'Y' while I2C_SMBUS is set to 'M'
-> 
-> no changes in v7
-> 
-> changes in v8:
-> - reapplied after http://patchwork.ozlabs.org/patch/632768/ and merged the
->   conflict (minor conflict in the struct i801_priv).
-> - removed the .resume hook as upstream changed suspend/resume hooks and there
->   is no need in the end to re-enable host notify on resume (tested on Lenovo
->   t440 and t450).
+On Jun 03 2016 or thereabouts, Andrew Duggan wrote:
+> Increment the refcount for the transport device's of_node before calling
+> of_find_node_by_name(). Since of_find_node_by_name() assumes the refcount
+> was incremented by the caller and calls of_node_put() when it is done.
 
-Actually, this hook seemed to be required on the Lenovo T440 (Haswell)
-but not on the T450 (Broadwell) laptop I have now here.
+That is some weird API. I guess it must be used with:
+of_node = of_find_node_by_name(of_node, of_name);
 
-Wolfram, I can resend the whole series or a follow-up patch to re-enable
-after resume Host Notify. How do you prefer I deal with that?
+Anyway:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
+
+> 
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> ---
+>  drivers/input/rmi4/rmi_bus.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+> index b368b05..55b5336 100644
+> --- a/drivers/input/rmi4/rmi_bus.c
+> +++ b/drivers/input/rmi4/rmi_bus.c
+> @@ -157,11 +157,12 @@ static int rmi_function_match(struct device *dev, struct device_driver *drv)
+>  static void rmi_function_of_probe(struct rmi_function *fn)
+>  {
+>  	char of_name[9];
+> +	struct device_node *node = fn->rmi_dev->xport->dev->of_node;
+>  
+>  	snprintf(of_name, sizeof(of_name), "rmi4-f%02x",
+>  		fn->fd.function_number);
+> -	fn->dev.of_node = of_find_node_by_name(
+> -				fn->rmi_dev->xport->dev->of_node, of_name);
+> +	of_node_get(node);
+> +	fn->dev.of_node = of_find_node_by_name(node, of_name);
+>  }
+>  #else
+>  static inline void rmi_function_of_probe(struct rmi_function *fn)
+> -- 
+> 2.5.0
+> 

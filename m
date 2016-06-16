@@ -1,64 +1,60 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v3 4/5] mfd: tps65217: Add power button as subdevice
-Date: Thu, 16 Jun 2016 15:30:44 +0100
-Message-ID: <20160616143044.GZ4948@dell>
-References: <20160616114110.23455-1-m.niestroj@grinn-global.com>
- <20160616114110.23455-5-m.niestroj@grinn-global.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v8 3/4] i2c: i801: add support of Host Notify
+Date: Thu, 16 Jun 2016 16:31:49 +0200
+Message-ID: <20160616143149.GA1382@tetsubishi>
+References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1465484030-28838-4-git-send-email-benjamin.tissoires@redhat.com>
+ <20160615081247.GQ24234@mail.corp.redhat.com>
+ <20160616060942.GA1403@tetsubishi>
+ <20160616125514.GD24234@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:42293 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754324AbcFPOcF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Jun 2016 10:32:05 -0400
 Content-Disposition: inline
-In-Reply-To: <20160616114110.23455-5-m.niestroj@grinn-global.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Marcin Niestroj <m.niestroj@grinn-global.com>
-Cc: Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20160616125514.GD24234@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, 16 Jun 2016, Marcin Niestroj wrote:
 
-> Add tps65217 power buttor subdevice with assigned IRQ resources.
->=20
-> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
-> ---
-> depends on patch 1 in series
->=20
->  drivers/mfd/tps65217.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
 
-> diff --git a/drivers/mfd/tps65217.c b/drivers/mfd/tps65217.c
-> index 7763dbc..d76de72 100644
-> --- a/drivers/mfd/tps65217.c
-> +++ b/drivers/mfd/tps65217.c
-> @@ -38,6 +38,10 @@ static struct resource charger_resources[] =3D {
->  	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_USB, "USB"),
->  };
-> =20
-> +static struct resource pb_resources[] =3D {
-> +	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_PB, "PB"),
-> +};
-> +
->  struct tps65217_irq {
->  	int mask;
->  	int interrupt;
-> @@ -122,6 +126,12 @@ static struct mfd_cell tps65217s[] =3D {
->  		.resources =3D charger_resources,
->  		.of_compatible =3D "ti,tps65217-charger",
->  	},
-> +	{
-> +		.name =3D "tps65217-pwrbutton",
-> +		.num_resources =3D ARRAY_SIZE(pb_resources),
-> +		.resources =3D pb_resources,
-> +		.of_compatible =3D "ti,tps65217-pwrbutton",
-> +	},
->  };
-> =20
->  static irqreturn_t tps65217_irq_thread(int irq, void *data)
+> (i2c-i801) can be carried over through the input tree. So as long as
+> you don't need to have a new feature without users for a short period
+> of time, that's fine by me :)
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+That's fine. I have extremly high trust that the user of the feature
+will be added soon ;)
+
+
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXYrhUAAoJEBQN5MwUoCm2hQQP/2SwOiaxVFEJFbGFxyN1yMX/
+G3VuIya3hgBkSoWKyvAqw4WIF3hBjSqhcTc7Yqd+ZYxOv3Ub3QFgqJCkyJh+datU
+s1Cxh3bRaXZDiSrZsT56LuWUjtbHyZrFyhUHy5+LibpvjvNsPdQJPGOpil1pMwVu
+zuZW3mFKFJBln3OUzELXdnWEwg1eEiQaypjYMIIoivQl75WE2iVoNPqr5lpZvI9W
+fgyI8zplPP42cbNmue+AmBjhPiA/CsgT6mUyBpvRRpDdvmBKmbZA1ylYhr/ywp1X
+8xlHMOl9tABSFr7n9ns6AhdCu7KHKpvmuopjWBl50oIixTxGw0EaUABRhiztKbzR
+dxk5YetaKcbf2K1wBU6fv6KbPbzdz3G8MjiWY0gV6oWcM1Eb1rF7qQMcK4FwEYgi
+dpq3e0cAtedKNQGuB9lWQXLH0r4ROMx1yPnZHPK+RNVOS+WpA7DidKB92TKdP+E/
+tJBl70k+WPALpaVUGFmhMAQkxBWjTi3noazun/aG7WStRYMXH2YlDZdgKrvgcs1D
+HG2xy4at5DGIzGSOQjoencgIcn90Q/mE0IGug/YnkklovYIOEcJ8tHZiIOgBcBZf
++l0x48NQoJzUqKnplM9j0uYIAmhDAYMexmZamDIUOSeOHKPZNZOavC9AansqEj6F
+/fodIlJPBxQCMC+MZd/8
+=5H9y
+-----END PGP SIGNATURE-----
+
+--+QahgC5+KEYLbs62--

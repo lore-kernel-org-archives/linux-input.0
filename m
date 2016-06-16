@@ -1,19 +1,37 @@
-From: Masaki Ota <012nexus@gmail.com>
-Subject: [PATCH] Alps I2C HID Touchpad-Stick support
-Date: Thu, 16 Jun 2016 10:43:30 +0900
-Message-ID: <1466041410-4015-1-git-send-email-masaki.ota@jp.alps.com>
+From: Masaki Ota <masaki.ota@jp.alps.com>
+Subject: RE: [PATCH] Alps I2C HID Touchpad-Stick support
+Date: Thu, 16 Jun 2016 01:51:14 +0000
+Message-ID: <OSXPR01MB0408C2D15BC0BD0D4C383E5CC7560@OSXPR01MB0408.jpnprd01.prod.outlook.com>
+References: <1466041410-4015-1-git-send-email-masaki.ota@jp.alps.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f67.google.com ([209.85.220.67]:33855 "EHLO
-	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753214AbcFPBno (ORCPT
+Received: from mail-os2jpn01on0042.outbound.protection.outlook.com ([104.47.92.42]:54624
+	"EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932084AbcFPBvT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Jun 2016 21:43:44 -0400
-Received: by mail-pa0-f67.google.com with SMTP id us13so2532281pab.1
-        for <linux-input@vger.kernel.org>; Wed, 15 Jun 2016 18:43:43 -0700 (PDT)
+	Wed, 15 Jun 2016 21:51:19 -0400
+In-Reply-To: <1466041410-4015-1-git-send-email-masaki.ota@jp.alps.com>
+Content-Language: ja-JP
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "jikos@kernel.org" <jikos@kernel.org>
+Cc: "benjamin.tissorires@redhat.com" <benjamin.tissorires@redhat.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Naoki Saito <naoki.saito@jp.alps.com>
+
+Hi, Jiri,
+
+This is the new patch.
+
+Best Regards,
+Masaki Ota
+-----Original Message-----
+From: Masaki Ota [mailto:012nexus@gmail.com] 
+Sent: Thursday, June 16, 2016 10:44 AM
 To: jikos@kernel.org
-Cc: benjamin.tissorires@redhat.com, peter.hutterer@who-t.net, hdegoede@redhat.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, masaki.ota@jp.alps.com, naoki.saito@jp.alps.com
+Cc: benjamin.tissorires@redhat.com; peter.hutterer@who-t.net; hdegoede@redhat.com; dmitry.torokhov@gmail.com; linux-input@vger.kernel.org; 太田 真喜 Masaki Ota; 斉藤 直樹 Naoki Saito
+Subject: [PATCH] Alps I2C HID Touchpad-Stick support
 
 Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
 ---
@@ -22,13 +40,9 @@ Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
  drivers/hid/Makefile           |   1 +
  drivers/hid/hid-alps.c         | 525 +++++++++++++++++++++++++++++++++++++++++
  drivers/hid/hid-ids.h          |   5 +-
- 5 files changed, 675 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/hid/hid-alps.txt
- create mode 100644 drivers/hid/hid-alps.c
+ 5 files changed, 675 insertions(+), 3 deletions(-)  create mode 100644 Documentation/hid/hid-alps.txt  create mode 100644 drivers/hid/hid-alps.c
 
-diff --git a/Documentation/hid/hid-alps.txt b/Documentation/hid/hid-alps.txt
-new file mode 100644
-index 0000000..6b02a24
+diff --git a/Documentation/hid/hid-alps.txt b/Documentation/hid/hid-alps.txt new file mode 100644 index 0000000..6b02a24
 --- /dev/null
 +++ b/Documentation/hid/hid-alps.txt
 @@ -0,0 +1,139 @@
@@ -151,8 +165,8 @@ index 0000000..6b02a24
 +
 +
 +SW1-SW6:	SW ON/OFF status
-+Xan_15-0(16bit):X Absolute data of the "n"th finger
-+Yan_15-0(16bit):Y Absolute data of the "n"th finger
++Xan_15-0(16bit):X Absolute data of the "n"th finger Yan_15-0(16bit):Y 
++Absolute data of the "n"th finger
 +Zsn_6-0(7bit):	Operation area of the "n"th finger
 +
 +
@@ -171,8 +185,7 @@ index 0000000..6b02a24
 +Xn_15-0(16bit):X Absolute data
 +Yn_15-0(16bit):Y Absolute data
 +Zn_14-0(15bit):Z
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 513a16c..902f302 100644
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig index 513a16c..902f302 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
 @@ -920,6 +920,14 @@ config HID_SENSOR_CUSTOM_SENSOR
@@ -190,8 +203,7 @@ index 513a16c..902f302 100644
  endmenu
  
  endif # HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 00011fe..31e493a 100644
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile index 00011fe..31e493a 100644
 --- a/drivers/hid/Makefile
 +++ b/drivers/hid/Makefile
 @@ -21,6 +21,7 @@ hid-wiimote-y		:= hid-wiimote-core.o hid-wiimote-modules.o
@@ -202,18 +214,19 @@ index 00011fe..31e493a 100644
  obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
  obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
  obj-$(CONFIG_HID_APPLEIR)	+= hid-appleir.o
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-new file mode 100644
-index 0000000..b79c318
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c new file mode 100644 index 0000000..b79c318
 --- /dev/null
 +++ b/drivers/hid/hid-alps.c
 @@ -0,0 +1,525 @@
 +/*
 + *  Copyright (c) 2016 Masaki Ota <masaki.ota@jp.alps.com>
 + *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
++ * This program is free software; you can redistribute it and/or modify 
++it
++ * under the terms of the GNU General Public License as published by 
++the Free
++ * Software Foundation; either version 2 of the License, or (at your 
++option)
 + * any later version.
 + */
 +
@@ -284,9 +297,7 @@ index 0000000..b79c318
 + * @x_max: maximum x coordinate value
 + * @y_max: maximum y coordinate value
 + * @btn_cnt: number of buttons
-+ * @sp_btn_cnt: number of stick buttons
-+ */
-+struct u1_dev {
++ * @sp_btn_cnt: number of stick buttons  */ struct u1_dev {
 +	struct input_dev *input;
 +	struct input_dev *input2;
 +	struct hid_device *hdev;
@@ -311,8 +322,7 @@ index 0000000..b79c318
 +struct u1_dev *priv;
 +
 +static int u1_read_write_register(struct hid_device *hdev, u32 address,
-+	u8 *read_val, u8 write_val, bool read_flag)
-+{
++	u8 *read_val, u8 write_val, bool read_flag) {
 +	int ret, i;
 +	u8 check_sum;
 +	u8 *input;
@@ -377,8 +387,7 @@ index 0000000..b79c318
 +}
 +
 +static int alps_raw_event(struct hid_device *hdev,
-+		struct hid_report *report, u8 *data, int size)
-+{
++		struct hid_report *report, u8 *data, int size) {
 +	int x[MAX_TOUCHES], y[MAX_TOUCHES], z[MAX_TOUCHES];
 +	int i, left, right, middle;
 +	short sp_x, sp_y, sp_z;
@@ -453,21 +462,19 @@ index 0000000..b79c318
 +}
 +
 +#ifdef CONFIG_PM
-+static int alps_post_reset(struct hid_device *hdev)
-+{
++static int alps_post_reset(struct hid_device *hdev) {
 +	return u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
 +				NULL, U1_TP_ABS_MODE, false);
 +}
 +
-+static int alps_post_resume(struct hid_device *hdev)
-+{
++static int alps_post_resume(struct hid_device *hdev) {
 +	return u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
 +				NULL, U1_TP_ABS_MODE, false);
 +}
 +#endif /* CONFIG_PM */
 +
-+static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
-+{
++static int alps_input_configured(struct hid_device *hdev, struct 
++hid_input *hi) {
 +	struct u1_dev *data = hid_get_drvdata(hdev);
 +	struct input_dev *input = hi->input, *input2;
 +	struct u1_dev devInfo;
@@ -572,7 +579,8 @@ index 0000000..b79c318
 +
 +	__set_bit(EV_ABS, input->evbit);
 +	input_set_abs_params(input, ABS_MT_POSITION_X, 1, devInfo.x_max, 0, 0);
-+	input_set_abs_params(input, ABS_MT_POSITION_Y, 1, devInfo.y_max, 0, 0);
++	input_set_abs_params(input, ABS_MT_POSITION_Y, 1, devInfo.y_max, 0, 
++0);
 +
 +	if (devInfo.x_active_len_mm && devInfo.y_active_len_mm) {
 +		res_x = (devInfo.x_max - 1) / devInfo.x_active_len_mm;
@@ -667,13 +675,12 @@ index 0000000..b79c318
 +
 +static int alps_input_mapping(struct hid_device *hdev,
 +		struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit, int *max)
-+{
++		struct hid_usage *usage, unsigned long **bit, int *max) {
 +	return -1;
 +}
 +
-+static int alps_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
++static int alps_probe(struct hid_device *hdev, const struct 
++hid_device_id *id) {
 +	struct u1_dev *data = NULL;
 +	int ret;
 +
@@ -701,8 +708,7 @@ index 0000000..b79c318
 +	return 0;
 +}
 +
-+static void alps_remove(struct hid_device *hdev)
-+{
++static void alps_remove(struct hid_device *hdev) {
 +	hid_hw_stop(hdev);
 +	kfree(priv);
 +}
@@ -730,11 +736,9 @@ index 0000000..b79c318
 +
 +module_hid_driver(alps_driver);
 +
-+MODULE_AUTHOR("Masaki Ota <masaki.ota@jp.alps.com>");
-+MODULE_DESCRIPTION("ALPS HID driver");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b6ff6e7..92f7fca 100644
++MODULE_AUTHOR("Masaki Ota <masaki.ota@jp.alps.com>"); 
++MODULE_DESCRIPTION("ALPS HID driver"); MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h index b6ff6e7..92f7fca 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
 @@ -67,6 +67,8 @@
@@ -770,6 +774,6 @@ index b6ff6e7..92f7fca 100644
  
  #define USB_VENDOR_ID_MICROSOFT		0x045e
  #define USB_DEVICE_ID_SIDEWINDER_GV	0x003b
--- 
+--
 2.7.4
 

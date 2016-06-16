@@ -1,759 +1,402 @@
-From: Masaki Ota <012nexus@gmail.com>
-Subject: [PATCH] Alps I2C HID Touchpad-Stick support
-Date: Thu, 16 Jun 2016 18:45:57 +0900
-Message-ID: <1466070357-5315-1-git-send-email-masaki.ota@jp.alps.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v2 1/5] mfd: tps65217: Add support for IRQs
+Date: Thu, 16 Jun 2016 11:35:34 +0100
+Message-ID: <20160616103534.GR4948@dell>
+References: <20160614132927.3309-1-m.niestroj@grinn-global.com>
+ <20160614132927.3309-2-m.niestroj@grinn-global.com>
+ <20160615151358.GL4948@dell>
+ <a0bf75c0-26cf-e351-0046-a5f4d3303c29@grinn-global.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f68.google.com ([209.85.220.68]:36664 "EHLO
-	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752231AbcFPJqM (ORCPT
+Received: from mail-wm0-f44.google.com ([74.125.82.44]:36833 "EHLO
+	mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751681AbcFPKey (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jun 2016 05:46:12 -0400
-Received: by mail-pa0-f68.google.com with SMTP id fg1so3415385pad.3
-        for <linux-input@vger.kernel.org>; Thu, 16 Jun 2016 02:46:12 -0700 (PDT)
+	Thu, 16 Jun 2016 06:34:54 -0400
+Received: by mail-wm0-f44.google.com with SMTP id f126so45032166wma.1
+        for <linux-input@vger.kernel.org>; Thu, 16 Jun 2016 03:34:54 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <a0bf75c0-26cf-e351-0046-a5f4d3303c29@grinn-global.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org
-Cc: benjamin.tissorires@redhat.com, peter.hutterer@who-t.net, hdegoede@redhat.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, masaki.ota@jp.alps.com, naoki.saito@jp.alps.com
+To: Marcin Niestroj <m.niestroj@grinn-global.com>
+Cc: Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
->From Masaki Ota <masaki.ota@jp.alps.com>
+On Thu, 16 Jun 2016, Marcin Niestroj wrote:
 
-<ChangeList>
-- Add hid-alps.c for Support Alps I2C HID Touchpad and Stick device.
-- Add hid-alps.txt to check this device spec.
-- Add Alps-JP vendor ID to hid-idh.h for support this device. 
-- To build this module, add Alps module definition to Makefile.
+> Hi,
+>=20
+> On 15.06.2016 17:13, Lee Jones wrote:
+> >On Tue, 14 Jun 2016, Marcin Niestroj wrote:
+> >
+> >>Add support for handling IRQs: power button, AC and USB power state
+> >>changes. Mask and interrupt bits are shared within one register, wh=
+ich
+> >>prevents us to use regmap_irq implementation. New irq_domain is cre=
+ated in
+> >>order to add interrupt handling for each tps65217's subsystem. IRQ
+> >>resources have been added for charger subsystem to be able to notif=
+y about
+> >>AC and USB state changes.
+> >>
+> >>Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+> >>---
+> >> drivers/mfd/Kconfig          |   1 +
+> >> drivers/mfd/tps65217.c       | 182 +++++++++++++++++++++++++++++++=
++++++++++++-
+> >> include/linux/mfd/tps65217.h |  11 +++
+> >> 3 files changed, 192 insertions(+), 2 deletions(-)
+> >>
+> >>diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> >>index 1bcf601..f8c9580 100644
+> >>--- a/drivers/mfd/Kconfig
+> >>+++ b/drivers/mfd/Kconfig
+> >>@@ -1200,6 +1200,7 @@ config MFD_TPS65217
+> >> 	depends on I2C
+> >> 	select MFD_CORE
+> >> 	select REGMAP_I2C
+> >>+	select IRQ_DOMAIN
+> >> 	help
+> >> 	  If you say yes here you get support for the TPS65217 series of
+> >> 	  Power Management / White LED chips.
+> >>diff --git a/drivers/mfd/tps65217.c b/drivers/mfd/tps65217.c
+> >>index 049a6fc..d49f94e 100644
+> >>--- a/drivers/mfd/tps65217.c
+> >>+++ b/drivers/mfd/tps65217.c
+> >>@@ -23,6 +23,9 @@
+> >> #include <linux/i2c.h>
+> >> #include <linux/slab.h>
+> >> #include <linux/regmap.h>
+> >>+#include <linux/interrupt.h>
+> >>+#include <linux/irq.h>
+> >>+#include <linux/irqdomain.h>
+> >
+> >Header includes should be alphabetical.
+> >
+> >Please take the opportunity to recorder them.
+>=20
+> Ok, will do that.
+>=20
+> >
+> >> #include <linux/err.h>
+> >> #include <linux/of.h>
+> >> #include <linux/of_device.h>
+> >>@@ -30,7 +33,81 @@
+> >> #include <linux/mfd/core.h>
+> >> #include <linux/mfd/tps65217.h>
+> >>
+> >>-static const struct mfd_cell tps65217s[] =3D {
+> >>+static struct resource charger_resources[] =3D {
+> >>+	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_AC, "AC"),
+> >>+	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_USB, "USB"),
+> >>+};
+> >>+
+> >>+struct tps65217_irq {
+> >>+	int mask;
+> >>+	int interrupt;
+> >>+};
+> >>+
+> >>+static const struct tps65217_irq tps65217_irqs[] =3D {
+> >
+> >Not sure how this compiles, since you have this struct and the enums
+> >in the header named the same.  Better to differentiate between them.
+>=20
+> I think that in C these two names are in different namespaces. The na=
+me
+> in the header is just a enum tag name, but tps65217_irqs object here =
+is
+> an ordinary identifier. Similarly we use "struct regmap *regmap;"
+> declaration in other places in the kernel.
+> I also tried to be consistent with other drivers: tps65218, tps65086,
+> tps65912.
 
-Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
----
- Documentation/hid/hid-alps.txt | 139 +++++++++++
- drivers/hid/Kconfig            |   8 +
- drivers/hid/Makefile           |   1 +
- drivers/hid/hid-alps.c         | 525 +++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h          |   2 +
- 5 files changed, 675 insertions(+)
- create mode 100644 Documentation/hid/hid-alps.txt
- create mode 100644 drivers/hid/hid-alps.c
+Yes, I think the 'static' helps you there.
 
-diff --git a/Documentation/hid/hid-alps.txt b/Documentation/hid/hid-alps.txt
-new file mode 100644
-index 0000000..6b02a24
---- /dev/null
-+++ b/Documentation/hid/hid-alps.txt
-@@ -0,0 +1,139 @@
-+ALPS HID Touchpad Protocol
-+----------------------
-+
-+Introduction
-+------------
-+Currently ALPS HID driver supports U1 Touchpad device.
-+
-+U1 devuce basic information.
-+Vender ID	0x044E
-+Product ID	0x120B
-+Version ID	0x0121
-+
-+
-+HID Descriptor
-+------------
-+Byte	Field			Value	Notes
-+0	wHIDDescLength		001E	Length of HID Descriptor : 30 bytes
-+2	bcdVersion		0100	Compliant with Version 1.00
-+4	wReportDescLength	00B2	Report Descriptor is 178 Bytes (0x00B2)
-+6	wReportDescRegister	0002	Identifier to read Report Descriptor
-+8	wInputRegister		0003	Identifier to read Input Report
-+10	wMaxInputLength		0053	Input Report is 80 Bytes + 2
-+12	wOutputRegister		0000	Identifier to read Output Report
-+14	wMaxOutputLength	0000	No Output Reports
-+16	wCommandRegister	0005	Identifier for Command Register
-+18	wDataRegister		0006	Identifier for Data Register
-+20	wVendorID		044E	Vendor ID 0x044E
-+22	wProductID		120B	Product ID 0x120B
-+24	wVersionID		0121	Version 01.21
-+26	RESERVED		0000	RESERVED
-+
-+
-+Report ID
-+------------
-+ReportID-1	(Input Reports)	(HIDUsage-Mouse) for TP&SP
-+ReportID-2	(Input Reports)	(HIDUsage-keyboard) for TP
-+ReportID-3	(Input Reports)	(Vendor Usage: Max 10 finger data) for TP
-+ReportID-4	(Input Reports)	(Vendor Usage: ON bit data) for GP
-+ReportID-5	(Feature Reports)	Feature Reports
-+ReportID-6	(Input Reports)	(Vendor Usage: StickPointer data) for SP
-+ReportID-7	(Feature Reports)	Flash update (Bootloader)
-+
-+
-+Data pattern
-+------------
-+Case1	ReportID_1	TP/SP	Relative/Relative
-+Case2	ReportID_3	TP	Absolute
-+	ReportID_6	SP	Absolute
-+
-+
-+Command Read/Write
-+------------------
-+To read/write to RAM, need to send a commands to the device.
-+The command format is as below.
-+
-+DataByte(SET_REPORT)
-+Byte1	Command Byte
-+Byte2	Address - Byte 0 (LSB)
-+Byte3	Address - Byte 1
-+Byte4	Address - Byte 2
-+Byte5	Address - Byte 3 (MSB)
-+Byte6	Value Byte
-+Byte7	Checksum
-+
-+Command Byte is read=0xD1/write=0xD2 .
-+Address is read/write RAM address.
-+Value Byte is writing data when you send the write commands.
-+When you read RAM, there is no meaning.
-+
-+DataByte(GET_REPORT)
-+Byte1	Response Byte
-+Byte2	Address - Byte 0 (LSB)
-+Byte3	Address - Byte 1
-+Byte4	Address - Byte 2
-+Byte5	Address - Byte 3 (MSB)
-+Byte6	Value Byte
-+Byte7	Checksum
-+
-+Read value is stored in Value Byte.
-+
-+
-+Packet Format
-+Touchpad data byte
-+------------------
-+	b7	b6	b5	b4	b3	b2	b1	b0
-+1	0	0	SW6	SW5	SW4	SW3	SW2	SW1
-+2	0	0	0	Fcv	Fn3	Fn2	Fn1	Fn0
-+3	Xa0_7	Xa0_6	Xa0_5	Xa0_4	Xa0_3	Xa0_2	Xa0_1	Xa0_0
-+4	Xa0_15	Xa0_14	Xa0_13	Xa0_12	Xa0_11	Xa0_10	Xa0_9	Xa0_8
-+5	Ya0_7	Ya0_6	Ya0_5	Ya0_4	Ya0_3	Ya0_2	Ya0_1	Ya0_0
-+6	Ya0_15	Ya0_14	Ya0_13	Ya0_12	Ya0_11	Ya0_10	Ya0_9	Ya0_8
-+7	LFB0	Zs0_6	Zs0_5	Zs0_4	Zs0_3	Zs0_2	Zs0_1	Zs0_0
-+
-+8	Xa1_7	Xa1_6	Xa1_5	Xa1_4	Xa1_3	Xa1_2	Xa1_1	Xa1_0
-+9	Xa1_15	Xa1_14	Xa1_13	Xa1_12	Xa1_11	Xa1_10	Xa1_9	Xa1_8
-+10	Ya1_7	Ya1_6	Ya1_5	Ya1_4	Ya1_3	Ya1_2	Ya1_1	Ya1_0
-+11	Ya1_15	Ya1_14	Ya1_13	Ya1_12	Ya1_11	Ya1_10	Ya1_9	Ya1_8
-+12	LFB1	Zs1_6	Zs1_5	Zs1_4	Zs1_3	Zs1_2	Zs1_1	Zs1_0
-+
-+13	Xa2_7	Xa2_6	Xa2_5	Xa2_4	Xa2_3	Xa2_2	Xa2_1	Xa2_0
-+14	Xa2_15	Xa2_14	Xa2_13	Xa2_12	Xa2_11	Xa2_10	Xa2_9	Xa2_8
-+15	Ya2_7	Ya2_6	Ya2_5	Ya2_4	Ya2_3	Ya2_2	Ya2_1	Ya2_0
-+16	Ya2_15	Ya2_14	Ya2_13	Ya2_12	Ya2_11	Ya2_10	Ya2_9	Ya2_8
-+17	LFB2	Zs2_6	Zs2_5	Zs2_4	Zs2_3	Zs2_2	Zs2_1	Zs2_0
-+
-+18	Xa3_7	Xa3_6	Xa3_5	Xa3_4	Xa3_3	Xa3_2	Xa3_1	Xa3_0
-+19	Xa3_15	Xa3_14	Xa3_13	Xa3_12	Xa3_11	Xa3_10	Xa3_9	Xa3_8
-+20	Ya3_7	Ya3_6	Ya3_5	Ya3_4	Ya3_3	Ya3_2	Ya3_1	Ya3_0
-+21	Ya3_15	Ya3_14	Ya3_13	Ya3_12	Ya3_11	Ya3_10	Ya3_9	Ya3_8
-+22	LFB3	Zs3_6	Zs3_5	Zs3_4	Zs3_3	Zs3_2	Zs3_1	Zs3_0
-+
-+23	Xa4_7	Xa4_6	Xa4_5	Xa4_4	Xa4_3	Xa4_2	Xa4_1	Xa4_0
-+24	Xa4_15	Xa4_14	Xa4_13	Xa4_12	Xa4_11	Xa4_10	Xa4_9	Xa4_8
-+25	Ya4_7	Ya4_6	Ya4_5	Ya4_4	Ya4_3	Ya4_2	Ya4_1	Ya4_0
-+26	Ya4_15	Ya4_14	Ya4_13	Ya4_12	Ya4_11	Ya4_10	Ya4_9	Ya4_8
-+27	LFB4	Zs4_6	Zs4_5	Zs4_4	Zs4_3	Zs4_2	Zs4_1	Zs4_0
-+
-+
-+SW1-SW6:	SW ON/OFF status
-+Xan_15-0(16bit):X Absolute data of the "n"th finger
-+Yan_15-0(16bit):Y Absolute data of the "n"th finger
-+Zsn_6-0(7bit):	Operation area of the "n"th finger
-+
-+
-+StickPointer data byte
-+------------------
-+	b7	b6	b5	b4	b3	b2	b1	b0
-+Byte1	1	1	1	0	1	SW3	SW2	SW1
-+Byte2	X7	X6	X5	X4	X3	X2	X1	X0
-+Byte3	X15	X14	X13	X12	X11	X10	X9	X8
-+Byte4	Y7	Y6	Y5	Y4	Y3	Y2	Y1	Y0
-+Byte5	Y15	Y14	Y13	Y12	Y11	Y10	Y9	Y8
-+Byte6	Z7	Z6	Z5	Z4	Z3	Z2	Z1	Z0
-+Byte7	T&P	Z14	Z13	Z12	Z11	Z10	Z9	Z8
-+
-+SW1-SW3:	SW ON/OFF status
-+Xn_15-0(16bit):X Absolute data
-+Yn_15-0(16bit):Y Absolute data
-+Zn_14-0(15bit):Z
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 513a16c..902f302 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -920,6 +920,14 @@ config HID_SENSOR_CUSTOM_SENSOR
- 	  standard sensors.
- 	  Select this config option for custom/generic sensor support.
- 
-+config HID_ALPS
-+	tristate "Alps HID device support"
-+	depends on HID
-+	---help---
-+	Support for Alps I2C HID touchpads and StickPointer.
-+	Say Y here if you have a Alps touchpads over i2c-hid or usbhid
-+	and want support for its special functionalities.
-+
- endmenu
- 
- endif # HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 00011fe..31e493a 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -21,6 +21,7 @@ hid-wiimote-y		:= hid-wiimote-core.o hid-wiimote-modules.o
- hid-wiimote-$(CONFIG_DEBUG_FS)	+= hid-wiimote-debug.o
- 
- obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
-+obj-$(CONFIG_HID_ALPS)		+= hid-alps.o
- obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
- obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
- obj-$(CONFIG_HID_APPLEIR)	+= hid-appleir.o
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-new file mode 100644
-index 0000000..b79c318
---- /dev/null
-+++ b/drivers/hid/hid-alps.c
-@@ -0,0 +1,525 @@
-+/*
-+ *  Copyright (c) 2016 Masaki Ota <masaki.ota@jp.alps.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/hid.h>
-+#include <linux/input.h>
-+#include <linux/input/mt.h>
-+#include <linux/module.h>
-+#include <asm/unaligned.h>
-+#include "hid-ids.h"
-+
-+/* ALPS Device Product ID */
-+#define HID_PRODUCT_ID_T3_BTNLESS	0xD0C0
-+#define HID_PRODUCT_ID_COSMO		0x1202
-+#define HID_PRODUCT_ID_U1_PTP_1		0x1207
-+#define HID_PRODUCT_ID_U1			0x1209
-+#define HID_PRODUCT_ID_U1_PTP_2		0x120A
-+#define HID_PRODUCT_ID_U1_DUAL		0x120B
-+#define HID_PRODUCT_ID_T4_BTNLESS	0x120C
-+
-+#define DEV_SINGLEPOINT				0x01
-+#define DEV_DUALPOINT				0x02
-+
-+#define U1_MOUSE_REPORT_ID			0x01 /* Mouse data ReportID */
-+#define U1_ABSOLUTE_REPORT_ID		0x03 /* Absolute data ReportID */
-+#define U1_FEATURE_REPORT_ID		0x05 /* Feature ReportID */
-+#define U1_SP_ABSOLUTE_REPORT_ID	0x06 /* Feature ReportID */
-+
-+#define U1_FEATURE_REPORT_LEN		0x08 /* Feature Report Length */
-+#define U1_FEATURE_REPORT_LEN_ALL	0x0A
-+#define U1_CMD_REGISTER_READ		0xD1
-+#define U1_CMD_REGISTER_WRITE		0xD2
-+
-+#define	U1_DEVTYPE_SP_SUPPORT		0x10 /* SP Support */
-+#define	U1_DISABLE_DEV				0x01
-+#define U1_TP_ABS_MODE				0x02
-+#define	U1_SP_ABS_MODE				0x80
-+
-+#define ADDRESS_U1_DEV_CTRL_1	0x00800040
-+#define ADDRESS_U1_DEVICE_TYP	0x00800043
-+#define ADDRESS_U1_NUM_SENS_X	0x00800047
-+#define ADDRESS_U1_NUM_SENS_Y	0x00800048
-+#define ADDRESS_U1_PITCH_SENS_X	0x00800049
-+#define ADDRESS_U1_PITCH_SENS_Y	0x0080004A
-+#define ADDRESS_U1_RESO_DWN_ABS 0x0080004E
-+#define ADDRESS_U1_PAD_BTN		0x00800052
-+#define ADDRESS_U1_SP_BTN		0x0080009F
-+
-+#define MAX_TOUCHES	5
-+
-+/**
-+ * struct u1_data
-+ *
-+ * @input: pointer to the kernel input device
-+ * @input2: pointer to the kernel input2 device
-+ * @hdev: pointer to the struct hid_device
-+ *
-+ * @dev_ctrl: device control parameter
-+ * @dev_type: device type
-+ * @sen_line_num_x: number of sensor line of X
-+ * @sen_line_num_y: number of sensor line of Y
-+ * @pitch_x: sensor pitch of X
-+ * @pitch_y: sensor pitch of Y
-+ * @resolution: resolution
-+ * @btn_info: button information
-+ * @x_active_len_mm: active area length of X (mm)
-+ * @y_active_len_mm: active area length of Y (mm)
-+ * @x_max: maximum x coordinate value
-+ * @y_max: maximum y coordinate value
-+ * @btn_cnt: number of buttons
-+ * @sp_btn_cnt: number of stick buttons
-+ */
-+struct u1_dev {
-+	struct input_dev *input;
-+	struct input_dev *input2;
-+	struct hid_device *hdev;
-+
-+	u8	dev_ctrl;
-+	u8	dev_type;
-+	u8	sen_line_num_x;
-+	u8	sen_line_num_y;
-+	u8	pitch_x;
-+	u8	pitch_y;
-+	u8	resolution;
-+	u8	btn_info;
-+	u8	sp_btn_info;
-+	u32	x_active_len_mm;
-+	u32	y_active_len_mm;
-+	u32	x_max;
-+	u32	y_max;
-+	u32	btn_cnt;
-+	u32	sp_btn_cnt;
-+};
-+
-+struct u1_dev *priv;
-+
-+static int u1_read_write_register(struct hid_device *hdev, u32 address,
-+	u8 *read_val, u8 write_val, bool read_flag)
-+{
-+	int ret, i;
-+	u8 check_sum;
-+	u8 *input;
-+	u8 *readbuf;
-+
-+	input = kzalloc(sizeof(u8)*U1_FEATURE_REPORT_LEN, GFP_KERNEL);
-+	if (!input)
-+		return -ENOMEM;
-+
-+	readbuf = kzalloc(sizeof(u8)*U1_FEATURE_REPORT_LEN, GFP_KERNEL);
-+	if (!readbuf) {
-+		kfree(input);
-+		return -ENOMEM;
-+	}
-+
-+	input[0] = U1_FEATURE_REPORT_ID;
-+	if (read_flag) {
-+		input[1] = U1_CMD_REGISTER_READ;
-+		input[6] = 0x00;
-+	} else {
-+		input[1] = U1_CMD_REGISTER_WRITE;
-+		input[6] = write_val;
-+	}
-+
-+	put_unaligned_le32(address, input + 2);
-+
-+	/* Calculate the checksum */
-+	check_sum = U1_FEATURE_REPORT_LEN_ALL;
-+	for (i = 0; i < U1_FEATURE_REPORT_LEN - 1; i++)
-+		check_sum += input[i];
-+
-+	input[7] = check_sum;
-+	ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, input,
-+			sizeof(input), HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+
-+	if (ret < 0) {
-+		dev_err(&hdev->dev, "failed to read command (%d)\n", ret);
-+		goto exit;
-+	}
-+
-+	if (read_flag) {
-+		ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, readbuf,
-+				sizeof(readbuf), HID_FEATURE_REPORT,
-+				HID_REQ_GET_REPORT);
-+
-+		if (ret < 0) {
-+			dev_err(&hdev->dev, "failed read register (%d)\n", ret);
-+			goto exit;
-+		}
-+
-+		*read_val = readbuf[6];
-+	}
-+
-+	kfree(input);
-+	kfree(readbuf);
-+	return 0;
-+
-+exit:
-+	kfree(input);
-+	kfree(readbuf);
-+	return ret;
-+}
-+
-+static int alps_raw_event(struct hid_device *hdev,
-+		struct hid_report *report, u8 *data, int size)
-+{
-+	int x[MAX_TOUCHES], y[MAX_TOUCHES], z[MAX_TOUCHES];
-+	int i, left, right, middle;
-+	short sp_x, sp_y, sp_z;
-+	struct u1_dev *hdata = hid_get_drvdata(hdev);
-+
-+	switch (data[0]) {
-+	case U1_MOUSE_REPORT_ID:
-+		break;
-+	case U1_FEATURE_REPORT_ID:
-+		break;
-+	case U1_ABSOLUTE_REPORT_ID:
-+		for (i = 0; i < MAX_TOUCHES; i++) {
-+			x[i] = (data[3+(5*i)] | (data[4+(5*i)] << 8));
-+			y[i] = (data[5+(5*i)] | (data[6+(5*i)] << 8));
-+			z[i] = data[7+(5*i)] & 0x7F;
-+			left = data[1] & 0x1;
-+			right = (data[1] & 0x2) >> 1;
-+			middle = (data[1] & 0x4) >> 2;
-+
-+			input_mt_slot(hdata->input, i);
-+
-+			if (z[i] != 0) {
-+				input_mt_report_slot_state(hdata->input,
-+					MT_TOOL_FINGER, 1);
-+			} else {
-+				input_mt_report_slot_state(hdata->input,
-+					MT_TOOL_FINGER, 0);
-+				break;
-+			}
-+
-+			input_event(hdata->input, EV_ABS,
-+				ABS_MT_POSITION_X, x[i]);
-+			input_event(hdata->input, EV_ABS,
-+				ABS_MT_POSITION_Y, y[i]);
-+			input_event(hdata->input, EV_ABS,
-+				ABS_MT_PRESSURE, z[i]);
-+		}
-+
-+		input_mt_sync_frame(hdata->input);
-+		input_sync(hdata->input);
-+
-+		input_event(hdata->input, EV_KEY, BTN_LEFT, left);
-+		input_event(hdata->input, EV_KEY, BTN_RIGHT, right);
-+		input_event(hdata->input, EV_KEY, BTN_MIDDLE, middle);
-+
-+		return 1;
-+
-+	case U1_SP_ABSOLUTE_REPORT_ID:
-+		sp_x = (data[2] | (data[3] << 8));
-+		sp_y = (data[4] | (data[5] << 8));
-+		sp_z = (data[6] | data[7]) & 0x7FFF;
-+		left = data[1] & 0x1;
-+		right = (data[1] & 0x2) >> 1;
-+		middle = (data[1] & 0x4) >> 2;
-+
-+		sp_x = sp_x / 8;
-+		sp_y = sp_y / 8;
-+
-+		input_event(priv->input2, EV_REL, REL_X, sp_x);
-+		input_event(priv->input2, EV_REL, REL_Y, sp_y);
-+
-+		input_event(priv->input2, EV_KEY, BTN_LEFT, left);
-+		input_event(priv->input2, EV_KEY, BTN_RIGHT, right);
-+		input_event(priv->input2, EV_KEY, BTN_MIDDLE, middle);
-+
-+		input_sync(priv->input2);
-+
-+		return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int alps_post_reset(struct hid_device *hdev)
-+{
-+	return u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
-+				NULL, U1_TP_ABS_MODE, false);
-+}
-+
-+static int alps_post_resume(struct hid_device *hdev)
-+{
-+	return u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
-+				NULL, U1_TP_ABS_MODE, false);
-+}
-+#endif /* CONFIG_PM */
-+
-+static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
-+{
-+	struct u1_dev *data = hid_get_drvdata(hdev);
-+	struct input_dev *input = hi->input, *input2;
-+	struct u1_dev devInfo;
-+	int ret;
-+	int res_x, res_y, i;
-+
-+	/* Check device product ID */
-+	switch (hdev->product) {
-+	case HID_PRODUCT_ID_U1:
-+	case HID_PRODUCT_ID_U1_DUAL:
-+		break;
-+	default:
-+		return 0;
-+	}
-+
-+	data->input = input;
-+
-+	hid_dbg(hdev, "Opening low level driver\n");
-+	ret = hid_hw_open(hdev);
-+	if (ret)
-+		return ret;
-+
-+	/* Allow incoming hid reports */
-+	hid_device_io_start(hdev);
-+
-+	/* Device initialization */
-+	ret = u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
-+			&devInfo.dev_ctrl, 0, true);
-+	if (ret < 0) {
-+		dev_err(&hdev->dev, "failed U1_DEV_CTRL_1 (%d)\n", ret);
-+		goto exit;
-+	}
-+
-+	devInfo.dev_ctrl &= ~U1_DISABLE_DEV;
-+	devInfo.dev_ctrl |= U1_TP_ABS_MODE;
-+	ret = u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
-+			NULL, devInfo.dev_ctrl, false);
-+	if (ret < 0) {
-+		dev_err(&hdev->dev, "failed to change TP mode (%d)\n", ret);
-+		goto exit;
-+	}
-+
-+	ret = u1_read_write_register(hdev, ADDRESS_U1_NUM_SENS_X,
-+			&devInfo.sen_line_num_x, 0, true);
-+	if (ret < 0) {
-+		dev_err(&hdev->dev, "failed U1_NUM_SENS_X (%d)\n", ret);
-+		goto exit;
-+	}
-+
-+	ret = u1_read_write_register(hdev, ADDRESS_U1_NUM_SENS_Y,
-+			&devInfo.sen_line_num_y, 0, true);
-+		if (ret < 0) {
-+		dev_err(&hdev->dev, "failed U1_NUM_SENS_Y (%d)\n", ret);
-+		goto exit;
-+	}
-+
-+	ret = u1_read_write_register(hdev, ADDRESS_U1_PITCH_SENS_X,
-+			&devInfo.pitch_x, 0, true);
-+	if (ret < 0) {
-+		dev_err(&hdev->dev, "failed U1_PITCH_SENS_X (%d)\n", ret);
-+		goto exit;
-+	}
-+
-+	ret = u1_read_write_register(hdev, ADDRESS_U1_PITCH_SENS_Y,
-+			&devInfo.pitch_y, 0, true);
-+	if (ret < 0) {
-+		dev_err(&hdev->dev, "failed U1_PITCH_SENS_Y (%d)\n", ret);
-+		goto exit;
-+	}
-+
-+	ret = u1_read_write_register(hdev, ADDRESS_U1_RESO_DWN_ABS,
-+		&devInfo.resolution, 0, true);
-+	if (ret < 0) {
-+		dev_err(&hdev->dev, "failed U1_RESO_DWN_ABS (%d)\n", ret);
-+		goto exit;
-+	}
-+
-+	ret = u1_read_write_register(hdev, ADDRESS_U1_PAD_BTN,
-+			&devInfo.btn_info, 0, true);
-+	if (ret < 0) {
-+		dev_err(&hdev->dev, "failed U1_PAD_BTN (%d)\n", ret);
-+		goto exit;
-+	}
-+
-+	/* Check StickPointer device */
-+	ret = u1_read_write_register(hdev, ADDRESS_U1_DEVICE_TYP,
-+			&devInfo.dev_type, 0, true);
-+	if (ret < 0) {
-+		dev_err(&hdev->dev, "failed U1_DEVICE_TYP (%d)\n", ret);
-+		goto exit;
-+	}
-+
-+	devInfo.x_active_len_mm =
-+		(devInfo.pitch_x * (devInfo.sen_line_num_x - 1)) / 10;
-+	devInfo.y_active_len_mm =
-+		(devInfo.pitch_y * (devInfo.sen_line_num_y - 1)) / 10;
-+
-+	devInfo.x_max =
-+		(devInfo.resolution << 2) * (devInfo.sen_line_num_x - 1);
-+	devInfo.y_max =
-+		(devInfo.resolution << 2) * (devInfo.sen_line_num_y - 1);
-+
-+	__set_bit(EV_ABS, input->evbit);
-+	input_set_abs_params(input, ABS_MT_POSITION_X, 1, devInfo.x_max, 0, 0);
-+	input_set_abs_params(input, ABS_MT_POSITION_Y, 1, devInfo.y_max, 0, 0);
-+
-+	if (devInfo.x_active_len_mm && devInfo.y_active_len_mm) {
-+		res_x = (devInfo.x_max - 1) / devInfo.x_active_len_mm;
-+		res_y = (devInfo.y_max - 1) / devInfo.y_active_len_mm;
-+
-+		input_abs_set_res(input, ABS_MT_POSITION_X, res_x);
-+		input_abs_set_res(input, ABS_MT_POSITION_Y, res_y);
-+	}
-+
-+	input_set_abs_params(input, ABS_MT_PRESSURE, 0, 64, 0, 0);
-+
-+	input_mt_init_slots(input, MAX_TOUCHES, INPUT_MT_POINTER);
-+
-+	__set_bit(EV_KEY, input->evbit);
-+	if ((devInfo.btn_info & 0x0F) == (devInfo.btn_info & 0xF0) >> 4) {
-+		devInfo.btn_cnt = (devInfo.btn_info & 0x0F);
-+	} else {
-+		/* Button pad */
-+		devInfo.btn_cnt = 1;
-+		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-+	}
-+
-+	for (i = 0; i < devInfo.btn_cnt; i++)
-+		__set_bit(BTN_LEFT + i, input->keybit);
-+
-+
-+	/* Stick device initialization */
-+	if (devInfo.dev_type & U1_DEVTYPE_SP_SUPPORT) {
-+
-+		priv = kzalloc(sizeof(struct u1_dev), GFP_KERNEL);
-+		if (!priv) {
-+			hid_device_io_stop(hdev);
-+			hid_hw_close(hdev);
-+			return -ENOMEM;
-+		}
-+
-+		input2 = input_allocate_device();
-+		if (!input2) {
-+			input_free_device(input2);
-+			goto exit;
-+		}
-+
-+		priv->input2 = input2;
-+
-+		devInfo.dev_ctrl |= U1_SP_ABS_MODE;
-+		ret = u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
-+			NULL, devInfo.dev_ctrl, false);
-+		if (ret < 0) {
-+			dev_err(&hdev->dev, "failed SP mode (%d)\n", ret);
-+			input_free_device(input2);
-+			goto exit;
-+		}
-+
-+		ret = u1_read_write_register(hdev, ADDRESS_U1_SP_BTN,
-+			&devInfo.sp_btn_info, 0, true);
-+		if (ret < 0) {
-+			dev_err(&hdev->dev, "failed U1_SP_BTN (%d)\n", ret);
-+			input_free_device(input2);
-+			goto exit;
-+		}
-+
-+		input2->phys = input->phys;
-+		input2->name = "DualPoint Stick";
-+		input2->id.bustype = BUS_I2C;
-+		input2->id.vendor  = input->id.vendor;
-+		input2->id.product = input->id.product;
-+		input2->id.version = input->id.version;
-+		input2->dev.parent = input->dev.parent;
-+
-+		__set_bit(EV_KEY, input2->evbit);
-+		devInfo.sp_btn_cnt = (devInfo.sp_btn_info & 0x0F);
-+		for (i = 0; i < devInfo.sp_btn_cnt; i++)
-+			__set_bit(BTN_LEFT + i, input2->keybit);
-+
-+		__set_bit(EV_REL, input2->evbit);
-+		__set_bit(REL_X, input2->relbit);
-+		__set_bit(REL_Y, input2->relbit);
-+		__set_bit(INPUT_PROP_POINTER, input2->propbit);
-+		__set_bit(INPUT_PROP_POINTING_STICK, input2->propbit);
-+
-+		if (input_register_device(priv->input2)) {
-+			input_free_device(input2);
-+			goto exit;
-+		}
-+	}
-+
-+exit:
-+	hid_device_io_stop(hdev);
-+	hid_hw_close(hdev);
-+	return ret;
-+}
-+
-+static int alps_input_mapping(struct hid_device *hdev,
-+		struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit, int *max)
-+{
-+	return -1;
-+}
-+
-+static int alps_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	struct u1_dev *data = NULL;
-+	int ret;
-+
-+	data = devm_kzalloc(&hdev->dev, sizeof(struct u1_dev), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	data->hdev = hdev;
-+	hid_set_drvdata(hdev, data);
-+
-+	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "parse failed\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	if (ret) {
-+		hid_err(hdev, "hw start failed\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static void alps_remove(struct hid_device *hdev)
-+{
-+	hid_hw_stop(hdev);
-+	kfree(priv);
-+}
-+
-+static const struct hid_device_id alps_id[] = {
-+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY,
-+		USB_VENDOR_ID_ALPS_JP, HID_ANY_ID) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, alps_id);
-+
-+static struct hid_driver alps_driver = {
-+	.name = "hid-alps",
-+	.id_table		= alps_id,
-+	.probe			= alps_probe,
-+	.remove			= alps_remove,
-+	.raw_event		= alps_raw_event,
-+	.input_mapping		= alps_input_mapping,
-+	.input_configured	= alps_input_configured,
-+#ifdef CONFIG_PM
-+	.resume			= alps_post_resume,
-+	.reset_resume		= alps_post_reset,
-+#endif
-+};
-+
-+module_hid_driver(alps_driver);
-+
-+MODULE_AUTHOR("Masaki Ota <masaki.ota@jp.alps.com>");
-+MODULE_DESCRIPTION("ALPS HID driver");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b6ff6e7..cac68c7 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -67,6 +67,8 @@
- #define USB_VENDOR_ID_ALPS		0x0433
- #define USB_DEVICE_ID_IBM_GAMEPAD	0x1101
- 
-+#define USB_VENDOR_ID_ALPS_JP		0x044E
-+
- #define USB_VENDOR_ID_ANTON		0x1130
- #define USB_DEVICE_ID_ANTON_TOUCH_PAD	0x3101
- 
--- 
-2.7.4
+> Please confirm if I should change these names.
 
+It would save a little confusion.
+
+> >>+	[TPS65217_IRQ_PB] =3D {
+> >>+		.mask =3D TPS65217_INT_PBM,
+> >>+		.interrupt =3D TPS65217_INT_PBI,
+> >>+	},
+> >>+	[TPS65217_IRQ_AC] =3D {
+> >>+		.mask =3D TPS65217_INT_ACM,
+> >>+		.interrupt =3D TPS65217_INT_ACI,
+> >>+	},
+> >>+	[TPS65217_IRQ_USB] =3D {
+> >>+		.mask =3D TPS65217_INT_USBM,
+> >>+		.interrupt =3D TPS65217_INT_USBI,
+> >>+	},
+> >>+};
+> >>+
+> >>+static void tps65217_irq_lock(struct irq_data *data)
+> >>+{
+> >>+	struct tps65217 *tps =3D irq_data_get_irq_chip_data(data);
+> >>+
+> >>+	mutex_lock(&tps->irq_lock);
+> >>+}
+> >>+
+> >>+static void tps65217_irq_sync_unlock(struct irq_data *data)
+> >>+{
+> >>+	struct tps65217 *tps =3D irq_data_get_irq_chip_data(data);
+> >>+	int ret;
+> >>+
+> >>+	ret =3D tps65217_reg_write(tps, TPS65217_REG_INT, tps->irq_mask,
+> >>+				TPS65217_PROTECT_NONE);
+> >>+	if (ret !=3D 0)
+> >>+		dev_err(tps->dev, "Failed to sync IRQ masks\n");
+> >>+
+> >>+	mutex_unlock(&tps->irq_lock);
+> >>+}
+> >>+
+> >>+static const inline struct tps65217_irq *
+> >>+irq_to_tps65217_irq(struct tps65217 *tps, struct irq_data *data)
+> >>+{
+> >>+	return &tps65217_irqs[data->hwirq];
+> >>+}
+> >>+
+> >>+static void tps65217_irq_enable(struct irq_data *data)
+> >>+{
+> >>+	struct tps65217 *tps =3D irq_data_get_irq_chip_data(data);
+> >>+	const struct tps65217_irq *irq_data =3D irq_to_tps65217_irq(tps, =
+data);
+> >>+
+> >>+	tps->irq_mask &=3D ~irq_data->mask;
+> >>+}
+> >>+
+> >>+static void tps65217_irq_disable(struct irq_data *data)
+> >>+{
+> >>+	struct tps65217 *tps =3D irq_data_get_irq_chip_data(data);
+> >>+	const struct tps65217_irq *irq_data =3D irq_to_tps65217_irq(tps, =
+data);
+> >>+
+> >>+	tps->irq_mask |=3D irq_data->mask;
+> >>+}
+> >
+> >Nit: Swap this with enable, either here or in the struct below.
+>=20
+> Sure
+>=20
+> >
+> >>+static struct irq_chip tps65217_irq_chip =3D {
+> >>+	.irq_bus_lock		=3D tps65217_irq_lock,
+> >>+	.irq_bus_sync_unlock	=3D tps65217_irq_sync_unlock,
+> >>+	.irq_disable		=3D tps65217_irq_disable,
+> >>+	.irq_enable		=3D tps65217_irq_enable,
+> >>+};
+> >>+
+> >>+static struct mfd_cell tps65217s[] =3D {
+> >> 	{
+> >> 		.name =3D "tps65217-pmic",
+> >> 		.of_compatible =3D "ti,tps65217-pmic",
+> >>@@ -41,10 +118,89 @@ static const struct mfd_cell tps65217s[] =3D {
+> >> 	},
+> >> 	{
+> >> 		.name =3D "tps65217-charger",
+> >>+		.num_resources =3D ARRAY_SIZE(charger_resources),
+> >>+		.resources =3D charger_resources,
+> >> 		.of_compatible =3D "ti,tps65217-charger",
+> >> 	},
+> >> };
+> >>
+> >>+static irqreturn_t tps65217_irq_thread(int irq, void *data)
+> >>+{
+> >>+	struct tps65217 *tps =3D data;
+> >>+	unsigned int status;
+> >>+	bool handled =3D false;
+> >>+	int i;
+> >>+	int ret;
+> >>+
+> >>+	ret =3D tps65217_reg_read(tps, TPS65217_REG_INT, &status);
+> >>+	if (ret < 0) {
+> >>+		dev_err(tps->dev, "Failed to read IRQ status: %d\n",
+> >>+			ret);
+> >>+		return IRQ_NONE;
+> >>+	}
+> >>+
+> >>+	for (i =3D 0; i < ARRAY_SIZE(tps65217_irqs); i++) {
+> >>+		if (status & tps65217_irqs[i].interrupt) {
+> >>+			handle_nested_irq(irq_find_mapping(tps->irq_domain, i));
+> >>+			handled =3D true;
+> >>+		}
+> >>+	}
+> >>+
+> >>+	if (handled)
+> >>+		return IRQ_HANDLED;
+> >>+	else
+> >>+		return IRQ_NONE;
+> >
+> >The else is kinda redundant here.
+> >
+> >... and I think it's possible to get a warning saying something abou=
+t
+> >coming to the end of a non-void function.
+>=20
+> Will change that in new patch version.
+>=20
+> >
+> >>+}
+> >>+
+> >>+static int tps65217_irq_map(struct irq_domain *h, unsigned int vir=
+q,
+> >>+			irq_hw_number_t hw)
+> >>+{
+> >>+	struct tps65217 *tps =3D h->host_data;
+> >>+
+> >>+	irq_set_chip_data(virq, tps);
+> >>+	irq_set_chip_and_handler(virq, &tps65217_irq_chip, handle_edge_ir=
+q);
+> >>+	irq_set_nested_thread(virq, 1);
+> >>+	irq_set_noprobe(virq);
+> >>+
+> >>+	return 0;
+> >>+}
+> >>+
+> >>+static const struct irq_domain_ops tps65217_irq_domain_ops =3D {
+> >>+	.map =3D tps65217_irq_map,
+> >>+};
+> >>+
+> >>+static int tps65217_irq_init(struct tps65217 *tps, int irq)
+> >>+{
+> >>+	int ret;
+> >>+
+> >>+	mutex_init(&tps->irq_lock);
+> >>+
+> >>+	/* Mask all interrupt sources */
+> >>+	tps->irq_mask =3D (TPS65217_INT_RESERVEDM | TPS65217_INT_PBM
+> >>+			| TPS65217_INT_ACM | TPS65217_INT_USBM);
+> >>+	tps65217_reg_write(tps, TPS65217_REG_INT, tps->irq_mask,
+> >>+			TPS65217_PROTECT_NONE);
+> >>+
+> >>+	tps->irq_domain =3D irq_domain_add_linear(tps->dev->of_node,
+> >
+> >I think it's suggested that you use *add_simple() these days.
+>=20
+> In Documentation/IRQ-domain.txt they are both described.
+> *add_simple() is under 'Legacy' section and "It is used when the
+> driver cannot be immediately converted to use the linear mapping."
+
+So that's how they're doing it now.  Very well.
+
+> >>+		TPS65217_NUM_IRQ, &tps65217_irq_domain_ops, tps);
+> >>+	if (!tps->irq_domain) {
+> >>+		dev_err(tps->dev, "Could not create IRQ domain\n");
+> >>+		return -ENOMEM;
+> >>+	}
+> >>+
+> >>+	ret =3D devm_request_threaded_irq(tps->dev, irq, NULL,
+> >>+					tps65217_irq_thread,
+> >>+					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+> >>+					"tps65217-irq", tps);
+> >>+	if (ret) {
+> >>+		dev_err(tps->dev, "Failed to request IRQ %d: %d\n",
+> >>+			irq, ret);
+> >>+		return ret;
+> >>+	}
+> >>+
+> >>+	return 0;
+> >>+}
+> >>+
+> >> /**
+> >>  * tps65217_reg_read: Read a single tps65217 register.
+> >>  *
+> >>@@ -149,11 +305,22 @@ int tps65217_clear_bits(struct tps65217 *tps,=
+ unsigned int reg,
+> >> }
+> >> EXPORT_SYMBOL_GPL(tps65217_clear_bits);
+> >>
+> >>+static bool tps65217_volatile_reg(struct device *dev, unsigned int=
+ reg)
+> >>+{
+> >>+	switch (reg) {
+> >>+	case TPS65217_REG_INT:
+> >>+		return true;
+> >>+	default:
+> >>+		return false;
+> >>+	}
+> >>+}
+> >>+
+> >> static const struct regmap_config tps65217_regmap_config =3D {
+> >> 	.reg_bits =3D 8,
+> >> 	.val_bits =3D 8,
+> >>
+> >> 	.max_register =3D TPS65217_REG_MAX,
+> >>+	.volatile_reg =3D tps65217_volatile_reg,
+> >> };
+> >>
+> >> static const struct of_device_id tps65217_of_match[] =3D {
+> >>@@ -205,8 +372,19 @@ static int tps65217_probe(struct i2c_client *c=
+lient,
+> >> 		return ret;
+> >> 	}
+> >>
+> >>+	if (client->irq) {
+> >>+		tps65217_irq_init(tps, client->irq);
+> >>+	} else {
+> >>+		int i;
+> >>+
+> >>+		/* Don't tell children about IRQ resources which won't fire */
+> >>+		for (i =3D 0; i < ARRAY_SIZE(tps65217s); i++)
+> >>+			tps65217s[i].num_resources =3D 0;
+> >>+	}
+> >>+
+> >> 	ret =3D devm_mfd_add_devices(tps->dev, -1, tps65217s,
+> >>-				   ARRAY_SIZE(tps65217s), NULL, 0, NULL);
+> >>+				   ARRAY_SIZE(tps65217s), NULL, 0,
+> >>+				   tps->irq_domain);
+> >> 	if (ret < 0) {
+> >> 		dev_err(tps->dev, "mfd_add_devices failed: %d\n", ret);
+> >> 		return ret;
+> >>diff --git a/include/linux/mfd/tps65217.h b/include/linux/mfd/tps65=
+217.h
+> >>index ac7fba4..f80a5d3 100644
+> >>--- a/include/linux/mfd/tps65217.h
+> >>+++ b/include/linux/mfd/tps65217.h
+> >>@@ -73,6 +73,7 @@
+> >> #define TPS65217_PPATH_AC_CURRENT_MASK	0x0C
+> >> #define TPS65217_PPATH_USB_CURRENT_MASK	0x03
+> >>
+> >>+#define TPS65217_INT_RESERVEDM		BIT(7)
+> >> #define TPS65217_INT_PBM		BIT(6)
+> >> #define TPS65217_INT_ACM		BIT(5)
+> >> #define TPS65217_INT_USBM		BIT(4)
+> >>@@ -233,6 +234,13 @@ struct tps65217_bl_pdata {
+> >> 	int dft_brightness;
+> >> };
+> >>
+> >>+enum tps65217_irqs {
+> >>+	TPS65217_IRQ_PB,
+> >>+	TPS65217_IRQ_AC,
+> >>+	TPS65217_IRQ_USB,
+> >>+	TPS65217_NUM_IRQ
+> >>+};
+> >>+
+> >> /**
+> >>  * struct tps65217_board - packages regulator init data
+> >>  * @tps65217_regulator_data: regulator initialization values
+> >>@@ -257,6 +265,9 @@ struct tps65217 {
+> >> 	unsigned long id;
+> >> 	struct regulator_desc desc[TPS65217_NUM_REGULATOR];
+> >> 	struct regmap *regmap;
+> >>+	struct irq_domain *irq_domain;
+> >>+	struct mutex irq_lock;
+> >>+	u8 irq_mask;
+> >> };
+> >>
+> >> static inline struct tps65217 *dev_to_tps65217(struct device *dev)
+> >
+>=20
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

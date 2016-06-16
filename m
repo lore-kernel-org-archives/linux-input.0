@@ -1,121 +1,66 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH 0/6] Intel Integrated Sensor Hub Support (ISH)
-Date: Thu, 16 Jun 2016 20:14:25 +0100
-Message-ID: <CACxGe6vBwiRLgp=Tad8OtxOast2WGNOkEyN9Wq2bBRj_NhBWvA@mail.gmail.com>
-References: <1465647219-7798-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Andrey Utkin <andrey_utkin@fastmail.com>
+Subject: Re: [Kernel] Mainlining of Pyra nub joystick driver
+Date: Thu, 16 Jun 2016 22:51:06 +0300
+Message-ID: <20160616195106.GG4820@zver>
+References: <20160614114523.GC4820@zver>
+ <20160614170206.GE4820@zver>
+ <DAA6B14A-062E-45E9-97DD-18D55480F0A8@goldelico.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:35177 "EHLO
-	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753256AbcFPTOq (ORCPT
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:33097 "EHLO
+	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751931AbcFPTvM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jun 2016 15:14:46 -0400
-Received: by mail-wm0-f66.google.com with SMTP id k184so13622994wme.2
-        for <linux-input@vger.kernel.org>; Thu, 16 Jun 2016 12:14:45 -0700 (PDT)
-In-Reply-To: <1465647219-7798-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+	Thu, 16 Jun 2016 15:51:12 -0400
+Content-Disposition: inline
+In-Reply-To: <DAA6B14A-062E-45E9-97DD-18D55480F0A8@goldelico.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, benjamin.tissoires@redhat.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, chaya.golan@intel.com, daniel.drubin@intel.com, A.Bhattacharya@ulg.ac.be
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: linux-input@vger.kernel.org, devel@driverdev.osuosl.org, kernel-mentors@selenic.com, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org, kernel@pyra-handheld.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>, Daniel Hung-yu Wu <hywu@google.com>, Moritz Fischer <moritz.fischer@ettus.com>, Geert Uytterhoeven <geert@linux-m68k.org>, S Twiss <stwiss.opensource@diasemi.com>, Rob Herring <robh@kernel.org>, Grant Grundler <grundler@chromium.org>
 
-On Sat, Jun 11, 2016 at 1:13 PM, Srinivas Pandruvada
-<srinivas.pandruvada@linux.intel.com> wrote:
-> Starting from Cherrytrail, multiple generation of Intel processors offers
-> on package sensor hub. Several recent tablets, 2-in-1 convertible laptops
-> are using ISH instead of external sensor hubs. This resulted in lack of
-> support of sensor function like device rotation and auto backlight
-> adjustment.
-> In addition, depending on the OEM implementation, support of ISH is required
-> to support low power sleep states.
->
-> The support of ISH on Linux platforms is not new. Android platforms with
-> Intel SoCs had this support for a while submitted by Daniel Drubin.
-> This patcheset is reusing most of those changes with  clean up and
-> removing Android platform specific changes.
->
-> The user mode ABI is still same as external sensor hubs using Linux
-> IIO. So existing user mode software should still work.
-> This series primarily brings in new HID transport used in ISH.
->
-> Thanks to the community members who tested RFC patches and provided
-> feedback.
->
-> For users testing on Linux distributions using IIO sensor proxy,
-> a short term work around is required till we have debugged this issue.
-> In systemd unit file iio-sensor-proxy.service
-> In the section "[Unit]" add
-> After=multi-user.target
+On Tue, Jun 14, 2016 at 07:09:50PM +0200, H. Nikolaus Schaller wrote:
+> 
+> > Am 14.06.2016 um 19:02 schrieb Andrey Utkin <andrey_utkin@fastmail.com>:
+> > Update: found drivers/input/joystick/as5011.c in mainline kernel,
+> > will look how it works with as5013 hardware.
+> 
+> Before you spend too much time on it, they have not much in
+> common except the manufacturer and the as501x designation.
+> 
+> Register models (data sheet) are very different.
 
-Tested-by: Grant Likely <grant.likely@hpe.com>
+Thanks for this hint, Nikolaus!
 
-There is still a fiddly problem on my laptop where the sensor data
-doesn't always start streaming, but otherwise this version works for
-me.
+But still, apart from register models I guess as5011 driver is a good
+starting point for a fork. I am considering this because
+ - as5011 driver has support for button push event, and as5013 doesn't;
+ - as5011 driver conforms to mainline standards much better than
+   existing out-of-tree as5013 driver. It also conforms to what
+   reviewers expect to see: anyway as5013 won't pass review unless all
+   tricky modes are dropped. This is according to Arnd reply; Pyra dev
+   team member aTc also votes for userspace input management daemon.
 
-g.
+I am considering forking instead of adding conditional logic to as5011
+because I don't have a chance to test as5011 hardware, so I could break
+it unintentionally and never know about that. This is serious because
+I'm going to add support of all power modes and other parameters
+eventually.
 
->
-> Daniel Drubin (3):
->   hid: intel_ish-hid: ISH Transport layer
->   hid: intel-ish-hid: ipc layer
->   hid: intel-ish-hid: ISH HID client driver
->
-> Srinivas Pandruvada (3):
->   Documentation: hid: Intel ISH HID document
->   iio: hid-sensors: use asynchronous resume
->   hid: hid-sensor-hub: Add ISH quirk
->
->  Documentation/hid/intel-ish-hid.txt                |  417 ++++++++
->  drivers/hid/Kconfig                                |    2 +
->  drivers/hid/Makefile                               |    2 +
->  drivers/hid/hid-sensor-hub.c                       |    4 +
->  drivers/hid/intel-ish-hid/Kconfig                  |   27 +
->  drivers/hid/intel-ish-hid/Makefile                 |   20 +
->  drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h        |  220 ++++
->  drivers/hid/intel-ish-hid/ipc/hw-ish.h             |   70 ++
->  drivers/hid/intel-ish-hid/ipc/ipc.c                |  720 +++++++++++++
->  drivers/hid/intel-ish-hid/ipc/pci-ish.c            |  305 ++++++
->  drivers/hid/intel-ish-hid/ipc/utils.h              |   64 ++
->  drivers/hid/intel-ish-hid/ishtp-hid-client.c       |  922 ++++++++++++++++
->  drivers/hid/intel-ish-hid/ishtp-hid.c              |  231 ++++
->  drivers/hid/intel-ish-hid/ishtp-hid.h              |  182 ++++
->  drivers/hid/intel-ish-hid/ishtp/bus.c              |  774 ++++++++++++++
->  drivers/hid/intel-ish-hid/ishtp/bus.h              |  105 ++
->  drivers/hid/intel-ish-hid/ishtp/client.c           | 1129 ++++++++++++++++++++
->  drivers/hid/intel-ish-hid/ishtp/client.h           |  194 ++++
->  drivers/hid/intel-ish-hid/ishtp/dma-if.c           |  178 +++
->  drivers/hid/intel-ish-hid/ishtp/hbm.c              |  911 ++++++++++++++++
->  drivers/hid/intel-ish-hid/ishtp/hbm.h              |  319 ++++++
->  drivers/hid/intel-ish-hid/ishtp/init.c             |   94 ++
->  drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h        |  280 +++++
->  .../iio/common/hid-sensors/hid-sensor-trigger.c    |   21 +-
->  include/linux/hid-sensor-hub.h                     |    1 +
->  include/trace/events/intel_ish.h                   |   30 +
->  include/uapi/linux/input.h                         |    1 +
->  27 files changed, 7222 insertions(+), 1 deletion(-)
->  create mode 100644 Documentation/hid/intel-ish-hid.txt
->  create mode 100644 drivers/hid/intel-ish-hid/Kconfig
->  create mode 100644 drivers/hid/intel-ish-hid/Makefile
->  create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
->  create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish.h
->  create mode 100644 drivers/hid/intel-ish-hid/ipc/ipc.c
->  create mode 100644 drivers/hid/intel-ish-hid/ipc/pci-ish.c
->  create mode 100644 drivers/hid/intel-ish-hid/ipc/utils.h
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid-client.c
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.c
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.h
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.c
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.h
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp/client.c
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp/client.h
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp/dma-if.c
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.c
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.h
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp/init.c
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
->  create mode 100644 include/trace/events/intel_ish.h
->
-> --
-> 2.5.5
->
+There is one thing which both as5011 and as5013 existing drivers do:
+expose a header file in include/linux/input/, with some "struct
+blah_blah_platform_data" declaration. This header file is not included
+anywhere except for corresponding driver's .c file. So I think this
+header file is not needed, and all its contents should be inlined into
+single driver's source file. From asking on #kernelnewbies IRC chat, I
+gained some confidence that there's no subtleties regarding this.
+
+I guess "struct drivername_platform_data" is something deprecated by
+now, as long as there are devicetree files and of_...() API, so I should
+port vsense_dt_init() logic from existing as5013 driver?
+
+Also info about GPIO pin for button push interrupt should be added to
+devicetree files. Or please indicate that it's not going to have its
+GPIO pin for button interrupt - then driver should check button status
+at once with periodic position check.

@@ -1,60 +1,90 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v8 3/4] i2c: i801: add support of Host Notify
-Date: Thu, 16 Jun 2016 16:31:49 +0200
-Message-ID: <20160616143149.GA1382@tetsubishi>
-References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
- <1465484030-28838-4-git-send-email-benjamin.tissoires@redhat.com>
- <20160615081247.GQ24234@mail.corp.redhat.com>
- <20160616060942.GA1403@tetsubishi>
- <20160616125514.GD24234@mail.corp.redhat.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v7 1/6] mfd: max8997: Use regmap to access registers
+Date: Thu, 16 Jun 2016 16:07:27 +0100
+Message-ID: <20160616150727.GF4948@dell>
+References: <1464773339-756-1-git-send-email-k.kozlowski@samsung.com>
+ <1464774841-1439-1-git-send-email-k.kozlowski@samsung.com>
+ <20160608142621.GG14888@dell>
+ <57582C1F.5040306@samsung.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:42293 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754324AbcFPOcF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jun 2016 10:32:05 -0400
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <rtc-linux+bncBDA7X7F2WUEBBBMBRO5QKGQE7QLYCDA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <20160616125514.GD24234@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <57582C1F.5040306-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, r.baldyga-anjuHVi6/WSaMJb+Lgu22Q@public.gmane.org, Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
+On Wed, 08 Jun 2016, Krzysztof Kozlowski wrote:
 
---+QahgC5+KEYLbs62
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On 06/08/2016 04:26 PM, Lee Jones wrote:
+> > On Wed, 01 Jun 2016, Krzysztof Kozlowski wrote:
+> >=20
+> >> From: Robert Baldyga <r.baldyga-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> >>
+> >> This patch modifies max8997 driver and each associated function driver=
+,
+> >> to use regmap instead of operating directly on i2c bus. It will allow =
+to
+> >> simplify IRQ handling using regmap-irq.
+> >>
+> >> Signed-off-by: Robert Baldyga <r.baldyga-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> >> Reviewed-by: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> >>
+> >> Acked-by: Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> >> Acked-by: Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >> Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> >> Acked-by: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> >> Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >> Acked-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> >> [k.kozlowski: Collect acks, rebase on v4.6-rc6]
+> >> Signed-off-by: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> >> Acked-by: Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> >> ---
+> >>  drivers/extcon/extcon-max8997.c       |  31 ++++----
+> >>  drivers/input/misc/max8997_haptic.c   |  34 ++++----
+> >>  drivers/leds/leds-max8997.c           |  13 ++--
+> >>  drivers/mfd/Kconfig                   |   1 +
+> >>  drivers/mfd/max8997-irq.c             |  64 ++++++---------
+> >>  drivers/mfd/max8997.c                 | 141 +++++++++++++++----------=
+---------
+> >>  drivers/power/max8997_charger.c       |  33 ++++----
+> >>  drivers/regulator/max8997-regulator.c |  87 ++++++++++-----------
+> >=20
+> > Is it just Mark's Ack you require?
+>=20
+> Yes, only Mark's is missing here. All other patches got everything they
+> need.
 
+I think you'd better re-submit and get Mark's attention.
 
-> (i2c-i801) can be carried over through the input tree. So as long as
-> you don't need to have a new feature without users for a short period
-> of time, that's fine by me :)
+Also indicate that his Ack is all you need.
 
-That's fine. I have extremly high trust that the user of the feature
-will be added soon ;)
+Once received, I can take the set.
 
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
---+QahgC5+KEYLbs62
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXYrhUAAoJEBQN5MwUoCm2hQQP/2SwOiaxVFEJFbGFxyN1yMX/
-G3VuIya3hgBkSoWKyvAqw4WIF3hBjSqhcTc7Yqd+ZYxOv3Ub3QFgqJCkyJh+datU
-s1Cxh3bRaXZDiSrZsT56LuWUjtbHyZrFyhUHy5+LibpvjvNsPdQJPGOpil1pMwVu
-zuZW3mFKFJBln3OUzELXdnWEwg1eEiQaypjYMIIoivQl75WE2iVoNPqr5lpZvI9W
-fgyI8zplPP42cbNmue+AmBjhPiA/CsgT6mUyBpvRRpDdvmBKmbZA1ylYhr/ywp1X
-8xlHMOl9tABSFr7n9ns6AhdCu7KHKpvmuopjWBl50oIixTxGw0EaUABRhiztKbzR
-dxk5YetaKcbf2K1wBU6fv6KbPbzdz3G8MjiWY0gV6oWcM1Eb1rF7qQMcK4FwEYgi
-dpq3e0cAtedKNQGuB9lWQXLH0r4ROMx1yPnZHPK+RNVOS+WpA7DidKB92TKdP+E/
-tJBl70k+WPALpaVUGFmhMAQkxBWjTi3noazun/aG7WStRYMXH2YlDZdgKrvgcs1D
-HG2xy4at5DGIzGSOQjoencgIcn90Q/mE0IGug/YnkklovYIOEcJ8tHZiIOgBcBZf
-+l0x48NQoJzUqKnplM9j0uYIAmhDAYMexmZamDIUOSeOHKPZNZOavC9AansqEj6F
-/fodIlJPBxQCMC+MZd/8
-=5H9y
------END PGP SIGNATURE-----
-
---+QahgC5+KEYLbs62--
+--=20
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

@@ -1,13 +1,12 @@
 From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH 2/5] input: pmic8xxx-pwrkey: Add support for
- pm8018 pwrkey
-Date: Fri, 17 Jun 2016 12:22:06 +0200
-Message-ID: <1466158929-19524-3-git-send-email-narmstrong@baylibre.com>
+Subject: [PATCH 3/5] rtc: rtc-pm8xxx: Add support for pm8018 rtc
+Date: Fri, 17 Jun 2016 12:22:07 +0200
+Message-ID: <1466158929-19524-4-git-send-email-narmstrong@baylibre.com>
 References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRBWE6R65QKGQEJABVMIY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDAYD2P3QYGRBWM6R65QKGQET3YA23A-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1466158929-19524-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -20,39 +19,56 @@ To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.gross-QSEj5FYQ
 Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-In order to support pwrkey for Qualcomm MDM9615 SoC, add support
-for the pm8018 pwrkey in pmic8xxx-pwrkey.
+In order to support RTC on Qualcomm MDM9615 SoC, add support for
+the pm8018 rtc in rtc-pm8xxx driver.
 
 Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 ---
- Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt | 1 +
- drivers/input/misc/pmic8xxx-pwrkey.c                           | 1 +
- 2 files changed, 2 insertions(+)
+ Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt |  1 +
+ drivers/rtc/rtc-pm8xxx.c                              | 11 +++++++++++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-index 588536c..9e530e2 100644
---- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-+++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-@@ -8,6 +8,7 @@ PROPERTIES
- 	Definition: must be one of:
- 		    "qcom,pm8058-pwrkey"
- 		    "qcom,pm8921-pwrkey"
-+		    "qcom,pm8018-pwrkey"
+diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
+index f24f334..37a088f 100644
+--- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
++++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
+@@ -62,6 +62,7 @@ The below bindings specify the set of valid subnodes.
+ 		    "qcom,pm8058-rtc"
+ 		    "qcom,pm8921-rtc"
+ 		    "qcom,pm8941-rtc"
++		    "qcom,pm8018-rtc"
  
  - reg:
  	Usage: required
-diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
-index 67aab86..f6f9b87 100644
---- a/drivers/input/misc/pmic8xxx-pwrkey.c
-+++ b/drivers/input/misc/pmic8xxx-pwrkey.c
-@@ -446,6 +446,7 @@ static int pmic8xxx_pwrkey_remove(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index 795fcbd..976f5f6 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -393,6 +393,16 @@ static int pm8xxx_rtc_enable(struct pm8xxx_rtc *rtc_dd)
+ 	return 0;
  }
  
- static const struct of_device_id pm8xxx_pwr_key_id_table[] = {
-+	{ .compatible = "qcom,pm8018-pwrkey", .data = &pm8921_pwrkey_shutdown },
- 	{ .compatible = "qcom,pm8058-pwrkey", .data = &pm8058_pwrkey_shutdown },
- 	{ .compatible = "qcom,pm8921-pwrkey", .data = &pm8921_pwrkey_shutdown },
- 	{ }
++static const struct pm8xxx_rtc_regs pm8018_regs = {
++	.ctrl		= 0x11d,
++	.write		= 0x11f,
++	.read		= 0x123,
++	.alarm_rw	= 0x127,
++	.alarm_ctrl	= 0x11d,
++	.alarm_ctrl2	= 0x11e,
++	.alarm_en	= BIT(1),
++};
++
+ static const struct pm8xxx_rtc_regs pm8921_regs = {
+ 	.ctrl		= 0x11d,
+ 	.write		= 0x11f,
+@@ -428,6 +438,7 @@ static const struct pm8xxx_rtc_regs pm8941_regs = {
+  */
+ static const struct of_device_id pm8xxx_id_table[] = {
+ 	{ .compatible = "qcom,pm8921-rtc", .data = &pm8921_regs },
++	{ .compatible = "qcom,pm8018-rtc", .data = &pm8018_regs },
+ 	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
+ 	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
+ 	{ },
 -- 
 1.9.1
 

@@ -1,150 +1,180 @@
-From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH 4/5] mfd: qcom-rpm: Add support for pm8018 RPM Regulator
-Date: Fri, 17 Jun 2016 12:22:08 +0200
-Message-ID: <1466158929-19524-5-git-send-email-narmstrong@baylibre.com>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCHv16 08/13] DocBook/media: add CEC documentation
+Date: Fri, 17 Jun 2016 13:09:10 +0200
+Message-ID: <5763DA56.20402@xs4all.nl>
+References: <1461937948-22936-1-git-send-email-hverkuil@xs4all.nl>
+ <1461937948-22936-9-git-send-email-hverkuil@xs4all.nl>
+ <20160616180958.03b9d759@recife.lan> <5763ADBD.3050502@xs4all.nl>
+ <20160617065028.7410ae46@recife.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRBWU6R65QKGQE3FNURII-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1466158929-19524-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20160617065028.7410ae46@recife.lan>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-In order to support the Qualcomm MDM9615 SoC, add support for the
-RPM regulator entries in the qcom-rpm driver.
+On 06/17/2016 11:50 AM, Mauro Carvalho Chehab wrote:
+>>>> +	  <row>
+>>>> +	    <entry><constant>CEC_MODE_MONITOR</constant></entry>
+>>>> +	    <entry>0xe0</entry>
+>>>> +	    <entry>Put the file descriptor into monitor mode. Can only be used in combination
+>>>> +	    with <constant>CEC_MODE_NO_INITIATOR</constant>, otherwise &EINVAL; will be
+>>>> +	    returned. In monitor mode all messages this CEC device transmits and all messages
+>>>> +	    it receives (both broadcast messages and directed messages for one its logical
+>>>> +	    addresses) will be reported. This is very useful for debugging.</entry>
+>>>> +	  </row>
+>>>> +	  <row>
+>>>> +	    <entry><constant>CEC_MODE_MONITOR_ALL</constant></entry>
+>>>> +	    <entry>0xf0</entry>
+>>>> +	    <entry>Put the file descriptor into 'monitor all' mode. Can only be used in combination
+>>>> +            with <constant>CEC_MODE_NO_INITIATOR</constant>, otherwise &EINVAL; will be
+>>>> +            returned. In 'monitor all' mode all messages this CEC device transmits and all messages
+>>>> +            it receives, including directed messages for other CEC devices will be reported. This
+>>>> +	    is very useful for debugging, but not all devices support this. This mode requires that
+>>>> +	    the <constant>CEC_CAP_MONITOR_ALL</constant> capability is set, and depending on the
+>>>> +	    hardware, you may have to be root to select this mode.</entry>  
+>>>
+>>> Please mention the error codes when it fails.  
+>>
+>> Ack.
+>>
+>>> "and depending on the hardware, you may have to be root to select this mode."
+>>>
+>>> No. We should define if CAP_SYS_ADMIN (or maybe CAP_NET_ADMIN, with
+>>> is required to set promiscuous mode for network) will be required or
+>>> not and enforce it for all hardware.  
+>>
+>> Ack for CAP_SYS_ADMIN (or possible NET_ADMIN, I'll look into that).
+> 
+> Thanks.
+> 
+>>> IMHO, putting the device into monitor mode should require it.  
+>>
+>> No. The CEC 2.0 spec explicitly recommends that the CEC adapter should be able to
+>> monitor all messages.
+> 
+> What the hardware should or should not do is one thing. The other
+> thing is what permissions are needed in order to use such
+> feature.
+> 
+> I don't doubt that a similar requirement exists on 802.x, or on some
+> industry standard document requiring that all Ethernet hardware should 
+> support promiscuous mode. Yet, for security reasons, enabling such feature 
+> requires special caps on Linux.
+> 
+>> The problem is that 1) not all hardware supports this, and 2)
+>> hardware that does support this tends to mention that it is for testing only and
+>> it shouldn't be used otherwise.
+>>
+>> If the hardware is fine with allowing monitoring of all messages, then anyone
+>> should be able to do that. 
+> 
+> Why?
 
-Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
----
- Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  1 +
- drivers/mfd/qcom_rpm.c                             | 45 ++++++++++++++++++++++
- include/dt-bindings/mfd/qcom-rpm.h                 | 23 +++++++++++
- 3 files changed, 69 insertions(+)
+The spec recommends that this is supported in order for applications to take advantage
+of seeing such traffic to optimize their performance (i.e. by sniffing traffic you can see which
+devices are there so you don't have to discover them). The underlying reason is that
+the CEC bus is so hopelessly slow, so any mechanism that helps avoids having to use
+the bus is good.
 
-diff --git a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-index b98b291..72d68d4 100644
---- a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-+++ b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-@@ -13,6 +13,7 @@ frequencies.
- 		    "qcom,rpm-msm8660"
- 		    "qcom,rpm-msm8960"
- 		    "qcom,rpm-ipq8064"
-+		    "qcom,rpm-mdm9615"
- 
- - reg:
- 	Usage: required
-diff --git a/drivers/mfd/qcom_rpm.c b/drivers/mfd/qcom_rpm.c
-index 1be47ad..81d78fb 100644
---- a/drivers/mfd/qcom_rpm.c
-+++ b/drivers/mfd/qcom_rpm.c
-@@ -364,11 +364,56 @@ static const struct qcom_rpm_data ipq806x_template = {
- 	.n_resources = ARRAY_SIZE(ipq806x_rpm_resource_table),
- };
- 
-+static const struct qcom_rpm_resource mdm9615_rpm_resource_table[] = {
-+	[QCOM_RPM_CXO_CLK] =			{ 25, 9, 5, 1 },
-+	[QCOM_RPM_SYS_FABRIC_CLK] =		{ 26, 10, 9, 1 },
-+	[QCOM_RPM_DAYTONA_FABRIC_CLK] =		{ 27, 11, 11, 1 },
-+	[QCOM_RPM_SFPB_CLK] =			{ 28, 12, 12, 1 },
-+	[QCOM_RPM_CFPB_CLK] =			{ 29, 13, 13, 1 },
-+	[QCOM_RPM_EBI1_CLK] =			{ 30, 14, 16, 1 },
-+	[QCOM_RPM_APPS_FABRIC_HALT] =		{ 31, 15, 22, 2 },
-+	[QCOM_RPM_APPS_FABRIC_MODE] =		{ 33, 16, 23, 3 },
-+	[QCOM_RPM_APPS_FABRIC_IOCTL] =		{ 36, 17, 24, 1 },
-+	[QCOM_RPM_APPS_FABRIC_ARB] =		{ 37, 18, 25, 27 },
-+	[QCOM_RPM_PM8018_SMPS1] =		{ 64, 19, 30, 2 },
-+	[QCOM_RPM_PM8018_SMPS2] =		{ 66, 21, 31, 2 },
-+	[QCOM_RPM_PM8018_SMPS3] =		{ 68, 23, 32, 2 },
-+	[QCOM_RPM_PM8018_SMPS4] =		{ 70, 25, 33, 2 },
-+	[QCOM_RPM_PM8018_SMPS5] =		{ 72, 27, 34, 2 },
-+	[QCOM_RPM_PM8018_LDO1] =		{ 74, 29, 35, 2 },
-+	[QCOM_RPM_PM8018_LDO2] =		{ 76, 31, 36, 2 },
-+	[QCOM_RPM_PM8018_LDO3] =		{ 78, 33, 37, 2 },
-+	[QCOM_RPM_PM8018_LDO4] =		{ 80, 35, 38, 2 },
-+	[QCOM_RPM_PM8018_LDO5] =		{ 82, 37, 39, 2 },
-+	[QCOM_RPM_PM8018_LDO6] =		{ 84, 39, 40, 2 },
-+	[QCOM_RPM_PM8018_LDO7] =		{ 86, 41, 41, 2 },
-+	[QCOM_RPM_PM8018_LDO8] =		{ 88, 43, 42, 2 },
-+	[QCOM_RPM_PM8018_LDO9] =		{ 90, 45, 43, 2 },
-+	[QCOM_RPM_PM8018_LDO10] =		{ 92, 47, 44, 2 },
-+	[QCOM_RPM_PM8018_LDO11] =		{ 94, 49, 45, 2 },
-+	[QCOM_RPM_PM8018_LDO12] =		{ 96, 51, 46, 2 },
-+	[QCOM_RPM_PM8018_LDO13] =		{ 98, 53, 47, 2 },
-+	[QCOM_RPM_PM8018_LDO14] =		{ 100, 55, 48, 2 },
-+	[QCOM_RPM_PM8018_LVS1] =		{ 102, 57, 49, 1 },
-+	[QCOM_RPM_NCP] =			{ 103, 58, 80, 2 },
-+	[QCOM_RPM_CXO_BUFFERS] =		{ 105, 60, 81, 1 },
-+	[QCOM_RPM_USB_OTG_SWITCH] =		{ 106, 61, 82, 1 },
-+	[QCOM_RPM_HDMI_SWITCH] =		{ 107, 62, 83, 1 },
-+	[QCOM_RPM_VOLTAGE_CORNER] =		{ 109, 64, 87, 1 },
-+};
-+
-+static const struct qcom_rpm_data mdm9615_template = {
-+	.version = 3,
-+	.resource_table = mdm9615_rpm_resource_table,
-+	.n_resources = ARRAY_SIZE(mdm9615_rpm_resource_table),
-+};
-+
- static const struct of_device_id qcom_rpm_of_match[] = {
- 	{ .compatible = "qcom,rpm-apq8064", .data = &apq8064_template },
- 	{ .compatible = "qcom,rpm-msm8660", .data = &msm8660_template },
- 	{ .compatible = "qcom,rpm-msm8960", .data = &msm8960_template },
- 	{ .compatible = "qcom,rpm-ipq8064", .data = &ipq806x_template },
-+	{ .compatible = "qcom,rpm-mdm9615", .data = &mdm9615_template },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, qcom_rpm_of_match);
-diff --git a/include/dt-bindings/mfd/qcom-rpm.h b/include/dt-bindings/mfd/qcom-rpm.h
-index 13a9d4b..db85912 100644
---- a/include/dt-bindings/mfd/qcom-rpm.h
-+++ b/include/dt-bindings/mfd/qcom-rpm.h
-@@ -148,6 +148,29 @@
- #define QCOM_RPM_SMB208_S2a			138
- #define QCOM_RPM_SMB208_S2b			139
- 
-+#define QCOM_RPM_PM8018_SMPS1			200
-+#define QCOM_RPM_PM8018_SMPS2			201
-+#define QCOM_RPM_PM8018_SMPS3			202
-+#define QCOM_RPM_PM8018_SMPS4			203
-+#define QCOM_RPM_PM8018_SMPS5			204
-+#define QCOM_RPM_PM8018_LDO1			205
-+#define QCOM_RPM_PM8018_LDO2			206
-+#define QCOM_RPM_PM8018_LDO3			207
-+#define QCOM_RPM_PM8018_LDO4			208
-+#define QCOM_RPM_PM8018_LDO5			209
-+#define QCOM_RPM_PM8018_LDO6			210
-+#define QCOM_RPM_PM8018_LDO7			211
-+#define QCOM_RPM_PM8018_LDO8			212
-+#define QCOM_RPM_PM8018_LDO9			213
-+#define QCOM_RPM_PM8018_LDO10			214
-+#define QCOM_RPM_PM8018_LDO11			215
-+#define QCOM_RPM_PM8018_LDO12			216
-+#define QCOM_RPM_PM8018_LDO13			217
-+#define QCOM_RPM_PM8018_LDO14			218
-+#define QCOM_RPM_PM8018_LVS1			219
-+#define QCOM_RPM_NCP				220
-+#define QCOM_RPM_VOLTAGE_CORNER			221
-+
- /*
-  * Constants used to select force mode for regulators.
-  */
--- 
-1.9.1
+>From the HDMI 2.0 spec (section 11.4):
 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+"Polling can and should be skipped if other CEC traffic shows that a device is present.
+ Hence, a device should not poll a certain Logical Address within at least one Minimum
+ Polling Period after the following CEC events occur between the device that is polling
+ and the device whose Logical Address is to be polled:
+
+ - A directly addressed message, sent to that Logical Address, was acknowledged.
+ - A directly addressed message has been sent from that Logical Address.
+ - A broadcast message has been sent from that Logical Address.
+
+ It is recommended that, if the device is capable of monitoring CEC traffic directed to
+ other devices, then this capability should also be used to further reduce the need for polling.
+ In this case, such a device should not poll a certain Logical Address for at least one
+ Minimum Polling Period after it detects that that Logical Address acknowledged a directed
+ message initiated from any Logical Address, or any message was sent from that Logical Address."
+
+I wouldn't have required CAP_*_ADMIN at all if it wasn't for the scary language in some of the
+hardware specs that I have seen.
+
+(see below before replying to this :-) )
+
+> 
+>> But if it comes with all these 'for testing only' caveats,
+>> then I think it should should be protected against 'casual' use. Unfortunately they
+>> never tell you why it should be used for testing only (overly cautious or could
+>> something actually fail when in this mode?).
+>>
+>> The reality is that being able to monitor the CEC bus is extremely useful when debugging.
+> 
+> Well, it can be debugged as root. That's not an issue. The issue
+> here is if sniffing the traffic by a normal user could leak
+> something that should not usually be seen by a normal user, like
+> a Netflix password, that was typed via the RC, for example.
+
+Interesting example. I hadn't thought of that.
+
+OK, so I'm going to change the code so CAP_SYS/NET_ADMIN is required for the
+monitoring mode. It can always be relaxed later, but this password sniffing
+example is quite convincing actually.
+
+The HDMI 2.0 polling recommendation can still be met since this would be handled
+in the CEC framework (not implemented today, but it is planned since it is fairly
+easy to do so). Since that's all inside the kernel nothing is leaked to non-root
+applications.
+
+One area where I am uncertain is when remote control messages are received and
+passed on by the framework to the RC input device.
+
+Suppose the application is the one receiving a password, then that password appears
+both in the input device and the cec device. What I think will be useful is if the
+application can prevent the use of an input device to pass on remote control messages.
+
+CEC_ADAP_S_LOG_ADDRS has a flags field that I intended for just that purpose.
+
+Note that RC messages are always passed on to CEC followers even if there is an
+input device since some RC messages have additional arguments that the rc subsystem
+can't handle. Also I think that it is often easier to handle all messages from the
+same CEC device instead of having to read from two devices (cec and input). I
+actually considered removing the input support, but it turned out to be useful in
+existing video streaming apps since they don't need to add special cec support to
+handle remote control presses.
+
+Question: is there a way for applications to get exclusive access to an input device?
+Or can anyone always read from it?
+
+So I am thinking that I add a flag to inhibit the use of the input device if set.
+
+This would be in a follow-on patch and it's added to the TODO file in the initial
+patch series.
+
+Comments?
+
+>> The simple MONITOR mode is different in that it requires no special hardware configuration.
+>> But it won't be able to see directed messages between CEC devices other than us.
+>>
+>> On a related note: if an application tries to become initiator or follower and someone
+>> else has already exclusive access, then EBUSY is returned. I based this on what happens
+>> in V4L2 with the S_PRIORITY ioctl.
+>>
+>> However, I think EACCES is a much better error code. It's probably what S_PRIO should
+>> have used as well.
+>>
+>> Do you agree?
+> 
+> Not really. EACCES sounds more like a permanent problem, while EBUSY
+> is always a temporary issue.
+> 
+> The problem with EACESS is that the user may think that the file
+> permissions at the /dev/cec? are wrong.
+
+Hmm, OK. I'm not entirely convinced, but I don't think it is a big deal either.
+
+Besides, now I don't need to change anything :-)
+
+Regards,
+
+	Hans

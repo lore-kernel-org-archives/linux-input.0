@@ -1,12 +1,14 @@
 From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH 0/5] Add support for the Qualcomm PM8018 PMIC
-Date: Fri, 17 Jun 2016 12:22:04 +0200
-Message-ID: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
+Subject: [PATCH 1/5] mfd: pm8921: Add support for pm8018
+Date: Fri, 17 Jun 2016 12:22:05 +0200
+Message-ID: <1466158929-19524-2-git-send-email-narmstrong@baylibre.com>
+References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRBVU6R65QKGQEAJWDCUQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDAYD2P3QYGRBV46R65QKGQESXRVJDY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1466158929-19524-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/rtc-linux
@@ -17,30 +19,26 @@ To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.gross-QSEj5FYQ
 Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-In order to support the Qualcomm MDM9615 in the Sierra Wireless WP8548
-Modules, add the PM8018 PMIC support into MFD, Regulator, RTC and input.
+In order to support the Qualcomm MDM9615 PMIC, add support for the
+pm8018 in pm8921 mfd driver.
 
-This patchset is part of a global SoC + Module + Board support for the
-Sierra Wireless mangOH Board support with the WP8548 module.
+Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+---
+ drivers/mfd/pm8921-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Neil Armstrong (5):
-  mfd: pm8921: Add support for pm8018
-  input: pmic8xxx-pwrkey: Add support for pm8018 pwrkey
-  rtc: rtc-pm8xxx: Add support for pm8018 rtc
-  mfd: qcom-rpm: Add support for pm8018 RPM Regulator
-  regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator
-
- .../bindings/input/qcom,pm8xxx-pwrkey.txt          |   1 +
- .../devicetree/bindings/mfd/qcom-pm8xxx.txt        |   1 +
- Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  15 +++
- drivers/input/misc/pmic8xxx-pwrkey.c               |   1 +
- drivers/mfd/pm8921-core.c                          |   1 +
- drivers/mfd/qcom_rpm.c                             |  45 +++++++
- drivers/regulator/qcom_rpm-regulator.c             | 134 +++++++++++++++++++++
- drivers/rtc/rtc-pm8xxx.c                           |  11 ++
- include/dt-bindings/mfd/qcom-rpm.h                 |  23 ++++
- 9 files changed, 232 insertions(+)
-
+diff --git a/drivers/mfd/pm8921-core.c b/drivers/mfd/pm8921-core.c
+index 1b7ec08..0e3a2ea 100644
+--- a/drivers/mfd/pm8921-core.c
++++ b/drivers/mfd/pm8921-core.c
+@@ -309,6 +309,7 @@ static const struct regmap_config ssbi_regmap_config = {
+ };
+ 
+ static const struct of_device_id pm8921_id_table[] = {
++	{ .compatible = "qcom,pm8018", },
+ 	{ .compatible = "qcom,pm8058", },
+ 	{ .compatible = "qcom,pm8921", },
+ 	{ }
 -- 
 1.9.1
 

@@ -1,12 +1,13 @@
 From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH 1/5] mfd: pm8921: Add support for pm8018
-Date: Fri, 17 Jun 2016 12:22:05 +0200
-Message-ID: <1466158929-19524-2-git-send-email-narmstrong@baylibre.com>
+Subject: [PATCH 2/5] input: pmic8xxx-pwrkey: Add support for
+ pm8018 pwrkey
+Date: Fri, 17 Jun 2016 12:22:06 +0200
+Message-ID: <1466158929-19524-3-git-send-email-narmstrong@baylibre.com>
 References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRBV46R65QKGQESXRVJDY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDAYD2P3QYGRBWE6R65QKGQEJABVMIY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1466158929-19524-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -19,25 +20,38 @@ To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.gross-QSEj5FYQ
 Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-In order to support the Qualcomm MDM9615 PMIC, add support for the
-pm8018 in pm8921 mfd driver.
+In order to support pwrkey for Qualcomm MDM9615 SoC, add support
+for the pm8018 pwrkey in pmic8xxx-pwrkey.
 
 Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 ---
- drivers/mfd/pm8921-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt | 1 +
+ drivers/input/misc/pmic8xxx-pwrkey.c                           | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/mfd/pm8921-core.c b/drivers/mfd/pm8921-core.c
-index 1b7ec08..0e3a2ea 100644
---- a/drivers/mfd/pm8921-core.c
-+++ b/drivers/mfd/pm8921-core.c
-@@ -309,6 +309,7 @@ static const struct regmap_config ssbi_regmap_config = {
- };
+diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
+index 588536c..9e530e2 100644
+--- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
++++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
+@@ -8,6 +8,7 @@ PROPERTIES
+ 	Definition: must be one of:
+ 		    "qcom,pm8058-pwrkey"
+ 		    "qcom,pm8921-pwrkey"
++		    "qcom,pm8018-pwrkey"
  
- static const struct of_device_id pm8921_id_table[] = {
-+	{ .compatible = "qcom,pm8018", },
- 	{ .compatible = "qcom,pm8058", },
- 	{ .compatible = "qcom,pm8921", },
+ - reg:
+ 	Usage: required
+diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
+index 67aab86..f6f9b87 100644
+--- a/drivers/input/misc/pmic8xxx-pwrkey.c
++++ b/drivers/input/misc/pmic8xxx-pwrkey.c
+@@ -446,6 +446,7 @@ static int pmic8xxx_pwrkey_remove(struct platform_device *pdev)
+ }
+ 
+ static const struct of_device_id pm8xxx_pwr_key_id_table[] = {
++	{ .compatible = "qcom,pm8018-pwrkey", .data = &pm8921_pwrkey_shutdown },
+ 	{ .compatible = "qcom,pm8058-pwrkey", .data = &pm8058_pwrkey_shutdown },
+ 	{ .compatible = "qcom,pm8921-pwrkey", .data = &pm8921_pwrkey_shutdown },
  	{ }
 -- 
 1.9.1

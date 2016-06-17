@@ -1,12 +1,13 @@
 From: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [RESEND v7 3/6] mfd: max8997: Change irq names to upper case
-Date: Fri, 17 Jun 2016 08:10:30 +0200
-Message-ID: <1466143833-5856-4-git-send-email-k.kozlowski@samsung.com>
+Subject: [RESEND v7 4/6] extcon: max8997: Fix handling error code
+ of regmap_irq_get_virq()
+Date: Fri, 17 Jun 2016 08:10:31 +0200
+Message-ID: <1466143833-5856-5-git-send-email-k.kozlowski@samsung.com>
 References: <1466143833-5856-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDKZNNNLXAHBBZVIR25QKGQEMIFLMSY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDKZNNNLXAHBBZ5IR25QKGQE5QFHQRQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-reply-to: <1466143833-5856-1-git-send-email-k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -19,105 +20,33 @@ To: Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlow
 Cc: r.baldyga-anjuHVi6/WSaMJb+Lgu22Q@public.gmane.org, Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Robert Baldyga <r.baldyga-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+The regmap_irq_get_virq() can return negative ERRNO, so its result
+should not be stored in unsigned int because error would be ignored.
 
-This patch changes naming convention of MUIC interrupts form CamelCase
-to upper case. It makes names more readable and consistent with another
-interrupt names in max8997 driver.
-
-Signed-off-by: Robert Baldyga <r.baldyga-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Acked-by: Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Acked-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-[k.kozlowski: Collect acks, rebase on v4.6-rc6]
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Acked-by: Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 ---
- drivers/extcon/extcon-max8997.c     | 32 ++++++++++++++++----------------
- include/linux/mfd/max8997-private.h | 16 ++++++++--------
- 2 files changed, 24 insertions(+), 24 deletions(-)
+ drivers/extcon/extcon-max8997.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
-index 9d27cc23038f..68754ac2c8ea 100644
+index 68754ac2c8ea..0afa3e8b5dc3 100644
 --- a/drivers/extcon/extcon-max8997.c
 +++ b/drivers/extcon/extcon-max8997.c
-@@ -46,15 +46,15 @@ struct max8997_muic_irq {
- };
+@@ -660,11 +660,11 @@ static int max8997_muic_probe(struct platform_device *pdev)
  
- static struct max8997_muic_irq muic_irqs[] = {
--	{ MAX8997_MUICIRQ_ADCError,	"muic-ADCERROR" },
--	{ MAX8997_MUICIRQ_ADCLow,	"muic-ADCLOW" },
--	{ MAX8997_MUICIRQ_ADC,		"muic-ADC" },
--	{ MAX8997_MUICIRQ_VBVolt,	"muic-VBVOLT" },
--	{ MAX8997_MUICIRQ_DBChg,	"muic-DBCHG" },
--	{ MAX8997_MUICIRQ_DCDTmr,	"muic-DCDTMR" },
--	{ MAX8997_MUICIRQ_ChgDetRun,	"muic-CHGDETRUN" },
--	{ MAX8997_MUICIRQ_ChgTyp,	"muic-CHGTYP" },
--	{ MAX8997_MUICIRQ_OVP,		"muic-OVP" },
-+	{ MAX8997_MUICIRQ_ADCERROR,	"MUIC-ADCERROR" },
-+	{ MAX8997_MUICIRQ_ADCLOW,	"MUIC-ADCLOW" },
-+	{ MAX8997_MUICIRQ_ADC,		"MUIC-ADC" },
-+	{ MAX8997_MUICIRQ_VBVOLT,	"MUIC-VBVOLT" },
-+	{ MAX8997_MUICIRQ_DBCHG,	"MUIC-DBCHG" },
-+	{ MAX8997_MUICIRQ_DCDTMR,	"MUIC-DCDTMR" },
-+	{ MAX8997_MUICIRQ_CHGDETRUN,	"MUIC-CHGDETRUN" },
-+	{ MAX8997_MUICIRQ_CHGTYP,	"MUIC-CHGTYP" },
-+	{ MAX8997_MUICIRQ_OVP,		"MUIC-OVP" },
- };
+ 	for (i = 0; i < ARRAY_SIZE(muic_irqs); i++) {
+ 		struct max8997_muic_irq *muic_irq = &muic_irqs[i];
+-		unsigned int virq = 0;
++		int virq = 0;
  
- /* Define supported cable type */
-@@ -540,17 +540,17 @@ static void max8997_muic_irq_work(struct work_struct *work)
- 	}
- 
- 	switch (irq_type) {
--	case MAX8997_MUICIRQ_ADCError:
--	case MAX8997_MUICIRQ_ADCLow:
-+	case MAX8997_MUICIRQ_ADCERROR:
-+	case MAX8997_MUICIRQ_ADCLOW:
- 	case MAX8997_MUICIRQ_ADC:
- 		/* Handle all of cable except for charger cable */
- 		ret = max8997_muic_adc_handler(info);
- 		break;
--	case MAX8997_MUICIRQ_VBVolt:
--	case MAX8997_MUICIRQ_DBChg:
--	case MAX8997_MUICIRQ_DCDTmr:
--	case MAX8997_MUICIRQ_ChgDetRun:
--	case MAX8997_MUICIRQ_ChgTyp:
-+	case MAX8997_MUICIRQ_VBVOLT:
-+	case MAX8997_MUICIRQ_DBCHG:
-+	case MAX8997_MUICIRQ_DCDTMR:
-+	case MAX8997_MUICIRQ_CHGDETRUN:
-+	case MAX8997_MUICIRQ_CHGTYP:
- 		/* Handle charger cable */
- 		ret = max8997_muic_chg_handler(info);
- 		break;
-diff --git a/include/linux/mfd/max8997-private.h b/include/linux/mfd/max8997-private.h
-index f42ea222988f..2817fa69383e 100644
---- a/include/linux/mfd/max8997-private.h
-+++ b/include/linux/mfd/max8997-private.h
-@@ -411,14 +411,14 @@ enum max8997_irq {
- 
- enum max8997_irq_muic {
- 	MAX8997_MUICIRQ_ADC,
--	MAX8997_MUICIRQ_ADCLow,
--	MAX8997_MUICIRQ_ADCError,
--
--	MAX8997_MUICIRQ_ChgTyp,
--	MAX8997_MUICIRQ_ChgDetRun,
--	MAX8997_MUICIRQ_DCDTmr,
--	MAX8997_MUICIRQ_DBChg,
--	MAX8997_MUICIRQ_VBVolt,
-+	MAX8997_MUICIRQ_ADCLOW,
-+	MAX8997_MUICIRQ_ADCERROR,
-+
-+	MAX8997_MUICIRQ_CHGTYP,
-+	MAX8997_MUICIRQ_CHGDETRUN,
-+	MAX8997_MUICIRQ_DCDTMR,
-+	MAX8997_MUICIRQ_DBCHG,
-+	MAX8997_MUICIRQ_VBVOLT,
- 
- 	MAX8997_MUICIRQ_OVP,
- 
+ 		virq = regmap_irq_get_virq(max8997->irq_data_muic,
+ 					muic_irq->irq);
+-		if (!virq) {
++		if (virq <= 0) {
+ 			ret = -EINVAL;
+ 			goto err_irq;
+ 		}
 -- 
 1.9.1
 

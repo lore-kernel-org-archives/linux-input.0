@@ -1,87 +1,64 @@
-From: Marcin Niestroj <m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
-Subject: Re: [PATCH v3 1/5] mfd: tps65217: Add support for IRQs
-Date: Fri, 17 Jun 2016 17:31:29 +0200
-Message-ID: <062438af-c05f-00b3-adc6-ac27e7cec892@grinn-global.com>
-References: <20160616114110.23455-1-m.niestroj@grinn-global.com>
- <20160616114110.23455-2-m.niestroj@grinn-global.com>
- <5762A3AC.9010409@ti.com>
- <123e6759-fa44-48f0-860d-623aaa39f8ea@grinn-global.com>
- <57640C3C.1070001@ti.com>
+From: Neubert Stefan <NES@hekatron.de>
+Subject: [eGalax] touchscreen hid-multitouch not working
+Date: Fri, 17 Jun 2016 17:30:45 +0200
+Message-ID: <7516900B5A02D0418146BC21F0D1804B81C9AAACC5@SRV-EXC2.heka.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <57640C3C.1070001-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.hekatron.com ([217.6.209.182]:46735 "EHLO mail.hekatron.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932139AbcFQPkw convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Jun 2016 11:40:52 -0400
+Content-Language: de-DE
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+
+Hi,
+
+I have one of those eGalax usb touchcontroller with VID 0x0eef and PID 0x0001.
+With Linux raspberrypi 4.4.13-v7+ #1 SMP Thu Jun 16 14:39:49 CEST 2016 armv7l GNU/Linux
+the hid-multitouch module creates two input events
+
+Available devices:
+/dev/input/event0:      eGalax Inc. USB TouchController Pen
+/dev/input/event1:      eGalax Inc. USB TouchController
+
+event0 is displaying some output with evtest while touching but not event1.
+Same like in http://www.spinics.net/lists/linux-input/msg35682.html
+
+If I do
+# echo 3 0eef 0001 16 > /sys/bus/hid/drivers/hid-multitouch/new_id
+before plugging in the touchscreen event1 is working and also my touch applications.
+
+I tried the suggested udev rule to set quirks but it does not work.
+In hid_multitouch.c I added a pr_info in mt_probe to see the difference
+with or without adding the new_id.
+
+Without new_id set mt_probe has VID:ffffffff PID:ffffffff in hid_device_id *id and
+QUIRKS:a0000148 in hid_device *hdev.
+
+With new_id set mt_probe has VID:eef PID:1 in hid_device_id *id QUIRKS:80000148
+in hid_device *hdev.
+
+I tried to add the the vid/pid to mt_devices but still getting VID:ffffffff PID:ffffffff
+in mt_probe.
+
+Can anyone point me to the right direction how to get the eGalax touchscreen working
+without unplugging -> rmmod hid-multitouch -> modprobe hid-multitouch -> echo to new_id -> plug in?
+
+Regards
+
+Stefan
 
 
-
-On 17.06.2016 16:42, Grygorii Strashko wrote:
-> On 06/17/2016 05:05 PM, Marcin Niestroj wrote:
->>
->> On 16.06.2016 15:03, Grygorii Strashko wrote:
->>> On 06/16/2016 02:41 PM, Marcin Niestroj wrote:
->>>> Add support for handling IRQs: power button, AC and USB power state
->>>> changes. Mask and interrupt bits are shared within one register, which
->>>> prevents us to use regmap_irq implementation. New irq_domain is
->>>> created in
->>>> order to add interrupt handling for each tps65217's subsystem. IRQ
->>>> resources have been added for charger subsystem to be able to notify
->>>> about
->>>> AC and USB state changes.
->>>>
->>>> Signed-off-by: Marcin Niestroj <m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
->>>> ---
->>>>   drivers/mfd/Kconfig          |   1 +
->>>>   drivers/mfd/tps65217.c       | 194
->>>> +++++++++++++++++++++++++++++++++++++++++--
->>>>   include/linux/mfd/tps65217.h |  11 +++
->>>>   3 files changed, 198 insertions(+), 8 deletions(-)
->
-> [...]
->
->>>> +{
->>>> +    int ret;
->>>> +
->>>> +    mutex_init(&tps->irq_lock);
->>>> +
->>>> +    /* Mask all interrupt sources */
->>>> +    tps->irq_mask = (TPS65217_INT_RESERVEDM | TPS65217_INT_PBM
->>>> +            | TPS65217_INT_ACM | TPS65217_INT_USBM);
->>>> +    tps65217_reg_write(tps, TPS65217_REG_INT, tps->irq_mask,
->>>> +            TPS65217_PROTECT_NONE);
->>>> +
->>>> +    tps->irq_domain = irq_domain_add_linear(tps->dev->of_node,
->>>> +        TPS65217_NUM_IRQ, &tps65217_irq_domain_ops, tps);
->>>> +    if (!tps->irq_domain) {
->>>> +        dev_err(tps->dev, "Could not create IRQ domain\n");
->>>> +        return -ENOMEM;
->>>> +    }
->>>> +
->>>> +    ret = devm_request_threaded_irq(tps->dev, irq, NULL,
->>>> +                    tps65217_irq_thread,
->>>> +                    IRQF_TRIGGER_RISING | IRQF_ONESHOT,
->>>
->>> Are there any reasons why IRQ trigger type specified here explicitly?
->>
->> Not really. I have configured it that way, it worked and I forgot about
->> it when preparing patches. Could you give some hint here?
->>
->
-> It's better to get it from DT and in case of DT boot it will - the real
-> IRQ trigger type may depends on board.
->
-
-So what I understand, I need to remove IRQF_TRIGGER_RISING here.
-Addidional flags will be passed by 'irq_flags' in
-"interrupts = <irq_num irq_flags>" in DT, right?
-
--- 
-Marcin Niestroj
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+HEKATRON Technik GmbH
+Bruehlmatten 3a - 9
+D-79295 Sulzburg
+Reg.-Ger. Freiburg HRB 300243
+Geschaeftsfuehrer:
+Michael Roth, Armin Berchtold
+Telefon +49 7634 500-0
+Telefax +49 7634 500-316

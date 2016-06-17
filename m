@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH v4 2/9] [media] v4l2-core: Add VFL_TYPE_TOUCH_SENSOR
-Date: Fri, 17 Jun 2016 15:16:21 +0100
-Message-ID: <1466172988-3698-3-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH v4 4/9] Input: atmel_mxt_ts - output diagnostic debug via v4l2 device
+Date: Fri, 17 Jun 2016 15:16:23 +0100
+Message-ID: <1466172988-3698-5-git-send-email-nick.dyer@itdev.co.uk>
 References: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,222 +10,327 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.n
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-Some touch controllers send out raw touch data in a similar way to a
-greyscale frame grabber. Add a new device type for these devices.
-
-Use a new device prefix v4l-touch for these devices, to stop generic
-capture software from treating them as webcams.
+Register a video device to output T37 diagnostic data.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/sur40.c    |  4 ++--
- drivers/media/v4l2-core/v4l2-dev.c   | 13 ++++++++++---
- drivers/media/v4l2-core/v4l2-ioctl.c | 15 ++++++++++-----
- include/media/v4l2-dev.h             |  3 ++-
- include/uapi/linux/videodev2.h       |  1 +
- 5 files changed, 25 insertions(+), 11 deletions(-)
+ drivers/input/touchscreen/Kconfig        |   6 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c | 244 +++++++++++++++++++++++++++++++
+ 2 files changed, 248 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-index 880c40b..2daa786 100644
---- a/drivers/input/touchscreen/sur40.c
-+++ b/drivers/input/touchscreen/sur40.c
-@@ -599,7 +599,7 @@ static int sur40_probe(struct usb_interface *interface,
- 	sur40->vdev.queue = &sur40->queue;
- 	video_set_drvdata(&sur40->vdev, sur40);
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index da96ecf..7c1c5ec 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -117,9 +117,11 @@ config TOUCHSCREEN_ATMEL_MXT
  
--	error = video_register_device(&sur40->vdev, VFL_TYPE_GRABBER, -1);
-+	error = video_register_device(&sur40->vdev, VFL_TYPE_TOUCH_SENSOR, -1);
- 	if (error) {
- 		dev_err(&interface->dev,
- 			"Unable to register video subdevice.");
-@@ -763,7 +763,7 @@ static int sur40_vidioc_enum_input(struct file *file, void *priv,
+ config TOUCHSCREEN_ATMEL_MXT_T37
+ 	bool "Support T37 Diagnostic Data"
+-	depends on TOUCHSCREEN_ATMEL_MXT
++	depends on TOUCHSCREEN_ATMEL_MXT && VIDEO_V4L2
++	select VIDEOBUF2_VMALLOC
+ 	help
+-	  Say Y here if you want support for the T37 Diagnostic Data object.
++	  Say Y here if you want support to output data from the T37
++	  Diagnostic Data object using a V4L device.
+ 
+ config TOUCHSCREEN_AUO_PIXCIR
+ 	tristate "AUO in-cell touchscreen using Pixcir ICs"
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 0048233..3a7f705 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -28,6 +28,10 @@
+ #include <linux/of.h>
+ #include <linux/slab.h>
+ #include <asm/unaligned.h>
++#include <media/v4l2-device.h>
++#include <media/v4l2-ioctl.h>
++#include <media/videobuf2-v4l2.h>
++#include <media/videobuf2-vmalloc.h>
+ 
+ /* Firmware files */
+ #define MXT_FW_NAME		"maxtouch.fw"
+@@ -224,6 +228,23 @@ struct mxt_dbg {
+ 	struct t37_debug *t37_buf;
+ 	unsigned int t37_pages;
+ 	unsigned int t37_nodes;
++
++	struct v4l2_device v4l2;
++	struct v4l2_pix_format format;
++	struct video_device vdev;
++	struct vb2_queue queue;
++	struct mutex lock;
++	int input;
++};
++
++static const struct v4l2_file_operations mxt_video_fops = {
++	.owner = THIS_MODULE,
++	.open = v4l2_fh_open,
++	.release = vb2_fop_release,
++	.unlocked_ioctl = video_ioctl2,
++	.read = vb2_fop_read,
++	.mmap = vb2_fop_mmap,
++	.poll = vb2_fop_poll,
+ };
+ 
+ /* Each client has this additional data */
+@@ -279,6 +300,11 @@ struct mxt_data {
+ 	struct completion crc_completion;
+ };
+ 
++struct mxt_vb2_buffer {
++	struct vb2_buffer	vb;
++	struct list_head	list;
++};
++
+ static size_t mxt_obj_size(const struct mxt_object *obj)
  {
- 	if (i->index != 0)
- 		return -EINVAL;
--	i->type = V4L2_INPUT_TYPE_CAMERA;
+ 	return obj->size_minus_one + 1;
+@@ -1525,6 +1551,11 @@ static void mxt_free_input_device(struct mxt_data *data)
+ 
+ static void mxt_free_object_table(struct mxt_data *data)
+ {
++#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
++	video_unregister_device(&data->dbg.vdev);
++	v4l2_device_unregister(&data->dbg.v4l2);
++#endif
++
+ 	kfree(data->object_table);
+ 	data->object_table = NULL;
+ 	kfree(data->msg_buf);
+@@ -2157,10 +2188,191 @@ wait_cmd:
+ 	return mxt_convert_debug_pages(data, outbuf);
+ }
+ 
++static int mxt_queue_setup(struct vb2_queue *q,
++		       unsigned int *nbuffers, unsigned int *nplanes,
++		       unsigned int sizes[], void *alloc_ctxs[])
++{
++	struct mxt_data *data = q->drv_priv;
++	size_t size = data->dbg.t37_nodes * sizeof(u16);
++
++	if (*nplanes)
++		return sizes[0] < size ? -EINVAL : 0;
++
++	*nplanes = 1;
++	sizes[0] = size;
++
++	return 0;
++}
++
++static void mxt_buffer_queue(struct vb2_buffer *vb)
++{
++	struct mxt_data *data = vb2_get_drv_priv(vb->vb2_queue);
++	u16 *ptr;
++	int ret;
++
++	ptr = vb2_plane_vaddr(vb, 0);
++	if (!ptr) {
++		dev_err(&data->client->dev, "Error acquiring frame ptr\n");
++		goto fault;
++	}
++
++	ret = mxt_read_diagnostic_debug(data, MXT_DIAGNOSTIC_DELTAS, ptr);
++	if (ret)
++		goto fault;
++
++	vb2_set_plane_payload(vb, 0, data->dbg.t37_nodes * sizeof(u16));
++	vb2_buffer_done(vb, VB2_BUF_STATE_DONE);
++	return;
++
++fault:
++	vb2_buffer_done(vb, VB2_BUF_STATE_ERROR);
++}
++
++/* V4L2 structures */
++static const struct vb2_ops mxt_queue_ops = {
++	.queue_setup		= mxt_queue_setup,
++	.buf_queue		= mxt_buffer_queue,
++	.wait_prepare		= vb2_ops_wait_prepare,
++	.wait_finish		= vb2_ops_wait_finish,
++};
++
++static const struct vb2_queue mxt_queue = {
++	.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
++	.io_modes = VB2_MMAP | VB2_USERPTR | VB2_DMABUF | VB2_READ,
++	.buf_struct_size = sizeof(struct mxt_vb2_buffer),
++	.ops = &mxt_queue_ops,
++	.mem_ops = &vb2_vmalloc_memops,
++	.timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC,
++	.min_buffers_needed = 1,
++};
++
++static int mxt_vidioc_querycap(struct file *file, void *priv,
++				 struct v4l2_capability *cap)
++{
++	struct mxt_data *data = video_drvdata(file);
++
++	strlcpy(cap->driver, "atmel_mxt_ts", sizeof(cap->driver));
++	strlcpy(cap->card, "atmel_mxt_ts touch", sizeof(cap->card));
++	snprintf(cap->bus_info, sizeof(cap->bus_info),
++		 "I2C:%s", dev_name(&data->client->dev));
++	return 0;
++}
++
++static int mxt_vidioc_enum_input(struct file *file, void *priv,
++				   struct v4l2_input *i)
++{
++	if (i->index > 0)
++		return -EINVAL;
++
 +	i->type = V4L2_INPUT_TYPE_TOUCH_SENSOR;
- 	i->std = V4L2_STD_UNKNOWN;
- 	strlcpy(i->name, "In-Cell Sensor", sizeof(i->name));
- 	i->capabilities = 0;
-diff --git a/drivers/media/v4l2-core/v4l2-dev.c b/drivers/media/v4l2-core/v4l2-dev.c
-index 70b559d..7068e12 100644
---- a/drivers/media/v4l2-core/v4l2-dev.c
-+++ b/drivers/media/v4l2-core/v4l2-dev.c
-@@ -529,6 +529,7 @@ static void determine_valid_ioctls(struct video_device *vdev)
- 	bool is_sdr = vdev->vfl_type == VFL_TYPE_SDR;
- 	bool is_rx = vdev->vfl_dir != VFL_DIR_TX;
- 	bool is_tx = vdev->vfl_dir != VFL_DIR_RX;
-+	bool is_touch = vdev->vfl_type == VFL_TYPE_TOUCH_SENSOR;
++	strlcpy(i->name, "Mutual References", sizeof(i->name));
++	return 0;
++}
++
++static int mxt_set_input(struct mxt_data *data, unsigned int i)
++{
++	struct v4l2_pix_format *f = &data->dbg.format;
++
++	if (i > 0)
++		return -EINVAL;
++
++	f->width = data->info.matrix_xsize;
++	f->height = data->info.matrix_ysize;
++	f->pixelformat = V4L2_PIX_FMT_YS16;
++	f->field = V4L2_FIELD_NONE;
++	f->colorspace = V4L2_COLORSPACE_RAW;
++	f->bytesperline = f->width * sizeof(u16);
++	f->sizeimage = f->width * f->height * sizeof(u16);
++
++	data->dbg.input = i;
++
++	return 0;
++}
++
++static int mxt_vidioc_s_input(struct file *file, void *priv, unsigned int i)
++{
++	return mxt_set_input(video_drvdata(file), i);
++}
++
++static int mxt_vidioc_g_input(struct file *file, void *priv, unsigned int *i)
++{
++	struct mxt_data *data = video_drvdata(file);
++
++	*i = data->dbg.input;
++
++	return 0;
++}
++
++static int mxt_vidioc_fmt(struct file *file, void *priv, struct v4l2_format *f)
++{
++	struct mxt_data *data = video_drvdata(file);
++
++	f->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
++	f->fmt.pix = data->dbg.format;
++
++	return 0;
++}
++
++static int mxt_vidioc_enum_fmt(struct file *file, void *priv,
++				 struct v4l2_fmtdesc *fmt)
++{
++	if (fmt->index > 0 || fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
++		return -EINVAL;
++
++	fmt->pixelformat = V4L2_PIX_FMT_YS16;
++	return 0;
++}
++
++static int mxt_vidioc_g_parm(struct file *file, void *fh,
++			     struct v4l2_streamparm *a)
++{
++	if (a->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
++		return -EINVAL;
++
++	a->parm.capture.readbuffers = 1;
++	a->parm.capture.timeperframe.numerator = 1;
++	a->parm.capture.timeperframe.denominator = 10;
++	return 0;
++}
++
++static const struct v4l2_ioctl_ops mxt_video_ioctl_ops = {
++	.vidioc_querycap        = mxt_vidioc_querycap,
++
++	.vidioc_enum_fmt_vid_cap = mxt_vidioc_enum_fmt,
++	.vidioc_s_fmt_vid_cap   = mxt_vidioc_fmt,
++	.vidioc_g_fmt_vid_cap   = mxt_vidioc_fmt,
++	.vidioc_try_fmt_vid_cap	= mxt_vidioc_fmt,
++	.vidioc_g_parm		= mxt_vidioc_g_parm,
++
++	.vidioc_enum_input      = mxt_vidioc_enum_input,
++	.vidioc_g_input         = mxt_vidioc_g_input,
++	.vidioc_s_input         = mxt_vidioc_s_input,
++
++	.vidioc_reqbufs         = vb2_ioctl_reqbufs,
++	.vidioc_create_bufs     = vb2_ioctl_create_bufs,
++	.vidioc_querybuf        = vb2_ioctl_querybuf,
++	.vidioc_qbuf            = vb2_ioctl_qbuf,
++	.vidioc_dqbuf           = vb2_ioctl_dqbuf,
++	.vidioc_expbuf          = vb2_ioctl_expbuf,
++
++	.vidioc_streamon        = vb2_ioctl_streamon,
++	.vidioc_streamoff       = vb2_ioctl_streamoff,
++};
++
++static const struct video_device mxt_video_device = {
++	.name = "Atmel maxTouch",
++	.fops = &mxt_video_fops,
++	.ioctl_ops = &mxt_video_ioctl_ops,
++	.release = video_device_release_empty,
++	.device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
++		       V4L2_CAP_STREAMING,
++};
++
+ static void mxt_debug_init(struct mxt_data *data)
+ {
+ 	struct mxt_dbg *dbg = &data->dbg;
+ 	struct mxt_object *object;
++	int error;
  
- 	bitmap_zero(valid_ioctls, BASE_VIDIOC_PRIVATE);
+ 	object = mxt_get_object(data, MXT_GEN_COMMAND_T6);
+ 	if (!object)
+@@ -2189,8 +2401,40 @@ static void mxt_debug_init(struct mxt_data *data)
+ 	if (!dbg->t37_buf)
+ 		goto error;
  
-@@ -573,7 +574,7 @@ static void determine_valid_ioctls(struct video_device *vdev)
- 	if (ops->vidioc_enum_freq_bands || ops->vidioc_g_tuner || ops->vidioc_g_modulator)
- 		set_bit(_IOC_NR(VIDIOC_ENUM_FREQ_BANDS), valid_ioctls);
++	/* init channel to zero */
++	mxt_set_input(data, 0);
++
++	/* register video device */
++	snprintf(dbg->v4l2.name, sizeof(dbg->v4l2.name), "%s", "atmel_mxt_ts");
++	error = v4l2_device_register(&data->client->dev, &dbg->v4l2);
++	if (error)
++		goto error;
++
++	/* initialize the queue */
++	mutex_init(&dbg->lock);
++	dbg->queue = mxt_queue;
++	dbg->queue.drv_priv = data;
++	dbg->queue.lock = &dbg->lock;
++
++	error = vb2_queue_init(&dbg->queue);
++	if (error)
++		goto error_unreg_v4l2;
++
++	dbg->vdev = mxt_video_device;
++	dbg->vdev.v4l2_dev = &dbg->v4l2;
++	dbg->vdev.lock = &dbg->lock;
++	dbg->vdev.vfl_dir = VFL_DIR_RX;
++	dbg->vdev.queue = &dbg->queue;
++	video_set_drvdata(&dbg->vdev, data);
++
++	error = video_register_device(&dbg->vdev, VFL_TYPE_TOUCH_SENSOR, -1);
++	if (error)
++		goto error_unreg_v4l2;
++
+ 	return;
  
--	if (is_vid) {
-+	if (is_vid || is_touch) {
- 		/* video specific ioctls */
- 		if ((is_rx && (ops->vidioc_enum_fmt_vid_cap ||
- 			       ops->vidioc_enum_fmt_vid_cap_mplane ||
-@@ -662,7 +663,7 @@ static void determine_valid_ioctls(struct video_device *vdev)
- 			set_bit(_IOC_NR(VIDIOC_TRY_FMT), valid_ioctls);
- 	}
- 
--	if (is_vid || is_vbi || is_sdr) {
-+	if (is_vid || is_vbi || is_sdr || is_touch) {
- 		/* ioctls valid for video, vbi or sdr */
- 		SET_VALID_IOCTL(ops, VIDIOC_REQBUFS, vidioc_reqbufs);
- 		SET_VALID_IOCTL(ops, VIDIOC_QUERYBUF, vidioc_querybuf);
-@@ -675,7 +676,7 @@ static void determine_valid_ioctls(struct video_device *vdev)
- 		SET_VALID_IOCTL(ops, VIDIOC_STREAMOFF, vidioc_streamoff);
- 	}
- 
--	if (is_vid || is_vbi) {
-+	if (is_vid || is_vbi || is_touch) {
- 		/* ioctls valid for video or vbi */
- 		if (ops->vidioc_s_std)
- 			set_bit(_IOC_NR(VIDIOC_ENUMSTD), valid_ioctls);
-@@ -739,6 +740,7 @@ static int video_register_media_controller(struct video_device *vdev, int type)
- 	vdev->entity.function = MEDIA_ENT_F_UNKNOWN;
- 
- 	switch (type) {
-+	case VFL_TYPE_TOUCH_SENSOR:
- 	case VFL_TYPE_GRABBER:
- 		intf_type = MEDIA_INTF_T_V4L_VIDEO;
- 		vdev->entity.function = MEDIA_ENT_F_IO_V4L;
-@@ -845,6 +847,8 @@ static int video_register_media_controller(struct video_device *vdev, int type)
-  *	%VFL_TYPE_SUBDEV - A subdevice
-  *
-  *	%VFL_TYPE_SDR - Software Defined Radio
-+ *
-+ *	%VFL_TYPE_TOUCH_SENSOR - A touch sensor
-  */
- int __video_register_device(struct video_device *vdev, int type, int nr,
- 		int warn_if_nr_in_use, struct module *owner)
-@@ -888,6 +892,9 @@ int __video_register_device(struct video_device *vdev, int type, int nr,
- 		/* Use device name 'swradio' because 'sdr' was already taken. */
- 		name_base = "swradio";
- 		break;
-+	case VFL_TYPE_TOUCH_SENSOR:
-+		name_base = "v4l-touch";
-+		break;
- 	default:
- 		printk(KERN_ERR "%s called with unknown type: %d\n",
- 		       __func__, type);
-diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index ecf7e0b..352c4d0 100644
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -924,6 +924,7 @@ static int check_fmt(struct file *file, enum v4l2_buf_type type)
- 	bool is_vid = vfd->vfl_type == VFL_TYPE_GRABBER;
- 	bool is_vbi = vfd->vfl_type == VFL_TYPE_VBI;
- 	bool is_sdr = vfd->vfl_type == VFL_TYPE_SDR;
-+	bool is_touch = vfd->vfl_type == VFL_TYPE_TOUCH_SENSOR;
- 	bool is_rx = vfd->vfl_dir != VFL_DIR_TX;
- 	bool is_tx = vfd->vfl_dir != VFL_DIR_RX;
- 
-@@ -932,7 +933,7 @@ static int check_fmt(struct file *file, enum v4l2_buf_type type)
- 
- 	switch (type) {
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
--		if (is_vid && is_rx &&
-+		if ((is_vid || is_touch) && is_rx &&
- 		    (ops->vidioc_g_fmt_vid_cap || ops->vidioc_g_fmt_vid_cap_mplane))
- 			return 0;
- 		break;
-@@ -1310,13 +1311,14 @@ static int v4l_enum_fmt(const struct v4l2_ioctl_ops *ops,
- 	struct video_device *vfd = video_devdata(file);
- 	bool is_vid = vfd->vfl_type == VFL_TYPE_GRABBER;
- 	bool is_sdr = vfd->vfl_type == VFL_TYPE_SDR;
-+	bool is_touch = vfd->vfl_type == VFL_TYPE_TOUCH_SENSOR;
- 	bool is_rx = vfd->vfl_dir != VFL_DIR_TX;
- 	bool is_tx = vfd->vfl_dir != VFL_DIR_RX;
- 	int ret = -EINVAL;
- 
- 	switch (p->type) {
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
--		if (unlikely(!is_rx || !is_vid || !ops->vidioc_enum_fmt_vid_cap))
-+		if (unlikely(!is_rx || (!is_vid && !is_touch) || !ops->vidioc_enum_fmt_vid_cap))
- 			break;
- 		ret = ops->vidioc_enum_fmt_vid_cap(file, fh, arg);
- 		break;
-@@ -1363,6 +1365,7 @@ static int v4l_g_fmt(const struct v4l2_ioctl_ops *ops,
- 	struct video_device *vfd = video_devdata(file);
- 	bool is_vid = vfd->vfl_type == VFL_TYPE_GRABBER;
- 	bool is_sdr = vfd->vfl_type == VFL_TYPE_SDR;
-+	bool is_touch = vfd->vfl_type == VFL_TYPE_TOUCH_SENSOR;
- 	bool is_rx = vfd->vfl_dir != VFL_DIR_TX;
- 	bool is_tx = vfd->vfl_dir != VFL_DIR_RX;
- 	int ret;
-@@ -1393,7 +1396,7 @@ static int v4l_g_fmt(const struct v4l2_ioctl_ops *ops,
- 
- 	switch (p->type) {
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
--		if (unlikely(!is_rx || !is_vid || !ops->vidioc_g_fmt_vid_cap))
-+		if (unlikely(!is_rx || (!is_vid && !is_touch) || !ops->vidioc_g_fmt_vid_cap))
- 			break;
- 		p->fmt.pix.priv = V4L2_PIX_FMT_PRIV_MAGIC;
- 		ret = ops->vidioc_g_fmt_vid_cap(file, fh, arg);
-@@ -1459,6 +1462,7 @@ static int v4l_s_fmt(const struct v4l2_ioctl_ops *ops,
- 	struct video_device *vfd = video_devdata(file);
- 	bool is_vid = vfd->vfl_type == VFL_TYPE_GRABBER;
- 	bool is_sdr = vfd->vfl_type == VFL_TYPE_SDR;
-+	bool is_touch = vfd->vfl_type == VFL_TYPE_TOUCH_SENSOR;
- 	bool is_rx = vfd->vfl_dir != VFL_DIR_TX;
- 	bool is_tx = vfd->vfl_dir != VFL_DIR_RX;
- 	int ret;
-@@ -1470,7 +1474,7 @@ static int v4l_s_fmt(const struct v4l2_ioctl_ops *ops,
- 
- 	switch (p->type) {
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
--		if (unlikely(!is_rx || !is_vid || !ops->vidioc_s_fmt_vid_cap))
-+		if (unlikely(!is_rx || (!is_vid && !is_touch) || !ops->vidioc_s_fmt_vid_cap))
- 			break;
- 		CLEAR_AFTER_FIELD(p, fmt.pix);
- 		ret = ops->vidioc_s_fmt_vid_cap(file, fh, arg);
-@@ -1546,6 +1550,7 @@ static int v4l_try_fmt(const struct v4l2_ioctl_ops *ops,
- 	struct video_device *vfd = video_devdata(file);
- 	bool is_vid = vfd->vfl_type == VFL_TYPE_GRABBER;
- 	bool is_sdr = vfd->vfl_type == VFL_TYPE_SDR;
-+	bool is_touch = vfd->vfl_type == VFL_TYPE_TOUCH_SENSOR;
- 	bool is_rx = vfd->vfl_dir != VFL_DIR_TX;
- 	bool is_tx = vfd->vfl_dir != VFL_DIR_RX;
- 	int ret;
-@@ -1554,7 +1559,7 @@ static int v4l_try_fmt(const struct v4l2_ioctl_ops *ops,
- 
- 	switch (p->type) {
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
--		if (unlikely(!is_rx || !is_vid || !ops->vidioc_try_fmt_vid_cap))
-+		if (unlikely(!is_rx || (!is_vid && !is_touch) || !ops->vidioc_try_fmt_vid_cap))
- 			break;
- 		CLEAR_AFTER_FIELD(p, fmt.pix);
- 		ret = ops->vidioc_try_fmt_vid_cap(file, fh, arg);
-diff --git a/include/media/v4l2-dev.h b/include/media/v4l2-dev.h
-index 25a3190..99eb87a 100644
---- a/include/media/v4l2-dev.h
-+++ b/include/media/v4l2-dev.h
-@@ -25,7 +25,8 @@
- #define VFL_TYPE_RADIO		2
- #define VFL_TYPE_SUBDEV		3
- #define VFL_TYPE_SDR		4
--#define VFL_TYPE_MAX		5
-+#define VFL_TYPE_TOUCH_SENSOR	5
-+#define VFL_TYPE_MAX		6
- 
- /* Is this a receiver, transmitter or mem-to-mem? */
- /* Ignored for VFL_TYPE_SUBDEV. */
-diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
-index e0125cf..765a6cb 100644
---- a/include/uapi/linux/videodev2.h
-+++ b/include/uapi/linux/videodev2.h
-@@ -1400,6 +1400,7 @@ struct v4l2_input {
- /*  Values for the 'type' field */
- #define V4L2_INPUT_TYPE_TUNER		1
- #define V4L2_INPUT_TYPE_CAMERA		2
-+#define V4L2_INPUT_TYPE_TOUCH_SENSOR	3
- 
- /* field 'status' - general */
- #define V4L2_IN_ST_NO_POWER    0x00000001  /* Attached device is off */
++error_unreg_v4l2:
++	v4l2_device_unregister(&dbg->v4l2);
+ error:
+ 	dev_warn(&data->client->dev, "Error initializing T37\n");
+ }
 -- 
 2.5.0

@@ -1,1393 +1,2033 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [RESEND v7 1/6] mfd: max8997: Use regmap to access registers
-Date: Fri, 17 Jun 2016 08:53:49 +0100
-Message-ID: <20160617075349.GE21702@dell>
-References: <1466143833-5856-1-git-send-email-k.kozlowski@samsung.com>
- <1466143833-5856-2-git-send-email-k.kozlowski@samsung.com>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCHv16 08/13] DocBook/media: add CEC documentation
+Date: Fri, 17 Jun 2016 09:58:53 +0200
+Message-ID: <5763ADBD.3050502@xs4all.nl>
+References: <1461937948-22936-1-git-send-email-hverkuil@xs4all.nl>
+ <1461937948-22936-9-git-send-email-hverkuil@xs4all.nl>
+ <20160616180958.03b9d759@recife.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <rtc-linux+bncBDA7X7F2WUEBBZGYR25QKGQE4CGBIKA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <1466143833-5856-2-git-send-email-k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, r.baldyga-anjuHVi6/WSaMJb+Lgu22Q@public.gmane.org, Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20160616180958.03b9d759@recife.lan>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-FAO Mark,
+On 06/16/2016 11:09 PM, Mauro Carvalho Chehab wrote:
+> Em Fri, 29 Apr 2016 15:52:23 +0200
+> Hans Verkuil <hverkuil@xs4all.nl> escreveu:
+> 
+>> From: Hans Verkuil <hans.verkuil@cisco.com>
+>>
+>> Add DocBook documentation for the CEC API.
+> 
+> Please always send the documentation patch *before* the code,
+> in order to make easier to do the code review.
+> 
+>>
+>> Signed-off-by: Hans Verkuil <hansverk@cisco.com>
+>> [k.debski@samsung.com: add documentation for passthrough mode]
+>> [k.debski@samsung.com: minor fixes and change of reserved field sizes]
+>> Signed-off-by: Kamil Debski <kamil@wypas.org>
+>> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+>> ---
+>>  Documentation/DocBook/device-drivers.tmpl          |   4 +
+>>  Documentation/DocBook/media/Makefile               |   2 +
+>>  Documentation/DocBook/media/v4l/biblio.xml         |  10 +
+>>  Documentation/DocBook/media/v4l/cec-api.xml        |  72 +++++
+>>  Documentation/DocBook/media/v4l/cec-func-close.xml |  59 ++++
+>>  Documentation/DocBook/media/v4l/cec-func-ioctl.xml |  73 +++++
+>>  Documentation/DocBook/media/v4l/cec-func-open.xml  |  94 ++++++
+>>  Documentation/DocBook/media/v4l/cec-func-poll.xml  |  89 ++++++
+>>  .../DocBook/media/v4l/cec-ioc-adap-g-caps.xml      | 140 +++++++++
+>>  .../DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml | 324 +++++++++++++++++++++
+>>  .../DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml |  82 ++++++
+>>  .../DocBook/media/v4l/cec-ioc-dqevent.xml          | 190 ++++++++++++
+>>  Documentation/DocBook/media/v4l/cec-ioc-g-mode.xml | 245 ++++++++++++++++
+>>  .../DocBook/media/v4l/cec-ioc-receive.xml          | 260 +++++++++++++++++
+>>  Documentation/DocBook/media_api.tmpl               |   6 +-
+>>  15 files changed, 1649 insertions(+), 1 deletion(-)
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-api.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-func-close.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-func-ioctl.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-func-open.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-func-poll.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-dqevent.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-mode.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-receive.xml
+> 
+> Hmm... as CEC is at staging, I'm not very comfortable on having
+> it documented there as-is, as the documentation is expected to
+> be for non-staging stuff. Maybe the best would be to add, on every
+> xml above, a note saying that this is a *proposed* documentation
+> for a feature yet to be accepted.
 
-Just your Ack missing on this set.
+No problem.
 
-> From: Robert Baldyga <r.baldyga-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
->=20
-> This patch modifies max8997 driver and each associated function driver,
-> to use regmap instead of operating directly on i2c bus. It will allow to
-> simplify IRQ handling using regmap-irq.
->=20
-> Signed-off-by: Robert Baldyga <r.baldyga-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Reviewed-by: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Acked-by: Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Acked-by: Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Acked-by: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Acked-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> [k.kozlowski: Collect acks, rebase on v4.6-rc6]
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Acked-by: Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> ---
->  drivers/extcon/extcon-max8997.c       |  31 ++++----
->  drivers/input/misc/max8997_haptic.c   |  34 ++++----
->  drivers/leds/leds-max8997.c           |  13 ++--
->  drivers/mfd/Kconfig                   |   1 +
->  drivers/mfd/max8997-irq.c             |  64 ++++++---------
->  drivers/mfd/max8997.c                 | 141 +++++++++++++++-------------=
-------
->  drivers/power/max8997_charger.c       |  33 ++++----
->  drivers/regulator/max8997-regulator.c |  87 ++++++++++-----------
->  drivers/rtc/rtc-max8997.c             |  56 ++++++++------
->  include/linux/mfd/max8997-private.h   |  17 ++--
->  10 files changed, 228 insertions(+), 249 deletions(-)
->=20
-> diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8=
-997.c
-> index 9a89320d09a8..fc812257bfc7 100644
-> --- a/drivers/extcon/extcon-max8997.c
-> +++ b/drivers/extcon/extcon-max8997.c
-> @@ -27,6 +27,7 @@
->  #include <linux/mfd/max8997-private.h>
->  #include <linux/extcon.h>
->  #include <linux/irqdomain.h>
-> +#include <linux/regmap.h>
-> =20
->  #define	DEV_NAME			"max8997-muic"
->  #define	DELAY_MS_DEFAULT		20000		/* unit: millisecond */
-> @@ -116,7 +117,7 @@ enum max8997_muic_charger_type {
-> =20
->  struct max8997_muic_info {
->  	struct device *dev;
-> -	struct i2c_client *muic;
-> +	struct max8997_dev *max8997;
->  	struct extcon_dev *edev;
->  	int prev_cable_type;
->  	int prev_chg_type;
-> @@ -174,10 +175,10 @@ static int max8997_muic_set_debounce_time(struct ma=
-x8997_muic_info *info,
->  	case ADC_DEBOUNCE_TIME_10MS:
->  	case ADC_DEBOUNCE_TIME_25MS:
->  	case ADC_DEBOUNCE_TIME_38_62MS:
-> -		ret =3D max8997_update_reg(info->muic,
-> +		ret =3D regmap_update_bits(info->max8997->regmap_muic,
->  					  MAX8997_MUIC_REG_CONTROL3,
-> -					  time << CONTROL3_ADCDBSET_SHIFT,
-> -					  CONTROL3_ADCDBSET_MASK);
-> +					  CONTROL3_ADCDBSET_MASK,
-> +					  time << CONTROL3_ADCDBSET_SHIFT);
->  		if (ret) {
->  			dev_err(info->dev, "failed to set ADC debounce time\n");
->  			return ret;
-> @@ -212,8 +213,8 @@ static int max8997_muic_set_path(struct max8997_muic_=
-info *info,
->  	else
->  		ctrl1 =3D CONTROL1_SW_OPEN;
-> =20
-> -	ret =3D max8997_update_reg(info->muic,
-> -			MAX8997_MUIC_REG_CONTROL1, ctrl1, COMP_SW_MASK);
-> +	ret =3D regmap_update_bits(info->max8997->regmap_muic,
-> +			MAX8997_MUIC_REG_CONTROL1, COMP_SW_MASK, ctrl1);
->  	if (ret < 0) {
->  		dev_err(info->dev, "failed to update MUIC register\n");
->  		return ret;
-> @@ -224,9 +225,9 @@ static int max8997_muic_set_path(struct max8997_muic_=
-info *info,
->  	else
->  		ctrl2 |=3D CONTROL2_LOWPWR_MASK;	/* LowPwr=3D1, CPEn=3D0 */
-> =20
-> -	ret =3D max8997_update_reg(info->muic,
-> -			MAX8997_MUIC_REG_CONTROL2, ctrl2,
-> -			CONTROL2_LOWPWR_MASK | CONTROL2_CPEN_MASK);
-> +	ret =3D regmap_update_bits(info->max8997->regmap_muic,
-> +			MAX8997_MUIC_REG_CONTROL2,
-> +			CONTROL2_LOWPWR_MASK | CONTROL2_CPEN_MASK, ctrl2);
->  	if (ret < 0) {
->  		dev_err(info->dev, "failed to update MUIC register\n");
->  		return ret;
-> @@ -530,8 +531,8 @@ static void max8997_muic_irq_work(struct work_struct =
-*work)
->  		if (info->irq =3D=3D muic_irqs[i].virq)
->  			irq_type =3D muic_irqs[i].irq;
-> =20
-> -	ret =3D max8997_bulk_read(info->muic, MAX8997_MUIC_REG_STATUS1,
-> -				2, info->status);
-> +	ret =3D regmap_bulk_read(info->max8997->regmap_muic,
-> +				MAX8997_MUIC_REG_STATUS1, info->status, 2);
->  	if (ret) {
->  		dev_err(info->dev, "failed to read muic register\n");
->  		mutex_unlock(&info->mutex);
-> @@ -590,8 +591,8 @@ static int max8997_muic_detect_dev(struct max8997_mui=
-c_info *info)
->  	mutex_lock(&info->mutex);
-> =20
->  	/* Read STATUSx register to detect accessory */
-> -	ret =3D max8997_bulk_read(info->muic,
-> -			MAX8997_MUIC_REG_STATUS1, 2, info->status);
-> +	ret =3D regmap_bulk_read(info->max8997->regmap_muic,
-> +			MAX8997_MUIC_REG_STATUS1, info->status, 2);
->  	if (ret) {
->  		dev_err(info->dev, "failed to read MUIC register\n");
->  		mutex_unlock(&info->mutex);
-> @@ -650,7 +651,7 @@ static int max8997_muic_probe(struct platform_device =
-*pdev)
->  		return -ENOMEM;
-> =20
->  	info->dev =3D &pdev->dev;
-> -	info->muic =3D max8997->muic;
-> +	info->max8997 =3D max8997;
-> =20
->  	platform_set_drvdata(pdev, info);
->  	mutex_init(&info->mutex);
-> @@ -700,7 +701,7 @@ static int max8997_muic_probe(struct platform_device =
-*pdev)
-> =20
->  		/* Initialize registers according to platform data */
->  		for (i =3D 0; i < muic_pdata->num_init_data; i++) {
-> -			max8997_write_reg(info->muic,
-> +			regmap_write(info->max8997->regmap_muic,
->  					muic_pdata->init_data[i].addr,
->  					muic_pdata->init_data[i].data);
->  		}
-> diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max=
-8997_haptic.c
-> index 99bc762881d5..b1c81cdde240 100644
-> --- a/drivers/input/misc/max8997_haptic.c
-> +++ b/drivers/input/misc/max8997_haptic.c
-> @@ -31,6 +31,7 @@
->  #include <linux/mfd/max8997-private.h>
->  #include <linux/mfd/max8997.h>
->  #include <linux/regulator/consumer.h>
-> +#include <linux/regmap.h>
-> =20
->  /* Haptic configuration 2 register */
->  #define MAX8997_MOTOR_TYPE_SHIFT	7
-> @@ -45,7 +46,7 @@
-> =20
->  struct max8997_haptic {
->  	struct device *dev;
-> -	struct i2c_client *client;
-> +	struct max8997_dev *max8997;
->  	struct input_dev *input_dev;
->  	struct regulator *regulator;
-> =20
-> @@ -86,19 +87,19 @@ static int max8997_haptic_set_duty_cycle(struct max89=
-97_haptic *chip)
->  		}
->  		switch (chip->internal_mode_pattern) {
->  		case 0:
-> -			max8997_write_reg(chip->client,
-> +			regmap_write(chip->max8997->regmap_haptic,
->  				MAX8997_HAPTIC_REG_SIGPWMDC1, duty_index);
->  			break;
->  		case 1:
-> -			max8997_write_reg(chip->client,
-> +			regmap_write(chip->max8997->regmap_haptic,
->  				MAX8997_HAPTIC_REG_SIGPWMDC2, duty_index);
->  			break;
->  		case 2:
-> -			max8997_write_reg(chip->client,
-> +			regmap_write(chip->max8997->regmap_haptic,
->  				MAX8997_HAPTIC_REG_SIGPWMDC3, duty_index);
->  			break;
->  		case 3:
-> -			max8997_write_reg(chip->client,
-> +			regmap_write(chip->max8997->regmap_haptic,
->  				MAX8997_HAPTIC_REG_SIGPWMDC4, duty_index);
->  			break;
->  		default:
-> @@ -115,50 +116,51 @@ static void max8997_haptic_configure(struct max8997=
-_haptic *chip)
->  	value =3D chip->type << MAX8997_MOTOR_TYPE_SHIFT |
->  		chip->enabled << MAX8997_ENABLE_SHIFT |
->  		chip->mode << MAX8997_MODE_SHIFT | chip->pwm_divisor;
-> -	max8997_write_reg(chip->client, MAX8997_HAPTIC_REG_CONF2, value);
-> +	regmap_write(chip->max8997->regmap_haptic,
-> +		MAX8997_HAPTIC_REG_CONF2, value);
-> =20
->  	if (chip->mode =3D=3D MAX8997_INTERNAL_MODE && chip->enabled) {
->  		value =3D chip->internal_mode_pattern << MAX8997_CYCLE_SHIFT |
->  			chip->internal_mode_pattern << MAX8997_SIG_PERIOD_SHIFT |
->  			chip->internal_mode_pattern << MAX8997_SIG_DUTY_SHIFT |
->  			chip->internal_mode_pattern << MAX8997_PWM_DUTY_SHIFT;
-> -		max8997_write_reg(chip->client,
-> +		regmap_write(chip->max8997->regmap_haptic,
->  			MAX8997_HAPTIC_REG_DRVCONF, value);
-> =20
->  		switch (chip->internal_mode_pattern) {
->  		case 0:
->  			value =3D chip->pattern_cycle << 4;
-> -			max8997_write_reg(chip->client,
-> +			regmap_write(chip->max8997->regmap_haptic,
->  				MAX8997_HAPTIC_REG_CYCLECONF1, value);
->  			value =3D chip->pattern_signal_period;
-> -			max8997_write_reg(chip->client,
-> +			regmap_write(chip->max8997->regmap_haptic,
->  				MAX8997_HAPTIC_REG_SIGCONF1, value);
->  			break;
-> =20
->  		case 1:
->  			value =3D chip->pattern_cycle;
-> -			max8997_write_reg(chip->client,
-> +			regmap_write(chip->max8997->regmap_haptic,
->  				MAX8997_HAPTIC_REG_CYCLECONF1, value);
->  			value =3D chip->pattern_signal_period;
-> -			max8997_write_reg(chip->client,
-> +			regmap_write(chip->max8997->regmap_haptic,
->  				MAX8997_HAPTIC_REG_SIGCONF2, value);
->  			break;
-> =20
->  		case 2:
->  			value =3D chip->pattern_cycle << 4;
-> -			max8997_write_reg(chip->client,
-> +			regmap_write(chip->max8997->regmap_haptic,
->  				MAX8997_HAPTIC_REG_CYCLECONF2, value);
->  			value =3D chip->pattern_signal_period;
-> -			max8997_write_reg(chip->client,
-> +			regmap_write(chip->max8997->regmap_haptic,
->  				MAX8997_HAPTIC_REG_SIGCONF3, value);
->  			break;
-> =20
->  		case 3:
->  			value =3D chip->pattern_cycle;
-> -			max8997_write_reg(chip->client,
-> +			regmap_write(chip->max8997->regmap_haptic,
->  				MAX8997_HAPTIC_REG_CYCLECONF2, value);
->  			value =3D chip->pattern_signal_period;
-> -			max8997_write_reg(chip->client,
-> +			regmap_write(chip->max8997->regmap_haptic,
->  				MAX8997_HAPTIC_REG_SIGCONF4, value);
->  			break;
-> =20
-> @@ -279,7 +281,7 @@ static int max8997_haptic_probe(struct platform_devic=
-e *pdev)
->  	INIT_WORK(&chip->work, max8997_haptic_play_effect_work);
->  	mutex_init(&chip->mutex);
-> =20
-> -	chip->client =3D iodev->haptic;
-> +	chip->max8997 =3D iodev;
->  	chip->dev =3D &pdev->dev;
->  	chip->input_dev =3D input_dev;
->  	chip->pwm_period =3D haptic_pdata->pwm_period;
-> diff --git a/drivers/leds/leds-max8997.c b/drivers/leds/leds-max8997.c
-> index 4edf74f1d6d4..e5f0dc2e9edf 100644
-> --- a/drivers/leds/leds-max8997.c
-> +++ b/drivers/leds/leds-max8997.c
-> @@ -17,6 +17,7 @@
->  #include <linux/mfd/max8997.h>
->  #include <linux/mfd/max8997-private.h>
->  #include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> =20
->  #define MAX8997_LED_FLASH_SHIFT			3
->  #define MAX8997_LED_FLASH_CUR_MASK		0xf8
-> @@ -52,7 +53,6 @@ static void max8997_led_set_mode(struct max8997_led *le=
-d,
->  			enum max8997_led_mode mode)
->  {
->  	int ret;
-> -	struct i2c_client *client =3D led->iodev->i2c;
->  	u8 mask =3D 0, val;
-> =20
->  	switch (mode) {
-> @@ -88,8 +88,8 @@ static void max8997_led_set_mode(struct max8997_led *le=
-d,
->  	}
-> =20
->  	if (mask) {
-> -		ret =3D max8997_update_reg(client, MAX8997_REG_LEN_CNTL, val,
-> -					 mask);
-> +		ret =3D regmap_update_bits(led->iodev->regmap,
-> +					MAX8997_REG_LEN_CNTL, mask, val);
->  		if (ret)
->  			dev_err(led->iodev->dev,
->  				"failed to update register(%d)\n", ret);
-> @@ -101,7 +101,6 @@ static void max8997_led_set_mode(struct max8997_led *=
-led,
->  static void max8997_led_enable(struct max8997_led *led, bool enable)
->  {
->  	int ret;
-> -	struct i2c_client *client =3D led->iodev->i2c;
->  	u8 val =3D 0, mask =3D MAX8997_LED_BOOST_ENABLE_MASK;
-> =20
->  	if (led->enabled =3D=3D enable)
-> @@ -109,7 +108,8 @@ static void max8997_led_enable(struct max8997_led *le=
-d, bool enable)
-> =20
->  	val =3D enable ? MAX8997_LED_BOOST_ENABLE_MASK : 0;
-> =20
-> -	ret =3D max8997_update_reg(client, MAX8997_REG_BOOST_CNTL, val, mask);
-> +	ret =3D regmap_update_bits(led->iodev->regmap,
-> +				MAX8997_REG_BOOST_CNTL, mask, val);
->  	if (ret)
->  		dev_err(led->iodev->dev,
->  			"failed to update register(%d)\n", ret);
-> @@ -121,7 +121,6 @@ static void max8997_led_set_current(struct max8997_le=
-d *led,
->  				enum led_brightness value)
->  {
->  	int ret;
-> -	struct i2c_client *client =3D led->iodev->i2c;
->  	u8 val =3D 0, mask =3D 0, reg =3D 0;
-> =20
->  	switch (led->led_mode) {
-> @@ -142,7 +141,7 @@ static void max8997_led_set_current(struct max8997_le=
-d *led,
->  	}
-> =20
->  	if (mask) {
-> -		ret =3D max8997_update_reg(client, reg, val, mask);
-> +		ret =3D regmap_update_bits(led->iodev->regmap, reg, mask, val);
->  		if (ret)
->  			dev_err(led->iodev->dev,
->  				"failed to update register(%d)\n", ret);
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index 1bcf601de5bc..d7c6491ce3b9 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -621,6 +621,7 @@ config MFD_MAX8997
->  	bool "Maxim Semiconductor MAX8997/8966 PMIC Support"
->  	depends on I2C=3Dy
->  	select MFD_CORE
-> +	select REGMAP_I2C
->  	select IRQ_DOMAIN
->  	help
->  	  Say yes here to add support for Maxim Semiconductor MAX8997/8966.
-> diff --git a/drivers/mfd/max8997-irq.c b/drivers/mfd/max8997-irq.c
-> index b95a46d79b9d..6ab5f955c510 100644
-> --- a/drivers/mfd/max8997-irq.c
-> +++ b/drivers/mfd/max8997-irq.c
-> @@ -26,6 +26,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/mfd/max8997.h>
->  #include <linux/mfd/max8997-private.h>
-> +#include <linux/regmap.h>
-> =20
->  static const u8 max8997_mask_reg[] =3D {
->  	[PMIC_INT1] =3D MAX8997_REG_INT1MSK,
-> @@ -41,25 +42,6 @@ static const u8 max8997_mask_reg[] =3D {
->  	[FLASH_STATUS] =3D MAX8997_REG_INVALID,
->  };
-> =20
-> -static struct i2c_client *get_i2c(struct max8997_dev *max8997,
-> -				enum max8997_irq_source src)
-> -{
-> -	switch (src) {
-> -	case PMIC_INT1 ... PMIC_INT4:
-> -		return max8997->i2c;
-> -	case FUEL_GAUGE:
-> -		return NULL;
-> -	case MUIC_INT1 ... MUIC_INT3:
-> -		return max8997->muic;
-> -	case GPIO_LOW ... GPIO_HI:
-> -		return max8997->i2c;
-> -	case FLASH_STATUS:
-> -		return max8997->i2c;
-> -	default:
-> -		return ERR_PTR(-EINVAL);
-> -	}
-> -}
-> -
->  struct max8997_irq_data {
->  	int mask;
->  	enum max8997_irq_source group;
-> @@ -124,15 +106,20 @@ static void max8997_irq_sync_unlock(struct irq_data=
- *data)
->  	int i;
-> =20
->  	for (i =3D 0; i < MAX8997_IRQ_GROUP_NR; i++) {
-> +		struct regmap *map;
->  		u8 mask_reg =3D max8997_mask_reg[i];
-> -		struct i2c_client *i2c =3D get_i2c(max8997, i);
-> +
-> +		if (i >=3D MUIC_INT1 && i <=3D MUIC_INT3)
-> +			map =3D max8997->regmap_muic;
-> +		else
-> +			map =3D max8997->regmap;
-> =20
->  		if (mask_reg =3D=3D MAX8997_REG_INVALID ||
-> -				IS_ERR_OR_NULL(i2c))
-> +				IS_ERR_OR_NULL(map))
->  			continue;
->  		max8997->irq_masks_cache[i] =3D max8997->irq_masks_cur[i];
-> =20
-> -		max8997_write_reg(i2c, max8997_mask_reg[i],
-> +		regmap_write(map, max8997_mask_reg[i],
->  				max8997->irq_masks_cur[i]);
->  	}
-> =20
-> @@ -180,11 +167,11 @@ static irqreturn_t max8997_irq_thread(int irq, void=
- *data)
->  {
->  	struct max8997_dev *max8997 =3D data;
->  	u8 irq_reg[MAX8997_IRQ_GROUP_NR] =3D {};
-> -	u8 irq_src;
-> +	unsigned int irq_src;
->  	int ret;
->  	int i, cur_irq;
-> =20
-> -	ret =3D max8997_read_reg(max8997->i2c, MAX8997_REG_INTSRC, &irq_src);
-> +	ret =3D regmap_read(max8997->regmap, MAX8997_REG_INTSRC, &irq_src);
->  	if (ret < 0) {
->  		dev_err(max8997->dev, "Failed to read interrupt source: %d\n",
->  				ret);
-> @@ -193,8 +180,8 @@ static irqreturn_t max8997_irq_thread(int irq, void *=
-data)
-> =20
->  	if (irq_src & MAX8997_IRQSRC_PMIC) {
->  		/* PMIC INT1 ~ INT4 */
-> -		max8997_bulk_read(max8997->i2c, MAX8997_REG_INT1, 4,
-> -				&irq_reg[PMIC_INT1]);
-> +		regmap_bulk_read(max8997->regmap, MAX8997_REG_INT1,
-> +				&irq_reg[PMIC_INT1], 4);
->  	}
->  	if (irq_src & MAX8997_IRQSRC_FUELGAUGE) {
->  		/*
-> @@ -214,8 +201,8 @@ static irqreturn_t max8997_irq_thread(int irq, void *=
-data)
->  	}
->  	if (irq_src & MAX8997_IRQSRC_MUIC) {
->  		/* MUIC INT1 ~ INT3 */
-> -		max8997_bulk_read(max8997->muic, MAX8997_MUIC_REG_INT1, 3,
-> -				&irq_reg[MUIC_INT1]);
-> +		regmap_bulk_read(max8997->regmap_muic, MAX8997_MUIC_REG_INT1,
-> +				&irq_reg[MUIC_INT1], 3);
->  	}
->  	if (irq_src & MAX8997_IRQSRC_GPIO) {
->  		/* GPIO Interrupt */
-> @@ -224,8 +211,8 @@ static irqreturn_t max8997_irq_thread(int irq, void *=
-data)
->  		irq_reg[GPIO_LOW] =3D 0;
->  		irq_reg[GPIO_HI] =3D 0;
-> =20
-> -		max8997_bulk_read(max8997->i2c, MAX8997_REG_GPIOCNTL1,
-> -				MAX8997_NUM_GPIO, gpio_info);
-> +		regmap_bulk_read(max8997->regmap, MAX8997_REG_GPIOCNTL1,
-> +				gpio_info, MAX8997_NUM_GPIO);
->  		for (i =3D 0; i < MAX8997_NUM_GPIO; i++) {
->  			bool interrupt =3D false;
-> =20
-> @@ -259,8 +246,10 @@ static irqreturn_t max8997_irq_thread(int irq, void =
-*data)
->  	}
->  	if (irq_src & MAX8997_IRQSRC_FLASH) {
->  		/* Flash Status Interrupt */
-> -		ret =3D max8997_read_reg(max8997->i2c, MAX8997_REG_FLASHSTATUS,
-> -				&irq_reg[FLASH_STATUS]);
-> +		unsigned int data;
-> +		ret =3D regmap_read(max8997->regmap,
-> +				MAX8997_REG_FLASHSTATUS, &data);
-> +		irq_reg[FLASH_STATUS] =3D data;
->  	}
-> =20
->  	/* Apply masking */
-> @@ -308,7 +297,7 @@ int max8997_irq_init(struct max8997_dev *max8997)
->  	struct irq_domain *domain;
->  	int i;
->  	int ret;
-> -	u8 val;
-> +	unsigned int val;
-> =20
->  	if (!max8997->irq) {
->  		dev_warn(max8997->dev, "No interrupt specified.\n");
-> @@ -319,22 +308,19 @@ int max8997_irq_init(struct max8997_dev *max8997)
-> =20
->  	/* Mask individual interrupt sources */
->  	for (i =3D 0; i < MAX8997_IRQ_GROUP_NR; i++) {
-> -		struct i2c_client *i2c;
-> -
->  		max8997->irq_masks_cur[i] =3D 0xff;
->  		max8997->irq_masks_cache[i] =3D 0xff;
-> -		i2c =3D get_i2c(max8997, i);
-> =20
-> -		if (IS_ERR_OR_NULL(i2c))
-> +		if (IS_ERR_OR_NULL(max8997->regmap))
->  			continue;
->  		if (max8997_mask_reg[i] =3D=3D MAX8997_REG_INVALID)
->  			continue;
-> =20
-> -		max8997_write_reg(i2c, max8997_mask_reg[i], 0xff);
-> +		regmap_write(max8997->regmap, max8997_mask_reg[i], 0xff);
->  	}
-> =20
->  	for (i =3D 0; i < MAX8997_NUM_GPIO; i++) {
-> -		max8997->gpio_status[i] =3D (max8997_read_reg(max8997->i2c,
-> +		max8997->gpio_status[i] =3D (regmap_read(max8997->regmap,
->  						MAX8997_REG_GPIOCNTL1 + i,
->  						&val)
->  					& MAX8997_GPIO_DATA_MASK) ?
-> diff --git a/drivers/mfd/max8997.c b/drivers/mfd/max8997.c
-> index f316348e3d98..f1c82110b2ab 100644
-> --- a/drivers/mfd/max8997.c
-> +++ b/drivers/mfd/max8997.c
-> @@ -33,6 +33,7 @@
->  #include <linux/mfd/core.h>
->  #include <linux/mfd/max8997.h>
->  #include <linux/mfd/max8997-private.h>
-> +#include <linux/regmap.h>
-> =20
->  #define I2C_ADDR_PMIC	(0xCC >> 1)
->  #define I2C_ADDR_MUIC	(0x4A >> 1)
-> @@ -58,81 +59,29 @@ static const struct of_device_id max8997_pmic_dt_matc=
-h[] =3D {
->  MODULE_DEVICE_TABLE(of, max8997_pmic_dt_match);
->  #endif
-> =20
-> -int max8997_read_reg(struct i2c_client *i2c, u8 reg, u8 *dest)
-> -{
-> -	struct max8997_dev *max8997 =3D i2c_get_clientdata(i2c);
-> -	int ret;
-> -
-> -	mutex_lock(&max8997->iolock);
-> -	ret =3D i2c_smbus_read_byte_data(i2c, reg);
-> -	mutex_unlock(&max8997->iolock);
-> -	if (ret < 0)
-> -		return ret;
-> -
-> -	ret &=3D 0xff;
-> -	*dest =3D ret;
-> -	return 0;
-> -}
-> -EXPORT_SYMBOL_GPL(max8997_read_reg);
-> -
-> -int max8997_bulk_read(struct i2c_client *i2c, u8 reg, int count, u8 *buf=
-)
-> -{
-> -	struct max8997_dev *max8997 =3D i2c_get_clientdata(i2c);
-> -	int ret;
-> -
-> -	mutex_lock(&max8997->iolock);
-> -	ret =3D i2c_smbus_read_i2c_block_data(i2c, reg, count, buf);
-> -	mutex_unlock(&max8997->iolock);
-> -	if (ret < 0)
-> -		return ret;
-> -
-> -	return 0;
-> -}
-> -EXPORT_SYMBOL_GPL(max8997_bulk_read);
-> -
-> -int max8997_write_reg(struct i2c_client *i2c, u8 reg, u8 value)
-> -{
-> -	struct max8997_dev *max8997 =3D i2c_get_clientdata(i2c);
-> -	int ret;
-> -
-> -	mutex_lock(&max8997->iolock);
-> -	ret =3D i2c_smbus_write_byte_data(i2c, reg, value);
-> -	mutex_unlock(&max8997->iolock);
-> -	return ret;
-> -}
-> -EXPORT_SYMBOL_GPL(max8997_write_reg);
-> -
-> -int max8997_bulk_write(struct i2c_client *i2c, u8 reg, int count, u8 *bu=
-f)
-> -{
-> -	struct max8997_dev *max8997 =3D i2c_get_clientdata(i2c);
-> -	int ret;
-> +static const struct regmap_config max8997_regmap_config =3D {
-> +	.reg_bits =3D 8,
-> +	.val_bits =3D 8,
-> +	.max_register =3D MAX8997_REG_PMIC_END,
-> +};
-> =20
-> -	mutex_lock(&max8997->iolock);
-> -	ret =3D i2c_smbus_write_i2c_block_data(i2c, reg, count, buf);
-> -	mutex_unlock(&max8997->iolock);
-> -	if (ret < 0)
-> -		return ret;
-> +static const struct regmap_config max8997_regmap_rtc_config =3D {
-> +	.reg_bits =3D 8,
-> +	.val_bits =3D 8,
-> +	.max_register =3D MAX8997_RTC_REG_END,
-> +};
-> =20
-> -	return 0;
-> -}
-> -EXPORT_SYMBOL_GPL(max8997_bulk_write);
-> +static const struct regmap_config max8997_regmap_haptic_config =3D {
-> +	.reg_bits =3D 8,
-> +	.val_bits =3D 8,
-> +	.max_register =3D MAX8997_HAPTIC_REG_END,
-> +};
-> =20
-> -int max8997_update_reg(struct i2c_client *i2c, u8 reg, u8 val, u8 mask)
-> -{
-> -	struct max8997_dev *max8997 =3D i2c_get_clientdata(i2c);
-> -	int ret;
-> -
-> -	mutex_lock(&max8997->iolock);
-> -	ret =3D i2c_smbus_read_byte_data(i2c, reg);
-> -	if (ret >=3D 0) {
-> -		u8 old_val =3D ret & 0xff;
-> -		u8 new_val =3D (val & mask) | (old_val & (~mask));
-> -		ret =3D i2c_smbus_write_byte_data(i2c, reg, new_val);
-> -	}
-> -	mutex_unlock(&max8997->iolock);
-> -	return ret;
-> -}
-> -EXPORT_SYMBOL_GPL(max8997_update_reg);
-> +static const struct regmap_config max8997_regmap_muic_config =3D {
-> +	.reg_bits =3D 8,
-> +	.val_bits =3D 8,
-> +	.max_register =3D MAX8997_MUIC_REG_END,
-> +};
-> =20
->  /*
->   * Only the common platform data elements for max8997 are parsed here fr=
-om the
-> @@ -231,6 +180,41 @@ static int max8997_i2c_probe(struct i2c_client *i2c,
->  	}
->  	i2c_set_clientdata(max8997->muic, max8997);
-> =20
-> +	max8997->regmap =3D devm_regmap_init_i2c(i2c, &max8997_regmap_config);
-> +	if (IS_ERR(max8997->regmap)) {
-> +		ret =3D PTR_ERR(max8997->regmap);
-> +		dev_err(max8997->dev,
-> +				"failed to allocate register map: %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	max8997->regmap_rtc =3D devm_regmap_init_i2c(max8997->rtc,
-> +					&max8997_regmap_rtc_config);
-> +	if (IS_ERR(max8997->regmap_rtc)) {
-> +		ret =3D PTR_ERR(max8997->regmap_rtc);
-> +		dev_err(max8997->dev,
-> +				"failed to allocate register map: %d\n", ret);
-> +		goto err_regmap;
-> +	}
-> +
-> +	max8997->regmap_haptic =3D devm_regmap_init_i2c(max8997->haptic,
-> +					&max8997_regmap_haptic_config);
-> +	if (IS_ERR(max8997->regmap_haptic)) {
-> +		ret =3D PTR_ERR(max8997->regmap_haptic);
-> +		dev_err(max8997->dev,
-> +				"failed to allocate register map: %d\n", ret);
-> +		goto err_regmap;
-> +	}
-> +
-> +	max8997->regmap_muic =3D devm_regmap_init_i2c(max8997->muic,
-> +					&max8997_regmap_muic_config);
-> +	if (IS_ERR(max8997->regmap_muic)) {
-> +		ret =3D PTR_ERR(max8997->regmap_muic);
-> +		dev_err(max8997->dev,
-> +				"failed to allocate register map: %d\n", ret);
-> +		goto err_regmap;
-> +	}
-> +
->  	pm_runtime_set_active(max8997->dev);
-> =20
->  	max8997_irq_init(max8997);
-> @@ -255,6 +239,7 @@ static int max8997_i2c_probe(struct i2c_client *i2c,
-> =20
->  err_mfd:
->  	mfd_remove_devices(max8997->dev);
-> +err_regmap:
->  	i2c_unregister_device(max8997->muic);
->  err_i2c_muic:
->  	i2c_unregister_device(max8997->haptic);
-> @@ -442,15 +427,15 @@ static int max8997_freeze(struct device *dev)
->  	int i;
-> =20
->  	for (i =3D 0; i < ARRAY_SIZE(max8997_dumpaddr_pmic); i++)
-> -		max8997_read_reg(i2c, max8997_dumpaddr_pmic[i],
-> +		regmap_read(max8997->regmap, max8997_dumpaddr_pmic[i],
->  				&max8997->reg_dump[i]);
-> =20
->  	for (i =3D 0; i < ARRAY_SIZE(max8997_dumpaddr_muic); i++)
-> -		max8997_read_reg(i2c, max8997_dumpaddr_muic[i],
-> +		regmap_read(max8997->regmap_muic, max8997_dumpaddr_muic[i],
->  				&max8997->reg_dump[i + MAX8997_REG_PMIC_END]);
-> =20
->  	for (i =3D 0; i < ARRAY_SIZE(max8997_dumpaddr_haptic); i++)
-> -		max8997_read_reg(i2c, max8997_dumpaddr_haptic[i],
-> +		regmap_read(max8997->regmap_haptic, max8997_dumpaddr_haptic[i],
->  				&max8997->reg_dump[i + MAX8997_REG_PMIC_END +
->  				MAX8997_MUIC_REG_END]);
-> =20
-> @@ -464,15 +449,15 @@ static int max8997_restore(struct device *dev)
->  	int i;
-> =20
->  	for (i =3D 0; i < ARRAY_SIZE(max8997_dumpaddr_pmic); i++)
-> -		max8997_write_reg(i2c, max8997_dumpaddr_pmic[i],
-> +		regmap_write(max8997->regmap, max8997_dumpaddr_pmic[i],
->  				max8997->reg_dump[i]);
-> =20
->  	for (i =3D 0; i < ARRAY_SIZE(max8997_dumpaddr_muic); i++)
-> -		max8997_write_reg(i2c, max8997_dumpaddr_muic[i],
-> +		regmap_write(max8997->regmap_muic, max8997_dumpaddr_muic[i],
->  				max8997->reg_dump[i + MAX8997_REG_PMIC_END]);
-> =20
->  	for (i =3D 0; i < ARRAY_SIZE(max8997_dumpaddr_haptic); i++)
-> -		max8997_write_reg(i2c, max8997_dumpaddr_haptic[i],
-> +		regmap_write(max8997->regmap_haptic, max8997_dumpaddr_haptic[i],
->  				max8997->reg_dump[i + MAX8997_REG_PMIC_END +
->  				MAX8997_MUIC_REG_END]);
-> =20
-> diff --git a/drivers/power/max8997_charger.c b/drivers/power/max8997_char=
-ger.c
-> index 0b2eab571528..a9f5ddcf83a8 100644
-> --- a/drivers/power/max8997_charger.c
-> +++ b/drivers/power/max8997_charger.c
-> @@ -26,6 +26,7 @@
->  #include <linux/power_supply.h>
->  #include <linux/mfd/max8997.h>
->  #include <linux/mfd/max8997-private.h>
-> +#include <linux/regmap.h>
-> =20
->  struct charger_data {
->  	struct device *dev;
-> @@ -45,14 +46,14 @@ static int max8997_battery_get_property(struct power_=
-supply *psy,
->  		union power_supply_propval *val)
->  {
->  	struct charger_data *charger =3D power_supply_get_drvdata(psy);
-> -	struct i2c_client *i2c =3D charger->iodev->i2c;
->  	int ret;
-> -	u8 reg;
-> +	unsigned int reg;
-> =20
->  	switch (psp) {
->  	case POWER_SUPPLY_PROP_STATUS:
->  		val->intval =3D 0;
-> -		ret =3D max8997_read_reg(i2c, MAX8997_REG_STATUS4, &reg);
-> +		ret =3D regmap_read(charger->iodev->regmap,
-> +				MAX8997_REG_STATUS4, &reg);
->  		if (ret)
->  			return ret;
->  		if ((reg & (1 << 0)) =3D=3D 0x1)
-> @@ -61,7 +62,8 @@ static int max8997_battery_get_property(struct power_su=
-pply *psy,
->  		break;
->  	case POWER_SUPPLY_PROP_PRESENT:
->  		val->intval =3D 0;
-> -		ret =3D max8997_read_reg(i2c, MAX8997_REG_STATUS4, &reg);
-> +		ret =3D regmap_read(charger->iodev->regmap,
-> +				MAX8997_REG_STATUS4, &reg);
->  		if (ret)
->  			return ret;
->  		if ((reg & (1 << 2)) =3D=3D 0x0)
-> @@ -70,7 +72,8 @@ static int max8997_battery_get_property(struct power_su=
-pply *psy,
->  		break;
->  	case POWER_SUPPLY_PROP_ONLINE:
->  		val->intval =3D 0;
-> -		ret =3D max8997_read_reg(i2c, MAX8997_REG_STATUS4, &reg);
-> +		ret =3D regmap_read(charger->iodev->regmap,
-> +				MAX8997_REG_STATUS4, &reg);
->  		if (ret)
->  			return ret;
->  		/* DCINOK */
-> @@ -111,8 +114,8 @@ static int max8997_battery_probe(struct platform_devi=
-ce *pdev)
->  		if (val > 0xf)
->  			val =3D 0xf;
-> =20
-> -		ret =3D max8997_update_reg(iodev->i2c,
-> -				MAX8997_REG_MBCCTRL5, val, 0xf);
-> +		ret =3D regmap_update_bits(iodev->regmap,
-> +				MAX8997_REG_MBCCTRL5, 0xf, val);
->  		if (ret < 0) {
->  			dev_err(&pdev->dev, "Cannot use i2c bus.\n");
->  			return ret;
-> @@ -121,20 +124,20 @@ static int max8997_battery_probe(struct platform_de=
-vice *pdev)
-> =20
->  	switch (pdata->timeout) {
->  	case 5:
-> -		ret =3D max8997_update_reg(iodev->i2c, MAX8997_REG_MBCCTRL1,
-> -				0x2 << 4, 0x7 << 4);
-> +		ret =3D regmap_update_bits(iodev->regmap,
-> +				MAX8997_REG_MBCCTRL1, 0x7 << 4, 0x2 << 4);
->  		break;
->  	case 6:
-> -		ret =3D max8997_update_reg(iodev->i2c, MAX8997_REG_MBCCTRL1,
-> -				0x3 << 4, 0x7 << 4);
-> +		ret =3D regmap_update_bits(iodev->regmap,
-> +				MAX8997_REG_MBCCTRL1, 0x7 << 4, 0x3 << 4);
->  		break;
->  	case 7:
-> -		ret =3D max8997_update_reg(iodev->i2c, MAX8997_REG_MBCCTRL1,
-> -				0x4 << 4, 0x7 << 4);
-> +		ret =3D regmap_update_bits(iodev->regmap,
-> +				MAX8997_REG_MBCCTRL1, 0x7 << 4, 0x4 << 4);
->  		break;
->  	case 0:
-> -		ret =3D max8997_update_reg(iodev->i2c, MAX8997_REG_MBCCTRL1,
-> -				0x7 << 4, 0x7 << 4);
-> +		ret =3D regmap_update_bits(iodev->regmap,
-> +				MAX8997_REG_MBCCTRL1, 0x7 << 4, 0x7 << 4);
->  		break;
->  	default:
->  		dev_err(&pdev->dev, "incorrect timeout value (%d)\n",
-> diff --git a/drivers/regulator/max8997-regulator.c b/drivers/regulator/ma=
-x8997-regulator.c
-> index efabc0ea0e96..362d85a849d5 100644
-> --- a/drivers/regulator/max8997-regulator.c
-> +++ b/drivers/regulator/max8997-regulator.c
-> @@ -33,6 +33,7 @@
->  #include <linux/mfd/max8997.h>
->  #include <linux/mfd/max8997-private.h>
->  #include <linux/regulator/of_regulator.h>
-> +#include <linux/regmap.h>
-> =20
->  struct max8997_data {
->  	struct device *dev;
-> @@ -50,7 +51,7 @@ struct max8997_data {
->  	int buck125_gpioindex;
->  	bool ignore_gpiodvs_side_effect;
-> =20
-> -	u8 saved_states[MAX8997_REG_MAX];
-> +	unsigned int saved_states[MAX8997_REG_MAX];
->  };
-> =20
->  static const unsigned int safeoutvolt[] =3D {
-> @@ -257,15 +258,14 @@ static int max8997_get_enable_register(struct regul=
-ator_dev *rdev,
->  static int max8997_reg_is_enabled(struct regulator_dev *rdev)
->  {
->  	struct max8997_data *max8997 =3D rdev_get_drvdata(rdev);
-> -	struct i2c_client *i2c =3D max8997->iodev->i2c;
->  	int ret, reg, mask, pattern;
-> -	u8 val;
-> +	unsigned int val;
-> =20
->  	ret =3D max8997_get_enable_register(rdev, &reg, &mask, &pattern);
->  	if (ret)
->  		return ret;
-> =20
-> -	ret =3D max8997_read_reg(i2c, reg, &val);
-> +	ret =3D regmap_read(max8997->iodev->regmap, reg, &val);
->  	if (ret)
->  		return ret;
-> =20
-> @@ -275,27 +275,25 @@ static int max8997_reg_is_enabled(struct regulator_=
-dev *rdev)
->  static int max8997_reg_enable(struct regulator_dev *rdev)
->  {
->  	struct max8997_data *max8997 =3D rdev_get_drvdata(rdev);
-> -	struct i2c_client *i2c =3D max8997->iodev->i2c;
->  	int ret, reg, mask, pattern;
-> =20
->  	ret =3D max8997_get_enable_register(rdev, &reg, &mask, &pattern);
->  	if (ret)
->  		return ret;
-> =20
-> -	return max8997_update_reg(i2c, reg, pattern, mask);
-> +	return regmap_update_bits(max8997->iodev->regmap, reg, mask, pattern);
->  }
-> =20
->  static int max8997_reg_disable(struct regulator_dev *rdev)
->  {
->  	struct max8997_data *max8997 =3D rdev_get_drvdata(rdev);
-> -	struct i2c_client *i2c =3D max8997->iodev->i2c;
->  	int ret, reg, mask, pattern;
-> =20
->  	ret =3D max8997_get_enable_register(rdev, &reg, &mask, &pattern);
->  	if (ret)
->  		return ret;
-> =20
-> -	return max8997_update_reg(i2c, reg, ~pattern, mask);
-> +	return regmap_update_bits(max8997->iodev->regmap, reg, mask, ~pattern);
->  }
-> =20
->  static int max8997_get_voltage_register(struct regulator_dev *rdev,
-> @@ -367,15 +365,14 @@ static int max8997_get_voltage_register(struct regu=
-lator_dev *rdev,
->  static int max8997_get_voltage_sel(struct regulator_dev *rdev)
->  {
->  	struct max8997_data *max8997 =3D rdev_get_drvdata(rdev);
-> -	struct i2c_client *i2c =3D max8997->iodev->i2c;
->  	int reg, shift, mask, ret;
-> -	u8 val;
-> +	unsigned int val;
-> =20
->  	ret =3D max8997_get_voltage_register(rdev, &reg, &shift, &mask);
->  	if (ret)
->  		return ret;
-> =20
-> -	ret =3D max8997_read_reg(i2c, reg, &val);
-> +	ret =3D regmap_read(max8997->iodev->regmap, reg, &val);
->  	if (ret)
->  		return ret;
-> =20
-> @@ -412,7 +409,6 @@ static int max8997_set_voltage_charger_cv(struct regu=
-lator_dev *rdev,
->  		int min_uV, int max_uV, unsigned *selector)
->  {
->  	struct max8997_data *max8997 =3D rdev_get_drvdata(rdev);
-> -	struct i2c_client *i2c =3D max8997->iodev->i2c;
->  	int rid =3D rdev_get_id(rdev);
->  	int lb, ub;
->  	int reg, shift =3D 0, mask, ret =3D 0;
-> @@ -454,7 +450,8 @@ static int max8997_set_voltage_charger_cv(struct regu=
-lator_dev *rdev,
-> =20
->  	*selector =3D val;
-> =20
-> -	ret =3D max8997_update_reg(i2c, reg, val << shift, mask);
-> +	ret =3D regmap_update_bits(max8997->iodev->regmap,
-> +				reg, mask, val << shift);
-> =20
->  	return ret;
->  }
-> @@ -467,7 +464,6 @@ static int max8997_set_voltage_ldobuck(struct regulat=
-or_dev *rdev,
->  		int min_uV, int max_uV, unsigned *selector)
->  {
->  	struct max8997_data *max8997 =3D rdev_get_drvdata(rdev);
-> -	struct i2c_client *i2c =3D max8997->iodev->i2c;
->  	const struct voltage_map_desc *desc;
->  	int rid =3D rdev_get_id(rdev);
->  	int i, reg, shift, mask, ret;
-> @@ -499,7 +495,8 @@ static int max8997_set_voltage_ldobuck(struct regulat=
-or_dev *rdev,
->  	if (ret)
->  		return ret;
-> =20
-> -	ret =3D max8997_update_reg(i2c, reg, i << shift, mask << shift);
-> +	ret =3D regmap_update_bits(max8997->iodev->regmap,
-> +				reg, mask << shift, i << shift);
->  	*selector =3D i;
-> =20
->  	return ret;
-> @@ -709,7 +706,6 @@ static int max8997_set_voltage_safeout_sel(struct reg=
-ulator_dev *rdev,
->  					   unsigned selector)
->  {
->  	struct max8997_data *max8997 =3D rdev_get_drvdata(rdev);
-> -	struct i2c_client *i2c =3D max8997->iodev->i2c;
->  	int rid =3D rdev_get_id(rdev);
->  	int reg, shift =3D 0, mask, ret;
-> =20
-> @@ -720,13 +716,13 @@ static int max8997_set_voltage_safeout_sel(struct r=
-egulator_dev *rdev,
->  	if (ret)
->  		return ret;
-> =20
-> -	return max8997_update_reg(i2c, reg, selector << shift, mask << shift);
-> +	return regmap_update_bits(max8997->iodev->regmap,
-> +				reg, mask << shift, selector << shift);
->  }
-> =20
->  static int max8997_reg_disable_suspend(struct regulator_dev *rdev)
->  {
->  	struct max8997_data *max8997 =3D rdev_get_drvdata(rdev);
-> -	struct i2c_client *i2c =3D max8997->iodev->i2c;
->  	int ret, reg, mask, pattern;
->  	int rid =3D rdev_get_id(rdev);
-> =20
-> @@ -734,20 +730,22 @@ static int max8997_reg_disable_suspend(struct regul=
-ator_dev *rdev)
->  	if (ret)
->  		return ret;
-> =20
-> -	max8997_read_reg(i2c, reg, &max8997->saved_states[rid]);
-> +	regmap_read(max8997->iodev->regmap,
-> +			reg, &max8997->saved_states[rid]);
-> =20
->  	if (rid =3D=3D MAX8997_LDO1 ||
->  			rid =3D=3D MAX8997_LDO10 ||
->  			rid =3D=3D MAX8997_LDO21) {
->  		dev_dbg(&rdev->dev, "Conditional Power-Off for %s\n",
->  				rdev->desc->name);
-> -		return max8997_update_reg(i2c, reg, 0x40, mask);
-> +		return regmap_update_bits(max8997->iodev->regmap,
-> +				reg, mask, 0x40);
->  	}
-> =20
->  	dev_dbg(&rdev->dev, "Full Power-Off for %s (%xh -> %xh)\n",
->  			rdev->desc->name, max8997->saved_states[rid] & mask,
->  			(~pattern) & mask);
-> -	return max8997_update_reg(i2c, reg, ~pattern, mask);
-> +	return regmap_update_bits(max8997->iodev->regmap, reg, mask, ~pattern);
->  }
-> =20
->  static struct regulator_ops max8997_ldo_ops =3D {
-> @@ -1031,7 +1029,6 @@ static int max8997_pmic_probe(struct platform_devic=
-e *pdev)
->  	struct regulator_config config =3D { };
->  	struct regulator_dev *rdev;
->  	struct max8997_data *max8997;
-> -	struct i2c_client *i2c;
->  	int i, ret, nr_dvs;
->  	u8 max_buck1 =3D 0, max_buck2 =3D 0, max_buck5 =3D 0;
-> =20
-> @@ -1055,7 +1052,6 @@ static int max8997_pmic_probe(struct platform_devic=
-e *pdev)
->  	max8997->iodev =3D iodev;
->  	max8997->num_regulators =3D pdata->num_regulators;
->  	platform_set_drvdata(pdev, max8997);
-> -	i2c =3D max8997->iodev->i2c;
-> =20
->  	max8997->buck125_gpioindex =3D pdata->buck125_default_idx;
->  	max8997->buck1_gpiodvs =3D pdata->buck1_gpiodvs;
-> @@ -1105,25 +1101,25 @@ static int max8997_pmic_probe(struct platform_dev=
-ice *pdev)
-> =20
->  	/* For the safety, set max voltage before setting up */
->  	for (i =3D 0; i < 8; i++) {
-> -		max8997_update_reg(i2c, MAX8997_REG_BUCK1DVS1 + i,
-> -				max_buck1, 0x3f);
-> -		max8997_update_reg(i2c, MAX8997_REG_BUCK2DVS1 + i,
-> -				max_buck2, 0x3f);
-> -		max8997_update_reg(i2c, MAX8997_REG_BUCK5DVS1 + i,
-> -				max_buck5, 0x3f);
-> +		regmap_update_bits(max8997->iodev->regmap,
-> +				MAX8997_REG_BUCK1DVS1 + i, 0x3f, max_buck1);
-> +		regmap_update_bits(max8997->iodev->regmap,
-> +				MAX8997_REG_BUCK2DVS1 + i, 0x3f, max_buck2);
-> +		regmap_update_bits(max8997->iodev->regmap,
-> +				MAX8997_REG_BUCK5DVS1 + i, 0x3f, max_buck5);
->  	}
-> =20
->  	/* Initialize all the DVS related BUCK registers */
->  	for (i =3D 0; i < nr_dvs; i++) {
-> -		max8997_update_reg(i2c, MAX8997_REG_BUCK1DVS1 + i,
-> -				max8997->buck1_vol[i],
-> -				0x3f);
-> -		max8997_update_reg(i2c, MAX8997_REG_BUCK2DVS1 + i,
-> -				max8997->buck2_vol[i],
-> -				0x3f);
-> -		max8997_update_reg(i2c, MAX8997_REG_BUCK5DVS1 + i,
-> -				max8997->buck5_vol[i],
-> -				0x3f);
-> +		regmap_update_bits(max8997->iodev->regmap,
-> +				MAX8997_REG_BUCK1DVS1 + i,
-> +				0x3f, max8997->buck1_vol[i]);
-> +		regmap_update_bits(max8997->iodev->regmap,
-> +				MAX8997_REG_BUCK2DVS1 + i,
-> +				0x3f, max8997->buck2_vol[i]);
-> +		regmap_update_bits(max8997->iodev->regmap,
-> +				MAX8997_REG_BUCK5DVS1 + i,
-> +				0x3f, max8997->buck5_vol[i]);
->  	}
-> =20
->  	/*
-> @@ -1167,16 +1163,17 @@ static int max8997_pmic_probe(struct platform_dev=
-ice *pdev)
->  	}
-> =20
->  	/* DVS-GPIO disabled */
-> -	max8997_update_reg(i2c, MAX8997_REG_BUCK1CTRL, (pdata->buck1_gpiodvs) ?
-> -			(1 << 1) : (0 << 1), 1 << 1);
-> -	max8997_update_reg(i2c, MAX8997_REG_BUCK2CTRL, (pdata->buck2_gpiodvs) ?
-> -			(1 << 1) : (0 << 1), 1 << 1);
-> -	max8997_update_reg(i2c, MAX8997_REG_BUCK5CTRL, (pdata->buck5_gpiodvs) ?
-> -			(1 << 1) : (0 << 1), 1 << 1);
-> +	regmap_update_bits(max8997->iodev->regmap, MAX8997_REG_BUCK1CTRL,
-> +			1 << 1, (pdata->buck1_gpiodvs) ? (1 << 1) : (0 << 1));
-> +	regmap_update_bits(max8997->iodev->regmap, MAX8997_REG_BUCK2CTRL,
-> +			1 << 1, (pdata->buck2_gpiodvs) ? (1 << 1) : (0 << 1));
-> +	regmap_update_bits(max8997->iodev->regmap, MAX8997_REG_BUCK5CTRL,
-> +			1 << 1, (pdata->buck5_gpiodvs) ? (1 << 1) : (0 << 1));
-> =20
->  	/* Misc Settings */
->  	max8997->ramp_delay =3D 10; /* set 10mV/us, which is the default */
-> -	max8997_write_reg(i2c, MAX8997_REG_BUCKRAMP, (0xf << 4) | 0x9);
-> +	regmap_write(max8997->iodev->regmap,
-> +			MAX8997_REG_BUCKRAMP, (0xf << 4) | 0x9);
-> =20
->  	for (i =3D 0; i < pdata->num_regulators; i++) {
->  		const struct voltage_map_desc *desc;
-> diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
-> index db984d4bf952..d017a34a9f70 100644
-> --- a/drivers/rtc/rtc-max8997.c
-> +++ b/drivers/rtc/rtc-max8997.c
-> @@ -22,6 +22,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/mfd/max8997-private.h>
->  #include <linux/irqdomain.h>
-> +#include <linux/regmap.h>
-> =20
->  /* Module parameter for WTSR function control */
->  static int wtsr_en =3D 1;
-> @@ -70,7 +71,6 @@ enum {
->  struct max8997_rtc_info {
->  	struct device		*dev;
->  	struct max8997_dev	*max8997;
-> -	struct i2c_client	*rtc;
->  	struct rtc_device	*rtc_dev;
->  	struct mutex		lock;
->  	int virq;
-> @@ -120,8 +120,8 @@ static inline int max8997_rtc_set_update_reg(struct m=
-ax8997_rtc_info *info)
->  {
->  	int ret;
-> =20
-> -	ret =3D max8997_write_reg(info->rtc, MAX8997_RTC_UPDATE1,
-> -						RTC_UDR_MASK);
-> +	ret =3D regmap_write(info->max8997->regmap_rtc,
-> +				MAX8997_RTC_UPDATE1, RTC_UDR_MASK);
->  	if (ret < 0)
->  		dev_err(info->dev, "%s: fail to write update reg(%d)\n",
->  				__func__, ret);
-> @@ -142,7 +142,8 @@ static int max8997_rtc_read_time(struct device *dev, =
-struct rtc_time *tm)
->  	int ret;
-> =20
->  	mutex_lock(&info->lock);
-> -	ret =3D max8997_bulk_read(info->rtc, MAX8997_RTC_SEC, RTC_NR_TIME, data=
-);
-> +	ret =3D regmap_bulk_read(info->max8997->regmap_rtc,
-> +				MAX8997_RTC_SEC, data, RTC_NR_TIME);
->  	mutex_unlock(&info->lock);
-> =20
->  	if (ret < 0) {
-> @@ -168,7 +169,8 @@ static int max8997_rtc_set_time(struct device *dev, s=
-truct rtc_time *tm)
-> =20
->  	mutex_lock(&info->lock);
-> =20
-> -	ret =3D max8997_bulk_write(info->rtc, MAX8997_RTC_SEC, RTC_NR_TIME, dat=
-a);
-> +	ret =3D regmap_bulk_write(info->max8997->regmap_rtc,
-> +				MAX8997_RTC_SEC, data, RTC_NR_TIME);
->  	if (ret < 0) {
->  		dev_err(info->dev, "%s: fail to write time reg(%d)\n", __func__,
->  				ret);
-> @@ -185,13 +187,13 @@ static int max8997_rtc_read_alarm(struct device *de=
-v, struct rtc_wkalrm *alrm)
->  {
->  	struct max8997_rtc_info *info =3D dev_get_drvdata(dev);
->  	u8 data[RTC_NR_TIME];
-> -	u8 val;
-> +	unsigned int val;
->  	int i, ret;
-> =20
->  	mutex_lock(&info->lock);
-> =20
-> -	ret =3D max8997_bulk_read(info->rtc, MAX8997_RTC_ALARM1_SEC, RTC_NR_TIM=
-E,
-> -			data);
-> +	ret =3D regmap_bulk_read(info->max8997->regmap_rtc,
-> +				MAX8997_RTC_ALARM1_SEC, data, RTC_NR_TIME);
->  	if (ret < 0) {
->  		dev_err(info->dev, "%s:%d fail to read alarm reg(%d)\n",
->  				__func__, __LINE__, ret);
-> @@ -209,7 +211,8 @@ static int max8997_rtc_read_alarm(struct device *dev,=
- struct rtc_wkalrm *alrm)
->  	}
-> =20
->  	alrm->pending =3D 0;
-> -	ret =3D max8997_read_reg(info->max8997->i2c, MAX8997_REG_STATUS1, &val)=
-;
-> +	ret =3D regmap_read(info->max8997->regmap_rtc,
-> +			       MAX8997_REG_STATUS1, &val);
->  	if (ret < 0) {
->  		dev_err(info->dev, "%s:%d fail to read status1 reg(%d)\n",
->  				__func__, __LINE__, ret);
-> @@ -232,8 +235,8 @@ static int max8997_rtc_stop_alarm(struct max8997_rtc_=
-info *info)
->  	if (!mutex_is_locked(&info->lock))
->  		dev_warn(info->dev, "%s: should have mutex locked\n", __func__);
-> =20
-> -	ret =3D max8997_bulk_read(info->rtc, MAX8997_RTC_ALARM1_SEC, RTC_NR_TIM=
-E,
-> -				data);
-> +	ret =3D regmap_bulk_read(info->max8997->regmap_rtc,
-> +				MAX8997_RTC_ALARM1_SEC, data, RTC_NR_TIME);
->  	if (ret < 0) {
->  		dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
->  				__func__, ret);
-> @@ -243,8 +246,8 @@ static int max8997_rtc_stop_alarm(struct max8997_rtc_=
-info *info)
->  	for (i =3D 0; i < RTC_NR_TIME; i++)
->  		data[i] &=3D ~ALARM_ENABLE_MASK;
-> =20
-> -	ret =3D max8997_bulk_write(info->rtc, MAX8997_RTC_ALARM1_SEC, RTC_NR_TI=
-ME,
-> -				 data);
-> +	ret =3D regmap_bulk_write(info->max8997->regmap_rtc,
-> +				 MAX8997_RTC_ALARM1_SEC, data, RTC_NR_TIME);
->  	if (ret < 0) {
->  		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
->  				__func__, ret);
-> @@ -264,8 +267,8 @@ static int max8997_rtc_start_alarm(struct max8997_rtc=
-_info *info)
->  	if (!mutex_is_locked(&info->lock))
->  		dev_warn(info->dev, "%s: should have mutex locked\n", __func__);
-> =20
-> -	ret =3D max8997_bulk_read(info->rtc, MAX8997_RTC_ALARM1_SEC, RTC_NR_TIM=
-E,
-> -				data);
-> +	ret =3D regmap_bulk_read(info->max8997->regmap_rtc,
-> +				MAX8997_RTC_ALARM1_SEC, data, RTC_NR_TIME);
->  	if (ret < 0) {
->  		dev_err(info->dev, "%s: fail to read alarm reg(%d)\n",
->  				__func__, ret);
-> @@ -283,8 +286,8 @@ static int max8997_rtc_start_alarm(struct max8997_rtc=
-_info *info)
->  	if (data[RTC_DATE] & 0x1f)
->  		data[RTC_DATE] |=3D (1 << ALARM_ENABLE_SHIFT);
-> =20
-> -	ret =3D max8997_bulk_write(info->rtc, MAX8997_RTC_ALARM1_SEC, RTC_NR_TI=
-ME,
-> -				 data);
-> +	ret =3D regmap_bulk_write(info->max8997->regmap_rtc,
-> +				 MAX8997_RTC_ALARM1_SEC, data, RTC_NR_TIME);
->  	if (ret < 0) {
->  		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
->  				__func__, ret);
-> @@ -315,8 +318,8 @@ static int max8997_rtc_set_alarm(struct device *dev, =
-struct rtc_wkalrm *alrm)
->  	if (ret < 0)
->  		goto out;
-> =20
-> -	ret =3D max8997_bulk_write(info->rtc, MAX8997_RTC_ALARM1_SEC, RTC_NR_TI=
-ME,
-> -				data);
-> +	ret =3D regmap_bulk_write(info->max8997->regmap_rtc,
-> +				 MAX8997_RTC_ALARM1_SEC, data, RTC_NR_TIME);
->  	if (ret < 0) {
->  		dev_err(info->dev, "%s: fail to write alarm reg(%d)\n",
->  				__func__, ret);
-> @@ -387,7 +390,8 @@ static void max8997_rtc_enable_wtsr(struct max8997_rt=
-c_info *info, bool enable)
->  	dev_info(info->dev, "%s: %s WTSR\n", __func__,
->  			enable ? "enable" : "disable");
-> =20
-> -	ret =3D max8997_update_reg(info->rtc, MAX8997_RTC_WTSR_SMPL, val, mask)=
-;
-> +	ret =3D regmap_update_bits(info->max8997->regmap_rtc,
-> +				 MAX8997_RTC_WTSR_SMPL, mask, val);
->  	if (ret < 0) {
->  		dev_err(info->dev, "%s: fail to update WTSR reg(%d)\n",
->  				__func__, ret);
-> @@ -400,7 +404,7 @@ static void max8997_rtc_enable_wtsr(struct max8997_rt=
-c_info *info, bool enable)
->  static void max8997_rtc_enable_smpl(struct max8997_rtc_info *info, bool =
-enable)
->  {
->  	int ret;
-> -	u8 val, mask;
-> +	unsigned int val, mask;
-> =20
->  	if (!smpl_en)
->  		return;
-> @@ -415,7 +419,8 @@ static void max8997_rtc_enable_smpl(struct max8997_rt=
-c_info *info, bool enable)
->  	dev_info(info->dev, "%s: %s SMPL\n", __func__,
->  			enable ? "enable" : "disable");
-> =20
-> -	ret =3D max8997_update_reg(info->rtc, MAX8997_RTC_WTSR_SMPL, val, mask)=
-;
-> +	ret =3D regmap_update_bits(info->max8997->regmap_rtc,
-> +				 MAX8997_RTC_WTSR_SMPL, mask, val);
->  	if (ret < 0) {
->  		dev_err(info->dev, "%s: fail to update SMPL reg(%d)\n",
->  				__func__, ret);
-> @@ -425,7 +430,8 @@ static void max8997_rtc_enable_smpl(struct max8997_rt=
-c_info *info, bool enable)
->  	max8997_rtc_set_update_reg(info);
-> =20
->  	val =3D 0;
-> -	max8997_read_reg(info->rtc, MAX8997_RTC_WTSR_SMPL, &val);
-> +	regmap_read(info->max8997->regmap_rtc,
-> +			 MAX8997_RTC_WTSR_SMPL, &val);
->  	pr_info("WTSR_SMPL(0x%02x)\n", val);
->  }
-> =20
-> @@ -440,7 +446,8 @@ static int max8997_rtc_init_reg(struct max8997_rtc_in=
-fo *info)
-> =20
->  	info->rtc_24hr_mode =3D 1;
-> =20
-> -	ret =3D max8997_bulk_write(info->rtc, MAX8997_RTC_CTRLMASK, 2, data);
-> +	ret =3D regmap_bulk_write(info->max8997->regmap_rtc,
-> +				 MAX8997_RTC_CTRLMASK, data, 2);
->  	if (ret < 0) {
->  		dev_err(info->dev, "%s: fail to write controlm reg(%d)\n",
->  				__func__, ret);
-> @@ -465,7 +472,6 @@ static int max8997_rtc_probe(struct platform_device *=
-pdev)
->  	mutex_init(&info->lock);
->  	info->dev =3D &pdev->dev;
->  	info->max8997 =3D max8997;
-> -	info->rtc =3D max8997->rtc;
-> =20
->  	platform_set_drvdata(pdev, info);
-> =20
-> diff --git a/include/linux/mfd/max8997-private.h b/include/linux/mfd/max8=
-997-private.h
-> index 78c76cd4d37b..ea80ef80dbf8 100644
-> --- a/include/linux/mfd/max8997-private.h
-> +++ b/include/linux/mfd/max8997-private.h
-> @@ -309,6 +309,8 @@ enum max8997_rtc_reg {
->  	MAX8997_RTC_ALARM2_MONTH	=3D 0x22,
->  	MAX8997_RTC_ALARM2_YEAR		=3D 0x23,
->  	MAX8997_RTC_ALARM2_DAY_OF_MONTH	=3D 0x24,
-> +
-> +	MAX8997_RTC_REG_END		=3D 0x25,
->  };
-> =20
->  enum max8997_irq_source {
-> @@ -390,6 +392,11 @@ struct max8997_dev {
->  	unsigned long type;
->  	struct platform_device *battery; /* battery control (not fuel gauge) */
-> =20
-> +	struct regmap *regmap;
-> +	struct regmap *regmap_rtc;
-> +	struct regmap *regmap_haptic;
-> +	struct regmap *regmap_muic;
-> +
->  	int irq;
->  	int ono;
->  	struct irq_domain *irq_domain;
-> @@ -398,7 +405,7 @@ struct max8997_dev {
->  	int irq_masks_cache[MAX8997_IRQ_GROUP_NR];
-> =20
->  	/* For hibernation */
-> -	u8 reg_dump[MAX8997_REG_PMIC_END + MAX8997_MUIC_REG_END +
-> +	unsigned int reg_dump[MAX8997_REG_PMIC_END + MAX8997_MUIC_REG_END +
->  		MAX8997_HAPTIC_REG_END];
-> =20
->  	bool gpio_status[MAX8997_NUM_GPIO];
-> @@ -413,14 +420,6 @@ extern int max8997_irq_init(struct max8997_dev *max8=
-997);
->  extern void max8997_irq_exit(struct max8997_dev *max8997);
->  extern int max8997_irq_resume(struct max8997_dev *max8997);
-> =20
-> -extern int max8997_read_reg(struct i2c_client *i2c, u8 reg, u8 *dest);
-> -extern int max8997_bulk_read(struct i2c_client *i2c, u8 reg, int count,
-> -				u8 *buf);
-> -extern int max8997_write_reg(struct i2c_client *i2c, u8 reg, u8 value);
-> -extern int max8997_bulk_write(struct i2c_client *i2c, u8 reg, int count,
-> -				u8 *buf);
-> -extern int max8997_update_reg(struct i2c_client *i2c, u8 reg, u8 val, u8=
- mask);
-> -
->  #define MAX8997_GPIO_INT_BOTH	(0x3 << 4)
->  #define MAX8997_GPIO_INT_RISE	(0x2 << 4)
->  #define MAX8997_GPIO_INT_FALL	(0x1 << 4)
+> 
+>>
+>> diff --git a/Documentation/DocBook/device-drivers.tmpl b/Documentation/DocBook/device-drivers.tmpl
+>> index 893b2ca..31258bf 100644
+>> --- a/Documentation/DocBook/device-drivers.tmpl
+>> +++ b/Documentation/DocBook/device-drivers.tmpl
+>> @@ -270,6 +270,10 @@ X!Isound/sound_firmware.c
+>>  !Iinclude/media/media-devnode.h
+>>  !Iinclude/media/media-entity.h
+>>      </sect1>
+>> +     <sect1><title>Consumer Electronics Control devices</title>
+>> +!Iinclude/media/cec.h
+>> +!Iinclude/media/cec-edid.h
+>> +     </sect1>
+> 
+> For the same reason, I would not add those yet.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Ack.
 
---=20
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
----=20
-You received this message because you are subscribed to the Google Groups "=
-rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+> 
+>>  
+>>    </chapter>
+>>  
+>> diff --git a/Documentation/DocBook/media/Makefile b/Documentation/DocBook/media/Makefile
+>> index 2840ff4..fdc1386 100644
+>> --- a/Documentation/DocBook/media/Makefile
+>> +++ b/Documentation/DocBook/media/Makefile
+>> @@ -64,6 +64,7 @@ IOCTLS = \
+>>  	$(shell perl -ne 'print "$$1 " if /\#define\s+([A-Z][^\s]+)\s+_IO/' $(srctree)/include/uapi/linux/dvb/net.h) \
+>>  	$(shell perl -ne 'print "$$1 " if /\#define\s+([^\s]+)\s+_IO/' $(srctree)/include/uapi/linux/dvb/video.h) \
+>>  	$(shell perl -ne 'print "$$1 " if /\#define\s+([^\s]+)\s+_IO/' $(srctree)/include/uapi/linux/media.h) \
+>> +	$(shell perl -ne 'print "$$1 " if /\#define\s+([^\s]+)\s+_IO/' $(srctree)/include/linux/cec.h) \
+>>  	$(shell perl -ne 'print "$$1 " if /\#define\s+([^\s]+)\s+_IO/' $(srctree)/include/uapi/linux/v4l2-subdev.h) \
+>>  
+>>  DEFINES = \
+>> @@ -100,6 +101,7 @@ STRUCTS = \
+>>  	$(shell perl -ne 'print "$$1 " if (/^struct\s+([^\s]+)\s+/ && !/_old/)' $(srctree)/include/uapi/linux/dvb/net.h) \
+>>  	$(shell perl -ne 'print "$$1 " if (/^struct\s+([^\s]+)\s+/)' $(srctree)/include/uapi/linux/dvb/video.h) \
+>>  	$(shell perl -ne 'print "$$1 " if /^struct\s+([^\s]+)\s+/' $(srctree)/include/uapi/linux/media.h) \
+>> +	$(shell perl -ne 'print "$$1 " if /^struct\s+([^\s]+)\s+/' $(srctree)/include/linux/cec.h) \
+>>  	$(shell perl -ne 'print "$$1 " if /^struct\s+([^\s]+)\s+/' $(srctree)/include/uapi/linux/v4l2-subdev.h) \
+>>  	$(shell perl -ne 'print "$$1 " if /^struct\s+([^\s]+)\s+/' $(srctree)/include/uapi/linux/v4l2-mediabus.h)
+>>  
+>> diff --git a/Documentation/DocBook/media/v4l/biblio.xml b/Documentation/DocBook/media/v4l/biblio.xml
+>> index 9beb30f..87f1d24 100644
+>> --- a/Documentation/DocBook/media/v4l/biblio.xml
+>> +++ b/Documentation/DocBook/media/v4l/biblio.xml
+>> @@ -342,6 +342,16 @@ in the frequency range from 87,5 to 108,0 MHz</title>
+>>        <subtitle>Specification Version 1.4a</subtitle>
+>>      </biblioentry>
+>>  
+>> +    <biblioentry id="hdmi2">
+>> +      <abbrev>HDMI2</abbrev>
+>> +      <authorgroup>
+>> +	<corpauthor>HDMI Licensing LLC
+>> +(<ulink url="http://www.hdmi.org">http://www.hdmi.org</ulink>)</corpauthor>
+>> +      </authorgroup>
+>> +      <title>High-Definition Multimedia Interface</title>
+>> +      <subtitle>Specification Version 2.0</subtitle>
+>> +    </biblioentry>
+>> +
+>>      <biblioentry id="dp">
+>>        <abbrev>DP</abbrev>
+>>        <authorgroup>
+>> diff --git a/Documentation/DocBook/media/v4l/cec-api.xml b/Documentation/DocBook/media/v4l/cec-api.xml
+>> new file mode 100644
+>> index 0000000..caa04c0
+>> --- /dev/null
+>> +++ b/Documentation/DocBook/media/v4l/cec-api.xml
+>> @@ -0,0 +1,72 @@
+>> +<partinfo>
+>> +  <authorgroup>
+>> +    <author>
+>> +      <firstname>Hans</firstname>
+>> +      <surname>Verkuil</surname>
+>> +      <affiliation><address><email>hans.verkuil@cisco.com</email></address></affiliation>
+>> +      <contrib>Initial version.</contrib>
+>> +    </author>
+>> +  </authorgroup>
+>> +  <copyright>
+>> +    <year>2016</year>
+>> +    <holder>Hans Verkuil</holder>
+>> +  </copyright>
+>> +
+>> +  <revhistory>
+>> +    <!-- Put document revisions here, newest first. -->
+>> +    <revision>
+>> +      <revnumber>1.0.0</revnumber>
+>> +      <date>2016-03-17</date>
+>> +      <authorinitials>hv</authorinitials>
+>> +      <revremark>Initial revision</revremark>
+>> +    </revision>
+>> +  </revhistory>
+>> +</partinfo>
+>> +
+>> +<title>CEC API</title>
+>> +
+>> +<chapter id="cec-api">
+>> +  <title>CEC: Consumer Electronics Control</title>
+>> +
+>> +  <section id="cec-intro">
+>> +    <title>Introduction</title>
+>> +    <para>HDMI connectors provide a single pin for use by the Consumer Electronics
+>> +    Control protocol. This protocol allows different devices connected by an HDMI cable
+>> +    to communicate. The protocol for CEC version 1.4 is defined in supplements 1 (CEC)
+>> +    and 2 (HEAC or HDMI Ethernet and Audio Return Channel) of the HDMI 1.4a
+>> +    (<xref linkend="hdmi" />) specification and the extensions added to CEC version 2.0
+>> +    are defined in chapter 11 of the HDMI 2.0 (<xref linkend="hdmi2" />) specification.
+>> +    </para>
+>> +
+>> +    <para>The bitrate is very slow (effectively no more than 36 bytes per second) and
+>> +    is based on the ancient AV.link protocol used in old SCART connectors. The protocol
+>> +    closely resembles a crazy Rube Goldberg contraption and is an unholy mix of low and
+>> +    high level messages. Some messages, especially those part of the HEAC protocol layered
+>> +    on top of CEC, need to be handled by the kernel, others can be handled either by the
+>> +    kernel or by userspace.</para>
+>> +
+>> +    <para>In addition, CEC can be implemented in HDMI receivers, transmitters and in USB
+>> +    devices that have an HDMI input and an HDMI output and that control just the CEC pin.</para>
+>> +
+>> +    <para>Drivers that support CEC and that allow (or require) userspace to handle CEC
+> 
+> Either allow or require. If it works out of the box like a RC controller
+> where no userspace is needed to have it working, allow is ok. Otherwise,
+> if it only works after userspace enables it, it is require.
+
+I don't know which it is. It is allowed for driver to handle everything in the
+kernel. This will be useful in cases where the developer wants to prevent userspace
+from influencing what how the CEC bus behaves. In that case no cec device is created
+(although the RC device may appear, depending on how the driver sets it up).
+
+That said, if no cec device appears, then this userspace API isn't available anyway,
+so I don't have to mention this special case here at all. I don't expect such drivers
+(that handle all the CEC traffic in kernelspace) to be mainlined anyway: I think
+this will be limited to out-of-tree drivers on embedded systems. But I may be wrong,
+it's hard to predict this.
+
+I'll rewrite this paragraph.
+
+> 
+>> +    messages and/or configure the CEC adapter will create a CEC device node (/dev/cecX)
+>> +    to give userspace access to the CEC adapter. The &CEC-ADAP-G-CAPS; ioctl will tell userspace
+>> +    what it is allowed to do.</para>
+>> +  </section>
+>> +</chapter>
+>> +
+>> +<appendix id="cec-user-func">
+>> +  <title>Function Reference</title>
+>> +  <!-- Keep this alphabetically sorted. -->
+>> +  &sub-cec-func-open;
+>> +  &sub-cec-func-close;
+>> +  &sub-cec-func-ioctl;
+>> +  &sub-cec-func-poll;
+>> +  <!-- All ioctls go here. -->
+>> +  &sub-cec-ioc-adap-g-caps;
+>> +  &sub-cec-ioc-adap-g-log-addrs;
+>> +  &sub-cec-ioc-adap-g-phys-addr;
+>> +  &sub-cec-ioc-dqevent;
+>> +  &sub-cec-ioc-g-mode;
+>> +  &sub-cec-ioc-receive;
+>> +</appendix>
+>> diff --git a/Documentation/DocBook/media/v4l/cec-func-close.xml b/Documentation/DocBook/media/v4l/cec-func-close.xml
+>> new file mode 100644
+>> index 0000000..c3978af
+>> --- /dev/null
+>> +++ b/Documentation/DocBook/media/v4l/cec-func-close.xml
+>> @@ -0,0 +1,59 @@
+>> +<refentry id="cec-func-close">
+>> +  <refmeta>
+>> +    <refentrytitle>cec close()</refentrytitle>
+>> +    &manvol;
+>> +  </refmeta>
+>> +
+>> +  <refnamediv>
+>> +    <refname>cec-close</refname>
+>> +    <refpurpose>Close a cec device</refpurpose>
+>> +  </refnamediv>
+>> +
+>> +  <refsynopsisdiv>
+>> +    <funcsynopsis>
+>> +      <funcsynopsisinfo>#include &lt;unistd.h&gt;</funcsynopsisinfo>
+>> +      <funcprototype>
+>> +	<funcdef>int <function>close</function></funcdef>
+>> +	<paramdef>int <parameter>fd</parameter></paramdef>
+>> +      </funcprototype>
+>> +    </funcsynopsis>
+>> +  </refsynopsisdiv>
+>> +
+>> +  <refsect1>
+>> +    <title>Arguments</title>
+>> +
+>> +    <variablelist>
+>> +      <varlistentry>
+>> +	<term><parameter>fd</parameter></term>
+>> +	<listitem>
+>> +	  <para>&fd;</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +    </variablelist>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    <title>Description</title>
+>> +
+>> +    <para>Closes the cec device. Resources associated with the file descriptor
+>> +    are freed. The device configuration remain unchanged.</para>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    <title>Return Value</title>
+>> +
+>> +    <para><function>close</function> returns 0 on success. On error, -1 is
+>> +    returned, and <varname>errno</varname> is set appropriately. Possible error
+>> +    codes are:</para>
+>> +
+>> +    <variablelist>
+>> +      <varlistentry>
+>> +	<term><errorcode>EBADF</errorcode></term>
+>> +	<listitem>
+>> +	  <para><parameter>fd</parameter> is not a valid open file descriptor.
+>> +	  </para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +    </variablelist>
+>> +  </refsect1>
+>> +</refentry>
+>> diff --git a/Documentation/DocBook/media/v4l/cec-func-ioctl.xml b/Documentation/DocBook/media/v4l/cec-func-ioctl.xml
+>> new file mode 100644
+>> index 0000000..0480eeb
+>> --- /dev/null
+>> +++ b/Documentation/DocBook/media/v4l/cec-func-ioctl.xml
+>> @@ -0,0 +1,73 @@
+>> +<refentry id="cec-func-ioctl">
+>> +  <refmeta>
+>> +    <refentrytitle>cec ioctl()</refentrytitle>
+>> +    &manvol;
+>> +  </refmeta>
+>> +
+>> +  <refnamediv>
+>> +    <refname>cec-ioctl</refname>
+>> +    <refpurpose>Control a cec device</refpurpose>
+>> +  </refnamediv>
+>> +
+>> +  <refsynopsisdiv>
+>> +    <funcsynopsis>
+>> +      <funcsynopsisinfo>#include &lt;sys/ioctl.h&gt;</funcsynopsisinfo>
+>> +      <funcprototype>
+>> +	<funcdef>int <function>ioctl</function></funcdef>
+>> +	<paramdef>int <parameter>fd</parameter></paramdef>
+>> +	<paramdef>int <parameter>request</parameter></paramdef>
+>> +	<paramdef>void *<parameter>argp</parameter></paramdef>
+>> +      </funcprototype>
+>> +    </funcsynopsis>
+>> +  </refsynopsisdiv>
+>> +
+>> +  <refsect1>
+>> +    <title>Arguments</title>
+>> +
+>> +    <variablelist>
+>> +      <varlistentry>
+>> +	<term><parameter>fd</parameter></term>
+>> +	<listitem>
+>> +	  <para>&fd;</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>request</parameter></term>
+>> +	<listitem>
+>> +	  <para>CEC ioctl request code as defined in the cec.h header file,
+>> +	  for example CEC_ADAP_G_CAPS.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>argp</parameter></term>
+>> +	<listitem>
+>> +	  <para>Pointer to a request-specific structure.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +    </variablelist>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    <title>Description</title>
+>> +    <para>The <function>ioctl()</function> function manipulates cec device
+>> +    parameters. The argument <parameter>fd</parameter> must be an open file
+>> +    descriptor.</para>
+>> +    <para>The ioctl <parameter>request</parameter> code specifies the cec
+>> +    function to be called. It has encoded in it whether the argument is an
+>> +    input, output or read/write parameter, and the size of the argument
+>> +    <parameter>argp</parameter> in bytes.</para>
+>> +    <para>Macros and structures definitions specifying cec ioctl requests and
+>> +    their parameters are located in the cec.h header file. All cec ioctl
+>> +    requests, their respective function and parameters are specified in
+>> +    <xref linkend="cec-user-func" />.</para>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    &return-value;
+>> +
+>> +    <para>Request-specific error codes are listed in the
+>> +    individual requests descriptions.</para>
+>> +    <para>When an ioctl that takes an output or read/write parameter fails,
+>> +    the parameter remains unmodified.</para>
+>> +  </refsect1>
+>> +</refentry>
+>> diff --git a/Documentation/DocBook/media/v4l/cec-func-open.xml b/Documentation/DocBook/media/v4l/cec-func-open.xml
+>> new file mode 100644
+>> index 0000000..d814847
+>> --- /dev/null
+>> +++ b/Documentation/DocBook/media/v4l/cec-func-open.xml
+>> @@ -0,0 +1,94 @@
+>> +<refentry id="cec-func-open">
+>> +  <refmeta>
+>> +    <refentrytitle>cec open()</refentrytitle>
+>> +    &manvol;
+>> +  </refmeta>
+>> +
+>> +  <refnamediv>
+>> +    <refname>cec-open</refname>
+>> +    <refpurpose>Open a cec device</refpurpose>
+>> +  </refnamediv>
+>> +
+>> +  <refsynopsisdiv>
+>> +    <funcsynopsis>
+>> +      <funcsynopsisinfo>#include &lt;fcntl.h&gt;</funcsynopsisinfo>
+>> +      <funcprototype>
+>> +	<funcdef>int <function>open</function></funcdef>
+>> +	<paramdef>const char *<parameter>device_name</parameter></paramdef>
+>> +	<paramdef>int <parameter>flags</parameter></paramdef>
+>> +      </funcprototype>
+>> +    </funcsynopsis>
+>> +  </refsynopsisdiv>
+>> +
+>> +  <refsect1>
+>> +    <title>Arguments</title>
+>> +
+>> +    <variablelist>
+>> +      <varlistentry>
+>> +	<term><parameter>device_name</parameter></term>
+>> +	<listitem>
+>> +	  <para>Device to be opened.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>flags</parameter></term>
+>> +	<listitem>
+>> +	  <para>Open flags. Access mode must be either <constant>O_RDONLY</constant>
+>> +	  or <constant>O_RDWR</constant>. Other flags have no effect.</para>
+> 
+> What about O_NOBLOCK? I saw something at patch 4/13 that seems to
+> indicate that it support non-block mode.
+
+True. This was copy-and-paste from media-open and I forgot about O_NONBLOCK. I'll add
+that.
+
+> 
+>> +	</listitem>
+>> +      </varlistentry>
+>> +    </variablelist>
+>> +  </refsect1>
+>> +  <refsect1>
+>> +    <title>Description</title>
+>> +    <para>To open a cec device applications call <function>open()</function>
+>> +    with the desired device name. The function has no side effects; the device
+>> +    configuration remain unchanged.</para>
+>> +    <para>When the device is opened in read-only mode, attempts to modify its
+>> +    configuration will result in an error, and <varname>errno</varname> will be
+>> +    set to <errorcode>EBADF</errorcode>.</para>
+>> +  </refsect1>
+>> +  <refsect1>
+>> +    <title>Return Value</title>
+>> +
+>> +    <para><function>open</function> returns the new file descriptor on success.
+>> +    On error, -1 is returned, and <varname>errno</varname> is set appropriately.
+>> +    Possible error codes are:</para>
+> 
+> This is more a side note that applies also to other DocBooks. Perhaps
+> we should change the word to:
+> 	"Possible error codes include:"
+> 
+> To make clearer that the list is non-exhaustive and other error codes
+> may also happen. I remember we had a bug in the past with some
+> multimedia application that were causing infinite loops while handling
+> some VIDIOC_ENUM_* ioctl because it was programmed to expect *just*
+> one error code (-EINVAL - I guess, to identify the end of an enum).
+
+Good point, I'll change that.
+
+> 
+>> +
+>> +    <variablelist>
+>> +      <varlistentry>
+>> +	<term><errorcode>EACCES</errorcode></term>
+>> +	<listitem>
+>> +	  <para>The requested access to the file is not allowed.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><errorcode>EMFILE</errorcode></term>
+>> +	<listitem>
+>> +	  <para>The  process  already  has  the  maximum number of files open.
+>> +	  </para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><errorcode>ENFILE</errorcode></term>
+>> +	<listitem>
+>> +	  <para>The system limit on the total number of open files has been
+>> +	  reached.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><errorcode>ENOMEM</errorcode></term>
+>> +	<listitem>
+>> +	  <para>Insufficient kernel memory was available.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><errorcode>ENXIO</errorcode></term>
+>> +	<listitem>
+>> +	  <para>No device corresponding to this device special file exists.
+>> +	  </para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +    </variablelist>
+>> +  </refsect1>
+>> +</refentry>
+>> diff --git a/Documentation/DocBook/media/v4l/cec-func-poll.xml b/Documentation/DocBook/media/v4l/cec-func-poll.xml
+>> new file mode 100644
+>> index 0000000..6853817
+>> --- /dev/null
+>> +++ b/Documentation/DocBook/media/v4l/cec-func-poll.xml
+>> @@ -0,0 +1,89 @@
+>> +<refentry id="cec-func-poll">
+>> +  <refmeta>
+>> +    <refentrytitle>cec poll()</refentrytitle>
+>> +    &manvol;
+>> +  </refmeta>
+>> +
+>> +  <refnamediv>
+>> +    <refname>cec-poll</refname>
+>> +    <refpurpose>Wait for some event on a file descriptor</refpurpose>
+>> +  </refnamediv>
+>> +
+>> +  <refsynopsisdiv>
+>> +    <funcsynopsis>
+>> +      <funcsynopsisinfo>#include &lt;sys/poll.h&gt;</funcsynopsisinfo>
+>> +      <funcprototype>
+>> +	<funcdef>int <function>poll</function></funcdef>
+>> +	<paramdef>struct pollfd *<parameter>ufds</parameter></paramdef>
+>> +	<paramdef>unsigned int <parameter>nfds</parameter></paramdef>
+>> +	<paramdef>int <parameter>timeout</parameter></paramdef>
+>> +      </funcprototype>
+>> +    </funcsynopsis>
+>> +  </refsynopsisdiv>
+>> +
+>> +  <refsect1>
+>> +    <title>Description</title>
+>> +
+>> +    <para>With the <function>poll()</function> function applications
+>> +can wait for CEC events.</para>
+>> +
+>> +    <para>On success <function>poll()</function> returns the number of
+>> +file descriptors that have been selected (that is, file descriptors
+>> +for which the <structfield>revents</structfield> field of the
+>> +respective <structname>pollfd</structname> structure is non-zero).
+>> +CEC devices set the <constant>POLLIN</constant> and
+>> +<constant>POLLRDNORM</constant> flags in the
+>> +<structfield>revents</structfield> field if there are messages in the
+>> +receive queue. If the transmit queue has room for new messages, the
+>> +<constant>POLLOUT</constant> and <constant>POLLWRNORM</constant>
+>> +flags are set. If there are events in the event queue, then the
+>> +<constant>POLLPRI</constant> flag is set.
+>> +When the function timed out it returns a value of zero, on
+>> +failure it returns <returnvalue>-1</returnvalue> and the
+>> +<varname>errno</varname> variable is set appropriately.
+>> +</para>
+>> +
+>> +    <para>For more details see the
+>> +<function>poll()</function> manual page.</para>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    <title>Return Value</title>
+>> +
+>> +    <para>On success, <function>poll()</function> returns the number
+>> +structures which have non-zero <structfield>revents</structfield>
+>> +fields, or zero if the call timed out. On error
+>> +<returnvalue>-1</returnvalue> is returned, and the
+>> +<varname>errno</varname> variable is set appropriately:</para>
+>> +
+>> +    <variablelist>
+>> +      <varlistentry>
+>> +	<term><errorcode>EBADF</errorcode></term>
+>> +	<listitem>
+>> +	  <para>One or more of the <parameter>ufds</parameter> members
+>> +specify an invalid file descriptor.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><errorcode>EFAULT</errorcode></term>
+>> +	<listitem>
+>> +	  <para><parameter>ufds</parameter> references an inaccessible
+>> +memory area.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><errorcode>EINTR</errorcode></term>
+>> +	<listitem>
+>> +	  <para>The call was interrupted by a signal.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><errorcode>EINVAL</errorcode></term>
+>> +	<listitem>
+>> +	  <para>The <parameter>nfds</parameter> argument is greater
+>> +than <constant>OPEN_MAX</constant>.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +    </variablelist>
+>> +  </refsect1>
+>> +</refentry>
+>> diff --git a/Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml
+>> new file mode 100644
+>> index 0000000..b99ed22
+>> --- /dev/null
+>> +++ b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml
+>> @@ -0,0 +1,140 @@
+>> +<refentry id="cec-ioc-adap-g-caps">
+>> +  <refmeta>
+>> +    <refentrytitle>ioctl CEC_ADAP_G_CAPS</refentrytitle>
+>> +    &manvol;
+>> +  </refmeta>
+>> +
+>> +  <refnamediv>
+>> +    <refname>CEC_ADAP_G_CAPS</refname>
+>> +    <refpurpose>Query device capabilities</refpurpose>
+>> +  </refnamediv>
+>> +
+>> +  <refsynopsisdiv>
+>> +    <funcsynopsis>
+>> +      <funcprototype>
+>> +	<funcdef>int <function>ioctl</function></funcdef>
+>> +	<paramdef>int <parameter>fd</parameter></paramdef>
+>> +	<paramdef>int <parameter>request</parameter></paramdef>
+>> +	<paramdef>struct cec_caps *<parameter>argp</parameter></paramdef>
+>> +      </funcprototype>
+>> +    </funcsynopsis>
+>> +  </refsynopsisdiv>
+>> +
+>> +  <refsect1>
+>> +    <title>Arguments</title>
+>> +
+>> +    <variablelist>
+>> +      <varlistentry>
+>> +	<term><parameter>fd</parameter></term>
+>> +	<listitem>
+>> +	  <para>File descriptor returned by
+>> +	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>request</parameter></term>
+>> +	<listitem>
+>> +	  <para>CEC_ADAP_G_CAPS</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>argp</parameter></term>
+>> +	<listitem>
+>> +	  <para></para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +    </variablelist>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    <title>Description</title>
+>> +
+>> +    <para>All cec devices must support the <constant>CEC_ADAP_G_CAPS</constant>
+>> +    ioctl. To query device information, applications call the ioctl with a
+>> +    pointer to a &cec-caps;. The driver fills the structure and returns
+>> +    the information to the application.
+>> +    The ioctl never fails.</para>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-caps">
+>> +      <title>struct <structname>cec_caps</structname></title>
+>> +      <tgroup cols="3">
+>> +	&cs-str;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry>char</entry>
+>> +	    <entry><structfield>driver[32]</structfield></entry>
+>> +	    <entry>The name of the cec adapter driver.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>char</entry>
+>> +	    <entry><structfield>name[32]</structfield></entry>
+>> +	    <entry>The name of this CEC adapter. The combination <structfield>driver</structfield>
+>> +	    and <structfield>name</structfield> must be unique.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u32</entry>
+>> +	    <entry><structfield>capabilities</structfield></entry>
+>> +	    <entry>The capabilities of the CEC adapter, see <xref
+>> +		linkend="cec-capabilities" />.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u32</entry>
+>> +	    <entry><structfield>version</structfield></entry>
+>> +	    <entry>CEC Framework API version, formatted with the
+>> +	    <constant>KERNEL_VERSION()</constant> macro.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-capabilities">
+>> +      <title>CEC Capabilities Flags</title>
+>> +      <tgroup cols="3">
+>> +	&cs-def;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry><constant>CEC_CAP_PHYS_ADDR</constant></entry>
+>> +	    <entry>0x00000001</entry>
+>> +	    <entry>Userspace has to configure the physical address by
+>> +	    calling &CEC-ADAP-S-PHYS-ADDR;.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_CAP_LOG_ADDRS</constant></entry>
+>> +	    <entry>0x00000002</entry>
+>> +	    <entry>Userspace has to configure the logical addresses by
+>> +	    calling &CEC-ADAP-S-LOG-ADDRS;.</entry>
+> 
+> IMHO, on the two above, it is not clear what they means.
+> 
+> I mean, it should clearly state what userspace should do when:
+> - the flag is active (that's described);
+> - the flag is not active. This is not described. As all CEC
+>   devices need some address, if the capability is disabled,
+>   what userspace is supposed to do? How the device will get the
+>   address?
+
+If it is not set, then the driver takes care of it. I'll mention that
+explicitly.
+
+Ideally CEC_CAP_PHYS_ADDR should only be set for USB CEC dongles (where
+the kernel driver has no idea about the EDID) and in all other cases the
+HDMI tx/rx driver will automatically provide the physical address based
+on the EDID, but this is no always possible.
+
+> 
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_CAP_TRANSMIT</constant></entry>
+>> +	    <entry>0x00000004</entry>
+>> +	    <entry>Userspace can transmit CEC messages by calling &CEC-TRANSMIT;. This
+>> +	    implies that userspace can be a follower as well, since being able to
+>> +	    transmit messages is a prerequisite of becoming a follower.
+>> +	    </entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_CAP_PASSTHROUGH</constant></entry>
+>> +	    <entry>0x00000008</entry>
+>> +	    <entry>Userspace can use the passthrough mode by
+>> +	    calling &CEC-S-MODE;.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_CAP_RC</constant></entry>
+>> +	    <entry>0x00000010</entry>
+>> +	    <entry>This adapter supports the remote control protocol.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_CAP_MONITOR_ALL</constant></entry>
+>> +	    <entry>0x00000020</entry>
+>> +	    <entry>The CEC hardware can monitor all messages, not just directed and
+>> +	    broadcast messages.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    &return-value;
+>> +  </refsect1>
+>> +</refentry>
+>> diff --git a/Documentation/DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml
+>> new file mode 100644
+>> index 0000000..01bc5ab
+>> --- /dev/null
+>> +++ b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml
+>> @@ -0,0 +1,324 @@
+>> +<refentry id="cec-ioc-adap-g-log-addrs">
+>> +  <refmeta>
+>> +    <refentrytitle>ioctl CEC_ADAP_G_LOG_ADDRS, CEC_ADAP_S_LOG_ADDRS</refentrytitle>
+>> +    &manvol;
+>> +  </refmeta>
+>> +
+>> +  <refnamediv>
+>> +    <refname>CEC_ADAP_G_LOG_ADDRS</refname>
+>> +    <refname>CEC_ADAP_S_LOG_ADDRS</refname>
+>> +    <refpurpose>Get or set the logical addresses</refpurpose>
+>> +  </refnamediv>
+>> +
+>> +  <refsynopsisdiv>
+>> +    <funcsynopsis>
+>> +      <funcprototype>
+>> +	<funcdef>int <function>ioctl</function></funcdef>
+>> +	<paramdef>int <parameter>fd</parameter></paramdef>
+>> +	<paramdef>int <parameter>request</parameter></paramdef>
+>> +	<paramdef>struct cec_log_addrs *<parameter>argp</parameter></paramdef>
+>> +      </funcprototype>
+>> +    </funcsynopsis>
+>> +  </refsynopsisdiv>
+>> +
+>> +  <refsect1>
+>> +    <title>Arguments</title>
+>> +
+>> +    <variablelist>
+>> +      <varlistentry>
+>> +	<term><parameter>fd</parameter></term>
+>> +	<listitem>
+>> +	  <para>File descriptor returned by
+>> +	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>request</parameter></term>
+>> +	<listitem>
+>> +	  <para>CEC_ADAP_G_LOG_ADDRS, CEC_ADAP_S_LOG_ADDRS</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>argp</parameter></term>
+>> +	<listitem>
+>> +	  <para></para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +    </variablelist>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    <title>Description</title>
+>> +
+>> +    <para>To query the current CEC logical addresses applications call the
+> 
+>  <para>To query the current CEC logical addresses applications, call the
+> 	(comma is missing)
+
+The comma should be after 'addresses', but other than that I agree.
+
+> 
+> 
+>> +<constant>CEC_ADAP_G_LOG_ADDRS</constant> ioctl with a pointer to a
+>> +<structname>cec_log_addrs</structname> structure where the drivers stores the
+>> +logical addresses.</para>
+> 	"store"
+> 
+>> +
+>> +    <para>To set new logical addresses applications fill in struct <structname>cec_log_addrs</structname>
+> 
+> Comma is also missed above.
+> 
+>> +and call the <constant>CEC_ADAP_S_LOG_ADDRS</constant> ioctl with a pointer to this struct.
+>> +The <constant>CEC_ADAP_S_LOG_ADDRS</constant> ioctl is only available if
+>> +<constant>CEC_CAP_LOG_ADDRS</constant> is set. 
+> 
+> Please mention the return code when the ioctl is not available.
+
+Will do.
+
+> 
+>> This ioctl will block until all
+>> +requested logical addresses have been claimed. <constant>CEC_ADAP_S_LOG_ADDRS</constant>
+>> +can only be called by a file handle in initiator mode (see &CEC-S-MODE;).</para>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-log-addrs">
+>> +      <title>struct <structname>cec_log_addrs</structname></title>
+>> +      <tgroup cols="3">
+>> +	&cs-str;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>log_addr</structfield>[CEC_MAX_LOG_ADDRS]</entry>
+>> +	    <entry>The actual logical addresses that were claimed. This is set by the
+>> +	    driver. If no logical address could be claimed, then it is set to
+>> +	    <constant>CEC_LOG_ADDR_INVALID</constant>. If this adapter is Unregistered,
+>> +	    then <structfield>log_addr[0]</structfield> is set to 0xf and all others to
+>> +	    <constant>CEC_LOG_ADDR_INVALID</constant>.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u16</entry>
+>> +	    <entry><structfield>log_addr_mask</structfield></entry>
+>> +	    <entry>The bitmask of all logical addresses this adapter has claimed.
+>> +	    If this adapter is Unregistered then <structfield>log_addr_mask</structfield>
+>> +	    sets bit 15, if this adapter is not configured at all, then
+>> +	    <structfield>log_addr_mask</structfield> is set to 0. Set by the driver.</entry>
+> 
+> Huh? that "If .. then .., if then" is very confusing. Didn't get what you're meant
+> to say. Should it be a period instead of a comma before the second if?
+
+I'll clarify. It should be a period before the second if, and I should also be more explicit
+about the value in case of Unregistered: it should say that bit 15 is set and all other bits
+are cleared: when a CEC adapter is unregistered it claims logical address 15 and no others.
+
+> 
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>cec_version</structfield></entry>
+>> +	    <entry>The CEC version that this adapter shall use. See
+>> +	    <xref linkend="cec-versions" />.
+>> +	    Used to implement the <constant>CEC_MSG_CEC_VERSION</constant> and
+>> +	    <constant>CEC_MSG_REPORT_FEATURES</constant> messages. Note that
+>> +	    <constant>CEC_OP_CEC_VERSION_1_3A</constant> is not allowed
+>> +	    by the CEC framework.
+>> +	    </entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>num_log_addrs</structfield></entry>
+>> +	    <entry>Number of logical addresses to set up. Must be &le;
+>> +	    <structfield>available_log_addrs</structfield> as returned by
+>> +	    &CEC-ADAP-G-CAPS;. All arrays in this structure are only filled up to
+>> +	    index <structfield>available_log_addrs</structfield>-1. The remaining
+>> +	    array elements will be ignored. Note that the CEC 2.0 standard allows
+>> +	    for a maximum of 2 logical addresses, although some hardware has support
+>> +	    for more. <constant>CEC_MAX_LOG_ADDRS</constant> is 4. The driver will
+>> +	    return the actual number of logical addresses it could claim, which may
+>> +	    be less than what was requested. If this field is set to 0, then the
+>> +	    CEC adapter shall clear all claimed logical addresses and all other
+>> +	    fields will be ignored.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u32</entry>
+>> +	    <entry><structfield>vendor_id</structfield></entry>
+>> +	    <entry>The vendor ID is a 24-bit number that identifies the specific
+>> +	    vendor or entity. Based on this ID vendor specific commands may be
+>> +	    defined. If you do not want a vendor ID then set it to
+>> +	    <constant>CEC_VENDOR_ID_NONE</constant>.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u32</entry>
+>> +	    <entry><structfield>flags</structfield></entry>
+>> +	    <entry>Flags. No flags are defined yet, so set this to 0.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>char</entry>
+>> +	    <entry><structfield>osd_name</structfield>[15]</entry>
+>> +	    <entry>The On-Screen Display name as is returned by the
+>> +	    <constant>CEC_MSG_SET_OSD_NAME</constant> message.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>primary_device_type</structfield>[CEC_MAX_LOG_ADDRS]</entry>
+>> +	    <entry>Primary device type for each logical address. See
+>> +	    <xref linkend="cec-prim-dev-types" /> for possible types.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>log_addr_type</structfield>[CEC_MAX_LOG_ADDRS]</entry>
+>> +	    <entry>Logical address types. See <xref linkend="cec-log-addr-types" /> for
+>> +	    possible types. The driver will update this with the actual logical address
+>> +	    type that it claimed (e.g. it may have to fallback to
+>> +	    <constant>CEC_LOG_ADDR_TYPE_UNREGISTERED</constant>).</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>all_device_types</structfield>[CEC_MAX_LOG_ADDRS]</entry>
+>> +	    <entry>CEC 2.0 specific: all device types. See <xref linkend="cec-all-dev-types-flags" />.
+>> +	    Used to implement the <constant>CEC_MSG_REPORT_FEATURES</constant> message.
+>> +	    This field is ignored if <structfield>cec_version</structfield> &lt;
+>> +	    <constant>CEC_OP_CEC_VERSION_2_0</constant>.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>features</structfield>[CEC_MAX_LOG_ADDRS][12]</entry>
+>> +	    <entry>Features for each logical address. Used to implement the
+>> +	    <constant>CEC_MSG_REPORT_FEATURES</constant> message. The 12 bytes include
+>> +	    both the RC Profile and the Device Features.
+>> +	    This field is ignored if <structfield>cec_version</structfield> &lt;
+>> +	    <constant>CEC_OP_CEC_VERSION_2_0</constant>.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-versions">
+>> +      <title>CEC Versions</title>
+>> +      <tgroup cols="3">
+>> +	&cs-def;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_CEC_VERSION_1_3A</constant></entry>
+>> +	    <entry>4</entry>
+>> +	    <entry>CEC version according to the HDMI 1.3a standard.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_CEC_VERSION_1_4B</constant></entry>
+>> +	    <entry>5</entry>
+>> +	    <entry>CEC version according to the HDMI 1.4b standard.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_CEC_VERSION_2_0</constant></entry>
+>> +	    <entry>6</entry>
+>> +	    <entry>CEC version according to the HDMI 2.0 standard.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-prim-dev-types">
+>> +      <title>CEC Primary Device Types</title>
+>> +      <tgroup cols="3">
+>> +	&cs-def;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_PRIM_DEVTYPE_TV</constant></entry>
+>> +	    <entry>0</entry>
+>> +	    <entry>Use for a TV.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_PRIM_DEVTYPE_RECORD</constant></entry>
+>> +	    <entry>1</entry>
+>> +	    <entry>Use for a recording device.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_PRIM_DEVTYPE_TUNER</constant></entry>
+>> +	    <entry>3</entry>
+>> +	    <entry>Use for a device with a tuner.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_PRIM_DEVTYPE_PLAYBACK</constant></entry>
+>> +	    <entry>4</entry>
+>> +	    <entry>Use for a playback device.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_PRIM_DEVTYPE_AUDIOSYSTEM</constant></entry>
+>> +	    <entry>5</entry>
+>> +	    <entry>Use for an audio system (e.g. an audio/video receiver).</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_PRIM_DEVTYPE_SWITCH</constant></entry>
+>> +	    <entry>6</entry>
+>> +	    <entry>Use for a CEC switch.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_PRIM_DEVTYPE_VIDEOPROC</constant></entry>
+>> +	    <entry>7</entry>
+>> +	    <entry>Use for a video processor device.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-log-addr-types">
+>> +      <title>CEC Logical Address Types</title>
+>> +      <tgroup cols="3">
+>> +	&cs-def;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry><constant>CEC_LOG_ADDR_TYPE_TV</constant></entry>
+>> +	    <entry>0</entry>
+>> +	    <entry>Use for a TV.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_LOG_ADDR_TYPE_RECORD</constant></entry>
+>> +	    <entry>1</entry>
+>> +	    <entry>Use for a recording device.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_LOG_ADDR_TYPE_TUNER</constant></entry>
+>> +	    <entry>2</entry>
+>> +	    <entry>Use for a tuner device.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_LOG_ADDR_TYPE_PLAYBACK</constant></entry>
+>> +	    <entry>3</entry>
+>> +	    <entry>Use for a playback device.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_LOG_ADDR_TYPE_AUDIOSYSTEM</constant></entry>
+>> +	    <entry>4</entry>
+>> +	    <entry>Use for an audio system device.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_LOG_ADDR_TYPE_SPECIFIC</constant></entry>
+>> +	    <entry>5</entry>
+>> +	    <entry>Use for a second TV or for a video processor device.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_LOG_ADDR_TYPE_UNREGISTERED</constant></entry>
+>> +	    <entry>6</entry>
+>> +	    <entry>Use this if you just want to remain unregistered.
+>> +	    Used for pure CEC switches or CDC-only devices (CDC:
+>> +	    Capability Discovery and Control).</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-all-dev-types-flags">
+>> +      <title>CEC All Device Types Flags</title>
+>> +      <tgroup cols="3">
+>> +	&cs-def;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_ALL_DEVTYPE_TV</constant></entry>
+>> +	    <entry>0x80</entry>
+>> +	    <entry>This supports the TV type.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_ALL_DEVTYPE_RECORD</constant></entry>
+>> +	    <entry>0x40</entry>
+>> +	    <entry>This supports the Recording type.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_ALL_DEVTYPE_TUNER</constant></entry>
+>> +	    <entry>0x20</entry>
+>> +	    <entry>This supports the Tuner type.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_ALL_DEVTYPE_PLAYBACK</constant></entry>
+>> +	    <entry>0x10</entry>
+>> +	    <entry>This supports the Playback type.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_ALL_DEVTYPE_AUDIOSYSTEM</constant></entry>
+>> +	    <entry>0x08</entry>
+>> +	    <entry>This supports the Audio System type.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_OP_ALL_DEVTYPE_SWITCH</constant></entry>
+>> +	    <entry>0x04</entry>
+>> +	    <entry>This supports the CEC Switch or Video Processing type.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    &return-value;
+>> +  </refsect1>
+>> +</refentry>
+>> diff --git a/Documentation/DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml
+>> new file mode 100644
+>> index 0000000..7a08269
+>> --- /dev/null
+>> +++ b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml
+>> @@ -0,0 +1,82 @@
+>> +<refentry id="cec-ioc-adap-g-phys-addr">
+>> +  <refmeta>
+>> +    <refentrytitle>ioctl CEC_ADAP_G_PHYS_ADDR, CEC_ADAP_S_PHYS_ADDR</refentrytitle>
+>> +    &manvol;
+>> +  </refmeta>
+>> +
+>> +  <refnamediv>
+>> +    <refname>CEC_ADAP_G_PHYS_ADDR</refname>
+>> +    <refname>CEC_ADAP_S_PHYS_ADDR</refname>
+>> +    <refpurpose>Get or set the physical address</refpurpose>
+>> +  </refnamediv>
+>> +
+>> +  <refsynopsisdiv>
+>> +    <funcsynopsis>
+>> +      <funcprototype>
+>> +	<funcdef>int <function>ioctl</function></funcdef>
+>> +	<paramdef>int <parameter>fd</parameter></paramdef>
+>> +	<paramdef>int <parameter>request</parameter></paramdef>
+>> +	<paramdef>__u16 *<parameter>argp</parameter></paramdef>
+>> +      </funcprototype>
+>> +    </funcsynopsis>
+>> +  </refsynopsisdiv>
+>> +
+>> +  <refsect1>
+>> +    <title>Arguments</title>
+>> +
+>> +    <variablelist>
+>> +      <varlistentry>
+>> +	<term><parameter>fd</parameter></term>
+>> +	<listitem>
+>> +	  <para>File descriptor returned by
+>> +	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>request</parameter></term>
+>> +	<listitem>
+>> +	  <para>CEC_ADAP_G_PHYS_ADDR, CEC_ADAP_S_PHYS_ADDR</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>argp</parameter></term>
+>> +	<listitem>
+>> +	  <para></para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +    </variablelist>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    <title>Description</title>
+>> +
+>> +    <para>To query the current physical address applications call the
+>> +<constant>CEC_ADAP_G_PHYS_ADDR</constant> ioctl with a pointer to an __u16
+>> +where the driver stores the physical address.</para>
+>> +
+>> +    <para>To set a new physical address applications store the physical address in
+>> +an __u16 and call the <constant>CEC_ADAP_S_PHYS_ADDR</constant> ioctl with a
+>> +pointer to this integer. <constant>CEC_ADAP_S_PHYS_ADDR</constant> is only
+>> +available if <constant>CEC_CAP_PHYS_ADDR</constant> is set. It is not allowed
+>> +to change a valid physical address to another valid physical address: you must
+>> +select <constant>CEC_PHYS_ADDR_INVALID</constant> (f.f.f.f) first.
+>> +<constant>CEC_ADAP_S_PHYS_ADDR</constant>
+>> +can only be called by a file handle in initiator mode (see &CEC-S-MODE;).</para>
+> 
+> Please mention the error code that will be returned if the user tries to change
+> from one valid address to another one.
+
+Will do.
+
+> 
+> 
+>> +
+>> +    <para>The physical address is a 16-bit number where each group of 4 bits
+>> +represent a digit of the physical address a.b.c.d where the most significant
+>> +4 bits represent 'a'. The CEC root device (usually the TV) has address 0.0.0.0.
+>> +Every device that is hooked up to an input of the TV has address a.0.0.0 (where
+>> +'a' is &ge; 1), devices hooked up to those in turn have addresses a.b.0.0, etc.
+>> +So a topology of up to 5 devices deep is supported. The physical address a
+>> +device shall use is stored in the EDID of the sink.</para>
+>> +
+>> +<para>For example, the EDID for each HDMI input of the TV will have a different
+>> +physical address of the form a.0.0.0 that the sources will read out and use as
+>> +their physical address.</para>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    &return-value;
+>> +  </refsect1>
+>> +</refentry>
+>> diff --git a/Documentation/DocBook/media/v4l/cec-ioc-dqevent.xml b/Documentation/DocBook/media/v4l/cec-ioc-dqevent.xml
+>> new file mode 100644
+>> index 0000000..6a9960f
+>> --- /dev/null
+>> +++ b/Documentation/DocBook/media/v4l/cec-ioc-dqevent.xml
+>> @@ -0,0 +1,190 @@
+>> +<refentry id="cec-ioc-g-event">
+>> +  <refmeta>
+>> +    <refentrytitle>ioctl CEC_DQEVENT</refentrytitle>
+>> +    &manvol;
+>> +  </refmeta>
+>> +
+>> +  <refnamediv>
+>> +    <refname>CEC_DQEVENT</refname>
+>> +    <refpurpose>Dequeue a CEC event</refpurpose>
+>> +  </refnamediv>
+>> +
+>> +  <refsynopsisdiv>
+>> +    <funcsynopsis>
+>> +      <funcprototype>
+>> +	<funcdef>int <function>ioctl</function></funcdef>
+>> +	<paramdef>int <parameter>fd</parameter></paramdef>
+>> +	<paramdef>int <parameter>request</parameter></paramdef>
+>> +	<paramdef>struct cec_event *<parameter>argp</parameter></paramdef>
+>> +      </funcprototype>
+>> +    </funcsynopsis>
+>> +  </refsynopsisdiv>
+>> +
+>> +  <refsect1>
+>> +    <title>Arguments</title>
+>> +
+>> +    <variablelist>
+>> +      <varlistentry>
+>> +	<term><parameter>fd</parameter></term>
+>> +	<listitem>
+>> +	  <para>File descriptor returned by
+>> +	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>request</parameter></term>
+>> +	<listitem>
+>> +	  <para>CEC_DQEVENT</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>argp</parameter></term>
+>> +	<listitem>
+>> +	  <para></para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +    </variablelist>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    <title>Description</title>
+>> +
+>> +    <para>CEC devices can send asynchronous events. These can be retrieved by calling
+>> +    the <constant>CEC_DQEVENT</constant> ioctl. If the file descriptor is in non-blocking
+>> +    mode and no event is pending, then it will return -1 and set errno to the &EAGAIN;.</para>
+>> +
+>> +    <para>The internal event queues are per-filehandle and per-event type. If there is
+>> +    no more room in a queue then the last event is overwritten with the new one. This
+>> +    means that intermediate results can be thrown away but that the latest event is always
+>> +    available. This also mean that is it possible to read two successive events that have
+>> +    the same value (e.g. two CEC_EVENT_STATE_CHANGE events with the same state). In that
+>> +    case the intermediate state changes were lost but it is guaranteed that the state
+>> +    did change in between the two events.</para>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-event-state-change">
+>> +      <title>struct <structname>cec_event_state_change</structname></title>
+>> +      <tgroup cols="3">
+>> +	&cs-str;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry>__u16</entry>
+>> +	    <entry><structfield>phys_addr</structfield></entry>
+>> +	    <entry>The current physical address.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u16</entry>
+>> +	    <entry><structfield>log_addr_mask</structfield></entry>
+>> +	    <entry>The current set of claimed logical addresses.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-event-lost-msgs">
+>> +      <title>struct <structname>cec_event_lost_msgs</structname></title>
+>> +      <tgroup cols="3">
+>> +	&cs-str;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry>__u32</entry>
+>> +	    <entry><structfield>lost_msgs</structfield></entry>
+>> +	    <entry>Set to the number of lost messages since the filehandle
+>> +	    was opened or since the last time this event was dequeued for
+>> +	    this filehandle.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-event">
+>> +      <title>struct <structname>cec_event</structname></title>
+>> +      <tgroup cols="4">
+>> +	&cs-str;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry>__u64</entry>
+>> +	    <entry><structfield>ts</structfield></entry>
+>> +	    <entry>Timestamp of the event in ns.</entry>
+>> +	    <entry></entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u32</entry>
+>> +	    <entry><structfield>event</structfield></entry>
+>> +	    <entry>The event, see <xref linkend="cec-events" />.</entry>
+> 
+> "The Event" sounds like the name of a movie ;) Hmm... wait a moment...
+> it *is* the name of a movie already: http://www.imdb.com/title/tt0314039/ :)
+> 
+> I guess it would be better to describe it as "The event type", as
+> this is actually the type of the event, as the event itself is 
+> described by the hole structure.
+
+I'll make it less movie-like :-)
+
+> 
+>> +	    <entry></entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u32</entry>
+>> +	    <entry><structfield>flags</structfield></entry>
+>> +	    <entry>Event flags, see <xref linkend="cec-event-flags" />.</entry>
+>> +	    <entry></entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>union</entry>
+>> +	    <entry>(anonymous)</entry>
+>> +	    <entry></entry>
+>> +	    <entry></entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry></entry>
+>> +	    <entry>struct cec_event_state_change</entry>
+>> +	    <entry><structfield>state_change</structfield></entry>
+>> +	    <entry>The new adapter state as sent by the <constant>CEC_EVENT_STATE_CHANGE</constant>
+>> +	    event.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry></entry>
+>> +	    <entry>struct cec_event_lost_msgs</entry>
+>> +	    <entry><structfield>lost_msgs</structfield></entry>
+>> +	    <entry>The number of lost messages as sent by the <constant>CEC_EVENT_LOST_MSGS</constant>
+>> +	    event.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-events">
+>> +      <title>CEC Events</title>
+>> +      <tgroup cols="3">
+>> +	&cs-def;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry><constant>CEC_EVENT_STATE_CHANGE</constant></entry>
+>> +	    <entry>1</entry>
+>> +	    <entry>Generated when the CEC Adapter's state changes. When open() is
+>> +	    called an initial event will be generated for that filehandle with the
+>> +	    CEC Adapter's state at that time.
+>> +	    </entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_EVENT_LOST_MSGS</constant></entry>
+>> +	    <entry>2</entry>
+>> +	    <entry>Generated if one or more CEC messages were lost because the
+>> +	    application didn't dequeue CEC messages fast enough.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-event-flags">
+>> +      <title>CEC Event Flags</title>
+>> +      <tgroup cols="3">
+>> +	&cs-def;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry><constant>CEC_EVENT_FL_INITIAL_VALUE</constant></entry>
+>> +	    <entry>1</entry>
+>> +	    <entry>Set for the initial events that are generated when the device is
+>> +	    opened. See the table above for which events do this. This allows
+>> +	    applications to learn the initial state of the CEC adapter at open()
+>> +	    time.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    &return-value;
+>> +  </refsect1>
+>> +</refentry>
+>> diff --git a/Documentation/DocBook/media/v4l/cec-ioc-g-mode.xml b/Documentation/DocBook/media/v4l/cec-ioc-g-mode.xml
+>> new file mode 100644
+>> index 0000000..0cb1941
+>> --- /dev/null
+>> +++ b/Documentation/DocBook/media/v4l/cec-ioc-g-mode.xml
+>> @@ -0,0 +1,245 @@
+>> +<refentry id="cec-ioc-g-mode">
+>> +  <refmeta>
+>> +    <refentrytitle>ioctl CEC_G_MODE, CEC_S_MODE</refentrytitle>
+>> +    &manvol;
+>> +  </refmeta>
+>> +
+>> +  <refnamediv>
+>> +    <refname>CEC_G_MODE</refname>
+>> +    <refname>CEC_S_MODE</refname>
+>> +    <refpurpose>Get or set exclusive use of the CEC adapter</refpurpose>
+>> +  </refnamediv>
+>> +
+>> +  <refsynopsisdiv>
+>> +    <funcsynopsis>
+>> +      <funcprototype>
+>> +	<funcdef>int <function>ioctl</function></funcdef>
+>> +	<paramdef>int <parameter>fd</parameter></paramdef>
+>> +	<paramdef>int <parameter>request</parameter></paramdef>
+>> +	<paramdef>__u32 *<parameter>argp</parameter></paramdef>
+>> +      </funcprototype>
+>> +    </funcsynopsis>
+>> +  </refsynopsisdiv>
+>> +
+>> +  <refsect1>
+>> +    <title>Arguments</title>
+>> +
+>> +    <variablelist>
+>> +      <varlistentry>
+>> +	<term><parameter>fd</parameter></term>
+>> +	<listitem>
+>> +	  <para>File descriptor returned by
+>> +	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>request</parameter></term>
+>> +	<listitem>
+>> +	  <para>CEC_G_MODE, CEC_S_MODE</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>argp</parameter></term>
+>> +	<listitem>
+>> +	  <para></para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +    </variablelist>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    <title>Description</title>
+>> +
+>> +    <para>By default any filehandle can use &CEC-TRANSMIT; and &CEC-RECEIVE;, but
+>> +in order to prevent applications from stepping on each others toes you want to get
+>> +exclusive access to the CEC adapter. This ioctl allows you to try and become the
+>> +exclusive initiator and/or follower. The initiator is the filehandle that is used
+>> +to initiate messages, i.e. it commands other CEC devices. The follower is the filehandle
+>> +that receives messages sent to our CEC adapter and processes them. The same filehandle
+> 
+> "to our CEC adapter" -> "to the directly controlled CEC adapter"
+
+Hmm, I don't like your suggestion. How about just saying: "to the CEC adapter"?
+
+> 
+>> +can be both initiator and follower, or this role can be taken by two different
+>> +filehandles.</para>
+>> +
+>> +    <para>When a CEC message is received, then the CEC framework will decide how
+>> +it will be processed. If the message is a reply to an earlier transmitted message,
+>> +then the reply is sent back to the filehandle that is waiting for it. In addition
+>> +the CEC framework will process it.</para>
+>> +
+>> +    <para>If the message is not a reply, then the CEC framework will process it
+>> +first. If there is no follower, then the message is just discarded and a feature
+>> +abort is sent back to the initiator if the framework couldn't process it. If there
+>> +is a follower, then the message is passed on to the follower who will use
+>> +&CEC-RECEIVE; to dequeue the new message. The framework expects the follower to
+>> +make the right decisions.</para>
+>> +
+>> +    <para>The CEC framework will process core messages unless requested otherwise
+>> +by the follower. The follower can enable the passthrough mode. In that case the
+> 
+> Comma missing: "In that case, "
+
+Ack.
+
+> 
+>> +CEC framework will pass on most core messages without processing them. In that
+>> +case the follower will have to implement those messages. There are some messages
+>> +that the core will always process, regardless of the passthrough mode.</para>
+>> +
+>> +    <para>If there is no initiator, then any CEC filehandle can use &CEC-TRANSMIT;.
+>> +If there is an exclusive initiator then only that initiator can call &CEC-TRANSMIT;.
+>> +The follower can of course always call &CEC-TRANSMIT;.</para>
+>> +
+>> +    <para>Available initiator modes are:</para>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-mode-initiator">
+>> +      <title>Initiator Modes</title>
+>> +      <tgroup cols="3">
+>> +	&cs-def;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry><constant>CEC_MODE_NO_INITIATOR</constant></entry>
+>> +	    <entry>0x0</entry>
+>> +	    <entry>This is not an initiator, i.e. it cannot transmit CEC messages
+>> +	    or make any other changes to the CEC adapter.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MODE_INITIATOR</constant></entry>
+>> +	    <entry>0x1</entry>
+>> +	    <entry>This is an initiator (the default when the device is opened) and it
+>> +	    can transmit CEC messages and make changes to the CEC adapter, unless there
+>> +	    is an exclusive initiator.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MODE_EXCL_INITIATOR</constant></entry>
+>> +	    <entry>0x2</entry>
+>> +	    <entry>This is an exclusive initiator and this file descriptor is the only one
+>> +	    that can transmit CEC messages and make changes to the CEC adapter. If someone
+>> +	    else is already the exclusive initiator then an attempt to become one will return
+>> +	    the &EBUSY; error.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <para>Available follower modes are:</para>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-mode-follower">
+>> +      <title>Follower Modes</title>
+>> +      <tgroup cols="3">
+>> +	&cs-def;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry><constant>CEC_MODE_NO_FOLLOWER</constant></entry>
+>> +	    <entry>0x00</entry>
+>> +	    <entry>This is not a follower (the default when the device is opened).</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MODE_FOLLOWER</constant></entry>
+>> +	    <entry>0x10</entry>
+>> +	    <entry>This is a follower and it will receive CEC messages unless there is
+>> +	    an exclusive follower. You cannot become a follower if <constant>CEC_CAP_TRANSMIT</constant>
+>> +	    is not set or if <constant>CEC_MODE_NO_INITIATOR</constant> was specified,
+>> +	    &EINVAL; is returned in that case.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MODE_EXCL_FOLLOWER</constant></entry>
+>> +	    <entry>0x20</entry>
+>> +	    <entry>This is an exclusive follower and only this file descriptor will receive
+>> +	    CEC messages for processing. If someone else is already the exclusive follower
+>> +	    then an attempt to become one will return the &EBUSY; error. You cannot become
+>> +	    a follower if <constant>CEC_CAP_TRANSMIT</constant> is not set or if
+>> +	    <constant>CEC_MODE_NO_INITIATOR</constant> was specified, &EINVAL; is returned
+>> +	    in that case.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MODE_EXCL_FOLLOWER_PASSTHRU</constant></entry>
+>> +	    <entry>0x30</entry>
+>> +	    <entry>This is an exclusive follower and only this file descriptor will receive
+>> +	    CEC messages for processing. In addition it will put the CEC device into
+>> +	    passthrough mode, allowing the exclusive follower to handle most core messages
+>> +	    instead of relying on the CEC framework for that. If someone else is already the
+>> +	    exclusive follower then an attempt to become one will return the &EBUSY; error.
+>> +	    You cannot become a follower if <constant>CEC_CAP_TRANSMIT</constant>
+>> +            is not set or if <constant>CEC_MODE_NO_INITIATOR</constant> was specified,
+>> +            &EINVAL; is returned in that case.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MODE_MONITOR</constant></entry>
+>> +	    <entry>0xe0</entry>
+>> +	    <entry>Put the file descriptor into monitor mode. Can only be used in combination
+>> +	    with <constant>CEC_MODE_NO_INITIATOR</constant>, otherwise &EINVAL; will be
+>> +	    returned. In monitor mode all messages this CEC device transmits and all messages
+>> +	    it receives (both broadcast messages and directed messages for one its logical
+>> +	    addresses) will be reported. This is very useful for debugging.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MODE_MONITOR_ALL</constant></entry>
+>> +	    <entry>0xf0</entry>
+>> +	    <entry>Put the file descriptor into 'monitor all' mode. Can only be used in combination
+>> +            with <constant>CEC_MODE_NO_INITIATOR</constant>, otherwise &EINVAL; will be
+>> +            returned. In 'monitor all' mode all messages this CEC device transmits and all messages
+>> +            it receives, including directed messages for other CEC devices will be reported. This
+>> +	    is very useful for debugging, but not all devices support this. This mode requires that
+>> +	    the <constant>CEC_CAP_MONITOR_ALL</constant> capability is set, and depending on the
+>> +	    hardware, you may have to be root to select this mode.</entry>
+> 
+> Please mention the error codes when it fails.
+
+Ack.
+
+> "and depending on the hardware, you may have to be root to select this mode."
+> 
+> No. We should define if CAP_SYS_ADMIN (or maybe CAP_NET_ADMIN, with
+> is required to set promiscuous mode for network) will be required or
+> not and enforce it for all hardware.
+
+Ack for CAP_SYS_ADMIN (or possible NET_ADMIN, I'll look into that).
+
+> IMHO, putting the device into monitor mode should require it.
+
+No. The CEC 2.0 spec explicitly recommends that the CEC adapter should be able to
+monitor all messages. The problem is that 1) not all hardware supports this, and 2)
+hardware that does support this tends to mention that it is for testing only and
+it shouldn't be used otherwise.
+
+If the hardware is fine with allowing monitoring of all messages, then anyone
+should be able to do that. But if it comes with all these 'for testing only' caveats,
+then I think it should should be protected against 'casual' use. Unfortunately they
+never tell you why it should be used for testing only (overly cautious or could
+something actually fail when in this mode?).
+
+The reality is that being able to monitor the CEC bus is extremely useful when debugging.
+
+The simple MONITOR mode is different in that it requires no special hardware configuration.
+But it won't be able to see directed messages between CEC devices other than us.
+
+On a related note: if an application tries to become initiator or follower and someone
+else has already exclusive access, then EBUSY is returned. I based this on what happens
+in V4L2 with the S_PRIORITY ioctl.
+
+However, I think EACCES is a much better error code. It's probably what S_PRIO should
+have used as well.
+
+Do you agree?
+
+> 
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <para>Core message processing details:</para>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-core-processing">
+>> +      <title>Core Message Processing</title>
+>> +      <tgroup cols="2">
+>> +	&cs-def;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry><constant>CEC_MSG_GET_CEC_VERSION</constant></entry>
+>> +	    <entry>When in passthrough mode this message has to be handled by userspace,
+>> +	    otherwise the core will return the CEC version that was set with &CEC-ADAP-S-LOG-ADDRS;.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MSG_GIVE_DEVICE_VENDOR_ID</constant></entry>
+>> +	    <entry>When in passthrough mode this message has to be handled by userspace,
+>> +	    otherwise the core will return the vendor ID that was set with &CEC-ADAP-S-LOG-ADDRS;.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MSG_ABORT</constant></entry>
+>> +	    <entry>When in passthrough mode this message has to be handled by userspace,
+>> +	    otherwise the core will return a feature refused message as per the specification.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MSG_GIVE_PHYSICAL_ADDR</constant></entry>
+>> +	    <entry>When in passthrough mode this message has to be handled by userspace,
+>> +	    otherwise the core will report the current physical address.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MSG_GIVE_OSD_NAME</constant></entry>
+>> +	    <entry>When in passthrough mode this message has to be handled by userspace,
+>> +	    otherwise the core will report the current OSD name as was set with
+>> +	    &CEC-ADAP-S-LOG-ADDRS;.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MSG_GIVE_FEATURES</constant></entry>
+>> +	    <entry>When in passthrough mode this message has to be handled by userspace,
+>> +	    otherwise the core will report the current features as was set with
+>> +	    &CEC-ADAP-S-LOG-ADDRS; or the message is ignore if the CEC version was
+>> +	    older than 2.0.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MSG_USER_CONTROL_PRESSED</constant></entry>
+>> +	    <entry>If <constant>CEC_CAP_RC</constant> is set, then generate a remote control
+>> +	    key press. This message is always passed on to userspace.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MSG_USER_CONTROL_RELEASED</constant></entry>
+>> +	    <entry>If <constant>CEC_CAP_RC</constant> is set, then generate a remote control
+>> +	    key release. This message is always passed on to userspace.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_MSG_REPORT_PHYSICAL_ADDR</constant></entry>
+>> +	    <entry>The CEC framework will make note of the reported physical address
+>> +	    and then just pass the message on to userspace.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    &return-value;
+>> +  </refsect1>
+>> +</refentry>
+>> diff --git a/Documentation/DocBook/media/v4l/cec-ioc-receive.xml b/Documentation/DocBook/media/v4l/cec-ioc-receive.xml
+>> new file mode 100644
+>> index 0000000..66bf82f
+>> --- /dev/null
+>> +++ b/Documentation/DocBook/media/v4l/cec-ioc-receive.xml
+>> @@ -0,0 +1,260 @@
+>> +<refentry id="cec-ioc-receive">
+>> +  <refmeta>
+>> +    <refentrytitle>ioctl CEC_RECEIVE, CEC_TRANSMIT</refentrytitle>
+>> +    &manvol;
+>> +  </refmeta>
+>> +
+>> +  <refnamediv>
+>> +    <refname>CEC_RECEIVE</refname>
+>> +    <refname>CEC_TRANSMIT</refname>
+>> +    <refpurpose>Receive or transmit a CEC message</refpurpose>
+>> +  </refnamediv>
+>> +
+>> +  <refsynopsisdiv>
+>> +    <funcsynopsis>
+>> +      <funcprototype>
+>> +	<funcdef>int <function>ioctl</function></funcdef>
+>> +	<paramdef>int <parameter>fd</parameter></paramdef>
+>> +	<paramdef>int <parameter>request</parameter></paramdef>
+>> +	<paramdef>struct cec_msg *<parameter>argp</parameter></paramdef>
+>> +      </funcprototype>
+>> +    </funcsynopsis>
+>> +  </refsynopsisdiv>
+>> +
+>> +  <refsect1>
+>> +    <title>Arguments</title>
+>> +
+>> +    <variablelist>
+>> +      <varlistentry>
+>> +	<term><parameter>fd</parameter></term>
+>> +	<listitem>
+>> +	  <para>File descriptor returned by
+>> +	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>request</parameter></term>
+>> +	<listitem>
+>> +	  <para>CEC_RECEIVE, CEC_TRANSMIT</para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +      <varlistentry>
+>> +	<term><parameter>argp</parameter></term>
+>> +	<listitem>
+>> +	  <para></para>
+>> +	</listitem>
+>> +      </varlistentry>
+>> +    </variablelist>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    <title>Description</title>
+>> +
+>> +    <para>To receive a CEC message the application has to fill in the
+>> +    <structname>cec_msg</structname> structure and pass it to the
+>> +    <constant>CEC_RECEIVE</constant> ioctl. <constant>CEC_RECEIVE</constant> is
+>> +    only available if <constant>CEC_CAP_RECEIVE</constant> is set. If the
+>> +    file descriptor is in non-blocking mode and there are no received
+>> +    messages pending, then it will return -1 and set errno to the &EAGAIN;.
+>> +    If the file descriptor is in blocking mode and <structfield>timeout</structfield>
+>> +    is non-zero and no message arrived within <structfield>timeout</structfield>
+>> +    milliseconds, then it will return -1 and set errno to the &ETIMEDOUT;.</para>
+>> +
+>> +    <para>To send a CEC message the application has to fill in the
+>> +    <structname>cec_msg</structname> structure and pass it to the
+>> +    <constant>CEC_TRANSMIT</constant> ioctl. <constant>CEC_TRANSMIT</constant> is
+>> +    only available if <constant>CEC_CAP_TRANSMIT</constant> is set.
+>> +    If there is no more room in the transmit queue, then it will return
+>> +    -1 and set errno to the &EBUSY;.</para>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-msg">
+>> +      <title>struct <structname>cec_msg</structname></title>
+>> +      <tgroup cols="3">
+>> +	&cs-str;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry>__u64</entry>
+>> +	    <entry><structfield>ts</structfield></entry>
+>> +	    <entry>Timestamp of when the message was transmitted in ns in the case
+>> +	    of <constant>CEC_TRANSMIT</constant> with <structfield>reply</structfield>
+>> +	    set to 0, or the timestamp of the received message in all other cases.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u32</entry>
+>> +	    <entry><structfield>len</structfield></entry>
+>> +	    <entry>The length of the message. For <constant>CEC_TRANSMIT</constant> this
+>> +	    is filled in by the application. The driver will fill this in for
+>> +	    <constant>CEC_RECEIVE</constant> and for <constant>CEC_TRANSMIT</constant>
+>> +	    it will be filled in with the length of the reply message if
+>> +	    <structfield>reply</structfield> was set.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u32</entry>
+>> +	    <entry><structfield>timeout</structfield></entry>
+>> +	    <entry>The timeout in milliseconds. This is the time we wait for a message to
+>> +	    be received. If it is set to 0, then we wait indefinitely.
+>> +	    It is ignored by <constant>CEC_TRANSMIT</constant>.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u32</entry>
+>> +	    <entry><structfield>sequence</structfield></entry>
+>> +	    <entry>The sequence number is automatically assigned by the CEC
+>> +	    framework for all transmitted messages. It can be later used by the
+>> +	    framework to generate an event if a reply for a message was
+>> +	    requested and the message was transmitted in a non-blocking mode.
+>> +	    </entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u32</entry>
+>> +	    <entry><structfield>flags</structfield></entry>
+>> +	    <entry>Flags. No flags are defined yet, so set this to 0.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>rx_status</structfield></entry>
+>> +	    <entry>The status bits of the received message. See <xref linkend="cec-rx-status" />
+>> +	    for the possible status values. It is 0 if this message was transmitted, not
+>> +	    received, unless this is the reply to a transmitted message. In that case both
+>> +	    <structfield>rx_status</structfield> and <structfield>tx_status</structfield>
+>> +	    are set.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>tx_status</structfield></entry>
+>> +	    <entry>The status bits of the transmitted message. See <xref linkend="cec-tx-status" />
+>> +	    for the possible status values. It is 0 if this messages was received, not
+>> +	    transmitted.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>msg</structfield>[16]</entry>
+>> +	    <entry>The message payload. For <constant>CEC_TRANSMIT</constant> this
+>> +	    is filled in by the application. The driver will fill this in for
+>> +	    <constant>CEC_RECEIVE</constant> and for <constant>CEC_TRANSMIT</constant>
+>> +	    it will be filled in with the payload of the reply message if
+>> +	    <structfield>reply</structfield> was set.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>reply</structfield></entry>
+>> +	    <entry>Wait until this message is replied. If <structfield>reply</structfield>
+>> +	    is 0, then don't wait for a reply but return after transmitting the
+>> +	    message. If there was an error as indicated by a non-zero <structfield>status</structfield>
+>> +	    field, then <structfield>reply</structfield> is set to 0 by the driver.
+>> +	    Ignored by <constant>CEC_RECEIVE</constant>.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>tx_arb_lost_cnt</structfield></entry>
+>> +	    <entry>A counter of the number of transmit attempts that resulted in the
+>> +	    Arbitration Lost error. This is only set if the hardware supports this, otherwise
+>> +	    it is always 0. This counter is only valid if the <constant>CEC_TX_STATUS_ARB_LOST</constant>
+>> +	    status bit is set.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>tx_nack_cnt</structfield></entry>
+>> +	    <entry>A counter of the number of transmit attempts that resulted in the
+>> +	    Not Acknowledged error. This is only set if the hardware supports this, otherwise
+>> +	    it is always 0. This counter is only valid if the <constant>CEC_TX_STATUS_NACK</constant>
+>> +            status bit is set.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>tx_low_drive_cnt</structfield></entry>
+>> +	    <entry>A counter of the number of transmit attempts that resulted in the
+>> +	    Arbitration Lost error. This is only set if the hardware supports this, otherwise
+>> +	    it is always 0. This counter is only valid if the <constant>CEC_TX_STATUS_LOW_DRIVE</constant>
+>> +            status bit is set.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry>__u8</entry>
+>> +	    <entry><structfield>tx_error_cnt</structfield></entry>
+>> +	    <entry>A counter of the number of transmit errors other than Arbitration Lost
+>> +	    or Not Acknowledged. This is only set if the hardware supports this, otherwise
+>> +	    it is always 0. This counter is only valid if the <constant>CEC_TX_STATUS_ERROR</constant>
+>> +	    status bit is set.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-tx-status">
+>> +      <title>CEC Transmit Status</title>
+>> +      <tgroup cols="3">
+>> +	&cs-def;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry><constant>CEC_TX_STATUS_OK</constant></entry>
+>> +	    <entry>0x01</entry>
+>> +	    <entry>The message was transmitted successfully. This is mutually exclusive with
+>> +	    <constant>CEC_TX_STATUS_MAX_RETRIES</constant>. Other bits can still be set if
+>> +	    earlier attempts met with failure before the transmit was eventually successful.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_TX_STATUS_ARB_LOST</constant></entry>
+>> +	    <entry>0x02</entry>
+>> +	    <entry>CEC line arbitration was lost.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_TX_STATUS_NACK</constant></entry>
+>> +	    <entry>0x04</entry>
+>> +	    <entry>Message was not acknowledged.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_TX_STATUS_LOW_DRIVE</constant></entry>
+>> +	    <entry>0x08</entry>
+>> +	    <entry>Low drive was detected on the CEC bus. This indicates that a follower
+>> +	    detected an error on the bus and requests a retransmission.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_TX_STATUS_ERROR</constant></entry>
+>> +	    <entry>0x10</entry>
+>> +	    <entry>Some error occurred. This is used for any errors that do not
+>> +	    fit the previous two, either because the hardware could not tell
+>> +	    which error occurred, or because the hardware tested for other conditions
+>> +	    besides those two.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_TX_STATUS_MAX_RETRIES</constant></entry>
+>> +	    <entry>0x20</entry>
+>> +	    <entry>The transmit failed after one or more retries. This status bit is mutually
+>> +	    exclusive with <constant>CEC_TX_STATUS_OK</constant>. Other bits can still be set
+>> +	    to explain which failures were seen.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +
+>> +    <table pgwide="1" frame="none" id="cec-rx-status">
+>> +      <title>CEC Receive Status</title>
+>> +      <tgroup cols="3">
+>> +	&cs-def;
+>> +	<tbody valign="top">
+>> +	  <row>
+>> +	    <entry><constant>CEC_RX_STATUS_OK</constant></entry>
+>> +	    <entry>0x01</entry>
+>> +	    <entry>The message was received successfully.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_RX_STATUS_TIMEOUT</constant></entry>
+>> +	    <entry>0x02</entry>
+>> +	    <entry>The reply to an earlier transmitted message timed out.</entry>
+>> +	  </row>
+>> +	  <row>
+>> +	    <entry><constant>CEC_RX_STATUS_FEATURE_ABORT</constant></entry>
+>> +	    <entry>0x04</entry>
+>> +	    <entry>The message was received successfully but the reply was
+>> +	    <constant>CEC_MSG_FEATURE_ABORT</constant>. This status is only
+>> +	    set if this message was the reply to an earlier transmitted
+>> +	    message.</entry>
+>> +	  </row>
+>> +	</tbody>
+>> +      </tgroup>
+>> +    </table>
+>> +  </refsect1>
+>> +
+>> +  <refsect1>
+>> +    &return-value;
+>> +  </refsect1>
+>> +</refentry>
+>> diff --git a/Documentation/DocBook/media_api.tmpl b/Documentation/DocBook/media_api.tmpl
+>> index 7b77e0f..a2765d8 100644
+>> --- a/Documentation/DocBook/media_api.tmpl
+>> +++ b/Documentation/DocBook/media_api.tmpl
+>> @@ -75,7 +75,7 @@
+>>  	    </mediaobject>
+>>  	</figure>
+>>  	<para>The media infrastructure API was designed to control such
+>> -	    devices. It is divided into four parts.</para>
+>> +	    devices. It is divided into five parts.</para>
+>>  	<para>The first part covers radio, video capture and output,
+>>  		cameras, analog TV devices and codecs.</para>
+>>  	<para>The second part covers the
+>> @@ -87,6 +87,7 @@
+>>  		<xref linkend="fe-delivery-system-t" />.</para>
+>>  	<para>The third part covers the Remote Controller API.</para>
+>>  	<para>The fourth part covers the Media Controller API.</para>
+>> +	<para>The fifth part covers the CEC (Consumer Electronics Control) API.</para>
+>>  	<para>It should also be noted that a media device may also have audio
+>>  	      components, like mixers, PCM capture, PCM playback, etc, which
+>>  	      are controlled via ALSA API.</para>
+>> @@ -107,6 +108,9 @@
+>>  <part id="media_common">
+>>  &sub-media-controller;
+>>  </part>
+>> +<part id="cec">
+>> +&sub-cec-api;
+>> +</part>
+>>  
+>>  <chapter id="gen_errors">
+>>  &sub-gen-errors;
+> 
+> 
+> 
+> Thanks,
+> Mauro
+
+Thank you very much for the excellent points you raised! I'll update the doc
+accordingly.
+
+Regards,
+
+	Hans

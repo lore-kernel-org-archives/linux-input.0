@@ -1,97 +1,128 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH v4 7/9] Input: atmel_mxt_ts - add diagnostic data support for mXT1386
-Date: Fri, 17 Jun 2016 15:16:26 +0100
-Message-ID: <1466172988-3698-8-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH v4 5/9] Input: atmel_mxt_ts - read touchscreen size
+Date: Fri, 17 Jun 2016 15:16:24 +0100
+Message-ID: <1466172988-3698-6-git-send-email-nick.dyer@itdev.co.uk>
 References: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:26576 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752767AbcFQOQk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Jun 2016 10:16:40 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, Nick Dyer <nick.dyer@itdev.co.uk>
+List-Id: linux-input@vger.kernel.org
 
-The mXT1386 family of chips have a different architecture which splits
-the diagnostic data into 3 columns.
+The touchscreen may have a margin where not all the matrix is used. Read
+the parameters from T9 and T100 and take account of the difference.
+
+Note: this does not read the XORIGIN/YORIGIN fields so it assumes that
+the touchscreen starts at (0,0)
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 42 +++++++++++++++++++++++++++-----
+ 1 file changed, 36 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 2a03636..5281325d 100644
+index 3a7f705..3c5b7d3 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -137,6 +137,10 @@ struct t9_range {
- #define MXT_DIAGNOSTIC_DELTAS	0x10
- #define MXT_DIAGNOSTIC_SIZE	128
+@@ -103,6 +103,8 @@ struct t7_config {
  
-+#define MXT_FAMILY_1386			160
-+#define MXT1386_COLUMNS			3
-+#define MXT1386_PAGES_PER_COLUMN	8
+ /* MXT_TOUCH_MULTI_T9 field */
+ #define MXT_T9_CTRL		0
++#define MXT_T9_XSIZE		3
++#define MXT_T9_YSIZE		4
+ #define MXT_T9_ORIENT		9
+ #define MXT_T9_RANGE		18
+ 
+@@ -150,7 +152,9 @@ struct t37_debug {
+ #define MXT_T100_CTRL		0
+ #define MXT_T100_CFG1		1
+ #define MXT_T100_TCHAUX		3
++#define MXT_T100_XSIZE		9
+ #define MXT_T100_XRANGE		13
++#define MXT_T100_YSIZE		20
+ #define MXT_T100_YRANGE		24
+ 
+ #define MXT_T100_CFG_SWITCHXY	BIT(5)
+@@ -259,6 +263,8 @@ struct mxt_data {
+ 	unsigned int max_x;
+ 	unsigned int max_y;
+ 	bool xy_switch;
++	u8 xsize;
++	u8 ysize;
+ 	bool in_bootloader;
+ 	u16 mem_size;
+ 	u8 t100_aux_ampl;
+@@ -1714,6 +1720,18 @@ static int mxt_read_t9_resolution(struct mxt_data *data)
+ 		return -EINVAL;
+ 
+ 	error = __mxt_read_reg(client,
++			       object->start_address + MXT_T9_XSIZE,
++			       sizeof(data->xsize), &data->xsize);
++	if (error)
++		return error;
 +
- struct t37_debug {
- #ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
- 	u8 mode;
-@@ -2140,13 +2144,27 @@ recheck:
- static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
- 			       unsigned int y)
- {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	unsigned int ofs, page;
-+	unsigned int col = 0;
-+	unsigned int col_width;
++	error = __mxt_read_reg(client,
++			       object->start_address + MXT_T9_YSIZE,
++			       sizeof(data->ysize), &data->ysize);
++	if (error)
++		return error;
 +
-+	if (info->family_id == MXT_FAMILY_1386) {
-+		col_width = info->matrix_ysize / MXT1386_COLUMNS;
-+		col = y / col_width;
-+		y = y % col_width;
-+	} else {
-+		col_width = info->matrix_ysize;
-+	}
++	error = __mxt_read_reg(client,
+ 			       object->start_address + MXT_T9_RANGE,
+ 			       sizeof(range), &range);
+ 	if (error)
+@@ -1763,6 +1781,18 @@ static int mxt_read_t100_config(struct mxt_data *data)
  
--	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
-+	ofs = (y + (x * col_width)) * sizeof(u16);
- 	page = ofs / MXT_DIAGNOSTIC_SIZE;
- 	ofs %= MXT_DIAGNOSTIC_SIZE;
+ 	data->max_y = get_unaligned_le16(&range_y);
  
-+	if (info->family_id == MXT_FAMILY_1386)
-+		page += col * MXT1386_PAGES_PER_COLUMN;
++	error = __mxt_read_reg(client,
++			       object->start_address + MXT_T100_XSIZE,
++			       sizeof(data->xsize), &data->xsize);
++	if (error)
++		return error;
 +
- 	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
- }
++	error = __mxt_read_reg(client,
++			       object->start_address + MXT_T100_YSIZE,
++			       sizeof(data->ysize), &data->ysize);
++	if (error)
++		return error;
++
+ 	/* read orientation config */
+ 	error =  __mxt_read_reg(client,
+ 				object->start_address + MXT_T100_CFG1,
+@@ -2121,7 +2151,7 @@ static int mxt_convert_debug_pages(struct mxt_data *data, u16 *outbuf)
+ 		outbuf[i] = mxt_get_debug_value(data, x, y);
  
-@@ -2416,6 +2434,7 @@ static const struct video_device mxt_video_device = {
+ 		/* Next value */
+-		if (++x >= data->info.matrix_xsize) {
++		if (++x >= data->xsize) {
+ 			x = 0;
+ 			y++;
+ 		}
+@@ -2276,8 +2306,8 @@ static int mxt_set_input(struct mxt_data *data, unsigned int i)
+ 	if (i > 0)
+ 		return -EINVAL;
  
- static void mxt_debug_init(struct mxt_data *data)
- {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	struct mxt_object *object;
- 	int error;
-@@ -2439,8 +2458,14 @@ static void mxt_debug_init(struct mxt_data *data)
+-	f->width = data->info.matrix_xsize;
+-	f->height = data->info.matrix_ysize;
++	f->width = data->xsize;
++	f->height = data->ysize;
+ 	f->pixelformat = V4L2_PIX_FMT_YS16;
+ 	f->field = V4L2_FIELD_NONE;
+ 	f->colorspace = V4L2_COLORSPACE_RAW;
+@@ -2392,9 +2422,9 @@ static void mxt_debug_init(struct mxt_data *data)
+ 	dbg->t37_address = object->start_address;
  
  	/* Calculate size of data and allocate buffer */
- 	dbg->t37_nodes = data->xsize * data->ysize;
--	dbg->t37_pages = DIV_ROUND_UP(data->xsize * data->info.matrix_ysize *
--				      sizeof(u16), sizeof(dbg->t37_buf->data));
-+
-+	if (info->family_id == MXT_FAMILY_1386)
-+		dbg->t37_pages = MXT1386_COLUMNS * MXT1386_PAGES_PER_COLUMN;
-+	else
-+		dbg->t37_pages = DIV_ROUND_UP(data->xsize *
-+					      data->info.matrix_ysize *
-+					      sizeof(u16),
-+					      sizeof(dbg->t37_buf->data));
+-	dbg->t37_nodes = data->info.matrix_xsize * data->info.matrix_ysize;
+-	dbg->t37_pages = DIV_ROUND_UP(dbg->t37_nodes * sizeof(u16),
+-				      sizeof(dbg->t37_buf->data));
++	dbg->t37_nodes = data->xsize * data->ysize;
++	dbg->t37_pages = DIV_ROUND_UP(data->xsize * data->info.matrix_ysize *
++				      sizeof(u16), sizeof(dbg->t37_buf->data));
  
  	dbg->t37_buf = devm_kmalloc_array(&data->client->dev, dbg->t37_pages,
  					  sizeof(struct t37_debug), GFP_KERNEL);
 -- 
 2.5.0
-

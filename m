@@ -1,342 +1,389 @@
-From: Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/2] usb: misc: remove outdated USB LED driver
-Date: Fri, 17 Jun 2016 08:11:59 +0200
-Message-ID: <2d50e14a-9ca4-b1ac-8e5e-62a466d97784@gmail.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCHv16 07/13] cec.txt: add CEC framework documentation
+Date: Fri, 17 Jun 2016 09:22:05 +0200
+Message-ID: <5763A51D.7040009@xs4all.nl>
+References: <1461937948-22936-1-git-send-email-hverkuil@xs4all.nl>
+ <1461937948-22936-8-git-send-email-hverkuil@xs4all.nl>
+ <20160616171244.3ef5a7b4@recife.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux USB Mailing List <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20160616171244.3ef5a7b4@recife.lan>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-The USB LED driver exposes a undocumented sysfs interface and doesn't
-use the standard kernel LED subsystem. It supports three devices:
+On 06/16/2016 10:12 PM, Mauro Carvalho Chehab wrote:
+> Em Fri, 29 Apr 2016 15:52:22 +0200
+> Hans Verkuil <hverkuil@xs4all.nl> escreveu:
+> 
+>> From: Hans Verkuil <hansverk@cisco.com>
+>>
+>> Document the new HDMI CEC framework.
+> 
+> As we'll be moving documentation to Sphinx/Rst, it would be good if
+> you could make it work fine with sphinx, as this will likely be needed
+> for Kernel 4.9. Right now it most works, although several warnings are
+> produced: 
 
-Delcom Visual Signal Indicator
-The driver supports generation 1 of the device only which was
-manufactured until 2008. Remove support for this device completely.
+Would it be a problem if this conversion is done later in a separate patch?
 
-Riso Kagaku RGB LED + Dream Cheeky Webmail Notifier
-These devices are HID compliant and are supported by a new USB LED
-driver under drivers/hid utilizing the kernel LED subsystem.
+I'm all for it, but I don't have the time at the moment to do this.
 
-So let's remove the old USB LED driver.
+Regards,
 
-Signed-off-by: Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Acked-by: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
----
- drivers/usb/misc/Kconfig  |   9 --
- drivers/usb/misc/Makefile |   1 -
- drivers/usb/misc/usbled.c | 273 ----------------------------------------------
- 3 files changed, 283 deletions(-)
- delete mode 100644 drivers/usb/misc/usbled.c
+	Hans
 
-diff --git a/drivers/usb/misc/Kconfig b/drivers/usb/misc/Kconfig
-index f7a7fc2..e9c5458 100644
---- a/drivers/usb/misc/Kconfig
-+++ b/drivers/usb/misc/Kconfig
-@@ -79,15 +79,6 @@ config USB_LCD
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called usblcd.
- 
--config USB_LED
--	tristate "USB LED driver support"
--	help
--	  Say Y here if you want to connect an USBLED device to your 
--	  computer's USB port.
--
--	  To compile this driver as a module, choose M here: the
--	  module will be called usbled.
--
- config USB_CYPRESS_CY7C63
- 	tristate "Cypress CY7C63xxx USB driver support"
- 	help
-diff --git a/drivers/usb/misc/Makefile b/drivers/usb/misc/Makefile
-index 45fd4ac..4bc755b 100644
---- a/drivers/usb/misc/Makefile
-+++ b/drivers/usb/misc/Makefile
-@@ -15,7 +15,6 @@ obj-$(CONFIG_USB_IOWARRIOR)		+= iowarrior.o
- obj-$(CONFIG_USB_ISIGHTFW)		+= isight_firmware.o
- obj-$(CONFIG_USB_LCD)			+= usblcd.o
- obj-$(CONFIG_USB_LD)			+= ldusb.o
--obj-$(CONFIG_USB_LED)			+= usbled.o
- obj-$(CONFIG_USB_LEGOTOWER)		+= legousbtower.o
- obj-$(CONFIG_USB_RIO500)		+= rio500.o
- obj-$(CONFIG_USB_TEST)			+= usbtest.o
-diff --git a/drivers/usb/misc/usbled.c b/drivers/usb/misc/usbled.c
-deleted file mode 100644
-index bdef0d6..0000000
---- a/drivers/usb/misc/usbled.c
-+++ /dev/null
-@@ -1,273 +0,0 @@
--/*
-- * USB LED driver
-- *
-- * Copyright (C) 2004 Greg Kroah-Hartman (greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org)
-- *
-- *	This program is free software; you can redistribute it and/or
-- *	modify it under the terms of the GNU General Public License as
-- *	published by the Free Software Foundation, version 2.
-- *
-- */
--
--#include <linux/kernel.h>
--#include <linux/errno.h>
--#include <linux/slab.h>
--#include <linux/module.h>
--#include <linux/usb.h>
--
--
--#define DRIVER_AUTHOR "Greg Kroah-Hartman, greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org"
--#define DRIVER_DESC "USB LED Driver"
--
--enum led_type {
--	DELCOM_VISUAL_SIGNAL_INDICATOR,
--	DREAM_CHEEKY_WEBMAIL_NOTIFIER,
--	RISO_KAGAKU_LED
--};
--
--/* the Webmail LED made by RISO KAGAKU CORP. decodes a color index
--   internally, we want to keep the red+green+blue sysfs api, so we decode
--   from 1-bit RGB to the riso kagaku color index according to this table... */
--
--static unsigned const char riso_kagaku_tbl[] = {
--/* R+2G+4B -> riso kagaku color index */
--	[0] = 0, /* black   */
--	[1] = 2, /* red     */
--	[2] = 1, /* green   */
--	[3] = 5, /* yellow  */
--	[4] = 3, /* blue    */
--	[5] = 6, /* magenta */
--	[6] = 4, /* cyan    */
--	[7] = 7  /* white   */
--};
--
--#define RISO_KAGAKU_IX(r,g,b) riso_kagaku_tbl[((r)?1:0)+((g)?2:0)+((b)?4:0)]
--
--/* table of devices that work with this driver */
--static const struct usb_device_id id_table[] = {
--	{ USB_DEVICE(0x0fc5, 0x1223),
--			.driver_info = DELCOM_VISUAL_SIGNAL_INDICATOR },
--	{ USB_DEVICE(0x1d34, 0x0004),
--			.driver_info = DREAM_CHEEKY_WEBMAIL_NOTIFIER },
--	{ USB_DEVICE(0x1d34, 0x000a),
--			.driver_info = DREAM_CHEEKY_WEBMAIL_NOTIFIER },
--	{ USB_DEVICE(0x1294, 0x1320),
--			.driver_info = RISO_KAGAKU_LED },
--	{ },
--};
--MODULE_DEVICE_TABLE(usb, id_table);
--
--struct usb_led {
--	struct usb_device	*udev;
--	unsigned char		blue;
--	unsigned char		red;
--	unsigned char		green;
--	enum led_type		type;
--};
--
--static void change_color(struct usb_led *led)
--{
--	int retval = 0;
--	unsigned char *buffer;
--	int actlength;
--
--	buffer = kmalloc(8, GFP_KERNEL);
--	if (!buffer) {
--		dev_err(&led->udev->dev, "out of memory\n");
--		return;
--	}
--
--	switch (led->type) {
--	case DELCOM_VISUAL_SIGNAL_INDICATOR: {
--		unsigned char color = 0x07;
--
--		if (led->blue)
--			color &= ~0x04;
--		if (led->red)
--			color &= ~0x02;
--		if (led->green)
--			color &= ~0x01;
--		dev_dbg(&led->udev->dev,
--			"blue = %d, red = %d, green = %d, color = %.2x\n",
--			led->blue, led->red, led->green, color);
--
--		retval = usb_control_msg(led->udev,
--					usb_sndctrlpipe(led->udev, 0),
--					0x12,
--					0xc8,
--					(0x02 * 0x100) + 0x0a,
--					(0x00 * 0x100) + color,
--					buffer,
--					8,
--					2000);
--		break;
--	}
--
--	case DREAM_CHEEKY_WEBMAIL_NOTIFIER:
--		dev_dbg(&led->udev->dev,
--			"red = %d, green = %d, blue = %d\n",
--			led->red, led->green, led->blue);
--
--		buffer[0] = led->red;
--		buffer[1] = led->green;
--		buffer[2] = led->blue;
--		buffer[3] = buffer[4] = buffer[5] = 0;
--		buffer[6] = 0x1a;
--		buffer[7] = 0x05;
--
--		retval = usb_control_msg(led->udev,
--					usb_sndctrlpipe(led->udev, 0),
--					0x09,
--					0x21,
--					0x200,
--					0,
--					buffer,
--					8,
--					2000);
--		break;
--
--	case RISO_KAGAKU_LED:
--		buffer[0] = RISO_KAGAKU_IX(led->red, led->green, led->blue);
--		buffer[1] = 0;
--		buffer[2] = 0;
--		buffer[3] = 0;
--		buffer[4] = 0;
--
--		retval = usb_interrupt_msg(led->udev,
--			usb_sndctrlpipe(led->udev, 2),
--			buffer, 5, &actlength, 1000 /*ms timeout*/);
--		break;
--
--	default:
--		dev_err(&led->udev->dev, "unknown device type %d\n", led->type);
--	}
--
--	if (retval)
--		dev_dbg(&led->udev->dev, "retval = %d\n", retval);
--	kfree(buffer);
--}
--
--#define show_set(value)	\
--static ssize_t show_##value(struct device *dev, struct device_attribute *attr,\
--			    char *buf)					\
--{									\
--	struct usb_interface *intf = to_usb_interface(dev);		\
--	struct usb_led *led = usb_get_intfdata(intf);			\
--									\
--	return sprintf(buf, "%d\n", led->value);			\
--}									\
--static ssize_t set_##value(struct device *dev, struct device_attribute *attr,\
--			   const char *buf, size_t count)		\
--{									\
--	struct usb_interface *intf = to_usb_interface(dev);		\
--	struct usb_led *led = usb_get_intfdata(intf);			\
--	int temp = simple_strtoul(buf, NULL, 10);			\
--									\
--	led->value = temp;						\
--	change_color(led);						\
--	return count;							\
--}									\
--static DEVICE_ATTR(value, S_IRUGO | S_IWUSR, show_##value, set_##value);
--show_set(blue);
--show_set(red);
--show_set(green);
--
--static int led_probe(struct usb_interface *interface,
--		     const struct usb_device_id *id)
--{
--	struct usb_device *udev = interface_to_usbdev(interface);
--	struct usb_led *dev = NULL;
--	int retval = -ENOMEM;
--
--	dev = kzalloc(sizeof(struct usb_led), GFP_KERNEL);
--	if (dev == NULL) {
--		dev_err(&interface->dev, "out of memory\n");
--		goto error_mem;
--	}
--
--	dev->udev = usb_get_dev(udev);
--	dev->type = id->driver_info;
--
--	usb_set_intfdata(interface, dev);
--
--	retval = device_create_file(&interface->dev, &dev_attr_blue);
--	if (retval)
--		goto error;
--	retval = device_create_file(&interface->dev, &dev_attr_red);
--	if (retval)
--		goto error;
--	retval = device_create_file(&interface->dev, &dev_attr_green);
--	if (retval)
--		goto error;
--
--	if (dev->type == DREAM_CHEEKY_WEBMAIL_NOTIFIER) {
--		unsigned char *enable;
--
--		enable = kmemdup("\x1f\x02\0\x5f\0\0\x1a\x03", 8, GFP_KERNEL);
--		if (!enable) {
--			dev_err(&interface->dev, "out of memory\n");
--			retval = -ENOMEM;
--			goto error;
--		}
--
--		retval = usb_control_msg(udev,
--					usb_sndctrlpipe(udev, 0),
--					0x09,
--					0x21,
--					0x200,
--					0,
--					enable,
--					8,
--					2000);
--
--		kfree(enable);
--		if (retval != 8)
--			goto error;
--	}
--
--	dev_info(&interface->dev, "USB LED device now attached\n");
--	return 0;
--
--error:
--	device_remove_file(&interface->dev, &dev_attr_blue);
--	device_remove_file(&interface->dev, &dev_attr_red);
--	device_remove_file(&interface->dev, &dev_attr_green);
--	usb_set_intfdata(interface, NULL);
--	usb_put_dev(dev->udev);
--	kfree(dev);
--error_mem:
--	return retval;
--}
--
--static void led_disconnect(struct usb_interface *interface)
--{
--	struct usb_led *dev;
--
--	dev = usb_get_intfdata(interface);
--
--	device_remove_file(&interface->dev, &dev_attr_blue);
--	device_remove_file(&interface->dev, &dev_attr_red);
--	device_remove_file(&interface->dev, &dev_attr_green);
--
--	/* first remove the files, then set the pointer to NULL */
--	usb_set_intfdata(interface, NULL);
--
--	usb_put_dev(dev->udev);
--
--	kfree(dev);
--
--	dev_info(&interface->dev, "USB LED now disconnected\n");
--}
--
--static struct usb_driver led_driver = {
--	.name =		"usbled",
--	.probe =	led_probe,
--	.disconnect =	led_disconnect,
--	.id_table =	id_table,
--};
--
--module_usb_driver(led_driver);
+> 
+> /devel/v4l/patchwork/tmp/cec.txt:40: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:40: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:40: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:40: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:40: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:42: WARNING: Definition list ends without a blank line; unexpected unindent.
+> /devel/v4l/patchwork/tmp/cec.txt:42: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:67: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:71: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:92: ERROR: Unexpected indentation.
+> /devel/v4l/patchwork/tmp/cec.txt:87: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:87: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:87: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:87: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:87: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:87: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:87: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:87: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:87: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:92: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:93: WARNING: Block quote ends without a blank line; unexpected unindent.
+> /devel/v4l/patchwork/tmp/cec.txt:93: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:93: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:95: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:97: WARNING: Definition list ends without a blank line; unexpected unindent.
+> /devel/v4l/patchwork/tmp/cec.txt:105: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:105: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:118: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:118: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:130: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:130: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:144: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:144: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:144: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:161: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:161: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:161: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:173: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:194: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:203: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:203: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:214: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:217: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:217: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:217: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:217: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:219: WARNING: Definition list ends without a blank line; unexpected unindent.
+> /devel/v4l/patchwork/tmp/cec.txt:224: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:224: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:224: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:238: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:238: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:243: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:258: WARNING: Inline emphasis start-string without end-string.
+> /devel/v4l/patchwork/tmp/cec.txt:258: WARNING: Inline emphasis start-string without end-string.
+> 
+> 
+>>
+>> Signed-off-by: Hans Verkuil <hansverk@cisco.com>
+>> [k.debski@samsung.com: add DocBook documentation by Hans Verkuil, with
+>> Signed-off-by: Kamil Debski <kamil@wypas.org>
+>> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+>> ---
+>>  Documentation/cec.txt | 267 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>>  1 file changed, 267 insertions(+)
+>>  create mode 100644 Documentation/cec.txt
+>>
+>> diff --git a/Documentation/cec.txt b/Documentation/cec.txt
+>> new file mode 100644
+>> index 0000000..75155fe
+>> --- /dev/null
+>> +++ b/Documentation/cec.txt
+>> @@ -0,0 +1,267 @@
+>> +CEC Kernel Support
+>> +==================
+>> +
+>> +The CEC framework provides a unified kernel interface for use with HDMI CEC
+>> +hardware. It is designed to handle a multiple types of hardware (receivers,
+>> +transmitters, USB dongles). The framework also gives the option to decide
+>> +what to do in the kernel driver and what should be handled by userspace
+>> +applications. In addition it integrates the remote control passthrough
+>> +feature into the kernel's remote control framework.
+>> +
+>> +
+>> +The CEC Protocol
+>> +----------------
+>> +
+>> +The CEC protocol enables consumer electronic devices to communicate with each
+>> +other through the HDMI connection. The protocol uses logical addresses in the
+>> +communication. The logical address is strictly connected with the functionality
+>> +provided by the device. The TV acting as the communication hub is always
+>> +assigned address 0. The physical address is determined by the physical
+>> +connection between devices.
+>> +
+>> +The CEC framework described here is up to date with the CEC 2.0 specification.
+>> +It is documented in the HDMI 1.4 specification with the new 2.0 bits documented
+>> +in the HDMI 2.0 specification. But for most of the features the freely available
+>> +HDMI 1.3a specification is sufficient:
+>> +
+>> +http://www.microprocessor.org/HDMISpecification13a.pdf
+>> +
+>> +
+>> +The Kernel Interface
+>> +====================
+>> +
+>> +CEC Adapter
+>> +-----------
+>> +
+>> +The struct cec_adapter represents the CEC adapter hardware. It is created by
+>> +calling cec_allocate_adapter() and deleted by calling cec_delete_adapter():
+>> +
+>> +struct cec_adapter *cec_allocate_adapter(const struct cec_adap_ops *ops,
+>> +	       void *priv, const char *name, u32 caps, u8 available_las,
+>> +	       struct device *parent);
+>> +void cec_delete_adapter(struct cec_adapter *adap);
+>> +
+>> +To create an adapter you need to pass the following information:
+>> +
+>> +ops: adapter operations which are called by the CEC framework and that you
+>> +have to implement.
+>> +
+>> +priv: will be stored in adap->priv and can be used by the adapter ops.
+>> +
+>> +name: the name of the CEC adapter. Note: this name will be copied.
+>> +
+>> +caps: capabilities of the CEC adapter. These capabilities determine the
+>> +	capabilities of the hardware and which parts are to be handled
+>> +	by userspace and which parts are handled by kernelspace. The
+>> +	capabilities are returned by CEC_ADAP_G_CAPS.
+>> +
+>> +available_las: the number of simultaneous logical addresses that this
+>> +	adapter can handle. Must be 1 <= available_las <= CEC_MAX_LOG_ADDRS.
+>> +
+>> +parent: the parent device.
+>> +
+>> +
+>> +To register the /dev/cecX device node and the remote control device (if
+>> +CEC_CAP_RC is set) you call:
+>> +
+>> +int cec_register_adapter(struct cec_adapter *adap);
+>> +
+>> +To unregister the devices call:
+>> +
+>> +void cec_unregister_adapter(struct cec_adapter *adap);
+>> +
+>> +Note: if cec_register_adapter() fails, then call cec_delete_adapter() to
+>> +clean up. But if cec_register_adapter() succeeded, then only call
+>> +cec_unregister_adapter() to clean up, never cec_delete_adapter(). The
+>> +unregister function will delete the adapter automatically once the last user
+>> +of that /dev/cecX device has closed its file handle.
+>> +
+>> +
+>> +Implementing the Low-Level CEC Adapter
+>> +--------------------------------------
+>> +
+>> +The following low-level adapter operations have to be implemented in
+>> +your driver:
+>> +
+>> +struct cec_adap_ops {
+>> +	/* Low-level callbacks */
+>> +	int (*adap_enable)(struct cec_adapter *adap, bool enable);
+>> +	int (*adap_monitor_all_enable)(struct cec_adapter *adap, bool enable);
+>> +	int (*adap_log_addr)(struct cec_adapter *adap, u8 logical_addr);
+>> +	int (*adap_transmit)(struct cec_adapter *adap, u8 attempts,
+>> +			     u32 signal_free_time, struct cec_msg *msg);
+>> +	void (*adap_log_status)(struct cec_adapter *adap);
+>> +
+>> +	/* High-level callbacks */
+>> +	...
+>> +};
+>> +
+>> +The three low-level ops deal with various aspects of controlling the CEC adapter
+>> +hardware:
+>> +
+>> +
+>> +To enable/disable the hardware:
+>> +
+>> +	int (*adap_enable)(struct cec_adapter *adap, bool enable);
+>> +
+>> +This callback enables or disables the CEC hardware. Enabling the CEC hardware
+>> +means powering it up in a state where no logical addresses are claimed. This
+>> +op assumes that the physical address (adap->phys_addr) is valid when enable is
+>> +true and will not change while the CEC adapter remains enabled. The initial
+>> +state of the CEC adapter after calling cec_allocate_adapter() is disabled.
+>> +
+>> +Note that adap_enable must return 0 if enable is false.
+>> +
+>> +
+>> +To enable/disable the 'monitor all' mode:
+>> +
+>> +	int (*adap_monitor_all_enable)(struct cec_adapter *adap, bool enable);
+>> +
+>> +If enabled, then the adapter should be put in a mode to also monitor messages
+>> +that not for us. Not all hardware supports this and this function is only
+>> +called if the CEC_CAP_MONITOR_ALL capability is set. This callback is optional
+>> +(some hardware may always be in 'monitor all' mode).
+>> +
+>> +Note that adap_monitor_all_enable must return 0 if enable is false.
+>> +
+>> +
+>> +To program a new logical address:
+>> +
+>> +	int (*adap_log_addr)(struct cec_adapter *adap, u8 logical_addr);
+>> +
+>> +If logical_addr == CEC_LOG_ADDR_INVALID then all programmed logical addresses
+>> +are to be erased. Otherwise the given logical address should be programmed.
+>> +If the maximum number of available logical addresses is exceeded, then it
+>> +should return -ENXIO. Once a logical address is programmed the CEC hardware
+>> +can receive directed messages to that address.
+>> +
+>> +Note that adap_log_addr must return 0 if logical_addr is CEC_LOG_ADDR_INVALID.
+>> +
+>> +
+>> +To transmit a new message:
+>> +
+>> +	int (*adap_transmit)(struct cec_adapter *adap, u8 attempts,
+>> +			     u32 signal_free_time, struct cec_msg *msg);
+>> +
+>> +This transmits a new message. The attempts argument is the suggested number of
+>> +attempts for the transmit.
+>> +
+>> +The signal_free_time is the number of data bit periods that the adapter should
+>> +wait when the line is free before attempting to send a message. This value
+>> +depends on whether this transmit is a retry, a message from a new initiator or
+>> +a new message for the same initiator. Most hardware will handle this
+>> +automatically, but in some cases this information is needed.
+>> +
+>> +The CEC_FREE_TIME_TO_USEC macro can be used to convert signal_free_time to
+>> +microseconds (one data bit period is 2.4 ms).
+>> +
+>> +
+>> +To log the current CEC hardware status:
+>> +
+>> +	void (*adap_status)(struct cec_adapter *adap, struct seq_file *file);
+>> +
+>> +This optional callback can be used to show the status of the CEC hardware.
+>> +The status is available through debugfs: cat /sys/kernel/debug/cec/cecX/status
+>> +
+>> +
+>> +Your adapter driver will also have to react to events (typically interrupt
+>> +driven) by calling into the framework in the following situations:
+>> +
+>> +When a transmit finished (successfully or otherwise):
+>> +
+>> +void cec_transmit_done(struct cec_adapter *adap, u8 status, u8 arb_lost_cnt,
+>> +		       u8 nack_cnt, u8 low_drive_cnt, u8 error_cnt);
+>> +
+>> +The status can be one of:
+>> +
+>> +CEC_TX_STATUS_OK: the transmit was successful.
+>> +CEC_TX_STATUS_ARB_LOST: arbitration was lost: another CEC initiator
+>> +took control of the CEC line and you lost the arbitration.
+>> +CEC_TX_STATUS_NACK: the message was nacked (for a directed message) or
+>> +acked (for a broadcast message). A retransmission is needed.
+>> +CEC_TX_STATUS_LOW_DRIVE: low drive was detected on the CEC bus. This
+>> +indicates that a follower detected an error on the bus and requested a
+>> +retransmission.
+>> +CEC_TX_STATUS_ERROR: some unspecified error occurred: this can be one of
+>> +the previous two if the hardware cannot differentiate or something else
+>> +entirely.
+>> +CEC_TX_STATUS_MAX_RETRIES: could not transmit the message after
+>> +trying multiple times. Should only be set by the driver if it has hardware
+>> +support for retrying messages. If set, then the framework assumes that it
+>> +doesn't have to make another attempt to transmit the message since the
+>> +hardware did that already.
+>> +
+>> +The *_cnt arguments are the number of error conditions that were seen.
+>> +This may be 0 if no information is available. Drivers that do not support
+>> +hardware retry can just set the counter corresponding to the transmit error
+>> +to 1, if the hardware does support retry then either set these counters to
+>> +0 if the hardware provides no feedback of which errors occurred and how many
+>> +times, or fill in the correct values as reported by the hardware.
+>> +
+>> +When a CEC message was received:
+>> +
+>> +void cec_received_msg(struct cec_adapter *adap, struct cec_msg *msg);
+>> +
+>> +Speaks for itself.
+>> +
+>> +Implementing the High-Level CEC Adapter
+>> +---------------------------------------
+>> +
+>> +The low-level operations drive the hardware, the high-level operations are
+>> +CEC protocol driven. The following high-level callbacks are available:
+>> +
+>> +struct cec_adap_ops {
+>> +	/* Low-level callbacks */
+>> +	...
+>> +
+>> +	/* High-level CEC message callback */
+>> +	int (*received)(struct cec_adapter *adap, struct cec_msg *msg);
+>> +};
+>> +
+>> +The received() callback allows the driver to optionally handle a newly
+>> +received CEC message
+>> +
+>> +	int (*received)(struct cec_adapter *adap, struct cec_msg *msg);
+>> +
+>> +If the driver wants to process a CEC message, then it can implement this
+>> +callback. If it doesn't want to handle this message, then it should return
+>> +-ENOMSG, otherwise the CEC framework assumes it processed this message and
+>> +it will not no anything with it.
+>> +
+>> +
+>> +CEC framework functions
+>> +-----------------------
+>> +
+>> +CEC Adapter drivers can call the following CEC framework functions:
+>> +
+>> +int cec_transmit_msg(struct cec_adapter *adap, struct cec_msg *msg,
+>> +		     bool block);
+>> +
+>> +Transmit a CEC message. If block is true, then wait until the message has been
+>> +transmitted, otherwise just queue it and return.
+>> +
+>> +void cec_s_phys_addr(struct cec_adapter *adap, u16 phys_addr, bool block);
+>> +
+>> +Change the physical address. This function will set adap->phys_addr and
+>> +send an event if it has changed. If cec_s_log_addrs() has been called and
+>> +the physical address has become valid, then the CEC framework will start
+>> +claiming the logical addresses. If block is true, then this function won't
+>> +return until this process has finished.
+>> +
+>> +When the physical address is set to a valid value the CEC adapter will
+>> +be enabled (see the adap_enable op). When it is set to CEC_PHYS_ADDR_INVALID,
+>> +then the CEC adapter will be disabled. If you change a valid physical address
+>> +to another valid physical address, then this function will first set the
+>> +address to CEC_PHYS_ADDR_INVALID before enabling the new physical address.
+>> +
+>> +int cec_s_log_addrs(struct cec_adapter *adap,
+>> +		    struct cec_log_addrs *log_addrs, bool block);
+>> +
+>> +Claim the CEC logical addresses. Should never be called if CEC_CAP_LOG_ADDRS
+>> +is set. If block is true, then wait until the logical addresses have been
+>> +claimed, otherwise just queue it and return. To unconfigure all logical
+>> +addresses call this function with log_addrs set to NULL or with
+>> +log_addrs->num_log_addrs set to 0. The block argument is ignored when
+>> +unconfiguring. This function will just return if the physical address is
+>> +invalid. Once the physical address becomes valid, then the framework will
+>> +attempt to claim these logical addresses.
+> 
+> 
+> 
+> Thanks,
+> Mauro
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-media" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

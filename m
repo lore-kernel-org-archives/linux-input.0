@@ -1,147 +1,239 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH v4 1/9] [media] Add signed 16-bit pixel format
-Date: Fri, 17 Jun 2016 15:16:20 +0100
-Message-ID: <1466172988-3698-2-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH v4 3/9] Input: atmel_mxt_ts - add support for T37 diagnostic data
+Date: Fri, 17 Jun 2016 15:16:22 +0100
+Message-ID: <1466172988-3698-4-git-send-email-nick.dyer@itdev.co.uk>
 References: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-media-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-This will be used for output of raw touch delta data. This format is
-used by Atmel maXTouch (atmel_mxt_ts) and also Synaptics RMI4.
+Atmel maXTouch devices have a T37 object which can be used to read raw
+touch deltas from the device. This consists of an array of 16-bit
+integers, one for each node on the touchscreen matrix.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- Documentation/DocBook/media/v4l/pixfmt-ys16.xml | 79 +++++++++++++++++++++++++
- Documentation/DocBook/media/v4l/pixfmt.xml      |  1 +
- drivers/media/v4l2-core/v4l2-ioctl.c            |  1 +
- include/uapi/linux/videodev2.h                  |  1 +
- 4 files changed, 82 insertions(+)
- create mode 100644 Documentation/DocBook/media/v4l/pixfmt-ys16.xml
+ drivers/input/touchscreen/Kconfig        |   6 ++
+ drivers/input/touchscreen/atmel_mxt_ts.c | 159 +++++++++++++++++++++++++++++++
+ 2 files changed, 165 insertions(+)
 
-diff --git a/Documentation/DocBook/media/v4l/pixfmt-ys16.xml b/Documentation/DocBook/media/v4l/pixfmt-ys16.xml
-new file mode 100644
-index 0000000..f92d65e
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/pixfmt-ys16.xml
-@@ -0,0 +1,79 @@
-+<refentry id="V4L2-PIX-FMT-YS16">
-+  <refmeta>
-+    <refentrytitle>V4L2_PIX_FMT_YS16 ('YS16')</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+  <refnamediv>
-+    <refname><constant>V4L2_PIX_FMT_YS16</constant></refname>
-+    <refpurpose>Grey-scale image</refpurpose>
-+  </refnamediv>
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>This is a signed grey-scale image with a depth of 16 bits per
-+pixel. The most significant byte is stored at higher memory addresses
-+(little-endian).</para>
-+
-+    <example>
-+      <title><constant>V4L2_PIX_FMT_YS16</constant> 4 &times; 4
-+pixel image</title>
-+
-+      <formalpara>
-+	<title>Byte Order.</title>
-+	<para>Each cell is one byte.
-+	  <informaltable frame="none">
-+	    <tgroup cols="9" align="center">
-+	      <colspec align="left" colwidth="2*" />
-+	      <tbody valign="top">
-+		<row>
-+		  <entry>start&nbsp;+&nbsp;0:</entry>
-+		  <entry>Y'<subscript>00low</subscript></entry>
-+		  <entry>Y'<subscript>00high</subscript></entry>
-+		  <entry>Y'<subscript>01low</subscript></entry>
-+		  <entry>Y'<subscript>01high</subscript></entry>
-+		  <entry>Y'<subscript>02low</subscript></entry>
-+		  <entry>Y'<subscript>02high</subscript></entry>
-+		  <entry>Y'<subscript>03low</subscript></entry>
-+		  <entry>Y'<subscript>03high</subscript></entry>
-+		</row>
-+		<row>
-+		  <entry>start&nbsp;+&nbsp;8:</entry>
-+		  <entry>Y'<subscript>10low</subscript></entry>
-+		  <entry>Y'<subscript>10high</subscript></entry>
-+		  <entry>Y'<subscript>11low</subscript></entry>
-+		  <entry>Y'<subscript>11high</subscript></entry>
-+		  <entry>Y'<subscript>12low</subscript></entry>
-+		  <entry>Y'<subscript>12high</subscript></entry>
-+		  <entry>Y'<subscript>13low</subscript></entry>
-+		  <entry>Y'<subscript>13high</subscript></entry>
-+		</row>
-+		<row>
-+		  <entry>start&nbsp;+&nbsp;16:</entry>
-+		  <entry>Y'<subscript>20low</subscript></entry>
-+		  <entry>Y'<subscript>20high</subscript></entry>
-+		  <entry>Y'<subscript>21low</subscript></entry>
-+		  <entry>Y'<subscript>21high</subscript></entry>
-+		  <entry>Y'<subscript>22low</subscript></entry>
-+		  <entry>Y'<subscript>22high</subscript></entry>
-+		  <entry>Y'<subscript>23low</subscript></entry>
-+		  <entry>Y'<subscript>23high</subscript></entry>
-+		</row>
-+		<row>
-+		  <entry>start&nbsp;+&nbsp;24:</entry>
-+		  <entry>Y'<subscript>30low</subscript></entry>
-+		  <entry>Y'<subscript>30high</subscript></entry>
-+		  <entry>Y'<subscript>31low</subscript></entry>
-+		  <entry>Y'<subscript>31high</subscript></entry>
-+		  <entry>Y'<subscript>32low</subscript></entry>
-+		  <entry>Y'<subscript>32high</subscript></entry>
-+		  <entry>Y'<subscript>33low</subscript></entry>
-+		  <entry>Y'<subscript>33high</subscript></entry>
-+		</row>
-+	      </tbody>
-+	    </tgroup>
-+	  </informaltable>
-+	</para>
-+      </formalpara>
-+    </example>
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/pixfmt.xml b/Documentation/DocBook/media/v4l/pixfmt.xml
-index 5a08aee..f3e3e6d 100644
---- a/Documentation/DocBook/media/v4l/pixfmt.xml
-+++ b/Documentation/DocBook/media/v4l/pixfmt.xml
-@@ -1619,6 +1619,7 @@ information.</para>
-     &sub-y12;
-     &sub-y10b;
-     &sub-y16;
-+    &sub-ys16;
-     &sub-y16-be;
-     &sub-y8i;
-     &sub-y12i;
-diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index 28e5be2..ecf7e0b 100644
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -1164,6 +1164,7 @@ static void v4l_fill_fmtdesc(struct v4l2_fmtdesc *fmt)
- 	case V4L2_PIX_FMT_Y10:		descr = "10-bit Greyscale"; break;
- 	case V4L2_PIX_FMT_Y12:		descr = "12-bit Greyscale"; break;
- 	case V4L2_PIX_FMT_Y16:		descr = "16-bit Greyscale"; break;
-+	case V4L2_PIX_FMT_YS16:		descr = "16-bit Greyscale (Signed)"; break;
- 	case V4L2_PIX_FMT_Y16_BE:	descr = "16-bit Greyscale BE"; break;
- 	case V4L2_PIX_FMT_Y10BPACK:	descr = "10-bit Greyscale (Packed)"; break;
- 	case V4L2_PIX_FMT_PAL8:		descr = "8-bit Palette"; break;
-diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
-index 8f95191..e0125cf 100644
---- a/include/uapi/linux/videodev2.h
-+++ b/include/uapi/linux/videodev2.h
-@@ -493,6 +493,7 @@ struct v4l2_pix_format {
- #define V4L2_PIX_FMT_Y12     v4l2_fourcc('Y', '1', '2', ' ') /* 12  Greyscale     */
- #define V4L2_PIX_FMT_Y16     v4l2_fourcc('Y', '1', '6', ' ') /* 16  Greyscale     */
- #define V4L2_PIX_FMT_Y16_BE  v4l2_fourcc_be('Y', '1', '6', ' ') /* 16  Greyscale BE  */
-+#define V4L2_PIX_FMT_YS16    v4l2_fourcc('Y', 'S', '1', '6') /* signed 16-bit Greyscale */
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 8ecdc38..da96ecf 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -115,6 +115,12 @@ config TOUCHSCREEN_ATMEL_MXT
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called atmel_mxt_ts.
  
- /* Grey bit-packed formats */
- #define V4L2_PIX_FMT_Y10BPACK    v4l2_fourcc('Y', '1', '0', 'B') /* 10  Greyscale bit-packed */
++config TOUCHSCREEN_ATMEL_MXT_T37
++	bool "Support T37 Diagnostic Data"
++	depends on TOUCHSCREEN_ATMEL_MXT
++	help
++	  Say Y here if you want support for the T37 Diagnostic Data object.
++
+ config TOUCHSCREEN_AUO_PIXCIR
+ 	tristate "AUO in-cell touchscreen using Pixcir ICs"
+ 	depends on I2C
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 5af7907..0048233 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -124,6 +124,19 @@ struct t9_range {
+ #define MXT_COMMS_CTRL		0
+ #define MXT_COMMS_CMD		1
+ 
++/* MXT_DEBUG_DIAGNOSTIC_T37 */
++#define MXT_DIAGNOSTIC_PAGEUP	0x01
++#define MXT_DIAGNOSTIC_DELTAS	0x10
++#define MXT_DIAGNOSTIC_SIZE	128
++
++struct t37_debug {
++#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
++	u8 mode;
++	u8 page;
++	u8 data[MXT_DIAGNOSTIC_SIZE];
++#endif
++};
++
+ /* Define for MXT_GEN_COMMAND_T6 */
+ #define MXT_BOOT_VALUE		0xa5
+ #define MXT_RESET_VALUE		0x01
+@@ -205,6 +218,14 @@ struct mxt_object {
+ 	u8 num_report_ids;
+ } __packed;
+ 
++struct mxt_dbg {
++	u16 t37_address;
++	u16 diag_cmd_address;
++	struct t37_debug *t37_buf;
++	unsigned int t37_pages;
++	unsigned int t37_nodes;
++};
++
+ /* Each client has this additional data */
+ struct mxt_data {
+ 	struct i2c_client *client;
+@@ -233,6 +254,7 @@ struct mxt_data {
+ 	u8 num_touchids;
+ 	u8 multitouch;
+ 	struct t7_config t7_cfg;
++	struct mxt_dbg dbg;
+ 
+ 	/* Cached parameters from object table */
+ 	u16 T5_address;
+@@ -2043,6 +2065,141 @@ recheck:
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
++static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
++			       unsigned int y)
++{
++	struct mxt_dbg *dbg = &data->dbg;
++	unsigned int ofs, page;
++
++	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
++	page = ofs / MXT_DIAGNOSTIC_SIZE;
++	ofs %= MXT_DIAGNOSTIC_SIZE;
++
++	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
++}
++
++static int mxt_convert_debug_pages(struct mxt_data *data, u16 *outbuf)
++{
++	struct mxt_dbg *dbg = &data->dbg;
++	unsigned int x = 0;
++	unsigned int y = 0;
++	unsigned int i;
++
++	for (i = 0; i < dbg->t37_nodes; i++) {
++		outbuf[i] = mxt_get_debug_value(data, x, y);
++
++		/* Next value */
++		if (++x >= data->info.matrix_xsize) {
++			x = 0;
++			y++;
++		}
++	}
++
++	return 0;
++}
++
++static int mxt_read_diagnostic_debug(struct mxt_data *data, u8 mode,
++				     u16 *outbuf)
++{
++	struct mxt_dbg *dbg = &data->dbg;
++	int retries = 0;
++	int page;
++	int ret;
++	u8 cmd = mode;
++	struct t37_debug *p;
++	u8 cmd_poll;
++
++	for (page = 0; page < dbg->t37_pages; page++) {
++		p = dbg->t37_buf + page;
++
++		ret = mxt_write_reg(data->client, dbg->diag_cmd_address,
++				    cmd);
++		if (ret)
++			return ret;
++
++		retries = 0;
++		msleep(20);
++wait_cmd:
++		/* Read back command byte */
++		ret = __mxt_read_reg(data->client, dbg->diag_cmd_address,
++				     sizeof(cmd_poll), &cmd_poll);
++		if (ret)
++			return ret;
++
++		/* Field is cleared once the command has been processed */
++		if (cmd_poll) {
++			if (retries++ > 100)
++				return -EINVAL;
++
++			msleep(20);
++			goto wait_cmd;
++		}
++
++		/* Read T37 page */
++		ret = __mxt_read_reg(data->client, dbg->t37_address,
++				     sizeof(struct t37_debug), p);
++		if (ret)
++			return ret;
++
++		if (p->mode != mode || p->page != page) {
++			dev_err(&data->client->dev, "T37 page mismatch\n");
++			return -EINVAL;
++		}
++
++		dev_dbg(&data->client->dev, "%s page:%d retries:%d\n",
++			__func__, page, retries);
++
++		/* For remaining pages, write PAGEUP rather than mode */
++		cmd = MXT_DIAGNOSTIC_PAGEUP;
++	}
++
++	return mxt_convert_debug_pages(data, outbuf);
++}
++
++static void mxt_debug_init(struct mxt_data *data)
++{
++	struct mxt_dbg *dbg = &data->dbg;
++	struct mxt_object *object;
++
++	object = mxt_get_object(data, MXT_GEN_COMMAND_T6);
++	if (!object)
++		goto error;
++
++	dbg->diag_cmd_address = object->start_address + MXT_COMMAND_DIAGNOSTIC;
++
++	object = mxt_get_object(data, MXT_DEBUG_DIAGNOSTIC_T37);
++	if (!object)
++		goto error;
++
++	if (mxt_obj_size(object) != sizeof(struct t37_debug)) {
++		dev_warn(&data->client->dev, "Bad T37 size");
++		goto error;
++	}
++
++	dbg->t37_address = object->start_address;
++
++	/* Calculate size of data and allocate buffer */
++	dbg->t37_nodes = data->info.matrix_xsize * data->info.matrix_ysize;
++	dbg->t37_pages = DIV_ROUND_UP(dbg->t37_nodes * sizeof(u16),
++				      sizeof(dbg->t37_buf->data));
++
++	dbg->t37_buf = devm_kmalloc_array(&data->client->dev, dbg->t37_pages,
++					  sizeof(struct t37_debug), GFP_KERNEL);
++	if (!dbg->t37_buf)
++		goto error;
++
++	return;
++
++error:
++	dev_warn(&data->client->dev, "Error initializing T37\n");
++}
++#else
++static void mxt_debug_init(struct mxt_data *data)
++{
++}
++#endif
++
+ static int mxt_configure_objects(struct mxt_data *data,
+ 				 const struct firmware *cfg)
+ {
+@@ -2070,6 +2227,8 @@ static int mxt_configure_objects(struct mxt_data *data,
+ 		dev_warn(dev, "No touch object detected\n");
+ 	}
+ 
++	mxt_debug_init(data);
++
+ 	dev_info(dev,
+ 		 "Family: %u Variant: %u Firmware V%u.%u.%02X Objects: %u\n",
+ 		 info->family_id, info->variant_id, info->version >> 4,
 -- 
 2.5.0

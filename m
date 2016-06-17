@@ -1,47 +1,55 @@
 From: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/2] usb: misc: remove outdated USB LED driver
-Date: Fri, 17 Jun 2016 22:33:52 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1606172233110.6874@cbobk.fhfr.pm>
-References: <2d50e14a-9ca4-b1ac-8e5e-62a466d97784@gmail.com>
+Subject: Re: [PATCH 1/6] Documentation: hid: Intel ISH HID document
+Date: Fri, 17 Jun 2016 22:43:43 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1606172241480.6874@cbobk.fhfr.pm>
+References: <1465647219-7798-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1465647219-7798-2-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <2d50e14a-9ca4-b1ac-8e5e-62a466d97784-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux USB Mailing List <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1465647219-7798-2-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, chaya.golan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, daniel.drubin-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, A.Bhattacharya-pDTOvDb+uMmzQB+pC5nmwQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 17 Jun 2016, Heiner Kallweit wrote:
+On Sat, 11 Jun 2016, Srinivas Pandruvada wrote:
 
-> The USB LED driver exposes a undocumented sysfs interface and doesn't
-> use the standard kernel LED subsystem. It supports three devices:
+> Document explaining ISH HID operation and implementation.
 > 
-> Delcom Visual Signal Indicator
-> The driver supports generation 1 of the device only which was
-> manufactured until 2008. Remove support for this device completely.
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  Documentation/hid/intel-ish-hid.txt | 417 ++++++++++++++++++++++++++++++++++++
+>  1 file changed, 417 insertions(+)
+>  create mode 100644 Documentation/hid/intel-ish-hid.txt
 > 
-> Riso Kagaku RGB LED + Dream Cheeky Webmail Notifier
-> These devices are HID compliant and are supported by a new USB LED
-> driver under drivers/hid utilizing the kernel LED subsystem.
-> 
-> So let's remove the old USB LED driver.
-> 
-> Signed-off-by: Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Acked-by: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+> diff --git a/Documentation/hid/intel-ish-hid.txt b/Documentation/hid/intel-ish-hid.txt
+> new file mode 100644
+> index 0000000..2de0ab5
+> --- /dev/null
+> +++ b/Documentation/hid/intel-ish-hid.txt
+> @@ -0,0 +1,417 @@
+> +Intel Integrated Sensor Hub (ISH)
+> +===============================
+> +
+> +A sensor hub enables the ability to offload sensor polling and algorithm
+> +processing to a dedicated low power co-processor. This allows the core
+> +processor to go into low power modes more often, resulting in the increased
+> +battery life.
+[ ... snip ... ]
 
-I am applying this to hid.git#for-4.8/hid-led so that it goes together 
-with the addition of hid-led driver.
+What I would like to see added here is a bit more of a higher-level 
+overview of the implementation.
 
-Greg, if you have any objections, please speak up.
+It's a *lot* of new code. I am still trying to make my way through it. One 
+thing that I am currently trying to figure out, and which, if documented, 
+would be much easier to review, would be: my current understanding is that 
+this is both transport (ll) driver and a kind-of a bus at the same time.
+
+Could yo please put some more comprehensive overview of the overall 
+architecture into the documentation?
 
 Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

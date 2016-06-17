@@ -1,13 +1,12 @@
 From: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [RESEND v7 4/6] extcon: max8997: Fix handling error code
- of regmap_irq_get_virq()
-Date: Fri, 17 Jun 2016 08:10:31 +0200
-Message-ID: <1466143833-5856-5-git-send-email-k.kozlowski@samsung.com>
+Subject: [RESEND v7 5/6] rtc: max8997: Check for ERRNO of regmap_irq_get_virq()
+Date: Fri, 17 Jun 2016 08:10:32 +0200
+Message-ID: <1466143833-5856-6-git-send-email-k.kozlowski@samsung.com>
 References: <1466143833-5856-1-git-send-email-k.kozlowski@samsung.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDKZNNNLXAHBBZ5IR25QKGQE5QFHQRQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDKZNNNLXAHBB2FIR25QKGQEQVWM5ZQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-reply-to: <1466143833-5856-1-git-send-email-k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -20,33 +19,28 @@ To: Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlow
 Cc: r.baldyga-anjuHVi6/WSaMJb+Lgu22Q@public.gmane.org, Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-The regmap_irq_get_virq() can return negative ERRNO, so its result
-should not be stored in unsigned int because error would be ignored.
+The regmap_irq_get_virq() can return zero or negative ERRNO, so it is
+insufficient to check only for non-zero value.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Acked-by: Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Acked-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/extcon/extcon-max8997.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-max8997.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
-index 68754ac2c8ea..0afa3e8b5dc3 100644
---- a/drivers/extcon/extcon-max8997.c
-+++ b/drivers/extcon/extcon-max8997.c
-@@ -660,11 +660,11 @@ static int max8997_muic_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
+index 4998aee0f07f..1a06e17ebe9b 100644
+--- a/drivers/rtc/rtc-max8997.c
++++ b/drivers/rtc/rtc-max8997.c
+@@ -497,7 +497,7 @@ static int max8997_rtc_probe(struct platform_device *pdev)
+ 	}
  
- 	for (i = 0; i < ARRAY_SIZE(muic_irqs); i++) {
- 		struct max8997_muic_irq *muic_irq = &muic_irqs[i];
--		unsigned int virq = 0;
-+		int virq = 0;
- 
- 		virq = regmap_irq_get_virq(max8997->irq_data_muic,
- 					muic_irq->irq);
--		if (!virq) {
-+		if (virq <= 0) {
- 			ret = -EINVAL;
- 			goto err_irq;
- 		}
+ 	virq = regmap_irq_get_virq(max8997->irq_data, MAX8997_PMICIRQ_RTCA1);
+-	if (!virq) {
++	if (virq <= 0) {
+ 		dev_err(&pdev->dev, "Failed to create mapping alarm IRQ\n");
+ 		ret = -ENXIO;
+ 		goto err_out;
 -- 
 1.9.1
 

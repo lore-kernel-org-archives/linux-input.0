@@ -1,103 +1,55 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: [PATCHv16 10/13] cec: adv7842: add cec support
-Date: Fri, 17 Jun 2016 07:12:12 -0300
-Message-ID: <20160617071212.2d9ae124@recife.lan>
-References: <1461937948-22936-1-git-send-email-hverkuil@xs4all.nl>
-	<1461937948-22936-11-git-send-email-hverkuil@xs4all.nl>
-	<20160616182228.1bd755d5@recife.lan>
-	<5763AF87.2030700@xs4all.nl>
+From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH 0/5] Add support for the Qualcomm PM8018 PMIC
+Date: Fri, 17 Jun 2016 12:22:04 +0200
+Message-ID: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <5763AF87.2030700@xs4all.nl>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBDAYD2P3QYGRBVU6R65QKGQEAJWDCUQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Em Fri, 17 Jun 2016 10:06:31 +0200
-Hans Verkuil <hverkuil@xs4all.nl> escreveu:
+In order to support the Qualcomm MDM9615 in the Sierra Wireless WP8548
+Modules, add the PM8018 PMIC support into MFD, Regulator, RTC and input.
 
-> On 06/16/2016 11:22 PM, Mauro Carvalho Chehab wrote:
-> > Em Fri, 29 Apr 2016 15:52:25 +0200
-> > Hans Verkuil <hverkuil@xs4all.nl> escreveu:
-> >   
-> >> From: Hans Verkuil <hans.verkuil@cisco.com>
-> >>
-> >> Add CEC support to the adv7842 driver.
-> >>
-> >> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>  
-> > 
-> > Won't review patches 10-13, as the same reviews I made for patch 9
-> > very likely applies.
-> > 
-> > As this series is causing non-staging drivers to be dependent of a
-> > staging driver, I'll wait for the next version that should be
-> > solving this issue.
-> > 
-> > For the new 9-13 patches, please be sure that checkpatch will be
-> > happy. For the staging stuff, the checkpatch issues can be solved
-> > later, as I'll re-check against checkpatch when it moves from staging
-> > to mainstream.  
-> 
-> I have to make changes anyway so I'll make a new pull request later
-> today fixing all the comments and replacing unsigned with unsigned int
-> (which is a majority of all the checkpatch warnings).
+This patchset is part of a global SoC + Module + Board support for the
+Sierra Wireless mangOH Board support with the WP8548 module.
 
-Ok.
+Neil Armstrong (5):
+  mfd: pm8921: Add support for pm8018
+  input: pmic8xxx-pwrkey: Add support for pm8018 pwrkey
+  rtc: rtc-pm8xxx: Add support for pm8018 rtc
+  mfd: qcom-rpm: Add support for pm8018 RPM Regulator
+  regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator
 
-> Did I mention yet how much I hate this new checkpatch warning? In almost all
-> cases I agree with the checkpatch rules, but this one is just stupid IMHO.
+ .../bindings/input/qcom,pm8xxx-pwrkey.txt          |   1 +
+ .../devicetree/bindings/mfd/qcom-pm8xxx.txt        |   1 +
+ Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  15 +++
+ drivers/input/misc/pmic8xxx-pwrkey.c               |   1 +
+ drivers/mfd/pm8921-core.c                          |   1 +
+ drivers/mfd/qcom_rpm.c                             |  45 +++++++
+ drivers/regulator/qcom_rpm-regulator.c             | 134 +++++++++++++++++++++
+ drivers/rtc/rtc-pm8xxx.c                           |  11 ++
+ include/dt-bindings/mfd/qcom-rpm.h                 |  23 ++++
+ 9 files changed, 232 insertions(+)
 
-This is the commit that added such rule:
+-- 
+1.9.1
 
-commit a1ce18e4f941d2039aa3bdeee17db968919eac2f
-Author: Joe Perches <joe@perches.com>
-Date:   Tue Mar 15 14:58:03 2016 -0700
-
-    checkpatch: warn on bare unsigned or signed declarations without int
-    
-    Kernel style prefers "unsigned int <foo>" over "unsigned <foo>" and
-    "signed int <foo>" over "signed <foo>".
-    
-    Emit a warning for these simple signed/unsigned <foo> declarations.  Fix
-    it too if desired.
-    
-    Signed-off-by: Joe Perches <joe@perches.com>
-    Acked-by: David S. Miller <davem@davemloft.net>
-    Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-    Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-So, the people to blame are mentioned on it. I was actually
-expecting to see any rationale for that decision, but the log
-is useless on that sense. Maybe there are some discussions at
-LKML explaining that.
-
-At least on the patch thread, no mention why it was done:
-	https://www.spinics.net/lists/kernel/msg2205100.html
-
-That's said, it sounds that the checkpatch autofix rule should 
-do the changes for you, according with the comments.
-
-There is a patch to sparc that does this:
-
-git ls-files arch/sparc | \
-  xargs ./scripts/checkpatch.pl -f --fix-inplace --types=unspecified_int
-
-I guess I'll just run that on our subsystem, and we're done with
-that, removing the risc of having to merge hundreds of stupid
-checkpatch fixup stuff for the existing code, and distracting
-ourselves from patches that really matters.
-
-> 
-> Oh well, I'll make the change. Perhaps it will grow on me over time.
-> 
-> Regards,
-> 
-> 	Hans
-
-
-
-Thanks,
-Mauro
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

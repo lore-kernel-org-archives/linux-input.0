@@ -1,447 +1,362 @@
-From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 1/2] hid: migrate USB LED driver from usb misc to hid
-Date: Fri, 17 Jun 2016 10:53:07 +0200
-Message-ID: <20160617085307.GE24234@mail.corp.redhat.com>
-References: <8413318b-cd83-764e-808a-0c060a15a757@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/2] usb: misc: remove outdated USB LED driver
+Date: Fri, 17 Jun 2016 10:53:56 +0200
+Message-ID: <20160617085355.GF24234@mail.corp.redhat.com>
+References: <2d50e14a-9ca4-b1ac-8e5e-62a466d97784@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:44160 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755278AbcFQIyA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Jun 2016 04:54:00 -0400
 Content-Disposition: inline
-In-Reply-To: <8413318b-cd83-764e-808a-0c060a15a757-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux USB Mailing List <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <2d50e14a-9ca4-b1ac-8e5e-62a466d97784@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-
-Hi Heiner,
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Linux USB Mailing List <linux-usb@vger.kernel.org>
 
 On Jun 17 2016 or thereabouts, Heiner Kallweit wrote:
-> This patch migrates the USB LED driver to the HID subsystem.
-> Supported are Dream Cheeky Webmail Notifier / Friends Alert
-> and Riso Kagaku Webmail Notifier.
+> The USB LED driver exposes a undocumented sysfs interface and doesn't
+> use the standard kernel LED subsystem. It supports three devices:
 > 
-> Benefits:
-> - Avoid using USB low-level calls and use the HID subsystem instead
->   (as this device provides a USB HID interface)
-> - Use standard LED subsystem instead of proprietary sysfs entries,
->   this allows e.g. to use the device with features like triggers
+> Delcom Visual Signal Indicator
+> The driver supports generation 1 of the device only which was
+> manufactured until 2008. Remove support for this device completely.
 > 
-> Successfully tested with a Dream Cheeky Webmail Notifier and a
-> Riso Kagaku Webmail Notifier compatible device.
+> Riso Kagaku RGB LED + Dream Cheeky Webmail Notifier
+> These devices are HID compliant and are supported by a new USB LED
+> driver under drivers/hid utilizing the kernel LED subsystem.
 > 
-> Signed-off-by: Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-Looks good, though I have a few comments (sorry, again...)
-
-> ---
->  drivers/hid/Kconfig       |  12 ++
->  drivers/hid/Makefile      |   1 +
->  drivers/hid/hid-core.c    |   6 +-
->  drivers/hid/hid-ids.h     |   2 +
->  drivers/hid/hid-usb-led.c | 276 ++++++++++++++++++++++++++++++++++++++++++++++
-
-There is nothing USB related now. How about just calling it hid-led.c?
-
->  5 files changed, 294 insertions(+), 3 deletions(-)
->  create mode 100644 drivers/hid/hid-usb-led.c
+> So let's remove the old USB LED driver.
 > 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 5646ca4..adc9ce6 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -841,6 +841,18 @@ config THRUSTMASTER_FF
->  	  a THRUSTMASTER Dual Trigger 3-in-1 or a THRUSTMASTER Ferrari GT
->  	  Rumble Force or Force Feedback Wheel.
->  
-> +config HID_USB_LED
-> +	tristate "Simple USB RGB LED support"
-> +	depends on HID
-> +	depends on LEDS_CLASS
-> +	---help---
-> +	Support for simple USB RGB LED devices. Currently supported are the
-> +	Riso Kagaku Webmail Notifier and the Dream Cheeky Webmail Notifier
-> +	and Friends Alert.
-> +
-> +	To compile this driver as a module, choose M here: the
-> +	module will be called hid-usb-led.
-> +
->  config HID_WACOM
->  	tristate "Wacom Intuos/Graphire tablet support (USB)"
->  	depends on HID
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index a2fb562..3014bdd 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -96,6 +96,7 @@ obj-$(CONFIG_HID_TIVO)		+= hid-tivo.o
->  obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
->  obj-$(CONFIG_HID_TWINHAN)	+= hid-twinhan.o
->  obj-$(CONFIG_HID_UCLOGIC)	+= hid-uclogic.o
-> +obj-$(CONFIG_HID_USB_LED)	+= hid-usb-led.o
->  obj-$(CONFIG_HID_XINMO)		+= hid-xinmo.o
->  obj-$(CONFIG_HID_ZEROPLUS)	+= hid-zpff.o
->  obj-$(CONFIG_HID_ZYDACRON)	+= hid-zydacron.o
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 8ea3a26..eb674ce 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1879,6 +1879,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_WN) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_FA) },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0030) },
-> @@ -2008,6 +2010,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_RISO_KAGAKU, USB_DEVICE_ID_RI_KA_WEBMAIL) },
->  #if IS_ENABLED(CONFIG_HID_ROCCAT)
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ARVO) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ISKU) },
-> @@ -2348,8 +2351,6 @@ static const struct hid_device_id hid_ignore_list[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_DEALEXTREAME, USB_DEVICE_ID_DEALEXTREAME_RADIO_SI4701) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EARTHMATE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x0004) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x000a) },
->  	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0400) },
->  	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0401) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
-> @@ -2486,7 +2487,6 @@ static const struct hid_device_id hid_ignore_list[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_DPAD) },
->  #endif
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_YEALINK, USB_DEVICE_ID_YEALINK_P1K_P4K_B2K) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_RISO_KAGAKU, USB_DEVICE_ID_RI_KA_WEBMAIL) },
->  	{ }
->  };
->  
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 3eec09a..e104aba 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -334,6 +334,8 @@
->  #define USB_DEVICE_ID_ELECOM_BM084	0x0061
->  
->  #define USB_VENDOR_ID_DREAM_CHEEKY	0x1d34
-> +#define USB_DEVICE_ID_DREAM_CHEEKY_WN	0x0004
-> +#define USB_DEVICE_ID_DREAM_CHEEKY_FA	0x000a
->  
->  #define USB_VENDOR_ID_ELITEGROUP	0x03fc
->  #define USB_DEVICE_ID_ELITEGROUP_05D8	0x05d8
-> diff --git a/drivers/hid/hid-usb-led.c b/drivers/hid/hid-usb-led.c
-> new file mode 100644
-> index 0000000..c7f5a62
-> --- /dev/null
-> +++ b/drivers/hid/hid-usb-led.c
-> @@ -0,0 +1,276 @@
-> +/*
-> + * Simple USB RGB LED driver
-> + *
-> + * Copyright 2016 Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> + * Based on drivers/hid/hid-thingm.c and
-> + * drivers/usb/misc/usbled.c
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License as
-> + * published by the Free Software Foundation, version 2.
-> + */
-> +
-> +#include <linux/hid.h>
-> +#include <linux/hidraw.h>
-> +#include <linux/leds.h>
-> +#include <linux/module.h>
-> +#include <linux/mutex.h>
-> +
-> +#include "hid-ids.h"
-> +
-> +enum led_report_type {
-> +	RAW_REQUEST,
-> +	OUTPUT_REPORT
-> +};
-> +
-> +static unsigned const char riso_kagaku_tbl[] = {
-> +/* R+2G+4B -> riso kagaku color index */
-> +	[0] = 0, /* black   */
-> +	[1] = 2, /* red     */
-> +	[2] = 1, /* green   */
-> +	[3] = 5, /* yellow  */
-> +	[4] = 3, /* blue    */
-> +	[5] = 6, /* magenta */
-> +	[6] = 4, /* cyan    */
-> +	[7] = 7  /* white   */
-> +};
-> +
-> +#define RISO_KAGAKU_IX(r, g, b) riso_kagaku_tbl[((r)?1:0)+((g)?2:0)+((b)?4:0)]
-> +
-> +struct usbled_device;
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-I'd say remove all "usb" strings from the driver and use hled or hidled instead
-of usbled.
-
-> +
-> +struct usbled_type {
-> +	const char		*name;
-> +	const char		*short_name;
-> +	enum led_brightness	max_brightness;
-> +	size_t			report_size;
-> +	enum led_report_type	report_type;
-> +	u8			report_id;
-> +	int (*init)(struct usbled_device *udev);
-> +	int (*write)(struct led_classdev *cdev, enum led_brightness br);
-> +};
-> +
-> +struct usbled_led {
-> +	struct led_classdev	cdev;
-> +	struct usbled_device	*udev;
-> +	char			name[32];
-> +};
-> +
-> +struct usbled_device {
-> +	const struct usbled_type *type;
-> +	struct usbled_led	red;
-> +	struct usbled_led	green;
-> +	struct usbled_led	blue;
-> +	struct hid_device       *hdev;
-> +	struct mutex		lock;
-> +};
-> +
-> +#define MAX_REPORT_SIZE		16
-> +
-> +#define to_usbled_led(arg) container_of(arg, struct usbled_led, cdev)
-> +
-> +static bool riso_kagaku_switch_green_blue;
-> +module_param(riso_kagaku_switch_green_blue, bool, S_IRUGO | S_IWUSR);
-> +MODULE_PARM_DESC(riso_kagaku_switch_green_blue,
-> +	"switch green and blue RGB component for Riso Kagaku devices");
-> +
-> +static int usbled_send(struct usbled_device *udev, __u8 *buf)
-> +{
-> +	int ret;
-> +
-> +	buf[0] = udev->type->report_id;
-> +
-> +	mutex_lock(&udev->lock);
-> +
-> +	if (udev->type->report_type == RAW_REQUEST)
-> +		ret = hid_hw_raw_request(udev->hdev, buf[0], buf,
-> +					 udev->type->report_size,
-> +					 HID_FEATURE_REPORT,
-> +					 HID_REQ_SET_REPORT);
-> +	else if (udev->type->report_type == OUTPUT_REPORT)
-> +		ret = hid_hw_output_report(udev->hdev, buf,
-> +					   udev->type->report_size);
-> +	else
-> +		ret = -EINVAL;
-> +
-> +	mutex_unlock(&udev->lock);
-> +
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	return ret == udev->type->report_size ? 0 : -EMSGSIZE;
-> +}
-> +
-> +static u8 riso_kagaku_index(struct usbled_device *udev)
-> +{
-> +	enum led_brightness r, g, b;
-> +
-> +	r = udev->red.cdev.brightness;
-> +	g = udev->green.cdev.brightness;
-> +	b = udev->blue.cdev.brightness;
-> +
-> +	if (riso_kagaku_switch_green_blue)
-> +		return RISO_KAGAKU_IX(r, b, g);
-> +	else
-> +		return RISO_KAGAKU_IX(r, g, b);
-> +}
-> +
-> +static int riso_kagaku_write(struct led_classdev *cdev, enum led_brightness br)
-> +{
-> +	struct usbled_led *uled = to_usbled_led(cdev);
-> +	struct usbled_device *udev = uled->udev;
-> +	__u8 buf[MAX_REPORT_SIZE] = {};
-> +
-> +	buf[1] = riso_kagaku_index(udev);
-> +
-> +	return usbled_send(udev, buf);
-> +}
-> +
-> +static const struct usbled_type usbled_riso_kagaku = {
-> +	.name = "Riso Kagaku Webmail Notifier",
-> +	.short_name = "riso_kagaku",
-> +	.max_brightness = 1,
-> +	.report_size = 6,
-> +	.report_type = OUTPUT_REPORT,
-> +	.report_id = 0,
-> +	.write = riso_kagaku_write,
-> +};
-> +
-> +static int dream_cheeky_write(struct led_classdev *cdev, enum led_brightness br)
-> +{
-> +	struct usbled_led *uled = to_usbled_led(cdev);
-> +	struct usbled_device *udev = uled->udev;
-> +	__u8 buf[MAX_REPORT_SIZE] = {};
-> +
-> +	buf[1] = udev->red.cdev.brightness;
-> +	buf[2] = udev->green.cdev.brightness;
-> +	buf[3] = udev->blue.cdev.brightness;
-> +	buf[7] = 0x1a;
-> +	buf[8] = 0x05;
-> +
-> +	return usbled_send(udev, buf);
-> +}
-> +
-> +static int dream_cheeky_init(struct usbled_device *udev)
-> +{
-> +	__u8 buf[MAX_REPORT_SIZE] = {};
-> +
-> +	/* Dream Cheeky magic */
-> +	buf[1] = 0x1f;
-> +	buf[2] = 0x02;
-> +	buf[4] = 0x5f;
-> +	buf[7] = 0x1a;
-> +	buf[8] = 0x03;
-> +
-> +	return usbled_send(udev, buf);
-> +}
-> +
-> +static const struct usbled_type usbled_dream_cheeky = {
-> +	.name = "Dream Cheeky Webmail Notifier",
-> +	.short_name = "dream_cheeky",
-> +	.max_brightness = 31,
-> +	.report_size = 9,
-> +	.report_type = RAW_REQUEST,
-> +	.report_id = 0,
-> +	.init = dream_cheeky_init,
-> +	.write = dream_cheeky_write,
-> +};
-> +
-> +static int usbled_init_led(struct usbled_led *led, const char *color_name,
-> +			   struct usbled_device *udev, unsigned int minor)
-> +{
-> +	snprintf(led->name, sizeof(led->name), "%s%u:%s",
-> +		 udev->type->short_name, minor, color_name);
-> +	led->cdev.name = led->name;
-> +	led->cdev.max_brightness = udev->type->max_brightness;
-> +	led->cdev.brightness_set_blocking = udev->type->write;
-> +	led->cdev.flags = LED_HW_PLUGGABLE;
-> +	led->udev = udev;
-> +
-> +	return devm_led_classdev_register(&udev->hdev->dev, &led->cdev);
-> +}
-> +
-> +static int usbled_init_rgb(struct usbled_device *udev, unsigned int minor)
-> +{
-> +	int ret;
-> +
-> +	/* Register the red diode */
-> +	ret = usbled_init_led(&udev->red, "red", udev, minor);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Register the green diode */
-> +	ret = usbled_init_led(&udev->green, "green", udev, minor);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Register the blue diode */
-> +	return usbled_init_led(&udev->blue, "blue", udev, minor);
-> +}
-> +
-> +static int usbled_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> +{
-> +	struct usbled_device *udev;
-> +	unsigned int minor;
-> +	int ret;
-> +
-> +	udev = devm_kzalloc(&hdev->dev, sizeof(*udev), GFP_KERNEL);
-> +	if (!udev)
-> +		return -ENOMEM;
-> +
-> +	ret = hid_parse(hdev);
-> +	if (ret)
-> +		return ret;
-> +
-> +	udev->hdev = hdev;
-> +	udev->type = (const struct usbled_type *)id->driver_data;
-
-I don't think it is a good idea to have an internal pointer in the
-driver_data. Users can bind a new device to your driver through the
-sysfs (/sys/bus/hid/drivers/hid-usb-led/bind) and having a pointer is
-not easy for them.
-
-I'd rather use a plain enum or simply decide about the type based on the
-vendor id.
-
-> +	mutex_init(&udev->lock);
-> +
-> +	if (udev->type->init) {
-
-udev->type can be null (if manually bound from userspace as mentioned
-above)
-
-> +		ret = udev->type->init(udev);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-> +	if (ret)
-> +		return ret;
-> +
-> +	minor = ((struct hidraw *) hdev->hidraw)->minor;
-> +
-> +	ret = usbled_init_rgb(udev, minor);
-> +	if (ret) {
-> +		hid_hw_stop(hdev);
-> +		return ret;
-> +	}
-> +
-> +	dev_info(&hdev->dev, "%s initialized\n", udev->type->name);
-
-use hid_info(hdev, "initialized"); (not sure the name is that important
-in this info message, but it's up to you).
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
 
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct hid_device_id usbled_table[] = {
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_RISO_KAGAKU,
-> +	  USB_DEVICE_ID_RI_KA_WEBMAIL),
-> +	  .driver_data = (kernel_ulong_t)&usbled_riso_kagaku },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY,
-> +	  USB_DEVICE_ID_DREAM_CHEEKY_WN),
-> +	  .driver_data = (kernel_ulong_t)&usbled_dream_cheeky },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY,
-> +	  USB_DEVICE_ID_DREAM_CHEEKY_FA),
-> +	  .driver_data = (kernel_ulong_t)&usbled_dream_cheeky },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(hid, usbled_table);
-> +
-> +static struct hid_driver usbled_driver = {
-> +	.name = "usb-led",
-> +	.probe = usbled_probe,
-> +	.id_table = usbled_table,
-> +};
-> +
-> +module_hid_driver(usbled_driver);
-> +
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>");
-> +MODULE_DESCRIPTION("Simple USB RGB LED driver");
+> ---
+>  drivers/usb/misc/Kconfig  |   9 --
+>  drivers/usb/misc/Makefile |   1 -
+>  drivers/usb/misc/usbled.c | 273 ----------------------------------------------
+>  3 files changed, 283 deletions(-)
+>  delete mode 100644 drivers/usb/misc/usbled.c
+> 
+> diff --git a/drivers/usb/misc/Kconfig b/drivers/usb/misc/Kconfig
+> index f7a7fc2..e9c5458 100644
+> --- a/drivers/usb/misc/Kconfig
+> +++ b/drivers/usb/misc/Kconfig
+> @@ -79,15 +79,6 @@ config USB_LCD
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called usblcd.
+>  
+> -config USB_LED
+> -	tristate "USB LED driver support"
+> -	help
+> -	  Say Y here if you want to connect an USBLED device to your 
+> -	  computer's USB port.
+> -
+> -	  To compile this driver as a module, choose M here: the
+> -	  module will be called usbled.
+> -
+>  config USB_CYPRESS_CY7C63
+>  	tristate "Cypress CY7C63xxx USB driver support"
+>  	help
+> diff --git a/drivers/usb/misc/Makefile b/drivers/usb/misc/Makefile
+> index 45fd4ac..4bc755b 100644
+> --- a/drivers/usb/misc/Makefile
+> +++ b/drivers/usb/misc/Makefile
+> @@ -15,7 +15,6 @@ obj-$(CONFIG_USB_IOWARRIOR)		+= iowarrior.o
+>  obj-$(CONFIG_USB_ISIGHTFW)		+= isight_firmware.o
+>  obj-$(CONFIG_USB_LCD)			+= usblcd.o
+>  obj-$(CONFIG_USB_LD)			+= ldusb.o
+> -obj-$(CONFIG_USB_LED)			+= usbled.o
+>  obj-$(CONFIG_USB_LEGOTOWER)		+= legousbtower.o
+>  obj-$(CONFIG_USB_RIO500)		+= rio500.o
+>  obj-$(CONFIG_USB_TEST)			+= usbtest.o
+> diff --git a/drivers/usb/misc/usbled.c b/drivers/usb/misc/usbled.c
+> deleted file mode 100644
+> index bdef0d6..0000000
+> --- a/drivers/usb/misc/usbled.c
+> +++ /dev/null
+> @@ -1,273 +0,0 @@
+> -/*
+> - * USB LED driver
+> - *
+> - * Copyright (C) 2004 Greg Kroah-Hartman (greg@kroah.com)
+> - *
+> - *	This program is free software; you can redistribute it and/or
+> - *	modify it under the terms of the GNU General Public License as
+> - *	published by the Free Software Foundation, version 2.
+> - *
+> - */
+> -
+> -#include <linux/kernel.h>
+> -#include <linux/errno.h>
+> -#include <linux/slab.h>
+> -#include <linux/module.h>
+> -#include <linux/usb.h>
+> -
+> -
+> -#define DRIVER_AUTHOR "Greg Kroah-Hartman, greg@kroah.com"
+> -#define DRIVER_DESC "USB LED Driver"
+> -
+> -enum led_type {
+> -	DELCOM_VISUAL_SIGNAL_INDICATOR,
+> -	DREAM_CHEEKY_WEBMAIL_NOTIFIER,
+> -	RISO_KAGAKU_LED
+> -};
+> -
+> -/* the Webmail LED made by RISO KAGAKU CORP. decodes a color index
+> -   internally, we want to keep the red+green+blue sysfs api, so we decode
+> -   from 1-bit RGB to the riso kagaku color index according to this table... */
+> -
+> -static unsigned const char riso_kagaku_tbl[] = {
+> -/* R+2G+4B -> riso kagaku color index */
+> -	[0] = 0, /* black   */
+> -	[1] = 2, /* red     */
+> -	[2] = 1, /* green   */
+> -	[3] = 5, /* yellow  */
+> -	[4] = 3, /* blue    */
+> -	[5] = 6, /* magenta */
+> -	[6] = 4, /* cyan    */
+> -	[7] = 7  /* white   */
+> -};
+> -
+> -#define RISO_KAGAKU_IX(r,g,b) riso_kagaku_tbl[((r)?1:0)+((g)?2:0)+((b)?4:0)]
+> -
+> -/* table of devices that work with this driver */
+> -static const struct usb_device_id id_table[] = {
+> -	{ USB_DEVICE(0x0fc5, 0x1223),
+> -			.driver_info = DELCOM_VISUAL_SIGNAL_INDICATOR },
+> -	{ USB_DEVICE(0x1d34, 0x0004),
+> -			.driver_info = DREAM_CHEEKY_WEBMAIL_NOTIFIER },
+> -	{ USB_DEVICE(0x1d34, 0x000a),
+> -			.driver_info = DREAM_CHEEKY_WEBMAIL_NOTIFIER },
+> -	{ USB_DEVICE(0x1294, 0x1320),
+> -			.driver_info = RISO_KAGAKU_LED },
+> -	{ },
+> -};
+> -MODULE_DEVICE_TABLE(usb, id_table);
+> -
+> -struct usb_led {
+> -	struct usb_device	*udev;
+> -	unsigned char		blue;
+> -	unsigned char		red;
+> -	unsigned char		green;
+> -	enum led_type		type;
+> -};
+> -
+> -static void change_color(struct usb_led *led)
+> -{
+> -	int retval = 0;
+> -	unsigned char *buffer;
+> -	int actlength;
+> -
+> -	buffer = kmalloc(8, GFP_KERNEL);
+> -	if (!buffer) {
+> -		dev_err(&led->udev->dev, "out of memory\n");
+> -		return;
+> -	}
+> -
+> -	switch (led->type) {
+> -	case DELCOM_VISUAL_SIGNAL_INDICATOR: {
+> -		unsigned char color = 0x07;
+> -
+> -		if (led->blue)
+> -			color &= ~0x04;
+> -		if (led->red)
+> -			color &= ~0x02;
+> -		if (led->green)
+> -			color &= ~0x01;
+> -		dev_dbg(&led->udev->dev,
+> -			"blue = %d, red = %d, green = %d, color = %.2x\n",
+> -			led->blue, led->red, led->green, color);
+> -
+> -		retval = usb_control_msg(led->udev,
+> -					usb_sndctrlpipe(led->udev, 0),
+> -					0x12,
+> -					0xc8,
+> -					(0x02 * 0x100) + 0x0a,
+> -					(0x00 * 0x100) + color,
+> -					buffer,
+> -					8,
+> -					2000);
+> -		break;
+> -	}
+> -
+> -	case DREAM_CHEEKY_WEBMAIL_NOTIFIER:
+> -		dev_dbg(&led->udev->dev,
+> -			"red = %d, green = %d, blue = %d\n",
+> -			led->red, led->green, led->blue);
+> -
+> -		buffer[0] = led->red;
+> -		buffer[1] = led->green;
+> -		buffer[2] = led->blue;
+> -		buffer[3] = buffer[4] = buffer[5] = 0;
+> -		buffer[6] = 0x1a;
+> -		buffer[7] = 0x05;
+> -
+> -		retval = usb_control_msg(led->udev,
+> -					usb_sndctrlpipe(led->udev, 0),
+> -					0x09,
+> -					0x21,
+> -					0x200,
+> -					0,
+> -					buffer,
+> -					8,
+> -					2000);
+> -		break;
+> -
+> -	case RISO_KAGAKU_LED:
+> -		buffer[0] = RISO_KAGAKU_IX(led->red, led->green, led->blue);
+> -		buffer[1] = 0;
+> -		buffer[2] = 0;
+> -		buffer[3] = 0;
+> -		buffer[4] = 0;
+> -
+> -		retval = usb_interrupt_msg(led->udev,
+> -			usb_sndctrlpipe(led->udev, 2),
+> -			buffer, 5, &actlength, 1000 /*ms timeout*/);
+> -		break;
+> -
+> -	default:
+> -		dev_err(&led->udev->dev, "unknown device type %d\n", led->type);
+> -	}
+> -
+> -	if (retval)
+> -		dev_dbg(&led->udev->dev, "retval = %d\n", retval);
+> -	kfree(buffer);
+> -}
+> -
+> -#define show_set(value)	\
+> -static ssize_t show_##value(struct device *dev, struct device_attribute *attr,\
+> -			    char *buf)					\
+> -{									\
+> -	struct usb_interface *intf = to_usb_interface(dev);		\
+> -	struct usb_led *led = usb_get_intfdata(intf);			\
+> -									\
+> -	return sprintf(buf, "%d\n", led->value);			\
+> -}									\
+> -static ssize_t set_##value(struct device *dev, struct device_attribute *attr,\
+> -			   const char *buf, size_t count)		\
+> -{									\
+> -	struct usb_interface *intf = to_usb_interface(dev);		\
+> -	struct usb_led *led = usb_get_intfdata(intf);			\
+> -	int temp = simple_strtoul(buf, NULL, 10);			\
+> -									\
+> -	led->value = temp;						\
+> -	change_color(led);						\
+> -	return count;							\
+> -}									\
+> -static DEVICE_ATTR(value, S_IRUGO | S_IWUSR, show_##value, set_##value);
+> -show_set(blue);
+> -show_set(red);
+> -show_set(green);
+> -
+> -static int led_probe(struct usb_interface *interface,
+> -		     const struct usb_device_id *id)
+> -{
+> -	struct usb_device *udev = interface_to_usbdev(interface);
+> -	struct usb_led *dev = NULL;
+> -	int retval = -ENOMEM;
+> -
+> -	dev = kzalloc(sizeof(struct usb_led), GFP_KERNEL);
+> -	if (dev == NULL) {
+> -		dev_err(&interface->dev, "out of memory\n");
+> -		goto error_mem;
+> -	}
+> -
+> -	dev->udev = usb_get_dev(udev);
+> -	dev->type = id->driver_info;
+> -
+> -	usb_set_intfdata(interface, dev);
+> -
+> -	retval = device_create_file(&interface->dev, &dev_attr_blue);
+> -	if (retval)
+> -		goto error;
+> -	retval = device_create_file(&interface->dev, &dev_attr_red);
+> -	if (retval)
+> -		goto error;
+> -	retval = device_create_file(&interface->dev, &dev_attr_green);
+> -	if (retval)
+> -		goto error;
+> -
+> -	if (dev->type == DREAM_CHEEKY_WEBMAIL_NOTIFIER) {
+> -		unsigned char *enable;
+> -
+> -		enable = kmemdup("\x1f\x02\0\x5f\0\0\x1a\x03", 8, GFP_KERNEL);
+> -		if (!enable) {
+> -			dev_err(&interface->dev, "out of memory\n");
+> -			retval = -ENOMEM;
+> -			goto error;
+> -		}
+> -
+> -		retval = usb_control_msg(udev,
+> -					usb_sndctrlpipe(udev, 0),
+> -					0x09,
+> -					0x21,
+> -					0x200,
+> -					0,
+> -					enable,
+> -					8,
+> -					2000);
+> -
+> -		kfree(enable);
+> -		if (retval != 8)
+> -			goto error;
+> -	}
+> -
+> -	dev_info(&interface->dev, "USB LED device now attached\n");
+> -	return 0;
+> -
+> -error:
+> -	device_remove_file(&interface->dev, &dev_attr_blue);
+> -	device_remove_file(&interface->dev, &dev_attr_red);
+> -	device_remove_file(&interface->dev, &dev_attr_green);
+> -	usb_set_intfdata(interface, NULL);
+> -	usb_put_dev(dev->udev);
+> -	kfree(dev);
+> -error_mem:
+> -	return retval;
+> -}
+> -
+> -static void led_disconnect(struct usb_interface *interface)
+> -{
+> -	struct usb_led *dev;
+> -
+> -	dev = usb_get_intfdata(interface);
+> -
+> -	device_remove_file(&interface->dev, &dev_attr_blue);
+> -	device_remove_file(&interface->dev, &dev_attr_red);
+> -	device_remove_file(&interface->dev, &dev_attr_green);
+> -
+> -	/* first remove the files, then set the pointer to NULL */
+> -	usb_set_intfdata(interface, NULL);
+> -
+> -	usb_put_dev(dev->udev);
+> -
+> -	kfree(dev);
+> -
+> -	dev_info(&interface->dev, "USB LED now disconnected\n");
+> -}
+> -
+> -static struct usb_driver led_driver = {
+> -	.name =		"usbled",
+> -	.probe =	led_probe,
+> -	.disconnect =	led_disconnect,
+> -	.id_table =	id_table,
+> -};
+> -
+> -module_usb_driver(led_driver);
+> -
+> -MODULE_AUTHOR(DRIVER_AUTHOR);
+> -MODULE_DESCRIPTION(DRIVER_DESC);
+> -MODULE_LICENSE("GPL");
 > -- 
 > 2.8.3
 > 
-> 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

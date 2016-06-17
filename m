@@ -1,64 +1,229 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v8 2/4] i2c-smbus: add SMBus Host Notify support
-Date: Fri, 17 Jun 2016 13:26:30 +0200
-Message-ID: <20160617112630.GB6876@tetsubishi>
-References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
- <1465484030-28838-3-git-send-email-benjamin.tissoires@redhat.com>
+From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Subject: Re: [PATCHv16 08/13] DocBook/media: add CEC documentation
+Date: Fri, 17 Jun 2016 08:37:38 -0300
+Message-ID: <20160617083738.491c01ae@recife.lan>
+References: <1461937948-22936-1-git-send-email-hverkuil@xs4all.nl>
+	<1461937948-22936-9-git-send-email-hverkuil@xs4all.nl>
+	<20160616180958.03b9d759@recife.lan>
+	<5763ADBD.3050502@xs4all.nl>
+	<20160617065028.7410ae46@recife.lan>
+	<5763DA56.20402@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uQr8t48UFsdbeI+V"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1465484030-28838-3-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <5763DA56.20402@xs4all.nl>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
+Em Fri, 17 Jun 2016 13:09:10 +0200
+Hans Verkuil <hverkuil@xs4all.nl> escreveu:
 
---uQr8t48UFsdbeI+V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On 06/17/2016 11:50 AM, Mauro Carvalho Chehab wrote:
+> >>>> +	  <row>
+> >>>> +	    <entry><constant>CEC_MODE_MONITOR</constant></entry>
+> >>>> +	    <entry>0xe0</entry>
+> >>>> +	    <entry>Put the file descriptor into monitor mode. Can only be used in combination
+> >>>> +	    with <constant>CEC_MODE_NO_INITIATOR</constant>, otherwise &EINVAL; will be
+> >>>> +	    returned. In monitor mode all messages this CEC device transmits and all messages
+> >>>> +	    it receives (both broadcast messages and directed messages for one its logical
+> >>>> +	    addresses) will be reported. This is very useful for debugging.</entry>
+> >>>> +	  </row>
+> >>>> +	  <row>
+> >>>> +	    <entry><constant>CEC_MODE_MONITOR_ALL</constant></entry>
+> >>>> +	    <entry>0xf0</entry>
+> >>>> +	    <entry>Put the file descriptor into 'monitor all' mode. Can only be used in combination
+> >>>> +            with <constant>CEC_MODE_NO_INITIATOR</constant>, otherwise &EINVAL; will be
+> >>>> +            returned. In 'monitor all' mode all messages this CEC device transmits and all messages
+> >>>> +            it receives, including directed messages for other CEC devices will be reported. This
+> >>>> +	    is very useful for debugging, but not all devices support this. This mode requires that
+> >>>> +	    the <constant>CEC_CAP_MONITOR_ALL</constant> capability is set, and depending on the
+> >>>> +	    hardware, you may have to be root to select this mode.</entry>  
+> >>>
+> >>> Please mention the error codes when it fails.  
+> >>
+> >> Ack.
+> >>
+> >>> "and depending on the hardware, you may have to be root to select this mode."
+> >>>
+> >>> No. We should define if CAP_SYS_ADMIN (or maybe CAP_NET_ADMIN, with
+> >>> is required to set promiscuous mode for network) will be required or
+> >>> not and enforce it for all hardware.  
+> >>
+> >> Ack for CAP_SYS_ADMIN (or possible NET_ADMIN, I'll look into that).
+> > 
+> > Thanks.
+> > 
+> >>> IMHO, putting the device into monitor mode should require it.  
+> >>
+> >> No. The CEC 2.0 spec explicitly recommends that the CEC adapter should be able to
+> >> monitor all messages.
+> > 
+> > What the hardware should or should not do is one thing. The other
+> > thing is what permissions are needed in order to use such
+> > feature.
+> > 
+> > I don't doubt that a similar requirement exists on 802.x, or on some
+> > industry standard document requiring that all Ethernet hardware should 
+> > support promiscuous mode. Yet, for security reasons, enabling such feature 
+> > requires special caps on Linux.
+> > 
+> >> The problem is that 1) not all hardware supports this, and 2)
+> >> hardware that does support this tends to mention that it is for testing only and
+> >> it shouldn't be used otherwise.
+> >>
+> >> If the hardware is fine with allowing monitoring of all messages, then anyone
+> >> should be able to do that. 
+> > 
+> > Why?
+> 
+> The spec recommends that this is supported in order for applications to take advantage
+> of seeing such traffic to optimize their performance (i.e. by sniffing traffic you can see which
+> devices are there so you don't have to discover them). The underlying reason is that
+> the CEC bus is so hopelessly slow, so any mechanism that helps avoids having to use
+> the bus is good.
+> 
+> From the HDMI 2.0 spec (section 11.4):
+> 
+> "Polling can and should be skipped if other CEC traffic shows that a device is present.
+>  Hence, a device should not poll a certain Logical Address within at least one Minimum
+>  Polling Period after the following CEC events occur between the device that is polling
+>  and the device whose Logical Address is to be polled:
+> 
+>  - A directly addressed message, sent to that Logical Address, was acknowledged.
+>  - A directly addressed message has been sent from that Logical Address.
+>  - A broadcast message has been sent from that Logical Address.
+> 
+>  It is recommended that, if the device is capable of monitoring CEC traffic directed to
+>  other devices, then this capability should also be used to further reduce the need for polling.
+>  In this case, such a device should not poll a certain Logical Address for at least one
+>  Minimum Polling Period after it detects that that Logical Address acknowledged a directed
+>  message initiated from any Logical Address, or any message was sent from that Logical Address."
+> 
+> I wouldn't have required CAP_*_ADMIN at all if it wasn't for the scary language in some of the
+> hardware specs that I have seen.
+> 
+> (see below before replying to this :-) )
+> 
+> > 
+> >> But if it comes with all these 'for testing only' caveats,
+> >> then I think it should should be protected against 'casual' use. Unfortunately they
+> >> never tell you why it should be used for testing only (overly cautious or could
+> >> something actually fail when in this mode?).
+> >>
+> >> The reality is that being able to monitor the CEC bus is extremely useful when debugging.
+> > 
+> > Well, it can be debugged as root. That's not an issue. The issue
+> > here is if sniffing the traffic by a normal user could leak
+> > something that should not usually be seen by a normal user, like
+> > a Netflix password, that was typed via the RC, for example.
+> 
+> Interesting example. I hadn't thought of that.
+> 
+> OK, so I'm going to change the code so CAP_SYS/NET_ADMIN is required for the
+> monitoring mode. It can always be relaxed later, but this password sniffing
+> example is quite convincing actually.
+> 
+> The HDMI 2.0 polling recommendation can still be met since this would be handled
+> in the CEC framework (not implemented today, but it is planned since it is fairly
+> easy to do so). Since that's all inside the kernel nothing is leaked to non-root
+> applications.
 
-On Thu, Jun 09, 2016 at 04:53:48PM +0200, Benjamin Tissoires wrote:
-> SMBus Host Notify allows a slave device to act as a master on a bus to
-> notify the host of an interrupt. On Intel chipsets, the functionality
-> is directly implemented in the firmware. We just need to export a
-> function to call .alert() on the proper device driver.
->=20
-> i2c_handle_smbus_host_notify() behaves like i2c_handle_smbus_alert().
-> When called, it schedules a task that will be able to sleep to go through
-> the list of devices attached to the adapter.
->=20
-> The current implementation allows one Host Notification to be scheduled
-> while an other is running.
->=20
-> Tested-by: Andrew Duggan <aduggan@synaptics.com>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Ok, makes sense to me.
 
-Applied to for-next, thanks!
+> One area where I am uncertain is when remote control messages are received and
+> passed on by the framework to the RC input device.
+> 
+> Suppose the application is the one receiving a password, then that password appears
+> both in the input device and the cec device. What I think will be useful is if the
+> application can prevent the use of an input device to pass on remote control messages.
+> 
+> CEC_ADAP_S_LOG_ADDRS has a flags field that I intended for just that purpose.
+> 
+> Note that RC messages are always passed on to CEC followers even if there is an
+> input device since some RC messages have additional arguments that the rc subsystem
+> can't handle. Also I think that it is often easier to handle all messages from the
+> same CEC device instead of having to read from two devices (cec and input). I
+> actually considered removing the input support, but it turned out to be useful in
+> existing video streaming apps since they don't need to add special cec support to
+> handle remote control presses.
+> 
+> Question: is there a way for applications to get exclusive access to an input device?
+> Or can anyone always read from it?
+
+That's a very good question. I did a quick test to check how this is
+currently protected, by running:
+
+$ strace ir-keytable -t
+...
+open("/dev/input/event12", O_RDONLY)    = -1 EACCES (Permission denied)
+...
+
+It turns that the input device was created by udev with those
+permissions:
+
+crw-rw---- 1 root input 13, 76 Jun 17 08:26 /dev/input/event12
+
+Changing access to 666 allowed to run ir-keytable -t without the
+need of being root.
+
+Yet, maybe there's a way to get exclusive access to input/event
+device, but I never needed to go that deep at the input subsystem.
+Maybe Dmitry could shed some light on that. Adding him in the loop.
+
+> So I am thinking that I add a flag to inhibit the use of the input device if set.
+
+There are two different situations here:
+
+1) if the code is originated by the machine (e. g. what LIRC calls
+TX mode), I don't see any reason to inhibit it by a normal user that
+has permission to use the device node;
+
+2) if the Linux machine is receiving RC events via CEC (the "RX"
+mode - with is what the RC event devices implement nowadays), then
+the user needs to have permission to read from the evdev. Yeah,
+we need to have a way to protect passwords typed on IR. So, some
+sort of way to inhibit it is needed.
+
+> This would be in a follow-on patch and it's added to the TODO file in the initial
+> patch series.
+
+Ok.
+
+> Comments?
+> 
+> >> The simple MONITOR mode is different in that it requires no special hardware configuration.
+> >> But it won't be able to see directed messages between CEC devices other than us.
+> >>
+> >> On a related note: if an application tries to become initiator or follower and someone
+> >> else has already exclusive access, then EBUSY is returned. I based this on what happens
+> >> in V4L2 with the S_PRIORITY ioctl.
+> >>
+> >> However, I think EACCES is a much better error code. It's probably what S_PRIO should
+> >> have used as well.
+> >>
+> >> Do you agree?
+> > 
+> > Not really. EACCES sounds more like a permanent problem, while EBUSY
+> > is always a temporary issue.
+> > 
+> > The problem with EACESS is that the user may think that the file
+> > permissions at the /dev/cec? are wrong.
+> 
+> Hmm, OK. I'm not entirely convinced, but I don't think it is a big deal either.
+> 
+> Besides, now I don't need to change anything :-)
+
+OK.
+
+> 
+> Regards,
+> 
+> 	Hans
 
 
---uQr8t48UFsdbeI+V
-Content-Type: application/pgp-signature; name="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXY95kAAoJEBQN5MwUoCm2PksP/1CKxdlsv4CGUsDcB9p1KWAK
-2NXvkX8STXB/UDcsk715P9dw4lZ9AWelwikBLE8JgHltIM4J8aKFbmszBjsTEJig
-j/23wWsYvEOpODMJXamPVNxLHPA4N64NE9KuiW8JcPiCU+SlNUUoMdSe/jZetgy4
-n0q2/ECURS4nMCjg44P8dSj6Orh8huQRnWOkEeptI6BGa7TfxfdUjvQbMl0RDmFk
-L9fOIV9X6exFOB1haG1eijwi1ch+o2G2k8s1IYwzIfHk/i0wy2KD2qyzTIGm4IP9
-YB52IaVgQnfOAZcRfcb0Yds58sq9OSFgE5W/BRyWYZdXLUQnH9gLO18bdg2cyD46
-QI23Gi8xJToaLqgwag4MzeWgCcjkLfc1f3nNEliby2WItM4dzArm/oH669rq5zMP
-rVlts0B+esS7sFEDbe88UWG3QaEu9oBwgrpnYV2xzXQlRX8q4MJKfL6V0JDYaR4S
-9lCQtqDNqcgwS5iHB0V6aXLI4dVT9Ea5tD5mXkGG/cKnszijYgbyRguoMbEPe3V8
-i5/4lIW83x3t6O6JpEYKZ3ha17e/L4N8vXXok372PIUJnGv5VDMxm9G6GP4SpvCV
-/OcUhNdIHb8QkyFWIxoN+wCa3xulscCiFUx76+rrnppxJV0EeV4THBKmDnwy2EtK
-lBNqxLU5FPwiyLlhF+uQ
-=+DYJ
------END PGP SIGNATURE-----
-
---uQr8t48UFsdbeI+V--
+Thanks,
+Mauro

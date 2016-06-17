@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH v4 6/9] Input: atmel_mxt_ts - handle diagnostic data orientation
-Date: Fri, 17 Jun 2016 15:16:25 +0100
-Message-ID: <1466172988-3698-7-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH v4 8/9] Input: atmel_mxt_ts - add support for reference data
+Date: Fri, 17 Jun 2016 15:16:27 +0100
+Message-ID: <1466172988-3698-9-git-send-email-nick.dyer@itdev.co.uk>
 References: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,95 +10,133 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.n
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-Invert the diagnostic data to match the orientation of the input device.
+There are different datatypes available from a maXTouch chip. Add
+support to retrieve reference data as well.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 58 ++++++++++++++++++++++++++++----
+ 1 file changed, 51 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 3c5b7d3..2a03636 100644
+index 5281325d..bb01fb0 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -125,6 +125,8 @@ struct t9_range {
+@@ -135,6 +135,7 @@ struct t9_range {
+ /* MXT_DEBUG_DIAGNOSTIC_T37 */
+ #define MXT_DIAGNOSTIC_PAGEUP	0x01
+ #define MXT_DIAGNOSTIC_DELTAS	0x10
++#define MXT_DIAGNOSTIC_REFS	0x11
+ #define MXT_DIAGNOSTIC_SIZE	128
  
- /* MXT_TOUCH_MULTI_T9 orient */
- #define MXT_T9_ORIENT_SWITCH	(1 << 0)
-+#define MXT_T9_ORIENT_INVERTX	(1 << 1)
-+#define MXT_T9_ORIENT_INVERTY	(1 << 2)
+ #define MXT_FAMILY_1386			160
+@@ -249,6 +250,12 @@ struct mxt_dbg {
+ 	int input;
+ };
  
- /* MXT_SPT_COMMSCONFIG_T18 */
- #define MXT_COMMS_CTRL		0
-@@ -158,6 +160,8 @@ struct t37_debug {
- #define MXT_T100_YRANGE		24
- 
- #define MXT_T100_CFG_SWITCHXY	BIT(5)
-+#define MXT_T100_CFG_INVERTY	BIT(6)
-+#define MXT_T100_CFG_INVERTX	BIT(7)
- 
- #define MXT_T100_TCHAUX_VECT	BIT(0)
- #define MXT_T100_TCHAUX_AMPL	BIT(1)
-@@ -262,6 +266,8 @@ struct mxt_data {
- 	unsigned int irq;
- 	unsigned int max_x;
- 	unsigned int max_y;
-+	bool invertx;
-+	bool inverty;
- 	bool xy_switch;
- 	u8 xsize;
- 	u8 ysize;
-@@ -1747,6 +1753,8 @@ static int mxt_read_t9_resolution(struct mxt_data *data)
- 		return error;
- 
- 	data->xy_switch = orient & MXT_T9_ORIENT_SWITCH;
-+	data->invertx = orient & MXT_T9_ORIENT_INVERTX;
-+	data->inverty = orient & MXT_T9_ORIENT_INVERTY;
- 
- 	return 0;
- }
-@@ -1801,6 +1809,8 @@ static int mxt_read_t100_config(struct mxt_data *data)
- 		return error;
- 
- 	data->xy_switch = cfg & MXT_T100_CFG_SWITCHXY;
-+	data->invertx = cfg & MXT_T100_CFG_INVERTX;
-+	data->inverty = cfg & MXT_T100_CFG_INVERTY;
- 
- 	/* allocate aux bytes */
- 	error =  __mxt_read_reg(client,
-@@ -2145,13 +2155,19 @@ static int mxt_convert_debug_pages(struct mxt_data *data, u16 *outbuf)
- 	struct mxt_dbg *dbg = &data->dbg;
- 	unsigned int x = 0;
- 	unsigned int y = 0;
--	unsigned int i;
-+	unsigned int i, rx, ry;
- 
- 	for (i = 0; i < dbg->t37_nodes; i++) {
--		outbuf[i] = mxt_get_debug_value(data, x, y);
-+		/* Handle orientation */
-+		rx = data->xy_switch ? y : x;
-+		ry = data->xy_switch ? x : y;
-+		rx = data->invertx ? (data->xsize - 1 - rx) : rx;
-+		ry = data->inverty ? (data->ysize - 1 - ry) : ry;
++enum v4l_dbg_inputs {
++	MXT_V4L_INPUT_DELTAS,
++	MXT_V4L_INPUT_REFS,
++	MXT_V4L_INPUT_MAX,
++};
 +
-+		outbuf[i] = mxt_get_debug_value(data, rx, ry);
+ static const struct v4l2_file_operations mxt_video_fops = {
+ 	.owner = THIS_MODULE,
+ 	.open = v4l2_fh_open,
+@@ -2273,6 +2280,7 @@ static void mxt_buffer_queue(struct vb2_buffer *vb)
+ 	struct mxt_data *data = vb2_get_drv_priv(vb->vb2_queue);
+ 	u16 *ptr;
+ 	int ret;
++	u8 mode;
  
- 		/* Next value */
--		if (++x >= data->xsize) {
-+		if (++x >= (data->xy_switch ? data->ysize : data->xsize)) {
- 			x = 0;
- 			y++;
- 		}
-@@ -2306,8 +2322,8 @@ static int mxt_set_input(struct mxt_data *data, unsigned int i)
- 	if (i > 0)
+ 	ptr = vb2_plane_vaddr(vb, 0);
+ 	if (!ptr) {
+@@ -2280,7 +2288,18 @@ static void mxt_buffer_queue(struct vb2_buffer *vb)
+ 		goto fault;
+ 	}
+ 
+-	ret = mxt_read_diagnostic_debug(data, MXT_DIAGNOSTIC_DELTAS, ptr);
++	switch (data->dbg.input) {
++	case MXT_V4L_INPUT_DELTAS:
++	default:
++		mode = MXT_DIAGNOSTIC_DELTAS;
++		break;
++
++	case MXT_V4L_INPUT_REFS:
++		mode = MXT_DIAGNOSTIC_REFS;
++		break;
++	}
++
++	ret = mxt_read_diagnostic_debug(data, mode, ptr);
+ 	if (ret)
+ 		goto fault;
+ 
+@@ -2325,11 +2344,20 @@ static int mxt_vidioc_querycap(struct file *file, void *priv,
+ static int mxt_vidioc_enum_input(struct file *file, void *priv,
+ 				   struct v4l2_input *i)
+ {
+-	if (i->index > 0)
++	if (i->index >= MXT_V4L_INPUT_MAX)
  		return -EINVAL;
  
--	f->width = data->xsize;
--	f->height = data->ysize;
-+	f->width = data->xy_switch ? data->ysize : data->xsize;
-+	f->height = data->xy_switch ? data->xsize : data->ysize;
- 	f->pixelformat = V4L2_PIX_FMT_YS16;
+ 	i->type = V4L2_INPUT_TYPE_TOUCH_SENSOR;
+-	strlcpy(i->name, "Mutual References", sizeof(i->name));
++
++	switch (i->index) {
++	case MXT_V4L_INPUT_REFS:
++		strlcpy(i->name, "Mutual References", sizeof(i->name));
++		break;
++	case MXT_V4L_INPUT_DELTAS:
++		strlcpy(i->name, "Mutual Deltas", sizeof(i->name));
++		break;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -2337,12 +2365,16 @@ static int mxt_set_input(struct mxt_data *data, unsigned int i)
+ {
+ 	struct v4l2_pix_format *f = &data->dbg.format;
+ 
+-	if (i > 0)
++	if (i >= MXT_V4L_INPUT_MAX)
+ 		return -EINVAL;
+ 
++	if (i == MXT_V4L_INPUT_DELTAS)
++		f->pixelformat = V4L2_PIX_FMT_YS16;
++	else
++		f->pixelformat = V4L2_PIX_FMT_Y16;
++
+ 	f->width = data->xy_switch ? data->ysize : data->xsize;
+ 	f->height = data->xy_switch ? data->xsize : data->ysize;
+-	f->pixelformat = V4L2_PIX_FMT_YS16;
  	f->field = V4L2_FIELD_NONE;
  	f->colorspace = V4L2_COLORSPACE_RAW;
+ 	f->bytesperline = f->width * sizeof(u16);
+@@ -2380,10 +2412,22 @@ static int mxt_vidioc_fmt(struct file *file, void *priv, struct v4l2_format *f)
+ static int mxt_vidioc_enum_fmt(struct file *file, void *priv,
+ 				 struct v4l2_fmtdesc *fmt)
+ {
+-	if (fmt->index > 0 || fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
++	if (fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
++		return -EINVAL;
++
++	switch (fmt->index) {
++	case 0:
++		fmt->pixelformat = V4L2_PIX_FMT_Y16;
++		break;
++
++	case 1:
++		fmt->pixelformat = V4L2_PIX_FMT_YS16;
++		break;
++
++	default:
+ 		return -EINVAL;
++	}
+ 
+-	fmt->pixelformat = V4L2_PIX_FMT_YS16;
+ 	return 0;
+ }
+ 
 -- 
 2.5.0

@@ -1,80 +1,174 @@
 From: Dennis Chen <barracks510@gmail.com>
-Subject: Re: [PATCH] HID: multitouch: add support for Type Cover Pro 3
-Date: Sat, 18 Jun 2016 11:53:14 -0700
-Message-ID: <1466275994.2669.11.camel@gmail.com>
-References: <1466196443.21223.1.camel@gmail.com>
-	 <alpine.LNX.2.00.1606172259110.6874@cbobk.fhfr.pm>
-	 <20160617211142.GH24234@mail.corp.redhat.com>
+Subject: [PATCH v2] HID: multitouch: add support for Type Cover Pro 3
+Date: Sat, 18 Jun 2016 12:19:11 -0700
+Message-ID: <1466277551.2669.13.camel@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg="sha-512";
 	protocol="application/x-pkcs7-signature";
-	boundary="=-5tZdwWtedZcA7MysKe16"
+	boundary="=-XEcQgoE6WF27ELie7vgd"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f49.google.com ([209.85.218.49]:34764 "EHLO
-	mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751433AbcFRSx3 (ORCPT
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:33930 "EHLO
+	mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750813AbcFRTTU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Jun 2016 14:53:29 -0400
-Received: by mail-oi0-f49.google.com with SMTP id d132so160311274oig.1
-        for <linux-input@vger.kernel.org>; Sat, 18 Jun 2016 11:53:24 -0700 (PDT)
-In-Reply-To: <20160617211142.GH24234@mail.corp.redhat.com>
+	Sat, 18 Jun 2016 15:19:20 -0400
+Received: by mail-oi0-f65.google.com with SMTP id a64so19148426oii.1
+        for <linux-input@vger.kernel.org>; Sat, 18 Jun 2016 12:19:19 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org
+Cc: linux-input <linux-input@vger.kernel.org>
 
 
---=-5tZdwWtedZcA7MysKe16
+--=-XEcQgoE6WF27ELie7vgd
 Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-h4B5mpggF1w+612/ZlKm"
+	protocol="application/pgp-signature"; boundary="=-JN+RZHQcwc1Ib+LFd7Ym"
 
 
---=-h4B5mpggF1w+612/ZlKm
+--=-JN+RZHQcwc1Ib+LFd7Ym
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2016-06-17 at 23:11 +0200, Benjamin Tissoires wrote:
-> On Jun 17 2016 or thereabouts, Jiri Kosina wrote:
-> > This would mean that both hid-multitouch and hid-microsoft would
-> > claim=C2=A0support for this device, which isn't really going to provide
-> > consistent=C2=A0user experience. Is MT_CLS_EXPORT_ALL_INPUTS sufficient
-> > to provide=C2=A0complete functionality by hid-multitouch? If so, the
-> > support from=C2=A0hid-microsoft should be dropped.
+Include Microsoft Type Cover 3 support into hid-multitouch.c
+Allow touchpad device to have multitouch functionality.
+Drop Type Cover 3 support in hid-microsoft.c
 
-I find MT_CLS_EXPORT_ALL_INPUTS to make the Type Cover 3 near
-completely functional. I'll send a PATCHv2 to drop hid-microsoft
-support. However, hid-microsoft provided Caps-Lock LED control, which
-hid-multitouch does not; I'm not sure how to fix this.=C2=A0
+Signed-off-by: Dennis Chen <barracks510@gmail.com>
+---
+=C2=A0drivers/hid/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0|=C2=A0=C2=A01 +
+=C2=A0drivers/hid/hid-core.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0| 10 =
++---------
+=C2=A0drivers/hid/hid-microsoft.c=C2=A0=C2=A0|=C2=A0=C2=A08 --------
+=C2=A0drivers/hid/hid-multitouch.c | 14 ++++++++++++++
+=C2=A04 files changed, 16 insertions(+), 17 deletions(-)
 
-> Also, please see if the series with the 2 following patches is not
-> sufficient enough:
-> http://www.spinics.net/lists/linux-input/msg44576.html
-> http://www.spinics.net/lists/linux-input/msg44577.html
->=20
-> If you just adapt the second patch to add your ids, it should
-> hopefully be working (though the surface book is not for some unknown
-> reasons
-> yet).
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 5646ca4..5af0603 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -530,6 +530,7 @@ config HID_MULTITOUCH
+=C2=A0	=C2=A0=C2=A0- IrTouch Infrared USB panels
+=C2=A0	=C2=A0=C2=A0- LG Display panels (Dell ST2220Tc)
+=C2=A0	=C2=A0=C2=A0- Lumio CrystalTouch panels
++	=C2=A0=C2=A0- Microsoft Type Cover 3 touchpad
+=C2=A0	=C2=A0=C2=A0- MosArt dual-touch panels
+=C2=A0	=C2=A0=C2=A0- Panasonic multitouch panels
+=C2=A0	=C2=A0=C2=A0- PenMount dual touch panels
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8ea3a26..ddeadd9 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -724,11 +724,7 @@ static void hid_scan_collection(struct hid_parser *par=
+ser, unsigned type)
+=C2=A0		hid->group =3D HID_GROUP_SENSOR_HUB;
+=C2=A0
+=C2=A0	if (hid->vendor =3D=3D USB_VENDOR_ID_MICROSOFT &&
+-	=C2=A0=C2=A0=C2=A0=C2=A0(hid->product =3D=3D USB_DEVICE_ID_MS_TYPE_COVER_=
+PRO_3 ||
+-	=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0hid->product =3D=3D USB_DEVICE_ID_MS_TYPE_C=
+OVER_PRO_3_2 ||
+-	=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0hid->product =3D=3D USB_DEVICE_ID_MS_TYPE_C=
+OVER_PRO_3_JP ||
+-	=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0hid->product =3D=3D USB_DEVICE_ID_MS_TYPE_C=
+OVER_3 ||
+-	=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0hid->product =3D=3D USB_DEVICE_ID_MS_POWER_=
+COVER) &&
++	=C2=A0=C2=A0=C2=A0=C2=A0hid->product =3D=3D USB_DEVICE_ID_MS_POWER_COVER =
+&&
+=C2=A0	=C2=A0=C2=A0=C2=A0=C2=A0hid->group =3D=3D HID_GROUP_MULTITOUCH)
+=C2=A0		hid->group =3D HID_GROUP_GENERIC;
+=C2=A0
+@@ -1973,10 +1969,6 @@ static const struct hid_device_id hid_have_special_d=
+river[] =3D {
+=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_M=
+EDIA_3K) },
+=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPT=
+ICAL_DESKTOP_3_0) },
+=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB=
+) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO=
+_3) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO=
+_3_2) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO=
+_3_JP) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) =
+},
+=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_M=
+EDIA_7K) },
+=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_M=
+EDIA_600) },
+=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_M=
+EDIA_3KV1) },
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index e924d55..b88a429 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -282,14 +282,6 @@ static const struct hid_device_id ms_devices[] =3D {
+=C2=A0		.driver_data =3D MS_NOGET },
+=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_M=
+OUSE_4500),
+=C2=A0		.driver_data =3D MS_DUPLICATE_USAGES },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO=
+_3),
+-		.driver_data =3D MS_HIDINPUT },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO=
+_3_2),
+-		.driver_data =3D MS_HIDINPUT },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO=
+_3_JP),
+-		.driver_data =3D MS_HIDINPUT },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
+-		.driver_data =3D MS_HIDINPUT },
+=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COV=
+ER),
+=C2=A0		.driver_data =3D MS_HIDINPUT },
+=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_K=
+EYBOARD),
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 95b7d61..1bf002f 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1377,6 +1377,20 @@ static const struct hid_device_id mt_devices[] =3D {
+=C2=A0		MT_USB_DEVICE(USB_VENDOR_ID_ILITEK,
+=C2=A0			USB_DEVICE_ID_ILITEK_MULTITOUCH) },
+=C2=A0
++	/* Microsoft Type Cover 3 touchpad */
++	{ .driver_data =3D MT_CLS_EXPORT_ALL_INPUTS,
++		MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
++			USB_DEVICE_ID_MS_TYPE_COVER_PRO_3) },
++	{ .driver_data =3D MT_CLS_EXPORT_ALL_INPUTS,
++		MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
++			USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
++	{ .driver_data =3D MT_CLS_EXPORT_ALL_INPUTS,
++		MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
++			USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
++	{ .driver_data =3D MT_CLS_EXPORT_ALL_INPUTS,
++		MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
++			USB_DEVICE_ID_MS_TYPE_COVER_3) },
++
+=C2=A0	/* MosArt panels */
+=C2=A0	{ .driver_data =3D MT_CLS_CONFIDENCE_MINUS_ONE,
+=C2=A0		MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
+--=C2=A0
+2.5.5
 
-I'll test this out sometime this week, and get back to you.=C2=A0
-
-Sincerely,
-Dennis Chen
---=-h4B5mpggF1w+612/ZlKm
+--=-JN+RZHQcwc1Ib+LFd7Ym
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iEYEABEKAAYFAldlmJoACgkQpXlhF/qpw/kpkgCgt73UKryVz/XiZx+3bewsHVtU
-bOcAnRUw4hvpw4e4EdaSpjx+4mtzEJRn
-=xEt+
+iEYEABEKAAYFAldlnq8ACgkQpXlhF/qpw/nY9QCgzkt3g+pTm9vkb7L4zYlqr6Bc
+ZU0AoNWgN4r+ZXMAZZF/JFitzd5H5wyc
+=80zR
 -----END PGP SIGNATURE-----
 
---=-h4B5mpggF1w+612/ZlKm--
+--=-JN+RZHQcwc1Ib+LFd7Ym--
 
---=-5tZdwWtedZcA7MysKe16
+--=-XEcQgoE6WF27ELie7vgd
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Disposition: attachment; filename="smime.p7s"
 Content-Transfer-Encoding: base64
@@ -167,20 +261,20 @@ lFe6fQ1t5j5R0xi72MZ8ikMu1RQZKCyDbMwazlHiMYIDnzCCA5sCAQEwgZQwgYwxCzAJBgNVBAYT
 AklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0
 aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJt
 ZWRpYXRlIENsaWVudCBDQQIDEA1LMA0GCWCGSAFlAwQCAwUAoIIB2zAYBgkqhkiG9w0BCQMxCwYJ
-KoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xNjA2MTgxODUzMTdaME8GCSqGSIb3DQEJBDFCBEDq
-Yj1aGdg7mxfrgucwthJG7XlZS2ROjzh5SCri3uAYD2ejTIXNI0+CNv+9YrUzHH9iKMUIDL5wVXPL
-3/+6e2FKMIGlBgkrBgEEAYI3EAQxgZcwgZQwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFy
+KoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xNjA2MTgxOTE5MTZaME8GCSqGSIb3DQEJBDFCBEDM
+wCf9zE9nmCERvohJYuzgyNXz6Cz4Mx+zkQw5YuaeW4RpawGeTa6gnTzICyHo00EfKMmTmlKzJdSC
+cOnSIpFGMIGlBgkrBgEEAYI3EAQxgZcwgZQwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFy
 dENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgw
 NgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQQID
 EA1LMIGnBgsqhkiG9w0BCRACCzGBl6CBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0
 Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2
 BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMQ
-DUswDQYJKoZIhvcNAQEBBQAEggEANnSLJ/1vS+npeVxjlxP9jm8fTAHuK/4cEw2D+pZGHnmjrx0m
-OYsthXJXoO4o593kmZyICSImTHNxF+OsDzUv+z17FGEkSWCCOx0iWXFzkdDHITAYe9FmG++rZHq0
-6+KiFhfA0tm5aUIVqzPS9/yIxQp2m2WKxJIqJgEH8PGQJ/j7dncI+2TQDIiJrD+e7q4GfvyeuNaX
-0+sEvsOMVh+qGDrYnjedEblpK9c1cttwQEdKZnl+8rwT2/JKMgtyD6coxekLhxVh1u3EVy4ZEZCl
-CfBjwKQMPxGSC82aiH9NYDsug0guEHn5LqZLvQQVdbzJilSFfivKLNtuwYiIpWoamAAAAAAAAA==
+DUswDQYJKoZIhvcNAQEBBQAEggEAbLmdncMZHnjuTOI253QCzr/fI3Z7F4IDTAhFug/IWUo/cQqf
+kC7lC0IfqvB8O+twAoaP9nNqzCaXOz0snXgqlV1a9omzt92vXb7apvg7dNJa9NaT5hUjvmDkCFoA
+b9yRh7OIqnN+wT5oplUOLJg6g4ksmLg0thdOw2mfZ4x+SlS94zxf+CEfrdDNG9kB6ELLBi2RzB7y
+2xYrL0rDaEvhApAwjUS/Q62fv2rg68jQTq/GgEOCQdoL7EifJjs3IqwyZ0HUPw+ledX8zLXzj7bv
+mc+uUVjcGaL7EXLaJhr+TtgFwTxTlYGirjDlHpdLGVVxrob9FipL7JZNK2e330DwYQAAAAAAAA==
 
 
---=-5tZdwWtedZcA7MysKe16--
+--=-XEcQgoE6WF27ELie7vgd--
 

@@ -1,280 +1,75 @@
-From: Dennis Chen <barracks510@gmail.com>
-Subject: [PATCH v2] HID: multitouch: add support for Type Cover Pro 3
-Date: Sat, 18 Jun 2016 12:19:11 -0700
-Message-ID: <1466277551.2669.13.camel@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: multitouch: add support for Type Cover Pro 3
+Date: Sat, 18 Jun 2016 21:45:34 +0200
+Message-ID: <20160618194534.GI24234@mail.corp.redhat.com>
+References: <1466196443.21223.1.camel@gmail.com>
+ <alpine.LNX.2.00.1606172259110.6874@cbobk.fhfr.pm>
+ <20160617211142.GH24234@mail.corp.redhat.com>
+ <1466275994.2669.11.camel@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="sha-512";
-	protocol="application/x-pkcs7-signature";
-	boundary="=-XEcQgoE6WF27ELie7vgd"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:33930 "EHLO
-	mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750813AbcFRTTU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Jun 2016 15:19:20 -0400
-Received: by mail-oi0-f65.google.com with SMTP id a64so19148426oii.1
-        for <linux-input@vger.kernel.org>; Sat, 18 Jun 2016 12:19:19 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:49292 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750813AbcFRTpj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 18 Jun 2016 15:45:39 -0400
+Content-Disposition: inline
+In-Reply-To: <1466275994.2669.11.camel@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Dennis Chen <barracks510@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
+
+On Jun 18 2016 or thereabouts, Dennis Chen wrote:
+> On Fri, 2016-06-17 at 23:11 +0200, Benjamin Tissoires wrote:
+> > On Jun 17 2016 or thereabouts, Jiri Kosina wrote:
+> > > This would mean that both hid-multitouch and hid-microsoft would
+> > > claim=C2=A0support for this device, which isn't really going to p=
+rovide
+> > > consistent=C2=A0user experience. Is MT_CLS_EXPORT_ALL_INPUTS suff=
+icient
+> > > to provide=C2=A0complete functionality by hid-multitouch? If so, =
+the
+> > > support from=C2=A0hid-microsoft should be dropped.
+>=20
+> I find MT_CLS_EXPORT_ALL_INPUTS to make the Type Cover 3 near
+> completely functional. I'll send a PATCHv2 to drop hid-microsoft
+> support. However, hid-microsoft provided Caps-Lock LED control, which
+> hid-multitouch does not; I'm not sure how to fix this.=C2=A0
+
+That's the entire purpose of the series I mentioned below. It adds
+the keyboard support, caps lock and multitouch, so there is nothing mor=
+e
+to fix once it is in. The benefit is that MT_CLS_EXPORT_ALL_INPUTS
+exports far too many input devices while the series exports only the
+required ones.
+
+>=20
+> > Also, please see if the series with the 2 following patches is not
+> > sufficient enough:
+> > http://www.spinics.net/lists/linux-input/msg44576.html
+> > http://www.spinics.net/lists/linux-input/msg44577.html
+> >=20
+> > If you just adapt the second patch to add your ids, it should
+> > hopefully be working (though the surface book is not for some unkno=
+wn
+> > reasons
+> > yet).
+>=20
+> I'll test this out sometime this week, and get back to you.=C2=A0
+>=20
+
+Thanks.
+
+Cheers,
+Benjamin
 
 
---=-XEcQgoE6WF27ELie7vgd
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-JN+RZHQcwc1Ib+LFd7Ym"
 
 
---=-JN+RZHQcwc1Ib+LFd7Ym
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-Include Microsoft Type Cover 3 support into hid-multitouch.c
-Allow touchpad device to have multitouch functionality.
-Drop Type Cover 3 support in hid-microsoft.c
-
-Signed-off-by: Dennis Chen <barracks510@gmail.com>
----
-=C2=A0drivers/hid/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0|=C2=A0=C2=A01 +
-=C2=A0drivers/hid/hid-core.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0| 10 =
-+---------
-=C2=A0drivers/hid/hid-microsoft.c=C2=A0=C2=A0|=C2=A0=C2=A08 --------
-=C2=A0drivers/hid/hid-multitouch.c | 14 ++++++++++++++
-=C2=A04 files changed, 16 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 5646ca4..5af0603 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -530,6 +530,7 @@ config HID_MULTITOUCH
-=C2=A0	=C2=A0=C2=A0- IrTouch Infrared USB panels
-=C2=A0	=C2=A0=C2=A0- LG Display panels (Dell ST2220Tc)
-=C2=A0	=C2=A0=C2=A0- Lumio CrystalTouch panels
-+	=C2=A0=C2=A0- Microsoft Type Cover 3 touchpad
-=C2=A0	=C2=A0=C2=A0- MosArt dual-touch panels
-=C2=A0	=C2=A0=C2=A0- Panasonic multitouch panels
-=C2=A0	=C2=A0=C2=A0- PenMount dual touch panels
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 8ea3a26..ddeadd9 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -724,11 +724,7 @@ static void hid_scan_collection(struct hid_parser *par=
-ser, unsigned type)
-=C2=A0		hid->group =3D HID_GROUP_SENSOR_HUB;
-=C2=A0
-=C2=A0	if (hid->vendor =3D=3D USB_VENDOR_ID_MICROSOFT &&
--	=C2=A0=C2=A0=C2=A0=C2=A0(hid->product =3D=3D USB_DEVICE_ID_MS_TYPE_COVER_=
-PRO_3 ||
--	=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0hid->product =3D=3D USB_DEVICE_ID_MS_TYPE_C=
-OVER_PRO_3_2 ||
--	=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0hid->product =3D=3D USB_DEVICE_ID_MS_TYPE_C=
-OVER_PRO_3_JP ||
--	=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0hid->product =3D=3D USB_DEVICE_ID_MS_TYPE_C=
-OVER_3 ||
--	=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0hid->product =3D=3D USB_DEVICE_ID_MS_POWER_=
-COVER) &&
-+	=C2=A0=C2=A0=C2=A0=C2=A0hid->product =3D=3D USB_DEVICE_ID_MS_POWER_COVER =
-&&
-=C2=A0	=C2=A0=C2=A0=C2=A0=C2=A0hid->group =3D=3D HID_GROUP_MULTITOUCH)
-=C2=A0		hid->group =3D HID_GROUP_GENERIC;
-=C2=A0
-@@ -1973,10 +1969,6 @@ static const struct hid_device_id hid_have_special_d=
-river[] =3D {
-=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_M=
-EDIA_3K) },
-=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPT=
-ICAL_DESKTOP_3_0) },
-=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB=
-) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO=
-_3) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO=
-_3_2) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO=
-_3_JP) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) =
-},
-=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_M=
-EDIA_7K) },
-=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_M=
-EDIA_600) },
-=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_M=
-EDIA_3KV1) },
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index e924d55..b88a429 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -282,14 +282,6 @@ static const struct hid_device_id ms_devices[] =3D {
-=C2=A0		.driver_data =3D MS_NOGET },
-=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_M=
-OUSE_4500),
-=C2=A0		.driver_data =3D MS_DUPLICATE_USAGES },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO=
-_3),
--		.driver_data =3D MS_HIDINPUT },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO=
-_3_2),
--		.driver_data =3D MS_HIDINPUT },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO=
-_3_JP),
--		.driver_data =3D MS_HIDINPUT },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
--		.driver_data =3D MS_HIDINPUT },
-=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COV=
-ER),
-=C2=A0		.driver_data =3D MS_HIDINPUT },
-=C2=A0	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_K=
-EYBOARD),
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 95b7d61..1bf002f 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1377,6 +1377,20 @@ static const struct hid_device_id mt_devices[] =3D {
-=C2=A0		MT_USB_DEVICE(USB_VENDOR_ID_ILITEK,
-=C2=A0			USB_DEVICE_ID_ILITEK_MULTITOUCH) },
-=C2=A0
-+	/* Microsoft Type Cover 3 touchpad */
-+	{ .driver_data =3D MT_CLS_EXPORT_ALL_INPUTS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-+			USB_DEVICE_ID_MS_TYPE_COVER_PRO_3) },
-+	{ .driver_data =3D MT_CLS_EXPORT_ALL_INPUTS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-+			USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
-+	{ .driver_data =3D MT_CLS_EXPORT_ALL_INPUTS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-+			USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
-+	{ .driver_data =3D MT_CLS_EXPORT_ALL_INPUTS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-+			USB_DEVICE_ID_MS_TYPE_COVER_3) },
-+
-=C2=A0	/* MosArt panels */
-=C2=A0	{ .driver_data =3D MT_CLS_CONFIDENCE_MINUS_ONE,
-=C2=A0		MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
---=C2=A0
-2.5.5
-
---=-JN+RZHQcwc1Ib+LFd7Ym
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iEYEABEKAAYFAldlnq8ACgkQpXlhF/qpw/nY9QCgzkt3g+pTm9vkb7L4zYlqr6Bc
-ZU0AoNWgN4r+ZXMAZZF/JFitzd5H5wyc
-=80zR
------END PGP SIGNATURE-----
-
---=-JN+RZHQcwc1Ib+LFd7Ym--
-
---=-XEcQgoE6WF27ELie7vgd
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgMFADCABgkqhkiG9w0BBwEAAKCCEpow
-ggYtMIIFFaADAgECAgMQDUswDQYJKoZIhvcNAQELBQAwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQK
-Ew1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWdu
-aW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVu
-dCBDQTAeFw0xNTExMTEyMTQzMDFaFw0xNjExMTEwNjMxNDZaMEYxHjAcBgNVBAMMFWJhcnJhY2tz
-NTEwQGdtYWlsLmNvbTEkMCIGCSqGSIb3DQEJARYVYmFycmFja3M1MTBAZ21haWwuY29tMIIBIjAN
-BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtUHVaynx14U0iy8HenmG993oaTFzZ/OfQ0zoqsQl
-MUt3XYwz9OdMG+UJq7+ilA2NSPzYnOBqJr0nYVlkX+cQpVlP2+/AtJ5bB/ScugNTOYn4cLqdc8ki
-sAy+zNAPCwaF3Jrn16KxU7ufLut6kD56Nr8lX3/vD3XkPBbP3sn5wBEOV2u5NruJ/iS3/augzcww
-vm5HSnH/JJ3rZNQ83lxyE5Nu0N7BW0FJ4CioavdhzN8bjvAfV7JM6CjcsTlujlrZYGKI/ByJuaUG
-MduXhb/3H9UPtsvpQ/PLdlzpj9z4DVnJMtWQPJ3JM26d4ObmuYq8tk3nxnDwDG7HooF/k2VHYwID
-AQABo4IC2zCCAtcwCQYDVR0TBAIwADALBgNVHQ8EBAMCBLAwHQYDVR0lBBYwFAYIKwYBBQUHAwIG
-CCsGAQUFBwMEMB0GA1UdDgQWBBSph2B2A/xOxyzrDpSUkPUU8CqJpjAfBgNVHSMEGDAWgBRTcu2S
-nODaywFcfH6WNU7y1LhRgjAgBgNVHREEGTAXgRViYXJyYWNrczUxMEBnbWFpbC5jb20wggFMBgNV
-HSAEggFDMIIBPzCCATsGCysGAQQBgbU3AQIDMIIBKjAuBggrBgEFBQcCARYiaHR0cDovL3d3dy5z
-dGFydHNzbC5jb20vcG9saWN5LnBkZjCB9wYIKwYBBQUHAgIwgeowJxYgU3RhcnRDb20gQ2VydGlm
-aWNhdGlvbiBBdXRob3JpdHkwAwIBARqBvlRoaXMgY2VydGlmaWNhdGUgd2FzIGlzc3VlZCBhY2Nv
-cmRpbmcgdG8gdGhlIENsYXNzIDEgVmFsaWRhdGlvbiByZXF1aXJlbWVudHMgb2YgdGhlIFN0YXJ0
-Q29tIENBIHBvbGljeSwgcmVsaWFuY2Ugb25seSBmb3IgdGhlIGludGVuZGVkIHB1cnBvc2UgaW4g
-Y29tcGxpYW5jZSBvZiB0aGUgcmVseWluZyBwYXJ0eSBvYmxpZ2F0aW9ucy4wNgYDVR0fBC8wLTAr
-oCmgJ4YlaHR0cDovL2NybC5zdGFydHNzbC5jb20vY3J0dTEtY3JsLmNybDCBjgYIKwYBBQUHAQEE
-gYEwfzA5BggrBgEFBQcwAYYtaHR0cDovL29jc3Auc3RhcnRzc2wuY29tL3N1Yi9jbGFzczEvY2xp
-ZW50L2NhMEIGCCsGAQUFBzAChjZodHRwOi8vYWlhLnN0YXJ0c3NsLmNvbS9jZXJ0cy9zdWIuY2xh
-c3MxLmNsaWVudC5jYS5jcnQwIwYDVR0SBBwwGoYYaHR0cDovL3d3dy5zdGFydHNzbC5jb20vMA0G
-CSqGSIb3DQEBCwUAA4IBAQCIDk1zzs0LWnAI1exQQZWoJosQPN99h91Es4Bs5jx2d2OhY34EEI9b
-B5qz7n7yI/7nWIkBOmmsAOtj4FVJFHk1SL9yJ1HuuhWMbaAjwjPlm0M8AHq1n1qBHozus0EMPFrv
-DK6Hf5uZGqsPfEZ2DUCXxXUXxjWzbzL5LLIMdn6O2cz0X4FrFJAnDgxvGw2m819YBFp9FPn4hIWV
-Cj3fwQxu1RntQa4nIbofKq4WPJk8jK77S3daV4vc1BtKNOlX9uxegdc8xPAhVpFYeKgzejMR3ho+
-BgNyPffd/l02O/RYxx3RMP4OmADnZPUN5Xg/he7AIweCv47JAkqgNSMwIz9cMIIGLTCCBRWgAwIB
-AgIDEA1LMA0GCSqGSIb3DQEBCwUAMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20g
-THRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UE
-AxMvU3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQgQ0EwHhcNMTUx
-MTExMjE0MzAxWhcNMTYxMTExMDYzMTQ2WjBGMR4wHAYDVQQDDBViYXJyYWNrczUxMEBnbWFpbC5j
-b20xJDAiBgkqhkiG9w0BCQEWFWJhcnJhY2tzNTEwQGdtYWlsLmNvbTCCASIwDQYJKoZIhvcNAQEB
-BQADggEPADCCAQoCggEBALVB1Wsp8deFNIsvB3p5hvfd6Gkxc2fzn0NM6KrEJTFLd12MM/TnTBvl
-Cau/opQNjUj82Jzgaia9J2FZZF/nEKVZT9vvwLSeWwf0nLoDUzmJ+HC6nXPJIrAMvszQDwsGhdya
-59eisVO7ny7repA+eja/JV9/7w915DwWz97J+cARDldruTa7if4kt/2roM3MML5uR0px/ySd62TU
-PN5cchOTbtDewVtBSeAoqGr3YczfG47wH1eyTOgo3LE5bo5a2WBiiPwcibmlBjHbl4W/9x/VD7bL
-6UPzy3Zc6Y/c+A1ZyTLVkDydyTNuneDm5rmKvLZN58Zw8Axux6KBf5NlR2MCAwEAAaOCAtswggLX
-MAkGA1UdEwQCMAAwCwYDVR0PBAQDAgSwMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDAd
-BgNVHQ4EFgQUqYdgdgP8Tscs6w6UlJD1FPAqiaYwHwYDVR0jBBgwFoAUU3Ltkpzg2ssBXHx+ljVO
-8tS4UYIwIAYDVR0RBBkwF4EVYmFycmFja3M1MTBAZ21haWwuY29tMIIBTAYDVR0gBIIBQzCCAT8w
-ggE7BgsrBgEEAYG1NwECAzCCASowLgYIKwYBBQUHAgEWImh0dHA6Ly93d3cuc3RhcnRzc2wuY29t
-L3BvbGljeS5wZGYwgfcGCCsGAQUFBwICMIHqMCcWIFN0YXJ0Q29tIENlcnRpZmljYXRpb24gQXV0
-aG9yaXR5MAMCAQEagb5UaGlzIGNlcnRpZmljYXRlIHdhcyBpc3N1ZWQgYWNjb3JkaW5nIHRvIHRo
-ZSBDbGFzcyAxIFZhbGlkYXRpb24gcmVxdWlyZW1lbnRzIG9mIHRoZSBTdGFydENvbSBDQSBwb2xp
-Y3ksIHJlbGlhbmNlIG9ubHkgZm9yIHRoZSBpbnRlbmRlZCBwdXJwb3NlIGluIGNvbXBsaWFuY2Ug
-b2YgdGhlIHJlbHlpbmcgcGFydHkgb2JsaWdhdGlvbnMuMDYGA1UdHwQvMC0wK6ApoCeGJWh0dHA6
-Ly9jcmwuc3RhcnRzc2wuY29tL2NydHUxLWNybC5jcmwwgY4GCCsGAQUFBwEBBIGBMH8wOQYIKwYB
-BQUHMAGGLWh0dHA6Ly9vY3NwLnN0YXJ0c3NsLmNvbS9zdWIvY2xhc3MxL2NsaWVudC9jYTBCBggr
-BgEFBQcwAoY2aHR0cDovL2FpYS5zdGFydHNzbC5jb20vY2VydHMvc3ViLmNsYXNzMS5jbGllbnQu
-Y2EuY3J0MCMGA1UdEgQcMBqGGGh0dHA6Ly93d3cuc3RhcnRzc2wuY29tLzANBgkqhkiG9w0BAQsF
-AAOCAQEAiA5Nc87NC1pwCNXsUEGVqCaLEDzffYfdRLOAbOY8dndjoWN+BBCPWweas+5+8iP+51iJ
-ATpprADrY+BVSRR5NUi/cidR7roVjG2gI8Iz5ZtDPAB6tZ9agR6M7rNBDDxa7wyuh3+bmRqrD3xG
-dg1Al8V1F8Y1s28y+SyyDHZ+jtnM9F+BaxSQJw4MbxsNpvNfWARafRT5+ISFlQo938EMbtUZ7UGu
-JyG6HyquFjyZPIyu+0t3WleL3NQbSjTpV/bsXoHXPMTwIVaRWHioM3ozEd4aPgYDcj333f5dNjv0
-WMcd0TD+DpgA52T1DeV4P4XuwCMHgr+OyQJKoDUjMCM/XDCCBjQwggQcoAMCAQICAR4wDQYJKoZI
-hvcNAQEFBQAwfTELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0ZC4xKzApBgNVBAsT
-IlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxKTAnBgNVBAMTIFN0YXJ0Q29tIENl
-cnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTA3MTAyNDIxMDE1NVoXDTE3MTAyNDIxMDE1NVowgYwx
-CzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGln
-aXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1h
-cnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
-AMcJg8zOLdgasSmkLhOrlr6KMoOMpohBllVHrdRvEg/q6r8jR+EK75xCGhR8ToREoqe7zM9/UnC6
-TS2y9UKTpT1v7RSMzR0t6ndl0TWBuUr/UXBhPk+Kmy7bI4yW4urC+y7P3/1/X7U8ocb8VpH/Clt+
-4iq7nirMcNh6qJR+xjOhV+VHzQMALuGYn5KZmc1NbJQYclsGkDxDz2UbFqE2+6vIZoL+jb9x4Pa5
-gNf1TwSDkOkikZB1xtB4ZqtXThaABSONdfmv/Z1pua3FYxnCFmdr/+N2JLKutIxMYqQOJebr/f/h
-5t95m4JgrM3Y/w7YX9d7YAL9jvN4SydHsU6n65cCAwEAAaOCAa0wggGpMA8GA1UdEwEB/wQFMAMB
-Af8wDgYDVR0PAQH/BAQDAgEGMB0GA1UdDgQWBBRTcu2SnODaywFcfH6WNU7y1LhRgjAfBgNVHSME
-GDAWgBROC+8apEBbpRdphzDKNGhD0EGu8jBmBggrBgEFBQcBAQRaMFgwJwYIKwYBBQUHMAGGG2h0
-dHA6Ly9vY3NwLnN0YXJ0c3NsLmNvbS9jYTAtBggrBgEFBQcwAoYhaHR0cDovL3d3dy5zdGFydHNz
-bC5jb20vc2ZzY2EuY3J0MFsGA1UdHwRUMFIwJ6AloCOGIWh0dHA6Ly93d3cuc3RhcnRzc2wuY29t
-L3Nmc2NhLmNybDAnoCWgI4YhaHR0cDovL2NybC5zdGFydHNzbC5jb20vc2ZzY2EuY3JsMIGABgNV
-HSAEeTB3MHUGCysGAQQBgbU3AQIBMGYwLgYIKwYBBQUHAgEWImh0dHA6Ly93d3cuc3RhcnRzc2wu
-Y29tL3BvbGljeS5wZGYwNAYIKwYBBQUHAgEWKGh0dHA6Ly93d3cuc3RhcnRzc2wuY29tL2ludGVy
-bWVkaWF0ZS5wZGYwDQYJKoZIhvcNAQEFBQADggIBAAqDCH14qywGXLhjjF6uHLkjd02hcdh9hrw+
-VUsv+q1eeQWB21jWj3kJ96AUlPCoEGZ/ynJNScWy6QMVQjbbMXltUfO4n4bGGdKo3awPWp61tjAF
-graLJgDk+DsSvUD6EowjMTNx25GQgyYJ5RPIzKKR9tQW8gGK+2+RHxkUCTbYFnL6kl8Ch507rUdP
-PipJ9CgJFws3kDS3gOS5WFMxcjO5DwKfKSETEPrHh7p5shuuNktvsv6hxHTLhiMKX893gxdT3XLS
-9OKmCv87vkINQcNEcIIoFWbP9HORz9v3vQwR4e3ksLc2JZOAFK+ssS5XMEoznzpihEP0PLc4dCBY
-jbvSD7kxgDwZ+Aj8Q9PkbvE9sIPP7ON0fz095HdThKjiVJe6vofq+n6b1NBc8XdrQvBmunwxD5nv
-tTW4vtN6VY7mUCmxsCieuoBJ9OlqmsVWQvifIYf40dJPZkk9YgGTzWLpXDSfLSplbY2LL9C9U0pt
-vjcDjefLTvqSFc7tw1sEhF0n/qpA2r0GpvkLRDmcSwVyPvmjFBGqUp/pNy8ZuPGQmHwFi2/14+xe
-SUDG2bwnsYJQG2EdJCB6luQ57GEnTA/yKZSTKI8dDQa8Sd3zfXb19mOgSF0bBdXbuKhEpuP9wirs
-lFe6fQ1t5j5R0xi72MZ8ikMu1RQZKCyDbMwazlHiMYIDnzCCA5sCAQEwgZQwgYwxCzAJBgNVBAYT
-AklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0
-aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJt
-ZWRpYXRlIENsaWVudCBDQQIDEA1LMA0GCWCGSAFlAwQCAwUAoIIB2zAYBgkqhkiG9w0BCQMxCwYJ
-KoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xNjA2MTgxOTE5MTZaME8GCSqGSIb3DQEJBDFCBEDM
-wCf9zE9nmCERvohJYuzgyNXz6Cz4Mx+zkQw5YuaeW4RpawGeTa6gnTzICyHo00EfKMmTmlKzJdSC
-cOnSIpFGMIGlBgkrBgEEAYI3EAQxgZcwgZQwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFy
-dENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgw
-NgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQQID
-EA1LMIGnBgsqhkiG9w0BCRACCzGBl6CBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0
-Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2
-BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMQ
-DUswDQYJKoZIhvcNAQEBBQAEggEAbLmdncMZHnjuTOI253QCzr/fI3Z7F4IDTAhFug/IWUo/cQqf
-kC7lC0IfqvB8O+twAoaP9nNqzCaXOz0snXgqlV1a9omzt92vXb7apvg7dNJa9NaT5hUjvmDkCFoA
-b9yRh7OIqnN+wT5oplUOLJg6g4ksmLg0thdOw2mfZ4x+SlS94zxf+CEfrdDNG9kB6ELLBi2RzB7y
-2xYrL0rDaEvhApAwjUS/Q62fv2rg68jQTq/GgEOCQdoL7EifJjs3IqwyZ0HUPw+ledX8zLXzj7bv
-mc+uUVjcGaL7EXLaJhr+TtgFwTxTlYGirjDlHpdLGVVxrob9FipL7JZNK2e330DwYQAAAAAAAA==
-
-
---=-XEcQgoE6WF27ELie7vgd--
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

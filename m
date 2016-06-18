@@ -1,164 +1,450 @@
-From: Dennis Chen <barracks510@gmail.com>
-Subject: Re: [PATCH] HID: multitouch: add support for Type Cover Pro 3
-Date: Sat, 18 Jun 2016 16:13:33 -0700
-Message-ID: <1466291613.2680.10.camel@gmail.com>
-References: <1466196443.21223.1.camel@gmail.com>
-	 <alpine.LNX.2.00.1606172259110.6874@cbobk.fhfr.pm>
-	 <20160617211142.GH24234@mail.corp.redhat.com>
-	 <1466275994.2669.11.camel@gmail.com>
-	 <20160618194534.GI24234@mail.corp.redhat.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Canonical has own Ubuntu driver for ALPS 73 03 28 devices
+Date: Sun, 19 Jun 2016 01:43:46 +0200
+Message-ID: <201606190143.46444@pali>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="sha-512";
-	protocol="application/x-pkcs7-signature";
-	boundary="=-7MA+9j4QImfSIuHiTuPv"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f49.google.com ([209.85.218.49]:35055 "EHLO
-	mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751074AbcFRXNp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Jun 2016 19:13:45 -0400
-Received: by mail-oi0-f49.google.com with SMTP id a64so11507015oii.2
-        for <linux-input@vger.kernel.org>; Sat, 18 Jun 2016 16:13:45 -0700 (PDT)
-In-Reply-To: <20160618194534.GI24234@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed;
+  boundary="nextPart7376420.ge59iZbc9q";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ben Gamari <ben@smart-cactus.org>, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Ben Morgan <Ben_Morgan@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
+
+--nextPart7376420.ge59iZbc9q
+Content-Type: multipart/mixed;
+  boundary="Boundary-01=_yydZXAj2jABGOwU"
+Content-Transfer-Encoding: 7bit
 
 
---=-7MA+9j4QImfSIuHiTuPv
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-P3oQQLJNLMuIcN5InlWK"
-
-
---=-P3oQQLJNLMuIcN5InlWK
-Content-Type: text/plain
+--Boundary-01=_yydZXAj2jABGOwU
+Content-Type: Text/Plain;
+  charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+I did not know about it since I found:
 
-Sincerely,
-Dennis Chen
---=-P3oQQLJNLMuIcN5InlWK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+http://oem.archive.canonical.com/pool/public/o/oem-alps-touchpad-1521052-dk=
+ms/oem-alps-touchpad-1521052-dkms_1oem7_all.deb
+
+If you are interested extracted patch is in attachment.
+
+I do not understand it... Why Canonical is hidden and don't communicate
+with rest of world? Otherwise touchpads could work out-of-box on non
+Ubuntu systems too with mainline kernel.
+
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--Boundary-01=_yydZXAj2jABGOwU
+Content-Type: text/x-patch;
+  charset="UTF-8";
+  name="alps.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="alps.patch"
+
+=2D-- alps.c	2016-06-19 01:26:34.755016680 +0200
++++ alps.c	2016-02-03 07:09:04.000000000 +0100
+@@ -159,6 +159,10 @@ static const struct alps_protocol_info a
+ 	ALPS_PROTO_V8, 0x18, 0x18, 0
+ };
+=20
++static const struct alps_protocol_info alps_flare_protocol_data =3D {
++	ALPS_PROTO_FLARE, 0x18, 0x18, 0
++};
++
+ /*
+  * Some v2 models report the stick buttons in separate bits
+  */
+@@ -509,7 +513,7 @@ static void alps_report_mt_data(struct p
+ 	struct alps_fields *f =3D &priv->f;
+ 	int i, slot[MAX_TOUCHES];
+=20
+=2D	input_mt_assign_slots(dev, slot, f->mt, n, 0);
++	input_mt_assign_slots(dev, slot, f->mt, n);
+ 	for (i =3D 0; i < n; i++)
+ 		alps_set_slot(dev, slot[i], f->mt[i].x, f->mt[i].y);
+=20
+@@ -716,6 +720,84 @@ static int alps_decode_dolphin(struct al
+ 	return 0;
+ }
+=20
++static int alps_decode_flare_standard(struct alps_fields *f, unsigned char=
+ *p,
++				struct psmouse *psmouse)
++{
++	if (FLARE_IS_1F_PACKET(p)) {
++		f->fingers =3D 1;
++		f->st.x =3D FLARE_1F_X(p);
++		f->st.y =3D FLARE_1F_Y(p);
++		f->pressure =3D FLARE_1F_Z(p);
++		f->mt[0].x =3D f->st.x;
++		f->mt[0].y =3D f->st.y;
++
++		f->middle =3D !!(FLARE_STD_BTN(p) & 0x04);
++		f->right =3D !!(FLARE_STD_BTN(p) & 0x02);
++		f->left =3D !!(FLARE_STD_BTN(p) & 0x01);
++
++		/* Guard */
++		if (f->pressure =3D=3D 0) {
++			f->fingers =3D 0;
++		}
++	} else if (FLARE_IS_2F_PACKET(p)) {
++		f->fingers =3D 2;
++		if (FLARE_MF_Z(p, 0) =3D=3D 1) {
++			f->pressure =3D 64;
++		} else if (FLARE_MF_Z(p, 0) =3D=3D 2) {
++			f->pressure =3D 127;
++		}
++
++		f->mt[0].x =3D FLARE_STD_MF_X(p, 0);
++		f->mt[0].y =3D FLARE_STD_MF_Y(p, 0);
++		f->mt[1].x =3D FLARE_STD_MF_X(p, 1);
++		f->mt[1].y =3D FLARE_STD_MF_Y(p, 1);
++
++		f->st.x =3D f->mt[0].x;
++		f->st.y =3D f->mt[0].y;
++	}
++
++	return 0;
++}
++
++static int alps_decode_flare_buttonless(struct alps_fields *f, unsigned ch=
+ar *p,
++				struct psmouse *psmouse)
++{
++	if (FLARE_IS_1F_PACKET(p)) {
++		f->fingers =3D 1;
++		f->st.x =3D FLARE_1F_X(p);
++		f->st.y =3D FLARE_1F_Y(p);
++		f->pressure =3D FLARE_1F_LFB(p) ? 127 : 64;
++		f->mt[0].x =3D f->st.x;
++		f->mt[0].y =3D f->st.y;
++
++		/* Guard.
++		 * How the Z value is calculated is arbitrary. :-) */
++		if (FLARE_1F_Z(p) =3D=3D 0) {
++			f->fingers =3D 0;
++			f->pressure =3D 0;
++		} else if (FLARE_1F_Z(p) < 6) {
++			f->pressure =3D FLARE_1F_Z(p) * 12;
++		}
++	} else if (FLARE_IS_2F_PACKET(p)) {
++		f->fingers =3D 2;
++		if (FLARE_MF_Z(p, 0) =3D=3D 1) {
++			f->pressure =3D 64;
++		} else if (FLARE_MF_Z(p, 0) =3D=3D 2) {
++			f->pressure =3D 127;
++		}
++
++		f->mt[0].x =3D FLARE_BTL_MF_X(p, 0);
++		f->mt[0].y =3D FLARE_BTL_MF_Y(p, 0);
++		f->mt[1].x =3D FLARE_BTL_MF_X(p, 1);
++		f->mt[1].y =3D FLARE_BTL_MF_Y(p, 1);
++
++		f->st.x =3D f->mt[0].x;
++		f->st.y =3D f->mt[0].y;
++	}
++
++	return 0;
++}
++
+ static void alps_process_touchpad_packet_v3_v5(struct psmouse *psmouse)
+ {
+ 	struct alps_data *priv =3D psmouse->private;
+@@ -793,6 +875,66 @@ static void alps_process_touchpad_packet
+ 		input_sync(dev2);
+ 	}
+ }
++static void alps_process_touchpad_packet_flare(struct psmouse *psmouse)
++{
++	struct alps_data *priv =3D psmouse->private;
++	unsigned char *packet =3D psmouse->packet;
++	struct input_dev *dev =3D psmouse->dev;
++	int x1 =3D 0, y1 =3D 0, x2 =3D 0, y2 =3D 0;
++	int fingers =3D 0;
++	struct alps_fields *f =3D &priv->f;
++
++	priv->decode_fields(f, packet, psmouse);
++
++	fingers =3D f->fingers;
++	x1 =3D f->mt[0].x;
++	y1 =3D f->mt[0].y;
++	x2 =3D f->mt[1].x;
++	y2 =3D f->mt[1].y;
++
++	/*
++	 * Sometimes the hardware sends a single packet with z =3D 0
++	 * in the middle of a stream. Real releases generate packets
++	 * with x, y, and z all zero, so these seem to be flukes.
++	 * Ignore them.
++	 */
++	if (f->st.x && f->st.y && !f->pressure)
++		return;
++
++	if (f->pressure > 0)
++		input_report_key(dev, BTN_TOUCH, 1);
++	else
++		input_report_key(dev, BTN_TOUCH, 0);
++
++
++	input_mt_slot(dev, 0);
++	input_mt_report_slot_state(dev, MT_TOOL_FINGER, fingers !=3D 0);
++	if (fingers !=3D 0) {
++		input_report_abs(dev, ABS_MT_POSITION_X, x1);
++		input_report_abs(dev, ABS_MT_POSITION_Y, y1);
++	}
++
++	input_mt_slot(dev, 1);
++	input_mt_report_slot_state(dev, MT_TOOL_FINGER, fingers =3D=3D 2);
++	if (fingers =3D=3D 2) {
++		input_report_abs(dev, ABS_MT_POSITION_X, x2);
++		input_report_abs(dev, ABS_MT_POSITION_Y, y2);
++	}
++
++	input_mt_report_finger_count(dev, fingers);
++
++	input_report_key(dev, BTN_LEFT, f->left);
++	input_report_key(dev, BTN_RIGHT, f->right);
++	input_report_key(dev, BTN_MIDDLE, f->middle);
++
++	if (f->pressure > 0) {
++		input_report_abs(dev, ABS_X, f->st.x);
++		input_report_abs(dev, ABS_Y, f->st.y);
++	}
++	input_report_abs(dev, ABS_PRESSURE, f->pressure);
++
++	input_sync(dev);
++}
+=20
+ static void alps_process_packet_v3(struct psmouse *psmouse)
+ {
+@@ -1545,6 +1687,7 @@ static psmouse_ret_t alps_process_byte(s
+ 	 * Can not distinguish V8's first byte from PS/2 packet's
+ 	 */
+ 	if (priv->proto_version !=3D ALPS_PROTO_V8 &&
++	    priv->proto_version !=3D ALPS_PROTO_FLARE && /* Ss5 use absolute mode=
+ */
+ 	    !psmouse->out_of_sync_cnt &&
+ 	    (psmouse->packet[0] & 0xc8) =3D=3D 0x08) {
+=20
+@@ -2518,6 +2661,24 @@ static int alps_hw_init_dolphin_v1(struc
+ 	return 0;
+ }
+=20
++static int alps_hw_init_flare(struct psmouse *psmouse)
++{
++	struct ps2dev *ps2dev =3D &psmouse->ps2dev;
++	unsigned char param[2];
++
++	/* This is dolphin "v1" as empirically defined by florin9doi */
++	param[0] =3D 0x64;
++	param[1] =3D 0x28;
++
++	if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSTREAM) ||
++	    ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSTREAM) ||
++	    ps2_command(ps2dev, &param[0], PSMOUSE_CMD_SETRATE) ||
++	    ps2_command(ps2dev, &param[1], PSMOUSE_CMD_SETRATE))
++		return -1;
++
++	return 0;
++}
++
+ static int alps_hw_init_v7(struct psmouse *psmouse)
+ {
+ 	struct ps2dev *ps2dev =3D &psmouse->ps2dev;
+@@ -2576,10 +2737,29 @@ error:
+ 	return ret;
+ }
+=20
++static void alps_set_abs_params_mt(struct alps_data *priv,
++				   struct input_dev *dev1)
++{
++	set_bit(INPUT_PROP_SEMI_MT, dev1->propbit);
++	input_mt_init_slots(dev1, 2, 0);
++	input_set_abs_params(dev1, ABS_MT_POSITION_X, 0, priv->x_max, 0, 0);
++	input_set_abs_params(dev1, ABS_MT_POSITION_Y, 0, priv->y_max, 0, 0);
++
++	set_bit(BTN_TOOL_DOUBLETAP, dev1->keybit);
++	set_bit(BTN_TOOL_TRIPLETAP, dev1->keybit);
++	set_bit(BTN_TOOL_QUADTAP, dev1->keybit);
++
++	input_set_abs_params(dev1, ABS_X, 0, priv->x_max, 0, 0);
++	input_set_abs_params(dev1, ABS_Y, 0, priv->y_max, 0, 0);
++}
++
+ static int alps_set_protocol(struct psmouse *psmouse,
+ 			     struct alps_data *priv,
+ 			     const struct alps_protocol_info *protocol)
+ {
++	unsigned char flare_config_page[3];
++	struct ps2dev *ps2dev =3D &psmouse->ps2dev;
++
+ 	psmouse->private =3D priv;
+=20
+ 	setup_timer(&priv->timer, alps_flush_packet, (unsigned long)psmouse);
+@@ -2654,6 +2834,52 @@ static int alps_set_protocol(struct psmo
+=20
+ 		break;
+=20
++	case ALPS_PROTO_FLARE:
++		priv->hw_init =3D alps_hw_init_flare;
++		priv->process_packet =3D alps_process_touchpad_packet_flare;
++		priv->set_abs_params =3D alps_set_abs_params_mt;
++		priv->nibble_commands =3D alps_v3_nibble_commands;
++		priv->addr_command =3D PSMOUSE_CMD_RESET_WRAP;
++		priv->x_bits =3D 12;
++		priv->y_bits =3D 12;
++
++		/* Read configure page 0 */
++		if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE21) ||
++		    ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE21) ||
++		    ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE21) ||
++		    ps2_command(ps2dev, flare_config_page, PSMOUSE_CMD_GETINFO) ||
++		    ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSTREAM) ||
++		    ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSTREAM) ||
++		    ps2_command(ps2dev, flare_config_page, PSMOUSE_CMD_GETINFO)) {
++			return -EIO;
++		}
++
++		priv->x_max =3D (flare_config_page[2] & 0x0f) + 16 - 1;
++		priv->y_max =3D ((flare_config_page[2] >> 4) & 0x0f) + 5 - 1;
++
++		/* Read configure page 1 */
++		if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETPOLL) ||
++		    ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETPOLL) ||
++		    ps2_command(ps2dev, flare_config_page, PSMOUSE_CMD_GETINFO)) {
++			return -EIO;
++		}
++
++		/* b1 of byte0 of configure page 1: Pad Button Emulation
++		 * 	0: No,  standard mode
++		 * 	1: Yes, buttonless(or force) mode */
++		if ((flare_config_page[0] & 0x02)) {
++			priv->decode_fields =3D alps_decode_flare_buttonless;
++			priv->x_max <<=3D 6;
++			priv->y_max <<=3D 6;
++
++		} else {
++			priv->decode_fields =3D alps_decode_flare_standard;
++			priv->x_max <<=3D 7;
++			priv->y_max <<=3D 7;
++		}
++
++		break;
++
+ 	case ALPS_PROTO_V6:
+ 		priv->hw_init =3D alps_hw_init_v6;
+ 		priv->process_packet =3D alps_process_packet_v6;
+@@ -2744,7 +2970,6 @@ static int alps_identify(struct psmouse
+ 			 PSMOUSE_CMD_RESET_WRAP, ec) ||
+ 	    alps_exit_command_mode(psmouse))
+ 		return -EIO;
+=2D
+ 	protocol =3D alps_match_table(e7, ec);
+ 	if (!protocol) {
+ 		if (e7[0] =3D=3D 0x73 && e7[1] =3D=3D 0x03 && e7[2] =3D=3D 0x50 &&
+@@ -2761,6 +2986,8 @@ static int alps_identify(struct psmouse
+ 		} else if (e7[0] =3D=3D 0x73 && e7[1] =3D=3D 0x03 &&
+ 			   e7[2] =3D=3D 0x14 && ec[1] =3D=3D 0x02) {
+ 			protocol =3D &alps_v8_protocol_data;
++		} else if (e7[0] =3D=3D 0x73 && e7[1] =3D=3D 0x03 && e7[2] =3D=3D 0x28) {
++			protocol =3D &alps_flare_protocol_data;
+ 		} else {
+ 			psmouse_dbg(psmouse,
+ 				    "Likely not an ALPS touchpad: E7=3D%3ph, EC=3D%3ph\n", e7, ec);
+=2D-- alps.h	2016-06-19 01:34:46.745006525 +0200
++++ alps.h	2016-02-03 07:09:04.000000000 +0100
+@@ -20,6 +20,7 @@
+ #define ALPS_PROTO_V3_RUSHMORE	0x310
+ #define ALPS_PROTO_V4		0x400
+ #define ALPS_PROTO_V5		0x500
++#define ALPS_PROTO_FLARE	0x510
+ #define ALPS_PROTO_V6		0x600
+ #define ALPS_PROTO_V7		0x700	/* t3btl t4s */
+ #define ALPS_PROTO_V8		0x800	/* SS4btl SS4s */
+@@ -122,6 +123,58 @@ enum V7_PACKET_ID {
+ 	 V7_PACKET_ID_UNKNOWN,
+ };
+=20
++/* Packet identification Macros for Flare Version2               */
++/* ------------------------------------------------------------- */
++/* FLARE_IS_1F_PACKET	=3D Recognizes 1-finger packet from others */
++/* FLARE_IS_2F_PACKET	=3D Recognizes 2-finger packet from others */
++#define	FLARE_IS_1F_PACKET(_b) ((((_b[3] >> 4) & 0x01) =3D=3D 0) && (((_b[=
+3] >> 5) & 0x01) =3D=3D 0))
++#define	FLARE_IS_2F_PACKET(_b) ((((_b[3] >> 4) & 0x01) =3D=3D 0x01) && (((=
+_b[3] >> 5) & 0x01) =3D=3D 0))
++#define	FLARE_1F_Z(_b) (((_b[5]     ) & 0x0F) |		\
++			((_b[5] >> 1) & 0x70) |		\
++			((_b[4]     ) & 0x80)		\
++			)
++
++
++#define	FLARE_1F_X(_b) ((_b[0] & 0x0007) |	  \
++			((_b[1] << 3) & 0x0078) | \
++			((_b[1] << 2) & 0x0380) | \
++			((_b[2] << 5) & 0x0C00)	  \
++			)
++#define	FLARE_1F_Y(_b) (((_b[2]     ) & 0x000F) |		\
++			((_b[3] >> 2) & 0x0030) |		\
++			((_b[4] << 6) & 0x03C0) |		\
++			((_b[4] << 5) & 0x0C00)			\
++			)
++
++#define	FLARE_1F_LFB(_b) (((_b[2] >> 4) & 0x01) =3D=3D 0x01)
++#define	FLARE_MF_Z(_b, _i) (((_b[1 + _i * 3]     ) & 0x0001) |	\
++			    ((_b[1 + _i * 3] >> 1) & 0x0002)	\
++			    )
++#define	FLARE_MF_LF(_b, _i) ((_b[1 + _i * 3] & 0x0004) =3D=3D 0x0004)
++
++/* Packet decoding macros of - Normal HW composition      */
++/* ------------------------------------------------------ */
++/* FLARE_STD_BTN	=3D 3-bit (; ---- ---- ---- -210 )  */
++/* FLARE_STD_MF_X	=3D 8-bit	(; ---- BA98 7654 ---- )  */
++/* FLARE_STD_MF_Y	=3D 8-bit	(; ---- BA98 7654 ---- )  */
++#define	FLARE_STD_BTN(_b) ((_b[0] >> 5 ) & 0x07)
++#define	FLARE_STD_MF_X(_b, _i) (((_b[0 + _i * 3] << 4) & 0x0070) |	\
++				((_b[1 + _i * 3] << 4) & 0x0F80)	\
++				)
++#define	FLARE_STD_MF_Y(_b, _i) (((_b[1 + _i * 3] << 3) & 0x0010) |	\
++				((_b[2 + _i * 3] << 5) & 0x01E0) |	\
++				((_b[2 + _i * 3] << 4) & 0x0E00)	\
++				)
++
++/* Packet decoding macros of  - Buttonless HW composition   */
++/* -------------------------------------------------------- */
++/* FLARE_BTL_MF_X	=3D 9-bit	(; ---- BA98 7654 3--- )    */
++/* FLARE_BTL_MF_Y	=3D 9-bit	(; ---- BA98 7654 3--- )    */
++#define	FLARE_BTL_MF_X(_b, _i) (FLARE_STD_MF_X(_b, _i) | ((_b[0 + _i * 3] =
+>> 4) & 0x0008))
++#define	FLARE_BTL_MF_Y(_b, _i) (FLARE_STD_MF_Y(_b, _i) | ((_b[0 + _i * 3] =
+>> 3) & 0x0008))
++
++
++
+ /**
+  * struct alps_protocol_info - information about protocol used by a device
+  * @version: Indicates V1/V2/V3/...
+
+--Boundary-01=_yydZXAj2jABGOwU--
+
+--nextPart7376420.ge59iZbc9q
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-iEYEABEKAAYFAldl1Z4ACgkQpXlhF/qpw/kJkgCgt3TuNKrpb8inrjuCXXQPN7Lz
-dj8AoMkZS+mBFM2ZeQbTLXHJUSRriOHJ
-=R9Qo
+iEYEABECAAYFAldl3LIACgkQi/DJPQPkQ1IQ4ACcCGD53DGlv91PVesQg7+bIIxG
+UK8AnA27uL2yQCg3fRqNv09hiPVLpsGX
+=qOaw
 -----END PGP SIGNATURE-----
 
---=-P3oQQLJNLMuIcN5InlWK--
-
---=-7MA+9j4QImfSIuHiTuPv
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgMFADCABgkqhkiG9w0BBwEAAKCCEpow
-ggYtMIIFFaADAgECAgMQDUswDQYJKoZIhvcNAQELBQAwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQK
-Ew1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWdu
-aW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVu
-dCBDQTAeFw0xNTExMTEyMTQzMDFaFw0xNjExMTEwNjMxNDZaMEYxHjAcBgNVBAMMFWJhcnJhY2tz
-NTEwQGdtYWlsLmNvbTEkMCIGCSqGSIb3DQEJARYVYmFycmFja3M1MTBAZ21haWwuY29tMIIBIjAN
-BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtUHVaynx14U0iy8HenmG993oaTFzZ/OfQ0zoqsQl
-MUt3XYwz9OdMG+UJq7+ilA2NSPzYnOBqJr0nYVlkX+cQpVlP2+/AtJ5bB/ScugNTOYn4cLqdc8ki
-sAy+zNAPCwaF3Jrn16KxU7ufLut6kD56Nr8lX3/vD3XkPBbP3sn5wBEOV2u5NruJ/iS3/augzcww
-vm5HSnH/JJ3rZNQ83lxyE5Nu0N7BW0FJ4CioavdhzN8bjvAfV7JM6CjcsTlujlrZYGKI/ByJuaUG
-MduXhb/3H9UPtsvpQ/PLdlzpj9z4DVnJMtWQPJ3JM26d4ObmuYq8tk3nxnDwDG7HooF/k2VHYwID
-AQABo4IC2zCCAtcwCQYDVR0TBAIwADALBgNVHQ8EBAMCBLAwHQYDVR0lBBYwFAYIKwYBBQUHAwIG
-CCsGAQUFBwMEMB0GA1UdDgQWBBSph2B2A/xOxyzrDpSUkPUU8CqJpjAfBgNVHSMEGDAWgBRTcu2S
-nODaywFcfH6WNU7y1LhRgjAgBgNVHREEGTAXgRViYXJyYWNrczUxMEBnbWFpbC5jb20wggFMBgNV
-HSAEggFDMIIBPzCCATsGCysGAQQBgbU3AQIDMIIBKjAuBggrBgEFBQcCARYiaHR0cDovL3d3dy5z
-dGFydHNzbC5jb20vcG9saWN5LnBkZjCB9wYIKwYBBQUHAgIwgeowJxYgU3RhcnRDb20gQ2VydGlm
-aWNhdGlvbiBBdXRob3JpdHkwAwIBARqBvlRoaXMgY2VydGlmaWNhdGUgd2FzIGlzc3VlZCBhY2Nv
-cmRpbmcgdG8gdGhlIENsYXNzIDEgVmFsaWRhdGlvbiByZXF1aXJlbWVudHMgb2YgdGhlIFN0YXJ0
-Q29tIENBIHBvbGljeSwgcmVsaWFuY2Ugb25seSBmb3IgdGhlIGludGVuZGVkIHB1cnBvc2UgaW4g
-Y29tcGxpYW5jZSBvZiB0aGUgcmVseWluZyBwYXJ0eSBvYmxpZ2F0aW9ucy4wNgYDVR0fBC8wLTAr
-oCmgJ4YlaHR0cDovL2NybC5zdGFydHNzbC5jb20vY3J0dTEtY3JsLmNybDCBjgYIKwYBBQUHAQEE
-gYEwfzA5BggrBgEFBQcwAYYtaHR0cDovL29jc3Auc3RhcnRzc2wuY29tL3N1Yi9jbGFzczEvY2xp
-ZW50L2NhMEIGCCsGAQUFBzAChjZodHRwOi8vYWlhLnN0YXJ0c3NsLmNvbS9jZXJ0cy9zdWIuY2xh
-c3MxLmNsaWVudC5jYS5jcnQwIwYDVR0SBBwwGoYYaHR0cDovL3d3dy5zdGFydHNzbC5jb20vMA0G
-CSqGSIb3DQEBCwUAA4IBAQCIDk1zzs0LWnAI1exQQZWoJosQPN99h91Es4Bs5jx2d2OhY34EEI9b
-B5qz7n7yI/7nWIkBOmmsAOtj4FVJFHk1SL9yJ1HuuhWMbaAjwjPlm0M8AHq1n1qBHozus0EMPFrv
-DK6Hf5uZGqsPfEZ2DUCXxXUXxjWzbzL5LLIMdn6O2cz0X4FrFJAnDgxvGw2m819YBFp9FPn4hIWV
-Cj3fwQxu1RntQa4nIbofKq4WPJk8jK77S3daV4vc1BtKNOlX9uxegdc8xPAhVpFYeKgzejMR3ho+
-BgNyPffd/l02O/RYxx3RMP4OmADnZPUN5Xg/he7AIweCv47JAkqgNSMwIz9cMIIGLTCCBRWgAwIB
-AgIDEA1LMA0GCSqGSIb3DQEBCwUAMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20g
-THRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UE
-AxMvU3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQgQ0EwHhcNMTUx
-MTExMjE0MzAxWhcNMTYxMTExMDYzMTQ2WjBGMR4wHAYDVQQDDBViYXJyYWNrczUxMEBnbWFpbC5j
-b20xJDAiBgkqhkiG9w0BCQEWFWJhcnJhY2tzNTEwQGdtYWlsLmNvbTCCASIwDQYJKoZIhvcNAQEB
-BQADggEPADCCAQoCggEBALVB1Wsp8deFNIsvB3p5hvfd6Gkxc2fzn0NM6KrEJTFLd12MM/TnTBvl
-Cau/opQNjUj82Jzgaia9J2FZZF/nEKVZT9vvwLSeWwf0nLoDUzmJ+HC6nXPJIrAMvszQDwsGhdya
-59eisVO7ny7repA+eja/JV9/7w915DwWz97J+cARDldruTa7if4kt/2roM3MML5uR0px/ySd62TU
-PN5cchOTbtDewVtBSeAoqGr3YczfG47wH1eyTOgo3LE5bo5a2WBiiPwcibmlBjHbl4W/9x/VD7bL
-6UPzy3Zc6Y/c+A1ZyTLVkDydyTNuneDm5rmKvLZN58Zw8Axux6KBf5NlR2MCAwEAAaOCAtswggLX
-MAkGA1UdEwQCMAAwCwYDVR0PBAQDAgSwMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDAd
-BgNVHQ4EFgQUqYdgdgP8Tscs6w6UlJD1FPAqiaYwHwYDVR0jBBgwFoAUU3Ltkpzg2ssBXHx+ljVO
-8tS4UYIwIAYDVR0RBBkwF4EVYmFycmFja3M1MTBAZ21haWwuY29tMIIBTAYDVR0gBIIBQzCCAT8w
-ggE7BgsrBgEEAYG1NwECAzCCASowLgYIKwYBBQUHAgEWImh0dHA6Ly93d3cuc3RhcnRzc2wuY29t
-L3BvbGljeS5wZGYwgfcGCCsGAQUFBwICMIHqMCcWIFN0YXJ0Q29tIENlcnRpZmljYXRpb24gQXV0
-aG9yaXR5MAMCAQEagb5UaGlzIGNlcnRpZmljYXRlIHdhcyBpc3N1ZWQgYWNjb3JkaW5nIHRvIHRo
-ZSBDbGFzcyAxIFZhbGlkYXRpb24gcmVxdWlyZW1lbnRzIG9mIHRoZSBTdGFydENvbSBDQSBwb2xp
-Y3ksIHJlbGlhbmNlIG9ubHkgZm9yIHRoZSBpbnRlbmRlZCBwdXJwb3NlIGluIGNvbXBsaWFuY2Ug
-b2YgdGhlIHJlbHlpbmcgcGFydHkgb2JsaWdhdGlvbnMuMDYGA1UdHwQvMC0wK6ApoCeGJWh0dHA6
-Ly9jcmwuc3RhcnRzc2wuY29tL2NydHUxLWNybC5jcmwwgY4GCCsGAQUFBwEBBIGBMH8wOQYIKwYB
-BQUHMAGGLWh0dHA6Ly9vY3NwLnN0YXJ0c3NsLmNvbS9zdWIvY2xhc3MxL2NsaWVudC9jYTBCBggr
-BgEFBQcwAoY2aHR0cDovL2FpYS5zdGFydHNzbC5jb20vY2VydHMvc3ViLmNsYXNzMS5jbGllbnQu
-Y2EuY3J0MCMGA1UdEgQcMBqGGGh0dHA6Ly93d3cuc3RhcnRzc2wuY29tLzANBgkqhkiG9w0BAQsF
-AAOCAQEAiA5Nc87NC1pwCNXsUEGVqCaLEDzffYfdRLOAbOY8dndjoWN+BBCPWweas+5+8iP+51iJ
-ATpprADrY+BVSRR5NUi/cidR7roVjG2gI8Iz5ZtDPAB6tZ9agR6M7rNBDDxa7wyuh3+bmRqrD3xG
-dg1Al8V1F8Y1s28y+SyyDHZ+jtnM9F+BaxSQJw4MbxsNpvNfWARafRT5+ISFlQo938EMbtUZ7UGu
-JyG6HyquFjyZPIyu+0t3WleL3NQbSjTpV/bsXoHXPMTwIVaRWHioM3ozEd4aPgYDcj333f5dNjv0
-WMcd0TD+DpgA52T1DeV4P4XuwCMHgr+OyQJKoDUjMCM/XDCCBjQwggQcoAMCAQICAR4wDQYJKoZI
-hvcNAQEFBQAwfTELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0ZC4xKzApBgNVBAsT
-IlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxKTAnBgNVBAMTIFN0YXJ0Q29tIENl
-cnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTA3MTAyNDIxMDE1NVoXDTE3MTAyNDIxMDE1NVowgYwx
-CzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGln
-aXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1h
-cnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
-AMcJg8zOLdgasSmkLhOrlr6KMoOMpohBllVHrdRvEg/q6r8jR+EK75xCGhR8ToREoqe7zM9/UnC6
-TS2y9UKTpT1v7RSMzR0t6ndl0TWBuUr/UXBhPk+Kmy7bI4yW4urC+y7P3/1/X7U8ocb8VpH/Clt+
-4iq7nirMcNh6qJR+xjOhV+VHzQMALuGYn5KZmc1NbJQYclsGkDxDz2UbFqE2+6vIZoL+jb9x4Pa5
-gNf1TwSDkOkikZB1xtB4ZqtXThaABSONdfmv/Z1pua3FYxnCFmdr/+N2JLKutIxMYqQOJebr/f/h
-5t95m4JgrM3Y/w7YX9d7YAL9jvN4SydHsU6n65cCAwEAAaOCAa0wggGpMA8GA1UdEwEB/wQFMAMB
-Af8wDgYDVR0PAQH/BAQDAgEGMB0GA1UdDgQWBBRTcu2SnODaywFcfH6WNU7y1LhRgjAfBgNVHSME
-GDAWgBROC+8apEBbpRdphzDKNGhD0EGu8jBmBggrBgEFBQcBAQRaMFgwJwYIKwYBBQUHMAGGG2h0
-dHA6Ly9vY3NwLnN0YXJ0c3NsLmNvbS9jYTAtBggrBgEFBQcwAoYhaHR0cDovL3d3dy5zdGFydHNz
-bC5jb20vc2ZzY2EuY3J0MFsGA1UdHwRUMFIwJ6AloCOGIWh0dHA6Ly93d3cuc3RhcnRzc2wuY29t
-L3Nmc2NhLmNybDAnoCWgI4YhaHR0cDovL2NybC5zdGFydHNzbC5jb20vc2ZzY2EuY3JsMIGABgNV
-HSAEeTB3MHUGCysGAQQBgbU3AQIBMGYwLgYIKwYBBQUHAgEWImh0dHA6Ly93d3cuc3RhcnRzc2wu
-Y29tL3BvbGljeS5wZGYwNAYIKwYBBQUHAgEWKGh0dHA6Ly93d3cuc3RhcnRzc2wuY29tL2ludGVy
-bWVkaWF0ZS5wZGYwDQYJKoZIhvcNAQEFBQADggIBAAqDCH14qywGXLhjjF6uHLkjd02hcdh9hrw+
-VUsv+q1eeQWB21jWj3kJ96AUlPCoEGZ/ynJNScWy6QMVQjbbMXltUfO4n4bGGdKo3awPWp61tjAF
-graLJgDk+DsSvUD6EowjMTNx25GQgyYJ5RPIzKKR9tQW8gGK+2+RHxkUCTbYFnL6kl8Ch507rUdP
-PipJ9CgJFws3kDS3gOS5WFMxcjO5DwKfKSETEPrHh7p5shuuNktvsv6hxHTLhiMKX893gxdT3XLS
-9OKmCv87vkINQcNEcIIoFWbP9HORz9v3vQwR4e3ksLc2JZOAFK+ssS5XMEoznzpihEP0PLc4dCBY
-jbvSD7kxgDwZ+Aj8Q9PkbvE9sIPP7ON0fz095HdThKjiVJe6vofq+n6b1NBc8XdrQvBmunwxD5nv
-tTW4vtN6VY7mUCmxsCieuoBJ9OlqmsVWQvifIYf40dJPZkk9YgGTzWLpXDSfLSplbY2LL9C9U0pt
-vjcDjefLTvqSFc7tw1sEhF0n/qpA2r0GpvkLRDmcSwVyPvmjFBGqUp/pNy8ZuPGQmHwFi2/14+xe
-SUDG2bwnsYJQG2EdJCB6luQ57GEnTA/yKZSTKI8dDQa8Sd3zfXb19mOgSF0bBdXbuKhEpuP9wirs
-lFe6fQ1t5j5R0xi72MZ8ikMu1RQZKCyDbMwazlHiMYIDnzCCA5sCAQEwgZQwgYwxCzAJBgNVBAYT
-AklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0
-aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJt
-ZWRpYXRlIENsaWVudCBDQQIDEA1LMA0GCWCGSAFlAwQCAwUAoIIB2zAYBgkqhkiG9w0BCQMxCwYJ
-KoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xNjA2MTgyMzEzMzhaME8GCSqGSIb3DQEJBDFCBEAr
-DRqecMW1vJfsR2OR7Opd475+4DFjQI9yvEIpHDmjqtJF/3aZaMTeALYfzo4Oy+qazQ7DU9n33mS7
-LLz6Jhx0MIGlBgkrBgEEAYI3EAQxgZcwgZQwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFy
-dENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgw
-NgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQQID
-EA1LMIGnBgsqhkiG9w0BCRACCzGBl6CBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0
-Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2
-BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMQ
-DUswDQYJKoZIhvcNAQEBBQAEggEAh52rw52j7nayST2C5CnMLlvgqELxqxQUk8gputCkmFZ1UwMc
-ztODl/TaKAG8ARhL+2268RGX5SlZLLh/PSjNFwe9uIadtr9xd0S28SR7MrcvyzWNL4wHZ9zQqUZ3
-K3GJ8SJCxo2w1yduJlkL6TbFsN7bTIfg0Q5UsgaVrNSmLOcZd+gLgQ6uUsnn2WFgJ5ytm5OQjfDH
-El2RMZljMSd0Hfw8oIzSST2/gQyFoKX4Mc/7vBZ/LhamnLK0kQ3J9FGDCtdngiZtNm4hVV9kx1+t
-dQpfH2T5T5sxMc7i37WxxTOIYuYrEXzJDXX1ps2+7AudvkvO6Y4JBwV+uvmFhUpoPQAAAAAAAA==
-
-
---=-7MA+9j4QImfSIuHiTuPv--
-
+--nextPart7376420.ge59iZbc9q--

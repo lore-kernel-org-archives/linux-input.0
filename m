@@ -1,81 +1,77 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/5] input: pmic8xxx-pwrkey: Add support for
- pm8018 pwrkey
-Date: Sat, 18 Jun 2016 09:21:23 -0700
-Message-ID: <20160618162123.GA12210@dtor-ws>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-3-git-send-email-narmstrong@baylibre.com>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCHv16 08/13] DocBook/media: add CEC documentation
+Date: Sat, 18 Jun 2016 09:25:15 -0700
+Message-ID: <20160618162515.GB12210@dtor-ws>
+References: <1461937948-22936-1-git-send-email-hverkuil@xs4all.nl>
+ <1461937948-22936-9-git-send-email-hverkuil@xs4all.nl>
+ <20160616180958.03b9d759@recife.lan>
+ <5763ADBD.3050502@xs4all.nl>
+ <20160617065028.7410ae46@recife.lan>
+ <5763DA56.20402@xs4all.nl>
+ <20160617083738.491c01ae@recife.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDP6N55ZUYDRBB7KSW5QKGQEQH6PA5A-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f67.google.com ([209.85.220.67]:35404 "EHLO
+	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751263AbcFRQZU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 18 Jun 2016 12:25:20 -0400
 Content-Disposition: inline
-In-Reply-To: <1466158929-19524-3-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Cc: andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20160617083738.491c01ae@recife.lan>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: Hans Verkuil <hverkuil@xs4all.nl>, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
 
-Hi Neil,
-
-On Fri, Jun 17, 2016 at 12:22:06PM +0200, Neil Armstrong wrote:
-> In order to support pwrkey for Qualcomm MDM9615 SoC, add support
-> for the pm8018 pwrkey in pmic8xxx-pwrkey.
-
-Why do we need a new compat string if IP block is compatible with 8921?
-
+On Fri, Jun 17, 2016 at 08:37:38AM -0300, Mauro Carvalho Chehab wrote:
+> Em Fri, 17 Jun 2016 13:09:10 +0200
+> Hans Verkuil <hverkuil@xs4all.nl> escreveu:
 > 
-> Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-> ---
->  Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt | 1 +
->  drivers/input/misc/pmic8xxx-pwrkey.c                           | 1 +
->  2 files changed, 2 insertions(+)
+> > On 06/17/2016 11:50 AM, Mauro Carvalho Chehab wrote:
+> > One area where I am uncertain is when remote control messages are received and
+> > passed on by the framework to the RC input device.
+> > 
+> > Suppose the application is the one receiving a password, then that password appears
+> > both in the input device and the cec device. What I think will be useful is if the
+> > application can prevent the use of an input device to pass on remote control messages.
+> > 
+> > CEC_ADAP_S_LOG_ADDRS has a flags field that I intended for just that purpose.
+> > 
+> > Note that RC messages are always passed on to CEC followers even if there is an
+> > input device since some RC messages have additional arguments that the rc subsystem
+> > can't handle. Also I think that it is often easier to handle all messages from the
+> > same CEC device instead of having to read from two devices (cec and input). I
+> > actually considered removing the input support, but it turned out to be useful in
+> > existing video streaming apps since they don't need to add special cec support to
+> > handle remote control presses.
+> > 
+> > Question: is there a way for applications to get exclusive access to an input device?
+> > Or can anyone always read from it?
 > 
-> diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-> index 588536c..9e530e2 100644
-> --- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-> +++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-> @@ -8,6 +8,7 @@ PROPERTIES
->  	Definition: must be one of:
->  		    "qcom,pm8058-pwrkey"
->  		    "qcom,pm8921-pwrkey"
-> +		    "qcom,pm8018-pwrkey"
->  
->  - reg:
->  	Usage: required
-> diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
-> index 67aab86..f6f9b87 100644
-> --- a/drivers/input/misc/pmic8xxx-pwrkey.c
-> +++ b/drivers/input/misc/pmic8xxx-pwrkey.c
-> @@ -446,6 +446,7 @@ static int pmic8xxx_pwrkey_remove(struct platform_device *pdev)
->  }
->  
->  static const struct of_device_id pm8xxx_pwr_key_id_table[] = {
-> +	{ .compatible = "qcom,pm8018-pwrkey", .data = &pm8921_pwrkey_shutdown },
->  	{ .compatible = "qcom,pm8058-pwrkey", .data = &pm8058_pwrkey_shutdown },
->  	{ .compatible = "qcom,pm8921-pwrkey", .data = &pm8921_pwrkey_shutdown },
->  	{ }
-> -- 
-> 1.9.1
+> That's a very good question. I did a quick test to check how this is
+> currently protected, by running:
 > 
+> $ strace ir-keytable -t
+> ...
+> open("/dev/input/event12", O_RDONLY)    = -1 EACCES (Permission denied)
+> ...
+> 
+> It turns that the input device was created by udev with those
+> permissions:
+> 
+> crw-rw---- 1 root input 13, 76 Jun 17 08:26 /dev/input/event12
+> 
+> Changing access to 666 allowed to run ir-keytable -t without the
+> need of being root.
+> 
+> Yet, maybe there's a way to get exclusive access to input/event
+> device, but I never needed to go that deep at the input subsystem.
+> Maybe Dmitry could shed some light on that. Adding him in the loop.
+
+EVIOCGRAB ioctl will do what you want.
 
 Thanks.
 
 -- 
 Dmitry
-
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.

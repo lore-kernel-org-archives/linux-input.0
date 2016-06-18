@@ -1,32 +1,47 @@
-From: kbuild test robot <fengguang.wu@intel.com>
-Subject: [hid:for-4.8/alps 1/2] drivers/hid/hid-alps.c:139:3-9: ERROR:
- application of sizeof to pointer
-Date: Sat, 18 Jun 2016 20:13:14 +0800
-Message-ID: <201606182012.7NLmbFhz%fengguang.wu@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: [PATCH 0/2] input: add support for HDMI CEC
+Date: Sat, 18 Jun 2016 16:50:26 +0200
+Message-ID: <1466261428-12616-1-git-send-email-hverkuil@xs4all.nl>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:36739 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751015AbcFRMN7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Jun 2016 08:13:59 -0400
-Content-Disposition: inline
+Received: from lb3-smtp-cloud6.xs4all.net ([194.109.24.31]:53870 "EHLO
+	lb3-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751408AbcFROud (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 18 Jun 2016 10:50:33 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: kbuild-all@01.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Masaki Ota <masaki.ota@jp.alps.com>
+To: linux-media@vger.kernel.org
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git for-4.8/alps
-head:   41f61ecc501ca970ae8d9955c57405dc4abfab5a
-commit: 2562756dde550901c224e3805102bdfc17e7d13a [1/2] HID: add Alps I2C HID Touchpad-Stick support
+From: Hans Verkuil <hans.verkuil@cisco.com>
 
+Hi Dmitry,
 
-coccinelle warnings: (new ones prefixed by >>)
+This patch series adds input support for the HDMI CEC bus through which
+remote control keys can be passed from one HDMI device to another.
 
->> drivers/hid/hid-alps.c:139:3-9: ERROR: application of sizeof to pointer
-   drivers/hid/hid-alps.c:148:4-10: ERROR: application of sizeof to pointer
+This has been posted before as part of the HDMI CEC patch series. We are
+going to merge that in linux-media for 4.8, but these two patches have to
+go through linux-input.
 
-Please review and possibly fold the followup patch.
+Only the rc-cec keymap file depends on this, and we will take care of that
+dependency (we'll postpone merging that until both these input patches and
+our own CEC patches have been merged in mainline).
 
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+Regards,
+
+	Hans
+
+Hans Verkuil (1):
+  input.h: add BUS_CEC type
+
+Kamil Debski (1):
+  HID: add HDMI CEC specific keycodes
+
+ include/uapi/linux/input-event-codes.h | 31 +++++++++++++++++++++++++++++++
+ include/uapi/linux/input.h             |  1 +
+ 2 files changed, 32 insertions(+)
+
+-- 
+2.8.1
+

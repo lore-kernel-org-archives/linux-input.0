@@ -1,57 +1,62 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 5/5] regulator: qcom_rpm-regulator: Add support for
- pm8018 rpm regulator
-Date: Sat, 18 Jun 2016 10:47:18 +0100
-Message-ID: <20160618094718.GR26099@sirena.org.uk>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-6-git-send-email-narmstrong@baylibre.com>
- <20160617165352.GA1256@tuxbot>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="phbq2bkSb+hZnunM"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160617165352.GA1256@tuxbot>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Neil Armstrong <narmstrong@baylibre.com>, dmitry.torokhov@gmail.com, andy.gross@linaro.org, david.brown@linaro.org, lee.jones@linaro.org, lgirdwood@gmail.com, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, rtc-linux@googlegroups.com
+From: Guohua Zhong <ghzhong@yifangdigital.com>
+Subject: [PATCH] HID: i2c-hid: set power sleep before shutdown
+Date: Sat, 18 Jun 2016 18:50:30 +0800
+Message-ID: <1466247030-23047-1-git-send-email-ghzhong@yifangdigital.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.yifangdigital.com ([121.15.200.100]:4967 "EHLO
+	yifangdigital.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751066AbcFRK6W (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 18 Jun 2016 06:58:22 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Dmitry Torokhov <dtor@chromium.org>, Benson Leung <bleung@chromium.org>, Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guohua Zhong <ghzhong@yifangdigital.com>
+
+Add i2c_hid_shutdown for i2c-hid driver to send suspend cmd &
+disable irq before device shutdown.
+
+Some HW design is that the power to i2c hid device won't down
+after device shutdown. Also the i2c-hid driver do not send suspend
+cmd to the hid i2c device and disable its irq before shutdown.So
+if We touch the touchscreen or some other i2c hid device ,the power
+consumtion will be go up even when the device is in shutdown state.
+
+Though the root cause maybe a HW issue. But it seems that it is a
+good pratice to set power sleep for i2c-hid device before shutdown.
+
+Signed-off-by: Guohua Zhong <ghzhong@yifangdigital.com>
+---
+ drivers/hid/i2c-hid/i2c-hid.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 2e021ba..d6ea97b 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -1106,6 +1106,12 @@ static int i2c_hid_remove(struct i2c_client *client)
+ 	return 0;
+ }
+ 
++static void i2c_hid_shutdown(struct i2c_client *client)
++{
++	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
++	disable_irq(client->irq);
++}
++
+ #ifdef CONFIG_PM_SLEEP
+ static int i2c_hid_suspend(struct device *dev)
+ {
+@@ -1230,7 +1236,7 @@ static struct i2c_driver i2c_hid_driver = {
+ 
+ 	.probe		= i2c_hid_probe,
+ 	.remove		= i2c_hid_remove,
+-
++	.shutdown	= i2c_hid_shutdown,
+ 	.id_table	= i2c_hid_id_table,
+ };
+ 
+-- 
+1.9.1
 
 
---phbq2bkSb+hZnunM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Fri, Jun 17, 2016 at 09:53:52AM -0700, Bjorn Andersson wrote:
-> On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
-
-> > +	{ "dig_corner", QCOM_RPM_VOLTAGE_CORNER, &pm8018_corner,
-> > +						      "vdd_dig_corner" },
-> > +
-> > +	{ }
-> > +};
-
-> We have discussed the corners for a long time and I think we've
-> concluded that they should be exposed as something like an OPP. What we
-> have agreed on is that they should not be exposed as a regulator with
-> voltages 1-4uV.
-
-Oops, missed this - yes, that needs to go as it's definitely a complete
-abuse of the API.
-
---phbq2bkSb+hZnunM
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJXZRilAAoJECTWi3JdVIfQY80H/1ivWNpPRnt2FJlX1ib3VwyJ
-o6NL9+DqffRIIj4VN4lZJUiIXmHUbGy9OjiVdac29rA4QHicwz27jj1OQ1DsNQ+i
-EdoR7STzH3e3YvwQBrSZzFoD0C2AXXaWPWLB5UbtA2s7Lcg3LPWuTQc2MazVYuLS
-h4zyNZhWYzHRdr5Jm4EsXCbLbESjNWqLow/Wh+tI0szCVDiOnD4bSEzA0C2CmRwB
-UJKtFyZeUPjE1Fozbu3FWB+T2g3ck+S40OkkIoWSArHxxlDzYY06/xUiEZXWDk2O
-k6cD1Q5D1cM/q+j5M+KWhQ+rpa0q5+ToKHEcBf/1mJr8319IzgvpEF/zsuDqul8=
-=DTu4
------END PGP SIGNATURE-----
-
---phbq2bkSb+hZnunM--

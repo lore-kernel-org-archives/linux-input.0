@@ -1,57 +1,181 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH] hid: thingm: simplify debug output code
-Date: Sun, 19 Jun 2016 15:46:02 +0200
-Message-ID: <fafa8814-1e61-1560-c44d-6c31c576fec2@gmail.com>
+From: Dennis Chen <barracks510@gmail.com>
+Subject: Re: [PATCH] HID: multitouch: add support for Type Cover Pro 3
+Date: Sun, 19 Jun 2016 13:48:02 -0700
+Message-ID: <1466369282.15726.7.camel@gmail.com>
+References: <1466196443.21223.1.camel@gmail.com>
+	 <alpine.LNX.2.00.1606172259110.6874@cbobk.fhfr.pm>
+	 <20160617211142.GH24234@mail.corp.redhat.com>
+	 <1466275994.2669.11.camel@gmail.com>
+	 <20160618194534.GI24234@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg="sha-512";
+	protocol="application/x-pkcs7-signature";
+	boundary="=-r6ySXHgU1IDLBDR5PZP9"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:34849 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750720AbcFSNqL (ORCPT
+Received: from mail-ob0-f182.google.com ([209.85.214.182]:34604 "EHLO
+	mail-ob0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751283AbcFSU5T (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 19 Jun 2016 09:46:11 -0400
-Received: by mail-wm0-f67.google.com with SMTP id a66so3023657wme.2
-        for <linux-input@vger.kernel.org>; Sun, 19 Jun 2016 06:46:10 -0700 (PDT)
+	Sun, 19 Jun 2016 16:57:19 -0400
+Received: by mail-ob0-f182.google.com with SMTP id y7so1667131obt.1
+        for <linux-input@vger.kernel.org>; Sun, 19 Jun 2016 13:56:26 -0700 (PDT)
+In-Reply-To: <20160618194534.GI24234@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-Kernel printf format %*ph allows to print small buffers up to 64 bytes.
-Make use of it to simplify the debug output code.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
- drivers/hid/hid-thingm.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+--=-r6ySXHgU1IDLBDR5PZP9
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-ZncMXBi04Id0Qf5pBZNA"
 
-diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
-index 9ad9c6e..9b4fec4 100644
---- a/drivers/hid/hid-thingm.c
-+++ b/drivers/hid/hid-thingm.c
-@@ -73,9 +73,7 @@ static int thingm_send(struct thingm_device *tdev, u8 buf[REPORT_SIZE])
- {
- 	int ret;
- 
--	hid_dbg(tdev->hdev, "-> %d %c %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx\n",
--			buf[0], buf[1], buf[2], buf[3], buf[4],
--			buf[5], buf[6], buf[7], buf[8]);
-+	hid_dbg(tdev->hdev, "-> %d %c %7ph\n", buf[0], buf[1], &buf[2]);
- 
- 	mutex_lock(&tdev->lock);
- 
-@@ -110,9 +108,7 @@ static int thingm_recv(struct thingm_device *tdev, u8 buf[REPORT_SIZE])
- 
- 	ret = 0;
- 
--	hid_dbg(tdev->hdev, "<- %d %c %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx\n",
--			buf[0], buf[1], buf[2], buf[3], buf[4],
--			buf[5], buf[6], buf[7], buf[8]);
-+	hid_dbg(tdev->hdev, "<- %d %c %7ph\n", buf[0], buf[1], &buf[2]);
- err:
- 	mutex_unlock(&tdev->lock);
- 	return ret;
--- 
-2.9.0
+
+--=-ZncMXBi04Id0Qf5pBZNA
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, 2016-06-18 at 21:45 +0200, Benjamin Tissoires wrote:
+>=C2=A0
+> That's the entire purpose of the series I mentioned below. It adds
+> the keyboard support, caps lock and multitouch, so there is nothing
+> more to fix once it is in. The benefit is that
+> MT_CLS_EXPORT_ALL_INPUTS exports far too many input devices while
+> the series exports only the required ones.
+>=20
+
+Ah. Sorry, I misunderstood.=C2=A0
+
+I've tested the patches you sent. There is one major issue: the
+keyboard/touchpad no longer functions after a disconnect. However, on a
+clean bootup of the Surface Pro 3, I can confirm that the keyboard
+seems fully functional, i.e. touchpad works, CAPS LOCK LED is toggled,
+etc.=C2=A0
+
+Sincerely,
+Dennis Chen
+
+--=-ZncMXBi04Id0Qf5pBZNA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iEYEABEKAAYFAldnBQIACgkQpXlhF/qpw/mCvwCg7NEqWrDzwG/ZkBXcrWqbpmVE
+jasAn1y6qnAvx7hrO0bLSx43KL9zUzEa
+=7jOy
+-----END PGP SIGNATURE-----
+
+--=-ZncMXBi04Id0Qf5pBZNA--
+
+--=-r6ySXHgU1IDLBDR5PZP9
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgMFADCABgkqhkiG9w0BBwEAAKCCEpow
+ggYtMIIFFaADAgECAgMQDUswDQYJKoZIhvcNAQELBQAwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQK
+Ew1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWdu
+aW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVu
+dCBDQTAeFw0xNTExMTEyMTQzMDFaFw0xNjExMTEwNjMxNDZaMEYxHjAcBgNVBAMMFWJhcnJhY2tz
+NTEwQGdtYWlsLmNvbTEkMCIGCSqGSIb3DQEJARYVYmFycmFja3M1MTBAZ21haWwuY29tMIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtUHVaynx14U0iy8HenmG993oaTFzZ/OfQ0zoqsQl
+MUt3XYwz9OdMG+UJq7+ilA2NSPzYnOBqJr0nYVlkX+cQpVlP2+/AtJ5bB/ScugNTOYn4cLqdc8ki
+sAy+zNAPCwaF3Jrn16KxU7ufLut6kD56Nr8lX3/vD3XkPBbP3sn5wBEOV2u5NruJ/iS3/augzcww
+vm5HSnH/JJ3rZNQ83lxyE5Nu0N7BW0FJ4CioavdhzN8bjvAfV7JM6CjcsTlujlrZYGKI/ByJuaUG
+MduXhb/3H9UPtsvpQ/PLdlzpj9z4DVnJMtWQPJ3JM26d4ObmuYq8tk3nxnDwDG7HooF/k2VHYwID
+AQABo4IC2zCCAtcwCQYDVR0TBAIwADALBgNVHQ8EBAMCBLAwHQYDVR0lBBYwFAYIKwYBBQUHAwIG
+CCsGAQUFBwMEMB0GA1UdDgQWBBSph2B2A/xOxyzrDpSUkPUU8CqJpjAfBgNVHSMEGDAWgBRTcu2S
+nODaywFcfH6WNU7y1LhRgjAgBgNVHREEGTAXgRViYXJyYWNrczUxMEBnbWFpbC5jb20wggFMBgNV
+HSAEggFDMIIBPzCCATsGCysGAQQBgbU3AQIDMIIBKjAuBggrBgEFBQcCARYiaHR0cDovL3d3dy5z
+dGFydHNzbC5jb20vcG9saWN5LnBkZjCB9wYIKwYBBQUHAgIwgeowJxYgU3RhcnRDb20gQ2VydGlm
+aWNhdGlvbiBBdXRob3JpdHkwAwIBARqBvlRoaXMgY2VydGlmaWNhdGUgd2FzIGlzc3VlZCBhY2Nv
+cmRpbmcgdG8gdGhlIENsYXNzIDEgVmFsaWRhdGlvbiByZXF1aXJlbWVudHMgb2YgdGhlIFN0YXJ0
+Q29tIENBIHBvbGljeSwgcmVsaWFuY2Ugb25seSBmb3IgdGhlIGludGVuZGVkIHB1cnBvc2UgaW4g
+Y29tcGxpYW5jZSBvZiB0aGUgcmVseWluZyBwYXJ0eSBvYmxpZ2F0aW9ucy4wNgYDVR0fBC8wLTAr
+oCmgJ4YlaHR0cDovL2NybC5zdGFydHNzbC5jb20vY3J0dTEtY3JsLmNybDCBjgYIKwYBBQUHAQEE
+gYEwfzA5BggrBgEFBQcwAYYtaHR0cDovL29jc3Auc3RhcnRzc2wuY29tL3N1Yi9jbGFzczEvY2xp
+ZW50L2NhMEIGCCsGAQUFBzAChjZodHRwOi8vYWlhLnN0YXJ0c3NsLmNvbS9jZXJ0cy9zdWIuY2xh
+c3MxLmNsaWVudC5jYS5jcnQwIwYDVR0SBBwwGoYYaHR0cDovL3d3dy5zdGFydHNzbC5jb20vMA0G
+CSqGSIb3DQEBCwUAA4IBAQCIDk1zzs0LWnAI1exQQZWoJosQPN99h91Es4Bs5jx2d2OhY34EEI9b
+B5qz7n7yI/7nWIkBOmmsAOtj4FVJFHk1SL9yJ1HuuhWMbaAjwjPlm0M8AHq1n1qBHozus0EMPFrv
+DK6Hf5uZGqsPfEZ2DUCXxXUXxjWzbzL5LLIMdn6O2cz0X4FrFJAnDgxvGw2m819YBFp9FPn4hIWV
+Cj3fwQxu1RntQa4nIbofKq4WPJk8jK77S3daV4vc1BtKNOlX9uxegdc8xPAhVpFYeKgzejMR3ho+
+BgNyPffd/l02O/RYxx3RMP4OmADnZPUN5Xg/he7AIweCv47JAkqgNSMwIz9cMIIGLTCCBRWgAwIB
+AgIDEA1LMA0GCSqGSIb3DQEBCwUAMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20g
+THRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UE
+AxMvU3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQgQ0EwHhcNMTUx
+MTExMjE0MzAxWhcNMTYxMTExMDYzMTQ2WjBGMR4wHAYDVQQDDBViYXJyYWNrczUxMEBnbWFpbC5j
+b20xJDAiBgkqhkiG9w0BCQEWFWJhcnJhY2tzNTEwQGdtYWlsLmNvbTCCASIwDQYJKoZIhvcNAQEB
+BQADggEPADCCAQoCggEBALVB1Wsp8deFNIsvB3p5hvfd6Gkxc2fzn0NM6KrEJTFLd12MM/TnTBvl
+Cau/opQNjUj82Jzgaia9J2FZZF/nEKVZT9vvwLSeWwf0nLoDUzmJ+HC6nXPJIrAMvszQDwsGhdya
+59eisVO7ny7repA+eja/JV9/7w915DwWz97J+cARDldruTa7if4kt/2roM3MML5uR0px/ySd62TU
+PN5cchOTbtDewVtBSeAoqGr3YczfG47wH1eyTOgo3LE5bo5a2WBiiPwcibmlBjHbl4W/9x/VD7bL
+6UPzy3Zc6Y/c+A1ZyTLVkDydyTNuneDm5rmKvLZN58Zw8Axux6KBf5NlR2MCAwEAAaOCAtswggLX
+MAkGA1UdEwQCMAAwCwYDVR0PBAQDAgSwMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDAd
+BgNVHQ4EFgQUqYdgdgP8Tscs6w6UlJD1FPAqiaYwHwYDVR0jBBgwFoAUU3Ltkpzg2ssBXHx+ljVO
+8tS4UYIwIAYDVR0RBBkwF4EVYmFycmFja3M1MTBAZ21haWwuY29tMIIBTAYDVR0gBIIBQzCCAT8w
+ggE7BgsrBgEEAYG1NwECAzCCASowLgYIKwYBBQUHAgEWImh0dHA6Ly93d3cuc3RhcnRzc2wuY29t
+L3BvbGljeS5wZGYwgfcGCCsGAQUFBwICMIHqMCcWIFN0YXJ0Q29tIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MAMCAQEagb5UaGlzIGNlcnRpZmljYXRlIHdhcyBpc3N1ZWQgYWNjb3JkaW5nIHRvIHRo
+ZSBDbGFzcyAxIFZhbGlkYXRpb24gcmVxdWlyZW1lbnRzIG9mIHRoZSBTdGFydENvbSBDQSBwb2xp
+Y3ksIHJlbGlhbmNlIG9ubHkgZm9yIHRoZSBpbnRlbmRlZCBwdXJwb3NlIGluIGNvbXBsaWFuY2Ug
+b2YgdGhlIHJlbHlpbmcgcGFydHkgb2JsaWdhdGlvbnMuMDYGA1UdHwQvMC0wK6ApoCeGJWh0dHA6
+Ly9jcmwuc3RhcnRzc2wuY29tL2NydHUxLWNybC5jcmwwgY4GCCsGAQUFBwEBBIGBMH8wOQYIKwYB
+BQUHMAGGLWh0dHA6Ly9vY3NwLnN0YXJ0c3NsLmNvbS9zdWIvY2xhc3MxL2NsaWVudC9jYTBCBggr
+BgEFBQcwAoY2aHR0cDovL2FpYS5zdGFydHNzbC5jb20vY2VydHMvc3ViLmNsYXNzMS5jbGllbnQu
+Y2EuY3J0MCMGA1UdEgQcMBqGGGh0dHA6Ly93d3cuc3RhcnRzc2wuY29tLzANBgkqhkiG9w0BAQsF
+AAOCAQEAiA5Nc87NC1pwCNXsUEGVqCaLEDzffYfdRLOAbOY8dndjoWN+BBCPWweas+5+8iP+51iJ
+ATpprADrY+BVSRR5NUi/cidR7roVjG2gI8Iz5ZtDPAB6tZ9agR6M7rNBDDxa7wyuh3+bmRqrD3xG
+dg1Al8V1F8Y1s28y+SyyDHZ+jtnM9F+BaxSQJw4MbxsNpvNfWARafRT5+ISFlQo938EMbtUZ7UGu
+JyG6HyquFjyZPIyu+0t3WleL3NQbSjTpV/bsXoHXPMTwIVaRWHioM3ozEd4aPgYDcj333f5dNjv0
+WMcd0TD+DpgA52T1DeV4P4XuwCMHgr+OyQJKoDUjMCM/XDCCBjQwggQcoAMCAQICAR4wDQYJKoZI
+hvcNAQEFBQAwfTELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0ZC4xKzApBgNVBAsT
+IlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxKTAnBgNVBAMTIFN0YXJ0Q29tIENl
+cnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTA3MTAyNDIxMDE1NVoXDTE3MTAyNDIxMDE1NVowgYwx
+CzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGln
+aXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1h
+cnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+AMcJg8zOLdgasSmkLhOrlr6KMoOMpohBllVHrdRvEg/q6r8jR+EK75xCGhR8ToREoqe7zM9/UnC6
+TS2y9UKTpT1v7RSMzR0t6ndl0TWBuUr/UXBhPk+Kmy7bI4yW4urC+y7P3/1/X7U8ocb8VpH/Clt+
+4iq7nirMcNh6qJR+xjOhV+VHzQMALuGYn5KZmc1NbJQYclsGkDxDz2UbFqE2+6vIZoL+jb9x4Pa5
+gNf1TwSDkOkikZB1xtB4ZqtXThaABSONdfmv/Z1pua3FYxnCFmdr/+N2JLKutIxMYqQOJebr/f/h
+5t95m4JgrM3Y/w7YX9d7YAL9jvN4SydHsU6n65cCAwEAAaOCAa0wggGpMA8GA1UdEwEB/wQFMAMB
+Af8wDgYDVR0PAQH/BAQDAgEGMB0GA1UdDgQWBBRTcu2SnODaywFcfH6WNU7y1LhRgjAfBgNVHSME
+GDAWgBROC+8apEBbpRdphzDKNGhD0EGu8jBmBggrBgEFBQcBAQRaMFgwJwYIKwYBBQUHMAGGG2h0
+dHA6Ly9vY3NwLnN0YXJ0c3NsLmNvbS9jYTAtBggrBgEFBQcwAoYhaHR0cDovL3d3dy5zdGFydHNz
+bC5jb20vc2ZzY2EuY3J0MFsGA1UdHwRUMFIwJ6AloCOGIWh0dHA6Ly93d3cuc3RhcnRzc2wuY29t
+L3Nmc2NhLmNybDAnoCWgI4YhaHR0cDovL2NybC5zdGFydHNzbC5jb20vc2ZzY2EuY3JsMIGABgNV
+HSAEeTB3MHUGCysGAQQBgbU3AQIBMGYwLgYIKwYBBQUHAgEWImh0dHA6Ly93d3cuc3RhcnRzc2wu
+Y29tL3BvbGljeS5wZGYwNAYIKwYBBQUHAgEWKGh0dHA6Ly93d3cuc3RhcnRzc2wuY29tL2ludGVy
+bWVkaWF0ZS5wZGYwDQYJKoZIhvcNAQEFBQADggIBAAqDCH14qywGXLhjjF6uHLkjd02hcdh9hrw+
+VUsv+q1eeQWB21jWj3kJ96AUlPCoEGZ/ynJNScWy6QMVQjbbMXltUfO4n4bGGdKo3awPWp61tjAF
+graLJgDk+DsSvUD6EowjMTNx25GQgyYJ5RPIzKKR9tQW8gGK+2+RHxkUCTbYFnL6kl8Ch507rUdP
+PipJ9CgJFws3kDS3gOS5WFMxcjO5DwKfKSETEPrHh7p5shuuNktvsv6hxHTLhiMKX893gxdT3XLS
+9OKmCv87vkINQcNEcIIoFWbP9HORz9v3vQwR4e3ksLc2JZOAFK+ssS5XMEoznzpihEP0PLc4dCBY
+jbvSD7kxgDwZ+Aj8Q9PkbvE9sIPP7ON0fz095HdThKjiVJe6vofq+n6b1NBc8XdrQvBmunwxD5nv
+tTW4vtN6VY7mUCmxsCieuoBJ9OlqmsVWQvifIYf40dJPZkk9YgGTzWLpXDSfLSplbY2LL9C9U0pt
+vjcDjefLTvqSFc7tw1sEhF0n/qpA2r0GpvkLRDmcSwVyPvmjFBGqUp/pNy8ZuPGQmHwFi2/14+xe
+SUDG2bwnsYJQG2EdJCB6luQ57GEnTA/yKZSTKI8dDQa8Sd3zfXb19mOgSF0bBdXbuKhEpuP9wirs
+lFe6fQ1t5j5R0xi72MZ8ikMu1RQZKCyDbMwazlHiMYIDnzCCA5sCAQEwgZQwgYwxCzAJBgNVBAYT
+AklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0
+aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJt
+ZWRpYXRlIENsaWVudCBDQQIDEA1LMA0GCWCGSAFlAwQCAwUAoIIB2zAYBgkqhkiG9w0BCQMxCwYJ
+KoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xNjA2MTkyMDQ4MDVaME8GCSqGSIb3DQEJBDFCBECZ
+qub+hJ6WFzNjiriOpMsnTmtLgbmjH5Hel2FRfPcuAzqQCedpG4iDghiD6W7QfPAETr2Ef1tf7Qpn
+cbsCSW15MIGlBgkrBgEEAYI3EAQxgZcwgZQwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFy
+dENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgw
+NgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQQID
+EA1LMIGnBgsqhkiG9w0BCRACCzGBl6CBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0
+Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2
+BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMQ
+DUswDQYJKoZIhvcNAQEBBQAEggEAV2Vsre+t7TSLZXYC4VuH+YyyHZfKfaoi9yPX9RXE8mE3fQbE
+jBspezYfk3++LckYQFxUMkSSQo5sL6ol3bYGr4wUqGTcmuPo+U0F9Kg1XqS4vljAYGYEr8nGREwM
+z0QRZvseam9Gs4vBgqhUD3jXWpj6Fhh0OlTxXMKPjIlJn+oZpoWZNJgFvT5bc/Owq8oQRm7qR7Fr
+PMJ1BFbt9e2jRxdOnolOeX4JjF+p451jXrvCg796zgOA08HTf+czzpsdGMQyj6WUsITm+CW+oPdR
+KS+6fwf9mEf1PXY1N/Y1e8YAM5XkIKVZLZf8atih9eATZaVD1e70DTT5tElgkBElnwAAAAAAAA==
+
+
+--=-r6ySXHgU1IDLBDR5PZP9--
 

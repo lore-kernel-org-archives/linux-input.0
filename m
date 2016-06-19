@@ -1,62 +1,57 @@
-From: Manuel Reimer <mail+linux-input@m-reimer.de>
-Subject: [PATCH] Fix effect aborting in ff-memless
-Date: Sun, 19 Jun 2016 14:44:35 +0200
-Message-ID: <c2278d36-993b-402f-dd07-635980112bbe@m-reimer.de>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH] hid: thingm: simplify debug output code
+Date: Sun, 19 Jun 2016 15:46:02 +0200
+Message-ID: <fafa8814-1e61-1560-c44d-6c31c576fec2@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.mailbox.org ([80.241.60.212]:47534 "EHLO mx1.mailbox.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751786AbcFSMpK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 19 Jun 2016 08:45:10 -0400
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:34849 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750720AbcFSNqL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 19 Jun 2016 09:46:11 -0400
+Received: by mail-wm0-f67.google.com with SMTP id a66so3023657wme.2
+        for <linux-input@vger.kernel.org>; Sun, 19 Jun 2016 06:46:10 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
-Cc: Cameron Gutman <aicommander@gmail.com>, jikos@kernel.org, dmitry.torokhov@gmail.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-Hello,
+Kernel printf format %*ph allows to print small buffers up to 64 bytes.
+Make use of it to simplify the debug output code.
 
-while debugging a problem with hid-sony I got stuck with a problem 
-actually caused by ff-memless. In some situations effect aborting is 
-delayed, so it may be triggered seconds after all devices have been 
-destroyed, which causes the kernel to panic.
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+ drivers/hid/hid-thingm.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-The aborting request actually gets received here:
-https://github.com/torvalds/linux/blob/master/drivers/input/ff-memless.c#L467
-This "aborting" flag is then handled here:
-https://github.com/torvalds/linux/blob/master/drivers/input/ff-memless.c#L376
-But before this line is reached, there is a time check to check if the 
-effect actually is due to be started:
-https://github.com/torvalds/linux/blob/master/drivers/input/ff-memless.c#L359
-
-This time check now causes a problem if the effect, which is meant to be 
-*aborted* was scheduled to be *started* some time in future and the 
-device is destroyed before this time is reached.
-
-My patch fixes this by setting the trigger times to "now" after setting 
-the aborting flag. This way the following code deals with aborting the 
-effect immediately without setting a timer for it.
-
-There may be other ways to fix this, so I would be happy to get some 
-feedback.
-
-
-Signed-off-by: Manuel Reimer <mail@m-reimer.de>
-
---- a/drivers/input/ff-memless.c	2016-05-13 16:06:29.722685021 +0200
-+++ b/drivers/input/ff-memless.c	2016-06-19 14:25:39.790375270 +0200
-@@ -463,9 +463,11 @@ static int ml_ff_playback(struct input_d
-  	} else {
-  		pr_debug("initiated stop\n");
-
--		if (test_bit(FF_EFFECT_PLAYING, &state->flags))
-+		if (test_bit(FF_EFFECT_PLAYING, &state->flags)) {
-  			__set_bit(FF_EFFECT_ABORTING, &state->flags);
--		else
-+			state->play_at = jiffies;
-+			state->adj_at = jiffies;
-+		} else
-  			__clear_bit(FF_EFFECT_STARTED, &state->flags);
-  	}
+diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
+index 9ad9c6e..9b4fec4 100644
+--- a/drivers/hid/hid-thingm.c
++++ b/drivers/hid/hid-thingm.c
+@@ -73,9 +73,7 @@ static int thingm_send(struct thingm_device *tdev, u8 buf[REPORT_SIZE])
+ {
+ 	int ret;
+ 
+-	hid_dbg(tdev->hdev, "-> %d %c %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx\n",
+-			buf[0], buf[1], buf[2], buf[3], buf[4],
+-			buf[5], buf[6], buf[7], buf[8]);
++	hid_dbg(tdev->hdev, "-> %d %c %7ph\n", buf[0], buf[1], &buf[2]);
+ 
+ 	mutex_lock(&tdev->lock);
+ 
+@@ -110,9 +108,7 @@ static int thingm_recv(struct thingm_device *tdev, u8 buf[REPORT_SIZE])
+ 
+ 	ret = 0;
+ 
+-	hid_dbg(tdev->hdev, "<- %d %c %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx\n",
+-			buf[0], buf[1], buf[2], buf[3], buf[4],
+-			buf[5], buf[6], buf[7], buf[8]);
++	hid_dbg(tdev->hdev, "<- %d %c %7ph\n", buf[0], buf[1], &buf[2]);
+ err:
+ 	mutex_unlock(&tdev->lock);
+ 	return ret;
+-- 
+2.9.0
 

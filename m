@@ -1,76 +1,85 @@
-From: Anthony Wong <anthony.wong@canonical.com>
-Subject: Re: Canonical has own Ubuntu driver for ALPS 73 03 28 devices
-Date: Tue, 21 Jun 2016 01:29:41 +0800
-Message-ID: <CAE7LaDDBOqAaZP38tX4kuzd2108np+0xb0BgtcAoKFfo9QmikQ@mail.gmail.com>
-References: <201606190143.46444@pali> <20160620101636.GA23462@infradead.org> <20160620102034.GI29844@pali>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Fix effect aborting in ff-memless
+Date: Mon, 20 Jun 2016 10:33:03 -0700
+Message-ID: <20160620173303.GA22426@dtor-ws>
+References: <c2278d36-993b-402f-dd07-635980112bbe@m-reimer.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f169.google.com ([209.85.214.169]:34451 "EHLO
-	mail-ob0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753622AbcFTRjA convert rfc822-to-8bit (ORCPT
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:36661 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933064AbcFTRk0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jun 2016 13:39:00 -0400
-Received: by mail-ob0-f169.google.com with SMTP id y7so543070obt.1
-        for <linux-input@vger.kernel.org>; Mon, 20 Jun 2016 10:38:36 -0700 (PDT)
-In-Reply-To: <20160620102034.GI29844@pali>
+	Mon, 20 Jun 2016 13:40:26 -0400
+Received: by mail-pa0-f51.google.com with SMTP id wo6so16458713pac.3
+        for <linux-input@vger.kernel.org>; Mon, 20 Jun 2016 10:40:24 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <c2278d36-993b-402f-dd07-635980112bbe@m-reimer.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Ben Gamari <ben@smart-cactus.org>, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Ben Morgan <Ben_Morgan@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Manuel Reimer <mail+linux-input@m-reimer.de>
+Cc: linux-input <linux-input@vger.kernel.org>, Cameron Gutman <aicommander@gmail.com>, jikos@kernel.org
 
-On 20 June 2016 at 18:20, Pali Roh=C3=A1r <pali.rohar@gmail.com> wrote:
->
-> On Monday 20 June 2016 03:16:36 Christoph Hellwig wrote:
-> > On Sun, Jun 19, 2016 at 01:43:46AM +0200, Pali Roh??r wrote:
-> > > I do not understand it... Why Canonical is hidden and don't commu=
-nicate
-> > > with rest of world? Otherwise touchpads could work out-of-box on =
-non
-> > > Ubuntu systems too with mainline kernel.
-> >
->
-> It must be really frustrating for Ben and other people (me too) who i=
-n
-> last months working on ALPS patches to support that touchpad as we kn=
-ow
-> that Canonical already had some working code for that touchpad...
+On Sun, Jun 19, 2016 at 02:44:35PM +0200, Manuel Reimer wrote:
+> Hello,
+> 
+> while debugging a problem with hid-sony I got stuck with a problem
+> actually caused by ff-memless. In some situations effect aborting is
+> delayed, so it may be triggered seconds after all devices have been
+> destroyed, which causes the kernel to panic.
+> 
+> The aborting request actually gets received here:
+> https://github.com/torvalds/linux/blob/master/drivers/input/ff-memless.c#L467
+> This "aborting" flag is then handled here:
+> https://github.com/torvalds/linux/blob/master/drivers/input/ff-memless.c#L376
+> But before this line is reached, there is a time check to check if
+> the effect actually is due to be started:
+> https://github.com/torvalds/linux/blob/master/drivers/input/ff-memless.c#L359
+> 
+> This time check now causes a problem if the effect, which is meant
+> to be *aborted* was scheduled to be *started* some time in future
+> and the device is destroyed before this time is reached.
 
-Hi Pali,
+I am not clear how this can happen. If effect hasn't actually started
+playing (i.e. we have FF_EFFECT_STARTED bit set, but FF_EFFECT_PLAYING
+is not yet set), then when stopping effect we do not need to do anything
+except clear FF_EFFECT_STARTED (since we did not touch the hardware
+yet).
 
-The fix in the DKMS package you referenced was not written by
-Canonical but by ALPS, as it came from them I think it is reasonable
-they send it to upstream, isn't it? As you can see the patch is non-tri=
-vial.
+Now, if FF_EFFECT_PLAYING is set, that means that play_at time is in
+the past and we won't be skipping this effect in ml_get_combo_effect().
 
-After we got the patch from ALPS, we had follow-up conversation a few
-times with our contacts at Taiwan and asked if they would upstream it,
-but unfortunately to no avail. I am as desperate as you if the fix
-cannot land in mainline, which means many Linux users will not benefit
-from it.  We also had opened this bug [1] for this particular issue,
-there is nothing to hide. If there is any code written by us, we
-happily submit them upstream.
+Could you please post a stack trace of the crash you observed?
 
-[1] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1571530
+> 
+> My patch fixes this by setting the trigger times to "now" after
+> setting the aborting flag. This way the following code deals with
+> aborting the effect immediately without setting a timer for it.
+> 
+> There may be other ways to fix this, so I would be happy to get some
+> feedback.
+> 
+> 
+> Signed-off-by: Manuel Reimer <mail@m-reimer.de>
+> 
+> --- a/drivers/input/ff-memless.c	2016-05-13 16:06:29.722685021 +0200
+> +++ b/drivers/input/ff-memless.c	2016-06-19 14:25:39.790375270 +0200
+> @@ -463,9 +463,11 @@ static int ml_ff_playback(struct input_d
+>  	} else {
+>  		pr_debug("initiated stop\n");
+> 
+> -		if (test_bit(FF_EFFECT_PLAYING, &state->flags))
+> +		if (test_bit(FF_EFFECT_PLAYING, &state->flags)) {
+>  			__set_bit(FF_EFFECT_ABORTING, &state->flags);
+> -		else
+> +			state->play_at = jiffies;
+> +			state->adj_at = jiffies;
+> +		} else
+>  			__clear_bit(FF_EFFECT_STARTED, &state->flags);
+>  	}
+> 
 
-> On Monday 20 June 2016 03:16:36 Christoph Hellwig wrote:
-> > Because Canonical doesn't collaborate with the upstream community
-> > in any meaninful way.  They've been a bad player since day 1 and wi=
-ll
-> > always be.
+Thanks.
 
-This reminded me of this old thread [2]. How hard is it to run this
-command in your kernel git tree?
-
-    $ git log --pretty=3Doneline --author=3Dcanonical
-
-[2] https://www.spinics.net/lists/linux-bluetooth/msg47286.html
-
-Thanks,
-Anthony
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

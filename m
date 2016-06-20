@@ -1,98 +1,56 @@
-From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 5/5] regulator: qcom_rpm-regulator: Add
- support for pm8018 rpm regulator
-Date: Mon, 20 Jun 2016 11:03:03 +0200
-Message-ID: <5767B147.5000102@baylibre.com>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-6-git-send-email-narmstrong@baylibre.com>
- <20160617165352.GA1256@tuxbot>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Jiri Kosina <jikos@kernel.org>
+Subject: [PATCH] HID: alps: pass correct sizes to hid_hw_raw_request()
+Date: Mon, 20 Jun 2016 11:24:12 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1606201122090.6874@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRBTXCT25QKGQEDYCXJ2Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20160617165352.GA1256@tuxbot>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:49414 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751557AbcFTJYU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Jun 2016 05:24:20 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Masaki Ota <masaki.ota@jp.alps.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, kbuild test robot <fengguang.wu@intel.com>
 
-On 06/17/2016 06:53 PM, Bjorn Andersson wrote:
-> On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
-> 
->> In order to support eh Qualcomm MDM9615 SoC, add support for the
->> PM8018 RPM regulator in the qcom_rpm-regulator driver.
->>
->> Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-> [..]
->> diff --git a/drivers/regulator/qcom_rpm-regulator.c b/drivers/regulator/qcom_rpm-regulator.c
-> [..]
->> +/**
->> + * enum rpm_vreg_voltage_corner - possible voltage corner values
->> + *
->> + * These should be used in regulator_set_voltage and rpm_vreg_set_voltage calls
->> + * for corner type regulators as if they had units of uV.
->> + */
->> +enum rpm_vreg_voltage_corner {
->> +	RPM_VREG_CORNER_NONE = 1,
->> +	RPM_VREG_CORNER_LOW,
->> +	RPM_VREG_CORNER_NOMINAL,
->> +	RPM_VREG_CORNER_HIGH,
->> +};
->> +
->> +static struct regulator_linear_range corner_ranges[] = {
->> +	REGULATOR_LINEAR_RANGE(RPM_VREG_CORNER_NONE, 0,
->> +				RPM_VREG_CORNER_HIGH, 1),
->> +};
->> +
->>  static int rpm_reg_write(struct qcom_rpm_reg *vreg,
-> [..]
->> +
->> +static const struct qcom_rpm_reg pm8018_corner = {
->> +	.desc.linear_ranges = corner_ranges,
->> +	.desc.n_linear_ranges = ARRAY_SIZE(corner_ranges),
->> +	.desc.n_voltages = 4,
->> +	.desc.ops = &uV_ops,
->> +	.parts = &rpm8018_corner_parts,
->> +};
->> +
-> [..]
->> +static const struct rpm_regulator_data rpm_pm8018_regulators[] = {
-> [..]
->> +	{ "dig_corner", QCOM_RPM_VOLTAGE_CORNER, &pm8018_corner,
->> +						      "vdd_dig_corner" },
->> +
->> +	{ }
->> +};
-> 
-> We have discussed the corners for a long time and I think we've
-> concluded that they should be exposed as something like an OPP. What we
-> have agreed on is that they should not be exposed as a regulator with
-> voltages 1-4uV.
-> 
-> So please drop the corner for now.
+From: Jiri Kosina <jkosina@suse.cz>
 
-OK,
+Calculating size of the report as sizeof(pointer) always passess the 
+length corresponding to the pointer type, not the underlying data report.
 
-Thanks,
-Neil
+Reported-by: kbuild test robot <fengguang.wu@intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-alps.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-> 
-> Regards,
-> Bjorn
-> 
-
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index 098bce6..ff64c929 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -136,7 +136,8 @@ static int u1_read_write_register(struct hid_device *hdev, u32 address,
+ 
+ 	input[7] = check_sum;
+ 	ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, input,
+-			sizeof(input), HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
++			sizeof(u8)*U1_FEATURE_REPORT_LEN, HID_FEATURE_REPORT,
++			HID_REQ_SET_REPORT);
+ 
+ 	if (ret < 0) {
+ 		dev_err(&hdev->dev, "failed to read command (%d)\n", ret);
+@@ -145,8 +146,8 @@ static int u1_read_write_register(struct hid_device *hdev, u32 address,
+ 
+ 	if (read_flag) {
+ 		ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, readbuf,
+-				sizeof(readbuf), HID_FEATURE_REPORT,
+-				HID_REQ_GET_REPORT);
++				sizeof(u8)*U1_FEATURE_REPORT_LEN,
++				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+ 
+ 		if (ret < 0) {
+ 			dev_err(&hdev->dev, "failed read register (%d)\n", ret);
 -- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+Jiri Kosina
+SUSE Labs
+

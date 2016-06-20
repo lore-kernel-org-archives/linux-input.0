@@ -1,116 +1,45 @@
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: Re: [PATCH v3 1/5] mfd: tps65217: Add support for IRQs
-Date: Mon, 20 Jun 2016 12:56:42 +0200
-Message-ID: <90cc8e89-3132-e43e-371b-842774a5a7fc@grinn-global.com>
-References: <20160616114110.23455-1-m.niestroj@grinn-global.com>
- <20160616114110.23455-2-m.niestroj@grinn-global.com>
- <5762A3AC.9010409@ti.com>
- <123e6759-fa44-48f0-860d-623aaa39f8ea@grinn-global.com>
- <57640C3C.1070001@ti.com>
- <062438af-c05f-00b3-adc6-ac27e7cec892@grinn-global.com>
- <576420C4.4060002@ti.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: [PATCH] HID: alps: match alps devices in core
+Date: Mon, 20 Jun 2016 13:07:05 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1606201305380.6874@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 2780.rev.megiteam.pl ([91.227.39.128]:34980 "EHLO
-	vk1046.megiteam.com.pl" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753684AbcFTK5k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jun 2016 06:57:40 -0400
-In-Reply-To: <576420C4.4060002@ti.com>
+Received: from mx2.suse.de ([195.135.220.15]:59687 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752342AbcFTLH6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Jun 2016 07:07:58 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>, Lee Jones <lee.jones@linaro.org>
-Cc: Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+To: Masaki Ota <masaki.ota@jp.alps.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 17.06.2016 18:09, Grygorii Strashko wrote:
-> On 06/17/2016 06:31 PM, Marcin Niestroj wrote:
->>
->>
->> On 17.06.2016 16:42, Grygorii Strashko wrote:
->>> On 06/17/2016 05:05 PM, Marcin Niestroj wrote:
->>>>
->>>> On 16.06.2016 15:03, Grygorii Strashko wrote:
->>>>> On 06/16/2016 02:41 PM, Marcin Niestroj wrote:
->>>>>> Add support for handling IRQs: power button, AC and USB power state
->>>>>> changes. Mask and interrupt bits are shared within one register, which
->>>>>> prevents us to use regmap_irq implementation. New irq_domain is
->>>>>> created in
->>>>>> order to add interrupt handling for each tps65217's subsystem. IRQ
->>>>>> resources have been added for charger subsystem to be able to notify
->>>>>> about
->>>>>> AC and USB state changes.
->>>>>>
->>>>>> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
->>>>>> ---
->>>>>>   drivers/mfd/Kconfig          |   1 +
->>>>>>   drivers/mfd/tps65217.c       | 194
->>>>>> +++++++++++++++++++++++++++++++++++++++++--
->>>>>>   include/linux/mfd/tps65217.h |  11 +++
->>>>>>   3 files changed, 198 insertions(+), 8 deletions(-)
->>>
->>> [...]
->>>
->>>>>> +{
->>>>>> +    int ret;
->>>>>> +
->>>>>> +    mutex_init(&tps->irq_lock);
->>>>>> +
->>>>>> +    /* Mask all interrupt sources */
->>>>>> +    tps->irq_mask = (TPS65217_INT_RESERVEDM | TPS65217_INT_PBM
->>>>>> +            | TPS65217_INT_ACM | TPS65217_INT_USBM);
->>>>>> +    tps65217_reg_write(tps, TPS65217_REG_INT, tps->irq_mask,
->>>>>> +            TPS65217_PROTECT_NONE);
->>>>>> +
->>>>>> +    tps->irq_domain = irq_domain_add_linear(tps->dev->of_node,
->>>>>> +        TPS65217_NUM_IRQ, &tps65217_irq_domain_ops, tps);
->>>>>> +    if (!tps->irq_domain) {
->>>>>> +        dev_err(tps->dev, "Could not create IRQ domain\n");
->>>>>> +        return -ENOMEM;
->>>>>> +    }
->>>>>> +
->>>>>> +    ret = devm_request_threaded_irq(tps->dev, irq, NULL,
->>>>>> +                    tps65217_irq_thread,
->>>>>> +                    IRQF_TRIGGER_RISING | IRQF_ONESHOT,
->>>>>
->>>>> Are there any reasons why IRQ trigger type specified here explicitly?
->>>>
->>>> Not really. I have configured it that way, it worked and I forgot about
->>>> it when preparing patches. Could you give some hint here?
->>>>
->>>
->>> It's better to get it from DT and in case of DT boot it will - the real
->>> IRQ trigger type may depends on board.
->>>
->>
->> So what I understand, I need to remove IRQF_TRIGGER_RISING here.
->> Addidional flags will be passed by 'irq_flags' in
->> "interrupts = <irq_num irq_flags>" in DT, right?
->
-> Indeed. And usually it is not "Addidional flags" - its mandatory cell for
->  the most of IRQ controllers.
->
-> The problem with hard-coded IRQ trigger type values in code is that on
-> different boards IRQ can be wired on different way - to the GIC/INTC,
-> to SoC GPIO, to GPIO expanders and .. And they can support different sets
-> of allowed IRQ triggering types. More over, on some boards IRQ signal can be
-> inverted, for example :P
->
-> So, It's more generic to not hard-code it if your driver is expected to be
-> used only with DT.
-> Also as per TRM http://www.ti.com/lit/ds/symlink/tps65217.pdf
-> nINT - interrupt output (active low, open drain). Pin is pulled low if an interrupt bit is set. The
->        output goes high after the bit causing the interrupt in register INT has been read.
->        The interrupt sources can be masked in register INT, so no interrupt is generated when the
->        corresponding interrupt bit is set
->
->
+From: Jiri Kosina <jkosina@suse.cz>
 
-Thanks very much for making this clear to me.
+All devices with ALPS_JP VID are handled by hid-alps driver, hence they 
+require an entry in hid_have_special_driver[].
 
-I have just send new patch version with fixes from your comments.
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
 
+Queued in hid.git#for-4.8/alps
+
+ drivers/hid/hid-core.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8ea3a26..3cdbc4b 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1772,6 +1772,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0xf705) },
++	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, USB_VENDOR_ID_ALPS_JP, HID_ANY_ID) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICMOUSE) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICTRACKPAD) },
 -- 
-Regards,
-Marcin Niestroj
+Jiri Kosina
+SUSE Labs
+

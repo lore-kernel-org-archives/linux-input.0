@@ -1,51 +1,40 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v4 2/9] [media] v4l2-core: Add VFL_TYPE_TOUCH_SENSOR
-Date: Mon, 20 Jun 2016 14:00:36 +0200
-Message-ID: <5767DAE4.3000202@xs4all.nl>
-References: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk>
- <1466172988-3698-3-git-send-email-nick.dyer@itdev.co.uk>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 5/5] Input: Add tps65217 power button driver
+Date: Mon, 20 Jun 2016 08:06:04 -0500
+Message-ID: <20160620130604.GA23272@rob-hp-laptop>
+References: <20160616114110.23455-1-m.niestroj@grinn-global.com>
+ <20160616114110.23455-6-m.niestroj@grinn-global.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb2-smtp-cloud2.xs4all.net ([194.109.24.25]:36138 "EHLO
-	lb2-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752325AbcFTMAm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jun 2016 08:00:42 -0400
-In-Reply-To: <1466172988-3698-3-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20160616114110.23455-6-m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marcin Niestroj <m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
 
-On 06/17/2016 04:16 PM, Nick Dyer wrote:
-> Some touch controllers send out raw touch data in a similar way to a
-> greyscale frame grabber. Add a new device type for these devices.
+On Thu, Jun 16, 2016 at 01:41:10PM +0200, Marcin Niestroj wrote:
+> This driver enables us to use tps65217's power button as KEY_POWER on
+> am335x boards (directly connected button in chiliboard, accessible pin
+> via expansion header in beaglebone). This patch has been tested with
+> chiliboard.
 > 
-> Use a new device prefix v4l-touch for these devices, to stop generic
-> capture software from treating them as webcams.
-> 
-> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+> Signed-off-by: Marcin Niestroj <m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
 > ---
->  drivers/input/touchscreen/sur40.c    |  4 ++--
->  drivers/media/v4l2-core/v4l2-dev.c   | 13 ++++++++++---
->  drivers/media/v4l2-core/v4l2-ioctl.c | 15 ++++++++++-----
->  include/media/v4l2-dev.h             |  3 ++-
->  include/uapi/linux/videodev2.h       |  1 +
+> depends on patches 1-4 in series
+> 
+>  .../bindings/input/tps65217-pwrbutton.txt          |  17 +++
 
-The new interface also needs to be documented in the media DocBook: section 4
-describes all the interfaces, so a new one should be added here.
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
-Sorry, just realized this.
-
-I recommend that you grep for swradio:
-
-git grep swradio Documentation/DocBook/media
-
-and add a line there for v4l-touch as well. It also looks like a new interface
-define is needed as a media type.
-
-Regards,
-
-	Hans
+>  drivers/input/misc/Kconfig                         |  10 ++
+>  drivers/input/misc/Makefile                        |   1 +
+>  drivers/input/misc/tps65217-pwrbutton.c            | 131 +++++++++++++++++++++
+>  4 files changed, 159 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/tps65217-pwrbutton.txt
+>  create mode 100644 drivers/input/misc/tps65217-pwrbutton.c
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

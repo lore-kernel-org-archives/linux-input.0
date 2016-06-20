@@ -1,43 +1,67 @@
-From: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: RE: [PATCH] HID: fix noderef.cocci warnings
-Date: Mon, 20 Jun 2016 12:40:41 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1606201238540.6874@cbobk.fhfr.pm>
-References: <201606182012.7NLmbFhz%fengguang.wu@intel.com> <20160618121314.GA95633@lkp-ib04> <OSXPR01MB0408C44F44A1B06579D0BCB7C72A0@OSXPR01MB0408.jpnprd01.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <OSXPR01MB0408C44F44A1B06579D0BCB7C72A0-x3s0nd+sA3ZOfzQfux4QuHcolHNk5qUtvxpqHgZTriW3zl9H0oFU5g@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Masaki Ota <masaki.ota-Ej8lA1M1qLxBDgjK7y7TUQ@public.gmane.org>
-Cc: kbuild test robot <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "kbuild-all-JC7UmRfGjtg@public.gmane.org" <kbuild-all-JC7UmRfGjtg@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Subject: [PATCH v4 2/5] power_supply: tps65217-charger: Fix NULL deref during property export
+Date: Mon, 20 Jun 2016 12:50:53 +0200
+Message-ID: <20160620105056.25843-3-m.niestroj@grinn-global.com>
+References: <20160620105056.25843-1-m.niestroj@grinn-global.com>
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20160620105056.25843-1-m.niestroj@grinn-global.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>, Marcin Niestroj <m.niestroj@grinn-global.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 20 Jun 2016, Masaki Ota wrote:
+This bug leads to:
 
-> Hi, fengguang,
-> 
-> 	ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, input,
-> -			sizeof(input), HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-> +			sizeof(*input), HID_FEATURE_REPORT,
-> +			HID_REQ_SET_REPORT);
+[    1.906411] Unable to handle kernel NULL pointer dereference at virtual address 0000000c
+[    1.914878] pgd = c0004000
+[    1.917786] [0000000c] *pgd=00000000
+[    1.921536] Internal error: Oops: 5 [#1] SMP ARM
+[    1.926357] Modules linked in:
+[    1.929556] CPU: 0 PID: 14 Comm: kworker/0:1 Not tainted 4.4.5 #18
+[    1.936006] Hardware name: Generic AM33XX (Flattened Device Tree)
+[    1.942383] Workqueue: events power_supply_changed_work
+[    1.947842] task: de2c41c0 ti: de2c8000 task.ti: de2c8000
+[    1.953483] PC is at tps65217_ac_get_property+0x14/0x28
+[    1.958937] LR is at tps65217_ac_get_property+0x10/0x28
 
-This is a wrong fix. sizeof(*input) is sizeof(u8).
+Driver was trying to use drv_data in property get handler. However drv_data
+was not set, so it caused NULL pointer dereference. This patch properly
+sets drv_data during probe by power_supply_config parameter, so the
+property get handler works as desired.
 
-> I tested this code, but our device cannot work on it.
-> So, I think we should modify the code as below.
-> 
-> 	ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, input,
-> 			sizeof(u8)*U1_FEATURE_REPORT_LEN,
-> 			HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+---
+Changes v1 -> v4: none
 
-I've already applied patch that fixes this (an one more callsite with the 
-same issue); I CCed you on the patch earlier today.
+ drivers/power/tps65217_charger.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/power/tps65217_charger.c b/drivers/power/tps65217_charger.c
+index d9f5673..73dfae4 100644
+--- a/drivers/power/tps65217_charger.c
++++ b/drivers/power/tps65217_charger.c
+@@ -197,6 +197,7 @@ static int tps65217_charger_probe(struct platform_device *pdev)
+ {
+ 	struct tps65217 *tps = dev_get_drvdata(pdev->dev.parent);
+ 	struct tps65217_charger *charger;
++	struct power_supply_config cfg = {};
+ 	int ret;
+ 
+ 	dev_dbg(&pdev->dev, "%s\n", __func__);
+@@ -208,9 +209,12 @@ static int tps65217_charger_probe(struct platform_device *pdev)
+ 	charger->tps = tps;
+ 	charger->dev = &pdev->dev;
+ 
++	cfg.of_node = pdev->dev.of_node;
++	cfg.drv_data = charger;
++
+ 	charger->ac = devm_power_supply_register(&pdev->dev,
+ 						 &tps65217_charger_desc,
+-						 NULL);
++						 &cfg);
+ 	if (IS_ERR(charger->ac)) {
+ 		dev_err(&pdev->dev, "failed: power supply register\n");
+ 		return PTR_ERR(charger->ac);
 -- 
-Jiri Kosina
-SUSE Labs
+2.9.0
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

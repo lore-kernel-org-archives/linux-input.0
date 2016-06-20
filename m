@@ -1,87 +1,51 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH v4 1/9] [media] Add signed 16-bit pixel format
-Date: Mon, 20 Jun 2016 12:51:25 +0100
-Message-ID: <20a8b8a3-1b90-9f7d-1dfa-c4f8168546d6@itdev.co.uk>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH v4 2/9] [media] v4l2-core: Add VFL_TYPE_TOUCH_SENSOR
+Date: Mon, 20 Jun 2016 14:00:36 +0200
+Message-ID: <5767DAE4.3000202@xs4all.nl>
 References: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk>
- <1466172988-3698-2-git-send-email-nick.dyer@itdev.co.uk>
- <5767CCB0.3060303@xs4all.nl>
+ <1466172988-3698-3-git-send-email-nick.dyer@itdev.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <5767CCB0.3060303@xs4all.nl>
-Sender: linux-media-owner@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lb2-smtp-cloud2.xs4all.net ([194.109.24.25]:36138 "EHLO
+	lb2-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752325AbcFTMAm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Jun 2016 08:00:42 -0400
+In-Reply-To: <1466172988-3698-3-git-send-email-nick.dyer@itdev.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
 
-Hi Hans-
-
-On 20/06/2016 12:00, Hans Verkuil wrote:
-> On 06/17/2016 04:16 PM, Nick Dyer wrote:
->> This will be used for output of raw touch delta data. This format is
->> used by Atmel maXTouch (atmel_mxt_ts) and also Synaptics RMI4.
->>
->> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
->> ---
->>  Documentation/DocBook/media/v4l/pixfmt-ys16.xml | 79 +++++++++++++++++++++++++
->>  Documentation/DocBook/media/v4l/pixfmt.xml      |  1 +
->>  drivers/media/v4l2-core/v4l2-ioctl.c            |  1 +
->>  include/uapi/linux/videodev2.h                  |  1 +
->>  4 files changed, 82 insertions(+)
->>  create mode 100644 Documentation/DocBook/media/v4l/pixfmt-ys16.xml
->>
->> diff --git a/Documentation/DocBook/media/v4l/pixfmt-ys16.xml b/Documentation/DocBook/media/v4l/pixfmt-ys16.xml
->> new file mode 100644
->> index 0000000..f92d65e
->> --- /dev/null
->> +++ b/Documentation/DocBook/media/v4l/pixfmt-ys16.xml
->> @@ -0,0 +1,79 @@
->> +<refentry id="V4L2-PIX-FMT-YS16">
->> +  <refmeta>
->> +    <refentrytitle>V4L2_PIX_FMT_YS16 ('YS16')</refentrytitle>
->> +    &manvol;
->> +  </refmeta>
->> +  <refnamediv>
->> +    <refname><constant>V4L2_PIX_FMT_YS16</constant></refname>
->> +    <refpurpose>Grey-scale image</refpurpose>
->> +  </refnamediv>
->> +  <refsect1>
->> +    <title>Description</title>
->> +
->> +    <para>This is a signed grey-scale image with a depth of 16 bits per
->> +pixel. The most significant byte is stored at higher memory addresses
->> +(little-endian).</para>
+On 06/17/2016 04:16 PM, Nick Dyer wrote:
+> Some touch controllers send out raw touch data in a similar way to a
+> greyscale frame grabber. Add a new device type for these devices.
 > 
-> This is too generic. I think something like V4L2_TOUCH_FMT_DELTA_S16 is much
-> more appropriate since this is neither luma (Y) data nor a picture in the
-> classic sense. Since we already use V4L2_SDR_FMT_* defines for software defined
-> radio formats, it makes sense to use V4L2_TOUCH_FMT_* for these touch panel
-> formats.
-
-OK, that sounds sensible to me.
-
-> The description can be based around what you told here:
+> Use a new device prefix v4l-touch for these devices, to stop generic
+> capture software from treating them as webcams.
 > 
-> https://lkml.org/lkml/2016/5/27/278
-> 
-> It's also important that you clearly state what the delta is against. A delta
-> implies a difference from something, but what that something is isn't explained.
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+> ---
+>  drivers/input/touchscreen/sur40.c    |  4 ++--
+>  drivers/media/v4l2-core/v4l2-dev.c   | 13 ++++++++++---
+>  drivers/media/v4l2-core/v4l2-ioctl.c | 15 ++++++++++-----
+>  include/media/v4l2-dev.h             |  3 ++-
+>  include/uapi/linux/videodev2.h       |  1 +
 
-To explain, in PCAP capacitive touch, a touch input is determined by
-comparing the raw capacitance measurement to a no-touch reference (or
-"baseline") measurement. Hence:
+The new interface also needs to be documented in the media DocBook: section 4
+describes all the interfaces, so a new one should be added here.
 
-Delta = Raw - Reference
+Sorry, just realized this.
 
-The reference measurement takes account of variations in the capacitance
-characteristics across the nodes of the touch sensor, for example
-manufacturing irregularities or edge effects.
+I recommend that you grep for swradio:
 
-I'll put something about this in the docs.
+git grep swradio Documentation/DocBook/media
 
-> I'm sorry for being pedantic about this, but it should be possible to make an
-> application that can correctly interpret this data based on this format
-> description. Otherwise there would be no point in documenting this...
+and add a line there for v4l-touch as well. It also looks like a new interface
+define is needed as a media type.
 
-No problem: thanks for your clear feedback.
+Regards,
+
+	Hans

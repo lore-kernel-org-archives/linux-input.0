@@ -1,46 +1,69 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: Canonical has own Ubuntu driver for ALPS 73 03 28 devices
-Date: Mon, 20 Jun 2016 12:20:34 +0200
-Message-ID: <20160620102034.GI29844@pali>
-References: <201606190143.46444@pali>
- <20160620101636.GA23462@infradead.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH] HID: i2c-hid: set power sleep before shutdown
+Date: Mon, 20 Jun 2016 13:39:54 +0300
+Message-ID: <20160620103954.GG1739@lahna.fi.intel.com>
+References: <1466247030-23047-1-git-send-email-ghzhong@yifangdigital.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f41.google.com ([74.125.82.41]:35318 "EHLO
-	mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752056AbcFTKUi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jun 2016 06:20:38 -0400
+Received: from mga01.intel.com ([192.55.52.88]:52288 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751307AbcFTKkp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Jun 2016 06:40:45 -0400
 Content-Disposition: inline
-In-Reply-To: <20160620101636.GA23462@infradead.org>
+In-Reply-To: <1466247030-23047-1-git-send-email-ghzhong@yifangdigital.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Ben Gamari <ben@smart-cactus.org>, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Ben Morgan <Ben_Morgan@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Guohua Zhong <ghzhong@yifangdigital.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dtor@chromium.org>, Benson Leung <bleung@chromium.org>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Monday 20 June 2016 03:16:36 Christoph Hellwig wrote:
-> On Sun, Jun 19, 2016 at 01:43:46AM +0200, Pali Roh??r wrote:
-> > I do not understand it... Why Canonical is hidden and don't communi=
-cate
-> > with rest of world? Otherwise touchpads could work out-of-box on no=
-n
-> > Ubuntu systems too with mainline kernel.
->=20
-> Because Canonical doesn't collaborate with the upstream community
-> in any meaninful way.  They've been a bad player since day 1 and will
-> always be.
+On Sat, Jun 18, 2016 at 06:50:30PM +0800, Guohua Zhong wrote:
+> Add i2c_hid_shutdown for i2c-hid driver to send suspend cmd &
+> disable irq before device shutdown.
+> 
+> Some HW design is that the power to i2c hid device won't down
+> after device shutdown. Also the i2c-hid driver do not send suspend
+> cmd to the hid i2c device and disable its irq before shutdown.So
+> if We touch the touchscreen or some other i2c hid device ,the power
+> consumtion will be go up even when the device is in shutdown state.
+> 
+> Though the root cause maybe a HW issue. But it seems that it is a
+> good pratice to set power sleep for i2c-hid device before shutdown.
+> 
+> Signed-off-by: Guohua Zhong <ghzhong@yifangdigital.com>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 2e021ba..d6ea97b 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -1106,6 +1106,12 @@ static int i2c_hid_remove(struct i2c_client *client)
+>  	return 0;
+>  }
+>  
+> +static void i2c_hid_shutdown(struct i2c_client *client)
+> +{
+> +	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+> +	disable_irq(client->irq);
 
-It must be really frustrating for Ben and other people (me too) who in
-last months working on ALPS patches to support that touchpad as we know
-that Canonical already had some working code for that touchpad...
+Why not free_irq() instead?
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +}
+> +
+>  #ifdef CONFIG_PM_SLEEP
+>  static int i2c_hid_suspend(struct device *dev)
+>  {
+> @@ -1230,7 +1236,7 @@ static struct i2c_driver i2c_hid_driver = {
+>  
+>  	.probe		= i2c_hid_probe,
+>  	.remove		= i2c_hid_remove,
+> -
+> +	.shutdown	= i2c_hid_shutdown,
+>  	.id_table	= i2c_hid_id_table,
+>  };
+>  
+> -- 
+> 1.9.1
+> 

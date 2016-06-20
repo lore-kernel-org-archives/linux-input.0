@@ -1,56 +1,35 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: [PATCH] HID: alps: pass correct sizes to hid_hw_raw_request()
-Date: Mon, 20 Jun 2016 11:24:12 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1606201122090.6874@cbobk.fhfr.pm>
+Subject: Re: [PATCH 2/6] hid: intel_ish-hid: ISH Transport layer
+Date: Mon, 20 Jun 2016 11:29:28 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1606201129060.6874@cbobk.fhfr.pm>
+References: <1465647219-7798-1-git-send-email-srinivas.pandruvada@linux.intel.com>  <1465647219-7798-3-git-send-email-srinivas.pandruvada@linux.intel.com>  <alpine.LNX.2.00.1606172236520.6874@cbobk.fhfr.pm> <1466197963.24319.110.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49414 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751557AbcFTJYU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jun 2016 05:24:20 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1466197963.24319.110.camel@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: jic23@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, chaya.golan@intel.com, daniel.drubin@intel.com, A.Bhattacharya@ulg.ac.be
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <masaki.ota@jp.alps.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, kbuild test robot <fengguang.wu@intel.com>
 
-From: Jiri Kosina <jkosina@suse.cz>
+On Fri, 17 Jun 2016, Srinivas Pandruvada wrote:
 
-Calculating size of the report as sizeof(pointer) always passess the 
-length corresponding to the pointer type, not the underlying data report.
+> > > +config INTEL_ISH_HID_TRANSPORT
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0bool
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0default n
+> > > +
+> > > +config INTEL_ISH_HID
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0bool "Intel Integrated Sensor Hub"
+> >=20
+> > Why can't the transport driver be built as a module?
+> In current use case for PM, we don't want anyone to unload and
+> complain.
 
-Reported-by: kbuild test robot <fengguang.wu@intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
- drivers/hid/hid-alps.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Sorry, I don't understand this explanation, could you please elaborate?
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index 098bce6..ff64c929 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -136,7 +136,8 @@ static int u1_read_write_register(struct hid_device *hdev, u32 address,
- 
- 	input[7] = check_sum;
- 	ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, input,
--			sizeof(input), HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+			sizeof(u8)*U1_FEATURE_REPORT_LEN, HID_FEATURE_REPORT,
-+			HID_REQ_SET_REPORT);
- 
- 	if (ret < 0) {
- 		dev_err(&hdev->dev, "failed to read command (%d)\n", ret);
-@@ -145,8 +146,8 @@ static int u1_read_write_register(struct hid_device *hdev, u32 address,
- 
- 	if (read_flag) {
- 		ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, readbuf,
--				sizeof(readbuf), HID_FEATURE_REPORT,
--				HID_REQ_GET_REPORT);
-+				sizeof(u8)*U1_FEATURE_REPORT_LEN,
-+				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
- 
- 		if (ret < 0) {
- 			dev_err(&hdev->dev, "failed read register (%d)\n", ret);
--- 
+Thanks,
+
+--=20
 Jiri Kosina
 SUSE Labs
-

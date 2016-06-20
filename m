@@ -1,74 +1,67 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: i2c-hid: set power sleep before shutdown
-Date: Mon, 20 Jun 2016 11:34:57 +0200
-Message-ID: <20160620093457.GM24234@mail.corp.redhat.com>
-References: <1466247030-23047-1-git-send-email-ghzhong@yifangdigital.com>
+Subject: Re: [PATCH] HID: multitouch: add support for Type Cover Pro 3
+Date: Mon, 20 Jun 2016 11:59:34 +0200
+Message-ID: <20160620095934.GN24234@mail.corp.redhat.com>
+References: <1466196443.21223.1.camel@gmail.com>
+ <alpine.LNX.2.00.1606172259110.6874@cbobk.fhfr.pm>
+ <20160617211142.GH24234@mail.corp.redhat.com>
+ <1466275994.2669.11.camel@gmail.com>
+ <20160618194534.GI24234@mail.corp.redhat.com>
+ <1466369282.15726.7.camel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:37515 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752020AbcFTKAv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Jun 2016 06:00:51 -0400
 Content-Disposition: inline
-In-Reply-To: <1466247030-23047-1-git-send-email-ghzhong@yifangdigital.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guohua Zhong <ghzhong@yifangdigital.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Dmitry Torokhov <dtor@chromium.org>, Benson Leung <bleung@chromium.org>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1466369282.15726.7.camel@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dennis Chen <barracks510@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-On Jun 18 2016 or thereabouts, Guohua Zhong wrote:
-> Add i2c_hid_shutdown for i2c-hid driver to send suspend cmd &
-> disable irq before device shutdown.
-> 
-> Some HW design is that the power to i2c hid device won't down
-> after device shutdown. Also the i2c-hid driver do not send suspend
-> cmd to the hid i2c device and disable its irq before shutdown.So
-> if We touch the touchscreen or some other i2c hid device ,the power
-> consumtion will be go up even when the device is in shutdown state.
+On Jun 19 2016 or thereabouts, Dennis Chen wrote:
+> On Sat, 2016-06-18 at 21:45 +0200, Benjamin Tissoires wrote:
+> >=C2=A0
+> > That's the entire purpose of the series I mentioned below. It adds
+> > the keyboard support, caps lock and multitouch, so there is nothing
+> > more to fix once it is in. The benefit is that
+> > MT_CLS_EXPORT_ALL_INPUTS exports far too many input devices while
+> > the series exports only the required ones.
+> >=20
+>=20
+> Ah. Sorry, I misunderstood.=C2=A0
 
-Wow, that's a new one! Could you tell us which device board is behaving
-that way (if not under NDA or such)?
+no worries.
 
-> 
-> Though the root cause maybe a HW issue. But it seems that it is a
-> good pratice to set power sleep for i2c-hid device before shutdown.
+>=20
+> I've tested the patches you sent. There is one major issue: the
+> keyboard/touchpad no longer functions after a disconnect. However, on=
+ a
+> clean bootup of the Surface Pro 3, I can confirm that the keyboard
+> seems fully functional, i.e. touchpad works, CAPS LOCK LED is toggled=
+,
+> etc.=C2=A0
 
-Works for me:
-Acked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+When you say disconnect, you mean disconnecting the cover and
+re-attaching it?=20
+If so, I can't understand why it would fail with my patches but
+not without. Could you send the dmesg after disconnet/reconnect
+and some hid-recorder[1] trace after re-attaching the device when
+the keyboard is not working?
 
 Cheers,
 Benjamin
 
-> 
-> Signed-off-by: Guohua Zhong <ghzhong@yifangdigital.com>
-> ---
->  drivers/hid/i2c-hid/i2c-hid.c | 8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 2e021ba..d6ea97b 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -1106,6 +1106,12 @@ static int i2c_hid_remove(struct i2c_client *client)
->  	return 0;
->  }
->  
-> +static void i2c_hid_shutdown(struct i2c_client *client)
-> +{
-> +	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
-> +	disable_irq(client->irq);
-> +}
-> +
->  #ifdef CONFIG_PM_SLEEP
->  static int i2c_hid_suspend(struct device *dev)
->  {
-> @@ -1230,7 +1236,7 @@ static struct i2c_driver i2c_hid_driver = {
->  
->  	.probe		= i2c_hid_probe,
->  	.remove		= i2c_hid_remove,
-> -
-> +	.shutdown	= i2c_hid_shutdown,
->  	.id_table	= i2c_hid_id_table,
->  };
->  
-> -- 
-> 1.9.1
-> 
-> 
+
+[1] http://bentiss.github.io/hid-replay-docs/
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

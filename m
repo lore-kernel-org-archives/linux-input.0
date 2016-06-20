@@ -1,45 +1,146 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: New Elantech touchpad version?
-Date: Mon, 20 Jun 2016 11:21:10 -0700
-Message-ID: <20160620182110.GD22426@dtor-ws>
-References: <4D0DB74D8481894EB236F640F391FC7E0107F5CF6C@TRPMEXMBX1.cogeco.com>
+From: Patrick Lessard <Patrick.Lessard@cogeco.com>
+Subject: RE : New Elantech touchpad version?
+Date: Mon, 20 Jun 2016 23:53:49 +0000
+Message-ID: <4D0DB74D8481894EB236F640F391FC7E0107F5D1B7@TRPMEXMBX1.cogeco.com>
+References: <4D0DB74D8481894EB236F640F391FC7E0107F5CF6C@TRPMEXMBX1.cogeco.com>,<20160620182110.GD22426@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=Windows-1252
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:36255 "EHLO
-	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753753AbcFTSgY (ORCPT
+Received: from bupnmail1.cogeco.com ([24.226.15.15]:37231 "EHLO
+	bupnmail1.cogeco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751596AbcFTXyM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jun 2016 14:36:24 -0400
-Received: by mail-pf0-f193.google.com with SMTP id i123so9115730pfg.3
-        for <linux-input@vger.kernel.org>; Mon, 20 Jun 2016 11:36:03 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4D0DB74D8481894EB236F640F391FC7E0107F5CF6C@TRPMEXMBX1.cogeco.com>
+	Mon, 20 Jun 2016 19:54:12 -0400
+In-Reply-To: <20160620182110.GD22426@dtor-ws>
+Content-Language: fr-CA
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Patrick Lessard <Patrick.Lessard@cogeco.com>, kt.liao@emc.com.tw
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "kt.liao@emc.com.tw" <kt.liao@emc.com.tw>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+
+Hello,
+
+Just tested an ugly quick patch just for testing. By assigning it a hw_=
+version of 4 it works fine.
+
+I'll find out what fw_version it gives and see how it translate for the=
+ ver variable
+
+You can see what I did below. I just played with the "default" statemen=
+t.
+
+Thank you.
+
+Patrick.
+
+static int elantech_set_properties(struct elantech_data *etd)
+{
+        /* This represents the version of IC body. */
+        int ver =3D (etd->fw_version & 0x0f0000) >> 16;
+
+        /* Early version of Elan touchpads doesn't obey the rule. */
+        if (etd->fw_version < 0x020030 || etd->fw_version =3D=3D 0x0206=
+00)
+                etd->hw_version =3D 1;
+        else {
+                switch (ver) {
+                case 2:
+                case 4:
+                        etd->hw_version =3D 2;
+                        break;
+                case 5:
+                        etd->hw_version =3D 3;
+                        break;
+                case 6:
+                case 7:
+                case 8:
+                case 9:
+                case 10:
+                case 13:
+                case 14:
+                        etd->hw_version =3D 4;
+                        break;
+                default:
+                        etd->hw_version =3D 4;
+                        break;
+                        /*return -1;*/
+
+
+
+The information in this message, including in all attachments, is
+confidential or privileged. In the event you have received this message=
+ in error
+and are not the intended recipient, you are hereby advised that any use=
+, copying
+or reproduction of this document is strictly forbidden. Please notify
+immediately the sender of this error and destroy this message, includin=
+g its
+attachments, as the case may be.
+</P>
+L'information apparaissant dans ce message electronique et dans les doc=
+uments
+qui y sont joints est de nature confidentielle ou privilegiee. Si ce me=
+ssage
+vous est parvenu par erreur et que vous n'en etes pas le destinataire v=
+ise, vous
+etes par les presentes avise que toute utilisation, copie ou distributi=
+on de ce
+message est strictement interdite. Vous etes donc prie d=92en informer
+immediatement l=92expediteur et de detruire ce message, ainsi que les d=
+ocuments
+qui y sont joints, le
+
+request a hard-copy version.
+
+
+
+Ce courriel provient de Patrick.Lessard@cogeco.com . Pour assurer la li=
+vraison de futurs envois, veuillez inclure la presente adresse courriel=
+ a votre carnet
+d=92adresses ou votre liste d=92expediteurs autorises.
+Si vous ne souhaitez plus recevoir de messages promotionnels de la part=
+ de Cogeco, veuillez transf=E9rer ce courriel a desabonnement@cogeco.co=
+m. Merci!
+Politique en matiere de protection des renseignements personnels de Cog=
+eco et Engagement en matiere d=92anti-spam =96 Contactez-nous
+Cogeco Cable Canada, 5 Place Ville-Marie, Bureau 1700, Montreal, Quebec=
+, H3B 0B3
+--
+This email is from Patrick.Lessard@cogeco.com . To ensure the delivery =
+of future emails, please add the current email address to your address =
+book or safe senders list.
+If you no longer wish to receive promotional emails from Cogeco, please=
+ forward this message to unsubscribe@cogeco.com. Thank you!
+Privacy Policy and Anti-spam Commitment - Contact us
+Cogeco Cable Canada, 5 Place Ville-Marie, Suite 1700, Montreal, Quebec,=
+ H3B 0B3
+
+________________________________________
+De : Dmitry Torokhov [dmitry.torokhov@gmail.com]
+Envoy=E9 : 20 juin 2016 14:21
+=C0 : Patrick Lessard; kt.liao@emc.com.tw
+Cc : linux-input@vger.kernel.org
+Objet : Re: New Elantech touchpad version?
 
 Hi Patrick,
 
 On Mon, Jun 20, 2016 at 06:10:41PM +0000, Patrick Lessard wrote:
 > Hello!
->=20
+>
 > First, thank you very much for creating a driver for the Elantech tou=
 chpads. Very appeciated.
->=20
-> I=E2=80=99ve contacted one of the original author, Arjan Opmeer and h=
-e directed me to you. (those 2 email addresses actually)
->=20
+>
+> I=92ve contacted one of the original author, Arjan Opmeer and he dire=
+cted me to you. (those 2 email addresses actually)
+>
 > I just bought a HP Pavilion 14-ab057ca laptop and I think it uses a n=
 ew version of the Elantech touchpad.
->=20
+>
 > On linux, when I boot, I get this message :
->=20
-> =C2=AB psmouse serio1: elantech: unknown hardware version, aborting..=
-=2E =C2=BB
->=20
+>
+> =AB psmouse serio1: elantech: unknown hardware version, aborting... =BB
+>
 > By looking at the kernel driver code in elantech.c below, I might try=
  a quick patch and add a case higher than 14, compile and try it.
 
@@ -49,27 +150,27 @@ are shipping with Elan touchpads.
 KT, do we need to expand the list in elantech_set_properties() to
 include more IC types?
 
->=20
+>
 > If succesfull, could you include a fix in the near future?
->=20
+>
 > Are you still maintaining this driver?
->=20
+>
 > How should I proceed?
->=20
+>
 > Thank you very much for your attention.
->=20
+>
 > Patrick.
->=20
->=20
+>
+>
 > Code snippet :
->=20
-> =E2=80=A6.
->=20
+>
+> =85.
+>
 > static int elantech_set_properties(struct elantech_data *etd)
 > {
 >         /* This represents the version of IC body. */
 >         int ver =3D (etd->fw_version & 0x0f0000) >> 16;
->=20
+>
 >         /* Early version of Elan touchpads doesn't obey the rule. */
 >         if (etd->fw_version < 0x020030 || etd->fw_version =3D=3D 0x02=
 0600)
@@ -96,11 +197,11 @@ include more IC types?
 >                        return -1;
 >                }
 >         }
->=20
+>
 
 Thanks.
 
---=20
+--
 Dmitry
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

@@ -1,42 +1,49 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 5/5] Input: Add tps65217 power button driver
-Date: Tue, 21 Jun 2016 08:17:35 -0500
-Message-ID: <20160621131735.GA896@rob-hp-laptop>
-References: <20160620105056.25843-1-m.niestroj@grinn-global.com>
- <20160620105056.25843-6-m.niestroj@grinn-global.com>
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Subject: Re: Canonical has own Ubuntu driver for ALPS 73 03 28 devices
+Date: Tue, 21 Jun 2016 14:42:15 +0100
+Message-ID: <20160621144215.333bd825@lxorguk.ukuu.org.uk>
+References: <201606190143.46444@pali>
+	<20160620101636.GA23462@infradead.org>
+	<20160620102034.GI29844@pali>
+	<CAE7LaDDBOqAaZP38tX4kuzd2108np+0xb0BgtcAoKFfo9QmikQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160620105056.25843-6-m.niestroj@grinn-global.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Marcin Niestroj <m.niestroj@grinn-global.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAE7LaDDBOqAaZP38tX4kuzd2108np+0xb0BgtcAoKFfo9QmikQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Anthony Wong <anthony.wong@canonical.com>
+Cc: Pali =?UTF-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>, Christoph Hellwig <hch@infradead.org>, Ben Gamari <ben@smart-cactus.org>, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Ben Morgan <Ben_Morgan@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 20, 2016 at 12:50:56PM +0200, Marcin Niestroj wrote:
-> This driver enables us to use tps65217's power button as KEY_POWER on
-> am335x boards (directly connected button in chiliboard, accessible pin
-> via expansion header in beaglebone). This patch has been tested with
-> chiliboard.
-> 
-> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
-> ---
-> Depends on patches 1-4 in series
-> 
-> Changes v2 -> v4: none
-> 
-> Changes v1 -> v2:
->  * Added information about parent device in tps65217 power button
->    device-tree binding documentation (suggested by Rob)
-> 
->  .../bindings/input/tps65217-pwrbutton.txt          |  17 +++
+> The fix in the DKMS package you referenced was not written by
+> Canonical but by ALPS, as it came from them I think it is reasonable
+> they send it to upstream, isn't it? As you can see the patch is non-trivial.
 
-Acked-by: Rob Herring <robh@kernel.org>
+You published it on to milliosn of users, you'd think also mentioning its
+existence upstream would have been easy enough.
 
->  drivers/input/misc/Kconfig                         |  10 ++
->  drivers/input/misc/Makefile                        |   1 +
->  drivers/input/misc/tps65217-pwrbutton.c            | 131 +++++++++++++++++++++
->  4 files changed, 159 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/tps65217-pwrbutton.txt
->  create mode 100644 drivers/input/misc/tps65217-pwrbutton.c
+> After we got the patch from ALPS, we had follow-up conversation a few
+> times with our contacts at Taiwan and asked if they would upstream it,
+> but unfortunately to no avail. I am as desperate as you if the fix
+> cannot land in mainline, which means many Linux users will not benefit
+> from it.  We also had opened this bug [1] for this particular issue,
+> there is nothing to hide. If there is any code written by us, we
+> happily submit them upstream.
+
+Other vendors and users regularly upstream driver code that lurks in
+third party repositories or amidst the grues in the dark smelly corners of
+the Android underworld. (and contrary to Christoph's comment Canonical are
+angels compared with a lot of the Android world)
+
+I can see why you wouldn't want to submit it if ALPS were
+going to, but really - not even mentioning it upstream when there was
+other work going on was unfortunate. A single Canonical email saying
+"You might want to look at the ALPS driver at URL" would have saved all
+the wasted effort.
+
+It's also good common sense behaviour - in this case there is no API
+difference but vendors who sit on stuff get burned when we merge an
+alternative piece of code.
+
+Alan

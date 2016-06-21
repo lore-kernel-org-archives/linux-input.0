@@ -1,106 +1,88 @@
-From: Allen Hung <allen_hung@dell.com>
-Subject: Re: [PATCH 1/1] HID: multitouch: enable palm rejection if device
- implements confidence usage
-Date: Tue, 21 Jun 2016 17:20:17 +0800
-Message-ID: <576906D1.5090609@dell.com>
-References: <1448014866-25348-1-git-send-email-allen_hung@dell.com>
- <alpine.LNX.2.00.1511261521350.20111@pobox.suse.cz>
- <CAN+gG=Ga92-UPbbcjiL0p2b4gO0iQE_-U6wXiq_x3=39z+edSg@mail.gmail.com>
- <5677CA23.9050008@dell.com>
- <CAN+gG=EzUADfseJQ_bY9KXQ_+YNrpS8B6B9eRK_gcyD6aZpg9w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Ben Gamari <ben@smart-cactus.org>
+Subject: [PATCH 5/5] Documentation/alps: Add V8 protocol documentation
+Date: Tue, 21 Jun 2016 11:19:33 +0200
+Message-ID: <1466500773-3470-6-git-send-email-ben@smart-cactus.org>
+References: <1466500773-3470-1-git-send-email-ben@smart-cactus.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from AUSXIPPC110.us.dell.com ([143.166.85.200]:43381 "EHLO
-	ausxippc110.us.dell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751307AbcFUJUb (ORCPT
+Received: from mail.smart-cactus.org ([54.187.36.80]:56548 "EHLO
+	mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751336AbcFUJUd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2016 05:20:31 -0400
-In-Reply-To: <CAN+gG=EzUADfseJQ_bY9KXQ_+YNrpS8B6B9eRK_gcyD6aZpg9w@mail.gmail.com>
+	Tue, 21 Jun 2016 05:20:33 -0400
+In-Reply-To: <1466500773-3470-1-git-send-email-ben@smart-cactus.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Ben Gamari <ben@smart-cactus.org>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>
 
-Hi Benjamin,
+---
+ Documentation/input/alps.txt | 57 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
 
-On 01/04/2016 04:35 PM, Benjamin Tissoires wrote:
-> Hi Allen,
-> 
-> On Mon, Dec 21, 2015 at 10:45 AM, Allen Hung <allen_hung@dell.com> wrote:
->> On 12/18/2015 05:52 AM, Benjamin Tissoires wrote:
->>> On Thu, Nov 26, 2015 at 3:21 PM, Jiri Kosina <jikos@kernel.org> wrote:
->>>> On Fri, 20 Nov 2015, Allen Hung wrote:
->>>>
->>>>> The usage Confidence is mandary to Windows Precision Touchpad devices. The
->>>>> appearance of this usage is checked in hidinput_connect but the quirk
->>>>> MT_QUIRK_VALID_IS_CONFIDENCE is not applied to device accordingly.
->>>>> Apply this quirk and also remove quirk MT_QUIRK_ALWAYS_VALID to enable palm
->>>>> rejection for the WIN 8 touchpad devices which have implemented usage
->>>>> Confidence in its input reports.
->>>>>
->>>>> Tested on Dell XPS 13 laptop.
->>>>>
->>>>> Signed-off-by: Allen Hung <allen_hung@dell.com>
->>>> Applied to for-4.5/multitouch. Thanks,
->>>>
->>> Allen, looks like the Dell XPS13 2015 (or was it the 2014?) has
->>> problems with your patch:
->>> https://bugzilla.redhat.com/show_bug.cgi?id=1292583 (we backported
->>> this change in the Fedora kernel 4.2.7).
->>>
->>> Would you mind checking that this patch does not create regressions on
->>> older series of laptops?
->>>
->>> Thanks in advance.
->>>
->>> Cheers,
->>> Benjamin
->> Hi Benjamin,
->>
->> It looks like a XPS13 2014 but I can confirm this with my colleagues who are in charge of this product line. I don't mind checking this patch with more older series of laptops. I will do it and let you know the status. Should I also test the machines with Fedora 23, or just go with Ubuntu OS? The XPS machines are shipped with Ubuntu.
->> Btw, the issue reporter said she/he cannot reproduce the issue (posted on Dec. 18).
->>
-> 
-> [Sorry for the late answer, but you guessed the holiday season did not help :)]
-> 
-> I think I'll just ask the reporter to confirm he can not reproduce and
-> then close the downstream bug.
-> Unless other people complains, I think we can just keep the current
-> state and wait :)
-> 
-> Cheers,
-> Benjamin
-> 
-My this patch 25a84db15b3f3a24d3ea7d2baf90693bcff34b0c (HID: multitouch: enable 
-palm rejection if device implements confidence usage) brings side effect as
-someone reported it on https://bugzilla.kernel.org/show_bug.cgi?id=112791
-My fix is attached in the thread and please have a look at it and my reply in
-comment #5 as the root cause.
-Let me try to explain my fix here - the quirk MT_QUIRK_VALID_IS_CONFIDENCE 
-is implemented in hid-multitouch and I see it was only applied to some
-particular touchpad devices (see my list in the end) before my earlier patch
-applies it to Windows 8 precision touchpad. I believe the quirk is working 
-very well for the devices in list, and it must have some stories behind that
-made the quirk designed in this way - simply dropped the reports with
-[confidence = 0]. 
-However, this quirk isn't working very properly for the Win8 precise touchpad.
-I think when a touch is initially detected as finger then
-later detected as a palm, the driver has to send the latter detections
-to input/mt as calling input_mt_report_slot_state(input, MT_TOOL_FINGER, 
-active=0). In order not to break the devices in list, I add a new quirk
-MT_QUIRK_CONFIDENCE to do the work. Please provide your comments :)
+diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
+index 1fec113..8d1341c 100644
+--- a/Documentation/input/alps.txt
++++ b/Documentation/input/alps.txt
+@@ -319,3 +319,60 @@ For touchpad packet, the format is:
+                otherwise byte 0 bit 4 must be set and byte 0/4/5 are
+                in NEW fmt
+  F:         Number of fingers - 3, 0 means 3 fingers, 1 means 4 ...
++
++
++ALPS Absolute Mode - Protocol Version 8
++---------------------------------------
++
++Spoken by SS4 (73 03 14) and SS5 (73 03 28) hardware.
++
++The packet type is given by the APD field, bits 4-5 of byte 3.
++
++Touchpad packet (APD = 0x2):
++
++           b7   b6   b5   b4   b3   b2   b1   b0
++ byte 0:  SWM  SWR  SWL    1    1    0    0   X7
++ byte 1:    0   X6   X5   X4   X3   X2   X1   X0
++ byte 2:    0   Y6   Y5   Y4   Y3   Y2   Y1   Y0
++ byte 3:    0  T&P    1    0    1    0    0   Y7
++ byte 4:    0   Z6   Z5   Z4   Z3   Z2   Z1   Z0
++ byte 5:    0    0    0    0    0    0    0    0
++
++SWM, SWR, SWL: Middle, Right, and Left button states
++
++Touchpad 1 Finger packet (APD = 0x0):
++
++           b7   b6   b5   b4   b3   b2   b1   b0
++ byte 0:  SWM  SWR  SWL    1    1   X2   X1   X0
++ byte 1:   X9   X8   X7    1   X6   X5   X4   X3
++ byte 2:    0  X11  X10  LFB   Y3   Y2   Y1   Y0
++ byte 3:   Y5   Y4    0    0    1 TAPF2 TAPF1 TAPF0
++ byte 4:  Zv7  Y11  Y10    1   Y9   Y8   Y7   Y6
++ byte 5:  Zv6  Zv5  Zv4    0  Zv3  Zv2  Zv1  Zv0
++
++TAPF: ???
++LFB:  ???
++
++Touchpad 2 Finger packet (APD = 0x1):
++
++           b7   b6   b5   b4   b3   b2   b1   b0
++ byte 0:  SWM  SWR  SWL    1    1  AX6  AX5  AX4
++ byte 1: AX11 AX10  AX9  AX8  AX7  AZ1  AY4  AZ0
++ byte 2: AY11 AY10  AY9  CONT AY8  AY7  AY6  AY5
++ byte 3:    0    0    0    1    1  BX6  BX5  BX4
++ byte 4: BX11 BX10  BX9  BX8  BX7  BZ1  BY4  BZ0
++ byte 5: BY11 BY10  BY9    0  BY8  BY7  BY5  BY5
++
++CONT: A 3-or-4 Finger packet is to follow
++
++Touchpad 3-or-4 Finger packet (APD = 0x3):
++
++           b7   b6   b5   b4   b3   b2   b1   b0
++ byte 0:  SWM  SWR  SWL    1    1  AX6  AX5  AX4
++ byte 1: AX11 AX10  AX9  AX8  AX7  AZ1  AY4  AZ0
++ byte 2: AY11 AY10  AY9  OVF  AY8  AY7  AY6  AY5
++ byte 3:    0    0    1    1    1  BX6  BX5  BX4
++ byte 4: BX11 BX10  BX9  BX8  BX7  BZ1  BY4  BZ0
++ byte 5: BY11 BY10  BY9    0  BY8  BY7  BY5  BY5
++
++OVF: 5th finger detected
+-- 
+2.8.1
 
-Device list: 
-MT_USB_DEVICE(USB_VENDOR_ID_3M,	USB_DEVICE_ID_3M1968)			
-MT_USB_DEVICE(USB_VENDOR_ID_3M,	USB_DEVICE_ID_3M2256) 
-MT_USB_DEVICE(USB_VENDOR_ID_3M,	USB_DEVICE_ID_3M3266) 
-MT_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT)
-MT_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUSTEK_MULTITOUCH_YFO) 
-MT_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART) 
-MT_USB_DEVICE(USB_VENDOR_ID_QUANTA,	USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001) 
-MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM)
-
-Regards,
-Allen Hung

@@ -1,188 +1,124 @@
-From: Patrick Lessard <Patrick.Lessard@cogeco.com>
-Subject: RE: RE : New Elantech touchpad version?
-Date: Tue, 21 Jun 2016 12:19:28 +0000
-Message-ID: <4D0DB74D8481894EB236F640F391FC7E0107F5DB4D@TRPMEXMBX1.cogeco.com>
-References: <4D0DB74D8481894EB236F640F391FC7E0107F5CF6C@TRPMEXMBX1.cogeco.com>,<20160620182110.GD22426@dtor-ws>,<4D0DB74D8481894EB236F640F391FC7E0107F5D1B7@TRPMEXMBX1.cogeco.com>,<4D0DB74D8481894EB236F640F391FC7E0107F5D21F@TRPMEXMBX1.cogeco.com>
- <4DBD6143-8F5C-42E0-B057-84AC181D5BB1@cogeco.com>
- <007f01d1cbb4$a08927b0$e19b7710$@emc.com.tw>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 1/1] HID: multitouch: enable palm rejection if device
+ implements confidence usage
+Date: Tue, 21 Jun 2016 14:36:48 +0200
+Message-ID: <CAN+gG=H5oefTgosNeoaEJjQceHpGpYH=ahBFynyfJ1S4qBJvqg@mail.gmail.com>
+References: <1448014866-25348-1-git-send-email-allen_hung@dell.com>
+ <alpine.LNX.2.00.1511261521350.20111@pobox.suse.cz> <CAN+gG=Ga92-UPbbcjiL0p2b4gO0iQE_-U6wXiq_x3=39z+edSg@mail.gmail.com>
+ <5677CA23.9050008@dell.com> <CAN+gG=EzUADfseJQ_bY9KXQ_+YNrpS8B6B9eRK_gcyD6aZpg9w@mail.gmail.com>
+ <576906D1.5090609@dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bupnmail1.cogeco.com ([24.226.15.15]:37378 "EHLO
-	bupnmail1.cogeco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751671AbcFUMTe (ORCPT
+Received: from mail-vk0-f42.google.com ([209.85.213.42]:33625 "EHLO
+	mail-vk0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751434AbcFUMgu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2016 08:19:34 -0400
-In-Reply-To: <007f01d1cbb4$a08927b0$e19b7710$@emc.com.tw>
-Content-Language: fr-FR
+	Tue, 21 Jun 2016 08:36:50 -0400
+In-Reply-To: <576906D1.5090609@dell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "'kt.liao@emc.com.tw'" <kt.liao@emc.com.tw>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Allen Hung <allen_hung@dell.com>
+Cc: Jiri Kosina <jikos@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-R3JlYXQgbmV3cyENCg0KVGhhbmsgeW91IHZlcnkgbXVjaC4NCg0KUGF0cmljay4NCg0KDQoNClRo
-ZSBpbmZvcm1hdGlvbiBpbiB0aGlzIG1lc3NhZ2UsIGluY2x1ZGluZyBpbiBhbGwgYXR0YWNobWVu
-dHMsIGlzDQpjb25maWRlbnRpYWwgb3IgcHJpdmlsZWdlZC4gSW4gdGhlIGV2ZW50IHlvdSBoYXZl
-IHJlY2VpdmVkIHRoaXMgbWVzc2FnZSBpbiBlcnJvcg0KYW5kIGFyZSBub3QgdGhlIGludGVuZGVk
-IHJlY2lwaWVudCwgeW91IGFyZSBoZXJlYnkgYWR2aXNlZCB0aGF0IGFueSB1c2UsIGNvcHlpbmcN
-Cm9yIHJlcHJvZHVjdGlvbiBvZiB0aGlzIGRvY3VtZW50IGlzIHN0cmljdGx5IGZvcmJpZGRlbi4g
-UGxlYXNlIG5vdGlmeQ0KaW1tZWRpYXRlbHkgdGhlIHNlbmRlciBvZiB0aGlzIGVycm9yIGFuZCBk
-ZXN0cm95IHRoaXMgbWVzc2FnZSwgaW5jbHVkaW5nIGl0cw0KYXR0YWNobWVudHMsIGFzIHRoZSBj
-YXNlIG1heSBiZS4NCjwvUD4NCkwnaW5mb3JtYXRpb24gYXBwYXJhaXNzYW50IGRhbnMgY2UgbWVz
-c2FnZSBlbGVjdHJvbmlxdWUgZXQgZGFucyBsZXMgZG9jdW1lbnRzDQpxdWkgeSBzb250IGpvaW50
-cyBlc3QgZGUgbmF0dXJlIGNvbmZpZGVudGllbGxlIG91IHByaXZpbGVnaWVlLiBTaSBjZSBtZXNz
-YWdlDQp2b3VzIGVzdCBwYXJ2ZW51IHBhciBlcnJldXIgZXQgcXVlIHZvdXMgbidlbiBldGVzIHBh
-cyBsZSBkZXN0aW5hdGFpcmUgdmlzZSwgdm91cw0KZXRlcyBwYXIgbGVzIHByZXNlbnRlcyBhdmlz
-ZSBxdWUgdG91dGUgdXRpbGlzYXRpb24sIGNvcGllIG91IGRpc3RyaWJ1dGlvbiBkZSBjZQ0KbWVz
-c2FnZSBlc3Qgc3RyaWN0ZW1lbnQgaW50ZXJkaXRlLiBWb3VzIGV0ZXMgZG9uYyBwcmllIGTigJll
-biBpbmZvcm1lcg0KaW1tZWRpYXRlbWVudCBs4oCZZXhwZWRpdGV1ciBldCBkZSBkZXRydWlyZSBj
-ZSBtZXNzYWdlLCBhaW5zaSBxdWUgbGVzIGRvY3VtZW50cw0KcXVpIHkgc29udCBqb2ludHMsIGxl
-IGNhcyBlY2hlYW50LjwvRk9OVD4NCg0KDQoNCg0KDQoNCkNlIGNvdXJyaWVsIHByb3ZpZW50IGRl
-IFBhdHJpY2suTGVzc2FyZEBjb2dlY28uY29tIC4gUG91ciBhc3N1cmVyIGxhIGxpdnJhaXNvbiBk
-ZSBmdXR1cnMgZW52b2lzLCB2ZXVpbGxleiBpbmNsdXJlIGxhIHByZXNlbnRlIGFkcmVzc2UgY291
-cnJpZWwgYSB2b3RyZSBjYXJuZXQNCmTigJlhZHJlc3NlcyBvdSB2b3RyZSBsaXN0ZSBk4oCZZXhw
-ZWRpdGV1cnMgYXV0b3Jpc2VzLg0KU2kgdm91cyBuZSBzb3VoYWl0ZXogcGx1cyByZWNldm9pciBk
-ZSBtZXNzYWdlcyBwcm9tb3Rpb25uZWxzIGRlIGxhIHBhcnQgZGUgQ29nZWNvLCB2ZXVpbGxleiB0
-cmFuc2bDqXJlciBjZSBjb3VycmllbCBhIGRlc2Fib25uZW1lbnRAY29nZWNvLmNvbS4gTWVyY2kh
-DQpQb2xpdGlxdWUgZW4gbWF0aWVyZSBkZSBwcm90ZWN0aW9uIGRlcyByZW5zZWlnbmVtZW50cyBw
-ZXJzb25uZWxzIGRlIENvZ2VjbyBldCBFbmdhZ2VtZW50IGVuIG1hdGllcmUgZOKAmWFudGktc3Bh
-bSDigJMgQ29udGFjdGV6LW5vdXMNCkNvZ2VjbyBDYWJsZSBDYW5hZGEsIDUgUGxhY2UgVmlsbGUt
-TWFyaWUsIEJ1cmVhdSAxNzAwLCBNb250cmVhbCwgUXVlYmVjLCBIM0IgMEIzDQotLQ0KVGhpcyBl
-bWFpbCBpcyBmcm9tIFBhdHJpY2suTGVzc2FyZEBjb2dlY28uY29tIC4gVG8gZW5zdXJlIHRoZSBk
-ZWxpdmVyeSBvZiBmdXR1cmUgZW1haWxzLCBwbGVhc2UgYWRkIHRoZSBjdXJyZW50IGVtYWlsIGFk
-ZHJlc3MgdG8geW91ciBhZGRyZXNzIGJvb2sgb3Igc2FmZSBzZW5kZXJzIGxpc3QuDQpJZiB5b3Ug
-bm8gbG9uZ2VyIHdpc2ggdG8gcmVjZWl2ZSBwcm9tb3Rpb25hbCBlbWFpbHMgZnJvbSBDb2dlY28s
-IHBsZWFzZSBmb3J3YXJkIHRoaXMgbWVzc2FnZSB0byB1bnN1YnNjcmliZUBjb2dlY28uY29tLiBU
-aGFuayB5b3UhDQpQcml2YWN5IFBvbGljeSBhbmQgQW50aS1zcGFtIENvbW1pdG1lbnQgLSBDb250
-YWN0IHVzDQpDb2dlY28gQ2FibGUgQ2FuYWRhLCA1IFBsYWNlIFZpbGxlLU1hcmllLCBTdWl0ZSAx
-NzAwLCBNb250cmVhbCwgUXVlYmVjLCBIM0IgMEIzDQoNCi0tLS0tTWVzc2FnZSBkJ29yaWdpbmUt
-LS0tLQ0KRGUgOiDlu5bltIfmpq4gW21haWx0bzprdC5saWFvQGVtYy5jb20udHddDQpFbnZvecOp
-IDogMjEganVpbiAyMDE2IDA4OjAxDQrDgCA6IFBhdHJpY2sgTGVzc2FyZDsgJ0RtaXRyeSBUb3Jv
-a2hvdicNCkNjIDogbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnDQpPYmpldCA6IFJFOiBSRSA6
-IE5ldyBFbGFudGVjaCB0b3VjaHBhZCB2ZXJzaW9uPw0KDQpIaSBQYXRyaWNrLA0KDQogICAgICAg
-IFlvdSBhcmUgcmlnaHQsIEkganVzdCBjaGVjayB0aGUgSUMgYm9keSBpbiB0aGUgSFAgUGF2aWxp
-b24gMTQtYWIwNTdjYS4gSXQncyBJRCBpcyAweEMuDQpXZSB3aWxsIHVwc3RyZWFtIHRoZSBwYXRj
-aCBBU0FQLg0KDQogICAgICAgICAgICAgICAgQi5SICBLVA0KDQoNCi0tLS0tT3JpZ2luYWwgTWVz
-c2FnZS0tLS0tDQpGcm9tOiBQYXRyaWNrIExlc3NhcmQgW21haWx0bzpQYXRyaWNrLkxlc3NhcmRA
-Y29nZWNvLmNvbV0NClNlbnQ6IFR1ZXNkYXksIEp1bmUgMjEsIDIwMTYgMTE6MjQgQU0NClRvOiBE
-bWl0cnkgVG9yb2tob3Y7IGt0LmxpYW9AZW1jLmNvbS50dw0KQ2M6IGxpbnV4LWlucHV0QHZnZXIu
-a2VybmVsLm9yZw0KU3ViamVjdDogUmU6IFJFIDogTmV3IEVsYW50ZWNoIHRvdWNocGFkIHZlcnNp
-b24/DQoNCkkgY29uZmlybSB0aGF0IGJ5IGFkZGluZw0KY2FzZSAxMjoNCkl0IHdvcmtzLg0KDQpQ
-YXRyaWNrDQoNCj4gTGUgMjAganVpbiAyMDE2IMOgIDIxOjM4LCBQYXRyaWNrIExlc3NhcmQgPFBh
-dHJpY2suTGVzc2FyZEBjb2dlY28uY29tPiBhIMOpY3JpdCA6DQo+DQo+IFNvcnJ5IHRvIGJvdGhl
-ciwgYnV0IGhlcmUgaXMgc29tZSBhZGRpdGlvbm5hbCBpbmZvLg0KPg0KPiBUaGlzIGlzIHdoYXQg
-SSBnZXQgZnJvbSBkbWVzZw0KPg0KPiBbICAgIDkuMzIwMzcxXSBwc21vdXNlIHNlcmlvMTogZWxh
-bnRlY2g6IGFzc3VtaW5nIGhhcmR3YXJlIHZlcnNpb24gNCAod2l0aCBmaXJtd2FyZSB2ZXJzaW9u
-IDB4NWMxZjA0KQ0KPiBbICAgIDkuMzM1NTA0XSBwc21vdXNlIHNlcmlvMTogZWxhbnRlY2g6IFN5
-bmFwdGljcyBjYXBhYmlsaXRpZXMgcXVlcnkgcmVzdWx0IDB4MTAsIDB4MTYsIDB4MGQuDQo+IFsg
-ICAgOS4zNTA0ODNdIHBzbW91c2Ugc2VyaW8xOiBlbGFudGVjaDogRWxhbiBzYW1wbGUgcXVlcnkg
-cmVzdWx0IDBkLCAwMSwgODYNCj4NCj4gYW5kIGNhbGN1bGF0ZWQgdmVyc2lvbiBnaXZlcyAweEMs
-IHNvIDEyDQo+DQo+IElmIHRoYXQgY291bGQgaGVscA0KPg0KPiBQYXRyaWNrLg0KPg0KPg0KDQpU
-aGUgaW5mb3JtYXRpb24gaW4gdGhpcyBtZXNzYWdlLCBpbmNsdWRpbmcgaW4gYWxsIGF0dGFjaG1l
-bnRzLCBpcyBjb25maWRlbnRpYWwgb3IgcHJpdmlsZWdlZC4gSW4gdGhlIGV2ZW50IHlvdSBoYXZl
-IHJlY2VpdmVkIHRoaXMgbWVzc2FnZSBpbiBlcnJvciBhbmQgYXJlIG5vdCB0aGUgaW50ZW5kZWQg
-cmVjaXBpZW50LCB5b3UgYXJlIGhlcmVieSBhZHZpc2VkIHRoYXQgYW55IHVzZSwgY29weWluZyBv
-ciByZXByb2R1Y3Rpb24gb2YgdGhpcyBkb2N1bWVudCBpcyBzdHJpY3RseSBmb3JiaWRkZW4uIFBs
-ZWFzZSBub3RpZnkgaW1tZWRpYXRlbHkgdGhlIHNlbmRlciBvZiB0aGlzIGVycm9yIGFuZCBkZXN0
-cm95IHRoaXMgbWVzc2FnZSwgaW5jbHVkaW5nIGl0cyBhdHRhY2htZW50cywgYXMgdGhlIGNhc2Ug
-bWF5IGJlLg0KPC9QPg0KTCdpbmZvcm1hdGlvbiBhcHBhcmFpc3NhbnQgZGFucyBjZSBtZXNzYWdl
-IGVsZWN0cm9uaXF1ZSBldCBkYW5zIGxlcyBkb2N1bWVudHMgcXVpIHkgc29udCBqb2ludHMgZXN0
-IGRlIG5hdHVyZSBjb25maWRlbnRpZWxsZSBvdSBwcml2aWxlZ2llZS4gU2kgY2UgbWVzc2FnZSB2
-b3VzIGVzdCBwYXJ2ZW51IHBhciBlcnJldXIgZXQgcXVlIHZvdXMgbidlbiBldGVzIHBhcyBsZSBk
-ZXN0aW5hdGFpcmUgdmlzZSwgdm91cyBldGVzIHBhciBsZXMgcHJlc2VudGVzIGF2aXNlIHF1ZSB0
-b3V0ZSB1dGlsaXNhdGlvbiwgY29waWUgb3UgZGlzdHJpYnV0aW9uIGRlIGNlIG1lc3NhZ2UgZXN0
-IHN0cmljdGVtZW50IGludGVyZGl0ZS4gVm91cyBldGVzIGRvbmMgcHJpZSBk4oCZZW4gaW5mb3Jt
-ZXIgaW1tZWRpYXRlbWVudCBs4oCZZXhwZWRpdGV1ciBldCBkZSBkZXRydWlyZSBjZSBtZXNzYWdl
-LCBhaW5zaSBxdWUgbGVzIGRvY3VtZW50cyBxdWkgeSBzb250IGpvaW50cywgbGUgY2FzIGVjaGVh
-bnQuPC9GT05UPg0KDQoNCg0KDQoNCg0KQ2UgY291cnJpZWwgcHJvdmllbnQgZGUgUGF0cmljay5M
-ZXNzYXJkQGNvZ2Vjby5jb20gLiBQb3VyIGFzc3VyZXIgbGEgbGl2cmFpc29uIGRlIGZ1dHVycyBl
-bnZvaXMsIHZldWlsbGV6IGluY2x1cmUgbGEgcHJlc2VudGUgYWRyZXNzZSBjb3VycmllbCBhIHZv
-dHJlIGNhcm5ldCBk4oCZYWRyZXNzZXMgb3Ugdm90cmUgbGlzdGUgZOKAmWV4cGVkaXRldXJzIGF1
-dG9yaXNlcy4NClNpIHZvdXMgbmUgc291aGFpdGV6IHBsdXMgcmVjZXZvaXIgZGUgbWVzc2FnZXMg
-cHJvbW90aW9ubmVscyBkZSBsYSBwYXJ0IGRlIENvZ2VjbywgdmV1aWxsZXogdHJhbnNmw6lyZXIg
-Y2UgY291cnJpZWwgYSBkZXNhYm9ubmVtZW50QGNvZ2Vjby5jb20uIE1lcmNpIQ0KUG9saXRpcXVl
-IGVuIG1hdGllcmUgZGUgcHJvdGVjdGlvbiBkZXMgcmVuc2VpZ25lbWVudHMgcGVyc29ubmVscyBk
-ZSBDb2dlY28gZXQgRW5nYWdlbWVudCBlbiBtYXRpZXJlIGTigJlhbnRpLXNwYW0g4oCTIENvbnRh
-Y3Rlei1ub3VzIENvZ2VjbyBDYWJsZSBDYW5hZGEsIDUgUGxhY2UgVmlsbGUtTWFyaWUsIEJ1cmVh
-dSAxNzAwLCBNb250cmVhbCwgUXVlYmVjLCBIM0IgMEIzDQotLQ0KVGhpcyBlbWFpbCBpcyBmcm9t
-IFBhdHJpY2suTGVzc2FyZEBjb2dlY28uY29tIC4gVG8gZW5zdXJlIHRoZSBkZWxpdmVyeSBvZiBm
-dXR1cmUgZW1haWxzLCBwbGVhc2UgYWRkIHRoZSBjdXJyZW50IGVtYWlsIGFkZHJlc3MgdG8geW91
-ciBhZGRyZXNzIGJvb2sgb3Igc2FmZSBzZW5kZXJzIGxpc3QuDQpJZiB5b3Ugbm8gbG9uZ2VyIHdp
-c2ggdG8gcmVjZWl2ZSBwcm9tb3Rpb25hbCBlbWFpbHMgZnJvbSBDb2dlY28sIHBsZWFzZSBmb3J3
-YXJkIHRoaXMgbWVzc2FnZSB0byB1bnN1YnNjcmliZUBjb2dlY28uY29tLiBUaGFuayB5b3UhDQpQ
-cml2YWN5IFBvbGljeSBhbmQgQW50aS1zcGFtIENvbW1pdG1lbnQgLSBDb250YWN0IHVzIENvZ2Vj
-byBDYWJsZSBDYW5hZGEsIDUgUGxhY2UgVmlsbGUtTWFyaWUsIFN1aXRlIDE3MDAsIE1vbnRyZWFs
-LCBRdWViZWMsIEgzQiAwQjMNCg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXw0KPiBEZSA6IFBhdHJpY2sgTGVzc2FyZA0KPiBFbnZvecOpIDogMjAganVpbiAyMDE2IDE5
-OjUzDQo+IMOAIDogRG1pdHJ5IFRvcm9raG92OyBrdC5saWFvQGVtYy5jb20udHcgQ2MgOg0KPiBs
-aW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcgT2JqZXQgOiBSRSA6IE5ldyBFbGFudGVjaCB0b3Vj
-aHBhZA0KPiB2ZXJzaW9uPw0KPg0KPiBIZWxsbywNCj4NCj4gSnVzdCB0ZXN0ZWQgYW4gdWdseSBx
-dWljayBwYXRjaCBqdXN0IGZvciB0ZXN0aW5nLiBCeSBhc3NpZ25pbmcgaXQgYSBod192ZXJzaW9u
-IG9mIDQgaXQgd29ya3MgZmluZS4NCj4NCj4gSSdsbCBmaW5kIG91dCB3aGF0IGZ3X3ZlcnNpb24g
-aXQgZ2l2ZXMgYW5kIHNlZSBob3cgaXQgdHJhbnNsYXRlIGZvcg0KPiB0aGUgdmVyIHZhcmlhYmxl
-DQo+DQo+IFlvdSBjYW4gc2VlIHdoYXQgSSBkaWQgYmVsb3cuIEkganVzdCBwbGF5ZWQgd2l0aCB0
-aGUgImRlZmF1bHQiIHN0YXRlbWVudC4NCj4NCj4gVGhhbmsgeW91Lg0KPg0KPiBQYXRyaWNrLg0K
-Pg0KPiBzdGF0aWMgaW50IGVsYW50ZWNoX3NldF9wcm9wZXJ0aWVzKHN0cnVjdCBlbGFudGVjaF9k
-YXRhICpldGQpIHsNCj4gICAgICAgIC8qIFRoaXMgcmVwcmVzZW50cyB0aGUgdmVyc2lvbiBvZiBJ
-QyBib2R5LiAqLw0KPiAgICAgICAgaW50IHZlciA9IChldGQtPmZ3X3ZlcnNpb24gJiAweDBmMDAw
-MCkgPj4gMTY7DQo+DQo+ICAgICAgICAvKiBFYXJseSB2ZXJzaW9uIG9mIEVsYW4gdG91Y2hwYWRz
-IGRvZXNuJ3Qgb2JleSB0aGUgcnVsZS4gKi8NCj4gICAgICAgIGlmIChldGQtPmZ3X3ZlcnNpb24g
-PCAweDAyMDAzMCB8fCBldGQtPmZ3X3ZlcnNpb24gPT0gMHgwMjA2MDApDQo+ICAgICAgICAgICAg
-ICAgIGV0ZC0+aHdfdmVyc2lvbiA9IDE7DQo+ICAgICAgICBlbHNlIHsNCj4gICAgICAgICAgICAg
-ICAgc3dpdGNoICh2ZXIpIHsNCj4gICAgICAgICAgICAgICAgY2FzZSAyOg0KPiAgICAgICAgICAg
-ICAgICBjYXNlIDQ6DQo+ICAgICAgICAgICAgICAgICAgICAgICAgZXRkLT5od192ZXJzaW9uID0g
-MjsNCj4gICAgICAgICAgICAgICAgICAgICAgICBicmVhazsNCj4gICAgICAgICAgICAgICAgY2Fz
-ZSA1Og0KPiAgICAgICAgICAgICAgICAgICAgICAgIGV0ZC0+aHdfdmVyc2lvbiA9IDM7DQo+ICAg
-ICAgICAgICAgICAgICAgICAgICAgYnJlYWs7DQo+ICAgICAgICAgICAgICAgIGNhc2UgNjoNCj4g
-ICAgICAgICAgICAgICAgY2FzZSA3Og0KPiAgICAgICAgICAgICAgICBjYXNlIDg6DQo+ICAgICAg
-ICAgICAgICAgIGNhc2UgOToNCj4gICAgICAgICAgICAgICAgY2FzZSAxMDoNCj4gICAgICAgICAg
-ICAgICAgY2FzZSAxMzoNCj4gICAgICAgICAgICAgICAgY2FzZSAxNDoNCj4gICAgICAgICAgICAg
-ICAgICAgICAgICBldGQtPmh3X3ZlcnNpb24gPSA0Ow0KPiAgICAgICAgICAgICAgICAgICAgICAg
-IGJyZWFrOw0KPiAgICAgICAgICAgICAgICBkZWZhdWx0Og0KPiAgICAgICAgICAgICAgICAgICAg
-ICAgIGV0ZC0+aHdfdmVyc2lvbiA9IDQ7DQo+ICAgICAgICAgICAgICAgICAgICAgICAgYnJlYWs7
-DQo+ICAgICAgICAgICAgICAgICAgICAgICAgLypyZXR1cm4gLTE7Ki8NCj4NCj4gX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KPiBEZSA6IERtaXRyeSBUb3Jva2hvdiBb
-ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbV0gRW52b3nDqSA6IDIwIGp1aW4gMjAxNg0KPiAxNDoy
-MSDDgCA6IFBhdHJpY2sgTGVzc2FyZDsga3QubGlhb0BlbWMuY29tLnR3IENjIDoNCj4gbGludXgt
-aW5wdXRAdmdlci5rZXJuZWwub3JnIE9iamV0IDogUmU6IE5ldyBFbGFudGVjaCB0b3VjaHBhZCB2
-ZXJzaW9uPw0KPg0KPiBIaSBQYXRyaWNrLA0KPg0KPj4gT24gTW9uLCBKdW4gMjAsIDIwMTYgYXQg
-MDY6MTA6NDFQTSArMDAwMCwgUGF0cmljayBMZXNzYXJkIHdyb3RlOg0KPj4gSGVsbG8hDQo+Pg0K
-Pj4gRmlyc3QsIHRoYW5rIHlvdSB2ZXJ5IG11Y2ggZm9yIGNyZWF0aW5nIGEgZHJpdmVyIGZvciB0
-aGUgRWxhbnRlY2ggdG91Y2hwYWRzLiBWZXJ5IGFwcGVjaWF0ZWQuDQo+Pg0KPj4gSeKAmXZlIGNv
-bnRhY3RlZCBvbmUgb2YgdGhlIG9yaWdpbmFsIGF1dGhvciwgQXJqYW4gT3BtZWVyIGFuZCBoZQ0K
-Pj4gZGlyZWN0ZWQgbWUgdG8geW91LiAodGhvc2UgMiBlbWFpbCBhZGRyZXNzZXMgYWN0dWFsbHkp
-DQo+Pg0KPj4gSSBqdXN0IGJvdWdodCBhIEhQIFBhdmlsaW9uIDE0LWFiMDU3Y2EgbGFwdG9wIGFu
-ZCBJIHRoaW5rIGl0IHVzZXMgYSBuZXcgdmVyc2lvbiBvZiB0aGUgRWxhbnRlY2ggdG91Y2hwYWQu
-DQo+Pg0KPj4gT24gbGludXgsIHdoZW4gSSBib290LCBJIGdldCB0aGlzIG1lc3NhZ2UgOg0KPj4N
-Cj4+IMKrIHBzbW91c2Ugc2VyaW8xOiBlbGFudGVjaDogdW5rbm93biBoYXJkd2FyZSB2ZXJzaW9u
-LCBhYm9ydGluZy4uLiDCuw0KPj4NCj4+IEJ5IGxvb2tpbmcgYXQgdGhlIGtlcm5lbCBkcml2ZXIg
-Y29kZSBpbiBlbGFudGVjaC5jIGJlbG93LCBJIG1pZ2h0IHRyeSBhIHF1aWNrIHBhdGNoIGFuZCBh
-ZGQgYSBjYXNlIGhpZ2hlciB0aGFuIDE0LCBjb21waWxlIGFuZCB0cnkgaXQuDQo+DQo+IExvb2tp
-bmcgYXQgSFAgc2l0ZSBpdCBzZWVtcyB0aGF0IGF0IGxlYXN0IHNvbWUgYmF0Y2hlcyBvZiB0aGlz
-IGxhcHRvcA0KPiBhcmUgc2hpcHBpbmcgd2l0aCBFbGFuIHRvdWNocGFkcy4NCj4NCj4gS1QsIGRv
-IHdlIG5lZWQgdG8gZXhwYW5kIHRoZSBsaXN0IGluIGVsYW50ZWNoX3NldF9wcm9wZXJ0aWVzKCkg
-dG8NCj4gaW5jbHVkZSBtb3JlIElDIHR5cGVzPw0KPg0KPj4NCj4+IElmIHN1Y2Nlc2Z1bGwsIGNv
-dWxkIHlvdSBpbmNsdWRlIGEgZml4IGluIHRoZSBuZWFyIGZ1dHVyZT8NCj4+DQo+PiBBcmUgeW91
-IHN0aWxsIG1haW50YWluaW5nIHRoaXMgZHJpdmVyPw0KPj4NCj4+IEhvdyBzaG91bGQgSSBwcm9j
-ZWVkPw0KPj4NCj4+IFRoYW5rIHlvdSB2ZXJ5IG11Y2ggZm9yIHlvdXIgYXR0ZW50aW9uLg0KPj4N
-Cj4+IFBhdHJpY2suDQo+Pg0KPj4NCj4+IENvZGUgc25pcHBldCA6DQo+Pg0KPj4g4oCmLg0KPj4N
-Cj4+IHN0YXRpYyBpbnQgZWxhbnRlY2hfc2V0X3Byb3BlcnRpZXMoc3RydWN0IGVsYW50ZWNoX2Rh
-dGEgKmV0ZCkgew0KPj4gICAgICAgIC8qIFRoaXMgcmVwcmVzZW50cyB0aGUgdmVyc2lvbiBvZiBJ
-QyBib2R5LiAqLw0KPj4gICAgICAgIGludCB2ZXIgPSAoZXRkLT5md192ZXJzaW9uICYgMHgwZjAw
-MDApID4+IDE2Ow0KPj4NCj4+ICAgICAgICAvKiBFYXJseSB2ZXJzaW9uIG9mIEVsYW4gdG91Y2hw
-YWRzIGRvZXNuJ3Qgb2JleSB0aGUgcnVsZS4gKi8NCj4+ICAgICAgICBpZiAoZXRkLT5md192ZXJz
-aW9uIDwgMHgwMjAwMzAgfHwgZXRkLT5md192ZXJzaW9uID09IDB4MDIwNjAwKQ0KPj4gICAgICAg
-ICAgICAgICBldGQtPmh3X3ZlcnNpb24gPSAxOw0KPj4gICAgICAgIGVsc2Ugew0KPj4gICAgICAg
-ICAgICAgICBzd2l0Y2ggKHZlcikgew0KPj4gICAgICAgICAgICAgICBjYXNlIDI6DQo+PiAgICAg
-ICAgICAgICAgIGNhc2UgNDoNCj4+ICAgICAgICAgICAgICAgICAgICAgICBldGQtPmh3X3ZlcnNp
-b24gPSAyOw0KPj4gICAgICAgICAgICAgICAgICAgICAgIGJyZWFrOw0KPj4gICAgICAgICAgICAg
-ICBjYXNlIDU6DQo+PiAgICAgICAgICAgICAgICAgICAgICAgZXRkLT5od192ZXJzaW9uID0gMzsN
-Cj4+ICAgICAgICAgICAgICAgICAgICAgICBicmVhazsNCj4+ICAgICAgICAgICAgICAgY2FzZSA2
-Og0KPj4gICAgICAgICAgICAgICBjYXNlIDc6DQo+PiAgICAgICAgICAgICAgIGNhc2UgODoNCj4+
-ICAgICAgICAgICAgICAgY2FzZSA5Og0KPj4gICAgICAgICAgICAgICBjYXNlIDEwOg0KPj4gICAg
-ICAgICAgICAgICBjYXNlIDEzOg0KPj4gICAgICAgICAgICAgICBjYXNlIDE0Og0KPj4gICAgICAg
-ICAgICAgICAgICAgICAgIGV0ZC0+aHdfdmVyc2lvbiA9IDQ7DQo+PiAgICAgICAgICAgICAgICAg
-ICAgICAgYnJlYWs7DQo+PiAgICAgICAgICAgICAgIGRlZmF1bHQ6DQo+PiAgICAgICAgICAgICAg
-ICAgICAgICAgcmV0dXJuIC0xOw0KPj4gICAgICAgICAgICAgICB9DQo+PiAgICAgICAgfQ0KPg0K
-PiBUaGFua3MuDQo+DQo+IC0tDQo+IERtaXRyeQ0KDQoNCg==
+Hi Allen,
+
+On Tue, Jun 21, 2016 at 11:20 AM, Allen Hung <allen_hung@dell.com> wrote:
+> Hi Benjamin,
+>
+> On 01/04/2016 04:35 PM, Benjamin Tissoires wrote:
+>> Hi Allen,
+>>
+>> On Mon, Dec 21, 2015 at 10:45 AM, Allen Hung <allen_hung@dell.com> wrote:
+>>> On 12/18/2015 05:52 AM, Benjamin Tissoires wrote:
+>>>> On Thu, Nov 26, 2015 at 3:21 PM, Jiri Kosina <jikos@kernel.org> wrote:
+>>>>> On Fri, 20 Nov 2015, Allen Hung wrote:
+>>>>>
+>>>>>> The usage Confidence is mandary to Windows Precision Touchpad devices. The
+>>>>>> appearance of this usage is checked in hidinput_connect but the quirk
+>>>>>> MT_QUIRK_VALID_IS_CONFIDENCE is not applied to device accordingly.
+>>>>>> Apply this quirk and also remove quirk MT_QUIRK_ALWAYS_VALID to enable palm
+>>>>>> rejection for the WIN 8 touchpad devices which have implemented usage
+>>>>>> Confidence in its input reports.
+>>>>>>
+>>>>>> Tested on Dell XPS 13 laptop.
+>>>>>>
+>>>>>> Signed-off-by: Allen Hung <allen_hung@dell.com>
+>>>>> Applied to for-4.5/multitouch. Thanks,
+>>>>>
+>>>> Allen, looks like the Dell XPS13 2015 (or was it the 2014?) has
+>>>> problems with your patch:
+>>>> https://bugzilla.redhat.com/show_bug.cgi?id=1292583 (we backported
+>>>> this change in the Fedora kernel 4.2.7).
+>>>>
+>>>> Would you mind checking that this patch does not create regressions on
+>>>> older series of laptops?
+>>>>
+>>>> Thanks in advance.
+>>>>
+>>>> Cheers,
+>>>> Benjamin
+>>> Hi Benjamin,
+>>>
+>>> It looks like a XPS13 2014 but I can confirm this with my colleagues who are in charge of this product line. I don't mind checking this patch with more older series of laptops. I will do it and let you know the status. Should I also test the machines with Fedora 23, or just go with Ubuntu OS? The XPS machines are shipped with Ubuntu.
+>>> Btw, the issue reporter said she/he cannot reproduce the issue (posted on Dec. 18).
+>>>
+>>
+>> [Sorry for the late answer, but you guessed the holiday season did not help :)]
+>>
+>> I think I'll just ask the reporter to confirm he can not reproduce and
+>> then close the downstream bug.
+>> Unless other people complains, I think we can just keep the current
+>> state and wait :)
+>>
+>> Cheers,
+>> Benjamin
+>>
+> My this patch 25a84db15b3f3a24d3ea7d2baf90693bcff34b0c (HID: multitouch: enable
+> palm rejection if device implements confidence usage) brings side effect as
+> someone reported it on https://bugzilla.kernel.org/show_bug.cgi?id=112791
+> My fix is attached in the thread and please have a look at it and my reply in
+> comment #5 as the root cause.
+> Let me try to explain my fix here - the quirk MT_QUIRK_VALID_IS_CONFIDENCE
+> is implemented in hid-multitouch and I see it was only applied to some
+> particular touchpad devices (see my list in the end) before my earlier patch
+> applies it to Windows 8 precision touchpad. I believe the quirk is working
+> very well for the devices in list, and it must have some stories behind that
+> made the quirk designed in this way - simply dropped the reports with
+> [confidence = 0].
+> However, this quirk isn't working very properly for the Win8 precise touchpad.
+> I think when a touch is initially detected as finger then
+> later detected as a palm, the driver has to send the latter detections
+> to input/mt as calling input_mt_report_slot_state(input, MT_TOOL_FINGER,
+> active=0). In order not to break the devices in list, I add a new quirk
+> MT_QUIRK_CONFIDENCE to do the work. Please provide your comments :)
+>
+> Device list:
+> MT_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M1968)
+> MT_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M2256)
+> MT_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M3266)
+> MT_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT)
+> MT_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUSTEK_MULTITOUCH_YFO)
+> MT_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART)
+> MT_USB_DEVICE(USB_VENDOR_ID_QUANTA,     USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001)
+> MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM)
+>
+
+I was discussing with Synaptics about that last week, and I was
+planning on working on it this week. Looks like you got the patch
+ready before me :)
+I *think* the patch is valid, and should be carried in upstream and in
+stable. I'd like to have a further look at it once you submit it
+however before giving my rev-by.
+
+Regarding the device list you provided, yes those devices should
+reject the touch when the confidence bit is not set. These were
+Windows 7 touchscreen and the spec was not very clear and we had to
+tweak the code on a per-device basis.
+
+I think I also have a few pending patches for hid-multitouch, but your
+patch might supersede those.
+
+Cheers,
+Benjamin

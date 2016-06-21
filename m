@@ -1,26 +1,21 @@
 From: ghzhong <ghzhong@yifangdigital.com>
 Subject: Re: [PATCH] HID: i2c-hid: set power sleep before shutdown
-Date: Tue, 21 Jun 2016 15:37:17 +0800
-Message-ID: <5768EEAD.10004@yifangdigital.com>
+Date: Tue, 21 Jun 2016 15:35:29 +0800
+Message-ID: <5768EE41.8000900@yifangdigital.com>
 References: <1466247030-23047-1-git-send-email-ghzhong@yifangdigital.com>
- <20160620103954.GG1739@lahna.fi.intel.com>
+ <20160620093457.GM24234@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.yifangdigital.com ([121.15.200.100]:4839 "EHLO
-	yifangdigital.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752265AbcFUHk6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2016 03:40:58 -0400
-In-Reply-To: <20160620103954.GG1739@lahna.fi.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160620093457.GM24234@mail.corp.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Dmitry Torokhov <dtor@chromium.org>, Benson Leung <bleung@chromium.org>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dtor@chromium.org>, Benson Leung <bleung@chromium.org>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 06/20/2016 06:39 PM, Mika Westerberg wrote:
-> On Sat, Jun 18, 2016 at 06:50:30PM +0800, Guohua Zhong wrote:
+On 06/20/2016 05:34 PM, Benjamin Tissoires wrote:
+> On Jun 18 2016 or thereabouts, Guohua Zhong wrote:
 >> Add i2c_hid_shutdown for i2c-hid driver to send suspend cmd &
 >> disable irq before device shutdown.
 >>
@@ -29,10 +24,18 @@ On 06/20/2016 06:39 PM, Mika Westerberg wrote:
 >> cmd to the hid i2c device and disable its irq before shutdown.So
 >> if We touch the touchscreen or some other i2c hid device ,the power
 >> consumtion will be go up even when the device is in shutdown state.
->>
+> Wow, that's a new one! Could you tell us which device board is behaving
+> that way (if not under NDA or such)
+Umaro, a chromebook model.
+
 >> Though the root cause maybe a HW issue. But it seems that it is a
 >> good pratice to set power sleep for i2c-hid device before shutdown.
->>
+> Works for me:
+> Acked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>
+> Cheers,
+> Benjamin
+>
 >> Signed-off-by: Guohua Zhong <ghzhong@yifangdigital.com>
 >> ---
 >>   drivers/hid/i2c-hid/i2c-hid.c | 8 +++++++-
@@ -50,9 +53,6 @@ On 06/20/2016 06:39 PM, Mika Westerberg wrote:
 >> +{
 >> +	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
 >> +	disable_irq(client->irq);
-> Why not free_irq() instead?
-Oh, you are right, the free_irq is better.
->
 >> +}
 >> +
 >>   #ifdef CONFIG_PM_SLEEP
@@ -70,6 +70,5 @@ Oh, you are right, the free_irq is better.
 >> -- 
 >> 1.9.1
 >>
+>>
 >
-
-

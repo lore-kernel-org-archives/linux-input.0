@@ -1,90 +1,148 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4] input/alps: Set DualPoint flag for 74 03 28 devices
-Date: Mon, 20 Jun 2016 17:43:55 -0700
-Message-ID: <20160621004355.GF22426@dtor-ws>
-References: <1464436862-2649-1-git-send-email-ben@smart-cactus.org>
- <1464436862-2649-5-git-send-email-ben@smart-cactus.org>
- <20160530091100.GP29844@pali>
+Subject: Re: [PATCH] Fix effect aborting in ff-memless
+Date: Mon, 20 Jun 2016 20:24:10 -0700
+Message-ID: <20160621032410.GA35864@dtor-ws>
+References: <c2278d36-993b-402f-dd07-635980112bbe@m-reimer.de>
+ <20160620173303.GA22426@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f66.google.com ([209.85.220.66]:34366 "EHLO
-	mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751719AbcFUBkm (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:34807 "EHLO
+	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752237AbcFUDYO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jun 2016 21:40:42 -0400
-Received: by mail-pa0-f66.google.com with SMTP id us13so146178pab.1
-        for <linux-input@vger.kernel.org>; Mon, 20 Jun 2016 18:40:42 -0700 (PDT)
+	Mon, 20 Jun 2016 23:24:14 -0400
+Received: by mail-pf0-f196.google.com with SMTP id 66so318956pfy.1
+        for <linux-input@vger.kernel.org>; Mon, 20 Jun 2016 20:24:14 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20160530091100.GP29844@pali>
+In-Reply-To: <20160620173303.GA22426@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Ben Gamari <ben@smart-cactus.org>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>
+To: Manuel Reimer <mail+linux-input@m-reimer.de>
+Cc: linux-input <linux-input@vger.kernel.org>, Cameron Gutman <aicommander@gmail.com>, jikos@kernel.org
 
-On Mon, May 30, 2016 at 11:11:00AM +0200, Pali Roh=E1r wrote:
-> On Saturday 28 May 2016 14:01:02 Ben Gamari wrote:
-> > Here we introduce logic in alps_identify to set the ALPS_DUALPOINT =
-flag
-> > for touchpad hardware responding to E7 report with 73 03 28, as is =
-found
-> > in the Dell Latitude E7470.
-> > ---
-> >  drivers/input/mouse/alps.c | 6 ++++++
-> >  1 file changed, 6 insertions(+)
-> >=20
-> > diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.=
-c
-> > index 25d2cad..431bc26 100644
-> > --- a/drivers/input/mouse/alps.c
-> > +++ b/drivers/input/mouse/alps.c
-> > @@ -2776,6 +2776,7 @@ static int alps_identify(struct psmouse *psmo=
-use, struct alps_data *priv)
-> >  	const struct alps_protocol_info *protocol;
-> >  	unsigned char e6[4], e7[4], ec[4];
-> >  	int error;
-> > +	int flags =3D 0;
-> > =20
-> >  	/*
-> >  	 * First try "E6 report".
-> > @@ -2817,6 +2818,10 @@ static int alps_identify(struct psmouse *psm=
-ouse, struct alps_data *priv)
-> >  		} else if (e7[0] =3D=3D 0x73 && e7[1] =3D=3D 0x03 &&
-> >  			   e7[2] =3D=3D 0x14 && ec[1] =3D=3D 0x02) {
-> >  			protocol =3D &alps_v8_protocol_data;
-> > +		} else if (e7[0] =3D=3D 0x73 && e7[1] =3D=3D 0x03 &&
-> > +			   e7[2] =3D=3D 0x28 && ec[1] =3D=3D 0x01) {
-> > +			protocol =3D &alps_v8_protocol_data;
-> > +			flags |=3D ALPS_DUALPOINT | ALPS_DUALPOINT_WITH_PRESSURE;
-> >  		} else {
-> >  			psmouse_dbg(psmouse,
-> >  				    "Likely not an ALPS touchpad: E7=3D%3ph, EC=3D%3ph\n", e7,=
- ec);
-> > @@ -2830,6 +2835,7 @@ static int alps_identify(struct psmouse *psmo=
-use, struct alps_data *priv)
-> >  		error =3D alps_set_protocol(psmouse, priv, protocol);
-> >  		if (error)
-> >  			return error;
-> > +		priv->flags |=3D flags;
-> >  	}
-> > =20
-> >  	return 0;
->=20
-> I would rather see setting flags in alps_set_protocol function. Where=
- it
-> is done for other protocols. But do not know if it is easily possible
-> without rewriting lot of code...
+On Mon, Jun 20, 2016 at 10:33:03AM -0700, Dmitry Torokhov wrote:
+> On Sun, Jun 19, 2016 at 02:44:35PM +0200, Manuel Reimer wrote:
+> > Hello,
+> > 
+> > while debugging a problem with hid-sony I got stuck with a problem
+> > actually caused by ff-memless. In some situations effect aborting is
+> > delayed, so it may be triggered seconds after all devices have been
+> > destroyed, which causes the kernel to panic.
+> > 
+> > The aborting request actually gets received here:
+> > https://github.com/torvalds/linux/blob/master/drivers/input/ff-memless.c#L467
+> > This "aborting" flag is then handled here:
+> > https://github.com/torvalds/linux/blob/master/drivers/input/ff-memless.c#L376
+> > But before this line is reached, there is a time check to check if
+> > the effect actually is due to be started:
+> > https://github.com/torvalds/linux/blob/master/drivers/input/ff-memless.c#L359
+> > 
+> > This time check now causes a problem if the effect, which is meant
+> > to be *aborted* was scheduled to be *started* some time in future
+> > and the device is destroyed before this time is reached.
+> 
+> I am not clear how this can happen. If effect hasn't actually started
+> playing (i.e. we have FF_EFFECT_STARTED bit set, but FF_EFFECT_PLAYING
+> is not yet set), then when stopping effect we do not need to do anything
+> except clear FF_EFFECT_STARTED (since we did not touch the hardware
+> yet).
+> 
+> Now, if FF_EFFECT_PLAYING is set, that means that play_at time is in
+> the past and we won't be skipping this effect in ml_get_combo_effect().
+> 
+> Could you please post a stack trace of the crash you observed?
 
-Could probably key it off of prov->fw_ver[1] (which is ec[1]) in
-alps_set_protocol() in V8 case.
+Actually, I wonder if the patch below will fix the issue you are seeing.
 
 Thanks.
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+Input: fix flushing of FF effects when unregistering devices
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/input.c |   10 +++++++---
+ include/linux/input.h |    8 ++++++--
+ 2 files changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index d95c34e..220aa17 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -144,7 +144,7 @@ static void input_pass_values(struct input_dev *dev,
+ 		count = input_to_handler(handle, vals, count);
+ 	} else {
+ 		list_for_each_entry_rcu(handle, &dev->h_list, d_node)
+-			if (handle->open) {
++			if (handle->active) {
+ 				count = input_to_handler(handle, vals, count);
+ 				if (!count)
+ 					break;
+@@ -552,7 +552,7 @@ static void __input_release_device(struct input_handle *handle)
+ 		synchronize_rcu();
+ 
+ 		list_for_each_entry(handle, &dev->h_list, d_node)
+-			if (handle->open && handle->handler->start)
++			if (handle->active && handle->handler->start)
+ 				handle->handler->start(handle);
+ 	}
+ }
+@@ -613,6 +613,8 @@ int input_open_device(struct input_handle *handle)
+ 		}
+ 	}
+ 
++	handle->active = handle->open > 0;
++
+  out:
+ 	mutex_unlock(&dev->mutex);
+ 	return retval;
+@@ -663,6 +665,8 @@ void input_close_device(struct input_handle *handle)
+ 		synchronize_rcu();
+ 	}
+ 
++	handle->active = handle->open > 0;
++
+ 	mutex_unlock(&dev->mutex);
+ }
+ EXPORT_SYMBOL(input_close_device);
+@@ -716,7 +720,7 @@ static void input_disconnect_device(struct input_dev *dev)
+ 	input_dev_release_keys(dev);
+ 
+ 	list_for_each_entry(handle, &dev->h_list, d_node)
+-		handle->open = 0;
++		handle->active = false;
+ 
+ 	spin_unlock_irq(&dev->event_lock);
+ }
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 1e96769..87ec2f7 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -307,8 +307,10 @@ struct input_handler {
+ /**
+  * struct input_handle - links input device with an input handler
+  * @private: handler-specific data
+- * @open: counter showing whether the handle is 'open', i.e. should deliver
+- *	events from its device
++ * @open: counter showing whether the handle is 'open', i.e. there is
++ *	a consumer for the events from input device
++ * @active: indicates that input events should be delivered from input
++ *	device to input handler through this handle
+  * @name: name given to the handle by handler that created it
+  * @dev: input device the handle is attached to
+  * @handler: handler that works with the device through this handle
+@@ -321,6 +323,8 @@ struct input_handle {
+ 	void *private;
+ 
+ 	int open;
++	bool active;
++
+ 	const char *name;
+ 
+ 	struct input_dev *dev;

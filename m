@@ -1,25 +1,40 @@
 From: Masaki Ota <masaki.ota@jp.alps.com>
 Subject: RE: [PATCH] Alps I2C HID Touchpad-Stick support
-Date: Tue, 21 Jun 2016 04:43:05 +0000
-Message-ID: <OSXPR01MB0408A3C101E1D36D1F4FEC76C72B0@OSXPR01MB0408.jpnprd01.prod.outlook.com>
+Date: Tue, 21 Jun 2016 05:29:54 +0000
+Message-ID: <OSXPR01MB0408697A55AD4C3933AC1C5FC72B0@OSXPR01MB0408.jpnprd01.prod.outlook.com>
 References: <1466070357-5315-1-git-send-email-masaki.ota@jp.alps.com>
  <20160621033925.GB35864@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-2022-jp"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ty1jpn01on0084.outbound.protection.outlook.com ([104.47.93.84]:47136
-	"EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
+Received: from mail-os2jpn01on0048.outbound.protection.outlook.com ([104.47.92.48]:19593
+	"EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751002AbcFUEnK convert rfc822-to-8bit (ORCPT
+	id S1751623AbcFUFak convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2016 00:43:10 -0400
-In-Reply-To: <20160621033925.GB35864@dtor-ws>
+	Tue, 21 Jun 2016 01:30:40 -0400
 Content-Language: ja-JP
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Masaki Ota <012nexus@gmail.com>
 Cc: "jikos@kernel.org" <jikos@kernel.org>, "benjamin.tissorires@redhat.com" <benjamin.tissorires@redhat.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Naoki Saito <naoki.saito@jp.alps.com>
+
+Hi, Dmitry,
+
+Sorry, I misunderstood my code.
+It does not need to use global.
+
+I will send patch again.
+
+Best Regards,
+Masaki Ota
+-----Original Message-----
+From: 太田 真喜 Masaki Ota 
+Sent: Tuesday, June 21, 2016 1:43 PM
+To: 'Dmitry Torokhov'; Masaki Ota
+Cc: jikos@kernel.org; benjamin.tissorires@redhat.com; peter.hutterer@who-t.net; hdegoede@redhat.com; linux-input@vger.kernel.org; 斉藤 直樹 Naoki Saito
+Subject: RE: [PATCH] Alps I2C HID Touchpad-Stick support
 
 Hi, Dmitry,
 
@@ -34,7 +49,7 @@ About other your points, I will change the codes.
 Best Regards,
 Masaki Ota
 -----Original Message-----
-From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
+From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
 Sent: Tuesday, June 21, 2016 12:39 PM
 To: Masaki Ota
 Cc: jikos@kernel.org; benjamin.tissorires@redhat.com; peter.hutterer@who-t.net; hdegoede@redhat.com; linux-input@vger.kernel.org; 太田 真喜 Masaki Ota; 斉藤 直樹 Naoki Saito
@@ -69,7 +84,7 @@ further:
 > +modify it
 > + * under the terms of the GNU General Public License as published by 
 > +the Free
-> + * Software Foundation; either version 2 of the License, or (at your 
+> + * Software Foundation; either version 2 of the License, or (at your
 > +option)
 > + * any later version.
 > + */
@@ -613,7 +628,7 @@ get_unaligned_le16()
 > +
 > +MODULE_AUTHOR("Masaki Ota <masaki.ota@jp.alps.com>"); 
 > +MODULE_DESCRIPTION("ALPS HID driver"); MODULE_LICENSE("GPL");
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h index 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h index
 > b6ff6e7..cac68c7 100644
 > --- a/drivers/hid/hid-ids.h
 > +++ b/drivers/hid/hid-ids.h
@@ -632,5 +647,5 @@ get_unaligned_le16()
 
 Thanks.
 
--- 
+--
 Dmitry

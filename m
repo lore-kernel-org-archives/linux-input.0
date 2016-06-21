@@ -1,148 +1,244 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Fix effect aborting in ff-memless
-Date: Mon, 20 Jun 2016 20:24:10 -0700
-Message-ID: <20160621032410.GA35864@dtor-ws>
-References: <c2278d36-993b-402f-dd07-635980112bbe@m-reimer.de>
- <20160620173303.GA22426@dtor-ws>
+From: Patrick Lessard <Patrick.Lessard@cogeco.com>
+Subject: Re: RE : New Elantech touchpad version?
+Date: Tue, 21 Jun 2016 03:24:15 +0000
+Message-ID: <4DBD6143-8F5C-42E0-B057-84AC181D5BB1@cogeco.com>
+References: <4D0DB74D8481894EB236F640F391FC7E0107F5CF6C@TRPMEXMBX1.cogeco.com>,<20160620182110.GD22426@dtor-ws>,<4D0DB74D8481894EB236F640F391FC7E0107F5D1B7@TRPMEXMBX1.cogeco.com>,<4D0DB74D8481894EB236F640F391FC7E0107F5D21F@TRPMEXMBX1.cogeco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=Windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:34807 "EHLO
-	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752237AbcFUDYO (ORCPT
+Received: from bupnmail1.cogeco.com ([24.226.15.15]:37277 "EHLO
+	bupnmail1.cogeco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752237AbcFUDYT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jun 2016 23:24:14 -0400
-Received: by mail-pf0-f196.google.com with SMTP id 66so318956pfy.1
-        for <linux-input@vger.kernel.org>; Mon, 20 Jun 2016 20:24:14 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20160620173303.GA22426@dtor-ws>
+	Mon, 20 Jun 2016 23:24:19 -0400
+In-Reply-To: <4D0DB74D8481894EB236F640F391FC7E0107F5D21F@TRPMEXMBX1.cogeco.com>
+Content-Language: fr-CA
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Manuel Reimer <mail+linux-input@m-reimer.de>
-Cc: linux-input <linux-input@vger.kernel.org>, Cameron Gutman <aicommander@gmail.com>, jikos@kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "kt.liao@emc.com.tw" <kt.liao@emc.com.tw>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Mon, Jun 20, 2016 at 10:33:03AM -0700, Dmitry Torokhov wrote:
-> On Sun, Jun 19, 2016 at 02:44:35PM +0200, Manuel Reimer wrote:
-> > Hello,
-> > 
-> > while debugging a problem with hid-sony I got stuck with a problem
-> > actually caused by ff-memless. In some situations effect aborting is
-> > delayed, so it may be triggered seconds after all devices have been
-> > destroyed, which causes the kernel to panic.
-> > 
-> > The aborting request actually gets received here:
-> > https://github.com/torvalds/linux/blob/master/drivers/input/ff-memless.c#L467
-> > This "aborting" flag is then handled here:
-> > https://github.com/torvalds/linux/blob/master/drivers/input/ff-memless.c#L376
-> > But before this line is reached, there is a time check to check if
-> > the effect actually is due to be started:
-> > https://github.com/torvalds/linux/blob/master/drivers/input/ff-memless.c#L359
-> > 
-> > This time check now causes a problem if the effect, which is meant
-> > to be *aborted* was scheduled to be *started* some time in future
-> > and the device is destroyed before this time is reached.
-> 
-> I am not clear how this can happen. If effect hasn't actually started
-> playing (i.e. we have FF_EFFECT_STARTED bit set, but FF_EFFECT_PLAYING
-> is not yet set), then when stopping effect we do not need to do anything
-> except clear FF_EFFECT_STARTED (since we did not touch the hardware
-> yet).
-> 
-> Now, if FF_EFFECT_PLAYING is set, that means that play_at time is in
-> the past and we won't be skipping this effect in ml_get_combo_effect().
-> 
-> Could you please post a stack trace of the crash you observed?
+I confirm that by adding
+case 12:
+It works.
 
-Actually, I wonder if the patch below will fix the issue you are seeing.
+Patrick
 
-Thanks.
+> Le 20 juin 2016 =E0 21:38, Patrick Lessard <Patrick.Lessard@cogeco.co=
+m> a =E9crit :
+>
+> Sorry to bother, but here is some additionnal info.
+>
+> This is what I get from dmesg
+>
+> [    9.320371] psmouse serio1: elantech: assuming hardware version 4 =
+(with firmware version 0x5c1f04)
+> [    9.335504] psmouse serio1: elantech: Synaptics capabilities query=
+ result 0x10, 0x16, 0x0d.
+> [    9.350483] psmouse serio1: elantech: Elan sample query result 0d,=
+ 01, 86
+>
+> and calculated version gives 0xC, so 12
+>
+> If that could help
+>
+> Patrick.
+>
+>
 
--- 
-Dmitry
+The information in this message, including in all attachments, is
+confidential or privileged. In the event you have received this message=
+ in error
+and are not the intended recipient, you are hereby advised that any use=
+, copying
+or reproduction of this document is strictly forbidden. Please notify
+immediately the sender of this error and destroy this message, includin=
+g its
+attachments, as the case may be.
+</P>
+L'information apparaissant dans ce message electronique et dans les doc=
+uments
+qui y sont joints est de nature confidentielle ou privilegiee. Si ce me=
+ssage
+vous est parvenu par erreur et que vous n'en etes pas le destinataire v=
+ise, vous
+etes par les presentes avise que toute utilisation, copie ou distributi=
+on de ce
+message est strictement interdite. Vous etes donc prie d=92en informer
+immediatement l=92expediteur et de detruire ce message, ainsi que les d=
+ocuments
+qui y sont joints, le cas echeant.</FONT>
 
 
-Input: fix flushing of FF effects when unregistering devices
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/input.c |   10 +++++++---
- include/linux/input.h |    8 ++++++--
- 2 files changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index d95c34e..220aa17 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -144,7 +144,7 @@ static void input_pass_values(struct input_dev *dev,
- 		count = input_to_handler(handle, vals, count);
- 	} else {
- 		list_for_each_entry_rcu(handle, &dev->h_list, d_node)
--			if (handle->open) {
-+			if (handle->active) {
- 				count = input_to_handler(handle, vals, count);
- 				if (!count)
- 					break;
-@@ -552,7 +552,7 @@ static void __input_release_device(struct input_handle *handle)
- 		synchronize_rcu();
- 
- 		list_for_each_entry(handle, &dev->h_list, d_node)
--			if (handle->open && handle->handler->start)
-+			if (handle->active && handle->handler->start)
- 				handle->handler->start(handle);
- 	}
- }
-@@ -613,6 +613,8 @@ int input_open_device(struct input_handle *handle)
- 		}
- 	}
- 
-+	handle->active = handle->open > 0;
-+
-  out:
- 	mutex_unlock(&dev->mutex);
- 	return retval;
-@@ -663,6 +665,8 @@ void input_close_device(struct input_handle *handle)
- 		synchronize_rcu();
- 	}
- 
-+	handle->active = handle->open > 0;
-+
- 	mutex_unlock(&dev->mutex);
- }
- EXPORT_SYMBOL(input_close_device);
-@@ -716,7 +720,7 @@ static void input_disconnect_device(struct input_dev *dev)
- 	input_dev_release_keys(dev);
- 
- 	list_for_each_entry(handle, &dev->h_list, d_node)
--		handle->open = 0;
-+		handle->active = false;
- 
- 	spin_unlock_irq(&dev->event_lock);
- }
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 1e96769..87ec2f7 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -307,8 +307,10 @@ struct input_handler {
- /**
-  * struct input_handle - links input device with an input handler
-  * @private: handler-specific data
-- * @open: counter showing whether the handle is 'open', i.e. should deliver
-- *	events from its device
-+ * @open: counter showing whether the handle is 'open', i.e. there is
-+ *	a consumer for the events from input device
-+ * @active: indicates that input events should be delivered from input
-+ *	device to input handler through this handle
-  * @name: name given to the handle by handler that created it
-  * @dev: input device the handle is attached to
-  * @handler: handler that works with the device through this handle
-@@ -321,6 +323,8 @@ struct input_handle {
- 	void *private;
- 
- 	int open;
-+	bool active;
-+
- 	const char *name;
- 
- 	struct input_dev *dev;
+
+Ce courriel provient de Patrick.Lessard@cogeco.com . Pour assurer la li=
+vraison de futurs envois, veuillez inclure la presente adresse courriel=
+ a votre carnet
+d=92adresses ou votre liste d=92expediteurs autorises.
+Si vous ne souhaitez plus recevoir de messages promotionnels de la part=
+ de Cogeco, veuillez transf=E9rer ce courriel a desabonnement@cogeco.co=
+m. Merci!
+Politique en matiere de protection des renseignements personnels de Cog=
+eco et Engagement en matiere d=92anti-spam =96 Contactez-nous
+Cogeco Cable Canada, 5 Place Ville-Marie, Bureau 1700, Montreal, Quebec=
+, H3B 0B3
+--
+This email is from Patrick.Lessard@cogeco.com . To ensure the delivery =
+of future emails, please add the current email address to your address =
+book or safe senders list.
+If you no longer wish to receive promotional emails from Cogeco, please=
+ forward this message to unsubscribe@cogeco.com. Thank you!
+Privacy Policy and Anti-spam Commitment - Contact us
+Cogeco Cable Canada, 5 Place Ville-Marie, Suite 1700, Montreal, Quebec,=
+ H3B 0B3
+
+________________________________________
+> De : Patrick Lessard
+> Envoy=E9 : 20 juin 2016 19:53
+> =C0 : Dmitry Torokhov; kt.liao@emc.com.tw
+> Cc : linux-input@vger.kernel.org
+> Objet : RE : New Elantech touchpad version?
+>
+> Hello,
+>
+> Just tested an ugly quick patch just for testing. By assigning it a h=
+w_version of 4 it works fine.
+>
+> I'll find out what fw_version it gives and see how it translate for t=
+he ver variable
+>
+> You can see what I did below. I just played with the "default" statem=
+ent.
+>
+> Thank you.
+>
+> Patrick.
+>
+> static int elantech_set_properties(struct elantech_data *etd)
+> {
+>        /* This represents the version of IC body. */
+>        int ver =3D (etd->fw_version & 0x0f0000) >> 16;
+>
+>        /* Early version of Elan touchpads doesn't obey the rule. */
+>        if (etd->fw_version < 0x020030 || etd->fw_version =3D=3D 0x020=
+600)
+>                etd->hw_version =3D 1;
+>        else {
+>                switch (ver) {
+>                case 2:
+>                case 4:
+>                        etd->hw_version =3D 2;
+>                        break;
+>                case 5:
+>                        etd->hw_version =3D 3;
+>                        break;
+>                case 6:
+>                case 7:
+>                case 8:
+>                case 9:
+>                case 10:
+>                case 13:
+>                case 14:
+>                        etd->hw_version =3D 4;
+>                        break;
+>                default:
+>                        etd->hw_version =3D 4;
+>                        break;
+>                        /*return -1;*/
+>
+> ________________________________________
+> De : Dmitry Torokhov [dmitry.torokhov@gmail.com]
+> Envoy=E9 : 20 juin 2016 14:21
+> =C0 : Patrick Lessard; kt.liao@emc.com.tw
+> Cc : linux-input@vger.kernel.org
+> Objet : Re: New Elantech touchpad version?
+>
+> Hi Patrick,
+>
+>> On Mon, Jun 20, 2016 at 06:10:41PM +0000, Patrick Lessard wrote:
+>> Hello!
+>>
+>> First, thank you very much for creating a driver for the Elantech to=
+uchpads. Very appeciated.
+>>
+>> I=92ve contacted one of the original author, Arjan Opmeer and he dir=
+ected me to you. (those 2 email addresses actually)
+>>
+>> I just bought a HP Pavilion 14-ab057ca laptop and I think it uses a =
+new version of the Elantech touchpad.
+>>
+>> On linux, when I boot, I get this message :
+>>
+>> =AB psmouse serio1: elantech: unknown hardware version, aborting... =
+=BB
+>>
+>> By looking at the kernel driver code in elantech.c below, I might tr=
+y a quick patch and add a case higher than 14, compile and try it.
+>
+> Looking at HP site it seems that at least some batches of this laptop
+> are shipping with Elan touchpads.
+>
+> KT, do we need to expand the list in elantech_set_properties() to
+> include more IC types?
+>
+>>
+>> If succesfull, could you include a fix in the near future?
+>>
+>> Are you still maintaining this driver?
+>>
+>> How should I proceed?
+>>
+>> Thank you very much for your attention.
+>>
+>> Patrick.
+>>
+>>
+>> Code snippet :
+>>
+>> =85.
+>>
+>> static int elantech_set_properties(struct elantech_data *etd)
+>> {
+>>        /* This represents the version of IC body. */
+>>        int ver =3D (etd->fw_version & 0x0f0000) >> 16;
+>>
+>>        /* Early version of Elan touchpads doesn't obey the rule. */
+>>        if (etd->fw_version < 0x020030 || etd->fw_version =3D=3D 0x02=
+0600)
+>>               etd->hw_version =3D 1;
+>>        else {
+>>               switch (ver) {
+>>               case 2:
+>>               case 4:
+>>                       etd->hw_version =3D 2;
+>>                       break;
+>>               case 5:
+>>                       etd->hw_version =3D 3;
+>>                       break;
+>>               case 6:
+>>               case 7:
+>>               case 8:
+>>               case 9:
+>>               case 10:
+>>               case 13:
+>>               case 14:
+>>                       etd->hw_version =3D 4;
+>>                       break;
+>>               default:
+>>                       return -1;
+>>               }
+>>        }
+>
+> Thanks.
+>
+> --
+> Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

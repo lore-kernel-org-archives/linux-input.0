@@ -1,207 +1,50 @@
-From: Patrick Lessard <Patrick.Lessard@cogeco.com>
-Subject: RE : New Elantech touchpad version?
-Date: Mon, 20 Jun 2016 23:53:49 +0000
-Message-ID: <4D0DB74D8481894EB236F640F391FC7E0107F5D1B7@TRPMEXMBX1.cogeco.com>
-References: <4D0DB74D8481894EB236F640F391FC7E0107F5CF6C@TRPMEXMBX1.cogeco.com>,<20160620182110.GD22426@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/5] Input: alps - cleanup
+Date: Mon, 20 Jun 2016 17:31:13 -0700
+Message-ID: <20160621003113.GE22426@dtor-ws>
+References: <1465212241-14702-1-git-send-email-pali.rohar@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=Windows-1252
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bupnmail1.cogeco.com ([24.226.15.15]:37231 "EHLO
-	bupnmail1.cogeco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751596AbcFTXyM convert rfc822-to-8bit (ORCPT
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:33292 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752441AbcFUAi3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jun 2016 19:54:12 -0400
-In-Reply-To: <20160620182110.GD22426@dtor-ws>
-Content-Language: fr-CA
+	Mon, 20 Jun 2016 20:38:29 -0400
+Content-Disposition: inline
+In-Reply-To: <1465212241-14702-1-git-send-email-pali.rohar@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "kt.liao@emc.com.tw" <kt.liao@emc.com.tw>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Ben Gamari <ben@smart-cactus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello,
+Hi Pali,
 
-Just tested an ugly quick patch just for testing. By assigning it a hw_=
-version of 4 it works fine.
+On Mon, Jun 06, 2016 at 01:23:56PM +0200, Pali Roh=E1r wrote:
+> This patch series cleanup usage of alps_model_data table.
+>=20
+> Pali Roh=E1r (5):
+>   Input: alps - move ALPS_PROTO_V6 out of alps_model_data table
+>   Input: alps - move ALPS_PROTO_V4 out of alps_model_data table
+>   Input: alps - move ALPS_PROTO_V1 out of alps_model_data table
+>   Input: alps - warn about unsupported ALPS V9 touchpad
+>   Input: alps - cleanup ALPS_PROTO_V2 detection
 
-I'll find out what fw_version it gives and see how it translate for the=
- ver variable
+=46rankly, I do not quite like this series. The rule of thumb we had: i=
+f
+we can use e7 data to identify the device it should go into table,
+if we need to have more elaborate logic - then implement it in
+__alps_indentify(). I would understand if we got rid of the table
+completely, but we didn't.
 
-You can see what I did below. I just played with the "default" statemen=
-t.
-
-Thank you.
-
-Patrick.
-
-static int elantech_set_properties(struct elantech_data *etd)
-{
-        /* This represents the version of IC body. */
-        int ver =3D (etd->fw_version & 0x0f0000) >> 16;
-
-        /* Early version of Elan touchpads doesn't obey the rule. */
-        if (etd->fw_version < 0x020030 || etd->fw_version =3D=3D 0x0206=
-00)
-                etd->hw_version =3D 1;
-        else {
-                switch (ver) {
-                case 2:
-                case 4:
-                        etd->hw_version =3D 2;
-                        break;
-                case 5:
-                        etd->hw_version =3D 3;
-                        break;
-                case 6:
-                case 7:
-                case 8:
-                case 9:
-                case 10:
-                case 13:
-                case 14:
-                        etd->hw_version =3D 4;
-                        break;
-                default:
-                        etd->hw_version =3D 4;
-                        break;
-                        /*return -1;*/
-
-
-
-The information in this message, including in all attachments, is
-confidential or privileged. In the event you have received this message=
- in error
-and are not the intended recipient, you are hereby advised that any use=
-, copying
-or reproduction of this document is strictly forbidden. Please notify
-immediately the sender of this error and destroy this message, includin=
-g its
-attachments, as the case may be.
-</P>
-L'information apparaissant dans ce message electronique et dans les doc=
-uments
-qui y sont joints est de nature confidentielle ou privilegiee. Si ce me=
-ssage
-vous est parvenu par erreur et que vous n'en etes pas le destinataire v=
-ise, vous
-etes par les presentes avise que toute utilisation, copie ou distributi=
-on de ce
-message est strictement interdite. Vous etes donc prie d=92en informer
-immediatement l=92expediteur et de detruire ce message, ainsi que les d=
-ocuments
-qui y sont joints, le
-
-request a hard-copy version.
-
-
-
-Ce courriel provient de Patrick.Lessard@cogeco.com . Pour assurer la li=
-vraison de futurs envois, veuillez inclure la presente adresse courriel=
- a votre carnet
-d=92adresses ou votre liste d=92expediteurs autorises.
-Si vous ne souhaitez plus recevoir de messages promotionnels de la part=
- de Cogeco, veuillez transf=E9rer ce courriel a desabonnement@cogeco.co=
-m. Merci!
-Politique en matiere de protection des renseignements personnels de Cog=
-eco et Engagement en matiere d=92anti-spam =96 Contactez-nous
-Cogeco Cable Canada, 5 Place Ville-Marie, Bureau 1700, Montreal, Quebec=
-, H3B 0B3
---
-This email is from Patrick.Lessard@cogeco.com . To ensure the delivery =
-of future emails, please add the current email address to your address =
-book or safe senders list.
-If you no longer wish to receive promotional emails from Cogeco, please=
- forward this message to unsubscribe@cogeco.com. Thank you!
-Privacy Policy and Anti-spam Commitment - Contact us
-Cogeco Cable Canada, 5 Place Ville-Marie, Suite 1700, Montreal, Quebec,=
- H3B 0B3
-
-________________________________________
-De : Dmitry Torokhov [dmitry.torokhov@gmail.com]
-Envoy=E9 : 20 juin 2016 14:21
-=C0 : Patrick Lessard; kt.liao@emc.com.tw
-Cc : linux-input@vger.kernel.org
-Objet : Re: New Elantech touchpad version?
-
-Hi Patrick,
-
-On Mon, Jun 20, 2016 at 06:10:41PM +0000, Patrick Lessard wrote:
-> Hello!
->
-> First, thank you very much for creating a driver for the Elantech tou=
-chpads. Very appeciated.
->
-> I=92ve contacted one of the original author, Arjan Opmeer and he dire=
-cted me to you. (those 2 email addresses actually)
->
-> I just bought a HP Pavilion 14-ab057ca laptop and I think it uses a n=
-ew version of the Elantech touchpad.
->
-> On linux, when I boot, I get this message :
->
-> =AB psmouse serio1: elantech: unknown hardware version, aborting... =BB
->
-> By looking at the kernel driver code in elantech.c below, I might try=
- a quick patch and add a case higher than 14, compile and try it.
-
-Looking at HP site it seems that at least some batches of this laptop
-are shipping with Elan touchpads.
-
-KT, do we need to expand the list in elantech_set_properties() to
-include more IC types?
-
->
-> If succesfull, could you include a fix in the near future?
->
-> Are you still maintaining this driver?
->
-> How should I proceed?
->
-> Thank you very much for your attention.
->
-> Patrick.
->
->
-> Code snippet :
->
-> =85.
->
-> static int elantech_set_properties(struct elantech_data *etd)
-> {
->         /* This represents the version of IC body. */
->         int ver =3D (etd->fw_version & 0x0f0000) >> 16;
->
->         /* Early version of Elan touchpads doesn't obey the rule. */
->         if (etd->fw_version < 0x020030 || etd->fw_version =3D=3D 0x02=
-0600)
->                etd->hw_version =3D 1;
->         else {
->                switch (ver) {
->                case 2:
->                case 4:
->                        etd->hw_version =3D 2;
->                        break;
->                case 5:
->                        etd->hw_version =3D 3;
->                        break;
->                case 6:
->                case 7:
->                case 8:
->                case 9:
->                case 10:
->                case 13:
->                case 14:
->                        etd->hw_version =3D 4;
->                        break;
->                default:
->                        return -1;
->                }
->         }
->
+I think the patch removing ALPS_PROTO_V4 and subsequent patch removing
+command_mode_resp from alps_model_info are good, the rest are not so
+much.
 
 Thanks.
 
---
+--=20
 Dmitry
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

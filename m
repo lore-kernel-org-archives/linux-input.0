@@ -1,124 +1,97 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 1/1] HID: multitouch: enable palm rejection if device
- implements confidence usage
-Date: Tue, 21 Jun 2016 14:36:48 +0200
-Message-ID: <CAN+gG=H5oefTgosNeoaEJjQceHpGpYH=ahBFynyfJ1S4qBJvqg@mail.gmail.com>
-References: <1448014866-25348-1-git-send-email-allen_hung@dell.com>
- <alpine.LNX.2.00.1511261521350.20111@pobox.suse.cz> <CAN+gG=Ga92-UPbbcjiL0p2b4gO0iQE_-U6wXiq_x3=39z+edSg@mail.gmail.com>
- <5677CA23.9050008@dell.com> <CAN+gG=EzUADfseJQ_bY9KXQ_+YNrpS8B6B9eRK_gcyD6aZpg9w@mail.gmail.com>
- <576906D1.5090609@dell.com>
+From: =?big5?B?ufmxUrph?= <kt.liao@emc.com.tw>
+Subject: RE: [PATCH] Input: elan_i2c - +200 ms delay before setting to ABS mode
+Date: Tue, 21 Jun 2016 20:40:20 +0800
+Message-ID: <008601d1cbba$124c2230$36e46690$@emc.com.tw>
+References: <1465306449-28256-1-git-send-email-chiu@endlessm.com> <20160620174251.GC22426@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f42.google.com ([209.85.213.42]:33625 "EHLO
-	mail-vk0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751434AbcFUMgu convert rfc822-to-8bit (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:2832 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750744AbcFUMpe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2016 08:36:50 -0400
-In-Reply-To: <576906D1.5090609@dell.com>
+	Tue, 21 Jun 2016 08:45:34 -0400
+In-Reply-To: <20160620174251.GC22426@dtor-ws>
+Content-Language: zh-tw
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Allen Hung <allen_hung@dell.com>
-Cc: Jiri Kosina <jikos@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Chris Chiu' <chiu@endlessm.com>
+Cc: 'Charlie Mooney' <charliemooney@chromium.org>, 'Michele Curti' <michele.curti@gmail.com>, 'Krzysztof Kozlowski' <k.kozlowski@samsung.com>, 'Benson Leung' <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux@endlessm.com, =?big5?B?tsClQMRQILhnsno=?= <phoenix@emc.com.tw>
 
-Hi Allen,
+Hi Dmitry,
 
-On Tue, Jun 21, 2016 at 11:20 AM, Allen Hung <allen_hung@dell.com> wrote:
-> Hi Benjamin,
->
-> On 01/04/2016 04:35 PM, Benjamin Tissoires wrote:
->> Hi Allen,
->>
->> On Mon, Dec 21, 2015 at 10:45 AM, Allen Hung <allen_hung@dell.com> wrote:
->>> On 12/18/2015 05:52 AM, Benjamin Tissoires wrote:
->>>> On Thu, Nov 26, 2015 at 3:21 PM, Jiri Kosina <jikos@kernel.org> wrote:
->>>>> On Fri, 20 Nov 2015, Allen Hung wrote:
->>>>>
->>>>>> The usage Confidence is mandary to Windows Precision Touchpad devices. The
->>>>>> appearance of this usage is checked in hidinput_connect but the quirk
->>>>>> MT_QUIRK_VALID_IS_CONFIDENCE is not applied to device accordingly.
->>>>>> Apply this quirk and also remove quirk MT_QUIRK_ALWAYS_VALID to enable palm
->>>>>> rejection for the WIN 8 touchpad devices which have implemented usage
->>>>>> Confidence in its input reports.
->>>>>>
->>>>>> Tested on Dell XPS 13 laptop.
->>>>>>
->>>>>> Signed-off-by: Allen Hung <allen_hung@dell.com>
->>>>> Applied to for-4.5/multitouch. Thanks,
->>>>>
->>>> Allen, looks like the Dell XPS13 2015 (or was it the 2014?) has
->>>> problems with your patch:
->>>> https://bugzilla.redhat.com/show_bug.cgi?id=1292583 (we backported
->>>> this change in the Fedora kernel 4.2.7).
->>>>
->>>> Would you mind checking that this patch does not create regressions on
->>>> older series of laptops?
->>>>
->>>> Thanks in advance.
->>>>
->>>> Cheers,
->>>> Benjamin
->>> Hi Benjamin,
->>>
->>> It looks like a XPS13 2014 but I can confirm this with my colleagues who are in charge of this product line. I don't mind checking this patch with more older series of laptops. I will do it and let you know the status. Should I also test the machines with Fedora 23, or just go with Ubuntu OS? The XPS machines are shipped with Ubuntu.
->>> Btw, the issue reporter said she/he cannot reproduce the issue (posted on Dec. 18).
->>>
->>
->> [Sorry for the late answer, but you guessed the holiday season did not help :)]
->>
->> I think I'll just ask the reporter to confirm he can not reproduce and
->> then close the downstream bug.
->> Unless other people complains, I think we can just keep the current
->> state and wait :)
->>
->> Cheers,
->> Benjamin
->>
-> My this patch 25a84db15b3f3a24d3ea7d2baf90693bcff34b0c (HID: multitouch: enable
-> palm rejection if device implements confidence usage) brings side effect as
-> someone reported it on https://bugzilla.kernel.org/show_bug.cgi?id=112791
-> My fix is attached in the thread and please have a look at it and my reply in
-> comment #5 as the root cause.
-> Let me try to explain my fix here - the quirk MT_QUIRK_VALID_IS_CONFIDENCE
-> is implemented in hid-multitouch and I see it was only applied to some
-> particular touchpad devices (see my list in the end) before my earlier patch
-> applies it to Windows 8 precision touchpad. I believe the quirk is working
-> very well for the devices in list, and it must have some stories behind that
-> made the quirk designed in this way - simply dropped the reports with
-> [confidence = 0].
-> However, this quirk isn't working very properly for the Win8 precise touchpad.
-> I think when a touch is initially detected as finger then
-> later detected as a palm, the driver has to send the latter detections
-> to input/mt as calling input_mt_report_slot_state(input, MT_TOOL_FINGER,
-> active=0). In order not to break the devices in list, I add a new quirk
-> MT_QUIRK_CONFIDENCE to do the work. Please provide your comments :)
->
-> Device list:
-> MT_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M1968)
-> MT_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M2256)
-> MT_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M3266)
-> MT_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT)
-> MT_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUSTEK_MULTITOUCH_YFO)
-> MT_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART)
-> MT_USB_DEVICE(USB_VENDOR_ID_QUANTA,     USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001)
-> MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM)
->
+-----Original Message-----
+From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
+Sent: Tuesday, June 21, 2016 1:43 AM
+To: Chris Chiu; kt.liao@emc.com.tw
+Cc: Charlie Mooney; Michele Curti; Krzysztof Kozlowski; Benson Leung;
+linux-input@vger.kernel.org; linux-kernel@vger.kernel.org;
+linux@endlessm.com
+Subject: Re: [PATCH] Input: elan_i2c - +200 ms delay before setting to ABS
+mode
 
-I was discussing with Synaptics about that last week, and I was
-planning on working on it this week. Looks like you got the patch
-ready before me :)
-I *think* the patch is valid, and should be carried in upstream and in
-stable. I'd like to have a further look at it once you submit it
-however before giving my rev-by.
+On Tue, Jun 07, 2016 at 09:34:09PM +0800, Chris Chiu wrote:
+> When performing a warm reboot from a system which does not correctly 
+> support ELAN I2C touchpads, the touchpad will sometimes enter standard 
+> mouse mode, cursor then never respond to touchpad event, and making 
+> the driver discard the HID reports and flood dmesg with following 
+> error messages.
+> "elan_i2c i2c-ELAN1000:00: invalid report id data (1)"
+> 
+> This change is from ELAN's correction. It needs 200ms delay before
+> set_mode() so that the mode setting will correctly take effect.
 
-Regarding the device list you provided, yes those devices should
-reject the touch when the confidence bit is not set. These were
-Windows 7 touchscreen and the spec was not very clear and we had to
-tweak the code on a per-device basis.
+KT, is this feasible?
+[KT] After internal discussion, we don't agree this patch. 
+    It's a work-around to fix firmware bug for specific touchpad and not
+tested by other device.
+    
+> 
+> Signed-off-by: Chris Chiu <chiu@endlessm.com>
+> ---
+>  drivers/input/mouse/elan_i2c_core.c | 12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/elan_i2c_core.c 
+> b/drivers/input/mouse/elan_i2c_core.c
+> index 2f58985..95080f9 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -210,18 +210,20 @@ static int __elan_initialize(struct elan_tp_data
+*data)
+>  		return error;
+>  	}
+>  
+> -	data->mode |= ETP_ENABLE_ABS;
+> -	error = data->ops->set_mode(client, data->mode);
+> +	error = data->ops->sleep_control(client, false);
+>  	if (error) {
+>  		dev_err(&client->dev,
+> -			"failed to switch to absolute mode: %d\n", error);
+> +			"failed to wake device up: %d\n", error);
+>  		return error;
+>  	}
+>  
+> -	error = data->ops->sleep_control(client, false);
+> +	msleep(200);
+> +
+> +	data->mode |= ETP_ENABLE_ABS;
+> +	error = data->ops->set_mode(client, data->mode);
+>  	if (error) {
+>  		dev_err(&client->dev,
+> -			"failed to wake device up: %d\n", error);
+> +			"failed to switch to absolute mode: %d\n", error);
+>  		return error;
+>  	}
+>  
+> --
+> 2.1.4
+> 
 
-I think I also have a few pending patches for hid-multitouch, but your
-patch might supersede those.
+Thanks.
 
-Cheers,
-Benjamin
+-- 
+Dmitry
+

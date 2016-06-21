@@ -1,168 +1,106 @@
-From: Ben Gamari <ben@smart-cactus.org>
-Subject: [PATCH 1/5] input/alps: Add touchstick support for SS5 hardware
-Date: Tue, 21 Jun 2016 11:19:29 +0200
-Message-ID: <1466500773-3470-2-git-send-email-ben@smart-cactus.org>
-References: <1466500773-3470-1-git-send-email-ben@smart-cactus.org>
+From: Allen Hung <allen_hung@dell.com>
+Subject: Re: [PATCH 1/1] HID: multitouch: enable palm rejection if device
+ implements confidence usage
+Date: Tue, 21 Jun 2016 17:20:17 +0800
+Message-ID: <576906D1.5090609@dell.com>
+References: <1448014866-25348-1-git-send-email-allen_hung@dell.com>
+ <alpine.LNX.2.00.1511261521350.20111@pobox.suse.cz>
+ <CAN+gG=Ga92-UPbbcjiL0p2b4gO0iQE_-U6wXiq_x3=39z+edSg@mail.gmail.com>
+ <5677CA23.9050008@dell.com>
+ <CAN+gG=EzUADfseJQ_bY9KXQ_+YNrpS8B6B9eRK_gcyD6aZpg9w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.smart-cactus.org ([54.187.36.80]:56526 "EHLO
-	mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750885AbcFUJUa (ORCPT
+Received: from AUSXIPPC110.us.dell.com ([143.166.85.200]:43381 "EHLO
+	ausxippc110.us.dell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751307AbcFUJUb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2016 05:20:30 -0400
-In-Reply-To: <1466500773-3470-1-git-send-email-ben@smart-cactus.org>
+	Tue, 21 Jun 2016 05:20:31 -0400
+In-Reply-To: <CAN+gG=EzUADfseJQ_bY9KXQ_+YNrpS8B6B9eRK_gcyD6aZpg9w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Gamari <ben@smart-cactus.org>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-Add touchstick support for the so-called SS5 hardware, which uses a
-variant of the SS4 protocol.
+Hi Benjamin,
 
-Reviewed-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
----
- drivers/input/mouse/alps.c | 64 ++++++++++++++++++++++++++++++++++++++=
---------
- drivers/input/mouse/alps.h |  2 ++
- 2 files changed, 55 insertions(+), 11 deletions(-)
+On 01/04/2016 04:35 PM, Benjamin Tissoires wrote:
+> Hi Allen,
+> 
+> On Mon, Dec 21, 2015 at 10:45 AM, Allen Hung <allen_hung@dell.com> wrote:
+>> On 12/18/2015 05:52 AM, Benjamin Tissoires wrote:
+>>> On Thu, Nov 26, 2015 at 3:21 PM, Jiri Kosina <jikos@kernel.org> wrote:
+>>>> On Fri, 20 Nov 2015, Allen Hung wrote:
+>>>>
+>>>>> The usage Confidence is mandary to Windows Precision Touchpad devices. The
+>>>>> appearance of this usage is checked in hidinput_connect but the quirk
+>>>>> MT_QUIRK_VALID_IS_CONFIDENCE is not applied to device accordingly.
+>>>>> Apply this quirk and also remove quirk MT_QUIRK_ALWAYS_VALID to enable palm
+>>>>> rejection for the WIN 8 touchpad devices which have implemented usage
+>>>>> Confidence in its input reports.
+>>>>>
+>>>>> Tested on Dell XPS 13 laptop.
+>>>>>
+>>>>> Signed-off-by: Allen Hung <allen_hung@dell.com>
+>>>> Applied to for-4.5/multitouch. Thanks,
+>>>>
+>>> Allen, looks like the Dell XPS13 2015 (or was it the 2014?) has
+>>> problems with your patch:
+>>> https://bugzilla.redhat.com/show_bug.cgi?id=1292583 (we backported
+>>> this change in the Fedora kernel 4.2.7).
+>>>
+>>> Would you mind checking that this patch does not create regressions on
+>>> older series of laptops?
+>>>
+>>> Thanks in advance.
+>>>
+>>> Cheers,
+>>> Benjamin
+>> Hi Benjamin,
+>>
+>> It looks like a XPS13 2014 but I can confirm this with my colleagues who are in charge of this product line. I don't mind checking this patch with more older series of laptops. I will do it and let you know the status. Should I also test the machines with Fedora 23, or just go with Ubuntu OS? The XPS machines are shipped with Ubuntu.
+>> Btw, the issue reporter said she/he cannot reproduce the issue (posted on Dec. 18).
+>>
+> 
+> [Sorry for the late answer, but you guessed the holiday season did not help :)]
+> 
+> I think I'll just ask the reporter to confirm he can not reproduce and
+> then close the downstream bug.
+> Unless other people complains, I think we can just keep the current
+> state and wait :)
+> 
+> Cheers,
+> Benjamin
+> 
+My this patch 25a84db15b3f3a24d3ea7d2baf90693bcff34b0c (HID: multitouch: enable 
+palm rejection if device implements confidence usage) brings side effect as
+someone reported it on https://bugzilla.kernel.org/show_bug.cgi?id=112791
+My fix is attached in the thread and please have a look at it and my reply in
+comment #5 as the root cause.
+Let me try to explain my fix here - the quirk MT_QUIRK_VALID_IS_CONFIDENCE 
+is implemented in hid-multitouch and I see it was only applied to some
+particular touchpad devices (see my list in the end) before my earlier patch
+applies it to Windows 8 precision touchpad. I believe the quirk is working 
+very well for the devices in list, and it must have some stories behind that
+made the quirk designed in this way - simply dropped the reports with
+[confidence = 0]. 
+However, this quirk isn't working very properly for the Win8 precise touchpad.
+I think when a touch is initially detected as finger then
+later detected as a palm, the driver has to send the latter detections
+to input/mt as calling input_mt_report_slot_state(input, MT_TOOL_FINGER, 
+active=0). In order not to break the devices in list, I add a new quirk
+MT_QUIRK_CONFIDENCE to do the work. Please provide your comments :)
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 936f07a..b8454af 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -1156,15 +1156,27 @@ static unsigned char alps_get_pkt_id_ss4_v2(uns=
-igned char *byte)
- {
- 	unsigned char pkt_id =3D SS4_PACKET_ID_IDLE;
-=20
--	if (byte[0] =3D=3D 0x18 && byte[1] =3D=3D 0x10 && byte[2] =3D=3D 0x00=
- &&
--	    (byte[3] & 0x88) =3D=3D 0x08 && byte[4] =3D=3D 0x10 && byte[5] =3D=
-=3D 0x00) {
--		pkt_id =3D SS4_PACKET_ID_IDLE;
--	} else if (!(byte[3] & 0x10)) {
--		pkt_id =3D SS4_PACKET_ID_ONE;
--	} else if (!(byte[3] & 0x20)) {
-+	switch (byte[3] & 0x30) {
-+	case 0x00:
-+		if (byte[0] =3D=3D 0x18 && byte[1] =3D=3D 0x10 && byte[2] =3D=3D 0x0=
-0 &&
-+				(byte[3] & 0x88) =3D=3D 0x08 && byte[4] =3D=3D 0x10 && byte[5] =3D=
-=3D 0x00) {
-+			pkt_id =3D SS4_PACKET_ID_IDLE;
-+		} else {
-+			pkt_id =3D SS4_PACKET_ID_ONE;
-+		}
-+		break;
-+	case 0x10:
-+		/* two-finger finger positions */
- 		pkt_id =3D SS4_PACKET_ID_TWO;
--	} else {
-+		break;
-+	case 0x20:
-+		/* stick pointer */
-+		pkt_id =3D SS4_PACKET_ID_STICK;
-+		break;
-+	case 0x30:
-+		/* third and fourth finger positions */
- 		pkt_id =3D SS4_PACKET_ID_MULTI;
-+		break;
- 	}
-=20
- 	return pkt_id;
-@@ -1246,16 +1258,38 @@ static int alps_decode_ss4_v2(struct alps_field=
-s *f,
- 		}
- 		break;
-=20
-+	case SS4_PACKET_ID_STICK:
-+		if (!(priv->flags & ALPS_DUALPOINT)) {
-+			psmouse_warn(psmouse,
-+				     "Rejected trackstick packet from non DualPoint device");
-+		} else {
-+			int x =3D (s8)(((p[0] & 1) << 7) | (p[1] & 0x7f));
-+			int y =3D (s8)(((p[3] & 1) << 7) | (p[2] & 0x7f));
-+
-+			input_report_rel(priv->dev2, REL_X, x);
-+			input_report_rel(priv->dev2, REL_Y, -y);
-+		}
-+		break;
-+
- 	case SS4_PACKET_ID_IDLE:
- 	default:
- 		memset(f, 0, sizeof(struct alps_fields));
- 		break;
- 	}
-=20
--	f->left =3D !!(SS4_BTN_V2(p) & 0x01);
--	if (!(priv->flags & ALPS_BUTTONPAD)) {
--		f->right =3D !!(SS4_BTN_V2(p) & 0x02);
--		f->middle =3D !!(SS4_BTN_V2(p) & 0x04);
-+	/* handle buttons */
-+	if (pkt_id =3D=3D SS4_PACKET_ID_STICK) {
-+		f->ts_left =3D !!(SS4_BTN_V2(p) & 0x01);
-+		if (!(priv->flags & ALPS_BUTTONPAD)) {
-+			f->ts_right =3D !!(SS4_BTN_V2(p) & 0x02);
-+			f->ts_middle =3D !!(SS4_BTN_V2(p) & 0x04);
-+		}
-+	} else {
-+		f->left =3D !!(SS4_BTN_V2(p) & 0x01);
-+		if (!(priv->flags & ALPS_BUTTONPAD)) {
-+			f->right =3D !!(SS4_BTN_V2(p) & 0x02);
-+			f->middle =3D !!(SS4_BTN_V2(p) & 0x04);
-+		}
- 	}
-=20
- 	return 0;
-@@ -1266,6 +1300,7 @@ static void alps_process_packet_ss4_v2(struct psm=
-ouse *psmouse)
- 	struct alps_data *priv =3D psmouse->private;
- 	unsigned char *packet =3D psmouse->packet;
- 	struct input_dev *dev =3D psmouse->dev;
-+	struct input_dev *dev2 =3D priv->dev2;
- 	struct alps_fields *f =3D &priv->f;
-=20
- 	memset(f, 0, sizeof(struct alps_fields));
-@@ -1311,6 +1346,13 @@ static void alps_process_packet_ss4_v2(struct ps=
-mouse *psmouse)
-=20
- 	input_report_abs(dev, ABS_PRESSURE, f->pressure);
- 	input_sync(dev);
-+
-+	if (priv->flags & ALPS_DUALPOINT) {
-+		input_report_key(dev2, BTN_LEFT, f->ts_left);
-+		input_report_key(dev2, BTN_RIGHT, f->ts_right);
-+		input_report_key(dev2, BTN_MIDDLE, f->ts_middle);
-+		input_sync(dev2);
-+	}
- }
-=20
- static bool alps_is_valid_package_ss4_v2(struct psmouse *psmouse)
-diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
-index d37f814..b9417e2 100644
---- a/drivers/input/mouse/alps.h
-+++ b/drivers/input/mouse/alps.h
-@@ -37,12 +37,14 @@
-  *  or there's button activities.
-  * SS4_PACKET_ID_TWO: There's two or more fingers on touchpad
-  * SS4_PACKET_ID_MULTI: There's three or more fingers on touchpad
-+ * SS4_PACKET_ID_STICK: A stick pointer packet
- */
- enum SS4_PACKET_ID {
- 	SS4_PACKET_ID_IDLE =3D 0,
- 	SS4_PACKET_ID_ONE,
- 	SS4_PACKET_ID_TWO,
- 	SS4_PACKET_ID_MULTI,
-+	SS4_PACKET_ID_STICK,
- };
-=20
- #define SS4_COUNT_PER_ELECTRODE		256
---=20
-2.8.1
+Device list: 
+MT_USB_DEVICE(USB_VENDOR_ID_3M,	USB_DEVICE_ID_3M1968)			
+MT_USB_DEVICE(USB_VENDOR_ID_3M,	USB_DEVICE_ID_3M2256) 
+MT_USB_DEVICE(USB_VENDOR_ID_3M,	USB_DEVICE_ID_3M3266) 
+MT_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT)
+MT_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUSTEK_MULTITOUCH_YFO) 
+MT_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART) 
+MT_USB_DEVICE(USB_VENDOR_ID_QUANTA,	USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001) 
+MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM)
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+Allen Hung

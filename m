@@ -1,24 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Alps I2C HID Touchpad-Stick support
-Date: Mon, 20 Jun 2016 20:39:25 -0700
-Message-ID: <20160621033925.GB35864@dtor-ws>
+From: Masaki Ota <masaki.ota@jp.alps.com>
+Subject: RE: [PATCH] Alps I2C HID Touchpad-Stick support
+Date: Tue, 21 Jun 2016 04:43:05 +0000
+Message-ID: <OSXPR01MB0408A3C101E1D36D1F4FEC76C72B0@OSXPR01MB0408.jpnprd01.prod.outlook.com>
 References: <1466070357-5315-1-git-send-email-masaki.ota@jp.alps.com>
+ <20160621033925.GB35864@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f67.google.com ([209.85.220.67]:33621 "EHLO
-	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752452AbcFUDj3 (ORCPT
+Received: from mail-ty1jpn01on0084.outbound.protection.outlook.com ([104.47.93.84]:47136
+	"EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751002AbcFUEnK convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jun 2016 23:39:29 -0400
-Received: by mail-pa0-f67.google.com with SMTP id ts6so342446pac.0
-        for <linux-input@vger.kernel.org>; Mon, 20 Jun 2016 20:39:29 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1466070357-5315-1-git-send-email-masaki.ota@jp.alps.com>
+	Tue, 21 Jun 2016 00:43:10 -0400
+In-Reply-To: <20160621033925.GB35864@dtor-ws>
+Content-Language: ja-JP
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <012nexus@gmail.com>
-Cc: jikos@kernel.org, benjamin.tissorires@redhat.com, peter.hutterer@who-t.net, hdegoede@redhat.com, linux-input@vger.kernel.org, masaki.ota@jp.alps.com, naoki.saito@jp.alps.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Masaki Ota <012nexus@gmail.com>
+Cc: "jikos@kernel.org" <jikos@kernel.org>, "benjamin.tissorires@redhat.com" <benjamin.tissorires@redhat.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Naoki Saito <naoki.saito@jp.alps.com>
+
+Hi, Dmitry,
+
+> +struct u1_dev *priv;
+I do not understand why you need this global. You can allocate arbitrary memory in probe() and you actually already do that, why do you need second copy?
+
+Yes, actually I don't want to use global, but I want to use it in alps_raw_event() for StickPointer.
+Do you have any idea?
+
+About other your points, I will change the codes.
+
+Best Regards,
+Masaki Ota
+-----Original Message-----
+From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
+Sent: Tuesday, June 21, 2016 12:39 PM
+To: Masaki Ota
+Cc: jikos@kernel.org; benjamin.tissorires@redhat.com; peter.hutterer@who-t.net; hdegoede@redhat.com; linux-input@vger.kernel.org; 太田 真喜 Masaki Ota; 斉藤 直樹 Naoki Saito
+Subject: Re: [PATCH] Alps I2C HID Touchpad-Stick support
 
 Hi Masaki,
 
@@ -37,18 +57,20 @@ further:
 
 ...
 
-> diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-> new file mode 100644
-> index 0000000..b79c318
+> diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c new file 
+> mode 100644 index 0000000..b79c318
 > --- /dev/null
 > +++ b/drivers/hid/hid-alps.c
 > @@ -0,0 +1,525 @@
 > +/*
 > + *  Copyright (c) 2016 Masaki Ota <masaki.ota@jp.alps.com>
 > + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation; either version 2 of the License, or (at your option)
+> + * This program is free software; you can redistribute it and/or 
+> +modify it
+> + * under the terms of the GNU General Public License as published by 
+> +the Free
+> + * Software Foundation; either version 2 of the License, or (at your 
+> +option)
 > + * any later version.
 > + */
 > +
@@ -119,9 +141,7 @@ further:
 > + * @x_max: maximum x coordinate value
 > + * @y_max: maximum y coordinate value
 > + * @btn_cnt: number of buttons
-> + * @sp_btn_cnt: number of stick buttons
-> + */
-> +struct u1_dev {
+> + * @sp_btn_cnt: number of stick buttons  */ struct u1_dev {
 > +	struct input_dev *input;
 > +	struct input_dev *input2;
 > +	struct hid_device *hdev;
@@ -145,14 +165,11 @@ further:
 > +
 > +struct u1_dev *priv;
 
-I do not understand why you need this global. You can allocate arbitrary
-memory in probe() and you actually already do that, why do you need
-second copy?
+I do not understand why you need this global. You can allocate arbitrary memory in probe() and you actually already do that, why do you need second copy?
 
 > +
 > +static int u1_read_write_register(struct hid_device *hdev, u32 address,
-> +	u8 *read_val, u8 write_val, bool read_flag)
-> +{
+> +	u8 *read_val, u8 write_val, bool read_flag) {
 > +	int ret, i;
 > +	u8 check_sum;
 > +	u8 *input;
@@ -194,8 +211,7 @@ Why do we allocate readbuf even when !read_flag?
 > +	ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, input,
 > +			sizeof(input), HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
 
-Input is a pointer, so sizeof(input) is eitehr 4 or 8, not length of the
-buffer.
+Input is a pointer, so sizeof(input) is eitehr 4 or 8, not length of the buffer.
 
 > +
 > +	if (ret < 0) {
@@ -233,8 +249,7 @@ The error and success cases could be combined.
 > +}
 > +
 > +static int alps_raw_event(struct hid_device *hdev,
-> +		struct hid_report *report, u8 *data, int size)
-> +{
+> +		struct hid_report *report, u8 *data, int size) {
 > +	int x[MAX_TOUCHES], y[MAX_TOUCHES], z[MAX_TOUCHES];
 > +	int i, left, right, middle;
 > +	short sp_x, sp_y, sp_z;
@@ -286,8 +301,7 @@ Why do we calculate left/right/middle on each contact and not only once?
 > +		input_event(hdata->input, EV_KEY, BTN_RIGHT, right);
 > +		input_event(hdata->input, EV_KEY, BTN_MIDDLE, middle);
 
-Why do we report buttons outside of event packet (i.e. after doing
-input_sync)?
+Why do we report buttons outside of event packet (i.e. after doing input_sync)?
 
 
 > +
@@ -323,21 +337,19 @@ get_unaligned_le16()
 > +}
 > +
 > +#ifdef CONFIG_PM
-> +static int alps_post_reset(struct hid_device *hdev)
-> +{
+> +static int alps_post_reset(struct hid_device *hdev) {
 > +	return u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
 > +				NULL, U1_TP_ABS_MODE, false);
 > +}
 > +
-> +static int alps_post_resume(struct hid_device *hdev)
-> +{
+> +static int alps_post_resume(struct hid_device *hdev) {
 > +	return u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
 > +				NULL, U1_TP_ABS_MODE, false);
 > +}
 > +#endif /* CONFIG_PM */
 > +
-> +static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
-> +{
+> +static int alps_input_configured(struct hid_device *hdev, struct 
+> +hid_input *hi) {
 > +	struct u1_dev *data = hid_get_drvdata(hdev);
 > +	struct input_dev *input = hi->input, *input2;
 > +	struct u1_dev devInfo;
@@ -442,7 +454,8 @@ get_unaligned_le16()
 > +
 > +	__set_bit(EV_ABS, input->evbit);
 > +	input_set_abs_params(input, ABS_MT_POSITION_X, 1, devInfo.x_max, 0, 0);
-> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 1, devInfo.y_max, 0, 0);
+> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 1, devInfo.y_max, 0, 
+> +0);
 > +
 > +	if (devInfo.x_active_len_mm && devInfo.y_active_len_mm) {
 > +		res_x = (devInfo.x_max - 1) / devInfo.x_active_len_mm;
@@ -537,13 +550,12 @@ get_unaligned_le16()
 > +
 > +static int alps_input_mapping(struct hid_device *hdev,
 > +		struct hid_input *hi, struct hid_field *field,
-> +		struct hid_usage *usage, unsigned long **bit, int *max)
-> +{
+> +		struct hid_usage *usage, unsigned long **bit, int *max) {
 > +	return -1;
 > +}
 > +
-> +static int alps_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> +{
+> +static int alps_probe(struct hid_device *hdev, const struct 
+> +hid_device_id *id) {
 > +	struct u1_dev *data = NULL;
 > +	int ret;
 > +
@@ -571,8 +583,7 @@ get_unaligned_le16()
 > +	return 0;
 > +}
 > +
-> +static void alps_remove(struct hid_device *hdev)
-> +{
+> +static void alps_remove(struct hid_device *hdev) {
 > +	hid_hw_stop(hdev);
 > +	kfree(priv);
 > +}
@@ -600,11 +611,10 @@ get_unaligned_le16()
 > +
 > +module_hid_driver(alps_driver);
 > +
-> +MODULE_AUTHOR("Masaki Ota <masaki.ota@jp.alps.com>");
-> +MODULE_DESCRIPTION("ALPS HID driver");
-> +MODULE_LICENSE("GPL");
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index b6ff6e7..cac68c7 100644
+> +MODULE_AUTHOR("Masaki Ota <masaki.ota@jp.alps.com>"); 
+> +MODULE_DESCRIPTION("ALPS HID driver"); MODULE_LICENSE("GPL");
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h index 
+> b6ff6e7..cac68c7 100644
 > --- a/drivers/hid/hid-ids.h
 > +++ b/drivers/hid/hid-ids.h
 > @@ -67,6 +67,8 @@
@@ -616,7 +626,7 @@ get_unaligned_le16()
 >  #define USB_VENDOR_ID_ANTON		0x1130
 >  #define USB_DEVICE_ID_ANTON_TOUCH_PAD	0x3101
 >  
-> -- 
+> --
 > 2.7.4
 > 
 

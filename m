@@ -1,114 +1,60 @@
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH] HID-PICOLCD: Dummy hid-picolcd functions should return error code
-Date: Wed, 22 Jun 2016 00:08:40 +0530
-Message-ID: <1466534320-31256-1-git-send-email-arvind.yadav.cs@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 51.18-broadband.acttv.in ([106.51.18.144]:48439 "EHLO
-	arvind-ThinkPad-Edge-E431" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751568AbcFUTex (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2016 15:34:53 -0400
-Sender: linux-input-owner@vger.kernel.org
+Subject: [PATCH] hid-logitech : Dummy hid-lg functions should return proper error code
+Date: Wed, 22 Jun 2016 01:08:59 +0530
+Message-ID: <1466537939-32299-1-git-send-email-arvind.yadav.cs@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jikos@kernel.org
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Arvind Yadav <arvind.yadav.cs@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: bonbons@linux-vserver.org
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Arvind Yadav <arvind.yadav.cs@gmail.com>
 
-- inline picolcd_fb_reset and picolcd_init_framebuffer stub simply
-  allows compilation on systems with CONFIG_HID_PICOLCD_FB disabled.
-- inline picolcd_init_backlight and picolcd_resume_backlight stub
-  simply allows compilation on systems with CONFIG_HID_PICOLCD_BACKLIGHT
-  disabled.
-- inline picolcd_init_lcd and picolcd_resume_lcd stub simply allows
-  compilation on systems with CONFIG_HID_PICOLCD_LCD disabled.
-- inline picolcd_init_leds stub simply allows compilation on systems
-  with CONFIG_HID_PICOLCD_LEDS disabled.
-- inline picolcd_init_cir stub simply allows compilation on systems
-  with CONFIG_HID_PICOLCD_CIR disabled.
+inline lgff_init stub simply allows compilation on systems with
+CONFIG_LOGITECH_FF disabled. The inline lgff_init should return
+-ENODEV instead -1 to indicate lack of support when attempting to
+register an lg_driver on such a system with CONFIG_LOGITECH_FF
+disabled. Same for inline lg2ff_init and lg3ff_init stub when
+CONFIG_LOGIRUMBLEPAD2_FF and CONFIG_LOGIG940_FF disabled.
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/hid/hid-picolcd.h | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/hid/hid-lg.h | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-picolcd.h b/drivers/hid/hid-picolcd.h
-index e56d847..7e6c10a 100644
---- a/drivers/hid/hid-picolcd.h
-+++ b/drivers/hid/hid-picolcd.h
-@@ -17,6 +17,8 @@
-  *   along with this software. If not see <http://www.gnu.org/licenses/>.  *
-  ***************************************************************************/
+diff --git a/drivers/hid/hid-lg.h b/drivers/hid/hid-lg.h
+index 10dd8f0..88b8ebd 100644
+--- a/drivers/hid/hid-lg.h
++++ b/drivers/hid/hid-lg.h
+@@ -1,6 +1,8 @@
+ #ifndef __HID_LG_H
+ #define __HID_LG_H
  
 +#include <linux/errno.h>
 +
- #define PICOLCD_NAME "PicoLCD (graphic)"
- 
- /* Report numbers */
-@@ -192,11 +194,11 @@ void picolcd_fb_refresh(struct picolcd_data *data);
+ struct lg_drv_data {
+ 	unsigned long quirks;
+ 	void *device_props;	/* Device specific properties */
+@@ -9,19 +11,19 @@ struct lg_drv_data {
+ #ifdef CONFIG_LOGITECH_FF
+ int lgff_init(struct hid_device *hdev);
  #else
- static inline int picolcd_fb_reset(struct picolcd_data *data, int clear)
- {
--	return 0;
-+	return -ENODEV;
- }
- static inline int picolcd_init_framebuffer(struct picolcd_data *data)
- {
--	return 0;
-+	return -ENOMEM;
- }
- static inline void picolcd_exit_framebuffer(struct picolcd_data *data)
- {
-@@ -221,14 +223,14 @@ void picolcd_suspend_backlight(struct picolcd_data *data);
- static inline int picolcd_init_backlight(struct picolcd_data *data,
- 		struct hid_report *report)
- {
--	return 0;
-+	return -ENODEV;
- }
- static inline void picolcd_exit_backlight(struct picolcd_data *data)
- {
- }
- static inline int picolcd_resume_backlight(struct picolcd_data *data)
- {
--	return 0;
-+	return -ENODEV;
- }
- static inline void picolcd_suspend_backlight(struct picolcd_data *data)
- {
-@@ -248,14 +250,14 @@ int picolcd_resume_lcd(struct picolcd_data *data);
- static inline int picolcd_init_lcd(struct picolcd_data *data,
- 		struct hid_report *report)
- {
--	return 0;
-+	return -ENODEV;
- }
- static inline void picolcd_exit_lcd(struct picolcd_data *data)
- {
- }
- static inline int picolcd_resume_lcd(struct picolcd_data *data)
- {
--	return 0;
-+	return -ENODEV;
- }
- #endif /* CONFIG_HID_PICOLCD_LCD */
+-static inline int lgff_init(struct hid_device *hdev) { return -1; }
++static inline int lgff_init(struct hid_device *hdev) { return -ENODEV; }
+ #endif
  
-@@ -271,7 +273,7 @@ void picolcd_leds_set(struct picolcd_data *data);
- static inline int picolcd_init_leds(struct picolcd_data *data,
- 		struct hid_report *report)
- {
--	return 0;
-+	return -ENODEV;
- }
- static inline void picolcd_exit_leds(struct picolcd_data *data)
- {
-@@ -297,7 +299,7 @@ static inline int picolcd_raw_cir(struct picolcd_data *data,
- }
- static inline int picolcd_init_cir(struct picolcd_data *data, struct hid_report *report)
- {
--	return 0;
-+	return -ENOMEM;
- }
- static inline void picolcd_exit_cir(struct picolcd_data *data)
- {
+ #ifdef CONFIG_LOGIRUMBLEPAD2_FF
+ int lg2ff_init(struct hid_device *hdev);
+ #else
+-static inline int lg2ff_init(struct hid_device *hdev) { return -1; }
++static inline int lg2ff_init(struct hid_device *hdev) { return -ENODEV; }
+ #endif
+ 
+ #ifdef CONFIG_LOGIG940_FF
+ int lg3ff_init(struct hid_device *hdev);
+ #else
+-static inline int lg3ff_init(struct hid_device *hdev) { return -1; }
++static inline int lg3ff_init(struct hid_device *hdev) { return -ENODEV; }
+ #endif
+ 
+ #endif
 -- 
 1.9.1
-

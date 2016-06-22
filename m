@@ -1,31 +1,95 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: i2c-hid: set power sleep before shutdown
-Date: Wed, 22 Jun 2016 13:23:52 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1606221323030.6874@cbobk.fhfr.pm>
-References: <1466504865-19907-1-git-send-email-ghzhong@yifangdigital.com> <alpine.LNX.2.00.1606211308590.6874@cbobk.fhfr.pm> <576A7367.8040904@yifangdigital.com>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH v4 2/9] [media] v4l2-core: Add VFL_TYPE_TOUCH_SENSOR
+Date: Wed, 22 Jun 2016 13:48:19 +0200
+Message-ID: <576A7B03.30206@butterbrot.org>
+References: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk>
+ <1466172988-3698-3-git-send-email-nick.dyer@itdev.co.uk>
+ <5767DAE4.3000202@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="ISUCCAgTkCwJQo46GUIaT48UGd6cQpp2W"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:41019 "EHLO mx2.suse.de"
+Received: from butterbrot.org ([176.9.106.16]:50593 "EHLO butterbrot.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752054AbcFVLYW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jun 2016 07:24:22 -0400
-In-Reply-To: <576A7367.8040904@yifangdigital.com>
+	id S1752510AbcFVLzX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jun 2016 07:55:23 -0400
+In-Reply-To: <5767DAE4.3000202@xs4all.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ghzhong <ghzhong@yifangdigital.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Dmitry Torokhov <dtor@chromium.org>, Benson Leung <bleung@chromium.org>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>, Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, mchehab@osg.samsung.com
 
-On Wed, 22 Jun 2016, ghzhong wrote:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--ISUCCAgTkCwJQo46GUIaT48UGd6cQpp2W
+Content-Type: multipart/mixed; boundary="G9vPtNkIDxIaEiQBv5VJV38dTT4thkKhf"
+From: Florian Echtler <floe@butterbrot.org>
+To: Hans Verkuil <hverkuil@xs4all.nl>, Nick Dyer <nick.dyer@itdev.co.uk>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-media@vger.kernel.org,
+ Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+ Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>,
+ Javier Martinez Canillas <javier@osg.samsung.com>,
+ Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>,
+ Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>,
+ Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>,
+ sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>,
+ mchehab@osg.samsung.com
+Message-ID: <576A7B03.30206@butterbrot.org>
+Subject: Re: [PATCH v4 2/9] [media] v4l2-core: Add VFL_TYPE_TOUCH_SENSOR
+References: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk>
+ <1466172988-3698-3-git-send-email-nick.dyer@itdev.co.uk>
+ <5767DAE4.3000202@xs4all.nl>
+In-Reply-To: <5767DAE4.3000202@xs4all.nl>
 
-> Do you mean that the Patch V2 has been reviewed & approved? Or I make 
-> something wrong and need to do something else?
+--G9vPtNkIDxIaEiQBv5VJV38dTT4thkKhf
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-It's queued in for-4.8/i2c-hid branch of hid.git:
+On 20.06.2016 14:00, Hans Verkuil wrote:
+> On 06/17/2016 04:16 PM, Nick Dyer wrote:
+>> Some touch controllers send out raw touch data in a similar way to a
+>> greyscale frame grabber. Add a new device type for these devices.
+>>
+>> Use a new device prefix v4l-touch for these devices, to stop generic
+>> capture software from treating them as webcams.
+>>
+>> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+>> ---
+>>  drivers/input/touchscreen/sur40.c    |  4 ++--
+>>  drivers/media/v4l2-core/v4l2-dev.c   | 13 ++++++++++---
+>>  drivers/media/v4l2-core/v4l2-ioctl.c | 15 ++++++++++-----
+>>  include/media/v4l2-dev.h             |  3 ++-
+>>  include/uapi/linux/videodev2.h       |  1 +
 
-	https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/log/?h=for-4.8/i2c-hid
+Generally a good idea in my opinion, but I think the SUR40 is a special
+case: the whole point of putting in a V4L2 driver was that software like
+reacTIVision, which already has a V4L2 interface, can then use that
+device like any other camera.
 
--- 
-Jiri Kosina
-SUSE Labs
+Come to think of it, wouldn't it make sense to expose the other touch
+devices as generic frame grabbers, too, so you can easily view the debug
+output with any generic tool like cheese?
 
+Best, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
+
+
+--G9vPtNkIDxIaEiQBv5VJV38dTT4thkKhf--
+
+--ISUCCAgTkCwJQo46GUIaT48UGd6cQpp2W
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iEYEARECAAYFAldqewQACgkQ7CzyshGvatjsqwCfYO5yV5e2+qrPwBIV1ZJ49zyC
+G7cAoIYUhXZMAmdZTNhFnM4PrH8eF7Um
+=q3DS
+-----END PGP SIGNATURE-----
+
+--ISUCCAgTkCwJQo46GUIaT48UGd6cQpp2W--

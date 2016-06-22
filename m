@@ -1,51 +1,137 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/5] input: pmic8xxx-pwrkey: Add support for
- pm8018 pwrkey
-Date: Tue, 21 Jun 2016 22:33:25 -0700
-Message-ID: <CAKdAkRQnKs1+3mEO0L_0kntm5EY93hnONpEj=kUA2m5iZhXUDg@mail.gmail.com>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-3-git-send-email-narmstrong@baylibre.com> <20160622052517.GJ1256@tuxbot>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: [PATCH] HID-PICOLCD: Dummy hid-picolcd functions should return
+ error code
+Date: Wed, 22 Jun 2016 09:33:37 +0200
+Message-ID: <20160622093337.68d1bb9a@pluto.restena.lu>
+References: <1466534320-31256-1-git-send-email-arvind.yadav.cs@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDP6N55ZUYDRBJWGVC5QKGQE7OGUWMA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20160622052517.GJ1256@tuxbot>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Andy Gross <andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, David Brown <david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay.restena.lu ([158.64.1.62]:47577 "EHLO
+	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752391AbcFVHmr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jun 2016 03:42:47 -0400
+In-Reply-To: <1466534320-31256-1-git-send-email-arvind.yadav.cs@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Jun 21, 2016 at 10:25 PM, Bjorn Andersson
-<bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
->
->> In order to support pwrkey for Qualcomm MDM9615 SoC, add support
->> for the pm8018 pwrkey in pmic8xxx-pwrkey.
->>
->> Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
->
-> Reviewed-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Hi Arvind,
 
-But why? What does this new compat string gives us if the behavior is
-exactly the same as 8921?
+I can only NACK this patch as it would cause the driver to refuse
+probe()ing if any of the features are disabled in kernel configuration.
 
-Thanks.
+Have a look at the callers in hid-picolcd_code.c, if any of those
+functions does return an error the probe function aborts with an error.
 
--- 
-Dmitry
 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+Your commit message talks about allowing compilation if features
+are disabled, so which compilation errors do you get that changing
+those return codes "fix"?
+If you don't have such errors, I don't get your motivations for the
+change out of your commit message.
+
+Regards,
+Bruno
+
+
+On Wed, 22 Jun 2016 00:08:40 +0530 Arvind Yadav wrote:
+> - inline picolcd_fb_reset and picolcd_init_framebuffer stub simply
+>   allows compilation on systems with CONFIG_HID_PICOLCD_FB disabled.
+> - inline picolcd_init_backlight and picolcd_resume_backlight stub
+>   simply allows compilation on systems with CONFIG_HID_PICOLCD_BACKLIGHT
+>   disabled.
+> - inline picolcd_init_lcd and picolcd_resume_lcd stub simply allows
+>   compilation on systems with CONFIG_HID_PICOLCD_LCD disabled.
+> - inline picolcd_init_leds stub simply allows compilation on systems
+>   with CONFIG_HID_PICOLCD_LEDS disabled.
+> - inline picolcd_init_cir stub simply allows compilation on systems
+>   with CONFIG_HID_PICOLCD_CIR disabled.
+> 
+> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+> ---
+>  drivers/hid/hid-picolcd.h | 18 ++++++++++--------
+>  1 file changed, 10 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-picolcd.h b/drivers/hid/hid-picolcd.h
+> index e56d847..7e6c10a 100644
+> --- a/drivers/hid/hid-picolcd.h
+> +++ b/drivers/hid/hid-picolcd.h
+> @@ -17,6 +17,8 @@
+>   *   along with this software. If not see <http://www.gnu.org/licenses/>.  *
+>   ***************************************************************************/
+>  
+> +#include <linux/errno.h>
+> +
+>  #define PICOLCD_NAME "PicoLCD (graphic)"
+>  
+>  /* Report numbers */
+> @@ -192,11 +194,11 @@ void picolcd_fb_refresh(struct picolcd_data *data);
+>  #else
+>  static inline int picolcd_fb_reset(struct picolcd_data *data, int clear)
+>  {
+> -	return 0;
+> +	return -ENODEV;
+>  }
+>  static inline int picolcd_init_framebuffer(struct picolcd_data *data)
+>  {
+> -	return 0;
+> +	return -ENOMEM;
+>  }
+>  static inline void picolcd_exit_framebuffer(struct picolcd_data *data)
+>  {
+> @@ -221,14 +223,14 @@ void picolcd_suspend_backlight(struct picolcd_data *data);
+>  static inline int picolcd_init_backlight(struct picolcd_data *data,
+>  		struct hid_report *report)
+>  {
+> -	return 0;
+> +	return -ENODEV;
+>  }
+>  static inline void picolcd_exit_backlight(struct picolcd_data *data)
+>  {
+>  }
+>  static inline int picolcd_resume_backlight(struct picolcd_data *data)
+>  {
+> -	return 0;
+> +	return -ENODEV;
+>  }
+>  static inline void picolcd_suspend_backlight(struct picolcd_data *data)
+>  {
+> @@ -248,14 +250,14 @@ int picolcd_resume_lcd(struct picolcd_data *data);
+>  static inline int picolcd_init_lcd(struct picolcd_data *data,
+>  		struct hid_report *report)
+>  {
+> -	return 0;
+> +	return -ENODEV;
+>  }
+>  static inline void picolcd_exit_lcd(struct picolcd_data *data)
+>  {
+>  }
+>  static inline int picolcd_resume_lcd(struct picolcd_data *data)
+>  {
+> -	return 0;
+> +	return -ENODEV;
+>  }
+>  #endif /* CONFIG_HID_PICOLCD_LCD */
+>  
+> @@ -271,7 +273,7 @@ void picolcd_leds_set(struct picolcd_data *data);
+>  static inline int picolcd_init_leds(struct picolcd_data *data,
+>  		struct hid_report *report)
+>  {
+> -	return 0;
+> +	return -ENODEV;
+>  }
+>  static inline void picolcd_exit_leds(struct picolcd_data *data)
+>  {
+> @@ -297,7 +299,7 @@ static inline int picolcd_raw_cir(struct picolcd_data *data,
+>  }
+>  static inline int picolcd_init_cir(struct picolcd_data *data, struct hid_report *report)
+>  {
+> -	return 0;
+> +	return -ENOMEM;
+>  }
+>  static inline void picolcd_exit_cir(struct picolcd_data *data)
+>  {

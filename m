@@ -1,61 +1,297 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: [PATCH] Improve Alps HID Touchpad code
-Date: Wed, 22 Jun 2016 02:48:26 +0000
-Message-ID: <OSXPR01MB0408F71585D0567CF8A01C0EC72C0@OSXPR01MB0408.jpnprd01.prod.outlook.com>
-References: <1466504912-15297-1-git-send-email-masaki.ota@jp.alps.com>
- <20160621223503.GA34772@dtor-ws>
- <alpine.LNX.2.00.1606220036490.6874@cbobk.fhfr.pm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: 8BIT
+From: Masaki Ota <012nexus@gmail.com>
+Subject: [PATCH] Improve Alps HID Touchpad code
+Date: Wed, 22 Jun 2016 13:11:08 +0900
+Message-ID: <1466568668-22272-1-git-send-email-masaki.ota@jp.alps.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ty1jpn01on0049.outbound.protection.outlook.com ([104.47.93.49]:43018
-	"EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750907AbcFVDXx convert rfc822-to-8bit (ORCPT
+Received: from mail-pa0-f65.google.com ([209.85.220.65]:34815 "EHLO
+	mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750727AbcFVEMl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2016 23:23:53 -0400
-In-Reply-To: <alpine.LNX.2.00.1606220036490.6874@cbobk.fhfr.pm>
-Content-Language: ja-JP
+	Wed, 22 Jun 2016 00:12:41 -0400
+Received: by mail-pa0-f65.google.com with SMTP id us13so2823106pab.1
+        for <linux-input@vger.kernel.org>; Tue, 21 Jun 2016 21:11:19 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Masaki Ota <012nexus@gmail.com>, "benjamin.tissorires@redhat.com" <benjamin.tissorires@redhat.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Naoki Saito <naoki.saito@jp.alps.com>
+To: jikos@kernel.org
+Cc: benjamin.tissorires@redhat.com, peter.hutterer@who-t.net, hdegoede@redhat.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, masaki.ota@jp.alps.com, naoki.saito@jp.alps.com
 
-Hi, Jiri,
+>From Masaki Ota <masaki.ota@jp.alps.com>
 
-Sorry, I cannot catch your meaning. What is the part corrupted? 
-I added "HID_DEVICE_ID_ALPS_U1_DUAL" instead of " HID_ANY_ID".
-Because we want to use our devices except for "HID_DEVICE_ID_ALPS_U1_DUAL" as Mouse mode.
+Remove an unnecessary codes.
+Change input_ivent() function to appropriate function.
+Add the device ID of "HID_DEVICE_ID_ALPS_U1_DUAL". 
 
-Best Regards,
-Masaki Ota
------Original Message-----
-From: Jiri Kosina [mailto:jikos@kernel.org] 
-Sent: Wednesday, June 22, 2016 7:39 AM
-To: Dmitry Torokhov
-Cc: Masaki Ota; benjamin.tissorires@redhat.com; peter.hutterer@who-t.net; hdegoede@redhat.com; linux-input@vger.kernel.org; 太田 真喜 Masaki Ota; 斉藤 直樹 Naoki Saito
-Subject: Re: [PATCH] Improve Alps HID Touchpad code
+Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+---
+ drivers/hid/hid-alps.c | 116 ++++++++++++++++++++-----------------------------
+ drivers/hid/hid-core.c |   2 +-
+ drivers/hid/hid-ids.h  |   1 +
+ 3 files changed, 50 insertions(+), 69 deletions(-)
 
-On Tue, 21 Jun 2016, Dmitry Torokhov wrote:
-
-> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c index 
-> > 3cdbc4b..678d8bd 100644
-> > --- a/drivers/hid/hid-core.c
-> > +++ b/drivers/hid/hid-core.c
-> > @@ -1772,7 +1772,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
-> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) },
-> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
-> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0xf705) },
-> > -	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, USB_VENDOR_ID_ALPS_JP, HID_ANY_ID) },
-> > +	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, USB_VENDOR_ID_ALPS_JP,
-> > +	HID_DEVICE_ID_ALPS_U1_DUAL) },
-
-On top of what Dmitry said, the above has been (corrupted) line-wrapped (most likely by your mail client). Could you please fix that up while fixing the rest of Dmitry's valuable review comments?
-
-Thanks,
-
---
-Jiri Kosina
-SUSE Labs
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index ff64c929..39e21e6 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -98,8 +98,6 @@ struct u1_dev {
+ 	u32	sp_btn_cnt;
+ };
+ 
+-static struct u1_dev *priv;
+-
+ static int u1_read_write_register(struct hid_device *hdev, u32 address,
+ 	u8 *read_val, u8 write_val, bool read_flag)
+ {
+@@ -108,16 +106,10 @@ static int u1_read_write_register(struct hid_device *hdev, u32 address,
+ 	u8 *input;
+ 	u8 *readbuf;
+ 
+-	input = kzalloc(sizeof(u8)*U1_FEATURE_REPORT_LEN, GFP_KERNEL);
++	input = kzalloc(U1_FEATURE_REPORT_LEN, GFP_KERNEL);
+ 	if (!input)
+ 		return -ENOMEM;
+ 
+-	readbuf = kzalloc(sizeof(u8)*U1_FEATURE_REPORT_LEN, GFP_KERNEL);
+-	if (!readbuf) {
+-		kfree(input);
+-		return -ENOMEM;
+-	}
+-
+ 	input[0] = U1_FEATURE_REPORT_ID;
+ 	if (read_flag) {
+ 		input[1] = U1_CMD_REGISTER_READ;
+@@ -136,8 +128,8 @@ static int u1_read_write_register(struct hid_device *hdev, u32 address,
+ 
+ 	input[7] = check_sum;
+ 	ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, input,
+-			sizeof(u8)*U1_FEATURE_REPORT_LEN, HID_FEATURE_REPORT,
+-			HID_REQ_SET_REPORT);
++			U1_FEATURE_REPORT_LEN,
++			HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+ 
+ 	if (ret < 0) {
+ 		dev_err(&hdev->dev, "failed to read command (%d)\n", ret);
+@@ -145,8 +137,14 @@ static int u1_read_write_register(struct hid_device *hdev, u32 address,
+ 	}
+ 
+ 	if (read_flag) {
++		readbuf = kzalloc(U1_FEATURE_REPORT_LEN, GFP_KERNEL);
++		if (!readbuf) {
++			kfree(input);
++			return -ENOMEM;
++		}
++
+ 		ret = hid_hw_raw_request(hdev, U1_FEATURE_REPORT_ID, readbuf,
+-				sizeof(u8)*U1_FEATURE_REPORT_LEN,
++				U1_FEATURE_REPORT_LEN,
+ 				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+ 
+ 		if (ret < 0) {
+@@ -155,24 +153,23 @@ static int u1_read_write_register(struct hid_device *hdev, u32 address,
+ 		}
+ 
+ 		*read_val = readbuf[6];
++
++		kfree(readbuf);
+ 	}
+ 
+-	kfree(input);
+-	kfree(readbuf);
+-	return 0;
++	ret = 0;
+ 
+ exit:
+ 	kfree(input);
+-	kfree(readbuf);
+ 	return ret;
+ }
+ 
+ static int alps_raw_event(struct hid_device *hdev,
+ 		struct hid_report *report, u8 *data, int size)
+ {
+-	int x[MAX_TOUCHES], y[MAX_TOUCHES], z[MAX_TOUCHES];
+-	int i, left, right, middle;
+-	short sp_x, sp_y, sp_z;
++	unsigned int x, y, z;
++	int i;
++	short sp_x, sp_y;
+ 	struct u1_dev *hdata = hid_get_drvdata(hdev);
+ 
+ 	switch (data[0]) {
+@@ -182,16 +179,15 @@ static int alps_raw_event(struct hid_device *hdev,
+ 		break;
+ 	case U1_ABSOLUTE_REPORT_ID:
+ 		for (i = 0; i < MAX_TOUCHES; i++) {
+-			x[i] = (data[3+(5*i)] | (data[4+(5*i)] << 8));
+-			y[i] = (data[5+(5*i)] | (data[6+(5*i)] << 8));
+-			z[i] = data[7+(5*i)] & 0x7F;
+-			left = data[1] & 0x1;
+-			right = (data[1] & 0x2) >> 1;
+-			middle = (data[1] & 0x4) >> 2;
++			u8 *contact = &data[i * 5];
++
++			x = get_unaligned_le16(contact + 3);
++			y = get_unaligned_le16(contact + 5);
++			z = contact[7] & 0x7F;
+ 
+ 			input_mt_slot(hdata->input, i);
+ 
+-			if (z[i] != 0) {
++			if (z != 0) {
+ 				input_mt_report_slot_state(hdata->input,
+ 					MT_TOOL_FINGER, 1);
+ 			} else {
+@@ -200,42 +196,43 @@ static int alps_raw_event(struct hid_device *hdev,
+ 				break;
+ 			}
+ 
+-			input_event(hdata->input, EV_ABS,
+-				ABS_MT_POSITION_X, x[i]);
+-			input_event(hdata->input, EV_ABS,
+-				ABS_MT_POSITION_Y, y[i]);
+-			input_event(hdata->input, EV_ABS,
+-				ABS_MT_PRESSURE, z[i]);
++			input_report_abs(hdata->input, ABS_MT_POSITION_X, x);
++			input_report_abs(hdata->input, ABS_MT_POSITION_Y, y);
++			input_report_abs(hdata->input, ABS_MT_PRESSURE, z);
++
+ 		}
+ 
+ 		input_mt_sync_frame(hdata->input);
+-		input_sync(hdata->input);
+ 
+-		input_event(hdata->input, EV_KEY, BTN_LEFT, left);
+-		input_event(hdata->input, EV_KEY, BTN_RIGHT, right);
+-		input_event(hdata->input, EV_KEY, BTN_MIDDLE, middle);
++		input_report_key(hdata->input, BTN_LEFT,
++			data[1] & 0x1);
++		input_report_key(hdata->input, BTN_RIGHT,
++			(data[1] & 0x2) >> 1);
++		input_report_key(hdata->input, BTN_MIDDLE,
++			(data[1] & 0x4) >> 2);
++
++		input_sync(hdata->input);
+ 
+ 		return 1;
+ 
+ 	case U1_SP_ABSOLUTE_REPORT_ID:
+-		sp_x = (data[2] | (data[3] << 8));
+-		sp_y = (data[4] | (data[5] << 8));
+-		sp_z = (data[6] | data[7]) & 0x7FFF;
+-		left = data[1] & 0x1;
+-		right = (data[1] & 0x2) >> 1;
+-		middle = (data[1] & 0x4) >> 2;
++		sp_x = get_unaligned_le16(data+2);
++		sp_y = get_unaligned_le16(data+4);
+ 
+ 		sp_x = sp_x / 8;
+ 		sp_y = sp_y / 8;
+ 
+-		input_event(priv->input2, EV_REL, REL_X, sp_x);
+-		input_event(priv->input2, EV_REL, REL_Y, sp_y);
++		input_report_rel(hdata->input2, REL_X, sp_x);
++		input_report_rel(hdata->input2, REL_Y, sp_y);
+ 
+-		input_event(priv->input2, EV_KEY, BTN_LEFT, left);
+-		input_event(priv->input2, EV_KEY, BTN_RIGHT, right);
+-		input_event(priv->input2, EV_KEY, BTN_MIDDLE, middle);
++		input_report_key(hdata->input2, BTN_LEFT,
++			data[1] & 0x1);
++		input_report_key(hdata->input2, BTN_RIGHT,
++			(data[1] & 0x2) >> 1);
++		input_report_key(hdata->input2, BTN_MIDDLE,
++			(data[1] & 0x4) >> 2);
+ 
+-		input_sync(priv->input2);
++		input_sync(hdata->input2);
+ 
+ 		return 1;
+ 	}
+@@ -265,15 +262,6 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 	int ret;
+ 	int res_x, res_y, i;
+ 
+-	/* Check device product ID */
+-	switch (hdev->product) {
+-	case HID_PRODUCT_ID_U1:
+-	case HID_PRODUCT_ID_U1_DUAL:
+-		break;
+-	default:
+-		return 0;
+-	}
+-
+ 	data->input = input;
+ 
+ 	hid_dbg(hdev, "Opening low level driver\n");
+@@ -393,20 +381,13 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 	/* Stick device initialization */
+ 	if (devInfo.dev_type & U1_DEVTYPE_SP_SUPPORT) {
+ 
+-		priv = kzalloc(sizeof(struct u1_dev), GFP_KERNEL);
+-		if (!priv) {
+-			hid_device_io_stop(hdev);
+-			hid_hw_close(hdev);
+-			return -ENOMEM;
+-		}
+-
+ 		input2 = input_allocate_device();
+ 		if (!input2) {
+ 			input_free_device(input2);
+ 			goto exit;
+ 		}
+ 
+-		priv->input2 = input2;
++		data->input2 = input2;
+ 
+ 		devInfo.dev_ctrl |= U1_SP_ABS_MODE;
+ 		ret = u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
+@@ -444,7 +425,7 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 		__set_bit(INPUT_PROP_POINTER, input2->propbit);
+ 		__set_bit(INPUT_PROP_POINTING_STICK, input2->propbit);
+ 
+-		if (input_register_device(priv->input2)) {
++		if (input_register_device(data->input2)) {
+ 			input_free_device(input2);
+ 			goto exit;
+ 		}
+@@ -495,12 +476,11 @@ static int alps_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ static void alps_remove(struct hid_device *hdev)
+ {
+ 	hid_hw_stop(hdev);
+-	kfree(priv);
+ }
+ 
+ static const struct hid_device_id alps_id[] = {
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY,
+-		USB_VENDOR_ID_ALPS_JP, HID_ANY_ID) },
++		USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1_DUAL) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, alps_id);
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 3cdbc4b..7f989f6 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1772,7 +1772,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0xf705) },
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, USB_VENDOR_ID_ALPS_JP, HID_ANY_ID) },
++	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1_DUAL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICMOUSE) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICTRACKPAD) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index a5a429c..c4f665d 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -71,6 +71,7 @@
+ #define USB_DEVICE_ID_IBM_GAMEPAD	0x1101
+ 
+ #define USB_VENDOR_ID_ALPS_JP		0x044E
++#define HID_DEVICE_ID_ALPS_U1_DUAL	0x120B
+ 
+ #define USB_VENDOR_ID_ANTON		0x1130
+ #define USB_DEVICE_ID_ANTON_TOUCH_PAD	0x3101
+-- 
+2.7.4
 

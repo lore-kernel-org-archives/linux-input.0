@@ -1,33 +1,47 @@
-From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-Subject: Re: [PATCH v2 4/4] HID: remove ThingM blink(1) driver
-Date: Wed, 22 Jun 2016 16:23:54 -0400
-Message-ID: <87oa6tt1k5.fsf@ketchup.mtl.sfl>
-References: <cef05949-7a0a-f735-c2c2-db57b3e3df0c@gmail.com>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH v4 2/9] [media] v4l2-core: Add VFL_TYPE_TOUCH_SENSOR
+Date: Wed, 22 Jun 2016 22:38:11 +0200 (CEST)
+Message-ID: <alpine.DEB.2.10.1606222234190.2895@butterbrot>
+References: <1466172988-3698-1-git-send-email-nick.dyer@itdev.co.uk> <1466172988-3698-3-git-send-email-nick.dyer@itdev.co.uk> <5767DAE4.3000202@xs4all.nl> <576A7B03.30206@butterbrot.org> <02dea636-03a0-6c45-3c7e-7b01868a0f32@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:48970 "EHLO
-	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751123AbcFVUX5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jun 2016 16:23:57 -0400
-In-Reply-To: <cef05949-7a0a-f735-c2c2-db57b3e3df0c@gmail.com>
+Received: from butterbrot.org ([176.9.106.16]:33800 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751123AbcFVUiM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jun 2016 16:38:12 -0400
+In-Reply-To: <02dea636-03a0-6c45-3c7e-7b01868a0f32@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>, Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Hans Verkuil <hverkuil@xs4all.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, mchehab@osg.samsung.com
 
-Hi Heiner,
+On Wed, 22 Jun 2016, Nick Dyer wrote:
 
-Heiner Kallweit <hkallweit1@gmail.com> writes:
-
-> Now that support for ThingM blink(1) was merged into the hid-led driver
-> the dedicated driver for this device can be removed.
+> On 22/06/2016 12:48, Florian Echtler wrote:
+>> On 20.06.2016 14:00, Hans Verkuil wrote:
+>>> On 06/17/2016 04:16 PM, Nick Dyer wrote:
+>>>>
+>>>> Use a new device prefix v4l-touch for these devices, to stop generic
+>>>> capture software from treating them as webcams.
 >
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+>> Come to think of it, wouldn't it make sense to expose the other touch
+>> devices as generic frame grabbers, too, so you can easily view the debug
+>> output with any generic tool like cheese?
+>
+> While I like the idea of being able to use the generic tools, I think we
+> needed to do something to stop these devices turning up in e.g. video
+> conferencing software - it would cause a lot of confusion. There's nothing
+> stopping particular tools adding the necessary code to handle touch devices
+> if they feel their users want it.
 
-Acked-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+Just to clarify: from the userspace point-of-view, would this change 
+simply modify the prefix of the device node (i.e. /dev/video1 -> 
+/dev/v4l-touch1), or would it somehow affect the API? If it's just the 
+device node name, then that shouldn't be a problem after all, because e.g. 
+reacTIVision requires you to specify the exact camera to be used anyway.
 
-Thanks,
-
-        Vivien
+Florian
+-- 
+"_Nothing_ brightens up my morning. Coffee simply provides a shade of
+grey just above the pitch-black of the infinite depths of the _abyss_."

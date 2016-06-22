@@ -1,96 +1,44 @@
-From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 5/5] regulator: qcom_rpm-regulator: Add
- support for pm8018 rpm regulator
-Date: Wed, 22 Jun 2016 10:39:33 +0200
-Message-ID: <576A4EC5.5000701@baylibre.com>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-6-git-send-email-narmstrong@baylibre.com>
- <20160617165352.GA1256@tuxbot>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: ghzhong <ghzhong@yifangdigital.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: set power sleep before shutdown
+Date: Wed, 22 Jun 2016 19:15:51 +0800
+Message-ID: <576A7367.8040904@yifangdigital.com>
+References: <1466504865-19907-1-git-send-email-ghzhong@yifangdigital.com>
+ <alpine.LNX.2.00.1606211308590.6874@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRBUE5VG5QKGQEKA4URCI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20160617165352.GA1256@tuxbot>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.yifangdigital.com ([121.15.200.100]:4866 "EHLO
+	yifangdigital.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751077AbcFVLYW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jun 2016 07:24:22 -0400
+In-Reply-To: <alpine.LNX.2.00.1606211308590.6874@cbobk.fhfr.pm>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Dmitry Torokhov <dtor@chromium.org>, Benson Leung <bleung@chromium.org>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 06/17/2016 06:53 PM, Bjorn Andersson wrote:
-> On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
-> 
->> In order to support eh Qualcomm MDM9615 SoC, add support for the
->> PM8018 RPM regulator in the qcom_rpm-regulator driver.
+
+
+On 06/21/2016 07:09 PM, Jiri Kosina wrote:
+> On Tue, 21 Jun 2016, Guohua Zhong wrote:
+>
+>> Add i2c_hid_shutdown for i2c-hid driver to send suspend cmd & free
+>> irq before device shutdown.
 >>
->> Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-> [..]
->> diff --git a/drivers/regulator/qcom_rpm-regulator.c b/drivers/regulator/qcom_rpm-regulator.c
-> [..]
->> +/**
->> + * enum rpm_vreg_voltage_corner - possible voltage corner values
->> + *
->> + * These should be used in regulator_set_voltage and rpm_vreg_set_voltage calls
->> + * for corner type regulators as if they had units of uV.
->> + */
->> +enum rpm_vreg_voltage_corner {
->> +	RPM_VREG_CORNER_NONE = 1,
->> +	RPM_VREG_CORNER_LOW,
->> +	RPM_VREG_CORNER_NOMINAL,
->> +	RPM_VREG_CORNER_HIGH,
->> +};
->> +
->> +static struct regulator_linear_range corner_ranges[] = {
->> +	REGULATOR_LINEAR_RANGE(RPM_VREG_CORNER_NONE, 0,
->> +				RPM_VREG_CORNER_HIGH, 1),
->> +};
->> +
->>  static int rpm_reg_write(struct qcom_rpm_reg *vreg,
-> [..]
->> +
->> +static const struct qcom_rpm_reg pm8018_corner = {
->> +	.desc.linear_ranges = corner_ranges,
->> +	.desc.n_linear_ranges = ARRAY_SIZE(corner_ranges),
->> +	.desc.n_voltages = 4,
->> +	.desc.ops = &uV_ops,
->> +	.parts = &rpm8018_corner_parts,
->> +};
->> +
-> [..]
->> +static const struct rpm_regulator_data rpm_pm8018_regulators[] = {
-> [..]
->> +	{ "dig_corner", QCOM_RPM_VOLTAGE_CORNER, &pm8018_corner,
->> +						      "vdd_dig_corner" },
->> +
->> +	{ }
->> +};
-> 
-> We have discussed the corners for a long time and I think we've
-> concluded that they should be exposed as something like an OPP. What we
-> have agreed on is that they should not be exposed as a regulator with
-> voltages 1-4uV.
-> 
-> So please drop the corner for now.
-> 
-> Regards,
-> Bjorn
-> 
-OK, dropped.
+>> Some HW design (i.e. Umaro, a chromebook model) is that the power to
+>> i2c hid device won't down after device shutdown. Also the i2c-hid driver
+>> do not send suspend cmd to the hid i2c device and free its irq before
+>> shutdown.So if We touch the touchscreen or some other i2c hid device,
+>> the power consumtion will be go up even when the device is in shutdown
+>> state.
+>>
+>> Though the root cause maybe a HW issue. But it seems that it is a
+>> good pratice to set power sleep for i2c-hid device before shutdown.
+> Applied, thanks.
+>
+Do you mean that the Patch V2 has been reviewed & approved? Or I make something wrong and need  to do something else?
 
-Thanks,
-Neil
 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+

@@ -1,49 +1,49 @@
-From: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Subject: RE: [PATCH] Input: elan_i2c - +200 ms delay before setting to ABS mode
-Date: Wed, 22 Jun 2016 20:00:56 +0800
-Message-ID: <009501d1cc7d$bbcd0950$33671bf0$@emc.com.tw>
-References: <1465306449-28256-1-git-send-email-chiu@endlessm.com>	<20160620174251.GC22426@dtor-ws>	<008601d1cbba$124c2230$36e46690$@emc.com.tw> <CAD8Lp44NHiSfPjzYkPCm1jX1Jb2E071WY4_OdCpJv0H7ivEoSg@mail.gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 4/4] HID: remove ThingM blink(1) driver
+Date: Wed, 22 Jun 2016 15:25:19 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1606221520340.6874@cbobk.fhfr.pm>
+References: <f8c59082-d76c-73aa-70b6-7454b731a055@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAD8Lp44NHiSfPjzYkPCm1jX1Jb2E071WY4_OdCpJv0H7ivEoSg@mail.gmail.com>
-Content-Language: zh-tw
+In-Reply-To: <f8c59082-d76c-73aa-70b6-7454b731a055@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: 'Daniel Drake' <drake@endlessm.com>
-Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Chris Chiu' <chiu@endlessm.com>, 'Charlie Mooney' <charliemooney@chromium.org>, 'Michele Curti' <michele.curti@gmail.com>, 'Krzysztof Kozlowski' <k.kozlowski@samsung.com>, 'Benson Leung' <bleung@chromium.org>, linux-input@vger.kernel.org, 'Linux Kernel' <linux-kernel@vger.kernel.org>, 'Linux Upstreaming Team' <linux@endlessm.com>, =?UTF-8?B?J+m7g+S4lum1rCDntpPnkIYn?= <phoenix@emc.com.tw>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 List-Id: linux-input@vger.kernel.org
 
------Original Message-----
-=46rom: Daniel Drake [mailto:drake@endlessm.com]=20
-Sent: Tuesday, June 21, 2016 10:42 PM
-To: =E5=BB=96=E5=B4=87=E6=A6=AE
-Cc: Dmitry Torokhov; Chris Chiu; Charlie Mooney; Michele Curti; Krzyszt=
-of Kozlowski; Benson Leung; linux-input@vger.kernel.org; Linux Kernel; =
-Linux Upstreaming Team; =E9=BB=83=E4=B8=96=E9=B5=AC =E7=B6=93=E7=90=86
-Subject: Re: [PATCH] Input: elan_i2c - +200 ms delay before setting to =
-ABS mode
+On Tue, 21 Jun 2016, Heiner Kallweit wrote:
 
-On Tue, Jun 21, 2016 at 6:40 AM, =E5=BB=96=E5=B4=87=E6=A6=AE <kt.liao@e=
-mc.com.tw> wrote:
-> KT, is this feasible?
-> [KT] After internal discussion, we don't agree this patch.
->     It's a work-around to fix firmware bug for specific touchpad and=20
-> not tested by other device.
+> Now that support for ThingM blink(1) was merged into the hid-led driver
+> the dedicated driver for this device can be removed.
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+>  drivers/hid/Kconfig      |  10 --
+>  drivers/hid/Makefile     |   1 -
+>  drivers/hid/hid-thingm.c | 259 -----------------------------------------------
+>  3 files changed, 270 deletions(-)
+>  delete mode 100644 drivers/hid/hid-thingm.c
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index ab22090..6b08a3b 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -828,16 +828,6 @@ config HID_TOPSEED
+>  	Say Y if you have a TopSeed Cyberlink or BTC Emprex or Conceptronic
+>  	CLLRCMCE remote control.
+>  
+> -config HID_THINGM
 
-=46or better or worse, Linux often takes on the responsibility of worki=
-ng around firmware bugs. This is a real issue that affects multiple Asu=
-s laptops; you'll have no touchpad input upon reboot from any OS that d=
-rives the touchpad in "generic hid" mode (e.g. older version of Linux, =
-some embedded OS, etc).
+Overall the patchset looks good to me. I'd suggest we keep 
+CONFIG_HID_THINGM as a stub though, that'd just select CONFIG_HID_LED, so 
+that we don't cause kernel config regressions for users who had 
+CONFIG_HID_THINGM already turned on.
 
-If the sleep is really that controversial, we could make it specific to=
- the ELAN1000 model that is the one in question here?
+Also adding Vivien Didelot to CC, as the author of the original driver. 
+Vivien, the full set can be found in linux-input archives ( 
+http://marc.info/?l=linux-input&r=1&b=201606&w=2 )
 
-[KT]:We can consider to control specific module, our FW engineer is che=
-cking it and confirm which part number for ASUS should adopt work-aroun=
-d.
-we will reply you once we confirm.
-
-Thanks
-Daniel
+-- 
+Jiri Kosina
+SUSE Labs

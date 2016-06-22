@@ -1,137 +1,115 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH] HID-PICOLCD: Dummy hid-picolcd functions should return
- error code
-Date: Wed, 22 Jun 2016 09:33:37 +0200
-Message-ID: <20160622093337.68d1bb9a@pluto.restena.lu>
-References: <1466534320-31256-1-git-send-email-arvind.yadav.cs@gmail.com>
+From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH 4/5] mfd: qcom-rpm: Add support for pm8018 RPM Regulator
+Date: Wed, 22 Jun 2016 10:34:29 +0200
+Message-ID: <576A4D95.3080804@baylibre.com>
+References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
+ <1466158929-19524-5-git-send-email-narmstrong@baylibre.com>
+ <20160622052340.GI1256@tuxbot>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay.restena.lu ([158.64.1.62]:47577 "EHLO
-	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752391AbcFVHmr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jun 2016 03:42:47 -0400
-In-Reply-To: <1466534320-31256-1-git-send-email-arvind.yadav.cs@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBDAYD2P3QYGRBH43VG5QKGQEVBXIXAY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20160622052340.GI1256@tuxbot>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Arvind,
-
-I can only NACK this patch as it would cause the driver to refuse
-probe()ing if any of the features are disabled in kernel configuration.
-
-Have a look at the callers in hid-picolcd_code.c, if any of those
-functions does return an error the probe function aborts with an error.
-
-
-Your commit message talks about allowing compilation if features
-are disabled, so which compilation errors do you get that changing
-those return codes "fix"?
-If you don't have such errors, I don't get your motivations for the
-change out of your commit message.
-
-Regards,
-Bruno
-
-
-On Wed, 22 Jun 2016 00:08:40 +0530 Arvind Yadav wrote:
-> - inline picolcd_fb_reset and picolcd_init_framebuffer stub simply
->   allows compilation on systems with CONFIG_HID_PICOLCD_FB disabled.
-> - inline picolcd_init_backlight and picolcd_resume_backlight stub
->   simply allows compilation on systems with CONFIG_HID_PICOLCD_BACKLIGHT
->   disabled.
-> - inline picolcd_init_lcd and picolcd_resume_lcd stub simply allows
->   compilation on systems with CONFIG_HID_PICOLCD_LCD disabled.
-> - inline picolcd_init_leds stub simply allows compilation on systems
->   with CONFIG_HID_PICOLCD_LEDS disabled.
-> - inline picolcd_init_cir stub simply allows compilation on systems
->   with CONFIG_HID_PICOLCD_CIR disabled.
+On 06/22/2016 07:23 AM, Bjorn Andersson wrote:
+> On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
 > 
-> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
-> ---
->  drivers/hid/hid-picolcd.h | 18 ++++++++++--------
->  1 file changed, 10 insertions(+), 8 deletions(-)
+> [..]
+>> diff --git a/drivers/mfd/qcom_rpm.c b/drivers/mfd/qcom_rpm.c
+> [..]
+>> +
+>> +static const struct qcom_rpm_data mdm9615_template = {
+>> +	.version = 3,
+>> +	.resource_table = mdm9615_rpm_resource_table,
+>> +	.n_resources = ARRAY_SIZE(mdm9615_rpm_resource_table),
+>> +};
 > 
-> diff --git a/drivers/hid/hid-picolcd.h b/drivers/hid/hid-picolcd.h
-> index e56d847..7e6c10a 100644
-> --- a/drivers/hid/hid-picolcd.h
-> +++ b/drivers/hid/hid-picolcd.h
-> @@ -17,6 +17,8 @@
->   *   along with this software. If not see <http://www.gnu.org/licenses/>.  *
->   ***************************************************************************/
->  
-> +#include <linux/errno.h>
-> +
->  #define PICOLCD_NAME "PicoLCD (graphic)"
->  
->  /* Report numbers */
-> @@ -192,11 +194,11 @@ void picolcd_fb_refresh(struct picolcd_data *data);
->  #else
->  static inline int picolcd_fb_reset(struct picolcd_data *data, int clear)
->  {
-> -	return 0;
-> +	return -ENODEV;
->  }
->  static inline int picolcd_init_framebuffer(struct picolcd_data *data)
->  {
-> -	return 0;
-> +	return -ENOMEM;
->  }
->  static inline void picolcd_exit_framebuffer(struct picolcd_data *data)
->  {
-> @@ -221,14 +223,14 @@ void picolcd_suspend_backlight(struct picolcd_data *data);
->  static inline int picolcd_init_backlight(struct picolcd_data *data,
->  		struct hid_report *report)
->  {
-> -	return 0;
-> +	return -ENODEV;
->  }
->  static inline void picolcd_exit_backlight(struct picolcd_data *data)
->  {
->  }
->  static inline int picolcd_resume_backlight(struct picolcd_data *data)
->  {
-> -	return 0;
-> +	return -ENODEV;
->  }
->  static inline void picolcd_suspend_backlight(struct picolcd_data *data)
->  {
-> @@ -248,14 +250,14 @@ int picolcd_resume_lcd(struct picolcd_data *data);
->  static inline int picolcd_init_lcd(struct picolcd_data *data,
->  		struct hid_report *report)
->  {
-> -	return 0;
-> +	return -ENODEV;
->  }
->  static inline void picolcd_exit_lcd(struct picolcd_data *data)
->  {
->  }
->  static inline int picolcd_resume_lcd(struct picolcd_data *data)
->  {
-> -	return 0;
-> +	return -ENODEV;
->  }
->  #endif /* CONFIG_HID_PICOLCD_LCD */
->  
-> @@ -271,7 +273,7 @@ void picolcd_leds_set(struct picolcd_data *data);
->  static inline int picolcd_init_leds(struct picolcd_data *data,
->  		struct hid_report *report)
->  {
-> -	return 0;
-> +	return -ENODEV;
->  }
->  static inline void picolcd_exit_leds(struct picolcd_data *data)
->  {
-> @@ -297,7 +299,7 @@ static inline int picolcd_raw_cir(struct picolcd_data *data,
->  }
->  static inline int picolcd_init_cir(struct picolcd_data *data, struct hid_report *report)
->  {
-> -	return 0;
-> +	return -ENOMEM;
->  }
->  static inline void picolcd_exit_cir(struct picolcd_data *data)
->  {
+> Please see:
+> https://patchwork.kernel.org/patch/9177159/
+> 
+> You should set the new .sel_size to 4 here, please either rebase ontop
+> of Linus patch or send an update after both are merged.
+> 
+>> +
+>>  static const struct of_device_id qcom_rpm_of_match[] = {
+>>  	{ .compatible = "qcom,rpm-apq8064", .data = &apq8064_template },
+>>  	{ .compatible = "qcom,rpm-msm8660", .data = &msm8660_template },
+>>  	{ .compatible = "qcom,rpm-msm8960", .data = &msm8960_template },
+>>  	{ .compatible = "qcom,rpm-ipq8064", .data = &ipq806x_template },
+>> +	{ .compatible = "qcom,rpm-mdm9615", .data = &mdm9615_template },
+>>  	{ }
+>>  };
+>>  MODULE_DEVICE_TABLE(of, qcom_rpm_of_match);
+>> diff --git a/include/dt-bindings/mfd/qcom-rpm.h b/include/dt-bindings/mfd/qcom-rpm.h
+>> index 13a9d4b..db85912 100644
+>> --- a/include/dt-bindings/mfd/qcom-rpm.h
+>> +++ b/include/dt-bindings/mfd/qcom-rpm.h
+>> @@ -148,6 +148,29 @@
+>>  #define QCOM_RPM_SMB208_S2a			138
+>>  #define QCOM_RPM_SMB208_S2b			139
+>>  
+>> +#define QCOM_RPM_PM8018_SMPS1			200
+> 
+> These numbers are a logical identifier and as such you shouldn't skip
+> 140-199.
+> 
+>> +#define QCOM_RPM_PM8018_SMPS2			201
+>> +#define QCOM_RPM_PM8018_SMPS3			202
+>> +#define QCOM_RPM_PM8018_SMPS4			203
+>> +#define QCOM_RPM_PM8018_SMPS5			204
+>> +#define QCOM_RPM_PM8018_LDO1			205
+>> +#define QCOM_RPM_PM8018_LDO2			206
+>> +#define QCOM_RPM_PM8018_LDO3			207
+>> +#define QCOM_RPM_PM8018_LDO4			208
+>> +#define QCOM_RPM_PM8018_LDO5			209
+>> +#define QCOM_RPM_PM8018_LDO6			210
+>> +#define QCOM_RPM_PM8018_LDO7			211
+>> +#define QCOM_RPM_PM8018_LDO8			212
+>> +#define QCOM_RPM_PM8018_LDO9			213
+>> +#define QCOM_RPM_PM8018_LDO10			214
+>> +#define QCOM_RPM_PM8018_LDO11			215
+>> +#define QCOM_RPM_PM8018_LDO12			216
+>> +#define QCOM_RPM_PM8018_LDO13			217
+>> +#define QCOM_RPM_PM8018_LDO14			218
+>> +#define QCOM_RPM_PM8018_LVS1			219
+>> +#define QCOM_RPM_NCP				220
+> 
+> We already have PM8921_NCP and PM8058_NCP, so better make this
+> QCOM_RPM_PM8018_NCP for consistency.
+> 
+>> +#define QCOM_RPM_VOLTAGE_CORNER			221
+>> +
+> 
+> Other then these details
+> Acked-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> 
+> Regards,
+> Bjorn
+> 
+Thanks,
+
+I rebased on Linus two patches ("fix offset error for msm8660" and "parametrize also ack selector size")
+
+I suppose I should also drop the QCOM_RPM_VOLTAGE_CORNER rpm entry also ?
+
+Neil
+
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

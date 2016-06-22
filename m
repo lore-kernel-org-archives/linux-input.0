@@ -1,16 +1,16 @@
 From: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/5] rtc: rtc-pm8xxx: Add support for pm8018 rtc
-Date: Tue, 21 Jun 2016 22:06:54 -0700
-Message-ID: <20160622050654.GG1256@tuxbot>
+Subject: Re: [PATCH 1/5] mfd: pm8921: Add support for pm8018
+Date: Tue, 21 Jun 2016 22:07:46 -0700
+Message-ID: <20160622050746.GH1256@tuxbot>
 References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-4-git-send-email-narmstrong@baylibre.com>
+ <1466158929-19524-2-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBC2JZN6WSAHRB4VZVC5QKGQELRGPXLI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBC2JZN6WSAHRBJV2VC5QKGQE7KX5NIA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <1466158929-19524-4-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <1466158929-19524-2-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/rtc-linux
@@ -23,26 +23,10 @@ List-Id: linux-input@vger.kernel.org
 
 On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
 
-> In order to support RTC on Qualcomm MDM9615 SoC, add support for
-> the pm8018 rtc in rtc-pm8xxx driver.
+> In order to support the Qualcomm MDM9615 PMIC, add support for the
+> pm8018 in pm8921 mfd driver.
 > 
 > Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-> ---
->  Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt |  1 +
->  drivers/rtc/rtc-pm8xxx.c                              | 11 +++++++++++
->  2 files changed, 12 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-> index f24f334..37a088f 100644
-> --- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-> +++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-> @@ -62,6 +62,7 @@ The below bindings specify the set of valid subnodes.
->  		    "qcom,pm8058-rtc"
->  		    "qcom,pm8921-rtc"
->  		    "qcom,pm8941-rtc"
-> +		    "qcom,pm8018-rtc"
-
-Would be nice if we kept this sorted, but the patch looks good.
 
 Reviewed-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 

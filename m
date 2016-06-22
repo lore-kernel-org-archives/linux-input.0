@@ -1,44 +1,74 @@
-From: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/5] mfd: pm8921: Add support for pm8018
-Date: Tue, 21 Jun 2016 22:07:46 -0700
-Message-ID: <20160622050746.GH1256@tuxbot>
-References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-2-git-send-email-narmstrong@baylibre.com>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Masaki Ota <masaki.ota@jp.alps.com>
+Subject: RE: [PATCH] Improve Alps HID Touchpad code
+Date: Wed, 22 Jun 2016 04:42:33 +0000
+Message-ID: <OSXPR01MB04087995AF21B077B26DA6E6C72C0@OSXPR01MB0408.jpnprd01.prod.outlook.com>
+References: <1466504912-15297-1-git-send-email-masaki.ota@jp.alps.com>
+ <20160621223503.GA34772@dtor-ws>
+ <alpine.LNX.2.00.1606220036490.6874@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBC2JZN6WSAHRBJV2VC5QKGQE7KX5NIA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <1466158929-19524-2-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ty1jpn01on0077.outbound.protection.outlook.com ([104.47.93.77]:20096
+	"EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750916AbcFVFS7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jun 2016 01:18:59 -0400
+Content-Language: ja-JP
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Masaki Ota <012nexus@gmail.com>, "benjamin.tissorires@redhat.com" <benjamin.tissorires@redhat.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Naoki Saito <naoki.saito@jp.alps.com>
 
-On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
+Hi,Jiri,
 
-> In order to support the Qualcomm MDM9615 PMIC, add support for the
-> pm8018 in pm8921 mfd driver.
-> 
-> Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+Sorry, I understood.
+Actually I don't add line-wrapping, but how do we solve it.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Best Regards,
+Masaki Ota
+-----Original Message-----
+From: 太田 真喜 Masaki Ota 
+Sent: Wednesday, June 22, 2016 11:49 AM
+To: 'Jiri Kosina'; Dmitry Torokhov
+Cc: Masaki Ota; benjamin.tissorires@redhat.com; peter.hutterer@who-t.net; hdegoede@redhat.com; linux-input@vger.kernel.org; 斉藤 直樹 Naoki Saito
+Subject: RE: [PATCH] Improve Alps HID Touchpad code
 
-Regards,
-Bjorn
+Hi, Jiri,
 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+Sorry, I cannot catch your meaning. What is the part corrupted? 
+I added "HID_DEVICE_ID_ALPS_U1_DUAL" instead of " HID_ANY_ID".
+Because we want to use our devices except for "HID_DEVICE_ID_ALPS_U1_DUAL" as Mouse mode.
+
+Best Regards,
+Masaki Ota
+-----Original Message-----
+From: Jiri Kosina [mailto:jikos@kernel.org]
+Sent: Wednesday, June 22, 2016 7:39 AM
+To: Dmitry Torokhov
+Cc: Masaki Ota; benjamin.tissorires@redhat.com; peter.hutterer@who-t.net; hdegoede@redhat.com; linux-input@vger.kernel.org; 太田 真喜 Masaki Ota; 斉藤 直樹 Naoki Saito
+Subject: Re: [PATCH] Improve Alps HID Touchpad code
+
+On Tue, 21 Jun 2016, Dmitry Torokhov wrote:
+
+> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c index 
+> > 3cdbc4b..678d8bd 100644
+> > --- a/drivers/hid/hid-core.c
+> > +++ b/drivers/hid/hid-core.c
+> > @@ -1772,7 +1772,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0xf705) },
+> > -	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, USB_VENDOR_ID_ALPS_JP, HID_ANY_ID) },
+> > +	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, USB_VENDOR_ID_ALPS_JP,
+> > +	HID_DEVICE_ID_ALPS_U1_DUAL) },
+
+On top of what Dmitry said, the above has been (corrupted) line-wrapped (most likely by your mail client). Could you please fix that up while fixing the rest of Dmitry's valuable review comments?
+
+Thanks,
+
+--
+Jiri Kosina
+SUSE Labs
+

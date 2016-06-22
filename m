@@ -1,91 +1,104 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH v5 6/9] Input: atmel_mxt_ts - add diagnostic data support for mXT1386
-Date: Wed, 22 Jun 2016 23:08:30 +0100
-Message-ID: <1466633313-15339-7-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH v5 5/9] Input: atmel_mxt_ts - handle diagnostic data orientation
+Date: Wed, 22 Jun 2016 23:08:29 +0100
+Message-ID: <1466633313-15339-6-git-send-email-nick.dyer@itdev.co.uk>
 References: <1466633313-15339-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1466633313-15339-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, nick.dyer@itdev.co.uk
 List-Id: linux-input@vger.kernel.org
 
-The mXT1386 family of chips have a different architecture which splits
-the diagnostic data into 3 columns.
+Invert the diagnostic data to match the orientation of the input device.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 3f7e357..739d138 100644
+index 8ef61d7..3f7e357 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -137,6 +137,10 @@ struct t9_range {
- #define MXT_DIAGNOSTIC_DELTAS	0x10
- #define MXT_DIAGNOSTIC_SIZE	128
+@@ -125,6 +125,8 @@ struct t9_range {
  
-+#define MXT_FAMILY_1386			160
-+#define MXT1386_COLUMNS			3
-+#define MXT1386_PAGES_PER_COLUMN	8
-+
- struct t37_debug {
- #ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
- 	u8 mode;
-@@ -2140,13 +2144,27 @@ recheck:
- static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
- 			       unsigned int y)
- {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	unsigned int ofs, page;
-+	unsigned int col = 0;
-+	unsigned int col_width;
-+
-+	if (info->family_id == MXT_FAMILY_1386) {
-+		col_width = info->matrix_ysize / MXT1386_COLUMNS;
-+		col = y / col_width;
-+		y = y % col_width;
-+	} else {
-+		col_width = info->matrix_ysize;
-+	}
+ /* MXT_TOUCH_MULTI_T9 orient */
+ #define MXT_T9_ORIENT_SWITCH	(1 << 0)
++#define MXT_T9_ORIENT_INVERTX	(1 << 1)
++#define MXT_T9_ORIENT_INVERTY	(1 << 2)
  
--	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
-+	ofs = (y + (x * col_width)) * sizeof(u16);
- 	page = ofs / MXT_DIAGNOSTIC_SIZE;
- 	ofs %= MXT_DIAGNOSTIC_SIZE;
+ /* MXT_SPT_COMMSCONFIG_T18 */
+ #define MXT_COMMS_CTRL		0
+@@ -158,6 +160,8 @@ struct t37_debug {
+ #define MXT_T100_YRANGE		24
  
-+	if (info->family_id == MXT_FAMILY_1386)
-+		page += col * MXT1386_PAGES_PER_COLUMN;
-+
- 	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
+ #define MXT_T100_CFG_SWITCHXY	BIT(5)
++#define MXT_T100_CFG_INVERTY	BIT(6)
++#define MXT_T100_CFG_INVERTX	BIT(7)
+ 
+ #define MXT_T100_TCHAUX_VECT	BIT(0)
+ #define MXT_T100_TCHAUX_AMPL	BIT(1)
+@@ -262,6 +266,8 @@ struct mxt_data {
+ 	unsigned int irq;
+ 	unsigned int max_x;
+ 	unsigned int max_y;
++	bool invertx;
++	bool inverty;
+ 	bool xy_switch;
+ 	u8 xsize;
+ 	u8 ysize;
+@@ -1747,6 +1753,8 @@ static int mxt_read_t9_resolution(struct mxt_data *data)
+ 		return error;
+ 
+ 	data->xy_switch = orient & MXT_T9_ORIENT_SWITCH;
++	data->invertx = orient & MXT_T9_ORIENT_INVERTX;
++	data->inverty = orient & MXT_T9_ORIENT_INVERTY;
+ 
+ 	return 0;
  }
+@@ -1801,6 +1809,8 @@ static int mxt_read_t100_config(struct mxt_data *data)
+ 		return error;
  
-@@ -2416,6 +2434,7 @@ static const struct video_device mxt_video_device = {
+ 	data->xy_switch = cfg & MXT_T100_CFG_SWITCHXY;
++	data->invertx = cfg & MXT_T100_CFG_INVERTX;
++	data->inverty = cfg & MXT_T100_CFG_INVERTY;
  
- static void mxt_debug_init(struct mxt_data *data)
- {
-+	struct mxt_info *info = &data->info;
+ 	/* allocate aux bytes */
+ 	error =  __mxt_read_reg(client,
+@@ -2145,13 +2155,19 @@ static int mxt_convert_debug_pages(struct mxt_data *data, u16 *outbuf)
  	struct mxt_dbg *dbg = &data->dbg;
- 	struct mxt_object *object;
- 	int error;
-@@ -2439,8 +2458,14 @@ static void mxt_debug_init(struct mxt_data *data)
+ 	unsigned int x = 0;
+ 	unsigned int y = 0;
+-	unsigned int i;
++	unsigned int i, rx, ry;
  
- 	/* Calculate size of data and allocate buffer */
- 	dbg->t37_nodes = data->xsize * data->ysize;
--	dbg->t37_pages = DIV_ROUND_UP(data->xsize * data->info.matrix_ysize *
--				      sizeof(u16), sizeof(dbg->t37_buf->data));
+ 	for (i = 0; i < dbg->t37_nodes; i++) {
+-		outbuf[i] = mxt_get_debug_value(data, x, y);
++		/* Handle orientation */
++		rx = data->xy_switch ? y : x;
++		ry = data->xy_switch ? x : y;
++		rx = data->invertx ? (data->xsize - 1 - rx) : rx;
++		ry = data->inverty ? (data->ysize - 1 - ry) : ry;
 +
-+	if (info->family_id == MXT_FAMILY_1386)
-+		dbg->t37_pages = MXT1386_COLUMNS * MXT1386_PAGES_PER_COLUMN;
-+	else
-+		dbg->t37_pages = DIV_ROUND_UP(data->xsize *
-+					      data->info.matrix_ysize *
-+					      sizeof(u16),
-+					      sizeof(dbg->t37_buf->data));
++		outbuf[i] = mxt_get_debug_value(data, rx, ry);
  
- 	dbg->t37_buf = devm_kmalloc_array(&data->client->dev, dbg->t37_pages,
- 					  sizeof(struct t37_debug), GFP_KERNEL);
+ 		/* Next value */
+-		if (++x >= data->xsize) {
++		if (++x >= (data->xy_switch ? data->ysize : data->xsize)) {
+ 			x = 0;
+ 			y++;
+ 		}
+@@ -2306,8 +2322,8 @@ static int mxt_set_input(struct mxt_data *data, unsigned int i)
+ 	if (i > 0)
+ 		return -EINVAL;
+ 
+-	f->width = data->xsize;
+-	f->height = data->ysize;
++	f->width = data->xy_switch ? data->ysize : data->xsize;
++	f->height = data->xy_switch ? data->xsize : data->ysize;
+ 	f->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
+ 	f->field = V4L2_FIELD_NONE;
+ 	f->colorspace = V4L2_COLORSPACE_RAW;
 -- 
 2.5.0

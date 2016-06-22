@@ -1,16 +1,17 @@
 From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 4/5] mfd: qcom-rpm: Add support for pm8018 RPM Regulator
-Date: Wed, 22 Jun 2016 10:34:29 +0200
-Message-ID: <576A4D95.3080804@baylibre.com>
+Subject: Re: [PATCH 5/5] regulator: qcom_rpm-regulator: Add
+ support for pm8018 rpm regulator
+Date: Wed, 22 Jun 2016 10:39:33 +0200
+Message-ID: <576A4EC5.5000701@baylibre.com>
 References: <1466158929-19524-1-git-send-email-narmstrong@baylibre.com>
- <1466158929-19524-5-git-send-email-narmstrong@baylibre.com>
- <20160622052340.GI1256@tuxbot>
+ <1466158929-19524-6-git-send-email-narmstrong@baylibre.com>
+ <20160617165352.GA1256@tuxbot>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRBH43VG5QKGQEVBXIXAY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDAYD2P3QYGRBUE5VG5QKGQEKA4URCI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20160622052340.GI1256@tuxbot>
+In-Reply-To: <20160617165352.GA1256@tuxbot>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/rtc-linux
@@ -18,90 +19,70 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 To: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 06/22/2016 07:23 AM, Bjorn Andersson wrote:
+On 06/17/2016 06:53 PM, Bjorn Andersson wrote:
 > On Fri 17 Jun 03:22 PDT 2016, Neil Armstrong wrote:
 > 
+>> In order to support eh Qualcomm MDM9615 SoC, add support for the
+>> PM8018 RPM regulator in the qcom_rpm-regulator driver.
+>>
+>> Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 > [..]
->> diff --git a/drivers/mfd/qcom_rpm.c b/drivers/mfd/qcom_rpm.c
+>> diff --git a/drivers/regulator/qcom_rpm-regulator.c b/drivers/regulator/qcom_rpm-regulator.c
+> [..]
+>> +/**
+>> + * enum rpm_vreg_voltage_corner - possible voltage corner values
+>> + *
+>> + * These should be used in regulator_set_voltage and rpm_vreg_set_voltage calls
+>> + * for corner type regulators as if they had units of uV.
+>> + */
+>> +enum rpm_vreg_voltage_corner {
+>> +	RPM_VREG_CORNER_NONE = 1,
+>> +	RPM_VREG_CORNER_LOW,
+>> +	RPM_VREG_CORNER_NOMINAL,
+>> +	RPM_VREG_CORNER_HIGH,
+>> +};
+>> +
+>> +static struct regulator_linear_range corner_ranges[] = {
+>> +	REGULATOR_LINEAR_RANGE(RPM_VREG_CORNER_NONE, 0,
+>> +				RPM_VREG_CORNER_HIGH, 1),
+>> +};
+>> +
+>>  static int rpm_reg_write(struct qcom_rpm_reg *vreg,
 > [..]
 >> +
->> +static const struct qcom_rpm_data mdm9615_template = {
->> +	.version = 3,
->> +	.resource_table = mdm9615_rpm_resource_table,
->> +	.n_resources = ARRAY_SIZE(mdm9615_rpm_resource_table),
+>> +static const struct qcom_rpm_reg pm8018_corner = {
+>> +	.desc.linear_ranges = corner_ranges,
+>> +	.desc.n_linear_ranges = ARRAY_SIZE(corner_ranges),
+>> +	.desc.n_voltages = 4,
+>> +	.desc.ops = &uV_ops,
+>> +	.parts = &rpm8018_corner_parts,
+>> +};
+>> +
+> [..]
+>> +static const struct rpm_regulator_data rpm_pm8018_regulators[] = {
+> [..]
+>> +	{ "dig_corner", QCOM_RPM_VOLTAGE_CORNER, &pm8018_corner,
+>> +						      "vdd_dig_corner" },
+>> +
+>> +	{ }
 >> +};
 > 
-> Please see:
-> https://patchwork.kernel.org/patch/9177159/
+> We have discussed the corners for a long time and I think we've
+> concluded that they should be exposed as something like an OPP. What we
+> have agreed on is that they should not be exposed as a regulator with
+> voltages 1-4uV.
 > 
-> You should set the new .sel_size to 4 here, please either rebase ontop
-> of Linus patch or send an update after both are merged.
-> 
->> +
->>  static const struct of_device_id qcom_rpm_of_match[] = {
->>  	{ .compatible = "qcom,rpm-apq8064", .data = &apq8064_template },
->>  	{ .compatible = "qcom,rpm-msm8660", .data = &msm8660_template },
->>  	{ .compatible = "qcom,rpm-msm8960", .data = &msm8960_template },
->>  	{ .compatible = "qcom,rpm-ipq8064", .data = &ipq806x_template },
->> +	{ .compatible = "qcom,rpm-mdm9615", .data = &mdm9615_template },
->>  	{ }
->>  };
->>  MODULE_DEVICE_TABLE(of, qcom_rpm_of_match);
->> diff --git a/include/dt-bindings/mfd/qcom-rpm.h b/include/dt-bindings/mfd/qcom-rpm.h
->> index 13a9d4b..db85912 100644
->> --- a/include/dt-bindings/mfd/qcom-rpm.h
->> +++ b/include/dt-bindings/mfd/qcom-rpm.h
->> @@ -148,6 +148,29 @@
->>  #define QCOM_RPM_SMB208_S2a			138
->>  #define QCOM_RPM_SMB208_S2b			139
->>  
->> +#define QCOM_RPM_PM8018_SMPS1			200
-> 
-> These numbers are a logical identifier and as such you shouldn't skip
-> 140-199.
-> 
->> +#define QCOM_RPM_PM8018_SMPS2			201
->> +#define QCOM_RPM_PM8018_SMPS3			202
->> +#define QCOM_RPM_PM8018_SMPS4			203
->> +#define QCOM_RPM_PM8018_SMPS5			204
->> +#define QCOM_RPM_PM8018_LDO1			205
->> +#define QCOM_RPM_PM8018_LDO2			206
->> +#define QCOM_RPM_PM8018_LDO3			207
->> +#define QCOM_RPM_PM8018_LDO4			208
->> +#define QCOM_RPM_PM8018_LDO5			209
->> +#define QCOM_RPM_PM8018_LDO6			210
->> +#define QCOM_RPM_PM8018_LDO7			211
->> +#define QCOM_RPM_PM8018_LDO8			212
->> +#define QCOM_RPM_PM8018_LDO9			213
->> +#define QCOM_RPM_PM8018_LDO10			214
->> +#define QCOM_RPM_PM8018_LDO11			215
->> +#define QCOM_RPM_PM8018_LDO12			216
->> +#define QCOM_RPM_PM8018_LDO13			217
->> +#define QCOM_RPM_PM8018_LDO14			218
->> +#define QCOM_RPM_PM8018_LVS1			219
->> +#define QCOM_RPM_NCP				220
-> 
-> We already have PM8921_NCP and PM8058_NCP, so better make this
-> QCOM_RPM_PM8018_NCP for consistency.
-> 
->> +#define QCOM_RPM_VOLTAGE_CORNER			221
->> +
-> 
-> Other then these details
-> Acked-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> So please drop the corner for now.
 > 
 > Regards,
 > Bjorn
 > 
+OK, dropped.
+
 Thanks,
-
-I rebased on Linus two patches ("fix offset error for msm8660" and "parametrize also ack selector size")
-
-I suppose I should also drop the QCOM_RPM_VOLTAGE_CORNER rpm entry also ?
-
 Neil
 
 -- 

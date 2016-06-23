@@ -1,51 +1,57 @@
-From: Scott Bauer <sbauer@plzdonthack.me>
-Subject: [PATCH] Validate num_values for HIDIOCGUSAGES, HIDIOCSUSAGES commands.
-Date: Thu, 23 Jun 2016 08:59:47 -0600
-Message-ID: <1466693987-15363-1-git-send-email-sbauer@plzdonthack.me>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bout01.mta.xmission.com ([166.70.11.15]:39143 "EHLO
-	bout01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751682AbcFWPXi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jun 2016 11:23:38 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] input: tegra-kbc: fix spelling mistake: "porperly" ->
+ "properly"
+Date: Thu, 23 Jun 2016 17:48:04 +0200
+Message-ID: <20160623154804.GB30196@ulmo.ba.sec>
+References: <1466675907-3366-1-git-send-email-colin.king@canonical.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="8GpibOaaTibBMecb"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1466675907-3366-1-git-send-email-colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Colin King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+Cc: Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org
-Cc: benjamin.tissoires@redhat.com, wmealing@redhat.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, Scott Bauer <sbauer@plzdonthack.me>
 
-This patch validates the num_values parameter from userland during
-the HIDIOCGUSAGES and HIDIOCSUSAGES commands. Previously, if the
-report id was set to HID_REPORT_ID_UNKNOWN, we would fail to
-validate the num_values parameter leading to a heap overflow.
 
-Signed-off-by: Scott Bauer <sbauer@plzdonthack.me>
----
- drivers/hid/usbhid/hiddev.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+--8GpibOaaTibBMecb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index 2f1ddca..700145b 100644
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -516,13 +516,13 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd,
- 					goto inval;
- 			} else if (uref->usage_index >= field->report_count)
- 				goto inval;
--
--			else if ((cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) &&
--				 (uref_multi->num_values > HID_MAX_MULTI_USAGES ||
--				  uref->usage_index + uref_multi->num_values > field->report_count))
--				goto inval;
- 		}
- 
-+		if ((cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) &&
-+		    (uref_multi->num_values > HID_MAX_MULTI_USAGES ||
-+		     uref->usage_index + uref_multi->num_values > field->report_count))
-+			goto inval;
-+
- 		switch (cmd) {
- 		case HIDIOCGUSAGE:
- 			uref->value = field->value[uref->usage_index];
--- 
-1.9.1
+On Thu, Jun 23, 2016 at 10:58:27AM +0100, Colin King wrote:
+> From: Colin Ian King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+>=20
+> trivial fix to spelling mistake in dev_err message
+>=20
+> Signed-off-by: Colin Ian King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+> ---
+>  drivers/input/keyboard/tegra-kbc.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
+Acked-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+
+--8GpibOaaTibBMecb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAABCAAGBQJXbASyAAoJEN0jrNd/PrOhfdsP/1wea7bSOVA4eXx/Je2Xtepp
+SNY8PNg/4zBGSNmTdlfUjUr/8SMvNj/+jbLB1rSU9yz9Cg4PPnmaTxHB36fnRukw
+dOVvUVtEsbFGks5gLPW72DWIaurMvW7deWYnBXTigyX1Pt6Erq54eAkCoxwolVcu
+v1Sh/iax1dPH960VaBFU4nL7J387HI79n+JPdaW1R84RRyGMclLS/f38Bs5Xgw1L
+MKekbyb51tqJIK2TvrjqdTbtru+fSldPl3HQDZ0QEGWdRdaeDCKqIducLwO2X/Uz
+gGLno/Rt/2JJ/0iPXGM1XiDANh2GuR8fGDfo7yoqa0KvUy2JLyIRMlQo9RILgclt
+SzeWy8uM6nx8lejamvf6dvzyjdpSwHAto6oD447GK7ZGAYf3FnNd7F1ogpmnU+wA
+ZeEDsSRrivygv4QMDXMuFJM76GPXfH0lwsn+mN2+uqNHyuKoz+Dgamanbi7xXXnV
+hsumQXUhZtR07pNJK+kwRpao6c+N3A9s5eJmIO9kv1tBEtLA6bO23OEDeD4Pfl/y
+EfiXWzuuTn1vnklfw10f7LwfSGfJAUSiYHXwm/nY86AHKBv56PA2UDg3Dws2XnBi
+hdF0N+DaUh9Lm6igoFyI+gYwcoBhIRA7nJDWfYj6Wq9MwzRbI6ucELgF2ZEVt0xx
+85neoKXj3TyEZnt4xdTC
+=5BR7
+-----END PGP SIGNATURE-----
+
+--8GpibOaaTibBMecb--

@@ -1,161 +1,113 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] input: tablet: pegasus_notetaker: USB PM fixes
-Date: Thu, 23 Jun 2016 10:18:35 -0700
-Message-ID: <20160623171835.GE32561@dtor-ws>
-References: <1465903215-2351-1-git-send-email-martink@posteo.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 3/4] input: touchscreen: mxs-lradc: Add support for
+ touchscreen
+Date: Thu, 23 Jun 2016 10:24:03 -0700
+Message-ID: <20160623172403.GF32561@dtor-ws>
+References: <cover.1465396835.git.ksenija.stanojevic@gmail.com>
+ <d5853a762d67f2036382d3cfa0cf1d294d6aa5f0.1465396835.git.ksenija.stanojevic@gmail.com>
+ <1443695961.58810.3de61248-4cae-4f94-b8a2-ef63c5c3ec1b.open-xchange@email.1und1.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f67.google.com ([209.85.220.67]:33348 "EHLO
+	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750785AbcFWRYG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jun 2016 13:24:06 -0400
 Content-Disposition: inline
-In-Reply-To: <1465903215-2351-1-git-send-email-martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1443695961.58810.3de61248-4cae-4f94-b8a2-ef63c5c3ec1b.open-xchange@email.1und1.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, linux-kernel@vger.kernel.org, lee.jones@linaro.org, linux-input@vger.kernel.org, pmeerw@pmeerw.net, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, harald@ccbib.org, fabio.estevam@freescale.com, linux-iio@vger.kernel.org, marex@denx.de
 
-Hi Martin,
+On Wed, Jun 15, 2016 at 11:26:18PM +0200, Stefan Wahren wrote:
+> Hi,
+> 
+> unfortunately i still don't have a touchscreen to test this patch.
+> 
+> > Ksenija Stanojevic <ksenija.stanojevic@gmail.com> hat am 8. Juni 2016 um 16:48
+> > geschrieben:
+> > 
+> > 
+> > Add 4-wire/5-wire touchscreen controller.
+> > 
+> > Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+> > ---
+> > Changes in v2:
+> >  - do not change spacing in Kconfig
+> >  - remove dev.parent
+> >  - rename err_ts_register to error
+> >  - combine functions hw_stop and disable_ts so that mxs_lradc_ts_remove
+> >    could be deleted.
+> >  - add spinlock in struct mxs_lradc_ts to enable locking in interrupt handler.
+> >  - only grab irqs that are relevant to touchscreen
+> >  - use direct return instead assigning error to touch_ret in probe function.
+> >  - change licence to GPL
+> >  - add copyright
+> > 
+> >  drivers/input/touchscreen/Kconfig        |  10 +
+> >  drivers/input/touchscreen/Makefile       |   1 +
+> >  drivers/input/touchscreen/mxs-lradc-ts.c | 726
+> > +++++++++++++++++++++++++++++++
+> >  3 files changed, 737 insertions(+)
+> >  create mode 100644 drivers/input/touchscreen/mxs-lradc-ts.c
+> > 
+> > diff --git a/drivers/input/touchscreen/mxs-lradc-ts.c
+> > b/drivers/input/touchscreen/mxs-lradc-ts.c
+> > new file mode 100644
+> > index 0000000..778bb61
+> > --- /dev/null
+> > +++ b/drivers/input/touchscreen/mxs-lradc-ts.c
+> > @@ -0,0 +1,726 @@
+> > +/*
+> > + * Freescale MXS LRADC driver
+> 
+> touchscreen driver
+> 
+> > + *
+> > + * Copyright (c) 2012 DENX Software Engineering, GmbH.
+> > + * Marek Vasut <marex@denx.de>
+> > + * Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+> > + *
+> > + * This program is free software; you can redistribute it and/or modify
+> > + * it under the terms of the GNU General Public License as published by
+> > + * the Free Software Foundation; either version 2 of the License, or
+> > + * (at your option) any later version.
+> > + *
+> > + * This program is distributed in the hope that it will be useful,
+> > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> > + * GNU General Public License for more details.
+> > + */
+> > +
+> > ...
+> > +
+> > +static struct platform_driver mxs_lradc_ts_driver = {
+> > +	.driver	= {
+> > +		.name = DRIVER_NAME_TS,
+> > +	},
+> > +	.probe	= mxs_lradc_ts_probe,
+> > +};
+> > +module_platform_driver(mxs_lradc_ts_driver);
+> > +
+> 
+> MODULE_DESCRIPTION ?
+> MODULE_AUTHOR ?
 
-On Tue, Jun 14, 2016 at 01:20:15PM +0200, Martin Kepplinger wrote:
->  static int pegasus_reset_resume(struct usb_interface *intf)
->  {
-> +	struct pegasus *pegasus = usb_get_intfdata(intf);
-> +
-> +	if (pegasus->dev->users)
-> +		pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
-> +
->  	return pegasus_resume(intf);
+Once Stefan's comments addressed please add
 
-Hmm, we need to take input mutex when using pegasus->dev->users, how
-about the version below instead?
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+so that it can be merged through MFD tree.
+
+> 
+> > +MODULE_LICENSE("GPL");
+> > -- 
+> > 1.9.1
+> >
 
 Thanks.
 
 -- 
 Dmitry
-
-Input: pegasus_notetake - USB PM fixes
-
-From: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-
-* Fix usb_autopm calls to be balanced
- * In reset_resume() we need to set the device mode
- * In suspend() we must cancel the workqueue's work
-
-Signed-off-by: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/input/tablet/pegasus_notetaker.c |   46 ++++++++++++++++++++----------
- 1 file changed, 31 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
-index 805afe3..d20ea06 100644
---- a/drivers/input/tablet/pegasus_notetaker.c
-+++ b/drivers/input/tablet/pegasus_notetaker.c
-@@ -80,7 +80,7 @@ struct pegasus {
- 	struct work_struct init;
- };
- 
--static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
-+static int pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
- {
- 	const int sizeof_buf = len + 2;
- 	int result;
-@@ -88,7 +88,7 @@ static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
- 
- 	cmd_buf = kmalloc(sizeof_buf, GFP_KERNEL);
- 	if (!cmd_buf)
--		return;
-+		return -ENOMEM;
- 
- 	cmd_buf[0] = NOTETAKER_REPORT_ID;
- 	cmd_buf[1] = len;
-@@ -101,17 +101,23 @@ static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
- 				 0, 0, cmd_buf, sizeof_buf,
- 				 USB_CTRL_SET_TIMEOUT);
- 
--	if (result != sizeof_buf)
--		dev_err(&pegasus->usbdev->dev, "control msg error\n");
-+	if (result != sizeof_buf) {
-+		if (result >= 0)
-+			result = -EIO;
-+		dev_err(&pegasus->usbdev->dev, "control msg error: %d\n",
-+			result);
-+	}
- 
- 	kfree(cmd_buf);
-+
-+	return result;
- }
- 
--static void pegasus_set_mode(struct pegasus *pegasus, u8 mode, u8 led)
-+static int pegasus_set_mode(struct pegasus *pegasus, u8 mode, u8 led)
- {
- 	u8 cmd[] = { NOTETAKER_SET_CMD, NOTETAKER_SET_MODE, led, mode };
- 
--	pegasus_control_msg(pegasus, cmd, sizeof(cmd));
-+	return pegasus_control_msg(pegasus, cmd, sizeof(cmd));
- }
- 
- static void pegasus_parse_packet(struct pegasus *pegasus)
-@@ -205,27 +211,24 @@ static int pegasus_open(struct input_dev *dev)
- 		return retval;
- 
- 	pegasus->irq->dev = pegasus->usbdev;
--	if (usb_submit_urb(pegasus->irq, GFP_KERNEL))
-+	if (usb_submit_urb(pegasus->irq, GFP_KERNEL)) {
- 		retval = -EIO;
-+		goto out;
-+	}
- 
--	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
-+	retval = pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
- 
-+out:
- 	usb_autopm_put_interface(pegasus->intf);
--
- 	return retval;
- }
- 
- static void pegasus_close(struct input_dev *dev)
- {
- 	struct pegasus *pegasus = input_get_drvdata(dev);
--	int autopm_error;
- 
--	autopm_error = usb_autopm_get_interface(pegasus->intf);
- 	usb_kill_urb(pegasus->irq);
- 	cancel_work_sync(&pegasus->init);
--
--	if (!autopm_error)
--		usb_autopm_put_interface(pegasus->intf);
- }
- 
- static int pegasus_probe(struct usb_interface *intf,
-@@ -373,6 +376,7 @@ static int pegasus_suspend(struct usb_interface *intf, pm_message_t message)
- 
- 	mutex_lock(&pegasus->dev->mutex);
- 	usb_kill_urb(pegasus->irq);
-+	cancel_work_sync(&pegasus->init);
- 	mutex_unlock(&pegasus->dev->mutex);
- 
- 	return 0;
-@@ -393,7 +397,19 @@ static int pegasus_resume(struct usb_interface *intf)
- 
- static int pegasus_reset_resume(struct usb_interface *intf)
- {
--	return pegasus_resume(intf);
-+	struct pegasus *pegasus = usb_get_intfdata(intf);
-+	int retval = 0;
-+
-+	mutex_lock(&pegasus->dev->mutex);
-+	if (pegasus->dev->users) {
-+		retval = pegasus_set_mode(pegasus, PEN_MODE_XY,
-+					  NOTETAKER_LED_MOUSE);
-+		if (!retval && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
-+			retval = -EIO;
-+	}
-+	mutex_unlock(&pegasus->dev->mutex);
-+
-+	return retval;
- }
- 
- static const struct usb_device_id pegasus_ids[] = {

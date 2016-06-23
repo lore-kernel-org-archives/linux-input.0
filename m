@@ -1,65 +1,63 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elantech - add more IC body types to the list
-Date: Thu, 23 Jun 2016 10:45:10 -0700
-Message-ID: <20160623174510.GI32561@dtor-ws>
-References: <20160621231535.GA20091@dtor-ws>
+Subject: Re: [PATCH 1/2] Input: wacom_w8001 - W8001_MAX_LENGTH should be 13
+Date: Thu, 23 Jun 2016 11:00:13 -0700
+Message-ID: <20160623180013.GJ32561@dtor-ws>
+References: <1464059020-6205-1-git-send-email-pingc@wacom.com>
+ <20160524050145.GA11910@jelly>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:35751 "EHLO
-	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751380AbcFWRpO (ORCPT
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:35314 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751198AbcFWSAS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jun 2016 13:45:14 -0400
+	Thu, 23 Jun 2016 14:00:18 -0400
+Received: by mail-pa0-f68.google.com with SMTP id hf6so7049197pac.2
+        for <linux-input@vger.kernel.org>; Thu, 23 Jun 2016 11:00:17 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20160621231535.GA20091@dtor-ws>
+In-Reply-To: <20160524050145.GA11910@jelly>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, kt.liao@emc.com.tw, Patrick.Lessard@cogeco.com, linux-kernel@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Ping Cheng <pinglinux@gmail.com>, linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, Ping Cheng <pingc@wacom.com>
 
-On Tue, Jun 21, 2016 at 04:15:35PM -0700, Dmitry Torokhov wrote:
-> The touchpad in HP Pavilion 14-ab057ca reports it's version as 12 and
-> according to Elan both 11 and 12 are valid IC types and should be
-> identified as hw_version 4.
+On Tue, May 24, 2016 at 03:01:45PM +1000, Peter Hutterer wrote:
+> On Mon, May 23, 2016 at 08:03:40PM -0700, Ping Cheng wrote:
+> > Somehow the patch that added two-finger touch support forgot to update
+> > W8001_MAX_LENGTH from 11 to 13.
+> > 
+> > Signed-off-by: Ping Cheng <pingc@wacom.com>
 > 
-> Reported-by: Patrick Lessard <Patrick.Lessard@cogeco.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> whoops, I think that was me.
+> 
+> Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
 
-Patrick, could you please give this patch a quick spin so I could queue
-it for 4.7 and stable?
+Applied, thank you.
 
-Thanks!
-
-> ---
->  drivers/input/mouse/elantech.c | 8 +-------
->  1 file changed, 1 insertion(+), 7 deletions(-)
 > 
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index e0fbd42..615d23e 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -1568,13 +1568,7 @@ static int elantech_set_properties(struct elantech_data *etd)
->  		case 5:
->  			etd->hw_version = 3;
->  			break;
-> -		case 6:
-> -		case 7:
-> -		case 8:
-> -		case 9:
-> -		case 10:
-> -		case 13:
-> -		case 14:
-> +		case 6 ... 14:
->  			etd->hw_version = 4;
->  			break;
->  		default:
-> -- 
-> 2.8.0.rc3.226.g39d4020
+> Cheers,
+>    Peter
 > 
-> 
-> -- 
-> Dmitry
+> > ---
+> >  drivers/input/touchscreen/wacom_w8001.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
+> > index bab3c6a..b1b4127 100644
+> > --- a/drivers/input/touchscreen/wacom_w8001.c
+> > +++ b/drivers/input/touchscreen/wacom_w8001.c
+> > @@ -27,7 +27,7 @@ MODULE_AUTHOR("Jaya Kumar <jayakumar.lkml@gmail.com>");
+> >  MODULE_DESCRIPTION(DRIVER_DESC);
+> >  MODULE_LICENSE("GPL");
+> >  
+> > -#define W8001_MAX_LENGTH	11
+> > +#define W8001_MAX_LENGTH	13
+> >  #define W8001_LEAD_MASK		0x80
+> >  #define W8001_LEAD_BYTE		0x80
+> >  #define W8001_TAB_MASK		0x40
+> > -- 
+> > 1.9.1
+> > 
 
 -- 
 Dmitry

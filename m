@@ -1,34 +1,51 @@
-From: Colin King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
-Subject: [PATCH] input: tegra-kbc: fix spelling mistake: "porperly" -> "properly"
-Date: Thu, 23 Jun 2016 10:58:27 +0100
-Message-ID: <1466675907-3366-1-git-send-email-colin.king@canonical.com>
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Scott Bauer <sbauer@plzdonthack.me>
+Subject: [PATCH] Validate num_values for HIDIOCGUSAGES, HIDIOCSUSAGES commands.
+Date: Thu, 23 Jun 2016 08:59:47 -0600
+Message-ID: <1466693987-15363-1-git-send-email-sbauer@plzdonthack.me>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bout01.mta.xmission.com ([166.70.11.15]:39143 "EHLO
+	bout01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751682AbcFWPXi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jun 2016 11:23:38 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jikos@kernel.org
+Cc: benjamin.tissoires@redhat.com, wmealing@redhat.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, Scott Bauer <sbauer@plzdonthack.me>
 
-From: Colin Ian King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+This patch validates the num_values parameter from userland during
+the HIDIOCGUSAGES and HIDIOCSUSAGES commands. Previously, if the
+report id was set to HID_REPORT_ID_UNKNOWN, we would fail to
+validate the num_values parameter leading to a heap overflow.
 
-trivial fix to spelling mistake in dev_err message
-
-Signed-off-by: Colin Ian King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+Signed-off-by: Scott Bauer <sbauer@plzdonthack.me>
 ---
- drivers/input/keyboard/tegra-kbc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/usbhid/hiddev.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index acc5394..7d61439 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -552,7 +552,7 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index 2f1ddca..700145b 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -516,13 +516,13 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd,
+ 					goto inval;
+ 			} else if (uref->usage_index >= field->report_count)
+ 				goto inval;
+-
+-			else if ((cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) &&
+-				 (uref_multi->num_values > HID_MAX_MULTI_USAGES ||
+-				  uref->usage_index + uref_multi->num_values > field->report_count))
+-				goto inval;
+ 		}
  
- 	if (!num_rows || !num_cols || ((num_rows + num_cols) > KBC_MAX_GPIO)) {
- 		dev_err(kbc->dev,
--			"keypad rows/columns not porperly specified\n");
-+			"keypad rows/columns not properly specified\n");
- 		return -EINVAL;
- 	}
- 
++		if ((cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) &&
++		    (uref_multi->num_values > HID_MAX_MULTI_USAGES ||
++		     uref->usage_index + uref_multi->num_values > field->report_count))
++			goto inval;
++
+ 		switch (cmd) {
+ 		case HIDIOCGUSAGE:
+ 			uref->value = field->value[uref->usage_index];
 -- 
-2.8.1
+1.9.1
+

@@ -1,40 +1,78 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH] Improve Alps HID Touchpad code
-Date: Wed, 22 Jun 2016 17:08:22 -0700
-Message-ID: <20160623000822.GD16965@dtor-ws>
-References: <1466504912-15297-1-git-send-email-masaki.ota@jp.alps.com>
- <20160621223503.GA34772@dtor-ws>
- <alpine.LNX.2.00.1606220036490.6874@cbobk.fhfr.pm>
- <OSXPR01MB04087995AF21B077B26DA6E6C72C0@OSXPR01MB0408.jpnprd01.prod.outlook.com>
+Date: Wed, 22 Jun 2016 17:11:01 -0700
+Message-ID: <20160623001101.GE16965@dtor-ws>
+References: <1466568668-22272-1-git-send-email-masaki.ota@jp.alps.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:35738 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751151AbcFWAI0 (ORCPT
+Received: from mail-pf0-f181.google.com ([209.85.192.181]:34014 "EHLO
+	mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750809AbcFWALE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jun 2016 20:08:26 -0400
-Received: by mail-pa0-f45.google.com with SMTP id hl6so21323113pac.2
-        for <linux-input@vger.kernel.org>; Wed, 22 Jun 2016 17:08:25 -0700 (PDT)
+	Wed, 22 Jun 2016 20:11:04 -0400
+Received: by mail-pf0-f181.google.com with SMTP id h14so22413836pfe.1
+        for <linux-input@vger.kernel.org>; Wed, 22 Jun 2016 17:11:04 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <OSXPR01MB04087995AF21B077B26DA6E6C72C0@OSXPR01MB0408.jpnprd01.prod.outlook.com>
+In-Reply-To: <1466568668-22272-1-git-send-email-masaki.ota@jp.alps.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <masaki.ota@jp.alps.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Masaki Ota <012nexus@gmail.com>, "benjamin.tissorires@redhat.com" <benjamin.tissorires@redhat.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Naoki Saito <naoki.saito@jp.alps.com>
+To: Masaki Ota <012nexus@gmail.com>
+Cc: jikos@kernel.org, benjamin.tissorires@redhat.com, peter.hutterer@who-t.net, hdegoede@redhat.com, linux-input@vger.kernel.org, masaki.ota@jp.alps.com, naoki.saito@jp.alps.com
 
-Hi Masaki,
+On Wed, Jun 22, 2016 at 01:11:08PM +0900, Masaki Ota wrote:
+>  
+> -		input_event(hdata->input, EV_KEY, BTN_LEFT, left);
+> -		input_event(hdata->input, EV_KEY, BTN_RIGHT, right);
+> -		input_event(hdata->input, EV_KEY, BTN_MIDDLE, middle);
+> +		input_report_key(hdata->input, BTN_LEFT,
+> +			data[1] & 0x1);
+> +		input_report_key(hdata->input, BTN_RIGHT,
+> +			(data[1] & 0x2) >> 1);
+> +		input_report_key(hdata->input, BTN_MIDDLE,
+> +			(data[1] & 0x4) >> 2);
 
-On Wed, Jun 22, 2016 at 04:42:33AM +0000, Masaki Ota wrote:
-> Hi,Jiri,
-> 
-> Sorry, I understood.
-> Actually I don't add line-wrapping, but how do we solve it.
+There is no really need to do shifts as input_report_key() converts
+value to 0/1 for you.
 
-I recommend setting up and using "git send-email". Also please do not
-top post.
+> +
+> +		input_sync(hdata->input);
+>  
+>  		return 1;
+>  
+>  	case U1_SP_ABSOLUTE_REPORT_ID:
+> -		sp_x = (data[2] | (data[3] << 8));
+> -		sp_y = (data[4] | (data[5] << 8));
+> -		sp_z = (data[6] | data[7]) & 0x7FFF;
+> -		left = data[1] & 0x1;
+> -		right = (data[1] & 0x2) >> 1;
+> -		middle = (data[1] & 0x4) >> 2;
+> +		sp_x = get_unaligned_le16(data+2);
+> +		sp_y = get_unaligned_le16(data+4);
+>  
+>  		sp_x = sp_x / 8;
+>  		sp_y = sp_y / 8;
+>  
+> -		input_event(priv->input2, EV_REL, REL_X, sp_x);
+> -		input_event(priv->input2, EV_REL, REL_Y, sp_y);
+> +		input_report_rel(hdata->input2, REL_X, sp_x);
+> +		input_report_rel(hdata->input2, REL_Y, sp_y);
+>  
+> -		input_event(priv->input2, EV_KEY, BTN_LEFT, left);
+> -		input_event(priv->input2, EV_KEY, BTN_RIGHT, right);
+> -		input_event(priv->input2, EV_KEY, BTN_MIDDLE, middle);
+> +		input_report_key(hdata->input2, BTN_LEFT,
+> +			data[1] & 0x1);
+> +		input_report_key(hdata->input2, BTN_RIGHT,
+> +			(data[1] & 0x2) >> 1);
+> +		input_report_key(hdata->input2, BTN_MIDDLE,
+> +			(data[1] & 0x4) >> 2);
 
-Thanks.
+Same here. Maybe Jiri will fix it up by hand while appplying?
+
+Otherwise:
+
+Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
 -- 
 Dmitry

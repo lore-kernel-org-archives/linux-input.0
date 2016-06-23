@@ -1,60 +1,39 @@
-From: Martin Kepplinger <martink@posteo.de>
-Subject: Re: [PATCH v9] input: tablet: add Pegasus Notetaker tablet driver
-Date: Thu, 23 Jun 2016 17:50:04 +0200
-Message-ID: <5e4cc0e9-7c80-8ecc-6d3e-003f7def7e7c@posteo.de>
-References: <1465903215-2351-1-git-send-email-martink@posteo.de>
- <1465995712-20151-1-git-send-email-martink@posteo.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: tegra-kbc: fix spelling mistake: "porperly" ->
+ "properly"
+Date: Thu, 23 Jun 2016 09:56:19 -0700
+Message-ID: <20160623165619.GA32561@dtor-ws>
+References: <1466675907-3366-1-git-send-email-colin.king@canonical.com>
+ <20160623154804.GB30196@ulmo.ba.sec>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout02.posteo.de ([185.67.36.66]:39859 "EHLO mout02.posteo.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751027AbcFWPuR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jun 2016 11:50:17 -0400
-Received: from submission (posteo.de [89.146.220.130])
-	by mout02.posteo.de (Postfix) with ESMTPS id 1C87A20B42
-	for <linux-input@vger.kernel.org>; Thu, 23 Jun 2016 17:50:08 +0200 (CEST)
-In-Reply-To: <1465995712-20151-1-git-send-email-martink@posteo.de>
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:34317 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750874AbcFWQ4W (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jun 2016 12:56:22 -0400
+Content-Disposition: inline
+In-Reply-To: <20160623154804.GB30196@ulmo.ba.sec>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, kernel-testers@vger.kernel.org, linux-usb@vger.kernel.org
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Colin King <colin.king@canonical.com>, Rakesh Iyer <riyer@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Am 2016-06-15 um 15:01 schrieb Martin Kepplinger:
-> This adds a driver for the Pegasus Notetaker Pen. When connected,
-> this uses the Pen as an input tablet.
+On Thu, Jun 23, 2016 at 05:48:04PM +0200, Thierry Reding wrote:
+> On Thu, Jun 23, 2016 at 10:58:27AM +0100, Colin King wrote:
+> > From: Colin Ian King <colin.king@canonical.com>
+> > 
+> > trivial fix to spelling mistake in dev_err message
+> > 
+> > Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> > ---
+> >  drivers/input/keyboard/tegra-kbc.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> This device was sold in various different brandings, for example
->  "Pegasus Mobile Notetaker M210",
->  "Genie e-note The Notetaker",
->  "Staedtler Digital ballpoint pen 990 01",
->  "IRISnotes Express" or
->  "NEWLink Digital Note Taker".
-> 
-> Here's an example, so that you know what we are talking about:
-> http://www.genie-online.de/genie-e-note-2/
-> 
-> https://pegatech.blogspot.com/ seems to be a remaining official resource.
-> 
-> This device can also transfer saved (offline recorded handwritten) data and
-> there are userspace programs that do this, see https://launchpad.net/m210
-> (Well, alternatively there are really fast scanners out there :)
-> 
-> It's *really* fun to use as an input tablet though! So let's support this
-> for everybody.
-> 
-> Signed-off-by: Martin Kepplinger <martink@posteo.de>
-> ---
-> Hi Dmitry. I append this just in case you want to replace the driver you
-> took.
-> 
+> Acked-by: Thierry Reding <treding@nvidia.com>
 
-Hi Dmitry,
+Applied, thank you.
 
-This finishes up the driver for now. Any objections or advice from your
-side?
-
-thanks
-                          martin
-
+-- 
+Dmitry

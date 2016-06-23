@@ -1,78 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Improve Alps HID Touchpad code
-Date: Wed, 22 Jun 2016 17:11:01 -0700
-Message-ID: <20160623001101.GE16965@dtor-ws>
-References: <1466568668-22272-1-git-send-email-masaki.ota@jp.alps.com>
+From: Stephen J <stephenjust@gmail.com>
+Subject: Re: [PATCH 2/2] HID: multitouch: enable the Surface 3 Type Cover to
+ report multitouch data
+Date: Wed, 22 Jun 2016 19:12:49 -0600
+Message-ID: <CAOvWGzjqqctSfZtg5UdfKk6aY3RXjEKi1Yd0rQYu6rJO2EXH=w@mail.gmail.com>
+References: <1463062363-12405-1-git-send-email-benjamin.tissoires@redhat.com> <1463062363-12405-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f181.google.com ([209.85.192.181]:34014 "EHLO
-	mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750809AbcFWALE (ORCPT
+Received: from mail-io0-f175.google.com ([209.85.223.175]:35664 "EHLO
+	mail-io0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750809AbcFWBNK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jun 2016 20:11:04 -0400
-Received: by mail-pf0-f181.google.com with SMTP id h14so22413836pfe.1
-        for <linux-input@vger.kernel.org>; Wed, 22 Jun 2016 17:11:04 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1466568668-22272-1-git-send-email-masaki.ota@jp.alps.com>
+	Wed, 22 Jun 2016 21:13:10 -0400
+In-Reply-To: <1463062363-12405-2-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <012nexus@gmail.com>
-Cc: jikos@kernel.org, benjamin.tissorires@redhat.com, peter.hutterer@who-t.net, hdegoede@redhat.com, linux-input@vger.kernel.org, masaki.ota@jp.alps.com, naoki.saito@jp.alps.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2016 at 01:11:08PM +0900, Masaki Ota wrote:
->  
-> -		input_event(hdata->input, EV_KEY, BTN_LEFT, left);
-> -		input_event(hdata->input, EV_KEY, BTN_RIGHT, right);
-> -		input_event(hdata->input, EV_KEY, BTN_MIDDLE, middle);
-> +		input_report_key(hdata->input, BTN_LEFT,
-> +			data[1] & 0x1);
-> +		input_report_key(hdata->input, BTN_RIGHT,
-> +			(data[1] & 0x2) >> 1);
-> +		input_report_key(hdata->input, BTN_MIDDLE,
-> +			(data[1] & 0x4) >> 2);
+On Thu, May 12, 2016 at 8:12 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> There is no reasons to filter out keyboard and consumer control collections
+> in hid-multitouch.
+> With the previous hid-input fix, there is now a full support of the Type
+> Cover and we can remove all specific bits from hid-core and hid-microsoft.
+>
+> hid-multitouch will automatically set HID_QUIRK_NO_INIT_REPORTS so we can
+> also remove it from the list of ushbid quirks.
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-There is no really need to do shifts as input_report_key() converts
-value to 0/1 for you.
+I've been running with this series for almost a month now on Surface
+3, and have not seen any issues at all in that time. Hopefully if this
+series on its own doesn't introduce any regressions on other devices,
+it will land in time for 4.8.
 
-> +
-> +		input_sync(hdata->input);
->  
->  		return 1;
->  
->  	case U1_SP_ABSOLUTE_REPORT_ID:
-> -		sp_x = (data[2] | (data[3] << 8));
-> -		sp_y = (data[4] | (data[5] << 8));
-> -		sp_z = (data[6] | data[7]) & 0x7FFF;
-> -		left = data[1] & 0x1;
-> -		right = (data[1] & 0x2) >> 1;
-> -		middle = (data[1] & 0x4) >> 2;
-> +		sp_x = get_unaligned_le16(data+2);
-> +		sp_y = get_unaligned_le16(data+4);
->  
->  		sp_x = sp_x / 8;
->  		sp_y = sp_y / 8;
->  
-> -		input_event(priv->input2, EV_REL, REL_X, sp_x);
-> -		input_event(priv->input2, EV_REL, REL_Y, sp_y);
-> +		input_report_rel(hdata->input2, REL_X, sp_x);
-> +		input_report_rel(hdata->input2, REL_Y, sp_y);
->  
-> -		input_event(priv->input2, EV_KEY, BTN_LEFT, left);
-> -		input_event(priv->input2, EV_KEY, BTN_RIGHT, right);
-> -		input_event(priv->input2, EV_KEY, BTN_MIDDLE, middle);
-> +		input_report_key(hdata->input2, BTN_LEFT,
-> +			data[1] & 0x1);
-> +		input_report_key(hdata->input2, BTN_RIGHT,
-> +			(data[1] & 0x2) >> 1);
-> +		input_report_key(hdata->input2, BTN_MIDDLE,
-> +			(data[1] & 0x4) >> 2);
+Tested-by: Stephen Just <stephenjust@gmail.com>
 
-Same here. Maybe Jiri will fix it up by hand while appplying?
-
-Otherwise:
-
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
--- 
-Dmitry
+Regards,
+Stephen

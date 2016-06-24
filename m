@@ -1,34 +1,39 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] Validate num_values for HIDIOCGUSAGES, HIDIOCSUSAGES
- commands.
-Date: Fri, 24 Jun 2016 10:22:29 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1606241021490.6874@cbobk.fhfr.pm>
-References: <1466693987-15363-1-git-send-email-sbauer@plzdonthack.me>
+Subject: [PATCH] HID: hiddev: use IS_ENABLED() for USB_HIDDEV
+Date: Fri, 24 Jun 2016 10:28:50 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1606241027520.6874@cbobk.fhfr.pm>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:57563 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751142AbcFXIWd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Jun 2016 04:22:33 -0400
-In-Reply-To: <1466693987-15363-1-git-send-email-sbauer@plzdonthack.me>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Scott Bauer <sbauer@plzdonthack.me>
-Cc: benjamin.tissoires@redhat.com, wmealing@redhat.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org
 
-On Thu, 23 Jun 2016, Scott Bauer wrote:
+From: Jiri Kosina <jkosina@suse.cz>
 
-> This patch validates the num_values parameter from userland during
-> the HIDIOCGUSAGES and HIDIOCSUSAGES commands. Previously, if the
-> report id was set to HID_REPORT_ID_UNKNOWN, we would fail to
-> validate the num_values parameter leading to a heap overflow.
+Use IS_ENABLED() for checking USB_HIDDEV to make sure compilation works 
+for all possible config combinations.
 
-Thanks for the fix. I've added Cc: stable, applied it to 
-for-4.7/upstream-fixes branch, and will be including it in a pull request 
-to Linus shortly.
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ include/linux/hiddev.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/linux/hiddev.h b/include/linux/hiddev.h
+index a5dd814..b6f48d6 100644
+--- a/include/linux/hiddev.h
++++ b/include/linux/hiddev.h
+@@ -37,7 +37,7 @@ struct hid_usage;
+ struct hid_field;
+ struct hid_report;
+ 
+-#ifdef CONFIG_USB_HIDDEV
++#if IS_ENABLED(CONFIG_USB_HIDDEV)
+ int hiddev_connect(struct hid_device *hid, unsigned int force);
+ void hiddev_disconnect(struct hid_device *);
+ void hiddev_hid_event(struct hid_device *hid, struct hid_field *field,
 
 -- 
 Jiri Kosina
 SUSE Labs
-

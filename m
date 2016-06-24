@@ -1,220 +1,64 @@
-From: Andrea <andrea.deangelis93@gmail.com>
-Subject: Re: keyboard problem on linux
-Date: Fri, 24 Jun 2016 15:32:41 +0200
-Message-ID: <bf6cb90f-bad1-0527-342b-67941e4b865c@gmail.com>
-References: <569E3B62.6050407@gmail.com> <20160120001340.GC31589@dtor-ws>
- <569F5389.8040800@gmail.com> <56A92E09.9020009@gmail.com>
- <56CB1C44.8000004@gmail.com> <56CC5480.6080305@gmail.com>
- <56D55119.4050009@gmail.com> <56D6ECBD.3020809@gmail.com>
- <56EFC064.8070903@gmail.com> <570E30F7.8040700@gmail.com>
- <5715DD26.5000400@gmail.com> <8cb9a835-7f0e-78ce-63cb-e300e617d2df@gmail.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH v5 1/9] [media] v4l2-core: Add support for touch devices
+Date: Fri, 24 Jun 2016 14:48:14 +0100
+Message-ID: <1c9fda7b-441b-0110-bd10-b1b654e016de@itdev.co.uk>
+References: <1466633313-15339-1-git-send-email-nick.dyer@itdev.co.uk>
+ <1466633313-15339-2-git-send-email-nick.dyer@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f44.google.com ([74.125.82.44]:37381 "EHLO
-	mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751317AbcFXNcr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Jun 2016 09:32:47 -0400
-Received: by mail-wm0-f44.google.com with SMTP id a66so25787277wme.0
-        for <linux-input@vger.kernel.org>; Fri, 24 Jun 2016 06:32:46 -0700 (PDT)
-In-Reply-To: <8cb9a835-7f0e-78ce-63cb-e300e617d2df@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1466633313-15339-2-git-send-email-nick.dyer@itdev.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-
-after some months from my bug report, the problem isn't fixed... i'm 
-using linux 4.7rc4, but the problem still present
 
 
-Il 20/04/2016 09:05, Andrea ha scritto:
-> i've tried to add this parameter to kernel
->
-> i8042.direct
->
-> and in this way the problem disappears completely, but the caps lock LED
-> won't turn on.
->
-> so i think that there is a problem with the keyboard controller
->
->
->
->
-> Il 19/04/2016 09:24, Andrea ha scritto:
->> when i'm into grub EDIT Selection (pressing E on grub interface) and
->> into GRUB CommandLine, i haven't these problems.
->>
->> furthermore, i've tried to add to /etd/default/grub
->>
->> i8042.nomux=1 i8042.reset i8042.direct
->>
->> and the problem is almost solved, now when i start PC i haven't
->> problems, the problems occurs only 1 time when i press block num key or
->> block maiusc key, but then the problem disappear alone, without pressing
->> maiusc key for 2 seconds.
->>
->> i hope that these information can be useful, and i hope that you will
->> answer me.
->>
->>
->> Il 13/04/2016 13:43, Andrea ha scritto:
->>> i've installed linux kernel 4.6 RC3, but the problem persist
->>> please give me some informations
->>>
->>>
->>> Il 21/03/2016 10:35, Andrea ha scritto:
->>>> the problem still present also on kernel 4.5
->>>> and I noticed that after momentarily solved the issue pressing the LEFT
->>>> SHIFT key, if i press CAPS LOCK or BLOCK NUM keys, the problem came
->>>> back
->>>> immediately.
->>>> on launchpad, there are other user with HP Pavilion 15, with the same
->>>> problem
->>>>
->>>> I hope you can help me to fix the issue.
->>>>
->>>> tell me if i can do something to help
->>>>
->>>> thanks for help
->>>>
->>>>
->>>>
->>>> Il 02/03/2016 14:38, Andrea ha scritto:
->>>>> on launchpad an user with the same notebook and the same problems,
->>>>> posted some results of keyboard events
->>>>>
->>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1532746/comments/11
->>>>>
->>>>>
->>>>>
->>>>> i hope this can be usefult to fix the problem
->>>>>
->>>>>
->>>>>
->>>>>
->>>>> Il 01/03/2016 09:21, Andrea ha scritto:
->>>>>> i'm not the only with this problem.
->>>>>> on HP forum, another user with the same notebook, has the same
->>>>>> problem.
->>>>>>
->>>>>> http://h30434.www3.hp.com/t5/Notebook-Operating-System-and-Recovery/HP-Pavilion-15-ab062nl-SHIFT-CTRL-ALT-keys-problems-on-linux/m-p/5522283/highlight/false#M429851
->>>>>>
->>>>>>
->>>>>>
->>>>>>
->>>>>>
->>>>>>
->>>>>>
->>>>>>
->>>>>> Il 23/02/2016 13:45, Andrea ha scritto:
->>>>>>> seems that when i play game (on steam), i haven't any problem when
->>>>>>> i'm
->>>>>>> playing, but i'm not sure
->>>>>>>
->>>>>>>
->>>>>>>
->>>>>>> Il 22/02/2016 15:33, Andrea ha scritto:
->>>>>>>> the problem occurs also when i logout to login manager.
->>>>>>>>
->>>>>>>> for example if in this moment i haven't the problem (because i've
->>>>>>>> pressed for some seconds MAIUSC key) and i logout, the problem
->>>>>>>> occurs
->>>>>>>> again infact sometimes, when i logout, and then i try to login
->>>>>>>> again,
->>>>>>>> the login manager doesn't accpet the password because the passowrd
->>>>>>>> contains uppercase letters, but sometimes the OS don't take maiusc
->>>>>>>> key
->>>>>>>> (I hope I explained well)
->>>>>>>>
->>>>>>>> i hope that this information can be useful.
->>>>>>>> thanks
->>>>>>>>
->>>>>>>> Il 27/01/2016 21:52, Andrea ha scritto:
->>>>>>>>> i've installed the new kernel 4.5 RC1, but i've the same problem.
->>>>>>>>> i've also tried start ubuntu with upstart, same problem.
->>>>>>>>> i don't know why i've this strange problem.
->>>>>>>>>
->>>>>>>>> i've also tried GhostBSD on live (i don't know if this information
->>>>>>>>> can
->>>>>>>>> be useful), the problems occurs also on BSD but seem that is less
->>>>>>>>> severe
->>>>>>>>> than on Linux, because on BSD seems that the problem occurs only
->>>>>>>>> one
->>>>>>>>> time every boot, then disappears without do nothing (don't need to
->>>>>>>>> press
->>>>>>>>> MAIUSC key for some seconds).
->>>>>>>>>
->>>>>>>>> I hope that this bug can be solved.
->>>>>>>>>
->>>>>>>>>
->>>>>>>>> Il 20/01/2016 10:29, Andrea ha scritto:
->>>>>>>>>> Hi, Dmitry
->>>>>>>>>> i've the same problem on console without X.
->>>>>>>>>> this is an output of evtest on console:
->>>>>>>>>> http://pastebin.com/4aWYYhwN
->>>>>>>>>> (as you can see, after a while i'm pressing Left_Alt (from line
->>>>>>>>>> 434 of
->>>>>>>>>> pastebin) or Left_Ctrl (from line 605 of pastebin) or Left_Shift
->>>>>>>>>> (from
->>>>>>>>>> line 786 of pastebin), these keys are released and then pressed
->>>>>>>>>> again.
->>>>>>>>>> but when i press only left_shift for some seconds, the issue
->>>>>>>>>> don't
->>>>>>>>>> occurs.)
->>>>>>>>>>
->>>>>>>>>> i haven't found nothing on BIOS settings, the only options
->>>>>>>>>> relative to
->>>>>>>>>> keyboard is:
->>>>>>>>>>
->>>>>>>>>> Action Keys Mode:
->>>>>>>>>> [Enabled]: Requires pressing only F1 throug F12 to activate
->>>>>>>>>> action
->>>>>>>>>> keys
->>>>>>>>>> [Disabled]: Requires pressing FN Key + F1 throug F12 to activate
->>>>>>>>>> action
->>>>>>>>>> keys
->>>>>>>>>>
->>>>>>>>>> but the problem occurs in both modes
->>>>>>>>>>
->>>>>>>>>>
->>>>>>>>>> Il 20/01/2016 01:13, Dmitry Torokhov ha scritto:
->>>>>>>>>>> Hi Andera,
->>>>>>>>>>>
->>>>>>>>>>> On Tue, Jan 19, 2016 at 02:34:26PM +0100, Andrea wrote:
->>>>>>>>>>>> [1.] i've a problem with keyboard of my notebook HP Pavilion 15
->>>>>>>>>>>> ab062nl; CTRL SHIFT and ALT buttons not works as they
->>>>>>>>>>>> should. in
->>>>>>>>>>>> particular, it is as if these keys are pressed and released
->>>>>>>>>>>> alone.
->>>>>>>>>>>> isn't an hardware problem, because on windows 10 and windows
->>>>>>>>>>>> 8.1 i
->>>>>>>>>>>> haven't these problems, is only a linux problem (all distro).
->>>>>>>>>>>>
->>>>>>>>>>>> [2.] the bug is always active, every time i start a linux
->>>>>>>>>>>> Distro
->>>>>>>>>>>> (also from live, and also without DE/WM) i've this problem with
->>>>>>>>>>>> keyboard, the only way to fix temporarily the bug, is pressing
->>>>>>>>>>>> the
->>>>>>>>>>>> only Left SHIFT key for some seconds, then all problems
->>>>>>>>>>>> disappear
->>>>>>>>>>>> indefinitely, and in any case, if i shutdown or if i reboot the
->>>>>>>>>>>> PC,
->>>>>>>>>>>> the problem recurs.
->>>>>>>>>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1532746
->>>>>>>>>>>
->>>>>>>>>>> Hmm, this is weird. Do you observe the same issue in text
->>>>>>>>>>> console
->>>>>>>>>>> (not
->>>>>>>>>>> in X)? It would be nice to see events as emitted by the kernel -
->>>>>>>>>>> you
->>>>>>>>>>> can
->>>>>>>>>>> use evtest utility for that.
->>>>>>>>>>>
->>>>>>>>>>> Is sounds like some accessibility feature, is there anything in
->>>>>>>>>>> BIOS to
->>>>>>>>>>> that effect?
->>>>>>>>>>>
->>>>>>>>>>> Thanks.
->>>>>>>>>>>
+
+On 22/06/2016 23:08, Nick Dyer wrote:
+> Some touch controllers send out touch data in a similar way to a
+> greyscale frame grabber.
+> 
+> Use a new device prefix v4l-touch for these devices, to stop generic
+> capture software from treating them as webcams.
+> 
+> Add formats:
+> - V4L2_TCH_FMT_DELTA_TD16 for signed 16-bit touch deltas
+> - V4L2_TCH_FMT_DELTA_TD08 for signed 16-bit touch deltas
+> - V4L2_TCH_FMT_TU16 for unsigned 16-bit touch data
+> - V4L2_TCH_FMT_TU08 for unsigned 8-bit touch data
+> 
+> This support will be used by:
+> * Atmel maXTouch (atmel_mxt_ts)
+> * Synaptics RMI4.
+> * sur40
+> 
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+> ---
+[...]
+> diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
+> index 8f95191..7e19782 100644
+> --- a/include/uapi/linux/videodev2.h
+> +++ b/include/uapi/linux/videodev2.h
+> @@ -143,6 +143,7 @@ enum v4l2_buf_type {
+>  	V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE  = 10,
+>  	V4L2_BUF_TYPE_SDR_CAPTURE          = 11,
+>  	V4L2_BUF_TYPE_SDR_OUTPUT           = 12,
+> +	V4L2_BUF_TYPE_TOUCH_CAPTURE        = 13,
+>  	/* Deprecated, do not use */
+>  	V4L2_BUF_TYPE_PRIVATE              = 0x80,
+>  };
+> @@ -440,6 +441,8 @@ struct v4l2_capability {
+>  #define V4L2_CAP_ASYNCIO                0x02000000  /* async I/O */
+>  #define V4L2_CAP_STREAMING              0x04000000  /* streaming I/O ioctls */
+>  
+> +#define V4L2_CAP_TOUCH			0x00100000  /* Is a touch device */
+
+Apologies, this should have been
+#define V4L2_CAP_TOUCH                 0x10000000
+
+You will find my changes to v4l2-compliance to support these changes here:
+https://github.com/ndyer/v4l-utils
+
+I've tested the atmel_mxt_ts version of this with v4l2-compliance on Pixel 2.

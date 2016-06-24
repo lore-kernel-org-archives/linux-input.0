@@ -1,15 +1,12 @@
 From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v2 5/5] regulator: qcom_rpm-regulator: Add support
- for pm8018 rpm regulator
-Date: Fri, 24 Jun 2016 11:18:07 +0200
-Message-ID: <1466759887-25394-6-git-send-email-narmstrong@baylibre.com>
-References: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
+Subject: [PATCH v2 0/5] Add support for the Qualcomm PM8018 PMIC
+Date: Fri, 24 Jun 2016 11:18:02 +0200
+Message-ID: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRBWXVWO5QKGQEUVKYWGY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDAYD2P3QYGRBVPVWO5QKGQE76O54EA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1466759887-25394-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/rtc-linux
@@ -20,186 +17,40 @@ To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.gross-QSEj5FYQ
 Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-In order to support eh Qualcomm MDM9615 SoC, add support for the
-PM8018 RPM regulator in the qcom_rpm-regulator driver.
+In order to support the Qualcomm MDM9615 in the Sierra Wireless WP8548
+Modules, add the PM8018 PMIC support into MFD, Regulator, RTC and input.
 
-Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
----
- Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  14 +++
+This patchset is part of a global SoC + Module + Board support for the
+Sierra Wireless mangOH Board support with the WP8548 module.
+
+Patch "mfd: qcom-rpm: Add support for pm8018 RPM Regulator" depends on :
+ - "fix offset error for msm8660" at http://lkml.kernel.org/r/1465897725-16213-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+ - "parametrize also ack selector size" at http://lkml.kernel.org/r/1466576837-21995-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+
+Changes since v1 at http://lkml.kernel.org/r/1466158929-19524-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org :
+ - Rebase mfd/qcom_rpm.c on top of Linus "fix offset error for msm8660" and "parametrize also ack selector size" patches
+ - Rename QCOM_RPM_NCP in to QCOM_RPM_PM8018_NCP
+ - Rebased qcom-rpm.h PM8018 defines numbers without a gap
+ - Dropped regulator corner
+
+Neil Armstrong (5):
+  mfd: pm8921: Add support for pm8018
+  input: pmic8xxx-pwrkey: Add support for pm8018 pwrkey
+  rtc: rtc-pm8xxx: Add support for pm8018 rtc
+  mfd: qcom-rpm: Add support for pm8018 RPM Regulator
+  regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator
+
+ .../bindings/input/qcom,pm8xxx-pwrkey.txt          |   1 +
+ .../devicetree/bindings/mfd/qcom-pm8xxx.txt        |   1 +
+ Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  15 ++++
+ drivers/input/misc/pmic8xxx-pwrkey.c               |   1 +
+ drivers/mfd/pm8921-core.c                          |   1 +
+ drivers/mfd/qcom_rpm.c                             |  51 +++++++++++
  drivers/regulator/qcom_rpm-regulator.c             | 100 +++++++++++++++++++++
- 2 files changed, 114 insertions(+)
+ drivers/rtc/rtc-pm8xxx.c                           |  11 +++
+ include/dt-bindings/mfd/qcom-rpm.h                 |  22 +++++
+ 9 files changed, 203 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-index 72d68d4..485bc59 100644
---- a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-+++ b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-@@ -60,6 +60,7 @@ Regulator nodes are identified by their compatible:
- 		    "qcom,rpm-pm8058-regulators"
- 		    "qcom,rpm-pm8901-regulators"
- 		    "qcom,rpm-pm8921-regulators"
-+		    "qcom,rpm-pm8018-regulators"
- 
- - vdd_l0_l1_lvs-supply:
- - vdd_l2_l11_l12-supply:
-@@ -138,6 +139,15 @@ Regulator nodes are identified by their compatible:
- 	Definition: reference to regulator supplying the input pin, as
- 		    described in the data sheet
- 
-+- vin_lvs1-supply:
-+- vdd_l7-supply:
-+- vdd_l8-supply:
-+- vdd_l9_l10_l11_l12-supply:
-+	Usage: optional (pm8018 only)
-+	Value type: <phandle>
-+	Definition: reference to regulator supplying the input pin, as
-+		    described in the data sheet
-+
- The regulator node houses sub-nodes for each regulator within the device. Each
- sub-node is identified using the node's name, with valid values listed for each
- of the pmics below.
-@@ -157,6 +167,10 @@ pm8921:
- 	l29, lvs1, lvs2, lvs3, lvs4, lvs5, lvs6, lvs7, usb-switch, hdmi-switch,
- 	ncp
- 
-+pm8018:
-+	s1, s2, s3, s4, s5, , l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11,
-+	l12, l14, lvs1
-+
- The content of each sub-node is defined by the standard binding for regulators -
- see regulator.txt - with additional custom properties described below:
- 
-diff --git a/drivers/regulator/qcom_rpm-regulator.c b/drivers/regulator/qcom_rpm-regulator.c
-index e254272..0734a5f 100644
---- a/drivers/regulator/qcom_rpm-regulator.c
-+++ b/drivers/regulator/qcom_rpm-regulator.c
-@@ -70,6 +70,40 @@ struct qcom_rpm_reg {
- 	bool supports_force_mode_bypass;
- };
- 
-+static struct rpm_reg_parts rpm8018_ldo_parts = {
-+	.request_len	= 2,
-+	.uV		= { 0, 0x007FFFFF,  0},
-+	.pd		= { 0, 0x00800000, 23},
-+	.pc		= { 0, 0x0F000000, 24},
-+	.pf		= { 0, 0xF0000000, 28},
-+	.ip		= { 1, 0x000003FF,  0},
-+	.ia		= { 1, 0x000FFC00, 10},
-+	.fm		= { 1, 0x00700000, 20},
-+};
-+
-+static struct rpm_reg_parts rpm8018_smps_parts = {
-+	.request_len	= 2,
-+	.uV		= {  0, 0x007FFFFF,  0},
-+	.pd		= {  0, 0x00800000, 23},
-+	.pc		= {  0, 0x0F000000, 24},
-+	.pf		= {  0, 0xF0000000, 28},
-+	.ip		= {  1, 0x000003FF,  0},
-+	.ia		= {  1, 0x000FFC00, 10},
-+	.fm		= {  1, 0x00700000, 20},
-+	.pm		= {  1, 0x00800000, 23},
-+	.freq		= {  1, 0x1F000000, 24},
-+	.freq_clk_src	= {  1, 0x60000000, 29},
-+};
-+
-+static struct rpm_reg_parts rpm8018_switch_parts = {
-+	.request_len	= 1,
-+	.enable_state	= {  0, 0x00000001,  0},
-+	.pd		= {  0, 0x00000002,  1},
-+	.pc		= {  0, 0x0000003C,  2},
-+	.pf		= {  0, 0x000003C0,  6},
-+	.hpm		= {  0, 0x00000C00, 10},
-+};
-+
- static const struct rpm_reg_parts rpm8660_ldo_parts = {
- 	.request_len    = 2,
- 	.mV             = { 0, 0x00000FFF,  0 },
-@@ -448,6 +482,44 @@ static struct regulator_ops switch_ops = {
- };
- 
- /*
-+ * PM8018 regulators
-+ */
-+static const struct qcom_rpm_reg pm8018_pldo = {
-+	.desc.linear_ranges = pldo_ranges,
-+	.desc.n_linear_ranges = ARRAY_SIZE(pldo_ranges),
-+	.desc.n_voltages = 161,
-+	.desc.ops = &uV_ops,
-+	.parts = &rpm8018_ldo_parts,
-+	.supports_force_mode_auto = false,
-+	.supports_force_mode_bypass = false,
-+};
-+
-+static const struct qcom_rpm_reg pm8018_nldo = {
-+	.desc.linear_ranges = nldo_ranges,
-+	.desc.n_linear_ranges = ARRAY_SIZE(nldo_ranges),
-+	.desc.n_voltages = 64,
-+	.desc.ops = &uV_ops,
-+	.parts = &rpm8018_ldo_parts,
-+	.supports_force_mode_auto = false,
-+	.supports_force_mode_bypass = false,
-+};
-+
-+static const struct qcom_rpm_reg pm8018_smps = {
-+	.desc.linear_ranges = smps_ranges,
-+	.desc.n_linear_ranges = ARRAY_SIZE(smps_ranges),
-+	.desc.n_voltages = 154,
-+	.desc.ops = &uV_ops,
-+	.parts = &rpm8018_smps_parts,
-+	.supports_force_mode_auto = false,
-+	.supports_force_mode_bypass = false,
-+};
-+
-+static const struct qcom_rpm_reg pm8018_switch = {
-+	.desc.ops = &switch_ops,
-+	.parts = &rpm8018_switch_parts,
-+};
-+
-+/*
-  * PM8058 regulators
-  */
- static const struct qcom_rpm_reg pm8058_pldo = {
-@@ -755,6 +827,32 @@ struct rpm_regulator_data {
- 	const char *supply;
- };
- 
-+static const struct rpm_regulator_data rpm_pm8018_regulators[] = {
-+	{ "s1",  QCOM_RPM_PM8018_SMPS1, &pm8018_smps, "vdd_s1" },
-+	{ "s2",  QCOM_RPM_PM8018_SMPS2, &pm8018_smps, "vdd_s2" },
-+	{ "s3",  QCOM_RPM_PM8018_SMPS3, &pm8018_smps, "vdd_s3" },
-+	{ "s4",  QCOM_RPM_PM8018_SMPS4, &pm8018_smps, "vdd_s4" },
-+	{ "s5",  QCOM_RPM_PM8018_SMPS5, &pm8018_smps, "vdd_s5" },
-+
-+	{ "l2",  QCOM_RPM_PM8018_LDO2,  &pm8018_pldo, "vdd_l2" },
-+	{ "l3",  QCOM_RPM_PM8018_LDO3,  &pm8018_pldo, "vdd_l3" },
-+	{ "l4",  QCOM_RPM_PM8018_LDO4,  &pm8018_pldo, "vdd_l4" },
-+	{ "l5",  QCOM_RPM_PM8018_LDO5,  &pm8018_pldo, "vdd_l5" },
-+	{ "l6",  QCOM_RPM_PM8018_LDO6,  &pm8018_pldo, "vdd_l7" },
-+	{ "l7",  QCOM_RPM_PM8018_LDO7,  &pm8018_pldo, "vdd_l7" },
-+	{ "l8",  QCOM_RPM_PM8018_LDO8,  &pm8018_nldo, "vdd_l8" },
-+	{ "l9",  QCOM_RPM_PM8018_LDO9,  &pm8921_nldo1200,
-+						      "vdd_l9_l10_l11_l12" },
-+	{ "l10", QCOM_RPM_PM8018_LDO10, &pm8018_nldo, "vdd_l9_l10_l11_l12" },
-+	{ "l11", QCOM_RPM_PM8018_LDO11, &pm8018_nldo, "vdd_l9_l10_l11_l12" },
-+	{ "l12", QCOM_RPM_PM8018_LDO12, &pm8018_nldo, "vdd_l9_l10_l11_l12" },
-+	{ "l14", QCOM_RPM_PM8018_LDO14, &pm8018_pldo, "vdd_l14" },
-+
-+	{ "lvs1", QCOM_RPM_PM8018_LVS1, &pm8018_switch, "lvs1_in" },
-+
-+	{ }
-+};
-+
- static const struct rpm_regulator_data rpm_pm8058_regulators[] = {
- 	{ "l0",   QCOM_RPM_PM8058_LDO0,   &pm8058_nldo, "vdd_l0_l1_lvs"	},
- 	{ "l1",   QCOM_RPM_PM8058_LDO1,   &pm8058_nldo, "vdd_l0_l1_lvs" },
-@@ -870,6 +968,8 @@ static const struct rpm_regulator_data rpm_pm8921_regulators[] = {
- };
- 
- static const struct of_device_id rpm_of_match[] = {
-+	{ .compatible = "qcom,rpm-pm8018-regulators",
-+		.data = &rpm_pm8018_regulators },
- 	{ .compatible = "qcom,rpm-pm8058-regulators", .data = &rpm_pm8058_regulators },
- 	{ .compatible = "qcom,rpm-pm8901-regulators", .data = &rpm_pm8901_regulators },
- 	{ .compatible = "qcom,rpm-pm8921-regulators", .data = &rpm_pm8921_regulators },
 -- 
 1.9.1
 

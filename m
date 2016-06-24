@@ -1,64 +1,37 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH v5 1/9] [media] v4l2-core: Add support for touch devices
-Date: Fri, 24 Jun 2016 14:48:14 +0100
-Message-ID: <1c9fda7b-441b-0110-bd10-b1b654e016de@itdev.co.uk>
-References: <1466633313-15339-1-git-send-email-nick.dyer@itdev.co.uk>
- <1466633313-15339-2-git-send-email-nick.dyer@itdev.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1466633313-15339-2-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
+From: Anthony Felice <tony.felice-jEh4hwF5bVhBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 0/4] Enable display and touchscreen for Vybrid Tower
+Date: Fri, 24 Jun 2016 15:44:42 -0400
+Message-ID: <1466797486-31558-1-git-send-email-tony.felice@timesys.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, tony.felice-jEh4hwF5bVhBDgjK7y7TUQ@public.gmane.org
+Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, stefan-XLVq0VzYD2Y@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, fabio.estevam-3arQi8VN3Tc@public.gmane.org, geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org, mwelling-EkmVulN54Sk@public.gmane.org, sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, damien.riegel-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org, maitysanchayan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
+This patchset enables the TWR-LCD-RGB display and the CRTouch-based touchscreen
+on the Vybrid Tower platform. Both display and touchscreen have been tested and
+verified working with this patchset on a Rev J Vybrid Tower system.
 
+Anthony Felice (4):
+  ARM: dts: vf610-twr: Enable display controller
+  input: touchscreen: crtouch_ts: Add driver
+  ARM: dts: vf610-twr: Add crtouch node and pinmux
+  ARM: imx_v6_v7_defconfig: enable useful configurations for Vybrid
 
-On 22/06/2016 23:08, Nick Dyer wrote:
-> Some touch controllers send out touch data in a similar way to a
-> greyscale frame grabber.
-> 
-> Use a new device prefix v4l-touch for these devices, to stop generic
-> capture software from treating them as webcams.
-> 
-> Add formats:
-> - V4L2_TCH_FMT_DELTA_TD16 for signed 16-bit touch deltas
-> - V4L2_TCH_FMT_DELTA_TD08 for signed 16-bit touch deltas
-> - V4L2_TCH_FMT_TU16 for unsigned 16-bit touch data
-> - V4L2_TCH_FMT_TU08 for unsigned 8-bit touch data
-> 
-> This support will be used by:
-> * Atmel maXTouch (atmel_mxt_ts)
-> * Synaptics RMI4.
-> * sur40
-> 
-> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-> ---
-[...]
-> diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
-> index 8f95191..7e19782 100644
-> --- a/include/uapi/linux/videodev2.h
-> +++ b/include/uapi/linux/videodev2.h
-> @@ -143,6 +143,7 @@ enum v4l2_buf_type {
->  	V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE  = 10,
->  	V4L2_BUF_TYPE_SDR_CAPTURE          = 11,
->  	V4L2_BUF_TYPE_SDR_OUTPUT           = 12,
-> +	V4L2_BUF_TYPE_TOUCH_CAPTURE        = 13,
->  	/* Deprecated, do not use */
->  	V4L2_BUF_TYPE_PRIVATE              = 0x80,
->  };
-> @@ -440,6 +441,8 @@ struct v4l2_capability {
->  #define V4L2_CAP_ASYNCIO                0x02000000  /* async I/O */
->  #define V4L2_CAP_STREAMING              0x04000000  /* streaming I/O ioctls */
->  
-> +#define V4L2_CAP_TOUCH			0x00100000  /* Is a touch device */
+ .../bindings/input/touchscreen/crtouch_ts.txt      |  14 ++
+ arch/arm/boot/dts/vf610-twr.dts                    |  62 +++++
+ arch/arm/configs/imx_v6_v7_defconfig               |   6 +-
+ drivers/input/touchscreen/Kconfig                  |  10 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/crtouch_ts.c             | 279 +++++++++++++++++++++
+ 6 files changed, 368 insertions(+), 4 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/crtouch_ts.txt
+ create mode 100644 drivers/input/touchscreen/crtouch_ts.c
 
-Apologies, this should have been
-#define V4L2_CAP_TOUCH                 0x10000000
+-- 
+2.7.4
 
-You will find my changes to v4l2-compliance to support these changes here:
-https://github.com/ndyer/v4l-utils
-
-I've tested the atmel_mxt_ts version of this with v4l2-compliance on Pixel 2.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

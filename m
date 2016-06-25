@@ -1,58 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v8 4/4] Input: synaptics-rmi4 - add SMBus support
-Date: Fri, 24 Jun 2016 16:35:05 -0700
-Message-ID: <20160624233505.GC11719@dtor-ws>
-References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
- <1465484030-28838-5-git-send-email-benjamin.tissoires@redhat.com>
- <20160623230635.GS32561@dtor-ws>
- <20160624071931.GP24234@mail.corp.redhat.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH v2 0/8] Input: synaptics-rmi4: Reimplement functionality from hid-rmi
+Date: Fri, 24 Jun 2016 17:17:31 -0700
+Message-ID: <1466813851-15691-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:36794 "EHLO
-	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751209AbcFXXfJ (ORCPT
+Received: from us-mx1.synaptics.com ([192.147.44.131]:60543 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751229AbcFYARr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Jun 2016 19:35:09 -0400
-Content-Disposition: inline
-In-Reply-To: <20160624071931.GP24234@mail.corp.redhat.com>
+	Fri, 24 Jun 2016 20:17:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick.dyer@itdev.co.uk>
 
-On Fri, Jun 24, 2016 at 09:19:32AM +0200, Benjamin Tissoires wrote:
-> On Jun 23 2016 or thereabouts, Dmitry Torokhov wrote:
-> > On Thu, Jun 09, 2016 at 04:53:50PM +0200, Benjamin Tissoires wrote:
-> > > +
-> > > +static struct i2c_driver rmi_smb_driver = {
-> > > +	.driver = {
-> > > +		.owner	= THIS_MODULE,
-> > > +		.name	= "rmi4_smbus",
-> > > +		.pm	= &rmi_smb_pm,
-> > > +		.resume	= rmi_smb_resume,
-> > 
-> > Why rmi_smb_resume is not part of rmi_smb_pm?
-> > 
-> 
-> This is because rmi_smbus device both have a PS/2 interface and a SMBus
-> one. I'll have to check again now that I have a slightly different way
-> of binding smbus devices in my tree, but the issue was:
-> - having resume part of pm means it will get caught by PM directly
-> - the PS/2 node gets also resumed by PM
-> - calling PS/2 commands during resume switches the devices back into
->   PS/2 and stops the SMBus communication.
-> 
-> So it's easier to wait only for the PS/2 PM resume call which will call
-> the SMBus resume function when the device is in a proper state.
-> 
-> I'll send out the updated patch with your comments next week hopefully.
+The majority of this patch is reimplementing some of the functionality
+which was initially implemented in hid-rmi and reimplements it in the
+core. When hid-rmi is converted into a transport for rmi_core the
+functionality of existing touchpads should not change.
 
-Hmm, I think you will have to walk me through resume process. How do we
-tie in PS/2 and I2C on these devices abd have PS/2 code call into this
-driver?
+Several of these patches address the feedback in the message:
+https://lkml.org/lkml/2016/4/12/434
 
-Thanks.
+I decided to go ahead and do a respin of this patch series. It includes
+changes to the device tree parameters and additional feedback from the
+first series. I also split out using the RMI_F11_REL_BYTES define from
+patch 7 into its own patch.
+
+Andrew Duggan (8):
+  Input: synaptics-rmi4: Increment the refcount of the transport dev's
+    of_node
+  Input: synaptics-rmi4: Add parameters for dribble packets and palm
+    detect gesture
+  Input: synaptics-rmi4: Add dribble and palm gesture parameters to
+    device tree
+  Input: synaptics-rmi4: Add support for controlling dribble packets in
+    F12
+  Input: synaptics-rmi4: Remove pointer to rmi_function in f12_data
+  Input: synaptics-rmi4: Remove unneeded variable
+  Input: synaptics-rmi4: Handle incomplete input data
+  Input: synaptics-rmi4: Use the RMI_F11_REL_BYTES define in
+    rmi_f11_rel_pos_report
+
+ .../bindings/input/rmi4/rmi_2d_sensor.txt          |  4 +
+ drivers/input/rmi4/rmi_2d_sensor.c                 | 11 +++
+ drivers/input/rmi4/rmi_2d_sensor.h                 |  2 +
+ drivers/input/rmi4/rmi_bus.c                       |  5 +-
+ drivers/input/rmi4/rmi_f01.c                       |  6 +-
+ drivers/input/rmi4/rmi_f11.c                       | 95 +++++++++++++++------
+ drivers/input/rmi4/rmi_f12.c                       | 98 ++++++++++++++++++++--
+ drivers/input/rmi4/rmi_f30.c                       |  4 +
+ include/linux/rmi.h                                | 21 +++--
+ 9 files changed, 201 insertions(+), 45 deletions(-)
 
 -- 
-Dmitry
+2.5.0
+

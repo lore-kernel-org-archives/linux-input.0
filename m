@@ -1,158 +1,185 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH v3] Input: synaptics-rmi4: Support regulator supplies
-Date: Fri, 24 Jun 2016 17:40:00 -0700
-Message-ID: <576DD2E0.9000002@synaptics.com>
-References: <1465622722-31714-1-git-send-email-bjorn.andersson@linaro.org>
+From: Dennis Chen <barracks510@gmail.com>
+Subject: Re: [PATCH] HID: multitouch: add support for Type Cover Pro 3
+Date: Sat, 25 Jun 2016 00:49:00 -0700
+Message-ID: <1466840940.28419.6.camel@gmail.com>
+References: <1466196443.21223.1.camel@gmail.com>
+ <alpine.LNX.2.00.1606172259110.6874@cbobk.fhfr.pm>
+ <20160617211142.GH24234@mail.corp.redhat.com>
+ <1466275994.2669.11.camel@gmail.com>
+ <20160618194534.GI24234@mail.corp.redhat.com>
+ <1466369282.15726.7.camel@gmail.com>
+ <20160620095934.GN24234@mail.corp.redhat.com>
+ <1466739490.3464.8.camel@gmail.com>
+	 <20160624071419.GO24234@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg="sha-512";
+	protocol="application/x-pkcs7-signature";
+	boundary="=-TA/MEzFSxJLNnsJdpa97"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx1.synaptics.com ([192.147.44.131]:18529 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751424AbcFYAkE (ORCPT
+Received: from mail-oi0-f45.google.com ([209.85.218.45]:35283 "EHLO
+	mail-oi0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751081AbcFYHtN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Jun 2016 20:40:04 -0400
-In-Reply-To: <1465622722-31714-1-git-send-email-bjorn.andersson@linaro.org>
+	Sat, 25 Jun 2016 03:49:13 -0400
+Received: by mail-oi0-f45.google.com with SMTP id r2so143688550oih.2
+        for <linux-input@vger.kernel.org>; Sat, 25 Jun 2016 00:49:12 -0700 (PDT)
+In-Reply-To: <20160624071419.GO24234@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Christopher Heiny <cheiny@synaptics.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Bjorn Andersson <bjorn.andersson@sonymobile.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-On 06/10/2016 10:25 PM, Bjorn Andersson wrote:
-> From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
->
-> Support the two supplies - vdd and vio - to make it possible to control
-> power to the Synaptics chip.
->
-> Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
+--=-TA/MEzFSxJLNnsJdpa97
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-yEBTCd32QZxOr8N+CHnl"
 
-> ---
->   .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |  9 +++++
->   drivers/input/rmi4/rmi_i2c.c                       | 41 ++++++++++++++++++++++
->   2 files changed, 50 insertions(+)
->
-> diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
-> index 95fa715c6046..ec908b91fd90 100644
-> --- a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
-> +++ b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
-> @@ -22,6 +22,15 @@ See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
->   - syna,reset-delay-ms: The number of milliseconds to wait after resetting the
->   			device.
->   
-> +- syna,startup-delay-ms: The number of milliseconds to wait after powering on
-> +			 the device.
-> +
-> +- vdd-supply: VDD power supply.
-> +See ../regulator/regulator.txt
-> +
-> +- vio-supply: VIO power supply
-> +See ../regulator/regulator.txt
-> +
->   Function Parameters:
->   Parameters specific to RMI functions are contained in child nodes of the rmi device
->    node. Documentation for the parameters of each function can be found in:
-> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-> index a96a326b53bd..71dc6cdde8ac 100644
-> --- a/drivers/input/rmi4/rmi_i2c.c
-> +++ b/drivers/input/rmi4/rmi_i2c.c
-> @@ -11,6 +11,8 @@
->   #include <linux/rmi.h>
->   #include <linux/irq.h>
->   #include <linux/of.h>
-> +#include <linux/delay.h>
-> +#include <linux/regulator/consumer.h>
->   #include "rmi_driver.h"
->   
->   #define BUFFER_SIZE_INCREMENT 32
-> @@ -37,6 +39,9 @@ struct rmi_i2c_xport {
->   
->   	u8 *tx_buf;
->   	size_t tx_buf_size;
-> +
-> +	struct regulator_bulk_data supplies[2];
-> +	u32 startup_delay;
->   };
->   
->   #define RMI_PAGE_SELECT_REGISTER 0xff
-> @@ -246,6 +251,24 @@ static int rmi_i2c_probe(struct i2c_client *client,
->   		return -ENODEV;
->   	}
->   
-> +	rmi_i2c->supplies[0].supply = "vdd";
-> +	rmi_i2c->supplies[1].supply = "vio";
-> +	retval = devm_regulator_bulk_get(&client->dev,
-> +					 ARRAY_SIZE(rmi_i2c->supplies),
-> +					 rmi_i2c->supplies);
-> +	if (retval < 0)
-> +		return retval;
-> +
-> +	retval = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-> +				       rmi_i2c->supplies);
-> +	if (retval < 0)
-> +		return retval;
-> +
-> +	of_property_read_u32(client->dev.of_node, "syna,startup-delay-ms",
-> +			     &rmi_i2c->startup_delay);
-> +
-> +	msleep(rmi_i2c->startup_delay);
-> +
->   	rmi_i2c->client = client;
->   	mutex_init(&rmi_i2c->page_mutex);
->   
-> @@ -286,6 +309,7 @@ static int rmi_i2c_remove(struct i2c_client *client)
->   	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->   
->   	rmi_unregister_transport_device(&rmi_i2c->xport);
-> +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies), rmi_i2c->supplies);
->   
->   	return 0;
->   }
-> @@ -308,6 +332,9 @@ static int rmi_i2c_suspend(struct device *dev)
->   			dev_warn(dev, "Failed to enable irq for wake: %d\n",
->   				ret);
->   	}
-> +
-> +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies), rmi_i2c->supplies);
-> +
->   	return ret;
->   }
->   
-> @@ -317,6 +344,12 @@ static int rmi_i2c_resume(struct device *dev)
->   	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->   	int ret;
->   
-> +	ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies), rmi_i2c->supplies);
-> +	if (ret)
-> +		return ret;
-> +
-> +	msleep(rmi_i2c->startup_delay);
-> +
->   	enable_irq(rmi_i2c->irq);
->   	if (device_may_wakeup(&client->dev)) {
->   		ret = disable_irq_wake(rmi_i2c->irq);
-> @@ -346,6 +379,8 @@ static int rmi_i2c_runtime_suspend(struct device *dev)
->   
->   	disable_irq(rmi_i2c->irq);
->   
-> +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies), rmi_i2c->supplies);
-> +
->   	return 0;
->   }
->   
-> @@ -355,6 +390,12 @@ static int rmi_i2c_runtime_resume(struct device *dev)
->   	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->   	int ret;
->   
-> +	ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies), rmi_i2c->supplies);
-> +	if (ret)
-> +		return ret;
-> +
-> +	msleep(rmi_i2c->startup_delay);
-> +
->   	enable_irq(rmi_i2c->irq);
->   
->   	ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev);
+
+--=-yEBTCd32QZxOr8N+CHnl
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, 2016-06-24 at 09:14 +0200, Benjamin Tissoires wrote:
+> Looks like the same issue Andy is seeing on the Surface Book. So I
+> think my patch must have a bug where it resets the quirks set by
+> usbhid. And this is why we are screwed here.
+>=20
+
+Yes, I think that's likely. There doesn't seem to be an issue most of
+the time, so it's not a huge deal.=C2=A0
+
+> Regarding your disconnect issue, what happens I think is that you
+> disconnect it before the timeout of usb_submit_urb(), and so the usb
+> layer is stuck trying to access the device and can't access the newly
+> plugged one. If you wait enough (initial timeout + new timeout -> 20
+> secs), then the device behaves properly again.
+>=20
+
+That is the behavior I have noticed. Is there any potential fix?
+
+Sincerely,
+Dennis Chen
+--=-yEBTCd32QZxOr8N+CHnl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iEYEABEKAAYFAlduN2wACgkQpXlhF/qpw/l4owCdGJHuVaoa1f3bHDVaDIjZ/LCq
+h9oAnAhkXDplXHNnQSPDqzeVam/YmXwy
+=S6E8
+-----END PGP SIGNATURE-----
+
+--=-yEBTCd32QZxOr8N+CHnl--
+
+--=-TA/MEzFSxJLNnsJdpa97
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgMFADCABgkqhkiG9w0BBwEAAKCCEpow
+ggYtMIIFFaADAgECAgMQDUswDQYJKoZIhvcNAQELBQAwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQK
+Ew1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWdu
+aW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVu
+dCBDQTAeFw0xNTExMTEyMTQzMDFaFw0xNjExMTEwNjMxNDZaMEYxHjAcBgNVBAMMFWJhcnJhY2tz
+NTEwQGdtYWlsLmNvbTEkMCIGCSqGSIb3DQEJARYVYmFycmFja3M1MTBAZ21haWwuY29tMIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtUHVaynx14U0iy8HenmG993oaTFzZ/OfQ0zoqsQl
+MUt3XYwz9OdMG+UJq7+ilA2NSPzYnOBqJr0nYVlkX+cQpVlP2+/AtJ5bB/ScugNTOYn4cLqdc8ki
+sAy+zNAPCwaF3Jrn16KxU7ufLut6kD56Nr8lX3/vD3XkPBbP3sn5wBEOV2u5NruJ/iS3/augzcww
+vm5HSnH/JJ3rZNQ83lxyE5Nu0N7BW0FJ4CioavdhzN8bjvAfV7JM6CjcsTlujlrZYGKI/ByJuaUG
+MduXhb/3H9UPtsvpQ/PLdlzpj9z4DVnJMtWQPJ3JM26d4ObmuYq8tk3nxnDwDG7HooF/k2VHYwID
+AQABo4IC2zCCAtcwCQYDVR0TBAIwADALBgNVHQ8EBAMCBLAwHQYDVR0lBBYwFAYIKwYBBQUHAwIG
+CCsGAQUFBwMEMB0GA1UdDgQWBBSph2B2A/xOxyzrDpSUkPUU8CqJpjAfBgNVHSMEGDAWgBRTcu2S
+nODaywFcfH6WNU7y1LhRgjAgBgNVHREEGTAXgRViYXJyYWNrczUxMEBnbWFpbC5jb20wggFMBgNV
+HSAEggFDMIIBPzCCATsGCysGAQQBgbU3AQIDMIIBKjAuBggrBgEFBQcCARYiaHR0cDovL3d3dy5z
+dGFydHNzbC5jb20vcG9saWN5LnBkZjCB9wYIKwYBBQUHAgIwgeowJxYgU3RhcnRDb20gQ2VydGlm
+aWNhdGlvbiBBdXRob3JpdHkwAwIBARqBvlRoaXMgY2VydGlmaWNhdGUgd2FzIGlzc3VlZCBhY2Nv
+cmRpbmcgdG8gdGhlIENsYXNzIDEgVmFsaWRhdGlvbiByZXF1aXJlbWVudHMgb2YgdGhlIFN0YXJ0
+Q29tIENBIHBvbGljeSwgcmVsaWFuY2Ugb25seSBmb3IgdGhlIGludGVuZGVkIHB1cnBvc2UgaW4g
+Y29tcGxpYW5jZSBvZiB0aGUgcmVseWluZyBwYXJ0eSBvYmxpZ2F0aW9ucy4wNgYDVR0fBC8wLTAr
+oCmgJ4YlaHR0cDovL2NybC5zdGFydHNzbC5jb20vY3J0dTEtY3JsLmNybDCBjgYIKwYBBQUHAQEE
+gYEwfzA5BggrBgEFBQcwAYYtaHR0cDovL29jc3Auc3RhcnRzc2wuY29tL3N1Yi9jbGFzczEvY2xp
+ZW50L2NhMEIGCCsGAQUFBzAChjZodHRwOi8vYWlhLnN0YXJ0c3NsLmNvbS9jZXJ0cy9zdWIuY2xh
+c3MxLmNsaWVudC5jYS5jcnQwIwYDVR0SBBwwGoYYaHR0cDovL3d3dy5zdGFydHNzbC5jb20vMA0G
+CSqGSIb3DQEBCwUAA4IBAQCIDk1zzs0LWnAI1exQQZWoJosQPN99h91Es4Bs5jx2d2OhY34EEI9b
+B5qz7n7yI/7nWIkBOmmsAOtj4FVJFHk1SL9yJ1HuuhWMbaAjwjPlm0M8AHq1n1qBHozus0EMPFrv
+DK6Hf5uZGqsPfEZ2DUCXxXUXxjWzbzL5LLIMdn6O2cz0X4FrFJAnDgxvGw2m819YBFp9FPn4hIWV
+Cj3fwQxu1RntQa4nIbofKq4WPJk8jK77S3daV4vc1BtKNOlX9uxegdc8xPAhVpFYeKgzejMR3ho+
+BgNyPffd/l02O/RYxx3RMP4OmADnZPUN5Xg/he7AIweCv47JAkqgNSMwIz9cMIIGLTCCBRWgAwIB
+AgIDEA1LMA0GCSqGSIb3DQEBCwUAMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20g
+THRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UE
+AxMvU3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQgQ0EwHhcNMTUx
+MTExMjE0MzAxWhcNMTYxMTExMDYzMTQ2WjBGMR4wHAYDVQQDDBViYXJyYWNrczUxMEBnbWFpbC5j
+b20xJDAiBgkqhkiG9w0BCQEWFWJhcnJhY2tzNTEwQGdtYWlsLmNvbTCCASIwDQYJKoZIhvcNAQEB
+BQADggEPADCCAQoCggEBALVB1Wsp8deFNIsvB3p5hvfd6Gkxc2fzn0NM6KrEJTFLd12MM/TnTBvl
+Cau/opQNjUj82Jzgaia9J2FZZF/nEKVZT9vvwLSeWwf0nLoDUzmJ+HC6nXPJIrAMvszQDwsGhdya
+59eisVO7ny7repA+eja/JV9/7w915DwWz97J+cARDldruTa7if4kt/2roM3MML5uR0px/ySd62TU
+PN5cchOTbtDewVtBSeAoqGr3YczfG47wH1eyTOgo3LE5bo5a2WBiiPwcibmlBjHbl4W/9x/VD7bL
+6UPzy3Zc6Y/c+A1ZyTLVkDydyTNuneDm5rmKvLZN58Zw8Axux6KBf5NlR2MCAwEAAaOCAtswggLX
+MAkGA1UdEwQCMAAwCwYDVR0PBAQDAgSwMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDAd
+BgNVHQ4EFgQUqYdgdgP8Tscs6w6UlJD1FPAqiaYwHwYDVR0jBBgwFoAUU3Ltkpzg2ssBXHx+ljVO
+8tS4UYIwIAYDVR0RBBkwF4EVYmFycmFja3M1MTBAZ21haWwuY29tMIIBTAYDVR0gBIIBQzCCAT8w
+ggE7BgsrBgEEAYG1NwECAzCCASowLgYIKwYBBQUHAgEWImh0dHA6Ly93d3cuc3RhcnRzc2wuY29t
+L3BvbGljeS5wZGYwgfcGCCsGAQUFBwICMIHqMCcWIFN0YXJ0Q29tIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MAMCAQEagb5UaGlzIGNlcnRpZmljYXRlIHdhcyBpc3N1ZWQgYWNjb3JkaW5nIHRvIHRo
+ZSBDbGFzcyAxIFZhbGlkYXRpb24gcmVxdWlyZW1lbnRzIG9mIHRoZSBTdGFydENvbSBDQSBwb2xp
+Y3ksIHJlbGlhbmNlIG9ubHkgZm9yIHRoZSBpbnRlbmRlZCBwdXJwb3NlIGluIGNvbXBsaWFuY2Ug
+b2YgdGhlIHJlbHlpbmcgcGFydHkgb2JsaWdhdGlvbnMuMDYGA1UdHwQvMC0wK6ApoCeGJWh0dHA6
+Ly9jcmwuc3RhcnRzc2wuY29tL2NydHUxLWNybC5jcmwwgY4GCCsGAQUFBwEBBIGBMH8wOQYIKwYB
+BQUHMAGGLWh0dHA6Ly9vY3NwLnN0YXJ0c3NsLmNvbS9zdWIvY2xhc3MxL2NsaWVudC9jYTBCBggr
+BgEFBQcwAoY2aHR0cDovL2FpYS5zdGFydHNzbC5jb20vY2VydHMvc3ViLmNsYXNzMS5jbGllbnQu
+Y2EuY3J0MCMGA1UdEgQcMBqGGGh0dHA6Ly93d3cuc3RhcnRzc2wuY29tLzANBgkqhkiG9w0BAQsF
+AAOCAQEAiA5Nc87NC1pwCNXsUEGVqCaLEDzffYfdRLOAbOY8dndjoWN+BBCPWweas+5+8iP+51iJ
+ATpprADrY+BVSRR5NUi/cidR7roVjG2gI8Iz5ZtDPAB6tZ9agR6M7rNBDDxa7wyuh3+bmRqrD3xG
+dg1Al8V1F8Y1s28y+SyyDHZ+jtnM9F+BaxSQJw4MbxsNpvNfWARafRT5+ISFlQo938EMbtUZ7UGu
+JyG6HyquFjyZPIyu+0t3WleL3NQbSjTpV/bsXoHXPMTwIVaRWHioM3ozEd4aPgYDcj333f5dNjv0
+WMcd0TD+DpgA52T1DeV4P4XuwCMHgr+OyQJKoDUjMCM/XDCCBjQwggQcoAMCAQICAR4wDQYJKoZI
+hvcNAQEFBQAwfTELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0ZC4xKzApBgNVBAsT
+IlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxKTAnBgNVBAMTIFN0YXJ0Q29tIENl
+cnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTA3MTAyNDIxMDE1NVoXDTE3MTAyNDIxMDE1NVowgYwx
+CzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGln
+aXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1h
+cnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+AMcJg8zOLdgasSmkLhOrlr6KMoOMpohBllVHrdRvEg/q6r8jR+EK75xCGhR8ToREoqe7zM9/UnC6
+TS2y9UKTpT1v7RSMzR0t6ndl0TWBuUr/UXBhPk+Kmy7bI4yW4urC+y7P3/1/X7U8ocb8VpH/Clt+
+4iq7nirMcNh6qJR+xjOhV+VHzQMALuGYn5KZmc1NbJQYclsGkDxDz2UbFqE2+6vIZoL+jb9x4Pa5
+gNf1TwSDkOkikZB1xtB4ZqtXThaABSONdfmv/Z1pua3FYxnCFmdr/+N2JLKutIxMYqQOJebr/f/h
+5t95m4JgrM3Y/w7YX9d7YAL9jvN4SydHsU6n65cCAwEAAaOCAa0wggGpMA8GA1UdEwEB/wQFMAMB
+Af8wDgYDVR0PAQH/BAQDAgEGMB0GA1UdDgQWBBRTcu2SnODaywFcfH6WNU7y1LhRgjAfBgNVHSME
+GDAWgBROC+8apEBbpRdphzDKNGhD0EGu8jBmBggrBgEFBQcBAQRaMFgwJwYIKwYBBQUHMAGGG2h0
+dHA6Ly9vY3NwLnN0YXJ0c3NsLmNvbS9jYTAtBggrBgEFBQcwAoYhaHR0cDovL3d3dy5zdGFydHNz
+bC5jb20vc2ZzY2EuY3J0MFsGA1UdHwRUMFIwJ6AloCOGIWh0dHA6Ly93d3cuc3RhcnRzc2wuY29t
+L3Nmc2NhLmNybDAnoCWgI4YhaHR0cDovL2NybC5zdGFydHNzbC5jb20vc2ZzY2EuY3JsMIGABgNV
+HSAEeTB3MHUGCysGAQQBgbU3AQIBMGYwLgYIKwYBBQUHAgEWImh0dHA6Ly93d3cuc3RhcnRzc2wu
+Y29tL3BvbGljeS5wZGYwNAYIKwYBBQUHAgEWKGh0dHA6Ly93d3cuc3RhcnRzc2wuY29tL2ludGVy
+bWVkaWF0ZS5wZGYwDQYJKoZIhvcNAQEFBQADggIBAAqDCH14qywGXLhjjF6uHLkjd02hcdh9hrw+
+VUsv+q1eeQWB21jWj3kJ96AUlPCoEGZ/ynJNScWy6QMVQjbbMXltUfO4n4bGGdKo3awPWp61tjAF
+graLJgDk+DsSvUD6EowjMTNx25GQgyYJ5RPIzKKR9tQW8gGK+2+RHxkUCTbYFnL6kl8Ch507rUdP
+PipJ9CgJFws3kDS3gOS5WFMxcjO5DwKfKSETEPrHh7p5shuuNktvsv6hxHTLhiMKX893gxdT3XLS
+9OKmCv87vkINQcNEcIIoFWbP9HORz9v3vQwR4e3ksLc2JZOAFK+ssS5XMEoznzpihEP0PLc4dCBY
+jbvSD7kxgDwZ+Aj8Q9PkbvE9sIPP7ON0fz095HdThKjiVJe6vofq+n6b1NBc8XdrQvBmunwxD5nv
+tTW4vtN6VY7mUCmxsCieuoBJ9OlqmsVWQvifIYf40dJPZkk9YgGTzWLpXDSfLSplbY2LL9C9U0pt
+vjcDjefLTvqSFc7tw1sEhF0n/qpA2r0GpvkLRDmcSwVyPvmjFBGqUp/pNy8ZuPGQmHwFi2/14+xe
+SUDG2bwnsYJQG2EdJCB6luQ57GEnTA/yKZSTKI8dDQa8Sd3zfXb19mOgSF0bBdXbuKhEpuP9wirs
+lFe6fQ1t5j5R0xi72MZ8ikMu1RQZKCyDbMwazlHiMYIDnzCCA5sCAQEwgZQwgYwxCzAJBgNVBAYT
+AklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0
+aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJt
+ZWRpYXRlIENsaWVudCBDQQIDEA1LMA0GCWCGSAFlAwQCAwUAoIIB2zAYBgkqhkiG9w0BCQMxCwYJ
+KoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xNjA2MjUwNzQ5MDdaME8GCSqGSIb3DQEJBDFCBECK
+fskA9erwrK+GB2B555rDtpCgyU3lV7gBykEYUwvV3nhUbyA4XyU6QlT2JLM0uxU1WFScmex30HRB
+bQDfujiAMIGlBgkrBgEEAYI3EAQxgZcwgZQwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFy
+dENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgw
+NgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQQID
+EA1LMIGnBgsqhkiG9w0BCRACCzGBl6CBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0
+Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2
+BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMQ
+DUswDQYJKoZIhvcNAQEBBQAEggEAk6SDTl4OFb3ypS+K7zsjX3XbtaOkGwBOblFz1Wp/N0htY/e9
+EBubpFdbLlqdNp7GBPQdsgSoySUY/irZpQeyI3ffWL94mj3424cY+T2tevvksaNw7/c4v+0sHpCw
+psBRpzrODfLTLyQxNFwT6w9kMtDAuSC8SQlpAzqLGlQhUbiZenHeoFKj3KkEB1qzq+X9gWNdrnh5
+UqrDkdVaRBycftD8+MK0iWLP4jKHED/w4x8Lbsot42r1EnuUIhI+ez5hYqXvvOfnkXOMJNZvBL1j
+uwi3nwiBwmesyXrWGbKXNplZETFftdghPiZDL7T719xeWDOdBMmT1x1LiCyRmERB8wAAAAAAAA==
+
+
+--=-TA/MEzFSxJLNnsJdpa97--
 

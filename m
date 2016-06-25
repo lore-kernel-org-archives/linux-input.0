@@ -1,185 +1,92 @@
-From: Dennis Chen <barracks510@gmail.com>
-Subject: Re: [PATCH] HID: multitouch: add support for Type Cover Pro 3
-Date: Sat, 25 Jun 2016 00:49:00 -0700
-Message-ID: <1466840940.28419.6.camel@gmail.com>
-References: <1466196443.21223.1.camel@gmail.com>
- <alpine.LNX.2.00.1606172259110.6874@cbobk.fhfr.pm>
- <20160617211142.GH24234@mail.corp.redhat.com>
- <1466275994.2669.11.camel@gmail.com>
- <20160618194534.GI24234@mail.corp.redhat.com>
- <1466369282.15726.7.camel@gmail.com>
- <20160620095934.GN24234@mail.corp.redhat.com>
- <1466739490.3464.8.camel@gmail.com>
-	 <20160624071419.GO24234@mail.corp.redhat.com>
+From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v2 2/5] input: pmic8xxx-pwrkey: Add support
+ for pm8018 pwrkey
+Date: Sat, 25 Jun 2016 10:34:04 +0200
+Message-ID: <576E41FC.1080102@baylibre.com>
+References: <1466759887-25394-1-git-send-email-narmstrong@baylibre.com>
+ <1466759887-25394-3-git-send-email-narmstrong@baylibre.com>
+ <20160624220748.GB11719@dtor-ws>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="sha-512";
-	protocol="application/x-pkcs7-signature";
-	boundary="=-TA/MEzFSxJLNnsJdpa97"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f45.google.com ([209.85.218.45]:35283 "EHLO
-	mail-oi0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751081AbcFYHtN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 25 Jun 2016 03:49:13 -0400
-Received: by mail-oi0-f45.google.com with SMTP id r2so143688550oih.2
-        for <linux-input@vger.kernel.org>; Sat, 25 Jun 2016 00:49:12 -0700 (PDT)
-In-Reply-To: <20160624071419.GO24234@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBDAYD2P3QYGRB7UDXG5QKGQEGY7W5CA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20160624220748.GB11719@dtor-ws>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input <linux-input@vger.kernel.org>
 
+On 06/25/2016 12:07 AM, Dmitry Torokhov wrote:
+> On Fri, Jun 24, 2016 at 11:18:04AM +0200, Neil Armstrong wrote:
+>> In order to support pwrkey for Qualcomm MDM9615 SoC, add support
+>> for the pm8018 pwrkey in pmic8xxx-pwrkey.
+>>
+>> Reviewed-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>> Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+> 
+> NAK.
 
---=-TA/MEzFSxJLNnsJdpa97
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-yEBTCd32QZxOr8N+CHnl"
+Hi Dmitry,
 
+Actually, the new compatible string make sense, because the driver is compatible with the
+"pm8018" pwrkey but from a system point of view, it's not a pm8921 pwrkey, hence the new
+compatible string.
 
---=-yEBTCd32QZxOr8N+CHnl
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Rob Herring was very clear with me with this policy, and it will simplify further driver
+architecture change since it will not imply devicetree changes anymore.
 
-On Fri, 2016-06-24 at 09:14 +0200, Benjamin Tissoires wrote:
-> Looks like the same issue Andy is seeing on the Surface Book. So I
-> think my patch must have a bug where it resets the quirks set by
-> usbhid. And this is why we are screwed here.
->=20
+My point of view is that the devicetree describes the hardware and need to have SoC specific
+compatible string since it describes the actual silicon, and drivers must make sure to handle
+all the SoC or family variants using the compatible string and the match data.
 
-Yes, I think that's likely. There doesn't seem to be an issue most of
-the time, so it's not a huge deal.=C2=A0
+Neil
+> 
+>> ---
+>>  Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt | 1 +
+>>  drivers/input/misc/pmic8xxx-pwrkey.c                           | 1 +
+>>  2 files changed, 2 insertions(+)
+>>
+>> diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
+>> index 588536c..9e530e2 100644
+>> --- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
+>> +++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
+>> @@ -8,6 +8,7 @@ PROPERTIES
+>>  	Definition: must be one of:
+>>  		    "qcom,pm8058-pwrkey"
+>>  		    "qcom,pm8921-pwrkey"
+>> +		    "qcom,pm8018-pwrkey"
+>>  
+>>  - reg:
+>>  	Usage: required
+>> diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
+>> index 67aab86..f6f9b87 100644
+>> --- a/drivers/input/misc/pmic8xxx-pwrkey.c
+>> +++ b/drivers/input/misc/pmic8xxx-pwrkey.c
+>> @@ -446,6 +446,7 @@ static int pmic8xxx_pwrkey_remove(struct platform_device *pdev)
+>>  }
+>>  
+>>  static const struct of_device_id pm8xxx_pwr_key_id_table[] = {
+>> +	{ .compatible = "qcom,pm8018-pwrkey", .data = &pm8921_pwrkey_shutdown },
+>>  	{ .compatible = "qcom,pm8058-pwrkey", .data = &pm8058_pwrkey_shutdown },
+>>  	{ .compatible = "qcom,pm8921-pwrkey", .data = &pm8921_pwrkey_shutdown },
+>>  	{ }
+>> -- 
+>> 1.9.1
+>>
+> 
 
-> Regarding your disconnect issue, what happens I think is that you
-> disconnect it before the timeout of usb_submit_urb(), and so the usb
-> layer is stuck trying to access the device and can't access the newly
-> plugged one. If you wait enough (initial timeout + new timeout -> 20
-> secs), then the device behaves properly again.
->=20
-
-That is the behavior I have noticed. Is there any potential fix?
-
-Sincerely,
-Dennis Chen
---=-yEBTCd32QZxOr8N+CHnl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iEYEABEKAAYFAlduN2wACgkQpXlhF/qpw/l4owCdGJHuVaoa1f3bHDVaDIjZ/LCq
-h9oAnAhkXDplXHNnQSPDqzeVam/YmXwy
-=S6E8
------END PGP SIGNATURE-----
-
---=-yEBTCd32QZxOr8N+CHnl--
-
---=-TA/MEzFSxJLNnsJdpa97
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgMFADCABgkqhkiG9w0BBwEAAKCCEpow
-ggYtMIIFFaADAgECAgMQDUswDQYJKoZIhvcNAQELBQAwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQK
-Ew1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWdu
-aW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVu
-dCBDQTAeFw0xNTExMTEyMTQzMDFaFw0xNjExMTEwNjMxNDZaMEYxHjAcBgNVBAMMFWJhcnJhY2tz
-NTEwQGdtYWlsLmNvbTEkMCIGCSqGSIb3DQEJARYVYmFycmFja3M1MTBAZ21haWwuY29tMIIBIjAN
-BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtUHVaynx14U0iy8HenmG993oaTFzZ/OfQ0zoqsQl
-MUt3XYwz9OdMG+UJq7+ilA2NSPzYnOBqJr0nYVlkX+cQpVlP2+/AtJ5bB/ScugNTOYn4cLqdc8ki
-sAy+zNAPCwaF3Jrn16KxU7ufLut6kD56Nr8lX3/vD3XkPBbP3sn5wBEOV2u5NruJ/iS3/augzcww
-vm5HSnH/JJ3rZNQ83lxyE5Nu0N7BW0FJ4CioavdhzN8bjvAfV7JM6CjcsTlujlrZYGKI/ByJuaUG
-MduXhb/3H9UPtsvpQ/PLdlzpj9z4DVnJMtWQPJ3JM26d4ObmuYq8tk3nxnDwDG7HooF/k2VHYwID
-AQABo4IC2zCCAtcwCQYDVR0TBAIwADALBgNVHQ8EBAMCBLAwHQYDVR0lBBYwFAYIKwYBBQUHAwIG
-CCsGAQUFBwMEMB0GA1UdDgQWBBSph2B2A/xOxyzrDpSUkPUU8CqJpjAfBgNVHSMEGDAWgBRTcu2S
-nODaywFcfH6WNU7y1LhRgjAgBgNVHREEGTAXgRViYXJyYWNrczUxMEBnbWFpbC5jb20wggFMBgNV
-HSAEggFDMIIBPzCCATsGCysGAQQBgbU3AQIDMIIBKjAuBggrBgEFBQcCARYiaHR0cDovL3d3dy5z
-dGFydHNzbC5jb20vcG9saWN5LnBkZjCB9wYIKwYBBQUHAgIwgeowJxYgU3RhcnRDb20gQ2VydGlm
-aWNhdGlvbiBBdXRob3JpdHkwAwIBARqBvlRoaXMgY2VydGlmaWNhdGUgd2FzIGlzc3VlZCBhY2Nv
-cmRpbmcgdG8gdGhlIENsYXNzIDEgVmFsaWRhdGlvbiByZXF1aXJlbWVudHMgb2YgdGhlIFN0YXJ0
-Q29tIENBIHBvbGljeSwgcmVsaWFuY2Ugb25seSBmb3IgdGhlIGludGVuZGVkIHB1cnBvc2UgaW4g
-Y29tcGxpYW5jZSBvZiB0aGUgcmVseWluZyBwYXJ0eSBvYmxpZ2F0aW9ucy4wNgYDVR0fBC8wLTAr
-oCmgJ4YlaHR0cDovL2NybC5zdGFydHNzbC5jb20vY3J0dTEtY3JsLmNybDCBjgYIKwYBBQUHAQEE
-gYEwfzA5BggrBgEFBQcwAYYtaHR0cDovL29jc3Auc3RhcnRzc2wuY29tL3N1Yi9jbGFzczEvY2xp
-ZW50L2NhMEIGCCsGAQUFBzAChjZodHRwOi8vYWlhLnN0YXJ0c3NsLmNvbS9jZXJ0cy9zdWIuY2xh
-c3MxLmNsaWVudC5jYS5jcnQwIwYDVR0SBBwwGoYYaHR0cDovL3d3dy5zdGFydHNzbC5jb20vMA0G
-CSqGSIb3DQEBCwUAA4IBAQCIDk1zzs0LWnAI1exQQZWoJosQPN99h91Es4Bs5jx2d2OhY34EEI9b
-B5qz7n7yI/7nWIkBOmmsAOtj4FVJFHk1SL9yJ1HuuhWMbaAjwjPlm0M8AHq1n1qBHozus0EMPFrv
-DK6Hf5uZGqsPfEZ2DUCXxXUXxjWzbzL5LLIMdn6O2cz0X4FrFJAnDgxvGw2m819YBFp9FPn4hIWV
-Cj3fwQxu1RntQa4nIbofKq4WPJk8jK77S3daV4vc1BtKNOlX9uxegdc8xPAhVpFYeKgzejMR3ho+
-BgNyPffd/l02O/RYxx3RMP4OmADnZPUN5Xg/he7AIweCv47JAkqgNSMwIz9cMIIGLTCCBRWgAwIB
-AgIDEA1LMA0GCSqGSIb3DQEBCwUAMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20g
-THRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UE
-AxMvU3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQgQ0EwHhcNMTUx
-MTExMjE0MzAxWhcNMTYxMTExMDYzMTQ2WjBGMR4wHAYDVQQDDBViYXJyYWNrczUxMEBnbWFpbC5j
-b20xJDAiBgkqhkiG9w0BCQEWFWJhcnJhY2tzNTEwQGdtYWlsLmNvbTCCASIwDQYJKoZIhvcNAQEB
-BQADggEPADCCAQoCggEBALVB1Wsp8deFNIsvB3p5hvfd6Gkxc2fzn0NM6KrEJTFLd12MM/TnTBvl
-Cau/opQNjUj82Jzgaia9J2FZZF/nEKVZT9vvwLSeWwf0nLoDUzmJ+HC6nXPJIrAMvszQDwsGhdya
-59eisVO7ny7repA+eja/JV9/7w915DwWz97J+cARDldruTa7if4kt/2roM3MML5uR0px/ySd62TU
-PN5cchOTbtDewVtBSeAoqGr3YczfG47wH1eyTOgo3LE5bo5a2WBiiPwcibmlBjHbl4W/9x/VD7bL
-6UPzy3Zc6Y/c+A1ZyTLVkDydyTNuneDm5rmKvLZN58Zw8Axux6KBf5NlR2MCAwEAAaOCAtswggLX
-MAkGA1UdEwQCMAAwCwYDVR0PBAQDAgSwMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDAd
-BgNVHQ4EFgQUqYdgdgP8Tscs6w6UlJD1FPAqiaYwHwYDVR0jBBgwFoAUU3Ltkpzg2ssBXHx+ljVO
-8tS4UYIwIAYDVR0RBBkwF4EVYmFycmFja3M1MTBAZ21haWwuY29tMIIBTAYDVR0gBIIBQzCCAT8w
-ggE7BgsrBgEEAYG1NwECAzCCASowLgYIKwYBBQUHAgEWImh0dHA6Ly93d3cuc3RhcnRzc2wuY29t
-L3BvbGljeS5wZGYwgfcGCCsGAQUFBwICMIHqMCcWIFN0YXJ0Q29tIENlcnRpZmljYXRpb24gQXV0
-aG9yaXR5MAMCAQEagb5UaGlzIGNlcnRpZmljYXRlIHdhcyBpc3N1ZWQgYWNjb3JkaW5nIHRvIHRo
-ZSBDbGFzcyAxIFZhbGlkYXRpb24gcmVxdWlyZW1lbnRzIG9mIHRoZSBTdGFydENvbSBDQSBwb2xp
-Y3ksIHJlbGlhbmNlIG9ubHkgZm9yIHRoZSBpbnRlbmRlZCBwdXJwb3NlIGluIGNvbXBsaWFuY2Ug
-b2YgdGhlIHJlbHlpbmcgcGFydHkgb2JsaWdhdGlvbnMuMDYGA1UdHwQvMC0wK6ApoCeGJWh0dHA6
-Ly9jcmwuc3RhcnRzc2wuY29tL2NydHUxLWNybC5jcmwwgY4GCCsGAQUFBwEBBIGBMH8wOQYIKwYB
-BQUHMAGGLWh0dHA6Ly9vY3NwLnN0YXJ0c3NsLmNvbS9zdWIvY2xhc3MxL2NsaWVudC9jYTBCBggr
-BgEFBQcwAoY2aHR0cDovL2FpYS5zdGFydHNzbC5jb20vY2VydHMvc3ViLmNsYXNzMS5jbGllbnQu
-Y2EuY3J0MCMGA1UdEgQcMBqGGGh0dHA6Ly93d3cuc3RhcnRzc2wuY29tLzANBgkqhkiG9w0BAQsF
-AAOCAQEAiA5Nc87NC1pwCNXsUEGVqCaLEDzffYfdRLOAbOY8dndjoWN+BBCPWweas+5+8iP+51iJ
-ATpprADrY+BVSRR5NUi/cidR7roVjG2gI8Iz5ZtDPAB6tZ9agR6M7rNBDDxa7wyuh3+bmRqrD3xG
-dg1Al8V1F8Y1s28y+SyyDHZ+jtnM9F+BaxSQJw4MbxsNpvNfWARafRT5+ISFlQo938EMbtUZ7UGu
-JyG6HyquFjyZPIyu+0t3WleL3NQbSjTpV/bsXoHXPMTwIVaRWHioM3ozEd4aPgYDcj333f5dNjv0
-WMcd0TD+DpgA52T1DeV4P4XuwCMHgr+OyQJKoDUjMCM/XDCCBjQwggQcoAMCAQICAR4wDQYJKoZI
-hvcNAQEFBQAwfTELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0ZC4xKzApBgNVBAsT
-IlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxKTAnBgNVBAMTIFN0YXJ0Q29tIENl
-cnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTA3MTAyNDIxMDE1NVoXDTE3MTAyNDIxMDE1NVowgYwx
-CzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGln
-aXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1h
-cnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
-AMcJg8zOLdgasSmkLhOrlr6KMoOMpohBllVHrdRvEg/q6r8jR+EK75xCGhR8ToREoqe7zM9/UnC6
-TS2y9UKTpT1v7RSMzR0t6ndl0TWBuUr/UXBhPk+Kmy7bI4yW4urC+y7P3/1/X7U8ocb8VpH/Clt+
-4iq7nirMcNh6qJR+xjOhV+VHzQMALuGYn5KZmc1NbJQYclsGkDxDz2UbFqE2+6vIZoL+jb9x4Pa5
-gNf1TwSDkOkikZB1xtB4ZqtXThaABSONdfmv/Z1pua3FYxnCFmdr/+N2JLKutIxMYqQOJebr/f/h
-5t95m4JgrM3Y/w7YX9d7YAL9jvN4SydHsU6n65cCAwEAAaOCAa0wggGpMA8GA1UdEwEB/wQFMAMB
-Af8wDgYDVR0PAQH/BAQDAgEGMB0GA1UdDgQWBBRTcu2SnODaywFcfH6WNU7y1LhRgjAfBgNVHSME
-GDAWgBROC+8apEBbpRdphzDKNGhD0EGu8jBmBggrBgEFBQcBAQRaMFgwJwYIKwYBBQUHMAGGG2h0
-dHA6Ly9vY3NwLnN0YXJ0c3NsLmNvbS9jYTAtBggrBgEFBQcwAoYhaHR0cDovL3d3dy5zdGFydHNz
-bC5jb20vc2ZzY2EuY3J0MFsGA1UdHwRUMFIwJ6AloCOGIWh0dHA6Ly93d3cuc3RhcnRzc2wuY29t
-L3Nmc2NhLmNybDAnoCWgI4YhaHR0cDovL2NybC5zdGFydHNzbC5jb20vc2ZzY2EuY3JsMIGABgNV
-HSAEeTB3MHUGCysGAQQBgbU3AQIBMGYwLgYIKwYBBQUHAgEWImh0dHA6Ly93d3cuc3RhcnRzc2wu
-Y29tL3BvbGljeS5wZGYwNAYIKwYBBQUHAgEWKGh0dHA6Ly93d3cuc3RhcnRzc2wuY29tL2ludGVy
-bWVkaWF0ZS5wZGYwDQYJKoZIhvcNAQEFBQADggIBAAqDCH14qywGXLhjjF6uHLkjd02hcdh9hrw+
-VUsv+q1eeQWB21jWj3kJ96AUlPCoEGZ/ynJNScWy6QMVQjbbMXltUfO4n4bGGdKo3awPWp61tjAF
-graLJgDk+DsSvUD6EowjMTNx25GQgyYJ5RPIzKKR9tQW8gGK+2+RHxkUCTbYFnL6kl8Ch507rUdP
-PipJ9CgJFws3kDS3gOS5WFMxcjO5DwKfKSETEPrHh7p5shuuNktvsv6hxHTLhiMKX893gxdT3XLS
-9OKmCv87vkINQcNEcIIoFWbP9HORz9v3vQwR4e3ksLc2JZOAFK+ssS5XMEoznzpihEP0PLc4dCBY
-jbvSD7kxgDwZ+Aj8Q9PkbvE9sIPP7ON0fz095HdThKjiVJe6vofq+n6b1NBc8XdrQvBmunwxD5nv
-tTW4vtN6VY7mUCmxsCieuoBJ9OlqmsVWQvifIYf40dJPZkk9YgGTzWLpXDSfLSplbY2LL9C9U0pt
-vjcDjefLTvqSFc7tw1sEhF0n/qpA2r0GpvkLRDmcSwVyPvmjFBGqUp/pNy8ZuPGQmHwFi2/14+xe
-SUDG2bwnsYJQG2EdJCB6luQ57GEnTA/yKZSTKI8dDQa8Sd3zfXb19mOgSF0bBdXbuKhEpuP9wirs
-lFe6fQ1t5j5R0xi72MZ8ikMu1RQZKCyDbMwazlHiMYIDnzCCA5sCAQEwgZQwgYwxCzAJBgNVBAYT
-AklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0
-aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJt
-ZWRpYXRlIENsaWVudCBDQQIDEA1LMA0GCWCGSAFlAwQCAwUAoIIB2zAYBgkqhkiG9w0BCQMxCwYJ
-KoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xNjA2MjUwNzQ5MDdaME8GCSqGSIb3DQEJBDFCBECK
-fskA9erwrK+GB2B555rDtpCgyU3lV7gBykEYUwvV3nhUbyA4XyU6QlT2JLM0uxU1WFScmex30HRB
-bQDfujiAMIGlBgkrBgEEAYI3EAQxgZcwgZQwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFy
-dENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgw
-NgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQQID
-EA1LMIGnBgsqhkiG9w0BCRACCzGBl6CBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0
-Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2
-BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMQ
-DUswDQYJKoZIhvcNAQEBBQAEggEAk6SDTl4OFb3ypS+K7zsjX3XbtaOkGwBOblFz1Wp/N0htY/e9
-EBubpFdbLlqdNp7GBPQdsgSoySUY/irZpQeyI3ffWL94mj3424cY+T2tevvksaNw7/c4v+0sHpCw
-psBRpzrODfLTLyQxNFwT6w9kMtDAuSC8SQlpAzqLGlQhUbiZenHeoFKj3KkEB1qzq+X9gWNdrnh5
-UqrDkdVaRBycftD8+MK0iWLP4jKHED/w4x8Lbsot42r1EnuUIhI+ez5hYqXvvOfnkXOMJNZvBL1j
-uwi3nwiBwmesyXrWGbKXNplZETFftdghPiZDL7T719xeWDOdBMmT1x1LiCyRmERB8wAAAAAAAA==
-
-
---=-TA/MEzFSxJLNnsJdpa97--
-
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

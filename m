@@ -1,170 +1,63 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH v2 2/8] Input: synaptics-rmi4: Add parameters for dribble packets and palm detect gesture
-Date: Fri, 24 Jun 2016 17:18:18 -0700
-Message-ID: <1466813898-15785-1-git-send-email-aduggan@synaptics.com>
+Subject: [PATCH v2 3/8] Input: synaptics-rmi4: Add dribble and palm gesture parameters to device tree
+Date: Fri, 24 Jun 2016 17:18:37 -0700
+Message-ID: <1466813917-15841-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx1.synaptics.com ([192.147.44.131]:46333 "EHLO
+Received: from us-mx1.synaptics.com ([192.147.44.131]:10148 "EHLO
 	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751809AbcFYAS1 (ORCPT
+	with ESMTP id S1751524AbcFYASt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Jun 2016 20:18:27 -0400
+	Fri, 24 Jun 2016 20:18:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick.dyer@itdev.co.uk>
-
-The rmi_f11 driver currently disables dribble packets and the palm detect
-gesture for all devices. This patch creates a parameter in the 2d sensor
-platform data for controlling this functionality on a per device basis.
-
-For more information on dribble packets:
-Commit 05ba999fcabb ("HID: rmi: disable dribble packets on Synaptics
-touchpads")
-
-For more information on the palm detect gesture:
-Commit f097deef59a6 ("HID: rmi: disable palm detect gesture when present")
+Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick.dyer@itdev.co.uk>, devicetree@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
 
 Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 ---
- drivers/input/rmi4/rmi_2d_sensor.h |  2 ++
- drivers/input/rmi4/rmi_f01.c       |  6 +++---
- drivers/input/rmi4/rmi_f11.c       | 32 ++++++++++++++++++++++++++++----
- include/linux/rmi.h                | 21 +++++++++++++--------
- 4 files changed, 46 insertions(+), 15 deletions(-)
+ .../devicetree/bindings/input/rmi4/rmi_2d_sensor.txt          |  4 ++++
+ drivers/input/rmi4/rmi_2d_sensor.c                            | 11 +++++++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_2d_sensor.h b/drivers/input/rmi4/rmi_2d_sensor.h
-index 77fcdfe..c871bef 100644
---- a/drivers/input/rmi4/rmi_2d_sensor.h
-+++ b/drivers/input/rmi4/rmi_2d_sensor.h
-@@ -67,6 +67,8 @@ struct rmi_2d_sensor {
- 	u8 report_rel;
- 	u8 x_mm;
- 	u8 y_mm;
-+	enum rmi_reg_state dribble;
-+	enum rmi_reg_state palm_detect;
- };
+diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
+index f2c30c8..86cb8e3 100644
+--- a/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
++++ b/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
+@@ -37,6 +37,10 @@ Optional Properties:
+ 				disable reporing absolute position data.
+ - syna,rezero-wait-ms: Time in miliseconds to wait after issuing a rezero
+ 				command.
++- syna,dribble-enable: Enable reporting of dribble packets in the firmware.
++- syna,dribble-disable: Disable reporting of dribble packets in the firmware.
++- syna,palm-detect-enable: Enable reporting the palm detect gesture in the firmware.
++- syna,palm-detect-disable: Disable reporting the palm detect gesture in the firmware.
  
- int rmi_2d_sensor_of_probe(struct device *dev,
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index fac81fc..2cfa9f6 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -327,12 +327,12 @@ static int rmi_f01_probe(struct rmi_function *fn)
- 	}
  
- 	switch (pdata->power_management.nosleep) {
--	case RMI_F01_NOSLEEP_DEFAULT:
-+	case RMI_REG_STATE_DEFAULT:
- 		break;
--	case RMI_F01_NOSLEEP_OFF:
-+	case RMI_REG_STATE_OFF:
- 		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_NOSLEEP_BIT;
- 		break;
--	case RMI_F01_NOSLEEP_ON:
-+	case RMI_REG_STATE_ON:
- 		f01->device_control.ctrl0 |= RMI_F01_CTRL0_NOSLEEP_BIT;
- 		break;
- 	}
-diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index ec8a10d..e691432 100644
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -1125,6 +1125,8 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 	sensor->topbuttonpad = f11->sensor_pdata.topbuttonpad;
- 	sensor->kernel_tracking = f11->sensor_pdata.kernel_tracking;
- 	sensor->dmax = f11->sensor_pdata.dmax;
-+	sensor->dribble = f11->sensor_pdata.dribble;
-+	sensor->palm_detect = f11->sensor_pdata.palm_detect;
+ Example of a RMI4 I2C device with F11:
+diff --git a/drivers/input/rmi4/rmi_2d_sensor.c b/drivers/input/rmi4/rmi_2d_sensor.c
+index e97bd7f..ee26e35 100644
+--- a/drivers/input/rmi4/rmi_2d_sensor.c
++++ b/drivers/input/rmi4/rmi_2d_sensor.c
+@@ -317,6 +317,17 @@ int rmi_2d_sensor_of_probe(struct device *dev,
  
- 	if (f11->sens_query.has_physical_props) {
- 		sensor->x_mm = f11->sens_query.x_sensor_size_mm;
-@@ -1192,11 +1194,33 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 		ctrl->ctrl0_11[RMI_F11_DELTA_Y_THRESHOLD] =
- 			sensor->axis_align.delta_y_threshold;
+ 	pdata->rezero_wait = val;
  
--	if (f11->sens_query.has_dribble)
--		ctrl->ctrl0_11[0] = ctrl->ctrl0_11[0] & ~BIT(6);
-+	if (f11->sens_query.has_dribble) {
-+		switch (sensor->dribble) {
-+		case RMI_REG_STATE_OFF:
-+			ctrl->ctrl0_11[0] = ctrl->ctrl0_11[0] & ~BIT(6);
-+			break;
-+		case RMI_REG_STATE_ON:
-+			ctrl->ctrl0_11[0] = ctrl->ctrl0_11[0] | BIT(6);
-+			break;
-+		case RMI_REG_STATE_DEFAULT:
-+		default:
-+			break;
-+		}
-+	}
- 
--	if (f11->sens_query.has_palm_det)
--		ctrl->ctrl0_11[11] = ctrl->ctrl0_11[11] & ~BIT(0);
-+	if (f11->sens_query.has_palm_det) {
-+		switch (sensor->palm_detect) {
-+		case RMI_REG_STATE_OFF:
-+			ctrl->ctrl0_11[11] = ctrl->ctrl0_11[11] & ~BIT(0);
-+			break;
-+		case RMI_REG_STATE_ON:
-+			ctrl->ctrl0_11[11] = ctrl->ctrl0_11[11] & BIT(0);
-+			break;
-+		case RMI_REG_STATE_DEFAULT:
-+		default:
-+			break;
-+		}
-+	}
- 
- 	rc = f11_write_control_regs(fn, &f11->sens_query,
- 			   &f11->dev_controls, fn->fd.query_base_addr);
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index e0aca14..bda72f2 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -99,6 +99,8 @@ struct rmi_2d_sensor_platform_data {
- 	bool topbuttonpad;
- 	bool kernel_tracking;
- 	int dmax;
-+	int dribble;
-+	int palm_detect;
- };
- 
- /**
-@@ -116,14 +118,17 @@ struct rmi_f30_data {
- 	bool disable;
- };
- 
--/**
-- * struct rmi_f01_power - override default power management settings.
-- *
++	if (of_property_read_bool(dev->of_node, "syna,dribble-enable"))
++		pdata->dribble = RMI_REG_STATE_ON;
++	else if (of_property_read_bool(dev->of_node, "syna,dribble-disable"))
++		pdata->dribble = RMI_REG_STATE_OFF;
 +
-+/*
-+ * Set the state of a register
-+ *	DEFAULT - use the default value set by the firmware config
-+ *	OFF - explicitly disable the register
-+ *	ON - explicitly enable the register
-  */
--enum rmi_f01_nosleep {
--	RMI_F01_NOSLEEP_DEFAULT = 0,
--	RMI_F01_NOSLEEP_OFF = 1,
--	RMI_F01_NOSLEEP_ON = 2
-+enum rmi_reg_state {
-+	RMI_REG_STATE_DEFAULT = 0,
-+	RMI_REG_STATE_OFF = 1,
-+	RMI_REG_STATE_ON = 2
- };
- 
- /**
-@@ -143,7 +148,7 @@ enum rmi_f01_nosleep {
-  * when the touch sensor is in doze mode, in units of 10ms.
-  */
- struct rmi_f01_power_management {
--	enum rmi_f01_nosleep nosleep;
-+	enum rmi_reg_state nosleep;
- 	u8 wakeup_threshold;
- 	u8 doze_holdoff;
- 	u8 doze_interval;
++	if (of_property_read_bool(dev->of_node, "syna,palm-detect-enable"))
++		pdata->palm_detect = RMI_REG_STATE_ON;
++	else if (of_property_read_bool(dev->of_node,
++				"syna,palm-detect-disable"))
++		pdata->palm_detect = RMI_REG_STATE_OFF;
++
+ 	return 0;
+ }
+ #else
 -- 
 2.5.0
 

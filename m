@@ -1,32 +1,45 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH v5 0/9] Output raw touch data via V4L2
-Date: Mon, 27 Jun 2016 13:51:54 +0100
-Message-ID: <39b18d15-848b-bf28-4ff2-a5216846fb6b@itdev.co.uk>
-References: <1466633313-15339-1-git-send-email-nick.dyer@itdev.co.uk>
- <30c68dab-b970-03d5-797b-3376d9d0dc10@xs4all.nl>
- <8be600b6-a424-ddda-8672-1aed4e925fe8@itdev.co.uk>
- <693d1756-dab4-b05c-0607-f391f63f1d62@xs4all.nl>
+From: Yu Chen <yu.chen.surf@gmail.com>
+Subject: [RFC] Can we bypass the timeout when resetting Synaptics device?
+Date: Mon, 27 Jun 2016 21:04:58 +0800
+Message-ID: <CADjb_WTNJJpmpNCOGxdUOd1AZ8S7iEf2NnSHC=VC6TzAOTbP_w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <693d1756-dab4-b05c-0607-f391f63f1d62@xs4all.nl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
+To: linux-input@vger.kernel.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.com>, Dmitry Vyukov <dvyukov@google.com>
 List-Id: linux-input@vger.kernel.org
 
-On 27/06/2016 13:22, Hans Verkuil wrote:
-> On 06/27/2016 01:57 PM, Nick Dyer wrote:
-> 2) Alternatively, if we want to keep using BUF_TYPE_VIDEO_CAPTURE, then:
-> 
-> - we keep V4L2_CAP_TOUCH which is combined with CAP_VIDEO_CAPTURE (and perhaps
->   VIDEO_OUTPUT in the future). The CAP_TOUCH just says that this is a touch
->   device, not a video device, but otherwise it acts the same.
-> 
-> I'd go with 2, since I see no reason to add a new BUF_TYPE for this.
-> It acts exactly like video after all, with only a few restrictions (i.e. no
-> colorspace info or interlaced). And adding a new BUF_TYPE will likely break
-> the existing sur40 app.
+Hi All,
+Currently I'm doing some tunings on the speed of suspend/resume,
+it looks like my serio driver tooks a 200ms to finish, which is
+too long:
 
-OK, I will rework with this approach.
+[ 1120.255783] calling  serio0+ @ 2764, parent: i8042
+[ 1120.452976] call serio0+ returned 0 after 192472 usecs
+
+So further investigation shows that the time cost is in
+drivers/input/serio/libps2.c: __ps2_command
+
+        /*
+         * Some devices (Synaptics) peform the reset before
+         * ACKing the reset command, and so it can take a long
+         * time before the ACK arrives.
+         */
+        if (ps2_sendbyte(ps2dev, command & 0xff,
+                         command == PS2_CMD_RESET_BAT ? 1000 : 200)) {
+                serio_pause_rx(ps2dev->serio);
+                goto out_reset_flags;
+        }
+If I understand correctly, if it is a Synaptics device, then we have to wait
+at least 200ms for ATKBD_CMD_RESET_DEF, although this device has already
+been reset.
+
+So my question is, could we add flags to distinguish Synaptics device, and
+if it is a Synaptics device, just do not wait that long time and
+return after the command
+has been sent out?
+
+
+thanks,
+Yu

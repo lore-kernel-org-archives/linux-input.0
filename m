@@ -1,349 +1,157 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v5 3/9] Input: atmel_mxt_ts - output diagnostic debug via
- v4l2 device
-Date: Mon, 27 Jun 2016 13:10:29 +0200
-Message-ID: <5c42bde0-9ed2-c4b9-20eb-8380bc1b0d94@xs4all.nl>
+Subject: Re: [PATCH v5 7/9] Input: atmel_mxt_ts - add support for reference
+ data
+Date: Mon, 27 Jun 2016 13:11:33 +0200
+Message-ID: <188bbbb9-e0f9-78e1-affe-aaa27c476e9d@xs4all.nl>
 References: <1466633313-15339-1-git-send-email-nick.dyer@itdev.co.uk>
- <1466633313-15339-4-git-send-email-nick.dyer@itdev.co.uk>
+ <1466633313-15339-8-git-send-email-nick.dyer@itdev.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1466633313-15339-4-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lb3-smtp-cloud2.xs4all.net ([194.109.24.29]:52430 "EHLO
+	lb3-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751644AbcF0LLk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Jun 2016 07:11:40 -0400
+In-Reply-To: <1466633313-15339-8-git-send-email-nick.dyer@itdev.co.uk>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
-List-Id: linux-input@vger.kernel.org
 
 On 06/23/2016 12:08 AM, Nick Dyer wrote:
-> Register a video device to output T37 diagnostic data.
+> There are different datatypes available from a maXTouch chip. Add
+> support to retrieve reference data as well.
 > 
 > Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 > ---
->  drivers/input/touchscreen/Kconfig        |   6 +-
->  drivers/input/touchscreen/atmel_mxt_ts.c | 244 +++++++++++++++++++++++++++++++
->  2 files changed, 248 insertions(+), 2 deletions(-)
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 58 ++++++++++++++++++++++++++++----
+>  1 file changed, 51 insertions(+), 7 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index da96ecf..7c1c5ec 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -117,9 +117,11 @@ config TOUCHSCREEN_ATMEL_MXT
->  
->  config TOUCHSCREEN_ATMEL_MXT_T37
->  	bool "Support T37 Diagnostic Data"
-> -	depends on TOUCHSCREEN_ATMEL_MXT
-> +	depends on TOUCHSCREEN_ATMEL_MXT && VIDEO_V4L2
-> +	select VIDEOBUF2_VMALLOC
->  	help
-> -	  Say Y here if you want support for the T37 Diagnostic Data object.
-> +	  Say Y here if you want support to output data from the T37
-> +	  Diagnostic Data object using a V4L device.
->  
->  config TOUCHSCREEN_AUO_PIXCIR
->  	tristate "AUO in-cell touchscreen using Pixcir ICs"
 > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 0048233..7780d38 100644
+> index 739d138..f733785 100644
 > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -28,6 +28,10 @@
->  #include <linux/of.h>
->  #include <linux/slab.h>
->  #include <asm/unaligned.h>
-> +#include <media/v4l2-device.h>
-> +#include <media/v4l2-ioctl.h>
-> +#include <media/videobuf2-v4l2.h>
-> +#include <media/videobuf2-vmalloc.h>
+> @@ -135,6 +135,7 @@ struct t9_range {
+>  /* MXT_DEBUG_DIAGNOSTIC_T37 */
+>  #define MXT_DIAGNOSTIC_PAGEUP	0x01
+>  #define MXT_DIAGNOSTIC_DELTAS	0x10
+> +#define MXT_DIAGNOSTIC_REFS	0x11
+>  #define MXT_DIAGNOSTIC_SIZE	128
 >  
->  /* Firmware files */
->  #define MXT_FW_NAME		"maxtouch.fw"
-> @@ -224,6 +228,23 @@ struct mxt_dbg {
->  	struct t37_debug *t37_buf;
->  	unsigned int t37_pages;
->  	unsigned int t37_nodes;
-> +
-> +	struct v4l2_device v4l2;
-> +	struct v4l2_pix_format format;
-> +	struct video_device vdev;
-> +	struct vb2_queue queue;
-> +	struct mutex lock;
-> +	int input;
-> +};
-> +
-> +static const struct v4l2_file_operations mxt_video_fops = {
-> +	.owner = THIS_MODULE,
-> +	.open = v4l2_fh_open,
-> +	.release = vb2_fop_release,
-> +	.unlocked_ioctl = video_ioctl2,
-> +	.read = vb2_fop_read,
-> +	.mmap = vb2_fop_mmap,
-> +	.poll = vb2_fop_poll,
+>  #define MXT_FAMILY_1386			160
+> @@ -249,6 +250,12 @@ struct mxt_dbg {
+>  	int input;
 >  };
 >  
->  /* Each client has this additional data */
-> @@ -279,6 +300,11 @@ struct mxt_data {
->  	struct completion crc_completion;
->  };
->  
-> +struct mxt_vb2_buffer {
-> +	struct vb2_buffer	vb;
-> +	struct list_head	list;
+> +enum v4l_dbg_inputs {
+> +	MXT_V4L_INPUT_DELTAS,
+> +	MXT_V4L_INPUT_REFS,
+> +	MXT_V4L_INPUT_MAX,
 > +};
 > +
->  static size_t mxt_obj_size(const struct mxt_object *obj)
->  {
->  	return obj->size_minus_one + 1;
-> @@ -1525,6 +1551,11 @@ static void mxt_free_input_device(struct mxt_data *data)
+>  static const struct v4l2_file_operations mxt_video_fops = {
+>  	.owner = THIS_MODULE,
+>  	.open = v4l2_fh_open,
+> @@ -2273,6 +2280,7 @@ static void mxt_buffer_queue(struct vb2_buffer *vb)
+>  	struct mxt_data *data = vb2_get_drv_priv(vb->vb2_queue);
+>  	u16 *ptr;
+>  	int ret;
+> +	u8 mode;
 >  
->  static void mxt_free_object_table(struct mxt_data *data)
->  {
-> +#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
-> +	video_unregister_device(&data->dbg.vdev);
-> +	v4l2_device_unregister(&data->dbg.v4l2);
-> +#endif
-> +
->  	kfree(data->object_table);
->  	data->object_table = NULL;
->  	kfree(data->msg_buf);
-> @@ -2157,10 +2188,191 @@ wait_cmd:
->  	return mxt_convert_debug_pages(data, outbuf);
->  }
+>  	ptr = vb2_plane_vaddr(vb, 0);
+>  	if (!ptr) {
+> @@ -2280,7 +2288,18 @@ static void mxt_buffer_queue(struct vb2_buffer *vb)
+>  		goto fault;
+>  	}
 >  
-> +static int mxt_queue_setup(struct vb2_queue *q,
-> +		       unsigned int *nbuffers, unsigned int *nplanes,
-> +		       unsigned int sizes[], void *alloc_ctxs[])
-> +{
-> +	struct mxt_data *data = q->drv_priv;
-> +	size_t size = data->dbg.t37_nodes * sizeof(u16);
+> -	ret = mxt_read_diagnostic_debug(data, MXT_DIAGNOSTIC_DELTAS, ptr);
+> +	switch (data->dbg.input) {
+> +	case MXT_V4L_INPUT_DELTAS:
+> +	default:
+> +		mode = MXT_DIAGNOSTIC_DELTAS;
+> +		break;
 > +
-> +	if (*nplanes)
-> +		return sizes[0] < size ? -EINVAL : 0;
-> +
-> +	*nplanes = 1;
-> +	sizes[0] = size;
-> +
-> +	return 0;
-> +}
-> +
-> +static void mxt_buffer_queue(struct vb2_buffer *vb)
-> +{
-> +	struct mxt_data *data = vb2_get_drv_priv(vb->vb2_queue);
-> +	u16 *ptr;
-> +	int ret;
-> +
-> +	ptr = vb2_plane_vaddr(vb, 0);
-> +	if (!ptr) {
-> +		dev_err(&data->client->dev, "Error acquiring frame ptr\n");
-> +		goto fault;
+> +	case MXT_V4L_INPUT_REFS:
+> +		mode = MXT_DIAGNOSTIC_REFS;
+> +		break;
 > +	}
 > +
-> +	ret = mxt_read_diagnostic_debug(data, MXT_DIAGNOSTIC_DELTAS, ptr);
-> +	if (ret)
-> +		goto fault;
-> +
-> +	vb2_set_plane_payload(vb, 0, data->dbg.t37_nodes * sizeof(u16));
-> +	vb2_buffer_done(vb, VB2_BUF_STATE_DONE);
-> +	return;
-> +
-> +fault:
-> +	vb2_buffer_done(vb, VB2_BUF_STATE_ERROR);
-> +}
-> +
-> +/* V4L2 structures */
-> +static const struct vb2_ops mxt_queue_ops = {
-> +	.queue_setup		= mxt_queue_setup,
-> +	.buf_queue		= mxt_buffer_queue,
-> +	.wait_prepare		= vb2_ops_wait_prepare,
-> +	.wait_finish		= vb2_ops_wait_finish,
-> +};
-> +
-> +static const struct vb2_queue mxt_queue = {
-> +	.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
-> +	.io_modes = VB2_MMAP | VB2_USERPTR | VB2_DMABUF | VB2_READ,
-> +	.buf_struct_size = sizeof(struct mxt_vb2_buffer),
-> +	.ops = &mxt_queue_ops,
-> +	.mem_ops = &vb2_vmalloc_memops,
-> +	.timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC,
-> +	.min_buffers_needed = 1,
-> +};
-> +
-> +static int mxt_vidioc_querycap(struct file *file, void *priv,
-> +				 struct v4l2_capability *cap)
-> +{
-> +	struct mxt_data *data = video_drvdata(file);
-> +
-> +	strlcpy(cap->driver, "atmel_mxt_ts", sizeof(cap->driver));
-> +	strlcpy(cap->card, "atmel_mxt_ts touch", sizeof(cap->card));
-> +	snprintf(cap->bus_info, sizeof(cap->bus_info),
-> +		 "I2C:%s", dev_name(&data->client->dev));
-> +	return 0;
-> +}
-> +
-> +static int mxt_vidioc_enum_input(struct file *file, void *priv,
-> +				   struct v4l2_input *i)
-> +{
-> +	if (i->index > 0)
-> +		return -EINVAL;
-> +
-> +	i->type = V4L2_INPUT_TYPE_TOUCH;
-> +	strlcpy(i->name, "Mutual References", sizeof(i->name));
-
-How about "Mutual Capacitance References"?
-
-> +	return 0;
-> +}
-> +
-> +static int mxt_set_input(struct mxt_data *data, unsigned int i)
-> +{
-> +	struct v4l2_pix_format *f = &data->dbg.format;
-> +
-> +	if (i > 0)
-> +		return -EINVAL;
-> +
-> +	f->width = data->info.matrix_xsize;
-> +	f->height = data->info.matrix_ysize;
-> +	f->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
-> +	f->field = V4L2_FIELD_NONE;
-> +	f->colorspace = V4L2_COLORSPACE_RAW;
-> +	f->bytesperline = f->width * sizeof(u16);
-> +	f->sizeimage = f->width * f->height * sizeof(u16);
-> +
-> +	data->dbg.input = i;
-> +
-> +	return 0;
-> +}
-> +
-> +static int mxt_vidioc_s_input(struct file *file, void *priv, unsigned int i)
-> +{
-> +	return mxt_set_input(video_drvdata(file), i);
-> +}
-> +
-> +static int mxt_vidioc_g_input(struct file *file, void *priv, unsigned int *i)
-> +{
-> +	struct mxt_data *data = video_drvdata(file);
-> +
-> +	*i = data->dbg.input;
-> +
-> +	return 0;
-> +}
-> +
-> +static int mxt_vidioc_fmt(struct file *file, void *priv, struct v4l2_format *f)
-> +{
-> +	struct mxt_data *data = video_drvdata(file);
-> +
-> +	f->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-> +	f->fmt.pix = data->dbg.format;
-> +
-> +	return 0;
-> +}
-> +
-> +static int mxt_vidioc_enum_fmt(struct file *file, void *priv,
-> +				 struct v4l2_fmtdesc *fmt)
-> +{
-> +	if (fmt->index > 0 || fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
-> +		return -EINVAL;
-> +
-> +	fmt->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
-> +	return 0;
-> +}
-> +
-> +static int mxt_vidioc_g_parm(struct file *file, void *fh,
-> +			     struct v4l2_streamparm *a)
-> +{
-> +	if (a->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
-> +		return -EINVAL;
-> +
-> +	a->parm.capture.readbuffers = 1;
-> +	a->parm.capture.timeperframe.numerator = 1;
-> +	a->parm.capture.timeperframe.denominator = 10;
-> +	return 0;
-> +}
-> +
-> +static const struct v4l2_ioctl_ops mxt_video_ioctl_ops = {
-> +	.vidioc_querycap        = mxt_vidioc_querycap,
-> +
-> +	.vidioc_enum_fmt_vid_cap = mxt_vidioc_enum_fmt,
-> +	.vidioc_s_fmt_vid_cap   = mxt_vidioc_fmt,
-> +	.vidioc_g_fmt_vid_cap   = mxt_vidioc_fmt,
-> +	.vidioc_try_fmt_vid_cap	= mxt_vidioc_fmt,
-> +	.vidioc_g_parm		= mxt_vidioc_g_parm,
-> +
-> +	.vidioc_enum_input      = mxt_vidioc_enum_input,
-> +	.vidioc_g_input         = mxt_vidioc_g_input,
-> +	.vidioc_s_input         = mxt_vidioc_s_input,
-> +
-> +	.vidioc_reqbufs         = vb2_ioctl_reqbufs,
-> +	.vidioc_create_bufs     = vb2_ioctl_create_bufs,
-> +	.vidioc_querybuf        = vb2_ioctl_querybuf,
-> +	.vidioc_qbuf            = vb2_ioctl_qbuf,
-> +	.vidioc_dqbuf           = vb2_ioctl_dqbuf,
-> +	.vidioc_expbuf          = vb2_ioctl_expbuf,
-> +
-> +	.vidioc_streamon        = vb2_ioctl_streamon,
-> +	.vidioc_streamoff       = vb2_ioctl_streamoff,
-> +};
-> +
-> +static const struct video_device mxt_video_device = {
-> +	.name = "Atmel maxTouch",
-> +	.fops = &mxt_video_fops,
-> +	.ioctl_ops = &mxt_video_ioctl_ops,
-> +	.release = video_device_release_empty,
-> +	.device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
-> +		       V4L2_CAP_STREAMING,
-
-Should there be a CAP_TOUCH here?
-
-> +};
-> +
->  static void mxt_debug_init(struct mxt_data *data)
+> +	ret = mxt_read_diagnostic_debug(data, mode, ptr);
+>  	if (ret)
+>  		goto fault;
+>  
+> @@ -2325,11 +2344,20 @@ static int mxt_vidioc_querycap(struct file *file, void *priv,
+>  static int mxt_vidioc_enum_input(struct file *file, void *priv,
+>  				   struct v4l2_input *i)
 >  {
->  	struct mxt_dbg *dbg = &data->dbg;
->  	struct mxt_object *object;
-> +	int error;
+> -	if (i->index > 0)
+> +	if (i->index >= MXT_V4L_INPUT_MAX)
+>  		return -EINVAL;
 >  
->  	object = mxt_get_object(data, MXT_GEN_COMMAND_T6);
->  	if (!object)
-> @@ -2189,8 +2401,40 @@ static void mxt_debug_init(struct mxt_data *data)
->  	if (!dbg->t37_buf)
->  		goto error;
->  
-> +	/* init channel to zero */
-> +	mxt_set_input(data, 0);
+>  	i->type = V4L2_INPUT_TYPE_TOUCH;
+> -	strlcpy(i->name, "Mutual References", sizeof(i->name));
 > +
-> +	/* register video device */
-> +	snprintf(dbg->v4l2.name, sizeof(dbg->v4l2.name), "%s", "atmel_mxt_ts");
-> +	error = v4l2_device_register(&data->client->dev, &dbg->v4l2);
-> +	if (error)
-> +		goto error;
+> +	switch (i->index) {
+> +	case MXT_V4L_INPUT_REFS:
+> +		strlcpy(i->name, "Mutual References", sizeof(i->name));
+> +		break;
+> +	case MXT_V4L_INPUT_DELTAS:
+> +		strlcpy(i->name, "Mutual Deltas", sizeof(i->name));
+
+Same here: Mutual Capacitance Deltas
+
+> +		break;
+> +	}
 > +
-> +	/* initialize the queue */
-> +	mutex_init(&dbg->lock);
-> +	dbg->queue = mxt_queue;
-> +	dbg->queue.drv_priv = data;
-> +	dbg->queue.lock = &dbg->lock;
-> +
-> +	error = vb2_queue_init(&dbg->queue);
-> +	if (error)
-> +		goto error_unreg_v4l2;
-> +
-> +	dbg->vdev = mxt_video_device;
-> +	dbg->vdev.v4l2_dev = &dbg->v4l2;
-> +	dbg->vdev.lock = &dbg->lock;
-> +	dbg->vdev.vfl_dir = VFL_DIR_RX;
-> +	dbg->vdev.queue = &dbg->queue;
-> +	video_set_drvdata(&dbg->vdev, data);
-> +
-> +	error = video_register_device(&dbg->vdev, VFL_TYPE_TOUCH, -1);
-> +	if (error)
-> +		goto error_unreg_v4l2;
-> +
->  	return;
->  
-> +error_unreg_v4l2:
-> +	v4l2_device_unregister(&dbg->v4l2);
->  error:
->  	dev_warn(&data->client->dev, "Error initializing T37\n");
+>  	return 0;
 >  }
+>  
+> @@ -2337,12 +2365,16 @@ static int mxt_set_input(struct mxt_data *data, unsigned int i)
+>  {
+>  	struct v4l2_pix_format *f = &data->dbg.format;
+>  
+> -	if (i > 0)
+> +	if (i >= MXT_V4L_INPUT_MAX)
+>  		return -EINVAL;
+>  
+> +	if (i == MXT_V4L_INPUT_DELTAS)
+> +		f->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
+> +	else
+> +		f->pixelformat = V4L2_TCH_FMT_TU16;
+> +
+>  	f->width = data->xy_switch ? data->ysize : data->xsize;
+>  	f->height = data->xy_switch ? data->xsize : data->ysize;
+> -	f->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
+>  	f->field = V4L2_FIELD_NONE;
+>  	f->colorspace = V4L2_COLORSPACE_RAW;
+>  	f->bytesperline = f->width * sizeof(u16);
+> @@ -2380,10 +2412,22 @@ static int mxt_vidioc_fmt(struct file *file, void *priv, struct v4l2_format *f)
+>  static int mxt_vidioc_enum_fmt(struct file *file, void *priv,
+>  				 struct v4l2_fmtdesc *fmt)
+>  {
+> -	if (fmt->index > 0 || fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+> +	if (fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+> +		return -EINVAL;
+> +
+> +	switch (fmt->index) {
+> +	case 0:
+> +		fmt->pixelformat = V4L2_TCH_FMT_TU16;
+> +		break;
+> +
+> +	case 1:
+> +		fmt->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
+> +		break;
+> +
+> +	default:
+>  		return -EINVAL;
+> +	}
+>  
+> -	fmt->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
+>  	return 0;
+>  }
+>  
 > 
 
 Regards,

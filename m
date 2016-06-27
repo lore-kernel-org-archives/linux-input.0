@@ -1,72 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Can we bypass the timeout when resetting Synaptics device?
-Date: Mon, 27 Jun 2016 10:05:44 -0700
-Message-ID: <20160627170544.GA22620@dtor-ws>
-References: <CADjb_WTNJJpmpNCOGxdUOd1AZ8S7iEf2NnSHC=VC6TzAOTbP_w@mail.gmail.com>
+From: Andy Lutomirski <luto@kernel.org>
+Subject: Re: [PATCH 1/2] Revert "HID: multitouch: enable palm rejection if
+ device implements confidence usage"
+Date: Mon, 27 Jun 2016 10:55:42 -0700
+Message-ID: <2407f04d-4658-c3d5-1434-5e548f2063e0@kernel.org>
+References: <1466670690-77458-1-git-send-email-allen_hung@dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CADjb_WTNJJpmpNCOGxdUOd1AZ8S7iEf2NnSHC=VC6TzAOTbP_w@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yu Chen <yu.chen.surf@gmail.com>
-Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.com>, Dmitry Vyukov <dvyukov@google.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:32922 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751638AbcF0Rzp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Jun 2016 13:55:45 -0400
+In-Reply-To: <1466670690-77458-1-git-send-email-allen_hung@dell.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Allen Hung <allen_hung@dell.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-Hi Yu,
+On 06/23/2016 01:31 AM, Allen Hung wrote:
+> This reverts commit 25a84db15b3f ("HID: multitouch: enable palm rejection
+> if device implements confidence usage")
+>
+> The commit enables palm rejection for Win8 Precision Touchpad devices but
+> the quirk MT_QUIRK_VALID_IS_CONFIDENCE it is using is not working very
+> properly. This quirk is originally designed for some WIn7 touchscreens. Use
+> of this for a Win8 Precision Touchpad will cause unexpected pointer jumping
+> problem.
+>
+> Signed-off-by: Allen Hung <allen_hung@dell.com>
+> ---
+>  drivers/hid/hid-multitouch.c | 5 -----
+>  1 file changed, 5 deletions(-)
+>
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 95b7d61..4ef7006 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -502,11 +502,6 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  			mt_store_field(usage, td, hi);
+>  			return 1;
+>  		case HID_DG_CONFIDENCE:
+> -			if (cls->name == MT_CLS_WIN_8 &&
+> -				field->application == HID_DG_TOUCHPAD) {
+> -				cls->quirks &= ~MT_QUIRK_ALWAYS_VALID;
+> -				cls->quirks |= MT_QUIRK_VALID_IS_CONFIDENCE;
+> -			}
+>  			mt_store_field(usage, td, hi);
+>  			return 1;
+>  		case HID_DG_TIPSWITCH:
+>
 
-On Mon, Jun 27, 2016 at 09:04:58PM +0800, Yu Chen wrote:
-> Hi All,
-> Currently I'm doing some tunings on the speed of suspend/resume,
-> it looks like my serio driver tooks a 200ms to finish, which is
-> too long:
+This and patch 2 are:
 
-Well, PS/2 is not fast, that is why we do not actually do any IO in
-resume handler, but rather schedule work to execute actions in a
-separate thread. You probably need to instrument the call to
-serio_queue_event() in serio_resume() and see what took so long.
+Tested-by: Andy Lutomirski <luto@kernel.org> # XPS 13 9350, BIOS 1.4.3
 
-Also, IIRC, there might be some issue when serio_reconnect_driver()
-fails and serio_reconnect_port() forcibly unbinds driver and rescans the
-device for new drivers. If this happens in the middle of PM transition
-there might be some contention on PM locks.
+(And I'm curious why 1.4.3 seems to have been pulled.  Might it have 
+been this issue?  For better or for worse, I upgraded in the narrow 
+window in which it was available on Dell's website.)
 
-> 
-> [ 1120.255783] calling  serio0+ @ 2764, parent: i8042
-> [ 1120.452976] call serio0+ returned 0 after 192472 usecs
-> 
-> So further investigation shows that the time cost is in
-> drivers/input/serio/libps2.c: __ps2_command
-> 
->         /*
->          * Some devices (Synaptics) peform the reset before
->          * ACKing the reset command, and so it can take a long
->          * time before the ACK arrives.
->          */
->         if (ps2_sendbyte(ps2dev, command & 0xff,
->                          command == PS2_CMD_RESET_BAT ? 1000 : 200)) {
->                 serio_pause_rx(ps2dev->serio);
->                 goto out_reset_flags;
->         }
-> If I understand correctly, if it is a Synaptics device, then we have to wait
-> at least 200ms for ATKBD_CMD_RESET_DEF, although this device has already
-> been reset.
-
-No, you are misreading the code. If the command is PS2_CMD_RESET_BAT
-then we will be waiting for up to 1 sec for the reste to complete,
-because Synaptics touchpads may take that long to re-calibrate after
-reset. All other commands have timeout of 200 msec, but that does not
-mean that we wait that long - we'll continue if device responds faster.
-
-> 
-> So my question is, could we add flags to distinguish Synaptics device, and
-> if it is a Synaptics device, just do not wait that long time and
-> return after the command
-> has been sent out?
-
-No, because that's not how protocol works.
-
-Thanks.
-
--- 
-Dmitry
+--Andy

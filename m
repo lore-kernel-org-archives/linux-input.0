@@ -1,46 +1,73 @@
-From: Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH] Input: Add SW_PEN_INSERTED define
-Date: Tue, 28 Jun 2016 10:00:53 -0700
-Message-ID: <1467133253-8075-1-git-send-email-dianders@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f177.google.com ([209.85.192.177]:34093 "EHLO
-	mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752046AbcF1RBc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jun 2016 13:01:32 -0400
-Received: by mail-pf0-f177.google.com with SMTP id h14so8544462pfe.1
-        for <linux-input@vger.kernel.org>; Tue, 28 Jun 2016 10:01:31 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v6 3/6] input: tps65218-pwrbutton: Add platform_device_id
+ table
+Date: Tue, 28 Jun 2016 10:04:41 -0700
+Message-ID: <20160628170441.GA13114@dtor-ws>
+References: <1467117054-12943-1-git-send-email-j-keerthy@ti.com>
+ <1467117054-12943-4-git-send-email-j-keerthy@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1467117054-12943-4-git-send-email-j-keerthy@ti.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Keerthy <j-keerthy@ti.com>
+Cc: gnurou@gmail.com, devicetree@vger.kernel.org, tony@atomide.com, linus.walleij@linaro.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, linux-gpio@vger.kernel.org, broonie@kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, lee.jones@linaro.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Douglas Anderson <dianders@chromium.org>, hdegoede@redhat.com, robh@kernel.org, hans.verkuil@cisco.com, kamil@wypas.org, linux-kernel@vger.kernel.org
 
-Some devices with a pen may have a switch that can be used to detect
-when the pen is inserted or removed to a slot on the device.  Let's add
-a define to the input event codes so that everyone can be on the same
-page for what event we should generate when the pen is inserted or
-removed.
+On Tue, Jun 28, 2016 at 06:00:51PM +0530, Keerthy wrote:
+> platform_device_id table is needed for adding the tps65218-pwrbutton
+> module to the mfd_cell array.
+> 
+> Signed-off-by: Keerthy <j-keerthy@ti.com>
 
-In general the pen switch could be used by the software on the device to
-kick off any number of actions when the pen is inserted or removed.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
----
- include/uapi/linux/input-event-codes.h | 1 +
- 1 file changed, 1 insertion(+)
+> ---
+> 
+> Changes in v4:
+> 
+>   * Added the missing ';' for struct platform_device_id.
+> 
+>  drivers/input/misc/tps65218-pwrbutton.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/input/misc/tps65218-pwrbutton.c b/drivers/input/misc/tps65218-pwrbutton.c
+> index 2bba8de..33d141a 100644
+> --- a/drivers/input/misc/tps65218-pwrbutton.c
+> +++ b/drivers/input/misc/tps65218-pwrbutton.c
+> @@ -113,12 +113,19 @@ static const struct of_device_id of_tps65218_pwr_match[] = {
+>  };
+>  MODULE_DEVICE_TABLE(of, of_tps65218_pwr_match);
+>  
+> +static const struct platform_device_id tps65218_pwrbtn_id_table[] = {
+> +	{ "tps65218-pwrbutton", },
+> +	{ /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(platform, tps65218_pwrbtn_id_table);
+> +
+>  static struct platform_driver tps65218_pwron_driver = {
+>  	.probe	= tps65218_pwron_probe,
+>  	.driver	= {
+>  		.name	= "tps65218_pwrbutton",
+>  		.of_match_table = of_tps65218_pwr_match,
+>  	},
+> +	.id_table = tps65218_pwrbtn_id_table,
+>  };
+>  module_platform_driver(tps65218_pwron_driver);
+>  
+> -- 
+> 1.9.1
+> 
 
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 737fa32faad4..d6d071fc3c56 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -780,6 +780,7 @@
- #define SW_ROTATE_LOCK		0x0c  /* set = rotate locked/disabled */
- #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
- #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
-+#define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
- #define SW_MAX			0x0f
- #define SW_CNT			(SW_MAX+1)
- 
 -- 
-2.8.0.rc3.226.g39d4020
-
+Dmitry

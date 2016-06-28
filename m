@@ -1,23 +1,22 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v3 03/10] input: tps65218-pwrbutton: Add
- platform_device_id table
-Date: Tue, 28 Jun 2016 07:49:48 +0100
-Message-ID: <20160628064948.GB6720@dell>
+Subject: Re: [PATCH v3 06/10] gpio: tps65218: Remove the compatible
+Date: Tue, 28 Jun 2016 07:52:35 +0100
+Message-ID: <20160628065235.GC6720@dell>
 References: <1467093980-11458-1-git-send-email-j-keerthy@ti.com>
- <1467093980-11458-4-git-send-email-j-keerthy@ti.com>
+ <1467093980-11458-7-git-send-email-j-keerthy@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:38654 "EHLO
+Received: from mail-wm0-f54.google.com ([74.125.82.54]:38460 "EHLO
 	mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751419AbcF1Gs6 (ORCPT
+	with ESMTP id S1750704AbcF1Gvp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jun 2016 02:48:58 -0400
-Received: by mail-wm0-f54.google.com with SMTP id r201so12243726wme.1
-        for <linux-input@vger.kernel.org>; Mon, 27 Jun 2016 23:48:57 -0700 (PDT)
+	Tue, 28 Jun 2016 02:51:45 -0400
+Received: by mail-wm0-f54.google.com with SMTP id r201so12331239wme.1
+        for <linux-input@vger.kernel.org>; Mon, 27 Jun 2016 23:51:44 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1467093980-11458-4-git-send-email-j-keerthy@ti.com>
+In-Reply-To: <1467093980-11458-7-git-send-email-j-keerthy@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Keerthy <j-keerthy@ti.com>
@@ -25,44 +24,53 @@ Cc: dmitry.torokhov@gmail.com, linus.walleij@linaro.org, gnurou@gmail.com, broon
 
 On Tue, 28 Jun 2016, Keerthy wrote:
 
-> platform_device_id table is needed for adding the tps65218-pwrbutton
-> module to the mfd_cell array.
->=20
+> Remove the individual compatible for the gpio module.
+> Introduce id_table and update the driver accordingly
+> to parse device tree nodes by just using the mfd compatible.
+
+Aren't there any OF calls in this driver?
+
+You can use the MFD API to pass through compatible strings in order to
+interrogate the DT in the normal way.  There isn't usually a reason to
+remove DT support just because you start using the MFD API.
+
 > Signed-off-by: Keerthy <j-keerthy@ti.com>
 > ---
->  drivers/input/misc/tps65218-pwrbutton.c | 7 +++++++
->  1 file changed, 7 insertions(+)
+>  drivers/gpio/gpio-tps65218.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 >=20
-> diff --git a/drivers/input/misc/tps65218-pwrbutton.c b/drivers/input/=
-misc/tps65218-pwrbutton.c
-> index 2bba8de..a0cb7d2 100644
-> --- a/drivers/input/misc/tps65218-pwrbutton.c
-> +++ b/drivers/input/misc/tps65218-pwrbutton.c
-> @@ -113,12 +113,19 @@ static const struct of_device_id of_tps65218_pw=
-r_match[] =3D {
->  };
->  MODULE_DEVICE_TABLE(of, of_tps65218_pwr_match);
+> diff --git a/drivers/gpio/gpio-tps65218.c b/drivers/gpio/gpio-tps6521=
+8.c
+> index 0f9d9bd..06fd61f 100644
+> --- a/drivers/gpio/gpio-tps65218.c
+> +++ b/drivers/gpio/gpio-tps65218.c
+> @@ -225,19 +225,19 @@ static int tps65218_gpio_remove(struct platform=
+_device *pdev)
+>  	return 0;
+>  }
 > =20
-> +static const struct platform_device_id tps65218_pwrbtn_id_table[] =3D=
- {
-> +	{ "tps65218-pwrbutton", },
+> -static const struct of_device_id tps65218_dt_match[] =3D {
+> -	{ .compatible =3D "ti,tps65218-gpio" },
+> -	{  }
+> +static const struct platform_device_id tps65218_gpio_id_table[] =3D =
+{
+> +	{ "tps65218-gpio", },
 > +	{ /* sentinel */ }
-> +}
-
-Missing ';'.  Did you build test this?
-
-> +MODULE_DEVICE_TABLE(platform, tps65218_pwrbtn_id_table);
-> +
->  static struct platform_driver tps65218_pwron_driver =3D {
->  	.probe	=3D tps65218_pwron_probe,
->  	.driver	=3D {
->  		.name	=3D "tps65218_pwrbutton",
->  		.of_match_table =3D of_tps65218_pwr_match,
->  	},
-> +	.id_table =3D tps65218_pwrbtn_id_table,
 >  };
->  module_platform_driver(tps65218_pwron_driver);
+> -MODULE_DEVICE_TABLE(of, tps65218_dt_match);
+> +MODULE_DEVICE_TABLE(platform, tps65218_gpio_id_table);
 > =20
+>  static struct platform_driver tps65218_gpio_driver =3D {
+>  	.driver =3D {
+>  		.name =3D "tps65218-gpio",
+> -		.of_match_table =3D of_match_ptr(tps65218_dt_match)
+>  	},
+>  	.probe =3D tps65218_gpio_probe,
+>  	.remove =3D tps65218_gpio_remove,
+> +	.id_table =3D tps65218_gpio_id_table,
+>  };
+> =20
+>  module_platform_driver(tps65218_gpio_driver);
 
 --=20
 Lee Jones

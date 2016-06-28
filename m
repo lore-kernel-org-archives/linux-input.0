@@ -1,73 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6 3/6] input: tps65218-pwrbutton: Add platform_device_id
- table
-Date: Tue, 28 Jun 2016 10:04:41 -0700
-Message-ID: <20160628170441.GA13114@dtor-ws>
-References: <1467117054-12943-1-git-send-email-j-keerthy@ti.com>
- <1467117054-12943-4-git-send-email-j-keerthy@ti.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH 1/2] Revert "HID: multitouch: enable palm rejection if
+ device implements confidence usage"
+Date: Tue, 28 Jun 2016 10:38:17 -0700
+Message-ID: <CALCETrUwUkx3sdup2zbVn0n1Hegi5qwk1OHzTYYpLYkP95Tykg@mail.gmail.com>
+References: <1466670690-77458-1-git-send-email-allen_hung@dell.com>
+ <2407f04d-4658-c3d5-1434-5e548f2063e0@kernel.org> <CALCETrWhHWeqGK6zmng=+8_N87cezi6EwO7xW96HoMTxTkzxeQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <1467117054-12943-4-git-send-email-j-keerthy@ti.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Keerthy <j-keerthy@ti.com>
-Cc: gnurou@gmail.com, devicetree@vger.kernel.org, tony@atomide.com, linus.walleij@linaro.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, linux-gpio@vger.kernel.org, broonie@kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, lee.jones@linaro.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vk0-f53.google.com ([209.85.213.53]:34672 "EHLO
+	mail-vk0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752074AbcF1Riy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Jun 2016 13:38:54 -0400
+Received: by mail-vk0-f53.google.com with SMTP id c2so32207224vkg.1
+        for <linux-input@vger.kernel.org>; Tue, 28 Jun 2016 10:38:42 -0700 (PDT)
+In-Reply-To: <CALCETrWhHWeqGK6zmng=+8_N87cezi6EwO7xW96HoMTxTkzxeQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andy Lutomirski <luto@kernel.org>
+Cc: Allen Hung <allen_hung@dell.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-On Tue, Jun 28, 2016 at 06:00:51PM +0530, Keerthy wrote:
-> platform_device_id table is needed for adding the tps65218-pwrbutton
-> module to the mfd_cell array.
-> 
-> Signed-off-by: Keerthy <j-keerthy@ti.com>
+On Mon, Jun 27, 2016 at 3:25 PM, Andy Lutomirski <luto@amacapital.net> wrote:
+> On Mon, Jun 27, 2016 at 10:55 AM, Andy Lutomirski <luto@kernel.org> wrote:
+>>
+>> This and patch 2 are:
+>>
+>> Tested-by: Andy Lutomirski <luto@kernel.org> # XPS 13 9350, BIOS 1.4.3
+>>
+>> (And I'm curious why 1.4.3 seems to have been pulled.  Might it have been
+>> this issue?  For better or for worse, I upgraded in the narrow window in
+>> which it was available on Dell's website.)
+>>
+>
+> I should amend that Tested-by slightly: these patches seem to make the
+> problem merely about as bad as it was before.  It's still not perfect
+> -- I still occasionally get stuck touches.
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On further investigation, I'm not getting stuck touches AFAICT.  I'm
+experiencing an upgraded version of libinput being clever and
+incorrectly deciding that I middle-clicked.  Sorry for the noise.
 
-> ---
-> 
-> Changes in v4:
-> 
->   * Added the missing ';' for struct platform_device_id.
-> 
->  drivers/input/misc/tps65218-pwrbutton.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/input/misc/tps65218-pwrbutton.c b/drivers/input/misc/tps65218-pwrbutton.c
-> index 2bba8de..33d141a 100644
-> --- a/drivers/input/misc/tps65218-pwrbutton.c
-> +++ b/drivers/input/misc/tps65218-pwrbutton.c
-> @@ -113,12 +113,19 @@ static const struct of_device_id of_tps65218_pwr_match[] = {
->  };
->  MODULE_DEVICE_TABLE(of, of_tps65218_pwr_match);
->  
-> +static const struct platform_device_id tps65218_pwrbtn_id_table[] = {
-> +	{ "tps65218-pwrbutton", },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(platform, tps65218_pwrbtn_id_table);
-> +
->  static struct platform_driver tps65218_pwron_driver = {
->  	.probe	= tps65218_pwron_probe,
->  	.driver	= {
->  		.name	= "tps65218_pwrbutton",
->  		.of_match_table = of_tps65218_pwr_match,
->  	},
-> +	.id_table = tps65218_pwrbtn_id_table,
->  };
->  module_platform_driver(tps65218_pwron_driver);
->  
-> -- 
-> 1.9.1
-> 
+https://bugs.freedesktop.org/show_bug.cgi?id=96710
 
--- 
-Dmitry
+--Andy

@@ -1,74 +1,114 @@
-From: =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Subject: RE: [PATCH] Input: elan_i2c - +200 ms delay before setting to ABS mode
-Date: Tue, 28 Jun 2016 09:41:13 +0800
-Message-ID: <003401d1d0de$27b8e1c0$772aa540$@emc.com.tw>
-References: <1465306449-28256-1-git-send-email-chiu@endlessm.com>	<20160620174251.GC22426@dtor-ws>	<008601d1cbba$124c2230$36e46690$@emc.com.tw> <CAD8Lp44NHiSfPjzYkPCm1jX1Jb2E071WY4_OdCpJv0H7ivEoSg@mail.gmail.com>
+From: Yu Chen <yu.chen.surf@gmail.com>
+Subject: Re: [RFC] Can we bypass the timeout when resetting Synaptics device?
+Date: Tue, 28 Jun 2016 10:10:27 +0800
+Message-ID: <CADjb_WQjg-aqpN_h2yO4rh9SPFbsUts_jHVOrNBqFHA=msHg2Q@mail.gmail.com>
+References: <CADjb_WTNJJpmpNCOGxdUOd1AZ8S7iEf2NnSHC=VC6TzAOTbP_w@mail.gmail.com>
+ <20160627170544.GA22620@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:25745 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751942AbcF1BlR convert rfc822-to-8bit (ORCPT
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:34652 "EHLO
+	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751956AbcF1CK3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jun 2016 21:41:17 -0400
-In-Reply-To: <CAD8Lp44NHiSfPjzYkPCm1jX1Jb2E071WY4_OdCpJv0H7ivEoSg@mail.gmail.com>
-Content-Language: zh-tw
+	Mon, 27 Jun 2016 22:10:29 -0400
+In-Reply-To: <20160627170544.GA22620@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Daniel Drake' <drake@endlessm.com>
-Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Chris Chiu' <chiu@endlessm.com>, 'Charlie Mooney' <charliemooney@chromium.org>, 'Michele Curti' <michele.curti@gmail.com>, 'Krzysztof Kozlowski' <k.kozlowski@samsung.com>, 'Benson Leung' <bleung@chromium.org>, linux-input@vger.kernel.org, 'Linux Kernel' <linux-kernel@vger.kernel.org>, 'Linux Upstreaming Team' <linux@endlessm.com>, =?utf-8?B?J+m7g+S4lum1rCDntpPnkIYn?= <phoenix@emc.com.tw>, 'jimmy_yang' <jimmy_yang@emc.com.tw>, 'Miller_Wang' <miller_wang@emc.com.tw>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.com>, Dmitry Vyukov <dvyukov@google.com>
 
-Hi Daniel, Chris
+Hi Dmitry,
+thanks very much for your reply,
 
------Original Message-----
-=46rom: Daniel Drake [mailto:drake@endlessm.com]=20
-Sent: Tuesday, June 21, 2016 10:42 PM
-To: =E5=BB=96=E5=B4=87=E6=A6=AE
-Cc: Dmitry Torokhov; Chris Chiu; Charlie Mooney; Michele Curti; Krzyszt=
-of Kozlowski; Benson Leung; linux-input@vger.kernel.org; Linux Kernel; =
-Linux Upstreaming Team; =E9=BB=83=E4=B8=96=E9=B5=AC =E7=B6=93=E7=90=86
-Subject: Re: [PATCH] Input: elan_i2c - +200 ms delay before setting to =
-ABS mode
+On Tue, Jun 28, 2016 at 1:05 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Yu,
+>
+> On Mon, Jun 27, 2016 at 09:04:58PM +0800, Yu Chen wrote:
+>> Hi All,
+>> Currently I'm doing some tunings on the speed of suspend/resume,
+>> it looks like my serio driver tooks a 200ms to finish, which is
+>> too long:
+>
+> Well, PS/2 is not fast, that is why we do not actually do any IO in
+> resume handler, but rather schedule work to execute actions in a
+> separate thread. You probably need to instrument the call to
+> serio_queue_event() in serio_resume() and see what took so long.
+Here's the systemtap track result when doing suspend:
+In process [rtcwake]
+on CPU [3]
+ 0xffffffff81650f00 : __ps2_command+0x0/0x4b0 [kernel]
+ 0xffffffff816513da : ps2_command+0x2a/0x40 [kernel]
+ 0xffffffff8165bc5e : atkbd_cleanup+0x4e/0x60 [kernel]
+ 0xffffffff8164dfc8 : serio_cleanup+0x38/0x50 [kernel]
+ 0xffffffff8164dff5 : serio_suspend+0x15/0x20 [kernel]
+ 0xffffffff815392fe : dpm_run_callback+0x4e/0x130 [kernel]
+ 0xffffffff8153a022 : __device_suspend+0x122/0x350 [kernel]
+ 0xffffffff8153b9e3 : dpm_suspend+0x133/0x2e0 [kernel]
+ 0xffffffff8153bfcf : dpm_suspend_start+0x4f/0x60 [kernel]
+ 0xffffffff810c7709 : suspend_devices_and_enter+0x89/0x6c0 [kernel]
+ 0xffffffff810c7e32 : pm_suspend+0xf2/0x3a0 [kernel]
+ 0xffffffff810c68d5 : state_store+0x75/0xe0 [kernel]
+ 0xffffffff813b2abf : kobj_attr_store+0xf/0x20 [kernel]
+ 0xffffffff8127766a : sysfs_kf_write+0x3a/0x50 [kernel]
+ 0xffffffff81276c8b : kernfs_fop_write+0x11b/0x1a0 [kernel]
+ 0xffffffff811fbff8 : __vfs_write+0x28/0x120 [kernel]
+ 0xffffffff811fcc32 : vfs_write+0xb2/0x1b0 [kernel]
+ 0xffffffff811fdf76 : sys_write+0x46/0xa0 [kernel]
+ 0xffffffff810039d9 : do_syscall_64+0x69/0x110 [kernel]
+ 0xffffffff817fbde5 : return_from_SYSCALL_64+0x0/0x6a [kernel]
 
-On Tue, Jun 21, 2016 at 6:40 AM, =E5=BB=96=E5=B4=87=E6=A6=AE <kt.liao@e=
-mc.com.tw> wrote:
-> KT, is this feasible?
-> [KT] After internal discussion, we don't agree this patch.
->     It's a work-around to fix firmware bug for specific touchpad and=20
-> not tested by other device.
+But actually the overall suspend time will not be impact by serio too much,
+because we can let the pm suspend callbacks running parallelly.
 
-=46or better or worse, Linux often takes on the responsibility of worki=
-ng around firmware bugs. This is a real issue that affects multiple Asu=
-s laptops; you'll have no touchpad input upon reboot from any OS that d=
-rives the touchpad in "generic hid" mode (e.g. older version of Linux, =
-some embedded OS, etc).
+>
+> Also, IIRC, there might be some issue when serio_reconnect_driver()
+> fails and serio_reconnect_port() forcibly unbinds driver and rescans the
+> device for new drivers. If this happens in the middle of PM transition
+> there might be some contention on PM locks.
+>
+>>
+>> [ 1120.255783] calling  serio0+ @ 2764, parent: i8042
+>> [ 1120.452976] call serio0+ returned 0 after 192472 usecs
+>>
+>> So further investigation shows that the time cost is in
+>> drivers/input/serio/libps2.c: __ps2_command
+>>
+>>         /*
+>>          * Some devices (Synaptics) peform the reset before
+>>          * ACKing the reset command, and so it can take a long
+>>          * time before the ACK arrives.
+>>          */
+>>         if (ps2_sendbyte(ps2dev, command & 0xff,
+>>                          command == PS2_CMD_RESET_BAT ? 1000 : 200)) {
+>>                 serio_pause_rx(ps2dev->serio);
+>>                 goto out_reset_flags;
+>>         }
+>> If I understand correctly, if it is a Synaptics device, then we have to wait
+>> at least 200ms for ATKBD_CMD_RESET_DEF, although this device has already
+>> been reset.
+>
+> No, you are misreading the code. If the command is PS2_CMD_RESET_BAT
+> then we will be waiting for up to 1 sec for the reste to complete,
+> because Synaptics touchpads may take that long to re-calibrate after
+> reset. All other commands have timeout of 200 msec, but that does not
+> mean that we wait that long - we'll continue if device responds faster.
+Oh, I see. So I guess I did not have a Synaptics device, but it still
+waits at least
+200ms, maybe it is because of my hardware issue.
+>
+>>
+>> So my question is, could we add flags to distinguish Synaptics device, and
+>> if it is a Synaptics device, just do not wait that long time and
+>> return after the command
+>> has been sent out?
+>
+> No, because that's not how protocol works.
+>
+Got it.
 
-If the sleep is really that controversial, we could make it specific to=
- the ELAN1000 model that is the one in question here?
 
-[KT] : I list all ASUS models with firmware issue which cause TP no fun=
-ction in Endless OOB , please focuses on below types only
-     Ic_type : 14
-     Product_id : 0x14, 0x15, 0x16, 0x25, 0x18, 0x29, 0x2c, 0x31, 0x32,=
- 0x35
-
-	 You can add if branch in "__elan_initialize", something like that
-
-	 if(data->ic_ytpe =3D=3D 14 &&=20
-		(data->product_id =3D=3D 0x14 || data->product_id =3D=3D 0x15 || data=
-->product_id =3D=3D 0x16 ||=20
-		data->product_id =3D=3D 0x25 || data->product_id =3D=3D 0x18 || data-=
->product_id =3D=3D 0x29 ||=20
-		data->product_id =3D=3D 0x2c || data->product_id =3D=3D 0x31 || data-=
->product_id =3D=3D 0x32 || data->product_id =3D=3D 0x35))
-	 { //flow for Endless}
-	 Else {//original flow}
-    =20
-   =20
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+thanks,
+Yu

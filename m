@@ -1,46 +1,56 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH 1/2] Revert "HID: multitouch: enable palm rejection if
- device implements confidence usage"
-Date: Tue, 28 Jun 2016 10:38:17 -0700
-Message-ID: <CALCETrUwUkx3sdup2zbVn0n1Hegi5qwk1OHzTYYpLYkP95Tykg@mail.gmail.com>
-References: <1466670690-77458-1-git-send-email-allen_hung@dell.com>
- <2407f04d-4658-c3d5-1434-5e548f2063e0@kernel.org> <CALCETrWhHWeqGK6zmng=+8_N87cezi6EwO7xW96HoMTxTkzxeQ@mail.gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 2/4] input: touchscreen: crtouch_ts: Add driver
+Date: Tue, 28 Jun 2016 15:55:44 -0500
+Message-ID: <20160628205544.GH3737@rob-hp-laptop>
+References: <1466797486-31558-1-git-send-email-tony.felice@timesys.com>
+ <1466797486-31558-3-git-send-email-tony.felice@timesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f53.google.com ([209.85.213.53]:34672 "EHLO
-	mail-vk0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752074AbcF1Riy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jun 2016 13:38:54 -0400
-Received: by mail-vk0-f53.google.com with SMTP id c2so32207224vkg.1
-        for <linux-input@vger.kernel.org>; Tue, 28 Jun 2016 10:38:42 -0700 (PDT)
-In-Reply-To: <CALCETrWhHWeqGK6zmng=+8_N87cezi6EwO7xW96HoMTxTkzxeQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <1466797486-31558-3-git-send-email-tony.felice@timesys.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Anthony Felice <tony.felice@timesys.com>
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, maitysanchayan@gmail.com, damien.riegel@savoirfairelinux.com, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux@armlinux.org.uk, sre@kernel.org, mwelling@ieee.org, geert@linux-m68k.org, dri-devel@lists.freedesktop.org, kernel@pengutronix.de, linux-input@vger.kernel.org, fabio.estevam@nxp.com, shawnguo@kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Lutomirski <luto@kernel.org>
-Cc: Allen Hung <allen_hung@dell.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-On Mon, Jun 27, 2016 at 3:25 PM, Andy Lutomirski <luto@amacapital.net> wrote:
-> On Mon, Jun 27, 2016 at 10:55 AM, Andy Lutomirski <luto@kernel.org> wrote:
->>
->> This and patch 2 are:
->>
->> Tested-by: Andy Lutomirski <luto@kernel.org> # XPS 13 9350, BIOS 1.4.3
->>
->> (And I'm curious why 1.4.3 seems to have been pulled.  Might it have been
->> this issue?  For better or for worse, I upgraded in the narrow window in
->> which it was available on Dell's website.)
->>
->
-> I should amend that Tested-by slightly: these patches seem to make the
-> problem merely about as bad as it was before.  It's still not perfect
-> -- I still occasionally get stuck touches.
-
-On further investigation, I'm not getting stuck touches AFAICT.  I'm
-experiencing an upgraded version of libinput being clever and
-incorrectly deciding that I middle-clicked.  Sorry for the noise.
-
-https://bugs.freedesktop.org/show_bug.cgi?id=96710
-
---Andy
+T24gRnJpLCBKdW4gMjQsIDIwMTYgYXQgMDM6NDQ6NDRQTSAtMDQwMCwgQW50aG9ueSBGZWxpY2Ug
+d3JvdGU6Cj4gQWRkIGRyaXZlciBmb3IgdGhlIFZ5YnJpZCBUb3dlciBDUlRvdWNoLWJhc2VkIHRv
+dWNoc2NyZWVuLiBUaGlzIGlzCj4gcmVxdWlyZWQgZm9yIHRoZSB0b3VjaHNjcmVlbiBvbiB0aGUg
+VFdSLUxDRC1SR0IgdG8gd29yayBvbiB0aGUgVnlicmlkCj4gVG93ZXIgcGxhdGZvcm0uCj4gCj4g
+VGhlcmUgaXMgYSBrbm93biBpc3N1ZSB3aXRoIHRoaXMgZHJpdmVyOiByYXJlbHksIFNXMSBvbiB0
+aGUgVFdSLUxDRC1SR0IKPiBtb2R1bGUgbmVlZHMgdG8gYmUgcHJlc3NlZCBpbiBvcmRlciBmb3Ig
+dGhlIHRvdWNoc2NyZWVuIHRvIGJlZ2luCj4gZnVuY3Rpb25pbmcuCj4gCj4gU2lnbmVkLW9mZi1i
+eTogQW50aG9ueSBGZWxpY2UgPHRvbnkuZmVsaWNlQHRpbWVzeXMuY29tPgo+IC0tLQo+ICAuLi4v
+YmluZGluZ3MvaW5wdXQvdG91Y2hzY3JlZW4vY3J0b3VjaF90cy50eHQgICAgICB8ICAxNCArKwo+
+ICBkcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL0tjb25maWcgICAgICAgICAgICAgICAgICB8ICAx
+MCArCj4gIGRyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vTWFrZWZpbGUgICAgICAgICAgICAgICAg
+IHwgICAxICsKPiAgZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9jcnRvdWNoX3RzLmMgICAgICAg
+ICAgICAgfCAyNzkgKysrKysrKysrKysrKysrKysrKysrCj4gIDQgZmlsZXMgY2hhbmdlZCwgMzA0
+IGluc2VydGlvbnMoKykKPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IERvY3VtZW50YXRpb24vZGV2aWNl
+dHJlZS9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi9jcnRvdWNoX3RzLnR4dAo+ICBjcmVhdGUg
+bW9kZSAxMDA2NDQgZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9jcnRvdWNoX3RzLmMKPiAKPiBk
+aWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L3RvdWNo
+c2NyZWVuL2NydG91Y2hfdHMudHh0IGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdz
+L2lucHV0L3RvdWNoc2NyZWVuL2NydG91Y2hfdHMudHh0Cj4gbmV3IGZpbGUgbW9kZSAxMDA2NDQK
+PiBpbmRleCAwMDAwMDAwLi5jZmI5NjZjCj4gLS0tIC9kZXYvbnVsbAo+ICsrKyBiL0RvY3VtZW50
+YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi9jcnRvdWNoX3RzLnR4
+dAo+IEBAIC0wLDAgKzEsMTQgQEAKPiArKiBGcmVlc2NhbGUgQ1JUT1VDSCBiYXNlZCB0b3VjaHNj
+cmVlbgo+ICsKPiArUmVxdWlyZWQgUHJvcGVydGllczoKPiArLSBjb21wYXRpYmxlIG11c3QgYmUg
+ZnNsLGNydG91Y2hfdHMKPiArLSByZWc6IEkyQyBhZGRyZXNzIG9mIHRoZSB0b3VjaHNjcmVlbgo+
+ICstIGlycS1ncGlvOiBHUElPIHRvIHVzZSBhcyBldmVudCBJUlEKPiArCj4gK0V4YW1wbGU6Cj4g
+Kwo+ICsJdG91Y2g6IGNydG91Y2hANDkgewoKdG91Y2hzY3JlZW5ANDkKCj4gKwkJY29tcGF0aWJs
+ZSA9ICJmc2wsY3J0b3VjaF90cyI7CgpVc2UgJy0nLCBub3QgJ18nLgoKPiArCQlyZWcgPSA8MHg0
+OT47Cj4gKwkJaXJxLWdwaW8gPSA8JmdwaW8wIDIxIEdQSU9fQUNUSVZFX0hJR0g+OwoKQXMgRG1p
+dHJ5IHNhaWQuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+CmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpo
+dHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=

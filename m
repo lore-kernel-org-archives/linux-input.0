@@ -1,68 +1,75 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH 1/2] Revert "HID: multitouch: enable palm rejection if
- device implements confidence usage"
-Date: Mon, 27 Jun 2016 15:25:41 -0700
-Message-ID: <CALCETrWhHWeqGK6zmng=+8_N87cezi6EwO7xW96HoMTxTkzxeQ@mail.gmail.com>
-References: <1466670690-77458-1-git-send-email-allen_hung@dell.com> <2407f04d-4658-c3d5-1434-5e548f2063e0@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 4.7-rc5
+Date: Mon, 27 Jun 2016 17:04:19 -0700
+Message-ID: <20160628000419.GD22620@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2407f04d-4658-c3d5-1434-5e548f2063e0@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Lutomirski <luto@kernel.org>
-Cc: Allen Hung <allen_hung@dell.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f176.google.com ([209.85.192.176]:33289 "EHLO
+	mail-pf0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752002AbcF1AEW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Jun 2016 20:04:22 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mon, Jun 27, 2016 at 10:55 AM, Andy Lutomirski <luto@kernel.org> wrote:
-> On 06/23/2016 01:31 AM, Allen Hung wrote:
->>
->> This reverts commit 25a84db15b3f ("HID: multitouch: enable palm rejection
->> if device implements confidence usage")
->>
->> The commit enables palm rejection for Win8 Precision Touchpad devices but
->> the quirk MT_QUIRK_VALID_IS_CONFIDENCE it is using is not working very
->> properly. This quirk is originally designed for some WIn7 touchscreens.
->> Use
->> of this for a Win8 Precision Touchpad will cause unexpected pointer
->> jumping
->> problem.
->>
->> Signed-off-by: Allen Hung <allen_hung@dell.com>
->> ---
->>  drivers/hid/hid-multitouch.c | 5 -----
->>  1 file changed, 5 deletions(-)
->>
->> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
->> index 95b7d61..4ef7006 100644
->> --- a/drivers/hid/hid-multitouch.c
->> +++ b/drivers/hid/hid-multitouch.c
->> @@ -502,11 +502,6 @@ static int mt_touch_input_mapping(struct hid_device
->> *hdev, struct hid_input *hi,
->>                         mt_store_field(usage, td, hi);
->>                         return 1;
->>                 case HID_DG_CONFIDENCE:
->> -                       if (cls->name == MT_CLS_WIN_8 &&
->> -                               field->application == HID_DG_TOUCHPAD) {
->> -                               cls->quirks &= ~MT_QUIRK_ALWAYS_VALID;
->> -                               cls->quirks |=
->> MT_QUIRK_VALID_IS_CONFIDENCE;
->> -                       }
->>                         mt_store_field(usage, td, hi);
->>                         return 1;
->>                 case HID_DG_TIPSWITCH:
->>
->
-> This and patch 2 are:
->
-> Tested-by: Andy Lutomirski <luto@kernel.org> # XPS 13 9350, BIOS 1.4.3
->
-> (And I'm curious why 1.4.3 seems to have been pulled.  Might it have been
-> this issue?  For better or for worse, I upgraded in the narrow window in
-> which it was available on Dell's website.)
->
+Hi Linus,
 
-I should amend that Tested-by slightly: these patches seem to make the
-problem merely about as bad as it was before.  It's still not perfect
--- I still occasionally get stuck touches.
+Please pull from:
 
---Andy
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem.
+
+Changelog:
+---------
+
+Cameron Gutman (2):
+      Input: xpad - fix rumble on Xbox One controllers with 2015 firmwa=
+re
+      Input: xpad - fix oops when attaching an unknown Xbox One gamepad
+
+Dmitry Torokhov (1):
+      Input: elantech - add more IC body types to the list
+
+Hans Verkuil (1):
+      Input: add BUS_CEC type
+
+Kamil Debski (1):
+      Input: add HDMI CEC specific keycodes
+
+Pali Roh=E1r (1):
+      MAINTAINERS: add Pali Roh=E1r as reviewer of ALPS PS/2 touchpad d=
+river
+
+Ping Cheng (2):
+      Input: wacom_w8001 - w8001_MAX_LENGTH should be 13
+      Input: wacom_w8001 - ignore invalid pen data packets
+
+Sinclair Yeh (1):
+      Input: vmmouse - remove port reservation
+
+
+Diffstat:
+--------
+
+ MAINTAINERS                             |  4 ++++
+ drivers/input/joystick/xpad.c           | 39 ++++++++++++++++++-------=
+--------
+ drivers/input/mouse/elantech.c          |  8 +------
+ drivers/input/mouse/vmmouse.c           | 22 ++-----------------
+ drivers/input/touchscreen/wacom_w8001.c | 11 +++++++++-
+ include/uapi/linux/input-event-codes.h  | 31 +++++++++++++++++++++++++=
++
+ include/uapi/linux/input.h              |  1 +
+ 7 files changed, 70 insertions(+), 46 deletions(-)
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

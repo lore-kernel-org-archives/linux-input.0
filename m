@@ -1,43 +1,35 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: [PATCH] Input: xpad - validate USB endpoint count during probe
-Date: Wed, 29 Jun 2016 00:55:51 -0500
-Message-ID: <577362E7.2000508@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v6 4/6] gpio: tps65218-gpio: Add platform_device_id table
+Date: Wed, 29 Jun 2016 10:56:21 +0200
+Message-ID: <CACRpkdb=jz-=K-itevZtvPtHF05pKdhkSp1USaf5LzQWaxckJw@mail.gmail.com>
+References: <1467117054-12943-1-git-send-email-j-keerthy@ti.com> <1467117054-12943-5-git-send-email-j-keerthy@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:34122 "EHLO
-	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751020AbcF2F5J (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jun 2016 01:57:09 -0400
-Received: by mail-pf0-f195.google.com with SMTP id 66so3655042pfy.1
-        for <linux-input@vger.kernel.org>; Tue, 28 Jun 2016 22:55:53 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <1467117054-12943-5-git-send-email-j-keerthy@ti.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Keerthy <j-keerthy@ti.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Tony Lindgren <tony@atomide.com>, Linux-OMAP <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-This prevents a malicious USB device from causing an oops.
+On Tue, Jun 28, 2016 at 2:30 PM, Keerthy <j-keerthy@ti.com> wrote:
 
-Signed-off-by: Cameron Gutman <aicommander@gmail.com>
-Cc: stable@vger.kernel.org
----
- drivers/input/joystick/xpad.c | 3 +++
- 1 file changed, 3 insertions(+)
+> platform_device_id table is needed for adding the tps65218-gpio
+> module to the mfd_cell array.
+>
+> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> ---
+>
+> Changes in v4:
+>
+>   * Retained the compatible strings in order to interrogate the DT in the
+>     normal way.
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 3438e98..a529a45 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1431,6 +1431,9 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 	int ep_irq_in_idx;
- 	int i, error;
- 
-+	if (intf->cur_altsetting->desc.bNumEndpoints != 2)
-+		return -ENODEV;
-+
- 	for (i = 0; xpad_device[i].idVendor; i++) {
- 		if ((le16_to_cpu(udev->descriptor.idVendor) == xpad_device[i].idVendor) &&
- 		    (le16_to_cpu(udev->descriptor.idProduct) == xpad_device[i].idProduct))
--- 
-2.7.4
+So do I just apply this or do you need it applied through another tree?
+
+It looks standalone, should I just merge it?
+
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij

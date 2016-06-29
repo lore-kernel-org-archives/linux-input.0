@@ -1,56 +1,30 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Add SW_PEN_INSERTED define
-Date: Wed, 29 Jun 2016 10:08:20 -0700
-Message-ID: <20160629170820.GB35304@dtor-ws>
-References: <1467133253-8075-1-git-send-email-dianders@chromium.org>
+From: Mario Limonciello <mario_limonciello@dell.com>
+Subject: Re: [1/2] Revert "HID: multitouch: enable palm rejection if device
+ implements confidence usage"
+Date: Wed, 29 Jun 2016 13:31:47 -0500
+Message-ID: <57741413.5050009@dell.com>
+References: <1466670690-77458-1-git-send-email-allen_hung@dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:34809 "EHLO
-	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751487AbcF2RIX (ORCPT
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:12954 "EHLO
+	ausc60pc101.us.dell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751480AbcF2Sbw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jun 2016 13:08:23 -0400
-Content-Disposition: inline
-In-Reply-To: <1467133253-8075-1-git-send-email-dianders@chromium.org>
+	Wed, 29 Jun 2016 14:31:52 -0400
+In-Reply-To: <1466670690-77458-1-git-send-email-allen_hung@dell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Douglas Anderson <dianders@chromium.org>
-Cc: linux-input@vger.kernel.org, hdegoede@redhat.com, robh@kernel.org, hans.verkuil@cisco.com, kamil@wypas.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Allen Hung <allen_hung@dell.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-On Tue, Jun 28, 2016 at 10:00:53AM -0700, Douglas Anderson wrote:
-> Some devices with a pen may have a switch that can be used to detect
-> when the pen is inserted or removed to a slot on the device.  Let's add
-> a define to the input event codes so that everyone can be on the same
-> page for what event we should generate when the pen is inserted or
-> removed.
-> 
-> In general the pen switch could be used by the software on the device to
-> kick off any number of actions when the pen is inserted or removed.
-> 
-> Signed-off-by: Douglas Anderson <dianders@chromium.org>
+> I've applied the series to hid.git#for-4.7/upstream-fixes
 
-Applied, thank you.
+Hi Jiri,
 
-> ---
->  include/uapi/linux/input-event-codes.h | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 737fa32faad4..d6d071fc3c56 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -780,6 +780,7 @@
->  #define SW_ROTATE_LOCK		0x0c  /* set = rotate locked/disabled */
->  #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
->  #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
-> +#define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
->  #define SW_MAX			0x0f
->  #define SW_CNT			(SW_MAX+1)
->  
-> -- 
-> 2.8.0.rc3.226.g39d4020
-> 
+Would you also submit this to -stable? 
+I think it should be generally applicable at least a few releases back
+since Allen's original submit.
 
--- 
-Dmitry
+Thanks,

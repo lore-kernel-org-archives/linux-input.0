@@ -1,46 +1,60 @@
-From: Keerthy <a0393675@ti.com>
-Subject: Re: [PATCH v6 4/6] gpio: tps65218-gpio: Add platform_device_id table
-Date: Wed, 29 Jun 2016 15:02:50 +0530
-Message-ID: <577395C2.5050807@ti.com>
-References: <1467117054-12943-1-git-send-email-j-keerthy@ti.com>
- <1467117054-12943-5-git-send-email-j-keerthy@ti.com>
- <CACRpkdb=jz-=K-itevZtvPtHF05pKdhkSp1USaf5LzQWaxckJw@mail.gmail.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v2] Support for Alps SS5 touchpad
+Date: Wed, 29 Jun 2016 11:46:38 +0200
+Message-ID: <20160629094638.GD29844@pali>
+References: <1464436862-2649-1-git-send-email-ben@smart-cactus.org>
+ <20160530091303.GQ29844@pali>
+ <87shwznae2.fsf@smart-cactus.org>
+ <201606201948.04482@pali>
+ <87mvme525t.fsf@smart-cactus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdb=jz-=K-itevZtvPtHF05pKdhkSp1USaf5LzQWaxckJw@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Keerthy <j-keerthy@ti.com>, Lee Jones <lee.jones@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Mark Brown <broonie@kernel.org>, Tony Lindgren <tony@atomide.com>, Linux-OMAP <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f43.google.com ([74.125.82.43]:36758 "EHLO
+	mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751489AbcF2JrI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Jun 2016 05:47:08 -0400
+Received: by mail-wm0-f43.google.com with SMTP id f126so173289091wma.1
+        for <linux-input@vger.kernel.org>; Wed, 29 Jun 2016 02:47:07 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <87mvme525t.fsf@smart-cactus.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ben Gamari <ben@smart-cactus.org>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>, Anthony Wong <anthony.wong@canonical.com>, Christoph Hellwig <hch@infradead.org>
 
+On Tuesday 21 June 2016 11:20:14 Ben Gamari wrote:
+> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
+>=20
+> > [ Unknown signature status ]
+> > On Monday 30 May 2016 11:49:25 Ben Gamari wrote:
+> >> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
+> >> > Now when you are extending alps.c code for new touchpad, can you
+> >> > also update documentation file Documentation/input/alps.txt to
+> >> > reflect V8 protcol? That would be great to have up-to-date
+> >> > documentation for debugging and future purpose...
+> >>=20
+> >> Indeed, it's been on my to-do list.
+> >>=20
+> >> Cheers,
+> >>=20
+> >> - Ben
+> >
+> > Hi Ben! Are you planning to send V3?
+> >
+> Done! Thanks for the reminder; I had been sitting on this for a few t=
+oo
+> many days.
 
+Have you sent it? Because I do not see it my mailbox...
 
-On Wednesday 29 June 2016 02:26 PM, Linus Walleij wrote:
-> On Tue, Jun 28, 2016 at 2:30 PM, Keerthy <j-keerthy@ti.com> wrote:
->
->> platform_device_id table is needed for adding the tps65218-gpio
->> module to the mfd_cell array.
->>
->> Signed-off-by: Keerthy <j-keerthy@ti.com>
->> ---
->>
->> Changes in v4:
->>
->>    * Retained the compatible strings in order to interrogate the DT in the
->>      normal way.
->
-> So do I just apply this or do you need it applied through another tree?
->
-> It looks standalone, should I just merge it?
->
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-Thanks Linus. I guess this can be merged by you. Is that fine Lee Jones?
-
-
->
-> Yours,
-> Linus Walleij
->
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

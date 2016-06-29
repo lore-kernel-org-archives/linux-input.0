@@ -1,60 +1,53 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v2] Support for Alps SS5 touchpad
-Date: Wed, 29 Jun 2016 11:46:38 +0200
-Message-ID: <20160629094638.GD29844@pali>
-References: <1464436862-2649-1-git-send-email-ben@smart-cactus.org>
- <20160530091303.GQ29844@pali>
- <87shwznae2.fsf@smart-cactus.org>
- <201606201948.04482@pali>
- <87mvme525t.fsf@smart-cactus.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: xpad - validate USB endpoint count during probe
+Date: Wed, 29 Jun 2016 10:08:06 -0700
+Message-ID: <20160629170806.GA35304@dtor-ws>
+References: <577362E7.2000508@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f43.google.com ([74.125.82.43]:36758 "EHLO
-	mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751489AbcF2JrI (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33310 "EHLO
+	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751438AbcF2RIK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jun 2016 05:47:08 -0400
-Received: by mail-wm0-f43.google.com with SMTP id f126so173289091wma.1
-        for <linux-input@vger.kernel.org>; Wed, 29 Jun 2016 02:47:07 -0700 (PDT)
+	Wed, 29 Jun 2016 13:08:10 -0400
+Received: by mail-pf0-f196.google.com with SMTP id c74so4997260pfb.0
+        for <linux-input@vger.kernel.org>; Wed, 29 Jun 2016 10:08:09 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <87mvme525t.fsf@smart-cactus.org>
+In-Reply-To: <577362E7.2000508@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Gamari <ben@smart-cactus.org>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>, Anthony Wong <anthony.wong@canonical.com>, Christoph Hellwig <hch@infradead.org>
+To: Cameron Gutman <aicommander@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-On Tuesday 21 June 2016 11:20:14 Ben Gamari wrote:
-> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
->=20
-> > [ Unknown signature status ]
-> > On Monday 30 May 2016 11:49:25 Ben Gamari wrote:
-> >> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
-> >> > Now when you are extending alps.c code for new touchpad, can you
-> >> > also update documentation file Documentation/input/alps.txt to
-> >> > reflect V8 protcol? That would be great to have up-to-date
-> >> > documentation for debugging and future purpose...
-> >>=20
-> >> Indeed, it's been on my to-do list.
-> >>=20
-> >> Cheers,
-> >>=20
-> >> - Ben
-> >
-> > Hi Ben! Are you planning to send V3?
-> >
-> Done! Thanks for the reminder; I had been sitting on this for a few t=
-oo
-> many days.
+On Wed, Jun 29, 2016 at 12:55:51AM -0500, Cameron Gutman wrote:
+> This prevents a malicious USB device from causing an oops.
+> 
+> Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+> Cc: stable@vger.kernel.org
+> ---
 
-Have you sent it? Because I do not see it my mailbox...
+Applied, thank you.
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  drivers/input/joystick/xpad.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index 3438e98..a529a45 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -1431,6 +1431,9 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+>  	int ep_irq_in_idx;
+>  	int i, error;
+>  
+> +	if (intf->cur_altsetting->desc.bNumEndpoints != 2)
+> +		return -ENODEV;
+> +
+>  	for (i = 0; xpad_device[i].idVendor; i++) {
+>  		if ((le16_to_cpu(udev->descriptor.idVendor) == xpad_device[i].idVendor) &&
+>  		    (le16_to_cpu(udev->descriptor.idProduct) == xpad_device[i].idProduct))
+> -- 
+> 2.7.4
+
+-- 
+Dmitry

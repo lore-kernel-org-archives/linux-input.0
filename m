@@ -1,91 +1,66 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v6 08/11] Input: atmel_mxt_ts - add diagnostic data support for mXT1386
-Date: Thu, 30 Jun 2016 18:38:51 +0100
-Message-ID: <1467308334-12580-9-git-send-email-nick@shmanahar.org>
-References: <1467308334-12580-1-git-send-email-nick@shmanahar.org>
+Subject: [PATCH v6 0/11] Output raw touch data via V4L2
+Date: Thu, 30 Jun 2016 18:38:43 +0100
+Message-ID: <1467308334-12580-1-git-send-email-nick@shmanahar.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1467308334-12580-1-git-send-email-nick@shmanahar.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, jon.older@itdev.co.uk, nick.dyer@itdev.co.uk, Nick Dyer <nick@shmanahar.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, jon.older@itdev.co.uk, nick.dyer@itdev.co.uk
 List-Id: linux-input@vger.kernel.org
 
-The mXT1386 family of chips have a different architecture which splits
-the diagnostic data into 3 columns.
+This is a series of patches to add output of raw touch diagnostic data via V4L2
+to the Atmel maXTouch and Synaptics RMI4 drivers.
 
-Signed-off-by: Nick Dyer <nick@shmanahar.org>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+It's a rewrite of the previous implementation which output via debugfs: it now
+uses a V4L2 device in a similar way to the sur40 driver.
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index c35fca0..7c4d937 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -137,6 +137,10 @@ struct t9_range {
- #define MXT_DIAGNOSTIC_DELTAS	0x10
- #define MXT_DIAGNOSTIC_SIZE	128
- 
-+#define MXT_FAMILY_1386			160
-+#define MXT1386_COLUMNS			3
-+#define MXT1386_PAGES_PER_COLUMN	8
-+
- struct t37_debug {
- #ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
- 	u8 mode;
-@@ -2140,13 +2144,27 @@ recheck:
- static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
- 			       unsigned int y)
- {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	unsigned int ofs, page;
-+	unsigned int col = 0;
-+	unsigned int col_width;
-+
-+	if (info->family_id == MXT_FAMILY_1386) {
-+		col_width = info->matrix_ysize / MXT1386_COLUMNS;
-+		col = y / col_width;
-+		y = y % col_width;
-+	} else {
-+		col_width = info->matrix_ysize;
-+	}
- 
--	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
-+	ofs = (y + (x * col_width)) * sizeof(u16);
- 	page = ofs / MXT_DIAGNOSTIC_SIZE;
- 	ofs %= MXT_DIAGNOSTIC_SIZE;
- 
-+	if (info->family_id == MXT_FAMILY_1386)
-+		page += col * MXT1386_PAGES_PER_COLUMN;
-+
- 	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
- }
- 
-@@ -2416,6 +2434,7 @@ static const struct video_device mxt_video_device = {
- 
- static void mxt_debug_init(struct mxt_data *data)
- {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	struct mxt_object *object;
- 	int error;
-@@ -2439,8 +2458,14 @@ static void mxt_debug_init(struct mxt_data *data)
- 
- 	/* Calculate size of data and allocate buffer */
- 	dbg->t37_nodes = data->xsize * data->ysize;
--	dbg->t37_pages = DIV_ROUND_UP(data->xsize * data->info.matrix_ysize *
--				      sizeof(u16), sizeof(dbg->t37_buf->data));
-+
-+	if (info->family_id == MXT_FAMILY_1386)
-+		dbg->t37_pages = MXT1386_COLUMNS * MXT1386_PAGES_PER_COLUMN;
-+	else
-+		dbg->t37_pages = DIV_ROUND_UP(data->xsize *
-+					      data->info.matrix_ysize *
-+					      sizeof(u16),
-+					      sizeof(dbg->t37_buf->data));
- 
- 	dbg->t37_buf = devm_kmalloc_array(&data->client->dev, dbg->t37_pages,
- 					  sizeof(struct t37_debug), GFP_KERNEL);
--- 
-2.5.0
+We have a utility which can read the data and display it in a useful format:
+    https://github.com/ndyer/heatmap/commits/heatmap-v4l
+
+These patches are also available from
+    https://github.com/ndyer/linux/commits/v4l-touch-2016-06-30
+
+I will also send a patch to update v4l2-compliance.
+
+Changes in v6:
+- Remove BUF_TYPE_TOUCH_CAPTURE, as discussed with Hans V touch devices will
+  use BUF_TYPE_VIDEO_CAPTURE.
+- Touch devices should now register CAP_VIDEO_CAPTURE: CAP_TOUCH just says that
+  this is a touch device, not a video device, but otherwise it acts the same.
+- Add some code to v4l_s_fmt() to set sensible default values for fields not
+  used by touch.
+- Improve naming/doc of RMI4 F54 report types.
+- Various minor DocBook fixes, and split to separate patch.
+- Update my email address.
+- Rework sur40 changes so that PIX_FMT_GREY is supported for backward
+  compatibility. Florian is it possible for you to test?
+
+Changes in v5 (Hans Verkuil review):
+- Update v4l2-core:
+  - Add VFL_TYPE_TOUCH, V4L2_BUF_TYPE_TOUCH_CAPTURE and V4L2_CAP_TOUCH
+  - Change V4L2_INPUT_TYPE_TOUCH_SENSOR to V4L2_INPUT_TYPE_TOUCH
+  - Improve DocBook documentation
+  - Add FMT definitions for touch data
+  - Note this will need the latest version of the heatmap util
+- Synaptics RMI4 driver:
+  - Remove some less important non full frame report types
+  - Switch report type names to const char * array
+  - Move a static array to inside context struct
+- Split sur40 changes to a separate commit
+
+Changes in v4:
+- Address nits from the input side in atmel_mxt_ts patches (Dmitry Torokhov)
+- Add Synaptics RMI4 F54 support patch
+
+Changes in v3:
+- Address V4L2 review comments from Hans Verkuil
+- Run v4l-compliance and fix all issues - needs minor patch here:
+  https://github.com/ndyer/v4l-utils/commit/cf50469773f
+
+Changes in v2:
+- Split pixfmt changes into separate commit and add DocBook
+- Introduce VFL_TYPE_TOUCH_SENSOR and /dev/v4l-touch
+- Remove "single node" support for now, it may be better to treat it as
+  metadata later
+- Explicitly set VFL_DIR_RX
+- Fix Kconfig

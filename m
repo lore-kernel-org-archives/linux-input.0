@@ -1,342 +1,91 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v6 05/11] Input: atmel_mxt_ts - output diagnostic debug via V4L2 device
-Date: Thu, 30 Jun 2016 18:38:48 +0100
-Message-ID: <1467308334-12580-6-git-send-email-nick@shmanahar.org>
+Subject: [PATCH v6 08/11] Input: atmel_mxt_ts - add diagnostic data support for mXT1386
+Date: Thu, 30 Jun 2016 18:38:51 +0100
+Message-ID: <1467308334-12580-9-git-send-email-nick@shmanahar.org>
 References: <1467308334-12580-1-git-send-email-nick@shmanahar.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:12975 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752616AbcF3Rqw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jun 2016 13:46:52 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1467308334-12580-1-git-send-email-nick@shmanahar.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, jon.older@itdev.co.uk, nick.dyer@itdev.co.uk, Nick Dyer <nick@shmanahar.org>
+List-Id: linux-input@vger.kernel.org
 
-Register a video device to output T37 diagnostic data.
+The mXT1386 family of chips have a different architecture which splits
+the diagnostic data into 3 columns.
 
 Signed-off-by: Nick Dyer <nick@shmanahar.org>
 ---
- drivers/input/touchscreen/Kconfig        |   6 +-
- drivers/input/touchscreen/atmel_mxt_ts.c | 244 +++++++++++++++++++++++++++++++
- 2 files changed, 248 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 31 ++++++++++++++++++++++++++++---
+ 1 file changed, 28 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index da96ecf..7c1c5ec 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -117,9 +117,11 @@ config TOUCHSCREEN_ATMEL_MXT
- 
- config TOUCHSCREEN_ATMEL_MXT_T37
- 	bool "Support T37 Diagnostic Data"
--	depends on TOUCHSCREEN_ATMEL_MXT
-+	depends on TOUCHSCREEN_ATMEL_MXT && VIDEO_V4L2
-+	select VIDEOBUF2_VMALLOC
- 	help
--	  Say Y here if you want support for the T37 Diagnostic Data object.
-+	  Say Y here if you want support to output data from the T37
-+	  Diagnostic Data object using a V4L device.
- 
- config TOUCHSCREEN_AUO_PIXCIR
- 	tristate "AUO in-cell touchscreen using Pixcir ICs"
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 0048233..bea95a1 100644
+index c35fca0..7c4d937 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -28,6 +28,10 @@
- #include <linux/of.h>
- #include <linux/slab.h>
- #include <asm/unaligned.h>
-+#include <media/v4l2-device.h>
-+#include <media/v4l2-ioctl.h>
-+#include <media/videobuf2-v4l2.h>
-+#include <media/videobuf2-vmalloc.h>
+@@ -137,6 +137,10 @@ struct t9_range {
+ #define MXT_DIAGNOSTIC_DELTAS	0x10
+ #define MXT_DIAGNOSTIC_SIZE	128
  
- /* Firmware files */
- #define MXT_FW_NAME		"maxtouch.fw"
-@@ -224,6 +228,23 @@ struct mxt_dbg {
- 	struct t37_debug *t37_buf;
- 	unsigned int t37_pages;
- 	unsigned int t37_nodes;
++#define MXT_FAMILY_1386			160
++#define MXT1386_COLUMNS			3
++#define MXT1386_PAGES_PER_COLUMN	8
 +
-+	struct v4l2_device v4l2;
-+	struct v4l2_pix_format format;
-+	struct video_device vdev;
-+	struct vb2_queue queue;
-+	struct mutex lock;
-+	int input;
-+};
-+
-+static const struct v4l2_file_operations mxt_video_fops = {
-+	.owner = THIS_MODULE,
-+	.open = v4l2_fh_open,
-+	.release = vb2_fop_release,
-+	.unlocked_ioctl = video_ioctl2,
-+	.read = vb2_fop_read,
-+	.mmap = vb2_fop_mmap,
-+	.poll = vb2_fop_poll,
- };
- 
- /* Each client has this additional data */
-@@ -279,6 +300,11 @@ struct mxt_data {
- 	struct completion crc_completion;
- };
- 
-+struct mxt_vb2_buffer {
-+	struct vb2_buffer	vb;
-+	struct list_head	list;
-+};
-+
- static size_t mxt_obj_size(const struct mxt_object *obj)
+ struct t37_debug {
+ #ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
+ 	u8 mode;
+@@ -2140,13 +2144,27 @@ recheck:
+ static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
+ 			       unsigned int y)
  {
- 	return obj->size_minus_one + 1;
-@@ -1525,6 +1551,11 @@ static void mxt_free_input_device(struct mxt_data *data)
- 
- static void mxt_free_object_table(struct mxt_data *data)
- {
-+#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
-+	video_unregister_device(&data->dbg.vdev);
-+	v4l2_device_unregister(&data->dbg.v4l2);
-+#endif
++	struct mxt_info *info = &data->info;
+ 	struct mxt_dbg *dbg = &data->dbg;
+ 	unsigned int ofs, page;
++	unsigned int col = 0;
++	unsigned int col_width;
 +
- 	kfree(data->object_table);
- 	data->object_table = NULL;
- 	kfree(data->msg_buf);
-@@ -2157,10 +2188,191 @@ wait_cmd:
- 	return mxt_convert_debug_pages(data, outbuf);
++	if (info->family_id == MXT_FAMILY_1386) {
++		col_width = info->matrix_ysize / MXT1386_COLUMNS;
++		col = y / col_width;
++		y = y % col_width;
++	} else {
++		col_width = info->matrix_ysize;
++	}
+ 
+-	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
++	ofs = (y + (x * col_width)) * sizeof(u16);
+ 	page = ofs / MXT_DIAGNOSTIC_SIZE;
+ 	ofs %= MXT_DIAGNOSTIC_SIZE;
+ 
++	if (info->family_id == MXT_FAMILY_1386)
++		page += col * MXT1386_PAGES_PER_COLUMN;
++
+ 	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
  }
  
-+static int mxt_queue_setup(struct vb2_queue *q,
-+		       unsigned int *nbuffers, unsigned int *nplanes,
-+		       unsigned int sizes[], void *alloc_ctxs[])
-+{
-+	struct mxt_data *data = q->drv_priv;
-+	size_t size = data->dbg.t37_nodes * sizeof(u16);
-+
-+	if (*nplanes)
-+		return sizes[0] < size ? -EINVAL : 0;
-+
-+	*nplanes = 1;
-+	sizes[0] = size;
-+
-+	return 0;
-+}
-+
-+static void mxt_buffer_queue(struct vb2_buffer *vb)
-+{
-+	struct mxt_data *data = vb2_get_drv_priv(vb->vb2_queue);
-+	u16 *ptr;
-+	int ret;
-+
-+	ptr = vb2_plane_vaddr(vb, 0);
-+	if (!ptr) {
-+		dev_err(&data->client->dev, "Error acquiring frame ptr\n");
-+		goto fault;
-+	}
-+
-+	ret = mxt_read_diagnostic_debug(data, MXT_DIAGNOSTIC_DELTAS, ptr);
-+	if (ret)
-+		goto fault;
-+
-+	vb2_set_plane_payload(vb, 0, data->dbg.t37_nodes * sizeof(u16));
-+	vb2_buffer_done(vb, VB2_BUF_STATE_DONE);
-+	return;
-+
-+fault:
-+	vb2_buffer_done(vb, VB2_BUF_STATE_ERROR);
-+}
-+
-+/* V4L2 structures */
-+static const struct vb2_ops mxt_queue_ops = {
-+	.queue_setup		= mxt_queue_setup,
-+	.buf_queue		= mxt_buffer_queue,
-+	.wait_prepare		= vb2_ops_wait_prepare,
-+	.wait_finish		= vb2_ops_wait_finish,
-+};
-+
-+static const struct vb2_queue mxt_queue = {
-+	.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
-+	.io_modes = VB2_MMAP | VB2_USERPTR | VB2_DMABUF | VB2_READ,
-+	.buf_struct_size = sizeof(struct mxt_vb2_buffer),
-+	.ops = &mxt_queue_ops,
-+	.mem_ops = &vb2_vmalloc_memops,
-+	.timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC,
-+	.min_buffers_needed = 1,
-+};
-+
-+static int mxt_vidioc_querycap(struct file *file, void *priv,
-+				 struct v4l2_capability *cap)
-+{
-+	struct mxt_data *data = video_drvdata(file);
-+
-+	strlcpy(cap->driver, "atmel_mxt_ts", sizeof(cap->driver));
-+	strlcpy(cap->card, "atmel_mxt_ts touch", sizeof(cap->card));
-+	snprintf(cap->bus_info, sizeof(cap->bus_info),
-+		 "I2C:%s", dev_name(&data->client->dev));
-+	return 0;
-+}
-+
-+static int mxt_vidioc_enum_input(struct file *file, void *priv,
-+				   struct v4l2_input *i)
-+{
-+	if (i->index > 0)
-+		return -EINVAL;
-+
-+	i->type = V4L2_INPUT_TYPE_TOUCH;
-+	strlcpy(i->name, "Mutual Capacitance Deltas", sizeof(i->name));
-+	return 0;
-+}
-+
-+static int mxt_set_input(struct mxt_data *data, unsigned int i)
-+{
-+	struct v4l2_pix_format *f = &data->dbg.format;
-+
-+	if (i > 0)
-+		return -EINVAL;
-+
-+	f->width = data->info.matrix_xsize;
-+	f->height = data->info.matrix_ysize;
-+	f->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
-+	f->field = V4L2_FIELD_NONE;
-+	f->colorspace = V4L2_COLORSPACE_RAW;
-+	f->bytesperline = f->width * sizeof(u16);
-+	f->sizeimage = f->width * f->height * sizeof(u16);
-+
-+	data->dbg.input = i;
-+
-+	return 0;
-+}
-+
-+static int mxt_vidioc_s_input(struct file *file, void *priv, unsigned int i)
-+{
-+	return mxt_set_input(video_drvdata(file), i);
-+}
-+
-+static int mxt_vidioc_g_input(struct file *file, void *priv, unsigned int *i)
-+{
-+	struct mxt_data *data = video_drvdata(file);
-+
-+	*i = data->dbg.input;
-+
-+	return 0;
-+}
-+
-+static int mxt_vidioc_fmt(struct file *file, void *priv, struct v4l2_format *f)
-+{
-+	struct mxt_data *data = video_drvdata(file);
-+
-+	f->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-+	f->fmt.pix = data->dbg.format;
-+
-+	return 0;
-+}
-+
-+static int mxt_vidioc_enum_fmt(struct file *file, void *priv,
-+				 struct v4l2_fmtdesc *fmt)
-+{
-+	if (fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
-+		return -EINVAL;
-+
-+	fmt->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
-+	return 0;
-+}
-+
-+static int mxt_vidioc_g_parm(struct file *file, void *fh,
-+			     struct v4l2_streamparm *a)
-+{
-+	if (a->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
-+		return -EINVAL;
-+
-+	a->parm.capture.readbuffers = 1;
-+	a->parm.capture.timeperframe.numerator = 1;
-+	a->parm.capture.timeperframe.denominator = 10;
-+	return 0;
-+}
-+
-+static const struct v4l2_ioctl_ops mxt_video_ioctl_ops = {
-+	.vidioc_querycap        = mxt_vidioc_querycap,
-+
-+	.vidioc_enum_fmt_vid_cap = mxt_vidioc_enum_fmt,
-+	.vidioc_s_fmt_vid_cap   = mxt_vidioc_fmt,
-+	.vidioc_g_fmt_vid_cap   = mxt_vidioc_fmt,
-+	.vidioc_try_fmt_vid_cap	= mxt_vidioc_fmt,
-+	.vidioc_g_parm		= mxt_vidioc_g_parm,
-+
-+	.vidioc_enum_input      = mxt_vidioc_enum_input,
-+	.vidioc_g_input         = mxt_vidioc_g_input,
-+	.vidioc_s_input         = mxt_vidioc_s_input,
-+
-+	.vidioc_reqbufs         = vb2_ioctl_reqbufs,
-+	.vidioc_create_bufs     = vb2_ioctl_create_bufs,
-+	.vidioc_querybuf        = vb2_ioctl_querybuf,
-+	.vidioc_qbuf            = vb2_ioctl_qbuf,
-+	.vidioc_dqbuf           = vb2_ioctl_dqbuf,
-+	.vidioc_expbuf          = vb2_ioctl_expbuf,
-+
-+	.vidioc_streamon        = vb2_ioctl_streamon,
-+	.vidioc_streamoff       = vb2_ioctl_streamoff,
-+};
-+
-+static const struct video_device mxt_video_device = {
-+	.name = "Atmel maxTouch",
-+	.fops = &mxt_video_fops,
-+	.ioctl_ops = &mxt_video_ioctl_ops,
-+	.release = video_device_release_empty,
-+	.device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_TOUCH |
-+		       V4L2_CAP_READWRITE | V4L2_CAP_STREAMING,
-+};
-+
+@@ -2416,6 +2434,7 @@ static const struct video_device mxt_video_device = {
+ 
  static void mxt_debug_init(struct mxt_data *data)
  {
++	struct mxt_info *info = &data->info;
  	struct mxt_dbg *dbg = &data->dbg;
  	struct mxt_object *object;
-+	int error;
+ 	int error;
+@@ -2439,8 +2458,14 @@ static void mxt_debug_init(struct mxt_data *data)
  
- 	object = mxt_get_object(data, MXT_GEN_COMMAND_T6);
- 	if (!object)
-@@ -2189,8 +2401,40 @@ static void mxt_debug_init(struct mxt_data *data)
- 	if (!dbg->t37_buf)
- 		goto error;
+ 	/* Calculate size of data and allocate buffer */
+ 	dbg->t37_nodes = data->xsize * data->ysize;
+-	dbg->t37_pages = DIV_ROUND_UP(data->xsize * data->info.matrix_ysize *
+-				      sizeof(u16), sizeof(dbg->t37_buf->data));
++
++	if (info->family_id == MXT_FAMILY_1386)
++		dbg->t37_pages = MXT1386_COLUMNS * MXT1386_PAGES_PER_COLUMN;
++	else
++		dbg->t37_pages = DIV_ROUND_UP(data->xsize *
++					      data->info.matrix_ysize *
++					      sizeof(u16),
++					      sizeof(dbg->t37_buf->data));
  
-+	/* init channel to zero */
-+	mxt_set_input(data, 0);
-+
-+	/* register video device */
-+	snprintf(dbg->v4l2.name, sizeof(dbg->v4l2.name), "%s", "atmel_mxt_ts");
-+	error = v4l2_device_register(&data->client->dev, &dbg->v4l2);
-+	if (error)
-+		goto error;
-+
-+	/* initialize the queue */
-+	mutex_init(&dbg->lock);
-+	dbg->queue = mxt_queue;
-+	dbg->queue.drv_priv = data;
-+	dbg->queue.lock = &dbg->lock;
-+
-+	error = vb2_queue_init(&dbg->queue);
-+	if (error)
-+		goto error_unreg_v4l2;
-+
-+	dbg->vdev = mxt_video_device;
-+	dbg->vdev.v4l2_dev = &dbg->v4l2;
-+	dbg->vdev.lock = &dbg->lock;
-+	dbg->vdev.vfl_dir = VFL_DIR_RX;
-+	dbg->vdev.queue = &dbg->queue;
-+	video_set_drvdata(&dbg->vdev, data);
-+
-+	error = video_register_device(&dbg->vdev, VFL_TYPE_TOUCH, -1);
-+	if (error)
-+		goto error_unreg_v4l2;
-+
- 	return;
- 
-+error_unreg_v4l2:
-+	v4l2_device_unregister(&dbg->v4l2);
- error:
- 	dev_warn(&data->client->dev, "Error initializing T37\n");
- }
+ 	dbg->t37_buf = devm_kmalloc_array(&data->client->dev, dbg->t37_pages,
+ 					  sizeof(struct t37_debug), GFP_KERNEL);
 -- 
 2.5.0
-

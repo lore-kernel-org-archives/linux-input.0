@@ -1,239 +1,139 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v6 04/11] Input: atmel_mxt_ts - add support for T37 diagnostic data
-Date: Thu, 30 Jun 2016 18:38:47 +0100
-Message-ID: <1467308334-12580-5-git-send-email-nick@shmanahar.org>
+Subject: [PATCH v6 09/11] Input: atmel_mxt_ts - add support for reference data
+Date: Thu, 30 Jun 2016 18:38:52 +0100
+Message-ID: <1467308334-12580-10-git-send-email-nick@shmanahar.org>
 References: <1467308334-12580-1-git-send-email-nick@shmanahar.org>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1467308334-12580-1-git-send-email-nick@shmanahar.org>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, jon.older@itdev.co.uk, nick.dyer@itdev.co.uk, Nick Dyer <nick@shmanahar.org>
 List-Id: linux-input@vger.kernel.org
 
-Atmel maXTouch devices have a T37 object which can be used to read raw
-touch deltas from the device. This consists of an array of 16-bit
-integers, one for each node on the touchscreen matrix.
+There are different datatypes available from a maXTouch chip. Add
+support to retrieve reference data as well.
 
 Signed-off-by: Nick Dyer <nick@shmanahar.org>
 ---
- drivers/input/touchscreen/Kconfig        |   6 ++
- drivers/input/touchscreen/atmel_mxt_ts.c | 159 +++++++++++++++++++++++++++++++
- 2 files changed, 165 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 57 ++++++++++++++++++++++++++++----
+ 1 file changed, 51 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 8ecdc38..da96ecf 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -115,6 +115,12 @@ config TOUCHSCREEN_ATMEL_MXT
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called atmel_mxt_ts.
- 
-+config TOUCHSCREEN_ATMEL_MXT_T37
-+	bool "Support T37 Diagnostic Data"
-+	depends on TOUCHSCREEN_ATMEL_MXT
-+	help
-+	  Say Y here if you want support for the T37 Diagnostic Data object.
-+
- config TOUCHSCREEN_AUO_PIXCIR
- 	tristate "AUO in-cell touchscreen using Pixcir ICs"
- 	depends on I2C
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 5af7907..0048233 100644
+index 7c4d937..f75f2ce 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -124,6 +124,19 @@ struct t9_range {
- #define MXT_COMMS_CTRL		0
- #define MXT_COMMS_CMD		1
+@@ -135,6 +135,7 @@ struct t9_range {
+ /* MXT_DEBUG_DIAGNOSTIC_T37 */
+ #define MXT_DIAGNOSTIC_PAGEUP	0x01
+ #define MXT_DIAGNOSTIC_DELTAS	0x10
++#define MXT_DIAGNOSTIC_REFS	0x11
+ #define MXT_DIAGNOSTIC_SIZE	128
  
-+/* MXT_DEBUG_DIAGNOSTIC_T37 */
-+#define MXT_DIAGNOSTIC_PAGEUP	0x01
-+#define MXT_DIAGNOSTIC_DELTAS	0x10
-+#define MXT_DIAGNOSTIC_SIZE	128
+ #define MXT_FAMILY_1386			160
+@@ -249,6 +250,12 @@ struct mxt_dbg {
+ 	int input;
+ };
+ 
++enum v4l_dbg_inputs {
++	MXT_V4L_INPUT_DELTAS,
++	MXT_V4L_INPUT_REFS,
++	MXT_V4L_INPUT_MAX,
++};
 +
-+struct t37_debug {
-+#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
+ static const struct v4l2_file_operations mxt_video_fops = {
+ 	.owner = THIS_MODULE,
+ 	.open = v4l2_fh_open,
+@@ -2273,6 +2280,7 @@ static void mxt_buffer_queue(struct vb2_buffer *vb)
+ 	struct mxt_data *data = vb2_get_drv_priv(vb->vb2_queue);
+ 	u16 *ptr;
+ 	int ret;
 +	u8 mode;
-+	u8 page;
-+	u8 data[MXT_DIAGNOSTIC_SIZE];
-+#endif
-+};
-+
- /* Define for MXT_GEN_COMMAND_T6 */
- #define MXT_BOOT_VALUE		0xa5
- #define MXT_RESET_VALUE		0x01
-@@ -205,6 +218,14 @@ struct mxt_object {
- 	u8 num_report_ids;
- } __packed;
  
-+struct mxt_dbg {
-+	u16 t37_address;
-+	u16 diag_cmd_address;
-+	struct t37_debug *t37_buf;
-+	unsigned int t37_pages;
-+	unsigned int t37_nodes;
-+};
-+
- /* Each client has this additional data */
- struct mxt_data {
- 	struct i2c_client *client;
-@@ -233,6 +254,7 @@ struct mxt_data {
- 	u8 num_touchids;
- 	u8 multitouch;
- 	struct t7_config t7_cfg;
-+	struct mxt_dbg dbg;
+ 	ptr = vb2_plane_vaddr(vb, 0);
+ 	if (!ptr) {
+@@ -2280,7 +2288,18 @@ static void mxt_buffer_queue(struct vb2_buffer *vb)
+ 		goto fault;
+ 	}
  
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -2043,6 +2065,141 @@ recheck:
+-	ret = mxt_read_diagnostic_debug(data, MXT_DIAGNOSTIC_DELTAS, ptr);
++	switch (data->dbg.input) {
++	case MXT_V4L_INPUT_DELTAS:
++	default:
++		mode = MXT_DIAGNOSTIC_DELTAS;
++		break;
++
++	case MXT_V4L_INPUT_REFS:
++		mode = MXT_DIAGNOSTIC_REFS;
++		break;
++	}
++
++	ret = mxt_read_diagnostic_debug(data, mode, ptr);
+ 	if (ret)
+ 		goto fault;
+ 
+@@ -2325,11 +2344,21 @@ static int mxt_vidioc_querycap(struct file *file, void *priv,
+ static int mxt_vidioc_enum_input(struct file *file, void *priv,
+ 				   struct v4l2_input *i)
+ {
+-	if (i->index > 0)
++	if (i->index >= MXT_V4L_INPUT_MAX)
+ 		return -EINVAL;
+ 
+ 	i->type = V4L2_INPUT_TYPE_TOUCH;
+-	strlcpy(i->name, "Mutual Capacitance Deltas", sizeof(i->name));
++
++	switch (i->index) {
++	case MXT_V4L_INPUT_REFS:
++		strlcpy(i->name, "Mutual Capacitance References",
++			sizeof(i->name));
++		break;
++	case MXT_V4L_INPUT_DELTAS:
++		strlcpy(i->name, "Mutual Capacitance Deltas", sizeof(i->name));
++		break;
++	}
++
  	return 0;
  }
  
-+#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
-+static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
-+			       unsigned int y)
-+{
-+	struct mxt_dbg *dbg = &data->dbg;
-+	unsigned int ofs, page;
-+
-+	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
-+	page = ofs / MXT_DIAGNOSTIC_SIZE;
-+	ofs %= MXT_DIAGNOSTIC_SIZE;
-+
-+	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
-+}
-+
-+static int mxt_convert_debug_pages(struct mxt_data *data, u16 *outbuf)
-+{
-+	struct mxt_dbg *dbg = &data->dbg;
-+	unsigned int x = 0;
-+	unsigned int y = 0;
-+	unsigned int i;
-+
-+	for (i = 0; i < dbg->t37_nodes; i++) {
-+		outbuf[i] = mxt_get_debug_value(data, x, y);
-+
-+		/* Next value */
-+		if (++x >= data->info.matrix_xsize) {
-+			x = 0;
-+			y++;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int mxt_read_diagnostic_debug(struct mxt_data *data, u8 mode,
-+				     u16 *outbuf)
-+{
-+	struct mxt_dbg *dbg = &data->dbg;
-+	int retries = 0;
-+	int page;
-+	int ret;
-+	u8 cmd = mode;
-+	struct t37_debug *p;
-+	u8 cmd_poll;
-+
-+	for (page = 0; page < dbg->t37_pages; page++) {
-+		p = dbg->t37_buf + page;
-+
-+		ret = mxt_write_reg(data->client, dbg->diag_cmd_address,
-+				    cmd);
-+		if (ret)
-+			return ret;
-+
-+		retries = 0;
-+		msleep(20);
-+wait_cmd:
-+		/* Read back command byte */
-+		ret = __mxt_read_reg(data->client, dbg->diag_cmd_address,
-+				     sizeof(cmd_poll), &cmd_poll);
-+		if (ret)
-+			return ret;
-+
-+		/* Field is cleared once the command has been processed */
-+		if (cmd_poll) {
-+			if (retries++ > 100)
-+				return -EINVAL;
-+
-+			msleep(20);
-+			goto wait_cmd;
-+		}
-+
-+		/* Read T37 page */
-+		ret = __mxt_read_reg(data->client, dbg->t37_address,
-+				     sizeof(struct t37_debug), p);
-+		if (ret)
-+			return ret;
-+
-+		if (p->mode != mode || p->page != page) {
-+			dev_err(&data->client->dev, "T37 page mismatch\n");
-+			return -EINVAL;
-+		}
-+
-+		dev_dbg(&data->client->dev, "%s page:%d retries:%d\n",
-+			__func__, page, retries);
-+
-+		/* For remaining pages, write PAGEUP rather than mode */
-+		cmd = MXT_DIAGNOSTIC_PAGEUP;
-+	}
-+
-+	return mxt_convert_debug_pages(data, outbuf);
-+}
-+
-+static void mxt_debug_init(struct mxt_data *data)
-+{
-+	struct mxt_dbg *dbg = &data->dbg;
-+	struct mxt_object *object;
-+
-+	object = mxt_get_object(data, MXT_GEN_COMMAND_T6);
-+	if (!object)
-+		goto error;
-+
-+	dbg->diag_cmd_address = object->start_address + MXT_COMMAND_DIAGNOSTIC;
-+
-+	object = mxt_get_object(data, MXT_DEBUG_DIAGNOSTIC_T37);
-+	if (!object)
-+		goto error;
-+
-+	if (mxt_obj_size(object) != sizeof(struct t37_debug)) {
-+		dev_warn(&data->client->dev, "Bad T37 size");
-+		goto error;
-+	}
-+
-+	dbg->t37_address = object->start_address;
-+
-+	/* Calculate size of data and allocate buffer */
-+	dbg->t37_nodes = data->info.matrix_xsize * data->info.matrix_ysize;
-+	dbg->t37_pages = DIV_ROUND_UP(dbg->t37_nodes * sizeof(u16),
-+				      sizeof(dbg->t37_buf->data));
-+
-+	dbg->t37_buf = devm_kmalloc_array(&data->client->dev, dbg->t37_pages,
-+					  sizeof(struct t37_debug), GFP_KERNEL);
-+	if (!dbg->t37_buf)
-+		goto error;
-+
-+	return;
-+
-+error:
-+	dev_warn(&data->client->dev, "Error initializing T37\n");
-+}
-+#else
-+static void mxt_debug_init(struct mxt_data *data)
-+{
-+}
-+#endif
-+
- static int mxt_configure_objects(struct mxt_data *data,
- 				 const struct firmware *cfg)
+@@ -2337,12 +2366,16 @@ static int mxt_set_input(struct mxt_data *data, unsigned int i)
  {
-@@ -2070,6 +2227,8 @@ static int mxt_configure_objects(struct mxt_data *data,
- 		dev_warn(dev, "No touch object detected\n");
- 	}
+ 	struct v4l2_pix_format *f = &data->dbg.format;
  
-+	mxt_debug_init(data);
+-	if (i > 0)
++	if (i >= MXT_V4L_INPUT_MAX)
+ 		return -EINVAL;
+ 
++	if (i == MXT_V4L_INPUT_DELTAS)
++		f->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
++	else
++		f->pixelformat = V4L2_TCH_FMT_TU16;
 +
- 	dev_info(dev,
- 		 "Family: %u Variant: %u Firmware V%u.%u.%02X Objects: %u\n",
- 		 info->family_id, info->variant_id, info->version >> 4,
+ 	f->width = data->xy_switch ? data->ysize : data->xsize;
+ 	f->height = data->xy_switch ? data->xsize : data->ysize;
+-	f->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
+ 	f->field = V4L2_FIELD_NONE;
+ 	f->colorspace = V4L2_COLORSPACE_RAW;
+ 	f->bytesperline = f->width * sizeof(u16);
+@@ -2383,7 +2416,19 @@ static int mxt_vidioc_enum_fmt(struct file *file, void *priv,
+ 	if (fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+ 		return -EINVAL;
+ 
+-	fmt->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
++	switch (fmt->index) {
++	case 0:
++		fmt->pixelformat = V4L2_TCH_FMT_TU16;
++		break;
++
++	case 1:
++		fmt->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
++		break;
++
++	default:
++		return -EINVAL;
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.5.0

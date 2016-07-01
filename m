@@ -1,52 +1,89 @@
-From: Harald Geyer <harald@ccbib.org>
-Subject: Re: [PATCH v3 1/4] mfd: mxs-lradc: Add support for mxs-lradc MFD
-Date: Fri, 01 Jul 2016 15:10:18 +0200
-Message-ID: <E1bIyD4-0000Jw-2c@stardust.g4.wien.funkfeuer.at>
-References: <cover.1466769907.git.ksenija.stanojevic@gmail.com> <370a02584386944b465deff5ccc48c8919b23dba.1466769907.git.ksenija.stanojevic@gmail.com> <20160628162834.GF29166@dell> <CAL7P5j+NYvUJfu==xQvncyCiw8JHtizOdfyeY1HL6Lb=-wsrWQ@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: multitouch: add support for Type Cover Pro 3
+Date: Fri, 1 Jul 2016 16:52:12 +0200
+Message-ID: <20160701145212.GA24234@mail.corp.redhat.com>
+References: <1466196443.21223.1.camel@gmail.com>
+ <alpine.LNX.2.00.1606172259110.6874@cbobk.fhfr.pm>
+ <20160617211142.GH24234@mail.corp.redhat.com>
+ <1466275994.2669.11.camel@gmail.com>
+ <20160618194534.GI24234@mail.corp.redhat.com>
+ <1466369282.15726.7.camel@gmail.com>
+ <20160620095934.GN24234@mail.corp.redhat.com>
+ <1466739490.3464.8.camel@gmail.com>
+ <20160624071419.GO24234@mail.corp.redhat.com>
+ <1466840940.28419.6.camel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <CAL7P5j+NYvUJfu==xQvncyCiw8JHtizOdfyeY1HL6Lb=-wsrWQ@mail.gmail.com>
-Content-ID: <1234.1467378617.1@stardust.g4.wien.funkfeuer.at>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Ksenija_Stanojevi=C4=87?= <ksenija.stanojevic@gmail.com>
-Cc: Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, =?UTF-8?B?TWFyZWsgVmHFoXV0?= <marex@denx.de>, linux-iio@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>, Fabio Estevam <fabio.estevam@freescale.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:36837 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752171AbcGAOwQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Jul 2016 10:52:16 -0400
+Content-Disposition: inline
+In-Reply-To: <1466840940.28419.6.camel@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dennis Chen <barracks510@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Hi Ksenija!
+Hi,
 
-Ksenija Stanojevi=C4=87 writes:
-> On Tue, Jun 28, 2016 at 6:28 PM, Lee Jones <lee.jones@linaro.org> wro=
-te:
-> >> +static int mxs_lradc_add_device(struct platform_device *pdev,
-> >> +                             struct mxs_lradc *lradc, char *name,=
- int i)
-> >> +{
-> >> +     struct mfd_cell *cell;
-> >> +
-> >> +     cell =3D &lradc->cells[i];
-> >> +     cell->name =3D name;
-> >> +     cell->platform_data =3D lradc;
-> >> +     cell->pdata_size =3D sizeof(*lradc);
-> >> +
-> >> +     return devm_mfd_add_devices(&pdev->dev, -1, cell, 1, NULL, 0=
-, NULL);
-> >> +}
-> >
-> > Please don't roll your own API.
-> >
-> > Use 'struct mfd_cell' like everyone else does.
+On Jun 25 2016 or thereabouts, Dennis Chen wrote:
+> On Fri, 2016-06-24 at 09:14 +0200, Benjamin Tissoires wrote:
+> > Looks like the same issue Andy is seeing on the Surface Book. So I
+> > think my patch must have a bug where it resets the quirks set by
+> > usbhid. And this is why we are screwed here.
+> >=20
 >=20
-> It has been suggested in previous reviews to use separate function to
-> register mfd device, and to make mfd_cell allocate dynamically becaus=
-e
-> struc mxs-lradc is allocated dynamically.
-> But I can revrse changes and make mfd_cells allocate staticaly
-> wthout separate function.
+> Yes, I think that's likely. There doesn't seem to be an issue most of
+> the time, so it's not a huge deal.=C2=A0
 
-I think making mfd_cells members of struct mxs-lradc will address all
-review comments.
+I spent a good amount of time trying to figure out where the bug was,
+and I couldn't reproduce it either with uhid or even with usb_gadget.
+Even KASan doesn't gives any wrong memory access, and I can't understan=
+d
+why you get this faulty behavior.
 
-HTH,
-Harald
+So I must say, I am puzzled on why you end up calling
+usbhid_init_reports() while the quirk HID_QUIRK_NO_INIT_REPORTS should
+be in place.
+Would you mind adding some printk() in hid-multitouch to dump the value
+of hdev->quirks before and after calling hid_hw_start() in mt_probe()?
+
+Also, ideally, if you could add a dump_stack() in
+drivers/hid/usbhid/hid-core.c, right before leaving
+usbhid_init_reports(), that would be awesome.
+
+I would have prefer being able to understand myself what is going on,
+but it looks like there is something different happening when I do not
+have the device.
+
+>=20
+> > Regarding your disconnect issue, what happens I think is that you
+> > disconnect it before the timeout of usb_submit_urb(), and so the us=
+b
+> > layer is stuck trying to access the device and can't access the new=
+ly
+> > plugged one. If you wait enough (initial timeout + new timeout -> 2=
+0
+> > secs), then the device behaves properly again.
+> >=20
+>=20
+> That is the behavior I have noticed. Is there any potential fix?
+>=20
+
+The fix is to not fetch the buggy features that timeout. For that, we
+usually set the flag HID_QUIRK_NO_INIT_REPORTS, which prevents it. But
+in your case, the code says that the flag is set, while the code is
+still called :(
+
+Thanks,
+Benjamin
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

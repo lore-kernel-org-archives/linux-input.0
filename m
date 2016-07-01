@@ -1,46 +1,61 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v6 01/11] Input: atmel_mxt_ts - update MAINTAINERS email address
-Date: Thu, 30 Jun 2016 18:38:44 +0100
-Message-ID: <1467308334-12580-2-git-send-email-nick@shmanahar.org>
+Subject: Re: [PATCH v6 10/11] Input: synaptics-rmi4 - add support for F54
+ diagnostics
+Date: Fri, 1 Jul 2016 09:41:24 +0100
+Message-ID: <20160701084124.GA6384@bm.shmanahar.org>
 References: <1467308334-12580-1-git-send-email-nick@shmanahar.org>
+ <1467308334-12580-11-git-send-email-nick@shmanahar.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:11520 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751424AbcF3Rvt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jun 2016 13:51:49 -0400
-In-Reply-To: <1467308334-12580-1-git-send-email-nick@shmanahar.org>
+Received: from bm.shmanahar.org ([80.68.91.236]:46642 "EHLO bm.shmanahar.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751100AbcGAIvE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Jul 2016 04:51:04 -0400
+Content-Disposition: inline
+In-Reply-To: <1467308334-12580-11-git-send-email-nick@shmanahar.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, jon.older@itdev.co.uk, nick.dyer@itdev.co.uk, Nick Dyer <nick@shmanahar.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, jon.older@itdev.co.uk, nick.dyer@itdev.co.uk
 
-I'm leaving ITDev, so change to my personal email. My understanding is
-that someone at Atmel will take this on once their takeover by Microchip
-has settled down.
+On Thu, Jun 30, 2016 at 06:38:53PM +0100, Nick Dyer wrote:
+> Function 54 implements access to various RMI4 diagnostic features.
+> 
+> This patch adds support for retrieving this data. It registers a V4L2
+> device to output the data to user space.
+> 
+> Signed-off-by: Nick Dyer <nick@shmanahar.org>
+> ---
+>  drivers/input/rmi4/Kconfig      |  11 +
+>  drivers/input/rmi4/Makefile     |   1 +
+>  drivers/input/rmi4/rmi_bus.c    |   3 +
+>  drivers/input/rmi4/rmi_driver.h |   1 +
+>  drivers/input/rmi4/rmi_f54.c    | 754 ++++++++++++++++++++++++++++++++++++++++
+>  5 files changed, 770 insertions(+)
+>  create mode 100644 drivers/input/rmi4/rmi_f54.c
+[...]
+> index 0000000..2361157
+> --- /dev/null
+> +++ b/drivers/input/rmi4/rmi_f54.c
+[...]
+> +static int rmi_f54_vidioc_querycap(struct file *file, void *priv,
+> +				   struct v4l2_capability *cap)
+> +{
+> +	struct f54_data *f54 = video_drvdata(file);
+> +
+> +	strlcpy(cap->driver, F54_NAME, sizeof(cap->driver));
+> +	strlcpy(cap->card, SYNAPTICS_INPUT_DEVICE_NAME, sizeof(cap->card));
+> +	strlcpy(cap->bus_info, dev_name(&f54->fn->dev), sizeof(cap->bus_info));
 
-Signed-off-by: Nick Dyer <nick@shmanahar.org>
----
- MAINTAINERS | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+I need to correct this to prefix the bus. RMI4 registers its own bus, so
+devices appear under eg /sys/bus/rmi4/devices/rmi4-00.fn54
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 0f148d3..6affed5 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2181,9 +2181,9 @@ S:	Maintained
- F:	drivers/net/wireless/atmel/atmel*
- 
- ATMEL MAXTOUCH DRIVER
--M:	Nick Dyer <nick.dyer@itdev.co.uk>
--T:	git git://github.com/atmel-maxtouch/linux.git
--S:	Supported
-+M:	Nick Dyer <nick@shmanahar.org>
-+T:	git git://github.com/ndyer/linux.git
-+S:	Maintained
- F:	Documentation/devicetree/bindings/input/atmel,maxtouch.txt
- F:	drivers/input/touchscreen/atmel_mxt_ts.c
- F:	include/linux/platform_data/atmel_mxt_ts.h
--- 
-2.5.0
+So I will change to:
+snprintf(cap->bus_info, sizeof(cap->bus_info), "rmi4:%s", dev_name(&f54->fn->dev));
 
+And I will need to add rmi4 to the valid prefixes in v4l2-complaince as well.
+
+> +
+> +	return 0;
+> +}

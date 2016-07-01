@@ -1,378 +1,637 @@
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH 1/2] mfd: cros_ec: Add MKBP event support
-Date: Fri,  1 Jul 2016 11:07:55 +0200
-Message-ID: <1467364076-20172-2-git-send-email-enric.balletbo@collabora.com>
-References: <1467364076-20172-1-git-send-email-enric.balletbo@collabora.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1467364076-20172-1-git-send-email-enric.balletbo@collabora.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Vic Yang <victoryang@google.com>, Lee Jones <lee.jones@linaro.org>, Olof Johansson <olof@lixom.net>, Gwendal Grignou <gwendal@chromium.org>, Brian Norris <briannorris@chromium.org>, Randall Spangler <rspangler@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Benson Leung <bleung@chromium.org>
+From: =?UTF-8?Q?Ksenija_Stanojevi=C4=87?= <ksenija.stanojevic@gmail.com>
+Subject: Re: [PATCH v3 1/4] mfd: mxs-lradc: Add support for mxs-lradc MFD
+Date: Fri, 1 Jul 2016 13:47:45 +0200
+Message-ID: <CAL7P5j+NYvUJfu==xQvncyCiw8JHtizOdfyeY1HL6Lb=-wsrWQ@mail.gmail.com>
+References: <cover.1466769907.git.ksenija.stanojevic@gmail.com>
+ <370a02584386944b465deff5ccc48c8919b23dba.1466769907.git.ksenija.stanojevic@gmail.com>
+ <20160628162834.GF29166@dell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qt0-f194.google.com ([209.85.216.194]:35946 "EHLO
+	mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751879AbcGALrs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jul 2016 07:47:48 -0400
+In-Reply-To: <20160628162834.GF29166@dell>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, =?UTF-8?B?TWFyZWsgVmHFoXV0?= <marex@denx.de>, linux-iio@vger.kernel.org, Harald Geyer <harald@ccbib.org>, Stefan Wahren <stefan.wahren@i2se.com>, Fabio Estevam <fabio.estevam@freescale.com>
 
-From: Vic Yang <victoryang@google.com>
+Hi Lee,
 
-Newer revisions of the ChromeOS EC add more events besides the keyboard
-ones. So handle interrupts in the MFD driver and let consumers register
-for notifications for the events they might care.
+Thank you for the review.
 
-To keep backward compatibility, if the EC doesn't support MKBP event, we
-fall back to the old MKBP key matrix host command.
+On Tue, Jun 28, 2016 at 6:28 PM, Lee Jones <lee.jones@linaro.org> wrote:
+> On Fri, 24 Jun 2016, Ksenija Stanojevic wrote:
+>
+>> Add core files for mxs-lradc MFD driver.
+>>
+>> Note:  this patch won't compile in iio/testing without this patch:
+>> a8f447be8056 ("mfd: Add resource managed APIs for mfd_add_devices")
+>>
+>> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+>> Acked-by: Jonathan Cameron <jic23@kernel.org>
+>> ---
+>> Changes in v3:
+>>  - add note to commit message
+>>  - move switch statement into if(touch_ret == 0) branch
+>>  - add MODULE_AUTHOR
+>>
+>> Changes in v2:
+>>  - do not change spacing in Kconfig
+>>  - make struct mfd_cell part of struct mxs_lradc
+>>  - use switch instead of if in mxs_lradc_irq_mask
+>>  - use only necessary header files in mxs_lradc.h
+>>  - use devm_mfd_add_device
+>>  - use separate function to register mfd device
+>>  - change licence to GPL
+>>  - add copyright
+>>
+>>  drivers/mfd/Kconfig           |  17 ++++
+>>  drivers/mfd/Makefile          |   1 +
+>>  drivers/mfd/mxs-lradc.c       | 217 ++++++++++++++++++++++++++++++++++++++++++
+>>  include/linux/mfd/mxs-lradc.h | 204 +++++++++++++++++++++++++++++++++++++++
+>>  4 files changed, 439 insertions(+)
+>>  create mode 100644 drivers/mfd/mxs-lradc.c
+>>  create mode 100644 include/linux/mfd/mxs-lradc.h
+>>
+>> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+>> index 9ca66de..62593ad 100644
+>> --- a/drivers/mfd/Kconfig
+>> +++ b/drivers/mfd/Kconfig
+>> @@ -271,6 +271,23 @@ config MFD_MC13XXX_I2C
+>>       help
+>>         Select this if your MC13xxx is connected via an I2C bus.
+>>
+>> +config MFD_MXS_LRADC
+>> +     tristate "Freescale i.MX23/i.MX28 LRADC"
+>> +     depends on ARCH_MXS || COMPILE_TEST
+>> +     select MFD_CORE
+>> +     select STMP_DEVICE
+>> +     help
+>> +       Say yes here to build support for the low-resolution
+>> +       analog-to-digital converter (LRADC) found on the i.MX23 and i.MX28
+>
+> Low Resolution Analogue-to-Digital Converter
+>
+>> +       processors. This driver provides common support for accessing the
+>> +       device, additional drivers must be enabled in order to use the
+>> +       functionality of the device:
+>> +             mxs-lradc-adc for ADC readings
+>> +             mxs-lradc-ts  for touchscreen support
+>> +
+>> +       This driver can also be built as a module. If so, the module will be
+>> +       called mxs-lradc.
+>> +
+>>  config MFD_HI6421_PMIC
+>>       tristate "HiSilicon Hi6421 PMU/Codec IC"
+>>       depends on OF
+>> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+>> index 0f230a6..ecf6399 100644
+>> --- a/drivers/mfd/Makefile
+>> +++ b/drivers/mfd/Makefile
+>> @@ -198,3 +198,4 @@ intel-soc-pmic-objs               := intel_soc_pmic_core.o intel_soc_pmic_crc.o
+>>  intel-soc-pmic-$(CONFIG_INTEL_PMC_IPC)       += intel_soc_pmic_bxtwc.o
+>>  obj-$(CONFIG_INTEL_SOC_PMIC) += intel-soc-pmic.o
+>>  obj-$(CONFIG_MFD_MT6397)     += mt6397-core.o
+>> +obj-$(CONFIG_MFD_MXS_LRADC)  += mxs-lradc.o
+>> diff --git a/drivers/mfd/mxs-lradc.c b/drivers/mfd/mxs-lradc.c
+>> new file mode 100644
+>> index 0000000..d53a524
+>> --- /dev/null
+>> +++ b/drivers/mfd/mxs-lradc.c
+>> @@ -0,0 +1,217 @@
+>> +/*
+>> + * Freescale MXS LRADC driver
+>> + *
+>> + * Copyright (c) 2012 DENX Software Engineering, GmbH.
+>
+>
+> You need to update the copyright.
+>
+> Authors:
+>
+>> + * Marek Vasut <marex@denx.de>
+>> + * Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License as published by
+>> + * the Free Software Foundation; either version 2 of the License, or
+>> + * (at your option) any later version.
+>> + *
+>> + * This program is distributed in the hope that it will be useful,
+>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+>> + * GNU General Public License for more details.
+>> + */
+>> +
+>> +#include <linux/clk.h>
+>> +#include <linux/device.h>
+>> +#include <linux/mfd/core.h>
+>> +#include <linux/mfd/mxs-lradc.h>
+>> +#include <linux/module.h>
+>> +#include <linux/of.h>
+>> +#include <linux/of_device.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/slab.h>
+>> +
+>> +static const char * const mx23_lradc_irq_names[] = {
+>> +     "mxs-lradc-touchscreen",
+>> +     "mxs-lradc-channel0",
+>> +     "mxs-lradc-channel1",
+>> +     "mxs-lradc-channel2",
+>> +     "mxs-lradc-channel3",
+>> +     "mxs-lradc-channel4",
+>> +     "mxs-lradc-channel5",
+>> +     "mxs-lradc-channel6",
+>> +     "mxs-lradc-channel7",
+>> +};
+>> +
+>> +static const char * const mx28_lradc_irq_names[] = {
+>> +     "mxs-lradc-touchscreen",
+>> +     "mxs-lradc-thresh0",
+>> +     "mxs-lradc-thresh1",
+>> +     "mxs-lradc-channel0",
+>> +     "mxs-lradc-channel1",
+>> +     "mxs-lradc-channel2",
+>> +     "mxs-lradc-channel3",
+>> +     "mxs-lradc-channel4",
+>> +     "mxs-lradc-channel5",
+>> +     "mxs-lradc-channel6",
+>> +     "mxs-lradc-channel7",
+>> +     "mxs-lradc-button0",
+>> +     "mxs-lradc-button1",
+>> +};
+>> +
+>> +struct mxs_lradc_of_config {
+>> +     const int               irq_count;
+>> +     const char * const      *irq_name;
+>> +};
+>> +
+>> +static const struct mxs_lradc_of_config mxs_lradc_of_config[] = {
+>> +     [IMX23_LRADC] = {
+>> +             .irq_count      = ARRAY_SIZE(mx23_lradc_irq_names),
+>> +             .irq_name       = mx23_lradc_irq_names,
+>> +     },
+>> +     [IMX28_LRADC] = {
+>> +             .irq_count      = ARRAY_SIZE(mx28_lradc_irq_names),
+>> +             .irq_name       = mx28_lradc_irq_names,
+>> +     },
+>> +};
+>
+> Please use DEFINE_RES_IRQ_NAMED() instead.
+>
+>> +static const struct of_device_id mxs_lradc_dt_ids[] = {
+>> +     { .compatible = "fsl,imx23-lradc", .data = (void *)IMX23_LRADC, },
+>> +     { .compatible = "fsl,imx28-lradc", .data = (void *)IMX28_LRADC, },
+>> +     { /* sentinel */ }
+>> +};
+>> +MODULE_DEVICE_TABLE(of, mxs_lradc_dt_ids);
+>> +
+>> +static int mxs_lradc_add_device(struct platform_device *pdev,
+>> +                             struct mxs_lradc *lradc, char *name, int i)
+>> +{
+>> +     struct mfd_cell *cell;
+>> +
+>> +     cell = &lradc->cells[i];
+>> +     cell->name = name;
+>> +     cell->platform_data = lradc;
+>> +     cell->pdata_size = sizeof(*lradc);
+>> +
+>> +     return devm_mfd_add_devices(&pdev->dev, -1, cell, 1, NULL, 0, NULL);
+>> +}
+>
+> Please don't roll your own API.
+>
+> Use 'struct mfd_cell' like everyone else does.
 
-Signed-off-by: Vic Yang <victoryang@google.com>
-Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Tested-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Randall Spangler <rspangler@chromium.org>
-Cc: Vincent Palatin <vpalatin@chromium.org>
-Cc: Benson Leung <bleung@chromium.org>
----
- drivers/mfd/cros_ec.c                   | 58 +++++++++++++++++++--
- drivers/platform/chrome/cros_ec_proto.c | 92 +++++++++++++++++++++++++++++++++
- include/linux/mfd/cros_ec.h             | 18 +++++++
- include/linux/mfd/cros_ec_commands.h    | 34 ++++++++++++
- 4 files changed, 199 insertions(+), 3 deletions(-)
+It has been suggested in previous reviews to use separate function to
+register mfd device, and to make mfd_cell allocate dynamically because
+struc mxs-lradc is allocated dynamically.
+But I can revrse changes and make mfd_cells allocate staticaly
+wthout separate function.
 
-diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
-index 0eee635..abd8342 100644
---- a/drivers/mfd/cros_ec.c
-+++ b/drivers/mfd/cros_ec.c
-@@ -23,6 +23,7 @@
- #include <linux/module.h>
- #include <linux/mfd/core.h>
- #include <linux/mfd/cros_ec.h>
-+#include <asm/unaligned.h>
- 
- #define CROS_EC_DEV_EC_INDEX 0
- #define CROS_EC_DEV_PD_INDEX 1
-@@ -49,11 +50,28 @@ static const struct mfd_cell ec_pd_cell = {
- 	.pdata_size = sizeof(pd_p),
- };
- 
-+static irqreturn_t ec_irq_thread(int irq, void *data)
-+{
-+	struct cros_ec_device *ec_dev = data;
-+	int ret;
-+
-+	if (device_may_wakeup(ec_dev->dev))
-+		pm_wakeup_event(ec_dev->dev, 0);
-+
-+	ret = cros_ec_get_next_event(ec_dev);
-+	if (ret > 0)
-+		blocking_notifier_call_chain(&ec_dev->event_notifier,
-+					     0, ec_dev);
-+	return IRQ_HANDLED;
-+}
-+
- int cros_ec_register(struct cros_ec_device *ec_dev)
- {
- 	struct device *dev = ec_dev->dev;
- 	int err = 0;
- 
-+	BLOCKING_INIT_NOTIFIER_HEAD(&ec_dev->event_notifier);
-+
- 	ec_dev->max_request = sizeof(struct ec_params_hello);
- 	ec_dev->max_response = sizeof(struct ec_response_get_protocol_info);
- 	ec_dev->max_passthru = 0;
-@@ -70,13 +88,24 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
- 
- 	cros_ec_query_all(ec_dev);
- 
-+	if (ec_dev->irq) {
-+		err = request_threaded_irq(ec_dev->irq, NULL, ec_irq_thread,
-+					   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+					   "chromeos-ec", ec_dev);
-+		if (err) {
-+			dev_err(dev, "Failed to request IRQ %d: %d",
-+				ec_dev->irq, err);
-+			return err;
-+		}
-+	}
-+
- 	err = mfd_add_devices(ec_dev->dev, PLATFORM_DEVID_AUTO, &ec_cell, 1,
- 			      NULL, ec_dev->irq, NULL);
- 	if (err) {
- 		dev_err(dev,
- 			"Failed to register Embedded Controller subdevice %d\n",
- 			err);
--		return err;
-+		goto fail_mfd;
- 	}
- 
- 	if (ec_dev->max_passthru) {
-@@ -94,7 +123,7 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
- 			dev_err(dev,
- 				"Failed to register Power Delivery subdevice %d\n",
- 				err);
--			return err;
-+			goto fail_mfd;
- 		}
- 	}
- 
-@@ -103,13 +132,18 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
- 		if (err) {
- 			mfd_remove_devices(dev);
- 			dev_err(dev, "Failed to register sub-devices\n");
--			return err;
-+			goto fail_mfd;
- 		}
- 	}
- 
- 	dev_info(dev, "Chrome EC device registered\n");
- 
- 	return 0;
-+
-+fail_mfd:
-+	if (ec_dev->irq)
-+		free_irq(ec_dev->irq, ec_dev);
-+	return err;
- }
- EXPORT_SYMBOL(cros_ec_register);
- 
-@@ -136,13 +170,31 @@ int cros_ec_suspend(struct cros_ec_device *ec_dev)
- }
- EXPORT_SYMBOL(cros_ec_suspend);
- 
-+static void cros_ec_drain_events(struct cros_ec_device *ec_dev)
-+{
-+	while (cros_ec_get_next_event(ec_dev) > 0)
-+		blocking_notifier_call_chain(&ec_dev->event_notifier,
-+					     1, ec_dev);
-+}
-+
- int cros_ec_resume(struct cros_ec_device *ec_dev)
- {
- 	enable_irq(ec_dev->irq);
- 
-+	/*
-+	 * In some cases, we need to distinguish between events that occur
-+	 * during suspend if the EC is not a wake source. For example,
-+	 * keypresses during suspend should be discarded if it does not wake
-+	 * the system.
-+	 *
-+	 * If the EC is not a wake source, drain the event queue and mark them
-+	 * as "queued during suspend".
-+	 */
- 	if (ec_dev->wake_enabled) {
- 		disable_irq_wake(ec_dev->irq);
- 		ec_dev->wake_enabled = 0;
-+	} else {
-+		cros_ec_drain_events(ec_dev);
- 	}
- 
- 	return 0;
-diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform/chrome/cros_ec_proto.c
-index ecc544c..222ba97 100644
---- a/drivers/platform/chrome/cros_ec_proto.c
-+++ b/drivers/platform/chrome/cros_ec_proto.c
-@@ -19,6 +19,7 @@
- #include <linux/device.h>
- #include <linux/module.h>
- #include <linux/slab.h>
-+#include <asm/unaligned.h>
- 
- #define EC_COMMAND_RETRIES	50
- 
-@@ -234,11 +235,44 @@ static int cros_ec_host_command_proto_query_v2(struct cros_ec_device *ec_dev)
- 	return ret;
- }
- 
-+static int cros_ec_get_host_command_version_mask(struct cros_ec_device *ec_dev,
-+	u16 cmd, u32 *mask)
-+{
-+	struct ec_params_get_cmd_versions *pver;
-+	struct ec_response_get_cmd_versions *rver;
-+	struct cros_ec_command *msg;
-+	int ret;
-+
-+	msg = kmalloc(sizeof(*msg) + max(sizeof(*rver), sizeof(*pver)),
-+		      GFP_KERNEL);
-+	if (!msg)
-+		return -ENOMEM;
-+
-+	msg->version = 0;
-+	msg->command = EC_CMD_GET_CMD_VERSIONS;
-+	msg->insize = sizeof(*rver);
-+	msg->outsize = sizeof(*pver);
-+
-+	pver = (struct ec_params_get_cmd_versions *)msg->data;
-+	pver->cmd = cmd;
-+
-+	ret = cros_ec_cmd_xfer(ec_dev, msg);
-+	if (ret > 0) {
-+		rver = (struct ec_response_get_cmd_versions *)msg->data;
-+		*mask = rver->version_mask;
-+	}
-+
-+	kfree(msg);
-+
-+	return ret;
-+}
-+
- int cros_ec_query_all(struct cros_ec_device *ec_dev)
- {
- 	struct device *dev = ec_dev->dev;
- 	struct cros_ec_command *proto_msg;
- 	struct ec_response_get_protocol_info *proto_info;
-+	u32 ver_mask = 0;
- 	int ret;
- 
- 	proto_msg = kzalloc(sizeof(*proto_msg) + sizeof(*proto_info),
-@@ -328,6 +362,15 @@ int cros_ec_query_all(struct cros_ec_device *ec_dev)
- 		goto exit;
- 	}
- 
-+	/* Probe if MKBP event is supported */
-+	ret = cros_ec_get_host_command_version_mask(ec_dev,
-+						    EC_CMD_GET_NEXT_EVENT,
-+						    &ver_mask);
-+	if (ret < 0 || ver_mask == 0)
-+		ec_dev->mkbp_event_supported = 0;
-+	else
-+		ec_dev->mkbp_event_supported = 1;
-+
- exit:
- 	kfree(proto_msg);
- 	return ret;
-@@ -395,3 +438,52 @@ int cros_ec_cmd_xfer_status(struct cros_ec_device *ec_dev,
- 	return ret;
- }
- EXPORT_SYMBOL(cros_ec_cmd_xfer_status);
-+
-+static int get_next_event(struct cros_ec_device *ec_dev)
-+{
-+	u8 buffer[sizeof(struct cros_ec_command) + sizeof(ec_dev->event_data)];
-+	struct cros_ec_command *msg = (struct cros_ec_command *)&buffer;
-+	int ret;
-+
-+	msg->version = 0;
-+	msg->command = EC_CMD_GET_NEXT_EVENT;
-+	msg->insize = sizeof(ec_dev->event_data);
-+	msg->outsize = 0;
-+
-+	ret = cros_ec_cmd_xfer(ec_dev, msg);
-+	if (ret > 0) {
-+		ec_dev->event_size = ret - 1;
-+		memcpy(&ec_dev->event_data, msg->data,
-+		       sizeof(ec_dev->event_data));
-+	}
-+
-+	return ret;
-+}
-+
-+static int get_keyboard_state_event(struct cros_ec_device *ec_dev)
-+{
-+	u8 buffer[sizeof(struct cros_ec_command) +
-+		  sizeof(ec_dev->event_data.data)];
-+	struct cros_ec_command *msg = (struct cros_ec_command *)&buffer;
-+
-+	msg->version = 0;
-+	msg->command = EC_CMD_MKBP_STATE;
-+	msg->insize = sizeof(ec_dev->event_data.data);
-+	msg->outsize = 0;
-+
-+	ec_dev->event_size = cros_ec_cmd_xfer(ec_dev, msg);
-+	ec_dev->event_data.event_type = EC_MKBP_EVENT_KEY_MATRIX;
-+	memcpy(&ec_dev->event_data.data, msg->data,
-+	       sizeof(ec_dev->event_data.data));
-+
-+	return ec_dev->event_size;
-+}
-+
-+int cros_ec_get_next_event(struct cros_ec_device *ec_dev)
-+{
-+	if (ec_dev->mkbp_event_supported)
-+		return get_next_event(ec_dev);
-+	else
-+		return get_keyboard_state_event(ec_dev);
-+}
-+EXPORT_SYMBOL(cros_ec_get_next_event);
-diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
-index 7671704..d6539c1 100644
---- a/include/linux/mfd/cros_ec.h
-+++ b/include/linux/mfd/cros_ec.h
-@@ -112,6 +112,10 @@ struct cros_ec_command {
-  *     should check msg.result for the EC's result code.
-  * @pkt_xfer: send packet to EC and get response
-  * @lock: one transaction at a time
-+ * @mkbp_event_supported: true if this EC supports the MKBP event protocol.
-+ * @event_notifier: interrupt event notifier for transport devices.
-+ * @event_data: raw payload transferred with the MKBP event.
-+ * @event_size: size in bytes of the event data.
-  */
- struct cros_ec_device {
- 
-@@ -140,6 +144,11 @@ struct cros_ec_device {
- 	int (*pkt_xfer)(struct cros_ec_device *ec,
- 			struct cros_ec_command *msg);
- 	struct mutex lock;
-+	bool mkbp_event_supported;
-+	struct blocking_notifier_head event_notifier;
-+
-+	struct ec_response_get_next_event event_data;
-+	int event_size;
- };
- 
- /* struct cros_ec_platform - ChromeOS EC platform information
-@@ -272,6 +281,15 @@ int cros_ec_register(struct cros_ec_device *ec_dev);
-  */
- int cros_ec_query_all(struct cros_ec_device *ec_dev);
- 
-+/**
-+ * cros_ec_get_next_event -  Fetch next event from the ChromeOS EC
-+ *
-+ * @ec_dev: Device to fetch event from
-+ *
-+ * Returns: 0 on success, Linux error number on failure
-+ */
-+int cros_ec_get_next_event(struct cros_ec_device *ec_dev);
-+
- /* sysfs stuff */
- extern struct attribute_group cros_ec_attr_group;
- extern struct attribute_group cros_ec_lightbar_attr_group;
-diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
-index 7e7a8d4..76728ff 100644
---- a/include/linux/mfd/cros_ec_commands.h
-+++ b/include/linux/mfd/cros_ec_commands.h
-@@ -1793,6 +1793,40 @@ struct ec_result_keyscan_seq_ctrl {
- 	};
- } __packed;
- 
-+/*
-+ * Command for retrieving the next pending MKBP event from the EC device
-+ *
-+ * The device replies with UNAVAILABLE if there aren't any pending events.
-+ */
-+#define EC_CMD_GET_NEXT_EVENT 0x67
-+
-+enum ec_mkbp_event {
-+	/* Keyboard matrix changed. The event data is the new matrix state. */
-+	EC_MKBP_EVENT_KEY_MATRIX = 0,
-+
-+	/* New host event. The event data is 4 bytes of host event flags. */
-+	EC_MKBP_EVENT_HOST_EVENT = 1,
-+
-+	/* New Sensor FIFO data. The event data is fifo_info structure. */
-+	EC_MKBP_EVENT_SENSOR_FIFO = 2,
-+
-+	/* Number of MKBP events */
-+	EC_MKBP_EVENT_COUNT,
-+};
-+
-+union ec_response_get_next_data {
-+	uint8_t   key_matrix[13];
-+
-+	/* Unaligned */
-+	uint32_t  host_event;
-+} __packed;
-+
-+struct ec_response_get_next_event {
-+	uint8_t event_type;
-+	/* Followed by event data if any */
-+	union ec_response_get_next_data data;
-+} __packed;
-+
- /*****************************************************************************/
- /* Temperature sensor commands */
- 
--- 
-2.1.0
+>> +static int mxs_lradc_probe(struct platform_device *pdev)
+>> +{
+>> +     const struct of_device_id *of_id =
+>> +             of_match_device(mxs_lradc_dt_ids, &pdev->dev);
+>> +     const struct mxs_lradc_of_config *of_cfg =
+>> +             &mxs_lradc_of_config[(enum mxs_lradc_id)of_id->data];
+>
+> This implementation is wayyyy more complicated than it needs to be.
+>
+> You've entangled DT probing with the MFD API.
+>
+> Please use the MFD API properly.
+>
+>> +     struct device *dev = &pdev->dev;
+>> +     struct device_node *node = dev->of_node;
+>> +     struct mxs_lradc *lradc;
+>> +     struct resource *iores;
+>> +     int ret = 0, touch_ret, i;
+>> +     u32 ts_wires = 0;
+>> +
+>> +     lradc = devm_kzalloc(&pdev->dev, sizeof(*lradc), GFP_KERNEL);
+>> +     if (!lradc)
+>> +             return -ENOMEM;
+>> +     lradc->soc = (enum mxs_lradc_id)of_id->data;
+>
+> If you're going to pull the platform ID out like this, please pull the
+> *_match_* function down, just above this line.  And separate them both
+> from allocating memory.
+
+Ok, but then I will also need to pull this line also:
+const struct mxs_lradc_of_config *of_cfg =
+ &mxs_lradc_of_config[(enum mxs_lradc_id)of_id->data];
+
+>> +     /* Grab the memory area */
+>
+> This comment doesn't add anything.
+
+Ok, I will remove it.
+
+> We know what these calls do, and they don't "grab" anything.
+>
+>> +     iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> +     lradc->base = devm_ioremap_resource(dev, iores);
+>> +     if (IS_ERR(lradc->base))
+>> +             return PTR_ERR(lradc->base);
+>> +
+>> +     lradc->clk = devm_clk_get(&pdev->dev, NULL);
+>> +     if (IS_ERR(lradc->clk)) {
+>> +             dev_err(dev, "Failed to get the delay unit clock\n");
+>> +             return PTR_ERR(lradc->clk);
+>> +     }
+>
+> '\n' here.  Nice spacing makes code easier to follow.
+>
+>> +     ret = clk_prepare_enable(lradc->clk);
+>> +     if (ret != 0) {
+>> +             dev_err(dev, "Failed to enable the delay unit clock\n");
+>> +             return ret;
+>> +     }
+>> +
+>> +     touch_ret = of_property_read_u32(node, "fsl,lradc-touchscreen-wires",
+>> +                                      &ts_wires);
+>
+> Why do you need more than one 'ret' variable?
+
+Yeah, it's not really needed.
+
+>> +     if (touch_ret == 0) {
+>> +             lradc->buffer_vchans = BUFFER_VCHANS_LIMITED;
+>
+> '\n' here  or else we think it's related to the switch().
+>
+>> +             switch (ts_wires) {
+>> +             case 4:
+>> +                     lradc->use_touchscreen = MXS_LRADC_TOUCHSCREEN_4WIRE;
+>
+> This is not a good name for a variable.  It looks like a bool here,
+> but you're initialising with a configuration option.
+
+Ok, will touchscreen_wire be ok?
+
+>> +                     break;
+>> +             case 5:
+>> +                     if (lradc->soc == IMX28_LRADC) {
+>> +                             lradc->use_touchscreen =
+>> +                                     MXS_LRADC_TOUCHSCREEN_5WIRE;
+>> +                             break;
+>> +                     }
+>> +                     /* fall through an error message for i.MX23 */
+>
+> "to an error"
+>
+>> +             default:
+>> +                     dev_err(&pdev->dev,
+>> +                             "Unsupported number of touchscreen wires (%d)\n",
+>> +                             ts_wires);
+>> +                     return -EINVAL;
+>
+> The clock is still enabled.
+
+Ok, I will use goto err_clk
+
+>> +             }
+>> +     } else {
+>> +             lradc->buffer_vchans = BUFFER_VCHANS_ALL;
+>> +     }
+>> +
+>> +     lradc->irq_count = of_cfg->irq_count;
+>> +     lradc->irq_name = of_cfg->irq_name;
+>> +     for (i = 0; i < lradc->irq_count; i++) {
+>> +             lradc->irq[i] = platform_get_irq(pdev, i);
+>> +             if (lradc->irq[i] < 0) {
+>> +                     ret = lradc->irq[i];
+>> +                     goto err_clk;
+>> +             }
+>> +     }
+>
+> You shouldn't be 'get'ing the IRQ here.
+>
+> Where are you consuming these IRQs?
+
+There are used in adc (mxs-lradc-adc) and touchscreen (mxs-lradc-ts) part.
+
+>> +     platform_set_drvdata(pdev, lradc);
+>> +
+>> +     ret = stmp_reset_block(lradc->base);
+>> +     if (ret)
+>> +             return ret;
+>
+>
+> The clock is still enabled.
+>
+Ok, I will use goto err_clk
+
+>> +     ret = mxs_lradc_add_device(pdev, lradc, DRIVER_NAME_ADC, 0);
+>> +     if (ret) {
+>> +             dev_err(&pdev->dev, "Failed to add the ADC subdevice\n");
+>> +             goto err_clk;
+>> +     }
+>
+> Do this using statically defined mfd_cells.
+>
+>> +     if (!lradc->use_touchscreen)
+>> +             return 0;
+>> +
+>> +     ret = mxs_lradc_add_device(pdev, lradc, DRIVER_NAME_TS, 1);
+>> +     if (ret) {
+>> +             dev_err(&pdev->dev,
+>> +                     "Failed to add the touchscreen subdevice\n");
+>> +             goto err_clk;
+>> +     }
+>> +
+>> +     return 0;
+>> +
+>> +err_clk:
+>> +     clk_disable_unprepare(lradc->clk);
+>> +
+>> +     return ret;
+>> +}
+>> +
+>> +static int mxs_lradc_remove(struct platform_device *pdev)
+>> +{
+>> +     struct mxs_lradc *lradc = platform_get_drvdata(pdev);
+>> +
+>> +     clk_disable_unprepare(lradc->clk);
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +static struct platform_driver mxs_lradc_driver = {
+>> +     .driver = {
+>> +             .name = "mxs-lradc",
+>> +             .of_match_table = mxs_lradc_dt_ids,
+>> +     },
+>> +     .probe = mxs_lradc_probe,
+>> +     .remove = mxs_lradc_remove,
+>> +};
+>> +
+>
+> This line is superfluous.
+>
+>> +module_platform_driver(mxs_lradc_driver);
+>> +
+>> +MODULE_AUTHOR("Ksenija Stanojevic <ksenija.stanojevic@gmail.com>");
+>> +MODULE_DESCRIPTION("Freescale i.MX23/i.MX28 LRADC driver");
+>> +MODULE_LICENSE("GPL");
+>> +MODULE_ALIAS("platform:mxs-lradc");
+>> diff --git a/include/linux/mfd/mxs-lradc.h b/include/linux/mfd/mxs-lradc.h
+>> new file mode 100644
+>> index 0000000..c1475c0
+>> --- /dev/null
+>> +++ b/include/linux/mfd/mxs-lradc.h
+>> @@ -0,0 +1,204 @@
+>> +/*
+>> + * Freescale MXS LRADC driver
+>> + *
+>> + * Copyright (c) 2012 DENX Software Engineering, GmbH.
+>
+> You need to update the copyright.
+>
+> Author:
+>
+>> + * Marek Vasut <marex@denx.de>
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License as published by
+>> + * the Free Software Foundation; either version 2 of the License, or
+>> + * (at your option) any later version.
+>> + *
+>> + * This program is distributed in the hope that it will be useful,
+>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+>> + * GNU General Public License for more details.
+>> + */
+>> +
+>> +#ifndef __MXS_LRADC_H
+>> +#define __MXS_LRADC_H
+>
+> __MFD_MXS_*
+>
+>> +#include <linux/bitops.h>
+>> +#include <linux/io.h>
+>> +#include <linux/stmp_device.h>
+>> +
+>> +#define DRIVER_NAME_ADC "mxs-lradc-adc"
+>> +#define DRIVER_NAME_TS "mxs-lradc-ts"
+>
+> Don't define these.  Just use the proper names.
+
+Ok.
+
+>> +#define LRADC_MAX_DELAY_CHANS        4
+>> +#define LRADC_MAX_MAPPED_CHANS       8
+>> +#define LRADC_MAX_TOTAL_CHANS        16
+>> +
+>> +#define LRADC_DELAY_TIMER_HZ 2000
+>> +
+>> +#define LRADC_CTRL0                          0x00
+>> +# define LRADC_CTRL0_MX28_TOUCH_DETECT_ENABLE        BIT(23)
+>> +# define LRADC_CTRL0_MX28_TOUCH_SCREEN_TYPE  BIT(22)
+>> +# define LRADC_CTRL0_MX28_YNNSW /* YM */     BIT(21)
+>> +# define LRADC_CTRL0_MX28_YPNSW /* YP */     BIT(20)
+>> +# define LRADC_CTRL0_MX28_YPPSW /* YP */     BIT(19)
+>> +# define LRADC_CTRL0_MX28_XNNSW /* XM */     BIT(18)
+>> +# define LRADC_CTRL0_MX28_XNPSW /* XM */     BIT(17)
+>> +# define LRADC_CTRL0_MX28_XPPSW /* XP */     BIT(16)
+>> +
+>> +# define LRADC_CTRL0_MX23_TOUCH_DETECT_ENABLE        BIT(20)
+>> +# define LRADC_CTRL0_MX23_YM                 BIT(19)
+>> +# define LRADC_CTRL0_MX23_XM                 BIT(18)
+>> +# define LRADC_CTRL0_MX23_YP                 BIT(17)
+>> +# define LRADC_CTRL0_MX23_XP                 BIT(16)
+>> +
+>> +# define LRADC_CTRL0_MX28_PLATE_MASK \
+>> +             (LRADC_CTRL0_MX28_TOUCH_DETECT_ENABLE | \
+>> +             LRADC_CTRL0_MX28_YNNSW | LRADC_CTRL0_MX28_YPNSW | \
+>> +             LRADC_CTRL0_MX28_YPPSW | LRADC_CTRL0_MX28_XNNSW | \
+>> +             LRADC_CTRL0_MX28_XNPSW | LRADC_CTRL0_MX28_XPPSW)
+>> +
+>> +# define LRADC_CTRL0_MX23_PLATE_MASK \
+>> +             (LRADC_CTRL0_MX23_TOUCH_DETECT_ENABLE | \
+>> +             LRADC_CTRL0_MX23_YM | LRADC_CTRL0_MX23_XM | \
+>> +             LRADC_CTRL0_MX23_YP | LRADC_CTRL0_MX23_XP)
+>> +
+>> +#define LRADC_CTRL1                          0x10
+>> +#define LRADC_CTRL1_TOUCH_DETECT_IRQ_EN              BIT(24)
+>> +#define LRADC_CTRL1_LRADC_IRQ_EN(n)          (1 << ((n) + 16))
+>> +#define LRADC_CTRL1_MX28_LRADC_IRQ_EN_MASK   (0x1fff << 16)
+>> +#define LRADC_CTRL1_MX23_LRADC_IRQ_EN_MASK   (0x01ff << 16)
+>> +#define LRADC_CTRL1_LRADC_IRQ_EN_OFFSET              16
+>> +#define LRADC_CTRL1_TOUCH_DETECT_IRQ         BIT(8)
+>> +#define LRADC_CTRL1_LRADC_IRQ(n)             (1 << (n))
+>> +#define LRADC_CTRL1_MX28_LRADC_IRQ_MASK              0x1fff
+>> +#define LRADC_CTRL1_MX23_LRADC_IRQ_MASK              0x01ff
+>> +#define LRADC_CTRL1_LRADC_IRQ_OFFSET         0
+>> +
+>> +#define LRADC_CTRL2                          0x20
+>> +#define LRADC_CTRL2_DIVIDE_BY_TWO_OFFSET     24
+>> +#define LRADC_CTRL2_TEMPSENSE_PWD            BIT(15)
+>> +
+>> +#define LRADC_STATUS                         0x40
+>> +#define LRADC_STATUS_TOUCH_DETECT_RAW                BIT(0)
+>> +
+>> +#define LRADC_CH(n)                          (0x50 + (0x10 * (n)))
+>> +#define LRADC_CH_ACCUMULATE                  BIT(29)
+>> +#define LRADC_CH_NUM_SAMPLES_MASK            (0x1f << 24)
+>> +#define LRADC_CH_NUM_SAMPLES_OFFSET          24
+>> +#define LRADC_CH_NUM_SAMPLES(x) \
+>> +                             ((x) << LRADC_CH_NUM_SAMPLES_OFFSET)
+>> +#define LRADC_CH_VALUE_MASK                  0x3ffff
+>> +#define LRADC_CH_VALUE_OFFSET                        0
+>> +
+>> +#define LRADC_DELAY(n)                               (0xd0 + (0x10 * (n)))
+>> +#define LRADC_DELAY_TRIGGER_LRADCS_MASK              (0xffUL << 24)
+>> +#define LRADC_DELAY_TRIGGER_LRADCS_OFFSET    24
+>> +#define LRADC_DELAY_TRIGGER(x) \
+>> +                             (((x) << LRADC_DELAY_TRIGGER_LRADCS_OFFSET) & \
+>> +                             LRADC_DELAY_TRIGGER_LRADCS_MASK)
+>> +#define LRADC_DELAY_KICK                     BIT(20)
+>> +#define LRADC_DELAY_TRIGGER_DELAYS_MASK              (0xf << 16)
+>> +#define LRADC_DELAY_TRIGGER_DELAYS_OFFSET    16
+>> +#define LRADC_DELAY_TRIGGER_DELAYS(x) \
+>> +                             (((x) << LRADC_DELAY_TRIGGER_DELAYS_OFFSET) & \
+>> +                             LRADC_DELAY_TRIGGER_DELAYS_MASK)
+>> +#define LRADC_DELAY_LOOP_COUNT_MASK          (0x1f << 11)
+>> +#define LRADC_DELAY_LOOP_COUNT_OFFSET                11
+>> +#define LRADC_DELAY_LOOP(x) \
+>> +                             (((x) << LRADC_DELAY_LOOP_COUNT_OFFSET) & \
+>> +                             LRADC_DELAY_LOOP_COUNT_MASK)
+>> +#define LRADC_DELAY_DELAY_MASK                       0x7ff
+>> +#define LRADC_DELAY_DELAY_OFFSET             0
+>> +#define LRADC_DELAY_DELAY(x) \
+>> +                             (((x) << LRADC_DELAY_DELAY_OFFSET) & \
+>> +                             LRADC_DELAY_DELAY_MASK)
+>> +
+>> +#define LRADC_CTRL4                          0x140
+>> +#define LRADC_CTRL4_LRADCSELECT_MASK(n)              (0xf << ((n) * 4))
+>> +#define LRADC_CTRL4_LRADCSELECT_OFFSET(n)    ((n) * 4)
+>> +#define LRADC_CTRL4_LRADCSELECT(n, x) \
+>> +                             (((x) << LRADC_CTRL4_LRADCSELECT_OFFSET(n)) & \
+>> +                             LRADC_CTRL4_LRADCSELECT_MASK(n))
+>> +
+>> +#define LRADC_RESOLUTION                     12
+>> +#define LRADC_SINGLE_SAMPLE_MASK             ((1 << LRADC_RESOLUTION) - 1)
+>> +
+>> +enum mxs_lradc_id {
+>> +     IMX23_LRADC,
+>> +     IMX28_LRADC,
+>> +};
+>> +
+>> +enum mxs_lradc_ts_wires {
+>> +     MXS_LRADC_TOUCHSCREEN_NONE = 0,
+>> +     MXS_LRADC_TOUCHSCREEN_4WIRE,
+>> +     MXS_LRADC_TOUCHSCREEN_5WIRE,
+>> +};
+>> +
+>> +struct mxs_lradc {
+>> +     enum mxs_lradc_id       soc;
+>> +
+>> +     void __iomem            *base;
+>> +     struct clk              *clk;
+>> +
+>> +     int                     irq[13];
+>> +     const char * const      *irq_name;
+>> +     int                     irq_count;
+>
+> I guess you won't be needing these.
+>
+>> +#define BUFFER_VCHANS_LIMITED                0x3f
+>> +#define BUFFER_VCHANS_ALL            0xff
+>
+> Can you remove all these defines from inside the struct definition
+> please?
+
+Ok.
+
+>> +     u8                      buffer_vchans;
+>> +
+>> +     /*
+>> +      * Certain LRADC channels are shared between touchscreen
+>> +      * and/or touch-buttons and generic LRADC block. Therefore when using
+>> +      * either of these, these channels are not available for the regular
+>> +      * sampling. The shared channels are as follows:
+>> +      *
+>> +      * CH0 -- Touch button #0
+>> +      * CH1 -- Touch button #1
+>> +      * CH2 -- Touch screen XPUL
+>> +      * CH3 -- Touch screen YPLL
+>> +      * CH4 -- Touch screen XNUL
+>> +      * CH5 -- Touch screen YNLR
+>> +      * CH6 -- Touch screen WIPER (5-wire only)
+>> +      *
+>> +      * The bit fields below represents which parts of the LRADC block are
+>> +      * switched into special mode of operation. These channels can not
+>> +      * be sampled as regular LRADC channels. The driver will refuse any
+>> +      * attempt to sample these channels.
+>> +      */
+>> +#define CHAN_MASK_TOUCHBUTTON                (BIT(1) | BIT(0))
+>> +#define CHAN_MASK_TOUCHSCREEN_4WIRE  (0xf << 2)
+>> +#define CHAN_MASK_TOUCHSCREEN_5WIRE  (0x1f << 2)
+>> +     enum mxs_lradc_ts_wires use_touchscreen;
+>> +     bool                    use_touchbutton;
+>> +
+>> +#define MXS_LRADC_CELLS                      2
+>> +     struct mfd_cell cells[MXS_LRADC_CELLS];
+>> +};
+>> +
+>> +static inline void mxs_lradc_reg_set(struct mxs_lradc *lradc, u32 val, u32 reg)
+>> +{
+>> +     writel(val, lradc->base + reg + STMP_OFFSET_REG_SET);
+>> +}
+>> +
+>> +static inline void mxs_lradc_reg_clear(struct mxs_lradc *lradc, u32 val,
+>> +                                    u32 reg)
+>> +{
+>> +     writel(val, lradc->base + reg + STMP_OFFSET_REG_CLR);
+>> +}
+>> +
+>> +static inline void mxs_lradc_reg_wrt(struct mxs_lradc *lradc, u32 val, u32 reg)
+>> +{
+>> +     writel(val, lradc->base + reg);
+>> +}
+>
+> Why do you need to abstract the well know, accepted writel calls?
+
+It makes code more readable.
+
+>> +static inline u32 mxs_lradc_irq_mask(struct mxs_lradc *lradc)
+>> +{
+>> +     switch (lradc->soc) {
+>> +     case IMX23_LRADC:
+>> +             return LRADC_CTRL1_MX23_LRADC_IRQ_MASK;
+>> +     case IMX28_LRADC:
+>> +             return LRADC_CTRL1_MX28_LRADC_IRQ_MASK;
+>> +     default:
+>> +             return 0;
+>> +     }
+>> +}
+>> +
+>> +#endif /* __MXS_LRADC_H */
+
+Regards,
+Ksenija

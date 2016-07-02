@@ -1,64 +1,45 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH 2/2] Input-at32psif: Remove OOM messages in
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH 0/2] Input-at32psif: Fine-tuning for OOM handling in
  psif_probe()
-Date: Sat, 2 Jul 2016 21:29:16 +0200 (CEST)
-Message-ID: <alpine.DEB.2.02.1607022129020.2042@localhost6.localdomain6>
-References: <566ABCD9.1060404@users.sourceforge.net> <4471604f-f401-bed9-39be-1aff2a92edf6@users.sourceforge.net> <1c2a98cb-e853-7b4c-3c5b-1e3ee70c67fb@users.sourceforge.net>
+Date: Sat, 02 Jul 2016 13:45:33 -0700
+Message-ID: <1467492333.1968.5.camel@perches.com>
+References: <566ABCD9.1060404@users.sourceforge.net>
+	 <4471604f-f401-bed9-39be-1aff2a92edf6@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:46407
-	"EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751328AbcGBT3U (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 2 Jul 2016 15:29:20 -0400
-In-Reply-To: <1c2a98cb-e853-7b4c-3c5b-1e3ee70c67fb@users.sourceforge.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+In-Reply-To: <4471604f-f401-bed9-39be-1aff2a92edf6@users.sourceforge.net>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
-
-
-On Sat, 2 Jul 2016, SF Markus Elfring wrote:
-
+On Sat, 2016-07-02 at 21:00 +0200, SF Markus Elfring wrote:
 > From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sat, 2 Jul 2016 20:34:18 +0200
-> 
-> Delete two debug messages because Linux will usually provide
-> an appropriate information for a memory allocation failure.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-> ---
->  drivers/input/serio/at32psif.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/serio/at32psif.c b/drivers/input/serio/at32psif.c
-> index fcb769a..b30503d 100644
-> --- a/drivers/input/serio/at32psif.c
-> +++ b/drivers/input/serio/at32psif.c
-> @@ -210,15 +210,13 @@ static int __init psif_probe(struct platform_device *pdev)
->  	int ret;
->  
->  	psif = kzalloc(sizeof(struct psif), GFP_KERNEL);
-> -	if (!psif) {
-> -		dev_dbg(&pdev->dev, "out of memory\n");
-> +	if (!psif)
->  		return -ENOMEM;
-> -	}
-> +
+> Date: Sat, 2 Jul 2016 20:50:09 +0200
+>=20
+> A few update suggestions were taken into account
+> from static source code analysis.
+>=20
+> Markus Elfring (2):
+> =A0 Return directly after a failed kzalloc()
+> =A0 Remove two OOM messages
+>=20
+> =A0drivers/input/serio/at32psif.c | 10 +++-------
+> =A01 file changed, 3 insertions(+), 7 deletions(-)
 
-Why add a blank line here?
+What possible rationale is there for including this "references" header=
+?
+566ABCD9.1060404@users.sourceforge.net
 
->  	psif->pdev = pdev;
->  
->  	io = kzalloc(sizeof(struct serio), GFP_KERNEL);
->  	if (!io) {
-> -		dev_dbg(&pdev->dev, "out of memory\n");
->  		ret = -ENOMEM;
->  		goto out_free_psif;
->  	}
-> -- 
-> 2.9.0
-> 
-> 
+This message id is for your message:
+	"Source code review around jump label usage"
+sent December 11, 2015!
+
+Please stop adding unnecessary and useless email headers.
+--
+To unsubscribe from this list: send the line "unsubscribe kernel-janito=
+rs" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

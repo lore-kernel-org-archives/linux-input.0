@@ -1,296 +1,49 @@
-From: Matt Ranostay <mranostay@gmail.com>
-Subject: Re: [PATCH 2/2] input: add ADC resistor ladder driver
-Date: Sat, 2 Jul 2016 15:21:40 -0700
-Message-ID: <CAKzfze-b7sgh5+N5goNMu=eqOQWrddTJSPHpw9eO1qPt=agASA@mail.gmail.com>
-References: <1467408602-16546-1-git-send-email-alexandre.belloni@free-electrons.com>
- <1467408602-16546-2-git-send-email-alexandre.belloni@free-electrons.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: Re: [PATCH 0/2] Input-at32psif: Fine-tuning for OOM handling in
+ psif_probe()
+Date: Sun, 3 Jul 2016 10:01:47 +0200
+Message-ID: <7748f752-297e-fe5f-0517-eb65e2deec65@users.sourceforge.net>
+References: <566ABCD9.1060404@users.sourceforge.net>
+ <4471604f-f401-bed9-39be-1aff2a92edf6@users.sourceforge.net>
+ <1467492333.1968.5.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:35538 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751469AbcGBWWV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 2 Jul 2016 18:22:21 -0400
-In-Reply-To: <1467408602-16546-2-git-send-email-alexandre.belloni@free-electrons.com>
+Received: from mout.web.de ([212.227.15.3]:58836 "EHLO mout.web.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750849AbcGCIC1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 3 Jul 2016 04:02:27 -0400
+In-Reply-To: <1467492333.1968.5.camel@perches.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Joe Perches <joe@perches.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 
-On Fri, Jul 1, 2016 at 2:30 PM, Alexandre Belloni
-<alexandre.belloni@free-electrons.com> wrote:
-> A common way of multiplexing buttons on a single input in cheap devices is
-> to use a resistor ladder on an ADC. This driver supports that configuration
-> by polling an ADC channel provided by IIO.
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
->  drivers/input/keyboard/Kconfig    |  15 +++
->  drivers/input/keyboard/Makefile   |   1 +
->  drivers/input/keyboard/adc-keys.c | 209 ++++++++++++++++++++++++++++++++++++++
->  3 files changed, 225 insertions(+)
->  create mode 100644 drivers/input/keyboard/adc-keys.c
->
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 509608c95994..ba20808f31e0 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -12,6 +12,21 @@ menuconfig INPUT_KEYBOARD
->
->  if INPUT_KEYBOARD
->
-> +config KEYBOARD_ADC
-> +       tristate "ADC ladder Buttons"
-> +       depends on IIO || COMPILE_TEST
+>> A few update suggestions were taken into account
+>> from static source code analysis.
+>>
+>> Markus Elfring (2):
+>>   Return directly after a failed kzalloc()
+>>   Remove two OOM messages
+>>
+>>  drivers/input/serio/at32psif.c | 10 +++-------
+>>  1 file changed, 3 insertions(+), 7 deletions(-)
+> 
+> What possible rationale is there for including this "references" header?
+> 566ABCD9.1060404@users.sourceforge.net
 
-Why is this IIO or COMPILE_TEST? shouldn't it depend on both?
+Do any more software developers dare to reconsider source code
+also around a jump label like "out"?
 
-> +       select INPUT_POLLDEV
-> +       help
-> +         This driver implements support for buttons connected
-> +         to an ADC using a resistor ladder.
-> +
-> +         Say Y here if your device has such buttons connected to an ADC.  Your
-> +         board-specific setup logic must also provide a configuration data
-> +         saying mapping voltages to buttons.
-> +
-> +         To compile this driver as a module, choose M here: the
-> +         module will be called adc_keys.
-> +
->  config KEYBOARD_ADP5520
->         tristate "Keypad Support for ADP5520 PMIC"
->         depends on PMIC_ADP5520
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index 1d416ddf84e4..d9f4cfcf3410 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -4,6 +4,7 @@
->
->  # Each configuration option enables a list of files.
->
-> +obj-$(CONFIG_KEYBOARD_ADC)             += adc-keys.o
->  obj-$(CONFIG_KEYBOARD_ADP5520)         += adp5520-keys.o
->  obj-$(CONFIG_KEYBOARD_ADP5588)         += adp5588-keys.o
->  obj-$(CONFIG_KEYBOARD_ADP5589)         += adp5589-keys.o
-> diff --git a/drivers/input/keyboard/adc-keys.c b/drivers/input/keyboard/adc-keys.c
-> new file mode 100644
-> index 000000000000..ba6ee91272b2
-> --- /dev/null
-> +++ b/drivers/input/keyboard/adc-keys.c
-> @@ -0,0 +1,209 @@
-> +/* Input driver for resistor ladder connected on ADC
-> + *
-> + * Copyright (c) 2016 Alexandre Belloni
-> + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License version 2 as published by
-> + * the Free Software Foundation.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/slab.h>
-> +#include <linux/module.h>
-> +#include <linux/err.h>
-> +#include <linux/input.h>
-> +#include <linux/input-polldev.h>
-> +#include <linux/iio/consumer.h>
-> +#include <linux/iio/types.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/of.h>
-> +
-> +struct adc_keys_button {
-> +       u32 voltage;
-> +       u32 keycode;
-> +};
-> +
-> +struct adc_keys_state {
-> +       struct iio_channel *channel;
-> +       u32 num_keys;
-> +       u32 last_key;
-> +       u32 keyup_voltage;
-> +       struct adc_keys_button *map;
-> +};
-> +
-> +static void adc_keys_poll(struct input_polled_dev *dev)
-> +{
-> +       struct adc_keys_state *st = dev->private;
-> +       int i, value, ret;
-> +       u32 diff, closest = 0xffffffff;
-> +       int keycode = 0;
-> +
-> +       ret = iio_read_channel_processed(st->channel, &value);
-> +       if (ret < 0) {
-> +               if (st->last_key) {
-> +                       input_report_key(dev->input, st->last_key, 0);
-> +                       input_sync(dev->input);
-> +                       st->last_key = 0;
-> +               }
-> +               return;
-> +       }
-> +
-> +       for (i = 0; i < st->num_keys; i++) {
-> +               diff = abs(st->map[i].voltage - value);
-> +               if (diff < closest) {
-> +                       closest = diff;
-> +                       keycode = st->map[i].keycode;
-> +               }
-> +       }
-> +
-> +       if (abs(st->keyup_voltage - value) < closest) {
-> +               input_report_key(dev->input, st->last_key, 0);
-> +               st->last_key = 0;
-> +       } else {
-> +               if (st->last_key && st->last_key != keycode)
-> +                       input_report_key(dev->input, st->last_key, 0);
-> +               input_report_key(dev->input, keycode, 1);
-> +               st->last_key = keycode;
-> +       }
-> +
-> +       input_sync(dev->input);
-> +}
-> +
-> +static int adc_keys_load_dt_keymap(struct device *dev,
-> +                                  struct adc_keys_state *st)
-> +{
-> +       struct device_node *pp, *np = dev->of_node;
-> +       int i;
-> +
-> +       st->num_keys = of_get_child_count(np);
-> +       if (st->num_keys == 0) {
-> +               dev_err(dev, "keymap is missing\n");
-> +               return -EINVAL;
-> +       }
-> +
-> +       st->map = devm_kmalloc_array(dev, st->num_keys, sizeof(*st->map),
-> +                                    GFP_KERNEL);
-> +       if (!st->map)
-> +               return -ENOMEM;
-> +
-> +       i = 0;
-> +       for_each_child_of_node(np, pp) {
-> +               struct adc_keys_button *map = &st->map[i];
-> +
-> +               if (of_property_read_u32(pp, "voltage-mvolt", &map->voltage)) {
-> +                       dev_err(dev, "%s: Invalid or missing voltage\n",
-> +                               pp->name);
-> +                       return -EINVAL;
-> +               }
-> +
-> +               if (of_property_read_u32(pp, "linux,code", &map->keycode)) {
-> +                       dev_err(dev, "%s: Invalid or missing linux,code\n",
-> +                               pp->name);
-> +                       return -EINVAL;
-> +               }
-> +
-> +               i++;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
-> +static int adc_keys_probe(struct platform_device *pdev)
-> +{
-> +       struct device *dev = &pdev->dev;
-> +       struct device_node *node = dev->of_node;
-> +       struct adc_keys_state *st;
-> +       struct input_polled_dev *poll_dev = NULL;
-> +       struct input_dev *input;
-> +       enum iio_chan_type type;
-> +       int i, value, ret;
-> +
-> +       st = devm_kzalloc(dev, sizeof(*st), GFP_KERNEL);
-> +       if (!st)
-> +               return -ENOMEM;
-> +
-> +       st->channel = devm_iio_channel_get(dev, "buttons");
-> +       if (IS_ERR(st->channel))
-> +               return PTR_ERR(st->channel);
-> +
-> +       if (!st->channel->indio_dev)
-> +               return -ENODEV;
-> +
-> +       ret = iio_get_channel_type(st->channel, &type);
-> +       if (ret < 0)
-> +               return ret;
-> +
-> +       if (type != IIO_VOLTAGE) {
-> +               dev_err(dev, "Incompatible channel type %d\n", type);
-> +               return -EINVAL;
-> +       }
-> +
-> +       if (of_property_read_u32(node, "voltage-keyup-mvolt",
-> +                                &st->keyup_voltage)) {
-> +               dev_err(dev, "Invalid or missing keyup voltage\n");
-> +               return -EINVAL;
-> +       }
-> +
-> +       ret = adc_keys_load_dt_keymap(dev, st);
-> +       if (ret)
-> +               return ret;
-> +
-> +       platform_set_drvdata(pdev, st);
-> +
-> +       poll_dev = devm_input_allocate_polled_device(dev);
-> +       if (!poll_dev) {
-> +               dev_err(dev, "failed to allocate input device\n");
-> +               return -ENOMEM;
-> +       }
-> +
-> +       if (!of_property_read_u32(node, "poll-interval", &value))
-> +               poll_dev->poll_interval = value;
-> +       poll_dev->poll = adc_keys_poll;
-> +       poll_dev->private = st;
-> +
-> +       input = poll_dev->input;
-> +
-> +       input->name = pdev->name;
-> +       input->phys = "adc-keys/input0";
-> +       input->dev.parent = &pdev->dev;
-> +
-> +       input->id.bustype = BUS_HOST;
-> +       input->id.vendor = 0x0001;
-> +       input->id.product = 0x0001;
-> +       input->id.version = 0x0100;
-> +
-> +       __set_bit(EV_KEY, input->evbit);
-> +       for (i = 0; i < st->num_keys; i++)
-> +               __set_bit(st->map[i].keycode, input->keybit);
-> +
-> +       if (!!of_get_property(node, "autorepeat", NULL))
-> +               __set_bit(EV_REP, input->evbit);
-> +
-> +       ret = input_register_polled_device(poll_dev);
-> +       if (ret) {
-> +               dev_err(dev, "Unable to register input device\n");
-> +               return ret;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
-> +static const struct of_device_id adc_keys_of_match[] = {
-> +       { .compatible = "adc-keys", },
-> +       { }
-> +};
-> +MODULE_DEVICE_TABLE(of, adc_keys_of_match);
-> +
-> +static struct platform_driver __refdata adc_keys_driver = {
-> +       .driver = {
-> +               .name = "adc_keys",
-> +               .of_match_table = adc_keys_of_match,
-> +       },
-> +       .probe = adc_keys_probe,
-> +};
-> +
-> +module_platform_driver(adc_keys_driver);
-> +
-> +MODULE_AUTHOR("Alexandre Belloni <alexandre.belloni@free-electrons.com>");
-> +MODULE_DESCRIPTION("Input driver for resistor ladder connected on ADC");
-> +MODULE_LICENSE("GPL v2");
-> --
-> 2.8.1
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+> This message id is for your message:
+> 	"Source code review around jump label usage"
+> sent December 11, 2015!
+
+Can such an association with a bit of background information
+be occasionally useful for clarification of corresponding
+implementation details?
+
+Regards,
+Markus

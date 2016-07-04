@@ -1,51 +1,31 @@
-From: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 1/2] input: adc-keys: add DT binding documentation
-Date: Mon, 4 Jul 2016 18:29:49 +0200
-Message-ID: <20160704162949.GL20045@piout.net>
-References: <1467408602-16546-1-git-send-email-alexandre.belloni@free-electrons.com>
- <5d71d3a2-4d51-8dd5-0e4a-638ec1b5035a@kernel.org>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: Re: [PATCH 2/2] HID: hid-led: add support for Delcom Visual Signal
+ Indicator G2
+Date: Mon, 4 Jul 2016 21:05:24 +0200
+Message-ID: <c924280c-88e6-5f9a-8d06-71fd243996cb@gmail.com>
+References: <9cf86442-7038-4513-b3d9-fb127030e60b@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5d71d3a2-4d51-8dd5-0e4a-638ec1b5035a-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f41.google.com ([74.125.82.41]:35318 "EHLO
+	mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753362AbcGDTFa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jul 2016 15:05:30 -0400
+Received: by mail-wm0-f41.google.com with SMTP id z126so51443151wme.0
+        for <linux-input@vger.kernel.org>; Mon, 04 Jul 2016 12:05:29 -0700 (PDT)
+In-Reply-To: <9cf86442-7038-4513-b3d9-fb127030e60b@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-On 03/07/2016 at 14:43:56 +0100, Jonathan Cameron wrote :
-> On 01/07/16 22:30, Alexandre Belloni wrote:
-> > Add documentation for ADC keys
-> > 
-> > Signed-off-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> Clean looking binding to me - one comment inline.
+Am 03.07.2016 um 17:42 schrieb Heiner Kallweit:
+> Add support for the HID-compliant Delcom Visual Signal Indicator
+> generation 2 devices.
 > 
-> Jonathan
-> > ---
-> > Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> > Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > 
-> >  .../devicetree/bindings/input/adc-keys.txt         | 45 ++++++++++++++++++++++
-> >  1 file changed, 45 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/adc-keys.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/adc-keys.txt b/Documentation/devicetree/bindings/input/adc-keys.txt
-> > new file mode 100644
-> > index 000000000000..873476bb4eab
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/adc-keys.txt
-> > @@ -0,0 +1,45 @@
-> > +Allwinner sun4i low res adc attached tablet keys
-> What is allwinner specific in here?  Looks pretty general purpose to me!
+> Successfully tested with part no 904000 from the family of these devices.
+> 
+I forgot to update the help info for HID_LED in Kconfig.
+Will send a v2 also including another change.
 
-That's true, I forgot to change that after shamelessly copy pasting...
-
-I was planning to use something like ADC attached resistor ladder
-buttons, unless you have a better way to describe that.
-
-
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com

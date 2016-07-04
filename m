@@ -1,69 +1,51 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH v2 3/8] Input: synaptics-rmi4: Add dribble and palm
- gesture parameters to device tree
-Date: Mon, 4 Jul 2016 16:00:39 +0100
-Message-ID: <9f3d6e2a-cba9-0551-f00f-35efcc880667@itdev.co.uk>
-References: <1466813917-15841-1-git-send-email-aduggan@synaptics.com>
- <20160628205606.GL3737@rob-hp-laptop> <577319DE.1070700@synaptics.com>
+From: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 1/2] input: adc-keys: add DT binding documentation
+Date: Mon, 4 Jul 2016 18:29:49 +0200
+Message-ID: <20160704162949.GL20045@piout.net>
+References: <1467408602-16546-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <5d71d3a2-4d51-8dd5-0e4a-638ec1b5035a@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zencphosting06.zen.co.uk ([82.71.204.9]:37453 "EHLO
-	zencphosting06.zen.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751424AbcGDPA7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jul 2016 11:00:59 -0400
-In-Reply-To: <577319DE.1070700@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <5d71d3a2-4d51-8dd5-0e4a-638ec1b5035a-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>, Rob Herring <robh@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, devicetree@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
 
-Hi Andrew
-
-On 29/06/2016 01:44, Andrew Duggan wrote:
-> On 06/28/2016 01:56 PM, Rob Herring wrote:
->> On Fri, Jun 24, 2016 at 05:18:37PM -0700, Andrew Duggan wrote:
->>> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
->>> ---
->>>   .../devicetree/bindings/input/rmi4/rmi_2d_sensor.txt          |  4 ++++
->>>   drivers/input/rmi4/rmi_2d_sensor.c                            | 11
->>> +++++++++++
->>>   2 files changed, 15 insertions(+)
->>>
->>> diff --git
->>> a/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
->>> b/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
->>> index f2c30c8..86cb8e3 100644
->>> --- a/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
->>> +++ b/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
->>> @@ -37,6 +37,10 @@ Optional Properties:
->>>                   disable reporing absolute position data.
->>>   - syna,rezero-wait-ms: Time in miliseconds to wait after issuing a rezero
->>>                   command.
->>> +- syna,dribble-enable: Enable reporting of dribble packets in the
->>> firmware.
->>> +- syna,dribble-disable: Disable reporting of dribble packets in the
->>> firmware.
->>> +- syna,palm-detect-enable: Enable reporting the palm detect gesture in
->>> the firmware.
->>> +- syna,palm-detect-disable: Disable reporting the palm detect gesture
->>> in the firmware.
->> No need for enable and disable. Make the common case be no property and
->> the property is the opposite.
+On 03/07/2016 at 14:43:56 +0100, Jonathan Cameron wrote :
+> On 01/07/16 22:30, Alexandre Belloni wrote:
+> > Add documentation for ADC keys
+> > 
+> > Signed-off-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> Clean looking binding to me - one comment inline.
 > 
-> There are actually three states here. No property means to use the default
-> value set in the firmware. The enable parameter means that the default
-> should be overwritten and the feature should be explicitly enabled. Disable
-> means the feature should be explicitly disabled. An earlier version of this
-> patch had one parameter per feature which needed to be set to 0, 1, or 2
-> which correspond the the values of an enum in the driver. It was suggested
-> that the current approach would be clearer then setting 0, 1, or 2.
+> Jonathan
+> > ---
+> > Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> > Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > 
+> >  .../devicetree/bindings/input/adc-keys.txt         | 45 ++++++++++++++++++++++
+> >  1 file changed, 45 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/input/adc-keys.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/input/adc-keys.txt b/Documentation/devicetree/bindings/input/adc-keys.txt
+> > new file mode 100644
+> > index 000000000000..873476bb4eab
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/input/adc-keys.txt
+> > @@ -0,0 +1,45 @@
+> > +Allwinner sun4i low res adc attached tablet keys
+> What is allwinner specific in here?  Looks pretty general purpose to me!
 
-I wonder if it might be worth mentioning explicitly in the devicetree
-documentation that the firmware is being overridden - perhaps
-"syna,dribble-force-disable"?
+That's true, I forgot to change that after shamelessly copy pasting...
 
-cheers
+I was planning to use something like ADC attached resistor ladder
+buttons, unless you have a better way to describe that.
 
-Nick
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com

@@ -1,74 +1,54 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: Re: [PATCH v8 2/7] Input: cros_ec_keyb - Stop handling interrupts directly
-Date: Mon, 4 Jul 2016 13:23:51 +0200
-Message-ID: <CAAObsKDQQXojX8cGEGkrrRp6ar2nSZPi_zZw9L=u1pgmMp9c5Q@mail.gmail.com>
-References: <1460464350-30414-1-git-send-email-tomeu.vizoso@collabora.com>
- <1460464350-30414-3-git-send-email-tomeu.vizoso@collabora.com>
- <20160425211735.GG26059@dtor-ws> <CAAObsKC3+Fw2QBKnur5ZYWw=Ys4yQaoEYdXV+cjNjGYyyO5McQ@mail.gmail.com>
- <20160426065755.GA19037@dell> <CAAObsKC2RrLZ4t9jPigxt4asquf1hjumWAb6h9iH8tHqU2cdPA@mail.gmail.com>
- <CAFqH_52_LYL+guW-QtABWeTDBEBcLQQPu5M=z5Nfv0JFuVGpgQ@mail.gmail.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH v2 1/8] Input: synaptics-rmi4: Increment the refcount of
+ the transport dev's of_node
+Date: Mon, 4 Jul 2016 15:11:25 +0100
+Message-ID: <7b938ff8-1e60-5ff1-4f86-7035f1252828@itdev.co.uk>
+References: <1466813877-15737-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAFqH_52_LYL+guW-QtABWeTDBEBcLQQPu5M=z5Nfv0JFuVGpgQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo Serra <eballetbo@gmail.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sameer Nanda <snanda@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Benson Leung <bleung@chromium.org>, =?UTF-8?Q?Enric_Balletb=C3=B2?= <enric.balletbo@collabora.co.uk>, Vic Yang <victoryang@chromium.org>, Stephen Boyd <sboyd@codeaurora.org>, Vincent Palatin <vpalatin@chromium.org>, Randall Spangler <rspangler@chromium.org>, Todd Broch <tbroch@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Vic Yang <victoryang@google.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from zencphosting06.zen.co.uk ([82.71.204.9]:34866 "EHLO
+	zencphosting06.zen.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753025AbcGDOLi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jul 2016 10:11:38 -0400
+In-Reply-To: <1466813877-15737-1-git-send-email-aduggan@synaptics.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>
 
-On 1 July 2016 at 10:49, Enric Balletbo Serra <eballetbo@gmail.com> wrote:
-> Hi Tomeu,
->
-> 2016-04-26 9:06 GMT+02:00 Tomeu Vizoso <tomeu.vizoso@collabora.com>:
->> On 26 April 2016 at 08:57, Lee Jones <lee.jones@linaro.org> wrote:
->>> On Tue, 26 Apr 2016, Tomeu Vizoso wrote:
->>>
->>>> On 25 April 2016 at 23:17, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->>>> > On Tue, Apr 12, 2016 at 02:32:25PM +0200, Tomeu Vizoso wrote:
->>>> >> From: Vic Yang <victoryang@google.com>
->>>> >>
->>>> >> Because events other that keyboard ones will be handled by now on by
->>>> >> other drivers, stop directly handling interrupts and instead listen to
->>>> >> the new notifier in the MFD driver.
->>>> >>
->>>> >
->>>> > Hmm, where did Vic's sign-off go?
->>>>
->>>> Lee Jones asked to remove them in a previous version as he considers
->>>> them superfluous. My understanding is that as I'm the first to submit
->>>> them to mainline, the chain starts with me (I certify the b section of
->>>> http://developercertificate.org/).
->>>
->>> Hmm... It seems what I said has been misconstrued a little.  You
->>> *should* remove SoBs from people who were *only* part of the
->>> submission path.  However, you should *not* remove SoBs from patch
->>> *authors*.  Since Vic is the author (or at least one of them), their
->>> SoB should remain.
->>>
->>> Apologies if that was not clear.
->>
->> I see now, will fix the tags in the next revision.
->>
->
-> With your permission I'll fix this and send a new patch series with
-> only the patch that adds the MKBP event support and this patch. These
-> two patches has sense by itself and are only a dependency of cros-ec
-> USB PD driver and other drivers, so I think makes sense send within a
-> separate series to increase the possibility to get merged and don't
-> block other drivers that depends on these.
+On 25/06/2016 01:17, Andrew Duggan wrote:
+> Increment the refcount for the transport device's of_node before calling
+> of_find_node_by_name(). Since of_find_node_by_name() assumes the refcount
+> was incremented by the caller and calls of_node_put() when it is done.
+> 
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> ---
+>  drivers/input/rmi4/rmi_bus.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+> index b368b05..55b5336 100644
+> --- a/drivers/input/rmi4/rmi_bus.c
+> +++ b/drivers/input/rmi4/rmi_bus.c
+> @@ -157,11 +157,12 @@ static int rmi_function_match(struct device *dev, struct device_driver *drv)
+>  static void rmi_function_of_probe(struct rmi_function *fn)
+>  {
+>  	char of_name[9];
+> +	struct device_node *node = fn->rmi_dev->xport->dev->of_node;
+>  
+>  	snprintf(of_name, sizeof(of_name), "rmi4-f%02x",
+>  		fn->fd.function_number);
+> -	fn->dev.of_node = of_find_node_by_name(
+> -				fn->rmi_dev->xport->dev->of_node, of_name);
+> +	of_node_get(node);
+> +	fn->dev.of_node = of_find_node_by_name(node, of_name);
 
-Sounds great, MKBP event support is indeed a dependency for the
-upcoming features that we want to upstream.
+Could this be changed to of_get_child_by_name() (which doesn't call
+of_node_put) instead of doing the refcount hack?
 
-Thanks,
-
-Tomeu
-
-> Thanks,
->
-> Enric
->
->
->> Thanks,
->>
->> Tomeu
+>  }
+>  #else
+>  static inline void rmi_function_of_probe(struct rmi_function *fn)
+> 

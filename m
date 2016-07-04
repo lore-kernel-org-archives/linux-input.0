@@ -1,35 +1,74 @@
-From: Keerthy <a0393675@ti.com>
-Subject: Re: [PATCH v6 4/6] gpio: tps65218-gpio: Add platform_device_id table
-Date: Mon, 4 Jul 2016 15:27:20 +0530
-Message-ID: <577A3300.1040006@ti.com>
-References: <1467117054-12943-1-git-send-email-j-keerthy@ti.com>
- <1467117054-12943-5-git-send-email-j-keerthy@ti.com>
- <CACRpkdaUebMzS4F1LM4D9536+JHBHBbcXBESEbKKPF5TCi0LmQ@mail.gmail.com>
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: Re: [PATCH v8 2/7] Input: cros_ec_keyb - Stop handling interrupts directly
+Date: Mon, 4 Jul 2016 13:23:51 +0200
+Message-ID: <CAAObsKDQQXojX8cGEGkrrRp6ar2nSZPi_zZw9L=u1pgmMp9c5Q@mail.gmail.com>
+References: <1460464350-30414-1-git-send-email-tomeu.vizoso@collabora.com>
+ <1460464350-30414-3-git-send-email-tomeu.vizoso@collabora.com>
+ <20160425211735.GG26059@dtor-ws> <CAAObsKC3+Fw2QBKnur5ZYWw=Ys4yQaoEYdXV+cjNjGYyyO5McQ@mail.gmail.com>
+ <20160426065755.GA19037@dell> <CAAObsKC2RrLZ4t9jPigxt4asquf1hjumWAb6h9iH8tHqU2cdPA@mail.gmail.com>
+ <CAFqH_52_LYL+guW-QtABWeTDBEBcLQQPu5M=z5Nfv0JFuVGpgQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdaUebMzS4F1LM4D9536+JHBHBbcXBESEbKKPF5TCi0LmQ@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Keerthy <j-keerthy@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Tony Lindgren <tony@atomide.com>, Linux-OMAP <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAFqH_52_LYL+guW-QtABWeTDBEBcLQQPu5M=z5Nfv0JFuVGpgQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Enric Balletbo Serra <eballetbo@gmail.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sameer Nanda <snanda@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Benson Leung <bleung@chromium.org>, =?UTF-8?Q?Enric_Balletb=C3=B2?= <enric.balletbo@collabora.co.uk>, Vic Yang <victoryang@chromium.org>, Stephen Boyd <sboyd@codeaurora.org>, Vincent Palatin <vpalatin@chromium.org>, Randall Spangler <rspangler@chromium.org>, Todd Broch <tbroch@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Vic Yang <victoryang@google.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-
-
-On Monday 04 July 2016 03:20 PM, Linus Walleij wrote:
-> On Tue, Jun 28, 2016 at 2:30 PM, Keerthy <j-keerthy@ti.com> wrote:
+On 1 July 2016 at 10:49, Enric Balletbo Serra <eballetbo@gmail.com> wrote:
+> Hi Tomeu,
 >
->> platform_device_id table is needed for adding the tps65218-gpio
->> module to the mfd_cell array.
+> 2016-04-26 9:06 GMT+02:00 Tomeu Vizoso <tomeu.vizoso@collabora.com>:
+>> On 26 April 2016 at 08:57, Lee Jones <lee.jones@linaro.org> wrote:
+>>> On Tue, 26 Apr 2016, Tomeu Vizoso wrote:
+>>>
+>>>> On 25 April 2016 at 23:17, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+>>>> > On Tue, Apr 12, 2016 at 02:32:25PM +0200, Tomeu Vizoso wrote:
+>>>> >> From: Vic Yang <victoryang@google.com>
+>>>> >>
+>>>> >> Because events other that keyboard ones will be handled by now on by
+>>>> >> other drivers, stop directly handling interrupts and instead listen to
+>>>> >> the new notifier in the MFD driver.
+>>>> >>
+>>>> >
+>>>> > Hmm, where did Vic's sign-off go?
+>>>>
+>>>> Lee Jones asked to remove them in a previous version as he considers
+>>>> them superfluous. My understanding is that as I'm the first to submit
+>>>> them to mainline, the chain starts with me (I certify the b section of
+>>>> http://developercertificate.org/).
+>>>
+>>> Hmm... It seems what I said has been misconstrued a little.  You
+>>> *should* remove SoBs from people who were *only* part of the
+>>> submission path.  However, you should *not* remove SoBs from patch
+>>> *authors*.  Since Vic is the author (or at least one of them), their
+>>> SoB should remain.
+>>>
+>>> Apologies if that was not clear.
 >>
->> Signed-off-by: Keerthy <j-keerthy@ti.com>
+>> I see now, will fix the tags in the next revision.
+>>
 >
-> Patch applied.
+> With your permission I'll fix this and send a new patch series with
+> only the patch that adds the MKBP event support and this patch. These
+> two patches has sense by itself and are only a dependency of cros-ec
+> USB PD driver and other drivers, so I think makes sense send within a
+> separate series to increase the possibility to get merged and don't
+> block other drivers that depends on these.
 
-Thanks Linus.
+Sounds great, MKBP event support is indeed a dependency for the
+upcoming features that we want to upstream.
 
+Thanks,
+
+Tomeu
+
+> Thanks,
 >
-> Yours,
-> Linus Walleij
+> Enric
 >
+>
+>> Thanks,
+>>
+>> Tomeu

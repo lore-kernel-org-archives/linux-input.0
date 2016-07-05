@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 16/27] HID: wacom: rework fail path in probe() and parse_and_register()
-Date: Tue,  5 Jul 2016 16:39:12 +0200
-Message-ID: <1467729563-23318-17-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 22/27] HID: wacom: EKR: attach the power_supply on first connection
+Date: Tue,  5 Jul 2016 16:39:18 +0200
+Message-ID: <1467729563-23318-23-git-send-email-benjamin.tissoires@redhat.com>
 References: <1467729563-23318-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1467729563-23318-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,137 +10,88 @@ To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gere
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Thanks to devres management, we don't need to remember a lot of failure
-path. One or two is enough.
+Or Gnome complains about an empty battery.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom_sys.c | 37 ++++++++++++++-----------------------
- 1 file changed, 14 insertions(+), 23 deletions(-)
+ drivers/hid/wacom_sys.c | 36 ++++++++++++++++++++++++++++++------
+ 1 file changed, 30 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 64acb71..241acee 100644
+index 04f5c75..1d79215 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -1713,7 +1713,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+@@ -1917,6 +1917,10 @@ static void wacom_remote_destroy_one(struct wacom *wacom, unsigned int index)
+ 	remote->remotes[index].registered = false;
+ 	spin_unlock_irqrestore(&remote->remote_lock, flags);
  
- 	error = wacom_allocate_inputs(wacom);
- 	if (error)
--		goto fail_open_group;
-+		goto fail;
- 
- 	/*
- 	 * Bamboo Pad has a generic hid handling for the Pen, and we switch it
-@@ -1726,7 +1726,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 		} else if ((features->pktlen != WACOM_PKGLEN_BPAD_TOUCH) &&
- 			   (features->pktlen != WACOM_PKGLEN_BPAD_TOUCH_USB)) {
- 			error = -ENODEV;
--			goto fail_allocate_inputs;
-+			goto fail;
++	if (remote->remotes[index].battery.battery)
++		devres_release_group(&wacom->hdev->dev,
++				     &remote->remotes[index].battery.bat_desc);
++
+ 	if (remote->remotes[index].group.name)
+ 		devres_release_group(&wacom->hdev->dev,
+ 				     &remote->remotes[index]);
+@@ -1926,6 +1930,7 @@ static void wacom_remote_destroy_one(struct wacom *wacom, unsigned int index)
+ 			remote->remotes[i].serial = 0;
+ 			remote->remotes[i].group.name = NULL;
+ 			remote->remotes[i].registered = false;
++			remote->remotes[i].battery.battery = NULL;
+ 			wacom->led.groups[i].select = WACOM_STATUS_UNKNOWN;
  		}
  	}
- 
-@@ -1746,7 +1746,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 			 error ? "Ignoring" : "Assuming pen");
- 
- 		if (error)
--			goto fail_parsed;
-+			goto fail;
- 
- 		features->device_type |= WACOM_DEVICETYPE_PEN;
- 	}
-@@ -1757,27 +1757,27 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 
- 	error = wacom_add_shared_data(hdev);
+@@ -1982,11 +1987,6 @@ static int wacom_remote_create_one(struct wacom *wacom, u32 serial,
  	if (error)
--		goto fail_shared_data;
-+		goto fail;
+ 		goto fail;
  
- 	if (!(features->device_type & WACOM_DEVICETYPE_WL_MONITOR) &&
- 	     (features->quirks & WACOM_QUIRK_BATTERY)) {
- 		error = wacom_initialize_battery(wacom);
- 		if (error)
--			goto fail_battery;
-+			goto fail;
- 	}
+-	error = __wacom_initialize_battery(wacom,
+-					   &remote->remotes[index].battery);
+-	if (error)
+-		goto fail;
+-
+ 	remote->remotes[index].registered = true;
  
- 	error = wacom_register_inputs(wacom);
- 	if (error)
--		goto fail_register_inputs;
-+		goto fail;
- 
- 	if (wacom->wacom_wac.features.device_type & WACOM_DEVICETYPE_PAD) {
- 		error = wacom_initialize_leds(wacom);
- 		if (error)
--			goto fail_leds;
-+			goto fail;
- 
- 		error = wacom_initialize_remotes(wacom);
- 		if (error)
--			goto fail_remote;
-+			goto fail;
- 	}
- 
- 	if (features->type == HID_GENERIC)
-@@ -1787,7 +1787,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 	error = hid_hw_start(hdev, connect_mask);
- 	if (error) {
- 		hid_err(hdev, "hw start failed\n");
--		goto fail_hw_start;
-+		goto fail;
- 	}
- 
- 	if (!wireless) {
-@@ -1826,15 +1826,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 
- fail_quirks:
- 	hid_hw_stop(hdev);
--fail_hw_start:
--fail_remote:
--fail_leds:
--fail_register_inputs:
--fail_battery:
--fail_shared_data:
--fail_parsed:
--fail_allocate_inputs:
--fail_open_group:
-+fail:
- 	wacom_release_resources(wacom);
+ 	devres_close_group(dev, &remote->remotes[index]);
+@@ -1998,6 +1998,28 @@ fail:
  	return error;
  }
-@@ -2014,7 +2006,7 @@ static int wacom_probe(struct hid_device *hdev,
  
- 	if (features->check_for_hid_type && features->hid_type != hdev->type) {
- 		error = -ENODEV;
--		goto fail_type;
-+		goto fail;
- 	}
++static int wacom_remote_attach_battery(struct wacom *wacom, int index)
++{
++	struct wacom_remote *remote = wacom->remote;
++	int error;
++
++	if (!remote->remotes[index].registered)
++		return 0;
++
++	if (remote->remotes[index].battery.battery)
++		return 0;
++
++	if (wacom->led.groups[index].select == WACOM_STATUS_UNKNOWN)
++		return 0;
++
++	error = __wacom_initialize_battery(wacom,
++					&wacom->remote->remotes[index].battery);
++	if (error)
++		return error;
++
++	return 0;
++}
++
+ static void wacom_remote_work(struct work_struct *work)
+ {
+ 	struct wacom *wacom = container_of(work, struct wacom, remote_work);
+@@ -2028,8 +2050,10 @@ static void wacom_remote_work(struct work_struct *work)
+ 		serial = data.remote[i].serial;
+ 		if (data.remote[i].connected) {
  
- 	wacom_wac->hid_data.inputmode = -1;
-@@ -2031,12 +2023,12 @@ static int wacom_probe(struct hid_device *hdev,
- 	error = hid_parse(hdev);
- 	if (error) {
- 		hid_err(hdev, "parse failed\n");
--		goto fail_parse;
-+		goto fail;
- 	}
+-			if (remote->remotes[i].serial == serial)
++			if (remote->remotes[i].serial == serial) {
++				wacom_remote_attach_battery(wacom, i);
+ 				continue;
++			}
  
- 	error = wacom_parse_and_register(wacom, false);
- 	if (error)
--		goto fail_parse;
-+		goto fail;
- 
- 	if (hdev->bus == BUS_BLUETOOTH) {
- 		error = device_create_file(&hdev->dev, &dev_attr_speed);
-@@ -2048,8 +2040,7 @@ static int wacom_probe(struct hid_device *hdev,
- 
- 	return 0;
- 
--fail_parse:
--fail_type:
-+fail:
- 	hid_set_drvdata(hdev, NULL);
- 	return error;
- }
+ 			if (remote->remotes[i].serial)
+ 				wacom_remote_destroy_one(wacom, i);
 -- 
 2.5.5

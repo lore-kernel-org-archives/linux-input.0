@@ -1,61 +1,45 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH] GPIO_KEYS: If devm_add_action() fails, we are explicitly
- calling the cleanup to freethe resources allocated. Use the helper
- devm_add_action_or_reset() and return directly in case of error, since the
- cleanup function has been already called by the helper if there was any
- error.
-Date: Tue, 5 Jul 2016 10:01:11 -0700
-Message-ID: <20160705170111.GO1190@tuxbot>
-References: <1467735500-5033-1-git-send-email-arvind.yadav.cs@gmail.com>
+From: Olof Johansson <olof@lixom.net>
+Subject: Re: [PATCH 1/2] mfd: cros_ec: Add MKBP event support
+Date: Tue, 5 Jul 2016 13:54:29 -0700
+Message-ID: <CAOesGMgXoHxDv0An6OTp+qg4BK+Zvom_rtAhFHfF726Y0RHHDQ@mail.gmail.com>
+References: <1467364076-20172-1-git-send-email-enric.balletbo@collabora.com> <1467364076-20172-2-git-send-email-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f172.google.com ([209.85.192.172]:36453 "EHLO
-	mail-pf0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752543AbcGERBP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2016 13:01:15 -0400
-Received: by mail-pf0-f172.google.com with SMTP id t190so71783042pfb.3
-        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2016 10:01:15 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1467735500-5033-1-git-send-email-arvind.yadav.cs@gmail.com>
+Received: from mail-io0-f172.google.com ([209.85.223.172]:35733 "EHLO
+	mail-io0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755215AbcGEUyb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2016 16:54:31 -0400
+Received: by mail-io0-f172.google.com with SMTP id f30so184355629ioj.2
+        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2016 13:54:30 -0700 (PDT)
+In-Reply-To: <1467364076-20172-2-git-send-email-enric.balletbo@collabora.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: dmitry.torokhov@gmail.com, ldewangan@nvidia.com, linus.walleij@linaro.org, van.freenix@gmail.com, bjorn.andersson@sonymobile.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Vic Yang <victoryang@google.com>, Lee Jones <lee.jones@linaro.org>, Gwendal Grignou <gwendal@chromium.org>, Brian Norris <briannorris@chromium.org>, Randall Spangler <rspangler@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Benson Leung <bleung@chromium.org>
 
-On Tue 05 Jul 09:18 PDT 2016, Arvind Yadav wrote:
+On Fri, Jul 1, 2016 at 2:07 AM, Enric Balletbo i Serra
+<enric.balletbo@collabora.com> wrote:
+> From: Vic Yang <victoryang@google.com>
+>
+> Newer revisions of the ChromeOS EC add more events besides the keyboard
+> ones. So handle interrupts in the MFD driver and let consumers register
+> for notifications for the events they might care.
+>
+> To keep backward compatibility, if the EC doesn't support MKBP event, we
+> fall back to the old MKBP key matrix host command.
+>
+> Signed-off-by: Vic Yang <victoryang@google.com>
+> Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+> Tested-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> Cc: Randall Spangler <rspangler@chromium.org>
+> Cc: Vincent Palatin <vpalatin@chromium.org>
+> Cc: Benson Leung <bleung@chromium.org>
 
-Your subject line should be a short and descriptive summary, followed by
-an empty line and then potentially a longer description motivating your
-patch.  Please read section #14 of Documentation/SubmittingPatches.
+Probably easiest to merge this through the MFD tree due to the
+overlaps, so for that purpose:
 
-> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
-> ---
->  drivers/input/keyboard/gpio_keys.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index 2909365..a2fa3bb 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -542,7 +542,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
->  	 * Install custom action to cancel release timer and
->  	 * workqueue item.
->  	 */
-> -	error = devm_add_action(&pdev->dev, gpio_keys_quiesce_key, bdata);
-> +	error = devm_add_action_or_reset(&pdev->dev, gpio_keys_quiesce_key,
-> +					bdata);
+Acked-by: Olof Johansson <olof@lixom.net>
 
-The code leading up to this initializes the timer and work struct, but
-they are not triggered unless their respective isr is exectued. This
-would not happen until after the request_irq at the end of the function.
 
-As such there doesn't appear to be a reason for cancelling any work or
-timers.
-
->  	if (error) {
->  		dev_err(&pdev->dev,
->  			"failed to register quiesce action, error: %d\n",
-
-Regards,
-Bjorn
+-Olof

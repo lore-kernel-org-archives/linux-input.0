@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 27/27] HID: wacom: leds: handle Cintiq 24HD leds buttons
-Date: Tue,  5 Jul 2016 16:39:23 +0200
-Message-ID: <1467729563-23318-28-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 25/27] HID: wacom: leds: fix ordering of LED banks
+Date: Tue,  5 Jul 2016 16:39:21 +0200
+Message-ID: <1467729563-23318-26-git-send-email-benjamin.tissoires@redhat.com>
 References: <1467729563-23318-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1467729563-23318-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,76 +10,75 @@ To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gere
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The 24HD has 1 button per LED (first three buttons of each group).
-We need a special treatment for them as it's not a uniq button that
-switches between the LEDs.
+Historically, 21UX2 and 24HD have the select groups inverted
+(0 is the right LED bank, and 1 the left one).
+
+This is not right, so fix that in the new LED API. For backward
+compatibility, we keep the wacom_led sysfs ABI stable. We don't
+need to care about luminance for these two devices as only the
+select sysfs file gets exported (brightness is not configurable).
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom_wac.c | 36 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 36 insertions(+)
+ drivers/hid/wacom_sys.c | 24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index a2b9c09..fcf2264 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2764,6 +2764,31 @@ static void wacom_setup_numbered_buttons(struct input_dev *input_dev,
- 		__set_bit(BTN_BASE + (i-16), input_dev->keybit);
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index b88896c..153e453 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -683,8 +683,10 @@ static int wacom_led_control(struct wacom *wacom)
+ 		int led = wacom->led.groups[0].select | 0x4;
+ 
+ 		if (wacom->wacom_wac.features.type == WACOM_21UX2 ||
+-		    wacom->wacom_wac.features.type == WACOM_24HD)
+-			led |= (wacom->led.groups[1].select << 4) | 0x40;
++		    wacom->wacom_wac.features.type == WACOM_24HD) {
++			led <<= 4;
++			led |= wacom->led.groups[1].select | 0x04;
++		}
+ 
+ 		buf[0] = report_id;
+ 		buf[1] = led;
+@@ -742,6 +744,19 @@ out:
+ 	return retval;
  }
  
-+static void wacom_24hd_update_leds(struct wacom *wacom, int mask, int group)
++static inline int wacom_led_select_get_id(struct wacom *wacom, int set_id)
 +{
-+	struct wacom_led *led;
-+	int i;
-+	bool updated = false;
++	/*
++	 * Historically, 21UX2 and 24HD have the select groups inverted
++	 * (0 is the right LED bank, and 1 the left one)
++	 */
++	if (wacom->wacom_wac.features.type == WACOM_21UX2 ||
++	    wacom->wacom_wac.features.type == WACOM_24HD)
++		return 1 - set_id;
 +
-+	if (group > 0)
-+		mask >>= 8;
-+
-+	for (i = 0; i < 3; i++) {
-+		led = wacom_led_find(wacom, group, i);
-+		if (!led) {
-+			hid_err(wacom->hdev, "can't find LED %d in group %d\n",
-+				i, group);
-+			continue;
-+		}
-+		if (!updated && mask & BIT(i)) {
-+			led->held = true;
-+			led_trigger_event(&led->trigger, LED_FULL);
-+		} else {
-+			led->held = false;
-+		}
-+	}
++	return set_id;
 +}
 +
- static bool wacom_is_led_toggled(struct wacom *wacom, int button_count,
- 				 int mask, int group)
+ static ssize_t wacom_led_select_store(struct device *dev, int set_id,
+ 				      const char *buf, size_t count)
  {
-@@ -2781,7 +2806,11 @@ static void wacom_update_led(struct wacom *wacom, int button_count, int mask,
- 	int cur;
- 	bool pressed;
+@@ -754,6 +769,8 @@ static ssize_t wacom_led_select_store(struct device *dev, int set_id,
+ 	if (err)
+ 		return err;
  
-+	if (wacom->wacom_wac.features.type == WACOM_24HD)
-+		return wacom_24hd_update_leds(wacom, mask, group);
++	set_id = wacom_led_select_get_id(wacom, set_id);
 +
- 	pressed = wacom_is_led_toggled(wacom, button_count, mask, group);
-+
- 	cur = wacom->led.groups[group].select;
+ 	mutex_lock(&wacom->lock);
  
- 	led = wacom_led_find(wacom, group, cur);
-@@ -2808,6 +2837,13 @@ static void wacom_update_led(struct wacom *wacom, int button_count, int mask,
- 	if (next_led == led)
- 		return;
- 
-+	pr_err("%s group: %d led: (%d -> %d) t: %s %s:%d\n", __func__,
-+		led->group,
-+		led->id,
-+		next_led->id,
-+		next_led->trigger.name,
-+		__FILE__, __LINE__);
-+
- 	next_led->held = true;
- 	led_trigger_event(&next_led->trigger,
- 			  wacom_leds_brightness_get(next_led));
+ 	wacom->led.groups[set_id].select = id & 0x3;
+@@ -775,8 +792,9 @@ static ssize_t wacom_led##SET_ID##_select_show(struct device *dev,	\
+ {									\
+ 	struct hid_device *hdev = to_hid_device(dev);\
+ 	struct wacom *wacom = hid_get_drvdata(hdev);			\
++	int set_id = wacom_led_select_get_id(wacom, SET_ID);		\
+ 	return scnprintf(buf, PAGE_SIZE, "%d\n",			\
+-			 wacom->led.groups[SET_ID].select);		\
++			 wacom->led.groups[set_id].select);		\
+ }									\
+ static DEVICE_ATTR(status_led##SET_ID##_select, DEV_ATTR_RW_PERM,	\
+ 		    wacom_led##SET_ID##_select_show,			\
 -- 
 2.5.5

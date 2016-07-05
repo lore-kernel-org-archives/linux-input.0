@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 09/27] HID: wacom: convert LEDs to devres
-Date: Tue,  5 Jul 2016 16:39:05 +0200
-Message-ID: <1467729563-23318-10-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 07/27] HID: wacom: switch inputs to devres
+Date: Tue,  5 Jul 2016 16:39:03 +0200
+Message-ID: <1467729563-23318-8-git-send-email-benjamin.tissoires@redhat.com>
 References: <1467729563-23318-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1467729563-23318-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,204 +10,122 @@ To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gere
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Use our own wacom_devm_sysfs_create_group() as there is currently no
-generic one. It has been requested at least twice [1][2] but has been
-always rejected.
-However, in the Wacom case, for the wirelessly connected devices, we need
-to be able to release the created sysfs files without removing the parent
-kobject.
-
-[1] https://patchwork.kernel.org/patch/7526551/
-[2] https://lkml.org/lkml/2013/3/14/728
+Simplifying the error code paths.
+We need to keep wacom_clean_inputs() around for now as the wireless
+module is using it to dynamically remove the inputs on disconnect.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom.h     |  1 -
- drivers/hid/wacom_sys.c | 95 +++++++++++++++++++++++--------------------------
- 2 files changed, 45 insertions(+), 51 deletions(-)
+ drivers/hid/wacom_sys.c | 34 ++++++++++++++++------------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
-index 6f5555f..bcfeb51 100644
---- a/drivers/hid/wacom.h
-+++ b/drivers/hid/wacom.h
-@@ -124,7 +124,6 @@ struct wacom {
- 		u8 hlv;       /* status led brightness button pressed (1..127) */
- 		u8 img_lum;   /* OLED matrix display brightness */
- 	} led;
--	bool led_initialized;
- 	struct power_supply *battery;
- 	struct power_supply *ac;
- 	struct power_supply_desc battery_desc;
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 08f6d1f..c08a752 100644
+index 61dcb87e..da2fccf 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -909,6 +909,45 @@ static struct attribute_group intuos5_led_attr_group = {
- 	.attrs = intuos5_led_attrs,
- };
- 
-+struct wacom_sysfs_group_devres {
-+	struct attribute_group *group;
-+	struct kobject *root;
-+};
-+
-+static void wacom_devm_sysfs_group_release(struct device *dev, void *res)
-+{
-+	struct wacom_sysfs_group_devres *devres = res;
-+	struct kobject *kobj = devres->root;
-+
-+	dev_dbg(dev, "%s: dropping reference to %s\n",
-+		__func__, devres->group->name);
-+	sysfs_remove_group(kobj, devres->group);
-+}
-+
-+static int wacom_devm_sysfs_create_group(struct wacom *wacom,
-+					 struct attribute_group *group)
-+{
-+	struct wacom_sysfs_group_devres *devres;
-+	int error;
-+
-+	devres = devres_alloc(wacom_devm_sysfs_group_release,
-+			      sizeof(struct wacom_sysfs_group_devres),
-+			      GFP_KERNEL);
-+	if (!devres)
-+		return -ENOMEM;
-+
-+	devres->group = group;
-+	devres->root = &wacom->hdev->dev.kobj;
-+
-+	error = sysfs_create_group(devres->root, group);
-+	if (error)
-+		return error;
-+
-+	devres_add(&wacom->hdev->dev, devres);
-+
-+	return 0;
-+}
-+
- static int wacom_initialize_leds(struct wacom *wacom)
+@@ -91,7 +91,12 @@ static void wacom_close(struct input_dev *dev)
  {
- 	int error;
-@@ -927,8 +966,8 @@ static int wacom_initialize_leds(struct wacom *wacom)
- 		wacom->led.llv = 10;
- 		wacom->led.hlv = 20;
- 		wacom->led.img_lum = 10;
--		error = sysfs_create_group(&wacom->hdev->dev.kobj,
--					   &intuos4_led_attr_group);
-+		error = wacom_devm_sysfs_create_group(wacom,
-+						      &intuos4_led_attr_group);
- 		break;
+ 	struct wacom *wacom = input_get_drvdata(dev);
  
- 	case WACOM_24HD:
-@@ -939,8 +978,8 @@ static int wacom_initialize_leds(struct wacom *wacom)
- 		wacom->led.hlv = 0;
- 		wacom->led.img_lum = 0;
+-	hid_hw_close(wacom->hdev);
++	/*
++	 * wacom->hdev should never be null, but surprisingly, I had the case
++	 * once while unplugging the Wacom Wireless Receiver.
++	 */
++	if (wacom->hdev)
++		hid_hw_close(wacom->hdev);
+ }
  
--		error = sysfs_create_group(&wacom->hdev->dev.kobj,
--					   &cintiq_led_attr_group);
-+		error = wacom_devm_sysfs_create_group(wacom,
-+						      &cintiq_led_attr_group);
- 		break;
+ /*
+@@ -1370,7 +1375,7 @@ static struct input_dev *wacom_allocate_input(struct wacom *wacom)
+ 	struct hid_device *hdev = wacom->hdev;
+ 	struct wacom_wac *wacom_wac = &(wacom->wacom_wac);
  
- 	case INTUOS5S:
-@@ -955,8 +994,8 @@ static int wacom_initialize_leds(struct wacom *wacom)
- 		wacom->led.hlv = 0;
- 		wacom->led.img_lum = 0;
+-	input_dev = input_allocate_device();
++	input_dev = devm_input_allocate_device(&hdev->dev);
+ 	if (!input_dev)
+ 		return NULL;
  
--		error = sysfs_create_group(&wacom->hdev->dev.kobj,
--					  &intuos5_led_attr_group);
-+		error = wacom_devm_sysfs_create_group(wacom,
-+						      &intuos5_led_attr_group);
- 		break;
+@@ -1424,10 +1429,10 @@ static int wacom_allocate_inputs(struct wacom *wacom)
+ 	wacom_wac->pen_input = wacom_allocate_input(wacom);
+ 	wacom_wac->touch_input = wacom_allocate_input(wacom);
+ 	wacom_wac->pad_input = wacom_allocate_input(wacom);
+-	if (!wacom_wac->pen_input || !wacom_wac->touch_input || !wacom_wac->pad_input) {
+-		wacom_clean_inputs(wacom);
++	if (!wacom_wac->pen_input ||
++	    !wacom_wac->touch_input ||
++	    !wacom_wac->pad_input)
+ 		return -ENOMEM;
+-	}
  
- 	default:
-@@ -969,48 +1008,10 @@ static int wacom_initialize_leds(struct wacom *wacom)
- 		return error;
+ 	wacom_wac->pen_input->name = wacom_wac->pen_name;
+ 	wacom_wac->touch_input->name = wacom_wac->touch_name;
+@@ -1458,7 +1463,7 @@ static int wacom_register_inputs(struct wacom *wacom)
+ 	} else {
+ 		error = input_register_device(pen_input_dev);
+ 		if (error)
+-			goto fail_register_pen_input;
++			goto fail;
+ 		wacom_wac->pen_registered = true;
  	}
- 	wacom_led_control(wacom);
--	wacom->led_initialized = true;
+ 
+@@ -1471,7 +1476,7 @@ static int wacom_register_inputs(struct wacom *wacom)
+ 	} else {
+ 		error = input_register_device(touch_input_dev);
+ 		if (error)
+-			goto fail_register_touch_input;
++			goto fail;
+ 		wacom_wac->touch_registered = true;
+ 	}
+ 
+@@ -1484,23 +1489,19 @@ static int wacom_register_inputs(struct wacom *wacom)
+ 	} else {
+ 		error = input_register_device(pad_input_dev);
+ 		if (error)
+-			goto fail_register_pad_input;
++			goto fail;
+ 		wacom_wac->pad_registered = true;
+ 	}
  
  	return 0;
+ 
+-fail_register_pad_input:
+-	if (touch_input_dev)
+-		input_unregister_device(touch_input_dev);
++fail:
++	wacom_wac->pad_input = NULL;
++	wacom_wac->pad_registered = false;
+ 	wacom_wac->touch_input = NULL;
+ 	wacom_wac->touch_registered = false;
+-fail_register_touch_input:
+-	if (pen_input_dev)
+-		input_unregister_device(pen_input_dev);
+ 	wacom_wac->pen_input = NULL;
+ 	wacom_wac->pen_registered = false;
+-fail_register_pen_input:
+ 	return error;
  }
  
--static void wacom_destroy_leds(struct wacom *wacom)
--{
--	if (!wacom->led_initialized)
--		return;
--
--	if (!(wacom->wacom_wac.features.device_type & WACOM_DEVICETYPE_PAD))
--		return;
--
--	wacom->led_initialized = false;
--
--	switch (wacom->wacom_wac.features.type) {
--	case INTUOS4S:
--	case INTUOS4:
--	case INTUOS4WL:
--	case INTUOS4L:
--		sysfs_remove_group(&wacom->hdev->dev.kobj,
--				   &intuos4_led_attr_group);
--		break;
--
--	case WACOM_24HD:
--	case WACOM_21UX2:
--		sysfs_remove_group(&wacom->hdev->dev.kobj,
--				   &cintiq_led_attr_group);
--		break;
--
--	case INTUOS5S:
--	case INTUOS5:
--	case INTUOS5L:
--	case INTUOSPS:
--	case INTUOSPM:
--	case INTUOSPL:
--		sysfs_remove_group(&wacom->hdev->dev.kobj,
--				   &intuos5_led_attr_group);
--		break;
--	}
--}
--
- static enum power_supply_property wacom_battery_props[] = {
- 	POWER_SUPPLY_PROP_PRESENT,
- 	POWER_SUPPLY_PROP_STATUS,
-@@ -1729,7 +1730,6 @@ fail_quirks:
- fail_hw_start:
- 	kobject_put(wacom->remote_dir);
+@@ -1741,14 +1742,12 @@ fail_hw_start:
  fail_remote:
--	wacom_destroy_leds(wacom);
+ 	wacom_destroy_leds(wacom);
  fail_leds:
+-	wacom_clean_inputs(wacom);
  fail_register_inputs:
  fail_battery:
-@@ -1763,14 +1763,12 @@ static void wacom_wireless_work(struct work_struct *work)
- 	hdev1 = usb_get_intfdata(usbdev->config->interface[1]);
- 	wacom1 = hid_get_drvdata(hdev1);
- 	wacom_wac1 = &(wacom1->wacom_wac);
--	wacom_destroy_leds(wacom1);
- 	wacom_release_resources(wacom1);
- 
- 	/* Touch interface */
- 	hdev2 = usb_get_intfdata(usbdev->config->interface[2]);
- 	wacom2 = hid_get_drvdata(hdev2);
- 	wacom_wac2 = &(wacom2->wacom_wac);
--	wacom_destroy_leds(wacom2);
- 	wacom_release_resources(wacom2);
- 
- 	if (wacom_wac->pid == 0) {
-@@ -1825,9 +1823,7 @@ static void wacom_wireless_work(struct work_struct *work)
- 	return;
- 
- fail:
--	wacom_destroy_leds(wacom1);
- 	wacom_release_resources(wacom1);
--	wacom_destroy_leds(wacom2);
- 	wacom_release_resources(wacom2);
- 	return;
+ 	wacom_remove_shared_data(wacom);
+ fail_shared_data:
+ fail_parsed:
+ fail_allocate_inputs:
+-	wacom_clean_inputs(wacom);
+ 	return error;
  }
-@@ -1917,7 +1913,6 @@ static void wacom_remove(struct hid_device *hdev)
- 	cancel_work_sync(&wacom->wireless_work);
+ 
+@@ -1928,7 +1927,6 @@ static void wacom_remove(struct hid_device *hdev)
  	cancel_work_sync(&wacom->battery_work);
  	kobject_put(wacom->remote_dir);
--	wacom_destroy_leds(wacom);
+ 	wacom_destroy_leds(wacom);
+-	wacom_clean_inputs(wacom);
  	if (hdev->bus == BUS_BLUETOOTH)
  		device_remove_file(&hdev->dev, &dev_attr_speed);
  	wacom_remove_shared_data(wacom);

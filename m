@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 12/27] HID: wacom: devres manage the shared data too
-Date: Tue,  5 Jul 2016 16:39:08 +0200
-Message-ID: <1467729563-23318-13-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 18/27] HID: wacom: EKR: use devres groups to manage resources
+Date: Tue,  5 Jul 2016 16:39:14 +0200
+Message-ID: <1467729563-23318-19-git-send-email-benjamin.tissoires@redhat.com>
 References: <1467729563-23318-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1467729563-23318-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,135 +10,129 @@ To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gere
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-wacom_release_shared_data() and wacom_remove_shared_data() are moved up
-so they can be referenced in wacom_add_shared_data().
-
-There is no point in explicitly setting wacom_wac1->shared->type to 0 in
-wacom_wireless_work() (plus this would give an oops).
+This will be useful when each remote will be assigned its own input device.
+We won't need to unregister each input and sysfs and other elements one
+at a time.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom_sys.c | 73 ++++++++++++++++++++++++++-----------------------
- 1 file changed, 39 insertions(+), 34 deletions(-)
+ drivers/hid/wacom_sys.c | 44 ++++++++++++++++++++++++++++----------------
+ 1 file changed, 28 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 56d62e8..d0f5764 100644
+index 27ca147..9121e72 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -567,6 +567,38 @@ static struct wacom_hdev_data *wacom_get_hdev_data(struct hid_device *hdev)
- 	return NULL;
+@@ -934,8 +934,9 @@ static void wacom_devm_sysfs_group_release(struct device *dev, void *res)
+ 	sysfs_remove_group(kobj, devres->group);
  }
  
-+static void wacom_release_shared_data(struct kref *kref)
+-static int wacom_devm_sysfs_create_group(struct wacom *wacom,
+-					 struct attribute_group *group)
++static int __wacom_devm_sysfs_create_group(struct wacom *wacom,
++					   struct kobject *root,
++					   struct attribute_group *group)
+ {
+ 	struct wacom_sysfs_group_devres *devres;
+ 	int error;
+@@ -947,7 +948,7 @@ static int wacom_devm_sysfs_create_group(struct wacom *wacom,
+ 		return -ENOMEM;
+ 
+ 	devres->group = group;
+-	devres->root = &wacom->hdev->dev.kobj;
++	devres->root = root;
+ 
+ 	error = sysfs_create_group(devres->root, group);
+ 	if (error)
+@@ -958,6 +959,13 @@ static int wacom_devm_sysfs_create_group(struct wacom *wacom,
+ 	return 0;
+ }
+ 
++static int wacom_devm_sysfs_create_group(struct wacom *wacom,
++					 struct attribute_group *group)
 +{
-+	struct wacom_hdev_data *data =
-+		container_of(kref, struct wacom_hdev_data, kref);
-+
-+	mutex_lock(&wacom_udev_list_lock);
-+	list_del(&data->list);
-+	mutex_unlock(&wacom_udev_list_lock);
-+
-+	kfree(data);
++	return __wacom_devm_sysfs_create_group(wacom, &wacom->hdev->dev.kobj,
++					       group);
 +}
 +
-+static void wacom_remove_shared_data(void *res)
-+{
-+	struct wacom *wacom = res;
-+	struct wacom_hdev_data *data;
-+	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+
-+	if (wacom_wac->shared) {
-+		data = container_of(wacom_wac->shared, struct wacom_hdev_data,
-+				    shared);
-+
-+		if (wacom_wac->shared->touch == wacom->hdev)
-+			wacom_wac->shared->touch = NULL;
-+		else if (wacom_wac->shared->pen == wacom->hdev)
-+			wacom_wac->shared->pen = NULL;
-+
-+		kref_put(&data->kref, wacom_release_shared_data);
-+		wacom_wac->shared = NULL;
-+	}
-+}
-+
- static int wacom_add_shared_data(struct hid_device *hdev)
+ static void wacom_led_groups_release(void *data)
  {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
-@@ -591,6 +623,13 @@ static int wacom_add_shared_data(struct hid_device *hdev)
+ 	struct wacom *wacom = data;
+@@ -1306,9 +1314,10 @@ static int wacom_remote_create_attr_group(struct wacom *wacom, __u32 serial,
+ 	if (!remote->remote_group[index].name)
+ 		return -ENOMEM;
  
- 	wacom_wac->shared = &data->shared;
- 
-+	retval = devm_add_action(&hdev->dev, wacom_remove_shared_data, wacom);
-+	if (retval) {
-+		mutex_unlock(&wacom_udev_list_lock);
-+		wacom_remove_shared_data(wacom);
-+		return retval;
-+	}
-+
- 	if (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH)
- 		wacom_wac->shared->touch = hdev;
- 	else if (wacom_wac->features.device_type & WACOM_DEVICETYPE_PEN)
-@@ -601,37 +640,6 @@ out:
- 	return retval;
+-	error = sysfs_create_group(remote->remote_dir,
+-				   &remote->remote_group[index]);
++	error = __wacom_devm_sysfs_create_group(wacom, remote->remote_dir,
++						&remote->remote_group[index]);
+ 	if (error) {
++		remote->remote_group[index].name = NULL;
+ 		hid_err(wacom->hdev,
+ 			"cannot create sysfs group err: %d\n", error);
+ 		return error;
+@@ -1317,15 +1326,6 @@ static int wacom_remote_create_attr_group(struct wacom *wacom, __u32 serial,
+ 	return 0;
  }
  
--static void wacom_release_shared_data(struct kref *kref)
+-static void wacom_remote_destroy_attr_group(struct wacom *wacom, unsigned int i)
 -{
--	struct wacom_hdev_data *data =
--		container_of(kref, struct wacom_hdev_data, kref);
+-	struct wacom_remote *remote = wacom->remote;
 -
--	mutex_lock(&wacom_udev_list_lock);
--	list_del(&data->list);
--	mutex_unlock(&wacom_udev_list_lock);
--
--	kfree(data);
+-	sysfs_remove_group(remote->remote_dir, &remote->remote_group[i]);
+-	devm_kfree(&wacom->hdev->dev, (char *)remote->remote_group[i].name);
+-	remote->remote_group[i].name = NULL;
 -}
 -
--static void wacom_remove_shared_data(struct wacom *wacom)
--{
--	struct wacom_hdev_data *data;
--	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
--
--	if (wacom_wac->shared) {
--		data = container_of(wacom_wac->shared, struct wacom_hdev_data,
--				    shared);
--
--		if (wacom_wac->shared->touch == wacom->hdev)
--			wacom_wac->shared->touch = NULL;
--		else if (wacom_wac->shared->pen == wacom->hdev)
--			wacom_wac->shared->pen = NULL;
--
--		kref_put(&data->kref, wacom_release_shared_data);
--		wacom_wac->shared = NULL;
--	}
--}
--
- static int wacom_led_control(struct wacom *wacom)
+ static int wacom_cmd_unpair_remote(struct wacom *wacom, unsigned char selector)
  {
- 	unsigned char *buf;
-@@ -1731,7 +1739,6 @@ fail_remote:
- fail_leds:
- fail_register_inputs:
- fail_battery:
--	wacom_remove_shared_data(wacom);
- fail_shared_data:
- fail_parsed:
- fail_allocate_inputs:
-@@ -1771,7 +1778,6 @@ static void wacom_wireless_work(struct work_struct *work)
+ 	const size_t buf_size = 2;
+@@ -1906,11 +1906,13 @@ static void wacom_remote_destroy_one(struct wacom *wacom, unsigned int index)
+ 	u32 serial = remote->serial[index];
+ 	int i;
  
- 	if (wacom_wac->pid == 0) {
- 		hid_info(wacom->hdev, "wireless tablet disconnected\n");
--		wacom_wac1->shared->type = 0;
- 	} else {
- 		const struct hid_device_id *id = wacom_ids;
+-	wacom_remote_destroy_attr_group(wacom, index);
++	if (remote->remote_group[index].name)
++		devres_release_group(&wacom->hdev->dev, &remote->serial[index]);
  
-@@ -1912,7 +1918,6 @@ static void wacom_remove(struct hid_device *hdev)
- 	kobject_put(wacom->remote_dir);
- 	if (hdev->bus == BUS_BLUETOOTH)
- 		device_remove_file(&hdev->dev, &dev_attr_speed);
--	wacom_remove_shared_data(wacom);
+ 	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+ 		if (remote->serial[i] == serial) {
+ 			remote->serial[i] = 0;
++			remote->remote_group[i].name = NULL;
+ 			wacom->led.groups[i].select = WACOM_STATUS_UNKNOWN;
+ 		}
+ 	}
+@@ -1920,6 +1922,7 @@ static int wacom_remote_create_one(struct wacom *wacom, u32 serial,
+ 				   unsigned int index)
+ {
+ 	struct wacom_remote *remote = wacom->remote;
++	struct device *dev = &wacom->hdev->dev;
+ 	int error, k;
  
- 	hid_set_drvdata(hdev, NULL);
+ 	/* A remote can pair more than once with an EKR,
+@@ -1935,13 +1938,22 @@ static int wacom_remote_create_one(struct wacom *wacom, u32 serial,
+ 		return 0;
+ 	}
+ 
++	if (!devres_open_group(dev, &remote->serial[index], GFP_KERNEL))
++		return -ENOMEM;
++
+ 	error = wacom_remote_create_attr_group(wacom, serial, index);
+ 	if (error)
+-		return error;
++		goto fail;
+ 
+ 	remote->serial[index] = serial;
+ 
++	devres_close_group(dev, &remote->serial[index]);
+ 	return 0;
++
++fail:
++	devres_release_group(dev, &remote->serial[index]);
++	remote->serial[index] = 0;
++	return error;
  }
+ 
+ static void wacom_remote_work(struct work_struct *work)
 -- 
 2.5.5

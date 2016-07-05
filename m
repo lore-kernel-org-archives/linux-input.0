@@ -1,129 +1,92 @@
-From: Grant Likely <glikely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH v2 0/6] Intel Integrated Sensor Hub Support (ISH)
-Date: Tue, 5 Jul 2016 13:42:53 +0100
-Message-ID: <b81da639-0ec5-bb30-1f77-b71d8e7ad434@secretlab.ca>
-References: <1466574038-20613-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1466574038-20613-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 00/27] HID: wacom: cleanup/EKR/LED
+Date: Tue,  5 Jul 2016 16:38:56 +0200
+Message-ID: <1467729563-23318-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:33723 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755202AbcGEOj2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Jul 2016 10:39:28 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+
+Hi,
+
+Initially, I thought the series would have been short because it was driven
+by 23/27 and 26/27. We wanted to have a common API for the LED in the kernel
+and also let the kernel switches the LED for us so that libinput doesn't need
+to have root access. The LED kernel API has kernel triggers which allows users
+to enable/disable automatic LED switching.
+
+Well, the plan did not go so well, and I ended up cleaning up the Wacom driver
+one more time (Daft Punk's song complimentary). I finally made use of devres
+management in this driver which allows to simplify the cleanups of the various
+resources allocated here and there. I had to resort most of the time to devres
+groups because of the 2 wireless receiver Wacom has. With these 2 receivers
+(Intuos Pro/Bamboos and the EKR), input nodes can be created/destroyed at
+will, without having the parent HID device removed.
+
+The plan was also to provide a common API for the EKR and the rest of the
+Intuos/Cintiqs. And working on this reminded me that we never finished providing
+proper support of the Wacom ExpressKey Remote (one input node per remote,
+one power_supply per remote).
+
+So, here is the result of this past few weeks. I tested this on the following
+devices: Intuos Pro, Bamboo 16 fg Pen/Touch, Bamboo Pad, Cintiq 13HD and
+the EKR.
+Peter tested an earlier series on the 21UX2 and I hope I fixed the bugs he
+noted, but I would love the Wacom guys to test the series on the 21UX2 (again)
+and the 24HD(T). I was only able to test those 2 devices through uhid, and
+manually checked the raw commands were set properly, but an actual test would be
+better.
+
+Happy reviewing :)
+
+Cheers,
+Benjamin
 
 
-On 22/06/16 06:40, Srinivas Pandruvada wrote:
-> Change log
-> v2:
-> - Overview in documentation show analogy with usbhid implementation
-> - sparse errors for statics. Also pointed by Jiri
-> - Clearly marking exported function header file. Clean up all exports
-> unused inteface functions
-> - Changed to tristate from boolean as pointed by Jiri:
-> this required remove/unload functions
-> - Prevent crash when ISH enabled on non supported platform
-> - Break client.c to smaller part by seprating buffer allocations
-> - move bus register/unregister to ishtp module
-> - There is only one config symbol INTEL_ISH_HID, removed silent
-> config for TRANSPORT and IPC
-Tested-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Benjamin Tissoires (27):
+  HID: wacom: actually report the battery level for wireless connected
+  HID: wacom: store the type in wacom->shared for INTUOSHT and INTUOSHT2
+  HID: wacom: remove cleanup of wacom->remote_dir from
+    wacom_clean_inputs()
+  HID: wacom: untie leds from inputs
+  HID: wacom: use one work queue per task
+  HID: wacom: switch battery to devres
+  HID: wacom: switch inputs to devres
+  HID: wacom: put the managed resources in a group
+  HID: wacom: convert LEDs to devres
+  HID: wacom: use devm_kasprintf for allocating the name of the remote
+  HID: wacom: use devres to allocate driver data
+  HID: wacom: devres manage the shared data too
+  HID: wacom: leds: dynamically allocate LED groups
+  HID: wacom: EKR: add a worker to add/remove resources on
+    addition/removal
+  HID: wacom: EKR: have the wacom resources dynamically allocated
+  HID: wacom: rework fail path in probe() and parse_and_register()
+  HID: wacom: EKR: have proper allocator and destructor
+  HID: wacom: EKR: use devres groups to manage resources
+  HID: wacom: EKR: have one array of struct remotes instead of many
+    arrays
+  HID: wacom: EKR: allocate one input node per remote
+  HID: wacom: EKR: have one power_supply per remote
+  HID: wacom: EKR: attach the power_supply on first connection
+  HID: wacom: leds: use the ledclass instead of custom made sysfs files
+  HID: wacom: leds: actually release the LEDs on disconnect
+  HID: wacom: leds: fix ordering of LED banks
+  HID: wacom: leds: handle the switch of the LEDs directly in the kernel
+  HID: wacom: leds: handle Cintiq 24HD leds buttons
 
-On an HP Spectre x360 laptop using v4.7-rc5.
+ Documentation/ABI/testing/sysfs-driver-wacom |    5 +
+ drivers/hid/wacom.h                          |   98 ++-
+ drivers/hid/wacom_sys.c                      | 1104 +++++++++++++++++++-------
+ drivers/hid/wacom_wac.c                      |  238 ++++--
+ drivers/hid/wacom_wac.h                      |   18 +-
+ 5 files changed, 1073 insertions(+), 390 deletions(-)
 
-In related news, the problem I had with the rotation events not showing 
-up on v1 of this series went away. I don't have a reason why, it just 
-suddenly started working.
+-- 
+2.5.5
 
-g.
->
->
-> Starting from Cherrytrail, multiple generation of Intel processors offers
-> on package sensor hub. Several recent tablets, 2-in-1 convertible laptops
-> are using ISH instead of external sensor hubs. This resulted in lack of
-> support of sensor function like device rotation and auto backlight
-> adjustment.
-> In addition, depending on the OEM implementation, support of ISH is required
-> to support low power sleep states.
->
-> The support of ISH on Linux platforms is not new. Android platforms with
-> Intel SoCs had this support for a while submitted by Daniel Drubin.
-> This patcheset is reusing most of those changes with  clean up and
-> removing Android platform specific changes.
->
-> The user mode ABI is still same as external sensor hubs using Linux
-> IIO. So existing user mode software should still work.
-> This series primarily brings in new HID transport used in ISH.
->
-> Thanks to the community members who tested RFC patches and provided
-> feedback.
->
-> For users testing on Linux distributions using IIO sensor proxy,
-> a short term work around is required till we have debugged this issue.
-> In systemd unit file iio-sensor-proxy.service
-> In the section "[Unit]" add
-> After=multi-user.target
->
-> Daniel Drubin (3):
->    hid: intel_ish-hid: ISH Transport layer
->    hid: intel-ish-hid: ipc layer
->    hid: intel-ish-hid: ISH HID client driver
->
-> Srinivas Pandruvada (3):
->    Documentation: hid: Intel ISH HID document
->    iio: hid-sensors: use asynchronous resume
->    hid: hid-sensor-hub: Add ISH quirk
->
->   Documentation/hid/intel-ish-hid.txt                | 449 ++++++++++
->   drivers/hid/Kconfig                                |   2 +
->   drivers/hid/Makefile                               |   2 +
->   drivers/hid/hid-sensor-hub.c                       |   4 +
->   drivers/hid/intel-ish-hid/Kconfig                  |  17 +
->   drivers/hid/intel-ish-hid/Makefile                 |  22 +
->   drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h        | 220 +++++
->   drivers/hid/intel-ish-hid/ipc/hw-ish.h             |  71 ++
->   drivers/hid/intel-ish-hid/ipc/ipc.c                | 719 ++++++++++++++++
->   drivers/hid/intel-ish-hid/ipc/pci-ish.c            | 327 +++++++
->   drivers/hid/intel-ish-hid/ipc/utils.h              |  64 ++
->   drivers/hid/intel-ish-hid/ishtp-hid-client.c       | 935 +++++++++++++++++++++
->   drivers/hid/intel-ish-hid/ishtp-hid.c              | 234 ++++++
->   drivers/hid/intel-ish-hid/ishtp-hid.h              | 182 ++++
->   drivers/hid/intel-ish-hid/ishtp/bus.c              | 780 +++++++++++++++++
->   drivers/hid/intel-ish-hid/ishtp/bus.h              | 110 +++
->   drivers/hid/intel-ish-hid/ishtp/client-buffers.c   | 214 +++++
->   drivers/hid/intel-ish-hid/ishtp/client.c           | 935 +++++++++++++++++++++
->   drivers/hid/intel-ish-hid/ishtp/client.h           | 182 ++++
->   drivers/hid/intel-ish-hid/ishtp/dma-if.c           | 178 ++++
->   drivers/hid/intel-ish-hid/ishtp/hbm.c              | 908 ++++++++++++++++++++
->   drivers/hid/intel-ish-hid/ishtp/hbm.h              | 321 +++++++
->   drivers/hid/intel-ish-hid/ishtp/init.c             |  93 ++
->   drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h        | 277 ++++++
->   .../iio/common/hid-sensors/hid-sensor-trigger.c    |  21 +-
->   include/linux/hid-sensor-hub.h                     |   1 +
->   include/trace/events/intel_ish.h                   |  30 +
->   include/uapi/linux/input.h                         |   1 +
->   28 files changed, 7298 insertions(+), 1 deletion(-)
->   create mode 100644 Documentation/hid/intel-ish-hid.txt
->   create mode 100644 drivers/hid/intel-ish-hid/Kconfig
->   create mode 100644 drivers/hid/intel-ish-hid/Makefile
->   create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
->   create mode 100644 drivers/hid/intel-ish-hid/ipc/hw-ish.h
->   create mode 100644 drivers/hid/intel-ish-hid/ipc/ipc.c
->   create mode 100644 drivers/hid/intel-ish-hid/ipc/pci-ish.c
->   create mode 100644 drivers/hid/intel-ish-hid/ipc/utils.h
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid-client.c
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.c
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp-hid.h
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.c
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp/bus.h
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp/client-buffers.c
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp/client.c
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp/client.h
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp/dma-if.c
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.c
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp/hbm.h
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp/init.c
->   create mode 100644 drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
->   create mode 100644 include/trace/events/intel_ish.h
->

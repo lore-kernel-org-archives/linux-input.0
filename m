@@ -1,77 +1,48 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v2 1/3] sur40: properly report a single frame rate of 60
- FPS
-Date: Tue, 5 Jul 2016 09:06:01 +0200
-Message-ID: <cfd020d2-5834-11ac-1b1c-cb98aa872354@xs4all.nl>
-References: <1464725733-22119-1-git-send-email-floe@butterbrot.org>
- <f5d84d25-eae4-df9b-819b-256565783c35@xs4all.nl>
- <577B5A2B.5060406@butterbrot.org>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH v2 8/8] Input: synaptics-rmi4: Use the RMI_F11_REL_BYTES
+ define in rmi_f11_rel_pos_report
+Date: Tue, 5 Jul 2016 11:01:09 +0100
+Message-ID: <c23a4ffe-cab6-712d-0741-24e8de84e178@itdev.co.uk>
+References: <1466813992-16085-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <577B5A2B.5060406@butterbrot.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>, linux-media@vger.kernel.org
-Cc: linux-input@vger.kernel.org, Martin Kaltenbrunner <modin@yuri.at>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from zencphosting06.zen.co.uk ([82.71.204.9]:49932 "EHLO
+	zencphosting06.zen.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751599AbcGEKBW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2016 06:01:22 -0400
+In-Reply-To: <1466813992-16085-1-git-send-email-aduggan@synaptics.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>
 
-On 07/05/2016 08:56 AM, Florian Echtler wrote:
-> Hello Hans,
+On 25/06/2016 01:19, Andrew Duggan wrote:
+> The size of relative data in F11 is already defined by RMI_F11_REL_BYTES.
+> Use the define in rmi_f11_rel_pos_report() to be consistent.
 > 
-> On 05.07.2016 08:41, Hans Verkuil wrote:
->> On 05/31/2016 10:15 PM, Florian Echtler wrote:
->>> The device hardware is always running at 60 FPS, so report this both via
->>> PARM_IOCTL and ENUM_FRAMEINTERVALS.
->>>
->>> Signed-off-by: Martin Kaltenbrunner <modin@yuri.at>
->>> Signed-off-by: Florian Echtler <floe@butterbrot.org>
->>> ---
->>>  drivers/input/touchscreen/sur40.c | 20 ++++++++++++++++++--
->>>  1 file changed, 18 insertions(+), 2 deletions(-)
->>>
->>> @@ -880,6 +893,9 @@ static const struct v4l2_ioctl_ops sur40_video_ioctl_ops = {
->>>  	.vidioc_enum_framesizes = sur40_vidioc_enum_framesizes,
->>>  	.vidioc_enum_frameintervals = sur40_vidioc_enum_frameintervals,
->>>  
->>> +	.vidioc_g_parm = sur40_ioctl_parm,
->>> +	.vidioc_s_parm = sur40_ioctl_parm,
->>
->> Why is s_parm added when you can't change the framerate?
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+
+Reviewed-by: Nick Dyer <nick@shmanahar.org>
+
+> ---
+>  drivers/input/rmi4/rmi_f11.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> Oh, I thought it's mandatory to always have s_parm if you have g_parm
-> (even if it always returns the same values).
-> 
->> Same questions for the
->> enum_frameintervals function: it doesn't hurt to have it, but if there is only
->> one unchangeable framerate, then it doesn't make much sense.
-> 
-> If you don't have enum_frameintervals, how would you find out about the
-> framerate otherwise? Is g_parm itself enough already for all userspace
-> tools?
-
-It should be. The enum_frameintervals function is much newer than g_parm.
-
-Frankly, I have the same problem with enum_framesizes: it reports only one
-size. These two enum ioctls are normally only implemented if there are at
-least two choices. If there is no choice, then G_FMT will return the size
-and G_PARM the framerate and there is no need to enumerate anything.
-
-The problem is that the spec is ambiguous as to the requirements if there
-is only one choice for size and interval. Are the enum ioctls allowed in
-that case? Personally I think there is nothing against that. But should
-S_PARM also be allowed even though it can't actually change the frameperiod?
-
-Don't bother making changes yet, let me think about this for a bit.
-
-Regards,
-
-	Hans
-
-> 
->> Sorry, missed this when I reviewed this the first time around.
-> 
-> No problem.
-> 
-> Best, Florian
+> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+> index 3fda75b..cce82a1 100644
+> --- a/drivers/input/rmi4/rmi_f11.c
+> +++ b/drivers/input/rmi4/rmi_f11.c
+> @@ -530,8 +530,8 @@ static void rmi_f11_rel_pos_report(struct f11_data *f11, u8 n_finger)
+>  	struct f11_2d_data *data = &f11->data;
+>  	s8 x, y;
+>  
+> -	x = data->rel_pos[n_finger * 2];
+> -	y = data->rel_pos[n_finger * 2 + 1];
+> +	x = data->rel_pos[n_finger * RMI_F11_REL_BYTES];
+> +	y = data->rel_pos[n_finger * RMI_F11_REL_BYTES + 1];
+>  
+>  	rmi_2d_sensor_rel_report(sensor, x, y);
+>  }
 > 

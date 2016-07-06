@@ -1,35 +1,77 @@
-From: "ologgio" <ologgio@onsneteindhoven.nl>
-Subject: Hello linux
-Date: Tue, 5 Jul 2016 21:42:07 +0000
-Message-ID: <90F9F137-6E13-4CC4-AC22-CCCFF5E19896@onsneteindhoven.nl>
-Mime-Version: 1.0 (1.0)
-Content-Type: text/plain;
-	charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from isp-bos-ex-mm-02.edutel.nl ([88.159.1.146]:59347 "EHLO
-	isp-bos-ex-mm-02.edutel.nl" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755823AbcGEVwo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 Jul 2016 17:52:44 -0400
-Received: from isp-aos-04 (unknown [IPv6:2a01:670:100:11::1:4])
-	by isp-bos-ex-mm-02.edutel.nl (Postfix) with ESMTPS id B45B5406CD
-	for <linux-input@vger.kernel.org>; Tue,  5 Jul 2016 23:42:23 +0200 (CEST)
-Received: from host22.186-109-150.telecom.net.ar ([186.109.150.22] helo=mail.onsneteindhoven.nl)
-	by isp-aos-04 with esmtpsa (TLS1.0:DHE_RSA_AES_128_CBC_SHA1:16)
-	(Exim 4.76)
-	(envelope-from <ologgio@onsneteindhoven.nl>)
-	id 1bKY6i-0001Cd-Ch
-	for linux-input@vger.kernel.org; Tue, 05 Jul 2016 23:42:18 +0200
-Sender: linux-input-owner@vger.kernel.org
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH v2 1/3] sur40: properly report a single frame rate of 60
+ FPS
+Date: Wed, 6 Jul 2016 10:40:30 +0200
+Message-ID: <577CC3FE.5080200@xs4all.nl>
+References: <1464725733-22119-1-git-send-email-floe@butterbrot.org>
+ <f5d84d25-eae4-df9b-819b-256565783c35@xs4all.nl>
+ <577B5A2B.5060406@butterbrot.org>
+ <cfd020d2-5834-11ac-1b1c-cb98aa872354@xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <cfd020d2-5834-11ac-1b1c-cb98aa872354@xs4all.nl>
+Sender: linux-media-owner@vger.kernel.org
+To: Florian Echtler <floe@butterbrot.org>, linux-media@vger.kernel.org
+Cc: linux-input@vger.kernel.org, Martin Kaltenbrunner <modin@yuri.at>
 List-Id: linux-input@vger.kernel.org
-To: linux input <linux-input@vger.kernel.org>
 
-sup linux
+On 07/05/16 09:06, Hans Verkuil wrote:
+> On 07/05/2016 08:56 AM, Florian Echtler wrote:
+>> Hello Hans,
+>>
+>> On 05.07.2016 08:41, Hans Verkuil wrote:
+>>> On 05/31/2016 10:15 PM, Florian Echtler wrote:
+>>>> The device hardware is always running at 60 FPS, so report this both via
+>>>> PARM_IOCTL and ENUM_FRAMEINTERVALS.
+>>>>
+>>>> Signed-off-by: Martin Kaltenbrunner <modin@yuri.at>
+>>>> Signed-off-by: Florian Echtler <floe@butterbrot.org>
+>>>> ---
+>>>>  drivers/input/touchscreen/sur40.c | 20 ++++++++++++++++++--
+>>>>  1 file changed, 18 insertions(+), 2 deletions(-)
+>>>>
+>>>> @@ -880,6 +893,9 @@ static const struct v4l2_ioctl_ops sur40_video_ioctl_ops = {
+>>>>  	.vidioc_enum_framesizes = sur40_vidioc_enum_framesizes,
+>>>>  	.vidioc_enum_frameintervals = sur40_vidioc_enum_frameintervals,
+>>>>  
+>>>> +	.vidioc_g_parm = sur40_ioctl_parm,
+>>>> +	.vidioc_s_parm = sur40_ioctl_parm,
+>>>
+>>> Why is s_parm added when you can't change the framerate?
+>>
+>> Oh, I thought it's mandatory to always have s_parm if you have g_parm
+>> (even if it always returns the same values).
+>>
+>>> Same questions for the
+>>> enum_frameintervals function: it doesn't hurt to have it, but if there is only
+>>> one unchangeable framerate, then it doesn't make much sense.
+>>
+>> If you don't have enum_frameintervals, how would you find out about the
+>> framerate otherwise? Is g_parm itself enough already for all userspace
+>> tools?
+> 
+> It should be. The enum_frameintervals function is much newer than g_parm.
+> 
+> Frankly, I have the same problem with enum_framesizes: it reports only one
+> size. These two enum ioctls are normally only implemented if there are at
+> least two choices. If there is no choice, then G_FMT will return the size
+> and G_PARM the framerate and there is no need to enumerate anything.
+> 
+> The problem is that the spec is ambiguous as to the requirements if there
+> is only one choice for size and interval. Are the enum ioctls allowed in
+> that case? Personally I think there is nothing against that. But should
+> S_PARM also be allowed even though it can't actually change the frameperiod?
+> 
+> Don't bother making changes yet, let me think about this for a bit.
 
+OK, I came to the conclusion that if enum_frameintervals returns one or
+more intervals, then s_parm should be present, even if there is only one
+possible interval.
 
-http://reemamarblehouse.com/bill.php?clothes=a162gwd6p5axrsq
+I have updated the compliance utility to check for this.
 
+Regards,
 
-
-ologgio
+	Hans

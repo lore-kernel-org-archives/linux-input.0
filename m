@@ -1,73 +1,144 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v2 1/3] sur40: properly report a single frame rate of 60
- FPS
-Date: Thu, 7 Jul 2016 08:35:46 +0200
-Message-ID: <2e80f101-fdce-f03e-fa0f-fd92673766b3@xs4all.nl>
-References: <1464725733-22119-1-git-send-email-floe@butterbrot.org>
- <f5d84d25-eae4-df9b-819b-256565783c35@xs4all.nl>
- <577B5A2B.5060406@butterbrot.org>
- <cfd020d2-5834-11ac-1b1c-cb98aa872354@xs4all.nl> <577CC3FE.5080200@xs4all.nl>
- <577D6F6B.1050207@butterbrot.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Lv Zheng <lv.zheng@intel.com>
+Subject: [PATCH v2 3/4] ACPI / button: Add SW_ACPI_LID for new usage model
+Date: Thu,  7 Jul 2016 15:10:52 +0800
+Message-ID: <916d5a5b0df5dbe14283ddb31f1128efefbfd1e2.1467875143.git.lv.zheng@intel.com>
+References: <cover.1467717304.git.lv.zheng@intel.com> <cover.1467875142.git.lv.zheng@intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb1-smtp-cloud2.xs4all.net ([194.109.24.21]:42018 "EHLO
-	lb1-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750812AbcGGGfy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 7 Jul 2016 02:35:54 -0400
-In-Reply-To: <577D6F6B.1050207@butterbrot.org>
+Received: from mga11.intel.com ([192.55.52.93]:14767 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756045AbcGGHLr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 Jul 2016 03:11:47 -0400
+In-Reply-To: <cover.1467875142.git.lv.zheng@intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>, linux-media@vger.kernel.org
-Cc: linux-input@vger.kernel.org, Martin Kaltenbrunner <modin@yuri.at>
+To: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>
+Cc: Lv Zheng <lv.zheng@intel.com>, Lv Zheng <zetalog@gmail.com>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, "Bastien Nocera:" <hadess@hadess.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org
 
-On 07/06/2016 10:51 PM, Florian Echtler wrote:
-> On 06.07.2016 10:40, Hans Verkuil wrote:
->> On 07/05/16 09:06, Hans Verkuil wrote:
->>> On 07/05/2016 08:56 AM, Florian Echtler wrote:
->>>> On 05.07.2016 08:41, Hans Verkuil wrote:
->>>>>
->>>>> Why is s_parm added when you can't change the framerate?
->>>>
->>>> Oh, I thought it's mandatory to always have s_parm if you have g_parm
->>>> (even if it always returns the same values).
->>>>
->>>>> Same questions for the
->>>>> enum_frameintervals function: it doesn't hurt to have it, but if there is only
->>>>> one unchangeable framerate, then it doesn't make much sense.
->>>>
->>>> If you don't have enum_frameintervals, how would you find out about the
->>>> framerate otherwise? Is g_parm itself enough already for all userspace
->>>> tools?
->>>
->>> It should be. The enum_frameintervals function is much newer than g_parm.
->>>
->>> Frankly, I have the same problem with enum_framesizes: it reports only one
->>> size. These two enum ioctls are normally only implemented if there are at
->>> least two choices. If there is no choice, then G_FMT will return the size
->>> and G_PARM the framerate and there is no need to enumerate anything.
->>>
->>> The problem is that the spec is ambiguous as to the requirements if there
->>> is only one choice for size and interval. Are the enum ioctls allowed in
->>> that case? Personally I think there is nothing against that. But should
->>> S_PARM also be allowed even though it can't actually change the frameperiod?
->>>
->>> Don't bother making changes yet, let me think about this for a bit.
->>
->> OK, I came to the conclusion that if enum_frameintervals returns one or
->> more intervals, then s_parm should be present, even if there is only one
->> possible interval.
->>
->> I have updated the compliance utility to check for this.
-> 
-> AFAICT, the original patch does meet the requirements, then? Or do you
-> have any change requests?
+There are many AML tables reporting wrong initial lid state, and some of
+them never reports lid state. As a proxy layer acting between, ACPI button
+driver is not able to handle all such cases, but need to re-define the
+usage model of the ACPI lid. That is:
+1. It's initial state is not reliable;
+2. There may not be open event;
+3. Userspace should only take action against the close event which is
+   reliable, always sent after a real lid close.
+This patch adds a new input key event so that new userspace programs can
+use it to handle this usage model correctly. And in the meanwhile, no old
+programs will be broken by the userspace changes.
 
-Can you run the latest v4l2-compliance test? If that passes, then I'll take
-this patch as-is.
+Link: https://lkml.org/2016/3/7/460
+Link: https://github.com/systemd/systemd/issues/2087
+Signed-off-by: Lv Zheng <lv.zheng@intel.com>
+Cc: Bastien Nocera: <hadess@hadess.net>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input@vger.kernel.org
+---
+ drivers/acpi/button.c                  |   20 ++++++++++++++------
+ include/linux/mod_devicetable.h        |    2 +-
+ include/uapi/linux/input-event-codes.h |    3 ++-
+ 3 files changed, 17 insertions(+), 8 deletions(-)
 
-Regards,
+diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
+index 148f4e5..4ef94d2 100644
+--- a/drivers/acpi/button.c
++++ b/drivers/acpi/button.c
+@@ -130,7 +130,8 @@ static int acpi_lid_evaluate_state(struct acpi_device *device)
+ 	return lid_state ? 1 : 0;
+ }
+ 
+-static int acpi_lid_notify_state(struct acpi_device *device, int state)
++static int acpi_lid_notify_state(struct acpi_device *device,
++				 int state, bool notify_acpi)
+ {
+ 	struct acpi_button *button = acpi_driver_data(device);
+ 	int ret;
+@@ -138,6 +139,11 @@ static int acpi_lid_notify_state(struct acpi_device *device, int state)
+ 	/* input layer checks if event is redundant */
+ 	input_report_switch(button->input, SW_LID, !state);
+ 	input_sync(button->input);
++	if (notify_acpi) {
++		input_report_switch(button->input,
++				    SW_ACPI_LID, !state);
++		input_sync(button->input);
++	}
+ 
+ 	if (state)
+ 		pm_wakeup_event(&device->dev, 0);
+@@ -279,7 +285,8 @@ int acpi_lid_open(void)
+ }
+ EXPORT_SYMBOL(acpi_lid_open);
+ 
+-static int acpi_lid_update_state(struct acpi_device *device)
++static int acpi_lid_update_state(struct acpi_device *device,
++				 bool notify_acpi)
+ {
+ 	int state;
+ 
+@@ -287,17 +294,17 @@ static int acpi_lid_update_state(struct acpi_device *device)
+ 	if (state < 0)
+ 		return state;
+ 
+-	return acpi_lid_notify_state(device, state);
++	return acpi_lid_notify_state(device, state, notify_acpi);
+ }
+ 
+ static void acpi_lid_initialize_state(struct acpi_device *device)
+ {
+ 	switch (lid_init_state) {
+ 	case ACPI_BUTTON_LID_INIT_OPEN:
+-		(void)acpi_lid_notify_state(device, 1);
++		(void)acpi_lid_notify_state(device, 1, false);
+ 		break;
+ 	case ACPI_BUTTON_LID_INIT_METHOD:
+-		(void)acpi_lid_update_state(device);
++		(void)acpi_lid_update_state(device, false);
+ 		break;
+ 	case ACPI_BUTTON_LID_INIT_IGNORE:
+ 	default:
+@@ -317,7 +324,7 @@ static void acpi_button_notify(struct acpi_device *device, u32 event)
+ 	case ACPI_BUTTON_NOTIFY_STATUS:
+ 		input = button->input;
+ 		if (button->type == ACPI_BUTTON_TYPE_LID) {
+-			acpi_lid_update_state(device);
++			acpi_lid_update_state(device, true);
+ 		} else {
+ 			int keycode;
+ 
+@@ -436,6 +443,7 @@ static int acpi_button_add(struct acpi_device *device)
+ 
+ 	case ACPI_BUTTON_TYPE_LID:
+ 		input_set_capability(input, EV_SW, SW_LID);
++		input_set_capability(input, EV_SW, SW_ACPI_LID);
+ 		break;
+ 	}
+ 
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index 6e4c645..1014968 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -291,7 +291,7 @@ struct pcmcia_device_id {
+ #define INPUT_DEVICE_ID_LED_MAX		0x0f
+ #define INPUT_DEVICE_ID_SND_MAX		0x07
+ #define INPUT_DEVICE_ID_FF_MAX		0x7f
+-#define INPUT_DEVICE_ID_SW_MAX		0x0f
++#define INPUT_DEVICE_ID_SW_MAX		0x10
+ 
+ #define INPUT_DEVICE_ID_MATCH_BUS	1
+ #define INPUT_DEVICE_ID_MATCH_VENDOR	2
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 737fa32..81c344c 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -780,7 +780,8 @@
+ #define SW_ROTATE_LOCK		0x0c  /* set = rotate locked/disabled */
+ #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
+ #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+-#define SW_MAX			0x0f
++#define SW_ACPI_LID		0x0f  /* set = lid shut */
++#define SW_MAX			0x10
+ #define SW_CNT			(SW_MAX+1)
+ 
+ /*
+-- 
+1.7.10
 
-	Hans

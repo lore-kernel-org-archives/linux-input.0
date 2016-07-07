@@ -1,209 +1,259 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] [v1.1 1/3] driver: input :touchscreen : add Raydium crc
- touch function
-Date: Thu, 7 Jul 2016 10:12:04 -0700
-Message-ID: <20160707171204.GI5447@dtor-ws>
-References: <1467909479-43471-1-git-send-email-jeffrey.lin@rad-ic.com>
+Subject: Re: [PATCH] [v1.1 3/3] modify raydium firmware update rule
+Date: Thu, 7 Jul 2016 10:14:34 -0700
+Message-ID: <20160707171434.GJ5447@dtor-ws>
+References: <1467909578-43578-1-git-send-email-jeffrey.lin@rad-ic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:35044 "EHLO
-	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753336AbcGGRMI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jul 2016 13:12:08 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1467909479-43471-1-git-send-email-jeffrey.lin@rad-ic.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <1467909578-43578-1-git-send-email-jeffrey.lin@rad-ic.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: "jeffrey.lin" <yajohn@gmail.com>
 Cc: rydberg@euromail.se, groeck@chromium.org, robh@kernel.org, jeffrey.lin@rad-ic.com, ealin.chiu@rad-ic.com, jason.yeh@rad-ic.com, KP.li@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Thu, Jul 07, 2016 at 09:37:59AM -0700, jeffrey.lin wrote:
-> add checksum for touch report points.
+On Thu, Jul 07, 2016 at 09:39:38AM -0700, jeffrey.lin wrote:
+> modify raydium touch firmware update rule.
+
+Why? You need to explain why you are proposing a change (but as I
+mentioned I see no reason for using custom file names for firmware. Have
+userspace adjust name as needed by the driver.
+
+Thanks.
+
 > 
 > Signed-off-by: jeffrey.lin <jeffrey.lin@rad-ic.com>
 > ---
->  drivers/input/touchscreen/raydium_i2c_ts.c | 86 +++++++++++++++++++-----------
->  1 file changed, 56 insertions(+), 30 deletions(-)
+>  drivers/input/touchscreen/raydium_i2c_ts.c | 112 ++++++++++++++++++++++++-----
+>  1 file changed, 93 insertions(+), 19 deletions(-)
 > 
 > diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-> index f3076d9..de31b41 100644
+> index f3076d9..004c5a6 100644
 > --- a/drivers/input/touchscreen/raydium_i2c_ts.c
 > +++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-> @@ -70,6 +70,8 @@
->  #define RM_CONTACT_WIDTH_X_POS	6
->  #define RM_CONTACT_WIDTH_Y_POS	7
+> @@ -34,6 +34,9 @@
+>  #include <linux/slab.h>
+>  #include <asm/unaligned.h>
 >  
-> +#define RM_CONTACT_CRC_OFFSET	2
-
-This is not offset, this is size, or length, of CRC.
-
+> +/* Firmware */
+> +#define RAYDIUM_FW_NAME		"raydium.fw"
 > +
->  /* Bootloader relative info */
->  #define RM_BL_WRT_CMD_SIZE	3	/* bl flash wrt cmd size */
->  #define RM_BL_WRT_PKG_SIZE	32	/* bl wrt pkg size */
-> @@ -137,6 +139,7 @@ struct raydium_data {
->  	u32 data_bank_addr;
->  	u8 report_size;
->  	u8 contact_size;
-> +	u8 pkg_size;
+>  /* Slave I2C mode */
+>  #define RM_BOOT_BLDR		0x02
+>  #define RM_BOOT_MAIN		0x03
+> @@ -78,7 +81,7 @@
+>  #define RM_MAX_FW_RETRIES	30
+>  #define RM_MAX_FW_SIZE		0xD000
 >  
+> -#define RM_POWERON_DELAY_USEC	500
+> +#define RM_POWERON_DELAY_MSEC	20
+>  #define RM_RESET_DELAY_MSEC	50
+>  
+>  enum raydium_bl_cmd {
+> @@ -97,6 +100,7 @@ enum raydium_bl_ack {
+>  enum raydium_boot_mode {
+>  	RAYDIUM_TS_MAIN = 0,
+>  	RAYDIUM_TS_BLDR,
+> +	INVALID_REGION,
+>  };
+>  
+>  /* Response to RM_CMD_DATA_BANK request */
+> @@ -141,6 +145,8 @@ struct raydium_data {
 >  	enum raydium_boot_mode boot_mode;
 >  
-> @@ -280,12 +283,14 @@ static int raydium_i2c_query_ts_info(struct raydium_data *ts)
->  		 * then the size changed (due to firmware update?) and keep
->  		 * old size instead.
->  		 */
-> -		if (ts->report_data && ts->report_size != data_info.pkg_size)
-> +		if (ts->report_data && ts->pkg_size != data_info.pkg_size)
->  			dev_warn(&client->dev,
->  				 "report size changes, was: %d, new: %d\n",
-> -				 ts->report_size, data_info.pkg_size);
-> -		else
-> -			ts->report_size = data_info.pkg_size;
-> +				 ts->pkg_size, data_info.pkg_size);
-> +		else {
-> +			ts->pkg_size = data_info.pkg_size;
-> +			ts->report_size = ts->pkg_size - RM_CONTACT_CRC_OFFSET;
-> +		}
+>  	bool wake_irq_enabled;
+> +
+> +	char *fw_file;
+>  };
 >  
->  		ts->contact_size = data_info.tp_info_size;
->  		ts->data_bank_addr = le32_to_cpu(data_info.data_bank_addr);
-> @@ -612,6 +617,17 @@ static int raydium_i2c_fw_write_page(struct i2c_client *client,
+>  static int raydium_i2c_send(struct i2c_client *client,
+> @@ -318,16 +324,23 @@ static int raydium_i2c_check_fw_status(struct raydium_data *ts)
+>  	struct i2c_client *client = ts->client;
+>  	static const u8 bl_ack = 0x62;
+>  	static const u8 main_ack = 0x66;
+> -	u8 buf[4];
+> +	u8 buf[5];
+>  	int error;
+>  
+>  	error = raydium_i2c_read(client, RM_CMD_BOOT_READ, buf, sizeof(buf));
+>  	if (!error) {
+> -		if (buf[0] == bl_ack)
+> -			ts->boot_mode = RAYDIUM_TS_BLDR;
+> -		else if (buf[0] == main_ack)
+> +		if (buf[0] == main_ack)
+>  			ts->boot_mode = RAYDIUM_TS_MAIN;
+> -		return 0;
+> +		else if (buf[0] == bl_ack) {
+> +			ts->boot_mode = RAYDIUM_TS_BLDR;
+> +			ts->info.main_ver = buf[4] >> 4;
+> +			ts->info.sub_ver = buf[4] & 0x0F;
+> +		} else {
+> +			ts->boot_mode = INVALID_REGION;
+> +			error = -EINVAL;
+> +			dev_err(&client->dev,
+> +				"invalid fw status: %x\n", buf[0]);
+> +		}
+>  	}
+>  
+>  	return error;
+> @@ -358,13 +371,10 @@ static int raydium_i2c_initialize(struct raydium_data *ts)
+>  	if (error)
+>  		ts->boot_mode = RAYDIUM_TS_BLDR;
+>  
+> -	if (ts->boot_mode == RAYDIUM_TS_BLDR) {
+> +	if (ts->boot_mode == RAYDIUM_TS_BLDR)
+>  		ts->info.hw_ver = cpu_to_le32(0xffffffffUL);
+> -		ts->info.main_ver = 0xff;
+> -		ts->info.sub_ver = 0xff;
+> -	} else {
+> +	else
+>  		raydium_i2c_query_ts_info(ts);
+> -	}
+>  
 >  	return error;
 >  }
->  
-> +static u16 raydium_calc_chksum(const u8 *buf, u16 len)
-> +{
-> +	u16 checksum = 0;
-> +	u16 i;
-> +
-> +	for (i = 0; i < len; i++)
-> +		checksum += buf[i];
-> +
-> +	return checksum;
-> +}
-> +
->  static int raydium_i2c_do_update_firmware(struct raydium_data *ts,
->  					 const struct firmware *fw)
+> @@ -739,12 +749,12 @@ static int raydium_i2c_fw_update(struct raydium_data *ts)
 >  {
-> @@ -724,9 +740,7 @@ static int raydium_i2c_do_update_firmware(struct raydium_data *ts,
+>  	struct i2c_client *client = ts->client;
+>  	const struct firmware *fw = NULL;
+> -	const char *fw_file = "raydium.fw";
+>  	int error;
+>  
+> -	error = request_firmware(&fw, fw_file, &client->dev);
+> +	error = request_firmware(&fw, ts->fw_file, &client->dev);
+>  	if (error) {
+> -		dev_err(&client->dev, "Unable to open firmware %s\n", fw_file);
+> +		dev_err(&client->dev, "Unable to open firmware %s\n",
+> +			ts->fw_file);
 >  		return error;
 >  	}
 >  
-> -	fw_checksum = 0;
-> -	for (i = 0; i < fw->size; i++)
-> -		fw_checksum += fw->data[i];
-> +	fw_checksum = raydium_calc_chksum(fw->data, fw->size);
->  
->  	error = raydium_i2c_write_checksum(client, fw->size, fw_checksum);
->  	if (error)
-> @@ -780,15 +794,6 @@ out_enable_irq:
->  static void raydium_mt_event(struct raydium_data *ts)
->  {
->  	int i;
-> -	int error;
-> -
-> -	error = raydium_i2c_read_message(ts->client, ts->data_bank_addr,
-> -					 ts->report_data, ts->report_size);
-> -	if (error) {
-> -		dev_err(&ts->client->dev, "%s: failed to read data: %d\n",
-> -			__func__, error);
-> -		return;
-> -	}
->  
->  	for (i = 0; i < ts->report_size / ts->contact_size; i++) {
->  		u8 *contact = &ts->report_data[ts->contact_size * i];
-> @@ -798,33 +803,54 @@ static void raydium_mt_event(struct raydium_data *ts)
->  		input_mt_slot(ts->input, i);
->  		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, state);
->  
-> -		if (!state)
-> -			continue;
-> -
-> -		input_report_abs(ts->input, ABS_MT_POSITION_X,
-> +		if (state == 0x01) {
-
-Why we need this change? How is it related to CRC? Do you intent to
-report contact as active but not emit any position data of state is
-neither 0 nor 1?
-
-> +			input_report_abs(ts->input, ABS_MT_POSITION_X,
->  				get_unaligned_le16(&contact[RM_CONTACT_X_POS]));
-> -		input_report_abs(ts->input, ABS_MT_POSITION_Y,
-> +			input_report_abs(ts->input, ABS_MT_POSITION_Y,
->  				get_unaligned_le16(&contact[RM_CONTACT_Y_POS]));
-> -		input_report_abs(ts->input, ABS_MT_PRESSURE,
-> -				contact[RM_CONTACT_PRESSURE_POS]);
-> +			input_report_abs(ts->input, ABS_MT_PRESSURE,
-> +					contact[RM_CONTACT_PRESSURE_POS]);
->  
-> -		wx = contact[RM_CONTACT_WIDTH_X_POS];
-> -		wy = contact[RM_CONTACT_WIDTH_Y_POS];
-> +			wx = contact[RM_CONTACT_WIDTH_X_POS];
-> +			wy = contact[RM_CONTACT_WIDTH_Y_POS];
->  
-> -		input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR, max(wx, wy));
-> -		input_report_abs(ts->input, ABS_MT_TOUCH_MINOR, min(wx, wy));
-> +			input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR,
-> +				max(wx, wy));
-> +			input_report_abs(ts->input, ABS_MT_TOUCH_MINOR,
-> +				min(wx, wy));
-> +		}
->  	}
->  
->  	input_mt_sync_frame(ts->input);
->  	input_sync(ts->input);
+> @@ -900,18 +910,75 @@ static ssize_t raydium_i2c_calibrate_store(struct device *dev,
+>  	return error ?: count;
 >  }
 >  
-> +static void raydium_i2c_event(struct raydium_data *ts)
+> +static int raydium_update_file_name(struct device *dev, char **file_name,
+> +				const char *buf, size_t count)
 > +{
-> +	u16 fw_crc;
-> +	u16 calc_crc = raydium_calc_chksum(ts->report_data, ts->report_size);
+> +	char *new_file_name;
 > +
-> +	fw_crc = get_unaligned_le16(&ts->report_data[ts->report_size]);
+> +	/* Simple sanity check */
+> +	if (count > 64) {
+> +		dev_warn(dev, "File name too long\n");
+> +		return -EINVAL;
+> +	}
 > +
-> +	if (unlikely(fw_crc != calc_crc))
-> +		dev_warn(&ts->client->dev,
-> +			 "%s: invalid packet crc %04x &. %04x\n",
-> +			 __func__, calc_crc, fw_crc);
-> +	else
-> +		raydium_mt_event(ts);
+> +	new_file_name = devm_kmalloc(dev, count + 1, GFP_KERNEL);
+> +	if (!new_file_name)
+> +		return -ENOMEM;
+> +
+> +	memcpy(new_file_name, buf, count + 1);
+> +
+> +	/* Echo into the sysfs entry may append newline at the end of buf */
+> +	if (new_file_name[count - 1] == '\n')
+> +		count--;
+> +
+> +	new_file_name[count] = '\0';
+> +
+> +	if (*file_name)
+> +		devm_kfree(dev, *file_name);
+> +
+> +	*file_name = new_file_name;
+> +
+> +	return 0;
 > +}
 > +
->  static irqreturn_t raydium_i2c_irq(int irq, void *_dev)
->  {
->  	struct raydium_data *ts = _dev;
-> +	int error;
+> +static ssize_t raydium_fw_file_show(struct device *dev,
+> +				struct device_attribute *attr, char *buf)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct raydium_data *ts = i2c_get_clientdata(client);
+> +
+> +	return scnprintf(buf, PAGE_SIZE, "%s\n", ts->fw_file);
+> +}
+> +
+> +static ssize_t raydium_fw_file_store(struct device *dev,
+> +				 struct device_attribute *attr,
+> +				 const char *buf, size_t count)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct raydium_data *ts = i2c_get_clientdata(client);
+> +	int ret;
+> +
+> +	ret = raydium_update_file_name(dev, &ts->fw_file, buf, count);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return count;
+> +}
+> +
+>  static DEVICE_ATTR(fw_version, S_IRUGO, raydium_i2c_fw_ver_show, NULL);
+>  static DEVICE_ATTR(hw_version, S_IRUGO, raydium_i2c_hw_ver_show, NULL);
+>  static DEVICE_ATTR(boot_mode, S_IRUGO, raydium_i2c_boot_mode_show, NULL);
+>  static DEVICE_ATTR(update_fw, S_IWUSR, NULL, raydium_i2c_update_fw_store);
+>  static DEVICE_ATTR(calibrate, S_IWUSR, NULL, raydium_i2c_calibrate_store);
+> -
+> +static DEVICE_ATTR(fw_file, S_IRUGO | S_IWUSR, raydium_fw_file_show,
+> +		   raydium_fw_file_store);
+>  static struct attribute *raydium_i2c_attributes[] = {
+>  	&dev_attr_update_fw.attr,
+>  	&dev_attr_boot_mode.attr,
+>  	&dev_attr_fw_version.attr,
+>  	&dev_attr_hw_version.attr,
+>  	&dev_attr_calibrate.attr,
+> +	&dev_attr_fw_file.attr,
+>  	NULL
+>  };
 >  
-> -	if (ts->boot_mode != RAYDIUM_TS_BLDR)
-> -		raydium_mt_event(ts);
-> +	if (ts->boot_mode == RAYDIUM_TS_MAIN) {
-> +		error = raydium_i2c_read_message(ts->client, ts->data_bank_addr,
-> +				 ts->report_data, ts->pkg_size);
-> +		if (!error)
-> +			raydium_i2c_event(ts);
-> +	}
-
-This chunk seems to belong to some other patch.
-
+> @@ -933,7 +1000,7 @@ static int raydium_i2c_power_on(struct raydium_data *ts)
+>  	if (!ts->reset_gpio)
+>  		return 0;
 >  
->  	return IRQ_HANDLED;
->  }
-> @@ -1050,7 +1076,7 @@ static int raydium_i2c_probe(struct i2c_client *client,
+> -	gpiod_set_value_cansleep(ts->reset_gpio, 1);
+> +	gpiod_set_value_cansleep(ts->reset_gpio, 0);
+>  
+>  	error = regulator_enable(ts->avdd);
+>  	if (error) {
+> @@ -950,10 +1017,10 @@ static int raydium_i2c_power_on(struct raydium_data *ts)
+>  		goto release_reset_gpio;
 >  	}
 >  
->  	ts->report_data = devm_kmalloc(&client->dev,
-> -				       ts->report_size, GFP_KERNEL);
-> +				       ts->pkg_size, GFP_KERNEL);
->  	if (!ts->report_data)
->  		return -ENOMEM;
+> -	udelay(RM_POWERON_DELAY_USEC);
+> +	msleep(RM_POWERON_DELAY_MSEC);
 >  
+>  release_reset_gpio:
+> -	gpiod_set_value_cansleep(ts->reset_gpio, 0);
+> +	gpiod_set_value_cansleep(ts->reset_gpio, 1);
+>  
+>  	if (error)
+>  		return error;
+> @@ -968,7 +1035,6 @@ static void raydium_i2c_power_off(void *_data)
+>  	struct raydium_data *ts = _data;
+>  
+>  	if (ts->reset_gpio) {
+> -		gpiod_set_value_cansleep(ts->reset_gpio, 1);
+>  		regulator_disable(ts->vccio);
+>  		regulator_disable(ts->avdd);
+>  	}
+> @@ -1043,6 +1109,14 @@ static int raydium_i2c_probe(struct i2c_client *client,
+>  		return -ENXIO;
+>  	}
+>  
+> +	error = raydium_update_file_name(&client->dev, &ts->fw_file,
+> +			RAYDIUM_FW_NAME, strlen(RAYDIUM_FW_NAME));
+> +	if (error) {
+> +		dev_err(&client->dev, "failed to set firmware file name: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+>  	error = raydium_i2c_initialize(ts);
+>  	if (error) {
+>  		dev_err(&client->dev, "failed to initialize: %d\n", error);
 > -- 
 > 2.1.2
 > 
-
-Thanks.
 
 -- 
 Dmitry

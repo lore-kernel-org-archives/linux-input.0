@@ -1,134 +1,74 @@
-From: Yuxuan Shui <yshuiv7@gmail.com>
-Subject: [PATCH] hid: Add support for the Elecom DEFT trackball
-Date: Wed,  6 Jul 2016 21:58:25 -0400
-Message-ID: <20160707015825.17915-2-yshuiv7@gmail.com>
-References: <20160707015825.17915-1-yshuiv7@gmail.com>
+From: Julia Lawall <julia.lawall@lip6.fr>
+Subject: Re: [PATCH 14/27] HID: wacom: EKR: add a worker to add/remove
+ resources on addition/removal (fwd)
+Date: Thu, 7 Jul 2016 06:53:20 +0200 (CEST)
+Message-ID: <alpine.DEB.2.10.1607070652110.3227@hadrien>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f194.google.com ([209.85.220.194]:35003 "EHLO
-	mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751635AbcGGB6p (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jul 2016 21:58:45 -0400
-Received: by mail-qk0-f194.google.com with SMTP id s7so489451qkf.2
-        for <linux-input@vger.kernel.org>; Wed, 06 Jul 2016 18:58:44 -0700 (PDT)
-In-Reply-To: <20160707015825.17915-1-yshuiv7@gmail.com>
+Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:45398
+	"EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750867AbcGGEx1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 Jul 2016 00:53:27 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: yshuiv7@gmail.com
-Cc: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-The DEFT trackball has three non-standard buttons at the top which is
-not supported by the hid-generic driver.
+The lack of unlock looks suspicious, although I haven't studied the
+complete context.  Also, is 0 correct as a return value in an error case?
 
-This patch add a driver that modifies the HID report, so those three
-buttons can be supported like standard buttons.
+julia
+
+---------- Forwarded message ----------
+Date: Wed, 6 Jul 2016 00:27:34 +0800
+From: kbuild test robot <fengguang.wu@intel.com>
+To: kbuild@01.org
+Cc: Julia Lawall <julia.lawall@lip6.fr>
+Subject: Re: [PATCH 14/27] HID: wacom: EKR: add a worker to add/remove resources
+     on addition/removal
+
+CC: kbuild-all@01.org
+In-Reply-To: <1467729563-23318-15-git-send-email-benjamin.tissoires@redhat.com>
+TO: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+CC: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
+CC: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+
+Hi,
+
+[auto build test WARNING on hid/for-next]
+[also build test WARNING on v4.7-rc6 next-20160705]
+[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+
+url:    https://github.com/0day-ci/linux/commits/Benjamin-Tissoires/HID-wacom-cleanup-EKR-LED/20160705-225431
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git for-next
+:::::: branch date: 2 hours ago
+:::::: commit date: 2 hours ago
+
+>> drivers/hid/wacom_wac.c:851:2-8: preceding lock on line 846
+
+git remote add linux-review https://github.com/0day-ci/linux
+git remote update linux-review
+git checkout cbd7a16fa28311673663974b9edc48bd00d83815
+vim +851 drivers/hid/wacom_wac.c
+
+72b236d6 Aaron Skomra       2015-08-20  840  		bool connected = data[j+2];
+72b236d6 Aaron Skomra       2015-08-20  841
+cbd7a16f Benjamin Tissoires 2016-07-05  842  		remote_data.remote[i].serial = serial;
+cbd7a16f Benjamin Tissoires 2016-07-05  843  		remote_data.remote[i].connected = connected;
+72b236d6 Aaron Skomra       2015-08-20  844  	}
+72b236d6 Aaron Skomra       2015-08-20  845
+cbd7a16f Benjamin Tissoires 2016-07-05 @846  	spin_lock_irqsave(&wacom->remote_lock, flags);
+72b236d6 Aaron Skomra       2015-08-20  847
+cbd7a16f Benjamin Tissoires 2016-07-05  848  	ret = kfifo_in(&wacom->remote_fifo, &remote_data, sizeof(remote_data));
+cbd7a16f Benjamin Tissoires 2016-07-05  849  	if (ret != sizeof(remote_data)) {
+cbd7a16f Benjamin Tissoires 2016-07-05  850  		hid_err(wacom->hdev, "Can't queue Remote status event.\n");
+cbd7a16f Benjamin Tissoires 2016-07-05 @851  		return 0;
+72b236d6 Aaron Skomra       2015-08-20  852  	}
+72b236d6 Aaron Skomra       2015-08-20  853
+cbd7a16f Benjamin Tissoires 2016-07-05  854  	spin_unlock_irqrestore(&wacom->remote_lock, flags);
+
 ---
- drivers/hid/Kconfig    |  6 ++++++
- drivers/hid/Makefile   |  1 +
- drivers/hid/hid-deft.c | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h  |  2 ++
- 4 files changed, 61 insertions(+)
- create mode 100644 drivers/hid/hid-deft.c
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 5646ca4..9c3ee05 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -263,6 +263,12 @@ config HID_ELECOM
- 	---help---
- 	Support for the ELECOM BM084 (bluetooth mouse).
- 
-+config HID_ELECOM_DEFT
-+	tristate "ELECOM DEFT trackball"
-+	depends on HID
-+	---help---
-+	Support for the Fn keys found on ELECOM DEFT trackball.
-+
- config HID_ELO
- 	tristate "ELO USB 4000/4500 touchscreen"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index a2fb562..3cc582e 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -37,6 +37,7 @@ obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
- obj-$(CONFIG_HID_DRAGONRISE)	+= hid-dr.o
- obj-$(CONFIG_HID_EMS_FF)	+= hid-emsff.o
- obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
-+obj-$(CONFIG_HID_ELECOM_DEFT)	+= hid-deft.o
- obj-$(CONFIG_HID_ELO)		+= hid-elo.o
- obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
- obj-$(CONFIG_HID_GEMBIRD)	+= hid-gembird.o
-diff --git a/drivers/hid/hid-deft.c b/drivers/hid/hid-deft.c
-new file mode 100644
-index 0000000..4e2621d
---- /dev/null
-+++ b/drivers/hid/hid-deft.c
-@@ -0,0 +1,52 @@
-+/*
-+ *  HID driver for Elecom DEFT (trackball).
-+ *  Extend the number of buttons to 8, and
-+ *  remove a non-standard item in the HID
-+ *  descriptor.
-+ *  (This module is based on "hid-elecom".)
-+ *
-+ *  Copyright (c) 2016 Yuxuan Shui <yshuiv7@gmail.com>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+static __u8 *deft_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	if (*rsize >= 34 && rdesc[20] == 0x29 && rdesc[21] == 0x05) {
-+		hid_info(hdev, "Fixing up Elecom DEFT report descriptor %x\n", rdesc[13]);
-+		rdesc[21] = 0x08;
-+		rdesc[13] = 0x08;
-+
-+		memmove(rdesc+28, rdesc+34, *rsize-34);
-+		*rsize -= 6;
-+	}
-+	return rdesc;
-+}
-+
-+static const struct hid_device_id deft_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT)},
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFTW)},
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, deft_devices);
-+
-+static struct hid_driver deft_driver = {
-+	.name = "elecom-deft",
-+	.id_table = deft_devices,
-+	.report_fixup = deft_report_fixup,
-+};
-+module_hid_driver(deft_driver);
-+
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 3eec09a1..534ae73 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -332,6 +332,8 @@
- 
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-+#define USB_DEVICE_ID_ELECOM_DEFT	0x00fe
-+#define USB_DEVICE_ID_ELECOM_DEFTW	0x00ff
- 
- #define USB_VENDOR_ID_DREAM_CHEEKY	0x1d34
- 
--- 
-2.9.0
-
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation

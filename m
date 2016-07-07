@@ -1,74 +1,73 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH 14/27] HID: wacom: EKR: add a worker to add/remove
- resources on addition/removal (fwd)
-Date: Thu, 7 Jul 2016 06:53:20 +0200 (CEST)
-Message-ID: <alpine.DEB.2.10.1607070652110.3227@hadrien>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH v2 1/3] sur40: properly report a single frame rate of 60
+ FPS
+Date: Thu, 7 Jul 2016 08:35:46 +0200
+Message-ID: <2e80f101-fdce-f03e-fa0f-fd92673766b3@xs4all.nl>
+References: <1464725733-22119-1-git-send-email-floe@butterbrot.org>
+ <f5d84d25-eae4-df9b-819b-256565783c35@xs4all.nl>
+ <577B5A2B.5060406@butterbrot.org>
+ <cfd020d2-5834-11ac-1b1c-cb98aa872354@xs4all.nl> <577CC3FE.5080200@xs4all.nl>
+ <577D6F6B.1050207@butterbrot.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:45398
-	"EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750867AbcGGEx1 (ORCPT
+Received: from lb1-smtp-cloud2.xs4all.net ([194.109.24.21]:42018 "EHLO
+	lb1-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750812AbcGGGfy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 7 Jul 2016 00:53:27 -0400
+	Thu, 7 Jul 2016 02:35:54 -0400
+In-Reply-To: <577D6F6B.1050207@butterbrot.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Florian Echtler <floe@butterbrot.org>, linux-media@vger.kernel.org
+Cc: linux-input@vger.kernel.org, Martin Kaltenbrunner <modin@yuri.at>
 
-The lack of unlock looks suspicious, although I haven't studied the
-complete context.  Also, is 0 correct as a return value in an error case?
+On 07/06/2016 10:51 PM, Florian Echtler wrote:
+> On 06.07.2016 10:40, Hans Verkuil wrote:
+>> On 07/05/16 09:06, Hans Verkuil wrote:
+>>> On 07/05/2016 08:56 AM, Florian Echtler wrote:
+>>>> On 05.07.2016 08:41, Hans Verkuil wrote:
+>>>>>
+>>>>> Why is s_parm added when you can't change the framerate?
+>>>>
+>>>> Oh, I thought it's mandatory to always have s_parm if you have g_parm
+>>>> (even if it always returns the same values).
+>>>>
+>>>>> Same questions for the
+>>>>> enum_frameintervals function: it doesn't hurt to have it, but if there is only
+>>>>> one unchangeable framerate, then it doesn't make much sense.
+>>>>
+>>>> If you don't have enum_frameintervals, how would you find out about the
+>>>> framerate otherwise? Is g_parm itself enough already for all userspace
+>>>> tools?
+>>>
+>>> It should be. The enum_frameintervals function is much newer than g_parm.
+>>>
+>>> Frankly, I have the same problem with enum_framesizes: it reports only one
+>>> size. These two enum ioctls are normally only implemented if there are at
+>>> least two choices. If there is no choice, then G_FMT will return the size
+>>> and G_PARM the framerate and there is no need to enumerate anything.
+>>>
+>>> The problem is that the spec is ambiguous as to the requirements if there
+>>> is only one choice for size and interval. Are the enum ioctls allowed in
+>>> that case? Personally I think there is nothing against that. But should
+>>> S_PARM also be allowed even though it can't actually change the frameperiod?
+>>>
+>>> Don't bother making changes yet, let me think about this for a bit.
+>>
+>> OK, I came to the conclusion that if enum_frameintervals returns one or
+>> more intervals, then s_parm should be present, even if there is only one
+>> possible interval.
+>>
+>> I have updated the compliance utility to check for this.
+> 
+> AFAICT, the original patch does meet the requirements, then? Or do you
+> have any change requests?
 
-julia
+Can you run the latest v4l2-compliance test? If that passes, then I'll take
+this patch as-is.
 
----------- Forwarded message ----------
-Date: Wed, 6 Jul 2016 00:27:34 +0800
-From: kbuild test robot <fengguang.wu@intel.com>
-To: kbuild@01.org
-Cc: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH 14/27] HID: wacom: EKR: add a worker to add/remove resources
-     on addition/removal
+Regards,
 
-CC: kbuild-all@01.org
-In-Reply-To: <1467729563-23318-15-git-send-email-benjamin.tissoires@redhat.com>
-TO: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-CC: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
-CC: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-
-Hi,
-
-[auto build test WARNING on hid/for-next]
-[also build test WARNING on v4.7-rc6 next-20160705]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
-
-url:    https://github.com/0day-ci/linux/commits/Benjamin-Tissoires/HID-wacom-cleanup-EKR-LED/20160705-225431
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git for-next
-:::::: branch date: 2 hours ago
-:::::: commit date: 2 hours ago
-
->> drivers/hid/wacom_wac.c:851:2-8: preceding lock on line 846
-
-git remote add linux-review https://github.com/0day-ci/linux
-git remote update linux-review
-git checkout cbd7a16fa28311673663974b9edc48bd00d83815
-vim +851 drivers/hid/wacom_wac.c
-
-72b236d6 Aaron Skomra       2015-08-20  840  		bool connected = data[j+2];
-72b236d6 Aaron Skomra       2015-08-20  841
-cbd7a16f Benjamin Tissoires 2016-07-05  842  		remote_data.remote[i].serial = serial;
-cbd7a16f Benjamin Tissoires 2016-07-05  843  		remote_data.remote[i].connected = connected;
-72b236d6 Aaron Skomra       2015-08-20  844  	}
-72b236d6 Aaron Skomra       2015-08-20  845
-cbd7a16f Benjamin Tissoires 2016-07-05 @846  	spin_lock_irqsave(&wacom->remote_lock, flags);
-72b236d6 Aaron Skomra       2015-08-20  847
-cbd7a16f Benjamin Tissoires 2016-07-05  848  	ret = kfifo_in(&wacom->remote_fifo, &remote_data, sizeof(remote_data));
-cbd7a16f Benjamin Tissoires 2016-07-05  849  	if (ret != sizeof(remote_data)) {
-cbd7a16f Benjamin Tissoires 2016-07-05  850  		hid_err(wacom->hdev, "Can't queue Remote status event.\n");
-cbd7a16f Benjamin Tissoires 2016-07-05 @851  		return 0;
-72b236d6 Aaron Skomra       2015-08-20  852  	}
-72b236d6 Aaron Skomra       2015-08-20  853
-cbd7a16f Benjamin Tissoires 2016-07-05  854  	spin_unlock_irqrestore(&wacom->remote_lock, flags);
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+	Hans

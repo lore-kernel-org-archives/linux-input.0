@@ -1,26 +1,23 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 4/4] ACPI / button: Add document for ACPI control
- method lid device restrictions
-Date: Fri, 8 Jul 2016 10:51:46 -0700
-Message-ID: <20160708175146.GA28589@dtor-ws>
+Subject: Re: [PATCH v2 3/4] ACPI / button: Add SW_ACPI_LID for new usage model
+Date: Fri, 8 Jul 2016 10:55:58 -0700
+Message-ID: <20160708175558.GB28589@dtor-ws>
 References: <cover.1467717304.git.lv.zheng@intel.com>
  <cover.1467875142.git.lv.zheng@intel.com>
- <3f24a00df89f06661a64af6b4679a99bfff09aa7.1467875143.git.lv.zheng@intel.com>
- <CAN+gG=G5p6ztJODQBBAF7MY0kBNGVpexY-+a8RQY9JKuY1AB1Q@mail.gmail.com>
+ <916d5a5b0df5dbe14283ddb31f1128efefbfd1e2.1467875143.git.lv.zheng@intel.com>
+ <CAN+gG=EoXd=J13Ky1tBn-bDAgVQWV=4-hQ8eMktBdgPXCu5+TQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAN+gG=G5p6ztJODQBBAF7MY0kBNGVpexY-+a8RQY9JKuY1AB1Q@mail.gmail.com>
+In-Reply-To: <CAN+gG=EoXd=J13Ky1tBn-bDAgVQWV=4-hQ8eMktBdgPXCu5+TQ@mail.gmail.com>
 Sender: linux-acpi-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: Lv Zheng <lv.zheng@intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "Bastien Nocera:" <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jul 08, 2016 at 11:17:39AM +0200, Benjamin Tissoires wrote:
-> Hi,
-> 
-> On Thu, Jul 7, 2016 at 9:11 AM, Lv Zheng <lv.zheng@intel.com> wrote:
+On Fri, Jul 08, 2016 at 11:27:23AM +0200, Benjamin Tissoires wrote:
+> On Thu, Jul 7, 2016 at 9:10 AM, Lv Zheng <lv.zheng@intel.com> wrote:
 > > There are many AML tables reporting wrong initial lid state, and some of
 > > them never reports lid state. As a proxy layer acting between, ACPI button
 > > driver is not able to handle all such cases, but need to re-define the
@@ -29,127 +26,153 @@ On Fri, Jul 08, 2016 at 11:17:39AM +0200, Benjamin Tissoires wrote:
 > > 2. There may not be open event;
 > > 3. Userspace should only take action against the close event which is
 > >    reliable, always sent after a real lid close.
-> > This patch adds documentation of the usage model.
+> > This patch adds a new input key event so that new userspace programs can
+> > use it to handle this usage model correctly. And in the meanwhile, no old
+> > programs will be broken by the userspace changes.
 > >
 > > Link: https://lkml.org/2016/3/7/460
+
+Does not work for me.
+
 > > Link: https://github.com/systemd/systemd/issues/2087
+
+Gives me info about pull "Basic DNSSEC support, and unrelated fixes"
+
 > > Signed-off-by: Lv Zheng <lv.zheng@intel.com>
 > > Cc: Bastien Nocera: <hadess@hadess.net>
 > > Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 > > Cc: linux-input@vger.kernel.org
 > > ---
-> >  Documentation/acpi/acpi-lid.txt |   62 +++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 62 insertions(+)
-> >  create mode 100644 Documentation/acpi/acpi-lid.txt
+> >  drivers/acpi/button.c                  |   20 ++++++++++++++------
+> >  include/linux/mod_devicetable.h        |    2 +-
+> >  include/uapi/linux/input-event-codes.h |    3 ++-
+> >  3 files changed, 17 insertions(+), 8 deletions(-)
 > >
-> > diff --git a/Documentation/acpi/acpi-lid.txt b/Documentation/acpi/acpi-lid.txt
-> > new file mode 100644
-> > index 0000000..7e4f7ed
-> > --- /dev/null
-> > +++ b/Documentation/acpi/acpi-lid.txt
-> > @@ -0,0 +1,62 @@
-> > +Usage Model of the ACPI Control Method Lid Device
-> > +
-> > +Copyright (C) 2016, Intel Corporation
-> > +Author: Lv Zheng <lv.zheng@intel.com>
-> > +
-> > +
-> > +Abstract:
-> > +
-> > +Platforms containing lids convey lid state (open/close) to OSPMs using a
-> > +control method lid device. To implement this, the AML tables issue
-> > +Notify(lid_device, 0x80) to notify the OSPMs whenever the lid state has
-> > +changed. The _LID control method for the lid device must be implemented to
-> > +report the "current" state of the lid as either "opened" or "closed".
-> > +
-> > +This document describes the restrictions and the expections of the Linux
-> > +ACPI lid device driver.
-> > +
-> > +
-> > +1. Restrictions of the returning value of the _LID control method
-> > +
-> > +The _LID control method is described to return the "current" lid state.
-> > +However the word of "current" has ambiguity, many AML tables return the lid
-> > +state upon the last lid notification instead of returning the lid state
-> > +upon the last _LID evaluation. There won't be difference when the _LID
-> > +control method is evaluated during the runtime, the problem is its initial
-> > +returning value. When the AML tables implement this control method with
-> > +cached value, the initial returning value is likely not reliable. There are
-> > +simply so many examples always retuning "closed" as initial lid state.
-> > +
-> > +2. Restrictions of the lid state change notifications
-> > +
-> > +There are many AML tables never notifying when the lid device state is
-> > +changed to "opened". But it is ensured that the AML tables always notify
-> > +"closed" when the lid state is changed to "closed". This is normally used
-> > +to trigger some system power saving operations on Windows. Since it is
-> > +fully tested, this notification is reliable for all AML tables.
-> > +
-> > +3. Expections for the userspace users of the ACPI lid device driver
-> > +
-> > +The userspace programs should stop relying on
-> > +/proc/acpi/button/lid/LID0/state to obtain the lid state. This file is only
-> > +used for the validation purpose.
+> > diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
+> > index 148f4e5..4ef94d2 100644
+> > --- a/drivers/acpi/button.c
+> > +++ b/drivers/acpi/button.c
+> > @@ -130,7 +130,8 @@ static int acpi_lid_evaluate_state(struct acpi_device *device)
+> >         return lid_state ? 1 : 0;
+> >  }
+> >
+> > -static int acpi_lid_notify_state(struct acpi_device *device, int state)
+> > +static int acpi_lid_notify_state(struct acpi_device *device,
+> > +                                int state, bool notify_acpi)
+> >  {
+> >         struct acpi_button *button = acpi_driver_data(device);
+> >         int ret;
+> > @@ -138,6 +139,11 @@ static int acpi_lid_notify_state(struct acpi_device *device, int state)
+> >         /* input layer checks if event is redundant */
+> >         input_report_switch(button->input, SW_LID, !state);
+> >         input_sync(button->input);
+> > +       if (notify_acpi) {
+> > +               input_report_switch(button->input,
+> > +                                   SW_ACPI_LID, !state);
+> > +               input_sync(button->input);
 > 
-> I'd say: this file actually calls the _LID method described above. And
-> given the previous explanation, it is not reliable enough on some
-> platforms. So it is strongly advised for user-space program to not
-> solely rely on this file to determine the actual lid state.
+> If you use a switch, you'll never send subsequent open state if you
+> doesn't close it yourself.
+> See my comments in 5/5 and please use a KEY event instead.
 > 
-> > +
-> > +New userspace programs should rely on the lid "closed" notification to
-> > +trigger some power saving operations and may stop taking actions according
-> > +to the lid "opened" notification. A new input switch event - SW_ACPI_LID is
-> > +prepared for the new userspace to implement this ACPI control method lid
-> > +device specific logics.
+> > +       }
+> >
+> >         if (state)
+> >                 pm_wakeup_event(&device->dev, 0);
+> > @@ -279,7 +285,8 @@ int acpi_lid_open(void)
+> >  }
+> >  EXPORT_SYMBOL(acpi_lid_open);
+> >
+> > -static int acpi_lid_update_state(struct acpi_device *device)
+> > +static int acpi_lid_update_state(struct acpi_device *device,
+> > +                                bool notify_acpi)
+> >  {
+> >         int state;
+> >
+> > @@ -287,17 +294,17 @@ static int acpi_lid_update_state(struct acpi_device *device)
+> >         if (state < 0)
+> >                 return state;
+> >
+> > -       return acpi_lid_notify_state(device, state);
+> > +       return acpi_lid_notify_state(device, state, notify_acpi);
+> >  }
+> >
+> >  static void acpi_lid_initialize_state(struct acpi_device *device)
+> >  {
+> >         switch (lid_init_state) {
+> >         case ACPI_BUTTON_LID_INIT_OPEN:
+> > -               (void)acpi_lid_notify_state(device, 1);
+> > +               (void)acpi_lid_notify_state(device, 1, false);
+> >                 break;
+> >         case ACPI_BUTTON_LID_INIT_METHOD:
+> > -               (void)acpi_lid_update_state(device);
+> > +               (void)acpi_lid_update_state(device, false);
+> >                 break;
+> >         case ACPI_BUTTON_LID_INIT_IGNORE:
+> >         default:
+> > @@ -317,7 +324,7 @@ static void acpi_button_notify(struct acpi_device *device, u32 event)
+> >         case ACPI_BUTTON_NOTIFY_STATUS:
+> >                 input = button->input;
+> >                 if (button->type == ACPI_BUTTON_TYPE_LID) {
+> > -                       acpi_lid_update_state(device);
+> > +                       acpi_lid_update_state(device, true);
+> >                 } else {
+> >                         int keycode;
+> >
+> > @@ -436,6 +443,7 @@ static int acpi_button_add(struct acpi_device *device)
+> >
+> >         case ACPI_BUTTON_TYPE_LID:
+> >                 input_set_capability(input, EV_SW, SW_LID);
+> > +               input_set_capability(input, EV_SW, SW_ACPI_LID);
 > 
-> That's not entirely what we discussed before (to prevent regressions):
-> - if the device doesn't have reliable LID switch state, then there
-> would be the new input event, and so userspace should only rely on
-> opened notifications.
-> - if the device has reliable switch information, the new input event
-> should not be exported and userspace knows that the current input
-> switch event is reliable.
+> Can't we export this new event only if the _LID function is not
+> reliable? This could check for the module parameter lid_init_state and
+> only enable it for ACPI_BUTTON_LID_INIT_OPEN.
 > 
-> Also, using a new "switch" event is a terrible idea. Switches have a
-> state (open/close) and you are using this to forward a single open
-> event. So using a switch just allows you to say to userspace you are
-> using the "new" LID meaning, but you'll still have to manually reset
-> the switch and you will have to document how this event is not a
-> switch.
+> I really hope we will be able to find a reliable way to determine
+> whether or not the platform support reliable LID state. If not, there
+> might be a need to have a db of reliable switch platforms. This can be
+> set in the kernel or with a hwdb entry in userspace.
 > 
-> Please use a simple KEY_LID_OPEN event you will send through
-> [input_key_event(KEY_LID_OPEN, 1), input_sync(),
-> input_key_event(KEY_LID_OPEN, 0), input_sync()], which userspace knows
-> how to handle.
+> Cheers,
+> Benjamin
 > 
-> > +
-> > +During the period the userspace hasn't been switched to use the new
-> > +SW_ACPI_LID event, Linux users can use the following boot parameter to
-> > +handle possible issues:
-> > +  button.lid_init_state=method:
-> > +   This is the default behavior of the Linux ACPI lid driver, Linux kernel
-> > +   reports the initial lid state using the returning value of the _LID
-> > +   control method.
-> > +   This can be used to fix some platforms if the _LID control method's
-> > +   returning value is reliable.
-> > +  button.lid_init_state=open:
-> > +   Linux kernel always reports the initial lid state as "opened".
-> > +   This may fix some platforms if the returning value of the _LID control
-> > +   method is not reliable.
-> 
-> This worries me as there is no plan after "During the period the
-> userspace hasn't been switched to use the new event".
-> 
-> I really hope you'll keep sending SW_LID for reliable LID platforms,
-> and not remove it entirely as you will break platforms.
+> >                 break;
+> >         }
+> >
+> > diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+> > index 6e4c645..1014968 100644
+> > --- a/include/linux/mod_devicetable.h
+> > +++ b/include/linux/mod_devicetable.h
+> > @@ -291,7 +291,7 @@ struct pcmcia_device_id {
+> >  #define INPUT_DEVICE_ID_LED_MAX                0x0f
+> >  #define INPUT_DEVICE_ID_SND_MAX                0x07
+> >  #define INPUT_DEVICE_ID_FF_MAX         0x7f
+> > -#define INPUT_DEVICE_ID_SW_MAX         0x0f
+> > +#define INPUT_DEVICE_ID_SW_MAX         0x10
+> >
+> >  #define INPUT_DEVICE_ID_MATCH_BUS      1
+> >  #define INPUT_DEVICE_ID_MATCH_VENDOR   2
+> > diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> > index 737fa32..81c344c 100644
+> > --- a/include/uapi/linux/input-event-codes.h
+> > +++ b/include/uapi/linux/input-event-codes.h
+> > @@ -780,7 +780,8 @@
+> >  #define SW_ROTATE_LOCK         0x0c  /* set = rotate locked/disabled */
+> >  #define SW_LINEIN_INSERT       0x0d  /* set = inserted */
+> >  #define SW_MUTE_DEVICE         0x0e  /* set = device disabled */
+> > -#define SW_MAX                 0x0f
+> > +#define SW_ACPI_LID            0x0f  /* set = lid shut */
 
-How about we leave the kernel alone and userspace (which would have to
-cope with the new KEY_LID_OPEN anyway) would just have to know that if
-switch's parent is PNP0C0D:00 (or phys is PNP0C0D/button/input0) then it
-can't trust the events and it needs additional heuristics.
+0x0f is busy already.
 
-Thanks.
+> > +#define SW_MAX                 0x10
+> >  #define SW_CNT                 (SW_MAX+1)
+> >
+> >  /*
+> > --
+> > 1.7.10
+> >
 
 -- 
 Dmitry

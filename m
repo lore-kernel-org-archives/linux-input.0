@@ -1,42 +1,148 @@
-From: drharuna bello <drfarukeadams@gmail.com>
-Subject: AM DR HARUNA BELLO
-Date: Fri, 8 Jul 2016 09:14:00 +0200
-Message-ID: <CA+iFF0c7hSyz1=Y9dd6=sswXD0TaX2B5ot2THOKej9G-JGUHvA@mail.gmail.com>
-Reply-To: drharunabello868@gmail.com
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 4/4] ACPI / button: Add document for ACPI control
+ method lid device restrictions
+Date: Fri, 8 Jul 2016 11:17:39 +0200
+Message-ID: <CAN+gG=G5p6ztJODQBBAF7MY0kBNGVpexY-+a8RQY9JKuY1AB1Q@mail.gmail.com>
+References: <cover.1467717304.git.lv.zheng@intel.com> <cover.1467875142.git.lv.zheng@intel.com>
+ <3f24a00df89f06661a64af6b4679a99bfff09aa7.1467875143.git.lv.zheng@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f65.google.com ([209.85.215.65]:33746 "EHLO
-	mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751559AbcGHHOn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2016 03:14:43 -0400
-Received: by mail-lf0-f65.google.com with SMTP id l188so3982782lfe.0
-        for <linux-input@vger.kernel.org>; Fri, 08 Jul 2016 00:14:03 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <3f24a00df89f06661a64af6b4679a99bfff09aa7.1467875143.git.lv.zheng@intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Lv Zheng <lv.zheng@intel.com>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "Bastien Nocera:" <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
--- 
+Hi,
 
-I AM DR HARUNA BELLO  FROM BURKINA FASO I HAVE A GENIUE
-BUSINESS TRANSACTION OF 18.5MILLION U.S DOLLAS TO DO WITH YOU
-IF YOU ARE INTERESTED SEND TO ME THE FOLLOWING INFORMATION
+On Thu, Jul 7, 2016 at 9:11 AM, Lv Zheng <lv.zheng@intel.com> wrote:
+> There are many AML tables reporting wrong initial lid state, and some of
+> them never reports lid state. As a proxy layer acting between, ACPI button
+> driver is not able to handle all such cases, but need to re-define the
+> usage model of the ACPI lid. That is:
+> 1. It's initial state is not reliable;
+> 2. There may not be open event;
+> 3. Userspace should only take action against the close event which is
+>    reliable, always sent after a real lid close.
+> This patch adds documentation of the usage model.
+>
+> Link: https://lkml.org/2016/3/7/460
+> Link: https://github.com/systemd/systemd/issues/2087
+> Signed-off-by: Lv Zheng <lv.zheng@intel.com>
+> Cc: Bastien Nocera: <hadess@hadess.net>
+> Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> ---
+>  Documentation/acpi/acpi-lid.txt |   62 +++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 62 insertions(+)
+>  create mode 100644 Documentation/acpi/acpi-lid.txt
+>
+> diff --git a/Documentation/acpi/acpi-lid.txt b/Documentation/acpi/acpi-lid.txt
+> new file mode 100644
+> index 0000000..7e4f7ed
+> --- /dev/null
+> +++ b/Documentation/acpi/acpi-lid.txt
+> @@ -0,0 +1,62 @@
+> +Usage Model of the ACPI Control Method Lid Device
+> +
+> +Copyright (C) 2016, Intel Corporation
+> +Author: Lv Zheng <lv.zheng@intel.com>
+> +
+> +
+> +Abstract:
+> +
+> +Platforms containing lids convey lid state (open/close) to OSPMs using a
+> +control method lid device. To implement this, the AML tables issue
+> +Notify(lid_device, 0x80) to notify the OSPMs whenever the lid state has
+> +changed. The _LID control method for the lid device must be implemented to
+> +report the "current" state of the lid as either "opened" or "closed".
+> +
+> +This document describes the restrictions and the expections of the Linux
+> +ACPI lid device driver.
+> +
+> +
+> +1. Restrictions of the returning value of the _LID control method
+> +
+> +The _LID control method is described to return the "current" lid state.
+> +However the word of "current" has ambiguity, many AML tables return the lid
+> +state upon the last lid notification instead of returning the lid state
+> +upon the last _LID evaluation. There won't be difference when the _LID
+> +control method is evaluated during the runtime, the problem is its initial
+> +returning value. When the AML tables implement this control method with
+> +cached value, the initial returning value is likely not reliable. There are
+> +simply so many examples always retuning "closed" as initial lid state.
+> +
+> +2. Restrictions of the lid state change notifications
+> +
+> +There are many AML tables never notifying when the lid device state is
+> +changed to "opened". But it is ensured that the AML tables always notify
+> +"closed" when the lid state is changed to "closed". This is normally used
+> +to trigger some system power saving operations on Windows. Since it is
+> +fully tested, this notification is reliable for all AML tables.
+> +
+> +3. Expections for the userspace users of the ACPI lid device driver
+> +
+> +The userspace programs should stop relying on
+> +/proc/acpi/button/lid/LID0/state to obtain the lid state. This file is only
+> +used for the validation purpose.
 
- IMMEDIATELY.
+I'd say: this file actually calls the _LID method described above. And
+given the previous explanation, it is not reliable enough on some
+platforms. So it is strongly advised for user-space program to not
+solely rely on this file to determine the actual lid state.
 
-YOUR FULL NAME......
+> +
+> +New userspace programs should rely on the lid "closed" notification to
+> +trigger some power saving operations and may stop taking actions according
+> +to the lid "opened" notification. A new input switch event - SW_ACPI_LID is
+> +prepared for the new userspace to implement this ACPI control method lid
+> +device specific logics.
 
-YOUR OCCUPATION.....
+That's not entirely what we discussed before (to prevent regressions):
+- if the device doesn't have reliable LID switch state, then there
+would be the new input event, and so userspace should only rely on
+opened notifications.
+- if the device has reliable switch information, the new input event
+should not be exported and userspace knows that the current input
+switch event is reliable.
 
-YOUR AGE........
+Also, using a new "switch" event is a terrible idea. Switches have a
+state (open/close) and you are using this to forward a single open
+event. So using a switch just allows you to say to userspace you are
+using the "new" LID meaning, but you'll still have to manually reset
+the switch and you will have to document how this event is not a
+switch.
 
-YOUR MARITAL STATUS.....
+Please use a simple KEY_LID_OPEN event you will send through
+[input_key_event(KEY_LID_OPEN, 1), input_sync(),
+input_key_event(KEY_LID_OPEN, 0), input_sync()], which userspace knows
+how to handle.
 
-YOUR PHONE NUMBER.....
+> +
+> +During the period the userspace hasn't been switched to use the new
+> +SW_ACPI_LID event, Linux users can use the following boot parameter to
+> +handle possible issues:
+> +  button.lid_init_state=method:
+> +   This is the default behavior of the Linux ACPI lid driver, Linux kernel
+> +   reports the initial lid state using the returning value of the _LID
+> +   control method.
+> +   This can be used to fix some platforms if the _LID control method's
+> +   returning value is reliable.
+> +  button.lid_init_state=open:
+> +   Linux kernel always reports the initial lid state as "opened".
+> +   This may fix some platforms if the returning value of the _LID control
+> +   method is not reliable.
 
-YOUR PASSPORT/ID CARD....
+This worries me as there is no plan after "During the period the
+userspace hasn't been switched to use the new event".
 
-YOUR COUNTRY/NATIONALITY.....
+I really hope you'll keep sending SW_LID for reliable LID platforms,
+and not remove it entirely as you will break platforms.
 
-CONTACT ME THROUGH THIS MY PRIVATE E_MAIL(drharunabello868@gmail.com )
+Cheers,
+Benjamin
 
-call me if you are instrested +226 63212448
+> --
+> 1.7.10
+>

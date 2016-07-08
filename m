@@ -1,96 +1,139 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v7 08/11] Input: atmel_mxt_ts - add diagnostic data support for mXT1386
-Date: Fri,  8 Jul 2016 12:26:01 +0100
-Message-ID: <1467977164-17551-9-git-send-email-nick@shmanahar.org>
+Subject: [PATCH v7 09/11] Input: atmel_mxt_ts - add support for reference data
+Date: Fri,  8 Jul 2016 12:26:02 +0100
+Message-ID: <1467977164-17551-10-git-send-email-nick@shmanahar.org>
 References: <1467977164-17551-1-git-send-email-nick@shmanahar.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:15813 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754441AbcGHL0O (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2016 07:26:14 -0400
+Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <1467977164-17551-1-git-send-email-nick@shmanahar.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-media-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, jon.older@itdev.co.uk, nick.dyer@itdev.co.uk, Nick Dyer <nick@shmanahar.org>
+List-Id: linux-input@vger.kernel.org
 
-The mXT1386 family of chips have a different architecture which splits
-the diagnostic data into 3 columns.
+There are different datatypes available from a maXTouch chip. Add
+support to retrieve reference data as well.
 
 Signed-off-by: Nick Dyer <nick@shmanahar.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   31 +++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   57 ++++++++++++++++++++++++++----
+ 1 file changed, 51 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index c35fca0..7c4d937 100644
+index 7c4d937..f75f2ce 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -137,6 +137,10 @@ struct t9_range {
+@@ -135,6 +135,7 @@ struct t9_range {
+ /* MXT_DEBUG_DIAGNOSTIC_T37 */
+ #define MXT_DIAGNOSTIC_PAGEUP	0x01
  #define MXT_DIAGNOSTIC_DELTAS	0x10
++#define MXT_DIAGNOSTIC_REFS	0x11
  #define MXT_DIAGNOSTIC_SIZE	128
  
-+#define MXT_FAMILY_1386			160
-+#define MXT1386_COLUMNS			3
-+#define MXT1386_PAGES_PER_COLUMN	8
+ #define MXT_FAMILY_1386			160
+@@ -249,6 +250,12 @@ struct mxt_dbg {
+ 	int input;
+ };
+ 
++enum v4l_dbg_inputs {
++	MXT_V4L_INPUT_DELTAS,
++	MXT_V4L_INPUT_REFS,
++	MXT_V4L_INPUT_MAX,
++};
 +
- struct t37_debug {
- #ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
- 	u8 mode;
-@@ -2140,13 +2144,27 @@ recheck:
- static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
- 			       unsigned int y)
- {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	unsigned int ofs, page;
-+	unsigned int col = 0;
-+	unsigned int col_width;
+ static const struct v4l2_file_operations mxt_video_fops = {
+ 	.owner = THIS_MODULE,
+ 	.open = v4l2_fh_open,
+@@ -2273,6 +2280,7 @@ static void mxt_buffer_queue(struct vb2_buffer *vb)
+ 	struct mxt_data *data = vb2_get_drv_priv(vb->vb2_queue);
+ 	u16 *ptr;
+ 	int ret;
++	u8 mode;
+ 
+ 	ptr = vb2_plane_vaddr(vb, 0);
+ 	if (!ptr) {
+@@ -2280,7 +2288,18 @@ static void mxt_buffer_queue(struct vb2_buffer *vb)
+ 		goto fault;
+ 	}
+ 
+-	ret = mxt_read_diagnostic_debug(data, MXT_DIAGNOSTIC_DELTAS, ptr);
++	switch (data->dbg.input) {
++	case MXT_V4L_INPUT_DELTAS:
++	default:
++		mode = MXT_DIAGNOSTIC_DELTAS;
++		break;
 +
-+	if (info->family_id == MXT_FAMILY_1386) {
-+		col_width = info->matrix_ysize / MXT1386_COLUMNS;
-+		col = y / col_width;
-+		y = y % col_width;
-+	} else {
-+		col_width = info->matrix_ysize;
++	case MXT_V4L_INPUT_REFS:
++		mode = MXT_DIAGNOSTIC_REFS;
++		break;
 +	}
- 
--	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
-+	ofs = (y + (x * col_width)) * sizeof(u16);
- 	page = ofs / MXT_DIAGNOSTIC_SIZE;
- 	ofs %= MXT_DIAGNOSTIC_SIZE;
- 
-+	if (info->family_id == MXT_FAMILY_1386)
-+		page += col * MXT1386_PAGES_PER_COLUMN;
 +
- 	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
++	ret = mxt_read_diagnostic_debug(data, mode, ptr);
+ 	if (ret)
+ 		goto fault;
+ 
+@@ -2325,11 +2344,21 @@ static int mxt_vidioc_querycap(struct file *file, void *priv,
+ static int mxt_vidioc_enum_input(struct file *file, void *priv,
+ 				   struct v4l2_input *i)
+ {
+-	if (i->index > 0)
++	if (i->index >= MXT_V4L_INPUT_MAX)
+ 		return -EINVAL;
+ 
+ 	i->type = V4L2_INPUT_TYPE_TOUCH;
+-	strlcpy(i->name, "Mutual Capacitance Deltas", sizeof(i->name));
++
++	switch (i->index) {
++	case MXT_V4L_INPUT_REFS:
++		strlcpy(i->name, "Mutual Capacitance References",
++			sizeof(i->name));
++		break;
++	case MXT_V4L_INPUT_DELTAS:
++		strlcpy(i->name, "Mutual Capacitance Deltas", sizeof(i->name));
++		break;
++	}
++
+ 	return 0;
  }
  
-@@ -2416,6 +2434,7 @@ static const struct video_device mxt_video_device = {
- 
- static void mxt_debug_init(struct mxt_data *data)
+@@ -2337,12 +2366,16 @@ static int mxt_set_input(struct mxt_data *data, unsigned int i)
  {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	struct mxt_object *object;
- 	int error;
-@@ -2439,8 +2458,14 @@ static void mxt_debug_init(struct mxt_data *data)
+ 	struct v4l2_pix_format *f = &data->dbg.format;
  
- 	/* Calculate size of data and allocate buffer */
- 	dbg->t37_nodes = data->xsize * data->ysize;
--	dbg->t37_pages = DIV_ROUND_UP(data->xsize * data->info.matrix_ysize *
--				      sizeof(u16), sizeof(dbg->t37_buf->data));
-+
-+	if (info->family_id == MXT_FAMILY_1386)
-+		dbg->t37_pages = MXT1386_COLUMNS * MXT1386_PAGES_PER_COLUMN;
+-	if (i > 0)
++	if (i >= MXT_V4L_INPUT_MAX)
+ 		return -EINVAL;
+ 
++	if (i == MXT_V4L_INPUT_DELTAS)
++		f->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
 +	else
-+		dbg->t37_pages = DIV_ROUND_UP(data->xsize *
-+					      data->info.matrix_ysize *
-+					      sizeof(u16),
-+					      sizeof(dbg->t37_buf->data));
++		f->pixelformat = V4L2_TCH_FMT_TU16;
++
+ 	f->width = data->xy_switch ? data->ysize : data->xsize;
+ 	f->height = data->xy_switch ? data->xsize : data->ysize;
+-	f->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
+ 	f->field = V4L2_FIELD_NONE;
+ 	f->colorspace = V4L2_COLORSPACE_RAW;
+ 	f->bytesperline = f->width * sizeof(u16);
+@@ -2383,7 +2416,19 @@ static int mxt_vidioc_enum_fmt(struct file *file, void *priv,
+ 	if (fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+ 		return -EINVAL;
  
- 	dbg->t37_buf = devm_kmalloc_array(&data->client->dev, dbg->t37_pages,
- 					  sizeof(struct t37_debug), GFP_KERNEL);
+-	fmt->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
++	switch (fmt->index) {
++	case 0:
++		fmt->pixelformat = V4L2_TCH_FMT_TU16;
++		break;
++
++	case 1:
++		fmt->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
++		break;
++
++	default:
++		return -EINVAL;
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 1.7.9.5
-

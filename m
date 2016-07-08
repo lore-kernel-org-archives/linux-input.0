@@ -1,464 +1,279 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v7 03/11] DocBook: add support for touch devices
-Date: Fri,  8 Jul 2016 12:25:56 +0100
-Message-ID: <1467977164-17551-4-git-send-email-nick@shmanahar.org>
+Subject: [PATCH v7 11/11] Input: sur40 - use new V4L2 touch input type
+Date: Fri,  8 Jul 2016 12:26:04 +0100
+Message-ID: <1467977164-17551-12-git-send-email-nick@shmanahar.org>
 References: <1467977164-17551-1-git-send-email-nick@shmanahar.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:61665 "EHLO
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:49857 "EHLO
 	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754360AbcGHL0M (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2016 07:26:12 -0400
+	with ESMTP id S1754647AbcGHL0S (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2016 07:26:18 -0400
 In-Reply-To: <1467977164-17551-1-git-send-email-nick@shmanahar.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, jon.older@itdev.co.uk, nick.dyer@itdev.co.uk, Nick Dyer <nick@shmanahar.org>
 
-Signed-off-by: Nick Dyer <nick@shmanahar.org>
----
- Documentation/DocBook/media/v4l/dev-touch.xml      |   51 ++++++++++++
- Documentation/DocBook/media/v4l/media-types.xml    |    5 ++
- .../DocBook/media/v4l/pixfmt-tch-td08.xml          |   66 ++++++++++++++++
- .../DocBook/media/v4l/pixfmt-tch-td16.xml          |   82 ++++++++++++++++++++
- .../DocBook/media/v4l/pixfmt-tch-tu08.xml          |   66 ++++++++++++++++
- .../DocBook/media/v4l/pixfmt-tch-tu16.xml          |   81 +++++++++++++++++++
- Documentation/DocBook/media/v4l/pixfmt.xml         |   13 ++++
- Documentation/DocBook/media/v4l/v4l2.xml           |    1 +
- 8 files changed, 365 insertions(+)
- create mode 100644 Documentation/DocBook/media/v4l/dev-touch.xml
- create mode 100644 Documentation/DocBook/media/v4l/pixfmt-tch-td08.xml
- create mode 100644 Documentation/DocBook/media/v4l/pixfmt-tch-td16.xml
- create mode 100644 Documentation/DocBook/media/v4l/pixfmt-tch-tu08.xml
- create mode 100644 Documentation/DocBook/media/v4l/pixfmt-tch-tu16.xml
+Support both V4L2_TCH_FMT_TU08 and V4L2_PIX_FMT_GREY for backwards
+compatibility.
 
-diff --git a/Documentation/DocBook/media/v4l/dev-touch.xml b/Documentation/DocBook/media/v4l/dev-touch.xml
-new file mode 100644
-index 0000000..85d492a
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/dev-touch.xml
-@@ -0,0 +1,51 @@
-+<title>Touch Devices</title>
-+
-+<para>Touch devices are accessed through character device special files
-+  named <filename>/dev/v4l-touch0</filename> to
-+  <filename>/dev/v4l-touch255</filename> with major number 81 and
-+  dynamically allocated minor numbers 0 to 255.</para>
-+
-+<section>
-+  <title>Overview</title>
-+
-+  <para>Sensors may be Optical, or Projected Capacitive touch (PCT).</para>
-+
-+  <para>Processing is required to analyse the raw data and produce input
-+    events. In some systems, this may be performed on the ASIC and the raw data
-+    is purely a side-channel for diagnostics or tuning. In other systems, the
-+    ASIC is a simple analogue front end device which delivers touch data at
-+    high rate, and any touch processing must be done on the host.</para>
-+
-+  <para>For capacitive touch sensing, the touchscreen is composed of an array
-+    of horizontal and vertical conductors (alternatively called rows/columns,
-+    X/Y lines, or tx/rx). Mutual Capacitance measured is at the nodes where the
-+    conductors cross. Alternatively, Self Capacitance measures the signal from
-+    each column and row independently.</para>
-+
-+  <para>A touch input may be determined by comparing the raw capacitance
-+    measurement to a no-touch reference (or "baseline") measurement:</para>
-+
-+  <para>Delta = Raw - Reference</para>
-+
-+  <para>The reference measurement takes account of variations in the
-+    capacitance across the touch sensor matrix, for example
-+    manufacturing irregularities, environmental or edge effects.</para>
-+</section>
-+
-+<section>
-+  <title>Querying Capabilities</title>
-+
-+  <para>Devices supporting the touch interface set the
-+    <constant>V4L2_CAP_VIDEO_CAPTURE</constant> flag in the
-+    <structfield>capabilities</structfield> field of &v4l2-capability;
-+    returned by the &VIDIOC-QUERYCAP; ioctl.</para>
-+
-+  <para>At least one of the read/write or streaming I/O methods must be
-+    supported.</para>
-+</section>
-+
-+<section>
-+  <title>Data Format Negotiation</title>
-+
-+  <para>A touch device may support any I/O method.</para>
-+</section>
-diff --git a/Documentation/DocBook/media/v4l/media-types.xml b/Documentation/DocBook/media/v4l/media-types.xml
-index 5e3f20f..fb957c7 100644
---- a/Documentation/DocBook/media/v4l/media-types.xml
-+++ b/Documentation/DocBook/media/v4l/media-types.xml
-@@ -202,6 +202,11 @@
- 	    <entry>typically, /dev/swradio?</entry>
- 	  </row>
- 	  <row>
-+	    <entry><constant>MEDIA_INTF_T_V4L_TOUCH</constant></entry>
-+	    <entry>Device node interface for Touch device (V4L)</entry>
-+	    <entry>typically, /dev/v4l-touch?</entry>
-+	  </row>
-+	  <row>
- 	    <entry><constant>MEDIA_INTF_T_ALSA_PCM_CAPTURE</constant></entry>
- 	    <entry>Device node interface for ALSA PCM Capture</entry>
- 	    <entry>typically, /dev/snd/pcmC?D?c</entry>
-diff --git a/Documentation/DocBook/media/v4l/pixfmt-tch-td08.xml b/Documentation/DocBook/media/v4l/pixfmt-tch-td08.xml
-new file mode 100644
-index 0000000..2483eb0
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/pixfmt-tch-td08.xml
-@@ -0,0 +1,66 @@
-+<refentry id="V4L2-TCH-FMT-DELTA-TD08">
-+  <refmeta>
-+    <refentrytitle>V4L2_TCH_FMT_DELTA_TD08 ('TD08')</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+  <refnamediv>
-+    <refname><constant>V4L2_TCH_FMT_DELTA_TD08</constant></refname>
-+    <refpurpose>8-bit signed Touch Delta</refpurpose>
-+  </refnamediv>
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>This format represents delta data from a touch controller</para>
-+
-+    <para>Delta values may range from -128 to 127. Typically the values
-+      will vary through a small range depending on whether the sensor is
-+      touched or not. The full value may be seen if one of the
-+      touchscreen nodes has a fault or the line is not connected.</para>
-+
-+    <example>
-+      <title><constant>V4L2_TCH_FMT_DELTA_TD08</constant> 4 &times; 4
-+        node matrix</title>
-+
-+      <formalpara>
-+        <title>Byte Order.</title>
-+        <para>Each cell is one byte.
-+          <informaltable frame="none">
-+            <tgroup cols="5" align="center">
-+              <colspec align="left" colwidth="2*" />
-+              <tbody valign="top">
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;0:</entry>
-+                  <entry>D'<subscript>00</subscript></entry>
-+                  <entry>D'<subscript>01</subscript></entry>
-+                  <entry>D'<subscript>02</subscript></entry>
-+                  <entry>D'<subscript>03</subscript></entry>
-+                </row>
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;4:</entry>
-+                  <entry>D'<subscript>10</subscript></entry>
-+                  <entry>D'<subscript>11</subscript></entry>
-+                  <entry>D'<subscript>12</subscript></entry>
-+                  <entry>D'<subscript>13</subscript></entry>
-+                </row>
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;8:</entry>
-+                  <entry>D'<subscript>20</subscript></entry>
-+                  <entry>D'<subscript>21</subscript></entry>
-+                  <entry>D'<subscript>22</subscript></entry>
-+                  <entry>D'<subscript>23</subscript></entry>
-+                </row>
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;12:</entry>
-+                  <entry>D'<subscript>30</subscript></entry>
-+                  <entry>D'<subscript>31</subscript></entry>
-+                  <entry>D'<subscript>32</subscript></entry>
-+                  <entry>D'<subscript>33</subscript></entry>
-+                </row>
-+              </tbody>
-+            </tgroup>
-+          </informaltable>
-+        </para>
-+      </formalpara>
-+    </example>
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/pixfmt-tch-td16.xml b/Documentation/DocBook/media/v4l/pixfmt-tch-td16.xml
-new file mode 100644
-index 0000000..72f6245
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/pixfmt-tch-td16.xml
-@@ -0,0 +1,82 @@
-+<refentry id="V4L2-TCH-FMT-DELTA-TD16">
-+  <refmeta>
-+    <refentrytitle>V4L2_TCH_FMT_DELTA_TD16 ('TD16')</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+  <refnamediv>
-+    <refname><constant>V4L2_TCH_FMT_DELTA_TD16</constant></refname>
-+    <refpurpose>16-bit signed Touch Delta</refpurpose>
-+  </refnamediv>
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>This format represents delta data from a touch controller</para>
-+
-+    <para>Delta values may range from -32768 to 32767. Typically the values
-+      will vary through a small range depending on whether the sensor is
-+      touched or not. The full value may be seen if one of the
-+      touchscreen nodes has a fault or the line is not connected.</para>
-+
-+    <example>
-+      <title><constant>V4L2_TCH_FMT_DELTA_TD16</constant> 4 &times; 4
-+        node matrix</title>
-+
-+      <formalpara>
-+        <title>Byte Order.</title>
-+        <para>Each cell is one byte.
-+          <informaltable frame="none">
-+            <tgroup cols="9" align="center">
-+              <colspec align="left" colwidth="2*" />
-+              <tbody valign="top">
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;0:</entry>
-+                  <entry>D'<subscript>00low</subscript></entry>
-+                  <entry>D'<subscript>00high</subscript></entry>
-+                  <entry>D'<subscript>01low</subscript></entry>
-+                  <entry>D'<subscript>01high</subscript></entry>
-+                  <entry>D'<subscript>02low</subscript></entry>
-+                  <entry>D'<subscript>02high</subscript></entry>
-+                  <entry>D'<subscript>03low</subscript></entry>
-+                  <entry>D'<subscript>03high</subscript></entry>
-+                </row>
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;8:</entry>
-+                  <entry>D'<subscript>10low</subscript></entry>
-+                  <entry>D'<subscript>10high</subscript></entry>
-+                  <entry>D'<subscript>11low</subscript></entry>
-+                  <entry>D'<subscript>11high</subscript></entry>
-+                  <entry>D'<subscript>12low</subscript></entry>
-+                  <entry>D'<subscript>12high</subscript></entry>
-+                  <entry>D'<subscript>13low</subscript></entry>
-+                  <entry>D'<subscript>13high</subscript></entry>
-+                </row>
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;16:</entry>
-+                  <entry>D'<subscript>20low</subscript></entry>
-+                  <entry>D'<subscript>20high</subscript></entry>
-+                  <entry>D'<subscript>21low</subscript></entry>
-+                  <entry>D'<subscript>21high</subscript></entry>
-+                  <entry>D'<subscript>22low</subscript></entry>
-+                  <entry>D'<subscript>22high</subscript></entry>
-+                  <entry>D'<subscript>23low</subscript></entry>
-+                  <entry>D'<subscript>23high</subscript></entry>
-+                </row>
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;24:</entry>
-+                  <entry>D'<subscript>30low</subscript></entry>
-+                  <entry>D'<subscript>30high</subscript></entry>
-+                  <entry>D'<subscript>31low</subscript></entry>
-+                  <entry>D'<subscript>31high</subscript></entry>
-+                  <entry>D'<subscript>32low</subscript></entry>
-+                  <entry>D'<subscript>32high</subscript></entry>
-+                  <entry>D'<subscript>33low</subscript></entry>
-+                  <entry>D'<subscript>33high</subscript></entry>
-+                </row>
-+              </tbody>
-+            </tgroup>
-+          </informaltable>
-+        </para>
-+      </formalpara>
-+    </example>
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/pixfmt-tch-tu08.xml b/Documentation/DocBook/media/v4l/pixfmt-tch-tu08.xml
-new file mode 100644
-index 0000000..24f76ab
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/pixfmt-tch-tu08.xml
-@@ -0,0 +1,66 @@
-+<refentry id="V4L2-TCH-FMT-TU08">
-+  <refmeta>
-+    <refentrytitle>V4L2_TCH_FMT_TU08 ('TU08')</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+  <refnamediv>
-+    <refname><constant>V4L2_TCH_FMT_TU08</constant></refname>
-+    <refpurpose>8-bit unsigned raw touch data</refpurpose>
-+  </refnamediv>
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>This format represents unsigned 8-bit data from a touch
-+      controller.</para>
-+
-+    <para>This may be used for output for raw and reference data. Values may
-+      range from 0 to 255.</para>
-+
-+    <example>
-+      <title><constant>V4L2_TCH_FMT_TU08</constant> 4 &times; 4
-+        node matrix</title>
-+
-+      <formalpara>
-+        <title>Byte Order.</title>
-+        <para>Each cell is one byte.
-+          <informaltable frame="none">
-+            <tgroup cols="5" align="center">
-+              <colspec align="left" colwidth="2*" />
-+              <tbody valign="top">
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;0:</entry>
-+                  <entry>R'<subscript>00</subscript></entry>
-+                  <entry>R'<subscript>01</subscript></entry>
-+                  <entry>R'<subscript>02</subscript></entry>
-+                  <entry>R'<subscript>03</subscript></entry>
-+                </row>
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;4:</entry>
-+                  <entry>R'<subscript>10</subscript></entry>
-+                  <entry>R'<subscript>11</subscript></entry>
-+                  <entry>R'<subscript>12</subscript></entry>
-+                  <entry>R'<subscript>13</subscript></entry>
-+                </row>
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;8:</entry>
-+                  <entry>R'<subscript>20</subscript></entry>
-+                  <entry>R'<subscript>21</subscript></entry>
-+                  <entry>R'<subscript>22</subscript></entry>
-+                  <entry>R'<subscript>23</subscript></entry>
-+                </row>
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;12:</entry>
-+                  <entry>R'<subscript>30</subscript></entry>
-+                  <entry>R'<subscript>31</subscript></entry>
-+                  <entry>R'<subscript>32</subscript></entry>
-+                  <entry>R'<subscript>33</subscript></entry>
-+                </row>
-+              </tbody>
-+            </tgroup>
-+          </informaltable>
-+        </para>
-+      </formalpara>
-+
-+    </example>
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/pixfmt-tch-tu16.xml b/Documentation/DocBook/media/v4l/pixfmt-tch-tu16.xml
-new file mode 100644
-index 0000000..2db69af
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/pixfmt-tch-tu16.xml
-@@ -0,0 +1,81 @@
-+<refentry id="V4L2-TCH-FMT-TU16">
-+  <refmeta>
-+    <refentrytitle>V4L2_TCH_FMT_TU16 ('TU16')</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+  <refnamediv>
-+    <refname><constant>V4L2_TCH_FMT_TU16</constant></refname>
-+    <refpurpose>16-bit unsigned raw touch data</refpurpose>
-+  </refnamediv>
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>This format represents unsigned 16-bit data from a touch
-+      controller.</para>
-+
-+    <para>This may be used for output for raw and reference data. Values may
-+      range from 0 to 65535.</para>
-+
-+    <example>
-+      <title><constant>V4L2_TCH_FMT_TU16</constant> 4 &times; 4
-+        node matrix</title>
-+
-+      <formalpara>
-+        <title>Byte Order.</title>
-+        <para>Each cell is one byte.
-+          <informaltable frame="none">
-+            <tgroup cols="9" align="center">
-+              <colspec align="left" colwidth="2*" />
-+              <tbody valign="top">
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;0:</entry>
-+                  <entry>R'<subscript>00low</subscript></entry>
-+                  <entry>R'<subscript>00high</subscript></entry>
-+                  <entry>R'<subscript>01low</subscript></entry>
-+                  <entry>R'<subscript>01high</subscript></entry>
-+                  <entry>R'<subscript>02low</subscript></entry>
-+                  <entry>R'<subscript>02high</subscript></entry>
-+                  <entry>R'<subscript>03low</subscript></entry>
-+                  <entry>R'<subscript>03high</subscript></entry>
-+                </row>
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;8:</entry>
-+                  <entry>R'<subscript>10low</subscript></entry>
-+                  <entry>R'<subscript>10high</subscript></entry>
-+                  <entry>R'<subscript>11low</subscript></entry>
-+                  <entry>R'<subscript>11high</subscript></entry>
-+                  <entry>R'<subscript>12low</subscript></entry>
-+                  <entry>R'<subscript>12high</subscript></entry>
-+                  <entry>R'<subscript>13low</subscript></entry>
-+                  <entry>R'<subscript>13high</subscript></entry>
-+                </row>
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;16:</entry>
-+                  <entry>R'<subscript>20low</subscript></entry>
-+                  <entry>R'<subscript>20high</subscript></entry>
-+                  <entry>R'<subscript>21low</subscript></entry>
-+                  <entry>R'<subscript>21high</subscript></entry>
-+                  <entry>R'<subscript>22low</subscript></entry>
-+                  <entry>R'<subscript>22high</subscript></entry>
-+                  <entry>R'<subscript>23low</subscript></entry>
-+                  <entry>R'<subscript>23high</subscript></entry>
-+                </row>
-+                <row>
-+                  <entry>start&nbsp;+&nbsp;24:</entry>
-+                  <entry>R'<subscript>30low</subscript></entry>
-+                  <entry>R'<subscript>30high</subscript></entry>
-+                  <entry>R'<subscript>31low</subscript></entry>
-+                  <entry>R'<subscript>31high</subscript></entry>
-+                  <entry>R'<subscript>32low</subscript></entry>
-+                  <entry>R'<subscript>32high</subscript></entry>
-+                  <entry>R'<subscript>33low</subscript></entry>
-+                  <entry>R'<subscript>33high</subscript></entry>
-+                </row>
-+              </tbody>
-+            </tgroup>
-+          </informaltable>
-+        </para>
-+      </formalpara>
-+    </example>
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/pixfmt.xml b/Documentation/DocBook/media/v4l/pixfmt.xml
-index 5a08aee..509248a 100644
---- a/Documentation/DocBook/media/v4l/pixfmt.xml
-+++ b/Documentation/DocBook/media/v4l/pixfmt.xml
-@@ -1754,6 +1754,19 @@ interface only.</para>
+Note: I have not tested these changes (I have no access to the hardware)
+so not signing off.
+---
+ drivers/input/touchscreen/sur40.c |  123 +++++++++++++++++++++++++++----------
+ 1 file changed, 89 insertions(+), 34 deletions(-)
+
+diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
+index 880c40b..b6cbe74 100644
+--- a/drivers/input/touchscreen/sur40.c
++++ b/drivers/input/touchscreen/sur40.c
+@@ -139,6 +139,27 @@ struct sur40_image_header {
+ #define SUR40_GET_STATE   0xc5 /*  4 bytes state (?) */
+ #define SUR40_GET_SENSORS 0xb1 /*  8 bytes sensors   */
  
-   </section>
++static const struct v4l2_pix_format sur40_pix_format[] = {
++	{
++		.pixelformat = V4L2_TCH_FMT_TU08,
++		.width  = SENSOR_RES_X / 2,
++		.height = SENSOR_RES_Y / 2,
++		.field = V4L2_FIELD_NONE,
++		.colorspace = V4L2_COLORSPACE_SRGB,
++		.bytesperline = SENSOR_RES_X / 2,
++		.sizeimage = (SENSOR_RES_X/2) * (SENSOR_RES_Y/2),
++	},
++	{
++		.pixelformat = V4L2_PIX_FMT_GREY,
++		.width  = SENSOR_RES_X / 2,
++		.height = SENSOR_RES_Y / 2,
++		.field = V4L2_FIELD_NONE,
++		.colorspace = V4L2_COLORSPACE_SRGB,
++		.bytesperline = SENSOR_RES_X / 2,
++		.sizeimage = (SENSOR_RES_X/2) * (SENSOR_RES_Y/2),
++	}
++};
++
+ /* master device state */
+ struct sur40_state {
  
-+  <section id="tch-formats">
-+    <title>Touch Formats</title>
-+
-+    <para>These formats are used for <link linkend="touch">Touch Sensor</link>
-+interface only.</para>
-+
-+    &sub-tch-td16;
-+    &sub-tch-td08;
-+    &sub-tch-tu16;
-+    &sub-tch-tu08;
-+
-+  </section>
-+
-   <section id="pixfmt-reserved">
-     <title>Reserved Format Identifiers</title>
+@@ -149,6 +170,7 @@ struct sur40_state {
+ 	struct v4l2_device v4l2;
+ 	struct video_device vdev;
+ 	struct mutex lock;
++	struct v4l2_pix_format pix_fmt;
  
-diff --git a/Documentation/DocBook/media/v4l/v4l2.xml b/Documentation/DocBook/media/v4l/v4l2.xml
-index 42e626d..b577de2 100644
---- a/Documentation/DocBook/media/v4l/v4l2.xml
-+++ b/Documentation/DocBook/media/v4l/v4l2.xml
-@@ -605,6 +605,7 @@ and discussions on the V4L mailing list.</revremark>
-     <section id="radio"> &sub-dev-radio; </section>
-     <section id="rds"> &sub-dev-rds; </section>
-     <section id="sdr"> &sub-dev-sdr; </section>
-+    <section id="touch"> &sub-dev-touch; </section>
-     <section id="event"> &sub-dev-event; </section>
-     <section id="subdev"> &sub-dev-subdev; </section>
-   </chapter>
+ 	struct vb2_queue queue;
+ 	struct vb2_alloc_ctx *alloc_ctx;
+@@ -170,7 +192,6 @@ struct sur40_buffer {
+ 
+ /* forward declarations */
+ static const struct video_device sur40_video_device;
+-static const struct v4l2_pix_format sur40_video_format;
+ static const struct vb2_queue sur40_queue;
+ static void sur40_process_video(struct sur40_state *sur40);
+ 
+@@ -421,7 +442,7 @@ static void sur40_process_video(struct sur40_state *sur40)
+ 		goto err_poll;
+ 	}
+ 
+-	if (le32_to_cpu(img->size) != sur40_video_format.sizeimage) {
++	if (le32_to_cpu(img->size) != sur40->pix_fmt.sizeimage) {
+ 		dev_err(sur40->dev, "image size mismatch\n");
+ 		goto err_poll;
+ 	}
+@@ -432,7 +453,7 @@ static void sur40_process_video(struct sur40_state *sur40)
+ 
+ 	result = usb_sg_init(&sgr, sur40->usbdev,
+ 		usb_rcvbulkpipe(sur40->usbdev, VIDEO_ENDPOINT), 0,
+-		sgt->sgl, sgt->nents, sur40_video_format.sizeimage, 0);
++		sgt->sgl, sgt->nents, sur40->pix_fmt.sizeimage, 0);
+ 	if (result < 0) {
+ 		dev_err(sur40->dev, "error %d in usb_sg_init\n", result);
+ 		goto err_poll;
+@@ -593,13 +614,14 @@ static int sur40_probe(struct usb_interface *interface,
+ 		goto err_unreg_v4l2;
+ 	}
+ 
++	sur40->pix_fmt = sur40_pix_format[0];
+ 	sur40->vdev = sur40_video_device;
+ 	sur40->vdev.v4l2_dev = &sur40->v4l2;
+ 	sur40->vdev.lock = &sur40->lock;
+ 	sur40->vdev.queue = &sur40->queue;
+ 	video_set_drvdata(&sur40->vdev, sur40);
+ 
+-	error = video_register_device(&sur40->vdev, VFL_TYPE_GRABBER, -1);
++	error = video_register_device(&sur40->vdev, VFL_TYPE_TOUCH, -1);
+ 	if (error) {
+ 		dev_err(&interface->dev,
+ 			"Unable to register video subdevice.");
+@@ -662,10 +684,10 @@ static int sur40_queue_setup(struct vb2_queue *q,
+ 	alloc_ctxs[0] = sur40->alloc_ctx;
+ 
+ 	if (*nplanes)
+-		return sizes[0] < sur40_video_format.sizeimage ? -EINVAL : 0;
++		return sizes[0] < sur40->pix_fmt.sizeimage ? -EINVAL : 0;
+ 
+ 	*nplanes = 1;
+-	sizes[0] = sur40_video_format.sizeimage;
++	sizes[0] = sur40->pix_fmt.sizeimage;
+ 
+ 	return 0;
+ }
+@@ -677,7 +699,7 @@ static int sur40_queue_setup(struct vb2_queue *q,
+ static int sur40_buffer_prepare(struct vb2_buffer *vb)
+ {
+ 	struct sur40_state *sur40 = vb2_get_drv_priv(vb->vb2_queue);
+-	unsigned long size = sur40_video_format.sizeimage;
++	unsigned long size = sur40->pix_fmt.sizeimage;
+ 
+ 	if (vb2_plane_size(vb, 0) < size) {
+ 		dev_err(&sur40->usbdev->dev, "buffer too small (%lu < %lu)\n",
+@@ -751,7 +773,7 @@ static int sur40_vidioc_querycap(struct file *file, void *priv,
+ 	strlcpy(cap->driver, DRIVER_SHORT, sizeof(cap->driver));
+ 	strlcpy(cap->card, DRIVER_LONG, sizeof(cap->card));
+ 	usb_make_path(sur40->usbdev, cap->bus_info, sizeof(cap->bus_info));
+-	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE |
++	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_TOUCH |
+ 		V4L2_CAP_READWRITE |
+ 		V4L2_CAP_STREAMING;
+ 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+@@ -763,7 +785,7 @@ static int sur40_vidioc_enum_input(struct file *file, void *priv,
+ {
+ 	if (i->index != 0)
+ 		return -EINVAL;
+-	i->type = V4L2_INPUT_TYPE_CAMERA;
++	i->type = V4L2_INPUT_TYPE_TOUCH;
+ 	i->std = V4L2_STD_UNKNOWN;
+ 	strlcpy(i->name, "In-Cell Sensor", sizeof(i->name));
+ 	i->capabilities = 0;
+@@ -781,20 +803,57 @@ static int sur40_vidioc_g_input(struct file *file, void *priv, unsigned int *i)
+ 	return 0;
+ }
+ 
+-static int sur40_vidioc_fmt(struct file *file, void *priv,
++static int sur40_vidioc_try_fmt(struct file *file, void *priv,
++			    struct v4l2_format *f)
++{
++	switch (f->fmt.pix.pixelformat) {
++	case V4L2_PIX_FMT_GREY:
++		f->fmt.pix = sur40_pix_format[1];
++		break;
++
++	default:
++		f->fmt.pix = sur40_pix_format[0];
++		break;
++	}
++
++	return 0;
++}
++
++static int sur40_vidioc_s_fmt(struct file *file, void *priv,
++			    struct v4l2_format *f)
++{
++	struct sur40_state *sur40 = video_drvdata(file);
++
++	switch (f->fmt.pix.pixelformat) {
++	case V4L2_PIX_FMT_GREY:
++		sur40->pix_fmt = sur40_pix_format[1];
++		break;
++
++	default:
++		sur40->pix_fmt = sur40_pix_format[0];
++		break;
++	}
++
++	f->fmt.pix = sur40->pix_fmt;
++	return 0;
++}
++
++static int sur40_vidioc_g_fmt(struct file *file, void *priv,
+ 			    struct v4l2_format *f)
+ {
+-	f->fmt.pix = sur40_video_format;
++	struct sur40_state *sur40 = video_drvdata(file);
++
++	f->fmt.pix = sur40->pix_fmt;
+ 	return 0;
+ }
+ 
+ static int sur40_vidioc_enum_fmt(struct file *file, void *priv,
+ 				 struct v4l2_fmtdesc *f)
+ {
+-	if (f->index != 0)
++	if (f->index >= ARRAY_SIZE(sur40_pix_format))
+ 		return -EINVAL;
+-	strlcpy(f->description, "8-bit greyscale", sizeof(f->description));
+-	f->pixelformat = V4L2_PIX_FMT_GREY;
++
++	f->pixelformat = sur40_pix_format[f->index].pixelformat;
+ 	f->flags = 0;
+ 	return 0;
+ }
+@@ -802,22 +861,28 @@ static int sur40_vidioc_enum_fmt(struct file *file, void *priv,
+ static int sur40_vidioc_enum_framesizes(struct file *file, void *priv,
+ 					struct v4l2_frmsizeenum *f)
+ {
+-	if ((f->index != 0) || (f->pixel_format != V4L2_PIX_FMT_GREY))
++	struct sur40_state *sur40 = video_drvdata(file);
++
++	if ((f->index != 0) || ((f->pixel_format != V4L2_TCH_FMT_TU08)
++		&& (f->pixel_format != V4L2_PIX_FMT_GREY)))
+ 		return -EINVAL;
+ 
+ 	f->type = V4L2_FRMSIZE_TYPE_DISCRETE;
+-	f->discrete.width  = sur40_video_format.width;
+-	f->discrete.height = sur40_video_format.height;
++	f->discrete.width  = sur40->pix_fmt.width;
++	f->discrete.height = sur40->pix_fmt.height;
+ 	return 0;
+ }
+ 
+ static int sur40_vidioc_enum_frameintervals(struct file *file, void *priv,
+ 					    struct v4l2_frmivalenum *f)
+ {
+-	if ((f->index > 1) || (f->pixel_format != V4L2_PIX_FMT_GREY)
+-		|| (f->width  != sur40_video_format.width)
+-		|| (f->height != sur40_video_format.height))
+-			return -EINVAL;
++	struct sur40_state *sur40 = video_drvdata(file);
++
++	if ((f->index > 1) || ((f->pixel_format != V4L2_TCH_FMT_TU08)
++		&& (f->pixel_format != V4L2_PIX_FMT_GREY))
++		|| (f->width  != sur40->pix_fmt.width)
++		|| (f->height != sur40->pix_fmt.height))
++		return -EINVAL;
+ 
+ 	f->type = V4L2_FRMIVAL_TYPE_DISCRETE;
+ 	f->discrete.denominator  = 60/(f->index+1);
+@@ -873,9 +938,9 @@ static const struct v4l2_ioctl_ops sur40_video_ioctl_ops = {
+ 	.vidioc_querycap	= sur40_vidioc_querycap,
+ 
+ 	.vidioc_enum_fmt_vid_cap = sur40_vidioc_enum_fmt,
+-	.vidioc_try_fmt_vid_cap	= sur40_vidioc_fmt,
+-	.vidioc_s_fmt_vid_cap	= sur40_vidioc_fmt,
+-	.vidioc_g_fmt_vid_cap	= sur40_vidioc_fmt,
++	.vidioc_try_fmt_vid_cap	= sur40_vidioc_try_fmt,
++	.vidioc_s_fmt_vid_cap	= sur40_vidioc_s_fmt,
++	.vidioc_g_fmt_vid_cap	= sur40_vidioc_g_fmt,
+ 
+ 	.vidioc_enum_framesizes = sur40_vidioc_enum_framesizes,
+ 	.vidioc_enum_frameintervals = sur40_vidioc_enum_frameintervals,
+@@ -902,16 +967,6 @@ static const struct video_device sur40_video_device = {
+ 	.release = video_device_release_empty,
+ };
+ 
+-static const struct v4l2_pix_format sur40_video_format = {
+-	.pixelformat = V4L2_PIX_FMT_GREY,
+-	.width  = SENSOR_RES_X / 2,
+-	.height = SENSOR_RES_Y / 2,
+-	.field = V4L2_FIELD_NONE,
+-	.colorspace = V4L2_COLORSPACE_SRGB,
+-	.bytesperline = SENSOR_RES_X / 2,
+-	.sizeimage = (SENSOR_RES_X/2) * (SENSOR_RES_Y/2),
+-};
+-
+ /* USB-specific object needed to register this driver with the USB subsystem. */
+ static struct usb_driver sur40_driver = {
+ 	.name = DRIVER_SHORT,
 -- 
 1.7.9.5
 

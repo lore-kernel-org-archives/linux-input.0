@@ -1,108 +1,56 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH 1/2] HID: logitech-hidpp: add battery support for HID++
- 2.0 devices
-Date: Fri, 08 Jul 2016 16:35:45 +0200
-Message-ID: <1467988545.2317.4.camel@hadess.net>
-References: <1467192482-2723-1-git-send-email-peter.hutterer@who-t.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: "jeffrey.lin" <yajohn@gmail.com>
+Subject: Re:[v1.1,1/3] driver: input :touchscreen : add Raydium crc touch function
+Date: Fri,  8 Jul 2016 07:36:45 -0700
+Message-ID: <1467988605-44480-1-git-send-email-jeffrey.lin@rad-ic.com>
+References: <1467909479-43471-1-git-send-email-jeffrey.lin@rad-ic.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:48070 "EHLO
-	relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755171AbcGHOf5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2016 10:35:57 -0400
-In-Reply-To: <1467192482-2723-1-git-send-email-peter.hutterer@who-t.net>
+Received: from mail-pa0-f65.google.com ([209.85.220.65]:33749 "EHLO
+	mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754802AbcGHOhq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2016 10:37:46 -0400
+In-Reply-To: <1467909479-43471-1-git-send-email-jeffrey.lin@rad-ic.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se, groeck@chromium.org, robh@kernel.org
+Cc: jeffrey.lin@rad-ic.com, ealin.chiu@rad-ic.com, jason.yeh@rad-ic.com, KP.li@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, 2016-06-29 at 19:28 +1000, Peter Hutterer wrote:
-> +static int hidpp_battery_get_property(struct power_supply *psy,
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 enum power_supply_property psp,
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 union power_supply_propval
-> *val)
-> +{
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct hidpp_device *hidpp=
- =3D power_supply_get_drvdata(psy);
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int ret =3D 0;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0switch(psp) {
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0case POWER_SUPPLY_PROP_STATUS:
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0va=
-l->intval =3D hidpp->battery.status;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0br=
-eak;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0case POWER_SUPPLY_PROP_CAPACITY:
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0va=
-l->intval =3D hidpp->battery.level;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0br=
-eak;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0default:
+>This is not offset, this is size, or length, of CRC.
+I'll change namming as RM_CONTACT_CRC_SIZE
 
-You forgot to handle POWER_SUPPLY_PROP_SCOPE. This means that UPower
-thinks it's supplying power to the computer to which it is connected.
+>> @@ -798,33 +803,54 @@ static void raydium_mt_event(struct raydium_data *ts)
+>>  		input_mt_slot(ts->input, i);
+>>  		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, state);
+>>  
+>> -		if (!state)
+>> -			continue;
+>> -
+>> -		input_report_abs(ts->input, ABS_MT_POSITION_X,
+>> +		if (state == 0x01) {
 
-Should be set to "POWER_SUPPLY_SCOPE_DEVICE". This should fix it.
+>Why we need this change? How is it related to CRC? Do you intent to
+>report contact as active but not emit any position data of state is
+>neither 0 nor 1?
+This is no relationship with CRC, just want to make sure report points as state equal to 1.
+Okay, I'll update to another patch.
 
-=46rom 8fbfcfd411a4b2c55ec24adc8b8ecc0bca2db5e3 Mon Sep 17 00:00:00 200=
-1
-=46rom: Bastien Nocera <hadess@hadess.net>
-Date: Fri, 8 Jul 2016 16:34:18 +0200
-Subject: [PATCH] HID: logitech-hidpp: Add scope to battery
+>>  static irqreturn_t raydium_i2c_irq(int irq, void *_dev)
+>>  {
+>>  	struct raydium_data *ts = _dev;
+>> +	int error;
+>>  
+>> -	if (ts->boot_mode != RAYDIUM_TS_BLDR)
+>> -		raydium_mt_event(ts);
+>> +	if (ts->boot_mode == RAYDIUM_TS_MAIN) {
+>> +		error = raydium_i2c_read_message(ts->client, ts->data_bank_addr,
+>> +				 ts->report_data, ts->pkg_size);
+>> +		if (!error)
+>> +			raydium_i2c_event(ts);
+>> +	}
+>
+>This chunk seems to belong to some other patch.
 
-Without a scope defined, UPower assumes that the battery is provide
-power to the computer it's connected to, like a laptop battery or a UPS=
-=2E
+Yes, I'll remove them. 
 
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
----
- drivers/hid/hid-logitech-hidpp.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Thanks.
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitec=
-h-hidpp.c
-index 4eeb550..4aaf237 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -761,6 +761,7 @@ static int hidpp20_battery_event(struct hidpp_devic=
-e *hidpp,
- static enum power_supply_property hidpp_battery_props[] =3D {
-        POWER_SUPPLY_PROP_STATUS,
-        POWER_SUPPLY_PROP_CAPACITY,
-+       POWER_SUPPLY_PROP_SCOPE,
- };
-=20
- static int hidpp_battery_get_property(struct power_supply *psy,
-@@ -777,6 +778,9 @@ static int hidpp_battery_get_property(struct power_=
-supply *psy,
-                case POWER_SUPPLY_PROP_CAPACITY:
-                        val->intval =3D hidpp->battery.level;
-                        break;
-+               case POWER_SUPPLY_PROP_SCOPE:
-+                       val->intval =3D POWER_SUPPLY_SCOPE_DEVICE;
-+                       break;
-                default:
-                        ret =3D -EINVAL;
-                        break;
---=20
-2.7.4
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Jeffrey

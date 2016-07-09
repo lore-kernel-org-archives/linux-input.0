@@ -1,83 +1,183 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/5] Input: alps - cleanup
-Date: Fri, 8 Jul 2016 14:37:54 -0700
-Message-ID: <20160708213754.GF28589@dtor-ws>
-References: <1465212241-14702-1-git-send-email-pali.rohar@gmail.com>
- <20160621003113.GE22426@dtor-ws>
- <20160621112730.GU29844@pali>
- <20160707114101.GS29844@pali>
+Subject: Re: [PATCH] Input: /input/mouse/elan_i2c_core.c Fix some Asus
+ touchapod which casue TP no funciton sometimes, the patch detect some
+ specific touchpad and run a special initialize
+Date: Fri, 8 Jul 2016 17:24:48 -0700
+Message-ID: <20160709002448.GI28589@dtor-ws>
+References: <1467979929-3409-1-git-send-email-kt.liao@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:34695 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754660AbcGHVh6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2016 17:37:58 -0400
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:34504 "EHLO
+	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756313AbcGIAYv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2016 20:24:51 -0400
 Content-Disposition: inline
-In-Reply-To: <20160707114101.GS29844@pali>
+In-Reply-To: <1467979929-3409-1-git-send-email-kt.liao@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Ben Gamari <ben@smart-cactus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: KT Liao <ktalex.liao@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, phoenix@emc.com.tw, kt.liao@emc.com.tw
 
-On Thu, Jul 07, 2016 at 01:41:01PM +0200, Pali Roh=E1r wrote:
-> On Tuesday 21 June 2016 13:27:30 Pali Roh=E1r wrote:
-> > On Monday 20 June 2016 17:31:13 Dmitry Torokhov wrote:
-> > > Hi Pali,
-> > >=20
-> > > On Mon, Jun 06, 2016 at 01:23:56PM +0200, Pali Roh=E1r wrote:
-> > > > This patch series cleanup usage of alps_model_data table.
-> > > >=20
-> > > > Pali Roh=E1r (5):
-> > > >   Input: alps - move ALPS_PROTO_V6 out of alps_model_data table
-> > > >   Input: alps - move ALPS_PROTO_V4 out of alps_model_data table
-> > > >   Input: alps - move ALPS_PROTO_V1 out of alps_model_data table
-> > > >   Input: alps - warn about unsupported ALPS V9 touchpad
-> > > >   Input: alps - cleanup ALPS_PROTO_V2 detection
-> > >=20
-> > > Frankly, I do not quite like this series. The rule of thumb we ha=
-d: if
-> > > we can use e7 data to identify the device it should go into table=
-,
-> > > if we need to have more elaborate logic - then implement it in
-> > > __alps_indentify(). I would understand if we got rid of the table
-> > > completely, but we didn't.
-> >=20
-> > Hans and me agreed that alps_model_data array is for old touchpads
-> > defined as quirks table. So in this patch series I'm trying to elim=
-inate
-> > using that array. And it is possible for V1, V4 and V6 touchpads be=
-cause
-> > each protocol has only one entry in table. And last user is just V2
-> > protocol which is I think better...
-> >=20
-> > So this is my motivation for this patch series.
+Hi KT,
+
+On Fri, Jul 08, 2016 at 08:12:09PM +0800, KT Liao wrote:
+> Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+
+Please make sure you add a blan line between change subject and the res=
+t
+of description. Then git send-email will compose your email properly
+instead of lumping everything into one long line subject.
+
+> ---
+>  drivers/input/mouse/elan_i2c_core.c | 81 +++++++++++++++++++++++++++=
+++--------
+>  1 file changed, 65 insertions(+), 16 deletions(-)
 >=20
-> Any suggestion how to rework it? And any agreement if we should remov=
-e
-> V1/V4/V6 from alps_model_date or let it stay here?
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mous=
+e/elan_i2c_core.c
+> index 2f58985..1c200fb 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -3,8 +3,8 @@
+>   *
+>   * Copyright (c) 2013 ELAN Microelectronics Corp.
+>   *
+> - * Author: =E6=9E=97=E6=94=BF=E7=B6=AD (Duson Lin) <dusonlin@emc.com=
+=2Etw>
+> - * Version: 1.6.0
+> + * Author: KT Liao <kt.liao@emc.com.tw>
+> + * Version: 1.6.2
+>   *
+>   * Based on cyapa driver:
+>   * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
+> @@ -40,7 +40,7 @@
+>  #include "elan_i2c.h"
+> =20
+>  #define DRIVER_NAME		"elan_i2c"
+> -#define ELAN_DRIVER_VERSION	"1.6.1"
+> +#define ELAN_DRIVER_VERSION	"1.6.2"
+>  #define ELAN_VENDOR_ID		0x04f3
+>  #define ETP_MAX_PRESSURE	255
+>  #define ETP_FWIDTH_REDUCE	90
+> @@ -95,6 +95,8 @@ struct elan_tp_data {
+>  	bool			baseline_ready;
+>  };
+> =20
+> +static int check_ASUS_special_fw(struct elan_tp_data *data);
+> +
+>  static int elan_get_fwinfo(u8 iap_version, u16 *validpage_count,
+>  			   u16 *signature_address)
+>  {
+> @@ -210,21 +212,40 @@ static int __elan_initialize(struct elan_tp_dat=
+a *data)
+>  		return error;
+>  	}
+> =20
+> -	data->mode |=3D ETP_ENABLE_ABS;
+> -	error =3D data->ops->set_mode(client, data->mode);
+> -	if (error) {
+> -		dev_err(&client->dev,
+> -			"failed to switch to absolute mode: %d\n", error);
+> -		return error;
+> -	}
+> +	/* If it's the special FW, it need a different flow for mode change=
+=2E*/
+> +	if (check_ASUS_special_fw(data)) {
+> +		error =3D data->ops->sleep_control(client, false);
+> +		if (error) {
+> +			dev_err(&client->dev,
+> +				"failed to wake device up: %d\n", error);
+> +			return error;
+> +		}
+> =20
+> -	error =3D data->ops->sleep_control(client, false);
+> -	if (error) {
+> -		dev_err(&client->dev,
+> -			"failed to wake device up: %d\n", error);
+> -		return error;
+> -	}
+> +		msleep(200);
+> =20
+> +		data->mode |=3D ETP_ENABLE_ABS;
+> +		error =3D data->ops->set_mode(client, data->mode);
+> +		if (error) {
+> +			dev_err(&client->dev,
+> +				"failed to switch to absolute mode: %d\n", error);
+> +			return error;
+> +		}
+> +	} else {
+> +		data->mode |=3D ETP_ENABLE_ABS;
+> +		error =3D data->ops->set_mode(client, data->mode);
+> +		if (error) {
+> +			dev_err(&client->dev,
+> +				"failed to switch to absolute mode: %d\n", error);
+> +			return error;
+> +		}
+> +
+> +		error =3D data->ops->sleep_control(client, false);
+> +		if (error) {
+> +			dev_err(&client->dev,
+> +				"failed to wake device up: %d\n", error);
+> +			return error;
+> +		}
+> +	}
+>  	return 0;
+>  }
+> =20
+> @@ -757,6 +778,34 @@ out:
+>  	return retval;
+>  }
+> =20
+> +static int check_ASUS_special_fw(struct elan_tp_data *data)
+> +{
+> +	struct i2c_client *client =3D data->client;
+> +	int error;
+> +
+> +	error =3D data->ops->get_product_id(client, &data->product_id);
+> +	if (error)
+> +		return false;
+> +
+> +	error =3D data->ops->get_sm_version(client, &data->ic_type,
+> +					  &data->sm_version);
+> +	if (error)
+> +		return false;
 
-As I mentioned below I am happy with removing ALPS_PROTO_V4 and
-subsequently command_mode_resp from alps_model_info, while leaving the
-rest in the table.
+That means we'd be fetching product ID and IC type twice when
+initializing the device. Can we come with a way to do it once?
+
+> +
+> +	if (data->ic_type =3D=3D 0x0E) {
+
+Maybe
+
+	if (dat->ic_type !=3D 0x0e)
+		return false;
+
+? Then you would not need to indent the switch statement.
+
+> +		switch (data->product_id) {
+> +		case 0x05:
+> +		case 0x06:
+> +		case 0x07:
+> +		case 0x09:
+> +		case 0x13:
+> +			return true;
+> +		default:
+> +			return false;
+> +		}
+> +	}
+> +	return false;
+> +}
+> =20
+>  static DEVICE_ATTR_WO(acquire);
+>  static DEVICE_ATTR_RO(min);
+> --=20
+> 2.7.4
+>=20
 
 Thanks.
-
->=20
-> > > I think the patch removing ALPS_PROTO_V4 and subsequent patch rem=
-oving
-> > > command_mode_resp from alps_model_info are good, the rest are not=
- so
-> > > much.
-> > >=20
-> > > Thanks.
-> > >=20
-> >=20
->=20
-> --=20
-> Pali Roh=E1r
-> pali.rohar@gmail.com
 
 --=20
 Dmitry

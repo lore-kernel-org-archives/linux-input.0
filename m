@@ -1,188 +1,75 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: /input/mouse/elan_i2c_core.c Fix some Asus
- touchapod which casue TP no funciton sometimes, the patch detect some
- specific touchpad and run a special initialize
-Date: Fri, 8 Jul 2016 17:24:48 -0700
-Message-ID: <20160709002448.GI28589@dtor-ws>
-References: <1467979929-3409-1-git-send-email-kt.liao@emc.com.tw>
+Subject: Re: [PATCH] xen-kbdfront: correct return value checks on
+ xenbus_scanf()
+Date: Fri, 8 Jul 2016 17:33:29 -0700
+Message-ID: <20160709003329.GJ28589@dtor-ws>
+References: <577E26A402000078000FBE93@prv-mh.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:34504 "EHLO
-	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756313AbcGIAYv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2016 20:24:51 -0400
+Received: from mail-pa0-f67.google.com ([209.85.220.67]:36646 "EHLO
+	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756299AbcGIAdc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2016 20:33:32 -0400
+Received: by mail-pa0-f67.google.com with SMTP id ib6so8948239pad.3
+        for <linux-input@vger.kernel.org>; Fri, 08 Jul 2016 17:33:32 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1467979929-3409-1-git-send-email-kt.liao@emc.com.tw>
+In-Reply-To: <577E26A402000078000FBE93@prv-mh.provo.novell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: KT Liao <ktalex.liao@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, phoenix@emc.com.tw, kt.liao@emc.com.tw
+To: Jan Beulich <JBeulich@suse.com>
+Cc: david.vrabel@citrix.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, Juergen Gross <JGross@suse.com>, linux-input@vger.kernel.org
 
-Hi KT,
+On Thu, Jul 07, 2016 at 01:53:40AM -0600, Jan Beulich wrote:
+> Only a positive return value indicates success.
 
-On Fri, Jul 08, 2016 at 08:12:09PM +0800, KT Liao wrote:
-> Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+If I am reading this correctly xenbus_scanf() guarantees that it will
+not return 0. From include/xen/xenbus.h:
 
-Please make sure you add a blan line between change subject and the res=
-t
-of description. Then git send-email will compose your email properly
-instead of lumping everything into one long line subject.
+/* Single read and scanf: returns -errno or num scanned if > 0. */
+__scanf(4, 5)
+int xenbus_scanf(struct xenbus_transaction t,
+		 const char *dir, const char *node, const char *fmt, ...);
 
+and the code matches:
+
+	...
+	/* Distinctive errno. */
+	if (ret == 0)
+		return -ERANGE;
+	return ret;
+
+> 
+> Signed-off-by: Jan Beulich <jbeulich@suse.com>
 > ---
->  drivers/input/mouse/elan_i2c_core.c | 81 +++++++++++++++++++++++++++=
-++--------
->  1 file changed, 65 insertions(+), 16 deletions(-)
->=20
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mous=
-e/elan_i2c_core.c
-> index 2f58985..1c200fb 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -3,8 +3,8 @@
->   *
->   * Copyright (c) 2013 ELAN Microelectronics Corp.
->   *
-> - * Author: =E6=9E=97=E6=94=BF=E7=B6=AD (Duson Lin) <dusonlin@emc.com=
-=2Etw>
-> - * Version: 1.6.0
-> + * Author: KT Liao <kt.liao@emc.com.tw>
-> + * Version: 1.6.2
->   *
->   * Based on cyapa driver:
->   * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
-> @@ -40,7 +40,7 @@
->  #include "elan_i2c.h"
-> =20
->  #define DRIVER_NAME		"elan_i2c"
-> -#define ELAN_DRIVER_VERSION	"1.6.1"
-> +#define ELAN_DRIVER_VERSION	"1.6.2"
->  #define ELAN_VENDOR_ID		0x04f3
->  #define ETP_MAX_PRESSURE	255
->  #define ETP_FWIDTH_REDUCE	90
-> @@ -95,6 +95,8 @@ struct elan_tp_data {
->  	bool			baseline_ready;
->  };
-> =20
-> +static int check_ASUS_special_fw(struct elan_tp_data *data);
-> +
->  static int elan_get_fwinfo(u8 iap_version, u16 *validpage_count,
->  			   u16 *signature_address)
->  {
-> @@ -210,21 +212,40 @@ static int __elan_initialize(struct elan_tp_dat=
-a *data)
->  		return error;
->  	}
-> =20
-> -	data->mode |=3D ETP_ENABLE_ABS;
-> -	error =3D data->ops->set_mode(client, data->mode);
-> -	if (error) {
-> -		dev_err(&client->dev,
-> -			"failed to switch to absolute mode: %d\n", error);
-> -		return error;
-> -	}
-> +	/* If it's the special FW, it need a different flow for mode change=
-=2E*/
-> +	if (check_ASUS_special_fw(data)) {
-> +		error =3D data->ops->sleep_control(client, false);
-> +		if (error) {
-> +			dev_err(&client->dev,
-> +				"failed to wake device up: %d\n", error);
-> +			return error;
-> +		}
-> =20
-> -	error =3D data->ops->sleep_control(client, false);
-> -	if (error) {
-> -		dev_err(&client->dev,
-> -			"failed to wake device up: %d\n", error);
-> -		return error;
-> -	}
-> +		msleep(200);
-> =20
-> +		data->mode |=3D ETP_ENABLE_ABS;
-> +		error =3D data->ops->set_mode(client, data->mode);
-> +		if (error) {
-> +			dev_err(&client->dev,
-> +				"failed to switch to absolute mode: %d\n", error);
-> +			return error;
-> +		}
-> +	} else {
-> +		data->mode |=3D ETP_ENABLE_ABS;
-> +		error =3D data->ops->set_mode(client, data->mode);
-> +		if (error) {
-> +			dev_err(&client->dev,
-> +				"failed to switch to absolute mode: %d\n", error);
-> +			return error;
-> +		}
-> +
-> +		error =3D data->ops->sleep_control(client, false);
-> +		if (error) {
-> +			dev_err(&client->dev,
-> +				"failed to wake device up: %d\n", error);
-> +			return error;
-> +		}
-> +	}
->  	return 0;
->  }
-> =20
-> @@ -757,6 +778,34 @@ out:
->  	return retval;
->  }
-> =20
-> +static int check_ASUS_special_fw(struct elan_tp_data *data)
-> +{
-> +	struct i2c_client *client =3D data->client;
-> +	int error;
-> +
-> +	error =3D data->ops->get_product_id(client, &data->product_id);
-> +	if (error)
-> +		return false;
-> +
-> +	error =3D data->ops->get_sm_version(client, &data->ic_type,
-> +					  &data->sm_version);
-> +	if (error)
-> +		return false;
-
-That means we'd be fetching product ID and IC type twice when
-initializing the device. Can we come with a way to do it once?
-
-> +
-> +	if (data->ic_type =3D=3D 0x0E) {
-
-Maybe
-
-	if (dat->ic_type !=3D 0x0e)
-		return false;
-
-? Then you would not need to indent the switch statement.
-
-> +		switch (data->product_id) {
-> +		case 0x05:
-> +		case 0x06:
-> +		case 0x07:
-> +		case 0x09:
-> +		case 0x13:
-> +			return true;
-> +		default:
-> +			return false;
-> +		}
-> +	}
-> +	return false;
-> +}
-> =20
->  static DEVICE_ATTR_WO(acquire);
->  static DEVICE_ATTR_RO(min);
-> --=20
-> 2.7.4
->=20
+>  drivers/input/misc/xen-kbdfront.c |    5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> --- 4.7-rc6-xenbus_scanf.orig/drivers/input/misc/xen-kbdfront.c
+> +++ 4.7-rc6-xenbus_scanf/drivers/input/misc/xen-kbdfront.c
+> @@ -127,7 +127,8 @@ static int xenkbd_probe(struct xenbus_de
+>  	if (!info->page)
+>  		goto error_nomem;
+>  
+> -	if (xenbus_scanf(XBT_NIL, dev->otherend, "feature-abs-pointer", "%d", &abs) < 0)
+> +	if (xenbus_scanf(XBT_NIL, dev->otherend,
+> +			 "feature-abs-pointer", "%d", &abs) <= 0)
+>  		abs = 0;
+>  	if (abs) {
+>  		ret = xenbus_printf(XBT_NIL, dev->nodename,
+> @@ -324,7 +325,7 @@ static void xenkbd_backend_changed(struc
+>  InitWait:
+>  		ret = xenbus_scanf(XBT_NIL, info->xbdev->otherend,
+>  				   "feature-abs-pointer", "%d", &val);
+> -		if (ret < 0)
+> +		if (ret <= 0)
+>  			val = 0;
+>  		if (val) {
+>  			ret = xenbus_printf(XBT_NIL, info->xbdev->nodename,
+> 
+> 
 
 Thanks.
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

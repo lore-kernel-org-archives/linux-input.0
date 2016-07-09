@@ -1,101 +1,51 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH 0/5] Input: alps - cleanup
-Date: Sat, 9 Jul 2016 11:58:03 +0200
-Message-ID: <201607091158.04008@pali>
-References: <1465212241-14702-1-git-send-email-pali.rohar@gmail.com> <20160707114101.GS29844@pali> <20160708213754.GF28589@dtor-ws>
+From: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH v2] input: tablet: pegasus_notetaker: USB PM fixes
+Date: Sat, 9 Jul 2016 14:07:41 +0200
+Message-ID: <6828d5b3-519c-27df-0153-2f8d8b6d526a@posteo.de>
+References: <1465903215-2351-1-git-send-email-martink@posteo.de>
+ <20160623171835.GE32561@dtor-ws>
+ <246597fa-6a85-1128-853d-3ebdf6f41032@posteo.de>
+ <20160708210824.GE28589@dtor-ws>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5267896.Qy6z5HGKYM";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f46.google.com ([74.125.82.46]:36307 "EHLO
-	mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751224AbcGIJ6I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Jul 2016 05:58:08 -0400
-In-Reply-To: <20160708213754.GF28589@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160708210824.GE28589@dtor-ws>
+Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Ben Gamari <ben@smart-cactus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---nextPart5267896.Qy6z5HGKYM
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Am 2016-07-08 um 23:08 schrieb Dmitry Torokhov:
+> On Tue, Jun 28, 2016 at 06:17:13PM +0200, Martin Kepplinger wrote:
+>> Am 2016-06-23 um 19:18 schrieb Dmitry Torokhov:
+>>> Hi Martin,
+>>>
+>>> On Tue, Jun 14, 2016 at 01:20:15PM +0200, Martin Kepplinger wrote:
+>>>>  static int pegasus_reset_resume(struct usb_interface *intf)
+>>>>  {
+>>>> +	struct pegasus *pegasus = usb_get_intfdata(intf);
+>>>> +
+>>>> +	if (pegasus->dev->users)
+>>>> +		pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
+>>>> +
+>>>>  	return pegasus_resume(intf);
+>>>
+>>> Hmm, we need to take input mutex when using pegasus->dev->users, how
+>>> about the version below instead?
+>>>
+>>> Thanks.
+>>>
+>>
+>> Sorry for the delay, give me a few more days to test and confirm this or
+>> come up with a final patch.
+> 
+> Martin, did you have time to try out this version of the patch?
+> 
+> Thanks!
+> 
 
-On Friday 08 July 2016 23:37:54 Dmitry Torokhov wrote:
-> On Thu, Jul 07, 2016 at 01:41:01PM +0200, Pali Roh=C3=A1r wrote:
-> > On Tuesday 21 June 2016 13:27:30 Pali Roh=C3=A1r wrote:
-> > > On Monday 20 June 2016 17:31:13 Dmitry Torokhov wrote:
-> > > > Hi Pali,
-> > > >=20
-> > > > On Mon, Jun 06, 2016 at 01:23:56PM +0200, Pali Roh=C3=A1r wrote:
-> > > > > This patch series cleanup usage of alps_model_data table.
-> > > > >=20
-> > > > > Pali Roh=C3=A1r (5):
-> > > > >   Input: alps - move ALPS_PROTO_V6 out of alps_model_data
-> > > > >   table Input: alps - move ALPS_PROTO_V4 out of
-> > > > >   alps_model_data table Input: alps - move ALPS_PROTO_V1 out
-> > > > >   of alps_model_data table Input: alps - warn about
-> > > > >   unsupported ALPS V9 touchpad Input: alps - cleanup
-> > > > >   ALPS_PROTO_V2 detection
-> > > >=20
-> > > > Frankly, I do not quite like this series. The rule of thumb we
-> > > > had: if we can use e7 data to identify the device it should go
-> > > > into table, if we need to have more elaborate logic - then
-> > > > implement it in __alps_indentify(). I would understand if we
-> > > > got rid of the table completely, but we didn't.
-> > >=20
-> > > Hans and me agreed that alps_model_data array is for old
-> > > touchpads defined as quirks table. So in this patch series I'm
-> > > trying to eliminate using that array. And it is possible for V1,
-> > > V4 and V6 touchpads because each protocol has only one entry in
-> > > table. And last user is just V2 protocol which is I think
-> > > better...
-> > >=20
-> > > So this is my motivation for this patch series.
-> >=20
-> > Any suggestion how to rework it? And any agreement if we should
-> > remove V1/V4/V6 from alps_model_date or let it stay here?
->=20
-> As I mentioned below I am happy with removing ALPS_PROTO_V4 and
-> subsequently command_mode_resp from alps_model_info, while leaving
-> the rest in the table.
+This patch doesn't seem to work as is. Holidays get in the way, but you
+can expect a working patch(set) next week.
 
-Now I'm not fully understand what you mean. This patch series does not=20
-remove ALPS_PROTO_V4 support. Just move ALPS_PROTO_V4 out of=20
-alps_model_info table structure (same as for V1 and V6). Field=20
-command_mode_resp is removed from alps_model_info, but that can be done=20
-only because command_mode_resp is used by ALPS_PROTO_V4 (which is moved=20
-out of alps_model_info).
-
-So I do not understand why do you think moving ALPS_PROTO_V4 out of=20
-alps_model_info is good, but ALPS_PROTO_V6 or ALPS_PROTO_V1 not.
-
-> Thanks.
->=20
-> > > > I think the patch removing ALPS_PROTO_V4 and subsequent patch
-> > > > removing command_mode_resp from alps_model_info are good, the
-> > > > rest are not so much.
-> > > >=20
-> > > > Thanks.
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart5267896.Qy6z5HGKYM
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAleAyqsACgkQi/DJPQPkQ1I+LQCffOUL7qRS/Vj/v5s3ZdA63Jif
-ZWkAoItm+VTHo3qDH1sO9XvT7G4xcMTc
-=I/F/
------END PGP SIGNATURE-----
-
---nextPart5267896.Qy6z5HGKYM--
+                   martin

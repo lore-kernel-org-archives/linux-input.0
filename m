@@ -1,51 +1,35 @@
-From: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH v2] input: tablet: pegasus_notetaker: USB PM fixes
-Date: Sat, 9 Jul 2016 14:07:41 +0200
-Message-ID: <6828d5b3-519c-27df-0153-2f8d8b6d526a@posteo.de>
-References: <1465903215-2351-1-git-send-email-martink@posteo.de>
- <20160623171835.GE32561@dtor-ws>
- <246597fa-6a85-1128-853d-3ebdf6f41032@posteo.de>
- <20160708210824.GE28589@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160708210824.GE28589@dtor-ws>
-Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: "jeffrey.lin" <yajohn@gmail.com>
+Subject: Re:[v1.1,3/3] modify raydium firmware update rule
+Date: Sat,  9 Jul 2016 07:33:57 -0700
+Message-ID: <1468074837-44718-1-git-send-email-jeffrey.lin@rad-ic.com>
+References: <1467909578-43578-1-git-send-email-jeffrey.lin@rad-ic.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:36214 "EHLO
+	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750747AbcGIOey (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Jul 2016 10:34:54 -0400
+In-Reply-To: <1467909578-43578-1-git-send-email-jeffrey.lin@rad-ic.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se, groeck@chromium.org, robh@kernel.org
+Cc: jeffrey.lin@rad-ic.com, ealin.chiu@rad-ic.com, jason.yeh@rad-ic.com, KP.li@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Am 2016-07-08 um 23:08 schrieb Dmitry Torokhov:
-> On Tue, Jun 28, 2016 at 06:17:13PM +0200, Martin Kepplinger wrote:
->> Am 2016-06-23 um 19:18 schrieb Dmitry Torokhov:
->>> Hi Martin,
->>>
->>> On Tue, Jun 14, 2016 at 01:20:15PM +0200, Martin Kepplinger wrote:
->>>>  static int pegasus_reset_resume(struct usb_interface *intf)
->>>>  {
->>>> +	struct pegasus *pegasus = usb_get_intfdata(intf);
->>>> +
->>>> +	if (pegasus->dev->users)
->>>> +		pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
->>>> +
->>>>  	return pegasus_resume(intf);
->>>
->>> Hmm, we need to take input mutex when using pegasus->dev->users, how
->>> about the version below instead?
->>>
->>> Thanks.
->>>
->>
->> Sorry for the delay, give me a few more days to test and confirm this or
->> come up with a final patch.
-> 
-> Martin, did you have time to try out this version of the patch?
-> 
-> Thanks!
-> 
+Hi dmitry:
 
-This patch doesn't seem to work as is. Holidays get in the way, but you
-can expect a working patch(set) next week.
+>> >> modify raydium touch firmware update rule.
+>> 
+>> >Why? You need to explain why you are proposing a change (but as I
+>> >mentioned I see no reason for using custom file names for firmware. Have
+>> >userspace adjust name as needed by the driver.
+>> 
+>> >Thanks.
+>> 
+>> Just want to easy to do firmware update version control in the factory. If do this,
+>> factory do not easy update wrong version.
+>
+>Just have your factory image rename firmware to canonical name before
+>initiating update. There is no need to encumber kernel code with this.
+Okay
+Thanks.
 
-                   martin
+Jeffrey.

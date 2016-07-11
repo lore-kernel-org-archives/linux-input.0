@@ -1,116 +1,46 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/2] HID: logitech-hidpp: add battery support for HID++
- 2.0 devices
-Date: Mon, 11 Jul 2016 12:54:56 +0200
-Message-ID: <20160711105456.GA4663@mail.corp.redhat.com>
-References: <1467192482-2723-1-git-send-email-peter.hutterer@who-t.net>
- <1467988545.2317.4.camel@hadess.net>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH v2 4/4] ACPI / button: Add document for ACPI control
+ method lid device restrictions
+Date: Mon, 11 Jul 2016 12:58:41 +0200
+Message-ID: <1468234721.2277.35.camel@hadess.net>
+References: <cover.1467717304.git.lv.zheng@intel.com>	
+ <cover.1467875142.git.lv.zheng@intel.com>	
+ <3f24a00df89f06661a64af6b4679a99bfff09aa7.1467875143.git.lv.zheng@intel.com>	
+ <CAN+gG=G5p6ztJODQBBAF7MY0kBNGVpexY-+a8RQY9JKuY1AB1Q@mail.gmail.com>
+	 <1AE640813FDE7649BE1B193DEA596E883BC02198@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40765 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752821AbcGKKzC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2016 06:55:02 -0400
-Content-Disposition: inline
-In-Reply-To: <1467988545.2317.4.camel@hadess.net>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1AE640813FDE7649BE1B193DEA596E883BC02198@SHSMSX101.ccr.corp.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Zheng, Lv" <lv.zheng@intel.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>
 
-On Jul 08 2016 or thereabouts, Bastien Nocera wrote:
-> On Wed, 2016-06-29 at 19:28 +1000, Peter Hutterer wrote:
-> > +static int hidpp_battery_get_property(struct power_supply *psy,
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 enum power_supply_property psp,
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 union power_supply_propval
-> > *val)
-> > +{
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct hidpp_device *hid=
-pp =3D power_supply_get_drvdata(psy);
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int ret =3D 0;
-> > +
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0switch(psp) {
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0case POWER_SUPPLY_PROP_STATUS:
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-val->intval =3D hidpp->battery.status;
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-break;
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0case POWER_SUPPLY_PROP_CAPACITY:
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-val->intval =3D hidpp->battery.level;
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-break;
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0default:
+On Mon, 2016-07-11 at 03:20 +0000, Zheng, Lv wrote:
 >=20
-> You forgot to handle POWER_SUPPLY_PROP_SCOPE. This means that UPower
-> thinks it's supplying power to the computer to which it is connected.
+<snip>
+> > This worries me as there is no plan after "During the period the
+> > userspace hasn't been switched to use the new event".
+> >=20
+> > I really hope you'll keep sending SW_LID for reliable LID
+> > platforms,
+> > and not remove it entirely as you will break platforms.
 >=20
-> Should be set to "POWER_SUPPLY_SCOPE_DEVICE". This should fix it.
+> [Lv Zheng]=C2=A0
+> We won't remove SW_LID from the kernel :).
 >=20
-> From 8fbfcfd411a4b2c55ec24adc8b8ecc0bca2db5e3 Mon Sep 17 00:00:00 200=
-1
-> From: Bastien Nocera <hadess@hadess.net>
-> Date: Fri, 8 Jul 2016 16:34:18 +0200
-> Subject: [PATCH] HID: logitech-hidpp: Add scope to battery
+> And we haven't removed SW_LID from the acpi button driver.
+> We'll just stop sending "initial lid state" from acpi button driver,
+> i.e., the behavior carried out by "button.lid_init_state=3Dignore".
 >=20
-> Without a scope defined, UPower assumes that the battery is provide
-> power to the computer it's connected to, like a laptop battery or a U=
-PS.
->=20
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> Maybe it is not sufficient, after the userspace has been changed to
+> support the new event, we should stop sending SW_LID from acpi button
+> driver.
 
-=46WIW, the following patch is:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-> ---
->  drivers/hid/hid-logitech-hidpp.c | 4 ++++
->  1 file changed, 4 insertions(+)
->=20
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logit=
-ech-hidpp.c
-> index 4eeb550..4aaf237 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -761,6 +761,7 @@ static int hidpp20_battery_event(struct hidpp_dev=
-ice *hidpp,
->  static enum power_supply_property hidpp_battery_props[] =3D {
->         POWER_SUPPLY_PROP_STATUS,
->         POWER_SUPPLY_PROP_CAPACITY,
-> +       POWER_SUPPLY_PROP_SCOPE,
->  };
-> =20
->  static int hidpp_battery_get_property(struct power_supply *psy,
-> @@ -777,6 +778,9 @@ static int hidpp_battery_get_property(struct powe=
-r_supply *psy,
->                 case POWER_SUPPLY_PROP_CAPACITY:
->                         val->intval =3D hidpp->battery.level;
->                         break;
-> +               case POWER_SUPPLY_PROP_SCOPE:
-> +                       val->intval =3D POWER_SUPPLY_SCOPE_DEVICE;
-> +                       break;
->                 default:
->                         ret =3D -EINVAL;
->                         break;
-> --=20
-> 2.7.4
->=20
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+=46or the affected devices? Sure, but I don't think that's a reasonable
+thing to do for "all" the devices. We have a majority of laptops where
+this isn't a problem, and it's not even a problem any more on one of
+the devices that triggered this discussion (there's a patch for make
+the LID status match reality for the Surface 3).

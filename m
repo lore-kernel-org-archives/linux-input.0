@@ -1,66 +1,57 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: Supporting the new Xbox One controller with wireless/BT connectivity
-Date: Mon, 11 Jul 2016 10:47:38 -0700
-Message-ID: <5783DBBA.8070503@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] HID: wacom: Stop mapping touch usages after processing HID_DG_CONTACTCOUNT
+Date: Mon, 11 Jul 2016 10:59:50 -0700
+Message-ID: <20160711175950.17121-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f179.google.com ([209.85.192.179]:35880 "EHLO
-	mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755286AbcGKRrl (ORCPT
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:36242 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751116AbcGKR76 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2016 13:47:41 -0400
-Received: by mail-pf0-f179.google.com with SMTP id t190so38208629pfb.3
-        for <linux-input@vger.kernel.org>; Mon, 11 Jul 2016 10:47:40 -0700 (PDT)
+	Mon, 11 Jul 2016 13:59:58 -0400
+Received: by mail-pa0-f68.google.com with SMTP id ib6so13165730pad.3
+        for <linux-input@vger.kernel.org>; Mon, 11 Jul 2016 10:59:58 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, jikos@kernel.org
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-I'm trying to come up with the best way to support wirelessly connected Xbox
-One controllers. Microsoft has previously released a wireless adapter that
-uses a proprietary protocol to talk to the Xbox One controllers. Recently,
-they have also announced an Xbox One controller with Bluetooth connectivity. 
-Though we can't be sure yet since it hasn't come out yet, I would guess that
-they're using the same protocol as they do when attached via USB. If it's a
-standard HID gamepad, we don't have any work to do but I'm not holding my
-breath ;)
+If a touchscreen contains both multitouch and single-touch reports in its
+descriptor in that order, the driver may overwrite information it saved
+about the format of the multitouch report. This can cause the report
+processing code to get tripped up and send an incorrect event stream to
+userspace.
 
-Unfortunately, our xpad driver is quite tied to USB so it will be difficult to
-support HID communication over Bluetooth. My initial thinking is that we can
-add a new hid-xpad driver that will initially take over this single Bluetooth
-Xbox One controller. After it is tested and feature parity with xpad, we can
-possibly expand it to handle all Xbox One controllers to avoid duplicated
-logic.
+In particular, this can cause last_slot_field to be overwritten with the
+result that the driver prematurely assumes it has finished processing a
+slot and sending the ABS_MT_SLOT event at the wrong point in time,
+associating events for the current contact with the following contact
+instead.
 
-The wrinkle in these plans is the Xbox One wireless adapter which seems to be
-simply a MediaTek WLAN adapter that MS is binding a protocol driver to in order
-to emulate the HID protocol for the rest of their device stack. Fortunately, it
-looks like people are started to have success reverse engineering the wireless
-protocol, so we should be able to do something similar to how MS implements it.
+To prevent this from occuring, we stop mapping usages after having seen
+HID_DG_CONTACTCOUNT. This usage is only present in multitouch reports,
+so the format of any following single-touch reports will have no effect.
 
-In order to support the proprietary wireless adapter, I see two options:
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-1) Write a driver for the Xbox One wireless adapter that will expose a virtual
-   USB controller that enumerates Xbox One controllers and allows our existing
-   xpad driver to run them. The OZWPAN driver in staging does something like
-   this and would be a good reference. The advantage is that it doesn't require
-   a new hid-xpad driver. The disadvantages are that there's a bunch of
-   complexity in writing a virtual USB host controller driver and even after
-   doing it, we still can't support Bluetooth Xbox One Controllers.
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index fcf2264..e499cdb 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1560,6 +1560,11 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+ 	struct input_dev *input = wacom_wac->touch_input;
+ 	unsigned touch_max = wacom_wac->features.touch_max;
+ 
++	/* stop processing after the first multitouch report */
++	if (wacom_wac->hid_data.cc_report &&
++	    wacom_wac->hid_data.cc_report != field->report->id)
++		return;
++
+ 	switch (usage->hid) {
+ 	case HID_GD_X:
+ 		features->last_slot_field = usage->hid;
+-- 
+2.9.0
 
-2) Write a HID transport for the Xbox One wireless adapter that enumerates HID
-   devices for the hid-xpad driver. By moving the abstracting up a layer, it
-   really cuts down on the amount of code required. This would also let us
-   support USB, proprietary wireless, and Bluetooth attached Xbox One
-   controllers with a single xpad driver.
-
-As far as I'm concerned, #2 seems like the obvious choice.
-
-Jiri and Dmitry, do either of you see anything wrong with #2 or have any other
-comments or concerns?
-
-
-Thanks,
-Cameron

@@ -1,100 +1,116 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v7 0/11] Output raw touch data via V4L2
-Date: Mon, 11 Jul 2016 08:09:56 +0200
-Message-ID: <c6825cf2-46c8-f08b-e6aa-130855d2639b@xs4all.nl>
-References: <1467977164-17551-1-git-send-email-nick@shmanahar.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/2] HID: logitech-hidpp: add battery support for HID++
+ 2.0 devices
+Date: Mon, 11 Jul 2016 12:54:56 +0200
+Message-ID: <20160711105456.GA4663@mail.corp.redhat.com>
+References: <1467192482-2723-1-git-send-email-peter.hutterer@who-t.net>
+ <1467988545.2317.4.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1467977164-17551-1-git-send-email-nick@shmanahar.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Alan Bowens <Alan.Bowens@atmel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, jon.older@itdev.co.uk, nick.dyer@itdev.co.uk
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:40765 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752821AbcGKKzC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Jul 2016 06:55:02 -0400
+Content-Disposition: inline
+In-Reply-To: <1467988545.2317.4.camel@hadess.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>
 
-On 07/08/2016 01:25 PM, Nick Dyer wrote:
-> This is a series of patches to add output of raw touch diagnostic data via V4L2
-> to the Atmel maXTouch and Synaptics RMI4 drivers.
-> 
-> It's a rewrite of the previous implementation which output via debugfs: it now
-> uses a V4L2 device in a similar way to the sur40 driver.
-> 
-> We have a utility which can read the data and display it in a useful format:
->     https://github.com/ndyer/heatmap/commits/heatmap-v4l
-> 
-> These patches are also available from
->     https://github.com/ndyer/linux/commits/v4l-touch-v7-2016-07-08
-> 
-> I will also send a patch to update v4l2-compliance.
+On Jul 08 2016 or thereabouts, Bastien Nocera wrote:
+> On Wed, 2016-06-29 at 19:28 +1000, Peter Hutterer wrote:
+> > +static int hidpp_battery_get_property(struct power_supply *psy,
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0 enum power_supply_property psp,
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0 union power_supply_propval
+> > *val)
+> > +{
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct hidpp_device *hid=
+pp =3D power_supply_get_drvdata(psy);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int ret =3D 0;
+> > +
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0switch(psp) {
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0case POWER_SUPPLY_PROP_STATUS:
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+val->intval =3D hidpp->battery.status;
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+break;
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0case POWER_SUPPLY_PROP_CAPACITY:
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+val->intval =3D hidpp->battery.level;
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+break;
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0default:
+>=20
+> You forgot to handle POWER_SUPPLY_PROP_SCOPE. This means that UPower
+> thinks it's supplying power to the computer to which it is connected.
+>=20
+> Should be set to "POWER_SUPPLY_SCOPE_DEVICE". This should fix it.
+>=20
+> From 8fbfcfd411a4b2c55ec24adc8b8ecc0bca2db5e3 Mon Sep 17 00:00:00 200=
+1
+> From: Bastien Nocera <hadess@hadess.net>
+> Date: Fri, 8 Jul 2016 16:34:18 +0200
+> Subject: [PATCH] HID: logitech-hidpp: Add scope to battery
+>=20
+> Without a scope defined, UPower assumes that the battery is provide
+> power to the computer it's connected to, like a laptop battery or a U=
+PS.
+>=20
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
 
-The series looks good, but it needs to be rebased due to this change:
+=46WIW, the following patch is:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-http://www.spinics.net/lists/linux-media/msg101733.html
-
-Regarding patch 3/11: as you may know we're moving from DocBook to sphinx for
-the documentation in 4.8. The git branch with that code is here:
-
-https://git.linuxtv.org/media_tree.git/log/?h=docs-next
-
-If you can redo this patch 3/11 on top of that branch, then that would be
-great.
-
-Regards,
-
-	Hans
-
-> 
-> Changes in v7:
-> - Tested by Andrew Duggan and Chris Healy.
-> - Update bus_info to add "rmi4:" bus.
-> - Fix code style issues in sur40 changes.
-> 
-> Changes in v6:
-> - Remove BUF_TYPE_TOUCH_CAPTURE, as discussed with Hans V touch devices will
->   use BUF_TYPE_VIDEO_CAPTURE.
-> - Touch devices should now register CAP_VIDEO_CAPTURE: CAP_TOUCH just says that
->   this is a touch device, not a video device, but otherwise it acts the same.
-> - Add some code to v4l_s_fmt() to set sensible default values for fields not
->   used by touch.
-> - Improve naming/doc of RMI4 F54 report types.
-> - Various minor DocBook fixes, and split to separate patch.
-> - Update my email address.
-> - Rework sur40 changes so that PIX_FMT_GREY is supported for backward
->   compatibility. Florian is it possible for you to test?
-> 
-> Changes in v5 (Hans Verkuil review):
-> - Update v4l2-core:
->   - Add VFL_TYPE_TOUCH, V4L2_BUF_TYPE_TOUCH_CAPTURE and V4L2_CAP_TOUCH
->   - Change V4L2_INPUT_TYPE_TOUCH_SENSOR to V4L2_INPUT_TYPE_TOUCH
->   - Improve DocBook documentation
->   - Add FMT definitions for touch data
->   - Note this will need the latest version of the heatmap util
-> - Synaptics RMI4 driver:
->   - Remove some less important non full frame report types
->   - Switch report type names to const char * array
->   - Move a static array to inside context struct
-> - Split sur40 changes to a separate commit
-> 
-> Changes in v4:
-> - Address nits from the input side in atmel_mxt_ts patches (Dmitry Torokhov)
-> - Add Synaptics RMI4 F54 support patch
-> 
-> Changes in v3:
-> - Address V4L2 review comments from Hans Verkuil
-> - Run v4l-compliance and fix all issues - needs minor patch here:
->   https://github.com/ndyer/v4l-utils/commit/cf50469773f
-> 
-> Changes in v2:
-> - Split pixfmt changes into separate commit and add DocBook
-> - Introduce VFL_TYPE_TOUCH_SENSOR and /dev/v4l-touch
-> - Remove "single node" support for now, it may be better to treat it as
->   metadata later
-> - Explicitly set VFL_DIR_RX
-> - Fix Kconfig
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-media" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+> ---
+>  drivers/hid/hid-logitech-hidpp.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>=20
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logit=
+ech-hidpp.c
+> index 4eeb550..4aaf237 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -761,6 +761,7 @@ static int hidpp20_battery_event(struct hidpp_dev=
+ice *hidpp,
+>  static enum power_supply_property hidpp_battery_props[] =3D {
+>         POWER_SUPPLY_PROP_STATUS,
+>         POWER_SUPPLY_PROP_CAPACITY,
+> +       POWER_SUPPLY_PROP_SCOPE,
+>  };
+> =20
+>  static int hidpp_battery_get_property(struct power_supply *psy,
+> @@ -777,6 +778,9 @@ static int hidpp_battery_get_property(struct powe=
+r_supply *psy,
+>                 case POWER_SUPPLY_PROP_CAPACITY:
+>                         val->intval =3D hidpp->battery.level;
+>                         break;
+> +               case POWER_SUPPLY_PROP_SCOPE:
+> +                       val->intval =3D POWER_SUPPLY_SCOPE_DEVICE;
+> +                       break;
+>                 default:
+>                         ret =3D -EINVAL;
+>                         break;
+> --=20
+> 2.7.4
+>=20
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

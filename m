@@ -1,57 +1,180 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] HID: wacom: Stop mapping touch usages after processing HID_DG_CONTACTCOUNT
-Date: Mon, 11 Jul 2016 10:59:50 -0700
-Message-ID: <20160711175950.17121-1-killertofu@gmail.com>
+Subject: [PATCH 1/2] HID: wacom: Add WACOM_DEVICETYPE_DIRECT for Cintiqs and similar
+Date: Mon, 11 Jul 2016 11:07:10 -0700
+Message-ID: <20160711180711.17537-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f68.google.com ([209.85.220.68]:36242 "EHLO
-	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751116AbcGKR76 (ORCPT
+Received: from mail-pa0-f66.google.com ([209.85.220.66]:35076 "EHLO
+	mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751327AbcGKSHZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2016 13:59:58 -0400
-Received: by mail-pa0-f68.google.com with SMTP id ib6so13165730pad.3
-        for <linux-input@vger.kernel.org>; Mon, 11 Jul 2016 10:59:58 -0700 (PDT)
+	Mon, 11 Jul 2016 14:07:25 -0400
+Received: by mail-pa0-f66.google.com with SMTP id dx3so13163131pab.2
+        for <linux-input@vger.kernel.org>; Mon, 11 Jul 2016 11:07:24 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-If a touchscreen contains both multitouch and single-touch reports in its
-descriptor in that order, the driver may overwrite information it saved
-about the format of the multitouch report. This can cause the report
-processing code to get tripped up and send an incorrect event stream to
-userspace.
-
-In particular, this can cause last_slot_field to be overwritten with the
-result that the driver prematurely assumes it has finished processing a
-slot and sending the ABS_MT_SLOT event at the wrong point in time,
-associating events for the current contact with the following contact
-instead.
-
-To prevent this from occuring, we stop mapping usages after having seen
-HID_DG_CONTACTCOUNT. This usage is only present in multitouch reports,
-so the format of any following single-touch reports will have no effect.
+"Direct" input deviecs like Cintiqs and Tablet PCs set the INPUT_PROP_DIRECT
+property to notify userspace that the sensor and screen are overlayed. This
+information can also be useful elsewhere within the kernel driver, however,
+so we introduce a new WACOM_DEVICETYPE_DIRECT that signals this to other
+kernel code.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 ---
- drivers/hid/wacom_wac.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/wacom_wac.c | 40 ++++++++++++++++++++++++----------------
+ drivers/hid/wacom_wac.h |  1 +
+ 2 files changed, 25 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index fcf2264..e499cdb 100644
+index e499cdb..2523a29 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -1560,6 +1560,11 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
- 	struct input_dev *input = wacom_wac->touch_input;
- 	unsigned touch_max = wacom_wac->features.touch_max;
+@@ -1757,8 +1757,10 @@ void wacom_wac_usage_mapping(struct hid_device *hdev,
+ {
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
++	struct wacom_features *features = &wacom_wac->features;
  
-+	/* stop processing after the first multitouch report */
-+	if (wacom_wac->hid_data.cc_report &&
-+	    wacom_wac->hid_data.cc_report != field->report->id)
-+		return;
+ 	/* currently, only direct devices have proper hid report descriptors */
++	features->device_type |= WACOM_DEVICETYPE_DIRECT;
+ 	__set_bit(INPUT_PROP_DIRECT, wacom_wac->pen_input->propbit);
+ 	__set_bit(INPUT_PROP_DIRECT, wacom_wac->touch_input->propbit);
+ 
+@@ -2465,6 +2467,19 @@ void wacom_setup_device_quirks(struct wacom *wacom)
+ 	if (features->type == REMOTE)
+ 		features->device_type = WACOM_DEVICETYPE_PAD;
+ 
++	if (features->type == PL          || features->type == DTU           ||
++	    features->type == DTUS        || features->type == DTUSX         ||
++	    features->type == WACOM_21UX2 || features->type == WACOM_22HD    ||
++	    features->type == DTK         || features->type == WACOM_24HD    ||
++	    features->type == WACOM_27QHD || features->type == CINTIQ_HYBRID ||
++	    features->type == CINTIQ_COMPANION_2 || features->type == CINTIQ ||
++	    features->type == WACOM_BEE   || features->type == WACOM_13HD    ||
++	    features->type == WACOM_24HDT || features->type == WACOM_27QHDT  ||
++	    features->type == TABLETPC    || features->type == TABLETPCE     ||
++	    features->type == TABLETPC2FG || features->type == MTSCREEN      ||
++	    features->type == MTTPC       || features->type == MTTPC_B)
++	    features->device_type |= WACOM_DEVICETYPE_DIRECT;
 +
- 	switch (usage->hid) {
- 	case HID_GD_X:
- 		features->last_slot_field = usage->hid;
+ 	if (wacom->hdev->bus == BUS_BLUETOOTH)
+ 		features->quirks |= WACOM_QUIRK_BATTERY;
+ 
+@@ -2516,6 +2531,10 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ 	input_abs_set_res(input_dev, ABS_X, features->x_resolution);
+ 	input_abs_set_res(input_dev, ABS_Y, features->y_resolution);
+ 
++	if (features->device_type & WACOM_DEVICETYPE_DIRECT)
++		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
++	else
++		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+ 
+ 	switch (features->type) {
+ 	case GRAPHIRE_BT:
+@@ -2540,8 +2559,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ 		__set_bit(BTN_TOOL_MOUSE, input_dev->keybit);
+ 		__set_bit(BTN_STYLUS, input_dev->keybit);
+ 		__set_bit(BTN_STYLUS2, input_dev->keybit);
+-
+-		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+ 		break;
+ 
+ 	case WACOM_27QHD:
+@@ -2556,7 +2573,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ 	case CINTIQ_COMPANION_2:
+ 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+ 		input_abs_set_res(input_dev, ABS_Z, 287);
+-		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+ 		wacom_setup_cintiq(wacom_wac);
+ 		break;
+ 
+@@ -2572,8 +2588,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ 		/* fall through */
+ 
+ 	case INTUOS:
+-		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+-
+ 		wacom_setup_intuos(wacom_wac);
+ 		break;
+ 
+@@ -2583,8 +2597,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ 	case INTUOSPL:
+ 	case INTUOS5S:
+ 	case INTUOSPS:
+-		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+-
+ 		input_set_abs_params(input_dev, ABS_DISTANCE, 0,
+ 				      features->distance_max,
+ 				      features->distance_fuzz, 0);
+@@ -2614,8 +2626,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ 		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
+ 		__set_bit(BTN_STYLUS, input_dev->keybit);
+ 		__set_bit(BTN_STYLUS2, input_dev->keybit);
+-
+-		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+ 		break;
+ 
+ 	case PTU:
+@@ -2626,16 +2636,12 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ 		__set_bit(BTN_TOOL_PEN, input_dev->keybit);
+ 		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
+ 		__set_bit(BTN_STYLUS, input_dev->keybit);
+-
+-		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+ 		break;
+ 
+ 	case INTUOSHT:
+ 	case BAMBOO_PT:
+ 	case BAMBOO_PEN:
+ 	case INTUOSHT2:
+-		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+-
+ 		if (features->type == INTUOSHT2) {
+ 			wacom_setup_basic_pro_pen(wacom_wac);
+ 		} else {
+@@ -2693,6 +2699,11 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 				  features->y_resolution);
+ 	}
+ 
++	if (features->device_type & WACOM_DEVICETYPE_DIRECT)
++		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
++	else
++		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
++
+ 	switch (features->type) {
+ 	case INTUOS5:
+ 	case INTUOS5L:
+@@ -2700,8 +2711,6 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 	case INTUOSPL:
+ 	case INTUOS5S:
+ 	case INTUOSPS:
+-		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+-
+ 		input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0, features->x_max, 0, 0);
+ 		input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR, 0, features->y_max, 0, 0);
+ 		input_mt_init_slots(input_dev, features->touch_max, INPUT_MT_POINTER);
+@@ -2724,7 +2733,6 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 
+ 	case TABLETPC:
+ 	case TABLETPCE:
+-		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+ 		break;
+ 
+ 	case INTUOSHT:
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 8a8974c..7ad6273 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -82,6 +82,7 @@
+ #define WACOM_DEVICETYPE_TOUCH          0x0002
+ #define WACOM_DEVICETYPE_PAD            0x0004
+ #define WACOM_DEVICETYPE_WL_MONITOR     0x0008
++#define WACOM_DEVICETYPE_DIRECT         0x0010
+ 
+ #define WACOM_VENDORDEFINED_PEN		0xff0d0001
+ #define WACOM_G9_PAGE			0xff090000
 -- 
 2.9.0
 

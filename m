@@ -1,289 +1,148 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] input: add ADC resistor ladder driver
-Date: Sun, 10 Jul 2016 15:44:23 +0100
-Message-ID: <f4888879-5014-21d0-cdb7-4e8faf7ddf94@kernel.org>
-References: <1468027442-5033-1-git-send-email-alexandre.belloni@free-electrons.com>
- <1468027442-5033-2-git-send-email-alexandre.belloni@free-electrons.com>
+From: "Zheng, Lv" <lv.zheng@intel.com>
+Subject: RE: [PATCH v2 4/4] ACPI / button: Add document for ACPI control
+ method lid device restrictions
+Date: Mon, 11 Jul 2016 03:20:01 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E883BC02198@SHSMSX101.ccr.corp.intel.com>
+References: <cover.1467717304.git.lv.zheng@intel.com>
+ <cover.1467875142.git.lv.zheng@intel.com>
+ <3f24a00df89f06661a64af6b4679a99bfff09aa7.1467875143.git.lv.zheng@intel.com>
+ <CAN+gG=G5p6ztJODQBBAF7MY0kBNGVpexY-+a8RQY9JKuY1AB1Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1468027442-5033-2-git-send-email-alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:56810 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757302AbcGKDUG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 10 Jul 2016 23:20:06 -0400
+In-Reply-To: <CAN+gG=G5p6ztJODQBBAF7MY0kBNGVpexY-+a8RQY9JKuY1AB1Q@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "Bastien Nocera:" <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On 09/07/16 02:24, Alexandre Belloni wrote:
-> A common way of multiplexing buttons on a single input in cheap devices is
-> to use a resistor ladder on an ADC. This driver supports that configuration
-> by polling an ADC channel provided by IIO.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> ---
-> Changes in v2:
->  - removed dependency on COMPILE_TEST which is not useful anyway
->  - use new bindings
-> 
->  drivers/input/keyboard/Kconfig    |  15 +++
->  drivers/input/keyboard/Makefile   |   1 +
->  drivers/input/keyboard/adc-keys.c | 210 ++++++++++++++++++++++++++++++++++++++
->  3 files changed, 226 insertions(+)
->  create mode 100644 drivers/input/keyboard/adc-keys.c
-> 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 509608c95994..4cf042cc5e63 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -12,6 +12,21 @@ menuconfig INPUT_KEYBOARD
->  
->  if INPUT_KEYBOARD
->  
-> +config KEYBOARD_ADC
-> +	tristate "ADC ladder Buttons"
-> +	depends on IIO
-> +	select INPUT_POLLDEV
-> +	help
-> +	  This driver implements support for buttons connected
-> +	  to an ADC using a resistor ladder.
-> +
-> +	  Say Y here if your device has such buttons connected to an ADC.  Your
-> +	  board-specific setup logic must also provide a configuration data
-> +	  saying mapping voltages to buttons.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called adc_keys.
-> +
->  config KEYBOARD_ADP5520
->  	tristate "Keypad Support for ADP5520 PMIC"
->  	depends on PMIC_ADP5520
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index 1d416ddf84e4..d9f4cfcf3410 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -4,6 +4,7 @@
->  
->  # Each configuration option enables a list of files.
->  
-> +obj-$(CONFIG_KEYBOARD_ADC)		+= adc-keys.o
->  obj-$(CONFIG_KEYBOARD_ADP5520)		+= adp5520-keys.o
->  obj-$(CONFIG_KEYBOARD_ADP5588)		+= adp5588-keys.o
->  obj-$(CONFIG_KEYBOARD_ADP5589)		+= adp5589-keys.o
-> diff --git a/drivers/input/keyboard/adc-keys.c b/drivers/input/keyboard/adc-keys.c
-> new file mode 100644
-> index 000000000000..cf299ff517a0
-> --- /dev/null
-> +++ b/drivers/input/keyboard/adc-keys.c
-> @@ -0,0 +1,210 @@
-> +/* Input driver for resistor ladder connected on ADC
-> + *
-> + * Copyright (c) 2016 Alexandre Belloni
-> + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License version 2 as published by
-> + * the Free Software Foundation.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/slab.h>
-> +#include <linux/module.h>
-> +#include <linux/err.h>
-> +#include <linux/input.h>
-> +#include <linux/input-polldev.h>
-> +#include <linux/iio/consumer.h>
-> +#include <linux/iio/types.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/of.h>
-> +
-> +struct adc_keys_button {
-> +	u32 voltage;
-> +	u32 keycode;
-> +};
-> +
-> +struct adc_keys_state {
-> +	struct iio_channel *channel;
-> +	u32 num_keys;
-> +	u32 last_key;
-> +	u32 keyup_voltage;
-> +	struct adc_keys_button *map;
-> +};
-> +
-> +static void adc_keys_poll(struct input_polled_dev *dev)
-> +{
-> +	struct adc_keys_state *st = dev->private;
-> +	int i, value, ret;
-> +	u32 diff, closest = 0xffffffff;
-> +	int keycode = 0;
-> +
-> +	ret = iio_read_channel_processed(st->channel, &value);
-> +	if (ret < 0) {
-> +		if (st->last_key) {
-> +			input_report_key(dev->input, st->last_key, 0);
-> +			input_sync(dev->input);
-> +			st->last_key = 0;
-> +		}
-> +		return;
-> +	}
-> +
-> +	for (i = 0; i < st->num_keys; i++) {
-> +		diff = abs(st->map[i].voltage - value);
-> +		if (diff < closest) {
-> +			closest = diff;
-> +			keycode = st->map[i].keycode;
-> +		}
-> +	}
-> +
-> +	if (abs(st->keyup_voltage - value) < closest) {
-> +		input_report_key(dev->input, st->last_key, 0);
-> +		st->last_key = 0;
-> +	} else {
-> +		if (st->last_key && st->last_key != keycode)
-> +			input_report_key(dev->input, st->last_key, 0);
-> +		input_report_key(dev->input, keycode, 1);
-> +		st->last_key = keycode;
-> +	}
-> +
-> +	input_sync(dev->input);
-> +}
-> +
-> +static int adc_keys_load_dt_keymap(struct device *dev,
-> +				   struct adc_keys_state *st)
-> +{
-> +	struct device_node *pp, *np = dev->of_node;
-> +	int i;
-> +
-> +	st->num_keys = of_get_child_count(np);
-> +	if (st->num_keys == 0) {
-> +		dev_err(dev, "keymap is missing\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	st->map = devm_kmalloc_array(dev, st->num_keys, sizeof(*st->map),
-> +				     GFP_KERNEL);
-> +	if (!st->map)
-> +		return -ENOMEM;
-> +
-> +	i = 0;
-> +	for_each_child_of_node(np, pp) {
-> +		struct adc_keys_button *map = &st->map[i];
-> +
-> +		if (of_property_read_u32(pp, "press-threshold-mvolt",
-> +					 &map->voltage)) {
-> +			dev_err(dev, "%s: Invalid or missing voltage\n",
-> +				pp->name);
-> +			return -EINVAL;
-> +		}
-> +
-> +		if (of_property_read_u32(pp, "linux,code", &map->keycode)) {
-> +			dev_err(dev, "%s: Invalid or missing linux,code\n",
-> +				pp->name);
-> +			return -EINVAL;
-> +		}
-> +
-> +		i++;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int adc_keys_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct device_node *node = dev->of_node;
-> +	struct adc_keys_state *st;
-> +	struct input_polled_dev *poll_dev = NULL;
-> +	struct input_dev *input;
-> +	enum iio_chan_type type;
-> +	int i, value, ret;
-> +
-> +	st = devm_kzalloc(dev, sizeof(*st), GFP_KERNEL);
-> +	if (!st)
-> +		return -ENOMEM;
-> +
-> +	st->channel = devm_iio_channel_get(dev, "buttons");
-> +	if (IS_ERR(st->channel))
-> +		return PTR_ERR(st->channel);
-> +
-> +	if (!st->channel->indio_dev)
-> +		return -ENODEV;
-> +
-> +	ret = iio_get_channel_type(st->channel, &type);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	if (type != IIO_VOLTAGE) {
-> +		dev_err(dev, "Incompatible channel type %d\n", type);
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (of_property_read_u32(node, "keyup-threshold-mvolt",
-> +				 &st->keyup_voltage)) {
-> +		dev_err(dev, "Invalid or missing keyup voltage\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	ret = adc_keys_load_dt_keymap(dev, st);
-> +	if (ret)
-> +		return ret;
-> +
-> +	platform_set_drvdata(pdev, st);
-> +
-> +	poll_dev = devm_input_allocate_polled_device(dev);
-> +	if (!poll_dev) {
-> +		dev_err(dev, "failed to allocate input device\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	if (!of_property_read_u32(node, "poll-interval", &value))
-> +		poll_dev->poll_interval = value;
-> +	poll_dev->poll = adc_keys_poll;
-> +	poll_dev->private = st;
-> +
-> +	input = poll_dev->input;
-> +
-> +	input->name = pdev->name;
-> +	input->phys = "adc-keys/input0";
-> +	input->dev.parent = &pdev->dev;
-> +
-> +	input->id.bustype = BUS_HOST;
-> +	input->id.vendor = 0x0001;
-> +	input->id.product = 0x0001;
-> +	input->id.version = 0x0100;
-> +
-> +	__set_bit(EV_KEY, input->evbit);
-> +	for (i = 0; i < st->num_keys; i++)
-> +		__set_bit(st->map[i].keycode, input->keybit);
-> +
-> +	if (!!of_get_property(node, "autorepeat", NULL))
-> +		__set_bit(EV_REP, input->evbit);
-> +
-> +	ret = input_register_polled_device(poll_dev);
-> +	if (ret) {
-> +		dev_err(dev, "Unable to register input device\n");
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id adc_keys_of_match[] = {
-> +	{ .compatible = "adc-keys", },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(of, adc_keys_of_match);
-> +
-> +static struct platform_driver __refdata adc_keys_driver = {
-> +	.driver = {
-> +		.name = "adc_keys",
-> +		.of_match_table = adc_keys_of_match,
-> +	},
-> +	.probe = adc_keys_probe,
-> +};
-> +
-> +module_platform_driver(adc_keys_driver);
-> +
-> +MODULE_AUTHOR("Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>");
-> +MODULE_DESCRIPTION("Input driver for resistor ladder connected on ADC");
-> +MODULE_LICENSE("GPL v2");
-> 
+SGksDQoNCj4gRnJvbTogQmVuamFtaW4gVGlzc29pcmVzIFttYWlsdG86YmVuamFtaW4udGlzc29p
+cmVzQGdtYWlsLmNvbV0NCj4gU3ViamVjdDogUmU6IFtQQVRDSCB2MiA0LzRdIEFDUEkgLyBidXR0
+b246IEFkZCBkb2N1bWVudCBmb3IgQUNQSSBjb250cm9sDQo+IG1ldGhvZCBsaWQgZGV2aWNlIHJl
+c3RyaWN0aW9ucw0KPiANCj4gSGksDQo+IA0KPiBPbiBUaHUsIEp1bCA3LCAyMDE2IGF0IDk6MTEg
+QU0sIEx2IFpoZW5nIDxsdi56aGVuZ0BpbnRlbC5jb20+IHdyb3RlOg0KPiA+IFRoZXJlIGFyZSBt
+YW55IEFNTCB0YWJsZXMgcmVwb3J0aW5nIHdyb25nIGluaXRpYWwgbGlkIHN0YXRlLCBhbmQgc29t
+ZSBvZg0KPiA+IHRoZW0gbmV2ZXIgcmVwb3J0cyBsaWQgc3RhdGUuIEFzIGEgcHJveHkgbGF5ZXIg
+YWN0aW5nIGJldHdlZW4sIEFDUEkNCj4gYnV0dG9uDQo+ID4gZHJpdmVyIGlzIG5vdCBhYmxlIHRv
+IGhhbmRsZSBhbGwgc3VjaCBjYXNlcywgYnV0IG5lZWQgdG8gcmUtZGVmaW5lIHRoZQ0KPiA+IHVz
+YWdlIG1vZGVsIG9mIHRoZSBBQ1BJIGxpZC4gVGhhdCBpczoNCj4gPiAxLiBJdCdzIGluaXRpYWwg
+c3RhdGUgaXMgbm90IHJlbGlhYmxlOw0KPiA+IDIuIFRoZXJlIG1heSBub3QgYmUgb3BlbiBldmVu
+dDsNCj4gPiAzLiBVc2Vyc3BhY2Ugc2hvdWxkIG9ubHkgdGFrZSBhY3Rpb24gYWdhaW5zdCB0aGUg
+Y2xvc2UgZXZlbnQgd2hpY2ggaXMNCj4gPiAgICByZWxpYWJsZSwgYWx3YXlzIHNlbnQgYWZ0ZXIg
+YSByZWFsIGxpZCBjbG9zZS4NCj4gPiBUaGlzIHBhdGNoIGFkZHMgZG9jdW1lbnRhdGlvbiBvZiB0
+aGUgdXNhZ2UgbW9kZWwuDQo+ID4NCj4gPiBMaW5rOiBodHRwczovL2xrbWwub3JnLzIwMTYvMy83
+LzQ2MA0KPiA+IExpbms6IGh0dHBzOi8vZ2l0aHViLmNvbS9zeXN0ZW1kL3N5c3RlbWQvaXNzdWVz
+LzIwODcNCj4gPiBTaWduZWQtb2ZmLWJ5OiBMdiBaaGVuZyA8bHYuemhlbmdAaW50ZWwuY29tPg0K
+PiA+IENjOiBCYXN0aWVuIE5vY2VyYTogPGhhZGVzc0BoYWRlc3MubmV0Pg0KPiA+IENjOiBCZW5q
+YW1pbiBUaXNzb2lyZXMgPGJlbmphbWluLnRpc3NvaXJlc0BnbWFpbC5jb20+DQo+ID4gQ2M6IGxp
+bnV4LWlucHV0QHZnZXIua2VybmVsLm9yZw0KPiA+IC0tLQ0KPiA+ICBEb2N1bWVudGF0aW9uL2Fj
+cGkvYWNwaS1saWQudHh0IHwgICA2Mg0KPiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysNCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDYyIGluc2VydGlvbnMoKykNCj4gPiAgY3Jl
+YXRlIG1vZGUgMTAwNjQ0IERvY3VtZW50YXRpb24vYWNwaS9hY3BpLWxpZC50eHQNCj4gPg0KPiA+
+IGRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2FjcGkvYWNwaS1saWQudHh0IGIvRG9jdW1lbnRh
+dGlvbi9hY3BpL2FjcGktDQo+IGxpZC50eHQNCj4gPiBuZXcgZmlsZSBtb2RlIDEwMDY0NA0KPiA+
+IGluZGV4IDAwMDAwMDAuLjdlNGY3ZWQNCj4gPiAtLS0gL2Rldi9udWxsDQo+ID4gKysrIGIvRG9j
+dW1lbnRhdGlvbi9hY3BpL2FjcGktbGlkLnR4dA0KPiA+IEBAIC0wLDAgKzEsNjIgQEANCj4gPiAr
+VXNhZ2UgTW9kZWwgb2YgdGhlIEFDUEkgQ29udHJvbCBNZXRob2QgTGlkIERldmljZQ0KPiA+ICsN
+Cj4gPiArQ29weXJpZ2h0IChDKSAyMDE2LCBJbnRlbCBDb3Jwb3JhdGlvbg0KPiA+ICtBdXRob3I6
+IEx2IFpoZW5nIDxsdi56aGVuZ0BpbnRlbC5jb20+DQo+ID4gKw0KPiA+ICsNCj4gPiArQWJzdHJh
+Y3Q6DQo+ID4gKw0KPiA+ICtQbGF0Zm9ybXMgY29udGFpbmluZyBsaWRzIGNvbnZleSBsaWQgc3Rh
+dGUgKG9wZW4vY2xvc2UpIHRvIE9TUE1zIHVzaW5nDQo+IGENCj4gPiArY29udHJvbCBtZXRob2Qg
+bGlkIGRldmljZS4gVG8gaW1wbGVtZW50IHRoaXMsIHRoZSBBTUwgdGFibGVzIGlzc3VlDQo+ID4g
+K05vdGlmeShsaWRfZGV2aWNlLCAweDgwKSB0byBub3RpZnkgdGhlIE9TUE1zIHdoZW5ldmVyIHRo
+ZSBsaWQgc3RhdGUgaGFzDQo+ID4gK2NoYW5nZWQuIFRoZSBfTElEIGNvbnRyb2wgbWV0aG9kIGZv
+ciB0aGUgbGlkIGRldmljZSBtdXN0IGJlDQo+IGltcGxlbWVudGVkIHRvDQo+ID4gK3JlcG9ydCB0
+aGUgImN1cnJlbnQiIHN0YXRlIG9mIHRoZSBsaWQgYXMgZWl0aGVyICJvcGVuZWQiIG9yICJjbG9z
+ZWQiLg0KPiA+ICsNCj4gPiArVGhpcyBkb2N1bWVudCBkZXNjcmliZXMgdGhlIHJlc3RyaWN0aW9u
+cyBhbmQgdGhlIGV4cGVjdGlvbnMgb2YgdGhlDQo+IExpbnV4DQo+ID4gK0FDUEkgbGlkIGRldmlj
+ZSBkcml2ZXIuDQo+ID4gKw0KPiA+ICsNCj4gPiArMS4gUmVzdHJpY3Rpb25zIG9mIHRoZSByZXR1
+cm5pbmcgdmFsdWUgb2YgdGhlIF9MSUQgY29udHJvbCBtZXRob2QNCj4gPiArDQo+ID4gK1RoZSBf
+TElEIGNvbnRyb2wgbWV0aG9kIGlzIGRlc2NyaWJlZCB0byByZXR1cm4gdGhlICJjdXJyZW50IiBs
+aWQgc3RhdGUuDQo+ID4gK0hvd2V2ZXIgdGhlIHdvcmQgb2YgImN1cnJlbnQiIGhhcyBhbWJpZ3Vp
+dHksIG1hbnkgQU1MIHRhYmxlcyByZXR1cm4NCj4gdGhlIGxpZA0KPiA+ICtzdGF0ZSB1cG9uIHRo
+ZSBsYXN0IGxpZCBub3RpZmljYXRpb24gaW5zdGVhZCBvZiByZXR1cm5pbmcgdGhlIGxpZCBzdGF0
+ZQ0KPiA+ICt1cG9uIHRoZSBsYXN0IF9MSUQgZXZhbHVhdGlvbi4gVGhlcmUgd29uJ3QgYmUgZGlm
+ZmVyZW5jZSB3aGVuIHRoZSBfTElEDQo+ID4gK2NvbnRyb2wgbWV0aG9kIGlzIGV2YWx1YXRlZCBk
+dXJpbmcgdGhlIHJ1bnRpbWUsIHRoZSBwcm9ibGVtIGlzIGl0cw0KPiBpbml0aWFsDQo+ID4gK3Jl
+dHVybmluZyB2YWx1ZS4gV2hlbiB0aGUgQU1MIHRhYmxlcyBpbXBsZW1lbnQgdGhpcyBjb250cm9s
+IG1ldGhvZA0KPiB3aXRoDQo+ID4gK2NhY2hlZCB2YWx1ZSwgdGhlIGluaXRpYWwgcmV0dXJuaW5n
+IHZhbHVlIGlzIGxpa2VseSBub3QgcmVsaWFibGUuIFRoZXJlIGFyZQ0KPiA+ICtzaW1wbHkgc28g
+bWFueSBleGFtcGxlcyBhbHdheXMgcmV0dW5pbmcgImNsb3NlZCIgYXMgaW5pdGlhbCBsaWQgc3Rh
+dGUuDQo+ID4gKw0KPiA+ICsyLiBSZXN0cmljdGlvbnMgb2YgdGhlIGxpZCBzdGF0ZSBjaGFuZ2Ug
+bm90aWZpY2F0aW9ucw0KPiA+ICsNCj4gPiArVGhlcmUgYXJlIG1hbnkgQU1MIHRhYmxlcyBuZXZl
+ciBub3RpZnlpbmcgd2hlbiB0aGUgbGlkIGRldmljZSBzdGF0ZSBpcw0KPiA+ICtjaGFuZ2VkIHRv
+ICJvcGVuZWQiLiBCdXQgaXQgaXMgZW5zdXJlZCB0aGF0IHRoZSBBTUwgdGFibGVzIGFsd2F5cw0K
+PiBub3RpZnkNCj4gPiArImNsb3NlZCIgd2hlbiB0aGUgbGlkIHN0YXRlIGlzIGNoYW5nZWQgdG8g
+ImNsb3NlZCIuIFRoaXMgaXMgbm9ybWFsbHkgdXNlZA0KPiA+ICt0byB0cmlnZ2VyIHNvbWUgc3lz
+dGVtIHBvd2VyIHNhdmluZyBvcGVyYXRpb25zIG9uIFdpbmRvd3MuIFNpbmNlIGl0IGlzDQo+ID4g
+K2Z1bGx5IHRlc3RlZCwgdGhpcyBub3RpZmljYXRpb24gaXMgcmVsaWFibGUgZm9yIGFsbCBBTUwg
+dGFibGVzLg0KPiA+ICsNCj4gPiArMy4gRXhwZWN0aW9ucyBmb3IgdGhlIHVzZXJzcGFjZSB1c2Vy
+cyBvZiB0aGUgQUNQSSBsaWQgZGV2aWNlIGRyaXZlcg0KPiA+ICsNCj4gPiArVGhlIHVzZXJzcGFj
+ZSBwcm9ncmFtcyBzaG91bGQgc3RvcCByZWx5aW5nIG9uDQo+ID4gKy9wcm9jL2FjcGkvYnV0dG9u
+L2xpZC9MSUQwL3N0YXRlIHRvIG9idGFpbiB0aGUgbGlkIHN0YXRlLiBUaGlzIGZpbGUgaXMgb25s
+eQ0KPiA+ICt1c2VkIGZvciB0aGUgdmFsaWRhdGlvbiBwdXJwb3NlLg0KPiANCj4gSSdkIHNheTog
+dGhpcyBmaWxlIGFjdHVhbGx5IGNhbGxzIHRoZSBfTElEIG1ldGhvZCBkZXNjcmliZWQgYWJvdmUu
+IEFuZA0KPiBnaXZlbiB0aGUgcHJldmlvdXMgZXhwbGFuYXRpb24sIGl0IGlzIG5vdCByZWxpYWJs
+ZSBlbm91Z2ggb24gc29tZQ0KPiBwbGF0Zm9ybXMuIFNvIGl0IGlzIHN0cm9uZ2x5IGFkdmlzZWQg
+Zm9yIHVzZXItc3BhY2UgcHJvZ3JhbSB0byBub3QNCj4gc29sZWx5IHJlbHkgb24gdGhpcyBmaWxl
+IHRvIGRldGVybWluZSB0aGUgYWN0dWFsIGxpZCBzdGF0ZS4NCltMdiBaaGVuZ10gDQpPSy4NCg0K
+PiANCj4gPiArDQo+ID4gK05ldyB1c2Vyc3BhY2UgcHJvZ3JhbXMgc2hvdWxkIHJlbHkgb24gdGhl
+IGxpZCAiY2xvc2VkIiBub3RpZmljYXRpb24gdG8NCj4gPiArdHJpZ2dlciBzb21lIHBvd2VyIHNh
+dmluZyBvcGVyYXRpb25zIGFuZCBtYXkgc3RvcCB0YWtpbmcgYWN0aW9ucw0KPiBhY2NvcmRpbmcN
+Cj4gPiArdG8gdGhlIGxpZCAib3BlbmVkIiBub3RpZmljYXRpb24uIEEgbmV3IGlucHV0IHN3aXRj
+aCBldmVudCAtDQo+IFNXX0FDUElfTElEIGlzDQo+ID4gK3ByZXBhcmVkIGZvciB0aGUgbmV3IHVz
+ZXJzcGFjZSB0byBpbXBsZW1lbnQgdGhpcyBBQ1BJIGNvbnRyb2wgbWV0aG9kDQo+IGxpZA0KPiA+
+ICtkZXZpY2Ugc3BlY2lmaWMgbG9naWNzLg0KPiANCj4gVGhhdCdzIG5vdCBlbnRpcmVseSB3aGF0
+IHdlIGRpc2N1c3NlZCBiZWZvcmUgKHRvIHByZXZlbnQgcmVncmVzc2lvbnMpOg0KPiAtIGlmIHRo
+ZSBkZXZpY2UgZG9lc24ndCBoYXZlIHJlbGlhYmxlIExJRCBzd2l0Y2ggc3RhdGUsIHRoZW4gdGhl
+cmUNCj4gd291bGQgYmUgdGhlIG5ldyBpbnB1dCBldmVudCwgYW5kIHNvIHVzZXJzcGFjZSBzaG91
+bGQgb25seSByZWx5IG9uDQo+IG9wZW5lZCBub3RpZmljYXRpb25zLg0KPiAtIGlmIHRoZSBkZXZp
+Y2UgaGFzIHJlbGlhYmxlIHN3aXRjaCBpbmZvcm1hdGlvbiwgdGhlIG5ldyBpbnB1dCBldmVudA0K
+PiBzaG91bGQgbm90IGJlIGV4cG9ydGVkIGFuZCB1c2Vyc3BhY2Uga25vd3MgdGhhdCB0aGUgY3Vy
+cmVudCBpbnB1dA0KPiBzd2l0Y2ggZXZlbnQgaXMgcmVsaWFibGUuDQo+IA0KPiBBbHNvLCB1c2lu
+ZyBhIG5ldyAic3dpdGNoIiBldmVudCBpcyBhIHRlcnJpYmxlIGlkZWEuIFN3aXRjaGVzIGhhdmUg
+YQ0KPiBzdGF0ZSAob3Blbi9jbG9zZSkgYW5kIHlvdSBhcmUgdXNpbmcgdGhpcyB0byBmb3J3YXJk
+IGEgc2luZ2xlIG9wZW4NCj4gZXZlbnQuIFNvIHVzaW5nIGEgc3dpdGNoIGp1c3QgYWxsb3dzIHlv
+dSB0byBzYXkgdG8gdXNlcnNwYWNlIHlvdSBhcmUNCj4gdXNpbmcgdGhlICJuZXciIExJRCBtZWFu
+aW5nLCBidXQgeW91J2xsIHN0aWxsIGhhdmUgdG8gbWFudWFsbHkgcmVzZXQNCj4gdGhlIHN3aXRj
+aCBhbmQgeW91IHdpbGwgaGF2ZSB0byBkb2N1bWVudCBob3cgdGhpcyBldmVudCBpcyBub3QgYQ0K
+PiBzd2l0Y2guDQo+IA0KPiBQbGVhc2UgdXNlIGEgc2ltcGxlIEtFWV9MSURfT1BFTiBldmVudCB5
+b3Ugd2lsbCBzZW5kIHRocm91Z2gNCj4gW2lucHV0X2tleV9ldmVudChLRVlfTElEX09QRU4sIDEp
+LCBpbnB1dF9zeW5jKCksDQo+IGlucHV0X2tleV9ldmVudChLRVlfTElEX09QRU4sIDApLCBpbnB1
+dF9zeW5jKCldLCB3aGljaCB1c2Vyc3BhY2Uga25vd3MNCj4gaG93IHRvIGhhbmRsZS4NCltMdiBa
+aGVuZ10gDQpJdCBzaG91bGQgYmUgS0VZX0xJRF9DTE9TRS4NCkhvd2V2ZXIgSSBjaGVja2VkIHRo
+ZSBLRVkgY29kZSBkZWZpbml0aW9ucy4NCkl0IHNlZW1zIHRoZWlyIHZhbHVlcyBhcmUgaGlnaGx5
+IGRlcGVuZGVudCBvbiB0aGUgSElEIHNwZWNpZmljYXRpb24uDQpJJ20gbm90IHN1cmUgd2hpY2gg
+a2V5IGNvZGUgdmFsdWUgc2hvdWxkIEkgdXNlIGZvciB0aGlzLg0KQ291bGQgeW91IHBvaW50IG1l
+IG91dD8NCg0KPiANCj4gPiArDQo+ID4gK0R1cmluZyB0aGUgcGVyaW9kIHRoZSB1c2Vyc3BhY2Ug
+aGFzbid0IGJlZW4gc3dpdGNoZWQgdG8gdXNlIHRoZSBuZXcNCj4gPiArU1dfQUNQSV9MSUQgZXZl
+bnQsIExpbnV4IHVzZXJzIGNhbiB1c2UgdGhlIGZvbGxvd2luZyBib290IHBhcmFtZXRlcg0KPiB0
+bw0KPiA+ICtoYW5kbGUgcG9zc2libGUgaXNzdWVzOg0KPiA+ICsgIGJ1dHRvbi5saWRfaW5pdF9z
+dGF0ZT1tZXRob2Q6DQo+ID4gKyAgIFRoaXMgaXMgdGhlIGRlZmF1bHQgYmVoYXZpb3Igb2YgdGhl
+IExpbnV4IEFDUEkgbGlkIGRyaXZlciwgTGludXgga2VybmVsDQo+ID4gKyAgIHJlcG9ydHMgdGhl
+IGluaXRpYWwgbGlkIHN0YXRlIHVzaW5nIHRoZSByZXR1cm5pbmcgdmFsdWUgb2YgdGhlIF9MSUQN
+Cj4gPiArICAgY29udHJvbCBtZXRob2QuDQo+ID4gKyAgIFRoaXMgY2FuIGJlIHVzZWQgdG8gZml4
+IHNvbWUgcGxhdGZvcm1zIGlmIHRoZSBfTElEIGNvbnRyb2wgbWV0aG9kJ3MNCj4gPiArICAgcmV0
+dXJuaW5nIHZhbHVlIGlzIHJlbGlhYmxlLg0KPiA+ICsgIGJ1dHRvbi5saWRfaW5pdF9zdGF0ZT1v
+cGVuOg0KPiA+ICsgICBMaW51eCBrZXJuZWwgYWx3YXlzIHJlcG9ydHMgdGhlIGluaXRpYWwgbGlk
+IHN0YXRlIGFzICJvcGVuZWQiLg0KPiA+ICsgICBUaGlzIG1heSBmaXggc29tZSBwbGF0Zm9ybXMg
+aWYgdGhlIHJldHVybmluZyB2YWx1ZSBvZiB0aGUgX0xJRCBjb250cm9sDQo+ID4gKyAgIG1ldGhv
+ZCBpcyBub3QgcmVsaWFibGUuDQo+IA0KPiBUaGlzIHdvcnJpZXMgbWUgYXMgdGhlcmUgaXMgbm8g
+cGxhbiBhZnRlciAiRHVyaW5nIHRoZSBwZXJpb2QgdGhlDQo+IHVzZXJzcGFjZSBoYXNuJ3QgYmVl
+biBzd2l0Y2hlZCB0byB1c2UgdGhlIG5ldyBldmVudCIuDQo+IA0KPiBJIHJlYWxseSBob3BlIHlv
+dSdsbCBrZWVwIHNlbmRpbmcgU1dfTElEIGZvciByZWxpYWJsZSBMSUQgcGxhdGZvcm1zLA0KPiBh
+bmQgbm90IHJlbW92ZSBpdCBlbnRpcmVseSBhcyB5b3Ugd2lsbCBicmVhayBwbGF0Zm9ybXMuDQoN
+CltMdiBaaGVuZ10gDQpXZSB3b24ndCByZW1vdmUgU1dfTElEIGZyb20gdGhlIGtlcm5lbCA6KS4N
+Cg0KQW5kIHdlIGhhdmVuJ3QgcmVtb3ZlZCBTV19MSUQgZnJvbSB0aGUgYWNwaSBidXR0b24gZHJp
+dmVyLg0KV2UnbGwganVzdCBzdG9wIHNlbmRpbmcgImluaXRpYWwgbGlkIHN0YXRlIiBmcm9tIGFj
+cGkgYnV0dG9uIGRyaXZlciwgaS5lLiwgdGhlIGJlaGF2aW9yIGNhcnJpZWQgb3V0IGJ5ICJidXR0
+b24ubGlkX2luaXRfc3RhdGU9aWdub3JlIi4NCg0KTWF5YmUgaXQgaXMgbm90IHN1ZmZpY2llbnQs
+IGFmdGVyIHRoZSB1c2Vyc3BhY2UgaGFzIGJlZW4gY2hhbmdlZCB0byBzdXBwb3J0IHRoZSBuZXcg
+ZXZlbnQsIHdlIHNob3VsZCBzdG9wIHNlbmRpbmcgU1dfTElEIGZyb20gYWNwaSBidXR0b24gZHJp
+dmVyLg0KDQpDaGVlcnMsDQotTHYNCg==

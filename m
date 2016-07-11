@@ -1,35 +1,181 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 1/2] HID: logitech-hidpp: add battery support for HID++
- 2.0 devices
-Date: Mon, 11 Jul 2016 13:33:12 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1607111332550.24757@cbobk.fhfr.pm>
-References: <1467192482-2723-1-git-send-email-peter.hutterer@who-t.net> <1467988545.2317.4.camel@hadess.net> <1467999483.2277.19.camel@hadess.net> <alpine.LNX.2.00.1607082023400.24757@cbobk.fhfr.pm> <20160711111829.GC4663@mail.corp.redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 4/4] ACPI / button: Add document for ACPI control
+ method lid device restrictions
+Date: Mon, 11 Jul 2016 13:34:08 +0200
+Message-ID: <CAN+gG=Fjt3BFp5UPhTKfz93SrYzj_3BgA8EWQ+wV7fGxyXrTWA@mail.gmail.com>
+References: <cover.1467717304.git.lv.zheng@intel.com> <cover.1467875142.git.lv.zheng@intel.com>
+ <3f24a00df89f06661a64af6b4679a99bfff09aa7.1467875143.git.lv.zheng@intel.com>
+ <CAN+gG=G5p6ztJODQBBAF7MY0kBNGVpexY-+a8RQY9JKuY1AB1Q@mail.gmail.com> <20160708175146.GA28589@dtor-ws>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:47168 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751203AbcGKLdP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2016 07:33:15 -0400
-In-Reply-To: <20160711111829.GC4663@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20160708175146.GA28589@dtor-ws>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Lv Zheng <lv.zheng@intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "Bastien Nocera:" <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>
 
-On Mon, 11 Jul 2016, Benjamin Tissoires wrote:
+On Fri, Jul 8, 2016 at 7:51 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Fri, Jul 08, 2016 at 11:17:39AM +0200, Benjamin Tissoires wrote:
+>> Hi,
+>>
+>> On Thu, Jul 7, 2016 at 9:11 AM, Lv Zheng <lv.zheng@intel.com> wrote:
+>> > There are many AML tables reporting wrong initial lid state, and some of
+>> > them never reports lid state. As a proxy layer acting between, ACPI button
+>> > driver is not able to handle all such cases, but need to re-define the
+>> > usage model of the ACPI lid. That is:
+>> > 1. It's initial state is not reliable;
+>> > 2. There may not be open event;
+>> > 3. Userspace should only take action against the close event which is
+>> >    reliable, always sent after a real lid close.
+>> > This patch adds documentation of the usage model.
+>> >
+>> > Link: https://lkml.org/2016/3/7/460
+>> > Link: https://github.com/systemd/systemd/issues/2087
+>> > Signed-off-by: Lv Zheng <lv.zheng@intel.com>
+>> > Cc: Bastien Nocera: <hadess@hadess.net>
+>> > Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>> > Cc: linux-input@vger.kernel.org
+>> > ---
+>> >  Documentation/acpi/acpi-lid.txt |   62 +++++++++++++++++++++++++++++++++++++++
+>> >  1 file changed, 62 insertions(+)
+>> >  create mode 100644 Documentation/acpi/acpi-lid.txt
+>> >
+>> > diff --git a/Documentation/acpi/acpi-lid.txt b/Documentation/acpi/acpi-lid.txt
+>> > new file mode 100644
+>> > index 0000000..7e4f7ed
+>> > --- /dev/null
+>> > +++ b/Documentation/acpi/acpi-lid.txt
+>> > @@ -0,0 +1,62 @@
+>> > +Usage Model of the ACPI Control Method Lid Device
+>> > +
+>> > +Copyright (C) 2016, Intel Corporation
+>> > +Author: Lv Zheng <lv.zheng@intel.com>
+>> > +
+>> > +
+>> > +Abstract:
+>> > +
+>> > +Platforms containing lids convey lid state (open/close) to OSPMs using a
+>> > +control method lid device. To implement this, the AML tables issue
+>> > +Notify(lid_device, 0x80) to notify the OSPMs whenever the lid state has
+>> > +changed. The _LID control method for the lid device must be implemented to
+>> > +report the "current" state of the lid as either "opened" or "closed".
+>> > +
+>> > +This document describes the restrictions and the expections of the Linux
+>> > +ACPI lid device driver.
+>> > +
+>> > +
+>> > +1. Restrictions of the returning value of the _LID control method
+>> > +
+>> > +The _LID control method is described to return the "current" lid state.
+>> > +However the word of "current" has ambiguity, many AML tables return the lid
+>> > +state upon the last lid notification instead of returning the lid state
+>> > +upon the last _LID evaluation. There won't be difference when the _LID
+>> > +control method is evaluated during the runtime, the problem is its initial
+>> > +returning value. When the AML tables implement this control method with
+>> > +cached value, the initial returning value is likely not reliable. There are
+>> > +simply so many examples always retuning "closed" as initial lid state.
+>> > +
+>> > +2. Restrictions of the lid state change notifications
+>> > +
+>> > +There are many AML tables never notifying when the lid device state is
+>> > +changed to "opened". But it is ensured that the AML tables always notify
+>> > +"closed" when the lid state is changed to "closed". This is normally used
+>> > +to trigger some system power saving operations on Windows. Since it is
+>> > +fully tested, this notification is reliable for all AML tables.
+>> > +
+>> > +3. Expections for the userspace users of the ACPI lid device driver
+>> > +
+>> > +The userspace programs should stop relying on
+>> > +/proc/acpi/button/lid/LID0/state to obtain the lid state. This file is only
+>> > +used for the validation purpose.
+>>
+>> I'd say: this file actually calls the _LID method described above. And
+>> given the previous explanation, it is not reliable enough on some
+>> platforms. So it is strongly advised for user-space program to not
+>> solely rely on this file to determine the actual lid state.
+>>
+>> > +
+>> > +New userspace programs should rely on the lid "closed" notification to
+>> > +trigger some power saving operations and may stop taking actions according
+>> > +to the lid "opened" notification. A new input switch event - SW_ACPI_LID is
+>> > +prepared for the new userspace to implement this ACPI control method lid
+>> > +device specific logics.
+>>
+>> That's not entirely what we discussed before (to prevent regressions):
+>> - if the device doesn't have reliable LID switch state, then there
+>> would be the new input event, and so userspace should only rely on
+>> opened notifications.
+>> - if the device has reliable switch information, the new input event
+>> should not be exported and userspace knows that the current input
+>> switch event is reliable.
+>>
+>> Also, using a new "switch" event is a terrible idea. Switches have a
+>> state (open/close) and you are using this to forward a single open
+>> event. So using a switch just allows you to say to userspace you are
+>> using the "new" LID meaning, but you'll still have to manually reset
+>> the switch and you will have to document how this event is not a
+>> switch.
+>>
+>> Please use a simple KEY_LID_OPEN event you will send through
+>> [input_key_event(KEY_LID_OPEN, 1), input_sync(),
+>> input_key_event(KEY_LID_OPEN, 0), input_sync()], which userspace knows
+>> how to handle.
+>>
+>> > +
+>> > +During the period the userspace hasn't been switched to use the new
+>> > +SW_ACPI_LID event, Linux users can use the following boot parameter to
+>> > +handle possible issues:
+>> > +  button.lid_init_state=method:
+>> > +   This is the default behavior of the Linux ACPI lid driver, Linux kernel
+>> > +   reports the initial lid state using the returning value of the _LID
+>> > +   control method.
+>> > +   This can be used to fix some platforms if the _LID control method's
+>> > +   returning value is reliable.
+>> > +  button.lid_init_state=open:
+>> > +   Linux kernel always reports the initial lid state as "opened".
+>> > +   This may fix some platforms if the returning value of the _LID control
+>> > +   method is not reliable.
+>>
+>> This worries me as there is no plan after "During the period the
+>> userspace hasn't been switched to use the new event".
+>>
+>> I really hope you'll keep sending SW_LID for reliable LID platforms,
+>> and not remove it entirely as you will break platforms.
+>
+> How about we leave the kernel alone and userspace (which would have to
+> cope with the new KEY_LID_OPEN anyway) would just have to know that if
+> switch's parent is PNP0C0D:00 (or phys is PNP0C0D/button/input0) then it
+> can't trust the events and it needs additional heuristics.
+>
 
-> Hmm, I think before this gets pushed to Linus' tree, we'll also need to 
-> have battery support for HID++ 1.0 devices too (upower seems to be 
-> handling them, so this would introduce a regression). So depending on 
-> how much work we can do, it might be better to consider this as v4.9 
-> material (or at least keep in mind that this might not be ready before 
-> the v4.8 merge window opens, and decide its fate at that time).
+I really wished we could leave the kernel alone, but some platform
+need fixes: we are using an EV_SW, and on those platform, we only get
+the close event, which means it gets ignored by the input layer.
+Those platform have a form factor which makes the situation acceptable
+(tablet with cover, or very low cost laptops).
+However, switching away from a different EV_SW and tell userspace to
+ignore it would break systems when you are using a docking station.
+The acpi would provide fake values for the LID switch and this will
+screw the session if you are working on a docking station with an
+external monitor and the LID closed.
 
-Makes sense, thanks Benjamin. I am putting 
-hid.git#for-4.8/logitech-hidpp-battery on hold for now.
+My initial suggestion was:
+- detect in the kernel whether the ACPI LID information was judged as reliable
+- if reliable keep things as it
+- if not reliable add an extra KEY_LID_CLOSE to notify userspace that
+the SW_LID is not reliable (it will emulate the LID open events) and
+that it will only get true close events.
 
--- 
-Jiri Kosina
-SUSE Labs
+After further thoughts, I think we can simply add the extra key, and
+have an hwdb entry in logind to enumerate the devices only relying on
+the close event. If the userspace is not updated, we can tell user to
+use the button.lid_init_state=open quirk to simulate the behavior
+logind should expect.
 
+That means only adding one extra key (and its events) in the kernel
+and let userspace decide what to do.
+
+Cheers,
+Benjamin

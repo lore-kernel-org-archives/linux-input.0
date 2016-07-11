@@ -1,53 +1,66 @@
-From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: /input/mouse/elan_i2c_core.c Fix some Asus
- touchapod which casue TP no funciton sometimes, the patch detect some
- specific touchpad and run a special initialize
-Date: Mon, 11 Jul 2016 10:03:21 -0700
-Message-ID: <20160711170321.GB26822@dtor-ws>
-References: <1467979929-3409-1-git-send-email-kt.liao@emc.com.tw>
- <20160709002448.GI28589@dtor-ws>
- <019201d1db71$7986cd80$6c946880$@emc.com.tw>
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: Supporting the new Xbox One controller with wireless/BT connectivity
+Date: Mon, 11 Jul 2016 10:47:38 -0700
+Message-ID: <5783DBBA.8070503@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:35576 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030774AbcGKRDZ (ORCPT
+Received: from mail-pf0-f179.google.com ([209.85.192.179]:35880 "EHLO
+	mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755286AbcGKRrl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2016 13:03:25 -0400
-Content-Disposition: inline
-In-Reply-To: <019201d1db71$7986cd80$6c946880$@emc.com.tw>
+	Mon, 11 Jul 2016 13:47:41 -0400
+Received: by mail-pf0-f179.google.com with SMTP id t190so38208629pfb.3
+        for <linux-input@vger.kernel.org>; Mon, 11 Jul 2016 10:47:40 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Cc: 'KT Liao' <ktalex.liao@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, phoenix@emc.com.tw
+To: dmitry.torokhov@gmail.com, jikos@kernel.org
+Cc: linux-input@vger.kernel.org
 
-On Mon, Jul 11, 2016 at 08:40:58PM +0800, =E5=BB=96=E5=B4=87=E6=A6=AE w=
-rote:
-> > +
-> > +	error =3D data->ops->get_sm_version(client, &data->ic_type,
-> > +					  &data->sm_version);
-> > +	if (error)
-> > +		return false;
->=20
-> That means we'd be fetching product ID and IC type twice when initial=
-izing the device. Can we come with a way to do it once?
-> [KT]:Because the elan_query_device_info() is behind the elan_initiali=
-ze(). That's why I fetching product ID and IC type in the elan_initiali=
-ze()
->     I will discuss with FW team and then execute elan_query_device_in=
-fo() first to get product_id and ic_type.=20
+I'm trying to come up with the best way to support wirelessly connected Xbox
+One controllers. Microsoft has previously released a wireless adapter that
+uses a proprietary protocol to talk to the Xbox One controllers. Recently,
+they have also announced an Xbox One controller with Bluetooth connectivity. 
+Though we can't be sure yet since it hasn't come out yet, I would guess that
+they're using the same protocol as they do when attached via USB. If it's a
+standard HID gamepad, we don't have any work to do but I'm not holding my
+breath ;)
 
-We might need to split fetching product ID and IC type form the rest of
-the device info.
+Unfortunately, our xpad driver is quite tied to USB so it will be difficult to
+support HID communication over Bluetooth. My initial thinking is that we can
+add a new hid-xpad driver that will initially take over this single Bluetooth
+Xbox One controller. After it is tested and feature parity with xpad, we can
+possibly expand it to handle all Xbox One controllers to avoid duplicated
+logic.
 
-Thanks.
+The wrinkle in these plans is the Xbox One wireless adapter which seems to be
+simply a MediaTek WLAN adapter that MS is binding a protocol driver to in order
+to emulate the HID protocol for the rest of their device stack. Fortunately, it
+looks like people are started to have success reverse engineering the wireless
+protocol, so we should be able to do something similar to how MS implements it.
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+In order to support the proprietary wireless adapter, I see two options:
+
+1) Write a driver for the Xbox One wireless adapter that will expose a virtual
+   USB controller that enumerates Xbox One controllers and allows our existing
+   xpad driver to run them. The OZWPAN driver in staging does something like
+   this and would be a good reference. The advantage is that it doesn't require
+   a new hid-xpad driver. The disadvantages are that there's a bunch of
+   complexity in writing a virtual USB host controller driver and even after
+   doing it, we still can't support Bluetooth Xbox One Controllers.
+
+2) Write a HID transport for the Xbox One wireless adapter that enumerates HID
+   devices for the hid-xpad driver. By moving the abstracting up a layer, it
+   really cuts down on the amount of code required. This would also let us
+   support USB, proprietary wireless, and Bluetooth attached Xbox One
+   controllers with a single xpad driver.
+
+As far as I'm concerned, #2 seems like the obvious choice.
+
+Jiri and Dmitry, do either of you see anything wrong with #2 or have any other
+comments or concerns?
+
+
+Thanks,
+Cameron

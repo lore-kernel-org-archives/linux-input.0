@@ -1,219 +1,167 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 4/4] ACPI / button: Add document for ACPI control
- method lid device restrictions
-Date: Mon, 11 Jul 2016 13:47:31 +0200
-Message-ID: <CAN+gG=EtUdnJuAGfzuKW8kJa6nq2evNoYz-40zrCA80Uk60DwA@mail.gmail.com>
-References: <cover.1467717304.git.lv.zheng@intel.com> <cover.1467875142.git.lv.zheng@intel.com>
- <3f24a00df89f06661a64af6b4679a99bfff09aa7.1467875143.git.lv.zheng@intel.com>
- <CAN+gG=G5p6ztJODQBBAF7MY0kBNGVpexY-+a8RQY9JKuY1AB1Q@mail.gmail.com>
- <1AE640813FDE7649BE1B193DEA596E883BC02198@SHSMSX101.ccr.corp.intel.com> <CAN+gG=F94hJnDiqAyvKxDfYRnwUKZ8PpDEBBG8YK6n+v0-9_KA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAN+gG=F94hJnDiqAyvKxDfYRnwUKZ8PpDEBBG8YK6n+v0-9_KA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Zheng, Lv" <lv.zheng@intel.com>
-Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "Bastien Nocera:" <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: "jeffrey.lin" <yajohn@gmail.com>
+Subject: [PATCH] [v1.1] driver: input :touchscreen : add Raydium crc touch function
+Date: Mon, 11 Jul 2016 05:11:55 -0700
+Message-ID: <1468239115-54712-1-git-send-email-jeffrey.lin@rad-ic.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33925 "EHLO
+	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752062AbcGKMMX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Jul 2016 08:12:23 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se, groeck@chromium.org, robh@kernel.org
+Cc: jeffrey.lin@rad-ic.com, ealin.chiu@rad-ic.com, jason.yeh@rad-ic.com, KP.li@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-[I just realised Ctrl+enter means "send" for gmail, see the end of the answers]
+add checksum for touch report points.
 
-On Mon, Jul 11, 2016 at 1:42 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> On Mon, Jul 11, 2016 at 5:20 AM, Zheng, Lv <lv.zheng@intel.com> wrote:
->> Hi,
->>
->>> From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com]
->>> Subject: Re: [PATCH v2 4/4] ACPI / button: Add document for ACPI control
->>> method lid device restrictions
->>>
->>> Hi,
->>>
->>> On Thu, Jul 7, 2016 at 9:11 AM, Lv Zheng <lv.zheng@intel.com> wrote:
->>> > There are many AML tables reporting wrong initial lid state, and some of
->>> > them never reports lid state. As a proxy layer acting between, ACPI
->>> button
->>> > driver is not able to handle all such cases, but need to re-define the
->>> > usage model of the ACPI lid. That is:
->>> > 1. It's initial state is not reliable;
->>> > 2. There may not be open event;
->>> > 3. Userspace should only take action against the close event which is
->>> >    reliable, always sent after a real lid close.
->>> > This patch adds documentation of the usage model.
->>> >
->>> > Link: https://lkml.org/2016/3/7/460
->>> > Link: https://github.com/systemd/systemd/issues/2087
->>> > Signed-off-by: Lv Zheng <lv.zheng@intel.com>
->>> > Cc: Bastien Nocera: <hadess@hadess.net>
->>> > Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
->>> > Cc: linux-input@vger.kernel.org
->>> > ---
->>> >  Documentation/acpi/acpi-lid.txt |   62
->>> +++++++++++++++++++++++++++++++++++++++
->>> >  1 file changed, 62 insertions(+)
->>> >  create mode 100644 Documentation/acpi/acpi-lid.txt
->>> >
->>> > diff --git a/Documentation/acpi/acpi-lid.txt b/Documentation/acpi/acpi-
->>> lid.txt
->>> > new file mode 100644
->>> > index 0000000..7e4f7ed
->>> > --- /dev/null
->>> > +++ b/Documentation/acpi/acpi-lid.txt
->>> > @@ -0,0 +1,62 @@
->>> > +Usage Model of the ACPI Control Method Lid Device
->>> > +
->>> > +Copyright (C) 2016, Intel Corporation
->>> > +Author: Lv Zheng <lv.zheng@intel.com>
->>> > +
->>> > +
->>> > +Abstract:
->>> > +
->>> > +Platforms containing lids convey lid state (open/close) to OSPMs using
->>> a
->>> > +control method lid device. To implement this, the AML tables issue
->>> > +Notify(lid_device, 0x80) to notify the OSPMs whenever the lid state has
->>> > +changed. The _LID control method for the lid device must be
->>> implemented to
->>> > +report the "current" state of the lid as either "opened" or "closed".
->>> > +
->>> > +This document describes the restrictions and the expections of the
->>> Linux
->>> > +ACPI lid device driver.
->>> > +
->>> > +
->>> > +1. Restrictions of the returning value of the _LID control method
->>> > +
->>> > +The _LID control method is described to return the "current" lid state.
->>> > +However the word of "current" has ambiguity, many AML tables return
->>> the lid
->>> > +state upon the last lid notification instead of returning the lid state
->>> > +upon the last _LID evaluation. There won't be difference when the _LID
->>> > +control method is evaluated during the runtime, the problem is its
->>> initial
->>> > +returning value. When the AML tables implement this control method
->>> with
->>> > +cached value, the initial returning value is likely not reliable. There are
->>> > +simply so many examples always retuning "closed" as initial lid state.
->>> > +
->>> > +2. Restrictions of the lid state change notifications
->>> > +
->>> > +There are many AML tables never notifying when the lid device state is
->>> > +changed to "opened". But it is ensured that the AML tables always
->>> notify
->>> > +"closed" when the lid state is changed to "closed". This is normally used
->>> > +to trigger some system power saving operations on Windows. Since it is
->>> > +fully tested, this notification is reliable for all AML tables.
->>> > +
->>> > +3. Expections for the userspace users of the ACPI lid device driver
->>> > +
->>> > +The userspace programs should stop relying on
->>> > +/proc/acpi/button/lid/LID0/state to obtain the lid state. This file is only
->>> > +used for the validation purpose.
->>>
->>> I'd say: this file actually calls the _LID method described above. And
->>> given the previous explanation, it is not reliable enough on some
->>> platforms. So it is strongly advised for user-space program to not
->>> solely rely on this file to determine the actual lid state.
->> [Lv Zheng]
->> OK.
->>
->>>
->>> > +
->>> > +New userspace programs should rely on the lid "closed" notification to
->>> > +trigger some power saving operations and may stop taking actions
->>> according
->>> > +to the lid "opened" notification. A new input switch event -
->>> SW_ACPI_LID is
->>> > +prepared for the new userspace to implement this ACPI control method
->>> lid
->>> > +device specific logics.
->>>
->>> That's not entirely what we discussed before (to prevent regressions):
->>> - if the device doesn't have reliable LID switch state, then there
->>> would be the new input event, and so userspace should only rely on
->>> opened notifications.
->>> - if the device has reliable switch information, the new input event
->>> should not be exported and userspace knows that the current input
->>> switch event is reliable.
->>>
->>> Also, using a new "switch" event is a terrible idea. Switches have a
->>> state (open/close) and you are using this to forward a single open
->>> event. So using a switch just allows you to say to userspace you are
->>> using the "new" LID meaning, but you'll still have to manually reset
->>> the switch and you will have to document how this event is not a
->>> switch.
->>>
->>> Please use a simple KEY_LID_OPEN event you will send through
->>> [input_key_event(KEY_LID_OPEN, 1), input_sync(),
->>> input_key_event(KEY_LID_OPEN, 0), input_sync()], which userspace knows
->>> how to handle.
->> [Lv Zheng]
->> It should be KEY_LID_CLOSE.
->
-> yep, sorry.
->
->> However I checked the KEY code definitions.
->> It seems their values are highly dependent on the HID specification.
->
-> That was convenient enough when the code was written. Now, we can
-> extend new keycodes as we want, as long as Dmitry agrees :)
->
->> I'm not sure which key code value should I use for this.
->> Could you point me out?
->>
->
+Signed-off-by: jeffrey.lin <jeffrey.lin@rad-ic.com>
+---
+ drivers/input/touchscreen/raydium_i2c_ts.c | 68 +++++++++++++++++++++---------
+ 1 file changed, 47 insertions(+), 21 deletions(-)
 
-I think using 0x277 (or 0x278 given that KEY_DATA is reusing
-KEY_FASTREVERSE) would be fine.
+diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+index f3076d9..877d708 100644
+--- a/drivers/input/touchscreen/raydium_i2c_ts.c
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -70,6 +70,8 @@
+ #define RM_CONTACT_WIDTH_X_POS	6
+ #define RM_CONTACT_WIDTH_Y_POS	7
+ 
++#define RM_CONTACT_CRC_SIZE	2
++
+ /* Bootloader relative info */
+ #define RM_BL_WRT_CMD_SIZE	3	/* bl flash wrt cmd size */
+ #define RM_BL_WRT_PKG_SIZE	32	/* bl wrt pkg size */
+@@ -137,6 +139,7 @@ struct raydium_data {
+ 	u32 data_bank_addr;
+ 	u8 report_size;
+ 	u8 contact_size;
++	u8 pkg_size;
+ 
+ 	enum raydium_boot_mode boot_mode;
+ 
+@@ -280,12 +283,14 @@ static int raydium_i2c_query_ts_info(struct raydium_data *ts)
+ 		 * then the size changed (due to firmware update?) and keep
+ 		 * old size instead.
+ 		 */
+-		if (ts->report_data && ts->report_size != data_info.pkg_size)
++		if (ts->report_data && ts->pkg_size != data_info.pkg_size)
+ 			dev_warn(&client->dev,
+ 				 "report size changes, was: %d, new: %d\n",
+-				 ts->report_size, data_info.pkg_size);
+-		else
+-			ts->report_size = data_info.pkg_size;
++				 ts->pkg_size, data_info.pkg_size);
++		else {
++			ts->pkg_size = data_info.pkg_size;
++			ts->report_size = ts->pkg_size - RM_CONTACT_CRC_SIZE;
++		}
+ 
+ 		ts->contact_size = data_info.tp_info_size;
+ 		ts->data_bank_addr = le32_to_cpu(data_info.data_bank_addr);
+@@ -612,6 +617,17 @@ static int raydium_i2c_fw_write_page(struct i2c_client *client,
+ 	return error;
+ }
+ 
++static u16 raydium_calc_chksum(const u8 *buf, u16 len)
++{
++	u16 checksum = 0;
++	u16 i;
++
++	for (i = 0; i < len; i++)
++		checksum += buf[i];
++
++	return checksum;
++}
++
+ static int raydium_i2c_do_update_firmware(struct raydium_data *ts,
+ 					 const struct firmware *fw)
+ {
+@@ -724,9 +740,7 @@ static int raydium_i2c_do_update_firmware(struct raydium_data *ts,
+ 		return error;
+ 	}
+ 
+-	fw_checksum = 0;
+-	for (i = 0; i < fw->size; i++)
+-		fw_checksum += fw->data[i];
++	fw_checksum = raydium_calc_chksum(fw->data, fw->size);
+ 
+ 	error = raydium_i2c_write_checksum(client, fw->size, fw_checksum);
+ 	if (error)
+@@ -780,15 +794,6 @@ out_enable_irq:
+ static void raydium_mt_event(struct raydium_data *ts)
+ {
+ 	int i;
+-	int error;
+-
+-	error = raydium_i2c_read_message(ts->client, ts->data_bank_addr,
+-					 ts->report_data, ts->report_size);
+-	if (error) {
+-		dev_err(&ts->client->dev, "%s: failed to read data: %d\n",
+-			__func__, error);
+-		return;
+-	}
+ 
+ 	for (i = 0; i < ts->report_size / ts->contact_size; i++) {
+ 		u8 *contact = &ts->report_data[ts->contact_size * i];
+@@ -796,9 +801,10 @@ static void raydium_mt_event(struct raydium_data *ts)
+ 		u8 wx, wy;
+ 
+ 		input_mt_slot(ts->input, i);
+-		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, state);
++		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER,
++				state == 0x01);
+ 
+-		if (!state)
++		if (state != 0x01)
+ 			continue;
+ 
+ 		input_report_abs(ts->input, ABS_MT_POSITION_X,
+@@ -819,12 +825,32 @@ static void raydium_mt_event(struct raydium_data *ts)
+ 	input_sync(ts->input);
+ }
+ 
++static void raydium_i2c_event(struct raydium_data *ts)
++{
++	u16 fw_crc;
++	u16 calc_crc = raydium_calc_chksum(ts->report_data, ts->report_size);
++
++	fw_crc = get_unaligned_le16(&ts->report_data[ts->report_size]);
++
++	if (unlikely(fw_crc != calc_crc))
++		dev_warn(&ts->client->dev,
++			 "%s: invalid packet crc %04x &. %04x\n",
++			 __func__, calc_crc, fw_crc);
++	else
++		raydium_mt_event(ts);
++}
++
+ static irqreturn_t raydium_i2c_irq(int irq, void *_dev)
+ {
+ 	struct raydium_data *ts = _dev;
++	int error;
+ 
+-	if (ts->boot_mode != RAYDIUM_TS_BLDR)
+-		raydium_mt_event(ts);
++	if (ts->boot_mode == RAYDIUM_TS_MAIN) {
++		error = raydium_i2c_read_message(ts->client, ts->data_bank_addr,
++				 ts->report_data, ts->pkg_size);
++		if (!error)
++			raydium_i2c_event(ts);
++	}
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -1050,7 +1076,7 @@ static int raydium_i2c_probe(struct i2c_client *client,
+ 	}
+ 
+ 	ts->report_data = devm_kmalloc(&client->dev,
+-				       ts->report_size, GFP_KERNEL);
++				       ts->pkg_size, GFP_KERNEL);
+ 	if (!ts->report_data)
+ 		return -ENOMEM;
+ 
+-- 
+2.1.2
 
->
->>>
->>> > +
->>> > +During the period the userspace hasn't been switched to use the new
->>> > +SW_ACPI_LID event, Linux users can use the following boot parameter
->>> to
->>> > +handle possible issues:
->>> > +  button.lid_init_state=method:
->>> > +   This is the default behavior of the Linux ACPI lid driver, Linux kernel
->>> > +   reports the initial lid state using the returning value of the _LID
->>> > +   control method.
->>> > +   This can be used to fix some platforms if the _LID control method's
->>> > +   returning value is reliable.
->>> > +  button.lid_init_state=open:
->>> > +   Linux kernel always reports the initial lid state as "opened".
->>> > +   This may fix some platforms if the returning value of the _LID control
->>> > +   method is not reliable.
->>>
->>> This worries me as there is no plan after "During the period the
->>> userspace hasn't been switched to use the new event".
->>>
->>> I really hope you'll keep sending SW_LID for reliable LID platforms,
->>> and not remove it entirely as you will break platforms.
->>
->> [Lv Zheng]
->> We won't remove SW_LID from the kernel :).
->>
->> And we haven't removed SW_LID from the acpi button driver.
->> We'll just stop sending "initial lid state" from acpi button driver, i.e., the behavior carried out by "button.lid_init_state=ignore".
-
-That won't do for the very same use case than before. It makes sense
-to boot a laptop while the LID is closed if you have an external
-monitor plugged in (the docking station allows to have an extra power
-button accessible when the lid is closed).
-
->>
->> Maybe it is not sufficient, after the userspace has been changed to support the new event, we should stop sending SW_LID from acpi button driver.
-
-I'd say do not touch SW_LID at all (and allow users to tweak its
-behavior for local fixes, which is what you currently have).
-Just send the extra KEY_LID_CLOSE, no matter what.
-And start listing which devices have troubles, and we can add those
-into a hwdb file shipped with logind. I hope the systemd team will
-agree with me.
-
-Cheers,
-Benjamin
-
->>
->> Cheers,
->> -Lv

@@ -1,195 +1,215 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/2] HID: wacom: Add WACOM_DEVICETYPE_DIRECT for Cintiqs
- and similar
-Date: Tue, 12 Jul 2016 09:36:53 +0200
-Message-ID: <20160712073653.GF4663@mail.corp.redhat.com>
-References: <20160711180711.17537-1-killertofu@gmail.com>
+From: "Zheng, Lv" <lv.zheng@intel.com>
+Subject: RE: [PATCH v2 4/4] ACPI / button: Add document for ACPI control
+ method lid device restrictions
+Date: Tue, 12 Jul 2016 07:43:05 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E883BC028AB@SHSMSX101.ccr.corp.intel.com>
+References: <cover.1467717304.git.lv.zheng@intel.com>
+ <cover.1467875142.git.lv.zheng@intel.com>
+ <3f24a00df89f06661a64af6b4679a99bfff09aa7.1467875143.git.lv.zheng@intel.com>
+ <CAN+gG=G5p6ztJODQBBAF7MY0kBNGVpexY-+a8RQY9JKuY1AB1Q@mail.gmail.com>
+ <20160708175146.GA28589@dtor-ws>
+ <CAN+gG=Fjt3BFp5UPhTKfz93SrYzj_3BgA8EWQ+wV7fGxyXrTWA@mail.gmail.com>
+ <20160712004109.GA819@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36201 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751343AbcGLHg6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Jul 2016 03:36:58 -0400
-Content-Disposition: inline
-In-Reply-To: <20160711180711.17537-1-killertofu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20160712004109.GA819@dtor-ws>
+Content-Language: en-US
+Sender: linux-acpi-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "Bastien Nocera:" <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Jul 11 2016 or thereabouts, Jason Gerecke wrote:
-> "Direct" input deviecs like Cintiqs and Tablet PCs set the INPUT_PROP_DIRECT
-> property to notify userspace that the sensor and screen are overlayed. This
-> information can also be useful elsewhere within the kernel driver, however,
-> so we introduce a new WACOM_DEVICETYPE_DIRECT that signals this to other
-> kernel code.
+Hi, Dmitry
+
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Subject: Re: [PATCH v2 4/4] ACPI / button: Add document for ACPI control
+> method lid device restrictions
 > 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> ---
->  drivers/hid/wacom_wac.c | 40 ++++++++++++++++++++++++----------------
->  drivers/hid/wacom_wac.h |  1 +
->  2 files changed, 25 insertions(+), 16 deletions(-)
+> On Mon, Jul 11, 2016 at 01:34:08PM +0200, Benjamin Tissoires wrote:
+> > On Fri, Jul 8, 2016 at 7:51 PM, Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > > On Fri, Jul 08, 2016 at 11:17:39AM +0200, Benjamin Tissoires wrote:
+> > >> Hi,
+> > >>
+> > >> On Thu, Jul 7, 2016 at 9:11 AM, Lv Zheng <lv.zheng@intel.com>
+> wrote:
+> > >> > There are many AML tables reporting wrong initial lid state, and
+> some of
+> > >> > them never reports lid state. As a proxy layer acting between, ACPI
+> button
+> > >> > driver is not able to handle all such cases, but need to re-define the
+> > >> > usage model of the ACPI lid. That is:
+> > >> > 1. It's initial state is not reliable;
+> > >> > 2. There may not be open event;
+> > >> > 3. Userspace should only take action against the close event which
+> is
+> > >> >    reliable, always sent after a real lid close.
+> > >> > This patch adds documentation of the usage model.
+> > >> >
+> > >> > Link: https://lkml.org/2016/3/7/460
+> > >> > Link: https://github.com/systemd/systemd/issues/2087
+> > >> > Signed-off-by: Lv Zheng <lv.zheng@intel.com>
+> > >> > Cc: Bastien Nocera: <hadess@hadess.net>
+> > >> > Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> > >> > Cc: linux-input@vger.kernel.org
+> > >> > ---
+> > >> >  Documentation/acpi/acpi-lid.txt |   62
+> +++++++++++++++++++++++++++++++++++++++
+> > >> >  1 file changed, 62 insertions(+)
+> > >> >  create mode 100644 Documentation/acpi/acpi-lid.txt
+> > >> >
+> > >> > diff --git a/Documentation/acpi/acpi-lid.txt
+> b/Documentation/acpi/acpi-lid.txt
+> > >> > new file mode 100644
+> > >> > index 0000000..7e4f7ed
+> > >> > --- /dev/null
+> > >> > +++ b/Documentation/acpi/acpi-lid.txt
+> > >> > @@ -0,0 +1,62 @@
+> > >> > +Usage Model of the ACPI Control Method Lid Device
+> > >> > +
+> > >> > +Copyright (C) 2016, Intel Corporation
+> > >> > +Author: Lv Zheng <lv.zheng@intel.com>
+> > >> > +
+> > >> > +
+> > >> > +Abstract:
+> > >> > +
+> > >> > +Platforms containing lids convey lid state (open/close) to OSPMs
+> using a
+> > >> > +control method lid device. To implement this, the AML tables issue
+> > >> > +Notify(lid_device, 0x80) to notify the OSPMs whenever the lid
+> state has
+> > >> > +changed. The _LID control method for the lid device must be
+> implemented to
+> > >> > +report the "current" state of the lid as either "opened" or "closed".
+> > >> > +
+> > >> > +This document describes the restrictions and the expections of the
+> Linux
+> > >> > +ACPI lid device driver.
+> > >> > +
+> > >> > +
+> > >> > +1. Restrictions of the returning value of the _LID control method
+> > >> > +
+> > >> > +The _LID control method is described to return the "current" lid
+> state.
+> > >> > +However the word of "current" has ambiguity, many AML tables
+> return the lid
+> > >> > +state upon the last lid notification instead of returning the lid state
+> > >> > +upon the last _LID evaluation. There won't be difference when the
+> _LID
+> > >> > +control method is evaluated during the runtime, the problem is its
+> initial
+> > >> > +returning value. When the AML tables implement this control
+> method with
+> > >> > +cached value, the initial returning value is likely not reliable. There
+> are
+> > >> > +simply so many examples always retuning "closed" as initial lid
+> state.
+> > >> > +
+> > >> > +2. Restrictions of the lid state change notifications
+> > >> > +
+> > >> > +There are many AML tables never notifying when the lid device
+> state is
+> > >> > +changed to "opened". But it is ensured that the AML tables always
+> notify
+> > >> > +"closed" when the lid state is changed to "closed". This is normally
+> used
+> > >> > +to trigger some system power saving operations on Windows.
+> Since it is
+> > >> > +fully tested, this notification is reliable for all AML tables.
+> > >> > +
+> > >> > +3. Expections for the userspace users of the ACPI lid device driver
+> > >> > +
+> > >> > +The userspace programs should stop relying on
+> > >> > +/proc/acpi/button/lid/LID0/state to obtain the lid state. This file is
+> only
+> > >> > +used for the validation purpose.
+> > >>
+> > >> I'd say: this file actually calls the _LID method described above. And
+> > >> given the previous explanation, it is not reliable enough on some
+> > >> platforms. So it is strongly advised for user-space program to not
+> > >> solely rely on this file to determine the actual lid state.
+> > >>
+> > >> > +
+> > >> > +New userspace programs should rely on the lid "closed"
+> notification to
+> > >> > +trigger some power saving operations and may stop taking actions
+> according
+> > >> > +to the lid "opened" notification. A new input switch event -
+> SW_ACPI_LID is
+> > >> > +prepared for the new userspace to implement this ACPI control
+> method lid
+> > >> > +device specific logics.
+> > >>
+> > >> That's not entirely what we discussed before (to prevent regressions):
+> > >> - if the device doesn't have reliable LID switch state, then there
+> > >> would be the new input event, and so userspace should only rely on
+> > >> opened notifications.
+> > >> - if the device has reliable switch information, the new input event
+> > >> should not be exported and userspace knows that the current input
+> > >> switch event is reliable.
+> > >>
+> > >> Also, using a new "switch" event is a terrible idea. Switches have a
+> > >> state (open/close) and you are using this to forward a single open
+> > >> event. So using a switch just allows you to say to userspace you are
+> > >> using the "new" LID meaning, but you'll still have to manually reset
+> > >> the switch and you will have to document how this event is not a
+> > >> switch.
+> > >>
+> > >> Please use a simple KEY_LID_OPEN event you will send through
+> > >> [input_key_event(KEY_LID_OPEN, 1), input_sync(),
+> > >> input_key_event(KEY_LID_OPEN, 0), input_sync()], which userspace
+> knows
+> > >> how to handle.
+> > >>
+> > >> > +
+> > >> > +During the period the userspace hasn't been switched to use the
+> new
+> > >> > +SW_ACPI_LID event, Linux users can use the following boot
+> parameter to
+> > >> > +handle possible issues:
+> > >> > +  button.lid_init_state=method:
+> > >> > +   This is the default behavior of the Linux ACPI lid driver, Linux
+> kernel
+> > >> > +   reports the initial lid state using the returning value of the _LID
+> > >> > +   control method.
+> > >> > +   This can be used to fix some platforms if the _LID control
+> method's
+> > >> > +   returning value is reliable.
+> > >> > +  button.lid_init_state=open:
+> > >> > +   Linux kernel always reports the initial lid state as "opened".
+> > >> > +   This may fix some platforms if the returning value of the _LID
+> control
+> > >> > +   method is not reliable.
+> > >>
+> > >> This worries me as there is no plan after "During the period the
+> > >> userspace hasn't been switched to use the new event".
+> > >>
+> > >> I really hope you'll keep sending SW_LID for reliable LID platforms,
+> > >> and not remove it entirely as you will break platforms.
+> > >
+> > > How about we leave the kernel alone and userspace (which would have
+> to
+> > > cope with the new KEY_LID_OPEN anyway) would just have to know
+> that if
+> > > switch's parent is PNP0C0D:00 (or phys is PNP0C0D/button/input0)
+> then it
+> > > can't trust the events and it needs additional heuristics.
+> > >
+> >
+> > I really wished we could leave the kernel alone, but some platform
+> > need fixes: we are using an EV_SW, and on those platform, we only get
+> > the close event, which means it gets ignored by the input layer.
 > 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index e499cdb..2523a29 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -1757,8 +1757,10 @@ void wacom_wac_usage_mapping(struct hid_device *hdev,
->  {
->  	struct wacom *wacom = hid_get_drvdata(hdev);
->  	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-> +	struct wacom_features *features = &wacom_wac->features;
->  
->  	/* currently, only direct devices have proper hid report descriptors */
-> +	features->device_type |= WACOM_DEVICETYPE_DIRECT;
->  	__set_bit(INPUT_PROP_DIRECT, wacom_wac->pen_input->propbit);
->  	__set_bit(INPUT_PROP_DIRECT, wacom_wac->touch_input->propbit);
+> OK. Can we then emit missing "open" if we get "close" and the state is
+> already closed?
+[Lv Zheng] 
+The problem is systemd/logind thinks SW_LID is a switch event, thus it must be paired.
+While the real world is: there are platforms, SW_LID may not be paired for ACPI control method lid device.
 
-nitpick: you might as well remove these additions of INPUT_PROP_DIRECT,
-as you are handling the test later and adding them no matter what.
+As the events are provided by the BIOS tables, the Linux ACPI subsystem actually has no idea on how to get the missing "open" back.
+Unless we hire people to wait for the bug reports and fix the BIOS tables.
 
-Rest looks good to me.
-
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Cheers,
-Benjamin
-
->  
-> @@ -2465,6 +2467,19 @@ void wacom_setup_device_quirks(struct wacom *wacom)
->  	if (features->type == REMOTE)
->  		features->device_type = WACOM_DEVICETYPE_PAD;
->  
-> +	if (features->type == PL          || features->type == DTU           ||
-> +	    features->type == DTUS        || features->type == DTUSX         ||
-> +	    features->type == WACOM_21UX2 || features->type == WACOM_22HD    ||
-> +	    features->type == DTK         || features->type == WACOM_24HD    ||
-> +	    features->type == WACOM_27QHD || features->type == CINTIQ_HYBRID ||
-> +	    features->type == CINTIQ_COMPANION_2 || features->type == CINTIQ ||
-> +	    features->type == WACOM_BEE   || features->type == WACOM_13HD    ||
-> +	    features->type == WACOM_24HDT || features->type == WACOM_27QHDT  ||
-> +	    features->type == TABLETPC    || features->type == TABLETPCE     ||
-> +	    features->type == TABLETPC2FG || features->type == MTSCREEN      ||
-> +	    features->type == MTTPC       || features->type == MTTPC_B)
-> +	    features->device_type |= WACOM_DEVICETYPE_DIRECT;
-> +
->  	if (wacom->hdev->bus == BUS_BLUETOOTH)
->  		features->quirks |= WACOM_QUIRK_BATTERY;
->  
-> @@ -2516,6 +2531,10 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
->  	input_abs_set_res(input_dev, ABS_X, features->x_resolution);
->  	input_abs_set_res(input_dev, ABS_Y, features->y_resolution);
->  
-> +	if (features->device_type & WACOM_DEVICETYPE_DIRECT)
-> +		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
-> +	else
-> +		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
->  
->  	switch (features->type) {
->  	case GRAPHIRE_BT:
-> @@ -2540,8 +2559,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
->  		__set_bit(BTN_TOOL_MOUSE, input_dev->keybit);
->  		__set_bit(BTN_STYLUS, input_dev->keybit);
->  		__set_bit(BTN_STYLUS2, input_dev->keybit);
-> -
-> -		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
->  		break;
->  
->  	case WACOM_27QHD:
-> @@ -2556,7 +2573,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
->  	case CINTIQ_COMPANION_2:
->  		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
->  		input_abs_set_res(input_dev, ABS_Z, 287);
-> -		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
->  		wacom_setup_cintiq(wacom_wac);
->  		break;
->  
-> @@ -2572,8 +2588,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
->  		/* fall through */
->  
->  	case INTUOS:
-> -		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-> -
->  		wacom_setup_intuos(wacom_wac);
->  		break;
->  
-> @@ -2583,8 +2597,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
->  	case INTUOSPL:
->  	case INTUOS5S:
->  	case INTUOSPS:
-> -		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-> -
->  		input_set_abs_params(input_dev, ABS_DISTANCE, 0,
->  				      features->distance_max,
->  				      features->distance_fuzz, 0);
-> @@ -2614,8 +2626,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
->  		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
->  		__set_bit(BTN_STYLUS, input_dev->keybit);
->  		__set_bit(BTN_STYLUS2, input_dev->keybit);
-> -
-> -		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
->  		break;
->  
->  	case PTU:
-> @@ -2626,16 +2636,12 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
->  		__set_bit(BTN_TOOL_PEN, input_dev->keybit);
->  		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
->  		__set_bit(BTN_STYLUS, input_dev->keybit);
-> -
-> -		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
->  		break;
->  
->  	case INTUOSHT:
->  	case BAMBOO_PT:
->  	case BAMBOO_PEN:
->  	case INTUOSHT2:
-> -		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-> -
->  		if (features->type == INTUOSHT2) {
->  			wacom_setup_basic_pro_pen(wacom_wac);
->  		} else {
-> @@ -2693,6 +2699,11 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
->  				  features->y_resolution);
->  	}
->  
-> +	if (features->device_type & WACOM_DEVICETYPE_DIRECT)
-> +		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
-> +	else
-> +		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-> +
->  	switch (features->type) {
->  	case INTUOS5:
->  	case INTUOS5L:
-> @@ -2700,8 +2711,6 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
->  	case INTUOSPL:
->  	case INTUOS5S:
->  	case INTUOSPS:
-> -		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-> -
->  		input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0, features->x_max, 0, 0);
->  		input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR, 0, features->y_max, 0, 0);
->  		input_mt_init_slots(input_dev, features->touch_max, INPUT_MT_POINTER);
-> @@ -2724,7 +2733,6 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
->  
->  	case TABLETPC:
->  	case TABLETPCE:
-> -		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
->  		break;
->  
->  	case INTUOSHT:
-> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-> index 8a8974c..7ad6273 100644
-> --- a/drivers/hid/wacom_wac.h
-> +++ b/drivers/hid/wacom_wac.h
-> @@ -82,6 +82,7 @@
->  #define WACOM_DEVICETYPE_TOUCH          0x0002
->  #define WACOM_DEVICETYPE_PAD            0x0004
->  #define WACOM_DEVICETYPE_WL_MONITOR     0x0008
-> +#define WACOM_DEVICETYPE_DIRECT         0x0010
->  
->  #define WACOM_VENDORDEFINED_PEN		0xff0d0001
->  #define WACOM_G9_PAGE			0xff090000
-> -- 
-> 2.9.0
-> 
+Thanks and best regards
+-Lv

@@ -1,162 +1,111 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH v3] Input: synaptics-rmi4: Support regulator supplies
-Date: Tue, 12 Jul 2016 21:33:41 -0700
-Message-ID: <CAOCOHw6Vwu1nTB-4=N0AXCsFo7qK__qyymbw052X5B4stvBx_g@mail.gmail.com>
-References: <1465622722-31714-1-git-send-email-bjorn.andersson@linaro.org> <576DD2E0.9000002@synaptics.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 1/2] HID: logitech-hidpp: add battery support for HID++
+ 2.0 devices
+Date: Wed, 13 Jul 2016 15:18:46 +1000
+Message-ID: <20160713051846.GA11695@jelly.local>
+References: <1467192482-2723-1-git-send-email-peter.hutterer@who-t.net>
+ <1467988545.2317.4.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <576DD2E0.9000002@synaptics.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Linux Input <linux-input@vger.kernel.org>, devicetree@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from leo.clearchain.com ([199.73.29.74]:32929 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750716AbcGMFVU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Jul 2016 01:21:20 -0400
+Content-Disposition: inline
+In-Reply-To: <1467988545.2317.4.camel@hadess.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>
 
-On Fri, Jun 24, 2016 at 5:40 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
-> On 06/10/2016 10:25 PM, Bjorn Andersson wrote:
->>
->> From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
->>
->> Support the two supplies - vdd and vio - to make it possible to control
->> power to the Synaptics chip.
->>
->> Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
->> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
->
->
-> Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
+On Fri, Jul 08, 2016 at 04:35:45PM +0200, Bastien Nocera wrote:
+> On Wed, 2016-06-29 at 19:28 +1000, Peter Hutterer wrote:
+> > +static int hidpp_battery_get_property(struct power_supply *psy,
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 enum power_supply_property p=
+sp,
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 union power_supply_propval
+> > *val)
+> > +{
+> > +=A0=A0=A0=A0=A0=A0=A0struct hidpp_device *hidpp =3D power_supply_g=
+et_drvdata(psy);
+> > +=A0=A0=A0=A0=A0=A0=A0int ret =3D 0;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0switch(psp) {
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0case POWER_SUPPLY_PRO=
+P_STATUS:
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0val->intval =3D hidpp->battery.status;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0break;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0case POWER_SUPPLY_PRO=
+P_CAPACITY:
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0val->intval =3D hidpp->battery.level;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0break;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0default:
+>=20
+> You forgot to handle POWER_SUPPLY_PROP_SCOPE. This means that UPower
+> thinks it's supplying power to the computer to which it is connected.
+>=20
+> Should be set to "POWER_SUPPLY_SCOPE_DEVICE". This should fix it.
+>=20
+> From 8fbfcfd411a4b2c55ec24adc8b8ecc0bca2db5e3 Mon Sep 17 00:00:00 200=
+1
+> From: Bastien Nocera <hadess@hadess.net>
+> Date: Fri, 8 Jul 2016 16:34:18 +0200
+> Subject: [PATCH] HID: logitech-hidpp: Add scope to battery
+>=20
+> Without a scope defined, UPower assumes that the battery is provide
+> power to the computer it's connected to, like a laptop battery or a U=
+PS.
+>=20
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
 
-Dmitry, do you have any comments or would you mind pick this up?
+Tested-by: Peter Hutterer <peter.hutterer@who-t.net>
 
-Regards,
-Bjorn
+Cheers,
+   Peter
 
->
->
->> ---
->>   .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |  9 +++++
->>   drivers/input/rmi4/rmi_i2c.c                       | 41
->> ++++++++++++++++++++++
->>   2 files changed, 50 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
->> b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
->> index 95fa715c6046..ec908b91fd90 100644
->> --- a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
->> +++ b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
->> @@ -22,6 +22,15 @@ See
->> Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
->>   - syna,reset-delay-ms: The number of milliseconds to wait after
->> resetting the
->>                         device.
->>   +- syna,startup-delay-ms: The number of milliseconds to wait after
->> powering on
->> +                        the device.
->> +
->> +- vdd-supply: VDD power supply.
->> +See ../regulator/regulator.txt
->> +
->> +- vio-supply: VIO power supply
->> +See ../regulator/regulator.txt
->> +
->>   Function Parameters:
->>   Parameters specific to RMI functions are contained in child nodes of the
->> rmi device
->>    node. Documentation for the parameters of each function can be found
->> in:
->> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
->> index a96a326b53bd..71dc6cdde8ac 100644
->> --- a/drivers/input/rmi4/rmi_i2c.c
->> +++ b/drivers/input/rmi4/rmi_i2c.c
->> @@ -11,6 +11,8 @@
->>   #include <linux/rmi.h>
->>   #include <linux/irq.h>
->>   #include <linux/of.h>
->> +#include <linux/delay.h>
->> +#include <linux/regulator/consumer.h>
->>   #include "rmi_driver.h"
->>     #define BUFFER_SIZE_INCREMENT 32
->> @@ -37,6 +39,9 @@ struct rmi_i2c_xport {
->>         u8 *tx_buf;
->>         size_t tx_buf_size;
->> +
->> +       struct regulator_bulk_data supplies[2];
->> +       u32 startup_delay;
->>   };
->>     #define RMI_PAGE_SELECT_REGISTER 0xff
->> @@ -246,6 +251,24 @@ static int rmi_i2c_probe(struct i2c_client *client,
->>                 return -ENODEV;
->>         }
->>   +     rmi_i2c->supplies[0].supply = "vdd";
->> +       rmi_i2c->supplies[1].supply = "vio";
->> +       retval = devm_regulator_bulk_get(&client->dev,
->> +                                        ARRAY_SIZE(rmi_i2c->supplies),
->> +                                        rmi_i2c->supplies);
->> +       if (retval < 0)
->> +               return retval;
->> +
->> +       retval = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
->> +                                      rmi_i2c->supplies);
->> +       if (retval < 0)
->> +               return retval;
->> +
->> +       of_property_read_u32(client->dev.of_node, "syna,startup-delay-ms",
->> +                            &rmi_i2c->startup_delay);
->> +
->> +       msleep(rmi_i2c->startup_delay);
->> +
->>         rmi_i2c->client = client;
->>         mutex_init(&rmi_i2c->page_mutex);
->>   @@ -286,6 +309,7 @@ static int rmi_i2c_remove(struct i2c_client *client)
->>         struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->>         rmi_unregister_transport_device(&rmi_i2c->xport);
->> +       regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
->> rmi_i2c->supplies);
->>         return 0;
->>   }
->> @@ -308,6 +332,9 @@ static int rmi_i2c_suspend(struct device *dev)
->>                         dev_warn(dev, "Failed to enable irq for wake:
->> %d\n",
->>                                 ret);
->>         }
->> +
->> +       regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
->> rmi_i2c->supplies);
->> +
->>         return ret;
->>   }
->>   @@ -317,6 +344,12 @@ static int rmi_i2c_resume(struct device *dev)
->>         struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->>         int ret;
->>   +     ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
->> rmi_i2c->supplies);
->> +       if (ret)
->> +               return ret;
->> +
->> +       msleep(rmi_i2c->startup_delay);
->> +
->>         enable_irq(rmi_i2c->irq);
->>         if (device_may_wakeup(&client->dev)) {
->>                 ret = disable_irq_wake(rmi_i2c->irq);
->> @@ -346,6 +379,8 @@ static int rmi_i2c_runtime_suspend(struct device *dev)
->>         disable_irq(rmi_i2c->irq);
->>   +     regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
->> rmi_i2c->supplies);
->> +
->>         return 0;
->>   }
->>   @@ -355,6 +390,12 @@ static int rmi_i2c_runtime_resume(struct device
->> *dev)
->>         struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->>         int ret;
->>   +     ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
->> rmi_i2c->supplies);
->> +       if (ret)
->> +               return ret;
->> +
->> +       msleep(rmi_i2c->startup_delay);
->> +
->>         enable_irq(rmi_i2c->irq);
->>         ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev);
->
->
+> ---
+>  drivers/hid/hid-logitech-hidpp.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>=20
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logit=
+ech-hidpp.c
+> index 4eeb550..4aaf237 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -761,6 +761,7 @@ static int hidpp20_battery_event(struct hidpp_dev=
+ice *hidpp,
+>  static enum power_supply_property hidpp_battery_props[] =3D {
+>         POWER_SUPPLY_PROP_STATUS,
+>         POWER_SUPPLY_PROP_CAPACITY,
+> +       POWER_SUPPLY_PROP_SCOPE,
+>  };
+> =20
+>  static int hidpp_battery_get_property(struct power_supply *psy,
+> @@ -777,6 +778,9 @@ static int hidpp_battery_get_property(struct powe=
+r_supply *psy,
+>                 case POWER_SUPPLY_PROP_CAPACITY:
+>                         val->intval =3D hidpp->battery.level;
+>                         break;
+> +               case POWER_SUPPLY_PROP_SCOPE:
+> +                       val->intval =3D POWER_SUPPLY_SCOPE_DEVICE;
+> +                       break;
+>                 default:
+>                         ret =3D -EINVAL;
+>                         break;
+> --=20
+> 2.7.4
+>=20
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

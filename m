@@ -1,50 +1,37 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v1] Add support for the ektf2127 touchscreencontroller
-Date: Wed, 13 Jul 2016 14:50:18 -0700
-Message-ID: <20160713215018.GA1799@dtor-ws>
-References: <1467624545-3455-1-git-send-email-siebren.vroegindeweij@gmail.com>
- <1467624545-3455-2-git-send-email-siebren.vroegindeweij@gmail.com>
+Subject: Re: [PATCH 0/2] Input-at32psif: Fine-tuning for OOM handling in
+ psif_probe()
+Date: Wed, 13 Jul 2016 15:01:03 -0700
+Message-ID: <20160713220103.GB1799@dtor-ws>
+References: <566ABCD9.1060404@users.sourceforge.net>
+ <4471604f-f401-bed9-39be-1aff2a92edf6@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:35825 "EHLO
-	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751067AbcGMVuW (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:34902 "EHLO
+	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751714AbcGMWBK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jul 2016 17:50:22 -0400
+	Wed, 13 Jul 2016 18:01:10 -0400
 Content-Disposition: inline
-In-Reply-To: <1467624545-3455-2-git-send-email-siebren.vroegindeweij@gmail.com>
+In-Reply-To: <4471604f-f401-bed9-39be-1aff2a92edf6@users.sourceforge.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Siebren Vroegindeweij <siebren.vroegindeweij@gmail.com>, KT Liao <ktalex.liao@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Michel Verlaan <michel.verl@gmail.com>, Siebren Vroegindeweij <siebren.vroegindeweij@hotmail.com>, KT Liao <kt.liao@emc.com.tw>
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 
-On Mon, Jul 04, 2016 at 11:29:05AM +0200, Siebren Vroegindeweij wrote:
-> From: Siebren Vroegindeweij <siebren.vroegindeweij@hotmail.com>
+On Sat, Jul 02, 2016 at 09:00:36PM +0200, SF Markus Elfring wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Sat, 2 Jul 2016 20:50:09 +0200
 > 
-> The ELAN eKTF2127 driver is written for the ELAN series of
-> touchscreencontrollers. This version is especially written for the
-> eKTF2127 controller. The driver communicates to the controller over i2c.
-> The additional screen specifications can be read from the devicetree file.
-> The driver has also the ability to read the screen height and width from
-> the controller. When the screen is pressed, a interrupt is generated.
-> The interrupt wil be handled by a function that request a data string from
-> the controller. This string is then modified so that the right number of touches
-> and their x and y coordinates are available and given to userspace through
-> the input subsystem.
+> A few update suggestions were taken into account
+> from static source code analysis.
+> 
+> Markus Elfring (2):
+>   Return directly after a failed kzalloc()
+>   Remove two OOM messages
 
-Adding KT. Can eKTF2127 be driven with [modified] elants_i2c driver or
-we are better off with separate driver.
-
-...
-
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 3 of the License, or
-> + * (at your option) any later version.
-
-Gpl V2 or later for kernel please, we won't take v3.
+I do not see a compelling reason for taking these...
 
 Thanks.
 

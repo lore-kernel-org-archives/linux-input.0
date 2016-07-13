@@ -1,114 +1,170 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 03/30] HID: wacom: remove cleanup of wacom->remote_dir from wacom_clean_inputs()
-Date: Wed, 13 Jul 2016 18:05:50 +0200
-Message-ID: <1468425977-4819-4-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 17/30] HID: wacom: EKR: have proper allocator and destructor
+Date: Wed, 13 Jul 2016 18:06:04 +0200
+Message-ID: <1468425977-4819-18-git-send-email-benjamin.tissoires@redhat.com>
 References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51687 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36212 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750923AbcGMQGc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jul 2016 12:06:32 -0400
+	id S1752219AbcGMQG7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Jul 2016 12:06:59 -0400
 In-Reply-To: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-wacom->remote_dir has nothing to do with inputs, so better not magically
-removing it when cleaning inputs.
+The wacom_remote_create_attr_group() and wacom_remote_destroy_attr_group()
+functions were both allocating/destroying the sysfs groups but also
+initializing the parameters for the remotes. Have proper functions
+that can be called and extended.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
 No changes in v2
 ---
- drivers/hid/wacom_sys.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ drivers/hid/wacom_sys.c | 93 ++++++++++++++++++++++++++++---------------------
+ 1 file changed, 53 insertions(+), 40 deletions(-)
 
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 9e283aa..5dd2640 100644
+index 241acee..27ca147 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -1397,7 +1397,6 @@ static void wacom_clean_inputs(struct wacom *wacom)
- 		else
- 			input_free_device(wacom->wacom_wac.pad_input);
- 	}
--	kobject_put(wacom->remote_dir);
- 	wacom->wacom_wac.pen_input = NULL;
- 	wacom->wacom_wac.touch_input = NULL;
- 	wacom->wacom_wac.pad_input = NULL;
-@@ -1480,16 +1479,10 @@ static int wacom_register_inputs(struct wacom *wacom)
- 		error = wacom_initialize_leds(wacom);
- 		if (error)
- 			goto fail_leds;
+@@ -1300,8 +1300,6 @@ static int wacom_remote_create_attr_group(struct wacom *wacom, __u32 serial,
+ 	int error = 0;
+ 	struct wacom_remote *remote = wacom->remote;
+ 
+-	remote->serial[index] = serial;
 -
--		error = wacom_initialize_remote(wacom);
--		if (error)
--			goto fail_remote;
- 	}
- 
+ 	remote->remote_group[index].name = devm_kasprintf(&wacom->hdev->dev,
+ 							  GFP_KERNEL,
+ 							  "%d", serial);
+@@ -1319,27 +1317,13 @@ static int wacom_remote_create_attr_group(struct wacom *wacom, __u32 serial,
  	return 0;
+ }
  
--fail_remote:
--	wacom_destroy_leds(wacom);
- fail_leds:
- 	input_unregister_device(pad_input_dev);
- 	pad_input_dev = NULL;
-@@ -1686,6 +1679,12 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 	if (error)
- 		goto fail_register_inputs;
+-static void wacom_remote_destroy_attr_group(struct wacom *wacom, __u32 serial)
++static void wacom_remote_destroy_attr_group(struct wacom *wacom, unsigned int i)
+ {
+ 	struct wacom_remote *remote = wacom->remote;
+-	int i;
  
-+	if (wacom->wacom_wac.features.device_type & WACOM_DEVICETYPE_PAD) {
-+		error = wacom_initialize_remote(wacom);
-+		if (error)
-+			goto fail_remote;
+-	if (!serial)
+-		return;
+-
+-	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+-		if (remote->serial[i] == serial) {
+-			remote->serial[i] = 0;
+-			wacom->led.groups[i].select = WACOM_STATUS_UNKNOWN;
+-			if (remote->remote_group[i].name) {
+-				sysfs_remove_group(remote->remote_dir,
+-						   &remote->remote_group[i]);
+-				devm_kfree(&wacom->hdev->dev,
+-					  (char *)remote->remote_group[i].name);
+-				remote->remote_group[i].name = NULL;
+-			}
+-		}
+-	}
++	sysfs_remove_group(remote->remote_dir, &remote->remote_group[i]);
++	devm_kfree(&wacom->hdev->dev, (char *)remote->remote_group[i].name);
++	remote->remote_group[i].name = NULL;
+ }
+ 
+ static int wacom_cmd_unpair_remote(struct wacom *wacom, unsigned char selector)
+@@ -1916,6 +1900,50 @@ fail:
+ 	return;
+ }
+ 
++static void wacom_remote_destroy_one(struct wacom *wacom, unsigned int index)
++{
++	struct wacom_remote *remote = wacom->remote;
++	u32 serial = remote->serial[index];
++	int i;
++
++	wacom_remote_destroy_attr_group(wacom, index);
++
++	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
++		if (remote->serial[i] == serial) {
++			remote->serial[i] = 0;
++			wacom->led.groups[i].select = WACOM_STATUS_UNKNOWN;
++		}
++	}
++}
++
++static int wacom_remote_create_one(struct wacom *wacom, u32 serial,
++				   unsigned int index)
++{
++	struct wacom_remote *remote = wacom->remote;
++	int error, k;
++
++	/* A remote can pair more than once with an EKR,
++	 * check to make sure this serial isn't already paired.
++	 */
++	for (k = 0; k < WACOM_MAX_REMOTES; k++) {
++		if (remote->serial[k] == serial)
++			break;
 +	}
 +
- 	if (features->type == HID_GENERIC)
- 		connect_mask |= HID_CONNECT_DRIVER;
++	if (k < WACOM_MAX_REMOTES) {
++		remote->serial[index] = serial;
++		return 0;
++	}
++
++	error = wacom_remote_create_attr_group(wacom, serial, index);
++	if (error)
++		return error;
++
++	remote->serial[index] = serial;
++
++	return 0;
++}
++
+ static void wacom_remote_work(struct work_struct *work)
+ {
+ 	struct wacom *wacom = container_of(work, struct wacom, remote_work);
+@@ -1924,7 +1952,7 @@ static void wacom_remote_work(struct work_struct *work)
+ 	unsigned long flags;
+ 	unsigned int count;
+ 	u32 serial;
+-	int i, k;
++	int i;
  
-@@ -1705,7 +1704,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 	if ((features->type == BAMBOO_TOUCH) &&
- 	    (features->device_type & WACOM_DEVICETYPE_PEN)) {
- 		error = -ENODEV;
--		goto fail_hw_start;
-+		goto fail_quirks;
+ 	spin_lock_irqsave(&remote->remote_lock, flags);
+ 
+@@ -1949,28 +1977,13 @@ static void wacom_remote_work(struct work_struct *work)
+ 			if (remote->serial[i] == serial)
+ 				continue;
+ 
+-			if (remote->serial[i]) {
+-				wacom_remote_destroy_attr_group(wacom,
+-							remote->serial[i]);
+-			}
+-
+-			/* A remote can pair more than once with an EKR,
+-			 * check to make sure this serial isn't already paired.
+-			 */
+-			for (k = 0; k < WACOM_MAX_REMOTES; k++) {
+-				if (remote->serial[k] == serial)
+-					break;
+-			}
++			if (remote->serial[i])
++				wacom_remote_destroy_one(wacom, i);
+ 
+-			if (k < WACOM_MAX_REMOTES) {
+-				remote->serial[i] = serial;
+-				continue;
+-			}
+-			wacom_remote_create_attr_group(wacom, serial, i);
++			wacom_remote_create_one(wacom, serial, i);
+ 
+ 		} else if (remote->serial[i]) {
+-			wacom_remote_destroy_attr_group(wacom,
+-							remote->serial[i]);
++			wacom_remote_destroy_one(wacom, i);
+ 		}
  	}
- 
- 	/* pen only Bamboo neither support touch nor pad */
-@@ -1713,7 +1712,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 	    ((features->device_type & WACOM_DEVICETYPE_TOUCH) ||
- 	    (features->device_type & WACOM_DEVICETYPE_PAD))) {
- 		error = -ENODEV;
--		goto fail_hw_start;
-+		goto fail_quirks;
- 	}
- 
- 	if (features->device_type & WACOM_DEVICETYPE_WL_MONITOR)
-@@ -1728,10 +1727,13 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 
- 	return 0;
- 
--fail_hw_start:
-+fail_quirks:
- 	hid_hw_stop(hdev);
--fail_register_inputs:
-+fail_hw_start:
-+	kobject_put(wacom->remote_dir);
-+fail_remote:
- 	wacom_clean_inputs(wacom);
-+fail_register_inputs:
- 	wacom_destroy_battery(wacom);
- fail_battery:
- 	wacom_remove_shared_data(wacom);
-@@ -1910,6 +1912,7 @@ static void wacom_remove(struct hid_device *hdev)
- 	hid_hw_stop(hdev);
- 
- 	cancel_work_sync(&wacom->work);
-+	kobject_put(wacom->remote_dir);
- 	wacom_clean_inputs(wacom);
- 	if (hdev->bus == BUS_BLUETOOTH)
- 		device_remove_file(&hdev->dev, &dev_attr_speed);
+ }
 -- 
 2.5.5
 

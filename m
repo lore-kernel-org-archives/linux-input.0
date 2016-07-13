@@ -1,109 +1,106 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 04/30] HID: wacom: untie leds from inputs
-Date: Wed, 13 Jul 2016 18:05:51 +0200
-Message-ID: <1468425977-4819-5-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 30/30] HID: wacom: power_supply: provide the actual model_name
+Date: Wed, 13 Jul 2016 18:06:17 +0200
+Message-ID: <1468425977-4819-31-git-send-email-benjamin.tissoires@redhat.com>
 References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:38738 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752267AbcGMQHt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Jul 2016 12:07:49 -0400
 In-Reply-To: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-Like remotes, LEDs should be handled by themself, not magically behind
-the inputs as they have a complete different life.
+Instead of displaying a generic "tablet", now g-c-c shows a pretty
+"Wacom Intuos Pro S (WL)".
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
-No changes in v2
+New in v2
 ---
- drivers/hid/wacom_sys.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/hid/wacom.h     |  1 +
+ drivers/hid/wacom_sys.c | 11 +++++++++++
+ drivers/hid/wacom_wac.h |  1 +
+ 3 files changed, 13 insertions(+)
 
+diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
+index 26a8a05..b4800ea 100644
+--- a/drivers/hid/wacom.h
++++ b/drivers/hid/wacom.h
+@@ -134,6 +134,7 @@ struct wacom_group_leds {
+ };
+ 
+ struct wacom_battery {
++	struct wacom *wacom;
+ 	struct power_supply_desc bat_desc;
+ 	struct power_supply *battery;
+ 	char bat_name[WACOM_NAME_MAX];
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 5dd2640..af2801d 100644
+index d8f3d3d..edde881 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -1403,7 +1403,6 @@ static void wacom_clean_inputs(struct wacom *wacom)
- 	wacom->wacom_wac.pen_registered = false;
- 	wacom->wacom_wac.touch_registered = false;
- 	wacom->wacom_wac.pad_registered = false;
--	wacom_destroy_leds(wacom);
+@@ -1336,6 +1336,7 @@ static int wacom_initialize_leds(struct wacom *wacom)
  }
  
- static int wacom_allocate_inputs(struct wacom *wacom)
-@@ -1475,18 +1474,10 @@ static int wacom_register_inputs(struct wacom *wacom)
- 		if (error)
- 			goto fail_register_pad_input;
- 		wacom_wac->pad_registered = true;
--
--		error = wacom_initialize_leds(wacom);
--		if (error)
--			goto fail_leds;
+ static enum power_supply_property wacom_battery_props[] = {
++	POWER_SUPPLY_PROP_MODEL_NAME,
+ 	POWER_SUPPLY_PROP_PRESENT,
+ 	POWER_SUPPLY_PROP_STATUS,
+ 	POWER_SUPPLY_PROP_SCOPE,
+@@ -1350,6 +1351,9 @@ static int wacom_battery_get_property(struct power_supply *psy,
+ 	int ret = 0;
+ 
+ 	switch (psp) {
++		case POWER_SUPPLY_PROP_MODEL_NAME:
++			val->strval = battery->wacom->wacom_wac.name;
++			break;
+ 		case POWER_SUPPLY_PROP_PRESENT:
+ 			val->intval = battery->bat_connected;
+ 			break;
+@@ -1392,6 +1396,8 @@ static int __wacom_initialize_battery(struct wacom *wacom,
+ 	if (!devres_open_group(dev, bat_desc, GFP_KERNEL))
+ 		return -ENOMEM;
+ 
++	battery->wacom = wacom;
++
+ 	n = atomic_inc_return(&battery_no) - 1;
+ 
+ 	bat_desc->properties = wacom_battery_props;
+@@ -1863,6 +1869,9 @@ static void wacom_update_name(struct wacom *wacom, const char *suffix)
+ 		strlcpy(name, features->name, sizeof(name));
  	}
  
- 	return 0;
- 
--fail_leds:
--	input_unregister_device(pad_input_dev);
--	pad_input_dev = NULL;
--	wacom_wac->pad_registered = false;
- fail_register_pad_input:
- 	if (touch_input_dev)
- 		input_unregister_device(touch_input_dev);
-@@ -1680,6 +1671,10 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 		goto fail_register_inputs;
- 
- 	if (wacom->wacom_wac.features.device_type & WACOM_DEVICETYPE_PAD) {
-+		error = wacom_initialize_leds(wacom);
-+		if (error)
-+			goto fail_leds;
++	snprintf(wacom_wac->name, sizeof(wacom_wac->name), "%s%s",
++		 name, suffix);
 +
- 		error = wacom_initialize_remote(wacom);
+ 	/* Append the device type to the name */
+ 	snprintf(wacom_wac->pen_name, sizeof(wacom_wac->pen_name),
+ 		"%s%s Pen", name, suffix);
+@@ -2097,6 +2106,8 @@ static void wacom_wireless_work(struct work_struct *work)
+ 				goto fail;
+ 		}
+ 
++		strlcpy(wacom_wac->name, wacom_wac1->name,
++			sizeof(wacom_wac->name));
+ 		error = wacom_initialize_battery(wacom);
  		if (error)
- 			goto fail_remote;
-@@ -1732,6 +1727,8 @@ fail_quirks:
- fail_hw_start:
- 	kobject_put(wacom->remote_dir);
- fail_remote:
-+	wacom_destroy_leds(wacom);
-+fail_leds:
- 	wacom_clean_inputs(wacom);
- fail_register_inputs:
- 	wacom_destroy_battery(wacom);
-@@ -1765,12 +1762,14 @@ static void wacom_wireless_work(struct work_struct *work)
- 	hdev1 = usb_get_intfdata(usbdev->config->interface[1]);
- 	wacom1 = hid_get_drvdata(hdev1);
- 	wacom_wac1 = &(wacom1->wacom_wac);
-+	wacom_destroy_leds(wacom1);
- 	wacom_clean_inputs(wacom1);
+ 			goto fail;
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 8a8974c..745e2c9 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -226,6 +226,7 @@ struct wacom_remote_data {
+ };
  
- 	/* Touch interface */
- 	hdev2 = usb_get_intfdata(usbdev->config->interface[2]);
- 	wacom2 = hid_get_drvdata(hdev2);
- 	wacom_wac2 = &(wacom2->wacom_wac);
-+	wacom_destroy_leds(wacom2);
- 	wacom_clean_inputs(wacom2);
- 
- 	if (wacom_wac->pid == 0) {
-@@ -1825,7 +1824,9 @@ static void wacom_wireless_work(struct work_struct *work)
- 	return;
- 
- fail:
-+	wacom_destroy_leds(wacom1);
- 	wacom_clean_inputs(wacom1);
-+	wacom_destroy_leds(wacom2);
- 	wacom_clean_inputs(wacom2);
- 	return;
- }
-@@ -1913,6 +1914,7 @@ static void wacom_remove(struct hid_device *hdev)
- 
- 	cancel_work_sync(&wacom->work);
- 	kobject_put(wacom->remote_dir);
-+	wacom_destroy_leds(wacom);
- 	wacom_clean_inputs(wacom);
- 	if (hdev->bus == BUS_BLUETOOTH)
- 		device_remove_file(&hdev->dev, &dev_attr_speed);
+ struct wacom_wac {
++	char name[WACOM_NAME_MAX];
+ 	char pen_name[WACOM_NAME_MAX];
+ 	char touch_name[WACOM_NAME_MAX];
+ 	char pad_name[WACOM_NAME_MAX];
 -- 
 2.5.5
+

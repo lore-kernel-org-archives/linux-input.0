@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 24/30] HID: wacom: leds: actually release the LEDs on disconnect
-Date: Wed, 13 Jul 2016 18:06:11 +0200
-Message-ID: <1468425977-4819-25-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 22/30] HID: wacom: EKR: attach the power_supply on first connection
+Date: Wed, 13 Jul 2016 18:06:09 +0200
+Message-ID: <1468425977-4819-23-git-send-email-benjamin.tissoires@redhat.com>
 References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,80 +10,91 @@ To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gere
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-There is a bug (?) in devm_led_classdev_register() in which its increments
-the refcount of the parent. If the parent is an input device, that means
-the ref count never reaches 0 when devm_input_device_release() gets called.
-This means that the LEDs and all the devres resources attached to the
-input device are not released.
-
-Manually force the release of the group so that the leds are released once
-we are done using them.
+Or Gnome complains about an empty battery.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
 No changes in v2
 ---
- drivers/hid/wacom.h     |  1 +
- drivers/hid/wacom_sys.c | 27 ++++++++++++++++++++++++++-
- 2 files changed, 27 insertions(+), 1 deletion(-)
+ drivers/hid/wacom_sys.c | 36 ++++++++++++++++++++++++++++++------
+ 1 file changed, 30 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
-index 0c498c4..9159dd3 100644
---- a/drivers/hid/wacom.h
-+++ b/drivers/hid/wacom.h
-@@ -130,6 +130,7 @@ struct wacom_group_leds {
- 	u8 select; /* status led selector (0..3) */
- 	struct wacom_led *leds;
- 	unsigned int count;
-+	struct device *dev;
- };
- 
- struct wacom_battery {
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index c5d518d..3a651e2 100644
+index 04f5c75..1d79215 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -1068,6 +1068,13 @@ static int wacom_led_register_one(struct device *dev, struct wacom *wacom,
- 	return 0;
+@@ -1917,6 +1917,10 @@ static void wacom_remote_destroy_one(struct wacom *wacom, unsigned int index)
+ 	remote->remotes[index].registered = false;
+ 	spin_unlock_irqrestore(&remote->remote_lock, flags);
+ 
++	if (remote->remotes[index].battery.battery)
++		devres_release_group(&wacom->hdev->dev,
++				     &remote->remotes[index].battery.bat_desc);
++
+ 	if (remote->remotes[index].group.name)
+ 		devres_release_group(&wacom->hdev->dev,
+ 				     &remote->remotes[index]);
+@@ -1926,6 +1930,7 @@ static void wacom_remote_destroy_one(struct wacom *wacom, unsigned int index)
+ 			remote->remotes[i].serial = 0;
+ 			remote->remotes[i].group.name = NULL;
+ 			remote->remotes[i].registered = false;
++			remote->remotes[i].battery.battery = NULL;
+ 			wacom->led.groups[i].select = WACOM_STATUS_UNKNOWN;
+ 		}
+ 	}
+@@ -1982,11 +1987,6 @@ static int wacom_remote_create_one(struct wacom *wacom, u32 serial,
+ 	if (error)
+ 		goto fail;
+ 
+-	error = __wacom_initialize_battery(wacom,
+-					   &remote->remotes[index].battery);
+-	if (error)
+-		goto fail;
+-
+ 	remote->remotes[index].registered = true;
+ 
+ 	devres_close_group(dev, &remote->remotes[index]);
+@@ -1998,6 +1998,28 @@ fail:
+ 	return error;
  }
  
-+static void wacom_led_groups_release_one(void *data)
++static int wacom_remote_attach_battery(struct wacom *wacom, int index)
 +{
-+	struct wacom_group_leds *group = data;
++	struct wacom_remote *remote = wacom->remote;
++	int error;
 +
-+	devres_release_group(group->dev, group);
-+}
++	if (!remote->remotes[index].registered)
++		return 0;
 +
- static int wacom_led_groups_alloc_and_register_one(struct device *dev,
- 						   struct wacom *wacom,
- 						   int group_id, int count,
-@@ -1098,7 +1105,25 @@ static int wacom_led_groups_alloc_and_register_one(struct device *dev,
- 			goto err;
- 	}
- 
--	devres_remove_group(dev, &wacom->led.groups[group_id]);
-+	wacom->led.groups[group_id].dev = dev;
++	if (remote->remotes[index].battery.battery)
++		return 0;
 +
-+	devres_close_group(dev, &wacom->led.groups[group_id]);
++	if (wacom->led.groups[index].select == WACOM_STATUS_UNKNOWN)
++		return 0;
 +
-+	/*
-+	 * There is a bug (?) in devm_led_classdev_register() in which its
-+	 * increments the refcount of the parent. If the parent is an input
-+	 * device, that means the ref count never reaches 0 when
-+	 * devm_input_device_release() gets called.
-+	 * This means that the LEDs are still there after disconnect.
-+	 * Manually force the release of the group so that the leds are released
-+	 * once we are done using them.
-+	 */
-+	error = devm_add_action_or_reset(&wacom->hdev->dev,
-+					 wacom_led_groups_release_one,
-+					 &wacom->led.groups[group_id]);
++	error = __wacom_initialize_battery(wacom,
++					&wacom->remote->remotes[index].battery);
 +	if (error)
 +		return error;
 +
- 	return 0;
++	return 0;
++}
++
+ static void wacom_remote_work(struct work_struct *work)
+ {
+ 	struct wacom *wacom = container_of(work, struct wacom, remote_work);
+@@ -2028,8 +2050,10 @@ static void wacom_remote_work(struct work_struct *work)
+ 		serial = data.remote[i].serial;
+ 		if (data.remote[i].connected) {
  
- err:
+-			if (remote->remotes[i].serial == serial)
++			if (remote->remotes[i].serial == serial) {
++				wacom_remote_attach_battery(wacom, i);
+ 				continue;
++			}
+ 
+ 			if (remote->remotes[i].serial)
+ 				wacom_remote_destroy_one(wacom, i);
 -- 
 2.5.5

@@ -1,106 +1,259 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 30/30] HID: wacom: power_supply: provide the actual model_name
-Date: Wed, 13 Jul 2016 18:06:17 +0200
-Message-ID: <1468425977-4819-31-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 13/30] HID: wacom: leds: dynamically allocate LED groups
+Date: Wed, 13 Jul 2016 18:06:00 +0200
+Message-ID: <1468425977-4819-14-git-send-email-benjamin.tissoires@redhat.com>
 References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38738 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752267AbcGMQHt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jul 2016 12:07:49 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Instead of displaying a generic "tablet", now g-c-c shows a pretty
-"Wacom Intuos Pro S (WL)".
+We need to add an action to ensure wacom->led.groups is null when
+wacom_led_control() gets called after the resources has been freed.
+
+This also prevents to send a LED command when there is no support
+from the device.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
-New in v2
+No changes in v2
 ---
- drivers/hid/wacom.h     |  1 +
- drivers/hid/wacom_sys.c | 11 +++++++++++
- drivers/hid/wacom_wac.h |  1 +
- 3 files changed, 13 insertions(+)
+ drivers/hid/wacom.h     |  8 +++--
+ drivers/hid/wacom_sys.c | 85 +++++++++++++++++++++++++++++++++++++++++--------
+ drivers/hid/wacom_wac.c |  2 +-
+ 3 files changed, 78 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
-index 26a8a05..b4800ea 100644
+index bcfeb51..8ac1eb8 100644
 --- a/drivers/hid/wacom.h
 +++ b/drivers/hid/wacom.h
-@@ -134,6 +134,7 @@ struct wacom_group_leds {
+@@ -110,6 +110,10 @@ enum wacom_worker {
+ 	WACOM_WORKER_BATTERY,
  };
  
- struct wacom_battery {
-+	struct wacom *wacom;
- 	struct power_supply_desc bat_desc;
- 	struct power_supply *battery;
- 	char bat_name[WACOM_NAME_MAX];
++struct wacom_group_leds {
++	u8 select; /* status led selector (0..3) */
++};
++
+ struct wacom {
+ 	struct usb_device *usbdev;
+ 	struct usb_interface *intf;
+@@ -118,8 +122,8 @@ struct wacom {
+ 	struct mutex lock;
+ 	struct work_struct wireless_work;
+ 	struct work_struct battery_work;
+-	struct wacom_led {
+-		u8 select[5]; /* status led selector (0..3) */
++	struct wacom_leds {
++		struct wacom_group_leds *groups;
+ 		u8 llv;       /* status led brightness no button (1..127) */
+ 		u8 hlv;       /* status led brightness button pressed (1..127) */
+ 		u8 img_lum;   /* OLED matrix display brightness */
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index d8f3d3d..edde881 100644
+index d0f5764..4d4c737 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -1336,6 +1336,7 @@ static int wacom_initialize_leds(struct wacom *wacom)
+@@ -647,6 +647,9 @@ static int wacom_led_control(struct wacom *wacom)
+ 	unsigned char report_id = WAC_CMD_LED_CONTROL;
+ 	int buf_size = 9;
+ 
++	if (!wacom->led.groups)
++		return -ENOTSUPP;
++
+ 	if (wacom->wacom_wac.pid) { /* wireless connected */
+ 		report_id = WAC_CMD_WL_LED_CONTROL;
+ 		buf_size = 13;
+@@ -662,7 +665,7 @@ static int wacom_led_control(struct wacom *wacom)
+ 		 * one of four values:
+ 		 *    0 = Low; 1 = Medium; 2 = High; 3 = Off
+ 		 */
+-		int ring_led = wacom->led.select[0] & 0x03;
++		int ring_led = wacom->led.groups[0].select & 0x03;
+ 		int ring_lum = (((wacom->led.llv & 0x60) >> 5) - 1) & 0x03;
+ 		int crop_lum = 0;
+ 		unsigned char led_bits = (crop_lum << 4) | (ring_lum << 2) | (ring_led);
+@@ -677,11 +680,11 @@ static int wacom_led_control(struct wacom *wacom)
+ 			buf[1] = led_bits;
+ 	}
+ 	else {
+-		int led = wacom->led.select[0] | 0x4;
++		int led = wacom->led.groups[0].select | 0x4;
+ 
+ 		if (wacom->wacom_wac.features.type == WACOM_21UX2 ||
+ 		    wacom->wacom_wac.features.type == WACOM_24HD)
+-			led |= (wacom->led.select[1] << 4) | 0x40;
++			led |= (wacom->led.groups[1].select << 4) | 0x40;
+ 
+ 		buf[0] = report_id;
+ 		buf[1] = led;
+@@ -753,7 +756,7 @@ static ssize_t wacom_led_select_store(struct device *dev, int set_id,
+ 
+ 	mutex_lock(&wacom->lock);
+ 
+-	wacom->led.select[set_id] = id & 0x3;
++	wacom->led.groups[set_id].select = id & 0x3;
+ 	err = wacom_led_control(wacom);
+ 
+ 	mutex_unlock(&wacom->lock);
+@@ -773,7 +776,7 @@ static ssize_t wacom_led##SET_ID##_select_show(struct device *dev,	\
+ 	struct hid_device *hdev = to_hid_device(dev);\
+ 	struct wacom *wacom = hid_get_drvdata(hdev);			\
+ 	return scnprintf(buf, PAGE_SIZE, "%d\n",			\
+-			 wacom->led.select[SET_ID]);			\
++			 wacom->led.groups[SET_ID].select);		\
+ }									\
+ static DEVICE_ATTR(status_led##SET_ID##_select, DEV_ATTR_RW_PERM,	\
+ 		    wacom_led##SET_ID##_select_show,			\
+@@ -955,6 +958,35 @@ static int wacom_devm_sysfs_create_group(struct wacom *wacom,
+ 	return 0;
  }
  
- static enum power_supply_property wacom_battery_props[] = {
-+	POWER_SUPPLY_PROP_MODEL_NAME,
- 	POWER_SUPPLY_PROP_PRESENT,
- 	POWER_SUPPLY_PROP_STATUS,
- 	POWER_SUPPLY_PROP_SCOPE,
-@@ -1350,6 +1351,9 @@ static int wacom_battery_get_property(struct power_supply *psy,
- 	int ret = 0;
- 
- 	switch (psp) {
-+		case POWER_SUPPLY_PROP_MODEL_NAME:
-+			val->strval = battery->wacom->wacom_wac.name;
-+			break;
- 		case POWER_SUPPLY_PROP_PRESENT:
- 			val->intval = battery->bat_connected;
- 			break;
-@@ -1392,6 +1396,8 @@ static int __wacom_initialize_battery(struct wacom *wacom,
- 	if (!devres_open_group(dev, bat_desc, GFP_KERNEL))
- 		return -ENOMEM;
- 
-+	battery->wacom = wacom;
++static void wacom_led_groups_release(void *data)
++{
++	struct wacom *wacom = data;
 +
- 	n = atomic_inc_return(&battery_no) - 1;
++	wacom->led.groups = NULL;
++}
++
++static int wacom_led_groups_allocate(struct wacom *wacom, int count)
++{
++	struct wacom_group_leds *groups;
++	int error;
++
++	groups = devm_kzalloc(&wacom->hdev->dev,
++			      sizeof(struct wacom_group_leds) * count,
++			      GFP_KERNEL);
++	if (!groups)
++		return -ENOMEM;
++
++	error = devm_add_action_or_reset(&wacom->hdev->dev,
++					 wacom_led_groups_release,
++					 wacom);
++	if (error)
++		return error;
++
++	wacom->led.groups = groups;
++
++	return 0;
++}
++
+ static int wacom_initialize_leds(struct wacom *wacom)
+ {
+ 	int error;
+@@ -968,23 +1000,34 @@ static int wacom_initialize_leds(struct wacom *wacom)
+ 	case INTUOS4:
+ 	case INTUOS4WL:
+ 	case INTUOS4L:
+-		wacom->led.select[0] = 0;
+-		wacom->led.select[1] = 0;
+ 		wacom->led.llv = 10;
+ 		wacom->led.hlv = 20;
+ 		wacom->led.img_lum = 10;
++
++		error = wacom_led_groups_allocate(wacom, 1);
++		if (error) {
++			hid_err(wacom->hdev,
++				"cannot create leds err: %d\n", error);
++			return error;
++		}
++
+ 		error = wacom_devm_sysfs_create_group(wacom,
+ 						      &intuos4_led_attr_group);
+ 		break;
  
- 	bat_desc->properties = wacom_battery_props;
-@@ -1863,6 +1869,9 @@ static void wacom_update_name(struct wacom *wacom, const char *suffix)
- 		strlcpy(name, features->name, sizeof(name));
+ 	case WACOM_24HD:
+ 	case WACOM_21UX2:
+-		wacom->led.select[0] = 0;
+-		wacom->led.select[1] = 0;
+ 		wacom->led.llv = 0;
+ 		wacom->led.hlv = 0;
+ 		wacom->led.img_lum = 0;
+ 
++		error = wacom_led_groups_allocate(wacom, 2);
++		if (error) {
++			hid_err(wacom->hdev,
++				"cannot create leds err: %d\n", error);
++			return error;
++		}
++
+ 		error = wacom_devm_sysfs_create_group(wacom,
+ 						      &cintiq_led_attr_group);
+ 		break;
+@@ -995,16 +1038,30 @@ static int wacom_initialize_leds(struct wacom *wacom)
+ 	case INTUOSPS:
+ 	case INTUOSPM:
+ 	case INTUOSPL:
+-		wacom->led.select[0] = 0;
+-		wacom->led.select[1] = 0;
+ 		wacom->led.llv = 32;
+ 		wacom->led.hlv = 0;
+ 		wacom->led.img_lum = 0;
+ 
++		error = wacom_led_groups_allocate(wacom, 1);
++		if (error) {
++			hid_err(wacom->hdev,
++				"cannot create leds err: %d\n", error);
++			return error;
++		}
++
+ 		error = wacom_devm_sysfs_create_group(wacom,
+ 						      &intuos5_led_attr_group);
+ 		break;
+ 
++	case REMOTE:
++		error = wacom_led_groups_allocate(wacom, 5);
++		if (error) {
++			hid_err(wacom->hdev,
++				"cannot create leds err: %d\n", error);
++			return error;
++		}
++		return 0;
++
+ 	default:
+ 		return 0;
+ 	}
+@@ -1204,7 +1261,7 @@ static ssize_t wacom_show_remote_mode(struct kobject *kobj,
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	u8 mode;
+ 
+-	mode = wacom->led.select[index];
++	mode = wacom->led.groups[index].select;
+ 	if (mode >= 0 && mode < 3)
+ 		return snprintf(buf, PAGE_SIZE, "%d\n", mode);
+ 	else
+@@ -1272,7 +1329,7 @@ void wacom_remote_destroy_attr_group(struct wacom *wacom, __u32 serial)
+ 	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+ 		if (wacom_wac->serial[i] == serial) {
+ 			wacom_wac->serial[i] = 0;
+-			wacom->led.select[i] = WACOM_STATUS_UNKNOWN;
++			wacom->led.groups[i].select = WACOM_STATUS_UNKNOWN;
+ 			if (wacom->remote_group[i].name) {
+ 				sysfs_remove_group(wacom->remote_dir,
+ 						   &wacom->remote_group[i]);
+@@ -1369,7 +1426,7 @@ static int wacom_initialize_remote(struct wacom *wacom)
  	}
  
-+	snprintf(wacom_wac->name, sizeof(wacom_wac->name), "%s%s",
-+		 name, suffix);
-+
- 	/* Append the device type to the name */
- 	snprintf(wacom_wac->pen_name, sizeof(wacom_wac->pen_name),
- 		"%s%s Pen", name, suffix);
-@@ -2097,6 +2106,8 @@ static void wacom_wireless_work(struct work_struct *work)
- 				goto fail;
- 		}
+ 	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+-		wacom->led.select[i] = WACOM_STATUS_UNKNOWN;
++		wacom->led.groups[i].select = WACOM_STATUS_UNKNOWN;
+ 		wacom_wac->serial[i] = 0;
+ 	}
  
-+		strlcpy(wacom_wac->name, wacom_wac1->name,
-+			sizeof(wacom_wac->name));
- 		error = wacom_initialize_battery(wacom);
- 		if (error)
- 			goto fail;
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 8a8974c..745e2c9 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -226,6 +226,7 @@ struct wacom_remote_data {
- };
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 3e2c903..932d3ee 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -808,7 +808,7 @@ static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
  
- struct wacom_wac {
-+	char name[WACOM_NAME_MAX];
- 	char pen_name[WACOM_NAME_MAX];
- 	char touch_name[WACOM_NAME_MAX];
- 	char pad_name[WACOM_NAME_MAX];
+ 	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+ 		if (wacom_wac->serial[i] == serial)
+-			wacom->led.select[i] = touch_ring_mode;
++			wacom->led.groups[i].select = touch_ring_mode;
+ 	}
+ 
+ 	if (!wacom->battery &&
 -- 
 2.5.5
-

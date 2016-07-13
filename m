@@ -1,53 +1,45 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 26/30] HID: wacom: leds: make sure Cintiq 21UX2 and 24HD control the right LEDs
-Date: Wed, 13 Jul 2016 18:06:13 +0200
-Message-ID: <1468425977-4819-27-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 02/30] HID: wacom: store the type in wacom->shared for INTUOSHT and INTUOSHT2
+Date: Wed, 13 Jul 2016 18:05:49 +0200
+Message-ID: <1468425977-4819-3-git-send-email-benjamin.tissoires@redhat.com>
 References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56983 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752489AbcGMQHW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jul 2016 12:07:22 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-The code for 21UX2 and 24HD makes the LED group 1 on the left, and
-the group 0 on the right. The buttons are ordered in the other way,
-but libwacom already exports those that way. So we simply can't reassign
-LED group 0 to the left buttons, and have to quirk the incoming data...
+The type is never set but we check for it in wacom_wireless_irq().
+It looks like this is a big hack from the beginning, so fill in the gap
+only.
+
+Untested.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
-New in v2:
-- replace: "[PATCH 25/27] HID: wacom: leds: fix ordering of LED banks"
+No changes in v2
 ---
- drivers/hid/wacom_wac.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/hid/wacom_sys.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 00e0c80..a9693d5 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2768,6 +2768,15 @@ static bool wacom_is_led_toggled(struct wacom *wacom, int button_count,
- {
- 	int button_per_group;
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 499cc82..9e283aa 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1720,9 +1720,10 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+ 		error = hid_hw_open(hdev);
  
-+	/*
-+	 * 24HD and 21UX2 have LED group 1 to the left and LED group 0
-+	 * to the right. We need to reverse the group to match this
-+	 * historical behavior.
-+	 */
-+	if (wacom->wacom_wac.features.type == WACOM_24HD ||
-+	    wacom->wacom_wac.features.type == WACOM_21UX2)
-+		group = 1 - group;
-+
- 	button_per_group = button_count/wacom->led.count;
+ 	if ((wacom_wac->features.type == INTUOSHT ||
+-	    wacom_wac->features.type == INTUOSHT2) &&
++	     wacom_wac->features.type == INTUOSHT2) &&
+ 	    (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH)) {
+-			wacom_wac->shared->touch_input = wacom_wac->touch_input;
++		wacom_wac->shared->type = wacom_wac->features.type;
++		wacom_wac->shared->touch_input = wacom_wac->touch_input;
+ 	}
  
- 	return mask & (1 << (group * button_per_group));
+ 	return 0;
 -- 
 2.5.5
-

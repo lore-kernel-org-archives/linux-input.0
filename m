@@ -1,78 +1,53 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 10/30] HID: wacom: use devm_kasprintf for allocating the name of the remote
-Date: Wed, 13 Jul 2016 18:05:57 +0200
-Message-ID: <1468425977-4819-11-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 26/30] HID: wacom: leds: make sure Cintiq 21UX2 and 24HD control the right LEDs
+Date: Wed, 13 Jul 2016 18:06:13 +0200
+Message-ID: <1468425977-4819-27-git-send-email-benjamin.tissoires@redhat.com>
 References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:56983 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752489AbcGMQHW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Jul 2016 12:07:22 -0400
 In-Reply-To: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-The sysfs group was indeed removed by kobject_put(wacom->remote_dir) in
-wacom_remove(), but the name of the group was never freed.
-
-Also remove the misplaced kobject_put(wacom->remote_dir) in the error
-path of wacom_remote_create_attr_group().
+The code for 21UX2 and 24HD makes the LED group 1 on the left, and
+the group 0 on the right. The buttons are ordered in the other way,
+but libwacom already exports those that way. So we simply can't reassign
+LED group 0 to the left buttons, and have to quirk the incoming data...
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
-No changes in v2
+New in v2:
+- replace: "[PATCH 25/27] HID: wacom: leds: fix ordering of LED banks"
 ---
- drivers/hid/wacom_sys.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/hid/wacom_wac.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index c08a752..ec088c1 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -25,7 +25,6 @@
- #define WAC_CMD_RETRIES		10
- #define WAC_CMD_DELETE_PAIRING	0x20
- #define WAC_CMD_UNPAIR_ALL	0xFF
--#define WAC_REMOTE_SERIAL_MAX_STRLEN	9
- 
- #define DEV_ATTR_RW_PERM (S_IRUGO | S_IWUSR | S_IWGRP)
- #define DEV_ATTR_WO_PERM (S_IWUSR | S_IWGRP)
-@@ -1233,23 +1232,21 @@ DEVICE_EKR_ATTR_GROUP(4);
- int wacom_remote_create_attr_group(struct wacom *wacom, __u32 serial, int index)
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 00e0c80..a9693d5 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2768,6 +2768,15 @@ static bool wacom_is_led_toggled(struct wacom *wacom, int button_count,
  {
- 	int error = 0;
--	char *buf;
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+ 	int button_per_group;
  
- 	wacom_wac->serial[index] = serial;
++	/*
++	 * 24HD and 21UX2 have LED group 1 to the left and LED group 0
++	 * to the right. We need to reverse the group to match this
++	 * historical behavior.
++	 */
++	if (wacom->wacom_wac.features.type == WACOM_24HD ||
++	    wacom->wacom_wac.features.type == WACOM_21UX2)
++		group = 1 - group;
++
+ 	button_per_group = button_count/wacom->led.count;
  
--	buf = kzalloc(WAC_REMOTE_SERIAL_MAX_STRLEN, GFP_KERNEL);
--	if (!buf)
-+	wacom->remote_group[index].name = devm_kasprintf(&wacom->hdev->dev,
-+							 GFP_KERNEL,
-+							 "%d", serial);
-+	if (!wacom->remote_group[index].name)
- 		return -ENOMEM;
--	snprintf(buf, WAC_REMOTE_SERIAL_MAX_STRLEN, "%d", serial);
--	wacom->remote_group[index].name = buf;
- 
- 	error = sysfs_create_group(wacom->remote_dir,
- 				   &wacom->remote_group[index]);
- 	if (error) {
- 		hid_err(wacom->hdev,
- 			"cannot create sysfs group err: %d\n", error);
--		kobject_put(wacom->remote_dir);
- 		return error;
- 	}
- 
-@@ -1271,7 +1268,8 @@ void wacom_remote_destroy_attr_group(struct wacom *wacom, __u32 serial)
- 			if (wacom->remote_group[i].name) {
- 				sysfs_remove_group(wacom->remote_dir,
- 						   &wacom->remote_group[i]);
--				kfree(wacom->remote_group[i].name);
-+				devm_kfree(&wacom->hdev->dev,
-+					   (char *)wacom->remote_group[i].name);
- 				wacom->remote_group[i].name = NULL;
- 			}
- 		}
+ 	return mask & (1 << (group * button_per_group));
 -- 
 2.5.5
+

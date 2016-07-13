@@ -1,319 +1,154 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 14/30] HID: wacom: EKR: add a worker to add/remove resources on addition/removal
-Date: Wed, 13 Jul 2016 18:06:01 +0200
-Message-ID: <1468425977-4819-15-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 16/30] HID: wacom: rework fail path in probe() and parse_and_register()
+Date: Wed, 13 Jul 2016 18:06:03 +0200
+Message-ID: <1468425977-4819-17-git-send-email-benjamin.tissoires@redhat.com>
 References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38558 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37612 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752281AbcGMQHE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jul 2016 12:07:04 -0400
+	id S1752443AbcGMQHQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Jul 2016 12:07:16 -0400
 In-Reply-To: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-wacom_remote_status_irq() sends information of addition/removal of EKR.
-We want to allocate one input node per remote, so better having this
-in a separate worker, not handled in the IRQ directly.
+Thanks to devres management, we don't need to remember a lot of failure
+path. One or two is enough.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
-Changes in v2:
-- removed warning: missing braces around initializer in
-  wacom_remote_status_irq()
-- added missing spin_unlock_irqrestore()
-- make wacom_remote_status_irq() returning void to not confuse the reader
-  as the return value is not an error code
+No changes in v2
 ---
- drivers/hid/wacom.h     | 11 +++++--
- drivers/hid/wacom_sys.c | 80 +++++++++++++++++++++++++++++++++++++++++++++++--
- drivers/hid/wacom_wac.c | 53 +++++++++++++-------------------
- drivers/hid/wacom_wac.h |  7 +++++
- 4 files changed, 113 insertions(+), 38 deletions(-)
+ drivers/hid/wacom_sys.c | 37 ++++++++++++++-----------------------
+ 1 file changed, 14 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
-index 8ac1eb8..1797e4b 100644
---- a/drivers/hid/wacom.h
-+++ b/drivers/hid/wacom.h
-@@ -90,6 +90,7 @@
- #include <linux/module.h>
- #include <linux/mod_devicetable.h>
- #include <linux/hid.h>
-+#include <linux/kfifo.h>
- #include <linux/usb/input.h>
- #include <linux/power_supply.h>
- #include <asm/unaligned.h>
-@@ -108,6 +109,7 @@
- enum wacom_worker {
- 	WACOM_WORKER_WIRELESS,
- 	WACOM_WORKER_BATTERY,
-+	WACOM_WORKER_REMOTE,
- };
- 
- struct wacom_group_leds {
-@@ -122,6 +124,9 @@ struct wacom {
- 	struct mutex lock;
- 	struct work_struct wireless_work;
- 	struct work_struct battery_work;
-+	struct work_struct remote_work;
-+	spinlock_t remote_lock;
-+	struct kfifo remote_fifo;
- 	struct wacom_leds {
- 		struct wacom_group_leds *groups;
- 		u8 llv;       /* status led brightness no button (1..127) */
-@@ -149,6 +154,9 @@ static inline void wacom_schedule_work(struct wacom_wac *wacom_wac,
- 	case WACOM_WORKER_BATTERY:
- 		schedule_work(&wacom->battery_work);
- 		break;
-+	case WACOM_WORKER_REMOTE:
-+		schedule_work(&wacom->remote_work);
-+		break;
- 	}
- }
- 
-@@ -168,7 +176,4 @@ int wacom_wac_event(struct hid_device *hdev, struct hid_field *field,
- 		struct hid_usage *usage, __s32 value);
- void wacom_wac_report(struct hid_device *hdev, struct hid_report *report);
- void wacom_battery_work(struct work_struct *work);
--int wacom_remote_create_attr_group(struct wacom *wacom, __u32 serial,
--				   int index);
--void wacom_remote_destroy_attr_group(struct wacom *wacom, __u32 serial);
- #endif
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 4d4c737..7e01117 100644
+index 64acb71..241acee 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -1294,7 +1294,8 @@ DEVICE_EKR_ATTR_GROUP(2);
- DEVICE_EKR_ATTR_GROUP(3);
- DEVICE_EKR_ATTR_GROUP(4);
+@@ -1713,7 +1713,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
  
--int wacom_remote_create_attr_group(struct wacom *wacom, __u32 serial, int index)
-+static int wacom_remote_create_attr_group(struct wacom *wacom, __u32 serial,
-+					  int index)
- {
- 	int error = 0;
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-@@ -1318,7 +1319,7 @@ int wacom_remote_create_attr_group(struct wacom *wacom, __u32 serial, int index)
- 	return 0;
+ 	error = wacom_allocate_inputs(wacom);
+ 	if (error)
+-		goto fail_open_group;
++		goto fail;
+ 
+ 	/*
+ 	 * Bamboo Pad has a generic hid handling for the Pen, and we switch it
+@@ -1726,7 +1726,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+ 		} else if ((features->pktlen != WACOM_PKGLEN_BPAD_TOUCH) &&
+ 			   (features->pktlen != WACOM_PKGLEN_BPAD_TOUCH_USB)) {
+ 			error = -ENODEV;
+-			goto fail_allocate_inputs;
++			goto fail;
+ 		}
+ 	}
+ 
+@@ -1746,7 +1746,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+ 			 error ? "Ignoring" : "Assuming pen");
+ 
+ 		if (error)
+-			goto fail_parsed;
++			goto fail;
+ 
+ 		features->device_type |= WACOM_DEVICETYPE_PEN;
+ 	}
+@@ -1757,27 +1757,27 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+ 
+ 	error = wacom_add_shared_data(hdev);
+ 	if (error)
+-		goto fail_shared_data;
++		goto fail;
+ 
+ 	if (!(features->device_type & WACOM_DEVICETYPE_WL_MONITOR) &&
+ 	     (features->quirks & WACOM_QUIRK_BATTERY)) {
+ 		error = wacom_initialize_battery(wacom);
+ 		if (error)
+-			goto fail_battery;
++			goto fail;
+ 	}
+ 
+ 	error = wacom_register_inputs(wacom);
+ 	if (error)
+-		goto fail_register_inputs;
++		goto fail;
+ 
+ 	if (wacom->wacom_wac.features.device_type & WACOM_DEVICETYPE_PAD) {
+ 		error = wacom_initialize_leds(wacom);
+ 		if (error)
+-			goto fail_leds;
++			goto fail;
+ 
+ 		error = wacom_initialize_remotes(wacom);
+ 		if (error)
+-			goto fail_remote;
++			goto fail;
+ 	}
+ 
+ 	if (features->type == HID_GENERIC)
+@@ -1787,7 +1787,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+ 	error = hid_hw_start(hdev, connect_mask);
+ 	if (error) {
+ 		hid_err(hdev, "hw start failed\n");
+-		goto fail_hw_start;
++		goto fail;
+ 	}
+ 
+ 	if (!wireless) {
+@@ -1826,15 +1826,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+ 
+ fail_quirks:
+ 	hid_hw_stop(hdev);
+-fail_hw_start:
+-fail_remote:
+-fail_leds:
+-fail_register_inputs:
+-fail_battery:
+-fail_shared_data:
+-fail_parsed:
+-fail_allocate_inputs:
+-fail_open_group:
++fail:
+ 	wacom_release_resources(wacom);
+ 	return error;
  }
+@@ -2014,7 +2006,7 @@ static int wacom_probe(struct hid_device *hdev,
  
--void wacom_remote_destroy_attr_group(struct wacom *wacom, __u32 serial)
-+static void wacom_remote_destroy_attr_group(struct wacom *wacom, __u32 serial)
- {
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	int i;
-@@ -1889,6 +1890,65 @@ fail:
- 	return;
- }
+ 	if (features->check_for_hid_type && features->hid_type != hdev->type) {
+ 		error = -ENODEV;
+-		goto fail_type;
++		goto fail;
+ 	}
  
-+static void wacom_remote_work(struct work_struct *work)
-+{
-+	struct wacom *wacom = container_of(work, struct wacom, remote_work);
-+	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct wacom_remote_data data;
-+	unsigned long flags;
-+	unsigned int count;
-+	u32 serial;
-+	int i, k;
-+
-+	spin_lock_irqsave(&wacom->remote_lock, flags);
-+
-+	count = kfifo_out(&wacom->remote_fifo, &data, sizeof(data));
-+
-+	if (count != sizeof(data)) {
-+		hid_err(wacom->hdev,
-+			"workitem triggered without status available\n");
-+		spin_unlock_irqrestore(&wacom->remote_lock, flags);
-+		return;
-+	}
-+
-+	if (!kfifo_is_empty(&wacom->remote_fifo))
-+		wacom_schedule_work(&wacom->wacom_wac, WACOM_WORKER_REMOTE);
-+
-+	spin_unlock_irqrestore(&wacom->remote_lock, flags);
-+
-+	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
-+		serial = data.remote[i].serial;
-+		if (data.remote[i].connected) {
-+
-+			if (wacom_wac->serial[i] == serial)
-+				continue;
-+
-+			if (wacom_wac->serial[i]) {
-+				wacom_remote_destroy_attr_group(wacom,
-+							wacom_wac->serial[i]);
-+			}
-+
-+			/* A remote can pair more than once with an EKR,
-+			 * check to make sure this serial isn't already paired.
-+			 */
-+			for (k = 0; k < WACOM_MAX_REMOTES; k++) {
-+				if (wacom_wac->serial[k] == serial)
-+					break;
-+			}
-+
-+			if (k < WACOM_MAX_REMOTES) {
-+				wacom_wac->serial[i] = serial;
-+				continue;
-+			}
-+			wacom_remote_create_attr_group(wacom, serial, i);
-+
-+		} else if (wacom_wac->serial[i]) {
-+			wacom_remote_destroy_attr_group(wacom,
-+							wacom_wac->serial[i]);
-+		}
-+	}
-+}
-+
- static int wacom_probe(struct hid_device *hdev,
- 		const struct hid_device_id *id)
- {
-@@ -1931,6 +1991,17 @@ static int wacom_probe(struct hid_device *hdev,
- 	mutex_init(&wacom->lock);
- 	INIT_WORK(&wacom->wireless_work, wacom_wireless_work);
- 	INIT_WORK(&wacom->battery_work, wacom_battery_work);
-+	INIT_WORK(&wacom->remote_work, wacom_remote_work);
-+	spin_lock_init(&wacom->remote_lock);
-+
-+	if (kfifo_alloc(&wacom->remote_fifo,
-+			5 * sizeof(struct wacom_remote_data),
-+			GFP_KERNEL)) {
-+		dev_err(&hdev->dev,
-+			"%s:failed allocating remote_fifo\n", __func__);
-+		error = -ENOMEM;
-+		goto fail_type;
-+	}
- 
- 	/* ask for the report descriptor to be loaded by HID */
+ 	wacom_wac->hid_data.inputmode = -1;
+@@ -2031,12 +2023,12 @@ static int wacom_probe(struct hid_device *hdev,
  	error = hid_parse(hdev);
-@@ -1953,8 +2024,9 @@ static int wacom_probe(struct hid_device *hdev,
+ 	if (error) {
+ 		hid_err(hdev, "parse failed\n");
+-		goto fail_parse;
++		goto fail;
+ 	}
+ 
+ 	error = wacom_parse_and_register(wacom, false);
+ 	if (error)
+-		goto fail_parse;
++		goto fail;
+ 
+ 	if (hdev->bus == BUS_BLUETOOTH) {
+ 		error = device_create_file(&hdev->dev, &dev_attr_speed);
+@@ -2048,8 +2040,7 @@ static int wacom_probe(struct hid_device *hdev,
  
  	return 0;
  
+-fail_parse:
 -fail_type:
- fail_parse:
-+	kfifo_free(&wacom->remote_fifo);
-+fail_type:
++fail:
  	hid_set_drvdata(hdev, NULL);
  	return error;
  }
-@@ -1972,6 +2044,8 @@ static void wacom_remove(struct hid_device *hdev)
- 
- 	cancel_work_sync(&wacom->wireless_work);
- 	cancel_work_sync(&wacom->battery_work);
-+	cancel_work_sync(&wacom->remote_work);
-+	kfifo_free(&wacom->remote_fifo);
- 	kobject_put(wacom->remote_dir);
- 	if (hdev->bus == BUS_BLUETOOTH)
- 		device_remove_file(&hdev->dev, &dev_attr_speed);
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 932d3ee..d549929 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -823,52 +823,40 @@ static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
- 	return 1;
- }
- 
--static int wacom_remote_status_irq(struct wacom_wac *wacom_wac, size_t len)
-+static void wacom_remote_status_irq(struct wacom_wac *wacom_wac, size_t len)
- {
- 	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
- 	unsigned char *data = wacom_wac->data;
--	int i;
-+	struct wacom_remote_data remote_data;
-+	unsigned long flags;
-+	int i, ret;
- 
- 	if (data[0] != WACOM_REPORT_DEVICE_LIST)
--		return 0;
-+		return;
-+
-+	memset(&remote_data, 0, sizeof(struct wacom_remote_data));
- 
- 	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
- 		int j = i * 6;
- 		int serial = (data[j+6] << 16) + (data[j+5] << 8) + data[j+4];
- 		bool connected = data[j+2];
- 
--		if (connected) {
--			int k;
--
--			if (wacom_wac->serial[i] == serial)
--				continue;
--
--			if (wacom_wac->serial[i]) {
--				wacom_remote_destroy_attr_group(wacom,
--							wacom_wac->serial[i]);
--			}
--
--			/* A remote can pair more than once with an EKR,
--			 * check to make sure this serial isn't already paired.
--			 */
--			for (k = 0; k < WACOM_MAX_REMOTES; k++) {
--				if (wacom_wac->serial[k] == serial)
--					break;
--			}
-+		remote_data.remote[i].serial = serial;
-+		remote_data.remote[i].connected = connected;
-+	}
- 
--			if (k < WACOM_MAX_REMOTES) {
--				wacom_wac->serial[i] = serial;
--				continue;
--			}
--			wacom_remote_create_attr_group(wacom, serial, i);
-+	spin_lock_irqsave(&wacom->remote_lock, flags);
- 
--		} else if (wacom_wac->serial[i]) {
--			wacom_remote_destroy_attr_group(wacom,
--							wacom_wac->serial[i]);
--		}
-+	ret = kfifo_in(&wacom->remote_fifo, &remote_data, sizeof(remote_data));
-+	if (ret != sizeof(remote_data)) {
-+		spin_unlock_irqrestore(&wacom->remote_lock, flags);
-+		hid_err(wacom->hdev, "Can't queue Remote status event.\n");
-+		return;
- 	}
- 
--	return 0;
-+	spin_unlock_irqrestore(&wacom->remote_lock, flags);
-+
-+	wacom_schedule_work(wacom_wac, WACOM_WORKER_REMOTE);
- }
- 
- static int wacom_intuos_general(struct wacom_wac *wacom)
-@@ -2310,8 +2298,9 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 		break;
- 
- 	case REMOTE:
-+		sync = false;
- 		if (wacom_wac->data[0] == WACOM_REPORT_DEVICE_LIST)
--			sync = wacom_remote_status_irq(wacom_wac, len);
-+			wacom_remote_status_irq(wacom_wac, len);
- 		else
- 			sync = wacom_remote_irq(wacom_wac, len);
- 		break;
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index d5b973d..c2c65b8 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -218,6 +218,13 @@ struct hid_data {
- 	int num_received;
- };
- 
-+struct wacom_remote_data {
-+	struct {
-+		u32 serial;
-+		bool connected;
-+	} remote[WACOM_MAX_REMOTES];
-+};
-+
- struct wacom_wac {
- 	char pen_name[WACOM_NAME_MAX];
- 	char touch_name[WACOM_NAME_MAX];
 -- 
 2.5.5
 

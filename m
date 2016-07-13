@@ -1,64 +1,201 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 1/4] mfd: mxs-lradc: Add support for mxs-lradc MFD
-Date: Wed, 13 Jul 2016 13:49:35 +0100
-Message-ID: <20160713124935.GC11154@dell>
-References: <cover.1466769907.git.ksenija.stanojevic@gmail.com>
- <370a02584386944b465deff5ccc48c8919b23dba.1466769907.git.ksenija.stanojevic@gmail.com>
- <20160628162834.GF29166@dell>
- <CAL7P5j+NYvUJfu==xQvncyCiw8JHtizOdfyeY1HL6Lb=-wsrWQ@mail.gmail.com>
- <E1bIyD4-0000Jw-2c@stardust.g4.wien.funkfeuer.at>
+From: KT Liao <ktalex.liao@gmail.com>
+Subject: [PATCH] Input: /input/mouse/elan_i2c_core.c
+Date: Wed, 13 Jul 2016 21:30:29 +0800
+Message-ID: <1468416629-4615-1-git-send-email-kt.liao@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <E1bIyD4-0000Jw-2c-rvrRdOlaWMmli2aaYNgTVBW+3FKk/ZpWT2auq/jSWdo@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Harald Geyer <harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org>
-Cc: Ksenija =?utf-8?Q?Stanojevi=C4=87?= <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Marek =?utf-8?B?VmHFoXV0?= <marex-ynQEQJNshbs@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 01 Jul 2016, Harald Geyer wrote:
+=46ix some Asus touchapod which casue TP no funciton sometimes, the pat=
+ch detect some specific touchpad and run a special initialize
 
-> Hi Ksenija!
->=20
-> Ksenija Stanojevi=C4=87 writes:
-> > On Tue, Jun 28, 2016 at 6:28 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> w=
-rote:
-> > >> +static int mxs_lradc_add_device(struct platform_device *pdev,
-> > >> +                             struct mxs_lradc *lradc, char *nam=
-e, int i)
-> > >> +{
-> > >> +     struct mfd_cell *cell;
-> > >> +
-> > >> +     cell =3D &lradc->cells[i];
-> > >> +     cell->name =3D name;
-> > >> +     cell->platform_data =3D lradc;
-> > >> +     cell->pdata_size =3D sizeof(*lradc);
-> > >> +
-> > >> +     return devm_mfd_add_devices(&pdev->dev, -1, cell, 1, NULL,=
- 0, NULL);
-> > >> +}
-> > >
-> > > Please don't roll your own API.
-> > >
-> > > Use 'struct mfd_cell' like everyone else does.
-> >=20
-> > It has been suggested in previous reviews to use separate function =
-to
-> > register mfd device, and to make mfd_cell allocate dynamically beca=
-use
-> > struc mxs-lradc is allocated dynamically.
-> > But I can revrse changes and make mfd_cells allocate staticaly
-> > wthout separate function.
->=20
-> I think making mfd_cells members of struct mxs-lradc will address all
-> review comments.
+Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+---
+ drivers/input/mouse/elan_i2c_core.c | 93 ++++++++++++++++++++++++++++-=
+--------
+ 1 file changed, 71 insertions(+), 22 deletions(-)
 
-No, please don't do that either.
-
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/=
+elan_i2c_core.c
+index 2f58985..36a69d2 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -3,8 +3,8 @@
+  *
+  * Copyright (c) 2013 ELAN Microelectronics Corp.
+  *
+- * Author: =E6=9E=97=E6=94=BF=E7=B6=AD (Duson Lin) <dusonlin@emc.com.t=
+w>
+- * Version: 1.6.0
++ * Author: KT Liao <kt.liao@emc.com.tw>
++ * Version: 1.6.2
+  *
+  * Based on cyapa driver:
+  * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
+@@ -40,7 +40,7 @@
+ #include "elan_i2c.h"
+=20
+ #define DRIVER_NAME		"elan_i2c"
+-#define ELAN_DRIVER_VERSION	"1.6.1"
++#define ELAN_DRIVER_VERSION	"1.6.2"
+ #define ELAN_VENDOR_ID		0x04f3
+ #define ETP_MAX_PRESSURE	255
+ #define ETP_FWIDTH_REDUCE	90
+@@ -95,6 +95,8 @@ struct elan_tp_data {
+ 	bool			baseline_ready;
+ };
+=20
++static int check_ASUS_special_fw(struct elan_tp_data *data);
++
+ static int elan_get_fwinfo(u8 iap_version, u16 *validpage_count,
+ 			   u16 *signature_address)
+ {
+@@ -210,21 +212,40 @@ static int __elan_initialize(struct elan_tp_data =
+*data)
+ 		return error;
+ 	}
+=20
+-	data->mode |=3D ETP_ENABLE_ABS;
+-	error =3D data->ops->set_mode(client, data->mode);
+-	if (error) {
+-		dev_err(&client->dev,
+-			"failed to switch to absolute mode: %d\n", error);
+-		return error;
+-	}
++	/* If it's the special FW, it need a different flow for mode change.*=
+/
++	if (check_ASUS_special_fw(data)) {
++		error =3D data->ops->sleep_control(client, false);
++		if (error) {
++			dev_err(&client->dev,
++				"failed to wake device up: %d\n", error);
++			return error;
++		}
+=20
+-	error =3D data->ops->sleep_control(client, false);
+-	if (error) {
+-		dev_err(&client->dev,
+-			"failed to wake device up: %d\n", error);
+-		return error;
+-	}
++		msleep(200);
+=20
++		data->mode |=3D ETP_ENABLE_ABS;
++		error =3D data->ops->set_mode(client, data->mode);
++		if (error) {
++			dev_err(&client->dev,
++				"failed to switch to absolute mode: %d\n", error);
++			return error;
++		}
++	} else {
++		data->mode |=3D ETP_ENABLE_ABS;
++		error =3D data->ops->set_mode(client, data->mode);
++		if (error) {
++			dev_err(&client->dev,
++				"failed to switch to absolute mode: %d\n", error);
++			return error;
++		}
++
++		error =3D data->ops->sleep_control(client, false);
++		if (error) {
++			dev_err(&client->dev,
++				"failed to wake device up: %d\n", error);
++			return error;
++		}
++	}
+ 	return 0;
+ }
+=20
+@@ -244,7 +265,7 @@ static int elan_initialize(struct elan_tp_data *dat=
+a)
+ 	return error;
+ }
+=20
+-static int elan_query_device_info(struct elan_tp_data *data)
++static int elan_query_device_pid_smver(struct elan_tp_data *data)
+ {
+ 	int error;
+=20
+@@ -252,17 +273,24 @@ static int elan_query_device_info(struct elan_tp_=
+data *data)
+ 	if (error)
+ 		return error;
+=20
+-	error =3D data->ops->get_version(data->client, false, &data->fw_versi=
+on);
++	error =3D data->ops->get_sm_version(data->client, &data->ic_type,
++					  &data->sm_version);
+ 	if (error)
+ 		return error;
+=20
+-	error =3D data->ops->get_checksum(data->client, false,
+-					&data->fw_checksum);
++	return 0;
++}
++
++static int elan_query_device_info(struct elan_tp_data *data)
++{
++	int error;
++
++	error =3D data->ops->get_version(data->client, false, &data->fw_versi=
+on);
+ 	if (error)
+ 		return error;
+=20
+-	error =3D data->ops->get_sm_version(data->client, &data->ic_type,
+-					  &data->sm_version);
++	error =3D data->ops->get_checksum(data->client, false,
++					&data->fw_checksum);
+ 	if (error)
+ 		return error;
+=20
+@@ -419,6 +447,7 @@ static int elan_update_firmware(struct elan_tp_data=
+ *data,
+ 		data->ops->iap_reset(client);
+ 	} else {
+ 		/* Reinitialize TP after fw is updated */
++		elan_query_device_pid_smver(data);
+ 		elan_initialize(data);
+ 		elan_query_device_info(data);
+ 	}
+@@ -757,6 +786,22 @@ out:
+ 	return retval;
+ }
+=20
++static int check_ASUS_special_fw(struct elan_tp_data *data)
++{
++	if (data->ic_type !=3D 0x0E)
++		return false;
++
++	switch (data->product_id) {
++	case 0x05:
++	case 0x06:
++	case 0x07:
++	case 0x09:
++	case 0x013:
++		return true;
++	default:
++		return false;
++	}
++}
+=20
+ static DEVICE_ATTR_WO(acquire);
+ static DEVICE_ATTR_RO(min);
+@@ -1033,6 +1078,10 @@ static int elan_probe(struct i2c_client *client,
+ 		return error;
+ 	}
+=20
++	error =3D elan_query_device_pid_smver(data);
++	if (error)
++		return error;
++
+ 	/* Initialize the touchpad. */
+ 	error =3D elan_initialize(data);
+ 	if (error)
 --=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+2.7.4

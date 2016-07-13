@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 06/30] HID: wacom: switch battery to devres
-Date: Wed, 13 Jul 2016 18:05:53 +0200
-Message-ID: <1468425977-4819-7-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 27/30] HID: wacom: leds: handle Cintiq 24HD leds buttons
+Date: Wed, 13 Jul 2016 18:06:14 +0200
+Message-ID: <1468425977-4819-28-git-send-email-benjamin.tissoires@redhat.com>
 References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,108 +10,84 @@ To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gere
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Simplifying the error code paths.
-We need to keep wacom_destroy_battery() around for now as the wireless
-module and the remotes are using it to dynamically remove the battery
-supply on disconnect.
+The 24HD has 1 button per LED (first three buttons of each group).
+We need a special treatment for them as it's not a uniq button that
+switches between the LEDs.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
-No changes in v2
+Changes in v2:
+- amended to use the old bank ordering
+- removed the pr_err debug left over
 ---
- drivers/hid/wacom_sys.c | 38 ++++++++++++++++++++++++--------------
- 1 file changed, 24 insertions(+), 14 deletions(-)
+ drivers/hid/wacom_wac.c | 38 +++++++++++++++++++++++++++++++++++---
+ 1 file changed, 35 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 54f0260..61dcb87e 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -1082,11 +1082,16 @@ static int wacom_ac_get_property(struct power_supply *psy,
- static int wacom_initialize_battery(struct wacom *wacom)
- {
- 	static atomic_t battery_no = ATOMIC_INIT(0);
-+	struct device *dev = &wacom->hdev->dev;
- 	struct power_supply_config psy_cfg = { .drv_data = wacom, };
-+	struct power_supply_desc *bat_desc = &wacom->battery_desc;
- 	unsigned long n;
-+	int error;
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index a9693d5..0914667 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2763,18 +2763,47 @@ static void wacom_setup_numbered_buttons(struct input_dev *input_dev,
+ 		__set_bit(BTN_BASE + (i-16), input_dev->keybit);
+ }
+ 
++static void wacom_24hd_update_leds(struct wacom *wacom, int mask, int group)
++{
++	struct wacom_led *led;
++	int i;
++	bool updated = false;
 +
-+	if (!devres_open_group(dev, bat_desc, GFP_KERNEL))
-+		return -ENOMEM;
- 
- 	if (wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) {
--		struct power_supply_desc *bat_desc = &wacom->battery_desc;
- 		struct power_supply_desc *ac_desc = &wacom->ac_desc;
- 		n = atomic_inc_return(&battery_no) - 1;
- 
-@@ -1106,33 +1111,40 @@ static int wacom_initialize_battery(struct wacom *wacom)
- 		ac_desc->type = POWER_SUPPLY_TYPE_MAINS;
- 		ac_desc->use_for_apm = 0;
- 
--		wacom->battery = power_supply_register(&wacom->hdev->dev,
--					      &wacom->battery_desc, &psy_cfg);
--		if (IS_ERR(wacom->battery))
--			return PTR_ERR(wacom->battery);
-+		wacom->battery = devm_power_supply_register(dev,
-+							   &wacom->battery_desc,
-+							   &psy_cfg);
-+		if (IS_ERR(wacom->battery)) {
-+			error = PTR_ERR(wacom->battery);
-+			goto err;
++	/*
++	 * 24HD has LED group 1 to the left and LED group 0 to the right.
++	 * So group 0 matches the second half of the buttons and thus the mask
++	 * needs to be shifted.
++	 */
++	if (group == 0)
++		mask >>= 8;
++
++	for (i = 0; i < 3; i++) {
++		led = wacom_led_find(wacom, group, i);
++		if (!led) {
++			hid_err(wacom->hdev, "can't find LED %d in group %d\n",
++				i, group);
++			continue;
 +		}
- 
- 		power_supply_powers(wacom->battery, &wacom->hdev->dev);
- 
--		wacom->ac = power_supply_register(&wacom->hdev->dev,
--						  &wacom->ac_desc,
--						  &psy_cfg);
-+		wacom->ac = devm_power_supply_register(dev,
-+						       &wacom->ac_desc,
-+						       &psy_cfg);
- 		if (IS_ERR(wacom->ac)) {
--			power_supply_unregister(wacom->battery);
--			return PTR_ERR(wacom->ac);
-+			error = PTR_ERR(wacom->ac);
-+			goto err;
- 		}
- 
- 		power_supply_powers(wacom->ac, &wacom->hdev->dev);
- 	}
- 
-+	devres_close_group(dev, bat_desc);
- 	return 0;
++		if (!updated && mask & BIT(i)) {
++			led->held = true;
++			led_trigger_event(&led->trigger, LED_FULL);
++		} else {
++			led->held = false;
++		}
++	}
++}
 +
-+err:
-+	devres_release_group(dev, bat_desc);
-+	return error;
- }
- 
- static void wacom_destroy_battery(struct wacom *wacom)
+ static bool wacom_is_led_toggled(struct wacom *wacom, int button_count,
+ 				 int mask, int group)
  {
- 	if (wacom->battery) {
--		power_supply_unregister(wacom->battery);
-+		devres_release_group(&wacom->hdev->dev, &wacom->battery_desc);
- 		wacom->battery = NULL;
--		power_supply_unregister(wacom->ac);
- 		wacom->ac = NULL;
- 	}
- }
-@@ -1731,7 +1743,6 @@ fail_remote:
- fail_leds:
- 	wacom_clean_inputs(wacom);
- fail_register_inputs:
--	wacom_destroy_battery(wacom);
- fail_battery:
- 	wacom_remove_shared_data(wacom);
- fail_shared_data:
-@@ -1920,7 +1931,6 @@ static void wacom_remove(struct hid_device *hdev)
- 	wacom_clean_inputs(wacom);
- 	if (hdev->bus == BUS_BLUETOOTH)
- 		device_remove_file(&hdev->dev, &dev_attr_speed);
--	wacom_destroy_battery(wacom);
- 	wacom_remove_shared_data(wacom);
+ 	int button_per_group;
  
- 	hid_set_drvdata(hdev, NULL);
+ 	/*
+-	 * 24HD and 21UX2 have LED group 1 to the left and LED group 0
++	 * 21UX2 has LED group 1 to the left and LED group 0
+ 	 * to the right. We need to reverse the group to match this
+ 	 * historical behavior.
+ 	 */
+-	if (wacom->wacom_wac.features.type == WACOM_24HD ||
+-	    wacom->wacom_wac.features.type == WACOM_21UX2)
++	if (wacom->wacom_wac.features.type == WACOM_21UX2)
+ 		group = 1 - group;
+ 
+ 	button_per_group = button_count/wacom->led.count;
+@@ -2789,6 +2818,9 @@ static void wacom_update_led(struct wacom *wacom, int button_count, int mask,
+ 	int cur;
+ 	bool pressed;
+ 
++	if (wacom->wacom_wac.features.type == WACOM_24HD)
++		return wacom_24hd_update_leds(wacom, mask, group);
++
+ 	pressed = wacom_is_led_toggled(wacom, button_count, mask, group);
+ 	cur = wacom->led.groups[group].select;
+ 
 -- 
 2.5.5

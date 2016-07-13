@@ -1,92 +1,52 @@
-From: Aaron Armstrong Skomra <skomra@gmail.com>
-Subject: Re: [PATCH v2 00/30] HID: wacom: cleanup/EKR/LED
-Date: Wed, 13 Jul 2016 14:36:07 -0700
-Message-ID: <CAEoswT0aZTu7hk_Th1t8Kd7mfVRj3Zh5NGpNTPCf7n1rtKPptw@mail.gmail.com>
-References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v1] Add support for the ektf2127 touchscreencontroller
+Date: Wed, 13 Jul 2016 14:50:18 -0700
+Message-ID: <20160713215018.GA1799@dtor-ws>
+References: <1467624545-3455-1-git-send-email-siebren.vroegindeweij@gmail.com>
+ <1467624545-3455-2-git-send-email-siebren.vroegindeweij@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f43.google.com ([209.85.213.43]:36233 "EHLO
-	mail-vk0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751067AbcGMVgJ (ORCPT
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:35825 "EHLO
+	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751067AbcGMVuW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jul 2016 17:36:09 -0400
-In-Reply-To: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
+	Wed, 13 Jul 2016 17:50:22 -0400
+Content-Disposition: inline
+In-Reply-To: <1467624545-3455-2-git-send-email-siebren.vroegindeweij@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Siebren Vroegindeweij <siebren.vroegindeweij@gmail.com>, KT Liao <ktalex.liao@gmail.com>
+Cc: linux-input@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Michel Verlaan <michel.verl@gmail.com>, Siebren Vroegindeweij <siebren.vroegindeweij@hotmail.com>, KT Liao <kt.liao@emc.com.tw>
 
-On Wed, Jul 13, 2016 at 9:05 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Hi,
->
-> So this is a v2 of my summer cleanup of the wacom driver.
-> I fixed the remarks from everybody I think, and it should be in a better shape
-> now.
-> I removed the patch that changed the LED banks ordering as libwacom exports it
-> that way. I also added 3 extra patches for the power_supply to be a little bit
-> more user friendly in gnome-control-center (well, upowerd).
->
-> Thanks for double testing on the Cintiq 21UX2 and the 24HD as I could only
+On Mon, Jul 04, 2016 at 11:29:05AM +0200, Siebren Vroegindeweij wrote:
+> From: Siebren Vroegindeweij <siebren.vroegindeweij@hotmail.com>
+> 
+> The ELAN eKTF2127 driver is written for the ELAN series of
+> touchscreencontrollers. This version is especially written for the
+> eKTF2127 controller. The driver communicates to the controller over i2c.
+> The additional screen specifications can be read from the devicetree file.
+> The driver has also the ability to read the screen height and width from
+> the controller. When the screen is pressed, a interrupt is generated.
+> The interrupt wil be handled by a function that request a data string from
+> the controller. This string is then modified so that the right number of touches
+> and their x and y coordinates are available and given to userspace through
+> the input subsystem.
 
-Retested on the 21UX2 and the 24HD.
+Adding KT. Can eKTF2127 be driven with [modified] elants_i2c driver or
+we are better off with separate driver.
 
-Tested-by Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+...
 
-Best,
-Aaron
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 3 of the License, or
+> + * (at your option) any later version.
 
-> compare the raw events to what was expected, and nothing is better than actual
-> testing with real hardware.
->
-> Cheers,
-> Benjamin
->
-> Benjamin Tissoires (30):
->   HID: wacom: actually report the battery level for wireless connected
->   HID: wacom: store the type in wacom->shared for INTUOSHT and INTUOSHT2
->   HID: wacom: remove cleanup of wacom->remote_dir from
->     wacom_clean_inputs()
->   HID: wacom: untie leds from inputs
->   HID: wacom: use one work queue per task
->   HID: wacom: switch battery to devres
->   HID: wacom: switch inputs to devres
->   HID: wacom: put the managed resources in a group
->   HID: wacom: convert LEDs to devres
->   HID: wacom: use devm_kasprintf for allocating the name of the remote
->   HID: wacom: use devres to allocate driver data
->   HID: wacom: devres manage the shared data too
->   HID: wacom: leds: dynamically allocate LED groups
->   HID: wacom: EKR: add a worker to add/remove resources on
->     addition/removal
->   HID: wacom: EKR: have the wacom resources dynamically allocated
->   HID: wacom: rework fail path in probe() and parse_and_register()
->   HID: wacom: EKR: have proper allocator and destructor
->   HID: wacom: EKR: use devres groups to manage resources
->   HID: wacom: EKR: have one array of struct remotes instead of many
->     arrays
->   HID: wacom: EKR: allocate one input node per remote
->   HID: wacom: EKR: have one power_supply per remote
->   HID: wacom: EKR: attach the power_supply on first connection
->   HID: wacom: leds: use the ledclass instead of custom made sysfs files
->   HID: wacom: leds: actually release the LEDs on disconnect
->   HID: wacom: leds: handle the switch of the LEDs directly in the kernel
->   HID: wacom: leds: make sure Cintiq 21UX2 and 24HD control the right
->     LEDs
->   HID: wacom: leds: handle Cintiq 24HD leds buttons
->   HID: wacom: power_supply: mark the type as USB
->   HID: wacom: power_supply: remove ac information
->   HID: wacom: power_supply: provide the actual model_name
->
->  Documentation/ABI/testing/sysfs-driver-wacom |    5 +
->  drivers/hid/Kconfig                          |    1 +
->  drivers/hid/wacom.h                          |   96 ++-
->  drivers/hid/wacom_sys.c                      | 1104 ++++++++++++++++++--------
->  drivers/hid/wacom_wac.c                      |  254 ++++--
->  drivers/hid/wacom_wac.h                      |   19 +-
->  6 files changed, 1058 insertions(+), 421 deletions(-)
->
-> --
-> 2.5.5
->
+Gpl V2 or later for kernel please, we won't take v3.
+
+Thanks.
+
+-- 
+Dmitry

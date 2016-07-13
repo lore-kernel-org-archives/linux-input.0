@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 22/30] HID: wacom: EKR: attach the power_supply on first connection
-Date: Wed, 13 Jul 2016 18:06:09 +0200
-Message-ID: <1468425977-4819-23-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 20/30] HID: wacom: EKR: allocate one input node per remote
+Date: Wed, 13 Jul 2016 18:06:07 +0200
+Message-ID: <1468425977-4819-21-git-send-email-benjamin.tissoires@redhat.com>
 References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,91 +10,184 @@ To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gere
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Or Gnome complains about an empty battery.
+Thanks to devres, we can now afford to create more than one input node
+without having to overload the remove/failure paths. Having one input
+node per remote is something which should have been implemented from start
+but the probability of having users with several remotes is quite low.
+Anyway, still, better looking at the future and implement things properly.
+
+Remote input nodes will be freed/unregistered magically as they are
+created in the devres group &remote->remotes[index].
+
+We need to open the hid node now that the remotes are dynamically
+allocated.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
 No changes in v2
 ---
- drivers/hid/wacom_sys.c | 36 ++++++++++++++++++++++++++++++------
- 1 file changed, 30 insertions(+), 6 deletions(-)
+ drivers/hid/wacom.h     |  2 ++
+ drivers/hid/wacom_sys.c | 30 ++++++++++++++++++++++++++++++
+ drivers/hid/wacom_wac.c | 35 ++++++++++++++++++++++++++++++-----
+ 3 files changed, 62 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
+index 6b8df67..393b5af 100644
+--- a/drivers/hid/wacom.h
++++ b/drivers/hid/wacom.h
+@@ -123,6 +123,8 @@ struct wacom_remote {
+ 	struct {
+ 		struct attribute_group group;
+ 		u32 serial;
++		struct input_dev *input;
++		bool registered;
+ 	} remotes[WACOM_MAX_REMOTES];
+ };
+ 
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 04f5c75..1d79215 100644
+index c3b2692..f2f5b4b 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -1917,6 +1917,10 @@ static void wacom_remote_destroy_one(struct wacom *wacom, unsigned int index)
- 	remote->remotes[index].registered = false;
- 	spin_unlock_irqrestore(&remote->remote_lock, flags);
- 
-+	if (remote->remotes[index].battery.battery)
-+		devres_release_group(&wacom->hdev->dev,
-+				     &remote->remotes[index].battery.bat_desc);
+@@ -1905,6 +1905,11 @@ static void wacom_remote_destroy_one(struct wacom *wacom, unsigned int index)
+ 	struct wacom_remote *remote = wacom->remote;
+ 	u32 serial = remote->remotes[index].serial;
+ 	int i;
++	unsigned long flags;
 +
++	spin_lock_irqsave(&remote->remote_lock, flags);
++	remote->remotes[index].registered = false;
++	spin_unlock_irqrestore(&remote->remote_lock, flags);
+ 
  	if (remote->remotes[index].group.name)
  		devres_release_group(&wacom->hdev->dev,
- 				     &remote->remotes[index]);
-@@ -1926,6 +1930,7 @@ static void wacom_remote_destroy_one(struct wacom *wacom, unsigned int index)
+@@ -1914,6 +1919,7 @@ static void wacom_remote_destroy_one(struct wacom *wacom, unsigned int index)
+ 		if (remote->remotes[i].serial == serial) {
  			remote->remotes[i].serial = 0;
  			remote->remotes[i].group.name = NULL;
- 			remote->remotes[i].registered = false;
-+			remote->remotes[i].battery.battery = NULL;
++			remote->remotes[i].registered = false;
  			wacom->led.groups[i].select = WACOM_STATUS_UNKNOWN;
  		}
  	}
-@@ -1982,11 +1987,6 @@ static int wacom_remote_create_one(struct wacom *wacom, u32 serial,
+@@ -1946,8 +1952,32 @@ static int wacom_remote_create_one(struct wacom *wacom, u32 serial,
  	if (error)
  		goto fail;
  
--	error = __wacom_initialize_battery(wacom,
--					   &remote->remotes[index].battery);
--	if (error)
--		goto fail;
--
- 	remote->remotes[index].registered = true;
++	remote->remotes[index].input = wacom_allocate_input(wacom);
++	if (!remote->remotes[index].input) {
++		error = -ENOMEM;
++		goto fail;
++	}
++	remote->remotes[index].input->uniq = remote->remotes[index].group.name;
++	remote->remotes[index].input->name = wacom->wacom_wac.pad_name;
++
++	if (!remote->remotes[index].input->name) {
++		error = -EINVAL;
++		goto fail;
++	}
++
++	error = wacom_setup_pad_input_capabilities(remote->remotes[index].input,
++						   &wacom->wacom_wac);
++	if (error)
++		goto fail;
++
+ 	remote->remotes[index].serial = serial;
  
++	error = input_register_device(remote->remotes[index].input);
++	if (error)
++		goto fail;
++
++	remote->remotes[index].registered = true;
++
  	devres_close_group(dev, &remote->remotes[index]);
-@@ -1998,6 +1998,28 @@ fail:
- 	return error;
+ 	return 0;
+ 
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index aee0761..99d688a 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -751,23 +751,38 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
+ {
+ 	unsigned char *data = wacom_wac->data;
+-	struct input_dev *input = wacom_wac->pad_input;
++	struct input_dev *input;
+ 	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
+ 	struct wacom_remote *remote = wacom->remote;
+ 	struct wacom_features *features = &wacom_wac->features;
+ 	int bat_charging, bat_percent, touch_ring_mode;
+ 	__u32 serial;
+-	int i;
++	int i, index = -1;
++	unsigned long flags;
+ 
+ 	if (data[0] != WACOM_REPORT_REMOTE) {
+-		dev_dbg(input->dev.parent,
+-			"%s: received unknown report #%d", __func__, data[0]);
++		hid_dbg(wacom->hdev, "%s: received unknown report #%d",
++			__func__, data[0]);
+ 		return 0;
+ 	}
+ 
+ 	serial = data[3] + (data[4] << 8) + (data[5] << 16);
+ 	wacom_wac->id[0] = PAD_DEVICE_ID;
+ 
++	spin_lock_irqsave(&remote->remote_lock, flags);
++
++	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
++		if (remote->remotes[i].serial == serial) {
++			index = i;
++			break;
++		}
++	}
++
++	if (index < 0 || !remote->remotes[index].registered)
++		goto out;
++
++	input = remote->remotes[index].input;
++
+ 	input_report_key(input, BTN_0, (data[9] & 0x01));
+ 	input_report_key(input, BTN_1, (data[9] & 0x02));
+ 	input_report_key(input, BTN_2, (data[9] & 0x04));
+@@ -804,6 +819,8 @@ static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
+ 
+ 	input_event(input, EV_MSC, MSC_SERIAL, serial);
+ 
++	input_sync(input);
++
+ 	/*Which mode select (LED light) is currently on?*/
+ 	touch_ring_mode = (data[11] & 0xC0) >> 6;
+ 
+@@ -821,7 +838,9 @@ static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
+ 	wacom_notify_battery(wacom_wac, bat_percent, bat_charging, 1,
+ 			     bat_charging);
+ 
+-	return 1;
++out:
++	spin_unlock_irqrestore(&remote->remote_lock, flags);
++	return 0;
  }
  
-+static int wacom_remote_attach_battery(struct wacom *wacom, int index)
-+{
-+	struct wacom_remote *remote = wacom->remote;
-+	int error;
+ static void wacom_remote_status_irq(struct wacom_wac *wacom_wac, size_t len)
+@@ -2458,6 +2477,9 @@ void wacom_setup_device_quirks(struct wacom *wacom)
+ 			features->quirks |= WACOM_QUIRK_BATTERY;
+ 		}
+ 	}
 +
-+	if (!remote->remotes[index].registered)
-+		return 0;
-+
-+	if (remote->remotes[index].battery.battery)
-+		return 0;
-+
-+	if (wacom->led.groups[index].select == WACOM_STATUS_UNKNOWN)
-+		return 0;
-+
-+	error = __wacom_initialize_battery(wacom,
-+					&wacom->remote->remotes[index].battery);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
- static void wacom_remote_work(struct work_struct *work)
- {
- 	struct wacom *wacom = container_of(work, struct wacom, remote_work);
-@@ -2028,8 +2050,10 @@ static void wacom_remote_work(struct work_struct *work)
- 		serial = data.remote[i].serial;
- 		if (data.remote[i].connected) {
++	if (features->type == REMOTE)
++		features->device_type |= WACOM_DEVICETYPE_WL_MONITOR;
+ }
  
--			if (remote->remotes[i].serial == serial)
-+			if (remote->remotes[i].serial == serial) {
-+				wacom_remote_attach_battery(wacom, i);
- 				continue;
-+			}
+ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+@@ -2762,6 +2784,9 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
+ 	if (!(features->device_type & WACOM_DEVICETYPE_PAD))
+ 		return -ENODEV;
  
- 			if (remote->remotes[i].serial)
- 				wacom_remote_destroy_one(wacom, i);
++	if (features->type == REMOTE && input_dev == wacom_wac->pad_input)
++		return -ENODEV;
++
+ 	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+ 
+ 	/* kept for making legacy xf86-input-wacom working with the wheels */
 -- 
 2.5.5

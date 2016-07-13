@@ -1,23 +1,26 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: /input/mouse/elan_i2c_core.c
-Date: Wed, 13 Jul 2016 12:08:14 -0700
-Message-ID: <20160713190814.GA10821@dtor-ws>
+Subject: Re: Fix tuchpad wakeup on ASUS laptops (was [PATCH] Input:
+ /input/mouse/elan_i2c_core.c)
+Date: Wed, 13 Jul 2016 12:22:47 -0700
+Message-ID: <20160713192247.GB10821@dtor-ws>
 References: <1468416629-4615-1-git-send-email-kt.liao@emc.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f65.google.com ([209.85.220.65]:36254 "EHLO
-	mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751528AbcGMTIY (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:33780 "EHLO
+	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750912AbcGMTXH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jul 2016 15:08:24 -0400
+	Wed, 13 Jul 2016 15:23:07 -0400
 Content-Disposition: inline
 In-Reply-To: <1468416629-4615-1-git-send-email-kt.liao@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: KT Liao <ktalex.liao@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, phoenix@emc.com.tw, kt.liao@emc.com.tw, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, phoenix@emc.com.tw, kt.liao@emc.com.tw, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jonathan Gradstein <jgradstein@gmail.com>, Chris Chiu <chiu@endlessm.com>, Vlad Glagolev <stealth@vaygr.net>
+
+[ Resending to actually CC people I asked to try the patch ]
 
 On Wed, Jul 13, 2016 at 09:30:29PM +0800, KT Liao wrote:
 > Fix some Asus touchapod which casue TP no funciton sometimes, the pat=

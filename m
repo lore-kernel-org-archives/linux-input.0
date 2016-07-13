@@ -1,244 +1,88 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 22/27] HID: wacom: EKR: attach the power_supply on first
- connection
-Date: Wed, 13 Jul 2016 17:24:44 +0200
-Message-ID: <20160713152444.GI4663@mail.corp.redhat.com>
-References: <1467729563-23318-1-git-send-email-benjamin.tissoires@redhat.com>
- <1467729563-23318-23-git-send-email-benjamin.tissoires@redhat.com>
- <CAEoswT0inHAzo4pP8sBaXpMR_iqUG_U=kdGagAu_m8DybMMDzA@mail.gmail.com>
- <20160712092901.GH4663@mail.corp.redhat.com>
+Subject: Re: [PATCH 14/27] HID: wacom: EKR: add a worker to add/remove
+ resources on addition/removal (fwd)
+Date: Wed, 13 Jul 2016 18:01:53 +0200
+Message-ID: <20160713160153.GJ4663@mail.corp.redhat.com>
+References: <alpine.DEB.2.10.1607070652110.3227@hadrien>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38917 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:42436 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750916AbcGMPZf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jul 2016 11:25:35 -0400
+	id S1750923AbcGMQCE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Jul 2016 12:02:04 -0400
 Content-Disposition: inline
-In-Reply-To: <20160712092901.GH4663@mail.corp.redhat.com>
+In-Reply-To: <alpine.DEB.2.10.1607070652110.3227@hadrien>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aaron Armstrong Skomra <skomra@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Julia Lawall <julia.lawall@lip6.fr>
+Cc: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Jul 12 2016 or thereabouts, Benjamin Tissoires wrote:
-> On Jul 08 2016 or thereabouts, Aaron Armstrong Skomra wrote:
-> > On Tue, Jul 5, 2016 at 7:39 AM, Benjamin Tissoires <
-> > benjamin.tissoires@redhat.com> wrote:
-> > 
-> > > Or Gnome complains about an empty battery.
-> > >
-> > > Hi Benjamin,
-> > 
-> > I tested this series on the 24HD, 21UX2, Intuos P&T (CTH-680), and with 2
-> > EKRs.
-> 
-> I somehow missed this email. Sorry for the late answer.
-> 
-> > 
-> > When I attach (by USB wire) a wireless capable tablet with the rechargeable
-> > battery and wireless module connected inside the tablet, I get the same
-> > momentary 0% battery notification from gnome (see attached upower output).
-> 
-> Yes, I saw that, but I think it's not a regression. It's the way it's
-> already working now (from what I can see), and so it would be nice to
-> be fixed, but I didn't in this series.
+Hi,
 
-My bad. I found the issue and it was added by my patches :( It's fixed
-now and will be in v2 (coming shortly).
+On Jul 07 2016 or thereabouts, Julia Lawall wrote:
+> The lack of unlock looks suspicious, although I haven't studied the
+> complete context.  Also, is 0 correct as a return value in an error case?
+
+Yes, the lack of unlock is a bug, but the return value is correct. It
+was not an error but a boolean controlling an action from the caller. It
+was a weird think to do and misleading so I just turned the function
+into a void one in v2 (to be sent in a few minutes).
 
 Cheers,
 Benjamin
 
 > 
-> > 
-> > Aside from that
-> > 
-> > Tested-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+> julia
 > 
-> Thanks!
+> ---------- Forwarded message ----------
+> Date: Wed, 6 Jul 2016 00:27:34 +0800
+> From: kbuild test robot <fengguang.wu@intel.com>
+> To: kbuild@01.org
+> Cc: Julia Lawall <julia.lawall@lip6.fr>
+> Subject: Re: [PATCH 14/27] HID: wacom: EKR: add a worker to add/remove resources
+>      on addition/removal
 > 
-> But given Peter's comments regarding grouping, I think I'll need you to
-> redo the tests on the 24HD and 21UX2 with the next series as the initial
-> kernel implementation of LEDs needs to be reverted, or libwacom will
-> fail :(
+> CC: kbuild-all@01.org
+> In-Reply-To: <1467729563-23318-15-git-send-email-benjamin.tissoires@redhat.com>
+> TO: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> CC: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
+> CC: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 > 
-> Cheers,
-> Benjamin
+> Hi,
 > 
-> > 
-> > Best,
-> > Aaron
-> > 
-> > 
-> > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > ---
-> > >  drivers/hid/wacom_sys.c | 36 ++++++++++++++++++++++++++++++------
-> > >  1 file changed, 30 insertions(+), 6 deletions(-)
-> > >
-> > > diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> > > index 04f5c75..1d79215 100644
-> > > --- a/drivers/hid/wacom_sys.c
-> > > +++ b/drivers/hid/wacom_sys.c
-> > > @@ -1917,6 +1917,10 @@ static void wacom_remote_destroy_one(struct wacom
-> > > *wacom, unsigned int index)
-> > >         remote->remotes[index].registered = false;
-> > >         spin_unlock_irqrestore(&remote->remote_lock, flags);
-> > >
-> > > +       if (remote->remotes[index].battery.battery)
-> > > +               devres_release_group(&wacom->hdev->dev,
-> > > +
-> > > &remote->remotes[index].battery.bat_desc);
-> > > +
-> > >         if (remote->remotes[index].group.name)
-> > >                 devres_release_group(&wacom->hdev->dev,
-> > >                                      &remote->remotes[index]);
-> > > @@ -1926,6 +1930,7 @@ static void wacom_remote_destroy_one(struct wacom
-> > > *wacom, unsigned int index)
-> > >                         remote->remotes[i].serial = 0;
-> > >                         remote->remotes[i].group.name = NULL;
-> > >                         remote->remotes[i].registered = false;
-> > > +                       remote->remotes[i].battery.battery = NULL;
-> > >                         wacom->led.groups[i].select = WACOM_STATUS_UNKNOWN;
-> > >                 }
-> > >         }
-> > > @@ -1982,11 +1987,6 @@ static int wacom_remote_create_one(struct wacom
-> > > *wacom, u32 serial,
-> > >         if (error)
-> > >                 goto fail;
-> > >
-> > > -       error = __wacom_initialize_battery(wacom,
-> > > -
-> > > &remote->remotes[index].battery);
-> > > -       if (error)
-> > > -               goto fail;
-> > > -
-> > >         remote->remotes[index].registered = true;
-> > >
-> > >         devres_close_group(dev, &remote->remotes[index]);
-> > > @@ -1998,6 +1998,28 @@ fail:
-> > >         return error;
-> > >  }
-> > >
-> > > +static int wacom_remote_attach_battery(struct wacom *wacom, int index)
-> > > +{
-> > > +       struct wacom_remote *remote = wacom->remote;
-> > > +       int error;
-> > > +
-> > > +       if (!remote->remotes[index].registered)
-> > > +               return 0;
-> > > +
-> > > +       if (remote->remotes[index].battery.battery)
-> > > +               return 0;
-> > > +
-> > > +       if (wacom->led.groups[index].select == WACOM_STATUS_UNKNOWN)
-> > > +               return 0;
-> > > +
-> > > +       error = __wacom_initialize_battery(wacom,
-> > > +
-> > >  &wacom->remote->remotes[index].battery);
-> > > +       if (error)
-> > > +               return error;
-> > > +
-> > > +       return 0;
-> > > +}
-> > > +
-> > >  static void wacom_remote_work(struct work_struct *work)
-> > >  {
-> > >         struct wacom *wacom = container_of(work, struct wacom,
-> > > remote_work);
-> > > @@ -2028,8 +2050,10 @@ static void wacom_remote_work(struct work_struct
-> > > *work)
-> > >                 serial = data.remote[i].serial;
-> > >                 if (data.remote[i].connected) {
-> > >
-> > > -                       if (remote->remotes[i].serial == serial)
-> > > +                       if (remote->remotes[i].serial == serial) {
-> > > +                               wacom_remote_attach_battery(wacom, i);
-> > >                                 continue;
-> > > +                       }
-> > >
-> > >                         if (remote->remotes[i].serial)
-> > >                                 wacom_remote_destroy_one(wacom, i);
-> > > --
-> > > 2.5.5
-> > >
-> > >
+> [auto build test WARNING on hid/for-next]
+> [also build test WARNING on v4.7-rc6 next-20160705]
+> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
 > 
-> > [wacom@localhost ~]$ upower -d
-> > Device: /org/freedesktop/UPower/devices/mouse_wacom_battery_7
-> >   native-path:          wacom_battery_7
-> >   power supply:         no
-> >   updated:              Thu 07 Jul 2016 01:55:12 PM PDT (1 seconds ago)
-> >   has history:          yes
-> >   has statistics:       yes
-> >   mouse
-> >     present:             yes
-> >     rechargeable:        yes
-> >     state:               discharging
-> >     warning-level:       critical
-> >     percentage:          0%
-> >     icon-name:          'battery-caution-symbolic'
-> >   History (charge):
-> >     1467924912	0.000	unknown
-> >     1467924886	96.000	charging
-> >     1467924880	0.000	unknown
-> >   History (rate):
-> >     1467924912	0.000	unknown
-> >     1467924880	0.000	unknown
-> > 
-> > Device: /org/freedesktop/UPower/devices/DisplayDevice
-> >   power supply:         no
-> >   updated:              Thu 07 Jul 2016 12:09:09 PM PDT (6364 seconds ago)
-> >   has history:          no
-> >   has statistics:       no
-> >   unknown
-> >     warning-level:       none
-> >     icon-name:          ''
-> > 
-> > Daemon:
-> >   daemon-version:  0.99.4
-> >   on-battery:      no
-> >   lid-is-closed:   no
-> >   lid-is-present:  no
-> >   critical-action: PowerOff
-> > [wacom@localhost ~]$ upower -d
-> > Device: /org/freedesktop/UPower/devices/mouse_wacom_battery_7
-> >   native-path:          wacom_battery_7
-> >   power supply:         no
-> >   updated:              Thu 07 Jul 2016 01:55:18 PM PDT (3 seconds ago)
-> >   has history:          yes
-> >   has statistics:       yes
-> >   mouse
-> >     present:             yes
-> >     rechargeable:        yes
-> >     state:               charging
-> >     warning-level:       none
-> >     percentage:          96%
-> >     icon-name:          'battery-full-charging-symbolic'
-> >   History (charge):
-> >     1467924918	96.000	charging
-> >     1467924912	0.000	unknown
-> >     1467924886	96.000	charging
-> >     1467924880	0.000	unknown
-> >   History (rate):
-> >     1467924912	0.000	unknown
-> >     1467924880	0.000	unknown
-> > 
-> > Device: /org/freedesktop/UPower/devices/DisplayDevice
-> >   power supply:         no
-> >   updated:              Thu 07 Jul 2016 12:09:09 PM PDT (6372 seconds ago)
-> >   has history:          no
-> >   has statistics:       no
-> >   unknown
-> >     warning-level:       none
-> >     icon-name:          ''
-> > 
-> > Daemon:
-> >   daemon-version:  0.99.4
-> >   on-battery:      no
-> >   lid-is-closed:   no
-> >   lid-is-present:  no
-> >   critical-action: PowerOff
-> > 
+> url:    https://github.com/0day-ci/linux/commits/Benjamin-Tissoires/HID-wacom-cleanup-EKR-LED/20160705-225431
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git for-next
+> :::::: branch date: 2 hours ago
+> :::::: commit date: 2 hours ago
 > 
+> >> drivers/hid/wacom_wac.c:851:2-8: preceding lock on line 846
+> 
+> git remote add linux-review https://github.com/0day-ci/linux
+> git remote update linux-review
+> git checkout cbd7a16fa28311673663974b9edc48bd00d83815
+> vim +851 drivers/hid/wacom_wac.c
+> 
+> 72b236d6 Aaron Skomra       2015-08-20  840  		bool connected = data[j+2];
+> 72b236d6 Aaron Skomra       2015-08-20  841
+> cbd7a16f Benjamin Tissoires 2016-07-05  842  		remote_data.remote[i].serial = serial;
+> cbd7a16f Benjamin Tissoires 2016-07-05  843  		remote_data.remote[i].connected = connected;
+> 72b236d6 Aaron Skomra       2015-08-20  844  	}
+> 72b236d6 Aaron Skomra       2015-08-20  845
+> cbd7a16f Benjamin Tissoires 2016-07-05 @846  	spin_lock_irqsave(&wacom->remote_lock, flags);
+> 72b236d6 Aaron Skomra       2015-08-20  847
+> cbd7a16f Benjamin Tissoires 2016-07-05  848  	ret = kfifo_in(&wacom->remote_fifo, &remote_data, sizeof(remote_data));
+> cbd7a16f Benjamin Tissoires 2016-07-05  849  	if (ret != sizeof(remote_data)) {
+> cbd7a16f Benjamin Tissoires 2016-07-05  850  		hid_err(wacom->hdev, "Can't queue Remote status event.\n");
+> cbd7a16f Benjamin Tissoires 2016-07-05 @851  		return 0;
+> 72b236d6 Aaron Skomra       2015-08-20  852  	}
+> 72b236d6 Aaron Skomra       2015-08-20  853
+> cbd7a16f Benjamin Tissoires 2016-07-05  854  	spin_unlock_irqrestore(&wacom->remote_lock, flags);
+> 
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation

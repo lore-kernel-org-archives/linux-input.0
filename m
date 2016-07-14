@@ -1,46 +1,66 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH v3 8/8] Input: synaptics-rmi4: Use the RMI_F11_REL_BYTES define in rmi_f11_rel_pos_report
-Date: Wed, 13 Jul 2016 23:10:13 -0700
-Message-ID: <1468476613-8293-1-git-send-email-aduggan@synaptics.com>
+From: =?big5?B?ufmxUrph?= <kt.liao@emc.com.tw>
+Subject: RE: [PATCH v1] Add support for the ektf2127 touchscreencontroller
+Date: Thu, 14 Jul 2016 18:12:57 +0800
+Message-ID: <009e01d1ddb8$4b51ad60$e1f50820$@emc.com.tw>
+References: <1467624545-3455-1-git-send-email-siebren.vroegindeweij@gmail.com> <1467624545-3455-2-git-send-email-siebren.vroegindeweij@gmail.com> <20160713215018.GA1799@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx1.synaptics.com ([192.147.44.131]:2967 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751494AbcGNGKW (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:49530 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751042AbcGNKND (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Jul 2016 02:10:22 -0400
+	Thu, 14 Jul 2016 06:13:03 -0400
+In-Reply-To: <20160713215018.GA1799@dtor-ws>
+Content-Language: zh-tw
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick@shmanahar.org>, Chris Healy <cphealy@gmail.com>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Siebren Vroegindeweij' <siebren.vroegindeweij@gmail.com>, =?big5?B?J0pvaG5ueSBDaHVhbmcosviozsBNKSc=?= <johnny.chuang@emc.com.tw>, 'James Chen' <james.chen@emc.com.tw>
+Cc: linux-input@vger.kernel.org, 'devicetree' <devicetree@vger.kernel.org>, 'Hans de Goede' <hdegoede@redhat.com>, 'Michel Verlaan' <michel.verl@gmail.com>, 'Siebren Vroegindeweij' <siebren.vroegindeweij@hotmail.com>
 
-The size of relative data in F11 is already defined by RMI_F11_REL_BYTES.
-Use the define in rmi_f11_rel_pos_report() to be consistent.
+-----Original Message-----
+From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
+Sent: Thursday, July 14, 2016 5:50 AM
+To: Siebren Vroegindeweij; KT Liao
+Cc: linux-input@vger.kernel.org; devicetree; Hans de Goede; Michel Verlaan;
+Siebren Vroegindeweij; KT Liao
+Subject: Re: [PATCH v1] Add support for the ektf2127 touchscreencontroller
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-Reviewed-by: Nick Dyer <nick@shmanahar.org>
----
-This is the same as the v2 version.
+On Mon, Jul 04, 2016 at 11:29:05AM +0200, Siebren Vroegindeweij wrote:
+> From: Siebren Vroegindeweij <siebren.vroegindeweij@hotmail.com>
+> 
+> The ELAN eKTF2127 driver is written for the ELAN series of 
+> touchscreencontrollers. This version is especially written for the
+> eKTF2127 controller. The driver communicates to the controller over i2c.
+> The additional screen specifications can be read from the devicetree file.
+> The driver has also the ability to read the screen height and width 
+> from the controller. When the screen is pressed, a interrupt is generated.
+> The interrupt wil be handled by a function that request a data string 
+> from the controller. This string is then modified so that the right 
+> number of touches and their x and y coordinates are available and 
+> given to userspace through the input subsystem.
 
- drivers/input/rmi4/rmi_f11.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Adding KT. Can eKTF2127 be driven with [modified] elants_i2c driver or we
+are better off with separate driver.
 
-diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index 3fda75b..cce82a1 100644
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -530,8 +530,8 @@ static void rmi_f11_rel_pos_report(struct f11_data *f11, u8 n_finger)
- 	struct f11_2d_data *data = &f11->data;
- 	s8 x, y;
- 
--	x = data->rel_pos[n_finger * 2];
--	y = data->rel_pos[n_finger * 2 + 1];
-+	x = data->rel_pos[n_finger * RMI_F11_REL_BYTES];
-+	y = data->rel_pos[n_finger * RMI_F11_REL_BYTES + 1];
- 
- 	rmi_2d_sensor_rel_report(sensor, x, y);
- }
--- 
-2.5.0
+Hi Johnny,
+Please check Dmitry's touchscreen issue.
+...
+
+> + *
+> + * This program is free software; you can redistribute it and/or 
+> + modify
+> + * it under the terms of the GNU General Public License as published 
+> + by
+> + * the Free Software Foundation; either version 3 of the License, or
+> + * (at your option) any later version.
+
+Gpl V2 or later for kernel please, we won't take v3.
+
+Thanks.
+
+--
+Dmitry
 

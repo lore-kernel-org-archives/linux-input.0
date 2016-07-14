@@ -1,69 +1,64 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH v3 1/4] mfd: mxs-lradc: Add support for mxs-lradc MFD
-Date: Thu, 14 Jul 2016 17:38:36 +0200
-Message-ID: <5bddd461-90e3-3116-8d18-fae51bf39310@denx.de>
-References: <cover.1466769907.git.ksenija.stanojevic@gmail.com>
- <370a02584386944b465deff5ccc48c8919b23dba.1466769907.git.ksenija.stanojevic@gmail.com>
- <20160628162834.GF29166@dell>
- <CAL7P5j+NYvUJfu==xQvncyCiw8JHtizOdfyeY1HL6Lb=-wsrWQ@mail.gmail.com>
- <E1bIyD4-0000Jw-2c@stardust.g4.wien.funkfeuer.at>
- <20160713124935.GC11154@dell>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: wacom_w8001 - drop use of ABS_MT_TOOL_TYPE
+Date: Thu, 14 Jul 2016 09:42:29 -0700
+Message-ID: <20160714164229.GA17106@dtor-ws>
+References: <20160111035151.GA24743@jelly.redhat.com>
+ <20160111081233.GA27512@dtor-ws>
+ <CAKdAkRRtYyd37_-5LiVCBX=ajWF9O+hupk=4uw6Juc7LQxNdsQ@mail.gmail.com>
+ <CAF8JNhJb4pxLjkdH7_X+AKTkBVtUD1Fbe9v_C2=q_sHptrvZgQ@mail.gmail.com>
+ <20160714055759.GA4889@jelly.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160713124935.GC11154@dell>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Harald Geyer <harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org>
-Cc: =?UTF-8?Q?Ksenija_Stanojevi=c4=87?= <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f171.google.com ([209.85.192.171]:35915 "EHLO
+	mail-pf0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751276AbcGNQmd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 Jul 2016 12:42:33 -0400
+Received: by mail-pf0-f171.google.com with SMTP id t190so31607979pfb.3
+        for <linux-input@vger.kernel.org>; Thu, 14 Jul 2016 09:42:33 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20160714055759.GA4889@jelly.local>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Ping Cheng <pinglinux@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>
 
-On 07/13/2016 02:49 PM, Lee Jones wrote:
-> On Fri, 01 Jul 2016, Harald Geyer wrote:
->
->> Hi Ksenija!
->>
->> Ksenija Stanojevi=C4=87 writes:
->>> On Tue, Jun 28, 2016 at 6:28 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> w=
-rote:
->>>>> +static int mxs_lradc_add_device(struct platform_device *pdev,
->>>>> +                             struct mxs_lradc *lradc, char *name=
-, int i)
->>>>> +{
->>>>> +     struct mfd_cell *cell;
->>>>> +
->>>>> +     cell =3D &lradc->cells[i];
->>>>> +     cell->name =3D name;
->>>>> +     cell->platform_data =3D lradc;
->>>>> +     cell->pdata_size =3D sizeof(*lradc);
->>>>> +
->>>>> +     return devm_mfd_add_devices(&pdev->dev, -1, cell, 1, NULL, =
-0, NULL);
->>>>> +}
->>>>
->>>> Please don't roll your own API.
->>>>
->>>> Use 'struct mfd_cell' like everyone else does.
->>>
->>> It has been suggested in previous reviews to use separate function =
-to
->>> register mfd device, and to make mfd_cell allocate dynamically beca=
-use
->>> struc mxs-lradc is allocated dynamically.
->>> But I can revrse changes and make mfd_cells allocate staticaly
->>> wthout separate function.
->>
->> I think making mfd_cells members of struct mxs-lradc will address al=
-l
->> review comments.
->
-> No, please don't do that either.
->
-It'd be nice if you explained in detail why not. Otherwise this is just=
-=20
-empty splat.
+On Thu, Jul 14, 2016 at 03:57:59PM +1000, Peter Hutterer wrote:
+> On Wed, Jul 13, 2016 at 05:22:30PM -0700, Ping Cheng wrote:
+> > On Wednesday, July 13, 2016, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > >
+> > > On Mon, Jan 11, 2016 at 12:12 AM, Dmitry Torokhov
+> > > <dmitry.torokhov@gmail.com> wrote:
+> > > > On Mon, Jan 11, 2016 at 01:51:51PM +1000, Peter Hutterer wrote:
+> > > >> As of e0361b70175f0cd6199dd9ed6679632de73973d4
+> > > >>   Input: wacom_w8001 - split the touch and pen devices into two devices
+> > > >> the touch events aren't multiplexed over the same device anymore, the use of
+> > > >> ABS_MT_TOOL_TYPE is superfluous. And even before then it only ever sent
+> > > >> MT_TOOL_TYPE_FINGER anyway.
+> > > >>
+> > > >> Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+> > > >
+> > > > Applied, thank you.
+> > >
+> > > Hmm, so I applied that but removal of input_mt_report_slot_state()
+> > > means that we do not generate tacking IDs for the contacts.
+> > 
+> > You are right. I have a set of patches to clean up the code. It is
+> > still under testing/reviewing...
+> > 
+> > >
+> > > Revert?
+> > 
+> > It may be quicker to revert this one now. I'll submit the clean up set later.
+> 
+> yeah, I agree and we found another bug with these devices. It'll be easier
+> to merge the fixed set.
 
---=20
-Best regards,
-Marek Vasut
+OK, reverted (and revert marked for stable). I added your acks to the
+revert commit.
+
+Thanks!
+
+-- 
+Dmitry

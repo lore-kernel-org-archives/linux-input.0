@@ -1,64 +1,161 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: wacom_w8001 - drop use of ABS_MT_TOOL_TYPE
-Date: Thu, 14 Jul 2016 09:42:29 -0700
-Message-ID: <20160714164229.GA17106@dtor-ws>
-References: <20160111035151.GA24743@jelly.redhat.com>
- <20160111081233.GA27512@dtor-ws>
- <CAKdAkRRtYyd37_-5LiVCBX=ajWF9O+hupk=4uw6Juc7LQxNdsQ@mail.gmail.com>
- <CAF8JNhJb4pxLjkdH7_X+AKTkBVtUD1Fbe9v_C2=q_sHptrvZgQ@mail.gmail.com>
- <20160714055759.GA4889@jelly.local>
+Subject: Re: [PATCH] Input: byd - fix issue where generic PS/2 mice are
+ detected as BYD touchpad
+Date: Thu, 14 Jul 2016 09:46:01 -0700
+Message-ID: <20160714164601.GB17106@dtor-ws>
+References: <20160627213412.GC22620@dtor-ws>
+ <1467172878-25483-1-git-send-email-pospeselr@gmail.com>
+ <20160711202620.GA24346@smaug>
+ <20160712025757.GA12185@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f171.google.com ([209.85.192.171]:35915 "EHLO
-	mail-pf0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751276AbcGNQmd (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:34669 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751446AbcGNQqF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Jul 2016 12:42:33 -0400
-Received: by mail-pf0-f171.google.com with SMTP id t190so31607979pfb.3
-        for <linux-input@vger.kernel.org>; Thu, 14 Jul 2016 09:42:33 -0700 (PDT)
+	Thu, 14 Jul 2016 12:46:05 -0400
+Received: by mail-pa0-f50.google.com with SMTP id fi15so30190043pac.1
+        for <linux-input@vger.kernel.org>; Thu, 14 Jul 2016 09:46:05 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20160714055759.GA4889@jelly.local>
+In-Reply-To: <20160712025757.GA12185@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Ping Cheng <pinglinux@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>
+To: Chris Diamand <chris@diamand.org>
+Cc: Richard Pospesel <pospeselr@gmail.com>, linux-input@vger.kernel.org, phonesyfreakies@gmail.com
 
-On Thu, Jul 14, 2016 at 03:57:59PM +1000, Peter Hutterer wrote:
-> On Wed, Jul 13, 2016 at 05:22:30PM -0700, Ping Cheng wrote:
-> > On Wednesday, July 13, 2016, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > >
-> > > On Mon, Jan 11, 2016 at 12:12 AM, Dmitry Torokhov
-> > > <dmitry.torokhov@gmail.com> wrote:
-> > > > On Mon, Jan 11, 2016 at 01:51:51PM +1000, Peter Hutterer wrote:
-> > > >> As of e0361b70175f0cd6199dd9ed6679632de73973d4
-> > > >>   Input: wacom_w8001 - split the touch and pen devices into two devices
-> > > >> the touch events aren't multiplexed over the same device anymore, the use of
-> > > >> ABS_MT_TOOL_TYPE is superfluous. And even before then it only ever sent
-> > > >> MT_TOOL_TYPE_FINGER anyway.
-> > > >>
-> > > >> Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
-> > > >
-> > > > Applied, thank you.
-> > >
-> > > Hmm, so I applied that but removal of input_mt_report_slot_state()
-> > > means that we do not generate tacking IDs for the contacts.
+On Mon, Jul 11, 2016 at 07:57:57PM -0700, Dmitry Torokhov wrote:
+> On Mon, Jul 11, 2016 at 09:26:20PM +0100, Chris Diamand wrote:
+> > Hi Richard,
 > > 
-> > You are right. I have a set of patches to clean up the code. It is
-> > still under testing/reviewing...
+> > Thanks for working on this!
 > > 
-> > >
-> > > Revert?
+> > Patch looks mostly good, and seems to have worked judging by the comments on
+> > the bug report. Not many comments from me as it's just moving stuff around.
 > > 
-> > It may be quicker to revert this one now. I'll submit the clean up set later.
+> > I think it might be better to keep detect() and init() separate - it seems to
+> > me that a detect() function shouldn't really have any side effects (even if
+> > we're certain it's a BYD touchpad), so doing kzalloc and setting up the timer
+> > in detect() feels a bit wrong.
 > 
-> yeah, I agree and we found another bug with these devices. It'll be easier
-> to merge the fixed set.
+> Right.
+> 
+> > 
+> > But as mentioned earlier, we shouldn't do the touchpad initialisation twice.
+> > So maybe do the magic sequence stuff in detect(), and the actual driver init
+> > in init().
+> 
+> Since we can't transparently detect the device without changing its
+> state everything should go into byd_init() and we should remove
+> byd_detect() (unless we decide to do some DMI matching).
+> 
+> > 
+> > > Input: byd - fix issue where generic PS/2 mice are...
+> > 
+> > You may need a shorter commit title.
+> > 
+> > > The secret handshake used was not sufficient to determine whether the connected
+> > > device was actually a BYD touchpad.  Added some restrictions on what the first
+> > > byte returned may be (based off of experiments with BYD touchapd).  Moved
+> > > subsequent initialization logic from byd_init to tail of byd_detect, and
+> > > removed byd_init function.
+> > > 
+> > > Fixes bug 1201781.  Tested on laptop with BYD touchpad hardware.
+> > > 
+> > > Applied against commit fcd6eb50eadd83f857eac55f99316f1789707cdb
+> > 
+> > Probably don't need this in the commit message.
+> > 
+> > > 
+> > > Signed-off-by: Richard Pospesel <pospeselr@gmail.com>
+> > > 
+> > > ---
+> > > diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
+> > > index ec73f75..92f5556 100644
+> > > --- a/drivers/input/mouse/byd.c
+> > > +++ b/drivers/input/mouse/byd.c
+> > > @@ -2,6 +2,10 @@
+> > >   * BYD TouchPad PS/2 mouse driver
+> > >   *
+> > >   * Copyright (C) 2015 Chris Diamand <chris@diamand.org>
+> > > + * Copyright (C) 2015 Richard Pospesel
+> > > + * Copyright (C) 2015 Tai Chi Minh Ralph Eastwood
+> > > + * Copyright (C) 2015 Martin Wimpress
+> > > + * Copyright (C) 2015 Jay Kuri
+> > 
+> > I already updated these in 82aaa086019ce0e6fcd3a44c0a2e4329afe988b6, so no
+> > need to include it here. (I think there's a disparity between input-next and
+> > mainline).
+> 
+> I have 2 branches (for-linus and next), and they may have contain
+> different changes (as I re-sync with mainline as needed), not all the
+> time.
+> 
+> > 
+> > >   *
+> > >   * This program is free software; you can redistribute it and/or modify it
+> > >   * under the terms of the GNU General Public License version 2 as published by
+> > > @@ -355,7 +359,7 @@ static int byd_reset_touchpad(struct psmouse *psmouse)
+> > >  		{ PSMOUSE_CMD_ENABLE, 0 },
+> > >  		/*
+> > >  		 * BYD-specific initialization, which enables absolute mode and
+> > > -		 * (if desired), the touchpad's built-in gesture detection.
+> > > +		 * disables the builtin hardware gesture recogniton.
+> > >  		 */
+> > >  		{ 0x10E2, 0x00 },
+> > >  		{ 0x10E0, 0x02 },
+> > > @@ -435,6 +439,10 @@ int byd_detect(struct psmouse *psmouse, bool set_properties)
+> > >  	struct ps2dev *ps2dev = &psmouse->ps2dev;
+> > >  	u8 param[4] = {0x03, 0x00, 0x00, 0x00};
+> > > 
+> > > +	if (psmouse_reset(psmouse))
+> > > +		return -EIO;
+> 
+> I would rather we reset the device after the first magic handshake to
+> speed up case when it is not byd device. Hmm... You know, reset is quite
+> slow operation and given how unreliable the first handshake is I really
+> lean towards asking to add DMI matching into the driver. Because we just
+> penalized everyone else with "standard" mice here.
 
-OK, reverted (and revert marked for stable). I added your acks to the
-revert commit.
+Chris, Richard, do you guys have the same hardware or different laptops?
+Could you share DMI data?
 
-Thanks!
+> 
+> > > +
+> > > +	/* 'Secret' handshake */
+> > >  	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+> > >  		return -1;
+> > >  	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+> > > @@ -446,62 +454,68 @@ int byd_detect(struct psmouse *psmouse, bool set_properties)
+> > >  	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
+> > >  		return -1;
+> > > 
+> > > -	if (param[1] != 0x03 || param[2] != 0x64)
+> > > +	/*
+> > > +	 * BYD touchpad returns 0x03 for resolution ( 8 count / mm ) and
+> > > +	 * 0x64 ( 100 samples / sec ) for sampling rate
+> > 
+> > Spaces inside brackets?
+> > 
+> > > +	 * The first byte's value is dependent on the mouse button states:
+> > > +	 *  0 : no button pressed
+> > > +	 *  1 : right button pressed
+> > > +	 *  4 : left button pressed
+> > > +	 *  5 : right and left button pressed
+> > > +	 */
+> > > +	if ((param[0] & 0x05) != param[0] ||
+> > 
+> > Neat. Took me a while though, would something like this be clearer?
+> > 
+> >     param[0] & ~(0x00 | 0x01 | 0x04 | 0x05)
+> 
+> Hmm... Either "param[0] & ~0x05" or "param[0] & ~(BIT(0) | BIT(2))" or
+> leave as Richard had it.
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry
 
 -- 
 Dmitry

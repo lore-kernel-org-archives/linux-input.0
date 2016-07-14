@@ -1,55 +1,56 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] Input: wacom_w8001 - drop use of ABS_MT_TOOL_TYPE
-Date: Thu, 14 Jul 2016 15:57:59 +1000
-Message-ID: <20160714055759.GA4889@jelly.local>
-References: <20160111035151.GA24743@jelly.redhat.com>
- <20160111081233.GA27512@dtor-ws>
- <CAKdAkRRtYyd37_-5LiVCBX=ajWF9O+hupk=4uw6Juc7LQxNdsQ@mail.gmail.com>
- <CAF8JNhJb4pxLjkdH7_X+AKTkBVtUD1Fbe9v_C2=q_sHptrvZgQ@mail.gmail.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH v3 0/8] Input: synaptics-rmi4: Reimplement functionality from hid-rmi
+Date: Wed, 13 Jul 2016 23:07:55 -0700
+Message-ID: <1468476475-7884-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:65087 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751239AbcGNF6G (ORCPT
+Received: from us-mx1.synaptics.com ([192.147.44.131]:14098 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751239AbcGNGIE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Jul 2016 01:58:06 -0400
-Content-Disposition: inline
-In-Reply-To: <CAF8JNhJb4pxLjkdH7_X+AKTkBVtUD1Fbe9v_C2=q_sHptrvZgQ@mail.gmail.com>
+	Thu, 14 Jul 2016 02:08:04 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick@shmanahar.org>, Chris Healy <cphealy@gmail.com>
 
-On Wed, Jul 13, 2016 at 05:22:30PM -0700, Ping Cheng wrote:
-> On Wednesday, July 13, 2016, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> >
-> > On Mon, Jan 11, 2016 at 12:12 AM, Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> > > On Mon, Jan 11, 2016 at 01:51:51PM +1000, Peter Hutterer wrote:
-> > >> As of e0361b70175f0cd6199dd9ed6679632de73973d4
-> > >>   Input: wacom_w8001 - split the touch and pen devices into two devices
-> > >> the touch events aren't multiplexed over the same device anymore, the use of
-> > >> ABS_MT_TOOL_TYPE is superfluous. And even before then it only ever sent
-> > >> MT_TOOL_TYPE_FINGER anyway.
-> > >>
-> > >> Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
-> > >
-> > > Applied, thank you.
-> >
-> > Hmm, so I applied that but removal of input_mt_report_slot_state()
-> > means that we do not generate tacking IDs for the contacts.
-> 
-> You are right. I have a set of patches to clean up the code. It is
-> still under testing/reviewing...
-> 
-> >
-> > Revert?
-> 
-> It may be quicker to revert this one now. I'll submit the clean up set later.
+The v3 version of this patch series makes changes to patch 1 and patch 3.
+Patch 1 now uses of_get_child_by_name() instead of of_find_node_by_name()
+to avoid having to increment the refcount of the of_node which avoid
+that hack. Patch 3 adds "force" to the device tree parameters to help to
+clarify that these parameters overwrite the default value set in the
+firmware configuration.
 
-yeah, I agree and we found another bug with these devices. It'll be easier
-to merge the fixed set.
+Thanks,
+Andrew
 
-Cheers,
-   Peter
+Andrew Duggan (8):
+  Input: synaptics-rmi4: Use of_get_child_by_name() instead of
+    of_find_node_by_name()
+  Input: synaptics-rmi4: Add parameters for dribble packets and palm
+    detect gesture
+  Input: synaptics-rmi4: Add dribble and palm gesture parameters to
+    device tree
+  Input: synaptics-rmi4: Add support for controlling dribble packets in
+    F12
+  Input: synaptics-rmi4: Remove pointer to rmi_function in f12_data
+  Input: synaptics-rmi4: Remove unneeded variable
+  Input: synaptics-rmi4: Handle incomplete input data
+  Input: synaptics-rmi4: Use the RMI_F11_REL_BYTES define in
+    rmi_f11_rel_pos_report
+
+ .../bindings/input/rmi4/rmi_2d_sensor.txt          | 10 +++
+ drivers/input/rmi4/rmi_2d_sensor.c                 | 13 +++
+ drivers/input/rmi4/rmi_2d_sensor.h                 |  2 +
+ drivers/input/rmi4/rmi_bus.c                       |  4 +-
+ drivers/input/rmi4/rmi_f01.c                       |  6 +-
+ drivers/input/rmi4/rmi_f11.c                       | 95 +++++++++++++++------
+ drivers/input/rmi4/rmi_f12.c                       | 98 ++++++++++++++++++++--
+ drivers/input/rmi4/rmi_f30.c                       |  4 +
+ include/linux/rmi.h                                | 21 +++--
+ 9 files changed, 208 insertions(+), 45 deletions(-)
+
+-- 
+2.5.0
+

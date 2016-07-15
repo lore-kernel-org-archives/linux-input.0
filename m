@@ -1,44 +1,70 @@
-From: Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 1/1] input: touchscreen: ts4800-ts: add missing of_node_put after calling of_parse_phandle
-Date: Fri, 15 Jul 2016 17:32:05 +0800
-Message-ID: <1468575125-24920-1-git-send-email-peter.chen@nxp.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: [RFC PATCH] serio: add hangup support
+Date: Fri, 15 Jul 2016 13:27:21 +0200
+Message-ID: <287a7f88-5d45-bb45-c98e-22a2313ab780@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2nam01on0052.outbound.protection.outlook.com ([104.47.34.52]:1060
-	"EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751811AbcGOKN5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Jul 2016 06:13:57 -0400
+Received: from lb1-smtp-cloud6.xs4all.net ([194.109.24.24]:41950 "EHLO
+	lb1-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932682AbcGOL11 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Jul 2016 07:27:27 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: Peter Chen <peter.chen@nxp.com>, linux-input@vger.kernel.org, Rob Herring <robh@kernel.org>, Damien Riegel <damien.riegel@savoirfairelinux.com>
+To: linux-input <linux-input@vger.kernel.org>
+Cc: Linux Media Mailing List <linux-media@vger.kernel.org>
 
-of_node_put needs to be called when the device node which is got
-from of_parse_phandle has finished using.
+For the upcoming 4.8 kernel I made a driver for the Pulse-Eight USB CEC adapter.
+This is a usb device that shows up as a ttyACM0 device. It requires that you run
+inputattach in order to communicate with it via serio.
 
-Cc: linux-input@vger.kernel.org
-Cc: Rob Herring <robh@kernel.org>
-Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
+This all works well, but it would be nice to have a udev rule to automatically
+start inputattach. That too works OK, but the problem comes when the USB device
+is unplugged: the tty hangup is never handled by the serio framework so the
+inputattach utility never exits and you have to kill it manually.
+
+By adding this hangup callback the inputattach utility now exists as soon as I
+unplug the USB device.
+
+Is this the correct approach?
+
+BTW, the new driver is found here:
+
+https://git.linuxtv.org/media_tree.git/tree/drivers/staging/media/pulse8-cec
+
+Regards,
+
+	Hans
+
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+
 ---
- drivers/input/touchscreen/ts4800-ts.c | 1 +
- 1 file changed, 1 insertion(+)
+diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
+index 9c927d3..a615846 100644
+--- a/drivers/input/serio/serport.c
++++ b/drivers/input/serio/serport.c
+@@ -248,6 +248,14 @@ static long serport_ldisc_compat_ioctl(struct tty_struct *tty,
+ }
+ #endif
 
-diff --git a/drivers/input/touchscreen/ts4800-ts.c b/drivers/input/touchscreen/ts4800-ts.c
-index 3c3dd78..8f27ad8 100644
---- a/drivers/input/touchscreen/ts4800-ts.c
-+++ b/drivers/input/touchscreen/ts4800-ts.c
-@@ -135,6 +135,7 @@ static int ts4800_parse_dt(struct platform_device *pdev,
- 	ts->bit = BIT(bit);
- 
- 	ts->regmap = syscon_node_to_regmap(syscon_np);
-+	of_node_put(syscon_np);
- 	if (IS_ERR(ts->regmap)) {
- 		dev_err(dev, "cannot get parent's regmap\n");
- 		return PTR_ERR(ts->regmap);
--- 
-1.9.1
++static int serport_ldisc_hangup(struct tty_struct * tty)
++{
++	struct serport *serport = (struct serport *) tty->disc_data;
++
++	serport_serio_close(serport->serio);
++	return 0;
++}
++
+ static void serport_ldisc_write_wakeup(struct tty_struct * tty)
+ {
+ 	struct serport *serport = (struct serport *) tty->disc_data;
+@@ -274,6 +282,7 @@ static struct tty_ldisc_ops serport_ldisc = {
+ 	.compat_ioctl =	serport_ldisc_compat_ioctl,
+ #endif
+ 	.receive_buf =	serport_ldisc_receive,
++	.hangup =	serport_ldisc_hangup,
+ 	.write_wakeup =	serport_ldisc_write_wakeup
+ };
 

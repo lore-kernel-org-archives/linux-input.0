@@ -1,49 +1,101 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 4.7-rc7
-Date: Fri, 15 Jul 2016 14:57:04 -0700
-Message-ID: <20160715215704.GG27847@dtor-ws>
+Subject: Re: [PATCH] input: wacom_w8001 - cleanup 2FG touch code
+Date: Fri, 15 Jul 2016 14:50:04 -0700
+Message-ID: <20160715215004.GF27847@dtor-ws>
+References: <1468616445-6158-1-git-send-email-pingc@wacom.com>
+ <20160715211028.GC27847@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:35474 "EHLO
+	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751262AbcGOVuI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Jul 2016 17:50:08 -0400
+Received: by mail-pf0-f193.google.com with SMTP id t190so6980481pfb.2
+        for <linux-input@vger.kernel.org>; Fri, 15 Jul 2016 14:50:08 -0700 (PDT)
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20160715211028.GC27847@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>, Peter Hutterer <peter.hutterer@who-t.net>
 
-Hi Linus,
+On Fri, Jul 15, 2016 at 02:10:28PM -0700, Dmitry Torokhov wrote:
+> Hi Ping,
+> 
+> On Fri, Jul 15, 2016 at 02:00:45PM -0700, Ping Cheng wrote:
+> > input_mt_sync_frame is used by other wacom devices in wacom_wac.c
+> > to close the frame and emulate pointer events. Let's follow them.
+> > 
+> > Touch resolution was missing during touch setup. Newer apps won't
+> > be happy without that info.
+> > 
+> > Signed-off-by: Ping Cheng <pingc@wacom.com>
+> > Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+> > ---
+> >  drivers/input/touchscreen/wacom_w8001.c | 19 +++++--------------
+> >  1 file changed, 5 insertions(+), 14 deletions(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
+> > index fe983e7..a09dc65 100644
+> > --- a/drivers/input/touchscreen/wacom_w8001.c
+> > +++ b/drivers/input/touchscreen/wacom_w8001.c
+> > @@ -170,16 +170,8 @@ static void parse_multi_touch(struct w8001 *w8001)
+> >  		}
+> >  	}
+> >  
+> > -	/* emulate single touch events when stylus is out of proximity.
+> > -	 * This is to make single touch backward support consistent
+> > -	 * across all Wacom single touch devices.
+> > -	 */
+> > -	if (w8001->type != BTN_TOOL_PEN &&
+> > -			    w8001->type != BTN_TOOL_RUBBER) {
+> > -		w8001->type = count == 1 ? BTN_TOOL_FINGER : KEY_RESERVED;
+> > -		input_mt_report_pointer_emulation(dev, true);
+> > -	}
+> > -
+> > +	w8001->type = KEY_RESERVED;
+> > +	input_mt_sync_frame(dev);
+> >  	input_sync(dev);
+> >  }
+> >  
+> > @@ -508,14 +500,13 @@ static int w8001_setup_touch(struct w8001 *w8001, char *basename,
+> >  	case 5:
+> >  		w8001->pktlen = W8001_PKTLEN_TOUCH2FG;
+> >  
+> > -		__set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
+> > -		input_mt_init_slots(dev, 2, 0);
+> >  		input_set_abs_params(dev, ABS_MT_POSITION_X,
+> >  					0, touch.x, 0, 0);
+> >  		input_set_abs_params(dev, ABS_MT_POSITION_Y,
+> >  					0, touch.y, 0, 0);
+> > -		input_set_abs_params(dev, ABS_MT_TOOL_TYPE,
+> > -					0, MT_TOOL_MAX, 0, 0);
+> 
+> There seem a few issues combined into 1 patch. Why are we dropping tool
+> type? And the chunk below deserves a separate commit (which we might
+> consider for stable).
+> 
+> Thanks.
+> 
+> > +		input_abs_set_res(dev, ABS_MT_POSITION_X, touch.panel_res);
+> > +		input_abs_set_res(dev, ABS_MT_POSITION_Y, touch.panel_res);
+> > +		input_mt_init_slots(dev, 2, 0);
 
-Please pull from:
+By the way, error handling here would be nice.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Thanks.
 
-to receive a few last-minute updates for the input subsystem.
+> >  
+> >  		strlcat(basename, " 2FG", basename_sz);
+> >  		if (w8001->max_pen_x && w8001->max_pen_y)
+> > -- 
+> > 1.8.3.1
+> > 
+> 
+> -- 
+> Dmitry
 
-Changelog:
----------
-
-Andrew Duggan (1):
-      Input: synaptics-rmi4 - use of_get_child_by_name() to fix refcount
-
-Cameron Gutman (1):
-      Input: xpad - validate USB endpoint count during probe
-
-Dmitry Torokhov (1):
-      Revert "Input: wacom_w8001 - drop use of ABS_MT_TOOL_TYPE"
-
-Douglas Anderson (1):
-      Input: add SW_PEN_INSERTED define
-
-Peter Chen (1):
-      Input: ts4800-ts - add missing of_node_put after calling of_parse_phandle
-
-
-Diffstat:
---------
-
- drivers/input/joystick/xpad.c           |  3 +++
- drivers/input/rmi4/rmi_bus.c            |  4 ++--
- drivers/input/touchscreen/ts4800-ts.c   | 13 +++++++------
- drivers/input/touchscreen/wacom_w8001.c |  3 +++
- include/uapi/linux/input-event-codes.h  |  1 +
- 5 files changed, 16 insertions(+), 8 deletions(-)
+-- 
+Dmitry

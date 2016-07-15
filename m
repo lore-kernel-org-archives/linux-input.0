@@ -1,70 +1,226 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [RFC PATCH] serio: add hangup support
-Date: Fri, 15 Jul 2016 13:27:21 +0200
-Message-ID: <287a7f88-5d45-bb45-c98e-22a2313ab780@xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v3 1/4] of_touchscreen-helpers: Add support for inverted / swapped axis
+Date: Fri, 15 Jul 2016 14:16:12 +0200
+Message-ID: <1468584975-15970-2-git-send-email-hdegoede@redhat.com>
+References: <1468584975-15970-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb1-smtp-cloud6.xs4all.net ([194.109.24.24]:41950 "EHLO
-	lb1-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932682AbcGOL11 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Jul 2016 07:27:27 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:43628 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932791AbcGOMQV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Jul 2016 08:16:21 -0400
+In-Reply-To: <1468584975-15970-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
-Cc: Linux Media Mailing List <linux-media@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-For the upcoming 4.8 kernel I made a driver for the Pulse-Eight USB CEC adapter.
-This is a usb device that shows up as a ttyACM0 device. It requires that you run
-inputattach in order to communicate with it via serio.
+Extend touchscreen_parse_properties() with support for the
+touchscreen-inverted-x/y and touchscreen-swapped-x-y properties and
+add touchscreen_set_mt_pos() and touchscreen_report_pos() helper
+functions for storing coordinates into a input_mt_pos struct, or
+directly reporting them, taking these properties into account.
 
-This all works well, but it would be nice to have a udev rule to automatically
-start inputattach. That too works OK, but the problem comes when the USB device
-is unplugged: the tty hangup is never handled by the serio framework so the
-inputattach utility never exits and you have to kill it manually.
+This commit also modifies the existing callers of
+touchscreen_parse_properties() to pass in NULL for the new third
+argument, keeping the existing behavior.
 
-By adding this hangup callback the inputattach utility now exists as soon as I
-unplug the USB device.
-
-Is this the correct approach?
-
-BTW, the new driver is found here:
-
-https://git.linuxtv.org/media_tree.git/tree/drivers/staging/media/pulse8-cec
-
-Regards,
-
-	Hans
-
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
-index 9c927d3..a615846 100644
---- a/drivers/input/serio/serport.c
-+++ b/drivers/input/serio/serport.c
-@@ -248,6 +248,14 @@ static long serport_ldisc_compat_ioctl(struct tty_struct *tty,
- }
- #endif
+Changes in v2:
+-No changes
+Changes in v3:
+-Add touchscreen_set_mt_pos / touchscreen_report_pos helpers replacing
+ the touchscreen_apply_properties helper
+---
+ drivers/input/touchscreen/edt-ft5x06.c     |  2 +-
+ drivers/input/touchscreen/of_touchscreen.c | 91 +++++++++++++++++++++++++++++-
+ drivers/input/touchscreen/pixcir_i2c_ts.c  |  2 +-
+ drivers/input/touchscreen/tsc200x-core.c   |  2 +-
+ include/linux/input/touchscreen.h          | 20 ++++++-
+ 5 files changed, 112 insertions(+), 5 deletions(-)
 
-+static int serport_ldisc_hangup(struct tty_struct * tty)
-+{
-+	struct serport *serport = (struct serport *) tty->disc_data;
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 23fbe38..e8825e5 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -972,7 +972,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 	input_set_abs_params(input, ABS_MT_POSITION_Y,
+ 			     0, tsdata->num_y * 64 - 1, 0, 0);
+ 
+-	touchscreen_parse_properties(input, true);
++	touchscreen_parse_properties(input, true, NULL);
+ 
+ 	error = input_mt_init_slots(input, tsdata->max_support_points,
+ 				INPUT_MT_DIRECT);
+diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input/touchscreen/of_touchscreen.c
+index bb6f2fe..26357b4 100644
+--- a/drivers/input/touchscreen/of_touchscreen.c
++++ b/drivers/input/touchscreen/of_touchscreen.c
+@@ -55,12 +55,16 @@ static void touchscreen_set_params(struct input_dev *dev,
+  * @input: input device that should be parsed
+  * @multitouch: specifies whether parsed properties should be applied to
+  *	single-touch or multi-touch axes
++ * @prop: pointer to a struct touchscreen_properties into which to store
++ *	axis swap and invert info for use with touchscreen_report_x_y();
++ *	or NULL
+  *
+  * This function parses common DT properties for touchscreens and setups the
+  * input device accordingly. The function keeps previously set up default
+  * values if no value is specified via DT.
+  */
+-void touchscreen_parse_properties(struct input_dev *input, bool multitouch)
++void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
++				  struct touchscreen_properties *prop)
+ {
+ 	struct device *dev = input->dev.parent;
+ 	unsigned int axis;
+@@ -104,5 +108,90 @@ void touchscreen_parse_properties(struct input_dev *input, bool multitouch)
+ 						&fuzz);
+ 	if (data_present)
+ 		touchscreen_set_params(input, axis, maximum, fuzz);
 +
-+	serport_serio_close(serport->serio);
-+	return 0;
++	if (!prop)
++		return;
++
++	axis = multitouch ? ABS_MT_POSITION_X : ABS_X;
++
++	prop->max_x = input_abs_get_max(input, axis);
++	prop->max_y = input_abs_get_max(input, axis + 1);
++	prop->invert_x =
++		device_property_read_bool(dev, "touchscreen-inverted-x");
++	prop->invert_y =
++		device_property_read_bool(dev, "touchscreen-inverted-y");
++	prop->swap_x_y =
++		device_property_read_bool(dev, "touchscreen-swapped-x-y");
++
++	if (prop->swap_x_y) {
++		struct input_absinfo tmp_absinfo;
++
++		tmp_absinfo = input->absinfo[axis];
++		input->absinfo[axis] = input->absinfo[axis + 1];
++		input->absinfo[axis + 1] = tmp_absinfo;
++	}
+ }
+ EXPORT_SYMBOL(touchscreen_parse_properties);
++
++static void touchscreen_apply_prop_to_x_y(
++	const struct touchscreen_properties *prop,
++	unsigned int *x, unsigned int *y)
++{
++	if (prop->invert_x)
++		*x = prop->max_x - *x;
++
++	if (prop->invert_y)
++		*y = prop->max_y - *y;
++
++	if (prop->swap_x_y) {
++		unsigned int tmp;
++
++		tmp = *x;
++		*x = *y;
++		*y = tmp;
++	}
 +}
 +
- static void serport_ldisc_write_wakeup(struct tty_struct * tty)
- {
- 	struct serport *serport = (struct serport *) tty->disc_data;
-@@ -274,6 +282,7 @@ static struct tty_ldisc_ops serport_ldisc = {
- 	.compat_ioctl =	serport_ldisc_compat_ioctl,
++/**
++ * touchscreen_set_mt_pos - Set input_mt_pos coordinates
++ * @pos: input_mt_pos to set coordinates of
++ * @prop: pointer to a struct touchscreen_properties
++ * @x: X coordinate to store in pos
++ * @y: Y coordinate to store in pos
++ *
++ * Adjust the passed in x and y values applying any axis inversion and
++ * swapping requested in the passed in touchscreen_properties and store
++ * the result in a struct input_mt_pos.
++ */
++void touchscreen_set_mt_pos(struct input_mt_pos *pos,
++			    const struct touchscreen_properties *prop,
++			    unsigned int x, unsigned int y)
++{
++	touchscreen_apply_prop_to_x_y(prop, &x, &y);
++	pos->x = x;
++	pos->y = y;
++}
++EXPORT_SYMBOL(touchscreen_set_mt_pos);
++
++/**
++ * touchscreen_report_pos - Report touchscreen coordinates
++ * @input: input_device to report coordinates for
++ * @prop: pointer to a struct touchscreen_properties
++ * @x: X coordinate to report
++ * @y: Y coordinate to report
++ * @multitouch: Report coordinates on single-touch or multi-touch axes
++ *
++ * Adjust the passed in x and y values applying any axis inversion and
++ * swapping requested in the passed in touchscreen_properties and then
++ * report the resulting coordinates on the input_dev's x and y axis.
++ */
++void touchscreen_report_pos(struct input_dev *input,
++			    const struct touchscreen_properties *prop,
++			    unsigned int x, unsigned int y,
++			    bool multitouch)
++{
++	touchscreen_apply_prop_to_x_y(prop, &x, &y);
++	input_report_abs(input, multitouch ? ABS_MT_POSITION_X : ABS_X, x);
++	input_report_abs(input, multitouch ? ABS_MT_POSITION_Y : ABS_Y, y);
++}
++EXPORT_SYMBOL(touchscreen_report_pos);
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index 09523a3..f58784d 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -515,7 +515,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 	} else {
+ 		input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
+ 		input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
+-		touchscreen_parse_properties(input, true);
++		touchscreen_parse_properties(input, true, NULL);
+ 		if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
+ 		    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
+ 			dev_err(dev, "Touchscreen size is not specified\n");
+diff --git a/drivers/input/touchscreen/tsc200x-core.c b/drivers/input/touchscreen/tsc200x-core.c
+index 15240c1..26e81d1b 100644
+--- a/drivers/input/touchscreen/tsc200x-core.c
++++ b/drivers/input/touchscreen/tsc200x-core.c
+@@ -559,7 +559,7 @@ int tsc200x_probe(struct device *dev, int irq, __u16 bustype,
+ 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, max_p, fudge_p, 0);
+ 
+ 	if (np)
+-		touchscreen_parse_properties(input_dev, false);
++		touchscreen_parse_properties(input_dev, false, NULL);
+ 
+ 	input_dev->open = tsc200x_open;
+ 	input_dev->close = tsc200x_close;
+diff --git a/include/linux/input/touchscreen.h b/include/linux/input/touchscreen.h
+index c91e137..f07c39c 100644
+--- a/include/linux/input/touchscreen.h
++++ b/include/linux/input/touchscreen.h
+@@ -11,6 +11,24 @@
+ 
+ struct input_dev;
+ 
+-void touchscreen_parse_properties(struct input_dev *dev, bool multitouch);
++struct touchscreen_properties {
++	unsigned int max_x;
++	unsigned int max_y;
++	bool invert_x;
++	bool invert_y;
++	bool swap_x_y;
++};
++
++void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
++				  struct touchscreen_properties *prop);
++
++void touchscreen_set_mt_pos(struct input_mt_pos *pos,
++			    const struct touchscreen_properties *prop,
++			    unsigned int x, unsigned int y);
++
++void touchscreen_report_pos(struct input_dev *input,
++			    const struct touchscreen_properties *prop,
++			    unsigned int x, unsigned int y,
++			    bool multitouch);
+ 
  #endif
- 	.receive_buf =	serport_ldisc_receive,
-+	.hangup =	serport_ldisc_hangup,
- 	.write_wakeup =	serport_ldisc_write_wakeup
- };
+-- 
+2.7.4
 

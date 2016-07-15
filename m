@@ -1,91 +1,75 @@
-From: =?big5?B?Sm9obm55IENodWFuZyiy+KjOwE0p?= <johnny.chuang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
-Subject: RE: [PATCH v1] Add support for the ektf2127 touchscreencontroller
-Date: Fri, 15 Jul 2016 11:27:12 +0800
-Message-ID: <009e01d1de48$c696fad0$53c4f070$@emc.com.tw>
-References: <1467624545-3455-1-git-send-email-siebren.vroegindeweij@gmail.com> <1467624545-3455-2-git-send-email-siebren.vroegindeweij@gmail.com> <20160713215018.GA1799@dtor-ws> <009e01d1ddb8$4b51ad60$e1f50820$@emc.com.tw>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH v2 02/30] HID: wacom: store the type in wacom->shared for
+ INTUOSHT and INTUOSHT2
+Date: Thu, 14 Jul 2016 21:14:09 -0700
+Message-ID: <CAF8JNhKGgr_p=gbHLtLycPM2zf5zF01C-xMra8j3eBoyOCHH9w@mail.gmail.com>
+References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com> <1468425977-4819-3-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <009e01d1ddb8$4b51ad60$e1f50820$@emc.com.tw>
-Content-Language: zh-tw
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?big5?B?J7n5sVK6YSc=?= <kt.liao-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, 'Dmitry Torokhov' <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'Siebren Vroegindeweij' <siebren.vroegindeweij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'James Chen' <james.chen-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'devicetree' <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, 'Hans de Goede' <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, 'Michel Verlaan' <michel.verl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'Siebren Vroegindeweij' <siebren.vroegindeweij-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1468425977-4819-3-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Wed, Jul 13, 2016 at 9:05 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> The type is never set but we check for it in wacom_wireless_irq().
 
-We suggest a separate driver for eKTF2127.
+Type was assigned in wacom_wireless_work [1] before we moved code
+around. It somehow failed to get into wacom_parse_and_register. The
+value was only assigned once on stylus interface. It was unnecessary
+to assign it again on touch interface since it is a shared value.
+Maybe that was the reason it missed its "flight"?
 
-Many thanks,
-Johnny
------Original Message-----
-=46rom: =B9=F9=B1R=BAa [mailto:kt.liao-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org]=20
-Sent: Thursday, July 14, 2016 6:13 PM
-To: 'Dmitry Torokhov'; 'Siebren Vroegindeweij'; 'Johnny Chuang(=B2=F8=A8=
-=CE=C0M)';
-'James Chen'
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; 'devicetree'; 'Hans de Goede'; 'Michel
-Verlaan'; 'Siebren Vroegindeweij'
-Subject: RE: [PATCH v1] Add support for the ektf2127 touchscreencontrol=
-ler
+[1] https://git.kernel.org/cgit/linux/kernel/git/dtor/input.git/commit/drivers/hid/wacom_sys.c?id=2546dacd3e0e48c40bbb99caf01455f1ade9bb24
 
------Original Message-----
-=46rom: Dmitry Torokhov [mailto:dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org]
-Sent: Thursday, July 14, 2016 5:50 AM
-To: Siebren Vroegindeweij; KT Liao
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; devicetree; Hans de Goede; Michel Verl=
-aan;
-Siebren Vroegindeweij; KT Liao
-Subject: Re: [PATCH v1] Add support for the ektf2127 touchscreencontrol=
-ler
+> It looks like this is a big hack from the beginning, so fill in the gap
+> only.
 
-On Mon, Jul 04, 2016 at 11:29:05AM +0200, Siebren Vroegindeweij wrote:
-> From: Siebren Vroegindeweij <siebren.vroegindeweij-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
->=20
-> The ELAN eKTF2127 driver is written for the ELAN series of=20
-> touchscreencontrollers. This version is especially written for the
-> eKTF2127 controller. The driver communicates to the controller over i=
-2c.
-> The additional screen specifications can be read from the devicetree =
-file.
-> The driver has also the ability to read the screen height and width=20
-> from the controller. When the screen is pressed, a interrupt is gener=
-ated.
-> The interrupt wil be handled by a function that request a data string=
-=20
-> from the controller. This string is then modified so that the right=20
-> number of touches and their x and y coordinates are available and=20
-> given to userspace through the input subsystem.
+Yeah, wireless is a dynamic connection. We can not tell which tablet
+model is going to be connected before it is paired. But, the dongle is
+always the same. That's the tricky part.
 
-Adding KT. Can eKTF2127 be driven with [modified] elants_i2c driver or =
-we
-are better off with separate driver.
+> Untested.
 
-Hi Johnny,
-Please check Dmitry's touchscreen issue.
-=2E..
+Aaron tested it. So, your code is safe ;).
 
-> + *
-> + * This program is free software; you can redistribute it and/or=20
-> + modify
-> + * it under the terms of the GNU General Public License as published=
-=20
-> + by
-> + * the Free Software Foundation; either version 3 of the License, or
-> + * (at your option) any later version.
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Gpl V2 or later for kernel please, we won't take v3.
+The whole set is
 
-Thanks.
+Acked-by: Ping Cheng <pingc@wacom.com>
 
---
-Dmitry
+Thanks for your effort!
 
+Ping
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> ---
+>
+> No changes in v2
+> ---
+>  drivers/hid/wacom_sys.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 499cc82..9e283aa 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -1720,9 +1720,10 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+>                 error = hid_hw_open(hdev);
+>
+>         if ((wacom_wac->features.type == INTUOSHT ||
+> -           wacom_wac->features.type == INTUOSHT2) &&
+> +            wacom_wac->features.type == INTUOSHT2) &&
+>             (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH)) {
+> -                       wacom_wac->shared->touch_input = wacom_wac->touch_input;
+> +               wacom_wac->shared->type = wacom_wac->features.type;
+> +               wacom_wac->shared->touch_input = wacom_wac->touch_input;
+>         }
+>
+>         return 0;
+> --
+> 2.5.5
+>

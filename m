@@ -1,81 +1,58 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC PATCH] serio: add hangup support
-Date: Fri, 15 Jul 2016 09:31:19 -0700
-Message-ID: <20160715163119.GA27847@dtor-ws>
-References: <287a7f88-5d45-bb45-c98e-22a2313ab780@xs4all.nl>
+Subject: Re: [PATCH 1/1] input: touchscreen: ts4800-ts: add missing
+ of_node_put after calling of_parse_phandle
+Date: Fri, 15 Jul 2016 09:32:46 -0700
+Message-ID: <20160715163246.GB27847@dtor-ws>
+References: <1468575125-24920-1-git-send-email-peter.chen@nxp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:34711 "EHLO
-	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750996AbcGOQbY (ORCPT
+Received: from mail-pa0-f66.google.com ([209.85.220.66]:34484 "EHLO
+	mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751103AbcGOQct (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Jul 2016 12:31:24 -0400
+	Fri, 15 Jul 2016 12:32:49 -0400
+Received: by mail-pa0-f66.google.com with SMTP id hh10so6365302pac.1
+        for <linux-input@vger.kernel.org>; Fri, 15 Jul 2016 09:32:49 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <287a7f88-5d45-bb45-c98e-22a2313ab780@xs4all.nl>
+In-Reply-To: <1468575125-24920-1-git-send-email-peter.chen@nxp.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: linux-input <linux-input@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>, Vojtech Pavlik <vojtech@suse.com>
+To: Peter Chen <peter.chen@nxp.com>
+Cc: linux-input@vger.kernel.org, Rob Herring <robh@kernel.org>, Damien Riegel <damien.riegel@savoirfairelinux.com>
 
-Hi Hans,
-
-On Fri, Jul 15, 2016 at 01:27:21PM +0200, Hans Verkuil wrote:
-> For the upcoming 4.8 kernel I made a driver for the Pulse-Eight USB CEC adapter.
-> This is a usb device that shows up as a ttyACM0 device. It requires that you run
-> inputattach in order to communicate with it via serio.
+On Fri, Jul 15, 2016 at 05:32:05PM +0800, Peter Chen wrote:
+> of_node_put needs to be called when the device node which is got
+> from of_parse_phandle has finished using.
 > 
-> This all works well, but it would be nice to have a udev rule to automatically
-> start inputattach. That too works OK, but the problem comes when the USB device
-> is unplugged: the tty hangup is never handled by the serio framework so the
-> inputattach utility never exits and you have to kill it manually.
-> 
-> By adding this hangup callback the inputattach utility now exists as soon as I
-> unplug the USB device.
-> 
-> Is this the correct approach?
-> 
-> BTW, the new driver is found here:
-> 
-> https://git.linuxtv.org/media_tree.git/tree/drivers/staging/media/pulse8-cec
-> 
-> Regards,
-> 
-> 	Hans
-> 
-> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-> 
+> Cc: linux-input@vger.kernel.org
+> Cc: Rob Herring <robh@kernel.org>
+> Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Peter Chen <peter.chen@nxp.com>
 > ---
-> diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
-> index 9c927d3..a615846 100644
-> --- a/drivers/input/serio/serport.c
-> +++ b/drivers/input/serio/serport.c
-> @@ -248,6 +248,14 @@ static long serport_ldisc_compat_ioctl(struct tty_struct *tty,
->  }
->  #endif
+>  drivers/input/touchscreen/ts4800-ts.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> +static int serport_ldisc_hangup(struct tty_struct * tty)
-> +{
-> +	struct serport *serport = (struct serport *) tty->disc_data;
-> +
-> +	serport_serio_close(serport->serio);
+> diff --git a/drivers/input/touchscreen/ts4800-ts.c b/drivers/input/touchscreen/ts4800-ts.c
+> index 3c3dd78..8f27ad8 100644
+> --- a/drivers/input/touchscreen/ts4800-ts.c
+> +++ b/drivers/input/touchscreen/ts4800-ts.c
+> @@ -135,6 +135,7 @@ static int ts4800_parse_dt(struct platform_device *pdev,
+>  	ts->bit = BIT(bit);
+>  
+>  	ts->regmap = syscon_node_to_regmap(syscon_np);
+> +	of_node_put(syscon_np);
 
-I see what you mean, but this is not quite correct. I think we should
-make serport_serio_close() only reset the SERPORT_ACTIVE flag and have
-serport_ldisc_hangup() actually do:
+This does not help with the other 2 "returns" above which also leak the
+reference count. I'll switch the code around and apply.
 
-	spin_lock_irqsave(&serport->lock, flags);
-	set_bit(SERPORT_DEAD, &serport->flags);
-	spin_unlock_irqrestore(&serport->lock, flags);
-
-	wake_up_interruptible(&serport->wait);
-
-i.e. if user (via device-driver - input core - evdev - userspace chain)
-stops using serio port we should not kill inputattach instance right
-then and there, but wait for the serial port device disconnect or
-something else killing inputattach.
-
-Vojtech, do you recall any of this code?
+>  	if (IS_ERR(ts->regmap)) {
+>  		dev_err(dev, "cannot get parent's regmap\n");
+>  		return PTR_ERR(ts->regmap);
+> -- 
+> 1.9.1
+> 
 
 Thanks.
 

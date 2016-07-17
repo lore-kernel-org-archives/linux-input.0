@@ -1,83 +1,69 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v2] Support for Alps SS5 touchpad
-Date: Sun, 17 Jul 2016 23:42:16 +0200
-Message-ID: <201607172342.16684@pali>
-References: <1464436862-2649-1-git-send-email-ben@smart-cactus.org> <20160629094638.GD29844@pali> <871t2s3rfk.fsf@smart-cactus.org>
+From: Michael Welling <mwelling@ieee.org>
+Subject: Re: v4.1 to v4.7: regression in tsc2005 driver
+Date: Sun, 17 Jul 2016 17:56:36 -0500
+Message-ID: <20160717225636.GB20462@deathstar>
+References: <20160717175257.GA26719@amd>
+ <20160717182445.GA20058@deathstar>
+ <20160717184209.GA30119@amd>
+ <20160717185134.GA20462@deathstar>
+ <20160717200339.GA29562@amd>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5789189.GnvvY00pWs";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:35803 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751198AbcGQVmU (ORCPT
+Received: from mail-oi0-f47.google.com ([209.85.218.47]:34790 "EHLO
+	mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751198AbcGQW4m (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Jul 2016 17:42:20 -0400
-Received: by mail-wm0-f68.google.com with SMTP id i5so10028566wmg.2
-        for <linux-input@vger.kernel.org>; Sun, 17 Jul 2016 14:42:20 -0700 (PDT)
-In-Reply-To: <871t2s3rfk.fsf@smart-cactus.org>
+	Sun, 17 Jul 2016 18:56:42 -0400
+Content-Disposition: inline
+In-Reply-To: <20160717200339.GA29562@amd>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Gamari <ben@smart-cactus.org>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>, Anthony Wong <anthony.wong@canonical.com>, Christoph Hellwig <hch@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, pali.rohar@gmail.com, sre@kernel.org, aaro.koskinen@iki.fi, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com
 
---nextPart5789189.GnvvY00pWs
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On Sun, Jul 17, 2016 at 10:03:39PM +0200, Pavel Machek wrote:
+> On Sun 2016-07-17 13:51:34, Michael Welling wrote:
+> > On Sun, Jul 17, 2016 at 08:42:09PM +0200, Pavel Machek wrote:
+> > > On Sun 2016-07-17 13:24:45, Michael Welling wrote:
+> > > > On Sun, Jul 17, 2016 at 07:52:57PM +0200, Pavel Machek wrote:
+> > > > > Hi!
+> > > > > 
+> > > > > tsc2005 driver changed input device name, from
+> > > > > 
+> > > > > drivers/input/touchscreen/tsc2005.c:	  input_dev->name = "TSC2005
+> > > > > touchscreen";
+> > > > > 
+> > > > > to "TSC200X touchscreen". Unfortunately, X seems to propagate that
+> > > > > name to userspace, where it is needed to be able to do
+> > > > > 
+> > > > > xinput --set-prop --type=int ...
+> > > > > 
+> > > > > with the right arguments to calibrate touchscreen. (Touchscreen is
+> > > > > unusable without calibration).
+> > > > > 
+> > > > > What to do with that?
+> > > > 
+> > > > The input_dev name could be passed to the common probe function.
+> > > > 
+> > > > http://lxr.free-electrons.com/source/drivers/input/touchscreen/tsc2005.c#L65
+> > > 
+> > > That would be preffered, I guess.
+> > > 
+> > > How many stable releases are affected?
+> > 
+> > Well this patch is 9 months old now. Lets see.
+> > 
+> > It was introduced in v4.4-rc1. So v4.4, v4.5 and v4.6.
+> 
+> Ok, thanks for the information. I believe changing it back to
+> "TSC2005" version makes sense (and then fixing it in stable).
 
-On Sunday 17 July 2016 23:06:39 Ben Gamari wrote:
-> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
-> > On Tuesday 21 June 2016 11:20:14 Ben Gamari wrote:
-> >> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
-> >> > [ Unknown signature status ]
-> >> >=20
-> >> > On Monday 30 May 2016 11:49:25 Ben Gamari wrote:
-> >> >> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
-> >> >> > Now when you are extending alps.c code for new touchpad, can
-> >> >> > you also update documentation file
-> >> >> > Documentation/input/alps.txt to reflect V8 protcol? That
-> >> >> > would be great to have up-to-date documentation for
-> >> >> > debugging and future purpose...
-> >> >>=20
-> >> >> Indeed, it's been on my to-do list.
-> >> >>=20
-> >> >> Cheers,
-> >> >>=20
-> >> >> - Ben
-> >> >=20
-> >> > Hi Ben! Are you planning to send V3?
-> >>=20
-> >> Done! Thanks for the reminder; I had been sitting on this for a
-> >> few too many days.
-> >=20
-> > Have you sent it? Because I do not see it my mailbox...
->=20
-> Very odd; I sent it [1] and indeed you were explicitly added to the
-> recipient list. You can find the patches on Patchwork here [2]. I
-> haven't receieved any reviews yet so perhaps the messages weren't
-> delivered for some reason. If so I could certainly send them again.
+Lets see if the maintainer has any input before I submit a patch.
 
-Looks like I did not get patches to my mailbox... Maybe you probably=20
-forgot to CC emails to my address, as I'm not in To or Cc fields:
-http://download.gmane.org/gmane.linux.kernel.input/50117/50118
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart5789189.GnvvY00pWs
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAleL+7gACgkQi/DJPQPkQ1KzDQCgtm/KHsUsOb6ZKGFCVxxeO1sM
-uzoAn02n0sqfiNPPuqvbi7Xncg44btTP
-=JtXX
------END PGP SIGNATURE-----
-
---nextPart5789189.GnvvY00pWs--
+> 
+> Best regards,
+> 									Pavel
+> -- 
+> (english) http://www.livejournal.com/~pavelmachek
+> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

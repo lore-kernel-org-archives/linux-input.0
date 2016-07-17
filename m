@@ -1,59 +1,81 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v7] input: touchscreen: Add generic driver for Silead
- touchscreens
-Date: Sun, 17 Jul 2016 15:54:34 -0500
-Message-ID: <20160717205434.GA25217@rob-hp-laptop>
-References: <1468699818-31660-1-git-send-email-hdegoede@redhat.com>
+From: Ben Gamari <ben@smart-cactus.org>
+Subject: Re: [PATCH v2] Support for Alps SS5 touchpad
+Date: Sun, 17 Jul 2016 23:06:39 +0200
+Message-ID: <871t2s3rfk.fsf@smart-cactus.org>
+References: <1464436862-2649-1-git-send-email-ben@smart-cactus.org> <20160530091303.GQ29844@pali> <87shwznae2.fsf@smart-cactus.org> <201606201948.04482@pali> <87mvme525t.fsf@smart-cactus.org> <20160629094638.GD29844@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha256; protocol="application/pgp-signature"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f66.google.com ([209.85.218.66]:35546 "EHLO
-	mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751188AbcGQUyg (ORCPT
+Received: from mail.smart-cactus.org ([54.187.36.80]:56824 "EHLO
+	mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751188AbcGQVGs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Jul 2016 16:54:36 -0400
-Content-Disposition: inline
-In-Reply-To: <1468699818-31660-1-git-send-email-hdegoede@redhat.com>
+	Sun, 17 Jul 2016 17:06:48 -0400
+In-Reply-To: <20160629094638.GD29844@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, Daniel Jansen <djaniboe@gmail.com>, Wessel Blokzijl <wesselb94@gmail.com>, Siebren Vroegindeweij <siebren.vroegindeweij@gmail.com>, Robert Dolca <robert.dolca@intel.com>
+To: Pali =?utf-8?Q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>, Anthony Wong <anthony.wong@canonical.com>, Christoph Hellwig <hch@infradead.org>
 
-On Sat, Jul 16, 2016 at 10:10:18PM +0200, Hans de Goede wrote:
-> From: Robert Dolca <robert.dolca@intel.com>
-> 
-> This driver adds support for Silead touchscreens. It has been tested
-> with GSL1680 and GSL3680 touch panels.
-> 
-> It supports ACPI and device tree enumeration. Screen resolution,
-> the maximum number of fingers supported and firmware name are
-> configurable.
-> 
-> Signed-off-by: Robert Dolca <robert.dolca@intel.com>
-> Signed-off-by: Daniel Jansen <djaniboe@gmail.com>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> Changes in v7:
-> -Various style fixes
-> -use only fw_name instead of both fw_name and custom_fw_name
-> -use gpiod_get_optional for power gpio
-> -cleanup touch data parsing
-> -use new touchscreen_parse_properties() / touchscreen_set_mt_pos()
->  instead of diy axis invertion / swapping code
-> -Move touchscreen-max-fingers documentation to bindings/touchscreen.txt
-> Changes in v6:
-> -Default to 5 fingers if max-fingers is not specified
-> -Improve devicetree binding doc: improve wake-gpios description, use
->  "See touchscreen.txt" where applicable
-> ---
->  .../bindings/input/touchscreen/silead_gsl1680.txt  |  36 ++
->  .../bindings/input/touchscreen/touchscreen.txt     |   2 +
+--=-=-=
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Rob Herring <robh@kernel.org>
+Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
 
->  drivers/input/touchscreen/Kconfig                  |  13 +
->  drivers/input/touchscreen/Makefile                 |   1 +
->  drivers/input/touchscreen/silead.c                 | 572 +++++++++++++++++++++
->  5 files changed, 624 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
->  create mode 100644 drivers/input/touchscreen/silead.c
+> On Tuesday 21 June 2016 11:20:14 Ben Gamari wrote:
+>> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
+>>=20
+>> > [ Unknown signature status ]
+>> > On Monday 30 May 2016 11:49:25 Ben Gamari wrote:
+>> >> Pali Roh=C3=A1r <pali.rohar@gmail.com> writes:
+>> >> > Now when you are extending alps.c code for new touchpad, can you
+>> >> > also update documentation file Documentation/input/alps.txt to
+>> >> > reflect V8 protcol? That would be great to have up-to-date
+>> >> > documentation for debugging and future purpose...
+>> >>=20
+>> >> Indeed, it's been on my to-do list.
+>> >>=20
+>> >> Cheers,
+>> >>=20
+>> >> - Ben
+>> >
+>> > Hi Ben! Are you planning to send V3?
+>> >
+>> Done! Thanks for the reminder; I had been sitting on this for a few too
+>> many days.
+>
+> Have you sent it? Because I do not see it my mailbox...
+>
+Very odd; I sent it [1] and indeed you were explicitly added to the
+recipient list. You can find the patches on Patchwork here [2]. I
+haven't receieved any reviews yet so perhaps the messages weren't
+delivered for some reason. If so I could certainly send them again.
+
+Sorry for the latency!
+
+Cheers,
+
+=2D Ben
+
+
+[1] http://article.gmane.org/gmane.linux.kernel.input/50117/match=3Dv3+alps=
++ss5
+[2] https://patchwork.kernel.org/patch/9190015/
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXi/NfAAoJEHPt6ejPuu8BkS8H/R5aAC1pY6rl8HUnROIfaufn
+BW7cN5h4CMULdlvFScfCaQmKGxrGsLdIcQo2O6xZBY1fP1FCFpzPliAq96gOc7ZQ
+HkePdep2E9lgMqR/8FKVdTgIKQZlkB8gzOLBQzHHR3t2jO1vj9sMIwu62YR78+IW
+SeD7Ax0o4y0tZHbd+Z0QRoaOys4G7BrXSoUQx+fiD6iW9o0mip/T4u0uMisVefwQ
+vxnuY23geQ7qx6gs+RDQyIys7eX8IoFRXInHzi/f8Ufppk0KOfIfqJmxmLWm2jS3
+d2CMzFjLSkMI+3JF7ZtZIk7QxgA+3H/syml1Lq+OFK4ptBke6qFMFysoK2ulrBA=
+=zQBP
+-----END PGP SIGNATURE-----
+--=-=-=--

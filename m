@@ -1,32 +1,76 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 3/8] Input: synaptics-rmi4: Add dribble and palm
- gesture parameters to device tree
-Date: Sat, 16 Jul 2016 17:49:04 -0500
-Message-ID: <20160716224904.GA24920@rob-hp-laptop>
-References: <1468476522-8032-1-git-send-email-aduggan@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1468476522-8032-1-git-send-email-aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Vincent Huang <vincent.huang-8LB1SX4YFO85ffrT631h+Q@public.gmane.org>, Nick Dyer <nick-gcszYUEDH4VrovVCs/uTlw@public.gmane.org>, Chris Healy <cphealy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+From: Mikko Perttunen <mikko.perttunen@kapsi.fi>
+Subject: [PATCH] HID: sony: disable descriptor fixup for FutureMax Dance Mat
+Date: Sun, 17 Jul 2016 20:25:33 +0300
+Message-ID: <20160717172533.8777-1-mikko.perttunen@kapsi.fi>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kapsi.fi ([217.30.184.167]:46136 "EHLO mail.kapsi.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751104AbcGQR1H (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 17 Jul 2016 13:27:07 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mikko Perttunen <mperttunen@nvidia.com>
 
-On Wed, Jul 13, 2016 at 11:08:42PM -0700, Andrew Duggan wrote:
-> Signed-off-by: Andrew Duggan <aduggan-Gq53QDLGkWKakBO8gow8eQ@public.gmane.org>
-> ---
-> This version includes Nick's suggestion of adding force to the device tree
-> parameters so make it obvious that these parameters overwrite the
-> default values set in the firware config.
-> 
->  .../devicetree/bindings/input/rmi4/rmi_2d_sensor.txt        | 10 ++++++++++
->  drivers/input/rmi4/rmi_2d_sensor.c                          | 13 +++++++++++++
->  2 files changed, 23 insertions(+)
+From: Mikko Perttunen <mperttunen@nvidia.com>
 
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The FutureMax Dance Mat claims to be a SixAxis controller
+but breaks if descriptor fixups are applied. Detect the
+device using its USB product string and disable fixups
+when it is detected.
+
+Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
+---
+ drivers/hid/hid-sony.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 310436a..4c976f7 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -36,6 +36,9 @@
+ #include <linux/list.h>
+ #include <linux/idr.h>
+ #include <linux/input/mt.h>
++#include <linux/usb.h>
++
++#include "usbhid/usbhid.h"
+ 
+ #include "hid-ids.h"
+ 
+@@ -51,6 +54,7 @@
+ #define NAVIGATION_CONTROLLER_USB BIT(9)
+ #define NAVIGATION_CONTROLLER_BT  BIT(10)
+ #define SINO_LITE_CONTROLLER      BIT(11)
++#define FUTUREMAX_DANCE_MAT       BIT(12)
+ 
+ #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
+ #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
+@@ -1125,7 +1129,7 @@ static u8 *sony_report_fixup(struct hid_device *hdev, u8 *rdesc,
+ {
+ 	struct sony_sc *sc = hid_get_drvdata(hdev);
+ 
+-	if (sc->quirks & SINO_LITE_CONTROLLER)
++	if (sc->quirks & (SINO_LITE_CONTROLLER | FUTUREMAX_DANCE_MAT))
+ 		return rdesc;
+ 
+ 	/*
+@@ -2288,6 +2292,15 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	unsigned long quirks = id->driver_data;
+ 	struct sony_sc *sc;
+ 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
++	struct usb_device *usb_dev;
++
++	if (quirks & SIXAXIS_CONTROLLER_USB) {
++		usb_dev = hid_to_usb_dev(hdev);
++		if (usb_dev && usb_dev->product &&
++		    !strcmp(usb_dev->product, "FutureMax Dance Mat")) {
++			quirks |= FUTUREMAX_DANCE_MAT;
++		}
++	}
+ 
+ 	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
+ 	if (sc == NULL) {
+-- 
+2.8.2
+

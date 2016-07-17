@@ -1,64 +1,59 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: v4.1 to v4.7: regression in tsc2005 driver
-Date: Sun, 17 Jul 2016 22:03:39 +0200
-Message-ID: <20160717200339.GA29562@amd>
-References: <20160717175257.GA26719@amd>
- <20160717182445.GA20058@deathstar>
- <20160717184209.GA30119@amd>
- <20160717185134.GA20462@deathstar>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v7] input: touchscreen: Add generic driver for Silead
+ touchscreens
+Date: Sun, 17 Jul 2016 15:54:34 -0500
+Message-ID: <20160717205434.GA25217@rob-hp-laptop>
+References: <1468699818-31660-1-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:40711 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751174AbcGQUDm (ORCPT
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:35546 "EHLO
+	mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751188AbcGQUyg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Jul 2016 16:03:42 -0400
+	Sun, 17 Jul 2016 16:54:36 -0400
 Content-Disposition: inline
-In-Reply-To: <20160717185134.GA20462@deathstar>
+In-Reply-To: <1468699818-31660-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Welling <mwelling@ieee.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, pali.rohar@gmail.com, sre@kernel.org, aaro.koskinen@iki.fi, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, Daniel Jansen <djaniboe@gmail.com>, Wessel Blokzijl <wesselb94@gmail.com>, Siebren Vroegindeweij <siebren.vroegindeweij@gmail.com>, Robert Dolca <robert.dolca@intel.com>
 
-On Sun 2016-07-17 13:51:34, Michael Welling wrote:
-> On Sun, Jul 17, 2016 at 08:42:09PM +0200, Pavel Machek wrote:
-> > On Sun 2016-07-17 13:24:45, Michael Welling wrote:
-> > > On Sun, Jul 17, 2016 at 07:52:57PM +0200, Pavel Machek wrote:
-> > > > Hi!
-> > > > 
-> > > > tsc2005 driver changed input device name, from
-> > > > 
-> > > > drivers/input/touchscreen/tsc2005.c:	  input_dev->name = "TSC2005
-> > > > touchscreen";
-> > > > 
-> > > > to "TSC200X touchscreen". Unfortunately, X seems to propagate that
-> > > > name to userspace, where it is needed to be able to do
-> > > > 
-> > > > xinput --set-prop --type=int ...
-> > > > 
-> > > > with the right arguments to calibrate touchscreen. (Touchscreen is
-> > > > unusable without calibration).
-> > > > 
-> > > > What to do with that?
-> > > 
-> > > The input_dev name could be passed to the common probe function.
-> > > 
-> > > http://lxr.free-electrons.com/source/drivers/input/touchscreen/tsc2005.c#L65
-> > 
-> > That would be preffered, I guess.
-> > 
-> > How many stable releases are affected?
+On Sat, Jul 16, 2016 at 10:10:18PM +0200, Hans de Goede wrote:
+> From: Robert Dolca <robert.dolca@intel.com>
 > 
-> Well this patch is 9 months old now. Lets see.
+> This driver adds support for Silead touchscreens. It has been tested
+> with GSL1680 and GSL3680 touch panels.
 > 
-> It was introduced in v4.4-rc1. So v4.4, v4.5 and v4.6.
+> It supports ACPI and device tree enumeration. Screen resolution,
+> the maximum number of fingers supported and firmware name are
+> configurable.
+> 
+> Signed-off-by: Robert Dolca <robert.dolca@intel.com>
+> Signed-off-by: Daniel Jansen <djaniboe@gmail.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+> Changes in v7:
+> -Various style fixes
+> -use only fw_name instead of both fw_name and custom_fw_name
+> -use gpiod_get_optional for power gpio
+> -cleanup touch data parsing
+> -use new touchscreen_parse_properties() / touchscreen_set_mt_pos()
+>  instead of diy axis invertion / swapping code
+> -Move touchscreen-max-fingers documentation to bindings/touchscreen.txt
+> Changes in v6:
+> -Default to 5 fingers if max-fingers is not specified
+> -Improve devicetree binding doc: improve wake-gpios description, use
+>  "See touchscreen.txt" where applicable
+> ---
+>  .../bindings/input/touchscreen/silead_gsl1680.txt  |  36 ++
+>  .../bindings/input/touchscreen/touchscreen.txt     |   2 +
 
-Ok, thanks for the information. I believe changing it back to
-"TSC2005" version makes sense (and then fixing it in stable).
+Acked-by: Rob Herring <robh@kernel.org>
 
-Best regards,
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+>  drivers/input/touchscreen/Kconfig                  |  13 +
+>  drivers/input/touchscreen/Makefile                 |   1 +
+>  drivers/input/touchscreen/silead.c                 | 572 +++++++++++++++++++++
+>  5 files changed, 624 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+>  create mode 100644 drivers/input/touchscreen/silead.c

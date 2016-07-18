@@ -1,63 +1,128 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v8 2/4] i2c-smbus: add SMBus Host Notify support
-Date: Mon, 18 Jul 2016 22:47:43 +0200
-Message-ID: <20160718224743.01b4a330@endymion>
-References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1465484030-28838-3-git-send-email-benjamin.tissoires@redhat.com>
-	<20160718163109.4d2190e9@endymion>
-	<20160718163519.GT4663@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20160718163519.GT4663@mail.corp.redhat.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Nick Dyer <nick@shmanahar.org>
+Subject: [PATCH v8 05/10] Input: atmel_mxt_ts - read touchscreen size
+Date: Mon, 18 Jul 2016 22:10:33 +0100
+Message-ID: <1468876238-24599-6-git-send-email-nick@shmanahar.org>
+References: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
+Sender: linux-media-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, Nick Dyer <nick@shmanahar.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 18 Jul 2016 18:35:19 +0200, Benjamin Tissoires wrote:
-> On Jul 18 2016 or thereabouts, Jean Delvare wrote:
-> > But what happens on i2c_adapter removal? What prevents the following
-> > sequence from happening?
-> > 
-> > 1* A Host Notify event happens.
-> > 2* The event is handled and queued by i2c_handle_smbus_host_notify().
-> > 3* Someone tears down the underlying i2c_adapter (for example "rmmod
-> >    i2c-i801".)
-> > 4* The workqueue is processed, accessing memory which has already been
-> >    freed.
-> > 
-> > Of course it would be back luck, but that's pretty much the definition
-> > of a race condition ;-)
-> 
-> Yes, you are right :(
-> Sorry for not doing things properly :/
+The touchscreen may have a margin where not all the matrix is used. Read
+the parameters from T9 and T100 and take account of the difference.
 
-No worry. Bugs happen everywhere, we find them and fix them. That's
-part of the process. If we only submit patches which we are 100%
-certain are perfect, we never submit anything. I know something about
-that...
+Note: this does not read the XORIGIN/YORIGIN fields so it assumes that
+the touchscreen starts at (0,0)
 
-> > To be on the safe side, don't we need a teardown function in i2c-smbus,
-> > that could be called before i2c_del_adapter, which would remove the
-> > host notify handle and flush the workqueue?
-> 
-> I was thinking at adding a devm action on the release of the struct
-> smbus_host_notify, but it's actually a bad idea because some other
-> resources (children moslty) might already be released when the devres
-> action will be called.
-> 
-> I think it might be easier to add a i2c_remove_host_notify() (or such)
-> which would make sure we call the cancel_work_sync() function. It would
-> be the responsibility of the caller to call it once
-> i2c_setup_smbus_host_notify() has been called. I'd say it has the
-> advantage of not adding any hidden data in the adapter to the cost of a
-> small pain in the adapter driver.
+Signed-off-by: Nick Dyer <nick@shmanahar.org>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c |   42 +++++++++++++++++++++++++-----
+ 1 file changed, 36 insertions(+), 6 deletions(-)
 
-That's what I had in mind as well, but I'm open to any option which
-solves the problem really.
-
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index a9f987b..29be261 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -103,6 +103,8 @@ struct t7_config {
+ 
+ /* MXT_TOUCH_MULTI_T9 field */
+ #define MXT_T9_CTRL		0
++#define MXT_T9_XSIZE		3
++#define MXT_T9_YSIZE		4
+ #define MXT_T9_ORIENT		9
+ #define MXT_T9_RANGE		18
+ 
+@@ -150,7 +152,9 @@ struct t37_debug {
+ #define MXT_T100_CTRL		0
+ #define MXT_T100_CFG1		1
+ #define MXT_T100_TCHAUX		3
++#define MXT_T100_XSIZE		9
+ #define MXT_T100_XRANGE		13
++#define MXT_T100_YSIZE		20
+ #define MXT_T100_YRANGE		24
+ 
+ #define MXT_T100_CFG_SWITCHXY	BIT(5)
+@@ -259,6 +263,8 @@ struct mxt_data {
+ 	unsigned int max_x;
+ 	unsigned int max_y;
+ 	bool xy_switch;
++	u8 xsize;
++	u8 ysize;
+ 	bool in_bootloader;
+ 	u16 mem_size;
+ 	u8 t100_aux_ampl;
+@@ -1714,6 +1720,18 @@ static int mxt_read_t9_resolution(struct mxt_data *data)
+ 		return -EINVAL;
+ 
+ 	error = __mxt_read_reg(client,
++			       object->start_address + MXT_T9_XSIZE,
++			       sizeof(data->xsize), &data->xsize);
++	if (error)
++		return error;
++
++	error = __mxt_read_reg(client,
++			       object->start_address + MXT_T9_YSIZE,
++			       sizeof(data->ysize), &data->ysize);
++	if (error)
++		return error;
++
++	error = __mxt_read_reg(client,
+ 			       object->start_address + MXT_T9_RANGE,
+ 			       sizeof(range), &range);
+ 	if (error)
+@@ -1763,6 +1781,18 @@ static int mxt_read_t100_config(struct mxt_data *data)
+ 
+ 	data->max_y = get_unaligned_le16(&range_y);
+ 
++	error = __mxt_read_reg(client,
++			       object->start_address + MXT_T100_XSIZE,
++			       sizeof(data->xsize), &data->xsize);
++	if (error)
++		return error;
++
++	error = __mxt_read_reg(client,
++			       object->start_address + MXT_T100_YSIZE,
++			       sizeof(data->ysize), &data->ysize);
++	if (error)
++		return error;
++
+ 	/* read orientation config */
+ 	error =  __mxt_read_reg(client,
+ 				object->start_address + MXT_T100_CFG1,
+@@ -2121,7 +2151,7 @@ static int mxt_convert_debug_pages(struct mxt_data *data, u16 *outbuf)
+ 		outbuf[i] = mxt_get_debug_value(data, x, y);
+ 
+ 		/* Next value */
+-		if (++x >= data->info.matrix_xsize) {
++		if (++x >= data->xsize) {
+ 			x = 0;
+ 			y++;
+ 		}
+@@ -2276,8 +2306,8 @@ static int mxt_set_input(struct mxt_data *data, unsigned int i)
+ 	if (i > 0)
+ 		return -EINVAL;
+ 
+-	f->width = data->info.matrix_xsize;
+-	f->height = data->info.matrix_ysize;
++	f->width = data->xsize;
++	f->height = data->ysize;
+ 	f->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
+ 	f->field = V4L2_FIELD_NONE;
+ 	f->colorspace = V4L2_COLORSPACE_RAW;
+@@ -2392,9 +2422,9 @@ static void mxt_debug_init(struct mxt_data *data)
+ 	dbg->t37_address = object->start_address;
+ 
+ 	/* Calculate size of data and allocate buffer */
+-	dbg->t37_nodes = data->info.matrix_xsize * data->info.matrix_ysize;
+-	dbg->t37_pages = DIV_ROUND_UP(dbg->t37_nodes * sizeof(u16),
+-				      sizeof(dbg->t37_buf->data));
++	dbg->t37_nodes = data->xsize * data->ysize;
++	dbg->t37_pages = DIV_ROUND_UP(data->xsize * data->info.matrix_ysize *
++				      sizeof(u16), sizeof(dbg->t37_buf->data));
+ 
+ 	dbg->t37_buf = devm_kmalloc_array(&data->client->dev, dbg->t37_pages,
+ 					  sizeof(struct t37_debug), GFP_KERNEL);
 -- 
-Jean Delvare
-SUSE L3 Support
+1.7.9.5

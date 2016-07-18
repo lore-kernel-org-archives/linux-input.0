@@ -1,139 +1,77 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v8 08/10] Input: atmel_mxt_ts - add support for reference data
-Date: Mon, 18 Jul 2016 22:10:36 +0100
-Message-ID: <1468876238-24599-9-git-send-email-nick@shmanahar.org>
-References: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, Nick Dyer <nick@shmanahar.org>
+Subject: [PATCH v8 0/10] Output raw touch data via V4L2
+Date: Mon, 18 Jul 2016 22:10:28 +0100
+Message-ID: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from avasout05.plus.net ([84.93.230.250]:53239 "EHLO
+	avasout05.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751642AbcGRVS0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Jul 2016 17:18:26 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
 
-There are different datatypes available from a maXTouch chip. Add
-support to retrieve reference data as well.
+This is a series of patches to add output of raw touch diagnostic data via V4L2
+to the Atmel maXTouch and Synaptics RMI4 drivers.
 
-Signed-off-by: Nick Dyer <nick@shmanahar.org>
----
- drivers/input/touchscreen/atmel_mxt_ts.c |   57 ++++++++++++++++++++++++++----
- 1 file changed, 51 insertions(+), 6 deletions(-)
+It's a rewrite of the previous implementation which output via debugfs: it now
+uses a V4L2 device in a similar way to the sur40 driver.
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 584198e..beede8f 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -135,6 +135,7 @@ struct t9_range {
- /* MXT_DEBUG_DIAGNOSTIC_T37 */
- #define MXT_DIAGNOSTIC_PAGEUP	0x01
- #define MXT_DIAGNOSTIC_DELTAS	0x10
-+#define MXT_DIAGNOSTIC_REFS	0x11
- #define MXT_DIAGNOSTIC_SIZE	128
- 
- #define MXT_FAMILY_1386			160
-@@ -249,6 +250,12 @@ struct mxt_dbg {
- 	int input;
- };
- 
-+enum v4l_dbg_inputs {
-+	MXT_V4L_INPUT_DELTAS,
-+	MXT_V4L_INPUT_REFS,
-+	MXT_V4L_INPUT_MAX,
-+};
-+
- static const struct v4l2_file_operations mxt_video_fops = {
- 	.owner = THIS_MODULE,
- 	.open = v4l2_fh_open,
-@@ -2273,6 +2280,7 @@ static void mxt_buffer_queue(struct vb2_buffer *vb)
- 	struct mxt_data *data = vb2_get_drv_priv(vb->vb2_queue);
- 	u16 *ptr;
- 	int ret;
-+	u8 mode;
- 
- 	ptr = vb2_plane_vaddr(vb, 0);
- 	if (!ptr) {
-@@ -2280,7 +2288,18 @@ static void mxt_buffer_queue(struct vb2_buffer *vb)
- 		goto fault;
- 	}
- 
--	ret = mxt_read_diagnostic_debug(data, MXT_DIAGNOSTIC_DELTAS, ptr);
-+	switch (data->dbg.input) {
-+	case MXT_V4L_INPUT_DELTAS:
-+	default:
-+		mode = MXT_DIAGNOSTIC_DELTAS;
-+		break;
-+
-+	case MXT_V4L_INPUT_REFS:
-+		mode = MXT_DIAGNOSTIC_REFS;
-+		break;
-+	}
-+
-+	ret = mxt_read_diagnostic_debug(data, mode, ptr);
- 	if (ret)
- 		goto fault;
- 
-@@ -2325,11 +2344,21 @@ static int mxt_vidioc_querycap(struct file *file, void *priv,
- static int mxt_vidioc_enum_input(struct file *file, void *priv,
- 				   struct v4l2_input *i)
- {
--	if (i->index > 0)
-+	if (i->index >= MXT_V4L_INPUT_MAX)
- 		return -EINVAL;
- 
- 	i->type = V4L2_INPUT_TYPE_TOUCH;
--	strlcpy(i->name, "Mutual Capacitance Deltas", sizeof(i->name));
-+
-+	switch (i->index) {
-+	case MXT_V4L_INPUT_REFS:
-+		strlcpy(i->name, "Mutual Capacitance References",
-+			sizeof(i->name));
-+		break;
-+	case MXT_V4L_INPUT_DELTAS:
-+		strlcpy(i->name, "Mutual Capacitance Deltas", sizeof(i->name));
-+		break;
-+	}
-+
- 	return 0;
- }
- 
-@@ -2337,12 +2366,16 @@ static int mxt_set_input(struct mxt_data *data, unsigned int i)
- {
- 	struct v4l2_pix_format *f = &data->dbg.format;
- 
--	if (i > 0)
-+	if (i >= MXT_V4L_INPUT_MAX)
- 		return -EINVAL;
- 
-+	if (i == MXT_V4L_INPUT_DELTAS)
-+		f->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
-+	else
-+		f->pixelformat = V4L2_TCH_FMT_TU16;
-+
- 	f->width = data->xy_switch ? data->ysize : data->xsize;
- 	f->height = data->xy_switch ? data->xsize : data->ysize;
--	f->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
- 	f->field = V4L2_FIELD_NONE;
- 	f->colorspace = V4L2_COLORSPACE_RAW;
- 	f->bytesperline = f->width * sizeof(u16);
-@@ -2383,7 +2416,19 @@ static int mxt_vidioc_enum_fmt(struct file *file, void *priv,
- 	if (fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
- 		return -EINVAL;
- 
--	fmt->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
-+	switch (fmt->index) {
-+	case 0:
-+		fmt->pixelformat = V4L2_TCH_FMT_TU16;
-+		break;
-+
-+	case 1:
-+		fmt->pixelformat = V4L2_TCH_FMT_DELTA_TD16;
-+		break;
-+
-+	default:
-+		return -EINVAL;
-+	}
-+
- 	return 0;
- }
- 
--- 
-1.7.9.5
+We have a utility which can read the data and display it in a useful format:
+    https://github.com/ndyer/heatmap/commits/heatmap-v4l
+
+Changes in v8:
+- Split out docs changes, rework in RST/Sphinx, and rebase against docs-next
+- Update for changes to vb2_queue alloc_ctxs
+- Rebase against git://linuxtv.org/media_tree.git and re-test
+
+Changes in v7:
+- Tested by Andrew Duggan and Chris Healy.
+- Update bus_info to add "rmi4:" bus.
+- Fix code style issues in sur40 changes.
+
+Changes in v6:
+- Remove BUF_TYPE_TOUCH_CAPTURE, as discussed with Hans V touch devices will
+  use BUF_TYPE_VIDEO_CAPTURE.
+- Touch devices should now register CAP_VIDEO_CAPTURE: CAP_TOUCH just says that
+  this is a touch device, not a video device, but otherwise it acts the same.
+- Add some code to v4l_s_fmt() to set sensible default values for fields not
+  used by touch.
+- Improve naming/doc of RMI4 F54 report types.
+- Various minor DocBook fixes, and split to separate patch.
+- Update my email address.
+- Rework sur40 changes so that PIX_FMT_GREY is supported for backward
+  compatibility. Florian is it possible for you to test?
+
+Changes in v5 (Hans Verkuil review):
+- Update v4l2-core:
+  - Add VFL_TYPE_TOUCH, V4L2_BUF_TYPE_TOUCH_CAPTURE and V4L2_CAP_TOUCH
+  - Change V4L2_INPUT_TYPE_TOUCH_SENSOR to V4L2_INPUT_TYPE_TOUCH
+  - Improve DocBook documentation
+  - Add FMT definitions for touch data
+  - Note this will need the latest version of the heatmap util
+- Synaptics RMI4 driver:
+  - Remove some less important non full frame report types
+  - Switch report type names to const char * array
+  - Move a static array to inside context struct
+- Split sur40 changes to a separate commit
+
+Changes in v4:
+- Address nits from the input side in atmel_mxt_ts patches (Dmitry Torokhov)
+- Add Synaptics RMI4 F54 support patch
+
+Changes in v3:
+- Address V4L2 review comments from Hans Verkuil
+- Run v4l-compliance and fix all issues - needs minor patch here:
+  https://github.com/ndyer/v4l-utils/commit/cf50469773f
+
+Changes in v2:
+- Split pixfmt changes into separate commit and add DocBook
+- Introduce VFL_TYPE_TOUCH_SENSOR and /dev/v4l-touch
+- Remove "single node" support for now, it may be better to treat it as
+  metadata later
+- Explicitly set VFL_DIR_RX
+- Fix Kconfig
+

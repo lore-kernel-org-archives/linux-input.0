@@ -1,628 +1,187 @@
-From: y@shmanahar.org
-Subject: [PATCH] Documentation: add support for V4L touch devices
-Date: Mon, 18 Jul 2016 22:11:52 +0100
-Message-ID: <24660.9531263404$1468876843@news.gmane.org>
+From: Nick Dyer <nick@shmanahar.org>
+Subject: [PATCH] v4l2-compliance: Changes to support touch sensors
+Date: Mon, 18 Jul 2016 22:12:15 +0100
+Message-ID: <1468876335-24730-1-git-send-email-nick@shmanahar.org>
 References: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-media-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, Nick Dyer <nick@shmanahar.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Nick Dyer <nick@shmanahar.org>
-
 Signed-off-by: Nick Dyer <nick@shmanahar.org>
 ---
- Documentation/media/uapi/mediactl/media-types.rst |   24 +++--
- Documentation/media/uapi/v4l/dev-touch.rst        |   55 ++++++++++
- Documentation/media/uapi/v4l/devices.rst          |    1 +
- Documentation/media/uapi/v4l/pixfmt-tch-td08.rst  |   80 +++++++++++++++
- Documentation/media/uapi/v4l/pixfmt-tch-td16.rst  |  111 +++++++++++++++++++++
- Documentation/media/uapi/v4l/pixfmt-tch-tu08.rst  |   78 +++++++++++++++
- Documentation/media/uapi/v4l/pixfmt-tch-tu16.rst  |  110 ++++++++++++++++++++
- Documentation/media/uapi/v4l/pixfmt.rst           |    1 +
- Documentation/media/uapi/v4l/tch-formats.rst      |   18 ++++
- 9 files changed, 471 insertions(+), 7 deletions(-)
- create mode 100644 Documentation/media/uapi/v4l/dev-touch.rst
- create mode 100644 Documentation/media/uapi/v4l/pixfmt-tch-td08.rst
- create mode 100644 Documentation/media/uapi/v4l/pixfmt-tch-td16.rst
- create mode 100644 Documentation/media/uapi/v4l/pixfmt-tch-tu08.rst
- create mode 100644 Documentation/media/uapi/v4l/pixfmt-tch-tu16.rst
- create mode 100644 Documentation/media/uapi/v4l/tch-formats.rst
+ utils/v4l2-compliance/v4l2-compliance.cpp        |   51 +++++++++++++++++++++-
+ utils/v4l2-compliance/v4l2-compliance.h          |    1 +
+ utils/v4l2-compliance/v4l2-test-input-output.cpp |    4 +-
+ 3 files changed, 53 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/media/uapi/mediactl/media-types.rst b/Documentation/media/uapi/mediactl/media-types.rst
-index c77717b..0265edc 100644
---- a/Documentation/media/uapi/mediactl/media-types.rst
-+++ b/Documentation/media/uapi/mediactl/media-types.rst
-@@ -429,6 +429,16 @@ Types and flags used to represent the media graph elements
+diff --git a/utils/v4l2-compliance/v4l2-compliance.cpp b/utils/v4l2-compliance/v4l2-compliance.cpp
+index 48dc8b4..ca2eec7 100644
+--- a/utils/v4l2-compliance/v4l2-compliance.cpp
++++ b/utils/v4l2-compliance/v4l2-compliance.cpp
+@@ -55,6 +55,7 @@ enum Option {
+ 	OptSetRadioDevice = 'r',
+ 	OptStreaming = 's',
+ 	OptSetSWRadioDevice = 'S',
++	OptSetTouchDevice = 't',
+ 	OptTrace = 'T',
+ 	OptVerbose = 'v',
+ 	OptSetVbiDevice = 'V',
+@@ -105,6 +106,7 @@ static struct option long_options[] = {
+ 	{"vbi-device", required_argument, 0, OptSetVbiDevice},
+ 	{"sdr-device", required_argument, 0, OptSetSWRadioDevice},
+ 	{"expbuf-device", required_argument, 0, OptSetExpBufDevice},
++	{"touch-device", required_argument, 0, OptSetTouchDevice},
+ 	{"help", no_argument, 0, OptHelp},
+ 	{"verbose", no_argument, 0, OptVerbose},
+ 	{"no-warnings", no_argument, 0, OptNoWarnings},
+@@ -134,6 +136,9 @@ static void usage(void)
+ 	printf("  -S, --sdr-device=<dev>\n");
+ 	printf("                     Use device <dev> as the SDR device.\n");
+ 	printf("                     If <dev> starts with a digit, then /dev/swradio<dev> is used.\n");
++	printf("  -t, --touch-device=<dev>\n");
++	printf("                     Use device <dev> as the touch device.\n");
++	printf("                     If <dev> starts with a digit, then /dev/v4l-touch<dev> is used.\n");
+ 	printf("  -e, --expbuf-device=<dev>\n");
+ 	printf("                     Use device <dev> to obtain DMABUF handles.\n");
+ 	printf("                     If <dev> starts with a digit, then /dev/video<dev> is used.\n");
+@@ -206,6 +211,8 @@ std::string cap2s(unsigned cap)
+ 		s += "\t\tSDR Capture\n";
+ 	if (cap & V4L2_CAP_SDR_OUTPUT)
+ 		s += "\t\tSDR Output\n";
++	if (cap & V4L2_CAP_TOUCH)
++		s += "\t\tTouch Capture\n";
+ 	if (cap & V4L2_CAP_TUNER)
+ 		s += "\t\tTuner\n";
+ 	if (cap & V4L2_CAP_HW_FREQ_SEEK)
+@@ -533,7 +540,8 @@ static int testCap(struct node *node)
+ 	    memcmp(vcap.bus_info, "ISA:", 4) &&
+ 	    memcmp(vcap.bus_info, "I2C:", 4) &&
+ 	    memcmp(vcap.bus_info, "parport", 7) &&
+-	    memcmp(vcap.bus_info, "platform:", 9))
++	    memcmp(vcap.bus_info, "platform:", 9) &&
++	    memcmp(vcap.bus_info, "rmi4:", 5))
+ 		return fail("missing bus_info prefix ('%s')\n", vcap.bus_info);
+ 	fail_on_test((vcap.version >> 16) < 3);
+ 	fail_on_test(check_0(vcap.reserved, sizeof(vcap.reserved)));
+@@ -673,6 +681,8 @@ int main(int argc, char **argv)
+ 	struct node radio_node2;
+ 	struct node sdr_node;
+ 	struct node sdr_node2;
++	struct node touch_node;
++	struct node touch_node2;
+ 	struct node expbuf_node;
  
-     -  .. row 11
+ 	/* command args */
+@@ -682,6 +692,7 @@ int main(int argc, char **argv)
+ 	const char *vbi_device = NULL;		/* -V device */
+ 	const char *radio_device = NULL;	/* -r device */
+ 	const char *sdr_device = NULL;		/* -S device */
++	const char *touch_device = NULL;	/* -t device */
+ 	const char *expbuf_device = NULL;	/* --expbuf-device device */
+ 	struct v4l2_capability vcap;		/* list_cap */
+ 	unsigned frame_count = 60;
+@@ -750,6 +761,15 @@ int main(int argc, char **argv)
+ 				sdr_device = newdev;
+ 			}
+ 			break;
++		case OptSetTouchDevice:
++			touch_device = optarg;
++			if (touch_device[0] >= '0' && touch_device[0] <= '9' && strlen(touch_device) <= 3) {
++				static char newdev[20];
++
++				sprintf(newdev, "/dev/v4l-touch%s", touch_device);
++				touch_device = newdev;
++			}
++			break;
+ 		case OptSetExpBufDevice:
+ 			expbuf_device = optarg;
+ 			if (expbuf_device[0] >= '0' && expbuf_device[0] <= '9' && strlen(expbuf_device) <= 3) {
+@@ -839,7 +859,8 @@ int main(int argc, char **argv)
+ 	if (v1 == 2 && v2 == 6)
+ 		kernel_version = v3;
  
-+       ..  _MEDIA-INTF-T-V4L-TOUCH:
-+
-+       -  ``MEDIA_INTF_T_V4L_TOUCH``
-+
-+       -  Device node interface for Touch device (V4L)
-+
-+       -  typically, /dev/v4l-touch?
-+
-+    -  .. row 12
-+
-        ..  _MEDIA-INTF-T-ALSA-PCM-CAPTURE:
+-	if (!video_device && !vbi_device && !radio_device && !sdr_device)
++	if (!video_device && !vbi_device && !radio_device &&
++	    !sdr_device && !touch_device)
+ 		video_device = "/dev/video0";
  
-        -  ``MEDIA_INTF_T_ALSA_PCM_CAPTURE``
-@@ -437,7 +447,7 @@ Types and flags used to represent the media graph elements
+ 	if (video_device) {
+@@ -886,6 +907,17 @@ int main(int argc, char **argv)
+ 		}
+ 	}
  
-        -  typically, /dev/snd/pcmC?D?c
++	if (touch_device) {
++		touch_node.s_trace(options[OptTrace]);
++		touch_node.s_direct(direct);
++		fd = touch_node.open(touch_device, false);
++		if (fd < 0) {
++			fprintf(stderr, "Failed to open %s: %s\n", touch_device,
++				strerror(errno));
++			exit(1);
++		}
++	}
++
+ 	if (expbuf_device) {
+ 		expbuf_node.s_trace(options[OptTrace]);
+ 		expbuf_node.s_direct(true);
+@@ -913,6 +945,10 @@ int main(int argc, char **argv)
+ 		node = sdr_node;
+ 		device = sdr_device;
+ 		node.is_sdr = true;
++	} else if (touch_node.g_fd() >= 0) {
++		node = touch_node;
++		device = touch_device;
++		node.is_touch = true;
+ 	}
+ 	node.device = device;
  
--    -  .. row 12
-+    -  .. row 13
+@@ -1013,6 +1049,17 @@ int main(int argc, char **argv)
+ 			node.node2 = &sdr_node2;
+ 		}
+ 	}
++	if (touch_device) {
++		touch_node2 = node;
++		printf("\ttest second touch open: %s\n",
++				ok(touch_node2.open(touch_device, false) >= 0 ? 0 : errno));
++		if (touch_node2.g_fd() >= 0) {
++			printf("\ttest VIDIOC_QUERYCAP: %s\n", ok(testCap(&touch_node2)));
++			printf("\ttest VIDIOC_G/S_PRIORITY: %s\n",
++					ok(testPrio(&node, &touch_node2)));
++			node.node2 = &touch_node2;
++		}
++	}
+ 	printf("\n");
  
-        ..  _MEDIA-INTF-T-ALSA-PCM-PLAYBACK:
- 
-@@ -447,7 +457,7 @@ Types and flags used to represent the media graph elements
- 
-        -  typically, /dev/snd/pcmC?D?p
- 
--    -  .. row 13
-+    -  .. row 14
- 
-        ..  _MEDIA-INTF-T-ALSA-CONTROL:
- 
-@@ -457,7 +467,7 @@ Types and flags used to represent the media graph elements
- 
-        -  typically, /dev/snd/controlC?
- 
--    -  .. row 14
-+    -  .. row 15
- 
-        ..  _MEDIA-INTF-T-ALSA-COMPRESS:
- 
-@@ -467,7 +477,7 @@ Types and flags used to represent the media graph elements
- 
-        -  typically, /dev/snd/compr?
- 
--    -  .. row 15
-+    -  .. row 16
- 
-        ..  _MEDIA-INTF-T-ALSA-RAWMIDI:
- 
-@@ -477,7 +487,7 @@ Types and flags used to represent the media graph elements
- 
-        -  typically, /dev/snd/midi?
- 
--    -  .. row 16
-+    -  .. row 17
- 
-        ..  _MEDIA-INTF-T-ALSA-HWDEP:
- 
-@@ -487,7 +497,7 @@ Types and flags used to represent the media graph elements
- 
-        -  typically, /dev/snd/hwC?D?
- 
--    -  .. row 17
-+    -  .. row 18
- 
-        ..  _MEDIA-INTF-T-ALSA-SEQUENCER:
- 
-@@ -497,7 +507,7 @@ Types and flags used to represent the media graph elements
- 
-        -  typically, /dev/snd/seq
- 
--    -  .. row 18
-+    -  .. row 19
- 
-        ..  _MEDIA-INTF-T-ALSA-TIMER:
- 
-diff --git a/Documentation/media/uapi/v4l/dev-touch.rst b/Documentation/media/uapi/v4l/dev-touch.rst
-new file mode 100644
-index 0000000..5c71ee9
---- /dev/null
-+++ b/Documentation/media/uapi/v4l/dev-touch.rst
-@@ -0,0 +1,55 @@
-+.. -*- coding: utf-8; mode: rst -*-
-+
-+.. _touch:
-+
-+*************
-+Touch Devices
-+*************
-+
-+Touch devices are accessed through character device special files named
-+``/dev/v4l-touch0`` to ``/dev/v4l-touch255`` with major number 81 and
-+dynamically allocated minor numbers 0 to 255.
-+
-+Overview
-+========
-+
-+Sensors may be Optical, or Projected Capacitive touch (PCT).
-+
-+Processing is required to analyse the raw data and produce input events. In
-+some systems, this may be performed on the ASIC and the raw data is purely a
-+side-channel for diagnostics or tuning. In other systems, the ASIC is a simple
-+analogue front end device which delivers touch data at high rate, and any touch
-+processing must be done on the host.
-+
-+For capacitive touch sensing, the touchscreen is composed of an array of
-+horizontal and vertical conductors (alternatively called rows/columns, X/Y
-+lines, or tx/rx). Mutual Capacitance measured is at the nodes where the
-+conductors cross. Alternatively, Self Capacitance measures the signal from each
-+column and row independently.
-+
-+A touch input may be determined by comparing the raw capacitance measurement to
-+a no-touch reference (or "baseline") measurement:
-+
-+Delta = Raw - Reference
-+
-+The reference measurement takes account of variations in the capacitance across
-+the touch sensor matrix, for example manufacturing irregularities,
-+environmental or edge effects.
-+
-+Querying Capabilities
-+=====================
-+
-+Devices supporting the touch interface set the ``V4L2_CAP_VIDEO_CAPTURE`` flag
-+in the ``capabilities`` field of :ref:`v4l2_capability <v4l2-capability>`
-+returned by the :ref:`VIDIOC_QUERYCAP` ioctl.
-+
-+At least one of the read/write or streaming I/O methods must be
-+supported.
-+
-+The formats supported by touch devices are documented in
-+:ref:`Touch Formats <tch-formats>`.
-+
-+Data Format Negotiation
-+=======================
-+
-+A touch device may support any I/O method.
-diff --git a/Documentation/media/uapi/v4l/devices.rst b/Documentation/media/uapi/v4l/devices.rst
-index aed0ce1..5c3d6c2 100644
---- a/Documentation/media/uapi/v4l/devices.rst
-+++ b/Documentation/media/uapi/v4l/devices.rst
-@@ -22,5 +22,6 @@ Interfaces
-     dev-radio
-     dev-rds
-     dev-sdr
-+    dev-touch
-     dev-event
-     dev-subdev
-diff --git a/Documentation/media/uapi/v4l/pixfmt-tch-td08.rst b/Documentation/media/uapi/v4l/pixfmt-tch-td08.rst
-new file mode 100644
-index 0000000..e1d1b75
---- /dev/null
-+++ b/Documentation/media/uapi/v4l/pixfmt-tch-td08.rst
-@@ -0,0 +1,80 @@
-+.. -*- coding: utf-8; mode: rst -*-
-+
-+.. _V4L2-TCH-FMT-DELTA-TD08:
-+
-+********************************
-+V4L2_TCH_FMT_DELTA_TD08 ('TD08')
-+********************************
-+
-+*man V4L2_TCH_FMT_DELTA_TD08(2)*
-+
-+8-bit signed Touch Delta
-+
-+Description
-+===========
-+
-+This format represents delta data from a touch controller.
-+
-+Delta values may range from -128 to 127. Typically the values will vary through
-+a small range depending on whether the sensor is touched or not. The full value
-+may be seen if one of the touchscreen nodes has a fault or the line is not
-+connected.
-+
-+**Byte Order.**
-+Each cell is one byte.
-+
-+
-+
-+.. flat-table::
-+    :header-rows:  0
-+    :stub-columns: 0
-+    :widths:       2 1 1 1 1
-+
-+
-+    -  .. row 1
-+
-+       -  start + 0:
-+
-+       -  D'\ :sub:`00`
-+
-+       -  D'\ :sub:`01`
-+
-+       -  D'\ :sub:`02`
-+
-+       -  D'\ :sub:`03`
-+
-+    -  .. row 2
-+
-+       -  start + 4:
-+
-+       -  D'\ :sub:`10`
-+
-+       -  D'\ :sub:`11`
-+
-+       -  D'\ :sub:`12`
-+
-+       -  D'\ :sub:`13`
-+
-+    -  .. row 3
-+
-+       -  start + 8:
-+
-+       -  D'\ :sub:`20`
-+
-+       -  D'\ :sub:`21`
-+
-+       -  D'\ :sub:`22`
-+
-+       -  D'\ :sub:`23`
-+
-+    -  .. row 4
-+
-+       -  start + 12:
-+
-+       -  D'\ :sub:`30`
-+
-+       -  D'\ :sub:`31`
-+
-+       -  D'\ :sub:`32`
-+
-+       -  D'\ :sub:`33`
-diff --git a/Documentation/media/uapi/v4l/pixfmt-tch-td16.rst b/Documentation/media/uapi/v4l/pixfmt-tch-td16.rst
-new file mode 100644
-index 0000000..dfbbc40
---- /dev/null
-+++ b/Documentation/media/uapi/v4l/pixfmt-tch-td16.rst
-@@ -0,0 +1,111 @@
-+.. -*- coding: utf-8; mode: rst -*-
-+
-+.. _V4L2-TCH-FMT-DELTA-TD16:
-+
-+********************************
-+V4L2_TCH_FMT_DELTA_TD16 ('TD16')
-+********************************
-+
-+*man V4L2_TCH_FMT_DELTA_TD16(2)*
-+
-+16-bit signed Touch Delta
-+
-+
-+Description
-+===========
-+
-+This format represents delta data from a touch controller.
-+
-+Delta values may range from -32768 to 32767. Typically the values will vary
-+through a small range depending on whether the sensor is touched or not. The
-+full value may be seen if one of the touchscreen nodes has a fault or the line
-+is not connected.
-+
-+**Byte Order.**
-+Each cell is one byte.
-+
-+.. flat-table::
-+    :header-rows:  0
-+    :stub-columns: 0
-+    :widths:       2 1 1 1 1 1 1 1 1
-+
-+
-+    -  .. row 1
-+
-+       -  start + 0:
-+
-+       -  D'\ :sub:`00high`
-+
-+       -  D'\ :sub:`00low`
-+
-+       -  D'\ :sub:`01high`
-+
-+       -  D'\ :sub:`01low`
-+
-+       -  D'\ :sub:`02high`
-+
-+       -  D'\ :sub:`02low`
-+
-+       -  D'\ :sub:`03high`
-+
-+       -  D'\ :sub:`03low`
-+
-+    -  .. row 2
-+
-+       -  start + 8:
-+
-+       -  D'\ :sub:`10high`
-+
-+       -  D'\ :sub:`10low`
-+
-+       -  D'\ :sub:`11high`
-+
-+       -  D'\ :sub:`11low`
-+
-+       -  D'\ :sub:`12high`
-+
-+       -  D'\ :sub:`12low`
-+
-+       -  D'\ :sub:`13high`
-+
-+       -  D'\ :sub:`13low`
-+
-+    -  .. row 3
-+
-+       -  start + 16:
-+
-+       -  D'\ :sub:`20high`
-+
-+       -  D'\ :sub:`20low`
-+
-+       -  D'\ :sub:`21high`
-+
-+       -  D'\ :sub:`21low`
-+
-+       -  D'\ :sub:`22high`
-+
-+       -  D'\ :sub:`22low`
-+
-+       -  D'\ :sub:`23high`
-+
-+       -  D'\ :sub:`23low`
-+
-+    -  .. row 4
-+
-+       -  start + 24:
-+
-+       -  D'\ :sub:`30high`
-+
-+       -  D'\ :sub:`30low`
-+
-+       -  D'\ :sub:`31high`
-+
-+       -  D'\ :sub:`31low`
-+
-+       -  D'\ :sub:`32high`
-+
-+       -  D'\ :sub:`32low`
-+
-+       -  D'\ :sub:`33high`
-+
-+       -  D'\ :sub:`33low`
-diff --git a/Documentation/media/uapi/v4l/pixfmt-tch-tu08.rst b/Documentation/media/uapi/v4l/pixfmt-tch-tu08.rst
-new file mode 100644
-index 0000000..32e21f8
---- /dev/null
-+++ b/Documentation/media/uapi/v4l/pixfmt-tch-tu08.rst
-@@ -0,0 +1,78 @@
-+.. -*- coding: utf-8; mode: rst -*-
-+
-+.. _V4L2-TCH-FMT-DELTA-TU08:
-+
-+**************************
-+V4L2_TCH_FMT_DELTA_TU08 ('TU08')
-+**************************
-+
-+*man V4L2_TCH_FMT_DELTA_TU08(2)*
-+
-+8-bit unsigned raw touch data
-+
-+Description
-+===========
-+
-+This format represents unsigned 8-bit data from a touch controller.
-+
-+This may be used for output for raw and reference data. Values may range from
-+0 to 255.
-+
-+**Byte Order.**
-+Each cell is one byte.
-+
-+
-+
-+.. flat-table::
-+    :header-rows:  0
-+    :stub-columns: 0
-+    :widths:       2 1 1 1 1
-+
-+
-+    -  .. row 1
-+
-+       -  start + 0:
-+
-+       -  R'\ :sub:`00`
-+
-+       -  R'\ :sub:`01`
-+
-+       -  R'\ :sub:`02`
-+
-+       -  R'\ :sub:`03`
-+
-+    -  .. row 2
-+
-+       -  start + 4:
-+
-+       -  R'\ :sub:`10`
-+
-+       -  R'\ :sub:`11`
-+
-+       -  R'\ :sub:`12`
-+
-+       -  R'\ :sub:`13`
-+
-+    -  .. row 3
-+
-+       -  start + 8:
-+
-+       -  R'\ :sub:`20`
-+
-+       -  R'\ :sub:`21`
-+
-+       -  R'\ :sub:`22`
-+
-+       -  R'\ :sub:`23`
-+
-+    -  .. row 4
-+
-+       -  start + 12:
-+
-+       -  R'\ :sub:`30`
-+
-+       -  R'\ :sub:`31`
-+
-+       -  R'\ :sub:`32`
-+
-+       -  R'\ :sub:`33`
-diff --git a/Documentation/media/uapi/v4l/pixfmt-tch-tu16.rst b/Documentation/media/uapi/v4l/pixfmt-tch-tu16.rst
-new file mode 100644
-index 0000000..c4bc3a1
---- /dev/null
-+++ b/Documentation/media/uapi/v4l/pixfmt-tch-tu16.rst
-@@ -0,0 +1,110 @@
-+.. -*- coding: utf-8; mode: rst -*-
-+
-+.. _V4L2-TCH-FMT-DELTA-TU16:
-+
-+********************************
-+V4L2_TCH_FMT_DELTA_TU16 ('TU16')
-+********************************
-+
-+*man V4L2_TCH_FMT_DELTA_TU16(2)*
-+
-+16-bit unsigned raw touch data
-+
-+
-+Description
-+===========
-+
-+This format represents unsigned 16-bit data from a touch controller.
-+
-+This may be used for output for raw and reference data. Values may range from
-+0 to 65535.
-+
-+**Byte Order.**
-+Each cell is one byte.
-+
-+
-+.. flat-table::
-+    :header-rows:  0
-+    :stub-columns: 0
-+    :widths:       2 1 1 1 1 1 1 1 1
-+
-+
-+    -  .. row 1
-+
-+       -  start + 0:
-+
-+       -  R'\ :sub:`00high`
-+
-+       -  R'\ :sub:`00low`
-+
-+       -  R'\ :sub:`01high`
-+
-+       -  R'\ :sub:`01low`
-+
-+       -  R'\ :sub:`02high`
-+
-+       -  R'\ :sub:`02low`
-+
-+       -  R'\ :sub:`03high`
-+
-+       -  R'\ :sub:`03low`
-+
-+    -  .. row 2
-+
-+       -  start + 8:
-+
-+       -  R'\ :sub:`10high`
-+
-+       -  R'\ :sub:`10low`
-+
-+       -  R'\ :sub:`11high`
-+
-+       -  R'\ :sub:`11low`
-+
-+       -  R'\ :sub:`12high`
-+
-+       -  R'\ :sub:`12low`
-+
-+       -  R'\ :sub:`13high`
-+
-+       -  R'\ :sub:`13low`
-+
-+    -  .. row 3
-+
-+       -  start + 16:
-+
-+       -  R'\ :sub:`20high`
-+
-+       -  R'\ :sub:`20low`
-+
-+       -  R'\ :sub:`21high`
-+
-+       -  R'\ :sub:`21low`
-+
-+       -  R'\ :sub:`22high`
-+
-+       -  R'\ :sub:`22low`
-+
-+       -  R'\ :sub:`23high`
-+
-+       -  R'\ :sub:`23low`
-+
-+    -  .. row 4
-+
-+       -  start + 24:
-+
-+       -  R'\ :sub:`30high`
-+
-+       -  R'\ :sub:`30low`
-+
-+       -  R'\ :sub:`31high`
-+
-+       -  R'\ :sub:`31low`
-+
-+       -  R'\ :sub:`32high`
-+
-+       -  R'\ :sub:`32low`
-+
-+       -  R'\ :sub:`33high`
-+
-+       -  R'\ :sub:`33low`
-diff --git a/Documentation/media/uapi/v4l/pixfmt.rst b/Documentation/media/uapi/v4l/pixfmt.rst
-index 81222a9..6866bcb 100644
---- a/Documentation/media/uapi/v4l/pixfmt.rst
-+++ b/Documentation/media/uapi/v4l/pixfmt.rst
-@@ -32,4 +32,5 @@ see also :ref:`VIDIOC_G_FBUF <VIDIOC_G_FBUF>`.)
-     depth-formats
-     pixfmt-013
-     sdr-formats
-+    tch-formats
-     pixfmt-reserved
-diff --git a/Documentation/media/uapi/v4l/tch-formats.rst b/Documentation/media/uapi/v4l/tch-formats.rst
-new file mode 100644
-index 0000000..dbaabf3
---- /dev/null
-+++ b/Documentation/media/uapi/v4l/tch-formats.rst
-@@ -0,0 +1,18 @@
-+.. -*- coding: utf-8; mode: rst -*-
-+
-+.. _tch-formats:
-+
-+*************
-+Touch Formats
-+*************
-+
-+These formats are used for :ref:`touch` interface only.
-+
-+
-+.. toctree::
-+    :maxdepth: 1
-+
-+    pixfmt-tch-td16
-+    pixfmt-tch-td08
-+    pixfmt-tch-tu16
-+    pixfmt-tch-tu08
+ 	storeState(&node);
+diff --git a/utils/v4l2-compliance/v4l2-compliance.h b/utils/v4l2-compliance/v4l2-compliance.h
+index 67ecbf5..60432b1 100644
+--- a/utils/v4l2-compliance/v4l2-compliance.h
++++ b/utils/v4l2-compliance/v4l2-compliance.h
+@@ -68,6 +68,7 @@ struct base_node {
+ 	bool is_radio;
+ 	bool is_vbi;
+ 	bool is_sdr;
++	bool is_touch;
+ 	bool is_m2m;
+ 	bool is_planar;
+ 	bool can_capture;
+diff --git a/utils/v4l2-compliance/v4l2-test-input-output.cpp b/utils/v4l2-compliance/v4l2-test-input-output.cpp
+index 05daf85..3b56968 100644
+--- a/utils/v4l2-compliance/v4l2-test-input-output.cpp
++++ b/utils/v4l2-compliance/v4l2-test-input-output.cpp
+@@ -371,7 +371,9 @@ static int checkInput(struct node *node, const struct v4l2_input &descr, unsigne
+ 		return fail("invalid index\n");
+ 	if (check_ustring(descr.name, sizeof(descr.name)))
+ 		return fail("invalid name\n");
+-	if (descr.type != V4L2_INPUT_TYPE_TUNER && descr.type != V4L2_INPUT_TYPE_CAMERA)
++	if (descr.type != V4L2_INPUT_TYPE_TUNER &&
++      descr.type != V4L2_INPUT_TYPE_CAMERA &&
++      descr.type != V4L2_INPUT_TYPE_TOUCH)
+ 		return fail("invalid type\n");
+ 	if (descr.type == V4L2_INPUT_TYPE_CAMERA && descr.tuner)
+ 		return fail("invalid tuner\n");
 -- 
 1.7.9.5

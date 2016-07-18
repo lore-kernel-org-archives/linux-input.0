@@ -1,92 +1,120 @@
-From: Martin Kepplinger <martink@posteo.de>
-Subject: [PATCH 1/4] input: tablet: pegasus_notetaker: Track usb control msg errors
-Date: Mon, 18 Jul 2016 16:29:06 +0200
-Message-ID: <1468852149-2614-2-git-send-email-martink@posteo.de>
-References: <1468852149-2614-1-git-send-email-martink@posteo.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1468852149-2614-1-git-send-email-martink@posteo.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Martin Kepplinger <martink@posteo.de>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v8 2/4] i2c-smbus: add SMBus Host Notify support
+Date: Mon, 18 Jul 2016 16:31:09 +0200
+Message-ID: <20160718163109.4d2190e9@endymion>
+References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1465484030-28838-3-git-send-email-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+In-Reply-To: <1465484030-28838-3-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Martin Kepplinger <martink@posteo.de>
----
- drivers/input/tablet/pegasus_notetaker.c | 26 ++++++++++++++++++--------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+Hi Benjamin, Wolfram,
 
-diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
-index 83aa583..27cb352 100644
---- a/drivers/input/tablet/pegasus_notetaker.c
-+++ b/drivers/input/tablet/pegasus_notetaker.c
-@@ -79,7 +79,7 @@ struct pegasus {
- 	struct work_struct init;
- };
- 
--static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
-+static int pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
- {
- 	const int sizeof_buf = len + 2;
- 	int result;
-@@ -87,7 +87,7 @@ static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
- 
- 	cmd_buf = kmalloc(sizeof_buf, GFP_KERNEL);
- 	if (!cmd_buf)
--		return;
-+		return -ENOMEM;
- 
- 	cmd_buf[0] = NOTETAKER_REPORT_ID;
- 	cmd_buf[1] = len;
-@@ -100,17 +100,23 @@ static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
- 				 0, 0, cmd_buf, sizeof_buf,
- 				 USB_CTRL_SET_TIMEOUT);
- 
--	if (result != sizeof_buf)
--		dev_err(&pegasus->usbdev->dev, "control msg error\n");
-+	if (result != sizeof_buf) {
-+		if (result >= 0)
-+			result = -EIO;
-+		dev_err(&pegasus->usbdev->dev, "control msg error: %d\n",
-+			result);
-+	}
- 
- 	kfree(cmd_buf);
-+
-+	return result;
- }
- 
--static void pegasus_set_mode(struct pegasus *pegasus, u8 mode, u8 led)
-+static int pegasus_set_mode(struct pegasus *pegasus, u8 mode, u8 led)
- {
- 	u8 cmd[] = {NOTETAKER_SET_CMD, NOTETAKER_SET_MODE, led, mode};
- 
--	pegasus_control_msg(pegasus, cmd, sizeof(cmd));
-+	return pegasus_control_msg(pegasus, cmd, sizeof(cmd));
- }
- 
- static void pegasus_parse_packet(struct pegasus *pegasus)
-@@ -184,8 +190,12 @@ static void pegasus_irq(struct urb *urb)
- static void pegasus_init(struct work_struct *work)
- {
- 	struct pegasus *pegasus = container_of(work, struct pegasus, init);
-+	int retval;
- 
--	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
-+	retval = pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
-+	if (retval < 0)
-+		dev_err(&pegasus->usbdev->dev, "pegasus_set_mode error: %d\n",
-+			retval);
- }
- 
- static int pegasus_open(struct input_dev *dev)
-@@ -201,7 +211,7 @@ static int pegasus_open(struct input_dev *dev)
- 	if (usb_submit_urb(pegasus->irq, GFP_KERNEL))
- 		retval = -EIO;
- 
--	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
-+	retval = pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
- 
- 	usb_autopm_put_interface(pegasus->intf);
- 
+Now that I have reviewed the i2c-i801 part of the implementation, I'm
+wondering...
+
+On Thu,  9 Jun 2016 16:53:48 +0200, Benjamin Tissoires wrote:
+> +/**
+> + * i2c_setup_smbus_host_notify - Allocate a new smbus_host_notify for the given
+> + * I2C adapter.
+> + * @adapter: the adapter we want to associate a Host Notify function
+> + *
+> + * Returns a struct smbus_host_notify pointer on success, and NULL on failure.
+> + * The resulting smbus_host_notify must not be freed afterwards, it is a
+> + * managed resource already.
+> + */
+> +struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap)
+> +{
+> +	struct smbus_host_notify *host_notify;
+> +
+> +	host_notify = devm_kzalloc(&adap->dev, sizeof(struct smbus_host_notify),
+> +				   GFP_KERNEL);
+> +	if (!host_notify)
+> +		return NULL;
+> +
+> +	host_notify->adapter = adap;
+> +
+> +	spin_lock_init(&host_notify->lock);
+> +	INIT_WORK(&host_notify->work, smbus_host_notify_work);
+
+Here we initialize a workqueue.
+
+> +
+> +	return host_notify;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_setup_smbus_host_notify);
+> +
+> +/**
+> + * i2c_handle_smbus_host_notify - Forward a Host Notify event to the correct
+> + * I2C client.
+> + * @host_notify: the struct host_notify attached to the relevant adapter
+> + * @data: the Host Notify data which contains the payload and address of the
+> + * client
+> + * Context: can't sleep
+> + *
+> + * Helper function to be called from an I2C bus driver's interrupt
+> + * handler. It will schedule the Host Notify work, in turn calling the
+> + * corresponding I2C device driver's alert function.
+> + *
+> + * host_notify should be a valid pointer previously returned by
+> + * i2c_setup_smbus_host_notify().
+> + */
+> +int i2c_handle_smbus_host_notify(struct smbus_host_notify *host_notify,
+> +				 unsigned short addr, unsigned int data)
+> +{
+> +	unsigned long flags;
+> +	struct i2c_adapter *adapter;
+> +
+> +	if (!host_notify || !host_notify->adapter)
+> +		return -EINVAL;
+> +
+> +	adapter = host_notify->adapter;
+> +
+> +	spin_lock_irqsave(&host_notify->lock, flags);
+> +
+> +	if (host_notify->pending) {
+> +		spin_unlock_irqrestore(&host_notify->lock, flags);
+> +		dev_warn(&adapter->dev, "Host Notify already scheduled.\n");
+> +		return -EBUSY;
+> +	}
+> +
+> +	host_notify->payload = data;
+> +	host_notify->addr = addr;
+> +
+> +	/* Mark that there is a pending notification and release the lock */
+> +	host_notify->pending = true;
+> +	spin_unlock_irqrestore(&host_notify->lock, flags);
+> +
+> +	return schedule_work(&host_notify->work);
+
+And here we use it.
+
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_handle_smbus_host_notify);
+
+But what happens on i2c_adapter removal? What prevents the following
+sequence from happening?
+
+1* A Host Notify event happens.
+2* The event is handled and queued by i2c_handle_smbus_host_notify().
+3* Someone tears down the underlying i2c_adapter (for example "rmmod
+   i2c-i801".)
+4* The workqueue is processed, accessing memory which has already been
+   freed.
+
+Of course it would be back luck, but that's pretty much the definition
+of a race condition ;-)
+
+To be on the safe side, don't we need a teardown function in i2c-smbus,
+that could be called before i2c_del_adapter, which would remove the
+host notify handle and flush the workqueue?
+
 -- 
-2.1.4
+Jean Delvare
+SUSE L3 Support

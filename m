@@ -1,91 +1,323 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v8 07/10] Input: atmel_mxt_ts - add diagnostic data support for mXT1386
-Date: Mon, 18 Jul 2016 22:10:35 +0100
-Message-ID: <1468876238-24599-8-git-send-email-nick@shmanahar.org>
+Subject: [PATCH v8 02/10] v4l2-core: Add support for touch devices
+Date: Mon, 18 Jul 2016 22:10:30 +0100
+Message-ID: <1468876238-24599-3-git-send-email-nick@shmanahar.org>
 References: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from avasout05.plus.net ([84.93.230.250]:53236 "EHLO
+	avasout05.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751743AbcGRVS1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Jul 2016 17:18:27 -0400
 In-Reply-To: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, Nick Dyer <nick@shmanahar.org>
-List-Id: linux-input@vger.kernel.org
 
-The mXT1386 family of chips have a different architecture which splits
-the diagnostic data into 3 columns.
+Some touch controllers send out touch data in a similar way to a
+greyscale frame grabber.
+
+Add new device type VFL_TYPE_TOUCH:
+- This uses a new device prefix v4l-touch for these devices, to stop
+  generic capture software from treating them as webcams. Otherwise,
+  touch is treated similarly to video capture.
+- Add V4L2_INPUT_TYPE_TOUCH
+- Add MEDIA_INTF_T_V4L_TOUCH
+- Add V4L2_CAP_TOUCH to indicate device is a touch device
+
+Add formats:
+- V4L2_TCH_FMT_DELTA_TD16 for signed 16-bit touch deltas
+- V4L2_TCH_FMT_DELTA_TD08 for signed 16-bit touch deltas
+- V4L2_TCH_FMT_TU16 for unsigned 16-bit touch data
+- V4L2_TCH_FMT_TU08 for unsigned 8-bit touch data
+
+This support will be used by:
+- Atmel maXTouch (atmel_mxt_ts)
+- Synaptics RMI4.
+- sur40
 
 Signed-off-by: Nick Dyer <nick@shmanahar.org>
+Tested-By: Chris Healy <cphealy@gmail.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   31 +++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ drivers/media/media-entity.c         |    2 ++
+ drivers/media/v4l2-core/v4l2-dev.c   |   16 ++++++++++++---
+ drivers/media/v4l2-core/v4l2-ioctl.c |   36 +++++++++++++++++++++++++++++-----
+ include/media/v4l2-dev.h             |    3 ++-
+ include/uapi/linux/media.h           |    1 +
+ include/uapi/linux/videodev2.h       |    9 +++++++++
+ 6 files changed, 58 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 7376c42..584198e 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -137,6 +137,10 @@ struct t9_range {
- #define MXT_DIAGNOSTIC_DELTAS	0x10
- #define MXT_DIAGNOSTIC_SIZE	128
+diff --git a/drivers/media/media-entity.c b/drivers/media/media-entity.c
+index d8a2299..9014362 100644
+--- a/drivers/media/media-entity.c
++++ b/drivers/media/media-entity.c
+@@ -65,6 +65,8 @@ static inline const char *intf_type(struct media_interface *intf)
+ 		return "v4l-subdev";
+ 	case MEDIA_INTF_T_V4L_SWRADIO:
+ 		return "v4l-swradio";
++	case MEDIA_INTF_T_V4L_TOUCH:
++		return "v4l-touch";
+ 	case MEDIA_INTF_T_ALSA_PCM_CAPTURE:
+ 		return "alsa-pcm-capture";
+ 	case MEDIA_INTF_T_ALSA_PCM_PLAYBACK:
+diff --git a/drivers/media/v4l2-core/v4l2-dev.c b/drivers/media/v4l2-core/v4l2-dev.c
+index 70b559d..21ba9b4 100644
+--- a/drivers/media/v4l2-core/v4l2-dev.c
++++ b/drivers/media/v4l2-core/v4l2-dev.c
+@@ -527,6 +527,7 @@ static void determine_valid_ioctls(struct video_device *vdev)
+ 	bool is_vbi = vdev->vfl_type == VFL_TYPE_VBI;
+ 	bool is_radio = vdev->vfl_type == VFL_TYPE_RADIO;
+ 	bool is_sdr = vdev->vfl_type == VFL_TYPE_SDR;
++	bool is_tch = vdev->vfl_type == VFL_TYPE_TOUCH;
+ 	bool is_rx = vdev->vfl_dir != VFL_DIR_TX;
+ 	bool is_tx = vdev->vfl_dir != VFL_DIR_RX;
  
-+#define MXT_FAMILY_1386			160
-+#define MXT1386_COLUMNS			3
-+#define MXT1386_PAGES_PER_COLUMN	8
-+
- struct t37_debug {
- #ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
- 	u8 mode;
-@@ -2140,13 +2144,27 @@ recheck:
- static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
- 			       unsigned int y)
- {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	unsigned int ofs, page;
-+	unsigned int col = 0;
-+	unsigned int col_width;
-+
-+	if (info->family_id == MXT_FAMILY_1386) {
-+		col_width = info->matrix_ysize / MXT1386_COLUMNS;
-+		col = y / col_width;
-+		y = y % col_width;
-+	} else {
-+		col_width = info->matrix_ysize;
-+	}
+@@ -573,7 +574,7 @@ static void determine_valid_ioctls(struct video_device *vdev)
+ 	if (ops->vidioc_enum_freq_bands || ops->vidioc_g_tuner || ops->vidioc_g_modulator)
+ 		set_bit(_IOC_NR(VIDIOC_ENUM_FREQ_BANDS), valid_ioctls);
  
--	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
-+	ofs = (y + (x * col_width)) * sizeof(u16);
- 	page = ofs / MXT_DIAGNOSTIC_SIZE;
- 	ofs %= MXT_DIAGNOSTIC_SIZE;
+-	if (is_vid) {
++	if (is_vid || is_tch) {
+ 		/* video specific ioctls */
+ 		if ((is_rx && (ops->vidioc_enum_fmt_vid_cap ||
+ 			       ops->vidioc_enum_fmt_vid_cap_mplane ||
+@@ -662,7 +663,7 @@ static void determine_valid_ioctls(struct video_device *vdev)
+ 			set_bit(_IOC_NR(VIDIOC_TRY_FMT), valid_ioctls);
+ 	}
  
-+	if (info->family_id == MXT_FAMILY_1386)
-+		page += col * MXT1386_PAGES_PER_COLUMN;
-+
- 	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
+-	if (is_vid || is_vbi || is_sdr) {
++	if (is_vid || is_vbi || is_sdr || is_tch) {
+ 		/* ioctls valid for video, vbi or sdr */
+ 		SET_VALID_IOCTL(ops, VIDIOC_REQBUFS, vidioc_reqbufs);
+ 		SET_VALID_IOCTL(ops, VIDIOC_QUERYBUF, vidioc_querybuf);
+@@ -675,7 +676,7 @@ static void determine_valid_ioctls(struct video_device *vdev)
+ 		SET_VALID_IOCTL(ops, VIDIOC_STREAMOFF, vidioc_streamoff);
+ 	}
+ 
+-	if (is_vid || is_vbi) {
++	if (is_vid || is_vbi || is_tch) {
+ 		/* ioctls valid for video or vbi */
+ 		if (ops->vidioc_s_std)
+ 			set_bit(_IOC_NR(VIDIOC_ENUMSTD), valid_ioctls);
+@@ -751,6 +752,10 @@ static int video_register_media_controller(struct video_device *vdev, int type)
+ 		intf_type = MEDIA_INTF_T_V4L_SWRADIO;
+ 		vdev->entity.function = MEDIA_ENT_F_IO_SWRADIO;
+ 		break;
++	case VFL_TYPE_TOUCH:
++		intf_type = MEDIA_INTF_T_V4L_TOUCH;
++		vdev->entity.function = MEDIA_ENT_F_IO_V4L;
++		break;
+ 	case VFL_TYPE_RADIO:
+ 		intf_type = MEDIA_INTF_T_V4L_RADIO;
+ 		/*
+@@ -845,6 +850,8 @@ static int video_register_media_controller(struct video_device *vdev, int type)
+  *	%VFL_TYPE_SUBDEV - A subdevice
+  *
+  *	%VFL_TYPE_SDR - Software Defined Radio
++ *
++ *	%VFL_TYPE_TOUCH - A touch sensor
+  */
+ int __video_register_device(struct video_device *vdev, int type, int nr,
+ 		int warn_if_nr_in_use, struct module *owner)
+@@ -888,6 +895,9 @@ int __video_register_device(struct video_device *vdev, int type, int nr,
+ 		/* Use device name 'swradio' because 'sdr' was already taken. */
+ 		name_base = "swradio";
+ 		break;
++	case VFL_TYPE_TOUCH:
++		name_base = "v4l-touch";
++		break;
+ 	default:
+ 		printk(KERN_ERR "%s called with unknown type: %d\n",
+ 		       __func__, type);
+diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
+index f899bf1..784db97 100644
+--- a/drivers/media/v4l2-core/v4l2-ioctl.c
++++ b/drivers/media/v4l2-core/v4l2-ioctl.c
+@@ -924,6 +924,7 @@ static int check_fmt(struct file *file, enum v4l2_buf_type type)
+ 	bool is_vid = vfd->vfl_type == VFL_TYPE_GRABBER;
+ 	bool is_vbi = vfd->vfl_type == VFL_TYPE_VBI;
+ 	bool is_sdr = vfd->vfl_type == VFL_TYPE_SDR;
++	bool is_tch = vfd->vfl_type == VFL_TYPE_TOUCH;
+ 	bool is_rx = vfd->vfl_dir != VFL_DIR_TX;
+ 	bool is_tx = vfd->vfl_dir != VFL_DIR_RX;
+ 
+@@ -932,7 +933,7 @@ static int check_fmt(struct file *file, enum v4l2_buf_type type)
+ 
+ 	switch (type) {
+ 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+-		if (is_vid && is_rx &&
++		if ((is_vid || is_tch) && is_rx &&
+ 		    (ops->vidioc_g_fmt_vid_cap || ops->vidioc_g_fmt_vid_cap_mplane))
+ 			return 0;
+ 		break;
+@@ -1243,6 +1244,10 @@ static void v4l_fill_fmtdesc(struct v4l2_fmtdesc *fmt)
+ 	case V4L2_SDR_FMT_CS8:		descr = "Complex S8"; break;
+ 	case V4L2_SDR_FMT_CS14LE:	descr = "Complex S14LE"; break;
+ 	case V4L2_SDR_FMT_RU12LE:	descr = "Real U12LE"; break;
++	case V4L2_TCH_FMT_DELTA_TD16:	descr = "16-bit signed deltas"; break;
++	case V4L2_TCH_FMT_DELTA_TD08:	descr = "8-bit signed deltas"; break;
++	case V4L2_TCH_FMT_TU16:		descr = "16-bit unsigned touch data"; break;
++	case V4L2_TCH_FMT_TU08:		descr = "8-bit unsigned touch data"; break;
+ 
+ 	default:
+ 		/* Compressed formats */
+@@ -1309,13 +1314,14 @@ static int v4l_enum_fmt(const struct v4l2_ioctl_ops *ops,
+ 	struct video_device *vfd = video_devdata(file);
+ 	bool is_vid = vfd->vfl_type == VFL_TYPE_GRABBER;
+ 	bool is_sdr = vfd->vfl_type == VFL_TYPE_SDR;
++	bool is_tch = vfd->vfl_type == VFL_TYPE_TOUCH;
+ 	bool is_rx = vfd->vfl_dir != VFL_DIR_TX;
+ 	bool is_tx = vfd->vfl_dir != VFL_DIR_RX;
+ 	int ret = -EINVAL;
+ 
+ 	switch (p->type) {
+ 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+-		if (unlikely(!is_rx || !is_vid || !ops->vidioc_enum_fmt_vid_cap))
++		if (unlikely(!is_rx || (!is_vid && !is_tch) || !ops->vidioc_enum_fmt_vid_cap))
+ 			break;
+ 		ret = ops->vidioc_enum_fmt_vid_cap(file, fh, arg);
+ 		break;
+@@ -1362,6 +1368,7 @@ static int v4l_g_fmt(const struct v4l2_ioctl_ops *ops,
+ 	struct video_device *vfd = video_devdata(file);
+ 	bool is_vid = vfd->vfl_type == VFL_TYPE_GRABBER;
+ 	bool is_sdr = vfd->vfl_type == VFL_TYPE_SDR;
++	bool is_tch = vfd->vfl_type == VFL_TYPE_TOUCH;
+ 	bool is_rx = vfd->vfl_dir != VFL_DIR_TX;
+ 	bool is_tx = vfd->vfl_dir != VFL_DIR_RX;
+ 	int ret;
+@@ -1392,7 +1399,7 @@ static int v4l_g_fmt(const struct v4l2_ioctl_ops *ops,
+ 
+ 	switch (p->type) {
+ 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+-		if (unlikely(!is_rx || !is_vid || !ops->vidioc_g_fmt_vid_cap))
++		if (unlikely(!is_rx || (!is_vid && !is_tch) || !ops->vidioc_g_fmt_vid_cap))
+ 			break;
+ 		p->fmt.pix.priv = V4L2_PIX_FMT_PRIV_MAGIC;
+ 		ret = ops->vidioc_g_fmt_vid_cap(file, fh, arg);
+@@ -1451,6 +1458,21 @@ static int v4l_g_fmt(const struct v4l2_ioctl_ops *ops,
+ 	return -EINVAL;
  }
  
-@@ -2416,6 +2434,7 @@ static const struct video_device mxt_video_device = {
- 
- static void mxt_debug_init(struct mxt_data *data)
- {
-+	struct mxt_info *info = &data->info;
- 	struct mxt_dbg *dbg = &data->dbg;
- 	struct mxt_object *object;
- 	int error;
-@@ -2439,8 +2458,14 @@ static void mxt_debug_init(struct mxt_data *data)
- 
- 	/* Calculate size of data and allocate buffer */
- 	dbg->t37_nodes = data->xsize * data->ysize;
--	dbg->t37_pages = DIV_ROUND_UP(data->xsize * data->info.matrix_ysize *
--				      sizeof(u16), sizeof(dbg->t37_buf->data));
++static void v4l_pix_format_touch(struct v4l2_pix_format *p)
++{
++	/*
++	 * The v4l2_pix_format structure contains fields that make no sense for
++	 * touch. Set them to default values in this case.
++	 */
 +
-+	if (info->family_id == MXT_FAMILY_1386)
-+		dbg->t37_pages = MXT1386_COLUMNS * MXT1386_PAGES_PER_COLUMN;
-+	else
-+		dbg->t37_pages = DIV_ROUND_UP(data->xsize *
-+					      data->info.matrix_ysize *
-+					      sizeof(u16),
-+					      sizeof(dbg->t37_buf->data));
++	p->field = V4L2_FIELD_NONE;
++	p->colorspace = V4L2_COLORSPACE_RAW;
++	p->flags = 0;
++	p->ycbcr_enc = 0;
++	p->quantization = 0;
++	p->xfer_func = 0;
++}
++
+ static int v4l_s_fmt(const struct v4l2_ioctl_ops *ops,
+ 				struct file *file, void *fh, void *arg)
+ {
+@@ -1458,6 +1480,7 @@ static int v4l_s_fmt(const struct v4l2_ioctl_ops *ops,
+ 	struct video_device *vfd = video_devdata(file);
+ 	bool is_vid = vfd->vfl_type == VFL_TYPE_GRABBER;
+ 	bool is_sdr = vfd->vfl_type == VFL_TYPE_SDR;
++	bool is_tch = vfd->vfl_type == VFL_TYPE_TOUCH;
+ 	bool is_rx = vfd->vfl_dir != VFL_DIR_TX;
+ 	bool is_tx = vfd->vfl_dir != VFL_DIR_RX;
+ 	int ret;
+@@ -1469,12 +1492,14 @@ static int v4l_s_fmt(const struct v4l2_ioctl_ops *ops,
  
- 	dbg->t37_buf = devm_kmalloc_array(&data->client->dev, dbg->t37_pages,
- 					  sizeof(struct t37_debug), GFP_KERNEL);
+ 	switch (p->type) {
+ 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+-		if (unlikely(!is_rx || !is_vid || !ops->vidioc_s_fmt_vid_cap))
++		if (unlikely(!is_rx || (!is_vid && !is_tch) || !ops->vidioc_s_fmt_vid_cap))
+ 			break;
+ 		CLEAR_AFTER_FIELD(p, fmt.pix);
+ 		ret = ops->vidioc_s_fmt_vid_cap(file, fh, arg);
+ 		/* just in case the driver zeroed it again */
+ 		p->fmt.pix.priv = V4L2_PIX_FMT_PRIV_MAGIC;
++		if (is_tch)
++			v4l_pix_format_touch(&p->fmt.pix);
+ 		return ret;
+ 	case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+ 		if (unlikely(!is_rx || !is_vid || !ops->vidioc_s_fmt_vid_cap_mplane))
+@@ -1545,6 +1570,7 @@ static int v4l_try_fmt(const struct v4l2_ioctl_ops *ops,
+ 	struct video_device *vfd = video_devdata(file);
+ 	bool is_vid = vfd->vfl_type == VFL_TYPE_GRABBER;
+ 	bool is_sdr = vfd->vfl_type == VFL_TYPE_SDR;
++	bool is_tch = vfd->vfl_type == VFL_TYPE_TOUCH;
+ 	bool is_rx = vfd->vfl_dir != VFL_DIR_TX;
+ 	bool is_tx = vfd->vfl_dir != VFL_DIR_RX;
+ 	int ret;
+@@ -1553,7 +1579,7 @@ static int v4l_try_fmt(const struct v4l2_ioctl_ops *ops,
+ 
+ 	switch (p->type) {
+ 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+-		if (unlikely(!is_rx || !is_vid || !ops->vidioc_try_fmt_vid_cap))
++		if (unlikely(!is_rx || (!is_vid && !is_tch) || !ops->vidioc_try_fmt_vid_cap))
+ 			break;
+ 		CLEAR_AFTER_FIELD(p, fmt.pix);
+ 		ret = ops->vidioc_try_fmt_vid_cap(file, fh, arg);
+diff --git a/include/media/v4l2-dev.h b/include/media/v4l2-dev.h
+index 25a3190..a2bbf1c 100644
+--- a/include/media/v4l2-dev.h
++++ b/include/media/v4l2-dev.h
+@@ -25,7 +25,8 @@
+ #define VFL_TYPE_RADIO		2
+ #define VFL_TYPE_SUBDEV		3
+ #define VFL_TYPE_SDR		4
+-#define VFL_TYPE_MAX		5
++#define VFL_TYPE_TOUCH		5
++#define VFL_TYPE_MAX		6
+ 
+ /* Is this a receiver, transmitter or mem-to-mem? */
+ /* Ignored for VFL_TYPE_SUBDEV. */
+diff --git a/include/uapi/linux/media.h b/include/uapi/linux/media.h
+index 7acf0f6..4890787 100644
+--- a/include/uapi/linux/media.h
++++ b/include/uapi/linux/media.h
+@@ -307,6 +307,7 @@ struct media_links_enum {
+ #define MEDIA_INTF_T_V4L_RADIO  (MEDIA_INTF_T_V4L_BASE + 2)
+ #define MEDIA_INTF_T_V4L_SUBDEV (MEDIA_INTF_T_V4L_BASE + 3)
+ #define MEDIA_INTF_T_V4L_SWRADIO (MEDIA_INTF_T_V4L_BASE + 4)
++#define MEDIA_INTF_T_V4L_TOUCH	(MEDIA_INTF_T_V4L_BASE + 5)
+ 
+ #define MEDIA_INTF_T_ALSA_PCM_CAPTURE   (MEDIA_INTF_T_ALSA_BASE)
+ #define MEDIA_INTF_T_ALSA_PCM_PLAYBACK  (MEDIA_INTF_T_ALSA_BASE + 1)
+diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
+index 724f43e..22bad8c 100644
+--- a/include/uapi/linux/videodev2.h
++++ b/include/uapi/linux/videodev2.h
+@@ -440,6 +440,8 @@ struct v4l2_capability {
+ #define V4L2_CAP_ASYNCIO                0x02000000  /* async I/O */
+ #define V4L2_CAP_STREAMING              0x04000000  /* streaming I/O ioctls */
+ 
++#define V4L2_CAP_TOUCH                  0x10000000  /* Is a touch device */
++
+ #define V4L2_CAP_DEVICE_CAPS            0x80000000  /* sets device capabilities field */
+ 
+ /*
+@@ -635,6 +637,12 @@ struct v4l2_pix_format {
+ #define V4L2_SDR_FMT_CS14LE       v4l2_fourcc('C', 'S', '1', '4') /* complex s14le */
+ #define V4L2_SDR_FMT_RU12LE       v4l2_fourcc('R', 'U', '1', '2') /* real u12le */
+ 
++/* Touch formats - used for Touch devices */
++#define V4L2_TCH_FMT_DELTA_TD16	v4l2_fourcc('T', 'D', '1', '6') /* 16-bit signed deltas */
++#define V4L2_TCH_FMT_DELTA_TD08	v4l2_fourcc('T', 'D', '0', '8') /* 8-bit signed deltas */
++#define V4L2_TCH_FMT_TU16	v4l2_fourcc('T', 'U', '1', '6') /* 16-bit unsigned touch data */
++#define V4L2_TCH_FMT_TU08	v4l2_fourcc('T', 'U', '0', '8') /* 8-bit unsigned touch data */
++
+ /* priv field value to indicates that subsequent fields are valid. */
+ #define V4L2_PIX_FMT_PRIV_MAGIC		0xfeedcafe
+ 
+@@ -1401,6 +1409,7 @@ struct v4l2_input {
+ /*  Values for the 'type' field */
+ #define V4L2_INPUT_TYPE_TUNER		1
+ #define V4L2_INPUT_TYPE_CAMERA		2
++#define V4L2_INPUT_TYPE_TOUCH		3
+ 
+ /* field 'status' - general */
+ #define V4L2_IN_ST_NO_POWER    0x00000001  /* Attached device is off */
 -- 
 1.7.9.5
+

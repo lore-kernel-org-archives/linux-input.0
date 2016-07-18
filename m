@@ -1,19 +1,14 @@
 From: y@shmanahar.org
 Subject: [PATCH] Documentation: add support for V4L touch devices
 Date: Mon, 18 Jul 2016 22:11:52 +0100
-Message-ID: <15921.586941886$1468876837@news.gmane.org>
+Message-ID: <11500.92557441$1468876842@news.gmane.org>
 References: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avasout06.plus.net ([212.159.14.18]:50136 "EHLO
-	avasout06.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752380AbcGRVUA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Jul 2016 17:20:00 -0400
+Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-media-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, Nick Dyer <nick@shmanahar.org>
+List-Id: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick@shmanahar.org>
 
@@ -631,4 +626,3 @@ index 0000000..dbaabf3
 +    pixfmt-tch-tu08
 -- 
 1.7.9.5
-

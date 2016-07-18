@@ -1,53 +1,93 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3 8/8] Input: synaptics-rmi4: Use the RMI_F11_REL_BYTES
- define in rmi_f11_rel_pos_report
-Date: Mon, 18 Jul 2016 16:52:01 +0200
-Message-ID: <20160718145201.GN4663@mail.corp.redhat.com>
-References: <1468476613-8293-1-git-send-email-aduggan@synaptics.com>
+Subject: Re: [PATCH v2 02/30] HID: wacom: store the type in wacom->shared for
+ INTUOSHT and INTUOSHT2
+Date: Mon, 18 Jul 2016 16:54:38 +0200
+Message-ID: <20160718145438.GO4663@mail.corp.redhat.com>
+References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1468425977-4819-3-git-send-email-benjamin.tissoires@redhat.com>
+ <CAF8JNhKGgr_p=gbHLtLycPM2zf5zF01C-xMra8j3eBoyOCHH9w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59592 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:35606 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751516AbcGROwH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Jul 2016 10:52:07 -0400
+	id S1751441AbcGROyp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Jul 2016 10:54:45 -0400
 Content-Disposition: inline
-In-Reply-To: <1468476613-8293-1-git-send-email-aduggan@synaptics.com>
+In-Reply-To: <CAF8JNhKGgr_p=gbHLtLycPM2zf5zF01C-xMra8j3eBoyOCHH9w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick@shmanahar.org>, Chris Healy <cphealy@gmail.com>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-On Jul 13 2016 or thereabouts, Andrew Duggan wrote:
-> The size of relative data in F11 is already defined by RMI_F11_REL_BYTES.
-> Use the define in rmi_f11_rel_pos_report() to be consistent.
+On Jul 14 2016 or thereabouts, Ping Cheng wrote:
+> On Wed, Jul 13, 2016 at 9:05 AM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> > The type is never set but we check for it in wacom_wireless_irq().
 > 
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> Reviewed-by: Nick Dyer <nick@shmanahar.org>
+> Type was assigned in wacom_wireless_work [1] before we moved code
+> around. It somehow failed to get into wacom_parse_and_register. The
+> value was only assigned once on stylus interface. It was unnecessary
+> to assign it again on touch interface since it is a shared value.
+> Maybe that was the reason it missed its "flight"?
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Yeah, sorry I have seen that my patch removed it a while ago and that no
+one actually reported it as an issue.
 
-> ---
-> This is the same as the v2 version.
 > 
->  drivers/input/rmi4/rmi_f11.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> [1] https://git.kernel.org/cgit/linux/kernel/git/dtor/input.git/commit/drivers/hid/wacom_sys.c?id=2546dacd3e0e48c40bbb99caf01455f1ade9bb24
 > 
-> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-> index 3fda75b..cce82a1 100644
-> --- a/drivers/input/rmi4/rmi_f11.c
-> +++ b/drivers/input/rmi4/rmi_f11.c
-> @@ -530,8 +530,8 @@ static void rmi_f11_rel_pos_report(struct f11_data *f11, u8 n_finger)
->  	struct f11_2d_data *data = &f11->data;
->  	s8 x, y;
->  
-> -	x = data->rel_pos[n_finger * 2];
-> -	y = data->rel_pos[n_finger * 2 + 1];
-> +	x = data->rel_pos[n_finger * RMI_F11_REL_BYTES];
-> +	y = data->rel_pos[n_finger * RMI_F11_REL_BYTES + 1];
->  
->  	rmi_2d_sensor_rel_report(sensor, x, y);
->  }
-> -- 
-> 2.5.0
+> > It looks like this is a big hack from the beginning, so fill in the gap
+> > only.
 > 
+> Yeah, wireless is a dynamic connection. We can not tell which tablet
+> model is going to be connected before it is paired. But, the dongle is
+> always the same. That's the tricky part.
+> 
+> > Untested.
+> 
+> Aaron tested it. So, your code is safe ;).
+> 
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> The whole set is
+> 
+> Acked-by: Ping Cheng <pingc@wacom.com>
+> 
+
+Thanks!
+
+Cheers,
+Benjamin
+
+> Thanks for your effort!
+> 
+> Ping
+> 
+> > ---
+> >
+> > No changes in v2
+> > ---
+> >  drivers/hid/wacom_sys.c | 5 +++--
+> >  1 file changed, 3 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> > index 499cc82..9e283aa 100644
+> > --- a/drivers/hid/wacom_sys.c
+> > +++ b/drivers/hid/wacom_sys.c
+> > @@ -1720,9 +1720,10 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+> >                 error = hid_hw_open(hdev);
+> >
+> >         if ((wacom_wac->features.type == INTUOSHT ||
+> > -           wacom_wac->features.type == INTUOSHT2) &&
+> > +            wacom_wac->features.type == INTUOSHT2) &&
+> >             (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH)) {
+> > -                       wacom_wac->shared->touch_input = wacom_wac->touch_input;
+> > +               wacom_wac->shared->type = wacom_wac->features.type;
+> > +               wacom_wac->shared->touch_input = wacom_wac->touch_input;
+> >         }
+> >
+> >         return 0;
+> > --
+> > 2.5.5
+> >

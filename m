@@ -1,11 +1,11 @@
 From: y@shmanahar.org
 Subject: [PATCH] Documentation: add support for V4L touch devices
 Date: Mon, 18 Jul 2016 22:11:52 +0100
-Message-ID: <11500.92557441$1468876842@news.gmane.org>
+Message-ID: <24660.9531263404$1468876843@news.gmane.org>
 References: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, Nick Dyer <nick@shmanahar.org>
 List-Id: linux-input@vger.kernel.org

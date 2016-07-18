@@ -1,187 +1,239 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH] v4l2-compliance: Changes to support touch sensors
-Date: Mon, 18 Jul 2016 22:12:15 +0100
-Message-ID: <1468876335-24730-1-git-send-email-nick@shmanahar.org>
+Subject: [PATCH v8 03/10] Input: atmel_mxt_ts - add support for T37 diagnostic data
+Date: Mon, 18 Jul 2016 22:10:31 +0100
+Message-ID: <1468876238-24599-4-git-send-email-nick@shmanahar.org>
 References: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hverkuil@xs4all.nl>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com, Nick Dyer <nick@shmanahar.org>
 List-Id: linux-input@vger.kernel.org
 
+Atmel maXTouch devices have a T37 object which can be used to read raw
+touch deltas from the device. This consists of an array of 16-bit
+integers, one for each node on the touchscreen matrix.
+
 Signed-off-by: Nick Dyer <nick@shmanahar.org>
 ---
- utils/v4l2-compliance/v4l2-compliance.cpp        |   51 +++++++++++++++++++++-
- utils/v4l2-compliance/v4l2-compliance.h          |    1 +
- utils/v4l2-compliance/v4l2-test-input-output.cpp |    4 +-
- 3 files changed, 53 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/Kconfig        |    6 ++
+ drivers/input/touchscreen/atmel_mxt_ts.c |  159 ++++++++++++++++++++++++++++++
+ 2 files changed, 165 insertions(+)
 
-diff --git a/utils/v4l2-compliance/v4l2-compliance.cpp b/utils/v4l2-compliance/v4l2-compliance.cpp
-index 48dc8b4..ca2eec7 100644
---- a/utils/v4l2-compliance/v4l2-compliance.cpp
-+++ b/utils/v4l2-compliance/v4l2-compliance.cpp
-@@ -55,6 +55,7 @@ enum Option {
- 	OptSetRadioDevice = 'r',
- 	OptStreaming = 's',
- 	OptSetSWRadioDevice = 'S',
-+	OptSetTouchDevice = 't',
- 	OptTrace = 'T',
- 	OptVerbose = 'v',
- 	OptSetVbiDevice = 'V',
-@@ -105,6 +106,7 @@ static struct option long_options[] = {
- 	{"vbi-device", required_argument, 0, OptSetVbiDevice},
- 	{"sdr-device", required_argument, 0, OptSetSWRadioDevice},
- 	{"expbuf-device", required_argument, 0, OptSetExpBufDevice},
-+	{"touch-device", required_argument, 0, OptSetTouchDevice},
- 	{"help", no_argument, 0, OptHelp},
- 	{"verbose", no_argument, 0, OptVerbose},
- 	{"no-warnings", no_argument, 0, OptNoWarnings},
-@@ -134,6 +136,9 @@ static void usage(void)
- 	printf("  -S, --sdr-device=<dev>\n");
- 	printf("                     Use device <dev> as the SDR device.\n");
- 	printf("                     If <dev> starts with a digit, then /dev/swradio<dev> is used.\n");
-+	printf("  -t, --touch-device=<dev>\n");
-+	printf("                     Use device <dev> as the touch device.\n");
-+	printf("                     If <dev> starts with a digit, then /dev/v4l-touch<dev> is used.\n");
- 	printf("  -e, --expbuf-device=<dev>\n");
- 	printf("                     Use device <dev> to obtain DMABUF handles.\n");
- 	printf("                     If <dev> starts with a digit, then /dev/video<dev> is used.\n");
-@@ -206,6 +211,8 @@ std::string cap2s(unsigned cap)
- 		s += "\t\tSDR Capture\n";
- 	if (cap & V4L2_CAP_SDR_OUTPUT)
- 		s += "\t\tSDR Output\n";
-+	if (cap & V4L2_CAP_TOUCH)
-+		s += "\t\tTouch Capture\n";
- 	if (cap & V4L2_CAP_TUNER)
- 		s += "\t\tTuner\n";
- 	if (cap & V4L2_CAP_HW_FREQ_SEEK)
-@@ -533,7 +540,8 @@ static int testCap(struct node *node)
- 	    memcmp(vcap.bus_info, "ISA:", 4) &&
- 	    memcmp(vcap.bus_info, "I2C:", 4) &&
- 	    memcmp(vcap.bus_info, "parport", 7) &&
--	    memcmp(vcap.bus_info, "platform:", 9))
-+	    memcmp(vcap.bus_info, "platform:", 9) &&
-+	    memcmp(vcap.bus_info, "rmi4:", 5))
- 		return fail("missing bus_info prefix ('%s')\n", vcap.bus_info);
- 	fail_on_test((vcap.version >> 16) < 3);
- 	fail_on_test(check_0(vcap.reserved, sizeof(vcap.reserved)));
-@@ -673,6 +681,8 @@ int main(int argc, char **argv)
- 	struct node radio_node2;
- 	struct node sdr_node;
- 	struct node sdr_node2;
-+	struct node touch_node;
-+	struct node touch_node2;
- 	struct node expbuf_node;
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 8ecdc38..da96ecf 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -115,6 +115,12 @@ config TOUCHSCREEN_ATMEL_MXT
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called atmel_mxt_ts.
  
- 	/* command args */
-@@ -682,6 +692,7 @@ int main(int argc, char **argv)
- 	const char *vbi_device = NULL;		/* -V device */
- 	const char *radio_device = NULL;	/* -r device */
- 	const char *sdr_device = NULL;		/* -S device */
-+	const char *touch_device = NULL;	/* -t device */
- 	const char *expbuf_device = NULL;	/* --expbuf-device device */
- 	struct v4l2_capability vcap;		/* list_cap */
- 	unsigned frame_count = 60;
-@@ -750,6 +761,15 @@ int main(int argc, char **argv)
- 				sdr_device = newdev;
- 			}
- 			break;
-+		case OptSetTouchDevice:
-+			touch_device = optarg;
-+			if (touch_device[0] >= '0' && touch_device[0] <= '9' && strlen(touch_device) <= 3) {
-+				static char newdev[20];
++config TOUCHSCREEN_ATMEL_MXT_T37
++	bool "Support T37 Diagnostic Data"
++	depends on TOUCHSCREEN_ATMEL_MXT
++	help
++	  Say Y here if you want support for the T37 Diagnostic Data object.
 +
-+				sprintf(newdev, "/dev/v4l-touch%s", touch_device);
-+				touch_device = newdev;
-+			}
-+			break;
- 		case OptSetExpBufDevice:
- 			expbuf_device = optarg;
- 			if (expbuf_device[0] >= '0' && expbuf_device[0] <= '9' && strlen(expbuf_device) <= 3) {
-@@ -839,7 +859,8 @@ int main(int argc, char **argv)
- 	if (v1 == 2 && v2 == 6)
- 		kernel_version = v3;
+ config TOUCHSCREEN_AUO_PIXCIR
+ 	tristate "AUO in-cell touchscreen using Pixcir ICs"
+ 	depends on I2C
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 5af7907..0048233 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -124,6 +124,19 @@ struct t9_range {
+ #define MXT_COMMS_CTRL		0
+ #define MXT_COMMS_CMD		1
  
--	if (!video_device && !vbi_device && !radio_device && !sdr_device)
-+	if (!video_device && !vbi_device && !radio_device &&
-+	    !sdr_device && !touch_device)
- 		video_device = "/dev/video0";
++/* MXT_DEBUG_DIAGNOSTIC_T37 */
++#define MXT_DIAGNOSTIC_PAGEUP	0x01
++#define MXT_DIAGNOSTIC_DELTAS	0x10
++#define MXT_DIAGNOSTIC_SIZE	128
++
++struct t37_debug {
++#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
++	u8 mode;
++	u8 page;
++	u8 data[MXT_DIAGNOSTIC_SIZE];
++#endif
++};
++
+ /* Define for MXT_GEN_COMMAND_T6 */
+ #define MXT_BOOT_VALUE		0xa5
+ #define MXT_RESET_VALUE		0x01
+@@ -205,6 +218,14 @@ struct mxt_object {
+ 	u8 num_report_ids;
+ } __packed;
  
- 	if (video_device) {
-@@ -886,6 +907,17 @@ int main(int argc, char **argv)
- 		}
- 	}
++struct mxt_dbg {
++	u16 t37_address;
++	u16 diag_cmd_address;
++	struct t37_debug *t37_buf;
++	unsigned int t37_pages;
++	unsigned int t37_nodes;
++};
++
+ /* Each client has this additional data */
+ struct mxt_data {
+ 	struct i2c_client *client;
+@@ -233,6 +254,7 @@ struct mxt_data {
+ 	u8 num_touchids;
+ 	u8 multitouch;
+ 	struct t7_config t7_cfg;
++	struct mxt_dbg dbg;
  
-+	if (touch_device) {
-+		touch_node.s_trace(options[OptTrace]);
-+		touch_node.s_direct(direct);
-+		fd = touch_node.open(touch_device, false);
-+		if (fd < 0) {
-+			fprintf(stderr, "Failed to open %s: %s\n", touch_device,
-+				strerror(errno));
-+			exit(1);
+ 	/* Cached parameters from object table */
+ 	u16 T5_address;
+@@ -2043,6 +2065,141 @@ recheck:
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
++static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
++			       unsigned int y)
++{
++	struct mxt_dbg *dbg = &data->dbg;
++	unsigned int ofs, page;
++
++	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
++	page = ofs / MXT_DIAGNOSTIC_SIZE;
++	ofs %= MXT_DIAGNOSTIC_SIZE;
++
++	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
++}
++
++static int mxt_convert_debug_pages(struct mxt_data *data, u16 *outbuf)
++{
++	struct mxt_dbg *dbg = &data->dbg;
++	unsigned int x = 0;
++	unsigned int y = 0;
++	unsigned int i;
++
++	for (i = 0; i < dbg->t37_nodes; i++) {
++		outbuf[i] = mxt_get_debug_value(data, x, y);
++
++		/* Next value */
++		if (++x >= data->info.matrix_xsize) {
++			x = 0;
++			y++;
 +		}
 +	}
 +
- 	if (expbuf_device) {
- 		expbuf_node.s_trace(options[OptTrace]);
- 		expbuf_node.s_direct(true);
-@@ -913,6 +945,10 @@ int main(int argc, char **argv)
- 		node = sdr_node;
- 		device = sdr_device;
- 		node.is_sdr = true;
-+	} else if (touch_node.g_fd() >= 0) {
-+		node = touch_node;
-+		device = touch_device;
-+		node.is_touch = true;
- 	}
- 	node.device = device;
- 
-@@ -1013,6 +1049,17 @@ int main(int argc, char **argv)
- 			node.node2 = &sdr_node2;
- 		}
- 	}
-+	if (touch_device) {
-+		touch_node2 = node;
-+		printf("\ttest second touch open: %s\n",
-+				ok(touch_node2.open(touch_device, false) >= 0 ? 0 : errno));
-+		if (touch_node2.g_fd() >= 0) {
-+			printf("\ttest VIDIOC_QUERYCAP: %s\n", ok(testCap(&touch_node2)));
-+			printf("\ttest VIDIOC_G/S_PRIORITY: %s\n",
-+					ok(testPrio(&node, &touch_node2)));
-+			node.node2 = &touch_node2;
++	return 0;
++}
++
++static int mxt_read_diagnostic_debug(struct mxt_data *data, u8 mode,
++				     u16 *outbuf)
++{
++	struct mxt_dbg *dbg = &data->dbg;
++	int retries = 0;
++	int page;
++	int ret;
++	u8 cmd = mode;
++	struct t37_debug *p;
++	u8 cmd_poll;
++
++	for (page = 0; page < dbg->t37_pages; page++) {
++		p = dbg->t37_buf + page;
++
++		ret = mxt_write_reg(data->client, dbg->diag_cmd_address,
++				    cmd);
++		if (ret)
++			return ret;
++
++		retries = 0;
++		msleep(20);
++wait_cmd:
++		/* Read back command byte */
++		ret = __mxt_read_reg(data->client, dbg->diag_cmd_address,
++				     sizeof(cmd_poll), &cmd_poll);
++		if (ret)
++			return ret;
++
++		/* Field is cleared once the command has been processed */
++		if (cmd_poll) {
++			if (retries++ > 100)
++				return -EINVAL;
++
++			msleep(20);
++			goto wait_cmd;
 +		}
++
++		/* Read T37 page */
++		ret = __mxt_read_reg(data->client, dbg->t37_address,
++				     sizeof(struct t37_debug), p);
++		if (ret)
++			return ret;
++
++		if (p->mode != mode || p->page != page) {
++			dev_err(&data->client->dev, "T37 page mismatch\n");
++			return -EINVAL;
++		}
++
++		dev_dbg(&data->client->dev, "%s page:%d retries:%d\n",
++			__func__, page, retries);
++
++		/* For remaining pages, write PAGEUP rather than mode */
++		cmd = MXT_DIAGNOSTIC_PAGEUP;
 +	}
- 	printf("\n");
++
++	return mxt_convert_debug_pages(data, outbuf);
++}
++
++static void mxt_debug_init(struct mxt_data *data)
++{
++	struct mxt_dbg *dbg = &data->dbg;
++	struct mxt_object *object;
++
++	object = mxt_get_object(data, MXT_GEN_COMMAND_T6);
++	if (!object)
++		goto error;
++
++	dbg->diag_cmd_address = object->start_address + MXT_COMMAND_DIAGNOSTIC;
++
++	object = mxt_get_object(data, MXT_DEBUG_DIAGNOSTIC_T37);
++	if (!object)
++		goto error;
++
++	if (mxt_obj_size(object) != sizeof(struct t37_debug)) {
++		dev_warn(&data->client->dev, "Bad T37 size");
++		goto error;
++	}
++
++	dbg->t37_address = object->start_address;
++
++	/* Calculate size of data and allocate buffer */
++	dbg->t37_nodes = data->info.matrix_xsize * data->info.matrix_ysize;
++	dbg->t37_pages = DIV_ROUND_UP(dbg->t37_nodes * sizeof(u16),
++				      sizeof(dbg->t37_buf->data));
++
++	dbg->t37_buf = devm_kmalloc_array(&data->client->dev, dbg->t37_pages,
++					  sizeof(struct t37_debug), GFP_KERNEL);
++	if (!dbg->t37_buf)
++		goto error;
++
++	return;
++
++error:
++	dev_warn(&data->client->dev, "Error initializing T37\n");
++}
++#else
++static void mxt_debug_init(struct mxt_data *data)
++{
++}
++#endif
++
+ static int mxt_configure_objects(struct mxt_data *data,
+ 				 const struct firmware *cfg)
+ {
+@@ -2070,6 +2227,8 @@ static int mxt_configure_objects(struct mxt_data *data,
+ 		dev_warn(dev, "No touch object detected\n");
+ 	}
  
- 	storeState(&node);
-diff --git a/utils/v4l2-compliance/v4l2-compliance.h b/utils/v4l2-compliance/v4l2-compliance.h
-index 67ecbf5..60432b1 100644
---- a/utils/v4l2-compliance/v4l2-compliance.h
-+++ b/utils/v4l2-compliance/v4l2-compliance.h
-@@ -68,6 +68,7 @@ struct base_node {
- 	bool is_radio;
- 	bool is_vbi;
- 	bool is_sdr;
-+	bool is_touch;
- 	bool is_m2m;
- 	bool is_planar;
- 	bool can_capture;
-diff --git a/utils/v4l2-compliance/v4l2-test-input-output.cpp b/utils/v4l2-compliance/v4l2-test-input-output.cpp
-index 05daf85..3b56968 100644
---- a/utils/v4l2-compliance/v4l2-test-input-output.cpp
-+++ b/utils/v4l2-compliance/v4l2-test-input-output.cpp
-@@ -371,7 +371,9 @@ static int checkInput(struct node *node, const struct v4l2_input &descr, unsigne
- 		return fail("invalid index\n");
- 	if (check_ustring(descr.name, sizeof(descr.name)))
- 		return fail("invalid name\n");
--	if (descr.type != V4L2_INPUT_TYPE_TUNER && descr.type != V4L2_INPUT_TYPE_CAMERA)
-+	if (descr.type != V4L2_INPUT_TYPE_TUNER &&
-+      descr.type != V4L2_INPUT_TYPE_CAMERA &&
-+      descr.type != V4L2_INPUT_TYPE_TOUCH)
- 		return fail("invalid type\n");
- 	if (descr.type == V4L2_INPUT_TYPE_CAMERA && descr.tuner)
- 		return fail("invalid tuner\n");
++	mxt_debug_init(data);
++
+ 	dev_info(dev,
+ 		 "Family: %u Variant: %u Firmware V%u.%u.%02X Objects: %u\n",
+ 		 info->family_id, info->variant_id, info->version >> 4,
 -- 
 1.7.9.5

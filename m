@@ -1,88 +1,69 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3 1/8] Input: synaptics-rmi4: Use of_get_child_by_name()
- instead of of_find_node_by_name()
-Date: Tue, 19 Jul 2016 11:37:15 +0200
-Message-ID: <20160719093714.GU4663@mail.corp.redhat.com>
-References: <1468476488-7935-1-git-send-email-aduggan@synaptics.com>
- <20160718144820.GL4663@mail.corp.redhat.com>
- <578D627C.3020800@synaptics.com>
+From: "R, Vignesh" <vigneshr@ti.com>
+Subject: Re: [RFC PATCH 1/2] Input: rotary-encoder- Add support for absolute
+ encoder
+Date: Tue, 19 Jul 2016 18:34:40 +0530
+Message-ID: <70fe4260-ffec-e069-25c6-bcc93ccbfb0a@ti.com>
+References: <1463648641-6931-1-git-send-email-vigneshr@ti.com>
+ <1463648641-6931-2-git-send-email-vigneshr@ti.com>
+ <20160520163404.GC14951@dtor-ws> <5742CB03.8010805@ti.com>
+ <574565ED.3060205@ti.com> <576283AF.9090107@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35834 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753160AbcGSJhW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Jul 2016 05:37:22 -0400
-Content-Disposition: inline
-In-Reply-To: <578D627C.3020800@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <576283AF.9090107@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Jonathan Corbet <corbet@lwn.net>, Johan Hovold <johan@kernel.org>, Sylvain Rochet <sylvain.rochet@finsecur.com>, Masanari Iida <standby24x7@gmail.com>, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, S Twiss <stwiss.opensource@diasemi.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Moritz Fischer <moritz.fischer@ettus.com>, Arnd Bergmann <arnd@arndb.de>, Geert Uytterhoeven <geert@linux-m68k.org>, Timo Teras <timo.teras@iki.fi>, Guido Martinez <guido@vanguardiasur.com.ar>, Clifton Barnes <clifton.a.barnes@gmail.com>, Uwe Kleine-Konig <u.kleine-koenig@pengutronix.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kern>
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick@shmanahar.org>, Chris Healy <cphealy@gmail.com>
 
-On Jul 18 2016 or thereabouts, Andrew Duggan wrote:
-> On 07/18/2016 07:48 AM, Benjamin Tissoires wrote:
-> >On Jul 13 2016 or thereabouts, Andrew Duggan wrote:
-> >>Calling of_find_node_by_name() assumes that the caller has incremented
-> >>the refcount of the of_node being passed in. Currently, the caller is
-> >>not incrementing the refcount of the of_node which results in the node
-> >>being prematurely freed when of_find_node_by_name() calls of_node_put()
-> >>on it. Instead use of_get_child_by_name() which does not call put on the
-> >>of_node.
-> >There are 2 other differences in using of_get_child_by_name() in place
-> >of of_find_node_by_name(). One is that now we are following the OF tree
-> >while the spinlock is not held. I think it's fine in our case. The
-> >other difference is that the returned of_node has not been called
-> >of_node_get() on it. I am not 100% sure, but I think it might be good to
-> >call of_node_get() on the of node here, and in remove call
-> >of_node_put(), just to be sure we don't use the of_node while it has
-> >been freed.
-> 
-> The comment for of_get_child_by_name() says that it returns an of_node with
-> the refcount incremented (drivers/of/base.c:717). Also, that the caller
-> needs to call of_node_put() when finished with it. I take that to mean that
-> the of_node_get() has been done for me by of_get_child_by_name(). Then
-> rmi_unregister_function() calls of_node_put() when unregistered the function
-> device undoing of_get_child_by_name()'s increment of the refcount.
-> 
-> Unless I am missing something I think the current implementation is correct.
-> Hopefully, it is since this patch has already landed in Linus's tree.
+Dmitry,
 
-Oh, then OK. Sorry for coming late in the party then :)
+On 6/16/2016 4:17 PM, Vignesh R wrote:
+[...]
+>>> On 5/20/2016 10:04 PM, Dmitry Torokhov wrote:
+>>>> On Thu, May 19, 2016 at 02:34:00PM +0530, Vignesh R wrote:
+>>>>> There are rotary-encoders where GPIO lines reflect the actual position
+>>>>> of the rotary encoder dial. For example, if dial points to 9, then four
+>>>>> GPIO lines connected to the rotary encoder will read HLLH(1001b = 9).
+>>>>> Add support for such rotary-encoder.
+>>>>> The driver relies on rotary-encoder,absolute-encoder DT property to
+>>>>> detect such encoders.
+>>>>> Since, GPIO IRQs are not necessary to work with
+>>>>> such encoders, optional polling mode support is added using
+>>>>> input_poll_dev skeleton. This is can be used by enabling
+>>>>> CONFIG_INPUT_GPIO_ROTARY_ENCODER_POLL_MODE_SUPPORT.
+>>>>
+>>>> Does this really belong to a rotary encoder and not a new driver that
+>>>> simply translates gpio-encoded value into ABS* event?
+>>>>
+>>>
+>>> Currently rotary encoder driver only supports incremental/step counting
+>>> rotary devices. However, the device that is there on am335x-ice is an
+>>> absolute encoder but, IMO, nevertheless a kind of rotary encoder. The
+>>> only difference is that there is no need to count steps and the absolute
+>>> position value is always available as binary encoded state of connected
+>>> GPIOs.
+>>> The hardware on am335x-ice is a mechanical rotary encoder switch
+>>> connected over 4 GPIOs. It is same as binary encoder described at [1]
+>>> (except there are 4 GPIO lines), so this lead me to add support in
+>>> rotary-encoder.
+>>>
+>>> [1]https://en.wikipedia.org/wiki/Rotary_encoder#Standard_binary_encoding
+>>>
+>>
+>> Could you please comment on how would you like to support above
+>> described encoder: As a new driver or with existing driver with new
+>> compatible/mode setting via DT or as suggest by Uwe in another reply?
+>> IMHO, supporting using existing driver with new mode/compatible string
+>> looks a better option as the hardware is a kind of rotary-encoder.
+>>
 
-Cheers,
-Benjamin
+Could you please suggest the right solution here? Do you think new
+driver is need to support above described absolute encoder h/w? It would
+be great to have your input now, so that I can work on the new set of
+patches and submit them for v4.9 merge window as soon as v4.8 merge
+window closes?
 
-> 
-> Andrew
-> 
-> >
-> >Cheers,
-> >Benjamin
-> >
-> >>Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> >>---
-> >>  drivers/input/rmi4/rmi_bus.c | 4 ++--
-> >>  1 file changed, 2 insertions(+), 2 deletions(-)
-> >>
-> >>diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-> >>index b368b05..253df96 100644
-> >>--- a/drivers/input/rmi4/rmi_bus.c
-> >>+++ b/drivers/input/rmi4/rmi_bus.c
-> >>@@ -157,11 +157,11 @@ static int rmi_function_match(struct device *dev, struct device_driver *drv)
-> >>  static void rmi_function_of_probe(struct rmi_function *fn)
-> >>  {
-> >>  	char of_name[9];
-> >>+	struct device_node *node = fn->rmi_dev->xport->dev->of_node;
-> >>  	snprintf(of_name, sizeof(of_name), "rmi4-f%02x",
-> >>  		fn->fd.function_number);
-> >>-	fn->dev.of_node = of_find_node_by_name(
-> >>-				fn->rmi_dev->xport->dev->of_node, of_name);
-> >>+	fn->dev.of_node = of_get_child_by_name(node, of_name);
-> >>  }
-> >>  #else
-> >>  static inline void rmi_function_of_probe(struct rmi_function *fn)
-> >>-- 
-> >>2.5.0
-> >>
-> 
+Regards
+Vignesh

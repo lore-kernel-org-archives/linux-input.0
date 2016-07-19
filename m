@@ -1,69 +1,85 @@
-From: "R, Vignesh" <vigneshr@ti.com>
-Subject: Re: [RFC PATCH 1/2] Input: rotary-encoder- Add support for absolute
- encoder
-Date: Tue, 19 Jul 2016 18:34:40 +0530
-Message-ID: <70fe4260-ffec-e069-25c6-bcc93ccbfb0a@ti.com>
-References: <1463648641-6931-1-git-send-email-vigneshr@ti.com>
- <1463648641-6931-2-git-send-email-vigneshr@ti.com>
- <20160520163404.GC14951@dtor-ws> <5742CB03.8010805@ti.com>
- <574565ED.3060205@ti.com> <576283AF.9090107@ti.com>
+From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v3 2/4] rtc: rtc-pm8xxx: Add support for pm8018 rtc
+Date: Tue, 19 Jul 2016 15:51:24 +0200
+Message-ID: <1468936286-2710-3-git-send-email-narmstrong@baylibre.com>
+References: <1468936286-2710-1-git-send-email-narmstrong@baylibre.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <576283AF.9090107@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Jonathan Corbet <corbet@lwn.net>, Johan Hovold <johan@kernel.org>, Sylvain Rochet <sylvain.rochet@finsecur.com>, Masanari Iida <standby24x7@gmail.com>, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, S Twiss <stwiss.opensource@diasemi.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Moritz Fischer <moritz.fischer@ettus.com>, Arnd Bergmann <arnd@arndb.de>, Geert Uytterhoeven <geert@linux-m68k.org>, Timo Teras <timo.teras@iki.fi>, Guido Martinez <guido@vanguardiasur.com.ar>, Clifton Barnes <clifton.a.barnes@gmail.com>, Uwe Kleine-Konig <u.kleine-koenig@pengutronix.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kern>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBDAYD2P3QYGRB2XAXC6AKGQEWXGZCXY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1468936286-2710-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Dmitry,
+In order to support RTC on Qualcomm MDM9615 SoC, add support for
+the pm8018 rtc in rtc-pm8xxx driver.
 
-On 6/16/2016 4:17 PM, Vignesh R wrote:
-[...]
->>> On 5/20/2016 10:04 PM, Dmitry Torokhov wrote:
->>>> On Thu, May 19, 2016 at 02:34:00PM +0530, Vignesh R wrote:
->>>>> There are rotary-encoders where GPIO lines reflect the actual position
->>>>> of the rotary encoder dial. For example, if dial points to 9, then four
->>>>> GPIO lines connected to the rotary encoder will read HLLH(1001b = 9).
->>>>> Add support for such rotary-encoder.
->>>>> The driver relies on rotary-encoder,absolute-encoder DT property to
->>>>> detect such encoders.
->>>>> Since, GPIO IRQs are not necessary to work with
->>>>> such encoders, optional polling mode support is added using
->>>>> input_poll_dev skeleton. This is can be used by enabling
->>>>> CONFIG_INPUT_GPIO_ROTARY_ENCODER_POLL_MODE_SUPPORT.
->>>>
->>>> Does this really belong to a rotary encoder and not a new driver that
->>>> simply translates gpio-encoded value into ABS* event?
->>>>
->>>
->>> Currently rotary encoder driver only supports incremental/step counting
->>> rotary devices. However, the device that is there on am335x-ice is an
->>> absolute encoder but, IMO, nevertheless a kind of rotary encoder. The
->>> only difference is that there is no need to count steps and the absolute
->>> position value is always available as binary encoded state of connected
->>> GPIOs.
->>> The hardware on am335x-ice is a mechanical rotary encoder switch
->>> connected over 4 GPIOs. It is same as binary encoder described at [1]
->>> (except there are 4 GPIO lines), so this lead me to add support in
->>> rotary-encoder.
->>>
->>> [1]https://en.wikipedia.org/wiki/Rotary_encoder#Standard_binary_encoding
->>>
->>
->> Could you please comment on how would you like to support above
->> described encoder: As a new driver or with existing driver with new
->> compatible/mode setting via DT or as suggest by Uwe in another reply?
->> IMHO, supporting using existing driver with new mode/compatible string
->> looks a better option as the hardware is a kind of rotary-encoder.
->>
+Reviewed-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Acked-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+---
+ Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt |  1 +
+ drivers/rtc/rtc-pm8xxx.c                              | 11 +++++++++++
+ 2 files changed, 12 insertions(+)
 
-Could you please suggest the right solution here? Do you think new
-driver is need to support above described absolute encoder h/w? It would
-be great to have your input now, so that I can work on the new set of
-patches and submit them for v4.9 merge window as soon as v4.8 merge
-window closes?
+diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
+index f24f334..37a088f 100644
+--- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
++++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
+@@ -62,6 +62,7 @@ The below bindings specify the set of valid subnodes.
+ 		    "qcom,pm8058-rtc"
+ 		    "qcom,pm8921-rtc"
+ 		    "qcom,pm8941-rtc"
++		    "qcom,pm8018-rtc"
+ 
+ - reg:
+ 	Usage: required
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index 795fcbd..976f5f6 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -393,6 +393,16 @@ static int pm8xxx_rtc_enable(struct pm8xxx_rtc *rtc_dd)
+ 	return 0;
+ }
+ 
++static const struct pm8xxx_rtc_regs pm8018_regs = {
++	.ctrl		= 0x11d,
++	.write		= 0x11f,
++	.read		= 0x123,
++	.alarm_rw	= 0x127,
++	.alarm_ctrl	= 0x11d,
++	.alarm_ctrl2	= 0x11e,
++	.alarm_en	= BIT(1),
++};
++
+ static const struct pm8xxx_rtc_regs pm8921_regs = {
+ 	.ctrl		= 0x11d,
+ 	.write		= 0x11f,
+@@ -428,6 +438,7 @@ static const struct pm8xxx_rtc_regs pm8941_regs = {
+  */
+ static const struct of_device_id pm8xxx_id_table[] = {
+ 	{ .compatible = "qcom,pm8921-rtc", .data = &pm8921_regs },
++	{ .compatible = "qcom,pm8018-rtc", .data = &pm8018_regs },
+ 	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
+ 	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
+ 	{ },
+-- 
+1.9.1
 
-Regards
-Vignesh
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

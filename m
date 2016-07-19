@@ -1,14 +1,13 @@
 From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v3 2/4] rtc: rtc-pm8xxx: Add support for pm8018 rtc
-Date: Tue, 19 Jul 2016 15:51:24 +0200
-Message-ID: <1468936286-2710-3-git-send-email-narmstrong@baylibre.com>
-References: <1468936286-2710-1-git-send-email-narmstrong@baylibre.com>
+Subject: (unknown)
+Date: Tue, 19 Jul 2016 15:51:22 +0200
+Message-ID: <1468936286-2710-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRB2XAXC6AKGQEWXGZCXY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDAYD2P3QYGRB2HAXC6AKGQE2NX5MPY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1468936286-2710-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+Subject: 
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/rtc-linux
@@ -19,58 +18,42 @@ To: andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4d
 Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-In order to support RTC on Qualcomm MDM9615 SoC, add support for
-the pm8018 rtc in rtc-pm8xxx driver.
+Subject: [PATCH v3 0/4] Add support for the Qualcomm PM8018 PMIC
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Acked-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
----
- Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt |  1 +
- drivers/rtc/rtc-pm8xxx.c                              | 11 +++++++++++
- 2 files changed, 12 insertions(+)
+In order to support the Qualcomm MDM9615 in the Sierra Wireless WP8548
+Modules, add the PM8018 PMIC support into MFD, Regulator, RTC and input.
 
-diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-index f24f334..37a088f 100644
---- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-+++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
-@@ -62,6 +62,7 @@ The below bindings specify the set of valid subnodes.
- 		    "qcom,pm8058-rtc"
- 		    "qcom,pm8921-rtc"
- 		    "qcom,pm8941-rtc"
-+		    "qcom,pm8018-rtc"
- 
- - reg:
- 	Usage: required
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 795fcbd..976f5f6 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -393,6 +393,16 @@ static int pm8xxx_rtc_enable(struct pm8xxx_rtc *rtc_dd)
- 	return 0;
- }
- 
-+static const struct pm8xxx_rtc_regs pm8018_regs = {
-+	.ctrl		= 0x11d,
-+	.write		= 0x11f,
-+	.read		= 0x123,
-+	.alarm_rw	= 0x127,
-+	.alarm_ctrl	= 0x11d,
-+	.alarm_ctrl2	= 0x11e,
-+	.alarm_en	= BIT(1),
-+};
-+
- static const struct pm8xxx_rtc_regs pm8921_regs = {
- 	.ctrl		= 0x11d,
- 	.write		= 0x11f,
-@@ -428,6 +438,7 @@ static const struct pm8xxx_rtc_regs pm8941_regs = {
-  */
- static const struct of_device_id pm8xxx_id_table[] = {
- 	{ .compatible = "qcom,pm8921-rtc", .data = &pm8921_regs },
-+	{ .compatible = "qcom,pm8018-rtc", .data = &pm8018_regs },
- 	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
- 	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
- 	{ },
+This patchset is part of a global SoC + Module + Board support for the
+Sierra Wireless mangOH Board support with the WP8548 module.
+
+Patch "mfd: qcom-rpm: Add support for pm8018 RPM Regulator" depends on :
+ - "fix offset error for msm8660" at http://lkml.kernel.org/r/1465897725-16213-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+ - "parametrize also ack selector size" at http://lkml.kernel.org/r/1466576837-21995-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+
+Changes since v2 at http://lkml.kernel.org/r/1466759887-25394-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org :
+ - Dropped pwrkey changes
+
+Changes since v1 at http://lkml.kernel.org/r/1466158929-19524-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org :
+ - Rebase mfd/qcom_rpm.c on top of Linus "fix offset error for msm8660" and "parametrize also ack selector size" patches
+ - Rename QCOM_RPM_NCP in to QCOM_RPM_PM8018_NCP
+ - Rebased qcom-rpm.h PM8018 defines numbers without a gap
+ - Dropped regulator corner
+
+Neil Armstrong (4):
+  mfd: pm8921: Add support for pm8018
+  rtc: rtc-pm8xxx: Add support for pm8018 rtc
+  mfd: qcom-rpm: Add support for pm8018 RPM Regulator
+  regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator
+
+ .../devicetree/bindings/mfd/qcom-pm8xxx.txt        |   1 +
+ Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  15 ++++
+ drivers/mfd/pm8921-core.c                          |   1 +
+ drivers/mfd/qcom_rpm.c                             |  51 +++++++++++
+ drivers/regulator/qcom_rpm-regulator.c             | 100 +++++++++++++++++++++
+ drivers/rtc/rtc-pm8xxx.c                           |  11 +++
+ include/dt-bindings/mfd/qcom-rpm.h                 |  22 +++++
+ 7 files changed, 201 insertions(+)
+
 -- 
 1.9.1
 

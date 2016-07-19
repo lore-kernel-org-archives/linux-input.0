@@ -1,158 +1,199 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v4 1/2] ACPI / button: Add KEY_LID_OPEN/KEY_LID_CLOSE for
- new usage model
-Date: Tue, 19 Jul 2016 10:46:07 +0200
-Message-ID: <CAN+gG=Em8P6BMBDNzUoVXrBPo0rp+Hr6taWxEE+vet+nEZZskw@mail.gmail.com>
-References: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com>
- <1b96ee1e5b5ebbed0096adde410a9fd0b7930848.1468915808.git.lv.zheng@intel.com>
+From: "Zheng, Lv" <lv.zheng@intel.com>
+Subject: RE: [PATCH v2 4/4] ACPI / button: Add document for ACPI control
+ method lid device restrictions
+Date: Tue, 19 Jul 2016 08:57:59 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E883BC04EF3@SHSMSX101.ccr.corp.intel.com>
+References: <cover.1467717304.git.lv.zheng@intel.com>
+ <cover.1467875142.git.lv.zheng@intel.com>
+ <3f24a00df89f06661a64af6b4679a99bfff09aa7.1467875143.git.lv.zheng@intel.com>
+ <CAN+gG=G5p6ztJODQBBAF7MY0kBNGVpexY-+a8RQY9JKuY1AB1Q@mail.gmail.com>
+ <20160708175146.GA28589@dtor-ws>
+ <1AE640813FDE7649BE1B193DEA596E883BC04E39@SHSMSX101.ccr.corp.intel.com>
+ <CAN+gG=H_g8vgBVaCSGiR66cMwTnk+ZaTOFhVQv_CcuLy41d=Vg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f67.google.com ([209.85.213.67]:36344 "EHLO
-	mail-vk0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752494AbcGSIqJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Jul 2016 04:46:09 -0400
-In-Reply-To: <1b96ee1e5b5ebbed0096adde410a9fd0b7930848.1468915808.git.lv.zheng@intel.com>
+Received: from mga04.intel.com ([192.55.52.120]:8155 "EHLO mga04.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752260AbcGSI6H (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Jul 2016 04:58:07 -0400
+In-Reply-To: <CAN+gG=H_g8vgBVaCSGiR66cMwTnk+ZaTOFhVQv_CcuLy41d=Vg@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lv Zheng <lv.zheng@intel.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Bastien Nocera:" <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "Bastien Nocera:" <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>
 
-On Tue, Jul 19, 2016 at 10:11 AM, Lv Zheng <lv.zheng@intel.com> wrote:
-> There are many AML tables reporting wrong initial lid state, and some of
-> them never report lid open state. As a proxy layer acting between, ACPI
-> button driver is not able to handle all such cases, but need to re-define
-> the usage model of the ACPI lid. That is:
-> 1. It's initial state is not reliable;
-> 2. There may not be an open event;
-> 3. Userspace should only take action against the close event which is
->    reliable, always sent after a real lid close.
->
-> OTOH, using an input switch event for the lid device on such platforms can
-> cause the loss of the close event, but the platforms purposely want to use
-> these close events to trigger power saving actions.
->
-> So we need to introduce a new ABI, which is input key events based, not
-> input switch events based.
->
-> This patch adds a set of new input key events so that the new userspace
-> programs can use them to handle this usage model correctly. And in the
-> meanwhile, the old input switch event is kept so that no old programs will
-> be broken by the ABI change.
->
-> Signed-off-by: Lv Zheng <lv.zheng@intel.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> Cc: Bastien Nocera: <hadess@hadess.net>
-> Cc: linux-input@vger.kernel.org
-> ---
-
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Cheers,
-Benjamin
-
->  drivers/acpi/button.c                  |   34 +++++++++++++++++++++++++++++++-
->  include/uapi/linux/input-event-codes.h |    7 +++++++
->  2 files changed, 40 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
-> index 148f4e5..dd16879 100644
-> --- a/drivers/acpi/button.c
-> +++ b/drivers/acpi/button.c
-> @@ -104,6 +104,8 @@ struct acpi_button {
->         struct input_dev *input;
->         char phys[32];                  /* for input device */
->         unsigned long pushed;
-> +       int last_state;
-> +       unsigned long timestamp;
->         bool suspended;
->  };
->
-> @@ -111,6 +113,10 @@ static BLOCKING_NOTIFIER_HEAD(acpi_lid_notifier);
->  static struct acpi_device *lid_device;
->  static u8 lid_init_state = ACPI_BUTTON_LID_INIT_METHOD;
->
-> +static unsigned long lid_report_interval __read_mostly = 500;
-> +module_param(lid_report_interval, ulong, 0644);
-> +MODULE_PARM_DESC(lid_report_interval, "Interval (ms) between lid key events");
-> +
->  /* --------------------------------------------------------------------------
->                                FS Interface (/proc)
->     -------------------------------------------------------------------------- */
-> @@ -133,12 +139,34 @@ static int acpi_lid_evaluate_state(struct acpi_device *device)
->  static int acpi_lid_notify_state(struct acpi_device *device, int state)
->  {
->         struct acpi_button *button = acpi_driver_data(device);
-> +       int keycode;
-> +       unsigned long timeout;
->         int ret;
->
-> -       /* input layer checks if event is redundant */
-> +       /*
-> +        * Send the switch event.
-> +        * The input layer checks if the event is redundant.
-> +        */
->         input_report_switch(button->input, SW_LID, !state);
->         input_sync(button->input);
->
-> +       /*
-> +        * Send the key event.
-> +        * The input layer doesn't check if the event is redundant.
-> +        */
-> +       timeout = button->timestamp +
-> +                 msecs_to_jiffies(lid_report_interval);
-> +       if (button->last_state != !!state ||
-> +           time_after(jiffies, timeout)) {
-> +               keycode = state ? KEY_LID_OPEN : KEY_LID_CLOSE;
-> +               input_report_key(button->input, keycode, 1);
-> +               input_sync(button->input);
-> +               input_report_key(button->input, keycode, 0);
-> +               input_sync(button->input);
-> +               button->last_state = !!state;
-> +               button->timestamp = jiffies;
-> +       }
-> +
->         if (state)
->                 pm_wakeup_event(&device->dev, 0);
->
-> @@ -407,6 +435,8 @@ static int acpi_button_add(struct acpi_device *device)
->                 strcpy(name, ACPI_BUTTON_DEVICE_NAME_LID);
->                 sprintf(class, "%s/%s",
->                         ACPI_BUTTON_CLASS, ACPI_BUTTON_SUBCLASS_LID);
-> +               button->last_state = !!acpi_lid_evaluate_state(device);
-> +               button->timestamp = jiffies;
->         } else {
->                 printk(KERN_ERR PREFIX "Unsupported hid [%s]\n", hid);
->                 error = -ENODEV;
-> @@ -436,6 +466,8 @@ static int acpi_button_add(struct acpi_device *device)
->
->         case ACPI_BUTTON_TYPE_LID:
->                 input_set_capability(input, EV_SW, SW_LID);
-> +               input_set_capability(input, EV_KEY, KEY_LID_OPEN);
-> +               input_set_capability(input, EV_KEY, KEY_LID_CLOSE);
->                 break;
->         }
->
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 737fa32..b062fe1 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -641,6 +641,13 @@
->   * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
->   */
->  #define KEY_DATA                       0x275
-> +/*
-> + * Key events sent by the lid drivers.
-> + * The drivers may not be able to send paired "open"/"close" events, in
-> + * which case, they send KEY_LID_OPEN/KEY_LID_CLOSE instead of SW_LID.
-> + */
-> +#define KEY_LID_OPEN                   0x278
-> +#define KEY_LID_CLOSE                  0x279
->
->  #define BTN_TRIGGER_HAPPY              0x2c0
->  #define BTN_TRIGGER_HAPPY1             0x2c0
-> --
-> 1.7.10
->
+SGksIEJlbmphbWluDQoNCj4gRnJvbTogQmVuamFtaW4gVGlzc29pcmVzIFttYWlsdG86YmVuamFt
+aW4udGlzc29pcmVzQGdtYWlsLmNvbV0NCj4gU3ViamVjdDogUmU6IFtQQVRDSCB2MiA0LzRdIEFD
+UEkgLyBidXR0b246IEFkZCBkb2N1bWVudCBmb3IgQUNQSSBjb250cm9sDQo+IG1ldGhvZCBsaWQg
+ZGV2aWNlIHJlc3RyaWN0aW9ucw0KPiANCj4gT24gVHVlLCBKdWwgMTksIDIwMTYgYXQgOToxNyBB
+TSwgWmhlbmcsIEx2IDxsdi56aGVuZ0BpbnRlbC5jb20+IHdyb3RlOg0KPiA+IEhpLCBEbWl0cnkN
+Cj4gPg0KPiA+PiBGcm9tOiBEbWl0cnkgVG9yb2tob3YgW21haWx0bzpkbWl0cnkudG9yb2tob3ZA
+Z21haWwuY29tXQ0KPiA+PiBTdWJqZWN0OiBSZTogW1BBVENIIHYyIDQvNF0gQUNQSSAvIGJ1dHRv
+bjogQWRkIGRvY3VtZW50IGZvciBBQ1BJDQo+IGNvbnRyb2wNCj4gPj4gbWV0aG9kIGxpZCBkZXZp
+Y2UgcmVzdHJpY3Rpb25zDQo+ID4+DQo+ID4+IE9uIEZyaSwgSnVsIDA4LCAyMDE2IGF0IDExOjE3
+OjM5QU0gKzAyMDAsIEJlbmphbWluIFRpc3NvaXJlcyB3cm90ZToNCj4gPj4gPiBIaSwNCj4gPj4g
+Pg0KPiA+PiA+IE9uIFRodSwgSnVsIDcsIDIwMTYgYXQgOToxMSBBTSwgTHYgWmhlbmcgPGx2Lnpo
+ZW5nQGludGVsLmNvbT4NCj4gd3JvdGU6DQo+ID4+ID4gPiBUaGVyZSBhcmUgbWFueSBBTUwgdGFi
+bGVzIHJlcG9ydGluZyB3cm9uZyBpbml0aWFsIGxpZCBzdGF0ZSwgYW5kDQo+IHNvbWUNCj4gPj4g
+b2YNCj4gPj4gPiA+IHRoZW0gbmV2ZXIgcmVwb3J0cyBsaWQgc3RhdGUuIEFzIGEgcHJveHkgbGF5
+ZXIgYWN0aW5nIGJldHdlZW4sIEFDUEkNCj4gPj4gYnV0dG9uDQo+ID4+ID4gPiBkcml2ZXIgaXMg
+bm90IGFibGUgdG8gaGFuZGxlIGFsbCBzdWNoIGNhc2VzLCBidXQgbmVlZCB0byByZS1kZWZpbmUg
+dGhlDQo+ID4+ID4gPiB1c2FnZSBtb2RlbCBvZiB0aGUgQUNQSSBsaWQuIFRoYXQgaXM6DQo+ID4+
+ID4gPiAxLiBJdCdzIGluaXRpYWwgc3RhdGUgaXMgbm90IHJlbGlhYmxlOw0KPiA+PiA+ID4gMi4g
+VGhlcmUgbWF5IG5vdCBiZSBvcGVuIGV2ZW50Ow0KPiA+PiA+ID4gMy4gVXNlcnNwYWNlIHNob3Vs
+ZCBvbmx5IHRha2UgYWN0aW9uIGFnYWluc3QgdGhlIGNsb3NlIGV2ZW50IHdoaWNoDQo+IGlzDQo+
+ID4+ID4gPiAgICByZWxpYWJsZSwgYWx3YXlzIHNlbnQgYWZ0ZXIgYSByZWFsIGxpZCBjbG9zZS4N
+Cj4gPj4gPiA+IFRoaXMgcGF0Y2ggYWRkcyBkb2N1bWVudGF0aW9uIG9mIHRoZSB1c2FnZSBtb2Rl
+bC4NCj4gPj4gPiA+DQo+ID4+ID4gPiBMaW5rOiBodHRwczovL2xrbWwub3JnLzIwMTYvMy83LzQ2
+MA0KPiA+PiA+ID4gTGluazogaHR0cHM6Ly9naXRodWIuY29tL3N5c3RlbWQvc3lzdGVtZC9pc3N1
+ZXMvMjA4Nw0KPiA+PiA+ID4gU2lnbmVkLW9mZi1ieTogTHYgWmhlbmcgPGx2LnpoZW5nQGludGVs
+LmNvbT4NCj4gPj4gPiA+IENjOiBCYXN0aWVuIE5vY2VyYTogPGhhZGVzc0BoYWRlc3MubmV0Pg0K
+PiA+PiA+ID4gQ2M6IEJlbmphbWluIFRpc3NvaXJlcyA8YmVuamFtaW4udGlzc29pcmVzQGdtYWls
+LmNvbT4NCj4gPj4gPiA+IENjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNCj4gPj4gPiA+
+IC0tLQ0KPiA+PiA+ID4gIERvY3VtZW50YXRpb24vYWNwaS9hY3BpLWxpZC50eHQgfCAgIDYyDQo+
+ID4+ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKw0KPiA+PiA+ID4gIDEg
+ZmlsZSBjaGFuZ2VkLCA2MiBpbnNlcnRpb25zKCspDQo+ID4+ID4gPiAgY3JlYXRlIG1vZGUgMTAw
+NjQ0IERvY3VtZW50YXRpb24vYWNwaS9hY3BpLWxpZC50eHQNCj4gPj4gPiA+DQo+ID4+ID4gPiBk
+aWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi9hY3BpL2FjcGktbGlkLnR4dA0KPiA+PiBiL0RvY3Vt
+ZW50YXRpb24vYWNwaS9hY3BpLWxpZC50eHQNCj4gPj4gPiA+IG5ldyBmaWxlIG1vZGUgMTAwNjQ0
+DQo+ID4+ID4gPiBpbmRleCAwMDAwMDAwLi43ZTRmN2VkDQo+ID4+ID4gPiAtLS0gL2Rldi9udWxs
+DQo+ID4+ID4gPiArKysgYi9Eb2N1bWVudGF0aW9uL2FjcGkvYWNwaS1saWQudHh0DQo+ID4+ID4g
+PiBAQCAtMCwwICsxLDYyIEBADQo+ID4+ID4gPiArVXNhZ2UgTW9kZWwgb2YgdGhlIEFDUEkgQ29u
+dHJvbCBNZXRob2QgTGlkIERldmljZQ0KPiA+PiA+ID4gKw0KPiA+PiA+ID4gK0NvcHlyaWdodCAo
+QykgMjAxNiwgSW50ZWwgQ29ycG9yYXRpb24NCj4gPj4gPiA+ICtBdXRob3I6IEx2IFpoZW5nIDxs
+di56aGVuZ0BpbnRlbC5jb20+DQo+ID4+ID4gPiArDQo+ID4+ID4gPiArDQo+ID4+ID4gPiArQWJz
+dHJhY3Q6DQo+ID4+ID4gPiArDQo+ID4+ID4gPiArUGxhdGZvcm1zIGNvbnRhaW5pbmcgbGlkcyBj
+b252ZXkgbGlkIHN0YXRlIChvcGVuL2Nsb3NlKSB0byBPU1BNcw0KPiA+PiB1c2luZyBhDQo+ID4+
+ID4gPiArY29udHJvbCBtZXRob2QgbGlkIGRldmljZS4gVG8gaW1wbGVtZW50IHRoaXMsIHRoZSBB
+TUwgdGFibGVzIGlzc3VlDQo+ID4+ID4gPiArTm90aWZ5KGxpZF9kZXZpY2UsIDB4ODApIHRvIG5v
+dGlmeSB0aGUgT1NQTXMgd2hlbmV2ZXIgdGhlIGxpZA0KPiBzdGF0ZQ0KPiA+PiBoYXMNCj4gPj4g
+PiA+ICtjaGFuZ2VkLiBUaGUgX0xJRCBjb250cm9sIG1ldGhvZCBmb3IgdGhlIGxpZCBkZXZpY2Ug
+bXVzdCBiZQ0KPiA+PiBpbXBsZW1lbnRlZCB0bw0KPiA+PiA+ID4gK3JlcG9ydCB0aGUgImN1cnJl
+bnQiIHN0YXRlIG9mIHRoZSBsaWQgYXMgZWl0aGVyICJvcGVuZWQiIG9yICJjbG9zZWQiLg0KPiA+
+PiA+ID4gKw0KPiA+PiA+ID4gK1RoaXMgZG9jdW1lbnQgZGVzY3JpYmVzIHRoZSByZXN0cmljdGlv
+bnMgYW5kIHRoZSBleHBlY3Rpb25zIG9mIHRoZQ0KPiA+PiBMaW51eA0KPiA+PiA+ID4gK0FDUEkg
+bGlkIGRldmljZSBkcml2ZXIuDQo+ID4+ID4gPiArDQo+ID4+ID4gPiArDQo+ID4+ID4gPiArMS4g
+UmVzdHJpY3Rpb25zIG9mIHRoZSByZXR1cm5pbmcgdmFsdWUgb2YgdGhlIF9MSUQgY29udHJvbCBt
+ZXRob2QNCj4gPj4gPiA+ICsNCj4gPj4gPiA+ICtUaGUgX0xJRCBjb250cm9sIG1ldGhvZCBpcyBk
+ZXNjcmliZWQgdG8gcmV0dXJuIHRoZSAiY3VycmVudCIgbGlkDQo+IHN0YXRlLg0KPiA+PiA+ID4g
+K0hvd2V2ZXIgdGhlIHdvcmQgb2YgImN1cnJlbnQiIGhhcyBhbWJpZ3VpdHksIG1hbnkgQU1MIHRh
+Ymxlcw0KPiA+PiByZXR1cm4gdGhlIGxpZA0KPiA+PiA+ID4gK3N0YXRlIHVwb24gdGhlIGxhc3Qg
+bGlkIG5vdGlmaWNhdGlvbiBpbnN0ZWFkIG9mIHJldHVybmluZyB0aGUgbGlkIHN0YXRlDQo+ID4+
+ID4gPiArdXBvbiB0aGUgbGFzdCBfTElEIGV2YWx1YXRpb24uIFRoZXJlIHdvbid0IGJlIGRpZmZl
+cmVuY2Ugd2hlbiB0aGUNCj4gPj4gX0xJRA0KPiA+PiA+ID4gK2NvbnRyb2wgbWV0aG9kIGlzIGV2
+YWx1YXRlZCBkdXJpbmcgdGhlIHJ1bnRpbWUsIHRoZSBwcm9ibGVtIGlzIGl0cw0KPiA+PiBpbml0
+aWFsDQo+ID4+ID4gPiArcmV0dXJuaW5nIHZhbHVlLiBXaGVuIHRoZSBBTUwgdGFibGVzIGltcGxl
+bWVudCB0aGlzIGNvbnRyb2wNCj4gbWV0aG9kDQo+ID4+IHdpdGgNCj4gPj4gPiA+ICtjYWNoZWQg
+dmFsdWUsIHRoZSBpbml0aWFsIHJldHVybmluZyB2YWx1ZSBpcyBsaWtlbHkgbm90IHJlbGlhYmxl
+LiBUaGVyZQ0KPiBhcmUNCj4gPj4gPiA+ICtzaW1wbHkgc28gbWFueSBleGFtcGxlcyBhbHdheXMg
+cmV0dW5pbmcgImNsb3NlZCIgYXMgaW5pdGlhbCBsaWQNCj4gc3RhdGUuDQo+ID4+ID4gPiArDQo+
+ID4+ID4gPiArMi4gUmVzdHJpY3Rpb25zIG9mIHRoZSBsaWQgc3RhdGUgY2hhbmdlIG5vdGlmaWNh
+dGlvbnMNCj4gPj4gPiA+ICsNCj4gPj4gPiA+ICtUaGVyZSBhcmUgbWFueSBBTUwgdGFibGVzIG5l
+dmVyIG5vdGlmeWluZyB3aGVuIHRoZSBsaWQgZGV2aWNlDQo+IHN0YXRlDQo+ID4+IGlzDQo+ID4+
+ID4gPiArY2hhbmdlZCB0byAib3BlbmVkIi4gQnV0IGl0IGlzIGVuc3VyZWQgdGhhdCB0aGUgQU1M
+IHRhYmxlcyBhbHdheXMNCj4gPj4gbm90aWZ5DQo+ID4+ID4gPiArImNsb3NlZCIgd2hlbiB0aGUg
+bGlkIHN0YXRlIGlzIGNoYW5nZWQgdG8gImNsb3NlZCIuIFRoaXMgaXMgbm9ybWFsbHkNCj4gPj4g
+dXNlZA0KPiA+PiA+ID4gK3RvIHRyaWdnZXIgc29tZSBzeXN0ZW0gcG93ZXIgc2F2aW5nIG9wZXJh
+dGlvbnMgb24gV2luZG93cy4NCj4gU2luY2UgaXQNCj4gPj4gaXMNCj4gPj4gPiA+ICtmdWxseSB0
+ZXN0ZWQsIHRoaXMgbm90aWZpY2F0aW9uIGlzIHJlbGlhYmxlIGZvciBhbGwgQU1MIHRhYmxlcy4N
+Cj4gPj4gPiA+ICsNCj4gPj4gPiA+ICszLiBFeHBlY3Rpb25zIGZvciB0aGUgdXNlcnNwYWNlIHVz
+ZXJzIG9mIHRoZSBBQ1BJIGxpZCBkZXZpY2UgZHJpdmVyDQo+ID4+ID4gPiArDQo+ID4+ID4gPiAr
+VGhlIHVzZXJzcGFjZSBwcm9ncmFtcyBzaG91bGQgc3RvcCByZWx5aW5nIG9uDQo+ID4+ID4gPiAr
+L3Byb2MvYWNwaS9idXR0b24vbGlkL0xJRDAvc3RhdGUgdG8gb2J0YWluIHRoZSBsaWQgc3RhdGUu
+IFRoaXMgZmlsZSBpcw0KPiA+PiBvbmx5DQo+ID4+ID4gPiArdXNlZCBmb3IgdGhlIHZhbGlkYXRp
+b24gcHVycG9zZS4NCj4gPj4gPg0KPiA+PiA+IEknZCBzYXk6IHRoaXMgZmlsZSBhY3R1YWxseSBj
+YWxscyB0aGUgX0xJRCBtZXRob2QgZGVzY3JpYmVkIGFib3ZlLiBBbmQNCj4gPj4gPiBnaXZlbiB0
+aGUgcHJldmlvdXMgZXhwbGFuYXRpb24sIGl0IGlzIG5vdCByZWxpYWJsZSBlbm91Z2ggb24gc29t
+ZQ0KPiA+PiA+IHBsYXRmb3Jtcy4gU28gaXQgaXMgc3Ryb25nbHkgYWR2aXNlZCBmb3IgdXNlci1z
+cGFjZSBwcm9ncmFtIHRvIG5vdA0KPiA+PiA+IHNvbGVseSByZWx5IG9uIHRoaXMgZmlsZSB0byBk
+ZXRlcm1pbmUgdGhlIGFjdHVhbCBsaWQgc3RhdGUuDQo+ID4+ID4NCj4gPj4gPiA+ICsNCj4gPj4g
+PiA+ICtOZXcgdXNlcnNwYWNlIHByb2dyYW1zIHNob3VsZCByZWx5IG9uIHRoZSBsaWQgImNsb3Nl
+ZCINCj4gbm90aWZpY2F0aW9uDQo+ID4+IHRvDQo+ID4+ID4gPiArdHJpZ2dlciBzb21lIHBvd2Vy
+IHNhdmluZyBvcGVyYXRpb25zIGFuZCBtYXkgc3RvcCB0YWtpbmcgYWN0aW9ucw0KPiA+PiBhY2Nv
+cmRpbmcNCj4gPj4gPiA+ICt0byB0aGUgbGlkICJvcGVuZWQiIG5vdGlmaWNhdGlvbi4gQSBuZXcg
+aW5wdXQgc3dpdGNoIGV2ZW50IC0NCj4gPj4gU1dfQUNQSV9MSUQgaXMNCj4gPj4gPiA+ICtwcmVw
+YXJlZCBmb3IgdGhlIG5ldyB1c2Vyc3BhY2UgdG8gaW1wbGVtZW50IHRoaXMgQUNQSSBjb250cm9s
+DQo+ID4+IG1ldGhvZCBsaWQNCj4gPj4gPiA+ICtkZXZpY2Ugc3BlY2lmaWMgbG9naWNzLg0KPiA+
+PiA+DQo+ID4+ID4gVGhhdCdzIG5vdCBlbnRpcmVseSB3aGF0IHdlIGRpc2N1c3NlZCBiZWZvcmUg
+KHRvIHByZXZlbnQgcmVncmVzc2lvbnMpOg0KPiA+PiA+IC0gaWYgdGhlIGRldmljZSBkb2Vzbid0
+IGhhdmUgcmVsaWFibGUgTElEIHN3aXRjaCBzdGF0ZSwgdGhlbiB0aGVyZQ0KPiA+PiA+IHdvdWxk
+IGJlIHRoZSBuZXcgaW5wdXQgZXZlbnQsIGFuZCBzbyB1c2Vyc3BhY2Ugc2hvdWxkIG9ubHkgcmVs
+eSBvbg0KPiA+PiA+IG9wZW5lZCBub3RpZmljYXRpb25zLg0KPiA+PiA+IC0gaWYgdGhlIGRldmlj
+ZSBoYXMgcmVsaWFibGUgc3dpdGNoIGluZm9ybWF0aW9uLCB0aGUgbmV3IGlucHV0IGV2ZW50DQo+
+ID4+ID4gc2hvdWxkIG5vdCBiZSBleHBvcnRlZCBhbmQgdXNlcnNwYWNlIGtub3dzIHRoYXQgdGhl
+IGN1cnJlbnQgaW5wdXQNCj4gPj4gPiBzd2l0Y2ggZXZlbnQgaXMgcmVsaWFibGUuDQo+ID4+ID4N
+Cj4gPj4gPiBBbHNvLCB1c2luZyBhIG5ldyAic3dpdGNoIiBldmVudCBpcyBhIHRlcnJpYmxlIGlk
+ZWEuIFN3aXRjaGVzIGhhdmUgYQ0KPiA+PiA+IHN0YXRlIChvcGVuL2Nsb3NlKSBhbmQgeW91IGFy
+ZSB1c2luZyB0aGlzIHRvIGZvcndhcmQgYSBzaW5nbGUgb3Blbg0KPiA+PiA+IGV2ZW50LiBTbyB1
+c2luZyBhIHN3aXRjaCBqdXN0IGFsbG93cyB5b3UgdG8gc2F5IHRvIHVzZXJzcGFjZSB5b3UgYXJl
+DQo+ID4+ID4gdXNpbmcgdGhlICJuZXciIExJRCBtZWFuaW5nLCBidXQgeW91J2xsIHN0aWxsIGhh
+dmUgdG8gbWFudWFsbHkgcmVzZXQNCj4gPj4gPiB0aGUgc3dpdGNoIGFuZCB5b3Ugd2lsbCBoYXZl
+IHRvIGRvY3VtZW50IGhvdyB0aGlzIGV2ZW50IGlzIG5vdCBhDQo+ID4+ID4gc3dpdGNoLg0KPiA+
+PiA+DQo+ID4+ID4gUGxlYXNlIHVzZSBhIHNpbXBsZSBLRVlfTElEX09QRU4gZXZlbnQgeW91IHdp
+bGwgc2VuZCB0aHJvdWdoDQo+ID4+ID4gW2lucHV0X2tleV9ldmVudChLRVlfTElEX09QRU4sIDEp
+LCBpbnB1dF9zeW5jKCksDQo+ID4+ID4gaW5wdXRfa2V5X2V2ZW50KEtFWV9MSURfT1BFTiwgMCks
+IGlucHV0X3N5bmMoKV0sIHdoaWNoIHVzZXJzcGFjZQ0KPiA+PiBrbm93cw0KPiA+PiA+IGhvdyB0
+byBoYW5kbGUuDQo+ID4+ID4NCj4gPj4gPiA+ICsNCj4gPj4gPiA+ICtEdXJpbmcgdGhlIHBlcmlv
+ZCB0aGUgdXNlcnNwYWNlIGhhc24ndCBiZWVuIHN3aXRjaGVkIHRvIHVzZSB0aGUNCj4gbmV3DQo+
+ID4+ID4gPiArU1dfQUNQSV9MSUQgZXZlbnQsIExpbnV4IHVzZXJzIGNhbiB1c2UgdGhlIGZvbGxv
+d2luZyBib290DQo+IHBhcmFtZXRlcg0KPiA+PiB0bw0KPiA+PiA+ID4gK2hhbmRsZSBwb3NzaWJs
+ZSBpc3N1ZXM6DQo+ID4+ID4gPiArICBidXR0b24ubGlkX2luaXRfc3RhdGU9bWV0aG9kOg0KPiA+
+PiA+ID4gKyAgIFRoaXMgaXMgdGhlIGRlZmF1bHQgYmVoYXZpb3Igb2YgdGhlIExpbnV4IEFDUEkg
+bGlkIGRyaXZlciwgTGludXgNCj4ga2VybmVsDQo+ID4+ID4gPiArICAgcmVwb3J0cyB0aGUgaW5p
+dGlhbCBsaWQgc3RhdGUgdXNpbmcgdGhlIHJldHVybmluZyB2YWx1ZSBvZiB0aGUgX0xJRA0KPiA+
+PiA+ID4gKyAgIGNvbnRyb2wgbWV0aG9kLg0KPiA+PiA+ID4gKyAgIFRoaXMgY2FuIGJlIHVzZWQg
+dG8gZml4IHNvbWUgcGxhdGZvcm1zIGlmIHRoZSBfTElEIGNvbnRyb2wNCj4gbWV0aG9kJ3MNCj4g
+Pj4gPiA+ICsgICByZXR1cm5pbmcgdmFsdWUgaXMgcmVsaWFibGUuDQo+ID4+ID4gPiArICBidXR0
+b24ubGlkX2luaXRfc3RhdGU9b3BlbjoNCj4gPj4gPiA+ICsgICBMaW51eCBrZXJuZWwgYWx3YXlz
+IHJlcG9ydHMgdGhlIGluaXRpYWwgbGlkIHN0YXRlIGFzICJvcGVuZWQiLg0KPiA+PiA+ID4gKyAg
+IFRoaXMgbWF5IGZpeCBzb21lIHBsYXRmb3JtcyBpZiB0aGUgcmV0dXJuaW5nIHZhbHVlIG9mIHRo
+ZSBfTElEDQo+ID4+IGNvbnRyb2wNCj4gPj4gPiA+ICsgICBtZXRob2QgaXMgbm90IHJlbGlhYmxl
+Lg0KPiA+PiA+DQo+ID4+ID4gVGhpcyB3b3JyaWVzIG1lIGFzIHRoZXJlIGlzIG5vIHBsYW4gYWZ0
+ZXIgIkR1cmluZyB0aGUgcGVyaW9kIHRoZQ0KPiA+PiA+IHVzZXJzcGFjZSBoYXNuJ3QgYmVlbiBz
+d2l0Y2hlZCB0byB1c2UgdGhlIG5ldyBldmVudCIuDQo+ID4+ID4NCj4gPj4gPiBJIHJlYWxseSBo
+b3BlIHlvdSdsbCBrZWVwIHNlbmRpbmcgU1dfTElEIGZvciByZWxpYWJsZSBMSUQgcGxhdGZvcm1z
+LA0KPiA+PiA+IGFuZCBub3QgcmVtb3ZlIGl0IGVudGlyZWx5IGFzIHlvdSB3aWxsIGJyZWFrIHBs
+YXRmb3Jtcy4NCj4gPj4NCj4gPj4gSG93IGFib3V0IHdlIGxlYXZlIHRoZSBrZXJuZWwgYWxvbmUg
+YW5kIHVzZXJzcGFjZSAod2hpY2ggd291bGQgaGF2ZQ0KPiB0bw0KPiA+PiBjb3BlIHdpdGggdGhl
+IG5ldyBLRVlfTElEX09QRU4gYW55d2F5KSB3b3VsZCBqdXN0IGhhdmUgdG8ga25vdw0KPiB0aGF0
+IGlmDQo+ID4+IHN3aXRjaCdzIHBhcmVudCBpcyBQTlAwQzBEOjAwIChvciBwaHlzIGlzIFBOUDBD
+MEQvYnV0dG9uL2lucHV0MCkNCj4gdGhlbg0KPiA+PiBpdA0KPiA+PiBjYW4ndCB0cnVzdCB0aGUg
+ZXZlbnRzIGFuZCBpdCBuZWVkcyBhZGRpdGlvbmFsIGhldXJpc3RpY3MuDQo+ID4NCj4gPiBbTHYg
+WmhlbmddDQo+ID4gSSBmb3VuZCBhIHByb2JsZW0gd2l0aCB0aGUga2V5IGV2ZW50IGFwcHJvYWNo
+Lg0KPiA+IEFuZCBuZWVkIHlvdXIgc3VnZ2VzdGlvbnMuDQo+ID4NCj4gPiBTb21lIEFNTCB0YWJs
+ZXMgaW52b2tlIE5vdGlmeShsaWRfZGV2aWNlLCAuLi4pIGluIHNldmVyYWwgZGlmZmVyZW50IHBs
+YWNlcy4NCj4gPiBJdCBtYXkgYmUgaW52b2tlZCBmcm9tIGRpZmZlcmVudCBmdW5jdGlvbnMuDQo+
+ID4NCj4gPiBGaW5hbGx5LCBpdCdzIG5vdCBndWFyYW50ZWVkIHRoYXQgb25lICJsaWQgY2xvc2Ui
+IGFjdGlvbiBjYW4gb25seSB0cmlnZ2VyDQo+IG9uZSBrZXkgY2xvc2Ugbm90aWZpY2F0aW9uLg0K
+PiA+IElmIHdlIHVzZSBFVl9LRVksIHRoZW4gdGhlcmUgc2hvdWxkIGJlIG1hbnkgcGxhdGZvcm1z
+IHRyaWdnZXJpbmcNCj4gbXVsdGlwbGUgImxpZCBjbG9zZSIgZXZlbnRzIHRvIHRoZSB1c2VyIHNw
+YWNlLg0KPiA+DQo+ID4gT3JpZ2luYWwgc3dpdGNoIGV2ZW50IGJhc2VkIGRlc2lnbiBjYW4gYXV0
+b21hdGljYWxseSBlbGltaW5hdGUgdGhlDQo+IHJlZHVuZGFudCBldmVudHMuDQo+ID4NCj4gPiBE
+b2VzIGlucHV0IGxheWVyIGhhcyBhbiBldmVudCB0eXBlIHRoYXQgY2FuIGhhbmRsZSBzdWNoIHNp
+dHVhdGlvbj8NCj4gPiBPciBzaGFsbCBBQ1BJIGJ1dHRvbiBkcml2ZXIgaGFuZGxlIHRoaXM/DQo+
+ID4NCj4gDQo+IEtleXMgYWxzbyBoYXZlIHNvbWUgcmVkdW5kYW50IGV2ZW50IGVsaW1pbmF0aW9u
+LCBidXQgaXQncyBhcyBsb25nIGFzDQo+IHlvdSBhcmUgaG9sZGluZyB0aGUga2V5IGluIHRoZSBw
+cmVzcyAob3IgcmVsZWFzZWQpIHBvc2l0aW9uLiBTbyBpbg0KPiB5b3VyIGNhc2UsIHRoYXQgd291
+bGQgbWVhbiBzZW5kaW5nIGlucHV0X2tleSgxKSwgd2FpdCBhIGxpdHRsZSB3aGlsZQ0KPiBvdGhl
+ciBub3RpZmljYXRpb25zIGFyZSBwcm9jZXNzZWQsIGFuZCB0aGVuIHNlbmRpbmcgaW5wdXRfa2V5
+KDApDQo+IChhc3N1bWluZyBlYWNoIG5vdGlmaWNhdGlvbiBjb21lcyBpbiB3aXRoIGl0cyBvd24g
+dGhyZWFkKS4gTm90IHN1cmUNCj4geW91IHdpbGwgZ2FpbiBhbnl0aGluZyBmcm9tIHRoZSBuZXcg
+aW1wbGVtZW50YXRpb24geW91IGp1c3Qgc2VudCB3aXRoDQo+IHRoZSByYXRlLWxpbWl0Lg0KDQpb
+THYgWmhlbmddIA0KSG93ZXZlciB0aGlzIGtleSBpcyB2aXJ0dWFsLg0KVGhlIG11bHRpcGxlIG5v
+dGlmaWNhdGlvbnMgYXJlIGp1c3QgdHJpZ2dlcmVkIGJ5IHRoZSBBTUwgY29kZS4NClRoZSBOb3Rp
+ZnkobGlkX2RldmljZSwgeHh4KSBtYXkgYmUgaW52b2tlZCBpbiBhIGZ1bmN0aW9uLg0KQW5kIHRo
+aXMgZnVuY3Rpb24gbWF5IGJlIGludm9rZWQgbXVsdGlwbGUgdGltZXMgYnkgb3RoZXIgY29udHJv
+bCBtZXRob2RzLg0KU28gSSBkbyBub3Qga25vdyB3aGVuIGl0IGlzICJyZWxlYXNlZCIuDQoNClVz
+aW5nIHRoZSBmZWF0dXJlIG9mIHRoZSBrZXlzLCBpdCBzb3VuZHMgbGlrZSB0aGF0IEkgc2hvdWxk
+IHNldHVwIGEgdGltZXIuDQpXaGVuIHRoZSBzdGF0ZSBpcyBjaGFuZ2VkLCBJIHNob3VsZCByZXBv
+cnQgaW5wdXRfa2V5KDEpIGFuZCBwcmVwYXJlIHRoZSB0aW1lci4NClRoZW4gcmVwb3J0IHRoZSBp
+bnB1dF9rZXkoMCkgd2hlbiB0aGUgdGltZXIgdGltZXMgb3V0Lg0KVGhlIHNpZGUgZWZmZWN0IGlz
+IHRoZSBpbnB1dF9rZXkoMCkgd2lsbCBiZSBkZWZlcnJlZC4NCg0KSSBqdXN0IHJlZnJlc2hlZCB0
+aGUgcGF0Y2ggYXMgdjQgd2l0aCBhbiBBQ1BJIGJ1dHRvbiBkcml2ZXIgaW50ZXJuYWwgd29ya2Fy
+b3VuZC4NCkJ5IGFkZGluZyBhIHRpbWVfYWZ0ZXIoKSBjaGVjayB3aGljaCBsb29rcyBtb3JlIGxp
+Z2h0d2VpZ2h0IHRoYW4gc2V0dGluZyB1cCBhIHRpbWVyLg0KQ291bGQgeW91IGFsc28gaGVscCB0
+byBjaGVjayBpZiB0aGF0IHNvbHV0aW9uIGlzIE9LPw0KVGhhbmtzIGluIGFkdmFuY2UuDQoNCkJl
+c3QgcmVnYXJkcw0KLUx2DQo=

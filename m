@@ -1,65 +1,163 @@
-From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v3 0/4] Add support for the Qualcomm PM8018 PMIC
-Date: Tue, 19 Jul 2016 15:52:11 +0200
-Message-ID: <1468936331-2981-1-git-send-email-narmstrong@baylibre.com>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2 v2] input: wacom_w8001 - cleanup 2FG touch code
+Date: Tue, 19 Jul 2016 11:37:53 -0700
+Message-ID: <20160719183753.GA19250@dtor-ws>
+References: <1468625185-17820-1-git-send-email-pingc@wacom.com>
+ <20160715235138.GH27847@dtor-ws>
+ <CAF8JNhJ4wRnH+f2beOuip=M1cUums7nB-uu6NWTcN91EVTCs+Q@mail.gmail.com>
+ <20160716053353.GA40160@dtor-ws>
+ <CAF8JNh+fDOktK39uaXa8Fdq7v058RrwMd7rmKv8b2V_sXCXRLA@mail.gmail.com>
+ <7724C52C-780C-4B7C-81BF-9A1EC8E78B71@gmail.com>
+ <CAF8JNhKzzV7Px3ZJU_Tp7H0VgO47aWQXCYDhN0S25+vE15X3yw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRBEXBXC6AKGQEAGV3UNI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:35782 "EHLO
+	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752348AbcGSSh5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Jul 2016 14:37:57 -0400
+Received: by mail-pf0-f193.google.com with SMTP id h186so1835897pfg.2
+        for <linux-input@vger.kernel.org>; Tue, 19 Jul 2016 11:37:56 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAF8JNhKzzV7Px3ZJU_Tp7H0VgO47aWQXCYDhN0S25+vE15X3yw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
 
-In order to support the Qualcomm MDM9615 in the Sierra Wireless WP8548
-Modules, add the PM8018 PMIC support into MFD, Regulator, RTC and input.
+On Sat, Jul 16, 2016 at 03:33:12PM -0700, Ping Cheng wrote:
+> On Sat, Jul 16, 2016 at 2:58 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On July 16, 2016 2:32:27 PM PDT, Ping Cheng <pinglinux@gmail.com> wrote:
+> >>On Fri, Jul 15, 2016 at 10:33 PM, Dmitry Torokhov
+> >><dmitry.torokhov@gmail.com> wrote:
+> >>> On Fri, Jul 15, 2016 at 06:19:41PM -0700, Ping Cheng wrote:
+> >>>> On Friday, July 15, 2016, Dmitry Torokhov
+> >><dmitry.torokhov@gmail.com> wrote:
+> >>>>
+> >>>> > On Fri, Jul 15, 2016 at 04:26:25PM -0700, Ping Cheng wrote:
+> >>>> > > input_mt_sync_frame is used by other wacom devices in
+> >>wacom_wac.c
+> >>>> > > to close the frame and emulate pointer events. Let's follow
+> >>them.
+> >>>> > >
+> >>>> > > Touch events aren't multiplexed over the same device anymore,
+> >>the
+> >>>> > > use of ABS_MT_TOOL_TYPE is superfluous.
+> >>>> >
+> >>>> > All of our touchscreen report the finger tool events, even if it
+> >>is the
+> >>>> > only "tool" that is being used. Does it cause problems?
+> >>>> >
+> >>>>
+> >>>> No, it does not cause problem, with/without ABS_MT_TOOL_TYPE being
+> >>set.
+> >>>> Testing result shows all touch data are reported whether we
+> >>explicitly set
+> >>>> ABS_MT_TOOL_TYPE upfront or not. Plus, ABS_MT_TOOL_TYPE is not set
+> >>in
+> >>>> wacom.ko. We'd like to be in sync with wacom.ko.
+> >>>>
+> >>>> The following comments for input_mt_report_slot_state in input-mt.c
+> >>>> explains the reason:
+> >>>>
+> >>>> "* Reports a contact via ABS_MT_TRACKING_ID, and optionally
+> >>>>  * ABS_MT_TOOL_TYPE. If active is true and the slot is currently
+> >>>>  * inactive, or if the tool type is changed, a new tracking id is
+> >>>>  * assigned to the slot. The tool type is only reported if the
+> >>>>  * corresponding absbit field is set."
+> >>>>
+> >>>> MT_TOOL_TYPE is necessary if we report both pen and touch on the
+> >>same
+> >>>> interface. That is not true for this series of devices any more..
+> >>>>
+> >>>>
+> >>>> > >
+> >>>> > > Signed-off-by: Ping Cheng <pingc@wacom.com>
+> >>>> > > Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+> >>>> > > ---
+> >>>> > > v2: moved input_abs_set_res into a separate patch, as suggested
+> >>by
+> >>>> > > Dmitry.
+> >>>> > > ---
+> >>>> > >  drivers/input/touchscreen/wacom_w8001.c | 15 ++-------------
+> >>>> > >  1 file changed, 2 insertions(+), 13 deletions(-)
+> >>>> > >
+> >>>> > > diff --git a/drivers/input/touchscreen/wacom_w8001.c
+> >>>> > b/drivers/input/touchscreen/wacom_w8001.c
+> >>>> > > index 7e807af..541a8df 100644
+> >>>> > > --- a/drivers/input/touchscreen/wacom_w8001.c
+> >>>> > > +++ b/drivers/input/touchscreen/wacom_w8001.c
+> >>>> > > @@ -170,16 +170,8 @@ static void parse_multi_touch(struct w8001
+> >>*w8001)
+> >>>> > >               }
+> >>>> > >       }
+> >>>> > >
+> >>>> > > -     /* emulate single touch events when stylus is out of
+> >>proximity.
+> >>>> > > -      * This is to make single touch backward support
+> >>consistent
+> >>>> > > -      * across all Wacom single touch devices.
+> >>>> > > -      */
+> >>>> > > -     if (w8001->type != BTN_TOOL_PEN &&
+> >>>> > > -                         w8001->type != BTN_TOOL_RUBBER) {
+> >>>> > > -             w8001->type = count == 1 ? BTN_TOOL_FINGER :
+> >>KEY_RESERVED;
+> >>>> > > -             input_mt_report_pointer_emulation(dev, true);
+> >>>> > > -     }
+> >>>> > > -
+> >>>> > > +     w8001->type = KEY_RESERVED;
+> >>>> > > +     input_mt_sync_frame(dev);
+> >>>> > >       input_sync(dev);
+> >>>> > >  }
+> >>>> > >
+> >>>> > > @@ -508,7 +500,6 @@ static int w8001_setup_touch(struct w8001
+> >>*w8001,
+> >>>> > char *basename,
+> >>>> > >       case 5:
+> >>>> > >               w8001->pktlen = W8001_PKTLEN_TOUCH2FG;
+> >>>> > >
+> >>>> > > -             __set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
+> >>>> >
+> >>>> > Who is setting this bit then?
+> >>>> >
+> >>>>
+> >>>> All MT related bits are set by input_mt_init_slots in input-mt.c,
+> >>including
+> >>>> BTN_TOOL_DOUBLETAP, if necessary.
+> >>>
+> >>> Doesn't this only happen if you call input_mt_init_slots with
+> >>> INPUT_MT_POINTER flag?
+> >>
+> >>You are right. And that is what we want this driver to do - to be in
+> >>sync with wacom.ko and rely on input-mt for common actions.
+> >
+> > But unless I missed some other patch from you this driver passes 0 as flags to input_mt_init_slots() and by removing the double-tap bit we are breaking the driver.
+> 
+> Oh, I see where you are ;). I assumed INPUT_MT_DIRECT was there. My
+> bad eyes ;-)!  We'd be better to change
+> 
+> input_mt_init_slots(dev, 2, 0);
+> 
+> to
+> 
+> input_mt_init_slots(dev, 2, INPUT_MT_DIRECT);
+> 
+> Do you want me to submit a new version or can you update it locally?
 
-This patchset is part of a global SoC + Module + Board support for the
-Sierra Wireless mangOH Board support with the WP8548 module.
+Ping,
 
-Patch "mfd: qcom-rpm: Add support for pm8018 RPM Regulator" depends on :
- - "fix offset error for msm8660" at http://lkml.kernel.org/r/1465897725-16213-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
- - "parametrize also ack selector size" at http://lkml.kernel.org/r/1466576837-21995-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+If you look at input_mt_init_slots() we only set the doubletap bit
+if we are using INPUT_MT_POINTER, but you are asking me to set
+INPUT_MT_DIRECT (which is correct property given that we are dealing
+with the touchscreen). Also, input_mt_sync_frame() passes use_count ==
+true to input_mt_report_pointer_emulation() (which would enable
+reporting of <n>-tap events) only if device has INPUT_MT_POINTER
+property.
 
-Changes since v2 at http://lkml.kernel.org/r/1466759887-25394-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org :
- - Dropped pwrkey changes
-
-Changes since v1 at http://lkml.kernel.org/r/1466158929-19524-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org :
- - Rebase mfd/qcom_rpm.c on top of Linus "fix offset error for msm8660" and "parametrize also ack selector size" patches
- - Rename QCOM_RPM_NCP in to QCOM_RPM_PM8018_NCP
- - Rebased qcom-rpm.h PM8018 defines numbers without a gap
- - Dropped regulator corner
-
-Neil Armstrong (4):
-  mfd: pm8921: Add support for pm8018
-  rtc: rtc-pm8xxx: Add support for pm8018 rtc
-  mfd: qcom-rpm: Add support for pm8018 RPM Regulator
-  regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator
-
- .../devicetree/bindings/mfd/qcom-pm8xxx.txt        |   1 +
- Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  15 ++++
- drivers/mfd/pm8921-core.c                          |   1 +
- drivers/mfd/qcom_rpm.c                             |  51 +++++++++++
- drivers/regulator/qcom_rpm-regulator.c             | 100 +++++++++++++++++++++
- drivers/rtc/rtc-pm8xxx.c                           |  11 +++
- include/dt-bindings/mfd/qcom-rpm.h                 |  22 +++++
- 7 files changed, 201 insertions(+)
+The while premise of this patch seems wrong. wacom.ko deals with
+tablets, wacom_w8001 is for a touchscreen. They behave differently.
 
 -- 
-1.9.1
-
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+Dmitry

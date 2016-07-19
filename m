@@ -1,84 +1,149 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6] input: touchscreen: Add generic driver for Silead
- touchscreens
-Date: Tue, 19 Jul 2016 11:44:25 -0700
-Message-ID: <20160719184425.GC19250@dtor-ws>
-References: <1468252304-22850-1-git-send-email-hdegoede@redhat.com>
- <20160716175605.GA4873@rob-hp-laptop>
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: [PATCH v4] Input: rotary_encoder - support binary encoding of states
+Date: Tue, 19 Jul 2016 21:38:39 +0200
+Message-ID: <1468957119-16458-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f65.google.com ([209.85.220.65]:34941 "EHLO
-	mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750998AbcGSSo3 (ORCPT
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:53467 "EHLO
+	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751607AbcGSTjU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Jul 2016 14:44:29 -0400
-Content-Disposition: inline
-In-Reply-To: <20160716175605.GA4873@rob-hp-laptop>
+	Tue, 19 Jul 2016 15:39:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>, Wessel Blokzijl <wesselb94@gmail.com>, Siebren Vroegindeweij <siebren.vroegindeweij@gmail.com>, Robert Dolca <robert.dolca@intel.com>, Daniel Jansen <djaniboe@gmail.com>
+To: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: kernel@pengutronix.de
 
-On Sat, Jul 16, 2016 at 12:56:05PM -0500, Rob Herring wrote:
-> On Mon, Jul 11, 2016 at 05:51:44PM +0200, Hans de Goede wrote:
-> > From: Robert Dolca <robert.dolca@intel.com>
-> > 
-> > This driver adds support for Silead touchscreens. It has been tested
-> > with GSL1680 and GSL3680 touch panels.
-> > 
-> > It supports ACPI and device tree enumeration. Screen resolution,
-> > the maximum number of fingers supported and firmware name are
-> > configurable.
-> > 
-> > Signed-off-by: Robert Dolca <robert.dolca@intel.com>
-> > Signed-off-by: Daniel Jansen <djaniboe@gmail.com>
-> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> > ---
-> > Changes in v6:
-> > -Default to 5 fingers if max-fingers is not specified
-> > -Improve devicetree binding doc: improve wake-gpios description, use
-> >  "See touchscreen.txt" where applicable
-> > ---
-> >  .../bindings/input/touchscreen/silead_gsl1680.txt  |  36 ++
-> >  drivers/input/touchscreen/Kconfig                  |  13 +
-> >  drivers/input/touchscreen/Makefile                 |   1 +
-> >  drivers/input/touchscreen/silead.c                 | 652 +++++++++++++++++++++
-> >  4 files changed, 702 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-> >  create mode 100644 drivers/input/touchscreen/silead.c
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-> > new file mode 100644
-> > index 0000000..1e58d37
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-> > @@ -0,0 +1,36 @@
-> > +* GSL 1680 touchscreen controller
-> > +
-> > +Required properties:
-> > +- compatible		  : "silead,gsl1680"
-> > +- reg			  : I2C slave address of the chip (0x40)
-> > +- interrupt-parent	  : a phandle pointing to the interrupt controller
-> > +			    serving the interrupt for this chip
-> > +- interrupts		  : interrupt specification for the gsl1680 interrupt
-> > +- power-gpios		  : Specification for the pin connected to the gsl1680's
-> > +			    shutdown input. This needs to be driven high to take the
-> > +			    gsl1680 out of its low power state
-> > +- touchscreen-size-x	  : See touchscreen.txt
-> > +- touchscreen-size-y	  : See touchscreen.txt
-> > +- touchscreen-max-fingers : maximum number of fingers the touchscreen can detect
-> 
-> If you name it like a standard property, then it should be documented in 
-> touchscreen.txt.
+It's not advisable to use this encoding, but to support existing device=
+s
+add support for this to the driver.
 
-Actually this is very much Silead-specific wart, I'd rather we called it
-"max-fingers" or "silead,max-fingers" to illustrate that it is not at
-all a generic property.
+Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+---
+Notes:
+    Changes since (implicit) v1, sent with
+    Message-Id: 1458680914-4533-1-git-send-email-u.kleine-koenig <at> p=
+engutronix.de
+   =20
+     - switch format of dt properties to use strings
+   =20
+    Changes since v2, sent with
+    Message-Id: 1458806232-22403-1-git-send-email-u.kleine-koenig <at> =
+pengutronix.de
+   =20
+     - be more strict about parsing the encoding string
+   =20
+    Changes since v3, sent with
+    Message-Id: 1460055528-13814-1-git-send-email-u.kleine-koenig@pengu=
+tronix.de
+   =20
+     - use device_property_match_string to parse device tree as request=
+ed
+       by Rob Herring.
 
-Rob, will you be OK with it?
+ .../devicetree/bindings/input/rotary-encoder.txt   |  4 ++++
+ drivers/input/misc/rotary_encoder.c                | 23 ++++++++++++++=
++++++++-
+ 2 files changed, 26 insertions(+), 1 deletion(-)
 
-Thanks.
+diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt=
+ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
+index 6c9f0c8a846c..e85ce3dea480 100644
+--- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
++++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
+@@ -20,6 +20,8 @@ Optional properties:
+   2: Half-period mode
+   4: Quarter-period mode
+ - wakeup-source: Boolean, rotary encoder can wake up the system.
++- rotary-encoder,encoding: String, the method used to encode steps.
++  Supported are "gray" (the default and more common) and "binary".
+=20
+ Deprecated properties:
+ - rotary-encoder,half-period: Makes the driver work on half-period mod=
+e.
+@@ -34,6 +36,7 @@ Example:
+ 			compatible =3D "rotary-encoder";
+ 			gpios =3D <&gpio 19 1>, <&gpio 20 0>; /* GPIO19 is inverted */
+ 			linux,axis =3D <0>; /* REL_X */
++			rotary-encoder,encoding =3D "gray";
+ 			rotary-encoder,relative-axis;
+ 		};
+=20
+@@ -42,5 +45,6 @@ Example:
+ 			gpios =3D <&gpio 21 0>, <&gpio 22 0>;
+ 			linux,axis =3D <1>; /* ABS_Y */
+ 			rotary-encoder,steps =3D <24>;
++			rotary-encoder,encoding =3D "binary";
+ 			rotary-encoder,rollover;
+ 		};
+diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/r=
+otary_encoder.c
+index c7fc8d4fb080..1588aecafff7 100644
+--- a/drivers/input/misc/rotary_encoder.c
++++ b/drivers/input/misc/rotary_encoder.c
+@@ -28,6 +28,11 @@
+=20
+ #define DRV_NAME "rotary-encoder"
+=20
++enum rotary_encoder_encoding {
++	ROTENC_GRAY,
++	ROTENC_BINARY,
++};
++
+ struct rotary_encoder {
+ 	struct input_dev *input;
+=20
+@@ -37,6 +42,7 @@ struct rotary_encoder {
+ 	u32 axis;
+ 	bool relative_axis;
+ 	bool rollover;
++	enum rotary_encoder_encoding encoding;
+=20
+ 	unsigned int pos;
+=20
+@@ -57,8 +63,9 @@ static unsigned int rotary_encoder_get_state(struct r=
+otary_encoder *encoder)
+=20
+ 	for (i =3D 0; i < encoder->gpios->ndescs; ++i) {
+ 		int val =3D gpiod_get_value_cansleep(encoder->gpios->desc[i]);
++
+ 		/* convert from gray encoding to normal */
+-		if (ret & 1)
++		if (encoder->encoding =3D=3D ROTENC_GRAY && ret & 1)
+ 			val =3D !val;
+=20
+ 		ret =3D ret << 1 | val;
+@@ -213,6 +220,20 @@ static int rotary_encoder_probe(struct platform_de=
+vice *pdev)
+ 	encoder->rollover =3D
+ 		device_property_read_bool(dev, "rotary-encoder,rollover");
+=20
++	if (!device_property_present(dev, "rotary-encoder,encoding") ||
++	    !device_property_match_string(dev, "rotary-encoder,encoding",
++					  "gray")) {
++		dev_info(dev, "gray");
++		encoder->encoding =3D ROTENC_GRAY;
++	} else if (!device_property_match_string(dev, "rotary-encoder,encodin=
+g",
++						 "binary")) {
++		dev_info(dev, "binary");
++		encoder->encoding =3D ROTENC_BINARY;
++	} else {
++		dev_err(dev, "unknown encoding setting\n");
++		return -EINVAL;
++	}
++
+ 	device_property_read_u32(dev, "linux,axis", &encoder->axis);
+ 	encoder->relative_axis =3D
+ 		device_property_read_bool(dev, "rotary-encoder,relative-axis");
+--=20
+2.8.1
 
--- 
-Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,14 +1,12 @@
 From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v3 3/4] mfd: qcom-rpm: Add support for pm8018 RPM Regulator
-Date: Tue, 19 Jul 2016 15:51:25 +0200
-Message-ID: <1468936286-2710-4-git-send-email-narmstrong@baylibre.com>
-References: <1468936286-2710-1-git-send-email-narmstrong@baylibre.com>
+Subject: [PATCH v3 0/4] Add support for the Qualcomm PM8018 PMIC
+Date: Tue, 19 Jul 2016 15:52:11 +0200
+Message-ID: <1468936331-2981-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRB3HAXC6AKGQEGLKXUXQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDAYD2P3QYGRBEXBXC6AKGQEAGV3UNI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1468936286-2710-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/rtc-linux
@@ -19,130 +17,40 @@ To: andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4d
 Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-In order to support the Qualcomm MDM9615 SoC, add support for the
-RPM regulator entries in the qcom-rpm driver.
+In order to support the Qualcomm MDM9615 in the Sierra Wireless WP8548
+Modules, add the PM8018 PMIC support into MFD, Regulator, RTC and input.
 
-Acked-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
----
- Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  1 +
- drivers/mfd/qcom_rpm.c                             | 51 ++++++++++++++++++++++
- include/dt-bindings/mfd/qcom-rpm.h                 | 22 ++++++++++
- 3 files changed, 74 insertions(+)
+This patchset is part of a global SoC + Module + Board support for the
+Sierra Wireless mangOH Board support with the WP8548 module.
 
-diff --git a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-index b98b291..72d68d4 100644
---- a/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-+++ b/Documentation/devicetree/bindings/mfd/qcom-rpm.txt
-@@ -13,6 +13,7 @@ frequencies.
- 		    "qcom,rpm-msm8660"
- 		    "qcom,rpm-msm8960"
- 		    "qcom,rpm-ipq8064"
-+		    "qcom,rpm-mdm9615"
- 
- - reg:
- 	Usage: required
-diff --git a/drivers/mfd/qcom_rpm.c b/drivers/mfd/qcom_rpm.c
-index 880d469..c309ebe 100644
---- a/drivers/mfd/qcom_rpm.c
-+++ b/drivers/mfd/qcom_rpm.c
-@@ -390,11 +390,62 @@ static const struct qcom_rpm_data ipq806x_template = {
- 	.ack_sel_size = 7,
- };
- 
-+static const struct qcom_rpm_resource mdm9615_rpm_resource_table[] = {
-+	[QCOM_RPM_CXO_CLK] =			{ 25, 9, 5, 1 },
-+	[QCOM_RPM_SYS_FABRIC_CLK] =		{ 26, 10, 9, 1 },
-+	[QCOM_RPM_DAYTONA_FABRIC_CLK] =		{ 27, 11, 11, 1 },
-+	[QCOM_RPM_SFPB_CLK] =			{ 28, 12, 12, 1 },
-+	[QCOM_RPM_CFPB_CLK] =			{ 29, 13, 13, 1 },
-+	[QCOM_RPM_EBI1_CLK] =			{ 30, 14, 16, 1 },
-+	[QCOM_RPM_APPS_FABRIC_HALT] =		{ 31, 15, 22, 2 },
-+	[QCOM_RPM_APPS_FABRIC_MODE] =		{ 33, 16, 23, 3 },
-+	[QCOM_RPM_APPS_FABRIC_IOCTL] =		{ 36, 17, 24, 1 },
-+	[QCOM_RPM_APPS_FABRIC_ARB] =		{ 37, 18, 25, 27 },
-+	[QCOM_RPM_PM8018_SMPS1] =		{ 64, 19, 30, 2 },
-+	[QCOM_RPM_PM8018_SMPS2] =		{ 66, 21, 31, 2 },
-+	[QCOM_RPM_PM8018_SMPS3] =		{ 68, 23, 32, 2 },
-+	[QCOM_RPM_PM8018_SMPS4] =		{ 70, 25, 33, 2 },
-+	[QCOM_RPM_PM8018_SMPS5] =		{ 72, 27, 34, 2 },
-+	[QCOM_RPM_PM8018_LDO1] =		{ 74, 29, 35, 2 },
-+	[QCOM_RPM_PM8018_LDO2] =		{ 76, 31, 36, 2 },
-+	[QCOM_RPM_PM8018_LDO3] =		{ 78, 33, 37, 2 },
-+	[QCOM_RPM_PM8018_LDO4] =		{ 80, 35, 38, 2 },
-+	[QCOM_RPM_PM8018_LDO5] =		{ 82, 37, 39, 2 },
-+	[QCOM_RPM_PM8018_LDO6] =		{ 84, 39, 40, 2 },
-+	[QCOM_RPM_PM8018_LDO7] =		{ 86, 41, 41, 2 },
-+	[QCOM_RPM_PM8018_LDO8] =		{ 88, 43, 42, 2 },
-+	[QCOM_RPM_PM8018_LDO9] =		{ 90, 45, 43, 2 },
-+	[QCOM_RPM_PM8018_LDO10] =		{ 92, 47, 44, 2 },
-+	[QCOM_RPM_PM8018_LDO11] =		{ 94, 49, 45, 2 },
-+	[QCOM_RPM_PM8018_LDO12] =		{ 96, 51, 46, 2 },
-+	[QCOM_RPM_PM8018_LDO13] =		{ 98, 53, 47, 2 },
-+	[QCOM_RPM_PM8018_LDO14] =		{ 100, 55, 48, 2 },
-+	[QCOM_RPM_PM8018_LVS1] =		{ 102, 57, 49, 1 },
-+	[QCOM_RPM_PM8018_NCP] =			{ 103, 58, 80, 2 },
-+	[QCOM_RPM_CXO_BUFFERS] =		{ 105, 60, 81, 1 },
-+	[QCOM_RPM_USB_OTG_SWITCH] =		{ 106, 61, 82, 1 },
-+	[QCOM_RPM_HDMI_SWITCH] =		{ 107, 62, 83, 1 },
-+	[QCOM_RPM_VOLTAGE_CORNER] =		{ 109, 64, 87, 1 },
-+};
-+
-+static const struct qcom_rpm_data mdm9615_template = {
-+	.version = 3,
-+	.resource_table = mdm9615_rpm_resource_table,
-+	.n_resources = ARRAY_SIZE(mdm9615_rpm_resource_table),
-+	.req_ctx_off = 3,
-+	.req_sel_off = 11,
-+	.ack_ctx_off = 15,
-+	.ack_sel_off = 23,
-+	.req_sel_size = 4,
-+	.ack_sel_size = 7,
-+};
-+
- static const struct of_device_id qcom_rpm_of_match[] = {
- 	{ .compatible = "qcom,rpm-apq8064", .data = &apq8064_template },
- 	{ .compatible = "qcom,rpm-msm8660", .data = &msm8660_template },
- 	{ .compatible = "qcom,rpm-msm8960", .data = &msm8960_template },
- 	{ .compatible = "qcom,rpm-ipq8064", .data = &ipq806x_template },
-+	{ .compatible = "qcom,rpm-mdm9615", .data = &mdm9615_template },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, qcom_rpm_of_match);
-diff --git a/include/dt-bindings/mfd/qcom-rpm.h b/include/dt-bindings/mfd/qcom-rpm.h
-index 13a9d4b..54aef5e 100644
---- a/include/dt-bindings/mfd/qcom-rpm.h
-+++ b/include/dt-bindings/mfd/qcom-rpm.h
-@@ -147,6 +147,28 @@
- #define QCOM_RPM_SMB208_S1b			137
- #define QCOM_RPM_SMB208_S2a			138
- #define QCOM_RPM_SMB208_S2b			139
-+#define QCOM_RPM_PM8018_SMPS1			140
-+#define QCOM_RPM_PM8018_SMPS2			141
-+#define QCOM_RPM_PM8018_SMPS3			142
-+#define QCOM_RPM_PM8018_SMPS4			143
-+#define QCOM_RPM_PM8018_SMPS5			144
-+#define QCOM_RPM_PM8018_LDO1			145
-+#define QCOM_RPM_PM8018_LDO2			146
-+#define QCOM_RPM_PM8018_LDO3			147
-+#define QCOM_RPM_PM8018_LDO4			148
-+#define QCOM_RPM_PM8018_LDO5			149
-+#define QCOM_RPM_PM8018_LDO6			150
-+#define QCOM_RPM_PM8018_LDO7			151
-+#define QCOM_RPM_PM8018_LDO8			152
-+#define QCOM_RPM_PM8018_LDO9			153
-+#define QCOM_RPM_PM8018_LDO10			154
-+#define QCOM_RPM_PM8018_LDO11			155
-+#define QCOM_RPM_PM8018_LDO12			156
-+#define QCOM_RPM_PM8018_LDO13			157
-+#define QCOM_RPM_PM8018_LDO14			158
-+#define QCOM_RPM_PM8018_LVS1			159
-+#define QCOM_RPM_PM8018_NCP			160
-+#define QCOM_RPM_VOLTAGE_CORNER			161
- 
- /*
-  * Constants used to select force mode for regulators.
+Patch "mfd: qcom-rpm: Add support for pm8018 RPM Regulator" depends on :
+ - "fix offset error for msm8660" at http://lkml.kernel.org/r/1465897725-16213-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+ - "parametrize also ack selector size" at http://lkml.kernel.org/r/1466576837-21995-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+
+Changes since v2 at http://lkml.kernel.org/r/1466759887-25394-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org :
+ - Dropped pwrkey changes
+
+Changes since v1 at http://lkml.kernel.org/r/1466158929-19524-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org :
+ - Rebase mfd/qcom_rpm.c on top of Linus "fix offset error for msm8660" and "parametrize also ack selector size" patches
+ - Rename QCOM_RPM_NCP in to QCOM_RPM_PM8018_NCP
+ - Rebased qcom-rpm.h PM8018 defines numbers without a gap
+ - Dropped regulator corner
+
+Neil Armstrong (4):
+  mfd: pm8921: Add support for pm8018
+  rtc: rtc-pm8xxx: Add support for pm8018 rtc
+  mfd: qcom-rpm: Add support for pm8018 RPM Regulator
+  regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator
+
+ .../devicetree/bindings/mfd/qcom-pm8xxx.txt        |   1 +
+ Documentation/devicetree/bindings/mfd/qcom-rpm.txt |  15 ++++
+ drivers/mfd/pm8921-core.c                          |   1 +
+ drivers/mfd/qcom_rpm.c                             |  51 +++++++++++
+ drivers/regulator/qcom_rpm-regulator.c             | 100 +++++++++++++++++++++
+ drivers/rtc/rtc-pm8xxx.c                           |  11 +++
+ include/dt-bindings/mfd/qcom-rpm.h                 |  22 +++++
+ 7 files changed, 201 insertions(+)
+
 -- 
 1.9.1
 

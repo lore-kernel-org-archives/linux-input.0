@@ -1,31 +1,114 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/2] devicetree: bindings: Add vendor prefix for
- Domintech Co., Ltd.
-Date: Tue, 19 Jul 2016 20:09:30 -0500
-Message-ID: <20160720010930.GA3741@rob-hp-laptop>
-References: <1468846092-18914-1-git-send-email-mamlinav@gmail.com>
- <1468846092-18914-2-git-send-email-mamlinav@gmail.com>
+From: Nitin Chaudhary <nitinchaudhary1289@gmail.com>
+Subject: Re: [PATCH] Input: synaptics-rmi4: Fix maximum size check for F12
+ control register 8
+Date: Tue, 19 Jul 2016 18:16:58 -0700
+Message-ID: <CAJOu_2_Uf4PrH+eG4aY6AtUrKeJiYh1Pk33LxUYPi6cKReLhTw@mail.gmail.com>
+References: <1468971821-16982-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:34584 "EHLO
-	mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752296AbcGTBJc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Jul 2016 21:09:32 -0400
-Content-Disposition: inline
-In-Reply-To: <1468846092-18914-2-git-send-email-mamlinav@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1468971821-16982-1-git-send-email-aduggan@synaptics.com>
+Sender: stable-owner@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick@shmanahar.org>, Chris Healy <cphealy@gmail.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aleksei Mamlin <mamlinav@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Jul 18, 2016 at 03:48:11PM +0300, Aleksei Mamlin wrote:
-> Add vendor-prefix for Domintech Co., Ltd.
-> 
-> Signed-off-by: Aleksei Mamlin <mamlinav@gmail.com>
+Tested on i.MX6Q Board with Synaptics 7813 Touch Controller, works fine.
+
+Tested by: Nitin Chaudhary <nitinchaudhary1289@gmail.com>
+
+On Tue, Jul 19, 2016 at 4:43 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
+> According to the RMI4 spec the maximum size of F12 control register 8 is
+> 15 bytes. The current code incorrectly reports an error if control 8 is
+> greater then 14. Making sensors with a control register 8 with 15 bytes
+> unusable.
+>
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> Reported-by: Chris Healy <cphealy@gmail.com>
+> Cc: stable@vger.kernel.org
 > ---
->  Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
->  1 file changed, 1 insertion(+)
+>  drivers/input/rmi4/rmi_f12.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
+> index c30fd86..9b0d9f7 100644
+> --- a/drivers/input/rmi4/rmi_f12.c
+> +++ b/drivers/input/rmi4/rmi_f12.c
+> @@ -68,7 +68,7 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
+>         struct rmi_device *rmi_dev = fn->rmi_dev;
+>         int ret;
+>         int offset;
+> -       u8 buf[14];
+> +       u8 buf[15];
+>         int pitch_x = 0;
+>         int pitch_y = 0;
+>         int clip_x_low = 0;
+> @@ -88,8 +88,9 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
+>
+>         offset = rmi_register_desc_calc_reg_offset(&f12->control_reg_desc, 8);
+>
+> -       if (item->reg_size > 14) {
+> -               dev_err(&fn->dev, "F12 control8 should be 14 bytes, not: %ld\n",
+> +       if (item->reg_size > 15) {
+> +               dev_err(&fn->dev,
+> +                       "F12 control8 should be a maximum of 15 bytes, not: %ld\n",
+>                         item->reg_size);
+>                 return -ENODEV;
+>         }
+> --
+> 2.7.4
+>
 
-Acked-by: Rob Herring <robh@kernel.org>
+
+On Tue, Jul 19, 2016 at 4:43 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
+> According to the RMI4 spec the maximum size of F12 control register 8 is
+> 15 bytes. The current code incorrectly reports an error if control 8 is
+> greater then 14. Making sensors with a control register 8 with 15 bytes
+> unusable.
+>
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> Reported-by: Chris Healy <cphealy@gmail.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/input/rmi4/rmi_f12.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
+> index c30fd86..9b0d9f7 100644
+> --- a/drivers/input/rmi4/rmi_f12.c
+> +++ b/drivers/input/rmi4/rmi_f12.c
+> @@ -68,7 +68,7 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
+>         struct rmi_device *rmi_dev = fn->rmi_dev;
+>         int ret;
+>         int offset;
+> -       u8 buf[14];
+> +       u8 buf[15];
+>         int pitch_x = 0;
+>         int pitch_y = 0;
+>         int clip_x_low = 0;
+> @@ -88,8 +88,9 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
+>
+>         offset = rmi_register_desc_calc_reg_offset(&f12->control_reg_desc, 8);
+>
+> -       if (item->reg_size > 14) {
+> -               dev_err(&fn->dev, "F12 control8 should be 14 bytes, not: %ld\n",
+> +       if (item->reg_size > 15) {
+> +               dev_err(&fn->dev,
+> +                       "F12 control8 should be a maximum of 15 bytes, not: %ld\n",
+>                         item->reg_size);
+>                 return -ENODEV;
+>         }
+> --
+> 2.7.4
+>
+
+
+
+-- 
+Thanks & Regards
+
+Nitin Chaudhary
+Nitin Chaudhary
+MS, Electrical Engineering
+University of Southern California
+Intern, Zodiac In-flight Innovations

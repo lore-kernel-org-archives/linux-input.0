@@ -1,145 +1,85 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH] HID: wacom: Stop mapping touch usages after processing
- HID_DG_CONTACTCOUNT
-Date: Wed, 20 Jul 2016 14:35:45 -0700
-Message-ID: <f20b53ac-1bde-7005-2874-74bdd6d6aa96@gmail.com>
-References: <20160711175950.17121-1-killertofu@gmail.com>
- <20160712073250.GE4663@mail.corp.redhat.com>
- <a4fa624b-5464-7a6b-52dc-9b370ebdc507@gmail.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: v4.1 to v4.7: regression in tsc2005 driver
+Date: Thu, 21 Jul 2016 07:47:36 +1000
+Message-ID: <20160720214736.GA4321@jelly>
+References: <20160717175257.GA26719@amd>
+ <20160717182445.GA20058@deathstar>
+ <20160717184209.GA30119@amd>
+ <20160717185134.GA20462@deathstar>
+ <20160717200339.GA29562@amd>
+ <20160717225636.GB20462@deathstar>
+ <20160719235120.GD19250@dtor-ws>
+ <20160720062558.GA3792@amd>
+ <20160720162356.GA25655@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34889 "EHLO
-	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752879AbcGTVfs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2016 17:35:48 -0400
-Received: by mail-pf0-f193.google.com with SMTP id h186so4120618pfg.2
-        for <linux-input@vger.kernel.org>; Wed, 20 Jul 2016 14:35:48 -0700 (PDT)
-In-Reply-To: <a4fa624b-5464-7a6b-52dc-9b370ebdc507@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160720162356.GA25655@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Michael Welling <mwelling@ieee.org>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, pali.rohar@gmail.com, sre@kernel.org, aaro.koskinen@iki.fi, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On 07/20/2016 09:36 AM, Jason Gerecke wrote:
-> On 07/12/2016 12:32 AM, Benjamin Tissoires wrote:
->> Hi Jason,
->>
->> On Jul 11 2016 or thereabouts, Jason Gerecke wrote:
->>> If a touchscreen contains both multitouch and single-touch reports =
-in its
->>> descriptor in that order, the driver may overwrite information it s=
-aved
->>> about the format of the multitouch report. This can cause the repor=
-t
->>> processing code to get tripped up and send an incorrect event strea=
-m to
->>> userspace.
->>>
->>> In particular, this can cause last_slot_field to be overwritten wit=
-h the
->>> result that the driver prematurely assumes it has finished processi=
-ng a
->>> slot and sending the ABS_MT_SLOT event at the wrong point in time,
->>> associating events for the current contact with the following conta=
-ct
->>> instead.
->>>
->>> To prevent this from occuring, we stop mapping usages after having =
-seen
->>> HID_DG_CONTACTCOUNT. This usage is only present in multitouch repor=
-ts,
->>> so the format of any following single-touch reports will have no ef=
-fect.
->>
->> I had a quick look at the driver, and it looks like the Cintiq Compa=
-nion
->> 2 has more than one multitouch collection (see 499522c "HID: wacom: =
-Tie
->> cached HID_DG_CONTACTCOUNT indices to report ID").
->>
->> So if this doesn't break the cintiq companion 2, you have my
->> reviewed-by, but I'd rather be sure (and please see if we really nee=
-d to
->> keep 499522c then).
->>
->> Cheers,
->> Benjamin
->>
->=20
-> Thanks for the reminder about 499522c. This patch should supersede it=
- in
-> terms of functionality, so I can make a patch to remove it instead.
->=20
-> As far as compatibility goes, I don't have a Companion 2 to actually
-> test, but looking at the descriptor [1], it shouldn't pose any proble=
-ms:
-> the second report containing HID_DG_CONTACTCOUNT is the single-touch
-> report that we don't want to use anyway.
->=20
-> [1]:
-> https://github.com/linuxwacom/wacom-hid-descriptors/blob/master/Wacom=
-%20Cintiq%20Companion%202/0003:056A:0326.0002.hid.txt
->=20
-> Jason
-> ---
-> Now instead of four in the eights place /
-> you=E2=80=99ve got three, =E2=80=98Cause you added one /
-> (That is to say, eight) to the two, /
-> But you can=E2=80=99t take seven from three, /
-> So you look at the sixty-fours....
->=20
+On Wed, Jul 20, 2016 at 09:23:56AM -0700, Dmitry Torokhov wrote:
+> On Wed, Jul 20, 2016 at 08:25:58AM +0200, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > > > > > > drivers/input/touchscreen/tsc2005.c:	  input_dev->name = "TSC2005
+> > > > > > > > > touchscreen";
+> > > > > > > > > 
+> > > > > > > > > to "TSC200X touchscreen". Unfortunately, X seems to propagate that
+> > > > > > > > > name to userspace, where it is needed to be able to do
+> > > 
+> > > Technically X _is_ userspace.
+> > 
+> > There's "userspace running as root" and "userspace userspace" :-).
+> 
+> I do not really see any difference form the kernel POW. 
+> 
+> > 
+> > > > > > > > > 
+> > > > > > > > > xinput --set-prop --type=int ...
+> > > > > > > > > 
+> > > > > > > > > with the right arguments to calibrate touchscreen. (Touchscreen is
+> > > > > > > > > unusable without calibration).
+> > > > > > > > > 
+> > > > > > > > > What to do with that?
+> > > 
+> > > Hmm, I do not think we ever committed for the device names to be stable.
+> > > You are supposed to locate touchscreen device based on its properties
+> > > and you might need some heuristic if you encounter a system with more
+> > > than one such touchscreen.
+> > 
+> > Well, you are commited now, like it or not, X people did it for you
+> > :-(.
+> > 
+> > Because there's no other reasonable way to use xinput --set-prop...
+> 
+> Well, X is going to have to fix it. How am I supposed to control my
+> devices in multi-seat environment if I use the same hardware (or if I
+> have device with multiple touchscreens)? They all will have the same
+> name (well, all mice, then all keyboards, etc). Let's add Peter to the
+> fold...
+> 
+> In the mean time you can adjust the name or use XID instead.
 
-On closer inspection, it's probably not right to say that this patch
-supersedes 499522c. It does remove the need for it, but only under the
-(currently valid) assumption that the first report with
-HID_DG_CONTACTCOUNT is the report the tablet will send.
+X has partially fixed this a few years ago. All input drivers (that
+matter) export a Device Node property that sets the device node for each
+device.
 
-If we want to be free of that assumption, it might be a better idea to
-replace this patch with something that instead does additional work in
-the pre_report phase to update last_slot_field (just like how 499522c
-updates cc_index and cc_value_index during pre_report).
+ $ xinput list-props "SynPS/2 Synaptics TouchPad" | grep "Device Node"
+        Device Node (261):      "/dev/input/event4"
 
-Thoughts?
+Based on that you can get the udev device and work your way into any of the
+sysfs tree. Or do whatever else you want.
 
-Jason
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one /
-(That is to say, eight) to the two, /
-But you can=E2=80=99t take seven from three, /
-So you look at the sixty-fours....
+But other than that there isn't anything in X to fix. xinput is primarily a
+debugging tool and it does name resolution for convenience. But it's not a
+tool for complex configurations. It does exactly what it needs to do, if you
+need something that's more complicated and relies on information not
+available to the X device itself then you'll need to write a custom tool
+that does what you need. sorry.
 
->>>
->>> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
->>> ---
->>>  drivers/hid/wacom_wac.c | 5 +++++
->>>  1 file changed, 5 insertions(+)
->>>
->>> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
->>> index fcf2264..e499cdb 100644
->>> --- a/drivers/hid/wacom_wac.c
->>> +++ b/drivers/hid/wacom_wac.c
->>> @@ -1560,6 +1560,11 @@ static void wacom_wac_finger_usage_mapping(s=
-truct hid_device *hdev,
->>>  	struct input_dev *input =3D wacom_wac->touch_input;
->>>  	unsigned touch_max =3D wacom_wac->features.touch_max;
->>> =20
->>> +	/* stop processing after the first multitouch report */
->>> +	if (wacom_wac->hid_data.cc_report &&
->>> +	    wacom_wac->hid_data.cc_report !=3D field->report->id)
->>> +		return;
->>> +
->>>  	switch (usage->hid) {
->>>  	case HID_GD_X:
->>>  		features->last_slot_field =3D usage->hid;
->>> --=20
->>> 2.9.0
->>>
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+   Peter

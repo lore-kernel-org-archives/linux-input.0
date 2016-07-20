@@ -1,114 +1,41 @@
-From: Nitin Chaudhary <nitinchaudhary1289@gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4: Fix maximum size check for F12
- control register 8
-Date: Tue, 19 Jul 2016 18:16:58 -0700
-Message-ID: <CAJOu_2_Uf4PrH+eG4aY6AtUrKeJiYh1Pk33LxUYPi6cKReLhTw@mail.gmail.com>
-References: <1468971821-16982-1-git-send-email-aduggan@synaptics.com>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: Re: v4.1 to v4.7: regression in tsc2005 driver
+Date: Wed, 20 Jul 2016 04:26:44 +0300
+Message-ID: <20160720012644.GA3126@blackmetal.musicnaut.iki.fi>
+References: <20160717175257.GA26719@amd>
+ <20160717182445.GA20058@deathstar>
+ <20160717184209.GA30119@amd>
+ <20160717185134.GA20462@deathstar>
+ <20160717200339.GA29562@amd>
+ <20160717225636.GB20462@deathstar>
+ <20160719235120.GD19250@dtor-ws>
+ <20160720003908.GA32423@deathstar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1468971821-16982-1-git-send-email-aduggan@synaptics.com>
-Sender: stable-owner@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick@shmanahar.org>, Chris Healy <cphealy@gmail.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from emh06.mail.saunalahti.fi ([62.142.5.116]:53224 "EHLO
+	emh06.mail.saunalahti.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752311AbcGTB0t (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Jul 2016 21:26:49 -0400
+Content-Disposition: inline
+In-Reply-To: <20160720003908.GA32423@deathstar>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Michael Welling <mwelling@ieee.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, pali.rohar@gmail.com, sre@kernel.org, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com
 
-Tested on i.MX6Q Board with Synaptics 7813 Touch Controller, works fine.
+On Tue, Jul 19, 2016 at 07:39:08PM -0500, Michael Welling wrote:
+> On Tue, Jul 19, 2016 at 04:51:20PM -0700, Dmitry Torokhov wrote:
+> > On Sun, Jul 17, 2016 at 05:56:36PM -0500, Michael Welling wrote:
+> > > On Sun, Jul 17, 2016 at 10:03:39PM +0200, Pavel Machek wrote:
+> > > > Ok, thanks for the information. I believe changing it back to
+> > > > "TSC2005" version makes sense (and then fixing it in stable).
+> > 
+> > Do we know how many users are affected?
+> 
+> Anyone with an old N900 and the smarts to update the kernel.
 
-Tested by: Nitin Chaudhary <nitinchaudhary1289@gmail.com>
+I think tsc2005 could be also used on N810.
 
-On Tue, Jul 19, 2016 at 4:43 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
-> According to the RMI4 spec the maximum size of F12 control register 8 is
-> 15 bytes. The current code incorrectly reports an error if control 8 is
-> greater then 14. Making sensors with a control register 8 with 15 bytes
-> unusable.
->
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> Reported-by: Chris Healy <cphealy@gmail.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/input/rmi4/rmi_f12.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
-> index c30fd86..9b0d9f7 100644
-> --- a/drivers/input/rmi4/rmi_f12.c
-> +++ b/drivers/input/rmi4/rmi_f12.c
-> @@ -68,7 +68,7 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
->         struct rmi_device *rmi_dev = fn->rmi_dev;
->         int ret;
->         int offset;
-> -       u8 buf[14];
-> +       u8 buf[15];
->         int pitch_x = 0;
->         int pitch_y = 0;
->         int clip_x_low = 0;
-> @@ -88,8 +88,9 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
->
->         offset = rmi_register_desc_calc_reg_offset(&f12->control_reg_desc, 8);
->
-> -       if (item->reg_size > 14) {
-> -               dev_err(&fn->dev, "F12 control8 should be 14 bytes, not: %ld\n",
-> +       if (item->reg_size > 15) {
-> +               dev_err(&fn->dev,
-> +                       "F12 control8 should be a maximum of 15 bytes, not: %ld\n",
->                         item->reg_size);
->                 return -ENODEV;
->         }
-> --
-> 2.7.4
->
-
-
-On Tue, Jul 19, 2016 at 4:43 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
-> According to the RMI4 spec the maximum size of F12 control register 8 is
-> 15 bytes. The current code incorrectly reports an error if control 8 is
-> greater then 14. Making sensors with a control register 8 with 15 bytes
-> unusable.
->
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> Reported-by: Chris Healy <cphealy@gmail.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/input/rmi4/rmi_f12.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
-> index c30fd86..9b0d9f7 100644
-> --- a/drivers/input/rmi4/rmi_f12.c
-> +++ b/drivers/input/rmi4/rmi_f12.c
-> @@ -68,7 +68,7 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
->         struct rmi_device *rmi_dev = fn->rmi_dev;
->         int ret;
->         int offset;
-> -       u8 buf[14];
-> +       u8 buf[15];
->         int pitch_x = 0;
->         int pitch_y = 0;
->         int clip_x_low = 0;
-> @@ -88,8 +88,9 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
->
->         offset = rmi_register_desc_calc_reg_offset(&f12->control_reg_desc, 8);
->
-> -       if (item->reg_size > 14) {
-> -               dev_err(&fn->dev, "F12 control8 should be 14 bytes, not: %ld\n",
-> +       if (item->reg_size > 15) {
-> +               dev_err(&fn->dev,
-> +                       "F12 control8 should be a maximum of 15 bytes, not: %ld\n",
->                         item->reg_size);
->                 return -ENODEV;
->         }
-> --
-> 2.7.4
->
-
-
-
--- 
-Thanks & Regards
-
-Nitin Chaudhary
-Nitin Chaudhary
-MS, Electrical Engineering
-University of Southern California
-Intern, Zodiac In-flight Innovations
+A.

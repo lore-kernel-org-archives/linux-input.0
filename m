@@ -1,61 +1,73 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4] Input: rotary_encoder - support binary encoding of
- states
-Date: Wed, 20 Jul 2016 08:19:38 -0500
-Message-ID: <20160720131938.GA4165@rob-hp-laptop>
-References: <1468957119-16458-1-git-send-email-u.kleine-koenig@pengutronix.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: v4.1 to v4.7: regression in tsc2005 driver
+Date: Wed, 20 Jul 2016 09:23:56 -0700
+Message-ID: <20160720162356.GA25655@dtor-ws>
+References: <20160717175257.GA26719@amd>
+ <20160717182445.GA20058@deathstar>
+ <20160717184209.GA30119@amd>
+ <20160717185134.GA20462@deathstar>
+ <20160717200339.GA29562@amd>
+ <20160717225636.GB20462@deathstar>
+ <20160719235120.GD19250@dtor-ws>
+ <20160720062558.GA3792@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:36371 "EHLO
-	mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753548AbcGTNTk (ORCPT
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:34409 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753814AbcGTQYA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2016 09:19:40 -0400
+	Wed, 20 Jul 2016 12:24:00 -0400
 Content-Disposition: inline
-In-Reply-To: <1468957119-16458-1-git-send-email-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <20160720062558.GA3792@amd>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, kernel@pengutronix.de
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Michael Welling <mwelling@ieee.org>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, pali.rohar@gmail.com, sre@kernel.org, aaro.koskinen@iki.fi, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Tue, Jul 19, 2016 at 09:38:39PM +0200, Uwe Kleine-K=F6nig wrote:
-> It's not advisable to use this encoding, but to support existing devi=
-ces
-> add support for this to the driver.
->=20
-> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-> ---
-> Notes:
->     Changes since (implicit) v1, sent with
->     Message-Id: 1458680914-4533-1-git-send-email-u.kleine-koenig <at>=
- pengutronix.de
->    =20
->      - switch format of dt properties to use strings
->    =20
->     Changes since v2, sent with
->     Message-Id: 1458806232-22403-1-git-send-email-u.kleine-koenig <at=
-> pengutronix.de
->    =20
->      - be more strict about parsing the encoding string
->    =20
->     Changes since v3, sent with
->     Message-Id: 1460055528-13814-1-git-send-email-u.kleine-koenig@pen=
-gutronix.de
->    =20
->      - use device_property_match_string to parse device tree as reque=
-sted
->        by Rob Herring.
->=20
->  .../devicetree/bindings/input/rotary-encoder.txt   |  4 ++++
->  drivers/input/misc/rotary_encoder.c                | 23 ++++++++++++=
-+++++++++-
->  2 files changed, 26 insertions(+), 1 deletion(-)
+On Wed, Jul 20, 2016 at 08:25:58AM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > > > > > > > drivers/input/touchscreen/tsc2005.c:	  input_dev->name = "TSC2005
+> > > > > > > > touchscreen";
+> > > > > > > > 
+> > > > > > > > to "TSC200X touchscreen". Unfortunately, X seems to propagate that
+> > > > > > > > name to userspace, where it is needed to be able to do
+> > 
+> > Technically X _is_ userspace.
+> 
+> There's "userspace running as root" and "userspace userspace" :-).
 
-Acked-by: Rob Herring <robh@kernel.org>
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I do not really see any difference form the kernel POW. 
+
+> 
+> > > > > > > > 
+> > > > > > > > xinput --set-prop --type=int ...
+> > > > > > > > 
+> > > > > > > > with the right arguments to calibrate touchscreen. (Touchscreen is
+> > > > > > > > unusable without calibration).
+> > > > > > > > 
+> > > > > > > > What to do with that?
+> > 
+> > Hmm, I do not think we ever committed for the device names to be stable.
+> > You are supposed to locate touchscreen device based on its properties
+> > and you might need some heuristic if you encounter a system with more
+> > than one such touchscreen.
+> 
+> Well, you are commited now, like it or not, X people did it for you
+> :-(.
+> 
+> Because there's no other reasonable way to use xinput --set-prop...
+
+Well, X is going to have to fix it. How am I supposed to control my
+devices in multi-seat environment if I use the same hardware (or if I
+have device with multiple touchscreens)? They all will have the same
+name (well, all mice, then all keyboards, etc). Let's add Peter to the
+fold...
+
+In the mean time you can adjust the name or use XID instead.
+
+Thanks.
+
+-- 
+Dmitry

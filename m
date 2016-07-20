@@ -1,84 +1,63 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: v4.1 to v4.7: regression in tsc2005 driver
-Date: Tue, 19 Jul 2016 16:51:20 -0700
-Message-ID: <20160719235120.GD19250@dtor-ws>
-References: <20160717175257.GA26719@amd>
- <20160717182445.GA20058@deathstar>
- <20160717184209.GA30119@amd>
- <20160717185134.GA20462@deathstar>
- <20160717200339.GA29562@amd>
- <20160717225636.GB20462@deathstar>
+Subject: Re: [PATCH] Input: synaptics-rmi4: Fix maximum size check for F12
+ control register 8
+Date: Tue, 19 Jul 2016 17:00:05 -0700
+Message-ID: <20160720000005.GE19250@dtor-ws>
+References: <1468971821-16982-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:34578 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751827AbcGSXvY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Jul 2016 19:51:24 -0400
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160717225636.GB20462@deathstar>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1468971821-16982-1-git-send-email-aduggan@synaptics.com>
+Sender: stable-owner@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick@shmanahar.org>, Chris Healy <cphealy@gmail.com>, Nitin Chaudhary <nitinchaudhary1289@gmail.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Welling <mwelling@ieee.org>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, pali.rohar@gmail.com, sre@kernel.org, aaro.koskinen@iki.fi, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com
 
-On Sun, Jul 17, 2016 at 05:56:36PM -0500, Michael Welling wrote:
-> On Sun, Jul 17, 2016 at 10:03:39PM +0200, Pavel Machek wrote:
-> > On Sun 2016-07-17 13:51:34, Michael Welling wrote:
-> > > On Sun, Jul 17, 2016 at 08:42:09PM +0200, Pavel Machek wrote:
-> > > > On Sun 2016-07-17 13:24:45, Michael Welling wrote:
-> > > > > On Sun, Jul 17, 2016 at 07:52:57PM +0200, Pavel Machek wrote:
-> > > > > > Hi!
-> > > > > > 
-> > > > > > tsc2005 driver changed input device name, from
-> > > > > > 
-> > > > > > drivers/input/touchscreen/tsc2005.c:	  input_dev->name = "TSC2005
-> > > > > > touchscreen";
-> > > > > > 
-> > > > > > to "TSC200X touchscreen". Unfortunately, X seems to propagate that
-> > > > > > name to userspace, where it is needed to be able to do
-
-Technically X _is_ userspace.
-
-> > > > > > 
-> > > > > > xinput --set-prop --type=int ...
-> > > > > > 
-> > > > > > with the right arguments to calibrate touchscreen. (Touchscreen is
-> > > > > > unusable without calibration).
-> > > > > > 
-> > > > > > What to do with that?
-
-Hmm, I do not think we ever committed for the device names to be stable.
-You are supposed to locate touchscreen device based on its properties
-and you might need some heuristic if you encounter a system with more
-than one such touchscreen.
-
-> > > > > 
-> > > > > The input_dev name could be passed to the common probe function.
-> > > > > 
-> > > > > http://lxr.free-electrons.com/source/drivers/input/touchscreen/tsc2005.c#L65
-> > > > 
-> > > > That would be preffered, I guess.
-> > > > 
-> > > > How many stable releases are affected?
-> > > 
-> > > Well this patch is 9 months old now. Lets see.
-> > > 
-> > > It was introduced in v4.4-rc1. So v4.4, v4.5 and v4.6.
-> > 
-> > Ok, thanks for the information. I believe changing it back to
-> > "TSC2005" version makes sense (and then fixing it in stable).
-
-Do we know how many users are affected?
-
+On Tue, Jul 19, 2016 at 04:43:41PM -0700, Andrew Duggan wrote:
+> According to the RMI4 spec the maximum size of F12 control register 8 is
+> 15 bytes. The current code incorrectly reports an error if control 8 is
+> greater then 14. Making sensors with a control register 8 with 15 bytes
+> unusable.
 > 
-> Lets see if the maintainer has any input before I submit a patch.
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> Reported-by: Chris Healy <cphealy@gmail.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/input/rmi4/rmi_f12.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
+> index c30fd86..9b0d9f7 100644
+> --- a/drivers/input/rmi4/rmi_f12.c
+> +++ b/drivers/input/rmi4/rmi_f12.c
+> @@ -68,7 +68,7 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
+>  	struct rmi_device *rmi_dev = fn->rmi_dev;
+>  	int ret;
+>  	int offset;
+> -	u8 buf[14];
+> +	u8 buf[15];
+>  	int pitch_x = 0;
+>  	int pitch_y = 0;
+>  	int clip_x_low = 0;
+> @@ -88,8 +88,9 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
+>  
+>  	offset = rmi_register_desc_calc_reg_offset(&f12->control_reg_desc, 8);
+>  
+> -	if (item->reg_size > 14) {
+> -		dev_err(&fn->dev, "F12 control8 should be 14 bytes, not: %ld\n",
+> +	if (item->reg_size > 15) {
 
-I guess we could also pass the input_id structure to tsc200x_probe, fill
-the proper product ID (2004 or 2005) and derive the name form it.
+Do you mind if I change this to sizeof(buf)?
 
-Thanks.
+> +		dev_err(&fn->dev,
+> +			"F12 control8 should be a maximum of 15 bytes, not: %ld\n",
+>  			item->reg_size);
+>  		return -ENODEV;
+>  	}
+> -- 
+> 2.7.4
+> 
 
 -- 
 Dmitry

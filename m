@@ -1,52 +1,60 @@
-From: Pavel Machek <pavel@ucw.cz>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
 Subject: Re: [PATCH] Input: tsc200x - Report proper input_dev name
-Date: Wed, 20 Jul 2016 22:25:42 +0200
-Message-ID: <20160720202542.GB2290@amd>
-References: <20160720014424.GI19250@dtor-ws>
- <20160720065405.GD3792@amd>
- <20160720164503.GB25655@dtor-ws>
- <201607201856.51367@pali>
- <20160720170412.GC25655@dtor-ws>
- <20160720171449.GD25655@dtor-ws>
+Date: Wed, 20 Jul 2016 22:37:25 +0200
+Message-ID: <201607202237.26015@pali>
+References: <20160720014424.GI19250@dtor-ws> <20160720170412.GC25655@dtor-ws> <20160720171449.GD25655@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:46960 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754781AbcGTUZp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2016 16:25:45 -0400
-Content-Disposition: inline
+Content-Type: multipart/signed;
+  boundary="nextPart1548039.QGCi632Zcd";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20160720171449.GD25655@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Michael Welling <mwelling@ieee.org>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, sre@kernel.org, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com, Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Pavel Machek <pavel@ucw.cz>, Michael Welling <mwelling@ieee.org>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, sre@kernel.org, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com, Aaro Koskinen <aaro.koskinen@iki.fi>
+List-Id: linux-input@vger.kernel.org
 
-On Wed 2016-07-20 10:14:49, Dmitry Torokhov wrote:
+--nextPart1548039.QGCi632Zcd
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Wednesday 20 July 2016 19:14:49 Dmitry Torokhov wrote:
 > Input: tsc200x - report proper input_dev name
-> 
+>=20
 > From: Michael Welling <mwelling@ieee.org>
-> 
-> Passes input_id struct to the common probe function for the tsc200x drivers
-> instead of just the bustype.
-> 
-> This allows for the use of the product variable to set the input_dev->name
-> variable according to the type of touchscreen used. Note that when we
-> introduced support for TSC2004 we started calling everything TSC200X, so
-> let's keep this quirk.
-> 
+>=20
+> Passes input_id struct to the common probe function for the tsc200x
+> drivers instead of just the bustype.
+>=20
+> This allows for the use of the product variable to set the
+> input_dev->name variable according to the type of touchscreen used.
+> Note that when we introduced support for TSC2004 we started calling
+> everything TSC200X, so let's keep this quirk.
+>=20
 > Reported-by: Pavel Machek <pavel@ucw.cz>
 > Signed-off-by: Michael Welling <mwelling@ieee.org>
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Acked-by: Pavel Machek <pavel@ucw.cz>
+Acked-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
 
-Thanks!
-								Pavel
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
+--nextPart1548039.QGCi632Zcd
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAleP4QYACgkQi/DJPQPkQ1LrngCeJldvwPnXXa+5idcrijovpS3n
+Vv8AnRYksSHs/j2D8ZkVRM1/IzhnBPsN
+=Ie2i
+-----END PGP SIGNATURE-----
+
+--nextPart1548039.QGCi632Zcd--

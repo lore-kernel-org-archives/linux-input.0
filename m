@@ -1,110 +1,61 @@
-From: Quentin Schulz <quentin.schulz@free-electrons.com>
-Subject: Re: [PATCH 3/5] iio: adc: sunxi-gpadc-iio: enable iio_buffers
-Date: Wed, 20 Jul 2016 10:57:38 +0200
-Message-ID: <4c9b92e6-d481-8efe-81d6-31595618171d@free-electrons.com>
-References: <1469003351-15263-1-git-send-email-quentin.schulz@free-electrons.com>
- <1469003351-15263-4-git-send-email-quentin.schulz@free-electrons.com>
- <alpine.DEB.2.02.1607201034450.18224@pmeerw.net>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v4] Input: rotary_encoder - support binary encoding of
+ states
+Date: Wed, 20 Jul 2016 08:19:38 -0500
+Message-ID: <20160720131938.GA4165@rob-hp-laptop>
+References: <1468957119-16458-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:42580 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753151AbcGTI5l (ORCPT
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:36371 "EHLO
+	mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753548AbcGTNTk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2016 04:57:41 -0400
-In-Reply-To: <alpine.DEB.2.02.1607201034450.18224@pmeerw.net>
+	Wed, 20 Jul 2016 09:19:40 -0400
+Content-Disposition: inline
+In-Reply-To: <1468957119-16458-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
-Cc: jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, maxime.ripard@free-electrons.com, wens@csie.org, dmitry.torokhov@gmail.com, lee.jones@linaro.org, antoine.tenart@free-electrons.com, thomas.petazzoni@free-electrons.com, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, kernel@pengutronix.de
 
-On 20/07/2016 10:38, Peter Meerwald-Stadler wrote:
-> 
->> This enables the use of buffers on ADC channels of sunxi-gpadc-iio driver.
->> It also prepares the code which will be used by the touchscreen driver
->> named sunxi-gpadc-ts.
->>
->> The GPADC on Allwinner SoCs (A10, A13 and A31) has a 12 bits register for
->> conversion's data. The GPADC uses the same ADC channels for the ADC and the
->> touchscreen therefore exposes these channels to the sunxi-gpadc-ts iio
->> consumer which will be in charge of reading data from these channels for
->> the input framework.
->>
->> The temperature can only be read when in touchscreen mode. This means if
->> the buffers are being used for the ADC, the temperature sensor cannot be
->> read.
->>
->> When a FIFO_DATA_PENDING irq occurs, its handler will read the entire FIFO
->> and fill a buffer before sending it to the consumers which registered in
->> IIO for the ADC channels.
->>
->> When a consumer starts buffering ADC channels,
->> sunxi_gpadc_buffer_postenable is called and will enable FIFO_DATA_PENDING
->> irq and select the mode in which the GPADC should run (ADC or touchscreen)
->> depending on a property of the DT ("allwinner,ts-attached").
->> When the consumer stops buffering, it disables the same irq.
-> 
-> comments below
->  
-[...]
->> @@ -101,19 +104,43 @@ struct sunxi_gpadc_dev {
->>  	unsigned int			fifo_data_irq;
->>  	unsigned int			temp_data_irq;
->>  	unsigned int			flags;
->> +	struct iio_dev			*indio_dev;
->> +	struct sunxi_gpadc_buffer	buffer;
->> +	bool				ts_attached;
->> +	bool				buffered;
-> 
-> why add buffered, duplicate state and not query iio_buffer_enabled()?
-> 
->>  };
->>  
->> -#define SUNXI_GPADC_ADC_CHANNEL(_channel, _name) {		\
->> +#define SUNXI_GPADC_ADC_CHANNEL(_channel, _name, _index) {	\
->>  	.type = IIO_VOLTAGE,					\
->>  	.indexed = 1,						\
->>  	.channel = _channel,					\
->>  	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),		\
->>  	.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE),	\
->>  	.datasheet_name = _name,				\
->> +	.scan_index = _index,					\
->> +	.scan_type = {						\
->> +		.sign = 'u',					\
->> +		.realbits = 12,					\
->> +		.storagebits = 16,				\
->> +		.shift = 0,					\
-> 
-> shift not strictly needed
-> 
+On Tue, Jul 19, 2016 at 09:38:39PM +0200, Uwe Kleine-K=F6nig wrote:
+> It's not advisable to use this encoding, but to support existing devi=
+ces
+> add support for this to the driver.
+>=20
+> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> ---
+> Notes:
+>     Changes since (implicit) v1, sent with
+>     Message-Id: 1458680914-4533-1-git-send-email-u.kleine-koenig <at>=
+ pengutronix.de
+>    =20
+>      - switch format of dt properties to use strings
+>    =20
+>     Changes since v2, sent with
+>     Message-Id: 1458806232-22403-1-git-send-email-u.kleine-koenig <at=
+> pengutronix.de
+>    =20
+>      - be more strict about parsing the encoding string
+>    =20
+>     Changes since v3, sent with
+>     Message-Id: 1460055528-13814-1-git-send-email-u.kleine-koenig@pen=
+gutronix.de
+>    =20
+>      - use device_property_match_string to parse device tree as reque=
+sted
+>        by Rob Herring.
+>=20
+>  .../devicetree/bindings/input/rotary-encoder.txt   |  4 ++++
+>  drivers/input/misc/rotary_encoder.c                | 23 ++++++++++++=
++++++++++-
+>  2 files changed, 26 insertions(+), 1 deletion(-)
 
-ACK.
-
-[...]
->>  static int sunxi_gpadc_read_raw(struct iio_dev *indio_dev,
->> @@ -219,15 +253,22 @@ static int sunxi_gpadc_read_raw(struct iio_dev *indio_dev,
->>  				int *val, int *val2, long mask)
->>  {
->>  	int ret;
->> +	struct sunxi_gpadc_dev *info = iio_priv(indio_dev);
->>  
->>  	switch (mask) {
->>  	case IIO_CHAN_INFO_PROCESSED:
->> +		if (info->buffered && !info->ts_attached)
->> +			return -EBUSY;
-> 
-> there would be iio_device_claim_direct_mode()
-> 
-
-OK, iio_device_claim_direct_mode() and iio_device_release_direct_mode()
-are new functions which are not yet in the Linux Cross Reference
-(http://lxr.free-electrons.com/), I didn't know they existed. I'll use
-that, iio_buffer_enabled() when needed and get rid of the buffered
-boolean variable.
-
-[...]
-Thanks.
-
-Quentin
+Acked-by: Rob Herring <robh@kernel.org>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,144 +1,314 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: tsc200x - Report proper input_dev name
-Date: Wed, 20 Jul 2016 10:14:49 -0700
-Message-ID: <20160720171449.GD25655@dtor-ws>
-References: <20160720014424.GI19250@dtor-ws>
- <20160720065405.GD3792@amd>
- <20160720164503.GB25655@dtor-ws>
- <201607201856.51367@pali>
- <20160720170412.GC25655@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 4/5] input: touchscreen: support Allwinner SoCs'
+ touchscreen
+Date: Wed, 20 Jul 2016 10:25:32 -0700
+Message-ID: <20160720172532.GE25655@dtor-ws>
+References: <1469003351-15263-1-git-send-email-quentin.schulz@free-electrons.com>
+ <1469003351-15263-5-git-send-email-quentin.schulz@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:36172 "EHLO
-	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752583AbcGTROw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2016 13:14:52 -0400
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20160720170412.GC25655@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1469003351-15263-5-git-send-email-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, antoine.tenart-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Michael Welling <mwelling@ieee.org>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, sre@kernel.org, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com, Aaro Koskinen <aaro.koskinen@iki.fi>
 
-Input: tsc200x - report proper input_dev name
+Hi Quentin,
 
-From: Michael Welling <mwelling@ieee.org>
+On Wed, Jul 20, 2016 at 10:29:10AM +0200, Quentin Schulz wrote:
+> This adds support for Allwinner SoCs' (A10, A13 and A31) resistive
+> touchscreen. This driver is probed by the MFD sunxi-gpadc-mfd.
+> 
+> This driver uses ADC channels exposed through the IIO framework by
+> sunxi-gpadc-iio to get its data. When opening this input device, it will
+> start buffering in the ADC driver and enable a TP_UP_PENDING irq. The ADC
+> driver will fill in a buffer with all data and call the callback the input
+> device associated with this buffer. The input device will then read the
+> buffer two by two and send X and Y coordinates to the input framework based
+> on what it received from the ADC's buffer. When closing this input device,
+> the buffering is stopped.
+> 
+> Note that locations in the first received buffer after an TP_UP_PENDING irq
+> occurred are unreliable, thus dropped.
+> 
+> Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> ---
+>  drivers/input/touchscreen/Kconfig          |  11 +-
+>  drivers/input/touchscreen/Makefile         |   2 +-
+>  drivers/input/touchscreen/sun4i-ts.c       | 419 -----------------------------
+>  drivers/input/touchscreen/sunxi-gpadc-ts.c | 195 ++++++++++++++
+>  4 files changed, 201 insertions(+), 426 deletions(-)
+>  delete mode 100644 drivers/input/touchscreen/sun4i-ts.c
+>  create mode 100644 drivers/input/touchscreen/sunxi-gpadc-ts.c
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 8ecdc38..f16ce36 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -1072,14 +1072,13 @@ config TOUCHSCREEN_STMPE
+>  config TOUCHSCREEN_SUN4I
+>  	tristate "Allwinner sun4i resistive touchscreen controller support"
+>  	depends on ARCH_SUNXI || COMPILE_TEST
+> -	depends on HWMON
+> -	depends on THERMAL || !THERMAL_OF
+> +	depends on SUNXI_ADC
+>  	help
+> -	  This selects support for the resistive touchscreen controller
+> -	  found on Allwinner sunxi SoCs.
+> +	  This selects support for the resistive touchscreen controller found
+> +	  on Allwinner SoCs (A10, A13, A31).
+>  
+> -	  To compile this driver as a module, choose M here: the
+> -	  module will be called sun4i-ts.
+> +	  To compile this driver as a module, choose M here: the module will be
+> +	  called sunxi-gpadc-ts.
+>  
+>  config TOUCHSCREEN_SUR40
+>  	tristate "Samsung SUR40 (Surface 2.0/PixelSense) touchscreen"
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index f42975e..bdc1889 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -65,7 +65,7 @@ obj-$(CONFIG_TOUCHSCREEN_PIXCIR)	+= pixcir_i2c_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+>  obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
+> -obj-$(CONFIG_TOUCHSCREEN_SUN4I)		+= sun4i-ts.o
+> +obj-$(CONFIG_TOUCHSCREEN_SUN4I)		+= sunxi-gpadc-ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_SUR40)		+= sur40.o
+>  obj-$(CONFIG_TOUCHSCREEN_TI_AM335X_TSC)	+= ti_am335x_tsc.o
+>  obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+= touchit213.o
+> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
+> deleted file mode 100644
+> index d07dd29..0000000
+...
+> diff --git a/drivers/input/touchscreen/sunxi-gpadc-ts.c b/drivers/input/touchscreen/sunxi-gpadc-ts.c
+> new file mode 100644
+> index 0000000..410d14f
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/sunxi-gpadc-ts.c
+> @@ -0,0 +1,195 @@
+> +/* Touchscreen driver for Allwinner SoCs (A10, A13, A31) GPADC
+> + *
+> + * Copyright (c) 2016 Quentin Schulz <quentin.schulz@free-electrons>
+> + *
+> + * This program is free software; you can redistribute it and/or modify it under
+> + * the terms of the GNU General Public License version 2 as published by the
+> + * Free Software Foundation.
+> + */
+> +
+> +#include <linux/init.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +
+> +#include <linux/iio/consumer.h>
+> +#include <linux/mfd/sunxi-gpadc-mfd.h>
+> +
+> +struct sunxi_gpadc_ts {
+> +	struct iio_cb_buffer	*buffer;
+> +	struct input_dev	*input;
+> +	struct platform_device	*pdev;
+> +	unsigned int		tp_up_irq;
+> +	bool			ignore_fifo_data;
+> +};
+> +
+> +static int sunxi_gpadc_ts_open(struct input_dev *dev)
+> +{
+> +	struct sunxi_gpadc_ts *info = input_get_drvdata(dev);
+> +	int ret;
+> +
+> +	ret = iio_channel_start_all_cb(info->buffer);
+> +	if (ret) {
+> +		dev_err(dev->dev.parent,
+> +			"failed to start iio channels with callback\n");
+> +		return ret;
+> +	}
+> +
+> +	enable_irq(info->tp_up_irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static void sunxi_gpadc_ts_close(struct input_dev *dev)
+> +{
+> +	struct sunxi_gpadc_ts *info = input_get_drvdata(dev);
+> +
+> +	iio_channel_stop_all_cb(info->buffer);
+> +
+> +	disable_irq(info->tp_up_irq);
+> +}
+> +
+> +/*
+> + * This function will be called by iio_push_to_buffers from another driver
+> + * (namely sunxi-gpadc-iio). It will be passed the buffer filled with input
+> + * values (X value then Y value) and the sunxi_gpadc_ts structure representing
+> + * the device.
+> + */
+> +static int sunxi_gpadc_ts_callback(const void *data, void *private)
+> +{
+> +	const struct sunxi_gpadc_buffer *buffer = data;
+> +	struct sunxi_gpadc_ts *info = private;
+> +	int i = 0;
+> +
+> +	/* Locations in the first buffer after an up event are unreliable */
+> +	if (info->ignore_fifo_data) {
+> +		info->ignore_fifo_data = false;
+> +		return 0;
+> +	}
+> +
+> +	while (i + 1 < buffer->buff_size) {
+> +		input_event(info->input, EV_ABS, ABS_X, buffer->buffer[i++]);
+> +		input_event(info->input, EV_ABS, ABS_Y, buffer->buffer[i++]);
+> +		input_event(info->input, EV_KEY, BTN_TOUCH, 1);
+> +		input_sync(info->input);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static irqreturn_t sunxi_gpadc_tp_up_irq_handler(int irq, void *dev_id)
+> +{
+> +	struct sunxi_gpadc_ts *info = dev_id;
+> +
+> +	info->ignore_fifo_data = true;
+> +
+> +	input_event(info->input, EV_KEY, BTN_TOUCH, 0);
+> +	input_sync(info->input);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int sunxi_gpadc_ts_probe(struct platform_device *pdev)
+> +{
+> +	struct input_dev *input;
+> +	struct sunxi_gpadc_ts *info;
+> +	int ret, irq;
+> +	struct sunxi_gpadc_mfd_dev *sunxi_gpadc_mfd_dev;
+> +
+> +	input = devm_input_allocate_device(&pdev->dev);
+> +	if (!input)
+> +		return -ENOMEM;
+> +
+> +	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
+> +	if (!info)
+> +		return -ENOMEM;
+> +
+> +	info->buffer = iio_channel_get_all_cb(&pdev->dev,
+> +					      &sunxi_gpadc_ts_callback,
+> +					      (void *)info);
 
-Passes input_id struct to the common probe function for the tsc200x drivers
-instead of just the bustype.
+Any chance we could introduce devm-variant here? If you do not want to
+wait for IIO to add it you can temporarily add call
+devm_add_action_or_reset() after getting channels and remove it when IIO
+API catches up.
 
-This allows for the use of the product variable to set the input_dev->name
-variable according to the type of touchscreen used. Note that when we
-introduced support for TSC2004 we started calling everything TSC200X, so
-let's keep this quirk.
+> +	if (IS_ERR(info->buffer)) {
+> +		if (PTR_ERR(info->buffer) == -ENODEV)
+> +			return -EPROBE_DEFER;
+> +		return PTR_ERR(info->buffer);
+> +	}
+> +
+> +	info->pdev = pdev;
+> +	info->input = input;
+> +	info->ignore_fifo_data = false;
+> +	platform_set_drvdata(pdev, info);
+> +
+> +	input->dev.parent = &pdev->dev;
 
-Reported-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Michael Welling <mwelling@ieee.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/tsc2004.c      |    7 ++++++-
- drivers/input/touchscreen/tsc2005.c      |    7 ++++++-
- drivers/input/touchscreen/tsc200x-core.c |   15 ++++++++++++---
- drivers/input/touchscreen/tsc200x-core.h |    2 +-
- 4 files changed, 25 insertions(+), 6 deletions(-)
+Not needed for input devices allocated with devm.
 
-diff --git a/drivers/input/touchscreen/tsc2004.c b/drivers/input/touchscreen/tsc2004.c
-index 7295c19..6fe55d5 100644
---- a/drivers/input/touchscreen/tsc2004.c
-+++ b/drivers/input/touchscreen/tsc2004.c
-@@ -22,6 +22,11 @@
- #include <linux/regmap.h>
- #include "tsc200x-core.h"
- 
-+static const struct input_id tsc2004_input_id = {
-+	.bustype = BUS_I2C,
-+	.product = 2004,
-+};
-+
- static int tsc2004_cmd(struct device *dev, u8 cmd)
- {
- 	u8 tx = TSC200X_CMD | TSC200X_CMD_12BIT | cmd;
-@@ -42,7 +47,7 @@ static int tsc2004_probe(struct i2c_client *i2c,
- 			 const struct i2c_device_id *id)
- 
- {
--	return tsc200x_probe(&i2c->dev, i2c->irq, BUS_I2C,
-+	return tsc200x_probe(&i2c->dev, i2c->irq, &tsc2004_input_id,
- 			     devm_regmap_init_i2c(i2c, &tsc200x_regmap_config),
- 			     tsc2004_cmd);
- }
-diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
-index b9f593d..f2c5f0e 100644
---- a/drivers/input/touchscreen/tsc2005.c
-+++ b/drivers/input/touchscreen/tsc2005.c
-@@ -24,6 +24,11 @@
- #include <linux/regmap.h>
- #include "tsc200x-core.h"
- 
-+static const struct input_id tsc2005_input_id = {
-+	.bustype = BUS_SPI,
-+	.product = 2005,
-+};
-+
- static int tsc2005_cmd(struct device *dev, u8 cmd)
- {
- 	u8 tx = TSC200X_CMD | TSC200X_CMD_12BIT | cmd;
-@@ -62,7 +67,7 @@ static int tsc2005_probe(struct spi_device *spi)
- 	if (error)
- 		return error;
- 
--	return tsc200x_probe(&spi->dev, spi->irq, BUS_SPI,
-+	return tsc200x_probe(&spi->dev, spi->irq, &tsc2005_input_id,
- 			     devm_regmap_init_spi(spi, &tsc200x_regmap_config),
- 			     tsc2005_cmd);
- }
-diff --git a/drivers/input/touchscreen/tsc200x-core.c b/drivers/input/touchscreen/tsc200x-core.c
-index 26e81d1b..b7059ed 100644
---- a/drivers/input/touchscreen/tsc200x-core.c
-+++ b/drivers/input/touchscreen/tsc200x-core.c
-@@ -450,7 +450,7 @@ static void tsc200x_close(struct input_dev *input)
- 	mutex_unlock(&ts->mutex);
- }
- 
--int tsc200x_probe(struct device *dev, int irq, __u16 bustype,
-+int tsc200x_probe(struct device *dev, int irq, const struct input_id *tsc_id,
- 		  struct regmap *regmap,
- 		  int (*tsc200x_cmd)(struct device *dev, u8 cmd))
- {
-@@ -547,9 +547,18 @@ int tsc200x_probe(struct device *dev, int irq, __u16 bustype,
- 	snprintf(ts->phys, sizeof(ts->phys),
- 		 "%s/input-ts", dev_name(dev));
- 
--	input_dev->name = "TSC200X touchscreen";
-+	if (tsc_id->product == 2004) {
-+		input_dev->name = "TSC200X touchscreen";
-+	} else {
-+		input_dev->name = devm_kasprintf(dev, GFP_KERNEL,
-+						 "TSC%04d touchscreen",
-+						 tsc_id->product);
-+		if (!input_dev->name)
-+			return -ENOMEM;
-+	}
-+
- 	input_dev->phys = ts->phys;
--	input_dev->id.bustype = bustype;
-+	input_dev->id = *tsc_id;
- 	input_dev->dev.parent = dev;
- 	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
- 	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-diff --git a/drivers/input/touchscreen/tsc200x-core.h b/drivers/input/touchscreen/tsc200x-core.h
-index 7a482d1..49a63a3 100644
---- a/drivers/input/touchscreen/tsc200x-core.h
-+++ b/drivers/input/touchscreen/tsc200x-core.h
-@@ -70,7 +70,7 @@
- extern const struct regmap_config tsc200x_regmap_config;
- extern const struct dev_pm_ops tsc200x_pm_ops;
- 
--int tsc200x_probe(struct device *dev, int irq, __u16 bustype,
-+int tsc200x_probe(struct device *dev, int irq, const struct input_id *tsc_id,
- 		  struct regmap *regmap,
- 		  int (*tsc200x_cmd)(struct device *dev, u8 cmd));
- int tsc200x_remove(struct device *dev);
+> +	input->name = "sunxi-gpadc-ts";
+> +	input->id.bustype = BUS_HOST;
+> +	input->open = sunxi_gpadc_ts_open;
+> +	input->close = sunxi_gpadc_ts_close;
+> +	__set_bit(EV_SYN, input->evbit);
+
+This not needed.
+
+> +	input_set_capability(input, EV_KEY, BTN_TOUCH);
+> +	input_set_abs_params(input, ABS_X, 0, 4095, 0, 0);
+> +	input_set_abs_params(input, ABS_Y, 0, 4095, 0, 0);
+> +	input_set_drvdata(input, info);
+> +
+> +	irq = platform_get_irq_byname(pdev, "TP_UP_PENDING");
+> +	if (irq < 0) {
+> +		dev_err(&pdev->dev, "no TP_UP_PENDING interrupt registered\n");
+> +		ret = irq;
+> +		goto err;
+> +	}
+> +
+> +	sunxi_gpadc_mfd_dev = dev_get_drvdata(pdev->dev.parent);
+> +
+> +	irq = regmap_irq_get_virq(sunxi_gpadc_mfd_dev->regmap_irqc, irq);
+> +	ret = devm_request_any_context_irq(&pdev->dev, irq,
+> +					   sunxi_gpadc_tp_up_irq_handler, 0,
+> +					   "tp_up", info);
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev,
+> +			"could not request TP_UP_PENDING interrupt: %d\n", ret);
+> +		goto err;
+> +	}
+> +
+> +	info->tp_up_irq = irq;
+> +	disable_irq(irq);
+> +
+> +	ret = input_register_device(input);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to register input device\n");
+> +		goto err;
+> +	}
+> +
+> +	return 0;
+> +
+> +err:
+> +	iio_channel_release_all_cb(info->buffer);
+> +
+> +	return ret;
+> +}
+> +
+> +static int sunxi_gpadc_ts_remove(struct platform_device *pdev)
+> +{
+> +	struct sunxi_gpadc_ts *info = platform_get_drvdata(pdev);
+> +
+> +	iio_channel_stop_all_cb(info->buffer);
+> +	iio_channel_release_all_cb(info->buffer);
+> +
+> +	disable_irq(info->tp_up_irq);
+
+You are mixing devm and non-devm so your unwind order is completely out
+of wack. If input device is opened while you are unloading (or
+unbinding) the dirver, then you'll release channels, then input device's
+close() will be called, which will try to stop the IIO channels again
+and disable IRQ yet again.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver sunxi_gpadc_ts_driver = {
+> +	.driver = {
+> +		.name = "sunxi-gpadc-ts",
+> +	},
+> +	.probe = sunxi_gpadc_ts_probe,
+> +	.remove = sunxi_gpadc_ts_remove,
+> +};
+> +
+> +module_platform_driver(sunxi_gpadc_ts_driver);
+> +
+> +MODULE_DESCRIPTION("Touchscreen driver for Allwinner SoCs (A10, A13, A31) GPADC");
+> +MODULE_AUTHOR("Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>");
+> +MODULE_LICENSE("GPL v2");
+> -- 
+> 2.5.0
+> 
+
+Thanks.
+
+-- 
+Dmitry

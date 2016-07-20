@@ -1,109 +1,81 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/4] input: tablet: pegasus_notetaker: Track usb control
- msg errors
-Date: Wed, 20 Jul 2016 14:06:53 -0700
-Message-ID: <20160720210653.GF25655@dtor-ws>
+Subject: Re: [PATCH 2/4] input: tablet: pegasus_notetaker: Fix usb_autopm
+ calls to be balanced
+Date: Wed, 20 Jul 2016 14:29:43 -0700
+Message-ID: <20160720212943.GA26006@dtor-ws>
 References: <1468852149-2614-1-git-send-email-martink@posteo.de>
- <1468852149-2614-2-git-send-email-martink@posteo.de>
+ <1468852149-2614-3-git-send-email-martink@posteo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f66.google.com ([209.85.220.66]:35939 "EHLO
+	mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754512AbcGTV3r (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Jul 2016 17:29:47 -0400
 Content-Disposition: inline
-In-Reply-To: <1468852149-2614-2-git-send-email-martink@posteo.de>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <1468852149-2614-3-git-send-email-martink@posteo.de>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Martin Kepplinger <martink@posteo.de>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-Hi Martin,
-
-On Mon, Jul 18, 2016 at 04:29:06PM +0200, Martin Kepplinger wrote:
+On Mon, Jul 18, 2016 at 04:29:07PM +0200, Martin Kepplinger wrote:
 > Signed-off-by: Martin Kepplinger <martink@posteo.de>
 > ---
->  drivers/input/tablet/pegasus_notetaker.c | 26 ++++++++++++++++++--------
->  1 file changed, 18 insertions(+), 8 deletions(-)
+>  drivers/input/tablet/pegasus_notetaker.c | 19 +++++++++++--------
+>  1 file changed, 11 insertions(+), 8 deletions(-)
 > 
 > diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
-> index 83aa583..27cb352 100644
+> index 27cb352..fdbc5e8 100644
 > --- a/drivers/input/tablet/pegasus_notetaker.c
 > +++ b/drivers/input/tablet/pegasus_notetaker.c
-> @@ -79,7 +79,7 @@ struct pegasus {
->  	struct work_struct init;
->  };
+> @@ -208,27 +208,30 @@ static int pegasus_open(struct input_dev *dev)
+>  		return retval;
 >  
-> -static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
-> +static int pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
->  {
->  	const int sizeof_buf = len + 2;
->  	int result;
-> @@ -87,7 +87,7 @@ static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
->  
->  	cmd_buf = kmalloc(sizeof_buf, GFP_KERNEL);
->  	if (!cmd_buf)
-> -		return;
-> +		return -ENOMEM;
->  
->  	cmd_buf[0] = NOTETAKER_REPORT_ID;
->  	cmd_buf[1] = len;
-> @@ -100,17 +100,23 @@ static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
->  				 0, 0, cmd_buf, sizeof_buf,
->  				 USB_CTRL_SET_TIMEOUT);
->  
-> -	if (result != sizeof_buf)
-> -		dev_err(&pegasus->usbdev->dev, "control msg error\n");
-> +	if (result != sizeof_buf) {
-> +		if (result >= 0)
-> +			result = -EIO;
-> +		dev_err(&pegasus->usbdev->dev, "control msg error: %d\n",
-> +			result);
+>  	pegasus->irq->dev = pegasus->usbdev;
+> -	if (usb_submit_urb(pegasus->irq, GFP_KERNEL))
+> +	if (usb_submit_urb(pegasus->irq, GFP_KERNEL)) {
+>  		retval = -EIO;
+> +		goto out;
 > +	}
 >  
->  	kfree(cmd_buf);
-> +
-> +	return result;
+>  	retval = pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
 
-Your 4th patch relies on pegasus_control_msg() returning 0 on success,
-otherwise you will not restart the URB when doing reset resume. I
-rearranged the code here so we free cmd_buf right after calling
-usb_control_msg() and the explicitly returnig 0 in success branch.
+If this fails I we should kill URB and cancel work. I adjusted and
+applied.
 
+>  
+> -	usb_autopm_put_interface(pegasus->intf);
+> +out:
+>  
+> -	return retval;
+> +	if (retval < 0) {
+> +		usb_autopm_put_interface(pegasus->intf);
+> +		return retval;
+> +	} else {
+> +		return 0;
+> +	}
 >  }
 >  
-> -static void pegasus_set_mode(struct pegasus *pegasus, u8 mode, u8 led)
-> +static int pegasus_set_mode(struct pegasus *pegasus, u8 mode, u8 led)
+>  static void pegasus_close(struct input_dev *dev)
 >  {
->  	u8 cmd[] = {NOTETAKER_SET_CMD, NOTETAKER_SET_MODE, led, mode};
+>  	struct pegasus *pegasus = input_get_drvdata(dev);
+> -	int autopm_error;
 >  
-> -	pegasus_control_msg(pegasus, cmd, sizeof(cmd));
-> +	return pegasus_control_msg(pegasus, cmd, sizeof(cmd));
+> -	autopm_error = usb_autopm_get_interface(pegasus->intf);
+>  	usb_kill_urb(pegasus->irq);
+>  	cancel_work_sync(&pegasus->init);
+> -
+> -	if (!autopm_error)
+> -		usb_autopm_put_interface(pegasus->intf);
+> +	usb_autopm_put_interface(pegasus->intf);
 >  }
 >  
->  static void pegasus_parse_packet(struct pegasus *pegasus)
-> @@ -184,8 +190,12 @@ static void pegasus_irq(struct urb *urb)
->  static void pegasus_init(struct work_struct *work)
->  {
->  	struct pegasus *pegasus = container_of(work, struct pegasus, init);
-> +	int retval;
->  
-> -	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
-> +	retval = pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
-> +	if (retval < 0)
-> +		dev_err(&pegasus->usbdev->dev, "pegasus_set_mode error: %d\n",
-> +			retval);
->  }
->  
->  static int pegasus_open(struct input_dev *dev)
-> @@ -201,7 +211,7 @@ static int pegasus_open(struct input_dev *dev)
->  	if (usb_submit_urb(pegasus->irq, GFP_KERNEL))
->  		retval = -EIO;
->  
-> -	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
-> +	retval = pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
->  
->  	usb_autopm_put_interface(pegasus->intf);
->  
-
-Thanks.
+>  static int pegasus_probe(struct usb_interface *intf,
+> -- 
+> 2.1.4
+> 
 
 -- 
 Dmitry

@@ -1,234 +1,123 @@
-From: "Zheng, Lv" <lv.zheng@intel.com>
-Subject: RE: [PATCH v2 4/4] ACPI / button: Add document for ACPI control
- method lid device restrictions
-Date: Wed, 20 Jul 2016 03:21:55 +0000
-Message-ID: <1AE640813FDE7649BE1B193DEA596E883BC0524A@SHSMSX101.ccr.corp.intel.com>
-References: <cover.1467717304.git.lv.zheng@intel.com>
- <cover.1467875142.git.lv.zheng@intel.com>
- <3f24a00df89f06661a64af6b4679a99bfff09aa7.1467875143.git.lv.zheng@intel.com>
- <CAN+gG=G5p6ztJODQBBAF7MY0kBNGVpexY-+a8RQY9JKuY1AB1Q@mail.gmail.com>
- <20160708175146.GA28589@dtor-ws>
- <CAN+gG=Fjt3BFp5UPhTKfz93SrYzj_3BgA8EWQ+wV7fGxyXrTWA@mail.gmail.com>
- <20160712004109.GA819@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20160712004109.GA819@dtor-ws>
-Content-Language: en-US
-Sender: linux-acpi-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "Bastien Nocera:" <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>
+From: Michael Welling <mwelling@ieee.org>
+Subject: [PATCH] Input: tsc200x - Report proper input_dev name
+Date: Tue, 19 Jul 2016 22:49:52 -0500
+Message-ID: <1468986592-4973-1-git-send-email-mwelling@ieee.org>
+References: <20160720014424.GI19250@dtor-ws>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:34014 "EHLO
+	mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750715AbcGTDuj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Jul 2016 23:50:39 -0400
+In-Reply-To: <20160720014424.GI19250@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, pali.rohar@gmail.com, sre@kernel.org, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Michael Welling <mwelling@ieee.org>
 
-Hi, Dmitry
+Passes input_id struct to the the common probe function for the tsc200x drivers
+instead of just the bustype.
 
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Subject: Re: [PATCH v2 4/4] ACPI / button: Add document for ACPI control
-> method lid device restrictions
-> 
-> On Mon, Jul 11, 2016 at 01:34:08PM +0200, Benjamin Tissoires wrote:
-> > On Fri, Jul 8, 2016 at 7:51 PM, Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> > > On Fri, Jul 08, 2016 at 11:17:39AM +0200, Benjamin Tissoires wrote:
-> > >> Hi,
-> > >>
-> > >> On Thu, Jul 7, 2016 at 9:11 AM, Lv Zheng <lv.zheng@intel.com>
-> wrote:
-> > >> > There are many AML tables reporting wrong initial lid state, and
-> some of
-> > >> > them never reports lid state. As a proxy layer acting between, ACPI
-> button
-> > >> > driver is not able to handle all such cases, but need to re-define the
-> > >> > usage model of the ACPI lid. That is:
-> > >> > 1. It's initial state is not reliable;
-> > >> > 2. There may not be open event;
-> > >> > 3. Userspace should only take action against the close event which
-> is
-> > >> >    reliable, always sent after a real lid close.
-> > >> > This patch adds documentation of the usage model.
-> > >> >
-> > >> > Link: https://lkml.org/2016/3/7/460
-> > >> > Link: https://github.com/systemd/systemd/issues/2087
-> > >> > Signed-off-by: Lv Zheng <lv.zheng@intel.com>
-> > >> > Cc: Bastien Nocera: <hadess@hadess.net>
-> > >> > Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> > >> > Cc: linux-input@vger.kernel.org
-> > >> > ---
-> > >> >  Documentation/acpi/acpi-lid.txt |   62
-> +++++++++++++++++++++++++++++++++++++++
-> > >> >  1 file changed, 62 insertions(+)
-> > >> >  create mode 100644 Documentation/acpi/acpi-lid.txt
-> > >> >
-> > >> > diff --git a/Documentation/acpi/acpi-lid.txt
-> b/Documentation/acpi/acpi-lid.txt
-> > >> > new file mode 100644
-> > >> > index 0000000..7e4f7ed
-> > >> > --- /dev/null
-> > >> > +++ b/Documentation/acpi/acpi-lid.txt
-> > >> > @@ -0,0 +1,62 @@
-> > >> > +Usage Model of the ACPI Control Method Lid Device
-> > >> > +
-> > >> > +Copyright (C) 2016, Intel Corporation
-> > >> > +Author: Lv Zheng <lv.zheng@intel.com>
-> > >> > +
-> > >> > +
-> > >> > +Abstract:
-> > >> > +
-> > >> > +Platforms containing lids convey lid state (open/close) to OSPMs
-> using a
-> > >> > +control method lid device. To implement this, the AML tables issue
-> > >> > +Notify(lid_device, 0x80) to notify the OSPMs whenever the lid
-> state has
-> > >> > +changed. The _LID control method for the lid device must be
-> implemented to
-> > >> > +report the "current" state of the lid as either "opened" or "closed".
-> > >> > +
-> > >> > +This document describes the restrictions and the expections of the
-> Linux
-> > >> > +ACPI lid device driver.
-> > >> > +
-> > >> > +
-> > >> > +1. Restrictions of the returning value of the _LID control method
-> > >> > +
-> > >> > +The _LID control method is described to return the "current" lid
-> state.
-> > >> > +However the word of "current" has ambiguity, many AML tables
-> return the lid
-> > >> > +state upon the last lid notification instead of returning the lid state
-> > >> > +upon the last _LID evaluation. There won't be difference when the
-> _LID
-> > >> > +control method is evaluated during the runtime, the problem is its
-> initial
-> > >> > +returning value. When the AML tables implement this control
-> method with
-> > >> > +cached value, the initial returning value is likely not reliable. There
-> are
-> > >> > +simply so many examples always retuning "closed" as initial lid
-> state.
-> > >> > +
-> > >> > +2. Restrictions of the lid state change notifications
-> > >> > +
-> > >> > +There are many AML tables never notifying when the lid device
-> state is
-> > >> > +changed to "opened". But it is ensured that the AML tables always
-> notify
-> > >> > +"closed" when the lid state is changed to "closed". This is normally
-> used
-> > >> > +to trigger some system power saving operations on Windows.
-> Since it is
-> > >> > +fully tested, this notification is reliable for all AML tables.
-> > >> > +
-> > >> > +3. Expections for the userspace users of the ACPI lid device driver
-> > >> > +
-> > >> > +The userspace programs should stop relying on
-> > >> > +/proc/acpi/button/lid/LID0/state to obtain the lid state. This file is
-> only
-> > >> > +used for the validation purpose.
-> > >>
-> > >> I'd say: this file actually calls the _LID method described above. And
-> > >> given the previous explanation, it is not reliable enough on some
-> > >> platforms. So it is strongly advised for user-space program to not
-> > >> solely rely on this file to determine the actual lid state.
-> > >>
-> > >> > +
-> > >> > +New userspace programs should rely on the lid "closed"
-> notification to
-> > >> > +trigger some power saving operations and may stop taking actions
-> according
-> > >> > +to the lid "opened" notification. A new input switch event -
-> SW_ACPI_LID is
-> > >> > +prepared for the new userspace to implement this ACPI control
-> method lid
-> > >> > +device specific logics.
-> > >>
-> > >> That's not entirely what we discussed before (to prevent regressions):
-> > >> - if the device doesn't have reliable LID switch state, then there
-> > >> would be the new input event, and so userspace should only rely on
-> > >> opened notifications.
-> > >> - if the device has reliable switch information, the new input event
-> > >> should not be exported and userspace knows that the current input
-> > >> switch event is reliable.
-> > >>
-> > >> Also, using a new "switch" event is a terrible idea. Switches have a
-> > >> state (open/close) and you are using this to forward a single open
-> > >> event. So using a switch just allows you to say to userspace you are
-> > >> using the "new" LID meaning, but you'll still have to manually reset
-> > >> the switch and you will have to document how this event is not a
-> > >> switch.
-> > >>
-> > >> Please use a simple KEY_LID_OPEN event you will send through
-> > >> [input_key_event(KEY_LID_OPEN, 1), input_sync(),
-> > >> input_key_event(KEY_LID_OPEN, 0), input_sync()], which userspace
-> knows
-> > >> how to handle.
-> > >>
-> > >> > +
-> > >> > +During the period the userspace hasn't been switched to use the
-> new
-> > >> > +SW_ACPI_LID event, Linux users can use the following boot
-> parameter to
-> > >> > +handle possible issues:
-> > >> > +  button.lid_init_state=method:
-> > >> > +   This is the default behavior of the Linux ACPI lid driver, Linux
-> kernel
-> > >> > +   reports the initial lid state using the returning value of the _LID
-> > >> > +   control method.
-> > >> > +   This can be used to fix some platforms if the _LID control
-> method's
-> > >> > +   returning value is reliable.
-> > >> > +  button.lid_init_state=open:
-> > >> > +   Linux kernel always reports the initial lid state as "opened".
-> > >> > +   This may fix some platforms if the returning value of the _LID
-> control
-> > >> > +   method is not reliable.
-> > >>
-> > >> This worries me as there is no plan after "During the period the
-> > >> userspace hasn't been switched to use the new event".
-> > >>
-> > >> I really hope you'll keep sending SW_LID for reliable LID platforms,
-> > >> and not remove it entirely as you will break platforms.
-> > >
-> > > How about we leave the kernel alone and userspace (which would have
-> to
-> > > cope with the new KEY_LID_OPEN anyway) would just have to know
-> that if
-> > > switch's parent is PNP0C0D:00 (or phys is PNP0C0D/button/input0)
-> then it
-> > > can't trust the events and it needs additional heuristics.
-> > >
-> >
-> > I really wished we could leave the kernel alone, but some platform
-> > need fixes: we are using an EV_SW, and on those platform, we only get
-> > the close event, which means it gets ignored by the input layer.
-> 
-> OK. Can we then emit missing "open" if we get "close" and the state is
-> already closed?
-[Lv Zheng] 
-I've been considering this again.
-I think you may mean we can improve SW_LID by reporting SW_LID(open) when a new close event is arrived.
-So that we may be able to fix old programs.
+This allows for the use of the product variable to set the input_dev->name
+variable according to the type of touchscreen used.
 
-Possibly the code should be looked like:
+Signed-off-by: Michael Welling <mwelling@ieee.org>
+---
+ drivers/input/touchscreen/tsc2004.c      | 7 ++++++-
+ drivers/input/touchscreen/tsc2005.c      | 7 ++++++-
+ drivers/input/touchscreen/tsc200x-core.c | 7 ++++---
+ drivers/input/touchscreen/tsc200x-core.h | 2 +-
+ 4 files changed, 17 insertions(+), 6 deletions(-)
 
-If (!!state != last_state && time_after(jiffies, last_jiffies)) {
-	input_report_switch(..., state);
-}
-input_report_switch(..., !state);
+diff --git a/drivers/input/touchscreen/tsc2004.c b/drivers/input/touchscreen/tsc2004.c
+index 7295c19..6fe55d5 100644
+--- a/drivers/input/touchscreen/tsc2004.c
++++ b/drivers/input/touchscreen/tsc2004.c
+@@ -22,6 +22,11 @@
+ #include <linux/regmap.h>
+ #include "tsc200x-core.h"
+ 
++static const struct input_id tsc2004_input_id = {
++	.bustype = BUS_I2C,
++	.product = 2004,
++};
++
+ static int tsc2004_cmd(struct device *dev, u8 cmd)
+ {
+ 	u8 tx = TSC200X_CMD | TSC200X_CMD_12BIT | cmd;
+@@ -42,7 +47,7 @@ static int tsc2004_probe(struct i2c_client *i2c,
+ 			 const struct i2c_device_id *id)
+ 
+ {
+-	return tsc200x_probe(&i2c->dev, i2c->irq, BUS_I2C,
++	return tsc200x_probe(&i2c->dev, i2c->irq, &tsc2004_input_id,
+ 			     devm_regmap_init_i2c(i2c, &tsc200x_regmap_config),
+ 			     tsc2004_cmd);
+ }
+diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
+index b9f593d..f2c5f0e 100644
+--- a/drivers/input/touchscreen/tsc2005.c
++++ b/drivers/input/touchscreen/tsc2005.c
+@@ -24,6 +24,11 @@
+ #include <linux/regmap.h>
+ #include "tsc200x-core.h"
+ 
++static const struct input_id tsc2005_input_id = {
++	.bustype = BUS_SPI,
++	.product = 2005,
++};
++
+ static int tsc2005_cmd(struct device *dev, u8 cmd)
+ {
+ 	u8 tx = TSC200X_CMD | TSC200X_CMD_12BIT | cmd;
+@@ -62,7 +67,7 @@ static int tsc2005_probe(struct spi_device *spi)
+ 	if (error)
+ 		return error;
+ 
+-	return tsc200x_probe(&spi->dev, spi->irq, BUS_SPI,
++	return tsc200x_probe(&spi->dev, spi->irq, &tsc2005_input_id,
+ 			     devm_regmap_init_spi(spi, &tsc200x_regmap_config),
+ 			     tsc2005_cmd);
+ }
+diff --git a/drivers/input/touchscreen/tsc200x-core.c b/drivers/input/touchscreen/tsc200x-core.c
+index 26e81d1b..5e625c4 100644
+--- a/drivers/input/touchscreen/tsc200x-core.c
++++ b/drivers/input/touchscreen/tsc200x-core.c
+@@ -450,7 +450,7 @@ static void tsc200x_close(struct input_dev *input)
+ 	mutex_unlock(&ts->mutex);
+ }
+ 
+-int tsc200x_probe(struct device *dev, int irq, __u16 bustype,
++int tsc200x_probe(struct device *dev, int irq, const struct input_id *tsc_id,
+ 		  struct regmap *regmap,
+ 		  int (*tsc200x_cmd)(struct device *dev, u8 cmd))
+ {
+@@ -547,9 +547,10 @@ int tsc200x_probe(struct device *dev, int irq, __u16 bustype,
+ 	snprintf(ts->phys, sizeof(ts->phys),
+ 		 "%s/input-ts", dev_name(dev));
+ 
+-	input_dev->name = "TSC200X touchscreen";
++	input_dev->name = devm_kasprintf(dev, GFP_KERNEL, "TSC%04d touchscreen",
++					tsc_id->product);
+ 	input_dev->phys = ts->phys;
+-	input_dev->id.bustype = bustype;
++	input_dev->id = *tsc_id;
+ 	input_dev->dev.parent = dev;
+ 	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
+ 	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+diff --git a/drivers/input/touchscreen/tsc200x-core.h b/drivers/input/touchscreen/tsc200x-core.h
+index 7a482d1..49a63a3 100644
+--- a/drivers/input/touchscreen/tsc200x-core.h
++++ b/drivers/input/touchscreen/tsc200x-core.h
+@@ -70,7 +70,7 @@
+ extern const struct regmap_config tsc200x_regmap_config;
+ extern const struct dev_pm_ops tsc200x_pm_ops;
+ 
+-int tsc200x_probe(struct device *dev, int irq, __u16 bustype,
++int tsc200x_probe(struct device *dev, int irq, const struct input_id *tsc_id,
+ 		  struct regmap *regmap,
+ 		  int (*tsc200x_cmd)(struct device *dev, u8 cmd));
+ int tsc200x_remove(struct device *dev);
+-- 
+2.1.4
 
-However, there are tables never reporting "open".
-If we do things in this way, there will be a very long period between the last close and the next close.
-
-Which means there will be a too long period between the close and the open switch events.
-IMO, this cannot fix old user space programs.
-
-Currently, logind has a timeout mechanism.
-If it cannot receive "open" within this period, it will suspend the system again right after resuming.
-Thus we can still see that suspending right after resuming could be resulted.
-
-However the new key events allow the new user space to fix the issue without changing the timeout logic.
-
-For the old user space programs, I have no idea how we can fix them on such platforms (no open events).
-
-Thanks and best regards
--Lv

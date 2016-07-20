@@ -1,60 +1,109 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Input: tsc200x - Report proper input_dev name
-Date: Wed, 20 Jul 2016 22:37:25 +0200
-Message-ID: <201607202237.26015@pali>
-References: <20160720014424.GI19250@dtor-ws> <20160720170412.GC25655@dtor-ws> <20160720171449.GD25655@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/4] input: tablet: pegasus_notetaker: Track usb control
+ msg errors
+Date: Wed, 20 Jul 2016 14:06:53 -0700
+Message-ID: <20160720210653.GF25655@dtor-ws>
+References: <1468852149-2614-1-git-send-email-martink@posteo.de>
+ <1468852149-2614-2-git-send-email-martink@posteo.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1548039.QGCi632Zcd";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160720171449.GD25655@dtor-ws>
+Content-Disposition: inline
+In-Reply-To: <1468852149-2614-2-git-send-email-martink@posteo.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Michael Welling <mwelling@ieee.org>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, sre@kernel.org, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com, Aaro Koskinen <aaro.koskinen@iki.fi>
+To: Martin Kepplinger <martink@posteo.de>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
---nextPart1548039.QGCi632Zcd
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Hi Martin,
 
-On Wednesday 20 July 2016 19:14:49 Dmitry Torokhov wrote:
-> Input: tsc200x - report proper input_dev name
->=20
-> From: Michael Welling <mwelling@ieee.org>
->=20
-> Passes input_id struct to the common probe function for the tsc200x
-> drivers instead of just the bustype.
->=20
-> This allows for the use of the product variable to set the
-> input_dev->name variable according to the type of touchscreen used.
-> Note that when we introduced support for TSC2004 we started calling
-> everything TSC200X, so let's keep this quirk.
->=20
-> Reported-by: Pavel Machek <pavel@ucw.cz>
-> Signed-off-by: Michael Welling <mwelling@ieee.org>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Mon, Jul 18, 2016 at 04:29:06PM +0200, Martin Kepplinger wrote:
+> Signed-off-by: Martin Kepplinger <martink@posteo.de>
+> ---
+>  drivers/input/tablet/pegasus_notetaker.c | 26 ++++++++++++++++++--------
+>  1 file changed, 18 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
+> index 83aa583..27cb352 100644
+> --- a/drivers/input/tablet/pegasus_notetaker.c
+> +++ b/drivers/input/tablet/pegasus_notetaker.c
+> @@ -79,7 +79,7 @@ struct pegasus {
+>  	struct work_struct init;
+>  };
+>  
+> -static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
+> +static int pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
+>  {
+>  	const int sizeof_buf = len + 2;
+>  	int result;
+> @@ -87,7 +87,7 @@ static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
+>  
+>  	cmd_buf = kmalloc(sizeof_buf, GFP_KERNEL);
+>  	if (!cmd_buf)
+> -		return;
+> +		return -ENOMEM;
+>  
+>  	cmd_buf[0] = NOTETAKER_REPORT_ID;
+>  	cmd_buf[1] = len;
+> @@ -100,17 +100,23 @@ static void pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
+>  				 0, 0, cmd_buf, sizeof_buf,
+>  				 USB_CTRL_SET_TIMEOUT);
+>  
+> -	if (result != sizeof_buf)
+> -		dev_err(&pegasus->usbdev->dev, "control msg error\n");
+> +	if (result != sizeof_buf) {
+> +		if (result >= 0)
+> +			result = -EIO;
+> +		dev_err(&pegasus->usbdev->dev, "control msg error: %d\n",
+> +			result);
+> +	}
+>  
+>  	kfree(cmd_buf);
+> +
+> +	return result;
 
-Acked-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+Your 4th patch relies on pegasus_control_msg() returning 0 on success,
+otherwise you will not restart the URB when doing reset resume. I
+rearranged the code here so we free cmd_buf right after calling
+usb_control_msg() and the explicitly returnig 0 in success branch.
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+>  }
+>  
+> -static void pegasus_set_mode(struct pegasus *pegasus, u8 mode, u8 led)
+> +static int pegasus_set_mode(struct pegasus *pegasus, u8 mode, u8 led)
+>  {
+>  	u8 cmd[] = {NOTETAKER_SET_CMD, NOTETAKER_SET_MODE, led, mode};
+>  
+> -	pegasus_control_msg(pegasus, cmd, sizeof(cmd));
+> +	return pegasus_control_msg(pegasus, cmd, sizeof(cmd));
+>  }
+>  
+>  static void pegasus_parse_packet(struct pegasus *pegasus)
+> @@ -184,8 +190,12 @@ static void pegasus_irq(struct urb *urb)
+>  static void pegasus_init(struct work_struct *work)
+>  {
+>  	struct pegasus *pegasus = container_of(work, struct pegasus, init);
+> +	int retval;
+>  
+> -	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
+> +	retval = pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
+> +	if (retval < 0)
+> +		dev_err(&pegasus->usbdev->dev, "pegasus_set_mode error: %d\n",
+> +			retval);
+>  }
+>  
+>  static int pegasus_open(struct input_dev *dev)
+> @@ -201,7 +211,7 @@ static int pegasus_open(struct input_dev *dev)
+>  	if (usb_submit_urb(pegasus->irq, GFP_KERNEL))
+>  		retval = -EIO;
+>  
+> -	pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
+> +	retval = pegasus_set_mode(pegasus, PEN_MODE_XY, NOTETAKER_LED_MOUSE);
+>  
+>  	usb_autopm_put_interface(pegasus->intf);
+>  
 
---nextPart1548039.QGCi632Zcd
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+Thanks.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAleP4QYACgkQi/DJPQPkQ1LrngCeJldvwPnXXa+5idcrijovpS3n
-Vv8AnRYksSHs/j2D8ZkVRM1/IzhnBPsN
-=Ie2i
------END PGP SIGNATURE-----
-
---nextPart1548039.QGCi632Zcd--
+-- 
+Dmitry

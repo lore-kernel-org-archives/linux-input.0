@@ -1,123 +1,222 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: v4.1 to v4.7: regression in tsc2005 driver
-Date: Thu, 21 Jul 2016 08:55:32 +1000
-Message-ID: <20160720225532.GA22515@jelly>
-References: <20160717182445.GA20058@deathstar>
- <20160717184209.GA30119@amd>
- <20160717185134.GA20462@deathstar>
- <20160717200339.GA29562@amd>
- <20160717225636.GB20462@deathstar>
- <20160719235120.GD19250@dtor-ws>
- <20160720062558.GA3792@amd>
- <20160720162356.GA25655@dtor-ws>
- <20160720214736.GA4321@jelly>
- <20160720222002.GD26006@dtor-ws>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH 5/5] mfd: sunxi-gpadc-mfd: probe sunxi-gpadc-ts driver
+Date: Thu, 21 Jul 2016 08:08:12 +0200
+Message-ID: <20160721060812.GA5993@lukather>
+References: <1469003351-15263-1-git-send-email-quentin.schulz@free-electrons.com>
+ <1469003351-15263-6-git-send-email-quentin.schulz@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160720222002.GD26006@dtor-ws>
+In-Reply-To: <1469003351-15263-6-git-send-email-quentin.schulz@free-electrons.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Michael Welling <mwelling@ieee.org>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, pali.rohar@gmail.com, sre@kernel.org, aaro.koskinen@iki.fi, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com
+To: Quentin Schulz <quentin.schulz@free-electrons.com>
+Cc: jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wens@csie.org, dmitry.torokhov@gmail.com, lee.jones@linaro.org, antoine.tenart@free-electrons.com, thomas.petazzoni@free-electrons.com, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jul 20, 2016 at 03:20:02PM -0700, Dmitry Torokhov wrote:
-> On Thu, Jul 21, 2016 at 07:47:36AM +1000, Peter Hutterer wrote:
-> > On Wed, Jul 20, 2016 at 09:23:56AM -0700, Dmitry Torokhov wrote:
-> > > On Wed, Jul 20, 2016 at 08:25:58AM +0200, Pavel Machek wrote:
-> > > > Hi!
-> > > > 
-> > > > > > > > > > > drivers/input/touchscreen/tsc2005.c:	  input_dev->name = "TSC2005
-> > > > > > > > > > > touchscreen";
-> > > > > > > > > > > 
-> > > > > > > > > > > to "TSC200X touchscreen". Unfortunately, X seems to propagate that
-> > > > > > > > > > > name to userspace, where it is needed to be able to do
-> > > > > 
-> > > > > Technically X _is_ userspace.
-> > > > 
-> > > > There's "userspace running as root" and "userspace userspace" :-).
-> > > 
-> > > I do not really see any difference form the kernel POW. 
-> > > 
-> > > > 
-> > > > > > > > > > > 
-> > > > > > > > > > > xinput --set-prop --type=int ...
-> > > > > > > > > > > 
-> > > > > > > > > > > with the right arguments to calibrate touchscreen. (Touchscreen is
-> > > > > > > > > > > unusable without calibration).
-> > > > > > > > > > > 
-> > > > > > > > > > > What to do with that?
-> > > > > 
-> > > > > Hmm, I do not think we ever committed for the device names to be stable.
-> > > > > You are supposed to locate touchscreen device based on its properties
-> > > > > and you might need some heuristic if you encounter a system with more
-> > > > > than one such touchscreen.
-> > > > 
-> > > > Well, you are commited now, like it or not, X people did it for you
-> > > > :-(.
-> > > > 
-> > > > Because there's no other reasonable way to use xinput --set-prop...
-> > > 
-> > > Well, X is going to have to fix it. How am I supposed to control my
-> > > devices in multi-seat environment if I use the same hardware (or if I
-> > > have device with multiple touchscreens)? They all will have the same
-> > > name (well, all mice, then all keyboards, etc). Let's add Peter to the
-> > > fold...
-> > > 
-> > > In the mean time you can adjust the name or use XID instead.
-> > 
-> > X has partially fixed this a few years ago. All input drivers (that
-> > matter) export a Device Node property that sets the device node for each
-> > device.
-> > 
-> >  $ xinput list-props "SynPS/2 Synaptics TouchPad" | grep "Device Node"
-> >         Device Node (261):      "/dev/input/event4"
-> > 
-> > Based on that you can get the udev device and work your way into any of the
-> > sysfs tree. Or do whatever else you want.
-> 
-> The issue is not that I can't figure out sysfs path for a device, the
-> issue is that xinput does not accept anything but name or XID and I may
-> have multiple devices with the same name in the system.
 
-fwiw, the main reason why I don't want this in xinput is that anything
-sysfs related (or elsewhere) is platform specific. On BSD the Device
-Node isn't an evdev node and other efforts are required. xinput is an X tool
-itself and I don't want non-X functionality in it because you'll quickly
-unleash pandora's box here about stuffing custom features in that only apply
-to a tiny fraction of setups.
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-even the case where you have more than one device with the same name is
-quite unusal (note: we do support a "pointer:" and "keyboard:" prefix for
-those where a device has a pointer and a keyboard device with the same
-name like many of the mouse/keyboard combos do).
+Hi Quentin,
 
-> > But other than that there isn't anything in X to fix. xinput is primarily a
-> > debugging tool and it does name resolution for convenience. But it's not a
-> > tool for complex configurations. It does exactly what it needs to do, if you
-> 
-> OK, I do not believe that this information was conveyed clearly enough.
-> Apparently some setups use it for real configuration.
+On Wed, Jul 20, 2016 at 10:29:11AM +0200, Quentin Schulz wrote:
+> This probes the touchscreen driver for Allwinner SoCs (A10, A13 and A31)
+> when the property "allwinner,ts-attached" is set in the GPADC (rtp) node =
+of
+> the DT.
+>=20
+> Some comestic modifications done to shorten and increase readability of t=
+he
+> code.
+>=20
+> Signed-off-by: Quentin Schulz <quentin.schulz@free-electrons.com>
+> ---
+>  drivers/mfd/sunxi-gpadc-mfd.c | 115 ++++++++++++++++++++++++++++--------=
+------
+>  1 file changed, 77 insertions(+), 38 deletions(-)
+>=20
+> diff --git a/drivers/mfd/sunxi-gpadc-mfd.c b/drivers/mfd/sunxi-gpadc-mfd.c
+> index 05a000b..9b9ed0b 100644
+> --- a/drivers/mfd/sunxi-gpadc-mfd.c
+> +++ b/drivers/mfd/sunxi-gpadc-mfd.c
+> @@ -21,6 +21,11 @@
+>  #define SUNXI_IRQ_TEMP_DATA	1
+>  #define SUNXI_IRQ_TP_UP		2
+> =20
+> +#define SUNXI_GPADC_MFD_CELL(_name, _resources, _num_resources) {	\
+> +	.name =3D _name,							\
+> +	.resources =3D _resources,					\
+> +	.num_resources =3D _num_resources					\
+> +}
+> =20
+>  static struct resource adc_resources[] =3D {
+>  	{
+> @@ -64,33 +69,45 @@ static const struct regmap_irq_chip sunxi_gpadc_mfd_r=
+egmap_irq_chip =3D {
+>  };
+> =20
+>  static struct mfd_cell sun4i_gpadc_mfd_cells[] =3D {
+> -	{
+> -		.name	=3D "sun4i-a10-gpadc-iio",
+> -		.resources =3D adc_resources,
+> -		.num_resources =3D ARRAY_SIZE(adc_resources),
+> -	}, {
+> -		.name =3D "iio_hwmon",
+> -	}
+> +	SUNXI_GPADC_MFD_CELL("sun4i-a10-gpadc-iio", adc_resources,
+> +			     ARRAY_SIZE(adc_resources)),
+> +	SUNXI_GPADC_MFD_CELL("iio_hwmon", NULL, 0),
+>  };
+> =20
+>  static struct mfd_cell sun5i_gpadc_mfd_cells[] =3D {
+> -	{
+> -		.name	=3D "sun5i-a13-gpadc-iio",
+> -		.resources =3D adc_resources,
+> -		.num_resources =3D ARRAY_SIZE(adc_resources),
+> -	}, {
+> -		.name =3D "iio_hwmon",
+> -	},
+> +	SUNXI_GPADC_MFD_CELL("sun5i-a13-gpadc-iio", adc_resources,
+> +			     ARRAY_SIZE(adc_resources)),
+> +	SUNXI_GPADC_MFD_CELL("iio_hwmon", NULL, 0),
+>  };
+> =20
+>  static struct mfd_cell sun6i_gpadc_mfd_cells[] =3D {
+> -	{
+> -		.name	=3D "sun6i-a31-gpadc-iio",
+> -		.resources =3D adc_resources,
+> -		.num_resources =3D ARRAY_SIZE(adc_resources),
+> -	}, {
+> -		.name =3D "iio_hwmon",
+> -	},
+> +	SUNXI_GPADC_MFD_CELL("sun6i-a31-gpadc-iio", adc_resources,
+> +			     ARRAY_SIZE(adc_resources)),
+> +	SUNXI_GPADC_MFD_CELL("iio_hwmon", NULL, 0),
+> +};
 
-yeah. I've been saying "get your DE to implement support" for 7-8 years
-now but saying things and being listened too are two different entities :)
-xinput's main problem is that it works for the majority of use-cases, so
-people use it. That's largely fine for most cases, but not when it comes to
-anything even remotely sophisticated.
+This should be part of a separate patch.
 
-Cheers,
-   Peter
+> +
+> +static struct mfd_cell sun4i_gpadc_mfd_cells_ts[] =3D {
+> +	SUNXI_GPADC_MFD_CELL("sun6i-a31-gpadc-iio", adc_resources,
+> +			     ARRAY_SIZE(adc_resources)),
+> +	SUNXI_GPADC_MFD_CELL("iio_hwmon", NULL, 0),
+> +	SUNXI_GPADC_MFD_CELL("sunxi-gpadc-ts", ts_resources,
+> +			     ARRAY_SIZE(ts_resources)),
+> +};
+> +
+> +static struct mfd_cell sun5i_gpadc_mfd_cells_ts[] =3D {
+> +	SUNXI_GPADC_MFD_CELL("sun5i-a13-gpadc-iio", adc_resources,
+> +			     ARRAY_SIZE(adc_resources)),
+> +	SUNXI_GPADC_MFD_CELL("iio_hwmon", NULL, 0),
+> +	SUNXI_GPADC_MFD_CELL("sunxi-gpadc-ts", ts_resources,
+> +			     ARRAY_SIZE(ts_resources)),
+> +};
+> +
+> +static struct mfd_cell sun6i_gpadc_mfd_cells_ts[] =3D {
+> +	SUNXI_GPADC_MFD_CELL("sun6i-a31-gpadc-iio", adc_resources,
+> +			     ARRAY_SIZE(adc_resources)),
+> +	SUNXI_GPADC_MFD_CELL("iio_hwmon", NULL, 0),
+> +	SUNXI_GPADC_MFD_CELL("sunxi-gpadc-ts", ts_resources,
+> +			     ARRAY_SIZE(ts_resources)),
+>  };
+> =20
+>  static const struct regmap_config sunxi_gpadc_mfd_regmap_config =3D {
+> @@ -142,23 +159,45 @@ static int sunxi_gpadc_mfd_probe(struct platform_de=
+vice *pdev)
+>  	}
+> =20
+>  	if (of_device_is_compatible(pdev->dev.of_node,
+> -				    "allwinner,sun4i-a10-ts"))
+> -		ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> -				      sun4i_gpadc_mfd_cells,
+> -				      ARRAY_SIZE(sun4i_gpadc_mfd_cells), NULL,
+> -				      0, NULL);
+> -	else if (of_device_is_compatible(pdev->dev.of_node,
+> -					 "allwinner,sun5i-a13-ts"))
+> -		ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> -				      sun5i_gpadc_mfd_cells,
+> -				      ARRAY_SIZE(sun5i_gpadc_mfd_cells), NULL,
+> -				      0, NULL);
+> -	else if (of_device_is_compatible(pdev->dev.of_node,
+> -					 "allwinner,sun6i-a31-ts"))
+> -		ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> -				      sun6i_gpadc_mfd_cells,
+> -				      ARRAY_SIZE(sun6i_gpadc_mfd_cells), NULL,
+> -				      0, NULL);
+> +				    "allwinner,sun4i-a10-ts")) {
+> +		if (of_property_read_bool(pdev->dev.of_node,
+> +					  "allwinner,ts-attached"))
+> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> +					      sun4i_gpadc_mfd_cells_ts,
+> +					      ARRAY_SIZE(sun4i_gpadc_mfd_cells_ts),
+> +					      NULL, 0, NULL);
+> +		else
+> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> +					      sun4i_gpadc_mfd_cells,
+> +					      ARRAY_SIZE(sun4i_gpadc_mfd_cells),
+> +					      NULL, 0, NULL);
+> +	} else if (of_device_is_compatible(pdev->dev.of_node,
+> +					 "allwinner,sun5i-a13-ts")) {
+> +		if (of_property_read_bool(pdev->dev.of_node,
+> +					  "allwinner,ts-attached"))
+> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> +					      sun5i_gpadc_mfd_cells_ts,
+> +					      ARRAY_SIZE(sun5i_gpadc_mfd_cells_ts),
+> +					      NULL, 0, NULL);
+> +		else
+> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> +					      sun5i_gpadc_mfd_cells,
+> +					      ARRAY_SIZE(sun5i_gpadc_mfd_cells),
+> +					      NULL, 0, NULL);
+> +	} else if (of_device_is_compatible(pdev->dev.of_node,
+> +					 "allwinner,sun6i-a31-ts")) {
+> +		if (of_property_read_bool(pdev->dev.of_node,
+> +					  "allwinner,ts-attached"))
+> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> +					      sun6i_gpadc_mfd_cells_ts,
+> +					      ARRAY_SIZE(sun6i_gpadc_mfd_cells_ts),
+> +					      NULL, 0, NULL);
+> +		else
+> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> +					      sun6i_gpadc_mfd_cells,
+> +					      ARRAY_SIZE(sun6i_gpadc_mfd_cells),
+> +					      NULL, 0, NULL);
+> +	}
 
- 
-> > need something that's more complicated and relies on information not
-> > available to the X device itself then you'll need to write a custom tool
-> > that does what you need. sorry.
-> 
-> Pavel, ^^^^
-> 
-> 
-> Thanks.
-> 
-> -- 
-> Dmitry
+Please don't use any of_device_is_compatible.
+
+Thanks,
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
+
+--VS++wcV0S1rZb1Fb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXkGbMAAoJEBx+YmzsjxAgCLMP/199eYL/z9vd78mnDMOJMyKp
+nhfL69OivB/oZAanEylqV0VY2U48jFGvJM3247z4M0YALd0BMO7OsrV/Qk67Ji7k
+DF0PlLnpWdoZvyDaNqInKSq95dXRh6hv/PULwuiKLbxfiXjotsOtJGq16tp6kuGZ
+8Su4Mlr5IV2i5sJjrA2nCwMwIgARLfKdwiAFByy8ISmL1xBvRchUc0fONg41TM7G
+7z77U0oIsu39x7v08pmGA06ihiWK96yJF+/+rLPd+bVGMmGORQAIaOfOxvs5shFP
+1CfEraJH7s/PJQD3z9hLURTaORj5QO1VRuuhu9GPs3j14TsK7wYiFEoBM70NT2e1
+Fw+BvPN+AETPK2KZQ2fuPowpyuBg7NokUv5c1FnKL2xF7FV9UM0m75sSem+x4B5P
+jNYKEqPFgboASNZ1PQ8vCXV6wvQxoClPBf9CxRI8sBn5IQqF3q732J3/7z0yw3Ma
+8jcHMkhlK7+t64OCPQtf7w6l+WHsw4FyprLN0Dtx1YdMrxEtmCICHlBkU33oj0cL
+GLFSEI6PdjKx9V+N/6GB66z2gzHCO1uqj/NaZfN+SFtu9qVE7z2k7Hn5J4fP7apL
+eXRehjepDjff9U31IdJ6iZg6dvYQrALirI16oi3brIvv6YiH8rpAbbal0NLx2Ue9
+zFKcxKIR+9gtf1c4mSmm
+=enbF
+-----END PGP SIGNATURE-----
+
+--VS++wcV0S1rZb1Fb--

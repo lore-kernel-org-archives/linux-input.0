@@ -1,201 +1,131 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH v2] HID: wacom: Update last_slot_field during pre_report phase
-Date: Thu, 21 Jul 2016 11:01:22 -0700
-Message-ID: <CAF8JNhJaBRnsCB60UEGW_6k1ecHMK0x5jyhqydtm+GDi3PiraQ@mail.gmail.com>
-References: <f20b53ac-1bde-7005-2874-74bdd6d6aa96@gmail.com> <20160721161046.25608-1-killertofu@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 2/2] ACPI / button: Add document for ACPI control
+ method lid device restrictions
+Date: Thu, 21 Jul 2016 13:32:46 -0700
+Message-ID: <20160721203246.GA9841@dtor-ws>
+References: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com>
+ <84ca7337d20620946b671f212abfc82698ddcbf4.1468915808.git.lv.zheng@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f67.google.com ([209.85.214.67]:36178 "EHLO
-	mail-it0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751979AbcGUSBm (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:35498 "EHLO
+	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753877AbcGUUcz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Jul 2016 14:01:42 -0400
-Received: by mail-it0-f67.google.com with SMTP id j124so1634123ith.3
-        for <linux-input@vger.kernel.org>; Thu, 21 Jul 2016 11:01:42 -0700 (PDT)
-In-Reply-To: <20160721161046.25608-1-killertofu@gmail.com>
+	Thu, 21 Jul 2016 16:32:55 -0400
+Content-Disposition: inline
+In-Reply-To: <84ca7337d20620946b671f212abfc82698ddcbf4.1468915808.git.lv.zheng@intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Lv Zheng <lv.zheng@intel.com>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "Bastien Nocera:" <hadess@hadess.net>, linux-input@vger.kernel.org
 
-On Thu, Jul 21, 2016 at 9:10 AM, Jason Gerecke <killertofu@gmail.com> wrote:
-> If a touchscreen contains both multitouch and single-touch reports in its
-> descriptor in that order, the driver may overwrite information it saved
-> about the format of the multitouch report. This can cause the report
-> processing code to get tripped up and send an incorrect event stream to
-> userspace.
->
-> In particular, this can cause last_slot_field to be overwritten with the
-> result that the driver prematurely assumes it has finished processing a
-> slot and sending the ABS_MT_SLOT event at the wrong point in time,
-> associating events for the current contact with the following contact
-> instead.
->
-> To prevent this from occurring, we update the value of last_slot_field
-> durring the pre_report phase to ensure that it is correct for the report
-> that is to be processed.
-
-Nice job, Jason! I like this approach. The patch is:
-
-Reviewed-by: Ping Cheng <pingc@wacom.com>
-
-Cheers,
-
-Ping
-
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+On Tue, Jul 19, 2016 at 04:11:21PM +0800, Lv Zheng wrote:
+> This patch adds documentation for the usage model of the control method lid
+> device.
+> 
+> Signed-off-by: Lv Zheng <lv.zheng@intel.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> Cc: Bastien Nocera: <hadess@hadess.net>
+> Cc: linux-input@vger.kernel.org
 > ---
-> Changes from v1:
->  * The v1 patch cut off processing by wacom_wac_finger_usage_mapping once
->    it saw a HID_DG_CONTACTCOUNT usage in any report. This method of
->    handling the bug has two potential problems: 1) reports which place
->    the HID_DG_CONTACTCOUNT usage near the beginning of the packet will
->    not properly map the rest of the usages, and 2) devices which have
->    multiple reports with the HID_DG_CONTACTCOUNT usage will only send
->    reports formatted like the first discovered. Neither of these should
->    cause issues for currently available hardware, but to maximize forward
->    compatibility, the revised scheme contained here was devised.
->
->  drivers/hid/wacom_wac.c | 62 +++++++++++++++++++++----------------------------
->  drivers/hid/wacom_wac.h |  2 +-
->  2 files changed, 27 insertions(+), 37 deletions(-)
->
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index fcf2264..d2611f3 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -1556,13 +1556,11 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
->  {
->         struct wacom *wacom = hid_get_drvdata(hdev);
->         struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-> -       struct wacom_features *features = &wacom_wac->features;
->         struct input_dev *input = wacom_wac->touch_input;
->         unsigned touch_max = wacom_wac->features.touch_max;
->
->         switch (usage->hid) {
->         case HID_GD_X:
-> -               features->last_slot_field = usage->hid;
->                 if (touch_max == 1)
->                         wacom_map_usage(input, usage, field, EV_ABS, ABS_X, 4);
->                 else
-> @@ -1570,7 +1568,6 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
->                                         ABS_MT_POSITION_X, 4);
->                 break;
->         case HID_GD_Y:
-> -               features->last_slot_field = usage->hid;
->                 if (touch_max == 1)
->                         wacom_map_usage(input, usage, field, EV_ABS, ABS_Y, 4);
->                 else
-> @@ -1579,22 +1576,11 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
->                 break;
->         case HID_DG_WIDTH:
->         case HID_DG_HEIGHT:
-> -               features->last_slot_field = usage->hid;
->                 wacom_map_usage(input, usage, field, EV_ABS, ABS_MT_TOUCH_MAJOR, 0);
->                 wacom_map_usage(input, usage, field, EV_ABS, ABS_MT_TOUCH_MINOR, 0);
->                 input_set_abs_params(input, ABS_MT_ORIENTATION, 0, 1, 0, 0);
->                 break;
-> -       case HID_DG_CONTACTID:
-> -               features->last_slot_field = usage->hid;
-> -               break;
-> -       case HID_DG_INRANGE:
-> -               features->last_slot_field = usage->hid;
-> -               break;
-> -       case HID_DG_INVERT:
-> -               features->last_slot_field = usage->hid;
-> -               break;
->         case HID_DG_TIPSWITCH:
-> -               features->last_slot_field = usage->hid;
->                 wacom_map_usage(input, usage, field, EV_KEY, BTN_TOUCH, 0);
->                 break;
->         case HID_DG_CONTACTCOUNT:
-> @@ -1672,7 +1658,7 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
->
->
->         if (usage->usage_index + 1 == field->report_count) {
-> -               if (usage->hid == wacom_wac->features.last_slot_field)
-> +               if (usage->hid == wacom_wac->hid_data.last_slot_field)
->                         wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
->         }
->
-> @@ -1685,31 +1671,35 @@ static void wacom_wac_finger_pre_report(struct hid_device *hdev,
->         struct wacom *wacom = hid_get_drvdata(hdev);
->         struct wacom_wac *wacom_wac = &wacom->wacom_wac;
->         struct hid_data* hid_data = &wacom_wac->hid_data;
-> +       int i;
->
-> -       if (hid_data->cc_report != 0 &&
-> -           hid_data->cc_report != report->id) {
-> -               int i;
-> -
-> -               hid_data->cc_report = report->id;
-> -               hid_data->cc_index = -1;
-> -               hid_data->cc_value_index = -1;
-> -
-> -               for (i = 0; i < report->maxfield; i++) {
-> -                       struct hid_field *field = report->field[i];
-> -                       int j;
-> -
-> -                       for (j = 0; j < field->maxusage; j++) {
-> -                               if (field->usage[j].hid == HID_DG_CONTACTCOUNT) {
-> -                                       hid_data->cc_index = i;
-> -                                       hid_data->cc_value_index = j;
-> -
-> -                                       /* break */
-> -                                       i = report->maxfield;
-> -                                       j = field->maxusage;
-> -                               }
-> +       for (i = 0; i < report->maxfield; i++) {
-> +               struct hid_field *field = report->field[i];
-> +               int j;
+>  Documentation/acpi/acpi-lid.txt |   89 +++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 89 insertions(+)
+>  create mode 100644 Documentation/acpi/acpi-lid.txt
+> 
+> diff --git a/Documentation/acpi/acpi-lid.txt b/Documentation/acpi/acpi-lid.txt
+> new file mode 100644
+> index 0000000..2addedc
+> --- /dev/null
+> +++ b/Documentation/acpi/acpi-lid.txt
+> @@ -0,0 +1,89 @@
+> +Usage Model of the ACPI Control Method Lid Device
 > +
-> +               for (j = 0; j < field->maxusage; j++) {
-> +                       struct hid_usage *usage = &field->usage[j];
+> +Copyright (C) 2016, Intel Corporation
+> +Author: Lv Zheng <lv.zheng@intel.com>
 > +
-> +                       switch (usage->hid) {
-> +                       case HID_GD_X:
-> +                       case HID_GD_Y:
-> +                       case HID_DG_WIDTH:
-> +                       case HID_DG_HEIGHT:
-> +                       case HID_DG_CONTACTID:
-> +                       case HID_DG_INRANGE:
-> +                       case HID_DG_INVERT:
-> +                       case HID_DG_TIPSWITCH:
-> +                               hid_data->last_slot_field = usage->hid;
-> +                               break;
-> +                       case HID_DG_CONTACTCOUNT:
-> +                               hid_data->cc_report = report->id;
-> +                               hid_data->cc_index = i;
-> +                               hid_data->cc_value_index = j;
-> +                               break;
->                         }
->                 }
->         }
 > +
->         if (hid_data->cc_report != 0 &&
->             hid_data->cc_index >= 0) {
->                 struct hid_field *field = report->field[hid_data->cc_index];
-> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-> index 8a8974c..267025c 100644
-> --- a/drivers/hid/wacom_wac.h
-> +++ b/drivers/hid/wacom_wac.h
-> @@ -185,7 +185,6 @@ struct wacom_features {
->         int pktlen;
->         bool check_for_hid_type;
->         int hid_type;
-> -       int last_slot_field;
->  };
->
->  struct wacom_shared {
-> @@ -214,6 +213,7 @@ struct hid_data {
->         int cc_report;
->         int cc_index;
->         int cc_value_index;
-> +       int last_slot_field;
->         int num_expected;
->         int num_received;
->  };
-> --
-> 2.9.0
->
+> +Abstract:
+> +
+> +Platforms containing lids convey lid state (open/close) to OSPMs using a
+> +control method lid device. To implement this, the AML tables issue
+> +Notify(lid_device, 0x80) to notify the OSPMs whenever the lid state has
+> +changed. The _LID control method for the lid device must be implemented to
+> +report the "current" state of the lid as either "opened" or "closed".
+> +
+> +This document describes the restrictions and the expections of the Linux
+> +ACPI lid device driver.
+> +
+> +
+> +1. Restrictions of the returning value of the _LID control method
+> +
+> +The _LID control method is described to return the "current" lid state.
+> +However the word of "current" has ambiguity, many AML tables return the lid
+
+Can this be fixed in the next ACPI revision?
+
+> +state upon the last lid notification instead of returning the lid state
+> +upon the last _LID evaluation. There won't be difference when the _LID
+> +control method is evaluated during the runtime, the problem is its initial
+> +returning value. When the AML tables implement this control method with
+> +cached value, the initial returning value is likely not reliable. There are
+> +simply so many examples always retuning "closed" as initial lid state.
+> +
+> +2. Restrictions of the lid state change notifications
+> +
+> +There are many AML tables never notifying when the lid device state is
+> +changed to "opened". Thus the "opened" notification is not guaranteed.
+> +
+> +But it is guaranteed that the AML tables always notify "closed" when the
+> +lid state is changed to "closed". The "closed" notification is normally
+> +used to trigger some system power saving operations on Windows. Since it is
+> +fully tested, the "closed" notification is reliable for all AML tables.
+> +
+> +3. Expections for the userspace users of the ACPI lid device driver
+> +
+> +The ACPI button driver exports the lid state to the userspace via the
+> +following file:
+> +  /proc/acpi/button/lid/LID0/state
+> +This file actually calls the _LID control method described above. And given
+> +the previous explanation, it is not reliable enough on some platforms. So
+> +it is advised for the userspace program to not to solely rely on this file
+> +to determine the actual lid state.
+> +
+> +The ACPI button driver emits 2 kinds of events to the user space:
+> +  SW_LID
+> +   When the lid state/event is reliable, the userspace can behave
+> +   according to this input switch event.
+> +   This is a mode prepared for backward compatiblity.
+> +  KEY_EVENT_OPEN/KEY_EVENT_CLOSE
+> +   When the lid state/event is not reliable, the userspace should behave
+> +   according to these 2 input key events.
+> +   New userspace programs may only be prepared for the input key events.
+
+No, absolutely not. If some x86 vendors managed to mess up their
+firmware implementations that does not mean that everyone now has to
+abandon working perfectly well for them SW_LID events and rush to switch
+to a brand new event.
+
+Apparently were are a few issues, main is that some systems not reporting
+"open" event. This can be dealt with by userspace "writing" to the
+lid's evdev device EV_SW/SW_LID/0 event upon system resume (and startup)
+for selected systems. This will mean that if system wakes up not because
+LID is open we'll incorrectly assume that it is, but we can either add
+more smarts to the process emitting SW_LID event or simply say "well,
+tough, the hardware is crappy" and bug vendor to see if they can fix the
+issue (if not for current firmware them for next).
+
+As an additional workaround, we can toggle the LID switch off and on
+when we get notification, much like your proposed patch does for the key
+events.
+
+Speaking of ACPI in general, does Intel have a test suite for ACPI
+implementors? Could include tests for proper LID behavior?
+1. The "swallowing" of input events because kernel state disagrees with
+the reality
+
+Thanks.
+
+-- 
+Dmitry

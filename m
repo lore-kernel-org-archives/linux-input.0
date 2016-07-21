@@ -1,47 +1,69 @@
 From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH v2] HID: use IS_ENABLED() instead of checking for built-in or module
-Date: Thu, 21 Jul 2016 11:25:54 -0400
-Message-ID: <1469114754-2650-1-git-send-email-javier@osg.samsung.com>
+Subject: Re: [PATCH] HID: use IS_ENABLED() instead of checking for built-in or
+ module
+Date: Thu, 21 Jul 2016 11:27:41 -0400
+Message-ID: <737f2e08-a632-90a9-8c76-a957f000925a@osg.samsung.com>
+References: <1469114428-1357-1-git-send-email-javier@osg.samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:47218
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:47219
 	"EHLO s-opensource.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752784AbcGUP0I (ORCPT
+	with ESMTP id S1753153AbcGUP1s (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Jul 2016 11:26:08 -0400
+	Thu, 21 Jul 2016 11:27:48 -0400
+In-Reply-To: <1469114428-1357-1-git-send-email-javier@osg.samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-The IS_ENABLED() macro checks if a Kconfig symbol has been enabled either
-built-in or as a module, use that macro instead of open coding the same.
+Hello,
 
-Using the macro makes the code more readable by helping abstract away some
-of the Kconfig built-in and module enable details.
+On 07/21/2016 11:20 AM, Javier Martinez Canillas wrote:
+> The IS_ENABLED() macro checks if a Kconfig symbol has been enabled either
+> built-in or as a module, use that macro instead of open coding the same.
+> 
+> Using the macro makes the code more readable by helping abstract away some
+> of the Kconfig built-in and module enable details.
+> 
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> ---
+> 
+>  drivers/hid/hid-core.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 08f53c7fd513..386f31481c06 100644
+> *** a/drivers/hid/hid-core.c
+> --- b/drivers/hid/hid-core.c
+> ***************
+> *** 2480,2486 ****
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
+> ! #if defined(CONFIG_MOUSE_SYNAPTICS_USB) || defined(CONFIG_MOUSE_SYNAPTICS_USB_MODULE)
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_INT_TP) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_CPAD) },
+> - - 
+> --- 2480,2486 ----
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
+> ! #if IS_ENABLED(CONFIG_MOUSE_SYNAPTICS_USB)
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_INT_TP) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_CPAD) },
+> 2.5.5
+> 
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+For some reasons this patch got borked by my mailer, I've post a v2 with the
+correct patch. Sorry for the noise.
 
----
-
-Changes in v2:
-- Post correct patch since v1 got mangled by the MTA.
-
- drivers/hid/hid-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 08f53c7fd513..386f31481c06 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2480,7 +2480,7 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
--#if defined(CONFIG_MOUSE_SYNAPTICS_USB) || defined(CONFIG_MOUSE_SYNAPTICS_USB_MODULE)
-+#if IS_ENABLED(CONFIG_MOUSE_SYNAPTICS_USB)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_INT_TP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_CPAD) },
+Best regards,
 -- 
-2.5.5
-
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America

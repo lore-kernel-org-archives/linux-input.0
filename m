@@ -1,67 +1,69 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/5] input: touchscreen: support Allwinner SoCs'
- touchscreen
-Date: Wed, 20 Jul 2016 23:41:40 -0700
-Message-ID: <20160721064140.GA17658@dtor-ws>
-References: <1469003351-15263-1-git-send-email-quentin.schulz@free-electrons.com>
- <1469003351-15263-5-git-send-email-quentin.schulz@free-electrons.com>
- <20160721062950.GB5993@lukather>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: v4.1 to v4.7: regression in tsc2005 driver
+Date: Thu, 21 Jul 2016 16:42:41 +1000
+Message-ID: <20160721064241.GA31008@jelly>
+References: <20160717182445.GA20058@deathstar>
+ <20160717184209.GA30119@amd>
+ <20160717185134.GA20462@deathstar>
+ <20160717200339.GA29562@amd>
+ <20160717225636.GB20462@deathstar>
+ <20160719235120.GD19250@dtor-ws>
+ <20160720062558.GA3792@amd>
+ <20160720162356.GA25655@dtor-ws>
+ <20160720214736.GA4321@jelly>
+ <20160721063234.GA14200@amd>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:35399 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751143AbcGUGlo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Jul 2016 02:41:44 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160721062950.GB5993@lukather>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20160721063234.GA14200@amd>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Welling <mwelling@ieee.org>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, pali.rohar@gmail.com, sre@kernel.org, aaro.koskinen@iki.fi, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com
 List-Id: linux-input@vger.kernel.org
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Quentin Schulz <quentin.schulz@free-electrons.com>, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wens@csie.org, lee.jones@linaro.org, antoine.tenart@free-electrons.com, thomas.petazzoni@free-electrons.com, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Thu, Jul 21, 2016 at 08:29:50AM +0200, Maxime Ripard wrote:
-> On Wed, Jul 20, 2016 at 10:29:10AM +0200, Quentin Schulz wrote:
-> > +	irq = regmap_irq_get_virq(sunxi_gpadc_mfd_dev->regmap_irqc, irq);
-> > +	ret = devm_request_any_context_irq(&pdev->dev, irq,
-> > +					   sunxi_gpadc_tp_up_irq_handler, 0,
-> > +					   "tp_up", info);
-> > +	if (ret < 0) {
-> > +		dev_err(&pdev->dev,
-> > +			"could not request TP_UP_PENDING interrupt: %d\n", ret);
-> > +		goto err;
-> > +	}
+On Thu, Jul 21, 2016 at 08:32:34AM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> You enable the interrupts...
+> > > In the mean time you can adjust the name or use XID instead.
+> > 
+> > X has partially fixed this a few years ago. All input drivers (that
+> > matter) export a Device Node property that sets the device node for each
+> > device.
+> > 
+> >  $ xinput list-props "SynPS/2 Synaptics TouchPad" | grep "Device Node"
+> >         Device Node (261):      "/dev/input/event4"
+> > 
+> > Based on that you can get the udev device and work your way into any of the
+> > sysfs tree. Or do whatever else you want.
+> > 
+> > But other than that there isn't anything in X to fix. xinput is primarily a
+> > debugging tool and it does name resolution for convenience. But it's not a
+> > tool for complex configurations. It does exactly what it needs to do, if you
+> > need something that's more complicated and relies on information not
+> > available to the X device itself then you'll need to write a custom tool
+> > that does what you need. sorry.
 > 
-> > +	info->tp_up_irq = irq;
-> > +	disable_irq(irq);
-> > +
-> > +	ret = input_register_device(input);
-> > +	if (ret) {
-> > +		dev_err(&pdev->dev, "failed to register input device\n");
-> > +		goto err;
-> > +	}
+> Ok.. so out of the box, touchscreen is "upside down" and miscalibrated
+> on n900. So I need to run
 > 
-> ... but your driver isn't registered yet. How does input_report and
-> input_sync behave in such a case?
+> xinput --set-prop --type=float 8 115  1.10 0.00 -0.05  0.00 1.18 -0.10 0.00 0.00 1.00
+> xinput --set-prop --type=int 8 249 0 1
+> 
+> (or equivalent with names) so that I can use the touchscreen. (And
+> that's quite important -- X is somehow unusable without pointing
+> device).
+> 
+> If xinput is not the right solution, what is the right solution?
 
-This is explicitly allowed:
+if it's reliably miscalibrated (i.e. the numbers don't change), use an
+xorg.conf snippet. If it needs some run-time changes add the hooks to
+whatever does the calibration. the X api itself is trivial, you can lift it
+from xinput.
 
-"
-...
- * NOTE: input_event() may be safely used right after input device was
- * allocated with input_allocate_device(), even before it is registered
- * with input_register_device(), but the event will not reach any of the
- * input handlers. Such early invocation of input_event() may be used
- * to 'seed' initial state of a switch or initial position of absolute
- * axis, etc.
- */
-"
+fwiw, you don't need to specify the type, in fact it's better not to
+because then libinput will just pick the right type anyway (or complain in
+case of mismatch).
 
-Thanks.
-
-
--- 
-Dmitry
+Cheers,
+   Peter

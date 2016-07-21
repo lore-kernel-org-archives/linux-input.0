@@ -1,157 +1,51 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v4 1/2] ACPI / button: Add KEY_LID_OPEN/KEY_LID_CLOSE for new usage model
-Date: Thu, 21 Jul 2016 15:35:36 +0200
-Message-ID: <6943722.0LO9QHJXWg@vostro.rjw.lan>
-References: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com> <1b96ee1e5b5ebbed0096adde410a9fd0b7930848.1468915808.git.lv.zheng@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH] HID: use IS_ENABLED() instead of checking for built-in or module
+Date: Thu, 21 Jul 2016 11:20:28 -0400
+Message-ID: <1469114428-1357-1-git-send-email-javier@osg.samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cloudserver094114.home.net.pl ([79.96.170.134]:43826 "HELO
-	cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752497AbcGUNam (ORCPT
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:47212
+	"EHLO s-opensource.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752826AbcGUPUq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Jul 2016 09:30:42 -0400
-In-Reply-To: <1b96ee1e5b5ebbed0096adde410a9fd0b7930848.1468915808.git.lv.zheng@intel.com>
+	Thu, 21 Jul 2016 11:20:46 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lv Zheng <lv.zheng@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Len Brown <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "Bastien Nocera:" <hadess@hadess.net>, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Tuesday, July 19, 2016 04:11:02 PM Lv Zheng wrote:
-> There are many AML tables reporting wrong initial lid state, and some of
-> them never report lid open state. As a proxy layer acting between, ACPI
-> button driver is not able to handle all such cases, but need to re-define
-> the usage model of the ACPI lid. That is:
-> 1. It's initial state is not reliable;
-> 2. There may not be an open event;
-> 3. Userspace should only take action against the close event which is
->    reliable, always sent after a real lid close.
-> 
-> OTOH, using an input switch event for the lid device on such platforms can
-> cause the loss of the close event, but the platforms purposely want to use
-> these close events to trigger power saving actions.
-> 
-> So we need to introduce a new ABI, which is input key events based, not
-> input switch events based.
-> 
-> This patch adds a set of new input key events so that the new userspace
-> programs can use them to handle this usage model correctly. And in the
-> meanwhile, the old input switch event is kept so that no old programs will
-> be broken by the ABI change.
-> 
-> Signed-off-by: Lv Zheng <lv.zheng@intel.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> Cc: Bastien Nocera: <hadess@hadess.net>
-> Cc: linux-input@vger.kernel.org
+The IS_ENABLED() macro checks if a Kconfig symbol has been enabled either
+built-in or as a module, use that macro instead of open coding the same.
 
-Dmitry, any objections here?
+Using the macro makes the code more readable by helping abstract away some
+of the Kconfig built-in and module enable details.
 
-> ---
->  drivers/acpi/button.c                  |   34 +++++++++++++++++++++++++++++++-
->  include/uapi/linux/input-event-codes.h |    7 +++++++
->  2 files changed, 40 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
-> index 148f4e5..dd16879 100644
-> --- a/drivers/acpi/button.c
-> +++ b/drivers/acpi/button.c
-> @@ -104,6 +104,8 @@ struct acpi_button {
->  	struct input_dev *input;
->  	char phys[32];			/* for input device */
->  	unsigned long pushed;
-> +	int last_state;
-> +	unsigned long timestamp;
->  	bool suspended;
->  };
->  
-> @@ -111,6 +113,10 @@ static BLOCKING_NOTIFIER_HEAD(acpi_lid_notifier);
->  static struct acpi_device *lid_device;
->  static u8 lid_init_state = ACPI_BUTTON_LID_INIT_METHOD;
->  
-> +static unsigned long lid_report_interval __read_mostly = 500;
-> +module_param(lid_report_interval, ulong, 0644);
-> +MODULE_PARM_DESC(lid_report_interval, "Interval (ms) between lid key events");
-> +
->  /* --------------------------------------------------------------------------
->                                FS Interface (/proc)
->     -------------------------------------------------------------------------- */
-> @@ -133,12 +139,34 @@ static int acpi_lid_evaluate_state(struct acpi_device *device)
->  static int acpi_lid_notify_state(struct acpi_device *device, int state)
->  {
->  	struct acpi_button *button = acpi_driver_data(device);
-> +	int keycode;
-> +	unsigned long timeout;
->  	int ret;
->  
-> -	/* input layer checks if event is redundant */
-> +	/*
-> +	 * Send the switch event.
-> +	 * The input layer checks if the event is redundant.
-> +	 */
->  	input_report_switch(button->input, SW_LID, !state);
->  	input_sync(button->input);
->  
-> +	/*
-> +	 * Send the key event.
-> +	 * The input layer doesn't check if the event is redundant.
-> +	 */
-> +	timeout = button->timestamp +
-> +		  msecs_to_jiffies(lid_report_interval);
-> +	if (button->last_state != !!state ||
-> +	    time_after(jiffies, timeout)) {
-> +		keycode = state ? KEY_LID_OPEN : KEY_LID_CLOSE;
-> +		input_report_key(button->input, keycode, 1);
-> +		input_sync(button->input);
-> +		input_report_key(button->input, keycode, 0);
-> +		input_sync(button->input);
-> +		button->last_state = !!state;
-> +		button->timestamp = jiffies;
-> +	}
-> +
->  	if (state)
->  		pm_wakeup_event(&device->dev, 0);
->  
-> @@ -407,6 +435,8 @@ static int acpi_button_add(struct acpi_device *device)
->  		strcpy(name, ACPI_BUTTON_DEVICE_NAME_LID);
->  		sprintf(class, "%s/%s",
->  			ACPI_BUTTON_CLASS, ACPI_BUTTON_SUBCLASS_LID);
-> +		button->last_state = !!acpi_lid_evaluate_state(device);
-> +		button->timestamp = jiffies;
->  	} else {
->  		printk(KERN_ERR PREFIX "Unsupported hid [%s]\n", hid);
->  		error = -ENODEV;
-> @@ -436,6 +466,8 @@ static int acpi_button_add(struct acpi_device *device)
->  
->  	case ACPI_BUTTON_TYPE_LID:
->  		input_set_capability(input, EV_SW, SW_LID);
-> +		input_set_capability(input, EV_KEY, KEY_LID_OPEN);
-> +		input_set_capability(input, EV_KEY, KEY_LID_CLOSE);
->  		break;
->  	}
->  
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 737fa32..b062fe1 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -641,6 +641,13 @@
->   * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
->   */
->  #define KEY_DATA			0x275
-> +/*
-> + * Key events sent by the lid drivers.
-> + * The drivers may not be able to send paired "open"/"close" events, in
-> + * which case, they send KEY_LID_OPEN/KEY_LID_CLOSE instead of SW_LID.
-> + */
-> +#define KEY_LID_OPEN			0x278
-> +#define KEY_LID_CLOSE			0x279
->  
->  #define BTN_TRIGGER_HAPPY		0x2c0
->  #define BTN_TRIGGER_HAPPY1		0x2c0
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
 
-To this part in particular?
+ drivers/hid/hid-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-Rafael
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 08f53c7fd513..386f31481c06 100644
+*** a/drivers/hid/hid-core.c
+--- b/drivers/hid/hid-core.c
+***************
+*** 2480,2486 ****
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
+! #if defined(CONFIG_MOUSE_SYNAPTICS_USB) || defined(CONFIG_MOUSE_SYNAPTICS_USB_MODULE)
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_INT_TP) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_CPAD) },
+- - 
+--- 2480,2486 ----
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
+! #if IS_ENABLED(CONFIG_MOUSE_SYNAPTICS_USB)
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_INT_TP) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_CPAD) },
+2.5.5
 

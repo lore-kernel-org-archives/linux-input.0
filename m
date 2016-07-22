@@ -1,55 +1,93 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 1/2] ACPI / button: Add KEY_LID_OPEN/KEY_LID_CLOSE for
- new usage model
-Date: Thu, 21 Jul 2016 13:33:22 -0700
-Message-ID: <20160721203322.GB9841@dtor-ws>
-References: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com>
- <1b96ee1e5b5ebbed0096adde410a9fd0b7930848.1468915808.git.lv.zheng@intel.com>
- <6943722.0LO9QHJXWg@vostro.rjw.lan>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: v4.1 to v4.7: regression in tsc2005 driver
+Date: Fri, 22 Jul 2016 10:10:12 +1000
+Message-ID: <20160722001012.GA11426@jelly>
+References: <20160717185134.GA20462@deathstar>
+ <20160717200339.GA29562@amd>
+ <20160717225636.GB20462@deathstar>
+ <20160719235120.GD19250@dtor-ws>
+ <20160720062558.GA3792@amd>
+ <20160720162356.GA25655@dtor-ws>
+ <20160720214736.GA4321@jelly>
+ <20160721063234.GA14200@amd>
+ <20160721064241.GA31008@jelly>
+ <20160721085421.GA15485@amd>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <6943722.0LO9QHJXWg@vostro.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Lv Zheng <lv.zheng@intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Len Brown <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "Bastien Nocera:" <hadess@hadess.net>, linux-input@vger.kernel.org
+In-Reply-To: <20160721085421.GA15485@amd>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Welling <mwelling@ieee.org>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, pali.rohar@gmail.com, sre@kernel.org, aaro.koskinen@iki.fi, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jul 21, 2016 at 03:35:36PM +0200, Rafael J. Wysocki wrote:
-> On Tuesday, July 19, 2016 04:11:02 PM Lv Zheng wrote:
-> > There are many AML tables reporting wrong initial lid state, and some of
-> > them never report lid open state. As a proxy layer acting between, ACPI
-> > button driver is not able to handle all such cases, but need to re-define
-> > the usage model of the ACPI lid. That is:
-> > 1. It's initial state is not reliable;
-> > 2. There may not be an open event;
-> > 3. Userspace should only take action against the close event which is
-> >    reliable, always sent after a real lid close.
+On Thu, Jul 21, 2016 at 10:54:21AM +0200, Pavel Machek wrote:
+> On Thu 2016-07-21 16:42:41, Peter Hutterer wrote:
+> > On Thu, Jul 21, 2016 at 08:32:34AM +0200, Pavel Machek wrote:
+> > > Hi!
+> > > 
+> > > > > In the mean time you can adjust the name or use XID instead.
+> > > > 
+> > > > X has partially fixed this a few years ago. All input drivers (that
+> > > > matter) export a Device Node property that sets the device node for each
+> > > > device.
+> > > > 
+> > > >  $ xinput list-props "SynPS/2 Synaptics TouchPad" | grep "Device Node"
+> > > >         Device Node (261):      "/dev/input/event4"
+> > > > 
+> > > > Based on that you can get the udev device and work your way into any of the
+> > > > sysfs tree. Or do whatever else you want.
+> > > > 
+> > > > But other than that there isn't anything in X to fix. xinput is primarily a
+> > > > debugging tool and it does name resolution for convenience. But it's not a
+> > > > tool for complex configurations. It does exactly what it needs to do, if you
+> > > > need something that's more complicated and relies on information not
+> > > > available to the X device itself then you'll need to write a custom tool
+> > > > that does what you need. sorry.
+> > > 
+> > > Ok.. so out of the box, touchscreen is "upside down" and miscalibrated
+> > > on n900. So I need to run
+> > > 
+> > > xinput --set-prop --type=float 8 115  1.10 0.00 -0.05  0.00 1.18 -0.10 0.00 0.00 1.00
+> > > xinput --set-prop --type=int 8 249 0 1
+> > > 
+> > > (or equivalent with names) so that I can use the touchscreen. (And
+> > > that's quite important -- X is somehow unusable without pointing
+> > > device).
+> > > 
+> > > If xinput is not the right solution, what is the right solution?
 > > 
-> > OTOH, using an input switch event for the lid device on such platforms can
-> > cause the loss of the close event, but the platforms purposely want to use
-> > these close events to trigger power saving actions.
-> > 
-> > So we need to introduce a new ABI, which is input key events based, not
-> > input switch events based.
-> > 
-> > This patch adds a set of new input key events so that the new userspace
-> > programs can use them to handle this usage model correctly. And in the
-> > meanwhile, the old input switch event is kept so that no old programs will
-> > be broken by the ABI change.
-> > 
-> > Signed-off-by: Lv Zheng <lv.zheng@intel.com>
-> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> > Cc: Bastien Nocera: <hadess@hadess.net>
-> > Cc: linux-input@vger.kernel.org
+> > if it's reliably miscalibrated (i.e. the numbers don't change), use an
+> > xorg.conf snippet. If it needs some run-time changes add the hooks
+> > to
 > 
-> Dmitry, any objections here?
+> Does not change and is needed for all the N900's.
+> 
+> Well. I guess xorg.conf snippet will do the trick, but that's hardly
+> better.
 
-Yes I have (see the other email).
+it's a lot better than running xinput. with the config snippet have the
+device ready to go at server startup, across VT switches, server restarts
+and device unplugs. for something static, especially if it's custom hardware
+like this shipping an xorg.conf file is always preferable over xinput
+scripts
 
-Thanks.
+> Should x.org have internal database saying "Nokia N900 with tsc2005
+> touchscreen means this calibration"?
 
--- 
-Dmitry
+we sort-of do have this, look at xserver/config/10-quirks.conf
+problem is though that we'd need to match on the N900 too unless the tsc2005
+is used nowhere else
+
+> Should we have calibration info in the device tree, with kernel
+> passing it to the x?
+> 
+> Should kernel somehow do the calibration itself?
+
+if the kernel knows about the calibration it would make more sense to just
+do it in the kernel directly. but for anything even remotely run-time or
+user-configured the xorg.conf snippet is the best solution.
+
+Cheers,
+   Peter

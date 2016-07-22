@@ -1,327 +1,278 @@
 From: "Zheng, Lv" <lv.zheng@intel.com>
 Subject: RE: [PATCH v4 2/2] ACPI / button: Add document for ACPI control
  method lid device restrictions
-Date: Fri, 22 Jul 2016 08:37:50 +0000
-Message-ID: <1AE640813FDE7649BE1B193DEA596E883BC05D64@SHSMSX101.ccr.corp.intel.com>
+Date: Fri, 22 Jul 2016 08:47:51 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E883BC05D77@SHSMSX101.ccr.corp.intel.com>
 References: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com>
  <84ca7337d20620946b671f212abfc82698ddcbf4.1468915808.git.lv.zheng@intel.com>
  <20160721203246.GA9841@dtor-ws>
  <1AE640813FDE7649BE1B193DEA596E883BC05AAA@SHSMSX101.ccr.corp.intel.com>
  <20160722043707.GB7060@dtor-ws>
+ <CAN+gG=EArk3tPDkyim8eoxOXHHb7QNRXe4o4zAVs+M6x8ZPrSA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160722043707.GB7060@dtor-ws>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:49317 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751455AbcGVIr5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Jul 2016 04:47:57 -0400
+In-Reply-To: <CAN+gG=EArk3tPDkyim8eoxOXHHb7QNRXe4o4zAVs+M6x8ZPrSA@mail.gmail.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "Bastien Nocera:" <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Zhang, Rui" <rui.zhang@intel.com>
+Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "Bastien Nocera:" <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi, Dmitry
-
-Thanks for the review.
-
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Subject: Re: [PATCH v4 2/2] ACPI / button: Add document for ACPI control
-> method lid device restrictions
-> 
-> Hi Lv,
-> 
-> On Fri, Jul 22, 2016 at 12:24:50AM +0000, Zheng, Lv wrote:
-> > Hi, Dmitry
-> >
-> >
-> > Thanks for the review.
-> >
-> > > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > > Subject: Re: [PATCH v4 2/2] ACPI / button: Add document for ACPI
-> control
-> > > method lid device restrictions
-> > >
-> > > On Tue, Jul 19, 2016 at 04:11:21PM +0800, Lv Zheng wrote:
-> > > > This patch adds documentation for the usage model of the control
-> > > method lid
-> > > > device.
-> > > >
-> > > > Signed-off-by: Lv Zheng <lv.zheng@intel.com>
-> > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > > Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> > > > Cc: Bastien Nocera: <hadess@hadess.net>
-> > > > Cc: linux-input@vger.kernel.org
-> > > > ---
-> > > >  Documentation/acpi/acpi-lid.txt |   89
-> > > +++++++++++++++++++++++++++++++++++++++
-> > > >  1 file changed, 89 insertions(+)
-> > > >  create mode 100644 Documentation/acpi/acpi-lid.txt
-> > > >
-> > > > diff --git a/Documentation/acpi/acpi-lid.txt
-> b/Documentation/acpi/acpi-
-> > > lid.txt
-> > > > new file mode 100644
-> > > > index 0000000..2addedc
-> > > > --- /dev/null
-> > > > +++ b/Documentation/acpi/acpi-lid.txt
-> > > > @@ -0,0 +1,89 @@
-> > > > +Usage Model of the ACPI Control Method Lid Device
-> > > > +
-> > > > +Copyright (C) 2016, Intel Corporation
-> > > > +Author: Lv Zheng <lv.zheng@intel.com>
-> > > > +
-> > > > +
-> > > > +Abstract:
-> > > > +
-> > > > +Platforms containing lids convey lid state (open/close) to OSPMs
-> using
-> > > a
-> > > > +control method lid device. To implement this, the AML tables issue
-> > > > +Notify(lid_device, 0x80) to notify the OSPMs whenever the lid state
-> has
-> > > > +changed. The _LID control method for the lid device must be
-> > > implemented to
-> > > > +report the "current" state of the lid as either "opened" or "closed".
-> > > > +
-> > > > +This document describes the restrictions and the expections of the
-> > > Linux
-> > > > +ACPI lid device driver.
-> > > > +
-> > > > +
-> > > > +1. Restrictions of the returning value of the _LID control method
-> > > > +
-> > > > +The _LID control method is described to return the "current" lid
-> state.
-> > > > +However the word of "current" has ambiguity, many AML tables
-> return
-> > > the lid
-> > >
-> > > Can this be fixed in the next ACPI revision?
-> > [Lv Zheng]
-> > Even this is fixed in the ACPI specification, there are platforms already
-> doing this.
-> > Especially platforms from Microsoft.
-> > So the de-facto standard OS won't care about the change.
-> > And we can still see such platforms.
-> >
-> > Here is an example from Surface 3:
-> >
-> > DefinitionBlock ("dsdt.aml", "DSDT", 2, "ALASKA", "A M I ", 0x01072009)
-> > {
-> >     Scope (_SB)
-> >     {
-> >         Device (PCI0)
-> >         {
-> >             Name (_HID, EisaId ("PNP0A08"))  // _HID: Hardware ID
-> >             Name (_CID, EisaId ("PNP0A03"))  // _CID: Compatible ID
-> >             Device (SPI1)
-> >             {
-> >                 Name (_HID, "8086228E")  // _HID: Hardware ID
-> >                 Device (NTRG)
-> >                 {
-> >                     Name (_HID, "MSHW0037")  // _HID: Hardware ID
-> >                 }
-> >             }
-> >         }
-> >
-> >         Device (LID)
-> >         {
-> >             Name (_HID, EisaId ("PNP0C0D"))
-> >             Name (LIDB, Zero)
-> 
-> Start with lid closed? In any case might be wrong.
-[Lv Zheng] 
-And we validated with qemu that during boot, Windows7 evaluates _LID once but doesn't get suspended because of this value.
-So we think Windows only suspends against "notification" not _LID evaluation result.
-
-> 
-> >             Method (_LID, 0, NotSerialized)
-> >             {
-> >                 Return (LIDB)
-> 
-> So "_LID" returns the last state read by "_EC4". "_EC4" is
-> edge-triggered and will be evaluated every time gpio changes state.
-[Lv Zheng] 
-Right.
-
-> 
-> >             }
-> >         }
-> >
-> >         Device (GPO0)
-> >         {
-> >             Name (_HID, "INT33FF")  // _HID: Hardware ID
-> >             OperationRegion (GPOR, GeneralPurposeIo, Zero, One)
-> >             Field (GPOR, ByteAcc, NoLock, Preserve)
-> >             {
-> >                 Connection (
-> >                     GpioIo (Shared, PullNone, 0x0000, 0x0000, IoRestrictionNone,
-> >                         "\\_SB.GPO0", 0x00, ResourceConsumer, ,
-> >                         )
-> >                         {   // Pin list
-> >                             0x004C
-> >                         }
-> >                 ),
-> >                 HELD,   1
-> 
-> Is it possible to read state of this GPIO from userspace on startup to
-> correct the initial state?
-[Lv Zheng] 
-I think Benjamin has a proposal of fixing this in GPIO driver.
-
-> 
-> >             }
-> >             Method (_E4C, 0, Serialized)
-> >             {
-> >                 If (LEqual(HELD, One))
-> >                 {
-> >                     Store(One, ^^LID.LIDB)
-> >
-> > There is no "open" event generated by "Surface 3".
-> 
-> Right so we update the state correctly, we just forgot to send the
-> notification. Nothing that polling can't fix.
-> 
-[Lv Zheng] 
-However, polling is not efficient, and not power efficient.
-OTOH, according to the validation result, Windows never poll _LID.
-
-> >
-> >                 }
-> >                 Else
-> >                 {
-> >                     Store(Zero, ^^LID.LIDB)
-> >                     Notify (LID, 0x80)
-> >
-> > There is only "close" event generated by "Surface 3".
-> > Thus they are not paired.
-> >
-> >                 }
-> >                 Notify (^^PCI0.SPI1.NTRG, One) // Device Check
-> >             }
-> >         }
-> >     }
-> > }
-> >
-> > >
-> > > > +state upon the last lid notification instead of returning the lid state
-> > > > +upon the last _LID evaluation. There won't be difference when the
-> _LID
-> > > > +control method is evaluated during the runtime, the problem is its
-> > > initial
-> > > > +returning value. When the AML tables implement this control
-> method
-> > > with
-> > > > +cached value, the initial returning value is likely not reliable. There
-> are
-> > > > +simply so many examples always retuning "closed" as initial lid
-> state.
-> > > > +
-> > > > +2. Restrictions of the lid state change notifications
-> > > > +
-> > > > +There are many AML tables never notifying when the lid device
-> state is
-> > > > +changed to "opened". Thus the "opened" notification is not
-> guaranteed.
-> > > > +
-> > > > +But it is guaranteed that the AML tables always notify "closed"
-> when
-> > > the
-> > > > +lid state is changed to "closed". The "closed" notification is normally
-> > > > +used to trigger some system power saving operations on Windows.
-> > > Since it is
-> > > > +fully tested, the "closed" notification is reliable for all AML tables.
-> > > > +
-> > > > +3. Expections for the userspace users of the ACPI lid device driver
-> > > > +
-> > > > +The ACPI button driver exports the lid state to the userspace via the
-> > > > +following file:
-> > > > +  /proc/acpi/button/lid/LID0/state
-> > > > +This file actually calls the _LID control method described above. And
-> > > given
-> > > > +the previous explanation, it is not reliable enough on some
-> platforms.
-> > > So
-> > > > +it is advised for the userspace program to not to solely rely on this
-> file
-> > > > +to determine the actual lid state.
-> > > > +
-> > > > +The ACPI button driver emits 2 kinds of events to the user space:
-> > > > +  SW_LID
-> > > > +   When the lid state/event is reliable, the userspace can behave
-> > > > +   according to this input switch event.
-> > > > +   This is a mode prepared for backward compatiblity.
-> > > > +  KEY_EVENT_OPEN/KEY_EVENT_CLOSE
-> > > > +   When the lid state/event is not reliable, the userspace should
-> behave
-> > > > +   according to these 2 input key events.
-> > > > +   New userspace programs may only be prepared for the input key
-> > > events.
-> > >
-> > > No, absolutely not. If some x86 vendors managed to mess up their
-> > > firmware implementations that does not mean that everyone now has
-> to
-> > > abandon working perfectly well for them SW_LID events and rush to
-> > > switch
-> > > to a brand new event.
-> > [Lv Zheng]
-> > However there is no clear wording in the ACPI specification asking the
-> vendors to achieve paired lid events.
-> >
-> > >
-> > > Apparently were are a few issues, main is that some systems not
-> reporting
-> > > "open" event. This can be dealt with by userspace "writing" to the
-> > > lid's evdev device EV_SW/SW_LID/0 event upon system resume (and
-> > > startup)
-> > > for selected systems. This will mean that if system wakes up not
-> because
-> > > LID is open we'll incorrectly assume that it is, but we can either add
-> > > more smarts to the process emitting SW_LID event or simply say "well,
-> > > tough, the hardware is crappy" and bug vendor to see if they can fix
-> the
-> > > issue (if not for current firmware them for next).
-> > [Lv Zheng]
-> > The problem is there is no vendor actually caring about fixing this "issue".
-> > Because Windows works well with their firmware.
-> > Then finally becomes a big table customization business for our team.
-> 
-> Well, OK. But you do not expect that we will redo up and down the stack
-> lid handling just because MS messed up DSDT on Surface 3? No, let them
-> know (they now care about Linux, right?) so Surface 4 works and quirk
-> the behavior for Surface 3.
-[Lv Zheng] 
-I think there are other platforms broken.
-
-> 
-> >
-> > >
-> > > As an additional workaround, we can toggle the LID switch off and on
-> > > when we get notification, much like your proposed patch does for the
-> key
-> > > events.
-> > [Lv Zheng]
-> > I think this is doable, I'll refresh my patchset to address your this
-> comment.
-> > By inserting open/close events when next close/open event arrives after
-> a certain period,
-> > this may fix some issues for the old programs.
-> > Where user may be required to open/close lid twice to trigger 2nd
-> suspend.
-> >
-> > However, this still cannot fix the problems like "Surface 3".
-> > We'll still need a new usage model for such platforms (no open event).
-> 
-> No, for surface 3 you simply need to add polling of "_LID" method to the
-> button driver.
-> 
-> What are the other devices that mess up lid handling?
-[Lv Zheng] 
-The patch lists 3 of them.
-Which are known to me because they all occurred after I started to look at the lid issues.
-
-According to my teammates.
-They've been fixing such wrong "DSDT" using customization for years.
-For example, by adding _LID(); Notify(lid) into _WAK() or EC._REG().
-
-Thanks and best regards
--Lv
+SGksDQoNCj4gRnJvbTogQmVuamFtaW4gVGlzc29pcmVzIFttYWlsdG86YmVuamFtaW4udGlzc29p
+cmVzQGdtYWlsLmNvbV0NCj4gU3ViamVjdDogUmU6IFtQQVRDSCB2NCAyLzJdIEFDUEkgLyBidXR0
+b246IEFkZCBkb2N1bWVudCBmb3IgQUNQSSBjb250cm9sDQo+IG1ldGhvZCBsaWQgZGV2aWNlIHJl
+c3RyaWN0aW9ucw0KPiANCj4gT24gRnJpLCBKdWwgMjIsIDIwMTYgYXQgNjozNyBBTSwgRG1pdHJ5
+IFRvcm9raG92DQo+IDxkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tPiB3cm90ZToNCj4gPiBIaSBM
+diwNCj4gPg0KPiA+IE9uIEZyaSwgSnVsIDIyLCAyMDE2IGF0IDEyOjI0OjUwQU0gKzAwMDAsIFpo
+ZW5nLCBMdiB3cm90ZToNCj4gPj4gSGksIERtaXRyeQ0KPiA+Pg0KPiA+Pg0KPiA+PiBUaGFua3Mg
+Zm9yIHRoZSByZXZpZXcuDQo+ID4+DQo+ID4+ID4gRnJvbTogRG1pdHJ5IFRvcm9raG92IFttYWls
+dG86ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbV0NCj4gPj4gPiBTdWJqZWN0OiBSZTogW1BBVENI
+IHY0IDIvMl0gQUNQSSAvIGJ1dHRvbjogQWRkIGRvY3VtZW50IGZvciBBQ1BJDQo+IGNvbnRyb2wN
+Cj4gPj4gPiBtZXRob2QgbGlkIGRldmljZSByZXN0cmljdGlvbnMNCj4gPj4gPg0KPiA+PiA+IE9u
+IFR1ZSwgSnVsIDE5LCAyMDE2IGF0IDA0OjExOjIxUE0gKzA4MDAsIEx2IFpoZW5nIHdyb3RlOg0K
+PiA+PiA+ID4gVGhpcyBwYXRjaCBhZGRzIGRvY3VtZW50YXRpb24gZm9yIHRoZSB1c2FnZSBtb2Rl
+bCBvZiB0aGUgY29udHJvbA0KPiA+PiA+IG1ldGhvZCBsaWQNCj4gPj4gPiA+IGRldmljZS4NCj4g
+Pj4gPiA+DQo+ID4+ID4gPiBTaWduZWQtb2ZmLWJ5OiBMdiBaaGVuZyA8bHYuemhlbmdAaW50ZWwu
+Y29tPg0KPiA+PiA+ID4gQ2M6IERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWls
+LmNvbT4NCj4gPj4gPiA+IENjOiBCZW5qYW1pbiBUaXNzb2lyZXMgPGJlbmphbWluLnRpc3NvaXJl
+c0BnbWFpbC5jb20+DQo+ID4+ID4gPiBDYzogQmFzdGllbiBOb2NlcmE6IDxoYWRlc3NAaGFkZXNz
+Lm5ldD4NCj4gPj4gPiA+IENjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNCj4gPj4gPiA+
+IC0tLQ0KPiA+PiA+ID4gIERvY3VtZW50YXRpb24vYWNwaS9hY3BpLWxpZC50eHQgfCAgIDg5DQo+
+ID4+ID4gKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrDQo+ID4+ID4gPiAg
+MSBmaWxlIGNoYW5nZWQsIDg5IGluc2VydGlvbnMoKykNCj4gPj4gPiA+ICBjcmVhdGUgbW9kZSAx
+MDA2NDQgRG9jdW1lbnRhdGlvbi9hY3BpL2FjcGktbGlkLnR4dA0KPiA+PiA+ID4NCj4gPj4gPiA+
+IGRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2FjcGkvYWNwaS1saWQudHh0DQo+IGIvRG9jdW1l
+bnRhdGlvbi9hY3BpL2FjcGktDQo+ID4+ID4gbGlkLnR4dA0KPiA+PiA+ID4gbmV3IGZpbGUgbW9k
+ZSAxMDA2NDQNCj4gPj4gPiA+IGluZGV4IDAwMDAwMDAuLjJhZGRlZGMNCj4gPj4gPiA+IC0tLSAv
+ZGV2L251bGwNCj4gPj4gPiA+ICsrKyBiL0RvY3VtZW50YXRpb24vYWNwaS9hY3BpLWxpZC50eHQN
+Cj4gPj4gPiA+IEBAIC0wLDAgKzEsODkgQEANCj4gPj4gPiA+ICtVc2FnZSBNb2RlbCBvZiB0aGUg
+QUNQSSBDb250cm9sIE1ldGhvZCBMaWQgRGV2aWNlDQo+ID4+ID4gPiArDQo+ID4+ID4gPiArQ29w
+eXJpZ2h0IChDKSAyMDE2LCBJbnRlbCBDb3Jwb3JhdGlvbg0KPiA+PiA+ID4gK0F1dGhvcjogTHYg
+WmhlbmcgPGx2LnpoZW5nQGludGVsLmNvbT4NCj4gPj4gPiA+ICsNCj4gPj4gPiA+ICsNCj4gPj4g
+PiA+ICtBYnN0cmFjdDoNCj4gPj4gPiA+ICsNCj4gPj4gPiA+ICtQbGF0Zm9ybXMgY29udGFpbmlu
+ZyBsaWRzIGNvbnZleSBsaWQgc3RhdGUgKG9wZW4vY2xvc2UpIHRvIE9TUE1zDQo+IHVzaW5nDQo+
+ID4+ID4gYQ0KPiA+PiA+ID4gK2NvbnRyb2wgbWV0aG9kIGxpZCBkZXZpY2UuIFRvIGltcGxlbWVu
+dCB0aGlzLCB0aGUgQU1MIHRhYmxlcyBpc3N1ZQ0KPiA+PiA+ID4gK05vdGlmeShsaWRfZGV2aWNl
+LCAweDgwKSB0byBub3RpZnkgdGhlIE9TUE1zIHdoZW5ldmVyIHRoZSBsaWQNCj4gc3RhdGUgaGFz
+DQo+ID4+ID4gPiArY2hhbmdlZC4gVGhlIF9MSUQgY29udHJvbCBtZXRob2QgZm9yIHRoZSBsaWQg
+ZGV2aWNlIG11c3QgYmUNCj4gPj4gPiBpbXBsZW1lbnRlZCB0bw0KPiA+PiA+ID4gK3JlcG9ydCB0
+aGUgImN1cnJlbnQiIHN0YXRlIG9mIHRoZSBsaWQgYXMgZWl0aGVyICJvcGVuZWQiIG9yICJjbG9z
+ZWQiLg0KPiA+PiA+ID4gKw0KPiA+PiA+ID4gK1RoaXMgZG9jdW1lbnQgZGVzY3JpYmVzIHRoZSBy
+ZXN0cmljdGlvbnMgYW5kIHRoZSBleHBlY3Rpb25zIG9mIHRoZQ0KPiA+PiA+IExpbnV4DQo+ID4+
+ID4gPiArQUNQSSBsaWQgZGV2aWNlIGRyaXZlci4NCj4gPj4gPiA+ICsNCj4gPj4gPiA+ICsNCj4g
+Pj4gPiA+ICsxLiBSZXN0cmljdGlvbnMgb2YgdGhlIHJldHVybmluZyB2YWx1ZSBvZiB0aGUgX0xJ
+RCBjb250cm9sIG1ldGhvZA0KPiA+PiA+ID4gKw0KPiA+PiA+ID4gK1RoZSBfTElEIGNvbnRyb2wg
+bWV0aG9kIGlzIGRlc2NyaWJlZCB0byByZXR1cm4gdGhlICJjdXJyZW50IiBsaWQNCj4gc3RhdGUu
+DQo+ID4+ID4gPiArSG93ZXZlciB0aGUgd29yZCBvZiAiY3VycmVudCIgaGFzIGFtYmlndWl0eSwg
+bWFueSBBTUwgdGFibGVzDQo+IHJldHVybg0KPiA+PiA+IHRoZSBsaWQNCj4gPj4gPg0KPiA+PiA+
+IENhbiB0aGlzIGJlIGZpeGVkIGluIHRoZSBuZXh0IEFDUEkgcmV2aXNpb24/DQo+ID4+IFtMdiBa
+aGVuZ10NCj4gPj4gRXZlbiB0aGlzIGlzIGZpeGVkIGluIHRoZSBBQ1BJIHNwZWNpZmljYXRpb24s
+IHRoZXJlIGFyZSBwbGF0Zm9ybXMgYWxyZWFkeQ0KPiBkb2luZyB0aGlzLg0KPiA+PiBFc3BlY2lh
+bGx5IHBsYXRmb3JtcyBmcm9tIE1pY3Jvc29mdC4NCj4gPj4gU28gdGhlIGRlLWZhY3RvIHN0YW5k
+YXJkIE9TIHdvbid0IGNhcmUgYWJvdXQgdGhlIGNoYW5nZS4NCj4gPj4gQW5kIHdlIGNhbiBzdGls
+bCBzZWUgc3VjaCBwbGF0Zm9ybXMuDQo+ID4+DQo+ID4+IEhlcmUgaXMgYW4gZXhhbXBsZSBmcm9t
+IFN1cmZhY2UgMzoNCj4gPj4NCj4gPj4gRGVmaW5pdGlvbkJsb2NrICgiZHNkdC5hbWwiLCAiRFNE
+VCIsIDIsICJBTEFTS0EiLCAiQSBNIEkgIiwgMHgwMTA3MjAwOSkNCj4gPj4gew0KPiA+PiAgICAg
+U2NvcGUgKF9TQikNCj4gPj4gICAgIHsNCj4gPj4gICAgICAgICBEZXZpY2UgKFBDSTApDQo+ID4+
+ICAgICAgICAgew0KPiA+PiAgICAgICAgICAgICBOYW1lIChfSElELCBFaXNhSWQgKCJQTlAwQTA4
+IikpICAvLyBfSElEOiBIYXJkd2FyZSBJRA0KPiA+PiAgICAgICAgICAgICBOYW1lIChfQ0lELCBF
+aXNhSWQgKCJQTlAwQTAzIikpICAvLyBfQ0lEOiBDb21wYXRpYmxlIElEDQo+ID4+ICAgICAgICAg
+ICAgIERldmljZSAoU1BJMSkNCj4gPj4gICAgICAgICAgICAgew0KPiA+PiAgICAgICAgICAgICAg
+ICAgTmFtZSAoX0hJRCwgIjgwODYyMjhFIikgIC8vIF9ISUQ6IEhhcmR3YXJlIElEDQo+ID4+ICAg
+ICAgICAgICAgICAgICBEZXZpY2UgKE5UUkcpDQo+ID4+ICAgICAgICAgICAgICAgICB7DQo+ID4+
+ICAgICAgICAgICAgICAgICAgICAgTmFtZSAoX0hJRCwgIk1TSFcwMDM3IikgIC8vIF9ISUQ6IEhh
+cmR3YXJlIElEDQo+ID4+ICAgICAgICAgICAgICAgICB9DQo+ID4+ICAgICAgICAgICAgIH0NCj4g
+Pj4gICAgICAgICB9DQo+ID4+DQo+ID4+ICAgICAgICAgRGV2aWNlIChMSUQpDQo+ID4+ICAgICAg
+ICAgew0KPiA+PiAgICAgICAgICAgICBOYW1lIChfSElELCBFaXNhSWQgKCJQTlAwQzBEIikpDQo+
+ID4+ICAgICAgICAgICAgIE5hbWUgKExJREIsIFplcm8pDQo+ID4NCj4gPiBTdGFydCB3aXRoIGxp
+ZCBjbG9zZWQ/IEluIGFueSBjYXNlIG1pZ2h0IGJlIHdyb25nLg0KPiANCj4gQWN0dWFsbHkgdGhl
+IGluaXRpYWwgdmFsdWUgZG9lc24ndCBtYXR0ZXIgaWYgdGhlIGdwaW9jaGlwIHRyaWdnZXJzIHRo
+ZQ0KPiBfRUM0IGF0IGJvb3QsIHdoaWNoIGl0IHNob3VsZA0KPiAoaHR0cHM6Ly9naXRodWIuY29t
+L2hhZGVzcy9mZWRvcmEtc3VyZmFjZTMtDQo+IGtlcm5lbC9jb21taXQvMTMyMDBmODE2NjJjMWMw
+YjU4MTM3OTQ3YzNlNmMwMDBmZTYyYTJiYSwNCj4gc3RpbGwgdW5zdWJtaXR0ZWQpDQo+IA0KPiA+
+DQo+ID4+ICAgICAgICAgICAgIE1ldGhvZCAoX0xJRCwgMCwgTm90U2VyaWFsaXplZCkNCj4gPj4g
+ICAgICAgICAgICAgew0KPiA+PiAgICAgICAgICAgICAgICAgUmV0dXJuIChMSURCKQ0KPiA+DQo+
+ID4gU28gIl9MSUQiIHJldHVybnMgdGhlIGxhc3Qgc3RhdGUgcmVhZCBieSAiX0VDNCIuICJfRUM0
+IiBpcw0KPiA+IGVkZ2UtdHJpZ2dlcmVkIGFuZCB3aWxsIGJlIGV2YWx1YXRlZCBldmVyeSB0aW1l
+IGdwaW8gY2hhbmdlcyBzdGF0ZS4NCj4gDQo+IFRoYXQncyBhc3N1bWluZyB0aGUgY2hhbmdlIGhh
+cHBlbnMgd2hpbGUgdGhlIHN5c3RlbSBpcyBvbi4gSWYgeW91IGdvDQo+IGludG8gc3VzcGVuZCBi
+eSBjbG9zaW5nIHRoZSBMSUQuIE9wZW4gaXQgd2hpbGUgb24gc3VzcGVuZCBhbmQgdGhlbiBoaXQN
+Cj4gdGhlIHBvd2VyIGJ1dHRvbiBnaXZlbiB0aGF0IHRoZSBzeXN0ZW0gZG9lc24ndCB3YWtlIHVw
+IHdoZW4gdGhlIGxpZCBpcw0KPiBvcGVuZWQsIHRoZSBlZGdlIGNoYW5nZSB3YXMgbWFkZSB3aGls
+ZSB0aGUgc3lzdGVtIGlzIGFzbGVlcCwgYW5kIHdlDQo+IGFyZSBzY3Jld2VkIChmcm9tIGFuIEFD
+UEkgcG9pbnQgb2YgdmlldykuIFNlZSBteSBuZXh0IGNvbW1lbnQgZm9yIGENCj4gc29sdXRpb24u
+DQo+IA0KW0x2IFpoZW5nXSANCkkgYWN0dWFsbHkgbm90IHN1cmUgaWYgcG9sbGluZyBjYW4gZml4
+IGFsbCBpc3N1ZXMuDQpGb3IgZXhhbXBsZS4NCklmIGEgcGxhdGZvcm0gcmVwb3J0aW5nICJjbG9z
+ZSIgYWZ0ZXIgcmVzdW1pbmcuDQpUaGVuIHBvbGxpbmcgX0xJRCB3aWxsIGFsd2F5cyByZXR1cm4g
+ImNsb3NlIi4NCkFuZCB0aGUgdXNlcnNwYWNlIGNhbiBzdGlsbCBnZXQgdGhlICJjbG9zZSIgbm90
+ICJvcGVuIi4NClNvIGl0IHNlZW1zIHBvbGxpbmcgaXMgbm90IHdvcmtpbmcgZm9yIHN1Y2ggcGxh
+dGZvcm1zIChjYWNoZWQgdmFsdWUsIGluaXRpYWwgY2xvc2UpLg0KU3VyZmFjZSAzIGlzIG5vdCB0
+aGUgb25seSBwbGF0Zm9ybSBjYWNoaW5nIGFuIGluaXRpYWwgY2xvc2UgdmFsdWUuDQpUaGVyZSBh
+cmUgMiB0cmFkaXRpb25hbCBwbGF0Zm9ybXMgbGlzdGVkIGluIHRoZSBwYXRjaCBkZXNjcmlwdGlv
+bi4NCg0KPiA+DQo+ID4+ICAgICAgICAgICAgIH0NCj4gPj4gICAgICAgICB9DQo+ID4+DQo+ID4+
+ICAgICAgICAgRGV2aWNlIChHUE8wKQ0KPiA+PiAgICAgICAgIHsNCj4gPj4gICAgICAgICAgICAg
+TmFtZSAoX0hJRCwgIklOVDMzRkYiKSAgLy8gX0hJRDogSGFyZHdhcmUgSUQNCj4gPj4gICAgICAg
+ICAgICAgT3BlcmF0aW9uUmVnaW9uIChHUE9SLCBHZW5lcmFsUHVycG9zZUlvLCBaZXJvLCBPbmUp
+DQo+ID4+ICAgICAgICAgICAgIEZpZWxkIChHUE9SLCBCeXRlQWNjLCBOb0xvY2ssIFByZXNlcnZl
+KQ0KPiA+PiAgICAgICAgICAgICB7DQo+ID4+ICAgICAgICAgICAgICAgICBDb25uZWN0aW9uICgN
+Cj4gPj4gICAgICAgICAgICAgICAgICAgICBHcGlvSW8gKFNoYXJlZCwgUHVsbE5vbmUsIDB4MDAw
+MCwgMHgwMDAwLA0KPiBJb1Jlc3RyaWN0aW9uTm9uZSwNCj4gPj4gICAgICAgICAgICAgICAgICAg
+ICAgICAgIlxcX1NCLkdQTzAiLCAweDAwLCBSZXNvdXJjZUNvbnN1bWVyLCAsDQo+ID4+ICAgICAg
+ICAgICAgICAgICAgICAgICAgICkNCj4gPj4gICAgICAgICAgICAgICAgICAgICAgICAgeyAgIC8v
+IFBpbiBsaXN0DQo+ID4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAweDAwNEMNCj4gPj4g
+ICAgICAgICAgICAgICAgICAgICAgICAgfQ0KPiA+PiAgICAgICAgICAgICAgICAgKSwNCj4gPj4g
+ICAgICAgICAgICAgICAgIEhFTEQsICAgMQ0KPiA+DQo+ID4gSXMgaXQgcG9zc2libGUgdG8gcmVh
+ZCBzdGF0ZSBvZiB0aGlzIEdQSU8gZnJvbSB1c2Vyc3BhY2Ugb24gc3RhcnR1cCB0bw0KPiA+IGNv
+cnJlY3QgdGhlIGluaXRpYWwgc3RhdGU/DQo+ID4NCj4gPj4gICAgICAgICAgICAgfQ0KPiA+PiAg
+ICAgICAgICAgICBNZXRob2QgKF9FNEMsIDAsIFNlcmlhbGl6ZWQpDQo+ID4+ICAgICAgICAgICAg
+IHsNCj4gPj4gICAgICAgICAgICAgICAgIElmIChMRXF1YWwoSEVMRCwgT25lKSkNCj4gPj4gICAg
+ICAgICAgICAgICAgIHsNCj4gPj4gICAgICAgICAgICAgICAgICAgICBTdG9yZShPbmUsIF5eTElE
+LkxJREIpDQo+ID4+DQo+ID4+IFRoZXJlIGlzIG5vICJvcGVuIiBldmVudCBnZW5lcmF0ZWQgYnkg
+IlN1cmZhY2UgMyIuDQo+ID4NCj4gPiBSaWdodCBzbyB3ZSB1cGRhdGUgdGhlIHN0YXRlIGNvcnJl
+Y3RseSwgd2UganVzdCBmb3Jnb3QgdG8gc2VuZCB0aGUNCj4gPiBub3RpZmljYXRpb24uIE5vdGhp
+bmcgdGhhdCBwb2xsaW5nIGNhbid0IGZpeC4NCj4gDQo+IEFjdHVhbGx5LCBJIGhhdmUgYSBiZXR0
+ZXIgKHRob3VnaCBtb3JlIGhhY2tpc2gpIHdheSBvZiBhdm9pZGluZyBwb2xsaW5nOg0KPiBodHRw
+czovL2dpdGh1Yi5jb20vaGFkZXNzL2ZlZG9yYS1zdXJmYWNlMy0NCj4ga2VybmVsL2Jsb2IvNWU1
+Nzc1YjliZGMzMDhkNjY1MDY0Mzg3ZTBiMTQ0ZWU0OGU3YjI0My8wMDAyLVdJUC0NCj4gYWRkLWN1
+c3RvbS1zdXJmYWNlMy1wbGF0Zm9ybS1kZXZpY2UtZm9yLWNvbnRyb2xsLnBhdGNoDQo+IA0KPiBH
+aXZlbiB0aGF0IHRoZSBub3RpZmljYXRpb24gaXMgZm9yd2FyZGVkIHRvIHRoZSB0b3VjaHNjcmVl
+biBhbnl3YXksIHdlDQo+IGNhbiB1bnJlZ2lzdGVyIHRoZSBnZW5lcmljIChhbmQgYnVnZ3kpIGFj
+cGkgYnV0dG9uIGRyaXZlciBmb3IgdGhlIExJRA0KPiBhbmQgY3JlYXRlIG91ciBvd24gYmFzZWQg
+b24gdGhpcyBzcGVjaWZpYyBEU0RULg0KPiBXZSBjYW4gYWxzbyBtYWtlIHN1cmUgdGhlIExJRCBz
+dGF0ZSBpcyBhbHNvIGNvcnJlY3QgYmVjYXVzZSBvZiB0aGUgV01JDQo+IG1ldGhvZCB3aGljaCBh
+bGxvd3MgdG8gcmVhZCB0aGUgYWN0dWFsIHZhbHVlIG9mIHRoZSBHUElPIGNvbm5lY3RlZCB0bw0K
+PiB0aGUgY292ZXIgd2l0aG91dCB1c2luZyB0aGUgY2FjaGVkIChhbmQgbW9zdCBvZiB0aGUgdGlt
+ZSB3cm9uZykgYWNwaQ0KPiBMSUQuTElEQiB2YWx1ZS4NCj4gDQo+IEkgc3RpbGwgeWV0IGhhdmUg
+dG8gc3VibWl0IHRoaXMsIGJ1dCB3aXRoIHRoaXMgcGF0Y2gsIGJ1dCB3ZSBjYW4NCj4gY29uc2lk
+ZXIgdGhlIFN1cmZhY2UgMyBhcyB3b3JraW5nIGFuZCBub3QgYW4gaXNzdWUgYW55bW9yZS4NCj4g
+DQpbTHYgWmhlbmddIA0KVGhhdCBjb3VsZCBtYWtlIHN1cmZhY2UgMyBkZXBlbmRlbnQgb24gV01J
+IGRyaXZlciwgbm90IEFDUEkgYnV0dG9uIGRyaXZlci4NCldpbGwgdGhpcyBhZmZlY3Qgb3RoZXIg
+YnV0dG9ucz8NCkZvciBleGFtcGxlLCBwb3dlciBidXR0b24vc2xlZXAgYnV0dG9uLg0KDQpPdXIg
+YXBwcm9hY2ggaXMgdG8gbWFrZSBBQ1BJIGJ1dHRvbiBkcml2ZXIgd29ya2luZy4NClRob3VnaCB0
+aGlzIG1heSBsZWFkIHRvIEFCSSBjaGFuZ2VzLg0KDQo+ID4NCj4gPj4NCj4gPj4gICAgICAgICAg
+ICAgICAgIH0NCj4gPj4gICAgICAgICAgICAgICAgIEVsc2UNCj4gPj4gICAgICAgICAgICAgICAg
+IHsNCj4gPj4gICAgICAgICAgICAgICAgICAgICBTdG9yZShaZXJvLCBeXkxJRC5MSURCKQ0KPiA+
+PiAgICAgICAgICAgICAgICAgICAgIE5vdGlmeSAoTElELCAweDgwKQ0KPiA+Pg0KPiA+PiBUaGVy
+ZSBpcyBvbmx5ICJjbG9zZSIgZXZlbnQgZ2VuZXJhdGVkIGJ5ICJTdXJmYWNlIDMiLg0KPiA+PiBU
+aHVzIHRoZXkgYXJlIG5vdCBwYWlyZWQuDQo+ID4+DQo+ID4+ICAgICAgICAgICAgICAgICB9DQo+
+ID4+ICAgICAgICAgICAgICAgICBOb3RpZnkgKF5eUENJMC5TUEkxLk5UUkcsIE9uZSkgLy8gRGV2
+aWNlIENoZWNrDQo+ID4+ICAgICAgICAgICAgIH0NCj4gPj4gICAgICAgICB9DQo+ID4+ICAgICB9
+DQo+ID4+IH0NCj4gPj4NCj4gPj4gPg0KPiA+PiA+ID4gK3N0YXRlIHVwb24gdGhlIGxhc3QgbGlk
+IG5vdGlmaWNhdGlvbiBpbnN0ZWFkIG9mIHJldHVybmluZyB0aGUgbGlkIHN0YXRlDQo+ID4+ID4g
+PiArdXBvbiB0aGUgbGFzdCBfTElEIGV2YWx1YXRpb24uIFRoZXJlIHdvbid0IGJlIGRpZmZlcmVu
+Y2Ugd2hlbiB0aGUNCj4gX0xJRA0KPiA+PiA+ID4gK2NvbnRyb2wgbWV0aG9kIGlzIGV2YWx1YXRl
+ZCBkdXJpbmcgdGhlIHJ1bnRpbWUsIHRoZSBwcm9ibGVtIGlzIGl0cw0KPiA+PiA+IGluaXRpYWwN
+Cj4gPj4gPiA+ICtyZXR1cm5pbmcgdmFsdWUuIFdoZW4gdGhlIEFNTCB0YWJsZXMgaW1wbGVtZW50
+IHRoaXMgY29udHJvbA0KPiBtZXRob2QNCj4gPj4gPiB3aXRoDQo+ID4+ID4gPiArY2FjaGVkIHZh
+bHVlLCB0aGUgaW5pdGlhbCByZXR1cm5pbmcgdmFsdWUgaXMgbGlrZWx5IG5vdCByZWxpYWJsZS4g
+VGhlcmUNCj4gYXJlDQo+ID4+ID4gPiArc2ltcGx5IHNvIG1hbnkgZXhhbXBsZXMgYWx3YXlzIHJl
+dHVuaW5nICJjbG9zZWQiIGFzIGluaXRpYWwgbGlkDQo+IHN0YXRlLg0KPiA+PiA+ID4gKw0KPiA+
+PiA+ID4gKzIuIFJlc3RyaWN0aW9ucyBvZiB0aGUgbGlkIHN0YXRlIGNoYW5nZSBub3RpZmljYXRp
+b25zDQo+ID4+ID4gPiArDQo+ID4+ID4gPiArVGhlcmUgYXJlIG1hbnkgQU1MIHRhYmxlcyBuZXZl
+ciBub3RpZnlpbmcgd2hlbiB0aGUgbGlkIGRldmljZQ0KPiBzdGF0ZSBpcw0KPiA+PiA+ID4gK2No
+YW5nZWQgdG8gIm9wZW5lZCIuIFRodXMgdGhlICJvcGVuZWQiIG5vdGlmaWNhdGlvbiBpcyBub3QN
+Cj4gZ3VhcmFudGVlZC4NCj4gPj4gPiA+ICsNCj4gPj4gPiA+ICtCdXQgaXQgaXMgZ3VhcmFudGVl
+ZCB0aGF0IHRoZSBBTUwgdGFibGVzIGFsd2F5cyBub3RpZnkgImNsb3NlZCINCj4gd2hlbg0KPiA+
+PiA+IHRoZQ0KPiA+PiA+ID4gK2xpZCBzdGF0ZSBpcyBjaGFuZ2VkIHRvICJjbG9zZWQiLiBUaGUg
+ImNsb3NlZCIgbm90aWZpY2F0aW9uIGlzDQo+IG5vcm1hbGx5DQo+ID4+ID4gPiArdXNlZCB0byB0
+cmlnZ2VyIHNvbWUgc3lzdGVtIHBvd2VyIHNhdmluZyBvcGVyYXRpb25zIG9uIFdpbmRvd3MuDQo+
+ID4+ID4gU2luY2UgaXQgaXMNCj4gPj4gPiA+ICtmdWxseSB0ZXN0ZWQsIHRoZSAiY2xvc2VkIiBu
+b3RpZmljYXRpb24gaXMgcmVsaWFibGUgZm9yIGFsbCBBTUwgdGFibGVzLg0KPiA+PiA+ID4gKw0K
+PiA+PiA+ID4gKzMuIEV4cGVjdGlvbnMgZm9yIHRoZSB1c2Vyc3BhY2UgdXNlcnMgb2YgdGhlIEFD
+UEkgbGlkIGRldmljZSBkcml2ZXINCj4gPj4gPiA+ICsNCj4gPj4gPiA+ICtUaGUgQUNQSSBidXR0
+b24gZHJpdmVyIGV4cG9ydHMgdGhlIGxpZCBzdGF0ZSB0byB0aGUgdXNlcnNwYWNlIHZpYQ0KPiB0
+aGUNCj4gPj4gPiA+ICtmb2xsb3dpbmcgZmlsZToNCj4gPj4gPiA+ICsgIC9wcm9jL2FjcGkvYnV0
+dG9uL2xpZC9MSUQwL3N0YXRlDQo+ID4+ID4gPiArVGhpcyBmaWxlIGFjdHVhbGx5IGNhbGxzIHRo
+ZSBfTElEIGNvbnRyb2wgbWV0aG9kIGRlc2NyaWJlZCBhYm92ZS4NCj4gQW5kDQo+ID4+ID4gZ2l2
+ZW4NCj4gPj4gPiA+ICt0aGUgcHJldmlvdXMgZXhwbGFuYXRpb24sIGl0IGlzIG5vdCByZWxpYWJs
+ZSBlbm91Z2ggb24gc29tZQ0KPiBwbGF0Zm9ybXMuDQo+ID4+ID4gU28NCj4gPj4gPiA+ICtpdCBp
+cyBhZHZpc2VkIGZvciB0aGUgdXNlcnNwYWNlIHByb2dyYW0gdG8gbm90IHRvIHNvbGVseSByZWx5
+IG9uIHRoaXMNCj4gZmlsZQ0KPiA+PiA+ID4gK3RvIGRldGVybWluZSB0aGUgYWN0dWFsIGxpZCBz
+dGF0ZS4NCj4gPj4gPiA+ICsNCj4gPj4gPiA+ICtUaGUgQUNQSSBidXR0b24gZHJpdmVyIGVtaXRz
+IDIga2luZHMgb2YgZXZlbnRzIHRvIHRoZSB1c2VyIHNwYWNlOg0KPiA+PiA+ID4gKyAgU1dfTElE
+DQo+ID4+ID4gPiArICAgV2hlbiB0aGUgbGlkIHN0YXRlL2V2ZW50IGlzIHJlbGlhYmxlLCB0aGUg
+dXNlcnNwYWNlIGNhbiBiZWhhdmUNCj4gPj4gPiA+ICsgICBhY2NvcmRpbmcgdG8gdGhpcyBpbnB1
+dCBzd2l0Y2ggZXZlbnQuDQo+ID4+ID4gPiArICAgVGhpcyBpcyBhIG1vZGUgcHJlcGFyZWQgZm9y
+IGJhY2t3YXJkIGNvbXBhdGlibGl0eS4NCj4gPj4gPiA+ICsgIEtFWV9FVkVOVF9PUEVOL0tFWV9F
+VkVOVF9DTE9TRQ0KPiA+PiA+ID4gKyAgIFdoZW4gdGhlIGxpZCBzdGF0ZS9ldmVudCBpcyBub3Qg
+cmVsaWFibGUsIHRoZSB1c2Vyc3BhY2Ugc2hvdWxkDQo+IGJlaGF2ZQ0KPiA+PiA+ID4gKyAgIGFj
+Y29yZGluZyB0byB0aGVzZSAyIGlucHV0IGtleSBldmVudHMuDQo+ID4+ID4gPiArICAgTmV3IHVz
+ZXJzcGFjZSBwcm9ncmFtcyBtYXkgb25seSBiZSBwcmVwYXJlZCBmb3IgdGhlIGlucHV0IGtleQ0K
+PiA+PiA+IGV2ZW50cy4NCj4gPj4gPg0KPiA+PiA+IE5vLCBhYnNvbHV0ZWx5IG5vdC4gSWYgc29t
+ZSB4ODYgdmVuZG9ycyBtYW5hZ2VkIHRvIG1lc3MgdXAgdGhlaXINCj4gPj4gPiBmaXJtd2FyZSBp
+bXBsZW1lbnRhdGlvbnMgdGhhdCBkb2VzIG5vdCBtZWFuIHRoYXQgZXZlcnlvbmUgbm93DQo+IGhh
+cyB0bw0KPiA+PiA+IGFiYW5kb24gd29ya2luZyBwZXJmZWN0bHkgd2VsbCBmb3IgdGhlbSBTV19M
+SUQgZXZlbnRzIGFuZCBydXNoIHRvDQo+ID4+ID4gc3dpdGNoDQo+ID4+ID4gdG8gYSBicmFuZCBu
+ZXcgZXZlbnQuDQo+ID4+IFtMdiBaaGVuZ10NCj4gPj4gSG93ZXZlciB0aGVyZSBpcyBubyBjbGVh
+ciB3b3JkaW5nIGluIHRoZSBBQ1BJIHNwZWNpZmljYXRpb24gYXNraW5nIHRoZQ0KPiB2ZW5kb3Jz
+IHRvIGFjaGlldmUgcGFpcmVkIGxpZCBldmVudHMuDQo+ID4+DQo+ID4+ID4NCj4gPj4gPiBBcHBh
+cmVudGx5IHdlcmUgYXJlIGEgZmV3IGlzc3VlcywgbWFpbiBpcyB0aGF0IHNvbWUgc3lzdGVtcyBu
+b3QNCj4gcmVwb3J0aW5nDQo+ID4+ID4gIm9wZW4iIGV2ZW50LiBUaGlzIGNhbiBiZSBkZWFsdCB3
+aXRoIGJ5IHVzZXJzcGFjZSAid3JpdGluZyIgdG8gdGhlDQo+ID4+ID4gbGlkJ3MgZXZkZXYgZGV2
+aWNlIEVWX1NXL1NXX0xJRC8wIGV2ZW50IHVwb24gc3lzdGVtIHJlc3VtZSAoYW5kDQo+ID4+ID4g
+c3RhcnR1cCkNCj4gPj4gPiBmb3Igc2VsZWN0ZWQgc3lzdGVtcy4gVGhpcyB3aWxsIG1lYW4gdGhh
+dCBpZiBzeXN0ZW0gd2FrZXMgdXAgbm90DQo+IGJlY2F1c2UNCj4gPj4gPiBMSUQgaXMgb3BlbiB3
+ZSdsbCBpbmNvcnJlY3RseSBhc3N1bWUgdGhhdCBpdCBpcywgYnV0IHdlIGNhbiBlaXRoZXIgYWRk
+DQo+ID4+ID4gbW9yZSBzbWFydHMgdG8gdGhlIHByb2Nlc3MgZW1pdHRpbmcgU1dfTElEIGV2ZW50
+IG9yIHNpbXBseSBzYXkNCj4gIndlbGwsDQo+ID4+ID4gdG91Z2gsIHRoZSBoYXJkd2FyZSBpcyBj
+cmFwcHkiIGFuZCBidWcgdmVuZG9yIHRvIHNlZSBpZiB0aGV5IGNhbiBmaXgNCj4gdGhlDQo+ID4+
+ID4gaXNzdWUgKGlmIG5vdCBmb3IgY3VycmVudCBmaXJtd2FyZSB0aGVtIGZvciBuZXh0KS4NCj4g
+Pj4gW0x2IFpoZW5nXQ0KPiA+PiBUaGUgcHJvYmxlbSBpcyB0aGVyZSBpcyBubyB2ZW5kb3IgYWN0
+dWFsbHkgY2FyaW5nIGFib3V0IGZpeGluZyB0aGlzDQo+ICJpc3N1ZSIuDQo+ID4+IEJlY2F1c2Ug
+V2luZG93cyB3b3JrcyB3ZWxsIHdpdGggdGhlaXIgZmlybXdhcmUuDQo+ID4+IFRoZW4gZmluYWxs
+eSBiZWNvbWVzIGEgYmlnIHRhYmxlIGN1c3RvbWl6YXRpb24gYnVzaW5lc3MgZm9yIG91ciB0ZWFt
+Lg0KPiA+DQo+ID4gV2VsbCwgT0suIEJ1dCB5b3UgZG8gbm90IGV4cGVjdCB0aGF0IHdlIHdpbGwg
+cmVkbyB1cCBhbmQgZG93biB0aGUgc3RhY2sNCj4gPiBsaWQgaGFuZGxpbmcganVzdCBiZWNhdXNl
+IE1TIG1lc3NlZCB1cCBEU0RUIG9uIFN1cmZhY2UgMz8gTm8sIGxldCB0aGVtDQo+ID4ga25vdyAo
+dGhleSBub3cgY2FyZSBhYm91dCBMaW51eCwgcmlnaHQ/KSBzbyBTdXJmYWNlIDQgd29ya3MgYW5k
+IHF1aXJrDQo+ID4gdGhlIGJlaGF2aW9yIGZvciBTdXJmYWNlIDMuDQo+ID4NCj4gDQo+IEZyb20g
+d2hhdCBJIHVuZGVyc3Rvb2QsIGl0IHdhcyBtb3JlIHRoYW4ganVzdCB0aGUgU3VyZmFjZSAzLiBP
+dGhlcg0KPiBsYXB0b3BzIHdlcmUgaGF2aW5nIGlzc3VlcyBhbmQgTHYncyB0ZWFtIGdhdmUgdXAg
+b24gZml4aW5nIHRob3NlDQo+IG1hY2hpbmVzLg0KPiANCj4gPj4NCj4gPj4gPg0KPiA+PiA+IEFz
+IGFuIGFkZGl0aW9uYWwgd29ya2Fyb3VuZCwgd2UgY2FuIHRvZ2dsZSB0aGUgTElEIHN3aXRjaCBv
+ZmYgYW5kIG9uDQo+ID4+ID4gd2hlbiB3ZSBnZXQgbm90aWZpY2F0aW9uLCBtdWNoIGxpa2UgeW91
+ciBwcm9wb3NlZCBwYXRjaCBkb2VzIGZvciB0aGUNCj4ga2V5DQo+ID4+ID4gZXZlbnRzLg0KPiAN
+Cj4gSSByZWFsbHkgZG9uJ3QgbGlrZSB0aGlzIGFwcHJvYWNoLiBUaGUgcHJvYmxlbSBiZWluZyB0
+aGF0IHdlIHdpbGwgZml4DQo+IHRoZSBub3RpZmljYXRpb25zIHRvIHVzZXIgc3BhY2UsIGJ1dCBu
+b3RoaW5nIHdpbGwgdGVsbCB1c2Vyc3BhY2UgdGhhdA0KPiB0aGUgTElEIHN0YXRlIGlzIGtub3du
+IHRvIGJlIHdyb25nLg0KPiBPVE9ILCBJIGFscmVhZHkgYWdyZWVkIGZvciBhIGh3ZGIgaW4gdXNl
+cnNwYWNlIHNvIEkgZ3Vlc3MgdGhpcyBwb2ludCBpcw0KPiBtb290Lg0KPiANCj4gSGF2aW5nIGJv
+dGggZXZlbnRzIChvbmUgU1cgZm9yIHJlbGlhYmxlIEhXLCBhbHdheXMgY29ycmVjdCwgYW5kIG9u
+ZQ0KPiBLRVkgZm9yIHVucmVsaWFibGUgSFcpIGFsbG93cyB1c2Vyc3BhY2UgdG8gbWFrZSBhIGNs
+ZWFyIGRpc3RpbmN0aW9uDQo+IGJldHdlZW4gdGhlIHdvcmtpbmcgYW5kIG5vbiB3b3JraW5nIGV2
+ZW50cyBhbmQgdGhleSBjYW4gY29udGludWUgdG8NCj4ga2VlcCB1c2luZyB0aGUgcG9sbGluZyBv
+ZiB0aGUgU1cgbm9kZSB3aXRob3V0IGV4dHJhIGFkZGl0aW9uLg0KPiANCltMdiBaaGVuZ10gDQpJ
+IHRoaW5rIHRoaXMgc29sdXRpb24gaXMgZ29vZCBhbmQgZmFpciBmb3IgYWxsIG9mIHRoZSB2ZW5k
+b3JzLiA6LSkNCg0KPiBBbnl3YXksIGlmIHRoZSBrZXJuZWwgZG9lc24ndCB3YW50IHRvIChvciBj
+YW4ndCkgZml4IHRoZSBhY3R1YWwgaXNzdWUNCj4gKGJ5IG1ha2luZyBzdXJlIHRoZSBEU0RUIGlz
+IHJlbGlhYmxlKSwgdXNlcnNwYWNlIG5lZWRzIHRvIGJlIGNoYW5nZWQNCj4gc28gYW55IHNvbHV0
+aW9uIHdpbGwgYmUgYWNjZXB0YWJsZS4NCltMdiBaaGVuZ10gDQpJIHRoaW5rIHRoZSBhbnN3ZXIg
+aXMgImNhbid0Ii4NCklmIHdlIGludHJvZHVjZWQgdG9vIG1hbnkgd29ya2Fyb3VuZHMgaW50byBh
+Y3BpIGJ1dHRvbiBkcml2ZXIsDQppbiBvcmRlciB0byBtYWtlIHNvbWV0aGluZyB3b3JraW5nIHdo
+aWxlIHRoZSBwbGF0Zm9ybSBmaXJtd2FyZSBkb2Vzbid0IGV4cGVjdCBpdCB0byBiZSB3b3JraW5n
+LA0KdGhlbiB3ZSdsbCBzdGFydCB0byB3b3JyeSBhYm91dCBicmVha2luZyBnb29kIGxhcHRvcHMu
+DQoNCj4gDQo+ID4+IFtMdiBaaGVuZ10NCj4gPj4gSSB0aGluayB0aGlzIGlzIGRvYWJsZSwgSSds
+bCByZWZyZXNoIG15IHBhdGNoc2V0IHRvIGFkZHJlc3MgeW91ciB0aGlzDQo+IGNvbW1lbnQuDQo+
+ID4+IEJ5IGluc2VydGluZyBvcGVuL2Nsb3NlIGV2ZW50cyB3aGVuIG5leHQgY2xvc2Uvb3BlbiBl
+dmVudCBhcnJpdmVzDQo+IGFmdGVyIGEgY2VydGFpbiBwZXJpb2QsDQo+ID4+IHRoaXMgbWF5IGZp
+eCBzb21lIGlzc3VlcyBmb3IgdGhlIG9sZCBwcm9ncmFtcy4NCj4gPj4gV2hlcmUgdXNlciBtYXkg
+YmUgcmVxdWlyZWQgdG8gb3Blbi9jbG9zZSBsaWQgdHdpY2UgdG8gdHJpZ2dlciAybmQNCj4gc3Vz
+cGVuZC4NCj4gPj4NCj4gPj4gSG93ZXZlciwgdGhpcyBzdGlsbCBjYW5ub3QgZml4IHRoZSBwcm9i
+bGVtcyBsaWtlICJTdXJmYWNlIDMiLg0KPiA+PiBXZSdsbCBzdGlsbCBuZWVkIGEgbmV3IHVzYWdl
+IG1vZGVsIGZvciBzdWNoIHBsYXRmb3JtcyAobm8gb3BlbiBldmVudCkuDQo+ID4NCj4gPiBObywg
+Zm9yIHN1cmZhY2UgMyB5b3Ugc2ltcGx5IG5lZWQgdG8gYWRkIHBvbGxpbmcgb2YgIl9MSUQiIG1l
+dGhvZCB0byB0aGUNCj4gPiBidXR0b24gZHJpdmVyLg0KPiA+DQo+ID4gV2hhdCBhcmUgdGhlIG90
+aGVyIGRldmljZXMgdGhhdCBtZXNzIHVwIGxpZCBoYW5kbGluZz8NCj4gPg0KPiANCj4gSSBhbHNv
+IHdvdWxkIGJlIGludGVyZXN0ZWQgaW4ga25vd2luZyBob3cgbXVjaCBpc3N1ZXMgeW91IGFyZSBm
+YWNpbmcNCj4gY29tcGFyZWQgdG8gdGhlIGF2ZXJhZ2UgbnVtYmVyIG9mICJnb29kIiBsYXB0b3Bz
+LiBJSVJDLCB5b3UgdGFsa2VkDQo+IGFib3V0IDMgKGNvdW50aW5nIHRoZSBTdXJmYWNlIDMpLCBi
+dXQgSSBiZWxpZXZlIHlvdSBoYWQgbW9yZSBpbiBtaW5kLg0KDQpbTHYgWmhlbmddIA0KWWVzLg0K
+SG93ZXZlciB0aGV5IGhhcHBlbmVkIGJlZm9yZSBJIHN0YXJ0ZWQgdG8gbG9vayBhdCB0aGUgbGlk
+IGlzc3Vlcy4NCkkgdGhpbmsgUnVpIGhhcyBzZXZlcmFsIHN1Y2ggZXhwZXJpZW5jZXMuDQorUnVp
+Lg0KDQpUaGFua3MgYW5kIGJlc3QgcmVnYXJkcw0KLUx2DQo=

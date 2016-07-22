@@ -1,57 +1,59 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: [PATCH] Improve Alps HID Touchpad code
-Date: Fri, 22 Jul 2016 08:10:55 +0000
-Message-ID: <OSXPR01MB040858DA208EB99E5AC3CBB2C70A0@OSXPR01MB0408.jpnprd01.prod.outlook.com>
-References: <1466568668-22272-1-git-send-email-masaki.ota@jp.alps.com>
- <20160623001101.GE16965@dtor-ws>
- <alpine.LNX.2.00.1606230858230.6874@cbobk.fhfr.pm>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2] HID: use IS_ENABLED() instead of checking for
+ built-in or module
+Date: Fri, 22 Jul 2016 10:37:36 +0200
+Message-ID: <20160722083736.GA19383@mail.corp.redhat.com>
+References: <1469114754-2650-1-git-send-email-javier@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-os2jpn01on0081.outbound.protection.outlook.com ([104.47.92.81]:43903
-	"EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751821AbcGVILA convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Jul 2016 04:11:00 -0400
-In-Reply-To: <alpine.LNX.2.00.1606230858230.6874@cbobk.fhfr.pm>
-Content-Language: ja-JP
+Received: from mx1.redhat.com ([209.132.183.28]:53147 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751441AbcGVIhk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Jul 2016 04:37:40 -0400
+Content-Disposition: inline
+In-Reply-To: <1469114754-2650-1-git-send-email-javier@osg.samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Naoki Saito <naoki.saito@jp.alps.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-Hi, Jiri,
-
-Good day.
-
-Dell is asking me about this Alps modification's "commit id".
-Do you know about it?
-
-Best Regards,
-Masaki Ota
-
------Original Message-----
-From: Jiri Kosina [mailto:jikos@kernel.org] 
-Sent: Thursday, June 23, 2016 3:59 PM
-To: Dmitry Torokhov
-Cc: Masaki Ota; benjamin.tissorires@redhat.com; peter.hutterer@who-t.net; hdegoede@redhat.com; linux-input@vger.kernel.org; 太田 真喜 Masaki Ota; 斉藤 直樹 Naoki Saito
-Subject: Re: [PATCH] Improve Alps HID Touchpad code
-
-On Wed, 22 Jun 2016, Dmitry Torokhov wrote:
-
-> Same here. Maybe Jiri will fix it up by hand while appplying?
-
-Yup, I have fixed that and applied.
-
-> Otherwise:
+On Jul 21 2016 or thereabouts, Javier Martinez Canillas wrote:
+> The IS_ENABLED() macro checks if a Kconfig symbol has been enabled either
+> built-in or as a module, use that macro instead of open coding the same.
 > 
-> Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Using the macro makes the code more readable by helping abstract away some
+> of the Kconfig built-in and module enable details.
+> 
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> 
+> ---
 
-Thanks,
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
--- 
-Jiri Kosina
-SUSE Labs
+Cheers,
+Benjamin
 
+> 
+> Changes in v2:
+> - Post correct patch since v1 got mangled by the MTA.
+> 
+>  drivers/hid/hid-core.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 08f53c7fd513..386f31481c06 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -2480,7 +2480,7 @@ static const struct hid_device_id hid_ignore_list[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
+> -#if defined(CONFIG_MOUSE_SYNAPTICS_USB) || defined(CONFIG_MOUSE_SYNAPTICS_USB_MODULE)
+> +#if IS_ENABLED(CONFIG_MOUSE_SYNAPTICS_USB)
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_INT_TP) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_CPAD) },
+> -- 
+> 2.5.5
+> 

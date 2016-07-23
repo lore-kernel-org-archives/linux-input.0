@@ -1,107 +1,94 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v5 1/3] ACPI / button: Add missing event to keep SW_LID running without additional event loss
-Date: Sat, 23 Jul 2016 14:37:07 +0200
-Message-ID: <28281261.FVpbmPGRnZ@vostro.rjw.lan>
-References: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com> <0d28076e25047db356eeedbb2d8ae204f0ec893d.1469168549.git.lv.zheng@intel.com>
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: Re: [PATCH] Input: xpad - fix wireless 360 controller breaking after
+ suspend
+Date: Sat, 23 Jul 2016 09:49:44 -0700
+Message-ID: <cae811ad-b6ab-6e0c-b324-10c81ea8effa@gmail.com>
+References: <0635c1d0-7572-bac9-99cc-7a0db54c9013@gmail.com>
+ <CA+b0ujckSVMOVK4+Kc4gMrg3hVZ5mEwkPY=a5DwhHm+Qi-yiEg@mail.gmail.com>
+ <CA+b0ujemf2succq3Yc2vWy788EvYGRutPQeYH54aZf_kiS9FcA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <0d28076e25047db356eeedbb2d8ae204f0ec893d.1469168549.git.lv.zheng@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Lv Zheng <lv.zheng@intel.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Len Brown <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "Bastien Nocera:" <hadess@hadess.net>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:33433 "EHLO
+	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751148AbcGWQtr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 23 Jul 2016 12:49:47 -0400
+Received: by mail-pf0-f193.google.com with SMTP id i6so9070293pfe.0
+        for <linux-input@vger.kernel.org>; Sat, 23 Jul 2016 09:49:47 -0700 (PDT)
+In-Reply-To: <CA+b0ujemf2succq3Yc2vWy788EvYGRutPQeYH54aZf_kiS9FcA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pavel Rojtberg <rojtberg@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Friday, July 22, 2016 02:24:42 PM Lv Zheng wrote:
-> There are several possibilities that a lid event can be lost. For example,
-> EC event queue full, or the resume order of the underlying drivers.
+On 07/23/2016 03:42 AM, Pavel Rojtberg wrote:
+> resume still works here
 > 
-> When the event loss happens, new event may also be lost due to the type of
-> the SW_LID (switch event). The 2nd loss is what we want to avoid.
-> 
-> This patch adds a mechanism to insert lid events as a compensation for the
-> switch event nature of the lid events in order to avoid the 2nd loss.
+> 2016-07-23 12:15 GMT+02:00 Pavel Rojtberg <rojtberg@gmail.com>:
+>> If you blame the line, you will see that it was introduced to fix the
+>> exact problem you are describing.
+>> Maybe the used USB controller is relevant or something changed in USB
+>> core meanwhile.
+>> I will test whether resume works for me without that line as well and
+>> report back.
+>>
 
-Can you please provide a high-level description of the new mechanism here?
+Yes, I saw the original commit. I included you on the email
+directly so you would see the change.
 
-> 
-> Signed-off-by: Lv Zheng <lv.zheng@intel.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> Cc: Bastien Nocera: <hadess@hadess.net>
-> Cc: linux-input@vger.kernel.org
-> ---
->  drivers/acpi/button.c |   21 ++++++++++++++++++++-
->  1 file changed, 20 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
-> index 148f4e5..41fd21d 100644
-> --- a/drivers/acpi/button.c
-> +++ b/drivers/acpi/button.c
-> @@ -104,6 +104,8 @@ struct acpi_button {
->  	struct input_dev *input;
->  	char phys[32];			/* for input device */
->  	unsigned long pushed;
-> +	int sw_last_state;
-> +	unsigned long sw_last_time;
->  	bool suspended;
->  };
->  
-> @@ -111,6 +113,10 @@ static BLOCKING_NOTIFIER_HEAD(acpi_lid_notifier);
->  static struct acpi_device *lid_device;
->  static u8 lid_init_state = ACPI_BUTTON_LID_INIT_METHOD;
->  
-> +static unsigned long lid_report_interval __read_mostly = 500;
-> +module_param(lid_report_interval, ulong, 0644);
-> +MODULE_PARM_DESC(lid_report_interval, "Interval (ms) between lid key events");
-> +
->  /* --------------------------------------------------------------------------
->                                FS Interface (/proc)
->     -------------------------------------------------------------------------- */
-> @@ -133,11 +139,22 @@ static int acpi_lid_evaluate_state(struct acpi_device *device)
->  static int acpi_lid_notify_state(struct acpi_device *device, int state)
->  {
->  	struct acpi_button *button = acpi_driver_data(device);
-> +	unsigned long sw_tout;
->  	int ret;
->  
-> -	/* input layer checks if event is redundant */
-> +	/* Send the switch event */
-> +	sw_tout = button->sw_last_time +
-> +		  msecs_to_jiffies(lid_report_interval);
+I think whether the issue appears depends on USB power settings
+in the system firmware. My desktop never reproduces the bug,
+but my laptop almost always does.
 
-Is it really necessary to use jiffies here?
+On the machine where it never reproduced, the wireless adapter
+_always_ reconnected on resume. Apparently, the HC lost enough
+state that the devices were always re-enumerated.
 
-> +	if (time_after(jiffies, sw_tout) &&
-> +	    (button->sw_last_state == !!state)) {
+On my laptop where it reproduced often, the wireless adapter
+wouldn't reconnect on resume. When resuming, the reset_resume
+path is always used, since we use USB_QUIRK_RESET_RESUME.
 
-The inner parens are not necessary.
+When the bug reproduces, the output URB gets stuck forever
+and only completes when explicitly killed. I think this is the
+type of behavior that the quirk is designed to work around.
 
-And why not just button->sw_last_state == state?
+By re-enumerating instead of resuming, we get correct behavior
+on both LED lights (since they are correctly assigned again in
+probe) and no URB hang anymore. We could probably write a
+reset_resume callback that did the right thing in all cases,
+but relying on USB core to do it for us is much less complexity.
 
-> +		/* Send the complement switch event */
-> +		input_report_switch(button->input, SW_LID, state);
-> +		input_sync(button->input);
-> +	}
->  	input_report_switch(button->input, SW_LID, !state);
->  	input_sync(button->input);
-> +	button->sw_last_state = !!state;
-> +	button->sw_last_time = jiffies;
->  
->  	if (state)
->  		pm_wakeup_event(&device->dev, 0);
-> @@ -407,6 +424,8 @@ static int acpi_button_add(struct acpi_device *device)
->  		strcpy(name, ACPI_BUTTON_DEVICE_NAME_LID);
->  		sprintf(class, "%s/%s",
->  			ACPI_BUTTON_CLASS, ACPI_BUTTON_SUBCLASS_LID);
-> +		button->sw_last_state = !!acpi_lid_evaluate_state(device);
-> +		button->sw_last_time = jiffies;
->  	} else {
->  		printk(KERN_ERR PREFIX "Unsupported hid [%s]\n", hid);
->  		error = -ENODEV;
-> 
-
-Thanks,
-Rafael
-
+>> Cameron Gutman <aicommander@gmail.com> schrieb am Sa., 23. Juli 2016
+>> um 10:27 Uhr:
+>>>
+>>> Suspending and resuming the system can sometimes cause the out
+>>> URB to get hung after a reset_resume. This causes LED setting
+>>> and force feedback to break on resume. To avoid this, just drop
+>>> the reset_resume callback so the USB core rebinds xpad to the
+>>> wireless pads on resume if a reset happened.
+>>>
+>>> A nice side effect of this change is the LED ring on wireless
+>>> controllers is now set correctly on system resume.
+>>>
+>>> Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+>>> Cc: stable@vger.kernel.org
+>>> ---
+>>>  drivers/input/joystick/xpad.c | 1 -
+>>>  1 file changed, 1 deletion(-)
+>>>
+>>> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+>>> index a529a45..843054a 100644
+>>> --- a/drivers/input/joystick/xpad.c
+>>> +++ b/drivers/input/joystick/xpad.c
+>>> @@ -1626,7 +1626,6 @@ static struct usb_driver xpad_driver = {
+>>>         .disconnect     = xpad_disconnect,
+>>>         .suspend        = xpad_suspend,
+>>>         .resume         = xpad_resume,
+>>> -       .reset_resume   = xpad_resume,
+>>>         .id_table       = xpad_table,
+>>>  };
+>>>
+>>> --
+>>> 2.7.4

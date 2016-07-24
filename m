@@ -1,63 +1,46 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH] Input-rmi_bus: Delete an unnecessary check before the
- function call "of_node_put"
-Date: Sun, 24 Jul 2016 09:35:56 +0200
-Message-ID: <fbec3744-1fb1-92bf-1f45-04812731e213@users.sourceforge.net>
-References: <5307CAA2.8060406@users.sourceforge.net>
- <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6>
- <530A086E.8010901@users.sourceforge.net>
- <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
- <530A72AA.3000601@users.sourceforge.net>
- <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
- <530B5FB6.6010207@users.sourceforge.net>
- <alpine.DEB.2.10.1402241710370.2074@hadrien>
- <530C5E18.1020800@users.sourceforge.net>
- <alpine.DEB.2.10.1402251014170.2080@hadrien>
- <530CD2C4.4050903@users.sourceforge.net>
- <alpine.DEB.2.10.1402251840450.7035@hadrien>
- <530CF8FF.8080600@users.sourceforge.net>
- <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
- <530DD06F.4090703@users.sourceforge.net>
- <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
- <5317A59D.4@users.sourceforge.net>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/5] mfd: sunxi-gpadc-mfd: add buffer structure
+Date: Sun, 24 Jul 2016 11:32:09 +0100
+Message-ID: <8e64fb86-d59c-c641-ded4-6c9f372e2a56@kernel.org>
+References: <1469003351-15263-1-git-send-email-quentin.schulz@free-electrons.com>
+ <1469003351-15263-3-git-send-email-quentin.schulz@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5317A59D.4@users.sourceforge.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1469003351-15263-3-git-send-email-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Cc: antoine.tenart-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 24 Jul 2016 07:37:23 +0200
+On 20/07/16 09:29, Quentin Schulz wrote:
+> This adds a buffer structure for files including the sunxi-gpadc-mfd
+> header. This structure has a buffer of 32 u32 values to store data from the
+> FIFO of the GPADC of Allwinner SoCs. A buff_size is provided in case the
+> buffer is not full.
+> 
+> Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+I'd roll this into the first patch that uses it.
+Easier to see what is for when reviewing then!
 
-The of_node_put() function tests whether its argument is NULL and then
-returns immediately. Thus the test around the call is not needed.
-
-This issue was detected by using the Coccinelle software.
-
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/input/rmi4/rmi_bus.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
-
-diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-index 253df96..a735806 100644
---- a/drivers/input/rmi4/rmi_bus.c
-+++ b/drivers/input/rmi4/rmi_bus.c
-@@ -232,10 +232,7 @@ err_put_device:
- void rmi_unregister_function(struct rmi_function *fn)
- {
- 	device_del(&fn->dev);
--
--	if (fn->dev.of_node)
--		of_node_put(fn->dev.of_node);
--
-+	of_node_put(fn->dev.of_node);
- 	put_device(&fn->dev);
- }
- 
--- 
-2.9.2
+Jonathan
+> ---
+>  include/linux/mfd/sunxi-gpadc-mfd.h | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/include/linux/mfd/sunxi-gpadc-mfd.h b/include/linux/mfd/sunxi-gpadc-mfd.h
+> index 7155845..f658299 100644
+> --- a/include/linux/mfd/sunxi-gpadc-mfd.h
+> +++ b/include/linux/mfd/sunxi-gpadc-mfd.h
+> @@ -20,4 +20,9 @@ struct sunxi_gpadc_mfd_dev {
+>  	void __iomem			*regs;
+>  };
+>  
+> +struct sunxi_gpadc_buffer {
+> +	u32				buffer[32];
+> +	unsigned int			buff_size;
+> +};
+> +
+>  #endif
+> 

@@ -1,114 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: cros_ec_keyb - cleanup use of dev
-Date: Mon, 25 Jul 2016 13:31:51 -0700
-Message-ID: <20160725203151.GH27415@dtor-ws>
-References: <1469472228-58912-1-git-send-email-briannorris@chromium.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] i2c: cros-ec-tunnel: Fix usage of cros_ec_cmd_xfer()
+Date: Mon, 25 Jul 2016 22:43:13 +0200
+Message-ID: <20160725204313.GA1698@katana>
+References: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
+ <1469470451-111822-2-git-send-email-briannorris@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f68.google.com ([209.85.220.68]:33896 "EHLO
-	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752610AbcGYUby (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jul 2016 16:31:54 -0400
+Received: from sauhun.de ([89.238.76.85]:54880 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752861AbcGYUn1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Jul 2016 16:43:27 -0400
 Content-Disposition: inline
-In-Reply-To: <1469472228-58912-1-git-send-email-briannorris@chromium.org>
+In-Reply-To: <1469470451-111822-2-git-send-email-briannorris@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Brian Norris <briannorris@chromium.org>
-Cc: Brian Norris <computersforpeace@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Douglas Anderson <dianders@chromium.org>
+Cc: Lee Jones <lee.jones@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
-On Mon, Jul 25, 2016 at 11:43:48AM -0700, Brian Norris wrote:
-> From: Douglas Anderson <dianders@chromium.org>
-> 
-> In cros_ec_keyb we stored "dev" in "struct cros_ec_keyb", but this was
-> the EC's dev pointer and not the keyboard's.  Let's clean this up to
-> make it the keyboard's dev pointer.  This could be useful in future
-> patches but also has the nice effect of changing a few printouts to
-> include the name of the keyboard device instead of the EC device, which
-> seems more technically correct.
 
-What is the difference in the output? Could you show old vs new example?
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> Signed-off-by: Douglas Anderson <dianders@chromium.org>
+On Mon, Jul 25, 2016 at 11:14:10AM -0700, Brian Norris wrote:
+> cros_ec_cmd_xfer returns success status if the command transport
+> completes successfully, but the execution result is incorrectly ignored.
+> In many cases, the execution result is assumed to be successful, leading
+> to ignored errors and operating on uninitialized data.
+>=20
+> We've recently introduced the cros_ec_cmd_xfer_status() helper to avoid t=
+hese
+> problems. Let's use it.
+>=20
 > Signed-off-by: Brian Norris <briannorris@chromium.org>
-> ---
->  drivers/input/keyboard/cros_ec_keyb.c | 19 +++++++++----------
->  1 file changed, 9 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> index 6e48616a3a88..ab1b50152b86 100644
-> --- a/drivers/input/keyboard/cros_ec_keyb.c
-> +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> @@ -186,7 +186,7 @@ static irqreturn_t cros_ec_keyb_irq(int irq, void *data)
->  	if (ret >= 0)
->  		cros_ec_keyb_process(ckdev, kb_state, ret);
->  	else
-> -		dev_err(ec->dev, "failed to get keyboard state: %d\n", ret);
-> +		dev_err(ckdev->dev, "failed to get keyboard state: %d\n", ret);
->  
->  	return IRQ_HANDLED;
->  }
-> @@ -236,7 +236,7 @@ static void cros_ec_keyb_compute_valid_keys(struct cros_ec_keyb *ckdev)
->  static int cros_ec_keyb_probe(struct platform_device *pdev)
->  {
->  	struct cros_ec_device *ec = dev_get_drvdata(pdev->dev.parent);
-> -	struct device *dev = ec->dev;
-> +	struct device *dev = &pdev->dev;
->  	struct cros_ec_keyb *ckdev;
->  	struct input_dev *idev;
->  	struct device_node *np;
-> @@ -246,23 +246,22 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
->  	if (!np)
->  		return -ENODEV;
->  
-> -	ckdev = devm_kzalloc(&pdev->dev, sizeof(*ckdev), GFP_KERNEL);
-> +	ckdev = devm_kzalloc(dev, sizeof(*ckdev), GFP_KERNEL);
->  	if (!ckdev)
->  		return -ENOMEM;
-> -	err = matrix_keypad_parse_of_params(&pdev->dev, &ckdev->rows,
-> -					    &ckdev->cols);
-> +	err = matrix_keypad_parse_of_params(dev, &ckdev->rows, &ckdev->cols);
->  	if (err)
->  		return err;
->  
-> -	ckdev->valid_keys = devm_kzalloc(&pdev->dev, ckdev->cols, GFP_KERNEL);
-> +	ckdev->valid_keys = devm_kzalloc(dev, ckdev->cols, GFP_KERNEL);
->  	if (!ckdev->valid_keys)
->  		return -ENOMEM;
->  
-> -	ckdev->old_kb_state = devm_kzalloc(&pdev->dev, ckdev->cols, GFP_KERNEL);
-> +	ckdev->old_kb_state = devm_kzalloc(dev, ckdev->cols, GFP_KERNEL);
->  	if (!ckdev->old_kb_state)
->  		return -ENOMEM;
->  
-> -	idev = devm_input_allocate_device(&pdev->dev);
-> +	idev = devm_input_allocate_device(dev);
->  	if (!idev)
->  		return -ENOMEM;
->  
-> @@ -273,7 +272,7 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
->  
->  	ckdev->ec = ec;
->  	ckdev->dev = dev;
-> -	dev_set_drvdata(&pdev->dev, ckdev);
-> +	dev_set_drvdata(dev, ckdev);
->  
->  	idev->name = CROS_EC_DEV_NAME;
->  	idev->phys = ec->phys_name;
-> @@ -282,7 +281,7 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
->  	idev->id.bustype = BUS_VIRTUAL;
->  	idev->id.version = 1;
->  	idev->id.product = 0;
-> -	idev->dev.parent = &pdev->dev;
-> +	idev->dev.parent = dev;
->  	idev->open = cros_ec_keyb_open;
->  	idev->close = cros_ec_keyb_close;
->  
-> -- 
-> 2.8.0.rc3.226.g39d4020
-> 
 
--- 
-Dmitry
+I agree with Dmitry about Thierry pushing the patch. So:
+
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+
+
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXlnnhAAoJEBQN5MwUoCm2cTgP/05LQBiho0grHj4NTlPiWpce
+kdvBbhyBgigcpxKcxRxQRrkgZMz9HSteJyulfAvvnJw1UEM1vMOT4MlEzkDrAjn4
+PnrpFJiyCeKyzxRLLDkkhaRpBzHzSS82ydAWPIDhLPCp2mdsmpftRO+uL1xHe8rj
+EzKO4ggxiZc51xJRRQjff5znqjAUcZAzuPwjw0HSqoFZOSWA6O+fs1zoO4xJuQGV
++ML1FRlOyhKzldZTx7iZwYtIe5yevFJH5tf2/rqH+1yn9IsrVs9B+4I+xF0amdT1
+Uy3EJ6EDHfQKSBeEWLKqchOL38nKoWUePvuKGDMQWUMyO0q7oYOgUUSMSCPnk1DQ
+THhchL7pFV4blCOzHhWB+HbjeNP2jqp5v8e/4y95dcJXWtivl0MWP8zOHB1eyc4g
+2SVTCYgkUwtca67vIco5iySQDCzkXF5ZHGmYDUaZumJockdPsTY3LRLN4AnXZDng
+EF2tZDgDRddAtodH9ZVDalUO7gEWJ/8Xi4njJlrLCLg4BTfcB4mZ4wsiKUcOc6xt
+IoaTC1TUmmXY5oxxPflmvO0/n/G6/pYV9cjYsdnpPeTtHkRjV77E8Smb8vYkLXrg
+jne24fgidVYfdLLwVXzf9/wX9xEViruzkXn4xRqpVpzOxvXH7INVKfyj2o2VveJk
+Or9Za28+AsP+17UTUdnN
+=hmpg
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--

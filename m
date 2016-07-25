@@ -1,70 +1,110 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] input/mouse/elantech.c: Remove trackpoint related label
-Date: Mon, 25 Jul 2016 11:53:56 +0200
-Message-ID: <20160725095356.GI19383@mail.corp.redhat.com>
-References: <1469281960-27572-1-git-send-email-marcos.souza.org@gmail.com>
+From: Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
+Subject: Re: [PATCH 5/5] mfd: sunxi-gpadc-mfd: probe sunxi-gpadc-ts driver
+Date: Mon, 25 Jul 2016 11:08:27 +0100
+Message-ID: <B06C774E-19BF-43B3-9CA6-8AB67A1D8678@jic23.retrosnub.co.uk>
+References: <1469003351-15263-1-git-send-email-quentin.schulz@free-electrons.com> <1469003351-15263-6-git-send-email-quentin.schulz@free-electrons.com> <20160721060812.GA5993@lukather> <11247e4f-d04d-d5bc-6ebf-a637820c011d@kernel.org> <20160725095113.GJ7419@lukather>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57872 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751805AbcGYJyC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jul 2016 05:54:02 -0400
-Content-Disposition: inline
-In-Reply-To: <1469281960-27572-1-git-send-email-marcos.souza.org@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160725095113.GJ7419@lukather>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Maxime Ripard <maxime.ripard@free-electrons.com>, Jonathan Cameron <jic23@kernel.org>
+Cc: Quentin Schulz <quentin.schulz@free-electrons.com>, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wens@csie.org, dmitry.torokhov@gmail.com, lee.jones@linaro.org, antoine.tenart@free-electrons.com, thomas.petazzoni@free-electrons.com, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ulrik De Bie <ulrik.debie-os@e2big.org>, Takashi Iwai <tiwai@suse.de>, Duson Lin <dusonlin@emc.com.tw>, "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN),
-	linux-kernel@vger.kernel.org (open list)" <linux-input@vger.kernel.org>
 
-Hi,
 
-On Jul 23 2016 or thereabouts, Marcos Paulo de Souza wrote:
-> by rearranging the code to release the trackpoint resource when some error
-> happens.
 
-Is there any advantage of doing so beside trying to remove one goto?
-Because if not, that's the kernel failure style and this is much better
-given that if somebody needs to add other commands after initializing the
-trackstick, and if those command fail, we can then remove the
-trackstick.
+On 25 July 2016 10:51:13 BST, Maxime Ripard <maxime.ripard@free-electrons.com> wrote:
+>Hi Jonathan,
+>
+>On Sun, Jul 24, 2016 at 12:26:56PM +0100, Jonathan Cameron wrote:
+>> >> @@ -142,23 +159,45 @@ static int sunxi_gpadc_mfd_probe(struct
+>platform_device *pdev)
+>> >>  	}
+>> >>  
+>> >>  	if (of_device_is_compatible(pdev->dev.of_node,
+>> >> -				    "allwinner,sun4i-a10-ts"))
+>> >> -		ret = mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+>> >> -				      sun4i_gpadc_mfd_cells,
+>> >> -				      ARRAY_SIZE(sun4i_gpadc_mfd_cells), NULL,
+>> >> -				      0, NULL);
+>> >> -	else if (of_device_is_compatible(pdev->dev.of_node,
+>> >> -					 "allwinner,sun5i-a13-ts"))
+>> >> -		ret = mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+>> >> -				      sun5i_gpadc_mfd_cells,
+>> >> -				      ARRAY_SIZE(sun5i_gpadc_mfd_cells), NULL,
+>> >> -				      0, NULL);
+>> >> -	else if (of_device_is_compatible(pdev->dev.of_node,
+>> >> -					 "allwinner,sun6i-a31-ts"))
+>> >> -		ret = mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+>> >> -				      sun6i_gpadc_mfd_cells,
+>> >> -				      ARRAY_SIZE(sun6i_gpadc_mfd_cells), NULL,
+>> >> -				      0, NULL);
+>> >> +				    "allwinner,sun4i-a10-ts")) {
+>> >> +		if (of_property_read_bool(pdev->dev.of_node,
+>> >> +					  "allwinner,ts-attached"))
+>> >> +			ret = mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+>> >> +					      sun4i_gpadc_mfd_cells_ts,
+>> >> +					      ARRAY_SIZE(sun4i_gpadc_mfd_cells_ts),
+>> >> +					      NULL, 0, NULL);
+>> >> +		else
+>> >> +			ret = mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+>> >> +					      sun4i_gpadc_mfd_cells,
+>> >> +					      ARRAY_SIZE(sun4i_gpadc_mfd_cells),
+>> >> +					      NULL, 0, NULL);
+>> >> +	} else if (of_device_is_compatible(pdev->dev.of_node,
+>> >> +					 "allwinner,sun5i-a13-ts")) {
+>> >> +		if (of_property_read_bool(pdev->dev.of_node,
+>> >> +					  "allwinner,ts-attached"))
+>> >> +			ret = mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+>> >> +					      sun5i_gpadc_mfd_cells_ts,
+>> >> +					      ARRAY_SIZE(sun5i_gpadc_mfd_cells_ts),
+>> >> +					      NULL, 0, NULL);
+>> >> +		else
+>> >> +			ret = mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+>> >> +					      sun5i_gpadc_mfd_cells,
+>> >> +					      ARRAY_SIZE(sun5i_gpadc_mfd_cells),
+>> >> +					      NULL, 0, NULL);
+>> >> +	} else if (of_device_is_compatible(pdev->dev.of_node,
+>> >> +					 "allwinner,sun6i-a31-ts")) {
+>> >> +		if (of_property_read_bool(pdev->dev.of_node,
+>> >> +					  "allwinner,ts-attached"))
+>> >> +			ret = mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+>> >> +					      sun6i_gpadc_mfd_cells_ts,
+>> >> +					      ARRAY_SIZE(sun6i_gpadc_mfd_cells_ts),
+>> >> +					      NULL, 0, NULL);
+>> >> +		else
+>> >> +			ret = mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+>> >> +					      sun6i_gpadc_mfd_cells,
+>> >> +					      ARRAY_SIZE(sun6i_gpadc_mfd_cells),
+>> >> +					      NULL, 0, NULL);
+>> >> +	}
+>> > 
+>> > Please don't use any of_device_is_compatible.
+>> Hi Maxime,
+>> 
+>> Why?  (Just curious...)
+>
+>This is completely redundant. The compatible has already been looked
+>up once to match the driver, and you can associate a void * pointer to
+>any compatible you register in the of_device_id array.
+>
+>So you can just retrieve the compatible that probed you in the first
+>place, and use it's private data pointer to store whatever you want,
+>without the numerous (and expensive) calls to of_device_is_compatible.
+>
+>It's also easier to maintain in the long term, since you can simply
+>add a new field to the structure you would register there, instead of
+>keeping adding more conditions.
+Fair enough, now I get what you mean.
 
-Cheers,
-Benjamin
+Thanks,
 
-> 
-> Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-> ---
->  drivers/input/mouse/elantech.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index be5b399..8c53a17 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -1725,8 +1725,10 @@ int elantech_init(struct psmouse *psmouse)
->  		__set_bit(INPUT_PROP_POINTING_STICK, tp_dev->propbit);
->  
->  		error = input_register_device(etd->tp_dev);
-> -		if (error < 0)
-> -			goto init_fail_tp_reg;
-> +		if (error < 0) {
-> +			input_free_device(tp_dev);
-> +			goto init_fail_tp_alloc;
-> +		}
->  	}
->  
->  	psmouse->protocol_handler = elantech_process_byte;
-> @@ -1735,8 +1737,6 @@ int elantech_init(struct psmouse *psmouse)
->  	psmouse->pktsize = etd->hw_version > 1 ? 6 : 4;
->  
->  	return 0;
-> - init_fail_tp_reg:
-> -	input_free_device(tp_dev);
->   init_fail_tp_alloc:
->  	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj,
->  			   &elantech_attr_group);
-> -- 
-> 2.7.4
-> 
+Jonathan
+>
+>Maxime
+
+-- 
+Sent from my Android device with K-9 Mail. Please excuse my brevity.

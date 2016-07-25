@@ -1,85 +1,41 @@
 From: Brian Norris <briannorris@chromium.org>
-Subject: Re: [PATCH] Input: cros_ec_keyb - cleanup use of dev
-Date: Mon, 25 Jul 2016 13:46:05 -0700
-Message-ID: <20160725204604.GA129467@google.com>
-References: <1469472228-58912-1-git-send-email-briannorris@chromium.org>
- <20160725203151.GH27415@dtor-ws>
+Subject: Re: [PATCH 1/2] i2c: cros-ec-tunnel: Fix usage of cros_ec_cmd_xfer()
+Date: Mon, 25 Jul 2016 13:48:25 -0700
+Message-ID: <20160725204825.GA144142@google.com>
+References: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
+ <1469470451-111822-2-git-send-email-briannorris@chromium.org>
+ <20160725204313.GA1698@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f174.google.com ([209.85.192.174]:33649 "EHLO
-	mail-pf0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753055AbcGYUqI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jul 2016 16:46:08 -0400
-Received: by mail-pf0-f174.google.com with SMTP id y134so67487306pfg.0
-        for <linux-input@vger.kernel.org>; Mon, 25 Jul 2016 13:46:08 -0700 (PDT)
+Return-path: <linux-i2c-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160725203151.GH27415@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20160725204313.GA1698@katana>
+Sender: linux-i2c-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Lee Jones <lee.jones@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Brian Norris <computersforpeace@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Douglas Anderson <dianders@chromium.org>
 
-On Mon, Jul 25, 2016 at 01:31:51PM -0700, Dmitry Torokhov wrote:
-> On Mon, Jul 25, 2016 at 11:43:48AM -0700, Brian Norris wrote:
-> > From: Douglas Anderson <dianders@chromium.org>
+On Mon, Jul 25, 2016 at 10:43:13PM +0200, Wolfram Sang wrote:
+> On Mon, Jul 25, 2016 at 11:14:10AM -0700, Brian Norris wrote:
+> > cros_ec_cmd_xfer returns success status if the command transport
+> > completes successfully, but the execution result is incorrectly ignored.
+> > In many cases, the execution result is assumed to be successful, leading
+> > to ignored errors and operating on uninitialized data.
 > > 
-> > In cros_ec_keyb we stored "dev" in "struct cros_ec_keyb", but this was
-> > the EC's dev pointer and not the keyboard's.  Let's clean this up to
-> > make it the keyboard's dev pointer.  This could be useful in future
-> > patches but also has the nice effect of changing a few printouts to
-> > include the name of the keyboard device instead of the EC device, which
-> > seems more technically correct.
+> > We've recently introduced the cros_ec_cmd_xfer_status() helper to avoid these
+> > problems. Let's use it.
+> > 
+> > Signed-off-by: Brian Norris <briannorris@chromium.org>
 > 
-> What is the difference in the output? Could you show old vs new example?
+> I agree with Dmitry about Thierry pushing the patch. So:
+> 
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
-For instance, on a veyron Chromebook, I see this on bootup with v4.7:
+Fine with me, as long as Thierry is up for it.
 
-# dmesg | grep -e cros-ec -e keyb
-[    0.539153] cros-ec-spi spi0.0: Chrome EC device registered
-[    1.224505] cros-ec-spi spi0.0: valid_keys[00] = 0x14
-[    1.224509] cros-ec-spi spi0.0: valid_keys[01] = 0xff
-[    1.224514] cros-ec-spi spi0.0: valid_keys[02] = 0xff
-[    1.224518] cros-ec-spi spi0.0: valid_keys[03] = 0xff
-[    1.224521] cros-ec-spi spi0.0: valid_keys[04] = 0xff
-[    1.224525] cros-ec-spi spi0.0: valid_keys[05] = 0xf5
-[    1.224529] cros-ec-spi spi0.0: valid_keys[06] = 0xff
-[    1.224533] cros-ec-spi spi0.0: valid_keys[07] = 0xa4
-[    1.224536] cros-ec-spi spi0.0: valid_keys[08] = 0xff
-[    1.224540] cros-ec-spi spi0.0: valid_keys[09] = 0xfe
-[    1.224544] cros-ec-spi spi0.0: valid_keys[10] = 0x55
-[    1.224548] cros-ec-spi spi0.0: valid_keys[11] = 0xfa
-[    1.224551] cros-ec-spi spi0.0: valid_keys[12] = 0xca
-[    1.224632] input: cros_ec as /devices/platform/ff110000.spi/spi_master/spi0/spi0.0/ff110000.spi:ec@0:keyboard-controller/input/input0
+BTW, I think the dependency is on target for v4.8-rc1, so if Thierry
+misses this, then you should be able to apply this yourself after the
+merge window.
 
-and this, with this patch applied:
-
-# dmesg | grep -e cros-ec -e keyb
-[    0.539437] cros-ec-spi spi0.0: Chrome EC device registered
-[    1.224648] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[00] = 0x14
-[    1.224653] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[01] = 0xff
-[    1.224657] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[02] = 0xff
-[    1.224662] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[03] = 0xff
-[    1.224666] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[04] = 0xff
-[    1.224670] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[05] = 0xf5
-[    1.224674] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[06] = 0xff
-[    1.224678] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[07] = 0xa4
-[    1.224682] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[08] = 0xff
-[    1.224686] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[09] = 0xfe
-[    1.224690] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[10] = 0x55
-[    1.224694] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[11] = 0xfa
-[    1.224698] cros-ec-keyb ff110000.spi:ec@0:keyboard-controller: valid_keys[12] = 0xca
-[    1.224779] input: cros_ec as /devices/platform/ff110000.spi/spi_master/spi0/spi0.0/ff110000.spi:ec@0:keyboard-controller/input/input
-
-(both are done with an added '#define DEBUG', since that's easier than fiddling
-with dynamic debug prints)
-
-I think it's important to see the "cros-ec-keyb" driver name, and the
-specific device name is a nice bonus.
-
-Do you want to paste something like this into the commit description, or
-should I resend?
-
-Rebards,
+Regards,
 Brian

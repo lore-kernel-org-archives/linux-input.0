@@ -1,66 +1,96 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/mouse/elantech.c: Remove trackpoint related label
-Date: Mon, 25 Jul 2016 11:35:41 -0700
-Message-ID: <20160725183541.GG27415@dtor-ws>
-References: <1469281960-27572-1-git-send-email-marcos.souza.org@gmail.com>
- <20160725095356.GI19383@mail.corp.redhat.com>
- <CAH0vN5J=hEJ0-BgTDUnRi0Jny34mAGxZ+V9pY3Jnx9uwjxaPKQ@mail.gmail.com>
- <20160725183332.GF27415@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:36627 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753638AbcGYSfo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jul 2016 14:35:44 -0400
-Received: by mail-pa0-f54.google.com with SMTP id pp5so63616621pac.3
-        for <linux-input@vger.kernel.org>; Mon, 25 Jul 2016 11:35:44 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20160725183332.GF27415@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+From: Brian Norris <briannorris@chromium.org>
+Subject: [PATCH] Input: cros_ec_keyb - cleanup use of dev
+Date: Mon, 25 Jul 2016 11:43:48 -0700
+Message-ID: <1469472228-58912-1-git-send-email-briannorris@chromium.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Brian Norris <computersforpeace@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Douglas Anderson <dianders@chromium.org>, Brian Norris <briannorris@chromium.org>
 List-Id: linux-input@vger.kernel.org
-To: Marcos Souza <marcos.souza.org@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ulrik De Bie <ulrik.debie-os@e2big.org>, Takashi Iwai <tiwai@suse.de>, Duson Lin <dusonlin@emc.com.tw>, "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN),
-	linux-kernel@vger.kernel.org (open list)" <linux-input@vger.kernel.org>
 
-On Mon, Jul 25, 2016 at 11:33:32AM -0700, Dmitry Torokhov wrote:
-> On Mon, Jul 25, 2016 at 10:34:28AM +0000, Marcos Souza wrote:
-> > Hi,
-> > 
-> > On Mon, Jul 25, 2016 at 6:54 AM Benjamin Tissoires <
-> > benjamin.tissoires@redhat.com> wrote:
-> > 
-> > > Hi,
-> > >
-> > > On Jul 23 2016 or thereabouts, Marcos Paulo de Souza wrote:
-> > > > by rearranging the code to release the trackpoint resource when some
-> > > error
-> > > > happens.
-> > >
-> > > Is there any advantage of doing so beside trying to remove one goto?
-> > > Because if not, that's the kernel failure style and this is much better
-> > > given that if somebody needs to add other commands after initializing the
-> > > trackstick, and if those command fail, we can then remove the
-> > > trackstick.
-> > >
-> > 
-> > My only reason was to shrink the code a little, by removing a label used
-> 
-> Shrink executable code or source code? I do not see either of them
-> shrinking, you have the same number of code lines and compiler is going
-> to rearrange the instructions the way it sees fit anyway.
+From: Douglas Anderson <dianders@chromium.org>
 
-By the way, it looks like you are taking the addresses from
-git_maitainer.pl but the output is "interesting" to say the least. You
-have
+In cros_ec_keyb we stored "dev" in "struct cros_ec_keyb", but this was
+the EC's dev pointer and not the keyboard's.  Let's clean this up to
+make it the keyboard's dev pointer.  This could be useful in future
+patches but also has the nice effect of changing a few printouts to
+include the name of the keyboard device instead of the EC device, which
+seems more technically correct.
 
-"open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN),
-linux-kernel@vger.kernel.org (open list)" <linux-input@vger.kernel.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+---
+ drivers/input/keyboard/cros_ec_keyb.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-as one of the recipients while.
-
-Thanks.
-
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 6e48616a3a88..ab1b50152b86 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -186,7 +186,7 @@ static irqreturn_t cros_ec_keyb_irq(int irq, void *data)
+ 	if (ret >= 0)
+ 		cros_ec_keyb_process(ckdev, kb_state, ret);
+ 	else
+-		dev_err(ec->dev, "failed to get keyboard state: %d\n", ret);
++		dev_err(ckdev->dev, "failed to get keyboard state: %d\n", ret);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -236,7 +236,7 @@ static void cros_ec_keyb_compute_valid_keys(struct cros_ec_keyb *ckdev)
+ static int cros_ec_keyb_probe(struct platform_device *pdev)
+ {
+ 	struct cros_ec_device *ec = dev_get_drvdata(pdev->dev.parent);
+-	struct device *dev = ec->dev;
++	struct device *dev = &pdev->dev;
+ 	struct cros_ec_keyb *ckdev;
+ 	struct input_dev *idev;
+ 	struct device_node *np;
+@@ -246,23 +246,22 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+ 	if (!np)
+ 		return -ENODEV;
+ 
+-	ckdev = devm_kzalloc(&pdev->dev, sizeof(*ckdev), GFP_KERNEL);
++	ckdev = devm_kzalloc(dev, sizeof(*ckdev), GFP_KERNEL);
+ 	if (!ckdev)
+ 		return -ENOMEM;
+-	err = matrix_keypad_parse_of_params(&pdev->dev, &ckdev->rows,
+-					    &ckdev->cols);
++	err = matrix_keypad_parse_of_params(dev, &ckdev->rows, &ckdev->cols);
+ 	if (err)
+ 		return err;
+ 
+-	ckdev->valid_keys = devm_kzalloc(&pdev->dev, ckdev->cols, GFP_KERNEL);
++	ckdev->valid_keys = devm_kzalloc(dev, ckdev->cols, GFP_KERNEL);
+ 	if (!ckdev->valid_keys)
+ 		return -ENOMEM;
+ 
+-	ckdev->old_kb_state = devm_kzalloc(&pdev->dev, ckdev->cols, GFP_KERNEL);
++	ckdev->old_kb_state = devm_kzalloc(dev, ckdev->cols, GFP_KERNEL);
+ 	if (!ckdev->old_kb_state)
+ 		return -ENOMEM;
+ 
+-	idev = devm_input_allocate_device(&pdev->dev);
++	idev = devm_input_allocate_device(dev);
+ 	if (!idev)
+ 		return -ENOMEM;
+ 
+@@ -273,7 +272,7 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+ 
+ 	ckdev->ec = ec;
+ 	ckdev->dev = dev;
+-	dev_set_drvdata(&pdev->dev, ckdev);
++	dev_set_drvdata(dev, ckdev);
+ 
+ 	idev->name = CROS_EC_DEV_NAME;
+ 	idev->phys = ec->phys_name;
+@@ -282,7 +281,7 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+ 	idev->id.bustype = BUS_VIRTUAL;
+ 	idev->id.version = 1;
+ 	idev->id.product = 0;
+-	idev->dev.parent = &pdev->dev;
++	idev->dev.parent = dev;
+ 	idev->open = cros_ec_keyb_open;
+ 	idev->close = cros_ec_keyb_close;
+ 
 -- 
-Dmitry
+2.8.0.rc3.226.g39d4020

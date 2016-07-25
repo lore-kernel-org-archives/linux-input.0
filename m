@@ -1,76 +1,115 @@
-From: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Subject: Re: [PATCH 4/5] input: touchscreen: support Allwinner SoCs'
- touchscreen
-Date: Mon, 25 Jul 2016 11:45:42 +0200
-Message-ID: <20160725094542.GI7419@lukather>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH 5/5] mfd: sunxi-gpadc-mfd: probe sunxi-gpadc-ts driver
+Date: Mon, 25 Jul 2016 11:51:13 +0200
+Message-ID: <20160725095113.GJ7419@lukather>
 References: <1469003351-15263-1-git-send-email-quentin.schulz@free-electrons.com>
- <1469003351-15263-5-git-send-email-quentin.schulz@free-electrons.com>
- <20160721062950.GB5993@lukather>
- <20160721064140.GA17658@dtor-ws>
+ <1469003351-15263-6-git-send-email-quentin.schulz@free-electrons.com>
+ <20160721060812.GA5993@lukather>
+ <11247e4f-d04d-d5bc-6ebf-a637820c011d@kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="U3s59FfKcByyGl+j"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="utPK4TBebyzZxMrE"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from down.free-electrons.com ([37.187.137.238]:57011 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752481AbcGYJvQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Jul 2016 05:51:16 -0400
 Content-Disposition: inline
-In-Reply-To: <20160721064140.GA17658@dtor-ws>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, antoine.tenart-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <11247e4f-d04d-d5bc-6ebf-a637820c011d@kernel.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Quentin Schulz <quentin.schulz@free-electrons.com>, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wens@csie.org, dmitry.torokhov@gmail.com, lee.jones@linaro.org, antoine.tenart@free-electrons.com, thomas.petazzoni@free-electrons.com, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
 
---U3s59FfKcByyGl+j
+--utPK4TBebyzZxMrE
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Dmitry,
+Hi Jonathan,
 
-On Wed, Jul 20, 2016 at 11:41:40PM -0700, Dmitry Torokhov wrote:
-> On Thu, Jul 21, 2016 at 08:29:50AM +0200, Maxime Ripard wrote:
-> > On Wed, Jul 20, 2016 at 10:29:10AM +0200, Quentin Schulz wrote:
-> > > +	irq =3D regmap_irq_get_virq(sunxi_gpadc_mfd_dev->regmap_irqc, irq);
-> > > +	ret =3D devm_request_any_context_irq(&pdev->dev, irq,
-> > > +					   sunxi_gpadc_tp_up_irq_handler, 0,
-> > > +					   "tp_up", info);
-> > > +	if (ret < 0) {
-> > > +		dev_err(&pdev->dev,
-> > > +			"could not request TP_UP_PENDING interrupt: %d\n", ret);
-> > > +		goto err;
-> > > +	}
+On Sun, Jul 24, 2016 at 12:26:56PM +0100, Jonathan Cameron wrote:
+> >> @@ -142,23 +159,45 @@ static int sunxi_gpadc_mfd_probe(struct platform=
+_device *pdev)
+> >>  	}
+> >> =20
+> >>  	if (of_device_is_compatible(pdev->dev.of_node,
+> >> -				    "allwinner,sun4i-a10-ts"))
+> >> -		ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> >> -				      sun4i_gpadc_mfd_cells,
+> >> -				      ARRAY_SIZE(sun4i_gpadc_mfd_cells), NULL,
+> >> -				      0, NULL);
+> >> -	else if (of_device_is_compatible(pdev->dev.of_node,
+> >> -					 "allwinner,sun5i-a13-ts"))
+> >> -		ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> >> -				      sun5i_gpadc_mfd_cells,
+> >> -				      ARRAY_SIZE(sun5i_gpadc_mfd_cells), NULL,
+> >> -				      0, NULL);
+> >> -	else if (of_device_is_compatible(pdev->dev.of_node,
+> >> -					 "allwinner,sun6i-a31-ts"))
+> >> -		ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> >> -				      sun6i_gpadc_mfd_cells,
+> >> -				      ARRAY_SIZE(sun6i_gpadc_mfd_cells), NULL,
+> >> -				      0, NULL);
+> >> +				    "allwinner,sun4i-a10-ts")) {
+> >> +		if (of_property_read_bool(pdev->dev.of_node,
+> >> +					  "allwinner,ts-attached"))
+> >> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> >> +					      sun4i_gpadc_mfd_cells_ts,
+> >> +					      ARRAY_SIZE(sun4i_gpadc_mfd_cells_ts),
+> >> +					      NULL, 0, NULL);
+> >> +		else
+> >> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> >> +					      sun4i_gpadc_mfd_cells,
+> >> +					      ARRAY_SIZE(sun4i_gpadc_mfd_cells),
+> >> +					      NULL, 0, NULL);
+> >> +	} else if (of_device_is_compatible(pdev->dev.of_node,
+> >> +					 "allwinner,sun5i-a13-ts")) {
+> >> +		if (of_property_read_bool(pdev->dev.of_node,
+> >> +					  "allwinner,ts-attached"))
+> >> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> >> +					      sun5i_gpadc_mfd_cells_ts,
+> >> +					      ARRAY_SIZE(sun5i_gpadc_mfd_cells_ts),
+> >> +					      NULL, 0, NULL);
+> >> +		else
+> >> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> >> +					      sun5i_gpadc_mfd_cells,
+> >> +					      ARRAY_SIZE(sun5i_gpadc_mfd_cells),
+> >> +					      NULL, 0, NULL);
+> >> +	} else if (of_device_is_compatible(pdev->dev.of_node,
+> >> +					 "allwinner,sun6i-a31-ts")) {
+> >> +		if (of_property_read_bool(pdev->dev.of_node,
+> >> +					  "allwinner,ts-attached"))
+> >> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> >> +					      sun6i_gpadc_mfd_cells_ts,
+> >> +					      ARRAY_SIZE(sun6i_gpadc_mfd_cells_ts),
+> >> +					      NULL, 0, NULL);
+> >> +		else
+> >> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
+> >> +					      sun6i_gpadc_mfd_cells,
+> >> +					      ARRAY_SIZE(sun6i_gpadc_mfd_cells),
+> >> +					      NULL, 0, NULL);
+> >> +	}
 > >=20
-> > You enable the interrupts...
-> >=20
-> > > +	info->tp_up_irq =3D irq;
-> > > +	disable_irq(irq);
-> > > +
-> > > +	ret =3D input_register_device(input);
-> > > +	if (ret) {
-> > > +		dev_err(&pdev->dev, "failed to register input device\n");
-> > > +		goto err;
-> > > +	}
-> >=20
-> > ... but your driver isn't registered yet. How does input_report and
-> > input_sync behave in such a case?
+> > Please don't use any of_device_is_compatible.
+> Hi Maxime,
 >=20
-> This is explicitly allowed:
->=20
-> "
-> ...
->  * NOTE: input_event() may be safely used right after input device was
->  * allocated with input_allocate_device(), even before it is registered
->  * with input_register_device(), but the event will not reach any of the
->  * input handlers. Such early invocation of input_event() may be used
->  * to 'seed' initial state of a switch or initial position of absolute
->  * axis, etc.
->  */
-> "
+> Why?  (Just curious...)
 
-Good to know. Still, it feels like it should be handled explicitly,
-instead of relying on the fact that we only call input_event in our
-handler and that it works that way.
+This is completely redundant. The compatible has already been looked
+up once to match the driver, and you can associate a void * pointer to
+any compatible you register in the of_device_id array.
 
-Thanks,
+So you can just retrieve the compatible that probed you in the first
+place, and use it's private data pointer to store whatever you want,
+without the numerous (and expensive) calls to of_device_is_compatible.
+
+It's also easier to maintain in the long term, since you can simply
+add a new field to the structure you would register there, instead of
+keeping adding more conditions.
+
 Maxime
 
 --=20
@@ -78,25 +117,25 @@ Maxime Ripard, Free Electrons
 Embedded Linux and Kernel engineering
 http://free-electrons.com
 
---U3s59FfKcByyGl+j
+--utPK4TBebyzZxMrE
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXld/GAAoJEBx+YmzsjxAgoDkQAK/0llggCKpX/rro04nf3efp
-fQfNUf1Pf2xs2AR7HDDBs6XySakrVZtUR1hgSRg5+MfM/dMFmG40sQ/m+RX9me0I
-B76ksA8pNR/FszHQuphOYWCg2uulvDgjv1dSeYP2uvP1ilCb8fBxt/yFrJGEJ5H1
-VoGRQtrr/waet5VOaZCCh4rt+w7jCeIvqGO/Ly+OHWPWRIFUXyVoC/Eu9fOKAGu3
-erQ81mTW7WbTp6eL6LMZ846AiYeqMWHjHOyBJhDygsIoJWcMD7SaQSfJKo8LZTAY
-+ZZscTHKnfnUqk+eKCBA+Gd+5alk9JlRB2LbeLzGFV9E6Uld3HxptADjt2Yb30A+
-A6oYdLvK3k2f+eoRXVMRgxE1DyBajijXmw/YFvj43I4HThwbcOwYXMBkkJWCJsFz
-TS0EvFm7494jURoUgE9NXbPTVim5nb58tsAYO2iIoJILVuBGscUbfyXgGQt7XldN
-h8XO5+Mui/58NJWjkzwg58D6x9vDFy0lifQqfujl7R5qH0mNWU8ZTS87s5CHnRIZ
-wc7DWur8YhS7fgieA2Yqc5osx3R2R+vVdk3SIwLW0JLNJitlWKQKvLjxNoh4q/zo
-R+T+KUZ9oLhzf2sMNXdx3QxkZMSjq1D9xmVgM4O+rlOOCrItQIPwzgap9qSKzOm/
-I3uwwIWB93aq6S6AVyQK
-=RIpj
+iQIcBAEBAgAGBQJXleERAAoJEBx+YmzsjxAgX7kQAJoEupOox4ImwUSSmWxDYYJy
+qHR7T+BXL8+5J9VoqPRvNgbq5DeF0boxFk8OO22VQsrUtLf73GWh6RzSGTqSOMuF
+zd1VXivDVR/sYz3otsfmex+KBF+mN7dk423BzRRg5PaHOJxYpoyO5KOnWIedwwA0
+51Ar0+IfKI+s7i2PXKJNvjklP7/r/kE6SyaL8i7UK/gLk4mmCwxP/E4qj1bO8+LW
+aUXsuxMw755uwp7CLz0tble3qsgoov3d6pSBXJs/Mh1fCemWUey4m2lOjhs0zLyr
+8QiadVTHbITF1YR6K6Av9eqt2RLx9cXpsBdGbVZl6VDZqBSRdmEqaALx6LIdUHx6
+4f/9M+xm9VLU9lftj2F8U2dPhoOsmdHLU9Qwa4MS0ClrBJ+GzBneNlkNGQXa0sWO
+AG9OTp8Fap/AnxCJh7ZQNSnF5J/KVXr/y+dYrStFMmfnvIZpwuQ/djuN0mv+0d/z
+XJchrjJfMs6nH/cVkNXYoOfrpRrJUzGjzChz6DMb6YhnYNDxMi0N3/VUcV13f0DR
+iAU57+Nq9Oasv7qVbbm7LUF4eyhUXzIPaUpkkra0SJHtk8TmESF1GUSjZlhwzHNG
+lX9+Zedi/53j6YdB0xDF+nXCslRwQwDmyWodCv1pMc4vy4LQi6qti1THPwawQ8e1
+GEPnyECFdqb25aeFy2Oy
+=OLBG
 -----END PGP SIGNATURE-----
 
---U3s59FfKcByyGl+j--
+--utPK4TBebyzZxMrE--

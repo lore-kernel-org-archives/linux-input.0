@@ -1,47 +1,100 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v3 3/8] Input: synaptics-rmi4: Add dribble and palm
- gesture parameters to device tree
-Date: Sun, 24 Jul 2016 16:29:23 +0200
-Message-ID: <CACRpkdZp2htovazproVH9eeAr6bwE32hP4w2=jV-M68B5p0CNg@mail.gmail.com>
-References: <1468476522-8032-1-git-send-email-aduggan@synaptics.com>
- <20160722165239.GA5036@dtor-ws> <682368c2-5692-5905-7538-36ce2e3d262f@synaptics.com>
+From: "Zheng, Lv" <lv.zheng@intel.com>
+Subject: RE: [PATCH v5 1/3] ACPI / button: Add missing event to keep SW_LID
+ running without additional event loss
+Date: Mon, 25 Jul 2016 00:24:40 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E883BC064C3@SHSMSX101.ccr.corp.intel.com>
+References: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com>
+ <0d28076e25047db356eeedbb2d8ae204f0ec893d.1469168549.git.lv.zheng@intel.com>
+ <28281261.FVpbmPGRnZ@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f45.google.com ([209.85.218.45]:34350 "EHLO
-	mail-oi0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751452AbcGXO3Y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 24 Jul 2016 10:29:24 -0400
-Received: by mail-oi0-f45.google.com with SMTP id l65so221452146oib.1
-        for <linux-input@vger.kernel.org>; Sun, 24 Jul 2016 07:29:24 -0700 (PDT)
-In-Reply-To: <682368c2-5692-5905-7538-36ce2e3d262f@synaptics.com>
+Received: from mga02.intel.com ([134.134.136.20]:45436 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751862AbcGYAYq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 24 Jul 2016 20:24:46 -0400
+In-Reply-To: <28281261.FVpbmPGRnZ@vostro.rjw.lan>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick@shmanahar.org>, Chris Healy <cphealy@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh@kernel.org>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "Bastien Nocera:" <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Fri, Jul 22, 2016 at 8:32 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
-
-> If the firmware was configured incorrectly it might just be easier to add a
-> device tree entry. This would allow platform owners to make the change
-> without having to get Synaptics involved or have access to our tools.
-> Customers have also requested using the same module and firmware across
-> multiple platforms. Tracking which firmware is on which part would create an
-> additional support burden and not all platforms have an automated way of
-> checking and updating firmware versions in the event that a system is build
-> with a module which has the incorrect firmware.
-
-I think it's a valid argument.
-
-That said, the world needs more of
-drivers/scsi/aic7xxx
-
-That driver has the firmware generation, including an assembler, in the
-kernel tree. Pretty cool eh?
-
-(I know it is a thick thing to ask, just want to give you an idea of what
-is possible...)
-
-Yours,
-Linus Walleij
+SGksIFJhZmFlbA0KDQo+IEZyb206IFJhZmFlbCBKLiBXeXNvY2tpIFttYWlsdG86cmp3QHJqd3lz
+b2NraS5uZXRdDQo+IFNlbnQ6IFNhdHVyZGF5LCBKdWx5IDIzLCAyMDE2IDg6MzcgUE0NCj4gU3Vi
+amVjdDogUmU6IFtQQVRDSCB2NSAxLzNdIEFDUEkgLyBidXR0b246IEFkZCBtaXNzaW5nIGV2ZW50
+IHRvIGtlZXANCj4gU1dfTElEIHJ1bm5pbmcgd2l0aG91dCBhZGRpdGlvbmFsIGV2ZW50IGxvc3MN
+Cj4gDQo+IE9uIEZyaWRheSwgSnVseSAyMiwgMjAxNiAwMjoyNDo0MiBQTSBMdiBaaGVuZyB3cm90
+ZToNCj4gPiBUaGVyZSBhcmUgc2V2ZXJhbCBwb3NzaWJpbGl0aWVzIHRoYXQgYSBsaWQgZXZlbnQg
+Y2FuIGJlIGxvc3QuIEZvciBleGFtcGxlLA0KPiA+IEVDIGV2ZW50IHF1ZXVlIGZ1bGwsIG9yIHRo
+ZSByZXN1bWUgb3JkZXIgb2YgdGhlIHVuZGVybHlpbmcgZHJpdmVycy4NCj4gPg0KPiA+IFdoZW4g
+dGhlIGV2ZW50IGxvc3MgaGFwcGVucywgbmV3IGV2ZW50IG1heSBhbHNvIGJlIGxvc3QgZHVlIHRv
+IHRoZQ0KPiB0eXBlIG9mDQo+ID4gdGhlIFNXX0xJRCAoc3dpdGNoIGV2ZW50KS4gVGhlIDJuZCBs
+b3NzIGlzIHdoYXQgd2Ugd2FudCB0byBhdm9pZC4NCj4gPg0KPiA+IFRoaXMgcGF0Y2ggYWRkcyBh
+IG1lY2hhbmlzbSB0byBpbnNlcnQgbGlkIGV2ZW50cyBhcyBhIGNvbXBlbnNhdGlvbiBmb3INCj4g
+dGhlDQo+ID4gc3dpdGNoIGV2ZW50IG5hdHVyZSBvZiB0aGUgbGlkIGV2ZW50cyBpbiBvcmRlciB0
+byBhdm9pZCB0aGUgMm5kIGxvc3MuDQo+IA0KPiBDYW4geW91IHBsZWFzZSBwcm92aWRlIGEgaGln
+aC1sZXZlbCBkZXNjcmlwdGlvbiBvZiB0aGUgbmV3IG1lY2hhbmlzbQ0KPiBoZXJlPw0KW0x2IFpo
+ZW5nXSANCk9LLg0KDQpBbmQgSU1PLCB0aGlzIGZpeCBpcyBhIGZpeCB0byB0aGUgb3JpZ2luYWwg
+QUNQSSBidXR0b24gZHJpdmVyLg0KSXQgaXMgbm90IGRlcGVuZGVudCBvbiB0aGUgaW5wdXQgbGF5
+ZXIuDQpXaXRob3V0IHRoZSBmaW5hbCBhZ3JlZW1lbnQgb2YgdGhlIEFCSSBjaGFuZ2UuDQpXZSBz
+dGlsbCBjYW4gZ2V0IHRoaXMgc2hpcHBlZCBpbiB0aGUgdXBzdHJlYW0uDQoNCklmIHRoZSBBQkkg
+aXMgZGV0ZXJtaW5lZCB0byB1c2UgdGhlIG5ldyBLRVlfTElEX1hYIGV2ZW50cywgSSdsbCBzZW5k
+IGEgc2VyaWVzIGluY2x1ZGluZyAyIHBhdGNoZXMuDQpJZiB0aGUgQUJJIGlzIGRldGVybWluZWQg
+dG8gdXNlIHRoZSBvbGQgU1dfTElEIGV2ZW50LCBJJ2xsIHNlbmQgYSBzZXJpZXMgaW5jbHVkaW5n
+IG9ubHkgdGhlIGRvY3VtZW50YXRpb24uDQoNCkxldCBtZSBzZW5kIHRoaXMgZml4IHNlcGFyYXRl
+bHkuDQoNClRoYW5rcyBhbmQgYmVzdCByZWdhcmRzDQotTHYNCg0KPiANCj4gPg0KPiA+IFNpZ25l
+ZC1vZmYtYnk6IEx2IFpoZW5nIDxsdi56aGVuZ0BpbnRlbC5jb20+DQo+ID4gQ2M6IERtaXRyeSBU
+b3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4NCj4gPiBDYzogQmVuamFtaW4gVGlz
+c29pcmVzIDxiZW5qYW1pbi50aXNzb2lyZXNAZ21haWwuY29tPg0KPiA+IENjOiBCYXN0aWVuIE5v
+Y2VyYTogPGhhZGVzc0BoYWRlc3MubmV0Pg0KPiA+IENjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5l
+bC5vcmcNCj4gPiAtLS0NCj4gPiAgZHJpdmVycy9hY3BpL2J1dHRvbi5jIHwgICAyMSArKysrKysr
+KysrKysrKysrKysrKy0NCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDIwIGluc2VydGlvbnMoKyksIDEg
+ZGVsZXRpb24oLSkNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2FjcGkvYnV0dG9uLmMg
+Yi9kcml2ZXJzL2FjcGkvYnV0dG9uLmMNCj4gPiBpbmRleCAxNDhmNGU1Li40MWZkMjFkIDEwMDY0
+NA0KPiA+IC0tLSBhL2RyaXZlcnMvYWNwaS9idXR0b24uYw0KPiA+ICsrKyBiL2RyaXZlcnMvYWNw
+aS9idXR0b24uYw0KPiA+IEBAIC0xMDQsNiArMTA0LDggQEAgc3RydWN0IGFjcGlfYnV0dG9uIHsN
+Cj4gPiAgCXN0cnVjdCBpbnB1dF9kZXYgKmlucHV0Ow0KPiA+ICAJY2hhciBwaHlzWzMyXTsJCQkv
+KiBmb3IgaW5wdXQgZGV2aWNlICovDQo+ID4gIAl1bnNpZ25lZCBsb25nIHB1c2hlZDsNCj4gPiAr
+CWludCBzd19sYXN0X3N0YXRlOw0KPiA+ICsJdW5zaWduZWQgbG9uZyBzd19sYXN0X3RpbWU7DQo+
+ID4gIAlib29sIHN1c3BlbmRlZDsNCj4gPiAgfTsNCj4gPg0KPiA+IEBAIC0xMTEsNiArMTEzLDEw
+IEBAIHN0YXRpYw0KPiBCTE9DS0lOR19OT1RJRklFUl9IRUFEKGFjcGlfbGlkX25vdGlmaWVyKTsN
+Cj4gPiAgc3RhdGljIHN0cnVjdCBhY3BpX2RldmljZSAqbGlkX2RldmljZTsNCj4gPiAgc3RhdGlj
+IHU4IGxpZF9pbml0X3N0YXRlID0gQUNQSV9CVVRUT05fTElEX0lOSVRfTUVUSE9EOw0KPiA+DQo+
+ID4gK3N0YXRpYyB1bnNpZ25lZCBsb25nIGxpZF9yZXBvcnRfaW50ZXJ2YWwgX19yZWFkX21vc3Rs
+eSA9IDUwMDsNCj4gPiArbW9kdWxlX3BhcmFtKGxpZF9yZXBvcnRfaW50ZXJ2YWwsIHVsb25nLCAw
+NjQ0KTsNCj4gPiArTU9EVUxFX1BBUk1fREVTQyhsaWRfcmVwb3J0X2ludGVydmFsLCAiSW50ZXJ2
+YWwgKG1zKSBiZXR3ZWVuIGxpZA0KPiBrZXkgZXZlbnRzIik7DQo+ID4gKw0KPiA+ICAvKiAtLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLQ0KPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBGUyBJbnRl
+cmZhY2UgKC9wcm9jKQ0KPiA+ICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAqLw0KPiA+IEBAIC0xMzMs
+MTEgKzEzOSwyMiBAQCBzdGF0aWMgaW50IGFjcGlfbGlkX2V2YWx1YXRlX3N0YXRlKHN0cnVjdA0K
+PiBhY3BpX2RldmljZSAqZGV2aWNlKQ0KPiA+ICBzdGF0aWMgaW50IGFjcGlfbGlkX25vdGlmeV9z
+dGF0ZShzdHJ1Y3QgYWNwaV9kZXZpY2UgKmRldmljZSwgaW50IHN0YXRlKQ0KPiA+ICB7DQo+ID4g
+IAlzdHJ1Y3QgYWNwaV9idXR0b24gKmJ1dHRvbiA9IGFjcGlfZHJpdmVyX2RhdGEoZGV2aWNlKTsN
+Cj4gPiArCXVuc2lnbmVkIGxvbmcgc3dfdG91dDsNCj4gPiAgCWludCByZXQ7DQo+ID4NCj4gPiAt
+CS8qIGlucHV0IGxheWVyIGNoZWNrcyBpZiBldmVudCBpcyByZWR1bmRhbnQgKi8NCj4gPiArCS8q
+IFNlbmQgdGhlIHN3aXRjaCBldmVudCAqLw0KPiA+ICsJc3dfdG91dCA9IGJ1dHRvbi0+c3dfbGFz
+dF90aW1lICsNCj4gPiArCQkgIG1zZWNzX3RvX2ppZmZpZXMobGlkX3JlcG9ydF9pbnRlcnZhbCk7
+DQo+IA0KPiBJcyBpdCByZWFsbHkgbmVjZXNzYXJ5IHRvIHVzZSBqaWZmaWVzIGhlcmU/DQo+IA0K
+PiA+ICsJaWYgKHRpbWVfYWZ0ZXIoamlmZmllcywgc3dfdG91dCkgJiYNCj4gPiArCSAgICAoYnV0
+dG9uLT5zd19sYXN0X3N0YXRlID09ICEhc3RhdGUpKSB7DQo+IA0KPiBUaGUgaW5uZXIgcGFyZW5z
+IGFyZSBub3QgbmVjZXNzYXJ5Lg0KPiANCj4gQW5kIHdoeSBub3QganVzdCBidXR0b24tPnN3X2xh
+c3Rfc3RhdGUgPT0gc3RhdGU/DQo+IA0KPiA+ICsJCS8qIFNlbmQgdGhlIGNvbXBsZW1lbnQgc3dp
+dGNoIGV2ZW50ICovDQo+ID4gKwkJaW5wdXRfcmVwb3J0X3N3aXRjaChidXR0b24tPmlucHV0LCBT
+V19MSUQsIHN0YXRlKTsNCj4gPiArCQlpbnB1dF9zeW5jKGJ1dHRvbi0+aW5wdXQpOw0KPiA+ICsJ
+fQ0KPiA+ICAJaW5wdXRfcmVwb3J0X3N3aXRjaChidXR0b24tPmlucHV0LCBTV19MSUQsICFzdGF0
+ZSk7DQo+ID4gIAlpbnB1dF9zeW5jKGJ1dHRvbi0+aW5wdXQpOw0KPiA+ICsJYnV0dG9uLT5zd19s
+YXN0X3N0YXRlID0gISFzdGF0ZTsNCj4gPiArCWJ1dHRvbi0+c3dfbGFzdF90aW1lID0gamlmZmll
+czsNCj4gPg0KPiA+ICAJaWYgKHN0YXRlKQ0KPiA+ICAJCXBtX3dha2V1cF9ldmVudCgmZGV2aWNl
+LT5kZXYsIDApOw0KPiA+IEBAIC00MDcsNiArNDI0LDggQEAgc3RhdGljIGludCBhY3BpX2J1dHRv
+bl9hZGQoc3RydWN0IGFjcGlfZGV2aWNlDQo+ICpkZXZpY2UpDQo+ID4gIAkJc3RyY3B5KG5hbWUs
+IEFDUElfQlVUVE9OX0RFVklDRV9OQU1FX0xJRCk7DQo+ID4gIAkJc3ByaW50ZihjbGFzcywgIiVz
+LyVzIiwNCj4gPiAgCQkJQUNQSV9CVVRUT05fQ0xBU1MsDQo+IEFDUElfQlVUVE9OX1NVQkNMQVNT
+X0xJRCk7DQo+ID4gKwkJYnV0dG9uLT5zd19sYXN0X3N0YXRlID0gISFhY3BpX2xpZF9ldmFsdWF0
+ZV9zdGF0ZShkZXZpY2UpOw0KPiA+ICsJCWJ1dHRvbi0+c3dfbGFzdF90aW1lID0gamlmZmllczsN
+Cj4gPiAgCX0gZWxzZSB7DQo+ID4gIAkJcHJpbnRrKEtFUk5fRVJSIFBSRUZJWCAiVW5zdXBwb3J0
+ZWQgaGlkIFslc11cbiIsIGhpZCk7DQo+ID4gIAkJZXJyb3IgPSAtRU5PREVWOw0KPiA+DQo+IA0K
+PiBUaGFua3MsDQo+IFJhZmFlbA0KDQo=

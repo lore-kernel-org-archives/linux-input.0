@@ -1,41 +1,40 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: [PATCH 0/2] Fix elantech touchpad after suspend/resume
-Date: Mon, 25 Jul 2016 14:27:25 -0300
-Message-ID: <1469467645-2602-1-git-send-email-marcos.souza.org@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:35496 "EHLO
-	mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753027AbcGYR1x (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jul 2016 13:27:53 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Brian Norris <briannorris@chromium.org>
+Subject: [PATCH 0/2] cros_ec: utilize cros_ec_cmd_xfer_status()
+Date: Mon, 25 Jul 2016 11:14:09 -0700
+Message-ID: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Sender: linux-i2c-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Brian Norris <briannorris@chromium.org>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, aurelien@francillon.net, rafael.j.wysocki@intel.com, tiwai@suse.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
 
-Hi guys,
+Hi all,
 
-this is an attempt to fix problem os Asus laptops which touchpads
-stop to work after a suspend/resume. It's kind of a big hammer, but I couldn't
-find any other way to do it.
+I was sorting through some out-of-tree patches to these drivers, and I realized
+we should probably start making use of cros_ec_cmd_xfer_status() in these
+drivers, now that Thierry has queued them up for v4.8; see:
 
-As described in the first patch, when i8042 controller receives a selftest in some
-models of elantech touchpads, the elantech driver fails to detect the device.
+  git://git.kernel.org/pub/scm/linux/kernel/git/thierry.reding/linux-pwm.git
+  refs/heads/for-4.8/mfd
 
-Is there any other alternative to fix this problem in a more elegant way?
+  9798ac6d32c1 mfd: cros_ec: Add cros_ec_cmd_xfer_status() helper
 
-Thanks,
+Thierry originally provided the above branch for Lee's sake, but I don't see
+why (if these are deemed fixes worthy of v4.8) that can't be pulled by Wolfram
+and/or Dmitry for their respective subsystems' patches.
 
-Marcos Paulo de Souza (2):
-  input/serio/i8042: Skip selftest on i8042 controller in some ASUS
-    laptops
-  kernel-parameters.txt: Add new entry for i8042.noselftest
+Please review.
 
- Documentation/kernel-parameters.txt   |  3 ++
- drivers/input/serio/i8042-x86ia64io.h | 57 +++++++++++++++++++++++++++++++++++
- drivers/input/serio/i8042.c           | 10 ++++++
- 3 files changed, 70 insertions(+)
+Regards,
+Brian
+
+Brian Norris (2):
+  i2c: cros-ec-tunnel: Fix usage of cros_ec_cmd_xfer()
+  Input: cros_ec_keyb - Fix usage of cros_ec_cmd_xfer()
+
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c | 2 +-
+ drivers/input/keyboard/cros_ec_keyb.c   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 -- 
-2.7.4
-
+2.8.0.rc3.226.g39d4020

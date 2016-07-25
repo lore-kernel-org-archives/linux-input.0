@@ -1,100 +1,118 @@
-From: "Zheng, Lv" <lv.zheng@intel.com>
-Subject: RE: [PATCH v4 2/2] ACPI / button: Add document for ACPI control
- method lid device restrictions
-Date: Mon, 25 Jul 2016 00:38:45 +0000
-Message-ID: <1AE640813FDE7649BE1B193DEA596E883BC064D9@SHSMSX101.ccr.corp.intel.com>
+From: Lv Zheng <lv.zheng@intel.com>
+Subject: [PATCH v6] ACPI / button: Fix an issue that the platform triggered "close" event may not be delivered to the userspace
+Date: Mon, 25 Jul 2016 09:14:09 +0800
+Message-ID: <406eadafbc6e4e7a307ec9af7eed11c46cae7ad8.1469409047.git.lv.zheng@intel.com>
 References: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com>
-	 <84ca7337d20620946b671f212abfc82698ddcbf4.1468915808.git.lv.zheng@intel.com>
-	 <20160721203246.GA9841@dtor-ws>
-	 <1AE640813FDE7649BE1B193DEA596E883BC05AAA@SHSMSX101.ccr.corp.intel.com>
-	 <20160722043707.GB7060@dtor-ws>
-	 <CAN+gG=EArk3tPDkyim8eoxOXHHb7QNRXe4o4zAVs+M6x8ZPrSA@mail.gmail.com>
-	 <1AE640813FDE7649BE1B193DEA596E883BC05D77@SHSMSX101.ccr.corp.intel.com>
-	 <CAN+gG=FBE1e96qZsbAvV7gCizMByca3m38-qt=8ftsSXYFyQhA@mail.gmail.com>
- <1469359736.6761.110.camel@hadess.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1469359736.6761.110.camel@hadess.net>
-Content-Language: en-US
-Sender: linux-acpi-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Zhang, Rui" <rui.zhang@intel.com>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>
+Cc: Lv Zheng <lv.zheng@intel.com>, Lv Zheng <zetalog@gmail.com>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "Bastien Nocera:" <hadess@hadess.net>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-SGksIEJhc3RpZW4NCg0KPiBGcm9tOiBCYXN0aWVuIE5vY2VyYSBbbWFpbHRvOmhhZGVzc0BoYWRl
-c3MubmV0XQ0KPiBTdWJqZWN0OiBSZTogW1BBVENIIHY0IDIvMl0gQUNQSSAvIGJ1dHRvbjogQWRk
-IGRvY3VtZW50IGZvciBBQ1BJIGNvbnRyb2wNCj4gbWV0aG9kIGxpZCBkZXZpY2UgcmVzdHJpY3Rp
-b25zDQo+IA0KPiBPbiBGcmksIDIwMTYtMDctMjIgYXQgMTE6MDggKzAyMDAsIEJlbmphbWluIFRp
-c3NvaXJlcyB3cm90ZToNCj4gPg0KPiA8c25pcD4NCj4gPiBUaGVuIHlvdSBqdXN0IG5lZWQgdG8g
-YW1lbmQgdGhlIGRvY3VtZW50YXRpb24gdG8gc2F5IHRoYXQgdGhlDQo+ID4gZmFsbGJhY2sNCj4g
-PiBvZiB0aGUgS0VZIGV2ZW50cyBpcyBub3QgdGhlICJmdXR1cmUiIGJ1dCBhIHdheSB0byBnZXQg
-ZXZlbnRzIG9uIHNvbWUNCj4gPiByZWR1Y2VkIHBsYXRmb3JtcyBhbmQgaXQgd2lsbCBub3QgYmUg
-dGhlIGRlZmF1bHQuDQo+ID4gUGxlYXNlIG1ha2Ugc3VyZSB1c2Vyc3BhY2Uga25vd3MgdGhhdCB0
-aGUgZGVmYXVsdCBpcyB0aGUgZ29vZCBTV19MSUQsDQo+ID4gYW5kIHNvbWUgcGFydGljdWxhciBj
-YXNlcyB3aWxsIG5lZWQgdG8gYmUgaGFuZGxlZCB0aHJvdWdoIHRoZSBLRVkNCj4gPiBldmVudHMs
-IG5vdCB0aGUgb3RoZXIgd2F5IGFyb3VuZC4NCj4gPg0KPiA+IFtmZXcgdGhvdWdodHMgbGF0ZXJd
-DQo+ID4NCj4gPiBIb3cgYWJvdXQ6DQo+ID4gLSB5b3Ugc2VuZCBvbmx5IG9uZSBwYXRjaCB3aXRo
-IHRoZSBTV19MSUQgT04vT0ZGIG9yIE9GRi9PTiB3aGVuIHdlDQo+ID4gcmVjZWl2ZSB0aGUgbm90
-aWZpY2F0aW9uIG9uIGJ1Z2d5IHBsYXRmb3JtDQo+ID4gLSBpbiB0aGUgc2FtZSBwYXRjaCwgeW91
-IGFkZCB0aGUgZG9jdW1lbnRhdGlvbiBzYXlpbmcgdGhhdCBvbiBtb3N0DQo+ID4gcGxhdGZvcm1z
-LCBMSUQgaXMgcmVsaWFibGUgYnV0IHNvbWUgZG9uJ3QgcHJvdmlkZSBhIHJlbGlhYmxlIExJRA0K
-PiA+IHN0YXRlLCBidXQgeW91IGd1YXJhbnRlZSB0byBzZW5kIGFuIGV2ZW50IHdoZW4gdGhlIHN0
-YXRlIGNoYW5nZXMNCj4gPiAtIGluIHVzZXJzcGFjZSwgd2UgYWRkIHRoZSBod2RiIHdoaWNoIHNh
-eXMgIm9uIHRoaXMgcGFydGljdWxhcg0KPiA+IHBsYXRmb3JtLCBkb24ndCByZWx5IG9uIHRoZSBh
-Y3R1YWwgc3RhdGUsIGJ1dCB3YWl0IGZvciBldmVudHMiIC0+DQo+ID4gdGhpcw0KPiA+IGJhc2lj
-YWxseSByZW1vdmVzIHRoZSBwb2xsaW5nIG9uIHRoZXNlIHBsYXRmb3Jtcy4NCj4gPg0KPiA+IEJh
-c3RpZW4sIERtaXRyeT8NCj4gPg0KPiA+IEkgc3RpbGwgZG9uJ3QgbGlrZSByZWx5aW5nIG9uIHVz
-ZXJzcGFjZSB0byBhY3R1YWxseSBzZXQgdGhlIFNXX0xJRA0KPiA+IGJhY2sgdG8gb3BlbiBvbiBy
-ZXN1bWUsIGFzIHdlIHNob3VsZCBub3QgcmVseSBvbiBzb21lIHVzZXJzcGFjZQ0KPiA+IHByb2dy
-YW0gdG8gc2V0IHRoZSB2YWx1ZSAoYnV0IGlmIGxvZ2luZCByZWFsbHkgd2FudHMgaXQsIGl0J3Mg
-dXAgdG8NCj4gPiB0aGVtKS4NCj4gDQo+IEZyb20gbXkgcG9pbnQgb2YgdmlldywgSSB3b3VsZCBv
-bmx5IHNlbmQgdGhlIGV2ZW50cyB0aGF0IGNhbiBhY3R1YWxseQ0KPiBiZSBnZW5lcmF0ZWQgYnkg
-dGhlIHN5c3RlbSwgbm90IGFueSBzeW50aGV0aWMgb25lcywgYmVjYXVzZSB1c2VyLXNwYWNlDQo+
-IHdvdWxkIGhhdmUgbm8gd2F5IHRvIGtub3cgdGhhdCB0aGlzIHdhcyBzeW50aGV0aWMsIGFuZCBo
-b3cgYWNjdXJhdGUgaXQNCj4gd291bGQgYmUuDQo+IA0KPiBTbyB3ZSdkIGhhdmUgYSBzZXBhcmF0
-ZSBBUEksIG9yIGEgc2VwYXJhdGUgZXZlbnQgZm9yIHRoZSAiY2xvc2UgdG8NCj4gV2luZG93cyBi
-ZWhhdmlvdXIiIGRldmljZXMuIFdlJ2QgdGhlbiB1c2UgaHdkYiBpbiB1ZGV2IHRvIHRhZyB0aGUN
-Cj4gbWFjaGluZXMgdGhhdCBkb24ndCBoYXZlIGEgcmVsaWFibGUgTElEIHN0YXR1cywgaW4gdXNl
-ci1zcGFjZSwgc28gd2UNCj4gY2FuIGhhdmUgYSBxdWljayB0dXJuIGFyb3VuZCBmb3IgdGhvc2Ug
-bWFjaGluZXMuDQo+IA0KPiBUaGF0IHNob3VsZCBob3BlZnVsbHkgZ2l2ZSB1cyBhIHdheSB0byB0
-YWcgdGVzdCBzeXN0ZW1zLCBzbyB3ZSBjYW4gdGVzdA0KPiB0aGUgbmV3IGJlaGF2aW91ciwgdGhv
-dWdoIHdlJ2xsIGNlcnRhaW5seSBuZWVkIHRvIGhhdmUgc29tZSBjaGFuZ2VzDQo+IG1hZGUgaW4g
-dGhlIHN0YWNrLg0KIFtMdiBaaGVuZ10gDQpUaGF0J3MgdGhlIG9yaWdpbmFsIG1vdGl2YXRpb24g
-b2YgUEFUQ0ggMDIuDQoNCkhvd2V2ZXIsIHRoZSBQQVRDSCAwMSBpcyB2YWxpZCBmaXguDQpXaXRo
-b3V0IGl0LCBydW5uaW5nIFNXX0xJRCBvbiBzdWNoIGJ1Z2d5IHBsYXRmb3JtcyBjb3VsZCBjYXVz
-ZSBubyBldmVudC4NCkZvciBleGFtcGxlLCBpZiBhIHBsYXRmb3JtIGFsd2F5cyByZXBvcnRzIGNs
-b3NlLCBhbmQgbmV2ZXIgcmVwb3J0cyBvcGVuLg0KVGhlbiBhZnRlciB0aGUgZmlyc3QgU1dfTElE
-KGNsb3NlKSwgdXNlcnNwYWNlIGNvdWxkIG5ldmVyIHNlZSB0aGUgZm9sbG93LXVwIFNXX0xJRChj
-bG9zZSkuDQpUaHVzIHRoYXQgZml4IGlzIHJlcXVpcmVkLg0KDQpUaGVuIGFmdGVyIHVwc3RyZWFt
-aW5nIFBBVENIIDAxLCB3ZSBjYW4gc2VlIHNvbWV0aGluZyByZWR1bmRhbnQgdG8gS0VZX0xJRF9Y
-WFggYXBwcm9hY2guDQpTaW5jZSB3aXRoIFBBVENIIDAxLCB3ZSBtYW5hZ2VkIHRvIGVuc3VyZSB0
-aGF0IHBsYXRmb3JtIHRyaWdnZXJlZCBldmVudCB3aWxsIGFsd2F5cyBiZSBkZWxpdmVyZWQgdG8g
-dGhlIHVzZXJzcGFjZS4NClNpbmNlOg0KMS4gT3BlbiBldmVudCBpcyBub3QgcmVsaWFibGUNCjIu
-IENsb3NlIGV2ZW50IGlzIHJlbGlhYmxlDQpXZSBmaW5hbGx5IGNhbiBzZWUgdGhhdDoNCjEuIEFs
-bCBwbGF0Zm9ybSB0cmlnZ2VyZWQgY2xvc2UgZXZlbnQgY2FuIGJlIHNlZW4gYnkgdGhlIHVzZXJz
-cGFjZSBhcyBTV19MSUQoY2xvc2UpLg0KMi4gT24gdGhlIGJ1Z2d5IHBsYXRmb3JtcywgU1dfTElE
-KG9wZW4pIGlzIG1lYW5pbmdsZXNzLg0KDQpJdCB0aGVuIGxvb2tzIGxpa2UgdGhlIEtFWV9MSURf
-WFhYIGlzIHJlZHVuZGFudCB0byB0aGUgaW1wcm92ZWQgU1dfTElEIG5vdy4NCkFzIHdpdGggdGhl
-IGtleSBldmVudCBhcHByb2FjaCwgd2Ugc3RpbGwgY2Fubm90IGd1YXJhbnRlZSB0byBzZW5kICJv
-cGVuIiB3aGVuIHRoZSBzdGF0ZSBpcyBjaGFuZ2VkIHRvICJvcGVuZWQiLg0KX19Vbmxlc3Mgd2Ug
-c3RhcnQgdG8gZml4IHRoZSBidWdneSBmaXJtd2FyZSB0YWJsZXNfXy4NCkFuZCB3aGF0IHdlIHdh
-bnQgdG8gZG8gLSBkZWxpdmVyaW5nIHJlbGlhYmxlICJjbG9zZSIgdG8gdXNlcnNwYWNlIGNhbiBh
-bHNvIGJlIGFjaGlldmVkIHdpdGggdGhlIFNXX0xJRCBpbXByb3ZlbWVudC4NCg0KVGh1cywgZmlu
-YWxseSwgdGhlcmUncyBubyBkaWZmZXJlbmNlIGJldHdlZW4gdGhlIG5ldyB1c2Vyc3BhY2UgYmVo
-YXZpb3JzOg0KMS4gU1dfTElEIHdpdGggcmVsaWFibGUgY2xvc2U6IHVzZXJzcGFjZSBtYXRjaGVz
-IGh3ZGIgYW5kIHN0b3BzIGFjdGluZyB1cG9uIG9wZW4NCjIuIEtFWV9MSURfeHh4IHdpdGggcmVs
-aWFibGUgY2xvc2U6IHVzZXJzcGFjZSBtYXRjaGVzIGh3ZGIgYW5kIHN0YXJ0cyBhY3Rpbmcgb25s
-eSB1cG9uIEtFWV9MSURfQ0xPU0UNCg0KU28gd2UganVzdCBuZWVkIHlvdSBhbmQgRG1pdHJ5IHRv
-IHJlYWNoIGFuIGFncmVlbWVudCBoZXJlLg0KQW5kIHRoaXMgZG9lc24ndCBsb29rIGxpa2UgYSBi
-aWcgY29uZmxpY3QuDQoNCklNTywgc2luY2UgU1dfTElEKENMT1NFKSBpcyByZWxpYWJsZSBub3cs
-IHdlIG5lZWRuJ3QgaW50cm9kdWNlIHRoZSBuZXcgS0VZX0xJRF94eHggZXZlbnRzLg0KVGhhdCBt
-ZWFucyB3ZSBjYW4gbGVhdmUgdGhlIGtlcm5lbCBpbnB1dCBsYXllciB1bmNoYW5nZWQuDQpBbmQg
-bGltaXRzIHRoaXMgaXNzdWUgdG8gdGhlIEFDUEkgc3Vic3lzdGVtIGFuZCB0aGUgdXNlcnNwYWNl
-IHByb2dyYW1zLg0KV2hhdCBkbyB5b3UgdGhpbms/DQoNCj4gDQo+IEFzIEJlbmphbWluIG1lbnRp
-b25lZCwgaXQgd291bGQgYmUgbmljZSB0byBoYXZlIGEgbGlzdCBvZiBkZXZpY2VzIHRoYXQNCj4g
-ZG9uJ3Qgd29yayB0b2RheSwgYmVjYXVzZSBvZiB0aGlzIHByb2JsZW0uDQoNCltMdiBaaGVuZ10g
-DQpXZSdsbCB0cnkgdG8gZmluZCB0aGF0Lg0KQmVmb3JlIHdvcmtpbmcgb3V0IHRoZSBmdWxsIGxp
-c3QsIHlvdSBjYW4gdXNlIHRoZSBhYm92ZSBtZW50aW9uZWQgMyBwbGF0Zm9ybXMgdG8gdGVzdC4N
-Cg0KQ2hlZXJzDQo=
+There are many AML tables reporting wrong initial lid state (Link 1), and
+some of them never report lid open state (Link 2). Thus, the usage model of
+the ACPI control method lid device is:
+1. The initial lid state returned from _LID is not reliable;
+2. The lid open event is not reliable;
+3. The lid close event is always reliable, used by the platform firmware to
+   trigger OSPM power saving operations.
+
+Then we can see an issue in the current ACPI button driver. When the
+initial lid state is "close" and the platform never reports "open", we can
+see that the userspace could only recieve "close" once. And all follow-up
+"close" events can never trigger OSPM power saving operations. This is
+because of the type of the lid events. The SW_LID is a switch event, only
+the switched value will be delivered to the userspace. When the value never
+switches, nothing can be seen by the userspace.
+
+Currently ACPI button driver implements a lid_init_state=open quirk to send
+additional "open" after resuming in order to avoid another issue that the
+system may be suspended right after resuming because the userspace programs
+have strict requirement of the "open" event. However, this breaks some
+usage model (e.x., the dark resume scenario). So we need to stop sending
+the additional "open" event and switch the driver to lid_init_state=ignore
+mode. The userspace programs should also be changed to stop being strict to
+the "open" event. This is the preferred mode for the Linux ACPI button
+driver and the userspace programs to work together on such buggy platforms.
+
+However, we can see that, without fixing the issue mentioned in the 2nd
+paragraph, subsequent platform triggered "close" events cannot be delivered
+to the userspace and the power saving operations can not be triggered. So
+we need to fix the issue before the userspace changes its behavior.
+
+This patch adds a mechanism to insert lid events as a compensation for the
+platform triggered ones to form a complete event switches in order to make
+the "close" switch events always reliable.
+
+Link 1: https://bugzilla.kernel.org/show_bug.cgi?id=89211
+        https://bugzilla.kernel.org/show_bug.cgi?id=106151
+Link 2: https://bugzilla.kernel.org/show_bug.cgi?id=106941
+Signed-off-by: Lv Zheng <lv.zheng@intel.com>
+Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Bastien Nocera: <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org
+---
+ drivers/acpi/button.c |   21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
+index 148f4e5..7e2a9eb 100644
+--- a/drivers/acpi/button.c
++++ b/drivers/acpi/button.c
+@@ -104,6 +104,8 @@ struct acpi_button {
+ 	struct input_dev *input;
+ 	char phys[32];			/* for input device */
+ 	unsigned long pushed;
++	int last_state;
++	unsigned long last_time;
+ 	bool suspended;
+ };
+ 
+@@ -111,6 +113,10 @@ static BLOCKING_NOTIFIER_HEAD(acpi_lid_notifier);
+ static struct acpi_device *lid_device;
+ static u8 lid_init_state = ACPI_BUTTON_LID_INIT_METHOD;
+ 
++static unsigned long lid_report_interval __read_mostly = 500;
++module_param(lid_report_interval, ulong, 0644);
++MODULE_PARM_DESC(lid_report_interval, "Interval (ms) between lid key events");
++
+ /* --------------------------------------------------------------------------
+                               FS Interface (/proc)
+    -------------------------------------------------------------------------- */
+@@ -133,11 +139,22 @@ static int acpi_lid_evaluate_state(struct acpi_device *device)
+ static int acpi_lid_notify_state(struct acpi_device *device, int state)
+ {
+ 	struct acpi_button *button = acpi_driver_data(device);
++	unsigned long timeout;
+ 	int ret;
+ 
+-	/* input layer checks if event is redundant */
++	/* Send the switch event */
++	timeout = button->last_time +
++		  msecs_to_jiffies(lid_report_interval);
++	if (time_after(jiffies, timeout) &&
++	    (button->last_state == !!state)) {
++		/* Send the complement switch event */
++		input_report_switch(button->input, SW_LID, state);
++		input_sync(button->input);
++	}
+ 	input_report_switch(button->input, SW_LID, !state);
+ 	input_sync(button->input);
++	button->last_state = !!state;
++	button->last_time = jiffies;
+ 
+ 	if (state)
+ 		pm_wakeup_event(&device->dev, 0);
+@@ -407,6 +424,8 @@ static int acpi_button_add(struct acpi_device *device)
+ 		strcpy(name, ACPI_BUTTON_DEVICE_NAME_LID);
+ 		sprintf(class, "%s/%s",
+ 			ACPI_BUTTON_CLASS, ACPI_BUTTON_SUBCLASS_LID);
++		button->last_state = !!acpi_lid_evaluate_state(device);
++		button->last_time = jiffies;
+ 	} else {
+ 		printk(KERN_ERR PREFIX "Unsupported hid [%s]\n", hid);
+ 		error = -ENODEV;
+-- 
+1.7.10

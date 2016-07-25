@@ -1,37 +1,114 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH 2/2] Input: cros_ec_keyb - Fix usage of cros_ec_cmd_xfer()
-Date: Mon, 25 Jul 2016 15:46:41 -0400
-Message-ID: <2607f36e-ee56-98c8-ba7d-ec44a34dd512@osg.samsung.com>
-References: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
- <1469470451-111822-3-git-send-email-briannorris@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: cros_ec_keyb - cleanup use of dev
+Date: Mon, 25 Jul 2016 13:31:51 -0700
+Message-ID: <20160725203151.GH27415@dtor-ws>
+References: <1469472228-58912-1-git-send-email-briannorris@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-In-Reply-To: <1469470451-111822-3-git-send-email-briannorris@chromium.org>
-Sender: linux-i2c-owner@vger.kernel.org
-To: Brian Norris <briannorris@chromium.org>, Lee Jones <lee.jones@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:33896 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752610AbcGYUby (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Jul 2016 16:31:54 -0400
+Content-Disposition: inline
+In-Reply-To: <1469472228-58912-1-git-send-email-briannorris@chromium.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Brian Norris <briannorris@chromium.org>
+Cc: Brian Norris <computersforpeace@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Douglas Anderson <dianders@chromium.org>
 
-Hello Brian,
+On Mon, Jul 25, 2016 at 11:43:48AM -0700, Brian Norris wrote:
+> From: Douglas Anderson <dianders@chromium.org>
+> 
+> In cros_ec_keyb we stored "dev" in "struct cros_ec_keyb", but this was
+> the EC's dev pointer and not the keyboard's.  Let's clean this up to
+> make it the keyboard's dev pointer.  This could be useful in future
+> patches but also has the nice effect of changing a few printouts to
+> include the name of the keyboard device instead of the EC device, which
+> seems more technically correct.
 
-On 07/25/2016 02:14 PM, Brian Norris wrote:
-> cros_ec_cmd_xfer returns success status if the command transport
-> completes successfully, but the execution result is incorrectly ignored.
-> In many cases, the execution result is assumed to be successful, leading
-> to ignored errors and operating on uninitialized data.
+What is the difference in the output? Could you show old vs new example?
+
 > 
-> We've recently introduced the cros_ec_cmd_xfer_status() helper to avoid these
-> problems. Let's use it.
-> 
+> Signed-off-by: Douglas Anderson <dianders@chromium.org>
 > Signed-off-by: Brian Norris <briannorris@chromium.org>
 > ---
+>  drivers/input/keyboard/cros_ec_keyb.c | 19 +++++++++----------
+>  1 file changed, 9 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+> index 6e48616a3a88..ab1b50152b86 100644
+> --- a/drivers/input/keyboard/cros_ec_keyb.c
+> +++ b/drivers/input/keyboard/cros_ec_keyb.c
+> @@ -186,7 +186,7 @@ static irqreturn_t cros_ec_keyb_irq(int irq, void *data)
+>  	if (ret >= 0)
+>  		cros_ec_keyb_process(ckdev, kb_state, ret);
+>  	else
+> -		dev_err(ec->dev, "failed to get keyboard state: %d\n", ret);
+> +		dev_err(ckdev->dev, "failed to get keyboard state: %d\n", ret);
+>  
+>  	return IRQ_HANDLED;
+>  }
+> @@ -236,7 +236,7 @@ static void cros_ec_keyb_compute_valid_keys(struct cros_ec_keyb *ckdev)
+>  static int cros_ec_keyb_probe(struct platform_device *pdev)
+>  {
+>  	struct cros_ec_device *ec = dev_get_drvdata(pdev->dev.parent);
+> -	struct device *dev = ec->dev;
+> +	struct device *dev = &pdev->dev;
+>  	struct cros_ec_keyb *ckdev;
+>  	struct input_dev *idev;
+>  	struct device_node *np;
+> @@ -246,23 +246,22 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+>  	if (!np)
+>  		return -ENODEV;
+>  
+> -	ckdev = devm_kzalloc(&pdev->dev, sizeof(*ckdev), GFP_KERNEL);
+> +	ckdev = devm_kzalloc(dev, sizeof(*ckdev), GFP_KERNEL);
+>  	if (!ckdev)
+>  		return -ENOMEM;
+> -	err = matrix_keypad_parse_of_params(&pdev->dev, &ckdev->rows,
+> -					    &ckdev->cols);
+> +	err = matrix_keypad_parse_of_params(dev, &ckdev->rows, &ckdev->cols);
+>  	if (err)
+>  		return err;
+>  
+> -	ckdev->valid_keys = devm_kzalloc(&pdev->dev, ckdev->cols, GFP_KERNEL);
+> +	ckdev->valid_keys = devm_kzalloc(dev, ckdev->cols, GFP_KERNEL);
+>  	if (!ckdev->valid_keys)
+>  		return -ENOMEM;
+>  
+> -	ckdev->old_kb_state = devm_kzalloc(&pdev->dev, ckdev->cols, GFP_KERNEL);
+> +	ckdev->old_kb_state = devm_kzalloc(dev, ckdev->cols, GFP_KERNEL);
+>  	if (!ckdev->old_kb_state)
+>  		return -ENOMEM;
+>  
+> -	idev = devm_input_allocate_device(&pdev->dev);
+> +	idev = devm_input_allocate_device(dev);
+>  	if (!idev)
+>  		return -ENOMEM;
+>  
+> @@ -273,7 +272,7 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+>  
+>  	ckdev->ec = ec;
+>  	ckdev->dev = dev;
+> -	dev_set_drvdata(&pdev->dev, ckdev);
+> +	dev_set_drvdata(dev, ckdev);
+>  
+>  	idev->name = CROS_EC_DEV_NAME;
+>  	idev->phys = ec->phys_name;
+> @@ -282,7 +281,7 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+>  	idev->id.bustype = BUS_VIRTUAL;
+>  	idev->id.version = 1;
+>  	idev->id.product = 0;
+> -	idev->dev.parent = &pdev->dev;
+> +	idev->dev.parent = dev;
+>  	idev->open = cros_ec_keyb_open;
+>  	idev->close = cros_ec_keyb_close;
+>  
+> -- 
+> 2.8.0.rc3.226.g39d4020
+> 
 
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-
-Best regards,
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Dmitry

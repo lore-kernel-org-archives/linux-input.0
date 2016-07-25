@@ -1,141 +1,227 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH 5/5] mfd: sunxi-gpadc-mfd: probe sunxi-gpadc-ts driver
-Date: Mon, 25 Jul 2016 11:51:13 +0200
-Message-ID: <20160725095113.GJ7419@lukather>
-References: <1469003351-15263-1-git-send-email-quentin.schulz@free-electrons.com>
- <1469003351-15263-6-git-send-email-quentin.schulz@free-electrons.com>
- <20160721060812.GA5993@lukather>
- <11247e4f-d04d-d5bc-6ebf-a637820c011d@kernel.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v3 1/2] HID: wacom: Add WACOM_DEVICETYPE_DIRECT for
+ Cintiqs and similar
+Date: Mon, 25 Jul 2016 11:51:12 +0200
+Message-ID: <20160725095112.GH19383@mail.corp.redhat.com>
+References: <20160721161200.25830-1-killertofu@gmail.com>
+ <20160722231503.1984-1-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="utPK4TBebyzZxMrE"
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:57011 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752481AbcGYJvQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jul 2016 05:51:16 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:37832 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752743AbcGYJvR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Jul 2016 05:51:17 -0400
 Content-Disposition: inline
-In-Reply-To: <11247e4f-d04d-d5bc-6ebf-a637820c011d@kernel.org>
+In-Reply-To: <20160722231503.1984-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Quentin Schulz <quentin.schulz@free-electrons.com>, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wens@csie.org, dmitry.torokhov@gmail.com, lee.jones@linaro.org, antoine.tenart@free-electrons.com, thomas.petazzoni@free-electrons.com, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
+On Jul 22 2016 or thereabouts, Jason Gerecke wrote:
+> "Direct" input devices like Cintiqs and Tablet PCs set the INPUT_PROP_DIRECT
+> property to notify userspace that the sensor and screen are overlaid. This
+> information can also be useful elsewhere within the kernel driver, however,
+> so we introduce a new WACOM_DEVICETYPE_DIRECT that signals this to other
+> kernel code.
+> 
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+> Changes from v2:
+>  * Moved setting of INPUT_PROP_DIRECT in wacom_setup_pen_input_capabilities
+>    and wacom_setup_touch_input_capabilities to occur before the functions
+>    exit if a HID_GENERIC device is being probed.
+> 
+>  * Changed large 'if' to 'switch' statement
 
---utPK4TBebyzZxMrE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This one (1/2 only) is
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Hi Jonathan,
+See my comments in the v1 for 2/2.
 
-On Sun, Jul 24, 2016 at 12:26:56PM +0100, Jonathan Cameron wrote:
-> >> @@ -142,23 +159,45 @@ static int sunxi_gpadc_mfd_probe(struct platform=
-_device *pdev)
-> >>  	}
-> >> =20
-> >>  	if (of_device_is_compatible(pdev->dev.of_node,
-> >> -				    "allwinner,sun4i-a10-ts"))
-> >> -		ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
-> >> -				      sun4i_gpadc_mfd_cells,
-> >> -				      ARRAY_SIZE(sun4i_gpadc_mfd_cells), NULL,
-> >> -				      0, NULL);
-> >> -	else if (of_device_is_compatible(pdev->dev.of_node,
-> >> -					 "allwinner,sun5i-a13-ts"))
-> >> -		ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
-> >> -				      sun5i_gpadc_mfd_cells,
-> >> -				      ARRAY_SIZE(sun5i_gpadc_mfd_cells), NULL,
-> >> -				      0, NULL);
-> >> -	else if (of_device_is_compatible(pdev->dev.of_node,
-> >> -					 "allwinner,sun6i-a31-ts"))
-> >> -		ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
-> >> -				      sun6i_gpadc_mfd_cells,
-> >> -				      ARRAY_SIZE(sun6i_gpadc_mfd_cells), NULL,
-> >> -				      0, NULL);
-> >> +				    "allwinner,sun4i-a10-ts")) {
-> >> +		if (of_property_read_bool(pdev->dev.of_node,
-> >> +					  "allwinner,ts-attached"))
-> >> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
-> >> +					      sun4i_gpadc_mfd_cells_ts,
-> >> +					      ARRAY_SIZE(sun4i_gpadc_mfd_cells_ts),
-> >> +					      NULL, 0, NULL);
-> >> +		else
-> >> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
-> >> +					      sun4i_gpadc_mfd_cells,
-> >> +					      ARRAY_SIZE(sun4i_gpadc_mfd_cells),
-> >> +					      NULL, 0, NULL);
-> >> +	} else if (of_device_is_compatible(pdev->dev.of_node,
-> >> +					 "allwinner,sun5i-a13-ts")) {
-> >> +		if (of_property_read_bool(pdev->dev.of_node,
-> >> +					  "allwinner,ts-attached"))
-> >> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
-> >> +					      sun5i_gpadc_mfd_cells_ts,
-> >> +					      ARRAY_SIZE(sun5i_gpadc_mfd_cells_ts),
-> >> +					      NULL, 0, NULL);
-> >> +		else
-> >> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
-> >> +					      sun5i_gpadc_mfd_cells,
-> >> +					      ARRAY_SIZE(sun5i_gpadc_mfd_cells),
-> >> +					      NULL, 0, NULL);
-> >> +	} else if (of_device_is_compatible(pdev->dev.of_node,
-> >> +					 "allwinner,sun6i-a31-ts")) {
-> >> +		if (of_property_read_bool(pdev->dev.of_node,
-> >> +					  "allwinner,ts-attached"))
-> >> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
-> >> +					      sun6i_gpadc_mfd_cells_ts,
-> >> +					      ARRAY_SIZE(sun6i_gpadc_mfd_cells_ts),
-> >> +					      NULL, 0, NULL);
-> >> +		else
-> >> +			ret =3D mfd_add_devices(sunxi_gpadc_mfd_dev->dev, 0,
-> >> +					      sun6i_gpadc_mfd_cells,
-> >> +					      ARRAY_SIZE(sun6i_gpadc_mfd_cells),
-> >> +					      NULL, 0, NULL);
-> >> +	}
-> >=20
-> > Please don't use any of_device_is_compatible.
-> Hi Maxime,
->=20
-> Why?  (Just curious...)
+Cheers,
+Benjamin
 
-This is completely redundant. The compatible has already been looked
-up once to match the driver, and you can associate a void * pointer to
-any compatible you register in the of_device_id array.
-
-So you can just retrieve the compatible that probed you in the first
-place, and use it's private data pointer to store whatever you want,
-without the numerous (and expensive) calls to of_device_is_compatible.
-
-It's also easier to maintain in the long term, since you can simply
-add a new field to the structure you would register there, instead of
-keeping adding more conditions.
-
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
---utPK4TBebyzZxMrE
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXleERAAoJEBx+YmzsjxAgX7kQAJoEupOox4ImwUSSmWxDYYJy
-qHR7T+BXL8+5J9VoqPRvNgbq5DeF0boxFk8OO22VQsrUtLf73GWh6RzSGTqSOMuF
-zd1VXivDVR/sYz3otsfmex+KBF+mN7dk423BzRRg5PaHOJxYpoyO5KOnWIedwwA0
-51Ar0+IfKI+s7i2PXKJNvjklP7/r/kE6SyaL8i7UK/gLk4mmCwxP/E4qj1bO8+LW
-aUXsuxMw755uwp7CLz0tble3qsgoov3d6pSBXJs/Mh1fCemWUey4m2lOjhs0zLyr
-8QiadVTHbITF1YR6K6Av9eqt2RLx9cXpsBdGbVZl6VDZqBSRdmEqaALx6LIdUHx6
-4f/9M+xm9VLU9lftj2F8U2dPhoOsmdHLU9Qwa4MS0ClrBJ+GzBneNlkNGQXa0sWO
-AG9OTp8Fap/AnxCJh7ZQNSnF5J/KVXr/y+dYrStFMmfnvIZpwuQ/djuN0mv+0d/z
-XJchrjJfMs6nH/cVkNXYoOfrpRrJUzGjzChz6DMb6YhnYNDxMi0N3/VUcV13f0DR
-iAU57+Nq9Oasv7qVbbm7LUF4eyhUXzIPaUpkkra0SJHtk8TmESF1GUSjZlhwzHNG
-lX9+Zedi/53j6YdB0xDF+nXCslRwQwDmyWodCv1pMc4vy4LQi6qti1THPwawQ8e1
-GEPnyECFdqb25aeFy2Oy
-=OLBG
------END PGP SIGNATURE-----
-
---utPK4TBebyzZxMrE--
+> 
+>  drivers/hid/wacom_wac.c | 58 +++++++++++++++++++++++++++++++++----------------
+>  drivers/hid/wacom_wac.h |  1 +
+>  2 files changed, 40 insertions(+), 19 deletions(-)
+> 
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index d2611f3..8621d49 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1742,10 +1742,10 @@ void wacom_wac_usage_mapping(struct hid_device *hdev,
+>  {
+>  	struct wacom *wacom = hid_get_drvdata(hdev);
+>  	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+> +	struct wacom_features *features = &wacom_wac->features;
+>  
+>  	/* currently, only direct devices have proper hid report descriptors */
+> -	__set_bit(INPUT_PROP_DIRECT, wacom_wac->pen_input->propbit);
+> -	__set_bit(INPUT_PROP_DIRECT, wacom_wac->touch_input->propbit);
+> +	features->device_type |= WACOM_DEVICETYPE_DIRECT;
+>  
+>  	if (WACOM_PEN_FIELD(field))
+>  		return wacom_wac_pen_usage_mapping(hdev, field, usage);
+> @@ -2450,6 +2450,33 @@ void wacom_setup_device_quirks(struct wacom *wacom)
+>  	if (features->type == REMOTE)
+>  		features->device_type = WACOM_DEVICETYPE_PAD;
+>  
+> +	switch (features->type) {
+> +	case PL:
+> +	case DTU:
+> +	case DTUS:
+> +	case DTUSX:
+> +	case WACOM_21UX2:
+> +	case WACOM_22HD:
+> +	case DTK:
+> +	case WACOM24_HD:
+> +	case WACOM_27QHD:
+> +	case CINTIQ_HYBRID:
+> +	case CINTIQ_COMPANION_2:
+> +	case CINTIQ:
+> +	case WACOM_BEE:
+> +	case WACOM_13HD:
+> +	case WACOM_24HDT:
+> +	case WACOM_27QHDT:
+> +	case TABLETPC:
+> +	case TABLETPCE:
+> +	case TABLETPC2FG:
+> +	case MTSCREEN:
+> +	case MTTPC:
+> +	case MTTPC_B:
+> +		features->device_type |= WACOM_DEVICETYPE_DIRECT;
+> +		break;
+> +	}
+> +
+>  	if (wacom->hdev->bus == BUS_BLUETOOTH)
+>  		features->quirks |= WACOM_QUIRK_BATTERY;
+>  
+> @@ -2483,6 +2510,11 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+>  	if (!(features->device_type & WACOM_DEVICETYPE_PEN))
+>  		return -ENODEV;
+>  
+> +	if (features->device_type & WACOM_DEVICETYPE_DIRECT)
+> +		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+> +	else
+> +		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+> +
+>  	if (features->type == HID_GENERIC)
+>  		/* setup has already been done */
+>  		return 0;
+> @@ -2501,7 +2533,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+>  	input_abs_set_res(input_dev, ABS_X, features->x_resolution);
+>  	input_abs_set_res(input_dev, ABS_Y, features->y_resolution);
+>  
+> -
+>  	switch (features->type) {
+>  	case GRAPHIRE_BT:
+>  		__clear_bit(ABS_MISC, input_dev->absbit);
+> @@ -2525,8 +2556,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+>  		__set_bit(BTN_TOOL_MOUSE, input_dev->keybit);
+>  		__set_bit(BTN_STYLUS, input_dev->keybit);
+>  		__set_bit(BTN_STYLUS2, input_dev->keybit);
+> -
+> -		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+>  		break;
+>  
+>  	case WACOM_27QHD:
+> @@ -2541,7 +2570,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+>  	case CINTIQ_COMPANION_2:
+>  		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+>  		input_abs_set_res(input_dev, ABS_Z, 287);
+> -		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+>  		wacom_setup_cintiq(wacom_wac);
+>  		break;
+>  
+> @@ -2557,8 +2585,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+>  		/* fall through */
+>  
+>  	case INTUOS:
+> -		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+> -
+>  		wacom_setup_intuos(wacom_wac);
+>  		break;
+>  
+> @@ -2568,8 +2594,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+>  	case INTUOSPL:
+>  	case INTUOS5S:
+>  	case INTUOSPS:
+> -		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+> -
+>  		input_set_abs_params(input_dev, ABS_DISTANCE, 0,
+>  				      features->distance_max,
+>  				      features->distance_fuzz, 0);
+> @@ -2599,8 +2623,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+>  		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
+>  		__set_bit(BTN_STYLUS, input_dev->keybit);
+>  		__set_bit(BTN_STYLUS2, input_dev->keybit);
+> -
+> -		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+>  		break;
+>  
+>  	case PTU:
+> @@ -2611,16 +2633,12 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+>  		__set_bit(BTN_TOOL_PEN, input_dev->keybit);
+>  		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
+>  		__set_bit(BTN_STYLUS, input_dev->keybit);
+> -
+> -		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+>  		break;
+>  
+>  	case INTUOSHT:
+>  	case BAMBOO_PT:
+>  	case BAMBOO_PEN:
+>  	case INTUOSHT2:
+> -		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+> -
+>  		if (features->type == INTUOSHT2) {
+>  			wacom_setup_basic_pro_pen(wacom_wac);
+>  		} else {
+> @@ -2651,6 +2669,11 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+>  	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
+>  		return -ENODEV;
+>  
+> +	if (features->device_type & WACOM_DEVICETYPE_DIRECT)
+> +		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+> +	else
+> +		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+> +
+>  	if (features->type == HID_GENERIC)
+>  		/* setup has already been done */
+>  		return 0;
+> @@ -2685,8 +2708,6 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+>  	case INTUOSPL:
+>  	case INTUOS5S:
+>  	case INTUOSPS:
+> -		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+> -
+>  		input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0, features->x_max, 0, 0);
+>  		input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR, 0, features->y_max, 0, 0);
+>  		input_mt_init_slots(input_dev, features->touch_max, INPUT_MT_POINTER);
+> @@ -2709,7 +2730,6 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+>  
+>  	case TABLETPC:
+>  	case TABLETPCE:
+> -		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+>  		break;
+>  
+>  	case INTUOSHT:
+> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+> index 267025c..5624268 100644
+> --- a/drivers/hid/wacom_wac.h
+> +++ b/drivers/hid/wacom_wac.h
+> @@ -82,6 +82,7 @@
+>  #define WACOM_DEVICETYPE_TOUCH          0x0002
+>  #define WACOM_DEVICETYPE_PAD            0x0004
+>  #define WACOM_DEVICETYPE_WL_MONITOR     0x0008
+> +#define WACOM_DEVICETYPE_DIRECT         0x0010
+>  
+>  #define WACOM_VENDORDEFINED_PEN		0xff0d0001
+>  #define WACOM_G9_PAGE			0xff090000
+> -- 
+> 2.9.0
+> 

@@ -1,130 +1,102 @@
-From: Lv Zheng <lv.zheng@intel.com>
-Subject: [PATCH v7 2/2] ACPI / button: Add document for ACPI control method lid device restrictions
-Date: Tue, 26 Jul 2016 17:52:32 +0800
-Message-ID: <fa47dc8e91b2dcda90deafde5c9ab7e479d93c46.1469526583.git.lv.zheng@intel.com>
-References: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>
-Cc: Lv Zheng <lv.zheng@intel.com>, Lv Zheng <zetalog@gmail.com>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Bastien Nocera:" <hadess@hadess.net>, linux-input@vger.kernel.org
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH 4/5] input: touchscreen: support Allwinner SoCs'
+ touchscreen
+Date: Tue, 26 Jul 2016 17:13:11 +0200
+Message-ID: <20160726151311.GG7190@lukather>
+References: <1469003351-15263-1-git-send-email-quentin.schulz@free-electrons.com>
+ <1469003351-15263-5-git-send-email-quentin.schulz@free-electrons.com>
+ <20160721062950.GB5993@lukather>
+ <20160721064140.GA17658@dtor-ws>
+ <20160725094542.GI7419@lukather>
+ <20160725170839.GA27415@dtor-ws>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+sHJum3is6Tsg7/J"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from down.free-electrons.com ([37.187.137.238]:35441 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754198AbcGZPNO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Jul 2016 11:13:14 -0400
+Content-Disposition: inline
+In-Reply-To: <20160725170839.GA27415@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Quentin Schulz <quentin.schulz@free-electrons.com>, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wens@csie.org, lee.jones@linaro.org, antoine.tenart@free-electrons.com, thomas.petazzoni@free-electrons.com, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-This patch adds documentation for the usage model of the control method lid
-device on some buggy platforms.
 
-Signed-off-by: Lv Zheng <lv.zheng@intel.com>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Bastien Nocera: <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org
----
- Documentation/acpi/acpi-lid.txt |   97 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 97 insertions(+)
- create mode 100644 Documentation/acpi/acpi-lid.txt
+--+sHJum3is6Tsg7/J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/Documentation/acpi/acpi-lid.txt b/Documentation/acpi/acpi-lid.txt
-new file mode 100644
-index 0000000..4dfdc9d
---- /dev/null
-+++ b/Documentation/acpi/acpi-lid.txt
-@@ -0,0 +1,97 @@
-+Special Usage Model of the ACPI Control Method Lid Device
-+
-+Copyright (C) 2016, Intel Corporation
-+Author: Lv Zheng <lv.zheng@intel.com>
-+
-+
-+Abstract:
-+
-+Platforms containing lids convey lid state (open/close) to OSPMs using a
-+control method lid device. To implement this, the AML tables issue
-+Notify(lid_device, 0x80) to notify the OSPMs whenever the lid state has
-+changed. The _LID control method for the lid device must be implemented to
-+report the "current" state of the lid as either "opened" or "closed".
-+
-+For most platforms, both the _LID method and the lid notifications are
-+reliable. However, there are exceptions. In order to work with these
-+exceptional buggy platforms, special restrictions and expections should be
-+taken into account. This document describes the restrictions and the
-+expections of the Linux ACPI lid device driver.
-+
-+
-+1. Restrictions of the returning value of the _LID control method
-+
-+The _LID control method is described to return the "current" lid state.
-+However the word of "current" has ambiguity, some buggy AML tables return
-+the lid state upon the last lid notification instead of returning the lid
-+state upon the last _LID evaluation. There won't be difference when the
-+_LID control method is evaluated during the runtime, the problem is its
-+initial returning value. When the AML tables implement this control method
-+with cached value, the initial returning value is likely not reliable.
-+There are platforms always retun "closed" as initial lid state.
-+
-+2. Restrictions of the lid state change notifications
-+
-+There are buggy AML tables never notifying when the lid device state is
-+changed to "opened". Thus the "opened" notification is not guaranteed. But
-+it is guaranteed that the AML tables always notify "closed" when the lid
-+state is changed to "closed". The "closed" notification is normally used to
-+trigger some system power saving operations on Windows. Since it is fully
-+tested, it is reliable from all AML tables.
-+
-+3. Expections for the userspace users of the ACPI lid device driver
-+
-+The ACPI button driver exports the lid state to the userspace via the
-+following file:
-+  /proc/acpi/button/lid/LID0/state
-+This file actually calls the _LID control method described above. And given
-+the previous explanation, it is not reliable enough on some platforms. So
-+it is advised for the userspace program to not to solely rely on this file
-+to determine the actual lid state.
-+
-+The ACPI button driver emits the following input event to the userspace:
-+  SW_LID
-+The ACPI lid device driver is implemented to try to deliver the platform
-+triggered events to the userspace. However, given the fact that the buggy
-+firmware cannot make sure "opened"/"closed" events are paired, the ACPI
-+button driver uses the following 3 modes in order not to trigger issues.
-+
-+If the userspace hasn't been prepared to ignore the unreliable "opened"
-+events and the unreliable initial state notification, Linux users can use
-+the following kernel parameters to handle the possible issues:
-+A. button.lid_init_state=method:
-+   When this option is specified, the ACPI button driver reports the
-+   initial lid state using the returning value of the _LID control method
-+   and whether the "opened"/"closed" events are paired fully relies on the
-+   firmware implementation.
-+   This option can be used to fix some platforms where the returning value
-+   of the _LID control method is reliable but the initial lid state
-+   notification is missing.
-+   This option is the default behavior during the period the userspace
-+   isn't ready to handle the buggy AML tables.
-+B. button.lid_init_state=open:
-+   When this option is specified, the ACPI button driver always reports the
-+   initial lid state as "opened" and whether the "opened"/"closed" events
-+   are paired fully relies on the firmware implementation.
-+   This may fix some platforms where the returning value of the _LID
-+   control method is not reliable and the initial lid state notification is
-+   missing.
-+
-+If the userspace has been prepared to ignore the unreliable "opened" events
-+and the unreliable initial state notification, Linux users should always
-+use the following kernel parameter:
-+C. button.lid_init_state=ignore:
-+   When this option is specified, the ACPI button driver never reports the
-+   initial lid state and there is a compensation mechanism implemented to
-+   ensure that "opened"/"closed" events are always paired. By doing this,
-+   the ACPI button driver guarantees that the reliable "closed"
-+   notifications can always be delivered to the userspace by inserting
-+   complement switch events. But there is still no guarantee that the
-+   "opened" notifications can be delivered to the userspace when the lid is
-+   actually opens given that some AML tables do not send "opened"
-+   notifications reliably.
-+   In this mode, if everything is correctly implemented by the platform
-+   firmware, the old userspace programs should still work. Otherwise, the
-+   new userspace programs are required to work with the ACPI button driver.
-+   This option will be the default behavior after the userspace is ready to
-+   handle the buggy AML tables.
--- 
-1.7.10
+Hi,
+
+On Mon, Jul 25, 2016 at 10:08:39AM -0700, Dmitry Torokhov wrote:
+> > > > ... but your driver isn't registered yet. How does input_report and
+> > > > input_sync behave in such a case?
+> > >=20
+> > > This is explicitly allowed:
+> > >=20
+> > > "
+> > > ...
+> > >  * NOTE: input_event() may be safely used right after input device was
+> > >  * allocated with input_allocate_device(), even before it is register=
+ed
+> > >  * with input_register_device(), but the event will not reach any of =
+the
+> > >  * input handlers. Such early invocation of input_event() may be used
+> > >  * to 'seed' initial state of a switch or initial position of absolute
+> > >  * axis, etc.
+> > >  */
+> > > "
+> >=20
+> > Good to know. Still, it feels like it should be handled explicitly,
+> > instead of relying on the fact that we only call input_event in our
+> > handler and that it works that way.
+>=20
+> Why? It is the documented property of input API and it is done so
+> precisely so that you can register interrupt before registering input
+> device. That is done because once registered input device is supposed to
+> be fully-functional.  It does not matter for this driver but there are
+> drivers out there that require interrupt handling as part of their
+> "open" method.
+
+I'm not questionning the input framework itself, and it works right
+now because we all looked at that issue and found that it would work
+even in the event of an early interrupt.
+
+What I'm afraid of is that in a few weeks /monthes / years / decades,
+someone will add something new in the driver without taking care of
+that, and we will miss it because we won't have enough context.
+
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
+
+--+sHJum3is6Tsg7/J
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXl34HAAoJEBx+YmzsjxAgNwoP/2eKDNzG8g6xMquD9F2QrOVv
+ztykgMy8qd9KO9zy5/jC30OtHFfGjr4nwOPQqO8C+3QqBe5245u4KonQMPurQm38
+wKgH91qpiLZapCjTlJpjDMFJe1gqzxZCclQlHHFn78TdfQJeO0RIaMpOIMFm4MSF
+d7TzWQymK2S2pGj9XZCaDJucorXn+yAmJkS3BWqwMpHUVQ8RKJyrEX263vZnRzbf
+u11e2XKTKpKNhlImT0mGPastvZjC6qR2lpwQTHWHkntr9FXjVhbbdqPh4BqjL/tZ
+spuE2dBlM9i2R9YsSzrrPLoDlgKZ2AgjaQ7jI0BTJEqZcZcDL1rRtSZWygJQCtrK
+BPu2qe5XUP5uPTBnliB80UUvvcO6KU+w0Piwdt4dkK/nH6H7ei/YkItpcb5/ImX1
+J+C6eCRnIdz+18Mq42nOGs9b4/t1XnLrsE/0rLlvdWdYCvC8+lrzpTZuEjmufHm6
+u6zSAd7JKYwViTud1RFHMp6ljMIOwqqtT8ZJPQr9NBH67Ea8+vISooam96dlF9wx
+GT5h2eLuzrfxn68RPuZ8dqo8w4v0gzjc8lgUjkuMWJzFW9PCzfFTQi/PG48UCQ5k
+R1e0ZKUZN/l3LzyyVRf4GZfQpSENUjcvN4iLxGYjKrU45lEIFB4sXhnzS29/dORl
+98ISILG3nafEZZ6K7uFU
+=NQCK
+-----END PGP SIGNATURE-----
+
+--+sHJum3is6Tsg7/J--

@@ -1,111 +1,85 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: [PATCH] Input: xpad - power off wireless 360 controllers on suspend
-Date: Mon, 25 Jul 2016 22:35:08 -0700
-Message-ID: <6203d65c-4e15-c44c-edc9-d47cc78f1c28@gmail.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH 1/2] i2c: cros-ec-tunnel: Fix usage of cros_ec_cmd_xfer()
+Date: Tue, 26 Jul 2016 11:14:33 +0200
+Message-ID: <20160726091433.GC2433@ulmo.ba.sec>
+References: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
+ <1469470451-111822-2-git-send-email-briannorris@chromium.org>
+ <20160725204313.GA1698@katana>
+ <20160725204825.GA144142@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f68.google.com ([209.85.220.68]:36023 "EHLO
-	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752634AbcGZFfL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jul 2016 01:35:11 -0400
-Received: by mail-pa0-f68.google.com with SMTP id ez1so12624392pab.3
-        for <linux-input@vger.kernel.org>; Mon, 25 Jul 2016 22:35:10 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="s9fJI615cBHmzTOP"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160725204825.GA144142@google.com>
+Sender: linux-i2c-owner@vger.kernel.org
+To: Brian Norris <briannorris@chromium.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
-Cc: linux-input@vger.kernel.org
 
-When the USB wireless adapter is suspended, the controllers
-lose their connection. This causes them to start flashing
-their LED rings and searching for the wireless adapter
-again, wasting the controller's battery power.
 
-Instead, we will tell the controllers to power down when
-we suspend. This mirrors the behavior of the controllers
-when connected to the console itself and how the official
-Xbox One wireless adapter behaves on Windows.
+--s9fJI615cBHmzTOP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Cameron Gutman <aicommander@gmail.com>
----
-This patch is independent of the other xpad patch [0] that I
-submitted (and decided to wait on). It applies against
-unmodified xpad.c in master.
+On Mon, Jul 25, 2016 at 01:48:25PM -0700, Brian Norris wrote:
+> On Mon, Jul 25, 2016 at 10:43:13PM +0200, Wolfram Sang wrote:
+> > On Mon, Jul 25, 2016 at 11:14:10AM -0700, Brian Norris wrote:
+> > > cros_ec_cmd_xfer returns success status if the command transport
+> > > completes successfully, but the execution result is incorrectly ignor=
+ed.
+> > > In many cases, the execution result is assumed to be successful, lead=
+ing
+> > > to ignored errors and operating on uninitialized data.
+> > >=20
+> > > We've recently introduced the cros_ec_cmd_xfer_status() helper to avo=
+id these
+> > > problems. Let's use it.
+> > >=20
+> > > Signed-off-by: Brian Norris <briannorris@chromium.org>
+> >=20
+> > I agree with Dmitry about Thierry pushing the patch. So:
+> >=20
+> > Acked-by: Wolfram Sang <wsa@the-dreams.de>
+>=20
+> Fine with me, as long as Thierry is up for it.
+>=20
+> BTW, I think the dependency is on target for v4.8-rc1, so if Thierry
+> misses this, then you should be able to apply this yourself after the
+> merge window.
 
-[0] http://www.spinics.net/lists/linux-input/msg46062.html
----
- drivers/input/joystick/xpad.c | 43 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+Why the rush? The behaviour of the cros_ec_cmd_xfer() function has not
+changed in at least a year, so this can't be very urgent. I merged the
+original patch because it is a dependency for another patch, but given
+the above I think it's fine if we wait until after v4.8-rc1 and let
+subsystem maintainers pick them up individually.
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index a529a45..3408019 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -115,6 +115,10 @@ static bool sticks_to_null;
- module_param(sticks_to_null, bool, S_IRUGO);
- MODULE_PARM_DESC(sticks_to_null, "Do not map sticks at all for unknown pads");
- 
-+static bool disable_auto_poweroff;
-+module_param(disable_auto_poweroff, bool, S_IRUGO);
-+MODULE_PARM_DESC(disable_auto_poweroff, "Do not power off wireless controllers on suspend");
-+
- static const struct xpad_device {
- 	u16 idVendor;
- 	u16 idProduct;
-@@ -1248,6 +1252,36 @@ static void xpad_stop_input(struct usb_xpad *xpad)
- 	usb_kill_urb(xpad->irq_in);
- }
- 
-+static void xpad360w_poweroff_controller(struct usb_xpad *xpad)
-+{
-+	unsigned long flags;
-+	struct xpad_output_packet *packet =
-+			&xpad->out_packets[XPAD_OUT_CMD_IDX];
-+
-+	spin_lock_irqsave(&xpad->odata_lock, flags);
-+
-+	packet->data[0] = 0x00;
-+	packet->data[1] = 0x00;
-+	packet->data[2] = 0x08;
-+	packet->data[3] = 0xC0;
-+	packet->data[4] = 0x00;
-+	packet->data[5] = 0x00;
-+	packet->data[6] = 0x00;
-+	packet->data[7] = 0x00;
-+	packet->data[8] = 0x00;
-+	packet->data[9] = 0x00;
-+	packet->data[10] = 0x00;
-+	packet->data[11] = 0x00;
-+	packet->len = 12;
-+	packet->pending = true;
-+
-+	/* Reset the sequence so we send out poweroff now */
-+	xpad->last_out_packet = -1;
-+	xpad_try_sending_next_out_packet(xpad);
-+
-+	spin_unlock_irqrestore(&xpad->odata_lock, flags);
-+}
-+
- static int xpad360w_start_input(struct usb_xpad *xpad)
- {
- 	int error;
-@@ -1590,6 +1624,15 @@ static int xpad_suspend(struct usb_interface *intf, pm_message_t message)
- 		 * or goes away.
- 		 */
- 		xpad360w_stop_input(xpad);
-+
-+		/*
-+		 * The wireless adapter is going off now, so the
-+		 * gamepads are going to become disconnected.
-+		 * Unless explicitly disabled, power them down
-+		 * so they don't just sit there flashing.
-+		 */
-+		if (!disable_auto_poweroff && xpad->pad_present)
-+			xpad360w_poweroff_controller(xpad);
- 	} else {
- 		mutex_lock(&input->mutex);
- 		if (input->users)
--- 
-2.7.4
+On another note, the commit message makes it sound like this might fix
+potential bugs. Since it's been like that for a couple of releases, do
+we need to Cc: stable@vger.kernel.org?
+
+Thierry
+
+--s9fJI615cBHmzTOP
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAABCAAGBQJXlyn3AAoJEN0jrNd/PrOhg+sP/0vk3yToqKkpjduhElpFOT9f
+4JkfxT2aLBOusav+UoZhojTFFt/5HEKY5fQw37EgdDr1B8PL8OzG0QHzBEtr3Kqd
+dkjChewtUZY3F4rM/NhHv0/2oo5/kcZTNachVyGjek2MpquFnUNZT70P2TJzvMg6
+mwBbSMxf3fOCVCkVmaW3T97xZJBlltW0wVbQ5yO9xXrBrPVwfVvgWKqasFKd/u8R
+jgh6PfAi4GU8eZpNYuZQVBcQGA/AQUvMHS1+kPzo4pbCBQHowary2w4JlDiINV1J
+99U0EGEQpl/1NACsVORxpPODbsT/FuRxAz8JKhjtQ3KencN1iZz8WnCl06f9Sd4Y
+fR7Ha55hapZ8SgiUqfAp4exp+BAkXbXhRBwXPCekB3xSDWEgmi1xYjQ5sAqasz5W
+tbAWjSxtLHb3dFhVjRGAbHlbhAIirwqKf/YK8jfmhClNrGcLtZCCfY4Mp/ZhThXg
+yeKPZLiLRLhXW0ae/Jzy0TEDROsQkPRO71BMjCD0As9Pi5XLsa5403hsFJjH9J0q
+qtTO45WpgcllVNIEV+G+WcsHzycOlTGWnuHWYx5M+ZlyWcaOMIL7w7cc19E4Yf2/
+kxmjz0fb5y7AH6qqOpu2Edq8tJ4+uKwJIKyUzamt2IdXaF3tW4h1Nny8m93XIzLn
+EU4I6OWgUPT3yV3tkgjh
+=rie1
+-----END PGP SIGNATURE-----
+
+--s9fJI615cBHmzTOP--

@@ -1,114 +1,39 @@
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: Re: [PATCH v4 3/5] power_supply: tps65217-charger: Add support for
- IRQs
-Date: Wed, 27 Jul 2016 11:14:27 +0200
-Message-ID: <e70d4f16-e727-6729-b3f2-fad2dd7847cb@grinn-global.com>
-References: <20160620105056.25843-1-m.niestroj@grinn-global.com>
- <20160620105056.25843-4-m.niestroj@grinn-global.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: RE: [PATCH] Improve Alps HID Touchpad code
+Date: Wed, 27 Jul 2016 16:12:10 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1607271611050.24757@cbobk.fhfr.pm>
+References: <1466568668-22272-1-git-send-email-masaki.ota@jp.alps.com> <20160623001101.GE16965@dtor-ws> <alpine.LNX.2.00.1606230858230.6874@cbobk.fhfr.pm> <OSXPR01MB040858DA208EB99E5AC3CBB2C70A0@OSXPR01MB0408.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20160620105056.25843-4-m.niestroj@grinn-global.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:42304 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751214AbcG0OMN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Jul 2016 10:12:13 -0400
+In-Reply-To: <OSXPR01MB040858DA208EB99E5AC3CBB2C70A0@OSXPR01MB0408.jpnprd01.prod.outlook.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Masaki Ota <masaki.ota@jp.alps.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Naoki Saito <naoki.saito@jp.alps.com>
 
-ping
+On Fri, 22 Jul 2016, Masaki Ota wrote:
 
-On 20.06.2016 12:50, Marcin Niestroj wrote:
-> Make use of IRQ resources defined in tps65217 mfd code. If they are valid
-> we use them instead separate poll task, in order to define AC power state.
->
-> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
-> ---
-> Depends on patch 1 and 2 in series
->
-> Changes v1 -> v4: none
->
->  drivers/power/tps65217_charger.c | 40 +++++++++++++++++++++++++++++++++-------
->  1 file changed, 33 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/power/tps65217_charger.c b/drivers/power/tps65217_charger.c
-> index 73dfae4..c8c4a0c 100644
-> --- a/drivers/power/tps65217_charger.c
-> +++ b/drivers/power/tps65217_charger.c
-> @@ -46,6 +46,8 @@ struct tps65217_charger {
->  	int	prev_ac_online;
->
->  	struct task_struct	*poll_task;
-> +
-> +	int	irq;
->  };
->
->  static enum power_supply_property tps65217_ac_props[] = {
-> @@ -198,6 +200,7 @@ static int tps65217_charger_probe(struct platform_device *pdev)
->  	struct tps65217 *tps = dev_get_drvdata(pdev->dev.parent);
->  	struct tps65217_charger *charger;
->  	struct power_supply_config cfg = {};
-> +	int irq;
->  	int ret;
->
->  	dev_dbg(&pdev->dev, "%s\n", __func__);
-> @@ -220,18 +223,40 @@ static int tps65217_charger_probe(struct platform_device *pdev)
->  		return PTR_ERR(charger->ac);
->  	}
->
-> +	irq = platform_get_irq_byname(pdev, "AC");
-> +	if (irq < 0)
-> +		irq = -ENXIO;
-> +	charger->irq = irq;
-> +
->  	ret = tps65217_config_charger(charger);
->  	if (ret < 0) {
->  		dev_err(charger->dev, "charger config failed, err %d\n", ret);
->  		return ret;
->  	}
->
-> -	charger->poll_task = kthread_run(tps65217_charger_poll_task,
-> -				      charger, "ktps65217charger");
-> -	if (IS_ERR(charger->poll_task)) {
-> -		ret = PTR_ERR(charger->poll_task);
-> -		dev_err(charger->dev, "Unable to run kthread err %d\n", ret);
-> -		return ret;
-> +	if (irq != -ENXIO) {
-> +		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
-> +						tps65217_charger_irq,
-> +						0, "tps65217-charger",
-> +						charger);
-> +		if (ret) {
-> +			dev_err(charger->dev,
-> +				"Unable to register irq %d err %d\n", irq,
-> +				ret);
-> +			return ret;
-> +		}
-> +
-> +		/* Check current state */
-> +		tps65217_charger_irq(irq, charger);
-> +	} else {
-> +		charger->poll_task = kthread_run(tps65217_charger_poll_task,
-> +						charger, "ktps65217charger");
-> +		if (IS_ERR(charger->poll_task)) {
-> +			ret = PTR_ERR(charger->poll_task);
-> +			dev_err(charger->dev,
-> +				"Unable to run kthread err %d\n", ret);
-> +			return ret;
-> +		}
->  	}
->
->  	return 0;
-> @@ -241,7 +266,8 @@ static int tps65217_charger_remove(struct platform_device *pdev)
->  {
->  	struct tps65217_charger *charger = platform_get_drvdata(pdev);
->
-> -	kthread_stop(charger->poll_task);
-> +	if (charger->irq == -ENXIO)
-> +		kthread_stop(charger->poll_task);
->
->  	return 0;
->  }
->
+> Hi, Jiri,
+> 
+> Good day.
+> 
+> Dell is asking me about this Alps modification's "commit id".
+> Do you know about it?
+
+The patches are queued in hid.git repository for 4.8. You can see them 
+here:
+
+	https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/log/?h=for-4.8/alps
+
+The branch is not rebasing, so the commit ids will be the same once it 
+hits Linus' tree.
 
 -- 
-Marcin Niestroj
+Jiri Kosina
+SUSE Labs
+

@@ -1,189 +1,118 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 4.8-rc0
-Date: Wed, 27 Jul 2016 14:19:28 -0700
-Message-ID: <20160727211928.GA24351@dtor-ws>
+Subject: Re: [PATCH] Input: xpad - power off wireless 360 controllers on
+ suspend
+Date: Wed, 27 Jul 2016 14:32:22 -0700
+Message-ID: <20160727213222.GB24351@dtor-ws>
+References: <6203d65c-4e15-c44c-edc9-d47cc78f1c28@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:34295 "EHLO
+	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751849AbcG0VcZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Jul 2016 17:32:25 -0400
+Received: by mail-pf0-f194.google.com with SMTP id g202so2459304pfb.1
+        for <linux-input@vger.kernel.org>; Wed, 27 Jul 2016 14:32:25 -0700 (PDT)
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <6203d65c-4e15-c44c-edc9-d47cc78f1c28@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Cameron Gutman <aicommander@gmail.com>
+Cc: rojtberg@gmail.com, linux-input@vger.kernel.org
 
-Hi Linus,
+On Mon, Jul 25, 2016 at 10:35:08PM -0700, Cameron Gutman wrote:
+> When the USB wireless adapter is suspended, the controllers
+> lose their connection. This causes them to start flashing
+> their LED rings and searching for the wireless adapter
+> again, wasting the controller's battery power.
+> 
+> Instead, we will tell the controllers to power down when
+> we suspend. This mirrors the behavior of the controllers
+> when connected to the console itself and how the official
+> Xbox One wireless adapter behaves on Windows.
+> 
+> Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+> ---
+> This patch is independent of the other xpad patch [0] that I
+> submitted (and decided to wait on). It applies against
+> unmodified xpad.c in master.
+> 
+> [0] http://www.spinics.net/lists/linux-input/msg46062.html
+> ---
+>  drivers/input/joystick/xpad.c | 43 +++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 43 insertions(+)
+> 
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index a529a45..3408019 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -115,6 +115,10 @@ static bool sticks_to_null;
+>  module_param(sticks_to_null, bool, S_IRUGO);
+>  MODULE_PARM_DESC(sticks_to_null, "Do not map sticks at all for unknown pads");
+>  
+> +static bool disable_auto_poweroff;
+> +module_param(disable_auto_poweroff, bool, S_IRUGO);
+> +MODULE_PARM_DESC(disable_auto_poweroff, "Do not power off wireless controllers on suspend");
 
-Please pull from:
+Why negating? Why not do
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+static bool xpad_auto_poweroff = true;
 
-to receive updates for the input subsystem. You will get the following
-new drivers promised in the last merge window:
+?
 
-- driver for touchscreen controller found in Surface 3
-- driver for Pegasus Notetaker tablet
-- driver for Atmel Captouch Buttons
-- driver for Raydium I2C touchscreen controllers
-- powerkey driver for HISI 65xx SoC
+(No need to resubmit if agree/disagree, I can fix up on my side).
 
-plus a few fixes.
+> +
+>  static const struct xpad_device {
+>  	u16 idVendor;
+>  	u16 idProduct;
+> @@ -1248,6 +1252,36 @@ static void xpad_stop_input(struct usb_xpad *xpad)
+>  	usb_kill_urb(xpad->irq_in);
+>  }
+>  
+> +static void xpad360w_poweroff_controller(struct usb_xpad *xpad)
+> +{
+> +	unsigned long flags;
+> +	struct xpad_output_packet *packet =
+> +			&xpad->out_packets[XPAD_OUT_CMD_IDX];
+> +
+> +	spin_lock_irqsave(&xpad->odata_lock, flags);
+> +
+> +	packet->data[0] = 0x00;
+> +	packet->data[1] = 0x00;
+> +	packet->data[2] = 0x08;
+> +	packet->data[3] = 0xC0;
+> +	packet->data[4] = 0x00;
+> +	packet->data[5] = 0x00;
+> +	packet->data[6] = 0x00;
+> +	packet->data[7] = 0x00;
+> +	packet->data[8] = 0x00;
+> +	packet->data[9] = 0x00;
+> +	packet->data[10] = 0x00;
+> +	packet->data[11] = 0x00;
+> +	packet->len = 12;
+> +	packet->pending = true;
 
-Changelog:
----------
+I wonder of we don't want to convert commands to something like that:
 
-Andrew Duggan (3):
-      Input: synaptics-rmi4 - remove pointer to rmi_function in f12_dat=
-a
-      Input: synaptics-rmi4 - remove unneeded variable
-      Input: synaptics-rmi4 - use the RMI_F11_REL_BYTES define in rmi_f=
-11_rel_pos_report
+	static const u8 power_off_cmd[] = {
+		0x00, 0x00, 0x08, 0xc0, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00,
+	};
 
-Andrew F. Davis (1):
-      Input: ti_am335x_tsc - use variable name for sizeof() operator
+	...
 
-Arnd Bergmann (2):
-      Input: atmel_captouch - add dependence on i2c
-      Input: migor-ts - mark PM functions as __maybe_unused
+	memcpy(packet->data, power_off_cmd, sizeof(power_off_cmd));
+	// if we need to change something
+	// packet->data[3] += command;
+	// packet->data[6] = id;
+	packet->len = sizeof(power_off_cmd);
+	...
 
-Benjamin Tissoires (1):
-      Input: add new driver for the Surface 3
+This should be a separate patch though.
 
-Bjorn Andersson (1):
-      Input: synaptics-rmi4 - support regulator supplies
+Thanks.
 
-Clifton Barnes (1):
-      Input: tc3589x-keypad - remove stray ')'
-
-Colin Ian King (4):
-      Input: regulator-haptic - fix spelling mistake: "dveice" -> "devi=
-ce"
-      Input: tegra-kbc - fix spelling mistake: "porperly" -> "properly"
-      Input: ams_delta_serio - fix spelling mistake: "paritiy" -> "pari=
-ty"
-      Input: apanel - spelling mistake - "skiping" -> "skipping"
-
-Daniel Hung-yu Wu (1):
-      Input: add Atmel Captouch Button driver
-
-Dmitry Torokhov (2):
-      Input: feed more data into entropy pool
-      Input: raydium_i2c_ts - do not ignore EPROBE_DEFER from gpiod_get=
-_optional
-
-Hans de Goede (4):
-      Input: of_touchscreen - add support for inverted / swapped axes
-      Input: edt-ft5x06 - add support for inverting / swapping axes
-      Input: icn8318 - use of_touchscreen helpers for inverting / swapp=
-ing axes
-      Input: pixcir_ts - add support for axis inversion / swapping
-
-Jan Beulich (1):
-      Input: xen-kbdfront - prefer xenbus_write() over xenbus_printf() =
-where possible
-
-Javier Martinez Canillas (2):
-      Input: migor-ts - fix error for modular build
-      Input: migor-ts - allow driver to build if COMPILE_TEST is enable=
-d
-
-Jeffrey Lin (2):
-      Input: add Raydium I2C touchscreen driver
-      Input: raydium_i2c_ts - check CRC of incoming packets
-
-Jorge Ramirez-Ortiz (1):
-      Input: add powerkey driver for HISI 65xx SoC
-
-KT Liao (1):
-      Input: update input_mt_report_pointer_emulation to support hoveri=
-ng
-
-Martin Kepplinger (5):
-      Input: add Pegasus Notetaker tablet driver
-      Input: pegasus_notetaker - handle usb control msg errors
-      Input: pegasus_notetaker - fix usb_autopm calls to be balanced
-      Input: pegasus_notetaker - cancel workqueue's work in suspend()
-      Input: pegasus_notetaker - set device mode in reset_resume() if i=
-n use
-
-Masanari Iida (1):
-      Input: fix a double word "is is" in include/linux/input.h
-
-Muhammad Falak R Wani (1):
-      Input: tty/vt/keyboard - use memdup_user()
-
-Nick Dyer (1):
-      Input: synaptics-rmi4 - fix spelling in defines
-
-Pali Roh=E1r (1):
-      Input: psmouse - use same format for secondary devices as for pri=
-mary
-
-Ping Cheng (2):
-      Input: wacom_w8001 - resolution wasn't set for ABS_MT_POSITION_X/=
-Y
-      Input: wacom_w8001 - handle errors from input_mt_init_slots()
-
-Stephen Just (2):
-      Input: surface3_spi - Prepare to add support for Surface Pen
-      Input: surface3_spi - add surface pen support for Surface 3
-
-
-Diffstat:
---------
-
- .../devicetree/bindings/input/atmel,captouch.txt   |   36 +
- .../devicetree/bindings/input/raydium_i2c_ts.txt   |   20 +
- .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |    9 +
- .../devicetree/bindings/vendor-prefixes.txt        |    1 +
- drivers/input/input-mt.c                           |   17 +-
- drivers/input/input.c                              |    7 +-
- drivers/input/keyboard/tc3589x-keypad.c            |    2 +-
- drivers/input/keyboard/tegra-kbc.c                 |    2 +-
- drivers/input/misc/Kconfig                         |   23 +
- drivers/input/misc/Makefile                        |    2 +
- drivers/input/misc/apanel.c                        |    2 +-
- drivers/input/misc/atmel_captouch.c                |  290 +++++
- drivers/input/misc/hisi_powerkey.c                 |  142 +++
- drivers/input/misc/regulator-haptic.c              |    2 +-
- drivers/input/misc/xen-kbdfront.c                  |    8 +-
- drivers/input/mouse/elantech.c                     |    2 +-
- drivers/input/mouse/lifebook.c                     |    2 +-
- drivers/input/rmi4/rmi_f01.c                       |   22 +-
- drivers/input/rmi4/rmi_f11.c                       |    9 +-
- drivers/input/rmi4/rmi_f12.c                       |    1 -
- drivers/input/rmi4/rmi_i2c.c                       |   46 +
- drivers/input/serio/ams_delta_serio.c              |    2 +-
- drivers/input/tablet/Kconfig                       |   15 +
- drivers/input/tablet/Makefile                      |    1 +
- drivers/input/tablet/pegasus_notetaker.c           |  450 +++++++
- drivers/input/touchscreen/Kconfig                  |   28 +-
- drivers/input/touchscreen/Makefile                 |    2 +
- drivers/input/touchscreen/ad7879.c                 |    2 +-
- drivers/input/touchscreen/chipone_icn8318.c        |   61 +-
- drivers/input/touchscreen/cyttsp_core.c            |    2 +-
- drivers/input/touchscreen/edt-ft5x06.c             |    7 +-
- drivers/input/touchscreen/migor_ts.c               |    6 +-
- drivers/input/touchscreen/of_touchscreen.c         |   81 +-
- drivers/input/touchscreen/pixcir_i2c_ts.c          |   53 +-
- drivers/input/touchscreen/raydium_i2c_ts.c         | 1238 ++++++++++++=
-++++++++
- drivers/input/touchscreen/surface3_spi.c           |  427 +++++++
- drivers/input/touchscreen/ti_am335x_tsc.c          |    2 +-
- drivers/input/touchscreen/tsc200x-core.c           |    2 +-
- drivers/input/touchscreen/wacom_w8001.c            |   10 +-
- include/linux/input.h                              |    2 +-
- include/linux/input/touchscreen.h                  |   21 +-
- 41 files changed, 2928 insertions(+), 129 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/atmel,capto=
-uch.txt
- create mode 100644 Documentation/devicetree/bindings/input/raydium_i2c=
-_ts.txt
- create mode 100644 drivers/input/misc/atmel_captouch.c
- create mode 100644 drivers/input/misc/hisi_powerkey.c
- create mode 100644 drivers/input/tablet/pegasus_notetaker.c
- create mode 100644 drivers/input/touchscreen/raydium_i2c_ts.c
- create mode 100644 drivers/input/touchscreen/surface3_spi.c
-
---=20
+-- 
 Dmitry

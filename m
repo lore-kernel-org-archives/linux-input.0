@@ -1,108 +1,76 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
- completion
-Date: Thu, 28 Jul 2016 11:33:43 -0700
-Message-ID: <20160728183343.GD16852@dtor-ws>
-References: <1469692512-16863-1-git-send-email-wagi@monom.org>
- <1469692512-16863-8-git-send-email-wagi@monom.org>
+Subject: Re: [PATCH] Input - elantech: fix debug dump of the current packet
+Date: Thu, 28 Jul 2016 11:40:03 -0700
+Message-ID: <20160728184003.GE16852@dtor-ws>
+References: <1469699935-23056-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1469730656.3998.63.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f68.google.com ([209.85.220.68]:35499 "EHLO
-	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753876AbcG1Sdr (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:34822 "EHLO
+	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753389AbcG1SkG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jul 2016 14:33:47 -0400
+	Thu, 28 Jul 2016 14:40:06 -0400
 Content-Disposition: inline
-In-Reply-To: <1469692512-16863-8-git-send-email-wagi@monom.org>
+In-Reply-To: <1469730656.3998.63.camel@perches.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Wagner <wagi@monom.org>
-Cc: Bastien Nocera <hadess@hadess.net>, Bjorn Andersson <bjorn.andersson@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>, linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Wagner <daniel.wagner@bmw-carit.de>
+To: Joe Perches <joe@perches.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jul 28, 2016 at 09:55:11AM +0200, Daniel Wagner wrote:
-> From: Daniel Wagner <daniel.wagner@bmw-carit.de>
-> 
-> Loading firmware is an operation many drivers implement in various ways
-> around the completion API. And most of them do it almost in the same
-> way. Let's reuse the firmware_stat API which is used also by the
-> firmware_class loader. Apart of streamlining the firmware loading states
-> we also document it slightly better.
-> 
-> Signed-off-by: Daniel Wagner <daniel.wagner@bmw-carit.de>
-> ---
->  drivers/input/misc/ims-pcu.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
-> index 9c0ea36..cda1fbf 100644
-> --- a/drivers/input/misc/ims-pcu.c
-> +++ b/drivers/input/misc/ims-pcu.c
-> @@ -109,7 +109,7 @@ struct ims_pcu {
->  
->  	u32 fw_start_addr;
->  	u32 fw_end_addr;
-> -	struct completion async_firmware_done;
-> +	struct firmware_stat fw_st;
->  
->  	struct ims_pcu_buttons buttons;
->  	struct ims_pcu_gamepad *gamepad;
-> @@ -940,7 +940,7 @@ static void ims_pcu_process_async_firmware(const struct firmware *fw,
->  	release_firmware(fw);
->  
->  out:
-> -	complete(&pcu->async_firmware_done);
-> +	fw_loading_done(pcu->fw_st);
+On Thu, Jul 28, 2016 at 11:30:56AM -0700, Joe Perches wrote:
+> On Thu, 2016-07-28 at 11:58 +0200, Benjamin Tissoires wrote:
+> > The use of mixed psmouse_printk() and printk creates 2 lines in the=
+ log,
+> > while the use of %*ph solves everything.
+> >=20
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > ---
+> > =A0drivers/input/mouse/elantech.c | 8 ++------
+> > =A01 file changed, 2 insertions(+), 6 deletions(-)
+> >=20
+> > diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/e=
+lantech.c
+> > index 615d23e..3461d04 100644
+> > --- a/drivers/input/mouse/elantech.c
+> > +++ b/drivers/input/mouse/elantech.c
+> > @@ -222,12 +222,8 @@ static int elantech_write_reg(struct psmouse *=
+psmouse, unsigned char reg,
+> > =A0 */
+> > =A0static void elantech_packet_dump(struct psmouse *psmouse)
+> > =A0{
+> > -	int	i;
+> > -
+> > -	psmouse_printk(KERN_DEBUG, psmouse, "PS/2 packet [");
+> > -	for (i =3D 0; i < psmouse->pktsize; i++)
+> > -		printk("%s0x%02x ", i ? ", " : " ", psmouse->packet[i]);
+> > -	printk("]\n");
+> > +	psmouse_printk(KERN_DEBUG, psmouse, "PS/2 packet [%*ph]",
+> > +		=A0=A0=A0=A0=A0=A0=A0psmouse->pktsize, psmouse->packet);
+> > =A0}
+> > =A0
+> > =A0/*
+>=20
+> This should add a newline "\n" format termination but
 
-Why does the driver have to do it? If firmware loader manages this, then
-it should let waiters know when callback finishes. 
+I added it, thanks for alerting me.
 
->  }
->  
->  /*********************************************************************
-> @@ -1967,7 +1967,7 @@ static int ims_pcu_init_bootloader_mode(struct ims_pcu *pcu)
->  					ims_pcu_process_async_firmware);
->  	if (error) {
->  		/* This error is not fatal, let userspace have another chance */
-> -		complete(&pcu->async_firmware_done);
-> +		fw_loading_abort(pcu->fw_st);
+> how does the original produce multiple lines of output?
+>=20
+> It looks more like psmouse_printk should be removed altogether
+> and dev_debug should be used instead.
 
-Why should the driver signal abort if it does not manage completion in
-this case?
-
->  	}
->  
->  	return 0;
-> @@ -1976,7 +1976,7 @@ static int ims_pcu_init_bootloader_mode(struct ims_pcu *pcu)
->  static void ims_pcu_destroy_bootloader_mode(struct ims_pcu *pcu)
->  {
->  	/* Make sure our initial firmware request has completed */
-> -	wait_for_completion(&pcu->async_firmware_done);
-> +	fw_loading_wait(pcu->fw_st);
->  }
->  
->  #define IMS_PCU_APPLICATION_MODE	0
-> @@ -2000,7 +2000,7 @@ static int ims_pcu_probe(struct usb_interface *intf,
->  	pcu->bootloader_mode = id->driver_info == IMS_PCU_BOOTLOADER_MODE;
->  	mutex_init(&pcu->cmd_mutex);
->  	init_completion(&pcu->cmd_done);
-> -	init_completion(&pcu->async_firmware_done);
-> +	firmware_stat_init(&pcu->fw_st);
-
-Do not quite like it... I'd rather asynchronous request give out a
-firmware status pointer that could be used later on.
-
-	pcu->fw_st = request_firmware_async(IMS_PCU_FIRMWARE_NAME,
-					    pcu,
-					    ims_pcu_process_async_firmware);
-	if (IS_ERR(pcu->fw_st))
-		return PTR_ERR(pcu->fw_st);
-
-	....
-
-	fw_loading_wait(pcu->fw_st);
+That does not produce output by default whereas elantech driver uses
+elantech_packet_dump() to drop unexpected packets.
 
 Thanks.
 
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

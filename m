@@ -1,7 +1,7 @@
 From: Daniel Wagner <wagi@monom.org>
-Subject: [RFC v0 2/8] selftests: firmware: do not clutter output
-Date: Thu, 28 Jul 2016 09:55:06 +0200
-Message-ID: <1469692512-16863-3-git-send-email-wagi@monom.org>
+Subject: [RFC v0 1/8] selftests: firmware: do not abort test too early
+Date: Thu, 28 Jul 2016 09:55:05 +0200
+Message-ID: <1469692512-16863-2-git-send-email-wagi@monom.org>
 References: <1469692512-16863-1-git-send-email-wagi@monom.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1469692512-16863-1-git-send-email-wagi@monom.org>
@@ -12,44 +12,34 @@ List-Id: linux-input@vger.kernel.org
 
 From: Daniel Wagner <daniel.wagner@bmw-carit.de>
 
-Some of the test are supposed to fail but we get a few ouptput lines:
+When running the test script you will get:
 
-./fw_filesystem.sh: line 51: printf: write error: Invalid argument
-./fw_filesystem.sh: line 56: printf: write error: No such device
-./fw_filesystem.sh: line 62: echo: write error: No such file or directory
+kselftest/firmware/fw_userhelper.sh: line 69: echo: write error: Resource temporarily unavailable
 
-Let's silence them so that the selftest output is clean if all is fine.
+and stops right there. Because the script runs with the '-e' option
+which will stop the script at any error.
+
+We should stop there because we are trying to something wrong and get an
+error reported back. Instead, ignore the error message and make sure we
+do not stop the script by setting the last error code to true.
 
 Signed-off-by: Daniel Wagner <daniel.wagner@bmw-carit.de>
 ---
- tools/testing/selftests/firmware/fw_filesystem.sh | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/testing/selftests/firmware/fw_userhelper.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/firmware/fw_filesystem.sh b/tools/testing/selftests/firmware/fw_filesystem.sh
-index 5c495ad..d8ac9ba 100755
---- a/tools/testing/selftests/firmware/fw_filesystem.sh
-+++ b/tools/testing/selftests/firmware/fw_filesystem.sh
-@@ -48,18 +48,18 @@ echo "ABCD0123" >"$FW"
+diff --git a/tools/testing/selftests/firmware/fw_userhelper.sh b/tools/testing/selftests/firmware/fw_userhelper.sh
+index b9983f8..2d244a7 100755
+--- a/tools/testing/selftests/firmware/fw_userhelper.sh
++++ b/tools/testing/selftests/firmware/fw_userhelper.sh
+@@ -66,7 +66,7 @@ NAME=$(basename "$FW")
  
- NAME=$(basename "$FW")
- 
--if printf '\000' >"$DIR"/trigger_request; then
-+if printf '\000' >"$DIR"/trigger_request 2> /dev/null; then
- 	echo "$0: empty filename should not succeed" >&2
+ # Test failure when doing nothing (timeout works).
+ echo 1 >/sys/class/firmware/timeout
+-echo -n "$NAME" >"$DIR"/trigger_request
++echo -n "$NAME" >"$DIR"/trigger_request 2> /dev/null || true
+ if diff -q "$FW" /dev/test_firmware >/dev/null ; then
+ 	echo "$0: firmware was not expected to match" >&2
  	exit 1
- fi
- 
--if printf '\000' >"$DIR"/trigger_async_request; then
-+if printf '\000' >"$DIR"/trigger_async_request 2> /dev/null; then
- 	echo "$0: empty filename should not succeed (async)" >&2
- 	exit 1
- fi
- 
- # Request a firmware that doesn't exist, it should fail.
--if echo -n "nope-$NAME" >"$DIR"/trigger_request; then
-+if echo -n "nope-$NAME" >"$DIR"/trigger_request 2> /dev/null; then
- 	echo "$0: firmware shouldn't have loaded" >&2
- 	exit 1
- fi
 -- 
 2.7.4

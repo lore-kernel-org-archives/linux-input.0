@@ -1,136 +1,65 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: xpad - power off wireless 360 controllers on
- suspend
-Date: Wed, 27 Jul 2016 18:25:31 -0700
-Message-ID: <20160728012531.GG24351@dtor-ws>
-References: <6203d65c-4e15-c44c-edc9-d47cc78f1c28@gmail.com>
- <20160727213222.GB24351@dtor-ws>
- <20160727213912.GD24351@dtor-ws>
- <8a8bea8a-69c4-3f2f-c32c-151b3076e7cb@gmail.com>
- <20160728000416.GE24351@dtor-ws>
- <4fdf587c-0d51-68ca-edc6-5978d9bfa0ca@gmail.com>
- <20160728002944.GF24351@dtor-ws>
- <b211ba5a-0a48-783b-530d-b61fd16273a1@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34392 "EHLO
-	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758905AbcG1BZf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jul 2016 21:25:35 -0400
-Received: by mail-pf0-f193.google.com with SMTP id g202so2725350pfb.1
-        for <linux-input@vger.kernel.org>; Wed, 27 Jul 2016 18:25:34 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <b211ba5a-0a48-783b-530d-b61fd16273a1@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Daniel Wagner <wagi@monom.org>
+Subject: [RFC v0 0/8] Reuse firmware loader helpers
+Date: Thu, 28 Jul 2016 09:55:04 +0200
+Message-ID: <1469692512-16863-1-git-send-email-wagi@monom.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>, Bjorn Andersson <bjorn.andersson@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>
+Cc: linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Wagner <daniel.wagner@bmw-carit.de>
 List-Id: linux-input@vger.kernel.org
-To: Cameron Gutman <aicommander@gmail.com>
-Cc: rojtberg@gmail.com, linux-input@vger.kernel.org
 
-On Wed, Jul 27, 2016 at 06:23:19PM -0700, Cameron Gutman wrote:
-> On 07/27/2016 05:29 PM, Dmitry Torokhov wrote:
-> > On Wed, Jul 27, 2016 at 05:10:41PM -0700, Cameron Gutman wrote:
-> >> On 07/27/2016 05:04 PM, Dmitry Torokhov wrote:
-> >>> On Wed, Jul 27, 2016 at 04:24:06PM -0700, Cameron Gutman wrote:
-> >>>> On 07/27/2016 02:39 PM, Dmitry Torokhov wrote:
-> >>>>> On Wed, Jul 27, 2016 at 02:32:22PM -0700, Dmitry Torokhov wrote:
-> >>>>>> On Mon, Jul 25, 2016 at 10:35:08PM -0700, Cameron Gutman wrote:
-> >>>>>>> When the USB wireless adapter is suspended, the controllers
-> >>>>>>> lose their connection. This causes them to start flashing
-> >>>>>>> their LED rings and searching for the wireless adapter
-> >>>>>>> again, wasting the controller's battery power.
-> >>>>>>>
-> >>>>>>> Instead, we will tell the controllers to power down when
-> >>>>>>> we suspend. This mirrors the behavior of the controllers
-> >>>>>>> when connected to the console itself and how the official
-> >>>>>>> Xbox One wireless adapter behaves on Windows.
-> >>>>>>>
-> >>>>>>> Signed-off-by: Cameron Gutman <aicommander@gmail.com>
-> >>>>>>> ---
-> >>>>>>> This patch is independent of the other xpad patch [0] that I
-> >>>>>>> submitted (and decided to wait on). It applies against
-> >>>>>>> unmodified xpad.c in master.
-> >>>>>>>
-> >>>>>>> [0] http://www.spinics.net/lists/linux-input/msg46062.html
-> >>>>>>> ---
-> >>>>>>>  drivers/input/joystick/xpad.c | 43 +++++++++++++++++++++++++++++++++++++++++++
-> >>>>>>>  1 file changed, 43 insertions(+)
-> >>>>>>>
-> >>>>>>> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> >>>>>>> index a529a45..3408019 100644
-> >>>>>>> --- a/drivers/input/joystick/xpad.c
-> >>>>>>> +++ b/drivers/input/joystick/xpad.c
-> >>>>>>> @@ -115,6 +115,10 @@ static bool sticks_to_null;
-> >>>>>>>  module_param(sticks_to_null, bool, S_IRUGO);
-> >>>>>>>  MODULE_PARM_DESC(sticks_to_null, "Do not map sticks at all for unknown pads");
-> >>>>>>>  
-> >>>>>>> +static bool disable_auto_poweroff;
-> >>>>>>> +module_param(disable_auto_poweroff, bool, S_IRUGO);
-> >>>>>>> +MODULE_PARM_DESC(disable_auto_poweroff, "Do not power off wireless controllers on suspend");
-> >>>>>>
-> >>>>>> Why negating? Why not do
-> >>>>>>
-> >>>>>> static bool xpad_auto_poweroff = true;
-> >>>>>>
-> >>>>>> ?
-> >>>>>>
-> >>>>>> (No need to resubmit if agree/disagree, I can fix up on my side).
-> >>>>
-> >>>> Yeah, sounds fine to make it default Y and get rid of the negation.
-> >>>>
-> >>>> I'm fine with it if you want to make that change and apply it. See my
-> >>>> comments below about the other issues.
-> >>>>
-> >>>>>
-> >>>>> By the way, I think we can allow root writing to it, there is nothing
-> >>>>> that stops us from changing behavior at runtime.
-> >>>>
-> >>>> Yep, I was following the convention of the existing module params. They
-> >>>> can probably all be changed to allow root writing.
-> >>>
-> >>> My rule of thumb is we allow writing if behavior changes immediately.
-> >>> The other parameters only affect devices that will be bound after the
-> >>> parameter has been changed, which woudl be confusing. So they are RO and
-> >>> you have to specify them at module load time.
-> >>>
-> >>> Thanks.
-> >>>
-> >>
-> >> Sounds reasonable. Would you like to make the permission change also or
-> >> do you prefer I resubmit the patch with those 2 modifications?
-> > 
-> > No, I made them. If you have a moment please take a look at my "next"
-> > branch on kernel.org.
-> > 
-> 
-> I reviewed and tested your changes. I think you forgot to undo one of the
-> negations. With the patch below applied on the commit in next, it works
-> correctly.
+From: Daniel Wagner <daniel.wagner@bmw-carit.de>
 
-Oops, you are right. I'll fold it into the original patch.
+Hi,
 
-> 
-> ---
->  drivers/input/joystick/xpad.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index 0c8d5c3..83af17a 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -1631,7 +1631,7 @@ static int xpad_suspend(struct usb_interface *intf, pm_message_t message)
->  		 * Unless explicitly disabled, power them down
->  		 * so they don't just sit there flashing.
->  		 */
-> -		if (!auto_poweroff && xpad->pad_present)
-> +		if (auto_poweroff && xpad->pad_present)
->  			xpad360w_poweroff_controller(xpad);
->  	} else {
->  		mutex_lock(&input->mutex);
-> -- 
-> 2.7.4
-> 
+While reviewing all the complete_all() users, I realized there is
+recouring pattern how the completion API is used to synchronize the
+stages of the firmware loading. Since firmware_class.c contains a
+fairly complete implemetation for synching the loading, it worthwhile
+to export it and reuse it in drivers, At the same time one
+complete_all() user is gone which is a good thing for -rt (*).
+
+The first 2 patches are bug fixes for the test script.
+
+Patch 3 adds the new API, and the following patches update a few
+drivers.
+
+I haven't updated all the drivers because I wanted to see first if
+this is going into the right direction. Since naming is a difficult, I
+am more than please to pick a better name if you have one.
+
+cheers,
+daniel
+
+(*) Under -rt waking all waiters via complete_all() is not good. If
+the complete_all() call happens in IRQ context we have an unbound
+latency there. Therefore the aim is to reduce the complete_all() users
+and get rid of them where possible.
+
+Daniel Wagner (8):
+  selftests: firmware: do not abort test too early
+  selftests: firmware: do not clutter output
+  firmware: Factor out firmware load helpers
+  Input: goodix: use firmware_stat instead of completion
+  ath9k_htc: use firmware_stat instead of completion
+  remoteproc: use firmware_stat instead of completion
+  Input: ims-pcu: use firmware_stat instead of completion
+  iwl4965: use firmware_stat instead of completion
+
+ drivers/base/firmware_class.c                     | 112 ++++++++++------------
+ drivers/input/misc/ims-pcu.c                      |  10 +-
+ drivers/input/touchscreen/goodix.c                |  10 +-
+ drivers/net/wireless/ath/ath9k/hif_usb.c          |  10 +-
+ drivers/net/wireless/ath/ath9k/hif_usb.h          |   2 +-
+ drivers/net/wireless/intel/iwlegacy/4965-mac.c    |   8 +-
+ drivers/net/wireless/intel/iwlegacy/common.h      |   3 +-
+ drivers/remoteproc/remoteproc_core.c              |  10 +-
+ drivers/soc/ti/wkup_m3_ipc.c                      |   2 +-
+ include/linux/firmware.h                          |  71 ++++++++++++++
+ include/linux/remoteproc.h                        |   6 +-
+ tools/testing/selftests/firmware/fw_filesystem.sh |   6 +-
+ tools/testing/selftests/firmware/fw_userhelper.sh |   2 +-
+ 13 files changed, 158 insertions(+), 94 deletions(-)
 
 -- 
-Dmitry
+2.7.4

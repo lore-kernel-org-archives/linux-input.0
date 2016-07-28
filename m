@@ -1,7 +1,7 @@
 From: Daniel Wagner <wagi@monom.org>
-Subject: [RFC v0 8/8] iwl4965: use firmware_stat instead of completion
-Date: Thu, 28 Jul 2016 09:55:12 +0200
-Message-ID: <1469692512-16863-9-git-send-email-wagi@monom.org>
+Subject: [RFC v0 5/8] ath9k_htc: use firmware_stat instead of completion
+Date: Thu, 28 Jul 2016 09:55:09 +0200
+Message-ID: <1469692512-16863-6-git-send-email-wagi@monom.org>
 References: <1469692512-16863-1-git-send-email-wagi@monom.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1469692512-16863-1-git-send-email-wagi@monom.org>
@@ -20,70 +20,71 @@ we also document it slightly better.
 
 Signed-off-by: Daniel Wagner <daniel.wagner@bmw-carit.de>
 ---
- drivers/net/wireless/intel/iwlegacy/4965-mac.c | 8 ++++----
- drivers/net/wireless/intel/iwlegacy/common.h   | 3 ++-
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c | 10 +++++-----
+ drivers/net/wireless/ath/ath9k/hif_usb.h |  2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlegacy/4965-mac.c b/drivers/net/wireless/intel/iwlegacy/4965-mac.c
-index a91d170..d5e5808 100644
---- a/drivers/net/wireless/intel/iwlegacy/4965-mac.c
-+++ b/drivers/net/wireless/intel/iwlegacy/4965-mac.c
-@@ -5005,7 +5005,7 @@ il4965_ucode_callback(const struct firmware *ucode_raw, void *context)
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
+index e1c338c..0a05d68 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -1067,7 +1067,7 @@ static void ath9k_hif_usb_firmware_fail(struct hif_device_usb *hif_dev)
+ 	struct device *dev = &hif_dev->udev->dev;
+ 	struct device *parent = dev->parent;
  
- 	/* We have our copies now, allow OS release its copies */
- 	release_firmware(ucode_raw);
--	complete(&il->_4965.firmware_loading_complete);
-+	fw_loading_done(il->_4965.fw_st);
+-	complete_all(&hif_dev->fw_done);
++	fw_loading_abort(hif_dev->fw_st);
+ 
+ 	if (parent)
+ 		device_lock(parent);
+@@ -1192,7 +1192,7 @@ static void ath9k_hif_usb_firmware_cb(const struct firmware *fw, void *context)
+ 
+ 	release_firmware(fw);
+ 	hif_dev->flags |= HIF_USB_READY;
+-	complete_all(&hif_dev->fw_done);
++	fw_loading_done(hif_dev->fw_st);
+ 
  	return;
  
- try_again:
-@@ -5019,7 +5019,7 @@ err_pci_alloc:
- 	IL_ERR("failed to allocate pci memory\n");
- 	il4965_dealloc_ucode_pci(il);
- out_unbind:
--	complete(&il->_4965.firmware_loading_complete);
-+	fw_loading_done(il->_4965.fw_st);
- 	device_release_driver(&il->pci_dev->dev);
- 	release_firmware(ucode_raw);
- }
-@@ -6678,7 +6678,7 @@ il4965_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+@@ -1287,7 +1287,7 @@ static int ath9k_hif_usb_probe(struct usb_interface *interface,
+ #endif
+ 	usb_set_intfdata(interface, hif_dev);
  
- 	il_power_initialize(il);
+-	init_completion(&hif_dev->fw_done);
++	firmware_stat_init(&hif_dev->fw_st);
  
--	init_completion(&il->_4965.firmware_loading_complete);
-+	firmware_stat_init(&il->_4965.fw_st);
- 
- 	err = il4965_request_firmware(il, true);
- 	if (err)
-@@ -6716,7 +6716,7 @@ il4965_pci_remove(struct pci_dev *pdev)
- 	if (!il)
+ 	ret = ath9k_hif_request_firmware(hif_dev, true);
+ 	if (ret)
+@@ -1330,7 +1330,7 @@ static void ath9k_hif_usb_disconnect(struct usb_interface *interface)
+ 	if (!hif_dev)
  		return;
  
--	wait_for_completion(&il->_4965.firmware_loading_complete);
-+	fw_loading_wait(il->_4965.fw_st);
+-	wait_for_completion(&hif_dev->fw_done);
++	fw_loading_wait(hif_dev->fw_st);
  
- 	D_INFO("*** UNLOAD DRIVER ***\n");
+ 	if (hif_dev->flags & HIF_USB_READY) {
+ 		ath9k_htc_hw_deinit(hif_dev->htc_handle, unplugged);
+@@ -1363,7 +1363,7 @@ static int ath9k_hif_usb_suspend(struct usb_interface *interface,
+ 	if (!(hif_dev->flags & HIF_USB_START))
+ 		ath9k_htc_suspend(hif_dev->htc_handle);
  
-diff --git a/drivers/net/wireless/intel/iwlegacy/common.h b/drivers/net/wireless/intel/iwlegacy/common.h
-index 726ede3..94af7b7 100644
---- a/drivers/net/wireless/intel/iwlegacy/common.h
-+++ b/drivers/net/wireless/intel/iwlegacy/common.h
-@@ -32,6 +32,7 @@
- #include <linux/leds.h>
- #include <linux/wait.h>
- #include <linux/io.h>
-+#include <linux/firmware.h>
- #include <net/mac80211.h>
- #include <net/ieee80211_radiotap.h>
+-	wait_for_completion(&hif_dev->fw_done);
++	fw_loading_wait(hif_dev->fw_st);
  
-@@ -1357,7 +1358,7 @@ struct il_priv {
- 			bool last_phy_res_valid;
- 			u32 ampdu_ref;
- 
--			struct completion firmware_loading_complete;
-+			struct firmware_stat fw_st;
- 
- 			/*
- 			 * chain noise reset and gain commands are the
+ 	if (hif_dev->flags & HIF_USB_READY)
+ 		ath9k_hif_usb_dealloc_urbs(hif_dev);
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.h b/drivers/net/wireless/ath/ath9k/hif_usb.h
+index 7c2ef7e..0af9fe4 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.h
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.h
+@@ -111,7 +111,7 @@ struct hif_device_usb {
+ 	const struct usb_device_id *usb_device_id;
+ 	const void *fw_data;
+ 	size_t fw_size;
+-	struct completion fw_done;
++	struct firmware_stat fw_st;
+ 	struct htc_target *htc_handle;
+ 	struct hif_usb_tx tx;
+ 	struct usb_anchor regout_submitted;
 -- 
 2.7.4

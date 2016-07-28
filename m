@@ -1,86 +1,108 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v6] input: touchscreen: Add generic driver for Silead touchscreens
-Date: Thu, 28 Jul 2016 13:32:56 -0500
-Message-ID: <CAL_Jsq+46tz+onVR=Az8Xwcb7NOLX2EkRJGxqvUsp2nFm+P-Hg@mail.gmail.com>
-References: <1468252304-22850-1-git-send-email-hdegoede@redhat.com>
- <20160716175605.GA4873@rob-hp-laptop> <20160719184425.GC19250@dtor-ws> <20160727213555.GC24351@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
+ completion
+Date: Thu, 28 Jul 2016 11:33:43 -0700
+Message-ID: <20160728183343.GD16852@dtor-ws>
+References: <1469692512-16863-1-git-send-email-wagi@monom.org>
+ <1469692512-16863-8-git-send-email-wagi@monom.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:52934 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753876AbcG1SdS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jul 2016 14:33:18 -0400
-In-Reply-To: <20160727213555.GC24351@dtor-ws>
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:35499 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753876AbcG1Sdr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 Jul 2016 14:33:47 -0400
+Content-Disposition: inline
+In-Reply-To: <1469692512-16863-8-git-send-email-wagi@monom.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, devicetree <devicetree@vger.kernel.org>, Wessel Blokzijl <wesselb94@gmail.com>, Siebren Vroegindeweij <siebren.vroegindeweij@gmail.com>, Robert Dolca <robert.dolca@intel.com>, Daniel Jansen <djaniboe@gmail.com>
+To: Daniel Wagner <wagi@monom.org>
+Cc: Bastien Nocera <hadess@hadess.net>, Bjorn Andersson <bjorn.andersson@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>, linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Wagner <daniel.wagner@bmw-carit.de>
 
-On Wed, Jul 27, 2016 at 4:35 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Jul 19, 2016 at 11:44:25AM -0700, Dmitry Torokhov wrote:
->> On Sat, Jul 16, 2016 at 12:56:05PM -0500, Rob Herring wrote:
->> > On Mon, Jul 11, 2016 at 05:51:44PM +0200, Hans de Goede wrote:
->> > > From: Robert Dolca <robert.dolca@intel.com>
->> > >
->> > > This driver adds support for Silead touchscreens. It has been tested
->> > > with GSL1680 and GSL3680 touch panels.
->> > >
->> > > It supports ACPI and device tree enumeration. Screen resolution,
->> > > the maximum number of fingers supported and firmware name are
->> > > configurable.
->> > >
->> > > Signed-off-by: Robert Dolca <robert.dolca@intel.com>
->> > > Signed-off-by: Daniel Jansen <djaniboe@gmail.com>
->> > > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> > > ---
->> > > Changes in v6:
->> > > -Default to 5 fingers if max-fingers is not specified
->> > > -Improve devicetree binding doc: improve wake-gpios description, use
->> > >  "See touchscreen.txt" where applicable
->> > > ---
->> > >  .../bindings/input/touchscreen/silead_gsl1680.txt  |  36 ++
->> > >  drivers/input/touchscreen/Kconfig                  |  13 +
->> > >  drivers/input/touchscreen/Makefile                 |   1 +
->> > >  drivers/input/touchscreen/silead.c                 | 652 +++++++++++++++++++++
->> > >  4 files changed, 702 insertions(+)
->> > >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
->> > >  create mode 100644 drivers/input/touchscreen/silead.c
->> > >
->> > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
->> > > new file mode 100644
->> > > index 0000000..1e58d37
->> > > --- /dev/null
->> > > +++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
->> > > @@ -0,0 +1,36 @@
->> > > +* GSL 1680 touchscreen controller
->> > > +
->> > > +Required properties:
->> > > +- compatible               : "silead,gsl1680"
->> > > +- reg                      : I2C slave address of the chip (0x40)
->> > > +- interrupt-parent         : a phandle pointing to the interrupt controller
->> > > +                     serving the interrupt for this chip
->> > > +- interrupts               : interrupt specification for the gsl1680 interrupt
->> > > +- power-gpios              : Specification for the pin connected to the gsl1680's
->> > > +                     shutdown input. This needs to be driven high to take the
->> > > +                     gsl1680 out of its low power state
->> > > +- touchscreen-size-x       : See touchscreen.txt
->> > > +- touchscreen-size-y       : See touchscreen.txt
->> > > +- touchscreen-max-fingers : maximum number of fingers the touchscreen can detect
->> >
->> > If you name it like a standard property, then it should be documented in
->> > touchscreen.txt.
->>
->> Actually this is very much Silead-specific wart, I'd rather we called it
->> "max-fingers" or "silead,max-fingers" to illustrate that it is not at
->> all a generic property.
->>
->> Rob, will you be OK with it?
->
-> Rob, ping? I'd like to get it into the tree and this is only outstanding
-> question.
+On Thu, Jul 28, 2016 at 09:55:11AM +0200, Daniel Wagner wrote:
+> From: Daniel Wagner <daniel.wagner@bmw-carit.de>
+> 
+> Loading firmware is an operation many drivers implement in various ways
+> around the completion API. And most of them do it almost in the same
+> way. Let's reuse the firmware_stat API which is used also by the
+> firmware_class loader. Apart of streamlining the firmware loading states
+> we also document it slightly better.
+> 
+> Signed-off-by: Daniel Wagner <daniel.wagner@bmw-carit.de>
+> ---
+>  drivers/input/misc/ims-pcu.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
+> index 9c0ea36..cda1fbf 100644
+> --- a/drivers/input/misc/ims-pcu.c
+> +++ b/drivers/input/misc/ims-pcu.c
+> @@ -109,7 +109,7 @@ struct ims_pcu {
+>  
+>  	u32 fw_start_addr;
+>  	u32 fw_end_addr;
+> -	struct completion async_firmware_done;
+> +	struct firmware_stat fw_st;
+>  
+>  	struct ims_pcu_buttons buttons;
+>  	struct ims_pcu_gamepad *gamepad;
+> @@ -940,7 +940,7 @@ static void ims_pcu_process_async_firmware(const struct firmware *fw,
+>  	release_firmware(fw);
+>  
+>  out:
+> -	complete(&pcu->async_firmware_done);
+> +	fw_loading_done(pcu->fw_st);
 
-Okay. With vendor prefix please.
+Why does the driver have to do it? If firmware loader manages this, then
+it should let waiters know when callback finishes. 
 
-Rob
+>  }
+>  
+>  /*********************************************************************
+> @@ -1967,7 +1967,7 @@ static int ims_pcu_init_bootloader_mode(struct ims_pcu *pcu)
+>  					ims_pcu_process_async_firmware);
+>  	if (error) {
+>  		/* This error is not fatal, let userspace have another chance */
+> -		complete(&pcu->async_firmware_done);
+> +		fw_loading_abort(pcu->fw_st);
+
+Why should the driver signal abort if it does not manage completion in
+this case?
+
+>  	}
+>  
+>  	return 0;
+> @@ -1976,7 +1976,7 @@ static int ims_pcu_init_bootloader_mode(struct ims_pcu *pcu)
+>  static void ims_pcu_destroy_bootloader_mode(struct ims_pcu *pcu)
+>  {
+>  	/* Make sure our initial firmware request has completed */
+> -	wait_for_completion(&pcu->async_firmware_done);
+> +	fw_loading_wait(pcu->fw_st);
+>  }
+>  
+>  #define IMS_PCU_APPLICATION_MODE	0
+> @@ -2000,7 +2000,7 @@ static int ims_pcu_probe(struct usb_interface *intf,
+>  	pcu->bootloader_mode = id->driver_info == IMS_PCU_BOOTLOADER_MODE;
+>  	mutex_init(&pcu->cmd_mutex);
+>  	init_completion(&pcu->cmd_done);
+> -	init_completion(&pcu->async_firmware_done);
+> +	firmware_stat_init(&pcu->fw_st);
+
+Do not quite like it... I'd rather asynchronous request give out a
+firmware status pointer that could be used later on.
+
+	pcu->fw_st = request_firmware_async(IMS_PCU_FIRMWARE_NAME,
+					    pcu,
+					    ims_pcu_process_async_firmware);
+	if (IS_ERR(pcu->fw_st))
+		return PTR_ERR(pcu->fw_st);
+
+	....
+
+	fw_loading_wait(pcu->fw_st);
+
+Thanks.
+
+-- 
+Dmitry

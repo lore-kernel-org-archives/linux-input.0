@@ -1,57 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Joe Perches <joe@perches.com>
 Subject: Re: [PATCH] Input - elantech: fix debug dump of the current packet
-Date: Thu, 28 Jul 2016 11:22:28 -0700
-Message-ID: <20160728182228.GC16852@dtor-ws>
+Date: Thu, 28 Jul 2016 11:30:56 -0700
+Message-ID: <1469730656.3998.63.camel@perches.com>
 References: <1469699935-23056-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:36717 "EHLO
-	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755241AbcG1SWc (ORCPT
+Received: from smtprelay0008.hostedemail.com ([216.40.44.8]:41149 "EHLO
+	smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1756835AbcG1SbD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jul 2016 14:22:32 -0400
-Content-Disposition: inline
+	Thu, 28 Jul 2016 14:31:03 -0400
 In-Reply-To: <1469699935-23056-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jul 28, 2016 at 11:58:55AM +0200, Benjamin Tissoires wrote:
-> The use of mixed psmouse_printk() and printk creates 2 lines in the log,
+On Thu, 2016-07-28 at 11:58 +0200, Benjamin Tissoires wrote:
+> The use of mixed psmouse_printk() and printk creates 2 lines in the l=
+og,
 > while the use of %*ph solves everything.
-> 
+>=20
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Applied, thank you.
-
 > ---
->  drivers/input/mouse/elantech.c | 8 ++------
->  1 file changed, 2 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> =A0drivers/input/mouse/elantech.c | 8 ++------
+> =A01 file changed, 2 insertions(+), 6 deletions(-)
+>=20
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/ela=
+ntech.c
 > index 615d23e..3461d04 100644
 > --- a/drivers/input/mouse/elantech.c
 > +++ b/drivers/input/mouse/elantech.c
-> @@ -222,12 +222,8 @@ static int elantech_write_reg(struct psmouse *psmouse, unsigned char reg,
->   */
->  static void elantech_packet_dump(struct psmouse *psmouse)
->  {
+> @@ -222,12 +222,8 @@ static int elantech_write_reg(struct psmouse *ps=
+mouse, unsigned char reg,
+> =A0 */
+> =A0static void elantech_packet_dump(struct psmouse *psmouse)
+> =A0{
 > -	int	i;
 > -
 > -	psmouse_printk(KERN_DEBUG, psmouse, "PS/2 packet [");
-> -	for (i = 0; i < psmouse->pktsize; i++)
+> -	for (i =3D 0; i < psmouse->pktsize; i++)
 > -		printk("%s0x%02x ", i ? ", " : " ", psmouse->packet[i]);
 > -	printk("]\n");
 > +	psmouse_printk(KERN_DEBUG, psmouse, "PS/2 packet [%*ph]",
-> +		       psmouse->pktsize, psmouse->packet);
->  }
->  
->  /*
-> -- 
-> 2.5.5
-> 
+> +		=A0=A0=A0=A0=A0=A0=A0psmouse->pktsize, psmouse->packet);
+> =A0}
+> =A0
+> =A0/*
 
--- 
-Dmitry
+This should add a newline "\n" format termination but
+how does the original produce multiple lines of output?
+
+It looks more like psmouse_printk should be removed altogether
+and dev_debug should be used instead.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

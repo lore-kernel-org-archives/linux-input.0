@@ -1,78 +1,79 @@
-From: Oleksij Rempel <linux@rempel-privat.de>
-Subject: [PATCH] Input: atkbd - filter buggy codes on ASUS Q500A
-Date: Fri, 29 Jul 2016 21:41:44 +0200
-Message-ID: <1469821304-30255-1-git-send-email-linux@rempel-privat.de>
+From: Leo Sperling <leosperling97@gmail.com>
+Subject: [PATCH] Drivers: Input: Joystick: Fixed coding style issues
+Date: Sat, 30 Jul 2016 00:04:37 +0200
+Message-ID: <20160729220437.19296-1-leosperling97@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.15.19]:61904 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750839AbcG2Tl6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Jul 2016 15:41:58 -0400
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:34586 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752937AbcG2WEs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 Jul 2016 18:04:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Oleksij Rempel <linux@rempel-privat.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Leo Sperling <leosperling97@gmail.com>
 
-Some revision of ASUS Q500A series have keyboard related
-issue which is reproducible only if Windows with installed ASUS
-tools was ever started.
-In this case the Linux side will have blocked keyboard or
-report wrong or incomplete hotkey events.
-To make Linux work properly again complete power down
-(unplug power supply and remove battery) should be made.
+Fixed some coding style issues reported by checkpatch.pl. Mostly brackets
+in macros, spacing and comment style.
 
-Linux/atkbd after clean start will get fallowing code on VOLUME_UP
-key: {0xe0, 0x30, 0xe0, 0xb0}. After Windows, same key will generate this
-codes: {0xe1, 0x23, 0xe0, 0x30, 0xe0, 0xb0}. As result atkdb will
-be confused by buggy codes.
-
-This patch is filtering this buggy code out.
-
-https://bugzilla.kernel.org/show_bug.cgi?id=119391
-
-Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
-Sponsored-by: Alex Henrie <alexhenrie24@gmail.com>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Leo Sperling <leosperling97@gmail.com>
 ---
- drivers/input/keyboard/atkbd.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/input/joystick/xpad.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index ec876b5..949c199 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -996,6 +996,17 @@ static unsigned int atkbd_oqo_01plus_scancode_fixup(struct atkbd *atkbd,
- 	return code;
- }
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index a529a45..37acf35 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -89,8 +89,10 @@
  
-+static unsigned int atkbd_asus_q500a_scancode_fixup(struct atkbd *atkbd,
-+						    unsigned int code)
-+{
-+	if (atkbd->translated && atkbd->emul == 2 && code == 0x23) {
-+		atkbd->emul = 0;
-+		return ATKBD_RET_ERR;
-+	}
-+
-+	return code;
-+}
-+
- /*
-  * atkbd_set_keycode_table() initializes keyboard's keycode table
-  * according to the selected scancode set
-@@ -1802,6 +1813,14 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 		},
- 		.callback = atkbd_deactivate_fixup,
- 	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Q500A"),
-+		},
-+		.callback = atkbd_setup_scancode_fixup,
-+		.driver_data = atkbd_asus_q500a_scancode_fixup,
-+	},
- 	{ }
- };
+ #define XPAD_PKT_LEN 64
  
+-/* xbox d-pads should map to buttons, as is required for DDR pads
+-   but we map them to axes when possible to simplify things */
++/*
++ * xbox d-pads should map to buttons, as is required for DDR pads
++ * but we map them to axes when possible to simplify things
++ */
+ #define MAP_DPAD_TO_BUTTONS		(1 << 0)
+ #define MAP_TRIGGERS_TO_BUTTONS		(1 << 1)
+ #define MAP_STICKS_TO_NULL		(1 << 2)
+@@ -284,15 +286,15 @@ static const signed short xpad_abs_triggers[] = {
+  * match against vendor id as well. Wired Xbox 360 devices have protocol 1,
+  * wireless controllers have protocol 129.
+  */
+-#define XPAD_XBOX360_VENDOR_PROTOCOL(vend,pr) \
++#define XPAD_XBOX360_VENDOR_PROTOCOL(vend, pr) \
+ 	.match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_INFO, \
+ 	.idVendor = (vend), \
+ 	.bInterfaceClass = USB_CLASS_VENDOR_SPEC, \
+ 	.bInterfaceSubClass = 93, \
+ 	.bInterfaceProtocol = (pr)
+ #define XPAD_XBOX360_VENDOR(vend) \
+-	{ XPAD_XBOX360_VENDOR_PROTOCOL(vend,1) }, \
+-	{ XPAD_XBOX360_VENDOR_PROTOCOL(vend,129) }
++	{ XPAD_XBOX360_VENDOR_PROTOCOL((vend), 1) }, \
++	{ XPAD_XBOX360_VENDOR_PROTOCOL((vend), 129) }
+ 
+ /* The Xbox One controller uses subclass 71 and protocol 208. */
+ #define XPAD_XBOXONE_VENDOR_PROTOCOL(vend, pr) \
+@@ -302,7 +304,7 @@ static const signed short xpad_abs_triggers[] = {
+ 	.bInterfaceSubClass = 71, \
+ 	.bInterfaceProtocol = (pr)
+ #define XPAD_XBOXONE_VENDOR(vend) \
+-	{ XPAD_XBOXONE_VENDOR_PROTOCOL(vend, 208) }
++	{ XPAD_XBOXONE_VENDOR_PROTOCOL((vend), 208) }
+ 
+ static struct usb_device_id xpad_table[] = {
+ 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
+@@ -1297,6 +1299,7 @@ static void xpad_close(struct input_dev *dev)
+ static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
+ {
+ 	struct usb_xpad *xpad = input_get_drvdata(input_dev);
++
+ 	set_bit(abs, input_dev->absbit);
+ 
+ 	switch (abs) {
 -- 
-2.7.4
+2.9.0
 

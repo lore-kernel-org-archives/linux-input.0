@@ -1,52 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4 2/2] input: add ADC resistor ladder driver
-Date: Thu, 28 Jul 2016 16:42:10 -0700
-Message-ID: <20160728234210.GJ16852@dtor-ws>
-References: <1468352186-14190-1-git-send-email-alexandre.belloni@free-electrons.com>
- <1468352186-14190-2-git-send-email-alexandre.belloni@free-electrons.com>
- <20160713004150.GB24789@dtor-ws>
- <20160728220918.GA25461@dtor-ws>
- <20160728224921.GF1494@piout.net>
+From: Daniel Wagner <daniel.wagner@bmw-carit.de>
+Subject: Re: [RFC v0 3/8] firmware: Factor out firmware load helpers
+Date: Fri, 29 Jul 2016 08:07:33 +0200
+Message-ID: <6361319e-ffaa-4333-6aba-4829a1953c7f@bmw-carit.de>
+References: <1469692512-16863-1-git-send-email-wagi@monom.org>
+ <1469692512-16863-4-git-send-email-wagi@monom.org>
+ <1469718061.3013.18.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20160728224921.GF1494-m++hUPXGwpdeoWH0uzbU5w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cit-hm8-mail01.bmw-carit.de ([212.118.206.84]:38267 "EHLO
+	cit-hm8-gw01.bmw-carit.de" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1750752AbcG2GHn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 Jul 2016 02:07:43 -0400
+In-Reply-To: <1469718061.3013.18.camel@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Williams <dcbw@redhat.com>, Daniel Wagner <wagi@monom.org>, Bastien Nocera <hadess@hadess.net>, Bjorn Andersson <bjorn.andersson@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>
+Cc: linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Jul 29, 2016 at 12:49:21AM +0200, Alexandre Belloni wrote:
-> On 28/07/2016 at 15:09:18 -0700, Dmitry Torokhov wrote :
-> > On Tue, Jul 12, 2016 at 05:41:50PM -0700, Dmitry Torokhov wrote:
-> > > Hi Alexandre,
-> > > 
-> > > On Tue, Jul 12, 2016 at 09:36:26PM +0200, Alexandre Belloni wrote:
-> > > > A common way of multiplexing buttons on a single input in cheap devices is
-> > > > to use a resistor ladder on an ADC. This driver supports that configuration
-> > > > by polling an ADC channel provided by IIO.
-> > > 
-> > > This looks quite reasonable, just a few small comments.
-> > 
-> > Ping.
-> > 
-> > Did the version below work for you? I am trying sweep in the brand new
-> > drivers before we close merge window.
-> > 
-> 
-> I was thinking it was too late for 4.8. I've juste tested and it works
+> It's somewhat odd to me that the structure is "firmware_stat" but most
+> of the functions are "fw_loading_*".  That seems inconsistent for a
+> structure that is (currently) only used by these functions.
 
-Nah, it is OK - the dirver is brand-new so we can't possibly regress
-anyone ;)
+I agree, my proposal is odd.
 
-> fine. However, I just sent v5 including the exact same changes but
-> changing mvolt to millivolt as that seemed preferred by Rob. Both
-> versions haver been tested and are fine for me.
+> I would personally do either:
+>
+> a) "struct fw_load_status" and "fw_load_*()"
+>
+> or
+>
+> b) "struct firmware_load_stat" and "firmware_load_*()"
+>
+> I'd also change the function names from "loading" -> "load", similar to
+> how userland has read(2), not reading(2).
 
-Let's see if he acks the binding then...
+a) sounds good to me, because fw_load_ should be long enough prefix.
 
-Thanks.
-
--- 
-Dmitry
+cheers,
+daniel

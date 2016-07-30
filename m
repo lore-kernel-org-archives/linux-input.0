@@ -1,78 +1,86 @@
-From: Mayeul Cantan <mayeul.cantan@gmail.com>
-Subject: [PATCH] input/hid: Add a new Saitek mouse device ID (RAT 9)
-Date: Sat, 30 Jul 2016 13:53:39 +0200
-Message-ID: <20160730115339.16542-1-mayeul@localhost.localdomain>
+From: Arend van Spriel <arend.vanspriel@broadcom.com>
+Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
+ completion
+Date: Sat, 30 Jul 2016 14:42:41 +0200
+Message-ID: <ee9a29aa-0d29-a33f-e43a-057dc359cf89@broadcom.com>
+References: <1469692512-16863-1-git-send-email-wagi@monom.org>
+ <1469692512-16863-8-git-send-email-wagi@monom.org>
+ <20160728183343.GD16852@dtor-ws> <20160728190151.GV13516@tuxbot>
+ <c05a7b98-5ada-701f-9a77-65d81b841c17@bmw-carit.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <c05a7b98-5ada-701f-9a77-65d81b841c17@bmw-carit.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mayeul Cantan <mayeul.cantan@gmail.com>
+To: Daniel Wagner <daniel.wagner@bmw-carit.de>, Bjorn Andersson <bjorn.andersson@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Wagner <wagi@monom.org>, Bastien Nocera <hadess@hadess.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>, linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "Luis R. Rodriguez" <mcgrof@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Mayeul Cantan <mayeul.cantan@gmail.com>
++ Luis (again) ;-)
 
-The new device has 06a3:0cfa as identifiers, and the same quirks as the
-other RAT models. It needs this fix in order not to confuse the xorg server
-with its tristate button, which is reported as three different buttons, one
-of which is always on.
-This commit also fixes a small trailing whitespace issue in hid/hid-core.c
+On 29-07-16 08:13, Daniel Wagner wrote:
+> On 07/28/2016 09:01 PM, Bjorn Andersson wrote:
+>> On Thu 28 Jul 11:33 PDT 2016, Dmitry Torokhov wrote:
+>>
+>>> On Thu, Jul 28, 2016 at 09:55:11AM +0200, Daniel Wagner wrote:
+>>>> From: Daniel Wagner <daniel.wagner@bmw-carit.de>
+>>>>
+>> [..]
+>>>
+>>> Do not quite like it... I'd rather asynchronous request give out a
+>>> firmware status pointer that could be used later on.
 
-Signed-off-by: Mayeul Cantan <mayeul.cantan@gmail.com>
----
-This patch is quite trivial, I am using it as a mean to try the submission process.
-As such, please don't hesitate to make any comment on both the form and substance.
-Best regards,
-MC 
+Excellent. Why not get rid of the callback function as well and have
+fw_loading_wait() return result (0 = firmware available, < 0 = fail).
+Just to confirm, you are proposing a new API function next to
+request_firmware_nowait(), right?
 
- drivers/hid/hid-core.c   | 3 ++-
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-saitek.c | 2 ++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+>>>     pcu->fw_st = request_firmware_async(IMS_PCU_FIRMWARE_NAME,
+>>> -                       pcu,
+>>> -                       ims_pcu_process_async_firmware);
+    +			    pcu);
+>>>     if (IS_ERR(pcu->fw_st))
+>>>         return PTR_ERR(pcu->fw_st);
+>>>
+>>>     ....
+>>>
+>>>     err = fw_loading_wait(pcu->fw_st);
+	if (err)
+		return err;
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 8ea3a26..f5b8fbf 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2030,6 +2030,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_PS1000) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7_OLD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT9) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT5) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9) },
-@@ -2289,7 +2290,7 @@ __ATTRIBUTE_GROUPS(hid_dev);
- 
- static int hid_uevent(struct device *dev, struct kobj_uevent_env *env)
- {
--	struct hid_device *hdev = to_hid_device(dev);	
-+	struct hid_device *hdev = to_hid_device(dev);
- 
- 	if (add_uevent_var(env, "HID_ID=%04X:%08X:%08X",
- 			hdev->bus, hdev->vendor, hdev->product))
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 3eec09a1..6db4079 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -849,6 +849,7 @@
- #define USB_DEVICE_ID_SAITEK_PS1000	0x0621
- #define USB_DEVICE_ID_SAITEK_RAT7_OLD	0x0ccb
- #define USB_DEVICE_ID_SAITEK_RAT7	0x0cd7
-+#define USB_DEVICE_ID_SAITEK_RAT9	0x0cfa
- #define USB_DEVICE_ID_SAITEK_MMO7	0x0cd0
- 
- #define USB_VENDOR_ID_SAMSUNG		0x0419
-diff --git a/drivers/hid/hid-saitek.c b/drivers/hid/hid-saitek.c
-index 2f84b26..39e6426 100644
---- a/drivers/hid/hid-saitek.c
-+++ b/drivers/hid/hid-saitek.c
-@@ -183,6 +183,8 @@ static const struct hid_device_id saitek_devices[] = {
- 		.driver_data = SAITEK_RELEASE_MODE_RAT7 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7),
- 		.driver_data = SAITEK_RELEASE_MODE_RAT7 },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT9),
-+		.driver_data = SAITEK_RELEASE_MODE_RAT7 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9),
- 		.driver_data = SAITEK_RELEASE_MODE_RAT7 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7),
--- 
-2.9.0
+	fw = fwstat_get_firmware(pcu->fw_st);
+
+Or whatever consistent prefix it is going to be.
+
+>>>
+>>
+>> In the remoteproc case (patch 6) this would clean up the code, rather
+>> than replacing the completion API 1 to 1. I like it!
+> 
+> IIRC most drivers do it the same way. So request_firmware_async() indeed
+> would be good thing to have. Let me try that.
+
+While the idea behind this series is a good one I am wondering about the
+need for these drivers to use the asynchronous API. The historic reason
+might be to avoid timeout caused by user-mode helper, but that may no
+longer apply and these drivers could be better off using
+request_firmware_direct().
+
+There have been numerous discussions about the firmware API. Here most
+recent one:
+
+http://www.spinics.net/lists/linux-wireless/index.html#152755
+
+Regards,
+Arend
+
+> Thanks for the excellent feedback.
+> 
+> cheers,
+> daniel
+> -- 
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-wireless" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

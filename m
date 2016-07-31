@@ -1,101 +1,140 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4/4] ARM: dts: sun4i: Describe softbuttons in dserve-dsrv9703c touchscreen node
-Date: Sun, 31 Jul 2016 17:23:10 +0200
-Message-ID: <1469978590-14081-5-git-send-email-hdegoede@redhat.com>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 2/4] input: touchscreen: Add LED trigger support to the softbutton code
+Date: Sun, 31 Jul 2016 17:23:08 +0200
+Message-ID: <1469978590-14081-3-git-send-email-hdegoede@redhat.com>
 References: <1469978590-14081-1-git-send-email-hdegoede@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:37684 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753701AbcGaPXf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 31 Jul 2016 11:23:35 -0400
-In-Reply-To: <1469978590-14081-1-git-send-email-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1469978590-14081-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>
 
-The dserve-dsrv9703c touchscreen has 3 softbuttons, describe these
-in the dts.
+In some hardware there are 1 or more LEDs behind the touchscreen
+softbuttons, which are intended to provide visual feedback to the
+user that the softbutton has been pressed, this commit adds support
+for this.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
- arch/arm/boot/dts/sun4i-a10-dserve-dsrv9703c.dts | 49 ++++++++++++++++++++++++
- 1 file changed, 49 insertions(+)
+ .../bindings/input/touchscreen/softbuttons.txt     |  4 ++
+ drivers/input/touchscreen/softbuttons.c            | 49 +++++++++++++++++++++-
+ 2 files changed, 52 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/sun4i-a10-dserve-dsrv9703c.dts b/arch/arm/boot/dts/sun4i-a10-dserve-dsrv9703c.dts
-index 893497e..92e15e4 100644
---- a/arch/arm/boot/dts/sun4i-a10-dserve-dsrv9703c.dts
-+++ b/arch/arm/boot/dts/sun4i-a10-dserve-dsrv9703c.dts
-@@ -78,6 +78,18 @@
- 		max-microvolt = <3000000>;
- 	};
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+index 3eb6f4c..b425b95 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+@@ -17,6 +17,10 @@ Required subnode-properties:
+  - softbutton-min-y		: Y start of the area the softbutton area covers
+  - softbutton-max-y		: Y end of the area the softbutton area covers
  
-+	leds {
-+		compatible = "gpio-leds";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&led_pins>;
++Optional subnode-properties:
++- linux,led-trigger		: String for a LED trigger for providing visual
++				  feedback that the softbutton has been pressed
 +
-+		touchscreen_softbuttons_led {
-+			label = "dsrv9703c:white:touschscreen-softbuttons";
-+			gpios = <&pio 0 5 GPIO_ACTIVE_HIGH>; /* PA5 */
-+			linux,default-trigger = "touschscreen-softbuttons";
-+		};
-+	};
-+
- 	reg_motor: reg_motor {
- 		compatible = "regulator-fixed";
- 		pinctrl-names = "default";
-@@ -140,6 +152,36 @@
- 		reset-gpios = <&pio 1 13 GPIO_ACTIVE_LOW>;
- 		touchscreen-size-x = <1024>;
- 		touchscreen-size-y = <768>;
-+
-+		button@0 {
-+			label = "Esc";
-+			linux,code = <KEY_ESC>;
-+			softbutton-min-x = <1084>;
-+			softbutton-max-x = <1098>;
-+			softbutton-min-y = <0>;
-+			softbutton-max-y = <49>;
-+			linux,led-trigger = "touschscreen-softbuttons";
-+		};
-+
-+		button@1 {
-+			label = "Home";
-+			linux,code = <KEY_HOMEPAGE>;
-+			softbutton-min-x = <1084>;
-+			softbutton-max-x = <1098>;
-+			softbutton-min-y = <50>;
-+			softbutton-max-y = <99>;
-+			linux,led-trigger = "touschscreen-softbuttons";
-+		};
-+
-+		button@2 {
-+			label = "Menu";
-+			linux,code = <KEY_MENU>;
-+			softbutton-min-x = <1084>;
-+			softbutton-max-x = <1098>;
-+			softbutton-min-y = <100>;
-+			softbutton-max-y = <149>;
-+			linux,led-trigger = "touschscreen-softbuttons";
-+		};
- 	};
+ Example:
+ 
+ #include <dt-bindings/input/input.h>
+diff --git a/drivers/input/touchscreen/softbuttons.c b/drivers/input/touchscreen/softbuttons.c
+index 47aea18..9a3fbfa 100644
+--- a/drivers/input/touchscreen/softbuttons.c
++++ b/drivers/input/touchscreen/softbuttons.c
+@@ -11,6 +11,7 @@
+ 
+ #include <linux/input.h>
+ #include <linux/input/touchscreen.h>
++#include <linux/leds.h>
+ #include <linux/of.h>
+ 
+ struct touchscreen_softbutton {
+@@ -19,6 +20,8 @@ struct touchscreen_softbutton {
+ 	u32 min_y;
+ 	u32 max_y;
+ 	u32 keycode;
++	const char *ledtrigger_name;
++	struct led_trigger *ledtrigger;
  };
  
-@@ -191,6 +233,13 @@
- 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
- 	};
+ struct touchscreen_softbutton_info {
+@@ -48,7 +51,7 @@ struct touchscreen_softbutton_info *devm_touchscreen_alloc_softbuttons(
+ 	struct device *dev = input->dev.parent;
+ 	struct device_node *np, *pp;
+ 	struct touchscreen_softbutton_info *info;
+-	int i, err, button_count;
++	int i, j, err, button_count;
  
-+	led_pins: led_pins@0 {
-+		allwinner,pins = "PA5";
-+		allwinner,function = "gpio_out";
-+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+	};
+ 	np = dev->of_node;
+ 	if (!np)
+@@ -103,6 +106,36 @@ struct touchscreen_softbutton_info *devm_touchscreen_alloc_softbuttons(
+ 			dev_err(dev, "%s: Inval max-y prop\n", pp->name);
+ 			return ERR_PTR(-EINVAL);
+ 		}
 +
- 	motor_pins: motor_pins@0 {
- 		allwinner,pins = "PB3";
- 		allwinner,function = "gpio_out";
++		err = of_property_read_string(pp, "linux,led-trigger",
++					      &btn->ledtrigger_name);
++		if (err)
++			continue; /* The LED trigger is optional */
++
++		/* Check if another softbutton uses the same trigger */
++		for (j = 0; j < i; j++) {
++			if (info->buttons[j].ledtrigger_name &&
++			    strcmp(info->buttons[j].ledtrigger_name,
++				   btn->ledtrigger_name) == 0) {
++				btn->ledtrigger = info->buttons[j].ledtrigger;
++				break;
++			}
++		}
++		if (!btn->ledtrigger) {
++			btn->ledtrigger =
++				devm_kzalloc(dev, sizeof(*btn->ledtrigger),
++					     GFP_KERNEL);
++			if (!btn->ledtrigger)
++				return ERR_PTR(-ENOMEM);
++
++			btn->ledtrigger->name = btn->ledtrigger_name;
++			err = devm_led_trigger_register(dev, btn->ledtrigger);
++			if (err) {
++				dev_err(dev, "%s: Ledtrigger register error\n",
++					pp->name);
++				return ERR_PTR(err);
++			}
++		}
+ 	}
+ 
+ 	__set_bit(EV_KEY, input->evbit);
+@@ -126,6 +159,7 @@ bool touchscreen_handle_softbuttons(struct touchscreen_softbutton_info *info,
+ 				    unsigned int x, unsigned int y, bool down)
+ {
+ 	int i;
++	unsigned long led_delay = 1000; /* Keep the led on 1s after release */
+ 
+ 	if (info == NULL)
+ 		return false;
+@@ -137,6 +171,19 @@ bool touchscreen_handle_softbuttons(struct touchscreen_softbutton_info *info,
+ 		    y <= info->buttons[i].max_y) {
+ 			input_report_key(info->input,
+ 					 info->buttons[i].keycode, down);
++
++			if (info->buttons[i].ledtrigger && down) {
++				led_trigger_event(info->buttons[i].ledtrigger,
++						  LED_FULL);
++			} else if (info->buttons[i].ledtrigger && !down) {
++				/* Led must be off before calling blink */
++				led_trigger_event(info->buttons[i].ledtrigger,
++						  LED_OFF);
++				led_trigger_blink_oneshot(
++					info->buttons[i].ledtrigger,
++					&led_delay, &led_delay, 0);
++			}
++
+ 			return true;
+ 		}
+ 	}
 -- 
 2.7.4
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,167 +1,137 @@
-From: Willy Lambert <lambert.willy@gmail.com>
-Subject: Debuging embedded touchpad driver
-Date: Sun, 31 Jul 2016 21:48:32 +0200
-Message-ID: <CAKvQZ_1ALPVT_-RqBw8u2Z2vHDimLjDT5nqVRVwPMzm7hLoQiQ@mail.gmail.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: v4.1 to v4.7: regression in tsc2005 driver
+Date: Mon, 1 Aug 2016 07:28:54 +1000
+Message-ID: <20160731212854.GA11374@jelly>
+References: <20160719235120.GD19250@dtor-ws>
+ <20160720062558.GA3792@amd>
+ <20160720162356.GA25655@dtor-ws>
+ <20160720214736.GA4321@jelly>
+ <20160721063234.GA14200@amd>
+ <20160721064241.GA31008@jelly>
+ <20160721085421.GA15485@amd>
+ <20160721090429.GP29844@pali>
+ <20160722001219.GB11426@jelly>
+ <20160725145917.GZ29844@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f43.google.com ([74.125.82.43]:38270 "EHLO
-	mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750886AbcGaTsi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 31 Jul 2016 15:48:38 -0400
-Received: by mail-wm0-f43.google.com with SMTP id o80so216885536wme.1
-        for <linux-input@vger.kernel.org>; Sun, 31 Jul 2016 12:48:34 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160725145917.GZ29844@pali>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Welling <mwelling@ieee.org>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, sre@kernel.org, aaro.koskinen@iki.fi, ivo.g.dimitrov.75@gmail.com, patrikbachan@gmail.com, serge@hallyn.com
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hi guys,
+On Mon, Jul 25, 2016 at 04:59:17PM +0200, Pali Rohár wrote:
+> On Friday 22 July 2016 10:12:19 Peter Hutterer wrote:
+> > On Thu, Jul 21, 2016 at 11:04:29AM +0200, Pali Rohár wrote:
+> > > On Thursday 21 July 2016 10:54:21 Pavel Machek wrote:
+> > > > On Thu 2016-07-21 16:42:41, Peter Hutterer wrote:
+> > > > > On Thu, Jul 21, 2016 at 08:32:34AM +0200, Pavel Machek wrote:
+> > > > > > Hi!
+> > > > > > 
+> > > > > > > > In the mean time you can adjust the name or use XID instead.
+> > > > > > > 
+> > > > > > > X has partially fixed this a few years ago. All input drivers (that
+> > > > > > > matter) export a Device Node property that sets the device node for each
+> > > > > > > device.
+> > > > > > > 
+> > > > > > >  $ xinput list-props "SynPS/2 Synaptics TouchPad" | grep "Device Node"
+> > > > > > >         Device Node (261):      "/dev/input/event4"
+> > > > > > > 
+> > > > > > > Based on that you can get the udev device and work your way into any of the
+> > > > > > > sysfs tree. Or do whatever else you want.
+> > > > > > > 
+> > > > > > > But other than that there isn't anything in X to fix. xinput is primarily a
+> > > > > > > debugging tool and it does name resolution for convenience. But it's not a
+> > > > > > > tool for complex configurations. It does exactly what it needs to do, if you
+> > > > > > > need something that's more complicated and relies on information not
+> > > > > > > available to the X device itself then you'll need to write a custom tool
+> > > > > > > that does what you need. sorry.
+> > > > > > 
+> > > > > > Ok.. so out of the box, touchscreen is "upside down" and miscalibrated
+> > > > > > on n900. So I need to run
+> > > > > > 
+> > > > > > xinput --set-prop --type=float 8 115  1.10 0.00 -0.05  0.00 1.18 -0.10 0.00 0.00 1.00
+> > > > > > xinput --set-prop --type=int 8 249 0 1
+> > > > > > 
+> > > > > > (or equivalent with names) so that I can use the touchscreen. (And
+> > > > > > that's quite important -- X is somehow unusable without pointing
+> > > > > > device).
+> > > > > > 
+> > > > > > If xinput is not the right solution, what is the right solution?
+> > > > > 
+> > > > > if it's reliably miscalibrated (i.e. the numbers don't change), use an
+> > > > > xorg.conf snippet. If it needs some run-time changes add the hooks
+> > > > > to
+> > > > 
+> > > > Does not change and is needed for all the N900's.
+> > > > 
+> > > > Well. I guess xorg.conf snippet will do the trick, but that's hardly
+> > > > better.
+> > > > 
+> > > > Should x.org have internal database saying "Nokia N900 with tsc2005
+> > > > touchscreen means this calibration"?
+> > > > 
+> > > > Should we have calibration info in the device tree, with kernel
+> > > > passing it to the x?
+> > > > 
+> > > > Should kernel somehow do the calibration itself?
+> > > 
+> > > From my memory how this problem is solved on Maemo 5:
+> > > 
+> > > There is XML snippet of HAL file which contains xorg properties for
+> > > input driver. Xorg server loads from HAL xorg settings and somehow
+> > > propagate them. That file is generated either from default system data
+> > > (those comes from DEB package) or from user config file (that is
+> > > generated from Settings application) or from CAL partition (NAND
+> > > partition which contains device/product specific calibration data).
+> > > 
+> > > Because it is read also from CAL, I need to say those data does not have
+> > > to be same for all N900 devices.
+> > > 
+> > > And because there is Settings application which can re-calibrate
+> > > touchscreen, those data are not even static.
+> > > 
+> > > Now HAL is deprecated, but I suspect that xorg.conf.d/ directory or UDEV
+> > > can be used in same way to propagate device specific settings for
+> > > touchscreen device...
+> > 
+> > yes, xorg.conf.d snippets replaced HAL configuration, with pretty much the
+> > same functionality. Using udev is not generally recommended.
+> 
+> In case that calibration data are stored in different format as
+> xorg.conf.d accept (and these data can be changed), what is preferred
+> way for pushing these calibration into X server?
 
-I am trying to debug an eGalax touchpad in my embedded system. What's
-strange is that the "evtest" method doesn't react when I'm touching
-(see below). I'm not sure the touchpas is alive, so I can't tell if
-it's HW or SW.
+write out an xorg.conf.d snippet file that contains the required options.
+this is what we already do for system-wide keyboard layouts (see localectl).
 
-Could anyone with experience on this kind of debug help me with a test
-procedure ? I don't know what to look to identify my problem.
+> I thought that udev could be right way as it contains key/value
+> properties in unified format (not X specific) and lot of other helpers
+> fill these data for different devices.
 
-root@(ubiquity)():~# evtest /dev/input/event4
-Input driver version is 1.0.1
-Input device ID: bus 0x3 vendor 0xeef product 0x1 version 0x210
-Input device name: "eGalax Inc. USB TouchController"
-Supported events:
-  Event type 0 (Sync)
-  Event type 1 (Key)
-    Event code 330 (Touch)
-  Event type 3 (Absolute)
-    Event code 0 (X)
-      Value      0
-      Min        0
-      Max     4095
-    Event code 1 (Y)
-      Value      0
-      Min        0
-      Max     4095
-    Event code 47 (?)
-      Value      0
-      Min        0
-      Max        7
-    Event code 53 (?)
-      Value      0
-      Min        0
-      Max     4095
-    Event code 54 (?)
-      Value      0
-      Min        0
-      Max     4095
-    Event code 57 (?)
-      Value      0
-      Min        0
-      Max    65535
-Testing ... (interrupt to exit)
+there is no "unified format" for configurations. you still need to agree on
+the key name and value format. e.g. for a calibration matrix: is it 6
+numbers or all 9? is it in floats, percent, or device units?
+in the end what you'd be doing is just push the driver-specific
+configuration to udev. that's mostly fine for some values, not so great for
+others where the usage isn't as clear (see the commend about libinput below).
 
+> Why is is not generally recommended?
 
-More details on my setup below :
+because udev is not a storage mechanism for X. we made the mistake in
+earlier X server versions to use HAL as config storage but there is a
+distinct mismatch when you have xorg.conf and some external config data
+feeding into the server. since server 1.8 (~2008 or so) we don't use
+configuration data in udev.
 
+fwiw, libinput has a slightly different approach here, we do push *some*
+device configuration into udev but only those bits that are considered
+hardware properties and thus both immutable and required by anything else
+that wants to use the device. examples are fixes to the axis ranges, tags to
+identify the device type, etc.
 
-
-The kernel should have recognized the device :
-[    1.635292] hub 3-0:1.0: port 2, status 0101, change 0001, 12 Mb/s
-[    1.641396] usbtouchscreen 2-2:1.0: usb_probe_interface
-[    1.641408] usbtouchscreen 2-2:1.0: usb_probe_interface - got id
-[    1.641799] usbcore: registered new interface driver usbtouchscreen
-[    1.645880] usbhid 2-2:1.0: usb_probe_interface
-[    1.645891] usbhid 2-2:1.0: usb_probe_interface - got id
-[    1.650539] usbcore: registered new interface driver usbhid
-[    1.650545] usbhid: USB HID core driver
-[    1.659604] input: eGalax Inc. USB TouchController Pen as
-/devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0/input/input3
-[    1.660740] input: eGalax Inc. USB TouchController as
-/devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0/input/input4
-[    1.661541] usbhid 2-2:1.0: looking for a minor, starting at 96
-[    1.662614] hid-multitouch 0003:0EEF:0001.0001:
-input,hiddev0,hidraw0: USB HID v2.10 Pointer [eGalax Inc. USB
-TouchController] on usb-0000:00:1d.0-2/input0
-
-
-The "usbtouchpad" driver is loaded :
-
-root@(ubiquity)():~# lsmod
-Module                  Size  Used by
-sja1000_isa             2821  0
-sja1000                 5206  1 sja1000_isa
-can_dev                 6395  1 sja1000
-ard_usb                 6911  0
-hid_multitouch          8637  0
-usbhid                 32470  0
-usbtouchscreen         11076  0
-i915                  511371  1
-drm_kms_helper         23402  1 i915
-drm                   185361  2 i915,drm_kms_helper
-cfbcopyarea             2714  1 i915
-i2c_algo_bit            4336  1 i915
-video                   9818  1 i915
-cfbimgblt               1947  1 i915
-cfbfillrect             3142  1 i915
-
-
-The device is listed (it's still a mystery why the touchpad appears 2
-times as a pen and as a device) :
-
-
-
----------------------------------------------------------------------------------------
-root@(ubiquity)():~# cat /proc/bus/input/devices
-I: Bus=0019 Vendor=0000 Product=0001 Version=0000
-N: Name="Power Button"
-P: Phys=PNP0C0C/button/input0
-S: Sysfs=/devices/LNXSYSTM:00/device:00/PNP0C0C:00/input/input0
-U: Uniq=
-H: Handlers=kbd event0
-B: PROP=0
-B: EV=3
-B: KEY=100000 0 0 0
-
-I: Bus=0019 Vendor=0000 Product=0001 Version=0000
-N: Name="Power Button"
-P: Phys=LNXPWRBN/button/input0
-S: Sysfs=/devices/LNXSYSTM:00/LNXPWRBN:00/input/input1
-U: Uniq=
-H: Handlers=kbd event1
-B: PROP=0
-B: EV=3
-B: KEY=100000 0 0 0
-
-I: Bus=0010 Vendor=001f Product=0001 Version=0100
-N: Name="PC Speaker"
-P: Phys=isa0061/input0
-S: Sysfs=/devices/platform/pcspkr/input/input2
-U: Uniq=
-H: Handlers=kbd event2
-B: PROP=0
-B: EV=40001
-B: SND=6
-
-I: Bus=0003 Vendor=0eef Product=0001 Version=0210
-N: Name="eGalax Inc. USB TouchController Pen"
-P: Phys=usb-0000:00:1d.0-2/input0
-S: Sysfs=/devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0/input/input3
-U: Uniq=
-H: Handlers=mouse0 event3
-B: PROP=0
-B: EV=1b
-B: KEY=c01 0 0 0 0 0 0 0 0 0 0
-B: ABS=3
-B: MSC=10
-
-I: Bus=0003 Vendor=0eef Product=0001 Version=0210
-N: Name="eGalax Inc. USB TouchController"
-P: Phys=usb-0000:00:1d.0-2/input0
-S: Sysfs=/devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0/input/input4
-U: Uniq=
-H: Handlers=mouse1 event4
-B: PROP=2
-B: EV=b
-B: KEY=400 0 0 0 0 0 0 0 0 0 0
-B: ABS=2608000 3
+Cheers,
+   Peter

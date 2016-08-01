@@ -1,83 +1,110 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
- completion
-Date: Mon, 1 Aug 2016 14:34:40 -0700
-Message-ID: <20160801213440.GA28610@dtor-ws>
-References: <1469692512-16863-1-git-send-email-wagi@monom.org>
- <1469692512-16863-8-git-send-email-wagi@monom.org>
- <20160728183343.GD16852@dtor-ws>
- <20160728190151.GV13516@tuxbot>
- <c05a7b98-5ada-701f-9a77-65d81b841c17@bmw-carit.de>
- <ee9a29aa-0d29-a33f-e43a-057dc359cf89@broadcom.com>
- <20160730165817.GQ3296@wotan.suse.de>
- <20160801171951.GC13516@tuxbot>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH v2 00/30] HID: wacom: cleanup/EKR/LED
+Date: Mon, 1 Aug 2016 16:17:10 -0700
+Message-ID: <CAF8JNhKAFNBJrTFo4akHeKZCr7CTtVVTdRL1v4cxv=wn7i_zAA@mail.gmail.com>
+References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com> <CAEoswT0aZTu7hk_Th1t8Kd7mfVRj3Zh5NGpNTPCf7n1rtKPptw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f68.google.com ([209.85.220.68]:34863 "EHLO
-	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751467AbcHAVrN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Aug 2016 17:47:13 -0400
-Content-Disposition: inline
-In-Reply-To: <20160801171951.GC13516@tuxbot>
+Received: from mail-io0-f194.google.com ([209.85.223.194]:34363 "EHLO
+	mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754402AbcHAXRo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Aug 2016 19:17:44 -0400
+In-Reply-To: <CAEoswT0aZTu7hk_Th1t8Kd7mfVRj3Zh5NGpNTPCf7n1rtKPptw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: "Luis R. Rodriguez" <mcgrof@kernel.org>, Arend van Spriel <arend.vanspriel@broadcom.com>, Daniel Wagner <daniel.wagner@bmw-carit.de>, Daniel Wagner <wagi@monom.org>, Bastien Nocera <hadess@hadess.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>, linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Aaron Skomra <skomra@gmail.com>
 
-On Mon, Aug 01, 2016 at 10:19:51AM -0700, Bjorn Andersson wrote:
-> On Sat 30 Jul 09:58 PDT 2016, Luis R. Rodriguez wrote:
-> 
-> > On Sat, Jul 30, 2016 at 02:42:41PM +0200, Arend van Spriel wrote:
-> > > + Luis (again) ;-)
-> > > 
-> > > On 29-07-16 08:13, Daniel Wagner wrote:
-> > > > On 07/28/2016 09:01 PM, Bjorn Andersson wrote:
-> > > >> On Thu 28 Jul 11:33 PDT 2016, Dmitry Torokhov wrote:
-> > > >>
-> > > >>> On Thu, Jul 28, 2016 at 09:55:11AM +0200, Daniel Wagner wrote:
-> > > >>>> From: Daniel Wagner <daniel.wagner@bmw-carit.de>
-> > > >>>>
-> > > >> [..]
-> > > >>>
-> > > >>> Do not quite like it... I'd rather asynchronous request give out a
-> > > >>> firmware status pointer that could be used later on.
-> > > 
-> > > Excellent. Why not get rid of the callback function as well and have
-> > > fw_loading_wait() return result (0 = firmware available, < 0 = fail).
-> > > Just to confirm, you are proposing a new API function next to
-> > > request_firmware_nowait(), right?
-> > 
-> > If proposing new firmware_class patches please bounce / Cc me, I've
-> > recently asked for me to be added to MAINTAINERS so I get these
-> > e-mails as I'm working on a new flexible API which would allow us
-> > to extend the firmware API without having to care about the old
-> > stupid usermode helper at all.
-> > 
-> 
-> In the remoteproc world there are several systems where we see 100+MB of
-> firmware being loaded. It's unfeasible to have these files in an
-> initramfs, so we need a way to indicate to the kernel that the
-> second/primary (or a dedicated firmware partition) is mounted.
-> 
-> We're currently loading these files with request_firmware_nowait(), so
-> either one can either use kernel modules or the user-helper fallback to
-> delay the loading until the files are available. (I don't like to
-> enforce the usage of kernel modules)
-> 
-> I'm open to alternative ways of having firmware loading wait on
-> secondary filesystems to be mounted, but have not yet tried to tackle
-> this problem. I do believe something that waits and retries the firmware
-> load as additional file systems gets mounted would be prettier than
-> forcing user space to tell us it's time to move on.
+Hi Jiri,
 
-Hmm, but when do you stop? How do you know that you are not going to get
-yet another fs mounted and that one will finally have the firmware you
-are looking for? The kernel does now, but distribution/product
-integrator does. That is why I think the most reliable way is to see if
-firmware is built-in, otherwise wait and let userspace do its thing.
+This patchset has gone through two rounds of testing/review. It is
+also a necessary set to support future userland LED configuration
+features.
 
-Thanks.
+Do you see any issues with the patches?
 
--- 
-Dmitry
+Cheers,
+
+Ping
+
+
+On Wed, Jul 13, 2016 at 2:36 PM, Aaron Armstrong Skomra
+<skomra@gmail.com> wrote:
+> On Wed, Jul 13, 2016 at 9:05 AM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> Hi,
+>>
+>> So this is a v2 of my summer cleanup of the wacom driver.
+>> I fixed the remarks from everybody I think, and it should be in a better shape
+>> now.
+>> I removed the patch that changed the LED banks ordering as libwacom exports it
+>> that way. I also added 3 extra patches for the power_supply to be a little bit
+>> more user friendly in gnome-control-center (well, upowerd).
+>>
+>> Thanks for double testing on the Cintiq 21UX2 and the 24HD as I could only
+>
+> Retested on the 21UX2 and the 24HD.
+>
+> Tested-by Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+>
+> Best,
+> Aaron
+>
+>> compare the raw events to what was expected, and nothing is better than actual
+>> testing with real hardware.
+>>
+>> Cheers,
+>> Benjamin
+>>
+>> Benjamin Tissoires (30):
+>>   HID: wacom: actually report the battery level for wireless connected
+>>   HID: wacom: store the type in wacom->shared for INTUOSHT and INTUOSHT2
+>>   HID: wacom: remove cleanup of wacom->remote_dir from
+>>     wacom_clean_inputs()
+>>   HID: wacom: untie leds from inputs
+>>   HID: wacom: use one work queue per task
+>>   HID: wacom: switch battery to devres
+>>   HID: wacom: switch inputs to devres
+>>   HID: wacom: put the managed resources in a group
+>>   HID: wacom: convert LEDs to devres
+>>   HID: wacom: use devm_kasprintf for allocating the name of the remote
+>>   HID: wacom: use devres to allocate driver data
+>>   HID: wacom: devres manage the shared data too
+>>   HID: wacom: leds: dynamically allocate LED groups
+>>   HID: wacom: EKR: add a worker to add/remove resources on
+>>     addition/removal
+>>   HID: wacom: EKR: have the wacom resources dynamically allocated
+>>   HID: wacom: rework fail path in probe() and parse_and_register()
+>>   HID: wacom: EKR: have proper allocator and destructor
+>>   HID: wacom: EKR: use devres groups to manage resources
+>>   HID: wacom: EKR: have one array of struct remotes instead of many
+>>     arrays
+>>   HID: wacom: EKR: allocate one input node per remote
+>>   HID: wacom: EKR: have one power_supply per remote
+>>   HID: wacom: EKR: attach the power_supply on first connection
+>>   HID: wacom: leds: use the ledclass instead of custom made sysfs files
+>>   HID: wacom: leds: actually release the LEDs on disconnect
+>>   HID: wacom: leds: handle the switch of the LEDs directly in the kernel
+>>   HID: wacom: leds: make sure Cintiq 21UX2 and 24HD control the right
+>>     LEDs
+>>   HID: wacom: leds: handle Cintiq 24HD leds buttons
+>>   HID: wacom: power_supply: mark the type as USB
+>>   HID: wacom: power_supply: remove ac information
+>>   HID: wacom: power_supply: provide the actual model_name
+>>
+>>  Documentation/ABI/testing/sysfs-driver-wacom |    5 +
+>>  drivers/hid/Kconfig                          |    1 +
+>>  drivers/hid/wacom.h                          |   96 ++-
+>>  drivers/hid/wacom_sys.c                      | 1104 ++++++++++++++++++--------
+>>  drivers/hid/wacom_wac.c                      |  254 ++++--
+>>  drivers/hid/wacom_wac.h                      |   19 +-
+>>  6 files changed, 1058 insertions(+), 421 deletions(-)
+>>
+>> --
+>> 2.5.5
+>>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

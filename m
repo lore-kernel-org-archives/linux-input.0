@@ -1,99 +1,90 @@
-From: Daniel Wagner <daniel.wagner-98C5kh4wR6ohFhg+JK9F0w@public.gmane.org>
-Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
- completion
-Date: Mon, 1 Aug 2016 14:26:04 +0200
-Message-ID: <37a3cd66-262e-ffbe-ea7a-a6d5b1ca1c8b@bmw-carit.de>
-References: <1469692512-16863-1-git-send-email-wagi@monom.org>
- <1469692512-16863-8-git-send-email-wagi@monom.org>
- <20160728183343.GD16852@dtor-ws> <20160728190151.GV13516@tuxbot>
- <c05a7b98-5ada-701f-9a77-65d81b841c17@bmw-carit.de>
- <ee9a29aa-0d29-a33f-e43a-057dc359cf89@broadcom.com>
- <20160730165817.GQ3296@wotan.suse.de>
- <C528E404-0CA5-46B4-B551-B1D4B58BC053@gmail.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [RFC PATCH] serio: add hangup support
+Date: Mon, 1 Aug 2016 15:43:32 +0200
+Message-ID: <fcdd38a6-52f3-3c01-d99f-3a978bfac512@xs4all.nl>
+References: <287a7f88-5d45-bb45-c98e-22a2313ab780@xs4all.nl>
+ <20160715163119.GA27847@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <C528E404-0CA5-46B4-B551-B1D4B58BC053-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Luis R. Rodriguez" <mcgrof-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Arend van Spriel <arend.vanspriel-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Cc: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Daniel Wagner <wagi-kQCPcA+X3s7YtjvyW6yDsg@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Johannes Berg <johannes.berg-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ohad Ben-Cohen <ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kselftest-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20160715163119.GA27847@dtor-ws>
+Sender: linux-media-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>, Vojtech Pavlik <vojtech@suse.com>
 List-Id: linux-input@vger.kernel.org
 
-On 07/31/2016 09:23 AM, Dmitry Torokhov wrote:
-> On July 30, 2016 9:58:17 AM PDT, "Luis R. Rodriguez" <mcgrof-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
->> On Sat, Jul 30, 2016 at 02:42:41PM +0200, Arend van Spriel wrote:
->>> On 29-07-16 08:13, Daniel Wagner wrote:
->>>> On 07/28/2016 09:01 PM, Bjorn Andersson wrote:
->>>>> On Thu 28 Jul 11:33 PDT 2016, Dmitry Torokhov wrote:
 
->>> + Luis (again) ;-)
 
-That was not on purpose :) My attempt to keep the Cc list a bit shorter 
-was a failure.
-
->>>>>> Do not quite like it... I'd rather asynchronous request give out
->>>>>> firmware status pointer that could be used later on.
->>>
->>> Excellent. Why not get rid of the callback function as well and have
->>> fw_loading_wait() return result (0 = firmware available, < 0 = fail).
->>> Just to confirm, you are proposing a new API function next to
->>> request_firmware_nowait(), right?
+On 07/15/2016 06:31 PM, Dmitry Torokhov wrote:
+> Hi Hans,
+> 
+> On Fri, Jul 15, 2016 at 01:27:21PM +0200, Hans Verkuil wrote:
+>> For the upcoming 4.8 kernel I made a driver for the Pulse-Eight USB CEC adapter.
+>> This is a usb device that shows up as a ttyACM0 device. It requires that you run
+>> inputattach in order to communicate with it via serio.
 >>
->> If proposing new firmware_class patches please bounce / Cc me, I've
->> recently asked for me to be added to MAINTAINERS so I get these
->> e-mails as I'm working on a new flexible API which would allow us
->> to extend the firmware API without having to care about the old
->> stupid usermode helper at all.
+>> This all works well, but it would be nice to have a udev rule to automatically
+>> start inputattach. That too works OK, but the problem comes when the USB device
+>> is unplugged: the tty hangup is never handled by the serio framework so the
+>> inputattach utility never exits and you have to kill it manually.
+>>
+>> By adding this hangup callback the inputattach utility now exists as soon as I
+>> unplug the USB device.
+>>
+>> Is this the correct approach?
+>>
+>> BTW, the new driver is found here:
+>>
+>> https://git.linuxtv.org/media_tree.git/tree/drivers/staging/media/pulse8-cec
+>>
+>> Regards,
+>>
+>> 	Hans
+>>
+>> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+>>
+>> ---
+>> diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
+>> index 9c927d3..a615846 100644
+>> --- a/drivers/input/serio/serport.c
+>> +++ b/drivers/input/serio/serport.c
+>> @@ -248,6 +248,14 @@ static long serport_ldisc_compat_ioctl(struct tty_struct *tty,
+>>  }
+>>  #endif
+>>
+>> +static int serport_ldisc_hangup(struct tty_struct * tty)
+>> +{
+>> +	struct serport *serport = (struct serport *) tty->disc_data;
+>> +
+>> +	serport_serio_close(serport->serio);
+> 
+> I see what you mean, but this is not quite correct. I think we should
+> make serport_serio_close() only reset the SERPORT_ACTIVE flag and have
+> serport_ldisc_hangup() actually do:
+> 
+> 	spin_lock_irqsave(&serport->lock, flags);
+> 	set_bit(SERPORT_DEAD, &serport->flags);
+> 	spin_unlock_irqrestore(&serport->lock, flags);
+> 
+> 	wake_up_interruptible(&serport->wait);
 
-These patches here are a first attempt to clean up a bit of the code 
-around the completion API. As Dmitry correctly pointed out, it makes 
-more sense to go bit further and make the async loading a bit more 
-convenient for the drivers.
+I'm preparing a v2 of this patch, but I wonder if in this hangup code
+I also need to clear the SERPORT_ACTIVE flag. Or is it guaranteed that
+close() always precedes hangup()? In which case close() always clears that
+flag.
 
-> I am not sure why we started calling usermode helper "stupid". We
-> only  had to implement direct kernel firmware loading because udev/stsremd
-> folks had "interesting" ideas how events should be handled; but having
-> userspace to feed us data is not stupid.
+Regards,
 
-I was ignorant on all the nasty details around the firmware loading. If 
-I parse Luis' patches correctly they introduce an API which calls 
-kernel_read_file_from_path() asynchronously:
+	Hans
 
-sysdata_file_request_async(..., &cookie)
-   *coookie = async_schedule_domain(request_sysdata_file_work_func(), ..)
-
-   request_sysdata_file_work_fun()
-     _sysdata_file_request()
-       fw_get_filesystem_firmware()
-	kernel_read_file_from_path()
-
-sysdata_synchronize_request(&cookie);
-
-Doesn't look like what your asking for.
-
-> If we want to overhaul firmware loading support we need to figure
-> out  how to support case when a driver want to [asynchronously] request
-> firmware/config/blob and the rest of the system is not ready. Even if we
-> want kernel to do read/load the data we need userspace to tell kernel
-> when firmware partition is available, until then the kernel should not
-> fail the request.
-
-I gather from Luis' blog post and comments that he is on the quest on 
-removing userspace support completely.
-
-Maybe this attempt here could be a step before. Step 1 would be changing 
-request_firmware_nowait() to request_firmware_async so drivers don't 
-have to come up with their own sync primitives, e.g.
-
-   cookie = request_firmware_async()
-   fw_load_wait(cookie)
-
-Step 2 could be something more towards sysdata approach.
-
-cheers,
-daniel
---
-To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> i.e. if user (via device-driver - input core - evdev - userspace chain)
+> stops using serio port we should not kill inputattach instance right
+> then and there, but wait for the serial port device disconnect or
+> something else killing inputattach.
+> 
+> Vojtech, do you recall any of this code?
+> 
+> Thanks.
+> 

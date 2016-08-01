@@ -1,8 +1,8 @@
-From: "Luis R. Rodriguez" <mcgrof@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
  completion
-Date: Mon, 1 Aug 2016 21:56:20 +0200
-Message-ID: <20160801195620.GA3296@wotan.suse.de>
+Date: Mon, 1 Aug 2016 14:34:40 -0700
+Message-ID: <20160801213440.GA28610@dtor-ws>
 References: <1469692512-16863-1-git-send-email-wagi@monom.org>
  <1469692512-16863-8-git-send-email-wagi@monom.org>
  <20160728183343.GD16852@dtor-ws>
@@ -14,16 +14,16 @@ References: <1469692512-16863-1-git-send-email-wagi@monom.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37536 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754967AbcHAUNx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Aug 2016 16:13:53 -0400
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:34863 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751467AbcHAVrN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Aug 2016 17:47:13 -0400
 Content-Disposition: inline
 In-Reply-To: <20160801171951.GC13516@tuxbot>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: "Luis R. Rodriguez" <mcgrof@kernel.org>, Arend van Spriel <arend.vanspriel@broadcom.com>, Daniel Wagner <daniel.wagner@bmw-carit.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Wagner <wagi@monom.org>, Bastien Nocera <hadess@hadess.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>, Julia Lawall <julia.lawall@lip6.fr>, Mimi Zohar <zohar@linux.vnet.ibm.com>, Andy Lutomirski <luto@amacapital.net>, David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>, linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: "Luis R. Rodriguez" <mcgrof@kernel.org>, Arend van Spriel <arend.vanspriel@broadcom.com>, Daniel Wagner <daniel.wagner@bmw-carit.de>, Daniel Wagner <wagi@monom.org>, Bastien Nocera <hadess@hadess.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>, linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
 
 On Mon, Aug 01, 2016 at 10:19:51AM -0700, Bjorn Andersson wrote:
 > On Sat 30 Jul 09:58 PDT 2016, Luis R. Rodriguez wrote:
@@ -64,25 +64,20 @@ On Mon, Aug 01, 2016 at 10:19:51AM -0700, Bjorn Andersson wrote:
 > either one can either use kernel modules or the user-helper fallback to
 > delay the loading until the files are available. (I don't like to
 > enforce the usage of kernel modules)
-
-Now that the firmware API is sharing the same API call to read files
-the existential issue of the file is not unique issue of firmware,
-but also to any other caller of it.
-
+> 
 > I'm open to alternative ways of having firmware loading wait on
 > secondary filesystems to be mounted, but have not yet tried to tackle
 > this problem. I do believe something that waits and retries the firmware
 > load as additional file systems gets mounted would be prettier than
 > forcing user space to tell us it's time to move on.
 
-Agreed. We simply have not addressed this problem yet. Let's discuss a
-possible solution on the other reply thread I provided with more details
-to Dmitry.
+Hmm, but when do you stop? How do you know that you are not going to get
+yet another fs mounted and that one will finally have the firmware you
+are looking for? The kernel does now, but distribution/product
+integrator does. That is why I think the most reliable way is to see if
+firmware is built-in, otherwise wait and let userspace do its thing.
 
-> Due to the size of these firmware files we release the firmware as soon
-> as we have copied the content into the appropriate memory segments, so
-> we're not utilizing the caching mechanisms of the current fw loader.
+Thanks.
 
-BTW my goal with the sysdata API is to automatically free this for you too :)
-
-  Luis
+-- 
+Dmitry

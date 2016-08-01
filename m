@@ -1,81 +1,90 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
- completion
-Date: Mon, 1 Aug 2016 10:19:51 -0700
-Message-ID: <20160801171951.GC13516@tuxbot>
-References: <1469692512-16863-1-git-send-email-wagi@monom.org>
- <1469692512-16863-8-git-send-email-wagi@monom.org>
- <20160728183343.GD16852@dtor-ws>
- <20160728190151.GV13516@tuxbot>
- <c05a7b98-5ada-701f-9a77-65d81b841c17@bmw-carit.de>
- <ee9a29aa-0d29-a33f-e43a-057dc359cf89@broadcom.com>
- <20160730165817.GQ3296@wotan.suse.de>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/4] input: touchscreen: Add generic touchscreen
+ softbutton handling code
+Date: Mon, 1 Aug 2016 10:41:54 -0700
+Message-ID: <20160801174154.GA3231@dtor-ws>
+References: <1469978590-14081-1-git-send-email-hdegoede@redhat.com>
+ <1469978590-14081-2-git-send-email-hdegoede@redhat.com>
+ <20160801165430.GA30345@rob-hp-laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:35588 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754314AbcHARUx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Aug 2016 13:20:53 -0400
-Received: by mail-pa0-f45.google.com with SMTP id iw10so54558301pac.2
-        for <linux-input@vger.kernel.org>; Mon, 01 Aug 2016 10:19:56 -0700 (PDT)
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20160730165817.GQ3296@wotan.suse.de>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20160801165430.GA30345@rob-hp-laptop>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: "Luis R. Rodriguez" <mcgrof@kernel.org>
-Cc: Arend van Spriel <arend.vanspriel@broadcom.com>, Daniel Wagner <daniel.wagner@bmw-carit.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Wagner <wagi@monom.org>, Bastien Nocera <hadess@hadess.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>, linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat 30 Jul 09:58 PDT 2016, Luis R. Rodriguez wrote:
-
-> On Sat, Jul 30, 2016 at 02:42:41PM +0200, Arend van Spriel wrote:
-> > + Luis (again) ;-)
+On Mon, Aug 01, 2016 at 11:54:30AM -0500, Rob Herring wrote:
+> On Sun, Jul 31, 2016 at 05:23:07PM +0200, Hans de Goede wrote:
+> > Some touchscreens extend over the display they cover and have a number
+> > of capacative softbuttons outside of the display the cover.
 > > 
-> > On 29-07-16 08:13, Daniel Wagner wrote:
-> > > On 07/28/2016 09:01 PM, Bjorn Andersson wrote:
-> > >> On Thu 28 Jul 11:33 PDT 2016, Dmitry Torokhov wrote:
-> > >>
-> > >>> On Thu, Jul 28, 2016 at 09:55:11AM +0200, Daniel Wagner wrote:
-> > >>>> From: Daniel Wagner <daniel.wagner@bmw-carit.de>
-> > >>>>
-> > >> [..]
-> > >>>
-> > >>> Do not quite like it... I'd rather asynchronous request give out a
-> > >>> firmware status pointer that could be used later on.
+> > With some hardware these softbuttons simply report touches with
+> > coordinates outside of the normal coordinate space for touches on the
+> > display.
 > > 
-> > Excellent. Why not get rid of the callback function as well and have
-> > fw_loading_wait() return result (0 = firmware available, < 0 = fail).
-> > Just to confirm, you are proposing a new API function next to
-> > request_firmware_nowait(), right?
+> > This commit adds a devicetree binding for describing such buttons in
+> > devicetree and a bunch of helper functions to easily add support for
+> > these to existing touchscreen drivers.
+> > 
+> > Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> > ---
+> >  .../bindings/input/touchscreen/softbuttons.txt     |  58 +++++++++
+> >  drivers/input/touchscreen/Makefile                 |   2 +-
+> >  drivers/input/touchscreen/softbuttons.c            | 145 +++++++++++++++++++++
+> >  include/linux/input/touchscreen.h                  |   9 ++
+> >  4 files changed, 213 insertions(+), 1 deletion(-)
+> >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+> >  create mode 100644 drivers/input/touchscreen/softbuttons.c
+> > 
+> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+> > new file mode 100644
+> > index 0000000..3eb6f4c
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+> > @@ -0,0 +1,58 @@
+> > +General Touchscreen Softbutton Properties:
+> > +
+> > +Some touchscreens extend over the display they cover and have a number
+> > +of capacative softbuttons outside of the display the cover.
+> > +
+> > +Some of these softbuttons simply report touches with coordinates outside of
+> > +the normal coordinate space for touches on the display. This binding is for
+> > +describing such buttons in devicetree.
+> > +
+> > +Each softkey is represented as a sub-node of the touchscreen node.
+> > +
+> > +Required subnode-properties:
+> > + - label			: Descriptive name of the key.
+> > + - linux,code			: Keycode to emit.
+> > + - softbutton-min-x		: X start of the area the softbutton area covers
+> > + - softbutton-max-x		: X end of the area the softbutton area covers
+> > + - softbutton-min-y		: Y start of the area the softbutton area covers
+> > + - softbutton-max-y		: Y end of the area the softbutton area covers
 > 
-> If proposing new firmware_class patches please bounce / Cc me, I've
-> recently asked for me to be added to MAINTAINERS so I get these
-> e-mails as I'm working on a new flexible API which would allow us
-> to extend the firmware API without having to care about the old
-> stupid usermode helper at all.
-> 
+> This generally looks fine to me, but I am wondering one thing. If the 
+> buttons are located at the origin of an axis, can we handle that case? I 
+> don't think you can unless you assume softbutton-max-? is 0 for the 
+> touchscreen. To put it another way, you have a gap from 1024 to 1084 
+> which you can't express for buttons at the origin unless you do negative 
+> numbers.
 
-In the remoteproc world there are several systems where we see 100+MB of
-firmware being loaded. It's unfeasible to have these files in an
-initramfs, so we need a way to indicate to the kernel that the
-second/primary (or a dedicated firmware partition) is mounted.
+I do not this this should be done in kernel: I do not see nay difference
+in softbuttons or sliders or circular controls or... They are not
+controller-specific and I think are better handled in userspace. We do
+that for Synaptics touchpads with softbuttons, we can do that for other
+controllers.
 
-We're currently loading these files with request_firmware_nowait(), so
-either one can either use kernel modules or the user-helper fallback to
-delay the loading until the files are available. (I don't like to
-enforce the usage of kernel modules)
+Also, what is or stance when there is no bezel and we sill want to have
+the softbutons (i.e. all Nexus phones and tablets)?
 
-I'm open to alternative ways of having firmware loading wait on
-secondary filesystems to be mounted, but have not yet tried to tackle
-this problem. I do believe something that waits and retries the firmware
-load as additional file systems gets mounted would be prettier than
-forcing user space to tell us it's time to move on.
+Thanks.
 
-
-
-Due to the size of these firmware files we release the firmware as soon
-as we have copied the content into the appropriate memory segments, so
-we're not utilizing the caching mechanisms of the current fw loader.
-
-Regards,
-Bjorn
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,90 +1,360 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/4] input: touchscreen: Add generic touchscreen
- softbutton handling code
-Date: Mon, 1 Aug 2016 10:41:54 -0700
-Message-ID: <20160801174154.GA3231@dtor-ws>
-References: <1469978590-14081-1-git-send-email-hdegoede@redhat.com>
- <1469978590-14081-2-git-send-email-hdegoede@redhat.com>
- <20160801165430.GA30345@rob-hp-laptop>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v5] input: add ADC resistor ladder driver
+Date: Mon, 1 Aug 2016 10:51:03 -0700
+Message-ID: <20160801175103.GB3231@dtor-ws>
+References: <1469745873-14611-1-git-send-email-alexandre.belloni@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33019 "EHLO
+	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753949AbcHARvH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Aug 2016 13:51:07 -0400
+Received: by mail-pf0-f196.google.com with SMTP id i6so10768364pfe.0
+        for <linux-input@vger.kernel.org>; Mon, 01 Aug 2016 10:51:07 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20160801165430.GA30345@rob-hp-laptop>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1469745873-14611-1-git-send-email-alexandre.belloni@free-electrons.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: linux-input@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-On Mon, Aug 01, 2016 at 11:54:30AM -0500, Rob Herring wrote:
-> On Sun, Jul 31, 2016 at 05:23:07PM +0200, Hans de Goede wrote:
-> > Some touchscreens extend over the display they cover and have a number
-> > of capacative softbuttons outside of the display the cover.
-> > 
-> > With some hardware these softbuttons simply report touches with
-> > coordinates outside of the normal coordinate space for touches on the
-> > display.
-> > 
-> > This commit adds a devicetree binding for describing such buttons in
-> > devicetree and a bunch of helper functions to easily add support for
-> > these to existing touchscreen drivers.
-> > 
-> > Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> > ---
-> >  .../bindings/input/touchscreen/softbuttons.txt     |  58 +++++++++
-> >  drivers/input/touchscreen/Makefile                 |   2 +-
-> >  drivers/input/touchscreen/softbuttons.c            | 145 +++++++++++++++++++++
-> >  include/linux/input/touchscreen.h                  |   9 ++
-> >  4 files changed, 213 insertions(+), 1 deletion(-)
-> >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
-> >  create mode 100644 drivers/input/touchscreen/softbuttons.c
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
-> > new file mode 100644
-> > index 0000000..3eb6f4c
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
-> > @@ -0,0 +1,58 @@
-> > +General Touchscreen Softbutton Properties:
-> > +
-> > +Some touchscreens extend over the display they cover and have a number
-> > +of capacative softbuttons outside of the display the cover.
-> > +
-> > +Some of these softbuttons simply report touches with coordinates outside of
-> > +the normal coordinate space for touches on the display. This binding is for
-> > +describing such buttons in devicetree.
-> > +
-> > +Each softkey is represented as a sub-node of the touchscreen node.
-> > +
-> > +Required subnode-properties:
-> > + - label			: Descriptive name of the key.
-> > + - linux,code			: Keycode to emit.
-> > + - softbutton-min-x		: X start of the area the softbutton area covers
-> > + - softbutton-max-x		: X end of the area the softbutton area covers
-> > + - softbutton-min-y		: Y start of the area the softbutton area covers
-> > + - softbutton-max-y		: Y end of the area the softbutton area covers
+On Fri, Jul 29, 2016 at 12:44:33AM +0200, Alexandre Belloni wrote:
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > 
-> This generally looks fine to me, but I am wondering one thing. If the 
-> buttons are located at the origin of an axis, can we handle that case? I 
-> don't think you can unless you assume softbutton-max-? is 0 for the 
-> touchscreen. To put it another way, you have a gap from 1024 to 1084 
-> which you can't express for buttons at the origin unless you do negative 
-> numbers.
+> A common way of multiplexing buttons on a single input in cheap devices is
+> to use a resistor ladder on an ADC. This driver supports that configuration
+> by polling an ADC channel provided by IIO.
+> 
+> Acked-by: Jonathan Cameron <jic23@kernel.org>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> ---
+> 
+> Changes in v5:
+>  - Dmitry's changes
+>  - s/mvolt/millivolt/
 
-I do not this this should be done in kernel: I do not see nay difference
-in softbuttons or sliders or circular controls or... They are not
-controller-specific and I think are better handled in userspace. We do
-that for Synaptics touchpads with softbuttons, we can do that for other
-controllers.
+Rob, is "millivolt" OK with you?
 
-Also, what is or stance when there is no bezel and we sill want to have
-the softbutons (i.e. all Nexus phones and tablets)?
-
-Thanks.
+> 
+>  .../devicetree/bindings/input/adc-keys.txt         |  49 +++++
+>  drivers/input/keyboard/Kconfig                     |  15 ++
+>  drivers/input/keyboard/Makefile                    |   1 +
+>  drivers/input/keyboard/adc-keys.c                  | 208 +++++++++++++++++++++
+>  4 files changed, 273 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/adc-keys.txt
+>  create mode 100644 drivers/input/keyboard/adc-keys.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/adc-keys.txt b/Documentation/devicetree/bindings/input/adc-keys.txt
+> new file mode 100644
+> index 000000000000..e42fab5e431f
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/adc-keys.txt
+> @@ -0,0 +1,49 @@
+> +ADC attached resistor ladder buttons
+> +------------------------------------
+> +
+> +Required properties:
+> + - compatible: "adc-keys"
+> + - io-channels: Phandle to an ADC channel
+> + - io-channel-names = "buttons";
+> + - keyup-threshold-millivolt: Voltage at which all the keys are considered up.
+> +
+> +Optional properties:
+> +	- poll-interval: Poll interval time in milliseconds
+> +	- autorepeat: Boolean, Enable auto repeat feature of Linux input
+> +	  subsystem.
+> +
+> +Each button (key) is represented as a sub-node of "adc-keys":
+> +
+> +Required subnode-properties:
+> +	- label: Descriptive name of the key.
+> +	- linux,code: Keycode to emit.
+> +	- press-threshold-millivolt: Voltage adc input when this key is pressed.
+> +
+> +Example:
+> +
+> +#include <dt-bindings/input/input.h>
+> +
+> +	adc-keys {
+> +		compatible = "adc-keys";
+> +		io-channels = <&lradc 0>;
+> +		io-channel-names = "buttons";
+> +		keyup-threshold-millivolt = <2000>;
+> +
+> +		button@1500 {
+> +			label = "Volume Up";
+> +			linux,code = <KEY_VOLUMEUP>;
+> +			press-threshold-millivolt = <1500>;
+> +		};
+> +
+> +		button@1000 {
+> +			label = "Volume Down";
+> +			linux,code = <KEY_VOLUMEDOWN>;
+> +			press-threshold-millivolt = <1000>;
+> +		};
+> +
+> +		button@500 {
+> +			label = "Enter";
+> +			linux,code = <KEY_ENTER>;
+> +			press-threshold-millivolt = <500>;
+> +		};
+> +	};
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index 509608c95994..cbd75cf44739 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -12,6 +12,21 @@ menuconfig INPUT_KEYBOARD
+>  
+>  if INPUT_KEYBOARD
+>  
+> +config KEYBOARD_ADC
+> +	tristate "ADC Ladder Buttons"
+> +	depends on IIO
+> +	select INPUT_POLLDEV
+> +	help
+> +	  This driver implements support for buttons connected
+> +	  to an ADC using a resistor ladder.
+> +
+> +	  Say Y here if your device has such buttons connected to an ADC.  Your
+> +	  board-specific setup logic must also provide a configuration data
+> +	  for mapping voltages to buttons.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called adc_keys.
+> +
+>  config KEYBOARD_ADP5520
+>  	tristate "Keypad Support for ADP5520 PMIC"
+>  	depends on PMIC_ADP5520
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> index 1d416ddf84e4..d9f4cfcf3410 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -4,6 +4,7 @@
+>  
+>  # Each configuration option enables a list of files.
+>  
+> +obj-$(CONFIG_KEYBOARD_ADC)		+= adc-keys.o
+>  obj-$(CONFIG_KEYBOARD_ADP5520)		+= adp5520-keys.o
+>  obj-$(CONFIG_KEYBOARD_ADP5588)		+= adp5588-keys.o
+>  obj-$(CONFIG_KEYBOARD_ADP5589)		+= adp5589-keys.o
+> diff --git a/drivers/input/keyboard/adc-keys.c b/drivers/input/keyboard/adc-keys.c
+> new file mode 100644
+> index 000000000000..050ae6d5019f
+> --- /dev/null
+> +++ b/drivers/input/keyboard/adc-keys.c
+> @@ -0,0 +1,208 @@
+> +/*
+> + * Input driver for resistor ladder connected on ADC
+> + *
+> + * Copyright (c) 2016 Alexandre Belloni
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2 as published by
+> + * the Free Software Foundation.
+> + */
+> +
+> +#include <linux/err.h>
+> +#include <linux/iio/consumer.h>
+> +#include <linux/iio/types.h>
+> +#include <linux/input.h>
+> +#include <linux/input-polldev.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/property.h>
+> +#include <linux/slab.h>
+> +
+> +struct adc_keys_button {
+> +	u32 voltage;
+> +	u32 keycode;
+> +};
+> +
+> +struct adc_keys_state {
+> +	struct iio_channel *channel;
+> +	u32 num_keys;
+> +	u32 last_key;
+> +	u32 keyup_voltage;
+> +	const struct adc_keys_button *map;
+> +};
+> +
+> +static void adc_keys_poll(struct input_polled_dev *dev)
+> +{
+> +	struct adc_keys_state *st = dev->private;
+> +	int i, value, ret;
+> +	u32 diff, closest = 0xffffffff;
+> +	int keycode = 0;
+> +
+> +	ret = iio_read_channel_processed(st->channel, &value);
+> +	if (unlikely(ret < 0)) {
+> +		/* Forcibly release key if any was pressed */
+> +		value = st->keyup_voltage;
+> +	} else {
+> +		for (i = 0; i < st->num_keys; i++) {
+> +			diff = abs(st->map[i].voltage - value);
+> +			if (diff < closest) {
+> +				closest = diff;
+> +				keycode = st->map[i].keycode;
+> +			}
+> +		}
+> +	}
+> +
+> +	if (abs(st->keyup_voltage - value) < closest)
+> +		keycode = 0;
+> +
+> +	if (st->last_key && st->last_key != keycode)
+> +		input_report_key(dev->input, st->last_key, 0);
+> +
+> +	if (keycode)
+> +		input_report_key(dev->input, keycode, 1);
+> +
+> +	input_sync(dev->input);
+> +	st->last_key = keycode;
+> +}
+> +
+> +static int adc_keys_load_keymap(struct device *dev, struct adc_keys_state *st)
+> +{
+> +	struct adc_keys_button *map;
+> +	struct fwnode_handle *child;
+> +	int i;
+> +
+> +	st->num_keys = device_get_child_node_count(dev);
+> +	if (st->num_keys == 0) {
+> +		dev_err(dev, "keymap is missing\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	map = devm_kmalloc_array(dev, st->num_keys, sizeof(*map), GFP_KERNEL);
+> +	if (!map)
+> +		return -ENOMEM;
+> +
+> +	i = 0;
+> +	device_for_each_child_node(dev, child) {
+> +		if (fwnode_property_read_u32(child, "press-threshold-millivolt",
+> +					     &map[i].voltage)) {
+> +			dev_err(dev, "Key with invalid or missing voltage\n");
+> +			fwnode_handle_put(child);
+> +			return -EINVAL;
+> +		}
+> +
+> +		if (fwnode_property_read_u32(child, "linux,code",
+> +					     &map[i].keycode)) {
+> +			dev_err(dev, "Key with invalid or missing linux,code\n");
+> +			fwnode_handle_put(child);
+> +			return -EINVAL;
+> +		}
+> +
+> +		i++;
+> +	}
+> +
+> +	st->map = map;
+> +	return 0;
+> +}
+> +
+> +static int adc_keys_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	struct adc_keys_state *st;
+> +	struct input_polled_dev *poll_dev;
+> +	struct input_dev *input;
+> +	enum iio_chan_type type;
+> +	int i, value;
+> +	int error;
+> +
+> +	st = devm_kzalloc(dev, sizeof(*st), GFP_KERNEL);
+> +	if (!st)
+> +		return -ENOMEM;
+> +
+> +	st->channel = devm_iio_channel_get(dev, "buttons");
+> +	if (IS_ERR(st->channel))
+> +		return PTR_ERR(st->channel);
+> +
+> +	if (!st->channel->indio_dev)
+> +		return -ENXIO;
+> +
+> +	error = iio_get_channel_type(st->channel, &type);
+> +	if (error < 0)
+> +		return error;
+> +
+> +	if (type != IIO_VOLTAGE) {
+> +		dev_err(dev, "Incompatible channel type %d\n", type);
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (device_property_read_u32(dev, "keyup-threshold-millivolt",
+> +				     &st->keyup_voltage)) {
+> +		dev_err(dev, "Invalid or missing keyup voltage\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	error = adc_keys_load_keymap(dev, st);
+> +	if (error)
+> +		return error;
+> +
+> +	platform_set_drvdata(pdev, st);
+> +
+> +	poll_dev = devm_input_allocate_polled_device(dev);
+> +	if (!poll_dev) {
+> +		dev_err(dev, "failed to allocate input device\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	if (!device_property_read_u32(dev, "poll-interval", &value))
+> +		poll_dev->poll_interval = value;
+> +
+> +	poll_dev->poll = adc_keys_poll;
+> +	poll_dev->private = st;
+> +
+> +	input = poll_dev->input;
+> +
+> +	input->name = pdev->name;
+> +	input->phys = "adc-keys/input0";
+> +
+> +	input->id.bustype = BUS_HOST;
+> +	input->id.vendor = 0x0001;
+> +	input->id.product = 0x0001;
+> +	input->id.version = 0x0100;
+> +
+> +	__set_bit(EV_KEY, input->evbit);
+> +	for (i = 0; i < st->num_keys; i++)
+> +		__set_bit(st->map[i].keycode, input->keybit);
+> +
+> +	if (device_property_read_bool(dev, "autorepeat"))
+> +		__set_bit(EV_REP, input->evbit);
+> +
+> +	error = input_register_polled_device(poll_dev);
+> +	if (error) {
+> +		dev_err(dev, "Unable to register input device: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id adc_keys_of_match[] = {
+> +	{ .compatible = "adc-keys", },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(of, adc_keys_of_match);
+> +#endif
+> +
+> +static struct platform_driver __refdata adc_keys_driver = {
+> +	.driver = {
+> +		.name = "adc_keys",
+> +		.of_match_table = of_match_ptr(adc_keys_of_match),
+> +	},
+> +	.probe = adc_keys_probe,
+> +};
+> +module_platform_driver(adc_keys_driver);
+> +
+> +MODULE_AUTHOR("Alexandre Belloni <alexandre.belloni@free-electrons.com>");
+> +MODULE_DESCRIPTION("Input driver for resistor ladder connected on ADC");
+> +MODULE_LICENSE("GPL v2");
+> -- 
+> 2.8.1
+> 
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,37 +1,99 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: [PATCH v2 2/2] kernel-parameters: Update i8042.reset parameter documentation
-Date: Mon,  1 Aug 2016 08:14:03 -0300
-Message-ID: <1470050043-4403-3-git-send-email-marcos.souza.org@gmail.com>
-References: <1470050043-4403-1-git-send-email-marcos.souza.org@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1470050043-4403-1-git-send-email-marcos.souza.org@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+From: Daniel Wagner <daniel.wagner-98C5kh4wR6ohFhg+JK9F0w@public.gmane.org>
+Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
+ completion
+Date: Mon, 1 Aug 2016 14:26:04 +0200
+Message-ID: <37a3cd66-262e-ffbe-ea7a-a6d5b1ca1c8b@bmw-carit.de>
+References: <1469692512-16863-1-git-send-email-wagi@monom.org>
+ <1469692512-16863-8-git-send-email-wagi@monom.org>
+ <20160728183343.GD16852@dtor-ws> <20160728190151.GV13516@tuxbot>
+ <c05a7b98-5ada-701f-9a77-65d81b841c17@bmw-carit.de>
+ <ee9a29aa-0d29-a33f-e43a-057dc359cf89@broadcom.com>
+ <20160730165817.GQ3296@wotan.suse.de>
+ <C528E404-0CA5-46B4-B551-B1D4B58BC053@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <C528E404-0CA5-46B4-B551-B1D4B58BC053-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Luis R. Rodriguez" <mcgrof-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Arend van Spriel <arend.vanspriel-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Cc: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Daniel Wagner <wagi-kQCPcA+X3s7YtjvyW6yDsg@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Johannes Berg <johannes.berg-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ohad Ben-Cohen <ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kselftest-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
----
- Documentation/kernel-parameters.txt | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+On 07/31/2016 09:23 AM, Dmitry Torokhov wrote:
+> On July 30, 2016 9:58:17 AM PDT, "Luis R. Rodriguez" <mcgrof-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+>> On Sat, Jul 30, 2016 at 02:42:41PM +0200, Arend van Spriel wrote:
+>>> On 29-07-16 08:13, Daniel Wagner wrote:
+>>>> On 07/28/2016 09:01 PM, Bjorn Andersson wrote:
+>>>>> On Thu 28 Jul 11:33 PDT 2016, Dmitry Torokhov wrote:
 
-diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
-index 82b42c9..24dd5cc 100644
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -1430,7 +1430,12 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
- 	i8042.nopnp	[HW] Don't use ACPIPnP / PnPBIOS to discover KBD/AUX
- 			     controllers
- 	i8042.notimeout	[HW] Ignore timeout condition signalled by controller
--	i8042.reset	[HW] Reset the controller during init and cleanup
-+	i8042.reset	[HW] Reset the controller during init and cleanup, only
-+			     on cleanup, or never reset
-+			Format: { 1 | Y | y | 0 | N | n }
-+			1, Y, y: init and cleanup
-+			0, N, n: don't reset controller
-+			Default: only on cleanup
- 	i8042.unlock	[HW] Unlock (ignore) the keylock
- 	i8042.kbdreset  [HW] Reset device connected to KBD port
- 
--- 
-2.7.4
+>>> + Luis (again) ;-)
+
+That was not on purpose :) My attempt to keep the Cc list a bit shorter 
+was a failure.
+
+>>>>>> Do not quite like it... I'd rather asynchronous request give out
+>>>>>> firmware status pointer that could be used later on.
+>>>
+>>> Excellent. Why not get rid of the callback function as well and have
+>>> fw_loading_wait() return result (0 = firmware available, < 0 = fail).
+>>> Just to confirm, you are proposing a new API function next to
+>>> request_firmware_nowait(), right?
+>>
+>> If proposing new firmware_class patches please bounce / Cc me, I've
+>> recently asked for me to be added to MAINTAINERS so I get these
+>> e-mails as I'm working on a new flexible API which would allow us
+>> to extend the firmware API without having to care about the old
+>> stupid usermode helper at all.
+
+These patches here are a first attempt to clean up a bit of the code 
+around the completion API. As Dmitry correctly pointed out, it makes 
+more sense to go bit further and make the async loading a bit more 
+convenient for the drivers.
+
+> I am not sure why we started calling usermode helper "stupid". We
+> only  had to implement direct kernel firmware loading because udev/stsremd
+> folks had "interesting" ideas how events should be handled; but having
+> userspace to feed us data is not stupid.
+
+I was ignorant on all the nasty details around the firmware loading. If 
+I parse Luis' patches correctly they introduce an API which calls 
+kernel_read_file_from_path() asynchronously:
+
+sysdata_file_request_async(..., &cookie)
+   *coookie = async_schedule_domain(request_sysdata_file_work_func(), ..)
+
+   request_sysdata_file_work_fun()
+     _sysdata_file_request()
+       fw_get_filesystem_firmware()
+	kernel_read_file_from_path()
+
+sysdata_synchronize_request(&cookie);
+
+Doesn't look like what your asking for.
+
+> If we want to overhaul firmware loading support we need to figure
+> out  how to support case when a driver want to [asynchronously] request
+> firmware/config/blob and the rest of the system is not ready. Even if we
+> want kernel to do read/load the data we need userspace to tell kernel
+> when firmware partition is available, until then the kernel should not
+> fail the request.
+
+I gather from Luis' blog post and comments that he is on the quest on 
+removing userspace support completely.
+
+Maybe this attempt here could be a step before. Step 1 would be changing 
+request_firmware_nowait() to request_firmware_async so drivers don't 
+have to come up with their own sync primitives, e.g.
+
+   cookie = request_firmware_async()
+   fw_load_wait(cookie)
+
+Step 2 could be something more towards sysdata approach.
+
+cheers,
+daniel
+--
+To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,90 +1,81 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [RFC PATCH] serio: add hangup support
-Date: Mon, 1 Aug 2016 15:43:32 +0200
-Message-ID: <fcdd38a6-52f3-3c01-d99f-3a978bfac512@xs4all.nl>
-References: <287a7f88-5d45-bb45-c98e-22a2313ab780@xs4all.nl>
- <20160715163119.GA27847@dtor-ws>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/4] input: touchscreen: Add generic touchscreen
+ softbutton handling code
+Date: Mon, 1 Aug 2016 11:54:30 -0500
+Message-ID: <20160801165430.GA30345@rob-hp-laptop>
+References: <1469978590-14081-1-git-send-email-hdegoede@redhat.com>
+ <1469978590-14081-2-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20160715163119.GA27847@dtor-ws>
-Sender: linux-media-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>, Vojtech Pavlik <vojtech@suse.com>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1469978590-14081-2-git-send-email-hdegoede@redhat.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: devicetree <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
+On Sun, Jul 31, 2016 at 05:23:07PM +0200, Hans de Goede wrote:
+> Some touchscreens extend over the display they cover and have a number
+> of capacative softbuttons outside of the display the cover.
+> 
+> With some hardware these softbuttons simply report touches with
+> coordinates outside of the normal coordinate space for touches on the
+> display.
+> 
+> This commit adds a devicetree binding for describing such buttons in
+> devicetree and a bunch of helper functions to easily add support for
+> these to existing touchscreen drivers.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  .../bindings/input/touchscreen/softbuttons.txt     |  58 +++++++++
+>  drivers/input/touchscreen/Makefile                 |   2 +-
+>  drivers/input/touchscreen/softbuttons.c            | 145 +++++++++++++++++++++
+>  include/linux/input/touchscreen.h                  |   9 ++
+>  4 files changed, 213 insertions(+), 1 deletion(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+>  create mode 100644 drivers/input/touchscreen/softbuttons.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+> new file mode 100644
+> index 0000000..3eb6f4c
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+> @@ -0,0 +1,58 @@
+> +General Touchscreen Softbutton Properties:
+> +
+> +Some touchscreens extend over the display they cover and have a number
+> +of capacative softbuttons outside of the display the cover.
+> +
+> +Some of these softbuttons simply report touches with coordinates outside of
+> +the normal coordinate space for touches on the display. This binding is for
+> +describing such buttons in devicetree.
+> +
+> +Each softkey is represented as a sub-node of the touchscreen node.
+> +
+> +Required subnode-properties:
+> + - label			: Descriptive name of the key.
+> + - linux,code			: Keycode to emit.
+> + - softbutton-min-x		: X start of the area the softbutton area covers
+> + - softbutton-max-x		: X end of the area the softbutton area covers
+> + - softbutton-min-y		: Y start of the area the softbutton area covers
+> + - softbutton-max-y		: Y end of the area the softbutton area covers
 
+This generally looks fine to me, but I am wondering one thing. If the 
+buttons are located at the origin of an axis, can we handle that case? I 
+don't think you can unless you assume softbutton-max-? is 0 for the 
+touchscreen. To put it another way, you have a gap from 1024 to 1084 
+which you can't express for buttons at the origin unless you do negative 
+numbers.
 
-On 07/15/2016 06:31 PM, Dmitry Torokhov wrote:
-> Hi Hans,
-> 
-> On Fri, Jul 15, 2016 at 01:27:21PM +0200, Hans Verkuil wrote:
->> For the upcoming 4.8 kernel I made a driver for the Pulse-Eight USB CEC adapter.
->> This is a usb device that shows up as a ttyACM0 device. It requires that you run
->> inputattach in order to communicate with it via serio.
->>
->> This all works well, but it would be nice to have a udev rule to automatically
->> start inputattach. That too works OK, but the problem comes when the USB device
->> is unplugged: the tty hangup is never handled by the serio framework so the
->> inputattach utility never exits and you have to kill it manually.
->>
->> By adding this hangup callback the inputattach utility now exists as soon as I
->> unplug the USB device.
->>
->> Is this the correct approach?
->>
->> BTW, the new driver is found here:
->>
->> https://git.linuxtv.org/media_tree.git/tree/drivers/staging/media/pulse8-cec
->>
->> Regards,
->>
->> 	Hans
->>
->> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
->>
->> ---
->> diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
->> index 9c927d3..a615846 100644
->> --- a/drivers/input/serio/serport.c
->> +++ b/drivers/input/serio/serport.c
->> @@ -248,6 +248,14 @@ static long serport_ldisc_compat_ioctl(struct tty_struct *tty,
->>  }
->>  #endif
->>
->> +static int serport_ldisc_hangup(struct tty_struct * tty)
->> +{
->> +	struct serport *serport = (struct serport *) tty->disc_data;
->> +
->> +	serport_serio_close(serport->serio);
-> 
-> I see what you mean, but this is not quite correct. I think we should
-> make serport_serio_close() only reset the SERPORT_ACTIVE flag and have
-> serport_ldisc_hangup() actually do:
-> 
-> 	spin_lock_irqsave(&serport->lock, flags);
-> 	set_bit(SERPORT_DEAD, &serport->flags);
-> 	spin_unlock_irqrestore(&serport->lock, flags);
-> 
-> 	wake_up_interruptible(&serport->wait);
-
-I'm preparing a v2 of this patch, but I wonder if in this hangup code
-I also need to clear the SERPORT_ACTIVE flag. Or is it guaranteed that
-close() always precedes hangup()? In which case close() always clears that
-flag.
-
-Regards,
-
-	Hans
-
-> 
-> i.e. if user (via device-driver - input core - evdev - userspace chain)
-> stops using serio port we should not kill inputattach instance right
-> then and there, but wait for the serial port device disconnect or
-> something else killing inputattach.
-> 
-> Vojtech, do you recall any of this code?
-> 
-> Thanks.
-> 
+Rob

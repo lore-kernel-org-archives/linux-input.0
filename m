@@ -1,43 +1,95 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 0218/1285] Replace numeric parameter like 0444 with macro
-Date: Tue, 2 Aug 2016 14:22:33 +0200
-Message-ID: <20160802122233.GB23544@kroah.com>
-References: <20160802105039.28287-1-baolex.ni@intel.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
+Subject: Re: [PATCH v3 1/4] mfd: mxs-lradc: Add support for mxs-lradc MFD
+Date: Tue, 2 Aug 2016 18:35:39 +0200 (CEST)
+Message-ID: <397621614.8135.5a20a815-9153-4587-9aeb-f2a7fc5a4ff5.open-xchange@email.1und1.de>
+References: <cover.1466769907.git.ksenija.stanojevic@gmail.com>
+ <370a02584386944b465deff5ccc48c8919b23dba.1466769907.git.ksenija.stanojevic@gmail.com>
+ <20160628162834.GF29166@dell>
+ <CAL7P5j+NYvUJfu==xQvncyCiw8JHtizOdfyeY1HL6Lb=-wsrWQ@mail.gmail.com>
+ <E1bIyD4-0000Jw-2c@stardust.g4.wien.funkfeuer.at>
+ <20160713124935.GC11154@dell>
+ <5bddd461-90e3-3116-8d18-fae51bf39310@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160802105039.28287-1-baolex.ni@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Baole Ni <baolex.ni@intel.com>
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, thellstrom@vmware.com, airlied@linux.ie, kgene@kernel.org, k.kozlowski@samsung.com, dougthompson@xmission.com, bp@alien8.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, chuansheng.liu@intel.com, alexander.deucher@amd.com, ville.syrjala@linux.intel.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([217.72.192.73]:65477 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S967948AbcHBQgT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Aug 2016 12:36:19 -0400
+In-Reply-To: <5bddd461-90e3-3116-8d18-fae51bf39310@denx.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, =?UTF-8?Q?Ksenija_Stanojevi=C4=87?= <ksenija.stanojevic@gmail.com>
+Cc: linux-input@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Cameron <jic23@kernel.org>, linux-kernel@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fabio Estevam <fabio.estevam@freescale.com>, linux-iio@vger.kernel.org, Marek Vasut <marex@denx.de>, Harald Geyer <harald@ccbib.org>
 
-On Tue, Aug 02, 2016 at 06:50:39PM +0800, Baole Ni wrote:
-> I find that the developers often just specified the numeric value
-> when calling a macro which is defined with a parameter for access permission.
-> As we know, these numeric value for access permission have had the corresponding macro,
-> and that using macro can improve the robustness and readability of the code,
-> thus, I suggest replacing the numeric parameter with the macro.
-> 
-> Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
-> Signed-off-by: Baole Ni <baolex.ni@intel.com>
-> ---
->  drivers/hid/hid-corsair.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
-> index 717704e..5353847 100644
-> --- a/drivers/hid/hid-corsair.c
-> +++ b/drivers/hid/hid-corsair.c
-> @@ -370,8 +370,8 @@ static ssize_t k90_store_current_profile(struct device *dev,
->  	return count;
->  }
->  
-> -static DEVICE_ATTR(macro_mode, 0644, k90_show_macro_mode, k90_store_macro_mode);
-> -static DEVICE_ATTR(current_profile, 0644, k90_show_current_profile,
-> +static DEVICE_ATTR(macro_mode, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, k90_show_macro_mode, k90_store_macro_mode);
-> +static DEVICE_ATTR(current_profile, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, k90_show_current_profile,
->  		   k90_store_current_profile);
+Hi,
 
-DEVICE_ATTR_RW() please.
+> Marek Vasut <marex@denx.de> hat am 14. Juli 2016 um 17:38 geschrieben:
+> 
+> 
+> On 07/13/2016 02:49 PM, Lee Jones wrote:
+> > On Fri, 01 Jul 2016, Harald Geyer wrote:
+> >
+> >> Hi Ksenija!
+> >>
+> >> Ksenija Stanojević writes:
+> >>> On Tue, Jun 28, 2016 at 6:28 PM, Lee Jones <lee.jones@linaro.org> wrote:
+> >>>>> +static int mxs_lradc_add_device(struct platform_device *pdev,
+> >>>>> +                             struct mxs_lradc *lradc, char *name, int
+> >>>>> i)
+> >>>>> +{
+> >>>>> +     struct mfd_cell *cell;
+> >>>>> +
+> >>>>> +     cell = &lradc->cells[i];
+> >>>>> +     cell->name = name;
+> >>>>> +     cell->platform_data = lradc;
+> >>>>> +     cell->pdata_size = sizeof(*lradc);
+> >>>>> +
+> >>>>> +     return devm_mfd_add_devices(&pdev->dev, -1, cell, 1, NULL, 0,
+> >>>>> NULL);
+> >>>>> +}
+> >>>>
+> >>>> Please don't roll your own API.
+> >>>>
+> >>>> Use 'struct mfd_cell' like everyone else does.
+> >>>
+> >>> It has been suggested in previous reviews to use separate function to
+> >>> register mfd device, and to make mfd_cell allocate dynamically because
+> >>> struc mxs-lradc is allocated dynamically.
+> >>> But I can revrse changes and make mfd_cells allocate staticaly
+> >>> wthout separate function.
+> >>
+> >> I think making mfd_cells members of struct mxs-lradc will address all
+> >> review comments.
+> >
+> > No, please don't do that either.
+> >
+> It'd be nice if you explained in detail why not. Otherwise this is just 
+> empty splat.
+
+since there is no reply, here is my guess:
+
+static const struct mfd_cell mxs_lradc_devs[] = {
+	{
+		.name = DRIVER_NAME_ADC,
+	},
+	{
+		.name = DRIVER_NAME_TS,
+	},
+};
+
+But i'm not sure if we need of_compatible defined here. The intension of this
+patch series is to keep the DT binding.
+
+@Lee: Could you please give us a feedback?
+
+@Ksenija: Still motivated for next round?
+
+Regards
+Stefan
+
+> 
+> -- 
+> Best regards,
+> Marek Vasut

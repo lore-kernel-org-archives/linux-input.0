@@ -1,54 +1,28 @@
-From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0216/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 18:50:30 +0800
-Message-ID: <20160802105030.28155-1-baolex.ni@intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:51405 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753578AbcHBL2L (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Aug 2016 07:28:11 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2] HID: use IS_ENABLED() instead of checking for built-in
+ or module
+Date: Tue, 2 Aug 2016 16:42:06 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1608021641570.22028@cbobk.fhfr.pm>
+References: <1469114754-2650-1-git-send-email-javier@osg.samsung.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1469114754-2650-1-git-send-email-javier@osg.samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com, thellstrom@vmware.com, airlied@linux.ie, kgene@kernel.org, k.kozlowski@samsung.com, dougthompson@xmission.com, bp@alien8.de
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, chuansheng.liu@intel.com, baolex.ni@intel.com, alexander.deucher@amd.com, ville.syrjala@linux.intel.com
 
-I find that the developers often just specified the numeric value
-when calling a macro which is defined with a parameter for access permission.
-As we know, these numeric value for access permission have had the corresponding macro,
-and that using macro can improve the robustness and readability of the code,
-thus, I suggest replacing the numeric parameter with the macro.
+On Thu, 21 Jul 2016, Javier Martinez Canillas wrote:
 
-Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
-Signed-off-by: Baole Ni <baolex.ni@intel.com>
----
- drivers/hid/hid-apple.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> The IS_ENABLED() macro checks if a Kconfig symbol has been enabled either
+> built-in or as a module, use that macro instead of open coding the same.
+> 
+> Using the macro makes the code more readable by helping abstract away some
+> of the Kconfig built-in and module enable details.
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 884d82f..a59441c 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -37,17 +37,17 @@
- #define APPLE_FLAG_FKEY		0x01
- 
- static unsigned int fnmode = 1;
--module_param(fnmode, uint, 0644);
-+module_param(fnmode, uint, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(fnmode, "Mode of fn key on Apple keyboards (0 = disabled, "
- 		"[1] = fkeyslast, 2 = fkeysfirst)");
- 
- static unsigned int iso_layout = 1;
--module_param(iso_layout, uint, 0644);
-+module_param(iso_layout, uint, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(iso_layout, "Enable/Disable hardcoded ISO-layout of the keyboard. "
- 		"(0 = disabled, [1] = enabled)");
- 
- static unsigned int swap_opt_cmd;
--module_param(swap_opt_cmd, uint, 0644);
-+module_param(swap_opt_cmd, uint, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\") keys. "
- 		"(For people who want to keep Windows PC keyboard muscle memory. "
- 		"[0] = as-is, Mac layout. 1 = swapped, Windows layout.)");
+Applied, thanks.
+
 -- 
-2.9.2
-
+Jiri Kosina
+SUSE Labs

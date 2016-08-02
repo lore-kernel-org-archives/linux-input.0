@@ -1,11 +1,11 @@
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0282/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 18:56:24 +0800
-Message-ID: <20160802105624.32615-1-baolex.ni@intel.com>
+Subject: [PATCH 0288/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 18:57:01 +0800
+Message-ID: <20160802105701.569-1-baolex.ni@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, hal.rosenstock@gmail.com, dledford@redhat.com, sean.hefty@intel.com, bp@alien8.de
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, chuansheng.liu@intel.com, baolex.ni@intel.com, haggaie@mellanox.com
+To: michael.hennerich@analog.com, dmitry.torokhov@gmail.com, hal.rosenstock@gmail.com, dledford@redhat.com, sean.hefty@intel.com, bp@alien8.de
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, chuansheng.liu@intel.com, baolex.ni@intel.com
 List-Id: linux-input@vger.kernel.org
 
 I find that the developers often just specified the numeric value
@@ -17,62 +17,48 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/input/mouse/hgpk.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/input/touchscreen/ad7877.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
-index 62be888..6e89405 100644
---- a/drivers/input/mouse/hgpk.c
-+++ b/drivers/input/mouse/hgpk.c
-@@ -44,41 +44,41 @@
- #define ILLEGAL_XY 999999
+diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
+index 9c250ae..85e6135 100644
+--- a/drivers/input/touchscreen/ad7877.c
++++ b/drivers/input/touchscreen/ad7877.c
+@@ -497,7 +497,7 @@ static ssize_t ad7877_disable_store(struct device *dev,
+ 	return count;
+ }
  
- static bool tpdebug;
--module_param(tpdebug, bool, 0644);
-+module_param(tpdebug, bool, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(tpdebug, "enable debugging, dumping packets to KERN_DEBUG.");
+-static DEVICE_ATTR(disable, 0664, ad7877_disable_show, ad7877_disable_store);
++static DEVICE_ATTR(disable, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, ad7877_disable_show, ad7877_disable_store);
  
- static int recalib_delta = 100;
--module_param(recalib_delta, int, 0644);
-+module_param(recalib_delta, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(recalib_delta,
- 	"packets containing a delta this large will be discarded, and a "
- 	"recalibration may be scheduled.");
+ static ssize_t ad7877_dac_show(struct device *dev,
+ 				     struct device_attribute *attr, char *buf)
+@@ -527,7 +527,7 @@ static ssize_t ad7877_dac_store(struct device *dev,
+ 	return count;
+ }
  
- static int jumpy_delay = 20;
--module_param(jumpy_delay, int, 0644);
-+module_param(jumpy_delay, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(jumpy_delay,
- 	"delay (ms) before recal after jumpiness detected");
+-static DEVICE_ATTR(dac, 0664, ad7877_dac_show, ad7877_dac_store);
++static DEVICE_ATTR(dac, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, ad7877_dac_show, ad7877_dac_store);
  
- static int spew_delay = 1;
--module_param(spew_delay, int, 0644);
-+module_param(spew_delay, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(spew_delay,
- 	"delay (ms) before recal after packet spew detected");
+ static ssize_t ad7877_gpio3_show(struct device *dev,
+ 				     struct device_attribute *attr, char *buf)
+@@ -558,7 +558,7 @@ static ssize_t ad7877_gpio3_store(struct device *dev,
+ 	return count;
+ }
  
- static int recal_guard_time;
--module_param(recal_guard_time, int, 0644);
-+module_param(recal_guard_time, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(recal_guard_time,
- 	"interval (ms) during which recal will be restarted if packet received");
+-static DEVICE_ATTR(gpio3, 0664, ad7877_gpio3_show, ad7877_gpio3_store);
++static DEVICE_ATTR(gpio3, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, ad7877_gpio3_show, ad7877_gpio3_store);
  
- static int post_interrupt_delay = 40;
--module_param(post_interrupt_delay, int, 0644);
-+module_param(post_interrupt_delay, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(post_interrupt_delay,
- 	"delay (ms) before recal after recal interrupt detected");
+ static ssize_t ad7877_gpio4_show(struct device *dev,
+ 				     struct device_attribute *attr, char *buf)
+@@ -589,7 +589,7 @@ static ssize_t ad7877_gpio4_store(struct device *dev,
+ 	return count;
+ }
  
- static bool autorecal = true;
--module_param(autorecal, bool, 0644);
-+module_param(autorecal, bool, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(autorecal, "enable recalibration in the driver");
+-static DEVICE_ATTR(gpio4, 0664, ad7877_gpio4_show, ad7877_gpio4_store);
++static DEVICE_ATTR(gpio4, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, ad7877_gpio4_show, ad7877_gpio4_store);
  
- static char hgpk_mode_name[16];
--module_param_string(hgpk_mode, hgpk_mode_name, sizeof(hgpk_mode_name), 0644);
-+module_param_string(hgpk_mode, hgpk_mode_name, sizeof(hgpk_mode_name), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(hgpk_mode,
- 	"default hgpk mode: mouse, glidesensor or pentablet");
- 
+ static struct attribute *ad7877_attributes[] = {
+ 	&dev_attr_temp1.attr,
 -- 
 2.9.2

@@ -1,73 +1,105 @@
-From: "Luis R. Rodriguez" <mcgrof-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
- completion
-Date: Tue, 2 Aug 2016 09:41:06 +0200
-Message-ID: <20160802074106.GI3296@wotan.suse.de>
-References: <20160728190151.GV13516@tuxbot>
- <c05a7b98-5ada-701f-9a77-65d81b841c17@bmw-carit.de>
- <ee9a29aa-0d29-a33f-e43a-057dc359cf89@broadcom.com>
- <20160730165817.GQ3296@wotan.suse.de>
- <C528E404-0CA5-46B4-B551-B1D4B58BC053@gmail.com>
- <37a3cd66-262e-ffbe-ea7a-a6d5b1ca1c8b@bmw-carit.de>
- <20160801194408.GZ3296@wotan.suse.de>
- <0f9350fa-e8b5-9d64-b2d3-afda5e5f6bbf@bmw-carit.de>
- <20160802063419.GG3296@wotan.suse.de>
- <2713d779-ef55-793d-f37e-d1414bb1bfc2@bmw-carit.de>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 1/4] input: touchscreen: Add generic touchscreen
+ softbutton handling code
+Date: Tue, 2 Aug 2016 10:19:56 +0200
+Message-ID: <88d3607c-1610-a5b3-2824-b96a28dfe6f3@redhat.com>
+References: <1469978590-14081-1-git-send-email-hdegoede@redhat.com>
+ <1469978590-14081-2-git-send-email-hdegoede@redhat.com>
+ <20160801165430.GA30345@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <2713d779-ef55-793d-f37e-d1414bb1bfc2-98C5kh4wR6ohFhg+JK9F0w@public.gmane.org>
-Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Wagner <daniel.wagner-98C5kh4wR6ohFhg+JK9F0w@public.gmane.org>
-Cc: "Luis R. Rodriguez" <mcgrof-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Arend van Spriel <arend.vanspriel-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Daniel Wagner <wagi-kQCPcA+X3s7YtjvyW6yDsg@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Johannes Berg <johannes.berg-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ohad Ben-Cohen <ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org>, Mimi Zohar <zohar-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kselftest-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20160801165430.GA30345@rob-hp-laptop>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Rob Herring <robh@kernel.org>
+Cc: devicetree <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Aug 02, 2016 at 08:53:55AM +0200, Daniel Wagner wrote:
-> On 08/02/2016 08:34 AM, Luis R. Rodriguez wrote:
-> >On Tue, Aug 02, 2016 at 07:49:19AM +0200, Daniel Wagner wrote:
-> >>>The sysdata API's main goal rather is to provide a flexible API first,
-> >>>compartamentalizing the usermode helper was secondary. But now it seems
-> >>>I may just also add devm support too to help simplify code further.
-> >>
-> >>I missed the point that you plan to add usermode helper support to
-> >>the sysdata API.
-> >
-> >I had no such plans, when I have asked folks so far about "hey are you
-> >really in need for it, OK what for? " and "what extended uses do you
-> >envision?" so I far I have not gotten any replies at all. So -- instead
-> >sysdata currently ignores it.
-> 
-> So you argue for the remoteproc use case with 100+ MB firmware that
-> if there is a way to load after pivot_root() (or other additional
-> firmware partition shows up) then there is no need at all for
-> usermode helper?
+Hi Rob,
 
-No, I'm saying I'd like to hear valid uses cases for the usermode helper and so
-far I have only found using coccinelle grammar 2 explicit users, that's it. My
-patch series (not yet merge) then annotates these as valid as I've verified
-through their documentation they have some quirky requirement.
+On 01-08-16 18:54, Rob Herring wrote:
+> On Sun, Jul 31, 2016 at 05:23:07PM +0200, Hans de Goede wrote:
+>> Some touchscreens extend over the display they cover and have a number
+>> of capacative softbuttons outside of the display the cover.
+>>
+>> With some hardware these softbuttons simply report touches with
+>> coordinates outside of the normal coordinate space for touches on the
+>> display.
+>>
+>> This commit adds a devicetree binding for describing such buttons in
+>> devicetree and a bunch of helper functions to easily add support for
+>> these to existing touchscreen drivers.
+>>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>  .../bindings/input/touchscreen/softbuttons.txt     |  58 +++++++++
+>>  drivers/input/touchscreen/Makefile                 |   2 +-
+>>  drivers/input/touchscreen/softbuttons.c            | 145 +++++++++++++++++++++
+>>  include/linux/input/touchscreen.h                  |   9 ++
+>>  4 files changed, 213 insertions(+), 1 deletion(-)
+>>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+>>  create mode 100644 drivers/input/touchscreen/softbuttons.c
+>>
+>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+>> new file mode 100644
+>> index 0000000..3eb6f4c
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+>> @@ -0,0 +1,58 @@
+>> +General Touchscreen Softbutton Properties:
+>> +
+>> +Some touchscreens extend over the display they cover and have a number
+>> +of capacative softbuttons outside of the display the cover.
+>> +
+>> +Some of these softbuttons simply report touches with coordinates outside of
+>> +the normal coordinate space for touches on the display. This binding is for
+>> +describing such buttons in devicetree.
+>> +
+>> +Each softkey is represented as a sub-node of the touchscreen node.
+>> +
+>> +Required subnode-properties:
+>> + - label			: Descriptive name of the key.
+>> + - linux,code			: Keycode to emit.
+>> + - softbutton-min-x		: X start of the area the softbutton area covers
+>> + - softbutton-max-x		: X end of the area the softbutton area covers
+>> + - softbutton-min-y		: Y start of the area the softbutton area covers
+>> + - softbutton-max-y		: Y end of the area the softbutton area covers
+>
+> This generally looks fine to me, but I am wondering one thing. If the
+> buttons are located at the origin of an axis, can we handle that case? I
+> don't think you can unless you assume softbutton-max-? is 0 for the
+> touchscreen. To put it another way, you have a gap from 1024 to 1084
+> which you can't express for buttons at the origin unless you do negative
+> numbers.
 
-Other than these two drivers I'd like hear to valid requirements for it.
+Actually for the touchscreen I'm working on:
 
-The existential issue is a real issue but it does not look impossible to
-resolve. It may be a solution to bloat up the kernel with 100+ MB size just to
-stuff built-in firmware to avoid this issue, but it does not mean a solution
-is not possible.
+https://content.hwigroup.net/images/products_xl/157078/dserve-dsrv-9703c.jpg
 
-Remind me -- why can remoteproc not stuff the firmware in initramfs ?
+The buttons are past the display edge which corresponds to x coordinate 0,
+so they should logically send negative coordinates but the "firmware" (which
+I believe is more config / calibration data) maps them to coordinates above
+1024, so logically across the other edge. But I can envision some other
+hardware doing this differently. I suggest we deal with this when we need too,
+likely we just need to add a note that the dt min/max values should be interpreted
+as a s32 rather then an u32, I can do that now if you want.
 
-Anyway, here's a simple suggestion: fs/exec.c gets a sentinel file monitor
-support per enum kernel_read_file_id. For instance we'd have one for
-READING_FIRMWARE, one for READING_KEXEC_IMAGE, perhaps READING_POLICY, and this
-would in turn be used as the system configurable deterministic file for
-which to wait for to be present before enabling each enum kernel_read_file_id
-type read.
+Regards,
 
-Thoughts ?
+Hans
 
-  Luis
---
-To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+
+>
+> Rob
+>

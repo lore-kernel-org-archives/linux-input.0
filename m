@@ -1,11 +1,11 @@
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0228/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 18:51:26 +0800
-Message-ID: <20160802105126.28947-1-baolex.ni@intel.com>
+Subject: [PATCH 0294/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 18:57:37 +0800
+Message-ID: <20160802105737.977-1-baolex.ni@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: erazor_de@users.sourceforge.net, jikos@kernel.org, benjamin.tissoires@redhat.com, airlied@linux.ie, kgene@kernel.org, k.kozlowski@samsung.com, dougthompson@xmission.com, bp@alien8.de
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, chuansheng.liu@intel.com, baolex.ni@intel.com, alexander.deucher@amd.com, ville.syrjala@linux.intel.com
+To: dmitry.torokhov@gmail.com, hal.rosenstock@gmail.com, dledford@redhat.com, sean.hefty@intel.com, bp@alien8.de
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, chuansheng.liu@intel.com, baolex.ni@intel.com, jkosina@suse.com
 List-Id: linux-input@vger.kernel.org
 
 I find that the developers often just specified the numeric value
@@ -17,34 +17,30 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/hid/hid-roccat-koneplus.c | 6 +++---
+ drivers/input/touchscreen/ucb1400_ts.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
-index 09e8fc7..4ce8c6d 100644
---- a/drivers/hid/hid-roccat-koneplus.c
-+++ b/drivers/hid/hid-roccat-koneplus.c
-@@ -291,10 +291,10 @@ static ssize_t koneplus_sysfs_set_actual_profile(struct device *dev,
+diff --git a/drivers/input/touchscreen/ucb1400_ts.c b/drivers/input/touchscreen/ucb1400_ts.c
+index c1e23cf..c441acc 100644
+--- a/drivers/input/touchscreen/ucb1400_ts.c
++++ b/drivers/input/touchscreen/ucb1400_ts.c
+@@ -447,14 +447,14 @@ static struct platform_driver ucb1400_ts_driver = {
+ };
+ module_platform_driver(ucb1400_ts_driver);
  
- 	return size;
- }
--static DEVICE_ATTR(actual_profile, 0660,
-+static DEVICE_ATTR(actual_profile, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
- 		   koneplus_sysfs_show_actual_profile,
- 		   koneplus_sysfs_set_actual_profile);
--static DEVICE_ATTR(startup_profile, 0660,
-+static DEVICE_ATTR(startup_profile, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
- 		   koneplus_sysfs_show_actual_profile,
- 		   koneplus_sysfs_set_actual_profile);
+-module_param(adcsync, bool, 0444);
++module_param(adcsync, bool, S_IRUSR | S_IRGRP | S_IROTH);
+ MODULE_PARM_DESC(adcsync, "Synchronize touch readings with ADCSYNC pin.");
  
-@@ -316,7 +316,7 @@ static ssize_t koneplus_sysfs_show_firmware_version(struct device *dev,
+-module_param(ts_delay, int, 0444);
++module_param(ts_delay, int, S_IRUSR | S_IRGRP | S_IROTH);
+ MODULE_PARM_DESC(ts_delay, "Delay between panel setup and"
+ 			    " position read. Default = 55us.");
  
- 	return snprintf(buf, PAGE_SIZE, "%d\n", info.firmware_version);
- }
--static DEVICE_ATTR(firmware_version, 0440,
-+static DEVICE_ATTR(firmware_version, S_IRUSR | S_IRGRP,
- 		   koneplus_sysfs_show_firmware_version, NULL);
- 
- static struct attribute *koneplus_attrs[] = {
+-module_param(ts_delay_pressure, int, 0444);
++module_param(ts_delay_pressure, int, S_IRUSR | S_IRGRP | S_IROTH);
+ MODULE_PARM_DESC(ts_delay_pressure,
+ 		"delay between panel setup and pressure read."
+ 		"  Default = 0us.");
 -- 
 2.9.2

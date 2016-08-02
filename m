@@ -1,37 +1,49 @@
-From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0274/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 18:55:39 +0800
-Message-ID: <20160802105539.32018-1-baolex.ni@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, sean.hefty@intel.com, hal.rosenstock@gmail.com, dledford@redhat.com, bp@alien8.de
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, chuansheng.liu@intel.com, baolex.ni@intel.com, alex.estrin@intel.com, nab@linux-iscsi.org, haggaie@mellanox.com
+From: "Andrew F. Davis" <afd@ti.com>
+Subject: Re: [PATCH 0290/1285] Replace numeric parameter like 0444 with macro
+Date: Tue, 2 Aug 2016 09:51:54 -0500
+Message-ID: <f9e839e7-dcbb-00c9-eb52-45813dc864e2@ti.com>
+References: <20160802105711.703-1-baolex.ni@intel.com>
+ <20160802143150.GC10376@sirena.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from devils.ext.ti.com ([198.47.26.153]:32858 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965624AbcHBOzh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Aug 2016 10:55:37 -0400
+In-Reply-To: <20160802143150.GC10376@sirena.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>, Baole Ni <baolex.ni@intel.com>
+Cc: dmitry.torokhov@gmail.com, hal.rosenstock@gmail.com, dledford@redhat.com, sean.hefty@intel.com, bp@alien8.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, haibo.chen@freescale.com, andrey.gelman@compulab.co.il, javier@osg.samsung.com, chuansheng.liu@intel.com
 
-I find that the developers often just specified the numeric value
-when calling a macro which is defined with a parameter for access permission.
-As we know, these numeric value for access permission have had the corresponding macro,
-and that using macro can improve the robustness and readability of the code,
-thus, I suggest replacing the numeric parameter with the macro.
+On 08/02/2016 09:31 AM, Mark Brown wrote:
+> On Tue, Aug 02, 2016 at 06:57:11PM +0800, Baole Ni wrote:
+>> I find that the developers often just specified the numeric value
+>> when calling a macro which is defined with a parameter for access permission.
+>> As we know, these numeric value for access permission have had the corresponding macro,
+>> and that using macro can improve the robustness and readability of the code,
+>> thus, I suggest replacing the numeric parameter with the macro.
+> 
+> Please split these up and send them independently to the relevant
+> maintainers with sensible subject lines - a single 1000+ patch series is
+> far too large and you're CCing random people so it's hard to tell which
+> patches are relevant (for example the batch I'm replying to here are for
+> the input subsystem which I don't maintain so I'm not 100% sure why I'm
+> being copied here).
+> 
+> With this sort of thing it's often best to send one series per directory
+> or something similar.
+> 
 
-Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
-Signed-off-by: Baole Ni <baolex.ni@intel.com>
----
- drivers/input/gameport/gameport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I would recommend just adding whatever script you used to find all of
+these to patchcheck or coccinelle, then let people familiar with each
+subsystem make and submit the fix-ups for each subsystem. You won't get
+1000+ patches to your name, but the work still gets done and you avoid
+bothering a lot of people.
 
-diff --git a/drivers/input/gameport/gameport.c b/drivers/input/gameport/gameport.c
-index 4a2a9e3..c6767dd 100644
---- a/drivers/input/gameport/gameport.c
-+++ b/drivers/input/gameport/gameport.c
-@@ -32,7 +32,7 @@ MODULE_DESCRIPTION("Generic gameport layer");
- MODULE_LICENSE("GPL");
- 
- static bool use_ktime = true;
--module_param(use_ktime, bool, 0400);
-+module_param(use_ktime, bool, S_IRUSR);
- MODULE_PARM_DESC(use_ktime, "Use ktime for measuring I/O speed");
- 
- /*
--- 
-2.9.2
+(I got about several of these for files I've never touched :/)
+
+Thanks,
+Andrew

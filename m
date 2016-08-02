@@ -1,12 +1,12 @@
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0221/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 18:50:52 +0800
-Message-ID: <20160802105053.28485-1-baolex.ni@intel.com>
+Subject: [PATCH 0217/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 18:50:34 +0800
+Message-ID: <20160802105034.28221-1-baolex.ni@intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:25120 "EHLO mga03.intel.com"
+Received: from mga04.intel.com ([192.55.52.120]:9297 "EHLO mga04.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755497AbcHBL2f (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Aug 2016 07:28:35 -0400
+	id S1755053AbcHBL2a (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Aug 2016 07:28:30 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jikos@kernel.org, benjamin.tissoires@redhat.com, thellstrom@vmware.com, airlied@linux.ie, kgene@kernel.org, k.kozlowski@samsung.com, dougthompson@xmission.com, bp@alien8.de
@@ -21,50 +21,28 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/hid/hid-ntrig.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/hid/hid-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 1b0084d..f04178e 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -25,30 +25,30 @@
- #define NTRIG_DUPLICATE_USAGES	0x001
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8ea3a26..ad11fb2 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -46,12 +46,12 @@
+ #define DRIVER_LICENSE "GPL"
  
- static unsigned int min_width;
--module_param(min_width, uint, 0644);
-+module_param(min_width, uint, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(min_width, "Minimum touch contact width to accept.");
+ int hid_debug = 0;
+-module_param_named(debug, hid_debug, int, 0600);
++module_param_named(debug, hid_debug, int, S_IRUSR | S_IWUSR);
+ MODULE_PARM_DESC(debug, "toggle HID debugging messages");
+ EXPORT_SYMBOL_GPL(hid_debug);
  
- static unsigned int min_height;
--module_param(min_height, uint, 0644);
-+module_param(min_height, uint, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(min_height, "Minimum touch contact height to accept.");
+ static int hid_ignore_special_drivers = 0;
+-module_param_named(ignore_special_drivers, hid_ignore_special_drivers, int, 0600);
++module_param_named(ignore_special_drivers, hid_ignore_special_drivers, int, S_IRUSR | S_IWUSR);
+ MODULE_PARM_DESC(ignore_special_drivers, "Ignore any special drivers and handle all devices by generic driver");
  
- static unsigned int activate_slack = 1;
--module_param(activate_slack, uint, 0644);
-+module_param(activate_slack, uint, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(activate_slack, "Number of touch frames to ignore at "
- 		 "the start of touch input.");
- 
- static unsigned int deactivate_slack = 4;
--module_param(deactivate_slack, uint, 0644);
-+module_param(deactivate_slack, uint, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(deactivate_slack, "Number of empty frames to ignore before "
- 		 "deactivating touch.");
- 
- static unsigned int activation_width = 64;
--module_param(activation_width, uint, 0644);
-+module_param(activation_width, uint, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(activation_width, "Width threshold to immediately start "
- 		 "processing touch events.");
- 
- static unsigned int activation_height = 32;
--module_param(activation_height, uint, 0644);
-+module_param(activation_height, uint, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- MODULE_PARM_DESC(activation_height, "Height threshold to immediately start "
- 		 "processing touch events.");
- 
+ /*
 -- 
 2.9.2
 

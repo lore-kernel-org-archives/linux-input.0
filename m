@@ -1,99 +1,87 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCHv2] serio: add hangup support
-Date: Wed, 3 Aug 2016 08:26:02 -0700
-Message-ID: <20160803152602.GB29702@dtor-ws>
-References: <0d959a01-e698-0178-af89-5925469f95ab@xs4all.nl>
+Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
+ completion
+Date: Wed, 3 Aug 2016 08:35:06 -0700
+Message-ID: <20160803153506.GC29702@dtor-ws>
+References: <20160730165817.GQ3296@wotan.suse.de>
+ <C528E404-0CA5-46B4-B551-B1D4B58BC053@gmail.com>
+ <37a3cd66-262e-ffbe-ea7a-a6d5b1ca1c8b@bmw-carit.de>
+ <20160801194408.GZ3296@wotan.suse.de>
+ <0f9350fa-e8b5-9d64-b2d3-afda5e5f6bbf@bmw-carit.de>
+ <20160802063419.GG3296@wotan.suse.de>
+ <2713d779-ef55-793d-f37e-d1414bb1bfc2@bmw-carit.de>
+ <20160802074106.GI3296@wotan.suse.de>
+ <CAKdAkRR=NC4Agen9ad3CK8hgZh+zbZhzhr2MP169JwisgWvP_w@mail.gmail.com>
+ <0e20a2dc-ed76-b209-5c01-387f1c444b19@broadcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <0d959a01-e698-0178-af89-5925469f95ab@xs4all.nl>
-Sender: linux-media-owner@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: linux-input <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
+In-Reply-To: <0e20a2dc-ed76-b209-5c01-387f1c444b19@broadcom.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arend van Spriel <arend.vanspriel@broadcom.com>
+Cc: "Luis R. Rodriguez" <mcgrof@kernel.org>, Daniel Wagner <daniel.wagner@bmw-carit.de>, Bjorn Andersson <bjorn.andersson@linaro.org>, Daniel Wagner <wagi@monom.org>, Bastien Nocera <hadess@hadess.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>, Mimi Zohar <zohar@linux.vnet.ibm.com>, David Howells <dhowells@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Woodhouse <dwmw2@infradead.org>, Julia Lawall <julia.lawall@lip6.fr>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-kselftest@vger.kernel.org, linux-wireless <linux-wireless@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Aug 03, 2016 at 01:00:44PM +0200, Hans Verkuil wrote:
-> The Pulse-Eight USB CEC adapter is a usb device that shows up as a ttyACM0 device.
-> It requires that you run inputattach in order to communicate with it via serio.
+On Wed, Aug 03, 2016 at 01:43:31PM +0200, Arend van Spriel wrote:
+> On 03-08-16 09:42, Dmitry Torokhov wrote:
+> > On Tue, Aug 2, 2016 at 12:41 AM, Luis R. Rodriguez <mcgrof@kernel.org> wrote:
+> >> On Tue, Aug 02, 2016 at 08:53:55AM +0200, Daniel Wagner wrote:
+> >>> On 08/02/2016 08:34 AM, Luis R. Rodriguez wrote:
+> >>>> On Tue, Aug 02, 2016 at 07:49:19AM +0200, Daniel Wagner wrote:
+> >>>>>> The sysdata API's main goal rather is to provide a flexible API first,
+> >>>>>> compartamentalizing the usermode helper was secondary. But now it seems
+> >>>>>> I may just also add devm support too to help simplify code further.
+> >>>>>
+> >>>>> I missed the point that you plan to add usermode helper support to
+> >>>>> the sysdata API.
+> >>>>
+> >>>> I had no such plans, when I have asked folks so far about "hey are you
+> >>>> really in need for it, OK what for? " and "what extended uses do you
+> >>>> envision?" so I far I have not gotten any replies at all. So -- instead
+> >>>> sysdata currently ignores it.
+> >>>
+> >>> So you argue for the remoteproc use case with 100+ MB firmware that
+> >>> if there is a way to load after pivot_root() (or other additional
+> >>> firmware partition shows up) then there is no need at all for
+> >>> usermode helper?
+> >>
+> >> No, I'm saying I'd like to hear valid uses cases for the usermode helper and so
+> >> far I have only found using coccinelle grammar 2 explicit users, that's it. My
+> >> patch series (not yet merge) then annotates these as valid as I've verified
+> >> through their documentation they have some quirky requirement.
+> > 
+> > In certain configurations (embedded) people do not want to use
+> > initramfs nor modules nor embed firmware into the kernel. In this case
+> > usermode helper + firmware calss timeout handling provides necessary
+> > wait for the root filesystem to be mounted.
 > 
-> This all works well, but it would be nice to have a udev rule to automatically
-> start inputattach. That too works OK, but the problem comes when the USB device
-> is unplugged: the tty hangup is never handled by the serio framework so the
-> inputattach utility never exits and you have to kill it manually.
-> 
-> By adding this hangup callback the inputattach utility now properly exits as
-> soon as the USB device is unplugged.
-> 
-> The udev rule I used on my Debian sid system is:
-> 
-> SUBSYSTEM=="tty", KERNEL=="ttyACM[0-9]*", ATTRS{idVendor}=="2548", ATTRS{idProduct}=="1002", ACTION=="add", TAG+="systemd", ENV{SYSTEMD_WANTS}+="pulse8-cec-inputattach@%k.service"
-> 
-> And pulse8-cec-inputattach@%k.service is as follows:
-> 
-> ===============================================================
-> [Unit]
-> Description=inputattach for pulse8-cec device on %I
-> 
-> [Service]
-> Type=simple
-> ExecStart=/usr/local/bin/inputattach --pulse8-cec /dev/%I
-> KillMode=process
-> ===============================================================
-> 
-> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-> Tested-by: Hans Verkuil <hans.verkuil@cisco.com>
-> ---
-> Change since the original RFC patch: don't call close() from the hangup() function,
-> instead only set the DEAD flag in hangup() instead of in close().
-> ---
-> diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
-> index 9c927d3..4045e95 100644
-> --- a/drivers/input/serio/serport.c
-> +++ b/drivers/input/serio/serport.c
-> @@ -71,7 +71,6 @@ static void serport_serio_close(struct serio *serio)
-> 
->  	spin_lock_irqsave(&serport->lock, flags);
->  	clear_bit(SERPORT_ACTIVE, &serport->flags);
-> -	set_bit(SERPORT_DEAD, &serport->flags);
->  	spin_unlock_irqrestore(&serport->lock, flags);
-> 
->  	wake_up_interruptible(&serport->wait);
+> And there are people who don't have a usermode helper running at all in
+> their configuration, but I guess they should disable the helper.
 
-I think we should remove this line as well - the waiter is waiting on
-SERPORT_DEAD bit, if we are not setting it we do not need to wake up the
-waiter either.
+Right, if they don't that means their system is misconfigured.
 
-I can fix it up on my side.
+> 
+> In my opinion the kernel should provide functionality to user-space and
+> user-space providing functionality to the kernel should be avoided.
 
-> @@ -248,6 +247,19 @@ static long serport_ldisc_compat_ioctl(struct tty_struct *tty,
->  }
->  #endif
+Why? We have bunch of stuff running in userspace for the kernel. Fuse
+for example. I am sure there are more.
+
 > 
-> +static int serport_ldisc_hangup(struct tty_struct * tty)
-> +{
-> +	struct serport *serport = (struct serport *) tty->disc_data;
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&serport->lock, flags);
-> +	set_bit(SERPORT_DEAD, &serport->flags);
-> +	spin_unlock_irqrestore(&serport->lock, flags);
-> +
-> +	wake_up_interruptible(&serport->wait);
-> +	return 0;
-> +}
-> +
->  static void serport_ldisc_write_wakeup(struct tty_struct * tty)
->  {
->  	struct serport *serport = (struct serport *) tty->disc_data;
-> @@ -274,6 +286,7 @@ static struct tty_ldisc_ops serport_ldisc = {
->  	.compat_ioctl =	serport_ldisc_compat_ioctl,
->  #endif
->  	.receive_buf =	serport_ldisc_receive,
-> +	.hangup =	serport_ldisc_hangup,
->  	.write_wakeup =	serport_ldisc_write_wakeup
->  };
+> > If we solve waiting for rootfs (or something else that may contain
+> > firmware) then these cases will not need to use usermode helper.
 > 
+> If firmware (or whatever) API could get notification of mount syscall it
+> could be used to retry firmware loading instead of periodic polling.
+> That leaves the question raised by you about when to stop trying. The
+> initlevel stuff is probably a user-space only concept, right? So no
+> ideas how the kernel itself could decide except for a "long" timeout.
+
+The kernel really does not know, it can only guess. The firmware may get
+delivered by motorized carrier pidgeons. But distribution does know how
+they set up, so they are in position to tell the kernel "go" or "give
+up".
 
 Thanks.
 

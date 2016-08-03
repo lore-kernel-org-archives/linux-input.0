@@ -1,119 +1,101 @@
-From: "Luis R. Rodriguez" <mcgrof@kernel.org>
-Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
- completion
-Date: Wed, 3 Aug 2016 17:18:51 +0200
-Message-ID: <20160803151851.GK3296@wotan.suse.de>
-References: <20160730165817.GQ3296@wotan.suse.de>
- <C528E404-0CA5-46B4-B551-B1D4B58BC053@gmail.com>
- <37a3cd66-262e-ffbe-ea7a-a6d5b1ca1c8b@bmw-carit.de>
- <20160801194408.GZ3296@wotan.suse.de>
- <0f9350fa-e8b5-9d64-b2d3-afda5e5f6bbf@bmw-carit.de>
- <20160802063419.GG3296@wotan.suse.de>
- <2713d779-ef55-793d-f37e-d1414bb1bfc2@bmw-carit.de>
- <20160802074106.GI3296@wotan.suse.de>
- <CAKdAkRR=NC4Agen9ad3CK8hgZh+zbZhzhr2MP169JwisgWvP_w@mail.gmail.com>
- <0e20a2dc-ed76-b209-5c01-387f1c444b19@broadcom.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCHv2] serio: add hangup support
+Date: Wed, 3 Aug 2016 08:26:02 -0700
+Message-ID: <20160803152602.GB29702@dtor-ws>
+References: <0d959a01-e698-0178-af89-5925469f95ab@xs4all.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:52421 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754609AbcHCPTR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 3 Aug 2016 11:19:17 -0400
+Return-path: <linux-media-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <0e20a2dc-ed76-b209-5c01-387f1c444b19@broadcom.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <0d959a01-e698-0178-af89-5925469f95ab@xs4all.nl>
+Sender: linux-media-owner@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: linux-input <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Arend van Spriel <arend.vanspriel@broadcom.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Luis R. Rodriguez" <mcgrof@kernel.org>, Daniel Wagner <daniel.wagner@bmw-carit.de>, Bjorn Andersson <bjorn.andersson@linaro.org>, Daniel Wagner <wagi@monom.org>, Bastien Nocera <hadess@hadess.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>, Mimi Zohar <zohar@linux.vnet.ibm.com>, David Howells <dhowells@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Woodhouse <dwmw2@infradead.org>, Julia Lawall <julia.lawall@lip6.fr>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-kselftest@vger.kernel.org, linux-wireless <linux-wireless@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
-On Wed, Aug 03, 2016 at 01:43:31PM +0200, Arend van Spriel wrote:
-> On 03-08-16 09:42, Dmitry Torokhov wrote:
-> > On Tue, Aug 2, 2016 at 12:41 AM, Luis R. Rodriguez <mcgrof@kernel.org> wrote:
-> >> On Tue, Aug 02, 2016 at 08:53:55AM +0200, Daniel Wagner wrote:
-> >>> On 08/02/2016 08:34 AM, Luis R. Rodriguez wrote:
-> >>>> On Tue, Aug 02, 2016 at 07:49:19AM +0200, Daniel Wagner wrote:
-> >>>>>> The sysdata API's main goal rather is to provide a flexible API first,
-> >>>>>> compartamentalizing the usermode helper was secondary. But now it seems
-> >>>>>> I may just also add devm support too to help simplify code further.
-> >>>>>
-> >>>>> I missed the point that you plan to add usermode helper support to
-> >>>>> the sysdata API.
-> >>>>
-> >>>> I had no such plans, when I have asked folks so far about "hey are you
-> >>>> really in need for it, OK what for? " and "what extended uses do you
-> >>>> envision?" so I far I have not gotten any replies at all. So -- instead
-> >>>> sysdata currently ignores it.
-> >>>
-> >>> So you argue for the remoteproc use case with 100+ MB firmware that
-> >>> if there is a way to load after pivot_root() (or other additional
-> >>> firmware partition shows up) then there is no need at all for
-> >>> usermode helper?
-> >>
-> >> No, I'm saying I'd like to hear valid uses cases for the usermode helper and so
-> >> far I have only found using coccinelle grammar 2 explicit users, that's it. My
-> >> patch series (not yet merge) then annotates these as valid as I've verified
-> >> through their documentation they have some quirky requirement.
-> > 
-> > In certain configurations (embedded) people do not want to use
-> > initramfs nor modules nor embed firmware into the kernel. In this case
-> > usermode helper + firmware calss timeout handling provides necessary
-> > wait for the root filesystem to be mounted.
+On Wed, Aug 03, 2016 at 01:00:44PM +0200, Hans Verkuil wrote:
+> The Pulse-Eight USB CEC adapter is a usb device that shows up as a ttyACM0 device.
+> It requires that you run inputattach in order to communicate with it via serio.
 > 
-> And there are people who don't have a usermode helper running at all 
-
-Correction: most Linux distributions these days have
-CONFIG_FW_LOADER_USER_HELPER but disable CONFIG_FW_LOADER_USER_HELPER_FALLBACK.
-
-And then let me re-iterate from my patches then the implications:
-
-+When CONFIG_FW_LOADER_USER_HELPER_FALLBACK is enabled request_firmware()
-+*always* calls the usermode helpers. When CONFIG_FW_LOADER_USER_HELPER is
-+enabled, only if you specifically ask for it will the usermode helper be
-+called. If CONFIG_FW_LOADER_USER_HELPER_FALLBACK is disabled drivers can
-+still require the usermode helper by using request_firmware_nowait().
-
-The issues with CONFIG_FW_LOADER_USER_HELPER_FALLBACK are so much so
-(the kmod timeout was an engineering mishap refer to my post with
-details about it [0]) that these days most distributions disable it
-and there have been huge efforts to ensure its not even called
-explicitly, to the point now we only have TWO explicit users for it.
-Keep in mind as well that in my series of patches to help clarify the
-situation with the usermode helper I also proposed a fix to the firmware_class
-to avoid the usermode helper completely when the firmware cache, this is
-because the firmware cache purposely *kills* any pending usermode helpers
-on the way to suspend anyway, so calling a new instance would be an error
-and just delay suspend further.
-
-[0] http://www.do-not-panic.com/2015/12/linux-asynchronous-probe.html
-
-> in
-> their configuration, but I guess they should disable the helper.
-
-Yes. I have gone to good lengths to ask why the hell its needed and so 
-far I have not gotten any technical reason for it.
-
-> > If we solve waiting for rootfs (or something else that may contain
-> > firmware) then these cases will not need to use usermode helper.
+> This all works well, but it would be nice to have a udev rule to automatically
+> start inputattach. That too works OK, but the problem comes when the USB device
+> is unplugged: the tty hangup is never handled by the serio framework so the
+> inputattach utility never exits and you have to kill it manually.
 > 
-> If firmware (or whatever) API could get notification of mount syscall it
-> could be used to retry firmware loading instead of periodic polling.
-> That leaves the question raised by you about when to stop trying. The
-> initlevel stuff is probably a user-space only concept, right?
+> By adding this hangup callback the inputattach utility now properly exits as
+> soon as the USB device is unplugged.
+> 
+> The udev rule I used on my Debian sid system is:
+> 
+> SUBSYSTEM=="tty", KERNEL=="ttyACM[0-9]*", ATTRS{idVendor}=="2548", ATTRS{idProduct}=="1002", ACTION=="add", TAG+="systemd", ENV{SYSTEMD_WANTS}+="pulse8-cec-inputattach@%k.service"
+> 
+> And pulse8-cec-inputattach@%k.service is as follows:
+> 
+> ===============================================================
+> [Unit]
+> Description=inputattach for pulse8-cec device on %I
+> 
+> [Service]
+> Type=simple
+> ExecStart=/usr/local/bin/inputattach --pulse8-cec /dev/%I
+> KillMode=process
+> ===============================================================
+> 
+> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+> Tested-by: Hans Verkuil <hans.verkuil@cisco.com>
+> ---
+> Change since the original RFC patch: don't call close() from the hangup() function,
+> instead only set the DEAD flag in hangup() instead of in close().
+> ---
+> diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
+> index 9c927d3..4045e95 100644
+> --- a/drivers/input/serio/serport.c
+> +++ b/drivers/input/serio/serport.c
+> @@ -71,7 +71,6 @@ static void serport_serio_close(struct serio *serio)
+> 
+>  	spin_lock_irqsave(&serport->lock, flags);
+>  	clear_bit(SERPORT_ACTIVE, &serport->flags);
+> -	set_bit(SERPORT_DEAD, &serport->flags);
+>  	spin_unlock_irqrestore(&serport->lock, flags);
+> 
+>  	wake_up_interruptible(&serport->wait);
 
-No init levels here refer to include/linux/init.h init calls that one
-wraps the kernel module inits, or subsystem inits. If it wasn't for
-pivot_root() existing and also the fact that systems can be complex
-I would have suggested simply that we make firmware_class move to
-late_initcall() -- this however would not solve all races given how
-complex systems could be set up with a partition.
+I think we should remove this line as well - the waiter is waiting on
+SERPORT_DEAD bit, if we are not setting it we do not need to wake up the
+waiter either.
 
-> So no
-> ideas how the kernel itself could decide except for a "long" timeout.
+I can fix it up on my side.
 
-If we wanted to learn from history -- the timeout for this would be a bad idea
-so this makes it a bit more complex.  I proposed a technical idea here which
-would avoid this and I think enable making this deterministic as well for new
-systems that want that.
+> @@ -248,6 +247,19 @@ static long serport_ldisc_compat_ioctl(struct tty_struct *tty,
+>  }
+>  #endif
+> 
+> +static int serport_ldisc_hangup(struct tty_struct * tty)
+> +{
+> +	struct serport *serport = (struct serport *) tty->disc_data;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&serport->lock, flags);
+> +	set_bit(SERPORT_DEAD, &serport->flags);
+> +	spin_unlock_irqrestore(&serport->lock, flags);
+> +
+> +	wake_up_interruptible(&serport->wait);
+> +	return 0;
+> +}
+> +
+>  static void serport_ldisc_write_wakeup(struct tty_struct * tty)
+>  {
+>  	struct serport *serport = (struct serport *) tty->disc_data;
+> @@ -274,6 +286,7 @@ static struct tty_ldisc_ops serport_ldisc = {
+>  	.compat_ioctl =	serport_ldisc_compat_ioctl,
+>  #endif
+>  	.receive_buf =	serport_ldisc_receive,
+> +	.hangup =	serport_ldisc_hangup,
+>  	.write_wakeup =	serport_ldisc_write_wakeup
+>  };
+> 
 
-  Luis
+Thanks.
+
+-- 
+Dmitry

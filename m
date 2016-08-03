@@ -1,93 +1,85 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC PATCH] serio: add hangup support
-Date: Tue, 2 Aug 2016 23:32:30 -0700
-Message-ID: <20160803063230.GB32559@dtor-ws>
-References: <287a7f88-5d45-bb45-c98e-22a2313ab780@xs4all.nl>
- <20160715163119.GA27847@dtor-ws>
- <fcdd38a6-52f3-3c01-d99f-3a978bfac512@xs4all.nl>
+From: Daniel Wagner <daniel.wagner@bmw-carit.de>
+Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
+ completion
+Date: Wed, 3 Aug 2016 08:57:09 +0200
+Message-ID: <ef14dc68-d2f8-0934-7be5-dfb3a4771f27@bmw-carit.de>
+References: <20160728190151.GV13516@tuxbot>
+ <c05a7b98-5ada-701f-9a77-65d81b841c17@bmw-carit.de>
+ <ee9a29aa-0d29-a33f-e43a-057dc359cf89@broadcom.com>
+ <20160730165817.GQ3296@wotan.suse.de>
+ <C528E404-0CA5-46B4-B551-B1D4B58BC053@gmail.com>
+ <37a3cd66-262e-ffbe-ea7a-a6d5b1ca1c8b@bmw-carit.de>
+ <20160801194408.GZ3296@wotan.suse.de>
+ <0f9350fa-e8b5-9d64-b2d3-afda5e5f6bbf@bmw-carit.de>
+ <20160802063419.GG3296@wotan.suse.de>
+ <2713d779-ef55-793d-f37e-d1414bb1bfc2@bmw-carit.de>
+ <20160802074106.GI3296@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f66.google.com ([209.85.220.66]:34396 "EHLO
-	mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753622AbcHCGdJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2016 02:33:09 -0400
-Content-Disposition: inline
-In-Reply-To: <fcdd38a6-52f3-3c01-d99f-3a978bfac512@xs4all.nl>
+Received: from cit-hm8-mail01.bmw-carit.de ([212.118.206.84]:42790 "EHLO
+	cit-hm8-gw01.bmw-carit.de" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751980AbcHCHEX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Aug 2016 03:04:23 -0400
+In-Reply-To: <20160802074106.GI3296@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: linux-input <linux-input@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>, Vojtech Pavlik <vojtech@suse.com>
+To: "Luis R. Rodriguez" <mcgrof@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arend van Spriel <arend.vanspriel@broadcom.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Daniel Wagner <wagi@monom.org>, Bastien Nocera <hadess@hadess.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>, Mimi Zohar <zohar@linux.vnet.ibm.com>, David Howells <dhowells@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Woodhouse <dwmw2@infradead.org>, Julia Lawall <julia.lawall@lip6.fr>, linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2016 at 03:43:32PM +0200, Hans Verkuil wrote:
-> 
-> 
-> On 07/15/2016 06:31 PM, Dmitry Torokhov wrote:
-> > Hi Hans,
-> > 
-> > On Fri, Jul 15, 2016 at 01:27:21PM +0200, Hans Verkuil wrote:
-> >> For the upcoming 4.8 kernel I made a driver for the Pulse-Eight USB CEC adapter.
-> >> This is a usb device that shows up as a ttyACM0 device. It requires that you run
-> >> inputattach in order to communicate with it via serio.
-> >>
-> >> This all works well, but it would be nice to have a udev rule to automatically
-> >> start inputattach. That too works OK, but the problem comes when the USB device
-> >> is unplugged: the tty hangup is never handled by the serio framework so the
-> >> inputattach utility never exits and you have to kill it manually.
-> >>
-> >> By adding this hangup callback the inputattach utility now exists as soon as I
-> >> unplug the USB device.
-> >>
-> >> Is this the correct approach?
-> >>
-> >> BTW, the new driver is found here:
-> >>
-> >> https://git.linuxtv.org/media_tree.git/tree/drivers/staging/media/pulse8-cec
-> >>
-> >> Regards,
-> >>
-> >> 	Hans
-> >>
-> >> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-> >>
-> >> ---
-> >> diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
-> >> index 9c927d3..a615846 100644
-> >> --- a/drivers/input/serio/serport.c
-> >> +++ b/drivers/input/serio/serport.c
-> >> @@ -248,6 +248,14 @@ static long serport_ldisc_compat_ioctl(struct tty_struct *tty,
-> >>  }
-> >>  #endif
-> >>
-> >> +static int serport_ldisc_hangup(struct tty_struct * tty)
-> >> +{
-> >> +	struct serport *serport = (struct serport *) tty->disc_data;
-> >> +
-> >> +	serport_serio_close(serport->serio);
-> > 
-> > I see what you mean, but this is not quite correct. I think we should
-> > make serport_serio_close() only reset the SERPORT_ACTIVE flag and have
-> > serport_ldisc_hangup() actually do:
-> > 
-> > 	spin_lock_irqsave(&serport->lock, flags);
-> > 	set_bit(SERPORT_DEAD, &serport->flags);
-> > 	spin_unlock_irqrestore(&serport->lock, flags);
-> > 
-> > 	wake_up_interruptible(&serport->wait);
-> 
-> I'm preparing a v2 of this patch, but I wonder if in this hangup code
-> I also need to clear the SERPORT_ACTIVE flag. Or is it guaranteed that
-> close() always precedes hangup()? In which case close() always clears that
-> flag.
+On 08/02/2016 09:41 AM, Luis R. Rodriguez wrote:
+> On Tue, Aug 02, 2016 at 08:53:55AM +0200, Daniel Wagner wrote:
+>> On 08/02/2016 08:34 AM, Luis R. Rodriguez wrote:
+>>> On Tue, Aug 02, 2016 at 07:49:19AM +0200, Daniel Wagner wrote:
+>> So you argue for the remoteproc use case with 100+ MB firmware that
+>> if there is a way to load after pivot_root() (or other additional
+>> firmware partition shows up) then there is no need at all for
+>> usermode helper?
+>
+> No, I'm saying I'd like to hear valid uses cases for the usermode helper and so
+> far I have only found using coccinelle grammar 2 explicit users, that's it. My
+> patch series (not yet merge) then annotates these as valid as I've verified
+> through their documentation they have some quirky requirement.
 
-No, we could get hangup and that would wake up the reader which will
-cause de-registration of serio port. As part of that process
-serport_serio_close() will be called (if serio port has been opened by
-someone).
+I got that question wrong. It should read something like 'for the 
+remoteproc 100+MB there is no need for the user help?'. I've gone 
+through your patches and they make perfectly sense too. Maybe I can 
+convince you to take a better version of my patch 3 into your queue. And 
+I help you converting the exiting drivers. Obviously if you like my help 
+at all.
 
-You should not need to clear "active" flag in hangup code.
+> Other than these two drivers I'd like hear to valid requirements for it.
+>
+> The existential issue is a real issue but it does not look impossible to
+> resolve. It may be a solution to bloat up the kernel with 100+ MB size just to
+> stuff built-in firmware to avoid this issue, but it does not mean a solution
+> is not possible.
+>
+> Remind me -- why can remoteproc not stuff the firmware in initramfs ?
 
-Thanks.
+I don't know. I was just bringing it up with the hope that Bjorn will 
+defend it. It seems my tactics didn't work out :)
 
--- 
-Dmitry
+> Anyway, here's a simple suggestion: fs/exec.c gets a sentinel file monitor
+> support per enum kernel_read_file_id. For instance we'd have one for
+> READING_FIRMWARE, one for READING_KEXEC_IMAGE, perhaps READING_POLICY, and this
+> would in turn be used as the system configurable deterministic file for
+> which to wait for to be present before enabling each enum kernel_read_file_id
+> type read.
+>
+> Thoughts ?
+
+Not sure if I get you here correctly. Is the 'system configurable 
+deterministic file' is a knob which controlled by user space? Or it this 
+something you define at compile time?
+
+Hmm, so it would allow to decided to ask a userspace helper or load the 
+firmware directly (to be more precised the kernel_read_file_id type). If 
+yes, than it is what currently already have just integrated nicely into 
+the new sysdata API.
+
+cheers,
+daniel
+

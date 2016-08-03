@@ -1,85 +1,136 @@
-From: =?UTF-8?Q?Ksenija_Stanojevi=C4=87?= <ksenija.stanojevic@gmail.com>
-Subject: Re: [PATCH v3 1/4] mfd: mxs-lradc: Add support for mxs-lradc MFD
-Date: Wed, 3 Aug 2016 22:20:24 +0200
-Message-ID: <CAL7P5jJQQeck8YRSEgFzsyqDoqZOhdZ0Vj=CJrHu14JhvBO9Cg@mail.gmail.com>
-References: <cover.1466769907.git.ksenija.stanojevic@gmail.com>
- <370a02584386944b465deff5ccc48c8919b23dba.1466769907.git.ksenija.stanojevic@gmail.com>
- <20160628162834.GF29166@dell> <CAL7P5j+NYvUJfu==xQvncyCiw8JHtizOdfyeY1HL6Lb=-wsrWQ@mail.gmail.com>
- <E1bIyD4-0000Jw-2c@stardust.g4.wien.funkfeuer.at> <20160713124935.GC11154@dell>
- <5bddd461-90e3-3116-8d18-fae51bf39310@denx.de> <397621614.8135.5a20a815-9153-4587-9aeb-f2a7fc5a4ff5.open-xchange@email.1und1.de>
- <CAL7P5jJEYUQihe4pynerRUNgVAQzymYbUZEO9BrVdb+-syok-Q@mail.gmail.com>
- <CAL7P5jKG=b0P9T10RX9p0EXR7epTOfKqbMT6nYZkDhnqiAz_jA@mail.gmail.com>
- <CAOMZO5BSUice=2Zioeu9Zrfi5ixhszO9hF1vmFW5FiPKWqkb9w@mail.gmail.com>
- <CAL7P5j+1vOXz8a7zrTN+KDRAJJWr0vPC25o4LcXutagO9wVRNA@mail.gmail.com>
- <d1c121ee-a467-1642-ca75-a9fae90bbfc1@denx.de> <CAL7P5jJxpPUwR+Kf4-9oZ+jbtr_pgFwpAzxtKX-5ojerTL5Mfw@mail.gmail.com>
- <fe810e2f-f721-55af-e5f2-b13569f7a4e4@denx.de> <CAL7P5jKpW0GOa+1uazrQfULAQ_KBTYBB7ztbj-ADo=de=xT2vw@mail.gmail.com>
- <cbe0ea63-89af-011f-cd49-aed402def039@denx.de>
+From: "Luis R. Rodriguez" <mcgrof@kernel.org>
+Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
+ completion
+Date: Wed, 3 Aug 2016 20:08:20 +0200
+Message-ID: <20160803180820.GR3296@wotan.suse.de>
+References: <ee9a29aa-0d29-a33f-e43a-057dc359cf89@broadcom.com>
+ <20160730165817.GQ3296@wotan.suse.de>
+ <C528E404-0CA5-46B4-B551-B1D4B58BC053@gmail.com>
+ <37a3cd66-262e-ffbe-ea7a-a6d5b1ca1c8b@bmw-carit.de>
+ <20160801194408.GZ3296@wotan.suse.de>
+ <0f9350fa-e8b5-9d64-b2d3-afda5e5f6bbf@bmw-carit.de>
+ <20160802063419.GG3296@wotan.suse.de>
+ <2713d779-ef55-793d-f37e-d1414bb1bfc2@bmw-carit.de>
+ <20160802074106.GI3296@wotan.suse.de>
+ <20160803173955.GD13516@tuxbot>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f195.google.com ([209.85.220.195]:33656 "EHLO
-	mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758258AbcHCUUx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2016 16:20:53 -0400
-In-Reply-To: <cbe0ea63-89af-011f-cd49-aed402def039@denx.de>
+Received: from mx2.suse.de ([195.135.220.15]:53148 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932518AbcHCUdu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Aug 2016 16:33:50 -0400
+Content-Disposition: inline
+In-Reply-To: <20160803173955.GD13516@tuxbot>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marex@denx.de>
-Cc: Fabio Estevam <festevam@gmail.com>, Stefan Wahren <stefan.wahren@i2se.com>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Cameron <jic23@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fabio Estevam <fabio.estevam@freescale.com>, linux-iio@vger.kernel.org, Harald Geyer <harald@ccbib.org>
+To: Bjorn Andersson <bjorn.andersson@linaro.org>, Jeff Mahoney <jeffm@suse.com>, Takashi Iwai <tiwai@suse.de>, Andrew Morton <akpm@linux-foundation.org>
+Cc: "Luis R. Rodriguez" <mcgrof@kernel.org>, Daniel Wagner <daniel.wagner@bmw-carit.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arend van Spriel <arend.vanspriel@broadcom.com>, Daniel Wagner <wagi@monom.org>, Bastien Nocera <hadess@hadess.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>, Mimi Zohar <zohar@linux.vnet.ibm.com>, David Howells <dhowells@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Woodhouse <dwmw2@infradead.org>, Julia Lawall <julia.lawall@lip6.fr>, linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Aug 3, 2016 at 9:57 PM, Marek Vasut <marex@denx.de> wrote:
-> On 08/03/2016 09:45 PM, Ksenija Stanojević wrote:
->> On Wed, Aug 3, 2016 at 9:39 PM, Marek Vasut <marex@denx.de> wrote:
->>> On 08/03/2016 09:34 PM, Ksenija Stanojević wrote:
->>>> On Wed, Aug 3, 2016 at 9:13 PM, Marek Vasut <marex@denx.de> wrote:
->>>>> On 08/03/2016 06:45 PM, Ksenija Stanojević wrote:
->>>>>> Hi Fabio,
->>>>>
->>>>> Hi,
->>>>>
->>>>>> On Wed, Aug 3, 2016 at 6:35 PM, Fabio Estevam <festevam@gmail.com> wrote:
->>>>>>> Hi Ksenija,
->>>>>>>
->>>>>>> On Wed, Aug 3, 2016 at 1:32 PM, Ksenija Stanojević
->>>>>>> <ksenija.stanojevic@gmail.com> wrote:
->>>>>>>
->>>>>>>> Can someone with imx23 board send me /proc/interrupts log, I
->>>>>>>> need irq numbers...
->>>>>>>
->>>>>>> Can't you get them from the MX23 Reference Manual (Table 5-1. i.MX23
->>>>>>> Interrupt Sources)?
->>>>>>
->>>>>> I thought it will be more reliable if I asked someone, since numbers from MX28
->>>>>> manual don't match with /proc/interrupts log.
->>>>>>
->>>>> What do you mean they don't match ? Please elaborate.
->>>>
->>>> irqs don't have the same values in Table 5.1 in MX28 manual and in
->>>> /proc/interrupts
->>>> output.
->>>>
->>>> For example:
->>>> touchscreen irq in MX28 manual have these values:
->>>> 10 (source number) and 0x0028 (vector number)
->>>>
->>>> in /proc/interrupts:
->>>> 210:          0         -  10 Edge      mxs-lradc-touchscreen
->>>
->>> I see lradc_touch_irq in the MX28RM is IRQ 10 and it is also 10 in your
->>> /proc/interrupts output . What am I missing ?
->>
->> I was referring to the number of the first column 210, that's the number that
->> I need and cannot find in the Table of the manual.
->
-> The first number in /proc/interrupts is the number which Linux maps to
-> that particular IRQ line, but that number can be anything, it does not
-> (need to) match the hardware in any way. What do you need it for ?
+On Wed, Aug 03, 2016 at 10:39:55AM -0700, Bjorn Andersson wrote:
+> On Tue 02 Aug 00:41 PDT 2016, Luis R. Rodriguez wrote:
+> 
+> > On Tue, Aug 02, 2016 at 08:53:55AM +0200, Daniel Wagner wrote:
+> > > On 08/02/2016 08:34 AM, Luis R. Rodriguez wrote:
+> > > >On Tue, Aug 02, 2016 at 07:49:19AM +0200, Daniel Wagner wrote:
+> > > >>>The sysdata API's main goal rather is to provide a flexible API first,
+> > > >>>compartamentalizing the usermode helper was secondary. But now it seems
+> > > >>>I may just also add devm support too to help simplify code further.
+> > > >>
+> > > >>I missed the point that you plan to add usermode helper support to
+> > > >>the sysdata API.
+> > > >
+> > > >I had no such plans, when I have asked folks so far about "hey are you
+> > > >really in need for it, OK what for? " and "what extended uses do you
+> > > >envision?" so I far I have not gotten any replies at all. So -- instead
+> > > >sysdata currently ignores it.
+> > > 
+> > > So you argue for the remoteproc use case with 100+ MB firmware that
+> > > if there is a way to load after pivot_root() (or other additional
+> > > firmware partition shows up) then there is no need at all for
+> > > usermode helper?
+> > 
+> > No, I'm saying I'd like to hear valid uses cases for the usermode helper and so
+> > far I have only found using coccinelle grammar 2 explicit users, that's it. My
+> > patch series (not yet merge) then annotates these as valid as I've verified
+> > through their documentation they have some quirky requirement.
+> > 
+> 
+> I think we're on the same page, but just to make sure; I do not want the
+> usermode helper,
 
-Thanks, I didn't know that. Well I was using the first number to map
-irq names to irq number in DEFINE_RES_IRQ_NAMED.
-Otherwise I get probe failure:
-probe of mxs-lradc-ts failed with error -22
+Yay.
 
-It's because platform_get_irq_byname cannot find irq for the given
-irq name.
+> I only want a way to wait for the firmware files to
+> become available.
+
+Sure.
+
+> > Other than these two drivers I'd like hear to valid requirements for it.
+> > 
+> > The existential issue is a real issue but it does not look impossible to
+> > resolve. It may be a solution to bloat up the kernel with 100+ MB size just to
+> > stuff built-in firmware to avoid this issue, but it does not mean a solution
+> > is not possible.
+> > 
+> > Remind me -- why can remoteproc not stuff the firmware in initramfs ?
+> > 
+> 
+> RAM usage:
+> Storing the files in initramfs would consume 100MB RAM, we would then
+> allocate 100MB RAM for buffers during firmware loading and then we have
+> the reserved 100MB for the peripherals. The buffers could be easily be
+> removed with a mechanism for providing a buffer to the load operation,
+> but we would still double the RAM consumption.
+> 
+> Boot time:
+> Enlarging the kernel by 100MB will give noticeable addition to boot
+> times.
+
+Right I see.. Since we read the full kernel...
+
+> Development issues:
+> I have numerous concerns related to this, e.g. not being able to side
+> load the firmware files without rebuilding the initramfs. But most of
+> these are not technical issues, but rather a matter of convenience.
+> 
+> One large issue would be how to figure out how large to make the boot
+> partition in your Android phone, to cope with potential future growth in
+> firmware size - which has already proven to be a mess.
+> 
+> Legal matters:
+> Some of these firmware files are not redistributable, making it
+> impossible for end users to rebuild their kernel without loosing
+> functionality. There are even cases where these files are not allowed to
+> share partition with GPL binaries.
+> 
+> 
+> Most of these are just a major inconveniences to the developer but some
+> are show stoppers; especially the legal matters. So if we wave this off
+> as something people can live without then every downstream will sit on
+> their own solution to reimplement it.
+
+Thanks I'll document these into the firmware_class.
+
+> > Anyway, here's a simple suggestion: fs/exec.c gets a sentinel file monitor
+> > support per enum kernel_read_file_id. For instance we'd have one for
+> > READING_FIRMWARE, one for READING_KEXEC_IMAGE, perhaps READING_POLICY, and this
+> > would in turn be used as the system configurable deterministic file for
+> > which to wait for to be present before enabling each enum kernel_read_file_id
+> > type read.
+> > 
+> > Thoughts ?
+> 
+> That does sound like a good generic solution for our problem and for the
+> other types of files as well. Do you have any ideas (patches?) on how
+> each sentinel would be triggered?
+> 
+> The only concern I can think of right now is that the
+> firmware_class.path might point to a separate partition; but based on
+> how the signaling of the sentinels are implemented this might not be an
+> issue.
+
+There's another simpler suggestion I'm getting too, will post in the other
+thread.
+
+  Luis

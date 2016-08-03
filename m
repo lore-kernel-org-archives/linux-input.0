@@ -1,491 +1,123 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH 2/2] HID: wacom: Replace 'oVid' and 'oPid' with heuristics
-Date: Wed, 3 Aug 2016 10:13:48 -0700
-Message-ID: <CANRwn3SpWH7OnFJq4CbC9_jO5jwAgM-ci8TBAYBAbD2o+xQc6g@mail.gmail.com>
-References: <20160711180711.17537-1-killertofu@gmail.com> <20160711180711.17537-2-killertofu@gmail.com>
- <20160712090510.GG4663@mail.corp.redhat.com> <c2cab4aa-d677-a213-df23-64f7d5840cd5@gmail.com>
- <20160725090218.GC19383@mail.corp.redhat.com>
+From: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
+ completion
+Date: Wed, 3 Aug 2016 10:39:55 -0700
+Message-ID: <20160803173955.GD13516@tuxbot>
+References: <c05a7b98-5ada-701f-9a77-65d81b841c17@bmw-carit.de>
+ <ee9a29aa-0d29-a33f-e43a-057dc359cf89@broadcom.com>
+ <20160730165817.GQ3296@wotan.suse.de>
+ <C528E404-0CA5-46B4-B551-B1D4B58BC053@gmail.com>
+ <37a3cd66-262e-ffbe-ea7a-a6d5b1ca1c8b@bmw-carit.de>
+ <20160801194408.GZ3296@wotan.suse.de>
+ <0f9350fa-e8b5-9d64-b2d3-afda5e5f6bbf@bmw-carit.de>
+ <20160802063419.GG3296@wotan.suse.de>
+ <2713d779-ef55-793d-f37e-d1414bb1bfc2@bmw-carit.de>
+ <20160802074106.GI3296@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f194.google.com ([209.85.223.194]:33187 "EHLO
-	mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932740AbcHCRNu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2016 13:13:50 -0400
-Received: by mail-io0-f194.google.com with SMTP id y195so18585727iod.0
-        for <linux-input@vger.kernel.org>; Wed, 03 Aug 2016 10:13:49 -0700 (PDT)
-In-Reply-To: <20160725090218.GC19383@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20160802074106.GI3296-B4tOwbsTzaBolqkO4TVVkw@public.gmane.org>
+Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Luis R. Rodriguez" <mcgrof-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Daniel Wagner <daniel.wagner-98C5kh4wR6ohFhg+JK9F0w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Arend van Spriel <arend.vanspriel-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Daniel Wagner <wagi-kQCPcA+X3s7YtjvyW6yDsg@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Johannes Berg <johannes.berg-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ohad Ben-Cohen <ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org>, Mimi Zohar <zohar-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kselftest-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Mon, Jul 25, 2016 at 2:02 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Hi Jason,
->
-> [I've seen v2 and v3 but the discussion is mainly going there, so
-> pulling this one out of the archives]
->
-> On Jul 20 2016 or thereabouts, Jason Gerecke wrote:
->> On 07/12/2016 02:05 AM, Benjamin Tissoires wrote:
->> > On Jul 11 2016 or thereabouts, Jason Gerecke wrote:
->> >> The 'oVid' and 'oPid' variables used by wacom_are_sibling are a hacky
->> >> solution to the problem of the driver having few good heuristics to use
->> >> to determine if two devices should be considered siblings or not. This
->> >> commit replaces them with heuristics that leverage the information we
->> >> have available to determine if two devices are likely siblings or not.
->> >
->> > I agree it's nicer to have a better heuristic for sibling matching,
->> > but I wonder if this heuristic is reliable enough when talking about
->> > future devices. It might be, but I know from experience that the
->> > firmware team can be very original and find a way that screws up us all
->> > :/
->> >
->> > Keeping the safety net of reducing the checks with ovid/opid might come
->> > handy in the future.
->> >
->>
->> The biggest problem with oVid/oPid is that they're kinda antithetical to
->> the HID_GENERIC codepath. If a device is split between two PIDs then
->> arbitration is broken for any kernel that doesn't include specific
->> support for the device.
->
-> Well, we currently already have different paths for HID_GENERIC and
-> other various protocols. Why is that a problem to have heuristics for
-> HID_GENERIC and ovid/opid for those we need to have special handling?
->
->>
->> I agree that heuristics aren't as confidence-inspiring as explicit
->> notation, but if they can be made to work well enough then I'd prefer
->> using them. Either way, I suppose as userspace starts taking over
->> arbitration duties it will become a more and more moot issue.
->
-> Yep, but currently the patch might link 2 devices that were not bound
-> together before, so I still think ovid/opid is the best way for the non
-> generic devices. For generic devices (future I think) we can always ask
-> people to use userspace touch arbitration.
->
->>
->> >>
->> >> Written out, the new heuristics are basically:
->> >>
->> >>   * If a device with the same VID/PID as that being probed already exists,
->> >>     it should be preferentially checked for siblingship.
->> >
->> > That's assuming you don't have 2 27QHD connected as 2 monitors (if you
->> > really have a lot of money to spend) :)
->> >
->> > I think the code is OK, just not the comment above (mostly the
->> > "preferentially" word itches me)
->> >
->>
->> I'll try to come up with better / more clear wording (see my later
->> comments on the "Try to find an already-probed interface from the same
->> device" hunk for more detail).
->
-> Thanks for the changes in v2/3
->
->>
->> >>
->> >>   * Two HID devices which have the same VID/PID are not siblings if they
->> >>     are not part of the same logical hardware device.
->> >>
->> >>   * Two HID devices which have different VID/PIDs are not siblings if
->> >>     they have different parent (e.g. USB hub) devices.
->> >>
->> >>   * Devices without the WACOM_DEVICETYPE_DIRECT flag set may only be
->> >>     siblings of devies with the same VID/PID (Wacom often splits their
->> >>     direct input tablets into two devices to make it easier to meet
->> >>     Microsoft's touchscreen requirements).
->> >
->> > That's a strong assumption on the future. If you are forced to use the
->> > Precision Touchpad protocol for Intuos, this will just blow up.
->> >
->>
->> I originally didn't include this condition in my checks since I was
->> similarly wary. Leaving it out does open two small corner cases though.
->>
->> 1) A pen-only tablet connected to the same hub as a touch-only tablet.
->> Touch-only Wacom tablets aren't particularly common and it would
->> be a little strange to have one paired with a pen-only tablet, but it
->> could conceivably happen. Although pairing the devices shouldn't
->> normally be an issue since a user isn't likely to use both
->> simultaneously, it might cause problems for multi-seat setups.
->
-> Yes, multi-seats is one big issue here.
->
->>
->> 2) A pen-only tablet connected to the same hub as a pen-and-touch tablet
->> which has the *touch* interface probed first. As far as I'm aware, there
->> aren't any Wacom devices that have the USB interfaces ordered
->> touch-then-pen, but as you point out, who knows what those tricksy
->> firmware engineers will do in the future to ruin your day.
->
-> And the winner is... the Cintiq 13HDT -> touch interface and then Pen :)
->
-> Which means with the new patch, connecting a Cintiq 21UX (1 not 2) which
-> is a direct device which I assume doesn't have an internal hub, you end
-> up binding the 21UX pen with the 13HD touch, and things gets nasty for
-> the 13HD pen interface.
->
+On Tue 02 Aug 00:41 PDT 2016, Luis R. Rodriguez wrote:
 
-Argh. Good to know.
+> On Tue, Aug 02, 2016 at 08:53:55AM +0200, Daniel Wagner wrote:
+> > On 08/02/2016 08:34 AM, Luis R. Rodriguez wrote:
+> > >On Tue, Aug 02, 2016 at 07:49:19AM +0200, Daniel Wagner wrote:
+> > >>>The sysdata API's main goal rather is to provide a flexible API first,
+> > >>>compartamentalizing the usermode helper was secondary. But now it seems
+> > >>>I may just also add devm support too to help simplify code further.
+> > >>
+> > >>I missed the point that you plan to add usermode helper support to
+> > >>the sysdata API.
+> > >
+> > >I had no such plans, when I have asked folks so far about "hey are you
+> > >really in need for it, OK what for? " and "what extended uses do you
+> > >envision?" so I far I have not gotten any replies at all. So -- instead
+> > >sysdata currently ignores it.
+> > 
+> > So you argue for the remoteproc use case with 100+ MB firmware that
+> > if there is a way to load after pivot_root() (or other additional
+> > firmware partition shows up) then there is no need at all for
+> > usermode helper?
+> 
+> No, I'm saying I'd like to hear valid uses cases for the usermode helper and so
+> far I have only found using coccinelle grammar 2 explicit users, that's it. My
+> patch series (not yet merge) then annotates these as valid as I've verified
+> through their documentation they have some quirky requirement.
+> 
 
->>
->> I'm open to leaving the check in or out depending on your feelings. If
->> you've got thoughts on how to close these corner cases as well, I'm all
->> ears :)
->
-> I really think the ovid/opid approach solves most of the issues with the
-> current hardware. You are concerned about future hardware that will be
-> handled by HID_GENERIC. Why not just adding a special case for
-> HID_GENERIC that uses your heuristics?
-> In userspace I think we will still have the ovid/opid approach in
-> libwacom because it restricts the amount of combinations by a very good
-> factor.
->
-> If the kernel with the new heuristics (HID_GENERIC only) fails, we will
-> be able to tell users to switch to userspace touch arbitration.
->
-> /me turns in circle a little, but how does that sounds?
->
-> Cheers,
-> Benjamin
->
+I think we're on the same page, but just to make sure; I do not want the
+usermode helper, I only want a way to wait for the firmware files to
+become available.
 
-That sounds reasonable. I'll return the old oVid/oPid checks, and
-integrate them with heuristics for HID_GENERIC devices. Patch to come
-soon (TM).
+> Other than these two drivers I'd like hear to valid requirements for it.
+> 
+> The existential issue is a real issue but it does not look impossible to
+> resolve. It may be a solution to bloat up the kernel with 100+ MB size just to
+> stuff built-in firmware to avoid this issue, but it does not mean a solution
+> is not possible.
+> 
+> Remind me -- why can remoteproc not stuff the firmware in initramfs ?
+> 
 
-Jason
----
-Now instead of four in the eights place /
-you’ve got three, ‘Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can’t take seven from three,    /
-So you look at the sixty-fours....
+RAM usage:
+Storing the files in initramfs would consume 100MB RAM, we would then
+allocate 100MB RAM for buffers during firmware loading and then we have
+the reserved 100MB for the peripherals. The buffers could be easily be
+removed with a mechanism for providing a buffer to the load operation,
+but we would still double the RAM consumption.
 
->>
->> >>
->> >>   * Two devices which have different "directness" are not siblings.
->> >>
->> >>   * Two devices which do not serve complementary roles (i.e. pen/touch)
->> >>     are not siblings.
->> >
->> > I think it would be useful to have these write outs as comments in the
->> > code. It's quite tricky to understand the actual code without these
->> > explanations.
->> >
->>
->> Ack.
->>
->> >>
->> >> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
->> >> ---
->> >>  drivers/hid/wacom_sys.c | 58 +++++++++++++++++++++++++++++++++++++++----------
->> >>  drivers/hid/wacom_wac.c | 41 ++++++++++++++--------------------
->> >>  drivers/hid/wacom_wac.h |  2 --
->> >>  3 files changed, 62 insertions(+), 39 deletions(-)
->> >>
->> >> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
->> >> index 4a0bb6f..a5bc038 100644
->> >> --- a/drivers/hid/wacom_sys.c
->> >> +++ b/drivers/hid/wacom_sys.c
->> >> @@ -532,31 +532,65 @@ static bool wacom_are_sibling(struct hid_device *hdev,
->> >>  {
->> >>    struct wacom *wacom = hid_get_drvdata(hdev);
->> >>    struct wacom_features *features = &wacom->wacom_wac.features;
->> >> -  int vid = features->oVid;
->> >> -  int pid = features->oPid;
->> >> -  int n1,n2;
->> >> +  struct wacom *sibling_wacom = hid_get_drvdata(sibling);
->> >> +  struct wacom_features *sibling_features = &sibling_wacom->wacom_wac.features;
->> >> +  int n1, n2;
->> >>
->> >> -  if (vid == 0 && pid == 0) {
->> >> -          vid = hdev->vendor;
->> >> -          pid = hdev->product;
->> >> +  /* Compare the physical path. Require devices with the same
->> >> +   * PID to share the same device, and devices with different
->> >> +   * PIDs to share parent devices.
->> >> +   */
->> >
->> > I stumbled this morning upon:
->> > http://www.theregister.co.uk/2016/07/11/linus_torvalds_in_sweary_rant_about_punctuation_in_kernel_comments/
->> >
->> > Please make sure to follow the comments style guidelines :)
->> >
->>
->> Whatever makes the style gods happy :)
->>
->> >> +  if (hdev->vendor == sibling->vendor && hdev->product == sibling->product) {
->> >> +          n1 = strrchr(hdev->phys, '/') - hdev->phys;
->> >> +          n2 = strrchr(sibling->phys, '/') - sibling->phys;
->> >> +  }
->> >> +  else {
->> >> +          n1 = strrchr(hdev->phys, '.') - hdev->phys;
->> >> +          n2 = strrchr(sibling->phys, '.') - sibling->phys;
->> >>    }
->> >>
->> >> -  if (vid != sibling->vendor || pid != sibling->product)
->> >> +  if (n1 != n2 || n1 <= 0 || n2 <= 0)
->> >>            return false;
->> >>
->> >> -  /* Compare the physical path. */
->> >> -  n1 = strrchr(hdev->phys, '.') - hdev->phys;
->> >> -  n2 = strrchr(sibling->phys, '.') - sibling->phys;
->> >> -  if (n1 != n2 || n1 <= 0 || n2 <= 0)
->> >> +  if (strncmp(hdev->phys, sibling->phys, n1))
->> >> +          return false;
->> >> +
->> >> +  if (hdev->vendor != sibling->vendor || hdev->product != sibling->product) {
->> >> +          if(!(features->device_type & WACOM_DEVICETYPE_DIRECT))
->> >> +                  return false;
->> >> +  }
->> >
->> > As mentioned in the commit log, I am not sure it's such a good idea to
->> > have this check. Does it really remove a false positive or can this just
->> > be considered as an extra check that can be safely removed?
->> >
->>
->> See comment above.
->>
->> >> +
->> >> +  if ((features->device_type & WACOM_DEVICETYPE_DIRECT) !=
->> >> +      (sibling_features->device_type & WACOM_DEVICETYPE_DIRECT))
->> >>            return false;
->> >
->> > unless I am mistaken, you might as well need {if indirect and sibling
->> > is not indirect, than false }.
->> >
->>
->> That case should be covered since we're comparing the actual values of
->> each device's "direct" flag for equality (direct/indirect and
->> indirect/direct will return false).
->>
->> If its not immediately clear though, I could decompose it into
->> independent checks for each case. E.g.:
->>
->>   if ((features->device_type & WACOM_DEVICETYPE_DIRECT) &&
->>       !(sibling_features->device_type & WACOM_DEVICETYPE_DIRECT))
->>           return false;
->>
->>   if (!(features->device_type & WACOM_DEVICETYPE_DIRECT) &&
->>        (sibling_features->device_type & WACOM_DEVICETYPE_DIRECT))
->>           return false;
->>
->> >>
->> >> -  return !strncmp(hdev->phys, sibling->phys, n1);
->> >> +  if ((features->device_type & WACOM_DEVICETYPE_PEN) &&
->> >> +      !(sibling_features->device_type & WACOM_DEVICETYPE_TOUCH))
->> >> +          return false;
->> >> +
->> >> +  if ((features->device_type & WACOM_DEVICETYPE_TOUCH) &&
->> >> +      !(sibling_features->device_type & WACOM_DEVICETYPE_PEN))
->> >> +          return false;
->> >
->> > I think it would be better to have those last 3 (plus mine) tests at the
->> > beginning, before doing string lookouts. They seem to be the most
->> > reliable ones and able to exclude a lot of false positive.
->> >
->>
->> Reasonable enough.
->>
->> >> +
->> >> +  return true;
->> >>  }
->> >>
->> >>  static struct wacom_hdev_data *wacom_get_hdev_data(struct hid_device *hdev)
->> >>  {
->> >>    struct wacom_hdev_data *data;
->> >>
->> >> +  /* Try to find an already-probed interface from the same device */
->> >> +  list_for_each_entry(data, &wacom_udev_list, list) {
->> >> +          int n1, n2;
->> >> +          n1 = strrchr(hdev->phys, '/') - hdev->phys;
->> >> +          n2 = strrchr(data->dev->phys, '/') - data->dev->phys;
->> >> +          if (n1 != n2 || n1 <= 0 || n2 <= 0)
->> >> +                  continue;
->> >> +          if (!strncmp(hdev->phys, data->dev->phys, n1))
->> >> +                  return data;
->> >> +  }
->> >
->> > I can't see the benefit of having this here, while it seems to be
->> > already tested in wacom_are_sibling().
->> >
->>
->> There's a subtle issue with not performing this search before proceeding
->> to trying to pair arbitrary devices in wacom_are_sibling. Imagine that
->> you've already got a pen-only device connected to your system. Now,
->> connect a (non-split) pen+touch device to the same hub. When the touch
->> interface is probed, the first device checked its checked against in
->> wacom_are_sibling is that pen-only device, and provided it passes all
->> the checks then it will be incorrectly paired with it.
->>
->> This is actually probably a leftover from before I added the requirement
->> that only direct devices can have different PIDs and might not be
->> strictly necessary in the patch's current state, but I'd feel better
->> keeping it in either way.
->>
->> > Also, if there is a need for it, there is a common pattern used 3 times
->> > here:
->> >         int n1, n2;
->> >         n1 = strrchr(hdev->phys, separator) - hdev->phys;
->> >         n2 = strrchr(other->dev->phys, separator) - other->dev->phys;
->> >         if (n1 != n2 || n1 <= 0 || n2 <= 0)
->> >                  continue;
->> >         return !strncmp(hdev->phys, other->dev->phys, n1);
->> >
->> > It would make sense to put a name on it and have a separate function.
->> >
->> > Cheers,
->> > Benjamin
->> >
->>
->> Good call, if the block remains necessary.
->>
->> Jason
->> ---
->> Now instead of four in the eights place /
->> you’ve got three, ‘Cause you added one /
->> (That is to say, eight) to the two, /
->> But you can’t take seven from three, /
->> So you look at the sixty-fours....
->>
->> >> +
->> >> +  /* Fallback to finding devices that appear to be "siblings" */
->> >>    list_for_each_entry(data, &wacom_udev_list, list) {
->> >>            if (wacom_are_sibling(hdev, data->dev)) {
->> >>                    kref_get(&data->kref);
->> >> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
->> >> index 2523a29..cb6fc63 100644
->> >> --- a/drivers/hid/wacom_wac.c
->> >> +++ b/drivers/hid/wacom_wac.c
->> >> @@ -3229,11 +3229,10 @@ static const struct wacom_features wacom_features_0xF4 =
->> >>  static const struct wacom_features wacom_features_0xF8 =
->> >>    { "Wacom Cintiq 24HD touch", 104080, 65200, 2047, 63, /* Pen */
->> >>      WACOM_24HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 16,
->> >> -    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0xf6 };
->> >> +    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
->> >>  static const struct wacom_features wacom_features_0xF6 =
->> >>    { "Wacom Cintiq 24HD touch", .type = WACOM_24HDT, /* Touch */
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0xf8, .touch_max = 10,
->> >> +    .touch_max = 10,
->> >>      .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
->> >>  static const struct wacom_features wacom_features_0x32A =
->> >>    { "Wacom Cintiq 27QHD", 119740, 67520, 2047, 63,
->> >> @@ -3242,11 +3241,10 @@ static const struct wacom_features wacom_features_0x32A =
->> >>  static const struct wacom_features wacom_features_0x32B =
->> >>    { "Wacom Cintiq 27QHD touch", 119740, 67520, 2047, 63,
->> >>      WACOM_27QHD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 0,
->> >> -    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x32C };
->> >> +    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
->> >>  static const struct wacom_features wacom_features_0x32C =
->> >>    { "Wacom Cintiq 27QHD touch", .type = WACOM_27QHDT,
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x32B, .touch_max = 10 };
->> >> +    .touch_max = 10 };
->> >>  static const struct wacom_features wacom_features_0x3F =
->> >>    { "Wacom Cintiq 21UX", 87200, 65600, 1023, 63,
->> >>      CINTIQ, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 8 };
->> >> @@ -3263,11 +3261,10 @@ static const struct wacom_features wacom_features_0x304 =
->> >>  static const struct wacom_features wacom_features_0x333 =
->> >>    { "Wacom Cintiq 13HD touch", 59152, 33448, 2047, 63,
->> >>      WACOM_13HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 9,
->> >> -    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x335 };
->> >> +    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
->> >>  static const struct wacom_features wacom_features_0x335 =
->> >>    { "Wacom Cintiq 13HD touch", .type = WACOM_24HDT, /* Touch */
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x333, .touch_max = 10,
->> >> +    .touch_max = 10,
->> >>      .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
->> >>  static const struct wacom_features wacom_features_0xC7 =
->> >>    { "Wacom DTU1931", 37832, 30305, 511, 0,
->> >> @@ -3298,11 +3295,10 @@ static const struct wacom_features wacom_features_0x57 =
->> >>  static const struct wacom_features wacom_features_0x59 = /* Pen */
->> >>    { "Wacom DTH2242", 95640, 54060, 2047, 63,
->> >>      DTK, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 6,
->> >> -    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5D };
->> >> +    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
->> >>  static const struct wacom_features wacom_features_0x5D = /* Touch */
->> >>    { "Wacom DTH2242",       .type = WACOM_24HDT,
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x59, .touch_max = 10,
->> >> +    .touch_max = 10,
->> >>      .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
->> >>  static const struct wacom_features wacom_features_0xCC =
->> >>    { "Wacom Cintiq 21UX2", 86800, 65200, 2047, 63,
->> >> @@ -3315,11 +3311,10 @@ static const struct wacom_features wacom_features_0xFA =
->> >>  static const struct wacom_features wacom_features_0x5B =
->> >>    { "Wacom Cintiq 22HDT", 95440, 53860, 2047, 63,
->> >>      WACOM_22HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 18,
->> >> -    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5e };
->> >> +    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
->> >>  static const struct wacom_features wacom_features_0x5E =
->> >>    { "Wacom Cintiq 22HDT", .type = WACOM_24HDT,
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5b, .touch_max = 10,
->> >> +    .touch_max = 10,
->> >>      .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
->> >>  static const struct wacom_features wacom_features_0x90 =
->> >>    { "Wacom ISDv4 90", 26202, 16325, 255, 0,
->> >> @@ -3461,20 +3456,18 @@ static const struct wacom_features wacom_features_0x6004 =
->> >>  static const struct wacom_features wacom_features_0x307 =
->> >>    { "Wacom ISDv5 307", 59152, 33448, 2047, 63,
->> >>      CINTIQ_HYBRID, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 9,
->> >> -    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x309 };
->> >> +    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
->> >>  static const struct wacom_features wacom_features_0x309 =
->> >>    { "Wacom ISDv5 309", .type = WACOM_24HDT, /* Touch */
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x0307, .touch_max = 10,
->> >> +    .touch_max = 10,
->> >>      .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
->> >>  static const struct wacom_features wacom_features_0x30A =
->> >>    { "Wacom ISDv5 30A", 59152, 33448, 2047, 63,
->> >>      CINTIQ_HYBRID, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 9,
->> >> -    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x30C };
->> >> +    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
->> >>  static const struct wacom_features wacom_features_0x30C =
->> >>    { "Wacom ISDv5 30C", .type = WACOM_24HDT, /* Touch */
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x30A, .touch_max = 10,
->> >> +    .touch_max = 10,
->> >>      .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
->> >>  static const struct wacom_features wacom_features_0x318 =
->> >>    { "Wacom USB Bamboo PAD", 4095, 4095, /* Touch */
->> >> @@ -3485,11 +3478,9 @@ static const struct wacom_features wacom_features_0x319 =
->> >>  static const struct wacom_features wacom_features_0x325 =
->> >>    { "Wacom ISDv5 325", 59552, 33848, 2047, 63,
->> >>      CINTIQ_COMPANION_2, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 11,
->> >> -    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
->> >> -    .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x326 };
->> >> +    WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
->> >>  static const struct wacom_features wacom_features_0x326 = /* Touch */
->> >> -  { "Wacom ISDv5 326", .type = HID_GENERIC, .oVid = USB_VENDOR_ID_WACOM,
->> >> -    .oPid = 0x325 };
->> >> +  { "Wacom ISDv5 326", .type = HID_GENERIC };
->> >>  static const struct wacom_features wacom_features_0x323 =
->> >>    { "Wacom Intuos P M", 21600, 13500, 1023, 31,
->> >>      INTUOSHT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
->> >> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
->> >> index 7ad6273..a5bd05a 100644
->> >> --- a/drivers/hid/wacom_wac.h
->> >> +++ b/drivers/hid/wacom_wac.h
->> >> @@ -181,8 +181,6 @@ struct wacom_features {
->> >>    int tilt_fuzz;
->> >>    unsigned quirks;
->> >>    unsigned touch_max;
->> >> -  int oVid;
->> >> -  int oPid;
->> >>    int pktlen;
->> >>    bool check_for_hid_type;
->> >>    int hid_type;
->> >> --
->> >> 2.9.0
->> >>
->>
+Boot time:
+Enlarging the kernel by 100MB will give noticeable addition to boot
+times.
+
+Development issues:
+I have numerous concerns related to this, e.g. not being able to side
+load the firmware files without rebuilding the initramfs. But most of
+these are not technical issues, but rather a matter of convenience.
+
+One large issue would be how to figure out how large to make the boot
+partition in your Android phone, to cope with potential future growth in
+firmware size - which has already proven to be a mess.
+
+Legal matters:
+Some of these firmware files are not redistributable, making it
+impossible for end users to rebuild their kernel without loosing
+functionality. There are even cases where these files are not allowed to
+share partition with GPL binaries.
+
+
+Most of these are just a major inconveniences to the developer but some
+are show stoppers; especially the legal matters. So if we wave this off
+as something people can live without then every downstream will sit on
+their own solution to reimplement it.
+
+> Anyway, here's a simple suggestion: fs/exec.c gets a sentinel file monitor
+> support per enum kernel_read_file_id. For instance we'd have one for
+> READING_FIRMWARE, one for READING_KEXEC_IMAGE, perhaps READING_POLICY, and this
+> would in turn be used as the system configurable deterministic file for
+> which to wait for to be present before enabling each enum kernel_read_file_id
+> type read.
+> 
+> Thoughts ?
+
+That does sound like a good generic solution for our problem and for the
+other types of files as well. Do you have any ideas (patches?) on how
+each sentinel would be triggered?
+
+The only concern I can think of right now is that the
+firmware_class.path might point to a separate partition; but based on
+how the signaling of the sentinels are implemented this might not be an
+issue.
+
+Regards,
+Bjorn
+--
+To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

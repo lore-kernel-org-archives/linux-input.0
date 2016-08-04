@@ -1,82 +1,81 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCHv2] serio: add hangup support
-Date: Thu, 4 Aug 2016 10:25:50 +0200
-Message-ID: <54e5a952-f37c-3777-e789-39a4d59e1923@xs4all.nl>
-References: <0d959a01-e698-0178-af89-5925469f95ab@xs4all.nl>
- <20160803152602.GB29702@dtor-ws>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v3 1/4] mfd: mxs-lradc: Add support for mxs-lradc MFD
+Date: Thu, 4 Aug 2016 09:31:36 +0100
+Message-ID: <20160804083136.GE5243@dell>
+References: <cover.1466769907.git.ksenija.stanojevic@gmail.com>
+ <370a02584386944b465deff5ccc48c8919b23dba.1466769907.git.ksenija.stanojevic@gmail.com>
+ <20160628162834.GF29166@dell>
+ <CAL7P5j+NYvUJfu==xQvncyCiw8JHtizOdfyeY1HL6Lb=-wsrWQ@mail.gmail.com>
+ <E1bIyD4-0000Jw-2c@stardust.g4.wien.funkfeuer.at>
+ <20160713124935.GC11154@dell>
+ <5bddd461-90e3-3116-8d18-fae51bf39310@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb2-smtp-cloud2.xs4all.net ([194.109.24.25]:60922 "EHLO
-	lb2-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932168AbcHDIZ5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Aug 2016 04:25:57 -0400
-In-Reply-To: <20160803152602.GB29702@dtor-ws>
+Received: from mail-wm0-f41.google.com ([74.125.82.41]:33217 "EHLO
+	mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754825AbcHDIaO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Aug 2016 04:30:14 -0400
+Received: by mail-wm0-f41.google.com with SMTP id p129so1290388wmp.0
+        for <linux-input@vger.kernel.org>; Thu, 04 Aug 2016 01:30:13 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <5bddd461-90e3-3116-8d18-fae51bf39310@denx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
+To: Marek Vasut <marex@denx.de>
+Cc: Harald Geyer <harald@ccbib.org>, Ksenija =?utf-8?Q?Stanojevi=C4=87?= <ksenija.stanojevic@gmail.com>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>, Fabio Estevam <fabio.estevam@freescale.com>
 
+On Thu, 14 Jul 2016, Marek Vasut wrote:
 
+> On 07/13/2016 02:49 PM, Lee Jones wrote:
+> > On Fri, 01 Jul 2016, Harald Geyer wrote:
+> > 
+> > > Hi Ksenija!
+> > > 
+> > > Ksenija Stanojević writes:
+> > > > On Tue, Jun 28, 2016 at 6:28 PM, Lee Jones <lee.jones@linaro.org> wrote:
+> > > > > > +static int mxs_lradc_add_device(struct platform_device *pdev,
+> > > > > > +                             struct mxs_lradc *lradc, char *name, int i)
+> > > > > > +{
+> > > > > > +     struct mfd_cell *cell;
+> > > > > > +
+> > > > > > +     cell = &lradc->cells[i];
+> > > > > > +     cell->name = name;
+> > > > > > +     cell->platform_data = lradc;
+> > > > > > +     cell->pdata_size = sizeof(*lradc);
+> > > > > > +
+> > > > > > +     return devm_mfd_add_devices(&pdev->dev, -1, cell, 1, NULL, 0, NULL);
+> > > > > > +}
+> > > > > 
+> > > > > Please don't roll your own API.
+> > > > > 
+> > > > > Use 'struct mfd_cell' like everyone else does.
+> > > > 
+> > > > It has been suggested in previous reviews to use separate function to
+> > > > register mfd device, and to make mfd_cell allocate dynamically because
+> > > > struc mxs-lradc is allocated dynamically.
+> > > > But I can revrse changes and make mfd_cells allocate staticaly
+> > > > wthout separate function.
+> > > 
+> > > I think making mfd_cells members of struct mxs-lradc will address all
+> > > review comments.
+> > 
+> > No, please don't do that either.
+> > 
+> It'd be nice if you explained in detail why not. Otherwise this is just
+> empty splat.
 
-On 08/03/2016 05:26 PM, Dmitry Torokhov wrote:
-> On Wed, Aug 03, 2016 at 01:00:44PM +0200, Hans Verkuil wrote:
->> The Pulse-Eight USB CEC adapter is a usb device that shows up as a ttyACM0 device.
->> It requires that you run inputattach in order to communicate with it via serio.
->>
->> This all works well, but it would be nice to have a udev rule to automatically
->> start inputattach. That too works OK, but the problem comes when the USB device
->> is unplugged: the tty hangup is never handled by the serio framework so the
->> inputattach utility never exits and you have to kill it manually.
->>
->> By adding this hangup callback the inputattach utility now properly exits as
->> soon as the USB device is unplugged.
->>
->> The udev rule I used on my Debian sid system is:
->>
->> SUBSYSTEM=="tty", KERNEL=="ttyACM[0-9]*", ATTRS{idVendor}=="2548", ATTRS{idProduct}=="1002", ACTION=="add", TAG+="systemd", ENV{SYSTEMD_WANTS}+="pulse8-cec-inputattach@%k.service"
->>
->> And pulse8-cec-inputattach@%k.service is as follows:
->>
->> ===============================================================
->> [Unit]
->> Description=inputattach for pulse8-cec device on %I
->>
->> [Service]
->> Type=simple
->> ExecStart=/usr/local/bin/inputattach --pulse8-cec /dev/%I
->> KillMode=process
->> ===============================================================
->>
->> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
->> Tested-by: Hans Verkuil <hans.verkuil@cisco.com>
->> ---
->> Change since the original RFC patch: don't call close() from the hangup() function,
->> instead only set the DEAD flag in hangup() instead of in close().
->> ---
->> diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
->> index 9c927d3..4045e95 100644
->> --- a/drivers/input/serio/serport.c
->> +++ b/drivers/input/serio/serport.c
->> @@ -71,7 +71,6 @@ static void serport_serio_close(struct serio *serio)
->>
->>  	spin_lock_irqsave(&serport->lock, flags);
->>  	clear_bit(SERPORT_ACTIVE, &serport->flags);
->> -	set_bit(SERPORT_DEAD, &serport->flags);
->>  	spin_unlock_irqrestore(&serport->lock, flags);
->>
->>  	wake_up_interruptible(&serport->wait);
-> 
-> I think we should remove this line as well - the waiter is waiting on
-> SERPORT_DEAD bit, if we are not setting it we do not need to wake up the
-> waiter either.
-> 
-> I can fix it up on my side.
+I already said what needs to be done.
 
-OK, I wasn't sure about that myself, thanks for looking into this and taking care of it.
+"Use struct mfd_cell", in it's pure/static form.  Don't include it in
+any device data struct.
 
-Regards,
+"like everyone else does", look at other driver to see how they do
+it.
 
-	Hans
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

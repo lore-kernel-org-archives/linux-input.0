@@ -1,16 +1,16 @@
 From: Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: Re: [PATCH v3 2/4] rtc: rtc-pm8xxx: Add support for
- pm8018 rtc
-Date: Thu, 4 Aug 2016 14:58:09 -0700
-Message-ID: <97671c78-d7ad-9cef-f647-6e7cc8b9234e@codeaurora.org>
+Subject: Re: [PATCH v3 4/4] regulator: qcom_rpm-regulator: Add
+ support for pm8018 rpm regulator
+Date: Thu, 4 Aug 2016 15:04:56 -0700
+Message-ID: <6eb6d742-eca4-a442-cff1-0a26601b362d@codeaurora.org>
 References: <1468936286-2710-1-git-send-email-narmstrong@baylibre.com>
- <1468936286-2710-3-git-send-email-narmstrong@baylibre.com>
+ <1468936286-2710-5-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDHZXHXDRAMBB5HUR26QKGQEL4UC3OA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDHZXHXDRAMBBC7YR26QKGQECDOFA3I-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1468936286-2710-3-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <1468936286-2710-5-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/rtc-linux
@@ -22,26 +22,111 @@ Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29T
 List-Id: linux-input@vger.kernel.org
 
 On 07/19/2016 06:51 AM, Neil Armstrong wrote:
-> diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-> index 795fcbd..976f5f6 100644
-> --- a/drivers/rtc/rtc-pm8xxx.c
-> +++ b/drivers/rtc/rtc-pm8xxx.c
-> @@ -393,6 +393,16 @@ static int pm8xxx_rtc_enable(struct pm8xxx_rtc *rtc_dd)
->  	return 0;
->  }
->  
-> +static const struct pm8xxx_rtc_regs pm8018_regs = {
-> +	.ctrl		= 0x11d,
-> +	.write		= 0x11f,
-> +	.read		= 0x123,
-> +	.alarm_rw	= 0x127,
-> +	.alarm_ctrl	= 0x11d,
-> +	.alarm_ctrl2	= 0x11e,
-> +	.alarm_en	= BIT(1),
-> +};
+> In order to support eh Qualcomm MDM9615 SoC, add support for the
 
-This is the same as pm8921_regs, so why do we need to duplicate it?
-Can't we point the new compatible at the same data?
+s/eh/the/
+
+> PM8018 RPM regulator in the qcom_rpm-regulator driver.
+>
+> Acked-by: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+>
+> diff --git a/drivers/regulator/qcom_rpm-regulator.c b/drivers/regulator/qcom_rpm-regulator.c
+> index e254272..0734a5f 100644
+> --- a/drivers/regulator/qcom_rpm-regulator.c
+> +++ b/drivers/regulator/qcom_rpm-regulator.c
+> @@ -70,6 +70,40 @@ struct qcom_rpm_reg {
+>  	bool supports_force_mode_bypass;
+>  };
+>  
+> +static struct rpm_reg_parts rpm8018_ldo_parts = {
+> +	.request_len	= 2,
+> +	.uV		= { 0, 0x007FFFFF,  0},
+> +	.pd		= { 0, 0x00800000, 23},
+> +	.pc		= { 0, 0x0F000000, 24},
+> +	.pf		= { 0, 0xF0000000, 28},
+> +	.ip		= { 1, 0x000003FF,  0},
+> +	.ia		= { 1, 0x000FFC00, 10},
+> +	.fm		= { 1, 0x00700000, 20},
+> +};
+> +
+> +static struct rpm_reg_parts rpm8018_smps_parts = {
+> +	.request_len	= 2,
+> +	.uV		= {  0, 0x007FFFFF,  0},
+> +	.pd		= {  0, 0x00800000, 23},
+> +	.pc		= {  0, 0x0F000000, 24},
+> +	.pf		= {  0, 0xF0000000, 28},
+> +	.ip		= {  1, 0x000003FF,  0},
+> +	.ia		= {  1, 0x000FFC00, 10},
+> +	.fm		= {  1, 0x00700000, 20},
+> +	.pm		= {  1, 0x00800000, 23},
+> +	.freq		= {  1, 0x1F000000, 24},
+> +	.freq_clk_src	= {  1, 0x60000000, 29},
+> +};
+> +
+> +static struct rpm_reg_parts rpm8018_switch_parts = {
+> +	.request_len	= 1,
+> +	.enable_state	= {  0, 0x00000001,  0},
+> +	.pd		= {  0, 0x00000002,  1},
+> +	.pc		= {  0, 0x0000003C,  2},
+> +	.pf		= {  0, 0x000003C0,  6},
+> +	.hpm		= {  0, 0x00000C00, 10},
+> +};
+> +
+
+These are all the same as the rpm8960 ones, so why don't we reuse those
+structures?
+
+>  static const struct rpm_reg_parts rpm8660_ldo_parts = {
+>  	.request_len    = 2,
+>  	.mV             = { 0, 0x00000FFF,  0 },
+> @@ -448,6 +482,44 @@ static struct regulator_ops switch_ops = {
+>  };
+>  
+>  /*
+> + * PM8018 regulators
+> + */
+> +static const struct qcom_rpm_reg pm8018_pldo = {
+> +	.desc.linear_ranges = pldo_ranges,
+> +	.desc.n_linear_ranges = ARRAY_SIZE(pldo_ranges),
+> +	.desc.n_voltages = 161,
+> +	.desc.ops = &uV_ops,
+> +	.parts = &rpm8018_ldo_parts,
+> +	.supports_force_mode_auto = false,
+> +	.supports_force_mode_bypass = false,
+> +};
+> +
+> +static const struct qcom_rpm_reg pm8018_nldo = {
+> +	.desc.linear_ranges = nldo_ranges,
+> +	.desc.n_linear_ranges = ARRAY_SIZE(nldo_ranges),
+> +	.desc.n_voltages = 64,
+> +	.desc.ops = &uV_ops,
+> +	.parts = &rpm8018_ldo_parts,
+> +	.supports_force_mode_auto = false,
+> +	.supports_force_mode_bypass = false,
+> +};
+> +
+> +static const struct qcom_rpm_reg pm8018_smps = {
+> +	.desc.linear_ranges = smps_ranges,
+> +	.desc.n_linear_ranges = ARRAY_SIZE(smps_ranges),
+> +	.desc.n_voltages = 154,
+> +	.desc.ops = &uV_ops,
+> +	.parts = &rpm8018_smps_parts,
+> +	.supports_force_mode_auto = false,
+> +	.supports_force_mode_bypass = false,
+> +};
+> +
+> +static const struct qcom_rpm_reg pm8018_switch = {
+> +	.desc.ops = &switch_ops,
+> +	.parts = &rpm8018_switch_parts,
+> +};
+> +
+
+These are all the same as the pm8921 ones too? So just use those instead?
+
+We should probably rethink this design and have these structures based
+on PMIC derivatives instead of SoCs because things are quite similar
+across many PMICs.
 
 -- 
 Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,

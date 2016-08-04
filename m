@@ -1,32 +1,82 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch] Input: silead - remove some dead code
-Date: Thu, 4 Aug 2016 08:28:59 +0300
-Message-ID: <20160804052859.GI775@mwanda>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCHv2] serio: add hangup support
+Date: Thu, 4 Aug 2016 10:25:50 +0200
+Message-ID: <54e5a952-f37c-3777-e789-39a4d59e1923@xs4all.nl>
+References: <0d959a01-e698-0178-af89-5925469f95ab@xs4all.nl>
+ <20160803152602.GB29702@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Robert Dolca <robert.dolca@intel.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, Hans de Goede <hdegoede@redhat.com>, Daniel Jansen <djaniboe@gmail.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lb2-smtp-cloud2.xs4all.net ([194.109.24.25]:60922 "EHLO
+	lb2-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932168AbcHDIZ5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Aug 2016 04:25:57 -0400
+In-Reply-To: <20160803152602.GB29702@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
 
-buf[0] is an unsigned char.  touch_nr is an int.  The test for negative
-here doesn't make sense so I have removed it.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index 5f55167..7379fe1 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -147,9 +147,6 @@ static void silead_ts_read_data(struct i2c_client *client)
- 	}
- 
- 	touch_nr = buf[0];
--	if (touch_nr < 0)
--		return;
--
- 	if (touch_nr > data->max_fingers) {
- 		dev_warn(dev, "More touches reported then supported %d > %d\n",
- 			 touch_nr, data->max_fingers);
+On 08/03/2016 05:26 PM, Dmitry Torokhov wrote:
+> On Wed, Aug 03, 2016 at 01:00:44PM +0200, Hans Verkuil wrote:
+>> The Pulse-Eight USB CEC adapter is a usb device that shows up as a ttyACM0 device.
+>> It requires that you run inputattach in order to communicate with it via serio.
+>>
+>> This all works well, but it would be nice to have a udev rule to automatically
+>> start inputattach. That too works OK, but the problem comes when the USB device
+>> is unplugged: the tty hangup is never handled by the serio framework so the
+>> inputattach utility never exits and you have to kill it manually.
+>>
+>> By adding this hangup callback the inputattach utility now properly exits as
+>> soon as the USB device is unplugged.
+>>
+>> The udev rule I used on my Debian sid system is:
+>>
+>> SUBSYSTEM=="tty", KERNEL=="ttyACM[0-9]*", ATTRS{idVendor}=="2548", ATTRS{idProduct}=="1002", ACTION=="add", TAG+="systemd", ENV{SYSTEMD_WANTS}+="pulse8-cec-inputattach@%k.service"
+>>
+>> And pulse8-cec-inputattach@%k.service is as follows:
+>>
+>> ===============================================================
+>> [Unit]
+>> Description=inputattach for pulse8-cec device on %I
+>>
+>> [Service]
+>> Type=simple
+>> ExecStart=/usr/local/bin/inputattach --pulse8-cec /dev/%I
+>> KillMode=process
+>> ===============================================================
+>>
+>> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+>> Tested-by: Hans Verkuil <hans.verkuil@cisco.com>
+>> ---
+>> Change since the original RFC patch: don't call close() from the hangup() function,
+>> instead only set the DEAD flag in hangup() instead of in close().
+>> ---
+>> diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
+>> index 9c927d3..4045e95 100644
+>> --- a/drivers/input/serio/serport.c
+>> +++ b/drivers/input/serio/serport.c
+>> @@ -71,7 +71,6 @@ static void serport_serio_close(struct serio *serio)
+>>
+>>  	spin_lock_irqsave(&serport->lock, flags);
+>>  	clear_bit(SERPORT_ACTIVE, &serport->flags);
+>> -	set_bit(SERPORT_DEAD, &serport->flags);
+>>  	spin_unlock_irqrestore(&serport->lock, flags);
+>>
+>>  	wake_up_interruptible(&serport->wait);
+> 
+> I think we should remove this line as well - the waiter is waiting on
+> SERPORT_DEAD bit, if we are not setting it we do not need to wake up the
+> waiter either.
+> 
+> I can fix it up on my side.
+
+OK, I wasn't sure about that myself, thanks for looking into this and taking care of it.
+
+Regards,
+
+	Hans

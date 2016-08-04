@@ -1,89 +1,105 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [RFC v0 7/8] Input: ims-pcu: use firmware_stat instead of
- completion
-Date: Wed, 3 Aug 2016 15:26:56 -0700
-Message-ID: <20160803222656.GG13516@tuxbot>
-References: <20160730165817.GQ3296@wotan.suse.de>
- <C528E404-0CA5-46B4-B551-B1D4B58BC053@gmail.com>
- <37a3cd66-262e-ffbe-ea7a-a6d5b1ca1c8b@bmw-carit.de>
- <20160801194408.GZ3296@wotan.suse.de>
- <0f9350fa-e8b5-9d64-b2d3-afda5e5f6bbf@bmw-carit.de>
- <20160802063419.GG3296@wotan.suse.de>
- <2713d779-ef55-793d-f37e-d1414bb1bfc2@bmw-carit.de>
- <20160802074106.GI3296@wotan.suse.de>
- <ef14dc68-d2f8-0934-7be5-dfb3a4771f27@bmw-carit.de>
- <20160803155540.GL3296@wotan.suse.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: atkbd - filter buggy codes on ASUS Q500A
+Date: Wed, 3 Aug 2016 17:50:52 -0700
+Message-ID: <20160804005052.GC36266@dtor-ws>
+References: <1469821304-30255-1-git-send-email-linux@rempel-privat.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f67.google.com ([209.85.220.67]:32930 "EHLO
+	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933331AbcHDAvE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2016 20:51:04 -0400
+Received: by mail-pa0-f67.google.com with SMTP id q2so15054415pap.0
+        for <linux-input@vger.kernel.org>; Wed, 03 Aug 2016 17:51:01 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20160803155540.GL3296@wotan.suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Luis R. Rodriguez" <mcgrof@kernel.org>
-Cc: Daniel Wagner <daniel.wagner@bmw-carit.de>, Andrew Morton <akpm@linux-foundation.org>, Jeff Mahoney <jeffm@suse.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arend van Spriel <arend.vanspriel@broadcom.com>, Daniel Wagner <wagi@monom.org>, Bastien Nocera <hadess@hadess.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johannes Berg <johannes.berg@intel.com>, Kalle Valo <kvalo@codeaurora.org>, Ohad Ben-Cohen <ohad@wizery.com>, Mimi Zohar <zohar@linux.vnet.ibm.com>, David Howells <dhowells@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Woodhouse <dwmw2@infradead.org>, Julia Lawall <julia.lawall@lip6.fr>, linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1469821304-30255-1-git-send-email-linux@rempel-privat.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oleksij Rempel <linux@rempel-privat.de>
+Cc: linux-input@vger.kernel.org
 
-On Wed 03 Aug 08:55 PDT 2016, Luis R. Rodriguez wrote:
+Hi Oleksij,
 
-> On Wed, Aug 03, 2016 at 08:57:09AM +0200, Daniel Wagner wrote:
-> > On 08/02/2016 09:41 AM, Luis R. Rodriguez wrote:
-[..]
-> > Not sure if I get you here correctly. Is the 'system configurable
-> > deterministic file' is a knob which controlled by user space? Or it
-> > this something you define at compile time?
+On Fri, Jul 29, 2016 at 09:41:44PM +0200, Oleksij Rempel wrote:
+> Some revision of ASUS Q500A series have keyboard related
+> issue which is reproducible only if Windows with installed ASUS
+> tools was ever started.
+> In this case the Linux side will have blocked keyboard or
+> report wrong or incomplete hotkey events.
+> To make Linux work properly again complete power down
+> (unplug power supply and remove battery) should be made.
 > 
-> I meant at compile time on the kernel. So CONFIG_READ_READY_SENTINEL
-> or something like this, and it be a string, which if set then when
-> the kernel read APIs are used, then a new API could be introduced
-> that would *only* enable reading through once that sentinel has
-> been detected by the kernel to allowed through reads. Doing this
-> per mount / target filesystem is rather cumbersome given possible
-> overlaps in mounts and also pivot_root() being possible, so instead
-> targeting simply the fs/exec.c enum kernel_read_file_id would seem
-> more efficient and clean but we would need a decided upon set of
-> paths per enum kernel_read_file_id as base (or just one path per
-> enum kernel_read_file_id). For number of paths I mean the number
-> of target directories to look for the sentinel per enum kernel_read_file_id,
-> so for instance for READING_FIRMWARE perhaps just deciding on /lib/firmware/
-> would suffice, but if this supported multiple paths another option may be
-> for the sentinel to also be looked for in /lib/firmware/updates/,
-> /lib/firmware/" UTS_RELEASE -- etc. It would *stop* after finding one
-> sentinel on any of these paths.
+> Linux/atkbd after clean start will get fallowing code on VOLUME_UP
+> key: {0xe0, 0x30, 0xe0, 0xb0}. After Windows, same key will generate this
+> codes: {0xe1, 0x23, 0xe0, 0x30, 0xe0, 0xb0}. As result atkdb will
+> be confused by buggy codes.
 > 
-> If a system has has CONFIG_READ_READY_SENTINEL it would mean an agreed upon
-> system configuration has been decided so that at any point in time reads
-> against READING_FIRMWARE using a new kernel_read_file_from_path_sentinel()
-> (or something like it) would only allow the read to go through once
-> the sentinel has been found for READING_FIRMWARE on the agreed upon
-> paths.
+> This patch is filtering this buggy code out.
 > 
-> The benefit of the sentintel approach is it avoids complexities with
-> pivot_root(), and makes the deterministic aspect of the target left
-> only to a system-configuration enabled target path / file.
+> https://bugzilla.kernel.org/show_bug.cgi?id=119391
+> 
+> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+> Sponsored-by: Alex Henrie <alexhenrie24@gmail.com>
+> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+I'd prefer it was done as a i8042_filter() installed in a platform
+driver (asus-laptop.c?). I a filter you'd need to note the fact that you
+received e1 and when you receive next character you either swallo both
+or re-inject e1 and the new character. See filter implementation in
+./drivers/input/misc/ideapad_slidebar.c.
+
+The scancode fixup method is quite old and is better suited when you
+actually want to use the scancode, just a different one. Here you are
+forced to user ATKBD_RET_ERR which causes debug messages and increment
+error counter.
+
+Thanks.
+
+> ---
+>  drivers/input/keyboard/atkbd.c | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+> 
+> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+> index ec876b5..949c199 100644
+> --- a/drivers/input/keyboard/atkbd.c
+> +++ b/drivers/input/keyboard/atkbd.c
+> @@ -996,6 +996,17 @@ static unsigned int atkbd_oqo_01plus_scancode_fixup(struct atkbd *atkbd,
+>  	return code;
+>  }
+>  
+> +static unsigned int atkbd_asus_q500a_scancode_fixup(struct atkbd *atkbd,
+> +						    unsigned int code)
+> +{
+> +	if (atkbd->translated && atkbd->emul == 2 && code == 0x23) {
+> +		atkbd->emul = 0;
+> +		return ATKBD_RET_ERR;
+> +	}
+> +
+> +	return code;
+> +}
+> +
+>  /*
+>   * atkbd_set_keycode_table() initializes keyboard's keycode table
+>   * according to the selected scancode set
+> @@ -1802,6 +1813,14 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+>  		},
+>  		.callback = atkbd_deactivate_fixup,
+>  	},
+> +	{
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "Q500A"),
+> +		},
+> +		.callback = atkbd_setup_scancode_fixup,
+> +		.driver_data = atkbd_asus_q500a_scancode_fixup,
+> +	},
+>  	{ }
+>  };
+>  
+> -- 
+> 2.7.4
 > 
 
-This sounds reasonable, it could be configured to wait for a certain
-static file or userspace could generate this file once it reaches some
-checkpoint.
-
-
-Just to provide some additional input to "will rootfs mounted be enough
-of a sentinel".
-
-In an Android device you have a initramfs that will read an fstab file
-and mount /system that holds most firmware, for some platforms
-additional firmware will come from a third partition (in the Qualcomm
-case mounted in /persist by the same mechanism).
-
-With the sentinel approach one could configure the system either point
-it at a file in the last file system to be mounted or have init generate
-a file once its done with this; or in the generic configuration just
-wait for /lib/firmware to show up.
-
-I like this approach.
-
-> This is just an idea. I'd like some FS folks to review.
-> 
-
-Regards,
-Bjorn
+-- 
+Dmitry

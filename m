@@ -1,105 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: atkbd - filter buggy codes on ASUS Q500A
-Date: Wed, 3 Aug 2016 17:50:52 -0700
-Message-ID: <20160804005052.GC36266@dtor-ws>
-References: <1469821304-30255-1-git-send-email-linux@rempel-privat.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: AceLan Kao <acelan.kao@canonical.com>
+Subject: [PATCH] HID: input: add mic mute key on HP slim keyboard
+Date: Thu,  4 Aug 2016 10:26:20 +0800
+Message-ID: <1470277580-5517-1-git-send-email-acelan.kao@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f67.google.com ([209.85.220.67]:32930 "EHLO
+Received: from mail-pa0-f67.google.com ([209.85.220.67]:36779 "EHLO
 	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933331AbcHDAvE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2016 20:51:04 -0400
-Received: by mail-pa0-f67.google.com with SMTP id q2so15054415pap.0
-        for <linux-input@vger.kernel.org>; Wed, 03 Aug 2016 17:51:01 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1469821304-30255-1-git-send-email-linux@rempel-privat.de>
+	with ESMTP id S1752806AbcHDC0X (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2016 22:26:23 -0400
+Received: by mail-pa0-f67.google.com with SMTP id ez1so15270291pab.3
+        for <linux-input@vger.kernel.org>; Wed, 03 Aug 2016 19:26:23 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oleksij Rempel <linux@rempel-privat.de>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-Hi Oleksij,
+Add MIC mute key which is found on HP Business Slim Keyboard
 
-On Fri, Jul 29, 2016 at 09:41:44PM +0200, Oleksij Rempel wrote:
-> Some revision of ASUS Q500A series have keyboard related
-> issue which is reproducible only if Windows with installed ASUS
-> tools was ever started.
-> In this case the Linux side will have blocked keyboard or
-> report wrong or incomplete hotkey events.
-> To make Linux work properly again complete power down
-> (unplug power supply and remove battery) should be made.
-> 
-> Linux/atkbd after clean start will get fallowing code on VOLUME_UP
-> key: {0xe0, 0x30, 0xe0, 0xb0}. After Windows, same key will generate this
-> codes: {0xe1, 0x23, 0xe0, 0x30, 0xe0, 0xb0}. As result atkdb will
-> be confused by buggy codes.
-> 
-> This patch is filtering this buggy code out.
-> 
-> https://bugzilla.kernel.org/show_bug.cgi?id=119391
-> 
-> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
-> Sponsored-by: Alex Henrie <alexhenrie24@gmail.com>
-> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 23 Spd=1.5 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=03f0 ProdID=2f4a Rev=00.10
+S:  Manufacturer=Chicony
+S:  Product=HP Business Slim Keyboard
+C:  #Ifs= 2 Cfg#= 1 Atr=a0 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=usbhid
+I:  If#= 1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
 
-I'd prefer it was done as a i8042_filter() installed in a platform
-driver (asus-laptop.c?). I a filter you'd need to note the fact that you
-received e1 and when you receive next character you either swallo both
-or re-inject e1 and the new character. See filter implementation in
-./drivers/input/misc/ideapad_slidebar.c.
+Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
+---
+ drivers/hid/hid-input.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-The scancode fixup method is quite old and is better suited when you
-actually want to use the scancode, just a different one. Here you are
-forced to user ATKBD_RET_ERR which causes debug messages and increment
-error counter.
-
-Thanks.
-
-> ---
->  drivers/input/keyboard/atkbd.c | 19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
-> 
-> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-> index ec876b5..949c199 100644
-> --- a/drivers/input/keyboard/atkbd.c
-> +++ b/drivers/input/keyboard/atkbd.c
-> @@ -996,6 +996,17 @@ static unsigned int atkbd_oqo_01plus_scancode_fixup(struct atkbd *atkbd,
->  	return code;
->  }
->  
-> +static unsigned int atkbd_asus_q500a_scancode_fixup(struct atkbd *atkbd,
-> +						    unsigned int code)
-> +{
-> +	if (atkbd->translated && atkbd->emul == 2 && code == 0x23) {
-> +		atkbd->emul = 0;
-> +		return ATKBD_RET_ERR;
-> +	}
-> +
-> +	return code;
-> +}
-> +
->  /*
->   * atkbd_set_keycode_table() initializes keyboard's keycode table
->   * according to the selected scancode set
-> @@ -1802,6 +1813,14 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
->  		},
->  		.callback = atkbd_deactivate_fixup,
->  	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "Q500A"),
-> +		},
-> +		.callback = atkbd_setup_scancode_fixup,
-> +		.driver_data = atkbd_asus_q500a_scancode_fixup,
-> +	},
->  	{ }
->  };
->  
-> -- 
-> 2.7.4
-> 
-
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index bcfaf32..d51c43b 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -953,6 +953,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 	case HID_UP_HPVENDOR2:
+ 		set_bit(EV_REP, input->evbit);
+ 		switch (usage->hid & HID_USAGE) {
++		case 0x001: map_key_clear(KEY_MICMUTE);		break;
+ 		case 0x003: map_key_clear(KEY_BRIGHTNESSDOWN);	break;
+ 		case 0x004: map_key_clear(KEY_BRIGHTNESSUP);	break;
+ 		default:    goto ignore;
 -- 
-Dmitry
+2.7.4
+

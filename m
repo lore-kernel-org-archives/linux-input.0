@@ -1,45 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch] Input: silead - remove some dead code
-Date: Thu, 4 Aug 2016 08:25:00 -0700
-Message-ID: <20160804152500.GC5504@dtor-ws>
-References: <20160804052859.GI775@mwanda>
+From: Alexander Stein <alexander.stein@systec-electronic.com>
+Subject: Re: [PATCH v4 1/4] mfd: mxs-lradc: Add support for mxs-lradc MFD
+Date: Thu, 04 Aug 2016 18:10:37 +0200
+Message-ID: <2721285.1CS7CJCgc7@ws-stein>
+References: <cover.1470316956.git.ksenija.stanojevic@gmail.com> <0a60a10b249062d305237f04fdb9aea05b128b85.1470316956.git.ksenija.stanojevic@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f66.google.com ([209.85.220.66]:33080 "EHLO
-	mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754729AbcHDPZp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Aug 2016 11:25:45 -0400
-Content-Disposition: inline
-In-Reply-To: <20160804052859.GI775@mwanda>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <0a60a10b249062d305237f04fdb9aea05b128b85.1470316956.git.ksenija.stanojevic@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, lee.jones@linaro.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Robert Dolca <robert.dolca@intel.com>, Henrik Rydberg <rydberg@bitmath.org>, Hans de Goede <hdegoede@redhat.com>, Daniel Jansen <djaniboe@gmail.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Thu, Aug 04, 2016 at 08:28:59AM +0300, Dan Carpenter wrote:
-> buf[0] is an unsigned char.  touch_nr is an int.  The test for negative
-> here doesn't make sense so I have removed it.
+On Thursday 04 August 2016 15:28:18, Ksenija Stanojevic wrote:
+> Add core files for mxs-lradc MFD driver.
 > 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-
-Applied, thank you.
-
+> Note:  this patch won't compile in iio/testing without this patch:
+> a8f447be8056 ("mfd: Add resource managed APIs for mfd_add_devices")
 > 
-> diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-> index 5f55167..7379fe1 100644
-> --- a/drivers/input/touchscreen/silead.c
-> +++ b/drivers/input/touchscreen/silead.c
-> @@ -147,9 +147,6 @@ static void silead_ts_read_data(struct i2c_client *client)
->  	}
->  
->  	touch_nr = buf[0];
-> -	if (touch_nr < 0)
-> -		return;
-> -
->  	if (touch_nr > data->max_fingers) {
->  		dev_warn(dev, "More touches reported then supported %d > %d\n",
->  			 touch_nr, data->max_fingers);
+> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+> ---
+> [...]
+> +static int mxs_lradc_probe(struct platform_device *pdev)
+> +{
+> +	const struct of_device_id *of_id;
+> +	struct device *dev = &pdev->dev;
+> +	struct device_node *node = dev->of_node;
+> +	struct mxs_lradc *lradc;
+> +	struct resource *iores;
+> +	struct mfd_cell *cells = NULL;
+> +	int ret = 0;
+> +	u32 ts_wires = 0;
+> +
+> +	lradc = devm_kzalloc(&pdev->dev, sizeof(*lradc), GFP_KERNEL);
+> +	if (!lradc)
+> +		return -ENOMEM;
+> +
+> +	of_id = of_match_device(mxs_lradc_dt_ids, &pdev->dev);
+> +	lradc->soc = (enum mxs_lradc_id)of_id->data;
+> +
+> +	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	lradc->base = devm_ioremap_resource(dev, iores);
 
--- 
-Dmitry
+Out of couriosity: Is it common to pass already ioremapped addresses to (MFD 
+cell) platform drivers? I would have expected, and done myself, that ioremap 
+is done in the driver itself, same as the IRQ.
+
+Best regards,
+Alexander

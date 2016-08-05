@@ -1,95 +1,190 @@
-From: Stefan Wahren <stefan.wahren@i2se.com>
-Subject: Re: [PATCH v3] input: touchscreen: Remove duplicate ft6236 driver
-Date: Sat, 6 Aug 2016 15:15:17 +0200 (CEST)
-Message-ID: <2036456363.114390.752d0f22-93a7-46e8-bb14-c884787aaea3.open-xchange@email.1und1.de>
-References: <1470381871-4086-1-git-send-email-hdegoede@redhat.com>
- <1470381871-4086-2-git-send-email-hdegoede@redhat.com>
- <72101a2a-ccf0-b0bc-3859-50a43f990027@i2se.com>
- <20160806022243.GB20562@dtor-ws>
- <424ae37d-6ca9-a950-551a-7643cee726d0@redhat.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH 2/2] HID: wacom: Replace 'oVid' and 'oPid' with heuristics
+Date: Fri, 5 Aug 2016 15:53:40 -0700
+Message-ID: <00b65e10-9023-b289-ce18-ccf939d7e9f2@gmail.com>
+References: <20160711180711.17537-1-killertofu@gmail.com>
+ <20160711180711.17537-2-killertofu@gmail.com>
+ <20160712090510.GG4663@mail.corp.redhat.com>
+ <c2cab4aa-d677-a213-df23-64f7d5840cd5@gmail.com>
+ <20160725090218.GC19383@mail.corp.redhat.com>
+ <CANRwn3SpWH7OnFJq4CbC9_jO5jwAgM-ci8TBAYBAbD2o+xQc6g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <424ae37d-6ca9-a950-551a-7643cee726d0@redhat.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: devicetree <devicetree@vger.kernel.org>, Sean Cross <xobs@kosagi.com>, =?UTF-8?Q?Noralf_Tr=C3=B8nnes?= <noralf@tronnes.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:36178 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751036AbcHFUjT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2016 16:39:19 -0400
+Received: by mail-pa0-f53.google.com with SMTP id pp5so102218412pac.3
+        for <linux-input@vger.kernel.org>; Sat, 06 Aug 2016 13:39:19 -0700 (PDT)
+In-Reply-To: <CANRwn3SpWH7OnFJq4CbC9_jO5jwAgM-ci8TBAYBAbD2o+xQc6g@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-Hi,
+On 08/03/2016 10:13 AM, Jason Gerecke wrote:
+> On Mon, Jul 25, 2016 at 2:02 AM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> Hi Jason,
+>>
+>> [I've seen v2 and v3 but the discussion is mainly going there, so
+>> pulling this one out of the archives]
+>>
+>> On Jul 20 2016 or thereabouts, Jason Gerecke wrote:
+>>> On 07/12/2016 02:05 AM, Benjamin Tissoires wrote:
+>>>> On Jul 11 2016 or thereabouts, Jason Gerecke wrote:
+>>>>> The 'oVid' and 'oPid' variables used by wacom_are_sibling are a hacky
+>>>>> solution to the problem of the driver having few good heuristics to use
+>>>>> to determine if two devices should be considered siblings or not. This
+>>>>> commit replaces them with heuristics that leverage the information we
+>>>>> have available to determine if two devices are likely siblings or not.
+>>>>
+>>>> I agree it's nicer to have a better heuristic for sibling matching,
+>>>> but I wonder if this heuristic is reliable enough when talking about
+>>>> future devices. It might be, but I know from experience that the
+>>>> firmware team can be very original and find a way that screws up us all
+>>>> :/
+>>>>
+>>>> Keeping the safety net of reducing the checks with ovid/opid might come
+>>>> handy in the future.
+>>>>
+>>>
+>>> The biggest problem with oVid/oPid is that they're kinda antithetical to
+>>> the HID_GENERIC codepath. If a device is split between two PIDs then
+>>> arbitration is broken for any kernel that doesn't include specific
+>>> support for the device.
+>>
+>> Well, we currently already have different paths for HID_GENERIC and
+>> other various protocols. Why is that a problem to have heuristics for
+>> HID_GENERIC and ovid/opid for those we need to have special handling?
+>>
+>>>
+>>> I agree that heuristics aren't as confidence-inspiring as explicit
+>>> notation, but if they can be made to work well enough then I'd prefer
+>>> using them. Either way, I suppose as userspace starts taking over
+>>> arbitration duties it will become a more and more moot issue.
+>>
+>> Yep, but currently the patch might link 2 devices that were not bound
+>> together before, so I still think ovid/opid is the best way for the non
+>> generic devices. For generic devices (future I think) we can always ask
+>> people to use userspace touch arbitration.
+>>
+>>>
+>>>>>
+>>>>> Written out, the new heuristics are basically:
+>>>>>
+>>>>>   * If a device with the same VID/PID as that being probed already exists,
+>>>>>     it should be preferentially checked for siblingship.
+>>>>
+>>>> That's assuming you don't have 2 27QHD connected as 2 monitors (if you
+>>>> really have a lot of money to spend) :)
+>>>>
+>>>> I think the code is OK, just not the comment above (mostly the
+>>>> "preferentially" word itches me)
+>>>>
+>>>
+>>> I'll try to come up with better / more clear wording (see my later
+>>> comments on the "Try to find an already-probed interface from the same
+>>> device" hunk for more detail).
+>>
+>> Thanks for the changes in v2/3
+>>
+>>>
+>>>>>
+>>>>>   * Two HID devices which have the same VID/PID are not siblings if they
+>>>>>     are not part of the same logical hardware device.
+>>>>>
+>>>>>   * Two HID devices which have different VID/PIDs are not siblings if
+>>>>>     they have different parent (e.g. USB hub) devices.
+>>>>>
+>>>>>   * Devices without the WACOM_DEVICETYPE_DIRECT flag set may only be
+>>>>>     siblings of devies with the same VID/PID (Wacom often splits their
+>>>>>     direct input tablets into two devices to make it easier to meet
+>>>>>     Microsoft's touchscreen requirements).
+>>>>
+>>>> That's a strong assumption on the future. If you are forced to use the
+>>>> Precision Touchpad protocol for Intuos, this will just blow up.
+>>>>
+>>>
+>>> I originally didn't include this condition in my checks since I was
+>>> similarly wary. Leaving it out does open two small corner cases though.
+>>>
+>>> 1) A pen-only tablet connected to the same hub as a touch-only tablet.
+>>> Touch-only Wacom tablets aren't particularly common and it would
+>>> be a little strange to have one paired with a pen-only tablet, but it
+>>> could conceivably happen. Although pairing the devices shouldn't
+>>> normally be an issue since a user isn't likely to use both
+>>> simultaneously, it might cause problems for multi-seat setups.
+>>
+>> Yes, multi-seats is one big issue here.
+>>
+>>>
+>>> 2) A pen-only tablet connected to the same hub as a pen-and-touch tablet
+>>> which has the *touch* interface probed first. As far as I'm aware, there
+>>> aren't any Wacom devices that have the USB interfaces ordered
+>>> touch-then-pen, but as you point out, who knows what those tricksy
+>>> firmware engineers will do in the future to ruin your day.
+>>
+>> And the winner is... the Cintiq 13HDT -> touch interface and then Pen :)
+>>
+>> Which means with the new patch, connecting a Cintiq 21UX (1 not 2) which
+>> is a direct device which I assume doesn't have an internal hub, you end
+>> up binding the 21UX pen with the 13HD touch, and things gets nasty for
+>> the 13HD pen interface.
+>>
+> 
+> Argh. Good to know.
+> 
+>>>
+>>> I'm open to leaving the check in or out depending on your feelings. If
+>>> you've got thoughts on how to close these corner cases as well, I'm all
+>>> ears :)
+>>
+>> I really think the ovid/opid approach solves most of the issues with the
+>> current hardware. You are concerned about future hardware that will be
+>> handled by HID_GENERIC. Why not just adding a special case for
+>> HID_GENERIC that uses your heuristics?
+>> In userspace I think we will still have the ovid/opid approach in
+>> libwacom because it restricts the amount of combinations by a very good
+>> factor.
+>>
+>> If the kernel with the new heuristics (HID_GENERIC only) fails, we will
+>> be able to tell users to switch to userspace touch arbitration.
+>>
+>> /me turns in circle a little, but how does that sounds?
+>>
+>> Cheers,
+>> Benjamin
+>>
+> 
+> That sounds reasonable. I'll return the old oVid/oPid checks, and
+> integrate them with heuristics for HID_GENERIC devices. Patch to come
+> soon (TM).
+> 
+> Jason
+> ---
+> Now instead of four in the eights place /
+> you’ve got three, ‘Cause you added one  /
+> (That is to say, eight) to the two,     /
+> But you can’t take seven from three,    /
+> So you look at the sixty-fours....
+> 
 
-> Hans de Goede <hdegoede@redhat.com> hat am 6. August 2016 um 12:00
-> geschrieben:
-> 
-> 
-> Hi,
-> 
-> On 06-08-16 04:22, Dmitry Torokhov wrote:
-> > On Fri, Aug 05, 2016 at 05:07:20PM +0200, Stefan Wahren wrote:
-> >> Hi Hans,
-> >>
-> >> Am 05.08.2016 um 09:24 schrieb Hans de Goede:
-> >>> The new(ish) ft6236 simply re-implements the M09 protocol of the
-> >>> (much) older edt-ft5x06.c driver.
-> >>>
-> >>> This commit removes this duplicate driver and adds the i2c ids and
-> >>> dt compatible string to the edt-ft5x06.c driver to keep compatibility.
-> >>
-> >> i think only remove of the driver is incorrect here.
-> >>
-> >> Since there are two similar but still different DT bindings
-> >>
-> >> Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> >>
-> >> Documentation/devicetree/bindings/input/touchscreen/focaltech-ft6236.txt
-> >>
-> >> the DT handling of edt-ft5x06.c needs to be extended and then
-> >> finally driver and binding could be removed.
-> >
-> > I believe Hans made sure edt-ft5x06.c can handle focaltech-ft6236
-> > bindings. Do you see a discrepancy?
-> 
-> Correct I've double checked that both the i2c protocol and the
-> reset gpio binding are compatible. Devices using the focaltech-ft6236.txt
-> binding should work fine with the edt-ft5x06.c driver.
+One question before I post the updated v4 patch: did you want me to
+remove the "direct-input devices may not be siblings of indirect-input
+devices" check? It opens up the holes mentioned above, but would
+properly arbitrate hypothetical future split-indirect devices.
 
-i missed the point about touchscreen_parse_properties() and it's properties.
-Sorry for the noise. Everything okay.
+Since the new arbitration rules only apply to HID_GENERIC devices and
+userspace will eventually take over the task anyway, I'm okay with
+either option personally.
 
-> 
-> Now if someone can test and confirm that on actual hardware that would be
-> great...
-> 
-> And we probably want to remove
-> Documentation/devicetree/bindings/input/touchscreen/focaltech-ft6236.txt
-> and instead add the compatible string that defines to
-> Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> 
-
-That would be great.
-
-Stefan
-
-> I can whip up a patch for that, but as said some testing on actual
-> hw would be good, preferably before I write said patch.
-> 
-> Regards,
-> 
-> Hans
-> 
-> 
-> 
-> 
-> 
-> p.s.
-> 
-> (the v3 in the subject is bogus my bad)
+Jason
+---
+Now instead of four in the eights place /
+you’ve got three, ‘Cause you added one /
+(That is to say, eight) to the two, /
+But you can’t take seven from three, /
+So you look at the sixty-fours....

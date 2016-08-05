@@ -1,24 +1,46 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2 00/30] HID: wacom: cleanup/EKR/LED
-Date: Fri, 5 Aug 2016 13:41:56 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1608051341230.22028@cbobk.fhfr.pm>
-References: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: Support telephony devices
+Date: Fri, 5 Aug 2016 13:43:07 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1608051342360.22028@cbobk.fhfr.pm>
+References: <1470214307-29441-1-git-send-email-nolsen@jabra.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1468425977-4819-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:40171 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161147AbcHELnJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 5 Aug 2016 07:43:09 -0400
+In-Reply-To: <1470214307-29441-1-git-send-email-nolsen@jabra.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Niels Skou Olsen <nolsen@jabra.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com
 
-On Wed, 13 Jul 2016, Benjamin Tissoires wrote:
+On Wed, 3 Aug 2016, nolsen@jabra.com wrote:
 
-> So this is a v2 of my summer cleanup of the wacom driver.
+> From: Niels Skou Olsen <nolsen@jabra.com>
+> 
+> Add support for telephony device buttons and LEDs as described in the USB
+> HID Usage Tables specification.
+> 
+> This allows user mode applications convenient access to telephony devices
+> such as headsets, speaker phones and desk phones.
+> 
+> Signed-off-by: Niels Skou Olsen <nolsen@jabra.com>
+> ---
+>  drivers/hid/hid-debug.c                | 39 ++++++++++++++++++++-
+>  drivers/hid/hid-input.c                | 63 +++++++++++++++++++++++++++++++---
+>  drivers/input/input-leds.c             |  5 +++
+>  include/linux/hid.h                    |  8 ++++-
+>  include/linux/mod_devicetable.h        |  2 +-
+>  include/uapi/linux/input-event-codes.h | 18 +++++++++-
 
-I finally made my way through the whole patchset; nice cleanup, thanks a 
-lot. I've pushed the whole lot to for-4.9/wacom.
+I'd like (at least) the input-event-codes.h be acked by Dmitry. Dmitry, 
+please?
+
+Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
+

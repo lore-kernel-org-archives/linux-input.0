@@ -1,88 +1,101 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: [PATCH 3/3] Input: xpad - fix stuck mode button on Xbox One S pad
-Date: Sat,  6 Aug 2016 14:30:30 -0700
-Message-ID: <1470519030-23051-4-git-send-email-aicommander@gmail.com>
-References: <1470519030-23051-1-git-send-email-aicommander@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 4.8-rc0 (round 2)
+Date: Fri, 5 Aug 2016 19:21:04 -0700
+Message-ID: <20160806022104.GA20562@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:35545 "EHLO
-	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751672AbcHFVae (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2016 17:30:34 -0400
-Received: by mail-pf0-f193.google.com with SMTP id h186so22219978pfg.2
-        for <linux-input@vger.kernel.org>; Sat, 06 Aug 2016 14:30:34 -0700 (PDT)
-In-Reply-To: <1470519030-23051-1-git-send-email-aicommander@gmail.com>
+Received: from mail-pa0-f67.google.com ([209.85.220.67]:35196 "EHLO
+	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750933AbcHFWsj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2016 18:48:39 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
-Cc: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-The Xbox One S requires an ack to its mode button report
-otherwise it continuously retransmits the report. This
-makes the mode button appear to be stuck down after it
-is pressed for the first time.
+Hi Linus,
 
-Signed-off-by: Cameron Gutman <aicommander@gmail.com>
----
- drivers/input/joystick/xpad.c | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+Please pull from:
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 6a3a775..0dd5cf6 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -389,6 +389,7 @@ struct usb_xpad {
- 
- static int xpad_init_input(struct usb_xpad *xpad);
- static void xpad_deinit_input(struct usb_xpad *xpad);
-+static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num);
- 
- /*
-  *	xpad_process_packet
-@@ -699,6 +700,13 @@ static void xpadone_process_packet(struct usb_xpad *xpad,
- 		break;
- 
- 	case 0x07:
-+		/* The Xbox One S controller requires these reports to be
-+		 * acked otherwise it continues sending them forever and
-+		 * won't report further mode button events.
-+		 */
-+		if (data[1] == 0x30)
-+			xpadone_ack_mode_report(xpad, data[2]);
-+
- 		/* the xbox button has its own special report */
- 		input_report_key(dev, BTN_MODE, data[4] & 0x01);
- 		input_sync(dev);
-@@ -974,6 +982,30 @@ static int xpad_start_xbox_one(struct usb_xpad *xpad)
- 	return retval;
- }
- 
-+static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num)
-+{
-+	unsigned long flags;
-+	struct xpad_output_packet *packet =
-+			&xpad->out_packets[XPAD_OUT_CMD_IDX];
-+	static const u8 mode_report_ack[] = {
-+		0x01, 0x20, 0x00, 0x09, 0x00, 0x07, 0x20, 0x02,
-+		0x00, 0x00, 0x00, 0x00, 0x00
-+	};
-+
-+	spin_lock_irqsave(&xpad->odata_lock, flags);
-+
-+	packet->len = sizeof(mode_report_ack);
-+	memcpy(packet->data, mode_report_ack, packet->len);
-+	packet->data[2] = seq_num;
-+	packet->pending = true;
-+
-+	/* Reset the sequence so we send out the ack now */
-+	xpad->last_out_packet = -1;
-+	xpad_try_sending_next_out_packet(xpad);
-+
-+	spin_unlock_irqrestore(&xpad->odata_lock, flags);
-+}
-+
- #ifdef CONFIG_JOYSTICK_XPAD_FF
- static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
- {
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates more for the input subsystem. You will get 2 more
+new drivers for touchscreen controllers:
+
+- Silead touchscreen controllers
+- SiS 9200 family touchscreen controllers
+
+and a few driver fixes.
+
+Changelog:
+---------
+
+Arnd Bergmann (1):
+      Input: sis-i2c - select CONFIG_CRC_ITU_T
+
+Benjamin Tissoires (1):
+      Input: elantech - fix debug dump of the current packet
+
+Cameron Gutman (1):
+      Input: xpad - power off wireless 360 controllers on suspend
+
+Dan Carpenter (1):
+      Input: silead - remove some dead code
+
+Dmitry Torokhov (2):
+      Input: i8042 - break load dependency between atkbd/psmouse and i8042
+      Input: ili210x - fix permissions on "calibrate" attribute
+
+Douglas Anderson (1):
+      Input: cros_ec_keyb - cleanup use of dev
+
+KT Liao (1):
+      Input: elan_i2c - properly wake up touchpad on ASUS laptops
+
+Markus Elfring (1):
+      Input: synaptics-rmi4 - do not check for NULL when calling of_node_put()
+
+Mika Penttilä (1):
+      Input: add driver for SiS 9200 family I2C touchscreen controllers
+
+Robert Dolca (1):
+      Input: add driver for Silead touchscreens
+
+Uwe Kleine-König (1):
+      Input: rotary_encoder - support binary encoding of states
+
+
+Diffstat:
+--------
+
+ .../devicetree/bindings/input/rotary-encoder.txt   |   4 +
+ .../bindings/input/touchscreen/silead_gsl1680.txt  |  36 ++
+ .../bindings/input/touchscreen/sis_i2c.txt         |  33 ++
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ drivers/input/joystick/xpad.c                      |  43 ++
+ drivers/input/keyboard/cros_ec_keyb.c              |  19 +-
+ drivers/input/misc/rotary_encoder.c                |  23 +-
+ drivers/input/mouse/elan_i2c_core.c                |  79 ++-
+ drivers/input/mouse/elantech.c                     |   8 +-
+ drivers/input/rmi4/rmi_bus.c                       |   5 +-
+ drivers/input/serio/i8042.c                        |  16 +-
+ drivers/input/serio/libps2.c                       |  10 +-
+ drivers/input/touchscreen/Kconfig                  |  25 +
+ drivers/input/touchscreen/Makefile                 |   2 +
+ drivers/input/touchscreen/ili210x.c                |   2 +-
+ drivers/input/touchscreen/silead.c                 | 565 +++++++++++++++++++++
+ drivers/input/touchscreen/sis_i2c.c                | 413 +++++++++++++++
+ include/linux/i8042.h                              |   6 -
+ include/linux/serio.h                              |  24 +-
+ 19 files changed, 1244 insertions(+), 70 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/sis_i2c.txt
+ create mode 100644 drivers/input/touchscreen/silead.c
+ create mode 100644 drivers/input/touchscreen/sis_i2c.c
+
 -- 
-2.7.4
+Dmitry
 

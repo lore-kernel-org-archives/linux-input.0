@@ -1,16 +1,16 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 Subject: Re: [PATCH v3] input: touchscreen: Remove duplicate ft6236 driver
-Date: Fri, 5 Aug 2016 19:22:43 -0700
-Message-ID: <20160806022243.GB20562@dtor-ws>
+Date: Sat, 6 Aug 2016 12:00:39 +0200
+Message-ID: <424ae37d-6ca9-a950-551a-7643cee726d0@redhat.com>
 References: <1470381871-4086-1-git-send-email-hdegoede@redhat.com>
  <1470381871-4086-2-git-send-email-hdegoede@redhat.com>
  <72101a2a-ccf0-b0bc-3859-50a43f990027@i2se.com>
+ <20160806022243.GB20562@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <72101a2a-ccf0-b0bc-3859-50a43f990027@i2se.com>
+In-Reply-To: <20160806022243.GB20562@dtor-ws>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,35 +20,60 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Stefan Wahren <stefan.wahren@i2se.com>
-Cc: devicetree <devicetree@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>, linux-input@vger.kernel.org, Sean Cross <xobs@kosagi.com>, linux-arm-kernel@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stefan Wahren <stefan.wahren@i2se.com>
+Cc: devicetree <devicetree@vger.kernel.org>, Sean Cross <xobs@kosagi.com>, noralf@tronnes.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Aug 05, 2016 at 05:07:20PM +0200, Stefan Wahren wrote:
-> Hi Hans,
-> 
-> Am 05.08.2016 um 09:24 schrieb Hans de Goede:
-> >The new(ish) ft6236 simply re-implements the M09 protocol of the
-> >(much) older edt-ft5x06.c driver.
-> >
-> >This commit removes this duplicate driver and adds the i2c ids and
-> >dt compatible string to the edt-ft5x06.c driver to keep compatibility.
-> 
-> i think only remove of the driver is incorrect here.
-> 
-> Since there are two similar but still different DT bindings
-> 
-> Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> 
-> Documentation/devicetree/bindings/input/touchscreen/focaltech-ft6236.txt
-> 
-> the DT handling of edt-ft5x06.c needs to be extended and then
-> finally driver and binding could be removed.
+Hi,
 
-I believe Hans made sure edt-ft5x06.c can handle focaltech-ft6236
-bindings. Do you see a discrepancy?
+On 06-08-16 04:22, Dmitry Torokhov wrote:
+> On Fri, Aug 05, 2016 at 05:07:20PM +0200, Stefan Wahren wrote:
+>> Hi Hans,
+>>
+>> Am 05.08.2016 um 09:24 schrieb Hans de Goede:
+>>> The new(ish) ft6236 simply re-implements the M09 protocol of the
+>>> (much) older edt-ft5x06.c driver.
+>>>
+>>> This commit removes this duplicate driver and adds the i2c ids and
+>>> dt compatible string to the edt-ft5x06.c driver to keep compatibility.
+>>
+>> i think only remove of the driver is incorrect here.
+>>
+>> Since there are two similar but still different DT bindings
+>>
+>> Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+>>
+>> Documentation/devicetree/bindings/input/touchscreen/focaltech-ft6236.txt
+>>
+>> the DT handling of edt-ft5x06.c needs to be extended and then
+>> finally driver and binding could be removed.
+>
+> I believe Hans made sure edt-ft5x06.c can handle focaltech-ft6236
+> bindings. Do you see a discrepancy?
 
-Thanks.
+Correct I've double checked that both the i2c protocol and the
+reset gpio binding are compatible. Devices using the focaltech-ft6236.txt
+binding should work fine with the edt-ft5x06.c driver.
 
--- 
-Dmitry
+Now if someone can test and confirm that on actual hardware that would be
+great...
+
+And we probably want to remove
+Documentation/devicetree/bindings/input/touchscreen/focaltech-ft6236.txt
+and instead add the compatible string that defines to
+Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+
+I can whip up a patch for that, but as said some testing on actual
+hw would be good, preferably before I write said patch.
+
+Regards,
+
+Hans
+
+
+
+
+
+p.s.
+
+(the v3 in the subject is bogus my bad)

@@ -1,190 +1,41 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH 2/2] HID: wacom: Replace 'oVid' and 'oPid' with heuristics
-Date: Fri, 5 Aug 2016 15:53:40 -0700
-Message-ID: <00b65e10-9023-b289-ce18-ccf939d7e9f2@gmail.com>
-References: <20160711180711.17537-1-killertofu@gmail.com>
- <20160711180711.17537-2-killertofu@gmail.com>
- <20160712090510.GG4663@mail.corp.redhat.com>
- <c2cab4aa-d677-a213-df23-64f7d5840cd5@gmail.com>
- <20160725090218.GC19383@mail.corp.redhat.com>
- <CANRwn3SpWH7OnFJq4CbC9_jO5jwAgM-ci8TBAYBAbD2o+xQc6g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: [PATCH 1/3] Input: xpad - add product ID for Xbox One S pad
+Date: Sat,  6 Aug 2016 14:30:28 -0700
+Message-ID: <1470519030-23051-2-git-send-email-aicommander@gmail.com>
+References: <1470519030-23051-1-git-send-email-aicommander@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:36178 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751036AbcHFUjT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2016 16:39:19 -0400
-Received: by mail-pa0-f53.google.com with SMTP id pp5so102218412pac.3
-        for <linux-input@vger.kernel.org>; Sat, 06 Aug 2016 13:39:19 -0700 (PDT)
-In-Reply-To: <CANRwn3SpWH7OnFJq4CbC9_jO5jwAgM-ci8TBAYBAbD2o+xQc6g@mail.gmail.com>
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:35623 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751297AbcHFVad (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2016 17:30:33 -0400
+Received: by mail-pa0-f68.google.com with SMTP id cf3so21295434pad.2
+        for <linux-input@vger.kernel.org>; Sat, 06 Aug 2016 14:30:32 -0700 (PDT)
+In-Reply-To: <1470519030-23051-1-git-send-email-aicommander@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
+Cc: linux-input@vger.kernel.org
 
-On 08/03/2016 10:13 AM, Jason Gerecke wrote:
-> On Mon, Jul 25, 2016 at 2:02 AM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
->> Hi Jason,
->>
->> [I've seen v2 and v3 but the discussion is mainly going there, so
->> pulling this one out of the archives]
->>
->> On Jul 20 2016 or thereabouts, Jason Gerecke wrote:
->>> On 07/12/2016 02:05 AM, Benjamin Tissoires wrote:
->>>> On Jul 11 2016 or thereabouts, Jason Gerecke wrote:
->>>>> The 'oVid' and 'oPid' variables used by wacom_are_sibling are a hacky
->>>>> solution to the problem of the driver having few good heuristics to use
->>>>> to determine if two devices should be considered siblings or not. This
->>>>> commit replaces them with heuristics that leverage the information we
->>>>> have available to determine if two devices are likely siblings or not.
->>>>
->>>> I agree it's nicer to have a better heuristic for sibling matching,
->>>> but I wonder if this heuristic is reliable enough when talking about
->>>> future devices. It might be, but I know from experience that the
->>>> firmware team can be very original and find a way that screws up us all
->>>> :/
->>>>
->>>> Keeping the safety net of reducing the checks with ovid/opid might come
->>>> handy in the future.
->>>>
->>>
->>> The biggest problem with oVid/oPid is that they're kinda antithetical to
->>> the HID_GENERIC codepath. If a device is split between two PIDs then
->>> arbitration is broken for any kernel that doesn't include specific
->>> support for the device.
->>
->> Well, we currently already have different paths for HID_GENERIC and
->> other various protocols. Why is that a problem to have heuristics for
->> HID_GENERIC and ovid/opid for those we need to have special handling?
->>
->>>
->>> I agree that heuristics aren't as confidence-inspiring as explicit
->>> notation, but if they can be made to work well enough then I'd prefer
->>> using them. Either way, I suppose as userspace starts taking over
->>> arbitration duties it will become a more and more moot issue.
->>
->> Yep, but currently the patch might link 2 devices that were not bound
->> together before, so I still think ovid/opid is the best way for the non
->> generic devices. For generic devices (future I think) we can always ask
->> people to use userspace touch arbitration.
->>
->>>
->>>>>
->>>>> Written out, the new heuristics are basically:
->>>>>
->>>>>   * If a device with the same VID/PID as that being probed already exists,
->>>>>     it should be preferentially checked for siblingship.
->>>>
->>>> That's assuming you don't have 2 27QHD connected as 2 monitors (if you
->>>> really have a lot of money to spend) :)
->>>>
->>>> I think the code is OK, just not the comment above (mostly the
->>>> "preferentially" word itches me)
->>>>
->>>
->>> I'll try to come up with better / more clear wording (see my later
->>> comments on the "Try to find an already-probed interface from the same
->>> device" hunk for more detail).
->>
->> Thanks for the changes in v2/3
->>
->>>
->>>>>
->>>>>   * Two HID devices which have the same VID/PID are not siblings if they
->>>>>     are not part of the same logical hardware device.
->>>>>
->>>>>   * Two HID devices which have different VID/PIDs are not siblings if
->>>>>     they have different parent (e.g. USB hub) devices.
->>>>>
->>>>>   * Devices without the WACOM_DEVICETYPE_DIRECT flag set may only be
->>>>>     siblings of devies with the same VID/PID (Wacom often splits their
->>>>>     direct input tablets into two devices to make it easier to meet
->>>>>     Microsoft's touchscreen requirements).
->>>>
->>>> That's a strong assumption on the future. If you are forced to use the
->>>> Precision Touchpad protocol for Intuos, this will just blow up.
->>>>
->>>
->>> I originally didn't include this condition in my checks since I was
->>> similarly wary. Leaving it out does open two small corner cases though.
->>>
->>> 1) A pen-only tablet connected to the same hub as a touch-only tablet.
->>> Touch-only Wacom tablets aren't particularly common and it would
->>> be a little strange to have one paired with a pen-only tablet, but it
->>> could conceivably happen. Although pairing the devices shouldn't
->>> normally be an issue since a user isn't likely to use both
->>> simultaneously, it might cause problems for multi-seat setups.
->>
->> Yes, multi-seats is one big issue here.
->>
->>>
->>> 2) A pen-only tablet connected to the same hub as a pen-and-touch tablet
->>> which has the *touch* interface probed first. As far as I'm aware, there
->>> aren't any Wacom devices that have the USB interfaces ordered
->>> touch-then-pen, but as you point out, who knows what those tricksy
->>> firmware engineers will do in the future to ruin your day.
->>
->> And the winner is... the Cintiq 13HDT -> touch interface and then Pen :)
->>
->> Which means with the new patch, connecting a Cintiq 21UX (1 not 2) which
->> is a direct device which I assume doesn't have an internal hub, you end
->> up binding the 21UX pen with the 13HD touch, and things gets nasty for
->> the 13HD pen interface.
->>
-> 
-> Argh. Good to know.
-> 
->>>
->>> I'm open to leaving the check in or out depending on your feelings. If
->>> you've got thoughts on how to close these corner cases as well, I'm all
->>> ears :)
->>
->> I really think the ovid/opid approach solves most of the issues with the
->> current hardware. You are concerned about future hardware that will be
->> handled by HID_GENERIC. Why not just adding a special case for
->> HID_GENERIC that uses your heuristics?
->> In userspace I think we will still have the ovid/opid approach in
->> libwacom because it restricts the amount of combinations by a very good
->> factor.
->>
->> If the kernel with the new heuristics (HID_GENERIC only) fails, we will
->> be able to tell users to switch to userspace touch arbitration.
->>
->> /me turns in circle a little, but how does that sounds?
->>
->> Cheers,
->> Benjamin
->>
-> 
-> That sounds reasonable. I'll return the old oVid/oPid checks, and
-> integrate them with heuristics for HID_GENERIC devices. Patch to come
-> soon (TM).
-> 
-> Jason
-> ---
-> Now instead of four in the eights place /
-> you’ve got three, ‘Cause you added one  /
-> (That is to say, eight) to the two,     /
-> But you can’t take seven from three,    /
-> So you look at the sixty-fours....
-> 
+This is the new gamepad that ships with the Xbox One S which
+includes Bluetooth functionality.
 
-One question before I post the updated v4 patch: did you want me to
-remove the "direct-input devices may not be siblings of indirect-input
-devices" check? It opens up the holes mentioned above, but would
-properly arbitrate hypothetical future split-indirect devices.
-
-Since the new arbitration rules only apply to HID_GENERIC devices and
-userspace will eventually take over the task anyway, I'm okay with
-either option personally.
-
-Jason
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
 ---
-Now instead of four in the eights place /
-you’ve got three, ‘Cause you added one /
-(That is to say, eight) to the two, /
-But you can’t take seven from three, /
-So you look at the sixty-fours....
+ drivers/input/joystick/xpad.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 83af17a..19886db 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -134,6 +134,7 @@ static const struct xpad_device {
+ 	{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 0, XTYPE_XBOXONE },
++	{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver (XBOX)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
+-- 
+2.7.4
+

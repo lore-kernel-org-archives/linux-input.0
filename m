@@ -1,39 +1,36 @@
-From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH v4 7/7] MAINTAINERS: Add Intel ISH
-Date: Sun,  7 Aug 2016 02:25:39 -0700
-Message-ID: <1470561939-14278-8-git-send-email-srinivas.pandruvada@linux.intel.com>
-References: <1470561939-14278-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1470561939-14278-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v4 5/7] iio: hid-sensors: use asynchronous resume
+Date: Sun, 7 Aug 2016 12:15:33 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1608071214500.22028@cbobk.fhfr.pm>
+References: <1470561939-14278-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1470561939-14278-6-git-send-email-srinivas.pandruvada@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:53337 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751579AbcHGKPu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 7 Aug 2016 06:15:50 -0400
+In-Reply-To: <1470561939-14278-6-git-send-email-srinivas.pandruvada@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: jic23@kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org
 
-Add maintainer entry for Intel Integrated Sensor Hub
+On Sun, 7 Aug 2016, Srinivas Pandruvada wrote:
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+> Some platforms power off sensor hubs during S3 suspend, which will require
+> longer time to resume. This hurts system resume time, so resume
+> asynchronously.
+> 
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 20bb1d0..68cbb2b 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6077,6 +6077,13 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux.git
- S:	Supported
- F:	drivers/idle/intel_idle.c
- 
-+INTEL INTEGRATED SENSOR HUB DRIVER
-+M:	Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-+M:	Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-+L:	linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-+S:	Maintained
-+F:	drivers/hid/intel-ish-hid/
-+
- INTEL PSTATE DRIVER
- M:	Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
- M:	Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Jonathan, are you going to cherry-pick this patch from the series? 
+Alternatively, if you're okay with it, I can pull it in together with the 
+whole set with your Acked-by or Reviewed-by.
+
+Thanks,
+
 -- 
-2.7.4
+Jiri Kosina
+SUSE Labs
+

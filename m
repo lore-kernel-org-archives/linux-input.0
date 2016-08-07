@@ -1,490 +1,95 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH v4 1/7] Documentation: hid: Intel ISH HID document
-Date: Sun,  7 Aug 2016 02:25:33 -0700
-Message-ID: <1470561939-14278-2-git-send-email-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v4 5/7] iio: hid-sensors: use asynchronous resume
+Date: Sun,  7 Aug 2016 02:25:37 -0700
+Message-ID: <1470561939-14278-6-git-send-email-srinivas.pandruvada@linux.intel.com>
 References: <1470561939-14278-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:36696 "EHLO mga03.intel.com"
+Received: from mga03.intel.com ([134.134.136.65]:24529 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751569AbcHGJZr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 7 Aug 2016 05:25:47 -0400
+	id S1751654AbcHGJZv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 7 Aug 2016 05:25:51 -0400
 In-Reply-To: <1470561939-14278-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jikos@kernel.org, jic23@kernel.org
 Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, srinivas.pandruvada@linux.intel.com
 
-Document explaining ISH HID operation and implementation.
+Some platforms power off sensor hubs during S3 suspend, which will require
+longer time to resume. This hurts system resume time, so resume
+asynchronously.
 
 Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- Documentation/hid/intel-ish-hid.txt | 454 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 454 insertions(+)
- create mode 100644 Documentation/hid/intel-ish-hid.txt
+ drivers/iio/common/hid-sensors/hid-sensor-trigger.c | 21 ++++++++++++++++++++-
+ include/linux/hid-sensor-hub.h                      |  1 +
+ 2 files changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/hid/intel-ish-hid.txt b/Documentation/hid/intel-ish-hid.txt
-new file mode 100644
-index 0000000..d48b21c
---- /dev/null
-+++ b/Documentation/hid/intel-ish-hid.txt
-@@ -0,0 +1,454 @@
-+Intel Integrated Sensor Hub (ISH)
-+===============================
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+index 5b41f9d..9784ae3 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+@@ -122,6 +122,14 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
+ #endif
+ }
+ 
++static void hid_sensor_set_power_work(struct work_struct *work)
++{
++	struct hid_sensor_common *attrb = container_of(work,
++						       struct hid_sensor_common,
++						       work);
++	_hid_sensor_power_state(attrb, true);
++}
 +
-+A sensor hub enables the ability to offload sensor polling and algorithm
-+processing to a dedicated low power co-processor. This allows the core
-+processor to go into low power modes more often, resulting in the increased
-+battery life.
+ static int hid_sensor_data_rdy_trigger_set_state(struct iio_trigger *trig,
+ 						bool state)
+ {
+@@ -170,6 +178,9 @@ int hid_sensor_setup_trigger(struct iio_dev *indio_dev, const char *name,
+ 		goto error_unreg_trigger;
+ 
+ 	iio_device_set_drvdata(indio_dev, attrb);
 +
-+There are many vendors providing external sensor hubs confirming to HID
-+Sensor usage tables, and used in several tablets, 2 in 1 convertible laptops
-+and embedded products. Linux had this support since Linux 3.9.
++	INIT_WORK(&attrb->work, hid_sensor_set_power_work);
 +
-+Intel® introduced integrated sensor hubs as a part of the SoC starting from
-+Cherry Trail and now supported on multiple generations of CPU packages. There
-+are many commercial devices already shipped with Integrated Sensor Hubs (ISH).
-+These ISH also comply to HID sensor specification, but the  difference is the
-+transport protocol used for communication. The current external sensor hubs
-+mainly use HID over i2C or USB. But ISH doesn't use either i2c or USB.
-+
-+1. Overview
-+
-+Using a analogy with a usbhid implementation, the ISH follows a similar model
-+for a very high speed communication:
-+
-+	-----------------		----------------------
-+	|    USB HID	|	-->	|    ISH HID	     |
-+	-----------------		----------------------
-+	-----------------		----------------------
-+	|  USB protocol	|	-->	|    ISH Transport   |
-+	-----------------		----------------------
-+	-----------------		----------------------
-+	|  EHCI/XHCI	|	-->	|    ISH IPC	     |
-+	-----------------		----------------------
-+	      PCI				 PCI
-+	-----------------		----------------------
-+        |Host controller|	-->	|    ISH processor   |
-+	-----------------		----------------------
-+	     USB Link
-+	-----------------		----------------------
-+	| USB End points|	-->	|    ISH Clients     |
-+	-----------------		----------------------
-+
-+Like USB protocol provides a method for device enumeration, link management
-+and user data encapsulation, the ISH also provides similar services. But it is
-+very light weight tailored to manage and communicate with ISH client
-+applications implemented in the firmware.
-+
-+The ISH allows multiple sensor management applications executing in the
-+firmware. Like USB endpoints the messaging can be to/from a client. As part of
-+enumeration process, these clients are identified. These clients can be simple
-+HID sensor applications, sensor calibration application or senor firmware
-+update application.
-+
-+The implementation model is similar, like USB bus, ISH transport is also
-+implemented as a bus. Each client application executing in the ISH processor
-+is registered as a device on this bus. The driver, which binds each device
-+(ISH HID driver) identifies the device type and registers with the hid core.
-+
-+2. ISH Implementation: Block Diagram
-+
-+	 ---------------------------
-+	|  User Space Applications  |
-+	 ---------------------------
-+
-+----------------IIO ABI----------------
-+	 --------------------------
-+	|  IIO Sensor Drivers	  |
-+	 --------------------------
-+	 --------------------------
-+	|	 IIO core	  |
-+	 --------------------------
-+	 --------------------------
-+	|   HID Sensor Hub MFD	  |
-+	 --------------------------
-+	 --------------------------
-+	|       HID Core	  |
-+	 --------------------------
-+	 --------------------------
-+	|   HID over ISH Client   |
-+	 --------------------------
-+	 --------------------------
-+	|   ISH Transport (ISHTP) |
-+	 --------------------------
-+	 --------------------------
-+	|      IPC Drivers	  |
-+	 --------------------------
-+OS
-+----------------   PCI -----------------
-+Hardware + Firmware
-+	 ----------------------------
-+	| ISH Hardware/Firmware(FW) |
-+	 ----------------------------
-+
-+3. High level processing in above blocks
-+
-+3.1 Hardware Interface
-+
-+The ISH is exposed as "Non-VGA unclassified PCI device" to the host. The PCI
-+product and vendor IDs are changed from different generations of processors. So
-+the source code which enumerate drivers needs to update from generation to
-+generation.
-+
-+3.2 Inter Processor Communication (IPC) driver
-+Location: drivers/hid/intel-ish-hid/ipc
-+
-+The IPC message used memory mapped I/O. The registers are defined in
-+hw-ish-regs.h.
-+
-+3.2.1 IPC/FW message types
-+
-+There are two types of messages, one for management of link and other messages
-+are to and from transport layers.
-+
-+TX and RX of Transport messages
-+
-+A set of memory mapped register offers support of multi byte messages TX and
-+RX (E.g.IPC_REG_ISH2HOST_MSG, IPC_REG_HOST2ISH_MSG). The IPC layer maintains
-+internal queues to sequence messages and send them in order to the FW.
-+Optionally the caller can register handler to get notification of completion.
-+A door bell mechanism is used in messaging to trigger processing in host and
-+client firmware side. When ISH interrupt handler is called, the ISH2HOST
-+doorbell register is used by host drivers to determine that the interrupt
-+is for ISH.
-+
-+Each side has 32 32-bit message registers and a 32-bit doorbell. Doorbell
-+register has the following format:
-+Bits 0..6: fragment length (7 bits are used)
-+Bits 10..13: encapsulated protocol
-+Bits 16..19: management command (for IPC management protocol)
-+Bit 31: doorbell trigger (signal H/W interrupt to the other side)
-+Other bits are reserved, should be 0.
-+
-+3.2.2 Transport layer interface
-+
-+To abstract HW level IPC communication, a set of callbacks are registered.
-+The transport layer uses them to send and receive messages.
-+Refer to  struct ishtp_hw_ops for callbacks.
-+
-+3.3 ISH Transport layer
-+Location: drivers/hid/intel-ish-hid/ishtp/
-+
-+3.3.1 A Generic Transport Layer
-+
-+The transport layer is a bi-directional protocol, which defines:
-+- Set of commands to start, stop, connect, disconnect and flow control
-+(ishtp/hbm.h) for details
-+- A flow control mechanism to avoid buffer overflows
-+
-+This protocol resembles bus messages described in the following document:
-+http://www.intel.com/content/dam/www/public/us/en/documents/technical-\
-+specifications/dcmi-hi-1-0-spec.pdf "Chapter 7: Bus Message Layer"
-+
-+3.3.2 Connection and Flow Control Mechanism
-+
-+Each FW client and a protocol is identified by an UUID. In order to communicate
-+to a FW client, a connection must be established using connect request and
-+response bus messages. If successful, a pair (host_client_id and fw_client_id)
-+will identify the connection.
-+
-+Once connection is established, peers send each other flow control bus messages
-+independently. Every peer may send a message only if it has received a
-+flow-control credit before. Once it sent a message, it may not send another one
-+before receiving the next flow control credit.
-+Either side can send disconnect request bus message to end communication. Also
-+the link will be dropped if major FW reset occurs.
-+
-+3.3.3 Peer to Peer data transfer
-+
-+Peer to Peer data transfer can happen with or without using DMA. Depending on
-+the sensor bandwidth requirement DMA can be enabled by using module parameter
-+ishtp_use_dma under intel_ishtp.
-+
-+Each side (host and FW) manages its DMA transfer memory independently. When an
-+ISHTP client from either host or FW side wants to send something, it decides
-+whether to send over IPC or over DMA; for each transfer the decision is
-+independent. The sending side sends DMA_XFER message when the message is in
-+the respective host buffer (TX when host client sends, RX when FW client
-+sends). The recipient of DMA message responds with DMA_XFER_ACK, indicating
-+the sender that the memory region for that message may be reused.
-+
-+DMA initialization is started with host sending DMA_ALLOC_NOTIFY bus message
-+(that includes RX buffer) and FW responds with DMA_ALLOC_NOTIFY_ACK.
-+Additionally to DMA address communication, this sequence checks capabilities:
-+if thw host doesn't support DMA, then it won't send DMA allocation, so FW can't
-+send DMA; if FW doesn't support DMA then it won't respond with
-+DMA_ALLOC_NOTIFY_ACK, in which case host will not use DMA transfers.
-+Here ISH acts as busmaster DMA controller. Hence when host sends DMA_XFER,
-+it's request to do host->ISH DMA transfer; when FW sends DMA_XFER, it means
-+that it already did DMA and the message resides at host. Thus, DMA_XFER
-+and DMA_XFER_ACK act as ownership indicators.
-+
-+At initial state all outgoing memory belongs to the sender (TX to host, RX to
-+FW), DMA_XFER transfers ownership on the region that contains ISHTP message to
-+the receiving side, DMA_XFER_ACK returns ownership to the sender. A sender
-+needs not wait for previous DMA_XFER to be ack'ed, and may send another message
-+as long as remaining continuous memory in its ownership is enough.
-+In principle, multiple DMA_XFER and DMA_XFER_ACK messages may be sent at once
-+(up to IPC MTU), thus allowing for interrupt throttling.
-+Currently, ISH FW decides to send over DMA if ISHTP message is more than 3 IPC
-+fragments and via IPC otherwise.
-+
-+3.3.4 Ring Buffers
-+
-+When a client initiate a connection, a ring or RX and TX buffers are allocated.
-+The size of ring can be specified by the client. HID client set 16 and 32 for
-+TX and RX buffers respectively. On send request from client, the data to be
-+sent is copied to one of the send ring buffer and scheduled to be sent using
-+bus message protocol. These buffers are required because the FW may have not
-+have processed the last message and may not have enough flow control credits
-+to send. Same thing holds true on receive side and flow control is required.
-+
-+3.3.5 Host Enumeration
-+
-+The host enumeration bus command allow discovery of clients present in the FW.
-+There can be multiple sensor clients and clients for calibration function.
-+
-+To ease in implantation and allow independent driver handle each client
-+this transport layer takes advantage of Linux Bus driver model. Each
-+client is registered as device on the the transport bus (ishtp bus).
-+
-+Enumeration sequence of messages:
-+- Host sends HOST_START_REQ_CMD, indicating that host ISHTP layer is up.
-+- FW responds with HOST_START_RES_CMD
-+- Host sends HOST_ENUM_REQ_CMD (enumerate FW clients)
-+- FW responds with HOST_ENUM_RES_CMD that includes bitmap of available FW
-+client IDs
-+- For each FW ID found in that bitmap host sends
-+HOST_CLIENT_PROPERTIES_REQ_CMD
-+- FW responds with HOST_CLIENT_PROPERTIES_RES_CMD. Properties include UUID,
-+max ISHTP message size, etc.
-+- Once host received properties for that last discovered client, it considers
-+ISHTP device fully functional (and allocates DMA buffers)
-+
-+3.4 HID over ISH Client
-+Location: drivers/hid/intel-ish-hid
-+
-+The ISHTP client driver is responsible for:
-+- enumerate HID devices under FW ISH client
-+- Get Report descriptor
-+- Register with HID core as a LL driver
-+- Process Get/Set feature request
-+- Get input reports
-+
-+3.5 HID Sensor Hub MFD and IIO sensor drivers
-+
-+The functionality in these drivers is the same as an external sensor hub.
-+Refer to
-+Documentation/hid/hid-sensor.txt for HID sensor
-+Documentation/ABI/testing/sysfs-bus-iio for IIO ABIs to user space
-+
-+3.6 End to End HID transport Sequence Diagram
-+
-+HID-ISH-CLN			ISHTP			IPC				HW
-+	|			|			|				|
-+	|			|			|-----WAKE UP------------------>|
-+	|			|			|				|
-+	|			|			|-----HOST READY--------------->|
-+	|			|			|				|
-+	|			|			|<----MNG_RESET_NOTIFY_ACK----- |
-+	|			|			|				|
-+	|			|<----ISHTP_START------ |				|
-+	|			|			|				|
-+	|			|<-----------------HOST_START_RES_CMD-------------------|
-+	|			|			|				|
-+	|			|------------------QUERY_SUBSCRIBER-------------------->|
-+	|			|			|				|
-+	|			|------------------HOST_ENUM_REQ_CMD------------------->|
-+	|			|			|				|
-+	|			|<-----------------HOST_ENUM_RES_CMD--------------------|
-+	|			|			|				|
-+	|			|------------------HOST_CLIENT_PROPERTIES_REQ_CMD------>|
-+	|			|			|				|
-+	|			|<-----------------HOST_CLIENT_PROPERTIES_RES_CMD-------|
-+	|	Create new device on in ishtp bus	|				|
-+	|			|			|				|
-+	|			|------------------HOST_CLIENT_PROPERTIES_REQ_CMD------>|
-+	|			|			|				|
-+	|			|<-----------------HOST_CLIENT_PROPERTIES_RES_CMD-------|
-+	|	Create new device on in ishtp bus	|				|
-+	|			|			|				|
-+	|			|--Repeat HOST_CLIENT_PROPERTIES_REQ_CMD-till last one--|
-+	|			|			|				|
-+     probed()
-+	|----ishtp_cl_connect-->|----------------- CLIENT_CONNECT_REQ_CMD-------------->|
-+	|			|			|				|
-+	|			|<----------------CLIENT_CONNECT_RES_CMD----------------|
-+	|			|			|				|
-+	|register event callback|			|				|
-+	|			|			|				|
-+	|ishtp_cl_send(
-+	HOSTIF_DM_ENUM_DEVICES) |----------fill ishtp_msg_hdr struct write to HW-----  >|
-+	|			|			|				|
-+	|			|			|<-----IRQ(IPC_PROTOCOL_ISHTP---|
-+	|			|			|				|
-+	|<--ENUM_DEVICE RSP-----|			|				|
-+	|			|			|				|
-+for each enumerated device
-+	|ishtp_cl_send(
-+	HOSTIF_GET_HID_DESCRIPTOR |----------fill ishtp_msg_hdr struct write to HW---  >|
-+	|			|			|				|
-+	...Response
-+	|			|			|				|
-+for each enumerated device
-+	|ishtp_cl_send(
-+	HOSTIF_GET_REPORT_DESCRIPTOR |----------fill ishtp_msg_hdr struct write to HW- >|
-+	|			|			|				|
-+	|			|			|				|
-+ hid_allocate_device
-+	|			|			|				|
-+ hid_add_device			|			|				|
-+	|			|			|				|
-+
-+
-+3.7 ISH Debugging
-+
-+To debug ISH, event tracing mechanism is used. To enable debug logs
-+echo 1 > /sys/kernel/debug/tracing/events/intel_ish/enable
-+cat sys/kernel/debug/tracing/trace
-+
-+3.8 ISH IIO sysfs Example on Lenovo thinkpad Yoga 260
-+
-+root@otcpl-ThinkPad-Yoga-260:~# tree -l /sys/bus/iio/devices/
-+/sys/bus/iio/devices/
-+├── iio:device0 -> ../../../devices/0044:8086:22D8.0001/HID-SENSOR-200073.9.auto/iio:device0
-+│   ├── buffer
-+│   │   ├── enable
-+│   │   ├── length
-+│   │   └── watermark
-+...
-+│   ├── in_accel_hysteresis
-+│   ├── in_accel_offset
-+│   ├── in_accel_sampling_frequency
-+│   ├── in_accel_scale
-+│   ├── in_accel_x_raw
-+│   ├── in_accel_y_raw
-+│   ├── in_accel_z_raw
-+│   ├── name
-+│   ├── scan_elements
-+│   │   ├── in_accel_x_en
-+│   │   ├── in_accel_x_index
-+│   │   ├── in_accel_x_type
-+│   │   ├── in_accel_y_en
-+│   │   ├── in_accel_y_index
-+│   │   ├── in_accel_y_type
-+│   │   ├── in_accel_z_en
-+│   │   ├── in_accel_z_index
-+│   │   └── in_accel_z_type
-+...
-+│   │   ├── devices
-+│   │   │   │   ├── buffer
-+│   │   │   │   │   ├── enable
-+│   │   │   │   │   ├── length
-+│   │   │   │   │   └── watermark
-+│   │   │   │   ├── dev
-+│   │   │   │   ├── in_intensity_both_raw
-+│   │   │   │   ├── in_intensity_hysteresis
-+│   │   │   │   ├── in_intensity_offset
-+│   │   │   │   ├── in_intensity_sampling_frequency
-+│   │   │   │   ├── in_intensity_scale
-+│   │   │   │   ├── name
-+│   │   │   │   ├── scan_elements
-+│   │   │   │   │   ├── in_intensity_both_en
-+│   │   │   │   │   ├── in_intensity_both_index
-+│   │   │   │   │   └── in_intensity_both_type
-+│   │   │   │   ├── trigger
-+│   │   │   │   │   └── current_trigger
-+...
-+│   │   │   │   ├── buffer
-+│   │   │   │   │   ├── enable
-+│   │   │   │   │   ├── length
-+│   │   │   │   │   └── watermark
-+│   │   │   │   ├── dev
-+│   │   │   │   ├── in_magn_hysteresis
-+│   │   │   │   ├── in_magn_offset
-+│   │   │   │   ├── in_magn_sampling_frequency
-+│   │   │   │   ├── in_magn_scale
-+│   │   │   │   ├── in_magn_x_raw
-+│   │   │   │   ├── in_magn_y_raw
-+│   │   │   │   ├── in_magn_z_raw
-+│   │   │   │   ├── in_rot_from_north_magnetic_tilt_comp_raw
-+│   │   │   │   ├── in_rot_hysteresis
-+│   │   │   │   ├── in_rot_offset
-+│   │   │   │   ├── in_rot_sampling_frequency
-+│   │   │   │   ├── in_rot_scale
-+│   │   │   │   ├── name
-+...
-+│   │   │   │   ├── scan_elements
-+│   │   │   │   │   ├── in_magn_x_en
-+│   │   │   │   │   ├── in_magn_x_index
-+│   │   │   │   │   ├── in_magn_x_type
-+│   │   │   │   │   ├── in_magn_y_en
-+│   │   │   │   │   ├── in_magn_y_index
-+│   │   │   │   │   ├── in_magn_y_type
-+│   │   │   │   │   ├── in_magn_z_en
-+│   │   │   │   │   ├── in_magn_z_index
-+│   │   │   │   │   ├── in_magn_z_type
-+│   │   │   │   │   ├── in_rot_from_north_magnetic_tilt_comp_en
-+│   │   │   │   │   ├── in_rot_from_north_magnetic_tilt_comp_index
-+│   │   │   │   │   └── in_rot_from_north_magnetic_tilt_comp_type
-+│   │   │   │   ├── trigger
-+│   │   │   │   │   └── current_trigger
-+...
-+│   │   │   │   ├── buffer
-+│   │   │   │   │   ├── enable
-+│   │   │   │   │   ├── length
-+│   │   │   │   │   └── watermark
-+│   │   │   │   ├── dev
-+│   │   │   │   ├── in_anglvel_hysteresis
-+│   │   │   │   ├── in_anglvel_offset
-+│   │   │   │   ├── in_anglvel_sampling_frequency
-+│   │   │   │   ├── in_anglvel_scale
-+│   │   │   │   ├── in_anglvel_x_raw
-+│   │   │   │   ├── in_anglvel_y_raw
-+│   │   │   │   ├── in_anglvel_z_raw
-+│   │   │   │   ├── name
-+│   │   │   │   ├── scan_elements
-+│   │   │   │   │   ├── in_anglvel_x_en
-+│   │   │   │   │   ├── in_anglvel_x_index
-+│   │   │   │   │   ├── in_anglvel_x_type
-+│   │   │   │   │   ├── in_anglvel_y_en
-+│   │   │   │   │   ├── in_anglvel_y_index
-+│   │   │   │   │   ├── in_anglvel_y_type
-+│   │   │   │   │   ├── in_anglvel_z_en
-+│   │   │   │   │   ├── in_anglvel_z_index
-+│   │   │   │   │   └── in_anglvel_z_type
-+│   │   │   │   ├── trigger
-+│   │   │   │   │   └── current_trigger
-+...
-+│   │   │   │   ├── buffer
-+│   │   │   │   │   ├── enable
-+│   │   │   │   │   ├── length
-+│   │   │   │   │   └── watermark
-+│   │   │   │   ├── dev
-+│   │   │   │   ├── in_anglvel_hysteresis
-+│   │   │   │   ├── in_anglvel_offset
-+│   │   │   │   ├── in_anglvel_sampling_frequency
-+│   │   │   │   ├── in_anglvel_scale
-+│   │   │   │   ├── in_anglvel_x_raw
-+│   │   │   │   ├── in_anglvel_y_raw
-+│   │   │   │   ├── in_anglvel_z_raw
-+│   │   │   │   ├── name
-+│   │   │   │   ├── scan_elements
-+│   │   │   │   │   ├── in_anglvel_x_en
-+│   │   │   │   │   ├── in_anglvel_x_index
-+│   │   │   │   │   ├── in_anglvel_x_type
-+│   │   │   │   │   ├── in_anglvel_y_en
-+│   │   │   │   │   ├── in_anglvel_y_index
-+│   │   │   │   │   ├── in_anglvel_y_type
-+│   │   │   │   │   ├── in_anglvel_z_en
-+│   │   │   │   │   ├── in_anglvel_z_index
-+│   │   │   │   │   └── in_anglvel_z_type
-+│   │   │   │   ├── trigger
-+│   │   │   │   │   └── current_trigger
-+...
+ 	pm_suspend_ignore_children(&attrb->pdev->dev, true);
+ 	pm_runtime_enable(&attrb->pdev->dev);
+ 	/* Default to 3 seconds, but can be changed from sysfs */
+@@ -202,7 +213,15 @@ static int hid_sensor_resume(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+ 	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
++	schedule_work(&attrb->work);
++	return 0;
++}
+ 
++static int hid_sensor_runtime_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
++	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
+ 	return _hid_sensor_power_state(attrb, true);
+ }
+ 
+@@ -211,7 +230,7 @@ static int hid_sensor_resume(struct device *dev)
+ const struct dev_pm_ops hid_sensor_pm_ops = {
+ 	SET_SYSTEM_SLEEP_PM_OPS(hid_sensor_suspend, hid_sensor_resume)
+ 	SET_RUNTIME_PM_OPS(hid_sensor_suspend,
+-			   hid_sensor_resume, NULL)
++			   hid_sensor_runtime_resume, NULL)
+ };
+ EXPORT_SYMBOL(hid_sensor_pm_ops);
+ 
+diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+index c02b5ce..dd85f35 100644
+--- a/include/linux/hid-sensor-hub.h
++++ b/include/linux/hid-sensor-hub.h
+@@ -236,6 +236,7 @@ struct hid_sensor_common {
+ 	struct hid_sensor_hub_attribute_info report_state;
+ 	struct hid_sensor_hub_attribute_info power_state;
+ 	struct hid_sensor_hub_attribute_info sensitivity;
++	struct work_struct work;
+ };
+ 
+ /* Convert from hid unit expo to regular exponent */
 -- 
 2.7.4
 

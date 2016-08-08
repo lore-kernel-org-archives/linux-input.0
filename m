@@ -1,77 +1,193 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 0/2] mfd: cros_ec_keyb: MKBP event support
-Date: Mon, 8 Aug 2016 12:30:18 +0100
-Message-ID: <20160808113018.GK5243@dell>
-References: <1467364076-20172-1-git-send-email-enric.balletbo@collabora.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: Debuging embedded touchpad driver
+Date: Mon, 8 Aug 2016 14:57:33 +0200
+Message-ID: <20160808125733.GC17850@mail.corp.redhat.com>
+References: <CAKvQZ_1ALPVT_-RqBw8u2Z2vHDimLjDT5nqVRVwPMzm7hLoQiQ@mail.gmail.com>
+ <20160803075404.GB38160@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:37497 "EHLO
-	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751670AbcHHL2w (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Aug 2016 07:28:52 -0400
-Received: by mail-wm0-f52.google.com with SMTP id i5so132303050wmg.0
-        for <linux-input@vger.kernel.org>; Mon, 08 Aug 2016 04:28:52 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:45840 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752348AbcHHM5i (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 8 Aug 2016 08:57:38 -0400
 Content-Disposition: inline
-In-Reply-To: <1467364076-20172-1-git-send-email-enric.balletbo@collabora.com>
+In-Reply-To: <20160803075404.GB38160@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Vic Yang <victoryang@google.com>, Olof Johansson <olof@lixom.net>, Gwendal Grignou <gwendal@chromium.org>, Brian Norris <briannorris@chromium.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Willy Lambert <lambert.willy@gmail.com>, linux-input@vger.kernel.org
 
-On Fri, 01 Jul 2016, Enric Balletbo i Serra wrote:
-> Hi,
+On Aug 03 2016 or thereabouts, Dmitry Torokhov wrote:
+> On Sun, Jul 31, 2016 at 09:48:32PM +0200, Willy Lambert wrote:
+> > Hi guys,
+> > 
+> > I am trying to debug an eGalax touchpad in my embedded system. What's
+> > strange is that the "evtest" method doesn't react when I'm touching
+> > (see below). I'm not sure the touchpas is alive, so I can't tell if
+> > it's HW or SW.
+> > 
+> > Could anyone with experience on this kind of debug help me with a test
+> > procedure ? I don't know what to look to identify my problem.
+> > 
+> > root@(ubiquity)():~# evtest /dev/input/event4
+> > Input driver version is 1.0.1
+> > Input device ID: bus 0x3 vendor 0xeef product 0x1 version 0x210
+> > Input device name: "eGalax Inc. USB TouchController"
+> > Supported events:
+> >   Event type 0 (Sync)
+> >   Event type 1 (Key)
+> >     Event code 330 (Touch)
+> >   Event type 3 (Absolute)
+> >     Event code 0 (X)
+> >       Value      0
+> >       Min        0
+> >       Max     4095
+> >     Event code 1 (Y)
+> >       Value      0
+> >       Min        0
+> >       Max     4095
+> >     Event code 47 (?)
+> >       Value      0
+> >       Min        0
+> >       Max        7
+> >     Event code 53 (?)
+> >       Value      0
+> >       Min        0
+> >       Max     4095
+> >     Event code 54 (?)
+> >       Value      0
+> >       Min        0
+> >       Max     4095
+> >     Event code 57 (?)
+> >       Value      0
+> >       Min        0
+> >       Max    65535
+> > Testing ... (interrupt to exit)
+> > 
+> > 
+> > More details on my setup below :
+> > 
+> > 
+> > 
+> > The kernel should have recognized the device :
+> > [    1.635292] hub 3-0:1.0: port 2, status 0101, change 0001, 12 Mb/s
+> > [    1.641396] usbtouchscreen 2-2:1.0: usb_probe_interface
+> > [    1.641408] usbtouchscreen 2-2:1.0: usb_probe_interface - got id
+> > [    1.641799] usbcore: registered new interface driver usbtouchscreen
+> > [    1.645880] usbhid 2-2:1.0: usb_probe_interface
+> > [    1.645891] usbhid 2-2:1.0: usb_probe_interface - got id
+> > [    1.650539] usbcore: registered new interface driver usbhid
+> > [    1.650545] usbhid: USB HID core driver
+> > [    1.659604] input: eGalax Inc. USB TouchController Pen as
+> > /devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0/input/input3
+> > [    1.660740] input: eGalax Inc. USB TouchController as
+> > /devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0/input/input4
+> > [    1.661541] usbhid 2-2:1.0: looking for a minor, starting at 96
+> > [    1.662614] hid-multitouch 0003:0EEF:0001.0001:
+> > input,hiddev0,hidraw0: USB HID v2.10 Pointer [eGalax Inc. USB
+> > TouchController] on usb-0000:00:1d.0-2/input0
+> > 
+> > 
+> > The "usbtouchpad" driver is loaded :
 > 
-> The cros-ec MKBP event support will be used on different EC drivers like EC
-> keyboard, EC USB PD and EC sensors drivers. The first attempt to merge these two
-> patches was within the EC USB PD series [1] sent by Tomeu Vizoso, but these
-> series are blocked possibly until we figure out how this maps into the proposed
-> type-c infraestructure.
-> 
-> As these patches ([2] and [3]) were a dependency for other possible patch
-> series and have sense send it alone, makes no sense wait for the upstreaming of
-> the full EC USB PD series, so I created a new patch series with only these two
-> patches and rid of the USB PD stuff.
-> 
-> Note that the following patch series apply cleanly on top of mainline plus the
-> patches to add support for ChromeOS EC PWM by Brian Norris [4] to avoid
-> conflicts and because I think are close to be accepted.
-> 
-> Also note that the two patches need to be taken together, massively reducing the
-> chances of a fail.  The chances that a) a bisect will fall exactly between the
-> 2 patches and then b) the drivers try to handle the same interrupt at the same
-> time are significantly small enough for us to take that risk.
-> 
-> The patches were tested by myself on a Veyron Jerry checking that after some
-> suspend/resumes cycles the keyboard is working.
-> 
-> Changes:
->  * Add the SoB Vic Yang
->  * Rebased on top of mainline + cros_ec pwm patches, resolved the conflicts.
-> 
-> [1] https://lwn.net/Articles/679228/
-> [2] https://patchwork.kernel.org/patch/8809921/
-> [3] https://patchwork.kernel.org/patch/8809931/
-> [4] https://lwn.net/Articles/691861/
-> 
-> Vic Yang (2):
->   mfd: cros_ec: Add MKBP event support
->   Input: cros_ec_keyb - Stop handling interrupts directly
-> 
->  drivers/input/keyboard/cros_ec_keyb.c   | 135 ++++++++------------------------
->  drivers/mfd/cros_ec.c                   |  58 +++++++++++++-
->  drivers/platform/chrome/cros_ec_proto.c |  92 ++++++++++++++++++++++
->  include/linux/mfd/cros_ec.h             |  18 +++++
->  include/linux/mfd/cros_ec_commands.h    |  34 ++++++++
->  5 files changed, 230 insertions(+), 107 deletions(-)
+> As shown by the dmesg fragment above the touchscreen is not driven by
+> usbtouchscreen but rather hid-multitouch driver. Benjamin might have an
+> idea...
 
-Set does not apply on v4.8-rc1.
+The eGalax 0001 is known to be a problem. Some devices are multitouch
+and are handled properly by hid-multitouch, and some are not and should
+be driven by something else. The issue is that there is no clear pattern
+whether we should use one driver or the other.
 
-Please rebase and resend with all the collected Acks applied.
+Try adding the VID/PID in hid_ignore_list[] in drivers/hid/hid-core.c, and
+see if usbtouchscreen works better for you.
 
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Cheers,
+Benjamin
+
+> 
+> > 
+> > root@(ubiquity)():~# lsmod
+> > Module                  Size  Used by
+> > sja1000_isa             2821  0
+> > sja1000                 5206  1 sja1000_isa
+> > can_dev                 6395  1 sja1000
+> > ard_usb                 6911  0
+> > hid_multitouch          8637  0
+> > usbhid                 32470  0
+> > usbtouchscreen         11076  0
+> > i915                  511371  1
+> > drm_kms_helper         23402  1 i915
+> > drm                   185361  2 i915,drm_kms_helper
+> > cfbcopyarea             2714  1 i915
+> > i2c_algo_bit            4336  1 i915
+> > video                   9818  1 i915
+> > cfbimgblt               1947  1 i915
+> > cfbfillrect             3142  1 i915
+> > 
+> > 
+> > The device is listed (it's still a mystery why the touchpad appears 2
+> > times as a pen and as a device) :
+> > 
+> > 
+> > 
+> > ---------------------------------------------------------------------------------------
+> > root@(ubiquity)():~# cat /proc/bus/input/devices
+> > I: Bus=0019 Vendor=0000 Product=0001 Version=0000
+> > N: Name="Power Button"
+> > P: Phys=PNP0C0C/button/input0
+> > S: Sysfs=/devices/LNXSYSTM:00/device:00/PNP0C0C:00/input/input0
+> > U: Uniq=
+> > H: Handlers=kbd event0
+> > B: PROP=0
+> > B: EV=3
+> > B: KEY=100000 0 0 0
+> > 
+> > I: Bus=0019 Vendor=0000 Product=0001 Version=0000
+> > N: Name="Power Button"
+> > P: Phys=LNXPWRBN/button/input0
+> > S: Sysfs=/devices/LNXSYSTM:00/LNXPWRBN:00/input/input1
+> > U: Uniq=
+> > H: Handlers=kbd event1
+> > B: PROP=0
+> > B: EV=3
+> > B: KEY=100000 0 0 0
+> > 
+> > I: Bus=0010 Vendor=001f Product=0001 Version=0100
+> > N: Name="PC Speaker"
+> > P: Phys=isa0061/input0
+> > S: Sysfs=/devices/platform/pcspkr/input/input2
+> > U: Uniq=
+> > H: Handlers=kbd event2
+> > B: PROP=0
+> > B: EV=40001
+> > B: SND=6
+> > 
+> > I: Bus=0003 Vendor=0eef Product=0001 Version=0210
+> > N: Name="eGalax Inc. USB TouchController Pen"
+> > P: Phys=usb-0000:00:1d.0-2/input0
+> > S: Sysfs=/devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0/input/input3
+> > U: Uniq=
+> > H: Handlers=mouse0 event3
+> > B: PROP=0
+> > B: EV=1b
+> > B: KEY=c01 0 0 0 0 0 0 0 0 0 0
+> > B: ABS=3
+> > B: MSC=10
+> > 
+> > I: Bus=0003 Vendor=0eef Product=0001 Version=0210
+> > N: Name="eGalax Inc. USB TouchController"
+> > P: Phys=usb-0000:00:1d.0-2/input0
+> > S: Sysfs=/devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0/input/input4
+> > U: Uniq=
+> > H: Handlers=mouse1 event4
+> > B: PROP=2
+> > B: EV=b
+> > B: KEY=400 0 0 0 0 0 0 0 0 0 0
+> > B: ABS=2608000 3
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry

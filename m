@@ -1,78 +1,77 @@
-From: Philippe PITTOLI <karchnu@karchnu.fr>
-Subject: [PATCH] joystick: xpad.c, new xbox controller ID (Hori Real Arcade
- Pro.V)
-Date: Sun, 7 Aug 2016 23:58:00 +0200
-Message-ID: <20160807215800.GA27360@the.localdomain>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 0/2] mfd: cros_ec_keyb: MKBP event support
+Date: Mon, 8 Aug 2016 12:30:18 +0100
+Message-ID: <20160808113018.GK5243@dell>
+References: <1467364076-20172-1-git-send-email-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from the.karchnu.fr ([89.234.141.3]:60511 "EHLO the.karchnu.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751485AbcHGWEC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 7 Aug 2016 18:04:02 -0400
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:37497 "EHLO
+	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751670AbcHHL2w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Aug 2016 07:28:52 -0400
+Received: by mail-wm0-f52.google.com with SMTP id i5so132303050wmg.0
+        for <linux-input@vger.kernel.org>; Mon, 08 Aug 2016 04:28:52 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <1467364076-20172-1-git-send-email-enric.balletbo@collabora.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Vic Yang <victoryang@google.com>, Olof Johansson <olof@lixom.net>, Gwendal Grignou <gwendal@chromium.org>, Brian Norris <briannorris@chromium.org>
 
+On Fri, 01 Jul 2016, Enric Balletbo i Serra wrote:
+> Hi,
+> 
+> The cros-ec MKBP event support will be used on different EC drivers like EC
+> keyboard, EC USB PD and EC sensors drivers. The first attempt to merge these two
+> patches was within the EC USB PD series [1] sent by Tomeu Vizoso, but these
+> series are blocked possibly until we figure out how this maps into the proposed
+> type-c infraestructure.
+> 
+> As these patches ([2] and [3]) were a dependency for other possible patch
+> series and have sense send it alone, makes no sense wait for the upstreaming of
+> the full EC USB PD series, so I created a new patch series with only these two
+> patches and rid of the USB PD stuff.
+> 
+> Note that the following patch series apply cleanly on top of mainline plus the
+> patches to add support for ChromeOS EC PWM by Brian Norris [4] to avoid
+> conflicts and because I think are close to be accepted.
+> 
+> Also note that the two patches need to be taken together, massively reducing the
+> chances of a fail.  The chances that a) a bisect will fall exactly between the
+> 2 patches and then b) the drivers try to handle the same interrupt at the same
+> time are significantly small enough for us to take that risk.
+> 
+> The patches were tested by myself on a Veyron Jerry checking that after some
+> suspend/resumes cycles the keyboard is working.
+> 
+> Changes:
+>  * Add the SoB Vic Yang
+>  * Rebased on top of mainline + cros_ec pwm patches, resolved the conflicts.
+> 
+> [1] https://lwn.net/Articles/679228/
+> [2] https://patchwork.kernel.org/patch/8809921/
+> [3] https://patchwork.kernel.org/patch/8809931/
+> [4] https://lwn.net/Articles/691861/
+> 
+> Vic Yang (2):
+>   mfd: cros_ec: Add MKBP event support
+>   Input: cros_ec_keyb - Stop handling interrupts directly
+> 
+>  drivers/input/keyboard/cros_ec_keyb.c   | 135 ++++++++------------------------
+>  drivers/mfd/cros_ec.c                   |  58 +++++++++++++-
+>  drivers/platform/chrome/cros_ec_proto.c |  92 ++++++++++++++++++++++
+>  include/linux/mfd/cros_ec.h             |  18 +++++
+>  include/linux/mfd/cros_ec_commands.h    |  34 ++++++++
+>  5 files changed, 230 insertions(+), 107 deletions(-)
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Set does not apply on v4.8-rc1.
 
-Hello,
+Please rebase and resend with all the collected Acks applied.
 
-I added a controller ID to the xbox driver for the Real Aracade Pro V
-controller from Hori.
-
-It's my first patch, and I followed the guidances from the
-kernelnewbies.org website, I hope it'll be ok.
-
-Thanks,
-
----
- drivers/input/joystick/xpad.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 83af17a..ec5a670 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -190,6 +190,7 @@ static const struct xpad_device {
- 	{ 0x0f0d, 0x000a, "Hori Co. DOA4 FightStick", 0, XTYPE_XBOX360 },
- 	{ 0x0f0d, 0x000d, "Hori Fighting Stick EX2", MAP_TRIGGERS_TO_BUTTONS, XTY=
-PE_XBOX360 },
- 	{ 0x0f0d, 0x0016, "Hori Real Arcade Pro.EX", MAP_TRIGGERS_TO_BUTTONS, XTY=
-PE_XBOX360 },
-+	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro.V", 0, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
- 	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
- 	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
---=20
-2.5.0
-
---lrZ03NoBR/3+SXJZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXp67oAAoJEKhcQk7EXZxN0nwP/0VdOyd2miZnOln5iNdG7vBo
-Gabx+gQMSJCejK/oO1AZAfxOABKCwtc2Qegp9YtBSaH1f/ZuthCpzXNFFcZ1p8RD
-loZm2SblrYTzEDVg+jULW4571bOfhbKscCM2NxvlZ4V8TPNcTx2UtcHUQXKwKQD3
-3OmgcoeZoODs3mjdOhN2rInC9rjGRt0eyaTJqt7oNRdu+gZTfVczaYa581Xku88y
-yHcNU0ArOZpSpFuUUeYCbW+rp4zJH2mWm1pVi9K0PXfNmj3pNikX/aCwPtQRNcD0
-EJvRSb6lA5jPDN2Fo+RQmagb5LYRTaoyqXbdRg45+IZQrgqpKfU72JM1RoQroBFs
-3dpNmVS10kZmIgFlJMWHhqsKPMn3ELnWgAw3asxHXrEHEEIy3DxUxBKHoyEadkU0
-DnmbCo9atoYdiO44n6adCthLqZKF3fDhqbQ8cXVXuWqvKcmDRQUj7SNaWa5GLRys
-J6oIlgV5gcJZO33ECBlqkcncNfqklbuSO9GGz788b3/Ibgx/LehROxM/bIxwS76I
-0vvtUKqJFY69u5LbX2zd252oz1aWEFpI8ypiPylagEQhPI9vVchss7XOPs30tYfa
-ixLYMg2Puh+33GOj0IIXRmyyTQGQR7yhFUGKkWmy7M3jdLtk1Y4e/xNKyoGdv15B
-Hy8cINKqtxPFf3vONIqg
-=eaYy
------END PGP SIGNATURE-----
-
---lrZ03NoBR/3+SXJZ--
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

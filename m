@@ -1,61 +1,36 @@
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v2 0/2] mfd: cros_ec_keyb: MKBP event support
-Date: Wed, 10 Aug 2016 19:05:23 +0200
-Message-ID: <1470848725-32405-1-git-send-email-enric.balletbo@collabora.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Vic Yang <victoryang@google.com>, Lee Jones <lee.jones@linaro.org>, Olof Johansson <olof@lixom.net>, Gwendal Grignou <gwendal@chromium.org>, Brian Norris <briannorris@chromium.org>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v4 1/2] HID: wacom: Add WACOM_DEVICETYPE_DIRECT for
+ Cintiqs and similar
+Date: Wed, 10 Aug 2016 11:45:48 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1608101145340.22028@cbobk.fhfr.pm>
+References: <20160711180711.17537-1-killertofu@gmail.com> <20160808190630.7641-1-killertofu@gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:40950 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932926AbcHJSdo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Aug 2016 14:33:44 -0400
+In-Reply-To: <20160808190630.7641-1-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-Hi,
+On Mon, 8 Aug 2016, Jason Gerecke wrote:
 
-The cros-ec MKBP event support will be used on different EC drivers like EC
-keyboard, EC USB PD and EC sensors drivers. The first attempt to merge these two
-patches was within the EC USB PD series [1] sent by Tomeu Vizoso, but these
-series are blocked possibly until we figure out how this maps into the proposed
-type-c infraestructure.
+> "Direct" input devices like Cintiqs and Tablet PCs set the INPUT_PROP_DIRECT
+> property to notify userspace that the sensor and screen are overlaid. This
+> information can also be useful elsewhere within the kernel driver, however,
+> so we introduce a new WACOM_DEVICETYPE_DIRECT that signals this to other
+> kernel code.
+> 
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-As these patches ([2] and [3]) were a dependency for other possible patch
-series and have sense send it alone, makes no sense wait for the upstreaming of
-the full EC USB PD series, so I created a new patch series with only these two
-patches and rid of the USB PD stuff.
-
-Note that the following patch series apply cleanly on top of mainline plus the
-patches to add support for ChromeOS EC PWM by Brian Norris [4] to avoid
-conflicts and because I think are close to be accepted.
-
-Also note that the two patches need to be taken together, massively reducing the
-chances of a fail.  The chances that a) a bisect will fall exactly between the
-2 patches and then b) the drivers try to handle the same interrupt at the same
-time are significantly small enough for us to take that risk.
-
-The patches were tested by myself on a Veyron Jerry checking that after some
-suspend/resumes cycles the keyboard is working.
-
-Changes since v1:
- * Rebased on top of 4.8-rc1
- * Add collected acks.
-
-Changes:
- * Add the SoB Vic Yang
- * Rebased on top of mainline + cros_ec pwm patches, resolved the conflicts.
-
-[1] https://lwn.net/Articles/679228/
-[2] https://patchwork.kernel.org/patch/8809921/
-[3] https://patchwork.kernel.org/patch/8809931/
-[4] https://lwn.net/Articles/691861/
-
-Vic Yang (2):
-  mfd: cros_ec: Add MKBP event support
-  Input: cros_ec_keyb - Stop handling interrupts directly
-
- drivers/input/keyboard/cros_ec_keyb.c   | 135 ++++++++------------------------
- drivers/mfd/cros_ec.c                   |  58 +++++++++++++-
- drivers/platform/chrome/cros_ec_proto.c |  92 ++++++++++++++++++++++
- include/linux/mfd/cros_ec.h             |  18 +++++
- include/linux/mfd/cros_ec_commands.h    |  34 ++++++++
- 5 files changed, 230 insertions(+), 107 deletions(-)
+Both patches applied to for-4.9/wacom. Thanks,
 
 -- 
-2.1.0
+Jiri Kosina
+SUSE Labs
+

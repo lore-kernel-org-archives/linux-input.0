@@ -1,84 +1,379 @@
-From: Keerthy <j-keerthy@ti.com>
-Subject: [PATCH v7 0/5] mfd: tps65218: Clean ups
-Date: Wed, 10 Aug 2016 18:24:01 +0530
-Message-ID: <1470833641-29546-1-git-send-email-j-keerthy@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: broonie@kernel.org, lee.jones@linaro.org, tony@atomide.com
-Cc: gnurou@gmail.com, d-gerlach@ti.com, devicetree@vger.kernel.org, j-keerthy@ti.com, linus.walleij@linaro.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, t-kristo@ti.com, linux-gpio@vger.kernel.org, robh+dt@kernel.org, russ.dill@ti.com, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH v2 1/2] mfd: cros_ec: Add MKBP event support
+Date: Wed, 10 Aug 2016 19:05:24 +0200
+Message-ID: <1470848725-32405-2-git-send-email-enric.balletbo@collabora.com>
+References: <1470848725-32405-1-git-send-email-enric.balletbo@collabora.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1470848725-32405-1-git-send-email-enric.balletbo@collabora.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Vic Yang <victoryang@google.com>, Lee Jones <lee.jones@linaro.org>, Olof Johansson <olof@lixom.net>, Gwendal Grignou <gwendal@chromium.org>, Brian Norris <briannorris@chromium.org>, Randall Spangler <rspangler@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Benson Leung <bleung@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-The series cleans up mainly the regulator driver and implements
-the device tree parsing using the regulator framework. Removes
-all the redundant compatibles for the individual regulators.
-Adds platform_device_id table for the gpio and power button modules.
+From: Vic Yang <victoryang@google.com>
 
-One of the patch removes redundant read wrapper and makes
-use of regmap_read wherever necessary.
+Newer revisions of the ChromeOS EC add more events besides the keyboard
+ones. So handle interrupts in the MFD driver and let consumers register
+for notifications for the events they might care.
 
-The series is checked for all the regulator registrations on
-am437x-gp-evm.
+To keep backward compatibility, if the EC doesn't support MKBP event, we
+fall back to the old MKBP key matrix host command.
 
-Boot log: http://pastebin.ubuntu.com/22905402/
+Cc: Randall Spangler <rspangler@chromium.org>
+Cc: Vincent Palatin <vpalatin@chromium.org>
+Cc: Benson Leung <bleung@chromium.org>
+Signed-off-by: Vic Yang <victoryang@google.com>
+Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Tested-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Olof Johansson <olof@lixom.net>
+---
+ drivers/mfd/cros_ec.c                   | 58 +++++++++++++++++++--
+ drivers/platform/chrome/cros_ec_proto.c | 92 +++++++++++++++++++++++++++++++++
+ include/linux/mfd/cros_ec.h             | 18 +++++++
+ include/linux/mfd/cros_ec_commands.h    | 34 ++++++++++++
+ 4 files changed, 199 insertions(+), 3 deletions(-)
 
-The series is based on linux-next on top of series titled:
-[PATCH v3 0/2] regulator: Enable suspend configuration
-
-Do not have the link of the above series available at the moment.
-
-Changes in v7:
-
-Rebasing to latest next branch. GPIO patch of this series
-pushed to linux-next by Linus. Hence posting the remaining
-patches with respective Acks from the domain Maintainers.
-
-Changes in v6:
-
-Rebased regulator/mfd clean up patches against linux-next +
-https://lkml.org/lkml/2016/6/24/122 series.
-
-Changes in v5:
-
-Rebased regulator clean up patch against linux-next.
-
-Changes in v4:
-
-For gpio-tps65218 reatined the compatible table.
-Fixed missing ';' in the power button patch.
-Fixed comments on the Documentation patch.
-Split the Device Tree patches to a separate series.
-
-Changes in v3:
-
-Missed making corresponding changes in the power button and gpio
-drivers. Added couple of patches to fix them to use mfd_cell way
-of parsing.
-
-Keerthy (5):
-  mfd: tps65218: Remove redundant read wrapper
-  Documentation: regulator: tps65218: Update examples
-  input: tps65218-pwrbutton: Add platform_device_id table
-  mfd: tps65218: Use mfd_add_devices instead of of_platform_populate
-  regulator: tps65218: Remove all the compatibles
-
- .../devicetree/bindings/regulator/tps65218.txt     |  87 +++++++++---
- drivers/gpio/gpio-tps65218.c                       |   3 +-
- drivers/input/misc/tps65218-pwrbutton.c            |  10 +-
- drivers/mfd/tps65218.c                             |  34 ++---
- drivers/regulator/tps65218-regulator.c             | 153 ++++++++-------------
- include/linux/mfd/tps65218.h                       |   3 +-
- 6 files changed, 158 insertions(+), 132 deletions(-)
-
+diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+index 0eee635..abd8342 100644
+--- a/drivers/mfd/cros_ec.c
++++ b/drivers/mfd/cros_ec.c
+@@ -23,6 +23,7 @@
+ #include <linux/module.h>
+ #include <linux/mfd/core.h>
+ #include <linux/mfd/cros_ec.h>
++#include <asm/unaligned.h>
+ 
+ #define CROS_EC_DEV_EC_INDEX 0
+ #define CROS_EC_DEV_PD_INDEX 1
+@@ -49,11 +50,28 @@ static const struct mfd_cell ec_pd_cell = {
+ 	.pdata_size = sizeof(pd_p),
+ };
+ 
++static irqreturn_t ec_irq_thread(int irq, void *data)
++{
++	struct cros_ec_device *ec_dev = data;
++	int ret;
++
++	if (device_may_wakeup(ec_dev->dev))
++		pm_wakeup_event(ec_dev->dev, 0);
++
++	ret = cros_ec_get_next_event(ec_dev);
++	if (ret > 0)
++		blocking_notifier_call_chain(&ec_dev->event_notifier,
++					     0, ec_dev);
++	return IRQ_HANDLED;
++}
++
+ int cros_ec_register(struct cros_ec_device *ec_dev)
+ {
+ 	struct device *dev = ec_dev->dev;
+ 	int err = 0;
+ 
++	BLOCKING_INIT_NOTIFIER_HEAD(&ec_dev->event_notifier);
++
+ 	ec_dev->max_request = sizeof(struct ec_params_hello);
+ 	ec_dev->max_response = sizeof(struct ec_response_get_protocol_info);
+ 	ec_dev->max_passthru = 0;
+@@ -70,13 +88,24 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 
+ 	cros_ec_query_all(ec_dev);
+ 
++	if (ec_dev->irq) {
++		err = request_threaded_irq(ec_dev->irq, NULL, ec_irq_thread,
++					   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++					   "chromeos-ec", ec_dev);
++		if (err) {
++			dev_err(dev, "Failed to request IRQ %d: %d",
++				ec_dev->irq, err);
++			return err;
++		}
++	}
++
+ 	err = mfd_add_devices(ec_dev->dev, PLATFORM_DEVID_AUTO, &ec_cell, 1,
+ 			      NULL, ec_dev->irq, NULL);
+ 	if (err) {
+ 		dev_err(dev,
+ 			"Failed to register Embedded Controller subdevice %d\n",
+ 			err);
+-		return err;
++		goto fail_mfd;
+ 	}
+ 
+ 	if (ec_dev->max_passthru) {
+@@ -94,7 +123,7 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 			dev_err(dev,
+ 				"Failed to register Power Delivery subdevice %d\n",
+ 				err);
+-			return err;
++			goto fail_mfd;
+ 		}
+ 	}
+ 
+@@ -103,13 +132,18 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 		if (err) {
+ 			mfd_remove_devices(dev);
+ 			dev_err(dev, "Failed to register sub-devices\n");
+-			return err;
++			goto fail_mfd;
+ 		}
+ 	}
+ 
+ 	dev_info(dev, "Chrome EC device registered\n");
+ 
+ 	return 0;
++
++fail_mfd:
++	if (ec_dev->irq)
++		free_irq(ec_dev->irq, ec_dev);
++	return err;
+ }
+ EXPORT_SYMBOL(cros_ec_register);
+ 
+@@ -136,13 +170,31 @@ int cros_ec_suspend(struct cros_ec_device *ec_dev)
+ }
+ EXPORT_SYMBOL(cros_ec_suspend);
+ 
++static void cros_ec_drain_events(struct cros_ec_device *ec_dev)
++{
++	while (cros_ec_get_next_event(ec_dev) > 0)
++		blocking_notifier_call_chain(&ec_dev->event_notifier,
++					     1, ec_dev);
++}
++
+ int cros_ec_resume(struct cros_ec_device *ec_dev)
+ {
+ 	enable_irq(ec_dev->irq);
+ 
++	/*
++	 * In some cases, we need to distinguish between events that occur
++	 * during suspend if the EC is not a wake source. For example,
++	 * keypresses during suspend should be discarded if it does not wake
++	 * the system.
++	 *
++	 * If the EC is not a wake source, drain the event queue and mark them
++	 * as "queued during suspend".
++	 */
+ 	if (ec_dev->wake_enabled) {
+ 		disable_irq_wake(ec_dev->irq);
+ 		ec_dev->wake_enabled = 0;
++	} else {
++		cros_ec_drain_events(ec_dev);
+ 	}
+ 
+ 	return 0;
+diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform/chrome/cros_ec_proto.c
+index 6c084b2..04053fe 100644
+--- a/drivers/platform/chrome/cros_ec_proto.c
++++ b/drivers/platform/chrome/cros_ec_proto.c
+@@ -19,6 +19,7 @@
+ #include <linux/device.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
++#include <asm/unaligned.h>
+ 
+ #define EC_COMMAND_RETRIES	50
+ 
+@@ -234,11 +235,44 @@ static int cros_ec_host_command_proto_query_v2(struct cros_ec_device *ec_dev)
+ 	return ret;
+ }
+ 
++static int cros_ec_get_host_command_version_mask(struct cros_ec_device *ec_dev,
++	u16 cmd, u32 *mask)
++{
++	struct ec_params_get_cmd_versions *pver;
++	struct ec_response_get_cmd_versions *rver;
++	struct cros_ec_command *msg;
++	int ret;
++
++	msg = kmalloc(sizeof(*msg) + max(sizeof(*rver), sizeof(*pver)),
++		      GFP_KERNEL);
++	if (!msg)
++		return -ENOMEM;
++
++	msg->version = 0;
++	msg->command = EC_CMD_GET_CMD_VERSIONS;
++	msg->insize = sizeof(*rver);
++	msg->outsize = sizeof(*pver);
++
++	pver = (struct ec_params_get_cmd_versions *)msg->data;
++	pver->cmd = cmd;
++
++	ret = cros_ec_cmd_xfer(ec_dev, msg);
++	if (ret > 0) {
++		rver = (struct ec_response_get_cmd_versions *)msg->data;
++		*mask = rver->version_mask;
++	}
++
++	kfree(msg);
++
++	return ret;
++}
++
+ int cros_ec_query_all(struct cros_ec_device *ec_dev)
+ {
+ 	struct device *dev = ec_dev->dev;
+ 	struct cros_ec_command *proto_msg;
+ 	struct ec_response_get_protocol_info *proto_info;
++	u32 ver_mask = 0;
+ 	int ret;
+ 
+ 	proto_msg = kzalloc(sizeof(*proto_msg) + sizeof(*proto_info),
+@@ -328,6 +362,15 @@ int cros_ec_query_all(struct cros_ec_device *ec_dev)
+ 		goto exit;
+ 	}
+ 
++	/* Probe if MKBP event is supported */
++	ret = cros_ec_get_host_command_version_mask(ec_dev,
++						    EC_CMD_GET_NEXT_EVENT,
++						    &ver_mask);
++	if (ret < 0 || ver_mask == 0)
++		ec_dev->mkbp_event_supported = 0;
++	else
++		ec_dev->mkbp_event_supported = 1;
++
+ exit:
+ 	kfree(proto_msg);
+ 	return ret;
+@@ -397,3 +440,52 @@ int cros_ec_cmd_xfer_status(struct cros_ec_device *ec_dev,
+ 	return ret;
+ }
+ EXPORT_SYMBOL(cros_ec_cmd_xfer_status);
++
++static int get_next_event(struct cros_ec_device *ec_dev)
++{
++	u8 buffer[sizeof(struct cros_ec_command) + sizeof(ec_dev->event_data)];
++	struct cros_ec_command *msg = (struct cros_ec_command *)&buffer;
++	int ret;
++
++	msg->version = 0;
++	msg->command = EC_CMD_GET_NEXT_EVENT;
++	msg->insize = sizeof(ec_dev->event_data);
++	msg->outsize = 0;
++
++	ret = cros_ec_cmd_xfer(ec_dev, msg);
++	if (ret > 0) {
++		ec_dev->event_size = ret - 1;
++		memcpy(&ec_dev->event_data, msg->data,
++		       sizeof(ec_dev->event_data));
++	}
++
++	return ret;
++}
++
++static int get_keyboard_state_event(struct cros_ec_device *ec_dev)
++{
++	u8 buffer[sizeof(struct cros_ec_command) +
++		  sizeof(ec_dev->event_data.data)];
++	struct cros_ec_command *msg = (struct cros_ec_command *)&buffer;
++
++	msg->version = 0;
++	msg->command = EC_CMD_MKBP_STATE;
++	msg->insize = sizeof(ec_dev->event_data.data);
++	msg->outsize = 0;
++
++	ec_dev->event_size = cros_ec_cmd_xfer(ec_dev, msg);
++	ec_dev->event_data.event_type = EC_MKBP_EVENT_KEY_MATRIX;
++	memcpy(&ec_dev->event_data.data, msg->data,
++	       sizeof(ec_dev->event_data.data));
++
++	return ec_dev->event_size;
++}
++
++int cros_ec_get_next_event(struct cros_ec_device *ec_dev)
++{
++	if (ec_dev->mkbp_event_supported)
++		return get_next_event(ec_dev);
++	else
++		return get_keyboard_state_event(ec_dev);
++}
++EXPORT_SYMBOL(cros_ec_get_next_event);
+diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
+index d641a18..76f7ef4 100644
+--- a/include/linux/mfd/cros_ec.h
++++ b/include/linux/mfd/cros_ec.h
+@@ -109,6 +109,10 @@ struct cros_ec_command {
+  *     should check msg.result for the EC's result code.
+  * @pkt_xfer: send packet to EC and get response
+  * @lock: one transaction at a time
++ * @mkbp_event_supported: true if this EC supports the MKBP event protocol.
++ * @event_notifier: interrupt event notifier for transport devices.
++ * @event_data: raw payload transferred with the MKBP event.
++ * @event_size: size in bytes of the event data.
+  */
+ struct cros_ec_device {
+ 
+@@ -137,6 +141,11 @@ struct cros_ec_device {
+ 	int (*pkt_xfer)(struct cros_ec_device *ec,
+ 			struct cros_ec_command *msg);
+ 	struct mutex lock;
++	bool mkbp_event_supported;
++	struct blocking_notifier_head event_notifier;
++
++	struct ec_response_get_next_event event_data;
++	int event_size;
+ };
+ 
+ /* struct cros_ec_platform - ChromeOS EC platform information
+@@ -269,6 +278,15 @@ int cros_ec_register(struct cros_ec_device *ec_dev);
+  */
+ int cros_ec_query_all(struct cros_ec_device *ec_dev);
+ 
++/**
++ * cros_ec_get_next_event -  Fetch next event from the ChromeOS EC
++ *
++ * @ec_dev: Device to fetch event from
++ *
++ * Returns: 0 on success, Linux error number on failure
++ */
++int cros_ec_get_next_event(struct cros_ec_device *ec_dev);
++
+ /* sysfs stuff */
+ extern struct attribute_group cros_ec_attr_group;
+ extern struct attribute_group cros_ec_lightbar_attr_group;
+diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
+index 7e7a8d4..76728ff 100644
+--- a/include/linux/mfd/cros_ec_commands.h
++++ b/include/linux/mfd/cros_ec_commands.h
+@@ -1793,6 +1793,40 @@ struct ec_result_keyscan_seq_ctrl {
+ 	};
+ } __packed;
+ 
++/*
++ * Command for retrieving the next pending MKBP event from the EC device
++ *
++ * The device replies with UNAVAILABLE if there aren't any pending events.
++ */
++#define EC_CMD_GET_NEXT_EVENT 0x67
++
++enum ec_mkbp_event {
++	/* Keyboard matrix changed. The event data is the new matrix state. */
++	EC_MKBP_EVENT_KEY_MATRIX = 0,
++
++	/* New host event. The event data is 4 bytes of host event flags. */
++	EC_MKBP_EVENT_HOST_EVENT = 1,
++
++	/* New Sensor FIFO data. The event data is fifo_info structure. */
++	EC_MKBP_EVENT_SENSOR_FIFO = 2,
++
++	/* Number of MKBP events */
++	EC_MKBP_EVENT_COUNT,
++};
++
++union ec_response_get_next_data {
++	uint8_t   key_matrix[13];
++
++	/* Unaligned */
++	uint32_t  host_event;
++} __packed;
++
++struct ec_response_get_next_event {
++	uint8_t event_type;
++	/* Followed by event data if any */
++	union ec_response_get_next_data data;
++} __packed;
++
+ /*****************************************************************************/
+ /* Temperature sensor commands */
+ 
 -- 
-1.9.1
+2.1.0

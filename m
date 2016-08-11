@@ -1,142 +1,369 @@
-From: Stefan Seidel <lkml@stefanseidel.info>
-Subject: Re:  Sony Vaio Duo 11: getting middle mouse button to work
-Date: Thu, 11 Aug 2016 23:27:59 +0200
-Message-ID: <20160811232759.Horde.nOLGcvRFRNEDDDHWRQr1nXw@horde.stefanseidel.info>
+From: "Junge, Terry" <Terry.Junge@plantronics.com>
+Subject: RE: [PATCH] HID: Support telephony devices
+Date: Thu, 11 Aug 2016 23:31:33 +0000
+Message-ID: <04496bf1ddd749d780ad24bb8d85f40d@usscmb04.plt.plantronics.com>
+References: <1470214307-29441-1-git-send-email-nolsen@jabra.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_4fX9yVp-i8oyEWeaSRQjF19"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.teration.net ([213.136.64.78]:57890 "EHLO
-	mail.teration.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932236AbcHKVdI (ORCPT
+Received: from mail4.plantronics.com ([198.231.10.50]:53351 "EHLO
+	mail4.plantronics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751676AbcHKXqK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Aug 2016 17:33:08 -0400
+	Thu, 11 Aug 2016 19:46:10 -0400
+In-Reply-To: <1470214307-29441-1-git-send-email-nolsen@jabra.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: benjamin.tissoires@redhat.com, smueller@chronox.de, jkosina@suse.cz, linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "jikos@kernel.org" <jikos@kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "nolsen@jabra.com" <nolsen@jabra.com>
 
-This message is in MIME format.
+Good to get telephony support into the kernel.
 
---=_4fX9yVp-i8oyEWeaSRQjF19
-Content-Type: text/plain; charset=utf-8; format=flowed; DelSp=Yes
-Content-Disposition: inline
+My only concerns are the duplicate functionalities of LED_RING::LED_RINGER and LED_MUTE::LED_MICROPHONE.
 
-Hi,
+Please see below.
 
-I'm hijacking on that very old conversation you had here:
-http://linux-input.vger.kernel.narkive.com/78cpvzuC/sony-vaio-duo-11-getting-middle-mouse-button-to-work
+>-----Original Message-----
+>From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of nolsen@jabra.com
+>Sent: Wednesday, August 03, 2016 1:52 AM
+>To: linux-input@vger.kernel.org
+>Cc: jikos@kernel.org; benjamin.tissoires@redhat.com; dmitry.torokhov@gmail.com; Niels Skou Olsen
+>Subject: [PATCH] HID: Support telephony devices
+>
+>From: Niels Skou Olsen <nolsen@jabra.com>
+>
+>Add support for telephony device buttons and LEDs as described in the USB
+>HID Usage Tables specification.
+>
+>This allows user mode applications convenient access to telephony devices
+>such as headsets, speaker phones and desk phones.
+>
+>Signed-off-by: Niels Skou Olsen <nolsen@jabra.com>
+>---
+> drivers/hid/hid-debug.c                | 39 ++++++++++++++++++++-
+> drivers/hid/hid-input.c                | 63 +++++++++++++++++++++++++++++++---
+> drivers/input/input-leds.c             |  5 +++
+> include/linux/hid.h                    |  8 ++++-
+> include/linux/mod_devicetable.h        |  2 +-
+> include/uapi/linux/input-event-codes.h | 18 +++++++++-
+> 6 files changed, 126 insertions(+), 9 deletions(-)
+>
+>diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+>index acfb522..9f109c3 100644
+>--- a/drivers/hid/hid-debug.c
+>+++ b/drivers/hid/hid-debug.c
+>@@ -129,9 +129,42 @@ static const struct hid_usage_entry hid_usage_table[] = {
+>       {0, 0x03, "ScrollLock"},
+>       {0, 0x04, "Compose"},
+>       {0, 0x05, "Kana"},
+>+	{0, 0x09, "Mute"},
+>+	{0, 0x17, "OffHook"},
+>+	{0, 0x18, "Ring"},
+>+	{0, 0x19, "MessageWaiting"},
+>+	{0, 0x20, "Hold"},
+>+	{0, 0x21, "Microphone"},
+>+	{0, 0x27, "Standby"},
+>+	{0, 0x2a, "Online"},
+>+	{0, 0x4c, "SystemSuspend"},
+>+	{0, 0x4d, "ExtPowerConnected"},
+>       {0, 0x4b, "GenericIndicator"},
+>   {  9, 0, "Button" },
+>   { 10, 0, "Ordinal" },
+>+	{ 11, 0, "Telephony" },
+>+	{0, 0x20, "KeyHookSwitch"},
+>+	{0, 0x21, "KeyFlash"},
+>+	{0, 0x23, "KeyHold"},
+>+	{0, 0x24, "KeyRedial"},
+>+	{0, 0x2f, "KeyMicMute"},
+>+	{0, 0x9e, "LedRinger"},
 
-I took Wireshark dumps of the USB traffic when the Windows  
-configuration tools switches between "use middle button for scroll"  
-and "send middle button as button 2" (they're not named like this, but  
-that's what they do).
-I also have a second dump of enabling and disabling "touch trackpoint  
-to send mouse button 1". I can see that there is a clear key/value  
-mapping. I don't know anything about HID or USB (or Wireshark), but it  
-seems like the *device* is sending different values back to the *host*  
-when these settings are changed.
+This is not an LED usage, it's a Locally Generated Tone usage, maybe "RingerTone"?
 
-Anyway, is there a way I can "decrypt" this and write either a  
-usespace helper or write or amend a kernel driver to be able to switch  
-those two options in Linux? Or did I miss something in my capture?  
-Those were taken with Wireshark 2.0.
+>+	{0, 0xb0, "KeyNumeric0"},
+>+	{0, 0xb1, "KeyNumeric1"},
+>+	{0, 0xb2, "KeyNumeric2"},
+>+	{0, 0xb3, "KeyNumeric3"},
+>+	{0, 0xb4, "KeyNumeric4"},
+>+	{0, 0xb5, "KeyNumeric5"},
+>+	{0, 0xb6, "KeyNumeric6"},
+>+	{0, 0xb7, "KeyNumeric7"},
+>+	{0, 0xb8, "KeyNumeric8"},
+>+	{0, 0xb9, "KeyNumeric9"},
+>+	{0, 0xba, "KeyNumericStar"},
+>+	{0, 0xbb, "KeyNumericPound"},
+>+	{0, 0xbc, "KeyNumericA"},
+>+	{0, 0xbd, "KeyNumericB"},
+>+	{0, 0xbe, "KeyNumericC"},
+>+	{0, 0xbf, "KeyNumericD"},
+>   { 12, 0, "Consumer" },
+>       {0, 0x238, "HorizontalWheel"},
+>   { 13, 0, "Digitizers" },
+>@@ -998,7 +1031,11 @@ static const char *leds[LED_MAX + 1] = {
+> 	[LED_SCROLLL] = "ScrollLock",	[LED_COMPOSE] = "Compose",
+> 	[LED_KANA] = "Kana",		[LED_SLEEP] = "Sleep",
+> 	[LED_SUSPEND] = "Suspend",	[LED_MUTE] = "Mute",
+>-	[LED_MISC] = "Misc",
+>+	[LED_MISC] = "Misc",		[LED_MAIL] = "Mail",
+>+	[LED_CHARGING] = "Charging",	[LED_OFF_HOOK] = "Off-hook",
+>+	[LED_RING] = "Ring",		[LED_RINGER] = "Ringer",
+
+LED_RINGER duplicates the functionality of LED_RING to the user.
+Multiple vendor products in the field already respond to the proposed
+mapping of LED_RING by indicating inbound ring to the user.
+Adding LED_RINGER to the core and mapping it to 0x000b009e
+will require the user to decide which one to use, LED_RING or LED_RINGER.
+If needed, the 0x000b009e usage should be mapped by a vendor driver
+to LED_RING so the user will only have to deal with LED_RING.
+
+>+	[LED_HOLD] = "Hold",		[LED_MICROPHONE] = "Microphone",
+
+LED_MICROPHONE duplicates the functionality of LED_MUTE to the user.
+Multiple vendor products in the field already respond to the core
+mapping of LED_MUTE by muting the microphone.
+Adding LED_MICROPHONE to the core and mapping it to 0x00080021
+will require the user to decide which one to use, LED_MUTE or LED_MICROPHONE.
+If needed, the 0x00080021 usage should be mapped by a vendor driver
+to LED_MUTE so the user will only have to deal with LED_MUTE.
+
+>+	[LED_ONLINE] = "Online"
+> };
+>
+> static const char *repeats[REP_MAX + 1] = {
+>diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+>index bcfaf32..b2a4136 100644
+>--- a/drivers/hid/hid-input.c
+>+++ b/drivers/hid/hid-input.c
+>@@ -509,9 +509,11 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+> 	if (field->report_count < 1)
+> 		goto ignore;
+>
+>-	/* only LED usages are supported in output fields */
+>+	/* only LED and TELEPHONY usages are supported in output fields */
+> 	if (field->report_type == HID_OUTPUT_REPORT &&
+>-			(usage->hid & HID_USAGE_PAGE) != HID_UP_LED) {
+>+			(usage->hid & HID_USAGE_PAGE) != HID_UP_LED &&
+>+			(usage->hid & HID_USAGE_PAGE) != HID_UP_TELEPHONY) {
+>+
+> 		goto ignore;
+> 	}
+
+This allowance for telephony page output mapping in order to map LED_RINGER
+would not be needed if the 0x000b009e mapping were done by a vendor driver and
+the vendor driver was allowed access before the currently preemptive LED page test, like this:
+
+	if (device->driver->input_mapping) {
+		int ret = device->driver->input_mapping(device, hidinput, field,
+				usage, &bit, &max);
+		if (ret > 0)
+			goto mapped;
+		if (ret < 0)
+			goto ignore;
+	}
+
+	/* only LED usages are supported in output fields */
+	if (field->report_type == HID_OUTPUT_REPORT &&
+			(usage->hid & HID_USAGE_PAGE) != HID_UP_LED) {
+		goto ignore;
+	}
+
+>
+>@@ -658,11 +660,32 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+> 		case 0x03:  map_led (LED_SCROLLL);  break;    /*   "Scroll Lock"              */
+> 		case 0x04:  map_led (LED_COMPOSE);  break;    /*   "Compose"                  */
+> 		case 0x05:  map_led (LED_KANA);     break;    /*   "Kana"                     */
+>-		case 0x27:  map_led (LED_SLEEP);    break;    /*   "Stand-By"                 */
+>-		case 0x4c:  map_led (LED_SUSPEND);  break;    /*   "System Suspend"           */
+> 		case 0x09:  map_led (LED_MUTE);     break;    /*   "Mute"                     */
+>-		case 0x4b:  map_led (LED_MISC);     break;    /*   "Generic Indicator"        */
+>+		case 0x17: /* "Off hook" */
+>+			map_led(LED_OFF_HOOK);
+>+			break;
+>+		case 0x18: /* "Ring" */
+>+			map_led(LED_RING);
+>+			break;
+> 		case 0x19:  map_led (LED_MAIL);     break;    /*   "Message Waiting"          */
+>+		case 0x20: /* "Hold" */
+>+			map_led(LED_HOLD);
+>+			break;
+>+		case 0x21: /* "Microphone" */
+>+			map_led(LED_MICROPHONE);
+>+			break;
+
+As previous comment on duplicate functionality of LED_MICROPHONE and LED_MUTE.
+Usage 0x00080021 could be mapped to LED_MUTE in a vendor driver.
+
+>+		case 0x27: /* "Stand-By" */
+>+			map_led(LED_SLEEP);
+>+			break;
+>+		case 0x2a: /* "Online" */
+>+			map_led(LED_ONLINE);
+>+			break;
+>+		case 0x4b: /* "Generic Indicator" */
+>+			map_led(LED_MISC);
+>+			break;
+>+		case 0x4c: /* "System Suspend" */
+>+			map_led(LED_SUSPEND);
+>+			break;
+> 		case 0x4d:  map_led (LED_CHARGING); break;    /*   "External Power Connected" */
+>
+> 		default: goto ignore;
+>@@ -732,7 +755,37 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>
+> 	case HID_UP_TELEPHONY:
+> 		switch (usage->hid & HID_USAGE) {
+>+		case 0x07:
+>+			map_key_clear(KEY_PROGRAMMABLE);
+>+			break;
+
+----
+>+		case 0x1e:
+>+			map_led(LED_SPEAKER);
+>+			break;
+----
+
+This is in the wrong place, it should be in the HID_UP_LED case switch statement block.
+Speaker usage 0x1e is in the LED page not the telephony page.
+
+>+		case 0x20:
+>+			map_key_clear(KEY_HOOK_SWITCH);
+>+			break;
+>+		case 0x21:
+>+			map_key_clear(KEY_FLASH);
+>+			break;
+>+		case 0x23:
+>+			map_key_clear(KEY_HOLD);
+>+			break;
+>+		case 0x24:
+>+			map_key_clear(KEY_REDIAL);
+>+			break;
+>+		case 0x2a:
+>+			map_key_clear(KEY_LINE);
+>+			break;
+>+		case 0x2b:
+>+			map_key_clear(KEY_SPEAKER_PHONE);
+>+			break;
+> 		case 0x2f: map_key_clear(KEY_MICMUTE);		break;
+>+		case 0x50:
+>+			map_key_clear(KEY_SPEED_DIAL);
+>+			break;
+>+		case 0x9e:
+>+			map_led(LED_RINGER);
+>+			break;
+
+As previous comment on duplicate functionality of LED_RINGER and LED_RING.
+Usage 0x000b009e could be mapped to LED_RING in a vendor driver.
+
+> 		case 0xb0: map_key_clear(KEY_NUMERIC_0);	break;
+> 		case 0xb1: map_key_clear(KEY_NUMERIC_1);	break;
+> 		case 0xb2: map_key_clear(KEY_NUMERIC_2);	break;
+>diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
+>index 766bf26..cf692df 100644
+>--- a/drivers/input/input-leds.c
+>+++ b/drivers/input/input-leds.c
+>@@ -36,6 +36,11 @@ static const struct {
+> 	[LED_MISC]	= { "misc" },
+> 	[LED_MAIL]	= { "mail" },
+> 	[LED_CHARGING]	= { "charging" },
+>+	[LED_OFF_HOOK]	= { "off-hook" },
+>+	[LED_RING]	= { "ring" },
+>+	[LED_HOLD]	= { "hold" },
+>+	[LED_MICROPHONE] = { "microphone" },
+
+As previous comments on duplicate functionality of LED_MICROPHONE and LED_MUTE.
+Is LED_RINGER missing here?
+
+>+	[LED_ONLINE]	= { "online" },
+> };
+>
+> struct input_led {
+>diff --git a/include/linux/hid.h b/include/linux/hid.h
+>index 75b66ec..0c91c89 100644
+>--- a/include/linux/hid.h
+>+++ b/include/linux/hid.h
+>@@ -764,7 +764,13 @@ struct hid_ll_driver {
+>
+> /* Applications from HID Usage Tables 4/8/99 Version 1.1 */
+> /* We ignore a few input applications that are not widely used */
+>-#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || (a == 0x000c0001) || ((a
+>>= 0x000d0002) && (a <= 0x000d0006)))
+>+#define IS_INPUT_APPLICATION(a) (				\
+>+		((a >= 0x00010000) && (a <= 0x00010008)) ||	\
+>+		(a == 0x00010080) ||				\
+>+		(a == 0x000b0005) ||				\
+
+This should be a range from 0x000b0001 through 0x000b0005 to include
+Phone (1), Answering Machine (2), Message Controls (3), Handset (4),
+as well as Headset (5) collections.
+
+>+		(a == 0x000c0001) ||				\
+>+		((a >= 0x000d0002) && (a <= 0x000d0006)))
+>+
+>
+> /* HID core API */
+>
+>diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+>index ed84c07..e342d3f 100644
+>--- a/include/linux/mod_devicetable.h
+>+++ b/include/linux/mod_devicetable.h
+>@@ -288,7 +288,7 @@ struct pcmcia_device_id {
+> #define INPUT_DEVICE_ID_REL_MAX		0x0f
+> #define INPUT_DEVICE_ID_ABS_MAX		0x3f
+> #define INPUT_DEVICE_ID_MSC_MAX		0x07
+>-#define INPUT_DEVICE_ID_LED_MAX		0x0f
+>+#define INPUT_DEVICE_ID_LED_MAX		0x11
+> #define INPUT_DEVICE_ID_SND_MAX		0x07
+> #define INPUT_DEVICE_ID_FF_MAX		0x7f
+> #define INPUT_DEVICE_ID_SW_MAX		0x0f
+>diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+>index d6d071f..eaa368b 100644
+>--- a/include/uapi/linux/input-event-codes.h
+>+++ b/include/uapi/linux/input-event-codes.h
+>@@ -593,6 +593,15 @@
+>
+> #define KEY_ALS_TOGGLE		0x230	/* Ambient light sensor */
+>
+>+#define KEY_HOOK_SWITCH	0x231
+>+#define KEY_FLASH		0x232
+>+#define KEY_HOLD		0x233
+>+#define KEY_REDIAL		0x234
+>+#define KEY_PROGRAMMABLE	0x235
+>+#define KEY_LINE		0x236
+>+#define KEY_SPEAKER_PHONE	0x237
+>+#define KEY_SPEED_DIAL		0x238
+>+
+> #define KEY_BUTTONCONFIG		0x240	/* AL Button Configuration */
+> #define KEY_TASKMANAGER		0x241	/* AL Task/Project Manager */
+> #define KEY_JOURNAL		0x242	/* AL Log/Journal/Timecard */
+>@@ -812,7 +821,14 @@
+> #define LED_MISC		0x08
+> #define LED_MAIL		0x09
+> #define LED_CHARGING		0x0a
+>-#define LED_MAX			0x0f
+>+#define LED_OFF_HOOK		0x0b
+>+#define LED_RING		0x0c
+>+#define LED_RINGER		0x0d
+
+As previous comments on duplicate functionality of LED_RINGER and LED_RING.
+
+>+#define LED_HOLD		0x0e
+>+#define LED_MICROPHONE		0x0f
+
+As previous comments on duplicate functionality of LED_MICROPHONE and LED_MUTE.
+
+>+#define LED_SPEAKER		0x10
+>+#define LED_ONLINE		0x11
+>+#define LED_MAX		0x11
+> #define LED_CNT			(LED_MAX+1)
+>
+> /*
+>--
+>2.7.4
+>
 
 Thanks,
 
-Stefan
-
-
---=_4fX9yVp-i8oyEWeaSRQjF19
-Content-Type: application/octet-stream; name=crucialtek.pcapng
-Content-Disposition: attachment; size=2356; filename=crucialtek.pcapng
-Content-Transfer-Encoding: base64
-
-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
-AAgAAQEABAAAAgAAAAACPAAAAA==
---=_4fX9yVp-i8oyEWeaSRQjF19
-Content-Type: application/octet-stream; name=ctek-tap-to-click.pcapng
-Content-Disposition: attachment; size=2228;
- filename=ctek-tap-to-click.pcapng
-Content-Transfer-Encoding: base64
-
-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
-AjwAAAA=
---=_4fX9yVp-i8oyEWeaSRQjF19--
+Terry Junge
+Plantronics
 

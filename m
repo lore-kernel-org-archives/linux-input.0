@@ -1,12 +1,14 @@
 From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v4 0/4] Add support for the Qualcomm PM8018 PMIC
-Date: Thu, 11 Aug 2016 15:16:42 +0200
-Message-ID: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
+Subject: [PATCH v4 1/4] mfd: pm8921: Add support for pm8018
+Date: Thu, 11 Aug 2016 15:16:43 +0200
+Message-ID: <1470921406-18468-2-git-send-email-narmstrong@baylibre.com>
+References: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRBQXVWG6QKGQEC5SYMUY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDAYD2P3QYGRBQ7VWG6QKGQEE7WKFVQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1470921406-18468-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/rtc-linux
@@ -17,40 +19,28 @@ To: andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4d
 Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-In order to support the Qualcomm MDM9615 in the Sierra Wireless WP8548
-Modules, add the PM8018 PMIC support into MFD, Regulator, RTC and input.
+In order to support the Qualcomm MDM9615 PMIC, add support for the
+pm8018 in pm8921 mfd driver.
 
-This patchset is part of a global SoC + Module + Board support for the
-Sierra Wireless mangOH Board support with the WP8548 module.
+Reviewed-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+---
+ drivers/mfd/pm8921-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Changes since v3 at http://lkml.kernel.org/r/1468936331-2981-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org :
- - Use pm8921_regs for rtc, drop mp8018 identical structs
- - Use pm8960 rpm_reg_parts for regulator, drop pm8018 identical structs
-
-Changes since v2 at http://lkml.kernel.org/r/1466759887-25394-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org :
- - Dropped pwrkey changes
-
-Changes since v1 at http://lkml.kernel.org/r/1466158929-19524-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org :
- - Rebase mfd/qcom_rpm.c on top of Linus "fix offset error for msm8660" and "parametrize also ack selector size" patches
- - Rename QCOM_RPM_NCP in to QCOM_RPM_PM8018_NCP
- - Rebased qcom-rpm.h PM8018 defines numbers without a gap
- - Dropped regulator corner
-
-Neil Armstrong (4):
-  mfd: pm8921: Add support for pm8018
-  rtc: rtc-pm8xxx: Add support for pm8018 rtc
-  mfd: qcom-rpm: Add support for pm8018 RPM Regulator
-  regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator
-
- .../devicetree/bindings/mfd/qcom-pm8xxx.txt        |  1 +
- Documentation/devicetree/bindings/mfd/qcom-rpm.txt | 15 +++++
- drivers/mfd/pm8921-core.c                          |  1 +
- drivers/mfd/qcom_rpm.c                             | 51 +++++++++++++++++
- drivers/regulator/qcom_rpm-regulator.c             | 66 ++++++++++++++++++++++
- drivers/rtc/rtc-pm8xxx.c                           |  1 +
- include/dt-bindings/mfd/qcom-rpm.h                 | 22 ++++++++
- 7 files changed, 157 insertions(+)
-
+diff --git a/drivers/mfd/pm8921-core.c b/drivers/mfd/pm8921-core.c
+index 1b7ec08..0e3a2ea 100644
+--- a/drivers/mfd/pm8921-core.c
++++ b/drivers/mfd/pm8921-core.c
+@@ -309,6 +309,7 @@ static const struct regmap_config ssbi_regmap_config = {
+ };
+ 
+ static const struct of_device_id pm8921_id_table[] = {
++	{ .compatible = "qcom,pm8018", },
+ 	{ .compatible = "qcom,pm8058", },
+ 	{ .compatible = "qcom,pm8921", },
+ 	{ }
 -- 
 1.9.1
 

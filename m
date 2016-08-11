@@ -1,12 +1,12 @@
 From: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v4 1/4] mfd: pm8921: Add support for pm8018
-Date: Thu, 11 Aug 2016 15:16:43 +0200
-Message-ID: <1470921406-18468-2-git-send-email-narmstrong@baylibre.com>
+Subject: [PATCH v4 2/4] rtc: rtc-pm8xxx: Add support for pm8018 rtc
+Date: Thu, 11 Aug 2016 15:16:44 +0200
+Message-ID: <1470921406-18468-3-git-send-email-narmstrong@baylibre.com>
 References: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDAYD2P3QYGRBQ7VWG6QKGQEE7WKFVQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDAYD2P3QYGRBRPVWG6QKGQEDZHR45Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1470921406-18468-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -19,28 +19,41 @@ To: andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4d
 Cc: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-In order to support the Qualcomm MDM9615 PMIC, add support for the
-pm8018 in pm8921 mfd driver.
+In order to support RTC on Qualcomm MDM9615 SoC, add support for
+the pm8018 rtc in rtc-pm8xxx driver.
 
 Reviewed-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Acked-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Signed-off-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
 ---
- drivers/mfd/pm8921-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt | 1 +
+ drivers/rtc/rtc-pm8xxx.c                              | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/mfd/pm8921-core.c b/drivers/mfd/pm8921-core.c
-index 1b7ec08..0e3a2ea 100644
---- a/drivers/mfd/pm8921-core.c
-+++ b/drivers/mfd/pm8921-core.c
-@@ -309,6 +309,7 @@ static const struct regmap_config ssbi_regmap_config = {
- };
+diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
+index f24f334..37a088f 100644
+--- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
++++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.txt
+@@ -62,6 +62,7 @@ The below bindings specify the set of valid subnodes.
+ 		    "qcom,pm8058-rtc"
+ 		    "qcom,pm8921-rtc"
+ 		    "qcom,pm8941-rtc"
++		    "qcom,pm8018-rtc"
  
- static const struct of_device_id pm8921_id_table[] = {
-+	{ .compatible = "qcom,pm8018", },
- 	{ .compatible = "qcom,pm8058", },
- 	{ .compatible = "qcom,pm8921", },
- 	{ }
+ - reg:
+ 	Usage: required
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index 795fcbd..fac8355 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -428,6 +428,7 @@ static const struct pm8xxx_rtc_regs pm8941_regs = {
+  */
+ static const struct of_device_id pm8xxx_id_table[] = {
+ 	{ .compatible = "qcom,pm8921-rtc", .data = &pm8921_regs },
++	{ .compatible = "qcom,pm8018-rtc", .data = &pm8921_regs },
+ 	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
+ 	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
+ 	{ },
 -- 
 1.9.1
 

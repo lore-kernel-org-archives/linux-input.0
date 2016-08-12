@@ -1,57 +1,67 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/2] ARM: dts: am335x-icev2: Add nodes for gpio-decoder
-Date: Fri, 12 Aug 2016 14:00:31 -0500
-Message-ID: <20160812190031.GA16954@rob-hp-laptop>
-References: <20160812045229.29241-1-vigneshr@ti.com>
- <20160812045229.29241-3-vigneshr@ti.com>
+From: Stefan Seidel <lkml@stefanseidel.info>
+Subject: Re: Sony Vaio Duo 11: getting middle mouse button to work
+Date: Fri, 12 Aug 2016 21:41:25 +0200
+Message-ID: <20160812214125.Horde.1mqVDGLUmEhibnpDhJx6D4r@horde.stefanseidel.info>
+References: <20160811232759.Horde.nOLGcvRFRNEDDDHWRQr1nXw@horde.stefanseidel.info>
+ <20160812092907.GP17850@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8; format=flowed; DelSp=Yes
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.teration.net ([213.136.64.78]:40831 "EHLO
+	mail.teration.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752194AbcHLTl3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Aug 2016 15:41:29 -0400
+In-Reply-To: <20160812092907.GP17850@mail.corp.redhat.com>
 Content-Disposition: inline
-In-Reply-To: <20160812045229.29241-3-vigneshr-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, John Stultz <john.stultz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Jorge Ramirez-Ortiz <jorge.ramirez-ortiz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Moritz Fischer <moritz.fischer-+aYTwkv1SeIAvxtiuMwx3w@public.gmane.org>, Daniel Hung-yu Wu <hywu-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: smueller@chronox.de, jkosina@suse.cz, linux-input@vger.kernel.org
 
-On Fri, Aug 12, 2016 at 10:22:29AM +0530, Vignesh R wrote:
-> AM335x ICE board has a rotary-switch connected to PCA9536 I2C GPIO
-> expander. The position of the rotary-switch is reflected by status of
-> GPIO lines. Add gpio-decoder node to read these GPIO line status via
-> gpio-decoder driver and report it as an input event to the system.
-> 
-> Signed-off-by: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
-> ---
->  arch/arm/boot/dts/am335x-icev2.dts | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/arch/arm/boot/dts/am335x-icev2.dts b/arch/arm/boot/dts/am335x-icev2.dts
-> index 7d8b8fefdf08..f2de594343f2 100644
-> --- a/arch/arm/boot/dts/am335x-icev2.dts
-> +++ b/arch/arm/boot/dts/am335x-icev2.dts
-> @@ -139,6 +139,15 @@
->  			default-state = "off";
->  		};
->  	};
-> +	gpio-decoder0 {
+Hi Benjamin,
 
-Drop the 0 here.
+thanks.
 
-> +		compatible = "gpio-decoder";
-> +		gpios = <&pca9536 3 GPIO_ACTIVE_HIGH>,
-> +			<&pca9536 2 GPIO_ACTIVE_HIGH>,
-> +			<&pca9536 1 GPIO_ACTIVE_HIGH>,
-> +			<&pca9536 0 GPIO_ACTIVE_HIGH>;
-> +		linux,axis = <0>; /* ABS_X */
-> +		gpio-decoder,max-value = <9>;
-> +	};
->  };
->  
->  &am33xx_pinmux {
-> -- 
-> 2.9.2
-> 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> The answer is different in the first case and 7 seconds after (I assume
+> you toggled the setting there) -> frame 16 and 33 in the first log.
+>
+> I'd say the first log would be:
+> - 1.  -> SET_IDLE (you can ignore it)
+> - 3.  -> SET_REPORT on OUTPUT 2, length 5 no data
+>       -> answer in 4.  -> 02 04 02 00 00
+> - 5.  -> SET CONFIGURATION Status (ignore this as well I think)
+> - 6.  -> SET_REPORT on OUTPUT 2, length 5 no data
+>       -> answer in 7.  -> 02 06 00 00 00
+> - 9.  -> SET_REPORT on OUTPUT 2, length 5 no data
+>       -> answer in 10. -> 02 05 01 00 00
+> - 12. -> SET_REPORT on OUTPUT 2, length 5 no data
+>       -> answer in 13. -> 02 02 01 00 00
+> - 16. -> SET_REPORT on OUTPUT 2, length 5 no data
+>       -> answer in 14. -> 02 03 01 00 00
+>
+> The second sequence (frames 18 to 34) provides the same output except
+> for the last answer 02 03 00 00 00.
+
+Yes, that was my analysis as well. Thanks for confirming this.
+
+> The "no data" part seems weird, but there is a chance if you output a
+> report with 02 03 00 00 00 or 02 03 01 00 00, this toggles the behavior.
+
+Yes, I was wondering about exactly that, maybe I need to read up on  
+the limitations of USBPcap to find out why apparently no outgoing data  
+is reported. But I will try sending it as you suggest.
+
+> If you start working in kernel space, start with a small hid driver and
+> in .probe() try accessing the device with the event sequences you got.
+>
+> If you start working with hidraw, there is an example in the kernel
+> tree: samples/hidraw/hid-example.c.
+
+Thanks for these hints! I realized I already did work on HID stuff  
+once when I amended a userspace program for a USB FM transmitter that  
+registered as HID device. I will try your suggestions.
+
+Stefan
+
+

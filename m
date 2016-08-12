@@ -1,94 +1,288 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: Sony Vaio Duo 11: getting middle mouse button to work
-Date: Fri, 12 Aug 2016 11:29:07 +0200
-Message-ID: <20160812092907.GP17850@mail.corp.redhat.com>
-References: <20160811232759.Horde.nOLGcvRFRNEDDDHWRQr1nXw@horde.stefanseidel.info>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH v8 10/10] Input: sur40 - use new V4L2 touch input type
+Date: Fri, 12 Aug 2016 11:41:08 +0200
+Message-ID: <e5d7b260-fbfa-df1a-054e-f606455a2290@xs4all.nl>
+References: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
+ <1468876238-24599-11-git-send-email-nick@shmanahar.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59086 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752366AbcHLJ3N (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Aug 2016 05:29:13 -0400
-Content-Disposition: inline
-In-Reply-To: <20160811232759.Horde.nOLGcvRFRNEDDDHWRQr1nXw@horde.stefanseidel.info>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1468876238-24599-11-git-send-email-nick@shmanahar.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>, mchehab@osg.samsung.com
 List-Id: linux-input@vger.kernel.org
-To: Stefan Seidel <lkml@stefanseidel.info>
-Cc: smueller@chronox.de, jkosina@suse.cz, linux-input@vger.kernel.org
 
-Hi Stefan,
+Hi Nick,
 
-On Aug 11 2016 or thereabouts, Stefan Seidel wrote:
-> Hi,
+On 07/18/2016 11:10 PM, Nick Dyer wrote:
+> Support both V4L2_TCH_FMT_TU08 and V4L2_PIX_FMT_GREY for backwards
+> compatibility.
 > 
-> I'm hijacking on that very old conversation you had here:
-> http://linux-input.vger.kernel.narkive.com/78cpvzuC/sony-vaio-duo-11-getting-middle-mouse-button-to-work
+> Note: I have not tested these changes (I have no access to the hardware)
+> so not signing off.
+
+I can't merge this without your Signed-off. The Signed-off has nothing to do with
+whether or not you have tested the code. I'm leaving this out of the pull request
+for now.
+
+Regards,
+
+	Hans
+
+> ---
+>  drivers/input/touchscreen/sur40.c |  122 +++++++++++++++++++++++++++----------
+>  1 file changed, 89 insertions(+), 33 deletions(-)
 > 
-> I took Wireshark dumps of the USB traffic when the Windows configuration
-> tools switches between "use middle button for scroll" and "send middle
-> button as button 2" (they're not named like this, but that's what they do).
-> I also have a second dump of enabling and disabling "touch trackpoint to
-> send mouse button 1". I can see that there is a clear key/value mapping. I
-> don't know anything about HID or USB (or Wireshark), but it seems like the
-> *device* is sending different values back to the *host* when these settings
-> are changed.
+> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
+> index 4ea4757..fc275cb 100644
+> --- a/drivers/input/touchscreen/sur40.c
+> +++ b/drivers/input/touchscreen/sur40.c
+> @@ -139,6 +139,27 @@ struct sur40_image_header {
+>  #define SUR40_GET_STATE   0xc5 /*  4 bytes state (?) */
+>  #define SUR40_GET_SENSORS 0xb1 /*  8 bytes sensors   */
+>  
+> +static const struct v4l2_pix_format sur40_pix_format[] = {
+> +	{
+> +		.pixelformat = V4L2_TCH_FMT_TU08,
+> +		.width  = SENSOR_RES_X / 2,
+> +		.height = SENSOR_RES_Y / 2,
+> +		.field = V4L2_FIELD_NONE,
+> +		.colorspace = V4L2_COLORSPACE_SRGB,
+> +		.bytesperline = SENSOR_RES_X / 2,
+> +		.sizeimage = (SENSOR_RES_X/2) * (SENSOR_RES_Y/2),
+> +	},
+> +	{
+> +		.pixelformat = V4L2_PIX_FMT_GREY,
+> +		.width  = SENSOR_RES_X / 2,
+> +		.height = SENSOR_RES_Y / 2,
+> +		.field = V4L2_FIELD_NONE,
+> +		.colorspace = V4L2_COLORSPACE_SRGB,
+> +		.bytesperline = SENSOR_RES_X / 2,
+> +		.sizeimage = (SENSOR_RES_X/2) * (SENSOR_RES_Y/2),
+> +	}
+> +};
+> +
+>  /* master device state */
+>  struct sur40_state {
+>  
+> @@ -149,6 +170,7 @@ struct sur40_state {
+>  	struct v4l2_device v4l2;
+>  	struct video_device vdev;
+>  	struct mutex lock;
+> +	struct v4l2_pix_format pix_fmt;
+>  
+>  	struct vb2_queue queue;
+>  	struct list_head buf_list;
+> @@ -169,7 +191,6 @@ struct sur40_buffer {
+>  
+>  /* forward declarations */
+>  static const struct video_device sur40_video_device;
+> -static const struct v4l2_pix_format sur40_video_format;
+>  static const struct vb2_queue sur40_queue;
+>  static void sur40_process_video(struct sur40_state *sur40);
+>  
+> @@ -420,7 +441,7 @@ static void sur40_process_video(struct sur40_state *sur40)
+>  		goto err_poll;
+>  	}
+>  
+> -	if (le32_to_cpu(img->size) != sur40_video_format.sizeimage) {
+> +	if (le32_to_cpu(img->size) != sur40->pix_fmt.sizeimage) {
+>  		dev_err(sur40->dev, "image size mismatch\n");
+>  		goto err_poll;
+>  	}
+> @@ -431,7 +452,7 @@ static void sur40_process_video(struct sur40_state *sur40)
+>  
+>  	result = usb_sg_init(&sgr, sur40->usbdev,
+>  		usb_rcvbulkpipe(sur40->usbdev, VIDEO_ENDPOINT), 0,
+> -		sgt->sgl, sgt->nents, sur40_video_format.sizeimage, 0);
+> +		sgt->sgl, sgt->nents, sur40->pix_fmt.sizeimage, 0);
+>  	if (result < 0) {
+>  		dev_err(sur40->dev, "error %d in usb_sg_init\n", result);
+>  		goto err_poll;
+> @@ -586,13 +607,14 @@ static int sur40_probe(struct usb_interface *interface,
+>  	if (error)
+>  		goto err_unreg_v4l2;
+>  
+> +	sur40->pix_fmt = sur40_pix_format[0];
+>  	sur40->vdev = sur40_video_device;
+>  	sur40->vdev.v4l2_dev = &sur40->v4l2;
+>  	sur40->vdev.lock = &sur40->lock;
+>  	sur40->vdev.queue = &sur40->queue;
+>  	video_set_drvdata(&sur40->vdev, sur40);
+>  
+> -	error = video_register_device(&sur40->vdev, VFL_TYPE_GRABBER, -1);
+> +	error = video_register_device(&sur40->vdev, VFL_TYPE_TOUCH, -1);
+>  	if (error) {
+>  		dev_err(&interface->dev,
+>  			"Unable to register video subdevice.");
+> @@ -651,10 +673,10 @@ static int sur40_queue_setup(struct vb2_queue *q,
+>  		*nbuffers = 3 - q->num_buffers;
+>  
+>  	if (*nplanes)
+> -		return sizes[0] < sur40_video_format.sizeimage ? -EINVAL : 0;
+> +		return sizes[0] < sur40->pix_fmt.sizeimage ? -EINVAL : 0;
+>  
+>  	*nplanes = 1;
+> -	sizes[0] = sur40_video_format.sizeimage;
+> +	sizes[0] = sur40->pix_fmt.sizeimage;
+>  
+>  	return 0;
+>  }
+> @@ -666,7 +688,7 @@ static int sur40_queue_setup(struct vb2_queue *q,
+>  static int sur40_buffer_prepare(struct vb2_buffer *vb)
+>  {
+>  	struct sur40_state *sur40 = vb2_get_drv_priv(vb->vb2_queue);
+> -	unsigned long size = sur40_video_format.sizeimage;
+> +	unsigned long size = sur40->pix_fmt.sizeimage;
+>  
+>  	if (vb2_plane_size(vb, 0) < size) {
+>  		dev_err(&sur40->usbdev->dev, "buffer too small (%lu < %lu)\n",
+> @@ -741,7 +763,7 @@ static int sur40_vidioc_querycap(struct file *file, void *priv,
+>  	strlcpy(cap->driver, DRIVER_SHORT, sizeof(cap->driver));
+>  	strlcpy(cap->card, DRIVER_LONG, sizeof(cap->card));
+>  	usb_make_path(sur40->usbdev, cap->bus_info, sizeof(cap->bus_info));
+> -	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE |
+> +	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_TOUCH |
+>  		V4L2_CAP_READWRITE |
+>  		V4L2_CAP_STREAMING;
+>  	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+> @@ -753,7 +775,7 @@ static int sur40_vidioc_enum_input(struct file *file, void *priv,
+>  {
+>  	if (i->index != 0)
+>  		return -EINVAL;
+> -	i->type = V4L2_INPUT_TYPE_CAMERA;
+> +	i->type = V4L2_INPUT_TYPE_TOUCH;
+>  	i->std = V4L2_STD_UNKNOWN;
+>  	strlcpy(i->name, "In-Cell Sensor", sizeof(i->name));
+>  	i->capabilities = 0;
+> @@ -771,19 +793,57 @@ static int sur40_vidioc_g_input(struct file *file, void *priv, unsigned int *i)
+>  	return 0;
+>  }
+>  
+> -static int sur40_vidioc_fmt(struct file *file, void *priv,
+> +static int sur40_vidioc_try_fmt(struct file *file, void *priv,
+> +			    struct v4l2_format *f)
+> +{
+> +	switch (f->fmt.pix.pixelformat) {
+> +	case V4L2_PIX_FMT_GREY:
+> +		f->fmt.pix = sur40_pix_format[1];
+> +		break;
+> +
+> +	default:
+> +		f->fmt.pix = sur40_pix_format[0];
+> +		break;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int sur40_vidioc_s_fmt(struct file *file, void *priv,
+> +			    struct v4l2_format *f)
+> +{
+> +	struct sur40_state *sur40 = video_drvdata(file);
+> +
+> +	switch (f->fmt.pix.pixelformat) {
+> +	case V4L2_PIX_FMT_GREY:
+> +		sur40->pix_fmt = sur40_pix_format[1];
+> +		break;
+> +
+> +	default:
+> +		sur40->pix_fmt = sur40_pix_format[0];
+> +		break;
+> +	}
+> +
+> +	f->fmt.pix = sur40->pix_fmt;
+> +	return 0;
+> +}
+> +
+> +static int sur40_vidioc_g_fmt(struct file *file, void *priv,
+>  			    struct v4l2_format *f)
+>  {
+> -	f->fmt.pix = sur40_video_format;
+> +	struct sur40_state *sur40 = video_drvdata(file);
+> +
+> +	f->fmt.pix = sur40->pix_fmt;
+>  	return 0;
+>  }
+>  
+>  static int sur40_vidioc_enum_fmt(struct file *file, void *priv,
+>  				 struct v4l2_fmtdesc *f)
+>  {
+> -	if (f->index != 0)
+> +	if (f->index >= ARRAY_SIZE(sur40_pix_format))
+>  		return -EINVAL;
+> -	f->pixelformat = V4L2_PIX_FMT_GREY;
+> +
+> +	f->pixelformat = sur40_pix_format[f->index].pixelformat;
+>  	f->flags = 0;
+>  	return 0;
+>  }
+> @@ -791,22 +851,28 @@ static int sur40_vidioc_enum_fmt(struct file *file, void *priv,
+>  static int sur40_vidioc_enum_framesizes(struct file *file, void *priv,
+>  					struct v4l2_frmsizeenum *f)
+>  {
+> -	if ((f->index != 0) || (f->pixel_format != V4L2_PIX_FMT_GREY))
+> +	struct sur40_state *sur40 = video_drvdata(file);
+> +
+> +	if ((f->index != 0) || ((f->pixel_format != V4L2_TCH_FMT_TU08)
+> +		&& (f->pixel_format != V4L2_PIX_FMT_GREY)))
+>  		return -EINVAL;
+>  
+>  	f->type = V4L2_FRMSIZE_TYPE_DISCRETE;
+> -	f->discrete.width  = sur40_video_format.width;
+> -	f->discrete.height = sur40_video_format.height;
+> +	f->discrete.width  = sur40->pix_fmt.width;
+> +	f->discrete.height = sur40->pix_fmt.height;
+>  	return 0;
+>  }
+>  
+>  static int sur40_vidioc_enum_frameintervals(struct file *file, void *priv,
+>  					    struct v4l2_frmivalenum *f)
+>  {
+> -	if ((f->index > 1) || (f->pixel_format != V4L2_PIX_FMT_GREY)
+> -		|| (f->width  != sur40_video_format.width)
+> -		|| (f->height != sur40_video_format.height))
+> -			return -EINVAL;
+> +	struct sur40_state *sur40 = video_drvdata(file);
+> +
+> +	if ((f->index > 1) || ((f->pixel_format != V4L2_TCH_FMT_TU08)
+> +		&& (f->pixel_format != V4L2_PIX_FMT_GREY))
+> +		|| (f->width  != sur40->pix_fmt.width)
+> +		|| (f->height != sur40->pix_fmt.height))
+> +		return -EINVAL;
+>  
+>  	f->type = V4L2_FRMIVAL_TYPE_DISCRETE;
+>  	f->discrete.denominator  = 60/(f->index+1);
+> @@ -862,9 +928,9 @@ static const struct v4l2_ioctl_ops sur40_video_ioctl_ops = {
+>  	.vidioc_querycap	= sur40_vidioc_querycap,
+>  
+>  	.vidioc_enum_fmt_vid_cap = sur40_vidioc_enum_fmt,
+> -	.vidioc_try_fmt_vid_cap	= sur40_vidioc_fmt,
+> -	.vidioc_s_fmt_vid_cap	= sur40_vidioc_fmt,
+> -	.vidioc_g_fmt_vid_cap	= sur40_vidioc_fmt,
+> +	.vidioc_try_fmt_vid_cap	= sur40_vidioc_try_fmt,
+> +	.vidioc_s_fmt_vid_cap	= sur40_vidioc_s_fmt,
+> +	.vidioc_g_fmt_vid_cap	= sur40_vidioc_g_fmt,
+>  
+>  	.vidioc_enum_framesizes = sur40_vidioc_enum_framesizes,
+>  	.vidioc_enum_frameintervals = sur40_vidioc_enum_frameintervals,
+> @@ -891,16 +957,6 @@ static const struct video_device sur40_video_device = {
+>  	.release = video_device_release_empty,
+>  };
+>  
+> -static const struct v4l2_pix_format sur40_video_format = {
+> -	.pixelformat = V4L2_PIX_FMT_GREY,
+> -	.width  = SENSOR_RES_X / 2,
+> -	.height = SENSOR_RES_Y / 2,
+> -	.field = V4L2_FIELD_NONE,
+> -	.colorspace = V4L2_COLORSPACE_SRGB,
+> -	.bytesperline = SENSOR_RES_X / 2,
+> -	.sizeimage = (SENSOR_RES_X/2) * (SENSOR_RES_Y/2),
+> -};
+> -
+>  /* USB-specific object needed to register this driver with the USB subsystem. */
+>  static struct usb_driver sur40_driver = {
+>  	.name = DRIVER_SHORT,
 > 
-> Anyway, is there a way I can "decrypt" this and write either a usespace
-> helper or write or amend a kernel driver to be able to switch those two
-> options in Linux? Or did I miss something in my capture? Those were taken
-> with Wireshark 2.0.
-
-If you can manage to get the beginning of the enumeration of the USB
-device, Wireshark will decrypt most of the informations for you (if the
-commands are SET_FEATURE or GET_FEATURE, etc...).
-
-It's unclear to me which settings triggers the change, but it's clear
-that when the host does a Set_Report Request on the Output 2:
- - bmRequestType: 0x21 -> Set_Report Request
- - bRequest: 9 -> SET_REPORT 
- - wValue: 0x0202 -> Report Type Output, Report ID 02
- - wIndex: 0 -> Interface 0
- - wLength: 5 -> Report Length
- - Data: ???
-
-(see http://www.usb.org/developers/hidpage/HID1_11.pdf section 7.2.2 to
-decrypt the raw USB events)
-
-The answer is different in the first case and 7 seconds after (I assume
-you toggled the setting there) -> frame 16 and 33 in the first log.
-
-I'd say the first log would be:
-- 1.  -> SET_IDLE (you can ignore it)
-- 3.  -> SET_REPORT on OUTPUT 2, length 5 no data
-      -> answer in 4.  -> 02 04 02 00 00
-- 5.  -> SET CONFIGURATION Status (ignore this as well I think)
-- 6.  -> SET_REPORT on OUTPUT 2, length 5 no data
-      -> answer in 7.  -> 02 06 00 00 00
-- 9.  -> SET_REPORT on OUTPUT 2, length 5 no data
-      -> answer in 10. -> 02 05 01 00 00
-- 12. -> SET_REPORT on OUTPUT 2, length 5 no data
-      -> answer in 13. -> 02 02 01 00 00
-- 16. -> SET_REPORT on OUTPUT 2, length 5 no data
-      -> answer in 14. -> 02 03 01 00 00
-
-The second sequence (frames 18 to 34) provides the same output except
-for the last answer 02 03 00 00 00.
-
-The "no data" part seems weird, but there is a chance if you output a
-report with 02 03 00 00 00 or 02 03 01 00 00, this toggles the behavior.
-
-I'll let you decrypt the second log :)
-
-Anyway, once you got enough information, you can either directly work in
-kernel space, in a driver, or in userspace, using hidraw.
-
-If you start working in kernel space, start with a small hid driver and
-in .probe() try accessing the device with the event sequences you got.
-
-If you start working with hidraw, there is an example in the kernel
-tree: samples/hidraw/hid-example.c.
-
-Cheers,
-Benjamin
-

@@ -1,71 +1,66 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH v3 0/8] Input: synaptics-rmi4: Reimplement functionality
- from hid-rmi
-Date: Fri, 12 Aug 2016 10:50:33 -0700
-Message-ID: <f4e0cca9-c77b-7b1a-eacd-59ba966c32bc@synaptics.com>
-References: <1468476475-7884-1-git-send-email-aduggan@synaptics.com>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/2] input: misc: Add generic input driver to read
+ encoded GPIO lines
+Date: Fri, 12 Aug 2016 13:59:47 -0500
+Message-ID: <20160812185947.GA14685@rob-hp-laptop>
+References: <20160812045229.29241-1-vigneshr@ti.com>
+ <20160812045229.29241-2-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1468476475-7884-1-git-send-email-aduggan@synaptics.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Nick Dyer <nick@shmanahar.org>, Chris Healy <cphealy@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20160812045229.29241-2-vigneshr-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, John Stultz <john.stultz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Jorge Ramirez-Ortiz <jorge.ramirez-ortiz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Moritz Fischer <moritz.fischer-+aYTwkv1SeIAvxtiuMwx3w@public.gmane.org>, Daniel Hung-yu Wu <hywu-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Fri, Aug 12, 2016 at 10:22:28AM +0530, Vignesh R wrote:
+> Add a driver to read group of GPIO lines and provide its status as a
+> numerical value as input event to the system. This will help in
+> intefacing devices, that can be connected over GPIOs, that provide input
+> to the system by driving GPIO lines connected to them like a rotary dial
+> or a switch.
+> 
+> For example, a rotary switch can be connected to four GPIO lines. The
+> status of the GPIO lines reflect the actual position of the rotary
+> switch dial. For example, if dial points to 9, then the four GPIO lines
+> connected to the switch will read HLLH(0b'1001 = 9). This value
+> can be reported as an ABS_* event to the input subsystem.
+> 
+> Signed-off-by: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
+> ---
+>  .../devicetree/bindings/input/gpio-decoder.txt     |  23 ++++
+>  drivers/input/misc/Kconfig                         |  12 ++
+>  drivers/input/misc/Makefile                        |   1 +
+>  drivers/input/misc/gpio_decoder.c                  | 128 +++++++++++++++++++++
+>  4 files changed, 164 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/gpio-decoder.txt
+>  create mode 100644 drivers/input/misc/gpio_decoder.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/gpio-decoder.txt b/Documentation/devicetree/bindings/input/gpio-decoder.txt
+> new file mode 100644
+> index 000000000000..efd947f52cb3
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/gpio-decoder.txt
+> @@ -0,0 +1,23 @@
+> +* GPIO Decoder DT bindings
+> +
+> +Required Properties:
+> +- compatible: should be "gpio-decoder"
+> +- gpios: a spec of gpios (atleast two) to be decoded to a number with
+> +  first entry representing the MSB.
+> +
+> +Optional Properties:
+> +- gpio-decoder,max-value: Maximum possible value that can be reported by
 
-I wanted to check on the status of this patch series. It looks like 
-patches 2, 3, 4, and 7 remain outstanding. For the most part all of the 
-patches have either review or ack signoffs. The version 2 of patch 2 was 
-reviewed by Benjamin Tissoires, but not v3. However, the changes between 
-v2 and v3 are fairly trivial and noted in the patch under the signoff line.
+Just "decoder-max-value".
 
-I think patch three is the most controversial since it generated some 
-discussion about whether or not those parameters belong in device tree. 
-I attempted to explain why I thought they did in one of my replies. 
-However, if you don't think that issues has been resolved I would 
-recommend skipping that patch instead of holding up the others. Let me 
-know if there is anything else I need to address.
+With that, the binding looks fine to me:
 
-Thanks,
-Andrew
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
-On 07/13/2016 11:07 PM, Andrew Duggan wrote:
-> The v3 version of this patch series makes changes to patch 1 and patch 3.
-> Patch 1 now uses of_get_child_by_name() instead of of_find_node_by_name()
-> to avoid having to increment the refcount of the of_node which avoid
-> that hack. Patch 3 adds "force" to the device tree parameters to help to
-> clarify that these parameters overwrite the default value set in the
-> firmware configuration.
->
-> Thanks,
-> Andrew
->
-> Andrew Duggan (8):
->    Input: synaptics-rmi4: Use of_get_child_by_name() instead of
->      of_find_node_by_name()
->    Input: synaptics-rmi4: Add parameters for dribble packets and palm
->      detect gesture
->    Input: synaptics-rmi4: Add dribble and palm gesture parameters to
->      device tree
->    Input: synaptics-rmi4: Add support for controlling dribble packets in
->      F12
->    Input: synaptics-rmi4: Remove pointer to rmi_function in f12_data
->    Input: synaptics-rmi4: Remove unneeded variable
->    Input: synaptics-rmi4: Handle incomplete input data
->    Input: synaptics-rmi4: Use the RMI_F11_REL_BYTES define in
->      rmi_f11_rel_pos_report
->
->   .../bindings/input/rmi4/rmi_2d_sensor.txt          | 10 +++
->   drivers/input/rmi4/rmi_2d_sensor.c                 | 13 +++
->   drivers/input/rmi4/rmi_2d_sensor.h                 |  2 +
->   drivers/input/rmi4/rmi_bus.c                       |  4 +-
->   drivers/input/rmi4/rmi_f01.c                       |  6 +-
->   drivers/input/rmi4/rmi_f11.c                       | 95 +++++++++++++++------
->   drivers/input/rmi4/rmi_f12.c                       | 98 ++++++++++++++++++++--
->   drivers/input/rmi4/rmi_f30.c                       |  4 +
->   include/linux/rmi.h                                | 21 +++--
->   9 files changed, 208 insertions(+), 45 deletions(-)
->
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

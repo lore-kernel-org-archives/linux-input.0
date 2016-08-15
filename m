@@ -1,109 +1,59 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH v5] iio: hid-sensors: use asynchronous resume
-Date: Mon, 15 Aug 2016 12:12:47 -0700
-Message-ID: <1471288367-5325-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:55832 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753115AbcHOTMx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Aug 2016 15:12:53 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v4 3/5] power_supply: tps65217-charger: Add support for
+ IRQs
+Date: Mon, 15 Aug 2016 21:26:03 +0200
+Message-ID: <20160815192602.cpibysrzshm5tr7q@earth>
+References: <20160620105056.25843-1-m.niestroj@grinn-global.com>
+ <20160620105056.25843-4-m.niestroj@grinn-global.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="mj3hw3cm4t2vfm45"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20160620105056.25843-4-m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marcin Niestroj <m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org, jic23@kernel.org
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, srinivas.pandruvada@linux.intel.com, dmitry.torokhov@gmail.com
-
-Some platforms power off sensor hubs during S3 suspend, which will require
-longer time to resume. This hurts system resume time, so resume
-asynchronously.
-
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
-
-Formerly this patch was v4 5/7 for Intel ISH series, which was separated
-from the series.
-
-v5:
-Added cancel_work_sync
 
 
- .../iio/common/hid-sensors/hid-sensor-trigger.c    | 22 +++++++++++++++++++++-
- include/linux/hid-sensor-hub.h                     |  1 +
- 2 files changed, 22 insertions(+), 1 deletion(-)
+--mj3hw3cm4t2vfm45
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-index 5b41f9d..5264ed6 100644
---- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-+++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-@@ -122,6 +122,14 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
- #endif
- }
- 
-+static void hid_sensor_set_power_work(struct work_struct *work)
-+{
-+	struct hid_sensor_common *attrb = container_of(work,
-+						       struct hid_sensor_common,
-+						       work);
-+	_hid_sensor_power_state(attrb, true);
-+}
-+
- static int hid_sensor_data_rdy_trigger_set_state(struct iio_trigger *trig,
- 						bool state)
- {
-@@ -130,6 +138,7 @@ static int hid_sensor_data_rdy_trigger_set_state(struct iio_trigger *trig,
- 
- void hid_sensor_remove_trigger(struct hid_sensor_common *attrb)
- {
-+	cancel_work_sync(&attrb->work);
- 	iio_trigger_unregister(attrb->trigger);
- 	iio_trigger_free(attrb->trigger);
- }
-@@ -170,6 +179,9 @@ int hid_sensor_setup_trigger(struct iio_dev *indio_dev, const char *name,
- 		goto error_unreg_trigger;
- 
- 	iio_device_set_drvdata(indio_dev, attrb);
-+
-+	INIT_WORK(&attrb->work, hid_sensor_set_power_work);
-+
- 	pm_suspend_ignore_children(&attrb->pdev->dev, true);
- 	pm_runtime_enable(&attrb->pdev->dev);
- 	/* Default to 3 seconds, but can be changed from sysfs */
-@@ -202,7 +214,15 @@ static int hid_sensor_resume(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
- 	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
-+	schedule_work(&attrb->work);
-+	return 0;
-+}
- 
-+static int hid_sensor_runtime_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
-+	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
- 	return _hid_sensor_power_state(attrb, true);
- }
- 
-@@ -211,7 +231,7 @@ static int hid_sensor_resume(struct device *dev)
- const struct dev_pm_ops hid_sensor_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(hid_sensor_suspend, hid_sensor_resume)
- 	SET_RUNTIME_PM_OPS(hid_sensor_suspend,
--			   hid_sensor_resume, NULL)
-+			   hid_sensor_runtime_resume, NULL)
- };
- EXPORT_SYMBOL(hid_sensor_pm_ops);
- 
-diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
-index c02b5ce..dd85f35 100644
---- a/include/linux/hid-sensor-hub.h
-+++ b/include/linux/hid-sensor-hub.h
-@@ -236,6 +236,7 @@ struct hid_sensor_common {
- 	struct hid_sensor_hub_attribute_info report_state;
- 	struct hid_sensor_hub_attribute_info power_state;
- 	struct hid_sensor_hub_attribute_info sensitivity;
-+	struct work_struct work;
- };
- 
- /* Convert from hid unit expo to regular exponent */
--- 
-2.7.4
+Hi,
 
+On Mon, Jun 20, 2016 at 12:50:54PM +0200, Marcin Niestroj wrote:
+> Make use of IRQ resources defined in tps65217 mfd code. If they are valid
+> we use them instead separate poll task, in order to define AC power state.
+
+Thanks, queued into power-supply's -next branch.
+
+-- Sebastian
+
+--mj3hw3cm4t2vfm45
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJXshdHAAoJENju1/PIO/qaRLsQAJLqeAiiZGgAiWGL/kn0lZlM
+FwHfBwcXDIYFOtnJexiTkIgzseDau2/xr1MrSkQ/6Qusgx1Kb7EgBHc6qhDkcyHT
+Q7mr8atoX05hM9R2XyNIOjdyhVIpVnbYpAF9DHaTftcwTntnfpkzIcxB5YIoEGo7
+vKvejtZ+lxEwdONoDSj7REQppfk1dKVLQlLhxbbVmxc+od5DM0T1EDg7nEqu1D76
+e+XEftu9bCMLIJGfDOOK+2G1v5Owh9NkW4vdp8Fh75b3I5w/sqU5cK3gPg+6CjSu
+rU8knmJ4/bL94fXlRDAV2wUiVZGOx22/QkIgOdZmd8ZcbkDkLZDdczYuXKhB/gBO
+apk+jD9zwmYrGI11cfTh5PsK+JIiaLG1FwlC1kqewi7PeH8ZOSDvtHu8tc4p5AH4
+mms3sfYl4s7KZbXDRbZlhiALPoZbxLNP97dRTGslcLzAhYKjAs0bC/AZE9tv1Jhb
+jxgP4IM6P2UhrRuSmQ6I5zividazNK6t/rybyymNs9MPnFQg2zMpGhh68by1GDTp
+fR0cuMomcvcCTdp08poOl90iM/Xwtj/i/Z0HA4P0KEJrgFylKMdpcRuIH0oj86JE
+WvD4iMcXdnae+SXAv948Ytw4pjKoImFPf6V5P+TVfqT1tjQnQOztnw0hGmUSl6Ga
+b3iLBjB9BPIRocO0unHu
+=bZw1
+-----END PGP SIGNATURE-----
+
+--mj3hw3cm4t2vfm45--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

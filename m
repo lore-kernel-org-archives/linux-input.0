@@ -1,59 +1,41 @@
-From: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v4 3/5] power_supply: tps65217-charger: Add support for
- IRQs
-Date: Mon, 15 Aug 2016 21:26:03 +0200
-Message-ID: <20160815192602.cpibysrzshm5tr7q@earth>
-References: <20160620105056.25843-1-m.niestroj@grinn-global.com>
- <20160620105056.25843-4-m.niestroj@grinn-global.com>
+From: Tejun Heo <tj@kernel.org>
+Subject: Re: [PATCH 3/3] Input: wm97xx: Remove deprecated
+ create_singletheread_workqueue
+Date: Mon, 15 Aug 2016 18:53:33 -0400
+Message-ID: <20160815225333.GB3672@mtj.duckdns.org>
+References: <cover.1471151622.git.bhaktipriya96@gmail.com>
+ <e062d8979274f279bf6e6181c321647ac193146d.1471151622.git.bhaktipriya96@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="mj3hw3cm4t2vfm45"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20160620105056.25843-4-m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marcin Niestroj <m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-List-Id: linux-input@vger.kernel.org
-
-
---mj3hw3cm4t2vfm45
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qt0-f194.google.com ([209.85.216.194]:36256 "EHLO
+	mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750796AbcHOWxf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Aug 2016 18:53:35 -0400
 Content-Disposition: inline
+In-Reply-To: <e062d8979274f279bf6e6181c321647ac193146d.1471151622.git.bhaktipriya96@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: Bhaktipriya Shridhar <bhaktipriya96@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Chris Diamand <chris@diamand.org>, Stefan Assmann <sassmann@kpanic.de>, Richard Pospesel <pospeselr@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, Takashi Iwai <tiwai@suse.de>, patches@opensource.wolfsonmicro.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Aug 14, 2016 at 10:56:38AM +0530, Bhaktipriya Shridhar wrote:
+> alloc_ordered_workqueue() with WQ_MEM_RECLAIM set, replaces
+> deprecated create_singlethread_workqueue(). This is the identity
+> conversion. The workqueue "ts_workq" has been identity converted.
+> 
+> It queues work items viz &wm->ts_reader and &wm->pen_event_work which map
+> to wm97xx_pen_irq_worker (handles a pen down interrupt) and
+> wm97xx_ts_reader (the touchscreen sample reader) respectively. Hence,
+> an ordered dedicated workqueue has been used.
+> 
+> WQ_MEM_RECLAIM has been set to ensure forward progress under memory
+> pressure.
 
-On Mon, Jun 20, 2016 at 12:50:54PM +0200, Marcin Niestroj wrote:
-> Make use of IRQ resources defined in tps65217 mfd code. If they are valid
-> we use them instead separate poll task, in order to define AC power state.
+I'm not sure WQ_MEM_RECLAIM makes sense on an input driver.
 
-Thanks, queued into power-supply's -next branch.
+Thanks.
 
--- Sebastian
-
---mj3hw3cm4t2vfm45
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBCgAGBQJXshdHAAoJENju1/PIO/qaRLsQAJLqeAiiZGgAiWGL/kn0lZlM
-FwHfBwcXDIYFOtnJexiTkIgzseDau2/xr1MrSkQ/6Qusgx1Kb7EgBHc6qhDkcyHT
-Q7mr8atoX05hM9R2XyNIOjdyhVIpVnbYpAF9DHaTftcwTntnfpkzIcxB5YIoEGo7
-vKvejtZ+lxEwdONoDSj7REQppfk1dKVLQlLhxbbVmxc+od5DM0T1EDg7nEqu1D76
-e+XEftu9bCMLIJGfDOOK+2G1v5Owh9NkW4vdp8Fh75b3I5w/sqU5cK3gPg+6CjSu
-rU8knmJ4/bL94fXlRDAV2wUiVZGOx22/QkIgOdZmd8ZcbkDkLZDdczYuXKhB/gBO
-apk+jD9zwmYrGI11cfTh5PsK+JIiaLG1FwlC1kqewi7PeH8ZOSDvtHu8tc4p5AH4
-mms3sfYl4s7KZbXDRbZlhiALPoZbxLNP97dRTGslcLzAhYKjAs0bC/AZE9tv1Jhb
-jxgP4IM6P2UhrRuSmQ6I5zividazNK6t/rybyymNs9MPnFQg2zMpGhh68by1GDTp
-fR0cuMomcvcCTdp08poOl90iM/Xwtj/i/Z0HA4P0KEJrgFylKMdpcRuIH0oj86JE
-WvD4iMcXdnae+SXAv948Ytw4pjKoImFPf6V5P+TVfqT1tjQnQOztnw0hGmUSl6Ga
-b3iLBjB9BPIRocO0unHu
-=bZw1
------END PGP SIGNATURE-----
-
---mj3hw3cm4t2vfm45--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+tejun

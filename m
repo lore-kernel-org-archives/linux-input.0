@@ -1,133 +1,109 @@
-From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v4 5/7] iio: hid-sensors: use asynchronous resume
-Date: Mon, 15 Aug 2016 11:24:00 -0700
-Message-ID: <1471285440.20508.28.camel@linux.intel.com>
-References: <1470561939-14278-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-	 <1470561939-14278-6-git-send-email-srinivas.pandruvada@linux.intel.com>
-	 <alpine.LNX.2.00.1608071214500.22028@cbobk.fhfr.pm>
-	 <884e74df-569e-8218-fbda-f9c7ecfe1e5a@kernel.org>
-	 <af2d1c90-a0ec-0888-8048-76463bf98ece@kernel.org>
-	 <CAKdAkRS-sVHqQ1tUZWVxNTfX5=ZxFzbCAxvsJPHV4=85mdEeRA@mail.gmail.com>
-	 <1471279360.20508.20.camel@linux.intel.com>
-	 <CAKdAkRRjh+21qOzq28=vSX59RcZsMOAt3pTUhjw4wXdpXXQg-w@mail.gmail.com>
-	 <1471282163.20508.21.camel@linux.intel.com>
-	 <20160815175320.GA23694@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160815175320.GA23694@dtor-ws>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v5] iio: hid-sensors: use asynchronous resume
+Date: Mon, 15 Aug 2016 12:12:47 -0700
+Message-ID: <1471288367-5325-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:55832 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753115AbcHOTMx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Aug 2016 15:12:53 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jikos@kernel.org, jic23@kernel.org
+Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, srinivas.pandruvada@linux.intel.com, dmitry.torokhov@gmail.com
 
-On Mon, 2016-08-15 at 10:53 -0700, Dmitry Torokhov wrote:
-> On Mon, Aug 15, 2016 at 10:29:23AM -0700, Srinivas Pandruvada wrote:
-> > 
-> > On Mon, 2016-08-15 at 10:14 -0700, Dmitry Torokhov wrote:
-> > > 
-> > > On Mon, Aug 15, 2016 at 9:42 AM, Srinivas Pandruvada
-> > > <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> > > > 
-> > > > 
-> > > > On Mon, 2016-08-15 at 08:45 -0700, Dmitry Torokhov wrote:
-> > > > > 
-> > > > > 
-> > > > > On Mon, Aug 15, 2016 at 7:52 AM, Jonathan Cameron <jic23@kern
-> > > > > el.o
-> > > > > rg>
-> > > > > wrote:
-> > > > > > 
-> > > > > > 
-> > > > > > 
-> > > > > > On 15/08/16 15:07, Jonathan Cameron wrote:
-> > > > > > > 
-> > > > > > > 
-> > > > > > > 
-> > > > > > > On 07/08/16 11:15, Jiri Kosina wrote:
-> > > > > > > > 
-> > > > > > > > 
-> > > > > > > > 
-> > > > > > > > On Sun, 7 Aug 2016, Srinivas Pandruvada wrote:
-> > > > > > > > 
-> > > > > > > > > 
-> > > > > > > > > 
-> > > > > > > > > 
-> > > > > > > > > Some platforms power off sensor hubs during S3
-> > > > > > > > > suspend,
-> > > > > > > > > which
-> > > > > > > > > will require
-> > > > > > > > > longer time to resume. This hurts system resume time,
-> > > > > > > > > so
-> > > > > > > > > resume
-> > > > > > > > > asynchronously.
-> > > > > > > > > 
-> > > > > > > > > Signed-off-by: Srinivas Pandruvada <srinivas.pandruva
-> > > > > > > > > da@l
-> > > > > > > > > inux
-> > > > > > > > > .intel.com>
-> > > > > > > > Jonathan, are you going to cherry-pick this patch from
-> > > > > > > > the
-> > > > > > > > series?
-> > > > > > > > Alternatively, if you're okay with it, I can pull it in
-> > > > > > > > together with the
-> > > > > > > > whole set with your Acked-by or Reviewed-by.
-> > > > > > > > 
-> > > > > > > I'll take it via IIO. Got a bit of catching up to do
-> > > > > > > (been on
-> > > > > > > holiday)
-> > > > > > Applied to the togreg branch of iio.git - initially pushed
-> > > > > > out
-> > > > > > as
-> > > > > > testing for the autobuilders to play with it.
-> > > > > > This one is not really connected to the others so makes
-> > > > > > sense
-> > > > > > to
-> > > > > > take it separately.
-> > > > > > 
-> > > > > > I'm out of my depth on the rest of the patches in this
-> > > > > > series
-> > > > > > and don't have time to learn enough to follow them! Sorry I
-> > > > > > can't help on that front.
-> > > > > About this patch: me sees a new work, me does not see new
-> > > > > calls
-> > > > > to
-> > > > > cancel_work_sync() or flush_work() anywhere, me gets worried.
-> > > > This work is scheduled during resume and is not delayed call.
-> > > > Only
-> > > > time
-> > > > really we need to cancel or flush if module is unloaded before
-> > > > resume
-> > > > work, not sure if this case realistic. Do you see any other
-> > > > case
-> > > > possible?
-> > > Runtime resume can happen at any time, I can unload module or
-> > > unbind
-> > > it at any time. I also wasn't aware that our implementation goal
-> > > for
-> > > locking rules/lifetime rules/etc was "realistic" instead of
-> > > "correct".
-> > This is not for runtime_resume, this is for regular S3 suspend. But
-> > I
-> > agree, I will submit a patch for correctness.
-> Thinking about it some more: if you are off-loading powering up the
-> hub
-> to work structure it means that the hub is not actually powered up
-> when
-> the rest of the system thinks it is, which may cause subsequent
-> requests
-> to it fail.
-> 
-> You need to make sure noone is actually interacting with the device
-> until you are done powering it up.
-This will happen as the input request will be waiting till sensor is
-powered up and response is received.
+Some platforms power off sensor hubs during S3 suspend, which will require
+longer time to resume. This hurts system resume time, so resume
+asynchronously.
 
-Thanks,
-Srinivas
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+---
+
+Formerly this patch was v4 5/7 for Intel ISH series, which was separated
+from the series.
+
+v5:
+Added cancel_work_sync
 
 
-> 
-> Thanks.
-> 
+ .../iio/common/hid-sensors/hid-sensor-trigger.c    | 22 +++++++++++++++++++++-
+ include/linux/hid-sensor-hub.h                     |  1 +
+ 2 files changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+index 5b41f9d..5264ed6 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+@@ -122,6 +122,14 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
+ #endif
+ }
+ 
++static void hid_sensor_set_power_work(struct work_struct *work)
++{
++	struct hid_sensor_common *attrb = container_of(work,
++						       struct hid_sensor_common,
++						       work);
++	_hid_sensor_power_state(attrb, true);
++}
++
+ static int hid_sensor_data_rdy_trigger_set_state(struct iio_trigger *trig,
+ 						bool state)
+ {
+@@ -130,6 +138,7 @@ static int hid_sensor_data_rdy_trigger_set_state(struct iio_trigger *trig,
+ 
+ void hid_sensor_remove_trigger(struct hid_sensor_common *attrb)
+ {
++	cancel_work_sync(&attrb->work);
+ 	iio_trigger_unregister(attrb->trigger);
+ 	iio_trigger_free(attrb->trigger);
+ }
+@@ -170,6 +179,9 @@ int hid_sensor_setup_trigger(struct iio_dev *indio_dev, const char *name,
+ 		goto error_unreg_trigger;
+ 
+ 	iio_device_set_drvdata(indio_dev, attrb);
++
++	INIT_WORK(&attrb->work, hid_sensor_set_power_work);
++
+ 	pm_suspend_ignore_children(&attrb->pdev->dev, true);
+ 	pm_runtime_enable(&attrb->pdev->dev);
+ 	/* Default to 3 seconds, but can be changed from sysfs */
+@@ -202,7 +214,15 @@ static int hid_sensor_resume(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+ 	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
++	schedule_work(&attrb->work);
++	return 0;
++}
+ 
++static int hid_sensor_runtime_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
++	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
+ 	return _hid_sensor_power_state(attrb, true);
+ }
+ 
+@@ -211,7 +231,7 @@ static int hid_sensor_resume(struct device *dev)
+ const struct dev_pm_ops hid_sensor_pm_ops = {
+ 	SET_SYSTEM_SLEEP_PM_OPS(hid_sensor_suspend, hid_sensor_resume)
+ 	SET_RUNTIME_PM_OPS(hid_sensor_suspend,
+-			   hid_sensor_resume, NULL)
++			   hid_sensor_runtime_resume, NULL)
+ };
+ EXPORT_SYMBOL(hid_sensor_pm_ops);
+ 
+diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+index c02b5ce..dd85f35 100644
+--- a/include/linux/hid-sensor-hub.h
++++ b/include/linux/hid-sensor-hub.h
+@@ -236,6 +236,7 @@ struct hid_sensor_common {
+ 	struct hid_sensor_hub_attribute_info report_state;
+ 	struct hid_sensor_hub_attribute_info power_state;
+ 	struct hid_sensor_hub_attribute_info sensitivity;
++	struct work_struct work;
+ };
+ 
+ /* Convert from hid unit expo to regular exponent */
+-- 
+2.7.4
+

@@ -1,72 +1,60 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH v4 5/7] iio: hid-sensors: use asynchronous resume
-Date: Mon, 15 Aug 2016 09:42:40 -0700
-Message-ID: <1471279360.20508.20.camel@linux.intel.com>
-References: <1470561939-14278-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-	 <1470561939-14278-6-git-send-email-srinivas.pandruvada@linux.intel.com>
-	 <alpine.LNX.2.00.1608071214500.22028@cbobk.fhfr.pm>
-	 <884e74df-569e-8218-fbda-f9c7ecfe1e5a@kernel.org>
-	 <af2d1c90-a0ec-0888-8048-76463bf98ece@kernel.org>
-	 <CAKdAkRS-sVHqQ1tUZWVxNTfX5=ZxFzbCAxvsJPHV4=85mdEeRA@mail.gmail.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v4 1/4] mfd: mxs-lradc: Add support for mxs-lradc MFD
+Date: Mon, 15 Aug 2016 17:46:06 +0100
+Message-ID: <22e16c7d-4ad7-6432-11e7-30b6b6194573@kernel.org>
+References: <cover.1470316956.git.ksenija.stanojevic@gmail.com>
+ <0a60a10b249062d305237f04fdb9aea05b128b85.1470316956.git.ksenija.stanojevic@gmail.com>
+ <2721285.1CS7CJCgc7@ws-stein> <20160805070224.GH5243@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:44423 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752941AbcHOQo4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Aug 2016 12:44:56 -0400
-In-Reply-To: <CAKdAkRS-sVHqQ1tUZWVxNTfX5=ZxFzbCAxvsJPHV4=85mdEeRA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160805070224.GH5243@dell>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, Alexander Stein <alexander.stein@systec-electronic.com>
+Cc: linux-kernel@vger.kernel.org, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org
 
-On Mon, 2016-08-15 at 08:45 -0700, Dmitry Torokhov wrote:
-> On Mon, Aug 15, 2016 at 7:52 AM, Jonathan Cameron <jic23@kernel.org>
-> wrote:
-> > 
-> > On 15/08/16 15:07, Jonathan Cameron wrote:
-> > > 
-> > > On 07/08/16 11:15, Jiri Kosina wrote:
-> > > > 
-> > > > On Sun, 7 Aug 2016, Srinivas Pandruvada wrote:
-> > > > 
-> > > > > 
-> > > > > Some platforms power off sensor hubs during S3 suspend, which
-> > > > > will require
-> > > > > longer time to resume. This hurts system resume time, so
-> > > > > resume
-> > > > > asynchronously.
-> > > > > 
-> > > > > Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux
-> > > > > .intel.com>
-> > > > Jonathan, are you going to cherry-pick this patch from the
-> > > > series?
-> > > > Alternatively, if you're okay with it, I can pull it in
-> > > > together with the
-> > > > whole set with your Acked-by or Reviewed-by.
-> > > > 
-> > > I'll take it via IIO. Got a bit of catching up to do (been on
-> > > holiday)
-> > Applied to the togreg branch of iio.git - initially pushed out as
-> > testing for the autobuilders to play with it.
-> > This one is not really connected to the others so makes sense to
-> > take it separately.
-> > 
-> > I'm out of my depth on the rest of the patches in this series
-> > and don't have time to learn enough to follow them! Sorry I
-> > can't help on that front.
-> About this patch: me sees a new work, me does not see new calls to
-> cancel_work_sync() or flush_work() anywhere, me gets worried.
-This work is scheduled during resume and is not delayed call. Only time
-really we need to cancel or flush if module is unloaded before resume
-work, not sure if this case realistic. Do you see any other case
-possible?
-
-Thanks,
-Srinivas
-
+On 05/08/16 08:02, Lee Jones wrote:
+> On Thu, 04 Aug 2016, Alexander Stein wrote:
 > 
-> Thanks.
+>> On Thursday 04 August 2016 15:28:18, Ksenija Stanojevic wrote:
+>>> Add core files for mxs-lradc MFD driver.
+>>>
+>>> Note:  this patch won't compile in iio/testing without this patch:
+>>> a8f447be8056 ("mfd: Add resource managed APIs for mfd_add_devices")
+>>>
+>>> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+>>> ---
+>>> [...]
+>>> +static int mxs_lradc_probe(struct platform_device *pdev)
+>>> +{
+>>> +	const struct of_device_id *of_id;
+>>> +	struct device *dev = &pdev->dev;
+>>> +	struct device_node *node = dev->of_node;
+>>> +	struct mxs_lradc *lradc;
+>>> +	struct resource *iores;
+>>> +	struct mfd_cell *cells = NULL;
+>>> +	int ret = 0;
+>>> +	u32 ts_wires = 0;
+>>> +
+>>> +	lradc = devm_kzalloc(&pdev->dev, sizeof(*lradc), GFP_KERNEL);
+>>> +	if (!lradc)
+>>> +		return -ENOMEM;
+>>> +
+>>> +	of_id = of_match_device(mxs_lradc_dt_ids, &pdev->dev);
+>>> +	lradc->soc = (enum mxs_lradc_id)of_id->data;
+>>> +
+>>> +	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>>> +	lradc->base = devm_ioremap_resource(dev, iores);
+>>
+>> Out of couriosity: Is it common to pass already ioremapped addresses to (MFD 
+>> cell) platform drivers? I would have expected, and done myself, that ioremap 
+>> is done in the driver itself, same as the IRQ.
 > 
+> Yes, this is exactly what should happen.
+> 
+Lee, you've confused me with this answer.  Yes, it is common or Yes it
+should have been done the way Alexander suggested?
+
+Jonathan

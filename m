@@ -1,36 +1,49 @@
-From: Masahiro Yamada <yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org>
-Subject: [PATCH] Input: tegra-kbc: fix inverted reset logic
-Date: Tue, 16 Aug 2016 11:59:23 +0900
-Message-ID: <1471316363-19378-1-git-send-email-yamada.masahiro@socionext.com>
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Masahiro Yamada <yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: [PATCH v2 0/4] Input: xpad - improve support for new Xbox One S pad
+Date: Mon, 15 Aug 2016 21:10:12 -0700
+Message-ID: <1471320616-13110-1-git-send-email-aicommander@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f65.google.com ([209.85.220.65]:35133 "EHLO
+	mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751425AbcHPEKS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Aug 2016 00:10:18 -0400
+Received: by mail-pa0-f65.google.com with SMTP id cf3so4570189pad.2
+        for <linux-input@vger.kernel.org>; Mon, 15 Aug 2016 21:10:18 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
+Cc: linux-input@vger.kernel.org
 
-Commit fe6b0dfaba68 ("Input: tegra-kbc - use reset framework")
-accidentally converted _deassert to _assert, so there is no code
-to wake up this hardware.
+This pad generally works well enough on the current xpad, but there are
+a few usability issues that I'm fixing with this series.
 
-Fixes: fe6b0dfaba68 ("Input: tegra-kbc - use reset framework")
-Signed-off-by: Masahiro Yamada <yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org>
----
+The notable changes:
 
- drivers/input/keyboard/tegra-kbc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The protocol seems to have changed a bit with the new pad. For one, it
+needs an ack for the mode report now, otherwise it just retransmits it
+forever. This makes the mode button look stuck down to userspace after
+the first time it is pressed.
 
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 7d61439..0c07e10 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -376,7 +376,7 @@ static int tegra_kbc_start(struct tegra_kbc *kbc)
- 	/* Reset the KBC controller to clear all previous status.*/
- 	reset_control_assert(kbc->rst);
- 	udelay(100);
--	reset_control_assert(kbc->rst);
-+	reset_control_deassert(kbc->rst);
- 	udelay(100);
- 
- 	tegra_kbc_config_pins(kbc);
+It also seems to overflow some internal buffer, hang, then eventually
+reset the pad if there is user input without the driver listening.
+This causes a spurious disconnection that may cause userspace programs
+to behave unexpectedly.
+
+Changes in v2:
+Fixed multi-line comment style in patch 2 and 3 to be consistent with
+the existing code. I've also added a simple patch to address rumble
+issues on all Xbox One pads, including Xbox One S.
+
+Cameron Gutman (4):
+  Input: xpad - add device ID for Xbox One S pad
+  Input: xpad - fix One S pad disconnecting when not opened
+  Input: xpad - fix stuck mode button on Xbox One S pad
+  Input: xpad - fix Xbox One rumble stopping after 2.5 secs
+
+ drivers/input/joystick/xpad.c | 60 ++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 54 insertions(+), 6 deletions(-)
+
 -- 
-1.9.1
+2.7.4
+

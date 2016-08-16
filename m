@@ -1,64 +1,41 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: [PATCH v2 4/4] Input: xpad - fix Xbox One rumble stopping after 2.5 secs
-Date: Mon, 15 Aug 2016 21:10:16 -0700
-Message-ID: <1471320616-13110-5-git-send-email-aicommander@gmail.com>
-References: <1471320616-13110-1-git-send-email-aicommander@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:33112 "EHLO
-	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751425AbcHPEKW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Aug 2016 00:10:22 -0400
-Received: by mail-pf0-f193.google.com with SMTP id i6so4772344pfe.0
-        for <linux-input@vger.kernel.org>; Mon, 15 Aug 2016 21:10:21 -0700 (PDT)
-In-Reply-To: <1471320616-13110-1-git-send-email-aicommander@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] dt-bindings: touchscreen: silead gsl1680: Document all compatibles
+Date: Tue, 16 Aug 2016 11:01:31 +0200
+Message-ID: <1471338091-3259-1-git-send-email-hdegoede@redhat.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
-Cc: linux-input@vger.kernel.org
 
-Unlike previous Xbox pads, the Xbox One pad doesn't have
-"sticky" rumble packets. The duration is encoded into
-the command and expiration is handled by the pad firmware.
+The silead gsl1680 driver / binding supports a whole series of devices,
+list the compatibles for all of them in the binding.
 
-ff-memless needs pseudo-sticky behavior for rumble effects
-to behave properly for long duration effects. We already
-specify the maximum rumble on duration in the command
-packets, but it's still only good for about 2.5 seconds
-of rumble. This is easily reproducable running fftest's
-sine vibration test.
-
-It turns out there's a repeat count encoded in the rumble
-command. We can abuse that to get the pseudo-sticky behavior
-needed for rumble to behave as expected for effects with long
-duration.
-
-By my math, this change should allow a single ff_effect to
-rumble for 10 minutes straight, which should be more than
-enough for most needs.
-
-Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/input/joystick/xpad.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .../devicetree/bindings/input/touchscreen/silead_gsl1680.txt         | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 42723ba..8954643 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1078,9 +1078,9 @@ static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect
- 		packet->data[7] = 0x00;
- 		packet->data[8] = strong / 512;	/* left actuator */
- 		packet->data[9] = weak / 512;	/* right actuator */
--		packet->data[10] = 0xFF;
--		packet->data[11] = 0x00;
--		packet->data[12] = 0x00;
-+		packet->data[10] = 0xFF; /* on period */
-+		packet->data[11] = 0x00; /* off period */
-+		packet->data[12] = 0xFF; /* repeat count */
- 		packet->len = 13;
- 		packet->pending = true;
- 		break;
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+index 1112e0d..37a9370 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+@@ -2,6 +2,11 @@
+ 
+ Required properties:
+ - compatible		  : "silead,gsl1680"
++			or: "silead,gsl1688"
++			or: "silead,gsl3670"
++			or: "silead,gsl3675"
++			or: "silead,gsl3692"
++			or: "silead,mssl1680"
+ - reg			  : I2C slave address of the chip (0x40)
+ - interrupt-parent	  : a phandle pointing to the interrupt controller
+ 			    serving the interrupt for this chip
 -- 
 2.7.4
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

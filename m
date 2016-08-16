@@ -1,49 +1,42 @@
 From: Cameron Gutman <aicommander@gmail.com>
-Subject: [PATCH v2 0/4] Input: xpad - improve support for new Xbox One S pad
-Date: Mon, 15 Aug 2016 21:10:12 -0700
-Message-ID: <1471320616-13110-1-git-send-email-aicommander@gmail.com>
+Subject: [PATCH v2 1/4] Input: xpad - add device ID for Xbox One S pad
+Date: Mon, 15 Aug 2016 21:10:13 -0700
+Message-ID: <1471320616-13110-2-git-send-email-aicommander@gmail.com>
+References: <1471320616-13110-1-git-send-email-aicommander@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f65.google.com ([209.85.220.65]:35133 "EHLO
-	mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751425AbcHPEKS (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:36171 "EHLO
+	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751425AbcHPEKT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Aug 2016 00:10:18 -0400
-Received: by mail-pa0-f65.google.com with SMTP id cf3so4570189pad.2
-        for <linux-input@vger.kernel.org>; Mon, 15 Aug 2016 21:10:18 -0700 (PDT)
+	Tue, 16 Aug 2016 00:10:19 -0400
+Received: by mail-pf0-f193.google.com with SMTP id y134so4765609pfg.3
+        for <linux-input@vger.kernel.org>; Mon, 15 Aug 2016 21:10:19 -0700 (PDT)
+In-Reply-To: <1471320616-13110-1-git-send-email-aicommander@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
 Cc: linux-input@vger.kernel.org
 
-This pad generally works well enough on the current xpad, but there are
-a few usability issues that I'm fixing with this series.
+This is the new gamepad that ships with the Xbox One S which
+includes Bluetooth functionality.
 
-The notable changes:
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-The protocol seems to have changed a bit with the new pad. For one, it
-needs an ack for the mode report now, otherwise it just retransmits it
-forever. This makes the mode button look stuck down to userspace after
-the first time it is pressed.
-
-It also seems to overflow some internal buffer, hang, then eventually
-reset the pad if there is user input without the driver listening.
-This causes a spurious disconnection that may cause userspace programs
-to behave unexpectedly.
-
-Changes in v2:
-Fixed multi-line comment style in patch 2 and 3 to be consistent with
-the existing code. I've also added a simple patch to address rumble
-issues on all Xbox One pads, including Xbox One S.
-
-Cameron Gutman (4):
-  Input: xpad - add device ID for Xbox One S pad
-  Input: xpad - fix One S pad disconnecting when not opened
-  Input: xpad - fix stuck mode button on Xbox One S pad
-  Input: xpad - fix Xbox One rumble stopping after 2.5 secs
-
- drivers/input/joystick/xpad.c | 60 ++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 54 insertions(+), 6 deletions(-)
-
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 83af17a..19886db 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -134,6 +134,7 @@ static const struct xpad_device {
+ 	{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 0, XTYPE_XBOXONE },
++	{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver (XBOX)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
 -- 
 2.7.4
 

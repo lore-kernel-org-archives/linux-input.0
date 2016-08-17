@@ -1,129 +1,117 @@
-From: Lv Zheng <lv.zheng@intel.com>
-Subject: [PATCH v8 2/2] ACPI / button: Add document for ACPI control method lid device restrictions
-Date: Wed, 17 Aug 2016 16:23:14 +0800
-Message-ID: <5b3ad68bd0806671fcf96efbc36681827f312f02.1471422130.git.lv.zheng@intel.com>
-References: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>
-Cc: Lv Zheng <lv.zheng@intel.com>, Lv Zheng <zetalog@gmail.com>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Bastien Nocera:" <hadess@hadess.net>, linux-input@vger.kernel.org
+From: Hans Verkuil <hansverk@cisco.com>
+Subject: Re: [PATCHv2] serio: add hangup support
+Date: Wed, 17 Aug 2016 10:39:58 +0200
+Message-ID: <57B422DE.7070501@cisco.com>
+References: <0d959a01-e698-0178-af89-5925469f95ab@xs4all.nl>
+ <20160803152602.GB29702@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20160803152602.GB29702@dtor-ws>
+Sender: linux-media-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This patch adds documentation for the usage model of the control method lid
-device on some buggy platforms.
+Hi Dmitry,
 
-Signed-off-by: Lv Zheng <lv.zheng@intel.com>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Bastien Nocera: <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org
----
- Documentation/acpi/acpi-lid.txt |   96 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 96 insertions(+)
- create mode 100644 Documentation/acpi/acpi-lid.txt
+I don't know if you processed this patch yet, but if not, can you update a
+small mistake in the commit log? See below.
 
-diff --git a/Documentation/acpi/acpi-lid.txt b/Documentation/acpi/acpi-lid.txt
-new file mode 100644
-index 0000000..effe7af
---- /dev/null
-+++ b/Documentation/acpi/acpi-lid.txt
-@@ -0,0 +1,96 @@
-+Special Usage Model of the ACPI Control Method Lid Device
-+
-+Copyright (C) 2016, Intel Corporation
-+Author: Lv Zheng <lv.zheng@intel.com>
-+
-+
-+Abstract:
-+
-+Platforms containing lids convey lid state (open/close) to OSPMs using a
-+control method lid device. To implement this, the AML tables issue
-+Notify(lid_device, 0x80) to notify the OSPMs whenever the lid state has
-+changed. The _LID control method for the lid device must be implemented to
-+report the "current" state of the lid as either "opened" or "closed".
-+
-+For most platforms, both the _LID method and the lid notifications are
-+reliable. However, there are exceptions. In order to work with these
-+exceptional buggy platforms, special restrictions and expections should be
-+taken into account. This document describes the restrictions and the
-+expections of the Linux ACPI lid device driver.
-+
-+
-+1. Restrictions of the returning value of the _LID control method
-+
-+The _LID control method is described to return the "current" lid state.
-+However the word of "current" has ambiguity, some buggy AML tables return
-+the lid state upon the last lid notification instead of returning the lid
-+state upon the last _LID evaluation. There won't be difference when the
-+_LID control method is evaluated during the runtime, the problem is its
-+initial returning value. When the AML tables implement this control method
-+with cached value, the initial returning value is likely not reliable.
-+There are platforms always retun "closed" as initial lid state.
-+
-+2. Restrictions of the lid state change notifications
-+
-+There are buggy AML tables never notifying when the lid device state is
-+changed to "opened". Thus the "opened" notification is not guaranteed. But
-+it is guaranteed that the AML tables always notify "closed" when the lid
-+state is changed to "closed". The "closed" notification is normally used to
-+trigger some system power saving operations on Windows. Since it is fully
-+tested, it is reliable from all AML tables.
-+
-+3. Expections for the userspace users of the ACPI lid device driver
-+
-+The ACPI button driver exports the lid state to the userspace via the
-+following file:
-+  /proc/acpi/button/lid/LID0/state
-+This file actually calls the _LID control method described above. And given
-+the previous explanation, it is not reliable enough on some platforms. So
-+it is advised for the userspace program to not to solely rely on this file
-+to determine the actual lid state.
-+
-+The ACPI button driver emits the following input event to the userspace:
-+  SW_LID
-+The ACPI lid device driver is implemented to try to deliver the platform
-+triggered events to the userspace. However, given the fact that the buggy
-+firmware cannot make sure "opened"/"closed" events are paired, the ACPI
-+button driver uses the following 3 modes in order not to trigger issues.
-+
-+If the userspace hasn't been prepared to ignore the unreliable "opened"
-+events and the unreliable initial state notification, Linux users can use
-+the following kernel parameters to handle the possible issues:
-+A. button.lid_init_state=method:
-+   When this option is specified, the ACPI button driver reports the
-+   initial lid state using the returning value of the _LID control method
-+   and whether the "opened"/"closed" events are paired fully relies on the
-+   firmware implementation.
-+   This option can be used to fix some platforms where the returning value
-+   of the _LID control method is reliable but the initial lid state
-+   notification is missing.
-+   This option is the default behavior during the period the userspace
-+   isn't ready to handle the buggy AML tables.
-+B. button.lid_init_state=open:
-+   When this option is specified, the ACPI button driver always reports the
-+   initial lid state as "opened" and whether the "opened"/"closed" events
-+   are paired fully relies on the firmware implementation.
-+   This may fix some platforms where the returning value of the _LID
-+   control method is not reliable and the initial lid state notification is
-+   missing.
-+
-+If the userspace has been prepared to ignore the unreliable "opened" events
-+and the unreliable initial state notification, Linux users should always
-+use the following kernel parameter:
-+C. button.lid_init_state=ignore:
-+   When this option is specified, the ACPI button driver never reports the
-+   initial lid state and there is a compensation mechanism implemented to
-+   ensure that the reliable "closed" notifications can always be delievered
-+   to the userspace by always pairing "closed" input events with complement
-+   "opened" input events. But there is still no guarantee that the "opened"
-+   notifications can be delivered to the userspace when the lid is actually
-+   opens given that some AML tables do not send "opened" notifications
-+   reliably.
-+   In this mode, if everything is correctly implemented by the platform
-+   firmware, the old userspace programs should still work. Otherwise, the
-+   new userspace programs are required to work with the ACPI button driver.
-+   This option will be the default behavior after the userspace is ready to
-+   handle the buggy AML tables.
--- 
-1.7.10
+On 08/03/16 17:26, Dmitry Torokhov wrote:
+> On Wed, Aug 03, 2016 at 01:00:44PM +0200, Hans Verkuil wrote:
+>> The Pulse-Eight USB CEC adapter is a usb device that shows up as a ttyACM0 device.
+>> It requires that you run inputattach in order to communicate with it via serio.
+>>
+>> This all works well, but it would be nice to have a udev rule to automatically
+>> start inputattach. That too works OK, but the problem comes when the USB device
+>> is unplugged: the tty hangup is never handled by the serio framework so the
+>> inputattach utility never exits and you have to kill it manually.
+>>
+>> By adding this hangup callback the inputattach utility now properly exits as
+>> soon as the USB device is unplugged.
+>>
+>> The udev rule I used on my Debian sid system is:
+>>
+>> SUBSYSTEM=="tty", KERNEL=="ttyACM[0-9]*", ATTRS{idVendor}=="2548", ATTRS{idProduct}=="1002", ACTION=="add", TAG+="systemd", ENV{SYSTEMD_WANTS}+="pulse8-cec-inputattach@%k.service"
+>>
+>> And pulse8-cec-inputattach@%k.service is as follows:
+
+^^^^ This line should read:
+
+And /etc/systemd/system/pulse8-cec-inputattach@.service is as follows:
+
+(I had a spurious %k in the name, and it didn't have the full path)
+
+Regards,
+
+	Hans
+
+>>
+>> ===============================================================
+>> [Unit]
+>> Description=inputattach for pulse8-cec device on %I
+>>
+>> [Service]
+>> Type=simple
+>> ExecStart=/usr/local/bin/inputattach --pulse8-cec /dev/%I
+>> KillMode=process
+>> ===============================================================
+>>
+>> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+>> Tested-by: Hans Verkuil <hans.verkuil@cisco.com>
+>> ---
+>> Change since the original RFC patch: don't call close() from the hangup() function,
+>> instead only set the DEAD flag in hangup() instead of in close().
+>> ---
+>> diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
+>> index 9c927d3..4045e95 100644
+>> --- a/drivers/input/serio/serport.c
+>> +++ b/drivers/input/serio/serport.c
+>> @@ -71,7 +71,6 @@ static void serport_serio_close(struct serio *serio)
+>>
+>>  	spin_lock_irqsave(&serport->lock, flags);
+>>  	clear_bit(SERPORT_ACTIVE, &serport->flags);
+>> -	set_bit(SERPORT_DEAD, &serport->flags);
+>>  	spin_unlock_irqrestore(&serport->lock, flags);
+>>
+>>  	wake_up_interruptible(&serport->wait);
+> 
+> I think we should remove this line as well - the waiter is waiting on
+> SERPORT_DEAD bit, if we are not setting it we do not need to wake up the
+> waiter either.
+> 
+> I can fix it up on my side.
+> 
+>> @@ -248,6 +247,19 @@ static long serport_ldisc_compat_ioctl(struct tty_struct *tty,
+>>  }
+>>  #endif
+>>
+>> +static int serport_ldisc_hangup(struct tty_struct * tty)
+>> +{
+>> +	struct serport *serport = (struct serport *) tty->disc_data;
+>> +	unsigned long flags;
+>> +
+>> +	spin_lock_irqsave(&serport->lock, flags);
+>> +	set_bit(SERPORT_DEAD, &serport->flags);
+>> +	spin_unlock_irqrestore(&serport->lock, flags);
+>> +
+>> +	wake_up_interruptible(&serport->wait);
+>> +	return 0;
+>> +}
+>> +
+>>  static void serport_ldisc_write_wakeup(struct tty_struct * tty)
+>>  {
+>>  	struct serport *serport = (struct serport *) tty->disc_data;
+>> @@ -274,6 +286,7 @@ static struct tty_ldisc_ops serport_ldisc = {
+>>  	.compat_ioctl =	serport_ldisc_compat_ioctl,
+>>  #endif
+>>  	.receive_buf =	serport_ldisc_receive,
+>> +	.hangup =	serport_ldisc_hangup,
+>>  	.write_wakeup =	serport_ldisc_write_wakeup
+>>  };
+>>
+> 
+> Thanks.
+> 

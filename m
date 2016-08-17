@@ -1,54 +1,46 @@
-From: Chanwoo Choi <cwchoi00@gmail.com>
-Subject: Re: [PATCH 3/5] extcon: max14577: Change Krzysztof Kozlowski's email
- to kernel.org
-Date: Wed, 17 Aug 2016 21:45:19 +0900
-Message-ID: <CAGTfZH3RQSc2a7obmVn8LdngPeVMzrUg1m28CaU6Q4K1OnreLQ@mail.gmail.com>
-References: <1471435666-11880-1-git-send-email-k.kozlowski@samsung.com> <1471435666-11880-4-git-send-email-k.kozlowski@samsung.com>
-Reply-To: chanwoo@kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1471435666-11880-4-git-send-email-k.kozlowski@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Chanwoo Choi <cw00.choi@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>
+From: LABBE Corentin <clabbe.montjoie@gmail.com>
+Subject: [PATCH 1/3] input: pixcir_i2c_ts: simplify code with of_device_get_match_data
+Date: Wed, 17 Aug 2016 15:22:12 +0200
+Message-ID: <1471440134-23896-1-git-send-email-clabbe.montjoie@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:32964 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752106AbcHQNW3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Aug 2016 09:22:29 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, LABBE Corentin <clabbe.montjoie@gmail.com>
 
-Hi,
+The usage of of_device_get_match_data reduce the code size a bit.
+Furthermore, it is better to use a standard function for
+getting the match data.
 
-2016-08-17 21:07 GMT+09:00 Krzysztof Kozlowski <k.kozlowski@samsung.com>:
-> Change my email address to kernel.org instead of Samsung one for the
-> purpose of any future contact.  The copyrights remain untouched and are
-> attributed to Samsung.
->
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> ---
->  drivers/extcon/extcon-max14577.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/extcon/extcon-max14577.c b/drivers/extcon/extcon-max14577.c
-> index 852a7112f451..a0cd6522a0ea 100644
-> --- a/drivers/extcon/extcon-max14577.c
-> +++ b/drivers/extcon/extcon-max14577.c
-> @@ -3,7 +3,7 @@
->   *
->   * Copyright (C) 2013,2014 Samsung Electronics
->   * Chanwoo Choi <cw00.choi@samsung.com>
-> - * Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> + * Krzysztof Kozlowski <krzk@kernel.org>
->   *
->   * This program is free software; you can redistribute it and/or modify
->   * it under the terms of the GNU General Public License as published by
-> @@ -791,6 +791,6 @@ static struct platform_driver max14577_muic_driver = {
->  module_platform_driver(max14577_muic_driver);
->
->  MODULE_DESCRIPTION("Maxim 14577/77836 Extcon driver");
-> -MODULE_AUTHOR("Chanwoo Choi <cw00.choi@samsung.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>");
-> +MODULE_AUTHOR("Chanwoo Choi <cw00.choi@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>");
->  MODULE_LICENSE("GPL");
->  MODULE_ALIAS("platform:extcon-max14577");
+Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
+---
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-Applied it.
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index d159e14..b0a2dc2 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -431,13 +431,7 @@ static const struct of_device_id pixcir_of_match[];
+ static int pixcir_parse_dt(struct device *dev,
+ 			   struct pixcir_i2c_ts_data *tsdata)
+ {
+-	const struct of_device_id *match;
+-
+-	match = of_match_device(of_match_ptr(pixcir_of_match), dev);
+-	if (!match)
+-		return -EINVAL;
+-
+-	tsdata->chip = (const struct pixcir_i2c_chip_data *)match->data;
++	tsdata->chip = of_device_get_match_data(dev);
+ 	if (!tsdata->chip)
+ 		return -EINVAL;
+ 
+-- 
+2.7.3
 
-Thanks,
-Chanwoo Choi

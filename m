@@ -1,22 +1,62 @@
-From: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v4 0/7] Intel Integrated Sensor Hub Support (ISH)
-Date: Wed, 17 Aug 2016 11:17:30 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1608171116480.22028@cbobk.fhfr.pm>
-References: <1470561939-14278-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Petr Cvek <petr.cvek@tul.cz>
+Subject: [PATCH] input: touchscreen: ads7846 Remove redundant
+ regulator_disable call
+Date: Wed, 17 Aug 2016 12:35:17 +0200
+Message-ID: <f97e51ae-3e09-091e-ac2a-a3f6beda2ffc@tul.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1470561939-14278-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bubo.tul.cz ([147.230.16.1]:43110 "EHLO bubo.tul.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751233AbcHQKeq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Aug 2016 06:34:46 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
 
-I've now applied the series (without the iio patch (5/7), as discussed 
-before) to hid.git#for-4.9/intel-ish
+ADS7846 regulator is disabled twice in a row in ads7846_remove(). Valid
+one is in ads7846_disable().
 
-Thanks,
+Removing the ads7846 module causes warning about unbalanced disables.
 
+  ...
+  WARNING: CPU: 0 PID: 29269 at drivers/regulator/core.c:2251 _regulator_disable+0xf8/0x130
+  unbalanced disables for vads7846
+  CPU: 0 PID: 29269 Comm: rmmod Tainted: G      D W       4.7.0+ #3
+  Hardware name: HTC Magician
+  ...
+    show_stack+0x10/0x14
+    __warn+0xd8/0x100
+    warn_slowpath_fmt+0x38/0x48
+    _regulator_disable+0xf8/0x130
+    regulator_disable+0x34/0x60
+    ads7846_remove+0x58/0xd4 [ads7846]
+    spi_drv_remove+0x1c/0x34
+    __device_release_driver+0x84/0x114
+    driver_detach+0x8c/0x90
+    bus_remove_driver+0x5c/0xc8
+    SyS_delete_module+0x1a0/0x238
+    ret_fast_syscall+0x0/0x38
+
+Signed-off-by: Petr Cvek <petr.cvek@tul.cz>
+---
+ drivers/input/touchscreen/ads7846.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index a61b215..1ce3ecb 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -1473,7 +1473,6 @@ static int ads7846_remove(struct spi_device *spi)
+ 
+ 	ads784x_hwmon_unregister(spi, ts);
+ 
+-	regulator_disable(ts->reg);
+ 	regulator_put(ts->reg);
+ 
+ 	if (!ts->get_pendown_state) {
 -- 
-Jiri Kosina
-SUSE Labs
+2.9.2
+

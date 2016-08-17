@@ -1,117 +1,72 @@
-From: Hans Verkuil <hansverk@cisco.com>
-Subject: Re: [PATCHv2] serio: add hangup support
-Date: Wed, 17 Aug 2016 10:39:58 +0200
-Message-ID: <57B422DE.7070501@cisco.com>
-References: <0d959a01-e698-0178-af89-5925469f95ab@xs4all.nl>
- <20160803152602.GB29702@dtor-ws>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] dt-bindings: touchscreen: silead gsl1680: Document all
+ compatibles
+Date: Wed, 17 Aug 2016 10:58:26 +0200
+Message-ID: <df9de5f7-97af-269d-d901-5d7bb134b069@redhat.com>
+References: <1471338091-3259-1-git-send-email-hdegoede@redhat.com>
+ <46861471402766@web24j.yandex.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20160803152602.GB29702@dtor-ws>
-Sender: linux-media-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:51826 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753827AbcHQI6c (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Aug 2016 04:58:32 -0400
+In-Reply-To: <46861471402766@web24j.yandex.ru>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Icenowy Zheng <icenowy@aosc.xyz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: devicetree <devicetree@vger.kernel.org>, Chen-Yu Tsai <wens@csie.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-Hi Dmitry,
+Hi,
 
-I don't know if you processed this patch yet, but if not, can you update a
-small mistake in the commit log? See below.
-
-On 08/03/16 17:26, Dmitry Torokhov wrote:
-> On Wed, Aug 03, 2016 at 01:00:44PM +0200, Hans Verkuil wrote:
->> The Pulse-Eight USB CEC adapter is a usb device that shows up as a ttyACM0 device.
->> It requires that you run inputattach in order to communicate with it via serio.
+On 17-08-16 04:59, Icenowy Zheng wrote:
+>
+>
+> 16.08.2016, 17:06, "Hans de Goede" <hdegoede@redhat.com>:
+>> The silead gsl1680 driver / binding supports a whole series of devices,
+>> list the compatibles for all of them in the binding.
 >>
->> This all works well, but it would be nice to have a udev rule to automatically
->> start inputattach. That too works OK, but the problem comes when the USB device
->> is unplugged: the tty hangup is never handled by the serio framework so the
->> inputattach utility never exits and you have to kill it manually.
->>
->> By adding this hangup callback the inputattach utility now properly exits as
->> soon as the USB device is unplugged.
->>
->> The udev rule I used on my Debian sid system is:
->>
->> SUBSYSTEM=="tty", KERNEL=="ttyACM[0-9]*", ATTRS{idVendor}=="2548", ATTRS{idProduct}=="1002", ACTION=="add", TAG+="systemd", ENV{SYSTEMD_WANTS}+="pulse8-cec-inputattach@%k.service"
->>
->> And pulse8-cec-inputattach@%k.service is as follows:
-
-^^^^ This line should read:
-
-And /etc/systemd/system/pulse8-cec-inputattach@.service is as follows:
-
-(I had a spurious %k in the name, and it didn't have the full path)
-
-Regards,
-
-	Hans
-
->>
->> ===============================================================
->> [Unit]
->> Description=inputattach for pulse8-cec device on %I
->>
->> [Service]
->> Type=simple
->> ExecStart=/usr/local/bin/inputattach --pulse8-cec /dev/%I
->> KillMode=process
->> ===============================================================
->>
->> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
->> Tested-by: Hans Verkuil <hans.verkuil@cisco.com>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 >> ---
->> Change since the original RFC patch: don't call close() from the hangup() function,
->> instead only set the DEAD flag in hangup() instead of in close().
->> ---
->> diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
->> index 9c927d3..4045e95 100644
->> --- a/drivers/input/serio/serport.c
->> +++ b/drivers/input/serio/serport.c
->> @@ -71,7 +71,6 @@ static void serport_serio_close(struct serio *serio)
+>>  .../devicetree/bindings/input/touchscreen/silead_gsl1680.txt | 5 +++++
+>>  1 file changed, 5 insertions(+)
 >>
->>  	spin_lock_irqsave(&serport->lock, flags);
->>  	clear_bit(SERPORT_ACTIVE, &serport->flags);
->> -	set_bit(SERPORT_DEAD, &serport->flags);
->>  	spin_unlock_irqrestore(&serport->lock, flags);
+>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+>> index 1112e0d..37a9370 100644
+>> --- a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+>> +++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+>> @@ -2,6 +2,11 @@
 >>
->>  	wake_up_interruptible(&serport->wait);
-> 
-> I think we should remove this line as well - the waiter is waiting on
-> SERPORT_DEAD bit, if we are not setting it we do not need to wake up the
-> waiter either.
-> 
-> I can fix it up on my side.
-> 
->> @@ -248,6 +247,19 @@ static long serport_ldisc_compat_ioctl(struct tty_struct *tty,
->>  }
->>  #endif
+>>  Required properties:
+>>  - compatible : "silead,gsl1680"
+>> + or: "silead,gsl1688"
+>> + or: "silead,gsl3670"
+>> + or: "silead,gsl3675"
+>> + or: "silead,gsl3692"
+>> + or: "silead,mssl1680"
+> I think “mssl1680" is only a string which exists in ACPI tables.
+> I have disassembled one of my tablet, which is said to have "MSSL1680" in it in
+> ACPI table (a BayTrail tablet). What I got is a plain GSL1680.
+> So it shouldn't exist in the compatible list.
+
+Ah, right, I was already wondering about that one I guess mssl stands for
+"microsoft silead" (just a guess). Anyways I'll send a v2 dropping it.
+
+Thanks & Regards,
+
+Hans
+
+
+
+>>  - reg : I2C slave address of the chip (0x40)
+>>  - interrupt-parent : a phandle pointing to the interrupt controller
+>>                              serving the interrupt for this chip
+>> --
+>> 2.7.4
 >>
->> +static int serport_ldisc_hangup(struct tty_struct * tty)
->> +{
->> +	struct serport *serport = (struct serport *) tty->disc_data;
->> +	unsigned long flags;
->> +
->> +	spin_lock_irqsave(&serport->lock, flags);
->> +	set_bit(SERPORT_DEAD, &serport->flags);
->> +	spin_unlock_irqrestore(&serport->lock, flags);
->> +
->> +	wake_up_interruptible(&serport->wait);
->> +	return 0;
->> +}
->> +
->>  static void serport_ldisc_write_wakeup(struct tty_struct * tty)
->>  {
->>  	struct serport *serport = (struct serport *) tty->disc_data;
->> @@ -274,6 +286,7 @@ static struct tty_ldisc_ops serport_ldisc = {
->>  	.compat_ioctl =	serport_ldisc_compat_ioctl,
->>  #endif
->>  	.receive_buf =	serport_ldisc_receive,
->> +	.hangup =	serport_ldisc_hangup,
->>  	.write_wakeup =	serport_ldisc_write_wakeup
->>  };
->>
-> 
-> Thanks.
-> 
+>> _______________________________________________
+>> linux-arm-kernel mailing list
+>> linux-arm-kernel@lists.infradead.org
+>> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel

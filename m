@@ -1,51 +1,22 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2] dt-bindings: touchscreen: silead gsl1680: Document all
- compatibles
-Date: Wed, 17 Aug 2016 10:59:00 +0200
-Message-ID: <1471424340-4201-1-git-send-email-hdegoede@redhat.com>
+From: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v4 0/7] Intel Integrated Sensor Hub Support (ISH)
+Date: Wed, 17 Aug 2016 11:17:30 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1608171116480.22028@cbobk.fhfr.pm>
+References: <1470561939-14278-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
-Cc: devicetree <devicetree@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1470561939-14278-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-The silead gsl1680 driver / binding supports a whole series of devices,
-list the compatibles for all of them in the binding.
+I've now applied the series (without the iio patch (5/7), as discussed 
+before) to hid.git#for-4.9/intel-ish
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Changes in v2:
--Drop the "silead,mssl1680" compatible thing, the "mssl1680" name is an
- ACPI thing and does not belong in the dt bindings
----
- .../devicetree/bindings/input/touchscreen/silead_gsl1680.txt          | 4 ++++
- 1 file changed, 4 insertions(+)
+Thanks,
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-index b0eca54..ad7f41a 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-@@ -2,6 +2,10 @@
- 
- Required properties:
- - compatible		  : "silead,gsl1680"
-+			or: "silead,gsl1688"
-+			or: "silead,gsl3670"
-+			or: "silead,gsl3675"
-+			or: "silead,gsl3692"
- - reg			  : I2C slave address of the chip (0x40)
- - interrupt-parent	  : a phandle pointing to the interrupt controller
- 			    serving the interrupt for this chip
 -- 
-2.7.4
+Jiri Kosina
+SUSE Labs

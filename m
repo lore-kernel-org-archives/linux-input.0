@@ -1,180 +1,56 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v7 1/2] ACPI / button: Fix an issue that the platform triggered reliable events may not be delivered to the userspace
-Date: Wed, 17 Aug 2016 02:19:26 +0200
-Message-ID: <1830278.Y8XYXFSbDK@vostro.rjw.lan>
-References: <cbdaec17aba78c61f466efff8883d49067f2dad5.1463472125.git.lv.zheng@intel.com> <c74aa0d3edf6b9632fc56480da0ee9df3f18bf90.1469526583.git.lv.zheng@intel.com>
+From: Icenowy Zheng <icenowy@aosc.xyz>
+Subject: Re: [PATCH] dt-bindings: touchscreen: silead gsl1680: Document all
+ compatibles
+Date: Wed, 17 Aug 2016 10:59:26 +0800
+Message-ID: <46861471402766@web24j.yandex.ru>
+References: <1471338091-3259-1-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <c74aa0d3edf6b9632fc56480da0ee9df3f18bf90.1469526583.git.lv.zheng@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Lv Zheng <lv.zheng@intel.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Len Brown <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "Bastien Nocera:" <hadess@hadess.net>, linux-input@vger.kernel.org
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1471338091-3259-1-git-send-email-hdegoede@redhat.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: devicetree <devicetree@vger.kernel.org>, Chen-Yu Tsai <wens@csie.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tuesday, July 26, 2016 05:52:24 PM Lv Zheng wrote:
-> On most platforms, _LID returning value, lid open/close events are all
-> reliable, but there are exceptions. Some AML tables report wrong initial
-> lid state (Link 1), and some of them never report lid open state (Link 2).
-> The usage model on such buggy platforms is:
-> 1. The initial lid state returned from _LID is not reliable;
-> 2. The lid open event is not reliable;
-> 3. The lid close event is always reliable, used by the platform firmware to
->    trigger OSPM power saving operations.
-> This usage model is not compliant to the Linux SW_LID model as the Linux
-> userspace is very strict to the reliability of the open events.
-> 
-> In order not to trigger issues on such buggy platforms, the ACPI button
-> driver currently implements a lid_init_state=open quirk to send additional
-> "open" event after resuming. However, this is still not sufficient because:
-> 1. Some special usage models (e.x., the dark resume scenario) cannot be
->    supported by this mode.
-> 2. If a "close" event is not used to trigger "suspend", then the subsequent
->    "close" events cannot be seen by the userspace.
-> So we need to stop sending the additional "open" event and switch the
-> driver to lid_init_state=ignore mode and make sure the platform triggered
-> events can be reliably delivered to the userspace. The userspace programs
-> then can be changed to not to be strict to the "open" events on such buggy
-> platforms.
-> 
-> Why will the subsequent "close" events be lost? This is because the input
-> layer automatically filters redundant events for switch events. Thus given
-> that the buggy AML tables do not guarantee paired "open"/"close" events,
-> the ACPI button driver currently is not able to guarantee that the platform
-> triggered reliable events can be always be seen by the userspace via
-> SW_LID.
-> 
-> This patch adds a mechanism to insert lid events as a compensation for the
-> platform triggered ones to form a complete event switches in order to make
-> sure that the platform triggered events can always be reliably delivered
-> to the userspace. This essentially guarantees that the platform triggered
-> reliable "close" events will always be relibly delivered to the userspace.
-> 
-> However this mechanism is not suitable for lid_init_state=open/method as
-> it should not send the complement switch event for the unreliable initial
-> lid state notification. 2 unreliable events can trigger unexpected
-> behavior. Thus this patch only implements this mechanism for
-> lid_init_state=ignore.
-> 
-> Link 1: https://bugzilla.kernel.org/show_bug.cgi?id=89211
->         https://bugzilla.kernel.org/show_bug.cgi?id=106151
-> Link 2: https://bugzilla.kernel.org/show_bug.cgi?id=106941
-> Signed-off-by: Lv Zheng <lv.zheng@intel.com>
-> Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> Cc: Bastien Nocera: <hadess@hadess.net>
-> Cc: linux-input@vger.kernel.org
-> ---
->  drivers/acpi/button.c |   51 ++++++++++++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 50 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
-> index 148f4e5..dca1806 100644
-> --- a/drivers/acpi/button.c
-> +++ b/drivers/acpi/button.c
-> @@ -19,6 +19,8 @@
->   * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->   */
->  
-> +#define pr_fmt(fmt) "ACPI : button: " fmt
-> +
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/init.h>
-> @@ -104,6 +106,8 @@ struct acpi_button {
->  	struct input_dev *input;
->  	char phys[32];			/* for input device */
->  	unsigned long pushed;
-> +	int last_state;
-> +	unsigned long last_time;
-
-Why don't you use ktime_t here?
-
->  	bool suspended;
->  };
->  
-> @@ -111,6 +115,10 @@ static BLOCKING_NOTIFIER_HEAD(acpi_lid_notifier);
->  static struct acpi_device *lid_device;
->  static u8 lid_init_state = ACPI_BUTTON_LID_INIT_METHOD;
->  
-> +static unsigned long lid_report_interval __read_mostly = 500;
-> +module_param(lid_report_interval, ulong, 0644);
-> +MODULE_PARM_DESC(lid_report_interval, "Interval (ms) between lid key events");
-> +
->  /* --------------------------------------------------------------------------
->                                FS Interface (/proc)
->     -------------------------------------------------------------------------- */
-> @@ -135,9 +143,48 @@ static int acpi_lid_notify_state(struct acpi_device *device, int state)
->  	struct acpi_button *button = acpi_driver_data(device);
->  	int ret;
->  
-> -	/* input layer checks if event is redundant */
-> +	if (button->last_state == !!state &&
-> +	    time_after(jiffies, button->last_time +
-> +				msecs_to_jiffies(lid_report_interval))) {
-
-And ktime_after() here?
-
-> +		/* Complain the buggy firmware */
-> +		pr_warn_once("The lid device is not compliant to SW_LID.\n");
-> +
-> +		/*
-> +		 * Send the unreliable complement switch event:
-> +		 *
-> +		 * On most platforms, the lid device is reliable. However
-> +		 * there are exceptions:
-> +		 * 1. Platforms returning initial lid state as "close" by
-> +		 *    default after booting/resuming:
-> +		 *     https://bugzilla.kernel.org/show_bug.cgi?id=89211
-> +		 *     https://bugzilla.kernel.org/show_bug.cgi?id=106151
-> +		 * 2. Platforms never reporting "open" events:
-> +		 *     https://bugzilla.kernel.org/show_bug.cgi?id=106941
-> +		 * On these buggy platforms, the usage model of the ACPI
-> +		 * lid device actually is:
-> +		 * 1. The initial returning value of _LID may not be
-> +		 *    reliable.
-> +		 * 2. The open event may not be reliable.
-> +		 * 3. The close event is reliable.
-> +		 *
-> +		 * But SW_LID is typed as input switch event, the input
-> +		 * layer checks if the event is redundant. Hence if the
-> +		 * state is not switched, the userspace cannot see this
-> +		 * platform triggered reliable event. By inserting a
-> +		 * complement switch event, it then is guaranteed that the
-> +		 * platform triggered reliable one can always be seen by
-> +		 * the userspace.
-> +		 */
-> +		if (lid_init_state == ACPI_BUTTON_LID_INIT_IGNORE) {
-> +			input_report_switch(button->input, SW_LID, state);
-> +			input_sync(button->input);
-> +		}
-> +	}
-> +	/* Send the platform triggered reliable event */
->  	input_report_switch(button->input, SW_LID, !state);
->  	input_sync(button->input);
-> +	button->last_state = !!state;
-> +	button->last_time = jiffies;
-
-And ktime_get() here?
-
->  
->  	if (state)
->  		pm_wakeup_event(&device->dev, 0);
-> @@ -407,6 +454,8 @@ static int acpi_button_add(struct acpi_device *device)
->  		strcpy(name, ACPI_BUTTON_DEVICE_NAME_LID);
->  		sprintf(class, "%s/%s",
->  			ACPI_BUTTON_CLASS, ACPI_BUTTON_SUBCLASS_LID);
-> +		button->last_state = !!acpi_lid_evaluate_state(device);
-> +		button->last_time = jiffies;
-
-And here?
-
->  	} else {
->  		printk(KERN_ERR PREFIX "Unsupported hid [%s]\n", hid);
->  		error = -ENODEV;
-> 
-
-Thanks,
-Rafael
-
+CgoxNi4wOC4yMDE2LCAxNzowNiwgIkhhbnMgZGUgR29lZGUiIDxoZGVnb2VkZUByZWRoYXQuY29t
+PjoKPiBUaGUgc2lsZWFkIGdzbDE2ODAgZHJpdmVyIC8gYmluZGluZyBzdXBwb3J0cyBhIHdob2xl
+IHNlcmllcyBvZiBkZXZpY2VzLAo+IGxpc3QgdGhlIGNvbXBhdGlibGVzIGZvciBhbGwgb2YgdGhl
+bSBpbiB0aGUgYmluZGluZy4KPgo+IFNpZ25lZC1vZmYtYnk6IEhhbnMgZGUgR29lZGUgPGhkZWdv
+ZWRlQHJlZGhhdC5jb20+Cj4gLS0tCj4gwqAuLi4vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90
+b3VjaHNjcmVlbi9zaWxlYWRfZ3NsMTY4MC50eHQgfCA1ICsrKysrCj4gwqAxIGZpbGUgY2hhbmdl
+ZCwgNSBpbnNlcnRpb25zKCspCj4KPiBkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0
+cmVlL2JpbmRpbmdzL2lucHV0L3RvdWNoc2NyZWVuL3NpbGVhZF9nc2wxNjgwLnR4dCBiL0RvY3Vt
+ZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi9zaWxlYWRfZ3Ns
+MTY4MC50eHQKPiBpbmRleCAxMTEyZTBkLi4zN2E5MzcwIDEwMDY0NAo+IC0tLSBhL0RvY3VtZW50
+YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi9zaWxlYWRfZ3NsMTY4
+MC50eHQKPiArKysgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaW5wdXQvdG91
+Y2hzY3JlZW4vc2lsZWFkX2dzbDE2ODAudHh0Cj4gQEAgLTIsNiArMiwxMSBAQAo+Cj4gwqBSZXF1
+aXJlZCBwcm9wZXJ0aWVzOgo+IMKgLSBjb21wYXRpYmxlIDogInNpbGVhZCxnc2wxNjgwIgo+ICsg
+b3I6ICJzaWxlYWQsZ3NsMTY4OCIKPiArIG9yOiAic2lsZWFkLGdzbDM2NzAiCj4gKyBvcjogInNp
+bGVhZCxnc2wzNjc1Igo+ICsgb3I6ICJzaWxlYWQsZ3NsMzY5MiIKPiArIG9yOiAic2lsZWFkLG1z
+c2wxNjgwIgpJIHRoaW5rIOKAnG1zc2wxNjgwIiBpcyBvbmx5IGEgc3RyaW5nIHdoaWNoIGV4aXN0
+cyBpbiBBQ1BJIHRhYmxlcy4KSSBoYXZlIGRpc2Fzc2VtYmxlZCBvbmUgb2YgbXkgdGFibGV0LCB3
+aGljaCBpcyBzYWlkIHRvIGhhdmUgIk1TU0wxNjgwIiBpbiBpdCBpbgpBQ1BJIHRhYmxlIChhIEJh
+eVRyYWlsIHRhYmxldCkuIFdoYXQgSSBnb3QgaXMgYSBwbGFpbiBHU0wxNjgwLgpTbyBpdCBzaG91
+bGRuJ3QgZXhpc3QgaW4gdGhlIGNvbXBhdGlibGUgbGlzdC4KPiDCoC0gcmVnIDogSTJDIHNsYXZl
+IGFkZHJlc3Mgb2YgdGhlIGNoaXAgKDB4NDApCj4gwqAtIGludGVycnVwdC1wYXJlbnQgOiBhIHBo
+YW5kbGUgcG9pbnRpbmcgdG8gdGhlIGludGVycnVwdCBjb250cm9sbGVyCj4gwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHNlcnZpbmcgdGhl
+IGludGVycnVwdCBmb3IgdGhpcyBjaGlwCj4gLS0KPiAyLjcuNAo+Cj4gX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KPiBsaW51eC1hcm0ta2VybmVsIG1haWxp
+bmcgbGlzdAo+IGxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwo+IGh0dHA6Ly9s
+aXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAoKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtl
+cm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0
+dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5l
+bAo=

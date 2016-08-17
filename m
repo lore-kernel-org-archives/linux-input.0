@@ -1,62 +1,57 @@
-From: Petr Cvek <petr.cvek@tul.cz>
-Subject: [PATCH] input: touchscreen: ads7846 Remove redundant
- regulator_disable call
-Date: Wed, 17 Aug 2016 12:35:17 +0200
-Message-ID: <f97e51ae-3e09-091e-ac2a-a3f6beda2ffc@tul.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [PATCH 0/5] Change my email to kernel.org
+Date: Wed, 17 Aug 2016 14:07:41 +0200
+Message-ID: <1471435666-11880-1-git-send-email-k.kozlowski@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bubo.tul.cz ([147.230.16.1]:43110 "EHLO bubo.tul.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751233AbcHQKeq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Aug 2016 06:34:46 -0400
+Received: from mailout2.w1.samsung.com ([210.118.77.12]:37451 "EHLO
+	mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753748AbcHQMIU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Aug 2016 08:08:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
+To: Chanwoo Choi <cw00.choi@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-pm@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-ADS7846 regulator is disabled twice in a row in ads7846_remove(). Valid
-one is in ads7846_disable().
+Hi,
 
-Removing the ads7846 module causes warning about unbalanced disables.
 
-  ...
-  WARNING: CPU: 0 PID: 29269 at drivers/regulator/core.c:2251 _regulator_disable+0xf8/0x130
-  unbalanced disables for vads7846
-  CPU: 0 PID: 29269 Comm: rmmod Tainted: G      D W       4.7.0+ #3
-  Hardware name: HTC Magician
-  ...
-    show_stack+0x10/0x14
-    __warn+0xd8/0x100
-    warn_slowpath_fmt+0x38/0x48
-    _regulator_disable+0xf8/0x130
-    regulator_disable+0x34/0x60
-    ads7846_remove+0x58/0xd4 [ads7846]
-    spi_drv_remove+0x1c/0x34
-    __device_release_driver+0x84/0x114
-    driver_detach+0x8c/0x90
-    bus_remove_driver+0x5c/0xc8
-    SyS_delete_module+0x1a0/0x238
-    ret_fast_syscall+0x0/0x38
+I will be leaving Samsung R&D Institute Poland soon so the Samsung
+email will stop working at some point.  Change it to kernel.org in case
+someone would like to reach the author of the code.
 
-Signed-off-by: Petr Cvek <petr.cvek@tul.cz>
----
- drivers/input/touchscreen/ads7846.c | 1 -
- 1 file changed, 1 deletion(-)
+Maintainers are updated separately [1].
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index a61b215..1ce3ecb 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -1473,7 +1473,6 @@ static int ads7846_remove(struct spi_device *spi)
- 
- 	ads784x_hwmon_unregister(spi, ts);
- 
--	regulator_disable(ts->reg);
- 	regulator_put(ts->reg);
- 
- 	if (!ts->get_pendown_state) {
+There are no dependencies between patches, please pick up freely
+as you wish.
+
+
+Best regards,
+Krzysztof
+
+[1] https://git.kernel.org/cgit/linux/kernel/git/krzk/linux.git/commit/?h=fixes&id=d6479b2422f6ef83aba5810d3b1f06bcc42294e6
+
+
+Krzysztof Kozlowski (5):
+  mfd: max14577: Change Krzysztof Kozlowski's email to kernel.org
+  power: supply: Change Krzysztof Kozlowski's email to kernel.org
+  extcon: max14577: Change Krzysztof Kozlowski's email to kernel.org
+  input: misc: max77693: Change Krzysztof Kozlowski's email to
+    kernel.org
+  regulator: Change Krzysztof Kozlowski's email to kernel.org
+
+ Documentation/ABI/testing/sysfs-class-power | 8 ++++----
+ drivers/extcon/extcon-max14577.c            | 4 ++--
+ drivers/input/misc/max77693-haptic.c        | 4 ++--
+ drivers/mfd/max14577.c                      | 4 ++--
+ drivers/power/supply/max14577_charger.c     | 4 ++--
+ drivers/power/supply/max77693_charger.c     | 4 ++--
+ drivers/regulator/max14577-regulator.c      | 4 ++--
+ drivers/regulator/max77693-regulator.c      | 4 ++--
+ include/linux/mfd/max14577-private.h        | 2 +-
+ include/linux/mfd/max14577.h                | 2 +-
+ 10 files changed, 20 insertions(+), 20 deletions(-)
+
 -- 
-2.9.2
+1.9.1
 

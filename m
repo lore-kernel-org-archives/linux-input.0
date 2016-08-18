@@ -1,316 +1,217 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 09/11] Input: synaptics-rmi4 - add rmi_platform
-Date: Thu, 18 Aug 2016 11:24:47 +0200
-Message-ID: <1471512289-10648-10-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 08/11] Input: synaptics - allocate a Synaptics Intertouch device
+Date: Thu, 18 Aug 2016 11:24:46 +0200
+Message-ID: <1471512289-10648-9-git-send-email-benjamin.tissoires@redhat.com>
 References: <1471512289-10648-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35258 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36450 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752435AbcHRJdd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Aug 2016 05:33:33 -0400
+	id S1753135AbcHRJea (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Aug 2016 05:34:30 -0400
 In-Reply-To: <1471512289-10648-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lyude Paul <thatslyude@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Dennis Wassenberg <dennis.wassenberg@secunet.com>
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-This driver is a glue between PS/2 devices that enumerate
-the RMI4 device and the RMI4 SMBus driver.
+Most of the Synaptics devices are connected through PS/2 and a different
+bus (SMBus or HID over I2C).
+The secondary bus capability is indicated by the InterTouch bit in
+extended capability 0x0C.
 
-We mostly use an intermediate platform device to not
-add a dependency between psmouse and I2C. It also handles
-the subtleties of going around the serio mutex lock by
-deferring the i2c creation/destruction in a separate
-thread.
+When we encounter such a device, we can create a platform device with
+the information gathered through the PS/2 enumeration as some information
+might be missing through the other bus. Using a platform device allows
+to not add any dependency on the psmouse driver.
+
+We only enable the InterTouch device to be created for the laptops
+registered with the top software button property or those we know
+that are functional.
+
+In the future, we might change the default to always rely on the
+InterTouch bus. Currently, users can enable/disable the feature
+with the psmouse parameter synaptics_intertouch.
+
+The SMBus devices keep their PS/2 connection alive. If the initialization
+process goes too far (psmouse_activate called), the device disconnects
+from the I2C bus and stays on the PS/2 bus. We need to be sure the psmouse
+driver will stop communicating with the device (and the pass-through
+trackstick too). This part is not addressed here but will be in a
+following patch.
+
+The HID over I2C devices are enumerated through the ACPI DSDT, and
+their PS/2 device also exports the InterTouch bit in the extended
+capability 0x0C. However, the firmware keeps its I2C connection open
+even after going further in the PS/2 initialization. We don't need
+to take extra precautions with those device, especially because they
+block their PS/2 communication when HID over I2C is used.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/rmi4/Kconfig        |  12 ++
- drivers/input/rmi4/Makefile       |   1 +
- drivers/input/rmi4/rmi_platform.c | 235 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 248 insertions(+)
- create mode 100644 drivers/input/rmi4/rmi_platform.c
+ drivers/input/mouse/synaptics.c | 99 +++++++++++++++++++++++++++++++++++++++++
+ drivers/input/mouse/synaptics.h |  4 ++
+ 2 files changed, 103 insertions(+)
 
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index cfc14b3..2f11157 100644
---- a/drivers/input/rmi4/Kconfig
-+++ b/drivers/input/rmi4/Kconfig
-@@ -30,6 +30,7 @@ config RMI4_SPI
- config RMI4_SMB
- 	tristate "RMI4 SMB Support"
- 	depends on RMI4_CORE && I2C
-+	select RMI4_PLATFORM
- 	help
- 	  Say Y here if you want to support RMI4 devices connected to an SMB
- 	  bus.
-@@ -39,6 +40,17 @@ config RMI4_SMB
- 	  To compile this driver as a module, choose M here: the module will be
- 	  called rmi_smbus.
- 
-+config RMI4_PLATFORM
-+	tristate "RMI4 Platform Support"
-+	depends on RMI4_CORE && RMI4_SMB && I2C
-+	help
-+	  Say Y here if you want to support RMI4 devices connected to an SMB
-+	  bus but enumerated through PS/2.
-+
-+	  if unsure, say N.
-+	  To compile this driver as a module, choose M here: the module will be
-+	  called rmi_platform.
-+
- config RMI4_F03
-         bool "RMI4 Function 03 (PS2 Guest)"
-         depends on RMI4_CORE
-diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-index 676e636..23af592 100644
---- a/drivers/input/rmi4/Makefile
-+++ b/drivers/input/rmi4/Makefile
-@@ -13,3 +13,4 @@ rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
- obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
- obj-$(CONFIG_RMI4_SPI) += rmi_spi.o
- obj-$(CONFIG_RMI4_SMB) += rmi_smbus.o
-+obj-$(CONFIG_RMI4_PLATFORM) += rmi_platform.o
-diff --git a/drivers/input/rmi4/rmi_platform.c b/drivers/input/rmi4/rmi_platform.c
-new file mode 100644
-index 0000000..8cd11d9
---- /dev/null
-+++ b/drivers/input/rmi4/rmi_platform.c
-@@ -0,0 +1,235 @@
-+/*
-+ * Copyright (c) 2016 Red Hat, Inc
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/i2c.h>
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 8781e23..eba6358 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -29,6 +29,8 @@
+ #include <linux/input/mt.h>
+ #include <linux/serio.h>
+ #include <linux/libps2.h>
 +#include <linux/platform_device.h>
 +#include <linux/rmi.h>
-+#include <linux/slab.h>
-+
-+#define DRIVER_DESC	"RMI4 Platform PS/2 - SMBus bridge driver"
-+
-+MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@redhat.com>");
-+MODULE_DESCRIPTION(DRIVER_DESC);
-+MODULE_LICENSE("GPL");
-+
-+static struct workqueue_struct *krmi_wq;
-+DEFINE_MUTEX(rmi_mutex);
-+
-+struct rmi_pltf {
-+	struct i2c_client *smbus_client;
-+	struct notifier_block i2c_notifier;
-+	struct rmi_device_platform_data *pdata;
+ #include <linux/slab.h>
+ #include "psmouse.h"
+ #include "synaptics.h"
+@@ -70,6 +72,21 @@
+ /* maximum ABS_MT_POSITION displacement (in mm) */
+ #define DMAX 10
+ 
++/*
++ * The newest Synaptics device can use a secondary bus (called InterTouch) which
++ * provides a better bandwidth and allow a better control of the touchpads.
++ * This is used to decide if we need to use this bus or not.
++ */
++enum {
++	SYNAPTICS_INTERTOUCH_NOT_SET = -1,
++	SYNAPTICS_INTERTOUCH_OFF,
++	SYNAPTICS_INTERTOUCH_ON,
 +};
 +
-+enum rmi_event_type {
-+	RMI_REGISTER_DEVICE,
-+	RMI_UNREGISTER_DEVICE,
++static int synaptics_intertouch = SYNAPTICS_INTERTOUCH_NOT_SET;
++module_param_named(synaptics_intertouch, synaptics_intertouch, int, 0644);
++MODULE_PARM_DESC(synaptics_intertouch, "Use a secondary bus for the Synaptics device.");
++
+ /*****************************************************************************
+  *	Stuff we need even when we do not want native Synaptics support
+  ****************************************************************************/
+@@ -218,6 +235,80 @@ static const char * const forcepad_pnp_ids[] = {
+ 	NULL
+ };
+ 
++static const char * const smbus_pnp_ids[] = {
++	/* all of the topbuttonpad_pnp_ids are valid, we just add some extras */
++	"LEN0048", /* X1 Carbon 3 */
++	"LEN0046", /* X250 */
++	"LEN004a", /* W541 */
++	"LEN200f", /* T450s */
 +};
 +
-+struct rmi_work {
-+	struct work_struct work;
-+	enum rmi_event_type type;
-+	struct rmi_pltf *rmi;
-+	struct i2c_adapter *adap;
-+};
++static int rmi4_id;
 +
-+static void rmi_create_intertouch(struct rmi_pltf *rmi_pltf,
-+				  struct i2c_adapter *adap)
++static int synaptics_create_intertouch(struct psmouse *psmouse)
 +{
-+	const struct i2c_board_info i2c_info = {
-+		I2C_BOARD_INFO("rmi4_smbus", 0x2c),
-+		.platform_data = rmi_pltf->pdata,
++	struct synaptics_data *priv = psmouse->private;
++	struct platform_device_info pdevinfo;
++	struct platform_device *pdev;
++	struct rmi_device_platform_data pdata = {
++		.sensor_pdata = {
++			.sensor_type = rmi_sensor_touchpad,
++			.axis_align.flip_y = true,
++			/* to prevent cursors jumps: */
++			.kernel_tracking = true,
++		},
++		.f30_data = {
++			.trackstick_buttons =
++			  !!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10),
++		},
 +	};
 +
-+	rmi_pltf->smbus_client = i2c_new_device(adap, &i2c_info);
-+}
++	if (priv->intertouch)
++		return -EINVAL;
 +
-+static void rmi_worker(struct work_struct *work)
-+{
-+	struct rmi_work *rmi_work = container_of(work, struct rmi_work, work);
++	pdata.sensor_pdata.topbuttonpad =
++			psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
++			!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10);
 +
-+	mutex_lock(&rmi_mutex);
++	memset(&pdevinfo, 0, sizeof(pdevinfo));
++	pdevinfo.name = "rmi4";
++	pdevinfo.id = rmi4_id++;
++	pdevinfo.data = &pdata;
++	pdevinfo.size_data = sizeof(pdata);
++	pdevinfo.parent = &psmouse->ps2dev.serio->dev;
 +
-+	switch (rmi_work->type) {
-+	case RMI_REGISTER_DEVICE:
-+		rmi_create_intertouch(rmi_work->rmi, rmi_work->adap);
-+		break;
-+	case RMI_UNREGISTER_DEVICE:
-+		if (rmi_work->rmi->smbus_client)
-+			i2c_unregister_device(rmi_work->rmi->smbus_client);
-+		break;
-+	};
++	pdev = platform_device_register_full(&pdevinfo);
++	if (IS_ERR(pdev))
++		return PTR_ERR(pdev);
 +
-+	kfree(rmi_work);
-+
-+	mutex_unlock(&rmi_mutex);
-+}
-+
-+static int rmi_schedule_work(enum rmi_event_type type,
-+			     struct rmi_pltf *rmi,
-+			     struct i2c_adapter *adap)
-+{
-+	struct rmi_work *rmi_work = kzalloc(sizeof(*rmi_work), GFP_KERNEL);
-+
-+	if (!rmi_work)
-+		return -ENOMEM;
-+
-+	rmi_work->type = type;
-+	rmi_work->rmi = rmi;
-+	rmi_work->adap = adap;
-+
-+	INIT_WORK(&rmi_work->work, rmi_worker);
-+
-+	queue_work(krmi_wq, &rmi_work->work);
++	priv->intertouch = pdev;
 +
 +	return 0;
 +}
 +
-+static int rmi_attach_i2c_device(struct device *dev, void *data)
++/**
++ * synaptics_setup_intertouch - called once the PS/2 devices are enumerated
++ * and decides to instantiate a SMBus InterTouch device.
++ */
++static void synaptics_setup_intertouch(struct psmouse *psmouse)
 +{
-+	struct rmi_pltf *rmi_pltf = data;
-+	struct i2c_adapter *adap;
++	int ret;
 +
-+	if (dev->type != &i2c_adapter_type)
-+		return 0;
++	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_OFF)
++		return;
 +
-+	adap = to_i2c_adapter(dev);
-+
-+	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_HOST_NOTIFY))
-+		return 0;
-+
-+	if (rmi_pltf->smbus_client)
-+		return 0;
-+
-+	rmi_schedule_work(RMI_REGISTER_DEVICE, rmi_pltf, adap);
-+
-+	pr_debug("rmi_platform: adapter [%s] registered\n", adap->name);
-+	return 0;
-+}
-+
-+static int rmi_detach_i2c_device(struct device *dev, struct rmi_pltf *rmi_pltf)
-+{
-+	struct i2c_client *client;
-+
-+	if (dev->type == &i2c_adapter_type)
-+		return 0;
-+
-+	mutex_lock(&rmi_mutex);
-+
-+	client = to_i2c_client(dev);
-+	if (client == rmi_pltf->smbus_client)
-+		rmi_pltf->smbus_client = NULL;
-+
-+	mutex_unlock(&rmi_mutex);
-+
-+	pr_debug("rmi_platform: client [%s] unregistered\n", client->name);
-+	return 0;
-+}
-+
-+static int rmi_notifier_call(struct notifier_block *nb,
-+				   unsigned long action, void *data)
-+{
-+	struct device *dev = data;
-+	struct rmi_pltf *rmi_pltf;
-+
-+	rmi_pltf = container_of(nb, struct rmi_pltf, i2c_notifier);
-+
-+	switch (action) {
-+	case BUS_NOTIFY_ADD_DEVICE:
-+		return rmi_attach_i2c_device(dev, rmi_pltf);
-+	case BUS_NOTIFY_DEL_DEVICE:
-+		return rmi_detach_i2c_device(dev, rmi_pltf);
++	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_NOT_SET) {
++		if (!psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
++		    !psmouse_matches_pnp_id(psmouse, smbus_pnp_ids))
++			return;
 +	}
 +
-+	return 0;
++	psmouse_info(psmouse, "device also supported by an other bus.\n");
++	ret = synaptics_create_intertouch(psmouse);
++	if (ret)
++		psmouse_info(psmouse,
++			     "unable to create intertouch device.\n");
 +}
-+
-+static int rmi_probe(struct platform_device *pdev)
-+{
-+	struct rmi_device_platform_data *pdata = pdev->dev.platform_data;
-+	struct rmi_pltf *rmi_pltf;
-+	int error;
-+
-+	rmi_pltf = devm_kzalloc(&pdev->dev, sizeof(struct rmi_pltf),
-+				GFP_KERNEL);
-+	if (!rmi_pltf)
-+		return -ENOMEM;
-+
-+	rmi_pltf->i2c_notifier.notifier_call = rmi_notifier_call;
-+
-+	rmi_pltf->pdata = pdata;
-+
-+	/* Keep track of adapters which will be added or removed later */
-+	error = bus_register_notifier(&i2c_bus_type, &rmi_pltf->i2c_notifier);
-+	if (error)
-+		return error;
-+
-+	/* Bind to already existing adapters right away */
-+	i2c_for_each_dev(rmi_pltf, rmi_attach_i2c_device);
-+
-+	platform_set_drvdata(pdev, rmi_pltf);
-+
-+	return 0;
-+}
-+
-+static int rmi_remove(struct platform_device *pdev)
-+{
-+	struct rmi_pltf *rmi_pltf = platform_get_drvdata(pdev);
-+
-+	bus_unregister_notifier(&i2c_bus_type, &rmi_pltf->i2c_notifier);
-+
-+	if (rmi_pltf->smbus_client)
-+		rmi_schedule_work(RMI_UNREGISTER_DEVICE, rmi_pltf, NULL);
-+
-+	platform_set_drvdata(pdev, NULL);
-+
-+	return 0;
-+}
-+
-+static const struct platform_device_id rmi_id_table[] = {
-+	{ .name = "rmi4" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(platform, rmi_id_table);
-+
-+static struct platform_driver rmi_drv = {
-+	.driver		= {
-+		.name	= "rmi4",
-+	},
-+	.probe		= rmi_probe,
-+	.remove		= rmi_remove,
-+	.id_table	= rmi_id_table,
-+};
-+
-+static int __init rmi_init(void)
-+{
-+	int err;
-+
-+	krmi_wq = create_singlethread_workqueue("krmid");
-+	if (!krmi_wq) {
-+		pr_err("failed to create krmid workqueue\n");
-+		return -ENOMEM;
+ /*****************************************************************************
+  *	Synaptics communications functions
+  ****************************************************************************/
+@@ -1305,6 +1396,11 @@ static void synaptics_disconnect(struct psmouse *psmouse)
+ 		device_remove_file(&psmouse->ps2dev.serio->dev,
+ 				   &psmouse_attr_disable_gesture.dattr);
+ 
++	if (priv->intertouch) {
++		platform_device_unregister(priv->intertouch);
++		priv->intertouch = NULL;
 +	}
 +
-+	err = platform_driver_register(&rmi_drv);
-+	if (err)
-+		destroy_workqueue(krmi_wq);
+ 	synaptics_reset(psmouse);
+ 	kfree(priv);
+ 	psmouse->private = NULL;
+@@ -1547,6 +1643,9 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+ 		}
+ 	}
+ 
++	if (SYN_CAP_INTERTOUCH(priv->ext_cap_0c))
++		synaptics_setup_intertouch(psmouse);
 +
-+	return err;
-+}
+ 	return 0;
+ 
+  init_fail:
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index 116ae25..b88755d 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -90,6 +90,7 @@
+ #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
+ #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
+ #define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
++#define SYN_CAP_INTERTOUCH(ex0c)	((ex0c) & 0x004000)
+ 
+ /*
+  * The following descibes response for the 0x10 query.
+@@ -196,6 +197,9 @@ struct synaptics_data {
+ 	bool					press;
+ 	bool					report_press;
+ 	bool					is_forcepad;
 +
-+static void __exit rmi_exit(void)
-+{
-+	platform_driver_unregister(&rmi_drv);
-+	destroy_workqueue(krmi_wq);
-+}
-+
-+module_init(rmi_init);
-+module_exit(rmi_exit);
++	/* Intertouch handling */
++	struct platform_device *intertouch;
+ };
+ 
+ void synaptics_module_init(void);
 -- 
 2.5.5
 

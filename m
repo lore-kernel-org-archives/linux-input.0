@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 10/11] Input: synaptics-rmi4 - smbus: call psmouse_deactivate before binding/resume
-Date: Thu, 18 Aug 2016 11:24:48 +0200
-Message-ID: <1471512289-10648-11-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 07/11] Input: synaptics-rmi4 - f30/f03: Forward mechanical buttons on buttonpads to PS/2 guest
+Date: Thu, 18 Aug 2016 11:24:45 +0200
+Message-ID: <1471512289-10648-8-git-send-email-benjamin.tissoires@redhat.com>
 References: <1471512289-10648-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1471512289-10648-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,225 +10,211 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lyude Paul <thatslyude@gmail.co
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The SMBus Synaptics devices enumerated as PS/2 devices have
-the problem of being deaf to I2C if the touchpad has been
-fully initialized over PS/2 (psmouse_activate being called).
-A simple PS/2 deactivate command is enough to make it back alive.
+From: Lyude Paul <thatslyude@gmail.com>
 
-To make sure the pass-through device does not interfere, we also
-remove it from serio while using InterTouch.
+On the latest series of ThinkPads, the button events for the TrackPoint
+are reported through the touchpad itself as opposed to the TrackPoint
+device. In order to report these buttons properly, we need to forward
+them to the TrackPoint device and send the button presses/releases
+through there instead.
 
-Add a platform_data callback to reset the PS/2 device and
-prevent it to be asynchronously re-enabled at resume.
-
+Signed-off-by: Lyude Paul <thatslyude@gmail.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/mouse/psmouse-base.c |  3 +++
- drivers/input/mouse/psmouse.h      |  1 +
- drivers/input/mouse/synaptics.c    | 32 ++++++++++++++++++++++++++++++++
- drivers/input/rmi4/rmi_smbus.c     | 30 ++++++++++++++++++++----------
- include/linux/rmi.h                | 13 +++++++++++++
- 5 files changed, 69 insertions(+), 10 deletions(-)
+ drivers/input/rmi4/rmi_driver.h | 13 +++++++++
+ drivers/input/rmi4/rmi_f03.c    | 28 ++++++++++++++++++
+ drivers/input/rmi4/rmi_f30.c    | 64 +++++++++++++++++++++++++++++++++++------
+ 3 files changed, 97 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index fa2d700..5d84e0c 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -1607,6 +1607,9 @@ static int psmouse_reconnect(struct serio *serio)
- 	unsigned char type;
- 	int rc = -1;
+diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+index e4be773..a0b1978 100644
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -99,6 +99,19 @@ struct rmi_function *rmi_find_function(struct rmi_device *rmi_dev, u8 number);
  
-+	if (psmouse->ignore_reconnect)
-+		return 0;
+ char *rmi_f01_get_product_ID(struct rmi_function *fn);
+ 
++#ifdef CONFIG_RMI4_F03
++int rmi_f03_overwrite_button(struct rmi_function *fn, unsigned int button,
++			     int value);
++void rmi_f03_commit_buttons(struct rmi_function *fn);
++#else
++static inline int rmi_f03_overwrite_button(struct rmi_function *fn,
++					   unsigned int button, int value)
++{
++	return 0;
++}
++static inline void rmi_f03_commit_buttons(struct rmi_function *fn) {}
++#endif
 +
- 	mutex_lock(&psmouse_mutex);
- 
- 	if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index e0ca6cd..e9dc1a1 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -81,6 +81,7 @@ struct psmouse {
- 
- 	void (*pt_activate)(struct psmouse *psmouse);
- 	void (*pt_deactivate)(struct psmouse *psmouse);
-+	bool ignore_reconnect;
+ extern struct rmi_function_handler rmi_f01_handler;
+ extern struct rmi_function_handler rmi_f03_handler;
+ extern struct rmi_function_handler rmi_f11_handler;
+diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
+index daae1c95..535f426 100644
+--- a/drivers/input/rmi4/rmi_f03.c
++++ b/drivers/input/rmi4/rmi_f03.c
+@@ -37,6 +37,34 @@ struct f03_data {
+ 	u8 rx_queue_length;
  };
  
- enum psmouse_type {
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index eba6358..e1a84a6 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -245,6 +245,30 @@ static const char * const smbus_pnp_ids[] = {
- 
- static int rmi4_id;
- 
-+static void synaptics_pt_create(struct psmouse *psmouse);
-+
-+static int synaptics_intertouch_enable(void *data, bool value)
++int rmi_f03_overwrite_button(struct rmi_function *fn, unsigned int button,
++			     int value)
 +{
-+	struct psmouse *psmouse = data;
-+	struct synaptics_data *priv = psmouse->private;
++	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
++	unsigned int bit = BIT(button);
 +
-+	if (!psmouse)
-+		return 0;
++	if (button > 2)
++		return -EINVAL;
 +
-+	psmouse->ignore_reconnect = value;
-+
-+	if (value) {
-+		serio_unregister_child_port(psmouse->ps2dev.serio);
-+		psmouse_deactivate(psmouse);
-+	} else {
-+		psmouse_activate(psmouse);
-+		if (SYN_CAP_PASS_THROUGH(priv->capabilities))
-+			synaptics_pt_create(psmouse);
-+	}
++	if (value)
++		f03->overwrite_buttons |= bit;
++	else
++		f03->overwrite_buttons &= ~bit;
 +
 +	return 0;
 +}
 +
- static int synaptics_create_intertouch(struct psmouse *psmouse)
- {
- 	struct synaptics_data *priv = psmouse->private;
-@@ -261,6 +285,8 @@ static int synaptics_create_intertouch(struct psmouse *psmouse)
- 			.trackstick_buttons =
- 			  !!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10),
- 		},
-+		.transport_enable = synaptics_intertouch_enable,
-+		.transport_data = psmouse,
- 	};
- 
- 	if (priv->intertouch)
-@@ -1397,6 +1423,12 @@ static void synaptics_disconnect(struct psmouse *psmouse)
- 				   &psmouse_attr_disable_gesture.dattr);
- 
- 	if (priv->intertouch) {
-+		struct rmi_device_platform_data *pdata;
-+
-+		/* reset transport_data as it will get eventually freed */
-+		pdata = priv->intertouch->dev.platform_data;
-+		pdata->transport_data = NULL;
-+
- 		platform_device_unregister(priv->intertouch);
- 		priv->intertouch = NULL;
- 	}
-diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-index 4d6f228..023dbd5 100644
---- a/drivers/input/rmi4/rmi_smbus.c
-+++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -244,8 +244,15 @@ static void rmi_smb_clear_state(struct rmi_smb_xport *rmi_smb)
- 
- static int rmi_smb_enable_smbus_mode(struct rmi_smb_xport *rmi_smb)
- {
-+	struct rmi_device_platform_data *pdata;
- 	int retval;
- 
-+	pdata = dev_get_platdata(&rmi_smb->client->dev);
-+
-+	retval = rmi_transport_enable(pdata, true);
-+	if (retval)
-+		return retval;
-+
- 	/* we need to get the smbus version to activate the touchpad */
- 	retval = rmi_smb_get_version(rmi_smb);
- 	if (retval < 0)
-@@ -261,13 +268,6 @@ static int rmi_smb_reset(struct rmi_transport_dev *xport, u16 reset_addr)
- 
- 	rmi_smb_clear_state(rmi_smb);
- 
--	/*
--	 * we do not call the actual reset command, it has to be handled in
--	 * PS/2 or there will be races between PS/2 and SMBus.
--	 * PS/2 should ensure that a psmouse_reset is called before
--	 * intializing the device and after it has been removed to be in a known
--	 * state.
--	 */
- 	return rmi_smb_enable_smbus_mode(rmi_smb);
- }
- 
-@@ -334,9 +334,13 @@ static int rmi_smb_probe(struct i2c_client *client,
- 	rmi_smb->xport.proto_name = "smb2";
- 	rmi_smb->xport.ops = &rmi_smb_ops;
- 
-+	retval = rmi_transport_enable(pdata, true);
-+	if (retval)
-+		return retval;
-+
- 	retval = rmi_smb_get_version(rmi_smb);
- 	if (retval < 0)
--		return retval;
-+		goto fail;
- 
- 	smbus_version = retval;
- 	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Smbus version is %d",
-@@ -345,7 +349,8 @@ static int rmi_smb_probe(struct i2c_client *client,
- 	if (smbus_version != 2) {
- 		dev_err(&client->dev, "Unrecognized SMB version %d.\n",
- 				smbus_version);
--		return -ENODEV;
-+		retval = -ENODEV;
-+		goto fail;
- 	}
- 
- 	i2c_set_clientdata(client, rmi_smb);
-@@ -355,20 +360,25 @@ static int rmi_smb_probe(struct i2c_client *client,
- 		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
- 			client->addr);
- 		i2c_set_clientdata(client, NULL);
--		return retval;
-+		goto fail;
- 	}
- 
- 	dev_info(&client->dev, "registered rmi smb driver at %#04x.\n",
- 			client->addr);
- 	return 0;
- 
-+fail:
-+	rmi_transport_enable(pdata, false);
-+	return retval;
- }
- 
- static int rmi_smb_remove(struct i2c_client *client)
- {
-+	struct rmi_device_platform_data *pdata = dev_get_platdata(&client->dev);
- 	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
- 
- 	rmi_unregister_transport_device(&rmi_smb->xport);
-+	rmi_transport_enable(pdata, false);
- 
- 	return 0;
- }
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index 4a071e8..02e1dae 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -214,6 +214,9 @@ struct rmi_device_platform_data {
- 	struct rmi_2d_sensor_platform_data sensor_pdata;
- 	struct rmi_f01_power_management power_management;
- 	struct rmi_f30_data f30_data;
-+
-+	int (*transport_enable)(void*, bool);
-+	void *transport_data;
- };
- 
- /**
-@@ -350,6 +353,16 @@ struct rmi_driver_data {
- 	void *data;
- };
- 
-+static inline int rmi_transport_enable(struct rmi_device_platform_data *pdata,
-+				       bool value)
++void rmi_f03_commit_buttons(struct rmi_function *fn)
 +{
-+	if (!pdata->transport_enable)
-+		return 0;
++	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
++	int i;
 +
-+	return pdata->transport_enable(pdata->transport_data, value);
++	f03->serio->extra_byte = f03->overwrite_buttons;
++
++	for (i = 0; i < 3; i++)
++		serio_interrupt(f03->serio, 0x00, 0x00);
 +}
 +
+ static int rmi_f03_pt_write(struct serio *id, unsigned char val)
+ {
+ 	struct f03_data *f03 = id->port_data;
+diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
+index 7990bb0..14e3221 100644
+--- a/drivers/input/rmi4/rmi_f30.c
++++ b/drivers/input/rmi4/rmi_f30.c
+@@ -74,8 +74,11 @@ struct f30_data {
+ 
+ 	u8 data_regs[RMI_F30_CTRL_MAX_BYTES];
+ 	u16 *gpioled_key_map;
++	u16 *gpio_passthrough_key_map;
+ 
+ 	struct input_dev *input;
++	bool trackstick_buttons;
++	struct rmi_function *f03;
+ };
+ 
+ static int rmi_f30_read_control_parameters(struct rmi_function *fn,
+@@ -108,6 +111,13 @@ static int rmi_f30_attention(struct rmi_function *fn, unsigned long *irq_bits)
+ 	if (!f30->input)
+ 		return 0;
+ 
++	if (f30->trackstick_buttons && !f30->f03) {
++		f30->f03 = rmi_find_function(rmi_dev, 3);
 +
- int rmi_register_transport_device(struct rmi_transport_dev *xport);
- void rmi_unregister_transport_device(struct rmi_transport_dev *xport);
- int rmi_process_interrupt_requests(struct rmi_device *rmi_dev);
++		if (!f30->f03)
++			return -EBUSY;
++	}
++
+ 	/* Read the gpi led data. */
+ 	if (rmi_dev->xport->attn_data) {
+ 		memcpy(f30->data_regs, rmi_dev->xport->attn_data,
+@@ -128,23 +138,29 @@ static int rmi_f30_attention(struct rmi_function *fn, unsigned long *irq_bits)
+ 	for (reg_num = 0; reg_num < f30->register_count; ++reg_num) {
+ 		for (i = 0; gpiled < f30->gpioled_count && i < 8; ++i,
+ 			++gpiled) {
+-			if (f30->gpioled_key_map[gpiled] != 0) {
+-				/* buttons have pull up resistors */
+-				value = (((f30->data_regs[reg_num] >> i) & 0x01)
+-									== 0);
++			/* buttons have pull up resistors */
++			value = (((f30->data_regs[reg_num] >> i) & 0x01) == 0);
+ 
++			if (f30->gpioled_key_map[gpiled] != 0) {
+ 				rmi_dbg(RMI_DEBUG_FN, &fn->dev,
+ 					"%s: call input report key (0x%04x) value (0x%02x)",
+ 					__func__,
+ 					f30->gpioled_key_map[gpiled], value);
++
+ 				input_report_key(f30->input,
+ 						 f30->gpioled_key_map[gpiled],
+ 						 value);
++			} else if (f30->gpio_passthrough_key_map[gpiled]) {
++				rmi_f03_overwrite_button(f30->f03,
++						f30->gpio_passthrough_key_map[gpiled] - BTN_LEFT,
++						value);
+ 			}
+-
+ 		}
+ 	}
+ 
++	if (f30->trackstick_buttons)
++		rmi_f03_commit_buttons(f30->f03);
++
+ 	return 0;
+ }
+ 
+@@ -242,10 +258,10 @@ static inline int rmi_f30_initialize(struct rmi_function *fn)
+ 	int retval = 0;
+ 	int control_address;
+ 	int i;
+-	int button;
++	int button, extra_button;
+ 	u8 buf[RMI_F30_QUERY_SIZE];
+ 	u8 *ctrl_reg;
+-	u8 *map_memory;
++	u8 *map_memory, *pt_memory;
+ 
+ 	f30 = devm_kzalloc(&fn->dev, sizeof(struct f30_data),
+ 			   GFP_KERNEL);
+@@ -343,15 +359,47 @@ static inline int rmi_f30_initialize(struct rmi_function *fn)
+ 	map_memory = devm_kzalloc(&fn->dev,
+ 				  (f30->gpioled_count * (sizeof(u16))),
+ 				  GFP_KERNEL);
+-	if (!map_memory) {
++	pt_memory = devm_kzalloc(&fn->dev,
++				 (f30->gpioled_count * (sizeof(u16))),
++				 GFP_KERNEL);
++	if (!map_memory || !pt_memory) {
+ 		dev_err(&fn->dev, "Failed to allocate gpioled map memory.\n");
+ 		return -ENOMEM;
+ 	}
+ 
+ 	f30->gpioled_key_map = (u16 *)map_memory;
++	f30->gpio_passthrough_key_map = (u16 *)pt_memory;
+ 
+ 	pdata = rmi_get_platform_data(rmi_dev);
+ 	if (pdata && f30->has_gpio) {
++		/*
++		 * For touchpads the buttons are mapped as:
++		 * - bit 0 = Left, bit 1 = right, bit 2 = middle / clickbutton
++		 * - 3, 4, 5 are extended buttons and
++		 * - 6 and 7 are other sorts of GPIOs
++		 */
++		button = BTN_LEFT;
++		extra_button = BTN_LEFT;
++		for (i = 0; i < f30->gpioled_count - 2 && i < 3; i++) {
++			if (rmi_f30_is_valid_button(i, f30->ctrl))
++				f30->gpioled_key_map[i] = button++;
++		}
++
++		f30->trackstick_buttons = pdata &&
++				pdata->f30_data.trackstick_buttons;
++
++		if (f30->trackstick_buttons) {
++			for (i = 3; i < f30->gpioled_count - 2; i++) {
++				if (rmi_f30_is_valid_button(i, f30->ctrl))
++					f30->gpio_passthrough_key_map[i] = extra_button++;
++			}
++		} else {
++			for (i = 3; i < f30->gpioled_count - 2; i++) {
++				if (rmi_f30_is_valid_button(i, f30->ctrl))
++					f30->gpioled_key_map[i] = button++;
++			}
++		}
++	} else if (f30->has_gpio) {
+ 		button = BTN_LEFT;
+ 		for (i = 0; i < f30->gpioled_count; i++) {
+ 			if (rmi_f30_is_valid_button(i, f30->ctrl)) {
 -- 
 2.5.5

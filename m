@@ -1,88 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] dt-bindings: touchscreen: silead gsl1680: Document
- all compatibles
-Date: Thu, 18 Aug 2016 13:39:59 -0700
-Message-ID: <20160818203959.GB39271@dtor-ws>
-References: <1471424340-4201-1-git-send-email-hdegoede@redhat.com>
- <20160818193028.GA39271@dtor-ws>
- <CAL_JsqK2Lgic+-P-NvvnVO9COCy3k_yO3seOipYDd4d10QK2UA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <CAL_JsqK2Lgic+-P-NvvnVO9COCy3k_yO3seOipYDd4d10QK2UA@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Rob Herring <robh+dt@kernel.org>
-Cc: devicetree <devicetree@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Chen-Yu Tsai <wens@csie.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+From: Andrew Duggan <andrew@duggan.us>
+Subject: [PATCH] Input: synaptics-rmi4: Fix register descriptor subpacket map construction
+Date: Thu, 18 Aug 2016 12:05:33 -0700
+Message-ID: <1471547133-26819-1-git-send-email-andrew@duggan.us>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Nitin Chaudhary <nitinchaudhary1289@gmail.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Aug 18, 2016 at 02:48:52PM -0500, Rob Herring wrote:
-> On Thu, Aug 18, 2016 at 2:30 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Wed, Aug 17, 2016 at 10:59:00AM +0200, Hans de Goede wrote:
-> >> The silead gsl1680 driver / binding supports a whole series of devices,
-> >> list the compatibles for all of them in the binding.
-> >>
-> >> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> >> ---
-> >> Changes in v2:
-> >> -Drop the "silead,mssl1680" compatible thing, the "mssl1680" name is an
-> >>  ACPI thing and does not belong in the dt bindings
-> >> ---
-> >>  .../devicetree/bindings/input/touchscreen/silead_gsl1680.txt          | 4 ++++
-> >>  1 file changed, 4 insertions(+)
-> >>
-> >> diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-> >> index b0eca54..ad7f41a 100644
-> >> --- a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-> >> +++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-> >> @@ -2,6 +2,10 @@
-> >>
-> >>  Required properties:
-> >>  - compatible           : "silead,gsl1680"
-> >> +                     or: "silead,gsl1688"
-> >> +                     or: "silead,gsl3670"
-> >> +                     or: "silead,gsl3675"
-> >> +                     or: "silead,gsl3692"
-> >
-> > Hmm, why do we need to document all compatible strings? We usually have
-> > only least common denominator in drievr, and device tree uses form:
-> >
-> >         compatible = "silead,<exact model>", "silead,gsl1680";
-> >
-> > Rob?
-> 
-> Because we require them in dts files even if the OS only uses the fallback.
+From: Andrew Duggan <aduggan@synaptics.com>
 
-So how exactly should it be documented? I mean if there were more than 1
-OS they might have been using different fallbacks. How do we decide
-which entry should be "true" fallback?
+The map_offset variable is specific to the register and needs to be reset
+in the loop. Otherwise, subsequent register's subpacket maps will have
+their bits set at the wrong index. This results in the max X and Y and
+the resolution to not be set on some devices which use F12.
 
-> 
-> >
-> > BTW, I do not see OF match table in the driver, did I manage to drop it?
-> 
-> If it is i2c, i2c has the quirk that it will match drv name to
-> compatible string with vendor prefix dropped.
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Tested-by: Nitin Chaudhary <nitinchaudhary1289@gmail.com>
+Cc: stable@vger.kernel.org
+---
+In rmi_f12_read_sensor_tuning() we call rmi_register_desc_has_subpacket()
+to check the subpacket map to make sure a subpacket exists to ensure that
+the buffer contains the correct data. It happened that on my the test
+devices the register we were checking was also the first register. This
+issues showed up on newer devices where F12 CTRL 8 is not teh first control
+register.
 
-I think this is implementation quirk of I2C bus and I hope we'll fix it
-one of these days... Same with modalias dropping vendor prefix so we
-have to repeat OF data (sans vendor prefix) in I2C ID table if we want
-module auto-loading to work.
+Thanks,
+Andrew
 
-> But that would imply one
-> of these is a fallback and the doc doesn't say that.
+ drivers/input/rmi4/rmi_driver.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks.
-
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 2b6b97e..19843f1 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -553,10 +553,10 @@ int rmi_read_register_desc(struct rmi_device *d, u16 addr,
+ 		goto free_struct_buff;
+ 
+ 	reg = find_first_bit(rdesc->presense_map, RMI_REG_DESC_PRESENSE_BITS);
+-	map_offset = 0;
+ 	for (i = 0; i < rdesc->num_registers; i++) {
+ 		struct rmi_register_desc_item *item = &rdesc->registers[i];
+ 		int reg_size = struct_buf[offset];
++		map_offset = 0;
+ 
+ 		++offset;
+ 		if (reg_size == 0) {
 -- 
-Dmitry
+2.7.4

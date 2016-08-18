@@ -1,42 +1,36 @@
-From: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-Subject: [PATCH v5 0/4] mxs-lradc: Split driver into MFD
-Date: Thu, 18 Aug 2016 15:44:29 +0200
-Message-ID: <cover.1471524593.git.ksenija.stanojevic@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: lee.jones@linaro.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH] input: touchscreen: silead: Add regulator support
+Date: Thu, 18 Aug 2016 14:22:19 -0500
+Message-ID: <20160818192219.GA28941@rob-hp-laptop>
+References: <1471376124-31169-1-git-send-email-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1471376124-31169-1-git-send-email-hdegoede@redhat.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: devicetree <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-Split existing driver mxs-lradc into MFD with touchscreen and
-IIO part.
+On Tue, Aug 16, 2016 at 09:35:24PM +0200, Hans de Goede wrote:
+> On some tablets the touchscreen controller is powered by seperate
+> regulators, add support for this.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  .../bindings/input/touchscreen/silead_gsl1680.txt  |  2 +
 
-Tested on I.MX28.
+Acked-by: Rob Herring <robh@kernel.org>
 
-
-Ksenija Stanojevic (4):
-  mfd: mxs-lradc: Add support for mxs-lradc MFD
-  iio: adc: mxs-lradc: Add support for adc driver
-  input: touchscreen: mxs-lradc: Add support for touchscreen
-  iio: adc: mxs-lradc: Remove driver
-
- drivers/iio/adc/Kconfig                  |   27 +-
- drivers/iio/adc/Makefile                 |    2 +-
- drivers/iio/adc/mxs-lradc-adc.c          |  844 ++++++++++++++
- drivers/iio/adc/mxs-lradc.c              | 1775 ------------------------------
- drivers/input/touchscreen/Kconfig        |   10 +
- drivers/input/touchscreen/Makefile       |    1 +
- drivers/input/touchscreen/mxs-lradc-ts.c |  742 +++++++++++++
- drivers/mfd/Kconfig                      |   17 +
- drivers/mfd/Makefile                     |    1 +
- drivers/mfd/mxs-lradc.c                  |  255 +++++
- include/linux/mfd/mxs-lradc.h            |  194 ++++
- 11 files changed, 2078 insertions(+), 1790 deletions(-)
- create mode 100644 drivers/iio/adc/mxs-lradc-adc.c
- delete mode 100644 drivers/iio/adc/mxs-lradc.c
- create mode 100644 drivers/input/touchscreen/mxs-lradc-ts.c
- create mode 100644 drivers/mfd/mxs-lradc.c
- create mode 100644 include/linux/mfd/mxs-lradc.h
-
--- 
-1.9.1
+>  drivers/input/touchscreen/silead.c                 | 51 ++++++++++++++++++++--
+>  2 files changed, 49 insertions(+), 4 deletions(-)

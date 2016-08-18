@@ -1,217 +1,356 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 08/11] Input: synaptics - allocate a Synaptics Intertouch device
-Date: Thu, 18 Aug 2016 11:24:46 +0200
-Message-ID: <1471512289-10648-9-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 04/11] Input: synaptics-rmi4 - add support for F03
+Date: Thu, 18 Aug 2016 11:24:42 +0200
+Message-ID: <1471512289-10648-5-git-send-email-benjamin.tissoires@redhat.com>
 References: <1471512289-10648-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36450 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:43138 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753135AbcHRJea (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Aug 2016 05:34:30 -0400
+	id S1753186AbcHRJlo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Aug 2016 05:41:44 -0400
 In-Reply-To: <1471512289-10648-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lyude Paul <thatslyude@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Dennis Wassenberg <dennis.wassenberg@secunet.com>
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Most of the Synaptics devices are connected through PS/2 and a different
-bus (SMBus or HID over I2C).
-The secondary bus capability is indicated by the InterTouch bit in
-extended capability 0x0C.
+From: Lyude Paul <thatslyude@gmail.com>
 
-When we encounter such a device, we can create a platform device with
-the information gathered through the PS/2 enumeration as some information
-might be missing through the other bus. Using a platform device allows
-to not add any dependency on the psmouse driver.
+This adds basic functionality for PS/2 passthrough on Synaptics
+Touchpads using RMI4 through smbus.
 
-We only enable the InterTouch device to be created for the laptops
-registered with the top software button property or those we know
-that are functional.
-
-In the future, we might change the default to always rely on the
-InterTouch bus. Currently, users can enable/disable the feature
-with the psmouse parameter synaptics_intertouch.
-
-The SMBus devices keep their PS/2 connection alive. If the initialization
-process goes too far (psmouse_activate called), the device disconnects
-from the I2C bus and stays on the PS/2 bus. We need to be sure the psmouse
-driver will stop communicating with the device (and the pass-through
-trackstick too). This part is not addressed here but will be in a
-following patch.
-
-The HID over I2C devices are enumerated through the ACPI DSDT, and
-their PS/2 device also exports the InterTouch bit in the extended
-capability 0x0C. However, the firmware keeps its I2C connection open
-even after going further in the PS/2 initialization. We don't need
-to take extra precautions with those device, especially because they
-block their PS/2 communication when HID over I2C is used.
-
+Signed-off-by: Lyude Paul <thatslyude@gmail.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/mouse/synaptics.c | 99 +++++++++++++++++++++++++++++++++++++++++
- drivers/input/mouse/synaptics.h |  4 ++
- 2 files changed, 103 insertions(+)
+ drivers/input/mouse/psmouse-base.c |   6 +
+ drivers/input/rmi4/Kconfig         |   9 ++
+ drivers/input/rmi4/Makefile        |   1 +
+ drivers/input/rmi4/rmi_bus.c       |   3 +
+ drivers/input/rmi4/rmi_driver.h    |   1 +
+ drivers/input/rmi4/rmi_f03.c       | 226 +++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/serio.h         |   1 +
+ 7 files changed, 247 insertions(+)
+ create mode 100644 drivers/input/rmi4/rmi_f03.c
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 8781e23..eba6358 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -29,6 +29,8 @@
- #include <linux/input/mt.h>
- #include <linux/serio.h>
- #include <linux/libps2.h>
-+#include <linux/platform_device.h>
-+#include <linux/rmi.h>
- #include <linux/slab.h>
- #include "psmouse.h"
- #include "synaptics.h"
-@@ -70,6 +72,21 @@
- /* maximum ABS_MT_POSITION displacement (in mm) */
- #define DMAX 10
- 
-+/*
-+ * The newest Synaptics device can use a secondary bus (called InterTouch) which
-+ * provides a better bandwidth and allow a better control of the touchpads.
-+ * This is used to decide if we need to use this bus or not.
-+ */
-+enum {
-+	SYNAPTICS_INTERTOUCH_NOT_SET = -1,
-+	SYNAPTICS_INTERTOUCH_OFF,
-+	SYNAPTICS_INTERTOUCH_ON,
-+};
-+
-+static int synaptics_intertouch = SYNAPTICS_INTERTOUCH_NOT_SET;
-+module_param_named(synaptics_intertouch, synaptics_intertouch, int, 0644);
-+MODULE_PARM_DESC(synaptics_intertouch, "Use a secondary bus for the Synaptics device.");
-+
- /*****************************************************************************
-  *	Stuff we need even when we do not want native Synaptics support
-  ****************************************************************************/
-@@ -218,6 +235,80 @@ static const char * const forcepad_pnp_ids[] = {
- 	NULL
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index dbc002a..fa2d700 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -1666,6 +1666,12 @@ static struct serio_device_id psmouse_serio_ids[] = {
+ 		.id	= SERIO_ANY,
+ 		.extra	= SERIO_ANY,
+ 	},
++	{
++		.type	= SERIO_RMI_PSTHRU,
++		.proto	= SERIO_ANY,
++		.id	= SERIO_ANY,
++		.extra	= SERIO_ANY,
++	},
+ 	{ 0 }
  };
  
-+static const char * const smbus_pnp_ids[] = {
-+	/* all of the topbuttonpad_pnp_ids are valid, we just add some extras */
-+	"LEN0048", /* X1 Carbon 3 */
-+	"LEN0046", /* X250 */
-+	"LEN004a", /* W541 */
-+	"LEN200f", /* T450s */
+diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+index 86a180b..cfc14b3 100644
+--- a/drivers/input/rmi4/Kconfig
++++ b/drivers/input/rmi4/Kconfig
+@@ -39,6 +39,15 @@ config RMI4_SMB
+ 	  To compile this driver as a module, choose M here: the module will be
+ 	  called rmi_smbus.
+ 
++config RMI4_F03
++        bool "RMI4 Function 03 (PS2 Guest)"
++        depends on RMI4_CORE
++        help
++          Say Y here if you want to add support for RMI4 function 03.
++
++          Function 03 provides PS2 guest support for RMI4 devices. This
++          includes support for TrackPoints on TouchPads.
++
+ config RMI4_2D_SENSOR
+ 	bool
+ 	depends on RMI4_CORE
+diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
+index 3c8ebf2..676e636 100644
+--- a/drivers/input/rmi4/Makefile
++++ b/drivers/input/rmi4/Makefile
+@@ -4,6 +4,7 @@ rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
+ rmi_core-$(CONFIG_RMI4_2D_SENSOR) += rmi_2d_sensor.o
+ 
+ # Function drivers
++rmi_core-$(CONFIG_RMI4_F03) += rmi_f03.o
+ rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
+ rmi_core-$(CONFIG_RMI4_F12) += rmi_f12.o
+ rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
+diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+index a735806..e1e3b80 100644
+--- a/drivers/input/rmi4/rmi_bus.c
++++ b/drivers/input/rmi4/rmi_bus.c
+@@ -303,6 +303,9 @@ struct bus_type rmi_bus_type = {
+ 
+ static struct rmi_function_handler *fn_handlers[] = {
+ 	&rmi_f01_handler,
++#ifdef CONFIG_RMI4_F03
++	&rmi_f03_handler,
++#endif
+ #ifdef CONFIG_RMI4_F11
+ 	&rmi_f11_handler,
+ #endif
+diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+index 6e140fa..a7cb383 100644
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -99,6 +99,7 @@ void rmi_unregister_physical_driver(void);
+ char *rmi_f01_get_product_ID(struct rmi_function *fn);
+ 
+ extern struct rmi_function_handler rmi_f01_handler;
++extern struct rmi_function_handler rmi_f03_handler;
+ extern struct rmi_function_handler rmi_f11_handler;
+ extern struct rmi_function_handler rmi_f12_handler;
+ extern struct rmi_function_handler rmi_f30_handler;
+diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
+new file mode 100644
+index 0000000..9945512
+--- /dev/null
++++ b/drivers/input/rmi4/rmi_f03.c
+@@ -0,0 +1,226 @@
++/*
++ * Copyright (C) 2015-2016 Red Hat
++ * Copyright (C) 2015 Lyude Paul <thatslyude@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/serio.h>
++#include <linux/notifier.h>
++#include "rmi_driver.h"
++
++#define RMI_F03_RX_DATA_OFB		0x01
++#define RMI_F03_OB_SIZE			2
++
++#define RMI_F03_OB_OFFSET		2
++#define RMI_F03_OB_DATA_OFFSET		1
++#define RMI_F03_OB_FLAG_TIMEOUT		(1 << 6)
++#define RMI_F03_OB_FLAG_PARITY		(1 << 7)
++
++#define RMI_F03_DEVICE_COUNT		0x07
++#define RMI_F03_BYTES_PER_DEVICE_MASK	0x70
++#define RMI_F03_BYTES_PER_DEVICE_SHIFT	4
++#define RMI_F03_QUEUE_LENGTH		0x0F
++
++struct f03_data {
++	struct rmi_function *fn;
++
++	struct serio *serio;
++
++	unsigned int overwrite_buttons;
++
++	u8 device_count;
++	u8 rx_queue_length;
 +};
 +
-+static int rmi4_id;
-+
-+static int synaptics_create_intertouch(struct psmouse *psmouse)
++static int rmi_f03_pt_write(struct serio *id, unsigned char val)
 +{
-+	struct synaptics_data *priv = psmouse->private;
-+	struct platform_device_info pdevinfo;
-+	struct platform_device *pdev;
-+	struct rmi_device_platform_data pdata = {
-+		.sensor_pdata = {
-+			.sensor_type = rmi_sensor_touchpad,
-+			.axis_align.flip_y = true,
-+			/* to prevent cursors jumps: */
-+			.kernel_tracking = true,
-+		},
-+		.f30_data = {
-+			.trackstick_buttons =
-+			  !!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10),
-+		},
-+	};
++	struct f03_data *f03 = id->port_data;
++	int rc;
 +
-+	if (priv->intertouch)
-+		return -EINVAL;
++	dev_dbg(&f03->fn->dev, "%s: Wrote %.2hhx to PS/2 passthrough address",
++		__func__, val);
 +
-+	pdata.sensor_pdata.topbuttonpad =
-+			psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-+			!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10);
-+
-+	memset(&pdevinfo, 0, sizeof(pdevinfo));
-+	pdevinfo.name = "rmi4";
-+	pdevinfo.id = rmi4_id++;
-+	pdevinfo.data = &pdata;
-+	pdevinfo.size_data = sizeof(pdata);
-+	pdevinfo.parent = &psmouse->ps2dev.serio->dev;
-+
-+	pdev = platform_device_register_full(&pdevinfo);
-+	if (IS_ERR(pdev))
-+		return PTR_ERR(pdev);
-+
-+	priv->intertouch = pdev;
++	rc = rmi_write(f03->fn->rmi_dev, f03->fn->fd.data_base_addr, val);
++	if (rc) {
++		dev_err(&f03->fn->dev,
++			"%s: Failed to write to F03 TX register.\n", __func__);
++		return rc;
++	}
 +
 +	return 0;
 +}
 +
-+/**
-+ * synaptics_setup_intertouch - called once the PS/2 devices are enumerated
-+ * and decides to instantiate a SMBus InterTouch device.
-+ */
-+static void synaptics_setup_intertouch(struct psmouse *psmouse)
++static inline int rmi_f03_initialize(struct rmi_function *fn)
 +{
-+	int ret;
++	struct f03_data *f03;
++	struct device *dev = &fn->dev;
++	int rc;
++	u8 bytes_per_device;
++	u8 query1;
++	size_t query2_len;
 +
-+	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_OFF)
-+		return;
-+
-+	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_NOT_SET) {
-+		if (!psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-+		    !psmouse_matches_pnp_id(psmouse, smbus_pnp_ids))
-+			return;
++	rc = rmi_read(fn->rmi_dev, fn->fd.query_base_addr, &query1);
++	if (rc) {
++		dev_err(dev, "Failed to read query register.\n");
++		return rc;
 +	}
 +
-+	psmouse_info(psmouse, "device also supported by an other bus.\n");
-+	ret = synaptics_create_intertouch(psmouse);
-+	if (ret)
-+		psmouse_info(psmouse,
-+			     "unable to create intertouch device.\n");
++	f03 = devm_kzalloc(dev, sizeof(struct f03_data), GFP_KERNEL);
++	if (!f03)
++		return -ENOMEM;
++
++	f03->device_count = query1 & RMI_F03_DEVICE_COUNT;
++	bytes_per_device = (query1 & RMI_F03_BYTES_PER_DEVICE_MASK) >>
++		RMI_F03_BYTES_PER_DEVICE_SHIFT;
++
++	query2_len = f03->device_count * bytes_per_device;
++
++	/*
++	 * The first generation of image sensors don't have a second part to
++	 * their f03 query, as such we have to set some of these values manually
++	 */
++	if (query2_len < 1) {
++		f03->device_count = 1;
++		f03->rx_queue_length = 7;
++	} else {
++		u8 query2[query2_len];
++
++		rc = rmi_read_block(fn->rmi_dev, fn->fd.query_base_addr + 1,
++				    query2, query2_len);
++		if (rc) {
++			dev_err(dev, "Failed to read second set of query registers.\n");
++			return rc;
++		}
++
++		f03->rx_queue_length = query2[0] & RMI_F03_QUEUE_LENGTH;
++	}
++
++	f03->fn = fn;
++
++	dev_set_drvdata(dev, f03);
++
++	return f03->device_count;
 +}
- /*****************************************************************************
-  *	Synaptics communications functions
-  ****************************************************************************/
-@@ -1305,6 +1396,11 @@ static void synaptics_disconnect(struct psmouse *psmouse)
- 		device_remove_file(&psmouse->ps2dev.serio->dev,
- 				   &psmouse_attr_disable_gesture.dattr);
- 
-+	if (priv->intertouch) {
-+		platform_device_unregister(priv->intertouch);
-+		priv->intertouch = NULL;
++
++static inline int rmi_f03_register_pt(struct rmi_function *fn)
++{
++	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
++	struct serio *serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
++
++	if (!serio)
++		return -ENOMEM;
++
++	serio->id.type = SERIO_RMI_PSTHRU;
++	serio->write = rmi_f03_pt_write;
++	serio->port_data = f03;
++
++	strlcpy(serio->name, "Synaptics RMI4 PS2 pass-through",
++		sizeof(serio->name));
++	strlcpy(serio->phys, "synaptics-rmi4-pt/serio1",
++		sizeof(serio->phys));
++	 serio->dev.parent = &fn->dev;
++
++	f03->serio = serio;
++
++	serio_register_port(serio);
++
++	return 0;
++}
++
++static int rmi_f03_probe(struct rmi_function *fn)
++{
++	int rc;
++
++	rc = rmi_f03_initialize(fn);
++	if (rc < 0)
++		return rc;
++
++	dev_dbg(&fn->dev, "%d devices on PS/2 passthrough", rc);
++
++	rc = rmi_f03_register_pt(fn);
++	if (rc)
++		return rc;
++
++	return 0;
++}
++
++static int rmi_f03_config(struct rmi_function *fn)
++{
++	fn->rmi_dev->driver->set_irq_bits(fn->rmi_dev, fn->irq_mask);
++
++	return 0;
++}
++
++static int rmi_f03_attention(struct rmi_function *fn, unsigned long *irq_bits)
++{
++	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
++	u16 data_addr = fn->fd.data_base_addr;
++	const u8 ob_len = f03->rx_queue_length * RMI_F03_OB_SIZE;
++	u8 obs[ob_len];
++	u8 ob_status;
++	u8 ob_data;
++	unsigned int serio_flags;
++	int i;
++	int retval;
++
++	/* Grab all of the data registers, and check them for data */
++	retval = rmi_read_block(fn->rmi_dev, data_addr + RMI_F03_OB_OFFSET,
++				&obs, ob_len);
++	if (retval) {
++		dev_err(&fn->dev, "%s: Failed to read F03 output buffers.\n",
++			__func__);
++		serio_interrupt(f03->serio, 0, SERIO_TIMEOUT);
++		return retval;
 +	}
 +
- 	synaptics_reset(psmouse);
- 	kfree(priv);
- 	psmouse->private = NULL;
-@@ -1547,6 +1643,9 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
- 		}
- 	}
- 
-+	if (SYN_CAP_INTERTOUCH(priv->ext_cap_0c))
-+		synaptics_setup_intertouch(psmouse);
++	for (i = 0; i < ob_len; i += RMI_F03_OB_SIZE) {
++		ob_status = obs[i];
++		ob_data = obs[i + RMI_F03_OB_DATA_OFFSET];
++		serio_flags = 0;
 +
- 	return 0;
- 
-  init_fail:
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 116ae25..b88755d 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -90,6 +90,7 @@
- #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
- #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
- #define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
-+#define SYN_CAP_INTERTOUCH(ex0c)	((ex0c) & 0x004000)
++		if (!(ob_status & RMI_F03_RX_DATA_OFB))
++			continue;
++
++		if (ob_status & RMI_F03_OB_FLAG_TIMEOUT)
++			serio_flags |= SERIO_TIMEOUT;
++		if (ob_status & RMI_F03_OB_FLAG_PARITY)
++			serio_flags |= SERIO_PARITY;
++
++		dev_dbg(&fn->dev,
++			"%s: Received %.2hhx from PS2 guest T: %c P: %c\n",
++			__func__, ob_data,
++			serio_flags & SERIO_TIMEOUT ?  'Y' : 'N',
++			serio_flags & SERIO_PARITY ? 'Y' : 'N');
++
++		serio_interrupt(f03->serio, ob_data, serio_flags);
++	}
++
++	return 0;
++}
++
++static void rmi_f03_remove(struct rmi_function *fn)
++{
++	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
++
++	serio_unregister_port(f03->serio);
++}
++
++struct rmi_function_handler rmi_f03_handler = {
++	.driver = {
++		.name = "rmi4_f03",
++	},
++	.func = 0x03,
++	.probe = rmi_f03_probe,
++	.config = rmi_f03_config,
++	.attention = rmi_f03_attention,
++	.remove = rmi_f03_remove,
++};
++
++MODULE_AUTHOR("Lyude Paul <thatslyude@gmail.com>");
++MODULE_DESCRIPTION("RMI F03 module");
++MODULE_LICENSE("GPL");
+diff --git a/include/uapi/linux/serio.h b/include/uapi/linux/serio.h
+index f2447a8..7012178 100644
+--- a/include/uapi/linux/serio.h
++++ b/include/uapi/linux/serio.h
+@@ -30,6 +30,7 @@
+ #define SERIO_HIL_MLC	0x03
+ #define SERIO_PS_PSTHRU	0x05
+ #define SERIO_8042_XL	0x06
++#define SERIO_RMI_PSTHRU	0x07
  
  /*
-  * The following descibes response for the 0x10 query.
-@@ -196,6 +197,9 @@ struct synaptics_data {
- 	bool					press;
- 	bool					report_press;
- 	bool					is_forcepad;
-+
-+	/* Intertouch handling */
-+	struct platform_device *intertouch;
- };
- 
- void synaptics_module_init(void);
+  * Serio protocols
 -- 
 2.5.5
 

@@ -1,111 +1,87 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 03/11] Input: synaptics-rmi4 - have only one struct platform data
-Date: Thu, 18 Aug 2016 11:24:41 +0200
-Message-ID: <1471512289-10648-4-git-send-email-benjamin.tissoires@redhat.com>
-References: <1471512289-10648-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1471512289-10648-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lyude Paul <thatslyude@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Dennis Wassenberg <dennis.wassenberg@secunet.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] Input: byd - fix issue where generic PS/2 mice are
+ detected as BYD touchpad
+Date: Thu, 18 Aug 2016 12:04:11 +0200
+Message-ID: <CAN+gG=F6cs978_jtC=SSk66RRFC6JCTK_aS1jUubk=_w5o4Jbw@mail.gmail.com>
+References: <20160627213412.GC22620@dtor-ws> <1467172878-25483-1-git-send-email-pospeselr@gmail.com>
+ <20160711202620.GA24346@smaug> <20160712025757.GA12185@dtor-ws>
+ <20160714164601.GB17106@dtor-ws> <CAHc7Qt1AEdCxu+rnrYqMRNQFGac4VuNFG=tfTSeHam4SnB3F3w@mail.gmail.com>
+ <20160802113217.GA25170@peridot.local.diamand.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ua0-f180.google.com ([209.85.217.180]:35793 "EHLO
+	mail-ua0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753186AbcHRKEU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Aug 2016 06:04:20 -0400
+Received: by mail-ua0-f180.google.com with SMTP id n59so20467577uan.2
+        for <linux-input@vger.kernel.org>; Thu, 18 Aug 2016 03:04:12 -0700 (PDT)
+In-Reply-To: <20160802113217.GA25170@peridot.local.diamand.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chris Diamand <chris@diamand.org>
+Cc: Richard Pospesel <pospeselr@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, phonesyfreakies@gmail.com
 
-If struct rmi_device_platform_data contains pointers to other struct,
-it gets difficult to allocate a fixed size struct and copy it over between
-drivers.
+Hi,
 
-Change the pointers into a struct and change the code in rmi4 accordingly.
+Raising this thread in everyone's memory. We have people
+complaining[1,2] regarding these bad detections, and I think given
+that this is a regression, we should address this ASAP.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Apologies for being pushy.
 
----
+Cheers,
+Benjamin
 
-this patch will conflict with Andrew's patch to switch hid-rmi
-to use rmi4_core...
----
- drivers/input/rmi4/rmi_f11.c | 4 ++--
- drivers/input/rmi4/rmi_f12.c | 4 ++--
- drivers/input/rmi4/rmi_f30.c | 7 +++----
- include/linux/rmi.h          | 4 ++--
- 4 files changed, 9 insertions(+), 10 deletions(-)
+[1] https://bugzilla.redhat.com/show_bug.cgi?id=1352159
+[2] https://bugzilla.kernel.org/show_bug.cgi?id=120781
 
-diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index 20c7134..b14a7b6 100644
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -1063,8 +1063,8 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 		rc = rmi_2d_sensor_of_probe(&fn->dev, &f11->sensor_pdata);
- 		if (rc)
- 			return rc;
--	} else if (pdata->sensor_pdata) {
--		f11->sensor_pdata = *pdata->sensor_pdata;
-+	} else {
-+		f11->sensor_pdata = pdata->sensor_pdata;
- 	}
- 
- 	f11->rezero_wait_ms = f11->sensor_pdata.rezero_wait;
-diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
-index 332c02f..a631bed 100644
---- a/drivers/input/rmi4/rmi_f12.c
-+++ b/drivers/input/rmi4/rmi_f12.c
-@@ -274,8 +274,8 @@ static int rmi_f12_probe(struct rmi_function *fn)
- 		ret = rmi_2d_sensor_of_probe(&fn->dev, &f12->sensor_pdata);
- 		if (ret)
- 			return ret;
--	} else if (pdata->sensor_pdata) {
--		f12->sensor_pdata = *pdata->sensor_pdata;
-+	} else {
-+		f12->sensor_pdata = pdata->sensor_pdata;
- 	}
- 
- 	ret = rmi_read_register_desc(rmi_dev, query_addr,
-diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
-index 760aff1..7990bb0 100644
---- a/drivers/input/rmi4/rmi_f30.c
-+++ b/drivers/input/rmi4/rmi_f30.c
-@@ -192,7 +192,7 @@ static int rmi_f30_config(struct rmi_function *fn)
- 				rmi_get_platform_data(fn->rmi_dev);
- 	int error;
- 
--	if (pdata->f30_data && pdata->f30_data->disable) {
-+	if (pdata && pdata->f30_data.disable) {
- 		drv->clear_irq_bits(fn->rmi_dev, fn->irq_mask);
- 	} else {
- 		/* Write Control Register values back to device */
-@@ -362,8 +362,7 @@ static inline int rmi_f30_initialize(struct rmi_function *fn)
- 				 * f30->has_mech_mouse_btns, but I am
- 				 * not sure, so use only the pdata info
- 				 */
--				if (pdata->f30_data &&
--				    pdata->f30_data->buttonpad)
-+				if (pdata && pdata->f30_data.buttonpad)
- 					break;
- 			}
- 		}
-@@ -378,7 +377,7 @@ static int rmi_f30_probe(struct rmi_function *fn)
- 	const struct rmi_device_platform_data *pdata =
- 				rmi_get_platform_data(fn->rmi_dev);
- 
--	if (pdata->f30_data && pdata->f30_data->disable)
-+	if (pdata && pdata->f30_data.disable)
- 		return 0;
- 
- 	rc = rmi_f30_initialize(fn);
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index e0aca14..4a071e8 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -211,9 +211,9 @@ struct rmi_device_platform_data {
- 	struct rmi_device_platform_data_spi spi_data;
- 
- 	/* function handler pdata */
--	struct rmi_2d_sensor_platform_data *sensor_pdata;
-+	struct rmi_2d_sensor_platform_data sensor_pdata;
- 	struct rmi_f01_power_management power_management;
--	struct rmi_f30_data *f30_data;
-+	struct rmi_f30_data f30_data;
- };
- 
- /**
--- 
-2.5.5
+On Tue, Aug 2, 2016 at 1:32 PM, Chris Diamand <chris@diamand.org> wrote:
+> Hi,
+>
+> Sorry for the delay.
+>
+>>> Chris, Richard, do you guys have the same hardware or different laptops?
+>>> Could you share DMI data?
+>
+>> Not sure, I've a Purism Librem13.
+>
+> Mines's branded as a PC Specialist "Lafite" v1.
+>
+> I'm pretty sure they're from the same OEM though, being sold under different
+> brands, given that they look pretty much identical.
+>
+> Full output of `dmidecode` attached, but I've included some highlights below:
+>
+> Handle 0x0003, DMI type 3, 25 bytes
+> Chassis Information
+>         Manufacturer: To Be Filled By O.E.M.
+>         Type: Laptop
+>         Lock: Not Present
+>         Version: To Be Filled By O.E.M.
+>         Serial Number: To Be Filled By O.E.M.
+>         Asset Tag: To Be Filled By O.E.M.
+>         Boot-up State: Safe
+>         Power Supply State: Safe
+>         Thermal State: Safe
+>         Security Status: None
+>         OEM Information: 0x00000000
+>         Height: Unspecified
+>         Number Of Power Cords: 1
+>         Contained Elements: 1
+>                 <OUT OF SPEC> (0)
+>         SKU Number: To be filled by O.E.M.
+>
+> ...
+>
+> Handle 0x0004, DMI type 8, 9 bytes
+> Port Connector Information
+>         Internal Reference Designator: J1A1
+>         Internal Connector Type: None
+>         External Reference Designator: PS2Mouse
+>         External Connector Type: PS/2
+>         Port Type: Mouse Port
+>
+> Cheers!
+> Chris

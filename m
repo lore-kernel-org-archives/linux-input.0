@@ -1,114 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
 Subject: Re: [PATCH v2 1/2] Input: jornada720_kbd - switch to devm_* APIs
-Date: Fri, 19 Aug 2016 09:44:47 -0700
-Message-ID: <20160819164447.GB20499@dtor-ws>
+Date: Fri, 19 Aug 2016 17:45:47 +0100
+Message-ID: <20160819164547.GU1041@n2100.armlinux.org.uk>
 References: <E1bamh9-0004Vi-0I@rmk-PC.armlinux.org.uk>
+ <20160819164447.GB20499@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f67.google.com ([209.85.220.67]:33513 "EHLO
-        mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754172AbcHSQov (ORCPT
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:35098 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754067AbcHSQpy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 Aug 2016 12:44:51 -0400
-Received: by mail-pa0-f67.google.com with SMTP id vy10so3664814pac.0
-        for <linux-input@vger.kernel.org>; Fri, 19 Aug 2016 09:44:51 -0700 (PDT)
+        Fri, 19 Aug 2016 12:45:54 -0400
 Content-Disposition: inline
-In-Reply-To: <E1bamh9-0004Vi-0I@rmk-PC.armlinux.org.uk>
+In-Reply-To: <20160819164447.GB20499@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Russell King <rmk+kernel@armlinux.org.uk>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Fri, Aug 19, 2016 at 05:30:59PM +0100, Russell King wrote:
-> Switch the jornada720_kbd driver to use the devm_* APIs.  This is in
-> preparation to removing the mach/irqs.h include from this driver.
+On Fri, Aug 19, 2016 at 09:44:47AM -0700, Dmitry Torokhov wrote:
+> On Fri, Aug 19, 2016 at 05:30:59PM +0100, Russell King wrote:
+> > Switch the jornada720_kbd driver to use the devm_* APIs.  This is in
+> > preparation to removing the mach/irqs.h include from this driver.
+> > 
+> > Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> > ---
+> >  drivers/input/keyboard/jornada720_kbd.c | 38 ++++++++-------------------------
+> >  1 file changed, 9 insertions(+), 29 deletions(-)
+> > 
+> > diff --git a/drivers/input/keyboard/jornada720_kbd.c b/drivers/input/keyboard/jornada720_kbd.c
+> > index 421d9c55b0e8..4b2e9ff18ba1 100644
+> > --- a/drivers/input/keyboard/jornada720_kbd.c
+> > +++ b/drivers/input/keyboard/jornada720_kbd.c
+> > @@ -53,6 +53,7 @@ static unsigned short jornada_std_keymap[128] = {					/* ROW */
+> >  struct jornadakbd {
+> >  	unsigned short keymap[ARRAY_SIZE(jornada_std_keymap)];
+> >  	struct input_dev *input;
+> > +	int irq;
 > 
-> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-> ---
->  drivers/input/keyboard/jornada720_kbd.c | 38 ++++++++-------------------------
->  1 file changed, 9 insertions(+), 29 deletions(-)
+> I do not think you need this, not in this patch and the next one does
+> not seem to need this either?
 > 
-> diff --git a/drivers/input/keyboard/jornada720_kbd.c b/drivers/input/keyboard/jornada720_kbd.c
-> index 421d9c55b0e8..4b2e9ff18ba1 100644
-> --- a/drivers/input/keyboard/jornada720_kbd.c
-> +++ b/drivers/input/keyboard/jornada720_kbd.c
-> @@ -53,6 +53,7 @@ static unsigned short jornada_std_keymap[128] = {					/* ROW */
->  struct jornadakbd {
->  	unsigned short keymap[ARRAY_SIZE(jornada_std_keymap)];
->  	struct input_dev *input;
-> +	int irq;
+> Can I drop this chunk?
 
-I do not think you need this, not in this patch and the next one does
-not seem to need this either?
-
-Can I drop this chunk?
-
->  };
->  
->  static irqreturn_t jornada720_kbd_interrupt(int irq, void *dev_id)
-> @@ -99,12 +100,10 @@ static int jornada720_kbd_probe(struct platform_device *pdev)
->  	struct input_dev *input_dev;
->  	int i, err;
->  
-> -	jornadakbd = kzalloc(sizeof(struct jornadakbd), GFP_KERNEL);
-> -	input_dev = input_allocate_device();
-> -	if (!jornadakbd || !input_dev) {
-> -		err = -ENOMEM;
-> -		goto fail1;
-> -	}
-> +	jornadakbd = devm_kzalloc(&pdev->dev, sizeof(*jornadakbd), GFP_KERNEL);
-> +	input_dev = devm_input_allocate_device(&pdev->dev);
-> +	if (!jornadakbd || !input_dev)
-> +		return -ENOMEM;
->  
->  	platform_set_drvdata(pdev, jornadakbd);
->  
-> @@ -127,37 +126,18 @@ static int jornada720_kbd_probe(struct platform_device *pdev)
->  
->  	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
->  
-> -	err = request_irq(IRQ_GPIO0,
-> -			  jornada720_kbd_interrupt,
-> -			  IRQF_TRIGGER_FALLING,
-> -			  "jornadakbd", pdev);
-> +	err = devm_request_irq(&pdev->dev, IRQ_GPIO0, jornada720_kbd_interrupt,
-> +			       IRQF_TRIGGER_FALLING, "jornadakbd", pdev);
->  	if (err) {
->  		printk(KERN_INFO "jornadakbd720_kbd: Unable to grab IRQ\n");
-> -		goto fail1;
-> +		return err;
->  	}
->  
-> -	err = input_register_device(jornadakbd->input);
-> -	if (err)
-> -		goto fail2;
-> -
-> -	return 0;
-> -
-> - fail2:	/* IRQ, DEVICE, MEMORY */
-> -	free_irq(IRQ_GPIO0, pdev);
-> - fail1:	/* DEVICE, MEMORY */
-> -	input_free_device(input_dev);
-> -	kfree(jornadakbd);
-> -	return err;
-> +	return input_register_device(jornadakbd->input);
->  };
->  
->  static int jornada720_kbd_remove(struct platform_device *pdev)
->  {
-> -	struct jornadakbd *jornadakbd = platform_get_drvdata(pdev);
-> -
-> -	free_irq(IRQ_GPIO0, pdev);
-> -	input_unregister_device(jornadakbd->input);
-> -	kfree(jornadakbd);
-> -
->  	return 0;
->  }
->  
-> -- 
-> 2.1.0
-> 
+Yes, that was accidentally left in while I was considering how to update
+the driver.  It can be safely dropped.  Thanks for spotting that.
 
 -- 
-Dmitry
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.

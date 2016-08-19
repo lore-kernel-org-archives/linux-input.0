@@ -1,25 +1,22 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: Re: [PATCHv3 0/2] Skip selftest on Asus laptops
-Date: Fri, 19 Aug 2016 08:07:25 -0300
-Message-ID: <20160819110725.GA32250@xfiles>
+From: Jack <ebmofc@itajai.sc.gov.br>
+Subject: Hello beautiful,
+Date: Fri, 19 Aug 2016 07:18:36 -0300 (BRT)
+Message-ID: <391590475.33260.1471601916722.JavaMail.zimbra@itajai.sc.gov.br>
+Reply-To: Jack <2936410069@qq.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f170.google.com ([209.85.220.170]:35796 "EHLO
-        mail-qk0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754336AbcHSLHe (ORCPT
+Received: from pmi-zmail.itajai.sc.gov.br ([177.200.207.150]:35098 "EHLO
+        pmi-zmail.itajai.sc.gov.br" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753471AbcHSLWd (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 Aug 2016 07:07:34 -0400
-Received: by mail-qk0-f170.google.com with SMTP id v123so41575934qkh.2
-        for <linux-input@vger.kernel.org>; Fri, 19 Aug 2016 04:07:34 -0700 (PDT)
-Received: from xfiles ([186.212.88.146])
-        by smtp.gmail.com with ESMTPSA id c78sm3529246qke.17.2016.08.19.04.07.31
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 19 Aug 2016 04:07:32 -0700 (PDT)
-Content-Disposition: inline
+        Fri, 19 Aug 2016 07:22:33 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-ping?
+Good day dear, i hope this mail meets you well? My name is Jack, from the U.S. I know this may seem inappropriate so i ask for your forgiveness but i wish to get to know you better, if I may be so bold. I consider myself an easy-going man, adventurous, honest and fun loving person but I am currently looking for a relationship in which I will feel loved. I promise to answer any question that you may want to ask me...all i need is just your attention and the chance to know you more.
+
+Please tell me more about yourself, if you do not mind. Hope to hear back from you soon.
+
+Jack.

@@ -1,73 +1,58 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: touchscreen: ads7846 Remove redundant
- regulator_disable call
-Date: Fri, 19 Aug 2016 10:15:04 -0700
-Message-ID: <20160819171504.GF20499@dtor-ws>
-References: <f97e51ae-3e09-091e-ac2a-a3f6beda2ffc@tul.cz>
+Subject: Re: [PATCH 1/3] input: pixcir_i2c_ts: simplify code with
+ of_device_get_match_data
+Date: Fri, 19 Aug 2016 10:17:32 -0700
+Message-ID: <20160819171732.GH20499@dtor-ws>
+References: <1471440134-23896-1-git-send-email-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:35635 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753916AbcHSRPH (ORCPT
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:32929 "EHLO
+        mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754435AbcHSRRt (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 Aug 2016 13:15:07 -0400
-Received: by mail-pf0-f193.google.com with SMTP id h186so1737199pfg.2
-        for <linux-input@vger.kernel.org>; Fri, 19 Aug 2016 10:15:07 -0700 (PDT)
+        Fri, 19 Aug 2016 13:17:49 -0400
 Content-Disposition: inline
-In-Reply-To: <f97e51ae-3e09-091e-ac2a-a3f6beda2ffc@tul.cz>
+In-Reply-To: <1471440134-23896-1-git-send-email-clabbe.montjoie@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Petr Cvek <petr.cvek@tul.cz>
-Cc: linux-input@vger.kernel.org
+To: LABBE Corentin <clabbe.montjoie@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Aug 17, 2016 at 12:35:17PM +0200, Petr Cvek wrote:
-> ADS7846 regulator is disabled twice in a row in ads7846_remove(). Valid
-> one is in ads7846_disable().
+On Wed, Aug 17, 2016 at 03:22:12PM +0200, LABBE Corentin wrote:
+> The usage of of_device_get_match_data reduce the code size a bit.
+> Furthermore, it is better to use a standard function for
+> getting the match data.
 > 
-> Removing the ads7846 module causes warning about unbalanced disables.
-> 
->   ...
->   WARNING: CPU: 0 PID: 29269 at drivers/regulator/core.c:2251 _regulator_disable+0xf8/0x130
->   unbalanced disables for vads7846
->   CPU: 0 PID: 29269 Comm: rmmod Tainted: G      D W       4.7.0+ #3
->   Hardware name: HTC Magician
->   ...
->     show_stack+0x10/0x14
->     __warn+0xd8/0x100
->     warn_slowpath_fmt+0x38/0x48
->     _regulator_disable+0xf8/0x130
->     regulator_disable+0x34/0x60
->     ads7846_remove+0x58/0xd4 [ads7846]
->     spi_drv_remove+0x1c/0x34
->     __device_release_driver+0x84/0x114
->     driver_detach+0x8c/0x90
->     bus_remove_driver+0x5c/0xc8
->     SyS_delete_module+0x1a0/0x238
->     ret_fast_syscall+0x0/0x38
-> 
-> Signed-off-by: Petr Cvek <petr.cvek@tul.cz>
+> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/touchscreen/ads7846.c | 1 -
->  1 file changed, 1 deletion(-)
+>  drivers/input/touchscreen/pixcir_i2c_ts.c | 8 +-------
+>  1 file changed, 1 insertion(+), 7 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-> index a61b215..1ce3ecb 100644
-> --- a/drivers/input/touchscreen/ads7846.c
-> +++ b/drivers/input/touchscreen/ads7846.c
-> @@ -1473,7 +1473,6 @@ static int ads7846_remove(struct spi_device *spi)
+> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+> index d159e14..b0a2dc2 100644
+> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
+> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+> @@ -431,13 +431,7 @@ static const struct of_device_id pixcir_of_match[];
+>  static int pixcir_parse_dt(struct device *dev,
+>  			   struct pixcir_i2c_ts_data *tsdata)
+>  {
+> -	const struct of_device_id *match;
+> -
+> -	match = of_match_device(of_match_ptr(pixcir_of_match), dev);
+> -	if (!match)
+> -		return -EINVAL;
+> -
+> -	tsdata->chip = (const struct pixcir_i2c_chip_data *)match->data;
+> +	tsdata->chip = of_device_get_match_data(dev);
+>  	if (!tsdata->chip)
+>  		return -EINVAL;
 >  
->  	ads784x_hwmon_unregister(spi, ts);
->  
-> -	regulator_disable(ts->reg);
->  	regulator_put(ts->reg);
->  
->  	if (!ts->get_pendown_state) {
 > -- 
-> 2.9.2
+> 2.7.3
 > 
 
 -- 

@@ -1,123 +1,114 @@
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-Subject: Re: [PATCH] Input: jornada720_ts - get rid of mach/irqs.h include
-Date: Fri, 19 Aug 2016 17:40:56 +0100
-Message-ID: <20160819164056.GS1041@n2100.armlinux.org.uk>
-References: <E1bamhR-0004We-61@rmk-PC.armlinux.org.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/2] Input: jornada720_kbd - switch to devm_* APIs
+Date: Fri, 19 Aug 2016 09:44:47 -0700
+Message-ID: <20160819164447.GB20499@dtor-ws>
+References: <E1bamh9-0004Vi-0I@rmk-PC.armlinux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:35062 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753911AbcHSQlh (ORCPT
+Received: from mail-pa0-f67.google.com ([209.85.220.67]:33513 "EHLO
+        mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754172AbcHSQov (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 Aug 2016 12:41:37 -0400
+        Fri, 19 Aug 2016 12:44:51 -0400
+Received: by mail-pa0-f67.google.com with SMTP id vy10so3664814pac.0
+        for <linux-input@vger.kernel.org>; Fri, 19 Aug 2016 09:44:51 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <E1bamhR-0004We-61@rmk-PC.armlinux.org.uk>
+In-Reply-To: <E1bamh9-0004Vi-0I@rmk-PC.armlinux.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Fri, Aug 19, 2016 at 05:31:17PM +0100, Russell King wrote:
-> Switch the jornada720 touchscreen driver to obtain its interrupt from
-> the platform device, rather than via a hard-coded interrupt number
-> obtained from the mach/irqs.h header.
+On Fri, Aug 19, 2016 at 05:30:59PM +0100, Russell King wrote:
+> Switch the jornada720_kbd driver to use the devm_* APIs.  This is in
+> preparation to removing the mach/irqs.h include from this driver.
 > 
 > Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-
-Looking deeper at this driver, this probably isn't an entirely correct
-way to go about this, because the interrupt handler does this:
-
-        /* If GPIO_GPIO9 is set to high then report pen up */
-        if (GPLR & GPIO_GPIO(9)) {
-
-so we should be grabbing the GPIO via the gpio layer and testing
-the value there.
-
-_However_, having discovered this, along with the interrupt handler
-being registered with:
-
-        error = devm_request_irq(&pdev->dev, irq, jornada720_ts_interrupt,
-                                 IRQF_TRIGGER_RISING,
-                                 "HP7XX Touchscreen driver", pdev);
-
-this brings up the question: if the trigger is always a rising edge
-on GPIO 9, it is very unlikely that GPLR & GPIO_GPIO(9) will be
-false.  So how can this code have worked in the first place?
-
-I've checked the history, and I see nothing which changes this state
-of affairs back to 2.6.12-rc2.
-
 > ---
->  arch/arm/mach-sa1100/jornada720.c         |  6 ++++++
->  drivers/input/touchscreen/jornada720_ts.c | 10 ++++++----
->  2 files changed, 12 insertions(+), 4 deletions(-)
+>  drivers/input/keyboard/jornada720_kbd.c | 38 ++++++++-------------------------
+>  1 file changed, 9 insertions(+), 29 deletions(-)
 > 
-> diff --git a/arch/arm/mach-sa1100/jornada720.c b/arch/arm/mach-sa1100/jornada720.c
-> index 2b96f7bc16bd..010eaea04c69 100644
-> --- a/arch/arm/mach-sa1100/jornada720.c
-> +++ b/arch/arm/mach-sa1100/jornada720.c
-> @@ -228,9 +228,15 @@ static struct platform_device jornada_kbd_device = {
->  	.resource	= jornada_kbd_resources,
+> diff --git a/drivers/input/keyboard/jornada720_kbd.c b/drivers/input/keyboard/jornada720_kbd.c
+> index 421d9c55b0e8..4b2e9ff18ba1 100644
+> --- a/drivers/input/keyboard/jornada720_kbd.c
+> +++ b/drivers/input/keyboard/jornada720_kbd.c
+> @@ -53,6 +53,7 @@ static unsigned short jornada_std_keymap[128] = {					/* ROW */
+>  struct jornadakbd {
+>  	unsigned short keymap[ARRAY_SIZE(jornada_std_keymap)];
+>  	struct input_dev *input;
+> +	int irq;
+
+I do not think you need this, not in this patch and the next one does
+not seem to need this either?
+
+Can I drop this chunk?
+
 >  };
 >  
-> +static struct resource jornada_ts_resources[] = {
-> +	DEFINE_RES_IRQ(IRQ_GPIO9),
-> +};
-> +
->  static struct platform_device jornada_ts_device = {
->  	.name		= "jornada_ts",
->  	.id		= -1,
-> +	.num_resources	= ARRAY_SIZE(jornada_ts_resources),
-> +	.resource	= jornada_ts_resources,
->  };
->  
->  static struct platform_device *devices[] __initdata = {
-> diff --git a/drivers/input/touchscreen/jornada720_ts.c b/drivers/input/touchscreen/jornada720_ts.c
-> index ea3b6a5b83e6..7e196f8e5661 100644
-> --- a/drivers/input/touchscreen/jornada720_ts.c
-> +++ b/drivers/input/touchscreen/jornada720_ts.c
-> @@ -22,7 +22,6 @@
->  
->  #include <mach/hardware.h>
->  #include <mach/jornada720.h>
-> -#include <mach/irqs.h>
->  
->  MODULE_AUTHOR("Kristoffer Ericson <kristoffer.ericson@gmail.com>");
->  MODULE_DESCRIPTION("HP Jornada 710/720/728 touchscreen driver");
-> @@ -101,7 +100,11 @@ static int jornada720_ts_probe(struct platform_device *pdev)
->  {
->  	struct jornada_ts *jornada_ts;
+>  static irqreturn_t jornada720_kbd_interrupt(int irq, void *dev_id)
+> @@ -99,12 +100,10 @@ static int jornada720_kbd_probe(struct platform_device *pdev)
 >  	struct input_dev *input_dev;
-> -	int error;
-> +	int error, irq;
-> +
-> +	irq = platform_get_irq(pdev, 0);
-> +	if (irq <= 0)
-> +		return irq < 0 ? irq : -EINVAL;
+>  	int i, err;
 >  
->  	jornada_ts = devm_kzalloc(&pdev->dev, sizeof(*jornada_ts), GFP_KERNEL);
->  	if (!jornada_ts)
-> @@ -125,8 +128,7 @@ static int jornada720_ts_probe(struct platform_device *pdev)
->  	input_set_abs_params(input_dev, ABS_X, 270, 3900, 0, 0);
->  	input_set_abs_params(input_dev, ABS_Y, 180, 3700, 0, 0);
+> -	jornadakbd = kzalloc(sizeof(struct jornadakbd), GFP_KERNEL);
+> -	input_dev = input_allocate_device();
+> -	if (!jornadakbd || !input_dev) {
+> -		err = -ENOMEM;
+> -		goto fail1;
+> -	}
+> +	jornadakbd = devm_kzalloc(&pdev->dev, sizeof(*jornadakbd), GFP_KERNEL);
+> +	input_dev = devm_input_allocate_device(&pdev->dev);
+> +	if (!jornadakbd || !input_dev)
+> +		return -ENOMEM;
 >  
-> -	error = devm_request_irq(&pdev->dev, IRQ_GPIO9,
-> -				 jornada720_ts_interrupt,
-> +	error = devm_request_irq(&pdev->dev, irq, jornada720_ts_interrupt,
->  				 IRQF_TRIGGER_RISING,
->  				 "HP7XX Touchscreen driver", pdev);
->  	if (error) {
+>  	platform_set_drvdata(pdev, jornadakbd);
+>  
+> @@ -127,37 +126,18 @@ static int jornada720_kbd_probe(struct platform_device *pdev)
+>  
+>  	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+>  
+> -	err = request_irq(IRQ_GPIO0,
+> -			  jornada720_kbd_interrupt,
+> -			  IRQF_TRIGGER_FALLING,
+> -			  "jornadakbd", pdev);
+> +	err = devm_request_irq(&pdev->dev, IRQ_GPIO0, jornada720_kbd_interrupt,
+> +			       IRQF_TRIGGER_FALLING, "jornadakbd", pdev);
+>  	if (err) {
+>  		printk(KERN_INFO "jornadakbd720_kbd: Unable to grab IRQ\n");
+> -		goto fail1;
+> +		return err;
+>  	}
+>  
+> -	err = input_register_device(jornadakbd->input);
+> -	if (err)
+> -		goto fail2;
+> -
+> -	return 0;
+> -
+> - fail2:	/* IRQ, DEVICE, MEMORY */
+> -	free_irq(IRQ_GPIO0, pdev);
+> - fail1:	/* DEVICE, MEMORY */
+> -	input_free_device(input_dev);
+> -	kfree(jornadakbd);
+> -	return err;
+> +	return input_register_device(jornadakbd->input);
+>  };
+>  
+>  static int jornada720_kbd_remove(struct platform_device *pdev)
+>  {
+> -	struct jornadakbd *jornadakbd = platform_get_drvdata(pdev);
+> -
+> -	free_irq(IRQ_GPIO0, pdev);
+> -	input_unregister_device(jornadakbd->input);
+> -	kfree(jornadakbd);
+> -
+>  	return 0;
+>  }
+>  
 > -- 
 > 2.1.0
 > 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
 -- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+Dmitry

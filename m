@@ -1,59 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/2] Input: jornada720_kbd - switch to devm_* APIs
-Date: Fri, 19 Aug 2016 10:00:30 -0700
-Message-ID: <20160819170030.GD20499@dtor-ws>
-References: <E1bamh9-0004Vi-0I@rmk-PC.armlinux.org.uk>
- <20160819164447.GB20499@dtor-ws>
- <20160819164547.GU1041@n2100.armlinux.org.uk>
+Subject: [PATCH] Input: jornada720_kbd - switch to using dev_dbg
+Date: Fri, 19 Aug 2016 10:07:47 -0700
+Message-ID: <20160819170747.GA23763@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f66.google.com ([209.85.220.66]:35029 "EHLO
-        mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754011AbcHSRAd (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 Aug 2016 13:00:33 -0400
-Received: by mail-pa0-f66.google.com with SMTP id cf3so3661794pad.2
-        for <linux-input@vger.kernel.org>; Fri, 19 Aug 2016 10:00:33 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160819164547.GU1041@n2100.armlinux.org.uk>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Russell King <rmk+kernel@armlinux.org.uk>, Kristoffer Ericson <kristoffer.ericson@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Russell King - ARM Linux <linux@armlinux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Fri, Aug 19, 2016 at 05:45:47PM +0100, Russell King - ARM Linux wrote:
-> On Fri, Aug 19, 2016 at 09:44:47AM -0700, Dmitry Torokhov wrote:
-> > On Fri, Aug 19, 2016 at 05:30:59PM +0100, Russell King wrote:
-> > > Switch the jornada720_kbd driver to use the devm_* APIs.  This is in
-> > > preparation to removing the mach/irqs.h include from this driver.
-> > > 
-> > > Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-> > > ---
-> > >  drivers/input/keyboard/jornada720_kbd.c | 38 ++++++++-------------------------
-> > >  1 file changed, 9 insertions(+), 29 deletions(-)
-> > > 
-> > > diff --git a/drivers/input/keyboard/jornada720_kbd.c b/drivers/input/keyboard/jornada720_kbd.c
-> > > index 421d9c55b0e8..4b2e9ff18ba1 100644
-> > > --- a/drivers/input/keyboard/jornada720_kbd.c
-> > > +++ b/drivers/input/keyboard/jornada720_kbd.c
-> > > @@ -53,6 +53,7 @@ static unsigned short jornada_std_keymap[128] = {					/* ROW */
-> > >  struct jornadakbd {
-> > >  	unsigned short keymap[ARRAY_SIZE(jornada_std_keymap)];
-> > >  	struct input_dev *input;
-> > > +	int irq;
-> > 
-> > I do not think you need this, not in this patch and the next one does
-> > not seem to need this either?
-> > 
-> > Can I drop this chunk?
-> 
-> Yes, that was accidentally left in while I was considering how to update
-> the driver.  It can be safely dropped.  Thanks for spotting that.
+Switch to using dev_dbg instead of naked printk so that output is uniform
+with the other driver messages in the kernel.
 
-Great. I'll also drop now empty jornada720_kbd_remove() and apply.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/jornada720_kbd.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-Thanks.
+diff --git a/drivers/input/keyboard/jornada720_kbd.c b/drivers/input/keyboard/jornada720_kbd.c
+index 6483404..fd8e15e 100644
+--- a/drivers/input/keyboard/jornada720_kbd.c
++++ b/drivers/input/keyboard/jornada720_kbd.c
+@@ -65,10 +65,8 @@ static irqreturn_t jornada720_kbd_interrupt(int irq, void *dev_id)
+ 	jornada_ssp_start();
+ 
+ 	if (jornada_ssp_inout(GETSCANKEYCODE) != TXDUMMY) {
+-		printk(KERN_DEBUG
+-			"jornada720_kbd: "
+-			"GetKeycode command failed with ETIMEDOUT, "
+-			"flushed bus\n");
++		dev_dbg(&pdev->dev,
++			"GetKeycode command failed with ETIMEDOUT, flushed bus\n");
+ 	} else {
+ 		/* How many keycodes are waiting for us? */
+ 		count = jornada_ssp_byte(TXDUMMY);
+-- 
+2.8.0.rc3.226.g39d4020
+
 
 -- 
 Dmitry

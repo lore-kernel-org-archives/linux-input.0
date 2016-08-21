@@ -1,97 +1,46 @@
-From: Silvan Jegen <s.jegen@gmail.com>
-Subject: [PATCH] HID: roccat: Remove use of the "exist" field
-Date: Sun, 21 Aug 2016 15:33:02 +0200
-Message-ID: <20160821133302.16265-1-s.jegen@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Silvan Jegen <s.jegen@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Wei Yongjun <weiyj.lk@gmail.com>
+Subject: [PATCH -next] HID: intel-ish-hid: use list_move_tail instead of list_del/list_add_tail
+Date: Sun, 21 Aug 2016 15:27:29 +0000
+Message-ID: <1471793249-23714-1-git-send-email-weiyj.lk@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f66.google.com ([209.85.220.66]:35686 "EHLO
+        mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752877AbcHUP1z (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 21 Aug 2016 11:27:55 -0400
+Received: by mail-pa0-f66.google.com with SMTP id cf3so6496070pad.2
+        for <linux-input@vger.kernel.org>; Sun, 21 Aug 2016 08:27:54 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Wei Yongjun <weiyongjun1@huawei.com>, linux-input@vger.kernel.org
 
-The "exist" field is only checked when "roccat_open" has already been
-called or when we have made sure that the corresponding roccat_device is
-not NULL. Since the value of the "open" field has been increased by the
-"roccat_open" call, instead of checking "exist" we can just check if
-"open" is equal to zero to the same effect and remove the "exist" field
-as well as the code that touches it.
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
+Using list_move_tail() instead of list_del() + list_add_tail().
 
-Signed-off-by: Silvan Jegen <s.jegen@gmail.com>
-
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 ---
-I have tested this patch with the only Roccat hardware I own, a Roccat
-Kone Pure. Testing the patch with several pieces of Roccat hardware
-connected at the same time would be desirable.
+ drivers/hid/intel-ish-hid/ipc/ipc.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
- 
- drivers/hid/hid-roccat.c | 20 +++++++-------------
- 1 file changed, 7 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-index 76d06cf..7552a1e 100644
---- a/drivers/hid/hid-roccat.c
-+++ b/drivers/hid/hid-roccat.c
-@@ -43,7 +43,6 @@ struct roccat_device {
- 	unsigned int minor;
- 	int report_size;
- 	int open;
--	int exist;
- 	wait_queue_head_t wait;
- 	struct device *dev;
- 	struct hid_device *hid;
-@@ -99,7 +98,7 @@ static ssize_t roccat_read(struct file *file, char __user *buffer,
- 				retval = -ERESTARTSYS;
- 				break;
- 			}
--			if (!device->exist) {
-+			if (device->open == 0) {
- 				retval = -EIO;
- 				break;
- 			}
-@@ -143,7 +142,7 @@ static unsigned int roccat_poll(struct file *file, poll_table *wait)
- 	poll_wait(file, &reader->device->wait, wait);
- 	if (reader->cbuf_start != reader->device->cbuf_end)
- 		return POLLIN | POLLRDNORM;
--	if (!reader->device->exist)
-+	if (reader->device->open == 0)
- 		return POLLERR | POLLHUP;
- 	return 0;
- }
-@@ -224,13 +223,11 @@ static int roccat_release(struct inode *inode, struct file *file)
- 	kfree(reader);
- 
- 	if (!--device->open) {
--		/* removing last reader */
--		if (device->exist) {
--			hid_hw_power(device->hid, PM_HINT_NORMAL);
--			hid_hw_close(device->hid);
--		} else {
--			kfree(device);
--		}
-+		/* we have removed the last reader */
-+		kfree(device);
-+	} else {
-+		hid_hw_power(device->hid, PM_HINT_NORMAL);
-+		hid_hw_close(device->hid);
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
+index 851029b..e2517c1 100644
+--- a/drivers/hid/intel-ish-hid/ipc/ipc.c
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -448,8 +448,7 @@ static int ish_fw_reset_handler(struct ishtp_device *dev)
+ 	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
+ 	list_for_each_entry_safe(processing, next,
+ 			&dev->wr_processing_list_head.link, link) {
+-		list_del(&processing->link);
+-		list_add_tail(&processing->link, &dev->wr_free_list_head.link);
++		list_move_tail(&processing->link, &dev->wr_free_list_head.link);
  	}
+ 	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
  
- 	mutex_unlock(&devices_lock);
-@@ -340,7 +337,6 @@ int roccat_connect(struct class *klass, struct hid_device *hid, int report_size)
- 	mutex_init(&device->cbuf_lock);
- 	device->minor = minor;
- 	device->hid = hid;
--	device->exist = 1;
- 	device->cbuf_end = 0;
- 	device->report_size = report_size;
- 
-@@ -359,8 +355,6 @@ void roccat_disconnect(int minor)
- 	device = devices[minor];
- 	mutex_unlock(&devices_lock);
- 
--	device->exist = 0; /* TODO exist maybe not needed */
--
- 	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
- 
- 	mutex_lock(&devices_lock);
--- 
-2.9.3
+
+
+

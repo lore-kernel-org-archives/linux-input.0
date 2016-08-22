@@ -1,55 +1,37 @@
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: Re: [PATCH v4 5/5] Input: Add tps65217 power button driver
-Date: Mon, 22 Aug 2016 12:09:17 +0200
-Message-ID: <8fe03c82-24aa-106f-80ee-e297eaf0d4e2@grinn-global.com>
-References: <20160620105056.25843-1-m.niestroj@grinn-global.com>
- <20160620105056.25843-6-m.niestroj@grinn-global.com>
- <20160621131735.GA896@rob-hp-laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+Subject: [PATCH] input/mouse/elantech.c: Fix Lenovo version typo
+Date: Mon, 22 Aug 2016 07:47:12 -0300
+Message-ID: <1471862832-4631-1-git-send-email-marcos.souza.org@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp2.megiteam.pl ([213.189.52.193]:59935 "EHLO
-        smtp2.megiteam.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751294AbcHVKJa (ORCPT
+Received: from mail-qk0-f194.google.com ([209.85.220.194]:34148 "EHLO
+        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754910AbcHVKrv (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 22 Aug 2016 06:09:30 -0400
-In-Reply-To: <20160621131735.GA896@rob-hp-laptop>
+        Mon, 22 Aug 2016 06:47:51 -0400
+Received: by mail-qk0-f194.google.com with SMTP id r128so8240985qkc.1
+        for <linux-input@vger.kernel.org>; Mon, 22 Aug 2016 03:47:50 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Rob Herring <robh@kernel.org>, Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>
+To: linux-input@vger.kernel.org
+Cc: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
 
-ping
+---
+ drivers/input/mouse/elantech.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On 21.06.2016 15:17, Rob Herring wrote:
-> On Mon, Jun 20, 2016 at 12:50:56PM +0200, Marcin Niestroj wrote:
->> This driver enables us to use tps65217's power button as KEY_POWER on
->> am335x boards (directly connected button in chiliboard, accessible pin
->> via expansion header in beaglebone). This patch has been tested with
->> chiliboard.
->>
->> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
->> ---
->> Depends on patches 1-4 in series
->>
->> Changes v2 -> v4: none
->>
->> Changes v1 -> v2:
->>  * Added information about parent device in tps65217 power button
->>    device-tree binding documentation (suggested by Rob)
->>
->>  .../bindings/input/tps65217-pwrbutton.txt          |  17 +++
->
-> Acked-by: Rob Herring <robh@kernel.org>
->
->>  drivers/input/misc/Kconfig                         |  10 ++
->>  drivers/input/misc/Makefile                        |   1 +
->>  drivers/input/misc/tps65217-pwrbutton.c            | 131 +++++++++++++++++++++
->>  4 files changed, 159 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/input/tps65217-pwrbutton.txt
->>  create mode 100644 drivers/input/misc/tps65217-pwrbutton.c
->
-
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 08e252a..1b51961 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1134,7 +1134,7 @@ static int elantech_get_resolution_v4(struct psmouse *psmouse,
+  * System76 Pangolin       0x250f01        ?               2 hw buttons
+  * (*) + 3 trackpoint buttons
+  * (**) + 0 trackpoint buttons
+- * Note: Lenovo L430 and Lenovo L430 have the same fw_version/caps
++ * Note: Lenovo L430 and Lenovo L530 have the same fw_version/caps
+  */
+ static void elantech_set_buttonpad_prop(struct psmouse *psmouse)
+ {
 -- 
-Marcin Niestroj
+2.7.4
+

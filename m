@@ -1,96 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] dt-bindings: touchscreen: silead gsl1680: Document all compatibles
-Date: Sun, 21 Aug 2016 15:11:52 -0700
-Message-ID: <5BB13372-9C05-4FEB-85BC-E16BAE98EB77@gmail.com>
-References: <1471424340-4201-1-git-send-email-hdegoede@redhat.com> <20160818193028.GA39271@dtor-ws> <CAL_JsqK2Lgic+-P-NvvnVO9COCy3k_yO3seOipYDd4d10QK2UA@mail.gmail.com> <20160818203959.GB39271@dtor-ws> <CAL_Jsq+juNdPXf8m7Nffb49uGc8uzpei9YA--8yP0oxrVhKPnw@mail.gmail.com>
+From: Marcin Niestroj <m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
+Subject: Re: [PATCH v4 1/5] mfd: tps65217: Add support for IRQs
+Date: Mon, 22 Aug 2016 12:02:40 +0200
+Message-ID: <534cdc5b-42b8-14e4-e957-a0695c301056@grinn-global.com>
+References: <20160620105056.25843-1-m.niestroj@grinn-global.com>
+ <20160620105056.25843-2-m.niestroj@grinn-global.com>
+ <576D0437.1020800@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f66.google.com ([209.85.220.66]:34412 "EHLO
-        mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752815AbcHUWMU (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 21 Aug 2016 18:12:20 -0400
-In-Reply-To: <CAL_Jsq+juNdPXf8m7Nffb49uGc8uzpei9YA--8yP0oxrVhKPnw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <576D0437.1020800-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, devicetree <devicetree@vger.kernel.org>
 
-On August 20, 2016 1:25:48 PM PDT, Rob Herring <robh+dt@kernel.org> wrote:
->On Thu, Aug 18, 2016 at 3:39 PM, Dmitry Torokhov
-><dmitry.torokhov@gmail.com> wrote:
->> On Thu, Aug 18, 2016 at 02:48:52PM -0500, Rob Herring wrote:
->>> On Thu, Aug 18, 2016 at 2:30 PM, Dmitry Torokhov
->>> <dmitry.torokhov@gmail.com> wrote:
->>> > On Wed, Aug 17, 2016 at 10:59:00AM +0200, Hans de Goede wrote:
->>> >> The silead gsl1680 driver / binding supports a whole series of
->devices,
->>> >> list the compatibles for all of them in the binding.
->>> >>
->>> >> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>> >> ---
->>> >> Changes in v2:
->>> >> -Drop the "silead,mssl1680" compatible thing, the "mssl1680" name
->is an
->>> >>  ACPI thing and does not belong in the dt bindings
->>> >> ---
->>> >>  .../devicetree/bindings/input/touchscreen/silead_gsl1680.txt    
->     | 4 ++++
->>> >>  1 file changed, 4 insertions(+)
->>> >>
->>> >> diff --git
->a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
->b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
->>> >> index b0eca54..ad7f41a 100644
->>> >> ---
->a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
->>> >> +++
->b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
->>> >> @@ -2,6 +2,10 @@
->>> >>
->>> >>  Required properties:
->>> >>  - compatible           : "silead,gsl1680"
->>> >> +                     or: "silead,gsl1688"
->>> >> +                     or: "silead,gsl3670"
->>> >> +                     or: "silead,gsl3675"
->>> >> +                     or: "silead,gsl3692"
->>> >
->>> > Hmm, why do we need to document all compatible strings? We usually
->have
->>> > only least common denominator in drievr, and device tree uses
->form:
->>> >
->>> >         compatible = "silead,<exact model>", "silead,gsl1680";
->>> >
->>> > Rob?
->>>
->>> Because we require them in dts files even if the OS only uses the
->fallback.
+ping
+
+On 24.06.2016 11:58, Grygorii Strashko wrote:
+> On 06/20/2016 01:50 PM, Marcin Niestroj wrote:
+>> Add support for handling IRQs: power button, AC and USB power state
+>> changes. Mask and interrupt bits are shared within one register, which
+>> prevents us to use regmap_irq implementation. New irq_domain is
+>> created in
+>> order to add interrupt handling for each tps65217's subsystem. IRQ
+>> resources have been added for charger subsystem to be able to notify
+>> about
+>> AC and USB state changes.
 >>
->> So how exactly should it be documented? I mean if there were more
->than 1
->> OS they might have been using different fallbacks. How do we decide
->> which entry should be "true" fallback?
+>> Signed-off-by: Marcin Niestroj <m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
+>> Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>> ---
+>> Changes v3 -> v4 (suggested by Grygorii):
+>>   * Add irq_set_parent() during irq init
+>>   * Remove hardcoded IRQ trigger type, rely on DT bindings instead
+>>
+>> Changes v2 -> v3 (suggested by Lee):
+>>   * Alphabetical reorder of includes
+>>   * Rename enum tps65217_irqs -> tps65217_irq_type, so we won't confuse
+>>     it with structure object with the same name.
+>>   * Fix inconsistent order of irq_enable and irq_disable
+>>   * Remove redundant 'else' when returning from tps65217_irq_thread
+>>
+>> Changes v1 -> v2: none
+>>
+>>   drivers/mfd/Kconfig          |   1 +
+>>   drivers/mfd/tps65217.c       | 195
+>> +++++++++++++++++++++++++++++++++++++++++--
+>>   include/linux/mfd/tps65217.h |  12 +++
+>>   3 files changed, 200 insertions(+), 8 deletions(-)
+>>
 >
->It shouldn't matter which one an OS uses. There's typically only the
->specific one and then a generic or 1st compatible chip one.
-
-When you are saying "first compatible chip" do you mean first as it was created by the vendor or first that was added to a given os? Because we quite often have no idea what the first compatible chip in a series was and start with whatever the first submitter of a driver used in their product.
-
+> Reviewed-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
 >
->This is exactly why they need to be documented (and in a single place,
->looking at you u-boot), so there is no confusion as to what
->compatibles are allowed/valid for each platform.
-
-What do you mean when you say platform?
-
-We have uboot, core boot, Linux, free BSD, in whatever combinations. How do we make sure we all use the same fallback?
-
-
-Thanks.
+>
+>
 
 -- 
-Dmitry
+Marcin Niestroj
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

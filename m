@@ -1,59 +1,115 @@
-From: Andrew Duggan <andrew@duggan.us>
-Subject: [PATCH v2] Input: synaptics-rmi4: Fix register descriptor subpacket map construction
-Date: Mon, 22 Aug 2016 09:58:57 -0700
-Message-ID: <1471885137-3378-1-git-send-email-andrew@duggan.us>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Chris Healy <cphealy@gmail.com>, Nitin Chaudhary <nitinchaudhary1289@gmail.com>, stable@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] input: touchscreen: silead: Add regulator support
+Date: Mon, 22 Aug 2016 14:11:47 -0700
+Message-ID: <20160822211147.GC12277@dtor-ws>
+References: <1471376124-31169-1-git-send-email-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1471376124-31169-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Andrew Duggan <aduggan@synaptics.com>
+Hi Hans,
 
-The map_offset variable is specific to the register and needs to be reset
-in the loop. Otherwise, subsequent register's subpacket maps will have
-their bits set at the wrong index.
+On Tue, Aug 16, 2016 at 09:35:24PM +0200, Hans de Goede wrote:
+> On some tablets the touchscreen controller is powered by seperate
+> regulators, add support for this.
+> 
+> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> ---
+>  .../bindings/input/touchscreen/silead_gsl1680.txt  |  2 +
+>  drivers/input/touchscreen/silead.c                 | 51 ++++++++++++++++++++--
+>  2 files changed, 49 insertions(+), 4 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+> index 37a9370..65eb4c7 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+> @@ -22,6 +22,8 @@ Optional properties:
+>  - touchscreen-inverted-y  : See touchscreen.txt
+>  - touchscreen-swapped-x-y : See touchscreen.txt
+>  - silead,max-fingers	  : maximum number of fingers the touchscreen can detect
+> +- vddio-supply		  : regulator phandle for controller VDDIO
+> +- avdd-supply		  : regulator phandle for controller AVDD
+>  
+>  Example:
+>  
+> diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+> index 7379fe1..04992c5 100644
+> --- a/drivers/input/touchscreen/silead.c
+> +++ b/drivers/input/touchscreen/silead.c
+> @@ -29,6 +29,7 @@
+>  #include <linux/input/touchscreen.h>
+>  #include <linux/pm.h>
+>  #include <linux/irq.h>
+> +#include <linux/regulator/consumer.h>
+>  
+>  #include <asm/unaligned.h>
+>  
+> @@ -72,6 +73,8 @@ enum silead_ts_power {
+>  struct silead_ts_data {
+>  	struct i2c_client *client;
+>  	struct gpio_desc *gpio_power;
+> +	struct regulator *vddio;
+> +	struct regulator *avdd;
+>  	struct input_dev *input;
+>  	char fw_name[64];
+>  	struct touchscreen_properties prop;
+> @@ -463,21 +466,52 @@ static int silead_ts_probe(struct i2c_client *client,
+>  	if (client->irq <= 0)
+>  		return -ENODEV;
+>  
+> +	data->vddio = devm_regulator_get_optional(dev, "vddio");
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-Tested-by: Nitin Chaudhary <nitinchaudhary1289@gmail.com>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: stable@vger.kernel.org
----
-In rmi_f12_read_sensor_tuning() we call rmi_register_desc_has_subpacket()
-to check the subpacket map to make sure a subpacket exists to ensure that
-the buffer contains the correct data. It happened that on my the test
-devices the register we were checking was also the first register. This
-issues showed up on newer devices where F12 CTRL 8 is not teh first control
-register.
+No need for devm_regulator_get_optional(), devm_regulator_get() will
+give you dummy regulator that you can enable/disable.
+regulator_get_optional() is only need if you have truly optional
+functionality in controller and you need to adjust behavior depending on
+presence of a regulator.
 
-V2 moves map_offset closer to the do/while loop.
+> +	if (IS_ERR(data->vddio)) {
+> +		if (PTR_ERR(data->vddio) == -EPROBE_DEFER)
+> +			return -EPROBE_DEFER;
+> +		data->vddio = NULL;
+> +	}
+> +
+> +	data->avdd = devm_regulator_get_optional(dev, "avdd");
+> +	if (IS_ERR(data->avdd)) {
+> +		if (PTR_ERR(data->avdd) == -EPROBE_DEFER)
+> +			return -EPROBE_DEFER;
+> +		data->avdd = NULL;
+> +	}
+> +
+> +	/*
+> +	 * Enable regulators at probe and disable them at remove, we need
+> +	 * to keep the chip powered otherwise it forgets its firmware.
+> +	 */
+> +	if (data->vddio) {
+> +		error = regulator_enable(data->vddio);
+> +		if (error)
+> +			return error;
+> +	}
+> +
+> +	if (data->avdd) {
+> +		error = regulator_enable(data->avdd);
+> +		if (error)
+> +			goto disable_vddio;
+> +	}
 
-Thanks,
-Andrew
+Hmm, so you are enabling regulators and leave them on. That is not
+great. I'd rather we powered the device up during probe(), but then shut
+it off and waited for ->open() to be called. And power it down in
+->close(). You also need to handle it in suspend and resume.
 
- drivers/input/rmi4/rmi_driver.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Thanks.
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 2b6b97e..00f9ad9 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -553,7 +553,6 @@ int rmi_read_register_desc(struct rmi_device *d, u16 addr,
- 		goto free_struct_buff;
- 
- 	reg = find_first_bit(rdesc->presense_map, RMI_REG_DESC_PRESENSE_BITS);
--	map_offset = 0;
- 	for (i = 0; i < rdesc->num_registers; i++) {
- 		struct rmi_register_desc_item *item = &rdesc->registers[i];
- 		int reg_size = struct_buf[offset];
-@@ -576,6 +575,8 @@ int rmi_read_register_desc(struct rmi_device *d, u16 addr,
- 		item->reg = reg;
- 		item->reg_size = reg_size;
- 
-+		map_offset = 0;
-+
- 		do {
- 			for (b = 0; b < 7; b++) {
- 				if (struct_buf[offset] & (0x1 << b))
 -- 
-2.7.4
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,42 +1,44 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: [PATCH v2] input/mouse/elantech.c: Fix Lenovo version typo
-Date: Mon, 22 Aug 2016 21:56:32 -0300
-Message-ID: <1471913792-5767-1-git-send-email-marcos.souza.org@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f194.google.com ([209.85.220.194]:34010 "EHLO
-        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755263AbcHWA4x (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 22 Aug 2016 20:56:53 -0400
-Received: by mail-qk0-f194.google.com with SMTP id r128so9452777qkc.1
-        for <linux-input@vger.kernel.org>; Mon, 22 Aug 2016 17:56:53 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Vignesh R <vigneshr@ti.com>
+Subject: [PATCH v2 0/2] AM335x-ICE: Add support for rotary switch
+Date: Tue, 23 Aug 2016 11:46:47 +0530
+Message-ID: <20160823061649.3394-1-vigneshr@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, Moritz Fischer <moritz.fischer@ettus.com>, John Stultz <john.stultz@linaro.org>, Vignesh R <vigneshr@ti.com>, Arnd Bergmann <arnd@arndb.de>, devicetree@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Daniel Hung-yu Wu <hywu@google.com>, Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org, Grant Grundler <grundler@chromium.org>, Rob Herring <robh+dt@kernel.org>, S Twiss <stwiss.opensource@diasemi.com>, linux-input@vger.kernel.org, Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, ulrik.debie-os@e2big.org
-Cc: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
 
-Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Reviewed-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
+This series adds support for rotary-switch on AM335x-ICE that is
+connected to TI PCA9536 I2C GPIO expander.
+First patch adds new generic driver to read status of group of GPIO
+lines and report the value as an input event. The second patch adds DT
+entries for the same.
 
----
-Just forgot to add the SoB in the first version.
+v1: https://lkml.org/lkml/2016/8/12/7
 
- drivers/input/mouse/elantech.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Vignesh R (2):
+  input: misc: Add generic input driver to read encoded GPIO lines
+  ARM: dts: am335x-icev2: Add nodes for gpio-decoder
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 08e252a..1b51961 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1134,7 +1134,7 @@ static int elantech_get_resolution_v4(struct psmouse *psmouse,
-  * System76 Pangolin       0x250f01        ?               2 hw buttons
-  * (*) + 3 trackpoint buttons
-  * (**) + 0 trackpoint buttons
-- * Note: Lenovo L430 and Lenovo L430 have the same fw_version/caps
-+ * Note: Lenovo L430 and Lenovo L530 have the same fw_version/caps
-  */
- static void elantech_set_buttonpad_prop(struct psmouse *psmouse)
- {
+ .../devicetree/bindings/input/gpio-decoder.txt     |  23 ++++
+ arch/arm/boot/dts/am335x-icev2.dts                 |   9 ++
+ drivers/input/misc/Kconfig                         |  12 ++
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/gpio_decoder.c                  | 130 +++++++++++++++++++++
+ 5 files changed, 175 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/gpio-decoder.txt
+ create mode 100644 drivers/input/misc/gpio_decoder.c
+
 -- 
-2.7.4
-
+2.9.2

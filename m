@@ -1,45 +1,67 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/2] input: misc: Add generic input driver to read
- encoded GPIO lines
-Date: Tue, 23 Aug 2016 13:03:35 -0700
-Message-ID: <20160823200335.GC6712@dtor-ws>
-References: <20160823061649.3394-1-vigneshr@ti.com>
- <20160823061649.3394-2-vigneshr@ti.com>
- <949d92f3-4510-ada5-d3d6-a29544465fd6@ti.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
+Subject: Re: [PATCH v5 0/4] mxs-lradc: Split driver into MFD
+Date: Tue, 23 Aug 2016 22:18:55 +0200 (CEST)
+Message-ID: <770097944.403326.225ddbfe-fd96-4f9b-a2b9-e0173af882ba.open-xchange@email.1und1.de>
+References: <cover.1471524593.git.ksenija.stanojevic@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <949d92f3-4510-ada5-d3d6-a29544465fd6@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Andrew F. Davis" <afd@ti.com>
-Cc: Vignesh R <vigneshr@ti.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Daniel Hung-yu Wu <hywu@google.com>, Grant Grundler <grundler@chromium.org>, S Twiss <stwiss.opensource@diasemi.com>, Moritz Fischer <moritz.fischer@ettus.com>, Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>, John Stultz <john.stultz@linaro.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.133]:60083 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753147AbcHWUTV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 23 Aug 2016 16:19:21 -0400
+In-Reply-To: <cover.1471524593.git.ksenija.stanojevic@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, linux-kernel@vger.kernel.org
+Cc: lee.jones@linaro.org, linux-input@vger.kernel.org, pmeerw@pmeerw.net, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, dmitry.torokhov@gmail.com, harald@ccbib.org, linux-iio@vger.kernel.org, marex@denx.de, Fabio Estevam <fabio.estevam@nxp.com>
 
-On Tue, Aug 23, 2016 at 10:27:59AM -0500, Andrew F. Davis wrote:
-> On 08/23/2016 01:16 AM, Vignesh R wrote:
-> > Add a driver to read group of GPIO lines and provide its status as a
-> > numerical value as input event to the system. This will help in
-> > intefacing devices, that can be connected over GPIOs, that provide input
-> > to the system by driving GPIO lines connected to them like a rotary dial
-> > or a switch.
-> > 
-> > For example, a rotary switch can be connected to four GPIO lines. The
-> > status of the GPIO lines reflect the actual position of the rotary
-> > switch dial. For example, if dial points to 9, then the four GPIO lines
-> > connected to the switch will read HLLH(0b'1001 = 9). This value
-> > can be reported as an ABS_* event to the input subsystem.
-> > 
-> > Signed-off-by: Vignesh R <vigneshr@ti.com>
-> > Acked-by: Rob Herring <robh@kernel.org>
-> > ---
-> > 
-> > v2: Use decoder,max-value instead of gpio-decoder,max-value.
+Hi,
 
-That's not what Rob asked for. "decoder-max-value", not "decoder" vendor
-prefix.
+[add Fabio's NXP address]
 
-Thanks.
+> Ksenija Stanojevic <ksenija.stanojevic@gmail.com> hat am 18. August 2016 um
+> 15:44 geschrieben:
+> 
+> 
+> Split existing driver mxs-lradc into MFD with touchscreen and
+> IIO part.
+> 
+> Tested on I.MX28.
 
--- 
-Dmitry
+i tested the patch 1 and 2 successful on a i.MX23 board.
+
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+
+> 
+> 
+> Ksenija Stanojevic (4):
+>   mfd: mxs-lradc: Add support for mxs-lradc MFD
+>   iio: adc: mxs-lradc: Add support for adc driver
+>   input: touchscreen: mxs-lradc: Add support for touchscreen
+>   iio: adc: mxs-lradc: Remove driver
+> 
+>  drivers/iio/adc/Kconfig                  |   27 +-
+>  drivers/iio/adc/Makefile                 |    2 +-
+>  drivers/iio/adc/mxs-lradc-adc.c          |  844 ++++++++++++++
+>  drivers/iio/adc/mxs-lradc.c              | 1775
+> ------------------------------
+>  drivers/input/touchscreen/Kconfig        |   10 +
+>  drivers/input/touchscreen/Makefile       |    1 +
+>  drivers/input/touchscreen/mxs-lradc-ts.c |  742 +++++++++++++
+>  drivers/mfd/Kconfig                      |   17 +
+>  drivers/mfd/Makefile                     |    1 +
+>  drivers/mfd/mxs-lradc.c                  |  255 +++++
+>  include/linux/mfd/mxs-lradc.h            |  194 ++++
+>  11 files changed, 2078 insertions(+), 1790 deletions(-)
+>  create mode 100644 drivers/iio/adc/mxs-lradc-adc.c
+>  delete mode 100644 drivers/iio/adc/mxs-lradc.c
+>  create mode 100644 drivers/input/touchscreen/mxs-lradc-ts.c
+>  create mode 100644 drivers/mfd/mxs-lradc.c
+>  create mode 100644 include/linux/mfd/mxs-lradc.h
+> 
+> -- 
+> 1.9.1
+>

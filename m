@@ -1,267 +1,264 @@
-From: "Andrew F. Davis" <afd@ti.com>
-Subject: Re: [PATCH v2 1/2] input: misc: Add generic input driver to read
- encoded GPIO lines
-Date: Tue, 23 Aug 2016 10:27:59 -0500
-Message-ID: <949d92f3-4510-ada5-d3d6-a29544465fd6@ti.com>
-References: <20160823061649.3394-1-vigneshr@ti.com>
- <20160823061649.3394-2-vigneshr@ti.com>
+From: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Subject: Re: [PATCH v8 03/10] Input: atmel_mxt_ts - add support for T37
+ diagnostic data
+Date: Tue, 23 Aug 2016 16:30:47 -0300
+Message-ID: <20160823163047.0ba303cc@vento.lan>
+References: <1468876238-24599-1-git-send-email-nick@shmanahar.org>
+        <1468876238-24599-4-git-send-email-nick@shmanahar.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20160823061649.3394-2-vigneshr@ti.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Vignesh R <vigneshr@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Moritz Fischer <moritz.fischer@ettus.com>, John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>, devicetree@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Daniel Hung-yu Wu <hywu@google.com>, Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org, Grant Grundler <grundler@chromium.org>, Rob Herring <robh+dt@kernel.org>, S Twiss <stwiss.opensource@diasemi.com>, linux-input@vger.kernel.org, Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:52981
+        "EHLO s-opensource.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751799AbcHWTa4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 23 Aug 2016 15:30:56 -0400
+In-Reply-To: <1468876238-24599-4-git-send-email-nick@shmanahar.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Nick Dyer <nick@shmanahar.org>, Hans Verkuil <hverkuil@xs4all.nl>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrew Duggan <aduggan@synaptics.com>, James Chen <james.chen@emc.com.tw>, Dudley Du <dudl@cypress.com>, Andrew de los Reyes <adlr@chromium.org>, sheckylin@chromium.org, Peter Hutterer <peter.hutterer@who-t.net>, Florian Echtler <floe@butterbrot.org>
 
-On 08/23/2016 01:16 AM, Vignesh R wrote:
-> Add a driver to read group of GPIO lines and provide its status as a
-> numerical value as input event to the system. This will help in
-> intefacing devices, that can be connected over GPIOs, that provide input
-> to the system by driving GPIO lines connected to them like a rotary dial
-> or a switch.
+Hi Dmitry,
+
+Em Mon, 18 Jul 2016 22:10:31 +0100
+Nick Dyer <nick@shmanahar.org> escreveu:
+
+> Atmel maXTouch devices have a T37 object which can be used to read raw
+> touch deltas from the device. This consists of an array of 16-bit
+> integers, one for each node on the touchscreen matrix.
+
+Is it ok to merge this patch (and the other patches on this series)
+via my tree?
+
+Regards,
+Mauro
+
 > 
-> For example, a rotary switch can be connected to four GPIO lines. The
-> status of the GPIO lines reflect the actual position of the rotary
-> switch dial. For example, if dial points to 9, then the four GPIO lines
-> connected to the switch will read HLLH(0b'1001 = 9). This value
-> can be reported as an ABS_* event to the input subsystem.
-> 
-> Signed-off-by: Vignesh R <vigneshr@ti.com>
-> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Nick Dyer <nick@shmanahar.org>
 > ---
+>  drivers/input/touchscreen/Kconfig        |    6 ++
+>  drivers/input/touchscreen/atmel_mxt_ts.c |  159 ++++++++++++++++++++++++++++++
+>  2 files changed, 165 insertions(+)
 > 
-> v2: Use decoder,max-value instead of gpio-decoder,max-value.
-> 
->  .../devicetree/bindings/input/gpio-decoder.txt     |  23 ++++
->  drivers/input/misc/Kconfig                         |  12 ++
->  drivers/input/misc/Makefile                        |   1 +
->  drivers/input/misc/gpio_decoder.c                  | 130 +++++++++++++++++++++
->  4 files changed, 166 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/gpio-decoder.txt
->  create mode 100644 drivers/input/misc/gpio_decoder.c
-> 
-> diff --git a/Documentation/devicetree/bindings/input/gpio-decoder.txt b/Documentation/devicetree/bindings/input/gpio-decoder.txt
-> new file mode 100644
-> index 000000000000..f27f083a9075
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/gpio-decoder.txt
-> @@ -0,0 +1,23 @@
-> +* GPIO Decoder DT bindings
-> +
-> +Required Properties:
-> +- compatible: should be "gpio-decoder"
-> +- gpios: a spec of gpios (atleast two) to be decoded to a number with
-
-                              ^^ two words
-
-> +  first entry representing the MSB.
-> +
-> +Optional Properties:
-> +- decoder,max-value: Maximum possible value that can be reported by
-> +  the gpios.
-> +- linux,axis: the input subsystem axis to map to (ABS_X/ABS_Y).
-> +  Defaults to 0 (ABS_X).
-> +
-> +Example:
-> +	gpio-decoder0 {
-> +		compatible = "gpio-decoder";
-> +		gpios = <&pca9536 3 GPIO_ACTIVE_HIGH>,
-> +			<&pca9536 2 GPIO_ACTIVE_HIGH>,
-> +			<&pca9536 1 GPIO_ACTIVE_HIGH>,
-> +			<&pca9536 0 GPIO_ACTIVE_HIGH>;
-> +		linux,axis = <0>; /* ABS_X */
-> +		decoder,max-value = <9>;
-> +	};
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index efb0ca871327..c44513cac3b7 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -292,6 +292,18 @@ config INPUT_GPIO_TILT_POLLED
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 8ecdc38..da96ecf 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -115,6 +115,12 @@ config TOUCHSCREEN_ATMEL_MXT
 >  	  To compile this driver as a module, choose M here: the
->  	  module will be called gpio_tilt_polled.
+>  	  module will be called atmel_mxt_ts.
 >  
-> +config INPUT_GPIO_DECODER
-> +	tristate "Polled GPIO Decoder Input driver"
-> +	depends on GPIOLIB && OF
-> +	select INPUT_POLLDEV
+> +config TOUCHSCREEN_ATMEL_MXT_T37
+> +	bool "Support T37 Diagnostic Data"
+> +	depends on TOUCHSCREEN_ATMEL_MXT
 > +	help
-> +	 Say Y here if you want driver to read status of multiple GPIO
-> +	 lines and report the encoded value as an absolute integer to
-> +	 input subsystem.
+> +	  Say Y here if you want support for the T37 Diagnostic Data object.
 > +
-> +	 To compile this driver as a module, choose M here: the module
-> +	 will will be called gpio_decoder.
+>  config TOUCHSCREEN_AUO_PIXCIR
+>  	tristate "AUO in-cell touchscreen using Pixcir ICs"
+>  	depends on I2C
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 5af7907..0048233 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -124,6 +124,19 @@ struct t9_range {
+>  #define MXT_COMMS_CTRL		0
+>  #define MXT_COMMS_CMD		1
+>  
+> +/* MXT_DEBUG_DIAGNOSTIC_T37 */
+> +#define MXT_DIAGNOSTIC_PAGEUP	0x01
+> +#define MXT_DIAGNOSTIC_DELTAS	0x10
+> +#define MXT_DIAGNOSTIC_SIZE	128
 > +
->  config INPUT_IXP4XX_BEEPER
->  	tristate "IXP4XX Beeper support"
->  	depends on ARCH_IXP4XX
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index 6a1e5e20fc1c..0b6d025f0487 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -35,6 +35,7 @@ obj-$(CONFIG_INPUT_DRV2667_HAPTICS)	+= drv2667.o
->  obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
->  obj-$(CONFIG_INPUT_GPIO_BEEPER)		+= gpio-beeper.o
->  obj-$(CONFIG_INPUT_GPIO_TILT_POLLED)	+= gpio_tilt_polled.o
-> +obj-$(CONFIG_INPUT_GPIO_DECODER)	+= gpio_decoder.o
->  obj-$(CONFIG_INPUT_HISI_POWERKEY)	+= hisi_powerkey.o
->  obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
->  obj-$(CONFIG_INPUT_IMS_PCU)		+= ims-pcu.o
-> diff --git a/drivers/input/misc/gpio_decoder.c b/drivers/input/misc/gpio_decoder.c
-> new file mode 100644
-> index 000000000000..eec0fda6f562
-> --- /dev/null
-> +++ b/drivers/input/misc/gpio_decoder.c
-> @@ -0,0 +1,130 @@
-> +/*
-> + * gpio-decoder.c
-> + *
-
-^ the name of the file often changes without this being updated, it
-really doesn't add anything anyway, would recommend dropping it.
-
-> + * A generic driver to reads multiple gpio lines and translate the
-> + * encoded numeric value into an input event.
-> + *
-> + * Copyright (C) 2016 Texas Instruments Incorporated - http://www.ti.com/
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License as
-> + * published by the Free Software Foundation version 2.
-> + *
-> + * This program is distributed "as is" WITHOUT ANY WARRANTY of any
-> + * kind, whether express or implied; without even the implied warranty
-> + * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/gpio/consumer.h>
-> +#include <linux/input.h>
-> +#include <linux/input-polldev.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +
-> +struct gpio_decoder {
-> +	struct input_polled_dev *poll_dev;
-> +	struct gpio_descs *input_gpios;
-> +	struct device *dev;
-> +	u32 axis;
-> +	u32 last_stable;
+> +struct t37_debug {
+> +#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
+> +	u8 mode;
+> +	u8 page;
+> +	u8 data[MXT_DIAGNOSTIC_SIZE];
+> +#endif
 > +};
 > +
-> +static unsigned int gpio_decoder_get_gpios_state(struct gpio_decoder
-> +						 *decoder)
+>  /* Define for MXT_GEN_COMMAND_T6 */
+>  #define MXT_BOOT_VALUE		0xa5
+>  #define MXT_RESET_VALUE		0x01
+> @@ -205,6 +218,14 @@ struct mxt_object {
+>  	u8 num_report_ids;
+>  } __packed;
+>  
+> +struct mxt_dbg {
+> +	u16 t37_address;
+> +	u16 diag_cmd_address;
+> +	struct t37_debug *t37_buf;
+> +	unsigned int t37_pages;
+> +	unsigned int t37_nodes;
+> +};
+> +
+>  /* Each client has this additional data */
+>  struct mxt_data {
+>  	struct i2c_client *client;
+> @@ -233,6 +254,7 @@ struct mxt_data {
+>  	u8 num_touchids;
+>  	u8 multitouch;
+>  	struct t7_config t7_cfg;
+> +	struct mxt_dbg dbg;
+>  
+>  	/* Cached parameters from object table */
+>  	u16 T5_address;
+> @@ -2043,6 +2065,141 @@ recheck:
+>  	return 0;
+>  }
+>  
+> +#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
+> +static u16 mxt_get_debug_value(struct mxt_data *data, unsigned int x,
+> +			       unsigned int y)
 > +{
-> +	struct gpio_descs *gpios = decoder->input_gpios;
-> +	unsigned int ret = 0;
-> +	int i, val;
+> +	struct mxt_dbg *dbg = &data->dbg;
+> +	unsigned int ofs, page;
 > +
-> +	for (i = 0; i < gpios->ndescs; i++) {
-> +		val = gpiod_get_value_cansleep(gpios->desc[i]);
-> +		ret = ret << 1 | val;
-
-Just to be safe, could you mask val with 0x1 here.
-
-> +	}
+> +	ofs = (y + (x * data->info.matrix_ysize)) * sizeof(u16);
+> +	page = ofs / MXT_DIAGNOSTIC_SIZE;
+> +	ofs %= MXT_DIAGNOSTIC_SIZE;
 > +
-> +	return ret;
+> +	return get_unaligned_le16(&dbg->t37_buf[page].data[ofs]);
 > +}
 > +
-> +static void gpio_decoder_poll_gpios(struct input_polled_dev *poll_dev)
+> +static int mxt_convert_debug_pages(struct mxt_data *data, u16 *outbuf)
 > +{
-> +	struct gpio_decoder *decoder = poll_dev->private;
-> +	unsigned int state = gpio_decoder_get_gpios_state(decoder);
+> +	struct mxt_dbg *dbg = &data->dbg;
+> +	unsigned int x = 0;
+> +	unsigned int y = 0;
+> +	unsigned int i;
 > +
-> +	if (state != decoder->last_stable) {
-> +		input_report_abs(poll_dev->input, decoder->axis, state);
-> +		input_sync(poll_dev->input);
-> +		decoder->last_stable = state;
+> +	for (i = 0; i < dbg->t37_nodes; i++) {
+> +		outbuf[i] = mxt_get_debug_value(data, x, y);
+> +
+> +		/* Next value */
+> +		if (++x >= data->info.matrix_xsize) {
+> +			x = 0;
+> +			y++;
+> +		}
 > +	}
-> +}
-> +
-> +static int gpio_decoder_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct gpio_decoder *decoder;
-> +	struct input_polled_dev *poll_dev;
-> +	u32  max;
-> +	int err;
-> +
-> +	decoder = devm_kzalloc(dev, sizeof(struct gpio_decoder), GFP_KERNEL);
-> +	if (!decoder)
-> +		return -ENOMEM;
-> +
-> +	device_property_read_u32(dev, "linux,axis", &decoder->axis);
-> +	decoder->input_gpios = devm_gpiod_get_array(dev, NULL, GPIOD_IN);
-> +	if (IS_ERR(decoder->input_gpios)) {
-> +		dev_err(dev, "unable to acquire input gpios\n");
-> +		return PTR_ERR(decoder->input_gpios);
-> +	}
-> +	if (decoder->input_gpios->ndescs < 2) {
-> +		dev_err(dev, "not enough gpios found\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (device_property_read_u32(dev, "decoder,max-value", &max))
-> +		max = BIT(decoder->input_gpios->ndescs);
-> +
-> +	decoder->dev = dev;
-> +	poll_dev = devm_input_allocate_polled_device(decoder->dev);
-> +	if (!poll_dev)
-> +		return -ENOMEM;
-> +
-> +	poll_dev->private = decoder;
-> +	poll_dev->poll = gpio_decoder_poll_gpios;
-> +	decoder->poll_dev = poll_dev;
-> +
-> +	poll_dev->input->name = pdev->name;
-> +	poll_dev->input->id.bustype = BUS_HOST;
-> +	poll_dev->input->dev.parent = dev;
-> +	input_set_abs_params(poll_dev->input, decoder->axis, 0, max, 0, 1);
-> +
-> +	err = input_register_polled_device(poll_dev);
-> +	if (err) {
-> +		dev_err(dev, "failed to register polled  device\n");
-> +		return err;
-> +	}
-> +	platform_set_drvdata(pdev, decoder);
 > +
 > +	return 0;
 > +}
 > +
-> +static const struct of_device_id gpio_decoder_of_match[] = {
-> +	{ .compatible = "gpio-decoder", },
-> +	{ },
-> +};
-> +MODULE_DEVICE_TABLE(of, gpio_decoder_of_match);
+> +static int mxt_read_diagnostic_debug(struct mxt_data *data, u8 mode,
+> +				     u16 *outbuf)
+> +{
+> +	struct mxt_dbg *dbg = &data->dbg;
+> +	int retries = 0;
+> +	int page;
+> +	int ret;
+> +	u8 cmd = mode;
+> +	struct t37_debug *p;
+> +	u8 cmd_poll;
 > +
-> +static struct platform_driver gpio_decoder_driver = {
-> +	.probe		= gpio_decoder_probe,
-> +	.driver		= {
-> +		.name	= "gpio-decoder",
-> +		.of_match_table = of_match_ptr(gpio_decoder_of_match),
-
-When the struct 'gpio_decoder_of_match' is always defined (not
-conditional on OF support), then 'of_match_ptr' does nothing and can be
-dropped here.
-
+> +	for (page = 0; page < dbg->t37_pages; page++) {
+> +		p = dbg->t37_buf + page;
+> +
+> +		ret = mxt_write_reg(data->client, dbg->diag_cmd_address,
+> +				    cmd);
+> +		if (ret)
+> +			return ret;
+> +
+> +		retries = 0;
+> +		msleep(20);
+> +wait_cmd:
+> +		/* Read back command byte */
+> +		ret = __mxt_read_reg(data->client, dbg->diag_cmd_address,
+> +				     sizeof(cmd_poll), &cmd_poll);
+> +		if (ret)
+> +			return ret;
+> +
+> +		/* Field is cleared once the command has been processed */
+> +		if (cmd_poll) {
+> +			if (retries++ > 100)
+> +				return -EINVAL;
+> +
+> +			msleep(20);
+> +			goto wait_cmd;
+> +		}
+> +
+> +		/* Read T37 page */
+> +		ret = __mxt_read_reg(data->client, dbg->t37_address,
+> +				     sizeof(struct t37_debug), p);
+> +		if (ret)
+> +			return ret;
+> +
+> +		if (p->mode != mode || p->page != page) {
+> +			dev_err(&data->client->dev, "T37 page mismatch\n");
+> +			return -EINVAL;
+> +		}
+> +
+> +		dev_dbg(&data->client->dev, "%s page:%d retries:%d\n",
+> +			__func__, page, retries);
+> +
+> +		/* For remaining pages, write PAGEUP rather than mode */
+> +		cmd = MXT_DIAGNOSTIC_PAGEUP;
 > +	}
-> +};
-> +module_platform_driver(gpio_decoder_driver);
 > +
-> +MODULE_DESCRIPTION("GPIO decoder input driver");
-> +MODULE_AUTHOR("Vignesh R <vigneshr@ti.com>");
-> +MODULE_LICENSE("GPL v2");
+> +	return mxt_convert_debug_pages(data, outbuf);
+> +}
+> +
+> +static void mxt_debug_init(struct mxt_data *data)
+> +{
+> +	struct mxt_dbg *dbg = &data->dbg;
+> +	struct mxt_object *object;
+> +
+> +	object = mxt_get_object(data, MXT_GEN_COMMAND_T6);
+> +	if (!object)
+> +		goto error;
+> +
+> +	dbg->diag_cmd_address = object->start_address + MXT_COMMAND_DIAGNOSTIC;
+> +
+> +	object = mxt_get_object(data, MXT_DEBUG_DIAGNOSTIC_T37);
+> +	if (!object)
+> +		goto error;
+> +
+> +	if (mxt_obj_size(object) != sizeof(struct t37_debug)) {
+> +		dev_warn(&data->client->dev, "Bad T37 size");
+> +		goto error;
+> +	}
+> +
+> +	dbg->t37_address = object->start_address;
+> +
+> +	/* Calculate size of data and allocate buffer */
+> +	dbg->t37_nodes = data->info.matrix_xsize * data->info.matrix_ysize;
+> +	dbg->t37_pages = DIV_ROUND_UP(dbg->t37_nodes * sizeof(u16),
+> +				      sizeof(dbg->t37_buf->data));
+> +
+> +	dbg->t37_buf = devm_kmalloc_array(&data->client->dev, dbg->t37_pages,
+> +					  sizeof(struct t37_debug), GFP_KERNEL);
+> +	if (!dbg->t37_buf)
+> +		goto error;
+> +
+> +	return;
+> +
+> +error:
+> +	dev_warn(&data->client->dev, "Error initializing T37\n");
+> +}
+> +#else
+> +static void mxt_debug_init(struct mxt_data *data)
+> +{
+> +}
+> +#endif
+> +
+>  static int mxt_configure_objects(struct mxt_data *data,
+>  				 const struct firmware *cfg)
+>  {
+> @@ -2070,6 +2227,8 @@ static int mxt_configure_objects(struct mxt_data *data,
+>  		dev_warn(dev, "No touch object detected\n");
+>  	}
+>  
+> +	mxt_debug_init(data);
+> +
+>  	dev_info(dev,
+>  		 "Family: %u Variant: %u Firmware V%u.%u.%02X Objects: %u\n",
+>  		 info->family_id, info->variant_id, info->version >> 4,
+
+
+-- 
+Thanks,
+Mauro

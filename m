@@ -1,44 +1,91 @@
-From: Daniel Mack <daniel@zonque.org>
-Subject: Re: [PATCH v3 0/2] AM335x-ICE: Add support for rotary switch
-Date: Wed, 24 Aug 2016 10:35:52 +0200
-Message-ID: <c5385d42-14e4-d5ca-370e-5b04e37d873d@zonque.org>
-References: <20160824075859.30979-1-vigneshr@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20160824075859.30979-1-vigneshr@ti.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Vignesh R <vigneshr@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Moritz Fischer <moritz.fischer@ettus.com>, John Stultz <john.stultz@linaro.org>, Arnd Bergmann <arnd@arndb.de>, devicetree@vger.kernel.org, Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org, =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>, Daniel Hung-yu Wu <hywu@google.com>, Russell King <linux@armlinux.org.uk>, "Andrew F . Davis" <afd@ti.com>, Grant Grundler <grundler@chromium.org>, Rob Herring <robh+dt@kernel.org>, S Twiss <stwiss.opensource@diasemi.com>, linux-input@vger.kernel.org, Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+From: Johnny Chuang <johnny.chuang@emc.com.tw>
+Subject: [PATCH] Input: elants_i2c - get product id on recovery mode for FW update
+Date: Wed, 24 Aug 2016 16:44:25 +0800
+Message-ID: <1472028265-5018-1-git-send-email-johnny.chuang@emc.com.tw>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@gmail.com>, Jennifer Tsai <jennifer.tsai@emc.com.tw>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: James Chen <james.chen@emc.com.tw>, Paul Liang <paul.liang@emc.com.tw>, Jeff Chuang <jeff.chuang@emc.com.tw>, Johnny Chuang <johnny.chuang@emc.com.tw>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+This CL takes the responsibility for getting product/hardware id
+on recovery mode.
+It will fix firmware update script could not find correspond firmware
+file name on recovery mode.
+BTW, firmware must need to support reading product/hardware id
+on boot code.
 
-On 08/24/2016 09:58 AM, Vignesh R wrote:
-> This series adds support for rotary-switch on AM335x-ICE that is
-> connected to TI PCA9536 I2C GPIO expander.
-> First patch adds new generic driver to read status of group of GPIO
-> lines and report the value as an input event. The second patch adds DT
-> entries for the same.
-> 
-> v2: https://lkml.org/lkml/2016/8/23/111
-> v1: https://lkml.org/lkml/2016/8/12/7
+Signed-off-by: Johnny Chuang <johnny.chuang@emc.com.tw>
+---
+ drivers/input/touchscreen/elants_i2c.c | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
 
-Is there a reason why the rotary-encoder driver cannot handle this?
-Commit 7dde4e74744 ("Input: rotary-encoder - support more than 2 gpios
-as input") added support for that mode AFAIU.
-
-I copied the author of that patch to have a look.
-
-
-Thanks,
-Daniel
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index ac09855..24662c3 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -298,7 +298,7 @@ static u16 elants_i2c_parse_version(u8 *buf)
+ 	return get_unaligned_be32(buf) >> 4;
+ }
+ 
+-static int elants_i2c_query_fw_id(struct elants_data *ts)
++static int elants_i2c_query_hw_version(struct elants_data *ts)
+ {
+ 	struct i2c_client *client = ts->client;
+ 	int error, retry_cnt;
+@@ -318,8 +318,13 @@ static int elants_i2c_query_fw_id(struct elants_data *ts)
+ 			error, (int)sizeof(resp), resp);
+ 	}
+ 
+-	dev_err(&client->dev,
+-		"Failed to read fw id or fw id is invalid\n");
++	if (error) {
++		dev_err(&clent->dev,
++			"Failed to read fw id: %d\n", error);
++		return error;
++	}
++
++	dev_err(&clent->dev, "Invalid fw id: %#04x\n", ts->hw_version);
+ 
+ 	return -EINVAL;
+ }
+@@ -508,7 +513,7 @@ static int elants_i2c_fastboot(struct i2c_client *client)
+ static int elants_i2c_initialize(struct elants_data *ts)
+ {
+ 	struct i2c_client *client = ts->client;
+-	int error, retry_cnt;
++	int error, error2, retry_cnt;
+ 	const u8 hello_packet[] = { 0x55, 0x55, 0x55, 0x55 };
+ 	const u8 recov_packet[] = { 0x55, 0x55, 0x80, 0x80 };
+ 	u8 buf[HEADER_SIZE];
+@@ -553,18 +558,21 @@ static int elants_i2c_initialize(struct elants_data *ts)
+ 		}
+ 	}
+ 
++	/* hw version is available even if device in recovery state */
++	error2 = elants_i2c_query_hw_version(ts);
+ 	if (!error)
+-		error = elants_i2c_query_fw_id(ts);
++		error = error2;
+ 	if (!error)
+ 		error = elants_i2c_query_fw_version(ts);
++	if (!error)
++		error = elants_i2c_query_test_version(ts);
++	if (!error)
++		error = elants_i2c_query_bc_version(ts);
++	if (!error)
++		error = elants_i2c_query_ts_info(ts);
+ 
+-	if (error) {
++	if (error)
+ 		ts->iap_mode = ELAN_IAP_RECOVERY;
+-	} else {
+-		elants_i2c_query_test_version(ts);
+-		elants_i2c_query_bc_version(ts);
+-		elants_i2c_query_ts_info(ts);
+-	}
+ 
+ 	return 0;
+ }
+-- 
+1.8.3.2

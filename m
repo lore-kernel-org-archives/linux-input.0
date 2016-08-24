@@ -1,47 +1,39 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v2 0/6] Intel Integrated Sensor Hub Support (ISH)
-Date: Wed, 24 Aug 2016 22:23:42 +0100
-Message-ID: <4ab0f3f3-43e3-f815-dd7b-9f6aa0bf6833@kernel.org>
-References: <1466574038-20613-1-git-send-email-srinivas.pandruvada@linux.intel.com>
- <b81da639-0ec5-bb30-1f77-b71d8e7ad434@secretlab.ca>
- <CACxGe6v6pDisF9FpKPJrojGS7qUn13xUUd-Uydr7B1701Y4szg@mail.gmail.com>
- <alpine.LNX.2.00.1608242313540.22028@cbobk.fhfr.pm>
+From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v5 0/4] mxs-lradc: Split driver into MFD
+Date: Wed, 24 Aug 2016 19:30:22 -0300
+Message-ID: <CAOMZO5AM4_51ahmaC5+XKP1GJg1Ltm=nmB2_Ou8_Hk0zOMSh=A@mail.gmail.com>
+References: <cover.1471524593.git.ksenija.stanojevic@gmail.com> <770097944.403326.225ddbfe-fd96-4f9b-a2b9-e0173af882ba.open-xchange@email.1und1.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1608242313540.22028@cbobk.fhfr.pm>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Grant Likely <glikely@secretlab.ca>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, benjamin.tissoires@redhat.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <770097944.403326.225ddbfe-fd96-4f9b-a2b9-e0173af882ba.open-xchange-7tX72C7vayboQLBSYMtkGA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+Cc: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Harald Geyer <harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, =?UTF-8?B?TWFyZWsgVmHFoXV0?= <marex-ynQEQJNshbs@public.gmane.org>, Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On 24/08/16 22:14, Jiri Kosina wrote:
-> On Wed, 24 Aug 2016, Grant Likely wrote:
-> 
->>>> v2:
->>>> - Overview in documentation show analogy with usbhid implementation
->>>> - sparse errors for statics. Also pointed by Jiri
->>>> - Clearly marking exported function header file. Clean up all exports
->>>> unused inteface functions
->>>> - Changed to tristate from boolean as pointed by Jiri:
->>>> this required remove/unload functions
->>>> - Prevent crash when ISH enabled on non supported platform
->>>> - Break client.c to smaller part by seprating buffer allocations
->>>> - move bus register/unregister to ishtp module
->>>> - There is only one config symbol INTEL_ISH_HID, removed silent
->>>> config for TRANSPORT and IPC
->>>
->>> Tested-by: Grant Likely <grant.likely@secretlab.ca>
->>>
->>> On an HP Spectre x360 laptop using v4.7-rc5.
->>
->> Hey Srinivas. Any progress on this patch series?
-> 
-> The HID part (with patch #5 omitted) should be in linux-next through 
-> hid.git already.
-> 
-The one IIO patch was pulled by Greg KH last night so hit linux next
-today.  Hence all on it's way by the sound of it!
+Hi Stefan,
 
-Jonathan
+On Tue, Aug 23, 2016 at 5:18 PM, Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org> wrote:
+> Hi,
+>
+> [add Fabio's NXP address]
+>
+>> Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> hat am 18. August 2016 um
+>> 15:44 geschrieben:
+>>
+>>
+>> Split existing driver mxs-lradc into MFD with touchscreen and
+>> IIO part.
+>>
+>> Tested on I.MX28.
+>
+> i tested the patch 1 and 2 successful on a i.MX23 board.
+>
+> Tested-by: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+
+Series looks good. I can't test the touchscreen at the moment because
+I don't have access to my mx28evk display, but as it was tested on
+mx23 and mx28 we are fine then.
+
+Thanks

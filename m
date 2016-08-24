@@ -1,91 +1,54 @@
-From: Johnny Chuang <johnny.chuang@emc.com.tw>
-Subject: [PATCH] Input: elants_i2c - get product id on recovery mode for FW update
-Date: Wed, 24 Aug 2016 16:44:25 +0800
-Message-ID: <1472028265-5018-1-git-send-email-johnny.chuang@emc.com.tw>
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH v3 0/2] AM335x-ICE: Add support for rotary switch
+Date: Wed, 24 Aug 2016 14:45:17 +0530
+Message-ID: <5294e820-4946-a196-549f-76a349b6606d@ti.com>
+References: <20160824075859.30979-1-vigneshr@ti.com>
+ <c5385d42-14e4-d5ca-370e-5b04e37d873d@zonque.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <c5385d42-14e4-d5ca-370e-5b04e37d873d@zonque.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@gmail.com>, Jennifer Tsai <jennifer.tsai@emc.com.tw>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: James Chen <james.chen@emc.com.tw>, Paul Liang <paul.liang@emc.com.tw>, Jeff Chuang <jeff.chuang@emc.com.tw>, Johnny Chuang <johnny.chuang@emc.com.tw>
+To: Daniel Mack <daniel@zonque.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Daniel Hung-yu Wu <hywu@google.com>, Grant Grundler <grundler@chromium.org>, S Twiss <stwiss.opensource@diasemi.com>, Moritz Fischer <moritz.fischer@ettus.com>, Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>, John Stultz <john.stultz@linaro.org>, "Andrew F . Davis" <afd@ti.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>
 List-Id: linux-input@vger.kernel.org
 
-This CL takes the responsibility for getting product/hardware id
-on recovery mode.
-It will fix firmware update script could not find correspond firmware
-file name on recovery mode.
-BTW, firmware must need to support reading product/hardware id
-on boot code.
+Hi,
 
-Signed-off-by: Johnny Chuang <johnny.chuang@emc.com.tw>
----
- drivers/input/touchscreen/elants_i2c.c | 30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+On Wednesday 24 August 2016 02:05 PM, Daniel Mack wrote:
+> Hi,
+> 
+> On 08/24/2016 09:58 AM, Vignesh R wrote:
+>> This series adds support for rotary-switch on AM335x-ICE that is
+>> connected to TI PCA9536 I2C GPIO expander.
+>> First patch adds new generic driver to read status of group of GPIO
+>> lines and report the value as an input event. The second patch adds DT
+>> entries for the same.
+>>
+>> v2: https://lkml.org/lkml/2016/8/23/111
+>> v1: https://lkml.org/lkml/2016/8/12/7
+> 
+> Is there a reason why the rotary-encoder driver cannot handle this?
+> Commit 7dde4e74744 ("Input: rotary-encoder - support more than 2 gpios
+> as input") added support for that mode AFAIU.
+> 
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index ac09855..24662c3 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -298,7 +298,7 @@ static u16 elants_i2c_parse_version(u8 *buf)
- 	return get_unaligned_be32(buf) >> 4;
- }
- 
--static int elants_i2c_query_fw_id(struct elants_data *ts)
-+static int elants_i2c_query_hw_version(struct elants_data *ts)
- {
- 	struct i2c_client *client = ts->client;
- 	int error, retry_cnt;
-@@ -318,8 +318,13 @@ static int elants_i2c_query_fw_id(struct elants_data *ts)
- 			error, (int)sizeof(resp), resp);
- 	}
- 
--	dev_err(&client->dev,
--		"Failed to read fw id or fw id is invalid\n");
-+	if (error) {
-+		dev_err(&clent->dev,
-+			"Failed to read fw id: %d\n", error);
-+		return error;
-+	}
-+
-+	dev_err(&clent->dev, "Invalid fw id: %#04x\n", ts->hw_version);
- 
- 	return -EINVAL;
- }
-@@ -508,7 +513,7 @@ static int elants_i2c_fastboot(struct i2c_client *client)
- static int elants_i2c_initialize(struct elants_data *ts)
- {
- 	struct i2c_client *client = ts->client;
--	int error, retry_cnt;
-+	int error, error2, retry_cnt;
- 	const u8 hello_packet[] = { 0x55, 0x55, 0x55, 0x55 };
- 	const u8 recov_packet[] = { 0x55, 0x55, 0x80, 0x80 };
- 	u8 buf[HEADER_SIZE];
-@@ -553,18 +558,21 @@ static int elants_i2c_initialize(struct elants_data *ts)
- 		}
- 	}
- 
-+	/* hw version is available even if device in recovery state */
-+	error2 = elants_i2c_query_hw_version(ts);
- 	if (!error)
--		error = elants_i2c_query_fw_id(ts);
-+		error = error2;
- 	if (!error)
- 		error = elants_i2c_query_fw_version(ts);
-+	if (!error)
-+		error = elants_i2c_query_test_version(ts);
-+	if (!error)
-+		error = elants_i2c_query_bc_version(ts);
-+	if (!error)
-+		error = elants_i2c_query_ts_info(ts);
- 
--	if (error) {
-+	if (error)
- 		ts->iap_mode = ELAN_IAP_RECOVERY;
--	} else {
--		elants_i2c_query_test_version(ts);
--		elants_i2c_query_bc_version(ts);
--		elants_i2c_query_ts_info(ts);
--	}
- 
- 	return 0;
- }
+Rotary encoder driver handles incremental encoders only and does not
+support absolute encoders. The rotary switch on am335x-ice is different
+from the incremental encoders in the
+sense that GPIO line status directly reflect the position(number)
+pointed by the dial of the encoder. So, there is no need to count steps
+or know the direction of rotation as it does not matter.
+
+I did try to enhance rotary-encoder driver to support absolute
+encoder[1] but the comment there was to write new driver that simply
+translates gpio-encoded value into ABS* event. Indeed, the new driver
+looks more simple and can handle more such hardwares.
+
+[1] https://lkml.org/lkml/2016/5/19/98
+
+
 -- 
-1.8.3.2
+Regards
+Vignesh

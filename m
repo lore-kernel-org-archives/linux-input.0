@@ -1,53 +1,52 @@
-From: Ville Ranki <ville.ranki@iki.fi>
-Subject: [PATCH] Input: joydev - Recognize joysticks with Z axis as joysticks.
-Date: Thu, 25 Aug 2016 17:16:50 +0300
-Message-ID: <1472134610-6438-1-git-send-email-ville.ranki@iki.fi>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sirokuusama2.dnainternet.net ([83.102.40.153]:42574 "EHLO
-        sirokuusama2.dnainternet.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1759408AbcHYOXV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 25 Aug 2016 10:23:21 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 4.8-rc3
+Date: Thu, 25 Aug 2016 09:31:28 -0700
+Message-ID: <20160825163128.GA11206@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Ville Ranki <ville.ranki@iki.fi>
 
-Current implementation of joydev's input_device_id
-table recognizes only devices with ABS_X, ABS_WHEEL
-or ABS_THROTTLE axes as joysticks.
+Hi Linus,
 
-There are joystick devices that do not have those axes,
-for example TRC Rudder device. The device in question
-has ABS_Z, ABS_RX and ABS_RY axes causing it not being
-detected as joystick.
+Please pull from:
 
-This patch adds ABS_Z to the input_device_id list
-allowing devices with ABS_Z axis to be detected
-correctly.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Signed-off-by: Ville Ranki <ville.ranki@iki.fi>
----
- drivers/input/joydev.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+to receive updates for the input subsystem (simply small driver fixups).
 
-diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-index 5d11fea..f3135ae 100644
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -950,6 +950,12 @@ static const struct input_device_id joydev_ids[] = {
- 		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
- 				INPUT_DEVICE_ID_MATCH_ABSBIT,
- 		.evbit = { BIT_MASK(EV_ABS) },
-+		.absbit = { BIT_MASK(ABS_Z) },
-+	},
-+	{
-+		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
-+				INPUT_DEVICE_ID_MATCH_ABSBIT,
-+		.evbit = { BIT_MASK(EV_ABS) },
- 		.absbit = { BIT_MASK(ABS_WHEEL) },
- 	},
- 	{
+Changelog:
+---------
+
+Andrew Duggan (1):
+      Input: synaptics-rmi4 - fix register descriptor subpacket map construction
+
+Dmitry Torokhov (1):
+      Input: i8042 - set up shared ps2_cmd_mutex for AUX ports
+
+Hans de Goede (1):
+      Input: silead - use devm_gpiod_get
+
+Masahiro Yamada (1):
+      Input: tegra-kbc - fix inverted reset logic
+
+Petr Cvek (1):
+      Input: ads7846 - remove redundant regulator_disable call
+
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/tegra-kbc.c  | 2 +-
+ drivers/input/rmi4/rmi_driver.c     | 3 ++-
+ drivers/input/serio/i8042.c         | 1 +
+ drivers/input/touchscreen/ads7846.c | 1 -
+ drivers/input/touchscreen/silead.c  | 2 +-
+ 5 files changed, 5 insertions(+), 4 deletions(-)
+
 -- 
-2.7.4
-
+Dmitry

@@ -1,110 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elants_i2c - get product id on recovery mode for
- FW update
-Date: Thu, 25 Aug 2016 09:40:46 -0700
-Message-ID: <20160825164046.GB11206@dtor-ws>
-References: <1472028265-5018-1-git-send-email-johnny.chuang@emc.com.tw>
- <1472119916-7641-1-git-send-email-johnny.chuang@emc.com.tw>
+Subject: Re: [PATCH] input: pegasus_notetaker - directly include workqueue
+ header
+Date: Thu, 25 Aug 2016 09:42:11 -0700
+Message-ID: <20160825164211.GC11206@dtor-ws>
+References: <1472032325-11432-1-git-send-email-martink@posteo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f68.google.com ([209.85.220.68]:33830 "EHLO
-        mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755812AbcHYQlI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 25 Aug 2016 12:41:08 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1472119916-7641-1-git-send-email-johnny.chuang@emc.com.tw>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1472032325-11432-1-git-send-email-martink@posteo.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Martin Kepplinger <martink@posteo.de>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johnny Chuang <johnny.chuang@emc.com.tw>
-Cc: Daniel Kurtz <djkurtz@gmail.com>, Jennifer Tsai <jennifer.tsai@emc.com.tw>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, James Chen <james.chen@emc.com.tw>, Paul Liang <paul.liang@emc.com.tw>, Jeff Chuang <jeff.chuang@emc.com.tw>
 
-On Thu, Aug 25, 2016 at 06:11:56PM +0800, Johnny Chuang wrote:
-> This CL takes the responsibility for getting product/hardware id
-> on recovery mode.
-> It will fix firmware update script could not find correspond firmware
-> file name on recovery mode.
-> BTW, firmware must need to support reading product/hardware id
-> on boot code.
+On Wed, Aug 24, 2016 at 11:52:05AM +0200, Martin Kepplinger wrote:
+> According to the kernel's guidelines, let's directly include the
+> workqueue functions we use.
 > 
-> Signed-off-by: Johnny Chuang <johnny.chuang@emc.com.tw>
+> Signed-off-by: Martin Kepplinger <martink@posteo.de>
+> ---
+> I don't know if it's worth it, but I should have included this according to
+> the guidelines :)
+
+It won't hurt.
 
 Applied, thank you.
 
-> ---
->  drivers/input/touchscreen/elants_i2c.c | 30 +++++++++++++++++++-----------
->  1 file changed, 19 insertions(+), 11 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-> index ac09855..dc9f608 100644
-> --- a/drivers/input/touchscreen/elants_i2c.c
-> +++ b/drivers/input/touchscreen/elants_i2c.c
-> @@ -298,7 +298,7 @@ static u16 elants_i2c_parse_version(u8 *buf)
->  	return get_unaligned_be32(buf) >> 4;
->  }
+> 
+>  drivers/input/tablet/pegasus_notetaker.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
+> index 949dacc..47de5a8 100644
+> --- a/drivers/input/tablet/pegasus_notetaker.c
+> +++ b/drivers/input/tablet/pegasus_notetaker.c
+> @@ -40,6 +40,7 @@
+>  #include <linux/input.h>
+>  #include <linux/usb/input.h>
+>  #include <linux/slab.h>
+> +#include <linux/workqueue.h>
 >  
-> -static int elants_i2c_query_fw_id(struct elants_data *ts)
-> +static int elants_i2c_query_hw_version(struct elants_data *ts)
->  {
->  	struct i2c_client *client = ts->client;
->  	int error, retry_cnt;
-> @@ -318,8 +318,13 @@ static int elants_i2c_query_fw_id(struct elants_data *ts)
->  			error, (int)sizeof(resp), resp);
->  	}
->  
-> -	dev_err(&client->dev,
-> -		"Failed to read fw id or fw id is invalid\n");
-> +	if (error) {
-> +		dev_err(&client->dev,
-> +			"Failed to read fw id: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	dev_err(&client->dev, "Invalid fw id: %#04x\n", ts->hw_version);
->  
->  	return -EINVAL;
->  }
-> @@ -508,7 +513,7 @@ static int elants_i2c_fastboot(struct i2c_client *client)
->  static int elants_i2c_initialize(struct elants_data *ts)
->  {
->  	struct i2c_client *client = ts->client;
-> -	int error, retry_cnt;
-> +	int error, error2, retry_cnt;
->  	const u8 hello_packet[] = { 0x55, 0x55, 0x55, 0x55 };
->  	const u8 recov_packet[] = { 0x55, 0x55, 0x80, 0x80 };
->  	u8 buf[HEADER_SIZE];
-> @@ -553,18 +558,21 @@ static int elants_i2c_initialize(struct elants_data *ts)
->  		}
->  	}
->  
-> +	/* hw version is available even if device in recovery state */
-> +	error2 = elants_i2c_query_hw_version(ts);
->  	if (!error)
-> -		error = elants_i2c_query_fw_id(ts);
-> +		error = error2;
->  	if (!error)
->  		error = elants_i2c_query_fw_version(ts);
-> +	if (!error)
-> +		error = elants_i2c_query_test_version(ts);
-> +	if (!error)
-> +		error = elants_i2c_query_bc_version(ts);
-> +	if (!error)
-> +		error = elants_i2c_query_ts_info(ts);
->  
-> -	if (error) {
-> +	if (error)
->  		ts->iap_mode = ELAN_IAP_RECOVERY;
-> -	} else {
-> -		elants_i2c_query_test_version(ts);
-> -		elants_i2c_query_bc_version(ts);
-> -		elants_i2c_query_ts_info(ts);
-> -	}
->  
->  	return 0;
->  }
+>  /* USB HID defines */
+>  #define USB_REQ_GET_REPORT		0x01
 > -- 
-> 1.8.3.2
+> 2.1.4
 > 
 
 -- 

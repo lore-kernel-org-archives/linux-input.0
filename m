@@ -1,52 +1,111 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 4.8-rc3
-Date: Thu, 25 Aug 2016 09:31:28 -0700
-Message-ID: <20160825163128.GA11206@dtor-ws>
+Subject: Re: [PATCH] Input: elants_i2c - get product id on recovery mode for
+ FW update
+Date: Thu, 25 Aug 2016 09:40:46 -0700
+Message-ID: <20160825164046.GB11206@dtor-ws>
+References: <1472028265-5018-1-git-send-email-johnny.chuang@emc.com.tw>
+ <1472119916-7641-1-git-send-email-johnny.chuang@emc.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:33830 "EHLO
+        mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755812AbcHYQlI (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 25 Aug 2016 12:41:08 -0400
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <1472119916-7641-1-git-send-email-johnny.chuang@emc.com.tw>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Johnny Chuang <johnny.chuang@emc.com.tw>
+Cc: Daniel Kurtz <djkurtz@gmail.com>, Jennifer Tsai <jennifer.tsai@emc.com.tw>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, James Chen <james.chen@emc.com.tw>, Paul Liang <paul.liang@emc.com.tw>, Jeff Chuang <jeff.chuang@emc.com.tw>
 
-Hi Linus,
+On Thu, Aug 25, 2016 at 06:11:56PM +0800, Johnny Chuang wrote:
+> This CL takes the responsibility for getting product/hardware id
+> on recovery mode.
+> It will fix firmware update script could not find correspond firmware
+> file name on recovery mode.
+> BTW, firmware must need to support reading product/hardware id
+> on boot code.
+> 
+> Signed-off-by: Johnny Chuang <johnny.chuang@emc.com.tw>
 
-Please pull from:
+Applied, thank you.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem (simply small driver fixups).
-
-Changelog:
----------
-
-Andrew Duggan (1):
-      Input: synaptics-rmi4 - fix register descriptor subpacket map construction
-
-Dmitry Torokhov (1):
-      Input: i8042 - set up shared ps2_cmd_mutex for AUX ports
-
-Hans de Goede (1):
-      Input: silead - use devm_gpiod_get
-
-Masahiro Yamada (1):
-      Input: tegra-kbc - fix inverted reset logic
-
-Petr Cvek (1):
-      Input: ads7846 - remove redundant regulator_disable call
-
-
-Diffstat:
---------
-
- drivers/input/keyboard/tegra-kbc.c  | 2 +-
- drivers/input/rmi4/rmi_driver.c     | 3 ++-
- drivers/input/serio/i8042.c         | 1 +
- drivers/input/touchscreen/ads7846.c | 1 -
- drivers/input/touchscreen/silead.c  | 2 +-
- 5 files changed, 5 insertions(+), 4 deletions(-)
+> ---
+>  drivers/input/touchscreen/elants_i2c.c | 30 +++++++++++++++++++-----------
+>  1 file changed, 19 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+> index ac09855..dc9f608 100644
+> --- a/drivers/input/touchscreen/elants_i2c.c
+> +++ b/drivers/input/touchscreen/elants_i2c.c
+> @@ -298,7 +298,7 @@ static u16 elants_i2c_parse_version(u8 *buf)
+>  	return get_unaligned_be32(buf) >> 4;
+>  }
+>  
+> -static int elants_i2c_query_fw_id(struct elants_data *ts)
+> +static int elants_i2c_query_hw_version(struct elants_data *ts)
+>  {
+>  	struct i2c_client *client = ts->client;
+>  	int error, retry_cnt;
+> @@ -318,8 +318,13 @@ static int elants_i2c_query_fw_id(struct elants_data *ts)
+>  			error, (int)sizeof(resp), resp);
+>  	}
+>  
+> -	dev_err(&client->dev,
+> -		"Failed to read fw id or fw id is invalid\n");
+> +	if (error) {
+> +		dev_err(&client->dev,
+> +			"Failed to read fw id: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	dev_err(&client->dev, "Invalid fw id: %#04x\n", ts->hw_version);
+>  
+>  	return -EINVAL;
+>  }
+> @@ -508,7 +513,7 @@ static int elants_i2c_fastboot(struct i2c_client *client)
+>  static int elants_i2c_initialize(struct elants_data *ts)
+>  {
+>  	struct i2c_client *client = ts->client;
+> -	int error, retry_cnt;
+> +	int error, error2, retry_cnt;
+>  	const u8 hello_packet[] = { 0x55, 0x55, 0x55, 0x55 };
+>  	const u8 recov_packet[] = { 0x55, 0x55, 0x80, 0x80 };
+>  	u8 buf[HEADER_SIZE];
+> @@ -553,18 +558,21 @@ static int elants_i2c_initialize(struct elants_data *ts)
+>  		}
+>  	}
+>  
+> +	/* hw version is available even if device in recovery state */
+> +	error2 = elants_i2c_query_hw_version(ts);
+>  	if (!error)
+> -		error = elants_i2c_query_fw_id(ts);
+> +		error = error2;
+>  	if (!error)
+>  		error = elants_i2c_query_fw_version(ts);
+> +	if (!error)
+> +		error = elants_i2c_query_test_version(ts);
+> +	if (!error)
+> +		error = elants_i2c_query_bc_version(ts);
+> +	if (!error)
+> +		error = elants_i2c_query_ts_info(ts);
+>  
+> -	if (error) {
+> +	if (error)
+>  		ts->iap_mode = ELAN_IAP_RECOVERY;
+> -	} else {
+> -		elants_i2c_query_test_version(ts);
+> -		elants_i2c_query_bc_version(ts);
+> -		elants_i2c_query_ts_info(ts);
+> -	}
+>  
+>  	return 0;
+>  }
+> -- 
+> 1.8.3.2
+> 
 
 -- 
 Dmitry

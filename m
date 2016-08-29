@@ -1,54 +1,59 @@
-From: Marcin Niestroj <m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
-Subject: Re: [PATCH v4 5/5] Input: Add tps65217 power button driver
-Date: Mon, 29 Aug 2016 11:09:34 +0200
-Message-ID: <6a55ea5d-c276-f01d-2712-fc4e1c6a1633@grinn-global.com>
-References: <20160620105056.25843-1-m.niestroj@grinn-global.com>
- <20160620105056.25843-6-m.niestroj@grinn-global.com>
- <20160621131735.GA896@rob-hp-laptop>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] dt-bindings: touchscreen: silead_gsl1680: Document
+ touchscreen-fw-name
+Date: Mon, 29 Aug 2016 11:35:47 +0200
+Message-ID: <64d65f63-db47-d9c2-1c3f-cc544c2da2ab@redhat.com>
+References: <1471964688-12188-1-git-send-email-hdegoede@redhat.com>
+ <20160829003725.GA20749@rob-hp-laptop> <20160829051834.GW3165@lukather>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160621131735.GA896@rob-hp-laptop>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:5454 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932567AbcH2Jfw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 29 Aug 2016 05:35:52 -0400
+In-Reply-To: <20160829051834.GW3165@lukather>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Maxime Ripard <maxime.ripard@free-electrons.com>, Rob Herring <robh@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>
 
-ping
+Hi,
 
-On 21.06.2016 15:17, Rob Herring wrote:
-> On Mon, Jun 20, 2016 at 12:50:56PM +0200, Marcin Niestroj wrote:
->> This driver enables us to use tps65217's power button as KEY_POWER on
->> am335x boards (directly connected button in chiliboard, accessible pin
->> via expansion header in beaglebone). This patch has been tested with
->> chiliboard.
->>
->> Signed-off-by: Marcin Niestroj <m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
->> ---
->> Depends on patches 1-4 in series
->>
->> Changes v2 -> v4: none
->>
->> Changes v1 -> v2:
->>  * Added information about parent device in tps65217 power button
->>    device-tree binding documentation (suggested by Rob)
->>
->>  .../bindings/input/tps65217-pwrbutton.txt          |  17 +++
+On 29-08-16 07:18, Maxime Ripard wrote:
+> Hi Rob,
 >
-> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> On Sun, Aug 28, 2016 at 07:37:25PM -0500, Rob Herring wrote:
+>> On Tue, Aug 23, 2016 at 05:04:48PM +0200, Hans de Goede wrote:
+>>> The driver has supported touchscreen-fw-name to specify the firmware to
+>>> load since day 0, but this was omitted from the binding, document this.
+>>>
+>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>>> ---
+>>>  Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt | 1 +
+>>>  1 file changed, 1 insertion(+)
+>>
+>> I'd really like to deprecate in favor of a standard property name. We've
+>> somewhat agreed on 'firmware-name' though there is no common binding doc
+>> yet. But given this is in use:
 >
->>  drivers/input/misc/Kconfig                         |  10 ++
->>  drivers/input/misc/Makefile                        |   1 +
->>  drivers/input/misc/tps65217-pwrbutton.c            | 131 +++++++++++++++++++++
->>  4 files changed, 159 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/input/tps65217-pwrbutton.txt
->>  create mode 100644 drivers/input/misc/tps65217-pwrbutton.c
+> This has been introduced in 4.8-rc1, so it hasn't been used in any
+> stable version yet, and we don't have any users in tree so far.
 >
+> If you want to something else, it feels like now is the time to change
+> it.
 
--- 
-Marcin Niestroj
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Ack, I can still change it to firmware-name if you want (Maxime has not yet
+merged any dts changes using the touchscreen-fw-name). We should probably
+also decide if the silead/ prefix we're using (so the firmware files are
+/lib/firmware/silead/foo.fw under Linux) goes into the firmware-name
+property as my current wip code is doing, or if we put the "silead/"
+part in the driver and only put the part after it in the property.
+
+I've a feeling that just putting only the base filename (so no "silead/"
+prefix) in the property is best.
+
+Regards,
+
+Hans

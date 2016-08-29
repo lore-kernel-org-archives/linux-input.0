@@ -1,83 +1,54 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH] dt-bindings: touchscreen: silead_gsl1680: Document
- touchscreen-fw-name
-Date: Mon, 29 Aug 2016 07:18:34 +0200
-Message-ID: <20160829051834.GW3165@lukather>
-References: <1471964688-12188-1-git-send-email-hdegoede@redhat.com>
- <20160829003725.GA20749@rob-hp-laptop>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH v3] Support for Alps SS5 touchpad
+Date: Mon, 29 Aug 2016 09:14:55 +0200
+Message-ID: <20160829071455.GB2968@dhcp22.suse.cz>
+References: <1466500773-3470-1-git-send-email-ben@smart-cactus.org>
+ <alpine.LRH.2.00.1607291045590.21952@gjva.wvxbf.pm>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="L+ytD9kXoSFEJYhc"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:49540 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750730AbcH2FSi (ORCPT
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:36656 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750888AbcH2HO5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 Aug 2016 01:18:38 -0400
+        Mon, 29 Aug 2016 03:14:57 -0400
+Received: by mail-wm0-f68.google.com with SMTP id i138so8211162wmf.3
+        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2016 00:14:57 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20160829003725.GA20749@rob-hp-laptop>
+In-Reply-To: <alpine.LRH.2.00.1607291045590.21952@gjva.wvxbf.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>
+To: Ben Gamari <ben@smart-cactus.org>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
+On Fri 29-07-16 10:46:31, Jiri Kosina wrote:
+> On Tue, 21 Jun 2016, Ben Gamari wrote:
+> 
+> > Hello all,
+> > 
+> > Here is the third iteration of my patchset adding support for the Alps SS5
+> > touchpad used in the Dell Latitude E7470. The patch is largely unchanged except
+> > for a reorganization of the DUALPOINT flag detection logic and the addition of
+> > protocol documentation.
+> > 
+> > Thanks to everyone who has offered reviews so far.
+> 
+> Seems like this went by unnoticed. Adding Dmitry to CC.
 
---L+ytD9kXoSFEJYhc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks to Jiri for pointing me to these patches. I was running with them
+for few days and they seem to be working reasonably well on my Latitude
+E7470. The only annoying thing is that the vertical scrolling mode seems
+to be hard to exit - sometimes you can get almost to the (horizontal)
+middle of the touch pad and the scrolling is still active. I haven't
+found any scrolling area width configuration knob though.
 
-Hi Rob,
+Anyway, feel free to add my
+Tested-by: Michal Hocko <mhocko@suse.com>
 
-On Sun, Aug 28, 2016 at 07:37:25PM -0500, Rob Herring wrote:
-> On Tue, Aug 23, 2016 at 05:04:48PM +0200, Hans de Goede wrote:
-> > The driver has supported touchscreen-fw-name to specify the firmware to
-> > load since day 0, but this was omitted from the binding, document this.
-> >=20
-> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> > ---
-> >  Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt=
- | 1 +
-> >  1 file changed, 1 insertion(+)
->=20
-> I'd really like to deprecate in favor of a standard property name. We've=
-=20
-> somewhat agreed on 'firmware-name' though there is no common binding doc=
-=20
-> yet. But given this is in use:
+Btw. I've noticed that none of the patches has your signed-off-by which
+is required for any patch to be applied.
 
-This has been introduced in 4.8-rc1, so it hasn't been used in any
-stable version yet, and we don't have any users in tree so far.
-
-If you want to something else, it feels like now is the time to change
-it.
-
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
---L+ytD9kXoSFEJYhc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXw8WqAAoJEBx+YmzsjxAg2RIQAJPc6UqXojIRHy2TF85VwVqx
-wWxYAwfEnyI8ojm7VLMcoDobBE4LdUHqNfeH7wBizmxULavDUJIrQG+G64k/C3Q2
-R+GAwDPKcapb/ISuBDYjS3wa15XP5sUoO6pLQ1qYlmxXPBAF0o7wAd85NN3SC6MT
-bLc4kF59bmHIiU+RSAiBzn0b1AYj6XAzOJirl8JWMqAiGMi5qJOXIMRDa89TDyO6
-SyoT61Xpmkvq2kqS3RNZTmTfcNGWdZPI1wuOLJFX1YkY9OuQwgsnK3elds/A70zw
-8nZ/E/OJv65wEqr5FLk6OcPXL7VPiWyxD02MuNcFFPWaz59MD76UzG9/RJfHM2yx
-JodVi5MYJec0YtIO1wpiposfscNbMjpdzDGuxSLSgXKQaU0JFPztKak2clcrVEY2
-GQtFTT4LbyG0SWQRu5ovMtg6Pz385nIAvhU+l/APkuQRprCqZY0wDgSqnokfczI2
-L1cNm1Wqp1hvOjsqSikMtKM23Wf+oxDZgTyU3sksMpwFr1T/VsyzPW0M9T3N2d1K
-hi9ltqcW/TcKhQ7RqZM0HJTM5azxogJged1d8lxWi25R/9fQwc3fKkWUYrAksb80
-VeeftHguBb5XCQGML3UP5RqpAA6H0DwBQiqYQxY4634zqVHW+5WbxuqFt5MAR2rr
-s4EpRJeqj1c20hTB4WXx
-=CHFH
------END PGP SIGNATURE-----
-
---L+ytD9kXoSFEJYhc--
+Thanks!
+-- 
+Michal Hocko
+SUSE Labs

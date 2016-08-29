@@ -1,32 +1,27 @@
-From: Roland Singer <roland.singer@desertbit.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Subject: Re: [PATCH 1/1] input: hid-razer driver: add support for Razer
  devices
-Date: Mon, 29 Aug 2016 15:31:08 +0200
-Message-ID: <d8b60220-a4d7-6e20-5b02-97a4b1205b94@desertbit.com>
+Date: Mon, 29 Aug 2016 17:46:22 +0200
+Message-ID: <20160829154622.GB21864@mail.corp.redhat.com>
 References: <2f678bc0-64a5-a33c-d088-0309a6cef143@desertbit.com>
  <784849b9-7b09-cd3d-259d-57781076879c@desertbit.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from static.146.197.76.144.clients.your-server.de ([144.76.197.146]:54478
-        "EHLO desertbit.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757433AbcH2NcX (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 Aug 2016 09:32:23 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:44024 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752043AbcH2P4k (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 29 Aug 2016 11:56:40 -0400
+Content-Disposition: inline
 In-Reply-To: <784849b9-7b09-cd3d-259d-57781076879c@desertbit.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com
+To: Roland Singer <roland.singer@desertbit.com>
+Cc: linux-input@vger.kernel.org, jikos@kernel.org
 
-This patch is currently canceled. I'll first implement the improvements
-suggested by Greg Kroah-Hartman:
+Hi Roland,
 
-https://github.com/openrazer/openrazer-drivers/issues/2
-
-
-Am 26.08.2016 um 11:04 schrieb Roland Singer:
+On Aug 26 2016 or thereabouts, Roland Singer wrote:
 > From: Roland Singer <roland.singer@desertbit.com>
 > 
 > This driver adds support for Razer devices. It supports custom keyboard
@@ -45,6 +40,32 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > This driver belongs to the new OpenRazer Project, which also provides
 > userland tools to configure and handle Razer devices.
 > Reference: https://github.com/openrazer
+
+I saw your other email, but I still wants to make some high-level review
+so that you don't spend too much time in code you will need to remove.
+
+So here they come:
+Generally, it is better to keep the kernel interface to a minimum. It's
+OK to enable macro keys from the kernel, but setting the color of the
+keyboard is something which should be done IMO in userspace only through
+hidraw.
+
+The reasons are:
+- maintaining a kernel API is a pain
+- you basically can't change it while it's there given that you might
+  have users using it
+- roccat used to have a kernel API, and the latest userspace version
+  of the tool went away from this given that it was too much of a pain
+  and using hidraw allows a lot more flexibility
+- we have standard API for LED, and you are not using them
+- add some more which would convince you :)
+
+Please have a look at what hidraw offers and think twice before adding a
+sysfs API for a functionality (I'll give you my ideas below). You can
+see what we are doing for Logitech and some others in libratbag
+(github.com/libratbag/libratbag) or what roccat (the open project, not
+the company) did.
+
 > ---
 > diff --git a/Documentation/ABI/testing/sysfs-driver-hid-razer b/Documentation/ABI/testing/sysfs-driver-hid-razer
 > new file mode 100644
@@ -58,6 +79,10 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +Description:	Returns a friendly device type string.
 > +		This file is readonly.
 > +Users:		https://github.com/openrazer
+
+Do we need that? (can't this be appended to the device name or something
+similar)
+
 > +
 > +
 > +What:		/sys/bus/hid/drivers/hid-razer/<hid-bus>:<vendor-id>:<product-id>.<num>/get_serial
@@ -67,6 +92,11 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +		This file is readonly.
 > +Users:		https://github.com/openrazer
 > +
+
+This would fit in the .uniq field of struct input for instance.
+
+Plus the name is wrong. "serial" is better.
+
 > +
 > +What:		/sys/bus/hid/drivers/hid-razer/<hid-bus>:<vendor-id>:<product-id>.<num>/get_firmware_version
 > +Date:		August 2016
@@ -74,6 +104,11 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +Description:	Returns the firmware version from the device as string.
 > +		This file is readonly.
 > +Users:		https://github.com/openrazer
+
+Usually we just output it in the dmesg. If your tool needs to retrieve
+it, you have the request handy in userspace, so there might not be a
+strong need here either.
+
 > +
 > +
 > +What:		/sys/bus/hid/drivers/hid-razer/<hid-bus>:<vendor-id>:<product-id>.<num>/brightness
@@ -84,6 +119,13 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +		written to this file. Values from 0-255.
 > +		This file is optional and exists if the device supports this.
 > +Users:		https://github.com/openrazer
+
+Please refrain from using custom sysfs when dealing with LEDs. We have
+the kernel LED API, which is basic, but it should be sufficient for most
+needs.
+If you need to do more fancy configurations, then maybe this belongs to
+userspace.
+
 > +
 > +
 > +What:		/sys/bus/hid/drivers/hid-razer/<hid-bus>:<vendor-id>:<product-id>.<num>/fn_mode
@@ -99,6 +141,9 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +
 > +		This file is optional and exists if the device supports this.
 > +Users:		https://github.com/openrazer
+
+I'd keep this one, or I would let userspace set the expected fn mode at login.
+
 > +
 > +
 > +What:		/sys/bus/hid/drivers/hid-razer/<hid-bus>:<vendor-id>:<product-id>.<num>/set_logo
@@ -113,6 +158,11 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +		This file is writeonly.
 > +		This file is optional and exists if the device supports this.
 > +Users:		https://github.com/openrazer
+
+Definitively userspace thingy. I mean, the API. I would be happy if you
+set a specific mode in the driver at probe to not annoy users using the
+VT only.
+
 > +
 > +
 > +What:		/sys/bus/hid/drivers/hid-razer/<hid-bus>:<vendor-id>:<product-id>.<num>/set_key_colors
@@ -122,6 +172,12 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +		This file is writeonly.
 > +		This file is optional and exists if the device supports this.
 > +Users:			https://github.com/openrazer
+
+If you need, use three kernel LED api.
+But honestly, do you need to set this at boot in the kernel? If your
+tool is required to change a setting, that's a good sign that the
+parameter should not be in the kernel.
+
 > +
 > +
 > +What:		/sys/bus/hid/drivers/hid-razer/<hid-bus>:<vendor-id>:<product-id>.<num>/get_key_rows
@@ -131,6 +187,10 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +		This file is readonly.
 > +		This file is optional and exists if the device supports this.
 > +Users:		https://github.com/openrazer
+
+This one and the one after seems tightly linked to the LED setting and
+should IMO be done in userspace.
+
 > +
 > +
 > +What:		/sys/bus/hid/drivers/hid-razer/<hid-bus>:<vendor-id>:<product-id>.<num>/get_key_columns
@@ -242,6 +302,15 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +		This file is writeonly.
 > +		This file is optional and exists if the device supports this.
 > +Users:		https://github.com/openrazer
+
+All those mode_* will be a pain for you to maintain. When a new device
+comes in, you'll have to update the kernel for it, wait for your users
+to have it, update your tool and maintain old versions of the modes.
+
+If Razer decides to add an other mode, you'll have to add a new API, and
+if the breathing changes, you might need to add a new
+mode_breathing_2...
+
 > diff --git a/MAINTAINERS b/MAINTAINERS
 > index a306795..594789a 100644
 > --- a/MAINTAINERS
@@ -306,6 +375,10 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +
 >  #endif
 > diff --git a/drivers/hid/hid-razer-common.c b/drivers/hid/hid-razer-common.c
+
+What's the point of having 2 files? Roccat was special in a way but we
+now prefer having only one file per manufacturer.
+
 > new file mode 100644
 > index 0000000..2f3406d
 > --- /dev/null
@@ -333,6 +406,12 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +#include <linux/module.h>
 > +#include <linux/init.h>
 > +#include <linux/usb/input.h>
+
+eeeeks
+
+HID is transport agnostic, you shouldn't have to include anything usb
+related. (unless the device is not using HID after all for configuration)
+
 > +#include <linux/hid.h>
 > +
 > +#include "hid-razer-common.h"
@@ -410,6 +489,9 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +			buf,                                       // Data
 > +			size,                                      // Length
 > +			USB_CTRL_SET_TIMEOUT);
+
+Why not using hid_hw_request?
+
 > +
 > +	usleep_range(600, 800);
 > +
@@ -605,6 +687,9 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +	       report->arguments[4], report->arguments[5],
 > +	       report->arguments[6], report->arguments[7],
 > +	       report->arguments[8], report->arguments[9]);
+
+%10ph would help you here, instead of using all of the bytes one by one.
+
 > +}
 > +EXPORT_SYMBOL_GPL(razer_print_err_report);
 > diff --git a/drivers/hid/hid-razer-common.h b/drivers/hid/hid-razer-common.h
@@ -2199,9 +2284,9 @@ Am 26.08.2016 um 11:04 schrieb Roland Singer:
 > +};
 > +
 > +#endif // __HID_RAZER_H
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+
+This is not a full review, but I hope you will find it useful anyway.
+
+Cheers,
+Benjamin
 

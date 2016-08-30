@@ -1,32 +1,75 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH v3 1/2] input: misc: Add generic input driver to read
- encoded GPIO lines
-Date: Tue, 30 Aug 2016 11:45:08 -0700
-Message-ID: <20160830184508.bduprvlz53wrrprd@atomide.com>
-References: <20160824075859.30979-1-vigneshr@ti.com>
- <20160824075859.30979-2-vigneshr@ti.com>
- <20160825165631.GE11206@dtor-ws>
- <a41d31b7-9d7a-0d94-a045-1e2285064040@ti.com>
- <20160830032528.GB2150@dtor-ws>
+From: Yuan Chao <yuanchao@gmail.com>
+Subject: Re: [PATCH] HID: apple: Fix the '`'/'~' key issue for MacBook Air 6,2.
+Date: Wed, 31 Aug 2016 02:47:55 +0800
+Message-ID: <CAADKi7kxWUE2RQWDqx8WPhWzLh9WhDi942NBQN_Y01=vmtm7QA@mail.gmail.com>
+References: <CAADKi7kLR=7r9-QDHYERwgvH-PnnB-ZWbE4m5AieyRHn9sGMCQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20160830032528.GB2150@dtor-ws>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Daniel Hung-yu Wu <hywu-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Moritz Fischer <moritz.fischer-+aYTwkv1SeIAvxtiuMwx3w@public.gmane.org>, Jorge Ramirez-Ortiz <jorge.ramirez-ortiz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, John Stultz <john.stultz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "Davis, Andrew" <afd-l0cyMroinI0@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XQ@public.gmane.org>
+Content-Type: multipart/mixed; boundary=94eb2c06ae346ea559053b4e6ca9
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f182.google.com ([209.85.161.182]:35886 "EHLO
+        mail-yw0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758954AbcH3SsR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 30 Aug 2016 14:48:17 -0400
+Received: by mail-yw0-f182.google.com with SMTP id u134so16899571ywg.3
+        for <linux-input@vger.kernel.org>; Tue, 30 Aug 2016 11:48:16 -0700 (PDT)
+In-Reply-To: <CAADKi7kLR=7r9-QDHYERwgvH-PnnB-ZWbE4m5AieyRHn9sGMCQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-* Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [160829 20:26]:
-> Applied, thank you.
-> 
-> DTS change should go through some other tree though.
+--94eb2c06ae346ea559053b4e6ca9
+Content-Type: text/plain; charset=UTF-8
 
-Thanks I'm picking up the dts patch into omap-for-v4.9/dt.
+(adding missing patch)
 
-Tony
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
+Best regards,
+Yuan Chao
+
+--94eb2c06ae346ea559053b4e6ca9
+Content-Type: application/octet-stream;
+	name="0001-HID-apple-Fix-the-key-issue-for-MacBook-Air-6-2.patch"
+Content-Disposition: attachment;
+	filename="0001-HID-apple-Fix-the-key-issue-for-MacBook-Air-6-2.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_ishtsh2w0
+
+RnJvbSAwMTQ1YWY1NmVjYzcwZmFkMWUxNjE3Y2Q4Y2QyMWQ5OTNkMGE2YmYzIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBZdWFuIENIQU8gPHl1YW5jaGFvQGdtYWlsLmNvbT4KRGF0ZTog
+U3VuLCAyOCBBdWcgMjAxNiAxNzo0ODo1MiArMDgwMApTdWJqZWN0OiBbUEFUQ0hdIEhJRDogYXBw
+bGU6IEZpeCB0aGUgJ2AnLyd+JyBrZXkgaXNzdWUgZm9yIE1hY0Jvb2sgQWlyIDYsMi4KClRoZSAn
+YCcvJ34nIGtleSBkZWxpdmVycyAnPCcvJz4nIG9uIE1hY0Jvb2sgQWlyIDYsMi4gQnkgZm9yY2lu
+Zwp0aGUgbW9kdWxlIHBhcmFtZXRlciBpc29fbGF5b3V0ID0gMCwgdGhpcyBpc3N1ZSBjYW4gYmUg
+Zml4ZWQuClRoaXMgcGF0Y2ggY2hlY2tzIHRoZSBETUkgaW5mb3JtYXRpb24gYW5kIHNldHMgdGhl
+IHBhcmFtZXRlci4KClNpZ25lZC1vZmYtYnk6IFl1YW4gQ0hBTyA8eXVhbmNoYW9AZ21haWwuY29t
+PgotLS0KIGRyaXZlcnMvaGlkL2hpZC1hcHBsZS5jIHwgMTUgKysrKysrKysrKysrKysrCiAxIGZp
+bGUgY2hhbmdlZCwgMTUgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hp
+ZC1hcHBsZS5jIGIvZHJpdmVycy9oaWQvaGlkLWFwcGxlLmMKaW5kZXggODg0ZDgyZi4uMThlNTEx
+NyAxMDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvaGlkLWFwcGxlLmMKKysrIGIvZHJpdmVycy9oaWQv
+aGlkLWFwcGxlLmMKQEAgLTIxLDYgKzIxLDcgQEAKICNpbmNsdWRlIDxsaW51eC9oaWQuaD4KICNp
+bmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KICNpbmNsdWRlIDxsaW51eC9zbGFiLmg+CisjaW5jbHVk
+ZSA8bGludXgvZG1pLmg+CiAKICNpbmNsdWRlICJoaWQtaWRzLmgiCiAKQEAgLTM5Miw2ICszOTMs
+MTcgQEAgc3RhdGljIGludCBhcHBsZV9wcm9iZShzdHJ1Y3QgaGlkX2RldmljZSAqaGRldiwKIAlp
+ZiAocXVpcmtzICYgQVBQTEVfSUdOT1JFX0hJRElOUFVUKQogCQljb25uZWN0X21hc2sgJj0gfkhJ
+RF9DT05ORUNUX0hJRElOUFVUOwogCisJLyoKKwkgKiBUaGlzIGlzIHRvIHNvbHZlIHRoZSAndGls
+dCcga2V5IHByb2JsZW0gb24KKwkgKiBtYWNib29rIGFpciA2LDIgcHJvYmxlbSBieSBzZXR0aW5n
+IGlzb19sYXlvdXQgPSAwCisJICovCisJaWYgKChxdWlya3MgJiBBUFBMRV9JU09fS0VZQk9BUkQp
+ICYmCisJICAgIGRtaV9uYW1lX2luX3ZlbmRvcnMoIkFwcGxlIEluYy4iKSAmJgorCSAgICBkbWlf
+bWF0Y2goRE1JX1BST0RVQ1RfTkFNRSwgIk1hY0Jvb2tBaXI2LDIiKSkgeworCSAgaGlkX2luZm8o
+aGRldiwgIlBhcmFtZXRlciBpc29fbGF5b3V0IGlzIHNldCB0byAwIGZvciBNYWNCb29rIEFpciA2
+LDIuXG4iKTsKKwkgIGlzb19sYXlvdXQgPSAwOworCX0KKwogCXJldCA9IGhpZF9od19zdGFydCho
+ZGV2LCBjb25uZWN0X21hc2spOwogCWlmIChyZXQpIHsKIAkJaGlkX2VycihoZGV2LCAiaHcgc3Rh
+cnQgZmFpbGVkXG4iKTsKQEAgLTQ0Niw2ICs0NTgsOSBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGhp
+ZF9kZXZpY2VfaWQgYXBwbGVfZGV2aWNlc1tdID0gewogCQkuZHJpdmVyX2RhdGEgPSBBUFBMRV9I
+QVNfRk4gfSwKIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfQVBQTEUsIFVTQl9ERVZJ
+Q0VfSURfQVBQTEVfR0VZU0VSNF9IRl9BTlNJKSwKIAkJLmRyaXZlcl9kYXRhID0gQVBQTEVfTlVN
+TE9DS19FTVVMQVRJT04gfCBBUFBMRV9IQVNfRk4gfSwKKwl7IEhJRF9VU0JfREVWSUNFKFVTQl9W
+RU5ET1JfSURfQVBQTEUsIFVTQl9ERVZJQ0VfSURfQVBQTEVfV0VMTFNQUklORzhfSVNPKSwKKwkJ
+LmRyaXZlcl9kYXRhID0gQVBQTEVfTlVNTE9DS19FTVVMQVRJT04gfCBBUFBMRV9IQVNfRk4gfAor
+CQkJQVBQTEVfSVNPX0tFWUJPQVJEIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lE
+X0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUjRfSEZfSVNPKSwKIAkJLmRyaXZlcl9k
+YXRhID0gQVBQTEVfTlVNTE9DS19FTVVMQVRJT04gfCBBUFBMRV9IQVNfRk4gfAogCQkJQVBQTEVf
+SVNPX0tFWUJPQVJEIH0sCi0tIAoyLjcuNAoK
+--94eb2c06ae346ea559053b4e6ca9--

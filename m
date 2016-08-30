@@ -1,31 +1,32 @@
-From: Yuan Chao <yuanchao@gmail.com>
-Subject: [PATCH] HID: apple: Fix the '`'/'~' key issue for MacBook Air 6,2.
-Date: Wed, 31 Aug 2016 02:26:04 +0800
-Message-ID: <CAADKi7kLR=7r9-QDHYERwgvH-PnnB-ZWbE4m5AieyRHn9sGMCQ@mail.gmail.com>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH v3 1/2] input: misc: Add generic input driver to read
+ encoded GPIO lines
+Date: Tue, 30 Aug 2016 11:45:08 -0700
+Message-ID: <20160830184508.bduprvlz53wrrprd@atomide.com>
+References: <20160824075859.30979-1-vigneshr@ti.com>
+ <20160824075859.30979-2-vigneshr@ti.com>
+ <20160825165631.GE11206@dtor-ws>
+ <a41d31b7-9d7a-0d94-a045-1e2285064040@ti.com>
+ <20160830032528.GB2150@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yb0-f177.google.com ([209.85.213.177]:34831 "EHLO
-        mail-yb0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753215AbcH3S0Z (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 30 Aug 2016 14:26:25 -0400
-Received: by mail-yb0-f177.google.com with SMTP id h3so9384044ybi.2
-        for <linux-input@vger.kernel.org>; Tue, 30 Aug 2016 11:26:25 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20160830032528.GB2150@dtor-ws>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Daniel Hung-yu Wu <hywu-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Moritz Fischer <moritz.fischer-+aYTwkv1SeIAvxtiuMwx3w@public.gmane.org>, Jorge Ramirez-Ortiz <jorge.ramirez-ortiz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, John Stultz <john.stultz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "Davis, Andrew" <afd-l0cyMroinI0@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-The '`'/'~' key delivers '<'/'>' on MacBook Air 6,2. [1] By forcing
-the module parameter iso_layout = 0, this issue can be fixed. [2][3]
-This patch checks the DMI information and sets the parameter.
+* Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [160829 20:26]:
+> Applied, thank you.
+> 
+> DTS change should go through some other tree though.
 
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=60181#c43
-[2] https://bugzilla.redhat.com/show_bug.cgi?id=1025041
-[3] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1245081
+Thanks I'm picking up the dts patch into omap-for-v4.9/dt.
 
-(Sorry Jiri for duplicated messages)
-
--- 
-Best regards,
-Yuan Chao
+Tony
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

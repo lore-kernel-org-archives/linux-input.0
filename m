@@ -1,119 +1,78 @@
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: Re: [PATCH v4 4/5] mfd: tps65217: Add power button as subdevice
-Date: Wed, 31 Aug 2016 09:41:57 +0200
-Message-ID: <fe1fd5ea-5fce-61d0-d607-e4d527b51d4c@grinn-global.com>
-References: <20160620105056.25843-1-m.niestroj@grinn-global.com>
- <20160620105056.25843-5-m.niestroj@grinn-global.com>
- <c849849f-ba1d-3263-9941-b346ef9eef59@grinn-global.com>
- <20160830090329.GD1661@dell>
- <9fafa9b0-cc45-6fe9-ddb9-5c933064261c@grinn-global.com>
- <20160830095034.GI1661@dell>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [GIT PULL] Immutable branch between MFD, Regulator and RTC
+Date: Wed, 31 Aug 2016 09:38:49 +0100
+Message-ID: <20160831083849.GQ10121@dell>
+References: <1470921406-18468-1-git-send-email-narmstrong@baylibre.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp2.megiteam.pl ([213.189.52.193]:42936 "EHLO
-        smtp2.megiteam.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756123AbcHaHmJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 31 Aug 2016 03:42:09 -0400
-In-Reply-To: <20160830095034.GI1661@dell>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <rtc-linux+bncBDA7X7F2WUEBBLVOTK7AKGQEDEMJJBA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Disposition: inline
+In-Reply-To: <1470921406-18468-1-git-send-email-narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+Cc: andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>
 
-On 30.08.2016 11:50, Lee Jones wrote:
-> On Tue, 30 Aug 2016, Marcin Niestroj wrote:
->
->> On 30.08.2016 11:03, Lee Jones wrote:
->>> On Mon, 29 Aug 2016, Marcin Niestroj wrote:
->>>
->>>> ping
->>>
->>> Don't do that!
->>>
->>> If you think the patch hasn't attracted attention in >2 weeks, then
->>> it's probably slipped through the gaps and you need to send a
->>> [RESEND].
->>
->> Clear.
->>
->>>
->>> However ...
->>>
->>>> On 20.06.2016 12:50, Marcin Niestroj wrote:
->>>>> Add tps65217 power buttor subdevice with assigned IRQ resources.
->>>>>
->>>>> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
->>>>> Acked-by: Lee Jones <lee.jones@linaro.org>
->>>
->>> This patch has a maintainer Ack, so why are you pinging?
->>
->> Because I didn't see it applied anywhere and there were no new
->> comments, so I thought it slipped somewhere.
->>
->> So my question is: what happens with the patch after maintainer Ack?
->> Are we still waiting for some comments from the community? Do I still
->> need to worry, that the patch might slipped? What is author's role now?
->
-> Since you sent the patches as a set, it is assumed there are some
-> dependencies between them, or they are at least in some way related.
-> To that end, it is normal for Maintainers (especially for me as the
-> MFD Maintainer, since there often some complex ties into the leaf
-> driver's changes) to wait until *all* of the patches have either been
-> accepted or have acquired an Ack of their own to proceed.
->
-> I believe we are still waiting on other patches to be reviewed, no?
+Enjoy!
 
-I've just noticed, that patch 5 was only partially Acked.
+The following changes since commit 694d0d0bb2030d2e36df73e2d23d5770511dbc8d=
+:
 
-I will send a RESEND. However patch 2 is already in mainline. Should I
-contain this patch or remove it from the patch set? Additionally
-patch 3 has been queued into power-supply's -next branch.
+  Linux 4.8-rc2 (2016-08-14 19:11:36 -0700)
 
->
->>>>> ---
->>>>> Depends on patch 1 in series
->>>>>
->>>>> Changes v1 -> v4: none
->>>>>
->>>>>  drivers/mfd/tps65217.c | 10 ++++++++++
->>>>>  1 file changed, 10 insertions(+)
->>>>>
->>>>> diff --git a/drivers/mfd/tps65217.c b/drivers/mfd/tps65217.c
->>>>> index 41b5d59..57c8741 100644
->>>>> --- a/drivers/mfd/tps65217.c
->>>>> +++ b/drivers/mfd/tps65217.c
->>>>> @@ -38,6 +38,10 @@ static struct resource charger_resources[] = {
->>>>>  	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_USB, "USB"),
->>>>>  };
->>>>>
->>>>> +static struct resource pb_resources[] = {
->>>>> +	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_PB, "PB"),
->>>>> +};
->>>>> +
->>>>>  struct tps65217_irq {
->>>>>  	int mask;
->>>>>  	int interrupt;
->>>>> @@ -122,6 +126,12 @@ static struct mfd_cell tps65217s[] = {
->>>>>  		.resources = charger_resources,
->>>>>  		.of_compatible = "ti,tps65217-charger",
->>>>>  	},
->>>>> +	{
->>>>> +		.name = "tps65217-pwrbutton",
->>>>> +		.num_resources = ARRAY_SIZE(pb_resources),
->>>>> +		.resources = pb_resources,
->>>>> +		.of_compatible = "ti,tps65217-pwrbutton",
->>>>> +	},
->>>>>  };
->>>>>
->>>>>  static irqreturn_t tps65217_irq_thread(int irq, void *data)
->>>>>
->>>>
->>>
->>
->
+are available in the git repository at:
 
--- 
-Marcin Niestroj
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/ib-mfd-reg=
+ulator-rtc-v4.9
+
+for you to fetch changes up to ddc085d44dd001e65eecd0a8bf05064bff063668:
+
+  regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator (2016=
+-08-31 09:33:54 +0100)
+
+----------------------------------------------------------------
+Immutable branch between MFD, Regulator and RTC due for the v4.9 merge wind=
+ow.
+
+----------------------------------------------------------------
+Neil Armstrong (4):
+      mfd: pm8921: Add support for pm8018
+      rtc: rtc-pm8xxx: Add support for pm8018 rtc
+      mfd: qcom-rpm: Add support for pm8018 RPM Regulator
+      regulator: qcom_rpm-regulator: Add support for pm8018 rpm regulator
+
+ .../devicetree/bindings/mfd/qcom-pm8xxx.txt        |  1 +
+ Documentation/devicetree/bindings/mfd/qcom-rpm.txt | 15 +++++
+ drivers/mfd/pm8921-core.c                          |  1 +
+ drivers/mfd/qcom_rpm.c                             | 51 +++++++++++++++++
+ drivers/regulator/qcom_rpm-regulator.c             | 66 ++++++++++++++++++=
+++++
+ drivers/rtc/rtc-pm8xxx.c                           |  1 +
+ include/dt-bindings/mfd/qcom-rpm.h                 | 22 ++++++++
+ 7 files changed, 157 insertions(+)
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

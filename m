@@ -1,54 +1,33 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: Re: [PATCH] HID: usbkbd: return proper error code
-Date: Wed, 31 Aug 2016 23:08:28 +0530
-Message-ID: <57C71614.6050807@gmail.com>
-References: <1472660901-1912-1-git-send-email-sudipm.mukherjee@gmail.com> <CAOMZO5D7OW73GjqyAWD8Vap4cpY-VcvDwORJDqj8h3cq8Cg=rw@mail.gmail.com>
+From: qbsales@tencent.com
+Subject: pvhnnprtjz cosmecology.vous_conseille_cette_page_cosmecology.
+Date: Wed, 31 Aug 2016 22:48:11 +0200
+Message-ID: <d7e9c7ac752d51e44846d550c63d3f22@www.cosmecology.eu>
+Reply-To: qbsales@tencent.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:36692 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934811AbcHaRik (ORCPT
+Received: from host27mta.guinot.com ([178.33.71.27]:37725 "EHLO
+        host27mta.guinot.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753202AbcHaU27 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 31 Aug 2016 13:38:40 -0400
-In-Reply-To: <CAOMZO5D7OW73GjqyAWD8Vap4cpY-VcvDwORJDqj8h3cq8Cg=rw@mail.gmail.com>
+        Wed, 31 Aug 2016 16:28:59 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Wednesday 31 August 2016 10:03 PM, Fabio Estevam wrote:
-> On Wed, Aug 31, 2016 at 1:28 PM, Sudip Mukherjee
-> <sudipm.mukherjee@gmail.com> wrote:
->> Use proper error code instead of using -1 on failure to allocate
->> memory. We may use the error code later in the caller.
->>
->> Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
->> ---
->>   drivers/hid/usbhid/usbkbd.c | 10 +++++-----
->>   1 file changed, 5 insertions(+), 5 deletions(-)
->>
->> diff --git a/drivers/hid/usbhid/usbkbd.c b/drivers/hid/usbhid/usbkbd.c
->> index 9a332e6..ee53359 100644
->> --- a/drivers/hid/usbhid/usbkbd.c
->> +++ b/drivers/hid/usbhid/usbkbd.c
->> @@ -249,15 +249,15 @@ static void usb_kbd_close(struct input_dev *dev)
->>   static int usb_kbd_alloc_mem(struct usb_device *dev, struct usb_kbd *kbd)
->>   {
->>          if (!(kbd->irq = usb_alloc_urb(0, GFP_KERNEL)))
->> -               return -1;
->> +               return -ENOMEM;
->
-> While you are it, the code would look better like this:
->
-> kbd->irq = usb_alloc_urb(0, GFP_KERNEL)
-> if (!kbd->irq)
->      return -ENOMEM;
->
+Hello,
 
-Yes, it will. But that will become two changes in one patch. I will send 
-a series with this sent patch and another patch to reorder the assignment.
+pvhnnprtjz  would like to share this link.
 
-regards
-sudip
+十年磨一剑，倾力打造全球最大博彩公司，现加入澳门金沙集团即可获赠永久性高级VIP贵宾会员，红利多、次次送、天天返、无上限。
+【澳门金沙集团】天天返水1.2％，大额无忧：http://www.834516.com/?linux-input@vger.kernel.org
+澳门金沙集团自从创建以来全球享有盛名，是线上博彩最优质的平台！
+------------------------------------------
+                    不要拿小人的错误来惩罚自己，不要在这些微不足道的事情上折磨浪费自己的宝贵时间。
+
+Visit the url : [时间戳]
+
+Cordialement,
+The team Cosmecology.com.
+

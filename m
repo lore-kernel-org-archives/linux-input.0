@@ -1,48 +1,119 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Subject: Re: [PATCH] iio: fix pressure data output unit in
- hid-sensor-attributes
-Date: Tue, 30 Aug 2016 19:49:52 +0000
-Message-ID: <1472586592.5025.3.camel@intel.com>
-References: <1472467856-14526-1-git-send-email-hock.leong.kweh@intel.com>
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Subject: Re: [PATCH v4 4/5] mfd: tps65217: Add power button as subdevice
+Date: Wed, 31 Aug 2016 09:41:57 +0200
+Message-ID: <fe1fd5ea-5fce-61d0-d607-e4d527b51d4c@grinn-global.com>
+References: <20160620105056.25843-1-m.niestroj@grinn-global.com>
+ <20160620105056.25843-5-m.niestroj@grinn-global.com>
+ <c849849f-ba1d-3263-9941-b346ef9eef59@grinn-global.com>
+ <20160830090329.GD1661@dell>
+ <9fafa9b0-cc45-6fe9-ddb9-5c933064261c@grinn-global.com>
+ <20160830095034.GI1661@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:37710 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751372AbcH3Ttz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 30 Aug 2016 15:49:55 -0400
-In-Reply-To: <1472467856-14526-1-git-send-email-hock.leong.kweh@intel.com>
-Content-Language: en-US
-Content-ID: <18520B43B306E74ABE0EA48E64998F10@intel.com>
+Received: from smtp2.megiteam.pl ([213.189.52.193]:42936 "EHLO
+        smtp2.megiteam.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756123AbcHaHmJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 31 Aug 2016 03:42:09 -0400
+In-Reply-To: <20160830095034.GI1661@dell>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "jikos@kernel.org" <jikos@kernel.org>, "Kweh, Hock Leong" <hock.leong.kweh@intel.com>, "jic23@kernel.org" <jic23@kernel.org>
-Cc: "Lay, Kuan Loon" <kuan.loon.lay@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "lars@metafoo.de" <lars@metafoo.de>, "knaack.h@gmx.de" <knaack.h@gmx.de>, "Ong, Boon Leong" <boon.leong.ong@intel.com>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "pmeerw@pmeerw.net" <pmeerw@pmeerw.net>, "Ooi, Joyce" <joyce.ooi@intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Lim, Lee Booi" <lee.booi.lim@intel.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>
 
-T24gTW9uLCAyMDE2LTA4LTI5IGF0IDE4OjUwICswODAwLCBLd2VoLCBIb2NrIExlb25nIHdyb3Rl
-Og0KPiBGcm9tOiAiS3dlaCwgSG9jayBMZW9uZyIgPGhvY2subGVvbmcua3dlaEBpbnRlbC5jb20+
-DQo+IA0KPiBBY2NvcmRpbmcgdG8gSUlPIEFCSSBkZWZpbml0aW9uLCBJSU9fUFJFU1NVUkUgZGF0
-YSBvdXRwdXQgdW5pdCBpcw0KPiBraWxvcGFzY2FsOg0KPiBodHRwOi8vbHhyLmZyZWUtZWxlY3Ry
-b25zLmNvbS9zb3VyY2UvRG9jdW1lbnRhdGlvbi9BQkkvdGVzdGluZy9zeXNmcy0NCj4gYnVzLWlp
-bw0KPiANCj4gVGhpcyBwYXRjaCBmaXggb3V0cHV0IHVuaXQgb2YgSElEIHByZXNzdXJlIHNlbnNv
-ciBJSU8gZHJpdmVyIGZyb20NCj4gcGFzY2FsIHRvDQo+IGtpbG9wYXNjYWwgdG8gZm9sbG93IElJ
-TyBBQkkgZGVmaW5pdGlvbi4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEt3ZWgsIEhvY2sgTGVvbmcg
-PGhvY2subGVvbmcua3dlaEBpbnRlbC5jb20+DQpSZXZpZXdlZC1ieTogU3Jpbml2YXMgUGFuZHJ1
-dmFkYSA8c3Jpbml2YXMucGFuZHJ1dmFkYUBsaW51eC5pbnRlbC5jb20+DQoNCj4gLS0tDQo+IMKg
-Li4uL2lpby9jb21tb24vaGlkLXNlbnNvcnMvaGlkLXNlbnNvci1hdHRyaWJ1dGVzLmMgfMKgwqDC
-oMKgNCArKy0tDQo+IMKgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlv
-bnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lpby9jb21tb24vaGlkLXNlbnNvcnMv
-aGlkLXNlbnNvci1hdHRyaWJ1dGVzLmMNCj4gYi9kcml2ZXJzL2lpby9jb21tb24vaGlkLXNlbnNv
-cnMvaGlkLXNlbnNvci1hdHRyaWJ1dGVzLmMNCj4gaW5kZXggZTgxZjQzNC4uZGMzM2MxZCAxMDA2
-NDQNCj4gLS0tIGEvZHJpdmVycy9paW8vY29tbW9uL2hpZC1zZW5zb3JzL2hpZC1zZW5zb3ItYXR0
-cmlidXRlcy5jDQo+ICsrKyBiL2RyaXZlcnMvaWlvL2NvbW1vbi9oaWQtc2Vuc29ycy9oaWQtc2Vu
-c29yLWF0dHJpYnV0ZXMuYw0KPiBAQCAtNTYsOCArNTYsOCBAQCBzdGF0aWMgc3RydWN0IHsNCj4g
-wqAJe0hJRF9VU0FHRV9TRU5TT1JfQUxTLCAwLCAxLCAwfSwNCj4gwqAJe0hJRF9VU0FHRV9TRU5T
-T1JfQUxTLCBISURfVVNBR0VfU0VOU09SX1VOSVRTX0xVWCwgMSwgMH0sDQo+IMKgDQo+IC0Je0hJ
-RF9VU0FHRV9TRU5TT1JfUFJFU1NVUkUsIDAsIDEwMDAwMCwgMH0sDQo+IC0Je0hJRF9VU0FHRV9T
-RU5TT1JfUFJFU1NVUkUsIEhJRF9VU0FHRV9TRU5TT1JfVU5JVFNfUEFTQ0FMLA0KPiAxLCAwfSwN
-Cj4gKwl7SElEX1VTQUdFX1NFTlNPUl9QUkVTU1VSRSwgMCwgMTAwLCAwfSwNCj4gKwl7SElEX1VT
-QUdFX1NFTlNPUl9QUkVTU1VSRSwgSElEX1VTQUdFX1NFTlNPUl9VTklUU19QQVNDQUwsDQo+IDAs
-IDEwMDB9LA0KPiDCoH07DQo+IMKgDQo+IMKgc3RhdGljIGludCBwb3dfMTAodW5zaWduZWQgcG93
-ZXIp
+On 30.08.2016 11:50, Lee Jones wrote:
+> On Tue, 30 Aug 2016, Marcin Niestroj wrote:
+>
+>> On 30.08.2016 11:03, Lee Jones wrote:
+>>> On Mon, 29 Aug 2016, Marcin Niestroj wrote:
+>>>
+>>>> ping
+>>>
+>>> Don't do that!
+>>>
+>>> If you think the patch hasn't attracted attention in >2 weeks, then
+>>> it's probably slipped through the gaps and you need to send a
+>>> [RESEND].
+>>
+>> Clear.
+>>
+>>>
+>>> However ...
+>>>
+>>>> On 20.06.2016 12:50, Marcin Niestroj wrote:
+>>>>> Add tps65217 power buttor subdevice with assigned IRQ resources.
+>>>>>
+>>>>> Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+>>>>> Acked-by: Lee Jones <lee.jones@linaro.org>
+>>>
+>>> This patch has a maintainer Ack, so why are you pinging?
+>>
+>> Because I didn't see it applied anywhere and there were no new
+>> comments, so I thought it slipped somewhere.
+>>
+>> So my question is: what happens with the patch after maintainer Ack?
+>> Are we still waiting for some comments from the community? Do I still
+>> need to worry, that the patch might slipped? What is author's role now?
+>
+> Since you sent the patches as a set, it is assumed there are some
+> dependencies between them, or they are at least in some way related.
+> To that end, it is normal for Maintainers (especially for me as the
+> MFD Maintainer, since there often some complex ties into the leaf
+> driver's changes) to wait until *all* of the patches have either been
+> accepted or have acquired an Ack of their own to proceed.
+>
+> I believe we are still waiting on other patches to be reviewed, no?
+
+I've just noticed, that patch 5 was only partially Acked.
+
+I will send a RESEND. However patch 2 is already in mainline. Should I
+contain this patch or remove it from the patch set? Additionally
+patch 3 has been queued into power-supply's -next branch.
+
+>
+>>>>> ---
+>>>>> Depends on patch 1 in series
+>>>>>
+>>>>> Changes v1 -> v4: none
+>>>>>
+>>>>>  drivers/mfd/tps65217.c | 10 ++++++++++
+>>>>>  1 file changed, 10 insertions(+)
+>>>>>
+>>>>> diff --git a/drivers/mfd/tps65217.c b/drivers/mfd/tps65217.c
+>>>>> index 41b5d59..57c8741 100644
+>>>>> --- a/drivers/mfd/tps65217.c
+>>>>> +++ b/drivers/mfd/tps65217.c
+>>>>> @@ -38,6 +38,10 @@ static struct resource charger_resources[] = {
+>>>>>  	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_USB, "USB"),
+>>>>>  };
+>>>>>
+>>>>> +static struct resource pb_resources[] = {
+>>>>> +	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_PB, "PB"),
+>>>>> +};
+>>>>> +
+>>>>>  struct tps65217_irq {
+>>>>>  	int mask;
+>>>>>  	int interrupt;
+>>>>> @@ -122,6 +126,12 @@ static struct mfd_cell tps65217s[] = {
+>>>>>  		.resources = charger_resources,
+>>>>>  		.of_compatible = "ti,tps65217-charger",
+>>>>>  	},
+>>>>> +	{
+>>>>> +		.name = "tps65217-pwrbutton",
+>>>>> +		.num_resources = ARRAY_SIZE(pb_resources),
+>>>>> +		.resources = pb_resources,
+>>>>> +		.of_compatible = "ti,tps65217-pwrbutton",
+>>>>> +	},
+>>>>>  };
+>>>>>
+>>>>>  static irqreturn_t tps65217_irq_thread(int irq, void *data)
+>>>>>
+>>>>
+>>>
+>>
+>
+
+-- 
+Marcin Niestroj

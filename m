@@ -1,36 +1,50 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [RESEND PATCH v4 0/3] mfd: tps65217: Add power-button and IRQ
- support
-Date: Fri, 2 Sep 2016 08:30:32 -0700
-Message-ID: <20160902153032.lhkqvnomx5vineoc@atomide.com>
-References: <20160902103526.5050-1-m.niestroj@grinn-global.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160902103526.5050-1-m.niestroj@grinn-global.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Marcin Niestroj <m.niestroj@grinn-global.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>, Bin Liu <b-liu@ti.com>
+From: Vladimir Zapolskiy <vz@mleia.com>
+Subject: [PATCH] Input: gpio-keys-polled: don't use unit-address with button nodes
+Date: Fri,  2 Sep 2016 22:17:57 +0300
+Message-ID: <1472843877-6163-1-git-send-email-vz@mleia.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mleia.com ([178.79.152.223]:38445 "EHLO mail.mleia.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932187AbcIBTSC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 2 Sep 2016 15:18:02 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-* Marcin Niestroj <m.niestroj@grinn-global.com> [160902 03:36]:
-> Hi,
-> 
-> This is a resend of v4, rebased on v4.8-rc4, with dropped two patches:
->  * "power_supply: tps65217-charger: Fix NULL deref during property export"
->    (already in mainline)
->  * "power_supply: tps65217-charger: Add support for IRQs" (queued into
->    power-supply's -next branch)
-> 
-> The following patches add tps65217 power button support and make it usable
-> with am335x boards.
+The change corrects an example in device tree documentation section,
+because button/key device nodes don't contain reg property there is
+no need to declare unit-address, and address and size cell properties
+are also redundant.
 
-Cool this series should also allow using the USB cable detect
-interrupt on am335x for one of the USB ports. Will give it a try
-using the drivers/phy driver I have in works here for am335x
-USB PHY.
+At the moment a compilation of the hypothetical original example
+should produce W=1 level warnings, and it is better to stop spreading
+misusage of the polled gpio keys device tree binding through this
+example.
 
-Regards,
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+---
+ Documentation/devicetree/bindings/input/gpio-keys-polled.txt | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Tony
+diff --git a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
+index 95d0fb1..4d9a371 100644
+--- a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
++++ b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
+@@ -34,11 +34,10 @@ Example nodes:
+ 
+ 	gpio_keys_polled {
+ 			compatible = "gpio-keys-polled";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+ 			poll-interval = <100>;
+ 			autorepeat;
+-			button@21 {
++
++			button21 {
+ 				label = "GPIO Key UP";
+ 				linux,code = <103>;
+ 				gpios = <&gpio1 0 1>;
+-- 
+2.8.1
+

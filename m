@@ -1,48 +1,45 @@
 From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2] input: touchscreen: Add support for Elan eKTF2127
- touchscreen controller
-Date: Fri, 2 Sep 2016 09:09:35 -0500
-Message-ID: <20160902140935.GA19453@rob-hp-laptop>
-References: <20160828160005.20415-1-hdegoede@redhat.com>
+Subject: Re: [PATCH v2 1/2] input: touchscreen: silead_gsl1680: Document
+ firmware-name, fix implementation
+Date: Fri, 2 Sep 2016 09:39:48 -0500
+Message-ID: <20160902143948.GA6214@rob-hp-laptop>
+References: <20160829192937.32129-1-hdegoede@redhat.com>
+ <20160829192937.32129-2-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20160828160005.20415-1-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <20160829192937.32129-2-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Siebren Vroegindeweij <siebren.vroegindeweij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Michel Verlaan <michel.verl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Siebren Vroegindeweij <siebren.vroegindeweij-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Aug 28, 2016 at 06:00:05PM +0200, Hans de Goede wrote:
-> From: Siebren Vroegindeweij <siebren.vroegindeweij-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+On Mon, Aug 29, 2016 at 09:29:36PM +0200, Hans de Goede wrote:
+> The driver has supported touchscreen-fw-name to specify the firmware to
+> load since it has been merged, but this was omitted from the dt-binding
+> documentation.
 > 
-> This adds a driver for the Elan eKTF2127 touchscreen controller,
-> which speaks an i2c protocol which is distinctly different from
-> the already supported eKTH controllers.
+> During review of adding touchscreen-fw-name to the binding documentation
+> it was brought up that there is a standard property name called
+> "firmware-name" for this, which should be used.
 > 
-> Signed-off-by: Michel Verlaan <michel.verl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Signed-off-by: Siebren Vroegindeweij <siebren.vroegindeweij-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+> Since there are no users of touchscreen-fw-name yet, this commit
+> adds documentation of "firmware-name" to the dt-binding documentation
+> and switches the driver over to use this.
+> 
+> This commit also makes the driver add a "silead/" prefix to the
+> firmware name from dt before calling request_firmware. That the
+> firmware files are stored under /lib/firmware/silead under Linux
+> is an implementation detail and does not belong in devicetree.
+> 
 > Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 > ---
-> Changes in v2:
-> -Improve devicetree bindings document
-> -Use touchscreen_parse_properties and touchscreen_report_pos instead of DIY
-> -Remove a bunch of unused defines (copy and paste leftover from chipone driver)
-> -Some other minor cleanups and review comments addressed
-> -Add defines for some command / address hex-values
-> -Check packet header in interrupt handler
-> ---
->  .../bindings/input/touchscreen/ektf2127.txt        |  27 ++
+>  .../devicetree/bindings/input/touchscreen/silead_gsl1680.txt         | 1 +
+>  drivers/input/touchscreen/silead.c                                   | 5 +++--
+>  2 files changed, 4 insertions(+), 2 deletions(-)
 
 Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-
->  drivers/input/touchscreen/Kconfig                  |  12 +
->  drivers/input/touchscreen/Makefile                 |   1 +
->  drivers/input/touchscreen/ektf2127.c               | 333 +++++++++++++++++++++
->  4 files changed, 373 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ektf2127.txt
->  create mode 100644 drivers/input/touchscreen/ektf2127.c
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org

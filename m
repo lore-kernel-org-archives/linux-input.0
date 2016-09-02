@@ -1,57 +1,55 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: RFC: Backport HID-logitech to 3.10?
-Date: Fri, 2 Sep 2016 11:32:06 +0200
-Message-ID: <CAN+gG=FjjBFxNAKiXPu9xJQsZNOg1pOmo1_-MsvTQV4J11e6vw@mail.gmail.com>
-References: <8d56b91cd89e3da158940e53db67b993.squirrel@mungewell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8d56b91cd89e3da158940e53db67b993.squirrel@mungewell.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Subject: [RESEND PATCH v4 2/3] mfd: tps65217: Add power button as subdevice
+Date: Fri,  2 Sep 2016 12:35:25 +0200
+Message-ID: <20160902103526.5050-3-m.niestroj@grinn-global.com>
+References: <20160902103526.5050-1-m.niestroj@grinn-global.com>
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20160902103526.5050-1-m.niestroj@grinn-global.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>, Marcin Niestroj <m.niestroj@grinn-global.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Simon,
+Add tps65217 power buttor subdevice with assigned IRQ resources.
 
-On Thu, Sep 1, 2016 at 2:56 AM, Simon Wood <simon@mungewell.org> wrote:
-> Hi all,
-> I received a question regarding back-porting the support for the G29
-> racing wheel to 3.10 (Android in particular), and after some collaborative
-> work we determined that changes between 3.10 and 4.7 are actually pretty
-> minimal and self contained.
->
-> After copying the HEAD 'hid-lg.[ch]' and 'hid-lg4ff.[ch]' from 4.7, there
-> is a minimal patch (example attached) required to get the build working.
+Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+---
+Depends on patch 1 in series
 
-Don't you need hid-logitech-hidpp too?
+Changes v1 -> v4: none
 
->
->
-> My question to the list would be how this would/could be implemented, and
-> how the process works as 3.10 moves through the mainline patches to reach
-> current HEAD.
+ drivers/mfd/tps65217.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-Not sure I understand exactly what you want from us here.
+diff --git a/drivers/mfd/tps65217.c b/drivers/mfd/tps65217.c
+index 41b5d59..57c8741 100644
+--- a/drivers/mfd/tps65217.c
++++ b/drivers/mfd/tps65217.c
+@@ -38,6 +38,10 @@ static struct resource charger_resources[] = {
+ 	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_USB, "USB"),
+ };
+ 
++static struct resource pb_resources[] = {
++	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_PB, "PB"),
++};
++
+ struct tps65217_irq {
+ 	int mask;
+ 	int interrupt;
+@@ -122,6 +126,12 @@ static struct mfd_cell tps65217s[] = {
+ 		.resources = charger_resources,
+ 		.of_compatible = "ti,tps65217-charger",
+ 	},
++	{
++		.name = "tps65217-pwrbutton",
++		.num_resources = ARRAY_SIZE(pb_resources),
++		.resources = pb_resources,
++		.of_compatible = "ti,tps65217-pwrbutton",
++	},
+ };
+ 
+ static irqreturn_t tps65217_irq_thread(int irq, void *data)
+-- 
+2.9.3
 
-The stable rules are detailed in
-Documentation/stable_kernel_rules.txt. And unfortunately, I don't
-think adding these patches will be acceptable for upstream 3.10.
-The rule of thumb is that if a distribution wants to backport changes,
-they can have their own rules but the official stable tree is only for
-fixing issues, not adding new device support, unless it's *very* small
-("- New device IDs and quirks are also accepted.")
-
-So if you need to backport the changes to the 3.10 tree, see the rules
-of the distribution you are working on. Some prefer backporting full
-commits only (to keep closer to upstream), others will accept some #if
-LINUX_VERSION. In those case, I'd personally rather have a small
-header that makes the glue between old code and new one to keep the
-code closer to upstream.
-
-Cheers,
-Benjamin
-
->
-> Any hints that anyone has would be appreciated.
-> Simon.

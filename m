@@ -1,42 +1,57 @@
-From: Ville Ranki <ville.ranki@iki.fi>
-Subject: Re: [PATCH] Input: joydev - Recognize joysticks with Z axis as
- joysticks.
-Date: Fri, 2 Sep 2016 12:11:09 +0300
-Message-ID: <7266b6f9-3623-f08c-abce-62d0daa6e77d@iki.fi>
-References: <1472134610-6438-1-git-send-email-ville.ranki@iki.fi>
- <20160825164530.GD11206@dtor-ws>
- <e0aece92-b147-4c7d-90a9-c0243a224b01@iki.fi>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: RFC: Backport HID-logitech to 3.10?
+Date: Fri, 2 Sep 2016 11:32:06 +0200
+Message-ID: <CAN+gG=FjjBFxNAKiXPu9xJQsZNOg1pOmo1_-MsvTQV4J11e6vw@mail.gmail.com>
+References: <8d56b91cd89e3da158940e53db67b993.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.cs.tut.fi ([130.230.4.42]:62001 "HELO mail.cs.tut.fi"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-        id S1750873AbcIBJLQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 2 Sep 2016 05:11:16 -0400
-In-Reply-To: <e0aece92-b147-4c7d-90a9-c0243a224b01@iki.fi>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <8d56b91cd89e3da158940e53db67b993.squirrel@mungewell.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-On 08/25/2016 11:56 PM, Ville Ranki wrote:
-> On 08/25/2016 07:45 PM, Dmitry Torokhov wrote:
->>> This patch adds ABS_Z to the input_device_id list allowing 
->>> devices with ABS_Z axis to be detected correctly.
-> 
->> I am curious why you still use joydev and not switch your
->> client(s) to evdev? Or is it some legacy game?
-> 
-> Yes, this is about legacy games. For example X-Plane requires 
-> joystick node to be present.
+Hi Simon,
 
-Was this patch accepted or rejected? In distros event devices are
-not readable by non-root users by default while joystick devices are.
-These can be changed with udev rules, but IMO joystick detection
-should be fixed on kernel level.
+On Thu, Sep 1, 2016 at 2:56 AM, Simon Wood <simon@mungewell.org> wrote:
+> Hi all,
+> I received a question regarding back-porting the support for the G29
+> racing wheel to 3.10 (Android in particular), and after some collaborative
+> work we determined that changes between 3.10 and 4.7 are actually pretty
+> minimal and self contained.
+>
+> After copying the HEAD 'hid-lg.[ch]' and 'hid-lg4ff.[ch]' from 4.7, there
+> is a minimal patch (example attached) required to get the build working.
 
--- 
-Ville Ranki <ville.ranki@iki.fi>
-http://www.iki.fi/~cos
-PGP public key: http://www.iki.fi/~cos/vranki_pub.asc
+Don't you need hid-logitech-hidpp too?
+
+>
+>
+> My question to the list would be how this would/could be implemented, and
+> how the process works as 3.10 moves through the mainline patches to reach
+> current HEAD.
+
+Not sure I understand exactly what you want from us here.
+
+The stable rules are detailed in
+Documentation/stable_kernel_rules.txt. And unfortunately, I don't
+think adding these patches will be acceptable for upstream 3.10.
+The rule of thumb is that if a distribution wants to backport changes,
+they can have their own rules but the official stable tree is only for
+fixing issues, not adding new device support, unless it's *very* small
+("- New device IDs and quirks are also accepted.")
+
+So if you need to backport the changes to the 3.10 tree, see the rules
+of the distribution you are working on. Some prefer backporting full
+commits only (to keep closer to upstream), others will accept some #if
+LINUX_VERSION. In those case, I'd personally rather have a small
+header that makes the glue between old code and new one to keep the
+code closer to upstream.
+
+Cheers,
+Benjamin
+
+>
+> Any hints that anyone has would be appreciated.
+> Simon.

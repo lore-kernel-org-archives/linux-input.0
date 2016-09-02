@@ -1,44 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: wdt87xx_i2c - support new body WDT8752
-Date: Thu, 1 Sep 2016 23:40:25 -0700
-Message-ID: <CAKdAkRRH=2ifEs0O8WjNqYUKOcLS6Nigiw=vq2SAB-XKF_7v7g@mail.gmail.com>
-References: <1470219398-10892-1-git-send-email-hn.chen@weidahitech.com>
+From: Ville Ranki <ville.ranki@iki.fi>
+Subject: Re: [PATCH] Input: joydev - Recognize joysticks with Z axis as
+ joysticks.
+Date: Fri, 2 Sep 2016 12:11:09 +0300
+Message-ID: <7266b6f9-3623-f08c-abce-62d0daa6e77d@iki.fi>
+References: <1472134610-6438-1-git-send-email-ville.ranki@iki.fi>
+ <20160825164530.GD11206@dtor-ws>
+ <e0aece92-b147-4c7d-90a9-c0243a224b01@iki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f181.google.com ([209.85.217.181]:34663 "EHLO
-        mail-ua0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751166AbcIBGk1 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Sep 2016 02:40:27 -0400
-In-Reply-To: <1470219398-10892-1-git-send-email-hn.chen@weidahitech.com>
+Received: from mail.cs.tut.fi ([130.230.4.42]:62001 "HELO mail.cs.tut.fi"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+        id S1750873AbcIBJLQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 2 Sep 2016 05:11:16 -0400
+In-Reply-To: <e0aece92-b147-4c7d-90a9-c0243a224b01@iki.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: HungNien Chen <hn.chen@weidahitech.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi HN,
+On 08/25/2016 11:56 PM, Ville Ranki wrote:
+> On 08/25/2016 07:45 PM, Dmitry Torokhov wrote:
+>>> This patch adds ABS_Z to the input_device_id list allowing 
+>>> devices with ABS_Z axis to be detected correctly.
+> 
+>> I am curious why you still use joydev and not switch your
+>> client(s) to evdev? Or is it some legacy game?
+> 
+> Yes, this is about legacy games. For example X-Plane requires 
+> joystick node to be present.
 
-On Wed, Aug 3, 2016 at 3:16 AM, HungNien Chen <hn.chen@weidahitech.com> wrote:
->
-> Considering to be compatible with i2c-hid, WDT8752 has the same way in
-> enumerating device.
-
-If it is a HID device then I think you should write a HID driver for
-it (unless existing driver, such as hid-multitouch can already handle
-it, possibly with some changes). I'm addng Benjamin to he can comment
-as well.
-
-> And also modify the part of FW update to be more
-> efficiency. The main modification is that reducing the amount of data
-> transmitted and using polling for time comsuming operation.
->
-> Flash erase will wait 50ms for the operation complete in last driver.
-> Extend it to 200ms since the spec says the typical is 30ms but the max
-> is 200ms.
-
-This should be split into a separate patch please.
-
-Thanks.
+Was this patch accepted or rejected? In distros event devices are
+not readable by non-root users by default while joystick devices are.
+These can be changed with udev rules, but IMO joystick detection
+should be fixed on kernel level.
 
 -- 
-Dmitry
+Ville Ranki <ville.ranki@iki.fi>
+http://www.iki.fi/~cos
+PGP public key: http://www.iki.fi/~cos/vranki_pub.asc

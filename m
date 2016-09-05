@@ -1,63 +1,66 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Input: wdt87xx_i2c - support new body WDT8752
-Date: Mon, 5 Sep 2016 15:55:45 +0200
-Message-ID: <20160905135545.GL21864@mail.corp.redhat.com>
-References: <1470219398-10892-1-git-send-email-hn.chen@weidahitech.com>
- <CAKdAkRRH=2ifEs0O8WjNqYUKOcLS6Nigiw=vq2SAB-XKF_7v7g@mail.gmail.com>
- <22498D53301C4D4A8FFA8F02C7C3C7C06DDD7D42@mail02.WHT.local>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: wdt87xx_i2c - fix the flash erase issue
+Date: Mon, 5 Sep 2016 10:28:04 -0700
+Message-ID: <20160905172804.GA12404@dtor-ws>
+References: <1473066136-2781-1-git-send-email-hn.chen@weidahitech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42344 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933148AbcIENzu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 5 Sep 2016 09:55:50 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <22498D53301C4D4A8FFA8F02C7C3C7C06DDD7D42@mail02.WHT.local>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1473066136-2781-1-git-send-email-hn.chen@weidahitech.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: hn.chen@weidahitech.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hn Chen <hn.chen@weidahitech.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
-Hi HN,
-
-On Sep 05 2016 or thereabouts, Hn Chen wrote:
-> Hi Dmitry,
+On Mon, Sep 05, 2016 at 05:02:16PM +0800, hn.chen@weidahitech.com wrote:
+> From: HungNien Chen <hn.chen@weidahitech.com>
 > 
-> >> Considering to be compatible with i2c-hid, WDT8752 has the same way in 
-> >> enumerating device.
-> >If it is a HID device then I think you should write a HID driver for it (unless existing driver, such as hid-multitouch can already handle it, possibly >with some changes). I'm addng Benjamin to he can comment as well.
-> The device can be handled by i2c-hid driver (HID over I2C) already but this proprietary driver still is a must-have for more features.
-
-Then what are those must-have features? From what I can read, only the
-reflashing firmware is part of it. Unless there is something else, I
-really don't understand why you can't have a hid-weidatech driver that
-could handle the specific bits while leaving the rest to i2c-hid.
-
-Also, I am not sure if your driver doesn't interfere with i2c-hid as you
-are claiming the device through the ACPI ID "WDHT0001" but there should
-be some PNP IDs "PNP0C50" if it were declared as i2c-hid. If both are
-set, then the fact your driver is picked up seems to be pure luck: there
-will be a race between the probe of your driver and i2c-hid, which is
-not something you want.
-
-If there are some issues with i2c-hid, I'd like also to know them
-because if we fix them for you there  is a high chance other vendors
-will benefit from those fixes too.
-
-Cheers,
-Benjamin
-
+> Flash erase wait 50ms for the operation completed in last driver.
+> It will take risk since the spec says the typical is 30ms but the max is
+> 200ms. Replace the value with 200ms for safty.
 > 
-> >> And also modify the part of FW update to be more efficiency. The main 
-> >> modification is that reducing the amount of data transmitted and using 
-> >> polling for time comsuming operation.
-> >>
-> >> Flash erase will wait 50ms for the operation complete in last driver.
-> >> Extend it to 200ms since the spec says the typical is 30ms but the max 
-> >> is 200ms.
-> >This should be split into a separate patch please.
-> Ok, I will resubmit the part of possible-issue fixing and then the driver patch for supporting WDT8752 again.
-> Please ignore this submission.
+> Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
+
+Applied, thank you.
+
+> ---
+>  drivers/input/touchscreen/wdt87xx_i2c.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 > 
-> Hn.chen
+> diff --git a/drivers/input/touchscreen/wdt87xx_i2c.c b/drivers/input/touchscreen/wdt87xx_i2c.c
+> index 73861ad..2519617 100644
+> --- a/drivers/input/touchscreen/wdt87xx_i2c.c
+> +++ b/drivers/input/touchscreen/wdt87xx_i2c.c
+> @@ -23,7 +23,7 @@
+>  #include <asm/unaligned.h>
+>  
+>  #define WDT87XX_NAME		"wdt87xx_i2c"
+> -#define WDT87XX_DRV_VER		"0.9.7"
+> +#define WDT87XX_DRV_VER		"0.9.8"
+>  #define WDT87XX_FW_NAME		"wdt87xx_fw.bin"
+>  #define WDT87XX_CFG_NAME	"wdt87xx_cfg.bin"
+>  
+> @@ -157,6 +157,7 @@
+>  /* Controller requires minimum 300us between commands */
+>  #define WDT_COMMAND_DELAY_MS		2
+>  #define WDT_FLASH_WRITE_DELAY_MS	4
+> +#define	WDT_FLASH_ERASE_DELAY_MS	200
+>  #define WDT_FW_RESET_TIME		2500
+>  
+>  struct wdt87xx_sys_param {
+> @@ -726,7 +727,7 @@ static int wdt87xx_write_firmware(struct i2c_client *client, const void *chunk)
+>  				break;
+>  			}
+>  
+> -			msleep(50);
+> +			msleep(WDT_FLASH_ERASE_DELAY_MS);
+>  
+>  			error = wdt87xx_write_data(client, data, start_addr,
+>  						   page_size);
+> -- 
+> 1.9.1
+> 
+
+-- 
+Dmitry

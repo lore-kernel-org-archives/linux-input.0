@@ -1,66 +1,39 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: wdt87xx_i2c - fix the flash erase issue
-Date: Mon, 5 Sep 2016 10:28:04 -0700
-Message-ID: <20160905172804.GA12404@dtor-ws>
-References: <1473066136-2781-1-git-send-email-hn.chen@weidahitech.com>
+Subject: Re: [PATCH] Input: focaltech - mark focaltech_set_resolution() static
+Date: Mon, 5 Sep 2016 10:33:46 -0700
+Message-ID: <20160905173346.GB12404@dtor-ws>
+References: <1472632661-32159-1-git-send-email-baoyou.xie@linaro.org>
+ <5089277.G6NWohFGP5@wuerfel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f67.google.com ([209.85.220.67]:33160 "EHLO
+        mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935612AbcIERdu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Sep 2016 13:33:50 -0400
 Content-Disposition: inline
-In-Reply-To: <1473066136-2781-1-git-send-email-hn.chen@weidahitech.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: hn.chen@weidahitech.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <5089277.G6NWohFGP5@wuerfel>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Baoyou Xie <baoyou.xie@linaro.org>, pali.rohar@gmail.com, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, xie.baoyou@zte.com.cn
 
-On Mon, Sep 05, 2016 at 05:02:16PM +0800, hn.chen@weidahitech.com wrote:
-> From: HungNien Chen <hn.chen@weidahitech.com>
+On Wed, Aug 31, 2016 at 11:58:50AM +0200, Arnd Bergmann wrote:
+> On Wednesday, August 31, 2016 4:37:41 PM CEST Baoyou Xie wrote:
+> > We get 1 warning when building kernel with W=1:
+> > drivers/input/mouse/focaltech.c:393:6: warning: no previous prototype for 'focaltech_set_resolution' [-Wmissing-prototypes]
+> > 
+> > In fact, this function is only used in the file in which it is
+> > declared and don't need a declaration, but can be made static.
+> > So this patch marks it 'static'.
+> > 
+> > Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
+> > 
 > 
-> Flash erase wait 50ms for the operation completed in last driver.
-> It will take risk since the spec says the typical is 30ms but the max is
-> 200ms. Replace the value with 200ms for safty.
-> 
-> Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
 
 Applied, thank you.
 
-> ---
->  drivers/input/touchscreen/wdt87xx_i2c.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/wdt87xx_i2c.c b/drivers/input/touchscreen/wdt87xx_i2c.c
-> index 73861ad..2519617 100644
-> --- a/drivers/input/touchscreen/wdt87xx_i2c.c
-> +++ b/drivers/input/touchscreen/wdt87xx_i2c.c
-> @@ -23,7 +23,7 @@
->  #include <asm/unaligned.h>
->  
->  #define WDT87XX_NAME		"wdt87xx_i2c"
-> -#define WDT87XX_DRV_VER		"0.9.7"
-> +#define WDT87XX_DRV_VER		"0.9.8"
->  #define WDT87XX_FW_NAME		"wdt87xx_fw.bin"
->  #define WDT87XX_CFG_NAME	"wdt87xx_cfg.bin"
->  
-> @@ -157,6 +157,7 @@
->  /* Controller requires minimum 300us between commands */
->  #define WDT_COMMAND_DELAY_MS		2
->  #define WDT_FLASH_WRITE_DELAY_MS	4
-> +#define	WDT_FLASH_ERASE_DELAY_MS	200
->  #define WDT_FW_RESET_TIME		2500
->  
->  struct wdt87xx_sys_param {
-> @@ -726,7 +727,7 @@ static int wdt87xx_write_firmware(struct i2c_client *client, const void *chunk)
->  				break;
->  			}
->  
-> -			msleep(50);
-> +			msleep(WDT_FLASH_ERASE_DELAY_MS);
->  
->  			error = wdt87xx_write_data(client, data, start_addr,
->  						   page_size);
-> -- 
-> 1.9.1
-> 
 
 -- 
 Dmitry

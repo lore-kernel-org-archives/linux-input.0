@@ -1,39 +1,80 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: focaltech - mark focaltech_set_resolution() static
-Date: Mon, 5 Sep 2016 10:33:46 -0700
-Message-ID: <20160905173346.GB12404@dtor-ws>
-References: <1472632661-32159-1-git-send-email-baoyou.xie@linaro.org>
- <5089277.G6NWohFGP5@wuerfel>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] Input: update documentation for EVIOCGMASK/EVIOCSMASK
+Date: Tue, 6 Sep 2016 08:14:57 +1000
+Message-ID: <20160905221457.GA23405@jelly.local>
+References: <20160421031826.GA6719@jelly.local>
+ <CANq1E4RD2PF9amHO1q=yXMeqdbcsfpDyMXU9i3jCs5eubhfdGg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f67.google.com ([209.85.220.67]:33160 "EHLO
-        mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935612AbcIERdu (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Sep 2016 13:33:50 -0400
+Received: from leo.clearchain.com ([199.73.29.74]:15150 "EHLO
+        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755239AbcIEWVu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Sep 2016 18:21:50 -0400
 Content-Disposition: inline
-In-Reply-To: <5089277.G6NWohFGP5@wuerfel>
+In-Reply-To: <CANq1E4RD2PF9amHO1q=yXMeqdbcsfpDyMXU9i3jCs5eubhfdGg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Baoyou Xie <baoyou.xie@linaro.org>, pali.rohar@gmail.com, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, xie.baoyou@zte.com.cn
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Wed, Aug 31, 2016 at 11:58:50AM +0200, Arnd Bergmann wrote:
-> On Wednesday, August 31, 2016 4:37:41 PM CEST Baoyou Xie wrote:
-> > We get 1 warning when building kernel with W=1:
-> > drivers/input/mouse/focaltech.c:393:6: warning: no previous prototype for 'focaltech_set_resolution' [-Wmissing-prototypes]
-> > 
-> > In fact, this function is only used in the file in which it is
-> > declared and don't need a declaration, but can be made static.
-> > So this patch marks it 'static'.
-> > 
-> > Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
-> > 
+On Thu, Apr 21, 2016 at 10:09:11AM +0200, David Herrmann wrote:
+> Hi
 > 
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
+> On Thu, Apr 21, 2016 at 5:18 AM, Peter Hutterer
+> <peter.hutterer@who-t.net> wrote:
+> > The current implementation does not match the most intuitive reading of the
+> > documentation. The documentation suggests that anything after FOO_CNT would
+> > be reset to zeroes. The implementation however works on long boundaries
+> > instead.
+> >
+> > For example, a client requesting the EV_REL mask will see the first 64 bits
+> > set to one in the default mask, everything else is zero. Setting a mask will
+> > apply the mask for the first 64 bits, the others are cleared.
+> >
+> > There are few use-cases where this actually matters to a client - if a
+> > device doesn't have the event code anyway the mask doesn't matter. So change
+> > two absolute statements to a "may" to indicate that bits may or may not be
+> > set.
+> >
+> > Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+> > ---
+> >  include/uapi/linux/input.h | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 
-Applied, thank you.
+I just found this one on one of my branches. Dmitry, want to merge this one?
 
+Cheers,
+   Peter
 
--- 
-Dmitry
+> 
+> Thanks!
+> David
+> 
+> > diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> > index 0111384..6069524 100644
+> > --- a/include/uapi/linux/input.h
+> > +++ b/include/uapi/linux/input.h
+> > @@ -181,7 +181,7 @@ struct input_mask {
+> >   * The default event mask for a client has all bits set, i.e. all events
+> >   * are forwarded to the client. If the kernel is queried for an unknown
+> >   * event type or if the receive buffer is larger than the number of
+> > - * event codes known to the kernel, the kernel returns all zeroes for those
+> > + * event codes known to the kernel, the kernel may return zeroes for those
+> >   * codes.
+> >   *
+> >   * At maximum, codes_size bytes are copied.
+> > @@ -204,7 +204,7 @@ struct input_mask {
+> >   * is unknown to the kernel, or if the number of event codes specified in
+> >   * the mask is bigger than what is known to the kernel, the ioctl is still
+> >   * accepted and applied. However, any unknown codes are left untouched and
+> > - * stay cleared. That means, the kernel always filters unknown codes
+> > + * may be cleared. That means, the kernel always filters unknown codes
+> >   * regardless of what the client requests.  If the new mask doesn't cover
+> >   * all known event-codes, all remaining codes are automatically cleared and
+> >   * thus filtered.
+> > --
+> > 2.7.3
+> >

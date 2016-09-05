@@ -1,49 +1,63 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: PROBLEM: i2c_hid: probe of i2c-ELAN0732:00 failed with error -61
-Date: Mon, 5 Sep 2016 12:19:05 +0200
-Message-ID: <CAN+gG=EiFgVKdwc0J-UBDtAg2SkGqJQB9--CL7BL8ZDn7dXD7g@mail.gmail.com>
-References: <CABgo8p4OPGzbezWde_s2p467YGtFSemFqxfUY9J6B-3GH4+1iQ@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] Input: wdt87xx_i2c - support new body WDT8752
+Date: Mon, 5 Sep 2016 15:55:45 +0200
+Message-ID: <20160905135545.GL21864@mail.corp.redhat.com>
+References: <1470219398-10892-1-git-send-email-hn.chen@weidahitech.com>
+ <CAKdAkRRH=2ifEs0O8WjNqYUKOcLS6Nigiw=vq2SAB-XKF_7v7g@mail.gmail.com>
+ <22498D53301C4D4A8FFA8F02C7C3C7C06DDD7D42@mail02.WHT.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f182.google.com ([209.85.217.182]:34266 "EHLO
-        mail-ua0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932277AbcIEKTH (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Sep 2016 06:19:07 -0400
-Received: by mail-ua0-f182.google.com with SMTP id u68so3435795uau.1
-        for <linux-input@vger.kernel.org>; Mon, 05 Sep 2016 03:19:07 -0700 (PDT)
-In-Reply-To: <CABgo8p4OPGzbezWde_s2p467YGtFSemFqxfUY9J6B-3GH4+1iQ@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:42344 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933148AbcIENzu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 5 Sep 2016 09:55:50 -0400
+Content-Disposition: inline
+In-Reply-To: <22498D53301C4D4A8FFA8F02C7C3C7C06DDD7D42@mail02.WHT.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Colin Johnstone <johnstone.colin@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: Hn Chen <hn.chen@weidahitech.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
-Hi Colin,
+Hi HN,
 
-On Sat, Sep 3, 2016 at 8:33 PM, Colin Johnstone
-<johnstone.colin@gmail.com> wrote:
-> [1.] One line summary of the problem: Touchscreen does not work, dmesg
-> shows errors "i2c_hid i2c-ELAN0732:00: failed to reset device",
-> "i2c_hid i2c-ELAN0732:00: can't add hid device: -61", and "i2c_hid:
-> probe of i2c-ELAN0732:00 failed with error -61" occur during boot.
+On Sep 05 2016 or thereabouts, Hn Chen wrote:
+> Hi Dmitry,
+> 
+> >> Considering to be compatible with i2c-hid, WDT8752 has the same way in 
+> >> enumerating device.
+> >If it is a HID device then I think you should write a HID driver for it (unless existing driver, such as hid-multitouch can already handle it, possibly >with some changes). I'm addng Benjamin to he can comment as well.
+> The device can be handled by i2c-hid driver (HID over I2C) already but this proprietary driver still is a must-have for more features.
 
--61 is -ENODATA, which is raised when we timed-out when waiting for
-the interrupt line.
+Then what are those must-have features? From what I can read, only the
+reflashing firmware is part of it. Unless there is something else, I
+really don't understand why you can't have a hid-weidatech driver that
+could handle the specific bits while leaving the rest to i2c-hid.
 
-To confirm this, please provide a dmesg from the boot with
-i2c_hid.debug=1 appended to the kernel command line.
+Also, I am not sure if your driver doesn't interfere with i2c-hid as you
+are claiming the device through the ACPI ID "WDHT0001" but there should
+be some PNP IDs "PNP0C50" if it were declared as i2c-hid. If both are
+set, then the fact your driver is picked up seems to be pure luck: there
+will be a race between the probe of your driver and i2c-hid, which is
+not something you want.
 
->
-> [2.] Full description of the problem/report: This is on an HP Eny x360
-> M6-AR004DX laptop with 7th-generation AMD FX CPU. The touchscreen is
-> not recognized at all; it appears the screen is using GPIO interrupts
-> as I have to build with AMD GPIO support to receive these errors,
-> otherwise I see a "failed to get GPIO interrupt" error.
->
-
-So this is more likely either a failure of us retrieving the GPIO, or
-a misconfiguration of those. I'd be interested if you could share the
-output of acpidump (as root) as well.
+If there are some issues with i2c-hid, I'd like also to know them
+because if we fix them for you there  is a high chance other vendors
+will benefit from those fixes too.
 
 Cheers,
 Benjamin
+
+> 
+> >> And also modify the part of FW update to be more efficiency. The main 
+> >> modification is that reducing the amount of data transmitted and using 
+> >> polling for time comsuming operation.
+> >>
+> >> Flash erase will wait 50ms for the operation complete in last driver.
+> >> Extend it to 200ms since the spec says the typical is 30ms but the max 
+> >> is 200ms.
+> >This should be split into a separate patch please.
+> Ok, I will resubmit the part of possible-issue fixing and then the driver patch for supporting WDT8752 again.
+> Please ignore this submission.
+> 
+> Hn.chen

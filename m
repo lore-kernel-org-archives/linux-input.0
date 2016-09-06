@@ -1,51 +1,72 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v2] Support for Alps SS5 touchpad
-Date: Tue, 6 Sep 2016 10:57:58 +0200
-Message-ID: <201609061057.58850@pali>
-References: <1464436862-2649-1-git-send-email-ben@smart-cactus.org> <20160905085955.GG23594@pali> <871t0xd7e6.fsf@smart-cactus.org>
+From: Hn Chen <hn.chen@weidahitech.com>
+Subject: RE: [PATCH] Input: wdt87xx_i2c - support new body WDT8752
+Date: Tue, 6 Sep 2016 11:47:39 +0000
+Message-ID: <22498D53301C4D4A8FFA8F02C7C3C7C06DDD7F58@mail02.WHT.local>
+References: <1470219398-10892-1-git-send-email-hn.chen@weidahitech.com>
+ <CAKdAkRRH=2ifEs0O8WjNqYUKOcLS6Nigiw=vq2SAB-XKF_7v7g@mail.gmail.com>
+ <22498D53301C4D4A8FFA8F02C7C3C7C06DDD7D42@mail02.WHT.local>
+ <20160905135545.GL21864@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart13521990.I24ddNicL7";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:35121 "EHLO
-        mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933514AbcIFI6C (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Sep 2016 04:58:02 -0400
-Received: by mail-wm0-f47.google.com with SMTP id i204so22596876wma.0
-        for <linux-input@vger.kernel.org>; Tue, 06 Sep 2016 01:58:01 -0700 (PDT)
-In-Reply-To: <871t0xd7e6.fsf@smart-cactus.org>
+Received: from ml01.weidahitech.com ([61.222.87.235]:2179 "EHLO
+        ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754872AbcIFLsQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Sep 2016 07:48:16 -0400
+In-Reply-To: <20160905135545.GL21864@mail.corp.redhat.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Gamari <ben@smart-cactus.org>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
---nextPart13521990.I24ddNicL7
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Tuesday 06 September 2016 05:38:57 Ben Gamari wrote:
-> v3 is still waiting for review [1].
-
-Hi, please resend and CC me.
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart13521990.I24ddNicL7
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlfOhRYACgkQi/DJPQPkQ1IpqgCgqJSM3/fOZd4b0XOlmSuVDcsh
-QY4Amwf8w6JPs2/vgR6YtuBr92Z96xCb
-=sdyW
------END PGP SIGNATURE-----
-
---nextPart13521990.I24ddNicL7--
+SGkgQmVuamFtaW4sDQoNClNvcnJ5IGZvciBteSBwb29yIEVuZ2xpc2ggYW5kIGxlYWRpbmcgeW91
+IG1pc3VuZGVyc3RhbmRpbmcuDQoNClRoZSBGVyBvZiBXRFQ4NzUyIGNhbiBzdXBwb3J0IEhJREky
+QyBmb3IgV2luZG93cyBwcm9kdWN0cy4gQW5kIHRoZW4gd2UgZGV2ZWxvcCB0aGlzIGRyaXZlci4N
+ClNvIHdlICJib3Jyb3dlZCIgc29tZXRoaW5nIGZyb20gSElESTJDLg0KV2hhdCBJIHRyeSB0byBt
+ZW50aW9uIGhlcmUgaXMgdGhhdCB0aGlzIGRyaXZlciB1dGlsaXplIGEgcGFydCBvZiBleGlzdGVk
+IHByb3RvY29sIGZyb20gSElESTJDLg0KV2UgdGhvdWdodCB0aGF0IHRoZSBzaXplIG9mIEZXIGNh
+biBiZSBzaHJ1bmsgaW4gdGhhdCB3YXkuDQoNClNvLCBiYXNpY2FsbHksIHRoaXMgaXMgc3RpbGwg
+YSBsaW51eCBpMmMgZHJpdmVyIHdpdGggc29tZSBwcm90b2NvbHMgc2ltaWxhciB0byBISURJMkMu
+DQoNCkJSLA0KSG4uY2hlbg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogQmVu
+amFtaW4gVGlzc29pcmVzIFttYWlsdG86YmVuamFtaW4udGlzc29pcmVzQHJlZGhhdC5jb21dIA0K
+U2VudDogTW9uZGF5LCBTZXB0ZW1iZXIgMDUsIDIwMTYgOTo1NiBQTQ0KVG86IEhuIENoZW4NCkNj
+OiBEbWl0cnkgVG9yb2tob3Y7IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgbGttbA0KU3Vi
+amVjdDogUmU6IFtQQVRDSF0gSW5wdXQ6IHdkdDg3eHhfaTJjIC0gc3VwcG9ydCBuZXcgYm9keSBX
+RFQ4NzUyDQoNCkhpIEhOLA0KDQpPbiBTZXAgMDUgMjAxNiBvciB0aGVyZWFib3V0cywgSG4gQ2hl
+biB3cm90ZToNCj4gSGkgRG1pdHJ5LA0KPiANCj4gPj4gQ29uc2lkZXJpbmcgdG8gYmUgY29tcGF0
+aWJsZSB3aXRoIGkyYy1oaWQsIFdEVDg3NTIgaGFzIHRoZSBzYW1lIHdheSANCj4gPj4gaW4gZW51
+bWVyYXRpbmcgZGV2aWNlLg0KPiA+SWYgaXQgaXMgYSBISUQgZGV2aWNlIHRoZW4gSSB0aGluayB5
+b3Ugc2hvdWxkIHdyaXRlIGEgSElEIGRyaXZlciBmb3IgaXQgKHVubGVzcyBleGlzdGluZyBkcml2
+ZXIsIHN1Y2ggYXMgaGlkLW11bHRpdG91Y2ggY2FuIGFscmVhZHkgaGFuZGxlIGl0LCBwb3NzaWJs
+eSA+d2l0aCBzb21lIGNoYW5nZXMpLiBJJ20gYWRkbmcgQmVuamFtaW4gdG8gaGUgY2FuIGNvbW1l
+bnQgYXMgd2VsbC4NCj4gVGhlIGRldmljZSBjYW4gYmUgaGFuZGxlZCBieSBpMmMtaGlkIGRyaXZl
+ciAoSElEIG92ZXIgSTJDKSBhbHJlYWR5IGJ1dCB0aGlzIHByb3ByaWV0YXJ5IGRyaXZlciBzdGls
+bCBpcyBhIG11c3QtaGF2ZSBmb3IgbW9yZSBmZWF0dXJlcy4NCg0KVGhlbiB3aGF0IGFyZSB0aG9z
+ZSBtdXN0LWhhdmUgZmVhdHVyZXM/IEZyb20gd2hhdCBJIGNhbiByZWFkLCBvbmx5IHRoZSByZWZs
+YXNoaW5nIGZpcm13YXJlIGlzIHBhcnQgb2YgaXQuIFVubGVzcyB0aGVyZSBpcyBzb21ldGhpbmcg
+ZWxzZSwgSSByZWFsbHkgZG9uJ3QgdW5kZXJzdGFuZCB3aHkgeW91IGNhbid0IGhhdmUgYSBoaWQt
+d2VpZGF0ZWNoIGRyaXZlciB0aGF0IGNvdWxkIGhhbmRsZSB0aGUgc3BlY2lmaWMgYml0cyB3aGls
+ZSBsZWF2aW5nIHRoZSByZXN0IHRvIGkyYy1oaWQuDQoNCkFsc28sIEkgYW0gbm90IHN1cmUgaWYg
+eW91ciBkcml2ZXIgZG9lc24ndCBpbnRlcmZlcmUgd2l0aCBpMmMtaGlkIGFzIHlvdSBhcmUgY2xh
+aW1pbmcgdGhlIGRldmljZSB0aHJvdWdoIHRoZSBBQ1BJIElEICJXREhUMDAwMSIgYnV0IHRoZXJl
+IHNob3VsZCBiZSBzb21lIFBOUCBJRHMgIlBOUDBDNTAiIGlmIGl0IHdlcmUgZGVjbGFyZWQgYXMg
+aTJjLWhpZC4gSWYgYm90aCBhcmUgc2V0LCB0aGVuIHRoZSBmYWN0IHlvdXIgZHJpdmVyIGlzIHBp
+Y2tlZCB1cCBzZWVtcyB0byBiZSBwdXJlIGx1Y2s6IHRoZXJlIHdpbGwgYmUgYSByYWNlIGJldHdl
+ZW4gdGhlIHByb2JlIG9mIHlvdXIgZHJpdmVyIGFuZCBpMmMtaGlkLCB3aGljaCBpcyBub3Qgc29t
+ZXRoaW5nIHlvdSB3YW50Lg0KDQpJZiB0aGVyZSBhcmUgc29tZSBpc3N1ZXMgd2l0aCBpMmMtaGlk
+LCBJJ2QgbGlrZSBhbHNvIHRvIGtub3cgdGhlbSBiZWNhdXNlIGlmIHdlIGZpeCB0aGVtIGZvciB5
+b3UgdGhlcmUgIGlzIGEgaGlnaCBjaGFuY2Ugb3RoZXIgdmVuZG9ycyB3aWxsIGJlbmVmaXQgZnJv
+bSB0aG9zZSBmaXhlcyB0b28uDQoNCkNoZWVycywNCkJlbmphbWluDQoNCj4gDQo+ID4+IEFuZCBh
+bHNvIG1vZGlmeSB0aGUgcGFydCBvZiBGVyB1cGRhdGUgdG8gYmUgbW9yZSBlZmZpY2llbmN5LiBU
+aGUgDQo+ID4+IG1haW4gbW9kaWZpY2F0aW9uIGlzIHRoYXQgcmVkdWNpbmcgdGhlIGFtb3VudCBv
+ZiBkYXRhIHRyYW5zbWl0dGVkIA0KPiA+PiBhbmQgdXNpbmcgcG9sbGluZyBmb3IgdGltZSBjb21z
+dW1pbmcgb3BlcmF0aW9uLg0KPiA+Pg0KPiA+PiBGbGFzaCBlcmFzZSB3aWxsIHdhaXQgNTBtcyBm
+b3IgdGhlIG9wZXJhdGlvbiBjb21wbGV0ZSBpbiBsYXN0IGRyaXZlci4NCj4gPj4gRXh0ZW5kIGl0
+IHRvIDIwMG1zIHNpbmNlIHRoZSBzcGVjIHNheXMgdGhlIHR5cGljYWwgaXMgMzBtcyBidXQgdGhl
+IA0KPiA+PiBtYXggaXMgMjAwbXMuDQo+ID5UaGlzIHNob3VsZCBiZSBzcGxpdCBpbnRvIGEgc2Vw
+YXJhdGUgcGF0Y2ggcGxlYXNlLg0KPiBPaywgSSB3aWxsIHJlc3VibWl0IHRoZSBwYXJ0IG9mIHBv
+c3NpYmxlLWlzc3VlIGZpeGluZyBhbmQgdGhlbiB0aGUgZHJpdmVyIHBhdGNoIGZvciBzdXBwb3J0
+aW5nIFdEVDg3NTIgYWdhaW4uDQo+IFBsZWFzZSBpZ25vcmUgdGhpcyBzdWJtaXNzaW9uLg0KPiAN
+Cj4gSG4uY2hlbg0K

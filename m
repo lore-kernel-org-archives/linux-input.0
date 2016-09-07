@@ -1,64 +1,51 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH resend fixes for 4.8 2/2] input: touchscreen: silead_gsl1680: Use "silead/" prefix for firmware loading
-Date: Wed,  7 Sep 2016 22:09:57 +0200
-Message-ID: <20160907200957.3341-3-hdegoede@redhat.com>
-References: <20160907200957.3341-1-hdegoede@redhat.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [HP Pavilion x2 - 12-b003nf] Synaptics touchpad not configured by
+ HID RMI
+Date: Wed, 7 Sep 2016 16:50:09 -0700
+Message-ID: <67fdd18c-7de9-e234-9c00-e6b48f4a77ea@synaptics.com>
+References: <CAFR8dhoR2U7QPEvSzho-NNMFnhvRaWVjzf0EF24B8JCsdbyAcQ@mail.gmail.com>
+ <6b27a65c-fbc2-4af3-d611-edbb83627dc4@synaptics.com>
+ <CAFR8dhpHigvG=2ovb7bVSgB8+3ARRB0rTxzqtwUHjdJB1w4D5Q@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47596 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932299AbcIGUKJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 7 Sep 2016 16:10:09 -0400
-In-Reply-To: <20160907200957.3341-1-hdegoede@redhat.com>
+Received: from us-mx1.synaptics.com ([192.147.44.131]:1519 "EHLO
+        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751244AbcIGXuK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2016 19:50:10 -0400
+In-Reply-To: <CAFR8dhpHigvG=2ovb7bVSgB8+3ARRB0rTxzqtwUHjdJB1w4D5Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>
+To: =?UTF-8?Q?St=c3=a9phane_RIVIERE?= <greenskol@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-The silead touch-controller ICs use a different firmware per digitizer /
-tablet model. So there are going to be quite a few of then and they really
-should be under a separate subdir.
 
-This commit prefixes the default firmware names with "silead/" just like
-we are already doing for devicetree specified firmware names.
+On 09/07/2016 11:24 AM, Stéphane RIVIERE wrote:
+> Hi Andrew,
+>
+> On Wed, Sep 7, 2016 at 1:53 AM, Andrew Duggan <aduggan@synaptics.com> wrote:
+>
+>> I have these patches along with a couple others applied to v4.8-rc5 here if
+>> you want to test:
+>> https://github.com/aduggan/linux
+>>
+>> Or if you want to something more stable here are the patches applied to
+>> v4.7.2:
+>> https://github.com/aduggan/linux/tree/4.7.2/synaptics-rmi4/hid-rmi
+>>
+> Do you want me to test one of them to see if it works or should I
+> simply wait for your patches to be accepted and then test the offical
+> kernel version that includes them?
+>
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/touchscreen/silead.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+It is up to you. If you test now we can confirm that these patches fix 
+the problem for this system. Or if you want to wait that's fine too. I 
+merged the patches to v4.7.2 in case it worked and you wanted to run a 
+stable kernel which had support for your touchpad.
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index 7709f5b..c6a1ae9 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -414,14 +414,14 @@ static int silead_ts_set_default_fw_name(struct silead_ts_data *data,
- 		if (!acpi_id)
- 			return -ENODEV;
- 
--		snprintf(data->fw_name, sizeof(data->fw_name), "%s.fw",
--			acpi_id->id);
-+		snprintf(data->fw_name, sizeof(data->fw_name),
-+			 "silead/%s.fw", acpi_id->id);
- 
- 		for (i = 0; i < strlen(data->fw_name); i++)
- 			data->fw_name[i] = tolower(data->fw_name[i]);
- 	} else {
--		snprintf(data->fw_name, sizeof(data->fw_name), "%s.fw",
--			id->name);
-+		snprintf(data->fw_name, sizeof(data->fw_name),
-+			 "silead/%s.fw", id->name);
- 	}
- 
- 	return 0;
-@@ -430,7 +430,8 @@ static int silead_ts_set_default_fw_name(struct silead_ts_data *data,
- static int silead_ts_set_default_fw_name(struct silead_ts_data *data,
- 					 const struct i2c_device_id *id)
- {
--	snprintf(data->fw_name, sizeof(data->fw_name), "%s.fw", id->name);
-+	snprintf(data->fw_name, sizeof(data->fw_name),
-+		 "silead/%s.fw", id->name);
- 	return 0;
- }
- #endif
--- 
-2.9.3
+Andrew
+
+>> Andrew
+>>
 

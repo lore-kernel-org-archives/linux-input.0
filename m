@@ -1,32 +1,45 @@
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-Subject: [PATCH 0/4] Input updates for Jornada720
-Date: Wed, 7 Sep 2016 10:50:29 +0100
-Message-ID: <20160907095029.GL1041@n2100.armlinux.org.uk>
+From: Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 3/4] Input: jornada720_kbd - remove unneeded mach/hardware.h
+ include
+Date: Wed, 07 Sep 2016 10:51:14 +0100
+Message-ID: <E1bhZVi-0005cf-AK@rmk-PC.armlinux.org.uk>
+References: <20160907095029.GL1041@n2100.armlinux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:52457 "EHLO
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:52467 "EHLO
         pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750873AbcIGJuh (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2016 05:50:37 -0400
+        with ESMTP id S1751259AbcIGJvR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2016 05:51:17 -0400
+In-Reply-To: <20160907095029.GL1041@n2100.armlinux.org.uk>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 
-Dmitry,
+The Jornada720 keyboard driver does not make use of anything from the
+mach/hardware.h header, so this header can be removed.
 
-Please apply this tested series of patches for Jornada 720 input support.
+Tested-by: Adam Wysocki <armlinux@chmurka.net>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+---
+ drivers/input/keyboard/jornada720_kbd.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Thanks.
-
- arch/arm/mach-sa1100/jornada720.c         | 16 +++++++++++
- drivers/input/keyboard/jornada720_kbd.c   | 48 ++++++++++---------------------
- drivers/input/touchscreen/jornada720_ts.c | 21 +++++++++-----
- 3 files changed, 45 insertions(+), 40 deletions(-)
-
+diff --git a/drivers/input/keyboard/jornada720_kbd.c b/drivers/input/keyboard/jornada720_kbd.c
+index 6ac9fee1d8fa..3d29e5e392c2 100644
+--- a/drivers/input/keyboard/jornada720_kbd.c
++++ b/drivers/input/keyboard/jornada720_kbd.c
+@@ -25,7 +25,6 @@
+ #include <linux/slab.h>
+ 
+ #include <mach/jornada720.h>
+-#include <mach/hardware.h>
+ 
+ MODULE_AUTHOR("Kristoffer Ericson <Kristoffer.Ericson@gmail.com>");
+ MODULE_DESCRIPTION("HP Jornada 710/720/728 keyboard driver");
 -- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+2.1.0
+

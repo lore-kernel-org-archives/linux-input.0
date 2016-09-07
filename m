@@ -1,17 +1,16 @@
 From: Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 3/4] Input: jornada720_kbd - remove unneeded mach/hardware.h
- include
-Date: Wed, 07 Sep 2016 10:51:14 +0100
-Message-ID: <E1bhZVi-0005cf-AK@rmk-PC.armlinux.org.uk>
+Subject: [PATCH 1/4] Input: jornada720_kbd - switch to devm_* APIs
+Date: Wed, 07 Sep 2016 10:51:04 +0100
+Message-ID: <E1bhZVY-0005cT-0G@rmk-PC.armlinux.org.uk>
 References: <20160907095029.GL1041@n2100.armlinux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:52467 "EHLO
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:52462 "EHLO
         pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751259AbcIGJvR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2016 05:51:17 -0400
+        with ESMTP id S1750873AbcIGJvH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2016 05:51:07 -0400
 In-Reply-To: <20160907095029.GL1041@n2100.armlinux.org.uk>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
@@ -19,27 +18,86 @@ List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-The Jornada720 keyboard driver does not make use of anything from the
-mach/hardware.h header, so this header can be removed.
+Switch the jornada720_kbd driver to use the devm_* APIs.  This is in
+preparation to removing the mach/irqs.h include from this driver.
 
 Tested-by: Adam Wysocki <armlinux@chmurka.net>
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 ---
- drivers/input/keyboard/jornada720_kbd.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/input/keyboard/jornada720_kbd.c | 38 ++++++++-------------------------
+ 1 file changed, 9 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/input/keyboard/jornada720_kbd.c b/drivers/input/keyboard/jornada720_kbd.c
-index 6ac9fee1d8fa..3d29e5e392c2 100644
+index 421d9c55b0e8..4b2e9ff18ba1 100644
 --- a/drivers/input/keyboard/jornada720_kbd.c
 +++ b/drivers/input/keyboard/jornada720_kbd.c
-@@ -25,7 +25,6 @@
- #include <linux/slab.h>
+@@ -53,6 +53,7 @@ static unsigned short jornada_std_keymap[128] = {					/* ROW */
+ struct jornadakbd {
+ 	unsigned short keymap[ARRAY_SIZE(jornada_std_keymap)];
+ 	struct input_dev *input;
++	int irq;
+ };
  
- #include <mach/jornada720.h>
--#include <mach/hardware.h>
+ static irqreturn_t jornada720_kbd_interrupt(int irq, void *dev_id)
+@@ -99,12 +100,10 @@ static int jornada720_kbd_probe(struct platform_device *pdev)
+ 	struct input_dev *input_dev;
+ 	int i, err;
  
- MODULE_AUTHOR("Kristoffer Ericson <Kristoffer.Ericson@gmail.com>");
- MODULE_DESCRIPTION("HP Jornada 710/720/728 keyboard driver");
+-	jornadakbd = kzalloc(sizeof(struct jornadakbd), GFP_KERNEL);
+-	input_dev = input_allocate_device();
+-	if (!jornadakbd || !input_dev) {
+-		err = -ENOMEM;
+-		goto fail1;
+-	}
++	jornadakbd = devm_kzalloc(&pdev->dev, sizeof(*jornadakbd), GFP_KERNEL);
++	input_dev = devm_input_allocate_device(&pdev->dev);
++	if (!jornadakbd || !input_dev)
++		return -ENOMEM;
+ 
+ 	platform_set_drvdata(pdev, jornadakbd);
+ 
+@@ -127,37 +126,18 @@ static int jornada720_kbd_probe(struct platform_device *pdev)
+ 
+ 	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+ 
+-	err = request_irq(IRQ_GPIO0,
+-			  jornada720_kbd_interrupt,
+-			  IRQF_TRIGGER_FALLING,
+-			  "jornadakbd", pdev);
++	err = devm_request_irq(&pdev->dev, IRQ_GPIO0, jornada720_kbd_interrupt,
++			       IRQF_TRIGGER_FALLING, "jornadakbd", pdev);
+ 	if (err) {
+ 		printk(KERN_INFO "jornadakbd720_kbd: Unable to grab IRQ\n");
+-		goto fail1;
++		return err;
+ 	}
+ 
+-	err = input_register_device(jornadakbd->input);
+-	if (err)
+-		goto fail2;
+-
+-	return 0;
+-
+- fail2:	/* IRQ, DEVICE, MEMORY */
+-	free_irq(IRQ_GPIO0, pdev);
+- fail1:	/* DEVICE, MEMORY */
+-	input_free_device(input_dev);
+-	kfree(jornadakbd);
+-	return err;
++	return input_register_device(jornadakbd->input);
+ };
+ 
+ static int jornada720_kbd_remove(struct platform_device *pdev)
+ {
+-	struct jornadakbd *jornadakbd = platform_get_drvdata(pdev);
+-
+-	free_irq(IRQ_GPIO0, pdev);
+-	input_unregister_device(jornadakbd->input);
+-	kfree(jornadakbd);
+-
+ 	return 0;
+ }
+ 
 -- 
 2.1.0
 

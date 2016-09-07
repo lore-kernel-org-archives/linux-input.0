@@ -1,42 +1,27 @@
-From: =?UTF-8?Q?St=C3=A9phane_RIVIERE?= <greenskol@gmail.com>
-Subject: Re: [HP Pavilion x2 - 12-b003nf] Synaptics touchpad not configured by
- HID RMI
-Date: Wed, 7 Sep 2016 20:24:39 +0200
-Message-ID: <CAFR8dhpHigvG=2ovb7bVSgB8+3ARRB0rTxzqtwUHjdJB1w4D5Q@mail.gmail.com>
-References: <CAFR8dhoR2U7QPEvSzho-NNMFnhvRaWVjzf0EF24B8JCsdbyAcQ@mail.gmail.com>
- <6b27a65c-fbc2-4af3-d611-edbb83627dc4@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH resend fixes for 4.8 0/2] input: touchscreen: silead_gsl1680: fixes
+Date: Wed,  7 Sep 2016 22:09:55 +0200
+Message-ID: <20160907200957.3341-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:32929 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751147AbcIGSYl (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2016 14:24:41 -0400
-Received: by mail-oi0-f65.google.com with SMTP id w78so2788937oie.0
-        for <linux-input@vger.kernel.org>; Wed, 07 Sep 2016 11:24:41 -0700 (PDT)
-In-Reply-To: <6b27a65c-fbc2-4af3-d611-edbb83627dc4@synaptics.com>
+Received: from mx1.redhat.com ([209.132.183.28]:49202 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932453AbcIGUKD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 7 Sep 2016 16:10:03 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>
 
-Hi Andrew,
+Hi Dmitry,
 
-On Wed, Sep 7, 2016 at 1:53 AM, Andrew Duggan <aduggan@synaptics.com> wrote:
+Here are 2 fixes for the silead touchscreen driver which is new in 4.8,
+since these change firmware loading behavior (*) we really ought to get
+these into 4.8, so that don't end up shipping a stable kernel with the
+old firmware loading behavior.
 
-> I have these patches along with a couple others applied to v4.8-rc5 here if
-> you want to test:
-> https://github.com/aduggan/linux
->
-> Or if you want to something more stable here are the patches applied to
-> v4.7.2:
-> https://github.com/aduggan/linux/tree/4.7.2/synaptics-rmi4/hid-rmi
->
+Note the small dt binding change this includes has been acked by
+Robh, so these 2 are ready for merging now.
 
-Do you want me to test one of them to see if it works or should I
-simply wait for your patches to be accepted and then test the offical
-kernel version that includes them?
+Thanks & Regards,
 
-
-> Andrew
->
+Hans

@@ -1,102 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/4] Input: jornada720_kbd - get rid of mach/irqs.h
- include
-Date: Wed, 7 Sep 2016 19:24:40 -0700
-Message-ID: <20160908022440.GF6445@dtor-ws>
-References: <20160907095029.GL1041@n2100.armlinux.org.uk>
- <E1bhZVd-0005cZ-5z@rmk-PC.armlinux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Subject: [PATCH v5 0/3] mfd: tps65217: Add power-button and IRQ support
+Date: Thu,  8 Sep 2016 11:58:57 +0200
+Message-ID: <20160908095900.30975-1-m.niestroj@grinn-global.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:36765 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753956AbcIHCYn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2016 22:24:43 -0400
-Received: by mail-pf0-f196.google.com with SMTP id x24so1767330pfa.3
-        for <linux-input@vger.kernel.org>; Wed, 07 Sep 2016 19:24:43 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <E1bhZVd-0005cZ-5z@rmk-PC.armlinux.org.uk>
+Received: from smtp2.megiteam.pl ([213.189.52.193]:39938 "EHLO
+        smtp2.megiteam.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934485AbcIHJ7q (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Sep 2016 05:59:46 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Russell King <rmk+kernel@armlinux.org.uk>
-Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Sebastian Reichel <sre@kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Grygorii Strashko <grygorii.strashko@ti.com>, linux-omap@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Marcin Niestroj <m.niestroj@grinn-global.com>
 
-On Wed, Sep 07, 2016 at 10:51:09AM +0100, Russell King wrote:
-> Switch the jornada720 keyboard driver to obtain its interrupt from the
-> platform device, rather than via a hard-coded interrupt number obtained
-> from the mach/irqs.h header.
-> 
-> Tested-by: Adam Wysocki <armlinux@chmurka.net>
-> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Hi,
 
-This has already been applied as well.
+This is a resend of v4, rebased on v4.8-rc4, with dropped two patches:
+ * "power_supply: tps65217-charger: Fix NULL deref during property export"
+   (already in mainline)
+ * "power_supply: tps65217-charger: Add support for IRQs" (queued into
+   power-supply's -next branch)
 
-> ---
->  arch/arm/mach-sa1100/jornada720.c       |  6 ++++++
->  drivers/input/keyboard/jornada720_kbd.c | 11 +++++++----
->  2 files changed, 13 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/arm/mach-sa1100/jornada720.c b/arch/arm/mach-sa1100/jornada720.c
-> index c0b1f5bafae4..2b96f7bc16bd 100644
-> --- a/arch/arm/mach-sa1100/jornada720.c
-> +++ b/arch/arm/mach-sa1100/jornada720.c
-> @@ -217,9 +217,15 @@ static struct platform_device jornada_ssp_device = {
->  	.id             = -1,
->  };
->  
-> +static struct resource jornada_kbd_resources[] = {
-> +	DEFINE_RES_IRQ(IRQ_GPIO0),
-> +};
-> +
->  static struct platform_device jornada_kbd_device = {
->  	.name		= "jornada720_kbd",
->  	.id		= -1,
-> +	.num_resources	= ARRAY_SIZE(jornada_kbd_resources),
-> +	.resource	= jornada_kbd_resources,
->  };
->  
->  static struct platform_device jornada_ts_device = {
-> diff --git a/drivers/input/keyboard/jornada720_kbd.c b/drivers/input/keyboard/jornada720_kbd.c
-> index 4b2e9ff18ba1..6ac9fee1d8fa 100644
-> --- a/drivers/input/keyboard/jornada720_kbd.c
-> +++ b/drivers/input/keyboard/jornada720_kbd.c
-> @@ -26,7 +26,6 @@
->  
->  #include <mach/jornada720.h>
->  #include <mach/hardware.h>
-> -#include <mach/irqs.h>
->  
->  MODULE_AUTHOR("Kristoffer Ericson <Kristoffer.Ericson@gmail.com>");
->  MODULE_DESCRIPTION("HP Jornada 710/720/728 keyboard driver");
-> @@ -98,7 +97,11 @@ static int jornada720_kbd_probe(struct platform_device *pdev)
->  {
->  	struct jornadakbd *jornadakbd;
->  	struct input_dev *input_dev;
-> -	int i, err;
-> +	int i, err, irq;
-> +
-> +	irq = platform_get_irq(pdev, 0);
-> +	if (irq <= 0)
-> +		return irq < 0 ? irq : -EINVAL;
->  
->  	jornadakbd = devm_kzalloc(&pdev->dev, sizeof(*jornadakbd), GFP_KERNEL);
->  	input_dev = devm_input_allocate_device(&pdev->dev);
-> @@ -126,10 +129,10 @@ static int jornada720_kbd_probe(struct platform_device *pdev)
->  
->  	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
->  
-> -	err = devm_request_irq(&pdev->dev, IRQ_GPIO0, jornada720_kbd_interrupt,
-> +	err = devm_request_irq(&pdev->dev, irq, jornada720_kbd_interrupt,
->  			       IRQF_TRIGGER_FALLING, "jornadakbd", pdev);
->  	if (err) {
-> -		printk(KERN_INFO "jornadakbd720_kbd: Unable to grab IRQ\n");
-> +		dev_err(&pdev->dev, "unable to grab IRQ%d: %d\n", irq, err);
->  		return err;
->  	}
->  
-> -- 
-> 2.1.0
-> 
+The following patches add tps65217 power button support and make it usable
+with am335x boards. It was developed and rebased on v4.8-rc4.
+
+Changes v4 -> v5:
+ * Dropped two patches (they were already dropped in v4 resend):
+   * "power_supply: tps65217-charger: Fix NULL deref during property export"
+     (already in mainline)
+   * "power_supply: tps65217-charger: Add support for IRQs" (queued into
+     power-supply's -next branch)
+ * Combine tps65217 and tps65218 power button drivers (as suggested by Dmitry)
+ * Combine device-tree documentation for tps65217 and tps65218 power buttons
+
+Changes v3 -> v4:
+ * Add irq_set_parent() during irq init (suggested by Grygorii)
+ * Remove hardcoded IRQ trigger type, rely on DT bindings instead
+   (suggested by Grygorii)
+ * Rebased and tested on top of v4.7-rc4
+
+Changes v2 -> v3 (suggested by Lee):
+ * Alphabetical reorder of includes
+ * Rename enum tps65217_irqs -> tps65217_irq_type, so we won't confuse
+   it with structure object with the same name.
+ * Fix inconsistent order of irq_enable and irq_disable
+ * Remove redundant 'else' when returning from tps65217_irq_thread
+
+Changes v1 -> v2:
+ * Added information about parent device in tps65217 power button
+   device-tree binding documentation (suggested by Rob)
+ * Rebased and tested on top of v4.7-rc3
+
+Marcin Niestroj (3):
+  mfd: tps65217: Add support for IRQs
+  mfd: tps65217: Add power button as subdevice
+  Input: Add support for tps65217 power button
+
+ .../bindings/input/tps65218-pwrbutton.txt          |  17 +-
+ drivers/input/misc/Kconfig                         |   4 +-
+ drivers/input/misc/tps65218-pwrbutton.c            | 102 +++++++---
+ drivers/mfd/Kconfig                                |   1 +
+ drivers/mfd/tps65217.c                             | 205 ++++++++++++++++++++-
+ include/linux/mfd/tps65217.h                       |  12 ++
+ 6 files changed, 298 insertions(+), 43 deletions(-)
 
 -- 
-Dmitry
+2.9.3
+

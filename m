@@ -1,113 +1,98 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/4] Input: jornada720_kbd - switch to devm_* APIs
-Date: Wed, 7 Sep 2016 19:24:17 -0700
-Message-ID: <20160908022417.GE6445@dtor-ws>
+Subject: Re: [PATCH 2/4] Input: jornada720_kbd - get rid of mach/irqs.h
+ include
+Date: Wed, 7 Sep 2016 19:24:40 -0700
+Message-ID: <20160908022440.GF6445@dtor-ws>
 References: <20160907095029.GL1041@n2100.armlinux.org.uk>
- <E1bhZVY-0005cT-0G@rmk-PC.armlinux.org.uk>
+ <E1bhZVd-0005cZ-5z@rmk-PC.armlinux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:36711 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751252AbcIHCYU (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2016 22:24:20 -0400
-Received: by mail-pf0-f194.google.com with SMTP id x24so1766978pfa.3
-        for <linux-input@vger.kernel.org>; Wed, 07 Sep 2016 19:24:20 -0700 (PDT)
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36765 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753956AbcIHCYn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2016 22:24:43 -0400
+Received: by mail-pf0-f196.google.com with SMTP id x24so1767330pfa.3
+        for <linux-input@vger.kernel.org>; Wed, 07 Sep 2016 19:24:43 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <E1bhZVY-0005cT-0G@rmk-PC.armlinux.org.uk>
+In-Reply-To: <E1bhZVd-0005cZ-5z@rmk-PC.armlinux.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Russell King <rmk+kernel@armlinux.org.uk>
-Cc: linux-input@vger.kernel.org
+Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-Hi Russell,
-
-On Wed, Sep 07, 2016 at 10:51:04AM +0100, Russell King wrote:
-> Switch the jornada720_kbd driver to use the devm_* APIs.  This is in
-> preparation to removing the mach/irqs.h include from this driver.
-
-I already applied a version of this driver (without extraneous irq
-field and empty remove() method), why are you resending it?
-
-Thanks.
-
+On Wed, Sep 07, 2016 at 10:51:09AM +0100, Russell King wrote:
+> Switch the jornada720 keyboard driver to obtain its interrupt from the
+> platform device, rather than via a hard-coded interrupt number obtained
+> from the mach/irqs.h header.
 > 
 > Tested-by: Adam Wysocki <armlinux@chmurka.net>
 > Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+
+This has already been applied as well.
+
 > ---
->  drivers/input/keyboard/jornada720_kbd.c | 38 ++++++++-------------------------
->  1 file changed, 9 insertions(+), 29 deletions(-)
+>  arch/arm/mach-sa1100/jornada720.c       |  6 ++++++
+>  drivers/input/keyboard/jornada720_kbd.c | 11 +++++++----
+>  2 files changed, 13 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/input/keyboard/jornada720_kbd.c b/drivers/input/keyboard/jornada720_kbd.c
-> index 421d9c55b0e8..4b2e9ff18ba1 100644
-> --- a/drivers/input/keyboard/jornada720_kbd.c
-> +++ b/drivers/input/keyboard/jornada720_kbd.c
-> @@ -53,6 +53,7 @@ static unsigned short jornada_std_keymap[128] = {					/* ROW */
->  struct jornadakbd {
->  	unsigned short keymap[ARRAY_SIZE(jornada_std_keymap)];
->  	struct input_dev *input;
-> +	int irq;
+> diff --git a/arch/arm/mach-sa1100/jornada720.c b/arch/arm/mach-sa1100/jornada720.c
+> index c0b1f5bafae4..2b96f7bc16bd 100644
+> --- a/arch/arm/mach-sa1100/jornada720.c
+> +++ b/arch/arm/mach-sa1100/jornada720.c
+> @@ -217,9 +217,15 @@ static struct platform_device jornada_ssp_device = {
+>  	.id             = -1,
 >  };
 >  
->  static irqreturn_t jornada720_kbd_interrupt(int irq, void *dev_id)
-> @@ -99,12 +100,10 @@ static int jornada720_kbd_probe(struct platform_device *pdev)
+> +static struct resource jornada_kbd_resources[] = {
+> +	DEFINE_RES_IRQ(IRQ_GPIO0),
+> +};
+> +
+>  static struct platform_device jornada_kbd_device = {
+>  	.name		= "jornada720_kbd",
+>  	.id		= -1,
+> +	.num_resources	= ARRAY_SIZE(jornada_kbd_resources),
+> +	.resource	= jornada_kbd_resources,
+>  };
+>  
+>  static struct platform_device jornada_ts_device = {
+> diff --git a/drivers/input/keyboard/jornada720_kbd.c b/drivers/input/keyboard/jornada720_kbd.c
+> index 4b2e9ff18ba1..6ac9fee1d8fa 100644
+> --- a/drivers/input/keyboard/jornada720_kbd.c
+> +++ b/drivers/input/keyboard/jornada720_kbd.c
+> @@ -26,7 +26,6 @@
+>  
+>  #include <mach/jornada720.h>
+>  #include <mach/hardware.h>
+> -#include <mach/irqs.h>
+>  
+>  MODULE_AUTHOR("Kristoffer Ericson <Kristoffer.Ericson@gmail.com>");
+>  MODULE_DESCRIPTION("HP Jornada 710/720/728 keyboard driver");
+> @@ -98,7 +97,11 @@ static int jornada720_kbd_probe(struct platform_device *pdev)
+>  {
+>  	struct jornadakbd *jornadakbd;
 >  	struct input_dev *input_dev;
->  	int i, err;
+> -	int i, err;
+> +	int i, err, irq;
+> +
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (irq <= 0)
+> +		return irq < 0 ? irq : -EINVAL;
 >  
-> -	jornadakbd = kzalloc(sizeof(struct jornadakbd), GFP_KERNEL);
-> -	input_dev = input_allocate_device();
-> -	if (!jornadakbd || !input_dev) {
-> -		err = -ENOMEM;
-> -		goto fail1;
-> -	}
-> +	jornadakbd = devm_kzalloc(&pdev->dev, sizeof(*jornadakbd), GFP_KERNEL);
-> +	input_dev = devm_input_allocate_device(&pdev->dev);
-> +	if (!jornadakbd || !input_dev)
-> +		return -ENOMEM;
->  
->  	platform_set_drvdata(pdev, jornadakbd);
->  
-> @@ -127,37 +126,18 @@ static int jornada720_kbd_probe(struct platform_device *pdev)
+>  	jornadakbd = devm_kzalloc(&pdev->dev, sizeof(*jornadakbd), GFP_KERNEL);
+>  	input_dev = devm_input_allocate_device(&pdev->dev);
+> @@ -126,10 +129,10 @@ static int jornada720_kbd_probe(struct platform_device *pdev)
 >  
 >  	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
 >  
-> -	err = request_irq(IRQ_GPIO0,
-> -			  jornada720_kbd_interrupt,
-> -			  IRQF_TRIGGER_FALLING,
-> -			  "jornadakbd", pdev);
-> +	err = devm_request_irq(&pdev->dev, IRQ_GPIO0, jornada720_kbd_interrupt,
-> +			       IRQF_TRIGGER_FALLING, "jornadakbd", pdev);
+> -	err = devm_request_irq(&pdev->dev, IRQ_GPIO0, jornada720_kbd_interrupt,
+> +	err = devm_request_irq(&pdev->dev, irq, jornada720_kbd_interrupt,
+>  			       IRQF_TRIGGER_FALLING, "jornadakbd", pdev);
 >  	if (err) {
->  		printk(KERN_INFO "jornadakbd720_kbd: Unable to grab IRQ\n");
-> -		goto fail1;
-> +		return err;
+> -		printk(KERN_INFO "jornadakbd720_kbd: Unable to grab IRQ\n");
+> +		dev_err(&pdev->dev, "unable to grab IRQ%d: %d\n", irq, err);
+>  		return err;
 >  	}
->  
-> -	err = input_register_device(jornadakbd->input);
-> -	if (err)
-> -		goto fail2;
-> -
-> -	return 0;
-> -
-> - fail2:	/* IRQ, DEVICE, MEMORY */
-> -	free_irq(IRQ_GPIO0, pdev);
-> - fail1:	/* DEVICE, MEMORY */
-> -	input_free_device(input_dev);
-> -	kfree(jornadakbd);
-> -	return err;
-> +	return input_register_device(jornadakbd->input);
->  };
->  
->  static int jornada720_kbd_remove(struct platform_device *pdev)
->  {
-> -	struct jornadakbd *jornadakbd = platform_get_drvdata(pdev);
-> -
-> -	free_irq(IRQ_GPIO0, pdev);
-> -	input_unregister_device(jornadakbd->input);
-> -	kfree(jornadakbd);
-> -
->  	return 0;
->  }
 >  
 > -- 
 > 2.1.0

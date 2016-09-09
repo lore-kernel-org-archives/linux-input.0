@@ -1,46 +1,136 @@
-From: Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH] input: touchscreen: add driver for Zeitec ZET6223
-Date: Fri, 9 Sep 2016 14:06:54 -0500
-Message-ID: <CAL_JsqJH2U3neOxeuDg=5gEXpzC5PvfEUnpykvFN_8Sd5NgXpQ@mail.gmail.com>
-References: <20160909185836.2708-1-jelle@vdwaa.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:35970 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754231AbcIITHR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 9 Sep 2016 15:07:17 -0400
-Received: from mail.kernel.org (localhost [127.0.0.1])
-        by mail.kernel.org (Postfix) with ESMTP id 506B0203B7
-        for <linux-input@vger.kernel.org>; Fri,  9 Sep 2016 19:07:16 +0000 (UTC)
-Received: from mail-yw0-f169.google.com (mail-yw0-f169.google.com [209.85.161.169])
-        (using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45F9E203B1
-        for <linux-input@vger.kernel.org>; Fri,  9 Sep 2016 19:07:15 +0000 (UTC)
-Received: by mail-yw0-f169.google.com with SMTP id l8so52806837ywb.0
-        for <linux-input@vger.kernel.org>; Fri, 09 Sep 2016 12:07:15 -0700 (PDT)
-In-Reply-To: <20160909185836.2708-1-jelle@vdwaa.nl>
-Sender: linux-input-owner@vger.kernel.org
+From: Simon Wood <gitsend@mungewell.org>
+Subject: [PATCH 1/5] HID:hid-logitech: Introduce dev_attr for combined pedals feature
+Date: Fri,  9 Sep 2016 16:50:45 -0600
+Message-ID: <1473461449-8060-1-git-send-email-simon@mungewell.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin Velds <edwin@velds.nl>, Elias Vanderstuyft <elias.vds@gmail.com>, Michal Maly <madcatxster@gmail.com>, Simon Wood <simon@mungewell.org>
 List-Id: linux-input@vger.kernel.org
-To: Jelle van der Waa <jelle@vdwaa.nl>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Fri, Sep 9, 2016 at 1:58 PM, Jelle van der Waa <jelle@vdwaa.nl> wrote:
-> This is a basic driver for the Zeitec ZET6223 I2C touchscreen controllers.
-> The driver does not support firmware loading, which is not required for
-> all tablets which contain this chip.
->
-> Signed-off-by: Jelle van der Waa <jelle@vdwaa.nl>
-> ---
->  .../bindings/input/touchscreen/zet6223.txt         |  33 ++++
->  .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+Introduce a dev_attr which can be used to combine the accelerator
+and brake pedals into a single axis. This is useful for older games
+which can not handle separate accelerator and brake.
 
-Please send bindings to the DT list.
+Signed-off-by: Simon Wood <simon@mungewell.org>
+---
+ .../ABI/testing/sysfs-driver-hid-logitech-lg4ff    |  9 ++++
+ drivers/hid/hid-lg4ff.c                            | 58 ++++++++++++++++++++++
+ 2 files changed, 67 insertions(+)
 
->  drivers/input/touchscreen/Kconfig                  |  11 ++
->  drivers/input/touchscreen/Makefile                 |   1 +
->  drivers/input/touchscreen/zet6223.c                | 190 +++++++++++++++++++++
->  5 files changed, 236 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/zet6223.txt
->  create mode 100644 drivers/input/touchscreen/zet6223.c
+diff --git a/Documentation/ABI/testing/sysfs-driver-hid-logitech-lg4ff b/Documentation/ABI/testing/sysfs-driver-hid-logitech-lg4ff
+index db197a8..69fb890 100644
+--- a/Documentation/ABI/testing/sysfs-driver-hid-logitech-lg4ff
++++ b/Documentation/ABI/testing/sysfs-driver-hid-logitech-lg4ff
+@@ -50,3 +50,12 @@ Description:	Displays the real model of the wheel regardless of any
+ 		alternate mode the wheel might be switched to.
+ 		It is a read-only value.
+ 		This entry is not created for devices that have only one mode.
++
++What:		/sys/bus/hid/drivers/logitech/<dev>/combine_pedals
++Date:		Sep 2016
++KernelVersion:	4.9
++Contact:	Simon Wood <simon@mungewell.org>
++Description:	Controls whether a combined value of accelerator and brake is
++		reported on the Y axis of the controller. Useful for older games
++		which can do not work with separate accelerator/brake axis.
++		Off ('0') by default, enabled by setting '1'.
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index af3a8ec..ca31ce4 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -75,6 +75,7 @@ static void lg4ff_set_range_g25(struct hid_device *hid, u16 range);
+ 
+ struct lg4ff_wheel_data {
+ 	const u32 product_id;
++	u16 combine;
+ 	u16 range;
+ 	const u16 min_range;
+ 	const u16 max_range;
+@@ -345,6 +346,7 @@ static void lg4ff_init_wheel_data(struct lg4ff_wheel_data * const wdata, const s
+ 	{
+ 		struct lg4ff_wheel_data t_wdata =  { .product_id = wheel->product_id,
+ 						     .real_product_id = real_product_id,
++						     .combine = 0,
+ 						     .min_range = wheel->min_range,
+ 						     .max_range = wheel->max_range,
+ 						     .set_range = wheel->set_range,
+@@ -885,6 +887,58 @@ static ssize_t lg4ff_alternate_modes_store(struct device *dev, struct device_att
+ }
+ static DEVICE_ATTR(alternate_modes, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, lg4ff_alternate_modes_show, lg4ff_alternate_modes_store);
+ 
++static ssize_t lg4ff_combine_show(struct device *dev, struct device_attribute *attr,
++				char *buf)
++{
++	struct hid_device *hid = to_hid_device(dev);
++	struct lg4ff_device_entry *entry;
++	struct lg_drv_data *drv_data;
++	size_t count;
++
++	drv_data = hid_get_drvdata(hid);
++	if (!drv_data) {
++		hid_err(hid, "Private driver data not found!\n");
++		return 0;
++	}
++
++	entry = drv_data->device_props;
++	if (!entry) {
++		hid_err(hid, "Device properties not found!\n");
++		return 0;
++	}
++
++	count = scnprintf(buf, PAGE_SIZE, "%u\n", entry->wdata.combine);
++	return count;
++}
++
++static ssize_t lg4ff_combine_store(struct device *dev, struct device_attribute *attr,
++				 const char *buf, size_t count)
++{
++	struct hid_device *hid = to_hid_device(dev);
++	struct lg4ff_device_entry *entry;
++	struct lg_drv_data *drv_data;
++	u16 combine = simple_strtoul(buf, NULL, 10);
++
++	drv_data = hid_get_drvdata(hid);
++	if (!drv_data) {
++		hid_err(hid, "Private driver data not found!\n");
++		return -EINVAL;
++	}
++
++	entry = drv_data->device_props;
++	if (!entry) {
++		hid_err(hid, "Device properties not found!\n");
++		return -EINVAL;
++	}
++
++	if (combine > 1)
++		combine = 1;
++
++	entry->wdata.combine = combine;
++	return count;
++}
++static DEVICE_ATTR(combine_pedals, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, lg4ff_combine_show, lg4ff_combine_store);
++
+ /* Export the currently set range of the wheel */
+ static ssize_t lg4ff_range_show(struct device *dev, struct device_attribute *attr,
+ 				char *buf)
+@@ -1259,6 +1313,9 @@ int lg4ff_init(struct hid_device *hid)
+ 	}
+ 
+ 	/* Create sysfs interface */
++	error = device_create_file(&hid->dev, &dev_attr_combine_pedals);
++	if (error)
++		hid_warn(hid, "Unable to create sysfs interface for \"combine\", errno %d\n", error);
+ 	error = device_create_file(&hid->dev, &dev_attr_range);
+ 	if (error)
+ 		hid_warn(hid, "Unable to create sysfs interface for \"range\", errno %d\n", error);
+@@ -1358,6 +1415,7 @@ int lg4ff_deinit(struct hid_device *hid)
+ 		device_remove_file(&hid->dev, &dev_attr_alternate_modes);
+ 	}
+ 
++	device_remove_file(&hid->dev, &dev_attr_combine_pedals);
+ 	device_remove_file(&hid->dev, &dev_attr_range);
+ #ifdef CONFIG_LEDS_CLASS
+ 	{
+-- 
+2.7.4

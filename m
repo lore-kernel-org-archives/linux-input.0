@@ -1,231 +1,53 @@
 From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v12 1/5] Input: goodix - add sysfs interface to dump config
-Date: Sat, 10 Sep 2016 20:57:33 +0300
-Message-ID: <1473530257-7495-2-git-send-email-irina.tirdea@intel.com>
+Subject: [PATCH v12 4/5] Input: goodix - fix reset sequence
+Date: Sat, 10 Sep 2016 20:57:36 +0300
+Message-ID: <1473530257-7495-5-git-send-email-irina.tirdea@intel.com>
 References: <1473530257-7495-1-git-send-email-irina.tirdea@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:26075 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932228AbcIJR6z (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 10 Sep 2016 13:58:55 -0400
 In-Reply-To: <1473530257-7495-1-git-send-email-irina.tirdea@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
-List-Id: linux-input@vger.kernel.org
 
-Goodix devices have a configuration information register area that
-specifies various parameters for the device. The configuration information
-has a specific format described in the Goodix datasheet. It includes X/Y
-resolution, maximum supported touch points, interrupt flags, various
-sesitivity factors and settings for advanced features (like gesture
-recognition).
+According to the Goodix datasheet, the reset sequence will leave
+the reset line set to output high. To end the selection of the I2C
+address, we just need to set the input line to low for at least
+50 ms and then set it to input floating (already implemented by
+goodix_int_sync).
 
-Export a sysfs interface that would allow reading the configuration
-information. The default device configuration can be used as a starting
-point for creating a valid configuration firmware used by the device at
-init time to update its configuration.
+Remove setting the reset line to input from the reset sequence,
+since that is not reflected in the datasheet.
 
-This sysfs interface will be exported only if the gpio pins are properly
-initialized from ACPI/DT.
+This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
+driver gt9xx.c for Android (publicly available in Android kernel
+trees for various devices).
 
+Suggested-by: Troy Kisky <troy.kisky@boundarydevices.com>
 Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
 ---
- Documentation/input/goodix.txt     | 84 ++++++++++++++++++++++++++++++++++++++
- drivers/input/touchscreen/goodix.c | 64 ++++++++++++++++++++++++++---
- 2 files changed, 143 insertions(+), 5 deletions(-)
- create mode 100644 Documentation/input/goodix.txt
+ drivers/input/touchscreen/goodix.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/Documentation/input/goodix.txt b/Documentation/input/goodix.txt
-new file mode 100644
-index 0000000..f9be1e2
---- /dev/null
-+++ b/Documentation/input/goodix.txt
-@@ -0,0 +1,84 @@
-+Goodix touchscreen driver
-+=====================================
-+
-+How to update configuration firmware
-+=====================================
-+
-+Goodix touchscreen devices have a set of registers that specify configuration
-+information for the device. The configuration information has a specific format
-+described in the Goodix datasheet. It includes X/Y resolution, maximum
-+supported touch points, interrupt flags, various sesitivity factors and
-+settings for advanced features (like gesture recognition).
-+
-+The devices have an initial default configuration that can be read through
-+the sysfs interface (/sys/class/input/inputX/device/dump_config). This default
-+configuration can be used as a starting point for creating a new configuration
-+firmware file. At init, the driver will read the configuration firmware file
-+and update the device configuration.
-+
-+This configuration can be accesed only if both interrupt and reset gpio pins
-+are connected and properly configured through ACPI _DSD/DT properties.
-+
-+Below are instructions on how to generate a valid configuration starting from
-+the device default configuration.
-+
-+1. Dump the default configuration of the device to a file:
-+  $ cat /sys/class/input/inputX/device/dump_config > goodix_<model>_cfg
-+
-+2. Make the needed changes to the configuration (e.g. change resolution of
-+x/y axes, maximum reported touch points, switch X,Y axes, etc.). For more
-+details check the Goodix datasheet for format of Configuration Registers.
-+
-+3. Generate a valid configuration starting from  goodix_<model>_cfg.
-+After making changes, you need to recompute the checksum of the entire
-+configuration data, set Config_Fresh to 1 and generate the binary config
-+firmware image. This can be done using a helper script similar to the
-+one below:
-+
-+#!/bin/bash
-+
-+if [[ $# -lt 1 ]]; then
-+    echo "$0 fw_filename"
-+    exit 1
-+fi
-+
-+file_in="$1"
-+file_out_bin=${file_in}.bin
-+
-+print_val ()
-+{
-+    val="$1"
-+    printf "0x%.2x" "$val" | xxd -r -p >> ${file_out_bin}
-+}
-+
-+rm -f ${file_out_bin}
-+
-+size=`cat ${file_in} | wc -w`
-+
-+checksum=0
-+i=1
-+for val in `cat ${file_in}`; do
-+    val="0x$val"
-+    if [[ $i == $size ]]; then
-+	# Config_Fresh
-+	print_val 0x01
-+    elif [[ $i == $((size-1)) ]]; then
-+	# Config_Chksum
-+	checksum=$(( (~ checksum + 1) & 0xFF))
-+	print_val $checksum
-+    else
-+	checksum=$((checksum + val))
-+	print_val $val
-+    fi
-+    i=$((i+1))
-+done
-+
-+echo "Wrote ${file_out_bin}"
-+
-+4. Copy the binary config firmware in the appropriate location
-+(e.g. /lib/firmware), using the name goodix_<model>_cfg.bin (e.g. for gt911,
-+use goodix_911_cfg.bin).
-+
-+5. Check that the new firmware was successfully written to the device
-+after reboot. Config_Fresh is reset to 0 after a successful update of the
-+configuration.
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 240b16f..2447b73 100644
+index 182ff9c..6fba804 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -430,6 +430,40 @@ static int goodix_reset(struct goodix_ts_data *ts)
- 	return 0;
- }
+@@ -454,10 +454,6 @@ static int goodix_reset(struct goodix_ts_data *ts)
+ 	usleep_range(6000, 10000);		/* T4: > 5ms */
  
-+static ssize_t goodix_dump_config_show(struct device *dev,
-+				       struct device_attribute *attr, char *buf)
-+{
-+	struct goodix_ts_data *ts = dev_get_drvdata(dev);
-+	u8 config[GOODIX_CONFIG_MAX_LENGTH];
-+	int error, count = 0, i;
-+
-+	wait_for_completion(&ts->firmware_loading_complete);
-+
-+	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
-+				config, ts->cfg_len);
-+	if (error) {
-+		dev_warn(&ts->client->dev,
-+			 "Error reading config (%d)\n",  error);
-+		return error;
-+	}
-+
-+	for (i = 0; i < ts->cfg_len; i++)
-+		count += scnprintf(buf + count, PAGE_SIZE - count, "%02x ",
-+				   config[i]);
-+	return count;
-+}
-+
-+static DEVICE_ATTR(dump_config, S_IRUGO, goodix_dump_config_show, NULL);
-+
-+static struct attribute *goodix_attrs[] = {
-+	&dev_attr_dump_config.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group goodix_attr_group = {
-+	.attrs = goodix_attrs,
-+};
-+
- /**
-  * goodix_get_gpio_config - Get GPIO config from ACPI/DT
-  *
-@@ -735,11 +769,22 @@ static int goodix_ts_probe(struct i2c_client *client,
- 	ts->cfg_len = goodix_get_cfg_len(ts->id);
- 
- 	if (ts->gpiod_int && ts->gpiod_rst) {
-+		error = sysfs_create_group(&client->dev.kobj,
-+					   &goodix_attr_group);
-+		if (error) {
-+			dev_err(&client->dev,
-+				"Failed to create sysfs group: %d\n",
-+				error);
-+			return error;
-+		}
-+
- 		/* update device config */
- 		ts->cfg_name = devm_kasprintf(&client->dev, GFP_KERNEL,
- 					      "goodix_%d_cfg.bin", ts->id);
--		if (!ts->cfg_name)
--			return -ENOMEM;
-+		if (!ts->cfg_name) {
-+			error = -ENOMEM;
-+			goto err_sysfs_remove_group;
-+		}
- 
- 		error = request_firmware_nowait(THIS_MODULE, true, ts->cfg_name,
- 						&client->dev, GFP_KERNEL, ts,
-@@ -748,7 +793,7 @@ static int goodix_ts_probe(struct i2c_client *client,
- 			dev_err(&client->dev,
- 				"Failed to invoke firmware loader: %d\n",
- 				error);
--			return error;
-+			goto err_sysfs_remove_group;
- 		}
- 
- 		return 0;
-@@ -759,14 +804,23 @@ static int goodix_ts_probe(struct i2c_client *client,
- 	}
- 
- 	return 0;
-+
-+err_sysfs_remove_group:
-+	if (ts->gpiod_int && ts->gpiod_rst)
-+		sysfs_remove_group(&client->dev.kobj, &goodix_attr_group);
-+	return error;
- }
- 
- static int goodix_ts_remove(struct i2c_client *client)
- {
- 	struct goodix_ts_data *ts = i2c_get_clientdata(client);
- 
--	if (ts->gpiod_int && ts->gpiod_rst)
--		wait_for_completion(&ts->firmware_loading_complete);
-+	if (!ts->gpiod_int || !ts->gpiod_rst)
-+		return 0;
-+
-+	wait_for_completion(&ts->firmware_loading_complete);
-+
-+	sysfs_remove_group(&client->dev.kobj, &goodix_attr_group);
- 
- 	return 0;
- }
+ 	/* end select I2C slave addr */
+-	error = gpiod_direction_input(ts->gpiod_rst);
+-	if (error)
+-		return error;
+-
+ 	error = goodix_int_sync(ts);
+ 	if (error)
+ 		return error;
 -- 
 1.9.1
+

@@ -1,63 +1,104 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: Goodix touchscreen works intermittently, fails reading config
- info.
-Date: Sun, 11 Sep 2016 18:54:48 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F32C5C6@irsmsx105.ger.corp.intel.com>
+From: Brad Baker <bbaker6212@gmail.com>
+Subject: Re: Goodix touchscreen works intermittently, fails reading config info.
+Date: Sun, 11 Sep 2016 16:28:08 -0300
+Message-ID: <CAG=1usZc8FY4=xn9eGq17X+a0NtjR+47kKs_eYHXrpNERpFtow@mail.gmail.com>
 References: <CAG=1usatOHQ3sq5NTanbRQZ088gD53Xu3APVxe4p6Lf4mf5ahQ@mail.gmail.com>
+ <1F3AC3675D538145B1661F571FE1805F2F32C5C6@irsmsx105.ger.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:25654 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756085AbcIKSyv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 11 Sep 2016 14:54:51 -0400
-In-Reply-To: <CAG=1usatOHQ3sq5NTanbRQZ088gD53Xu3APVxe4p6Lf4mf5ahQ@mail.gmail.com>
-Content-Language: en-US
+Received: from mail-qt0-f172.google.com ([209.85.216.172]:33424 "EHLO
+        mail-qt0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756227AbcIKT2K (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 11 Sep 2016 15:28:10 -0400
+Received: by mail-qt0-f172.google.com with SMTP id 11so63897225qtc.0
+        for <linux-input@vger.kernel.org>; Sun, 11 Sep 2016 12:28:10 -0700 (PDT)
+In-Reply-To: <1F3AC3675D538145B1661F571FE1805F2F32C5C6@irsmsx105.ger.corp.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Brad Baker <bbaker6212@gmail.com>, bastien nocera <hadess@hadess.net>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: "Tirdea, Irina" <irina.tirdea@intel.com>
+Cc: bastien nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogbGludXgtaW5wdXQtb3du
-ZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86bGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJuZWwu
-b3JnXSBPbiBCZWhhbGYgT2YgQnJhZCBCYWtlcg0KPiBTZW50OiAxMSBTZXB0ZW1iZXIsIDIwMTYg
-MDoyMQ0KPiBUbzogYmFzdGllbiBub2NlcmENCj4gQ2M6IGxpbnV4LWlucHV0QHZnZXIua2VybmVs
-Lm9yZw0KPiBTdWJqZWN0OiBHb29kaXggdG91Y2hzY3JlZW4gd29ya3MgaW50ZXJtaXR0ZW50bHks
-IGZhaWxzIHJlYWRpbmcgY29uZmlnIGluZm8uDQo+IA0KPiBTdW1tYXJ5OiBHb29kaXggdG91Y2hz
-Y3JlZW4gd29ya3MgaW50ZXJtaXR0ZW50bHksIGZhaWxzIHJlYWRpbmcgY29uZmlnIGluZm8uDQo+
-ICBodHRwczovL2J1Z3ppbGxhLmtlcm5lbC5vcmcvc2hvd19idWcuY2dpP2lkPTE1NjUxMQ0KPiAN
-Cj4gRGVzY3JpcHRpb246ICBDaHV3aSBIaTEyIHRhYmxldCB3aXRoIEludGVsIGNoZXJyeS10cmFp
-bCBBdG9tIFo4MzAwLA0KPiB0aGUgdG91Y2hzY3JlZW4gZG9lcyB3b3JrIGFmdGVyIGJvb3R1cCBt
-b3N0IG9mIHRoZSB0aW1lLCBidXQgc29tZXRpbWVzDQo+IGl0IGRvZXMgbm90IHdvcmsgd2l0aG91
-dCBydW5uaW5nIG1vZHByb2JlLiAgV2hlbiBpdCBmYWlscyB0aGUgZG1lc2cNCj4gbG9nIHNob3dz
-IHRoZSBlcnJvciAiSW52YWxpZCBjb25maWcsIHVzaW5nIGRlZmF1bHRzIiBhbmQgd2hlbiBpdCB3
-b3Jrcw0KPiB0aGlzIGVycm9yIGlzIG5vdCBwcmVzZW50Lg0KPiANCj4gTW9kdWxlOiBnb29kaXgs
-IGdvb2RpeF9iYWNrcG9ydA0KPiBMaW51eCB2ZXJzaW9uIDQuOC4wLTA0MDgwMHJjNS1nZW5lcmlj
-IChrZXJuZWxAdGFuZ2VyaW5lKSAoZ2NjIHZlcnNpb24NCj4gNi4yLjAgMjAxNjA4MzAgKFVidW50
-dSA2LjIuMC0ydWJ1bnR1MTEpICkgIzIwMTYwOTA0MTgzMiBTTVAgU3VuIFNlcCA0DQo+IDIyOjM0
-OjAxIFVUQyAyMDE2DQo+IA0KPiBkbWVzZyBsb2cgd2hlbiBpdCdzIGZhaWxpbmc6DQo+IFsgMTAu
-MDEyMzE0XSBHb29kaXgtVFMgaTJjLUdESVgxMDAxOjAwOiBJRCA5MTExLCB2ZXJzaW9uOiAxMDYw
-DQo+IFsgMTAuMDE3NzExXSBHb29kaXgtVFMgaTJjLUdESVgxMDAxOjAwOiBJbnZhbGlkIGNvbmZp
-ZywgdXNpbmcgZGVmYXVsdHMNCj4gWyAxMC4wMTgwMjFdIGlucHV0OiBHb29kaXggQ2FwYWNpdGl2
-ZSBUb3VjaFNjcmVlbiBhcw0KPiAvZGV2aWNlcy9wY2kwMDAwOjAwLzgwODYyMkMxOjA1L2kyYy0x
-My9pMmMtR0RJWDEwMDE6MDAvaW5wdXQvaW5wdXQ2DQo+IA0KPiBkZXRhaWxzIGdpdmVuIGluIGJ1
-Z3ppbGxhICMxNTY1MTENCg0KSGkgQnJhZCwNCg0KSSBoYWQgc2ltaWxhciBwcm9ibGVtcyB3aXRo
-IHNvbWUgR29vZGl4IGRldmljZXMgdW50aWwgSSBlbmFibGVkIHRoZQ0KcmVzZXQgc2VxdWVuY2Ug
-WzFdLg0KDQpBbHRob3VnaCB0aGUgdG91Y2ggc2NyZWVuIHdhcyBpbml0aWFsaXplZCBhbmQgSSBj
-b3VsZCByZWFkL3dyaXRlIHRvL2Zyb20NCnRoZSBkZXZpY2UsIEkgcmVhZCBvbmx5IDBzIGZyb20g
-dGhlIGNvbmZpZ3VyYXRpb24gcmVnaXN0ZXJzLiBUaGUgZGF0YXNoZWV0DQpyZWNvbW1lbmRzIHVz
-aW5nIHRoZSByZXNldCBwcm9jZWR1cmUgYXQgcG93ZXIgb24sIHNvIEkgY291bGQgbm90IGZpbmQg
-YW55DQppbmZvcm1hdGlvbiBvbiBob3cgdG8gbWFrZSB0aGUgZGV2aWNlIHdvcmsgcmVsaWFibHkg
-d2l0aG91dCBpdC4gUmVzZXR0aW5nIHRoZQ0KZGV2aWNlIGF0IGJvb3QgZml4ZWQgdGhlIHByb2Js
-ZW0gZm9yIG1lLiBGb3IgYmFja3dhcmRzIGNvbXBhdGliaWxpdHksIHRoZQ0KcmVzZXQgc2VxdWVu
-Y2UgaXMgb25seSBhdmFpbGFibGUgaWYgdGhlIGludGVycnVwdCBhbmQgcmVzZXQgZ3BpbyBwaW5z
-IGFyZQ0KY29ubmVjdGVkIGFuZCBjb25maWd1cmVkIHRocm91Z2ggX0RTRCBwcm9wZXJ0aWVzIGlu
-IHRoZSBBQ1BJIHRhYmxlIG9yIERUDQpwcm9wZXJ0aWVzLg0KDQpPbmUgcmVhc29uIGZvciB0aGUg
-dG91Y2hzY3JlZW4gbm90IHdvcmtpbmcgaW4gdGhpcyBjYXNlIGlzIHRoYXQgdGhlIGludGVycnVw
-dHMNCmFyZSBub3QgcHJvcGVybHkgY29uZmlndXJlZC4gSSBub3RpY2VkIGluIHRoZSBCdWd6aWxs
-YSBkZXRhaWxzIHRoYXQgeW91IGFscmVhZHkNCnRyaWVkIGNoYW5naW5nIHRoZSBkZWZhdWx0IHZh
-bHVlIGZvciB0cmlnZ2VyX3R5cGUgdG8gdGhlIG9uZSByZWFkIGZyb20gdGhlIGRldmljZS4NCkRp
-ZCB0aGF0IHdvcms/DQoNClJlZ2FyZHMsDQpJcmluYQ0KDQpbMV0gaHR0cHM6Ly9naXQua2VybmVs
-Lm9yZy9jZ2l0L2xpbnV4L2tlcm5lbC9naXQvdG9ydmFsZHMvbGludXguZ2l0L2NvbW1pdC8/aWQ9
-ZWM2ZTFiNDA4MmQ5ZjViMDg1OGNlMzMxNjlhMWMyMmEyN2E5ODJmNg0K
+Hi Irina,
+  I don't have the tablet. The user's last reply yesterday was this:
+"here is a log of the, TS working with your latest edits
+http://pastebin.com/mhMpa3Zj . it might be a couple days before i can
+do much more testing on it.  "
+So I'm still waiting to find out if my changing the default
+trigger_type=0 had any effect when read_config fails.
+That log of the working case shows things as expected.
+
+[   12.356637] goodix_backport: loading out-of-tree module taints kernel.
+[   12.356739] goodix_backport: module verification failed: signature
+and/or required key missing - tainting kernel
+[   12.364644] intel_sst_acpi 808622A8:00: No matching machine driver found
+[   12.365892] Goodix-TS i2c-GDIX1001:00: ID 9111, version: 1060
+[   12.373813] Goodix-TS i2c-GDIX1001:00: dev_info: cfg_len: 186,
+x_max: 2160, y_max: 2160, touch_num: 10, trigger_type: 0
+[   12.373822] Goodix-TS i2c-GDIX1001:00: dev_info: cfg_len: 186,
+x_max: 2160, y_max: 2160, touch_num: 10, trigger_type: 0
+[   12.373998] input: Goodix Capacitive TouchScreen as
+/devices/pci0000:00/808622C1:05/i2c-13/i2c-GDIX1001:00/input/input6
+
+<====== Note: =====>
+Please note my change of email address I will be moving to soon:
+bradleybaker@protonmail.com
+<================>
+
+
+On Sun, Sep 11, 2016 at 3:54 PM, Tirdea, Irina <irina.tirdea@intel.com> wrote:
+>
+>
+>> -----Original Message-----
+>> From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Brad Baker
+>> Sent: 11 September, 2016 0:21
+>> To: bastien nocera
+>> Cc: linux-input@vger.kernel.org
+>> Subject: Goodix touchscreen works intermittently, fails reading config info.
+>>
+>> Summary: Goodix touchscreen works intermittently, fails reading config info.
+>>  https://bugzilla.kernel.org/show_bug.cgi?id=156511
+>>
+>> Description:  Chuwi Hi12 tablet with Intel cherry-trail Atom Z8300,
+>> the touchscreen does work after bootup most of the time, but sometimes
+>> it does not work without running modprobe.  When it fails the dmesg
+>> log shows the error "Invalid config, using defaults" and when it works
+>> this error is not present.
+>>
+>> Module: goodix, goodix_backport
+>> Linux version 4.8.0-040800rc5-generic (kernel@tangerine) (gcc version
+>> 6.2.0 20160830 (Ubuntu 6.2.0-2ubuntu11) ) #201609041832 SMP Sun Sep 4
+>> 22:34:01 UTC 2016
+>>
+>> dmesg log when it's failing:
+>> [ 10.012314] Goodix-TS i2c-GDIX1001:00: ID 9111, version: 1060
+>> [ 10.017711] Goodix-TS i2c-GDIX1001:00: Invalid config, using defaults
+>> [ 10.018021] input: Goodix Capacitive TouchScreen as
+>> /devices/pci0000:00/808622C1:05/i2c-13/i2c-GDIX1001:00/input/input6
+>>
+>> details given in bugzilla #156511
+>
+> Hi Brad,
+>
+> I had similar problems with some Goodix devices until I enabled the
+> reset sequence [1].
+>
+> Although the touch screen was initialized and I could read/write to/from
+> the device, I read only 0s from the configuration registers. The datasheet
+> recommends using the reset procedure at power on, so I could not find any
+> information on how to make the device work reliably without it. Resetting the
+> device at boot fixed the problem for me. For backwards compatibility, the
+> reset sequence is only available if the interrupt and reset gpio pins are
+> connected and configured through _DSD properties in the ACPI table or DT
+> properties.
+>
+> One reason for the touchscreen not working in this case is that the interrupts
+> are not properly configured. I noticed in the Bugzilla details that you already
+> tried changing the default value for trigger_type to the one read from the device.
+> Did that work?
+>
+> Regards,
+> Irina
+>
+> [1] https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ec6e1b4082d9f5b0858ce33169a1c22a27a982f6

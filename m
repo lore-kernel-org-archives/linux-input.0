@@ -1,602 +1,295 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH] [RFC] HID: udraw: Add support for the uDraw tablet for PS3
-Date: Sun, 11 Sep 2016 18:48:24 +0200
-Message-ID: <1473612504.7457.4.camel@hadess.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:53423 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755666AbcIKQse (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 11 Sep 2016 12:48:34 -0400
-Received: from mfilter48-d.gandi.net (mfilter48-d.gandi.net [217.70.178.179])
-        by relay4-d.mail.gandi.net (Postfix) with ESMTP id 7201917209D
-        for <linux-input@vger.kernel.org>; Sun, 11 Sep 2016 18:48:31 +0200 (CEST)
-Received: from relay4-d.mail.gandi.net ([IPv6:::ffff:217.70.183.196])
-        by mfilter48-d.gandi.net (mfilter48-d.gandi.net [::ffff:10.0.15.180]) (amavisd-new, port 10024)
-        with ESMTP id w5berIiVdWGU for <linux-input@vger.kernel.org>;
-        Sun, 11 Sep 2016 18:48:29 +0200 (CEST)
-Received: from surface (mon69-7-83-155-44-161.fbx.proxad.net [83.155.44.161])
-        (Authenticated sender: hadess@hadess.net)
-        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id A9D3F17209B
-        for <linux-input@vger.kernel.org>; Sun, 11 Sep 2016 18:48:27 +0200 (CEST)
-Sender: linux-input-owner@vger.kernel.org
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH resend 1/5] input: touchscreen: Add generic touchscreen softbutton handling code
+Date: Sun, 11 Sep 2016 20:44:04 +0200
+Message-ID: <20160911184408.11657-2-hdegoede@redhat.com>
+References: <20160911184408.11657-1-hdegoede@redhat.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160911184408.11657-1-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-This adds support for the THQ uDraw tablet for the PS3, as
-4 separate device nodes, so that user-space can easily consume
-events coming from the hardware.
+Some touchscreens extend over the display they cover and have a number
+of capacative softbuttons outside of the display the cover.
 
-Tested-by: Bastien Nocera <hadess@hadess.net>
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
+With some hardware these softbuttons simply report touches with
+coordinates outside of the normal coordinate space for touches on the
+display.
 
+This commit adds a devicetree binding for describing such buttons in
+devicetree and a bunch of helper functions to easily add support for
+these to existing touchscreen drivers.
+
+Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
+ .../bindings/input/touchscreen/softbuttons.txt     |  58 +++++++++
+ drivers/input/touchscreen/Makefile                 |   2 +-
+ drivers/input/touchscreen/softbuttons.c            | 145 +++++++++++++++++++++
+ include/linux/input/touchscreen.h                  |   9 ++
+ 4 files changed, 213 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+ create mode 100644 drivers/input/touchscreen/softbuttons.c
 
-I didn't compile it in-tree yet, only out-of-tree, and I'm still
-investigating support for LEDs, battery and better two-finger tap
-support.
-
-Comments welcome
-
- MAINTAINERS             |   6 +
- drivers/hid/Kconfig     |   7 +
- drivers/hid/Makefile    |   1 +
- drivers/hid/hid-core.c  |   1 +
- drivers/hid/hid-ids.h   |   3 +
- drivers/hid/hid-udraw.c | 434
-++++++++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 452 insertions(+)
- create mode 100644 drivers/hid/hid-udraw.c
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 6cbef71..46b5dc7 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -11835,6 +11835,12 @@ S:	Maintained
- F:	Documentation/filesystems/udf.txt
- F:	fs/udf/
- 
-+UDRAW TABLET
-+M:	Bastien Nocera <hadess@hadess.net>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	drivers/hid/hid-udraw.c
-+
- UFS FILESYSTEM
- M:	Evgeniy Dushistov <dushistov@mail.ru>
- S:	Maintained
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 78ac481..be24a81 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -856,6 +856,13 @@ config THRUSTMASTER_FF
- 	  a THRUSTMASTER Dual Trigger 3-in-1 or a THRUSTMASTER Ferrari
-GT
- 	  Rumble Force or Force Feedback Wheel.
- 
-+config HID_UDRAW
-+	tristate "THQ PS3 uDraw tablet"
-+	depends on HID
-+	---help---
-+	  Say Y here if you want to use the THQ uDraw gaming tablet
-for
-+	  the PS3.
-+
- config HID_WACOM
- 	tristate "Wacom Intuos/Graphire tablet support (USB)"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index fc4b2aa..b7d7fb5 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -96,6 +96,7 @@ obj-$(CONFIG_HID_TIVO)		+= hid-tivo.o
- obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
- obj-$(CONFIG_HID_TWINHAN)	+= hid-twinhan.o
- obj-$(CONFIG_HID_UCLOGIC)	+= hid-uclogic.o
-+obj-$(CONFIG_HID_UDRAW)		+= hid-udraw.o
- obj-$(CONFIG_HID_LED)		+= hid-led.o
- obj-$(CONFIG_HID_XINMO)		+= hid-xinmo.o
- obj-$(CONFIG_HID_ZEROPLUS)	+= hid-zpff.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 08f53c7..3e2dcc3 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2083,6 +2083,7 @@ static const struct hid_device_id
-hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-USB_DEVICE_ID_UCLOGIC_TABLET_WP1062) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_THQ,
-USB_DEVICE_ID_THQ_PS3_UDRAW) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP,
-USB_DEVICE_ID_SMARTJOY_PLUS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP,
-USB_DEVICE_ID_SUPER_JOY_BOX_3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP,
-USB_DEVICE_ID_DUAL_USB_JOYPAD) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4ed9a4f..3756630 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -952,6 +952,9 @@
- #define USB_VENDOR_ID_THINGM		0x27b8
- #define USB_DEVICE_ID_BLINK1		0x01ed
- 
-+#define USB_VENDOR_ID_THQ		0x20d6
-+#define USB_DEVICE_ID_THQ_PS3_UDRAW	0xcb17
-+
- #define USB_VENDOR_ID_THRUSTMASTER	0x044f
- 
- #define USB_VENDOR_ID_TIVO		0x150a
-diff --git a/drivers/hid/hid-udraw.c b/drivers/hid/hid-udraw.c
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
 new file mode 100644
-index 0000000..6728cae
+index 0000000..3eb6f4c
 --- /dev/null
-+++ b/drivers/hid/hid-udraw.c
-@@ -0,0 +1,434 @@
++++ b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
+@@ -0,0 +1,58 @@
++General Touchscreen Softbutton Properties:
++
++Some touchscreens extend over the display they cover and have a number
++of capacative softbuttons outside of the display the cover.
++
++Some of these softbuttons simply report touches with coordinates outside of
++the normal coordinate space for touches on the display. This binding is for
++describing such buttons in devicetree.
++
++Each softkey is represented as a sub-node of the touchscreen node.
++
++Required subnode-properties:
++ - label			: Descriptive name of the key.
++ - linux,code			: Keycode to emit.
++ - softbutton-min-x		: X start of the area the softbutton area covers
++ - softbutton-max-x		: X end of the area the softbutton area covers
++ - softbutton-min-y		: Y start of the area the softbutton area covers
++ - softbutton-max-y		: Y end of the area the softbutton area covers
++
++Example:
++
++#include <dt-bindings/input/input.h>
++
++&i2c2 {
++	ft5406ee8: touchscreen@38 {
++		compatible = "edt,edt-ft5406";
++		reg = <0x38>;
++		touchscreen-size-x = <1024>;
++		touchscreen-size-y = <768>;
++
++		button@0 {
++			label = "Esc";
++			linux,code = <KEY_ESC>;
++			softbutton-min-x = <1084>;
++			softbutton-max-x = <1098>;
++			softbutton-min-y = <0>;
++			softbutton-max-y = <49>;
++		};
++
++		button@1 {
++			label = "Home";
++			linux,code = <KEY_HOMEPAGE>;
++			softbutton-min-x = <1084>;
++			softbutton-max-x = <1098>;
++			softbutton-min-y = <50>;
++			softbutton-max-y = <99>;
++		};
++
++		button@2 {
++			label = "Menu";
++			linux,code = <KEY_MENU>;
++			softbutton-min-x = <1084>;
++			softbutton-max-x = <1098>;
++			softbutton-min-y = <100>;
++			softbutton-max-y = <149>;
++		};
++	};
++};
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 57a1c09..33b2eb8 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -6,7 +6,7 @@
+ 
+ wm97xx-ts-y := wm97xx-core.o
+ 
+-obj-$(CONFIG_TOUCHSCREEN_PROPERTIES)	+= of_touchscreen.o
++obj-$(CONFIG_TOUCHSCREEN_PROPERTIES)	+= of_touchscreen.o softbuttons.o
+ obj-$(CONFIG_TOUCHSCREEN_88PM860X)	+= 88pm860x-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_AD7877)	+= ad7877.o
+ obj-$(CONFIG_TOUCHSCREEN_AD7879)	+= ad7879.o
+diff --git a/drivers/input/touchscreen/softbuttons.c b/drivers/input/touchscreen/softbuttons.c
+new file mode 100644
+index 0000000..47aea18
+--- /dev/null
++++ b/drivers/input/touchscreen/softbuttons.c
+@@ -0,0 +1,145 @@
 +/*
-+ * HID driver for THQ PS3 uDraw tablet
++ * touchscreen softbutton helper functions
 + *
-+ * Copyright (C) 2016 Red Hat Inc. All Rights Reserved
++ * Copyright (c) 2016 Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 + *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation,
-and
-+ * may be copied, distributed, and modified under those terms.
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#include <linux/input.h>
++#include <linux/input/touchscreen.h>
++#include <linux/of.h>
++
++struct touchscreen_softbutton {
++	u32 min_x;
++	u32 max_x;
++	u32 min_y;
++	u32 max_y;
++	u32 keycode;
++};
++
++struct touchscreen_softbutton_info {
++	struct input_dev *input;
++	struct touchscreen_softbutton *buttons;
++	int button_count;
++};
++
++/**
++ * devm_touchscreen_alloc_softbuttons - allocate softbuttons
++ * @input: touchscreen input device for which softbuttons should be allocated
 + *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
++ * This function parses touschcreen softbutton DT properties for touchscreens
++ * and allocates and fill a touchscreen_softbutton_info struct if any
++ * softbuttons are found.
++ *
++ * Returns prepared struct touchscreen_softbutton_info on success,
++ * %NULL if no softbuttons were found (this is not an error) or a ERR_PTR
++ * in case of an error.
++ *
++ * Note as this is a devm function the returned pointer does not need to
++ * be freed.
 + */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include "hid-ids.h"
-+
-+MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
-+MODULE_DESCRIPTION("PS3 uDraw tablet driver");
-+MODULE_LICENSE("GPL");
-+
-+/*
-+ * Protocol information from:
-+ * http://brandonw.net/udraw/
-+ * and the source code of:
-+ * https://vvvv.org/contribution/udraw-hid
-+ */
-+
-+/*
-+ * The device is setup with multiple input devices to make it easier
-+ * to handle in user-space:
-+ * - the touch area which works as a touchpad
-+ * - the tablet area which works as a touchpad/drawing tablet
-+ * - a joypad with a d-pad, and 7 buttons
-+ * - an optional, disabled by default, accelerometer device
-+ */
-+
-+static const unsigned short udraw_joy_key_table[] = {
-+	BTN_SOUTH,
-+	BTN_NORTH,
-+	BTN_EAST,
-+	BTN_WEST,
-+	BTN_SELECT,
-+	BTN_START,
-+	BTN_MODE
-+};
-+
-+enum {
-+	TOUCH_NONE,
-+	TOUCH_PEN,
-+	TOUCH_FINGER,
-+	TOUCH_FINGERS
-+};
-+
-+/* Accelerometer min/max values
-+ * in order, X, Y and Z
-+ */
-+struct {
-+	int min;
-+	int max;
-+} accel_limits[] = {
-+	{ 0x1EA, 0x216 },
-+	{ 0x1EA, 0x216 },
-+	{ 0x1EC, 0x218 }
-+};
-+
-+#define DEVICE_NAME "THQ uDraw Game Tablet for PS3"
-+/* resolution in pixels */
-+#define RES_X 1920
-+#define RES_Y 1080
-+/* size in mm */
-+#define WIDTH  160
-+#define HEIGHT 90
-+#define PRESSURE_OFFSET 0x71
-+#define MAX_PRESSURE (0xFF - PRESSURE_OFFSET)
-+
-+struct udraw {
-+	struct input_dev *joy_input_dev;
-+	struct input_dev *touch_input_dev;
-+	struct input_dev *pen_input_dev;
-+	struct input_dev *accel_input_dev;
-+	struct hid_device *hdev;
-+};
-+
-+static int clamp_accel(int axis, int offset)
++struct touchscreen_softbutton_info *devm_touchscreen_alloc_softbuttons(
++					struct input_dev *input)
 +{
-+	axis = clamp(axis,
-+			accel_limits[offset].min,
-+			accel_limits[offset].max);
-+	axis = (axis - accel_limits[offset].min) /
-+			((accel_limits[offset].max -
-+			  accel_limits[offset].min) * 0xFF);
-+	return axis;
-+}
++	struct device *dev = input->dev.parent;
++	struct device_node *np, *pp;
++	struct touchscreen_softbutton_info *info;
++	int i, err, button_count;
 +
-+static int udraw_raw_event(struct hid_device *hdev, struct hid_report
-*report,
-+	 u8 *data, int len)
-+{
-+	struct udraw *udraw = hid_get_drvdata(hdev);
-+	int touch;
-+	int x, y, z;
-+
-+	if (len != 0x1B)
-+		return 0;
-+
-+	if (data[11] == 0x00)
-+		touch = TOUCH_NONE;
-+	else if (data[11] == 0x40)
-+		touch = TOUCH_PEN;
-+	else if (data[11] == 0x80)
-+		touch = TOUCH_FINGER;
-+	else
-+		touch = TOUCH_FINGERS;
-+
-+	/* joypad */
-+	input_report_key(udraw->joy_input_dev, BTN_WEST, data[0] & 1);
-+	input_report_key(udraw->joy_input_dev, BTN_SOUTH, data[0] &
-2);
-+	input_report_key(udraw->joy_input_dev, BTN_EAST, data[0] & 4);
-+	input_report_key(udraw->joy_input_dev, BTN_NORTH, data[0] &
-8);
-+
-+	input_report_key(udraw->joy_input_dev, BTN_SELECT, data[1] &
-1);
-+	input_report_key(udraw->joy_input_dev, BTN_START, data[1] &
-2);
-+	input_report_key(udraw->joy_input_dev, BTN_MODE, data[1] &
-16);
-+
-+	x = y = 0;
-+	switch (data[2]) {
-+	case 0x0:
-+		y = -127;
-+		break;
-+	case 0x1:
-+		y = -127;
-+		x = 127;
-+		break;
-+	case 0x2:
-+		x = 127;
-+		break;
-+	case 0x3:
-+		y = 127;
-+		x = 127;
-+		break;
-+	case 0x4:
-+		y = 127;
-+		break;
-+	case 0x5:
-+		y = 127;
-+		x = -127;
-+		break;
-+	case 0x6:
-+		x = -127;
-+		break;
-+	case 0x7:
-+		y = -127;
-+		x = -127;
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	input_report_abs(udraw->joy_input_dev, ABS_X, x);
-+	input_report_abs(udraw->joy_input_dev, ABS_Y, y);
-+
-+	input_sync(udraw->joy_input_dev);
-+
-+	/* For pen and touchpad */
-+	x = y = 0;
-+	if (touch != TOUCH_NONE) {
-+		if (data[15] != 0x0F)
-+			x = data[15] * 256 + data[17];
-+		if (data[16] != 0x0F)
-+			y = data[16] * 256 + data[18];
-+	}
-+
-+	/* touchpad */
-+	if (touch == TOUCH_FINGER || touch == TOUCH_FINGERS) {
-+		input_report_key(udraw->touch_input_dev, BTN_TOUCH,
-1);
-+		input_report_key(udraw->touch_input_dev,
-BTN_TOOL_FINGER,
-+				touch == TOUCH_FINGER);
-+		input_report_key(udraw->touch_input_dev,
-BTN_TOOL_DOUBLETAP,
-+				touch == TOUCH_FINGERS);
-+
-+		input_report_abs(udraw->touch_input_dev, ABS_X, x);
-+		input_report_abs(udraw->touch_input_dev, ABS_Y, y);
-+	} else {
-+		input_report_key(udraw->touch_input_dev, BTN_TOUCH,
-0);
-+		input_report_key(udraw->touch_input_dev,
-BTN_TOOL_FINGER, 0);
-+		input_report_key(udraw->touch_input_dev,
-BTN_TOOL_DOUBLETAP, 0);
-+	}
-+	input_sync(udraw->touch_input_dev);
-+
-+	/* pen */
-+	if (touch == TOUCH_PEN) {
-+		int level;
-+
-+		level = clamp(data[13] - PRESSURE_OFFSET,
-+				0, MAX_PRESSURE);
-+
-+		input_report_key(udraw->pen_input_dev, BTN_TOUCH,
-(level != 0));
-+		input_report_key(udraw->pen_input_dev, BTN_TOOL_PEN,
-1);
-+		input_report_abs(udraw->pen_input_dev, ABS_PRESSURE,
-level);
-+		input_report_abs(udraw->pen_input_dev, ABS_X, x);
-+		input_report_abs(udraw->pen_input_dev, ABS_Y, y);
-+	} else {
-+		input_report_key(udraw->pen_input_dev, BTN_TOUCH, 0);
-+		input_report_abs(udraw->pen_input_dev, ABS_PRESSURE,
-0);
-+		input_report_key(udraw->pen_input_dev, BTN_TOOL_PEN,
-0);
-+	}
-+	input_sync(udraw->pen_input_dev);
-+
-+	/* accel */
-+	x = (data[19] + (data[20] << 8));
-+	x = clamp_accel(x, 0);
-+	y = (data[21] + (data[22] << 8));
-+	y = clamp_accel(y, 1);
-+	z = (data[23] + (data[24] << 8));
-+	z = clamp_accel(z, 2);
-+	input_report_abs(udraw->accel_input_dev, ABS_X, x);
-+	input_report_abs(udraw->accel_input_dev, ABS_Y, y);
-+	input_report_abs(udraw->accel_input_dev, ABS_Z, z);
-+	input_sync(udraw->accel_input_dev);
-+
-+	/* let hidraw and hiddev handle the report */
-+	return 0;
-+}
-+
-+static int udraw_open(struct input_dev *dev)
-+{
-+	struct udraw *udraw = input_get_drvdata(dev);
-+
-+	return hid_hw_open(udraw->hdev);
-+}
-+
-+static void udraw_close(struct input_dev *dev)
-+{
-+	struct udraw *udraw = input_get_drvdata(dev);
-+
-+	hid_hw_close(udraw->hdev);
-+}
-+
-+static struct input_dev *allocate_and_setup(struct hid_device *hdev,
-+		const char *name)
-+{
-+	struct input_dev *input_dev;
-+
-+	input_dev = devm_input_allocate_device(&hdev->dev);
-+	if (!input_dev)
++	np = dev->of_node;
++	if (!np)
 +		return NULL;
 +
-+	input_dev->name = name;
-+	input_dev->phys = hdev->phys;
-+	input_dev->dev.parent = &hdev->dev;
-+	input_dev->open = udraw_open;
-+	input_dev->close = udraw_close;
-+	input_dev->uniq = hdev->uniq;
-+	input_dev->id.bustype = hdev->bus;
-+	input_dev->id.vendor  = hdev->vendor;
-+	input_dev->id.product = hdev->product;
-+	input_dev->id.version = hdev->version;
-+	input_set_drvdata(input_dev, hid_get_drvdata(hdev));
++	button_count = of_get_child_count(np);
++	if (button_count == 0)
++		return NULL;
 +
-+	return input_dev;
++	info = devm_kzalloc(dev, sizeof(*info), GFP_KERNEL);
++	if (!info)
++		return ERR_PTR(-ENOMEM);
++
++	info->input = input;
++	info->button_count = button_count;
++	info->buttons = devm_kzalloc(dev, button_count * sizeof(*info->buttons),
++				     GFP_KERNEL);
++	if (!info->buttons)
++		return ERR_PTR(-ENOMEM);
++
++	for (pp = of_get_next_child(np, NULL), i = 0;
++	     pp != NULL;
++	     pp = of_get_next_child(np, pp), i++) {
++		struct touchscreen_softbutton *btn = &info->buttons[i];
++
++		err = of_property_read_u32(pp, "linux,code", &btn->keycode);
++		if (err) {
++			dev_err(dev, "%s: Inval linux,code prop\n", pp->name);
++			return ERR_PTR(-EINVAL);
++		}
++
++		err = of_property_read_u32(pp, "softbutton-min-x", &btn->min_x);
++		if (err) {
++			dev_err(dev, "%s: Inval min-x prop\n", pp->name);
++			return ERR_PTR(-EINVAL);
++		}
++
++		err = of_property_read_u32(pp, "softbutton-max-x", &btn->max_x);
++		if (err) {
++			dev_err(dev, "%s: Inval max-x prop\n", pp->name);
++			return ERR_PTR(-EINVAL);
++		}
++
++		err = of_property_read_u32(pp, "softbutton-min-y", &btn->min_y);
++		if (err) {
++			dev_err(dev, "%s: Inval min-y prop\n", pp->name);
++			return ERR_PTR(-EINVAL);
++		}
++
++		err = of_property_read_u32(pp, "softbutton-max-y", &btn->max_y);
++		if (err) {
++			dev_err(dev, "%s: Inval max-y prop\n", pp->name);
++			return ERR_PTR(-EINVAL);
++		}
++	}
++
++	__set_bit(EV_KEY, input->evbit);
++	for (i = 0; i < info->button_count; i++)
++		__set_bit(info->buttons[i].keycode, input->keybit);
++
++	return info;
 +}
 +
-+static bool udraw_setup_touch(struct udraw *udraw,
-+		struct hid_device *hdev)
++/**
++ * touchscreen_handle_softbuttons - check for softbutton press
++ * @info: softbutton info retured by devm_touchscreen_alloc_softbuttons.
++ *
++ * This function checks if the passed in coordinates match any softbutton,
++ * and when they do reports a key press / release for the softbutton.
++ *
++ * Returns true if the coordinates match a softbutton and a key press / release
++ * was reported, false otherwise.
++ */
++bool touchscreen_handle_softbuttons(struct touchscreen_softbutton_info *info,
++				    unsigned int x, unsigned int y, bool down)
 +{
-+	struct input_dev *input_dev;
-+
-+	input_dev = allocate_and_setup(hdev, DEVICE_NAME "
-(touchpad)");
-+	if (!input_dev)
-+		return false;
-+
-+	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
-+
-+	set_bit(ABS_X, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_X, 0, RES_X, 1, 0);
-+	input_abs_set_res(input_dev, ABS_X, RES_X / WIDTH);
-+	set_bit(ABS_Y, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_Y, 0, RES_Y, 1, 0);
-+	input_abs_set_res(input_dev, ABS_Y, RES_Y / HEIGHT);
-+
-+	set_bit(BTN_TOUCH, input_dev->keybit);
-+	set_bit(BTN_TOOL_FINGER, input_dev->keybit);
-+	set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
-+
-+	set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-+
-+	udraw->touch_input_dev = input_dev;
-+
-+	return true;
-+}
-+
-+static bool udraw_setup_pen(struct udraw *udraw,
-+		struct hid_device *hdev)
-+{
-+	struct input_dev *input_dev;
-+
-+	input_dev = allocate_and_setup(hdev, DEVICE_NAME " (pen)");
-+	if (!input_dev)
-+		return false;
-+
-+	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
-+
-+	set_bit(ABS_X, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_X, 0, RES_X, 1, 0);
-+	input_abs_set_res(input_dev, ABS_X, RES_X / WIDTH);
-+	set_bit(ABS_Y, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_Y, 0, RES_Y, 1, 0);
-+	input_abs_set_res(input_dev, ABS_Y, RES_Y / HEIGHT);
-+	set_bit(ABS_PRESSURE, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_PRESSURE,
-+			0, MAX_PRESSURE, 0, 0);
-+
-+	set_bit(BTN_TOUCH, input_dev->keybit);
-+	set_bit(BTN_TOOL_PEN, input_dev->keybit);
-+
-+	set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-+
-+	udraw->pen_input_dev = input_dev;
-+
-+	return true;
-+}
-+
-+static bool udraw_setup_accel(struct udraw *udraw,
-+		struct hid_device *hdev)
-+{
-+	struct input_dev *input_dev;
-+
-+	input_dev = allocate_and_setup(hdev, DEVICE_NAME "
-(accelerometer)");
-+	if (!input_dev)
-+		return false;
-+
-+	input_dev->evbit[0] = BIT(EV_ABS);
-+
-+	/* 1G accel is reported as ~256, so clamp to 2G */
-+	set_bit(ABS_X, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_X, -512, 512, 0, 0);
-+	set_bit(ABS_Y, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_Y, -512, 512, 0, 0);
-+	set_bit(ABS_Z, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_Z, -512, 512, 0, 0);
-+
-+	set_bit(INPUT_PROP_ACCELEROMETER, input_dev->propbit);
-+
-+	udraw->accel_input_dev = input_dev;
-+
-+	return true;
-+}
-+
-+static bool udraw_setup_joypad(struct udraw *udraw,
-+		struct hid_device *hdev)
-+{
-+	struct input_dev *input_dev;
 +	int i;
 +
-+	input_dev = allocate_and_setup(hdev, DEVICE_NAME " (joypad)");
-+	if (!input_dev)
++	if (info == NULL)
 +		return false;
 +
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
++	for (i = 0; i < info->button_count; i++) {
++		if (x >= info->buttons[i].min_x &&
++		    x <= info->buttons[i].max_x &&
++		    y >= info->buttons[i].min_y &&
++		    y <= info->buttons[i].max_y) {
++			input_report_key(info->input,
++					 info->buttons[i].keycode, down);
++			return true;
++		}
++	}
 +
-+	set_bit(ABS_X, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_X, -127, 127, 0, 0);
-+	set_bit(ABS_Y, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_Y, -127, 127, 0, 0);
-+
-+	for (i = 0; i < ARRAY_SIZE(udraw_joy_key_table); i++)
-+		set_bit(udraw_joy_key_table[i], input_dev->keybit);
-+
-+	udraw->joy_input_dev = input_dev;
-+
-+	return true;
++	return false;
 +}
+diff --git a/include/linux/input/touchscreen.h b/include/linux/input/touchscreen.h
+index 09d22cc..0b9d4ee 100644
+--- a/include/linux/input/touchscreen.h
++++ b/include/linux/input/touchscreen.h
+@@ -9,8 +9,11 @@
+ #ifndef _TOUCHSCREEN_H
+ #define _TOUCHSCREEN_H
+ 
++#include <linux/types.h>
 +
-+static int udraw_probe(struct hid_device *hdev, const struct
-hid_device_id *id)
-+{
-+	struct udraw *udraw;
-+	int ret;
+ struct input_dev;
+ struct input_mt_pos;
++struct touchscreen_softbutton_info;
+ 
+ struct touchscreen_properties {
+ 	unsigned int max_x;
+@@ -32,4 +35,10 @@ void touchscreen_report_pos(struct input_dev *input,
+ 			    unsigned int x, unsigned int y,
+ 			    bool multitouch);
+ 
++struct touchscreen_softbutton_info *devm_touchscreen_alloc_softbuttons(
++					struct input_dev *input);
 +
-+	udraw = devm_kzalloc(&hdev->dev, sizeof(struct udraw),
-GFP_KERNEL);
-+	if (!udraw)
-+		return -ENOMEM;
++bool touchscreen_handle_softbuttons(struct touchscreen_softbutton_info *info,
++				    unsigned int x, unsigned int y, bool down);
 +
-+	udraw->hdev = hdev;
-+
-+	hid_set_drvdata(hdev, udraw);
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "parse failed\n");
-+		return ret;
-+	}
-+
-+	if (!udraw_setup_joypad(udraw, hdev) ||
-+	    !udraw_setup_touch(udraw, hdev) ||
-+	    !udraw_setup_pen(udraw, hdev) ||
-+	    !udraw_setup_accel(udraw, hdev)) {
-+		hid_err(hdev, "could not allocate interfaces\n");
-+		return -ENOMEM;
-+	}
-+
-+	ret = input_register_device(udraw->joy_input_dev) ||
-+		input_register_device(udraw->touch_input_dev) ||
-+		input_register_device(udraw->pen_input_dev) ||
-+		input_register_device(udraw->accel_input_dev);
-+	if (ret) {
-+		hid_err(hdev, "failed to register interfaces\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW |
-HID_CONNECT_DRIVER);
-+	if (ret) {
-+		hid_err(hdev, "hw start failed\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id udraw_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_THQ,
-USB_DEVICE_ID_THQ_PS3_UDRAW) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, udraw_devices);
-+
-+static struct hid_driver udraw_driver = {
-+	.name = "hid-udraw",
-+	.id_table = udraw_devices,
-+	.raw_event = udraw_raw_event,
-+	.probe = udraw_probe,
-+};
-+module_hid_driver(udraw_driver);
--- 
-2.7.4
+ #endif
+-- 
+2.9.3
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

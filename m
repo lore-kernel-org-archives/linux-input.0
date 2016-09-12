@@ -1,59 +1,49 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/4] HID: add device id for Lenovo X1 Tablet Cover
-Date: Mon, 12 Sep 2016 17:53:35 +0200
-Message-ID: <20160912155335.GE25951@mail.corp.redhat.com>
-References: <f04a30b2-5128-fb60-a653-329a61d86366@secunet.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/2] dt-bindings: add the regulator optional properties
+Date: Mon, 12 Sep 2016 11:16:55 -0500
+Message-ID: <20160912161655.GA12672@rob-hp-laptop>
+References: <1473027116-13892-1-git-send-email-wxt@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-sound-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <f04a30b2-5128-fb60-a653-329a61d86366@secunet.com>
-Sender: linux-sound-owner@vger.kernel.org
-To: Dennis Wassenberg <dennis.wassenberg@secunet.com>
-Cc: linux-input@vger.kernel.org, linux-sound@vger.kernel.org, alsa-devel@alsa-project.org, tiwai@suse.de, lukas@wunner.de, Andrew Duggan <aduggan@synaptics.com>, perex@perex.cz, david.henningsson@canonical.com, vinod.koul@intel.com, hui.wang@canonical.com, rafael.j.wysocki@intel.com, jikos@kernel.org
+In-Reply-To: <1473027116-13892-1-git-send-email-wxt@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Caesar Wang <wxt@rock-chips.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-rockchip@lists.infradead.org, dbasehore@chromium.org, Douglas Anderson <dianders@chromium.org>, Heiko Stuebner <heiko@sntech.de>, Brian Norris <briannorris@chromium.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sep 12 2016 or thereabouts, Dennis Wassenberg wrote:
-> Add device id for Lenovo X1 Tablet Cover
+On Mon, Sep 05, 2016 at 06:11:55AM +0800, Caesar Wang wrote:
+> Add the regulator properties that will be used to power on/off
+> the regulator.
 > 
-> Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+> Signed-off-by: Caesar Wang <wxt@rock-chips.com>
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: Jiri Kosina <jikos@kernel.org>
+> Cc: linux-input@vger.kernel.org
 > ---
-
-quick comment:
-
-this patch should be squashed with the next one where you add support of
-this device to the hid-lenovo module.
-
-Cheers,
-Benjamin
-
->  drivers/hid/hid-core.c | 1 +
->  drivers/hid/hid-ids.h  | 1 +
->  2 files changed, 2 insertions(+)
 > 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 6add0b6..ba6a200 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2111,6 +2111,7 @@ void hid_disconnect(struct hid_device *hdev)
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_CMEDIA, USB_DEVICE_ID_CM6533) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X1_COVER) },
->  	{ }
->  };
+>  Documentation/devicetree/bindings/input/hid-over-i2c.txt | 3 +++
+>  1 file changed, 3 insertions(+)
+
+I find this binding a bit questionable. The compatible should describe 
+the actual device, not just the protocol it uses.
+
+> diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> index 488edcb..e648e44 100644
+> --- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> +++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> @@ -17,6 +17,9 @@ Required properties:
+>  - interrupt-parent: the phandle for the interrupt controller
+>  - interrupts: interrupt line
 >  
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 3466f0d..1f08fb5 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -615,6 +615,7 @@
->  #define USB_DEVICE_ID_LENOVO_CUSBKBD	0x6047
->  #define USB_DEVICE_ID_LENOVO_CBTKBD	0x6048
->  #define USB_DEVICE_ID_LENOVO_TPPRODOCK	0x6067
-> +#define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
->  
->  #define USB_VENDOR_ID_LG		0x1fd2
->  #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
-> -- 
-> 1.9.1
+> +Optional properties:
+> +- power-supply: phandle of the regulator that provides the supply voltage.
+
+This needs to be actual supplies for devices. What if a device has 2 
+supplies?
+
+Add a device compatible string and make this property specific to that 
+device, then it's fine.
+
+Rob

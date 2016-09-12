@@ -1,49 +1,59 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 1/2] [media] Input: atmel_mxt: disallow impossible configuration
-Date: Mon, 12 Sep 2016 17:30:32 +0200
-Message-ID: <20160912153105.3035940-1-arnd@arndb.de>
-Return-path: <linux-media-owner@vger.kernel.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-media@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, Nick Dyer <nick@shmanahar.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/4] HID: add device id for Lenovo X1 Tablet Cover
+Date: Mon, 12 Sep 2016 17:53:35 +0200
+Message-ID: <20160912155335.GE25951@mail.corp.redhat.com>
+References: <f04a30b2-5128-fb60-a653-329a61d86366@secunet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-sound-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <f04a30b2-5128-fb60-a653-329a61d86366@secunet.com>
+Sender: linux-sound-owner@vger.kernel.org
+To: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+Cc: linux-input@vger.kernel.org, linux-sound@vger.kernel.org, alsa-devel@alsa-project.org, tiwai@suse.de, lukas@wunner.de, Andrew Duggan <aduggan@synaptics.com>, perex@perex.cz, david.henningsson@canonical.com, vinod.koul@intel.com, hui.wang@canonical.com, rafael.j.wysocki@intel.com, jikos@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The newnly added debug mode for the atmel_mxt_ts driver relies on
-the v4l2 interface and vb2_vmalloc, but those might be configured
-as loadable modules when the driver itself is built-in, resulting
-in a link failure:
+On Sep 12 2016 or thereabouts, Dennis Wassenberg wrote:
+> Add device id for Lenovo X1 Tablet Cover
+> 
+> Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+> ---
 
-drivers/input/touchscreen/atmel_mxt_ts.o: In function `mxt_vidioc_querycap':
-atmel_mxt_ts.c:(.text.mxt_vidioc_querycap+0x10): undefined reference to `video_devdata'
-drivers/input/touchscreen/atmel_mxt_ts.o: In function `mxt_buffer_queue':
-atmel_mxt_ts.c:(.text.mxt_buffer_queue+0x20): undefined reference to `vb2_plane_vaddr'
-atmel_mxt_ts.c:(.text.mxt_buffer_queue+0x164): undefined reference to `vb2_buffer_done'
-drivers/input/touchscreen/atmel_mxt_ts.o: In function `mxt_free_object_table':
-atmel_mxt_ts.c:(.text.mxt_free_object_table+0x18): undefined reference to `video_unregister_device'
-atmel_mxt_ts.c:(.text.mxt_free_object_table+0x20): undefined reference to `v4l2_device_unregister'
+quick comment:
 
-The best workaround I could come up with is to disallow the debug
-mode unless it's actually possible to call it.
+this patch should be squashed with the next one where you add support of
+this device to the hid-lenovo module.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Fixes: ecfdd7e2660e ("[media] Input: atmel_mxt_ts - output diagnostic debug via V4L2 device")
----
- drivers/input/touchscreen/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Cheers,
+Benjamin
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index fce1e41ffe8b..ccf933969587 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -117,7 +117,8 @@ config TOUCHSCREEN_ATMEL_MXT
- 
- config TOUCHSCREEN_ATMEL_MXT_T37
- 	bool "Support T37 Diagnostic Data"
--	depends on TOUCHSCREEN_ATMEL_MXT && VIDEO_V4L2
-+	depends on TOUCHSCREEN_ATMEL_MXT
-+	depends on VIDEO_V4L2=y || (TOUCHSCREEN_ATMEL_MXT=m && VIDEO_V4L2=m)
- 	select VIDEOBUF2_VMALLOC
- 	help
- 	  Say Y here if you want support to output data from the T37
--- 
-2.9.0
+>  drivers/hid/hid-core.c | 1 +
+>  drivers/hid/hid-ids.h  | 1 +
+>  2 files changed, 2 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 6add0b6..ba6a200 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -2111,6 +2111,7 @@ void hid_disconnect(struct hid_device *hdev)
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_CMEDIA, USB_DEVICE_ID_CM6533) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X1_COVER) },
+>  	{ }
+>  };
+>  
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 3466f0d..1f08fb5 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -615,6 +615,7 @@
+>  #define USB_DEVICE_ID_LENOVO_CUSBKBD	0x6047
+>  #define USB_DEVICE_ID_LENOVO_CBTKBD	0x6048
+>  #define USB_DEVICE_ID_LENOVO_TPPRODOCK	0x6067
+> +#define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
+>  
+>  #define USB_VENDOR_ID_LG		0x1fd2
+>  #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
+> -- 
+> 1.9.1

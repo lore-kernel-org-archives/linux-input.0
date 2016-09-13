@@ -1,149 +1,109 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/2] HID: input: ignore System Control application usages
- if not System Controls
-Date: Tue, 13 Sep 2016 15:58:00 +0200
-Message-ID: <20160913135759.GG25951@mail.corp.redhat.com>
-References: <1473760358-31999-1-git-send-email-benjamin.tissoires@redhat.com>
- <1473760358-31999-2-git-send-email-benjamin.tissoires@redhat.com>
- <CAAZ5spCtj6O+d6t7G2x7-m6rj4fSNQsak_QGeuqf4Bf2bqW7Cg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAAZ5spCtj6O+d6t7G2x7-m6rj4fSNQsak_QGeuqf4Bf2bqW7Cg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michel Hermier <michel.hermier@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Jason Gerecke <killertofu@gmail.com>
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: [PATCH 2/9] HID: kye: Rename MousePen i608X v2 macro
+Date: Tue, 13 Sep 2016 17:08:36 +0300
+Message-ID: <20160913140843.25567-3-spbnick@gmail.com>
+References: <20160913140843.25567-1-spbnick@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:35489 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755296AbcIMOJI (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 13 Sep 2016 10:09:08 -0400
+Received: by mail-wm0-f67.google.com with SMTP id c131so3168885wmh.2
+        for <linux-input@vger.kernel.org>; Tue, 13 Sep 2016 07:09:07 -0700 (PDT)
+In-Reply-To: <20160913140843.25567-1-spbnick@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, Nikolai Kondrashov <spbnick@gmail.com>
 
-On Sep 13 2016 or thereabouts, Michel Hermier wrote:
-> Hi,
-> 
-> Le 13 sept. 2016 11:54 AM, "Benjamin Tissoires" <
-> benjamin.tissoires@redhat.com> a écrit :
-> >
-> > Microsoft is reusing its report descriptor again and again, and part of it
-> > looks like this:
-> >
-> > 0x05, 0x01,                    // Usage Page (Generic Desktop)        299
-> > 0x09, 0x80,                    // Usage (System Control)              301
-> > 0xa1, 0x01,                    // Collection (Application)            303
-> > 0x85, 0x03,                    //  Report ID (3)                      305
-> > 0x19, 0x00,                    //  Usage Minimum (0)                  307
-> > 0x29, 0xff,                    //  Usage Maximum (255)                309
-> > 0x15, 0x00,                    //  Logical Minimum (0)                311
-> > 0x26, 0xff, 0x00,              //  Logical Maximum (255)              313
-> > 0x81, 0x00,                    //  Input (Data,Arr,Abs)               316
-> > 0xc0,                          // End Collection                      318
-> >
-> > While there is nothing wrong in term of processing, we do however blindly
-> > map the full usage range (it's an array) from 0x00 to 0xff, which creates
-> > some interesting axis, like ABS_X|Y, and a bunch of ABS_MISC + n.
-> >
-> > While libinput and other stacks don't care that much (we can detect them),
-> > joydev is very happy and attaches itself to the mouse or keyboard.
-> >
-> > The problem is that joydev now handles the device as a joystick, but given
-> > that we have a HID array, it sets all the ABS_* values to 0. And in its
-> > world, 0 means -32767 (minimum value), which sends spurious events to
-> games
-> > (think Steam).
-> >
-> > It looks like hid-microsoft tries to tackle the very same problem with its
-> > .report_fixup callback. But fixing the report descriptor is an endless
-> task
-> > and is quite obfuscated.
-> 
-> Do you plan to remove those various fixup in a later patch series, or do
-> you have other plans?
+Rename the device ID macro for the second version of KYE MousePen i608x
+graphics tablet to have "V" in its name to signify that "2" is a
+version.
 
-Well, I don't have the affected hardware on hid-microsoft, so I was planing
-on just leaving the code as it is.
+I.e. USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2 ->
+     USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2
 
-If you have some and can test/verify, then do not hesitate to remove
-those quirks.
+This also makes applying additional fixes from DIGImend easier.
 
-> 
-> >
-> > So take the hammer, and decide that if the application is meant to be
-> > System Control, any other usage not in the System Control range should
-> > be ignored.
-> 
-> To be on a safe side, shouldn't there be a flag to bypass that change in
-> case it makes some situations worse? (Thought I agree we should be pretty
-> safe here)
+Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
+---
+ drivers/hid/hid-core.c          | 2 +-
+ drivers/hid/hid-ids.h           | 2 +-
+ drivers/hid/hid-kye.c           | 6 +++---
+ drivers/hid/usbhid/hid-quirks.c | 2 +-
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
-Well, we are safe unless Hardware makers start doing weird things. But
-hardware makers always like doing weird things.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 08f53c7..758619d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1916,7 +1916,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_I405X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_PENSKETCH_M912) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 4ed9a4f..5963cf1 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -565,7 +565,7 @@
+ #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
+ #define USB_DEVICE_ID_KYE_EASYPEN_I405X	0x5010
+ #define USB_DEVICE_ID_KYE_MOUSEPEN_I608X	0x5011
+-#define USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2	0x501a
++#define USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2	0x501a
+ #define USB_DEVICE_ID_KYE_EASYPEN_M610X	0x5013
+ #define USB_DEVICE_ID_KYE_PENSKETCH_M912	0x5015
+ 
+diff --git a/drivers/hid/hid-kye.c b/drivers/hid/hid-kye.c
+index a3b70df..ee5ca1f 100644
+--- a/drivers/hid/hid-kye.c
++++ b/drivers/hid/hid-kye.c
+@@ -439,7 +439,7 @@ static __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		}
+ 		break;
+ 	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X:
+-	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2:
++	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2:
+ 		if (*rsize == MOUSEPEN_I608X_RDESC_ORIG_SIZE) {
+ 			rdesc = mousepen_i608x_rdesc_fixed;
+ 			*rsize = sizeof(mousepen_i608x_rdesc_fixed);
+@@ -538,7 +538,7 @@ static int kye_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	switch (id->product) {
+ 	case USB_DEVICE_ID_KYE_EASYPEN_I405X:
+ 	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X:
+-	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2:
++	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2:
+ 	case USB_DEVICE_ID_KYE_EASYPEN_M610X:
+ 	case USB_DEVICE_ID_KYE_PENSKETCH_M912:
+ 		ret = kye_tablet_enable(hdev);
+@@ -571,7 +571,7 @@ static const struct hid_device_id kye_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+ 				USB_DEVICE_ID_KYE_MOUSEPEN_I608X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+-				USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2) },
++				USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+ 				USB_DEVICE_ID_KYE_EASYPEN_M610X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index b4b8c6a..ab3a31c 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -143,7 +143,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_SIGMA_MICRO, USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X, HID_QUIRK_MULTI_INPUT },
+-	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_PENSKETCH_M912, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_DUOSENSE, HID_QUIRK_NO_INIT_REPORTS },
+-- 
+2.9.3
 
-I think I am more willing to try fixing this one out, and if somebody
-else starts complaining about, then we can always add more guards (one
-could be to check if the wrong usage min/max are 0-255). We could also
-simply add "if vendor == MICROSOFT" or something in that spirit.
-
-Right now I'd better try this just in case this wrong report descriptor
-is used in different hardware.
-
-Regarding the flag solution, if you are thinking at a kernel module
-parameter,  I'd better not to. The reason being that once the word is
-spread that you can "fix" your device by adding a simple module
-parameter, people tend to forget to report bugs. I have seen countless
-of forums/threads saying that you have to disable i2c-hid to have your
-touchpad working, even when this is just not required.
-
-Well, if Jiri is willing to add more checks and flags, we can always,
-but I'd rather not.
-
-Last, I'll request those patches to be included in Fedora when Jiri
-takes them (or a future revision). We should have enough angry users
-once it hits Fedora if there are some :)
-
-Cheers,
-Benjamin
-
-> 
-> Cheers,
->    Michek
-> 
-> > Link: https://bugzilla.redhat.com/show_bug.cgi?id=1325354
-> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=28912
-> > Link: https://github.com/ValveSoftware/steam-for-linux/issues/3384
-> > Link: https://bugzilla.redhat.com/show_bug.cgi?id=1325354
-> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=37982
-> >
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > ---
-> >  drivers/hid/hid-input.c | 9 +++++++++
-> >  1 file changed, 9 insertions(+)
-> >
-> > diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> > index 14dd974..55db584 100644
-> > --- a/drivers/hid/hid-input.c
-> > +++ b/drivers/hid/hid-input.c
-> > @@ -604,6 +604,15 @@ static void hidinput_configure_usage(struct
-> hid_input *hidinput, struct hid_fiel
-> >                         break;
-> >                 }
-> >
-> > +               /*
-> > +                * Some lazy vendors declare 255 usages for System
-> Control,
-> > +                * leading to the creation of ABS_X|Y axis and too many
-> others.
-> > +                * It wouldn't be a problem if joydev doesn't consider the
-> > +                * device as a joystick then.
-> > +                */
-> > +               if (field->application == HID_GD_SYSTEM_CONTROL)
-> > +                       goto ignore;
-> > +
-> >                 if ((usage->hid & 0xf0) == 0x90) {      /* D-pad */
-> >                         switch (usage->hid) {
-> >                         case HID_GD_UP:    usage->hat_dir = 1; break;
-> > --
-> > 2.7.4
-> >
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html

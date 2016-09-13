@@ -1,79 +1,43 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 1/2] HID: input: ignore System Control application usages if not System Controls
-Date: Tue, 13 Sep 2016 11:52:37 +0200
-Message-ID: <1473760358-31999-2-git-send-email-benjamin.tissoires@redhat.com>
-References: <1473760358-31999-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1473760358-31999-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH] devicetree: Add vendor-prefix for Silead Inc.
+Date: Tue, 13 Sep 2016 12:30:22 +0200
+Message-ID: <20160913103022.30954-1-heiko@sntech.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from gloria.sntech.de ([95.129.55.99]:40850 "EHLO gloria.sntech.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751673AbcIMKal (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 13 Sep 2016 06:30:41 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: robh+dt@kernel.org, dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>
 
-Microsoft is reusing its report descriptor again and again, and part of it
-looks like this:
+Silead Inc.specializes in touchscreen technology and got recently
+introduced in a binding for the gsl1680 i2c touchscreen.
 
-0x05, 0x01,                    // Usage Page (Generic Desktop)        299
-0x09, 0x80,                    // Usage (System Control)              301
-0xa1, 0x01,                    // Collection (Application)            303
-0x85, 0x03,                    //  Report ID (3)                      305
-0x19, 0x00,                    //  Usage Minimum (0)                  307
-0x29, 0xff,                    //  Usage Maximum (255)                309
-0x15, 0x00,                    //  Logical Minimum (0)                311
-0x26, 0xff, 0x00,              //  Logical Maximum (255)              313
-0x81, 0x00,                    //  Input (Data,Arr,Abs)               316
-0xc0,                          // End Collection                      318
+Therefore add the needed vendor-prefix as well.
 
-While there is nothing wrong in term of processing, we do however blindly
-map the full usage range (it's an array) from 0x00 to 0xff, which creates
-some interesting axis, like ABS_X|Y, and a bunch of ABS_MISC + n.
-
-While libinput and other stacks don't care that much (we can detect them),
-joydev is very happy and attaches itself to the mouse or keyboard.
-
-The problem is that joydev now handles the device as a joystick, but given
-that we have a HID array, it sets all the ABS_* values to 0. And in its
-world, 0 means -32767 (minimum value), which sends spurious events to games
-(think Steam).
-
-It looks like hid-microsoft tries to tackle the very same problem with its
-.report_fixup callback. But fixing the report descriptor is an endless task
-and is quite obfuscated.
-
-So take the hammer, and decide that if the application is meant to be
-System Control, any other usage not in the System Control range should
-be ignored.
-
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1325354
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=28912
-Link: https://github.com/ValveSoftware/steam-for-linux/issues/3384
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1325354
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=37982
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 ---
- drivers/hid/hid-input.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+I checked linux-next 20160913 and the devicetree list, but the vendor-
+prefix was still missing there, so hopefully I'm not duplicating some
+other patch.
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 14dd974..55db584 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -604,6 +604,15 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 			break;
- 		}
- 
-+		/*
-+		 * Some lazy vendors declare 255 usages for System Control,
-+		 * leading to the creation of ABS_X|Y axis and too many others.
-+		 * It wouldn't be a problem if joydev doesn't consider the
-+		 * device as a joystick then.
-+		 */
-+		if (field->application == HID_GD_SYSTEM_CONTROL)
-+			goto ignore;
-+
- 		if ((usage->hid & 0xf0) == 0x90) {	/* D-pad */
- 			switch (usage->hid) {
- 			case HID_GD_UP:	   usage->hat_dir = 1; break;
+ Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+index 47e3adf..90761df 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -238,6 +238,7 @@ sigma	Sigma Designs, Inc.
+ sii	Seiko Instruments, Inc.
+ sil	Silicon Image
+ silabs	Silicon Laboratories
++silead	Silead Inc.
+ silergy	Silergy Corp.
+ siliconmitus	Silicon Mitus, Inc.
+ simtek
 -- 
-2.7.4
+2.9.3
+

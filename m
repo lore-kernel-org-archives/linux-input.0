@@ -1,108 +1,68 @@
 From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: [PATCH 1/4] uinput: Add ioctl for using monotonic/ boot
-	times
-Date: Tue, 13 Sep 2016 07:10:02 -0700
-Message-ID: <1473775805-2242-2-git-send-email-deepa.kernel@gmail.com>
+Subject: [PATCH 2/4] input: evdev: Replace timeval with timespec64
+Date: Tue, 13 Sep 2016 07:10:03 -0700
+Message-ID: <1473775805-2242-3-git-send-email-deepa.kernel@gmail.com>
 References: <1473775805-2242-1-git-send-email-deepa.kernel@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1473775805-2242-1-git-send-email-deepa.kernel@gmail.com>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: y2038@lists.linaro.org, arnd@arndb.de
+Cc: arnd@arndb.de, y2038@lists.linaro.org
 List-Id: linux-input@vger.kernel.org
 
-c3RydWN0IHRpbWV2YWwgd2hpY2ggaXMgcGFydCBvZiBzdHJ1Y3QgaW5wdXRfZXZlbnQgdG8KbWFp
-bnRhaW4gdGhlIGV2ZW50IHRpbWVzIGlzIG5vdCB5MjAzOCBzYWZlLgoKUmVhbCB0aW1lIHRpbWVz
-dGFtcHMgYXJlIGFsc28gbm90IGlkZWFsIGZvciBpbnB1dF9ldmVudAphcyB0aGlzIHRpbWUgY2Fu
-IGdvIGJhY2t3YXJkcyBhcyBub3RlZCBpbiB0aGUgcGF0Y2gKYTgwYjgzYjdiOCBieSBKb2huIFN0
-dWx0ei4KCkFybmQgQmVyZ21hbm4gc3VnZ2VzdGVkIGRlcHJlY2F0aW5nIHJlYWwgdGltZSBhbmQg
-dXNpbmcKbW9ub3RvbmljIG9yIG90aGVyIHRpbWVycyBmb3IgYWxsIGlucHV0X2V2ZW50IHRpbWVz
-IGFzIGEKc29sdXRpb24gdG8gYm90aCB0aGUgYWJvdmUgcHJvYmxlbXMuCgpBZGQgYSBuZXcgaW9j
-dGwgdG8gbGV0IHRoZSB1c2VyIGRpY3RhdGUgdGhlIGtpbmQgb2YgdGltZQp0byBiZSB1c2VkIGZv
-ciBpbnB1dCBldmVudHMuIFRoaXMgaXMgc2ltaWxhciB0byB0aGUgZXZkZXYKaW1wbGVtZW50YXRp
-b24gb2YgdGhlIGZlYXR1cmUuIFJlYWx0aW1lIGlzIHN0aWxsIHRoZQpkZWZhdWx0IHRpbWUuIFRo
-aXMgaXMgdG8gbWFpbnRhaW4gYmFja3dhcmQgY29tcGF0aWJpbGl0eS4KClRoZSBzdHJ1Y3R1cmUg
-dG8gbWFpbnRhaW4gaW5wdXQgZXZlbnRzIHdpbGwgYmUgY2hhbmdlZAppbiBhIGRpZmZlcmVudCBw
-YXRjaC4KClNpZ25lZC1vZmYtYnk6IERlZXBhIERpbmFtYW5pIDxkZWVwYS5rZXJuZWxAZ21haWwu
-Y29tPgotLS0KIGRyaXZlcnMvaW5wdXQvbWlzYy91aW5wdXQuYyB8IDU4ICsrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLQogaW5jbHVkZS9saW51eC91aW5wdXQuaCAg
-ICAgIHwgIDEgKwogaW5jbHVkZS91YXBpL2xpbnV4L3VpbnB1dC5oIHwgIDMgKysrCiAzIGZpbGVz
-IGNoYW5nZWQsIDYxIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9k
-cml2ZXJzL2lucHV0L21pc2MvdWlucHV0LmMgYi9kcml2ZXJzL2lucHV0L21pc2MvdWlucHV0LmMK
-aW5kZXggOTI1OTViOS4uYWUyMjkyNyAxMDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC9taXNjL3Vp
-bnB1dC5jCisrKyBiL2RyaXZlcnMvaW5wdXQvbWlzYy91aW5wdXQuYwpAQCAtNDYsMTEgKzQ2LDI4
-IEBAIHN0YXRpYyBpbnQgdWlucHV0X2Rldl9ldmVudChzdHJ1Y3QgaW5wdXRfZGV2ICpkZXYsCiAJ
-CQkgICAgdW5zaWduZWQgaW50IHR5cGUsIHVuc2lnbmVkIGludCBjb2RlLCBpbnQgdmFsdWUpCiB7
-CiAJc3RydWN0IHVpbnB1dF9kZXZpY2UJKnVkZXYgPSBpbnB1dF9nZXRfZHJ2ZGF0YShkZXYpOwor
-CXN0cnVjdCB0aW1lc3BlYzY0CXRzOworCWt0aW1lX3Qga3Q7CiAKIAl1ZGV2LT5idWZmW3VkZXYt
-PmhlYWRdLnR5cGUgPSB0eXBlOwogCXVkZXYtPmJ1ZmZbdWRldi0+aGVhZF0uY29kZSA9IGNvZGU7
-CiAJdWRldi0+YnVmZlt1ZGV2LT5oZWFkXS52YWx1ZSA9IHZhbHVlOwotCWRvX2dldHRpbWVvZmRh
-eSgmdWRldi0+YnVmZlt1ZGV2LT5oZWFkXS50aW1lKTsKKworCWt0ID0ga3RpbWVfZ2V0KCk7CisJ
-c3dpdGNoICh1ZGV2LT5jbGtfdHlwZSkgeworCWNhc2UgQ0xPQ0tfUkVBTFRJTUU6CisJCXRzID0g
-a3RpbWVfdG9fdGltZXNwZWM2NChrdGltZV9tb25vX3RvX3JlYWwoa3QpKTsKKwkJYnJlYWs7CisJ
-Y2FzZSBDTE9DS19NT05PVE9OSUM6CisJCXRzID0ga3RpbWVfdG9fdGltZXNwZWM2NChrdCk7CisJ
-CWJyZWFrOworCWNhc2UgQ0xPQ0tfQk9PVFRJTUU6CisJCXRzID0ga3RpbWVfdG9fdGltZXNwZWM2
-NChrdGltZV9tb25vX3RvX2FueShrdCwgVEtfT0ZGU19CT09UKSk7CisJCWJyZWFrOworCX0KKwor
-CXVkZXYtPmJ1ZmZbdWRldi0+aGVhZF0udGltZS50dl9zZWMgPSB0cy50dl9zZWM7CisJdWRldi0+
-YnVmZlt1ZGV2LT5oZWFkXS50aW1lLnR2X3VzZWMgPSB0cy50dl9uc2VjIC8gTlNFQ19QRVJfVVNF
-QzsKIAl1ZGV2LT5oZWFkID0gKHVkZXYtPmhlYWQgKyAxKSAlIFVJTlBVVF9CVUZGRVJfU0laRTsK
-IAogCXdha2VfdXBfaW50ZXJydXB0aWJsZSgmdWRldi0+d2FpdHEpOwpAQCAtMjk1LDYgKzMxMiw3
-IEBAIHN0YXRpYyBpbnQgdWlucHV0X2NyZWF0ZV9kZXZpY2Uoc3RydWN0IHVpbnB1dF9kZXZpY2Ug
-KnVkZXYpCiAJaWYgKGVycm9yKQogCQlnb3RvIGZhaWwyOwogCisJdWRldi0+Y2xrX3R5cGUgPSBD
-TE9DS19SRUFMVElNRTsKIAl1ZGV2LT5zdGF0ZSA9IFVJU1RfQ1JFQVRFRDsKIAogCXJldHVybiAw
-OwpAQCAtMzA0LDYgKzMyMiwzOCBAQCBzdGF0aWMgaW50IHVpbnB1dF9jcmVhdGVfZGV2aWNlKHN0
-cnVjdCB1aW5wdXRfZGV2aWNlICp1ZGV2KQogCXJldHVybiBlcnJvcjsKIH0KIAorc3RhdGljIGlu
-dCB1aW5wdXRfc2V0X2Nsa190eXBlKHN0cnVjdCB1aW5wdXRfZGV2aWNlICp1ZGV2LCB1bnNpZ25l
-ZCBpbnQgY2xraWQpCit7CisJdW5zaWduZWQgaW50IGNsa190eXBlOworCisJaWYgKHVkZXYtPnN0
-YXRlICE9IFVJU1RfQ1JFQVRFRCkKKwkJcmV0dXJuIC1FSU5WQUw7CisKKwlzd2l0Y2ggKGNsa2lk
-KSB7CisJLyogUmVhbHRpbWUgY2xvY2sgaXMgb25seSB2YWxpZCB1bnRpbCB5ZWFyIDIwMzguKi8K
-KwljYXNlIENMT0NLX1JFQUxUSU1FOgorCQljbGtfdHlwZSA9IENMT0NLX1JFQUxUSU1FOworCQli
-cmVhazsKKwljYXNlIENMT0NLX01PTk9UT05JQzoKKwkJY2xrX3R5cGUgPSBDTE9DS19NT05PVE9O
-SUM7CisJCWJyZWFrOworCWNhc2UgQ0xPQ0tfQk9PVFRJTUU6CisJCWNsa190eXBlID0gQ0xPQ0tf
-Qk9PVFRJTUU7CisJCWJyZWFrOworCWRlZmF1bHQ6CisJCXJldHVybiAtRUlOVkFMOworCX0KKwor
-CWlmICh1ZGV2LT5jbGtfdHlwZSAhPSBjbGtfdHlwZSkgeworCQl1ZGV2LT5jbGtfdHlwZSA9IGNs
-a190eXBlOworCisJCS8qIEZsdXNoIHBlbmRpbmcgZXZlbnRzICovCisJCXVpbnB1dF9mbHVzaF9y
-ZXF1ZXN0cyh1ZGV2KTsKKwl9CisKKwlyZXR1cm4gMDsKK30KKwogc3RhdGljIGludCB1aW5wdXRf
-b3BlbihzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZmlsZSkKIHsKIAlzdHJ1Y3Qg
-dWlucHV0X2RldmljZSAqbmV3ZGV2OwpAQCAtNzg3LDYgKzgzNyw3IEBAIHN0YXRpYyBsb25nIHVp
-bnB1dF9pb2N0bF9oYW5kbGVyKHN0cnVjdCBmaWxlICpmaWxlLCB1bnNpZ25lZCBpbnQgY21kLAog
-CWNoYXIJCQkqcGh5czsKIAljb25zdCBjaGFyCQkqbmFtZTsKIAl1bnNpZ25lZCBpbnQJCXNpemU7
-CisJaW50CQkJY2xvY2tfaWQ7CiAKIAlyZXR2YWwgPSBtdXRleF9sb2NrX2ludGVycnVwdGlibGUo
-JnVkZXYtPm11dGV4KTsKIAlpZiAocmV0dmFsKQpAQCAtODE3LDYgKzg2OCwxMSBAQCBzdGF0aWMg
-bG9uZyB1aW5wdXRfaW9jdGxfaGFuZGxlcihzdHJ1Y3QgZmlsZSAqZmlsZSwgdW5zaWduZWQgaW50
-IGNtZCwKIAkJCXJldHZhbCA9IHVpbnB1dF9kZXZfc2V0dXAodWRldiwgcCk7CiAJCQlnb3RvIG91
-dDsKIAorCQljYXNlIFVJX1NFVF9DTE9DS0lEOgorCQkJaWYgKGNvcHlfZnJvbV91c2VyKCZjbG9j
-a19pZCwgcCwgc2l6ZW9mKHVuc2lnbmVkIGludCkpKQorCQkJCXJldHVybiAtRUZBVUxUOworCQkJ
-cmV0dXJuIHVpbnB1dF9zZXRfY2xrX3R5cGUodWRldiwgY2xvY2tfaWQpOworCiAJCS8qIFVJX0FC
-U19TRVRVUCBpcyBoYW5kbGVkIGluIHRoZSB2YXJpYWJsZSBzaXplIGlvY3RscyAqLwogCiAJCWNh
-c2UgVUlfU0VUX0VWQklUOgpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC91aW5wdXQuaCBiL2lu
-Y2x1ZGUvbGludXgvdWlucHV0LmgKaW5kZXggNzVkZTQzZC4uNjUyN2ZiNyAxMDA2NDQKLS0tIGEv
-aW5jbHVkZS9saW51eC91aW5wdXQuaAorKysgYi9pbmNsdWRlL2xpbnV4L3VpbnB1dC5oCkBAIC03
-Miw2ICs3Miw3IEBAIHN0cnVjdCB1aW5wdXRfZGV2aWNlIHsKIAl1bnNpZ25lZCBjaGFyCQloZWFk
-OwogCXVuc2lnbmVkIGNoYXIJCXRhaWw7CiAJc3RydWN0IGlucHV0X2V2ZW50CWJ1ZmZbVUlOUFVU
-X0JVRkZFUl9TSVpFXTsKKwlpbnQJCQljbGtfdHlwZTsKIAl1bnNpZ25lZCBpbnQJCWZmX2VmZmVj
-dHNfbWF4OwogCiAJc3RydWN0IHVpbnB1dF9yZXF1ZXN0CSpyZXF1ZXN0c1tVSU5QVVRfTlVNX1JF
-UVVFU1RTXTsKZGlmZiAtLWdpdCBhL2luY2x1ZGUvdWFwaS9saW51eC91aW5wdXQuaCBiL2luY2x1
-ZGUvdWFwaS9saW51eC91aW5wdXQuaAppbmRleCBkYzY1MmUyLi5kOTQ5NGFlIDEwMDY0NAotLS0g
-YS9pbmNsdWRlL3VhcGkvbGludXgvdWlucHV0LmgKKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L3Vp
-bnB1dC5oCkBAIC0xMzMsNiArMTMzLDkgQEAgc3RydWN0IHVpbnB1dF9hYnNfc2V0dXAgewogICov
-CiAjZGVmaW5lIFVJX0FCU19TRVRVUCBfSU9XKFVJTlBVVF9JT0NUTF9CQVNFLCA0LCBzdHJ1Y3Qg
-dWlucHV0X2Fic19zZXR1cCkKIAorLyogU2V0IGNsb2NraWQgdG8gYmUgdXNlZCBmb3IgdGltZXN0
-YW1wcyAqLworI2RlZmluZSBVSV9TRVRfQ0xPQ0tJRCBfSU9XKFVJTlBVVF9JT0NUTF9CQVNFLCA1
-LCBpbnQpCisKICNkZWZpbmUgVUlfU0VUX0VWQklUCQlfSU9XKFVJTlBVVF9JT0NUTF9CQVNFLCAx
-MDAsIGludCkKICNkZWZpbmUgVUlfU0VUX0tFWUJJVAkJX0lPVyhVSU5QVVRfSU9DVExfQkFTRSwg
-MTAxLCBpbnQpCiAjZGVmaW5lIFVJX1NFVF9SRUxCSVQJCV9JT1coVUlOUFVUX0lPQ1RMX0JBU0Us
-IDEwMiwgaW50KQotLSAKMi43LjQKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClkyMDM4IG1haWxpbmcgbGlzdApZMjAzOEBsaXN0cy5saW5hcm8ub3JnCmh0
-dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3kyMDM4Cg==
+struct timeval is not y2038 safe.
+
+All references to timeval in the kernel will be replaced
+by y2038 safe structures.
+Replace all references to timeval with y2038 safe
+struct timespec64 here.
+
+struct input_event will be changed in a different patch.
+
+Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+---
+ drivers/input/evdev.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index e9ae3d5..bda2b61 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -157,6 +157,7 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
+ {
+ 	struct input_event ev;
+ 	ktime_t time;
++	struct timespec64 ts;
+ 
+ 	time = client->clk_type == EV_CLK_REAL ?
+ 			ktime_get_real() :
+@@ -164,7 +165,9 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
+ 				ktime_get() :
+ 				ktime_get_boottime();
+ 
+-	ev.time = ktime_to_timeval(time);
++	ts = ktime_to_timespec64(time);
++	ev.time.tv_sec = ts.tv_sec;
++	ev.time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
+ 	ev.type = EV_SYN;
+ 	ev.code = SYN_DROPPED;
+ 	ev.value = 0;
+@@ -262,12 +265,15 @@ static void evdev_pass_values(struct evdev_client *client,
+ 	struct evdev *evdev = client->evdev;
+ 	const struct input_value *v;
+ 	struct input_event event;
++	struct timespec64 ts;
+ 	bool wakeup = false;
+ 
+ 	if (client->revoked)
+ 		return;
+ 
+-	event.time = ktime_to_timeval(ev_time[client->clk_type]);
++	ts = ktime_to_timespec64(ev_time[client->clk_type]);
++	event.time.tv_sec = ts.tv_sec;
++	event.time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
+ 
+ 	/* Interrupts are disabled, just acquire the lock. */
+ 	spin_lock(&client->buffer_lock);
+-- 
+2.7.4

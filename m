@@ -1,47 +1,79 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/2] HID: wacom: do not detect Pad devices as joysticks
-Date: Tue, 13 Sep 2016 11:52:38 +0200
-Message-ID: <1473760358-31999-3-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/2] HID: input: ignore System Control application usages if not System Controls
+Date: Tue, 13 Sep 2016 11:52:37 +0200
+Message-ID: <1473760358-31999-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1473760358-31999-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:46102 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757445AbcIMJwq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 13 Sep 2016 05:52:46 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1473760358-31999-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Jason Gerecke <killertofu@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Well, joydev consider our Pad devices as joysticks and associate a
-/dev/input/jsX node for them.
+Microsoft is reusing its report descriptor again and again, and part of it
+looks like this:
 
-The problem is that it consider the ABS_X value as 0, and sends some
-spurious joystick events saying the X axis is full left (Y too, but full
-up). Given that we are basically screwed, add one more BTN which tells
-joydev to ignore the Pad device and doesn't interfere with the rest of
-the udev rules and the processing.
+0x05, 0x01,                    // Usage Page (Generic Desktop)        299
+0x09, 0x80,                    // Usage (System Control)              301
+0xa1, 0x01,                    // Collection (Application)            303
+0x85, 0x03,                    //  Report ID (3)                      305
+0x19, 0x00,                    //  Usage Minimum (0)                  307
+0x29, 0xff,                    //  Usage Maximum (255)                309
+0x15, 0x00,                    //  Logical Minimum (0)                311
+0x26, 0xff, 0x00,              //  Logical Maximum (255)              313
+0x81, 0x00,                    //  Input (Data,Arr,Abs)               316
+0xc0,                          // End Collection                      318
+
+While there is nothing wrong in term of processing, we do however blindly
+map the full usage range (it's an array) from 0x00 to 0xff, which creates
+some interesting axis, like ABS_X|Y, and a bunch of ABS_MISC + n.
+
+While libinput and other stacks don't care that much (we can detect them),
+joydev is very happy and attaches itself to the mouse or keyboard.
+
+The problem is that joydev now handles the device as a joystick, but given
+that we have a HID array, it sets all the ABS_* values to 0. And in its
+world, 0 means -32767 (minimum value), which sends spurious events to games
+(think Steam).
+
+It looks like hid-microsoft tries to tackle the very same problem with its
+.report_fixup callback. But fixing the report descriptor is an endless task
+and is quite obfuscated.
+
+So take the hammer, and decide that if the application is meant to be
+System Control, any other usage not in the System Control range should
+be ignored.
+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1325354
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=28912
+Link: https://github.com/ValveSoftware/steam-for-linux/issues/3384
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1325354
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=37982
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom_wac.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-input.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 8fd115f..498f4a8 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2920,6 +2920,9 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
- 	/* kept for making udev and libwacom accepting the pad */
- 	__set_bit(BTN_STYLUS, input_dev->keybit);
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 14dd974..55db584 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -604,6 +604,15 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 			break;
+ 		}
  
-+	/* added to be ignored by joydev */
-+	__set_bit(BTN_TOOL_PEN, input_dev->keybit);
++		/*
++		 * Some lazy vendors declare 255 usages for System Control,
++		 * leading to the creation of ABS_X|Y axis and too many others.
++		 * It wouldn't be a problem if joydev doesn't consider the
++		 * device as a joystick then.
++		 */
++		if (field->application == HID_GD_SYSTEM_CONTROL)
++			goto ignore;
 +
- 	wacom_setup_numbered_buttons(input_dev, features->numbered_buttons);
- 
- 	switch (features->type) {
+ 		if ((usage->hid & 0xf0) == 0x90) {	/* D-pad */
+ 			switch (usage->hid) {
+ 			case HID_GD_UP:	   usage->hat_dir = 1; break;
 -- 
 2.7.4
-

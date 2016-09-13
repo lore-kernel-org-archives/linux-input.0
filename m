@@ -1,7 +1,7 @@
 From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: [PATCH 4/4] input: serio: Replace timeval by timespec64
-Date: Tue, 13 Sep 2016 07:10:05 -0700
-Message-ID: <1473775805-2242-5-git-send-email-deepa.kernel@gmail.com>
+Subject: [PATCH 3/4] input: Deprecate real timestamps beyond year 2106
+Date: Tue, 13 Sep 2016 07:10:04 -0700
+Message-ID: <1473775805-2242-4-git-send-email-deepa.kernel@gmail.com>
 References: <1473775805-2242-1-git-send-email-deepa.kernel@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1473775805-2242-1-git-send-email-deepa.kernel@gmail.com>
@@ -11,270 +11,364 @@ Cc: arnd@arndb.de, y2038@lists.linaro.org
 List-Id: linux-input@vger.kernel.org
 
 struct timeval is not y2038 safe.
-All references to timeval will be deleted from the
-kernel to make it y2038 safe.
-Replace its uses by y2038 safe struct timespec64.
+All usage of timeval in the kernel will be replaced by
+y2038 safe structures.
 
-The timestamps changed here only keep track of delta
-times. These timestamps are also internal to kernel.
-Hence, monotonic times are sufficient here.
-The unit of the delta times is also changed in certain
-cases to nanoseconds rather than microseconds. This is
-in line with timespec64 which keeps time in nanoseconds.
+struct input_event maintains time for each input event.
+Real time timestamps are not ideal for input as this
+time can go backwards as noted in the patch a80b83b7b8
+by John Stultz. Hence, having the input_event.time fields
+only big enough for monotonic and boot times are
+sufficient.
 
+Leave the original input_event as is. This is to maintain
+backward compatibility with existing userspace interfaces
+that use input_event.
+Introduce a new replacement struct raw_input_event.
+This replaces timeval with struct input_timeval. This structure
+maintains time in __kernel_ulong_t or compat_ulong_t to allow
+for architectures to override types as in the case of x32.
+
+The change requires any userspace utilities reading or writing
+from event nodes to update their reading format to match
+raw_input_event.The changes to the popular libraries will be
+posted along with the kernel changes.
+The driver version is also updated to reflect the change in
+event format.
+
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
 ---
- drivers/input/serio/hil_mlc.c    | 37 ++++++++++++++++++-------------------
- drivers/input/serio/hp_sdc.c     | 17 +++++++++--------
- drivers/input/serio/hp_sdc_mlc.c | 10 +++++-----
- include/linux/hil_mlc.h          |  6 +++---
- include/linux/hp_sdc.h           |  6 +++---
- 5 files changed, 38 insertions(+), 38 deletions(-)
+ drivers/input/evdev.c        | 20 ++++++++++----------
+ drivers/input/input-compat.c | 25 +++++++++++++------------
+ drivers/input/input-compat.h | 19 ++++++++++++-------
+ drivers/input/misc/uinput.c  |  6 +++---
+ include/linux/uinput.h       |  2 +-
+ include/uapi/linux/input.h   | 37 +++++++++++++++++++++++++++++++++++++
+ 6 files changed, 76 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
-index 65605e4..7c59a79 100644
---- a/drivers/input/serio/hil_mlc.c
-+++ b/drivers/input/serio/hil_mlc.c
-@@ -274,14 +274,14 @@ static int hilse_match(hil_mlc *mlc, int unused)
- /* An LCV used to prevent runaway loops, forces 5 second sleep when reset. */
- static int hilse_init_lcv(hil_mlc *mlc, int unused)
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index bda2b61..f56188d 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -60,7 +60,7 @@ struct evdev_client {
+ 	bool revoked;
+ 	unsigned long *evmasks[EV_CNT];
+ 	unsigned int bufsize;
+-	struct input_event buffer[];
++	struct raw_input_event buffer[];
+ };
+ 
+ static size_t evdev_get_mask_cnt(unsigned int type)
+@@ -113,7 +113,7 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ 	unsigned int i, head, num;
+ 	unsigned int mask = client->bufsize - 1;
+ 	bool is_report;
+-	struct input_event *ev;
++	struct raw_input_event *ev;
+ 
+ 	BUG_ON(type == EV_SYN);
+ 
+@@ -155,7 +155,7 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ 
+ static void __evdev_queue_syn_dropped(struct evdev_client *client)
  {
--	struct timeval tv;
-+	time64_t time;
+-	struct input_event ev;
++	struct raw_input_event ev;
+ 	ktime_t time;
+ 	struct timespec64 ts;
  
--	do_gettimeofday(&tv);
-+	time = ktime_get_seconds();
+@@ -232,7 +232,7 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+ }
  
--	if (mlc->lcv && (tv.tv_sec - mlc->lcv_tv.tv_sec) < 5)
-+	if (mlc->lcv && (time - mlc->lcv_tv.tv_sec) < 5)
- 		return -1;
+ static void __pass_event(struct evdev_client *client,
+-			 const struct input_event *event)
++			 const struct raw_input_event *event)
+ {
+ 	client->buffer[client->head++] = *event;
+ 	client->head &= client->bufsize - 1;
+@@ -264,7 +264,7 @@ static void evdev_pass_values(struct evdev_client *client,
+ {
+ 	struct evdev *evdev = client->evdev;
+ 	const struct input_value *v;
+-	struct input_event event;
++	struct raw_input_event event;
+ 	struct timespec64 ts;
+ 	bool wakeup = false;
  
--	mlc->lcv_tv = tv;
-+	mlc->lcv_tv.tv_sec = time;
- 	mlc->lcv = 0;
+@@ -504,7 +504,7 @@ static int evdev_open(struct inode *inode, struct file *file)
+ 	struct evdev *evdev = container_of(inode->i_cdev, struct evdev, cdev);
+ 	unsigned int bufsize = evdev_compute_buffer_size(evdev->handle.dev);
+ 	unsigned int size = sizeof(struct evdev_client) +
+-					bufsize * sizeof(struct input_event);
++				bufsize * sizeof(struct raw_input_event);
+ 	struct evdev_client *client;
+ 	int error;
+ 
+@@ -539,7 +539,7 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
+ {
+ 	struct evdev_client *client = file->private_data;
+ 	struct evdev *evdev = client->evdev;
+-	struct input_event event;
++	struct raw_input_event event;
+ 	int retval = 0;
+ 
+ 	if (count != 0 && count < input_event_size())
+@@ -572,7 +572,7 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
+ }
+ 
+ static int evdev_fetch_next_event(struct evdev_client *client,
+-				  struct input_event *event)
++				  struct raw_input_event *event)
+ {
+ 	int have_event;
+ 
+@@ -594,7 +594,7 @@ static ssize_t evdev_read(struct file *file, char __user *buffer,
+ {
+ 	struct evdev_client *client = file->private_data;
+ 	struct evdev *evdev = client->evdev;
+-	struct input_event event;
++	struct raw_input_event event;
+ 	size_t read = 0;
+ 	int error;
+ 
+@@ -1080,7 +1080,7 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 	switch (cmd) {
+ 
+ 	case EVIOCGVERSION:
+-		return put_user(EV_VERSION, ip);
++		return put_user(EV_VERSION_1_2, ip);
+ 
+ 	case EVIOCGID:
+ 		if (copy_to_user(p, &dev->id, sizeof(struct input_id)))
+diff --git a/drivers/input/input-compat.c b/drivers/input/input-compat.c
+index d84d20b..c94746d 100644
+--- a/drivers/input/input-compat.c
++++ b/drivers/input/input-compat.c
+@@ -15,10 +15,10 @@
+ #ifdef CONFIG_COMPAT
+ 
+ int input_event_from_user(const char __user *buffer,
+-			  struct input_event *event)
++			  struct raw_input_event *event)
+ {
+-	if (in_compat_syscall() && !COMPAT_USE_64BIT_TIME) {
+-		struct input_event_compat compat_event;
++	if (in_compat_syscall()) {
++		struct raw_input_event_compat compat_event;
+ 
+ 		if (copy_from_user(&compat_event, buffer,
+ 				   sizeof(struct input_event_compat)))
+@@ -31,7 +31,8 @@ int input_event_from_user(const char __user *buffer,
+ 		event->value = compat_event.value;
+ 
+ 	} else {
+-		if (copy_from_user(event, buffer, sizeof(struct input_event)))
++		if (copy_from_user(event, buffer,
++				   sizeof(struct raw_input_event)))
+ 			return -EFAULT;
+ 	}
+ 
+@@ -39,10 +40,10 @@ int input_event_from_user(const char __user *buffer,
+ }
+ 
+ int input_event_to_user(char __user *buffer,
+-			const struct input_event *event)
++			const struct raw_input_event *event)
+ {
+-	if (in_compat_syscall() && !COMPAT_USE_64BIT_TIME) {
+-		struct input_event_compat compat_event;
++	if (in_compat_syscall()) {
++		struct raw_input_event_compat compat_event;
+ 
+ 		compat_event.time.tv_sec = event->time.tv_sec;
+ 		compat_event.time.tv_usec = event->time.tv_usec;
+@@ -55,7 +56,7 @@ int input_event_to_user(char __user *buffer,
+ 			return -EFAULT;
+ 
+ 	} else {
+-		if (copy_to_user(buffer, event, sizeof(struct input_event)))
++		if (copy_to_user(buffer, event, sizeof(struct raw_input_event)))
+ 			return -EFAULT;
+ 	}
+ 
+@@ -100,18 +101,18 @@ int input_ff_effect_from_user(const char __user *buffer, size_t size,
+ #else
+ 
+ int input_event_from_user(const char __user *buffer,
+-			 struct input_event *event)
++			 struct raw_input_event *event)
+ {
+-	if (copy_from_user(event, buffer, sizeof(struct input_event)))
++	if (copy_from_user(event, buffer, sizeof(struct raw_input_event)))
+ 		return -EFAULT;
  
  	return 0;
-@@ -466,7 +466,7 @@ static const struct hilse_node hil_mlc_se[HILSEN_END] = {
- 	FUNC(hilse_init_lcv, 0,	HILSEN_NEXT,	HILSEN_SLEEP,	0)
+ }
  
- 	/* 1  HILSEN_RESTART */
--	FUNC(hilse_inc_lcv, 10,	HILSEN_NEXT,	HILSEN_START,  0)
-+	FUNC(hilse_inc_lcv, 10000,	HILSEN_NEXT,	HILSEN_START,  0)
- 	OUT(HIL_CTRL_ONLY)			/* Disable APE */
- 	CTS
- 
-@@ -485,7 +485,7 @@ static const struct hilse_node hil_mlc_se[HILSEN_END] = {
- 	FUNC(hilse_init_lcv, 0,	HILSEN_NEXT,	HILSEN_SLEEP,	0)
- 
- 	/* 10 HILSEN_DHR2 */
--	FUNC(hilse_inc_lcv, 10,	HILSEN_NEXT,	HILSEN_START,	0)
-+	FUNC(hilse_inc_lcv, 10000,	HILSEN_NEXT,	HILSEN_START,	0)
- 	FUNC(hilse_set_ddi, -1,	HILSEN_NEXT,	0,		0)
- 	OUT(HIL_PKT_CMD | HIL_CMD_DHR)
- 	IN(300000,		HILSEN_DHR2,	HILSEN_DHR2,	HILSEN_NEXT)
-@@ -515,7 +515,7 @@ static const struct hilse_node hil_mlc_se[HILSEN_END] = {
- 	FUNC(hilse_init_lcv, 0,	HILSEN_NEXT,	HILSEN_DOZE,	0)
- 
- 	/* 22 HILSEN_ACF2 */
--	FUNC(hilse_inc_lcv, 10,	HILSEN_NEXT,	HILSEN_START,	0)
-+	FUNC(hilse_inc_lcv, 10000,	HILSEN_NEXT,	HILSEN_START,	0)
- 	OUT(HIL_PKT_CMD | HIL_CMD_ACF | 1)
- 	IN(20000,		HILSEN_NEXT,	HILSEN_DSR,	HILSEN_NEXT)
- 
-@@ -572,7 +572,7 @@ static const struct hilse_node hil_mlc_se[HILSEN_END] = {
- 	OUT(HIL_PKT_CMD | HIL_CMD_RPL)
- 	EXPECT(HIL_PKT_CMD | HIL_CMD_RPL | HIL_ERR_INT,
- 	       20000,		HILSEN_NEXT,	HILSEN_DSR,	HILSEN_NEXT)
--	FUNC(hilse_operate, 1,	HILSEN_OPERATE,	HILSEN_IFC,	HILSEN_PROBE)
-+	FUNC(hilse_operate, 1000, HILSEN_OPERATE, HILSEN_IFC,	HILSEN_PROBE)
- 
- 	/* 58 HILSEN_IFCACF */
- 	OUT(HIL_PKT_CMD | HIL_CMD_IFC)
-@@ -584,7 +584,6 @@ static const struct hilse_node hil_mlc_se[HILSEN_END] = {
- 
- static inline void hilse_setup_input(hil_mlc *mlc, const struct hilse_node *node)
+ int input_event_to_user(char __user *buffer,
+-			const struct input_event *event)
++			const struct raw_input_event *event)
  {
--
- 	switch (node->act) {
- 	case HILSE_EXPECT_DISC:
- 		mlc->imatch = node->object.packet;
-@@ -605,7 +604,7 @@ static inline void hilse_setup_input(hil_mlc *mlc, const struct hilse_node *node
- 	}
- 	mlc->istarted = 1;
- 	mlc->intimeout = node->arg;
--	do_gettimeofday(&(mlc->instart));
-+	ktime_get_ts64(&(mlc->instart));
- 	mlc->icount = 15;
- 	memset(mlc->ipacket, 0, 16 * sizeof(hil_packet));
- 	BUG_ON(down_trylock(&mlc->isem));
-@@ -710,7 +709,7 @@ static int hilse_donode(hil_mlc *mlc)
- 			break;
- 		}
- 		mlc->ostarted = 0;
--		do_gettimeofday(&(mlc->instart));
-+		ktime_get_ts64(&(mlc->instart));
- 		write_unlock_irqrestore(&mlc->lock, flags);
- 		nextidx = HILSEN_NEXT;
- 		break;
-@@ -731,18 +730,18 @@ static int hilse_donode(hil_mlc *mlc)
- #endif
+-	if (copy_to_user(buffer, event, sizeof(struct input_event)))
++	if (copy_to_user(buffer, event, sizeof(struct raw_input_event)))
+ 		return -EFAULT;
  
- 	while (nextidx & HILSEN_SCHED) {
--		struct timeval tv;
-+		struct timespec64 ts;
+ 	return 0;
+diff --git a/drivers/input/input-compat.h b/drivers/input/input-compat.h
+index 1563160..c18132d 100644
+--- a/drivers/input/input-compat.h
++++ b/drivers/input/input-compat.h
+@@ -17,8 +17,13 @@
  
- 		if (!sched_long)
- 			goto sched;
+ #ifdef CONFIG_COMPAT
  
--		do_gettimeofday(&tv);
--		tv.tv_usec += USEC_PER_SEC * (tv.tv_sec - mlc->instart.tv_sec);
--		tv.tv_usec -= mlc->instart.tv_usec;
--		if (tv.tv_usec >= mlc->intimeout) goto sched;
--		tv.tv_usec = (mlc->intimeout - tv.tv_usec) * HZ / USEC_PER_SEC;
--		if (!tv.tv_usec) goto sched;
--		mod_timer(&hil_mlcs_kicker, jiffies + tv.tv_usec);
-+		ktime_get_ts64(&ts);
-+		ts.tv_nsec += NSEC_PER_SEC * (ts.tv_sec - mlc->instart.tv_sec);
-+		ts.tv_nsec -= mlc->instart.tv_nsec;
-+		if (ts.tv_nsec >= mlc->intimeout) goto sched;
-+		ts.tv_nsec = (mlc->intimeout - ts.tv_nsec) * HZ / NSEC_PER_SEC;
-+		if (!ts.tv_nsec) goto sched;
-+		mod_timer(&hil_mlcs_kicker, jiffies + ts.tv_nsec);
- 		break;
- 	sched:
- 		tasklet_schedule(&hil_mlcs_tasklet);
-diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
-index 852858e..ce8f21b 100644
---- a/drivers/input/serio/hp_sdc.c
-+++ b/drivers/input/serio/hp_sdc.c
-@@ -193,7 +193,7 @@ static void hp_sdc_take(int irq, void *dev_id, uint8_t status, uint8_t data)
- 	curr->seq[curr->idx++] = status;
- 	curr->seq[curr->idx++] = data;
- 	hp_sdc.rqty -= 2;
--	do_gettimeofday(&hp_sdc.rtv);
-+	ktime_get_ts64(&hp_sdc.rtv);
+-struct input_event_compat {
+-	struct compat_timeval time;
++struct input_timeval_compat {
++	compat_ulong_t tv_sec;
++	compat_ulong_t tv_usec;
++};
++
++struct raw_input_event_compat {
++	struct input_timeval_compat time;
+ 	__u16 type;
+ 	__u16 code;
+ 	__s32 value;
+@@ -55,24 +60,24 @@ struct ff_effect_compat {
  
- 	if (hp_sdc.rqty <= 0) {
- 		/* All data has been gathered. */
-@@ -306,13 +306,13 @@ static void hp_sdc_tasklet(unsigned long foo)
- 	write_lock_irq(&hp_sdc.rtq_lock);
+ static inline size_t input_event_size(void)
+ {
+-	return (in_compat_syscall() && !COMPAT_USE_64BIT_TIME) ?
+-		sizeof(struct input_event_compat) : sizeof(struct input_event);
++	return in_compat_syscall() ? sizeof(struct raw_input_event_compat) :
++				     sizeof(struct raw_input_event);
+ }
  
- 	if (hp_sdc.rcurr >= 0) {
--		struct timeval tv;
-+		struct timespec64 ts;
+ #else
  
--		do_gettimeofday(&tv);
--		if (tv.tv_sec > hp_sdc.rtv.tv_sec)
--			tv.tv_usec += USEC_PER_SEC;
-+		ktime_get_ts64(&ts);
-+		if (ts.tv_sec > hp_sdc.rtv.tv_sec)
-+			ts.tv_nsec += NSEC_PER_SEC;
+ static inline size_t input_event_size(void)
+ {
+-	return sizeof(struct input_event);
++	return sizeof(struct raw_input_event);
+ }
  
--		if (tv.tv_usec - hp_sdc.rtv.tv_usec > HP_SDC_MAX_REG_DELAY) {
-+		if (ts.tv_nsec - hp_sdc.rtv.tv_nsec > HP_SDC_MAX_REG_DELAY) {
- 			hp_sdc_transaction *curr;
- 			uint8_t tmp;
+ #endif /* CONFIG_COMPAT */
  
-@@ -322,7 +322,8 @@ static void hp_sdc_tasklet(unsigned long foo)
- 			 * it back to the application. and be less verbose.
- 			 */
- 			printk(KERN_WARNING PREFIX "read timeout (%ius)!\n",
--			       (int)(tv.tv_usec - hp_sdc.rtv.tv_usec));
-+			       (int)(ts.tv_nsec - hp_sdc.rtv.tv_nsec) /
-+				     (int)NSEC_PER_USEC);
- 			curr->idx += hp_sdc.rqty;
- 			hp_sdc.rqty = 0;
- 			tmp = curr->seq[curr->actidx];
-@@ -551,7 +552,7 @@ unsigned long hp_sdc_put(void)
+ int input_event_from_user(const char __user *buffer,
+-			 struct input_event *event);
++			 struct raw_input_event *event);
  
- 			/* Start a new read */
- 			hp_sdc.rqty = curr->seq[curr->idx];
--			do_gettimeofday(&hp_sdc.rtv);
-+			ktime_get_ts64(&hp_sdc.rtv);
- 			curr->idx++;
- 			/* Still need to lock here in case of spurious irq. */
- 			write_lock_irq(&hp_sdc.rtq_lock);
-diff --git a/drivers/input/serio/hp_sdc_mlc.c b/drivers/input/serio/hp_sdc_mlc.c
-index d50f067..66020cd 100644
---- a/drivers/input/serio/hp_sdc_mlc.c
-+++ b/drivers/input/serio/hp_sdc_mlc.c
-@@ -149,7 +149,7 @@ static int hp_sdc_mlc_in(hil_mlc *mlc, suseconds_t timeout)
+ int input_event_to_user(char __user *buffer,
+-			const struct input_event *event);
++			const struct raw_input_event *event);
  
- 	/* Try to down the semaphore */
- 	if (down_trylock(&mlc->isem)) {
--		struct timeval tv;
-+		struct timespec64 ts;
- 		if (priv->emtestmode) {
- 			mlc->ipacket[0] =
- 				HIL_ERR_INT | (mlc->opacket &
-@@ -160,11 +160,11 @@ static int hp_sdc_mlc_in(hil_mlc *mlc, suseconds_t timeout)
- 			/* printk(KERN_DEBUG PREFIX ">[%x]\n", mlc->ipacket[0]); */
- 			goto wasup;
- 		}
--		do_gettimeofday(&tv);
--		tv.tv_usec += USEC_PER_SEC * (tv.tv_sec - mlc->instart.tv_sec);
--		if (tv.tv_usec - mlc->instart.tv_usec > mlc->intimeout) {
-+		ktime_get_ts64(&ts);
-+		ts.tv_nsec += NSEC_PER_SEC * (ts.tv_sec - mlc->instart.tv_sec);
-+		if (ts.tv_nsec - mlc->instart.tv_nsec > mlc->intimeout) {
- 			/*	printk("!%i %i",
--				tv.tv_usec - mlc->instart.tv_usec,
-+				tv.tv_nsec - mlc->instart.tv_nsec,
- 				mlc->intimeout);
- 			 */
- 			rc = 1;
-diff --git a/include/linux/hil_mlc.h b/include/linux/hil_mlc.h
-index 394a840..f846730 100644
---- a/include/linux/hil_mlc.h
-+++ b/include/linux/hil_mlc.h
-@@ -32,7 +32,7 @@
+ int input_ff_effect_from_user(const char __user *buffer, size_t size,
+ 			      struct ff_effect *effect);
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index ae22927..993bd24 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -564,7 +564,7 @@ static int uinput_setup_device_legacy(struct uinput_device *udev,
+ static ssize_t uinput_inject_events(struct uinput_device *udev,
+ 				    const char __user *buffer, size_t count)
+ {
+-	struct input_event ev;
++	struct raw_input_event ev;
+ 	size_t bytes = 0;
+ 
+ 	if (count != 0 && count < input_event_size())
+@@ -610,7 +610,7 @@ static ssize_t uinput_write(struct file *file, const char __user *buffer,
+ }
+ 
+ static bool uinput_fetch_next_event(struct uinput_device *udev,
+-				    struct input_event *event)
++				    struct raw_input_event *event)
+ {
+ 	bool have_event;
+ 
+@@ -630,7 +630,7 @@ static bool uinput_fetch_next_event(struct uinput_device *udev,
+ static ssize_t uinput_events_to_user(struct uinput_device *udev,
+ 				     char __user *buffer, size_t count)
+ {
+-	struct input_event event;
++	struct raw_input_event event;
+ 	size_t read = 0;
+ 
+ 	while (read + input_event_size() <= count &&
+diff --git a/include/linux/uinput.h b/include/linux/uinput.h
+index 6527fb7..d1accb3 100644
+--- a/include/linux/uinput.h
++++ b/include/linux/uinput.h
+@@ -71,7 +71,7 @@ struct uinput_device {
+ 	unsigned char		ready;
+ 	unsigned char		head;
+ 	unsigned char		tail;
+-	struct input_event	buff[UINPUT_BUFFER_SIZE];
++	struct raw_input_event	buff[UINPUT_BUFFER_SIZE];
+ 	int			clk_type;
+ 	unsigned int		ff_effects_max;
+ 
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index e794f7b..1379899 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -21,7 +21,23 @@
+ /*
+  * The event structure itself
+  */
++struct input_timeval {
++	__kernel_ulong_t tv_sec;
++	__kernel_ulong_t tv_usec;
++};
++
++struct raw_input_event {
++	struct input_timeval time;
++	__u16 type;
++	__u16 code;
++	__s32 value;
++};
+ 
++/* Userspace structure.
++ * Definition maintained here for userspace that is not yet updated to use
++ * struct raw_input_event.
++ * Not to be used anywhere within the kernel.
++ */
+ struct input_event {
+ 	struct timeval time;
+ 	__u16 type;
+@@ -29,11 +45,32 @@ struct input_event {
+ 	__s32 value;
+ };
+ 
++static inline void
++raw_input_to_input_event(struct raw_input_event *raw, struct input_event *ev)
++{
++	ev->time.tv_sec = raw->time.tv_sec;
++	ev->time.tv_usec = raw->time.tv_usec;
++	ev->type = raw->type;
++	ev->code = raw->code;
++	ev->value = raw->value;
++}
++
++static inline void
++input_to_raw_event(struct input_event *ev, struct raw_input_event *raw)
++{
++	raw->time.tv_sec = ev->time.tv_sec;
++	raw->time.tv_usec = ev->time.tv_usec;
++	raw->type = ev->type;
++	raw->code = ev->code;
++	raw->value = ev->value;
++}
++
+ /*
+  * Protocol version.
   */
  
- #include <linux/hil.h>
--#include <linux/time.h>
-+#include <linux/time64.h>
- #include <linux/interrupt.h>
- #include <linux/semaphore.h>
- #include <linux/serio.h>
-@@ -144,12 +144,12 @@ struct hil_mlc {
- 	hil_packet		ipacket[16];
- 	hil_packet		imatch;
- 	int			icount;
--	struct timeval		instart;
-+	struct timespec64	instart;
- 	suseconds_t		intimeout;
+ #define EV_VERSION		0x010001
++#define EV_VERSION_1_2          0x010002
  
- 	int			ddi;	/* Last operational device id */
- 	int			lcv;	/* LCV to throttle loops */
--	struct timeval		lcv_tv; /* Time loop was started */
-+	struct timespec64	lcv_tv; /* Time loop was started */
- 
- 	int			di_map[7]; /* Maps below items to live devs */
- 	struct hil_mlc_devinfo	di[HIL_MLC_DEVMEM];
-diff --git a/include/linux/hp_sdc.h b/include/linux/hp_sdc.h
-index d392975..d863944 100644
---- a/include/linux/hp_sdc.h
-+++ b/include/linux/hp_sdc.h
-@@ -47,9 +47,9 @@
- #endif
- 
- 
--/* No 4X status reads take longer than this (in usec).
-+/* No 4X status reads take longer than this (in nsec).
-  */
--#define HP_SDC_MAX_REG_DELAY 20000
-+#define HP_SDC_MAX_REG_DELAY 20000000
- 
- typedef void (hp_sdc_irqhook) (int irq, void *dev_id, 
- 			       uint8_t status, uint8_t data);
-@@ -281,7 +281,7 @@ typedef struct {
- 	hp_sdc_transaction *tq[HP_SDC_QUEUE_LEN]; /* All pending read/writes */
- 
- 	int		rcurr, rqty;	/* Current read transact in process */
--	struct timeval	rtv;		/* Time when current read started */
-+	struct timespec64 rtv;		/* Monotonic time when current read started */
- 	int		wcurr;		/* Current write transact in process */
- 
- 	int		dev_err;	/* carries status from registration */
+ /*
+  * IOCTLs (0x00 - 0x7f)
 -- 
 2.7.4

@@ -1,328 +1,560 @@
-From: Jelle van der Waa <jelle@vdwaa.nl>
-Subject: [PATCH v2] input: touchscreen: add driver for Zeitec ZET6223
-Date: Tue, 13 Sep 2016 23:08:26 +0200
-Message-ID: <20160913210826.30676-2-jelle@vdwaa.nl>
-References: <20160913210826.30676-1-jelle@vdwaa.nl>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] [RFC] HID: udraw: Add support for the uDraw tablet for
+ PS3
+Date: Wed, 14 Sep 2016 08:50:15 +1000
+Message-ID: <20160913225015.GA27337@jelly.local>
+References: <1473612504.7457.4.camel@hadess.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:32938 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752651AbcIMVJ7 (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:28437 "EHLO
+        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754521AbcIMWuY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 13 Sep 2016 17:09:59 -0400
-Received: by mail-wm0-f67.google.com with SMTP id b187so284864wme.0
-        for <linux-input@vger.kernel.org>; Tue, 13 Sep 2016 14:09:58 -0700 (PDT)
-In-Reply-To: <20160913210826.30676-1-jelle@vdwaa.nl>
+        Tue, 13 Sep 2016 18:50:24 -0400
+Content-Disposition: inline
+In-Reply-To: <1473612504.7457.4.camel@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Cc: Jelle van der Waa <jelle@vdwaa.nl>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org
 
-This is a basic driver for the Zeitec ZET6223 I2C touchscreen controllers.
-The driver does not support firmware loading, which is not required for
-all tablets which contain this chip.
+On Sun, Sep 11, 2016 at 06:48:24PM +0200, Bastien Nocera wrote:
+> This adds support for the THQ uDraw tablet for the PS3, as
+> 4 separate device nodes, so that user-space can easily consume
+> events coming from the hardware.
+> 
+> Tested-by: Bastien Nocera <hadess@hadess.net>
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> 
+> ---
+> 
+> I didn't compile it in-tree yet, only out-of-tree, and I'm still
+> investigating support for LEDs, battery and better two-finger tap
+> support.
+> 
+> Comments welcome
+> 
+>  MAINTAINERS             |   6 +
+>  drivers/hid/Kconfig     |   7 +
+>  drivers/hid/Makefile    |   1 +
+>  drivers/hid/hid-core.c  |   1 +
+>  drivers/hid/hid-ids.h   |   3 +
+>  drivers/hid/hid-udraw.c | 434
+> ++++++++++++++++++++++++++++++++++++++++++++++++
+>  6 files changed, 452 insertions(+)
+>  create mode 100644 drivers/hid/hid-udraw.c
+> 
 
-Signed-off-by: Jelle van der Waa <jelle@vdwaa.nl>
----
- .../bindings/input/touchscreen/zet6223.txt         |  32 ++++
- .../devicetree/bindings/vendor-prefixes.txt        |   1 +
- drivers/input/touchscreen/Kconfig                  |  11 ++
- drivers/input/touchscreen/Makefile                 |   1 +
- drivers/input/touchscreen/zet6223.c                | 207 +++++++++++++++++++++
- 5 files changed, 252 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/zet6223.txt
- create mode 100644 drivers/input/touchscreen/zet6223.c
+[...]
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/zet6223.txt b/Documentation/devicetree/bindings/input/touchscreen/zet6223.txt
-new file mode 100644
-index 0000000..6a7a7ce
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/zet6223.txt
-@@ -0,0 +1,32 @@
-+* Zeitec ZET6223 I2C touchscreen controller
-+
-+Required properties:
-+ - compatible		  : "zeitec,zet6223"
-+ - reg			  : I2C slave address of the chip (0x76)
-+ - interrupt-parent	  : a phandle pointing to the interrupt controller
-+			    serving the interrupt for this chip
-+ - interrupts		  : interrupt specification for the zet6223 interrupt
-+ - reset-gpios		  : Specification for the pin connected to the zeiteic's
-+			    reset pin. Required to be set low for flashing firmware.
-+
-+Optional properties:
-+
-+- touchscreen-size-x	  : See touchscreen.txt
-+- touchscreen-size-y	  : See touchscreen.txt
-+- touchscreen-inverted-x  : See touchscreen.txt
-+- touchscreen-inverted-y  : See touchscreen.txt
-+- touchscreen-swapped-x-y : See touchscreen.txt
-+
-+Example:
-+
-+i2c@00000000 {
-+
-+	zet6223: touchscreen@76 {
-+		compatible = "zeitec,zet6223";
-+		reg = <0x76>;
-+		interrupt-parent = <&pio>;
-+		interrupts = <6 11 IRQ_TYPE_EDGE_FALLING>
-+		reset-gpios = <&pio 1 3 GPIO_ACTIVE_HIGH>;
-+	};
-+
-+};
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
-index 1992aa9..1c2cf45 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-@@ -295,5 +295,6 @@ xillybus	Xillybus Ltd.
- xlnx	Xilinx
- zyxel	ZyXEL Communications Corp.
- zarlink	Zarlink Semiconductor
-+zeitec  ZEITEC Semiconductor Co., LTD.
- zii	Zodiac Inflight Innovations
- zte	ZTE Corp.
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 2fb1f43..1fa4671 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -1206,4 +1206,15 @@ config TOUCHSCREEN_ROHM_BU21023
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called bu21023_ts.
- 
-+config TOUCHSCREEN_ZET6223
-+	tristate "Zeitec ZET6223 touchscreen driver"
-+	depends on I2C
-+	help
-+	  Say Y here if you have a touchscreen using Zeitec ZET6223
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called zet6223.
-+
- endif
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index b4373d6..af4608d 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -99,3 +99,4 @@ obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
- obj-$(CONFIG_TOUCHSCREEN_ZFORCE)	+= zforce_ts.o
- obj-$(CONFIG_TOUCHSCREEN_COLIBRI_VF50)	+= colibri-vf50-ts.o
- obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)	+= rohm_bu21023.o
-+obj-$(CONFIG_TOUCHSCREEN_ZET6223)	+= zet6223.o
-diff --git a/drivers/input/touchscreen/zet6223.c b/drivers/input/touchscreen/zet6223.c
-new file mode 100644
-index 0000000..1e2f64d
---- /dev/null
-+++ b/drivers/input/touchscreen/zet6223.c
-@@ -0,0 +1,207 @@
-+/*
-+ * Copyright (C) 2016, Jelle van der Waa <jelle@vdwaa.nl>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify it
-+ *  under the terms of the GNU General Public License as published by the Free
-+ *  Software Foundation; either version 2 of the License, or (at your option)
-+ *  any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful, but WITHOUT
-+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ *  more details.
-+ */
-+
-+#include <asm/unaligned.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/interrupt.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/input/mt.h>
-+#include <linux/input/touchscreen.h>
-+#include <linux/module.h>
-+
-+#define ZET6223_CMD_INFO 0xB2
-+#define ZET6223_CMD_INFO_LENGTH 17
-+#define ZET6223_VALID_PACKET 0x3c
-+
-+struct zet6223_data {
-+	struct gpio_desc *reset_gpios;
-+	struct i2c_client *client;
-+	struct input_dev *input;
-+	struct touchscreen_properties prop;
-+	u8 fingernum;
-+};
-+
-+static int zet6223_start(struct input_dev *dev)
-+{
-+	struct zet6223_data *data = input_get_drvdata(dev);
-+
-+	enable_irq(data->client->irq);
-+
-+	return 0;
-+}
-+
-+static void zet6223_stop(struct input_dev *dev)
-+{
-+	struct zet6223_data *data = input_get_drvdata(dev);
-+
-+	disable_irq(data->client->irq);
-+}
-+
-+static irqreturn_t irqreturn_t_zet6223(int irq, void *dev_id)
-+{
-+	struct device *dev = &data->client->dev;
-+	struct zet6223_data *data = dev_id;
-+	/*
-+	 * First 3 bytes are an identifier, two bytes of finger data.
-+	 * X, Y data per finger is 4 bytes.
-+	 */
-+	u8 bufsize = 3 + 4 * data->fingernum;
-+	u8 buf[bufsize];
-+	u8 i;
-+	u16 finger_bits;
-+	int ret;
-+
-+	ret = i2c_master_recv(data->client, buf, bufsize);
-+	if (ret != bufsize) {
-+		dev_err_ratelimited(dev, "Error reading input data: %d\n", ret);
-+		return IRQ_HANDLED;
-+	}
-+
-+	if (buf[0] != ZET6223_VALID_PACKET)
-+		return IRQ_HANDLED;
-+
-+	finger_bits = get_unaligned_be16(buf + 1);
-+	for (i = 0; i < data->fingernum; i++) {
-+		if (!(finger_bits & BIT(15 - i)))
-+			continue;
-+
-+		input_mt_slot(data->input, i);
-+		input_mt_report_slot_state(data->input, MT_TOOL_FINGER, true);
-+		input_event(data->input, EV_ABS, ABS_MT_POSITION_X,
-+				((buf[i + 3] >> 4) << 8) + buf[i + 4]);
-+		input_event(data->input, EV_ABS, ABS_MT_POSITION_Y,
-+				((buf[i + 3] & 0xF) << 8) + buf[i + 5]);
-+	}
-+
-+	input_mt_sync_frame(data->input);
-+	input_sync(data->input);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int zet6223_probe(struct i2c_client *client,
-+			const struct i2c_device_id *id)
-+{
-+	struct device *dev = &client->dev;
-+	struct zet6223_data *data;
-+	struct input_dev *input;
-+	u8 buf[ZET6223_CMD_INFO_LENGTH];
-+	u8 cmd = ZET6223_CMD_INFO;
-+	int ret, error;
-+
-+	if (!client->irq) {
-+		dev_err(dev, "Error no irq specified\n");
-+		return -EINVAL;
-+	}
-+
-+	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	data->reset_gpios = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
-+	if (IS_ERR(data->reset_gpios)) {
-+		error = PTR_ERR(data->reset_gpios);
-+		if (error != -EPROBE_DEFER)
-+			dev_err(dev, "Error getting reset gpio: %d\n", error);
-+		return error;
-+	}
-+
-+	ret = i2c_master_send(client, &cmd, 1);
-+	if (ret < 0) {
-+		dev_err(dev, "touchpanel info cmd failed: %d\n", ret);
-+		return -ENODEV;
-+	}
-+
-+	ret = i2c_master_recv(client, buf, ZET6223_CMD_INFO_LENGTH);
-+	if (ret < 0) {
-+		dev_err(dev, "cannot retrieve touchpanel info: %d\n", ret);
-+		return -ENODEV;
-+	}
-+
-+	data->fingernum = buf[15] & 0x7F;
-+	if (data->fingernum > 16) {
-+		data->fingernum = 16;
-+		dev_warn(dev, "touchpanel reports more then 16 fingers, limit to 16");
-+	}
-+
-+	input = devm_input_allocate_device(dev);
-+	if (!input)
-+		return -ENOMEM;
-+
-+	input_set_abs_params(input, ABS_MT_POSITION_X, 0,
-+			get_unaligned_le16(&buf[8]), 0, 0);
-+	input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
-+			get_unaligned_le16(&buf[10]), 0, 0);
-+	touchscreen_parse_properties(input, true, &data->prop);
-+
-+	input->name = client->name;
-+	input->id.bustype = BUS_I2C;
-+	input->dev.parent = dev;
-+	input->open = zet6223_start;
-+	input->close = zet6223_stop;
-+
-+	ret = input_mt_init_slots(input, data->fingernum,
-+		INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
-+	if (ret)
-+		return ret;
-+
-+	data->client = client;
-+	data->input = input;
-+
-+	input_set_drvdata(input, data);
-+
-+	ret = devm_request_threaded_irq(dev, client->irq, NULL,
-+			irqreturn_t_zet6223, IRQF_ONESHOT, client->name, data);
-+	if (ret) {
-+		dev_err(dev, "Error requesting irq: %d\n", ret);
-+		return ret;
-+	}
-+
-+	zet6223_stop(input);
-+
-+	ret = input_register_device(input);
-+	if (ret)
-+		return ret;
-+
-+	i2c_set_clientdata(client, data);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id zet6223_of_match[] = {
-+	{ .compatible = "zeitec", "zet6223" },
-+	{ }
-+};
-+
-+static const struct i2c_device_id zet6223_id[] = {
-+	{ "zet6223", 0},
-+	{}
-+};
-+MODULE_DEVICE_TABLE(i2c, zet6223_id);
-+
-+static struct i2c_driver zet6223_driver = {
-+	.driver = {
-+		.name = "zet6223",
-+		.of_match_table = zet6223_of_match,
-+	},
-+	.probe = zet6223_probe,
-+	.id_table = zet6223_id
-+};
-+
-+module_i2c_driver(zet6223_driver);
-+
-+MODULE_AUTHOR("Jelle van der Waa <jelle@vdwaa.nl>");
-+MODULE_DESCRIPTION("ZEITEC zet622x I2C touchscreen driver");
-+MODULE_LICENSE("GPL");
--- 
-2.9.3
+> diff --git a/drivers/hid/hid-udraw.c b/drivers/hid/hid-udraw.c
+> new file mode 100644
+> index 0000000..6728cae
+> --- /dev/null
+> +++ b/drivers/hid/hid-udraw.c
+> @@ -0,0 +1,434 @@
+> +/*
+> + * HID driver for THQ PS3 uDraw tablet
+> + *
+> + * Copyright (C) 2016 Red Hat Inc. All Rights Reserved
+> + *
+> + * This software is licensed under the terms of the GNU General Public
+> + * License version 2, as published by the Free Software Foundation,
+> and
+> + * may be copied, distributed, and modified under those terms.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/device.h>
+> +#include <linux/hid.h>
+> +#include <linux/module.h>
+> +#include "hid-ids.h"
+> +
+> +MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
+> +MODULE_DESCRIPTION("PS3 uDraw tablet driver");
+> +MODULE_LICENSE("GPL");
+> +
+> +/*
+> + * Protocol information from:
+> + * http://brandonw.net/udraw/
+> + * and the source code of:
+> + * https://vvvv.org/contribution/udraw-hid
+> + */
+> +
+> +/*
+> + * The device is setup with multiple input devices to make it easier
+> + * to handle in user-space:
+> + * - the touch area which works as a touchpad
+> + * - the tablet area which works as a touchpad/drawing tablet
+> + * - a joypad with a d-pad, and 7 buttons
+> + * - an optional, disabled by default, accelerometer device
+> + */
+> +
+> +static const unsigned short udraw_joy_key_table[] = {
+> +	BTN_SOUTH,
+> +	BTN_NORTH,
+> +	BTN_EAST,
+> +	BTN_WEST,
+> +	BTN_SELECT,
+> +	BTN_START,
+> +	BTN_MODE
+> +};
+> +
+> +enum {
+> +	TOUCH_NONE,
+> +	TOUCH_PEN,
+> +	TOUCH_FINGER,
+> +	TOUCH_FINGERS
 
+FINGER and FINGERS is easy to confuse on a quick read, better rename to
+MULTIFINGER or TWOFINGER, depending what you can detect.
+
+> +};
+> +
+> +/* Accelerometer min/max values
+> + * in order, X, Y and Z
+> + */
+> +struct {
+> +	int min;
+> +	int max;
+> +} accel_limits[] = {
+> +	{ 0x1EA, 0x216 },
+> +	{ 0x1EA, 0x216 },
+> +	{ 0x1EC, 0x218 }
+> +};
+> +
+> +#define DEVICE_NAME "THQ uDraw Game Tablet for PS3"
+> +/* resolution in pixels */
+> +#define RES_X 1920
+> +#define RES_Y 1080
+> +/* size in mm */
+> +#define WIDTH  160
+> +#define HEIGHT 90
+> +#define PRESSURE_OFFSET 0x71
+> +#define MAX_PRESSURE (0xFF - PRESSURE_OFFSET)
+> +
+> +struct udraw {
+> +	struct input_dev *joy_input_dev;
+> +	struct input_dev *touch_input_dev;
+> +	struct input_dev *pen_input_dev;
+> +	struct input_dev *accel_input_dev;
+> +	struct hid_device *hdev;
+> +};
+> +
+> +static int clamp_accel(int axis, int offset)
+> +{
+> +	axis = clamp(axis,
+> +			accel_limits[offset].min,
+> +			accel_limits[offset].max);
+> +	axis = (axis - accel_limits[offset].min) /
+> +			((accel_limits[offset].max -
+> +			  accel_limits[offset].min) * 0xFF);
+> +	return axis;
+> +}
+> +
+> +static int udraw_raw_event(struct hid_device *hdev, struct hid_report
+> *report,
+> +	 u8 *data, int len)
+> +{
+> +	struct udraw *udraw = hid_get_drvdata(hdev);
+> +	int touch;
+> +	int x, y, z;
+> +
+> +	if (len != 0x1B)
+> +		return 0;
+> +
+> +	if (data[11] == 0x00)
+> +		touch = TOUCH_NONE;
+> +	else if (data[11] == 0x40)
+> +		touch = TOUCH_PEN;
+> +	else if (data[11] == 0x80)
+> +		touch = TOUCH_FINGER;
+> +	else
+> +		touch = TOUCH_FINGERS;
+> +
+> +	/* joypad */
+> +	input_report_key(udraw->joy_input_dev, BTN_WEST, data[0] & 1);
+> +	input_report_key(udraw->joy_input_dev, BTN_SOUTH, data[0] &
+> 2);
+> +	input_report_key(udraw->joy_input_dev, BTN_EAST, data[0] & 4);
+> +	input_report_key(udraw->joy_input_dev, BTN_NORTH, data[0] &
+> 8);
+> +
+> +	input_report_key(udraw->joy_input_dev, BTN_SELECT, data[1] &
+> 1);
+> +	input_report_key(udraw->joy_input_dev, BTN_START, data[1] &
+> 2);
+> +	input_report_key(udraw->joy_input_dev, BTN_MODE, data[1] &
+> 16);
+> +
+> +	x = y = 0;
+> +	switch (data[2]) {
+> +	case 0x0:
+> +		y = -127;
+> +		break;
+> +	case 0x1:
+> +		y = -127;
+> +		x = 127;
+> +		break;
+> +	case 0x2:
+> +		x = 127;
+> +		break;
+> +	case 0x3:
+> +		y = 127;
+> +		x = 127;
+> +		break;
+> +	case 0x4:
+> +		y = 127;
+> +		break;
+> +	case 0x5:
+> +		y = 127;
+> +		x = -127;
+> +		break;
+> +	case 0x6:
+> +		x = -127;
+> +		break;
+> +	case 0x7:
+> +		y = -127;
+> +		x = -127;
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +
+> +	input_report_abs(udraw->joy_input_dev, ABS_X, x);
+> +	input_report_abs(udraw->joy_input_dev, ABS_Y, y);
+> +
+> +	input_sync(udraw->joy_input_dev);
+> +
+> +	/* For pen and touchpad */
+> +	x = y = 0;
+> +	if (touch != TOUCH_NONE) {
+> +		if (data[15] != 0x0F)
+> +			x = data[15] * 256 + data[17];
+> +		if (data[16] != 0x0F)
+> +			y = data[16] * 256 + data[18];
+> +	}
+> +
+> +	/* touchpad */
+> +	if (touch == TOUCH_FINGER || touch == TOUCH_FINGERS) {
+> +		input_report_key(udraw->touch_input_dev, BTN_TOUCH,
+> 1);
+> +		input_report_key(udraw->touch_input_dev,
+> BTN_TOOL_FINGER,
+> +				touch == TOUCH_FINGER);
+> +		input_report_key(udraw->touch_input_dev,
+> BTN_TOOL_DOUBLETAP,
+> +				touch == TOUCH_FINGERS);
+> +
+> +		input_report_abs(udraw->touch_input_dev, ABS_X, x);
+> +		input_report_abs(udraw->touch_input_dev, ABS_Y, y);
+> +	} else {
+> +		input_report_key(udraw->touch_input_dev, BTN_TOUCH,
+> 0);
+> +		input_report_key(udraw->touch_input_dev,
+> BTN_TOOL_FINGER, 0);
+> +		input_report_key(udraw->touch_input_dev,
+> BTN_TOOL_DOUBLETAP, 0);
+> +	}
+> +	input_sync(udraw->touch_input_dev);
+> +
+> +	/* pen */
+> +	if (touch == TOUCH_PEN) {
+> +		int level;
+> +
+> +		level = clamp(data[13] - PRESSURE_OFFSET,
+> +				0, MAX_PRESSURE);
+> +
+> +		input_report_key(udraw->pen_input_dev, BTN_TOUCH,
+> (level != 0));
+> +		input_report_key(udraw->pen_input_dev, BTN_TOOL_PEN,
+> 1);
+> +		input_report_abs(udraw->pen_input_dev, ABS_PRESSURE,
+> level);
+> +		input_report_abs(udraw->pen_input_dev, ABS_X, x);
+> +		input_report_abs(udraw->pen_input_dev, ABS_Y, y);
+> +	} else {
+> +		input_report_key(udraw->pen_input_dev, BTN_TOUCH, 0);
+> +		input_report_abs(udraw->pen_input_dev, ABS_PRESSURE,
+> 0);
+> +		input_report_key(udraw->pen_input_dev, BTN_TOOL_PEN,
+> 0);
+> +	}
+> +	input_sync(udraw->pen_input_dev);
+
+do me a favour and group the reports by type. it makes no difference to this
+driver but event recordings are much easier to read this way.
+so all EV_ABS first, then EV_KEY (or the other way round, don't care).
+
+> +
+> +	/* accel */
+> +	x = (data[19] + (data[20] << 8));
+> +	x = clamp_accel(x, 0);
+> +	y = (data[21] + (data[22] << 8));
+> +	y = clamp_accel(y, 1);
+> +	z = (data[23] + (data[24] << 8));
+> +	z = clamp_accel(z, 2);
+
+this may not be kernel style, but any reason you can't use an enum here
+instead of 0, 1, 2? clamp_accel(x, ACCEL_AXIS_X) would be more obvious to
+read.
+
+> +	input_report_abs(udraw->accel_input_dev, ABS_X, x);
+> +	input_report_abs(udraw->accel_input_dev, ABS_Y, y);
+> +	input_report_abs(udraw->accel_input_dev, ABS_Z, z);
+> +	input_sync(udraw->accel_input_dev);
+> +
+> +	/* let hidraw and hiddev handle the report */
+> +	return 0;
+> +}
+> +
+> +static int udraw_open(struct input_dev *dev)
+> +{
+> +	struct udraw *udraw = input_get_drvdata(dev);
+> +
+> +	return hid_hw_open(udraw->hdev);
+> +}
+> +
+> +static void udraw_close(struct input_dev *dev)
+> +{
+> +	struct udraw *udraw = input_get_drvdata(dev);
+> +
+> +	hid_hw_close(udraw->hdev);
+> +}
+> +
+> +static struct input_dev *allocate_and_setup(struct hid_device *hdev,
+> +		const char *name)
+> +{
+> +	struct input_dev *input_dev;
+> +
+> +	input_dev = devm_input_allocate_device(&hdev->dev);
+> +	if (!input_dev)
+> +		return NULL;
+> +
+> +	input_dev->name = name;
+> +	input_dev->phys = hdev->phys;
+> +	input_dev->dev.parent = &hdev->dev;
+> +	input_dev->open = udraw_open;
+> +	input_dev->close = udraw_close;
+> +	input_dev->uniq = hdev->uniq;
+> +	input_dev->id.bustype = hdev->bus;
+> +	input_dev->id.vendor  = hdev->vendor;
+> +	input_dev->id.product = hdev->product;
+> +	input_dev->id.version = hdev->version;
+> +	input_set_drvdata(input_dev, hid_get_drvdata(hdev));
+> +
+> +	return input_dev;
+> +}
+> +
+> +static bool udraw_setup_touch(struct udraw *udraw,
+> +		struct hid_device *hdev)
+> +{
+> +	struct input_dev *input_dev;
+> +
+> +	input_dev = allocate_and_setup(hdev, DEVICE_NAME "
+> (touchpad)");
+
+no need to use () here. wacom device names are "foo Pen", "foo Finger", etc.
+would be nice to continue that naming scheme.
+
+> +	if (!input_dev)
+> +		return false;
+> +
+> +	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
+> +
+> +	set_bit(ABS_X, input_dev->absbit);
+> +	input_set_abs_params(input_dev, ABS_X, 0, RES_X, 1, 0);
+> +	input_abs_set_res(input_dev, ABS_X, RES_X / WIDTH);
+> +	set_bit(ABS_Y, input_dev->absbit);
+> +	input_set_abs_params(input_dev, ABS_Y, 0, RES_Y, 1, 0);
+> +	input_abs_set_res(input_dev, ABS_Y, RES_Y / HEIGHT);
+> +
+> +	set_bit(BTN_TOUCH, input_dev->keybit);
+> +	set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+> +	set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+> +
+> +	set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+> +
+> +	udraw->touch_input_dev = input_dev;
+> +
+> +	return true;
+> +}
+> +
+> +static bool udraw_setup_pen(struct udraw *udraw,
+> +		struct hid_device *hdev)
+> +{
+> +	struct input_dev *input_dev;
+> +
+> +	input_dev = allocate_and_setup(hdev, DEVICE_NAME " (pen)");
+
+see above for naming scheme
+
+> +	if (!input_dev)
+> +		return false;
+> +
+> +	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
+> +
+> +	set_bit(ABS_X, input_dev->absbit);
+> +	input_set_abs_params(input_dev, ABS_X, 0, RES_X, 1, 0);
+> +	input_abs_set_res(input_dev, ABS_X, RES_X / WIDTH);
+> +	set_bit(ABS_Y, input_dev->absbit);
+> +	input_set_abs_params(input_dev, ABS_Y, 0, RES_Y, 1, 0);
+> +	input_abs_set_res(input_dev, ABS_Y, RES_Y / HEIGHT);
+> +	set_bit(ABS_PRESSURE, input_dev->absbit);
+> +	input_set_abs_params(input_dev, ABS_PRESSURE,
+> +			0, MAX_PRESSURE, 0, 0);
+> +
+> +	set_bit(BTN_TOUCH, input_dev->keybit);
+> +	set_bit(BTN_TOOL_PEN, input_dev->keybit);
+> +
+> +	set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+> +
+> +	udraw->pen_input_dev = input_dev;
+> +
+> +	return true;
+> +}
+> +
+> +static bool udraw_setup_accel(struct udraw *udraw,
+> +		struct hid_device *hdev)
+> +{
+> +	struct input_dev *input_dev;
+> +
+> +	input_dev = allocate_and_setup(hdev, DEVICE_NAME "
+> (accelerometer)");
+
+see above for naming scheme
+
+> +	if (!input_dev)
+> +		return false;
+> +
+> +	input_dev->evbit[0] = BIT(EV_ABS);
+> +
+> +	/* 1G accel is reported as ~256, so clamp to 2G */
+> +	set_bit(ABS_X, input_dev->absbit);
+> +	input_set_abs_params(input_dev, ABS_X, -512, 512, 0, 0);
+> +	set_bit(ABS_Y, input_dev->absbit);
+> +	input_set_abs_params(input_dev, ABS_Y, -512, 512, 0, 0);
+> +	set_bit(ABS_Z, input_dev->absbit);
+> +	input_set_abs_params(input_dev, ABS_Z, -512, 512, 0, 0);
+> +
+> +	set_bit(INPUT_PROP_ACCELEROMETER, input_dev->propbit);
+> +
+> +	udraw->accel_input_dev = input_dev;
+> +
+> +	return true;
+> +}
+> +
+> +static bool udraw_setup_joypad(struct udraw *udraw,
+> +		struct hid_device *hdev)
+> +{
+> +	struct input_dev *input_dev;
+> +	int i;
+> +
+> +	input_dev = allocate_and_setup(hdev, DEVICE_NAME " (joypad)");
+
+see above for naming scheme
+
+> +	if (!input_dev)
+> +		return false;
+> +
+> +	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
+> +
+> +	set_bit(ABS_X, input_dev->absbit);
+> +	input_set_abs_params(input_dev, ABS_X, -127, 127, 0, 0);
+> +	set_bit(ABS_Y, input_dev->absbit);
+> +	input_set_abs_params(input_dev, ABS_Y, -127, 127, 0, 0);
+> +
+> +	for (i = 0; i < ARRAY_SIZE(udraw_joy_key_table); i++)
+> +		set_bit(udraw_joy_key_table[i], input_dev->keybit);
+
+Personal opinion here: for the few buttons you have, the loop over an array
+doesn't really get you much benefit over just having 7 set_bit() calls. just
+hardcoding all set_bit calls (or moving joy_key_table to here) is that you
+have all the init bits in one place for quick analysis.
+
+but I'm not going to argue this point too hard.
+
+Cheers,
+   Peter
+
+> +
+> +	udraw->joy_input_dev = input_dev;
+> +
+> +	return true;
+> +}
+> +
+> +static int udraw_probe(struct hid_device *hdev, const struct
+> hid_device_id *id)
+> +{
+> +	struct udraw *udraw;
+> +	int ret;
+> +
+> +	udraw = devm_kzalloc(&hdev->dev, sizeof(struct udraw),
+> GFP_KERNEL);
+> +	if (!udraw)
+> +		return -ENOMEM;
+> +
+> +	udraw->hdev = hdev;
+> +
+> +	hid_set_drvdata(hdev, udraw);
+> +
+> +	ret = hid_parse(hdev);
+> +	if (ret) {
+> +		hid_err(hdev, "parse failed\n");
+> +		return ret;
+> +	}
+> +
+> +	if (!udraw_setup_joypad(udraw, hdev) ||
+> +	    !udraw_setup_touch(udraw, hdev) ||
+> +	    !udraw_setup_pen(udraw, hdev) ||
+> +	    !udraw_setup_accel(udraw, hdev)) {
+> +		hid_err(hdev, "could not allocate interfaces\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	ret = input_register_device(udraw->joy_input_dev) ||
+> +		input_register_device(udraw->touch_input_dev) ||
+> +		input_register_device(udraw->pen_input_dev) ||
+> +		input_register_device(udraw->accel_input_dev);
+> +	if (ret) {
+> +		hid_err(hdev, "failed to register interfaces\n");
+> +		return ret;
+> +	}
+> +
+> +	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW |
+> HID_CONNECT_DRIVER);
+> +	if (ret) {
+> +		hid_err(hdev, "hw start failed\n");
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct hid_device_id udraw_devices[] = {
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_THQ,
+> USB_DEVICE_ID_THQ_PS3_UDRAW) },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(hid, udraw_devices);
+> +
+> +static struct hid_driver udraw_driver = {
+> +	.name = "hid-udraw",
+> +	.id_table = udraw_devices,
+> +	.raw_event = udraw_raw_event,
+> +	.probe = udraw_probe,
+> +};
+> +module_hid_driver(udraw_driver);
+> -- 
+> 2.7.4
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

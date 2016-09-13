@@ -1,78 +1,160 @@
 From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: [PATCH 7/9] HID: uclogic: Support UGTizer GP0610 partially
-Date: Tue, 13 Sep 2016 17:08:41 +0300
-Message-ID: <20160913140843.25567-8-spbnick@gmail.com>
+Subject: [PATCH 3/9] HID: kye: Fix MousePen i608X v2 report descriptor
+Date: Tue, 13 Sep 2016 17:08:37 +0300
+Message-ID: <20160913140843.25567-4-spbnick@gmail.com>
 References: <20160913140843.25567-1-spbnick@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33907 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751633AbcIMOJN (ORCPT
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:36312 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756309AbcIMOJJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 13 Sep 2016 10:09:13 -0400
-Received: by mail-wm0-f66.google.com with SMTP id g141so7500459wmd.1
-        for <linux-input@vger.kernel.org>; Tue, 13 Sep 2016 07:09:13 -0700 (PDT)
+        Tue, 13 Sep 2016 10:09:09 -0400
+Received: by mail-wm0-f67.google.com with SMTP id b184so2562183wma.3
+        for <linux-input@vger.kernel.org>; Tue, 13 Sep 2016 07:09:08 -0700 (PDT)
 In-Reply-To: <20160913140843.25567-1-spbnick@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: linux-input@vger.kernel.org, Nikolai Kondrashov <spbnick@gmail.com>
 
-Add partial support for the UGTizer GP0610 tablet (aka iBall PF1064U,
-aka UGTizer GT1060) to the hid-uclogic.c driver.
-
-The pen input is supported fully, but frame buttons and wheel don't work
-yet.
+Add a dedicated, fixed report descriptor for the second version of KYE
+MousePen i608X graphics tablet. The descriptor fixes pressure and
+drawing area ranges.
 
 Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
 ---
- drivers/hid/hid-ids.h     |  3 +++
- drivers/hid/hid-uclogic.c | 14 ++++++++++++++
- 2 files changed, 17 insertions(+)
+ drivers/hid/hid-kye.c | 106 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 105 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 6ef9dbf..15067a9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1089,4 +1089,7 @@
- #define USB_DEVICE_ID_RAPHNET_2NES2SNES	0x0002
- #define USB_DEVICE_ID_RAPHNET_4NES4SNES	0x0003
+diff --git a/drivers/hid/hid-kye.c b/drivers/hid/hid-kye.c
+index ee5ca1f..0dd1167 100644
+--- a/drivers/hid/hid-kye.c
++++ b/drivers/hid/hid-kye.c
+@@ -176,6 +176,105 @@ static __u8 mousepen_i608x_rdesc_fixed[] = {
+ 	0xC0              /*  End Collection                  */
+ };
  
-+#define USB_VENDOR_ID_UGTIZER			0x2179
-+#define USB_DEVICE_ID_UGTIZER_TABLET_GP0610	0x0053
++/* Original MousePen i608X v2 report descriptor size */
++#define MOUSEPEN_I608X_V2_RDESC_ORIG_SIZE	482
 +
- #endif
-diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
-index f4377c4..72778b3 100644
---- a/drivers/hid/hid-uclogic.c
-+++ b/drivers/hid/hid-uclogic.c
-@@ -974,6 +974,19 @@ static int uclogic_probe(struct hid_device *hdev,
- 			drvdata->ignore_pen_usage = true;
++/* Fixed MousePen i608X v2 report descriptor */
++static __u8 mousepen_i608x_v2_rdesc_fixed[] = {
++	0x06, 0x00, 0xFF,             /*  Usage Page (FF00h),             */
++	0x09, 0x01,                   /*  Usage (01h),                    */
++	0xA1, 0x01,                   /*  Collection (Application),       */
++	0x85, 0x05,                   /*    Report ID (5),                */
++	0x09, 0x01,                   /*    Usage (01h),                  */
++	0x15, 0x80,                   /*    Logical Minimum (-128),       */
++	0x25, 0x7F,                   /*    Logical Maximum (127),        */
++	0x75, 0x08,                   /*    Report Size (8),              */
++	0x95, 0x07,                   /*    Report Count (7),             */
++	0xB1, 0x02,                   /*    Feature (Variable),           */
++	0xC0,                         /*  End Collection,                 */
++	0x05, 0x0D,                   /*  Usage Page (Digitizer),         */
++	0x09, 0x02,                   /*  Usage (Pen),                    */
++	0xA1, 0x01,                   /*  Collection (Application),       */
++	0x85, 0x10,                   /*    Report ID (16),               */
++	0x09, 0x20,                   /*    Usage (Stylus),               */
++	0xA0,                         /*    Collection (Physical),        */
++	0x14,                         /*      Logical Minimum (0),        */
++	0x25, 0x01,                   /*      Logical Maximum (1),        */
++	0x75, 0x01,                   /*      Report Size (1),            */
++	0x09, 0x42,                   /*      Usage (Tip Switch),         */
++	0x09, 0x44,                   /*      Usage (Barrel Switch),      */
++	0x09, 0x46,                   /*      Usage (Tablet Pick),        */
++	0x95, 0x03,                   /*      Report Count (3),           */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0x95, 0x04,                   /*      Report Count (4),           */
++	0x81, 0x03,                   /*      Input (Constant, Variable), */
++	0x09, 0x32,                   /*      Usage (In Range),           */
++	0x95, 0x01,                   /*      Report Count (1),           */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0x75, 0x10,                   /*      Report Size (16),           */
++	0x95, 0x01,                   /*      Report Count (1),           */
++	0xA4,                         /*      Push,                       */
++	0x05, 0x01,                   /*      Usage Page (Desktop),       */
++	0x55, 0xFD,                   /*      Unit Exponent (-3),         */
++	0x65, 0x13,                   /*      Unit (Inch),                */
++	0x34,                         /*      Physical Minimum (0),       */
++	0x09, 0x30,                   /*      Usage (X),                  */
++	0x46, 0x40, 0x1F,             /*      Physical Maximum (8000),    */
++	0x27, 0x00, 0xA0, 0x00, 0x00, /*      Logical Maximum (40960),    */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0x09, 0x31,                   /*      Usage (Y),                  */
++	0x46, 0x70, 0x17,             /*      Physical Maximum (6000),    */
++	0x26, 0x00, 0x78,             /*      Logical Maximum (30720),    */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0xB4,                         /*      Pop,                        */
++	0x09, 0x30,                   /*      Usage (Tip Pressure),       */
++	0x26, 0xFF, 0x07,             /*      Logical Maximum (2047),     */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0xC0,                         /*    End Collection,               */
++	0xC0,                         /*  End Collection,                 */
++	0x05, 0x01,                   /*  Usage Page (Desktop),           */
++	0x09, 0x02,                   /*  Usage (Mouse),                  */
++	0xA1, 0x01,                   /*  Collection (Application),       */
++	0x85, 0x11,                   /*    Report ID (17),               */
++	0x09, 0x01,                   /*    Usage (Pointer),              */
++	0xA0,                         /*    Collection (Physical),        */
++	0x14,                         /*      Logical Minimum (0),        */
++	0xA4,                         /*      Push,                       */
++	0x05, 0x09,                   /*      Usage Page (Button),        */
++	0x75, 0x01,                   /*      Report Size (1),            */
++	0x19, 0x01,                   /*      Usage Minimum (01h),        */
++	0x29, 0x03,                   /*      Usage Maximum (03h),        */
++	0x25, 0x01,                   /*      Logical Maximum (1),        */
++	0x95, 0x03,                   /*      Report Count (3),           */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0x95, 0x05,                   /*      Report Count (5),           */
++	0x81, 0x01,                   /*      Input (Constant),           */
++	0xB4,                         /*      Pop,                        */
++	0x95, 0x01,                   /*      Report Count (1),           */
++	0xA4,                         /*      Push,                       */
++	0x55, 0xFD,                   /*      Unit Exponent (-3),         */
++	0x65, 0x13,                   /*      Unit (Inch),                */
++	0x34,                         /*      Physical Minimum (0),       */
++	0x75, 0x10,                   /*      Report Size (16),           */
++	0x09, 0x30,                   /*      Usage (X),                  */
++	0x46, 0x40, 0x1F,             /*      Physical Maximum (8000),    */
++	0x27, 0x00, 0xA0, 0x00, 0x00, /*      Logical Maximum (40960),    */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0x09, 0x31,                   /*      Usage (Y),                  */
++	0x46, 0x70, 0x17,             /*      Physical Maximum (6000),    */
++	0x26, 0x00, 0x78,             /*      Logical Maximum (30720),    */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0xB4,                         /*      Pop,                        */
++	0x75, 0x08,                   /*      Report Size (8),            */
++	0x09, 0x38,                   /*      Usage (Wheel),              */
++	0x15, 0xFF,                   /*      Logical Minimum (-1),       */
++	0x25, 0x01,                   /*      Logical Maximum (1),        */
++	0x81, 0x06,                   /*      Input (Variable, Relative), */
++	0x81, 0x01,                   /*      Input (Constant),           */
++	0xC0,                         /*    End Collection,               */
++	0xC0                          /*  End Collection                  */
++};
++
+ /* Original EasyPen M610X report descriptor size */
+ #define EASYPEN_M610X_RDESC_ORIG_SIZE	476
+ 
+@@ -439,12 +538,17 @@ static __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
  		}
  		break;
-+	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
-+		/* If this is the pen interface */
-+		if (intf->cur_altsetting->desc.bInterfaceNumber == 1) {
-+			rc = uclogic_tablet_enable(hdev);
-+			if (rc) {
-+				hid_err(hdev, "tablet enabling failed\n");
-+				return rc;
-+			}
-+			drvdata->invert_pen_inrange = true;
-+		} else {
-+			drvdata->ignore_pen_usage = true;
+ 	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X:
+-	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2:
+ 		if (*rsize == MOUSEPEN_I608X_RDESC_ORIG_SIZE) {
+ 			rdesc = mousepen_i608x_rdesc_fixed;
+ 			*rsize = sizeof(mousepen_i608x_rdesc_fixed);
+ 		}
+ 		break;
++	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2:
++		if (*rsize == MOUSEPEN_I608X_V2_RDESC_ORIG_SIZE) {
++			rdesc = mousepen_i608x_v2_rdesc_fixed;
++			*rsize = sizeof(mousepen_i608x_v2_rdesc_fixed);
 +		}
 +		break;
- 	}
- 
- 	rc = hid_parse(hdev);
-@@ -1031,6 +1044,7 @@ static const struct hid_device_id uclogic_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_81) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_45) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER, USB_DEVICE_ID_UGTIZER_TABLET_GP0610) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, uclogic_devices);
+ 	case USB_DEVICE_ID_KYE_EASYPEN_M610X:
+ 		if (*rsize == EASYPEN_M610X_RDESC_ORIG_SIZE) {
+ 			rdesc = easypen_m610x_rdesc_fixed;
 -- 
 2.9.3
 

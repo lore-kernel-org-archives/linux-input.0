@@ -1,45 +1,73 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 4/4] input: serio: Replace timeval by timespec64
-Date: Tue, 13 Sep 2016 17:13:48 +0200
-Message-ID: <2982423.lGps9KTD1c@wuerfel>
-References: <1473775805-2242-1-git-send-email-deepa.kernel@gmail.com> <1473775805-2242-5-git-send-email-deepa.kernel@gmail.com>
+From: kbuild test robot <lkp@intel.com>
+Subject: Re: [PATCH 3/4] input: Deprecate real timestamps beyond
+	year 2106
+Date: Wed, 14 Sep 2016 00:06:12 +0800
+Message-ID: <201609140054.YrcBNFHV%fengguang.wu@intel.com>
+References: <1473775805-2242-4-git-send-email-deepa.kernel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.187]:61419 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753562AbcIMPNw (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 13 Sep 2016 11:13:52 -0400
-In-Reply-To: <1473775805-2242-5-git-send-email-deepa.kernel@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+In-Reply-To: <1473775805-2242-4-git-send-email-deepa.kernel@gmail.com>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
 To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, y2038@lists.linaro.org
+Cc: arnd@arndb.de, y2038@lists.linaro.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, kbuild-all@01.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Tuesday, September 13, 2016 7:10:05 AM CEST Deepa Dinamani wrote:
-> struct timeval is not y2038 safe.
-> All references to timeval will be deleted from the
-> kernel to make it y2038 safe.
-> Replace its uses by y2038 safe struct timespec64.
-> 
-> The timestamps changed here only keep track of delta
-> times. These timestamps are also internal to kernel.
-> Hence, monotonic times are sufficient here.
-> The unit of the delta times is also changed in certain
-> cases to nanoseconds rather than microseconds. This is
-> in line with timespec64 which keeps time in nanoseconds.
-> 
-> Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
-> 
-
-Looks all correct to me,
-
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-
-I think it could be done a little nicer using ktime_get()
-instead of ktime_get_ts64(), but probably nobody cares with
-this driver.
-
-	Arnd
+SGkgRGVlcGEsCgpbYXV0byBidWlsZCB0ZXN0IEVSUk9SIG9uIGlucHV0L25leHRdClthbHNvIGJ1
+aWxkIHRlc3QgRVJST1Igb24gdjQuOC1yYzYgbmV4dC0yMDE2MDkxM10KW2lmIHlvdXIgcGF0Y2gg
+aXMgYXBwbGllZCB0byB0aGUgd3JvbmcgZ2l0IHRyZWUsIHBsZWFzZSBkcm9wIHVzIGEgbm90ZSB0
+byBoZWxwIGltcHJvdmUgdGhlIHN5c3RlbV0KW1N1Z2dlc3QgdG8gdXNlIGdpdCg+PTIuOS4wKSBm
+b3JtYXQtcGF0Y2ggLS1iYXNlPTxjb21taXQ+IChvciAtLWJhc2U9YXV0byBmb3IgY29udmVuaWVu
+Y2UpIHRvIHJlY29yZCB3aGF0IChwdWJsaWMsIHdlbGwta25vd24pIGNvbW1pdCB5b3VyIHBhdGNo
+IHNlcmllcyB3YXMgYnVpbHQgb25dCltDaGVjayBodHRwczovL2dpdC1zY20uY29tL2RvY3MvZ2l0
+LWZvcm1hdC1wYXRjaCBmb3IgbW9yZSBpbmZvcm1hdGlvbl0KCnVybDogICAgaHR0cHM6Ly9naXRo
+dWIuY29tLzBkYXktY2kvbGludXgvY29tbWl0cy9EZWVwYS1EaW5hbWFuaS9NYWtlLWlucHV0LWRy
+aXZlcnMteTIwMzgtc2FmZS8yMDE2MDkxMy0yMjE4MTAKYmFzZTogICBodHRwczovL2dpdC5rZXJu
+ZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9kdG9yL2lucHV0LmdpdCBuZXh0CmNvbmZp
+ZzogeDg2XzY0LXJhbmRjb25maWctczAtMDkxMzIxNTQgKGF0dGFjaGVkIGFzIC5jb25maWcpCmNv
+bXBpbGVyOiBnY2MtNiAoRGViaWFuIDYuMS4xLTkpIDYuMS4xIDIwMTYwNzA1CnJlcHJvZHVjZToK
+ICAgICAgICAjIHNhdmUgdGhlIGF0dGFjaGVkIC5jb25maWcgdG8gbGludXggYnVpbGQgdHJlZQog
+ICAgICAgIG1ha2UgQVJDSD14ODZfNjQgCgpBbGwgZXJyb3JzIChuZXcgb25lcyBwcmVmaXhlZCBi
+eSA+Pik6CgogICBkcml2ZXJzL2lucHV0L2lucHV0LWNvbXBhdC5jOiBJbiBmdW5jdGlvbiAnaW5w
+dXRfZXZlbnRfZnJvbV91c2VyJzoKPj4gZHJpdmVycy9pbnB1dC9pbnB1dC1jb21wYXQuYzoyNDox
+NTogZXJyb3I6IGludmFsaWQgYXBwbGljYXRpb24gb2YgJ3NpemVvZicgdG8gaW5jb21wbGV0ZSB0
+eXBlICdzdHJ1Y3QgaW5wdXRfZXZlbnRfY29tcGF0JwogICAgICAgICAgIHNpemVvZihzdHJ1Y3Qg
+aW5wdXRfZXZlbnRfY29tcGF0KSkpCiAgICAgICAgICAgICAgICAgIF5+fn5+fgogICBkcml2ZXJz
+L2lucHV0L2lucHV0LWNvbXBhdC5jOiBJbiBmdW5jdGlvbiAnaW5wdXRfZXZlbnRfdG9fdXNlcic6
+CiAgIGRyaXZlcnMvaW5wdXQvaW5wdXQtY29tcGF0LmM6NTU6MTM6IGVycm9yOiBpbnZhbGlkIGFw
+cGxpY2F0aW9uIG9mICdzaXplb2YnIHRvIGluY29tcGxldGUgdHlwZSAnc3RydWN0IGlucHV0X2V2
+ZW50X2NvbXBhdCcKICAgICAgICAgc2l6ZW9mKHN0cnVjdCBpbnB1dF9ldmVudF9jb21wYXQpKSkK
+ICAgICAgICAgICAgICAgIF5+fn5+fgoKdmltICsyNCBkcml2ZXJzL2lucHV0L2lucHV0LWNvbXBh
+dC5jCgo2OGQ3Nzk0MiBEZWVwYSBEaW5hbWFuaSAgMjAxNi0wOS0xMyAgMTggIAkJCSAgc3RydWN0
+IHJhd19pbnB1dF9ldmVudCAqZXZlbnQpCjJkNTZmM2EzIFBoaWxpcCBMYW5nZGFsZSAyMDA4LTEw
+LTE2ICAxOSAgewo2OGQ3Nzk0MiBEZWVwYSBEaW5hbWFuaSAgMjAxNi0wOS0xMyAgMjAgIAlpZiAo
+aW5fY29tcGF0X3N5c2NhbGwoKSkgewo2OGQ3Nzk0MiBEZWVwYSBEaW5hbWFuaSAgMjAxNi0wOS0x
+MyAgMjEgIAkJc3RydWN0IHJhd19pbnB1dF9ldmVudF9jb21wYXQgY29tcGF0X2V2ZW50OwoyZDU2
+ZjNhMyBQaGlsaXAgTGFuZ2RhbGUgMjAwOC0xMC0xNiAgMjIgIAoyZDU2ZjNhMyBQaGlsaXAgTGFu
+Z2RhbGUgMjAwOC0xMC0xNiAgMjMgIAkJaWYgKGNvcHlfZnJvbV91c2VyKCZjb21wYXRfZXZlbnQs
+IGJ1ZmZlciwKMmQ1NmYzYTMgUGhpbGlwIExhbmdkYWxlIDIwMDgtMTAtMTYgQDI0ICAJCQkJICAg
+c2l6ZW9mKHN0cnVjdCBpbnB1dF9ldmVudF9jb21wYXQpKSkKMmQ1NmYzYTMgUGhpbGlwIExhbmdk
+YWxlIDIwMDgtMTAtMTYgIDI1ICAJCQlyZXR1cm4gLUVGQVVMVDsKMmQ1NmYzYTMgUGhpbGlwIExh
+bmdkYWxlIDIwMDgtMTAtMTYgIDI2ICAKMmQ1NmYzYTMgUGhpbGlwIExhbmdkYWxlIDIwMDgtMTAt
+MTYgIDI3ICAJCWV2ZW50LT50aW1lLnR2X3NlYyA9IGNvbXBhdF9ldmVudC50aW1lLnR2X3NlYzsK
+Cjo6Ojo6OiBUaGUgY29kZSBhdCBsaW5lIDI0IHdhcyBmaXJzdCBpbnRyb2R1Y2VkIGJ5IGNvbW1p
+dAo6Ojo6OjogMmQ1NmYzYTMyYzBlNjJmOTljMDQzZDI1Nzk4NDBmOTczMWZlNTg1NSBJbnB1dDog
+cmVmYWN0b3IgZXZkZXYgMzJiaXQgY29tcGF0IHRvIGJlIHNoYXJlYWJsZSB3aXRoIHVpbnB1dAoK
+Ojo6Ojo6IFRPOiBQaGlsaXAgTGFuZ2RhbGUgPHBoaWxpcGxAb3ZlcnQub3JnPgo6Ojo6OjogQ0M6
+IERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4KCi0tLQowLURBWSBr
+ZXJuZWwgdGVzdCBpbmZyYXN0cnVjdHVyZSAgICAgICAgICAgICAgICBPcGVuIFNvdXJjZSBUZWNo
+bm9sb2d5IENlbnRlcgpodHRwczovL2xpc3RzLjAxLm9yZy9waXBlcm1haWwva2J1aWxkLWFsbCAg
+ICAgICAgICAgICAgICAgICBJbnRlbCBDb3Jwb3JhdGlvbgpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpZMjAzOCBtYWlsaW5nIGxpc3QKWTIwMzhAbGlzdHMu
+bGluYXJvLm9yZwpodHRwczovL2xpc3RzLmxpbmFyby5vcmcvbWFpbG1hbi9saXN0aW5mby95MjAz
+OAo=

@@ -1,51 +1,47 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 3/4] input: Deprecate real timestamps beyond
-	year 2106
-Date: Tue, 13 Sep 2016 22:40:38 +0200
-Message-ID: <2424772.suzB8dJZHE@wuerfel>
-References: <CABeXuvqovKW4hGc+4BNG6q4x30wr45AxptHXnKcon8pMT6CXuA@mail.gmail.com>
- <1473797406-13286-1-git-send-email-deepa.kernel@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-In-Reply-To: <1473797406-13286-1-git-send-email-deepa.kernel@gmail.com>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
-To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: y2038@lists.linaro.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Jelle van der Waa <jelle-oJJ1AqDjjO4@public.gmane.org>
+Subject: [PATCH v2] input: touchscreen: add driver for Zeitec ZET6223
+Date: Tue, 13 Sep 2016 23:08:25 +0200
+Message-ID: <20160913210826.30676-1-jelle@vdwaa.nl>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jelle van der Waa <jelle-oJJ1AqDjjO4@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-T24gVHVlc2RheSwgU2VwdGVtYmVyIDEzLCAyMDE2IDE6MTA6MDYgUE0gQ0VTVCBEZWVwYSBEaW5h
-bWFuaSB3cm90ZToKPiBzdHJ1Y3QgdGltZXZhbCBpcyBub3QgeTIwMzggc2FmZS4KPiBBbGwgdXNh
-Z2Ugb2YgdGltZXZhbCBpbiB0aGUga2VybmVsIHdpbGwgYmUgcmVwbGFjZWQgYnkKPiB5MjAzOCBz
-YWZlIHN0cnVjdHVyZXMuCj4gCj4gc3RydWN0IGlucHV0X2V2ZW50IG1haW50YWlucyB0aW1lIGZv
-ciBlYWNoIGlucHV0IGV2ZW50Lgo+IFJlYWwgdGltZSB0aW1lc3RhbXBzIGFyZSBub3QgaWRlYWwg
-Zm9yIGlucHV0IGFzIHRoaXMKPiB0aW1lIGNhbiBnbyBiYWNrd2FyZHMgYXMgbm90ZWQgaW4gdGhl
-IHBhdGNoIGE4MGI4M2I3YjgKPiBieSBKb2huIFN0dWx0ei4gSGVuY2UsIGhhdmluZyB0aGUgaW5w
-dXRfZXZlbnQudGltZSBmaWVsZHMKPiBvbmx5IGJpZyBlbm91Z2ggZm9yIG1vbm90b25pYyBhbmQg
-Ym9vdCB0aW1lcyBhcmUKPiBzdWZmaWNpZW50Lgo+IAo+IExlYXZlIHRoZSBvcmlnaW5hbCBpbnB1
-dF9ldmVudCBhcyBpcy4gVGhpcyBpcyB0byBtYWludGFpbgo+IGJhY2t3YXJkIGNvbXBhdGliaWxp
-dHkgd2l0aCBleGlzdGluZyB1c2Vyc3BhY2UgaW50ZXJmYWNlcwo+IHRoYXQgdXNlIGlucHV0X2V2
-ZW50Lgo+IEludHJvZHVjZSBhIG5ldyByZXBsYWNlbWVudCBzdHJ1Y3QgcmF3X2lucHV0X2V2ZW50
-Lgo+IFRoaXMgcmVwbGFjZXMgdGltZXZhbCB3aXRoIHN0cnVjdCBpbnB1dF90aW1ldmFsLiBUaGlz
-IHN0cnVjdHVyZQo+IG1haW50YWlucyB0aW1lIGluIF9fa2VybmVsX3Vsb25nX3Qgb3IgY29tcGF0
-X3Vsb25nX3QgdG8gYWxsb3cKPiBmb3IgYXJjaGl0ZWN0dXJlcyB0byBvdmVycmlkZSB0eXBlcyBh
-cyBpbiB0aGUgY2FzZSBvZiB4MzIuCj4gCj4gVGhlIGNoYW5nZSByZXF1aXJlcyBhbnkgdXNlcnNw
-YWNlIHV0aWxpdGllcyByZWFkaW5nIG9yIHdyaXRpbmcKPiBmcm9tIGV2ZW50IG5vZGVzIHRvIHVw
-ZGF0ZSB0aGVpciByZWFkaW5nIGZvcm1hdCB0byBtYXRjaAo+IHJhd19pbnB1dF9ldmVudC5UaGUg
-Y2hhbmdlcyB0byB0aGUgcG9wdWxhciBsaWJyYXJpZXMgd2lsbCBiZQo+IHBvc3RlZCBhbG9uZyB3
-aXRoIHRoZSBrZXJuZWwgY2hhbmdlcy4KPiBUaGUgZHJpdmVyIHZlcnNpb24gaXMgYWxzbyB1cGRh
-dGVkIHRvIHJlZmxlY3QgdGhlIGNoYW5nZSBpbgo+IGV2ZW50IGZvcm1hdC4KPiAKPiBTdWdnZXN0
-ZWQtYnk6IEFybmQgQmVyZ21hbm4gPGFybmRAYXJuZGIuZGU+Cj4gU2lnbmVkLW9mZi1ieTogRGVl
-cGEgRGluYW1hbmkgPGRlZXBhLmtlcm5lbEBnbWFpbC5jb20+Cj4gCgpBY2tlZC1ieTogQXJuZCBC
-ZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KWTIwMzggbWFpbGluZyBsaXN0ClkyMDM4QGxpc3RzLmxpbmFyby5vcmcK
-aHR0cHM6Ly9saXN0cy5saW5hcm8ub3JnL21haWxtYW4vbGlzdGluZm8veTIwMzgK
+This is the v2 version of the Zeitec ZET6223 touchscreen i2c driver.
+
+I forgot to include the vendors datasheet in the first patch set, I linked it below. [0]
+
+Changes in v2:
+* Fix double indentation in open/close handler
+* Rewrite C++ style comments to C style
+* Simplify check valid finger bits
+* Fix double space in dev_err
+* Check if the number of fingers is bigger then 16, if it's bigger then
+  16 numbers then limit it to 16.
+* Drop INPUT_MT_TRACK since the firmware tracks fingers.
+* Add of_match table
+* Rename power_gpios to reset_gpios since the datasheet names this pin
+  the reset pin. This pin can be set to low for uploading firmware
+
+[0] http://www.zeitecsemi.com/dokuwiki/lib/exe/fetch.php?media=product_spec_6223:zp-hw-ps-0007_zet6223_product_spec_v1.0.pdf
+
+Jelle van der Waa (1):
+  input: touchscreen: add driver for Zeitec ZET6223
+
+ .../bindings/input/touchscreen/zet6223.txt         |  32 ++++
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ drivers/input/touchscreen/Kconfig                  |  11 ++
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/zet6223.c                | 207 +++++++++++++++++++++
+ 5 files changed, 252 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/zet6223.txt
+ create mode 100644 drivers/input/touchscreen/zet6223.c
+
+-- 
+2.9.3
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

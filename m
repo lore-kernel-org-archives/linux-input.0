@@ -1,560 +1,276 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] [RFC] HID: udraw: Add support for the uDraw tablet for
- PS3
-Date: Wed, 14 Sep 2016 08:50:15 +1000
-Message-ID: <20160913225015.GA27337@jelly.local>
-References: <1473612504.7457.4.camel@hadess.net>
+From: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+Subject: Re: [PATCH 4/4] hda: thinkpad_helper: Add support for hid-lenovo LED
+ control
+Date: Wed, 14 Sep 2016 08:22:45 +0200
+Message-ID: <6d21581c-cbc6-f148-77fd-2b468335f481@secunet.com>
+References: <91729b41-7537-b506-6980-94b9938c8305@secunet.com>
+ <s5hsht5i98s.wl-tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:28437 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754521AbcIMWuY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 13 Sep 2016 18:50:24 -0400
-Content-Disposition: inline
-In-Reply-To: <1473612504.7457.4.camel@hadess.net>
+Received: from a.mx.secunet.com ([62.96.220.36]:38003 "EHLO a.mx.secunet.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751764AbcINGXy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 14 Sep 2016 02:23:54 -0400
+In-Reply-To: <s5hsht5i98s.wl-tiwai@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-input@vger.kernel.org, linux-sound@vger.kernel.org, alsa-devel@alsa-project.org, lukas@wunner.de, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, perex@perex.cz, david.henningsson@canonical.com, vinod.koul@intel.com, hui.wang@canonical.com, rafael.j.wysocki@intel.com, jikos@kernel.org
 
-On Sun, Sep 11, 2016 at 06:48:24PM +0200, Bastien Nocera wrote:
-> This adds support for the THQ uDraw tablet for the PS3, as
-> 4 separate device nodes, so that user-space can easily consume
-> events coming from the hardware.
+Hi Takashi,
+
+at my first shot published to github I had an approach which makes thinkpad_acpi and hid-lenovo mutual exclusive (https://github.com/dwassenberg/linux/tree/development/hid-rmi). This approach has some issues. For example in case of thinkpad_acpi and hid-lenovo module is loaded (e.g. at Lenovo ThinkPad X1 Tablet) the symbol request to tpacpi_led_set is successful so the thinkpad_helper will decide in favor of thinkpad_acpi. So I need to add something which checks the return code of tpacpi_led_set. If -ENODEV is returned it can try hid-lenovo.
+
+But the reason why I made thinkpad_acpi and hid-lenovo work in parallel was that if it is mutual exclusive there is no possibility to control LEDs of external Lenovo USB keyboards which are connected to a Thinkpad. Currently (including the other patches) there is only the X1 Tablet Cover LEDs which is controllable from external code. But the hid-lenovo driver is able to handle different Lenovo USB Keyboards.
+
+- ThinkPad USB Keyboard with TrackPoint (tpkbd)
+- ThinkPad Compact Bluetooth Keyboard with TrackPoint (cptkbd)
+- ThinkPad Compact USB Keyboard with TrackPoint (cptkbd)
+- ThinkPad X1 Cover USB Keyboard with TrackPoint and Touchpad (tpx1cover)
+
+These keyboards have these LEDs too. For some of these keyboards a LED control is implemented inside hid-lenovo too. If thinkpad_acpi and hid-lenovo is mutual exclusive it is impossible to let the thinkpad_helper control the LEDs of these external USB keyboards if they are connected to a thinkpad. I don't know if anyone will do this, but I don't want to take the possibility to do such thinks :)
+
+So.. if there is the decision (from your side) that this should be mutual exclusive I will prepare a v2 which the mutual exclusive approach I described at the top.
+
+Thank you & best regards,
+
+Dennis
+
+On 12.09.2016 14:38, Takashi Iwai wrote:
+> On Mon, 12 Sep 2016 12:47:03 +0200,
+> Dennis Wassenberg wrote:
+>>
+>> Make the thinkpad_helper able to support not only led control over
+>> acpi with thinkpad_acpi driver but also led control over hid-lenovo.
+>> The hid-lenovo driver adapted the led control api of thinkpad_acpi.
+>>
+>> Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+>> ---
+>>  sound/pci/hda/thinkpad_helper.c | 149 ++++++++++++++++++++++++++++++----------
+>>  1 file changed, 111 insertions(+), 38 deletions(-)
+>>
+>> diff --git a/sound/pci/hda/thinkpad_helper.c b/sound/pci/hda/thinkpad_helper.c
+>> index 62741a7..c24a4a9 100644
+>> --- a/sound/pci/hda/thinkpad_helper.c
+>> +++ b/sound/pci/hda/thinkpad_helper.c
+>> @@ -2,79 +2,152 @@
+>>   * to be included from codec driver
+>>   */
+>>  
+>> -#if IS_ENABLED(CONFIG_THINKPAD_ACPI)
+>> -
+>> +#if IS_ENABLED(CONFIG_THINKPAD_ACPI) || IS_ENABLED(CONFIG_HID_LENOVO)
+>>  #include <linux/acpi.h>
+>> +#include <linux/hid-lenovo.h>
+>>  #include <linux/thinkpad_acpi.h>
+>>  
+>> -static int (*led_set_func)(int, bool);
+>> +static int (*led_set_func_tpacpi)(int, bool);
+>> +static int (*led_set_func_hid_lenovo)(int, bool);
+>>  static void (*old_vmaster_hook)(void *, int);
+>>  
+>>  static bool is_thinkpad(struct hda_codec *codec)
+>>  {
+>> +	return (codec->core.subsystem_id >> 16 == 0x17aa);
+>> +}
+>> +
+>> +static bool is_thinkpad_acpi(struct hda_codec *codec)
+>> +{
+>>  	return (codec->core.subsystem_id >> 16 == 0x17aa) &&
+>>  	       (acpi_dev_found("LEN0068") || acpi_dev_found("IBM0068"));
+>>  }
+>>  
+>> -static void update_tpacpi_mute_led(void *private_data, int enabled)
+>> +static void update_thinkpad_mute_led(void *private_data, int enabled)
+>>  {
+>>  	if (old_vmaster_hook)
+>>  		old_vmaster_hook(private_data, enabled);
+>>  
+>> -	if (led_set_func)
+>> -		led_set_func(TPACPI_LED_MUTE, !enabled);
+>> +	if (led_set_func_tpacpi)
+>> +		led_set_func_tpacpi(TPACPI_LED_MUTE, !enabled);
+>> +
+>> +	if (led_set_func_hid_lenovo)
+>> +		led_set_func_hid_lenovo(HID_LENOVO_LED_MUTE, !enabled);
+>>  }
+>>  
+>> -static void update_tpacpi_micmute_led(struct hda_codec *codec,
+>> +
+>> +
+>> +static void update_thinkpad_micmute_led(struct hda_codec *codec,
+>>  				      struct snd_kcontrol *kcontrol,
+>>  				      struct snd_ctl_elem_value *ucontrol)
+>>  {
+>> -	if (!ucontrol || !led_set_func)
+>> +	if (!ucontrol)
+>>  		return;
+>>  	if (strcmp("Capture Switch", ucontrol->id.name) == 0 && ucontrol->id.index == 0) {
+>>  		/* TODO: How do I verify if it's a mono or stereo here? */
+>>  		bool val = ucontrol->value.integer.value[0] || ucontrol->value.integer.value[1];
+>> -		led_set_func(TPACPI_LED_MICMUTE, !val);
+>> +		if (led_set_func_tpacpi)
+>> +			led_set_func_tpacpi(TPACPI_LED_MICMUTE, !val);
+>> +		if (led_set_func_hid_lenovo)
+>> +			led_set_func_hid_lenovo(HID_LENOVO_LED_MICMUTE, !val);
+>>  	}
+>>  }
+>>  
+>> -static void hda_fixup_thinkpad(struct hda_codec *codec,
+>> -				    const struct hda_fixup *fix, int action)
+>> +static int hda_fixup_thinkpad_acpi(struct hda_codec *codec)
+>>  {
+>>  	struct hda_gen_spec *spec = codec->spec;
+>> -	bool removefunc = false;
+>> +	int ret = -ENXIO;
+>>  
+>> -	if (action == HDA_FIXUP_ACT_PROBE) {
+>> -		if (!is_thinkpad(codec))
+>> -			return;
+>> -		if (!led_set_func)
+>> -			led_set_func = symbol_request(tpacpi_led_set);
+>> -		if (!led_set_func) {
+>> -			codec_warn(codec,
+>> -				   "Failed to find thinkpad-acpi symbol tpacpi_led_set\n");
+>> -			return;
+>> -		}
+>> +	if (!is_thinkpad(codec))
+>> +		return -ENODEV;
+>> +	if (!is_thinkpad_acpi(codec))
+>> +		return -ENODEV;
+>> +	if (!led_set_func_tpacpi)
+>> +		led_set_func_tpacpi = symbol_request(tpacpi_led_set);
 > 
-> Tested-by: Bastien Nocera <hadess@hadess.net>
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> This would be performed even if CONFIG_THINKPAD_ACPI=n when
+> CONFIG_HID_LENOVO!=n.  You'd need to have a proper ifdef surrounding
+> the function.
 > 
-> ---
 > 
-> I didn't compile it in-tree yet, only out-of-tree, and I'm still
-> investigating support for LEDs, battery and better two-finger tap
-> support.
+>> +	if (!led_set_func_tpacpi) {
+>> +		codec_warn(codec,
+>> +			   "Failed to find thinkpad-acpi symbol tpacpi_led_set\n");
+>> +		return -ENOENT;
+>> +	}
+>>  
+>> -		removefunc = true;
+>> -		if (led_set_func(TPACPI_LED_MUTE, false) >= 0) {
+>> -			old_vmaster_hook = spec->vmaster_mute.hook;
+>> -			spec->vmaster_mute.hook = update_tpacpi_mute_led;
+>> -			removefunc = false;
+>> -		}
+>> -		if (led_set_func(TPACPI_LED_MICMUTE, false) >= 0) {
+>> -			if (spec->num_adc_nids > 1)
+>> -				codec_dbg(codec,
+>> -					  "Skipping micmute LED control due to several ADCs");
+>> -			else {
+>> -				spec->cap_sync_hook = update_tpacpi_micmute_led;
+>> -				removefunc = false;
+>> -			}
+>> +	if (led_set_func_tpacpi(TPACPI_LED_MUTE, false) >= 0) {
+>> +		old_vmaster_hook = spec->vmaster_mute.hook;
+>> +		spec->vmaster_mute.hook = update_thinkpad_mute_led;
+>> +		ret = 0;
+>> +	}
+>> +
+>> +	if (led_set_func_tpacpi(TPACPI_LED_MICMUTE, false) >= 0) {
+>> +		if (spec->num_adc_nids > 1)
+>> +			codec_dbg(codec,
+>> +				  "Skipping micmute LED control due to several ADCs");
+>> +		else {
+>> +			spec->cap_sync_hook = update_thinkpad_micmute_led;
+>> +			ret = 0;
+>>  		}
+>>  	}
+>>  
+>> -	if (led_set_func && (action == HDA_FIXUP_ACT_FREE || removefunc)) {
+>> +	return ret;
+>> +}
+>> +
+>> +static int hda_fixup_thinkpad_hid(struct hda_codec *codec)
+>> +{
+>> +	struct hda_gen_spec *spec = codec->spec;
+>> +	int ret = 0;
+>> +
+>> +	if (!is_thinkpad(codec))
+>> +		return -ENODEV;
+>> +	if (!led_set_func_hid_lenovo)
+>> +		led_set_func_hid_lenovo = symbol_request(hid_lenovo_led_set);
+>> +	if (!led_set_func_hid_lenovo) {
+>> +		codec_warn(codec,
+>> +			   "Failed to find hid-lenovo symbol hid_lenovo_led_set\n");
+>> +		return -ENOENT;
+>> +	}
+>> +
+>> +	if (update_thinkpad_mute_led != spec->vmaster_mute.hook)
+>> +		old_vmaster_hook = spec->vmaster_mute.hook;
+>> +
+>> +	// do not remove hook if setting delay does not work currently because
+>> +	// it is a usb hid devices which is not connected right now
+>> +	// maybe is will be connected later
 > 
-> Comments welcome
+> The comment should be C style.  Try checkpatch.pl once before the
+> patch submission.
 > 
->  MAINTAINERS             |   6 +
->  drivers/hid/Kconfig     |   7 +
->  drivers/hid/Makefile    |   1 +
->  drivers/hid/hid-core.c  |   1 +
->  drivers/hid/hid-ids.h   |   3 +
->  drivers/hid/hid-udraw.c | 434
-> ++++++++++++++++++++++++++++++++++++++++++++++++
->  6 files changed, 452 insertions(+)
->  create mode 100644 drivers/hid/hid-udraw.c
 > 
-
-[...]
-
-> diff --git a/drivers/hid/hid-udraw.c b/drivers/hid/hid-udraw.c
-> new file mode 100644
-> index 0000000..6728cae
-> --- /dev/null
-> +++ b/drivers/hid/hid-udraw.c
-> @@ -0,0 +1,434 @@
-> +/*
-> + * HID driver for THQ PS3 uDraw tablet
-> + *
-> + * Copyright (C) 2016 Red Hat Inc. All Rights Reserved
-> + *
-> + * This software is licensed under the terms of the GNU General Public
-> + * License version 2, as published by the Free Software Foundation,
-> and
-> + * may be copied, distributed, and modified under those terms.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/hid.h>
-> +#include <linux/module.h>
-> +#include "hid-ids.h"
-> +
-> +MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
-> +MODULE_DESCRIPTION("PS3 uDraw tablet driver");
-> +MODULE_LICENSE("GPL");
-> +
-> +/*
-> + * Protocol information from:
-> + * http://brandonw.net/udraw/
-> + * and the source code of:
-> + * https://vvvv.org/contribution/udraw-hid
-> + */
-> +
-> +/*
-> + * The device is setup with multiple input devices to make it easier
-> + * to handle in user-space:
-> + * - the touch area which works as a touchpad
-> + * - the tablet area which works as a touchpad/drawing tablet
-> + * - a joypad with a d-pad, and 7 buttons
-> + * - an optional, disabled by default, accelerometer device
-> + */
-> +
-> +static const unsigned short udraw_joy_key_table[] = {
-> +	BTN_SOUTH,
-> +	BTN_NORTH,
-> +	BTN_EAST,
-> +	BTN_WEST,
-> +	BTN_SELECT,
-> +	BTN_START,
-> +	BTN_MODE
-> +};
-> +
-> +enum {
-> +	TOUCH_NONE,
-> +	TOUCH_PEN,
-> +	TOUCH_FINGER,
-> +	TOUCH_FINGERS
-
-FINGER and FINGERS is easy to confuse on a quick read, better rename to
-MULTIFINGER or TWOFINGER, depending what you can detect.
-
-> +};
-> +
-> +/* Accelerometer min/max values
-> + * in order, X, Y and Z
-> + */
-> +struct {
-> +	int min;
-> +	int max;
-> +} accel_limits[] = {
-> +	{ 0x1EA, 0x216 },
-> +	{ 0x1EA, 0x216 },
-> +	{ 0x1EC, 0x218 }
-> +};
-> +
-> +#define DEVICE_NAME "THQ uDraw Game Tablet for PS3"
-> +/* resolution in pixels */
-> +#define RES_X 1920
-> +#define RES_Y 1080
-> +/* size in mm */
-> +#define WIDTH  160
-> +#define HEIGHT 90
-> +#define PRESSURE_OFFSET 0x71
-> +#define MAX_PRESSURE (0xFF - PRESSURE_OFFSET)
-> +
-> +struct udraw {
-> +	struct input_dev *joy_input_dev;
-> +	struct input_dev *touch_input_dev;
-> +	struct input_dev *pen_input_dev;
-> +	struct input_dev *accel_input_dev;
-> +	struct hid_device *hdev;
-> +};
-> +
-> +static int clamp_accel(int axis, int offset)
-> +{
-> +	axis = clamp(axis,
-> +			accel_limits[offset].min,
-> +			accel_limits[offset].max);
-> +	axis = (axis - accel_limits[offset].min) /
-> +			((accel_limits[offset].max -
-> +			  accel_limits[offset].min) * 0xFF);
-> +	return axis;
-> +}
-> +
-> +static int udraw_raw_event(struct hid_device *hdev, struct hid_report
-> *report,
-> +	 u8 *data, int len)
-> +{
-> +	struct udraw *udraw = hid_get_drvdata(hdev);
-> +	int touch;
-> +	int x, y, z;
-> +
-> +	if (len != 0x1B)
-> +		return 0;
-> +
-> +	if (data[11] == 0x00)
-> +		touch = TOUCH_NONE;
-> +	else if (data[11] == 0x40)
-> +		touch = TOUCH_PEN;
-> +	else if (data[11] == 0x80)
-> +		touch = TOUCH_FINGER;
-> +	else
-> +		touch = TOUCH_FINGERS;
-> +
-> +	/* joypad */
-> +	input_report_key(udraw->joy_input_dev, BTN_WEST, data[0] & 1);
-> +	input_report_key(udraw->joy_input_dev, BTN_SOUTH, data[0] &
-> 2);
-> +	input_report_key(udraw->joy_input_dev, BTN_EAST, data[0] & 4);
-> +	input_report_key(udraw->joy_input_dev, BTN_NORTH, data[0] &
-> 8);
-> +
-> +	input_report_key(udraw->joy_input_dev, BTN_SELECT, data[1] &
-> 1);
-> +	input_report_key(udraw->joy_input_dev, BTN_START, data[1] &
-> 2);
-> +	input_report_key(udraw->joy_input_dev, BTN_MODE, data[1] &
-> 16);
-> +
-> +	x = y = 0;
-> +	switch (data[2]) {
-> +	case 0x0:
-> +		y = -127;
-> +		break;
-> +	case 0x1:
-> +		y = -127;
-> +		x = 127;
-> +		break;
-> +	case 0x2:
-> +		x = 127;
-> +		break;
-> +	case 0x3:
-> +		y = 127;
-> +		x = 127;
-> +		break;
-> +	case 0x4:
-> +		y = 127;
-> +		break;
-> +	case 0x5:
-> +		y = 127;
-> +		x = -127;
-> +		break;
-> +	case 0x6:
-> +		x = -127;
-> +		break;
-> +	case 0x7:
-> +		y = -127;
-> +		x = -127;
-> +		break;
-> +	default:
-> +		break;
-> +	}
-> +
-> +	input_report_abs(udraw->joy_input_dev, ABS_X, x);
-> +	input_report_abs(udraw->joy_input_dev, ABS_Y, y);
-> +
-> +	input_sync(udraw->joy_input_dev);
-> +
-> +	/* For pen and touchpad */
-> +	x = y = 0;
-> +	if (touch != TOUCH_NONE) {
-> +		if (data[15] != 0x0F)
-> +			x = data[15] * 256 + data[17];
-> +		if (data[16] != 0x0F)
-> +			y = data[16] * 256 + data[18];
-> +	}
-> +
-> +	/* touchpad */
-> +	if (touch == TOUCH_FINGER || touch == TOUCH_FINGERS) {
-> +		input_report_key(udraw->touch_input_dev, BTN_TOUCH,
-> 1);
-> +		input_report_key(udraw->touch_input_dev,
-> BTN_TOOL_FINGER,
-> +				touch == TOUCH_FINGER);
-> +		input_report_key(udraw->touch_input_dev,
-> BTN_TOOL_DOUBLETAP,
-> +				touch == TOUCH_FINGERS);
-> +
-> +		input_report_abs(udraw->touch_input_dev, ABS_X, x);
-> +		input_report_abs(udraw->touch_input_dev, ABS_Y, y);
-> +	} else {
-> +		input_report_key(udraw->touch_input_dev, BTN_TOUCH,
-> 0);
-> +		input_report_key(udraw->touch_input_dev,
-> BTN_TOOL_FINGER, 0);
-> +		input_report_key(udraw->touch_input_dev,
-> BTN_TOOL_DOUBLETAP, 0);
-> +	}
-> +	input_sync(udraw->touch_input_dev);
-> +
-> +	/* pen */
-> +	if (touch == TOUCH_PEN) {
-> +		int level;
-> +
-> +		level = clamp(data[13] - PRESSURE_OFFSET,
-> +				0, MAX_PRESSURE);
-> +
-> +		input_report_key(udraw->pen_input_dev, BTN_TOUCH,
-> (level != 0));
-> +		input_report_key(udraw->pen_input_dev, BTN_TOOL_PEN,
-> 1);
-> +		input_report_abs(udraw->pen_input_dev, ABS_PRESSURE,
-> level);
-> +		input_report_abs(udraw->pen_input_dev, ABS_X, x);
-> +		input_report_abs(udraw->pen_input_dev, ABS_Y, y);
-> +	} else {
-> +		input_report_key(udraw->pen_input_dev, BTN_TOUCH, 0);
-> +		input_report_abs(udraw->pen_input_dev, ABS_PRESSURE,
-> 0);
-> +		input_report_key(udraw->pen_input_dev, BTN_TOOL_PEN,
-> 0);
-> +	}
-> +	input_sync(udraw->pen_input_dev);
-
-do me a favour and group the reports by type. it makes no difference to this
-driver but event recordings are much easier to read this way.
-so all EV_ABS first, then EV_KEY (or the other way round, don't care).
-
-> +
-> +	/* accel */
-> +	x = (data[19] + (data[20] << 8));
-> +	x = clamp_accel(x, 0);
-> +	y = (data[21] + (data[22] << 8));
-> +	y = clamp_accel(y, 1);
-> +	z = (data[23] + (data[24] << 8));
-> +	z = clamp_accel(z, 2);
-
-this may not be kernel style, but any reason you can't use an enum here
-instead of 0, 1, 2? clamp_accel(x, ACCEL_AXIS_X) would be more obvious to
-read.
-
-> +	input_report_abs(udraw->accel_input_dev, ABS_X, x);
-> +	input_report_abs(udraw->accel_input_dev, ABS_Y, y);
-> +	input_report_abs(udraw->accel_input_dev, ABS_Z, z);
-> +	input_sync(udraw->accel_input_dev);
-> +
-> +	/* let hidraw and hiddev handle the report */
-> +	return 0;
-> +}
-> +
-> +static int udraw_open(struct input_dev *dev)
-> +{
-> +	struct udraw *udraw = input_get_drvdata(dev);
-> +
-> +	return hid_hw_open(udraw->hdev);
-> +}
-> +
-> +static void udraw_close(struct input_dev *dev)
-> +{
-> +	struct udraw *udraw = input_get_drvdata(dev);
-> +
-> +	hid_hw_close(udraw->hdev);
-> +}
-> +
-> +static struct input_dev *allocate_and_setup(struct hid_device *hdev,
-> +		const char *name)
-> +{
-> +	struct input_dev *input_dev;
-> +
-> +	input_dev = devm_input_allocate_device(&hdev->dev);
-> +	if (!input_dev)
-> +		return NULL;
-> +
-> +	input_dev->name = name;
-> +	input_dev->phys = hdev->phys;
-> +	input_dev->dev.parent = &hdev->dev;
-> +	input_dev->open = udraw_open;
-> +	input_dev->close = udraw_close;
-> +	input_dev->uniq = hdev->uniq;
-> +	input_dev->id.bustype = hdev->bus;
-> +	input_dev->id.vendor  = hdev->vendor;
-> +	input_dev->id.product = hdev->product;
-> +	input_dev->id.version = hdev->version;
-> +	input_set_drvdata(input_dev, hid_get_drvdata(hdev));
-> +
-> +	return input_dev;
-> +}
-> +
-> +static bool udraw_setup_touch(struct udraw *udraw,
-> +		struct hid_device *hdev)
-> +{
-> +	struct input_dev *input_dev;
-> +
-> +	input_dev = allocate_and_setup(hdev, DEVICE_NAME "
-> (touchpad)");
-
-no need to use () here. wacom device names are "foo Pen", "foo Finger", etc.
-would be nice to continue that naming scheme.
-
-> +	if (!input_dev)
-> +		return false;
-> +
-> +	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
-> +
-> +	set_bit(ABS_X, input_dev->absbit);
-> +	input_set_abs_params(input_dev, ABS_X, 0, RES_X, 1, 0);
-> +	input_abs_set_res(input_dev, ABS_X, RES_X / WIDTH);
-> +	set_bit(ABS_Y, input_dev->absbit);
-> +	input_set_abs_params(input_dev, ABS_Y, 0, RES_Y, 1, 0);
-> +	input_abs_set_res(input_dev, ABS_Y, RES_Y / HEIGHT);
-> +
-> +	set_bit(BTN_TOUCH, input_dev->keybit);
-> +	set_bit(BTN_TOOL_FINGER, input_dev->keybit);
-> +	set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
-> +
-> +	set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-> +
-> +	udraw->touch_input_dev = input_dev;
-> +
-> +	return true;
-> +}
-> +
-> +static bool udraw_setup_pen(struct udraw *udraw,
-> +		struct hid_device *hdev)
-> +{
-> +	struct input_dev *input_dev;
-> +
-> +	input_dev = allocate_and_setup(hdev, DEVICE_NAME " (pen)");
-
-see above for naming scheme
-
-> +	if (!input_dev)
-> +		return false;
-> +
-> +	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
-> +
-> +	set_bit(ABS_X, input_dev->absbit);
-> +	input_set_abs_params(input_dev, ABS_X, 0, RES_X, 1, 0);
-> +	input_abs_set_res(input_dev, ABS_X, RES_X / WIDTH);
-> +	set_bit(ABS_Y, input_dev->absbit);
-> +	input_set_abs_params(input_dev, ABS_Y, 0, RES_Y, 1, 0);
-> +	input_abs_set_res(input_dev, ABS_Y, RES_Y / HEIGHT);
-> +	set_bit(ABS_PRESSURE, input_dev->absbit);
-> +	input_set_abs_params(input_dev, ABS_PRESSURE,
-> +			0, MAX_PRESSURE, 0, 0);
-> +
-> +	set_bit(BTN_TOUCH, input_dev->keybit);
-> +	set_bit(BTN_TOOL_PEN, input_dev->keybit);
-> +
-> +	set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-> +
-> +	udraw->pen_input_dev = input_dev;
-> +
-> +	return true;
-> +}
-> +
-> +static bool udraw_setup_accel(struct udraw *udraw,
-> +		struct hid_device *hdev)
-> +{
-> +	struct input_dev *input_dev;
-> +
-> +	input_dev = allocate_and_setup(hdev, DEVICE_NAME "
-> (accelerometer)");
-
-see above for naming scheme
-
-> +	if (!input_dev)
-> +		return false;
-> +
-> +	input_dev->evbit[0] = BIT(EV_ABS);
-> +
-> +	/* 1G accel is reported as ~256, so clamp to 2G */
-> +	set_bit(ABS_X, input_dev->absbit);
-> +	input_set_abs_params(input_dev, ABS_X, -512, 512, 0, 0);
-> +	set_bit(ABS_Y, input_dev->absbit);
-> +	input_set_abs_params(input_dev, ABS_Y, -512, 512, 0, 0);
-> +	set_bit(ABS_Z, input_dev->absbit);
-> +	input_set_abs_params(input_dev, ABS_Z, -512, 512, 0, 0);
-> +
-> +	set_bit(INPUT_PROP_ACCELEROMETER, input_dev->propbit);
-> +
-> +	udraw->accel_input_dev = input_dev;
-> +
-> +	return true;
-> +}
-> +
-> +static bool udraw_setup_joypad(struct udraw *udraw,
-> +		struct hid_device *hdev)
-> +{
-> +	struct input_dev *input_dev;
-> +	int i;
-> +
-> +	input_dev = allocate_and_setup(hdev, DEVICE_NAME " (joypad)");
-
-see above for naming scheme
-
-> +	if (!input_dev)
-> +		return false;
-> +
-> +	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-> +
-> +	set_bit(ABS_X, input_dev->absbit);
-> +	input_set_abs_params(input_dev, ABS_X, -127, 127, 0, 0);
-> +	set_bit(ABS_Y, input_dev->absbit);
-> +	input_set_abs_params(input_dev, ABS_Y, -127, 127, 0, 0);
-> +
-> +	for (i = 0; i < ARRAY_SIZE(udraw_joy_key_table); i++)
-> +		set_bit(udraw_joy_key_table[i], input_dev->keybit);
-
-Personal opinion here: for the few buttons you have, the loop over an array
-doesn't really get you much benefit over just having 7 set_bit() calls. just
-hardcoding all set_bit calls (or moving joy_key_table to here) is that you
-have all the init bits in one place for quick analysis.
-
-but I'm not going to argue this point too hard.
-
-Cheers,
-   Peter
-
-> +
-> +	udraw->joy_input_dev = input_dev;
-> +
-> +	return true;
-> +}
-> +
-> +static int udraw_probe(struct hid_device *hdev, const struct
-> hid_device_id *id)
-> +{
-> +	struct udraw *udraw;
-> +	int ret;
-> +
-> +	udraw = devm_kzalloc(&hdev->dev, sizeof(struct udraw),
-> GFP_KERNEL);
-> +	if (!udraw)
-> +		return -ENOMEM;
-> +
-> +	udraw->hdev = hdev;
-> +
-> +	hid_set_drvdata(hdev, udraw);
-> +
-> +	ret = hid_parse(hdev);
-> +	if (ret) {
-> +		hid_err(hdev, "parse failed\n");
-> +		return ret;
-> +	}
-> +
-> +	if (!udraw_setup_joypad(udraw, hdev) ||
-> +	    !udraw_setup_touch(udraw, hdev) ||
-> +	    !udraw_setup_pen(udraw, hdev) ||
-> +	    !udraw_setup_accel(udraw, hdev)) {
-> +		hid_err(hdev, "could not allocate interfaces\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	ret = input_register_device(udraw->joy_input_dev) ||
-> +		input_register_device(udraw->touch_input_dev) ||
-> +		input_register_device(udraw->pen_input_dev) ||
-> +		input_register_device(udraw->accel_input_dev);
-> +	if (ret) {
-> +		hid_err(hdev, "failed to register interfaces\n");
-> +		return ret;
-> +	}
-> +
-> +	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW |
-> HID_CONNECT_DRIVER);
-> +	if (ret) {
-> +		hid_err(hdev, "hw start failed\n");
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct hid_device_id udraw_devices[] = {
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_THQ,
-> USB_DEVICE_ID_THQ_PS3_UDRAW) },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(hid, udraw_devices);
-> +
-> +static struct hid_driver udraw_driver = {
-> +	.name = "hid-udraw",
-> +	.id_table = udraw_devices,
-> +	.raw_event = udraw_raw_event,
-> +	.probe = udraw_probe,
-> +};
-> +module_hid_driver(udraw_driver);
-> -- 
-> 2.7.4
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> +	led_set_func_hid_lenovo(HID_LENOVO_LED_MUTE, false);
+>> +	spec->vmaster_mute.hook = update_thinkpad_mute_led;
+>> +
+>> +	led_set_func_hid_lenovo(HID_LENOVO_LED_MICMUTE, false);
+>> +	spec->cap_sync_hook = update_thinkpad_micmute_led;
+>> +
+>> +	return ret;
+>> +}
+>> +
+>> +static void hda_fixup_thinkpad(struct hda_codec *codec,
+>> +				    const struct hda_fixup *fix, int action)
+>> +{
+>> +	int ret_fixup_acpi = 0;
+>> +	int ret_fixup_hid = 0;
+>> +	bool remove = 0;
+>> +
+>> +	if (action == HDA_FIXUP_ACT_PROBE) {
+>> +		ret_fixup_acpi = hda_fixup_thinkpad_acpi(codec);
+>> +		ret_fixup_hid = hda_fixup_thinkpad_hid(codec);
+> 
+> Basically these two are exclusive.  So you don't have to process the
+> latter when the former succeeds.  But...
+> 
+>> +	}
+>> +
+>> +	if (led_set_func_tpacpi &&
+>> +		(action == HDA_FIXUP_ACT_FREE || ret_fixup_acpi)) {
+>> +
+>>  		symbol_put(tpacpi_led_set);
+>> -		led_set_func = NULL;
+>> +		remove = true;
+>> +	}
+>> +
+>> +	if (led_set_func_hid_lenovo &&
+>> +		(action == HDA_FIXUP_ACT_FREE || ret_fixup_hid)) {
+>> +
+>> +		symbol_put(hid_lenovo_led_set);
+>> +		remove = true;
+>> +	}
+>> +
+>> +
+>> +	if (remove) {
+>> +		led_set_func_tpacpi = NULL;
+>> +		led_set_func_hid_lenovo = NULL;
+>>  		old_vmaster_hook = NULL;
+>>  	}
+>>  }
+> 
+> ... reading through the patch, I find the code is a bit too
+> redundant.  The access is exclusive between ACPI and HID, and the hook
+> functions are in the same form but just the argument value is
+> different (TPACPI_LED_MUTE vs HID_LENOVO_LED_MUTE).  So we may need
+> only a single function pointer and pass the different value depending
+> on the model instead of keeping two individual function pointers.
+> 
+> 
+> thanks,
+> 
+> Takashi
 > 

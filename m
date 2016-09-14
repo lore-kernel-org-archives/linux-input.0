@@ -1,55 +1,48 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [PATCH v6 0/3] mfd: tps65217: Add power-button and IRQ support
-Date: Wed, 14 Sep 2016 10:37:37 +0200
-Message-ID: <CAMuHMdV+bVCQ0_YUp1v3yVgjp3EpNgVGnHYpnESszexGnby8Ug@mail.gmail.com>
-References: <20160909084204.26226-1-m.niestroj@grinn-global.com>
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
+Subject: RE: Goodix touchscreen works intermittently, fails reading config
+ info.
+Date: Wed, 14 Sep 2016 09:29:54 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F33C657@irsmsx105.ger.corp.intel.com>
+References: <CAG=1usadh8HwmBxBUhvB5mHuvy6Yiqj7CR5Niqeya00TQFSrZQ@mail.gmail.com>
+ <CAG=1usZt447=qz2_DHRpKa67tgMnuvArZ2_k4wTBHru8jm0i5w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160909084204.26226-1-m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marcin Niestroj <m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org>
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux PM list <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:33689 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1759045AbcINJaM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 14 Sep 2016 05:30:12 -0400
+In-Reply-To: <CAG=1usZt447=qz2_DHRpKa67tgMnuvArZ2_k4wTBHru8jm0i5w@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Brad Baker <bbaker6212@gmail.com>
+Cc: bastien nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Fri, Sep 9, 2016 at 10:42 AM, Marcin Niestroj
-<m.niestroj-z3quKL4iOrmQ6ZAhV5LmOA@public.gmane.org> wrote:
-> The following patches add tps65217 power button support and make it usable
-> with am335x boards. It was developed and rebased on v4.8-rc5.
->
-> Changes v5 -> v6 (suggested by Dmitry):
->  * Use dev_get_regmap() instead of fragile pointer calculations
->  * Keep old formatting for flags as single function argument
->
-> Changes v4 -> v5:
->  * Dropped two patches (they were already dropped in v4 resend):
->    * "power_supply: tps65217-charger: Fix NULL deref during property export"
->      (already in mainline)
->    * "power_supply: tps65217-charger: Add support for IRQs" (queued into
->      power-supply's -next branch)
->  * Combine tps65217 and tps65218 power button drivers (as suggested by Dmitry)
->  * Combine device-tree documentation for tps65217 and tps65218 power buttons
->
-> Changes v3 -> v4:
->  * Add irq_set_parent() during irq init (suggested by Grygorii)
-
-irq_set_parent() is not exported to modules
-
-ERROR: "irq_set_parent" [drivers/mfd/tps65217.ko] undefined!
-
-See e.g. http://kisskb.ellerman.id.au/kisskb/buildresult/12801307/
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogbGludXgtaW5wdXQtb3du
+ZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86bGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJuZWwu
+b3JnXSBPbiBCZWhhbGYgT2YgQnJhZCBCYWtlcg0KPiBTZW50OiAxMyBTZXB0ZW1iZXIsIDIwMTYg
+NjowNQ0KPiBUbzogVGlyZGVhLCBJcmluYQ0KPiBDYzogYmFzdGllbiBub2NlcmE7IGxpbnV4LWlu
+cHV0QHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogR29vZGl4IHRvdWNoc2NyZWVuIHdv
+cmtzIGludGVybWl0dGVudGx5LCBmYWlscyByZWFkaW5nIGNvbmZpZyBpbmZvLg0KPiANCj4gSXJp
+bmEsIGEgbGl0dGxlIG1vcmUgaW5mbyBvbiB0aGUgc3ltcHRvbXMuIFRoZSB1c2VyIHJlcG9ydHMg
+dGhlDQo+IHRvdWNoc2NyZWVuIHdvcmtzIHdoZW4gcmVzdGFydGluZyBidXQgZmFpbHMgd2hlbiBw
+b3dlcmluZyBvbi4gIEhlIHNheXMNCj4gcHJldHR5IG11Y2ggMTAwJSBvZiB0aGUgdGltZS4gIFRo
+ZSBsb2cgaXMgdGhlIHNhbWUuLi4NCj4gDQoNCkhpIEJyYWQsDQoNClRoYW5rcyBmb3IgYWxsIHRo
+ZSBpbmZvcm1hdGlvbiB5b3UgcHJvdmlkZWQuIEkgaGF2ZSBhbHJlYWR5IHJlcGxpZWQgb24gdGhl
+DQpCdWd6aWxsYSB0aHJlYWQgd2l0aCBzb21lIHBhdGNoZXMgdGhhdCBlbmFibGUgcmVzZXQgZm9y
+IHRoZSBkZXZpY2UuDQoNClJlZ2FyZHMsDQpJcmluYQ0KDQoNCj4gaHR0cDovL3Bhc3RlYmluLmNv
+bS8yNWhhYVBRZA0KPiBbICAgMTAuMjQ2MDc0XSBnb29kaXhfYmFja3BvcnQ6IGxvYWRpbmcgb3V0
+LW9mLXRyZWUgbW9kdWxlIHRhaW50cyBrZXJuZWwuDQo+IFsgICAxMC4yNDYxNzJdIGdvb2RpeF9i
+YWNrcG9ydDogbW9kdWxlIHZlcmlmaWNhdGlvbiBmYWlsZWQ6IHNpZ25hdHVyZQ0KPiBhbmQvb3Ig
+cmVxdWlyZWQga2V5IG1pc3NpbmcgLSB0YWludGluZyBrZXJuZWwNCj4gWyAgIDEwLjI2Mzc4OF0g
+R29vZGl4LVRTIGkyYy1HRElYMTAwMTowMDogSUQgOTExMSwgdmVyc2lvbjogMTA2MA0KPiBbICAg
+MTAuMjcwMTM1XSBHb29kaXgtVFMgaTJjLUdESVgxMDAxOjAwOiBkZXZfaW5mbzogY2ZnX2xlbjog
+MTg2LA0KPiB4X21heDogMCwgeV9tYXg6IDAsIHRvdWNoX251bTogMCwgdHJpZ2dlcl90eXBlOiAw
+DQo+IFsgICAxMC4yNzAxNDFdIEdvb2RpeC1UUyBpMmMtR0RJWDEwMDE6MDA6IEludmFsaWQgY29u
+ZmlnLCB1c2luZyBkZWZhdWx0cw0KPiBbICAgMTAuMjcwMjU4XSBHb29kaXgtVFMgaTJjLUdESVgx
+MDAxOjAwOiBkZXZfaW5mbzogY2ZnX2xlbjogMTg2LA0KPiB4X21heDogMjE2MCwgeV9tYXg6IDIx
+NjAsIHRvdWNoX251bTogMTAsIHRyaWdnZXJfdHlwZTogMA0KPiBbICAgMTAuMjcwNjA4XSBpbnB1
+dDogR29vZGl4IENhcGFjaXRpdmUgVG91Y2hTY3JlZW4gYXMNCj4gL2RldmljZXMvcGNpMDAwMDow
+MC84MDg2MjJDMTowNS9pMmMtMTMvaTJjLUdESVgxMDAxOjAwL2lucHV0L2lucHV0Ng0KPiANCg0K

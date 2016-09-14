@@ -1,61 +1,634 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: [PATCH 8/9] HID: uclogic: Override constant descriptors
-Date: Wed, 14 Sep 2016 21:38:19 +0300
-Message-ID: <20160914183820.20737-9-spbnick@gmail.com>
-References: <20160914101531.GJ25951@mail.corp.redhat.com>
- <20160914183820.20737-1-spbnick@gmail.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH] [RFC] HID: udraw: Add support for the uDraw tablet for
+ PS3
+Date: Wed, 14 Sep 2016 20:40:01 +0200
+Message-ID: <1473878401.2320.8.camel@hadess.net>
+References: <1473612504.7457.4.camel@hadess.net>
+         <20160913225015.GA27337@jelly.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33144 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1761653AbcINSir (ORCPT
+Received: from slow1-d.mail.gandi.net ([217.70.178.86]:47719 "EHLO
+        slow1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753804AbcINSts (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Sep 2016 14:38:47 -0400
-Received: by mail-wm0-f66.google.com with SMTP id b187so3753071wme.0
-        for <linux-input@vger.kernel.org>; Wed, 14 Sep 2016 11:38:47 -0700 (PDT)
-In-Reply-To: <20160914183820.20737-1-spbnick@gmail.com>
+        Wed, 14 Sep 2016 14:49:48 -0400
+Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
+        by slow1-d.mail.gandi.net (Postfix) with ESMTP id EFFED5346A5
+        for <linux-input@vger.kernel.org>; Wed, 14 Sep 2016 20:40:11 +0200 (CEST)
+In-Reply-To: <20160913225015.GA27337@jelly.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, Nikolai Kondrashov <spbnick@gmail.com>
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-input@vger.kernel.org
 
-Make uclogic_report_fixup override constant descriptors with generated
-descriptors, so models reusing product ID, but working with generated
-descriptor get correct one.
+On Wed, 2016-09-14 at 08:50 +1000, Peter Hutterer wrote:
+> On Sun, Sep 11, 2016 at 06:48:24PM +0200, Bastien Nocera wrote:
+> > 
+> > This adds support for the THQ uDraw tablet for the PS3, as
+> > 4 separate device nodes, so that user-space can easily consume
+> > events coming from the hardware.
+> > 
+> > Tested-by: Bastien Nocera <hadess@hadess.net>
+> > Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> > 
+> > ---
+> > 
+> > I didn't compile it in-tree yet, only out-of-tree, and I'm still
+> > investigating support for LEDs, battery and better two-finger tap
+> > support.
+> > 
+> > Comments welcome
+> > 
+> >  MAINTAINERS             |   6 +
+> >  drivers/hid/Kconfig     |   7 +
+> >  drivers/hid/Makefile    |   1 +
+> >  drivers/hid/hid-core.c  |   1 +
+> >  drivers/hid/hid-ids.h   |   3 +
+> >  drivers/hid/hid-udraw.c | 434
+> > ++++++++++++++++++++++++++++++++++++++++++++++++
+> >  6 files changed, 452 insertions(+)
+> >  create mode 100644 drivers/hid/hid-udraw.c
+> > 
+> 
+> [...]
+> 
+> > 
+> > diff --git a/drivers/hid/hid-udraw.c b/drivers/hid/hid-udraw.c
+> > new file mode 100644
+> > index 0000000..6728cae
+> > --- /dev/null
+> > +++ b/drivers/hid/hid-udraw.c
+> > @@ -0,0 +1,434 @@
+> > +/*
+> > + * HID driver for THQ PS3 uDraw tablet
+> > + *
+> > + * Copyright (C) 2016 Red Hat Inc. All Rights Reserved
+> > + *
+> > + * This software is licensed under the terms of the GNU General
+> > Public
+> > + * License version 2, as published by the Free Software
+> > Foundation,
+> > and
+> > + * may be copied, distributed, and modified under those terms.
+> > + *
+> > + * This program is distributed in the hope that it will be useful,
+> > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> > + * GNU General Public License for more details.
+> > + */
+> > +
+> > +#include <linux/device.h>
+> > +#include <linux/hid.h>
+> > +#include <linux/module.h>
+> > +#include "hid-ids.h"
+> > +
+> > +MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
+> > +MODULE_DESCRIPTION("PS3 uDraw tablet driver");
+> > +MODULE_LICENSE("GPL");
+> > +
+> > +/*
+> > + * Protocol information from:
+> > + * http://brandonw.net/udraw/
+> > + * and the source code of:
+> > + * https://vvvv.org/contribution/udraw-hid
+> > + */
+> > +
+> > +/*
+> > + * The device is setup with multiple input devices to make it
+> > easier
+> > + * to handle in user-space:
+> > + * - the touch area which works as a touchpad
+> > + * - the tablet area which works as a touchpad/drawing tablet
+> > + * - a joypad with a d-pad, and 7 buttons
+> > + * - an optional, disabled by default, accelerometer device
+> > + */
+> > +
+> > +static const unsigned short udraw_joy_key_table[] = {
+> > +	BTN_SOUTH,
+> > +	BTN_NORTH,
+> > +	BTN_EAST,
+> > +	BTN_WEST,
+> > +	BTN_SELECT,
+> > +	BTN_START,
+> > +	BTN_MODE
+> > +};
+> > +
+> > +enum {
+> > +	TOUCH_NONE,
+> > +	TOUCH_PEN,
+> > +	TOUCH_FINGER,
+> > +	TOUCH_FINGERS
+> 
+> FINGER and FINGERS is easy to confuse on a quick read, better rename
+> to
+> MULTIFINGER or TWOFINGER, depending what you can detect.
 
-Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
----
- drivers/hid/hid-uclogic.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+Done.
 
-diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
-index 72778b3..64abd8d 100644
---- a/drivers/hid/hid-uclogic.c
-+++ b/drivers/hid/hid-uclogic.c
-@@ -632,6 +632,12 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	__u8 iface_num = iface->cur_altsetting->desc.bInterfaceNumber;
- 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
- 
-+	if (drvdata->rdesc != NULL) {
-+		rdesc = drvdata->rdesc;
-+		*rsize = drvdata->rsize;
-+		return rdesc;
-+	}
-+
- 	switch (hdev->product) {
- 	case USB_DEVICE_ID_UCLOGIC_TABLET_PF1209:
- 		if (*rsize == PF1209_RDESC_ORIG_SIZE) {
-@@ -701,11 +707,6 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 			break;
- 		}
- 		break;
--	default:
--		if (drvdata->rdesc != NULL) {
--			rdesc = drvdata->rdesc;
--			*rsize = drvdata->rsize;
--		}
- 	}
- 
- 	return rdesc;
--- 
-2.9.3
+> > 
+> > +};
+> > +
+> > +/* Accelerometer min/max values
+> > + * in order, X, Y and Z
+> > + */
+> > +struct {
+> > +	int min;
+> > +	int max;
+> > +} accel_limits[] = {
+> > +	{ 0x1EA, 0x216 },
+> > +	{ 0x1EA, 0x216 },
+> > +	{ 0x1EC, 0x218 }
+> > +};
+> > +
+> > +#define DEVICE_NAME "THQ uDraw Game Tablet for PS3"
+> > +/* resolution in pixels */
+> > +#define RES_X 1920
+> > +#define RES_Y 1080
+> > +/* size in mm */
+> > +#define WIDTH  160
+> > +#define HEIGHT 90
+> > +#define PRESSURE_OFFSET 0x71
+> > +#define MAX_PRESSURE (0xFF - PRESSURE_OFFSET)
+> > +
+> > +struct udraw {
+> > +	struct input_dev *joy_input_dev;
+> > +	struct input_dev *touch_input_dev;
+> > +	struct input_dev *pen_input_dev;
+> > +	struct input_dev *accel_input_dev;
+> > +	struct hid_device *hdev;
+> > +};
+> > +
+> > +static int clamp_accel(int axis, int offset)
+> > +{
+> > +	axis = clamp(axis,
+> > +			accel_limits[offset].min,
+> > +			accel_limits[offset].max);
+> > +	axis = (axis - accel_limits[offset].min) /
+> > +			((accel_limits[offset].max -
+> > +			  accel_limits[offset].min) * 0xFF);
+> > +	return axis;
+> > +}
+> > +
+> > +static int udraw_raw_event(struct hid_device *hdev, struct
+> > hid_report
+> > *report,
+> > +	 u8 *data, int len)
+> > +{
+> > +	struct udraw *udraw = hid_get_drvdata(hdev);
+> > +	int touch;
+> > +	int x, y, z;
+> > +
+> > +	if (len != 0x1B)
+> > +		return 0;
+> > +
+> > +	if (data[11] == 0x00)
+> > +		touch = TOUCH_NONE;
+> > +	else if (data[11] == 0x40)
+> > +		touch = TOUCH_PEN;
+> > +	else if (data[11] == 0x80)
+> > +		touch = TOUCH_FINGER;
+> > +	else
+> > +		touch = TOUCH_FINGERS;
+> > +
+> > +	/* joypad */
+> > +	input_report_key(udraw->joy_input_dev, BTN_WEST, data[0] &
+> > 1);
+> > +	input_report_key(udraw->joy_input_dev, BTN_SOUTH, data[0]
+> > &
+> > 2);
+> > +	input_report_key(udraw->joy_input_dev, BTN_EAST, data[0] &
+> > 4);
+> > +	input_report_key(udraw->joy_input_dev, BTN_NORTH, data[0]
+> > &
+> > 8);
+> > +
+> > +	input_report_key(udraw->joy_input_dev, BTN_SELECT, data[1]
+> > &
+> > 1);
+> > +	input_report_key(udraw->joy_input_dev, BTN_START, data[1]
+> > &
+> > 2);
+> > +	input_report_key(udraw->joy_input_dev, BTN_MODE, data[1] &
+> > 16);
+> > +
+> > +	x = y = 0;
+> > +	switch (data[2]) {
+> > +	case 0x0:
+> > +		y = -127;
+> > +		break;
+> > +	case 0x1:
+> > +		y = -127;
+> > +		x = 127;
+> > +		break;
+> > +	case 0x2:
+> > +		x = 127;
+> > +		break;
+> > +	case 0x3:
+> > +		y = 127;
+> > +		x = 127;
+> > +		break;
+> > +	case 0x4:
+> > +		y = 127;
+> > +		break;
+> > +	case 0x5:
+> > +		y = 127;
+> > +		x = -127;
+> > +		break;
+> > +	case 0x6:
+> > +		x = -127;
+> > +		break;
+> > +	case 0x7:
+> > +		y = -127;
+> > +		x = -127;
+> > +		break;
+> > +	default:
+> > +		break;
+> > +	}
+> > +
+> > +	input_report_abs(udraw->joy_input_dev, ABS_X, x);
+> > +	input_report_abs(udraw->joy_input_dev, ABS_Y, y);
+> > +
+> > +	input_sync(udraw->joy_input_dev);
+> > +
+> > +	/* For pen and touchpad */
+> > +	x = y = 0;
+> > +	if (touch != TOUCH_NONE) {
+> > +		if (data[15] != 0x0F)
+> > +			x = data[15] * 256 + data[17];
+> > +		if (data[16] != 0x0F)
+> > +			y = data[16] * 256 + data[18];
+> > +	}
+> > +
+> > +	/* touchpad */
+> > +	if (touch == TOUCH_FINGER || touch == TOUCH_FINGERS) {
+> > +		input_report_key(udraw->touch_input_dev,
+> > BTN_TOUCH,
+> > 1);
+> > +		input_report_key(udraw->touch_input_dev,
+> > BTN_TOOL_FINGER,
+> > +				touch == TOUCH_FINGER);
+> > +		input_report_key(udraw->touch_input_dev,
+> > BTN_TOOL_DOUBLETAP,
+> > +				touch == TOUCH_FINGERS);
+> > +
+> > +		input_report_abs(udraw->touch_input_dev, ABS_X,
+> > x);
+> > +		input_report_abs(udraw->touch_input_dev, ABS_Y,
+> > y);
+> > +	} else {
+> > +		input_report_key(udraw->touch_input_dev,
+> > BTN_TOUCH,
+> > 0);
+> > +		input_report_key(udraw->touch_input_dev,
+> > BTN_TOOL_FINGER, 0);
+> > +		input_report_key(udraw->touch_input_dev,
+> > BTN_TOOL_DOUBLETAP, 0);
+> > +	}
+> > +	input_sync(udraw->touch_input_dev);
+> > +
+> > +	/* pen */
+> > +	if (touch == TOUCH_PEN) {
+> > +		int level;
+> > +
+> > +		level = clamp(data[13] - PRESSURE_OFFSET,
+> > +				0, MAX_PRESSURE);
+> > +
+> > +		input_report_key(udraw->pen_input_dev, BTN_TOUCH,
+> > (level != 0));
+> > +		input_report_key(udraw->pen_input_dev,
+> > BTN_TOOL_PEN,
+> > 1);
+> > +		input_report_abs(udraw->pen_input_dev,
+> > ABS_PRESSURE,
+> > level);
+> > +		input_report_abs(udraw->pen_input_dev, ABS_X, x);
+> > +		input_report_abs(udraw->pen_input_dev, ABS_Y, y);
+> > +	} else {
+> > +		input_report_key(udraw->pen_input_dev, BTN_TOUCH,
+> > 0);
+> > +		input_report_abs(udraw->pen_input_dev,
+> > ABS_PRESSURE,
+> > 0);
+> > +		input_report_key(udraw->pen_input_dev,
+> > BTN_TOOL_PEN,
+> > 0);
+> > +	}
+> > +	input_sync(udraw->pen_input_dev);
+> 
+> do me a favour and group the reports by type. it makes no difference
+> to this
+> driver but event recordings are much easier to read this way.
+> so all EV_ABS first, then EV_KEY (or the other way round, don't
+> care).
 
+I put the EV_KEYs first, then EV_ABS. That was the only place where I
+did this...
+
+> > 
+> > +
+> > +	/* accel */
+> > +	x = (data[19] + (data[20] << 8));
+> > +	x = clamp_accel(x, 0);
+> > +	y = (data[21] + (data[22] << 8));
+> > +	y = clamp_accel(y, 1);
+> > +	z = (data[23] + (data[24] << 8));
+> > +	z = clamp_accel(z, 2);
+> 
+> this may not be kernel style, but any reason you can't use an enum
+> here
+> instead of 0, 1, 2? clamp_accel(x, ACCEL_AXIS_X) would be more
+> obvious to
+> read.
+
+Done.
+
+> > 
+> > +	input_report_abs(udraw->accel_input_dev, ABS_X, x);
+> > +	input_report_abs(udraw->accel_input_dev, ABS_Y, y);
+> > +	input_report_abs(udraw->accel_input_dev, ABS_Z, z);
+> > +	input_sync(udraw->accel_input_dev);
+> > +
+> > +	/* let hidraw and hiddev handle the report */
+> > +	return 0;
+> > +}
+> > +
+> > +static int udraw_open(struct input_dev *dev)
+> > +{
+> > +	struct udraw *udraw = input_get_drvdata(dev);
+> > +
+> > +	return hid_hw_open(udraw->hdev);
+> > +}
+> > +
+> > +static void udraw_close(struct input_dev *dev)
+> > +{
+> > +	struct udraw *udraw = input_get_drvdata(dev);
+> > +
+> > +	hid_hw_close(udraw->hdev);
+> > +}
+> > +
+> > +static struct input_dev *allocate_and_setup(struct hid_device
+> > *hdev,
+> > +		const char *name)
+> > +{
+> > +	struct input_dev *input_dev;
+> > +
+> > +	input_dev = devm_input_allocate_device(&hdev->dev);
+> > +	if (!input_dev)
+> > +		return NULL;
+> > +
+> > +	input_dev->name = name;
+> > +	input_dev->phys = hdev->phys;
+> > +	input_dev->dev.parent = &hdev->dev;
+> > +	input_dev->open = udraw_open;
+> > +	input_dev->close = udraw_close;
+> > +	input_dev->uniq = hdev->uniq;
+> > +	input_dev->id.bustype = hdev->bus;
+> > +	input_dev->id.vendor  = hdev->vendor;
+> > +	input_dev->id.product = hdev->product;
+> > +	input_dev->id.version = hdev->version;
+> > +	input_set_drvdata(input_dev, hid_get_drvdata(hdev));
+> > +
+> > +	return input_dev;
+> > +}
+> > +
+> > +static bool udraw_setup_touch(struct udraw *udraw,
+> > +		struct hid_device *hdev)
+> > +{
+> > +	struct input_dev *input_dev;
+> > +
+> > +	input_dev = allocate_and_setup(hdev, DEVICE_NAME "
+> > (touchpad)");
+> 
+> no need to use () here. wacom device names are "foo Pen", "foo
+> Finger", etc.
+> would be nice to continue that naming scheme.
+
+Renamed.
+
+> > 
+> > +	if (!input_dev)
+> > +		return false;
+> > +
+> > +	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
+> > +
+> > +	set_bit(ABS_X, input_dev->absbit);
+> > +	input_set_abs_params(input_dev, ABS_X, 0, RES_X, 1, 0);
+> > +	input_abs_set_res(input_dev, ABS_X, RES_X / WIDTH);
+> > +	set_bit(ABS_Y, input_dev->absbit);
+> > +	input_set_abs_params(input_dev, ABS_Y, 0, RES_Y, 1, 0);
+> > +	input_abs_set_res(input_dev, ABS_Y, RES_Y / HEIGHT);
+> > +
+> > +	set_bit(BTN_TOUCH, input_dev->keybit);
+> > +	set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+> > +	set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+> > +
+> > +	set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+> > +
+> > +	udraw->touch_input_dev = input_dev;
+> > +
+> > +	return true;
+> > +}
+> > +
+> > +static bool udraw_setup_pen(struct udraw *udraw,
+> > +		struct hid_device *hdev)
+> > +{
+> > +	struct input_dev *input_dev;
+> > +
+> > +	input_dev = allocate_and_setup(hdev, DEVICE_NAME "
+> > (pen)");
+> 
+> see above for naming scheme
+
+Done.
+
+> > 
+> > +	if (!input_dev)
+> > +		return false;
+> > +
+> > +	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
+> > +
+> > +	set_bit(ABS_X, input_dev->absbit);
+> > +	input_set_abs_params(input_dev, ABS_X, 0, RES_X, 1, 0);
+> > +	input_abs_set_res(input_dev, ABS_X, RES_X / WIDTH);
+> > +	set_bit(ABS_Y, input_dev->absbit);
+> > +	input_set_abs_params(input_dev, ABS_Y, 0, RES_Y, 1, 0);
+> > +	input_abs_set_res(input_dev, ABS_Y, RES_Y / HEIGHT);
+> > +	set_bit(ABS_PRESSURE, input_dev->absbit);
+> > +	input_set_abs_params(input_dev, ABS_PRESSURE,
+> > +			0, MAX_PRESSURE, 0, 0);
+> > +
+> > +	set_bit(BTN_TOUCH, input_dev->keybit);
+> > +	set_bit(BTN_TOOL_PEN, input_dev->keybit);
+> > +
+> > +	set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+> > +
+> > +	udraw->pen_input_dev = input_dev;
+> > +
+> > +	return true;
+> > +}
+> > +
+> > +static bool udraw_setup_accel(struct udraw *udraw,
+> > +		struct hid_device *hdev)
+> > +{
+> > +	struct input_dev *input_dev;
+> > +
+> > +	input_dev = allocate_and_setup(hdev, DEVICE_NAME "
+> > (accelerometer)");
+> 
+> see above for naming scheme
+
+Done.
+
+> > 
+> > +	if (!input_dev)
+> > +		return false;
+> > +
+> > +	input_dev->evbit[0] = BIT(EV_ABS);
+> > +
+> > +	/* 1G accel is reported as ~256, so clamp to 2G */
+> > +	set_bit(ABS_X, input_dev->absbit);
+> > +	input_set_abs_params(input_dev, ABS_X, -512, 512, 0, 0);
+> > +	set_bit(ABS_Y, input_dev->absbit);
+> > +	input_set_abs_params(input_dev, ABS_Y, -512, 512, 0, 0);
+> > +	set_bit(ABS_Z, input_dev->absbit);
+> > +	input_set_abs_params(input_dev, ABS_Z, -512, 512, 0, 0);
+> > +
+> > +	set_bit(INPUT_PROP_ACCELEROMETER, input_dev->propbit);
+> > +
+> > +	udraw->accel_input_dev = input_dev;
+> > +
+> > +	return true;
+> > +}
+> > +
+> > +static bool udraw_setup_joypad(struct udraw *udraw,
+> > +		struct hid_device *hdev)
+> > +{
+> > +	struct input_dev *input_dev;
+> > +	int i;
+> > +
+> > +	input_dev = allocate_and_setup(hdev, DEVICE_NAME "
+> > (joypad)");
+> 
+> see above for naming scheme
+
+Done.
+
+> > 
+> > +	if (!input_dev)
+> > +		return false;
+> > +
+> > +	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
+> > +
+> > +	set_bit(ABS_X, input_dev->absbit);
+> > +	input_set_abs_params(input_dev, ABS_X, -127, 127, 0, 0);
+> > +	set_bit(ABS_Y, input_dev->absbit);
+> > +	input_set_abs_params(input_dev, ABS_Y, -127, 127, 0, 0);
+> > +
+> > +	for (i = 0; i < ARRAY_SIZE(udraw_joy_key_table); i++)
+> > +		set_bit(udraw_joy_key_table[i], input_dev-
+> > >keybit);
+> 
+> Personal opinion here: for the few buttons you have, the loop over an
+> array
+> doesn't really get you much benefit over just having 7 set_bit()
+> calls. just
+> hardcoding all set_bit calls (or moving joy_key_table to here) is
+> that you
+> have all the init bits in one place for quick analysis.
+> 
+> but I'm not going to argue this point too hard.
+
+I moved all that to a flat list of calls.
+
+All pushed to https://github.com/hadess/udraw until I get some more
+comments, or some parts of the protocol mysteriously appear ;)
+
+Cheers
+
+> Cheers,
+>    Peter
+> 
+> > 
+> > +
+> > +	udraw->joy_input_dev = input_dev;
+> > +
+> > +	return true;
+> > +}
+> > +
+> > +static int udraw_probe(struct hid_device *hdev, const struct
+> > hid_device_id *id)
+> > +{
+> > +	struct udraw *udraw;
+> > +	int ret;
+> > +
+> > +	udraw = devm_kzalloc(&hdev->dev, sizeof(struct udraw),
+> > GFP_KERNEL);
+> > +	if (!udraw)
+> > +		return -ENOMEM;
+> > +
+> > +	udraw->hdev = hdev;
+> > +
+> > +	hid_set_drvdata(hdev, udraw);
+> > +
+> > +	ret = hid_parse(hdev);
+> > +	if (ret) {
+> > +		hid_err(hdev, "parse failed\n");
+> > +		return ret;
+> > +	}
+> > +
+> > +	if (!udraw_setup_joypad(udraw, hdev) ||
+> > +	    !udraw_setup_touch(udraw, hdev) ||
+> > +	    !udraw_setup_pen(udraw, hdev) ||
+> > +	    !udraw_setup_accel(udraw, hdev)) {
+> > +		hid_err(hdev, "could not allocate interfaces\n");
+> > +		return -ENOMEM;
+> > +	}
+> > +
+> > +	ret = input_register_device(udraw->joy_input_dev) ||
+> > +		input_register_device(udraw->touch_input_dev) ||
+> > +		input_register_device(udraw->pen_input_dev) ||
+> > +		input_register_device(udraw->accel_input_dev);
+> > +	if (ret) {
+> > +		hid_err(hdev, "failed to register interfaces\n");
+> > +		return ret;
+> > +	}
+> > +
+> > +	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW |
+> > HID_CONNECT_DRIVER);
+> > +	if (ret) {
+> > +		hid_err(hdev, "hw start failed\n");
+> > +		return ret;
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static const struct hid_device_id udraw_devices[] = {
+> > +	{ HID_USB_DEVICE(USB_VENDOR_ID_THQ,
+> > USB_DEVICE_ID_THQ_PS3_UDRAW) },
+> > +	{ }
+> > +};
+> > +MODULE_DEVICE_TABLE(hid, udraw_devices);
+> > +
+> > +static struct hid_driver udraw_driver = {
+> > +	.name = "hid-udraw",
+> > +	.id_table = udraw_devices,
+> > +	.raw_event = udraw_raw_event,
+> > +	.probe = udraw_probe,
+> > +};
+> > +module_hid_driver(udraw_driver);
+> > -- 
+> > 2.7.4
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-
+> > input" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-
+> input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

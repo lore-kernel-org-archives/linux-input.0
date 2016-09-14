@@ -1,48 +1,100 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: Goodix touchscreen works intermittently, fails reading config
- info.
-Date: Wed, 14 Sep 2016 09:29:54 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F33C657@irsmsx105.ger.corp.intel.com>
-References: <CAG=1usadh8HwmBxBUhvB5mHuvy6Yiqj7CR5Niqeya00TQFSrZQ@mail.gmail.com>
- <CAG=1usZt447=qz2_DHRpKa67tgMnuvArZ2_k4wTBHru8jm0i5w@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 6/9] HID: uclogic: Add support for several more tablets
+Date: Wed, 14 Sep 2016 12:15:31 +0200
+Message-ID: <20160914101531.GJ25951@mail.corp.redhat.com>
+References: <20160913140843.25567-1-spbnick@gmail.com>
+ <20160913140843.25567-7-spbnick@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:33689 "EHLO mga14.intel.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48350 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759045AbcINJaM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Sep 2016 05:30:12 -0400
-In-Reply-To: <CAG=1usZt447=qz2_DHRpKa67tgMnuvArZ2_k4wTBHru8jm0i5w@mail.gmail.com>
-Content-Language: en-US
+        id S1754281AbcINKPg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 14 Sep 2016 06:15:36 -0400
+Content-Disposition: inline
+In-Reply-To: <20160913140843.25567-7-spbnick@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Brad Baker <bbaker6212@gmail.com>
-Cc: bastien nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Nikolai Kondrashov <spbnick@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogbGludXgtaW5wdXQtb3du
-ZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86bGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJuZWwu
-b3JnXSBPbiBCZWhhbGYgT2YgQnJhZCBCYWtlcg0KPiBTZW50OiAxMyBTZXB0ZW1iZXIsIDIwMTYg
-NjowNQ0KPiBUbzogVGlyZGVhLCBJcmluYQ0KPiBDYzogYmFzdGllbiBub2NlcmE7IGxpbnV4LWlu
-cHV0QHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogR29vZGl4IHRvdWNoc2NyZWVuIHdv
-cmtzIGludGVybWl0dGVudGx5LCBmYWlscyByZWFkaW5nIGNvbmZpZyBpbmZvLg0KPiANCj4gSXJp
-bmEsIGEgbGl0dGxlIG1vcmUgaW5mbyBvbiB0aGUgc3ltcHRvbXMuIFRoZSB1c2VyIHJlcG9ydHMg
-dGhlDQo+IHRvdWNoc2NyZWVuIHdvcmtzIHdoZW4gcmVzdGFydGluZyBidXQgZmFpbHMgd2hlbiBw
-b3dlcmluZyBvbi4gIEhlIHNheXMNCj4gcHJldHR5IG11Y2ggMTAwJSBvZiB0aGUgdGltZS4gIFRo
-ZSBsb2cgaXMgdGhlIHNhbWUuLi4NCj4gDQoNCkhpIEJyYWQsDQoNClRoYW5rcyBmb3IgYWxsIHRo
-ZSBpbmZvcm1hdGlvbiB5b3UgcHJvdmlkZWQuIEkgaGF2ZSBhbHJlYWR5IHJlcGxpZWQgb24gdGhl
-DQpCdWd6aWxsYSB0aHJlYWQgd2l0aCBzb21lIHBhdGNoZXMgdGhhdCBlbmFibGUgcmVzZXQgZm9y
-IHRoZSBkZXZpY2UuDQoNClJlZ2FyZHMsDQpJcmluYQ0KDQoNCj4gaHR0cDovL3Bhc3RlYmluLmNv
-bS8yNWhhYVBRZA0KPiBbICAgMTAuMjQ2MDc0XSBnb29kaXhfYmFja3BvcnQ6IGxvYWRpbmcgb3V0
-LW9mLXRyZWUgbW9kdWxlIHRhaW50cyBrZXJuZWwuDQo+IFsgICAxMC4yNDYxNzJdIGdvb2RpeF9i
-YWNrcG9ydDogbW9kdWxlIHZlcmlmaWNhdGlvbiBmYWlsZWQ6IHNpZ25hdHVyZQ0KPiBhbmQvb3Ig
-cmVxdWlyZWQga2V5IG1pc3NpbmcgLSB0YWludGluZyBrZXJuZWwNCj4gWyAgIDEwLjI2Mzc4OF0g
-R29vZGl4LVRTIGkyYy1HRElYMTAwMTowMDogSUQgOTExMSwgdmVyc2lvbjogMTA2MA0KPiBbICAg
-MTAuMjcwMTM1XSBHb29kaXgtVFMgaTJjLUdESVgxMDAxOjAwOiBkZXZfaW5mbzogY2ZnX2xlbjog
-MTg2LA0KPiB4X21heDogMCwgeV9tYXg6IDAsIHRvdWNoX251bTogMCwgdHJpZ2dlcl90eXBlOiAw
-DQo+IFsgICAxMC4yNzAxNDFdIEdvb2RpeC1UUyBpMmMtR0RJWDEwMDE6MDA6IEludmFsaWQgY29u
-ZmlnLCB1c2luZyBkZWZhdWx0cw0KPiBbICAgMTAuMjcwMjU4XSBHb29kaXgtVFMgaTJjLUdESVgx
-MDAxOjAwOiBkZXZfaW5mbzogY2ZnX2xlbjogMTg2LA0KPiB4X21heDogMjE2MCwgeV9tYXg6IDIx
-NjAsIHRvdWNoX251bTogMTAsIHRyaWdnZXJfdHlwZTogMA0KPiBbICAgMTAuMjcwNjA4XSBpbnB1
-dDogR29vZGl4IENhcGFjaXRpdmUgVG91Y2hTY3JlZW4gYXMNCj4gL2RldmljZXMvcGNpMDAwMDow
-MC84MDg2MjJDMTowNS9pMmMtMTMvaTJjLUdESVgxMDAxOjAwL2lucHV0L2lucHV0Ng0KPiANCg0K
+On Sep 13 2016 or thereabouts, Nikolai Kondrashov wrote:
+> Add more product IDs to hid-uclogic.c driver to support several more
+> tablet models, including:
+> 
+> 	UC-Logic DrawImage G3
+> 	aka Ugee G3
+> 	UC-Logic SP1001
+> 	aka Ugee SP1001
+> 	aka Yiynova UC-Logic SP-1001
+> 	Ugee 1000L
+> 	Ugee M708
+> 	Yiynova DP10U
+> 	aka Yiynova DP10U+
+> 	Yiynova MSP19U
+> 	Yiynova MSP19U+
+> 	Yiynova MVP10U
+> 	aka Yiynova MVP10U IPS
+> 	Yiynova MVP10UHD+IPS
+> 	Yiynova MVP22U+
+> 
+> Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
+> ---
+>  drivers/hid/hid-ids.h     | 4 ++++
+>  drivers/hid/hid-uclogic.c | 8 ++++++++
+>  2 files changed, 12 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 5963cf1..6ef9dbf 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -996,6 +996,10 @@
+>  #define USB_DEVICE_ID_UCLOGIC_TABLET_WP1062	0x0064
+>  #define USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850	0x0522
+>  #define USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60	0x0781
+> +#define USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3	0x3031
+> +#define USB_DEVICE_ID_UGEE_TABLET_81		0x0081
+> +#define USB_DEVICE_ID_UGEE_TABLET_45		0x0045
+> +#define USB_DEVICE_ID_YIYNOVA_TABLET		0x004d
+>  
+>  #define USB_VENDOR_ID_UNITEC	0x227d
+>  #define USB_DEVICE_ID_UNITEC_USB_TOUCH_0709	0x0709
+> diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
+> index 73c040d..f4377c4 100644
+> --- a/drivers/hid/hid-uclogic.c
+> +++ b/drivers/hid/hid-uclogic.c
+> @@ -955,6 +955,10 @@ static int uclogic_probe(struct hid_device *hdev,
+>  
+>  	switch (id->product) {
+>  	case USB_DEVICE_ID_HUION_TABLET:
+> +	case USB_DEVICE_ID_YIYNOVA_TABLET:
+> +	case USB_DEVICE_ID_UGEE_TABLET_81:
+> +	case USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3:
+> +	case USB_DEVICE_ID_UGEE_TABLET_45:
+>  		/* If this is the pen interface */
+>  		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
+>  			rc = uclogic_tablet_enable(hdev);
+> @@ -1023,6 +1027,10 @@ static const struct hid_device_id uclogic_devices[] = {
+>  				USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_TABLET) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_HUION_TABLET) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_YIYNOVA_TABLET) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_81) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_45) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3) },
+
+For this one and 7/9, I think you forgot the hid-core.c changes to not
+bind hid-generic on those.
+
+The reset of the series looks good to me:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, uclogic_devices);
+> -- 
+> 2.9.3
+> 

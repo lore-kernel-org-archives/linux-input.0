@@ -1,16 +1,16 @@
 From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: [PATCH 6/9] HID: uclogic: Add support for several more tablets
-Date: Wed, 14 Sep 2016 21:38:17 +0300
-Message-ID: <20160914183820.20737-7-spbnick@gmail.com>
+Subject: [PATCH 2/9] HID: kye: Rename MousePen i608X v2 macro
+Date: Wed, 14 Sep 2016 21:38:13 +0300
+Message-ID: <20160914183820.20737-3-spbnick@gmail.com>
 References: <20160914101531.GJ25951@mail.corp.redhat.com>
  <20160914183820.20737-1-spbnick@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:34944 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1760398AbcINSip (ORCPT
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:36300 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756570AbcINSip (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 14 Sep 2016 14:38:45 -0400
-Received: by mail-wm0-f67.google.com with SMTP id 133so1733464wmq.2
+Received: by mail-wm0-f68.google.com with SMTP id b184so3789328wma.3
         for <linux-input@vger.kernel.org>; Wed, 14 Sep 2016 11:38:44 -0700 (PDT)
 In-Reply-To: <20160914183820.20737-1-spbnick@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
@@ -18,88 +18,93 @@ List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: linux-input@vger.kernel.org, Nikolai Kondrashov <spbnick@gmail.com>
 
-Add more product IDs to hid-uclogic.c driver to support several more
-tablet models, including:
+Rename the device ID macro for the second version of KYE MousePen i608x
+graphics tablet to have "V" in its name to signify that "2" is a
+version.
 
-	UC-Logic DrawImage G3
-	aka Ugee G3
-	UC-Logic SP1001
-	aka Ugee SP1001
-	aka Yiynova UC-Logic SP-1001
-	Ugee 1000L
-	Ugee M708
-	Yiynova DP10U
-	aka Yiynova DP10U+
-	Yiynova MSP19U
-	Yiynova MSP19U+
-	Yiynova MVP10U
-	aka Yiynova MVP10U IPS
-	Yiynova MVP10UHD+IPS
-	Yiynova MVP22U+
+I.e. USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2 ->
+     USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2
+
+This also makes applying additional fixes from DIGImend easier.
 
 Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
 ---
- drivers/hid/hid-core.c    | 4 ++++
- drivers/hid/hid-ids.h     | 4 ++++
- drivers/hid/hid-uclogic.c | 8 ++++++++
- 3 files changed, 16 insertions(+)
+ drivers/hid/hid-core.c          | 2 +-
+ drivers/hid/hid-ids.h           | 2 +-
+ drivers/hid/hid-kye.c           | 6 +++---
+ drivers/hid/usbhid/hid-quirks.c | 2 +-
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 758619d..df2770a 100644
+index 08f53c7..758619d 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -2083,6 +2083,10 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP1062) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_YIYNOVA_TABLET) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_81) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_45) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SUPER_JOY_BOX_3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD) },
+@@ -1916,7 +1916,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_I405X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_PENSKETCH_M912) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5963cf1..6ef9dbf 100644
+index 4ed9a4f..5963cf1 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -996,6 +996,10 @@
- #define USB_DEVICE_ID_UCLOGIC_TABLET_WP1062	0x0064
- #define USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850	0x0522
- #define USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60	0x0781
-+#define USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3	0x3031
-+#define USB_DEVICE_ID_UGEE_TABLET_81		0x0081
-+#define USB_DEVICE_ID_UGEE_TABLET_45		0x0045
-+#define USB_DEVICE_ID_YIYNOVA_TABLET		0x004d
+@@ -565,7 +565,7 @@
+ #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
+ #define USB_DEVICE_ID_KYE_EASYPEN_I405X	0x5010
+ #define USB_DEVICE_ID_KYE_MOUSEPEN_I608X	0x5011
+-#define USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2	0x501a
++#define USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2	0x501a
+ #define USB_DEVICE_ID_KYE_EASYPEN_M610X	0x5013
+ #define USB_DEVICE_ID_KYE_PENSKETCH_M912	0x5015
  
- #define USB_VENDOR_ID_UNITEC	0x227d
- #define USB_DEVICE_ID_UNITEC_USB_TOUCH_0709	0x0709
-diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
-index 73c040d..f4377c4 100644
---- a/drivers/hid/hid-uclogic.c
-+++ b/drivers/hid/hid-uclogic.c
-@@ -955,6 +955,10 @@ static int uclogic_probe(struct hid_device *hdev,
- 
+diff --git a/drivers/hid/hid-kye.c b/drivers/hid/hid-kye.c
+index a3b70df..ee5ca1f 100644
+--- a/drivers/hid/hid-kye.c
++++ b/drivers/hid/hid-kye.c
+@@ -439,7 +439,7 @@ static __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		}
+ 		break;
+ 	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X:
+-	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2:
++	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2:
+ 		if (*rsize == MOUSEPEN_I608X_RDESC_ORIG_SIZE) {
+ 			rdesc = mousepen_i608x_rdesc_fixed;
+ 			*rsize = sizeof(mousepen_i608x_rdesc_fixed);
+@@ -538,7 +538,7 @@ static int kye_probe(struct hid_device *hdev, const struct hid_device_id *id)
  	switch (id->product) {
- 	case USB_DEVICE_ID_HUION_TABLET:
-+	case USB_DEVICE_ID_YIYNOVA_TABLET:
-+	case USB_DEVICE_ID_UGEE_TABLET_81:
-+	case USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3:
-+	case USB_DEVICE_ID_UGEE_TABLET_45:
- 		/* If this is the pen interface */
- 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
- 			rc = uclogic_tablet_enable(hdev);
-@@ -1023,6 +1027,10 @@ static const struct hid_device_id uclogic_devices[] = {
- 				USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_TABLET) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_HUION_TABLET) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_YIYNOVA_TABLET) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_81) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_45) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, uclogic_devices);
+ 	case USB_DEVICE_ID_KYE_EASYPEN_I405X:
+ 	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X:
+-	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2:
++	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2:
+ 	case USB_DEVICE_ID_KYE_EASYPEN_M610X:
+ 	case USB_DEVICE_ID_KYE_PENSKETCH_M912:
+ 		ret = kye_tablet_enable(hdev);
+@@ -571,7 +571,7 @@ static const struct hid_device_id kye_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+ 				USB_DEVICE_ID_KYE_MOUSEPEN_I608X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+-				USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2) },
++				USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+ 				USB_DEVICE_ID_KYE_EASYPEN_M610X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index b4b8c6a..ab3a31c 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -143,7 +143,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_SIGMA_MICRO, USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X, HID_QUIRK_MULTI_INPUT },
+-	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X_2, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_PENSKETCH_M912, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_DUOSENSE, HID_QUIRK_NO_INIT_REPORTS },
 -- 
 2.9.3
 

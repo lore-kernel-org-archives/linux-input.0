@@ -1,35 +1,83 @@
-From: Ville Ranki <ville.ranki@iki.fi>
-Subject: Re: [PATCH] Input: joydev - Recognize joysticks with Z axis as
- joysticks.
-Date: Thu, 15 Sep 2016 17:18:42 +0300
-Message-ID: <c006be1d-de6a-cf3e-2c65-2cdf3c5a7fe3@iki.fi>
-References: <1472134610-6438-1-git-send-email-ville.ranki@iki.fi>
- <20160825164530.GD11206@dtor-ws>
- <e0aece92-b147-4c7d-90a9-c0243a224b01@iki.fi>
- <7266b6f9-3623-f08c-abce-62d0daa6e77d@iki.fi>
+From: Deepa Dinamani <deepa.kernel@gmail.com>
+Subject: Re: [PATCH 1/4] uinput: Add ioctl for using monotonic/ boot times
+Date: Thu, 15 Sep 2016 10:11:38 -0700
+Message-ID: <CABeXuvpOqBvnUSjMrGBLuQc8C+ELm3TPJR63U36GvJ-F7Zv0Jg@mail.gmail.com>
+References: <1473775805-2242-1-git-send-email-deepa.kernel@gmail.com>
+ <1473775805-2242-2-git-send-email-deepa.kernel@gmail.com> <2791498.1bf6TGcxHc@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.cs.tut.fi ([130.230.4.42]:64508 "HELO mail.cs.tut.fi"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-        id S1757389AbcIOOSt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Sep 2016 10:18:49 -0400
-In-Reply-To: <7266b6f9-3623-f08c-abce-62d0daa6e77d@iki.fi>
+Received: from mail-it0-f65.google.com ([209.85.214.65]:36149 "EHLO
+        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751180AbcIORLk (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 15 Sep 2016 13:11:40 -0400
+In-Reply-To: <2791498.1bf6TGcxHc@wuerfel>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>
 
-On 09/02/2016 12:11 PM, Ville Ranki wrote:
+On Tue, Sep 13, 2016 at 8:07 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Tuesday, September 13, 2016 7:10:02 AM CEST Deepa Dinamani wrote:
+>> --- a/drivers/input/misc/uinput.c
+>> +++ b/drivers/input/misc/uinput.c
+>> @@ -46,11 +46,28 @@ static int uinput_dev_event(struct input_dev *dev,
+>>                             unsigned int type, unsigned int code, int value)
+>>  {
+>>         struct uinput_device    *udev = input_get_drvdata(dev);
+>> +       struct timespec64       ts;
+>> +       ktime_t kt;
+>>
+>>         udev->buff[udev->head].type = type;
+>>         udev->buff[udev->head].code = code;
+>>         udev->buff[udev->head].value = value;
+>> -       do_gettimeofday(&udev->buff[udev->head].time);
+>> +
+>> +       kt = ktime_get();
+>> +       switch (udev->clk_type) {
+>> +       case CLOCK_REALTIME:
+>> +               ts = ktime_to_timespec64(ktime_mono_to_real(kt));
+>> +               break;
+>> +       case CLOCK_MONOTONIC:
+>> +               ts = ktime_to_timespec64(kt);
+>> +               break;
+>> +       case CLOCK_BOOTTIME:
+>> +               ts = ktime_to_timespec64(ktime_mono_to_any(kt, TK_OFFS_BOOT));
+>> +               break;
+>> +       }
+>> +
+>> +       udev->buff[udev->head].time.tv_sec = ts.tv_sec;
+>> +       udev->buff[udev->head].time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
+>>
+>
+> This is a bit inefficient. I think it's better to use
+> ktime_get_real_ts64(), ktime_get_ts64() and get_monotonic_boottime64().
 
-> Was this patch accepted or rejected? 
+Right. The way I have is using sequence counters twice, once for ktime_get()
+and then again for offset.
 
-Still waiting for answer. If it requires changes, I'm happy
-to do so. I asked another kernel developer to review the
-patch and he said it should be ok.
+> I see that we do the same thing in evdev_events(), so maybe that isn't
+> overly critical though. Or we might want to change both.
+>
+> The last one of these also uses the slow ktime_to_timespec64(), but
+> that is something we can improve later in the common code.
 
--- 
-Ville Ranki <ville.ranki@iki.fi>
-http://www.iki.fi/~cos
-PGP public key: http://www.iki.fi/~cos/vranki_pub.asc
+Yes, I tried to keep it same as evdev here.
+But, evdev itself has a couple of different ways of doing this:
+
+For instance, __evdev_queue_syn_dropped() uses
+
+time = client->clk_type == EV_CLK_REAL ?
+            ktime_get_real() :
+            client->clk_type == EV_CLK_MONO ?
+                ktime_get() :
+                ktime_get_boottime();
+
+I can change all this to look the same.
+
+I will wait until I hear if this approach is ok for input events.
+I will post an update to series after.
+
+Thanks,
+Deepa

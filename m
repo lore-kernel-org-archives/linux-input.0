@@ -1,70 +1,48 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: Re: [PATCH 2/2] [media] Input: synaptics-rmi4: disallow impossible
- configuration
-Date: Thu, 15 Sep 2016 21:23:31 +0100
-Message-ID: <20160915202331.GA18925@lava.h.shmanahar.org>
-References: <20160912153105.3035940-1-arnd@arndb.de>
- <20160912153105.3035940-2-arnd@arndb.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: joydev - Recognize joysticks with Z axis as
+ joysticks.
+Date: Thu, 15 Sep 2016 15:35:48 -0700
+Message-ID: <20160915223548.GA29897@dtor-ws>
+References: <1472134610-6438-1-git-send-email-ville.ranki@iki.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avasout05.plus.net ([84.93.230.250]:51560 "EHLO
-        avasout05.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756104AbcIOUbN (ORCPT
+Received: from mail-pa0-f65.google.com ([209.85.220.65]:34327 "EHLO
+        mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751150AbcIOWfw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Sep 2016 16:31:13 -0400
+        Thu, 15 Sep 2016 18:35:52 -0400
+Received: by mail-pa0-f65.google.com with SMTP id vz6so2649201pab.1
+        for <linux-input@vger.kernel.org>; Thu, 15 Sep 2016 15:35:52 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20160912153105.3035940-2-arnd@arndb.de>
+In-Reply-To: <1472134610-6438-1-git-send-email-ville.ranki@iki.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Hans Verkuil <hans.verkuil@cisco.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ville Ranki <ville.ranki@iki.fi>
+Cc: linux-input@vger.kernel.org
 
-On Mon, Sep 12, 2016 at 05:30:33PM +0200, Arnd Bergmann wrote:
-> The newly added debug mode for the synaptics-rmi4 driver relies on
-> the v4l2 interface and vb2_vmalloc, but those might be configured
-> as loadable modules when the driver itself is built-in, resulting
-> in a link failure:
+On Thu, Aug 25, 2016 at 05:16:50PM +0300, Ville Ranki wrote:
+> Current implementation of joydev's input_device_id
+> table recognizes only devices with ABS_X, ABS_WHEEL
+> or ABS_THROTTLE axes as joysticks.
 > 
-> drivers/input/rmi4/rmi_core.o: In function `rmi_f54_remove':
-> rmi_f54.c:(.text.rmi_f54_remove+0x14): undefined reference to `video_unregister_device'
-> rmi_f54.c:(.text.rmi_f54_remove+0x20): undefined reference to `v4l2_device_unregister'
-> drivers/input/rmi4/rmi_core.o: In function `rmi_f54_vidioc_s_input':
-> rmi_f54.c:(.text.rmi_f54_vidioc_s_input+0x10): undefined reference to `video_devdata'
-> drivers/input/rmi4/rmi_core.o: In function `rmi_f54_vidioc_g_input':
-> rmi_f54.c:(.text.rmi_f54_vidioc_g_input+0x10): undefined reference to `video_devdata'
-> drivers/input/rmi4/rmi_core.o: In function `rmi_f54_vidioc_fmt':
-> rmi_f54.c:(.text.rmi_f54_vidioc_fmt+0x10): undefined reference to `video_devdata'
-> drivers/input/rmi4/rmi_core.o: In function `rmi_f54_vidioc_enum_input':
-> rmi_f54.c:(.text.rmi_f54_vidioc_enum_input+0x10): undefined reference to `video_devdata'
-> drivers/input/rmi4/rmi_core.o: In function `rmi_f54_vidioc_querycap':
-> ...
+> There are joystick devices that do not have those axes,
+> for example TRC Rudder device. The device in question
+> has ABS_Z, ABS_RX and ABS_RY axes causing it not being
+> detected as joystick.
 > 
-> The best workaround I could come up with is to disallow the debug
-> mode unless it's actually possible to call it.
+> This patch adds ABS_Z to the input_device_id list
+> allowing devices with ABS_Z axis to be detected
+> correctly.
 > 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Fixes: 3a762dbd5347 ("[media] Input: synaptics-rmi4 - add support for F54 diagnostics")
+> Signed-off-by: Ville Ranki <ville.ranki@iki.fi>
 
-Acked-by: Nick Dyer <nick@shmanahar.org>
+Applied, thank you.
 
-> ---
->  drivers/input/rmi4/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-> index f3418b65eb41..4c8a55857e00 100644
-> --- a/drivers/input/rmi4/Kconfig
-> +++ b/drivers/input/rmi4/Kconfig
-> @@ -65,7 +65,7 @@ config RMI4_F30
->  config RMI4_F54
->  	bool "RMI4 Function 54 (Analog diagnostics)"
->  	depends on RMI4_CORE
-> -	depends on VIDEO_V4L2
-> +	depends on VIDEO_V4L2=y || (RMI4_CORE=m && VIDEO_V4L2=m)
->  	select VIDEOBUF2_VMALLOC
->  	help
->  	  Say Y here if you want to add support for RMI4 function 54
-> -- 
-> 2.9.0
-> 
+Although I wonder if we could not move joydev implementation to
+userspace in the long run.
+
+Thanks.
+
+-- 
+Dmitry

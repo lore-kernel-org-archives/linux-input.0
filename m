@@ -1,65 +1,49 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: Re: [PATCH 1/2] [media] Input: atmel_mxt: disallow impossible
- configuration
-Date: Thu, 15 Sep 2016 21:23:43 +0100
-Message-ID: <20160915202343.GB18925@lava.h.shmanahar.org>
-References: <20160912153105.3035940-1-arnd@arndb.de>
+Subject: Re: [PATCH -next] [media] Input: fix missing unlock on error in
+ rmi_f54_request_report()
+Date: Thu, 15 Sep 2016 21:24:01 +0100
+Message-ID: <20160915202401.GC18925@lava.h.shmanahar.org>
+References: <1473776690-3748-1-git-send-email-weiyj.lk@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avasout06.plus.net ([212.159.14.18]:50848 "EHLO
+Received: from avasout06.plus.net ([212.159.14.18]:50849 "EHLO
         avasout06.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754178AbcIOUXr (ORCPT
+        with ESMTP id S1754512AbcIOUYH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Sep 2016 16:23:47 -0400
+        Thu, 15 Sep 2016 16:24:07 -0400
 Content-Disposition: inline
-In-Reply-To: <20160912153105.3035940-1-arnd@arndb.de>
+In-Reply-To: <1473776690-3748-1-git-send-email-weiyj.lk@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wei Yongjun <weiyj.lk@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Hans Verkuil <hans.verkuil@cisco.com>, Wei Yongjun <weiyongjun1@huawei.com>, linux-input@vger.kernel.org
 
-On Mon, Sep 12, 2016 at 05:30:32PM +0200, Arnd Bergmann wrote:
-> The newnly added debug mode for the atmel_mxt_ts driver relies on
-> the v4l2 interface and vb2_vmalloc, but those might be configured
-> as loadable modules when the driver itself is built-in, resulting
-> in a link failure:
+On Tue, Sep 13, 2016 at 02:24:50PM +0000, Wei Yongjun wrote:
+> Add the missing unlock before return from function
+> rmi_f54_request_report() in the error handling case.
 > 
-> drivers/input/touchscreen/atmel_mxt_ts.o: In function `mxt_vidioc_querycap':
-> atmel_mxt_ts.c:(.text.mxt_vidioc_querycap+0x10): undefined reference to `video_devdata'
-> drivers/input/touchscreen/atmel_mxt_ts.o: In function `mxt_buffer_queue':
-> atmel_mxt_ts.c:(.text.mxt_buffer_queue+0x20): undefined reference to `vb2_plane_vaddr'
-> atmel_mxt_ts.c:(.text.mxt_buffer_queue+0x164): undefined reference to `vb2_buffer_done'
-> drivers/input/touchscreen/atmel_mxt_ts.o: In function `mxt_free_object_table':
-> atmel_mxt_ts.c:(.text.mxt_free_object_table+0x18): undefined reference to `video_unregister_device'
-> atmel_mxt_ts.c:(.text.mxt_free_object_table+0x20): undefined reference to `v4l2_device_unregister'
-> 
-> The best workaround I could come up with is to disallow the debug
-> mode unless it's actually possible to call it.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Fixes: ecfdd7e2660e ("[media] Input: atmel_mxt_ts - output diagnostic debug via V4L2 device")
+> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 
 Acked-by: Nick Dyer <nick@shmanahar.org>
 
 > ---
->  drivers/input/touchscreen/Kconfig | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  drivers/input/rmi4/rmi_f54.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index fce1e41ffe8b..ccf933969587 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -117,7 +117,8 @@ config TOUCHSCREEN_ATMEL_MXT
+> diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+> index bd86d3d..99a8836 100644
+> --- a/drivers/input/rmi4/rmi_f54.c
+> +++ b/drivers/input/rmi4/rmi_f54.c
+> @@ -198,8 +198,10 @@ static int rmi_f54_request_report(struct rmi_function *fn, u8 report_type)
+>  	mutex_lock(&f54->data_mutex);
 >  
->  config TOUCHSCREEN_ATMEL_MXT_T37
->  	bool "Support T37 Diagnostic Data"
-> -	depends on TOUCHSCREEN_ATMEL_MXT && VIDEO_V4L2
-> +	depends on TOUCHSCREEN_ATMEL_MXT
-> +	depends on VIDEO_V4L2=y || (TOUCHSCREEN_ATMEL_MXT=m && VIDEO_V4L2=m)
->  	select VIDEOBUF2_VMALLOC
->  	help
->  	  Say Y here if you want support to output data from the T37
-> -- 
-> 2.9.0
+>  	error = rmi_write(rmi_dev, fn->fd.command_base_addr, F54_GET_REPORT);
+> -	if (error < 0)
+> +	if (error < 0) {
+> +		mutex_unlock(&f54->data_mutex);
+>  		return error;
+> +	}
+>  
+>  	init_completion(&f54->cmd_done);
 > 

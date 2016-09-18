@@ -1,7 +1,7 @@
 From: Simon Wood <gitsend@mungewell.org>
-Subject: [Patch-V2 2/6] HID:hid-logitech: Add combined pedal support Logitech wheels
-Date: Sun, 18 Sep 2016 10:55:38 -0600
-Message-ID: <1474217742-3992-2-git-send-email-simon@mungewell.org>
+Subject: [Patch-V2 4/6] HID:hid-logitech: Rewrite of descriptor for all DF wheels
+Date: Sun, 18 Sep 2016 10:55:40 -0600
+Message-ID: <1474217742-3992-4-git-send-email-simon@mungewell.org>
 References: <1473461449-8060-1-git-send-email-simon@mungewell.org>
  <1474217742-3992-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,110 +11,52 @@ To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin Velds <edwin@velds.nl>, Elias Vanderstuyft <elias.vds@gmail.com>, Michal Maly <madcatxster@gmail.com>, Simon Wood <simon@mungewell.org>
 List-Id: linux-input@vger.kernel.org
 
-Add support for reporting a combined accelerator/brake axis for wheels
-which contain combined data in their HID stream.
+Rewrite the HID descriptor for _all_ Driving Force wheels (real
+or emulated) so that they can report separate Accelerator and
+Brake axis.
 
-This includes DF, MOMO, MOMO2 and DFP.
+If the user wants a combined accel/brake axis, they can use the
+'combined pedals' feature.
+
+$ echo 1 > /sys/bus/hid/devices/<device-id>/combine_pedals
 
 Signed-off-by: Simon Wood <simon@mungewell.org>
 ---
- drivers/hid/hid-lg.c    | 12 ++++++++++++
- drivers/hid/hid-lg4ff.c | 32 ++++++++++++++++++++++++++++++++
- drivers/hid/hid-lg4ff.h |  4 ++++
- 3 files changed, 48 insertions(+)
+ drivers/hid/hid-lg.c | 15 +--------------
+ 1 file changed, 1 insertion(+), 14 deletions(-)
 
 diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
-index feb2be7..06f8a5e 100644
+index 06f8a5e..ffcf4f1 100644
 --- a/drivers/hid/hid-lg.c
 +++ b/drivers/hid/hid-lg.c
-@@ -657,6 +657,17 @@ static int lg_event(struct hid_device *hdev, struct hid_field *field,
- 	return 0;
- }
- 
-+static int lg_raw_event(struct hid_device *hdev, struct hid_report *report,
-+		u8 *rd, int size)
-+{
-+	struct lg_drv_data *drv_data = hid_get_drvdata(hdev);
-+
-+	if (drv_data->quirks & LG_FF4)
-+		return lg4ff_raw_event(hdev, report, rd, size, drv_data);
-+
-+	return 0;
-+}
-+
- static int lg_probe(struct hid_device *hdev, const struct hid_device_id *id)
+@@ -343,8 +343,6 @@ static __u8 *lg_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
  {
- 	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
-@@ -830,6 +841,7 @@ static struct hid_driver lg_driver = {
- 	.input_mapping = lg_input_mapping,
- 	.input_mapped = lg_input_mapped,
- 	.event = lg_event,
-+	.raw_event = lg_raw_event,
- 	.probe = lg_probe,
- 	.remove = lg_remove,
- };
-diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-index ca31ce4..79d34c2 100644
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -329,6 +329,38 @@ int lg4ff_adjust_input_event(struct hid_device *hid, struct hid_field *field,
- 	}
- }
+ 	struct lg_drv_data *drv_data = hid_get_drvdata(hdev);
+-	struct usb_device_descriptor *udesc;
+-	__u16 bcdDevice, rev_maj, rev_min;
  
-+int lg4ff_raw_event(struct hid_device *hdev, struct hid_report *report,
-+		u8 *rd, int size, struct lg_drv_data *drv_data)
-+{
-+	struct lg4ff_device_entry *entry = drv_data->device_props;
-+
-+	if (!entry)
-+		return 0;
-+
-+	/* adjust HID report present combined pedals data */
-+	if (entry->wdata.combine) {
-+		switch (entry->wdata.product_id) {
-+		case USB_DEVICE_ID_LOGITECH_WHEEL:
-+			rd[5] = rd[3];
-+			rd[6] = 0x7F;
-+			return 1;
-+		case USB_DEVICE_ID_LOGITECH_MOMO_WHEEL:
-+		case USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2:
-+			rd[4] = rd[3];
-+			rd[5] = 0x7F;
-+			return 1;
-+		case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
-+			rd[5] = rd[4];
-+			rd[6] = 0x7F;
-+			return 1;
-+		default:
-+			return 0;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static void lg4ff_init_wheel_data(struct lg4ff_wheel_data * const wdata, const struct lg4ff_wheel *wheel,
- 				  const struct lg4ff_multimode_wheel *mmode_wheel,
- 				  const u16 real_product_id)
-diff --git a/drivers/hid/hid-lg4ff.h b/drivers/hid/hid-lg4ff.h
-index 66201af..de1f350 100644
---- a/drivers/hid/hid-lg4ff.h
-+++ b/drivers/hid/hid-lg4ff.h
-@@ -6,11 +6,15 @@ extern int lg4ff_no_autoswitch; /* From hid-lg.c */
+ 	if ((drv_data->quirks & LG_RDESC) && *rsize >= 91 && rdesc[83] == 0x26 &&
+ 			rdesc[84] == 0x8c && rdesc[85] == 0x02) {
+@@ -365,18 +363,7 @@ static __u8 *lg_report_fixup(struct hid_device *hdev, __u8 *rdesc,
  
- int lg4ff_adjust_input_event(struct hid_device *hid, struct hid_field *field,
- 			     struct hid_usage *usage, s32 value, struct lg_drv_data *drv_data);
-+int lg4ff_raw_event(struct hid_device *hdev, struct hid_report *report,
-+		u8 *rd, int size, struct lg_drv_data *drv_data);
- int lg4ff_init(struct hid_device *hdev);
- int lg4ff_deinit(struct hid_device *hdev);
- #else
- static inline int lg4ff_adjust_input_event(struct hid_device *hid, struct hid_field *field,
- 					   struct hid_usage *usage, s32 value, struct lg_drv_data *drv_data) { return 0; }
-+static inline int lg4ff_raw_event(struct hid_device *hdev, struct hid_report *report,
-+		u8 *rd, int size, struct lg_drv_data *drv_data) { return 0; }
- static inline int lg4ff_init(struct hid_device *hdev) { return -1; }
- static inline int lg4ff_deinit(struct hid_device *hdev) { return -1; }
- #endif
+ 	/* Several wheels report as this id when operating in emulation mode. */
+ 	case USB_DEVICE_ID_LOGITECH_WHEEL:
+-		udesc = &(hid_to_usb_dev(hdev)->descriptor);
+-		if (!udesc) {
+-			hid_err(hdev, "NULL USB device descriptor\n");
+-			break;
+-		}
+-		bcdDevice = le16_to_cpu(udesc->bcdDevice);
+-		rev_maj = bcdDevice >> 8;
+-		rev_min = bcdDevice & 0xff;
+-
+-		/* Update the report descriptor for only the Driving Force wheel */
+-		if (rev_maj == 1 && rev_min == 2 &&
+-				*rsize == DF_RDESC_ORIG_SIZE) {
++		if (*rsize == DF_RDESC_ORIG_SIZE) {
+ 			hid_info(hdev,
+ 				"fixing up Logitech Driving Force report descriptor\n");
+ 			rdesc = df_rdesc_fixed;
 -- 
 2.7.4

@@ -1,55 +1,46 @@
-From: Keerthy <j-keerthy@ti.com>
-Subject: [PATCH v8 3/5] input: tps65218-pwrbutton: Add platform_device_id table
-Date: Mon, 19 Sep 2016 13:09:04 +0530
-Message-ID: <1474270746-11568-4-git-send-email-j-keerthy@ti.com>
-References: <1474270746-11568-1-git-send-email-j-keerthy@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH] HID: alps: fix stick device not working after resume
+Date: Mon, 19 Sep 2016 15:41:39 +0800
+Message-ID: <20160919074139.2551-1-kai.heng.feng@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:60024 "EHLO comal.ext.ti.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759729AbcISHjp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Sep 2016 03:39:45 -0400
-In-Reply-To: <1474270746-11568-1-git-send-email-j-keerthy@ti.com>
+Received: from youngberry.canonical.com ([91.189.89.112]:38658 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936521AbcISHlu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 19 Sep 2016 03:41:50 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: lee.jones@linaro.org
-Cc: j-keerthy@ti.com, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, robh+dt@kernel.org, linux-kernel@vger.kernel.org, t-kristo@ti.com, tony@atomide.com, dmitry.torokhov@gmail.com, linus.walleij@linaro.org, broonie@kernel.org
+To: jikos@kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com, kai.heng.feng@canonical.com
 
-platform_device_id table is needed for adding the tps65218-pwrbutton
-module to the mfd_cell array.
+The stick device does not work after resume, add U1_SP_ABS_MODE flag can
+make the device work after resume.
 
-Signed-off-by: Keerthy <j-keerthy@ti.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 ---
- drivers/input/misc/tps65218-pwrbutton.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hid/hid-alps.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/misc/tps65218-pwrbutton.c b/drivers/input/misc/tps65218-pwrbutton.c
-index 3273217..cc74a41 100644
---- a/drivers/input/misc/tps65218-pwrbutton.c
-+++ b/drivers/input/misc/tps65218-pwrbutton.c
-@@ -150,12 +150,20 @@ static int tps6521x_pb_probe(struct platform_device *pdev)
- 	return 0;
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index 048befd..390f8d3 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -244,13 +244,13 @@ static int alps_raw_event(struct hid_device *hdev,
+ static int alps_post_reset(struct hid_device *hdev)
+ {
+ 	return u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
+-				NULL, U1_TP_ABS_MODE, false);
++				NULL, U1_TP_ABS_MODE | U1_SP_ABS_MODE, false);
  }
  
-+static const struct platform_device_id tps6521x_pwrbtn_id_table[] = {
-+	{ "tps65218-pwrbutton", },
-+	{ "tps65217-pwrbutton", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(platform, tps6521x_pwrbtn_id_table);
-+
- static struct platform_driver tps6521x_pb_driver = {
- 	.probe	= tps6521x_pb_probe,
- 	.driver	= {
- 		.name	= "tps6521x_pwrbutton",
- 		.of_match_table = of_tps6521x_pb_match,
- 	},
-+	.id_table = tps6521x_pwrbtn_id_table,
- };
- module_platform_driver(tps6521x_pb_driver);
+ static int alps_post_resume(struct hid_device *hdev)
+ {
+ 	return u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
+-				NULL, U1_TP_ABS_MODE, false);
++				NULL, U1_TP_ABS_MODE | U1_SP_ABS_MODE, false);
+ }
+ #endif /* CONFIG_PM */
  
 -- 
-1.9.1
+2.9.3
 

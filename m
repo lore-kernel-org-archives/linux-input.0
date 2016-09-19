@@ -1,87 +1,40 @@
-From: Simon Wood <gitsend@mungewell.org>
-Subject: [Patch-V2 6/6] HID:hid-logitech: Documentation updates/corrections
-Date: Sun, 18 Sep 2016 10:55:42 -0600
-Message-ID: <1474217742-3992-6-git-send-email-simon@mungewell.org>
-References: <1473461449-8060-1-git-send-email-simon@mungewell.org>
- <1474217742-3992-1-git-send-email-simon@mungewell.org>
+From: Axel Lin <axel.lin@ingics.com>
+Subject: [PATCH] Input: snvs_pwrkey - drop input_free_device call if input_register_device fails
+Date: Mon, 19 Sep 2016 09:49:16 +0800
+Message-ID: <1474249756-30843-1-git-send-email-axel.lin@ingics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host18.canaca.com ([66.49.204.205]:53778 "EHLO
-        host18.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934105AbcIRQ4l (ORCPT
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:35036 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936003AbcISBt1 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 18 Sep 2016 12:56:41 -0400
-In-Reply-To: <1474217742-3992-1-git-send-email-simon@mungewell.org>
+        Sun, 18 Sep 2016 21:49:27 -0400
+Received: by mail-pf0-f194.google.com with SMTP id 6so3504153pfl.2
+        for <linux-input@vger.kernel.org>; Sun, 18 Sep 2016 18:49:27 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin Velds <edwin@velds.nl>, Elias Vanderstuyft <elias.vds@gmail.com>, Michal Maly <madcatxster@gmail.com>, Simon Wood <simon@mungewell.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Frank Li <Frank.Li@nxp.com>, Robin Gong <b38343@freescale.com>, Shawn Guo <shawnguo@kernel.org>, linux-input@vger.kernel.org, Axel Lin <axel.lin@ingics.com>
 
-Signed-off-by: Simon Wood <simon@mungewell.org>
+Current code uses devm_input_allocate_device() so don't explicitly call
+input_free_device if input_register_device fails.
+
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
 ---
- .../ABI/testing/sysfs-driver-hid-logitech-lg4ff    |  6 ++++++
- drivers/hid/Kconfig                                | 23 +++++++++++++---------
- 2 files changed, 20 insertions(+), 9 deletions(-)
+ drivers/input/keyboard/snvs_pwrkey.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-logitech-lg4ff b/Documentation/ABI/testing/sysfs-driver-hid-logitech-lg4ff
-index 9cd7c5a..305dffd 100644
---- a/Documentation/ABI/testing/sysfs-driver-hid-logitech-lg4ff
-+++ b/Documentation/ABI/testing/sysfs-driver-hid-logitech-lg4ff
-@@ -35,6 +35,12 @@ Description:	Displays a set of alternate modes supported by a wheel. Each
- 		  DF-EX <*--------> G25 <-> G27
- 		  DF-EX <*----------------> G27
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+index 24a9f59..7544888 100644
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -168,7 +168,6 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 	error = input_register_device(input);
+ 	if (error < 0) {
+ 		dev_err(&pdev->dev, "failed to register input device\n");
+-		input_free_device(input);
+ 		return error;
+ 	}
  
-+		G29:
-+		  DF-EX <*> DFP <-> G25 <-> G27 <-> G29
-+		  DF-EX <*--------> G25 <-> G27 <-> G29
-+		  DF-EX <*----------------> G27 <-> G29
-+		  DF-EX <*------------------------> G29
-+
- 		DFGT:
- 		  DF-EX <*> DFP <-> DFGT
- 		  DF-EX <*--------> DFGT
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 78ac481..5227d8a 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -457,8 +457,6 @@ config LOGITECH_FF
- 	  - Logitech WingMan Cordless RumblePad
- 	  - Logitech WingMan Cordless RumblePad 2
- 	  - Logitech WingMan Force 3D
--	  - Logitech Formula Force EX
--	  - Logitech WingMan Formula Force GP
- 
- 	  and if you want to enable force feedback for them.
- 	  Note: if you say N here, this device will still be supported, but without
-@@ -488,15 +486,22 @@ config LOGIWHEELS_FF
- 	select INPUT_FF_MEMLESS
- 	default LOGITECH_FF
- 	help
--	  Say Y here if you want to enable force feedback and range setting
-+	  Say Y here if you want to enable force feedback and range setting(*)
- 	  support for following Logitech wheels:
-+	  - Logitech G25 (*)
-+	  - Logitech G27 (*)
-+	  - Logitech G29 (*)
- 	  - Logitech Driving Force
--	  - Logitech Driving Force Pro
--	  - Logitech Driving Force GT
--	  - Logitech G25
--	  - Logitech G27
--	  - Logitech MOMO/MOMO 2
--	  - Logitech Formula Force EX
-+	  - Logitech Driving Force Pro (*)
-+	  - Logitech Driving Force GT (*)
-+	  - Logitech Driving Force EX/RX
-+	  - Logitech Driving Force Wireless
-+	  - Logitech Speed Force Wireless
-+	  - Logitech MOMO Force
-+	  - Logitech MOMO Racing Force
-+	  - Logitech Formula Force GP
-+	  - Logitech Formula Force EX/RX
-+	  - Logitech Wingman Formula Force GP
- 
- config HID_MAGICMOUSE
- 	tristate "Apple Magic Mouse/Trackpad multi-touch support"
 -- 
 2.7.4
 

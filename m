@@ -1,40 +1,79 @@
-From: Axel Lin <axel.lin@ingics.com>
-Subject: [PATCH] Input: snvs_pwrkey - drop input_free_device call if input_register_device fails
-Date: Mon, 19 Sep 2016 09:49:16 +0800
-Message-ID: <1474249756-30843-1-git-send-email-axel.lin@ingics.com>
+From: Keerthy <j-keerthy@ti.com>
+Subject: [PATCH v8 0/5] mfd: tps65218: Clean ups
+Date: Mon, 19 Sep 2016 13:09:01 +0530
+Message-ID: <1474270746-11568-1-git-send-email-j-keerthy@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:35036 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S936003AbcISBt1 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 18 Sep 2016 21:49:27 -0400
-Received: by mail-pf0-f194.google.com with SMTP id 6so3504153pfl.2
-        for <linux-input@vger.kernel.org>; Sun, 18 Sep 2016 18:49:27 -0700 (PDT)
+Received: from comal.ext.ti.com ([198.47.26.152]:59997 "EHLO comal.ext.ti.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752621AbcISHjZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 19 Sep 2016 03:39:25 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Frank Li <Frank.Li@nxp.com>, Robin Gong <b38343@freescale.com>, Shawn Guo <shawnguo@kernel.org>, linux-input@vger.kernel.org, Axel Lin <axel.lin@ingics.com>
+To: lee.jones@linaro.org
+Cc: j-keerthy@ti.com, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, robh+dt@kernel.org, linux-kernel@vger.kernel.org, t-kristo@ti.com, tony@atomide.com, dmitry.torokhov@gmail.com, linus.walleij@linaro.org, broonie@kernel.org
 
-Current code uses devm_input_allocate_device() so don't explicitly call
-input_free_device if input_register_device fails.
+The series cleans up mainly the regulator driver and implements
+the device tree parsing using the regulator framework. Removes
+all the redundant compatibles for the individual regulators.
+Adds platform_device_id table for the gpio and power button modules.
 
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
----
- drivers/input/keyboard/snvs_pwrkey.c | 1 -
- 1 file changed, 1 deletion(-)
+One of the patch removes redundant read wrapper and makes
+use of regmap_read wherever necessary.
 
-diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
-index 24a9f59..7544888 100644
---- a/drivers/input/keyboard/snvs_pwrkey.c
-+++ b/drivers/input/keyboard/snvs_pwrkey.c
-@@ -168,7 +168,6 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
- 	error = input_register_device(input);
- 	if (error < 0) {
- 		dev_err(&pdev->dev, "failed to register input device\n");
--		input_free_device(input);
- 		return error;
- 	}
+The series is checked for all the regulator registrations on
+am437x-sk-evm.
+
+Changes in v8:
+
+Rebased to latest next branch.
+
+Changes in v7:
+
+Rebasing to latest next branch. GPIO patch of this series
+pushed to linux-next by Linus. Hence posting the remaining
+patches with respective Acks from the domain Maintainers.
+
+Changes in v6:
+
+Rebased regulator/mfd clean up patches against linux-next +
+https://lkml.org/lkml/2016/6/24/122 series.
+
+Changes in v5:
+
+Rebased regulator clean up patch against linux-next.
+
+Changes in v4:
+
+For gpio-tps65218 reatined the compatible table.
+Fixed missing ';' in the power button patch.
+Fixed comments on the Documentation patch.
+Split the Device Tree patches to a separate series.
+
+Changes in v3:
+
+Missed making corresponding changes in the power button and gpio
+drivers. Added couple of patches to fix them to use mfd_cell way
+of parsing.
+
  
+
+Keerthy (5):
+  mfd: tps65218: Remove redundant read wrapper
+  Documentation: regulator: tps65218: Update examples
+  input: tps65218-pwrbutton: Add platform_device_id table
+  mfd: tps65218: Use mfd_add_devices instead of of_platform_populate
+  regulator: tps65218: Remove all the compatibles
+
+ .../devicetree/bindings/regulator/tps65218.txt     |  87 +++++++++---
+ drivers/gpio/gpio-tps65218.c                       |   3 +-
+ drivers/input/misc/tps65218-pwrbutton.c            |   8 ++
+ drivers/mfd/tps65218.c                             |  34 ++---
+ drivers/regulator/tps65218-regulator.c             | 153 ++++++++-------------
+ include/linux/mfd/tps65218.h                       |   3 +-
+ 6 files changed, 157 insertions(+), 131 deletions(-)
+
 -- 
-2.7.4
+1.9.1
 

@@ -1,76 +1,50 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH resend 1/5] input: touchscreen: Add generic touchscreen
- softbutton handling code
-Date: Tue, 20 Sep 2016 09:34:00 -0500
-Message-ID: <20160920143400.GA20446@rob-hp-laptop>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH resend 2/5] input: touchscreen: Add LED trigger support
+ to the softbutton code
+Date: Tue, 20 Sep 2016 09:40:23 -0500
+Message-ID: <20160920144023.GA31922@rob-hp-laptop>
 References: <20160911184408.11657-1-hdegoede@redhat.com>
- <20160911184408.11657-2-hdegoede@redhat.com>
+ <20160911184408.11657-3-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:32923 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751124AbcITOeC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 20 Sep 2016 10:34:02 -0400
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20160911184408.11657-2-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20160911184408.11657-3-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>
 
-On Sun, Sep 11, 2016 at 08:44:04PM +0200, Hans de Goede wrote:
-> Some touchscreens extend over the display they cover and have a number
-> of capacative softbuttons outside of the display the cover.
+On Sun, Sep 11, 2016 at 08:44:05PM +0200, Hans de Goede wrote:
+> In some hardware there are 1 or more LEDs behind the touchscreen
+> softbuttons, which are intended to provide visual feedback to the
+> user that the softbutton has been pressed, this commit adds support
+> for this.
 > 
-> With some hardware these softbuttons simply report touches with
-> coordinates outside of the normal coordinate space for touches on the
-> display.
-> 
-> This commit adds a devicetree binding for describing such buttons in
-> devicetree and a bunch of helper functions to easily add support for
-> these to existing touchscreen drivers.
-> 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 > ---
->  .../bindings/input/touchscreen/softbuttons.txt     |  58 +++++++++
->  drivers/input/touchscreen/Makefile                 |   2 +-
->  drivers/input/touchscreen/softbuttons.c            | 145 +++++++++++++++++++++
->  include/linux/input/touchscreen.h                  |   9 ++
->  4 files changed, 213 insertions(+), 1 deletion(-)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
->  create mode 100644 drivers/input/touchscreen/softbuttons.c
+>  .../bindings/input/touchscreen/softbuttons.txt     |  4 ++
+>  drivers/input/touchscreen/softbuttons.c            | 49 +++++++++++++++++++++-
+>  2 files changed, 52 insertions(+), 1 deletion(-)
 > 
 > diff --git a/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
-> new file mode 100644
-> index 0000000..3eb6f4c
-> --- /dev/null
+> index 3eb6f4c..b425b95 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
 > +++ b/Documentation/devicetree/bindings/input/touchscreen/softbuttons.txt
-> @@ -0,0 +1,58 @@
-> +General Touchscreen Softbutton Properties:
-> +
-> +Some touchscreens extend over the display they cover and have a number
-> +of capacative softbuttons outside of the display the cover.
-> +
-> +Some of these softbuttons simply report touches with coordinates outside of
-> +the normal coordinate space for touches on the display. This binding is for
-> +describing such buttons in devicetree.
-> +
-> +Each softkey is represented as a sub-node of the touchscreen node.
-> +
-> +Required subnode-properties:
-> + - label			: Descriptive name of the key.
-> + - linux,code			: Keycode to emit.
-> + - softbutton-min-x		: X start of the area the softbutton area covers
-> + - softbutton-max-x		: X end of the area the softbutton area covers
-> + - softbutton-min-y		: Y start of the area the softbutton area covers
-> + - softbutton-max-y		: Y end of the area the softbutton area covers
+> @@ -17,6 +17,10 @@ Required subnode-properties:
+>   - softbutton-min-y		: Y start of the area the softbutton area covers
+>   - softbutton-max-y		: Y end of the area the softbutton area covers
+>  
+> +Optional subnode-properties:
+> +- linux,led-trigger		: String for a LED trigger for providing visual
+> +				  feedback that the softbutton has been pressed
 
-Please add the note about these values are signed.
-
-With that,
-
-Acked-by: Rob Herring <robh@kernel.org>
+This should just be a phandle to the LED if you want to describe the 
+link. Or standardize the trigger naming (in the kernel) for buttons and 
+just use the existing 'linux,default-trigger' in the LED node.
 
 Rob
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

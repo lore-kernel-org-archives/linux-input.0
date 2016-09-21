@@ -1,824 +1,742 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v3 2/2] Input: synaptics-rmi4 - add support for F34 device reflash
-Date: Tue, 20 Sep 2016 21:42:42 +0100
-Message-ID: <1474404162-29357-3-git-send-email-nick@shmanahar.org>
-References: <1474404162-29357-1-git-send-email-nick@shmanahar.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1474404162-29357-1-git-send-email-nick@shmanahar.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
-Cc: Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
+From: Sean Young <sean@mess.org>
+Subject: [PATCH] [media/input] rc: report rc protocol type to userspace through input
+Date: Wed, 21 Sep 2016 10:54:21 +0100
+Message-ID: <1474451661-28986-1-git-send-email-sean@mess.org>
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Nick Dyer <nick@shmanahar.org>
-Tested-by: Chris Healy <cphealy@gmail.com>
----
- drivers/input/rmi4/Kconfig      |  11 +
- drivers/input/rmi4/Makefile     |   1 +
- drivers/input/rmi4/rmi_bus.c    |   3 +
- drivers/input/rmi4/rmi_driver.c | 161 ++++++++++++++-
- drivers/input/rmi4/rmi_driver.h |   7 +
- drivers/input/rmi4/rmi_f01.c    |   6 +
- drivers/input/rmi4/rmi_f34.c    | 446 ++++++++++++++++++++++++++++++++++++++++
- include/linux/rmi.h             |   1 +
- 8 files changed, 634 insertions(+), 2 deletions(-)
- create mode 100644 drivers/input/rmi4/rmi_f34.c
+We might want to know what protocol a remote uses when we do not know. With
+this patch and another patch for v4l-utils (follows), you can do that with:
 
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index f73df24..24c3e1b 100644
---- a/drivers/input/rmi4/Kconfig
-+++ b/drivers/input/rmi4/Kconfig
-@@ -61,3 +61,14 @@ config RMI4_F30
+./ir-keytable  -p rc-5,nec,rc-6,jvc,sony,sanyo,sharp,xmp -t
+Testing events. Please, press CTRL-C to abort.
+1474415431.689685: event type EV_MSC(0x04): protocol = RC_TYPE_RC6_MCE
+1474415431.689685: event type EV_MSC(0x04): scancode = 0x800f040e
+1474415431.689685: event type EV_SYN(0x00).
+
+This makes RC_TYPE_* part of the ABI. We also remove the enum rc_type,
+since in input-event-codes.h we cannot not use enums.
+
+In addition, now that the input layer knows the rc protocol and scancode,
+at a later point we could add a feature where keymaps could be created
+based on both protocol and scancode, not just scancode.
+
+Signed-off-by: Sean Young <sean@mess.org>
+---
+ drivers/media/i2c/ir-kbd-i2c.c              | 17 +++++----
+ drivers/media/pci/bt8xx/bttv-input.c        |  4 +--
+ drivers/media/pci/cx88/cx88-input.c         |  4 +--
+ drivers/media/pci/ivtv/ivtv-i2c.c           |  4 +--
+ drivers/media/pci/saa7134/saa7134-input.c   | 18 +++++-----
+ drivers/media/rc/img-ir/img-ir-hw.h         |  2 +-
+ drivers/media/rc/ir-nec-decoder.c           |  3 +-
+ drivers/media/rc/ir-rc5-decoder.c           |  3 +-
+ drivers/media/rc/ir-rc6-decoder.c           |  3 +-
+ drivers/media/rc/ir-sony-decoder.c          |  3 +-
+ drivers/media/rc/rc-main.c                  | 11 +++---
+ drivers/media/usb/cx231xx/cx231xx-input.c   |  4 +--
+ drivers/media/usb/dvb-usb-v2/af9015.c       |  2 +-
+ drivers/media/usb/dvb-usb-v2/af9035.c       |  3 +-
+ drivers/media/usb/dvb-usb-v2/az6007.c       |  2 +-
+ drivers/media/usb/dvb-usb-v2/rtl28xxu.c     |  2 +-
+ drivers/media/usb/dvb-usb/dib0700_core.c    |  2 +-
+ drivers/media/usb/dvb-usb/dib0700_devices.c |  3 +-
+ drivers/media/usb/dvb-usb/dtt200u.c         |  2 +-
+ drivers/media/usb/em28xx/em28xx-input.c     | 15 ++++----
+ drivers/media/usb/tm6000/tm6000-input.c     |  3 +-
+ include/media/i2c/ir-kbd-i2c.h              |  4 +--
+ include/media/rc-core.h                     |  7 ++--
+ include/media/rc-map.h                      | 54 ++---------------------------
+ include/uapi/linux/input-event-codes.h      | 28 +++++++++++++++
+ 25 files changed, 89 insertions(+), 114 deletions(-)
+
+diff --git a/drivers/media/i2c/ir-kbd-i2c.c b/drivers/media/i2c/ir-kbd-i2c.c
+index bf82726..f8435fa 100644
+--- a/drivers/media/i2c/ir-kbd-i2c.c
++++ b/drivers/media/i2c/ir-kbd-i2c.c
+@@ -62,7 +62,7 @@ module_param(debug, int, 0644);    /* debug level (0,1,2) */
  
- 	  Function 30 provides GPIO and LED support for RMI4 devices. This
- 	  includes support for buttons on TouchPads and ClickPads.
-+
-+config RMI4_F34
-+	bool "RMI4 Function 34 (Device reflash)"
-+	depends on RMI4_CORE
-+	select FW_LOADER
-+	help
-+	  Say Y here if you want to add support for RMI4 function 34.
-+
-+	  Function 34 provides support for upgrading the firmware on the RMI4
-+	  device via the firmware loader interface. This is triggered using a
-+	  sysfs attribute.
-diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-index 95c00a7..54e6bfe 100644
---- a/drivers/input/rmi4/Makefile
-+++ b/drivers/input/rmi4/Makefile
-@@ -7,6 +7,7 @@ rmi_core-$(CONFIG_RMI4_2D_SENSOR) += rmi_2d_sensor.o
- rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
- rmi_core-$(CONFIG_RMI4_F12) += rmi_f12.o
- rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
-+rmi_core-$(CONFIG_RMI4_F34) += rmi_f34.o
+ /* ----------------------------------------------------------------------- */
  
- # Transports
- obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
-diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-index a735806..be0aea9 100644
---- a/drivers/input/rmi4/rmi_bus.c
-+++ b/drivers/input/rmi4/rmi_bus.c
-@@ -312,6 +312,9 @@ static struct rmi_function_handler *fn_handlers[] = {
- #ifdef CONFIG_RMI4_F30
- 	&rmi_f30_handler,
- #endif
-+#ifdef CONFIG_RMI4_F34
-+	&rmi_f34_handler,
-+#endif
+-static int get_key_haup_common(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_haup_common(struct IR_i2c *ir, u32 *protocol,
+ 			       u32 *scancode, u8 *ptoggle, int size, int offset)
+ {
+ 	unsigned char buf[6];
+@@ -104,13 +104,13 @@ static int get_key_haup_common(struct IR_i2c *ir, enum rc_type *protocol,
+ 	return 1;
+ }
+ 
+-static int get_key_haup(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_haup(struct IR_i2c *ir, u32 *protocol,
+ 			u32 *scancode, u8 *toggle)
+ {
+ 	return get_key_haup_common (ir, protocol, scancode, toggle, 3, 0);
+ }
+ 
+-static int get_key_haup_xvr(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_haup_xvr(struct IR_i2c *ir, u32 *protocol,
+ 			    u32 *scancode, u8 *toggle)
+ {
+ 	int ret;
+@@ -129,7 +129,7 @@ static int get_key_haup_xvr(struct IR_i2c *ir, enum rc_type *protocol,
+ 	return get_key_haup_common(ir, protocol, scancode, toggle, 6, 3);
+ }
+ 
+-static int get_key_pixelview(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_pixelview(struct IR_i2c *ir, u32 *protocol,
+ 			     u32 *scancode, u8 *toggle)
+ {
+ 	unsigned char b;
+@@ -146,7 +146,7 @@ static int get_key_pixelview(struct IR_i2c *ir, enum rc_type *protocol,
+ 	return 1;
+ }
+ 
+-static int get_key_fusionhdtv(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_fusionhdtv(struct IR_i2c *ir, u32 *protocol,
+ 			      u32 *scancode, u8 *toggle)
+ {
+ 	unsigned char buf[4];
+@@ -171,7 +171,7 @@ static int get_key_fusionhdtv(struct IR_i2c *ir, enum rc_type *protocol,
+ 	return 1;
+ }
+ 
+-static int get_key_knc1(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_knc1(struct IR_i2c *ir, u32 *protocol,
+ 			u32 *scancode, u8 *toggle)
+ {
+ 	unsigned char b;
+@@ -201,7 +201,7 @@ static int get_key_knc1(struct IR_i2c *ir, enum rc_type *protocol,
+ 	return 1;
+ }
+ 
+-static int get_key_avermedia_cardbus(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_avermedia_cardbus(struct IR_i2c *ir, u32 *protocol,
+ 				     u32 *scancode, u8 *toggle)
+ {
+ 	unsigned char subaddr, key, keygroup;
+@@ -248,8 +248,7 @@ static int get_key_avermedia_cardbus(struct IR_i2c *ir, enum rc_type *protocol,
+ 
+ static int ir_key_poll(struct IR_i2c *ir)
+ {
+-	enum rc_type protocol;
+-	u32 scancode;
++	u32 protocol, scancode;
+ 	u8 toggle;
+ 	int rc;
+ 
+diff --git a/drivers/media/pci/bt8xx/bttv-input.c b/drivers/media/pci/bt8xx/bttv-input.c
+index a75c53d..9bc5c3b 100644
+--- a/drivers/media/pci/bt8xx/bttv-input.c
++++ b/drivers/media/pci/bt8xx/bttv-input.c
+@@ -331,8 +331,8 @@ static void bttv_ir_stop(struct bttv *btv)
+  * Get_key functions used by I2C remotes
+  */
+ 
+-static int get_key_pv951(struct IR_i2c *ir, enum rc_type *protocol,
+-			 u32 *scancode, u8 *toggle)
++static int get_key_pv951(struct IR_i2c *ir, u32 *protocol, u32 *scancode,
++								u8 *toggle)
+ {
+ 	unsigned char b;
+ 
+diff --git a/drivers/media/pci/cx88/cx88-input.c b/drivers/media/pci/cx88/cx88-input.c
+index 6eac81b..8950d78 100644
+--- a/drivers/media/pci/cx88/cx88-input.c
++++ b/drivers/media/pci/cx88/cx88-input.c
+@@ -556,8 +556,8 @@ void cx88_ir_irq(struct cx88_core *core)
+ 	ir_raw_event_handle(ir->dev);
+ }
+ 
+-static int get_key_pvr2000(struct IR_i2c *ir, enum rc_type *protocol,
+-			   u32 *scancode, u8 *toggle)
++static int get_key_pvr2000(struct IR_i2c *ir, u32 *protocol, u32 *scancode,
++								u8 *toggle)
+ {
+ 	int flags, code;
+ 
+diff --git a/drivers/media/pci/ivtv/ivtv-i2c.c b/drivers/media/pci/ivtv/ivtv-i2c.c
+index dd57442..f026d34 100644
+--- a/drivers/media/pci/ivtv/ivtv-i2c.c
++++ b/drivers/media/pci/ivtv/ivtv-i2c.c
+@@ -148,8 +148,8 @@ static const char * const hw_devicenames[] = {
+ 	"ir_video",		/* IVTV_HW_I2C_IR_RX_ADAPTEC */
  };
  
- static void __rmi_unregister_function_handlers(int start_idx)
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index f17bfe0..27b8985 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -21,6 +21,7 @@
- #include <linux/pm.h>
- #include <linux/slab.h>
- #include <linux/of.h>
-+#include <linux/firmware.h>
- #include <uapi/linux/input.h>
- #include <linux/rmi.h>
- #include "rmi_bus.h"
-@@ -41,7 +42,16 @@ static void rmi_free_function_list(struct rmi_device *rmi_dev)
- 
- 	rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev, "Freeing function list\n");
- 
-+	mutex_lock(&data->irq_mutex);
-+
- 	data->f01_container = NULL;
-+	data->f34_container = NULL;
-+	data->irq_status = NULL;
-+	data->fn_irq_bits = NULL;
-+	data->current_irq_mask = NULL;
-+	data->new_irq_mask = NULL;
-+
-+	mutex_unlock(&data->irq_mutex);
- 
- 	/* Doing it in the reverse order so F01 will be removed last */
- 	list_for_each_entry_safe_reverse(fn, tmp,
-@@ -49,6 +59,7 @@ static void rmi_free_function_list(struct rmi_device *rmi_dev)
- 		list_del(&fn->node);
- 		rmi_unregister_function(fn);
- 	}
-+
- }
- 
- static int reset_one_function(struct rmi_function *fn)
-@@ -143,8 +154,11 @@ int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
- 	struct rmi_function *entry;
- 	int error;
- 
--	if (!data)
-+	mutex_lock(&data->irq_mutex);
-+	if (!data || !data->irq_status || !data->f01_container) {
-+		mutex_unlock(&data->irq_mutex);
- 		return 0;
-+	}
- 
- 	if (!rmi_dev->xport->attn_data) {
- 		error = rmi_read_block(rmi_dev,
-@@ -156,7 +170,6 @@ int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
- 		}
- 	}
- 
--	mutex_lock(&data->irq_mutex);
- 	bitmap_and(data->irq_status, data->irq_status, data->current_irq_mask,
- 	       data->irq_count);
- 	/*
-@@ -723,6 +736,7 @@ static int rmi_initial_reset(struct rmi_device *rmi_dev,
- 			return RMI_SCAN_DONE;
- 		}
- 
-+		rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev, "Sending reset\n");
- 		error = rmi_write_block(rmi_dev, cmd_addr, &cmd_buf, 1);
- 		if (error) {
- 			dev_err(&rmi_dev->dev,
-@@ -779,6 +793,8 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
- 
- 	if (pdt->function_number == 0x01)
- 		data->f01_container = fn;
-+	else if (pdt->function_number == 0x34)
-+		data->f34_container = fn;
- 
- 	list_add_tail(&fn->node, &data->function_list);
- 
-@@ -815,10 +831,76 @@ int rmi_driver_resume(struct rmi_device *rmi_dev)
- }
- EXPORT_SYMBOL_GPL(rmi_driver_resume);
- 
-+#ifdef CONFIG_RMI4_F34
-+static int rmi_firmware_update(struct rmi_driver_data *data,
-+			       const struct firmware *fw);
-+
-+static ssize_t rmi_driver_update_fw_store(struct device *dev,
-+					  struct device_attribute *dattr,
-+					  const char *buf, size_t count)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	char fw_name[NAME_MAX];
-+	const struct firmware *fw;
-+	size_t copy_count = count;
-+	int ret;
-+
-+	if (count == 0 || count >= NAME_MAX)
-+		return -EINVAL;
-+
-+	if (buf[count - 1] == '\0' || buf[count - 1] == '\n')
-+		copy_count -= 1;
-+
-+	strncpy(fw_name, buf, copy_count);
-+	fw_name[copy_count] = '\0';
-+
-+	ret = request_firmware(&fw, fw_name, dev);
-+	if (ret)
-+		return ret;
-+
-+	ret = rmi_firmware_update(data, fw);
-+
-+	release_firmware(fw);
-+
-+	return ret ?: count;
-+}
-+
-+static DEVICE_ATTR(update_fw, S_IWUSR, NULL, rmi_driver_update_fw_store);
-+
-+static ssize_t rmi_driver_update_fw_status_show(struct device *dev,
-+						struct device_attribute *dattr,
-+						char *buf)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	int update_status = 0;
-+
-+	if (data->f34_container)
-+		update_status = rmi_f34_status(data->f34_container);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", update_status);
-+}
-+
-+static DEVICE_ATTR(update_fw_status, S_IRUGO,
-+		   rmi_driver_update_fw_status_show, NULL);
-+
-+static struct attribute *rmi_firmware_attrs[] = {
-+	&dev_attr_update_fw.attr,
-+	&dev_attr_update_fw_status.attr,
-+	NULL
-+};
-+
-+static struct attribute_group rmi_firmware_attr_group = {
-+	.attrs = rmi_firmware_attrs,
-+};
-+#endif /* CONFIG_RMI4_F34 */
-+
- static int rmi_driver_remove(struct device *dev)
+-static int get_key_adaptec(struct IR_i2c *ir, enum rc_type *protocol,
+-			   u32 *scancode, u8 *toggle)
++static int get_key_adaptec(struct IR_i2c *ir, u32 *protocol, u32 *scancode,
++								u8 *toggle)
  {
- 	struct rmi_device *rmi_dev = to_rmi_device(dev);
+ 	unsigned char keybuf[4];
  
-+#ifdef CONFIG_RMI4_F34
-+	sysfs_remove_group(&rmi_dev->dev.kobj, &rmi_firmware_attr_group);
-+#endif
- 	rmi_free_function_list(rmi_dev);
+diff --git a/drivers/media/pci/saa7134/saa7134-input.c b/drivers/media/pci/saa7134/saa7134-input.c
+index eff52bb..d480fb5 100644
+--- a/drivers/media/pci/saa7134/saa7134-input.c
++++ b/drivers/media/pci/saa7134/saa7134-input.c
+@@ -112,7 +112,7 @@ static int build_key(struct saa7134_dev *dev)
  
- 	return 0;
-@@ -923,6 +1005,75 @@ err_destroy_functions:
- 	return retval;
+ /* --------------------- Chip specific I2C key builders ----------------- */
+ 
+-static int get_key_flydvb_trio(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_flydvb_trio(struct IR_i2c *ir, u32 *protocol,
+ 			       u32 *scancode, u8 *toggle)
+ {
+ 	int gpio;
+@@ -165,7 +165,7 @@ static int get_key_flydvb_trio(struct IR_i2c *ir, enum rc_type *protocol,
+ 	return 1;
  }
  
-+#ifdef CONFIG_RMI4_F34
-+static int rmi_firmware_update(struct rmi_driver_data *data,
-+			       const struct firmware *fw)
-+{
-+	struct device *dev = &data->rmi_dev->dev;
-+	int ret;
-+
-+	if (!data->f34_container) {
-+		dev_warn(dev, "%s: No F34 present!\n",
-+			 __func__);
-+		return -EINVAL;
-+	}
-+
-+	ret = rmi_f34_check_supported(data->f34_container);
-+	if (ret)
-+		return ret;
-+
-+	/* Enter flash mode */
-+	rmi_dbg(RMI_DEBUG_CORE, dev, "Enabling flash\n");
-+	ret = rmi_f34_enable_flash(data->f34_container);
-+	if (ret)
-+		return ret;
-+
-+	/* Tear down functions and re-probe */
-+	rmi_free_function_list(data->rmi_dev);
-+
-+	ret = rmi_probe_interrupts(data);
-+	if (ret)
-+		return ret;
-+
-+	ret = rmi_init_functions(data);
-+	if (ret)
-+		return ret;
-+
-+	if (!data->f01_bootloader_mode || !data->f34_container) {
-+		dev_warn(dev, "%s: No F34 present or not in bootloader!\n",
-+			 __func__);
-+		return -EINVAL;
-+	}
-+
-+	/* Perform firmware update */
-+	ret = rmi_f34_update_firmware(data->f34_container, fw);
-+
-+	/* Re-probe */
-+	rmi_dbg(RMI_DEBUG_CORE, dev, "Re-probing device\n");
-+	rmi_free_function_list(data->rmi_dev);
-+
-+	ret = rmi_scan_pdt(data->rmi_dev, NULL, rmi_initial_reset);
-+	if (ret < 0)
-+		dev_warn(dev, "RMI reset failed!\n");
-+
-+	ret = rmi_probe_interrupts(data);
-+	if (ret)
-+		return ret;
-+
-+	ret = rmi_init_functions(data);
-+	if (ret)
-+		return ret;
-+
-+	if (data->f01_container->dev.driver)
-+		/* Driver already bound, so enable ATTN now. */
-+		return enable_sensor(data->rmi_dev);
-+
-+	rmi_dbg(RMI_DEBUG_CORE, dev, "%s complete\n", __func__);
-+
-+	return ret;
-+}
-+#endif
-+
- static int rmi_driver_probe(struct device *dev)
+-static int get_key_msi_tvanywhere_plus(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_msi_tvanywhere_plus(struct IR_i2c *ir, u32 *protocol,
+ 				       u32 *scancode, u8 *toggle)
  {
- 	struct rmi_driver *rmi_driver;
-@@ -1022,6 +1173,12 @@ static int rmi_driver_probe(struct device *dev)
- 						"%s/input0", dev_name(dev));
- 	}
+ 	unsigned char b;
+@@ -214,7 +214,7 @@ static int get_key_msi_tvanywhere_plus(struct IR_i2c *ir, enum rc_type *protocol
+ }
  
-+#ifdef CONFIG_RMI4_F34
-+	retval = sysfs_create_group(&dev->kobj, &rmi_firmware_attr_group);
-+	if (retval)
-+		goto err_destroy_functions;
-+#endif
-+
- 	retval = rmi_init_functions(data);
- 	if (retval)
+ /* copied and modified from get_key_msi_tvanywhere_plus() */
+-static int get_key_kworld_pc150u(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_kworld_pc150u(struct IR_i2c *ir, u32 *protocol,
+ 				 u32 *scancode, u8 *toggle)
+ {
+ 	unsigned char b;
+@@ -262,7 +262,7 @@ static int get_key_kworld_pc150u(struct IR_i2c *ir, enum rc_type *protocol,
+ 	return 1;
+ }
+ 
+-static int get_key_purpletv(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_purpletv(struct IR_i2c *ir, u32 *protocol,
+ 			    u32 *scancode, u8 *toggle)
+ {
+ 	unsigned char b;
+@@ -287,7 +287,7 @@ static int get_key_purpletv(struct IR_i2c *ir, enum rc_type *protocol,
+ 	return 1;
+ }
+ 
+-static int get_key_hvr1110(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_hvr1110(struct IR_i2c *ir, u32 *protocol,
+ 			   u32 *scancode, u8 *toggle)
+ {
+ 	unsigned char buf[5];
+@@ -318,7 +318,7 @@ static int get_key_hvr1110(struct IR_i2c *ir, enum rc_type *protocol,
+ }
+ 
+ 
+-static int get_key_beholdm6xx(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_beholdm6xx(struct IR_i2c *ir, u32 *protocol,
+ 			      u32 *scancode, u8 *toggle)
+ {
+ 	unsigned char data[12];
+@@ -354,7 +354,7 @@ static int get_key_beholdm6xx(struct IR_i2c *ir, enum rc_type *protocol,
+ /* Common (grey or coloured) pinnacle PCTV remote handling
+  *
+  */
+-static int get_key_pinnacle(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_pinnacle(struct IR_i2c *ir, u32 *protocol,
+ 			    u32 *scancode, u8 *toggle, int parity_offset,
+ 			    int marker, int code_modulo)
+ {
+@@ -408,7 +408,7 @@ static int get_key_pinnacle(struct IR_i2c *ir, enum rc_type *protocol,
+  *
+  * Sylvain Pasche <sylvain.pasche@gmail.com>
+  */
+-static int get_key_pinnacle_grey(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_pinnacle_grey(struct IR_i2c *ir, u32 *protocol,
+ 				 u32 *scancode, u8 *toggle)
+ {
+ 
+@@ -420,7 +420,7 @@ static int get_key_pinnacle_grey(struct IR_i2c *ir, enum rc_type *protocol,
+  *
+  * Ricardo Cerqueira <v4l@cerqueira.org>
+  */
+-static int get_key_pinnacle_color(struct IR_i2c *ir, enum rc_type *protocol,
++static int get_key_pinnacle_color(struct IR_i2c *ir, u32 *protocol,
+ 				  u32 *scancode, u8 *toggle)
+ {
+ 	/* code_modulo parameter (0x88) is used to reduce code value to fit inside IR_KEYTAB_SIZE
+diff --git a/drivers/media/rc/img-ir/img-ir-hw.h b/drivers/media/rc/img-ir/img-ir-hw.h
+index 91a2977..9f14d0f 100644
+--- a/drivers/media/rc/img-ir/img-ir-hw.h
++++ b/drivers/media/rc/img-ir/img-ir-hw.h
+@@ -141,7 +141,7 @@ struct img_ir_timing_regvals {
+  * @toggle:	Toggle bit (defaults to 0).
+  */
+ struct img_ir_scancode_req {
+-	enum rc_type protocol;
++	u32 protocol;
+ 	u32 scancode;
+ 	u8 toggle;
+ };
+diff --git a/drivers/media/rc/ir-nec-decoder.c b/drivers/media/rc/ir-nec-decoder.c
+index 2a9d155..10638d9 100644
+--- a/drivers/media/rc/ir-nec-decoder.c
++++ b/drivers/media/rc/ir-nec-decoder.c
+@@ -48,8 +48,7 @@ enum nec_state {
+ static int ir_nec_decode(struct rc_dev *dev, struct ir_raw_event ev)
+ {
+ 	struct nec_dec *data = &dev->raw->nec;
+-	u32 scancode;
+-	enum rc_type rc_type;
++	u32 scancode, rc_type;
+ 	u8 address, not_address, command, not_command;
+ 	bool send_32bits = false;
+ 
+diff --git a/drivers/media/rc/ir-rc5-decoder.c b/drivers/media/rc/ir-rc5-decoder.c
+index a0fd4e6..4e4bdff 100644
+--- a/drivers/media/rc/ir-rc5-decoder.c
++++ b/drivers/media/rc/ir-rc5-decoder.c
+@@ -50,8 +50,7 @@ static int ir_rc5_decode(struct rc_dev *dev, struct ir_raw_event ev)
+ {
+ 	struct rc5_dec *data = &dev->raw->rc5;
+ 	u8 toggle;
+-	u32 scancode;
+-	enum rc_type protocol;
++	u32 scancode, protocol;
+ 
+ 	if (!is_timing_event(ev)) {
+ 		if (ev.reset)
+diff --git a/drivers/media/rc/ir-rc6-decoder.c b/drivers/media/rc/ir-rc6-decoder.c
+index e0e2ede..1a62d40 100644
+--- a/drivers/media/rc/ir-rc6-decoder.c
++++ b/drivers/media/rc/ir-rc6-decoder.c
+@@ -86,9 +86,8 @@ static enum rc6_mode rc6_mode(struct rc6_dec *data)
+ static int ir_rc6_decode(struct rc_dev *dev, struct ir_raw_event ev)
+ {
+ 	struct rc6_dec *data = &dev->raw->rc6;
+-	u32 scancode;
++	u32 scancode, protocol;
+ 	u8 toggle;
+-	enum rc_type protocol;
+ 
+ 	if (!is_timing_event(ev)) {
+ 		if (ev.reset)
+diff --git a/drivers/media/rc/ir-sony-decoder.c b/drivers/media/rc/ir-sony-decoder.c
+index baa972c..047fd22 100644
+--- a/drivers/media/rc/ir-sony-decoder.c
++++ b/drivers/media/rc/ir-sony-decoder.c
+@@ -42,8 +42,7 @@ enum sony_state {
+ static int ir_sony_decode(struct rc_dev *dev, struct ir_raw_event ev)
+ {
+ 	struct sony_dec *data = &dev->raw->sony;
+-	enum rc_type protocol;
+-	u32 scancode;
++	u32 protocol, scancode;
+ 	u8 device, subdevice, function;
+ 
+ 	if (!is_timing_event(ev)) {
+diff --git a/drivers/media/rc/rc-main.c b/drivers/media/rc/rc-main.c
+index 154020d..9c8e195 100644
+--- a/drivers/media/rc/rc-main.c
++++ b/drivers/media/rc/rc-main.c
+@@ -614,6 +614,7 @@ void rc_repeat(struct rc_dev *dev)
+ 
+ 	spin_lock_irqsave(&dev->keylock, flags);
+ 
++	input_event(dev->input_dev, EV_MSC, MSC_RC_TYPE, dev->last_protocol);
+ 	input_event(dev->input_dev, EV_MSC, MSC_SCAN, dev->last_scancode);
+ 	input_sync(dev->input_dev);
+ 
+@@ -639,7 +640,7 @@ EXPORT_SYMBOL_GPL(rc_repeat);
+  * This function is used internally to register a keypress, it must be
+  * called with keylock held.
+  */
+-static void ir_do_keydown(struct rc_dev *dev, enum rc_type protocol,
++static void ir_do_keydown(struct rc_dev *dev, u32 protocol,
+ 			  u32 scancode, u32 keycode, u8 toggle)
+ {
+ 	bool new_event = (!dev->keypressed		 ||
+@@ -650,6 +651,7 @@ static void ir_do_keydown(struct rc_dev *dev, enum rc_type protocol,
+ 	if (new_event && dev->keypressed)
+ 		ir_do_keyup(dev, false);
+ 
++	input_event(dev->input_dev, EV_MSC, MSC_RC_TYPE, protocol);
+ 	input_event(dev->input_dev, EV_MSC, MSC_SCAN, scancode);
+ 
+ 	if (new_event && keycode != KEY_RESERVED) {
+@@ -682,7 +684,7 @@ static void ir_do_keydown(struct rc_dev *dev, enum rc_type protocol,
+  * This routine is used to signal that a key has been pressed on the
+  * remote control.
+  */
+-void rc_keydown(struct rc_dev *dev, enum rc_type protocol, u32 scancode, u8 toggle)
++void rc_keydown(struct rc_dev *dev, u32 protocol, u32 scancode, u8 toggle)
+ {
+ 	unsigned long flags;
+ 	u32 keycode = rc_g_keycode_from_table(dev, scancode);
+@@ -710,8 +712,8 @@ EXPORT_SYMBOL_GPL(rc_keydown);
+  * This routine is used to signal that a key has been pressed on the
+  * remote control. The driver must manually call rc_keyup() at a later stage.
+  */
+-void rc_keydown_notimeout(struct rc_dev *dev, enum rc_type protocol,
+-			  u32 scancode, u8 toggle)
++void rc_keydown_notimeout(struct rc_dev *dev, u32 protocol, u32 scancode,
++								u8 toggle)
+ {
+ 	unsigned long flags;
+ 	u32 keycode = rc_g_keycode_from_table(dev, scancode);
+@@ -1425,6 +1427,7 @@ int rc_register_device(struct rc_dev *dev)
+ 	set_bit(EV_REP, dev->input_dev->evbit);
+ 	set_bit(EV_MSC, dev->input_dev->evbit);
+ 	set_bit(MSC_SCAN, dev->input_dev->mscbit);
++	set_bit(MSC_RC_TYPE, dev->input_dev->mscbit);
+ 	if (dev->open)
+ 		dev->input_dev->open = ir_open;
+ 	if (dev->close)
+diff --git a/drivers/media/usb/cx231xx/cx231xx-input.c b/drivers/media/usb/cx231xx/cx231xx-input.c
+index 15d8d1b..51d121a 100644
+--- a/drivers/media/usb/cx231xx/cx231xx-input.c
++++ b/drivers/media/usb/cx231xx/cx231xx-input.c
+@@ -24,8 +24,8 @@
+ 
+ #define MODULE_NAME "cx231xx-input"
+ 
+-static int get_key_isdbt(struct IR_i2c *ir, enum rc_type *protocol,
+-			 u32 *pscancode, u8 *toggle)
++static int get_key_isdbt(struct IR_i2c *ir, u32 *protocol, u32 *pscancode,
++							u8 *toggle)
+ {
+ 	int	rc;
+ 	u8	cmd, scancode;
+diff --git a/drivers/media/usb/dvb-usb-v2/af9015.c b/drivers/media/usb/dvb-usb-v2/af9015.c
+index 941ceff..1974ba5 100644
+--- a/drivers/media/usb/dvb-usb-v2/af9015.c
++++ b/drivers/media/usb/dvb-usb-v2/af9015.c
+@@ -1222,7 +1222,7 @@ static int af9015_rc_query(struct dvb_usb_device *d)
+ 
+ 	/* Only process key if canary killed */
+ 	if (buf[16] != 0xff && buf[0] != 0x01) {
+-		enum rc_type proto;
++		u32 proto;
+ 		dev_dbg(&d->udev->dev, "%s: key pressed %*ph\n",
+ 				__func__, 4, buf + 12);
+ 
+diff --git a/drivers/media/usb/dvb-usb-v2/af9035.c b/drivers/media/usb/dvb-usb-v2/af9035.c
+index 8961dd7..4ca1607 100644
+--- a/drivers/media/usb/dvb-usb-v2/af9035.c
++++ b/drivers/media/usb/dvb-usb-v2/af9035.c
+@@ -1828,8 +1828,7 @@ static int af9035_rc_query(struct dvb_usb_device *d)
+ {
+ 	struct usb_interface *intf = d->intf;
+ 	int ret;
+-	enum rc_type proto;
+-	u32 key;
++	u32 proto, key;
+ 	u8 buf[4];
+ 	struct usb_req req = { CMD_IR_GET, 0, 0, NULL, 4, buf };
+ 
+diff --git a/drivers/media/usb/dvb-usb-v2/az6007.c b/drivers/media/usb/dvb-usb-v2/az6007.c
+index 50c07fe..9a9012b 100644
+--- a/drivers/media/usb/dvb-usb-v2/az6007.c
++++ b/drivers/media/usb/dvb-usb-v2/az6007.c
+@@ -208,7 +208,7 @@ static int az6007_rc_query(struct dvb_usb_device *d)
+ {
+ 	struct az6007_device_state *st = d_to_priv(d);
+ 	unsigned code;
+-	enum rc_type proto;
++	u32 proto;
+ 
+ 	az6007_read(d, AZ6007_READ_IR, 0, 0, st->data, 10);
+ 
+diff --git a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+index c583c63..ffb97c0 100644
+--- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
++++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+@@ -1631,7 +1631,7 @@ static int rtl2831u_rc_query(struct dvb_usb_device *d)
  		goto err;
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index 6e140fa..a9045e6 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -96,10 +96,17 @@ bool rmi_is_physical_driver(struct device_driver *);
- int rmi_register_physical_driver(void);
- void rmi_unregister_physical_driver(void);
  
-+struct firmware;
-+
- char *rmi_f01_get_product_ID(struct rmi_function *fn);
-+int rmi_f34_update_firmware(struct rmi_function *fn, const struct firmware *fw);
-+int rmi_f34_enable_flash(struct rmi_function *fn);
-+int rmi_f34_status(struct rmi_function *fn);
-+int rmi_f34_check_supported(struct rmi_function *fn);
+ 	if (buf[4] & 0x01) {
+-		enum rc_type proto;
++		u32 proto;
  
- extern struct rmi_function_handler rmi_f01_handler;
- extern struct rmi_function_handler rmi_f11_handler;
- extern struct rmi_function_handler rmi_f12_handler;
- extern struct rmi_function_handler rmi_f30_handler;
-+extern struct rmi_function_handler rmi_f34_handler;
- #endif
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index fac81fc..9bd2a9e 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -63,6 +63,8 @@ struct f01_basic_properties {
- #define RMI_F01_STATUS_CODE(status)		((status) & 0x0f)
- /* The device has lost its configuration for some reason. */
- #define RMI_F01_STATUS_UNCONFIGURED(status)	(!!((status) & 0x80))
-+/* The device is in bootloader mode */
-+#define RMI_F01_STATUS_BOOTLOADER(status)	((status) & 0x40)
+ 		if (buf[2] == (u8) ~buf[3]) {
+ 			if (buf[0] == (u8) ~buf[1]) {
+diff --git a/drivers/media/usb/dvb-usb/dib0700_core.c b/drivers/media/usb/dvb-usb/dib0700_core.c
+index f319665..dbe11fc 100644
+--- a/drivers/media/usb/dvb-usb/dib0700_core.c
++++ b/drivers/media/usb/dvb-usb/dib0700_core.c
+@@ -676,7 +676,7 @@ static void dib0700_rc_urb_completion(struct urb *purb)
+ {
+ 	struct dvb_usb_device *d = purb->context;
+ 	struct dib0700_rc_response *poll_reply;
+-	enum rc_type protocol;
++	u32 protocol;
+ 	u32 uninitialized_var(keycode);
+ 	u8 toggle;
  
- /* Control register bits */
+diff --git a/drivers/media/usb/dvb-usb/dib0700_devices.c b/drivers/media/usb/dvb-usb/dib0700_devices.c
+index 0857b56..94b1630 100644
+--- a/drivers/media/usb/dvb-usb/dib0700_devices.c
++++ b/drivers/media/usb/dvb-usb/dib0700_devices.c
+@@ -518,8 +518,7 @@ static u8 rc_request[] = { REQUEST_POLL_RC, 0 };
+ static int dib0700_rc_query_old_firmware(struct dvb_usb_device *d)
+ {
+ 	u8 key[4];
+-	enum rc_type protocol;
+-	u32 scancode;
++	u32 protocol, scancode;
+ 	u8 toggle;
+ 	int i;
+ 	struct dib0700_state *st = d->priv;
+diff --git a/drivers/media/usb/dvb-usb/dtt200u.c b/drivers/media/usb/dvb-usb/dtt200u.c
+index d2a01b5..3b1d5da 100644
+--- a/drivers/media/usb/dvb-usb/dtt200u.c
++++ b/drivers/media/usb/dvb-usb/dtt200u.c
+@@ -62,7 +62,7 @@ static int dtt200u_rc_query(struct dvb_usb_device *d)
  
-@@ -594,6 +596,10 @@ static int rmi_f01_attention(struct rmi_function *fn,
- 		return error;
- 	}
+ 	dvb_usb_generic_rw(d,&cmd,1,key,5,0);
+ 	if (key[0] == 1) {
+-		enum rc_type proto = RC_TYPE_NEC;
++		u32 proto = RC_TYPE_NEC;
  
-+	if (RMI_F01_STATUS_BOOTLOADER(device_status))
-+		dev_warn(&fn->dev,
-+			 "Device in bootloader mode, please update firmware\n");
-+
- 	if (RMI_F01_STATUS_UNCONFIGURED(device_status)) {
- 		dev_warn(&fn->dev, "Device reset detected.\n");
- 		error = rmi_dev->driver->reset_handler(rmi_dev);
-diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
-new file mode 100644
-index 0000000..9a56695
---- /dev/null
-+++ b/drivers/input/rmi4/rmi_f34.c
-@@ -0,0 +1,446 @@
+ 		scancode = key[1];
+ 		if ((u8) ~key[1] != key[2]) {
+diff --git a/drivers/media/usb/em28xx/em28xx-input.c b/drivers/media/usb/em28xx/em28xx-input.c
+index 4007356..79e162d 100644
+--- a/drivers/media/usb/em28xx/em28xx-input.c
++++ b/drivers/media/usb/em28xx/em28xx-input.c
+@@ -54,7 +54,7 @@ struct em28xx_ir_poll_result {
+ 	unsigned int toggle_bit:1;
+ 	unsigned int read_count:7;
+ 
+-	enum rc_type protocol;
++	u32 protocol;
+ 	u32 scancode;
+ };
+ 
+@@ -73,7 +73,8 @@ struct em28xx_IR {
+ 
+ 	struct i2c_client *i2c_client;
+ 
+-	int  (*get_key_i2c)(struct i2c_client *ir, enum rc_type *protocol, u32 *scancode);
++	int  (*get_key_i2c)(struct i2c_client *ir, u32 *protocol,
++								u32 *scancode);
+ 	int  (*get_key)(struct em28xx_IR *, struct em28xx_ir_poll_result *);
+ };
+ 
+@@ -82,7 +83,7 @@ struct em28xx_IR {
+  **********************************************************/
+ 
+ static int em28xx_get_key_terratec(struct i2c_client *i2c_dev,
+-				   enum rc_type *protocol, u32 *scancode)
++				   u32 *protocol, u32 *scancode)
+ {
+ 	unsigned char b;
+ 
+@@ -106,7 +107,7 @@ static int em28xx_get_key_terratec(struct i2c_client *i2c_dev,
+ }
+ 
+ static int em28xx_get_key_em_haup(struct i2c_client *i2c_dev,
+-				  enum rc_type *protocol, u32 *scancode)
++				  u32 *protocol, u32 *scancode)
+ {
+ 	unsigned char buf[2];
+ 	int size;
+@@ -136,7 +137,7 @@ static int em28xx_get_key_em_haup(struct i2c_client *i2c_dev,
+ }
+ 
+ static int em28xx_get_key_pinnacle_usb_grey(struct i2c_client *i2c_dev,
+-					    enum rc_type *protocol, u32 *scancode)
++					    u32 *protocol, u32 *scancode)
+ {
+ 	unsigned char buf[3];
+ 
+@@ -154,7 +155,7 @@ static int em28xx_get_key_pinnacle_usb_grey(struct i2c_client *i2c_dev,
+ }
+ 
+ static int em28xx_get_key_winfast_usbii_deluxe(struct i2c_client *i2c_dev,
+-					       enum rc_type *protocol, u32 *scancode)
++					       u32 *protocol, u32 *scancode)
+ {
+ 	unsigned char subaddr, keydetect, key;
+ 
+@@ -294,7 +295,7 @@ static int em2874_polling_getkey(struct em28xx_IR *ir,
+ static int em28xx_i2c_ir_handle_key(struct em28xx_IR *ir)
+ {
+ 	static u32 scancode;
+-	enum rc_type protocol;
++	u32 protocol;
+ 	int rc;
+ 
+ 	rc = ir->get_key_i2c(ir->i2c_client, &protocol, &scancode);
+diff --git a/drivers/media/usb/tm6000/tm6000-input.c b/drivers/media/usb/tm6000/tm6000-input.c
+index 26b2ebb..03b5a5f 100644
+--- a/drivers/media/usb/tm6000/tm6000-input.c
++++ b/drivers/media/usb/tm6000/tm6000-input.c
+@@ -166,8 +166,7 @@ static void tm6000_ir_keydown(struct tm6000_IR *ir,
+ 			      const char *buf, unsigned int len)
+ {
+ 	u8 device, command;
+-	u32 scancode;
+-	enum rc_type protocol;
++	u32 scancode, protocol;
+ 
+ 	if (len < 1)
+ 		return;
+diff --git a/include/media/i2c/ir-kbd-i2c.h b/include/media/i2c/ir-kbd-i2c.h
+index d856435..d4a065c 100644
+--- a/include/media/i2c/ir-kbd-i2c.h
++++ b/include/media/i2c/ir-kbd-i2c.h
+@@ -20,7 +20,7 @@ struct IR_i2c {
+ 	struct delayed_work    work;
+ 	char                   name[32];
+ 	char                   phys[32];
+-	int                    (*get_key)(struct IR_i2c *ir, enum rc_type *protocol,
++	int                    (*get_key)(struct IR_i2c *ir, u32 *protocol,
+ 					  u32 *scancode, u8 *toggle);
+ };
+ 
+@@ -45,7 +45,7 @@ struct IR_i2c_init_data {
+ 	 * Specify either a function pointer or a value indicating one of
+ 	 * ir_kbd_i2c's internal get_key functions
+ 	 */
+-	int                    (*get_key)(struct IR_i2c *ir, enum rc_type *protocol,
++	int                    (*get_key)(struct IR_i2c *ir, u32 *protocol,
+ 					  u32 *scancode, u8 *toggle);
+ 	enum ir_kbd_get_key_fn internal_get_key_func;
+ 
+diff --git a/include/media/rc-core.h b/include/media/rc-core.h
+index 10908e3..e6ae9df 100644
+--- a/include/media/rc-core.h
++++ b/include/media/rc-core.h
+@@ -158,7 +158,7 @@ struct rc_dev {
+ 	unsigned long			keyup_jiffies;
+ 	struct timer_list		timer_keyup;
+ 	u32				last_keycode;
+-	enum rc_type			last_protocol;
++	u32			last_protocol;
+ 	u32				last_scancode;
+ 	u8				last_toggle;
+ 	u32				timeout;
+@@ -238,8 +238,9 @@ int rc_open(struct rc_dev *rdev);
+ void rc_close(struct rc_dev *rdev);
+ 
+ void rc_repeat(struct rc_dev *dev);
+-void rc_keydown(struct rc_dev *dev, enum rc_type protocol, u32 scancode, u8 toggle);
+-void rc_keydown_notimeout(struct rc_dev *dev, enum rc_type protocol, u32 scancode, u8 toggle);
++void rc_keydown(struct rc_dev *dev, u32 protocol, u32 scancode, u8 toggle);
++void rc_keydown_notimeout(struct rc_dev *dev, u32 protocol, u32 scancode,
++								u8 toggle);
+ void rc_keyup(struct rc_dev *dev);
+ u32 rc_g_keycode_from_table(struct rc_dev *dev, u32 scancode);
+ 
+diff --git a/include/media/rc-map.h b/include/media/rc-map.h
+index e1cc14c..cc5e5b3 100644
+--- a/include/media/rc-map.h
++++ b/include/media/rc-map.h
+@@ -10,57 +10,7 @@
+  */
+ 
+ #include <linux/input.h>
+-
+-/**
+- * enum rc_type - type of the Remote Controller protocol
+- *
+- * @RC_TYPE_UNKNOWN: Protocol not known
+- * @RC_TYPE_OTHER: Protocol known but proprietary
+- * @RC_TYPE_RC5: Philips RC5 protocol
+- * @RC_TYPE_RC5X: Philips RC5x protocol
+- * @RC_TYPE_RC5_SZ: StreamZap variant of RC5
+- * @RC_TYPE_JVC: JVC protocol
+- * @RC_TYPE_SONY12: Sony 12 bit protocol
+- * @RC_TYPE_SONY15: Sony 15 bit protocol
+- * @RC_TYPE_SONY20: Sony 20 bit protocol
+- * @RC_TYPE_NEC: NEC protocol
+- * @RC_TYPE_NECX: Extended NEC protocol
+- * @RC_TYPE_NEC32: NEC 32 bit protocol
+- * @RC_TYPE_SANYO: Sanyo protocol
+- * @RC_TYPE_MCE_KBD: RC6-ish MCE keyboard/mouse
+- * @RC_TYPE_RC6_0: Philips RC6-0-16 protocol
+- * @RC_TYPE_RC6_6A_20: Philips RC6-6A-20 protocol
+- * @RC_TYPE_RC6_6A_24: Philips RC6-6A-24 protocol
+- * @RC_TYPE_RC6_6A_32: Philips RC6-6A-32 protocol
+- * @RC_TYPE_RC6_MCE: MCE (Philips RC6-6A-32 subtype) protocol
+- * @RC_TYPE_SHARP: Sharp protocol
+- * @RC_TYPE_XMP: XMP protocol
+- * @RC_TYPE_CEC: CEC protocol
+- */
+-enum rc_type {
+-	RC_TYPE_UNKNOWN		= 0,
+-	RC_TYPE_OTHER		= 1,
+-	RC_TYPE_RC5		= 2,
+-	RC_TYPE_RC5X		= 3,
+-	RC_TYPE_RC5_SZ		= 4,
+-	RC_TYPE_JVC		= 5,
+-	RC_TYPE_SONY12		= 6,
+-	RC_TYPE_SONY15		= 7,
+-	RC_TYPE_SONY20		= 8,
+-	RC_TYPE_NEC		= 9,
+-	RC_TYPE_NECX		= 10,
+-	RC_TYPE_NEC32		= 11,
+-	RC_TYPE_SANYO		= 12,
+-	RC_TYPE_MCE_KBD		= 13,
+-	RC_TYPE_RC6_0		= 14,
+-	RC_TYPE_RC6_6A_20	= 15,
+-	RC_TYPE_RC6_6A_24	= 16,
+-	RC_TYPE_RC6_6A_32	= 17,
+-	RC_TYPE_RC6_MCE		= 18,
+-	RC_TYPE_SHARP		= 19,
+-	RC_TYPE_XMP		= 20,
+-	RC_TYPE_CEC		= 21,
+-};
++#include <uapi/linux/input-event-codes.h>
+ 
+ #define RC_BIT_NONE		0ULL
+ #define RC_BIT_UNKNOWN		(1ULL << RC_TYPE_UNKNOWN)
+@@ -135,7 +85,7 @@ struct rc_map {
+ 	unsigned int		size;
+ 	unsigned int		len;
+ 	unsigned int		alloc;
+-	enum rc_type		rc_type;
++	unsigned int		rc_type;
+ 	const char		*name;
+ 	spinlock_t		lock;
+ };
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index d6d071f..97ef182 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -794,6 +794,7 @@
+ #define MSC_RAW			0x03
+ #define MSC_SCAN		0x04
+ #define MSC_TIMESTAMP		0x05
++#define MSC_RC_TYPE		0x06
+ #define MSC_MAX			0x07
+ #define MSC_CNT			(MSC_MAX+1)
+ 
+@@ -834,4 +835,31 @@
+ #define SND_MAX			0x07
+ #define SND_CNT			(SND_MAX+1)
+ 
 +/*
-+ * Copyright (c) 2007-2016, Synaptics Incorporated
-+ * Copyright (C) 2016 Zodiac Inflight Innovations
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
++ * rc protocol type
 + */
 +
-+#include <linux/kernel.h>
-+#include <linux/rmi.h>
-+#include <linux/firmware.h>
-+#include <asm/unaligned.h>
-+#include <asm/unaligned.h>
-+
-+#include "rmi_driver.h"
-+
-+/* F34 image file offsets. */
-+#define F34_FW_IMAGE_OFFSET	0x100
-+
-+/* F34 register offsets. */
-+#define F34_BLOCK_DATA_OFFSET	2
-+
-+/* F34 commands */
-+#define F34_WRITE_FW_BLOCK	0x2
-+#define F34_ERASE_ALL		0x3
-+#define F34_READ_CONFIG_BLOCK	0x5
-+#define F34_WRITE_CONFIG_BLOCK	0x6
-+#define F34_ERASE_CONFIG	0x7
-+#define F34_ENABLE_FLASH_PROG	0xf
-+
-+#define F34_STATUS_IN_PROGRESS	0xff
-+#define F34_STATUS_IDLE		0x80
-+
-+#define F34_IDLE_WAIT_MS	500
-+#define F34_ENABLE_WAIT_MS	300
-+#define F34_ERASE_WAIT_MS	5000
-+
-+#define F34_BOOTLOADER_ID_LEN	2
-+
-+struct rmi_f34_firmware {
-+	__le32 checksum;
-+	u8 pad1[3];
-+	u8 bootloader_version;
-+	__le32 image_size;
-+	__le32 config_size;
-+	u8 product_id[10];
-+	u8 product_info[2];
-+	u8 pad2[228];
-+	u8 data[];
-+};
-+
-+struct f34_data {
-+	struct rmi_function *fn;
-+
-+	u16 block_size;
-+	u16 fw_blocks;
-+	u16 config_blocks;
-+	u16 ctrl_address;
-+	u8 status;
-+	struct completion cmd_done;
-+
-+	struct mutex flash_mutex;
-+
-+	int update_status;
-+	int update_progress;
-+	int update_size;
-+	struct completion async_firmware_done;
-+
-+	unsigned char bootloader_id[5];
-+	unsigned char configuration_id[9];
-+};
-+
-+static int rmi_f34_write_bootloader_id(struct f34_data *f34)
-+{
-+	struct rmi_function *fn = f34->fn;
-+        struct rmi_device *rmi_dev = fn->rmi_dev;
-+        u8 bootloader_id[F34_BOOTLOADER_ID_LEN];
-+        int ret;
-+
-+        ret = rmi_read_block(rmi_dev, fn->fd.query_base_addr,
-+			     bootloader_id, sizeof(bootloader_id));
-+        if (ret) {
-+                dev_err(&fn->dev, "%s: Reading bootloader ID failed: %d\n",
-+                        __func__, ret);
-+                return ret;
-+        }
-+
-+        rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%s: writing bootloader id '%c%c'\n",
-+                __func__, bootloader_id[0], bootloader_id[1]);
-+
-+        ret = rmi_write_block(rmi_dev,
-+			      fn->fd.data_base_addr + F34_BLOCK_DATA_OFFSET,
-+			      bootloader_id, sizeof(bootloader_id));
-+        if (ret) {
-+                dev_err(&fn->dev, "Failed to write bootloader ID: %d\n", ret);
-+                return ret;
-+        }
-+
-+        return 0;
-+}
-+
-+static int rmi_f34_command(struct f34_data *f34, u8 command,
-+			   unsigned int timeout, bool write_bl_id)
-+{
-+	struct rmi_function *fn = f34->fn;
-+        struct rmi_device *rmi_dev = fn->rmi_dev;
-+        int ret;
-+
-+        if (write_bl_id) {
-+                ret = rmi_f34_write_bootloader_id(f34);
-+                if (ret)
-+                        return ret;
-+        }
-+
-+        init_completion(&f34->cmd_done);
-+
-+        ret = rmi_read(rmi_dev, f34->ctrl_address, &f34->status);
-+        if (ret) {
-+                dev_err(&f34->fn->dev,
-+                        "%s: Failed to read cmd register: %d (command %#02x)\n",
-+                        __func__, ret, command);
-+                return ret;
-+        }
-+
-+        f34->status |= command & 0x0f;
-+
-+        ret = rmi_write(rmi_dev, f34->ctrl_address, f34->status);
-+        if (ret < 0) {
-+                dev_err(&f34->fn->dev,
-+                        "Failed to write F34 command %#02x: %d\n",
-+                        command, ret);
-+                return ret;
-+        }
-+
-+        if (!wait_for_completion_timeout(&f34->cmd_done,
-+                                         msecs_to_jiffies(timeout))) {
-+
-+                ret = rmi_read(rmi_dev, f34->ctrl_address, &f34->status);
-+                if (ret) {
-+                        dev_err(&f34->fn->dev,
-+                                "%s: failed to read status after command %#02x timed out: %d\n",
-+                                __func__, command, ret);
-+                        return ret;
-+                }
-+
-+                if (f34->status & 0x7f) {
-+                        dev_err(&f34->fn->dev,
-+                                "%s: command %#02x timed out, fw status: %#02x\n",
-+                                __func__, command, f34->status);
-+                        return -ETIMEDOUT;
-+                }
-+        }
-+
-+        return 0;
-+}
-+
-+static int rmi_f34_attention(struct rmi_function *fn, unsigned long *irq_bits)
-+{
-+	struct f34_data *f34 = dev_get_drvdata(&fn->dev);
-+        int ret;
-+
-+        ret = rmi_read(f34->fn->rmi_dev, f34->ctrl_address,
-+                                             &f34->status);
-+        rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%s: status: %#02x, ret: %d\n",
-+                __func__, f34->status, ret);
-+
-+        if (!ret && !(f34->status & 0x7f))
-+                complete(&f34->cmd_done);
-+
-+        return 0;
-+}
-+
-+static int rmi_f34_write_blocks(struct f34_data *f34, const void *data,
-+				int block_count, u8 command)
-+{
-+	struct rmi_function *fn = f34->fn;
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+        u16 address = fn->fd.data_base_addr + F34_BLOCK_DATA_OFFSET;
-+        u8 start_address[] = { 0, 0 };
-+        int i;
-+        int ret;
-+
-+        ret = rmi_write_block(rmi_dev, fn->fd.data_base_addr,
-+			start_address, sizeof(start_address));
-+        if (ret) {
-+                dev_err(&fn->dev, "Failed to write initial zeros: %d\n", ret);
-+                return ret;
-+        }
-+
-+        for (i = 0; i < block_count; i++) {
-+                ret = rmi_write_block(rmi_dev, address, data, f34->block_size);
-+                if (ret) {
-+                        dev_err(&fn->dev,
-+                                "failed to write block #%d: %d\n", i, ret);
-+                        return ret;
-+                }
-+
-+                ret = rmi_f34_command(f34, command, F34_IDLE_WAIT_MS, false);
-+                if (ret) {
-+                        dev_err(&fn->dev,
-+                                "Failed to write command for block #%d: %d\n",
-+                                i, ret);
-+                        return ret;
-+                }
-+
-+                rmi_dbg(RMI_DEBUG_FN, &fn->dev, "wrote block %d of %d\n",
-+                        i + 1, block_count);
-+
-+                data += f34->block_size;
-+                f34->update_progress += f34->block_size;
-+                f34->update_status = (f34->update_progress * 100) /
-+				     f34->update_size;
-+        }
-+
-+        return 0;
-+}
-+
-+static int rmi_f34_write_firmware(struct f34_data *f34, const void *data)
-+{
-+        return rmi_f34_write_blocks(f34, data, f34->fw_blocks,
-+				F34_WRITE_FW_BLOCK);
-+}
-+
-+static int rmi_f34_write_config(struct f34_data *f34, const void *data)
-+{
-+        return rmi_f34_write_blocks(f34, data, f34->config_blocks,
-+				F34_WRITE_CONFIG_BLOCK);
-+}
-+
-+int rmi_f34_enable_flash(struct rmi_function *fn)
-+{
-+	struct f34_data *f34 = dev_get_drvdata(&fn->dev);
-+
-+	return rmi_f34_command(f34, F34_ENABLE_FLASH_PROG,
-+			       F34_ENABLE_WAIT_MS, true);
-+}
-+
-+static int rmi_f34_flash_firmware(struct f34_data *f34,
-+					 const struct rmi_f34_firmware *syn_fw)
-+{
-+	struct rmi_function *fn = f34->fn;
-+	int ret;
-+
-+	f34->update_progress = 0;
-+	f34->update_size = syn_fw->image_size + syn_fw->config_size;
-+	if (syn_fw->image_size) {
-+		dev_info(&fn->dev, "Erasing FW...\n");
-+		ret = rmi_f34_command(f34, F34_ERASE_ALL,
-+				      F34_ERASE_WAIT_MS, true);
-+		if (ret)
-+			return ret;
-+
-+		dev_info(&fn->dev, "Writing firmware data (%d bytes)...\n",
-+			 syn_fw->image_size);
-+		ret = rmi_f34_write_firmware(f34, syn_fw->data);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	if (syn_fw->config_size) {
-+		/*
-+		 * We only need to erase config if we haven't updated
-+		 * firmware.
-+		 */
-+		if (!syn_fw->image_size) {
-+			dev_info(&fn->dev, "%s: Erasing config data...\n",
-+					__func__);
-+			ret = rmi_f34_command(f34, F34_ERASE_CONFIG,
-+					      F34_ERASE_WAIT_MS, true);
-+			if (ret)
-+				return ret;
-+		}
-+
-+		dev_info(&fn->dev, "%s: Writing config data (%d bytes)...\n",
-+				__func__, syn_fw->config_size);
-+		ret = rmi_f34_write_config(f34,
-+				&syn_fw->data[syn_fw->image_size]);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	dev_info(&fn->dev, "%s: Firmware update complete\n", __func__);
-+	return 0;
-+}
-+
-+int rmi_f34_update_firmware(struct rmi_function *fn, const struct firmware *fw)
-+{
-+	struct f34_data *f34 = dev_get_drvdata(&fn->dev);
-+	const struct rmi_f34_firmware *syn_fw;
-+	int ret;
-+
-+	syn_fw = (const struct rmi_f34_firmware *)fw->data;
-+        BUILD_BUG_ON(offsetof(struct rmi_f34_firmware, data) !=
-+                     F34_FW_IMAGE_OFFSET);
-+
-+        rmi_dbg(RMI_DEBUG_FN, &fn->dev,
-+                 "FW size:%d, checksum:%08x, image_size:%d, config_size:%d\n",
-+                 (int)fw->size,
-+                 le32_to_cpu(syn_fw->checksum),
-+                 le32_to_cpu(syn_fw->image_size),
-+                 le32_to_cpu(syn_fw->config_size));
-+
-+        dev_info(&fn->dev,
-+                 "FW bootloader_id:%02x, product_id:%.*s, info: %02x%02x\n",
-+                 syn_fw->bootloader_version,
-+                 (int)sizeof(syn_fw->product_id), syn_fw->product_id,
-+                 syn_fw->product_info[0], syn_fw->product_info[1]);
-+
-+        if (syn_fw->image_size &&
-+            syn_fw->image_size != f34->fw_blocks * f34->block_size) {
-+                dev_err(&fn->dev,
-+                        "Bad firmware image: fw size %d, expected %d\n",
-+                        syn_fw->image_size,
-+                        f34->fw_blocks * f34->block_size);
-+                ret = -EILSEQ;
-+                goto out;
-+        }
-+
-+        if (syn_fw->config_size &&
-+            syn_fw->config_size != f34->config_blocks * f34->block_size) {
-+                dev_err(&fn->dev,
-+                        "Bad firmware image: config size %d, expected %d\n",
-+                        syn_fw->config_size,
-+                        f34->config_blocks * f34->block_size);
-+                ret = -EILSEQ;
-+                goto out;
-+        }
-+
-+        if (syn_fw->image_size && !syn_fw->config_size) {
-+                dev_err(&fn->dev,
-+                        "Bad firmware image: no config data\n");
-+                ret = -EILSEQ;
-+                goto out;
-+        }
-+
-+	dev_info(&fn->dev, "Starting firmware update\n");
-+	mutex_lock(&f34->flash_mutex);
-+
-+	ret = rmi_f34_flash_firmware(f34, syn_fw);
-+	dev_info(&fn->dev, "Firmware update complete, status:%d\n", ret);
-+
-+	f34->update_status = ret;
-+	mutex_unlock(&f34->flash_mutex);
-+
-+out:
-+	return ret;
-+}
-+
-+int rmi_f34_status(struct rmi_function *fn)
-+{
-+	struct f34_data *f34 = dev_get_drvdata(&fn->dev);
-+
-+	/*
-+	 * The status is the percentage complete, or once complete,
-+	 * zero for success or a negative return code.
-+	 */
-+	return f34->update_status;
-+}
-+
-+int rmi_f34_check_supported(struct rmi_function *fn)
-+{
-+	u8 version = fn->fd.function_version;
-+
-+	/* Only version 0 currently supported */
-+	if (version == 0) {
-+		return 0;
-+	} else {
-+		dev_warn(&fn->dev, "F34 V%d not supported!\n", version);
-+		return -ENODEV;
-+	}
-+}
-+
-+static int rmi_f34_probe(struct rmi_function *fn)
-+{
-+	struct f34_data *f34;
-+	unsigned char f34_queries[9];
-+	bool has_config_id;
-+	int ret;
-+
-+	ret = rmi_f34_check_supported(fn);
-+	if (ret)
-+		return ret;
-+
-+	f34 = devm_kzalloc(&fn->dev, sizeof(struct f34_data), GFP_KERNEL);
-+	if (!f34)
-+		return -ENOMEM;
-+
-+	f34->fn = fn;
-+	dev_set_drvdata(&fn->dev, f34);
-+
-+	mutex_init(&f34->flash_mutex);
-+	init_completion(&f34->cmd_done);
-+	init_completion(&f34->async_firmware_done);
-+
-+	ret = rmi_read_block(fn->rmi_dev, fn->fd.query_base_addr,
-+			     f34_queries, sizeof(f34_queries));
-+	if (ret) {
-+		dev_err(&fn->dev, "%s: Failed to query properties\n",
-+				__func__);
-+		return ret;
-+	}
-+
-+	snprintf(f34->bootloader_id, sizeof(f34->bootloader_id),
-+		 "%c%c", f34_queries[0], f34_queries[1]);
-+
-+	f34->block_size = get_unaligned_le16(&f34_queries[3]);
-+	f34->fw_blocks = get_unaligned_le16(&f34_queries[5]);
-+	f34->config_blocks = get_unaligned_le16(&f34_queries[7]);
-+	f34->ctrl_address = fn->fd.data_base_addr + F34_BLOCK_DATA_OFFSET +
-+		f34->block_size;
-+	has_config_id = f34_queries[2] & (1 << 2);
-+
-+	dev_info(&fn->dev, "Bootloader ID: %s\n", f34->bootloader_id);
-+	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "Block size: %d\n", f34->block_size);
-+	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "FW blocks: %d\n", f34->fw_blocks);
-+	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "CFG blocks: %d\n", f34->config_blocks);
-+
-+	if (has_config_id) {
-+		ret = rmi_read_block(fn->rmi_dev, fn->fd.control_base_addr,
-+				     f34_queries, sizeof(f34_queries));
-+		if (ret) {
-+			dev_err(&fn->dev, "Failed to read F34 config ID\n");
-+			return ret;
-+		}
-+
-+		snprintf(f34->configuration_id,
-+				sizeof(f34->configuration_id),
-+				"%02x%02x%02x%02x", f34_queries[0],
-+				f34_queries[1], f34_queries[2],
-+				f34_queries[3]);
-+		dev_info(&fn->dev, "Configuration ID: %s\n",
-+			 f34->configuration_id);
-+	}
-+
-+	return 0;
-+}
-+
-+struct rmi_function_handler rmi_f34_handler = {
-+	.driver = {
-+		.name = "rmi4_f34",
-+	},
-+	.func = 0x34,
-+	.probe = rmi_f34_probe,
-+	.attention = rmi_f34_attention,
-+};
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index e0aca14..a283a67 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -330,6 +330,7 @@ struct rmi_driver_data {
- 	struct rmi_device *rmi_dev;
- 
- 	struct rmi_function *f01_container;
-+	struct rmi_function *f34_container;
- 	bool f01_bootloader_mode;
- 
- 	u32 attn_count;
++#define RC_TYPE_UNKNOWN		0    /* Protocol not known */
++#define RC_TYPE_OTHER		1    /* Protocol known but proprietary */
++#define RC_TYPE_RC5		2    /* Philips RC5 protocol */
++#define RC_TYPE_RC5X		3    /* Philips RC5x protocol */
++#define RC_TYPE_RC5_SZ		4    /* StreamZap variant of RC5 */
++#define RC_TYPE_JVC		5    /* JVC protocol */
++#define RC_TYPE_SONY12		6    /* Sony 12 bit protocol */
++#define RC_TYPE_SONY15		7    /* Sony 15 bit protocol */
++#define RC_TYPE_SONY20		8    /* Sony 20 bit protocol */
++#define RC_TYPE_NEC		9    /* NEC protocol */
++#define RC_TYPE_NECX		10   /* Extended NEC protocol */
++#define RC_TYPE_NEC32		11   /* NEC 32 bit protocol */
++#define RC_TYPE_SANYO		12   /* Sanyo protocol */
++#define RC_TYPE_MCE_KBD		13   /* RC6-ish MCE keyboard/mouse */
++#define RC_TYPE_RC6_0		14   /* Philips RC6-0-16 protocol */
++#define RC_TYPE_RC6_6A_20	15   /* Philips RC6-6A-20 protocol */
++#define RC_TYPE_RC6_6A_24	16   /* Philips RC6-6A-24 protocol */
++#define RC_TYPE_RC6_6A_32	17   /* Philips RC6-6A-32 protocol */
++#define RC_TYPE_RC6_MCE		18   /* MCE (Philips RC6-6A-32) protocol */
++#define RC_TYPE_SHARP		19   /* Sharp protocol */
++#define RC_TYPE_XMP		20   /* XMP protocol */
++#define RC_TYPE_CEC		21
++
+ #endif
 -- 
 2.7.4

@@ -1,48 +1,43 @@
-From: Wei Yongjun <weiyj.lk@gmail.com>
-Subject: [PATCH -next] Input: rmi_f54 - fix non static symbol warning
-Date: Wed, 21 Sep 2016 15:14:58 +0000
-Message-ID: <1474470898-8747-1-git-send-email-weiyj.lk@gmail.com>
+From: Kai Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: [PATCH] HID: alps: fix stick device not working after resume
+Date: Thu, 22 Sep 2016 13:12:11 +0800
+Message-ID: <CAAd53p7yXQqjc7=iYQAdfi_86+cNNWfw=ykMEFxtfY1CvFFKTw@mail.gmail.com>
+References: <20160919074139.2551-1-kai.heng.feng@canonical.com>
+ <alpine.LNX.2.00.1609191436370.22028@cbobk.fhfr.pm> <CAAd53p54k3JMEBNqVF3UR9NGwLNuuh9P_vMh8NoggFUfwCoADA@mail.gmail.com>
+ <alpine.LNX.2.00.1609211359320.22028@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:36087 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933395AbcIUPPH (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 21 Sep 2016 11:15:07 -0400
-Received: by mail-pf0-f193.google.com with SMTP id n24so2509224pfb.3
-        for <linux-input@vger.kernel.org>; Wed, 21 Sep 2016 08:15:06 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1609211359320.22028@cbobk.fhfr.pm>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hans.verkuil@cisco.com>, Nick Dyer <nick@shmanahar.org>, Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Wei Yongjun <weiyongjun1@huawei.com>, linux-input@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+On Wed, Sep 21, 2016 at 8:00 PM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Mon, 19 Sep 2016, Kai Heng Feng wrote:
+>
+>> >> The stick device does not work after resume, add U1_SP_ABS_MODE flag can
+>> >> make the device work after resume.
+>> >
+>> > Do you happen to have any more details on why it doesn't work without
+>> > U1_SP_ABS_MODE? Or was this a pure guesswork?
+>>
+>> It' pure guesswork, based on how the existing code uses U1_TP_ABS_MODE flag
+>> on both initialization and resume.
+>>
+>> I also tested the the patch on an ALPS touchpad without stick device,
+>> did not notice
+>> any side effect on suspend/resume, so I made the U1_SP_ABS_MODE flag mandatory.
+>
+> I'll fold this information into the patch changelog before comitting; if
+> you disagree, please let me know.
 
-Fixes the following sparse warning:
+That will be great.
+Appreciate!
 
-drivers/input/rmi4/rmi_f54.c:79:12: warning:
- symbol 'rmi_f54_report_type_names' was not declared. Should it be static?
-
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
----
- drivers/input/rmi4/rmi_f54.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-index cf805b9..65ac9d9 100644
---- a/drivers/input/rmi4/rmi_f54.c
-+++ b/drivers/input/rmi4/rmi_f54.c
-@@ -76,7 +76,7 @@ enum rmi_f54_report_type {
- 	F54_MAX_REPORT_TYPE,
- };
- 
--const char *rmi_f54_report_type_names[] = {
-+static const char * const rmi_f54_report_type_names[] = {
- 	[F54_REPORT_NONE]		= "Unknown",
- 	[F54_8BIT_IMAGE]		= "Normalized 8-Bit Image",
- 	[F54_16BIT_IMAGE]		= "Normalized 16-Bit Image",
-
-
-
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>

@@ -1,100 +1,76 @@
-From: Johnny Chuang <johnny.chuang@emc.com.tw>
-Subject: [PATCH v3] Input: elants_i2c - get product id on recovery mode for FW update
-Date: Fri, 23 Sep 2016 16:01:17 +0800
-Message-ID: <1474617677-4785-1-git-send-email-johnny.chuang@emc.com.tw>
-References: <1472028265-5018-1-git-send-email-johnny.chuang@emc.com.tw>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:40878 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754488AbcIWIDB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 23 Sep 2016 04:03:01 -0400
-In-Reply-To: <1472028265-5018-1-git-send-email-johnny.chuang@emc.com.tw>
-Sender: linux-input-owner@vger.kernel.org
+From: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Subject: [PATCH v3 5/8] DT:omap3+tsc2007: use new common touchscreen bindings
+Date: Fri, 23 Sep 2016 14:41:13 +0200
+Message-ID: <804ce271877ce003715a92ef04a6886ed3360bee.1474634475.git.hns@goldelico.com>
+References: <cover.1474634475.git.hns@goldelico.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1474634475.git.hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+In-Reply-To: <cover.1474634475.git.hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+References: <cover.1474634475.git.hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, =?UTF-8?q?Mika=20Penttil=C3=A4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Andrew F. Davis" <afd-l0cyMroinI0@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, letux-kernel-S0jZdbWzriLCfDggNXIi3w@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@gmail.com>, Jennifer Tsai <jennifer.tsai@emc.com.tw>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: James Chen <james.chen@emc.com.tw>, Paul Liang <paul.liang@emc.com.tw>, Jeff Chuang <jeff.chuang@emc.com.tw>, Agnes Cheng <agnescheng@google.com>, Johnny Chuang <johnny.chuang@emc.com.tw>
 
-This CL takes the responsibility for getting product/hardware id
-on recovery mode.
-It will fix firmware update script could not find correspond firmware
-file name on recovery mode.
-BTW, firmware must need to support reading product/hardware id
-on boot code.
+While we fix the GTA04 we add proper pinmux for the
+penirq gpio.
 
-Signed-off-by: Johnny Chuang <johnny.chuang@emc.com.tw>
+Tested on: GTA04A4 and Pyra-Handheld
+
+Signed-off-by: H. Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
 ---
- drivers/input/touchscreen/elants_i2c.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ arch/arm/boot/dts/omap3-gta04.dtsi | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index ac09855..02aec28 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -298,7 +298,7 @@ static u16 elants_i2c_parse_version(u8 *buf)
- 	return get_unaligned_be32(buf) >> 4;
- }
- 
--static int elants_i2c_query_fw_id(struct elants_data *ts)
-+static int elants_i2c_query_hw_version(struct elants_data *ts)
- {
- 	struct i2c_client *client = ts->client;
- 	int error, retry_cnt;
-@@ -318,8 +318,13 @@ static int elants_i2c_query_fw_id(struct elants_data *ts)
- 			error, (int)sizeof(resp), resp);
- 	}
- 
--	dev_err(&client->dev,
--		"Failed to read fw id or fw id is invalid\n");
-+	if (error) {
-+		dev_err(&client->dev,
-+			"Failed to read fw id: %d\n", error);
-+		return error;
-+	}
+diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
+index c09a057..40d1459 100644
+--- a/arch/arm/boot/dts/omap3-gta04.dtsi
++++ b/arch/arm/boot/dts/omap3-gta04.dtsi
+@@ -273,6 +273,13 @@
+ 			OMAP3_CORE1_IOPAD(0x2134, PIN_INPUT_PULLUP | MUX_MODE4) /* gpio112 */
+ 		>;
+ 	};
 +
-+	dev_err(&client->dev, "Invalid fw id: %#04x\n", ts->hw_version);
++	penirq_pins: pinmux_penirq_pins {
++		pinctrl-single,pins = <
++			/* here we could enable to wakeup the cpu from suspend by a pen touch */
++			OMAP3_CORE1_IOPAD(0x2194, PIN_INPUT_PULLUP | MUX_MODE4) /* gpio160 */
++		>;
++	};
+ };
  
- 	return -EINVAL;
- }
-@@ -508,7 +513,7 @@ static int elants_i2c_fastboot(struct i2c_client *client)
- static int elants_i2c_initialize(struct elants_data *ts)
- {
- 	struct i2c_client *client = ts->client;
--	int error, retry_cnt;
-+	int error, error2, retry_cnt;
- 	const u8 hello_packet[] = { 0x55, 0x55, 0x55, 0x55 };
- 	const u8 recov_packet[] = { 0x55, 0x55, 0x80, 0x80 };
- 	u8 buf[HEADER_SIZE];
-@@ -553,18 +558,22 @@ static int elants_i2c_initialize(struct elants_data *ts)
- 		}
- 	}
+ &omap3_pmx_core2 {
+@@ -410,10 +417,24 @@
+ 	tsc2007@48 {
+ 		compatible = "ti,tsc2007";
+ 		reg = <0x48>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&penirq_pins>;
+ 		interrupt-parent = <&gpio6>;
+ 		interrupts = <0 IRQ_TYPE_EDGE_FALLING>; /* GPIO_160 */
+-		gpios = <&gpio6 0 GPIO_ACTIVE_LOW>;
+-		ti,x-plate-ohms = <600>;
++		gpios = <&gpio6 0 GPIO_ACTIVE_LOW>;	/* GPIO_160 */
++		touchscreen-size-x = <480>;
++		touchscreen-size-y = <640>;
++		touchscreen-max-pressure = <1000>;
++		touchscreen-fuzz-x = <3>;
++		touchscreen-fuzz-y = <8>;
++		touchscreen-fuzz-pressure = <10>;
++		touchscreen-inverted-y;
++		ti,min-x = <0x100>;
++		ti,max-x = <0xf00>;
++		ti,min-y = <0x100>;
++		ti,max-y = <0xf00>;
++		ti,max-rt = <4096>;
++		ti,x-plate-ohms = <550>;
+ 	};
  
-+	/* hw version is available even if device in recovery state */
-+	error2 = elants_i2c_query_hw_version(ts);
- 	if (!error)
--		error = elants_i2c_query_fw_id(ts);
-+		error = error2;
-+
- 	if (!error)
- 		error = elants_i2c_query_fw_version(ts);
-+	if (!error)
-+		error = elants_i2c_query_test_version(ts);
-+	if (!error)
-+		error = elants_i2c_query_bc_version(ts);
-+	if (!error)
-+		error = elants_i2c_query_ts_info(ts);
- 
--	if (error) {
-+	if (error)
- 		ts->iap_mode = ELAN_IAP_RECOVERY;
--	} else {
--		elants_i2c_query_test_version(ts);
--		elants_i2c_query_bc_version(ts);
--		elants_i2c_query_ts_info(ts);
--	}
- 
- 	return 0;
- }
+ 	/* RFID EEPROM */
 -- 
-1.8.3.2
+2.7.3
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

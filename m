@@ -1,50 +1,84 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: Re: Input-gameport: Add the macro "pr_fmt" for module "joydump"
-Date: Sat, 24 Sep 2016 19:45:15 +0200
-Message-ID: <40016728-7a21-df83-f6a3-d936c928ed30@users.sourceforge.net>
-References: <d8da8333-d83a-ca61-b887-7fd7528c63a4@users.sourceforge.net>
- <3345f7c1-b823-a819-aabf-5b4990068075@users.sourceforge.net>
- <20160924164108.GB40187@dtor-ws>
- <a9d9e2fc-4369-ba1a-e1a1-97b0873c28ce@users.sourceforge.net>
- <1474736592.23838.8.camel@perches.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] Input-evdev: Rename a jump label in two functions
+Date: Sat, 24 Sep 2016 10:47:24 -0700
+Message-ID: <CAKdAkRRmnvxjLK+ffLjjRWbQp9ZRRc9x54ONtzh9Yz+m38RXuw@mail.gmail.com>
+References: <566ABCD9.1060404@users.sourceforge.net> <92cc52f5-c5e1-cafe-76f2-04e4ed997735@users.sourceforge.net>
+ <e50828fe-76b9-f087-575a-52aa6e107ba6@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <1474736592.23838.8.camel@perches.com>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <e50828fe-76b9-f087-575a-52aa6e107ba6@users.sourceforge.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
 
->> I find that it is a preparation. - If this addition could not be accepted,
->> the following update step would also be discussed under an other perspective,
->> wouldn't it?
-> 
-> It's purposeless, creates unnecessary patches to review
-> and generally wastes other people's time.
+On Sat, Sep 24, 2016 at 4:10 AM, SF Markus Elfring
+<elfring@users.sourceforge.net> wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Sat, 24 Sep 2016 12:50:31 +0200
+>
+> Adjust a jump label according to the current Linux coding style convention.
+> Thus replace the identifier "out" by "unlock".
 
-I have got an other opinion about this.
+No, just no.
+
+>
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> ---
+>  drivers/input/evdev.c | 12 +++++-------
+>  1 file changed, 5 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index 83fcfd6..548874d 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -545,22 +545,21 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
+>
+>         if (!evdev->exist || client->revoked) {
+>                 retval = -ENODEV;
+> -               goto out;
+> +               goto unlock;
+>         }
+>
+>         while (retval + input_event_size() <= count) {
+>
+>                 if (input_event_from_user(buffer + retval, &event)) {
+>                         retval = -EFAULT;
+> -                       goto out;
+> +                       goto unlock;
+>                 }
+>                 retval += input_event_size();
+>
+>                 input_inject_event(&evdev->handle,
+>                                    event.type, event.code, event.value);
+>         }
+> -
+> - out:
+> +unlock:
+>         mutex_unlock(&evdev->mutex);
+>         return retval;
+>  }
+> @@ -1292,12 +1291,11 @@ static long evdev_ioctl_handler(struct file *file, unsigned int cmd,
+>
+>         if (!evdev->exist || client->revoked) {
+>                 retval = -ENODEV;
+> -               goto out;
+> +               goto unlock;
+>         }
+>
+>         retval = evdev_do_ioctl(file, cmd, p, compat_mode);
+> -
+> - out:
+> +unlock:
+>         mutex_unlock(&evdev->mutex);
+>         return retval;
+>  }
+> --
+> 2.10.0
+>
 
 
-> Please don't purposefully waste other people's time.
 
-I do not want to "waste" your time. - But I can imagine that I stress your
-software development attention to some degree as I am publishing a significant
-number of update suggestions according to a bit of static source code analysis.
-
-
-> It makes your patch proposals _less_ likely to be applied.
-
-The acceptance varies as usual.
-
-
-I see also another option.
-
-* Can the first three update steps from this small patch series be integrated
-  while the fourth needs further adjustments (where I went a bit too far)?
-
-* Do you prefer to squash the last two update steps together?
-
-Regards,
-Markus
+-- 
+Dmitry

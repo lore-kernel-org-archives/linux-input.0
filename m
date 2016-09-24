@@ -1,53 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 3/8] drivers:input:tsc2007: add iio interface to read
- external ADC input, temperature and raw conversion values
-Date: Sat, 24 Sep 2016 10:44:50 -0700
-Message-ID: <CAKdAkRS3OhUp=WXtrLxQSJAvtgt24jo2W8Nw_NwR4O=R9jboaA@mail.gmail.com>
-References: <cover.1474634475.git.hns@goldelico.com> <909d06d4f54359c7ac0dcf36a49cbd3ff7e8ebf2.1474634475.git.hns@goldelico.com>
- <af39fdf1-b6e4-1ab7-9b41-ddb25bfab829@kernel.org> <8A30B517-FE25-418B-9921-407243B0B72B@goldelico.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: Re: Input-gameport: Add the macro "pr_fmt" for module "joydump"
+Date: Sat, 24 Sep 2016 19:45:15 +0200
+Message-ID: <40016728-7a21-df83-f6a3-d936c928ed30@users.sourceforge.net>
+References: <d8da8333-d83a-ca61-b887-7fd7528c63a4@users.sourceforge.net>
+ <3345f7c1-b823-a819-aabf-5b4990068075@users.sourceforge.net>
+ <20160924164108.GB40187@dtor-ws>
+ <a9d9e2fc-4369-ba1a-e1a1-97b0873c28ce@users.sourceforge.net>
+ <1474736592.23838.8.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f46.google.com ([209.85.213.46]:33517 "EHLO
-        mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754863AbcIXRow (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 24 Sep 2016 13:44:52 -0400
-In-Reply-To: <8A30B517-FE25-418B-9921-407243B0B72B@goldelico.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+In-Reply-To: <1474736592.23838.8.camel@perches.com>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
-To: "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, =?UTF-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, =?UTF-8?Q?Mika_Penttil=C3=A4?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, Sebastian Reichel <sre@kernel.org>, "Andrew F. Davis" <afd@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Discussions
 
-On Sat, Sep 24, 2016 at 10:07 AM, H. Nikolaus Schaller
-<hns@goldelico.com> wrote:
-> Hi Jonathan,
->
->> Am 24.09.2016 um 18:07 schrieb Jonathan Cameron <jic23@kernel.org>:
->>
->> On 23/09/16 13:41, H. Nikolaus Schaller wrote:
->>> The tsc2007 chip not only has a resistive touch screen controller but
->>> also an external AUX adc imput which can be used for an ambient
->>> light sensor, battery voltage monitoring or any general purpose.
->>>
->>> Additionally it can measure the chip temperature.
->>>
->>> This extension provides an iio interface for these adc channels
->>> in addition to the raw x, y, z values and the estimated touch
->>> screen resistance. This can be used for debugging or special
->>> applications.
->> I'm unconvinced that exposing the touch related channels is terribly
->> useful.
->
-> Mostly for debugging of if someone wants to do a (better) touch detection
-> in user space.
+>> I find that it is a preparation. - If this addition could not be accepted,
+>> the following update step would also be discussed under an other perspective,
+>> wouldn't it?
+> 
+> It's purposeless, creates unnecessary patches to review
+> and generally wastes other people's time.
 
-For that we should probably export data as a heat map via V4L2
-interface, similarly to what Nick Dyer did for Synaptics and Atmel
-drivers (albeit their heatmap functions are too slow for real
-processing and only suitable for debug/validation).
+I have got an other opinion about this.
 
-Thanks.
 
--- 
-Dmitry
+> Please don't purposefully waste other people's time.
+
+I do not want to "waste" your time. - But I can imagine that I stress your
+software development attention to some degree as I am publishing a significant
+number of update suggestions according to a bit of static source code analysis.
+
+
+> It makes your patch proposals _less_ likely to be applied.
+
+The acceptance varies as usual.
+
+
+I see also another option.
+
+* Can the first three update steps from this small patch series be integrated
+  while the fourth needs further adjustments (where I went a bit too far)?
+
+* Do you prefer to squash the last two update steps together?
+
+Regards,
+Markus

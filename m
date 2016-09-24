@@ -1,74 +1,30 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/2] Input-evdev: Rename a jump label in two functions
-Date: Sat, 24 Sep 2016 13:10:11 +0200
-Message-ID: <e50828fe-76b9-f087-575a-52aa6e107ba6@users.sourceforge.net>
-References: <566ABCD9.1060404@users.sourceforge.net>
- <92cc52f5-c5e1-cafe-76f2-04e4ed997735@users.sourceforge.net>
+Subject: [PATCH 0/4] Input-gameport: Fine-tuning for joydump_connect()
+Date: Sat, 24 Sep 2016 15:45:09 +0200
+Message-ID: <d8da8333-d83a-ca61-b887-7fd7528c63a4@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <92cc52f5-c5e1-cafe-76f2-04e4ed997735@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 24 Sep 2016 12:50:31 +0200
+Date: Sat, 24 Sep 2016 15:34:15 +0200
 
-Adjust a jump label according to the current Linux coding style convention.
-Thus replace the identifier "out" by "unlock".
+A few update suggestions were taken into account
+from static source code analysis.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/input/evdev.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+Markus Elfring (4):
+  Use kmalloc_array()
+  Delete an error message for a failed memory allocation
+  Add the macro "pr_fmt"
+  Replace some printk() calls by pr_info()
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 83fcfd6..548874d 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -545,22 +545,21 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
- 
- 	if (!evdev->exist || client->revoked) {
- 		retval = -ENODEV;
--		goto out;
-+		goto unlock;
- 	}
- 
- 	while (retval + input_event_size() <= count) {
- 
- 		if (input_event_from_user(buffer + retval, &event)) {
- 			retval = -EFAULT;
--			goto out;
-+			goto unlock;
- 		}
- 		retval += input_event_size();
- 
- 		input_inject_event(&evdev->handle,
- 				   event.type, event.code, event.value);
- 	}
--
-- out:
-+unlock:
- 	mutex_unlock(&evdev->mutex);
- 	return retval;
- }
-@@ -1292,12 +1291,11 @@ static long evdev_ioctl_handler(struct file *file, unsigned int cmd,
- 
- 	if (!evdev->exist || client->revoked) {
- 		retval = -ENODEV;
--		goto out;
-+		goto unlock;
- 	}
- 
- 	retval = evdev_do_ioctl(file, cmd, p, compat_mode);
--
-- out:
-+unlock:
- 	mutex_unlock(&evdev->mutex);
- 	return retval;
- }
+ drivers/input/joystick/joydump.c | 46 ++++++++++++++++++++--------------------
+ 1 file changed, 23 insertions(+), 23 deletions(-)
+
 -- 
 2.10.0

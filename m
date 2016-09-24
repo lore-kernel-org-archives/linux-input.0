@@ -1,52 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/4] Input-gameport: Add the macro "pr_fmt" for module
- "joydump"
-Date: Sat, 24 Sep 2016 09:41:08 -0700
-Message-ID: <20160924164108.GB40187@dtor-ws>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: Re: [PATCH 4/4] Input-gameport: Replace some printk() calls by
+ pr_info() in joydump_connect()
+Date: Sat, 24 Sep 2016 18:41:37 +0200
+Message-ID: <031de9c0-2e54-a6e4-3b61-73ce523bb769@users.sourceforge.net>
 References: <d8da8333-d83a-ca61-b887-7fd7528c63a4@users.sourceforge.net>
- <3345f7c1-b823-a819-aabf-5b4990068075@users.sourceforge.net>
+ <f486d64d-0759-9cd6-1e4e-df723acb6fea@users.sourceforge.net>
+ <1474733610.23838.2.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <3345f7c1-b823-a819-aabf-5b4990068075@users.sourceforge.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+In-Reply-To: <1474733610.23838.2.camel@perches.com>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Sep 24, 2016 at 03:48:54PM +0200, SF Markus Elfring wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sat, 24 Sep 2016 14:30:44 +0200
+>> @@ -57,27 +57,29 @@ static int joydump_connect(struct gameport *gameport, struct gameport_driver *dr
+>>>  	unsigned long flags;
+>>>  	unsigned char u;
+>>  
+>>> -	printk(KERN_INFO "joydump: ,------------------ START ----------------.\n");
+>>> -	printk(KERN_INFO "joydump: | Dumping: %30s |\n", gameport->phys);
+>>> -	printk(KERN_INFO "joydump: | Speed: %28d kHz |\n", gameport->speed);
+>>> +	pr_info(",------------------ START ----------------.\n"
+>>> +		"| Dumping: %30s |\n"
+>>> +		"| Speed: %28d kHz |\n",
+>>> +		gameport->phys,
+>>> +		gameport->speed);
 > 
-> Add a definition for the macro "pr_fmt" so that its information can be used
-> for consistent message output.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-> ---
->  drivers/input/joystick/joydump.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/input/joystick/joydump.c b/drivers/input/joystick/joydump.c
-> index f9f6cbe..a38f10e 100644
-> --- a/drivers/input/joystick/joydump.c
-> +++ b/drivers/input/joystick/joydump.c
-> @@ -27,6 +27,8 @@
->   * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
+> Not the same output.
 
-Why did you split it off from the patch where you attempt to use it?
-What good does this change do on its own?
+Do you insist that each line from a multi-line text that is passed by such a single logging call
+contains the same module prefix?
 
->  #include <linux/module.h>
->  #include <linux/gameport.h>
->  #include <linux/kernel.h>
-> -- 
-> 2.10.0
-> 
-
--- 
-Dmitry
+Regards,
+Markus

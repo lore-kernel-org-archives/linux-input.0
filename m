@@ -1,96 +1,252 @@
-From: Ioan-Adrian Ratiu <adi@adirat.com>
-Subject: [PATCH 2/2] hid: input: add HID_QUIRK_REUSE_AXES and fix dragonrise
-Date: Mon, 26 Sep 2016 05:58:39 +0300
-Message-ID: <20160926025839.2790-2-adi@adirat.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/2] Revert "HID: dragonrise: fix HID Descriptor for
+ 0x0006 PID"
+Date: Mon, 26 Sep 2016 11:10:55 +0200
+Message-ID: <20160926091054.GB19261@mail.corp.redhat.com>
 References: <20160926025839.2790-1-adi@adirat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:33828 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S941262AbcIZC6s (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 25 Sep 2016 22:58:48 -0400
-Received: by mail-wm0-f65.google.com with SMTP id l132so11931347wmf.1
-        for <linux-input@vger.kernel.org>; Sun, 25 Sep 2016 19:58:47 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:58288 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S965343AbcIZJLA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 26 Sep 2016 05:11:00 -0400
+Content-Disposition: inline
 In-Reply-To: <20160926025839.2790-1-adi@adirat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ioan-Adrian Ratiu <adi@adirat.com>
+Cc: jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Commit 79346d620e9d ("HID: input: force generic axis to be mapped to their
-user space axis") made mapping generic axes to their userspace equivalents
-mandatory and some lower end gamepads which were depending on the previous
-behaviour suffered severe regressions because they were reusing axes and
-expecting hid-input to multiplex their map to the respective userspace axis
-by always searching for and using the next available axis.
+Thanks for the patch series. I am not against it, but I'd rather see the
+commit message of this one amended, and the second patch changed.
 
-Now the result is that different device axes appear on a single axis in
-userspace, which is clearly a regression in the hid-input driver because it
-needs to continue to handle this hardware as expected before the forcing
-to provide the same interface to userspace.
+On Sep 26 2016 or thereabouts, Ioan-Adrian Ratiu wrote:
+> This reverts commit 18339f59c3a6 ("HID: dragonrise: fix HID...")
+> because the "fix" is bogus. That report descriptor is different in
 
-Since these lower-end gamepads like 0079:0006 are definitely the exception,
-create a quirk to fix them.
+I am pretty sure this "fix" works for many. You seem to have a different
+hardware (generation probably) that makes the "fix" to fail for you.
+The issue is more that the manufacturer doesn't bother to reallocate a
+new PID for the new device when they change something in it, so please
+don't blame the author of the fix (which I am not).
 
-Signed-off-by: Ioan-Adrian Ratiu <adi@adirat.com>
----
- drivers/hid/hid-dr.c    |  2 ++
- drivers/hid/hid-input.c | 16 +++++++++++-----
- include/linux/hid.h     |  1 +
- 3 files changed, 14 insertions(+), 5 deletions(-)
+> hardware (see below) and it's the way the hardware works, it can't be
 
-diff --git a/drivers/hid/hid-dr.c b/drivers/hid/hid-dr.c
-index 2523f8a..27fc826 100644
---- a/drivers/hid/hid-dr.c
-+++ b/drivers/hid/hid-dr.c
-@@ -274,6 +274,8 @@ static int dr_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 			hid_hw_stop(hdev);
- 			goto err;
- 		}
-+		/* has only 5 axes and reuses X, Y */
-+		hdev->quirks |= HID_QUIRK_REUSE_AXES;
- 		break;
- 	}
- 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index fb9ace1..1cc6fe4 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -633,11 +633,17 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		/* These usage IDs map directly to the usage codes. */
- 		case HID_GD_X: case HID_GD_Y: case HID_GD_Z:
- 		case HID_GD_RX: case HID_GD_RY: case HID_GD_RZ:
--			if (field->flags & HID_MAIN_ITEM_RELATIVE)
--				map_rel(usage->hid & 0xf);
--			else
--				map_abs_clear(usage->hid & 0xf);
--			break;
-+
-+			/* if quirk is active don't force the userspace mapping,
-+			 * instead search and use the next available axis.
-+			 */
-+			if (!(device->quirks & HID_QUIRK_REUSE_AXES)) {
-+				if (field->flags & HID_MAIN_ITEM_RELATIVE)
-+					map_rel(usage->hid & 0xf);
-+				else
-+					map_abs_clear(usage->hid & 0xf);
-+				break;
-+			}
- 
- 		case HID_GD_SLIDER: case HID_GD_DIAL: case HID_GD_WHEEL:
- 			if (field->flags & HID_MAIN_ITEM_RELATIVE)
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 75b66ec..0979920 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -320,6 +320,7 @@ struct hid_item {
- #define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
- #define HID_QUIRK_NO_INIT_INPUT_REPORTS		0x00000200
- #define HID_QUIRK_ALWAYS_POLL			0x00000400
-+#define HID_QUIRK_REUSE_AXES			0x00000800
- #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
- #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
- #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	0x00040000
--- 
-2.10.0
+Well, it's kind of hard to compare the lsusb output to the fixup in the
+kernel. I'd like to know what changed, but I can't...
 
+> fixed at this level because it reuses axes by design.
+
+It can be fixed in hid-dr. See my comments on the next patch.
+
+> 
+> What this change tried to fix is a regression caused by commit 20aef664f139
+
+As mentioned in your next patch in the series, the correct commit id is
+79346d620e9de87912de73337f6df8b7f9a46888
+
+> ("HID: input: force generic axis to be mapped to their user space axis") by
+> working around the problem and trying to change the report descriptor in
+> hid-dr, which obviously can't work and introduces more breakage because it
+> adds another unnecessary layer of multiplexing/indirection, making the
+> dragonrise gamepad practically unusable in userspace.
+
+Not sure who you are blaming here. Is it me (the author of 79346d620e or
+the author of the fix in hid-dr)? If it's me, I agree, the patch was a
+little too aggressive, though I must say only one hardware maker has
+such a crappy device that we need to care of. So this is why I just let
+the patch in place without trying to have a better solution.
+
+If the blame is on the author of the hid-dr, I must say that I find the
+tone of this paragraph quite aggressive for nothing. Your device is
+different than the one that was used for the original fix, so it breaks.
+But I can guarantee you that the fix works for the intended device (I
+happen to have one I tested recently). So please blame the hardware
+maker, not the people involved in the community who are doing their
+best.
+
+> 
+> This needs to be fixed where the regression was initially introduced in
+> hid-input (the next patch does this).
+
+Actually, again, I tend to disagree :)
+I'll go more in details in the next patch.
+
+Cheers,
+Benjamin
+
+> 
+> Here's the descriptor taken directly from the device via lsusb:
+>         HID Device Descriptor:
+>           bLength                 9
+>           bDescriptorType        33
+>           bcdHID               1.10
+>           bCountryCode           33 US
+>           bNumDescriptors         1
+>           bDescriptorType        34 Report
+>           wDescriptorLength     101
+>           Report Descriptor: (length is 101)
+>             Item(Global): Usage Page, data= [ 0x01 ] 1
+>                             Generic Desktop Controls
+>             Item(Local ): Usage, data= [ 0x04 ] 4
+>                             Joystick
+>             Item(Main  ): Collection, data= [ 0x01 ] 1
+>                             Application
+>             Item(Main  ): Collection, data= [ 0x02 ] 2
+>                             Logical
+>             Item(Global): Report Size, data= [ 0x08 ] 8
+>             Item(Global): Report Count, data= [ 0x05 ] 5
+>             Item(Global): Logical Minimum, data= [ 0x00 ] 0
+>             Item(Global): Logical Maximum, data= [ 0xff 0x00 ] 255
+>             Item(Global): Physical Minimum, data= [ 0x00 ] 0
+>             Item(Global): Physical Maximum, data= [ 0xff 0x00 ] 255
+>             Item(Local ): Usage, data= [ 0x30 ] 48
+>                             Direction-X
+>             Item(Local ): Usage, data= [ 0x31 ] 49
+>                             Direction-Y
+>             Item(Local ): Usage, data= [ 0x32 ] 50
+>                             Direction-Z
+>             Item(Local ): Usage, data= [ 0x32 ] 50
+>                             Direction-Z
+>             Item(Local ): Usage, data= [ 0x35 ] 53
+>                             Rotate-Z
+>             Item(Main  ): Input, data= [ 0x02 ] 2
+>                             Data Variable Absolute No_Wrap Linear
+>                             Preferred_State No_Null_Position Non_Volatile Bitfield
+>             Item(Global): Report Size, data= [ 0x04 ] 4
+>             Item(Global): Report Count, data= [ 0x01 ] 1
+>             Item(Global): Logical Maximum, data= [ 0x07 ] 7
+>             Item(Global): Physical Maximum, data= [ 0x3b 0x01 ] 315
+>             Item(Global): Unit, data= [ 0x14 ] 20
+>                             System: English Rotation, Unit: Degrees
+>             Item(Local ): Usage, data= [ 0x39 ] 57
+>                             Hat Switch
+>             Item(Main  ): Input, data= [ 0x42 ] 66
+>                             Data Variable Absolute No_Wrap Linear
+>                             Preferred_State Null_State Non_Volatile Bitfield
+>             Item(Global): Unit, data= [ 0x00 ] 0
+>                             System: None, Unit: (None)
+>             Item(Global): Report Size, data= [ 0x01 ] 1
+>             Item(Global): Report Count, data= [ 0x0c ] 12
+>             Item(Global): Logical Maximum, data= [ 0x01 ] 1
+>             Item(Global): Physical Maximum, data= [ 0x01 ] 1
+>             Item(Global): Usage Page, data= [ 0x09 ] 9
+>                             Buttons
+>             Item(Local ): Usage Minimum, data= [ 0x01 ] 1
+>                             Button 1 (Primary)
+>             Item(Local ): Usage Maximum, data= [ 0x0c ] 12
+>                             (null)
+>             Item(Main  ): Input, data= [ 0x02 ] 2
+>                             Data Variable Absolute No_Wrap Linear
+>                             Preferred_State No_Null_Position Non_Volatile Bitfield
+>             Item(Global): Usage Page, data= [ 0x00 0xff ] 65280
+>                             (null)
+>             Item(Global): Report Size, data= [ 0x01 ] 1
+>             Item(Global): Report Count, data= [ 0x08 ] 8
+>             Item(Global): Logical Maximum, data= [ 0x01 ] 1
+>             Item(Global): Physical Maximum, data= [ 0x01 ] 1
+>             Item(Local ): Usage, data= [ 0x01 ] 1
+>                             (null)
+>             Item(Main  ): Input, data= [ 0x02 ] 2
+>                             Data Variable Absolute No_Wrap Linear
+>                             Preferred_State No_Null_Position Non_Volatile Bitfield
+>             Item(Main  ): End Collection, data=none
+>             Item(Main  ): Collection, data= [ 0x02 ] 2
+>                             Logical
+>             Item(Global): Report Size, data= [ 0x08 ] 8
+>             Item(Global): Report Count, data= [ 0x07 ] 7
+>             Item(Global): Physical Maximum, data= [ 0xff 0x00 ] 255
+>             Item(Global): Logical Maximum, data= [ 0xff 0x00 ] 255
+>             Item(Local ): Usage, data= [ 0x02 ] 2
+>                             (null)
+>             Item(Main  ): Output, data= [ 0x02 ] 2
+>                             Data Variable Absolute No_Wrap Linear
+>                             Preferred_State No_Null_Position Non_Volatile Bitfield
+>             Item(Main  ): End Collection, data=none
+>             Item(Main  ): End Collection, data=none
+> 
+> Signed-off-by: Ioan-Adrian Ratiu <adi@adirat.com>
+> ---
+>  drivers/hid/hid-dr.c | 58 ----------------------------------------------------
+>  1 file changed, 58 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-dr.c b/drivers/hid/hid-dr.c
+> index 8fd4bf7..2523f8a 100644
+> --- a/drivers/hid/hid-dr.c
+> +++ b/drivers/hid/hid-dr.c
+> @@ -234,58 +234,6 @@ static __u8 pid0011_rdesc_fixed[] = {
+>  	0xC0                /*  End Collection                  */
+>  };
+>  
+> -static __u8 pid0006_rdesc_fixed[] = {
+> -	0x05, 0x01,        /* Usage Page (Generic Desktop)	*/
+> -	0x09, 0x04,        /* Usage (Joystick)			*/
+> -	0xA1, 0x01,        /* Collection (Application)		*/
+> -	0xA1, 0x02,        /*   Collection (Logical)		*/
+> -	0x75, 0x08,        /*     Report Size (8)		*/
+> -	0x95, 0x05,        /*     Report Count (5)		*/
+> -	0x15, 0x00,        /*     Logical Minimum (0)		*/
+> -	0x26, 0xFF, 0x00,  /*     Logical Maximum (255)		*/
+> -	0x35, 0x00,        /*     Physical Minimum (0)		*/
+> -	0x46, 0xFF, 0x00,  /*     Physical Maximum (255)	*/
+> -	0x09, 0x30,        /*     Usage (X)			*/
+> -	0x09, 0x33,        /*     Usage (Ry)			*/
+> -	0x09, 0x32,        /*     Usage (Z)			*/
+> -	0x09, 0x31,        /*     Usage (Y)			*/
+> -	0x09, 0x34,        /*     Usage (Ry)			*/
+> -	0x81, 0x02,        /*     Input (Variable)		*/
+> -	0x75, 0x04,        /*     Report Size (4)		*/
+> -	0x95, 0x01,        /*     Report Count (1)		*/
+> -	0x25, 0x07,        /*     Logical Maximum (7)		*/
+> -	0x46, 0x3B, 0x01,  /*     Physical Maximum (315)	*/
+> -	0x65, 0x14,        /*     Unit (Centimeter)		*/
+> -	0x09, 0x39,        /*     Usage (Hat switch)		*/
+> -	0x81, 0x42,        /*     Input (Variable)		*/
+> -	0x65, 0x00,        /*     Unit (None)			*/
+> -	0x75, 0x01,        /*     Report Size (1)		*/
+> -	0x95, 0x0C,        /*     Report Count (12)		*/
+> -	0x25, 0x01,        /*     Logical Maximum (1)		*/
+> -	0x45, 0x01,        /*     Physical Maximum (1)		*/
+> -	0x05, 0x09,        /*     Usage Page (Button)		*/
+> -	0x19, 0x01,        /*     Usage Minimum (0x01)		*/
+> -	0x29, 0x0C,        /*     Usage Maximum (0x0C)		*/
+> -	0x81, 0x02,        /*     Input (Variable)		*/
+> -	0x06, 0x00, 0xFF,  /*     Usage Page (Vendor Defined)	*/
+> -	0x75, 0x01,        /*     Report Size (1)		*/
+> -	0x95, 0x08,        /*     Report Count (8)		*/
+> -	0x25, 0x01,        /*     Logical Maximum (1)		*/
+> -	0x45, 0x01,        /*     Physical Maximum (1)		*/
+> -	0x09, 0x01,        /*     Usage (0x01)			*/
+> -	0x81, 0x02,        /*     Input (Variable)		*/
+> -	0xC0,              /*   End Collection			*/
+> -	0xA1, 0x02,        /*   Collection (Logical)		*/
+> -	0x75, 0x08,        /*     Report Size (8)		*/
+> -	0x95, 0x07,        /*     Report Count (7)		*/
+> -	0x46, 0xFF, 0x00,  /*     Physical Maximum (255)	*/
+> -	0x26, 0xFF, 0x00,  /*     Logical Maximum (255)		*/
+> -	0x09, 0x02,        /*     Usage (0x02)			*/
+> -	0x91, 0x02,        /*     Output (Variable)		*/
+> -	0xC0,              /*   End Collection			*/
+> -	0xC0               /* End Collection			*/
+> -};
+> -
+>  static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>  				unsigned int *rsize)
+>  {
+> @@ -296,12 +244,6 @@ static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>  			*rsize = sizeof(pid0011_rdesc_fixed);
+>  		}
+>  		break;
+> -	case 0x0006:
+> -		if (*rsize == sizeof(pid0006_rdesc_fixed)) {
+> -			rdesc = pid0006_rdesc_fixed;
+> -			*rsize = sizeof(pid0006_rdesc_fixed);
+> -		}
+> -		break;
+>  	}
+>  	return rdesc;
+>  }
+> -- 
+> 2.10.0
+> 

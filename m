@@ -1,25 +1,63 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [Patch-V2 1/6] HID:hid-logitech: Introduce control for combined
- pedals feature
-Date: Mon, 26 Sep 2016 15:41:16 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1609261540550.22028@cbobk.fhfr.pm>
-References: <1473461449-8060-1-git-send-email-simon@mungewell.org> <1474217742-3992-1-git-send-email-simon@mungewell.org>
+Subject: Re: [PATCH] Fix a issue that Alps Touchpad cursor does not work
+Date: Mon, 26 Sep 2016 17:32:41 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1609261731560.22028@cbobk.fhfr.pm>
+References: <1474608775-10839-1-git-send-email-masaki.ota@jp.alps.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:35088 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:43826 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S935875AbcIZNlU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 26 Sep 2016 09:41:20 -0400
-In-Reply-To: <1474217742-3992-1-git-send-email-simon@mungewell.org>
+        id S1030356AbcIZPcp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 26 Sep 2016 11:32:45 -0400
+In-Reply-To: <1474608775-10839-1-git-send-email-masaki.ota@jp.alps.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <gitsend@mungewell.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Edwin Velds <edwin@velds.nl>, Elias Vanderstuyft <elias.vds@gmail.com>, Michal Maly <madcatxster@gmail.com>, Simon Wood <simon@mungewell.org>
+To: Masaki Ota <012nexus@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kai.heng.feng@canonical.com, masaki.ota@jp.alps.com
 
-Hi,
+On Fri, 23 Sep 2016, Masaki Ota wrote:
 
-the series is now in hid.git#for-4.9/logitech. Thanks,
+> fix Touchpad cursor does not work after touching Touchpad 
+> by 3 or more fingers.
+
+Please provide more verbose changelog -- namely why the current code is 
+wrong and how does your patch fixes it.
+
+Thanks.
+
+> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+> ---
+>  drivers/hid/hid-alps.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+> index 048befd..610df92 100644
+> --- a/drivers/hid/hid-alps.c
+> +++ b/drivers/hid/hid-alps.c
+> @@ -190,16 +190,16 @@ static int alps_raw_event(struct hid_device *hdev,
+>  			if (z != 0) {
+>  				input_mt_report_slot_state(hdata->input,
+>  					MT_TOOL_FINGER, 1);
+> +				input_report_abs(hdata->input,
+> +					ABS_MT_POSITION_X, x);
+> +				input_report_abs(hdata->input,
+> +					ABS_MT_POSITION_Y, y);
+> +				input_report_abs(hdata->input,
+> +					ABS_MT_PRESSURE, z);
+>  			} else {
+>  				input_mt_report_slot_state(hdata->input,
+>  					MT_TOOL_FINGER, 0);
+> -				break;
+>  			}
+> -
+> -			input_report_abs(hdata->input, ABS_MT_POSITION_X, x);
+> -			input_report_abs(hdata->input, ABS_MT_POSITION_Y, y);
+> -			input_report_abs(hdata->input, ABS_MT_PRESSURE, z);
+> -
+>  		}
+>  
+>  		input_mt_sync_frame(hdata->input);
 
 -- 
 Jiri Kosina

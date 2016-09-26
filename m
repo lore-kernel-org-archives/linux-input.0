@@ -1,136 +1,197 @@
-From: "Johnny.Chuang" <johnny.chuang@emc.com.tw>
-Subject: RE: [PATCH v3] Input: elants_i2c - get product id on recovery mode for FW update
-Date: Mon, 26 Sep 2016 10:30:56 +0800
-Message-ID: <000f01d2179e$02dfd1e0$089f75a0$@emc.com.tw>
-References: <1472028265-5018-1-git-send-email-johnny.chuang@emc.com.tw> <1474617677-4785-1-git-send-email-johnny.chuang@emc.com.tw> <20160923213045.GC25499@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:22097 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1034243AbcIZCak (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 25 Sep 2016 22:30:40 -0400
-In-Reply-To: <20160923213045.GC25499@dtor-ws>
-Content-Language: zh-tw
-Sender: linux-input-owner@vger.kernel.org
+From: Ioan-Adrian Ratiu <adi@adirat.com>
+Subject: [PATCH 1/2] Revert "HID: dragonrise: fix HID Descriptor for 0x0006 PID"
+Date: Mon, 26 Sep 2016 05:58:38 +0300
+Message-ID: <20160926025839.2790-1-adi@adirat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: 'Daniel Kurtz' <djkurtz@gmail.com>, 'Jennifer Tsai' <jennifer.tsai@emc.com.tw>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 'James Chen' <james.chen@emc.com.tw>, 'Paul Liang' <paul.liang@emc.com.tw>, 'Jeff Chuang' <jeff.chuang@emc.com.tw>, 'Agnes Cheng' <agnescheng@google.com>
 
-There is only one different which is adding a new empty line for coding
-style.
+This reverts commit 18339f59c3a6 ("HID: dragonrise: fix HID...")
+because the "fix" is bogus. That report descriptor is different in
+hardware (see below) and it's the way the hardware works, it can't be
+fixed at this level because it reuses axes by design.
 
->  	if (!error)
-> -		error = elants_i2c_query_fw_id(ts);
-> +		error = error2;
-> +
->  	if (!error)
->  		error = elants_i2c_query_fw_version(ts);
+What this change tried to fix is a regression caused by commit 20aef664f139
+("HID: input: force generic axis to be mapped to their user space axis") by
+working around the problem and trying to change the report descriptor in
+hid-dr, which obviously can't work and introduces more breakage because it
+adds another unnecessary layer of multiplexing/indirection, making the
+dragonrise gamepad practically unusable in userspace.
 
------Original Message-----
-From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
-Sent: Saturday, September 24, 2016 5:31 AM
-To: Johnny Chuang
-Cc: Daniel Kurtz; Jennifer Tsai; linux-kernel@vger.kernel.org;
-linux-input@vger.kernel.org; James Chen; Paul Liang; Jeff Chuang; Agnes
-Cheng
-Subject: Re: [PATCH v3] Input: elants_i2c - get product id on recovery mode
-for FW update
+This needs to be fixed where the regression was initially introduced in
+hid-input (the next patch does this).
 
-On Fri, Sep 23, 2016 at 04:01:17PM +0800, Johnny Chuang wrote:
-> This CL takes the responsibility for getting product/hardware id on 
-> recovery mode.
-> It will fix firmware update script could not find correspond firmware 
-> file name on recovery mode.
-> BTW, firmware must need to support reading product/hardware id on boot 
-> code.
-> 
-> Signed-off-by: Johnny Chuang <johnny.chuang@emc.com.tw>
+Here's the descriptor taken directly from the device via lsusb:
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.10
+          bCountryCode           33 US
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength     101
+          Report Descriptor: (length is 101)
+            Item(Global): Usage Page, data= [ 0x01 ] 1
+                            Generic Desktop Controls
+            Item(Local ): Usage, data= [ 0x04 ] 4
+                            Joystick
+            Item(Main  ): Collection, data= [ 0x01 ] 1
+                            Application
+            Item(Main  ): Collection, data= [ 0x02 ] 2
+                            Logical
+            Item(Global): Report Size, data= [ 0x08 ] 8
+            Item(Global): Report Count, data= [ 0x05 ] 5
+            Item(Global): Logical Minimum, data= [ 0x00 ] 0
+            Item(Global): Logical Maximum, data= [ 0xff 0x00 ] 255
+            Item(Global): Physical Minimum, data= [ 0x00 ] 0
+            Item(Global): Physical Maximum, data= [ 0xff 0x00 ] 255
+            Item(Local ): Usage, data= [ 0x30 ] 48
+                            Direction-X
+            Item(Local ): Usage, data= [ 0x31 ] 49
+                            Direction-Y
+            Item(Local ): Usage, data= [ 0x32 ] 50
+                            Direction-Z
+            Item(Local ): Usage, data= [ 0x32 ] 50
+                            Direction-Z
+            Item(Local ): Usage, data= [ 0x35 ] 53
+                            Rotate-Z
+            Item(Main  ): Input, data= [ 0x02 ] 2
+                            Data Variable Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Global): Report Size, data= [ 0x04 ] 4
+            Item(Global): Report Count, data= [ 0x01 ] 1
+            Item(Global): Logical Maximum, data= [ 0x07 ] 7
+            Item(Global): Physical Maximum, data= [ 0x3b 0x01 ] 315
+            Item(Global): Unit, data= [ 0x14 ] 20
+                            System: English Rotation, Unit: Degrees
+            Item(Local ): Usage, data= [ 0x39 ] 57
+                            Hat Switch
+            Item(Main  ): Input, data= [ 0x42 ] 66
+                            Data Variable Absolute No_Wrap Linear
+                            Preferred_State Null_State Non_Volatile Bitfield
+            Item(Global): Unit, data= [ 0x00 ] 0
+                            System: None, Unit: (None)
+            Item(Global): Report Size, data= [ 0x01 ] 1
+            Item(Global): Report Count, data= [ 0x0c ] 12
+            Item(Global): Logical Maximum, data= [ 0x01 ] 1
+            Item(Global): Physical Maximum, data= [ 0x01 ] 1
+            Item(Global): Usage Page, data= [ 0x09 ] 9
+                            Buttons
+            Item(Local ): Usage Minimum, data= [ 0x01 ] 1
+                            Button 1 (Primary)
+            Item(Local ): Usage Maximum, data= [ 0x0c ] 12
+                            (null)
+            Item(Main  ): Input, data= [ 0x02 ] 2
+                            Data Variable Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Global): Usage Page, data= [ 0x00 0xff ] 65280
+                            (null)
+            Item(Global): Report Size, data= [ 0x01 ] 1
+            Item(Global): Report Count, data= [ 0x08 ] 8
+            Item(Global): Logical Maximum, data= [ 0x01 ] 1
+            Item(Global): Physical Maximum, data= [ 0x01 ] 1
+            Item(Local ): Usage, data= [ 0x01 ] 1
+                            (null)
+            Item(Main  ): Input, data= [ 0x02 ] 2
+                            Data Variable Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Main  ): End Collection, data=none
+            Item(Main  ): Collection, data= [ 0x02 ] 2
+                            Logical
+            Item(Global): Report Size, data= [ 0x08 ] 8
+            Item(Global): Report Count, data= [ 0x07 ] 7
+            Item(Global): Physical Maximum, data= [ 0xff 0x00 ] 255
+            Item(Global): Logical Maximum, data= [ 0xff 0x00 ] 255
+            Item(Local ): Usage, data= [ 0x02 ] 2
+                            (null)
+            Item(Main  ): Output, data= [ 0x02 ] 2
+                            Data Variable Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Main  ): End Collection, data=none
+            Item(Main  ): End Collection, data=none
 
-This appears to be exactly the same as to what I already have in my "next"
-branch...
+Signed-off-by: Ioan-Adrian Ratiu <adi@adirat.com>
+---
+ drivers/hid/hid-dr.c | 58 ----------------------------------------------------
+ 1 file changed, 58 deletions(-)
 
-> ---
->  drivers/input/touchscreen/elants_i2c.c | 31 
-> ++++++++++++++++++++-----------
->  1 file changed, 20 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/elants_i2c.c 
-> b/drivers/input/touchscreen/elants_i2c.c
-> index ac09855..02aec28 100644
-> --- a/drivers/input/touchscreen/elants_i2c.c
-> +++ b/drivers/input/touchscreen/elants_i2c.c
-> @@ -298,7 +298,7 @@ static u16 elants_i2c_parse_version(u8 *buf)
->  	return get_unaligned_be32(buf) >> 4;  }
->  
-> -static int elants_i2c_query_fw_id(struct elants_data *ts)
-> +static int elants_i2c_query_hw_version(struct elants_data *ts)
->  {
->  	struct i2c_client *client = ts->client;
->  	int error, retry_cnt;
-> @@ -318,8 +318,13 @@ static int elants_i2c_query_fw_id(struct elants_data
-*ts)
->  			error, (int)sizeof(resp), resp);
->  	}
->  
-> -	dev_err(&client->dev,
-> -		"Failed to read fw id or fw id is invalid\n");
-> +	if (error) {
-> +		dev_err(&client->dev,
-> +			"Failed to read fw id: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	dev_err(&client->dev, "Invalid fw id: %#04x\n", ts->hw_version);
->  
->  	return -EINVAL;
->  }
-> @@ -508,7 +513,7 @@ static int elants_i2c_fastboot(struct i2c_client 
-> *client)  static int elants_i2c_initialize(struct elants_data *ts)  {
->  	struct i2c_client *client = ts->client;
-> -	int error, retry_cnt;
-> +	int error, error2, retry_cnt;
->  	const u8 hello_packet[] = { 0x55, 0x55, 0x55, 0x55 };
->  	const u8 recov_packet[] = { 0x55, 0x55, 0x80, 0x80 };
->  	u8 buf[HEADER_SIZE];
-> @@ -553,18 +558,22 @@ static int elants_i2c_initialize(struct elants_data
-*ts)
->  		}
->  	}
->  
-> +	/* hw version is available even if device in recovery state */
-> +	error2 = elants_i2c_query_hw_version(ts);
->  	if (!error)
-> -		error = elants_i2c_query_fw_id(ts);
-> +		error = error2;
-> +
->  	if (!error)
->  		error = elants_i2c_query_fw_version(ts);
-> +	if (!error)
-> +		error = elants_i2c_query_test_version(ts);
-> +	if (!error)
-> +		error = elants_i2c_query_bc_version(ts);
-> +	if (!error)
-> +		error = elants_i2c_query_ts_info(ts);
->  
-> -	if (error) {
-> +	if (error)
->  		ts->iap_mode = ELAN_IAP_RECOVERY;
-> -	} else {
-> -		elants_i2c_query_test_version(ts);
-> -		elants_i2c_query_bc_version(ts);
-> -		elants_i2c_query_ts_info(ts);
-> -	}
->  
->  	return 0;
->  }
-> --
-> 1.8.3.2
-> 
-
+diff --git a/drivers/hid/hid-dr.c b/drivers/hid/hid-dr.c
+index 8fd4bf7..2523f8a 100644
+--- a/drivers/hid/hid-dr.c
++++ b/drivers/hid/hid-dr.c
+@@ -234,58 +234,6 @@ static __u8 pid0011_rdesc_fixed[] = {
+ 	0xC0                /*  End Collection                  */
+ };
+ 
+-static __u8 pid0006_rdesc_fixed[] = {
+-	0x05, 0x01,        /* Usage Page (Generic Desktop)	*/
+-	0x09, 0x04,        /* Usage (Joystick)			*/
+-	0xA1, 0x01,        /* Collection (Application)		*/
+-	0xA1, 0x02,        /*   Collection (Logical)		*/
+-	0x75, 0x08,        /*     Report Size (8)		*/
+-	0x95, 0x05,        /*     Report Count (5)		*/
+-	0x15, 0x00,        /*     Logical Minimum (0)		*/
+-	0x26, 0xFF, 0x00,  /*     Logical Maximum (255)		*/
+-	0x35, 0x00,        /*     Physical Minimum (0)		*/
+-	0x46, 0xFF, 0x00,  /*     Physical Maximum (255)	*/
+-	0x09, 0x30,        /*     Usage (X)			*/
+-	0x09, 0x33,        /*     Usage (Ry)			*/
+-	0x09, 0x32,        /*     Usage (Z)			*/
+-	0x09, 0x31,        /*     Usage (Y)			*/
+-	0x09, 0x34,        /*     Usage (Ry)			*/
+-	0x81, 0x02,        /*     Input (Variable)		*/
+-	0x75, 0x04,        /*     Report Size (4)		*/
+-	0x95, 0x01,        /*     Report Count (1)		*/
+-	0x25, 0x07,        /*     Logical Maximum (7)		*/
+-	0x46, 0x3B, 0x01,  /*     Physical Maximum (315)	*/
+-	0x65, 0x14,        /*     Unit (Centimeter)		*/
+-	0x09, 0x39,        /*     Usage (Hat switch)		*/
+-	0x81, 0x42,        /*     Input (Variable)		*/
+-	0x65, 0x00,        /*     Unit (None)			*/
+-	0x75, 0x01,        /*     Report Size (1)		*/
+-	0x95, 0x0C,        /*     Report Count (12)		*/
+-	0x25, 0x01,        /*     Logical Maximum (1)		*/
+-	0x45, 0x01,        /*     Physical Maximum (1)		*/
+-	0x05, 0x09,        /*     Usage Page (Button)		*/
+-	0x19, 0x01,        /*     Usage Minimum (0x01)		*/
+-	0x29, 0x0C,        /*     Usage Maximum (0x0C)		*/
+-	0x81, 0x02,        /*     Input (Variable)		*/
+-	0x06, 0x00, 0xFF,  /*     Usage Page (Vendor Defined)	*/
+-	0x75, 0x01,        /*     Report Size (1)		*/
+-	0x95, 0x08,        /*     Report Count (8)		*/
+-	0x25, 0x01,        /*     Logical Maximum (1)		*/
+-	0x45, 0x01,        /*     Physical Maximum (1)		*/
+-	0x09, 0x01,        /*     Usage (0x01)			*/
+-	0x81, 0x02,        /*     Input (Variable)		*/
+-	0xC0,              /*   End Collection			*/
+-	0xA1, 0x02,        /*   Collection (Logical)		*/
+-	0x75, 0x08,        /*     Report Size (8)		*/
+-	0x95, 0x07,        /*     Report Count (7)		*/
+-	0x46, 0xFF, 0x00,  /*     Physical Maximum (255)	*/
+-	0x26, 0xFF, 0x00,  /*     Logical Maximum (255)		*/
+-	0x09, 0x02,        /*     Usage (0x02)			*/
+-	0x91, 0x02,        /*     Output (Variable)		*/
+-	0xC0,              /*   End Collection			*/
+-	0xC0               /* End Collection			*/
+-};
+-
+ static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 				unsigned int *rsize)
+ {
+@@ -296,12 +244,6 @@ static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 			*rsize = sizeof(pid0011_rdesc_fixed);
+ 		}
+ 		break;
+-	case 0x0006:
+-		if (*rsize == sizeof(pid0006_rdesc_fixed)) {
+-			rdesc = pid0006_rdesc_fixed;
+-			*rsize = sizeof(pid0006_rdesc_fixed);
+-		}
+-		break;
+ 	}
+ 	return rdesc;
+ }
 -- 
-Dmitry
-
+2.10.0

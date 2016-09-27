@@ -1,271 +1,190 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 3/5] iio: adc: sunxi-gpadc-iio: enable iio_buffers
-Date: Tue, 27 Sep 2016 20:38:58 +0100
-Message-ID: <0e27dd0c-16ab-69c0-50bd-4fe2ed25c86b@kernel.org>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 4/5] input: touchscreen: support Allwinner SoCs'
+ touchscreen
+Date: Tue, 27 Sep 2016 20:59:48 +0100
+Message-ID: <6cb6c9b7-2a8e-4d79-973c-2ebe6151be1b@kernel.org>
 References: <1469003351-15263-1-git-send-email-quentin.schulz@free-electrons.com>
- <1469003351-15263-4-git-send-email-quentin.schulz@free-electrons.com>
- <ff7515ec-a064-95df-1118-93c7062c2237@kernel.org>
- <ffca0be9-56c0-5f84-09ee-884d5e94e9df@free-electrons.com>
- <cbf9470e-62ee-0efe-d893-5e08df33576c@kernel.org>
- <433c4869-88ed-5821-2db2-67dbaa6541f7@free-electrons.com>
+ <1469003351-15263-5-git-send-email-quentin.schulz@free-electrons.com>
+ <8174039f-777e-b4b8-58c9-3509748f2799@kernel.org>
+ <db3ab94a-9dbb-3bd6-fe43-e530b42c9246@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:49221 "EHLO
-        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934084AbcI0TjB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 27 Sep 2016 15:39:01 -0400
-In-Reply-To: <433c4869-88ed-5821-2db2-67dbaa6541f7@free-electrons.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <db3ab94a-9dbb-3bd6-fe43-e530b42c9246-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Cc: antoine.tenart-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Quentin Schulz <quentin.schulz@free-electrons.com>, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, maxime.ripard@free-electrons.com, wens@csie.org, dmitry.torokhov@gmail.com, lee.jones@linaro.org
-Cc: antoine.tenart@free-electrons.com, thomas.petazzoni@free-electrons.com, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On 25/09/16 20:57, Quentin Schulz wrote:
-> On 25/09/2016 11:10, Jonathan Cameron wrote:
->> On 24/09/16 18:40, Quentin Schulz wrote:
->>> Hi Jonathan,
+On 25/09/16 20:44, Quentin Schulz wrote:
+> On 24/07/2016 13:24, Jonathan Cameron wrote:
+>> On 20/07/16 09:29, Quentin Schulz wrote:
+>>> This adds support for Allwinner SoCs' (A10, A13 and A31) resistive
+>>> touchscreen. This driver is probed by the MFD sunxi-gpadc-mfd.
 >>>
->>> Sorry for the (long) delay, I did not have time to work on it. I'll
->>> mainly work in my free time now.
+>>> This driver uses ADC channels exposed through the IIO framework by
+>>> sunxi-gpadc-iio to get its data. When opening this input device, it will
+>>> start buffering in the ADC driver and enable a TP_UP_PENDING irq. The ADC
+>>> driver will fill in a buffer with all data and call the callback the input
+>>> device associated with this buffer. The input device will then read the
+>>> buffer two by two and send X and Y coordinates to the input framework based
+>>> on what it received from the ADC's buffer. When closing this input device,
+>>> the buffering is stopped.
 >>>
->>> Keep in mind this patch was proposed based on the v2 of the ADC patches.
->>> Since then, substantial changes have been made and I'm working on
->>> rebasing this series of patches on the v6, so comments here might
->>> include references to code parts added later in the ADC patch series.
+>>> Note that locations in the first received buffer after an TP_UP_PENDING irq
+>>> occurred are unreliable, thus dropped.
 >>>
->>> On 24/07/2016 13:03, Jonathan Cameron wrote:
->>>> On 20/07/16 09:29, Quentin Schulz wrote:
->>>>> This enables the use of buffers on ADC channels of sunxi-gpadc-iio driver.
->>>>> It also prepares the code which will be used by the touchscreen driver
->>>>> named sunxi-gpadc-ts.
->>>>>
->>>>> The GPADC on Allwinner SoCs (A10, A13 and A31) has a 12 bits register for
->>>>> conversion's data. The GPADC uses the same ADC channels for the ADC and the
->>>>> touchscreen therefore exposes these channels to the sunxi-gpadc-ts iio
->>>>> consumer which will be in charge of reading data from these channels for
->>>>> the input framework.
->>>>>
->>>>> The temperature can only be read when in touchscreen mode. This means if
->>>>> the buffers are being used for the ADC, the temperature sensor cannot be
->>>>> read.
->>>> That may be the bizarest hardware restriction I've heard of in a while! :)
->>>>>
->>>>> When a FIFO_DATA_PENDING irq occurs, its handler will read the entire FIFO
->>>>> and fill a buffer before sending it to the consumers which registered in
->>>>> IIO for the ADC channels.
->>>>>
->>>>> When a consumer starts buffering ADC channels,
->>>>> sunxi_gpadc_buffer_postenable is called and will enable FIFO_DATA_PENDING
->>>>> irq and select the mode in which the GPADC should run (ADC or touchscreen)
->>>>> depending on a property of the DT ("allwinner,ts-attached").
->>>>> When the consumer stops buffering, it disables the same irq.
->>>> Hmm. Might be possible to distinguish which consumer caused the start.
->>>> Thus, if the touchscreen is there we would know purely based on the
->>>> driver being the requester that we need to be in touchscreen mode.
->>>>
->>>
->>> As of yet, can't see in which way I can retrieve the consumer in
->>> provider code. Maybe I'm missing something, I don't know?
->> I don't think we have a current way of doing this... Might be possible
->> to add one, but it would be a rather odd bit of reverse looking up.
+>> I think I now understand what you are doing.
+>>
+>> The channel grab is grabbing 4 channels, when there are only two real
+>> ones (x and y) then you are abusing the callback interface from IIO.
+> 
+> Actually, I need an IIO channel only for registering the callback from
+> the consumer but I never use the IIO channel in an other way from
+> consumer side (everything's done in the provider by reading the FIFO
+> register and sending data to the callback via iio_buffer).
+Whilst it 'would work' to just hook in and deal with the data if it
+came through a single channel with enough space, that would be an
+abuse of the interface which is very much designed to ship 'scans'
+(e.g. sets of data taken at the same time ish).
+
+There is a demux unit in the path which is designed to pull out
+only the channels wanted by the consumer.  If the combination
+of available_scan_masks in the provider and the channels requested
+by the consumer (via the map) are right then you'll only 'get'
+the data you want and the rest will disappear into thin air ;)
+
+> 
+>> That transmits only one scan (e.g. here (x,y)) per call. Because you
+>> have added a sideband route for the buffer size what you have wil work.
+>>
+>> However, it is not how the interface should be used.  Please fix that.
+>> Using it correctly is not a big issue.
+>>
+>> On the channels front, I'd be tempted to do this as follows:
+>>
+>> 6 Channels, not 4.
+>>
+>> First 4 are standard ADC channels
+>> Next 2 are the touch screen channels with appropriate descriptions
+>> (guessing these are actually differential channels across the various
+>> wires of the first two?)
+>>
+> 
+> Yes they are differential channels.
+> 
+> However, I think there is actually no sense in using several channels
+> for the touchscreen as everything is handled by the hardware. You only
+> select the touchscreen mode by setting a register and then X and Y
+> coordinates will be added to the FIFO register when touching the
+> touchscreen. I would not mind not having IIO channel at all since we do
+> not read from the consumer. But I need a way to register a callback to
+> get data from the provider. I don't know if I make myself clear enough?
+If you want to do it another way (I'd rather you didn't!) then you'll
+need to create an mfd style base driver and register the touch screen
+on that with custom callback registration etc.
+> 
+>> Then you set the map up to apply to the last two channels only.
+>> By setting available_scan_masks to the relevant options in the IIO driver
+>> you'll be able to automatically lock the device when ever the
+>> touch screeen driver is loaded.
+>>
+>> That map will be something like (in binary
+>> 000000
+>> 000011
+>> 000100
+>> 001000
+>> 010000
+>> 100000
+>> 001100
+>> 010100
+>> 011000
+>> 100100
+>> 101000
+>> 110000
+>> 011100
+>> 101100
+>> 110100
+>> 111000
+>> 111100
+>>
+>> thus any combination of the ADC channels, but always all or none of the
+>> touchscreen (none when ever the ADC channels are on) the order above
+>> ensures we always turn on the minimum possible for a given requirement.
+>>
+>> Hence whenever the touch screen is there it'll lock out the ADC usage.
+>> Your postenable can look at what is there and put it in the right mode.
+>>
+> 
+> I'll dive more into that.
+> 
+>> After that, break your fifo read up into individual pairs of readings
+>> and push those out.
+>>
+>> That way we end up using the interface in the standard fashion.
+>>
+>> You'll also need fix the usage of the fifo for ADC mode which suffers
+>> from the same problem.  There all sorts of nasty crashes might occur
+>> or you might just loose data
+>>
 > [...]
->>>>> @@ -101,19 +104,43 @@ struct sunxi_gpadc_dev {
->>>>>  	unsigned int			fifo_data_irq;
->>>>>  	unsigned int			temp_data_irq;
->>>>>  	unsigned int			flags;
->>>>> +	struct iio_dev			*indio_dev;
->>>> I was suprised to see this as normally it is cleaner to structure
->>>> the whole code to go in one direction through the structures (which is
->>>> why we don't provide a generic iio_device_from_priv bit of pointer magic).
->>>>
->>>> Anyhow, don't htink you are actually using it ;)
->>>>
->>>
->>> I'm using to push to buffers from the irq handler since I pass the local
->>> structure (sunxi_gpadc_dev) to the irq handler when registering it. But
->>> I guess I can pass the iio_dev instead and remove this from the local
->>> structure.
->> I'd prefer passing the iio_dev and keep all lookups in one direction.
-> 
-> ACK.
-> 
->>>
->>> [...]
->>>>>  static int sunxi_gpadc_adc_read(struct iio_dev *indio_dev, int channel,
->>>>>  				int *val)
->>>>>  {
->>>>>  	struct sunxi_gpadc_dev *info = iio_priv(indio_dev);
->>>>> +	bool buffered = info->buffered;
->>>> Not worth the local version...
->>>>>  	int ret = 0;
->>>>> +	unsigned int reg;
->>>>>  
->>>>>  	mutex_lock(&indio_dev->mlock);
->>>>>  
->>>>>  	reinit_completion(&info->completion);
->>>>> +
->>>>> +	reg = SUNXI_GPADC_TP_FIFO_TRIG_LEVEL(1) | SUNXI_GPADC_TP_FIFO_FLUSH;
->>>>> +	regmap_update_bits(info->regmap, SUNXI_GPADC_TP_INT_FIFOC, reg, reg);
->>>> I'd put it in directly rahter than having a reg local variable.  To mind
->>>> mind that would be slightly easier to understand.
->>>>> +
->>>>>  	if (info->flags & SUNXI_GPADC_ARCH_SUN6I)
->>>>>  		regmap_write(info->regmap, SUNXI_GPADC_TP_CTRL1,
->>>>>  			     SUNXI_GPADC_SUN6I_TP_MODE_EN |
->>>>> @@ -153,9 +185,9 @@ static int sunxi_gpadc_adc_read(struct iio_dev *indio_dev, int channel,
->>>>>  			     SUNXI_GPADC_TP_MODE_EN |
->>>>>  			     SUNXI_GPADC_TP_ADC_SELECT |
->>>>>  			     SUNXI_GPADC_ADC_CHAN_SELECT(channel));
->>>>> -	regmap_write(info->regmap, SUNXI_GPADC_TP_INT_FIFOC,
->>>>> -		     SUNXI_GPADC_TP_FIFO_TRIG_LEVEL(1) |
->>>>> -		     SUNXI_GPADC_TP_FIFO_FLUSH);
->>>> Whole load of infrastructure in place to lock buffered mode out and
->>>> revent transitions when we can't have them.
->>>>
->>>> iio_claim_direct_mode etc.  I think you can just use that here?
->>>> If you need to do extra checks on it being enabled that should be
->>>> fine too.
->>>>
->>>
->>> Yes, way better with iio_device_claim_direct_mode and iio_buffer_enabled!
->>>
->>>> As a general rule, it makes sense to simply disable polled reads
->>>> if in buffered mode.  Leads to much simpler code and generally
->>>> the data is already known to userspace anyway.
->>>>
->>>
->>> That's what I try to do.
->>> However, I think the temperature of the SoC is an interesting feature to
->>> have. Since it ("hardwarely") works while the ADC is read in touchscreen
->>> mode (even in buffer mode), I guess it could be a good idea to allow it
->>> in the driver. If we don't do that, boards with a touchscreen connected
->>> to the ADC of the SoC will not get SoC temperatures and can't have
->>> proper thermal management. We already have one board in that case: the
->>> PocketCHIP.
->>>
->>> Therefore, I also need to know if when the buffer is enabled, if it's
->>> for buffering ADC data or touchscreen data. If it's for ADC data, then I
->>> should disable temperature readings since it will return senseless
->>> values (from memory, always 0 which means something like -144°C).
->> Nice so no thermal management if we don't have a touch screen :)
-> 
-> I think that's a big constraint. I think we should be able to read the
-> temperature when the ADC is in either touchscreen or ADC mode but ONLY
-> in DIRECT_MODE. While in BUFFER_MODE, we should enable temperature
-> reading only when the touchscreen is present.
-It would certainly be preferable to do so.
-> 
-> That might induce a problem with the thermal framework I think. I've had
-> some problem with temperature reading's timeout so I'm reading a
-> manually "cached" temperature which is updated when the temperature
-> reading is done. However, it will never be updated when the ADC is in
-> buffered ADC mode. I don't know if in that case it is better to
-> unregister the thermal device, to give outdated values or to notify the
-> thermal framework the temperature readings timed out (which is verbose).
-> [...]
-Definitely need some input from the thermal guys on this.  Perhaps
-they need to have a way of saying -EBUSY.
->>>>> @@ -261,7 +302,29 @@ static irqreturn_t sunxi_gpadc_temp_data_irq_handler(int irq, void *dev_id)
->>>>>  static irqreturn_t sunxi_gpadc_fifo_data_irq_handler(int irq, void *dev_id)
->>>>>  {
->>>>>  	struct sunxi_gpadc_dev *info = dev_id;
->>>>> -	int ret;
->>>>> +	int ret, reg, i, fifo_count;
->>>>> +
->>>>> +	if (info->buffered) {
->>>>> +		if (regmap_read(info->regmap, SUNXI_GPADC_TP_INT_FIFOS, &reg))
->>>>> +			return IRQ_HANDLED;
->>>>> +
->>>>> +		fifo_count = (reg & SUNXI_GPADC_RXA_CNT) >> 8;
->>>>> +		/* Sometimes, the interrupt occurs when the FIFO is empty. */
->>>>> +		if (!fifo_count)
->>>>> +			return IRQ_HANDLED;
->>>>> +
->>>>> +		for (i = 0; i < fifo_count; i++) {
->>>>> +			if (regmap_read(info->regmap, SUNXI_GPADC_TP_DATA,
->>>>> +					&info->buffer.buffer[i]))
->>>>> +				return IRQ_HANDLED;
->>>>> +		}
->>>>> +
->>>>> +		info->buffer.buff_size = i;
->>>>> +
->>>>> +		iio_push_to_buffers(info->indio_dev, &info->buffer);
->>>> This is expecting a single 'scan' - e.g. set of channels read at one
->>>> time.  Here I think we could have repeated sets of channels?
->>>> (at least that would be what is normally meant by a fifo in such
->>>> a device).
->>>>
->>>> If so you need to read 'whole' scans and push them one at a time.
->>>> We don't yet have a bulk iio_push_to_buffers, though we can add
->>>> one if it makes sense.  Care will be needed though as we'd need
->>>> handle the case of different consumers either supporting or
->>>> not supporting this new functionality.  Not particularly hard though
->>>> if it is worth doing.
->>>
->>> I didn't know it was meant for only one scan. Then I need a bulk
->>> iio_push_to_buffers.
->> We've had a few cases where that would be handy recently. 
->> The bit that makes it complex is if we are doing any demux of the channels
->> to multiple consumers.  Could be done by falling back to separating
->> the scan's out and pushing them one by one through the demux though.
->> Not sure there is a better way to do it though...
->>>
->>> I have a rather big problem. The whole first FIFO at each touch is
->>> unusable so I have to drop it. I can detect the beginning of a touch
->>> when the TP_UP irq occurs, then I know the next full FIFO the consumer
->>> receives by callback is to be dropped. If I use push_to_buffers to send
->>> coordinates by coordinates, the consumer has no mean to know when the
->>> second FIFO (the first to be valid) starts and can be used. Either we
->>> can find a way to notify the consumer of the start of a new FIFO or I
->>> have to use a bulk iio_push_to_buffers.
->> Nasty indeed.
->>>
->>> The workaround would be to register the TP_UP irq in the provider (the
->>> ADC driver) and do not send the first FIFO to the consumer. But then, we
->>> need a way to know which consumer requests buffering to know when to
->>> enable this irq and do all touchscreen-only logic (dropping first
->>> frame). And I guess we don't have something like that yet. Or I could
->>> only code a buffering in touchscreen mode and add the ADC buffering
->>> later? But it doesn't feel right to do what I think should be handled
->>> (TP_UP irq handler and first FIFO dropping) in the consumer, in the
->>> provider.
->> Would indeed by the nicer way of doing it, but we are ultimately working
->> around a hardware issue (to my mind it should never return rubbish!)
->> so I'd not worry too much about where the fix is.
->>>
->>> So it's quiet a dead-end yet if I can't use iio_push_to_buffers with a
->>> whole FIFO (which you told is not how it is meant to be used).
->> It only worked here because you had control of both ends of the link.
+>>> +/*
+>>> + * This function will be called by iio_push_to_buffers from another driver
+>>> + * (namely sunxi-gpadc-iio). It will be passed the buffer filled with input
+>>> + * values (X value then Y value) and the sunxi_gpadc_ts structure representing
+>>> + * the device.
+>>> + */
+>>> +static int sunxi_gpadc_ts_callback(const void *data, void *private)
+>>> +{
+>>> +	const struct sunxi_gpadc_buffer *buffer = data;
+>>> +	struct sunxi_gpadc_ts *info = private;
+>>> +	int i = 0;
+>>> +
+>>> +	/* Locations in the first buffer after an up event are unreliable */
+>>> +	if (info->ignore_fifo_data) {
+>>> +		info->ignore_fifo_data = false;
+>>> +		return 0;
+>>> +	}
+>>> +
+>> It doesn't work like this at all. You'll get one scan only on each call of
+>> this function.  As I said in the previous driver, if there is a true reason
+>> to do this (and I'm unconvinced as yet) then we need to add support in the
+>> iio core etc for this (and emulating it when multiple scan passing isn't
+>> happening).
 >>
->> First thought is that we should add a bulk push to buffers, but
->> that a little bit of fiddly code would be needed to unwind the
->> data in the demux if needed.  Probably not too hard to do.  It would then
->> need to repackage the data up as a bulk buffer data block to send onwards.
+>> I guess this will work, as you are passing the buffer size as a side
+>> band, but it is definitely not how that ABI is meant to be used.
 >>
->> To do this I think you'd need to:
->> 1) Add core support to have a bulk push with the right magic around to call
->>    the demux code in a loop over all the elements before pushing on.
->> 2) Bulk handling in the callback buffer.
->> 3) Kfifo bulk handling (mostly to allow us to test the demux code).
->>
->> Actually, short of stuff I haven't thought of, doesn't look too tricky
->> and useful feature to have in general.
+>> Also, you grab 4 channels, and only two are used here.  Please explain...
 >>
 > 
-> Then I guess we'll have to do it :) I might need a lot of guiding though
-> but maybe that's more of an IRC chat or non-lkml conversation?
-Sure, funnily enough I'm updating the sca3000 driver to finally 
-lift it out of staging and a bulk write would help there as well.
-(tends to be copying 32 scans + at a time due to a hardware fifo).
+> Hum. Actually, that's a mistake. I'm quiet confused about how I should
+> do it while I never read channels from the consumer. I still "need" one
+> for "linking" the consumer and the provider but in the meantime, I'm
+> never using that channel.
+You are, because the demux is only sending you the channels you
+are registered for.  Thus the provider should push whatever it
+gets to the buffers and by the time it hits the consumer it should
+get only what it needs.
 
-Looking at the new kionix parts which have 8K hardware fifos this gets
-even more interesting (though perhaps we should handle as pure
-hardware fifos without the front end kfifo.)
-> 
-> Thanks,
-> Quentin
-> 
+It's not so interesting with this hardware because you can't do
+general purpose reads at the same time as the touchscreen stuff is
+running (annoyingly).  With hardware that can do any combination of
+channels you end up with for example:
 
+Provider - pushing out a superset of all the channels anyone cares
+about.
+
+Consumer 1 (touch screen) gets just the x and y coordinates when pen
+is down.
+
+Consumer 2 (temperature - thermal) gets just the temperature.
+
+Consumer 3 (e.g. battery monitory) gets just the charger voltages etc.
+
+Consumer 4 (stretching here - analog accelerometer) gets just
+accelerations for the input bridge I never get round to finally
+submitting.
+
+Jonathan

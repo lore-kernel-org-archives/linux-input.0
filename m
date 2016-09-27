@@ -1,16 +1,16 @@
 From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH 1/2] Input: introduce ABS_MAX2/CNT2 and friends
-Date: Tue, 27 Sep 2016 16:38:51 -0700
-Message-ID: <1475019532-16876-2-git-send-email-roderick@gaikai.com>
+Subject: [PATCH 2/2] Input: add motion-tracking ABS_* bits and docs
+Date: Tue, 27 Sep 2016 16:38:52 -0700
+Message-ID: <1475019532-16876-3-git-send-email-roderick@gaikai.com>
 References: <1475019532-16876-1-git-send-email-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f177.google.com ([209.85.223.177]:33782 "EHLO
-        mail-io0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756465AbcI0X5E (ORCPT
+Received: from mail-it0-f48.google.com ([209.85.214.48]:38633 "EHLO
+        mail-it0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756686AbcI0X5I (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 27 Sep 2016 19:57:04 -0400
-Received: by mail-io0-f177.google.com with SMTP id r145so32742601ior.0
-        for <linux-input@vger.kernel.org>; Tue, 27 Sep 2016 16:57:03 -0700 (PDT)
+        Tue, 27 Sep 2016 19:57:08 -0400
+Received: by mail-it0-f48.google.com with SMTP id n143so29851716ita.1
+        for <linux-input@vger.kernel.org>; Tue, 27 Sep 2016 16:57:07 -0700 (PDT)
 In-Reply-To: <1475019532-16876-1-git-send-email-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,494 +19,283 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gma
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-David Herrmann's original patch was ported over to a modern Linux kernel.
-In the process, we went over all the feedback to the original patch series
-and added various improvements:
+This patch introduces new axes for acceleration and angular velocity.
+David Herrmann's work served as a base, but we extended the specification
+with various changes inspired by real devices and challenges we see
+when doing motion tracking.
 
-- evdev_handle_get_abs2 returns valid_cnt instead of 0 when succesfull
-- Updated documentation of EVIOCGABS2/EVIOCSABS2 ioctls based.
-- Clarified language around ABS_MAX2 definition, to state the *ABS2 ioctls
-  should be used for the full range.
+- Changed unit of acceleration to G instead of m/s^2. We felt that m/s^2
+  is not the appropriate unit to return, because accelerometers are most
+  often calibrated based on gravity. They return values in multiples of
+  G and since we don't know the device location on earth, we should not
+  blindly multiply by '9.8' for accuracy reasons. Such conversion is left
+  to userspace.
+- Resolution field is used for acceleration and gyro to report precision.
+  The previous spec, specified to map 1 unit to e.g. 0.001 deg/s or 0.001 m/s^2.
+  This is of course simpler for applications, but unit definition is a bit
+  arbitrary. Previous axes definitions used the resolution field, which
+  felt more consistent.
+- Added section on timestamps, which are important for accurate motion
+  tracking purposes. The use of MSC_TIMESTAMP was recommended in this
+  situation to get access to the hardware timestamp if available.
+- Changed motion axes to be defined as a right-handed coordinate system.
+  Due to this change the gyro vectors are now defined as counter-clockwise.
+  The overall changes makes the definitions consistent with computer graphics.
 
-[PATCH 2/4] Input: introduce ABS_MAX2/CNT2 and friends
-
+[PATCH 4/4] Input: add motion-tracking ABS_* bits and docs
 David Herrmann <dh.herrmann@gmail.com>
-Tue Dec 17 07:48:52 PST 2013
-Previous message: [PATCH 1/4] Input: uinput: add full absinfo support
-Next message: [PATCH 2/4] Input: introduce ABS_MAX2/CNT2 and friends
-Messages sorted by: [ date ] [ thread ] [ subject ] [ author ]
-As we painfully noticed during the 3.12 merge-window our
-EVIOCGABS/EVIOCSABS API is limited to ABS_MAX<=0x3f. We tried several
-hacks to work around it but if we ever decide to increase ABS_MAX, the
-EVIOCSABS ioctl ABI might overflow into the next byte causing horrible
-misinterpretations in the kernel that we cannot catch.
+Tue Dec 17 07:48:54 PST 2013
 
-Therefore, we decided to go with ABS_MAX2/CNT2 and introduce two new
-ioctls to get/set abs-params. They no longer encode the ABS code in the
-ioctl number and thus allow up to 4 billion ABS codes.
+Motion sensors are getting quite common in mobile devices. To avoid
+returning accelerometer data via ABS_X/Y/Z and irritating the Xorg
+mouse-driver, this adds separate ABS_* bits for that.
 
-The new API also allows to query multiple ABS values with one call. To
-allow EVIOCSABS2(code = 0, cnt = ABS_CNT2) we need to silently ignore
-writes to ABS_MT_SLOT. Furthermore, for better compatibility with
-newer user-space, we ignore writes to unknown codes. Hence, if we ever
-increase ABS_MAX2, new user-space will work with code=0,cnt=ABS_CNT2 just
-fine even on old kernels.
-
-Note that we also need to increase EV_VERSION so user-space can reliably
-know whether ABS2 is supported. Unfortunately, we return EINVAL instead of
-ENOSYS for unknown evdev ioctls so it's nearly impossible to catch
-reliably without EVIOCGVERSION.
+This is needed if gaming devices want to report their normal data plus
+accelerometer/gyro data. Usually, ABS_X/Y are already used by analog
+sticks, so need separate definitions, anyway.
 
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/hid-debug.c                  |  2 +-
- drivers/hid/hid-input.c                  |  2 +-
- drivers/input/evdev.c                    | 95 +++++++++++++++++++++++++++++++-
- drivers/input/input.c                    | 14 ++---
- drivers/input/keyboard/goldfish_events.c |  6 +-
- drivers/input/keyboard/hil_kbd.c         |  2 +-
- drivers/input/misc/uinput.c              |  8 +--
- include/linux/hid.h                      |  2 +-
- include/linux/input.h                    |  6 +-
- include/linux/mod_devicetable.h          |  2 +-
- include/uapi/linux/input-event-codes.h   | 14 ++++-
- include/uapi/linux/input.h               | 37 ++++++++++++-
- 12 files changed, 165 insertions(+), 25 deletions(-)
+ Documentation/input/gamepad.txt         |   9 +-
+ Documentation/input/motion-tracking.txt | 176 ++++++++++++++++++++++++++++++++
+ include/uapi/linux/input-event-codes.h  |   7 ++
+ 3 files changed, 190 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/input/motion-tracking.txt
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index acfb522..7205d4a 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -963,7 +963,7 @@ static const char *relatives[REL_MAX + 1] = {
- 	[REL_WHEEL] = "Wheel",		[REL_MISC] = "Misc",
- };
+diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
+index 3f6d8a5..ed13782 100644
+--- a/Documentation/input/gamepad.txt
++++ b/Documentation/input/gamepad.txt
+@@ -57,6 +57,9 @@ Most gamepads have the following features:
+   - Rumble
+     Many devices provide force-feedback features. But are mostly just
+     simple rumble motors.
++  - Motion-tracking
++    Gamepads may include motion-tracking sensors like accelerometers and
++    gyroscopes.
  
--static const char *absolutes[ABS_CNT] = {
-+static const char *absolutes[ABS_CNT2] = {
- 	[ABS_X] = "X",			[ABS_Y] = "Y",
- 	[ABS_Z] = "Z",			[ABS_RX] = "Rx",
- 	[ABS_RY] = "Ry",		[ABS_RZ] = "Rz",
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index bcfaf32..26b161d 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1411,7 +1411,7 @@ static bool hidinput_has_been_populated(struct hid_input *hidinput)
- 	for (i = 0; i < BITS_TO_LONGS(REL_CNT); i++)
- 		r |= hidinput->input->relbit[i];
+ 3. Detection
+ ~~~~~~~~~~~~
+@@ -138,8 +141,6 @@ Triggers:
+   Upper trigger buttons are reported as BTN_TR or ABS_HAT1X (right) and BTN_TL
+   or ABS_HAT1Y (left). Lower trigger buttons are reported as BTN_TR2 or
+   ABS_HAT2X (right/ZR) and BTN_TL2 or ABS_HAT2Y (left/ZL).
+-  If only one trigger-button combination is present (upper+lower), they are
+-  reported as "right" triggers (BTN_TR/ABS_HAT1X).
+     (ABS trigger values start at 0, pressure is reported as positive values)
  
--	for (i = 0; i < BITS_TO_LONGS(ABS_CNT); i++)
-+	for (i = 0; i < BITS_TO_LONGS(ABS_CNT2); i++)
- 		r |= hidinput->input->absbit[i];
+ Menu-Pad:
+@@ -155,5 +156,9 @@ Menu-Pad:
+ Rumble:
+   Rumble is advertised as FF_RUMBLE.
  
- 	for (i = 0; i < BITS_TO_LONGS(MSC_CNT); i++)
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index e9ae3d5..569e425 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -815,7 +815,7 @@ static int handle_eviocgbit(struct input_dev *dev,
- 	case      0: bits = dev->evbit;  len = EV_MAX;  break;
- 	case EV_KEY: bits = dev->keybit; len = KEY_MAX; break;
- 	case EV_REL: bits = dev->relbit; len = REL_MAX; break;
--	case EV_ABS: bits = dev->absbit; len = ABS_MAX; break;
-+	case EV_ABS: bits = dev->absbit; len = ABS_MAX2; break;
- 	case EV_MSC: bits = dev->mscbit; len = MSC_MAX; break;
- 	case EV_LED: bits = dev->ledbit; len = LED_MAX; break;
- 	case EV_SND: bits = dev->sndbit; len = SND_MAX; break;
-@@ -827,6 +827,93 @@ static int handle_eviocgbit(struct input_dev *dev,
- 	return bits_to_user(bits, len, size, p, compat_mode);
- }
- 
-+static int evdev_handle_get_abs2(struct input_dev *dev, void __user *p)
-+{
-+	u32 code, cnt, valid_cnt, i;
-+	struct input_absinfo2 __user *pinfo = p;
-+	struct input_absinfo abs;
++Motion-tracking:
++  Motion-tracking is defined in ./Documentation/input/motion-tracking.txt and
++  gamepads shall comply to the rules defined there.
 +
-+	if (copy_from_user(&code, &pinfo->code, sizeof(code)))
-+		return -EFAULT;
-+	if (copy_from_user(&cnt, &pinfo->cnt, sizeof(cnt)))
-+		return -EFAULT;
-+	if (!cnt)
-+		return 0;
+ ----------------------------------------------------------------------------
+   Written 2013 by David Herrmann <dh.herrmann@gmail.com>
+diff --git a/Documentation/input/motion-tracking.txt b/Documentation/input/motion-tracking.txt
+new file mode 100644
+index 0000000..d34a290
+--- /dev/null
++++ b/Documentation/input/motion-tracking.txt
+@@ -0,0 +1,176 @@
++                           Motion Tracking API
++----------------------------------------------------------------------------
 +
-+	if (!dev->absinfo)
-+		valid_cnt = 0;
-+	else if (code > ABS_MAX2)
-+		valid_cnt = 0;
-+	else if (code + cnt <= code || code + cnt > ABS_MAX2)
-+		valid_cnt = ABS_MAX2 - code + 1;
-+	else
-+		valid_cnt = cnt;
++1. Intro
++~~~~~~~~
++Motion tracking devices produce device motion events generated from an
++accelerometer, gyroscope or compass. These data can be returned to user-space
++via input events. This document defines how these data are reported.
 +
-+	for (i = 0; i < valid_cnt; ++i) {
-+		/*
-+		 * Take event lock to ensure that we are not
-+		 * copying data while EVIOCSABS2 changes it.
-+		 * Might be inconsistent, otherwise.
-+		 */
-+		spin_lock_irq(&dev->event_lock);
-+		abs = dev->absinfo[code + i];
-+		spin_unlock_irq(&dev->event_lock);
++2. Devices
++~~~~~~~~~~
++In this document, a "device" is one of:
++ - accelerometer
++ - gyroscope
++ - compass
 +
-+		if (copy_to_user(&pinfo->info[i], &abs, sizeof(abs)))
-+			return -EFAULT;
-+	}
++These devices returned their information via different APIs in the past. To
++unify them and define a common API, a set of input evdev codes was created. Old
++drivers might continue using their API, but developers are encouraged to use
++the input evdev API for new drivers.
 +
-+	memset(&abs, 0, sizeof(abs));
-+	for (i = valid_cnt; i < cnt; ++i)
-+		if (copy_to_user(&pinfo->info[i], &abs, sizeof(abs)))
-+			return -EFAULT;
++2.1 Axes
++~~~~~~~~
++Movement data is usually returned as absolute data for the 3 axes of a device.
++In this context, the three axes are defined in a right-handed coordinate
++system as:
++ - X: Axis goes from the left to the right side of the device
++ - Y: Axis goes from the bottom to the top of the device
++ - Z: Axis goes from the back to the front of the device
 +
-+	return valid_cnt;
-+}
++The front of a device is the side faced to the user. For a mobile-phone it
++would be the screen. For devices without a screen, the top is usually the
++side with the most buttons on it.
 +
-+static int evdev_handle_set_abs2(struct input_dev *dev, void __user *p)
-+{
-+	struct input_absinfo2 __user *pinfo = p;
-+	struct input_absinfo *abs;
-+	u32 code, cnt, i;
-+	size_t size;
++                           Example: Mobile-Phone
++  +-------------------------------------------------------------------------+
++  |                      TOP                                                |
++  |                                                                         |
++  |                                                                         |
++  |          +---------------------------+                                  |
++  |          |\  ________________________ \      .__                        |
++  |          \ \ \                       \ \     |\                         |
++  |           \ \ \              __       \ \      \                   RIGHT|
++  |            \ \ \              /|       \ \      \__                     |
++  |             \ \ \          __/          \ \     |\                      |
++  |              \ \ \          /|           \ \      \ (Y Axis)            |
++  |               \ \ \      __/  (Z axis)    \ \      \__                  |
++  |                \ \ \      /|               \ \     |\                   |
++  | LEFT            \ \ \    /                  \ \      \                  |
++  |                  \ \ \         FRONT         \ \      \                 |
++  |                   \ \ \                       \ \                       |
++  |                    \ \ \_______________________\ \                      |
++  |                     \ \             ___           \                     |
++  |                     /\ \            \__\           \                    |
++  |                  __/  \ +---------------------------+                   |
++  |                   /|   \|___________________________|                   |
++  |                  / BACK                                                 |
++  |                                      (X axis)                           |
++  |                        ------->------->------->------->                 |
++  |                                                                         |
++  |                                                                         |
++  |                                         BOTTOM                          |
++  +-------------------------------------------------------------------------+
 +
-+	if (!dev->absinfo)
-+		return 0;
-+	if (copy_from_user(&code, &pinfo->code, sizeof(code)))
-+		return -EFAULT;
-+	if (copy_from_user(&cnt, &pinfo->cnt, sizeof(cnt)))
-+		return -EFAULT;
-+	if (!cnt || code > ABS_MAX2)
-+		return 0;
++Rotation-data is reported as counter-clockwise rotation on an axis when viewed
++from the top of the axis, as given by the right hand rule. For a given axis,
++the reported rotation would be:
++                                        ____
++                                          //|
++                                         // | (axis)
++                                        //
++                                       //
++                                  .   // __
++                                 /   // /\
++                                |   //    |
++                                 \ //    /  (counter-clockwise rotation)
++                                  *.___.*
++                                 //
++                                //
 +
-+	if (code + cnt <= code || code + cnt > ABS_MAX2)
-+		cnt = ABS_MAX2 - code + 1;
++2.2 Calibration
++~~~~~~~~~~~~~~~
++Motion sensors are often highly sensitive and need precise calibration. Users
++are advised to perform neutral-point calibration themselves or to implement a
++state-machine to normalize input data automatically.
 +
-+	size = cnt * sizeof(*abs);
-+	abs = memdup_user(pinfo->info, size);
-+	if (IS_ERR(abs))
-+		return PTR_ERR(abs);
++Kernel devices may perform their own calibration and/or normalization. However,
++this is usually sparse and, if implemented, transparent to the user.
 +
-+	/*
-+	 * Take event lock to ensure that we are not
-+	 * changing device parameters in the middle
-+	 * of event.
-+	 */
-+	spin_lock_irq(&dev->event_lock);
-+	for (i = 0; i < cnt; ++i) {
-+		/* silently drop ABS_MT_SLOT */
-+		if (code + i == ABS_MT_SLOT)
-+			continue;
++There is currently no way to feed calibration data into the kernel in a generic
++way. Proposals welcome!
 +
-+		dev->absinfo[code + i] = abs[i];
-+	}
-+	spin_unlock_irq(&dev->event_lock);
++2.3 Units
++~~~~~~~~~
++(NOTE: This section describes an experimental API. Currently, no device complies
++to these rules so this might change in the future.)
 +
-+	kfree(abs);
-+	return 0;
-+}
++Reported data shall be returned as:
++ - Acceleration: 1/(input_absinfo.resolution) G
++ - Rotation: 1/(input_absinfo.resolution) degree per second
 +
- static int evdev_handle_get_keycode(struct input_dev *dev, void __user *p)
- {
- 	struct input_keymap_entry ke = {
-@@ -1155,6 +1242,12 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 
- 		return evdev_set_clk_type(client, i);
- 
-+	case EVIOCGABS2:
-+		return evdev_handle_get_abs2(dev, p);
++Acceleration is reported in units of G as opposed to m/s^2, because acceleration
++sensors internally work based on gravitation. Since the conversion to m/s^2 is
++location dependent, applications should either approximate the conversion
++factor as 9.8 m/s^2 or if more precision is desired obtain a scaling factor
++by other means e.g. GPS.
 +
-+	case EVIOCSABS2:
-+		return evdev_handle_set_abs2(dev, p);
++However, for most devices the reported units are unknown (more precisely: no
++one has the time to measure them and figure them out). Therefore, user-space
++shall use abs-minimum and abs-maximum to calculate relative data and use that
++instead. Devices which return wrong units may be fixed in the future to comply
++to these rules.
 +
- 	case EVIOCGKEYCODE:
- 		return evdev_handle_get_keycode(dev, p);
- 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index d95c34e..ecf5aa6 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -310,7 +310,7 @@ static int input_get_disposition(struct input_dev *dev,
- 		break;
- 
- 	case EV_ABS:
--		if (is_event_supported(code, dev->absbit, ABS_MAX))
-+		if (is_event_supported(code, dev->absbit, ABS_MAX2))
- 			disposition = input_handle_abs_event(dev, code, &value);
- 
- 		break;
-@@ -481,7 +481,7 @@ EXPORT_SYMBOL(input_inject_event);
- void input_alloc_absinfo(struct input_dev *dev)
- {
- 	if (!dev->absinfo)
--		dev->absinfo = kcalloc(ABS_CNT, sizeof(struct input_absinfo),
-+		dev->absinfo = kcalloc(ABS_CNT2, sizeof(struct input_absinfo),
- 					GFP_KERNEL);
- 
- 	WARN(!dev->absinfo, "%s(): kcalloc() failed?\n", __func__);
-@@ -965,7 +965,7 @@ static const struct input_device_id *input_match_device(struct input_handler *ha
- 		if (!bitmap_subset(id->relbit, dev->relbit, REL_MAX))
- 			continue;
- 
--		if (!bitmap_subset(id->absbit, dev->absbit, ABS_MAX))
-+		if (!bitmap_subset(id->absbit, dev->absbit, ABS_MAX2))
- 			continue;
- 
- 		if (!bitmap_subset(id->mscbit, dev->mscbit, MSC_MAX))
-@@ -1158,7 +1158,7 @@ static int input_devices_seq_show(struct seq_file *seq, void *v)
- 	if (test_bit(EV_REL, dev->evbit))
- 		input_seq_print_bitmap(seq, "REL", dev->relbit, REL_MAX);
- 	if (test_bit(EV_ABS, dev->evbit))
--		input_seq_print_bitmap(seq, "ABS", dev->absbit, ABS_MAX);
-+		input_seq_print_bitmap(seq, "ABS", dev->absbit, ABS_MAX2);
- 	if (test_bit(EV_MSC, dev->evbit))
- 		input_seq_print_bitmap(seq, "MSC", dev->mscbit, MSC_MAX);
- 	if (test_bit(EV_LED, dev->evbit))
-@@ -1344,7 +1344,7 @@ static int input_print_modalias(char *buf, int size, struct input_dev *id,
- 	len += input_print_modalias_bits(buf + len, size - len,
- 				'r', id->relbit, 0, REL_MAX);
- 	len += input_print_modalias_bits(buf + len, size - len,
--				'a', id->absbit, 0, ABS_MAX);
-+				'a', id->absbit, 0, ABS_MAX2);
- 	len += input_print_modalias_bits(buf + len, size - len,
- 				'm', id->mscbit, 0, MSC_MAX);
- 	len += input_print_modalias_bits(buf + len, size - len,
-@@ -1603,7 +1603,7 @@ static int input_dev_uevent(struct device *device, struct kobj_uevent_env *env)
- 	if (test_bit(EV_REL, dev->evbit))
- 		INPUT_ADD_HOTPLUG_BM_VAR("REL=", dev->relbit, REL_MAX);
- 	if (test_bit(EV_ABS, dev->evbit))
--		INPUT_ADD_HOTPLUG_BM_VAR("ABS=", dev->absbit, ABS_MAX);
-+		INPUT_ADD_HOTPLUG_BM_VAR("ABS=", dev->absbit, ABS_MAX2);
- 	if (test_bit(EV_MSC, dev->evbit))
- 		INPUT_ADD_HOTPLUG_BM_VAR("MSC=", dev->mscbit, MSC_MAX);
- 	if (test_bit(EV_LED, dev->evbit))
-@@ -1980,7 +1980,7 @@ static unsigned int input_estimate_events_per_packet(struct input_dev *dev)
- 	events = mt_slots + 1; /* count SYN_MT_REPORT and SYN_REPORT */
- 
- 	if (test_bit(EV_ABS, dev->evbit))
--		for_each_set_bit(i, dev->absbit, ABS_CNT)
-+		for_each_set_bit(i, dev->absbit, ABS_CNT2)
- 			events += input_is_mt_axis(i) ? mt_slots : 1;
- 
- 	if (test_bit(EV_REL, dev->evbit))
-diff --git a/drivers/input/keyboard/goldfish_events.c b/drivers/input/keyboard/goldfish_events.c
-index f6e643b..f1b50bc 100644
---- a/drivers/input/keyboard/goldfish_events.c
-+++ b/drivers/input/keyboard/goldfish_events.c
-@@ -90,8 +90,8 @@ static void events_import_abs_params(struct event_dev *edev)
- 	__raw_writel(PAGE_ABSDATA, addr + REG_SET_PAGE);
- 
- 	count = __raw_readl(addr + REG_LEN) / sizeof(val);
--	if (count > ABS_MAX)
--		count = ABS_MAX;
-+	if (count > ABS_MAX2)
-+		count = ABS_MAX2;
- 
- 	for (i = 0; i < count; i++) {
- 		if (!test_bit(i, input_dev->absbit))
-@@ -158,7 +158,7 @@ static int events_probe(struct platform_device *pdev)
- 	events_import_bits(edev, input_dev->evbit, EV_SYN, EV_MAX);
- 	events_import_bits(edev, input_dev->keybit, EV_KEY, KEY_MAX);
- 	events_import_bits(edev, input_dev->relbit, EV_REL, REL_MAX);
--	events_import_bits(edev, input_dev->absbit, EV_ABS, ABS_MAX);
-+	events_import_bits(edev, input_dev->absbit, EV_ABS, ABS_MAX2);
- 	events_import_bits(edev, input_dev->mscbit, EV_MSC, MSC_MAX);
- 	events_import_bits(edev, input_dev->ledbit, EV_LED, LED_MAX);
- 	events_import_bits(edev, input_dev->sndbit, EV_SND, SND_MAX);
-diff --git a/drivers/input/keyboard/hil_kbd.c b/drivers/input/keyboard/hil_kbd.c
-index 5b152f2..6878f70 100644
---- a/drivers/input/keyboard/hil_kbd.c
-+++ b/drivers/input/keyboard/hil_kbd.c
-@@ -386,7 +386,7 @@ static void hil_dev_pointer_setup(struct hil_dev *ptr)
- 					0, HIL_IDD_AXIS_MAX(idd, i - 3), 0, 0);
- 
- #ifdef TABLET_AUTOADJUST
--		for (i = 0; i < ABS_MAX; i++) {
-+		for (i = 0; i < ABS_MAX2; i++) {
- 			int diff = input_abs_get_max(input_dev, ABS_X + i) / 10;
- 			input_abs_set_min(input_dev, ABS_X + i,
- 				input_abs_get_min(input_dev, ABS_X + i) + diff);
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 65ebbd1..9816a25 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -361,7 +361,7 @@ static int uinput_validate_absbits(struct input_dev *dev)
- 	 * Check if absmin/absmax/absfuzz/absflat are sane.
- 	 */
- 
--	for_each_set_bit(cnt, dev->absbit, ABS_CNT) {
-+	for_each_set_bit(cnt, dev->absbit, ABS_CNT2) {
- 		if (!dev->absinfo)
- 			return -EINVAL;
- 
-@@ -429,7 +429,7 @@ static int uinput_abs_setup(struct uinput_device *udev,
- 	if (copy_from_user(&setup, arg, size))
- 		return -EFAULT;
- 
--	if (setup.code > ABS_MAX)
-+	if (setup.code > ABS_MAX2)
- 		return -ERANGE;
- 
- 	dev = udev->dev;
-@@ -492,7 +492,7 @@ static int uinput_setup_device_legacy(struct uinput_device *udev,
- 	dev->id.product	= user_dev->id.product;
- 	dev->id.version	= user_dev->id.version;
- 
--	for (i = 0; i < ABS_CNT; i++) {
-+	for (i = 0; i < ABS_CNT2; i++) {
- 		input_abs_set_max(dev, i, user_dev->absmax[i]);
- 		input_abs_set_min(dev, i, user_dev->absmin[i]);
- 		input_abs_set_fuzz(dev, i, user_dev->absfuzz[i]);
-@@ -832,7 +832,7 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 			goto out;
- 
- 		case UI_SET_ABSBIT:
--			retval = uinput_set_bit(arg, absbit, ABS_MAX);
-+			retval = uinput_set_bit(arg, absbit, ABS_MAX2);
- 			goto out;
- 
- 		case UI_SET_MSCBIT:
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 75b66ec..8d0e1d8 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -886,7 +886,7 @@ static inline void hid_map_usage(struct hid_input *hidinput,
- 	switch (type) {
- 	case EV_ABS:
- 		*bit = input->absbit;
--		*max = ABS_MAX;
-+		*max = ABS_MAX2;
- 		break;
- 	case EV_REL:
- 		*bit = input->relbit;
-diff --git a/include/linux/input.h b/include/linux/input.h
-index a65e3b2..550e92d 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -129,7 +129,7 @@ struct input_dev {
- 	unsigned long evbit[BITS_TO_LONGS(EV_CNT)];
- 	unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];
- 	unsigned long relbit[BITS_TO_LONGS(REL_CNT)];
--	unsigned long absbit[BITS_TO_LONGS(ABS_CNT)];
-+	unsigned long absbit[BITS_TO_LONGS(ABS_CNT2)];
- 	unsigned long mscbit[BITS_TO_LONGS(MSC_CNT)];
- 	unsigned long ledbit[BITS_TO_LONGS(LED_CNT)];
- 	unsigned long sndbit[BITS_TO_LONGS(SND_CNT)];
-@@ -210,8 +210,8 @@ struct input_dev {
- #error "REL_MAX and INPUT_DEVICE_ID_REL_MAX do not match"
- #endif
- 
--#if ABS_MAX != INPUT_DEVICE_ID_ABS_MAX
--#error "ABS_MAX and INPUT_DEVICE_ID_ABS_MAX do not match"
-+#if ABS_MAX2 != INPUT_DEVICE_ID_ABS_MAX
-+#error "ABS_MAX2 and INPUT_DEVICE_ID_ABS_MAX do not match"
- #endif
- 
- #if MSC_MAX != INPUT_DEVICE_ID_MSC_MAX
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index ed84c07..4c426cc 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -286,7 +286,7 @@ struct pcmcia_device_id {
- #define INPUT_DEVICE_ID_KEY_MIN_INTERESTING	0x71
- #define INPUT_DEVICE_ID_KEY_MAX		0x2ff
- #define INPUT_DEVICE_ID_REL_MAX		0x0f
--#define INPUT_DEVICE_ID_ABS_MAX		0x3f
-+#define INPUT_DEVICE_ID_ABS_MAX		0x4f
- #define INPUT_DEVICE_ID_MSC_MAX		0x07
- #define INPUT_DEVICE_ID_LED_MAX		0x0f
- #define INPUT_DEVICE_ID_SND_MAX		0x07
++2.4 Timestamps
++~~~~~~~~~~~~~~
++For motion tracking purposes the time delta between consecutive motion events
++is important for mathematical operations such as differentiation and integration.
++The time delta could be derived from the 'time' field in 'struct input_event' by
++subtracting the time between consecutive events. However, this timestamp may not
++provide enough accuracy depending on the use case, since it is based upon time of
++processing within the input layer versus time of arrival in the kernel or the
++time the hardware sent the data. There is often a small variable time difference
++between these.
++
++Optionally, hardware may provide a hardware timestamp produced at the time it
++sampled the motion sensors. This timestamp is is exposed through
++'MSC_TIMESTAMP' event, which provides timing information in microseconds.
++If available, MSC_TIMESTAMP is the recommended approach for calculation of time
++deltas.
++
++3.1 Accelerometer
++~~~~~~~~~~~~~~~~~
++Accelerometers measure movement acceleration of devices. Any combination of the
++three available axes can be used. Usually, all three are supported.
++
++Data is provided as absolute acceleration. A positive integer defines the
++acceleration in the direction of an axis. A negative integer defines
++acceleration in the opposite direction.
++
++The evdev ABS codes used are:
++ - ABS_ACCEL_X: X axis
++ - ABS_ACCEL_Y: Y axis
++ - ABS_ACCEL_Z: Z axis
++
++3.2 Gyroscope
++~~~~~~~~~~~~~
++A gyroscope measures rotational speed (*not* acceleration!). Any combination of
++the three available axes can be used. Usually, all three are supported.
++
++Data is provided as absolute speed. A positive integer defines the rotational
++speed in counter-clockwise order around a given axis when viewed from the top of
++the axis. A negative integer defines it in clockwise order.
++
++The evdev ABS codes used are:
++ - ABS_GYRO_X: X axis (also: Pitch)
++ - ABS_GYRO_Y: Y axis (also: Roll)
++ - ABS_GYRO_Z: Z axis (also: Azimuth/Yaw)
++
++3.3 Compass
++~~~~~~~~~~~
++(NOTE: No compass device currently uses the evdev input subsystem. Thus, this
++API is only a proposal, it hasn't been implemented, yet.)
++
++A compass measures the ambient magnetic field of the three defined axes. This
++makes the data self-contained and independent of the current device position.
++Any combination of the three axes can be used. Usually all three are supported,
++otherwise, it's not really useful as a compass.
++
++Proposed evdev ABS codes are:
++ - ABS_COMPASS_X: X axis
++ - ABS_COMPASS_Y: Y axis
++ - ABS_COMPASS_Z: Z axis
++
++----------------------------------------------------------------------------
++  (c) 2013 David Herrmann <dh.herrmann at gmail.com>
++  (c) 2016 Roderick Colenbrander <roderick.colenbrander@sony.com>
 diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index d6d071f..7bf2a2e 100644
+index 7bf2a2e..0cacfe7 100644
 --- a/include/uapi/linux/input-event-codes.h
 +++ b/include/uapi/linux/input-event-codes.h
-@@ -755,11 +755,23 @@
- #define ABS_MT_TOOL_X		0x3c	/* Center X tool position */
- #define ABS_MT_TOOL_Y		0x3d	/* Center Y tool position */
- 
--
-+/*
-+ * ABS_MAX/CNT is limited to a maximum of 0x3f due to the design of EVIOCGABS
-+ * and EVIOCSABS ioctls. Other kernel APIs like uinput also hardcoded it. Do
-+ * not modify this value and instead use the extended ABS_MAX2/CNT2 API.
-+ */
+@@ -763,6 +763,13 @@
  #define ABS_MAX			0x3f
  #define ABS_CNT			(ABS_MAX+1)
  
- /*
-+ * Due to API restrictions the legacy evdev API only supports ABS values up to
-+ * ABS_MAX/CNT. Use the extended *ABS2 ioctls to operate on the full range of
-+ * ABS values supported by the kernel.
-+ */
-+#define ABS_MAX2		0x4f
-+#define ABS_CNT2		(ABS_MAX2+1)
++#define ABS_GYRO_X		0x40	/* Gyroscope X axis */
++#define ABS_GYRO_Y		0x41	/* Gyroscope Y axis */
++#define ABS_GYRO_Z		0x42	/* Gyroscope Z axis */
++#define ABS_ACCEL_X		0x43	/* Accelerometer X axis */
++#define ABS_ACCEL_Y		0x44	/* Accelerometer Y axis */
++#define ABS_ACCEL_Z		0x45	/* Accelerometer Z axis */
 +
-+/*
-  * Switch events
-  */
- 
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index c514941..3756af7 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -31,9 +31,12 @@ struct input_event {
- 
  /*
-  * Protocol version.
-+ * 0x010000: original version
-+ * 0x010001: support for long scancodes
-+ * 0x010002: added ABS_CNT2/ABS_MAX2, EVIOCGABS2, EVIOCSABS2
-  */
- 
--#define EV_VERSION		0x010001
-+#define EV_VERSION		0x010002
- 
- /*
-  * IOCTLs (0x00 - 0x7f)
-@@ -75,6 +78,35 @@ struct input_absinfo {
- };
- 
- /**
-+ * struct input_absinfo2 - used by EVIOCGABS2/EVIOCSABS2 ioctls
-+ * @code: First ABS code to query
-+ * @cnt: Number of ABS codes to query starting at @code
-+ * @info: #@cnt absinfo structures to get/set abs parameters for all codes
-+ *
-+ * This structure is used by the EVIOC[G/S]ABS2 ioctls which do the same as
-+ * the legacy EVIOC[G/S]ABS ioctls but avoid encoding the ABS code in the ioctl
-+ * number. This allows a much wider range of ABS codes. Furthermore, it allows
-+ * to query multiple codes with a single call. Applications are discouraged
-+ * from using EVIC[G/S]ABS except on older kernels without EVIOC[G/S]ABS2
-+ * support.
-+ *
-+ * For axes not present on the device and for axes exceeding the kernel's
-+ * built-in ABS_CNT2 maximum, EVIOCGABS2 sets all values in the struct absinfo
-+ * to 0. Applications are recommended to use this API in conjunction with
-+ * EVIOCGBIT to determine axes present on the device.
-+ * Similar to how EVIOCABS2 returns 0 for axes, which are not present,
-+ * EVIOCSABS2 silenty ignores write requests to these axes. In addition,
-+ * EVIOCABS2 ignores write requests to ABS_MT_SlOT since it is an immutable
-+ * axis and hence cannot be modified, so the respective value is silently
-+ * ignored.
-+ */
-+struct input_absinfo2 {
-+	__u32 code;
-+	__u32 cnt;
-+	struct input_absinfo info[1];
-+};
-+
-+/**
-  * struct input_keymap_entry - used by EVIOCGKEYCODE/EVIOCSKEYCODE ioctls
-  * @scancode: scancode represented in machine-endian form.
-  * @len: length of the scancode that resides in @scancode buffer.
-@@ -161,6 +193,9 @@ struct input_mask {
- #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
- #define EVIOCREVOKE		_IOW('E', 0x91, int)			/* Revoke device access */
- 
-+#define EVIOCGABS2		_IOR('E', 0x92, struct input_absinfo2)	/* get abs value/limits */
-+#define EVIOCSABS2		_IOW('E', 0x93, struct input_absinfo2)	/* set abs value/limits */
-+
- /**
-  * EVIOCGMASK - Retrieve current event mask
-  *
+  * Due to API restrictions the legacy evdev API only supports ABS values up to
+  * ABS_MAX/CNT. Use the extended *ABS2 ioctls to operate on the full range of
 -- 
 2.7.4
 

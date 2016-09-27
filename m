@@ -1,113 +1,84 @@
 From: Ioan-Adrian Ratiu <adi@adirat.com>
-Subject: [PATCH v2 1/2] Revert "HID: dragonrise: fix HID Descriptor for 0x0006 PID"
-Date: Tue, 27 Sep 2016 21:41:37 +0300
-Message-ID: <20160927184138.3009-1-adi@adirat.com>
+Subject: [PATCH v2 2/2] hid: hid-dr: add input mapping for axis selection
+Date: Tue, 27 Sep 2016 21:41:38 +0300
+Message-ID: <20160927184138.3009-2-adi@adirat.com>
+References: <20160927184138.3009-1-adi@adirat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:36804 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754162AbcI0Slq (ORCPT
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:34175 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755445AbcI0Slr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 27 Sep 2016 14:41:46 -0400
-Received: by mail-wm0-f66.google.com with SMTP id b184so2467295wma.3
-        for <linux-input@vger.kernel.org>; Tue, 27 Sep 2016 11:41:45 -0700 (PDT)
+        Tue, 27 Sep 2016 14:41:47 -0400
+Received: by mail-wm0-f65.google.com with SMTP id l132so2451994wmf.1
+        for <linux-input@vger.kernel.org>; Tue, 27 Sep 2016 11:41:47 -0700 (PDT)
+In-Reply-To: <20160927184138.3009-1-adi@adirat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: benjamin.tissoires@redhat.com, jikos@kernel.org
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spbnick@gmail.com
 
-This reverts commit 18339f59c3a6 ("HID: dragonrise: fix HID...") because it
-breaks certain dragonrise 0079:0006 gamepads. While it may fix a breakage
-caused by commit 79346d620e9d ("HID: input: force generic axis to be mapped
-to their user space axis"), it is probable that the manufacturer released
-different hardware with the same PID so this fix works for only a subset
-and breaks the other gamepads sharing the PID.
+Commit 79346d620e9d ("HID: input: force generic axis to be mapped to their
+user space axis") made mapping generic axes to their userspace equivalents
+mandatory and some lower end gamepads which were depending on the previous
+behaviour suffered severe regressions because they were reusing axes and
+expecting hid-input to multiplex their map to the respective userspace axis
+by always searching for and using the next available axis.
 
-What is needed is another more generic solution which fixes 79346d620e9d
-("HID: input: force generic axis ...") breakage for this controller: we
-need to add an exception for this driver to make it keep the old behaviour
-previous to the initial breakage (this is done in patch 2 of this series).
+One solution is to add a hid quirk for this type of "previous" behaviour in
+hid-input to bypass the new axes policy in favour of the old one, but since
+only one hardware vendor seems to be affected negatively we're better off
+making and exception and mapping in the driver for now; if more vendors or
+drivers turn out to experience the problem we should reconsider the quirk
+solution.
 
 Signed-off-by: Ioan-Adrian Ratiu <adi@adirat.com>
 ---
- drivers/hid/hid-dr.c | 58 ----------------------------------------------------
- 1 file changed, 58 deletions(-)
+ drivers/hid/hid-dr.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
 diff --git a/drivers/hid/hid-dr.c b/drivers/hid/hid-dr.c
-index 8fd4bf7..2523f8a 100644
+index 2523f8a..818ea7d9 100644
 --- a/drivers/hid/hid-dr.c
 +++ b/drivers/hid/hid-dr.c
-@@ -234,58 +234,6 @@ static __u8 pid0011_rdesc_fixed[] = {
- 	0xC0                /*  End Collection                  */
- };
- 
--static __u8 pid0006_rdesc_fixed[] = {
--	0x05, 0x01,        /* Usage Page (Generic Desktop)	*/
--	0x09, 0x04,        /* Usage (Joystick)			*/
--	0xA1, 0x01,        /* Collection (Application)		*/
--	0xA1, 0x02,        /*   Collection (Logical)		*/
--	0x75, 0x08,        /*     Report Size (8)		*/
--	0x95, 0x05,        /*     Report Count (5)		*/
--	0x15, 0x00,        /*     Logical Minimum (0)		*/
--	0x26, 0xFF, 0x00,  /*     Logical Maximum (255)		*/
--	0x35, 0x00,        /*     Physical Minimum (0)		*/
--	0x46, 0xFF, 0x00,  /*     Physical Maximum (255)	*/
--	0x09, 0x30,        /*     Usage (X)			*/
--	0x09, 0x33,        /*     Usage (Ry)			*/
--	0x09, 0x32,        /*     Usage (Z)			*/
--	0x09, 0x31,        /*     Usage (Y)			*/
--	0x09, 0x34,        /*     Usage (Ry)			*/
--	0x81, 0x02,        /*     Input (Variable)		*/
--	0x75, 0x04,        /*     Report Size (4)		*/
--	0x95, 0x01,        /*     Report Count (1)		*/
--	0x25, 0x07,        /*     Logical Maximum (7)		*/
--	0x46, 0x3B, 0x01,  /*     Physical Maximum (315)	*/
--	0x65, 0x14,        /*     Unit (Centimeter)		*/
--	0x09, 0x39,        /*     Usage (Hat switch)		*/
--	0x81, 0x42,        /*     Input (Variable)		*/
--	0x65, 0x00,        /*     Unit (None)			*/
--	0x75, 0x01,        /*     Report Size (1)		*/
--	0x95, 0x0C,        /*     Report Count (12)		*/
--	0x25, 0x01,        /*     Logical Maximum (1)		*/
--	0x45, 0x01,        /*     Physical Maximum (1)		*/
--	0x05, 0x09,        /*     Usage Page (Button)		*/
--	0x19, 0x01,        /*     Usage Minimum (0x01)		*/
--	0x29, 0x0C,        /*     Usage Maximum (0x0C)		*/
--	0x81, 0x02,        /*     Input (Variable)		*/
--	0x06, 0x00, 0xFF,  /*     Usage Page (Vendor Defined)	*/
--	0x75, 0x01,        /*     Report Size (1)		*/
--	0x95, 0x08,        /*     Report Count (8)		*/
--	0x25, 0x01,        /*     Logical Maximum (1)		*/
--	0x45, 0x01,        /*     Physical Maximum (1)		*/
--	0x09, 0x01,        /*     Usage (0x01)			*/
--	0x81, 0x02,        /*     Input (Variable)		*/
--	0xC0,              /*   End Collection			*/
--	0xA1, 0x02,        /*   Collection (Logical)		*/
--	0x75, 0x08,        /*     Report Size (8)		*/
--	0x95, 0x07,        /*     Report Count (7)		*/
--	0x46, 0xFF, 0x00,  /*     Physical Maximum (255)	*/
--	0x26, 0xFF, 0x00,  /*     Logical Maximum (255)		*/
--	0x09, 0x02,        /*     Usage (0x02)			*/
--	0x91, 0x02,        /*     Output (Variable)		*/
--	0xC0,              /*   End Collection			*/
--	0xC0               /* End Collection			*/
--};
--
- static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 				unsigned int *rsize)
- {
-@@ -296,12 +244,6 @@ static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 			*rsize = sizeof(pid0011_rdesc_fixed);
- 		}
- 		break;
--	case 0x0006:
--		if (*rsize == sizeof(pid0006_rdesc_fixed)) {
--			rdesc = pid0006_rdesc_fixed;
--			*rsize = sizeof(pid0006_rdesc_fixed);
--		}
--		break;
- 	}
+@@ -248,6 +248,30 @@ static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
  	return rdesc;
  }
+ 
++#define map_abs(c)      hid_map_usage(hi, usage, bit, max, EV_ABS, (c))
++#define map_rel(c)      hid_map_usage(hi, usage, bit, max, EV_REL, (c))
++
++static int dr_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++			    struct hid_field *field, struct hid_usage *usage,
++			    unsigned long **bit, int *max)
++{
++	switch (usage->hid) {
++	/*
++	 * revert to the old hid-input behavior where axes
++	 * can be randomly assigned when hid->usage is reused.
++	 */
++	case HID_GD_X: case HID_GD_Y: case HID_GD_Z:
++	case HID_GD_RX: case HID_GD_RY: case HID_GD_RZ:
++		if (field->flags & HID_MAIN_ITEM_RELATIVE)
++			map_rel(usage->hid & 0xf);
++		else
++			map_abs(usage->hid & 0xf);
++		return 1;
++	}
++
++	return 0;
++}
++
+ static int dr_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+ 	int ret;
+@@ -294,6 +318,7 @@ static struct hid_driver dr_driver = {
+ 	.id_table = dr_devices,
+ 	.report_fixup = dr_report_fixup,
+ 	.probe = dr_probe,
++	.input_mapping = dr_input_mapping,
+ };
+ module_hid_driver(dr_driver);
+ 
 -- 
 2.10.0
 

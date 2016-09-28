@@ -1,129 +1,142 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 03/12] Input: synaptics-rmi4 - have only one struct platform data
-Date: Wed, 28 Sep 2016 10:35:38 +0200
-Message-ID: <1475051747-25988-4-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 02/12] Input: serio - store the pt_buttons in the struct serio directly
+Date: Wed, 28 Sep 2016 10:35:37 +0200
+Message-ID: <1475051747-25988-3-git-send-email-benjamin.tissoires@redhat.com>
 References: <1475051747-25988-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52976 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752094AbcI1If7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Sep 2016 04:35:59 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1475051747-25988-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lyude Paul <thatslyude@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-If struct rmi_device_platform_data contains pointers to other struct,
-it gets difficult to allocate a fixed size struct and copy it over between
-drivers.
+With RMI4 over SMBus, the pass-through device can be instantiated
+in a SMBus driver. However, compared to the psmouse-synaptics driver,
+this pass-through PS/2 driver has no clue whether the current
+serio_interrupt() is the beginning of the frame or not. Instead of
+adding a protocol analysis in RMI4 function F03, we can add an extra
+byte in struct serio to handle the extra data we want to append to the
+first byte.
 
-Change the pointers into a struct and change the code in rmi4 accordingly.
+Convert the psmouse-synaptics device to use it too.
 
-Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
+Partially reverts cdd9dc1 ("Input: synaptics - re-route tracksticks
+buttons on the Lenovo 2015 series")
+
+Acked-by: Andrew Duggan <aduggan@synaptics.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-this patch will conflict with Andrew's patch to switch hid-rmi
-to use rmi4_core...
-
-changes in v2:
-- removed the pdata checks as they are allways true
+no changes in v2
 ---
- drivers/input/rmi4/rmi_f11.c | 4 ++--
- drivers/input/rmi4/rmi_f12.c | 4 ++--
- drivers/input/rmi4/rmi_f30.c | 9 ++++-----
- include/linux/rmi.h          | 4 ++--
- 4 files changed, 10 insertions(+), 11 deletions(-)
+ drivers/input/mouse/psmouse-base.c |  3 +++
+ drivers/input/mouse/synaptics.c    | 19 ++++++++++---------
+ drivers/input/mouse/synaptics.h    |  1 -
+ include/linux/serio.h              |  8 ++++++++
+ 4 files changed, 21 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index 20c7134..b14a7b6 100644
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -1063,8 +1063,8 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 		rc = rmi_2d_sensor_of_probe(&fn->dev, &f11->sensor_pdata);
- 		if (rc)
- 			return rc;
--	} else if (pdata->sensor_pdata) {
--		f11->sensor_pdata = *pdata->sensor_pdata;
-+	} else {
-+		f11->sensor_pdata = pdata->sensor_pdata;
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index fb4b185..f9b04fd 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -365,6 +365,9 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
+ 		goto out;
  	}
  
- 	f11->rezero_wait_ms = f11->sensor_pdata.rezero_wait;
-diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
-index 332c02f..a631bed 100644
---- a/drivers/input/rmi4/rmi_f12.c
-+++ b/drivers/input/rmi4/rmi_f12.c
-@@ -274,8 +274,8 @@ static int rmi_f12_probe(struct rmi_function *fn)
- 		ret = rmi_2d_sensor_of_probe(&fn->dev, &f12->sensor_pdata);
- 		if (ret)
- 			return ret;
--	} else if (pdata->sensor_pdata) {
--		f12->sensor_pdata = *pdata->sensor_pdata;
-+	} else {
-+		f12->sensor_pdata = pdata->sensor_pdata;
- 	}
++	if (psmouse->pktcnt == 1)
++		psmouse->packet[0] |= serio->extra_byte;
++
+ 	psmouse->last = jiffies;
+ 	psmouse_handle_byte(psmouse);
  
- 	ret = rmi_read_register_desc(rmi_dev, query_addr,
-diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
-index 760aff1..c8885d8 100644
---- a/drivers/input/rmi4/rmi_f30.c
-+++ b/drivers/input/rmi4/rmi_f30.c
-@@ -192,7 +192,7 @@ static int rmi_f30_config(struct rmi_function *fn)
- 				rmi_get_platform_data(fn->rmi_dev);
- 	int error;
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index a41d832..8781e23 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -597,15 +597,13 @@ static int synaptics_is_pt_packet(unsigned char *buf)
+ 	return (buf[0] & 0xFC) == 0x84 && (buf[3] & 0xCC) == 0xC4;
+ }
  
--	if (pdata->f30_data && pdata->f30_data->disable) {
-+	if (pdata->f30_data.disable) {
- 		drv->clear_irq_bits(fn->rmi_dev, fn->irq_mask);
- 	} else {
- 		/* Write Control Register values back to device */
-@@ -351,7 +351,7 @@ static inline int rmi_f30_initialize(struct rmi_function *fn)
- 	f30->gpioled_key_map = (u16 *)map_memory;
+-static void synaptics_pass_pt_packet(struct psmouse *psmouse,
+-				     struct serio *ptport,
++static void synaptics_pass_pt_packet(struct serio *ptport,
+ 				     unsigned char *packet)
+ {
+-	struct synaptics_data *priv = psmouse->private;
+ 	struct psmouse *child = serio_get_drvdata(ptport);
  
- 	pdata = rmi_get_platform_data(rmi_dev);
--	if (pdata && f30->has_gpio) {
-+	if (f30->has_gpio) {
- 		button = BTN_LEFT;
- 		for (i = 0; i < f30->gpioled_count; i++) {
- 			if (rmi_f30_is_valid_button(i, f30->ctrl)) {
-@@ -362,8 +362,7 @@ static inline int rmi_f30_initialize(struct rmi_function *fn)
- 				 * f30->has_mech_mouse_btns, but I am
- 				 * not sure, so use only the pdata info
- 				 */
--				if (pdata->f30_data &&
--				    pdata->f30_data->buttonpad)
-+				if (pdata->f30_data.buttonpad)
- 					break;
- 			}
- 		}
-@@ -378,7 +377,7 @@ static int rmi_f30_probe(struct rmi_function *fn)
- 	const struct rmi_device_platform_data *pdata =
- 				rmi_get_platform_data(fn->rmi_dev);
+ 	if (child && child->state == PSMOUSE_ACTIVATED) {
+-		serio_interrupt(ptport, packet[1] | priv->pt_buttons, 0);
++		serio_interrupt(ptport, packet[1], 0);
+ 		serio_interrupt(ptport, packet[4], 0);
+ 		serio_interrupt(ptport, packet[5], 0);
+ 		if (child->pktsize == 4)
+@@ -857,6 +855,7 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
+ 	struct synaptics_data *priv = psmouse->private;
+ 	int ext_bits = (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) + 1) >> 1;
+ 	char buf[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
++	int pt_buttons;
+ 	int i;
  
--	if (pdata->f30_data && pdata->f30_data->disable)
-+	if (pdata->f30_data.disable)
- 		return 0;
+ 	if (!SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap))
+@@ -887,11 +886,13 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
+ 		return;
  
- 	rc = rmi_f30_initialize(fn);
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index e0aca14..4a071e8 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -211,9 +211,9 @@ struct rmi_device_platform_data {
- 	struct rmi_device_platform_data_spi spi_data;
+ 	/* The trackstick expects at most 3 buttons */
+-	priv->pt_buttons = SYN_CAP_EXT_BUTTON_STICK_L(hw->ext_buttons)      |
+-			   SYN_CAP_EXT_BUTTON_STICK_R(hw->ext_buttons) << 1 |
+-			   SYN_CAP_EXT_BUTTON_STICK_M(hw->ext_buttons) << 2;
++	pt_buttons = SYN_CAP_EXT_BUTTON_STICK_L(hw->ext_buttons)      |
++		     SYN_CAP_EXT_BUTTON_STICK_R(hw->ext_buttons) << 1 |
++		     SYN_CAP_EXT_BUTTON_STICK_M(hw->ext_buttons) << 2;
++
++	priv->pt_port->extra_byte = pt_buttons;
  
- 	/* function handler pdata */
--	struct rmi_2d_sensor_platform_data *sensor_pdata;
-+	struct rmi_2d_sensor_platform_data sensor_pdata;
- 	struct rmi_f01_power_management power_management;
--	struct rmi_f30_data *f30_data;
-+	struct rmi_f30_data f30_data;
+-	synaptics_pass_pt_packet(psmouse, priv->pt_port, buf);
++	synaptics_pass_pt_packet(priv->pt_port, buf);
+ }
+ 
+ static void synaptics_report_buttons(struct psmouse *psmouse,
+@@ -1132,7 +1133,7 @@ static psmouse_ret_t synaptics_process_byte(struct psmouse *psmouse)
+ 		if (SYN_CAP_PASS_THROUGH(priv->capabilities) &&
+ 		    synaptics_is_pt_packet(psmouse->packet)) {
+ 			if (priv->pt_port)
+-				synaptics_pass_pt_packet(psmouse, priv->pt_port,
++				synaptics_pass_pt_packet(priv->pt_port,
+ 							 psmouse->packet);
+ 		} else
+ 			synaptics_process_packet(psmouse);
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index 56faa7e..116ae25 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -183,7 +183,6 @@ struct synaptics_data {
+ 	bool disable_gesture;			/* disable gestures */
+ 
+ 	struct serio *pt_port;			/* Pass-through serio port */
+-	unsigned char pt_buttons;		/* Pass-through buttons */
+ 
+ 	/*
+ 	 * Last received Advanced Gesture Mode (AGM) packet. An AGM packet
+diff --git a/include/linux/serio.h b/include/linux/serio.h
+index c733cff..f3b75c8 100644
+--- a/include/linux/serio.h
++++ b/include/linux/serio.h
+@@ -64,6 +64,14 @@ struct serio {
+ 	 * may get indigestion when exposed to concurrent access (i8042).
+ 	 */
+ 	struct mutex *ps2_cmd_mutex;
++
++	/*
++	 * For use with Synaptics devices that have the trackstick buttons
++	 * not actually wired to the trackstick PS/2 device.
++	 * This byte will be OR-ed with the first byte of the incoming packet
++	 * that contains actual data (not commands).
++	 */
++	u8 extra_byte;
  };
+ #define to_serio_port(d)	container_of(d, struct serio, dev)
  
- /**
 -- 
 2.7.4
-

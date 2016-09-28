@@ -1,94 +1,69 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 05/12] Input: synaptics-rmi4 - f03: grab data passed by transport device
-Date: Wed, 28 Sep 2016 10:35:40 +0200
-Message-ID: <1475051747-25988-6-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 06/12] Input: synaptics-rmi4 - Add rmi_find_function()
+Date: Wed, 28 Sep 2016 10:35:41 +0200
+Message-ID: <1475051747-25988-7-git-send-email-benjamin.tissoires@redhat.com>
 References: <1475051747-25988-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:50452 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752113AbcI1IgF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 28 Sep 2016 04:36:05 -0400
 In-Reply-To: <1475051747-25988-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lyude Paul <thatslyude@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-From: Dennis Wassenberg <dennis.wassenberg@secunet.com>
-
-First check if there are data available passed by the transport device.
-If data available use these data. If there are no data available
-try to read the rmi block if dsata are passed this way.
-
-This is the way the other rmi function handlers will do this.
-
-This patch is needed on HID devices because the firmware reads F03 data
-registers and adds them to the HID attention report. Reading those registers
-from the driver after the firmware read them will result in invalid data.
-Which is exactly what Dennis is describing here.
+If a function needs to communicate with an other, it's better to have
+a way to retrieve this other.
 
 Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
-Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-changes in v2:
-- fixed commit message to include Andrew's explanation
+no changes in v2
 ---
- drivers/input/rmi4/rmi_f03.c | 37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ drivers/input/rmi4/rmi_driver.c | 13 +++++++++++++
+ drivers/input/rmi4/rmi_driver.h |  1 +
+ 2 files changed, 14 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
-index a7e1b98..a124b33 100644
---- a/drivers/input/rmi4/rmi_f03.c
-+++ b/drivers/input/rmi4/rmi_f03.c
-@@ -159,6 +159,7 @@ static int rmi_f03_config(struct rmi_function *fn)
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index c83bce8..e210e8f 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -181,6 +181,19 @@ int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
+ }
+ EXPORT_SYMBOL_GPL(rmi_process_interrupt_requests);
  
- static int rmi_f03_attention(struct rmi_function *fn, unsigned long *irq_bits)
++struct rmi_function *rmi_find_function(struct rmi_device *rmi_dev, u8 number)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
++	struct rmi_function *entry;
++
++	list_for_each_entry(entry, &data->function_list, node) {
++		if (entry->fd.function_number == number)
++			return entry;
++	}
++
++	return NULL;
++}
++
+ static int suspend_one_function(struct rmi_function *fn)
  {
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
- 	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
- 	u16 data_addr = fn->fd.data_base_addr;
- 	const u8 ob_len = f03->rx_queue_length * RMI_F03_OB_SIZE;
-@@ -167,16 +168,32 @@ static int rmi_f03_attention(struct rmi_function *fn, unsigned long *irq_bits)
- 	u8 ob_data;
- 	unsigned int serio_flags;
- 	int i;
--	int retval;
--
--	/* Grab all of the data registers, and check them for data */
--	retval = rmi_read_block(fn->rmi_dev, data_addr + RMI_F03_OB_OFFSET,
--				&obs, ob_len);
--	if (retval) {
--		dev_err(&fn->dev, "%s: Failed to read F03 output buffers.\n",
--			__func__);
--		serio_interrupt(f03->serio, 0, SERIO_TIMEOUT);
--		return retval;
-+	int ret;
-+
-+	if (!rmi_dev || !rmi_dev->xport)
-+		return -ENODEV;
-+
-+	if (rmi_dev->xport->attn_data) {
-+		/* First grab the data passed by the transport device */
-+		if (rmi_dev->xport->attn_size < ob_len) {
-+			dev_warn(&fn->dev, "F03 interrupted, but data is missing!\n");
-+			return 0;
-+		}
-+
-+		memcpy(obs, rmi_dev->xport->attn_data, ob_len);
-+
-+		rmi_dev->xport->attn_data += ob_len;
-+		rmi_dev->xport->attn_size -= ob_len;
-+	} else {
-+		/* Grab all of the data registers, and check them for data */
-+		ret = rmi_read_block(fn->rmi_dev, data_addr + RMI_F03_OB_OFFSET,
-+				     &obs, ob_len);
-+		if (ret) {
-+			dev_err(&fn->dev, "%s: Failed to read F03 output buffers.\n",
-+				__func__);
-+			serio_interrupt(f03->serio, 0, SERIO_TIMEOUT);
-+			return ret;
-+		}
- 	}
+ 	struct rmi_function_handler *fh;
+diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+index fe26aca..9da1ee4 100644
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -95,6 +95,7 @@ bool rmi_register_desc_has_subpacket(const struct rmi_register_desc_item *item,
+ bool rmi_is_physical_driver(struct device_driver *);
+ int rmi_register_physical_driver(void);
+ void rmi_unregister_physical_driver(void);
++struct rmi_function *rmi_find_function(struct rmi_device *rmi_dev, u8 number);
  
- 	for (i = 0; i < ob_len; i += RMI_F03_OB_SIZE) {
+ char *rmi_f01_get_product_ID(struct rmi_function *fn);
+ 
 -- 
 2.7.4
+

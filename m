@@ -1,242 +1,224 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 10/12] Input: synaptics-rmi4 - smbus: call psmouse_deactivate before binding/resume
-Date: Wed, 28 Sep 2016 10:35:45 +0200
-Message-ID: <1475051747-25988-11-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 08/12] Input: synaptics - allocate a Synaptics Intertouch device
+Date: Wed, 28 Sep 2016 10:35:43 +0200
+Message-ID: <1475051747-25988-9-git-send-email-benjamin.tissoires@redhat.com>
 References: <1475051747-25988-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:42776 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752151AbcI1IgJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 28 Sep 2016 04:36:09 -0400
 In-Reply-To: <1475051747-25988-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lyude Paul <thatslyude@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-The SMBus Synaptics devices enumerated as PS/2 devices have
-the problem of being deaf to I2C if the touchpad has been
-fully initialized over PS/2 (psmouse_activate being called).
-A simple PS/2 deactivate command is enough to make it back alive.
+Most of the Synaptics devices are connected through PS/2 and a different
+bus (SMBus or HID over I2C).
+The secondary bus capability is indicated by the InterTouch bit in
+extended capability 0x0C.
 
-To make sure the pass-through device does not interfere, we also
-remove it from serio while using InterTouch.
+When we encounter such a device, we can create a platform device with
+the information gathered through the PS/2 enumeration as some information
+might be missing through the other bus. Using a platform device allows
+to not add any dependency on the psmouse driver.
 
-Add a platform_data callback to reset the PS/2 device and
-prevent it to be asynchronously re-enabled at resume.
+We only enable the InterTouch device to be created for the laptops
+registered with the top software button property or those we know
+that are functional.
+
+In the future, we might change the default to always rely on the
+InterTouch bus. Currently, users can enable/disable the feature
+with the psmouse parameter synaptics_intertouch.
+
+The SMBus devices keep their PS/2 connection alive. If the initialization
+process goes too far (psmouse_activate called), the device disconnects
+from the I2C bus and stays on the PS/2 bus. We need to be sure the psmouse
+driver will stop communicating with the device (and the pass-through
+trackstick too). This part is not addressed here but will be in a
+following patch.
+
+The HID over I2C devices are enumerated through the ACPI DSDT, and
+their PS/2 device also exports the InterTouch bit in the extended
+capability 0x0C. However, the firmware keeps its I2C connection open
+even after going further in the PS/2 initialization. We don't need
+to take extra precautions with those device, especially because they
+block their PS/2 communication when HID over I2C is used.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
 changes in v2:
-- fix an oops when synaptics_disconnect() was called, which leaded
-  to a null parameter as psmouse in synaptics_intertouch_enable()
+- also forward the buttonpad information from PS/2 to RMI4 (doesn't
+  change the resulting input node, but it seems more relevant)
 ---
- drivers/input/mouse/psmouse-base.c |  3 +++
- drivers/input/mouse/psmouse.h      |  1 +
- drivers/input/mouse/synaptics.c    | 34 ++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/rmi_smbus.c     | 30 ++++++++++++++++++++----------
- include/linux/rmi.h                | 13 +++++++++++++
- 5 files changed, 71 insertions(+), 10 deletions(-)
+ drivers/input/mouse/synaptics.c | 100 ++++++++++++++++++++++++++++++++++++++++
+ drivers/input/mouse/synaptics.h |   4 ++
+ 2 files changed, 104 insertions(+)
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index 59d7c37..0b1f09a 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -1607,6 +1607,9 @@ static int psmouse_reconnect(struct serio *serio)
- 	unsigned char type;
- 	int rc = -1;
- 
-+	if (psmouse->ignore_reconnect)
-+		return 0;
-+
- 	mutex_lock(&psmouse_mutex);
- 
- 	if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index e0ca6cd..e9dc1a1 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -81,6 +81,7 @@ struct psmouse {
- 
- 	void (*pt_activate)(struct psmouse *psmouse);
- 	void (*pt_deactivate)(struct psmouse *psmouse);
-+	bool ignore_reconnect;
- };
- 
- enum psmouse_type {
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index e3c46f9..e10be58 100644
+index 8781e23..e3c46f9 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -245,6 +245,32 @@ static const char * const smbus_pnp_ids[] = {
+@@ -29,6 +29,8 @@
+ #include <linux/input/mt.h>
+ #include <linux/serio.h>
+ #include <linux/libps2.h>
++#include <linux/platform_device.h>
++#include <linux/rmi.h>
+ #include <linux/slab.h>
+ #include "psmouse.h"
+ #include "synaptics.h"
+@@ -70,6 +72,21 @@
+ /* maximum ABS_MT_POSITION displacement (in mm) */
+ #define DMAX 10
  
- static int rmi4_id;
- 
-+static void synaptics_pt_create(struct psmouse *psmouse);
++/*
++ * The newest Synaptics device can use a secondary bus (called InterTouch) which
++ * provides a better bandwidth and allow a better control of the touchpads.
++ * This is used to decide if we need to use this bus or not.
++ */
++enum {
++	SYNAPTICS_INTERTOUCH_NOT_SET = -1,
++	SYNAPTICS_INTERTOUCH_OFF,
++	SYNAPTICS_INTERTOUCH_ON,
++};
 +
-+static int synaptics_intertouch_enable(void *data, bool value)
++static int synaptics_intertouch = SYNAPTICS_INTERTOUCH_NOT_SET;
++module_param_named(synaptics_intertouch, synaptics_intertouch, int, 0644);
++MODULE_PARM_DESC(synaptics_intertouch, "Use a secondary bus for the Synaptics device.");
++
+ /*****************************************************************************
+  *	Stuff we need even when we do not want native Synaptics support
+  ****************************************************************************/
+@@ -218,6 +235,81 @@ static const char * const forcepad_pnp_ids[] = {
+ 	NULL
+ };
+ 
++static const char * const smbus_pnp_ids[] = {
++	/* all of the topbuttonpad_pnp_ids are valid, we just add some extras */
++	"LEN0048", /* X1 Carbon 3 */
++	"LEN0046", /* X250 */
++	"LEN004a", /* W541 */
++	"LEN200f", /* T450s */
++};
++
++static int rmi4_id;
++
++static int synaptics_create_intertouch(struct psmouse *psmouse)
 +{
-+	struct psmouse *psmouse = data;
-+	struct synaptics_data *priv;
++	struct synaptics_data *priv = psmouse->private;
++	struct platform_device_info pdevinfo;
++	struct platform_device *pdev;
++	struct rmi_device_platform_data pdata = {
++		.sensor_pdata = {
++			.sensor_type = rmi_sensor_touchpad,
++			.axis_align.flip_y = true,
++			/* to prevent cursors jumps: */
++			.kernel_tracking = true,
++		},
++		.f30_data = {
++			.buttonpad = SYN_CAP_CLICKPAD(priv->ext_cap_0c),
++			.trackstick_buttons =
++			  !!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10),
++		},
++	};
 +
-+	if (!psmouse)
-+		return 0;
++	if (priv->intertouch)
++		return -EINVAL;
 +
-+	priv = psmouse->private;
++	pdata.sensor_pdata.topbuttonpad =
++			psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
++			!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10);
 +
-+	psmouse->ignore_reconnect = value;
++	memset(&pdevinfo, 0, sizeof(pdevinfo));
++	pdevinfo.name = "rmi4";
++	pdevinfo.id = rmi4_id++;
++	pdevinfo.data = &pdata;
++	pdevinfo.size_data = sizeof(pdata);
++	pdevinfo.parent = &psmouse->ps2dev.serio->dev;
 +
-+	if (value) {
-+		serio_unregister_child_port(psmouse->ps2dev.serio);
-+		psmouse_deactivate(psmouse);
-+	} else {
-+		psmouse_activate(psmouse);
-+		if (SYN_CAP_PASS_THROUGH(priv->capabilities))
-+			synaptics_pt_create(psmouse);
-+	}
++	pdev = platform_device_register_full(&pdevinfo);
++	if (IS_ERR(pdev))
++		return PTR_ERR(pdev);
++
++	priv->intertouch = pdev;
 +
 +	return 0;
 +}
 +
- static int synaptics_create_intertouch(struct psmouse *psmouse)
- {
- 	struct synaptics_data *priv = psmouse->private;
-@@ -262,6 +288,8 @@ static int synaptics_create_intertouch(struct psmouse *psmouse)
- 			.trackstick_buttons =
- 			  !!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10),
- 		},
-+		.transport_enable = synaptics_intertouch_enable,
-+		.transport_data = psmouse,
- 	};
- 
- 	if (priv->intertouch)
-@@ -1398,6 +1426,12 @@ static void synaptics_disconnect(struct psmouse *psmouse)
++/**
++ * synaptics_setup_intertouch - called once the PS/2 devices are enumerated
++ * and decides to instantiate a SMBus InterTouch device.
++ */
++static void synaptics_setup_intertouch(struct psmouse *psmouse)
++{
++	int ret;
++
++	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_OFF)
++		return;
++
++	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_NOT_SET) {
++		if (!psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
++		    !psmouse_matches_pnp_id(psmouse, smbus_pnp_ids))
++			return;
++	}
++
++	psmouse_info(psmouse, "device also supported by an other bus.\n");
++	ret = synaptics_create_intertouch(psmouse);
++	if (ret)
++		psmouse_info(psmouse,
++			     "unable to create intertouch device.\n");
++}
+ /*****************************************************************************
+  *	Synaptics communications functions
+  ****************************************************************************/
+@@ -1305,6 +1397,11 @@ static void synaptics_disconnect(struct psmouse *psmouse)
+ 		device_remove_file(&psmouse->ps2dev.serio->dev,
  				   &psmouse_attr_disable_gesture.dattr);
  
- 	if (priv->intertouch) {
-+		struct rmi_device_platform_data *pdata;
++	if (priv->intertouch) {
++		platform_device_unregister(priv->intertouch);
++		priv->intertouch = NULL;
++	}
 +
-+		/* reset transport_data as it will get eventually freed */
-+		pdata = priv->intertouch->dev.platform_data;
-+		pdata->transport_data = NULL;
-+
- 		platform_device_unregister(priv->intertouch);
- 		priv->intertouch = NULL;
- 	}
-diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-index 4d6f228..023dbd5 100644
---- a/drivers/input/rmi4/rmi_smbus.c
-+++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -244,8 +244,15 @@ static void rmi_smb_clear_state(struct rmi_smb_xport *rmi_smb)
- 
- static int rmi_smb_enable_smbus_mode(struct rmi_smb_xport *rmi_smb)
- {
-+	struct rmi_device_platform_data *pdata;
- 	int retval;
- 
-+	pdata = dev_get_platdata(&rmi_smb->client->dev);
-+
-+	retval = rmi_transport_enable(pdata, true);
-+	if (retval)
-+		return retval;
-+
- 	/* we need to get the smbus version to activate the touchpad */
- 	retval = rmi_smb_get_version(rmi_smb);
- 	if (retval < 0)
-@@ -261,13 +268,6 @@ static int rmi_smb_reset(struct rmi_transport_dev *xport, u16 reset_addr)
- 
- 	rmi_smb_clear_state(rmi_smb);
- 
--	/*
--	 * we do not call the actual reset command, it has to be handled in
--	 * PS/2 or there will be races between PS/2 and SMBus.
--	 * PS/2 should ensure that a psmouse_reset is called before
--	 * intializing the device and after it has been removed to be in a known
--	 * state.
--	 */
- 	return rmi_smb_enable_smbus_mode(rmi_smb);
- }
- 
-@@ -334,9 +334,13 @@ static int rmi_smb_probe(struct i2c_client *client,
- 	rmi_smb->xport.proto_name = "smb2";
- 	rmi_smb->xport.ops = &rmi_smb_ops;
- 
-+	retval = rmi_transport_enable(pdata, true);
-+	if (retval)
-+		return retval;
-+
- 	retval = rmi_smb_get_version(rmi_smb);
- 	if (retval < 0)
--		return retval;
-+		goto fail;
- 
- 	smbus_version = retval;
- 	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Smbus version is %d",
-@@ -345,7 +349,8 @@ static int rmi_smb_probe(struct i2c_client *client,
- 	if (smbus_version != 2) {
- 		dev_err(&client->dev, "Unrecognized SMB version %d.\n",
- 				smbus_version);
--		return -ENODEV;
-+		retval = -ENODEV;
-+		goto fail;
+ 	synaptics_reset(psmouse);
+ 	kfree(priv);
+ 	psmouse->private = NULL;
+@@ -1547,6 +1644,9 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+ 		}
  	}
  
- 	i2c_set_clientdata(client, rmi_smb);
-@@ -355,20 +360,25 @@ static int rmi_smb_probe(struct i2c_client *client,
- 		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
- 			client->addr);
- 		i2c_set_clientdata(client, NULL);
--		return retval;
-+		goto fail;
- 	}
- 
- 	dev_info(&client->dev, "registered rmi smb driver at %#04x.\n",
- 			client->addr);
++	if (SYN_CAP_INTERTOUCH(priv->ext_cap_0c))
++		synaptics_setup_intertouch(psmouse);
++
  	return 0;
  
-+fail:
-+	rmi_transport_enable(pdata, false);
-+	return retval;
- }
+  init_fail:
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index 116ae25..b88755d 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -90,6 +90,7 @@
+ #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
+ #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
+ #define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
++#define SYN_CAP_INTERTOUCH(ex0c)	((ex0c) & 0x004000)
  
- static int rmi_smb_remove(struct i2c_client *client)
- {
-+	struct rmi_device_platform_data *pdata = dev_get_platdata(&client->dev);
- 	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
- 
- 	rmi_unregister_transport_device(&rmi_smb->xport);
-+	rmi_transport_enable(pdata, false);
- 
- 	return 0;
- }
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index 4a071e8..02e1dae 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -214,6 +214,9 @@ struct rmi_device_platform_data {
- 	struct rmi_2d_sensor_platform_data sensor_pdata;
- 	struct rmi_f01_power_management power_management;
- 	struct rmi_f30_data f30_data;
+ /*
+  * The following descibes response for the 0x10 query.
+@@ -196,6 +197,9 @@ struct synaptics_data {
+ 	bool					press;
+ 	bool					report_press;
+ 	bool					is_forcepad;
 +
-+	int (*transport_enable)(void*, bool);
-+	void *transport_data;
++	/* Intertouch handling */
++	struct platform_device *intertouch;
  };
  
- /**
-@@ -350,6 +353,16 @@ struct rmi_driver_data {
- 	void *data;
- };
- 
-+static inline int rmi_transport_enable(struct rmi_device_platform_data *pdata,
-+				       bool value)
-+{
-+	if (!pdata->transport_enable)
-+		return 0;
-+
-+	return pdata->transport_enable(pdata->transport_data, value);
-+}
-+
-+
- int rmi_register_transport_device(struct rmi_transport_dev *xport);
- void rmi_unregister_transport_device(struct rmi_transport_dev *xport);
- int rmi_process_interrupt_requests(struct rmi_device *rmi_dev);
+ void synaptics_module_init(void);
 -- 
 2.7.4
+

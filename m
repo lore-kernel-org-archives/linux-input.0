@@ -1,224 +1,243 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 08/12] Input: synaptics - allocate a Synaptics Intertouch device
-Date: Wed, 28 Sep 2016 10:35:43 +0200
-Message-ID: <1475051747-25988-9-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 07/12] Input: synaptics-rmi4 - f30/f03: Forward mechanical buttons on buttonpads to PS/2 guest
+Date: Wed, 28 Sep 2016 10:35:42 +0200
+Message-ID: <1475051747-25988-8-git-send-email-benjamin.tissoires@redhat.com>
 References: <1475051747-25988-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42776 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:42744 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752151AbcI1IgJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Sep 2016 04:36:09 -0400
+        id S1752150AbcI1IgI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 28 Sep 2016 04:36:08 -0400
 In-Reply-To: <1475051747-25988-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lyude Paul <thatslyude@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Most of the Synaptics devices are connected through PS/2 and a different
-bus (SMBus or HID over I2C).
-The secondary bus capability is indicated by the InterTouch bit in
-extended capability 0x0C.
+On the latest series of ThinkPads, the button events for the TrackPoint
+are reported through the touchpad itself as opposed to the TrackPoint
+device. In order to report these buttons properly, we need to forward
+them to the TrackPoint device and send the button presses/releases
+through there instead.
 
-When we encounter such a device, we can create a platform device with
-the information gathered through the PS/2 enumeration as some information
-might be missing through the other bus. Using a platform device allows
-to not add any dependency on the psmouse driver.
-
-We only enable the InterTouch device to be created for the laptops
-registered with the top software button property or those we know
-that are functional.
-
-In the future, we might change the default to always rely on the
-InterTouch bus. Currently, users can enable/disable the feature
-with the psmouse parameter synaptics_intertouch.
-
-The SMBus devices keep their PS/2 connection alive. If the initialization
-process goes too far (psmouse_activate called), the device disconnects
-from the I2C bus and stays on the PS/2 bus. We need to be sure the psmouse
-driver will stop communicating with the device (and the pass-through
-trackstick too). This part is not addressed here but will be in a
-following patch.
-
-The HID over I2C devices are enumerated through the ACPI DSDT, and
-their PS/2 device also exports the InterTouch bit in the extended
-capability 0x0C. However, the firmware keeps its I2C connection open
-even after going further in the PS/2 initialization. We don't need
-to take extra precautions with those device, especially because they
-block their PS/2 communication when HID over I2C is used.
-
+Signed-off-by: Lyude Paul <thatslyude@gmail.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
 changes in v2:
-- also forward the buttonpad information from PS/2 to RMI4 (doesn't
-  change the resulting input node, but it seems more relevant)
+- make sure we don't break other devices using F30
 ---
- drivers/input/mouse/synaptics.c | 100 ++++++++++++++++++++++++++++++++++++++++
- drivers/input/mouse/synaptics.h |   4 ++
- 2 files changed, 104 insertions(+)
+ drivers/input/rmi4/rmi_driver.h | 13 ++++++++
+ drivers/input/rmi4/rmi_f03.c    | 28 ++++++++++++++++
+ drivers/input/rmi4/rmi_f30.c    | 72 ++++++++++++++++++++++++++++++++---------
+ 3 files changed, 98 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 8781e23..e3c46f9 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -29,6 +29,8 @@
- #include <linux/input/mt.h>
- #include <linux/serio.h>
- #include <linux/libps2.h>
-+#include <linux/platform_device.h>
-+#include <linux/rmi.h>
- #include <linux/slab.h>
- #include "psmouse.h"
- #include "synaptics.h"
-@@ -70,6 +72,21 @@
- /* maximum ABS_MT_POSITION displacement (in mm) */
- #define DMAX 10
+diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+index 9da1ee4..898cadc 100644
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -99,6 +99,19 @@ struct rmi_function *rmi_find_function(struct rmi_device *rmi_dev, u8 number);
  
-+/*
-+ * The newest Synaptics device can use a secondary bus (called InterTouch) which
-+ * provides a better bandwidth and allow a better control of the touchpads.
-+ * This is used to decide if we need to use this bus or not.
-+ */
-+enum {
-+	SYNAPTICS_INTERTOUCH_NOT_SET = -1,
-+	SYNAPTICS_INTERTOUCH_OFF,
-+	SYNAPTICS_INTERTOUCH_ON,
-+};
+ char *rmi_f01_get_product_ID(struct rmi_function *fn);
+ 
++#ifdef CONFIG_RMI4_F03
++int rmi_f03_overwrite_button(struct rmi_function *fn, unsigned int button,
++			     int value);
++void rmi_f03_commit_buttons(struct rmi_function *fn);
++#else
++static inline int rmi_f03_overwrite_button(struct rmi_function *fn,
++					   unsigned int button, int value)
++{
++	return 0;
++}
++static inline void rmi_f03_commit_buttons(struct rmi_function *fn) {}
++#endif
 +
-+static int synaptics_intertouch = SYNAPTICS_INTERTOUCH_NOT_SET;
-+module_param_named(synaptics_intertouch, synaptics_intertouch, int, 0644);
-+MODULE_PARM_DESC(synaptics_intertouch, "Use a secondary bus for the Synaptics device.");
-+
- /*****************************************************************************
-  *	Stuff we need even when we do not want native Synaptics support
-  ****************************************************************************/
-@@ -218,6 +235,81 @@ static const char * const forcepad_pnp_ids[] = {
- 	NULL
+ extern struct rmi_function_handler rmi_f01_handler;
+ extern struct rmi_function_handler rmi_f03_handler;
+ extern struct rmi_function_handler rmi_f11_handler;
+diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
+index a124b33..f309b5f 100644
+--- a/drivers/input/rmi4/rmi_f03.c
++++ b/drivers/input/rmi4/rmi_f03.c
+@@ -37,6 +37,34 @@ struct f03_data {
+ 	u8 rx_queue_length;
  };
  
-+static const char * const smbus_pnp_ids[] = {
-+	/* all of the topbuttonpad_pnp_ids are valid, we just add some extras */
-+	"LEN0048", /* X1 Carbon 3 */
-+	"LEN0046", /* X250 */
-+	"LEN004a", /* W541 */
-+	"LEN200f", /* T450s */
-+};
-+
-+static int rmi4_id;
-+
-+static int synaptics_create_intertouch(struct psmouse *psmouse)
++int rmi_f03_overwrite_button(struct rmi_function *fn, unsigned int button,
++			     int value)
 +{
-+	struct synaptics_data *priv = psmouse->private;
-+	struct platform_device_info pdevinfo;
-+	struct platform_device *pdev;
-+	struct rmi_device_platform_data pdata = {
-+		.sensor_pdata = {
-+			.sensor_type = rmi_sensor_touchpad,
-+			.axis_align.flip_y = true,
-+			/* to prevent cursors jumps: */
-+			.kernel_tracking = true,
-+		},
-+		.f30_data = {
-+			.buttonpad = SYN_CAP_CLICKPAD(priv->ext_cap_0c),
-+			.trackstick_buttons =
-+			  !!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10),
-+		},
-+	};
++	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
++	unsigned int bit = BIT(button);
 +
-+	if (priv->intertouch)
++	if (button > 2)
 +		return -EINVAL;
 +
-+	pdata.sensor_pdata.topbuttonpad =
-+			psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-+			!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10);
-+
-+	memset(&pdevinfo, 0, sizeof(pdevinfo));
-+	pdevinfo.name = "rmi4";
-+	pdevinfo.id = rmi4_id++;
-+	pdevinfo.data = &pdata;
-+	pdevinfo.size_data = sizeof(pdata);
-+	pdevinfo.parent = &psmouse->ps2dev.serio->dev;
-+
-+	pdev = platform_device_register_full(&pdevinfo);
-+	if (IS_ERR(pdev))
-+		return PTR_ERR(pdev);
-+
-+	priv->intertouch = pdev;
++	if (value)
++		f03->overwrite_buttons |= bit;
++	else
++		f03->overwrite_buttons &= ~bit;
 +
 +	return 0;
 +}
 +
-+/**
-+ * synaptics_setup_intertouch - called once the PS/2 devices are enumerated
-+ * and decides to instantiate a SMBus InterTouch device.
-+ */
-+static void synaptics_setup_intertouch(struct psmouse *psmouse)
++void rmi_f03_commit_buttons(struct rmi_function *fn)
 +{
-+	int ret;
++	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
++	int i;
 +
-+	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_OFF)
-+		return;
++	f03->serio->extra_byte = f03->overwrite_buttons;
 +
-+	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_NOT_SET) {
-+		if (!psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-+		    !psmouse_matches_pnp_id(psmouse, smbus_pnp_ids))
-+			return;
-+	}
-+
-+	psmouse_info(psmouse, "device also supported by an other bus.\n");
-+	ret = synaptics_create_intertouch(psmouse);
-+	if (ret)
-+		psmouse_info(psmouse,
-+			     "unable to create intertouch device.\n");
++	for (i = 0; i < 3; i++)
++		serio_interrupt(f03->serio, 0x00, 0x00);
 +}
- /*****************************************************************************
-  *	Synaptics communications functions
-  ****************************************************************************/
-@@ -1305,6 +1397,11 @@ static void synaptics_disconnect(struct psmouse *psmouse)
- 		device_remove_file(&psmouse->ps2dev.serio->dev,
- 				   &psmouse_attr_disable_gesture.dattr);
++
+ static int rmi_f03_pt_write(struct serio *id, unsigned char val)
+ {
+ 	struct f03_data *f03 = id->port_data;
+diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
+index c8885d8..865cb6c 100644
+--- a/drivers/input/rmi4/rmi_f30.c
++++ b/drivers/input/rmi4/rmi_f30.c
+@@ -74,8 +74,11 @@ struct f30_data {
  
-+	if (priv->intertouch) {
-+		platform_device_unregister(priv->intertouch);
-+		priv->intertouch = NULL;
+ 	u8 data_regs[RMI_F30_CTRL_MAX_BYTES];
+ 	u16 *gpioled_key_map;
++	u16 *gpio_passthrough_key_map;
+ 
+ 	struct input_dev *input;
++	bool trackstick_buttons;
++	struct rmi_function *f03;
+ };
+ 
+ static int rmi_f30_read_control_parameters(struct rmi_function *fn,
+@@ -108,6 +111,13 @@ static int rmi_f30_attention(struct rmi_function *fn, unsigned long *irq_bits)
+ 	if (!f30->input)
+ 		return 0;
+ 
++	if (f30->trackstick_buttons && !f30->f03) {
++		f30->f03 = rmi_find_function(rmi_dev, 3);
++
++		if (!f30->f03)
++			return -EBUSY;
 +	}
 +
- 	synaptics_reset(psmouse);
- 	kfree(priv);
- 	psmouse->private = NULL;
-@@ -1547,6 +1644,9 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+ 	/* Read the gpi led data. */
+ 	if (rmi_dev->xport->attn_data) {
+ 		memcpy(f30->data_regs, rmi_dev->xport->attn_data,
+@@ -128,23 +138,29 @@ static int rmi_f30_attention(struct rmi_function *fn, unsigned long *irq_bits)
+ 	for (reg_num = 0; reg_num < f30->register_count; ++reg_num) {
+ 		for (i = 0; gpiled < f30->gpioled_count && i < 8; ++i,
+ 			++gpiled) {
+-			if (f30->gpioled_key_map[gpiled] != 0) {
+-				/* buttons have pull up resistors */
+-				value = (((f30->data_regs[reg_num] >> i) & 0x01)
+-									== 0);
++			/* buttons have pull up resistors */
++			value = (((f30->data_regs[reg_num] >> i) & 0x01) == 0);
+ 
++			if (f30->gpioled_key_map[gpiled] != 0) {
+ 				rmi_dbg(RMI_DEBUG_FN, &fn->dev,
+ 					"%s: call input report key (0x%04x) value (0x%02x)",
+ 					__func__,
+ 					f30->gpioled_key_map[gpiled], value);
++
+ 				input_report_key(f30->input,
+ 						 f30->gpioled_key_map[gpiled],
+ 						 value);
++			} else if (f30->gpio_passthrough_key_map[gpiled]) {
++				rmi_f03_overwrite_button(f30->f03,
++						f30->gpio_passthrough_key_map[gpiled] - BTN_LEFT,
++						value);
+ 			}
+-
  		}
  	}
  
-+	if (SYN_CAP_INTERTOUCH(priv->ext_cap_0c))
-+		synaptics_setup_intertouch(psmouse);
++	if (f30->trackstick_buttons)
++		rmi_f03_commit_buttons(f30->f03);
 +
  	return 0;
+ }
  
-  init_fail:
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 116ae25..b88755d 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -90,6 +90,7 @@
- #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
- #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
- #define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
-+#define SYN_CAP_INTERTOUCH(ex0c)	((ex0c) & 0x004000)
+@@ -242,10 +258,11 @@ static inline int rmi_f30_initialize(struct rmi_function *fn)
+ 	int retval = 0;
+ 	int control_address;
+ 	int i;
+-	int button;
++	int button, extra_button;
+ 	u8 buf[RMI_F30_QUERY_SIZE];
+ 	u8 *ctrl_reg;
+-	u8 *map_memory;
++	u8 *map_memory, *pt_memory;
++	bool buttonpad;
  
- /*
-  * The following descibes response for the 0x10 query.
-@@ -196,6 +197,9 @@ struct synaptics_data {
- 	bool					press;
- 	bool					report_press;
- 	bool					is_forcepad;
+ 	f30 = devm_kzalloc(&fn->dev, sizeof(struct f30_data),
+ 			   GFP_KERNEL);
+@@ -343,29 +360,54 @@ static inline int rmi_f30_initialize(struct rmi_function *fn)
+ 	map_memory = devm_kzalloc(&fn->dev,
+ 				  (f30->gpioled_count * (sizeof(u16))),
+ 				  GFP_KERNEL);
+-	if (!map_memory) {
++	pt_memory = devm_kzalloc(&fn->dev,
++				 (f30->gpioled_count * (sizeof(u16))),
++				 GFP_KERNEL);
++	if (!map_memory || !pt_memory) {
+ 		dev_err(&fn->dev, "Failed to allocate gpioled map memory.\n");
+ 		return -ENOMEM;
+ 	}
+ 
+ 	f30->gpioled_key_map = (u16 *)map_memory;
++	f30->gpio_passthrough_key_map = (u16 *)pt_memory;
+ 
+ 	pdata = rmi_get_platform_data(rmi_dev);
+ 	if (f30->has_gpio) {
++		/*
++		 * buttonpad might be given by f30->has_mech_mouse_btns,
++		 * but I am not sure, so use only the pdata info
++		 */
++		buttonpad = pdata->f30_data.buttonpad;
++		f30->trackstick_buttons = pdata->f30_data.trackstick_buttons;
 +
-+	/* Intertouch handling */
-+	struct platform_device *intertouch;
- };
++		/*
++		 * For touchpads the buttons are mapped as:
++		 * - bit 0 = Left, bit 1 = right, bit 2 = middle / clickbutton
++		 * - 3, 4, 5 are extended buttons and
++		 * - 6 and 7 are other sorts of GPIOs
++		 */
+ 		button = BTN_LEFT;
+-		for (i = 0; i < f30->gpioled_count; i++) {
++		extra_button = BTN_LEFT;
++		for (i = 0; i < f30->gpioled_count && i < 3; i++) {
+ 			if (rmi_f30_is_valid_button(i, f30->ctrl)) {
+ 				f30->gpioled_key_map[i] = button++;
  
- void synaptics_module_init(void);
+-				/*
+-				 * buttonpad might be given by
+-				 * f30->has_mech_mouse_btns, but I am
+-				 * not sure, so use only the pdata info
+-				 */
+-				if (pdata->f30_data.buttonpad)
++				if (buttonpad)
+ 					break;
+ 			}
+ 		}
++
++		if (f30->trackstick_buttons) {
++			for (i = 3; i < f30->gpioled_count && i < 6; i++) {
++				if (rmi_f30_is_valid_button(i, f30->ctrl))
++					f30->gpio_passthrough_key_map[i] = extra_button++;
++			}
++		} else if (!buttonpad) {
++			for (i = 3; i < f30->gpioled_count; i++) {
++				if (rmi_f30_is_valid_button(i, f30->ctrl))
++					f30->gpioled_key_map[i] = button++;
++			}
++		}
+ 	}
+ 
+ 	return 0;
 -- 
 2.7.4
 

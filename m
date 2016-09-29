@@ -1,90 +1,101 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - Fix error handling in I2C
- transport driver
-Date: Thu, 29 Sep 2016 10:55:40 -0700
-Message-ID: <20160929175540.GF7509@tuxbot>
-References: <1475109426-23644-1-git-send-email-linux@roeck-us.net>
+From: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+Subject: Re: [PATCH v6 1/4] mfd: mxs-lradc: Add support for mxs-lradc MFD
+Date: Thu, 29 Sep 2016 21:15:50 +0200 (CEST)
+Message-ID: <1269746175.25077.ef1d8693-0ff3-4b50-a424-49eebba23da1.open-xchange@email.1und1.de>
+References: <cover.1474108510.git.ksenija.stanojevic@gmail.com>
+ <b50209289b241995c6fd5e23c7343448857fc301.1474108510.git.ksenija.stanojevic@gmail.com>
+ <20160928010533.GQ21388@dell>
+ <1882238802.204734.75f5f595-10ac-4107-8738-e75dfde001f1.open-xchange@email.1und1.de>
+ <20160929171540.GB2844@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f174.google.com ([209.85.192.174]:34581 "EHLO
-        mail-pf0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934123AbcI2Rzp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 29 Sep 2016 13:55:45 -0400
-Received: by mail-pf0-f174.google.com with SMTP id u78so5888864pfa.1
-        for <linux-input@vger.kernel.org>; Thu, 29 Sep 2016 10:55:45 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1475109426-23644-1-git-send-email-linux@roeck-us.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160929171540.GB2844@dell>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>
 
-On Wed 28 Sep 17:37 PDT 2016, Guenter Roeck wrote:
+Hi Lee,
 
-> Instantiating the rmi4 I2C transport driver without interrupts assigned
-> (for example using manual i2c instantiation from the command line)
-> caused the driver to fail to load, but it does not clean up its
-> regulator or transport device registrations. Result is a crash at a later
-> time, for example when rebooting the system.
+[add Rob and Mark]
+
+> Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> hat am 29. September 2016 um 19:15
+> geschrieben:
 > 
-> Fixes: 946c8432aab0 ("Input: synaptics-rmi4 - support regulator supplies")
-
-Sorry for that.
-
-> Fixes: fdf51604f104 ("Input: synaptics-rmi4 - add I2C transport driver")
-> Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-
-Regards,
-Bjorn
-
-> Cc: Andrew Duggan <aduggan@synaptics.com>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
->  drivers/input/rmi4/rmi_i2c.c | 13 ++++++++++---
->  1 file changed, 10 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-> index 6f2e0e4f0296..d57b227ccd25 100644
-> --- a/drivers/input/rmi4/rmi_i2c.c
-> +++ b/drivers/input/rmi4/rmi_i2c.c
-> @@ -285,23 +285,30 @@ static int rmi_i2c_probe(struct i2c_client *client,
->  	retval = rmi_set_page(rmi_i2c, 0);
->  	if (retval) {
->  		dev_err(&client->dev, "Failed to set page select to 0.\n");
-> -		return retval;
-> +		goto error_disable;
->  	}
->  
->  	retval = rmi_register_transport_device(&rmi_i2c->xport);
->  	if (retval) {
->  		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
->  			client->addr);
-> -		return retval;
-> +		goto error_disable;
->  	}
->  
->  	retval = rmi_i2c_init_irq(client);
->  	if (retval < 0)
-> -		return retval;
-> +		goto error_unregister;
->  
->  	dev_info(&client->dev, "registered rmi i2c driver at %#04x.\n",
->  			client->addr);
->  	return 0;
-> +
-> +error_unregister:
-> +	rmi_unregister_transport_device(&rmi_i2c->xport);
-> +error_disable:
-> +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
-> +			       rmi_i2c->supplies);
-> +	return retval;
->  }
->  
->  static int rmi_i2c_remove(struct i2c_client *client)
+> On Thu, 29 Sep 2016, Stefan Wahren wrote:
+> > > Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> hat am 28. September 2016 um 03:05
+> > > geschrieben:
+> > > 
+> > > 
+> > > On Sat, 17 Sep 2016, Ksenija Stanojevic wrote:
+> > > 
+> > > > +
+> > > > +static int mxs_lradc_probe(struct platform_device *pdev)
+> > > > +{
+> > > > +	const struct of_device_id *of_id;
+> > > > +	struct device *dev = &pdev->dev;
+> > > > +	struct device_node *node = dev->of_node;
+> > > > +	struct mxs_lradc *lradc;
+> > > > +	struct mfd_cell *cells = NULL;
+> > > > +	int ret = 0;
+> > > > +	u32 ts_wires = 0;
+> > > > +
+> > > > +	lradc = devm_kzalloc(&pdev->dev, sizeof(*lradc), GFP_KERNEL);
+> > > > +	if (!lradc)
+> > > > +		return -ENOMEM;
+> > > > +
+> > > > +	of_id = of_match_device(mxs_lradc_dt_ids, &pdev->dev);
+> > > > +	lradc->soc = (enum mxs_lradc_id)of_id->data;
+> > > > +
+> > > > +	lradc->clk = devm_clk_get(&pdev->dev, NULL);
+> > > > +	if (IS_ERR(lradc->clk)) {
+> > > > +		dev_err(dev, "Failed to get the delay unit clock\n");
+> > > > +		return PTR_ERR(lradc->clk);
+> > > > +	}
+> > > > +
+> > > > +	ret = clk_prepare_enable(lradc->clk);
+> > > > +	if (ret) {
+> > > > +		dev_err(dev, "Failed to enable the delay unit clock\n");
+> > > > +		return ret;
+> > > > +	}
+> > > > +
+> > > > +	ret = of_property_read_u32(node, "fsl,lradc-touchscreen-wires",
+> > > 
+> > > Have you moved the documentation into devicetree/bindings/mfd?
+> > > 
+> > 
+> > i hope it's okay if i answer. The binding has moved to
+> > devicetree/binding/iio/adc/ [1]
+> > 
+> > Should it move completely to mfd or split too?
+> > 
+> > I'm asking myself how we keep DT ABI in the latter case.
+> > 
+> > [1] -
+> > http://lxr.free-electrons.com/source/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
+> 
+> I haven't read into the documentation too to deeply, but it stands to
+> reason that the bindings which are now being used in MFD should be
+> documented in the MFD binding document, and the ones which are no longer
+> used in the IIO driver should be removed.
+
+sure, that isn't a problem.
+
+The more interesting question would be: do we need a new compatible string for
+the mfd driver?
+
+In that case the ADC won't probe for the combination of old devicetree blobs and
+new kernel.
+
+Regards
+Stefan
+
+> 
 > -- 
-> 2.5.0
-> 
+> Lee Jones
+> Linaro STMicroelectronics Landing Team Lead
+> Linaro.org │ Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog

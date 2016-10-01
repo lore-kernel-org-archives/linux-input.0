@@ -1,126 +1,110 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - Fix error handling in I2C
- transport driver
-Date: Fri, 30 Sep 2016 20:44:23 -0700
-Message-ID: <74a818fc-6ebf-0514-461e-b664390c32cb@roeck-us.net>
-References: <1475109426-23644-1-git-send-email-linux@roeck-us.net>
- <20160929175540.GF7509@tuxbot> <20160930225403.GG30208@dtor-ws>
- <20160930230203.GH30208@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v2 1/2] Input: synaptics-rmi4 - Fix error handling in I2C transport driver
+Date: Fri, 30 Sep 2016 21:04:09 -0700
+Message-ID: <1475294650-29059-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:46682 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:35149 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750840AbcJADo0 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 30 Sep 2016 23:44:26 -0400
-In-Reply-To: <20160930230203.GH30208@dtor-ws>
+        with ESMTP id S1750712AbcJAEEP (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Oct 2016 00:04:15 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Chris Healy <cphealy@gmail.com>, Nick Dyer <nick@shmanahar.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Bjorn Andersson <bjorn.andersson@linaro.org>
 
-On 09/30/2016 04:02 PM, Dmitry Torokhov wrote:
-> On Fri, Sep 30, 2016 at 03:54:03PM -0700, Dmitry Torokhov wrote:
->> On Thu, Sep 29, 2016 at 10:55:40AM -0700, Bjorn Andersson wrote:
->>> On Wed 28 Sep 17:37 PDT 2016, Guenter Roeck wrote:
->>>
->>>> Instantiating the rmi4 I2C transport driver without interrupts assigned
->>>> (for example using manual i2c instantiation from the command line)
->>>> caused the driver to fail to load, but it does not clean up its
->>>> regulator or transport device registrations. Result is a crash at a later
->>>> time, for example when rebooting the system.
->>>>
->>>> Fixes: 946c8432aab0 ("Input: synaptics-rmi4 - support regulator supplies")
->>>
->>> Sorry for that.
->>>
->>>> Fixes: fdf51604f104 ("Input: synaptics-rmi4 - add I2C transport driver")
->>>> Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
->>>
->>> Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
->>
->> Applied, thank you.
->
-> I take it back. rmi_i2c_init_irq() uses devm* so this whole thing mixes
-> up devm* and manual unregistering and unwind order is completely
-> broken.
->
-Oops ...
+Instantiating the rmi4 I2C transport driver without interrupts assigned
+(for example using manual i2c instantiation from the command line)
+caused the driver to fail to load, but it does not clean up its regulator
+or transport device registrations. Result is a crash at a later time,
+for example when rebooting the system.
 
-> 1. Why do we register interrupt from transport drivers and not make it
-> part of rmi_register_transport_device()?
+Fixes: 946c8432aab0 ("Input: synaptics-rmi4 - support regulator supplies")
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+v2: Use devm_add_action to register cleanup functions
+    Drop remove function as no longer necessary
 
-rmi_register_transport_device() doesn't take dev as parameter.
+ drivers/input/rmi4/rmi_i2c.c | 38 ++++++++++++++++++++++++++------------
+ 1 file changed, 26 insertions(+), 12 deletions(-)
 
-> 2. If we need to use some non-devm-ised resources we should use
-> devm_add_action[_or_reset] to work these operations into devm stream.
-
-Ok, no problem.
-
-Guenter
-
->
-> Thanks,
->
->>
->> It looks like we have similar issue in rmi_spi.c. Can I get another
->> patch?
->>
->>>
->>> Regards,
->>> Bjorn
->>>
->>>> Cc: Andrew Duggan <aduggan@synaptics.com>
->>>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
->>>> ---
->>>>  drivers/input/rmi4/rmi_i2c.c | 13 ++++++++++---
->>>>  1 file changed, 10 insertions(+), 3 deletions(-)
->>>>
->>>> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
->>>> index 6f2e0e4f0296..d57b227ccd25 100644
->>>> --- a/drivers/input/rmi4/rmi_i2c.c
->>>> +++ b/drivers/input/rmi4/rmi_i2c.c
->>>> @@ -285,23 +285,30 @@ static int rmi_i2c_probe(struct i2c_client *client,
->>>>  	retval = rmi_set_page(rmi_i2c, 0);
->>>>  	if (retval) {
->>>>  		dev_err(&client->dev, "Failed to set page select to 0.\n");
->>>> -		return retval;
->>>> +		goto error_disable;
->>>>  	}
->>>>
->>>>  	retval = rmi_register_transport_device(&rmi_i2c->xport);
->>>>  	if (retval) {
->>>>  		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
->>>>  			client->addr);
->>>> -		return retval;
->>>> +		goto error_disable;
->>>>  	}
->>>>
->>>>  	retval = rmi_i2c_init_irq(client);
->>>>  	if (retval < 0)
->>>> -		return retval;
->>>> +		goto error_unregister;
->>>>
->>>>  	dev_info(&client->dev, "registered rmi i2c driver at %#04x.\n",
->>>>  			client->addr);
->>>>  	return 0;
->>>> +
->>>> +error_unregister:
->>>> +	rmi_unregister_transport_device(&rmi_i2c->xport);
->>>> +error_disable:
->>>> +	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
->>>> +			       rmi_i2c->supplies);
->>>> +	return retval;
->>>>  }
->>>>
->>>>  static int rmi_i2c_remove(struct i2c_client *client)
->>>> --
->>>> 2.5.0
->>>>
->>
->> --
->> Dmitry
->
+diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+index 6f2e0e4f0296..1ebc2c1debae 100644
+--- a/drivers/input/rmi4/rmi_i2c.c
++++ b/drivers/input/rmi4/rmi_i2c.c
+@@ -221,6 +221,21 @@ static const struct of_device_id rmi_i2c_of_match[] = {
+ MODULE_DEVICE_TABLE(of, rmi_i2c_of_match);
+ #endif
+ 
++static void rmi_i2c_regulator_bulk_disable(void *data)
++{
++	struct rmi_i2c_xport *rmi_i2c = data;
++
++	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
++			       rmi_i2c->supplies);
++}
++
++static void rmi_i2c_unregister_transport(void *data)
++{
++	struct rmi_i2c_xport *rmi_i2c = data;
++
++	rmi_unregister_transport_device(&rmi_i2c->xport);
++}
++
+ static int rmi_i2c_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
+ {
+@@ -264,6 +279,12 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 	if (retval < 0)
+ 		return retval;
+ 
++	retval = devm_add_action_or_reset(&client->dev,
++					  rmi_i2c_regulator_bulk_disable,
++					  rmi_i2c);
++	if (retval)
++		return retval;
++
+ 	of_property_read_u32(client->dev.of_node, "syna,startup-delay-ms",
+ 			     &rmi_i2c->startup_delay);
+ 
+@@ -294,6 +315,11 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 			client->addr);
+ 		return retval;
+ 	}
++	retval = devm_add_action_or_reset(&client->dev,
++					  rmi_i2c_unregister_transport,
++					  rmi_i2c);
++	if (retval)
++		return retval;
+ 
+ 	retval = rmi_i2c_init_irq(client);
+ 	if (retval < 0)
+@@ -304,17 +330,6 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 	return 0;
+ }
+ 
+-static int rmi_i2c_remove(struct i2c_client *client)
+-{
+-	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
+-
+-	rmi_unregister_transport_device(&rmi_i2c->xport);
+-	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
+-			       rmi_i2c->supplies);
+-
+-	return 0;
+-}
+-
+ #ifdef CONFIG_PM_SLEEP
+ static int rmi_i2c_suspend(struct device *dev)
+ {
+@@ -431,7 +446,6 @@ static struct i2c_driver rmi_i2c_driver = {
+ 	},
+ 	.id_table	= rmi_id,
+ 	.probe		= rmi_i2c_probe,
+-	.remove		= rmi_i2c_remove,
+ };
+ 
+ module_i2c_driver(rmi_i2c_driver);
+-- 
+2.5.0
 

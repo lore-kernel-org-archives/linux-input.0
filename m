@@ -1,88 +1,30 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 2/2] Input: synaptics-rmi4 - Fix error handling in SPI transport driver
-Date: Fri, 30 Sep 2016 21:04:10 -0700
-Message-ID: <1475294650-29059-2-git-send-email-linux@roeck-us.net>
-References: <1475294650-29059-1-git-send-email-linux@roeck-us.net>
+From: Vladislav Naumov <vnaum@vnaum.com>
+Subject: Re: [PATCH 2/2] hid: input: add HID_QUIRK_REUSE_AXES and fix dragonrise
+Date: Sat, 1 Oct 2016 14:52:04 +0600
+Message-ID: <CABnEwur6XnpHvpF3xOfwEkJpN13rGOvJAkpa-M5RwFFmSrhtYA@mail.gmail.com>
+References: <20160926025839.2790-1-adi@adirat.com> <20160926025839.2790-2-adi@adirat.com>
+ <20160926092903.GC19261@mail.corp.redhat.com> <f3f844b7-777e-41ce-4661-bcf8735763c6@gmail.com>
+ <CABnEwuryj9rbeETuO+agekioq8wFd_6H0cZPCs+=Ft8c-=5j9g@mail.gmail.com>
+ <874m5173ex.fsf@ni.com> <CABnEwuqXSje=Y0a49R4OfMxPvL4nAwxQqrhA+i-cce020wD90A@mail.gmail.com>
+ <87y42c5j74.fsf@adirat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35177 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750908AbcJAEEQ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Oct 2016 00:04:16 -0400
-In-Reply-To: <1475294650-29059-1-git-send-email-linux@roeck-us.net>
+Received: from mail-io0-f193.google.com ([209.85.223.193]:36605 "EHLO
+        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750818AbcJAIwf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Oct 2016 04:52:35 -0400
+In-Reply-To: <87y42c5j74.fsf@adirat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Chris Healy <cphealy@gmail.com>, Nick Dyer <nick@shmanahar.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Andrew Duggan <aduggan@synaptics.com>
+To: Ioan-Adrian Ratiu <adi@adirat.com>
+Cc: Nikolai Kondrashov <spbnick@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Instantiating the rmi4 SPI transport driver without an interrupt assigned
-caused the driver to fail to load, but it does not clean up its transport
-device registration. Result may be a crash at a later time, for example
-when rebooting the system.
+I fetched `dev/aratiu/fix-dragonrise-gamepad` branch from
+https://github.com/10ne1/linux
+at commit a7dd8e2 "hid: hid-dr: add input mapping for axis selection"
+and built 32-bit kernel (default debian config).
 
-Fixes: 8d99758dee31 ("Input: synaptics-rmi4 - add SPI transport driver")
-Cc: Andrew Duggan <aduggan@synaptics.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-v2: Use devm_add_action to register cleanup functions
-    Drop remove function as no longer necessary
+0079:0011 DragonRise Inc. Gamepad works properly, both axis and all buttons.
 
- drivers/input/rmi4/rmi_spi.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/input/rmi4/rmi_spi.c b/drivers/input/rmi4/rmi_spi.c
-index 55bd1b34970c..4ebef607e214 100644
---- a/drivers/input/rmi4/rmi_spi.c
-+++ b/drivers/input/rmi4/rmi_spi.c
-@@ -396,6 +396,13 @@ static inline int rmi_spi_of_probe(struct spi_device *spi,
- }
- #endif
- 
-+static void rmi_spi_unregister_transport(void *data)
-+{
-+	struct rmi_spi_xport *rmi_spi = data;
-+
-+	rmi_unregister_transport_device(&rmi_spi->xport);
-+}
-+
- static int rmi_spi_probe(struct spi_device *spi)
- {
- 	struct rmi_spi_xport *rmi_spi;
-@@ -464,6 +471,11 @@ static int rmi_spi_probe(struct spi_device *spi)
- 		dev_err(&spi->dev, "failed to register transport.\n");
- 		return retval;
- 	}
-+	retval = devm_add_action_or_reset(&spi->dev,
-+					  rmi_spi_unregister_transport,
-+					  rmi_spi);
-+	if (retval)
-+		return retval;
- 
- 	retval = rmi_spi_init_irq(spi);
- 	if (retval < 0)
-@@ -473,15 +485,6 @@ static int rmi_spi_probe(struct spi_device *spi)
- 	return 0;
- }
- 
--static int rmi_spi_remove(struct spi_device *spi)
--{
--	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
--
--	rmi_unregister_transport_device(&rmi_spi->xport);
--
--	return 0;
--}
--
- #ifdef CONFIG_PM_SLEEP
- static int rmi_spi_suspend(struct device *dev)
- {
-@@ -577,7 +580,6 @@ static struct spi_driver rmi_spi_driver = {
- 	},
- 	.id_table	= rmi_id,
- 	.probe		= rmi_spi_probe,
--	.remove		= rmi_spi_remove,
- };
- 
- module_spi_driver(rmi_spi_driver);
--- 
-2.5.0
-
+TEST PASSED.

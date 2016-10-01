@@ -1,87 +1,185 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/4] Input: elan_i2c - fix return tests of
- i2c_smbus_read_block_data()
-Date: Fri, 30 Sep 2016 17:02:28 -0700
-Message-ID: <20161001000228.GC1680@dtor-ws>
-References: <1475073244-23068-1-git-send-email-benjamin.tissoires@redhat.com>
- <1475073244-23068-2-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: roderick@gaikai.com
+Subject: [PATCH 1/2] HID: sony: Fix race condition in sony_probe
+Date: Fri, 30 Sep 2016 17:50:25 -0700
+Message-ID: <1475283026-2256-1-git-send-email-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f65.google.com ([209.85.220.65]:34732 "EHLO
-        mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751076AbcJAACb (ORCPT
+Received: from mail-it0-f54.google.com ([209.85.214.54]:36844 "EHLO
+        mail-it0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751505AbcJAAvC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 30 Sep 2016 20:02:31 -0400
-Content-Disposition: inline
-In-Reply-To: <1475073244-23068-2-git-send-email-benjamin.tissoires@redhat.com>
+        Fri, 30 Sep 2016 20:51:02 -0400
+Received: by mail-it0-f54.google.com with SMTP id u134so70393500itb.1
+        for <linux-input@vger.kernel.org>; Fri, 30 Sep 2016 17:51:01 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: KT Liao <kt.liao@emc.com.tw>, Adrian Alves <aalves@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Wed, Sep 28, 2016 at 04:34:01PM +0200, Benjamin Tissoires wrote:
-> i2c_smbus_read_block_data() returns negative errno else the number of
-> data bytes in the slave's response.
-> 
-> Checking for error not null means the function always fails if the device
-> answers properly.
-> 
-> So given that we read 3 bytes and access those, better check that we
-> actually read those 3 bytes.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/input/mouse/elan_i2c_smbus.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
-> index cb6aecb..9b43b55 100644
-> --- a/drivers/input/mouse/elan_i2c_smbus.c
-> +++ b/drivers/input/mouse/elan_i2c_smbus.c
-> @@ -226,7 +226,7 @@ static int elan_smbus_get_max(struct i2c_client *client,
->  	u8 val[3];
->  
->  	error = i2c_smbus_read_block_data(client, ETP_SMBUS_RANGE_CMD, val);
-> -	if (error) {
-> +	if (error != 3) {
->  		dev_err(&client->dev, "failed to get dimensions: %d\n", error);
->  		return error;
+From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Unfortunately that means you'll report success if you get 0 from
-i2c_smbus_read_block_data() or confuse upper layers with positive
-errors. I'll change this to:
+Early on the sony_probe function calls hid_hw_start to start the hardware. Afterwards
+it issues some hardware requests, initializes other functionality like Force Feedback,
+power classes and others. However by the time hid_hw_start returns, the device nodes
+have already been created, which leads to a race condition by user space applications
+which may detect the device prior to completion of initialization. We have observed
+this problem many times, this patch fixes the problem.
 
-	ret = i2c_smbus_read_block_data();
-	if (ret != 3) {
-		error = ret < 0 ? ret : -EIO;
-		...
-	}
+This patch moves most of sony_probe to sony_input_configured, which is called prior
+to device registration. This fixes the race condition and the same approach is used
+in other HID drivers.
 
-Thanks.
+Note: patches are relative to for-4.9/sony
 
->  	}
-> @@ -245,7 +245,7 @@ static int elan_smbus_get_resolution(struct i2c_client *client,
->  
->  	error = i2c_smbus_read_block_data(client,
->  					  ETP_SMBUS_RESOLUTION_CMD, val);
-> -	if (error) {
-> +	if (error != 3) {
->  		dev_err(&client->dev, "failed to get resolution: %d\n", error);
->  		return error;
->  	}
-> @@ -265,7 +265,7 @@ static int elan_smbus_get_num_traces(struct i2c_client *client,
->  
->  	error = i2c_smbus_read_block_data(client,
->  					  ETP_SMBUS_XY_TRACENUM_CMD, val);
-> -	if (error) {
-> +	if (error != 3) {
->  		dev_err(&client->dev, "failed to get trace info: %d\n", error);
->  		return error;
->  	}
-> -- 
-> 2.7.4
-> 
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+---
+ drivers/hid/hid-sony.c | 111 ++++++++++++++++++++++++-------------------------
+ 1 file changed, 55 insertions(+), 56 deletions(-)
 
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 9bf4e36..189c100 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1386,28 +1386,6 @@ static int sony_register_touchpad(struct hid_input *hi, int touch_count,
+ 	return 0;
+ }
+ 
+-static int sony_input_configured(struct hid_device *hdev,
+-					struct hid_input *hidinput)
+-{
+-	struct sony_sc *sc = hid_get_drvdata(hdev);
+-	int ret;
+-
+-	/*
+-	 * The Dualshock 4 touchpad supports 2 touches and has a
+-	 * resolution of 1920x942 (44.86 dots/mm).
+-	 */
+-	if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+-		ret = sony_register_touchpad(hidinput, 2, 1920, 942);
+-		if (ret) {
+-			hid_err(sc->hdev,
+-				"Unable to initialize multi-touch slots: %d\n",
+-				ret);
+-			return ret;
+-		}
+-	}
+-
+-	return 0;
+-}
+ 
+ /*
+  * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
+@@ -2328,42 +2306,12 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
+ 		cancel_work_sync(&sc->state_worker);
+ }
+ 
+-static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
++static int sony_input_configured(struct hid_device *hdev,
++					struct hid_input *hidinput)
+ {
+-	int ret;
++	struct sony_sc *sc = hid_get_drvdata(hdev);
+ 	int append_dev_id;
+-	unsigned long quirks = id->driver_data;
+-	struct sony_sc *sc;
+-	unsigned int connect_mask = HID_CONNECT_DEFAULT;
+-
+-	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
+-	if (sc == NULL) {
+-		hid_err(hdev, "can't alloc sony descriptor\n");
+-		return -ENOMEM;
+-	}
+-
+-	spin_lock_init(&sc->lock);
+-
+-	sc->quirks = quirks;
+-	hid_set_drvdata(hdev, sc);
+-	sc->hdev = hdev;
+-
+-	ret = hid_parse(hdev);
+-	if (ret) {
+-		hid_err(hdev, "parse failed\n");
+-		return ret;
+-	}
+-
+-	if (sc->quirks & VAIO_RDESC_CONSTANT)
+-		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
+-	else if (sc->quirks & SIXAXIS_CONTROLLER)
+-		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
+-
+-	ret = hid_hw_start(hdev, connect_mask);
+-	if (ret) {
+-		hid_err(hdev, "hw start failed\n");
+-		return ret;
+-	}
++	int ret;
+ 
+ 	ret = sony_set_device_id(sc);
+ 	if (ret < 0) {
+@@ -2423,6 +2371,18 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			}
+ 		}
+ 
++		/*
++		 * The Dualshock 4 touchpad supports 2 touches and has a
++		 * resolution of 1920x942 (44.86 dots/mm).
++		 */
++		ret = sony_register_touchpad(hidinput, 2, 1920, 942);
++		if (ret) {
++			hid_err(sc->hdev,
++			"Unable to initialize multi-touch slots: %d\n",
++			ret);
++			return ret;
++		}
++
+ 		sony_init_output_report(sc, dualshock4_send_output_report);
+ 	} else if (sc->quirks & MOTION_CONTROLLER) {
+ 		sony_init_output_report(sc, motion_send_output_report);
+@@ -2478,6 +2438,45 @@ err_stop:
+ 	return ret;
+ }
+ 
++static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++	unsigned long quirks = id->driver_data;
++	struct sony_sc *sc;
++	unsigned int connect_mask = HID_CONNECT_DEFAULT;
++
++	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
++	if (sc == NULL) {
++		hid_err(hdev, "can't alloc sony descriptor\n");
++		return -ENOMEM;
++	}
++
++	spin_lock_init(&sc->lock);
++
++	sc->quirks = quirks;
++	hid_set_drvdata(hdev, sc);
++	sc->hdev = hdev;
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "parse failed\n");
++		return ret;
++	}
++
++	if (sc->quirks & VAIO_RDESC_CONSTANT)
++		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
++	else if (sc->quirks & SIXAXIS_CONTROLLER)
++		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
++
++	ret = hid_hw_start(hdev, connect_mask);
++	if (ret) {
++		hid_err(hdev, "hw start failed\n");
++		return ret;
++	}
++
++	return ret;
++}
++
+ static void sony_remove(struct hid_device *hdev)
+ {
+ 	struct sony_sc *sc = hid_get_drvdata(hdev);
 -- 
-Dmitry
+2.7.4
+

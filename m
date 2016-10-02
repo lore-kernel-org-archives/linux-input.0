@@ -1,7 +1,7 @@
 From: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v7 5/5] mfd: Move binding document
-Date: Sun,  2 Oct 2016 16:15:49 +0200
-Message-ID: <e4106d819bf15c1d35ea5dadebc354fd0f999f71.1475416202.git.ksenija.stanojevic@gmail.com>
+Subject: [PATCH v7 3/5] input: touchscreen: mxs-lradc: Add support for touchscreen
+Date: Sun,  2 Oct 2016 16:15:47 +0200
+Message-ID: <8cf09a8c576ac22345bf31e0b3ae03b1d6efecdc.1475416202.git.ksenija.stanojevic@gmail.com>
 References: <cover.1475416202.git.ksenija.stanojevic@gmail.com>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <cover.1475416202.git.ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
@@ -12,125 +12,83 @@ To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org, stefan.wahren-eS4NqCHxEME@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-The bindings, which are now used in MFD, need also to be
-documented in the MFD binding document.
+Add 4-wire/5-wire touchscreen controller.
 
 Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
 Changes in v7:
- - add to the patchset
+ - remove touch_ret variable in probe and use ret instead
+ - make error check on of_property_read_u32 in probe
 
- .../devicetree/bindings/iio/adc/mxs-lradc.txt      | 47 ----------------------
- .../devicetree/bindings/mfd/mxs-lradc.txt          | 47 ++++++++++++++++++++++
- 2 files changed, 47 insertions(+), 47 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/mxs-lradc.txt
+Changes in v6:
+ - update copyright
 
-diff --git a/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt b/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
-deleted file mode 100644
-index 555fb11..0000000
---- a/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
-+++ /dev/null
-@@ -1,47 +0,0 @@
--* Freescale MXS LRADC device driver
--
--Required properties:
--- compatible: Should be "fsl,imx23-lradc" for i.MX23 SoC and "fsl,imx28-lradc"
--              for i.MX28 SoC
--- reg: Address and length of the register set for the device
--- interrupts: Should contain the LRADC interrupts
--
--Optional properties:
--- fsl,lradc-touchscreen-wires: Number of wires used to connect the touchscreen
--                               to LRADC. Valid value is either 4 or 5. If this
--                               property is not present, then the touchscreen is
--                               disabled. 5 wires is valid for i.MX28 SoC only.
--- fsl,ave-ctrl: number of samples per direction to calculate an average value.
--                Allowed value is 1 ... 32, default is 4
--- fsl,ave-delay: delay between consecutive samples. Allowed value is
--                 2 ... 2048. It is used if 'fsl,ave-ctrl' > 1, counts at
--                 2 kHz and its default is 2 (= 1 ms)
--- fsl,settling: delay between plate switch to next sample. Allowed value is
--                1 ... 2047. It counts at 2 kHz and its default is
--                10 (= 5 ms)
--
--Example for i.MX23 SoC:
--
--	lradc@80050000 {
--		compatible = "fsl,imx23-lradc";
--		reg = <0x80050000 0x2000>;
--		interrupts = <36 37 38 39 40 41 42 43 44>;
--		status = "okay";
--		fsl,lradc-touchscreen-wires = <4>;
--		fsl,ave-ctrl = <4>;
--		fsl,ave-delay = <2>;
--		fsl,settling = <10>;
--	};
--
--Example for i.MX28 SoC:
--
--	lradc@80050000 {
--		compatible = "fsl,imx28-lradc";
--		reg = <0x80050000 0x2000>;
--		interrupts = <10 14 15 16 17 18 19 20 21 22 23 24 25>;
--		status = "okay";
--		fsl,lradc-touchscreen-wires = <5>;
--		fsl,ave-ctrl = <4>;
--		fsl,ave-delay = <2>;
--		fsl,settling = <10>;
--	};
-diff --git a/Documentation/devicetree/bindings/mfd/mxs-lradc.txt b/Documentation/devicetree/bindings/mfd/mxs-lradc.txt
-new file mode 100644
-index 0000000..555fb11
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/mxs-lradc.txt
-@@ -0,0 +1,47 @@
-+* Freescale MXS LRADC device driver
+Changes in v5:
+ - add field void __iomem *base to struct mxs_lradc_adc
+ - change arguments in all functions for accessing I/O memory
+   to follow the previous change.
+ - use devm_ioremap for mapping I/O memory
+
+Changes in v4:
+ - update copyright
+ - use platform_get_irq_byname
+ - use irq_of_parse_and_map
+
+Changes in v3:
+ - make buffer large enough for timestamps
+ - remove unnecessary blank lines
+
+Changes in v2:
+ - improve commit message
+ - do not change spacing in Kconfig
+ - impove formating
+ - remove wrapper show_scale_avail
+ - use correct syntax for comments
+ - use devm_iio_trigger_alloc
+ - do not allocate buffer dynamically
+ - use iio_device_claim_*_mode helpers
+ - add spinlock in struct mxs_lradc_ts to enable locking in interrupt handler
+ - only grab irqs that are relevant to adc
+ - remove blank line at the end of the file
+ - change licence to GPL
+ - add copyright
+
+ drivers/input/touchscreen/Kconfig  | 10 ++++++++++
+ drivers/input/touchscreen/Makefile |  1 +
+ 2 files changed, 11 insertions(+)
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 2fb1f43..49ea962 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -305,6 +305,16 @@ config TOUCHSCREEN_EGALAX_SERIAL
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called egalax_ts_serial.
+ 
++config TOUCHSCREEN_MXS_LRADC
++	tristate "Freescale i.MX23/i.MX28 LRADC touchscreen"
++	depends on MFD_MXS_LRADC
++	help
++	  Say Y here if you have a touchscreen connected to the low-resolution
++	  analog-to-digital converter (LRADC) on an i.MX23 or i.MX28 processor.
 +
-+Required properties:
-+- compatible: Should be "fsl,imx23-lradc" for i.MX23 SoC and "fsl,imx28-lradc"
-+              for i.MX28 SoC
-+- reg: Address and length of the register set for the device
-+- interrupts: Should contain the LRADC interrupts
++	  To compile this driver as a module, choose M here: the module will be
++	  called mxs-lradc-ts.
 +
-+Optional properties:
-+- fsl,lradc-touchscreen-wires: Number of wires used to connect the touchscreen
-+                               to LRADC. Valid value is either 4 or 5. If this
-+                               property is not present, then the touchscreen is
-+                               disabled. 5 wires is valid for i.MX28 SoC only.
-+- fsl,ave-ctrl: number of samples per direction to calculate an average value.
-+                Allowed value is 1 ... 32, default is 4
-+- fsl,ave-delay: delay between consecutive samples. Allowed value is
-+                 2 ... 2048. It is used if 'fsl,ave-ctrl' > 1, counts at
-+                 2 kHz and its default is 2 (= 1 ms)
-+- fsl,settling: delay between plate switch to next sample. Allowed value is
-+                1 ... 2047. It counts at 2 kHz and its default is
-+                10 (= 5 ms)
-+
-+Example for i.MX23 SoC:
-+
-+	lradc@80050000 {
-+		compatible = "fsl,imx23-lradc";
-+		reg = <0x80050000 0x2000>;
-+		interrupts = <36 37 38 39 40 41 42 43 44>;
-+		status = "okay";
-+		fsl,lradc-touchscreen-wires = <4>;
-+		fsl,ave-ctrl = <4>;
-+		fsl,ave-delay = <2>;
-+		fsl,settling = <10>;
-+	};
-+
-+Example for i.MX28 SoC:
-+
-+	lradc@80050000 {
-+		compatible = "fsl,imx28-lradc";
-+		reg = <0x80050000 0x2000>;
-+		interrupts = <10 14 15 16 17 18 19 20 21 22 23 24 25>;
-+		status = "okay";
-+		fsl,lradc-touchscreen-wires = <5>;
-+		fsl,ave-ctrl = <4>;
-+		fsl,ave-delay = <2>;
-+		fsl,settling = <10>;
-+	};
+ config TOUCHSCREEN_FT6236
+ 	tristate "FT6236 I2C touchscreen"
+ 	depends on I2C
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index b4373d6..9f2b76b 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -54,6 +54,7 @@ obj-$(CONFIG_TOUCHSCREEN_MIGOR)		+= migor_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_MMS114)	+= mms114.o
+ obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+= mtouch.o
+ obj-$(CONFIG_TOUCHSCREEN_MK712)		+= mk712.o
++obj-$(CONFIG_TOUCHSCREEN_MXS_LRADC)     += mxs-lradc-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_HP600)		+= hp680_ts_input.o
+ obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+= jornada720_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_IPAQ_MICRO)	+= ipaq-micro-ts.o
 -- 
 1.9.1

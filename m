@@ -1,104 +1,136 @@
-From: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-Subject: [PATCH v7 2/5] iio: adc: mxs-lradc: Add support for adc driver
-Date: Sun,  2 Oct 2016 16:15:46 +0200
-Message-ID: <645df80f346859a1830c33f4eba81677525a39a4.1475416202.git.ksenija.stanojevic@gmail.com>
+From: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v7 5/5] mfd: Move binding document
+Date: Sun,  2 Oct 2016 16:15:49 +0200
+Message-ID: <e4106d819bf15c1d35ea5dadebc354fd0f999f71.1475416202.git.ksenija.stanojevic@gmail.com>
 References: <cover.1475416202.git.ksenija.stanojevic@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:36136 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750969AbcJBOQB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 2 Oct 2016 10:16:01 -0400
-In-Reply-To: <cover.1475416202.git.ksenija.stanojevic@gmail.com>
-In-Reply-To: <cover.1475416202.git.ksenija.stanojevic@gmail.com>
-References: <cover.1475416202.git.ksenija.stanojevic@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1475416202.git.ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <cover.1475416202.git.ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+References: <cover.1475416202.git.ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org, stefan.wahren-eS4NqCHxEME@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: lee.jones@linaro.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
 
-Add support for sixteen-channel 12-bit resolution ADC and its functions,
-which include general-purpose ADC readings, battery voltage measurement,
-and die temperature measurement.
+The bindings, which are now used in MFD, need also to be
+documented in the MFD binding document.
 
-Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-Reviewed-by: Jonathan Cameron <jic23@kernel.org>
+Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
 Changes in v7:
- - none
+ - add to the patchset
 
-Changes in v6:
- - update copyright
+ .../devicetree/bindings/iio/adc/mxs-lradc.txt      | 47 ----------------------
+ .../devicetree/bindings/mfd/mxs-lradc.txt          | 47 ++++++++++++++++++++++
+ 2 files changed, 47 insertions(+), 47 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/mxs-lradc.txt
 
-Changes in v5:
- - add field void __iomem *base to struct mxs_lradc_adc
- - change arguments in all functions for accessing I/O memory
-   to follow the previous change.
- - use devm_ioremap for mapping I/O memory
-
-Changes in v4:
- - update copyright
- - use platform_get_irq_byname
- - use irq_of_parse_and_map
-
-Changes in v3:
- - make buffer large enough for timestamps
- - remove unnecessary blank lines
-
-Changes in v2:
- - improve commit message
- - do not change spacing in Kconfig
- - impove formating
- - remove wrapper show_scale_avail
- - use correct syntax for comments
- - use devm_iio_trigger_alloc
- - do not allocate buffer dynamically
- - use iio_device_claim_*_mode helpers
- - add spinlock in struct mxs_lradc_ts to enable locking in interrupt handler
- - only grab irqs that are relevant to adc
- - remove blank line at the end of the file
- - change licence to GPL
- - add copyright
-
- drivers/iio/adc/Kconfig  | 13 +++++++++++++
- drivers/iio/adc/Makefile |  1 +
- 2 files changed, 14 insertions(+)
-
-diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-index 7edcf32..6414397 100644
---- a/drivers/iio/adc/Kconfig
-+++ b/drivers/iio/adc/Kconfig
-@@ -207,6 +207,19 @@ config EXYNOS_ADC
- 	  To compile this driver as a module, choose M here: the module will be
- 	  called exynos_adc.
- 
-+config MXS_LRADC_ADC
-+	tristate "Freescale i.MX23/i.MX28 LRADC ADC"
-+	depends on MFD_MXS_LRADC
-+	select IIO_BUFFER
-+	select IIO_TRIGGERED_BUFFER
-+	help
-+	  Say yes here to build support for the ADC functions of the
-+	  i.MX23/i.MX28 LRADC. This includes general-purpose ADC readings,
-+	  battery voltage measurement, and die temperature measurement.
+diff --git a/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt b/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
+deleted file mode 100644
+index 555fb11..0000000
+--- a/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
++++ /dev/null
+@@ -1,47 +0,0 @@
+-* Freescale MXS LRADC device driver
+-
+-Required properties:
+-- compatible: Should be "fsl,imx23-lradc" for i.MX23 SoC and "fsl,imx28-lradc"
+-              for i.MX28 SoC
+-- reg: Address and length of the register set for the device
+-- interrupts: Should contain the LRADC interrupts
+-
+-Optional properties:
+-- fsl,lradc-touchscreen-wires: Number of wires used to connect the touchscreen
+-                               to LRADC. Valid value is either 4 or 5. If this
+-                               property is not present, then the touchscreen is
+-                               disabled. 5 wires is valid for i.MX28 SoC only.
+-- fsl,ave-ctrl: number of samples per direction to calculate an average value.
+-                Allowed value is 1 ... 32, default is 4
+-- fsl,ave-delay: delay between consecutive samples. Allowed value is
+-                 2 ... 2048. It is used if 'fsl,ave-ctrl' > 1, counts at
+-                 2 kHz and its default is 2 (= 1 ms)
+-- fsl,settling: delay between plate switch to next sample. Allowed value is
+-                1 ... 2047. It counts at 2 kHz and its default is
+-                10 (= 5 ms)
+-
+-Example for i.MX23 SoC:
+-
+-	lradc@80050000 {
+-		compatible = "fsl,imx23-lradc";
+-		reg = <0x80050000 0x2000>;
+-		interrupts = <36 37 38 39 40 41 42 43 44>;
+-		status = "okay";
+-		fsl,lradc-touchscreen-wires = <4>;
+-		fsl,ave-ctrl = <4>;
+-		fsl,ave-delay = <2>;
+-		fsl,settling = <10>;
+-	};
+-
+-Example for i.MX28 SoC:
+-
+-	lradc@80050000 {
+-		compatible = "fsl,imx28-lradc";
+-		reg = <0x80050000 0x2000>;
+-		interrupts = <10 14 15 16 17 18 19 20 21 22 23 24 25>;
+-		status = "okay";
+-		fsl,lradc-touchscreen-wires = <5>;
+-		fsl,ave-ctrl = <4>;
+-		fsl,ave-delay = <2>;
+-		fsl,settling = <10>;
+-	};
+diff --git a/Documentation/devicetree/bindings/mfd/mxs-lradc.txt b/Documentation/devicetree/bindings/mfd/mxs-lradc.txt
+new file mode 100644
+index 0000000..555fb11
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/mxs-lradc.txt
+@@ -0,0 +1,47 @@
++* Freescale MXS LRADC device driver
 +
-+	  This driver can also be built as a module. If so, the module will be
-+	  called mxs-lradc-adc.
++Required properties:
++- compatible: Should be "fsl,imx23-lradc" for i.MX23 SoC and "fsl,imx28-lradc"
++              for i.MX28 SoC
++- reg: Address and length of the register set for the device
++- interrupts: Should contain the LRADC interrupts
 +
- config FSL_MX25_ADC
- 	tristate "Freescale MX25 ADC driver"
- 	depends on MFD_MX25_TSADC
-diff --git a/drivers/iio/adc/Makefile b/drivers/iio/adc/Makefile
-index 7a40c04..e62ebeb 100644
---- a/drivers/iio/adc/Makefile
-+++ b/drivers/iio/adc/Makefile
-@@ -34,6 +34,7 @@ obj-$(CONFIG_MCP320X) += mcp320x.o
- obj-$(CONFIG_MCP3422) += mcp3422.o
- obj-$(CONFIG_MEDIATEK_MT6577_AUXADC) += mt6577_auxadc.o
- obj-$(CONFIG_MEN_Z188_ADC) += men_z188_adc.o
-+obj-$(CONFIG_MXS_LRADC_ADC) += mxs-lradc-adc.o
- obj-$(CONFIG_MXS_LRADC) += mxs-lradc.o
- obj-$(CONFIG_NAU7802) += nau7802.o
- obj-$(CONFIG_PALMAS_GPADC) += palmas_gpadc.o
++Optional properties:
++- fsl,lradc-touchscreen-wires: Number of wires used to connect the touchscreen
++                               to LRADC. Valid value is either 4 or 5. If this
++                               property is not present, then the touchscreen is
++                               disabled. 5 wires is valid for i.MX28 SoC only.
++- fsl,ave-ctrl: number of samples per direction to calculate an average value.
++                Allowed value is 1 ... 32, default is 4
++- fsl,ave-delay: delay between consecutive samples. Allowed value is
++                 2 ... 2048. It is used if 'fsl,ave-ctrl' > 1, counts at
++                 2 kHz and its default is 2 (= 1 ms)
++- fsl,settling: delay between plate switch to next sample. Allowed value is
++                1 ... 2047. It counts at 2 kHz and its default is
++                10 (= 5 ms)
++
++Example for i.MX23 SoC:
++
++	lradc@80050000 {
++		compatible = "fsl,imx23-lradc";
++		reg = <0x80050000 0x2000>;
++		interrupts = <36 37 38 39 40 41 42 43 44>;
++		status = "okay";
++		fsl,lradc-touchscreen-wires = <4>;
++		fsl,ave-ctrl = <4>;
++		fsl,ave-delay = <2>;
++		fsl,settling = <10>;
++	};
++
++Example for i.MX28 SoC:
++
++	lradc@80050000 {
++		compatible = "fsl,imx28-lradc";
++		reg = <0x80050000 0x2000>;
++		interrupts = <10 14 15 16 17 18 19 20 21 22 23 24 25>;
++		status = "okay";
++		fsl,lradc-touchscreen-wires = <5>;
++		fsl,ave-ctrl = <4>;
++		fsl,ave-delay = <2>;
++		fsl,settling = <10>;
++	};
 -- 
 1.9.1
-

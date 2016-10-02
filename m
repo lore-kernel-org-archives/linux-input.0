@@ -1,114 +1,104 @@
 From: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-Subject: [PATCH v7 1/5] mfd: mxs-lradc: Add support for mxs-lradc MFD
-Date: Sun,  2 Oct 2016 16:15:45 +0200
-Message-ID: <449aa536e2c0aa0365ff98400bad979570d4854f.1475416202.git.ksenija.stanojevic@gmail.com>
+Subject: [PATCH v7 2/5] iio: adc: mxs-lradc: Add support for adc driver
+Date: Sun,  2 Oct 2016 16:15:46 +0200
+Message-ID: <645df80f346859a1830c33f4eba81677525a39a4.1475416202.git.ksenija.stanojevic@gmail.com>
 References: <cover.1475416202.git.ksenija.stanojevic@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:36136 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750969AbcJBOQB (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 2 Oct 2016 10:16:01 -0400
 In-Reply-To: <cover.1475416202.git.ksenija.stanojevic@gmail.com>
 In-Reply-To: <cover.1475416202.git.ksenija.stanojevic@gmail.com>
 References: <cover.1475416202.git.ksenija.stanojevic@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: lee.jones@linaro.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
-Add core files for mxs-lradc MFD driver.
-
-Note:  this patch won't compile in iio/testing without this patch:
-a8f447be8056 ("mfd: Add resource managed APIs for mfd_add_devices")
+Add support for sixteen-channel 12-bit resolution ADC and its functions,
+which include general-purpose ADC readings, battery voltage measurement,
+and die temperature measurement.
 
 Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+Reviewed-by: Jonathan Cameron <jic23@kernel.org>
 ---
 Changes in v7:
- - define macros ADC_CELL and TSC_CELL
- - remove one cell and dynamically set them in the switch()
- - fail in the touchscreen driver instead of mfd driver if 
-   hardware doesn't contain a touchscreen
+ - none
 
 Changes in v6:
  - update copyright
- - add kernel-doc header for struct mxs-lradc
- - add error message
- - change EINVAL to ENODEV
- - use PLATFORM_DEVID_NONE instead -1
- - cosmetic fixes
 
 Changes in v5:
- - use DEFINE_RES_MEM
- - don't pass ioreammaped adress to platform cells
- - move comment outside of struct mxs_lradc
- - change type of argument in mxs_lradc_reg_set, mxs_lradc_reg_clear,
-   mxs_lradc_reg_wrt (struct mxs_lradc * -> void __iomem *)
+ - add field void __iomem *base to struct mxs_lradc_adc
+ - change arguments in all functions for accessing I/O memory
+   to follow the previous change.
+ - use devm_ioremap for mapping I/O memory
 
 Changes in v4:
  - update copyright
- - use DEFINE_RES_IRQ_NAMED
- - remove mxs_lradc_add_device function
- - use struct mfd_cell in static form
- - improve spacing
- - remove unnecessary comment
- - remove platform_get_irq
- - remove touch_ret and use ret instead
- - rename use_touchscreen to touchscreen_wire
- - use goto statements
- - remove irq[13], irq_count and irq_name from struct mxs_lradc
- - remove all defines from inside the struct definition
+ - use platform_get_irq_byname
+ - use irq_of_parse_and_map
 
 Changes in v3:
- - add note to commit message
- - move switch statement into if(touch_ret == 0) branch
- - add MODULE_AUTHOR
+ - make buffer large enough for timestamps
+ - remove unnecessary blank lines
 
 Changes in v2:
+ - improve commit message
  - do not change spacing in Kconfig
- - make struct mfd_cell part of struct mxs_lradc
- - use switch instead of if in mxs_lradc_irq_mask
- - use only necessary header files in mxs_lradc.h
- - use devm_mfd_add_device
- - use separate function to register mfd device
+ - impove formating
+ - remove wrapper show_scale_avail
+ - use correct syntax for comments
+ - use devm_iio_trigger_alloc
+ - do not allocate buffer dynamically
+ - use iio_device_claim_*_mode helpers
+ - add spinlock in struct mxs_lradc_ts to enable locking in interrupt handler
+ - only grab irqs that are relevant to adc
+ - remove blank line at the end of the file
  - change licence to GPL
  - add copyright
 
- drivers/mfd/Kconfig  | 17 +++++++++++++++++
- drivers/mfd/Makefile |  1 +
- 2 files changed, 18 insertions(+)
+ drivers/iio/adc/Kconfig  | 13 +++++++++++++
+ drivers/iio/adc/Makefile |  1 +
+ 2 files changed, 14 insertions(+)
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 2d1fb64..188c7d1 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -308,6 +308,23 @@ config MFD_MC13XXX_I2C
- 	help
- 	  Select this if your MC13xxx is connected via an I2C bus.
+diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
+index 7edcf32..6414397 100644
+--- a/drivers/iio/adc/Kconfig
++++ b/drivers/iio/adc/Kconfig
+@@ -207,6 +207,19 @@ config EXYNOS_ADC
+ 	  To compile this driver as a module, choose M here: the module will be
+ 	  called exynos_adc.
  
-+config MFD_MXS_LRADC
-+	tristate "Freescale i.MX23/i.MX28 LRADC"
-+	depends on ARCH_MXS || COMPILE_TEST
-+	select MFD_CORE
-+	select STMP_DEVICE
++config MXS_LRADC_ADC
++	tristate "Freescale i.MX23/i.MX28 LRADC ADC"
++	depends on MFD_MXS_LRADC
++	select IIO_BUFFER
++	select IIO_TRIGGERED_BUFFER
 +	help
-+	  Say yes here to build support for the Low Resolution
-+	  Analog-to-Digital Converter (LRADC) found on the i.MX23 and i.MX28
-+	  processors. This driver provides common support for accessing the
-+	  device, additional drivers must be enabled in order to use the
-+	  functionality of the device:
-+		mxs-lradc-adc for ADC readings
-+		mxs-lradc-ts  for touchscreen support
++	  Say yes here to build support for the ADC functions of the
++	  i.MX23/i.MX28 LRADC. This includes general-purpose ADC readings,
++	  battery voltage measurement, and die temperature measurement.
 +
 +	  This driver can also be built as a module. If so, the module will be
-+	  called mxs-lradc.
++	  called mxs-lradc-adc.
 +
- config MFD_MX25_TSADC
- 	tristate "Freescale i.MX25 integrated Touchscreen and ADC unit"
- 	select REGMAP_MMIO
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 2ba3ba3..c9f9c80 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -207,3 +207,4 @@ obj-$(CONFIG_INTEL_SOC_PMIC)	+= intel-soc-pmic.o
- obj-$(CONFIG_MFD_MT6397)	+= mt6397-core.o
- 
- obj-$(CONFIG_MFD_ALTERA_A10SR)	+= altera-a10sr.o
-+obj-$(CONFIG_MFD_MXS_LRADC)     += mxs-lradc.o
+ config FSL_MX25_ADC
+ 	tristate "Freescale MX25 ADC driver"
+ 	depends on MFD_MX25_TSADC
+diff --git a/drivers/iio/adc/Makefile b/drivers/iio/adc/Makefile
+index 7a40c04..e62ebeb 100644
+--- a/drivers/iio/adc/Makefile
++++ b/drivers/iio/adc/Makefile
+@@ -34,6 +34,7 @@ obj-$(CONFIG_MCP320X) += mcp320x.o
+ obj-$(CONFIG_MCP3422) += mcp3422.o
+ obj-$(CONFIG_MEDIATEK_MT6577_AUXADC) += mt6577_auxadc.o
+ obj-$(CONFIG_MEN_Z188_ADC) += men_z188_adc.o
++obj-$(CONFIG_MXS_LRADC_ADC) += mxs-lradc-adc.o
+ obj-$(CONFIG_MXS_LRADC) += mxs-lradc.o
+ obj-$(CONFIG_NAU7802) += nau7802.o
+ obj-$(CONFIG_PALMAS_GPADC) += palmas_gpadc.o
 -- 
 1.9.1
+

@@ -1,412 +1,63 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: Re: [PATCH v4 0/2] Avoid selftests on some Asus models
-Date: Mon, 3 Oct 2016 09:07:26 -0300
-Message-ID: <20161003120724.GA2863@xfiles>
-References: <1474809944-7357-1-git-send-email-marcos.souza.org@gmail.com>
- <20161001105637.GA2608@xfiles>
- <20161003051631.GA22473@dtor-ws>
+From: Ben Gamari <ben@smart-cactus.org>
+Subject: Re: [PATCH v3] Support for Alps SS5 touchpad
+Date: Mon, 03 Oct 2016 08:15:19 -0400
+Message-ID: <87fuodaaso.fsf@ben-laptop.smart-cactus.org>
+References: <1466500773-3470-1-git-send-email-ben@smart-cactus.org> <alpine.LRH.2.00.1607291045590.21952@gjva.wvxbf.pm> <20160829071455.GB2968@dhcp22.suse.cz> <alpine.LNX.2.00.1610030922340.31629@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f194.google.com ([209.85.220.194]:34509 "EHLO
-        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751229AbcJCMHi (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Oct 2016 08:07:38 -0400
-Content-Disposition: inline
-In-Reply-To: <20161003051631.GA22473@dtor-ws>
+Received: from turtle.smart-cactus.org ([163.172.166.228]:55538 "EHLO
+        mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753156AbcJCMUn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Oct 2016 08:20:43 -0400
+In-Reply-To: <alpine.LNX.2.00.1610030922340.31629@cbobk.fhfr.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Michal Hocko <mhocko@kernel.org>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Dmitry,
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, Oct 02, 2016 at 10:16:31PM -0700, Dmitry Torokhov wrote:
-> On Sat, Oct 01, 2016 at 07:56:37AM -0300, Marcos Paulo de Souza wrote:
-> > ping?
-> 
-> Sorry for the delay, I was trying to wrap my mind around the new
-> always/never/sometimes logic.
+Jiri Kosina <jikos@kernel.org> writes:
 
-No problem.
+> On Mon, 29 Aug 2016, Michal Hocko wrote:
+>>=20
+>> Thanks to Jiri for pointing me to these patches. I was running with them
+>> for few days and they seem to be working reasonably well on my Latitude
+>> E7470. The only annoying thing is that the vertical scrolling mode seems
+>> to be hard to exit - sometimes you can get almost to the (horizontal)
+>> middle of the touch pad and the scrolling is still active. I haven't
+>> found any scrolling area width configuration knob though.
+>>=20
+>> Anyway, feel free to add my
+>> Tested-by: Michal Hocko <mhocko@suse.com>
+>>=20
+>> Btw. I've noticed that none of the patches has your signed-off-by which
+>> is required for any patch to be applied.
+>
+> Ben, Dmitry, has this fallen in between the cracks?
+>
+Indeed it sadly has. Sending a new version right now. Thanks for the
+ping.
 
-> 
-> Does the version below still work for you?
+Cheers,
 
-Yes, still works for me.
+=2D Ben
 
-Tested-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> 
-> Thanks.
-> 
-> -- 
-> Dmitry
-> 
-> Input: i8042 - skip selftest on ASUS laptops
-> 
-> From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-> 
-> On suspend/resume cycle, selftest is executed to reset i8042 controller.
-> But when this is done in Asus devices, subsequent calls to detect/init
-> functions to elantech driver fails. Skipping selftest fixes this problem.
-> 
-> An easier step to reproduce this problem is adding i8042.reset=1 as a
-> kernel parameter. On Asus laptops, it'll make the system to start with the
-> touchpad already stuck, since psmouse_probe forcibly calls the selftest
-> function.
-> 
-> This patch was inspired by John Hiesey's change[1], but, since this problem
-> affects a lot of models of Asus, let's avoid running selftests on them.
-> 
-> All models affected by this problem:
-> A455LD
-> K401LB
-> K501LB
-> K501LX
-> R409L
-> V502LX
-> X302LA
-> X450LCP
-> X450LD
-> X455LAB
-> X455LDB
-> X455LF
-> Z450LA
-> 
-> [1]: https://marc.info/?l=linux-input&m=144312209020616&w=2
-> 
-> Fixes: "ETPS/2 Elantech Touchpad dies after resume from suspend"
-> (https://bugzilla.kernel.org/show_bug.cgi?id=107971)
-> 
-> Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  Documentation/kernel-parameters.txt     |    9 +++
->  drivers/input/serio/i8042-io.h          |    2 -
->  drivers/input/serio/i8042-ip22io.h      |    2 -
->  drivers/input/serio/i8042-ppcio.h       |    2 -
->  drivers/input/serio/i8042-sparcio.h     |    2 -
->  drivers/input/serio/i8042-unicore32io.h |    2 -
->  drivers/input/serio/i8042-x86ia64io.h   |   96 ++++++++++++++++++++++++++++++-
->  drivers/input/serio/i8042.c             |   55 ++++++++++++++----
->  8 files changed, 150 insertions(+), 20 deletions(-)
-> 
-> diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
-> index a4f4d69..46726d4 100644
-> --- a/Documentation/kernel-parameters.txt
-> +++ b/Documentation/kernel-parameters.txt
-> @@ -1457,7 +1457,14 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
->  	i8042.nopnp	[HW] Don't use ACPIPnP / PnPBIOS to discover KBD/AUX
->  			     controllers
->  	i8042.notimeout	[HW] Ignore timeout condition signalled by controller
-> -	i8042.reset	[HW] Reset the controller during init and cleanup
-> +	i8042.reset	[HW] Reset the controller during init, cleanup and
-> +			     suspend-to-ram transitions, only during s2r
-> +			     transitions, or never reset
-> +			Format: { 1 | Y | y | 0 | N | n }
-> +			1, Y, y: always reset controller
-> +			0, N, n: don't ever reset controller
-> +			Default: only on s2r transitions on x86; most other
-> +			architectures force reset to be always executed
->  	i8042.unlock	[HW] Unlock (ignore) the keylock
->  	i8042.kbdreset  [HW] Reset device connected to KBD port
->  
-> diff --git a/drivers/input/serio/i8042-io.h b/drivers/input/serio/i8042-io.h
-> index a5eed2a..34da81c 100644
-> --- a/drivers/input/serio/i8042-io.h
-> +++ b/drivers/input/serio/i8042-io.h
-> @@ -81,7 +81,7 @@ static inline int i8042_platform_init(void)
->  		return -EBUSY;
->  #endif
->  
-> -	i8042_reset = 1;
-> +	i8042_reset = I8042_RESET_ALWAYS;
->  	return 0;
->  }
->  
-> diff --git a/drivers/input/serio/i8042-ip22io.h b/drivers/input/serio/i8042-ip22io.h
-> index ee1ad27..08a1c10 100644
-> --- a/drivers/input/serio/i8042-ip22io.h
-> +++ b/drivers/input/serio/i8042-ip22io.h
-> @@ -61,7 +61,7 @@ static inline int i8042_platform_init(void)
->  		return -EBUSY;
->  #endif
->  
-> -	i8042_reset = 1;
-> +	i8042_reset = I8042_RESET_ALWAYS;
->  
->  	return 0;
->  }
-> diff --git a/drivers/input/serio/i8042-ppcio.h b/drivers/input/serio/i8042-ppcio.h
-> index f708c75..1aabea4 100644
-> --- a/drivers/input/serio/i8042-ppcio.h
-> +++ b/drivers/input/serio/i8042-ppcio.h
-> @@ -44,7 +44,7 @@ static inline void i8042_write_command(int val)
->  
->  static inline int i8042_platform_init(void)
->  {
-> -	i8042_reset = 1;
-> +	i8042_reset = I8042_RESET_ALWAYS;
->  	return 0;
->  }
->  
-> diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
-> index afcd1c1..6231d63 100644
-> --- a/drivers/input/serio/i8042-sparcio.h
-> +++ b/drivers/input/serio/i8042-sparcio.h
-> @@ -130,7 +130,7 @@ static int __init i8042_platform_init(void)
->  		}
->  	}
->  
-> -	i8042_reset = 1;
-> +	i8042_reset = I8042_RESET_ALWAYS;
->  
->  	return 0;
->  }
-> diff --git a/drivers/input/serio/i8042-unicore32io.h b/drivers/input/serio/i8042-unicore32io.h
-> index 73f5cc1..4557475 100644
-> --- a/drivers/input/serio/i8042-unicore32io.h
-> +++ b/drivers/input/serio/i8042-unicore32io.h
-> @@ -61,7 +61,7 @@ static inline int i8042_platform_init(void)
->  	if (!request_mem_region(I8042_REGION_START, I8042_REGION_SIZE, "i8042"))
->  		return -EBUSY;
->  
-> -	i8042_reset = 1;
-> +	i8042_reset = I8042_RESET_ALWAYS;
->  	return 0;
->  }
->  
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> index 60d74e1..07d547d 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -518,6 +518,90 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
->  	{ }
->  };
->  
-> +/*
-> + * On some Asus laptops, just running self tests cause problems.
-> + */
-> +static const struct dmi_system_id i8042_dmi_noselftest_table[] = {
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "A455LD"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "K401LB"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "K501LB"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "K501LX"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "R409L"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "V502LX"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "X302LA"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "X450LCP"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "X450LD"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "X455LAB"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "X455LDB"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "X455LF"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "Z450LA"),
-> +		},
-> +	},
-> +	{ }
-> +};
->  static const struct dmi_system_id __initconst i8042_dmi_reset_table[] = {
->  	{
->  		/* MSI Wind U-100 */
-> @@ -1080,12 +1164,18 @@ static int __init i8042_platform_init(void)
->  		return retval;
->  
->  #if defined(__ia64__)
-> -        i8042_reset = true;
-> +        i8042_reset = I8042_RESET_ALWAYS;
->  #endif
->  
->  #ifdef CONFIG_X86
-> -	if (dmi_check_system(i8042_dmi_reset_table))
-> -		i8042_reset = true;
-> +	/* Honor module parameter when value is not default */
-> +	if (i8042_reset == I8042_RESET_DEFAULT) {
-> +		if (dmi_check_system(i8042_dmi_reset_table))
-> +			i8042_reset = I8042_RESET_ALWAYS;
-> +
-> +		if (dmi_check_system(i8042_dmi_noselftest_table))
-> +			i8042_reset = I8042_RESET_NEVER;
-> +	}
->  
->  	if (dmi_check_system(i8042_dmi_noloop_table))
->  		i8042_noloop = true;
-> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-> index 405252a..89abfdb 100644
-> --- a/drivers/input/serio/i8042.c
-> +++ b/drivers/input/serio/i8042.c
-> @@ -48,9 +48,39 @@ static bool i8042_unlock;
->  module_param_named(unlock, i8042_unlock, bool, 0);
->  MODULE_PARM_DESC(unlock, "Ignore keyboard lock.");
->  
-> -static bool i8042_reset;
-> -module_param_named(reset, i8042_reset, bool, 0);
-> -MODULE_PARM_DESC(reset, "Reset controller during init and cleanup.");
-> +enum i8042_controller_reset_mode {
-> +	I8042_RESET_NEVER,
-> +	I8042_RESET_ALWAYS,
-> +	I8042_RESET_ON_S2RAM,
-> +#define I8042_RESET_DEFAULT	I8042_RESET_ON_S2RAM
-> +};
-> +static enum i8042_controller_reset_mode i8042_reset = I8042_RESET_DEFAULT;
-> +static int i8042_set_reset(const char *val, const struct kernel_param *kp)
-> +{
-> +	enum i8042_controller_reset_mode *arg = kp->arg;
-> +	int error;
-> +	bool reset;
-> +
-> +	if (val) {
-> +		error = kstrtobool(val, &reset);
-> +		if (error)
-> +			return error;
-> +	} else {
-> +		reset = true;
-> +	}
-> +
-> +	*arg = reset ? I8042_RESET_ALWAYS : I8042_RESET_NEVER;
-> +	return 0;
-> +}
-> +
-> +static const struct kernel_param_ops param_ops_reset_param = {
-> +	.flags = KERNEL_PARAM_OPS_FL_NOARG,
-> +	.set = i8042_set_reset,
-> +};
-> +#define param_check_reset_param(name, p)	\
-> +	__param_check(name, p, enum i8042_controller_reset_mode)
-> +module_param_named(reset, i8042_reset, reset_param, 0);
-> +MODULE_PARM_DESC(reset, "Reset controller on resume, cleanup or both");
->  
->  static bool i8042_direct;
->  module_param_named(direct, i8042_direct, bool, 0);
-> @@ -1019,7 +1049,7 @@ static int i8042_controller_init(void)
->   * Reset the controller and reset CRT to the original value set by BIOS.
->   */
->  
-> -static void i8042_controller_reset(bool force_reset)
-> +static void i8042_controller_reset(bool s2r_wants_reset)
->  {
->  	i8042_flush();
->  
-> @@ -1044,8 +1074,10 @@ static void i8042_controller_reset(bool force_reset)
->   * Reset the controller if requested.
->   */
->  
-> -	if (i8042_reset || force_reset)
-> +	if (i8042_reset == I8042_RESET_ALWAYS ||
-> +	    (i8042_reset == I8042_RESET_ON_S2RAM && s2r_wants_reset)) {
->  		i8042_controller_selftest();
-> +	}
->  
->  /*
->   * Restore the original control register setting.
-> @@ -1110,7 +1142,7 @@ static void i8042_dritek_enable(void)
->   * before suspending.
->   */
->  
-> -static int i8042_controller_resume(bool force_reset)
-> +static int i8042_controller_resume(bool s2r_wants_reset)
->  {
->  	int error;
->  
-> @@ -1118,7 +1150,8 @@ static int i8042_controller_resume(bool force_reset)
->  	if (error)
->  		return error;
->  
-> -	if (i8042_reset || force_reset) {
-> +	if (i8042_reset == I8042_RESET_ALWAYS ||
-> +	    (i8042_reset == I8042_RESET_ON_S2RAM && s2r_wants_reset)) {
->  		error = i8042_controller_selftest();
->  		if (error)
->  			return error;
-> @@ -1195,7 +1228,7 @@ static int i8042_pm_resume_noirq(struct device *dev)
->  
->  static int i8042_pm_resume(struct device *dev)
->  {
-> -	bool force_reset;
-> +	bool want_reset;
->  	int i;
->  
->  	for (i = 0; i < I8042_NUM_PORTS; i++) {
-> @@ -1218,9 +1251,9 @@ static int i8042_pm_resume(struct device *dev)
->  	 * off control to the platform firmware, otherwise we can simply restore
->  	 * the mode.
->  	 */
-> -	force_reset = pm_resume_via_firmware();
-> +	want_reset = pm_resume_via_firmware();
->  
-> -	return i8042_controller_resume(force_reset);
-> +	return i8042_controller_resume(want_reset);
->  }
->  
->  static int i8042_pm_thaw(struct device *dev)
-> @@ -1482,7 +1515,7 @@ static int __init i8042_probe(struct platform_device *dev)
->  
->  	i8042_platform_device = dev;
->  
-> -	if (i8042_reset) {
-> +	if (i8042_reset == I8042_RESET_ALWAYS) {
->  		error = i8042_controller_selftest();
->  		if (error)
->  			return error;
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBCAAGBQJX8kvXAAoJEHPt6ejPuu8BEhIIALtjlPxKVoKu/U4tSBgxz6yZ
+yB5s4lMsN/Ye4RSCxIG1HYvIidgYrNNR12mt+h3ccD/lUHM5VA/YynEZXxA/N1In
+xfVkyEDtt2YqQ5CeBTjOkoXWu0rKzuVjWlIkq5XdqKQrczWMhaJy6gVx6goHhUZd
+1OwEwUyjMwE3kINLRRAUGfPvkiiw2WAbvTt89e0fDXMlVEarHf2dzEIcAj2vZo2z
+Jq1lZRkBvKtm8bqRvyQcfLlGOWKNeuJzWnBp2nh+u4Wp+MD4kgOoG6EWOAJ9BS20
+xsO0DPWM5JYIGNFx5o/rGiSw9mIkCEXvgXlIdVXqgkFU7HC7vdX5aTSVeMmuYUg=
+=olRy
+-----END PGP SIGNATURE-----
+--=-=-=--

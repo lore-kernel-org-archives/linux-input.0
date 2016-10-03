@@ -1,49 +1,64 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH -resend] Input: i8042, lower log level when controller_init fails
-Date: Mon,  3 Oct 2016 10:56:52 +0200
-Message-ID: <20161003085652.15810-1-jslaby@suse.cz>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] hid-led.c: remove unneccessary underscores
+Date: Mon, 3 Oct 2016 11:45:03 +0200
+Message-ID: <20161003094503.GC9131@amd>
+References: <20161003081626.GA18553@amd>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="Sr1nOIr3CvdE5hEN"
+Return-path: <linux-leds-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20161003081626.GA18553@amd>
+Sender: linux-leds-owner@vger.kernel.org
+To: j.anaszewski@samsung.com, linux-leds@vger.kernel.org, kernel list <linux-kernel@vger.kernel.org>, jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Cc: trivial@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-There are a lot of machines without i8042 controller nowadays.
-Sometimes i8042_controller_check returns 0 because i8042_flush does
-nothing (read from the port returns 0 and the while loop does not
-execute).
 
-In that case, the probe method is called and fails with this error
-output to console:
-i8042: Can't read CTR while initializing i8042
-i8042: probe of i8042 failed with error -5
+--Sr1nOIr3CvdE5hEN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Lower the former error message to be KERN_INFO and make the function
-in that case return -ENODEV instead of -EIO. This will suppress the
-latter.
+On Mon 2016-10-03 10:16:26, Pavel Machek wrote:
+>=20
+> u8 (and friends) can be used directly in kernel sources (not kernel
+> headers).
+>=20
+> Signed-off-by: Pavel Machek <pavel@ucw.cz>
 
-There is also an IBM support page about these messages:
-https://www-947.ibm.com/support/entry/portal/docdisplay?lndocid=migr-5082417
+Zero day bot warned me that this is not quiet correct.
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
----
- drivers/input/serio/i8042.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+This would be needed on top. Is there interest in fixed patch?
 
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 405252a884dd..15c87b98d70b 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -950,8 +950,8 @@ static int i8042_controller_init(void)
- 			udelay(50);
- 
- 		if (i8042_command(&ctr[n++ % 2], I8042_CMD_CTL_RCTR)) {
--			pr_err("Can't read CTR while initializing i8042\n");
--			return -EIO;
-+			pr_info("Can't read CTR while initializing i8042. Either i8042 controller is not present or it does not respond.\n");
-+			return -ENODEV;
- 		}
- 
- 	} while (n < 2 || ctr[0] != ctr[1]);
--- 
-2.10.0
+diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
+index cd208ca..be659ca 100644
+--- a/drivers/hid/hid-led.c
++++ b/drivers/hid/hid-led.c
+@@ -57,8 +57,8 @@ union delcom_packet {
+ 		u8 cmd;
+ 	} rx;
+ 	struct {
+-		le16 family_code;
+-		le16 security_code;
++		__le16 family_code;
++		__le16 security_code;
+ 		u8 fw_version;
+ 	} fw;
+ };
+
+
+
+--Sr1nOIr3CvdE5hEN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlfyKJ8ACgkQMOfwapXb+vKpIACfYaRWLDJrnTYr5bpEdHFTySE8
+NNMAn03JtO9x5wjE4M+qhW0D0tuwFeQv
+=Sn4o
+-----END PGP SIGNATURE-----
+
+--Sr1nOIr3CvdE5hEN--

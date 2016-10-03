@@ -1,157 +1,43 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: Re: [PATCH 2/2] HID: sony: Adjust HID report size name definitions
-Date: Mon, 3 Oct 2016 13:37:09 -0700
-Message-ID: <CANndSKkL6YpGvEjKWfQDBbW1Cr6mC6+m0ZNXp=EvKgOnwsqTKg@mail.gmail.com>
-References: <1475283026-2256-1-git-send-email-roderick@gaikai.com>
- <1475283026-2256-2-git-send-email-roderick@gaikai.com> <20161003141229.GT19261@mail.corp.redhat.com>
+From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+Subject: Re: [PATCH v2] input/mouse/elantech.c: Fix Lenovo version typo
+Date: Mon, 3 Oct 2016 20:36:54 -0300
+Message-ID: <20161003233654.GA9991@xfiles>
+References: <1471913792-5767-1-git-send-email-marcos.souza.org@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f44.google.com ([209.85.213.44]:33929 "EHLO
-        mail-vk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752520AbcJCUhK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Oct 2016 16:37:10 -0400
-Received: by mail-vk0-f44.google.com with SMTP id b186so36095411vkb.1
-        for <linux-input@vger.kernel.org>; Mon, 03 Oct 2016 13:37:10 -0700 (PDT)
-In-Reply-To: <20161003141229.GT19261@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1471913792-5767-1-git-send-email-marcos.souza.org@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, ulrik.debie-os@e2big.org, linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Mon, Oct 3, 2016 at 7:12 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> On Sep 30 2016 or thereabouts, roderick@gaikai.com wrote:
->> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
->>
->> Put the report type (feature / output) in the report size definitions.
->> This prevents name collisions later on for other reports, which use
->> the same report id.
->>
->> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
->
-> I am not against such a patch, but I'd rather see the "later" name
-> collision in the same series. From the look of it, it seems you are just
-> renaming constants for the beauty of it, and this might just
-> complexifies backports and git blames.
->
-> Please keep this one on hold until the actual collision happens.
-> Jiri might have an other opinion, but I can't find a good reason to
-> take this patch.
->
-> BTW, glad to see people with a @sony.com email address :)
->
-> Cheers,
-> Benjamin
->
+ping?
 
-Thanks for the review. I'm seeing if I can release one of the patches
-causing a collision. Just double checking now. If I can, I will send
-this series again with some additional patches.
-
-Thanks,
-Roderick
-
-
->> ---
->>  drivers/hid/hid-sony.c | 30 +++++++++++++++---------------
->>  1 file changed, 15 insertions(+), 15 deletions(-)
->>
->> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
->> index 189c100..627a785 100644
->> --- a/drivers/hid/hid-sony.c
->> +++ b/drivers/hid/hid-sony.c
->> @@ -1018,10 +1018,10 @@ struct motion_output_report_02 {
->>       u8 rumble;
->>  };
->>
->> -#define DS4_REPORT_0x02_SIZE 37
->> -#define DS4_REPORT_0x05_SIZE 32
->> -#define DS4_REPORT_0x11_SIZE 78
->> -#define DS4_REPORT_0x81_SIZE 7
->> +#define DS4_FEATURE_REPORT_0x02_SIZE 37
->> +#define DS4_FEATURE_REPORT_0x81_SIZE 7
->> +#define DS4_OUTPUT_REPORT_0x05_SIZE 32
->> +#define DS4_OUTPUT_REPORT_0x11_SIZE 78
->>  #define SIXAXIS_REPORT_0xF2_SIZE 17
->>  #define SIXAXIS_REPORT_0xF5_SIZE 8
->>  #define MOTION_REPORT_0x02_SIZE 49
->> @@ -1460,11 +1460,11 @@ static int dualshock4_set_operational_bt(struct hid_device *hdev)
->>       u8 *buf;
->>       int ret;
->>
->> -     buf = kmalloc(DS4_REPORT_0x02_SIZE, GFP_KERNEL);
->> +     buf = kmalloc(DS4_FEATURE_REPORT_0x02_SIZE, GFP_KERNEL);
->>       if (!buf)
->>               return -ENOMEM;
->>
->> -     ret = hid_hw_raw_request(hdev, 0x02, buf, DS4_REPORT_0x02_SIZE,
->> +     ret = hid_hw_raw_request(hdev, 0x02, buf, DS4_FEATURE_REPORT_0x02_SIZE,
->>                               HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
->>
->>       kfree(buf);
->> @@ -1869,12 +1869,12 @@ static void dualshock4_send_output_report(struct sony_sc *sc)
->>        * 0xD0 - 66hz
->>        */
->>       if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
->> -             memset(buf, 0, DS4_REPORT_0x05_SIZE);
->> +             memset(buf, 0, DS4_OUTPUT_REPORT_0x05_SIZE);
->>               buf[0] = 0x05;
->>               buf[1] = 0xFF;
->>               offset = 4;
->>       } else {
->> -             memset(buf, 0, DS4_REPORT_0x11_SIZE);
->> +             memset(buf, 0, DS4_OUTPUT_REPORT_0x11_SIZE);
->>               buf[0] = 0x11;
->>               buf[1] = 0x80;
->>               buf[3] = 0x0F;
->> @@ -1902,9 +1902,9 @@ static void dualshock4_send_output_report(struct sony_sc *sc)
->>       buf[offset++] = sc->led_delay_off[3];
->>
->>       if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
->> -             hid_hw_output_report(hdev, buf, DS4_REPORT_0x05_SIZE);
->> +             hid_hw_output_report(hdev, buf, DS4_OUTPUT_REPORT_0x05_SIZE);
->>       else
->> -             hid_hw_raw_request(hdev, 0x11, buf, DS4_REPORT_0x11_SIZE,
->> +             hid_hw_raw_request(hdev, 0x11, buf, DS4_OUTPUT_REPORT_0x11_SIZE,
->>                               HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
->>  }
->>
->> @@ -1949,10 +1949,10 @@ static int sony_allocate_output_report(struct sony_sc *sc)
->>                       kmalloc(sizeof(union sixaxis_output_report_01),
->>                               GFP_KERNEL);
->>       else if (sc->quirks & DUALSHOCK4_CONTROLLER_BT)
->> -             sc->output_report_dmabuf = kmalloc(DS4_REPORT_0x11_SIZE,
->> +             sc->output_report_dmabuf = kmalloc(DS4_OUTPUT_REPORT_0x11_SIZE,
->>                                               GFP_KERNEL);
->>       else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
->> -             sc->output_report_dmabuf = kmalloc(DS4_REPORT_0x05_SIZE,
->> +             sc->output_report_dmabuf = kmalloc(DS4_OUTPUT_REPORT_0x05_SIZE,
->>                                               GFP_KERNEL);
->>       else if (sc->quirks & MOTION_CONTROLLER)
->>               sc->output_report_dmabuf = kmalloc(MOTION_REPORT_0x02_SIZE,
->> @@ -2197,7 +2197,7 @@ static int sony_check_add(struct sony_sc *sc)
->>                       return 0;
->>               }
->>       } else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
->> -             buf = kmalloc(DS4_REPORT_0x81_SIZE, GFP_KERNEL);
->> +             buf = kmalloc(DS4_FEATURE_REPORT_0x81_SIZE, GFP_KERNEL);
->>               if (!buf)
->>                       return -ENOMEM;
->>
->> @@ -2207,10 +2207,10 @@ static int sony_check_add(struct sony_sc *sc)
->>                * offset 1.
->>                */
->>               ret = hid_hw_raw_request(sc->hdev, 0x81, buf,
->> -                             DS4_REPORT_0x81_SIZE, HID_FEATURE_REPORT,
->> +                             DS4_FEATURE_REPORT_0x81_SIZE, HID_FEATURE_REPORT,
->>                               HID_REQ_GET_REPORT);
->>
->> -             if (ret != DS4_REPORT_0x81_SIZE) {
->> +             if (ret != DS4_FEATURE_REPORT_0x81_SIZE) {
->>                       hid_err(sc->hdev, "failed to retrieve feature report 0x81 with the DualShock 4 MAC address\n");
->>                       ret = ret < 0 ? ret : -EINVAL;
->>                       goto out_free;
->> --
->> 2.7.4
->>
+On Mon, Aug 22, 2016 at 09:56:32PM -0300, Marcos Paulo de Souza wrote:
+> Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+> Reviewed-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
+> 
+> ---
+> Just forgot to add the SoB in the first version.
+> 
+>  drivers/input/mouse/elantech.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index 08e252a..1b51961 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -1134,7 +1134,7 @@ static int elantech_get_resolution_v4(struct psmouse *psmouse,
+>   * System76 Pangolin       0x250f01        ?               2 hw buttons
+>   * (*) + 3 trackpoint buttons
+>   * (**) + 0 trackpoint buttons
+> - * Note: Lenovo L430 and Lenovo L430 have the same fw_version/caps
+> + * Note: Lenovo L430 and Lenovo L530 have the same fw_version/caps
+>   */
+>  static void elantech_set_buttonpad_prop(struct psmouse *psmouse)
+>  {
+> -- 
+> 2.7.4
+> 

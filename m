@@ -1,17 +1,18 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/2] HID: sony: Fix race condition in sony_probe
-Date: Mon, 3 Oct 2016 16:07:24 +0200
-Message-ID: <20161003140723.GS19261@mail.corp.redhat.com>
+Subject: Re: [PATCH 2/2] HID: sony: Adjust HID report size name definitions
+Date: Mon, 3 Oct 2016 16:12:29 +0200
+Message-ID: <20161003141229.GT19261@mail.corp.redhat.com>
 References: <1475283026-2256-1-git-send-email-roderick@gaikai.com>
+ <1475283026-2256-2-git-send-email-roderick@gaikai.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59528 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:44206 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750822AbcJCOHd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 3 Oct 2016 10:07:33 -0400
+        id S1751260AbcJCOMe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 3 Oct 2016 10:12:34 -0400
 Content-Disposition: inline
-In-Reply-To: <1475283026-2256-1-git-send-email-roderick@gaikai.com>
+In-Reply-To: <1475283026-2256-2-git-send-email-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: roderick@gaikai.com
@@ -20,182 +21,125 @@ Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Roderick Colenb
 On Sep 30 2016 or thereabouts, roderick@gaikai.com wrote:
 > From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 > 
-> Early on the sony_probe function calls hid_hw_start to start the hardware. Afterwards
-> it issues some hardware requests, initializes other functionality like Force Feedback,
-> power classes and others. However by the time hid_hw_start returns, the device nodes
-> have already been created, which leads to a race condition by user space applications
-> which may detect the device prior to completion of initialization. We have observed
-> this problem many times, this patch fixes the problem.
-> 
-> This patch moves most of sony_probe to sony_input_configured, which is called prior
-> to device registration. This fixes the race condition and the same approach is used
-> in other HID drivers.
-> 
-> Note: patches are relative to for-4.9/sony
+> Put the report type (feature / output) in the report size definitions.
+> This prevents name collisions later on for other reports, which use
+> the same report id.
 > 
 > Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> ---
 
-Hmm, using for-4.9/sony makes you missing 4ba1eeeb609f93f904dadf5e
-("HID: sony: disable descriptor fixup for FutureMax Dance Mat").
+I am not against such a patch, but I'd rather see the "later" name
+collision in the same series. From the look of it, it seems you are just
+renaming constants for the beauty of it, and this might just
+complexifies backports and git blames.
 
-It's usually easier to use Jiri's for-next branch directly. The problem
-is this patch will conflict with the commit, so you should probably
-resend this one rebased on top of for-next.
+Please keep this one on hold until the actual collision happens.
+Jiri might have an other opinion, but I can't find a good reason to
+take this patch.
 
-BTW, Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+BTW, glad to see people with a @sony.com email address :)
 
 Cheers,
 Benjamin
 
->  drivers/hid/hid-sony.c | 111 ++++++++++++++++++++++++-------------------------
->  1 file changed, 55 insertions(+), 56 deletions(-)
+> ---
+>  drivers/hid/hid-sony.c | 30 +++++++++++++++---------------
+>  1 file changed, 15 insertions(+), 15 deletions(-)
 > 
 > diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index 9bf4e36..189c100 100644
+> index 189c100..627a785 100644
 > --- a/drivers/hid/hid-sony.c
 > +++ b/drivers/hid/hid-sony.c
-> @@ -1386,28 +1386,6 @@ static int sony_register_touchpad(struct hid_input *hi, int touch_count,
->  	return 0;
+> @@ -1018,10 +1018,10 @@ struct motion_output_report_02 {
+>  	u8 rumble;
+>  };
+>  
+> -#define DS4_REPORT_0x02_SIZE 37
+> -#define DS4_REPORT_0x05_SIZE 32
+> -#define DS4_REPORT_0x11_SIZE 78
+> -#define DS4_REPORT_0x81_SIZE 7
+> +#define DS4_FEATURE_REPORT_0x02_SIZE 37
+> +#define DS4_FEATURE_REPORT_0x81_SIZE 7
+> +#define DS4_OUTPUT_REPORT_0x05_SIZE 32
+> +#define DS4_OUTPUT_REPORT_0x11_SIZE 78
+>  #define SIXAXIS_REPORT_0xF2_SIZE 17
+>  #define SIXAXIS_REPORT_0xF5_SIZE 8
+>  #define MOTION_REPORT_0x02_SIZE 49
+> @@ -1460,11 +1460,11 @@ static int dualshock4_set_operational_bt(struct hid_device *hdev)
+>  	u8 *buf;
+>  	int ret;
+>  
+> -	buf = kmalloc(DS4_REPORT_0x02_SIZE, GFP_KERNEL);
+> +	buf = kmalloc(DS4_FEATURE_REPORT_0x02_SIZE, GFP_KERNEL);
+>  	if (!buf)
+>  		return -ENOMEM;
+>  
+> -	ret = hid_hw_raw_request(hdev, 0x02, buf, DS4_REPORT_0x02_SIZE,
+> +	ret = hid_hw_raw_request(hdev, 0x02, buf, DS4_FEATURE_REPORT_0x02_SIZE,
+>  				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+>  
+>  	kfree(buf);
+> @@ -1869,12 +1869,12 @@ static void dualshock4_send_output_report(struct sony_sc *sc)
+>  	 * 0xD0 - 66hz
+>  	 */
+>  	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+> -		memset(buf, 0, DS4_REPORT_0x05_SIZE);
+> +		memset(buf, 0, DS4_OUTPUT_REPORT_0x05_SIZE);
+>  		buf[0] = 0x05;
+>  		buf[1] = 0xFF;
+>  		offset = 4;
+>  	} else {
+> -		memset(buf, 0, DS4_REPORT_0x11_SIZE);
+> +		memset(buf, 0, DS4_OUTPUT_REPORT_0x11_SIZE);
+>  		buf[0] = 0x11;
+>  		buf[1] = 0x80;
+>  		buf[3] = 0x0F;
+> @@ -1902,9 +1902,9 @@ static void dualshock4_send_output_report(struct sony_sc *sc)
+>  	buf[offset++] = sc->led_delay_off[3];
+>  
+>  	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
+> -		hid_hw_output_report(hdev, buf, DS4_REPORT_0x05_SIZE);
+> +		hid_hw_output_report(hdev, buf, DS4_OUTPUT_REPORT_0x05_SIZE);
+>  	else
+> -		hid_hw_raw_request(hdev, 0x11, buf, DS4_REPORT_0x11_SIZE,
+> +		hid_hw_raw_request(hdev, 0x11, buf, DS4_OUTPUT_REPORT_0x11_SIZE,
+>  				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
 >  }
 >  
-> -static int sony_input_configured(struct hid_device *hdev,
-> -					struct hid_input *hidinput)
-> -{
-> -	struct sony_sc *sc = hid_get_drvdata(hdev);
-> -	int ret;
-> -
-> -	/*
-> -	 * The Dualshock 4 touchpad supports 2 touches and has a
-> -	 * resolution of 1920x942 (44.86 dots/mm).
-> -	 */
-> -	if (sc->quirks & DUALSHOCK4_CONTROLLER) {
-> -		ret = sony_register_touchpad(hidinput, 2, 1920, 942);
-> -		if (ret) {
-> -			hid_err(sc->hdev,
-> -				"Unable to initialize multi-touch slots: %d\n",
-> -				ret);
-> -			return ret;
-> -		}
-> -	}
-> -
-> -	return 0;
-> -}
->  
->  /*
->   * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
-> @@ -2328,42 +2306,12 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
->  		cancel_work_sync(&sc->state_worker);
->  }
->  
-> -static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> +static int sony_input_configured(struct hid_device *hdev,
-> +					struct hid_input *hidinput)
->  {
-> -	int ret;
-> +	struct sony_sc *sc = hid_get_drvdata(hdev);
->  	int append_dev_id;
-> -	unsigned long quirks = id->driver_data;
-> -	struct sony_sc *sc;
-> -	unsigned int connect_mask = HID_CONNECT_DEFAULT;
-> -
-> -	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
-> -	if (sc == NULL) {
-> -		hid_err(hdev, "can't alloc sony descriptor\n");
-> -		return -ENOMEM;
-> -	}
-> -
-> -	spin_lock_init(&sc->lock);
-> -
-> -	sc->quirks = quirks;
-> -	hid_set_drvdata(hdev, sc);
-> -	sc->hdev = hdev;
-> -
-> -	ret = hid_parse(hdev);
-> -	if (ret) {
-> -		hid_err(hdev, "parse failed\n");
-> -		return ret;
-> -	}
-> -
-> -	if (sc->quirks & VAIO_RDESC_CONSTANT)
-> -		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
-> -	else if (sc->quirks & SIXAXIS_CONTROLLER)
-> -		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
-> -
-> -	ret = hid_hw_start(hdev, connect_mask);
-> -	if (ret) {
-> -		hid_err(hdev, "hw start failed\n");
-> -		return ret;
-> -	}
-> +	int ret;
->  
->  	ret = sony_set_device_id(sc);
->  	if (ret < 0) {
-> @@ -2423,6 +2371,18 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  			}
+> @@ -1949,10 +1949,10 @@ static int sony_allocate_output_report(struct sony_sc *sc)
+>  			kmalloc(sizeof(union sixaxis_output_report_01),
+>  				GFP_KERNEL);
+>  	else if (sc->quirks & DUALSHOCK4_CONTROLLER_BT)
+> -		sc->output_report_dmabuf = kmalloc(DS4_REPORT_0x11_SIZE,
+> +		sc->output_report_dmabuf = kmalloc(DS4_OUTPUT_REPORT_0x11_SIZE,
+>  						GFP_KERNEL);
+>  	else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
+> -		sc->output_report_dmabuf = kmalloc(DS4_REPORT_0x05_SIZE,
+> +		sc->output_report_dmabuf = kmalloc(DS4_OUTPUT_REPORT_0x05_SIZE,
+>  						GFP_KERNEL);
+>  	else if (sc->quirks & MOTION_CONTROLLER)
+>  		sc->output_report_dmabuf = kmalloc(MOTION_REPORT_0x02_SIZE,
+> @@ -2197,7 +2197,7 @@ static int sony_check_add(struct sony_sc *sc)
+>  			return 0;
 >  		}
+>  	} else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+> -		buf = kmalloc(DS4_REPORT_0x81_SIZE, GFP_KERNEL);
+> +		buf = kmalloc(DS4_FEATURE_REPORT_0x81_SIZE, GFP_KERNEL);
+>  		if (!buf)
+>  			return -ENOMEM;
 >  
-> +		/*
-> +		 * The Dualshock 4 touchpad supports 2 touches and has a
-> +		 * resolution of 1920x942 (44.86 dots/mm).
-> +		 */
-> +		ret = sony_register_touchpad(hidinput, 2, 1920, 942);
-> +		if (ret) {
-> +			hid_err(sc->hdev,
-> +			"Unable to initialize multi-touch slots: %d\n",
-> +			ret);
-> +			return ret;
-> +		}
-> +
->  		sony_init_output_report(sc, dualshock4_send_output_report);
->  	} else if (sc->quirks & MOTION_CONTROLLER) {
->  		sony_init_output_report(sc, motion_send_output_report);
-> @@ -2478,6 +2438,45 @@ err_stop:
->  	return ret;
->  }
+> @@ -2207,10 +2207,10 @@ static int sony_check_add(struct sony_sc *sc)
+>  		 * offset 1.
+>  		 */
+>  		ret = hid_hw_raw_request(sc->hdev, 0x81, buf,
+> -				DS4_REPORT_0x81_SIZE, HID_FEATURE_REPORT,
+> +				DS4_FEATURE_REPORT_0x81_SIZE, HID_FEATURE_REPORT,
+>  				HID_REQ_GET_REPORT);
 >  
-> +static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> +{
-> +	int ret;
-> +	unsigned long quirks = id->driver_data;
-> +	struct sony_sc *sc;
-> +	unsigned int connect_mask = HID_CONNECT_DEFAULT;
-> +
-> +	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
-> +	if (sc == NULL) {
-> +		hid_err(hdev, "can't alloc sony descriptor\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	spin_lock_init(&sc->lock);
-> +
-> +	sc->quirks = quirks;
-> +	hid_set_drvdata(hdev, sc);
-> +	sc->hdev = hdev;
-> +
-> +	ret = hid_parse(hdev);
-> +	if (ret) {
-> +		hid_err(hdev, "parse failed\n");
-> +		return ret;
-> +	}
-> +
-> +	if (sc->quirks & VAIO_RDESC_CONSTANT)
-> +		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
-> +	else if (sc->quirks & SIXAXIS_CONTROLLER)
-> +		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
-> +
-> +	ret = hid_hw_start(hdev, connect_mask);
-> +	if (ret) {
-> +		hid_err(hdev, "hw start failed\n");
-> +		return ret;
-> +	}
-> +
-> +	return ret;
-> +}
-> +
->  static void sony_remove(struct hid_device *hdev)
->  {
->  	struct sony_sc *sc = hid_get_drvdata(hdev);
+> -		if (ret != DS4_REPORT_0x81_SIZE) {
+> +		if (ret != DS4_FEATURE_REPORT_0x81_SIZE) {
+>  			hid_err(sc->hdev, "failed to retrieve feature report 0x81 with the DualShock 4 MAC address\n");
+>  			ret = ret < 0 ? ret : -EINVAL;
+>  			goto out_free;
 > -- 
 > 2.7.4
 > 

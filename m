@@ -1,154 +1,201 @@
-From: Ben Gamari <ben@smart-cactus.org>
-Subject: [PATCH 1/5] input/alps: Add touchstick support for SS5 hardware
-Date: Mon,  3 Oct 2016 08:16:26 -0400
-Message-ID: <20161003121630.5285-1-ben@smart-cactus.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/2] HID: sony: Fix race condition in sony_probe
+Date: Mon, 3 Oct 2016 16:07:24 +0200
+Message-ID: <20161003140723.GS19261@mail.corp.redhat.com>
+References: <1475283026-2256-1-git-send-email-roderick@gaikai.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from turtle.smart-cactus.org ([163.172.166.228]:55554 "EHLO
-        mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751583AbcJCMZo (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Oct 2016 08:25:44 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:59528 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750822AbcJCOHd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 3 Oct 2016 10:07:33 -0400
+Content-Disposition: inline
+In-Reply-To: <1475283026-2256-1-git-send-email-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michal Hocko <mhocko@kernel.org>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>
-Cc: Ben Gamari <ben@smart-cactus.org>
+To: roderick@gaikai.com
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Add touchstick support for the so-called SS5 hardware, which uses a
-variant of the SS4 protocol.
+On Sep 30 2016 or thereabouts, roderick@gaikai.com wrote:
+> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+> 
+> Early on the sony_probe function calls hid_hw_start to start the hardware. Afterwards
+> it issues some hardware requests, initializes other functionality like Force Feedback,
+> power classes and others. However by the time hid_hw_start returns, the device nodes
+> have already been created, which leads to a race condition by user space applications
+> which may detect the device prior to completion of initialization. We have observed
+> this problem many times, this patch fixes the problem.
+> 
+> This patch moves most of sony_probe to sony_input_configured, which is called prior
+> to device registration. This fixes the race condition and the same approach is used
+> in other HID drivers.
+> 
+> Note: patches are relative to for-4.9/sony
+> 
+> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+> ---
 
-Reviewed-by: Pali Rohár <pali.rohar@gmail.com>
-Tested-by: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Ben Gamari <ben@smart-cactus.org>
----
- drivers/input/mouse/alps.c | 64 ++++++++++++++++++++++++++++++++++++++--------
- drivers/input/mouse/alps.h |  2 ++
- 2 files changed, 55 insertions(+), 11 deletions(-)
+Hmm, using for-4.9/sony makes you missing 4ba1eeeb609f93f904dadf5e
+("HID: sony: disable descriptor fixup for FutureMax Dance Mat").
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 936f07a..b8454af 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -1156,15 +1156,27 @@ static unsigned char alps_get_pkt_id_ss4_v2(unsigned char *byte)
- {
- 	unsigned char pkt_id = SS4_PACKET_ID_IDLE;
- 
--	if (byte[0] == 0x18 && byte[1] == 0x10 && byte[2] == 0x00 &&
--	    (byte[3] & 0x88) == 0x08 && byte[4] == 0x10 && byte[5] == 0x00) {
--		pkt_id = SS4_PACKET_ID_IDLE;
--	} else if (!(byte[3] & 0x10)) {
--		pkt_id = SS4_PACKET_ID_ONE;
--	} else if (!(byte[3] & 0x20)) {
-+	switch (byte[3] & 0x30) {
-+	case 0x00:
-+		if (byte[0] == 0x18 && byte[1] == 0x10 && byte[2] == 0x00 &&
-+				(byte[3] & 0x88) == 0x08 && byte[4] == 0x10 && byte[5] == 0x00) {
-+			pkt_id = SS4_PACKET_ID_IDLE;
-+		} else {
-+			pkt_id = SS4_PACKET_ID_ONE;
-+		}
-+		break;
-+	case 0x10:
-+		/* two-finger finger positions */
- 		pkt_id = SS4_PACKET_ID_TWO;
--	} else {
-+		break;
-+	case 0x20:
-+		/* stick pointer */
-+		pkt_id = SS4_PACKET_ID_STICK;
-+		break;
-+	case 0x30:
-+		/* third and fourth finger positions */
- 		pkt_id = SS4_PACKET_ID_MULTI;
-+		break;
- 	}
- 
- 	return pkt_id;
-@@ -1246,16 +1258,38 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
- 		}
- 		break;
- 
-+	case SS4_PACKET_ID_STICK:
-+		if (!(priv->flags & ALPS_DUALPOINT)) {
-+			psmouse_warn(psmouse,
-+				     "Rejected trackstick packet from non DualPoint device");
-+		} else {
-+			int x = (s8)(((p[0] & 1) << 7) | (p[1] & 0x7f));
-+			int y = (s8)(((p[3] & 1) << 7) | (p[2] & 0x7f));
-+
-+			input_report_rel(priv->dev2, REL_X, x);
-+			input_report_rel(priv->dev2, REL_Y, -y);
-+		}
-+		break;
-+
- 	case SS4_PACKET_ID_IDLE:
- 	default:
- 		memset(f, 0, sizeof(struct alps_fields));
- 		break;
- 	}
- 
--	f->left = !!(SS4_BTN_V2(p) & 0x01);
--	if (!(priv->flags & ALPS_BUTTONPAD)) {
--		f->right = !!(SS4_BTN_V2(p) & 0x02);
--		f->middle = !!(SS4_BTN_V2(p) & 0x04);
-+	/* handle buttons */
-+	if (pkt_id == SS4_PACKET_ID_STICK) {
-+		f->ts_left = !!(SS4_BTN_V2(p) & 0x01);
-+		if (!(priv->flags & ALPS_BUTTONPAD)) {
-+			f->ts_right = !!(SS4_BTN_V2(p) & 0x02);
-+			f->ts_middle = !!(SS4_BTN_V2(p) & 0x04);
-+		}
-+	} else {
-+		f->left = !!(SS4_BTN_V2(p) & 0x01);
-+		if (!(priv->flags & ALPS_BUTTONPAD)) {
-+			f->right = !!(SS4_BTN_V2(p) & 0x02);
-+			f->middle = !!(SS4_BTN_V2(p) & 0x04);
-+		}
- 	}
- 
- 	return 0;
-@@ -1266,6 +1300,7 @@ static void alps_process_packet_ss4_v2(struct psmouse *psmouse)
- 	struct alps_data *priv = psmouse->private;
- 	unsigned char *packet = psmouse->packet;
- 	struct input_dev *dev = psmouse->dev;
-+	struct input_dev *dev2 = priv->dev2;
- 	struct alps_fields *f = &priv->f;
- 
- 	memset(f, 0, sizeof(struct alps_fields));
-@@ -1311,6 +1346,13 @@ static void alps_process_packet_ss4_v2(struct psmouse *psmouse)
- 
- 	input_report_abs(dev, ABS_PRESSURE, f->pressure);
- 	input_sync(dev);
-+
-+	if (priv->flags & ALPS_DUALPOINT) {
-+		input_report_key(dev2, BTN_LEFT, f->ts_left);
-+		input_report_key(dev2, BTN_RIGHT, f->ts_right);
-+		input_report_key(dev2, BTN_MIDDLE, f->ts_middle);
-+		input_sync(dev2);
-+	}
- }
- 
- static bool alps_is_valid_package_ss4_v2(struct psmouse *psmouse)
-diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
-index d37f814..b9417e2 100644
---- a/drivers/input/mouse/alps.h
-+++ b/drivers/input/mouse/alps.h
-@@ -37,12 +37,14 @@
-  *  or there's button activities.
-  * SS4_PACKET_ID_TWO: There's two or more fingers on touchpad
-  * SS4_PACKET_ID_MULTI: There's three or more fingers on touchpad
-+ * SS4_PACKET_ID_STICK: A stick pointer packet
- */
- enum SS4_PACKET_ID {
- 	SS4_PACKET_ID_IDLE = 0,
- 	SS4_PACKET_ID_ONE,
- 	SS4_PACKET_ID_TWO,
- 	SS4_PACKET_ID_MULTI,
-+	SS4_PACKET_ID_STICK,
- };
- 
- #define SS4_COUNT_PER_ELECTRODE		256
--- 
-2.9.3
+It's usually easier to use Jiri's for-next branch directly. The problem
+is this patch will conflict with the commit, so you should probably
+resend this one rebased on top of for-next.
 
+BTW, Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+
+>  drivers/hid/hid-sony.c | 111 ++++++++++++++++++++++++-------------------------
+>  1 file changed, 55 insertions(+), 56 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index 9bf4e36..189c100 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -1386,28 +1386,6 @@ static int sony_register_touchpad(struct hid_input *hi, int touch_count,
+>  	return 0;
+>  }
+>  
+> -static int sony_input_configured(struct hid_device *hdev,
+> -					struct hid_input *hidinput)
+> -{
+> -	struct sony_sc *sc = hid_get_drvdata(hdev);
+> -	int ret;
+> -
+> -	/*
+> -	 * The Dualshock 4 touchpad supports 2 touches and has a
+> -	 * resolution of 1920x942 (44.86 dots/mm).
+> -	 */
+> -	if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+> -		ret = sony_register_touchpad(hidinput, 2, 1920, 942);
+> -		if (ret) {
+> -			hid_err(sc->hdev,
+> -				"Unable to initialize multi-touch slots: %d\n",
+> -				ret);
+> -			return ret;
+> -		}
+> -	}
+> -
+> -	return 0;
+> -}
+>  
+>  /*
+>   * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
+> @@ -2328,42 +2306,12 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
+>  		cancel_work_sync(&sc->state_worker);
+>  }
+>  
+> -static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> +static int sony_input_configured(struct hid_device *hdev,
+> +					struct hid_input *hidinput)
+>  {
+> -	int ret;
+> +	struct sony_sc *sc = hid_get_drvdata(hdev);
+>  	int append_dev_id;
+> -	unsigned long quirks = id->driver_data;
+> -	struct sony_sc *sc;
+> -	unsigned int connect_mask = HID_CONNECT_DEFAULT;
+> -
+> -	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
+> -	if (sc == NULL) {
+> -		hid_err(hdev, "can't alloc sony descriptor\n");
+> -		return -ENOMEM;
+> -	}
+> -
+> -	spin_lock_init(&sc->lock);
+> -
+> -	sc->quirks = quirks;
+> -	hid_set_drvdata(hdev, sc);
+> -	sc->hdev = hdev;
+> -
+> -	ret = hid_parse(hdev);
+> -	if (ret) {
+> -		hid_err(hdev, "parse failed\n");
+> -		return ret;
+> -	}
+> -
+> -	if (sc->quirks & VAIO_RDESC_CONSTANT)
+> -		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
+> -	else if (sc->quirks & SIXAXIS_CONTROLLER)
+> -		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
+> -
+> -	ret = hid_hw_start(hdev, connect_mask);
+> -	if (ret) {
+> -		hid_err(hdev, "hw start failed\n");
+> -		return ret;
+> -	}
+> +	int ret;
+>  
+>  	ret = sony_set_device_id(sc);
+>  	if (ret < 0) {
+> @@ -2423,6 +2371,18 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  			}
+>  		}
+>  
+> +		/*
+> +		 * The Dualshock 4 touchpad supports 2 touches and has a
+> +		 * resolution of 1920x942 (44.86 dots/mm).
+> +		 */
+> +		ret = sony_register_touchpad(hidinput, 2, 1920, 942);
+> +		if (ret) {
+> +			hid_err(sc->hdev,
+> +			"Unable to initialize multi-touch slots: %d\n",
+> +			ret);
+> +			return ret;
+> +		}
+> +
+>  		sony_init_output_report(sc, dualshock4_send_output_report);
+>  	} else if (sc->quirks & MOTION_CONTROLLER) {
+>  		sony_init_output_report(sc, motion_send_output_report);
+> @@ -2478,6 +2438,45 @@ err_stop:
+>  	return ret;
+>  }
+>  
+> +static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> +{
+> +	int ret;
+> +	unsigned long quirks = id->driver_data;
+> +	struct sony_sc *sc;
+> +	unsigned int connect_mask = HID_CONNECT_DEFAULT;
+> +
+> +	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
+> +	if (sc == NULL) {
+> +		hid_err(hdev, "can't alloc sony descriptor\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	spin_lock_init(&sc->lock);
+> +
+> +	sc->quirks = quirks;
+> +	hid_set_drvdata(hdev, sc);
+> +	sc->hdev = hdev;
+> +
+> +	ret = hid_parse(hdev);
+> +	if (ret) {
+> +		hid_err(hdev, "parse failed\n");
+> +		return ret;
+> +	}
+> +
+> +	if (sc->quirks & VAIO_RDESC_CONSTANT)
+> +		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
+> +	else if (sc->quirks & SIXAXIS_CONTROLLER)
+> +		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
+> +
+> +	ret = hid_hw_start(hdev, connect_mask);
+> +	if (ret) {
+> +		hid_err(hdev, "hw start failed\n");
+> +		return ret;
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+>  static void sony_remove(struct hid_device *hdev)
+>  {
+>  	struct sony_sc *sc = hid_get_drvdata(hdev);
+> -- 
+> 2.7.4
+> 

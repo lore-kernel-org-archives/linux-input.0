@@ -1,72 +1,62 @@
 From: Ben Gamari <ben@smart-cactus.org>
-Subject: Re: [PATCH v3] Support for Alps SS5 touchpad
-Date: Mon, 03 Oct 2016 08:14:10 -0400
-Message-ID: <87int9aaul.fsf@ben-laptop.smart-cactus.org>
-References: <1466500773-3470-1-git-send-email-ben@smart-cactus.org> <alpine.LRH.2.00.1607291045590.21952@gjva.wvxbf.pm> <20160829071455.GB2968@dhcp22.suse.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha256; protocol="application/pgp-signature"
+Subject: [PATCH 3/5] input/alps: Allow touchsticks to report pressure
+Date: Mon,  3 Oct 2016 08:16:28 -0400
+Message-ID: <20161003121630.5285-3-ben@smart-cactus.org>
+References: <20161003121630.5285-1-ben@smart-cactus.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from turtle.smart-cactus.org ([163.172.166.228]:55534 "EHLO
+Received: from turtle.smart-cactus.org ([163.172.166.228]:55550 "EHLO
         mail.smart-cactus.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752638AbcJCMUn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Oct 2016 08:20:43 -0400
-In-Reply-To: <20160829071455.GB2968@dhcp22.suse.cz>
+        with ESMTP id S1751041AbcJCMZo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Oct 2016 08:25:44 -0400
+In-Reply-To: <20161003121630.5285-1-ben@smart-cactus.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Michal Hocko <mhocko@kernel.org>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>
+Cc: Ben Gamari <ben@smart-cactus.org>
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The SS5 hardware can report this.
 
-Michal Hocko <mhocko@kernel.org> writes:
+Tested-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Ben Gamari <ben@smart-cactus.org>
+---
+ drivers/input/mouse/alps.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-> On Fri 29-07-16 10:46:31, Jiri Kosina wrote:
->> On Tue, 21 Jun 2016, Ben Gamari wrote:
->>=20
->> > Hello all,
->> >=20
->> > Here is the third iteration of my patchset adding support for the Alps=
- SS5
->> > touchpad used in the Dell Latitude E7470. The patch is largely unchang=
-ed except
->> > for a reorganization of the DUALPOINT flag detection logic and the add=
-ition of
->> > protocol documentation.
->> >=20
->> > Thanks to everyone who has offered reviews so far.
->>=20
->> Seems like this went by unnoticed. Adding Dmitry to CC.
->
-> Thanks to Jiri for pointing me to these patches. I was running with them
-> for few days and they seem to be working reasonably well on my Latitude
-> E7470. The only annoying thing is that the vertical scrolling mode seems
-> to be hard to exit - sometimes you can get almost to the (horizontal)
-> middle of the touch pad and the scrolling is still active. I haven't
-> found any scrolling area width configuration knob though.
->
-> Anyway, feel free to add my
-> Tested-by: Michal Hocko <mhocko@suse.com>
->
-Thanks Michael!
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 7874f4f..25d2cad 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -103,6 +103,7 @@ static const struct alps_nibble_commands alps_v6_nibble_commands[] = {
+ 					   6-byte ALPS packet */
+ #define ALPS_STICK_BITS		0x100	/* separate stick button bits */
+ #define ALPS_BUTTONPAD		0x200	/* device is a clickpad */
++#define ALPS_DUALPOINT_WITH_PRESSURE		0x400	/* device can report trackpoint pressure */
+ 
+ static const struct alps_model_info alps_model_data[] = {
+ 	{ { 0x32, 0x02, 0x14 }, 0x00, { ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT } },	/* Toshiba Salellite Pro M10 */
+@@ -1270,9 +1271,11 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
+ 		} else {
+ 			int x = (s8)(((p[0] & 1) << 7) | (p[1] & 0x7f));
+ 			int y = (s8)(((p[3] & 1) << 7) | (p[2] & 0x7f));
++			int pressure = (s8)(p[4] & 0x7f);
+ 
+ 			input_report_rel(priv->dev2, REL_X, x);
+ 			input_report_rel(priv->dev2, REL_Y, -y);
++			input_report_abs(priv->dev2, ABS_PRESSURE, pressure);
+ 		}
+ 		break;
+ 
+@@ -2996,6 +2999,10 @@ int alps_init(struct psmouse *psmouse)
+ 
+ 		input_set_capability(dev2, EV_REL, REL_X);
+ 		input_set_capability(dev2, EV_REL, REL_Y);
++		if (priv->flags & ALPS_DUALPOINT_WITH_PRESSURE) {
++			input_set_capability(dev2, EV_ABS, ABS_PRESSURE);
++			input_set_abs_params(dev2, ABS_PRESSURE, 0, 127, 0, 0);
++		}
+ 		input_set_capability(dev2, EV_KEY, BTN_LEFT);
+ 		input_set_capability(dev2, EV_KEY, BTN_RIGHT);
+ 		input_set_capability(dev2, EV_KEY, BTN_MIDDLE);
+-- 
+2.9.3
 
-Cheers,
-
-=2D Ben
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBCAAGBQJX8kuSAAoJEHPt6ejPuu8BywwH/0qZH+TDgwM57q9tYTygxeRI
-7Zz1eMblwmG1Wg0QiPOTvvrBO40JGxXTvFQWXXtzUryK16WlffGXioiqEmCbRanz
-/xeTTv3VwSHyquW41dA93RSYuYgh8kp27s9lW+zG+lTWCLWfzra+o0Y5H8Zr5R7i
-OIQ3akA60oiR2+32N06zUPwpbSh+FgBmmKr+OeX6w53jNL9kiwTm8I8XiyrXycGY
-pZ3kda9AcE0coxj/D6TspC5j//zqQKxriruKB+dAeeY6YploKJgkW9i8kUhOw6Nd
-/FB+6mm3vTHwuLiP7DeyJMwK8AWjQradLAfGIoQ5Bj38YnNoSzhbq5/GmIBC9A8=
-=eqT8
------END PGP SIGNATURE-----
---=-=-=--

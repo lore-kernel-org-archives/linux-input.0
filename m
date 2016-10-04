@@ -1,75 +1,209 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: input: elantech - force needed quirks on Fujitsu H760
-Date: Mon, 3 Oct 2016 17:28:00 -0700
-Message-ID: <20161004002800.GA27823@dtor-ws>
-References: <alpine.DEB.2.11.1610032112360.18699@melchior.home>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] [v8]Input: evdev: fix bug of dropping valid packet after
+ syn_dropped event
+Date: Wed, 5 Oct 2016 00:08:39 +0530
+Message-ID: <CADYu308Gt-14FhHCpG2H3=QDL7c6J3gr0m6tKKfv_4=mDgH4zA@mail.gmail.com>
+References: <1453397839-942-1-git-send-email-a.mathur@samsung.com>
+ <20160121191725.GA39970@dtor-ws> <CADYu30_xbT5sA1J04-JRxcC_Ky9N_iNoqknQXX-CUooBdF1gbw@mail.gmail.com>
+ <20160123183940.GA3410@dtor-ws> <CADYu3099RDSnHWy-fs1kw2Ga_LZhL_0veF3JSgw_-bLRw5u1NA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:33813 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752147AbcJDA2D (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Oct 2016 20:28:03 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.11.1610032112360.18699@melchior.home>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CADYu3099RDSnHWy-fs1kw2Ga_LZhL_0veF3JSgw_-bLRw5u1NA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Aniroop Mathur <a.mathur@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: Matti Kurkela <Matti.Kurkela@iki.fi>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Oct 03, 2016 at 09:18:28PM +0300, Matti Kurkela wrote:
-> 
-> Just like Fujitsu CELSIUS H730, the H760 also has an Elantech
-> touchpad with the same quirks. Without this patch, the touchpad is
-> useless out-of-the-box as the mouse pointer won't move.
-> 
-> This patch makes the driver aware of both the crc_enabled=1
-> requirement and the middle button, making the touchpad fully
-> functional out-of-the-box.
-> 
-> Signed-off-by: Matti Kurkela <Matti.Kurkela@iki.fi>
-> ---
-> This patch will also apply without changes to older kernel versions:
-> I made this originally on 4.4.19 and am currently using it on
-> my work laptop with 4.4.22.
-> 
-> Backporting to any version that includes commit
-> f386474e12a560e005ec7899e78f51f6bdc3cf41 should be trivial.
+Dear Mr. Torokhov,
+Greetings of the day!!
 
-Applied and marked for stable, thank you.
+Somehow, it has been a while since this patch is further discussed.
+I am top posting as to finish off the remaining two points.
 
-> 
-> --- linux-4.8/drivers/input/mouse/elantech.c.orig	2016-10-03 02:24:33.000000000 +0300
-> +++ linux-4.8/drivers/input/mouse/elantech.c	2016-10-03 20:19:17.175141070 +0300
-> @@ -1159,6 +1159,13 @@ static const struct dmi_system_id elante
->  			DMI_MATCH(DMI_PRODUCT_NAME, "CELSIUS H730"),
->  		},
->  	},
-> +	{
-> +		/* Fujitsu H760 also has a middle button */
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "CELSIUS H760"),
-> +		},
-> +	},
->  #endif
->  	{ }
->  };
-> @@ -1503,6 +1510,13 @@ static const struct dmi_system_id elante
->  		},
->  	},
->  	{
-> +		/* Fujitsu H760 does not work with crc_enabled == 0 */
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "CELSIUS H760"),
-> +		},
-> +	},
-> +	{
->  		/* Fujitsu LIFEBOOK E554  does not work with crc_enabled == 0 */
->  		.matches = {
->  			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-> 
+>From the earlier conversations, I could deduce that this patch needs to be
+further checked for 2 problems as follows:
 
--- 
-Dmitry
+Problem 1: Handle EVIOCG[type] for queue empty case
+--> For this, I will send you the the new patch version in a while.
+Queue empty condition needs to be added before calling evdev_queue_syn_dropped.
+Since there is a rare chance that new packet gets inserted between buffer_lock
+mutex unlocking and copying events to user space, so I will check whether queue
+is empty or not before __evdev_flush_queue and then use it before invoking
+evdev_queue_syn_dropped.
+And if queue is not empty then there is no problem as after flushing some
+events we always have atleast one SYN_REPORT event left in queue.
+
+Problem 2: We try to pass full packets to clients, but there is no guarantee.
+--> From my earlier patch discussion regarding dropping syn_report in between a
+single packet it was deduced that since no driver is currently using that code
+so there is no impact. Hence for this problem too, we are good to go.
+
+Do you have any more comments?
+
+Best Regards,
+Aniroop Mathur
+
+
+On Sun, Jan 24, 2016 at 1:35 AM, Aniroop Mathur
+<aniroop.mathur@gmail.com> wrote:
+> On Sun, Jan 24, 2016 at 12:09 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> On Sat, Jan 23, 2016 at 11:29:29PM +0530, Aniroop Mathur wrote:
+>>> Hi Mr. Torokhov,
+>>>
+>>> On Fri, Jan 22, 2016 at 12:47 AM, Dmitry Torokhov
+>>> <dmitry.torokhov@gmail.com> wrote:
+>>> > Hi Anoroop,
+>>> >
+>>> > On Thu, Jan 21, 2016 at 11:07:19PM +0530, Aniroop Mathur wrote:
+>>> >> If last event dropped in the old queue was EVi_SYN/SYN_REPORT, then lets
+>>> >> generate EV_SYN/SYN_REPORT immediately after queing EV_SYN/SYN_DROPPED
+>>> >> so that clients would not ignore next valid full packet events.
+>>> >>
+>>> >> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+>>> >> ---
+>>> >>  drivers/input/evdev.c | 46 ++++++++++++++++++++++++++++++++++------------
+>>> >>  1 file changed, 34 insertions(+), 12 deletions(-)
+>>> >>
+>>> >> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+>>> >> index e9ae3d5..821b68a 100644
+>>> >> --- a/drivers/input/evdev.c
+>>> >> +++ b/drivers/input/evdev.c
+>>> >> @@ -156,7 +156,12 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+>>> >>  static void __evdev_queue_syn_dropped(struct evdev_client *client)
+>>> >>  {
+>>> >>       struct input_event ev;
+>>> >> +     struct input_event *last_ev;
+>>> >>       ktime_t time;
+>>> >> +     unsigned int mask = client->bufsize - 1;
+>>> >> +
+>>> >> +     /* capture last event stored in the buffer */
+>>> >> +     last_ev = &client->buffer[(client->head - 1) & mask];
+>>> >
+>>> > I have still the same comment. How do you know that event at last_ev
+>>> > position is in fact valid and unconsumed yet event. Also, you need to
+>>> > figure out not only if queue contains last SYN event, but also to handle
+>>> > the case where the queue is empty and client has consumed either full or
+>>> > partial packet at the time you are queueing the drop.
+>>> >
+>>>
+>>> Could you please explain what you mean exactly so that I could answer it
+>>> properly?
+>>>
+>>> From what I understood, it seems to me that there is no problem related to
+>>> validity, unconsumption, empty queue, full/partial packet.
+>>> I would like to explain for clock change request case so that you can know
+>>> my understanding for your question.
+>>>
+>>> Clock change request case:
+>>>
+>>> 1.1 About last event being valid and unconsumed:
+>>> We flush buffer and queue syn_dropped only when buffer is not empty. So there
+>>> will be always be atleast one event in buffer that is not consumed and is
+>>> ofcourse valid.
+>>>
+>>> 1.2 About queue is empty
+>>> If not empty, we do not flush or add syn_dropped at all.
+>>
+>> Clock type change is not the only time we queue SYN_DROP, the other time
+>> is when we fail to handle EVIOCG[type] (during which we remove some
+>> events from the queue). Queue may be empty when these ioctls are issued.
+>>
+>
+> yeah, ideally it should be changed to:
+> ret = bits_to_user(mem, maxbit, maxlen, p, compat);
+> if (ret < 0)
+>     + if (client->head != client->tail)
+>     - evdev_queue_syn_dropped(client);
+>     +     evdev_queue_syn_dropped(client);
+>
+> Firstly, there is a need to follow protocol of SYN_REPORT as mentioned in
+> next section.
+>
+> Unless syn_report does not denote end of a packet,
+> it is okay without this change too because last event stored would be
+> syn_report and after flushing, syn_report will still be at the end and
+> with empty queue too if syn_dropped is queued then we have added syn_report
+> to not ignore upcoming valid packet.
+>
+>>>
+>>> 1.3 About consumption of full or partial packet
+>>> If client has consumed full packet, then buffer will look like,
+>>> ... X Y S(consumed) ... X Y S
+>>> As we always store packets keeping buffer lock and not single events, so there
+>>> will always be syn_report in the end.
+>>
+>> We try to pass full packets to clients, but there is no guarantee. We
+>> only estimate number of events in device's packet, not guarantee that it
+>> is correct size.
+>>
+>
+> As per documentation, SYN_REPORT should be used to separate packets.
+> * SYN_REPORT:
+>   - Used to synchronize and separate events into packets of input data changes
+>     occurring at the same moment in time. For example, motion of a mouse may set
+>     the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
+>     motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
+>
+> So I think, there is a need of below change:
+> file: input.c
+> function: input_handle_event:
+> } else if (dev->num_vals >= dev->max_vals - 2) {
+> - dev->vals[dev->num_vals++] = input_value_sync;
+> input_pass_values(dev, dev->vals, dev->num_vals);
+>
+> When the packet is really completed
+> We have sufficient space in buffer to store more than 1 packet even when
+> actual packet size is more than max_vals so there seems no need to add
+> syn_report event here by self. So whenever driver sends syn_report, then only
+> it will be considered as end of a packet and on exceding max_vals, we can
+> simply pass to handlers to store those partial events in buffer. And anyways
+> unless the packet is really completed then only client will send it to
+> application.
+>
+> Without following this protocol, we would not be able to find the end of a
+> packet because if max_vals comes out to 3 but actual packet size is 15, then
+> in the buffer, there will be many syn_reports within a single packet. So with
+> both current code and with patch code, there will be trouble in handling
+> syn_dropped because after one syn_report comes, client will stop ignoring the
+> events.
+>
+>>> If syn_dropped is queued here, then queing syn_report is fine.
+>>> If client has consumed partial packet,  then buffer will look like,
+>>> ... X(consumed) Y S ... S
+>>> If syn_dropped is queued here, then it is fine to queue syn_report because
+>>> now new X Y will be reported by driver, and so client will consume new X and Y
+>>> and that old X will be replaced with new X and this new packet will be sent by
+>>> client to application. Obviously, client never sends partial events to
+>>> application and send data packet by packet.
+>>> So I do not see any trouble here related to partial or full packet.
+>>>
+>>> > Also please enumerate what changes you done between version n and n+1 so
+>>> > I do not have to compare them line by line trying to figure it out
+>>> > myself.
+>>> >
+>>>
+>>> Difference from v5:
+>>> Made a mistake about head index in v5.
+>>> Corrected in v8.
+>>>
+>>> evdev_set_clk_type:
+>>> - client->packet_head = client->head = client->tail;
+>>> + client->packet_head = client->tail = client->head;
+>>
+>> Why does this matter?
+>>
+>
+> We must not change the head index. So we need to make packet_head and tail
+> index same as head index and not same as tail index. After this setting,
+> we call evdev_queue_syn_dropped where we capture last event as the event
+> present at (head - 1) index;
+>
+> Thanks,
+> Aniroop Mathur
+>
+>> Thanks.
+>>
+>> --
+>> Dmitry

@@ -1,209 +1,166 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] [v8]Input: evdev: fix bug of dropping valid packet after
- syn_dropped event
-Date: Wed, 5 Oct 2016 00:08:39 +0530
-Message-ID: <CADYu308Gt-14FhHCpG2H3=QDL7c6J3gr0m6tKKfv_4=mDgH4zA@mail.gmail.com>
-References: <1453397839-942-1-git-send-email-a.mathur@samsung.com>
- <20160121191725.GA39970@dtor-ws> <CADYu30_xbT5sA1J04-JRxcC_Ky9N_iNoqknQXX-CUooBdF1gbw@mail.gmail.com>
- <20160123183940.GA3410@dtor-ws> <CADYu3099RDSnHWy-fs1kw2Ga_LZhL_0veF3JSgw_-bLRw5u1NA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/5] input/alps: Add touchstick support for SS5 hardware
+Date: Tue, 4 Oct 2016 11:47:10 -0700
+Message-ID: <20161004184710.GA5083@dtor-ws>
+References: <20161003121630.5285-1-ben@smart-cactus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CADYu3099RDSnHWy-fs1kw2Ga_LZhL_0veF3JSgw_-bLRw5u1NA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Aniroop Mathur <a.mathur@samsung.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f65.google.com ([209.85.220.65]:34839 "EHLO
+        mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752778AbcJDSrN (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Oct 2016 14:47:13 -0400
+Received: by mail-pa0-f65.google.com with SMTP id t6so6671413pae.2
+        for <linux-input@vger.kernel.org>; Tue, 04 Oct 2016 11:47:13 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20161003121630.5285-1-ben@smart-cactus.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ben Gamari <ben@smart-cactus.org>
+Cc: Michal Hocko <mhocko@kernel.org>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Allen Hung <Allen_Hung@dell.com>, Masaki Ota <masaki.ota@jp.alps.com>, Ben Morgan <Ben_Morgan@dell.com>, Jiri Kosina <jikos@kernel.org>
 
-Dear Mr. Torokhov,
-Greetings of the day!!
+On Mon, Oct 03, 2016 at 08:16:26AM -0400, Ben Gamari wrote:
+> Add touchstick support for the so-called SS5 hardware, which uses a
+> variant of the SS4 protocol.
+> 
+> Reviewed-by: Pali Rohár <pali.rohar@gmail.com>
+> Tested-by: Michal Hocko <mhocko@suse.com>
+> Signed-off-by: Ben Gamari <ben@smart-cactus.org>
+> ---
 
-Somehow, it has been a while since this patch is further discussed.
-I am top posting as to finish off the remaining two points.
+Applied the lot, thanks.
 
->From the earlier conversations, I could deduce that this patch needs to be
-further checked for 2 problems as follows:
+>  drivers/input/mouse/alps.c | 64 ++++++++++++++++++++++++++++++++++++++--------
+>  drivers/input/mouse/alps.h |  2 ++
+>  2 files changed, 55 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index 936f07a..b8454af 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -1156,15 +1156,27 @@ static unsigned char alps_get_pkt_id_ss4_v2(unsigned char *byte)
+>  {
+>  	unsigned char pkt_id = SS4_PACKET_ID_IDLE;
+>  
+> -	if (byte[0] == 0x18 && byte[1] == 0x10 && byte[2] == 0x00 &&
+> -	    (byte[3] & 0x88) == 0x08 && byte[4] == 0x10 && byte[5] == 0x00) {
+> -		pkt_id = SS4_PACKET_ID_IDLE;
+> -	} else if (!(byte[3] & 0x10)) {
+> -		pkt_id = SS4_PACKET_ID_ONE;
+> -	} else if (!(byte[3] & 0x20)) {
+> +	switch (byte[3] & 0x30) {
+> +	case 0x00:
+> +		if (byte[0] == 0x18 && byte[1] == 0x10 && byte[2] == 0x00 &&
+> +				(byte[3] & 0x88) == 0x08 && byte[4] == 0x10 && byte[5] == 0x00) {
+> +			pkt_id = SS4_PACKET_ID_IDLE;
+> +		} else {
+> +			pkt_id = SS4_PACKET_ID_ONE;
+> +		}
+> +		break;
+> +	case 0x10:
+> +		/* two-finger finger positions */
+>  		pkt_id = SS4_PACKET_ID_TWO;
+> -	} else {
+> +		break;
+> +	case 0x20:
+> +		/* stick pointer */
+> +		pkt_id = SS4_PACKET_ID_STICK;
+> +		break;
+> +	case 0x30:
+> +		/* third and fourth finger positions */
+>  		pkt_id = SS4_PACKET_ID_MULTI;
+> +		break;
+>  	}
+>  
+>  	return pkt_id;
+> @@ -1246,16 +1258,38 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
+>  		}
+>  		break;
+>  
+> +	case SS4_PACKET_ID_STICK:
+> +		if (!(priv->flags & ALPS_DUALPOINT)) {
+> +			psmouse_warn(psmouse,
+> +				     "Rejected trackstick packet from non DualPoint device");
+> +		} else {
+> +			int x = (s8)(((p[0] & 1) << 7) | (p[1] & 0x7f));
+> +			int y = (s8)(((p[3] & 1) << 7) | (p[2] & 0x7f));
+> +
+> +			input_report_rel(priv->dev2, REL_X, x);
+> +			input_report_rel(priv->dev2, REL_Y, -y);
+> +		}
+> +		break;
+> +
+>  	case SS4_PACKET_ID_IDLE:
+>  	default:
+>  		memset(f, 0, sizeof(struct alps_fields));
+>  		break;
+>  	}
+>  
+> -	f->left = !!(SS4_BTN_V2(p) & 0x01);
+> -	if (!(priv->flags & ALPS_BUTTONPAD)) {
+> -		f->right = !!(SS4_BTN_V2(p) & 0x02);
+> -		f->middle = !!(SS4_BTN_V2(p) & 0x04);
+> +	/* handle buttons */
+> +	if (pkt_id == SS4_PACKET_ID_STICK) {
+> +		f->ts_left = !!(SS4_BTN_V2(p) & 0x01);
+> +		if (!(priv->flags & ALPS_BUTTONPAD)) {
+> +			f->ts_right = !!(SS4_BTN_V2(p) & 0x02);
+> +			f->ts_middle = !!(SS4_BTN_V2(p) & 0x04);
+> +		}
+> +	} else {
+> +		f->left = !!(SS4_BTN_V2(p) & 0x01);
+> +		if (!(priv->flags & ALPS_BUTTONPAD)) {
+> +			f->right = !!(SS4_BTN_V2(p) & 0x02);
+> +			f->middle = !!(SS4_BTN_V2(p) & 0x04);
+> +		}
+>  	}
+>  
+>  	return 0;
+> @@ -1266,6 +1300,7 @@ static void alps_process_packet_ss4_v2(struct psmouse *psmouse)
+>  	struct alps_data *priv = psmouse->private;
+>  	unsigned char *packet = psmouse->packet;
+>  	struct input_dev *dev = psmouse->dev;
+> +	struct input_dev *dev2 = priv->dev2;
+>  	struct alps_fields *f = &priv->f;
+>  
+>  	memset(f, 0, sizeof(struct alps_fields));
+> @@ -1311,6 +1346,13 @@ static void alps_process_packet_ss4_v2(struct psmouse *psmouse)
+>  
+>  	input_report_abs(dev, ABS_PRESSURE, f->pressure);
+>  	input_sync(dev);
+> +
+> +	if (priv->flags & ALPS_DUALPOINT) {
+> +		input_report_key(dev2, BTN_LEFT, f->ts_left);
+> +		input_report_key(dev2, BTN_RIGHT, f->ts_right);
+> +		input_report_key(dev2, BTN_MIDDLE, f->ts_middle);
+> +		input_sync(dev2);
+> +	}
+>  }
+>  
+>  static bool alps_is_valid_package_ss4_v2(struct psmouse *psmouse)
+> diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+> index d37f814..b9417e2 100644
+> --- a/drivers/input/mouse/alps.h
+> +++ b/drivers/input/mouse/alps.h
+> @@ -37,12 +37,14 @@
+>   *  or there's button activities.
+>   * SS4_PACKET_ID_TWO: There's two or more fingers on touchpad
+>   * SS4_PACKET_ID_MULTI: There's three or more fingers on touchpad
+> + * SS4_PACKET_ID_STICK: A stick pointer packet
+>  */
+>  enum SS4_PACKET_ID {
+>  	SS4_PACKET_ID_IDLE = 0,
+>  	SS4_PACKET_ID_ONE,
+>  	SS4_PACKET_ID_TWO,
+>  	SS4_PACKET_ID_MULTI,
+> +	SS4_PACKET_ID_STICK,
+>  };
+>  
+>  #define SS4_COUNT_PER_ELECTRODE		256
+> -- 
+> 2.9.3
+> 
 
-Problem 1: Handle EVIOCG[type] for queue empty case
---> For this, I will send you the the new patch version in a while.
-Queue empty condition needs to be added before calling evdev_queue_syn_dropped.
-Since there is a rare chance that new packet gets inserted between buffer_lock
-mutex unlocking and copying events to user space, so I will check whether queue
-is empty or not before __evdev_flush_queue and then use it before invoking
-evdev_queue_syn_dropped.
-And if queue is not empty then there is no problem as after flushing some
-events we always have atleast one SYN_REPORT event left in queue.
-
-Problem 2: We try to pass full packets to clients, but there is no guarantee.
---> From my earlier patch discussion regarding dropping syn_report in between a
-single packet it was deduced that since no driver is currently using that code
-so there is no impact. Hence for this problem too, we are good to go.
-
-Do you have any more comments?
-
-Best Regards,
-Aniroop Mathur
-
-
-On Sun, Jan 24, 2016 at 1:35 AM, Aniroop Mathur
-<aniroop.mathur@gmail.com> wrote:
-> On Sun, Jan 24, 2016 at 12:09 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Sat, Jan 23, 2016 at 11:29:29PM +0530, Aniroop Mathur wrote:
->>> Hi Mr. Torokhov,
->>>
->>> On Fri, Jan 22, 2016 at 12:47 AM, Dmitry Torokhov
->>> <dmitry.torokhov@gmail.com> wrote:
->>> > Hi Anoroop,
->>> >
->>> > On Thu, Jan 21, 2016 at 11:07:19PM +0530, Aniroop Mathur wrote:
->>> >> If last event dropped in the old queue was EVi_SYN/SYN_REPORT, then lets
->>> >> generate EV_SYN/SYN_REPORT immediately after queing EV_SYN/SYN_DROPPED
->>> >> so that clients would not ignore next valid full packet events.
->>> >>
->>> >> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
->>> >> ---
->>> >>  drivers/input/evdev.c | 46 ++++++++++++++++++++++++++++++++++------------
->>> >>  1 file changed, 34 insertions(+), 12 deletions(-)
->>> >>
->>> >> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
->>> >> index e9ae3d5..821b68a 100644
->>> >> --- a/drivers/input/evdev.c
->>> >> +++ b/drivers/input/evdev.c
->>> >> @@ -156,7 +156,12 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->>> >>  static void __evdev_queue_syn_dropped(struct evdev_client *client)
->>> >>  {
->>> >>       struct input_event ev;
->>> >> +     struct input_event *last_ev;
->>> >>       ktime_t time;
->>> >> +     unsigned int mask = client->bufsize - 1;
->>> >> +
->>> >> +     /* capture last event stored in the buffer */
->>> >> +     last_ev = &client->buffer[(client->head - 1) & mask];
->>> >
->>> > I have still the same comment. How do you know that event at last_ev
->>> > position is in fact valid and unconsumed yet event. Also, you need to
->>> > figure out not only if queue contains last SYN event, but also to handle
->>> > the case where the queue is empty and client has consumed either full or
->>> > partial packet at the time you are queueing the drop.
->>> >
->>>
->>> Could you please explain what you mean exactly so that I could answer it
->>> properly?
->>>
->>> From what I understood, it seems to me that there is no problem related to
->>> validity, unconsumption, empty queue, full/partial packet.
->>> I would like to explain for clock change request case so that you can know
->>> my understanding for your question.
->>>
->>> Clock change request case:
->>>
->>> 1.1 About last event being valid and unconsumed:
->>> We flush buffer and queue syn_dropped only when buffer is not empty. So there
->>> will be always be atleast one event in buffer that is not consumed and is
->>> ofcourse valid.
->>>
->>> 1.2 About queue is empty
->>> If not empty, we do not flush or add syn_dropped at all.
->>
->> Clock type change is not the only time we queue SYN_DROP, the other time
->> is when we fail to handle EVIOCG[type] (during which we remove some
->> events from the queue). Queue may be empty when these ioctls are issued.
->>
->
-> yeah, ideally it should be changed to:
-> ret = bits_to_user(mem, maxbit, maxlen, p, compat);
-> if (ret < 0)
->     + if (client->head != client->tail)
->     - evdev_queue_syn_dropped(client);
->     +     evdev_queue_syn_dropped(client);
->
-> Firstly, there is a need to follow protocol of SYN_REPORT as mentioned in
-> next section.
->
-> Unless syn_report does not denote end of a packet,
-> it is okay without this change too because last event stored would be
-> syn_report and after flushing, syn_report will still be at the end and
-> with empty queue too if syn_dropped is queued then we have added syn_report
-> to not ignore upcoming valid packet.
->
->>>
->>> 1.3 About consumption of full or partial packet
->>> If client has consumed full packet, then buffer will look like,
->>> ... X Y S(consumed) ... X Y S
->>> As we always store packets keeping buffer lock and not single events, so there
->>> will always be syn_report in the end.
->>
->> We try to pass full packets to clients, but there is no guarantee. We
->> only estimate number of events in device's packet, not guarantee that it
->> is correct size.
->>
->
-> As per documentation, SYN_REPORT should be used to separate packets.
-> * SYN_REPORT:
->   - Used to synchronize and separate events into packets of input data changes
->     occurring at the same moment in time. For example, motion of a mouse may set
->     the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
->     motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
->
-> So I think, there is a need of below change:
-> file: input.c
-> function: input_handle_event:
-> } else if (dev->num_vals >= dev->max_vals - 2) {
-> - dev->vals[dev->num_vals++] = input_value_sync;
-> input_pass_values(dev, dev->vals, dev->num_vals);
->
-> When the packet is really completed
-> We have sufficient space in buffer to store more than 1 packet even when
-> actual packet size is more than max_vals so there seems no need to add
-> syn_report event here by self. So whenever driver sends syn_report, then only
-> it will be considered as end of a packet and on exceding max_vals, we can
-> simply pass to handlers to store those partial events in buffer. And anyways
-> unless the packet is really completed then only client will send it to
-> application.
->
-> Without following this protocol, we would not be able to find the end of a
-> packet because if max_vals comes out to 3 but actual packet size is 15, then
-> in the buffer, there will be many syn_reports within a single packet. So with
-> both current code and with patch code, there will be trouble in handling
-> syn_dropped because after one syn_report comes, client will stop ignoring the
-> events.
->
->>> If syn_dropped is queued here, then queing syn_report is fine.
->>> If client has consumed partial packet,  then buffer will look like,
->>> ... X(consumed) Y S ... S
->>> If syn_dropped is queued here, then it is fine to queue syn_report because
->>> now new X Y will be reported by driver, and so client will consume new X and Y
->>> and that old X will be replaced with new X and this new packet will be sent by
->>> client to application. Obviously, client never sends partial events to
->>> application and send data packet by packet.
->>> So I do not see any trouble here related to partial or full packet.
->>>
->>> > Also please enumerate what changes you done between version n and n+1 so
->>> > I do not have to compare them line by line trying to figure it out
->>> > myself.
->>> >
->>>
->>> Difference from v5:
->>> Made a mistake about head index in v5.
->>> Corrected in v8.
->>>
->>> evdev_set_clk_type:
->>> - client->packet_head = client->head = client->tail;
->>> + client->packet_head = client->tail = client->head;
->>
->> Why does this matter?
->>
->
-> We must not change the head index. So we need to make packet_head and tail
-> index same as head index and not same as tail index. After this setting,
-> we call evdev_queue_syn_dropped where we capture last event as the event
-> present at (head - 1) index;
->
-> Thanks,
-> Aniroop Mathur
->
->> Thanks.
->>
->> --
->> Dmitry
+-- 
+Dmitry

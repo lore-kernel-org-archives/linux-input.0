@@ -1,145 +1,64 @@
-From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: [PATCH] [v9]Input: evdev: fix bug of dropping valid packet after syn_dropped event
-Date: Wed,  5 Oct 2016 00:42:56 +0530
-Message-ID: <1475608376-3077-1-git-send-email-a.mathur@samsung.com>
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: Re: [PATCH v2 0/4] Input: xpad - improve support for new Xbox One S
+ pad
+Date: Tue, 4 Oct 2016 12:29:41 -0700
+Message-ID: <090e30e9-7cb8-45d5-6645-2da4b0bca56f@gmail.com>
+References: <1471320616-13110-1-git-send-email-aicommander@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f66.google.com ([209.85.220.66]:33342 "EHLO
-        mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754107AbcJDTE4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Oct 2016 15:04:56 -0400
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:33250 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754181AbcJDT3n (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Oct 2016 15:29:43 -0400
+Received: by mail-pf0-f193.google.com with SMTP id i85so4055564pfa.0
+        for <linux-input@vger.kernel.org>; Tue, 04 Oct 2016 12:29:43 -0700 (PDT)
+In-Reply-To: <1471320616-13110-1-git-send-email-aicommander@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, a.mathur@samsung.com
+To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
+Cc: linux-input@vger.kernel.org
 
-If last event dropped in the old queue was EV_SYN/SYN_REPORT, then lets
-generate EV_SYN/SYN_REPORT immediately after queing EV_SYN/SYN_DROPPED
-so that clients would not ignore next valid full packet events.
+On 08/15/2016 09:10 PM, Cameron Gutman wrote:
+> This pad generally works well enough on the current xpad, but there are
+> a few usability issues that I'm fixing with this series.
+> 
+> The notable changes:
+> 
+> The protocol seems to have changed a bit with the new pad. For one, it
+> needs an ack for the mode report now, otherwise it just retransmits it
+> forever. This makes the mode button look stuck down to userspace after
+> the first time it is pressed.
+> 
+> It also seems to overflow some internal buffer, hang, then eventually
+> reset the pad if there is user input without the driver listening.
+> This causes a spurious disconnection that may cause userspace programs
+> to behave unexpectedly.
+> 
+> Changes in v2:
+> Fixed multi-line comment style in patch 2 and 3 to be consistent with
+> the existing code. I've also added a simple patch to address rumble
+> issues on all Xbox One pads, including Xbox One S.
+> 
+> Cameron Gutman (4):
+>   Input: xpad - add device ID for Xbox One S pad
+>   Input: xpad - fix One S pad disconnecting when not opened
+>   Input: xpad - fix stuck mode button on Xbox One S pad
+>   Input: xpad - fix Xbox One rumble stopping after 2.5 secs
+> 
+>  drivers/input/joystick/xpad.c | 60 ++++++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 54 insertions(+), 6 deletions(-)
+> 
 
-Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+Hi Dmitry,
 
-Difference from v8:
-Added check for handling EVIOCG[type] ioctl for queue empty case
----
- drivers/input/evdev.c | 52 ++++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 39 insertions(+), 13 deletions(-)
+I'm just following up on these patches. Do you want any changes or are they
+fine as is?
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index e9ae3d5..69407ff 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -156,7 +156,12 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
- static void __evdev_queue_syn_dropped(struct evdev_client *client)
- {
- 	struct input_event ev;
-+	struct input_event *last_ev;
- 	ktime_t time;
-+	unsigned int mask = client->bufsize - 1;
-+
-+	/* capture last event stored in the buffer */
-+	last_ev = &client->buffer[(client->head - 1) & mask];
- 
- 	time = client->clk_type == EV_CLK_REAL ?
- 			ktime_get_real() :
-@@ -170,13 +175,28 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
- 	ev.value = 0;
- 
- 	client->buffer[client->head++] = ev;
--	client->head &= client->bufsize - 1;
-+	client->head &= mask;
- 
- 	if (unlikely(client->head == client->tail)) {
- 		/* drop queue but keep our SYN_DROPPED event */
--		client->tail = (client->head - 1) & (client->bufsize - 1);
-+		client->tail = (client->head - 1) & mask;
- 		client->packet_head = client->tail;
- 	}
-+
-+	/*
-+	 * If last packet was completely stored, then queue SYN_REPORT
-+	 * so that clients would not ignore next valid full packet
-+	 */
-+	if (last_ev->type == EV_SYN && last_ev->code == SYN_REPORT) {
-+		last_ev->time = ev.time;
-+		client->buffer[client->head++] = *last_ev;
-+		client->head &= mask;
-+		client->packet_head = client->head;
-+
-+		/* drop queue but keep our SYN_DROPPED & SYN_REPORT event */
-+		if (unlikely(client->head == client->tail))
-+			client->tail = (client->head - 2) & mask;
-+	}
- }
- 
- static void evdev_queue_syn_dropped(struct evdev_client *client)
-@@ -218,7 +238,7 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
- 		spin_lock_irqsave(&client->buffer_lock, flags);
- 
- 		if (client->head != client->tail) {
--			client->packet_head = client->head = client->tail;
-+			client->packet_head = client->tail = client->head;
- 			__evdev_queue_syn_dropped(client);
- 		}
- 
-@@ -231,22 +251,24 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
- static void __pass_event(struct evdev_client *client,
- 			 const struct input_event *event)
- {
-+	unsigned int mask = client->bufsize - 1;
-+
- 	client->buffer[client->head++] = *event;
--	client->head &= client->bufsize - 1;
-+	client->head &= mask;
- 
- 	if (unlikely(client->head == client->tail)) {
- 		/*
- 		 * This effectively "drops" all unconsumed events, leaving
--		 * EV_SYN/SYN_DROPPED plus the newest event in the queue.
-+		 * EV_SYN/SYN_DROPPED, EV_SYN/SYN_REPORT (if required) and
-+		 * newest event in the queue.
- 		 */
--		client->tail = (client->head - 2) & (client->bufsize - 1);
--
--		client->buffer[client->tail].time = event->time;
--		client->buffer[client->tail].type = EV_SYN;
--		client->buffer[client->tail].code = SYN_DROPPED;
--		client->buffer[client->tail].value = 0;
-+		client->head = (client->head - 1) & mask;
-+		client->packet_head = client->tail = client->head;
-+		__evdev_queue_syn_dropped(client);
- 
--		client->packet_head = client->tail;
-+		client->buffer[client->head++] = *event;
-+		client->head &= mask;
-+		/* No need to check for buffer overflow as it just occurred */
- 	}
- 
- 	if (event->type == EV_SYN && event->code == SYN_REPORT) {
-@@ -920,6 +942,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
- 	int ret;
- 	unsigned long *mem;
- 	size_t len;
-+	bool is_queue_empty;
- 
- 	len = BITS_TO_LONGS(maxbit) * sizeof(unsigned long);
- 	mem = kmalloc(len, GFP_KERNEL);
-@@ -933,12 +956,15 @@ static int evdev_handle_get_val(struct evdev_client *client,
- 
- 	spin_unlock(&dev->event_lock);
- 
-+	if (client->head == client->tail)
-+		is_queue_empty = true;
-+
- 	__evdev_flush_queue(client, type);
- 
- 	spin_unlock_irq(&client->buffer_lock);
- 
- 	ret = bits_to_user(mem, maxbit, maxlen, p, compat);
--	if (ret < 0)
-+	if (ret < 0 && !is_queue_empty)
- 		evdev_queue_syn_dropped(client);
- 
- 	kfree(mem);
--- 
-2.6.2
+Pavel has already applied the patches to his out-of-tree xpad driver [0].
 
+[0] https://github.com/paroj/xpad
+
+Thanks,
+Cameron

@@ -1,102 +1,160 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 4/5] HID: sony: Send ds4 output reports on output
- end-point
-Date: Wed, 5 Oct 2016 10:31:51 +0200
-Message-ID: <20161005083150.GB19261@mail.corp.redhat.com>
+Subject: Re: [PATCH 5/5] HID: sony: Handle multiple touch events input record
+Date: Wed, 5 Oct 2016 10:35:49 +0200
+Message-ID: <20161005083548.GC19261@mail.corp.redhat.com>
 References: <1475636338-3779-1-git-send-email-roderick@gaikai.com>
- <1475636338-3779-5-git-send-email-roderick@gaikai.com>
+ <1475636338-3779-6-git-send-email-roderick@gaikai.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51668 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:47442 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752001AbcJEIb5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 5 Oct 2016 04:31:57 -0400
+        id S1753174AbcJEIf7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 5 Oct 2016 04:35:59 -0400
 Content-Disposition: inline
-In-Reply-To: <1475636338-3779-5-git-send-email-roderick@gaikai.com>
+In-Reply-To: <1475636338-3779-6-git-send-email-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Roderick Colenbrander <roderick@gaikai.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>, Frank Praznik <frank.praznik@oh.rr.com>, Simon Wood <simon@mungewell.org>, Antonio Ospite <ao2@ao2.it>
-
-[adding Frank, Simon and Antonio as they are the main developpers of
-hid-sony]
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
 On Oct 04 2016 or thereabouts, Roderick Colenbrander wrote:
 > From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 > 
-> Add a CRC value to each output report. This removes the need for the
-> 'no output reports on interrupt end-point' quirk.
+> Read the touch history field in the HID descriptor and use this value
+> to determine how many touch events to read from the report. As part
+> of this patch, we did a first attempt of making the offset calculation
+> code less magical.
 > 
 > Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 > ---
->  drivers/hid/hid-sony.c | 20 +++++++++++---------
->  1 file changed, 11 insertions(+), 9 deletions(-)
+>  drivers/hid/hid-sony.c | 76 +++++++++++++++++++++++++++++++++-----------------
+>  1 file changed, 50 insertions(+), 26 deletions(-)
 > 
 > diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index 34988ce..24f7d19 100644
+> index 24f7d19..2387aaf 100644
 > --- a/drivers/hid/hid-sony.c
 > +++ b/drivers/hid/hid-sony.c
-> @@ -1895,7 +1895,7 @@ static void dualshock4_send_output_report(struct sony_sc *sc)
->  	} else {
->  		memset(buf, 0, DS4_OUTPUT_REPORT_0x11_SIZE);
->  		buf[0] = 0x11;
-> -		buf[1] = 0x80;
-> +		buf[1] = 0xC0; /* HID + CRC */
->  		buf[3] = 0x0F;
->  		offset = 6;
->  	}
-> @@ -1922,9 +1922,16 @@ static void dualshock4_send_output_report(struct sony_sc *sc)
+> @@ -1030,6 +1030,12 @@ struct motion_output_report_02 {
+>  #define SIXAXIS_REPORT_0xF5_SIZE 8
+>  #define MOTION_REPORT_0x02_SIZE 49
 >  
->  	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
->  		hid_hw_output_report(hdev, buf, DS4_OUTPUT_REPORT_0x05_SIZE);
-> -	else
-> -		hid_hw_raw_request(hdev, 0x11, buf, DS4_OUTPUT_REPORT_0x11_SIZE,
-> -				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
-> +	else {
-> +		/* CRC generation */
-> +		u8 bthdr = 0xA2;
-> +		u32 crc;
+> +/* Offsets relative to USB input report (0x1). Bluetooth (0x11) requires an
+> + * additional +2.
+> + */
+> +#define DS4_INPUT_REPORT_BATTERY_OFFSET  30
+> +#define DS4_INPUT_REPORT_TOUCHPAD_OFFSET 33
 > +
-> +		crc = crc32_le(0xFFFFFFFF, &bthdr, 1);
-> +		crc = ~crc32_le(crc, buf, DS4_OUTPUT_REPORT_0x11_SIZE-4);
-> +		put_unaligned_le32(crc, &buf[74]);
-> +		hid_hw_output_report(hdev, buf, DS4_OUTPUT_REPORT_0x11_SIZE);
-> +	}
-
-nitpicking:
-hid_hw_output_report(hdev, buf, DS4_OUTPUT_REPORT_0x11_SIZE); could be
-factorized out if you add the crc only for BT devices.
-
->  }
+>  static DEFINE_SPINLOCK(sony_dev_list_lock);
+>  static LIST_HEAD(sony_device_list);
+>  static DEFINE_IDA(sony_device_id_allocator);
+> @@ -1226,19 +1232,17 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+>  						struct hid_input, list);
+>  	struct input_dev *input_dev = hidinput->input;
+>  	unsigned long flags;
+> -	int n, offset;
+> +	int n, m, offset, num_touch_data, max_touch_data;
+>  	u8 cable_state, battery_capacity, battery_charging;
 >  
->  static void motion_send_output_report(struct sony_sc *sc)
-> @@ -2378,11 +2385,6 @@ static int sony_input_configured(struct hid_device *hdev,
->  		sony_init_output_report(sc, sixaxis_send_output_report);
->  	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
->  		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
-> -			/*
-> -			 * The DualShock 4 wants output reports sent on the ctrl
-> -			 * endpoint when connected via Bluetooth.
-> -			 */
-> -			hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
+> -	/*
+> -	 * Battery and touchpad data starts at byte 30 in the USB report and
+> -	 * 32 in Bluetooth report.
+> -	 */
+> -	offset = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 30 : 32;
+> +	/* When using Bluetooth the header is 2 bytes longer, so skip these. */
+> +	int data_offset = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 0 : 2;
+>  
+>  	/*
+> -	 * The lower 4 bits of byte 30 contain the battery level
+> +	 * The lower 4 bits of byte 30 (or 32 for BT) contain the battery level
+>  	 * and the 5th bit contains the USB cable state.
+>  	 */
+> +	offset = data_offset + DS4_INPUT_REPORT_BATTERY_OFFSET;
+>  	cable_state = (rd[offset] >> 4) & 0x01;
+>  	battery_capacity = rd[offset] & 0x0F;
+>  
+> @@ -1265,30 +1269,50 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+>  	sc->battery_charging = battery_charging;
+>  	spin_unlock_irqrestore(&sc->lock, flags);
+>  
+> -	offset += 5;
+> -
+>  	/*
+> -	 * The Dualshock 4 multi-touch trackpad data starts at offset 35 on USB
+> -	 * and 37 on Bluetooth.
+> -	 * The first 7 bits of the first byte is a counter and bit 8 is a touch
+> -	 * indicator that is 0 when pressed and 1 when not pressed.
+> -	 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
+> -	 * The data for the second touch is in the same format and immediatly
+> -	 * follows the data for the first.
+> +	 * The Dualshock 4 multi-touch trackpad data starts at offset 33 on USB
+> +	 * and 35 on Bluetooth.
+> +	 * The first byte indicates the number of touch data in the report.
+> +	 * Trackpad data starts 2 bytes later (e.g. 35 for USB).
+>  	 */
+> -	for (n = 0; n < 2; n++) {
+> -		u16 x, y;
+> +	offset = data_offset + DS4_INPUT_REPORT_TOUCHPAD_OFFSET;
+> +	max_touch_data = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 3 : 4;
+> +	if (rd[offset] > 0 && rd[offset] <= max_touch_data)
+> +		num_touch_data = rd[offset];
+> +	else
+> +		num_touch_data = 1;
+> +	offset += 1;
+>  
+> -		x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
+> -		y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
+> +	for (m = 0; m < num_touch_data; m++) {
+> +		/* Skip past timestamp */
+> +		offset += 1;
+>  
+> -		input_mt_slot(input_dev, n);
+> -		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
+> -					!(rd[offset] >> 7));
+> -		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
+> -		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
+> +		/*
+> +		 * The first 7 bits of the first byte is a counter and bit 8 is
+> +		 * a touch indicator that is 0 when pressed and 1 when not
+> +		 * pressed.
+> +		 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
+> +		 * The data for the second touch is in the same format and
+> +		 * immediately follows the data for the first.
+> +		 */
+> +		for (n = 0; n < 2; n++) {
+> +			u16 x, y;
+> +			bool active;
+> +
+> +			x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
+> +			y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
+> +
+> +			active = !(rd[offset] >> 7);
+> +			input_mt_slot(input_dev, n);
 
-The purpose of this quirk is only to have hidraw behaving like legacy
-when the HID low-level transport has been worked on.
-So basically, this might potentially break userspace as the CRC doesn't
-get added automatically by the driver when talking to the device through
-hidraw.
+Just to be sure, the device reports 2 touches only, and the
+"num_touch_data" chunks are just the history of these 2 touches, the
+last chunk being the last known touches?
 
-Frank, Simon, Antonio, are there any userspace application that need to
-communicate over hidraw to the controllers or is it entirely done in the
-kernel now?
+If so, then why aren't you simply jumping to the last valid value?
+If not, then you probably need to report (n+m*2) slot, and change the
+input_mt_init_slot parameter as well.
 
 Cheers,
 Benjamin
 
->  			ret = dualshock4_set_operational_bt(hdev);
->  			if (ret < 0) {
->  				hid_err(hdev, "failed to set the Dualshock 4 operational mode\n");
+> +			input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, active);
+>  
+> -		offset += 4;
+> +			if (active) {
+> +				input_report_abs(input_dev, ABS_MT_POSITION_X, x);
+> +				input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
+> +			}
+> +
+> +			offset += 4;
+> +		}
+>  	}
+>  }
+>  
 > -- 
 > 2.7.4
 > 

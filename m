@@ -1,53 +1,125 @@
-From: "Simon Wood" <simon@mungewell.org>
-Subject: Re: [PATCH 5/5] HID: sony: Handle multiple touch events input
- record
-Date: Wed, 5 Oct 2016 09:29:53 -0600
-Message-ID: <03619b65564e2a66b392b048b1bdc519.squirrel@mungewell.org>
-References: <1475636338-3779-1-git-send-email-roderick@gaikai.com>
-    <1475636338-3779-6-git-send-email-roderick@gaikai.com>
-    <20161005083548.GC19261@mail.corp.redhat.com>
+From: Ioan-Adrian Ratiu <adi@adirat.com>
+Subject: Re: [PATCH v2 1/2] Revert "HID: dragonrise: fix HID Descriptor for 0x0006 PID"
+Date: Wed, 05 Oct 2016 19:09:24 +0300
+Message-ID: <8737kahj63.fsf@ni.com>
+References: <20160927184138.3009-1-adi@adirat.com>
 Mime-Version: 1.0
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host18.canaca.com ([66.49.204.205]:51226 "EHLO
-        host18.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754502AbcJEPaJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2016 11:30:09 -0400
-In-Reply-To: <20161005083548.GC19261@mail.corp.redhat.com>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:33441 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754574AbcJEQLB (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2016 12:11:01 -0400
+Received: by mail-wm0-f66.google.com with SMTP id p138so25283135wmb.0
+        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2016 09:10:55 -0700 (PDT)
+In-Reply-To: <20160927184138.3009-1-adi@adirat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Roderick Colenbrander <roderick@gaikai.com>, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
+To: benjamin.tissoires@redhat.com, jikos@kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spbnick@gmail.com, vnaum@vnaum.com
 
-On Wed, October 5, 2016 2:35 am, Benjamin Tissoires wrote:
-> On Oct 04 2016 or thereabouts, Roderick Colenbrander wrote:
-
->> +		/*
->> +		 * The first 7 bits of the first byte is a counter and bit 8 is
->> +		 * a touch indicator that is 0 when pressed and 1 when not
->> +		 * pressed.
->> +		 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
->> +		 * The data for the second touch is in the same format and
->> +		 * immediately follows the data for the first.
->> +		 */
->> +		for (n = 0; n < 2; n++) {
->> +			u16 x, y;
->> +			bool active;
->> +
->> +			x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
->> +			y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
->> +
->> +			active = !(rd[offset] >> 7);
->> +			input_mt_slot(input_dev, n);
->>
+On Tue, 27 Sep 2016, Ioan-Adrian Ratiu <adi@adirat.com> wrote:
+> This reverts commit 18339f59c3a6 ("HID: dragonrise: fix HID...") because it
+> breaks certain dragonrise 0079:0006 gamepads. While it may fix a breakage
+> caused by commit 79346d620e9d ("HID: input: force generic axis to be mapped
+> to their user space axis"), it is probable that the manufacturer released
+> different hardware with the same PID so this fix works for only a subset
+> and breaks the other gamepads sharing the PID.
 >
-> Just to be sure, the device reports 2 touches only, and the
-> "num_touch_data" chunks are just the history of these 2 touches, the
-> last chunk being the last known touches?
+> What is needed is another more generic solution which fixes 79346d620e9d
+> ("HID: input: force generic axis ...") breakage for this controller: we
+> need to add an exception for this driver to make it keep the old behaviour
+> previous to the initial breakage (this is done in patch 2 of this series).
+>
+> Signed-off-by: Ioan-Adrian Ratiu <adi@adirat.com>
 
-FYI - Community knowledge/understanding...
-http://www.psdevwiki.com/ps4/DS4-BT#HID_INPUT_reports
+Ping?
 
-Simon
+Vladislav confirmed that this patch series also fixes the 0079:0011
+DragonRise gamepad, so everything is good. Any info about merging?
 
+Thank you,
+Ionel
+
+> ---
+>  drivers/hid/hid-dr.c | 58 ----------------------------------------------------
+>  1 file changed, 58 deletions(-)
+>
+> diff --git a/drivers/hid/hid-dr.c b/drivers/hid/hid-dr.c
+> index 8fd4bf7..2523f8a 100644
+> --- a/drivers/hid/hid-dr.c
+> +++ b/drivers/hid/hid-dr.c
+> @@ -234,58 +234,6 @@ static __u8 pid0011_rdesc_fixed[] = {
+>  	0xC0                /*  End Collection                  */
+>  };
+>  
+> -static __u8 pid0006_rdesc_fixed[] = {
+> -	0x05, 0x01,        /* Usage Page (Generic Desktop)	*/
+> -	0x09, 0x04,        /* Usage (Joystick)			*/
+> -	0xA1, 0x01,        /* Collection (Application)		*/
+> -	0xA1, 0x02,        /*   Collection (Logical)		*/
+> -	0x75, 0x08,        /*     Report Size (8)		*/
+> -	0x95, 0x05,        /*     Report Count (5)		*/
+> -	0x15, 0x00,        /*     Logical Minimum (0)		*/
+> -	0x26, 0xFF, 0x00,  /*     Logical Maximum (255)		*/
+> -	0x35, 0x00,        /*     Physical Minimum (0)		*/
+> -	0x46, 0xFF, 0x00,  /*     Physical Maximum (255)	*/
+> -	0x09, 0x30,        /*     Usage (X)			*/
+> -	0x09, 0x33,        /*     Usage (Ry)			*/
+> -	0x09, 0x32,        /*     Usage (Z)			*/
+> -	0x09, 0x31,        /*     Usage (Y)			*/
+> -	0x09, 0x34,        /*     Usage (Ry)			*/
+> -	0x81, 0x02,        /*     Input (Variable)		*/
+> -	0x75, 0x04,        /*     Report Size (4)		*/
+> -	0x95, 0x01,        /*     Report Count (1)		*/
+> -	0x25, 0x07,        /*     Logical Maximum (7)		*/
+> -	0x46, 0x3B, 0x01,  /*     Physical Maximum (315)	*/
+> -	0x65, 0x14,        /*     Unit (Centimeter)		*/
+> -	0x09, 0x39,        /*     Usage (Hat switch)		*/
+> -	0x81, 0x42,        /*     Input (Variable)		*/
+> -	0x65, 0x00,        /*     Unit (None)			*/
+> -	0x75, 0x01,        /*     Report Size (1)		*/
+> -	0x95, 0x0C,        /*     Report Count (12)		*/
+> -	0x25, 0x01,        /*     Logical Maximum (1)		*/
+> -	0x45, 0x01,        /*     Physical Maximum (1)		*/
+> -	0x05, 0x09,        /*     Usage Page (Button)		*/
+> -	0x19, 0x01,        /*     Usage Minimum (0x01)		*/
+> -	0x29, 0x0C,        /*     Usage Maximum (0x0C)		*/
+> -	0x81, 0x02,        /*     Input (Variable)		*/
+> -	0x06, 0x00, 0xFF,  /*     Usage Page (Vendor Defined)	*/
+> -	0x75, 0x01,        /*     Report Size (1)		*/
+> -	0x95, 0x08,        /*     Report Count (8)		*/
+> -	0x25, 0x01,        /*     Logical Maximum (1)		*/
+> -	0x45, 0x01,        /*     Physical Maximum (1)		*/
+> -	0x09, 0x01,        /*     Usage (0x01)			*/
+> -	0x81, 0x02,        /*     Input (Variable)		*/
+> -	0xC0,              /*   End Collection			*/
+> -	0xA1, 0x02,        /*   Collection (Logical)		*/
+> -	0x75, 0x08,        /*     Report Size (8)		*/
+> -	0x95, 0x07,        /*     Report Count (7)		*/
+> -	0x46, 0xFF, 0x00,  /*     Physical Maximum (255)	*/
+> -	0x26, 0xFF, 0x00,  /*     Logical Maximum (255)		*/
+> -	0x09, 0x02,        /*     Usage (0x02)			*/
+> -	0x91, 0x02,        /*     Output (Variable)		*/
+> -	0xC0,              /*   End Collection			*/
+> -	0xC0               /* End Collection			*/
+> -};
+> -
+>  static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>  				unsigned int *rsize)
+>  {
+> @@ -296,12 +244,6 @@ static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>  			*rsize = sizeof(pid0011_rdesc_fixed);
+>  		}
+>  		break;
+> -	case 0x0006:
+> -		if (*rsize == sizeof(pid0006_rdesc_fixed)) {
+> -			rdesc = pid0006_rdesc_fixed;
+> -			*rsize = sizeof(pid0006_rdesc_fixed);
+> -		}
+> -		break;
+>  	}
+>  	return rdesc;
+>  }
+> -- 
+> 2.10.0

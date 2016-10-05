@@ -1,125 +1,148 @@
-From: Ioan-Adrian Ratiu <adi@adirat.com>
-Subject: Re: [PATCH v2 1/2] Revert "HID: dragonrise: fix HID Descriptor for 0x0006 PID"
-Date: Wed, 05 Oct 2016 19:09:24 +0300
-Message-ID: <8737kahj63.fsf@ni.com>
-References: <20160927184138.3009-1-adi@adirat.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Frank Praznik <frank.praznik@gmail.com>
+Subject: Re: [PATCH 4/5] HID: sony: Send ds4 output reports on output
+ end-point
+Date: Wed, 5 Oct 2016 12:54:30 -0400
+Message-ID: <5FB6ED86-613A-449C-8D7C-60FD136075C3@gmail.com>
+References: <1475636338-3779-1-git-send-email-roderick@gaikai.com>
+ <1475636338-3779-5-git-send-email-roderick@gaikai.com>
+ <20161005083150.GB19261@mail.corp.redhat.com>
+Mime-Version: 1.0 (Mac OS X Mail 10.0 \(3226\))
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33441 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754574AbcJEQLB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2016 12:11:01 -0400
-Received: by mail-wm0-f66.google.com with SMTP id p138so25283135wmb.0
-        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2016 09:10:55 -0700 (PDT)
-In-Reply-To: <20160927184138.3009-1-adi@adirat.com>
+Received: from mail-qk0-f196.google.com ([209.85.220.196]:33946 "EHLO
+        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751674AbcJEQyc (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2016 12:54:32 -0400
+Received: by mail-qk0-f196.google.com with SMTP id n189so11689316qke.1
+        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2016 09:54:32 -0700 (PDT)
+In-Reply-To: <20161005083150.GB19261@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: benjamin.tissoires@redhat.com, jikos@kernel.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spbnick@gmail.com, vnaum@vnaum.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Roderick Colenbrander <roderick@gaikai.com>, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>, Frank Praznik <frank.praznik@oh.rr.com>, Simon Wood <simon@mungewell.org>, Antonio Ospite <ao2@ao2.it>
 
-On Tue, 27 Sep 2016, Ioan-Adrian Ratiu <adi@adirat.com> wrote:
-> This reverts commit 18339f59c3a6 ("HID: dragonrise: fix HID...") because it
-> breaks certain dragonrise 0079:0006 gamepads. While it may fix a breakage
-> caused by commit 79346d620e9d ("HID: input: force generic axis to be mapped
-> to their user space axis"), it is probable that the manufacturer released
-> different hardware with the same PID so this fix works for only a subset
-> and breaks the other gamepads sharing the PID.
->
-> What is needed is another more generic solution which fixes 79346d620e9d
-> ("HID: input: force generic axis ...") breakage for this controller: we
-> need to add an exception for this driver to make it keep the old behaviour
-> previous to the initial breakage (this is done in patch 2 of this series).
->
-> Signed-off-by: Ioan-Adrian Ratiu <adi@adirat.com>
 
-Ping?
+> On Oct 5, 2016, at 04:31, Benjamin Tissoires =
+<benjamin.tissoires@redhat.com> wrote:
+>=20
+> [adding Frank, Simon and Antonio as they are the main developpers of
+> hid-sony]
+>=20
+> On Oct 04 2016 or thereabouts, Roderick Colenbrander wrote:
+>> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+>>=20
+>> Add a CRC value to each output report. This removes the need for the
+>> 'no output reports on interrupt end-point' quirk.
+>>=20
+>> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+>> ---
+>> drivers/hid/hid-sony.c | 20 +++++++++++---------
+>> 1 file changed, 11 insertions(+), 9 deletions(-)
+>>=20
+>> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+>> index 34988ce..24f7d19 100644
+>> --- a/drivers/hid/hid-sony.c
+>> +++ b/drivers/hid/hid-sony.c
+>> @@ -1895,7 +1895,7 @@ static void =
+dualshock4_send_output_report(struct sony_sc *sc)
+>> 	} else {
+>> 		memset(buf, 0, DS4_OUTPUT_REPORT_0x11_SIZE);
+>> 		buf[0] =3D 0x11;
+>> -		buf[1] =3D 0x80;
+>> +		buf[1] =3D 0xC0; /* HID + CRC */
+>> 		buf[3] =3D 0x0F;
+>> 		offset =3D 6;
+>> 	}
+>> @@ -1922,9 +1922,16 @@ static void =
+dualshock4_send_output_report(struct sony_sc *sc)
+>>=20
+>> 	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
+>> 		hid_hw_output_report(hdev, buf, =
+DS4_OUTPUT_REPORT_0x05_SIZE);
+>> -	else
+>> -		hid_hw_raw_request(hdev, 0x11, buf, =
+DS4_OUTPUT_REPORT_0x11_SIZE,
+>> -				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+>> +	else {
+>> +		/* CRC generation */
+>> +		u8 bthdr =3D 0xA2;
+>> +		u32 crc;
+>> +
+>> +		crc =3D crc32_le(0xFFFFFFFF, &bthdr, 1);
+>> +		crc =3D ~crc32_le(crc, buf, =
+DS4_OUTPUT_REPORT_0x11_SIZE-4);
+>> +		put_unaligned_le32(crc, &buf[74]);
+>> +		hid_hw_output_report(hdev, buf, =
+DS4_OUTPUT_REPORT_0x11_SIZE);
+>> +	}
+>=20
+> nitpicking:
+> hid_hw_output_report(hdev, buf, DS4_OUTPUT_REPORT_0x11_SIZE); could be
+> factorized out if you add the crc only for BT devices.
+>=20
+>> }
+>>=20
+>> static void motion_send_output_report(struct sony_sc *sc)
+>> @@ -2378,11 +2385,6 @@ static int sony_input_configured(struct =
+hid_device *hdev,
+>> 		sony_init_output_report(sc, sixaxis_send_output_report);
+>> 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+>> 		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
+>> -			/*
+>> -			 * The DualShock 4 wants output reports sent on =
+the ctrl
+>> -			 * endpoint when connected via Bluetooth.
+>> -			 */
+>> -			hdev->quirks |=3D =
+HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
+>=20
+> The purpose of this quirk is only to have hidraw behaving like legacy
+> when the HID low-level transport has been worked on.
+> So basically, this might potentially break userspace as the CRC =
+doesn't
+> get added automatically by the driver when talking to the device =
+through
+> hidraw.
+>=20
+> Frank, Simon, Antonio, are there any userspace application that need =
+to
+> communicate over hidraw to the controllers or is it entirely done in =
+the
+> kernel now?
+>=20
+> Cheers,
+> Benjamin
 
-Vladislav confirmed that this patch series also fixes the 0079:0011
-DragonRise gamepad, so everything is good. Any info about merging?
+The best answer I can give is "not to my knowledge=E2=80=9D.  Rumble and =
+LEDs have standard
+kernel interfaces but obviously we can=E2=80=99t guarantee 100% that =
+nobody is using hidraw
+directly.  Commercial games and engines aren't running as root and thus =
+can=E2=80=99t use
+hidraw so I think we can safely say that no major commercial software =
+will be broken
+by this.
 
-Thank you,
-Ionel
+There are people who have had to alter the reporting rate of the =
+controller for use with
+slow embedded processors.  With this change can the rate-control value =
+be altered
+from the full-speed value of C0?
 
-> ---
->  drivers/hid/hid-dr.c | 58 ----------------------------------------------------
->  1 file changed, 58 deletions(-)
->
-> diff --git a/drivers/hid/hid-dr.c b/drivers/hid/hid-dr.c
-> index 8fd4bf7..2523f8a 100644
-> --- a/drivers/hid/hid-dr.c
-> +++ b/drivers/hid/hid-dr.c
-> @@ -234,58 +234,6 @@ static __u8 pid0011_rdesc_fixed[] = {
->  	0xC0                /*  End Collection                  */
->  };
->  
-> -static __u8 pid0006_rdesc_fixed[] = {
-> -	0x05, 0x01,        /* Usage Page (Generic Desktop)	*/
-> -	0x09, 0x04,        /* Usage (Joystick)			*/
-> -	0xA1, 0x01,        /* Collection (Application)		*/
-> -	0xA1, 0x02,        /*   Collection (Logical)		*/
-> -	0x75, 0x08,        /*     Report Size (8)		*/
-> -	0x95, 0x05,        /*     Report Count (5)		*/
-> -	0x15, 0x00,        /*     Logical Minimum (0)		*/
-> -	0x26, 0xFF, 0x00,  /*     Logical Maximum (255)		*/
-> -	0x35, 0x00,        /*     Physical Minimum (0)		*/
-> -	0x46, 0xFF, 0x00,  /*     Physical Maximum (255)	*/
-> -	0x09, 0x30,        /*     Usage (X)			*/
-> -	0x09, 0x33,        /*     Usage (Ry)			*/
-> -	0x09, 0x32,        /*     Usage (Z)			*/
-> -	0x09, 0x31,        /*     Usage (Y)			*/
-> -	0x09, 0x34,        /*     Usage (Ry)			*/
-> -	0x81, 0x02,        /*     Input (Variable)		*/
-> -	0x75, 0x04,        /*     Report Size (4)		*/
-> -	0x95, 0x01,        /*     Report Count (1)		*/
-> -	0x25, 0x07,        /*     Logical Maximum (7)		*/
-> -	0x46, 0x3B, 0x01,  /*     Physical Maximum (315)	*/
-> -	0x65, 0x14,        /*     Unit (Centimeter)		*/
-> -	0x09, 0x39,        /*     Usage (Hat switch)		*/
-> -	0x81, 0x42,        /*     Input (Variable)		*/
-> -	0x65, 0x00,        /*     Unit (None)			*/
-> -	0x75, 0x01,        /*     Report Size (1)		*/
-> -	0x95, 0x0C,        /*     Report Count (12)		*/
-> -	0x25, 0x01,        /*     Logical Maximum (1)		*/
-> -	0x45, 0x01,        /*     Physical Maximum (1)		*/
-> -	0x05, 0x09,        /*     Usage Page (Button)		*/
-> -	0x19, 0x01,        /*     Usage Minimum (0x01)		*/
-> -	0x29, 0x0C,        /*     Usage Maximum (0x0C)		*/
-> -	0x81, 0x02,        /*     Input (Variable)		*/
-> -	0x06, 0x00, 0xFF,  /*     Usage Page (Vendor Defined)	*/
-> -	0x75, 0x01,        /*     Report Size (1)		*/
-> -	0x95, 0x08,        /*     Report Count (8)		*/
-> -	0x25, 0x01,        /*     Logical Maximum (1)		*/
-> -	0x45, 0x01,        /*     Physical Maximum (1)		*/
-> -	0x09, 0x01,        /*     Usage (0x01)			*/
-> -	0x81, 0x02,        /*     Input (Variable)		*/
-> -	0xC0,              /*   End Collection			*/
-> -	0xA1, 0x02,        /*   Collection (Logical)		*/
-> -	0x75, 0x08,        /*     Report Size (8)		*/
-> -	0x95, 0x07,        /*     Report Count (7)		*/
-> -	0x46, 0xFF, 0x00,  /*     Physical Maximum (255)	*/
-> -	0x26, 0xFF, 0x00,  /*     Logical Maximum (255)		*/
-> -	0x09, 0x02,        /*     Usage (0x02)			*/
-> -	0x91, 0x02,        /*     Output (Variable)		*/
-> -	0xC0,              /*   End Collection			*/
-> -	0xC0               /* End Collection			*/
-> -};
-> -
->  static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
->  				unsigned int *rsize)
->  {
-> @@ -296,12 +244,6 @@ static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
->  			*rsize = sizeof(pid0011_rdesc_fixed);
->  		}
->  		break;
-> -	case 0x0006:
-> -		if (*rsize == sizeof(pid0006_rdesc_fixed)) {
-> -			rdesc = pid0006_rdesc_fixed;
-> -			*rsize = sizeof(pid0006_rdesc_fixed);
-> -		}
-> -		break;
->  	}
->  	return rdesc;
->  }
-> -- 
-> 2.10.0
+I guess that in these corner cases people can revert it to the old =
+behavior themselves if
+necessary since they have to customize the module anyways.
+
+Regards,
+Frank
+
+>=20
+>> 			ret =3D dualshock4_set_operational_bt(hdev);
+>> 			if (ret < 0) {
+>> 				hid_err(hdev, "failed to set the =
+Dualshock 4 operational mode\n");
+>> --=20
+>> 2.7.4
+>>=20
+

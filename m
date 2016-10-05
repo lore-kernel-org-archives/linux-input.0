@@ -1,191 +1,113 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH 1/5] HID: sony: Fix race condition in sony_probe
-Date: Tue,  4 Oct 2016 19:58:54 -0700
-Message-ID: <1475636338-3779-2-git-send-email-roderick@gaikai.com>
-References: <1475636338-3779-1-git-send-email-roderick@gaikai.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] hidraw: fix list->buffer race condition
+Date: Wed, 5 Oct 2016 09:53:29 +0200
+Message-ID: <20161005075329.GZ19261@mail.corp.redhat.com>
+References: <1475628266-4767-1-git-send-email-gary.king@oculus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f51.google.com ([209.85.214.51]:36402 "EHLO
-        mail-it0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754476AbcJEDAZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Oct 2016 23:00:25 -0400
-Received: by mail-it0-f51.google.com with SMTP id 188so83376635iti.1
-        for <linux-input@vger.kernel.org>; Tue, 04 Oct 2016 20:00:25 -0700 (PDT)
-In-Reply-To: <1475636338-3779-1-git-send-email-roderick@gaikai.com>
+Received: from mx1.redhat.com ([209.132.183.28]:39186 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751423AbcJEHxe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 5 Oct 2016 03:53:34 -0400
+Content-Disposition: inline
+In-Reply-To: <1475628266-4767-1-git-send-email-gary.king@oculus.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
+To: Gary King <gary.king@oculus.com>
+Cc: jikos@kernel.org, linux-input@vger.kernel.org
 
-From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+Hi Gary,
 
-Early on the sony_probe function calls hid_hw_start to start the hardware.
-Afterwards it issues some hardware requests, initializes other functionality
-like Force Feedback, power classes and others. However by the time
-hid_hw_start returns, the device nodes have already been created, which leads
-to a race condition by user space applications which may detect the device
-prior to completion of initialization. We have observed this problem many
-times, this patch fixes the problem.
+On Oct 04 2016 or thereabouts, Gary King wrote:
+> hidraw input events are stored for each file descriptor in a lockless
+> circular queue. no memory barriers were used when the queue was
+> updated, which caused intermittent kernel panics due to heap corruption
+> when used on multi-core ARM systems.
+> 
+> add memory barriers to ensure that value updates are observable before
+> the head and tail referents are updated.
 
-This patch moves most of sony_probe to sony_input_configured, which is called
-prior to device registration. This fixes the race condition and the same
-approach is used in other HID drivers.
+As a foreword, I must confess I am not that comfortable with memory
+barriers on SMP.
 
-Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
----
- drivers/hid/hid-sony.c | 117 ++++++++++++++++++++++++-------------------------
- 1 file changed, 58 insertions(+), 59 deletions(-)
+I have a hard time trying to understand where the code can be reordered
+and why you are having the heap corruption and how these barriers solve
+the issue.
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index b0bb99a..afa8219 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -1387,28 +1387,6 @@ static int sony_register_touchpad(struct hid_input *hi, int touch_count,
- 	return 0;
- }
- 
--static int sony_input_configured(struct hid_device *hdev,
--					struct hid_input *hidinput)
--{
--	struct sony_sc *sc = hid_get_drvdata(hdev);
--	int ret;
--
--	/*
--	 * The Dualshock 4 touchpad supports 2 touches and has a
--	 * resolution of 1920x942 (44.86 dots/mm).
--	 */
--	if (sc->quirks & DUALSHOCK4_CONTROLLER) {
--		ret = sony_register_touchpad(hidinput, 2, 1920, 942);
--		if (ret) {
--			hid_err(sc->hdev,
--				"Unable to initialize multi-touch slots: %d\n",
--				ret);
--			return ret;
--		}
--	}
--
--	return 0;
--}
- 
- /*
-  * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
-@@ -2329,45 +2307,12 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
- 		cancel_work_sync(&sc->state_worker);
- }
- 
--static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+static int sony_input_configured(struct hid_device *hdev,
-+					struct hid_input *hidinput)
- {
--	int ret;
-+	struct sony_sc *sc = hid_get_drvdata(hdev);
- 	int append_dev_id;
--	unsigned long quirks = id->driver_data;
--	struct sony_sc *sc;
--	unsigned int connect_mask = HID_CONNECT_DEFAULT;
--
--	if (!strcmp(hdev->name, "FutureMax Dance Mat"))
--		quirks |= FUTUREMAX_DANCE_MAT;
--
--	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
--	if (sc == NULL) {
--		hid_err(hdev, "can't alloc sony descriptor\n");
--		return -ENOMEM;
--	}
--
--	spin_lock_init(&sc->lock);
--
--	sc->quirks = quirks;
--	hid_set_drvdata(hdev, sc);
--	sc->hdev = hdev;
--
--	ret = hid_parse(hdev);
--	if (ret) {
--		hid_err(hdev, "parse failed\n");
--		return ret;
--	}
--
--	if (sc->quirks & VAIO_RDESC_CONSTANT)
--		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
--	else if (sc->quirks & SIXAXIS_CONTROLLER)
--		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
--
--	ret = hid_hw_start(hdev, connect_mask);
--	if (ret) {
--		hid_err(hdev, "hw start failed\n");
--		return ret;
--	}
-+	int ret;
- 
- 	ret = sony_set_device_id(sc);
- 	if (ret < 0) {
-@@ -2427,6 +2372,18 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 			}
- 		}
- 
-+		/*
-+		 * The Dualshock 4 touchpad supports 2 touches and has a
-+		 * resolution of 1920x942 (44.86 dots/mm).
-+		 */
-+		ret = sony_register_touchpad(hidinput, 2, 1920, 942);
-+		if (ret) {
-+			hid_err(sc->hdev,
-+			"Unable to initialize multi-touch slots: %d\n",
-+			ret);
-+			return ret;
-+		}
-+
- 		sony_init_output_report(sc, dualshock4_send_output_report);
- 	} else if (sc->quirks & MOTION_CONTROLLER) {
- 		sony_init_output_report(sc, motion_send_output_report);
-@@ -2482,6 +2439,48 @@ err_stop:
- 	return ret;
- }
- 
-+static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	int ret;
-+	unsigned long quirks = id->driver_data;
-+	struct sony_sc *sc;
-+	unsigned int connect_mask = HID_CONNECT_DEFAULT;
-+
-+	if (!strcmp(hdev->name, "FutureMax Dance Mat"))
-+		quirks |= FUTUREMAX_DANCE_MAT;
-+
-+	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
-+	if (sc == NULL) {
-+		hid_err(hdev, "can't alloc sony descriptor\n");
-+		return -ENOMEM;
-+	}
-+
-+	spin_lock_init(&sc->lock);
-+
-+	sc->quirks = quirks;
-+	hid_set_drvdata(hdev, sc);
-+	sc->hdev = hdev;
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "parse failed\n");
-+		return ret;
-+	}
-+
-+	if (sc->quirks & VAIO_RDESC_CONSTANT)
-+		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
-+	else if (sc->quirks & SIXAXIS_CONTROLLER)
-+		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
-+
-+	ret = hid_hw_start(hdev, connect_mask);
-+	if (ret) {
-+		hid_err(hdev, "hw start failed\n");
-+		return ret;
-+	}
-+
-+	return ret;
-+}
-+
- static void sony_remove(struct hid_device *hdev)
- {
- 	struct sony_sc *sc = hid_get_drvdata(hdev);
--- 
-2.7.4
+> 
+> Change-Id: Ifb50f5ebe13c55c83aa105c5cd5926ca16fd93e0
+> Signed-off-by: Gary King <gary.king@oculus.com>
+> Reviewed-on: http://prn-ocugerrit01.thefacebook.com:8080/88
 
+This doesn't look like a public URL, please drop if not.
+
+> Reviewed-by: Ahmed Amin <ahmed.amin@oculus.com>
+> ---
+>  drivers/hid/hidraw.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+> index f0e2757..dc3465f 100644
+> --- a/drivers/hid/hidraw.c
+> +++ b/drivers/hid/hidraw.c
+> @@ -53,6 +53,7 @@ static ssize_t hidraw_read(struct file *file, char __user *buffer, size_t count,
+>  	mutex_lock(&list->read_mutex);
+>  
+>  	while (ret == 0) {
+> +		smp_rmb();
+>  		if (list->head == list->tail) {
+>  			add_wait_queue(&list->hidraw->wait, &wait);
+>  			set_current_state(TASK_INTERRUPTIBLE);
+> @@ -98,7 +99,9 @@ static ssize_t hidraw_read(struct file *file, char __user *buffer, size_t count,
+>  
+>  		kfree(list->buffer[list->tail].value);
+>  		list->buffer[list->tail].value = NULL;
+> +		smp_wmb();
+>  		list->tail = (list->tail + 1) & (HIDRAW_BUFFER_SIZE - 1);
+> +		smp_wmb();
+
+How does these barriers be needed? To me, list->tail gets accessed just
+before, so I doubt the compiler would decide to reorder the code without
+changing the semantic.
+
+Again, I am not an expert regarding memory barriers, but either you
+convince me that this is the best solution, either there is an other
+solution (like protecting the circular buffer with spinlocks between the
+feeder and consumer).
+
+>  	}
+>  out:
+>  	mutex_unlock(&list->read_mutex);
+> @@ -487,7 +490,7 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+>  	spin_lock_irqsave(&dev->list_lock, flags);
+>  	list_for_each_entry(list, &dev->list, node) {
+>  		int new_head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
+> -
+
+Nitpicking, please do not drop this empty line, see the kernel coding
+style, an empty line is required after a declaration.
+
+> +		smp_rmb();
+>  		if (new_head == list->tail)
+>  			continue;
+>  
+> @@ -496,7 +499,9 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+>  			break;
+>  		}
+>  		list->buffer[list->head].len = len;
+> +		smp_wmb();
+>  		list->head = new_head;
+> +		smp_wmb();
+
+Same comment than before, I don't understand how the barrier can help
+you here.
+
+>  		kill_fasync(&list->fasync, SIGIO, POLL_IN);
+>  	}
+>  	spin_unlock_irqrestore(&dev->list_lock, flags);
+> -- 
+> 1.9.1
+
+Cheers,
+Benjamin 

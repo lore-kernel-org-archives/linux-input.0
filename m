@@ -1,64 +1,48 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: elantech - add Fujitsu Lifebook E556 to force
- crc_enabled
-Date: Wed, 5 Oct 2016 22:55:00 -0700
-Message-ID: <20161006055500.GA9017@dtor-ws>
+Subject: Re: Elantech touchpad doesn't work on Fujitsu E556 laptop
+Date: Wed, 5 Oct 2016 22:56:04 -0700
+Message-ID: <20161006055604.GB36340@dtor-ws>
+References: <e511d6de-1db4-5560-a56c-06846fb3bcfb@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:36672 "EHLO
+        mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751111AbcJFF4I (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2016 01:56:08 -0400
+Received: by mail-pa0-f49.google.com with SMTP id ry6so4693818pac.3
+        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2016 22:56:07 -0700 (PDT)
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Takashi Iwai <tiwai@suse.de>, Ulrik De Bie <ulrik.debie-os@e2big.org>, William Linna <william.linna@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <e511d6de-1db4-5560-a56c-06846fb3bcfb@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: William Linna <william.linna@gmail.com>
+Cc: linux-input@vger.kernel.org, tiwai@suse.de
 
-Another Lifebook machine that needs the same quirk as other similar
-models to make the driver working.
+HI WIlliam,
 
-Also let's reorder elantech_dmi_force_crc_enabled list so LIfebook enries
-are in alphabetical order.
+On Fri, Sep 30, 2016 at 10:57:12AM +0300, William Linna wrote:
+> Hi,
+> 
+> Elantech touchpad doesn't work on Fujitsu E556 laptop.
+> 
+> Touchpad doesn't move the cursor at all, and it seems to disturb
+> keyboard too. If I accidentally hit the touchpad while typing, the
+> key gets "stuck" (it keeps repeating until I press something else).
+> 
+> Fortunately, the touchpad works fine when I force crc_enabled on with:
+> echo 1 > /sys/devices/platform/i8042/serio2/crc_enabled
+> 
+> or by applying the following patch, but replacing the U745 with E556:
+> https://patchwork.kernel.org/patch/7570531/
+> 
+> See also:
+> https://bugzilla.opensuse.org/show_bug.cgi?id=982131
 
-Reported-by: William Linna <william.linna@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/elantech.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+Thank you for reporting. I just CCed you on a patch, it would be great
+if you could give it a spin and let me know if it works for you.
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 37b52f1..db7d1d6 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1517,6 +1517,13 @@ static const struct dmi_system_id elantech_dmi_force_crc_enabled[] = {
- 		},
- 	},
- 	{
-+		/* Fujitsu LIFEBOOK E544  does not work with crc_enabled == 0 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E544"),
-+		},
-+	},
-+	{
- 		/* Fujitsu LIFEBOOK E554  does not work with crc_enabled == 0 */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-@@ -1524,10 +1531,10 @@ static const struct dmi_system_id elantech_dmi_force_crc_enabled[] = {
- 		},
- 	},
- 	{
--		/* Fujitsu LIFEBOOK E544  does not work with crc_enabled == 0 */
-+		/* Fujitsu LIFEBOOK E556 does not work with crc_enabled == 0 */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E544"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E556"),
- 		},
- 	},
- 	{
--- 
-2.8.0.rc3.226.g39d4020
-
+Thanks.
 
 -- 
 Dmitry

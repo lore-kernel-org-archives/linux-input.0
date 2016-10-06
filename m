@@ -1,48 +1,103 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Elantech touchpad doesn't work on Fujitsu E556 laptop
-Date: Wed, 5 Oct 2016 22:56:04 -0700
-Message-ID: <20161006055604.GB36340@dtor-ws>
-References: <e511d6de-1db4-5560-a56c-06846fb3bcfb@gmail.com>
+Subject: Re: Input: melfas_mip4 - add documentations
+Date: Wed, 5 Oct 2016 22:58:18 -0700
+Message-ID: <20161006055818.GC36340@dtor-ws>
+References: <1474953573-29327-1-git-send-email-jeesw@melfas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:36672 "EHLO
-        mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751111AbcJFF4I (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2016 01:56:08 -0400
-Received: by mail-pa0-f49.google.com with SMTP id ry6so4693818pac.3
-        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2016 22:56:07 -0700 (PDT)
+Received: from mail-pa0-f65.google.com ([209.85.220.65]:35082 "EHLO
+        mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751111AbcJFF6V (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2016 01:58:21 -0400
+Received: by mail-pa0-f65.google.com with SMTP id qn10so545360pac.2
+        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2016 22:58:21 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <e511d6de-1db4-5560-a56c-06846fb3bcfb@gmail.com>
+In-Reply-To: <1474953573-29327-1-git-send-email-jeesw@melfas.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: William Linna <william.linna@gmail.com>
-Cc: linux-input@vger.kernel.org, tiwai@suse.de
+To: Sangwon Jee <jeesw@melfas.com>
+Cc: linux-input@vger.kernel.org
 
-HI WIlliam,
+Hi Sangwon,
 
-On Fri, Sep 30, 2016 at 10:57:12AM +0300, William Linna wrote:
-> Hi,
+On Tue, Sep 27, 2016 at 02:19:33PM +0900, Sangwon Jee wrote:
+> Add maintainer and devicetree documentations.
 > 
-> Elantech touchpad doesn't work on Fujitsu E556 laptop.
-> 
-> Touchpad doesn't move the cursor at all, and it seems to disturb
-> keyboard too. If I accidentally hit the touchpad while typing, the
-> key gets "stuck" (it keeps repeating until I press something else).
-> 
-> Fortunately, the touchpad works fine when I force crc_enabled on with:
-> echo 1 > /sys/devices/platform/i8042/serio2/crc_enabled
-> 
-> or by applying the following patch, but replacing the U745 with E556:
-> https://patchwork.kernel.org/patch/7570531/
-> 
-> See also:
-> https://bugzilla.opensuse.org/show_bug.cgi?id=982131
+> Signed-off-by: Sangwon Jee <jeesw@melfas.com>
+> ---
+>  .../bindings/input/touchscreen/melfas_mip4.txt      | 21 +++++++++++++++++++++
+>  .../devicetree/bindings/vendor-prefixes.txt         |  1 +
 
-Thank you for reporting. I just CCed you on a patch, it would be great
-if you could give it a spin and let me know if it works for you.
+Could you please split this in 2: separate patch for bindings and
+separate for maintainers.
 
-Thanks.
+Thanks!
+
+>  MAINTAINERS                                         |  7 +++++++
+>  3 files changed, 29 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/melfas_mip4.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/melfas_mip4.txt b/Documentation/devicetree/bindings/input/touchscreen/melfas_mip4.txt
+> new file mode 100644
+> index 0000000..4e4dfbe
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/melfas_mip4.txt
+> @@ -0,0 +1,21 @@
+> +* MELFAS MIP4 Touchscreen
+> +
+> +Required properties:
+> +- compatible: must be "melfas,mip4_ts"
+> +- reg: I2C slave address of the chip (0x48 or 0x34)
+> +- interrupt-parent: interrupt controller to which the chip is connected
+> +- interrupts: interrupt to which the chip is connected
+> +
+> +Optional properties:
+> +- ce-gpio: GPIO connected to the CE(chip enable) pin of the chip
+> +
+> +Example:
+> +	i2c@00000000 {
+> +		melfas_mip4_ts@48 {
+> +			compatible = "melfas,mip4_ts";
+> +			reg = <0x48>;
+> +			interrupt-parent = <&gpio>;
+> +			interrupts = <0 IRQ_TYPE_EDGE_FALLING>;
+> +			ce-gpio = <&gpio 0 GPIO_ACTIVE_HIGH>;
+> +		};
+> +	};
+> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+> index 99029cf..1457fd4 100644
+> --- a/Documentation/devicetree/bindings/vendor-prefixes.txt
+> +++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+> @@ -143,6 +143,7 @@ marvell	Marvell Technology Group Ltd.
+>  maxim	Maxim Integrated Products
+>  mediatek	MediaTek Inc.
+>  melexis	Melexis N.V.
+> +melfas	MELFAS Inc.
+>  merrii	Merrii Technology Co., Ltd.
+>  micrel	Micrel Inc.
+>  microchip	Microchip Technology Inc.
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 630151f..9627cab 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -7155,6 +7155,13 @@ F:	Documentation/scsi/megaraid.txt
+>  F:	drivers/scsi/megaraid.*
+>  F:	drivers/scsi/megaraid/
+>  
+> +MELFAS MIP4 TOUCHSCREEN DRIVER
+> +M:	"Sangwon Jee" <jeesw@melfas.com>
+> +W:	http://www.melfas.com
+> +S:	Supported
+> +F:	drivers/input/touchscreen/melfas_mip4*
+> +F:	Documentation/devicetree/bindings/input/touchscreen/melfas_mip4*
+> +
+>  MELLANOX ETHERNET DRIVER (mlx4_en)
+>  M: 	Eugenia Emantayev <eugenia@mellanox.com>
+>  L:	netdev@vger.kernel.org
+> -- 
+> 1.9.1
+> 
 
 -- 
 Dmitry

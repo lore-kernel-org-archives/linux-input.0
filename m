@@ -1,141 +1,73 @@
-From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH V1 04/10] watchdog: da9061: watchdog driver
-Date: Thu, 6 Oct 2016 09:43:30 +0100
-Message-ID: <cb234a7d84a8a82d6da8ea7e80f48cdee02b9de2.1475743411.git.stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: [PATCH V1 10/10] MAINTAINERS: da9062/61 updates to the Dialog
+ Semiconductor search terms
+Date: Thu, 6 Oct 2016 09:43:31 +0100
+Message-ID: <7b6327b7626d7b7ce35db79d78a228107d6da847.1475743411.git.stwiss.opensource@diasemi.com>
 References: <cover.1475743411.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1475743411.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
-Cc: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1475743411.git.stwiss.opensource@diasemi.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Support Opensource <support.opensource@diasemi.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-Support for the DA9061 watchdog is added into the DA9062 watchdog driver.
+Hi,
 
-The of_device_id match array is expanded to support "dlg,da9061-watchdog"
-as a valid .compatible string. A new watchdog_info structure is added and
-linked to this device tree compatible string in the .data section. Extra
-code is added into the probe function to search-for and assign this match
-data.
+Dialog Semiconductor support would like to add to the MAINTAINERS search
+terms. This update will allow us to follow files for device tree bindings
+and source code relating to input onkey drivers, chip thermal monitoring
+and watchdog timers.
 
-Copyright header is updated to add DA9061 in its description and the module
-description macro is extended to include DA9061.
-
-Kconfig is updated to reflect support for DA9061/62.
-
-Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
 ---
 This patch applies against linux-next and v4.8
+
+Hi,
+
+This patch depends on acceptance of the following from this patch set:
+
+- [PATCH V1 5/10] PMIC temperature monitoring
+
+and also from the following binding file changes:
+
+- [PATCH V1 6/10] Binding for onkey
+- [PATCH V1 7/10] Binding for watchdog
+- [PATCH V1 8/10] Binding for thermal
 
 Regards,
 Steve Twiss, Dialog Semiconductor Ltd.
 
 
- drivers/watchdog/Kconfig      |  4 ++--
- drivers/watchdog/da9062_wdt.c | 24 +++++++++++++++++++++---
- 2 files changed, 23 insertions(+), 5 deletions(-)
+ MAINTAINERS | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 1bffe00..d6b4088 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -104,11 +104,11 @@ config DA9063_WATCHDOG
- 	  This driver can be built as a module. The module name is da9063_wdt.
- 
- config DA9062_WATCHDOG
--	tristate "Dialog DA9062 Watchdog"
-+	tristate "Dialog DA9062/61 Watchdog"
- 	depends on MFD_DA9062
- 	select WATCHDOG_CORE
- 	help
--	  Support for the watchdog in the DA9062 PMIC.
-+	  Support for the watchdog in the DA9062 and DA9061 PMICs.
- 
- 	  This driver can be built as a module. The module name is da9062_wdt.
- 
-diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-index 7386111..5b9d408 100644
---- a/drivers/watchdog/da9062_wdt.c
-+++ b/drivers/watchdog/da9062_wdt.c
-@@ -1,5 +1,5 @@
- /*
-- * da9062_wdt.c - WDT device driver for DA9062
-+ * Watchdog device driver for DA9062 and DA9061 PMICs
-  * Copyright (C) 2015  Dialog Semiconductor Ltd.
-  *
-  * This program is free software; you can redistribute it and/or
-@@ -180,6 +180,11 @@ static const struct watchdog_info da9062_watchdog_info = {
- 	.identity = "DA9062 WDT",
- };
- 
-+static const struct watchdog_info da9061_watchdog_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.identity = "DA9061 WDT",
-+};
-+
- static const struct watchdog_ops da9062_watchdog_ops = {
- 	.owner = THIS_MODULE,
- 	.start = da9062_wdt_start,
-@@ -188,23 +193,35 @@ static const struct watchdog_ops da9062_watchdog_ops = {
- 	.set_timeout = da9062_wdt_set_timeout,
- };
- 
-+static const struct of_device_id da9062_compatible_id_table[] = {
-+	{ .compatible = "dlg,da9062-watchdog", .data = &da9062_watchdog_info },
-+	{ .compatible = "dlg,da9061-watchdog", .data = &da9061_watchdog_info },
-+	{ },
-+};
-+
- static int da9062_wdt_probe(struct platform_device *pdev)
- {
- 	int ret;
- 	struct da9062 *chip;
- 	struct da9062_watchdog *wdt;
-+	const struct of_device_id *match;
- 
- 	chip = dev_get_drvdata(pdev->dev.parent);
- 	if (!chip)
- 		return -EINVAL;
- 
-+	match = of_match_node(da9062_compatible_id_table,
-+			      pdev->dev.of_node);
-+	if (!match)
-+		return -ENXIO;
-+
- 	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
- 	if (!wdt)
- 		return -ENOMEM;
- 
- 	wdt->hw = chip;
- 
--	wdt->wdtdev.info = &da9062_watchdog_info;
-+	wdt->wdtdev.info = (const struct watchdog_info *)match->data;
- 	wdt->wdtdev.ops = &da9062_watchdog_ops;
- 	wdt->wdtdev.min_timeout = DA9062_WDT_MIN_TIMEOUT;
- 	wdt->wdtdev.max_timeout = DA9062_WDT_MAX_TIMEOUT;
-@@ -244,11 +261,12 @@ static struct platform_driver da9062_wdt_driver = {
- 	.remove = da9062_wdt_remove,
- 	.driver = {
- 		.name = "da9062-watchdog",
-+		.of_match_table = da9062_compatible_id_table,
- 	},
- };
- module_platform_driver(da9062_wdt_driver);
- 
- MODULE_AUTHOR("S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>");
--MODULE_DESCRIPTION("WDT device driver for Dialog DA9062");
-+MODULE_DESCRIPTION("WDT device driver for Dialog DA9062 and DA9061");
- MODULE_LICENSE("GPL");
- MODULE_ALIAS("platform:da9062-watchdog");
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f593300..a7fd809 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3752,7 +3752,10 @@ W:	http://www.dialog-semiconductor.com/products
+ S:	Supported
+ F:	Documentation/hwmon/da90??
+ F:	Documentation/devicetree/bindings/mfd/da90*.txt
++F:	Documentation/devicetree/bindings/input/da90??-onkey.txt
++F:	Documentation/devicetree/bindings/thermal/da90??-thermal.txt
+ F:	Documentation/devicetree/bindings/regulator/da92*.txt
++F:	Documentation/devicetree/bindings/watchdog/da92??-wdt.txt
+ F:	Documentation/devicetree/bindings/sound/da[79]*.txt
+ F:	drivers/gpio/gpio-da90??.c
+ F:	drivers/hwmon/da90??-hwmon.c
+@@ -3767,6 +3770,7 @@ F:	drivers/power/da9052-battery.c
+ F:	drivers/power/da91??-*.c
+ F:	drivers/regulator/da903x.c
+ F:	drivers/regulator/da9???-regulator.[ch]
++F:	drivers/thermal/da90??-thermal.c
+ F:	drivers/rtc/rtc-da90??.c
+ F:	drivers/video/backlight/da90??_bl.c
+ F:	drivers/watchdog/da90??_wdt.c
 -- 
 end-of-patch for PATCH V1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,88 +1,80 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: Re: [PATCH 2/2] HID: sony: Update device ids
-Date: Thu, 6 Oct 2016 11:53:03 -0700
-Message-ID: <CANndSKk0Gttb7Vquk+idPww179AzGEdvuFuafbGOLeofK5PNMA@mail.gmail.com>
-References: <1475720335-17447-1-git-send-email-roderick@gaikai.com>
- <1475720335-17447-2-git-send-email-roderick@gaikai.com> <d036f01a80c7d947f2958744ff36a844.squirrel@mungewell.org>
- <CANndSK=SDNjEqFNcAxkM0UGaQdwx1ik0HEVFu9xaMNuqY5FwVA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH 00/19] HID: wacom: Add support for MobileStudio Pro
+Date: Thu,  6 Oct 2016 14:22:12 -0700
+Message-ID: <20161006212231.31440-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f174.google.com ([209.85.217.174]:36264 "EHLO
-        mail-ua0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932652AbcJFSxF (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2016 14:53:05 -0400
-Received: by mail-ua0-f174.google.com with SMTP id r64so26105518uar.3
-        for <linux-input@vger.kernel.org>; Thu, 06 Oct 2016 11:53:04 -0700 (PDT)
-In-Reply-To: <CANndSK=SDNjEqFNcAxkM0UGaQdwx1ik0HEVFu9xaMNuqY5FwVA@mail.gmail.com>
+Received: from mail-qt0-f172.google.com ([209.85.216.172]:36100 "EHLO
+        mail-qt0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935071AbcJFVWk (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2016 17:22:40 -0400
+Received: by mail-qt0-f172.google.com with SMTP id m5so13621557qtb.3
+        for <linux-input@vger.kernel.org>; Thu, 06 Oct 2016 14:22:40 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
+To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Jason Gerecke <killertofu@gmail.com>
 
-Resubmitted the patch with the hid-core changes.
+Wacom announced two new "MobileStudio Pro" tablets yesterday, a third
+iteration of the Cintiq Companion line of mobile PCs which can double
+as external pen displays.
 
-On Wed, Oct 5, 2016 at 9:59 PM, Roderick Colenbrander
-<roderick@gaikai.com> wrote:
->
-> You are right wasn't aware of that. Easy to change tomorrow and will
-> send an updated version.
->
-> On Wed, Oct 5, 2016 at 9:09 PM, Simon Wood <simon@mungewell.org> wrote:
-> > On Wed, October 5, 2016 8:18 pm, Roderick Colenbrander wrote:
-> >> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> >>
-> >>
-> >> Support additional DS4 model.
-> >>
-> >>
-> >> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> >> ---
-> >> drivers/hid/hid-ids.h  | 1 + drivers/hid/hid-sony.c | 4 ++++ 2 files
-> >> changed, 5 insertions(+)
-> >>
-> >> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h index
-> >> cd59c79..27f82cc 100644 --- a/drivers/hid/hid-ids.h
-> >> +++ b/drivers/hid/hid-ids.h
-> >> @@ -899,6 +899,7 @@
-> >> #define USB_DEVICE_ID_SONY_PS3_BDREMOTE               0x0306
-> >> #define USB_DEVICE_ID_SONY_PS3_CONTROLLER     0x0268
-> >> #define USB_DEVICE_ID_SONY_PS4_CONTROLLER     0x05c4
-> >> +#define USB_DEVICE_ID_SONY_PS4_CONTROLLER_2  0x09cc
-> >> #define USB_DEVICE_ID_SONY_MOTION_CONTROLLER  0x03d5
-> >> #define USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER      0x042f
-> >> #define USB_DEVICE_ID_SONY_BUZZ_CONTROLLER            0x0002
-> >> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c index
-> >> c9916cc..3acdb68 100644 --- a/drivers/hid/hid-sony.c
-> >> +++ b/drivers/hid/hid-sony.c
-> >> @@ -2639,6 +2639,10 @@ static const struct hid_device_id sony_devices[] =
-> >> {
-> >> .driver_data = DUALSHOCK4_CONTROLLER_USB },
-> >> { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY,
-> >> USB_DEVICE_ID_SONY_PS4_CONTROLLER),
-> >> .driver_data = DUALSHOCK4_CONTROLLER_BT },
-> >> +     { HID_USB_DEVICE(USB_VENDOR_ID_SONY,
-> >> USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
-> >> +             .driver_data = DUALSHOCK4_CONTROLLER_USB },
-> >> +     { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY,
-> >> USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
-> >> +             .driver_data = DUALSHOCK4_CONTROLLER_BT },
-> >> /* Nyko Core Controller for PS3 */
-> >> { HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE,
-> >> USB_DEVICE_ID_SINO_LITE_CONTROLLER),
-> >> .driver_data = SIXAXIS_CONTROLLER_USB | SINO_LITE_CONTROLLER },
-> >
-> > I think you also need to patch hid-core.c, like:
-> > https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/hid/hid-core.c?id=refs/tags/v4.8#n2057
-> >
-> > Great that these patches are coming... thanks.
-> > Simon
-> >
->
->
->
-> --
-> Roderick Colenbrander
-> Senior Manager of Software Engineering
-> Gaikai, a Sony Computer Entertainment Company
-> roderick@gaikai.com
+Unlike Wacom's prior professional-grade devices, the HID descriptor for
+the MobileStudio Pro includes a rudimentary (but standard!) "Digitizer"
+application collection that is usable by the existing HID_GENERIC codepath.
+Additionally, a second vendor-defined application collection exists which
+fully defines reports that enable full tablet functionality. The numerous
+vendor-defined usages are planned to be used in future professional devices
+as well, allowing us to finally gain some of the same forward compatibility
+benefits we've had for ISDv4 devices since 3.17.
+
+ * Patches 1-3 perform some basic cleanups.
+
+ * Patches 4-6 work on the operation of the driver for all HID_GENERIC
+   devices, correcting minor issues and adding some missing features.
+
+ * Patches 7-19 implement support for the vendor defined usages that
+   are used in the MobileStudio Pro, and which are planned to be used
+   in future professional devices as well.
+
+
+Jiri: Could you let me know whether it would be possible to schedule
+these for the currently-open 4.9 merge window?
+
+
+Jason Gerecke (19):
+  HID: wacom: Update vendor-defined usage names to better match
+    standards
+  HID: wacom: Have WACOM_PEN_FIELD and WACOM_FINGER_FIELD recgonize more
+    fields
+  HID: wacom: Refactor button-to-key translation into function
+  HID: wacom: Detect and correct descriptors missing
+    HID_DG_BARRELSWITCH2
+  HID: wacom: generic: Strip off excessive name prefixing
+  HID: wacom: generic: Add support for height, tilt, and twist usages
+  HID: wacom: generic: Support and use 'Custom HID' mode and usages
+  HID: wacom: generic: Add support for vendor-defined "Distance" usage
+  HID: wacom: generic: Add support for vendor-defined "Fingerwheel"
+    usage
+  HID: wacom: generic: Add support for vendor-defined "Sense" usage
+  HID: wacom: Read and internally use corrected Intuos tool IDs
+  HID: wacom: generic: Support tool ID and additional tool types
+  HID: wacom: generic: Pass 'hdev' to 'wacom_map_usage'
+  HID: wacom: Fix sensor outbounds and redefine as offsets from each
+    edge
+  HID: wacom: generic: Add support for sensor offsets
+  HID: wacom: generic: Introduce pad support
+  HID: wacom: generic: Add support for battery status on pen and pad
+    interfaces
+  HID: wacom: generic: Extend pad support
+  HID: input: Recognize ABS_WHEEL in hidinput_calc_abs_res
+
+ drivers/hid/hid-input.c |   1 +
+ drivers/hid/wacom_sys.c |  92 ++++++--
+ drivers/hid/wacom_wac.c | 544 +++++++++++++++++++++++++++++++++++++++---------
+ drivers/hid/wacom_wac.h |  73 ++++++-
+ include/linux/hid.h     |   4 +
+ 5 files changed, 595 insertions(+), 119 deletions(-)
+
+-- 
+2.10.0
+

@@ -1,75 +1,58 @@
-From: Frank Praznik <frank.praznik@gmail.com>
-Subject: Re: [PATCH 4/5] HID: sony: Send ds4 output reports on output
- end-point
-Date: Wed, 5 Oct 2016 16:35:16 -0400
-Message-ID: <740B6F90-3CBB-45F6-AE7A-CA510D397B92@gmail.com>
-References: <1475636338-3779-1-git-send-email-roderick@gaikai.com>
- <1475636338-3779-5-git-send-email-roderick@gaikai.com>
- <20161005083150.GB19261@mail.corp.redhat.com>
- <5FB6ED86-613A-449C-8D7C-60FD136075C3@gmail.com>
- <4f8de661a2a8be99ddcb284a89d4422c.squirrel@mungewell.org>
-Mime-Version: 1.0 (Mac OS X Mail 10.0 \(3226\))
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+From: Roderick Colenbrander <roderick@gaikai.com>
+Subject: [PATCH 2/2] HID: sony: Update device ids
+Date: Wed,  5 Oct 2016 19:18:55 -0700
+Message-ID: <1475720335-17447-2-git-send-email-roderick@gaikai.com>
+References: <1475720335-17447-1-git-send-email-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:35613 "EHLO
-        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755195AbcJEUfT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2016 16:35:19 -0400
-Received: by mail-qk0-f196.google.com with SMTP id j129so13945898qkd.2
-        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2016 13:35:19 -0700 (PDT)
-In-Reply-To: <4f8de661a2a8be99ddcb284a89d4422c.squirrel@mungewell.org>
+Received: from mail-yw0-f172.google.com ([209.85.161.172]:36511 "EHLO
+        mail-yw0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933689AbcJFCUE (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2016 22:20:04 -0400
+Received: by mail-yw0-f172.google.com with SMTP id u124so4757486ywg.3
+        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2016 19:20:03 -0700 (PDT)
+In-Reply-To: <1475720335-17447-1-git-send-email-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Roderick Colenbrander <roderick@gaikai.com>, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>, Frank Praznik <frank.praznik@oh.rr.com>, Antonio Ospite <ao2@ao2.it>
+To: linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
+From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-> On Oct 5, 2016, at 13:35, Simon Wood <simon@mungewell.org> wrote:
->=20
-> On Wed, October 5, 2016 10:54 am, Frank Praznik wrote:
->> The best answer I can give is "not to my knowledge=E2=80=9D.  Rumble =
-and LEDs
->> have standard kernel interfaces but obviously we can=E2=80=99t =
-guarantee 100% that
->> nobody is using hidraw directly.  Commercial games and engines aren't
->> running as root and thus can=E2=80=99t use hidraw so I think we can =
-safely say
->> that no major commercial software will be broken by this.
->=20
-> There are a couple of projects I know of, but I am unable to say =
-whether
-> they are still active or whether proposed changes will affect them...
-> https://thp.io/2010/psmove/
-> http://moveonpc.blogspot.ca/
-> https://github.com/chrippa/ds4drv
->=20
-> Audio output is one area of the DS4 which is not supported in kernel,
-> maybe some renewed interest can get this working.
->=20
-> I agree with Frank that we should move forward, if something gets =
-broken
-> we can work a better solution.
-> Simon.
->=20
-> acked-by: Simon Wood <simon@mungewell.org>
->=20
->=20
->=20
+Support additional DS4 model.
 
-This change only affects sending rumble/LED output reports to the DS4, =
-so hidraw input reports and sending/receiving feature reports will be =
-unchanged as will anything not in the DS4 codepath (ie. Move =
-controllers).  It looks like ds4drv has both a hidraw backend and one =
-which uses raw Bluetooth sockets.  The raw socket backend should be =
-unaffected, but the hidraw backend will probably have issues.  It should =
-be trivial to patch it to append the CRC to the raw data packet like the =
-kernel module does though.  It also looks like hidraw isn=E2=80=99t the =
-default Bluetooth backend which reduces the odds that it will be an =
-issue even further.
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+---
+ drivers/hid/hid-ids.h  | 1 +
+ drivers/hid/hid-sony.c | 4 ++++
+ 2 files changed, 5 insertions(+)
 
-I=E2=80=99m definitely in favor of moving toward more correct behavior =
-as long as the ds4drv project is given a warning to start sending CRC-ed =
-output reports.
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index cd59c79..27f82cc 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -899,6 +899,7 @@
+ #define USB_DEVICE_ID_SONY_PS3_BDREMOTE		0x0306
+ #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
+ #define USB_DEVICE_ID_SONY_PS4_CONTROLLER	0x05c4
++#define USB_DEVICE_ID_SONY_PS4_CONTROLLER_2	0x09cc
+ #define USB_DEVICE_ID_SONY_MOTION_CONTROLLER	0x03d5
+ #define USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER	0x042f
+ #define USB_DEVICE_ID_SONY_BUZZ_CONTROLLER		0x0002
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index c9916cc..3acdb68 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2639,6 +2639,10 @@ static const struct hid_device_id sony_devices[] = {
+ 		.driver_data = DUALSHOCK4_CONTROLLER_USB },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
+ 		.driver_data = DUALSHOCK4_CONTROLLER_BT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
++		.driver_data = DUALSHOCK4_CONTROLLER_USB },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
++		.driver_data = DUALSHOCK4_CONTROLLER_BT },
+ 	/* Nyko Core Controller for PS3 */
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER),
+ 		.driver_data = SIXAXIS_CONTROLLER_USB | SINO_LITE_CONTROLLER },
+-- 
+2.7.4
 
-acked-by: Frank Praznik <frank.praznik@gmail.com>=

@@ -1,42 +1,33 @@
-From: Sangwon Jee <jeesw@melfas.com>
-Subject: Input: melfas_mip4 - add maintainer information
-Date: Thu,  6 Oct 2016 15:48:03 +0900
-Message-ID: <1475736483-5150-1-git-send-email-jeesw@melfas.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] Input: elantech - add Fujitsu Lifebook E556 to force
+ crc_enabled
+Date: Thu, 6 Oct 2016 09:04:21 +0200
+Message-ID: <20161006070421.GD19261@mail.corp.redhat.com>
+References: <20161006055500.GA9017@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sbs.melfas.com ([39.118.242.30]:44523 "EHLO sbs.melfas.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58602 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753329AbcJFGrr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 6 Oct 2016 02:47:47 -0400
+        id S1752994AbcJFHE1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 6 Oct 2016 03:04:27 -0400
+Content-Disposition: inline
+In-Reply-To: <20161006055500.GA9017@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, jeesw@melfas.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, Ulrik De Bie <ulrik.debie-os@e2big.org>, William Linna <william.linna@gmail.com>, linux-kernel@vger.kernel.org
 
-Add maintainer information.
+On Oct 05 2016 or thereabouts, Dmitry Torokhov wrote:
+> Another Lifebook machine that needs the same quirk as other similar
+> models to make the driver working.
+> 
+> Also let's reorder elantech_dmi_force_crc_enabled list so LIfebook enries
+> are in alphabetical order.
+> 
+> Reported-by: William Linna <william.linna@gmail.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Signed-off-by: Sangwon Jee <jeesw@melfas.com>
----
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 630151f..f88e97e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7155,6 +7155,13 @@ F:	Documentation/scsi/megaraid.txt
- F:	drivers/scsi/megaraid.*
- F:	drivers/scsi/megaraid/
- 
-+MELFAS MIP4 TOUCHSCREEN DRIVER
-+M:	Sangwon Jee <jeesw@melfas.com>
-+W:	http://www.melfas.com
-+S:	Supported
-+F:	drivers/input/touchscreen/melfas_mip4*
-+F:	Documentation/devicetree/bindings/input/touchscreen/melfas_mip4*
-+
- MELLANOX ETHERNET DRIVER (mlx4_en)
- M: 	Eugenia Emantayev <eugenia@mellanox.com>
- L:	netdev@vger.kernel.org
--- 
-1.9.1
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 

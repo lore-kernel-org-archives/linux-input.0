@@ -1,57 +1,55 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 09/19] HID: wacom: generic: Add support for vendor-defined "Fingerwheel" usage
-Date: Thu,  6 Oct 2016 14:22:21 -0700
-Message-ID: <20161006212231.31440-10-killertofu@gmail.com>
+Subject: [PATCH 19/19] HID: input: Recognize ABS_WHEEL in hidinput_calc_abs_res
+Date: Thu,  6 Oct 2016 14:22:31 -0700
+Message-ID: <20161006212231.31440-20-killertofu@gmail.com>
 References: <20161006212231.31440-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f196.google.com ([209.85.216.196]:33922 "EHLO
-        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935190AbcJFVWz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2016 17:22:55 -0400
-Received: by mail-qt0-f196.google.com with SMTP id f6so835468qtd.1
-        for <linux-input@vger.kernel.org>; Thu, 06 Oct 2016 14:22:54 -0700 (PDT)
+Received: from mail-qk0-f193.google.com ([209.85.220.193]:34472 "EHLO
+        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935088AbcJFVXJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2016 17:23:09 -0400
+Received: by mail-qk0-f193.google.com with SMTP id n189so1666651qke.1
+        for <linux-input@vger.kernel.org>; Thu, 06 Oct 2016 14:23:09 -0700 (PDT)
 In-Reply-To: <20161006212231.31440-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Jason Gerecke <killertofu@gmail.com>
 
-The airbrush fingerwheel does not have a usage that corresponds cleanly
-with a standard HID usage, so we add explicit support for it via its
-vendor-defined usage.
+The "Steering" usage (HID_UP_SIMULATION | 0xc8) is defined in HUT 1.12 as
+follows:
+
+"A steering wheel is a single degree-of-freedom device that rotates about
+an axis. The zero position is always the neutral or 'straight ahead'
+position, with positive values turning clockwise and negative values
+turning counterclockwise. If the Coordinate Values Wrap attribute is
+set, the steering wheel can be turned past 360 degrees."
+
+The hidinput_configure_usage function canonically maps this usage to the
+ABS_WHEEL axis, but hidinput_calc_abs_res does not recognize this axis
+as one for which it can calculate a resolution. This effectively prevents
+wheels from being assigned a proper resolution that userspace can use
+to determine the precise angle of input.
+
+This commit adds ABS_WHEEL as a rotational axis to hidinput_calc_abs_res.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 ---
- drivers/hid/wacom_wac.c | 3 +++
- drivers/hid/wacom_wac.h | 1 +
- 2 files changed, 4 insertions(+)
+ drivers/hid/hid-input.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index aa51684..009c25d 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1539,6 +1539,9 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
- 	case HID_DG_TOOLSERIALNUMBER:
- 		wacom_map_usage(input, usage, field, EV_MSC, MSC_SERIAL, 0);
- 		break;
-+	case WACOM_HID_WD_FINGERWHEEL:
-+		wacom_map_usage(input, usage, field, EV_ABS, ABS_WHEEL, 0);
-+		break;
- 	}
- }
- 
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 1ced6e4..18cae38 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -89,6 +89,7 @@
- #define WACOM_HID_SP_DIGITIZERINFO      0x00100000
- #define WACOM_HID_WD_DIGITIZER          (WACOM_HID_UP_WACOMDIGITIZER | 0x01)
- #define WACOM_HID_WD_DISTANCE           (WACOM_HID_UP_WACOMDIGITIZER | 0x0132)
-+#define WACOM_HID_WD_FINGERWHEEL        (WACOM_HID_UP_WACOMDIGITIZER | 0x0d03)
- #define WACOM_HID_WD_DATAMODE           (WACOM_HID_UP_WACOMDIGITIZER | 0x1002)
- #define WACOM_HID_UP_G9                 0xff090000
- #define WACOM_HID_G9_PEN                (WACOM_HID_UP_G9 | 0x02)
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index bcfaf32..81d35e9 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -253,6 +253,7 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
+ 	case ABS_RX:
+ 	case ABS_RY:
+ 	case ABS_RZ:
++	case ABS_WHEEL:
+ 	case ABS_TILT_X:
+ 	case ABS_TILT_Y:
+ 		if (field->unit == 0x14) {		/* If degrees */
 -- 
 2.10.0
 

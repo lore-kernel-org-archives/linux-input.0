@@ -1,29 +1,24 @@
 From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH V1 09/10] Documentation: dt: mfd: da9062/61 MFD binding
-Date: Thu, 6 Oct 2016 09:43:31 +0100
-Message-ID: <7a21f22bd62817b63ba64e11eecadfb78338ee46.1475743411.git.stwiss.opensource@diasemi.com>
+Subject: [PATCH V1 06/10] Documentation: dt: input: temperature driver
+Date: Thu, 6 Oct 2016 09:43:30 +0100
+Message-ID: <313a15d14dd20a8cb8ac99a4cd423798343c5b65.1475743411.git.stwiss.opensource@diasemi.com>
 References: <cover.1475743411.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <cover.1475743411.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
 From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-Extend existing DA9062 binding information to include the DA9061 PMIC for
-MFD core and regulators.
+Add binding information for DA9061 onkey.
 
-Add a da9062-onkey link to the existing onkey binding file.
-
-Add a da9062-thermal link to the new temperature monitoring binding file
-found in [PATCH V1 8/10].
-
-Delete the da9062-watchdog section and replace it with a link to the new
-DA9061/62 binding information file added by [PATCH V1 7/10].
+This patch updates the compatible string "dlg,da9061-onkey" to support
+DA9061, removes ther reference to KEY_SLEEP (which the driver no longer
+supports) and fixes a typo in the example.
 
 Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
@@ -32,120 +27,58 @@ This patch applies against linux-next and v4.8
 
 Hi,
 
-This patch depends on acceptance of the main code for the DA9061 MFD:
-
-- [PATCH V1 1/10] mfd: da9061: MFD core support
-
-and also from the following binding file changes:
-
-- [PATCH V1 6/10] Binding for onkey
-- [PATCH V1 7/10] Binding for watchdog
-- [PATCH V1 8/10] Binding for thermal
+This patch depends on the acceptance of the main code for the onkey:
+  [PATCH V1 3/10] Input: da9061: onkey driver.
 
 Regards,
 Steve Twiss, Dialog Semiconductor Ltd.
 
 
- Documentation/devicetree/bindings/mfd/da9062.txt | 45 +++++++++++++++++-------
- 1 file changed, 33 insertions(+), 12 deletions(-)
+ .../devicetree/bindings/input/da9062-onkey.txt        | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
-index 38802b5..38ba5e2 100644
---- a/Documentation/devicetree/bindings/mfd/da9062.txt
-+++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-@@ -1,22 +1,32 @@
- * Dialog DA9062 Power Management Integrated Circuit (PMIC)
+diff --git a/Documentation/devicetree/bindings/input/da9062-onkey.txt b/Documentation/devicetree/bindings/input/da9062-onkey.txt
+index ab0e048..ce45436 100644
+--- a/Documentation/devicetree/bindings/input/da9062-onkey.txt
++++ b/Documentation/devicetree/bindings/input/da9062-onkey.txt
+@@ -1,28 +1,27 @@
+-* Dialog DA9062/63 OnKey Module
++* Dialog DA9061/62/63 OnKey Module
  
--DA9062 consists of a large and varied group of sub-devices:
-+The DA9062 driver is compatible with the DA9062 and DA9061 devices.
-+
-+Product information can be found here:
-+- http://www.dialog-semiconductor.com/products/da9062
-+- http://www.dialog-semiconductor.com/products/da9061
-+
-+DA9062 driver consists of a large and varied group of sub-devices:
+-This module is part of the DA9062/DA9063. For more details about entire
+-chips see Documentation/devicetree/bindings/mfd/da9062.txt and
+-Documentation/devicetree/bindings/mfd/da9063.txt
++This module is part of the DA9061/DA9062/DA9063. For more details about entire
++DA9062 and DA9061 chips see Documentation/devicetree/bindings/mfd/da9062.txt
++For DA9063 see Documentation/devicetree/bindings/mfd/da9063.txt
  
- Device                   Supply Names    Description
- ------                   ------------    -----------
- da9062-regulator        :               : LDOs & BUCKs
- da9062-rtc              :               : Real-Time Clock
-+da9062-onkey            :               : On Key
- da9062-watchdog         :               : Watchdog Timer
-+da9062-thermal          :               : Thermal
- 
- ======
+-This module provides KEY_POWER, KEY_SLEEP and events.
++This module provides the KEY_POWER event.
  
  Required properties:
  
--- compatible : Should be "dlg,da9062".
-+- compatible : Should be
-+    "dlg,da9062" for DA9062
-+    "dlg,da9061" for DA9061
- - reg : Specifies the I2C slave address (this defaults to 0x58 but it can be
-   modified to match the chip's OTP settings).
- - interrupt-parent : Specifies the reference to the interrupt controller for
--  the DA9062.
-+  the DA9062 or DA9061.
- - interrupts : IRQ line information.
- - interrupt-controller
+ - compatible: should be one of:
++	dlg,da9061-onkey
+ 	dlg,da9062-onkey
+ 	dlg,da9063-onkey
  
-@@ -25,8 +35,8 @@ further information on IRQ bindings.
+ Optional properties:
  
- Sub-nodes:
- 
--- regulators : This node defines the settings for the LDOs and BUCKs. The
--  DA9062 regulators are bound using their names listed below:
-+- regulators : This node defines the settings for the LDOs and BUCKs.
-+  The DA9062 regulators are bound using their names listed below:
- 
-     buck1    : BUCK_1
-     buck2    : BUCK_2
-@@ -37,6 +47,16 @@ Sub-nodes:
-     ldo3     : LDO_3
-     ldo4     : LDO_4
- 
-+  The DA9061 regulators are bound using their names listed below:
-+
-+    buck1    : BUCK_1
-+    buck2    : BUCK_2
-+    buck3    : BUCK_3
-+    ldo1     : LDO_1
-+    ldo2     : LDO_2
-+    ldo3     : LDO_3
-+    ldo4     : LDO_4
-+
-   The component follows the standard regulator framework and the bindings
-   details of individual regulator device can be found in:
-   Documentation/devicetree/bindings/regulator/regulator.txt
-@@ -46,9 +66,14 @@ Sub-nodes:
-   with the DA9062. There are currently no entries in this binding, however
-   compatible = "dlg,da9062-rtc" should be added if a node is created.
- 
--- watchdog: This node defines the settings for the watchdog driver associated
--  with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
--  if a node is created.
-+
-+- onkey : See ../input/da9062-onkey.txt
-+
-+
-+- watchdog: See ../watchdog/da9062-watchdog.txt
-+
-+
-+- thermal : See ../thermal/da9062-thermal.txt
- 
+-  - dlg,disable-key-power : Disable power-down using a long key-press. If this
++- dlg,disable-key-power : Disable power-down using a long key-press. If this
+     entry exists the OnKey driver will remove support for the KEY_POWER key
+-    press. If this entry does not exist then by default the key-press
+-    triggered power down is enabled and the OnKey will support both KEY_POWER
+-    and KEY_SLEEP.
++    press when triggered using a long press of the OnKey.
  
  Example:
-@@ -64,10 +89,6 @@ Example:
- 			compatible = "dlg,da9062-rtc";
- 		};
  
--		watchdog {
--			compatible = "dlg,da9062-watchdog";
--		};
--
- 		regulators {
- 			DA9062_BUCK1: buck1 {
- 				regulator-name = "BUCK1";
+-	pmic0: da9062@58 {
++	pmic0: da9063@58 {
+ 
+ 		onkey {
+ 			compatible = "dlg,da9063-onkey";
 -- 
 end-of-patch for PATCH V1
 

@@ -1,105 +1,168 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 18/19] HID: wacom: generic: Extend pad support
-Date: Thu,  6 Oct 2016 14:22:30 -0700
-Message-ID: <20161006212231.31440-19-killertofu@gmail.com>
+Subject: [PATCH 13/19] HID: wacom: generic: Pass 'hdev' to 'wacom_map_usage'
+Date: Thu,  6 Oct 2016 14:22:25 -0700
+Message-ID: <20161006212231.31440-14-killertofu@gmail.com>
 References: <20161006212231.31440-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f195.google.com ([209.85.220.195]:36519 "EHLO
-        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935088AbcJFVXI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2016 17:23:08 -0400
-Received: by mail-qk0-f195.google.com with SMTP id z190so1660936qkc.3
-        for <linux-input@vger.kernel.org>; Thu, 06 Oct 2016 14:23:08 -0700 (PDT)
+Received: from mail-qt0-f195.google.com ([209.85.216.195]:36438 "EHLO
+        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935088AbcJFVXB (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2016 17:23:01 -0400
+Received: by mail-qt0-f195.google.com with SMTP id y38so833218qta.3
+        for <linux-input@vger.kernel.org>; Thu, 06 Oct 2016 14:23:00 -0700 (PDT)
 In-Reply-To: <20161006212231.31440-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Jason Gerecke <killertofu@gmail.com>
 
-The HID specification that the MobileStudio Pro follows includes usages
-for several values that would be good to support so that future devices
-"just work" out of the box. Extend the HID_GENERIC pad codepath to handle
-these usages.
+In the following "Add support for sensor offsets" patch we'll need access
+to the 'features' struct within 'wacom_map_usage', so update the function
+signature and calls to include a reference to the HID device so this can
+be done.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 ---
- drivers/hid/wacom_wac.c | 15 +++++++++++++++
- drivers/hid/wacom_wac.h |  5 +++++
- 2 files changed, 20 insertions(+)
+ drivers/hid/wacom_wac.c | 53 ++++++++++++++++++++++++++-----------------------
+ 1 file changed, 28 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index f75ffae..4f449a0 100644
+index f2aadc4..8f493cc 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -1457,6 +1457,8 @@ static int wacom_equivalent_usage(int usage)
- 		    usage == WACOM_HID_WD_SERIALHI ||
- 		    usage == WACOM_HID_WD_TOOLTYPE ||
- 		    usage == WACOM_HID_WD_DISTANCE ||
-+		    usage == WACOM_HID_WD_TOUCHSTRIP ||
-+		    usage == WACOM_HID_WD_TOUCHSTRIP2 ||
- 		    usage == WACOM_HID_WD_TOUCHRING ||
- 		    usage == WACOM_HID_WD_TOUCHRINGSTATUS) {
- 			return usage;
-@@ -1513,6 +1515,9 @@ static void wacom_map_usage(struct input_dev *input, struct hid_device *hdev,
- 	case EV_MSC:
- 		input_set_capability(input, EV_MSC, code);
- 		break;
-+	case EV_SW:
-+		input_set_capability(input, EV_SW, code);
-+		break;
- 	}
+@@ -1465,9 +1465,12 @@ static int wacom_equivalent_usage(int usage)
+ 	return usage;
  }
  
-@@ -1547,11 +1552,21 @@ static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
- 	case WACOM_HID_WD_BUTTONDOWN:
- 	case WACOM_HID_WD_BUTTONLEFT:
- 	case WACOM_HID_WD_BUTTONRIGHT:
-+	case WACOM_HID_WD_BUTTONCENTER:
- 		wacom_map_usage(input, hdev, usage, field, EV_KEY,
- 				wacom_numbered_button_to_key(features->numbered_buttons),
- 				0);
- 		features->numbered_buttons++;
+-static void wacom_map_usage(struct input_dev *input, struct hid_usage *usage,
+-		struct hid_field *field, __u8 type, __u16 code, int fuzz)
++static void wacom_map_usage(struct input_dev *input, struct hid_device *hdev,
++		struct hid_usage *usage, struct hid_field *field, __u8 type,
++		__u16 code, int fuzz)
+ {
++	struct wacom *wacom = hid_get_drvdata(hdev);
++	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+ 	int fmin = field->logical_minimum;
+ 	int fmax = field->logical_maximum;
+ 	unsigned int equivalent_usage = wacom_equivalent_usage(usage->hid);
+@@ -1508,53 +1511,53 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ 
+ 	switch (equivalent_usage) {
+ 	case HID_GD_X:
+-		wacom_map_usage(input, usage, field, EV_ABS, ABS_X, 4);
++		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_X, 4);
  		break;
-+	case WACOM_HID_WD_TOUCHONOFF:
-+		wacom_map_usage(input, hdev, usage, field, EV_SW, SW_MUTE_DEVICE, 0);
-+		break;
-+	case WACOM_HID_WD_TOUCHSTRIP:
-+		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_RX, 0);
-+		break;
-+	case WACOM_HID_WD_TOUCHSTRIP2:
-+		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_RY, 0);
-+		break;
- 	case WACOM_HID_WD_TOUCHRING:
- 		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_WHEEL, 0);
+ 	case HID_GD_Y:
+-		wacom_map_usage(input, usage, field, EV_ABS, ABS_Y, 4);
++		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_Y, 4);
  		break;
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index fa5b772..f70f7fd 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -96,6 +96,8 @@
- #define WACOM_HID_WD_SERIALHI           (WACOM_HID_UP_WACOMDIGITIZER | 0x5c)
- #define WACOM_HID_WD_TOOLTYPE           (WACOM_HID_UP_WACOMDIGITIZER | 0x77)
- #define WACOM_HID_WD_DISTANCE           (WACOM_HID_UP_WACOMDIGITIZER | 0x0132)
-+#define WACOM_HID_WD_TOUCHSTRIP         (WACOM_HID_UP_WACOMDIGITIZER | 0x0136)
-+#define WACOM_HID_WD_TOUCHSTRIP2        (WACOM_HID_UP_WACOMDIGITIZER | 0x0137)
- #define WACOM_HID_WD_TOUCHRING          (WACOM_HID_UP_WACOMDIGITIZER | 0x0138)
- #define WACOM_HID_WD_TOUCHRINGSTATUS    (WACOM_HID_UP_WACOMDIGITIZER | 0x0139)
- #define WACOM_HID_WD_ACCELEROMETER_X    (WACOM_HID_UP_WACOMDIGITIZER | 0x0401)
-@@ -104,11 +106,14 @@
- #define WACOM_HID_WD_BATTERY_CHARGING   (WACOM_HID_UP_WACOMDIGITIZER | 0x0404)
- #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
- #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
-+#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0950)
- #define WACOM_HID_WD_BUTTONHOME         (WACOM_HID_UP_WACOMDIGITIZER | 0x0990)
- #define WACOM_HID_WD_BUTTONUP           (WACOM_HID_UP_WACOMDIGITIZER | 0x0991)
- #define WACOM_HID_WD_BUTTONDOWN         (WACOM_HID_UP_WACOMDIGITIZER | 0x0992)
- #define WACOM_HID_WD_BUTTONLEFT         (WACOM_HID_UP_WACOMDIGITIZER | 0x0993)
- #define WACOM_HID_WD_BUTTONRIGHT        (WACOM_HID_UP_WACOMDIGITIZER | 0x0994)
-+#define WACOM_HID_WD_BUTTONCENTER       (WACOM_HID_UP_WACOMDIGITIZER | 0x0995)
-+#define WACOM_HID_WD_TOUCHONOFF         (WACOM_HID_UP_WACOMDIGITIZER | 0x0996)
- #define WACOM_HID_WD_FINGERWHEEL        (WACOM_HID_UP_WACOMDIGITIZER | 0x0d03)
- #define WACOM_HID_WD_OFFSETLEFT         (WACOM_HID_UP_WACOMDIGITIZER | 0x0d30)
- #define WACOM_HID_WD_OFFSETTOP          (WACOM_HID_UP_WACOMDIGITIZER | 0x0d31)
+ 	case WACOM_HID_WD_DISTANCE:
+ 	case HID_GD_Z:
+-		wacom_map_usage(input, usage, field, EV_ABS, ABS_DISTANCE, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_DISTANCE, 0);
+ 		break;
+ 	case HID_DG_TIPPRESSURE:
+-		wacom_map_usage(input, usage, field, EV_ABS, ABS_PRESSURE, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_PRESSURE, 0);
+ 		break;
+ 	case HID_DG_INRANGE:
+-		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
+ 		break;
+ 	case HID_DG_INVERT:
+-		wacom_map_usage(input, usage, field, EV_KEY,
++		wacom_map_usage(input, hdev, usage, field, EV_KEY,
+ 				BTN_TOOL_RUBBER, 0);
+ 		break;
+ 	case HID_DG_TILT_X:
+-		wacom_map_usage(input, usage, field, EV_ABS, ABS_TILT_X, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_TILT_X, 0);
+ 		break;
+ 	case HID_DG_TILT_Y:
+-		wacom_map_usage(input, usage, field, EV_ABS, ABS_TILT_Y, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_TILT_Y, 0);
+ 		break;
+ 	case HID_DG_TWIST:
+-		wacom_map_usage(input, usage, field, EV_ABS, ABS_Z, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_Z, 0);
+ 		break;
+ 	case HID_DG_ERASER:
+ 	case HID_DG_TIPSWITCH:
+-		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOUCH, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_TOUCH, 0);
+ 		break;
+ 	case HID_DG_BARRELSWITCH:
+-		wacom_map_usage(input, usage, field, EV_KEY, BTN_STYLUS, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_STYLUS, 0);
+ 		break;
+ 	case HID_DG_BARRELSWITCH2:
+-		wacom_map_usage(input, usage, field, EV_KEY, BTN_STYLUS2, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_STYLUS2, 0);
+ 		break;
+ 	case HID_DG_TOOLSERIALNUMBER:
+-		wacom_map_usage(input, usage, field, EV_MSC, MSC_SERIAL, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_MSC, MSC_SERIAL, 0);
+ 		break;
+ 	case WACOM_HID_WD_SENSE:
+ 		features->quirks |= WACOM_QUIRK_SENSE;
+-		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
+ 		break;
+ 	case WACOM_HID_WD_SERIALHI:
+-		wacom_map_usage(input, usage, field, EV_ABS, ABS_MISC, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_MISC, 0);
+ 		set_bit(EV_KEY, input->evbit);
+ 		input_set_capability(input, EV_KEY, BTN_TOOL_PEN);
+ 		input_set_capability(input, EV_KEY, BTN_TOOL_RUBBER);
+@@ -1565,7 +1568,7 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ 		input_set_capability(input, EV_KEY, BTN_TOOL_LENS);
+ 		break;
+ 	case WACOM_HID_WD_FINGERWHEEL:
+-		wacom_map_usage(input, usage, field, EV_ABS, ABS_WHEEL, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_WHEEL, 0);
+ 		break;
+ 	}
+ }
+@@ -1722,24 +1725,24 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+ 	case HID_GD_X:
+ 		features->last_slot_field = usage->hid;
+ 		if (touch_max == 1)
+-			wacom_map_usage(input, usage, field, EV_ABS, ABS_X, 4);
++			wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_X, 4);
+ 		else
+-			wacom_map_usage(input, usage, field, EV_ABS,
++			wacom_map_usage(input, hdev, usage, field, EV_ABS,
+ 					ABS_MT_POSITION_X, 4);
+ 		break;
+ 	case HID_GD_Y:
+ 		features->last_slot_field = usage->hid;
+ 		if (touch_max == 1)
+-			wacom_map_usage(input, usage, field, EV_ABS, ABS_Y, 4);
++			wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_Y, 4);
+ 		else
+-			wacom_map_usage(input, usage, field, EV_ABS,
++			wacom_map_usage(input, hdev, usage, field, EV_ABS,
+ 					ABS_MT_POSITION_Y, 4);
+ 		break;
+ 	case HID_DG_WIDTH:
+ 	case HID_DG_HEIGHT:
+ 		features->last_slot_field = usage->hid;
+-		wacom_map_usage(input, usage, field, EV_ABS, ABS_MT_TOUCH_MAJOR, 0);
+-		wacom_map_usage(input, usage, field, EV_ABS, ABS_MT_TOUCH_MINOR, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_MT_TOUCH_MAJOR, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_MT_TOUCH_MINOR, 0);
+ 		input_set_abs_params(input, ABS_MT_ORIENTATION, 0, 1, 0, 0);
+ 		break;
+ 	case HID_DG_CONTACTID:
+@@ -1753,7 +1756,7 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+ 		break;
+ 	case HID_DG_TIPSWITCH:
+ 		features->last_slot_field = usage->hid;
+-		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOUCH, 0);
++		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_TOUCH, 0);
+ 		break;
+ 	case HID_DG_CONTACTCOUNT:
+ 		wacom_wac->hid_data.cc_report = field->report->id;
 -- 
 2.10.0
 

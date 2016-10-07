@@ -1,132 +1,122 @@
-From: Gary King <gary.king@oculus.com>
-Subject: Re: [PATCH] hidraw: fix list->buffer race condition
-Date: Fri, 7 Oct 2016 10:30:19 -0700
-Message-ID: <alpine.OSX.1.10.1610071027351.23556@cromulentg-mba.local>
-References: <1475628266-4767-1-git-send-email-gary.king@oculus.com> <alpine.LNX.2.00.1610071038340.31629@cbobk.fhfr.pm>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V1 05/10] thermal: da9062/61: Thermal junction
+ temperature monitoring driver
+Date: Fri, 7 Oct 2016 17:48:56 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE2815@SW-EX-MBX02.diasemi.com>
+References: <cover.1475743411.git.stwiss.opensource@diasemi.com>
+ <b5ce58ca00f7ab30a025d24083549241f135b0e9.1475743411.git.stwiss.opensource@diasemi.com>
+ <3bc9fd76-2885-b07a-9df8-7802b7535da2@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:43008 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1757021AbcJGRbA (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 7 Oct 2016 13:31:00 -0400
-In-Reply-To: <alpine.LNX.2.00.1610071038340.31629@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <3bc9fd76-2885-b07a-9df8-7802b7535da2@ti.com>
+Content-Language: en-US
+Sender: linux-pm-owner@vger.kernel.org
+To: Keerthy <a0393675@ti.com>, Eduardo Valentin <edubezval@gmail.com>, Zhang Rui <rui.zhang@intel.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Gary King <gary.king@oculus.com>, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
 
-Hi Jiri,
+Hi,
 
-> > hidraw input events are stored for each file descriptor in a lockless
-> > circular queue. 
+On 07 October 2016 06:29, Keerthy [mailto:a0393675@ti.com] wrote:
+> On Thursday 06 October 2016 02:13 PM, Steve Twiss wrote:
+> > From: Steve Twiss <stwiss.opensource@diasemi.com>
+
+[...]
+
+> > +
+> > +static int da9062_thermal_get_trip_type(struct thermal_zone_device *z,
+> > +				int trip,
+> > +				enum thermal_trip_type *type)
+> > +{
+> > +	struct da9062_thermal *thermal = z->devdata;
+> > +
+> > +	switch (trip) {
+> > +	case 0:
+> > +		*type = THERMAL_TRIP_HOT;
 > 
-> Well, there is a per-hidraw device list_lock; but you're right that it's 
-> usage throughout hidraw.c is probably incomplete and that should be fixed.
-
-The complication with list_lock is that it is a spin-lock (and IRQ-safe
-at that), and I did not want to introduce multiple IRQ-safe spinlock
-acquires in hidraw_read (either via list_lock or by addings a per-fd
-spinlock) without a substantially better test configuration than my
-environment is able to accommodate.
-
-> > ---
-> >  drivers/hid/hidraw.c | 7 ++++++-
-> >  1 file changed, 6 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-> > index f0e2757..dc3465f 100644
-> > --- a/drivers/hid/hidraw.c
-> > +++ b/drivers/hid/hidraw.c
-> > @@ -53,6 +53,7 @@ static ssize_t hidraw_read(struct file *file, char __user *buffer, size_t count,
-> >  	mutex_lock(&list->read_mutex);
-> >  
-> >  	while (ret == 0) {
-> > +		smp_rmb();
+> 125C is pretty hot. Just a suggestion, do look at THERMAL_TRIP_CRITICAL.
 > 
-> Which _wmb() does this one pair with?
 
-The _rmb() operations don't really pair with the _wmb(), and aren't
-needed for correctness (I should have cleaned this up before providing 
-the patch, sorry). Using _rmb() here (and below) reduces rare chances
-that the buffer is incorrectly detected as full / empty due to reads
-being reordered across loop iterations when a second core enters
-_read() / _report_event().
+Quite warm.
+I got this from the Documentation/devicetree/bindings/thermal/thermal.txt
+	"hot":		A trip point to notify emergency
+	"critical":	Hardware not reliable.
 
-> >  		if (list->head == list->tail) {
-> >  			add_wait_queue(&list->hidraw->wait, &wait);
-> >  			set_current_state(TASK_INTERRUPTIBLE);
-> > @@ -98,7 +99,9 @@ static ssize_t hidraw_read(struct file *file, char __user *buffer, size_t count,
-> >  
-> >  		kfree(list->buffer[list->tail].value);
-> >  		list->buffer[list->tail].value = NULL;
-> > +		smp_wmb();
-> >  		list->tail = (list->tail + 1) & (HIDRAW_BUFFER_SIZE - 1);
-> > +		smp_wmb();
+The junction temperature supervision characteristics for DA9061 supports three
+levels and 125degC is the lowest "warning" level.  This warning level is intended
+for non-invasive temperature control where the necessary mitigation is under
+software control of the system.
+
+The other two levels are hotter than 125degC and it is not possible to intervene
+using software. The hardware will automatically power off.
+
+[...]
+
+> > +static int da9062_thermal_notify(struct thermal_zone_device *z,
+> > +				 int trip,
+> > +				 enum thermal_trip_type type)
+> > +{
+> > +	struct da9062_thermal *thermal = z->devdata;
+> > +
+> > +	switch (type) {
+> > +	case THERMAL_TRIP_HOT:
+> > +		dev_warn(thermal->dev, "Reached HOT (125degC)
+> temperature\n");
 > 
-> This is completely confusing; it seems like you imply that those two 
-> _wmb() should pair together, but that makes no sense. Please always, when 
-> using SMP barriers, document which _rmb() pairs to which _wmb(), otherwise 
-> the rules become quickly totally unclear.
+> Any cooling action? What is done once you reach this high temperature?
 
-Upon further review, I believe the second _wmb is unnecessary, and
-redundant with memory barrier operations performed either by subsequent
-loop iterations or by the mutex_unlock operation (I originally included it
-to reduce the window in which a free entry in the circular queue was
-unobservable to other cores, forgetting that the barrier would also be
-provided by subsequent loop iterations or the mutex_unlock below).
+There is nothing to do in the device driver. This is just a stub for board specific additions
+to mitigate the temperature. There is a similar function in the  RCAR thermal driver which
+contains a FIXME comment. But, apart from helping with my testing, it doesn't add
+anything in the driver. It can be removed.
 
-The fundamental problem we encountered was that changes to the list->tail 
-and list->head values were visible on other processors before the 
-corresponding changes to list->buffer and list->buffer[N].
+[...]
 
-> >  	}
-> >  out:
-> >  	mutex_unlock(&list->read_mutex);
-> > @@ -487,7 +490,7 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
-> >  	spin_lock_irqsave(&dev->list_lock, flags);
-> >  	list_for_each_entry(list, &dev->list, node) {
-> >  		int new_head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
-> > -
-> > +		smp_rmb();
-> >  		if (new_head == list->tail)
+> > +static const struct da9062_thermal_config da9062_config = {
+> > +	.name = "da9062-thermal",
+> > +};
+> > +
+> > +static const struct da9062_thermal_config da9061_config = {
+> > +	.name = "da9061-thermal",
+> > +};
+> > +
+> > +static const struct of_device_id da9062_compatible_reg_id_table[] = {
+> > +	{ .compatible = "dlg,da9062-thermal", .data = &da9062_config },
+> > +	{ .compatible = "dlg,da9061-thermal", .data = &da9061_config },
 > 
-> Again, which _wmb() does this one pair with please?
->
-> >  			continue;
-> >  
-> > @@ -496,7 +499,9 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
-> >  			break;
-> >  		}
-> >  		list->buffer[list->head].len = len;
-> > +		smp_wmb();
-> >  		list->head = new_head;
-> > +		smp_wmb();
+> Two separate compatible values. Do you have anything different apart
+> from the name? Why use 2 compatibles when there is absolutely no
+> difference?
+
+Yes.
+This was a comment for the watchdog device driver as well. My concern was having 
+multiple devices (61 and 62) in the same system -- and allowing the driver to report 
+the hardware difference.
+
+There is discussion going on about this in other threads. Not certain of the final outcome
+yet, apart from my existing proposal should be changed.
+
+-- From Guenter Roeck:
+-- http://www.spinics.net/lists/linux-watchdog/msg10040.html
+
+[...]
+
+> > +	INIT_DELAYED_WORK(&thermal->work, da9062_thermal_poll_on);
+> > +	mutex_init(&thermal->lock);
 > 
-> Same as in hidraw_read(), I completely fail to see the point of having two 
-> here. Which read side does each of those pair with?
+> thermal_zone_device_register itself does
+> INIT_DELAYED_WORK(&(tz->poll_queue), thermal_zone_device_check);
 > 
-> I think this is just papering the real problem (missing list_lock) over in 
-> an odd way; could you please look into whether locking list_lock properly 
-> would resolve the crashes you're able to trigger on your ARM system?
+> refer: drivers/thermal/thermal_core.c
+> 
+> It does a periodic monitoring of the temperature as well. Do you really
+> want to have an additional work for monitoring temperature in your
+> driver also?
 
-list_lock does not appear to be a good solution for this, since it is
-currently an IRQ-safe spinlock on the device. Using it would cause 
-_read() to have unnecessary lock contention if the device is opened 
-and read simultaneously from multiple fds, and every loop iteration would 
-need to acquire the spinlock / disable interrupts at least once.
+I will take a look at this for V2.
 
-(Separately, the current locking design seems dangerous to me, since the 
-amount of time spent with interrupts disabled in the current 
-implementation may be arbitrarily long (the device may be opened
-multiple times, and the hidraw event buffer that is kmemdup'd for each
-open fd may be large), but I wanted to supply a patch that fixed the
-crash before embarking on any more substantial changes to the stack.)
+Regards,
+Steve
 
-The patch I supplied should be functionally correct when reduced to just 
-two calls to smp_wmb(): one preceding the update to list->tail in 
-_read(), one preceding the update to list-head in _report_event(). I'm 
-happy to make and test this change.
-
-- Gary

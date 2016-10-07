@@ -1,107 +1,64 @@
-From: Schrempf Frieder <frieder.schrempf@exceet.de>
-Subject: [PATCH v2 3/3] input: pwm-beeper: add devicetree bindings to set
- volume levels
-Date: Fri, 7 Oct 2016 09:08:18 +0000
-Message-ID: <1475831223-6006-4-git-send-email-frieder.schrempf@exceet.de>
-References: <fe6349a5-7935-5be7-6dc1-7e80fa9dceeb@exceet.de>
- <1475831223-6006-1-git-send-email-frieder.schrempf@exceet.de>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V1 04/10] watchdog: da9061: watchdog driver (RFC)
+Date: Fri, 7 Oct 2016 14:56:17 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE2732@SW-EX-MBX02.diasemi.com>
+References: <6ED8E3B22081A4459DAC7699F3695FB7018CCE242C@SW-EX-MBX02.diasemi.com>
+ <20161006184927.GB11915@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1475831223-6006-1-git-send-email-frieder.schrempf@exceet.de>
-Content-Language: de-DE
-Sender: linux-kernel-owner@vger.kernel.org
-To: "robh@kernel.org" <robh@kernel.org>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "pawel.moll@arm.com" <pawel.moll@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "galak@codeaurora.org" <galak@codeaurora.org>, "luis@debethencourt.com" <luis@debethencourt.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Schrempf Frieder <frieder.schrempf@exceet.de>
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20161006184927.GB11915@roeck-us.net>
+Content-Language: en-US
+Sender: linux-pm-owner@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
+Cc: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Zhang Rui <rui.zhang@intel.com>, DEVICETREE <devicetree@vger.kernel.org>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-This patch adds the devicetree bindings to set the volume levels
-and the default volume level.
+On 06 October 2016 19:49, Guenter Roeck wrote:
+> Subject: Re: [PATCH V1 04/10] watchdog: da9061: watchdog driver (RFC)
+> 
+> Hi Steve,
 
-Signed-off-by: Frieder Schrempf <frieder.schrempf@exceet.de>
----
-Changes in v2:
- - split into 3 separate patches
- - make volume properties optional
+[...]
 
- drivers/input/misc/pwm-beeper.c | 49 ++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 46 insertions(+), 3 deletions(-)
+> On Thu, Oct 06, 2016 at 04:28:14PM +0000, Steve Twiss wrote:
+> > I am using the compatible string to pick a different configuration .data block:
+> >
+> > { .compatible = "dlg,da9062-watchdog", .data = &da9062_watchdog_info },
+> > { .compatible = "dlg,da9061-watchdog", .data = &da9061_watchdog_info },
+> >
+> > when the only real difference between the DA9061 and DA9062 watchdog driver
+> > is the name. Functionally they are identical in this case.
+[...]
+> > This exact same thing would happen with da9063-onkey and da9062-thermal also.
+> > For the ONKEY it is marginally confused by needing to support 63, but for 62 and 61
+> > it is the same thing. Only the name is different.
+> >
+[...]
+> > But, it is just my opinion to keep the "name" different.
+> > This will not be my decision if accepted into the Linux kernel, but I would like to
+> > at least be consistent for DA9061 and DA9062 so ... is this an issue?
+> 
+> 
+> Yes, for me it is. The driver is still the same, and I don't see the point
+> of increasing code size and making the driver less readable just to be able
+> to report a slightly different driver identification string. And each time
+> a similar HW is added we would go through the same effort, again for no
+> good reason.
+> 
 
-diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-index 3ed21da..a7f9d70 100644
---- a/drivers/input/misc/pwm-beeper.c
-+++ b/drivers/input/misc/pwm-beeper.c
-@@ -32,7 +32,7 @@ struct pwm_beeper {
- 	struct work_struct work;
- 	unsigned long period;
- 	unsigned int volume;
--	unsigned int volume_levels[] = {0, 8, 20, 40, 500};
-+	unsigned int *volume_levels;
- 	unsigned int max_volume_level;
- };
+My reason for doing this was to report the hardware identification, not the
+driver name. But, there would certainly be a lot less to do if I was to make
+DA9061 core use the DA9062 watchdog.
  
-@@ -161,8 +161,11 @@ static void pwm_beeper_close(struct input_dev *input)
- static int pwm_beeper_probe(struct platform_device *pdev)
- {
- 	unsigned long pwm_id = (unsigned long)dev_get_platdata(&pdev->dev);
-+	struct device_node *np = pdev->dev.of_node;
- 	struct pwm_beeper *beeper;
--	int error;
-+	struct property *prop;
-+	int error, length;
-+	u32 value;
- 
- 	beeper = kzalloc(sizeof(*beeper), GFP_KERNEL);
- 	if (!beeper)
-@@ -188,7 +191,47 @@ static int pwm_beeper_probe(struct platform_device *pdev)
- 
- 	INIT_WORK(&beeper->work, pwm_beeper_work);
- 
--	beeper->max_volume_level = ARRAY_SIZE(beeper->volume_levels) - 1;
-+	/* determine the number of volume levels */
-+	prop = of_find_property(np, "volume-levels", &length);
-+	if (!prop) {
-+		dev_dbg(&pdev->dev, "no volume levels specified, using max volume\n");
-+		beeper->max_volume_level = 1;
-+	} else
-+		beeper->max_volume_level = length / sizeof(u32);
-+
-+	/* read volume levels from DT property */
-+	if (beeper->max_volume_level > 0) {
-+		size_t size = sizeof(*beeper->volume_levels) *
-+			beeper->max_volume_level;
-+
-+		beeper->volume_levels = devm_kzalloc(&(pdev->dev), size,
-+			GFP_KERNEL);
-+		if (!beeper->volume_levels)
-+			return -ENOMEM;
-+
-+		if (prop) {
-+			error = of_property_read_u32_array(np, "volume-levels",
-+						beeper->volume_levels,
-+						beeper->max_volume_level);
-+
-+			if (error < 0)
-+				return error;
-+
-+			error = of_property_read_u32(np, "default-volume-level",
-+						   &value);
-+
-+			if (error < 0) {
-+				dev_dbg(&pdev->dev, "no default volume specified, using max volume\n");
-+				value = beeper->max_volume_level - 1;
-+			}
-+		} else {
-+			beeper->volume_levels[0] = 500;
-+			value = 0;
-+		}
-+
-+		beeper->volume = value;
-+		beeper->max_volume_level--;
-+	}
- 
- 	beeper->input = input_allocate_device();
- 	if (!beeper->input) {
--- 
-1.9.1
+> FWIW the driver doesn't really need to be updated in the first place.
+> A compatible statement listing both da9061 and da9062 would do it.
+
+I will make the changes you requested: deprecate the existing compatibility
+for da9062-watchdog and make a new compatibility string which combines both
+da9061 and da9062.
+
+Regards,
+Stephen
+

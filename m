@@ -1,147 +1,204 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH v2 5/7] HID: sony: Handle multiple touch events input record
-Date: Fri,  7 Oct 2016 12:39:38 -0700
-Message-ID: <1475869180-26757-6-git-send-email-roderick@gaikai.com>
-References: <1475869180-26757-1-git-send-email-roderick@gaikai.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH 13/19] HID: wacom: generic: Pass 'hdev' to
+ 'wacom_map_usage'
+Date: Fri, 7 Oct 2016 13:53:36 -0700
+Message-ID: <5026a231-086b-915b-eb96-12832d516e21@gmail.com>
+References: <20161006212231.31440-1-killertofu@gmail.com>
+ <20161006212231.31440-14-killertofu@gmail.com>
+ <20161007154655.GB30411@mail.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f182.google.com ([209.85.223.182]:33760 "EHLO
-        mail-io0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932554AbcJGTkR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 15:40:17 -0400
-Received: by mail-io0-f182.google.com with SMTP id q192so57502901iod.0
-        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 12:40:17 -0700 (PDT)
-In-Reply-To: <1475869180-26757-1-git-send-email-roderick@gaikai.com>
+Received: from mail-qk0-f193.google.com ([209.85.220.193]:36204 "EHLO
+        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753989AbcJGUyI (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 16:54:08 -0400
+Received: by mail-qk0-f193.google.com with SMTP id z190so3214451qkc.3
+        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 13:53:40 -0700 (PDT)
+In-Reply-To: <20161007154655.GB30411@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+On 10/07/2016 08:46 AM, Benjamin Tissoires wrote:
+> On Oct 06 2016 or thereabouts, Jason Gerecke wrote:
+>> In the following "Add support for sensor offsets" patch we'll need access
+>> to the 'features' struct within 'wacom_map_usage', so update the function
+>> signature and calls to include a reference to the HID device so this can
+>> be done.
+>>
+>> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+>> ---
+>>  drivers/hid/wacom_wac.c | 53 ++++++++++++++++++++++++++-----------------------
+>>  1 file changed, 28 insertions(+), 25 deletions(-)
+>>
+>> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+>> index f2aadc4..8f493cc 100644
+>> --- a/drivers/hid/wacom_wac.c
+>> +++ b/drivers/hid/wacom_wac.c
+>> @@ -1465,9 +1465,12 @@ static int wacom_equivalent_usage(int usage)
+>>  	return usage;
+>>  }
+>>  
+>> -static void wacom_map_usage(struct input_dev *input, struct hid_usage *usage,
+>> -		struct hid_field *field, __u8 type, __u16 code, int fuzz)
+>> +static void wacom_map_usage(struct input_dev *input, struct hid_device *hdev,
+>> +		struct hid_usage *usage, struct hid_field *field, __u8 type,
+>> +		__u16 code, int fuzz)
+>>  {
+>> +	struct wacom *wacom = hid_get_drvdata(hdev);
+> 
+> This might not be entirely relevant, but given the inputs are created
+> through wacom_allocate_input() and struct wacom * being stored in the
+> driver data, a simple call to input_get_drvdata(input) would provide the
+> struct wacom. Then from here, the hid_device can be retrieved from
+> struct wacom directly.
+> 
+> So I don't know if it's worth resending the series just for this and if
+> this has caveats... (my rev-by still applies).
+> 
+> Cheers,
+> Benjamin
+> 
 
-Read the touch history field in the HID descriptor and use this value
-to determine how many touch events to read from the report. As part
-of this patch, we did a first attempt of making the offset calculation
-code less magical.
+I'd be happy with dropping this patch and using input_get_drvdata
+instead. I hadn't remotely considered that we could access the wacom
+structure from there as well. As noisy as it might be, I'll send a V2
+with your rev-by and the change.
 
-Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+Jason
 ---
- drivers/hid/hid-sony.c | 78 +++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 52 insertions(+), 26 deletions(-)
+Now instead of four in the eights place /
+you’ve got three, ‘Cause you added one /
+(That is to say, eight) to the two, /
+But you can’t take seven from three, /
+So you look at the sixty-fours....
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 24f7d19..b206d85 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -1030,6 +1030,12 @@ struct motion_output_report_02 {
- #define SIXAXIS_REPORT_0xF5_SIZE 8
- #define MOTION_REPORT_0x02_SIZE 49
- 
-+/* Offsets relative to USB input report (0x1). Bluetooth (0x11) requires an
-+ * additional +2.
-+ */
-+#define DS4_INPUT_REPORT_BATTERY_OFFSET  30
-+#define DS4_INPUT_REPORT_TOUCHPAD_OFFSET 33
-+
- static DEFINE_SPINLOCK(sony_dev_list_lock);
- static LIST_HEAD(sony_device_list);
- static DEFINE_IDA(sony_device_id_allocator);
-@@ -1226,19 +1232,17 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 						struct hid_input, list);
- 	struct input_dev *input_dev = hidinput->input;
- 	unsigned long flags;
--	int n, offset;
-+	int n, m, offset, num_touch_data, max_touch_data;
- 	u8 cable_state, battery_capacity, battery_charging;
- 
--	/*
--	 * Battery and touchpad data starts at byte 30 in the USB report and
--	 * 32 in Bluetooth report.
--	 */
--	offset = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 30 : 32;
-+	/* When using Bluetooth the header is 2 bytes longer, so skip these. */
-+	int data_offset = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 0 : 2;
- 
- 	/*
--	 * The lower 4 bits of byte 30 contain the battery level
-+	 * The lower 4 bits of byte 30 (or 32 for BT) contain the battery level
- 	 * and the 5th bit contains the USB cable state.
- 	 */
-+	offset = data_offset + DS4_INPUT_REPORT_BATTERY_OFFSET;
- 	cable_state = (rd[offset] >> 4) & 0x01;
- 	battery_capacity = rd[offset] & 0x0F;
- 
-@@ -1265,30 +1269,52 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	sc->battery_charging = battery_charging;
- 	spin_unlock_irqrestore(&sc->lock, flags);
- 
--	offset += 5;
--
- 	/*
--	 * The Dualshock 4 multi-touch trackpad data starts at offset 35 on USB
--	 * and 37 on Bluetooth.
--	 * The first 7 bits of the first byte is a counter and bit 8 is a touch
--	 * indicator that is 0 when pressed and 1 when not pressed.
--	 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
--	 * The data for the second touch is in the same format and immediatly
--	 * follows the data for the first.
-+	 * The Dualshock 4 multi-touch trackpad data starts at offset 33 on USB
-+	 * and 35 on Bluetooth.
-+	 * The first byte indicates the number of touch data in the report.
-+	 * Trackpad data starts 2 bytes later (e.g. 35 for USB).
- 	 */
--	for (n = 0; n < 2; n++) {
--		u16 x, y;
-+	offset = data_offset + DS4_INPUT_REPORT_TOUCHPAD_OFFSET;
-+	max_touch_data = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 3 : 4;
-+	if (rd[offset] > 0 && rd[offset] <= max_touch_data)
-+		num_touch_data = rd[offset];
-+	else
-+		num_touch_data = 1;
-+	offset += 1;
- 
--		x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
--		y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
-+	for (m = 0; m < num_touch_data; m++) {
-+		/* Skip past timestamp */
-+		offset += 1;
- 
--		input_mt_slot(input_dev, n);
--		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
--					!(rd[offset] >> 7));
--		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
--		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
-+		/*
-+		 * The first 7 bits of the first byte is a counter and bit 8 is
-+		 * a touch indicator that is 0 when pressed and 1 when not
-+		 * pressed.
-+		 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
-+		 * The data for the second touch is in the same format and
-+		 * immediately follows the data for the first.
-+		 */
-+		for (n = 0; n < 2; n++) {
-+			u16 x, y;
-+			bool active;
-+
-+			x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
-+			y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
-+
-+			active = !(rd[offset] >> 7);
-+			input_mt_slot(input_dev, n);
-+			input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, active);
- 
--		offset += 4;
-+			if (active) {
-+				input_report_abs(input_dev, ABS_MT_POSITION_X, x);
-+				input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
-+			}
-+
-+			offset += 4;
-+		}
-+		input_mt_sync_frame(input_dev);
-+		input_sync(input_dev);
- 	}
- }
- 
--- 
-2.7.4
+>> +	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+>>  	int fmin = field->logical_minimum;
+>>  	int fmax = field->logical_maximum;
+>>  	unsigned int equivalent_usage = wacom_equivalent_usage(usage->hid);
+>> @@ -1508,53 +1511,53 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+>>  
+>>  	switch (equivalent_usage) {
+>>  	case HID_GD_X:
+>> -		wacom_map_usage(input, usage, field, EV_ABS, ABS_X, 4);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_X, 4);
+>>  		break;
+>>  	case HID_GD_Y:
+>> -		wacom_map_usage(input, usage, field, EV_ABS, ABS_Y, 4);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_Y, 4);
+>>  		break;
+>>  	case WACOM_HID_WD_DISTANCE:
+>>  	case HID_GD_Z:
+>> -		wacom_map_usage(input, usage, field, EV_ABS, ABS_DISTANCE, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_DISTANCE, 0);
+>>  		break;
+>>  	case HID_DG_TIPPRESSURE:
+>> -		wacom_map_usage(input, usage, field, EV_ABS, ABS_PRESSURE, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_PRESSURE, 0);
+>>  		break;
+>>  	case HID_DG_INRANGE:
+>> -		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
+>>  		break;
+>>  	case HID_DG_INVERT:
+>> -		wacom_map_usage(input, usage, field, EV_KEY,
+>> +		wacom_map_usage(input, hdev, usage, field, EV_KEY,
+>>  				BTN_TOOL_RUBBER, 0);
+>>  		break;
+>>  	case HID_DG_TILT_X:
+>> -		wacom_map_usage(input, usage, field, EV_ABS, ABS_TILT_X, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_TILT_X, 0);
+>>  		break;
+>>  	case HID_DG_TILT_Y:
+>> -		wacom_map_usage(input, usage, field, EV_ABS, ABS_TILT_Y, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_TILT_Y, 0);
+>>  		break;
+>>  	case HID_DG_TWIST:
+>> -		wacom_map_usage(input, usage, field, EV_ABS, ABS_Z, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_Z, 0);
+>>  		break;
+>>  	case HID_DG_ERASER:
+>>  	case HID_DG_TIPSWITCH:
+>> -		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOUCH, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_TOUCH, 0);
+>>  		break;
+>>  	case HID_DG_BARRELSWITCH:
+>> -		wacom_map_usage(input, usage, field, EV_KEY, BTN_STYLUS, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_STYLUS, 0);
+>>  		break;
+>>  	case HID_DG_BARRELSWITCH2:
+>> -		wacom_map_usage(input, usage, field, EV_KEY, BTN_STYLUS2, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_STYLUS2, 0);
+>>  		break;
+>>  	case HID_DG_TOOLSERIALNUMBER:
+>> -		wacom_map_usage(input, usage, field, EV_MSC, MSC_SERIAL, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_MSC, MSC_SERIAL, 0);
+>>  		break;
+>>  	case WACOM_HID_WD_SENSE:
+>>  		features->quirks |= WACOM_QUIRK_SENSE;
+>> -		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
+>>  		break;
+>>  	case WACOM_HID_WD_SERIALHI:
+>> -		wacom_map_usage(input, usage, field, EV_ABS, ABS_MISC, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_MISC, 0);
+>>  		set_bit(EV_KEY, input->evbit);
+>>  		input_set_capability(input, EV_KEY, BTN_TOOL_PEN);
+>>  		input_set_capability(input, EV_KEY, BTN_TOOL_RUBBER);
+>> @@ -1565,7 +1568,7 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+>>  		input_set_capability(input, EV_KEY, BTN_TOOL_LENS);
+>>  		break;
+>>  	case WACOM_HID_WD_FINGERWHEEL:
+>> -		wacom_map_usage(input, usage, field, EV_ABS, ABS_WHEEL, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_WHEEL, 0);
+>>  		break;
+>>  	}
+>>  }
+>> @@ -1722,24 +1725,24 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+>>  	case HID_GD_X:
+>>  		features->last_slot_field = usage->hid;
+>>  		if (touch_max == 1)
+>> -			wacom_map_usage(input, usage, field, EV_ABS, ABS_X, 4);
+>> +			wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_X, 4);
+>>  		else
+>> -			wacom_map_usage(input, usage, field, EV_ABS,
+>> +			wacom_map_usage(input, hdev, usage, field, EV_ABS,
+>>  					ABS_MT_POSITION_X, 4);
+>>  		break;
+>>  	case HID_GD_Y:
+>>  		features->last_slot_field = usage->hid;
+>>  		if (touch_max == 1)
+>> -			wacom_map_usage(input, usage, field, EV_ABS, ABS_Y, 4);
+>> +			wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_Y, 4);
+>>  		else
+>> -			wacom_map_usage(input, usage, field, EV_ABS,
+>> +			wacom_map_usage(input, hdev, usage, field, EV_ABS,
+>>  					ABS_MT_POSITION_Y, 4);
+>>  		break;
+>>  	case HID_DG_WIDTH:
+>>  	case HID_DG_HEIGHT:
+>>  		features->last_slot_field = usage->hid;
+>> -		wacom_map_usage(input, usage, field, EV_ABS, ABS_MT_TOUCH_MAJOR, 0);
+>> -		wacom_map_usage(input, usage, field, EV_ABS, ABS_MT_TOUCH_MINOR, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_MT_TOUCH_MAJOR, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_MT_TOUCH_MINOR, 0);
+>>  		input_set_abs_params(input, ABS_MT_ORIENTATION, 0, 1, 0, 0);
+>>  		break;
+>>  	case HID_DG_CONTACTID:
+>> @@ -1753,7 +1756,7 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+>>  		break;
+>>  	case HID_DG_TIPSWITCH:
+>>  		features->last_slot_field = usage->hid;
+>> -		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOUCH, 0);
+>> +		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_TOUCH, 0);
+>>  		break;
+>>  	case HID_DG_CONTACTCOUNT:
+>>  		wacom_wac->hid_data.cc_report = field->report->id;
+>> -- 
+>> 2.10.0
+>>
 

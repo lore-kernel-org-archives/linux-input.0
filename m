@@ -1,15 +1,15 @@
 From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH 3/7] HID: sony: Perform CRC check on bluetooth input packets
-Date: Fri,  7 Oct 2016 12:39:36 -0700
-Message-ID: <1475869180-26757-4-git-send-email-roderick@gaikai.com>
+Subject: [PATCH 6/7] HID: sony: Adjust value range for motion sensors
+Date: Fri,  7 Oct 2016 12:39:39 -0700
+Message-ID: <1475869180-26757-7-git-send-email-roderick@gaikai.com>
 References: <1475869180-26757-1-git-send-email-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f177.google.com ([209.85.223.177]:36230 "EHLO
-        mail-io0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752666AbcJGTkP (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 15:40:15 -0400
-Received: by mail-io0-f177.google.com with SMTP id j37so57472363ioo.3
-        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 12:40:14 -0700 (PDT)
+Received: from mail-io0-f174.google.com ([209.85.223.174]:34741 "EHLO
+        mail-io0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932565AbcJGTkS (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 15:40:18 -0400
+Received: by mail-io0-f174.google.com with SMTP id r30so57356704ioi.1
+        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 12:40:18 -0700 (PDT)
 In-Reply-To: <1475869180-26757-1-git-send-email-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -18,54 +18,59 @@ Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kerne
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
+The motion sensor values are 16-bit, so make the value range match.
+It is hard to reach the upper values, but they can be reached. At
+least the current accelerometer value of 8192 is very easy to pass.
+
+It is still not nice that the motion sensors live in no man's land
+in between ABS_MISC and ABS_MT_SLOT, but that's something for another
+time, which the proposed ABS_ACCEL_*/ABS_GYRO_* were meant for.
+
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/hid-sony.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/hid/hid-sony.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 43bb24c..34988ce 100644
+index b206d85..bd84790 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -36,6 +36,8 @@
- #include <linux/list.h>
- #include <linux/idr.h>
- #include <linux/input/mt.h>
-+#include <linux/crc32.h>
-+#include <asm/unaligned.h>
- 
- #include "hid-ids.h"
- 
-@@ -1021,6 +1023,7 @@ struct motion_output_report_02 {
- 
- #define DS4_FEATURE_REPORT_0x02_SIZE 37
- #define DS4_FEATURE_REPORT_0x81_SIZE 7
-+#define DS4_INPUT_REPORT_0x11_SIZE 78
- #define DS4_OUTPUT_REPORT_0x05_SIZE 32
- #define DS4_OUTPUT_REPORT_0x11_SIZE 78
- #define SIXAXIS_REPORT_0xF2_SIZE 17
-@@ -1324,6 +1327,21 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
- 	} else if (((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
- 			size == 64) || ((sc->quirks & DUALSHOCK4_CONTROLLER_BT)
- 			&& rd[0] == 0x11 && size == 78)) {
-+		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
-+			/* CRC check */
-+			u8 bthdr = 0xA1;
-+			u32 crc;
-+			u32 report_crc;
-+
-+			crc = crc32_le(0xFFFFFFFF, &bthdr, 1);
-+			crc = ~crc32_le(crc, rd, DS4_INPUT_REPORT_0x11_SIZE-4);
-+			report_crc = get_unaligned_le32(&rd[DS4_INPUT_REPORT_0x11_SIZE-4]);
-+			if (crc != report_crc) {
-+				hid_dbg(sc->hdev, "DualShock 4 input report's CRC check failed, received crc 0x%0x != 0x%0x\n",
-+					report_crc, crc);
-+				return -EILSEQ;
-+			}
-+		}
- 		dualshock4_parse_report(sc, rd, size);
- 	}
- 
+@@ -405,14 +405,14 @@ static u8 dualshock4_usb_rdesc[] = {
+ 	0x19, 0x40,         /*      Usage Minimum (40h),            */
+ 	0x29, 0x42,         /*      Usage Maximum (42h),            */
+ 	0x16, 0x00, 0x80,   /*      Logical Minimum (-32768),       */
+-	0x26, 0x00, 0x7F,   /*      Logical Maximum (32767),        */
++	0x26, 0xFF, 0x7F,   /*      Logical Maximum (32767),        */
+ 	0x75, 0x10,         /*      Report Size (16),               */
+ 	0x95, 0x03,         /*      Report Count (3),               */
+ 	0x81, 0x02,         /*      Input (Variable),               */
+ 	0x19, 0x43,         /*      Usage Minimum (43h),            */
+ 	0x29, 0x45,         /*      Usage Maximum (45h),            */
+-	0x16, 0x00, 0xE0,   /*      Logical Minimum (-8192),        */
+-	0x26, 0xFF, 0x1F,   /*      Logical Maximum (8191),         */
++	0x16, 0x00, 0x80,   /*      Logical Minimum (-32768),       */
++	0x26, 0xFF, 0x7F,   /*      Logical Maximum (32767),        */
+ 	0x95, 0x03,         /*      Report Count (3),               */
+ 	0x81, 0x02,         /*      Input (Variable),               */
+ 	0x06, 0x00, 0xFF,   /*      Usage Page (FF00h),             */
+@@ -714,14 +714,14 @@ static u8 dualshock4_bt_rdesc[] = {
+ 	0x19, 0x40,         /*      Usage Minimum (40h),            */
+ 	0x29, 0x42,         /*      Usage Maximum (42h),            */
+ 	0x16, 0x00, 0x80,   /*      Logical Minimum (-32768),       */
+-	0x26, 0x00, 0x7F,   /*      Logical Maximum (32767),        */
++	0x26, 0xFF, 0x7F,   /*      Logical Maximum (32767),        */
+ 	0x75, 0x10,         /*      Report Size (16),               */
+ 	0x95, 0x03,         /*      Report Count (3),               */
+ 	0x81, 0x02,         /*      Input (Variable),               */
+ 	0x19, 0x43,         /*      Usage Minimum (43h),            */
+ 	0x29, 0x45,         /*      Usage Maximum (45h),            */
+-	0x16, 0x00, 0xE0,   /*      Logical Minimum (-8192),        */
+-	0x26, 0xFF, 0x1F,   /*      Logical Maximum (8191),         */
++	0x16, 0x00, 0x80,   /*      Logical Minimum (-32768),       */
++	0x26, 0xFF, 0x7F,   /*      Logical Maximum (32767),        */
+ 	0x95, 0x03,         /*      Report Count (3),               */
+ 	0x81, 0x02,         /*      Input (Variable),               */
+ 	0x06, 0x00, 0xFF,   /*      Usage Page (FF00h),             */
 -- 
 2.7.4
 

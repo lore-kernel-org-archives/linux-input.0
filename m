@@ -1,173 +1,252 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v2 07/18] HID: wacom: generic: Support and use 'Custom HID' mode and usages
-Date: Fri,  7 Oct 2016 15:16:42 -0700
-Message-ID: <20161007221653.26941-7-killertofu@gmail.com>
+Subject: [PATCH v2 13/18] HID: wacom: Fix sensor outbounds and redefine as offsets from each edge
+Date: Fri,  7 Oct 2016 15:16:48 -0700
+Message-ID: <20161007221653.26941-13-killertofu@gmail.com>
 References: <20161006212231.31440-1-killertofu@gmail.com>
  <20161007221653.26941-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f195.google.com ([209.85.220.195]:33625 "EHLO
-        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757418AbcJGWSB (ORCPT
+Received: from mail-qt0-f193.google.com ([209.85.216.193]:35424 "EHLO
+        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757435AbcJGWSB (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 18:18:01 -0400
-Received: by mail-qk0-f195.google.com with SMTP id n66so3319663qkf.0
-        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 15:17:14 -0700 (PDT)
+Received: by mail-qt0-f193.google.com with SMTP id g49so1653092qtc.2
+        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 15:17:23 -0700 (PDT)
 In-Reply-To: <20161007221653.26941-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-Wacom's new "MobileStudio Pro" tablets are the first devices in their
-branded product line-up to include a usable HID descriptor for the pen
-interface. Like prior branded products, the device can operate in one
-of two modes: 'Standard HID', and 'Wacom Custom HID'. Although the
-first mode is usable by the HID_GENERIC codepath as-is (huzzah!), it is
-subject to some restrictions -- most notably pressure being limited
-to 2048 levels instead of 8192. To ensure tablets that include support
-for Custom HID mode work optimally, we add support for its usages and
-switch the device to Custom HID mode if possible.
+Many of Wacom's display tablets include an "outbound" area where pen
+digitizing is possible but outside of the display area. To ensure that
+pen coordinates are mapped to the correct on-screen location, the driver
+sets the minimum and maximum axis values of X and Y to those coordinates
+which coincide with the screen edge. These values are simply the
+hardware minimum/maximum plus/minus the outbound size for a particular
+edge.
 
-The usages defined for Custom HID mode are often numerically similar to
-their standard HID equivalents, allowing us to write a simple translation
-function that takes arbitrary HID usages as input and which returns
-the corresponding standard HID usage as output (if one exists). Switching
-on this translated usage instead of the actual usage allows the existing
-cases to apply to both modes of operation without having to explicitly
-define every Custom HID usage.
+When outbound support was added/updated in ac414da, fa77034, and
+ecd618d, we decided to have the wacom_features structs store the desired
+minimum and maximum values directly. In hindsight, this was perhaps not
+the best choice since it has allowed minor errors to crop up unnoticed.
+Some tablets have had their coordinates over-corrected (e.g. most of the
+devices "fixed" in ecd618d were already adjusted in ac414da), while
+others never had a correction applied (e.g. the ISDv5 325, whose
+declared maximum the hardware maximum instead of the outbound maximum).
+
+A less error-prone method of handling the outbound is to let the driver
+calculate the correct minimum/maximum values by providing it with both
+the actual hardware maximums and the size of the outbound on each edge.
+These values are more easy to verify as correct since the values can be
+trivially compared against specifications.
+
+This patch reverts the declared maximum values to the actual hardware
+maximums, e.g. as declared prior to ac414da (values for these and other
+display tablets that were subsuquently introduced have been verified
+against specs). Per-edge outbound sizes are stored in the wacom_features
+struct as offset_{left,right,top,bottom} and used in combination with
+the hardware ranges to calculate effective axis ranges for ABS_X and
+ABS_Y.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom_sys.c |  5 +++++
- drivers/hid/wacom_wac.c | 37 +++++++++++++++++++++++++++++++------
- drivers/hid/wacom_wac.h |  3 +++
- 3 files changed, 39 insertions(+), 6 deletions(-)
+ drivers/hid/wacom_wac.c | 62 ++++++++++++++++++++++++++++++++-----------------
+ drivers/hid/wacom_wac.h |  6 +++--
+ 2 files changed, 45 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 7b9bff2..b2e2471 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -166,6 +166,11 @@ static void wacom_feature_mapping(struct hid_device *hdev,
- 		}
- 		break;
- 
-+	case WACOM_HID_WD_DATAMODE:
-+		wacom->wacom_wac.mode_report = field->report->id;
-+		wacom->wacom_wac.mode_value = 2;
-+		break;
-+
- 	case WACOM_HID_UP_G9:
- 	case WACOM_HID_UP_G11:
- 		if (field->report->id == 0x03 &&
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index e2eae91..edc2c14 100644
+index f2aadc4..df751f2 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -1435,14 +1435,35 @@ static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
- 	return 0;
- }
+@@ -2684,10 +2684,12 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+ 	__set_bit(ABS_MISC, input_dev->absbit);
  
-+static int wacom_equivalent_usage(int usage)
-+{
-+	if ((usage & HID_USAGE_PAGE) == WACOM_HID_UP_WACOMDIGITIZER) {
-+		int subpage = (usage & 0xFF00) << 8;
-+		int subusage = (usage & 0xFF);
-+
-+		if (subpage == WACOM_HID_SP_DIGITIZER ||
-+		    subpage == WACOM_HID_SP_DIGITIZERINFO) {
-+			return usage;
-+		}
-+
-+		if (subpage == HID_UP_UNDEFINED)
-+			subpage = HID_UP_DIGITIZER;
-+
-+		return subpage | subusage;
-+	}
-+
-+	return usage;
-+}
-+
- static void wacom_map_usage(struct input_dev *input, struct hid_usage *usage,
- 		struct hid_field *field, __u8 type, __u16 code, int fuzz)
- {
- 	int fmin = field->logical_minimum;
- 	int fmax = field->logical_maximum;
-+	unsigned int equivalent_usage = wacom_equivalent_usage(usage->hid);
- 	int resolution_code = code;
+-	input_set_abs_params(input_dev, ABS_X, features->x_min,
+-			     features->x_max, features->x_fuzz, 0);
+-	input_set_abs_params(input_dev, ABS_Y, features->y_min,
+-			     features->y_max, features->y_fuzz, 0);
++	input_set_abs_params(input_dev, ABS_X, 0 + features->offset_left,
++			     features->x_max - features->offset_right,
++			     features->x_fuzz, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0 + features->offset_top,
++			     features->y_max - features->offset_bottom,
++			     features->y_fuzz, 0);
+ 	input_set_abs_params(input_dev, ABS_PRESSURE, 0,
+ 		features->pressure_max, features->pressure_fuzz, 0);
  
--	if (usage->hid == HID_DG_TWIST) {
-+	if (equivalent_usage == HID_DG_TWIST) {
- 		resolution_code = ABS_RZ;
- 	}
+@@ -3399,26 +3401,30 @@ static const struct wacom_features wacom_features_0x317 =
+ 	  INTUOSPL, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 9, .touch_max = 16,
+ 	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
+ static const struct wacom_features wacom_features_0xF4 =
+-	{ "Wacom Cintiq 24HD", 104080, 65200, 2047, 63,
++	{ "Wacom Cintiq 24HD", 104480, 65600, 2047, 63,
+ 	  WACOM_24HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 16,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
+ static const struct wacom_features wacom_features_0xF8 =
+-	{ "Wacom Cintiq 24HD touch", 104080, 65200, 2047, 63, /* Pen */
++	{ "Wacom Cintiq 24HD touch", 104480, 65600, 2047, 63, /* Pen */
+ 	  WACOM_24HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 16,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0xf6 };
+ static const struct wacom_features wacom_features_0xF6 =
+ 	{ "Wacom Cintiq 24HD touch", .type = WACOM_24HDT, /* Touch */
+ 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0xf8, .touch_max = 10,
+ 	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
+ static const struct wacom_features wacom_features_0x32A =
+-	{ "Wacom Cintiq 27QHD", 119740, 67520, 2047, 63,
++	{ "Wacom Cintiq 27QHD", 120140, 67920, 2047, 63,
+ 	  WACOM_27QHD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 0,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
+ static const struct wacom_features wacom_features_0x32B =
+-	{ "Wacom Cintiq 27QHD touch", 119740, 67520, 2047, 63,
++	{ "Wacom Cintiq 27QHD touch", 120140, 67920, 2047, 63,
+ 	  WACOM_27QHD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 0,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x32C };
+ static const struct wacom_features wacom_features_0x32C =
+ 	{ "Wacom Cintiq 27QHD touch", .type = WACOM_27QHDT,
+@@ -3433,13 +3439,15 @@ static const struct wacom_features wacom_features_0xC6 =
+ 	{ "Wacom Cintiq 12WX", 53020, 33440, 1023, 63,
+ 	  WACOM_BEE, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 10 };
+ static const struct wacom_features wacom_features_0x304 =
+-	{ "Wacom Cintiq 13HD", 59152, 33448, 1023, 63,
++	{ "Wacom Cintiq 13HD", 59552, 33848, 1023, 63,
+ 	  WACOM_13HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 9,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
+ static const struct wacom_features wacom_features_0x333 =
+-	{ "Wacom Cintiq 13HD touch", 59152, 33448, 2047, 63,
++	{ "Wacom Cintiq 13HD touch", 59552, 33848, 2047, 63,
+ 	  WACOM_13HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 9,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x335 };
+ static const struct wacom_features wacom_features_0x335 =
+ 	{ "Wacom Cintiq 13HD touch", .type = WACOM_24HDT, /* Touch */
+@@ -3456,42 +3464,50 @@ static const struct wacom_features wacom_features_0xF0 =
+ 	{ "Wacom DTU1631", 34623, 19553, 511, 0,
+ 	  DTU, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0xFB =
+-	{ "Wacom DTU1031", 21896, 13760, 511, 0,
++	{ "Wacom DTU1031", 22096, 13960, 511, 0,
+ 	  DTUS, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4,
++	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET,
+ 	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET };
+ static const struct wacom_features wacom_features_0x32F =
+-	{ "Wacom DTU1031X", 22472, 12728, 511, 0,
++	{ "Wacom DTU1031X", 22672, 12928, 511, 0,
+ 	  DTUSX, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 0,
++	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET,
+ 	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET };
+ static const struct wacom_features wacom_features_0x336 =
+-	{ "Wacom DTU1141", 23472, 13203, 1023, 0,
++	{ "Wacom DTU1141", 23672, 13403, 1023, 0,
+ 	  DTUS, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4,
++	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET,
+ 	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET };
+ static const struct wacom_features wacom_features_0x57 =
+-	{ "Wacom DTK2241", 95640, 54060, 2047, 63,
++	{ "Wacom DTK2241", 95840, 54260, 2047, 63,
+ 	  DTK, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 6,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
+ static const struct wacom_features wacom_features_0x59 = /* Pen */
+-	{ "Wacom DTH2242", 95640, 54060, 2047, 63,
++	{ "Wacom DTH2242", 95840, 54260, 2047, 63,
+ 	  DTK, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 6,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5D };
+ static const struct wacom_features wacom_features_0x5D = /* Touch */
+ 	{ "Wacom DTH2242",       .type = WACOM_24HDT,
+ 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x59, .touch_max = 10,
+ 	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
+ static const struct wacom_features wacom_features_0xCC =
+-	{ "Wacom Cintiq 21UX2", 86800, 65200, 2047, 63,
++	{ "Wacom Cintiq 21UX2", 87200, 65600, 2047, 63,
+ 	  WACOM_21UX2, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 18,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
+ static const struct wacom_features wacom_features_0xFA =
+-	{ "Wacom Cintiq 22HD", 95440, 53860, 2047, 63,
++	{ "Wacom Cintiq 22HD", 95840, 54260, 2047, 63,
+ 	  WACOM_22HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 18,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
+ static const struct wacom_features wacom_features_0x5B =
+-	{ "Wacom Cintiq 22HDT", 95440, 53860, 2047, 63,
++	{ "Wacom Cintiq 22HDT", 95840, 54260, 2047, 63,
+ 	  WACOM_22HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 18,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5e };
+ static const struct wacom_features wacom_features_0x5E =
+ 	{ "Wacom Cintiq 22HDT", .type = WACOM_24HDT,
+@@ -3635,18 +3651,20 @@ static const struct wacom_features wacom_features_0x6004 =
+ 	{ "ISD-V4", 12800, 8000, 255, 0,
+ 	  TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0x307 =
+-	{ "Wacom ISDv5 307", 59152, 33448, 2047, 63,
++	{ "Wacom ISDv5 307", 59552, 33848, 2047, 63,
+ 	  CINTIQ_HYBRID, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 9,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x309 };
+ static const struct wacom_features wacom_features_0x309 =
+ 	{ "Wacom ISDv5 309", .type = WACOM_24HDT, /* Touch */
+ 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x0307, .touch_max = 10,
+ 	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
+ static const struct wacom_features wacom_features_0x30A =
+-	{ "Wacom ISDv5 30A", 59152, 33448, 2047, 63,
++	{ "Wacom ISDv5 30A", 59552, 33848, 2047, 63,
+ 	  CINTIQ_HYBRID, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 9,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x30C };
+ static const struct wacom_features wacom_features_0x30C =
+ 	{ "Wacom ISDv5 30C", .type = WACOM_24HDT, /* Touch */
+@@ -3662,6 +3680,7 @@ static const struct wacom_features wacom_features_0x325 =
+ 	{ "Wacom ISDv5 325", 59552, 33848, 2047, 63,
+ 	  CINTIQ_COMPANION_2, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 11,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
+ 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x326 };
+ static const struct wacom_features wacom_features_0x326 = /* Touch */
+ 	{ "Wacom ISDv5 326", .type = HID_GENERIC, .oVid = USB_VENDOR_ID_WACOM,
+@@ -3691,8 +3710,9 @@ static const struct wacom_features wacom_features_0x33E =
+ 	  INTUOSHT2, WACOM_INTUOS_RES, WACOM_INTUOS_RES, .touch_max = 16,
+ 	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
+ static const struct wacom_features wacom_features_0x343 =
+-	{ "Wacom DTK1651", 34616, 19559, 1023, 0,
++	{ "Wacom DTK1651", 34816, 19759, 1023, 0,
+ 	  DTUS, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4,
++	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET,
+ 	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET };
  
-@@ -1472,8 +1493,9 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct input_dev *input = wacom_wac->pen_input;
-+	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
- 
--	switch (usage->hid) {
-+	switch (equivalent_usage) {
- 	case HID_GD_X:
- 		wacom_map_usage(input, usage, field, EV_ABS, ABS_X, 4);
- 		break;
-@@ -1524,8 +1546,9 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct input_dev *input = wacom_wac->pen_input;
-+	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
- 
--	switch (usage->hid) {
-+	switch (equivalent_usage) {
- 	case HID_GD_Z:
- 		/*
- 		 * HID_GD_Z "should increase as the control's position is
-@@ -1598,8 +1621,9 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
- 	struct wacom_features *features = &wacom_wac->features;
- 	struct input_dev *input = wacom_wac->touch_input;
- 	unsigned touch_max = wacom_wac->features.touch_max;
-+	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
- 
--	switch (usage->hid) {
-+	switch (equivalent_usage) {
- 	case HID_GD_X:
- 		features->last_slot_field = usage->hid;
- 		if (touch_max == 1)
-@@ -1687,8 +1711,9 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
- 
--	switch (usage->hid) {
-+	switch (equivalent_usage) {
- 	case HID_GD_X:
- 		wacom_wac->hid_data.x = value;
- 		break;
-@@ -1711,7 +1736,7 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
- 
- 
- 	if (usage->usage_index + 1 == field->report_count) {
--		if (usage->hid == wacom_wac->features.last_slot_field)
-+		if (equivalent_usage == wacom_wac->features.last_slot_field)
- 			wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
- 	}
- 
+ static const struct wacom_features wacom_features_HID_ANY_ID =
 diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 472b0a7..c82233d 100644
+index 3926ff4..81ae478 100644
 --- a/drivers/hid/wacom_wac.h
 +++ b/drivers/hid/wacom_wac.h
-@@ -85,7 +85,10 @@
- #define WACOM_DEVICETYPE_DIRECT         0x0010
- 
- #define WACOM_HID_UP_WACOMDIGITIZER     0xff0d0000
-+#define WACOM_HID_SP_DIGITIZER          0x000d0000
-+#define WACOM_HID_SP_DIGITIZERINFO      0x00100000
- #define WACOM_HID_WD_DIGITIZER          (WACOM_HID_UP_WACOMDIGITIZER | 0x01)
-+#define WACOM_HID_WD_DATAMODE           (WACOM_HID_UP_WACOMDIGITIZER | 0x1002)
- #define WACOM_HID_UP_G9                 0xff090000
- #define WACOM_HID_G9_PEN                (WACOM_HID_UP_G9 | 0x02)
- #define WACOM_HID_G9_TOUCHSCREEN        (WACOM_HID_UP_G9 | 0x11)
+@@ -181,8 +181,10 @@ struct wacom_features {
+ 	int x_resolution;
+ 	int y_resolution;
+ 	int numbered_buttons;
+-	int x_min;
+-	int y_min;
++	int offset_left;
++	int offset_right;
++	int offset_top;
++	int offset_bottom;
+ 	int device_type;
+ 	int x_phy;
+ 	int y_phy;
 -- 
 2.10.0
 

@@ -1,65 +1,46 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH V1 04/10] watchdog: da9061: watchdog driver (RFC)
-Date: Fri, 7 Oct 2016 10:02:14 -0700
-Message-ID: <20161007170214.GA21349@roeck-us.net>
-References: <6ED8E3B22081A4459DAC7699F3695FB7018CCE242C@SW-EX-MBX02.diasemi.com>
- <20161006184927.GB11915@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7018CCE2732@SW-EX-MBX02.diasemi.com>
+From: Roderick Colenbrander <roderick@gaikai.com>
+Subject: Re: [PATCH] HID: sony: Update device ids v2
+Date: Fri, 7 Oct 2016 11:20:10 -0700
+Message-ID: <CANndSK=U_iKWaELCyR1on8O7vBCVGhGO7JXTtcNkiid_x1BT2g@mail.gmail.com>
+References: <1475779909-17907-1-git-send-email-roderick@gaikai.com> <20161007154936.GC30411@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7018CCE2732@SW-EX-MBX02.diasemi.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Zhang Rui <rui.zhang@intel.com>, DEVICETREE <devicetree@vger.kernel.org>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ua0-f181.google.com ([209.85.217.181]:36353 "EHLO
+        mail-ua0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754210AbcJGSUM (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 14:20:12 -0400
+Received: by mail-ua0-f181.google.com with SMTP id r64so51421269uar.3
+        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 11:20:11 -0700 (PDT)
+In-Reply-To: <20161007154936.GC30411@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Fri, Oct 07, 2016 at 02:56:17PM +0000, Steve Twiss wrote:
-> On 06 October 2016 19:49, Guenter Roeck wrote:
-> > Subject: Re: [PATCH V1 04/10] watchdog: da9061: watchdog driver (RFC)
-> > 
-> > Hi Steve,
-> 
-> [...]
-> 
-> > On Thu, Oct 06, 2016 at 04:28:14PM +0000, Steve Twiss wrote:
-> > > I am using the compatible string to pick a different configuration .data block:
-> > >
-> > > { .compatible = "dlg,da9062-watchdog", .data = &da9062_watchdog_info },
-> > > { .compatible = "dlg,da9061-watchdog", .data = &da9061_watchdog_info },
-> > >
-> > > when the only real difference between the DA9061 and DA9062 watchdog driver
-> > > is the name. Functionally they are identical in this case.
-> [...]
-> > > This exact same thing would happen with da9063-onkey and da9062-thermal also.
-> > > For the ONKEY it is marginally confused by needing to support 63, but for 62 and 61
-> > > it is the same thing. Only the name is different.
-> > >
-> [...]
-> > > But, it is just my opinion to keep the "name" different.
-> > > This will not be my decision if accepted into the Linux kernel, but I would like to
-> > > at least be consistent for DA9061 and DA9062 so ... is this an issue?
-> > 
-> > 
-> > Yes, for me it is. The driver is still the same, and I don't see the point
-> > of increasing code size and making the driver less readable just to be able
-> > to report a slightly different driver identification string. And each time
-> > a similar HW is added we would go through the same effort, again for no
-> > good reason.
-> > 
-> 
-> My reason for doing this was to report the hardware identification, not the
-> driver name. But, there would certainly be a lot less to do if I was to make
-> DA9061 core use the DA9062 watchdog.
->  
-> > FWIW the driver doesn't really need to be updated in the first place.
-> > A compatible statement listing both da9061 and da9062 would do it.
-> 
-> I will make the changes you requested: deprecate the existing compatibility
-> for da9062-watchdog and make a new compatibility string which combines both
-> da9061 and da9062.
-> 
-That is not what I asked for.
+On Fri, Oct 7, 2016 at 8:49 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> On Oct 06 2016 or thereabouts, Roderick Colenbrander wrote:
+>> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+>>
+>> Support additional DS4 model.
+>>
+>> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+>
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>
+> Roderick, FYI, on a v2, the format for sending the patch is:
+> [PATCH v2] HID: sony: Update device ids
+>
+> Given that git will strip out the part in between braces, this way the
+> title of the commit stays the same :)
+>
+> Cheers,
+> Benjamin
 
-Guenter
+Thanks for pointing out. I will probably send a [PATCH v3] shortly.
+I'm leaning towards sending the whole series again, just for clarity,
+so no by hand cherry-picking is needed for a merge.
+
+Thanks,
+Roderick

@@ -1,65 +1,162 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V1 04/10] watchdog: da9061: watchdog driver (RFC)
-Date: Fri, 7 Oct 2016 16:35:54 -0700
-Message-ID: <20161007233554.GA21386@dtor-ws>
-References: <6ED8E3B22081A4459DAC7699F3695FB7018CCE242C@SW-EX-MBX02.diasemi.com>
- <20161006184927.GB11915@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7018CCE2732@SW-EX-MBX02.diasemi.com>
- <20161007170214.GA21349@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7018CCE282C@SW-EX-MBX02.diasemi.com>
+Subject: Re: [PATCH 01/01] drivers:input:byd fix greedy detection of Sentelic
+ FSP by the BYD touchpad driver
+Date: Fri, 7 Oct 2016 16:37:26 -0700
+Message-ID: <20161007233726.GB21386@dtor-ws>
+References: <20161007044148.ssgxygdvmiwjsb55@sherka.pkbd.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pm-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f65.google.com ([209.85.220.65]:33106 "EHLO
+        mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932406AbcJGXh3 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 19:37:29 -0400
 Content-Disposition: inline
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7018CCE282C@SW-EX-MBX02.diasemi.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>, Lee Jones <lee.jones@linaro.org>, Eduardo Valentin <edubezval@gmail.com>, Zhang Rui <rui.zhang@intel.com>, DEVICETREE <devicetree@vger.kernel.org>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>
+In-Reply-To: <20161007044148.ssgxygdvmiwjsb55@sherka.pkbd.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Christophe Tordeux <christophe@tordeux.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org
 
-On Fri, Oct 07, 2016 at 06:01:23PM +0000, Steve Twiss wrote:
-> On 07 October 2016 18:02, Guenter Roeck wrote:
-> 
-> > > On 06 October 2016 19:49, Guenter Roeck wrote:
-> > > > On Thu, Oct 06, 2016 at 04:28:14PM +0000, Steve Twiss wrote:
-> > > > > I am using the compatible string to pick a different configuration .data block:
-> > > > > { .compatible = "dlg,da9062-watchdog", .data = &da9062_watchdog_info },
-> > > > > { .compatible = "dlg,da9061-watchdog", .data = &da9061_watchdog_info },
-> > > > >
-> > > > > But, it is just my opinion to keep the "name" different.
-> > > > > This will not be my decision if accepted into the Linux kernel, but I would like to
-> > > > > at least be consistent for DA9061 and DA9062 so ... is this an issue?
-> > > >
-> > > > FWIW the driver doesn't really need to be updated in the first place.
-> > > > A compatible statement listing both da9061 and da9062 would do it.
-> > >
-> > > I will make the changes you requested: deprecate the existing compatibility
-> > > for da9062-watchdog and make a new compatibility string which combines both
-> > > da9061 and da9062.
-> > >
-> > That is not what I asked for.
-> 
-> Ok. Did you mean separate compatible statements with data sections pointing at 
-> the same structure?
-> 
-> Like this:
-> { .compatible = "dlg,da9062-watchdog", .data = &da9062_watchdog_info },
-> { .compatible = "dlg,da9061-watchdog", .data = &da9062_watchdog_info },
-> 
-> So this would be the only change needed in the device driver.
+Hi Christophe,
 
-If there is no change in IP block then I do not see why we need to
-introduce new names at all. The dts can specify fallback compatible
-stting. Note, it is called *compatible* not "model" or "device id" or
-whatever. So you can just say in DTS:
+On Fri, Oct 07, 2016 at 12:41:48PM +0800, Christophe Tordeux wrote:
+> From: Christophe TORDEUX <christophe@tordeux.net>
+> 
+> With kernel v4.6 and later, the Sentelic touchpad STL3888_C0 and
+> probably other Sentelic FSP touchpads are detected as a BYD touchpad and
+> lose multitouch features.
+> 
+> During the BYD handshake in the byd_detect function, the BYD driver
+> mistakenly interprets a standard PS/2 protocol status request answer
+> from the Sentelic touchpad as a successful handshake with a BYD
+> touchpad. This is clearly a bug of the BYD driver.
+> 
+> Description of the patch: In byd_detect function, remove positive
+> detection result based on standard PS/2 protocol status request answer.
+> Replace it with positive detection based on handshake answers as they
+> can be inferred from the BYD touchpad datasheets found on BYD website.
+> 
+> Signed-off-by: Christophe TORDEUX <christophe@tordeux.net>
 
-	compatible = "dlg,da9061-watchdog", "dlg,da9062-watchdog";
+What devices was this tested on? Do you have both BYD and Sentelic
+devices?
 
-and leave the driver alone. That goes for input part as well. You only
-need to add new compatible to the driver when it in fact is
-*incompatible* with the existing blocks.
+I am really concerned about docs on BYD side as they seem to contradict
+each other... I wonder how accurate they are.
 
 Thanks.
+
+> 
+> ---
+> Resubmitting this patch because I got no feedback on my first 
+> submission.
+> Fixes kernel bug 175421 which is impacting multiple users.
+> 
+> ---
+>  drivers/input/mouse/byd.c | 76 
+>  ++++++++++++++++++++++++++++++++++++++---------
+>  1 file changed, 62 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
+> index b27aa63..b5acca0 100644
+> --- a/drivers/input/mouse/byd.c
+> +++ b/drivers/input/mouse/byd.c
+> @@ -35,6 +35,18 @@
+>   * BYD pad constants
+>   */
+>  
+> +/* Handshake answer of BTP6034 */
+> +#define BYD_MODEL_BTP6034	0x00E801
+> +/* Handshake answer of BTP6740 */
+> +#define BYD_MODEL_BTP6740	0x001155
+> +/* Handshake answers of BTP8644, BTP10463 and BTP11484 */
+> +#define BYD_MODEL_BTP8644	0x011155
+> +
+> +/* Handshake SETRES byte of BTP6034 and BTP6740 */
+> +#define BYD_SHAKE_BYTE_A	0x00
+> +/* Handshake SETRES byte of BTP8644, BTP10463 and BTP11484 */
+> +#define BYD_SHAKE_BYTE_B	0x03
+> +
+>  /*
+>   * True device resolution is unknown, however experiments show the
+>   * resolution is about 111 units/mm.
+> @@ -434,23 +446,59 @@ static void byd_disconnect(struct psmouse *psmouse)
+>  	}
+>  }
+>  
+> +u32 byd_try_model(u32 model)
+> +{
+> +	size_t i;
+> +
+> +	u32 byd_model[] = {
+> +		BYD_MODEL_BTP6034,
+> +		BYD_MODEL_BTP6740,
+> +		BYD_MODEL_BTP8644
+> +	};
+> +
+> +	for (i=0; i < ARRAY_SIZE(byd_model); i++) {
+> +		if (model ==  byd_model[i])
+> +			return model;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  int byd_detect(struct psmouse *psmouse, bool set_properties)
+>  {
+>  	struct ps2dev *ps2dev = &psmouse->ps2dev;
+> -	u8 param[4] = {0x03, 0x00, 0x00, 0x00};
+> -
+> -	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+> -		return -1;
+> -	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+> -		return -1;
+> -	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+> -		return -1;
+> -	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+> -		return -1;
+> -	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
+> -		return -1;
+> -
+> -	if (param[1] != 0x03 || param[2] != 0x64)
+> +	size_t i;
+> +
+> +	u8 byd_shbyte[] = {
+> +		BYD_SHAKE_BYTE_A,
+> +		BYD_SHAKE_BYTE_B
+> +	};
+> +
+> +	bool detect = false;
+> +	for (i=0; i < ARRAY_SIZE(byd_shbyte); i++) {
+> +		u32 model;
+> +		u8 param[4] = {byd_shbyte[i], 0x00, 0x00, 0x00};
+> +
+> +		if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+> +			return -1;
+> +		if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+> +			return -1;
+> +		if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+> +			return -1;
+> +		if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+> +			return -1;
+> +		if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
+> +			return -1;
+> +
+> +		model = param[2];
+> +		model += param[1] << 8;
+> +		model += param[0] << 16;
+> +		model = byd_try_model(model);
+> +		if (model)
+> +			detect = true;
+> +	}
+> +
+> +	if (!detect)
+>  		return -ENODEV;
+>  
+>  	psmouse_dbg(psmouse, "BYD touchpad detected\n");
+
+
 
 -- 
 Dmitry

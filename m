@@ -1,66 +1,107 @@
-From: Schrempf Frieder <frieder.schrempf-wPoT/lNZgHizQB+pC5nmwQ@public.gmane.org>
-Subject: [PATCH v2 2/3] input: pwm-beeper: add documentation for volume
- devicetree bindings
-Date: Fri, 7 Oct 2016 09:08:17 +0000
-Message-ID: <1475831223-6006-3-git-send-email-frieder.schrempf@exceet.de>
+From: Schrempf Frieder <frieder.schrempf@exceet.de>
+Subject: [PATCH v2 3/3] input: pwm-beeper: add devicetree bindings to set
+ volume levels
+Date: Fri, 7 Oct 2016 09:08:18 +0000
+Message-ID: <1475831223-6006-4-git-send-email-frieder.schrempf@exceet.de>
 References: <fe6349a5-7935-5be7-6dc1-7e80fa9dceeb@exceet.de>
  <1475831223-6006-1-git-send-email-frieder.schrempf@exceet.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1475831223-6006-1-git-send-email-frieder.schrempf-wPoT/lNZgHizQB+pC5nmwQ@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1475831223-6006-1-git-send-email-frieder.schrempf@exceet.de>
 Content-Language: de-DE
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "pawel.moll-5wv7dgnIgG8@public.gmane.org" <pawel.moll-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "luis-HiykPkW1eAzzDCI4PIEvbQC/G2K4zDHf@public.gmane.org" <luis-HiykPkW1eAzzDCI4PIEvbQC/G2K4zDHf@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Schrempf Frieder <frieder.schrempf-wPoT/lNZgHizQB+pC5nmwQ@public.gmane.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "robh@kernel.org" <robh@kernel.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "pawel.moll@arm.com" <pawel.moll@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "galak@codeaurora.org" <galak@codeaurora.org>, "luis@debethencourt.com" <luis@debethencourt.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Schrempf Frieder <frieder.schrempf@exceet.de>
 List-Id: linux-input@vger.kernel.org
 
-This patch adds the documentation for the devicetree bindings to set
-the volume levels.
+This patch adds the devicetree bindings to set the volume levels
+and the default volume level.
 
-Signed-off-by: Frieder Schrempf <frieder.schrempf-wPoT/lNZgHizQB+pC5nmwQ@public.gmane.org>
+Signed-off-by: Frieder Schrempf <frieder.schrempf@exceet.de>
 ---
 Changes in v2:
  - split into 3 separate patches
  - make volume properties optional
 
- .../devicetree/bindings/input/pwm-beeper.txt       | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/input/misc/pwm-beeper.c | 49 ++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 46 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt b/Documentation/devicetree/bindings/input/pwm-beeper.txt
-index be332ae..6d8ba4e 100644
---- a/Documentation/devicetree/bindings/input/pwm-beeper.txt
-+++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
-@@ -5,3 +5,25 @@ Registers a PWM device as beeper.
- Required properties:
- - compatible: should be "pwm-beeper"
- - pwms: phandle to the physical PWM device
+diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+index 3ed21da..a7f9d70 100644
+--- a/drivers/input/misc/pwm-beeper.c
++++ b/drivers/input/misc/pwm-beeper.c
+@@ -32,7 +32,7 @@ struct pwm_beeper {
+ 	struct work_struct work;
+ 	unsigned long period;
+ 	unsigned int volume;
+-	unsigned int volume_levels[] = {0, 8, 20, 40, 500};
++	unsigned int *volume_levels;
+ 	unsigned int max_volume_level;
+ };
+ 
+@@ -161,8 +161,11 @@ static void pwm_beeper_close(struct input_dev *input)
+ static int pwm_beeper_probe(struct platform_device *pdev)
+ {
+ 	unsigned long pwm_id = (unsigned long)dev_get_platdata(&pdev->dev);
++	struct device_node *np = pdev->dev.of_node;
+ 	struct pwm_beeper *beeper;
+-	int error;
++	struct property *prop;
++	int error, length;
++	u32 value;
+ 
+ 	beeper = kzalloc(sizeof(*beeper), GFP_KERNEL);
+ 	if (!beeper)
+@@ -188,7 +191,47 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+ 
+ 	INIT_WORK(&beeper->work, pwm_beeper_work);
+ 
+-	beeper->max_volume_level = ARRAY_SIZE(beeper->volume_levels) - 1;
++	/* determine the number of volume levels */
++	prop = of_find_property(np, "volume-levels", &length);
++	if (!prop) {
++		dev_dbg(&pdev->dev, "no volume levels specified, using max volume\n");
++		beeper->max_volume_level = 1;
++	} else
++		beeper->max_volume_level = length / sizeof(u32);
 +
-+Optional properties:
-+- volume-levels: Array of distinct volume levels. These need to be in the
-+      range of 0 to 500, while 0 means 0% duty cycle (mute) and 500 means
-+      50% duty cycle (max volume).
-+      Please note that the actual volume of most beepers is highly
-+      non-linear, which means that low volume levels are probably somewhere
-+      in the range of 1 to 30 (0.1-3% duty cycle).
-+- default-volume-level: the default volume level (index into the
-+      array defined by the "volume-levels" property)
++	/* read volume levels from DT property */
++	if (beeper->max_volume_level > 0) {
++		size_t size = sizeof(*beeper->volume_levels) *
++			beeper->max_volume_level;
 +
-+The volume level can be set via sysfs under /sys/class/input/inputX/volume.
-+The maximum volume level index can be read from /sys/class/input/inputX/max_volume_level.
++		beeper->volume_levels = devm_kzalloc(&(pdev->dev), size,
++			GFP_KERNEL);
++		if (!beeper->volume_levels)
++			return -ENOMEM;
 +
-+Example:
++		if (prop) {
++			error = of_property_read_u32_array(np, "volume-levels",
++						beeper->volume_levels,
++						beeper->max_volume_level);
 +
-+	pwm-beeper {
-+		compatible = "pwm-beeper";
-+		pwms = <&pwm4 0 5000>;
-+		volume-levels = <0 8 20 40 500>;
-+		default-volume-level = <4>;
-+	};
++			if (error < 0)
++				return error;
++
++			error = of_property_read_u32(np, "default-volume-level",
++						   &value);
++
++			if (error < 0) {
++				dev_dbg(&pdev->dev, "no default volume specified, using max volume\n");
++				value = beeper->max_volume_level - 1;
++			}
++		} else {
++			beeper->volume_levels[0] = 500;
++			value = 0;
++		}
++
++		beeper->volume = value;
++		beeper->max_volume_level--;
++	}
+ 
+ 	beeper->input = input_allocate_device();
+ 	if (!beeper->input) {
 -- 
 1.9.1
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

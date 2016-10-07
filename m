@@ -1,155 +1,166 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 17/19] HID: wacom: generic: Add support for battery status on pen and pad interfaces
-Date: Thu,  6 Oct 2016 14:22:29 -0700
-Message-ID: <20161006212231.31440-18-killertofu@gmail.com>
-References: <20161006212231.31440-1-killertofu@gmail.com>
+From: Christophe Tordeux <christophe@tordeux.net>
+Subject: [PATCH 01/01] drivers:input:byd fix greedy detection of Sentelic FSP
+ by the BYD touchpad driver
+Date: Fri, 7 Oct 2016 12:41:48 +0800
+Message-ID: <20161007044148.ssgxygdvmiwjsb55@sherka.pkbd.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="kddslezx7txezxi3"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:34463 "EHLO
-        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935088AbcJFVXH (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2016 17:23:07 -0400
-Received: by mail-qk0-f196.google.com with SMTP id n189so1666601qke.1
-        for <linux-input@vger.kernel.org>; Thu, 06 Oct 2016 14:23:06 -0700 (PDT)
-In-Reply-To: <20161006212231.31440-1-killertofu@gmail.com>
+Received: from mx496502.smtp-engine.com ([217.160.92.157]:50622 "EHLO
+        mx496502.smtp-engine.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752643AbcJGEtD (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 00:49:03 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Jason Gerecke <killertofu@gmail.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: gregkh@linuxfoundation.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Adds support for usages that may appear on the pen or pad interface which
-report the state of the tablet battery.
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+--kddslezx7txezxi3
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+=46rom: Christophe TORDEUX <christophe@tordeux.net>
+
+With kernel v4.6 and later, the Sentelic touchpad STL3888_C0 and
+probably other Sentelic FSP touchpads are detected as a BYD touchpad and
+lose multitouch features.
+
+During the BYD handshake in the byd_detect function, the BYD driver
+mistakenly interprets a standard PS/2 protocol status request answer
+=66rom the Sentelic touchpad as a successful handshake with a BYD
+touchpad. This is clearly a bug of the BYD driver.
+
+Description of the patch: In byd_detect function, remove positive
+detection result based on standard PS/2 protocol status request answer.
+Replace it with positive detection based on handshake answers as they
+can be inferred from the BYD touchpad datasheets found on BYD website.
+
+Signed-off-by: Christophe TORDEUX <christophe@tordeux.net>
+
 ---
- drivers/hid/wacom_wac.c | 41 ++++++++++++++++++++++++++++++++++++++++-
- drivers/hid/wacom_wac.h |  6 ++++++
- include/linux/hid.h     |  1 +
- 3 files changed, 47 insertions(+), 1 deletion(-)
+Resubmitting this patch because I got no feedback on my first=20
+submission.
+Fixes kernel bug 175421 which is impacting multiple users.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 81b4b99..f75ffae 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1526,6 +1526,10 @@ static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
- 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
- 
- 	switch (equivalent_usage) {
-+	case WACOM_HID_WD_BATTERY_LEVEL:
-+	case WACOM_HID_WD_BATTERY_CHARGING:
-+		features->quirks |= WACOM_QUIRK_BATTERY;
-+		break;
- 	case WACOM_HID_WD_ACCELEROMETER_X:
- 		__set_bit(INPUT_PROP_ACCELEROMETER, input->propbit);
- 		wacom_map_usage(input, hdev, usage, field, EV_ABS, ABS_X, 0);
-@@ -1575,8 +1579,25 @@ static int wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field,
- 		wacom_wac->hid_data.inrange_state |= value;
+---
+ drivers/input/mouse/byd.c | 76=20
+ ++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 62 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
+index b27aa63..b5acca0 100644
+--- a/drivers/input/mouse/byd.c
++++ b/drivers/input/mouse/byd.c
+@@ -35,6 +35,18 @@
+  * BYD pad constants
+  */
+=20
++/* Handshake answer of BTP6034 */
++#define BYD_MODEL_BTP6034	0x00E801
++/* Handshake answer of BTP6740 */
++#define BYD_MODEL_BTP6740	0x001155
++/* Handshake answers of BTP8644, BTP10463 and BTP11484 */
++#define BYD_MODEL_BTP8644	0x011155
++
++/* Handshake SETRES byte of BTP6034 and BTP6740 */
++#define BYD_SHAKE_BYTE_A	0x00
++/* Handshake SETRES byte of BTP8644, BTP10463 and BTP11484 */
++#define BYD_SHAKE_BYTE_B	0x03
++
+ /*
+  * True device resolution is unknown, however experiments show the
+  * resolution is about 111 units/mm.
+@@ -434,23 +446,59 @@ static void byd_disconnect(struct psmouse *psmouse)
  	}
- 
--	if (equivalent_usage != WACOM_HID_WD_TOUCHRINGSTATUS)
-+	switch (equivalent_usage) {
-+	case WACOM_HID_WD_BATTERY_LEVEL:
-+		wacom_wac->hid_data.battery_capacity = value;
-+		wacom_wac->hid_data.bat_connected = 1;
-+		return 0;
-+
-+	case WACOM_HID_WD_BATTERY_CHARGING:
-+		wacom_wac->hid_data.bat_charging = value;
-+		wacom_wac->hid_data.ps_connected = value;
-+		wacom_wac->hid_data.bat_connected = 1;
-+		return 0;
-+
-+	case WACOM_HID_WD_TOUCHRINGSTATUS:
-+		return 0;
-+
-+	default:
- 		input_event(input, usage->type, usage->code, value);
-+		break;
-+	}
- 
- 	return 0;
  }
-@@ -1595,6 +1616,7 @@ static void wacom_wac_pad_report(struct hid_device *hdev,
+=20
++u32 byd_try_model(u32 model)
++{
++	size_t i;
++
++	u32 byd_model[] =3D {
++		BYD_MODEL_BTP6034,
++		BYD_MODEL_BTP6740,
++		BYD_MODEL_BTP8644
++	};
++
++	for (i=3D0; i < ARRAY_SIZE(byd_model); i++) {
++		if (model =3D=3D  byd_model[i])
++			return model;
++	}
++
++	return 0;
++}
++
+ int byd_detect(struct psmouse *psmouse, bool set_properties)
  {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct wacom_features *features = &wacom_wac->features;
- 	struct input_dev *input = wacom_wac->pad_input;
- 	bool active = wacom_wac->hid_data.inrange_state != 0;
- 
-@@ -1605,6 +1627,16 @@ static void wacom_wac_pad_report(struct hid_device *hdev,
- 	if (wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY)
- 		input_event(input, EV_ABS, ABS_MISC, active ? PAD_DEVICE_ID : 0);
- 
-+	if (features->quirks & WACOM_QUIRK_BATTERY) {
-+		int capacity = wacom_wac->hid_data.battery_capacity;
-+		bool charging = wacom_wac->hid_data.bat_charging;
-+		bool connected = wacom_wac->hid_data.bat_connected;
-+		bool powered = wacom_wac->hid_data.ps_connected;
+ 	struct ps2dev *ps2dev =3D &psmouse->ps2dev;
+-	u8 param[4] =3D {0x03, 0x00, 0x00, 0x00};
+-
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+-		return -1;
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+-		return -1;
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+-		return -1;
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+-		return -1;
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
+-		return -1;
+-
+-	if (param[1] !=3D 0x03 || param[2] !=3D 0x64)
++	size_t i;
 +
-+		wacom_notify_battery(wacom_wac, capacity, charging,
-+				     connected, powered);
++	u8 byd_shbyte[] =3D {
++		BYD_SHAKE_BYTE_A,
++		BYD_SHAKE_BYTE_B
++	};
++
++	bool detect =3D false;
++	for (i=3D0; i < ARRAY_SIZE(byd_shbyte); i++) {
++		u32 model;
++		u8 param[4] =3D {byd_shbyte[i], 0x00, 0x00, 0x00};
++
++		if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++			return -1;
++		if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++			return -1;
++		if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++			return -1;
++		if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++			return -1;
++		if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
++			return -1;
++
++		model =3D param[2];
++		model +=3D param[1] << 8;
++		model +=3D param[0] << 16;
++		model =3D byd_try_model(model);
++		if (model)
++			detect =3D true;
 +	}
 +
- 	input_sync(input);
- }
- 
-@@ -1634,6 +1666,9 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
- 	case HID_DG_INRANGE:
- 		wacom_map_usage(input, hdev, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
- 		break;
-+	case HID_DG_BATTERYSTRENGTH:
-+		features->quirks |= WACOM_QUIRK_BATTERY;
-+		break;
- 	case HID_DG_INVERT:
- 		wacom_map_usage(input, hdev, usage, field, EV_KEY,
- 				BTN_TOOL_RUBBER, 0);
-@@ -1704,6 +1739,10 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
- 		if (!(features->quirks & WACOM_QUIRK_SENSE))
- 			wacom_wac->hid_data.sense_state = value;
- 		return 0;
-+	case HID_DG_BATTERYSTRENGTH:
-+		wacom_wac->hid_data.battery_capacity = value;
-+		wacom_wac->hid_data.bat_connected = 1;
-+		break;
- 	case HID_DG_INVERT:
- 		wacom_wac->hid_data.invert_state = value;
- 		return 0;
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 0c69c1f..fa5b772 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -101,6 +101,8 @@
- #define WACOM_HID_WD_ACCELEROMETER_X    (WACOM_HID_UP_WACOMDIGITIZER | 0x0401)
- #define WACOM_HID_WD_ACCELEROMETER_Y    (WACOM_HID_UP_WACOMDIGITIZER | 0x0402)
- #define WACOM_HID_WD_ACCELEROMETER_Z    (WACOM_HID_UP_WACOMDIGITIZER | 0x0403)
-+#define WACOM_HID_WD_BATTERY_CHARGING   (WACOM_HID_UP_WACOMDIGITIZER | 0x0404)
-+#define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
- #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
- #define WACOM_HID_WD_BUTTONHOME         (WACOM_HID_UP_WACOMDIGITIZER | 0x0990)
- #define WACOM_HID_WD_BUTTONUP           (WACOM_HID_UP_WACOMDIGITIZER | 0x0991)
-@@ -257,6 +259,10 @@ struct hid_data {
- 	int cc_value_index;
- 	int num_expected;
- 	int num_received;
-+	int battery_capacity;
-+	int bat_charging;
-+	int bat_connected;
-+	int ps_connected;
- };
- 
- struct wacom_remote_data {
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 0c05b27..021da44 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -231,6 +231,7 @@ struct hid_item {
- #define HID_DG_TAP		0x000d0035
- #define HID_DG_TABLETFUNCTIONKEY	0x000d0039
- #define HID_DG_PROGRAMCHANGEKEY	0x000d003a
-+#define HID_DG_BATTERYSTRENGTH	0x000d003b
- #define HID_DG_INVERT		0x000d003c
- #define HID_DG_TILT_X		0x000d003d
- #define HID_DG_TILT_Y		0x000d003e
--- 
-2.10.0
++	if (!detect)
+ 		return -ENODEV;
+=20
+ 	psmouse_dbg(psmouse, "BYD touchpad detected\n");
 
+--kddslezx7txezxi3
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJX9yeKAAoJEE/hdwZK2YytJQEIALZNTm3Aos4/mntsMs1GNBzO
+IVPYs6Ds2UNrp+vEq1L47Xv0ga2jTBV7oCz2PPZn3HngZIsJArZj8n6WKFFfoV+F
+RcpbLZXQ+Ks5p/qeI/SCbhrPDgpXNO8NTs2b1ELGH3Cb7WiSech2ROtB3gsreoRM
+vdT2jBDXP+rPUpC3PdmMy1f+A+GxcL4oo4FrKWRR2Ls+TIkC5u/jnwH9cjxIr9M2
+e7EJT98odxlQpleN7l45bwwmWSn3V7rVNwILtRk7//J7A/ThfqToXWr0IPmALZ0S
+hyjFHLQey3KvFBh3OeN5FOkJGTy9H/RYB7kPcFSaIINapyEmHFALMtoyHF4beT8=
+=ZC7L
+-----END PGP SIGNATURE-----
+
+--kddslezx7txezxi3--

@@ -1,157 +1,140 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v2 16/18] HID: wacom: generic: Add support for battery status on pen and pad interfaces
-Date: Fri,  7 Oct 2016 15:16:51 -0700
-Message-ID: <20161007221653.26941-16-killertofu@gmail.com>
+Subject: [PATCH v2 11/18] HID: wacom: Read and internally use corrected Intuos tool IDs
+Date: Fri,  7 Oct 2016 15:16:46 -0700
+Message-ID: <20161007221653.26941-11-killertofu@gmail.com>
 References: <20161006212231.31440-1-killertofu@gmail.com>
  <20161007221653.26941-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:35429 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757440AbcJGWSB (ORCPT
+Received: from mail-qt0-f194.google.com ([209.85.216.194]:35869 "EHLO
+        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757428AbcJGWSB (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 18:18:01 -0400
-Received: by mail-qt0-f195.google.com with SMTP id g49so1653126qtc.2
-        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 15:17:28 -0700 (PDT)
+Received: by mail-qt0-f194.google.com with SMTP id y38so1649578qta.3
+        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 15:17:20 -0700 (PDT)
 In-Reply-To: <20161007221653.26941-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-Adds support for usages that may appear on the pen or pad interface which
-report the state of the tablet battery.
+The 'wacom_intuos_inout' function incorrectly assmebles tool IDs from the
+proximity report, shifting the higher values of the ID four bits farther
+than intended. This problem was not detected until too late, but has not
+caused any issues since the incorrect IDs still fit in a 32-bit integer
+and userspace programs have not required the value to match the hardware
+(just that the values are unique and constant).
+
+The tool IDs reported by the new MobileStudio Pro (or any future
+HID_GENERIC device that supports them) do not suffer from the same
+assembly issue, however. In order for 'wacom_intuos_get_tool_type' to
+work for with both codepaths, we correct this issue internally and
+have 'wacom_intuos_general' only mangle the ID when it is posted to
+userspace.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom_wac.c | 41 ++++++++++++++++++++++++++++++++++++++++-
- drivers/hid/wacom_wac.h |  6 ++++++
- include/linux/hid.h     |  1 +
- 3 files changed, 47 insertions(+), 1 deletion(-)
+ drivers/hid/wacom_wac.c | 38 ++++++++++++++++++++++----------------
+ 1 file changed, 22 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index d10b546..21c0ec3 100644
+index 0e8c99a..60f065b 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -1525,6 +1525,10 @@ static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
- 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
+@@ -588,6 +588,11 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 	return 1;
+ }
  
- 	switch (equivalent_usage) {
-+	case WACOM_HID_WD_BATTERY_LEVEL:
-+	case WACOM_HID_WD_BATTERY_CHARGING:
-+		features->quirks |= WACOM_QUIRK_BATTERY;
-+		break;
- 	case WACOM_HID_WD_ACCELEROMETER_X:
- 		__set_bit(INPUT_PROP_ACCELEROMETER, input->propbit);
- 		wacom_map_usage(input, usage, field, EV_ABS, ABS_X, 0);
-@@ -1574,8 +1578,25 @@ static int wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field,
- 		wacom_wac->hid_data.inrange_state |= value;
++static int wacom_intuos_id_mangle(int tool_id)
++{
++	return (tool_id & ~0xFFF) << 4 | (tool_id & 0xFFF);
++}
++
+ static int wacom_intuos_get_tool_type(int tool_id)
+ {
+ 	int tool_type;
+@@ -595,7 +600,7 @@ static int wacom_intuos_get_tool_type(int tool_id)
+ 	switch (tool_id) {
+ 	case 0x812: /* Inking pen */
+ 	case 0x801: /* Intuos3 Inking pen */
+-	case 0x120802: /* Intuos4/5 Inking Pen */
++	case 0x12802: /* Intuos4/5 Inking Pen */
+ 	case 0x012:
+ 		tool_type = BTN_TOOL_PENCIL;
+ 		break;
+@@ -610,11 +615,11 @@ static int wacom_intuos_get_tool_type(int tool_id)
+ 	case 0x804: /* Intuos4/5 13HD/24HD Marker Pen */
+ 	case 0x8e2: /* IntuosHT2 pen */
+ 	case 0x022:
+-	case 0x100804: /* Intuos4/5 13HD/24HD Art Pen */
+-	case 0x140802: /* Intuos4/5 13HD/24HD Classic Pen */
+-	case 0x160802: /* Cintiq 13HD Pro Pen */
+-	case 0x180802: /* DTH2242 Pen */
+-	case 0x100802: /* Intuos4/5 13HD/24HD General Pen */
++	case 0x10804: /* Intuos4/5 13HD/24HD Art Pen */
++	case 0x14802: /* Intuos4/5 13HD/24HD Classic Pen */
++	case 0x16802: /* Cintiq 13HD Pro Pen */
++	case 0x18802: /* DTH2242 Pen */
++	case 0x10802: /* Intuos4/5 13HD/24HD General Pen */
+ 		tool_type = BTN_TOOL_PEN;
+ 		break;
+ 
+@@ -648,12 +653,12 @@ static int wacom_intuos_get_tool_type(int tool_id)
+ 	case 0x80c: /* Intuos4/5 13HD/24HD Marker Pen Eraser */
+ 	case 0x80a: /* Intuos4/5 13HD/24HD General Pen Eraser */
+ 	case 0x90a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
+-	case 0x14080a: /* Intuos4/5 13HD/24HD Classic Pen Eraser */
+-	case 0x10090a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
+-	case 0x10080c: /* Intuos4/5 13HD/24HD Art Pen Eraser */
+-	case 0x16080a: /* Cintiq 13HD Pro Pen Eraser */
+-	case 0x18080a: /* DTH2242 Eraser */
+-	case 0x10080a: /* Intuos4/5 13HD/24HD General Pen Eraser */
++	case 0x1480a: /* Intuos4/5 13HD/24HD Classic Pen Eraser */
++	case 0x1090a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
++	case 0x1080c: /* Intuos4/5 13HD/24HD Art Pen Eraser */
++	case 0x1680a: /* Cintiq 13HD Pro Pen Eraser */
++	case 0x1880a: /* DTH2242 Eraser */
++	case 0x1080a: /* Intuos4/5 13HD/24HD General Pen Eraser */
+ 		tool_type = BTN_TOOL_RUBBER;
+ 		break;
+ 
+@@ -662,7 +667,7 @@ static int wacom_intuos_get_tool_type(int tool_id)
+ 	case 0x112:
+ 	case 0x913: /* Intuos3 Airbrush */
+ 	case 0x902: /* Intuos4/5 13HD/24HD Airbrush */
+-	case 0x100902: /* Intuos4/5 13HD/24HD Airbrush */
++	case 0x10902: /* Intuos4/5 13HD/24HD Airbrush */
+ 		tool_type = BTN_TOOL_AIRBRUSH;
+ 		break;
+ 
+@@ -693,7 +698,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 			(data[6] << 4) + (data[7] >> 4);
+ 
+ 		wacom->id[idx] = (data[2] << 4) | (data[3] >> 4) |
+-			((data[7] & 0x0f) << 20) | ((data[8] & 0xf0) << 12);
++		     ((data[7] & 0x0f) << 16) | ((data[8] & 0xf0) << 8);
+ 
+ 		wacom->tool[idx] = wacom_intuos_get_tool_type(wacom->id[idx]);
+ 
+@@ -923,7 +928,7 @@ static int wacom_intuos_general(struct wacom_wac *wacom)
+ 	 * don't report events for invalid data
+ 	 */
+ 	/* older I4 styli don't work with new Cintiqs */
+-	if ((!((wacom->id[idx] >> 20) & 0x01) &&
++	if ((!((wacom->id[idx] >> 16) & 0x01) &&
+ 			(features->type == WACOM_21UX2)) ||
+ 	    /* Only large Intuos support Lense Cursor */
+ 	    (wacom->tool[idx] == BTN_TOOL_LENS &&
+@@ -1059,7 +1064,8 @@ static int wacom_intuos_general(struct wacom_wac *wacom)
+ 		break;
  	}
  
--	if (equivalent_usage != WACOM_HID_WD_TOUCHRINGSTATUS)
-+	switch (equivalent_usage) {
-+	case WACOM_HID_WD_BATTERY_LEVEL:
-+		wacom_wac->hid_data.battery_capacity = value;
-+		wacom_wac->hid_data.bat_connected = 1;
-+		return 0;
-+
-+	case WACOM_HID_WD_BATTERY_CHARGING:
-+		wacom_wac->hid_data.bat_charging = value;
-+		wacom_wac->hid_data.ps_connected = value;
-+		wacom_wac->hid_data.bat_connected = 1;
-+		return 0;
-+
-+	case WACOM_HID_WD_TOUCHRINGSTATUS:
-+		return 0;
-+
-+	default:
- 		input_event(input, usage->type, usage->code, value);
-+		break;
-+	}
- 
- 	return 0;
- }
-@@ -1594,6 +1615,7 @@ static void wacom_wac_pad_report(struct hid_device *hdev,
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct wacom_features *features = &wacom_wac->features;
- 	struct input_dev *input = wacom_wac->pad_input;
- 	bool active = wacom_wac->hid_data.inrange_state != 0;
- 
-@@ -1604,6 +1626,16 @@ static void wacom_wac_pad_report(struct hid_device *hdev,
- 	if (wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY)
- 		input_event(input, EV_ABS, ABS_MISC, active ? PAD_DEVICE_ID : 0);
- 
-+	if (features->quirks & WACOM_QUIRK_BATTERY) {
-+		int capacity = wacom_wac->hid_data.battery_capacity;
-+		bool charging = wacom_wac->hid_data.bat_charging;
-+		bool connected = wacom_wac->hid_data.bat_connected;
-+		bool powered = wacom_wac->hid_data.ps_connected;
-+
-+		wacom_notify_battery(wacom_wac, capacity, charging,
-+				     connected, powered);
-+	}
-+
- 	input_sync(input);
- }
- 
-@@ -1633,6 +1665,9 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
- 	case HID_DG_INRANGE:
- 		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
- 		break;
-+	case HID_DG_BATTERYSTRENGTH:
-+		features->quirks |= WACOM_QUIRK_BATTERY;
-+		break;
- 	case HID_DG_INVERT:
- 		wacom_map_usage(input, usage, field, EV_KEY,
- 				BTN_TOOL_RUBBER, 0);
-@@ -1703,6 +1738,10 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
- 		if (!(features->quirks & WACOM_QUIRK_SENSE))
- 			wacom_wac->hid_data.sense_state = value;
- 		return 0;
-+	case HID_DG_BATTERYSTRENGTH:
-+		wacom_wac->hid_data.battery_capacity = value;
-+		wacom_wac->hid_data.bat_connected = 1;
-+		break;
- 	case HID_DG_INVERT:
- 		wacom_wac->hid_data.invert_state = value;
- 		return 0;
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 0c69c1f..fa5b772 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -101,6 +101,8 @@
- #define WACOM_HID_WD_ACCELEROMETER_X    (WACOM_HID_UP_WACOMDIGITIZER | 0x0401)
- #define WACOM_HID_WD_ACCELEROMETER_Y    (WACOM_HID_UP_WACOMDIGITIZER | 0x0402)
- #define WACOM_HID_WD_ACCELEROMETER_Z    (WACOM_HID_UP_WACOMDIGITIZER | 0x0403)
-+#define WACOM_HID_WD_BATTERY_CHARGING   (WACOM_HID_UP_WACOMDIGITIZER | 0x0404)
-+#define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
- #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
- #define WACOM_HID_WD_BUTTONHOME         (WACOM_HID_UP_WACOMDIGITIZER | 0x0990)
- #define WACOM_HID_WD_BUTTONUP           (WACOM_HID_UP_WACOMDIGITIZER | 0x0991)
-@@ -257,6 +259,10 @@ struct hid_data {
- 	int cc_value_index;
- 	int num_expected;
- 	int num_received;
-+	int battery_capacity;
-+	int bat_charging;
-+	int bat_connected;
-+	int ps_connected;
- };
- 
- struct wacom_remote_data {
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 0c05b27..021da44 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -231,6 +231,7 @@ struct hid_item {
- #define HID_DG_TAP		0x000d0035
- #define HID_DG_TABLETFUNCTIONKEY	0x000d0039
- #define HID_DG_PROGRAMCHANGEKEY	0x000d003a
-+#define HID_DG_BATTERYSTRENGTH	0x000d003b
- #define HID_DG_INVERT		0x000d003c
- #define HID_DG_TILT_X		0x000d003d
- #define HID_DG_TILT_Y		0x000d003e
+-	input_report_abs(input, ABS_MISC, wacom->id[idx]); /* report tool id */
++	input_report_abs(input, ABS_MISC,
++			 wacom_intuos_id_mangle(wacom->id[idx])); /* report tool id */
+ 	input_report_key(input, wacom->tool[idx], 1);
+ 	input_event(input, EV_MSC, MSC_SERIAL, wacom->serial[idx]);
+ 	wacom->reporting_data = true;
 -- 
 2.10.0
 

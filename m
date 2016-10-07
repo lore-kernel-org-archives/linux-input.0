@@ -1,63 +1,88 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Elantech touchpad doesn't work on Fujitsu E556 laptop
-Date: Fri, 7 Oct 2016 16:37:45 -0700
-Message-ID: <20161007233745.GC21386@dtor-ws>
-References: <e511d6de-1db4-5560-a56c-06846fb3bcfb@gmail.com>
- <20161006055604.GB36340@dtor-ws>
- <e8f2514e-0e36-e6d3-ee60-3806fd464541@gmail.com>
+Subject: Re: [PATCH] Input: wdt87xx_i2c - support new body WDT8752
+Date: Fri, 7 Oct 2016 16:46:01 -0700
+Message-ID: <20161007234601.GA22149@dtor-ws>
+References: <1470219398-10892-1-git-send-email-hn.chen@weidahitech.com>
+ <CAKdAkRRH=2ifEs0O8WjNqYUKOcLS6Nigiw=vq2SAB-XKF_7v7g@mail.gmail.com>
+ <22498D53301C4D4A8FFA8F02C7C3C7C06DDD7D42@mail02.WHT.local>
+ <20160905135545.GL21864@mail.corp.redhat.com>
+ <22498D53301C4D4A8FFA8F02C7C3C7C06DDD7F58@mail02.WHT.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f65.google.com ([209.85.220.65]:36621 "EHLO
-        mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932764AbcJGXhs (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 19:37:48 -0400
-Received: by mail-pa0-f65.google.com with SMTP id cd13so3345966pac.3
-        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 16:37:48 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <e8f2514e-0e36-e6d3-ee60-3806fd464541@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <22498D53301C4D4A8FFA8F02C7C3C7C06DDD7F58@mail02.WHT.local>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Hn Chen <hn.chen@weidahitech.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: William Linna <william.linna@gmail.com>
-Cc: linux-input@vger.kernel.org, tiwai@suse.de
 
-On Fri, Oct 07, 2016 at 09:32:17AM +0300, William Linna wrote:
-> Hi Dmitry,
-> 
-> I just tried the patch, and it worked.
-> 
-> Thank you (and Takashi Iwai for telling me who to contact)
+Hi Hn,
 
-Thanks William!
+On Tue, Sep 06, 2016 at 11:47:39AM +0000, Hn Chen wrote:
+> Hi Benjamin,
+> 
+> Sorry for my poor English and leading you misunderstanding.
+> 
+> The FW of WDT8752 can support HIDI2C for Windows products. And then we develop this driver.
+> So we "borrowed" something from HIDI2C.
+> What I try to mention here is that this driver utilize a part of existed protocol from HIDI2C.
+> We thought that the size of FW can be shrunk in that way.
+> 
+> So, basically, this is still a linux i2c driver with some protocols similar to HIDI2C.
+
+If you already have hardware and firmware that supports HIDI2C, why not
+continue using it? Linux's hid-multitouch driver should be able to
+handle Win-compatible touchscreens out of the box (or maybe with a small
+quirk).
+
+What are the features that require the brand new driver?
+
+Thanks.
 
 > 
+> BR,
+> Hn.chen
 > 
-> On 06.10.2016 08:56, Dmitry Torokhov wrote:
-> >HI WIlliam,
-> >
-> >On Fri, Sep 30, 2016 at 10:57:12AM +0300, William Linna wrote:
-> >>Hi,
-> >>
-> >>Elantech touchpad doesn't work on Fujitsu E556 laptop.
-> >>
-> >>Touchpad doesn't move the cursor at all, and it seems to disturb
-> >>keyboard too. If I accidentally hit the touchpad while typing, the
-> >>key gets "stuck" (it keeps repeating until I press something else).
-> >>
-> >>Fortunately, the touchpad works fine when I force crc_enabled on with:
-> >>echo 1 > /sys/devices/platform/i8042/serio2/crc_enabled
-> >>
-> >>or by applying the following patch, but replacing the U745 with E556:
-> >>https://patchwork.kernel.org/patch/7570531/
-> >>
-> >>See also:
-> >>https://bugzilla.opensuse.org/show_bug.cgi?id=982131
-> >Thank you for reporting. I just CCed you on a patch, it would be great
-> >if you could give it a spin and let me know if it works for you.
-> >
-> >Thanks.
-> >
+> -----Original Message-----
+> From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com] 
+> Sent: Monday, September 05, 2016 9:56 PM
+> To: Hn Chen
+> Cc: Dmitry Torokhov; linux-input@vger.kernel.org; lkml
+> Subject: Re: [PATCH] Input: wdt87xx_i2c - support new body WDT8752
 > 
+> Hi HN,
+> 
+> On Sep 05 2016 or thereabouts, Hn Chen wrote:
+> > Hi Dmitry,
+> > 
+> > >> Considering to be compatible with i2c-hid, WDT8752 has the same way 
+> > >> in enumerating device.
+> > >If it is a HID device then I think you should write a HID driver for it (unless existing driver, such as hid-multitouch can already handle it, possibly >with some changes). I'm addng Benjamin to he can comment as well.
+> > The device can be handled by i2c-hid driver (HID over I2C) already but this proprietary driver still is a must-have for more features.
+> 
+> Then what are those must-have features? From what I can read, only the reflashing firmware is part of it. Unless there is something else, I really don't understand why you can't have a hid-weidatech driver that could handle the specific bits while leaving the rest to i2c-hid.
+> 
+> Also, I am not sure if your driver doesn't interfere with i2c-hid as you are claiming the device through the ACPI ID "WDHT0001" but there should be some PNP IDs "PNP0C50" if it were declared as i2c-hid. If both are set, then the fact your driver is picked up seems to be pure luck: there will be a race between the probe of your driver and i2c-hid, which is not something you want.
+> 
+> If there are some issues with i2c-hid, I'd like also to know them because if we fix them for you there  is a high chance other vendors will benefit from those fixes too.
+> 
+> Cheers,
+> Benjamin
+> 
+> > 
+> > >> And also modify the part of FW update to be more efficiency. The 
+> > >> main modification is that reducing the amount of data transmitted 
+> > >> and using polling for time comsuming operation.
+> > >>
+> > >> Flash erase will wait 50ms for the operation complete in last driver.
+> > >> Extend it to 200ms since the spec says the typical is 30ms but the 
+> > >> max is 200ms.
+> > >This should be split into a separate patch please.
+> > Ok, I will resubmit the part of possible-issue fixing and then the driver patch for supporting WDT8752 again.
+> > Please ignore this submission.
+> > 
+> > Hn.chen
 
 -- 
 Dmitry

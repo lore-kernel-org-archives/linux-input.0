@@ -1,15 +1,15 @@
 From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH v3 7/7] HID: sony: Update device ids
-Date: Fri,  7 Oct 2016 12:39:40 -0700
-Message-ID: <1475869180-26757-8-git-send-email-roderick@gaikai.com>
+Subject: [PATCH v2 5/7] HID: sony: Handle multiple touch events input record
+Date: Fri,  7 Oct 2016 12:39:38 -0700
+Message-ID: <1475869180-26757-6-git-send-email-roderick@gaikai.com>
 References: <1475869180-26757-1-git-send-email-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f53.google.com ([209.85.214.53]:36932 "EHLO
-        mail-it0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932565AbcJGTkT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 15:40:19 -0400
-Received: by mail-it0-f53.google.com with SMTP id z65so17490999itc.0
-        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 12:40:19 -0700 (PDT)
+Received: from mail-io0-f182.google.com ([209.85.223.182]:33760 "EHLO
+        mail-io0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932554AbcJGTkR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 15:40:17 -0400
+Received: by mail-io0-f182.google.com with SMTP id q192so57502901iod.0
+        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 12:40:17 -0700 (PDT)
 In-Reply-To: <1475869180-26757-1-git-send-email-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -18,55 +18,130 @@ Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kerne
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Support additional DS4 model.
+Read the touch history field in the HID descriptor and use this value
+to determine how many touch events to read from the report. As part
+of this patch, we did a first attempt of making the offset calculation
+code less magical.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/hid-core.c | 2 ++
- drivers/hid/hid-ids.h  | 1 +
- drivers/hid/hid-sony.c | 4 ++++
- 3 files changed, 7 insertions(+)
+ drivers/hid/hid-sony.c | 78 +++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 52 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 2b89c70..5ed2f57 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2059,6 +2059,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index cd59c79..27f82cc 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -899,6 +899,7 @@
- #define USB_DEVICE_ID_SONY_PS3_BDREMOTE		0x0306
- #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
- #define USB_DEVICE_ID_SONY_PS4_CONTROLLER	0x05c4
-+#define USB_DEVICE_ID_SONY_PS4_CONTROLLER_2	0x09cc
- #define USB_DEVICE_ID_SONY_MOTION_CONTROLLER	0x03d5
- #define USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER	0x042f
- #define USB_DEVICE_ID_SONY_BUZZ_CONTROLLER		0x0002
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index bd84790..14763cd 100644
+index 24f7d19..b206d85 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -2641,6 +2641,10 @@ static const struct hid_device_id sony_devices[] = {
- 		.driver_data = DUALSHOCK4_CONTROLLER_USB },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
- 		.driver_data = DUALSHOCK4_CONTROLLER_BT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
-+		.driver_data = DUALSHOCK4_CONTROLLER_USB },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
-+		.driver_data = DUALSHOCK4_CONTROLLER_BT },
- 	/* Nyko Core Controller for PS3 */
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER),
- 		.driver_data = SIXAXIS_CONTROLLER_USB | SINO_LITE_CONTROLLER },
+@@ -1030,6 +1030,12 @@ struct motion_output_report_02 {
+ #define SIXAXIS_REPORT_0xF5_SIZE 8
+ #define MOTION_REPORT_0x02_SIZE 49
+ 
++/* Offsets relative to USB input report (0x1). Bluetooth (0x11) requires an
++ * additional +2.
++ */
++#define DS4_INPUT_REPORT_BATTERY_OFFSET  30
++#define DS4_INPUT_REPORT_TOUCHPAD_OFFSET 33
++
+ static DEFINE_SPINLOCK(sony_dev_list_lock);
+ static LIST_HEAD(sony_device_list);
+ static DEFINE_IDA(sony_device_id_allocator);
+@@ -1226,19 +1232,17 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 						struct hid_input, list);
+ 	struct input_dev *input_dev = hidinput->input;
+ 	unsigned long flags;
+-	int n, offset;
++	int n, m, offset, num_touch_data, max_touch_data;
+ 	u8 cable_state, battery_capacity, battery_charging;
+ 
+-	/*
+-	 * Battery and touchpad data starts at byte 30 in the USB report and
+-	 * 32 in Bluetooth report.
+-	 */
+-	offset = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 30 : 32;
++	/* When using Bluetooth the header is 2 bytes longer, so skip these. */
++	int data_offset = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 0 : 2;
+ 
+ 	/*
+-	 * The lower 4 bits of byte 30 contain the battery level
++	 * The lower 4 bits of byte 30 (or 32 for BT) contain the battery level
+ 	 * and the 5th bit contains the USB cable state.
+ 	 */
++	offset = data_offset + DS4_INPUT_REPORT_BATTERY_OFFSET;
+ 	cable_state = (rd[offset] >> 4) & 0x01;
+ 	battery_capacity = rd[offset] & 0x0F;
+ 
+@@ -1265,30 +1269,52 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	sc->battery_charging = battery_charging;
+ 	spin_unlock_irqrestore(&sc->lock, flags);
+ 
+-	offset += 5;
+-
+ 	/*
+-	 * The Dualshock 4 multi-touch trackpad data starts at offset 35 on USB
+-	 * and 37 on Bluetooth.
+-	 * The first 7 bits of the first byte is a counter and bit 8 is a touch
+-	 * indicator that is 0 when pressed and 1 when not pressed.
+-	 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
+-	 * The data for the second touch is in the same format and immediatly
+-	 * follows the data for the first.
++	 * The Dualshock 4 multi-touch trackpad data starts at offset 33 on USB
++	 * and 35 on Bluetooth.
++	 * The first byte indicates the number of touch data in the report.
++	 * Trackpad data starts 2 bytes later (e.g. 35 for USB).
+ 	 */
+-	for (n = 0; n < 2; n++) {
+-		u16 x, y;
++	offset = data_offset + DS4_INPUT_REPORT_TOUCHPAD_OFFSET;
++	max_touch_data = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 3 : 4;
++	if (rd[offset] > 0 && rd[offset] <= max_touch_data)
++		num_touch_data = rd[offset];
++	else
++		num_touch_data = 1;
++	offset += 1;
+ 
+-		x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
+-		y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
++	for (m = 0; m < num_touch_data; m++) {
++		/* Skip past timestamp */
++		offset += 1;
+ 
+-		input_mt_slot(input_dev, n);
+-		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
+-					!(rd[offset] >> 7));
+-		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
+-		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
++		/*
++		 * The first 7 bits of the first byte is a counter and bit 8 is
++		 * a touch indicator that is 0 when pressed and 1 when not
++		 * pressed.
++		 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
++		 * The data for the second touch is in the same format and
++		 * immediately follows the data for the first.
++		 */
++		for (n = 0; n < 2; n++) {
++			u16 x, y;
++			bool active;
++
++			x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
++			y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
++
++			active = !(rd[offset] >> 7);
++			input_mt_slot(input_dev, n);
++			input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, active);
+ 
+-		offset += 4;
++			if (active) {
++				input_report_abs(input_dev, ABS_MT_POSITION_X, x);
++				input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
++			}
++
++			offset += 4;
++		}
++		input_mt_sync_frame(input_dev);
++		input_sync(input_dev);
+ 	}
+ }
+ 
 -- 
 2.7.4
 

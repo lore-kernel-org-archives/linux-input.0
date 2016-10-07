@@ -1,59 +1,65 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Input: melfas_mip4 - add maintainer information
-Date: Fri, 7 Oct 2016 16:29:40 -0700
-Message-ID: <20161007232940.GC8473@dtor-ws>
-References: <1475736483-5150-1-git-send-email-jeesw@melfas.com>
+Subject: Re: [PATCH V1 04/10] watchdog: da9061: watchdog driver (RFC)
+Date: Fri, 7 Oct 2016 16:35:54 -0700
+Message-ID: <20161007233554.GA21386@dtor-ws>
+References: <6ED8E3B22081A4459DAC7699F3695FB7018CCE242C@SW-EX-MBX02.diasemi.com>
+ <20161006184927.GB11915@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7018CCE2732@SW-EX-MBX02.diasemi.com>
+ <20161007170214.GA21349@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7018CCE282C@SW-EX-MBX02.diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f65.google.com ([209.85.220.65]:35770 "EHLO
-        mail-pa0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932284AbcJGX3o (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 19:29:44 -0400
-Received: by mail-pa0-f65.google.com with SMTP id qn10so3325932pac.2
-        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 16:29:43 -0700 (PDT)
+Return-path: <linux-pm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1475736483-5150-1-git-send-email-jeesw@melfas.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7018CCE282C@SW-EX-MBX02.diasemi.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>, Lee Jones <lee.jones@linaro.org>, Eduardo Valentin <edubezval@gmail.com>, Zhang Rui <rui.zhang@intel.com>, DEVICETREE <devicetree@vger.kernel.org>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Sangwon Jee <jeesw@melfas.com>
-Cc: linux-input@vger.kernel.org
 
-On Thu, Oct 06, 2016 at 03:48:03PM +0900, Sangwon Jee wrote:
-> Add maintainer information.
+On Fri, Oct 07, 2016 at 06:01:23PM +0000, Steve Twiss wrote:
+> On 07 October 2016 18:02, Guenter Roeck wrote:
 > 
-> Signed-off-by: Sangwon Jee <jeesw@melfas.com>
-
-Applied, thank you.
-
-> ---
->  MAINTAINERS | 7 +++++++
->  1 file changed, 7 insertions(+)
+> > > On 06 October 2016 19:49, Guenter Roeck wrote:
+> > > > On Thu, Oct 06, 2016 at 04:28:14PM +0000, Steve Twiss wrote:
+> > > > > I am using the compatible string to pick a different configuration .data block:
+> > > > > { .compatible = "dlg,da9062-watchdog", .data = &da9062_watchdog_info },
+> > > > > { .compatible = "dlg,da9061-watchdog", .data = &da9061_watchdog_info },
+> > > > >
+> > > > > But, it is just my opinion to keep the "name" different.
+> > > > > This will not be my decision if accepted into the Linux kernel, but I would like to
+> > > > > at least be consistent for DA9061 and DA9062 so ... is this an issue?
+> > > >
+> > > > FWIW the driver doesn't really need to be updated in the first place.
+> > > > A compatible statement listing both da9061 and da9062 would do it.
+> > >
+> > > I will make the changes you requested: deprecate the existing compatibility
+> > > for da9062-watchdog and make a new compatibility string which combines both
+> > > da9061 and da9062.
+> > >
+> > That is not what I asked for.
 > 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 630151f..f88e97e 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -7155,6 +7155,13 @@ F:	Documentation/scsi/megaraid.txt
->  F:	drivers/scsi/megaraid.*
->  F:	drivers/scsi/megaraid/
->  
-> +MELFAS MIP4 TOUCHSCREEN DRIVER
-> +M:	Sangwon Jee <jeesw@melfas.com>
-> +W:	http://www.melfas.com
-> +S:	Supported
-> +F:	drivers/input/touchscreen/melfas_mip4*
-> +F:	Documentation/devicetree/bindings/input/touchscreen/melfas_mip4*
-
-Tightened match just in case.
-
-> +
->  MELLANOX ETHERNET DRIVER (mlx4_en)
->  M: 	Eugenia Emantayev <eugenia@mellanox.com>
->  L:	netdev@vger.kernel.org
-> -- 
-> 1.9.1
+> Ok. Did you mean separate compatible statements with data sections pointing at 
+> the same structure?
 > 
+> Like this:
+> { .compatible = "dlg,da9062-watchdog", .data = &da9062_watchdog_info },
+> { .compatible = "dlg,da9061-watchdog", .data = &da9062_watchdog_info },
+> 
+> So this would be the only change needed in the device driver.
+
+If there is no change in IP block then I do not see why we need to
+introduce new names at all. The dts can specify fallback compatible
+stting. Note, it is called *compatible* not "model" or "device id" or
+whatever. So you can just say in DTS:
+
+	compatible = "dlg,da9061-watchdog", "dlg,da9062-watchdog";
+
+and leave the driver alone. That goes for input part as well. You only
+need to add new compatible to the driver when it in fact is
+*incompatible* with the existing blocks.
+
+Thanks.
 
 -- 
 Dmitry

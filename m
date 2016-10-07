@@ -1,57 +1,69 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v2 18/18] HID: input: Recognize ABS_WHEEL in hidinput_calc_abs_res
-Date: Fri,  7 Oct 2016 15:16:53 -0700
-Message-ID: <20161007221653.26941-18-killertofu@gmail.com>
+Subject: [PATCH v2 08/18] HID: wacom: generic: Add support for vendor-defined "Distance" usage
+Date: Fri,  7 Oct 2016 15:16:43 -0700
+Message-ID: <20161007221653.26941-8-killertofu@gmail.com>
 References: <20161006212231.31440-1-killertofu@gmail.com>
  <20161007221653.26941-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f196.google.com ([209.85.216.196]:35881 "EHLO
-        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757443AbcJGWSB (ORCPT
+Received: from mail-qk0-f194.google.com ([209.85.220.194]:36610 "EHLO
+        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757419AbcJGWSB (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2016 18:18:01 -0400
-Received: by mail-qt0-f196.google.com with SMTP id y38so1649649qta.3
-        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 15:17:30 -0700 (PDT)
+Received: by mail-qk0-f194.google.com with SMTP id z190so3303274qkc.3
+        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2016 15:17:15 -0700 (PDT)
 In-Reply-To: <20161007221653.26941-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-The "Steering" usage (HID_UP_SIMULATION | 0xc8) is defined in HUT 1.12 as
-follows:
-
-"A steering wheel is a single degree-of-freedom device that rotates about
-an axis. The zero position is always the neutral or 'straight ahead'
-position, with positive values turning clockwise and negative values
-turning counterclockwise. If the Coordinate Values Wrap attribute is
-set, the steering wheel can be turned past 360 degrees."
-
-The hidinput_configure_usage function canonically maps this usage to the
-ABS_WHEEL axis, but hidinput_calc_abs_res does not recognize this axis
-as one for which it can calculate a resolution. This effectively prevents
-wheels from being assigned a proper resolution that userspace can use
-to determine the precise angle of input.
-
-This commit adds ABS_WHEEL as a rotational axis to hidinput_calc_abs_res.
+The vendor-defined 0xFF0D01032 ("Distance") usage is nearly equivalent to
+HID_GD_Z, except that the axis direction is inverted. Unlike HID_GD_Z which
+increases in value as the pen-to-surface distance is decreased, this usage
+decreases. Treat this usage as a special case to ensure we don't invert the
+scale to be ABS_DISTANCE compatible like we do for HID_GD_Z.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-input.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/wacom_wac.c | 4 +++-
+ drivers/hid/wacom_wac.h | 1 +
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index bcfaf32..81d35e9 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -253,6 +253,7 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 	case ABS_RX:
- 	case ABS_RY:
- 	case ABS_RZ:
-+	case ABS_WHEEL:
- 	case ABS_TILT_X:
- 	case ABS_TILT_Y:
- 		if (field->unit == 0x14) {		/* If degrees */
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index edc2c14..aa51684 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1442,7 +1442,8 @@ static int wacom_equivalent_usage(int usage)
+ 		int subusage = (usage & 0xFF);
+ 
+ 		if (subpage == WACOM_HID_SP_DIGITIZER ||
+-		    subpage == WACOM_HID_SP_DIGITIZERINFO) {
++		    subpage == WACOM_HID_SP_DIGITIZERINFO ||
++		    usage == WACOM_HID_WD_DISTANCE) {
+ 			return usage;
+ 		}
+ 
+@@ -1502,6 +1503,7 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ 	case HID_GD_Y:
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_Y, 4);
+ 		break;
++	case WACOM_HID_WD_DISTANCE:
+ 	case HID_GD_Z:
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_DISTANCE, 0);
+ 		break;
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index c82233d..1ced6e4 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -88,6 +88,7 @@
+ #define WACOM_HID_SP_DIGITIZER          0x000d0000
+ #define WACOM_HID_SP_DIGITIZERINFO      0x00100000
+ #define WACOM_HID_WD_DIGITIZER          (WACOM_HID_UP_WACOMDIGITIZER | 0x01)
++#define WACOM_HID_WD_DISTANCE           (WACOM_HID_UP_WACOMDIGITIZER | 0x0132)
+ #define WACOM_HID_WD_DATAMODE           (WACOM_HID_UP_WACOMDIGITIZER | 0x1002)
+ #define WACOM_HID_UP_G9                 0xff090000
+ #define WACOM_HID_G9_PEN                (WACOM_HID_UP_G9 | 0x02)
 -- 
 2.10.0
 

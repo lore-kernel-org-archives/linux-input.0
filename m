@@ -1,67 +1,80 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 4/5] HID: sony: Send ds4 output reports on output
- end-point
-Date: Fri, 7 Oct 2016 17:56:28 +0200
-Message-ID: <20161007155628.GE30411@mail.corp.redhat.com>
+Subject: Re: [PATCH 5/5] HID: sony: Handle multiple touch events input record
+Date: Fri, 7 Oct 2016 18:02:19 +0200
+Message-ID: <20161007160219.GF30411@mail.corp.redhat.com>
 References: <1475636338-3779-1-git-send-email-roderick@gaikai.com>
- <1475636338-3779-5-git-send-email-roderick@gaikai.com>
- <20161005083150.GB19261@mail.corp.redhat.com>
- <5FB6ED86-613A-449C-8D7C-60FD136075C3@gmail.com>
- <4f8de661a2a8be99ddcb284a89d4422c.squirrel@mungewell.org>
- <740B6F90-3CBB-45F6-AE7A-CA510D397B92@gmail.com>
+ <1475636338-3779-6-git-send-email-roderick@gaikai.com>
+ <20161005083548.GC19261@mail.corp.redhat.com>
+ <03619b65564e2a66b392b048b1bdc519.squirrel@mungewell.org>
+ <CANndSK=p2r-P_mDZFEhKjUB1R9f9_vxrav9Aekdez87HYQCQ9A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47410 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:43250 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932268AbcJGP4e (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 7 Oct 2016 11:56:34 -0400
+        id S938757AbcJGQCY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 7 Oct 2016 12:02:24 -0400
 Content-Disposition: inline
-In-Reply-To: <740B6F90-3CBB-45F6-AE7A-CA510D397B92@gmail.com>
+In-Reply-To: <CANndSK=p2r-P_mDZFEhKjUB1R9f9_vxrav9Aekdez87HYQCQ9A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@gmail.com>
-Cc: Simon Wood <simon@mungewell.org>, Roderick Colenbrander <roderick@gaikai.com>, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>, Frank Praznik <frank.praznik@oh.rr.com>, Antonio Ospite <ao2@ao2.it>
+To: Roderick Colenbrander <roderick@gaikai.com>
+Cc: Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Oct 05 2016 or thereabouts, Frank Praznik wrote:
+On Oct 05 2016 or thereabouts, Roderick Colenbrander wrote:
+> On Wed, Oct 5, 2016 at 8:29 AM, Simon Wood <simon@mungewell.org> wrote:
+> > On Wed, October 5, 2016 2:35 am, Benjamin Tissoires wrote:
+> >> On Oct 04 2016 or thereabouts, Roderick Colenbrander wrote:
+> >
+> >>> +            /*
+> >>> +             * The first 7 bits of the first byte is a counter and bit 8 is
+> >>> +             * a touch indicator that is 0 when pressed and 1 when not
+> >>> +             * pressed.
+> >>> +             * The next 3 bytes are two 12 bit touch coordinates, X and Y.
+> >>> +             * The data for the second touch is in the same format and
+> >>> +             * immediately follows the data for the first.
+> >>> +             */
+> >>> +            for (n = 0; n < 2; n++) {
+> >>> +                    u16 x, y;
+> >>> +                    bool active;
+> >>> +
+> >>> +                    x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
+> >>> +                    y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
+> >>> +
+> >>> +                    active = !(rd[offset] >> 7);
+> >>> +                    input_mt_slot(input_dev, n);
+> >>>
+> >>
+> >> Just to be sure, the device reports 2 touches only, and the
+> >> "num_touch_data" chunks are just the history of these 2 touches, the
+> >> last chunk being the last known touches?
+> >
+> > FYI - Community knowledge/understanding...
+> > http://www.psdevwiki.com/ps4/DS4-BT#HID_INPUT_reports
+> >
+> > Simon
+> >
 > 
-> > On Oct 5, 2016, at 13:35, Simon Wood <simon@mungewell.org> wrote:
-> > 
-> > On Wed, October 5, 2016 10:54 am, Frank Praznik wrote:
-> >> The best answer I can give is "not to my knowledge”.  Rumble and LEDs
-> >> have standard kernel interfaces but obviously we can’t guarantee 100% that
-> >> nobody is using hidraw directly.  Commercial games and engines aren't
-> >> running as root and thus can’t use hidraw so I think we can safely say
-> >> that no major commercial software will be broken by this.
-> > 
-> > There are a couple of projects I know of, but I am unable to say whether
-> > they are still active or whether proposed changes will affect them...
-> > https://thp.io/2010/psmove/
-> > http://moveonpc.blogspot.ca/
-> > https://github.com/chrippa/ds4drv
-> > 
-> > Audio output is one area of the DS4 which is not supported in kernel,
-> > maybe some renewed interest can get this working.
-> > 
-> > I agree with Frank that we should move forward, if something gets broken
-> > we can work a better solution.
-> > Simon.
-> > 
-> > acked-by: Simon Wood <simon@mungewell.org>
-> > 
-> > 
-> > 
+> Hi Ben and Simon,
 > 
-> This change only affects sending rumble/LED output reports to the DS4, so hidraw input reports and sending/receiving feature reports will be unchanged as will anything not in the DS4 codepath (ie. Move controllers).  It looks like ds4drv has both a hidraw backend and one which uses raw Bluetooth sockets.  The raw socket backend should be unaffected, but the hidraw backend will probably have issues.  It should be trivial to patch it to append the CRC to the raw data packet like the kernel module does though.  It also looks like hidraw isn’t the default Bluetooth backend which reduces the odds that it will be an issue even further.
-> 
-> I’m definitely in favor of moving toward more correct behavior as long as the ds4drv project is given a warning to start sending CRC-ed output reports.
-> 
-> acked-by: Frank Praznik <frank.praznik@gmail.com>
+> Correct, the DS4 sends a touch history. The last element is the
+> latest. An input report can contain multiple touch samples, because
+> the device internally samples at a rate which is higher than at which
+> it generates HID reports. On USB you can easily see multiple touch
+> events and it is even easier on Bluetooth (especially if it is set to
+> a low frequency). The extra history is important for gestures.
 
-Then:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-For the user-space change: Acked-by me too.
+OK, so if it's important, you need to actually send it by adding
+input_mt_sync_frame() and input_sync() calls. Otherwise, the values will
+just get mangled by the kernel in evdev and everything happens as if you
+just sent the last pair in the history.
+
+The first 4 patches are IMO mergeable, but this one will need a little
+bit more polish to actually forward the events.
 
 Cheers,
 Benjamin
+
+> 
+> Thanks,
+> Roderick

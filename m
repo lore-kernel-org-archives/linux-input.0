@@ -1,51 +1,39 @@
-From: Dmitry Tunin <hanipouspilot@gmail.com>
-Subject: [PATCH] Input: psmouse - cleanup Focaltech code
-Date: Sat,  8 Oct 2016 13:38:56 +0300
-Message-ID: <1475923136-6046-1-git-send-email-hanipouspilot@gmail.com>
+From: Scott Branden <scott.branden@broadcom.com>
+Subject: [PATCH] Input: set default for iProc touchscreen
+Date: Sat,  8 Oct 2016 11:11:35 -0700
+Message-ID: <1475950295-9660-1-git-send-email-scott.branden@broadcom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:32982 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756513AbcJHKjK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 8 Oct 2016 06:39:10 -0400
+Received: from mail-pf0-f172.google.com ([209.85.192.172]:32773 "EHLO
+        mail-pf0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751691AbcJHSLs (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 8 Oct 2016 14:11:48 -0400
+Received: by mail-pf0-f172.google.com with SMTP id 190so36911485pfv.0
+        for <linux-input@vger.kernel.org>; Sat, 08 Oct 2016 11:11:46 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mathias Gottschlag <mgottschlag@gmail.com>, Dmitry Tunin <hanipouspilot@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, BCM Kernel Feedback <bcm-kernel-feedback-list@broadcom.com>, Scott Branden <scott.branden@broadcom.com>, Ray Jui <rjui@broadcom.com>
 
-psmouse->name "Focaltech Touchpad" is an overkill. In xinput it is too long as
-"FocaltechPS/2 Focaltech Focaltech Touchpad"
+Enable the Broadcom iProc touchscreen by default for all iProc platforms.
 
-In focaltech_report_state() pointer to psmouse->dev is already stored as *dev
-
-Signed-off-by: Dmitry Tunin <hanipouspilot@gmail.com>
+Signed-off-by: Ray Jui <rjui@broadcom.com>
+Signed-off-by: Scott Branden <scott.branden@broadcom.com>
 ---
- drivers/input/mouse/focaltech.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
-index c8c6a8c..49a56f655 100644
---- a/drivers/input/mouse/focaltech.c
-+++ b/drivers/input/mouse/focaltech.c
-@@ -43,7 +43,7 @@ int focaltech_detect(struct psmouse *psmouse, bool set_properties)
- 
- 	if (set_properties) {
- 		psmouse->vendor = "FocalTech";
--		psmouse->name = "FocalTech Touchpad";
-+		psmouse->name = "Touchpad";
- 	}
- 
- 	return 0;
-@@ -146,8 +146,8 @@ static void focaltech_report_state(struct psmouse *psmouse)
- 	}
- 	input_mt_report_pointer_emulation(dev, true);
- 
--	input_report_key(psmouse->dev, BTN_LEFT, state->pressed);
--	input_sync(psmouse->dev);
-+	input_report_key(dev, BTN_LEFT, state->pressed);
-+	input_sync(dev);
- }
- 
- static void focaltech_process_touch_packet(struct psmouse *psmouse,
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 2fb1f43..f785371 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -364,6 +364,7 @@ config TOUCHSCREEN_ILI210X
+ config TOUCHSCREEN_IPROC
+ 	tristate "IPROC touch panel driver support"
+ 	depends on ARCH_BCM_IPROC || COMPILE_TEST
++	default ARCH_BCM_IPROC
+ 	help
+ 	  Say Y here if you want to add support for the IPROC touch
+ 	  controller to your system.
 -- 
-2.7.4
+2.5.0
 

@@ -1,45 +1,72 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: Re: [PATCH v3 0/7] HID: sony: game controller updates
-Date: Mon, 10 Oct 2016 10:36:51 -0700
-Message-ID: <CANndSKk04D1h+agzpn-djGfPqiRLnBCcEWP6XGGGtNoo+PKAKA@mail.gmail.com>
-References: <1475869180-26757-1-git-send-email-roderick@gaikai.com> <alpine.LNX.2.00.1610101044570.31629@cbobk.fhfr.pm>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 8/8] Input: elan_i2c - add Host Notify support
+Date: Mon, 10 Oct 2016 14:39:04 -0700
+Message-ID: <CAKdAkRRK746K_+qqi+5YYfJ8NMBwbn5MYa02N4tn-qkfjnVwGg@mail.gmail.com>
+References: <1476117755-8113-1-git-send-email-benjamin.tissoires@redhat.com> <1476117755-8113-9-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f45.google.com ([209.85.213.45]:34082 "EHLO
-        mail-vk0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752301AbcJJRgx (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Oct 2016 13:36:53 -0400
-Received: by mail-vk0-f45.google.com with SMTP id b186so93445388vkb.1
-        for <linux-input@vger.kernel.org>; Mon, 10 Oct 2016 10:36:53 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1610101044570.31629@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1476117755-8113-9-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, Jonathan Corbet <corbet@lwn.net>, KT Liao <kt.liao@emc.com.tw>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Mon, Oct 10, 2016 at 1:45 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Fri, 7 Oct 2016, Roderick Colenbrander wrote:
+Hi Benjamin,
+
+On Mon, Oct 10, 2016 at 9:42 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> The Thinkpad series 13 uses Host Notify to report the interrupt.
+> Add elan_smb_alert() to handle those interrupts and disable the irq
+> handling on this case.
 >
->> This is a resubmit of the previous patches. Most patches are unchanged,
->> just for clarity the whole series is sent again.
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 >
-> This is now queued in hid.git#for-4.10/sony. Given the slight confusion
-> wrt. how this series has been (partially) (re-)submitted multiple times, I
-> hope I got everything right; please check the branch.
+
+Why do we have to do this in the driver instead of having I2C core set
+it up for us? I expect we'd be repeating this block of code for every
+driver that has an option of using SMbus notify.
+
+Thanks!
+
+> ---
 >
-> Thanks,
+> new in v4 (was submitted on linux-input with the .alert callback)
+> ---
+>  drivers/input/mouse/elan_i2c_core.c | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
 >
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index 6f16eb4..4aaac5d 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -1040,6 +1040,21 @@ static int elan_probe(struct i2c_client *client,
+>                                                 I2C_FUNC_SMBUS_BLOCK_DATA |
+>                                                 I2C_FUNC_SMBUS_I2C_BLOCK)) {
+>                 transport_ops = &elan_smbus_ops;
+> +
+> +               if (!irq) {
+> +                       if (!i2c_check_functionality(client->adapter,
+> +                                       I2C_FUNC_SMBUS_HOST_NOTIFY)) {
+> +                               dev_err(dev, "no Host Notify support\n");
+> +                               return -ENODEV;
+> +                       }
+> +
+> +                       irq = i2c_smbus_host_notify_to_irq(client);
+> +                       if (irq < 0) {
+> +                               dev_err(dev,
+> +                                       "Unable to request a Host Notify IRQ.\n");
+> +                               return irq;
+> +                       }
+> +               }
+>         } else {
+>                 dev_err(dev, "not a supported I2C/SMBus adapter\n");
+>                 return -EIO;
 > --
-> Jiri Kosina
-> SUSE Labs
+> 2.7.4
 >
 
-Hi Jiri,
 
-I have had a look over the branch and it looks correct to me. Thanks
-for merging!
 
-Thanks,
-Roderick
+-- 
+Dmitry

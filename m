@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v4 7/8] Input: elan_i2c - store the irq in struct elan_tp_data
-Date: Mon, 10 Oct 2016 18:42:34 +0200
-Message-ID: <1476117755-8113-8-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v4 3/8] i2c: i801: use BIT() macro for bits definition
+Date: Mon, 10 Oct 2016 18:42:30 +0200
+Message-ID: <1476117755-8113-4-git-send-email-benjamin.tissoires@redhat.com>
 References: <1476117755-8113-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1476117755-8113-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,160 +10,108 @@ To: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com
 Cc: Jean Delvare <jdelvare@suse.com>, Jonathan Corbet <corbet@lwn.net>, KT Liao <kt.liao@emc.com.tw>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-And make sure we have one available.
+i801 mixes hexadecimal and decimal values for defining bits. However,
+we have a nice BIT() macro for this exact purpose.
 
+No functional changes, cleanup only.
+
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-new in v4
----
- drivers/input/mouse/elan_i2c_core.c | 34 ++++++++++++++++++++++------------
- 1 file changed, 22 insertions(+), 12 deletions(-)
+no changes in v4
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index d15b338..6f16eb4 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -62,6 +62,7 @@ struct elan_tp_data {
- 	struct i2c_client	*client;
- 	struct input_dev	*input;
- 	struct regulator	*vcc;
-+	int			irq;
+no changes in v3
+
+no changes in v2
+---
+ drivers/i2c/busses/i2c-i801.c | 50 +++++++++++++++++++++----------------------
+ 1 file changed, 25 insertions(+), 25 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index cfb74fc..5928ee2 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -136,26 +136,26 @@
+ #define SBREG_SMBCTRL		0xc6000c
  
- 	const struct elan_transport_ops *ops;
+ /* Host status bits for SMBPCISTS */
+-#define SMBPCISTS_INTS		0x08
++#define SMBPCISTS_INTS		BIT(3)
  
-@@ -457,7 +458,7 @@ static int elan_update_firmware(struct elan_tp_data *data,
+ /* Control bits for SMBPCICTL */
+-#define SMBPCICTL_INTDIS	0x0400
++#define SMBPCICTL_INTDIS	BIT(10)
  
- 	dev_dbg(&client->dev, "Starting firmware update....\n");
+ /* Host configuration bits for SMBHSTCFG */
+-#define SMBHSTCFG_HST_EN	1
+-#define SMBHSTCFG_SMB_SMI_EN	2
+-#define SMBHSTCFG_I2C_EN	4
++#define SMBHSTCFG_HST_EN	BIT(0)
++#define SMBHSTCFG_SMB_SMI_EN	BIT(1)
++#define SMBHSTCFG_I2C_EN	BIT(2)
  
--	disable_irq(client->irq);
-+	disable_irq(data->irq);
- 	data->in_fw_update = true;
+ /* TCO configuration bits for TCOCTL */
+-#define TCOCTL_EN		0x0100
++#define TCOCTL_EN		BIT(8)
  
- 	retval = __elan_update_firmware(data, fw);
-@@ -471,7 +472,7 @@ static int elan_update_firmware(struct elan_tp_data *data,
- 	}
+ /* Auxiliary status register bits, ICH4+ only */
+-#define SMBAUXSTS_CRCE		1
+-#define SMBAUXSTS_STCO		2
++#define SMBAUXSTS_CRCE		BIT(0)
++#define SMBAUXSTS_STCO		BIT(1)
  
- 	data->in_fw_update = false;
--	enable_irq(client->irq);
-+	enable_irq(data->irq);
+ /* Auxiliary control register bits, ICH4+ only */
+-#define SMBAUXCTL_CRC		1
+-#define SMBAUXCTL_E32B		2
++#define SMBAUXCTL_CRC		BIT(0)
++#define SMBAUXCTL_E32B		BIT(1)
  
- 	return retval;
- }
-@@ -599,7 +600,7 @@ static ssize_t calibrate_store(struct device *dev,
- 	if (retval)
- 		return retval;
+ /* Other settings */
+ #define MAX_RETRIES		400
+@@ -170,27 +170,27 @@
+ #define I801_I2C_BLOCK_DATA	0x18	/* ICH5 and later */
  
--	disable_irq(client->irq);
-+	disable_irq(data->irq);
+ /* I801 Host Control register bits */
+-#define SMBHSTCNT_INTREN	0x01
+-#define SMBHSTCNT_KILL		0x02
+-#define SMBHSTCNT_LAST_BYTE	0x20
+-#define SMBHSTCNT_START		0x40
+-#define SMBHSTCNT_PEC_EN	0x80	/* ICH3 and later */
++#define SMBHSTCNT_INTREN	BIT(0)
++#define SMBHSTCNT_KILL		BIT(1)
++#define SMBHSTCNT_LAST_BYTE	BIT(5)
++#define SMBHSTCNT_START		BIT(6)
++#define SMBHSTCNT_PEC_EN	BIT(7)	/* ICH3 and later */
  
- 	data->mode |= ETP_ENABLE_CALIBRATE;
- 	retval = data->ops->set_mode(client, data->mode);
-@@ -645,7 +646,7 @@ out_disable_calibrate:
- 			retval = error;
- 	}
- out:
--	enable_irq(client->irq);
-+	enable_irq(data->irq);
- 	mutex_unlock(&data->sysfs_mutex);
- 	return retval ?: count;
- }
-@@ -711,7 +712,7 @@ static ssize_t acquire_store(struct device *dev, struct device_attribute *attr,
- 	if (retval)
- 		return retval;
+ /* I801 Hosts Status register bits */
+-#define SMBHSTSTS_BYTE_DONE	0x80
+-#define SMBHSTSTS_INUSE_STS	0x40
+-#define SMBHSTSTS_SMBALERT_STS	0x20
+-#define SMBHSTSTS_FAILED	0x10
+-#define SMBHSTSTS_BUS_ERR	0x08
+-#define SMBHSTSTS_DEV_ERR	0x04
+-#define SMBHSTSTS_INTR		0x02
+-#define SMBHSTSTS_HOST_BUSY	0x01
++#define SMBHSTSTS_BYTE_DONE	BIT(7)
++#define SMBHSTSTS_INUSE_STS	BIT(6)
++#define SMBHSTSTS_SMBALERT_STS	BIT(5)
++#define SMBHSTSTS_FAILED	BIT(4)
++#define SMBHSTSTS_BUS_ERR	BIT(3)
++#define SMBHSTSTS_DEV_ERR	BIT(2)
++#define SMBHSTSTS_INTR		BIT(1)
++#define SMBHSTSTS_HOST_BUSY	BIT(0)
  
--	disable_irq(client->irq);
-+	disable_irq(data->irq);
+ /* Host Notify Status register bits */
+-#define SMBSLVSTS_HST_NTFY_STS	1
++#define SMBSLVSTS_HST_NTFY_STS	BIT(0)
  
- 	data->baseline_ready = false;
+ /* Host Notify Command register bits */
+-#define SMBSLVCMD_HST_NTFY_INTREN	0x01
++#define SMBSLVCMD_HST_NTFY_INTREN	BIT(0)
  
-@@ -753,7 +754,7 @@ out_disable_calibrate:
- 			retval = error;
- 	}
- out:
--	enable_irq(client->irq);
-+	enable_irq(data->irq);
- 	mutex_unlock(&data->sysfs_mutex);
- 	return retval ?: count;
- }
-@@ -1026,6 +1027,9 @@ static int elan_probe(struct i2c_client *client,
- 	struct elan_tp_data *data;
- 	unsigned long irqflags;
- 	int error;
-+	int irq;
-+
-+	irq = client->irq;
- 
- 	if (IS_ENABLED(CONFIG_MOUSE_ELAN_I2C_I2C) &&
- 	    i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-@@ -1041,6 +1045,11 @@ static int elan_probe(struct i2c_client *client,
- 		return -EIO;
- 	}
- 
-+	if (irq <= 0) {
-+		dev_err(dev, "no IRQ provided.\n");
-+		return -ENODEV;
-+	}
-+
- 	data = devm_kzalloc(&client->dev, sizeof(struct elan_tp_data),
- 			    GFP_KERNEL);
- 	if (!data)
-@@ -1049,6 +1058,7 @@ static int elan_probe(struct i2c_client *client,
- 	i2c_set_clientdata(client, data);
- 
- 	data->ops = transport_ops;
-+	data->irq = irq;
- 	data->client = client;
- 	init_completion(&data->fw_completion);
- 	mutex_init(&data->sysfs_mutex);
-@@ -1121,12 +1131,12 @@ static int elan_probe(struct i2c_client *client,
- 	 */
- 	irqflags = client->dev.of_node ? 0 : IRQF_TRIGGER_FALLING;
- 
--	error = devm_request_threaded_irq(&client->dev, client->irq,
-+	error = devm_request_threaded_irq(&client->dev, data->irq,
- 					  NULL, elan_isr,
- 					  irqflags | IRQF_ONESHOT,
- 					  client->name, data);
- 	if (error) {
--		dev_err(&client->dev, "cannot register irq=%d\n", client->irq);
-+		dev_err(&client->dev, "cannot register irq=%d\n", data->irq);
- 		return error;
- 	}
- 
-@@ -1179,12 +1189,12 @@ static int __maybe_unused elan_suspend(struct device *dev)
- 	if (ret)
- 		return ret;
- 
--	disable_irq(client->irq);
-+	disable_irq(data->irq);
- 
- 	if (device_may_wakeup(dev)) {
- 		ret = elan_sleep(data);
- 		/* Enable wake from IRQ */
--		data->irq_wake = (enable_irq_wake(client->irq) == 0);
-+		data->irq_wake = (enable_irq_wake(data->irq) == 0);
- 	} else {
- 		ret = elan_disable_power(data);
- 	}
-@@ -1200,7 +1210,7 @@ static int __maybe_unused elan_resume(struct device *dev)
- 	int error;
- 
- 	if (device_may_wakeup(dev) && data->irq_wake) {
--		disable_irq_wake(client->irq);
-+		disable_irq_wake(data->irq);
- 		data->irq_wake = false;
- 	}
- 
-@@ -1215,7 +1225,7 @@ static int __maybe_unused elan_resume(struct device *dev)
- 		dev_err(dev, "initialize when resuming failed: %d\n", error);
- 
- err:
--	enable_irq(data->client->irq);
-+	enable_irq(data->irq);
- 	return error;
- }
- 
+ #define STATUS_ERROR_FLAGS	(SMBHSTSTS_FAILED | SMBHSTSTS_BUS_ERR | \
+ 				 SMBHSTSTS_DEV_ERR)
 -- 
 2.7.4

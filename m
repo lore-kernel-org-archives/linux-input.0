@@ -1,55 +1,90 @@
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-Subject: RE: [PATCH V1 06/10] Documentation: dt: input: temperature driver
-Date: Tue, 11 Oct 2016 11:43:21 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE2CC4@SW-EX-MBX02.diasemi.com>
-References: <cover.1475743411.git.stwiss.opensource@diasemi.com>
- <313a15d14dd20a8cb8ac99a4cd423798343c5b65.1475743411.git.stwiss.opensource@diasemi.com>
- <20161010133718.GA9643@rob-hp-laptop>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 2/3] input: pwm-beeper: add documentation for volume
+ devicetree bindings
+Date: Tue, 11 Oct 2016 08:39:57 -0500
+Message-ID: <CAL_JsqLGY+6eWb4dN-TMmt+PJSK6zm6gPgO3SCPa4esSpTzW8w@mail.gmail.com>
+References: <fe6349a5-7935-5be7-6dc1-7e80fa9dceeb@exceet.de>
+ <1475831223-6006-1-git-send-email-frieder.schrempf@exceet.de>
+ <1475831223-6006-3-git-send-email-frieder.schrempf@exceet.de>
+ <20161010152055.GA6868@rob-hp-laptop> <24e35d49-7c3d-b094-f0b7-96367389f249@exceet.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.bemta6.messagelabs.com ([193.109.254.110]:59393 "EHLO
-        mail1.bemta6.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751736AbcJKLuo (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 11 Oct 2016 07:50:44 -0400
-In-Reply-To: <20161010133718.GA9643@rob-hp-laptop>
-Content-Language: en-US
+Received: from mail.kernel.org ([198.145.29.136]:50076 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753623AbcJKNkX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 11 Oct 2016 09:40:23 -0400
+In-Reply-To: <24e35d49-7c3d-b094-f0b7-96367389f249@exceet.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
+To: Schrempf Frieder <frieder.schrempf@exceet.de>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "pawel.moll@arm.com" <pawel.moll@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "galak@codeaurora.org" <galak@codeaurora.org>, "luis@debethencourt.com" <luis@debethencourt.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi,
+On Tue, Oct 11, 2016 at 3:17 AM, Schrempf Frieder
+<frieder.schrempf@exceet.de> wrote:
+> On 10.10.2016 17:20, Rob Herring wrote:
+>> On Fri, Oct 07, 2016 at 09:08:17AM +0000, Schrempf Frieder wrote:
+>>> This patch adds the documentation for the devicetree bindings to set
+>>> the volume levels.
+>>>
+>>> Signed-off-by: Frieder Schrempf <frieder.schrempf@exceet.de>
+>>> ---
+>>> Changes in v2:
+>>>  - split into 3 separate patches
+>>>  - make volume properties optional
+>>>
+>>>  .../devicetree/bindings/input/pwm-beeper.txt       | 22 ++++++++++++++++++++++
+>>>  1 file changed, 22 insertions(+)
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt b/Documentation/devicetree/bindings/input/pwm-beeper.txt
+>>> index be332ae..6d8ba4e 100644
+>>> --- a/Documentation/devicetree/bindings/input/pwm-beeper.txt
+>>> +++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
+>>> @@ -5,3 +5,25 @@ Registers a PWM device as beeper.
+>>>  Required properties:
+>>>  - compatible: should be "pwm-beeper"
+>>>  - pwms: phandle to the physical PWM device
+>>> +
+>>> +Optional properties:
+>>> +- volume-levels: Array of distinct volume levels. These need to be in the
+>>> +      range of 0 to 500, while 0 means 0% duty cycle (mute) and 500 means
+>>> +      50% duty cycle (max volume).
+>>> +      Please note that the actual volume of most beepers is highly
+>>> +      non-linear, which means that low volume levels are probably somewhere
+>>> +      in the range of 1 to 30 (0.1-3% duty cycle).
+>>
+>> What does the index correspond to? The linear volume?
+>
+> In most cases users probably need linear volume levels (e.g. 0%, 25%,
+> 50%, 75%, 100%) and in this case the index would indeed correspond to
+> the linear perceived volume.
+>
+> But also non-linear relations are possible (e.g. 0%, 20%, 100%), if the
+> user needs for example "mute", "low", "high" as volume levels.
 
-On 10 October 2016 14:37 Rob Herring wrote:
-> On Thu, Oct 06, 2016 at 09:43:30AM +0100, Steve Twiss wrote:
-> > From: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> The subject is wrong.
+Exclude off/mute and this is still linear. Also, the user exposed
+levels could be a subset of the defined h/w levels. That should be
+independent of DT.
 
-Copy/paste error -- I will fix that.
+> The linearization (defining the corresponding duty cycle for each index)
+> depends on the beeper and the perception of the user.
 
-> > Add binding information for DA9061 onkey.
-> >
-> > This patch updates the compatible string "dlg,da9061-onkey" to support
-> > DA9061, removes ther reference to KEY_SLEEP (which the driver no longer
-> 
-> s/ther/the/
+This has to be a consistent interface across h/w to have a userspace
+that can work across h/w. For that, you have to define the binding as
+linear. Of course, it's all measured by perception and not completely
+accurate which is fine.
 
-And this.
+> For the example array definition below, I tried different duty cycles
+> and found values of 0.8%, 2%, 4%, 50% to be approximately correspondent
+> to perceived volume levels of 25%, 50%, 75%, 100% in my case.
+>
+>>
+>>> +- default-volume-level: the default volume level (index into the
+>>> +      array defined by the "volume-levels" property)
+>>> +
+>>> +The volume level can be set via sysfs under /sys/class/input/inputX/volume.
+>>> +The maximum volume level index can be read from /sys/class/input/inputX/max_volume_level.
 
-> > supports) and fixes a typo in the example.
-> 
-> Why is KEY_SLEEP being removed?
+Also, drop this. Not relevant to the binding.
 
-Supporting KEY_SLEEP was not the general convention and the typical solution should have been
-for KEY_POWER to support both cases of suspend and S/W power off.
-I changed the driver, but failed to update the documentation at that time, so am now updating this
-as part of the DA9061.
-
-I will add that information in the next V2 patch e-mail.
-
-Regards,
-Steve
+Rob

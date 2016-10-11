@@ -1,88 +1,426 @@
-From: Schrempf Frieder <frieder.schrempf-wPoT/lNZgHizQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH v2 2/3] input: pwm-beeper: add documentation for volume
- devicetree bindings
-Date: Tue, 11 Oct 2016 08:17:24 +0000
-Message-ID: <24e35d49-7c3d-b094-f0b7-96367389f249@exceet.de>
-References: <fe6349a5-7935-5be7-6dc1-7e80fa9dceeb@exceet.de>
- <1475831223-6006-1-git-send-email-frieder.schrempf@exceet.de>
- <1475831223-6006-3-git-send-email-frieder.schrempf@exceet.de>
- <20161010152055.GA6868@rob-hp-laptop>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 3/5] Input: add driver for Ilitek ili2139
+ touch IC
+Date: Tue, 11 Oct 2016 11:37:26 +0200
+Message-ID: <aeb63476-f2f6-b058-1ef1-059fd35f644a@redhat.com>
+References: <20161011003359.26079-1-icenowy@aosc.xyz>
+ <20161011003359.26079-3-icenowy@aosc.xyz>
+Reply-To: hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20161010152055.GA6868@rob-hp-laptop>
-Content-Language: de-DE
-Content-ID: <9C59BB1AC9A5244B8ED21F2BBA5736C6-Hc26iKa93z/tRgLqZ5aouw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "pawel.moll-5wv7dgnIgG8@public.gmane.org" <pawel.moll-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "luis-HiykPkW1eAzzDCI4PIEvbQC/G2K4zDHf@public.gmane.org" <luis-HiykPkW1eAzzDCI4PIEvbQC/G2K4zDHf@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Return-path: <linux-sunxi+bncBDRZXY4CYYORB27F6K7QKGQEKORB2MI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20161011003359.26079-3-icenowy-ymACFijhrKM@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Icenowy Zheng <icenowy-ymACFijhrKM@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Henrik Rydberg <rydberg-FFUHeuDi6mxAfugRpC6u6w@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Rask Ingemann Lambertsen <ccc94453-1EA3ORoCGBhoJ7GROcy7lA@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Damien Riegel <damien.riegel-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jeffrey Lin <jeffrey.lin-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Sangwon Jee <jeesw-iQTvn4YitUrQT0dZR+AlfA@public.gmane.org>, Siebren Vroegindeweij <sieb>
 List-Id: linux-input@vger.kernel.org
 
-On 10.10.2016 17:20, Rob Herring wrote:
-> On Fri, Oct 07, 2016 at 09:08:17AM +0000, Schrempf Frieder wrote:
->> This patch adds the documentation for the devicetree bindings to set
->> the volume levels.
->>
->> Signed-off-by: Frieder Schrempf <frieder.schrempf-wPoT/lNZgHizQB+pC5nmwQ@public.gmane.org>
->> ---
->> Changes in v2:
->>  - split into 3 separate patches
->>  - make volume properties optional
->>
->>  .../devicetree/bindings/input/pwm-beeper.txt       | 22 ++++++++++++++++++++++
->>  1 file changed, 22 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt b/Documentation/devicetree/bindings/input/pwm-beeper.txt
->> index be332ae..6d8ba4e 100644
->> --- a/Documentation/devicetree/bindings/input/pwm-beeper.txt
->> +++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
->> @@ -5,3 +5,25 @@ Registers a PWM device as beeper.
->>  Required properties:
->>  - compatible: should be "pwm-beeper"
->>  - pwms: phandle to the physical PWM device
->> +
->> +Optional properties:
->> +- volume-levels: Array of distinct volume levels. These need to be in the
->> +      range of 0 to 500, while 0 means 0% duty cycle (mute) and 500 means
->> +      50% duty cycle (max volume).
->> +      Please note that the actual volume of most beepers is highly
->> +      non-linear, which means that low volume levels are probably somewhere
->> +      in the range of 1 to 30 (0.1-3% duty cycle).
+Hi,
+
+On 10/11/2016 02:33 AM, Icenowy Zheng wrote:
+> This driver adds support for Ilitek ili2139 touch IC, which is used in
+> several Colorfly tablets (for example, Colorfly E708 Q1, which is an
+> Allwinner A31s tablet with mainline kernel support).
 >
-> What does the index correspond to? The linear volume?
-
-In most cases users probably need linear volume levels (e.g. 0%, 25%, 
-50%, 75%, 100%) and in this case the index would indeed correspond to 
-the linear perceived volume.
-
-But also non-linear relations are possible (e.g. 0%, 20%, 100%), if the 
-user needs for example "mute", "low", "high" as volume levels.
-
-The linearization (defining the corresponding duty cycle for each index) 
-depends on the beeper and the perception of the user.
-
-For the example array definition below, I tried different duty cycles 
-and found values of 0.8%, 2%, 4%, 50% to be approximately correspondent 
-to perceived volume levels of 25%, 50%, 75%, 100% in my case.
-
+> Theortically it may support more Ilitek touch ICs, however, only ili2139
+> is used in any mainlined device.
 >
->> +- default-volume-level: the default volume level (index into the
->> +      array defined by the "volume-levels" property)
->> +
->> +The volume level can be set via sysfs under /sys/class/input/inputX/volume.
->> +The maximum volume level index can be read from /sys/class/input/inputX/max_volume_level.
->> +
->> +Example:
->> +
->> +	pwm-beeper {
->> +		compatible = "pwm-beeper";
->> +		pwms = <&pwm4 0 5000>;
->> +		volume-levels = <0 8 20 40 500>;
->> +		default-volume-level = <4>;
->> +	};
->> --
->> 1.9.1--
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> It supports device tree enumeration, with screen resolution and axis
+> quirks configurable.
+>
+> Signed-off-by: Icenowy Zheng <icenowy-ymACFijhrKM@public.gmane.org>
+> ---
+>  drivers/input/touchscreen/Kconfig   |  14 ++
+>  drivers/input/touchscreen/Makefile  |   1 +
+>  drivers/input/touchscreen/ili2139.c | 320 ++++++++++++++++++++++++++++++++++++
+>  3 files changed, 335 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/ili2139.c
+>
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 5079813..bb4d9d2 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -348,6 +348,20 @@ config TOUCHSCREEN_ILI210X
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called ili210x.
+>
+> +config TOUCHSCREEN_ILI2139
+> +	tristate "Ilitek ILI2139 based touchscreen"
+> +	depends on I2C
+> +	depends on OF
+> +	help
+> +	  Say Y here if you have a ILI2139 based touchscreen
+> +	  controller. Such kind of chipsets can be found in several
+> +	  Colorfly tablets.
+> +
+> +	  If unsure, say N.
+> +
+> +	  To compile this driver as a module, choose M here; the
+> +	  module will be called ili2139.
+> +
+>  config TOUCHSCREEN_IPROC
+>  	tristate "IPROC touch panel driver support"
+>  	depends on ARCH_BCM_IPROC || COMPILE_TEST
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index 81b8645..930b5e2 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -40,6 +40,7 @@ obj-$(CONFIG_TOUCHSCREEN_EGALAX_SERIAL)	+= egalax_ts_serial.o
+>  obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+= goodix.o
+>  obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
+> +obj-$(CONFIG_TOUCHSCREEN_ILI2139)	+= ili2139.o
+>  obj-$(CONFIG_TOUCHSCREEN_IMX6UL_TSC)	+= imx6ul_tsc.o
+>  obj-$(CONFIG_TOUCHSCREEN_INEXIO)	+= inexio.o
+>  obj-$(CONFIG_TOUCHSCREEN_INTEL_MID)	+= intel-mid-touch.o
+> diff --git a/drivers/input/touchscreen/ili2139.c b/drivers/input/touchscreen/ili2139.c
+> new file mode 100644
+> index 0000000..65c2dea
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/ili2139.c
+> @@ -0,0 +1,320 @@
+> +/* -------------------------------------------------------------------------
+> + * Copyright (C) 2016, Icenowy Zheng <icenowy-ymACFijhrKM@public.gmane.org>
+> + *
+> + * Derived from:
+> + *  ili210x.c
+> + *  Copyright (C) Olivier Sobrie <olivier-Ui3EtX6WB9GzQB+pC5nmwQ@public.gmane.org>
+> + *
+> + *  This program is free software; you can redistribute it and/or modify
+> + *  it under the terms of the GNU General Public License as published by
+> + *  the Free Software Foundation; either version 2 of the License, or
+> + *  (at your option) any later version.
+> + *
+> + *  This program is distributed in the hope that it will be useful,
+> + *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + *  GNU General Public License for more details.
+> + * -------------------------------------------------------------------------
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/i2c.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/slab.h>
+> +#include <linux/input.h>
+> +#include <linux/input/mt.h>
+> +#include <linux/input/touchscreen.h>
+> +#include <linux/delay.h>
+> +#include <linux/workqueue.h>
+> +
+> +#define DEFAULT_POLL_PERIOD	20
+> +
+> +#define MAX_TOUCHES		10
+> +#define COMPATIBLE_TOUCHES	2
+> +
+> +/* Touchscreen commands */
+> +#define REG_TOUCHDATA		0x10
+> +#define REG_TOUCHSUBDATA	0x11
+> +#define REG_PANEL_INFO		0x20
+> +#define REG_FIRMWARE_VERSION	0x40
+> +#define REG_PROTO_VERSION	0x42
+> +
+> +#define SUBDATA_STATUS_TOUCH_POINT	0x80
+> +#define SUBDATA_STATUS_RELEASE_POINT	0x00
+> +
+> +struct finger {
+> +	u8 x_low;
+> +	u8 x_high;
+> +	u8 y_low;
+> +	u8 y_high;
+> +} __packed;
+> +
+> +struct touchdata {
+> +	u8 length;
+> +	struct finger finger[COMPATIBLE_TOUCHES];
+> +} __packed;
+> +
+> +struct touch_subdata {
+> +	u8 status;
+> +	struct finger finger;
+> +} __packed;
+> +
+> +struct panel_info {
+> +	struct finger finger_max;
+> +	u8 xchannel_num;
+> +	u8 ychannel_num;
+> +} __packed;
+> +
+> +struct firmware_version {
+> +	u8 id;
+> +	u8 major;
+> +	u8 minor;
+> +} __packed;
+> +
+> +struct ili2139 {
+> +	struct i2c_client *client;
+> +	struct input_dev *input;
+> +	unsigned int poll_period;
+> +	struct delayed_work dwork;
+> +	struct touchscreen_properties prop;
+> +	int slots[MAX_TOUCHES];
+> +	int ids[MAX_TOUCHES];
+> +	struct input_mt_pos pos[MAX_TOUCHES];
+> +};
+> +
+> +static int ili2139_read_reg(struct i2c_client *client, u8 reg, void *buf,
+> +			    size_t len)
+> +{
+> +	struct i2c_msg msg[2] = {
+> +		{
+> +			.addr	= client->addr,
+> +			.flags	= 0,
+> +			.len	= 1,
+> +			.buf	= &reg,
+> +		},
+> +		{
+> +			.addr	= client->addr,
+> +			.flags	= I2C_M_RD,
+> +			.len	= len,
+> +			.buf	= buf,
+> +		}
+> +	};
+> +
+> +	if (i2c_transfer(client->adapter, msg, 2) != 2) {
+> +		dev_err(&client->dev, "i2c transfer failed\n");
+> +		return -EIO;
+> +	}
+> +
+> +	return 0;
+> +}
+
+This just i2c_smbus_read_i2c_block_data, please use that instead.
+
+> +static void ili2139_work(struct work_struct *work)
+> +{
+> +	int id;
+> +	struct ili2139 *priv = container_of(work, struct ili2139,
+> +					    dwork.work);
+> +	struct i2c_client *client = priv->client;
+> +	struct touchdata touchdata;
+> +	struct touch_subdata subdata;
+> +	int error;
+> +
+> +	error = ili2139_read_reg(client, REG_TOUCHDATA,
+> +				 &touchdata, sizeof(touchdata));
+> +	if (error) {
+> +		dev_err(&client->dev,
+> +			"Unable to get touchdata, err = %d\n", error);
+> +		return;
+> +	}
+> +
+> +	for (id = 0; id < touchdata.length; id++) {
+> +		error = ili2139_read_reg(client, REG_TOUCHSUBDATA, &subdata,
+> +					 sizeof(subdata));
+> +		if (error) {
+> +			dev_err(&client->dev,
+> +				"Unable to get touch subdata, err = %d\n",
+> +				error);
+> +			return;
+> +		}
+> +
+> +		priv->ids[id] = subdata.status & 0x3F;
+> +
+> +		/* The sequence changed in the v2 subdata protocol. */
+> +		touchscreen_set_mt_pos(&priv->pos[id], &priv->prop,
+> +			(subdata.finger.x_high | (subdata.finger.x_low << 8)),
+> +			(subdata.finger.y_high | (subdata.finger.y_low << 8)));
+> +	}
+> +
+> +	input_mt_assign_slots(priv->input, priv->slots, priv->pos,
+> +			      touchdata.length, 0);
+> +
+> +	for (id = 0; id < touchdata.length; id++) {
+> +		input_mt_slot(priv->input, priv->slots[id]);
+> +		input_mt_report_slot_state(priv->input, MT_TOOL_FINGER,
+> +					   subdata.status &
+> +					   SUBDATA_STATUS_TOUCH_POINT);
+> +		input_report_abs(priv->input, ABS_MT_POSITION_X,
+> +				 priv->pos[id].x);
+> +		input_report_abs(priv->input, ABS_MT_POSITION_Y,
+> +				 priv->pos[id].y);
+> +	}
+> +
+> +	input_mt_sync_frame(priv->input);
+> +	input_sync(priv->input);
+> +
+> +	schedule_delayed_work(&priv->dwork,
+> +			      msecs_to_jiffies(priv->poll_period));
+
+If the irq is working properly there should be no need for this,
+can you try with this schedule call removed ?
+
+> +}
+> +
+> +static irqreturn_t ili2139_irq(int irq, void *irq_data)
+> +{
+> +	struct ili2139 *priv = irq_data;
+> +
+> +	schedule_delayed_work(&priv->dwork, 0);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int ili2139_i2c_probe(struct i2c_client *client,
+> +				       const struct i2c_device_id *id)
+> +{
+> +	struct device *dev = &client->dev;
+> +	struct ili2139 *priv;
+> +	struct input_dev *input;
+> +	struct panel_info panel;
+> +	struct firmware_version firmware;
+> +	int xmax, ymax;
+> +	int error;
+> +
+> +	dev_dbg(dev, "Probing for ILI2139 I2C Touschreen driver");
+> +
+> +	if (client->irq <= 0) {
+> +		dev_err(dev, "No IRQ!\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	/* Get firmware version */
+> +	error = ili2139_read_reg(client, REG_FIRMWARE_VERSION,
+> +				 &firmware, sizeof(firmware));
+> +	if (error) {
+> +		dev_err(dev, "Failed to get firmware version, err: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+> +	/* get panel info */
+> +	error = ili2139_read_reg(client, REG_PANEL_INFO, &panel, sizeof(panel));
+> +	if (error) {
+> +		dev_err(dev, "Failed to get panel information, err: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+> +	xmax = panel.finger_max.x_low | (panel.finger_max.x_high << 8);
+> +	ymax = panel.finger_max.y_low | (panel.finger_max.y_high << 8);
+> +
+> +	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+> +	input = devm_input_allocate_device(dev);
+> +	if (!priv || !input)
+> +		return -ENOMEM;
+> +
+> +	priv->client = client;
+> +	priv->input = input;
+> +	priv->poll_period = DEFAULT_POLL_PERIOD;
+> +	INIT_DELAYED_WORK(&priv->dwork, ili2139_work);
+> +
+> +	/* Setup input device */
+> +	input->name = "ILI2139 Touchscreen";
+> +	input->id.bustype = BUS_I2C;
+> +	input->dev.parent = dev;
+> +
+> +	__set_bit(EV_SYN, input->evbit);
+> +	__set_bit(EV_KEY, input->evbit);
+> +	__set_bit(EV_ABS, input->evbit);
+> +
+> +	/* Multi touch */
+> +	input_mt_init_slots(input, MAX_TOUCHES, INPUT_MT_DIRECT |
+> +			    INPUT_MT_DROP_UNUSED | INPUT_MT_TRACK);
+> +	input_set_abs_params(input, ABS_MT_POSITION_X, 0, xmax, 0, 0);
+> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, ymax, 0, 0);
+> +
+> +	touchscreen_parse_properties(input, true, &priv->prop);
+> +
+> +	input_set_drvdata(input, priv);
+> +	i2c_set_clientdata(client, priv);
+> +
+> +	error = devm_request_irq(dev, client->irq, ili2139_irq,
+> +				 IRQF_TRIGGER_FALLING, client->name, priv);
+
+If things work with the re-scheduleing of the delayed work
+from the work removed, then you can use request_threaded_irq here,
+pass in ili2139_irq as the threaded handler (and NULL as the non threaded
+handler) and do all the i2c reading directly in ili2139_irq without needing
+to use any work struct at all.
+
+Regards,
+
+Hans
+
+
+> +	if (error) {
+> +		dev_err(dev, "Unable to request touchscreen IRQ, err: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+> +	error = input_register_device(priv->input);
+> +	if (error) {
+> +		dev_err(dev, "Cannot register input device, err: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	device_init_wakeup(&client->dev, 1);
+> +
+> +	dev_dbg(dev,
+> +		"ILI2139 initialized (IRQ: %d), firmware version %d.%d.%d",
+> +		client->irq, firmware.id, firmware.major, firmware.minor);
+> +
+> +	return 0;
+> +}
+> +
+> +static int ili2139_i2c_remove(struct i2c_client *client)
+> +{
+> +	struct ili2139 *priv = i2c_get_clientdata(client);
+> +
+> +	cancel_delayed_work_sync(&priv->dwork);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused ili2139_i2c_suspend(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +
+> +	if (device_may_wakeup(&client->dev))
+> +		enable_irq_wake(client->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused ili2139_i2c_resume(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +
+> +	if (device_may_wakeup(&client->dev))
+> +		disable_irq_wake(client->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static SIMPLE_DEV_PM_OPS(ili2139_i2c_pm,
+> +			 ili2139_i2c_suspend, ili2139_i2c_resume);
+> +
+> +static const struct i2c_device_id ili2139_i2c_id[] = {
+> +	{ "ili2139", 0 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, ili2139_i2c_id);
+> +
+> +static struct i2c_driver ili2139_ts_driver = {
+> +	.driver = {
+> +		.name = "ili2139_i2c",
+> +		.pm = &ili2139_i2c_pm,
+> +	},
+> +	.id_table = ili2139_i2c_id,
+> +	.probe = ili2139_i2c_probe,
+> +	.remove = ili2139_i2c_remove,
+> +};
+> +
+> +module_i2c_driver(ili2139_ts_driver);
+> +
+> +MODULE_AUTHOR("Olivier Sobrie <olivier-Ui3EtX6WB9GzQB+pC5nmwQ@public.gmane.org>");
+> +MODULE_DESCRIPTION("ILI2139 I2C Touchscreen Driver");
+> +MODULE_LICENSE("GPL");
+>

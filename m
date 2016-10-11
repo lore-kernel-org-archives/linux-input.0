@@ -1,118 +1,162 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v4 8/8] Input: elan_i2c - add Host Notify support
-Date: Tue, 11 Oct 2016 16:20:52 +0200
-Message-ID: <20161011142051.GL30411@mail.corp.redhat.com>
-References: <1476117755-8113-1-git-send-email-benjamin.tissoires@redhat.com>
- <1476117755-8113-9-git-send-email-benjamin.tissoires@redhat.com>
- <CAKdAkRRK746K_+qqi+5YYfJ8NMBwbn5MYa02N4tn-qkfjnVwGg@mail.gmail.com>
+Subject: Re: [PATCH 1/7] HID: sony: Fix race condition in sony_probe
+Date: Tue, 11 Oct 2016 17:43:00 +0200
+Message-ID: <20161011154300.GN30411@mail.corp.redhat.com>
+References: <1475869180-26757-1-git-send-email-roderick@gaikai.com>
+ <1475869180-26757-2-git-send-email-roderick@gaikai.com>
+ <CANndSKk54o_XSgH-V8Yt-tc0BpygrScB3juMBUfJio49FSFLEQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:36264 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752185AbcJKPnE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 11 Oct 2016 11:43:04 -0400
 Content-Disposition: inline
-In-Reply-To: <CAKdAkRRK746K_+qqi+5YYfJ8NMBwbn5MYa02N4tn-qkfjnVwGg@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, Jonathan Corbet <corbet@lwn.net>, KT Liao <kt.liao@emc.com.tw>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <CANndSKk54o_XSgH-V8Yt-tc0BpygrScB3juMBUfJio49FSFLEQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Roderick Colenbrander <roderick@gaikai.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Oct 10 2016 or thereabouts, Dmitry Torokhov wrote:
-> Hi Benjamin,
+On Oct 10 2016 or thereabouts, Roderick Colenbrander wrote:
+> Hi,
 > 
-> On Mon, Oct 10, 2016 at 9:42 AM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
-> > The Thinkpad series 13 uses Host Notify to report the interrupt.
-> > Add elan_smb_alert() to handle those interrupts and disable the irq
-> > handling on this case.
-> >
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >
+> We have been developing some new code building on top of this hid-sony patchset.
+> However during additional testing we noticed some issues between
+> swapping devices
+> between USB and Bluetooth. There is some code as part of 'sony_input_configured'
+> preventing two connections from the same device. The code is kind of
+> working as it
+> rejects the device, but there is some memory corruption due to 'sony_probe'
+> succeeding on this failure (later on 'sony_remove' double frees memory), which
+> was introduced by this patch. We intend to fix this, but I'm not sure
+> where the fix
+> should be. So far I'm leaning towards outside of this driver, but let
+> me explain.
 > 
-> Why do we have to do this in the driver instead of having I2C core set
-> it up for us? I expect we'd be repeating this block of code for every
-> driver that has an option of using SMbus notify.
+> On close inspection, the problem is that 'hid_hw_start' as called by
+> 'sony_probe'
+> isn't returning an error on a 'sony_input_configured' failure.
+> Personally, I expected
+> it to behave like that, but it doesn't. As an outsider to the HID subsystem, I'm
+> not sure what expected behavior is.
+> 
+> I looked over some other drivers, which are emitting errors from
+> 'input_configured'.
+> There are only 2 drivers returning errors and catching them through a
+> custom mechanism.
+> The drivers are 'hid-magicmouse' and 'hid-rmi'. The first kind of works around
+> 'hid_hw_start' returning errors by setting some state (msc->input) from within
+> 'input_configured' which 'probe' can pick up.
 
-I didn't want to assign blindly an IRQ for Host Notify because it's a
-device (as I2C client) feature. Not all SMBus clients on the Host Notify
-capable bus are capable of Host Notify, so I thought it was the
-responsibility of the driver to assign it.
+Well, hid-magicmouse is not the best of the art in term of HID driver.
+But this quirk works OK-ish.
 
-However, I can see your point, though I'd need some inputs (and I'll
-have to resend the series as the Intel bot showed me 2 mistakes).
+> The 'hid-rmi' driver kind of relies on hid_hw_start not returning
+> errors. It leaves
+> the device in some in-between state with hidraw operational, so
+> someone could flash
+> a new firmware. For reference I have attached these code snippets to
+> the bottom of this
+> email.
 
-So, if i2c-core gets to assign itself the IRQ for Host Notify, do we:
-1) assign an IRQ to any SMBus device on a Host Notify capable adapter
-   that doesn't have a valid provided IRQ?
-2) have a new field in struct i2c_board_info that explicitly requires
-   Host Notify as an IRQ?
-3) do not touch anything in i2c_core, let the caller of i2c_new_device
-   fill in the irq by a call to 
-   i2c_smbus_host_notify_to_irq(adapter, address)?
+And hid-rmi is also a "temporary" driver and we (Andrew mostly) are
+trying to clean it up and forward all the RMI4 logic to RMI4 core now
+upstream in the drivers/input/rmi4 directory.
 
-1) has the advantage of being transparent for everybody, except we will
-provide IRQs to devices that don't have one (this can be ignored), but
-this may also lead to errors when IRQ is not correctly set by the caller
-where it should be, and the driver/developer doesn't understand why it
-is never triggered.
+> 
+> I'm not exactly sure on what the best way to fix the issue I'm
+> experiencing is. My
+> feeling is that it should be fixed in a general way within
+> 'hid_hw_start' and related
+> logic; not in a driver specific workaround. Outside of hid_hw_start
+> feels unclean
+> to me for various including keeping a device node around in some undefined state
+> for a short period of time.
 
-2) is a nice compromise, but we will need some OF binding, add some work
-in for the callers of i2c_new_device() and will not work nicely with
-sysfs instantiated i2c devices (the new_device sysfs entry). The sysfs
-could be solved by adding some new address namespace, but that doesn't
-make sense I think
+I am not entirely sure having hidinput_connect failing being an actual
+error. It can be useful to still present the HID node through hidraw if
+the device fails for whatever reasons to bind on the input side.
 
-3) requires less changes in i2c_core but it's going to be even harder
-to add a device through sysfs that is Host Notify capable given that we
-can't specify the IRQ.
+If I am not wrong, you can simply check after hid_hw_start() if
+hdev->claimed matches HID_CLAIMED_INPUT, and if not just bail out.
 
-After thinking a bit, I think I'd lean toward 1), but I am open to other
-options as well.
+> 
+> The root cause seems to be that 'hid_connect' doesn't return a failure upon
+> 'hidinput_connect' and only sets a flag:
+>     if ((connect_mask & HID_CONNECT_HIDINPUT) && !hidinput_connect(hdev,
+>                 connect_mask & HID_CONNECT_HIDINPUT_FORCE))
+>         hdev->claimed |= HID_CLAIMED_INPUT;
+> 
+> I think it should return an error when hidinput_connect fails, which
+> would ultimately
+> bubble up to a return error in 'hid_hw_start'. I don't know the
+> intimate details of
+> all the HID code well, so I'm not sure if this is the best solution.
+> 
+> With such a change made, the 'if (!msc->input)' logic in magicmouse_probe could
+> be removed. The RMI driver would need some fixing. I would say it should call
+> 'hid_hw_start' again on the first hid_hw_start failure, but with a different
+> connect_mask, so only hidraw is activated.
+
+Again, I wouldn't bother much for these 2 drivers. The first one works
+and this wouldn't add much, and the second one is doomed to be changed,
+so as long as it ain't broken... :)
 
 Cheers,
 Benjamin
 
-
-
-> 
-> Thanks!
-> 
-> > ---
-> >
-> > new in v4 (was submitted on linux-input with the .alert callback)
-> > ---
-> >  drivers/input/mouse/elan_i2c_core.c | 15 +++++++++++++++
-> >  1 file changed, 15 insertions(+)
-> >
-> > diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> > index 6f16eb4..4aaac5d 100644
-> > --- a/drivers/input/mouse/elan_i2c_core.c
-> > +++ b/drivers/input/mouse/elan_i2c_core.c
-> > @@ -1040,6 +1040,21 @@ static int elan_probe(struct i2c_client *client,
-> >                                                 I2C_FUNC_SMBUS_BLOCK_DATA |
-> >                                                 I2C_FUNC_SMBUS_I2C_BLOCK)) {
-> >                 transport_ops = &elan_smbus_ops;
-> > +
-> > +               if (!irq) {
-> > +                       if (!i2c_check_functionality(client->adapter,
-> > +                                       I2C_FUNC_SMBUS_HOST_NOTIFY)) {
-> > +                               dev_err(dev, "no Host Notify support\n");
-> > +                               return -ENODEV;
-> > +                       }
-> > +
-> > +                       irq = i2c_smbus_host_notify_to_irq(client);
-> > +                       if (irq < 0) {
-> > +                               dev_err(dev,
-> > +                                       "Unable to request a Host Notify IRQ.\n");
-> > +                               return irq;
-> > +                       }
-> > +               }
-> >         } else {
-> >                 dev_err(dev, "not a supported I2C/SMBus adapter\n");
-> >                 return -EIO;
-> > --
-> > 2.7.4
-> >
 > 
 > 
+> For reference two pieces of code, which are dealing with the same kind
+> of problem,
+> I'm seeing in hid-sony. I put some comments '<--' to show relevant pieces.
 > 
-> -- 
-> Dmitry
+> magicmouse_input_configured:
+>     ret = magicmouse_setup_input(msc->input, hdev);
+>     if (ret) {
+>         hid_err(hdev, "magicmouse setup input failed (%d)\n", ret);
+>         /* clean msc->input to notify probe() of the failure */
+>         msc->input = NULL; <-- Used to notify magicmouse_probe on
+> hid_hw_start failure
+>         return ret;
+>     }
+> 
+> magicmouse_probe:
+>     ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+>     if (ret) {
+>         hid_err(hdev, "magicmouse hw start failed\n");
+>         return ret;
+>     }
+> 
+>     if (!msc->input) { <-- workaround to detect
+> magicmouse_input_configured failure
+>         hid_err(hdev, "magicmouse input not registered\n");
+>         ret = -ENOMEM;
+>         goto err_stop_hw;
+>     }
+> 
+> 
+> rmi_probe:
+>     ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+>     if (ret) {
+>         hid_err(hdev, "hw start failed\n");
+>         return ret;
+>     }
+> 
+>     if ((data->device_flags & RMI_DEVICE) &&
+>         !test_bit(RMI_STARTED, &data->flags)) <-- input_configure sets
+> this bit on success
+>         /*
+>          * The device maybe in the bootloader if rmi_input_configured
+>          * failed to find F11 in the PDT. Print an error, but don't
+>          * return an error from rmi_probe so that hidraw will be
+>          * accessible from userspace. That way a userspace tool
+>          * can be used to reload working firmware on the touchpad.
+>          */
+>         hid_err(hdev, "Device failed to be properly configured\n");
+> 
+> 
+> Thanks,
+> Roderick

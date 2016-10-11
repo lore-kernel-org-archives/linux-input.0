@@ -1,73 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] hidraw: fix list->buffer race condition
-Date: Mon, 10 Oct 2016 20:12:37 -0700
-Message-ID: <CAKdAkRQsuGBux5VvPsKjt8yfk1xWELA7xq2ZYFWirRRXGDbhsg@mail.gmail.com>
-References: <1475628266-4767-1-git-send-email-gary.king@oculus.com>
- <alpine.LNX.2.00.1610071038340.31629@cbobk.fhfr.pm> <alpine.OSX.1.10.1610071027351.23556@cromulentg-mba.local>
- <alpine.LNX.2.00.1610101019040.31629@cbobk.fhfr.pm>
+From: Icenowy Zheng <icenowy-ymACFijhrKM@public.gmane.org>
+Subject: Re: [PATCH 1/5] dt-bindings: add vendor prefix for ILI
+ Technology Corp
+Date: Tue, 11 Oct 2016 11:39:20 +0800
+Message-ID: <922421476157160@web23h.yandex.ru>
+References: <20161011003359.26079-1-icenowy@aosc.xyz> <CAKdAkRT0WJ8EL62bumM1yz58LEAEqvmeX_hYzOZzAA0RvxJa3A@mail.gmail.com>
+Reply-To: icenowy-ymACFijhrKM@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:34230 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753085AbcJKDNa (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Oct 2016 23:13:30 -0400
-Received: by mail-oi0-f65.google.com with SMTP id p136so400431oic.1
-        for <linux-input@vger.kernel.org>; Mon, 10 Oct 2016 20:12:38 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1610101019040.31629@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-sunxi+bncBCZLPFN5Q4OBB3F56G7QKGQETX2GIFI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <CAKdAkRT0WJ8EL62bumM1yz58LEAEqvmeX_hYzOZzAA0RvxJa3A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Henrik Rydberg <rydberg-FFUHeuDi6mxAfugRpC6u6w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Rask Ingemann Lambertsen <ccc94453-1EA3ORoCGBhoJ7GROcy7lA@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Damien Riegel <damien.riegel-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jeffrey Lin <jeffrey.lin-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org>, Javier
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Gary King <gary.king@oculus.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Mon, Oct 10, 2016 at 1:36 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Fri, 7 Oct 2016, Gary King wrote:
+
+
+11.10.2016, 11:13, "Dmitry Torokhov" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
+> On Mon, Oct 10, 2016 at 5:33 PM, Icenowy Zheng <icenowy-ymACFijhrKM@public.gmane.org> wrote:
+>> =C2=A0ILI Technology Corp (a.k.a Ilitek, http://www.ilitek.com/index-e.a=
+sp ) is a
+>> =C2=A0company that produces LCD driver ICs and touch screen controller I=
+Cs.
 >
->> > > diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
->> > > index f0e2757..dc3465f 100644
->> > > --- a/drivers/hid/hidraw.c
->> > > +++ b/drivers/hid/hidraw.c
->> > > @@ -53,6 +53,7 @@ static ssize_t hidraw_read(struct file *file, char __user *buffer, size_t count,
->> > >   mutex_lock(&list->read_mutex);
->> > >
->> > >   while (ret == 0) {
->> > > +         smp_rmb();
->> >
->> > Which _wmb() does this one pair with?
+> Was there patch 3/5? I do not see it in my mailbox.
+
+Maybe it's spammed.
+
+It can be retrieved at https://groups.google.com/d/msg/linux-sunxi/FY88KGfe=
+Cvk/tkEt6C4uBwAJ or http://lists.infradead.org/pipermail/linux-arm-kernel/2=
+016-October/460908.html .
+
+>
+>> =C2=A0Signed-off-by: Icenowy Zheng <icenowy-ymACFijhrKM@public.gmane.org>
+>> =C2=A0---
+>> =C2=A0=C2=A0Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+>> =C2=A0=C2=A01 file changed, 1 insertion(+)
 >>
->> The _rmb() operations don't really pair with the _wmb()
+>> =C2=A0diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt=
+ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+>> =C2=A0index 24c6f65..4d37fdc 100644
+>> =C2=A0--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
+>> =C2=A0+++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+>> =C2=A0@@ -130,6 +130,7 @@ i2se I2SE GmbH
+>> =C2=A0=C2=A0ibm International Business Machines (IBM)
+>> =C2=A0=C2=A0idt Integrated Device Technologies, Inc.
+>> =C2=A0=C2=A0ifi Ingenieurburo Fur Ic-Technologie (I/F/I)
+>> =C2=A0+ilitek ILI Technologies Corp.
+>> =C2=A0=C2=A0img Imagination Technologies Ltd.
+>> =C2=A0=C2=A0infineon Infineon Technologies
+>> =C2=A0=C2=A0inforce Inforce Computing
+>> =C2=A0--
+>> =C2=A02.10.1
 >
-> That unfortunately immediately implies that its usage is incorrect though.
->
-> [ ... snip ... ]
->> > I think this is just papering the real problem (missing list_lock) over in
->> > an odd way; could you please look into whether locking list_lock properly
->> > would resolve the crashes you're able to trigger on your ARM system?
->>
->> list_lock does not appear to be a good solution for this, since it is
->> currently an IRQ-safe spinlock on the device. Using it would cause
->> _read() to have unnecessary lock contention if the device is opened
->> and read simultaneously from multiple fds, and every loop iteration would
->> need to acquire the spinlock / disable interrupts at least once.
->
-> We could make the spinlock per struct file *, which'd remove the
-> contention bottleneck when the same device is accessed from through
-> multiple fds, but still maintain the correctness (as the list itself is a
-> per-fd thing anyway).
->
-> Probably introducing new spinlock would make more sense, as list_lock is
-> currently being used mostly to protect accessing of the dev->list linked
-> list.
+> --
+> Dmitry
 
-Yes, I'd protect dev->list with RCU, introducde per-file spinlock,
-took it when both putting data into teh queue and taking values out.
-
-One could try to optimize and rely on kfifo to avoid taking lock on
-writer side, but we are not dealing with 40Gb network interface here
-so I would not get too fancy.
-
-Thanks.
-
--- 
-Dmitry
+--=20
+You received this message because you are subscribed to the Google Groups "=
+linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

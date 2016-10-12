@@ -1,186 +1,142 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] [v9]Input: evdev: fix bug of dropping valid packet after
- syn_dropped event
-Date: Thu, 13 Oct 2016 00:05:58 +0530
-Message-ID: <CADYu30-2cFhn5yMHrskMN=Mrw_ofdzokp3v7JVfHRsbxreE-mA@mail.gmail.com>
-References: <1475608376-3077-1-git-send-email-a.mathur@samsung.com> <CAOXgUe3xduK2Fhs6ooPP=6fGSmY8m=088NVaNsreNE=_pP=asg@mail.gmail.com>
+From: Nick Dyer <nick@shmanahar.org>
+Subject: Re: [PATCH v3 2/2] Input: synaptics-rmi4 - add support for F34
+ device reflash
+Date: Wed, 12 Oct 2016 19:57:05 +0100
+Message-ID: <20161012185705.GA20820@lava.h.shmanahar.org>
+References: <1474404162-29357-1-git-send-email-nick@shmanahar.org>
+ <1474404162-29357-3-git-send-email-nick@shmanahar.org>
+ <20161010134807.GJ30411@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f194.google.com ([209.85.220.194]:36549 "EHLO
-        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755919AbcJLSgA (ORCPT
+Received: from avasout06.plus.net ([212.159.14.18]:44756 "EHLO
+        avasout06.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755855AbcJLS52 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Oct 2016 14:36:00 -0400
-In-Reply-To: <CAOXgUe3xduK2Fhs6ooPP=6fGSmY8m=088NVaNsreNE=_pP=asg@mail.gmail.com>
+        Wed, 12 Oct 2016 14:57:28 -0400
+Content-Disposition: inline
+In-Reply-To: <20161010134807.GJ30411@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Aniroop Mathur <a.mathur@samsung.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Linus Walleij <linus.walleij@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello Mr. Torokhov,
+Hi Benjamin-
 
-Hope you are doing great!
+Thanks for the review, I've answered in line.
 
-Could you please help to update about below version of the patch?
+On Mon, Oct 10, 2016 at 03:48:07PM +0200, Benjamin Tissoires wrote:
+> On Sep 20 2016 or thereabouts, Nick Dyer wrote:
+> > Signed-off-by: Nick Dyer <nick@shmanahar.org>
+> > Tested-by: Chris Healy <cphealy@gmail.com>
+> > ---
+> >  drivers/input/rmi4/Kconfig      |  11 +
+> >  drivers/input/rmi4/Makefile     |   1 +
+> >  drivers/input/rmi4/rmi_bus.c    |   3 +
+> >  drivers/input/rmi4/rmi_driver.c | 161 ++++++++++++++-
+> >  drivers/input/rmi4/rmi_driver.h |   7 +
+> >  drivers/input/rmi4/rmi_f01.c    |   6 +
+> >  drivers/input/rmi4/rmi_f34.c    | 446 ++++++++++++++++++++++++++++++++++++++++
+> >  include/linux/rmi.h             |   1 +
+> >  8 files changed, 634 insertions(+), 2 deletions(-)
+> >  create mode 100644 drivers/input/rmi4/rmi_f34.c
+[...]
+> > @@ -143,8 +154,11 @@ int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
+> >  	struct rmi_function *entry;
+> >  	int error;
+> >  
+> > -	if (!data)
+> > +	mutex_lock(&data->irq_mutex);
+> > +	if (!data || !data->irq_status || !data->f01_container) {
+> > +		mutex_unlock(&data->irq_mutex);
+> 
+> I have been now convinced that IRQ should be handled in core. It would
+> make everyone's life easier and I think means that we won't need these
+> checks given that IRQ could simply be disabled during FW update.
+> 
+> I guess it's time to resurrect Bjorn's patch at
+> https://lkml.org/lkml/2016/5/9/1055
 
---
-Copying text about last two problems in v8:
+We do use the interrupts in FW update in the current version. I haven't
+done the measurements, but my expectation would be that performance is
+slightly improved over polling, and it's more elegant.
 
-Problem 1: Handle EVIOCG[type] for queue empty case
---> Done
-Queue empty condition needs to be added before calling evdev_queue_syn_dropped.
-Since there is a rare chance that new packet gets inserted between buffer_lock
-mutex unlocking and copying events to user space, so I will check whether queue
-is empty or not before __evdev_flush_queue and then use it before invoking
-evdev_queue_syn_dropped.
-And if queue is not empty then there is no problem as after flushing some
-events we always have atleast one SYN_REPORT event left in queue.
+> > +#ifdef CONFIG_RMI4_F34
+> > +static int rmi_firmware_update(struct rmi_driver_data *data,
+> > +			       const struct firmware *fw)
+> > +{
+> > +	struct device *dev = &data->rmi_dev->dev;
+> > +	int ret;
+> > +
+> > +	if (!data->f34_container) {
+> > +		dev_warn(dev, "%s: No F34 present!\n",
+> > +			 __func__);
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	ret = rmi_f34_check_supported(data->f34_container);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	/* Enter flash mode */
+> > +	rmi_dbg(RMI_DEBUG_CORE, dev, "Enabling flash\n");
+> > +	ret = rmi_f34_enable_flash(data->f34_container);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	/* Tear down functions and re-probe */
+> > +	rmi_free_function_list(data->rmi_dev);
+> > +
+> > +	ret = rmi_probe_interrupts(data);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	ret = rmi_init_functions(data);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	if (!data->f01_bootloader_mode || !data->f34_container) {
+> > +		dev_warn(dev, "%s: No F34 present or not in bootloader!\n",
+> > +			 __func__);
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	/* Perform firmware update */
+> > +	ret = rmi_f34_update_firmware(data->f34_container, fw);
+> > +
+> > +	/* Re-probe */
+> > +	rmi_dbg(RMI_DEBUG_CORE, dev, "Re-probing device\n");
+> > +	rmi_free_function_list(data->rmi_dev);
+> > +
+> > +	ret = rmi_scan_pdt(data->rmi_dev, NULL, rmi_initial_reset);
+> > +	if (ret < 0)
+> > +		dev_warn(dev, "RMI reset failed!\n");
+> > +
+> > +	ret = rmi_probe_interrupts(data);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	ret = rmi_init_functions(data);
+> > +	if (ret)
+> > +		return ret;
+> 
+> You could basically export rmi_fn_reset() which would call
+> rmi_free_function_list(), rmi_scan_pdt (if initial reset),
+> rmi_probe_interrupts() and rmi_init_functions, and this would allow you
+> to have all this in f34.
 
-Problem 2: We try to pass full packets to clients, but there is no guarantee.
---> Done
->From my earlier patch discussion regarding dropping syn_report in between a
-single packet it was deduced that since no driver is currently using that code
-so there is no impact. Hence for this problem too, we are good to go.~
-(Although from code reading/learning perspective, I would still suggest to not
-have code of forceful sun_report event addition even if no driver using that
-code :-) )
+I see what you mean, and I do agree that it would be neater to have all
+of this in the f34 code.
 
-Have a good day!
+However, the problem is that when you call rmi_free_function_list(), the
+f34 driver and all the context information attached to it (struct
+rmi_function, struct f34_data, and any sysfs attributes in the f34
+directory) gets torn down, so you're kind of left without the branch you
+were sitting on.
 
-Best Regards,
-Aniroop Mathur
+To get around that, I'd have to make f34 a special case anyway. Taking
+that into account, the current solution seemed neater to me. I could
+possibly cram a little more of it into rmi_f34.c, but I think the
+context has to be "struct rmi_driver_data".
 
-
-> On Wed, Oct 5, 2016 at 12:42 AM, Aniroop Mathur <a.mathur@samsung.com> wrote:
->> If last event dropped in the old queue was EV_SYN/SYN_REPORT, then lets
->> generate EV_SYN/SYN_REPORT immediately after queing EV_SYN/SYN_DROPPED
->> so that clients would not ignore next valid full packet events.
->>
->> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
->>
->> Difference from v8:
->> Added check for handling EVIOCG[type] ioctl for queue empty case
->> ---
->>  drivers/input/evdev.c | 52 ++++++++++++++++++++++++++++++++++++++-------------
->>  1 file changed, 39 insertions(+), 13 deletions(-)
->>
->> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
->> index e9ae3d5..69407ff 100644
->> --- a/drivers/input/evdev.c
->> +++ b/drivers/input/evdev.c
->> @@ -156,7 +156,12 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->>  static void __evdev_queue_syn_dropped(struct evdev_client *client)
->>  {
->>         struct input_event ev;
->> +       struct input_event *last_ev;
->>         ktime_t time;
->> +       unsigned int mask = client->bufsize - 1;
->> +
->> +       /* capture last event stored in the buffer */
->> +       last_ev = &client->buffer[(client->head - 1) & mask];
->>
->>         time = client->clk_type == EV_CLK_REAL ?
->>                         ktime_get_real() :
->> @@ -170,13 +175,28 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
->>         ev.value = 0;
->>
->>         client->buffer[client->head++] = ev;
->> -       client->head &= client->bufsize - 1;
->> +       client->head &= mask;
->>
->>         if (unlikely(client->head == client->tail)) {
->>                 /* drop queue but keep our SYN_DROPPED event */
->> -               client->tail = (client->head - 1) & (client->bufsize - 1);
->> +               client->tail = (client->head - 1) & mask;
->>                 client->packet_head = client->tail;
->>         }
->> +
->> +       /*
->> +        * If last packet was completely stored, then queue SYN_REPORT
->> +        * so that clients would not ignore next valid full packet
->> +        */
->> +       if (last_ev->type == EV_SYN && last_ev->code == SYN_REPORT) {
->> +               last_ev->time = ev.time;
->> +               client->buffer[client->head++] = *last_ev;
->> +               client->head &= mask;
->> +               client->packet_head = client->head;
->> +
->> +               /* drop queue but keep our SYN_DROPPED & SYN_REPORT event */
->> +               if (unlikely(client->head == client->tail))
->> +                       client->tail = (client->head - 2) & mask;
->> +       }
->>  }
->>
->>  static void evdev_queue_syn_dropped(struct evdev_client *client)
->> @@ -218,7 +238,7 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
->>                 spin_lock_irqsave(&client->buffer_lock, flags);
->>
->>                 if (client->head != client->tail) {
->> -                       client->packet_head = client->head = client->tail;
->> +                       client->packet_head = client->tail = client->head;
->>                         __evdev_queue_syn_dropped(client);
->>                 }
->>
->> @@ -231,22 +251,24 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
->>  static void __pass_event(struct evdev_client *client,
->>                          const struct input_event *event)
->>  {
->> +       unsigned int mask = client->bufsize - 1;
->> +
->>         client->buffer[client->head++] = *event;
->> -       client->head &= client->bufsize - 1;
->> +       client->head &= mask;
->>
->>         if (unlikely(client->head == client->tail)) {
->>                 /*
->>                  * This effectively "drops" all unconsumed events, leaving
->> -                * EV_SYN/SYN_DROPPED plus the newest event in the queue.
->> +                * EV_SYN/SYN_DROPPED, EV_SYN/SYN_REPORT (if required) and
->> +                * newest event in the queue.
->>                  */
->> -               client->tail = (client->head - 2) & (client->bufsize - 1);
->> -
->> -               client->buffer[client->tail].time = event->time;
->> -               client->buffer[client->tail].type = EV_SYN;
->> -               client->buffer[client->tail].code = SYN_DROPPED;
->> -               client->buffer[client->tail].value = 0;
->> +               client->head = (client->head - 1) & mask;
->> +               client->packet_head = client->tail = client->head;
->> +               __evdev_queue_syn_dropped(client);
->>
->> -               client->packet_head = client->tail;
->> +               client->buffer[client->head++] = *event;
->> +               client->head &= mask;
->> +               /* No need to check for buffer overflow as it just occurred */
->>         }
->>
->>         if (event->type == EV_SYN && event->code == SYN_REPORT) {
->> @@ -920,6 +942,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
->>         int ret;
->>         unsigned long *mem;
->>         size_t len;
->> +       bool is_queue_empty;
->>
->>         len = BITS_TO_LONGS(maxbit) * sizeof(unsigned long);
->>         mem = kmalloc(len, GFP_KERNEL);
->> @@ -933,12 +956,15 @@ static int evdev_handle_get_val(struct evdev_client *client,
->>
->>         spin_unlock(&dev->event_lock);
->>
->> +       if (client->head == client->tail)
->> +               is_queue_empty = true;
->> +
->>         __evdev_flush_queue(client, type);
->>
->>         spin_unlock_irq(&client->buffer_lock);
->>
->>         ret = bits_to_user(mem, maxbit, maxlen, p, compat);
->> -       if (ret < 0)
->> +       if (ret < 0 && !is_queue_empty)
->>                 evdev_queue_syn_dropped(client);
->>
->>         kfree(mem);
->> --
->> 2.6.2
->>
+Nick

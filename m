@@ -1,13 +1,13 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 04/18] Input: synaptics-rmi4 - Add parameters for dribble packets and palm detect gesture
-Date: Thu, 13 Oct 2016 17:50:58 +0200
-Message-ID: <1476373872-18027-5-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 06/18] Input: synaptics-rmi4 - Set the ABS_MT_TOOL_TYPE bit to report tool type
+Date: Thu, 13 Oct 2016 17:51:00 +0200
+Message-ID: <1476373872-18027-7-git-send-email-benjamin.tissoires@redhat.com>
 References: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53086 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38526 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754953AbcJMPv2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 13 Oct 2016 11:51:28 -0400
+        id S1755469AbcJMPvd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 13 Oct 2016 11:51:33 -0400
 In-Reply-To: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -16,162 +16,34 @@ Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
 From: Andrew Duggan <aduggan@synaptics.com>
 
-The rmi_f11 driver currently disables dribble packets and the palm detect
-gesture for all devices. This patch creates a parameter in the 2d sensor
-platform data for controlling this functionality on a per device basis.
-
-For more information on dribble packets:
-Commit 05ba999fcabb ("HID: rmi: disable dribble packets on Synaptics
-touchpads")
-
-For more information on the palm detect gesture:
-Commit f097deef59a6 ("HID: rmi: disable palm detect gesture when present")
+The rmi4 2D sensor functions report the tool type via
+input_mt_report_slot_state(), but the abs parameter bit has not been
+set so the tool type is not reported to userspace. This patch set
+the ABS_MT_TOOL_TYPE bit.
 
 Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
 new in v3
 ---
- drivers/input/rmi4/rmi_2d_sensor.h |  2 ++
- drivers/input/rmi4/rmi_f01.c       |  6 +++---
- drivers/input/rmi4/rmi_f11.c       | 32 ++++++++++++++++++++++++++++----
- include/linux/rmi.h                | 21 +++++++++++++--------
- 4 files changed, 46 insertions(+), 15 deletions(-)
+ drivers/input/rmi4/rmi_2d_sensor.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_2d_sensor.h b/drivers/input/rmi4/rmi_2d_sensor.h
-index 77fcdfe..c871bef 100644
---- a/drivers/input/rmi4/rmi_2d_sensor.h
-+++ b/drivers/input/rmi4/rmi_2d_sensor.h
-@@ -67,6 +67,8 @@ struct rmi_2d_sensor {
- 	u8 report_rel;
- 	u8 x_mm;
- 	u8 y_mm;
-+	enum rmi_reg_state dribble;
-+	enum rmi_reg_state palm_detect;
- };
+diff --git a/drivers/input/rmi4/rmi_2d_sensor.c b/drivers/input/rmi4/rmi_2d_sensor.c
+index e97bd7f..0747890 100644
+--- a/drivers/input/rmi4/rmi_2d_sensor.c
++++ b/drivers/input/rmi4/rmi_2d_sensor.c
+@@ -181,6 +181,8 @@ static void rmi_2d_sensor_set_input_params(struct rmi_2d_sensor *sensor)
+ 		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR,	0, 0x0f, 0, 0);
+ 		input_set_abs_params(input, ABS_MT_TOUCH_MINOR,	0, 0x0f, 0, 0);
+ 		input_set_abs_params(input, ABS_MT_ORIENTATION,	0, 1, 0, 0);
++		input_set_abs_params(input, ABS_MT_TOOL_TYPE, 0, MT_TOOL_MAX,
++					0, 0);
  
- int rmi_2d_sensor_of_probe(struct device *dev,
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index fac81fc..2cfa9f6 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -327,12 +327,12 @@ static int rmi_f01_probe(struct rmi_function *fn)
- 	}
- 
- 	switch (pdata->power_management.nosleep) {
--	case RMI_F01_NOSLEEP_DEFAULT:
-+	case RMI_REG_STATE_DEFAULT:
- 		break;
--	case RMI_F01_NOSLEEP_OFF:
-+	case RMI_REG_STATE_OFF:
- 		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_NOSLEEP_BIT;
- 		break;
--	case RMI_F01_NOSLEEP_ON:
-+	case RMI_REG_STATE_ON:
- 		f01->device_control.ctrl0 |= RMI_F01_CTRL0_NOSLEEP_BIT;
- 		break;
- 	}
-diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index 3218742..cce82a1 100644
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -1142,6 +1142,8 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 	sensor->topbuttonpad = f11->sensor_pdata.topbuttonpad;
- 	sensor->kernel_tracking = f11->sensor_pdata.kernel_tracking;
- 	sensor->dmax = f11->sensor_pdata.dmax;
-+	sensor->dribble = f11->sensor_pdata.dribble;
-+	sensor->palm_detect = f11->sensor_pdata.palm_detect;
- 
- 	if (f11->sens_query.has_physical_props) {
- 		sensor->x_mm = f11->sens_query.x_sensor_size_mm;
-@@ -1209,11 +1211,33 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 		ctrl->ctrl0_11[RMI_F11_DELTA_Y_THRESHOLD] =
- 			sensor->axis_align.delta_y_threshold;
- 
--	if (f11->sens_query.has_dribble)
--		ctrl->ctrl0_11[0] = ctrl->ctrl0_11[0] & ~BIT(6);
-+	if (f11->sens_query.has_dribble) {
-+		switch (sensor->dribble) {
-+		case RMI_REG_STATE_OFF:
-+			ctrl->ctrl0_11[0] = ctrl->ctrl0_11[0] & ~BIT(6);
-+			break;
-+		case RMI_REG_STATE_ON:
-+			ctrl->ctrl0_11[0] = ctrl->ctrl0_11[0] | BIT(6);
-+			break;
-+		case RMI_REG_STATE_DEFAULT:
-+		default:
-+			break;
-+		}
-+	}
- 
--	if (f11->sens_query.has_palm_det)
--		ctrl->ctrl0_11[11] = ctrl->ctrl0_11[11] & ~BIT(0);
-+	if (f11->sens_query.has_palm_det) {
-+		switch (sensor->palm_detect) {
-+		case RMI_REG_STATE_OFF:
-+			ctrl->ctrl0_11[11] = ctrl->ctrl0_11[11] & ~BIT(0);
-+			break;
-+		case RMI_REG_STATE_ON:
-+			ctrl->ctrl0_11[11] = ctrl->ctrl0_11[11] & BIT(0);
-+			break;
-+		case RMI_REG_STATE_DEFAULT:
-+		default:
-+			break;
-+		}
-+	}
- 
- 	rc = f11_write_control_regs(fn, &f11->sens_query,
- 			   &f11->dev_controls, fn->fd.query_base_addr);
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index 5944e6c..ac904bb 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -99,6 +99,8 @@ struct rmi_2d_sensor_platform_data {
- 	bool topbuttonpad;
- 	bool kernel_tracking;
- 	int dmax;
-+	int dribble;
-+	int palm_detect;
- };
- 
- /**
-@@ -116,14 +118,17 @@ struct rmi_f30_data {
- 	bool disable;
- };
- 
--/**
-- * struct rmi_f01_power - override default power management settings.
-- *
-+
-+/*
-+ * Set the state of a register
-+ *	DEFAULT - use the default value set by the firmware config
-+ *	OFF - explicitly disable the register
-+ *	ON - explicitly enable the register
-  */
--enum rmi_f01_nosleep {
--	RMI_F01_NOSLEEP_DEFAULT = 0,
--	RMI_F01_NOSLEEP_OFF = 1,
--	RMI_F01_NOSLEEP_ON = 2
-+enum rmi_reg_state {
-+	RMI_REG_STATE_DEFAULT = 0,
-+	RMI_REG_STATE_OFF = 1,
-+	RMI_REG_STATE_ON = 2
- };
- 
- /**
-@@ -143,7 +148,7 @@ enum rmi_f01_nosleep {
-  * when the touch sensor is in doze mode, in units of 10ms.
-  */
- struct rmi_f01_power_management {
--	enum rmi_f01_nosleep nosleep;
-+	enum rmi_reg_state nosleep;
- 	u8 wakeup_threshold;
- 	u8 doze_holdoff;
- 	u8 doze_interval;
+ 		if (sensor->sensor_type == rmi_sensor_touchpad)
+ 			input_flags = INPUT_MT_POINTER;
 -- 
 2.7.4
 

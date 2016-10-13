@@ -1,152 +1,101 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 05/18] Input: synaptics-rmi4 - Add support for controlling dribble packets in F12
-Date: Thu, 13 Oct 2016 17:50:59 +0200
-Message-ID: <1476373872-18027-6-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 11/18] Input: synaptics-rmi4 - f03: grab data passed by transport device
+Date: Thu, 13 Oct 2016 17:51:05 +0200
+Message-ID: <1476373872-18027-12-git-send-email-benjamin.tissoires@redhat.com>
 References: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34222 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:54190 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755412AbcJMPvc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 13 Oct 2016 11:51:32 -0400
+        id S1756253AbcJMPvu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 13 Oct 2016 11:51:50 -0400
 In-Reply-To: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Lyude Paul <thatslyude@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Dennis Wassenberg <dennis.wassenberg@secunet.com>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-From: Andrew Duggan <aduggan@synaptics.com>
+From: Dennis Wassenberg <dennis.wassenberg@secunet.com>
 
-Implements reading and setting the dribble bit in F12's control registers.
+First check if there are data available passed by the transport device.
+If data available use these data. If there are no data available
+try to read the rmi block if dsata are passed this way.
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+This is the way the other rmi function handlers will do this.
+
+This patch is needed on HID devices because the firmware reads F03 data
+registers and adds them to the HID attention report. Reading those registers
+from the driver after the firmware read them will result in invalid data.
+Which is exactly what Dennis is describing here.
+
+Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
+Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-new in v3
----
- drivers/input/rmi4/rmi_f12.c | 73 +++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 72 insertions(+), 1 deletion(-)
+no changes in v3
 
-diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
-index 767ac79..f79a785 100644
---- a/drivers/input/rmi4/rmi_f12.c
-+++ b/drivers/input/rmi4/rmi_f12.c
-@@ -31,6 +31,7 @@ enum rmi_f12_object_type {
- struct f12_data {
- 	struct rmi_2d_sensor sensor;
- 	struct rmi_2d_sensor_platform_data sensor_pdata;
-+	bool has_dribble;
+changes in v2:
+- fixed commit message to include Andrew's explanation
+---
+ drivers/input/rmi4/rmi_f03.c | 37 +++++++++++++++++++++++++++----------
+ 1 file changed, 27 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
+index a7e1b98..a124b33 100644
+--- a/drivers/input/rmi4/rmi_f03.c
++++ b/drivers/input/rmi4/rmi_f03.c
+@@ -159,6 +159,7 @@ static int rmi_f03_config(struct rmi_function *fn)
  
- 	u16 data_addr;
- 
-@@ -239,12 +240,79 @@ static int rmi_f12_attention(struct rmi_function *fn,
- 	return 0;
- }
- 
-+static int rmi_f12_write_control_regs(struct rmi_function *fn)
-+{
-+	int ret;
-+	const struct rmi_register_desc_item *item;
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	struct f12_data *f12 = dev_get_drvdata(&fn->dev);
-+	int control_size;
-+	char buf[3];
-+	u16 control_offset = 0;
-+	u8 subpacket_offset = 0;
-+
-+	if (f12->has_dribble
-+	    && (f12->sensor.dribble != RMI_REG_STATE_DEFAULT)) {
-+		item = rmi_get_register_desc_item(&f12->control_reg_desc, 20);
-+		if (item) {
-+			control_offset = rmi_register_desc_calc_reg_offset(
-+						&f12->control_reg_desc, 20);
-+
-+			/*
-+			 * The byte containing the EnableDribble bit will be
-+			 * in either byte 0 or byte 2 of control 20. Depending
-+			 * on the existence of subpacket 0. If control 20 is
-+			 * larger then 3 bytes, just read the first 3.
-+			 */
-+			if (item->reg_size >= 3)
-+				control_size = 3;
-+			else
-+				control_size = item->reg_size;
-+
-+			ret = rmi_read_block(rmi_dev, fn->fd.control_base_addr
-+					+ control_offset, buf, control_size);
-+			if (ret)
-+				return ret;
-+
-+			if (rmi_register_desc_has_subpacket(item, 0))
-+				subpacket_offset += 1;
-+
-+			switch (f12->sensor.dribble) {
-+			case RMI_REG_STATE_OFF:
-+				buf[subpacket_offset] &= ~BIT(2);
-+				break;
-+			case RMI_REG_STATE_ON:
-+				buf[subpacket_offset] |= BIT(2);
-+				break;
-+			case RMI_REG_STATE_DEFAULT:
-+			default:
-+				break;
-+			}
-+
-+			ret = rmi_write_block(rmi_dev,
-+				fn->fd.control_base_addr + control_offset,
-+				buf, control_size);
-+			if (ret)
-+				return ret;
-+		}
-+	}
-+
-+	return 0;
-+
-+}
-+
- static int rmi_f12_config(struct rmi_function *fn)
+ static int rmi_f03_attention(struct rmi_function *fn, unsigned long *irq_bits)
  {
- 	struct rmi_driver *drv = fn->rmi_dev->driver;
++	struct rmi_device *rmi_dev = fn->rmi_dev;
+ 	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
+ 	u16 data_addr = fn->fd.data_base_addr;
+ 	const u8 ob_len = f03->rx_queue_length * RMI_F03_OB_SIZE;
+@@ -167,16 +168,32 @@ static int rmi_f03_attention(struct rmi_function *fn, unsigned long *irq_bits)
+ 	u8 ob_data;
+ 	unsigned int serio_flags;
+ 	int i;
+-	int retval;
+-
+-	/* Grab all of the data registers, and check them for data */
+-	retval = rmi_read_block(fn->rmi_dev, data_addr + RMI_F03_OB_OFFSET,
+-				&obs, ob_len);
+-	if (retval) {
+-		dev_err(&fn->dev, "%s: Failed to read F03 output buffers.\n",
+-			__func__);
+-		serio_interrupt(f03->serio, 0, SERIO_TIMEOUT);
+-		return retval;
 +	int ret;
- 
- 	drv->set_irq_bits(fn->rmi_dev, fn->irq_mask);
- 
-+	ret = rmi_f12_write_control_regs(fn);
-+	if (ret)
-+		dev_warn(&fn->dev,
-+			"Failed to write F12 control registers: %d\n", ret);
 +
- 	return 0;
- }
- 
-@@ -271,7 +339,7 @@ static int rmi_f12_probe(struct rmi_function *fn)
++	if (!rmi_dev || !rmi_dev->xport)
++		return -ENODEV;
++
++	if (rmi_dev->xport->attn_data) {
++		/* First grab the data passed by the transport device */
++		if (rmi_dev->xport->attn_size < ob_len) {
++			dev_warn(&fn->dev, "F03 interrupted, but data is missing!\n");
++			return 0;
++		}
++
++		memcpy(obs, rmi_dev->xport->attn_data, ob_len);
++
++		rmi_dev->xport->attn_data += ob_len;
++		rmi_dev->xport->attn_size -= ob_len;
++	} else {
++		/* Grab all of the data registers, and check them for data */
++		ret = rmi_read_block(fn->rmi_dev, data_addr + RMI_F03_OB_OFFSET,
++				     &obs, ob_len);
++		if (ret) {
++			dev_err(&fn->dev, "%s: Failed to read F03 output buffers.\n",
++				__func__);
++			serio_interrupt(f03->serio, 0, SERIO_TIMEOUT);
++			return ret;
++		}
  	}
- 	++query_addr;
  
--	if (!(buf & 0x1)) {
-+	if (!(buf & BIT(0))) {
- 		dev_err(&fn->dev,
- 			"Behavior of F12 without register descriptors is undefined.\n");
- 		return -ENODEV;
-@@ -281,6 +349,8 @@ static int rmi_f12_probe(struct rmi_function *fn)
- 	if (!f12)
- 		return -ENOMEM;
- 
-+	f12->has_dribble = !!(buf & BIT(3));
-+
- 	if (fn->dev.of_node) {
- 		ret = rmi_2d_sensor_of_probe(&fn->dev, &f12->sensor_pdata);
- 		if (ret)
-@@ -329,6 +399,7 @@ static int rmi_f12_probe(struct rmi_function *fn)
- 
- 	sensor->x_mm = f12->sensor_pdata.x_mm;
- 	sensor->y_mm = f12->sensor_pdata.y_mm;
-+	sensor->dribble = f12->sensor_pdata.dribble;
- 
- 	if (sensor->sensor_type == rmi_sensor_default)
- 		sensor->sensor_type =
+ 	for (i = 0; i < ob_len; i += RMI_F03_OB_SIZE) {
 -- 
 2.7.4
 

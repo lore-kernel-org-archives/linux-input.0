@@ -1,217 +1,233 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 02/18] Input: synaptics-rmi4 - factor out functions from probe
-Date: Thu, 13 Oct 2016 17:50:56 +0200
-Message-ID: <1476373872-18027-3-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 03/18] Input: synaptics-rmi4 - Handle incomplete input data
+Date: Thu, 13 Oct 2016 17:50:57 +0200
+Message-ID: <1476373872-18027-4-git-send-email-benjamin.tissoires@redhat.com>
 References: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53048 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38468 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754685AbcJMPvY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 13 Oct 2016 11:51:24 -0400
+        id S1754882AbcJMPv0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 13 Oct 2016 11:51:26 -0400
 In-Reply-To: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Lyude Paul <thatslyude@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Dennis Wassenberg <dennis.wassenberg@secunet.com>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-From: Nick Dyer <nick@shmanahar.org>
+From: Andrew Duggan <aduggan@synaptics.com>
 
-Signed-off-by: Nick Dyer <nick@shmanahar.org>
+Commit 5b65c2a02966 ("HID: rmi: check sanity of the incoming report") added
+support for handling incomplete HID reports do to the input data being
+corrupted in transit. This patch reimplements this functionality in the
+function drivers so they can handle getting less valid data then they
+expect.
+
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
 new in v3
 ---
- drivers/input/rmi4/rmi_driver.c | 139 +++++++++++++++++++++++++---------------
- 1 file changed, 86 insertions(+), 53 deletions(-)
+ drivers/input/rmi4/rmi_f11.c | 54 ++++++++++++++++++++++++++++++++------------
+ drivers/input/rmi4/rmi_f12.c | 23 ++++++++++++++-----
+ drivers/input/rmi4/rmi_f30.c |  4 ++++
+ 3 files changed, 61 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index cf780ef..e3f674e 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -40,6 +40,8 @@ static void rmi_free_function_list(struct rmi_device *rmi_dev)
- 	struct rmi_function *fn, *tmp;
- 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+index 20c7134..3218742 100644
+--- a/drivers/input/rmi4/rmi_f11.c
++++ b/drivers/input/rmi4/rmi_f11.c
+@@ -572,31 +572,48 @@ static inline u8 rmi_f11_parse_finger_state(const u8 *f_state, u8 n_finger)
  
-+	rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev, "Freeing function list\n");
-+
- 	data->f01_container = NULL;
- 
- 	/* Doing it in the reverse order so F01 will be removed last */
-@@ -904,15 +906,90 @@ static inline int rmi_driver_of_probe(struct device *dev,
- }
- #endif
- 
-+static int rmi_probe_interrupts(struct rmi_driver_data *data)
-+{
-+	struct rmi_device *rmi_dev = data->rmi_dev;
-+	struct device *dev = &rmi_dev->dev;
-+	int irq_count;
-+	size_t size;
-+	void *irq_memory;
-+	int retval;
-+
-+	/*
-+	 * We need to count the IRQs and allocate their storage before scanning
-+	 * the PDT and creating the function entries, because adding a new
-+	 * function can trigger events that result in the IRQ related storage
-+	 * being accessed.
-+	 */
-+	rmi_dbg(RMI_DEBUG_CORE, dev, "%s: Counting IRQs.\n", __func__);
-+	irq_count = 0;
-+	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_count_irqs);
-+	if (retval < 0) {
-+		dev_err(dev, "IRQ counting failed with code %d.\n", retval);
-+		return retval;
-+	}
-+	data->irq_count = irq_count;
-+	data->num_of_irq_regs = (data->irq_count + 7) / 8;
-+
-+	size = BITS_TO_LONGS(data->irq_count) * sizeof(unsigned long);
-+	irq_memory = devm_kzalloc(dev, size * 4, GFP_KERNEL);
-+	if (!irq_memory) {
-+		dev_err(dev, "Failed to allocate memory for irq masks.\n");
-+		return retval;
-+	}
-+
-+	data->irq_status	= irq_memory + size * 0;
-+	data->fn_irq_bits	= irq_memory + size * 1;
-+	data->current_irq_mask	= irq_memory + size * 2;
-+	data->new_irq_mask	= irq_memory + size * 3;
-+
-+	return retval;
-+}
-+
-+static int rmi_init_functions(struct rmi_driver_data *data)
-+{
-+	struct rmi_device *rmi_dev = data->rmi_dev;
-+	struct device *dev = &rmi_dev->dev;
-+	int irq_count;
-+	int retval;
-+
-+	irq_count = 0;
-+	rmi_dbg(RMI_DEBUG_CORE, dev, "%s: Creating functions.\n", __func__);
-+	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_create_function);
-+	if (retval < 0) {
-+		dev_err(dev, "Function creation failed with code %d.\n",
-+			retval);
-+		goto err_destroy_functions;
-+	}
-+
-+	if (!data->f01_container) {
-+		dev_err(dev, "Missing F01 container!\n");
-+		retval = -EINVAL;
-+		goto err_destroy_functions;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev,
-+				data->f01_container->fd.control_base_addr + 1,
-+				data->current_irq_mask, data->num_of_irq_regs);
-+	if (retval < 0) {
-+		dev_err(dev, "%s: Failed to read current IRQ mask.\n",
-+			__func__);
-+		goto err_destroy_functions;
-+	}
-+
-+	return 0;
-+
-+err_destroy_functions:
-+	rmi_free_function_list(rmi_dev);
-+	return retval;
-+}
-+
- static int rmi_driver_probe(struct device *dev)
+ static void rmi_f11_finger_handler(struct f11_data *f11,
+ 				   struct rmi_2d_sensor *sensor,
+-				   unsigned long *irq_bits, int num_irq_regs)
++				   unsigned long *irq_bits, int num_irq_regs,
++				   int size)
  {
- 	struct rmi_driver *rmi_driver;
- 	struct rmi_driver_data *data;
- 	struct rmi_device_platform_data *pdata;
- 	struct rmi_device *rmi_dev;
--	size_t size;
--	void *irq_memory;
--	int irq_count;
- 	int retval;
+ 	const u8 *f_state = f11->data.f_state;
+ 	u8 finger_state;
+ 	u8 i;
++	int abs_fingers;
++	int rel_fingers;
++	int abs_size = sensor->nbr_fingers * RMI_F11_ABS_BYTES;
  
- 	rmi_dbg(RMI_DEBUG_CORE, dev, "%s: Starting probe.\n",
-@@ -978,35 +1055,11 @@ static int rmi_driver_probe(struct device *dev)
- 			 PDT_PROPERTIES_LOCATION, retval);
+ 	int abs_bits = bitmap_and(f11->result_bits, irq_bits, f11->abs_mask,
+ 				  num_irq_regs * 8);
+ 	int rel_bits = bitmap_and(f11->result_bits, irq_bits, f11->rel_mask,
+ 				  num_irq_regs * 8);
+ 
+-	for (i = 0; i < sensor->nbr_fingers; i++) {
+-		/* Possible of having 4 fingers per f_statet register */
+-		finger_state = rmi_f11_parse_finger_state(f_state, i);
+-		if (finger_state == F11_RESERVED) {
+-			pr_err("Invalid finger state[%d]: 0x%02x", i,
+-				finger_state);
+-			continue;
+-		}
++	if (abs_bits) {
++		if (abs_size > size)
++			abs_fingers = size / RMI_F11_ABS_BYTES;
++		else
++			abs_fingers = sensor->nbr_fingers;
++
++		for (i = 0; i < abs_fingers; i++) {
++			/* Possible of having 4 fingers per f_state register */
++			finger_state = rmi_f11_parse_finger_state(f_state, i);
++			if (finger_state == F11_RESERVED) {
++				pr_err("Invalid finger state[%d]: 0x%02x", i,
++					finger_state);
++				continue;
++			}
+ 
+-		if (abs_bits)
+ 			rmi_f11_abs_pos_process(f11, sensor, &sensor->objs[i],
+ 							finger_state, i);
++		}
++	}
++
++	if (rel_bits) {
++		if ((abs_size + sensor->nbr_fingers * RMI_F11_REL_BYTES) > size)
++			rel_fingers = (size - abs_size) / RMI_F11_REL_BYTES;
++		else
++			rel_fingers = sensor->nbr_fingers;
+ 
+-		if (rel_bits)
++		for (i = 0; i < rel_fingers; i++)
+ 			rmi_f11_rel_pos_report(f11, i);
  	}
  
--	/*
--	 * We need to count the IRQs and allocate their storage before scanning
--	 * the PDT and creating the function entries, because adding a new
--	 * function can trigger events that result in the IRQ related storage
--	 * being accessed.
--	 */
--	rmi_dbg(RMI_DEBUG_CORE, dev, "Counting IRQs.\n");
--	irq_count = 0;
--	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_count_irqs);
--	if (retval < 0) {
--		dev_err(dev, "IRQ counting failed with code %d.\n", retval);
--		goto err;
--	}
--	data->irq_count = irq_count;
--	data->num_of_irq_regs = (data->irq_count + 7) / 8;
--
- 	mutex_init(&data->irq_mutex);
+@@ -612,7 +629,7 @@ static void rmi_f11_finger_handler(struct f11_data *f11,
+ 					      sensor->nbr_fingers,
+ 					      sensor->dmax);
  
--	size = BITS_TO_LONGS(data->irq_count) * sizeof(unsigned long);
--	irq_memory = devm_kzalloc(dev, size * 4, GFP_KERNEL);
--	if (!irq_memory) {
--		dev_err(dev, "Failed to allocate memory for irq masks.\n");
-+	retval = rmi_probe_interrupts(data);
-+	if (retval)
- 		goto err;
--	}
--
--	data->irq_status	= irq_memory + size * 0;
--	data->fn_irq_bits	= irq_memory + size * 1;
--	data->current_irq_mask	= irq_memory + size * 2;
--	data->new_irq_mask	= irq_memory + size * 3;
+-		for (i = 0; i < sensor->nbr_fingers; i++) {
++		for (i = 0; i < abs_fingers; i++) {
+ 			finger_state = rmi_f11_parse_finger_state(f_state, i);
+ 			if (finger_state == F11_RESERVED)
+ 				/* no need to send twice the error */
+@@ -1242,10 +1259,19 @@ static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
+ 	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
+ 	u16 data_base_addr = fn->fd.data_base_addr;
+ 	int error;
++	int valid_bytes = f11->sensor.pkt_size;
  
- 	if (rmi_dev->xport->input) {
- 		/*
-@@ -1023,36 +1076,16 @@ static int rmi_driver_probe(struct device *dev)
- 			dev_err(dev, "%s: Failed to allocate input device.\n",
- 				__func__);
- 			retval = -ENOMEM;
--			goto err_destroy_functions;
-+			goto err;
- 		}
- 		rmi_driver_set_input_params(rmi_dev, data->input);
- 		data->input->phys = devm_kasprintf(dev, GFP_KERNEL,
- 						"%s/input0", dev_name(dev));
+ 	if (rmi_dev->xport->attn_data) {
++		/*
++		 * The valid data in the attention report is less then
++		 * expected. Only process the complete fingers.
++		 */
++		if (f11->sensor.attn_size > rmi_dev->xport->attn_size)
++			valid_bytes = rmi_dev->xport->attn_size;
++		else
++			valid_bytes = f11->sensor.attn_size;
+ 		memcpy(f11->sensor.data_pkt, rmi_dev->xport->attn_data,
+-			f11->sensor.attn_size);
++			valid_bytes);
+ 		rmi_dev->xport->attn_data += f11->sensor.attn_size;
+ 		rmi_dev->xport->attn_size -= f11->sensor.attn_size;
+ 	} else {
+@@ -1257,7 +1283,7 @@ static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
  	}
  
--	irq_count = 0;
--	rmi_dbg(RMI_DEBUG_CORE, dev, "Creating functions.");
--	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_create_function);
--	if (retval < 0) {
--		dev_err(dev, "Function creation failed with code %d.\n",
--			retval);
--		goto err_destroy_functions;
--	}
--
--	if (!data->f01_container) {
--		dev_err(dev, "Missing F01 container!\n");
--		retval = -EINVAL;
--		goto err_destroy_functions;
--	}
--
--	retval = rmi_read_block(rmi_dev,
--				data->f01_container->fd.control_base_addr + 1,
--				data->current_irq_mask, data->num_of_irq_regs);
--	if (retval < 0) {
--		dev_err(dev, "%s: Failed to read current IRQ mask.\n",
--			__func__);
--		goto err_destroy_functions;
--	}
-+	retval = rmi_init_functions(data);
-+	if (retval)
-+		goto err;
+ 	rmi_f11_finger_handler(f11, &f11->sensor, irq_bits,
+-				drvdata->num_of_irq_regs);
++				drvdata->num_of_irq_regs, valid_bytes);
  
- 	if (data->input) {
- 		rmi_driver_set_input_name(rmi_dev, data->input);
+ 	return 0;
+ }
+diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
+index 332c02f..767ac79 100644
+--- a/drivers/input/rmi4/rmi_f12.c
++++ b/drivers/input/rmi4/rmi_f12.c
+@@ -26,6 +26,8 @@ enum rmi_f12_object_type {
+ 	RMI_F12_OBJECT_SMALL_OBJECT		= 0x0D,
+ };
+ 
++#define F12_DATA1_BYTES_PER_OBJ			8
++
+ struct f12_data {
+ 	struct rmi_2d_sensor sensor;
+ 	struct rmi_2d_sensor_platform_data sensor_pdata;
+@@ -146,12 +148,16 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
+ 	return 0;
+ }
+ 
+-static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1)
++static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1, int size)
+ {
+ 	int i;
+ 	struct rmi_2d_sensor *sensor = &f12->sensor;
++	int objects = f12->data1->num_subpackets;
++
++	if ((f12->data1->num_subpackets * F12_DATA1_BYTES_PER_OBJ) > size)
++		objects = size / F12_DATA1_BYTES_PER_OBJ;
+ 
+-	for (i = 0; i < f12->data1->num_subpackets; i++) {
++	for (i = 0; i < objects; i++) {
+ 		struct rmi_2d_sensor_abs_object *obj = &sensor->objs[i];
+ 
+ 		obj->type = RMI_2D_OBJECT_NONE;
+@@ -182,7 +188,7 @@ static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1)
+ 
+ 		rmi_2d_sensor_abs_process(sensor, obj, i);
+ 
+-		data1 += 8;
++		data1 += F12_DATA1_BYTES_PER_OBJ;
+ 	}
+ 
+ 	if (sensor->kernel_tracking)
+@@ -192,7 +198,7 @@ static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1)
+ 				      sensor->nbr_fingers,
+ 				      sensor->dmax);
+ 
+-	for (i = 0; i < sensor->nbr_fingers; i++)
++	for (i = 0; i < objects; i++)
+ 		rmi_2d_sensor_abs_report(sensor, &sensor->objs[i], i);
+ }
+ 
+@@ -203,10 +209,15 @@ static int rmi_f12_attention(struct rmi_function *fn,
+ 	struct rmi_device *rmi_dev = fn->rmi_dev;
+ 	struct f12_data *f12 = dev_get_drvdata(&fn->dev);
+ 	struct rmi_2d_sensor *sensor = &f12->sensor;
++	int valid_bytes = sensor->pkt_size;
+ 
+ 	if (rmi_dev->xport->attn_data) {
++		if (sensor->attn_size > rmi_dev->xport->attn_size)
++			valid_bytes = rmi_dev->xport->attn_size;
++		else
++			valid_bytes = sensor->attn_size;
+ 		memcpy(sensor->data_pkt, rmi_dev->xport->attn_data,
+-			sensor->attn_size);
++			valid_bytes);
+ 		rmi_dev->xport->attn_data += sensor->attn_size;
+ 		rmi_dev->xport->attn_size -= sensor->attn_size;
+ 	} else {
+@@ -221,7 +232,7 @@ static int rmi_f12_attention(struct rmi_function *fn,
+ 
+ 	if (f12->data1)
+ 		rmi_f12_process_objects(f12,
+-			&sensor->data_pkt[f12->data1_offset]);
++			&sensor->data_pkt[f12->data1_offset], valid_bytes);
+ 
+ 	input_mt_sync_frame(sensor->input);
+ 
+diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
+index 760aff1..485907f 100644
+--- a/drivers/input/rmi4/rmi_f30.c
++++ b/drivers/input/rmi4/rmi_f30.c
+@@ -110,6 +110,10 @@ static int rmi_f30_attention(struct rmi_function *fn, unsigned long *irq_bits)
+ 
+ 	/* Read the gpi led data. */
+ 	if (rmi_dev->xport->attn_data) {
++		if (rmi_dev->xport->attn_size < f30->register_count) {
++			dev_warn(&fn->dev, "F30 interrupted, but data is missing\n");
++			return 0;
++		}
+ 		memcpy(f30->data_regs, rmi_dev->xport->attn_data,
+ 			f30->register_count);
+ 		rmi_dev->xport->attn_data += f30->register_count;
 -- 
 2.7.4
 

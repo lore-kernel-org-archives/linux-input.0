@@ -1,45 +1,78 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 1/2] Revert "HID: i2c-hid: Add support for ACPI GPIO
- interrupts"
-Date: Thu, 13 Oct 2016 13:24:45 +0300
-Message-ID: <20161013102445.GP2774@lahna.fi.intel.com>
-References: <1476351045-8829-1-git-send-email-benjamin.tissoires@redhat.com>
- <1476351045-8829-2-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2] Input: elan_i2c - always output the device information
+Date: Thu, 13 Oct 2016 13:23:30 +0200
+Message-ID: <1476357810-11324-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:41494 "EHLO mga06.intel.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37916 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753676AbcJMK1z (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 13 Oct 2016 06:27:55 -0400
-Content-Disposition: inline
-In-Reply-To: <1476351045-8829-2-git-send-email-benjamin.tissoires@redhat.com>
+        id S1754997AbcJMLrH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 13 Oct 2016 07:47:07 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, David Arcari <darcari@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, KT Liao <kt.liao@emc.com.tw>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Oct 13, 2016 at 11:30:44AM +0200, Benjamin Tissoires wrote:
-> From: David Arcari <darcari@redhat.com>
-> 
-> This reverts commit a485923efbb8 ("HID: i2c-hid: Add support for ACPI
-> GPIO interrupts") and commit a7d2bf25a483 ("HID: i2c-hid: Do not fail
-> probing if gpiolib is not enabled") at the same time.
-> 
-> Since commit c884fbd45214 ("gpio / ACPI: Add support for retrieving
-> GpioInt resources from a device") i2c_core already set the IRQ by
-> looking into the ACPI tree and retrieving the gpioInt. So we just
-> have some boiler-plate here that is not needed anymore.
-> 
-> The only downside effect here is that now we are not exiting early
-> enough if the irq is set to -EPROBE_DEFER or any other error, but
-> this is going to be fixed in the following patch.
-> 
-> Signed-off-by: David Arcari <darcari@redhat.com>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+it's always easier to retrieve these information in bug reports when
+it is always printed in the dmesg.
 
-I went through my collection of ACPI dumps from different machines and I
-did not find anything using plain GpioIo() resource. So I think this
-should be safe thing to do.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+
+changes in v2:
+- split the version information message and the touchpad characteristics
+- keep sending the versions as info (on one line)
+- send the characteristics on debug only
+
+Hi Dmitry,
+
+This is a respin of one of the patches I sent for elan_i2c. Given that you
+applied the fixed one for SMBus and that I don't currently have a way to
+check from I2C if the trackstick is going to be used, this one is the only
+one left (also given SMBus Host Notify might meld into client->irq).
+
+So, well, yes, there it comes, a single patch which IMO is useful
+when we receive bug reports.
+
+Cheers,
+Benjamin
+
+---
+ drivers/input/mouse/elan_i2c_core.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index d15b338..dc7c94d 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -1093,19 +1093,18 @@ static int elan_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
+ 
++	dev_info(&client->dev,
++		"Elan Touchpad: Module ID: 0x%04x, Firmware: 0x%04x, Sample: 0x%04x, IAP: 0x%04x\n",
++		data->product_id,
++		data->fw_version,
++		data->sm_version,
++		data->iap_version);
++
+ 	dev_dbg(&client->dev,
+-		"Elan Touchpad Information:\n"
+-		"    Module product ID:  0x%04x\n"
+-		"    Firmware Version:  0x%04x\n"
+-		"    Sample Version:  0x%04x\n"
+-		"    IAP Version:  0x%04x\n"
++		"Elan Touchpad Extra Information:\n"
+ 		"    Max ABS X,Y:   %d,%d\n"
+ 		"    Width X,Y:   %d,%d\n"
+ 		"    Resolution X,Y:   %d,%d (dots/mm)\n",
+-		data->product_id,
+-		data->fw_version,
+-		data->sm_version,
+-		data->iap_version,
+ 		data->max_x, data->max_y,
+ 		data->width_x, data->width_y,
+ 		data->x_res, data->y_res);
+-- 
+2.7.4
+

@@ -1,29 +1,27 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 16/18] Input: synaptics-rmi4 - smbus: call psmouse_deactivate before binding/resume
-Date: Thu, 13 Oct 2016 17:51:10 +0200
-Message-ID: <1476373872-18027-17-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 15/18] Input: synaptics-rmi4 - add rmi_platform
+Date: Thu, 13 Oct 2016 17:51:09 +0200
+Message-ID: <1476373872-18027-16-git-send-email-benjamin.tissoires@redhat.com>
 References: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53334 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:54280 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756377AbcJMPv4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 13 Oct 2016 11:51:56 -0400
+        id S1756348AbcJMPvy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 13 Oct 2016 11:51:54 -0400
 In-Reply-To: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Lyude Paul <thatslyude@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Dennis Wassenberg <dennis.wassenberg@secunet.com>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-The SMBus Synaptics devices enumerated as PS/2 devices have
-the problem of being deaf to I2C if the touchpad has been
-fully initialized over PS/2 (psmouse_activate being called).
-A simple PS/2 deactivate command is enough to make it back alive.
+This driver is a glue between PS/2 devices that enumerate
+the RMI4 device and the RMI4 SMBus driver.
 
-To make sure the pass-through device does not interfere, we also
-remove it from serio while using InterTouch.
-
-Add a platform_data callback to reset the PS/2 device and
-prevent it to be asynchronously re-enabled at resume.
+We mostly use an intermediate platform device to not
+add a dependency between psmouse and I2C. It also handles
+the subtleties of going around the serio mutex lock by
+deferring the i2c creation/destruction in a separate
+thread.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
@@ -32,218 +30,295 @@ Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 no changes in v3
 
 changes in v2:
-- fix an oops when synaptics_disconnect() was called, which leaded
-  to a null parameter as psmouse in synaptics_intertouch_enable()
+- use alloc_ordered_workqueue instead of create_singlethread_workqueue
+- Remove unneeded semicolon reported by scripts/coccinelle/misc/semicolon.cocci
 ---
- drivers/input/mouse/psmouse-base.c |  3 +++
- drivers/input/mouse/psmouse.h      |  1 +
- drivers/input/mouse/synaptics.c    | 34 ++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/rmi_smbus.c     | 30 ++++++++++++++++++++----------
- include/linux/rmi.h                | 13 +++++++++++++
- 5 files changed, 71 insertions(+), 10 deletions(-)
+ drivers/input/rmi4/Kconfig        |  12 ++
+ drivers/input/rmi4/Makefile       |   1 +
+ drivers/input/rmi4/rmi_platform.c | 235 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 248 insertions(+)
+ create mode 100644 drivers/input/rmi4/rmi_platform.c
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index 59d7c37..0b1f09a 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -1607,6 +1607,9 @@ static int psmouse_reconnect(struct serio *serio)
- 	unsigned char type;
- 	int rc = -1;
+diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+index eea1862..7a755fe 100644
+--- a/drivers/input/rmi4/Kconfig
++++ b/drivers/input/rmi4/Kconfig
+@@ -30,6 +30,7 @@ config RMI4_SPI
+ config RMI4_SMB
+ 	tristate "RMI4 SMB Support"
+ 	depends on RMI4_CORE && I2C
++	select RMI4_PLATFORM
+ 	help
+ 	  Say Y here if you want to support RMI4 devices connected to an SMB
+ 	  bus.
+@@ -39,6 +40,17 @@ config RMI4_SMB
+ 	  To compile this driver as a module, choose M here: the module will be
+ 	  called rmi_smbus.
  
-+	if (psmouse->ignore_reconnect)
-+		return 0;
++config RMI4_PLATFORM
++	tristate "RMI4 Platform Support"
++	depends on RMI4_CORE && RMI4_SMB && I2C
++	help
++	  Say Y here if you want to support RMI4 devices connected to an SMB
++	  bus but enumerated through PS/2.
 +
- 	mutex_lock(&psmouse_mutex);
- 
- 	if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index e0ca6cd..e9dc1a1 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -81,6 +81,7 @@ struct psmouse {
- 
- 	void (*pt_activate)(struct psmouse *psmouse);
- 	void (*pt_deactivate)(struct psmouse *psmouse);
-+	bool ignore_reconnect;
- };
- 
- enum psmouse_type {
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index e3c46f9..e10be58 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -245,6 +245,32 @@ static const char * const smbus_pnp_ids[] = {
- 
- static int rmi4_id;
- 
-+static void synaptics_pt_create(struct psmouse *psmouse);
++	  if unsure, say N.
++	  To compile this driver as a module, choose M here: the module will be
++	  called rmi_platform.
 +
-+static int synaptics_intertouch_enable(void *data, bool value)
+ config RMI4_F03
+         bool "RMI4 Function 03 (PS2 Guest)"
+         depends on RMI4_CORE
+diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
+index 8271b65..c5a34ce 100644
+--- a/drivers/input/rmi4/Makefile
++++ b/drivers/input/rmi4/Makefile
+@@ -14,3 +14,4 @@ rmi_core-$(CONFIG_RMI4_F54) += rmi_f54.o
+ obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
+ obj-$(CONFIG_RMI4_SPI) += rmi_spi.o
+ obj-$(CONFIG_RMI4_SMB) += rmi_smbus.o
++obj-$(CONFIG_RMI4_PLATFORM) += rmi_platform.o
+diff --git a/drivers/input/rmi4/rmi_platform.c b/drivers/input/rmi4/rmi_platform.c
+new file mode 100644
+index 0000000..6d31aea
+--- /dev/null
++++ b/drivers/input/rmi4/rmi_platform.c
+@@ -0,0 +1,235 @@
++/*
++ * Copyright (c) 2016 Red Hat, Inc
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/i2c.h>
++#include <linux/platform_device.h>
++#include <linux/rmi.h>
++#include <linux/slab.h>
++
++#define DRIVER_DESC	"RMI4 Platform PS/2 - SMBus bridge driver"
++
++MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@redhat.com>");
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPL");
++
++static struct workqueue_struct *krmi_wq;
++DEFINE_MUTEX(rmi_mutex);
++
++struct rmi_pltf {
++	struct i2c_client *smbus_client;
++	struct notifier_block i2c_notifier;
++	struct rmi_device_platform_data *pdata;
++};
++
++enum rmi_event_type {
++	RMI_REGISTER_DEVICE,
++	RMI_UNREGISTER_DEVICE,
++};
++
++struct rmi_work {
++	struct work_struct work;
++	enum rmi_event_type type;
++	struct rmi_pltf *rmi;
++	struct i2c_adapter *adap;
++};
++
++static void rmi_create_intertouch(struct rmi_pltf *rmi_pltf,
++				  struct i2c_adapter *adap)
 +{
-+	struct psmouse *psmouse = data;
-+	struct synaptics_data *priv;
++	const struct i2c_board_info i2c_info = {
++		I2C_BOARD_INFO("rmi4_smbus", 0x2c),
++		.platform_data = rmi_pltf->pdata,
++	};
 +
-+	if (!psmouse)
++	rmi_pltf->smbus_client = i2c_new_device(adap, &i2c_info);
++}
++
++static void rmi_worker(struct work_struct *work)
++{
++	struct rmi_work *rmi_work = container_of(work, struct rmi_work, work);
++
++	mutex_lock(&rmi_mutex);
++
++	switch (rmi_work->type) {
++	case RMI_REGISTER_DEVICE:
++		rmi_create_intertouch(rmi_work->rmi, rmi_work->adap);
++		break;
++	case RMI_UNREGISTER_DEVICE:
++		if (rmi_work->rmi->smbus_client)
++			i2c_unregister_device(rmi_work->rmi->smbus_client);
++		break;
++	}
++
++	kfree(rmi_work);
++
++	mutex_unlock(&rmi_mutex);
++}
++
++static int rmi_schedule_work(enum rmi_event_type type,
++			     struct rmi_pltf *rmi,
++			     struct i2c_adapter *adap)
++{
++	struct rmi_work *rmi_work = kzalloc(sizeof(*rmi_work), GFP_KERNEL);
++
++	if (!rmi_work)
++		return -ENOMEM;
++
++	rmi_work->type = type;
++	rmi_work->rmi = rmi;
++	rmi_work->adap = adap;
++
++	INIT_WORK(&rmi_work->work, rmi_worker);
++
++	queue_work(krmi_wq, &rmi_work->work);
++
++	return 0;
++}
++
++static int rmi_attach_i2c_device(struct device *dev, void *data)
++{
++	struct rmi_pltf *rmi_pltf = data;
++	struct i2c_adapter *adap;
++
++	if (dev->type != &i2c_adapter_type)
 +		return 0;
 +
-+	priv = psmouse->private;
++	adap = to_i2c_adapter(dev);
 +
-+	psmouse->ignore_reconnect = value;
++	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_HOST_NOTIFY))
++		return 0;
 +
-+	if (value) {
-+		serio_unregister_child_port(psmouse->ps2dev.serio);
-+		psmouse_deactivate(psmouse);
-+	} else {
-+		psmouse_activate(psmouse);
-+		if (SYN_CAP_PASS_THROUGH(priv->capabilities))
-+			synaptics_pt_create(psmouse);
++	if (rmi_pltf->smbus_client)
++		return 0;
++
++	rmi_schedule_work(RMI_REGISTER_DEVICE, rmi_pltf, adap);
++
++	pr_debug("rmi_platform: adapter [%s] registered\n", adap->name);
++	return 0;
++}
++
++static int rmi_detach_i2c_device(struct device *dev, struct rmi_pltf *rmi_pltf)
++{
++	struct i2c_client *client;
++
++	if (dev->type == &i2c_adapter_type)
++		return 0;
++
++	mutex_lock(&rmi_mutex);
++
++	client = to_i2c_client(dev);
++	if (client == rmi_pltf->smbus_client)
++		rmi_pltf->smbus_client = NULL;
++
++	mutex_unlock(&rmi_mutex);
++
++	pr_debug("rmi_platform: client [%s] unregistered\n", client->name);
++	return 0;
++}
++
++static int rmi_notifier_call(struct notifier_block *nb,
++				   unsigned long action, void *data)
++{
++	struct device *dev = data;
++	struct rmi_pltf *rmi_pltf;
++
++	rmi_pltf = container_of(nb, struct rmi_pltf, i2c_notifier);
++
++	switch (action) {
++	case BUS_NOTIFY_ADD_DEVICE:
++		return rmi_attach_i2c_device(dev, rmi_pltf);
++	case BUS_NOTIFY_DEL_DEVICE:
++		return rmi_detach_i2c_device(dev, rmi_pltf);
 +	}
 +
 +	return 0;
 +}
 +
- static int synaptics_create_intertouch(struct psmouse *psmouse)
- {
- 	struct synaptics_data *priv = psmouse->private;
-@@ -262,6 +288,8 @@ static int synaptics_create_intertouch(struct psmouse *psmouse)
- 			.trackstick_buttons =
- 			  !!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10),
- 		},
-+		.transport_enable = synaptics_intertouch_enable,
-+		.transport_data = psmouse,
- 	};
- 
- 	if (priv->intertouch)
-@@ -1398,6 +1426,12 @@ static void synaptics_disconnect(struct psmouse *psmouse)
- 				   &psmouse_attr_disable_gesture.dattr);
- 
- 	if (priv->intertouch) {
-+		struct rmi_device_platform_data *pdata;
-+
-+		/* reset transport_data as it will get eventually freed */
-+		pdata = priv->intertouch->dev.platform_data;
-+		pdata->transport_data = NULL;
-+
- 		platform_device_unregister(priv->intertouch);
- 		priv->intertouch = NULL;
- 	}
-diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-index 96ad325..8d7ffe4 100644
---- a/drivers/input/rmi4/rmi_smbus.c
-+++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -244,8 +244,15 @@ static void rmi_smb_clear_state(struct rmi_smb_xport *rmi_smb)
- 
- static int rmi_smb_enable_smbus_mode(struct rmi_smb_xport *rmi_smb)
- {
-+	struct rmi_device_platform_data *pdata;
- 	int retval;
- 
-+	pdata = dev_get_platdata(&rmi_smb->client->dev);
-+
-+	retval = rmi_transport_enable(pdata, true);
-+	if (retval)
-+		return retval;
-+
- 	/* we need to get the smbus version to activate the touchpad */
- 	retval = rmi_smb_get_version(rmi_smb);
- 	if (retval < 0)
-@@ -261,13 +268,6 @@ static int rmi_smb_reset(struct rmi_transport_dev *xport, u16 reset_addr)
- 
- 	rmi_smb_clear_state(rmi_smb);
- 
--	/*
--	 * we do not call the actual reset command, it has to be handled in
--	 * PS/2 or there will be races between PS/2 and SMBus.
--	 * PS/2 should ensure that a psmouse_reset is called before
--	 * intializing the device and after it has been removed to be in a known
--	 * state.
--	 */
- 	return rmi_smb_enable_smbus_mode(rmi_smb);
- }
- 
-@@ -321,9 +321,13 @@ static int rmi_smb_probe(struct i2c_client *client,
- 	rmi_smb->xport.proto_name = "smb2";
- 	rmi_smb->xport.ops = &rmi_smb_ops;
- 
-+	retval = rmi_transport_enable(pdata, true);
-+	if (retval)
-+		return retval;
-+
- 	retval = rmi_smb_get_version(rmi_smb);
- 	if (retval < 0)
--		return retval;
-+		goto fail;
- 
- 	smbus_version = retval;
- 	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Smbus version is %d",
-@@ -332,7 +336,8 @@ static int rmi_smb_probe(struct i2c_client *client,
- 	if (smbus_version != 2) {
- 		dev_err(&client->dev, "Unrecognized SMB version %d.\n",
- 				smbus_version);
--		return -ENODEV;
-+		retval = -ENODEV;
-+		goto fail;
- 	}
- 
- 	i2c_set_clientdata(client, rmi_smb);
-@@ -342,20 +347,25 @@ static int rmi_smb_probe(struct i2c_client *client,
- 		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
- 			client->addr);
- 		i2c_set_clientdata(client, NULL);
--		return retval;
-+		goto fail;
- 	}
- 
- 	dev_info(&client->dev, "registered rmi smb driver at %#04x.\n",
- 			client->addr);
- 	return 0;
- 
-+fail:
-+	rmi_transport_enable(pdata, false);
-+	return retval;
- }
- 
- static int rmi_smb_remove(struct i2c_client *client)
- {
-+	struct rmi_device_platform_data *pdata = dev_get_platdata(&client->dev);
- 	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
- 
- 	rmi_unregister_transport_device(&rmi_smb->xport);
-+	rmi_transport_enable(pdata, false);
- 
- 	return 0;
- }
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index aa18bef..6b22948 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -221,6 +221,9 @@ struct rmi_device_platform_data {
- 	struct rmi_2d_sensor_platform_data sensor_pdata;
- 	struct rmi_f01_power_management power_management;
- 	struct rmi_f30_data f30_data;
-+
-+	int (*transport_enable)(void*, bool);
-+	void *transport_data;
- };
- 
- /**
-@@ -357,6 +360,16 @@ struct rmi_driver_data {
- 	void *data;
- };
- 
-+static inline int rmi_transport_enable(struct rmi_device_platform_data *pdata,
-+				       bool value)
++static int rmi_probe(struct platform_device *pdev)
 +{
-+	if (!pdata->transport_enable)
-+		return 0;
++	struct rmi_device_platform_data *pdata = pdev->dev.platform_data;
++	struct rmi_pltf *rmi_pltf;
++	int error;
 +
-+	return pdata->transport_enable(pdata->transport_data, value);
++	rmi_pltf = devm_kzalloc(&pdev->dev, sizeof(struct rmi_pltf),
++				GFP_KERNEL);
++	if (!rmi_pltf)
++		return -ENOMEM;
++
++	rmi_pltf->i2c_notifier.notifier_call = rmi_notifier_call;
++
++	rmi_pltf->pdata = pdata;
++
++	/* Keep track of adapters which will be added or removed later */
++	error = bus_register_notifier(&i2c_bus_type, &rmi_pltf->i2c_notifier);
++	if (error)
++		return error;
++
++	/* Bind to already existing adapters right away */
++	i2c_for_each_dev(rmi_pltf, rmi_attach_i2c_device);
++
++	platform_set_drvdata(pdev, rmi_pltf);
++
++	return 0;
 +}
 +
++static int rmi_remove(struct platform_device *pdev)
++{
++	struct rmi_pltf *rmi_pltf = platform_get_drvdata(pdev);
 +
- int rmi_register_transport_device(struct rmi_transport_dev *xport);
- void rmi_unregister_transport_device(struct rmi_transport_dev *xport);
- 
++	bus_unregister_notifier(&i2c_bus_type, &rmi_pltf->i2c_notifier);
++
++	if (rmi_pltf->smbus_client)
++		rmi_schedule_work(RMI_UNREGISTER_DEVICE, rmi_pltf, NULL);
++
++	platform_set_drvdata(pdev, NULL);
++
++	return 0;
++}
++
++static const struct platform_device_id rmi_id_table[] = {
++	{ .name = "rmi4" },
++	{ }
++};
++MODULE_DEVICE_TABLE(platform, rmi_id_table);
++
++static struct platform_driver rmi_drv = {
++	.driver		= {
++		.name	= "rmi4",
++	},
++	.probe		= rmi_probe,
++	.remove		= rmi_remove,
++	.id_table	= rmi_id_table,
++};
++
++static int __init rmi_init(void)
++{
++	int err;
++
++	krmi_wq = alloc_ordered_workqueue("krmid", WQ_MEM_RECLAIM);
++	if (!krmi_wq) {
++		pr_err("failed to create krmid workqueue\n");
++		return -ENOMEM;
++	}
++
++	err = platform_driver_register(&rmi_drv);
++	if (err)
++		destroy_workqueue(krmi_wq);
++
++	return err;
++}
++
++static void __exit rmi_exit(void)
++{
++	platform_driver_unregister(&rmi_drv);
++	destroy_workqueue(krmi_wq);
++}
++
++module_init(rmi_init);
++module_exit(rmi_exit);
 -- 
 2.7.4
 

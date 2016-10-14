@@ -1,42 +1,44 @@
-From: Gary King <gary.king@oculus.com>
-Subject: Re: [PATCH] hidraw: fix list->buffer race condition
-Date: Thu, 13 Oct 2016 18:29:16 -0700
-Message-ID: <alpine.OSX.1.10.1610131823240.28437@cromulentg-mba.dhcp.thefacebook.com>
-References: <1475628266-4767-1-git-send-email-gary.king@oculus.com> <alpine.LNX.2.00.1610071038340.31629@cbobk.fhfr.pm> <alpine.OSX.1.10.1610071027351.23556@cromulentg-mba.local> <alpine.LNX.2.00.1610101019040.31629@cbobk.fhfr.pm>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V1 09/10] Documentation: dt: mfd: da9062/61 MFD binding
+Date: Fri, 14 Oct 2016 12:26:07 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE342A@SW-EX-MBX02.diasemi.com>
+References: <cover.1475743411.git.stwiss.opensource@diasemi.com>
+ <7a21f22bd62817b63ba64e11eecadfb78338ee46.1475743411.git.stwiss.opensource@diasemi.com>
+ <20161010134235.GA20577@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:47609 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1753497AbcJNDvB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 13 Oct 2016 23:51:01 -0400
-In-Reply-To: <alpine.LNX.2.00.1610101019040.31629@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20161010134235.GA20577@rob-hp-laptop>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: DEVICETREE <devicetree@vger.kernel.org>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Gary King <gary.king@oculus.com>, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
 
-> > [snip]
-> > 
-> > list_lock does not appear to be a good solution for this, since it is
-> > currently an IRQ-safe spinlock on the device. Using it would cause 
-> > _read() to have unnecessary lock contention if the device is opened 
-> > and read simultaneously from multiple fds, and every loop iteration would 
-> > need to acquire the spinlock / disable interrupts at least once.
+Hi Rob,
+
+On 10 October 2016 14:43, Rob Herring wrote:
+> On Thu, Oct 06, 2016 at 09:43:31AM +0100, Steve Twiss wrote:
+[...]
+> > @@ -64,10 +89,6 @@ Example:
+> >  			compatible = "dlg,da9062-rtc";
+> >  		};
+> >
+> > -		watchdog {
+> > -			compatible = "dlg,da9062-watchdog";
+> > -		};
+> > -
 > 
-> We could make the spinlock per struct file *, which'd remove the 
-> contention bottleneck when the same device is accessed from through 
-> multiple fds, but still maintain the correctness (as the list itself is a 
-> per-fd thing anyway).
-> 
-> Probably introducing new spinlock would make more sense, as list_lock is 
-> currently being used mostly to protect accessing of the dev->list linked 
-> list.
+> I don't understand why this is removed?
 
-I've got a patch I'm testing that follows Dmitry's suggestion to add
-a per-struct file spinlock and change dev->list to use RCU.
+This MFD binding file now contains a link to a separate watchdog binding file.
+I moved the example and the binding information into this new watchdog binding
+document. I also updated it for DA9061.
 
-Thanks,
++- watchdog: See ../watchdog/da9062-watchdog.txt
 
-- Gary
+I will add this information into the patch description for V2 to make things clearer.
+
+Regards,
+Steve

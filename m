@@ -1,58 +1,43 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH 2/2] Input: da9063 - fix module autoload when registered via OF
-Date: Fri, 14 Oct 2016 13:00:19 -0300
-Message-ID: <1476460819-12809-2-git-send-email-javier@osg.samsung.com>
-References: <1476460819-12809-1-git-send-email-javier@osg.samsung.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:57390
-        "EHLO s-opensource.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932353AbcJNQAh (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Oct 2016 12:00:37 -0400
-In-Reply-To: <1476460819-12809-1-git-send-email-javier@osg.samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] [media] Input: synaptics-rmi4 - unlock on error
+Date: Fri, 14 Oct 2016 20:14:27 +0300
+Message-ID: <20161014171427.GA21917@mwanda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick@shmanahar.org>
+Cc: Hans Verkuil <hans.verkuil@cisco.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Support Opensource <support.opensource@diasemi.com>, linux-input@vger.kernel.org
 
-If the driver is built as a module, autoload won't work because the module
-alias information is not filled. So user-space can't match the registered
-device with the corresponding module.
+We should unlock before returning on this error path.
 
-Export the module alias information using the MODULE_DEVICE_TABLE() macro.
+Fixes: 3a762dbd5347 ('[media] Input: synaptics-rmi4 - add support for F54 diagnostics')
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Before this patch:
-
-$ modinfo drivers/input/misc/da9063_onkey.ko | grep alias
-alias:          platform:da9063-onkey
-
-After this patch:
-
-$ modinfo drivers/input/misc/da9063_onkey.ko | grep alias
-alias:          platform:da9063-onkey
-alias:          of:N*T*Cdlg,da9062-onkeyC*
-alias:          of:N*T*Cdlg,da9062-onkey
-alias:          of:N*T*Cdlg,da9063-onkeyC*
-alias:          of:N*T*Cdlg,da9063-onkey
-
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
----
-
- drivers/input/misc/da9063_onkey.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
-index bb863e062b03..f0d0543562df 100644
---- a/drivers/input/misc/da9063_onkey.c
-+++ b/drivers/input/misc/da9063_onkey.c
-@@ -87,6 +87,7 @@ static const struct of_device_id da9063_compatible_reg_id_table[] = {
- 	{ .compatible = "dlg,da9062-onkey", .data = &da9062_regs },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, da9063_compatible_reg_id_table);
+diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+index cf805b9..2e934ae 100644
+--- a/drivers/input/rmi4/rmi_f54.c
++++ b/drivers/input/rmi4/rmi_f54.c
+@@ -200,7 +200,7 @@ static int rmi_f54_request_report(struct rmi_function *fn, u8 report_type)
  
- static void da9063_poll_on(struct work_struct *work)
- {
--- 
-2.7.4
-
+ 	error = rmi_write(rmi_dev, fn->fd.command_base_addr, F54_GET_REPORT);
+ 	if (error < 0)
+-		return error;
++		goto unlock;
+ 
+ 	init_completion(&f54->cmd_done);
+ 
+@@ -209,9 +209,10 @@ static int rmi_f54_request_report(struct rmi_function *fn, u8 report_type)
+ 
+ 	queue_delayed_work(f54->workqueue, &f54->work, 0);
+ 
++unlock:
+ 	mutex_unlock(&f54->data_mutex);
+ 
+-	return 0;
++	return error;
+ }
+ 
+ static size_t rmi_f54_get_report_size(struct f54_data *f54)

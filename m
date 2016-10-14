@@ -1,38 +1,52 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 0/2] Tiny modification of i2c-hid
-Date: Fri, 14 Oct 2016 16:02:39 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1610141602200.31629@cbobk.fhfr.pm>
-References: <1476351045-8829-1-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH 1/2] Input: fsl-imx25-tcq - fix module autoload when registered via OF
+Date: Fri, 14 Oct 2016 13:00:18 -0300
+Message-ID: <1476460819-12809-1-git-send-email-javier@osg.samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:58669 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752730AbcJNOCl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Oct 2016 10:02:41 -0400
-In-Reply-To: <1476351045-8829-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:57384
+        "EHLO s-opensource.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932281AbcJNQAe (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 14 Oct 2016 12:00:34 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, David Arcari <darcari@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Juergen Borleis <jbe@pengutronix.de>, linux-input@vger.kernel.org, Markus Pargmann <mpa@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Denis Carikli <denis@eukrea.com>
 
-On Thu, 13 Oct 2016, Benjamin Tissoires wrote:
+If the driver is built as a module, autoload won't work because the module
+alias information is not filled. So user-space can't match the registered
+device with the corresponding module.
 
-> Hi Jiri,
-> 
-> David and I are facing an issue in RHEL with the HP Zbook 15 Studio mWS.
-> This laptops uses the pinctrl-sunrisepoint controller for the GPIOs and
-> it failed on RHEL. We found out what the issue was, but in the meantime
-> realized that part of the code we have in i2c-hid is not required anymore.
-> 
-> The actual issue is fixed here: https://lkml.org/lkml/2016/10/12/493
-> but it would be more convenient (for us) and cleaner (fo everybody) to just
-> remove the extra boiler-plate in i2c-hid and let i2c-core handling the
-> attributions of the IRQ.
+Export the module alias information using the MODULE_DEVICE_TABLE() macro.
 
-Both applied to hid.git#for-4.10/i2c-hid.
+Before this patch:
 
+$ modinfo drivers/input/touchscreen/fsl-imx25-tcq.ko | grep alias
+
+After this patch:
+
+$ modinfo drivers/input/touchscreen/fsl-imx25-tcq.ko | grep alias
+alias:          of:N*T*Cfsl,imx25-tcqC*
+alias:          of:N*T*Cfsl,imx25-tcq
+
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
+
+ drivers/input/touchscreen/fsl-imx25-tcq.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/input/touchscreen/fsl-imx25-tcq.c b/drivers/input/touchscreen/fsl-imx25-tcq.c
+index fe9877a6af9e..d50ee490c9cc 100644
+--- a/drivers/input/touchscreen/fsl-imx25-tcq.c
++++ b/drivers/input/touchscreen/fsl-imx25-tcq.c
+@@ -55,6 +55,7 @@ static const struct of_device_id mx25_tcq_ids[] = {
+ 	{ .compatible = "fsl,imx25-tcq", },
+ 	{ /* Sentinel */ }
+ };
++MODULE_DEVICE_TABLE(of, mx25_tcq_ids);
+ 
+ #define TSC_4WIRE_PRE_INDEX 0
+ #define TSC_4WIRE_X_INDEX 1
 -- 
-Jiri Kosina
-SUSE Labs
+2.7.4
 

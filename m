@@ -1,86 +1,102 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 4.9-rc0 (part 2)
-Date: Fri, 14 Oct 2016 12:36:06 -0700
-Message-ID: <20161014193606.GA8678@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 1/4] hid: intel-ish-hid: ipc: consolidate ish wake up operation
+Date: Sat, 15 Oct 2016 09:22:41 -0700
+Message-ID: <1476548564-20202-2-git-send-email-srinivas.pandruvada@linux.intel.com>
+References: <1476548564-20202-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:35697 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755821AbcJNTgK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Oct 2016 15:36:10 -0400
-Content-Disposition: inline
+Received: from mga03.intel.com ([134.134.136.65]:13009 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754249AbcJOQWt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 15 Oct 2016 12:22:49 -0400
+In-Reply-To: <1476548564-20202-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: jikos@kernel.org
+Cc: linux-input@vger.kernel.org, Even Xu <even.xu@intel.com>
 
-Hi Linus,
+From: Even Xu <even.xu@intel.com>
 
-Please pull from:
+Same operations are done in ish_hw_start() and _ish_hw_reset() to
+wakeup ISH device. Consolidate them by introducing a new function
+ish_wakeup() and move the code there.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Signed-off-by: Even Xu <even.xu@intel.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+---
+ drivers/hid/intel-ish-hid/ipc/ipc.c | 45 +++++++++++++++++++++----------------
+ 1 file changed, 26 insertions(+), 19 deletions(-)
 
-to receive updates for the input subsystem. You will gen an update to
-ALPS driver to support V8 protocol with touchstick, change for i8042 to
-skip selftest on many Asus laptops, which helps to keep their touchpads
-working after resume, and couple other driver fixes.
-
-Changelog:
----------
-
-Ben Gamari (5):
-      Input: ALPS - add touchstick support for SS5 hardware
-      Input: ALPS - handle 0-pressure 1F events
-      Input: ALPS - allow touchsticks to report pressure
-      Input: ALPS - set DualPoint flag for 74 03 28 devices
-      Input: ALPS - add V8 protocol documentation
-
-Dmitry Torokhov (1):
-      Input: elantech - add Fujitsu Lifebook E556 to force crc_enabled
-
-Guenter Roeck (2):
-      Input: synaptics-rmi4 - fix error handling in SPI transport driver
-      Input: synaptics-rmi4 - fix error handling in I2C transport driver
-
-Marcos Paulo de Souza (2):
-      Input: elantech - fix Lenovo version typo
-      Input: i8042 - skip selftest on ASUS laptops
-
-Matti Kurkela (1):
-      Input: elantech - force needed quirks on Fujitsu H760
-
-Sangwon Jee (3):
-      Input: melfas_mip4 - add devicetree binding documentations
-      Input: melfas_mip4 - add maintainer information
-      Input: melfas_mip4 - add ic_name sysfs attribute
-
-
-Diffstat:
---------
-
- .../bindings/input/touchscreen/melfas_mip4.txt     | 21 +++++
- .../devicetree/bindings/vendor-prefixes.txt        |  1 +
- Documentation/input/alps.txt                       | 57 +++++++++++++
- Documentation/kernel-parameters.txt                |  9 +-
- MAINTAINERS                                        |  7 ++
- drivers/input/mouse/alps.c                         | 87 +++++++++++++++++---
- drivers/input/mouse/alps.h                         |  2 +
- drivers/input/mouse/elantech.c                     | 27 +++++-
- drivers/input/rmi4/rmi_i2c.c                       | 38 ++++++---
- drivers/input/rmi4/rmi_spi.c                       | 22 ++---
- drivers/input/serio/i8042-io.h                     |  2 +-
- drivers/input/serio/i8042-ip22io.h                 |  2 +-
- drivers/input/serio/i8042-ppcio.h                  |  2 +-
- drivers/input/serio/i8042-sparcio.h                |  2 +-
- drivers/input/serio/i8042-unicore32io.h            |  2 +-
- drivers/input/serio/i8042-x86ia64io.h              | 96 +++++++++++++++++++++-
- drivers/input/serio/i8042.c                        | 55 ++++++++++---
- drivers/input/touchscreen/melfas_mip4.c            | 38 ++++++++-
- 18 files changed, 411 insertions(+), 59 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/melfas_mip4.txt
-
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
+index e2517c1..d4c5721 100644
+--- a/drivers/hid/intel-ish-hid/ipc/ipc.c
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -638,6 +638,28 @@ irqreturn_t ish_irq_handler(int irq, void *dev_id)
+ }
+ 
+ /**
++ * ish_wakeup() - wakeup ishfw from waiting-for-host state
++ * @dev: ishtp device pointer
++ *
++ * Set the dma enable bit and send a void message to FW,
++ * it wil wakeup FW from waiting-for-host state.
++ */
++static void ish_wakeup(struct ishtp_device *dev)
++{
++	/* Set dma enable bit */
++	ish_reg_write(dev, IPC_REG_ISH_RMP2, IPC_RMP2_DMA_ENABLED);
++
++	/*
++	 * Send 0 IPC message so that ISH FW wakes up if it was already
++	 * asleep.
++	 */
++	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, IPC_DRBL_BUSY_BIT);
++
++	/* Flush writes to doorbell and REMAP2 */
++	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++}
++
++/**
+  * _ish_hw_reset() - HW reset
+  * @dev: ishtp device pointer
+  *
+@@ -690,16 +712,8 @@ static int _ish_hw_reset(struct ishtp_device *dev)
+ 	csr |= PCI_D0;
+ 	pci_write_config_word(pdev, pdev->pm_cap + PCI_PM_CTRL, csr);
+ 
+-	ish_reg_write(dev, IPC_REG_ISH_RMP2, IPC_RMP2_DMA_ENABLED);
+-
+-	/*
+-	 * Send 0 IPC message so that ISH FW wakes up if it was already
+-	 * asleep
+-	 */
+-	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, IPC_DRBL_BUSY_BIT);
+-
+-	/* Flush writes to doorbell and REMAP2 */
+-	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++	/* Now we can enable ISH DMA operation and wakeup ISHFW */
++	ish_wakeup(dev);
+ 
+ 	return	0;
+ }
+@@ -758,16 +772,9 @@ static int _ish_ipc_reset(struct ishtp_device *dev)
+ int ish_hw_start(struct ishtp_device *dev)
+ {
+ 	ish_set_host_rdy(dev);
+-	/* After that we can enable ISH DMA operation */
+-	ish_reg_write(dev, IPC_REG_ISH_RMP2, IPC_RMP2_DMA_ENABLED);
+ 
+-	/*
+-	 * Send 0 IPC message so that ISH FW wakes up if it was already
+-	 * asleep
+-	 */
+-	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, IPC_DRBL_BUSY_BIT);
+-	/* Flush write to doorbell */
+-	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++	/* After that we can enable ISH DMA operation and wakeup ISHFW */
++	ish_wakeup(dev);
+ 
+ 	set_host_ready(dev);
+ 
 -- 
-Dmitry
+2.7.4
 

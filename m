@@ -1,77 +1,43 @@
-From: Dmitry Tunin <hanipouspilot@gmail.com>
-Subject: Re: [PATCH] Input: psmouse - cleanup Focaltech code
-Date: Mon, 17 Oct 2016 20:33:22 +0300
-Message-ID: <CANoib0F5029H6h__SbRZ50VjxDqiSUZ+eiNuuMFxs3kDwG7cyQ@mail.gmail.com>
-References: <1475923136-6046-1-git-send-email-hanipouspilot@gmail.com> <f574d1ad-ad49-30d1-53ff-3722fda56b35@gmail.com>
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
+Subject: RE: Goodix touchscreen works intermittently, fails reading config
+ info.
+Date: Mon, 17 Oct 2016 20:31:42 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F36E8A9@irsmsx105.ger.corp.intel.com>
+References: <CAG=1usYgr=iTfVR=0DoEzH6vEyAU3dGUv3x_8=fSfpJ4-iVVEw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f196.google.com ([209.85.216.196]:33385 "EHLO
-        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934859AbcJQRdY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 17 Oct 2016 13:33:24 -0400
-In-Reply-To: <f574d1ad-ad49-30d1-53ff-3722fda56b35@gmail.com>
+Received: from mga07.intel.com ([134.134.136.100]:44774 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932972AbcJQUbq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 17 Oct 2016 16:31:46 -0400
+In-Reply-To: <CAG=1usYgr=iTfVR=0DoEzH6vEyAU3dGUv3x_8=fSfpJ4-iVVEw@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mathias Gottschlag <mgottschlag@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Brad Baker <bbaker6212@gmail.com>, sergk sergk2mail <sergk.admin@gmail.com>
+Cc: bastien nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Other drivers, like Synaptics use the same as I suggested. They even
-shorten in psmouse-base.c psmouse_protocol.name to SynPS/2.
-You used FocaltechPS/2. I think it is OK.
-
-I do not think it is a big problem of changing the naming. It happens a lot.
-
-I still have the hardware and I am still thankful to you that you
-wrote that driver.
-
-Now I am trying to write my own for a new i2c touchpad that is used in
-new Asus laptops ;-)
-
-2016-10-17 20:27 GMT+03:00 Mathias Gottschlag <mgottschlag@gmail.com>:
-> The changes look good to me. However, what wording do other drivers use?
-> I've seen "TouchPad" with a capital P before. If this patch breaks
-> scripts searching for that string anyways, that's an opportunity to
-> unify the capitalization there. It probably doesn't matter, though... I
-> don't see a problem with this patch.
->
-> I can't test it because I no longer have the hardware.
->
-> Am 08.10.2016 um 12:38 schrieb Dmitry Tunin:
->> psmouse->name "Focaltech Touchpad" is an overkill. In xinput it is too long as
->> "FocaltechPS/2 Focaltech Focaltech Touchpad"
->>
->> In focaltech_report_state() pointer to psmouse->dev is already stored as *dev
->>
->> Signed-off-by: Dmitry Tunin <hanipouspilot@gmail.com>
->> ---
->>  drivers/input/mouse/focaltech.c | 6 +++---
->>  1 file changed, 3 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
->> index c8c6a8c..49a56f655 100644
->> --- a/drivers/input/mouse/focaltech.c
->> +++ b/drivers/input/mouse/focaltech.c
->> @@ -43,7 +43,7 @@ int focaltech_detect(struct psmouse *psmouse, bool set_properties)
->>
->>       if (set_properties) {
->>               psmouse->vendor = "FocalTech";
->> -             psmouse->name = "FocalTech Touchpad";
->> +             psmouse->name = "Touchpad";
->>       }
->>
->>       return 0;
->> @@ -146,8 +146,8 @@ static void focaltech_report_state(struct psmouse *psmouse)
->>       }
->>       input_mt_report_pointer_emulation(dev, true);
->>
->> -     input_report_key(psmouse->dev, BTN_LEFT, state->pressed);
->> -     input_sync(psmouse->dev);
->> +     input_report_key(dev, BTN_LEFT, state->pressed);
->> +     input_sync(dev);
->>  }
->>
->>  static void focaltech_process_touch_packet(struct psmouse *psmouse,
->
->
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQnJhZCBCYWtlciBbbWFp
+bHRvOmJiYWtlcjYyMTJAZ21haWwuY29tXQ0KPiBTZW50OiAxMiBPY3RvYmVyLCAyMDE2IDIzOjM3
+DQo+IFRvOiBzZXJnayBzZXJnazJtYWlsDQo+IENjOiBUaXJkZWEsIElyaW5hOyBiYXN0aWVuIG5v
+Y2VyYTsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBHb29kaXgg
+dG91Y2hzY3JlZW4gd29ya3MgaW50ZXJtaXR0ZW50bHksIGZhaWxzIHJlYWRpbmcgY29uZmlnIGlu
+Zm8uDQo+IA0KDQpIaSBCcmFkLCBTZXJnZSwNCg0KSSBhbHJlYWR5IHJlcGxpZWQgaW4gdGhlIEJ1
+Z3ppbGxhIGJ1ZyBbMV0uIEluIG9yZGVyIHRvIG5vdCBkdXBsaWNhdGUgdGhlIGRpc2N1c3Npb24s
+DQpJIHdpbGwgcG9zdCBhbGwgbXkgcmVwbGllcyB0aGVyZS4NCg0KUmVnYXJkcywNCklyaW5hDQoN
+ClsxXSBodHRwczovL2J1Z3ppbGxhLmtlcm5lbC5vcmcvc2hvd19idWcuY2dpP2lkPTE1NjUxMQ0K
+DQo+IElyaW5hLCBJIGp1c3Qgc2F3IHRoaXMgYWZ0ZXIgdXBkYXRpbmcgdGhlIEJ1ZyAxNTY1MTEg
+d2l0aCBTZXJnJ3MgaW5mby4NCj4gSGUgc2F5cyBoZSBqdXN0IHVzZWQgdGhlIGZvbGxvd2luZyBz
+aW5nbGUgcGF0Y2ggdG8gZ2VuZXJhdGUgdGhlIENodXdpDQo+IEhpMTIgZmlybXdhcmUgZmlsZSBh
+bmQgZ2V0IGl0IHdvcmtpbmcgdXNpbmcNCj4gdWJ1bnR1LTE2LjEwLWJldGEyLWRlc2t0b3AtYW1k
+NjQuaXNvOg0KPiBodHRwczovL2dpdGh1Yi5jb20vaXRpcmRlYS9saW51eC9jb21taXQvMTMwMDhi
+ODUzNTEyMGM0YTM1ZjBiYzg5NTE4OTU0NTVjZDcwNjI5MC5wYXRjaA0KPiANCj4gT24gV2VkLCBP
+Y3QgMTIsIDIwMTYgYXQgNDo0OCBQTSwgc2VyZ2sgc2VyZ2sybWFpbCA8c2VyZ2suYWRtaW5AZ21h
+aWwuY29tPiB3cm90ZToNCj4gPiBIZWxsbyBmcm9tIDstKSBDaHV3aSB0YWJsZXRzIHdhcnJpb3Iu
+DQo+ID4gQWN0dWFsbHkgaGF2ZSBkb25lIGFsbCByZXF1ZXN0ZWQsIC5jZmcsIGJpbiwgd29ya2lu
+ZyBtb2R1bGUsIGV0YyBhcmUNCj4gPiBsb2NhdGVkIDogaHR0cHM6Ly9naXRsYWIuY29tL1NlcmdL
+L2NodXdpX2hpMTIvdHJlZS9tYXN0ZXIuDQo+ID4NCj4gPiBNYW55IHRoYW5rcyBhbmQgcmVnYXJk
+cywNCj4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFNlcmdlIEtvbG90eWxvLg0KPiA+
+DQo+ID4NCg0K

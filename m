@@ -1,14 +1,14 @@
 From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: [PATCH v2 4/4] input: serio: Replace timeval by timespec64
-Date: Mon, 17 Oct 2016 20:27:33 -0700
-Message-ID: <1476761253-13450-5-git-send-email-deepa.kernel@gmail.com>
+Subject: [PATCH v2 2/4] input: evdev: Replace timeval with timespec64
+Date: Mon, 17 Oct 2016 20:27:31 -0700
+Message-ID: <1476761253-13450-3-git-send-email-deepa.kernel@gmail.com>
 References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f68.google.com ([209.85.220.68]:36625 "EHLO
-        mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933395AbcJRD1z (ORCPT
+Received: from mail-pa0-f66.google.com ([209.85.220.66]:36621 "EHLO
+        mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933381AbcJRD1x (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 17 Oct 2016 23:27:55 -0400
+        Mon, 17 Oct 2016 23:27:53 -0400
 In-Reply-To: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -16,272 +16,94 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, li
 Cc: arnd@arndb.de, y2038@lists.linaro.org
 
 struct timeval is not y2038 safe.
-All references to timeval will be deleted from the
-kernel to make it y2038 safe.
-Replace its uses by y2038 safe struct timespec64.
 
-The timestamps changed here only keep track of delta
-times. These timestamps are also internal to kernel.
-Hence, monotonic times are sufficient here.
-The unit of the delta times is also changed in certain
-cases to nanoseconds rather than microseconds. This is
-in line with timespec64 which keeps time in nanoseconds.
+All references to timeval in the kernel will be replaced
+by y2038 safe structures.
+Replace all references to timeval with y2038 safe
+struct timespec64 here.
+
+struct input_event will be changed in a different patch.
 
 Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
 Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/input/serio/hil_mlc.c    | 37 ++++++++++++++++++-------------------
- drivers/input/serio/hp_sdc.c     | 17 +++++++++--------
- drivers/input/serio/hp_sdc_mlc.c | 10 +++++-----
- include/linux/hil_mlc.h          |  6 +++---
- include/linux/hp_sdc.h           |  6 +++---
- 5 files changed, 38 insertions(+), 38 deletions(-)
+ drivers/input/evdev.c | 37 +++++++++++++++++++++++--------------
+ 1 file changed, 23 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
-index 65605e4..7c59a79 100644
---- a/drivers/input/serio/hil_mlc.c
-+++ b/drivers/input/serio/hil_mlc.c
-@@ -274,14 +274,14 @@ static int hilse_match(hil_mlc *mlc, int unused)
- /* An LCV used to prevent runaway loops, forces 5 second sleep when reset. */
- static int hilse_init_lcv(hil_mlc *mlc, int unused)
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index e9ae3d5..b4e3171 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -156,15 +156,22 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ static void __evdev_queue_syn_dropped(struct evdev_client *client)
  {
--	struct timeval tv;
-+	time64_t time;
+ 	struct input_event ev;
+-	ktime_t time;
++	struct timespec64 ts;
  
--	do_gettimeofday(&tv);
-+	time = ktime_get_seconds();
+-	time = client->clk_type == EV_CLK_REAL ?
+-			ktime_get_real() :
+-			client->clk_type == EV_CLK_MONO ?
+-				ktime_get() :
+-				ktime_get_boottime();
++	switch (client->clk_type) {
++	case EV_CLK_REAL:
++		ktime_get_real_ts64(&ts);
++		break;
++	case EV_CLK_MONO:
++		ktime_get_ts64(&ts);
++		break;
++	case EV_CLK_BOOT:
++		get_monotonic_boottime64(&ts);
++		break;
++	}
  
--	if (mlc->lcv && (tv.tv_sec - mlc->lcv_tv.tv_sec) < 5)
-+	if (mlc->lcv && (time - mlc->lcv_tv.tv_sec) < 5)
- 		return -1;
+-	ev.time = ktime_to_timeval(time);
++	ev.time.tv_sec = ts.tv_sec;
++	ev.time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
+ 	ev.type = EV_SYN;
+ 	ev.code = SYN_DROPPED;
+ 	ev.value = 0;
+@@ -257,17 +264,20 @@ static void __pass_event(struct evdev_client *client,
  
--	mlc->lcv_tv = tv;
-+	mlc->lcv_tv.tv_sec = time;
- 	mlc->lcv = 0;
- 
- 	return 0;
-@@ -466,7 +466,7 @@ static const struct hilse_node hil_mlc_se[HILSEN_END] = {
- 	FUNC(hilse_init_lcv, 0,	HILSEN_NEXT,	HILSEN_SLEEP,	0)
- 
- 	/* 1  HILSEN_RESTART */
--	FUNC(hilse_inc_lcv, 10,	HILSEN_NEXT,	HILSEN_START,  0)
-+	FUNC(hilse_inc_lcv, 10000,	HILSEN_NEXT,	HILSEN_START,  0)
- 	OUT(HIL_CTRL_ONLY)			/* Disable APE */
- 	CTS
- 
-@@ -485,7 +485,7 @@ static const struct hilse_node hil_mlc_se[HILSEN_END] = {
- 	FUNC(hilse_init_lcv, 0,	HILSEN_NEXT,	HILSEN_SLEEP,	0)
- 
- 	/* 10 HILSEN_DHR2 */
--	FUNC(hilse_inc_lcv, 10,	HILSEN_NEXT,	HILSEN_START,	0)
-+	FUNC(hilse_inc_lcv, 10000,	HILSEN_NEXT,	HILSEN_START,	0)
- 	FUNC(hilse_set_ddi, -1,	HILSEN_NEXT,	0,		0)
- 	OUT(HIL_PKT_CMD | HIL_CMD_DHR)
- 	IN(300000,		HILSEN_DHR2,	HILSEN_DHR2,	HILSEN_NEXT)
-@@ -515,7 +515,7 @@ static const struct hilse_node hil_mlc_se[HILSEN_END] = {
- 	FUNC(hilse_init_lcv, 0,	HILSEN_NEXT,	HILSEN_DOZE,	0)
- 
- 	/* 22 HILSEN_ACF2 */
--	FUNC(hilse_inc_lcv, 10,	HILSEN_NEXT,	HILSEN_START,	0)
-+	FUNC(hilse_inc_lcv, 10000,	HILSEN_NEXT,	HILSEN_START,	0)
- 	OUT(HIL_PKT_CMD | HIL_CMD_ACF | 1)
- 	IN(20000,		HILSEN_NEXT,	HILSEN_DSR,	HILSEN_NEXT)
- 
-@@ -572,7 +572,7 @@ static const struct hilse_node hil_mlc_se[HILSEN_END] = {
- 	OUT(HIL_PKT_CMD | HIL_CMD_RPL)
- 	EXPECT(HIL_PKT_CMD | HIL_CMD_RPL | HIL_ERR_INT,
- 	       20000,		HILSEN_NEXT,	HILSEN_DSR,	HILSEN_NEXT)
--	FUNC(hilse_operate, 1,	HILSEN_OPERATE,	HILSEN_IFC,	HILSEN_PROBE)
-+	FUNC(hilse_operate, 1000, HILSEN_OPERATE, HILSEN_IFC,	HILSEN_PROBE)
- 
- 	/* 58 HILSEN_IFCACF */
- 	OUT(HIL_PKT_CMD | HIL_CMD_IFC)
-@@ -584,7 +584,6 @@ static const struct hilse_node hil_mlc_se[HILSEN_END] = {
- 
- static inline void hilse_setup_input(hil_mlc *mlc, const struct hilse_node *node)
+ static void evdev_pass_values(struct evdev_client *client,
+ 			const struct input_value *vals, unsigned int count,
+-			ktime_t *ev_time)
++			struct timespec64 *ev_time)
  {
--
- 	switch (node->act) {
- 	case HILSE_EXPECT_DISC:
- 		mlc->imatch = node->object.packet;
-@@ -605,7 +604,7 @@ static inline void hilse_setup_input(hil_mlc *mlc, const struct hilse_node *node
- 	}
- 	mlc->istarted = 1;
- 	mlc->intimeout = node->arg;
--	do_gettimeofday(&(mlc->instart));
-+	ktime_get_ts64(&(mlc->instart));
- 	mlc->icount = 15;
- 	memset(mlc->ipacket, 0, 16 * sizeof(hil_packet));
- 	BUG_ON(down_trylock(&mlc->isem));
-@@ -710,7 +709,7 @@ static int hilse_donode(hil_mlc *mlc)
- 			break;
- 		}
- 		mlc->ostarted = 0;
--		do_gettimeofday(&(mlc->instart));
-+		ktime_get_ts64(&(mlc->instart));
- 		write_unlock_irqrestore(&mlc->lock, flags);
- 		nextidx = HILSEN_NEXT;
- 		break;
-@@ -731,18 +730,18 @@ static int hilse_donode(hil_mlc *mlc)
- #endif
+ 	struct evdev *evdev = client->evdev;
+ 	const struct input_value *v;
+ 	struct input_event event;
++	struct timespec64 ts;
+ 	bool wakeup = false;
  
- 	while (nextidx & HILSEN_SCHED) {
--		struct timeval tv;
-+		struct timespec64 ts;
+ 	if (client->revoked)
+ 		return;
  
- 		if (!sched_long)
- 			goto sched;
+-	event.time = ktime_to_timeval(ev_time[client->clk_type]);
++	ts = ev_time[client->clk_type];
++	event.time.tv_sec = ts.tv_sec;
++	event.time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
  
--		do_gettimeofday(&tv);
--		tv.tv_usec += USEC_PER_SEC * (tv.tv_sec - mlc->instart.tv_sec);
--		tv.tv_usec -= mlc->instart.tv_usec;
--		if (tv.tv_usec >= mlc->intimeout) goto sched;
--		tv.tv_usec = (mlc->intimeout - tv.tv_usec) * HZ / USEC_PER_SEC;
--		if (!tv.tv_usec) goto sched;
--		mod_timer(&hil_mlcs_kicker, jiffies + tv.tv_usec);
-+		ktime_get_ts64(&ts);
-+		ts.tv_nsec += NSEC_PER_SEC * (ts.tv_sec - mlc->instart.tv_sec);
-+		ts.tv_nsec -= mlc->instart.tv_nsec;
-+		if (ts.tv_nsec >= mlc->intimeout) goto sched;
-+		ts.tv_nsec = (mlc->intimeout - ts.tv_nsec) * HZ / NSEC_PER_SEC;
-+		if (!ts.tv_nsec) goto sched;
-+		mod_timer(&hil_mlcs_kicker, jiffies + ts.tv_nsec);
- 		break;
- 	sched:
- 		tasklet_schedule(&hil_mlcs_tasklet);
-diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
-index 852858e..ce8f21b 100644
---- a/drivers/input/serio/hp_sdc.c
-+++ b/drivers/input/serio/hp_sdc.c
-@@ -193,7 +193,7 @@ static void hp_sdc_take(int irq, void *dev_id, uint8_t status, uint8_t data)
- 	curr->seq[curr->idx++] = status;
- 	curr->seq[curr->idx++] = data;
- 	hp_sdc.rqty -= 2;
--	do_gettimeofday(&hp_sdc.rtv);
-+	ktime_get_ts64(&hp_sdc.rtv);
+ 	/* Interrupts are disabled, just acquire the lock. */
+ 	spin_lock(&client->buffer_lock);
+@@ -304,12 +314,11 @@ static void evdev_events(struct input_handle *handle,
+ {
+ 	struct evdev *evdev = handle->private;
+ 	struct evdev_client *client;
+-	ktime_t ev_time[EV_CLK_MAX];
++	struct timespec64 ev_time[EV_CLK_MAX];
  
- 	if (hp_sdc.rqty <= 0) {
- 		/* All data has been gathered. */
-@@ -306,13 +306,13 @@ static void hp_sdc_tasklet(unsigned long foo)
- 	write_lock_irq(&hp_sdc.rtq_lock);
+-	ev_time[EV_CLK_MONO] = ktime_get();
+-	ev_time[EV_CLK_REAL] = ktime_mono_to_real(ev_time[EV_CLK_MONO]);
+-	ev_time[EV_CLK_BOOT] = ktime_mono_to_any(ev_time[EV_CLK_MONO],
+-						 TK_OFFS_BOOT);
++	ktime_get_ts64(&ev_time[EV_CLK_MONO]);
++	ktime_get_real_ts64(&ev_time[EV_CLK_REAL]);
++	get_monotonic_boottime64(&ev_time[EV_CLK_BOOT]);
  
- 	if (hp_sdc.rcurr >= 0) {
--		struct timeval tv;
-+		struct timespec64 ts;
+ 	rcu_read_lock();
  
--		do_gettimeofday(&tv);
--		if (tv.tv_sec > hp_sdc.rtv.tv_sec)
--			tv.tv_usec += USEC_PER_SEC;
-+		ktime_get_ts64(&ts);
-+		if (ts.tv_sec > hp_sdc.rtv.tv_sec)
-+			ts.tv_nsec += NSEC_PER_SEC;
- 
--		if (tv.tv_usec - hp_sdc.rtv.tv_usec > HP_SDC_MAX_REG_DELAY) {
-+		if (ts.tv_nsec - hp_sdc.rtv.tv_nsec > HP_SDC_MAX_REG_DELAY) {
- 			hp_sdc_transaction *curr;
- 			uint8_t tmp;
- 
-@@ -322,7 +322,8 @@ static void hp_sdc_tasklet(unsigned long foo)
- 			 * it back to the application. and be less verbose.
- 			 */
- 			printk(KERN_WARNING PREFIX "read timeout (%ius)!\n",
--			       (int)(tv.tv_usec - hp_sdc.rtv.tv_usec));
-+			       (int)(ts.tv_nsec - hp_sdc.rtv.tv_nsec) /
-+				     (int)NSEC_PER_USEC);
- 			curr->idx += hp_sdc.rqty;
- 			hp_sdc.rqty = 0;
- 			tmp = curr->seq[curr->actidx];
-@@ -551,7 +552,7 @@ unsigned long hp_sdc_put(void)
- 
- 			/* Start a new read */
- 			hp_sdc.rqty = curr->seq[curr->idx];
--			do_gettimeofday(&hp_sdc.rtv);
-+			ktime_get_ts64(&hp_sdc.rtv);
- 			curr->idx++;
- 			/* Still need to lock here in case of spurious irq. */
- 			write_lock_irq(&hp_sdc.rtq_lock);
-diff --git a/drivers/input/serio/hp_sdc_mlc.c b/drivers/input/serio/hp_sdc_mlc.c
-index d50f067..66020cd 100644
---- a/drivers/input/serio/hp_sdc_mlc.c
-+++ b/drivers/input/serio/hp_sdc_mlc.c
-@@ -149,7 +149,7 @@ static int hp_sdc_mlc_in(hil_mlc *mlc, suseconds_t timeout)
- 
- 	/* Try to down the semaphore */
- 	if (down_trylock(&mlc->isem)) {
--		struct timeval tv;
-+		struct timespec64 ts;
- 		if (priv->emtestmode) {
- 			mlc->ipacket[0] =
- 				HIL_ERR_INT | (mlc->opacket &
-@@ -160,11 +160,11 @@ static int hp_sdc_mlc_in(hil_mlc *mlc, suseconds_t timeout)
- 			/* printk(KERN_DEBUG PREFIX ">[%x]\n", mlc->ipacket[0]); */
- 			goto wasup;
- 		}
--		do_gettimeofday(&tv);
--		tv.tv_usec += USEC_PER_SEC * (tv.tv_sec - mlc->instart.tv_sec);
--		if (tv.tv_usec - mlc->instart.tv_usec > mlc->intimeout) {
-+		ktime_get_ts64(&ts);
-+		ts.tv_nsec += NSEC_PER_SEC * (ts.tv_sec - mlc->instart.tv_sec);
-+		if (ts.tv_nsec - mlc->instart.tv_nsec > mlc->intimeout) {
- 			/*	printk("!%i %i",
--				tv.tv_usec - mlc->instart.tv_usec,
-+				tv.tv_nsec - mlc->instart.tv_nsec,
- 				mlc->intimeout);
- 			 */
- 			rc = 1;
-diff --git a/include/linux/hil_mlc.h b/include/linux/hil_mlc.h
-index 394a840..f846730 100644
---- a/include/linux/hil_mlc.h
-+++ b/include/linux/hil_mlc.h
-@@ -32,7 +32,7 @@
-  */
- 
- #include <linux/hil.h>
--#include <linux/time.h>
-+#include <linux/time64.h>
- #include <linux/interrupt.h>
- #include <linux/semaphore.h>
- #include <linux/serio.h>
-@@ -144,12 +144,12 @@ struct hil_mlc {
- 	hil_packet		ipacket[16];
- 	hil_packet		imatch;
- 	int			icount;
--	struct timeval		instart;
-+	struct timespec64	instart;
- 	suseconds_t		intimeout;
- 
- 	int			ddi;	/* Last operational device id */
- 	int			lcv;	/* LCV to throttle loops */
--	struct timeval		lcv_tv; /* Time loop was started */
-+	struct timespec64	lcv_tv; /* Time loop was started */
- 
- 	int			di_map[7]; /* Maps below items to live devs */
- 	struct hil_mlc_devinfo	di[HIL_MLC_DEVMEM];
-diff --git a/include/linux/hp_sdc.h b/include/linux/hp_sdc.h
-index d392975..d863944 100644
---- a/include/linux/hp_sdc.h
-+++ b/include/linux/hp_sdc.h
-@@ -47,9 +47,9 @@
- #endif
- 
- 
--/* No 4X status reads take longer than this (in usec).
-+/* No 4X status reads take longer than this (in nsec).
-  */
--#define HP_SDC_MAX_REG_DELAY 20000
-+#define HP_SDC_MAX_REG_DELAY 20000000
- 
- typedef void (hp_sdc_irqhook) (int irq, void *dev_id, 
- 			       uint8_t status, uint8_t data);
-@@ -281,7 +281,7 @@ typedef struct {
- 	hp_sdc_transaction *tq[HP_SDC_QUEUE_LEN]; /* All pending read/writes */
- 
- 	int		rcurr, rqty;	/* Current read transact in process */
--	struct timeval	rtv;		/* Time when current read started */
-+	struct timespec64 rtv;		/* Monotonic time when current read started */
- 	int		wcurr;		/* Current write transact in process */
- 
- 	int		dev_err;	/* carries status from registration */
 -- 
 2.7.4
 

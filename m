@@ -1,68 +1,77 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: i8042 - add XMG C504 to keyboard reset table
-Date: Wed, 19 Oct 2016 12:05:21 -0700
-Message-ID: <20161019190521.GA7365@dtor-ws>
-References: <20160908214435.15972-1-patrick.scheuring.dev@gmail.com>
+Subject: [PATCH] Input: gpio_keys_polled - always use gpiod_get_value_cansleep
+Date: Wed, 19 Oct 2016 16:41:07 -0700
+Message-ID: <20161019234107.GA2927@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160908214435.15972-1-patrick.scheuring.dev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Patrick Scheuring <patrick.scheuring.dev@gmail.com>
-Cc: aurelien@francillon.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Aaron Lu <aaron.lu@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Sep 08, 2016 at 11:44:35PM +0200, Patrick Scheuring wrote:
-> From: Patrick Scheuring <patrick.scheuring.dev@gmail.com>
-> 
-> The Schenker XMG C504 is a rebranded Gigabyte P35 v2 laptop.
-> Therefore it also needs a keyboard reset to detect the Elantech touchpad.
-> Otherwise the touchpad appears to be dead.
-> 
-> With this patch the touchpad is detected:
-> 
-> $ dmesg | grep -E "(i8042|Elantech|elantech)"
-> 
-> [    2.675399] i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
-> [    2.680372] i8042: Attempting to reset device connected to KBD port
-> [    2.789037] serio: i8042 KBD port at 0x60,0x64 irq 1
-> [    2.791586] serio: i8042 AUX port at 0x60,0x64 irq 12
-> [    2.813840] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input4
-> [    3.811431] psmouse serio1: elantech: assuming hardware version 4 (with firmware version 0x361f0e)
-> [    3.825424] psmouse serio1: elantech: Synaptics capabilities query result 0x00, 0x15, 0x0f.
-> [    3.839424] psmouse serio1: elantech: Elan sample query result 03, 58, 74
-> [    3.911349] input: ETPS/2 Elantech Touchpad as /devices/platform/i8042/serio1/input/input6
-> 
-> Signed-off-by: Patrick Scheuring <patrick.scheuring.dev@gmail.com>
+It does not matter if given GPIO may sleep or not when reading state,
+polling is always done in a non-atomic context, so we should always
+be able to simply use gpiod_get_value_cansleep().
 
-Applied, thank you.
+Also let's note in the logs when we fail to read gpio state.
 
-> ---
->  drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> index 68f5f4a..4187019 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -793,6 +793,13 @@ static const struct dmi_system_id __initconst i8042_dmi_kbdreset_table[] = {
->  			DMI_MATCH(DMI_PRODUCT_NAME, "P34"),
->  		},
->  	},
-> +	{
-> +		/* Schenker XMG C504 - Elantech touchpad */
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "XMG"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "C504"),
-> +		},
-> +	},
->  	{ }
->  };
->  
-> -- 
-> 2.9.3
-> 
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/gpio_keys_polled.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index daef8ea..3c79158 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -34,7 +34,6 @@ struct gpio_keys_button_data {
+ 	int last_state;
+ 	int count;
+ 	int threshold;
+-	int can_sleep;
+ };
+ 
+ struct gpio_keys_polled_dev {
+@@ -76,16 +75,17 @@ static void gpio_keys_polled_check_state(struct input_polled_dev *dev,
+ {
+ 	int state;
+ 
+-	if (bdata->can_sleep)
+-		state = !!gpiod_get_value_cansleep(bdata->gpiod);
+-	else
+-		state = !!gpiod_get_value(bdata->gpiod);
+-
+-	gpio_keys_button_event(dev, button, state);
++	state = gpiod_get_value_cansleep(bdata->gpiod);
++	if (unlikely(state < 0)) {
++		dev_err(input->dev.parent,
++			"failed to get gpio state: %d\n", state);
++	} else {
++		gpio_keys_button_event(dev, button, state);
+ 
+-	if (state != bdata->last_state) {
+-		bdata->count = 0;
+-		bdata->last_state = state;
++		if (state != bdata->last_state) {
++			bdata->count = 0;
++			bdata->last_state = state;
++		}
+ 	}
+ }
+ 
+@@ -341,7 +341,6 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 			}
+ 		}
+ 
+-		bdata->can_sleep = gpiod_cansleep(bdata->gpiod);
+ 		bdata->last_state = -1;
+ 		bdata->threshold = DIV_ROUND_UP(button->debounce_interval,
+ 						pdata->poll_interval);
+-- 
+2.8.0.rc3.226.g39d4020
+
 
 -- 
 Dmitry

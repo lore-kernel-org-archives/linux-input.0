@@ -1,254 +1,119 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] Input: gpio-keys: Convert to universal device
- properties API
-Date: Wed, 19 Oct 2016 15:12:58 +0300
-Message-ID: <1476879178.11323.484.camel@linux.intel.com>
-References: <20161017143803.142231-1-mika.westerberg@linux.intel.com>
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: Bug#841275: linux: Logitech Unifying Receiver shows devices that aren't connected
+Date: Wed, 19 Oct 2016 16:05:03 +0100
+Message-ID: <1476889503.2709.42.camel@decadent.org.uk>
+References: <9a2d81a4-fd6f-5653-3f04-7a4ed3312ca1@gamblin.ca>
+Reply-To: Ben Hutchings <ben@decadent.org.uk>, 841275@bugs.debian.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:29773 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S941526AbcJSOku (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 19 Oct 2016 10:40:50 -0400
-In-Reply-To: <20161017143803.142231-1-mika.westerberg@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-4rLN9y1kQngaKHujkRDs"
+Return-path: <bounce-debian-kernel=glddk-debian-kernel=m.gmane.org@lists.debian.org>
+Resent-To: debian-bugs-dist@lists.debian.org
+Resent-Message-ID: <handler.841275.B841275.14768895105505@bugs.debian.org>
+In-Reply-To: <9a2d81a4-fd6f-5653-3f04-7a4ed3312ca1@gamblin.ca>
+List-URL: <https://lists.debian.org/debian-kernel/>
+List-Post: <mailto:debian-kernel@lists.debian.org>
+List-Help: <mailto:debian-kernel-request@lists.debian.org?subject=help>
+List-Subscribe: <mailto:debian-kernel-request@lists.debian.org?subject=subscribe>
+List-Unsubscribe: <mailto:debian-kernel-request@lists.debian.org?subject=unsubscribe>
+List-Archive: https://lists.debian.org/msgid-search/1476889503.2709.42.camel@decadent.org.uk
+To: linux-input@vger.kernel.org
+Cc: 841275@bugs.debian.org, Trent Gamblin <trent@gamblin.ca>
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-input@vger.kernel.org
 
-On Mon, 2016-10-17 at 17:38 +0300, Mika Westerberg wrote:
-> In order to use this driver in ACPI based systems, convert the driver
-> to
-> take advantage of device properties APIs instead of Device Tree
-> specific
-> one and make it available outside of CONFIG_OF.
-> 
 
-I used to have some patch against this driver, but it appears that my
-work was semi-finished and quite outdated, this one looks really nice!
+--=-4rLN9y1kQngaKHujkRDs
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On Wed, 19 Oct 2016 02:42:40 -0600 Trent Gamblin <trent@gamblin.ca> wrote:
+> Source: linux
+> Severity: normal
+>=C2=A0
+> Dear Maintainer,
+>=C2=A0
+> I have a PC with a mouse connected by a Logitech Unifying Receiver, and
+> an Android TV box with a keyboard connected by a separate Unifying
+> Receiver.=C2=A0=C2=A0The keyboard shows up on the Linux box with a messag=
+e in
+> dmesg:
+>=C2=A0
+> [=C2=A0=C2=A0=C2=A0=C2=A03.120080] usb 5-2.1: new high-speed USB device n=
+umber 5 using xhci_hcd
+> [=C2=A0=C2=A0=C2=A0=C2=A03.124336] usb 5-1.2: New USB device found, idVen=
+dor=3D046d, idProduct=3Dc52b
+> [=C2=A0=C2=A0=C2=A0=C2=A03.124340] usb 5-1.2: New USB device strings: Mfr=
+=3D1, Product=3D2, SerialNumber=3D0
+> [=C2=A0=C2=A0=C2=A0=C2=A03.124343] usb 5-1.2: Product: USB Receiver
+> [=C2=A0=C2=A0=C2=A0=C2=A03.124345] usb 5-1.2: Manufacturer: Logitech
+> [=C2=A0=C2=A0=C2=A0=C2=A03.136292] logitech-djreceiver 0003:046D:C52B.000=
+4: hiddev0,hidraw1: USB HID v1.11 Device [Logitech USB Receiver] on usb-000=
+0:0e:00.0-1.2/input2
+> [=C2=A0=C2=A0=C2=A0=C2=A03.160384] usb 2-3: new SuperSpeed USB device num=
+ber 3 using xhci_hcd
+> [=C2=A0=C2=A0=C2=A0=C2=A03.190438] usb 2-3: device descriptor read/8, err=
+or -71
+> [=C2=A0=C2=A0=C2=A0=C2=A03.221096] usb 5-2.1: New USB device found, idVen=
+dor=3D03f0, idProduct=3D7317
+> [=C2=A0=C2=A0=C2=A0=C2=A03.221099] usb 5-2.1: New USB device strings: Mfr=
+=3D1, Product=3D2, SerialNumber=3D3
+> [=C2=A0=C2=A0=C2=A0=C2=A03.221102] usb 5-2.1: Product: HP LaserJet P3005
+> [=C2=A0=C2=A0=C2=A0=C2=A03.221104] usb 5-2.1: Manufacturer: Hewlett-Packa=
+rd
+> [=C2=A0=C2=A0=C2=A0=C2=A03.221106] usb 5-2.1: SerialNumber: CNR1N17173
+> [=C2=A0=C2=A0=C2=A0=C2=A03.266438] input: Logitech Performance MX as /dev=
+ices/pci0000:00/0000:00:1c.4/0000:0e:00.0/usb5/5-1/5-1.2/5-1.2:1.2/0003:046=
+D:C52B.0004/0003:046D:101A.0005/input/input3
+> [=C2=A0=C2=A0=C2=A0=C2=A03.266819] logitech-hidpp-device 0003:046D:101A.0=
+005: input,hidraw2: USB HID v1.11 Mouse [Logitech Performance MX] on usb-00=
+00:0e:00.0-1.2:1
+> [=C2=A0=C2=A0=C2=A0=C2=A03.272667] input: Logitech K400 Plus as /devices/=
+pci0000:00/0000:00:1c.4/0000:0e:00.0/usb5/5-1/5-1.2/5-1.2:1.2/0003:046D:C52=
+B.0004/0003:046D:404D.0006/input/input4
+> [=C2=A0=C2=A0=C2=A0=C2=A03.273252] logitech-hidpp-device 0003:046D:404D.0=
+006: input,hidraw3: USB HID v1.11 Keyboard [Logitech K400 Plus] on usb-0000=
+:0e:00.0-1.2:2
+>=C2=A0
+> It also shows up in the battery applet in Mate.
+>=C2=A0
+> I think either the kernel or the applet should ignore it since it's not
+> plugged into the PC (it doesn't actually work BTW.)
+>=C2=A0
+> Problem exists in 4.7.0 and up to the latest kernel I could find which=C2=
+=A0
+> was 4.8.0-rc8.
 
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> ---
->  drivers/input/keyboard/gpio_keys.c | 92 ++++++++++++++++-------------
-> ---------
->  1 file changed, 38 insertions(+), 54 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c
-> b/drivers/input/keyboard/gpio_keys.c
-> index 29093657f2ef..0e6d516df01b 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -22,13 +22,12 @@
->  #include <linux/proc_fs.h>
->  #include <linux/delay.h>
->  #include <linux/platform_device.h>
-> +#include <linux/property.h>
->  #include <linux/input.h>
->  #include <linux/gpio_keys.h>
->  #include <linux/workqueue.h>
->  #include <linux/gpio.h>
->  #include <linux/of.h>
-> -#include <linux/of_platform.h>
-> -#include <linux/of_gpio.h>
->  #include <linux/of_irq.h>
->  #include <linux/spinlock.h>
->  
-> @@ -479,13 +478,15 @@ static int gpio_keys_setup_key(struct
-> platform_device *pdev,
->  	spin_lock_init(&bdata->lock);
->  
->  	if (gpio_is_valid(button->gpio)) {
-> -
-> -		error = devm_gpio_request_one(&pdev->dev, button-
-> >gpio,
-> -					      GPIOF_IN, desc);
-> -		if (error < 0) {
-> -			dev_err(dev, "Failed to request GPIO %d,
-> error %d\n",
-> -				button->gpio, error);
-> -			return error;
-> +		/* Only request GPIO if GPIO descriptor is not used
-> */
-> +		if (!button->gpiod) {
-> +			error = devm_gpio_request_one(&pdev->dev,
-> button->gpio,
-> +						      GPIOF_IN,
-> desc);
-> +			if (error < 0) {
-> +				dev_err(dev, "Failed to request GPIO
-> %d, error %d\n",
-> +					button->gpio, error);
-> +				return error;
-> +			}
->  		}
->  
->  		if (button->debounce_interval) {
-> @@ -608,29 +609,17 @@ static void gpio_keys_close(struct input_dev
-> *input)
->  		pdata->disable(input->dev.parent);
->  }
->  
-> -/*
-> - * Handlers for alternative sources of platform_data
-> - */
-> -
-> -#ifdef CONFIG_OF
-> -/*
-> - * Translate OpenFirmware node properties into platform_data
-> - */
->  static struct gpio_keys_platform_data *
->  gpio_keys_get_devtree_pdata(struct device *dev)
->  {
-> -	struct device_node *node, *pp;
->  	struct gpio_keys_platform_data *pdata;
->  	struct gpio_keys_button *button;
-> +	struct fwnode_handle *child;
->  	int error;
->  	int nbuttons;
->  	int i;
->  
-> -	node = dev->of_node;
-> -	if (!node)
-> -		return ERR_PTR(-ENODEV);
-> -
-> -	nbuttons = of_get_available_child_count(node);
-> +	nbuttons = device_get_child_node_count(dev);
->  	if (nbuttons == 0)
->  		return ERR_PTR(-ENODEV);
->  
-> @@ -643,55 +632,60 @@ gpio_keys_get_devtree_pdata(struct device *dev)
->  	pdata->buttons = (struct gpio_keys_button *)(pdata + 1);
->  	pdata->nbuttons = nbuttons;
->  
-> -	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
-> +	if (device_property_present(dev, "autorepeat"))
-> +		pdata->rep = true;
->  
-> -	of_property_read_string(node, "label", &pdata->name);
-> +	device_property_read_string(dev, "label", &pdata->name);
->  
->  	i = 0;
-> -	for_each_available_child_of_node(node, pp) {
-> -		enum of_gpio_flags flags;
-> -
-> +	device_for_each_child_node(dev, child) {
->  		button = &pdata->buttons[i++];
->  
-> -		button->gpio = of_get_gpio_flags(pp, 0, &flags);
-> -		if (button->gpio < 0) {
-> -			error = button->gpio;
-> +		button->gpiod = devm_get_gpiod_from_child(dev, NULL,
-> child);
-> +		if (IS_ERR(button->gpiod)) {
-> +			error = PTR_ERR(button->gpiod);
->  			if (error != -ENOENT) {
->  				if (error != -EPROBE_DEFER)
->  					dev_err(dev,
-> -						"Failed to get gpio
-> flags, error: %d\n",
-> +						"Failed to get gpio,
-> error: %d\n",
->  						error);
->  				return ERR_PTR(error);
->  			}
->  		} else {
-> -			button->active_low = flags &
-> OF_GPIO_ACTIVE_LOW;
-> +			button->active_low =
-> gpiod_is_active_low(button->gpiod);
->  		}
->  
-> -		button->irq = irq_of_parse_and_map(pp, 0);
-> +		/* This is only supported by Device Tree */
-> +		button->irq = irq_of_parse_and_map(to_of_node(child),
-> 0);
->  
-> -		if (!gpio_is_valid(button->gpio) && !button->irq) {
-> +		if (IS_ERR(button->gpiod) && !button->irq) {
->  			dev_err(dev, "Found button without gpios or
-> irqs\n");
->  			return ERR_PTR(-EINVAL);
->  		}
->  
-> -		if (of_property_read_u32(pp, "linux,code", &button-
-> >code)) {
-> +		button->gpio = desc_to_gpio(button->gpiod);
-> +
-> +		if (fwnode_property_read_u32(child, "linux,code",
-> +					     &button->code)) {
->  			dev_err(dev, "Button without keycode:
-> 0x%x\n",
->  				button->gpio);
->  			return ERR_PTR(-EINVAL);
->  		}
->  
-> -		button->desc = of_get_property(pp, "label", NULL);
-> +		fwnode_property_read_string(child, "label", &button-
-> >desc);
->  
-> -		if (of_property_read_u32(pp, "linux,input-type",
-> &button->type))
-> +		if (fwnode_property_read_u32(child, "linux,input-
-> type",
-> +					     &button->type))
->  			button->type = EV_KEY;
->  
-> -		button->wakeup = of_property_read_bool(pp, "wakeup-
-> source") ||
-> -				 /* legacy name */
-> -				 of_property_read_bool(pp, "gpio-
-> key,wakeup");
-> +		if (fwnode_property_present(child, "wakeup-source")
-> ||
-> +		    fwnode_property_present(child, "gpio-
-> key,wakeup"))
-> +			button->wakeup = true;
->  
-> -		button->can_disable = !!of_get_property(pp,
-> "linux,can-disable", NULL);
-> +		if (fwnode_property_present(child, "linux,can-
-> disable"))
-> +			button->can_disable = true;
->  
-> -		if (of_property_read_u32(pp, "debounce-interval",
-> +		if (fwnode_property_read_u32(child, "debounce-
-> interval",
->  					 &button->debounce_interval))
->  			button->debounce_interval = 5;
->  	}
-> @@ -708,16 +702,6 @@ static const struct of_device_id
-> gpio_keys_of_match[] = {
->  };
->  MODULE_DEVICE_TABLE(of, gpio_keys_of_match);
->  
-> -#else
-> -
-> -static inline struct gpio_keys_platform_data *
-> -gpio_keys_get_devtree_pdata(struct device *dev)
-> -{
-> -	return ERR_PTR(-ENODEV);
-> -}
-> -
-> -#endif
-> -
->  static int gpio_keys_probe(struct platform_device *pdev)
->  {
->  	struct device *dev = &pdev->dev;
-> @@ -873,7 +857,7 @@ static struct platform_driver
-> gpio_keys_device_driver = {
->  	.driver		= {
->  		.name	= "gpio-keys",
->  		.pm	= &gpio_keys_pm_ops,
-> -		.of_match_table = of_match_ptr(gpio_keys_of_match),
-> +		.of_match_table = gpio_keys_of_match,
->  	}
->  };
->  
+Trent also stated that under Windows the keyboard is *not* shown as
+connected, so it seems the receiver does provide enough information to
+tell that it's not currently connected.
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Ben.
+
+--=20
+Ben Hutchings
+I'm always amazed by the number of people who take up solipsism because
+they heard someone else explain it. - E*Borg on alt.fan.pratchett
+
+
+--=-4rLN9y1kQngaKHujkRDs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAABCgAGBQJYB4ufAAoJEOe/yOyVhhEJeDsP/3smLyNXMOFrhxSFFoSE2F4h
+Bv0A43tNEkGL0FdUJSPRzotKJEO/yHBNnDSOhub9c1nRArbBYERI88Lva1I038mW
+3YJQRgg6y2NLjV+UByH9xEBxs+QkyJVLnn6i5006ZayyLaTypPz4d4p9ixf5mstt
+dhOsAXLSVvXswgNJooJh2ZNEN+ONP4H4g8rZWQm2yog8/i8uGE82Y1UplYv4SDVf
+9DKR9QatqxdpyKksdN/qwTNhOfj6bqfVra5HKhQ0uIyj/2sulu8FMFIgvgVToK9z
+nP9NhvCenKDgkulaMtcs/FwADjeSQj48O1rZ5Qa0ozIbhhuunU7OB+gwSYxXHfVp
+UniG7+CHCVXvlVQZE+cBlzK+VHX9LupCU9AhimXEN0SZzWpgP9qVwkrSUGQ2zXG0
+y4n2USMA2iyvbmRIGLfRYgQbalzCBKYSEEkBP4MVNm1tCcpJwOG4LHWNyj1auPC2
+c0sUsDYR5Iy+lRf4WRszzBmMYKN750fFw3MZiSsMJuDz9bub8b+CxTpPukQBXb6S
+BEwEjSRvggUDXx+aDRbidD/WKxlgUkuOTjZVX5OK06EzQ0AVenrY6XxLO+drwyFd
++BAMK20BgM5Kam+gJvT39l5+gqlLFvlEXWBzXfpcW/X5sVPa4I2dfwy0tgTxPHLC
+kEAPN69sKcp4DBH1Rrky
+=qRy6
+-----END PGP SIGNATURE-----
+
+--=-4rLN9y1kQngaKHujkRDs--

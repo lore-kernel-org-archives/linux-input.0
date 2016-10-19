@@ -1,34 +1,68 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Subject: Re: [PATCH 3/4] hid: intel-ish-hid: ipc: Fix driver reinit failure
-Date: Wed, 19 Oct 2016 12:43:09 +0000
-Message-ID: <1476880987.3261.1.camel@intel.com>
-References: <1476548564-20202-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-         <1476548564-20202-4-git-send-email-srinivas.pandruvada@linux.intel.com>
-         <9577C59DB499174B9340876B077C2E9566FF6E12@SHSMSX101.ccr.corp.intel.com>
-         <D53702B8F0ACD34B9B1D7D82EE03C04501273950@PGSMSX101.gar.corp.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: i8042 - add XMG C504 to keyboard reset table
+Date: Wed, 19 Oct 2016 12:05:21 -0700
+Message-ID: <20161019190521.GA7365@dtor-ws>
+References: <20160908214435.15972-1-patrick.scheuring.dev@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:26295 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752976AbcJSOKh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 19 Oct 2016 10:10:37 -0400
-In-Reply-To: <D53702B8F0ACD34B9B1D7D82EE03C04501273950@PGSMSX101.gar.corp.intel.com>
-Content-Language: en-US
-Content-ID: <303ADAD167DBBF4B84BCEC68CE2B14D3@intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160908214435.15972-1-patrick.scheuring.dev@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Patrick Scheuring <patrick.scheuring.dev@gmail.com>
+Cc: aurelien@francillon.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "jikos@kernel.org" <jikos@kernel.org>, "Ooi, Joyce" <joyce.ooi@intel.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Ong, Boon Leong" <boon.leong.ong@intel.com>, "Xu, Even" <even.xu@intel.com>, "Kweh, Hock Leong" <hock.leong.kweh@intel.com>
 
-T24gV2VkLCAyMDE2LTEwLTE5IGF0IDA5OjU4ICswMDAwLCBPb2ksIEpveWNlIHdyb3RlOg0KDQpb
-Li4uXQ0KDQo+ID4gKwkvKiBQdXQgSVNIIHRvIEQzIHN0YXRlIGZvciBwb3dlciBzYXZpbmcgKi8N
-Cj4gPiArCXBjaV9yZWFkX2NvbmZpZ193b3JkKHBkZXYsIHBkZXYtPnBtX2NhcCArIFBDSV9QTV9D
-VFJMLA0KPiA+ICZjc3IpOw0KPiA+ICsNCj4gPiArCWNzciAmPSB+UENJX1BNX0NUUkxfU1RBVEVf
-TUFTSzsNCj4gPiArCWNzciB8PSBQQ0lfRDNob3Q7DQo+ID4gKwlwY2lfd3JpdGVfY29uZmlnX3dv
-cmQocGRldiwgcGRldi0+cG1fY2FwICsgUENJX1BNX0NUUkwsDQo+ID4gY3NyKTsNCj4gPiArDQo+
-IA0KPiBEbyB5b3UgdGhpbmsgaXQgd291bGQgYmUgY2xlYW5lciBpZiB3ZSB1c2UgcGNpX3NldF9w
-b3dlcl9zdGF0ZSgpID8NCj4gaHR0cDovL2x4ci5mcmVlLWVsZWN0cm9ucy5jb20vc291cmNlL2Ry
-aXZlcnMvcGNpL3BjaS5jI0w4NzcNCg0KTWFrZXMgc2Vuc2UuDQpJIHdpbGwgdGVzdCBhbmQgdXBk
-YXRlIHRoaXMuDQoNClRoYW5rcywNClNyaW5pdmFzDQo=
+On Thu, Sep 08, 2016 at 11:44:35PM +0200, Patrick Scheuring wrote:
+> From: Patrick Scheuring <patrick.scheuring.dev@gmail.com>
+> 
+> The Schenker XMG C504 is a rebranded Gigabyte P35 v2 laptop.
+> Therefore it also needs a keyboard reset to detect the Elantech touchpad.
+> Otherwise the touchpad appears to be dead.
+> 
+> With this patch the touchpad is detected:
+> 
+> $ dmesg | grep -E "(i8042|Elantech|elantech)"
+> 
+> [    2.675399] i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+> [    2.680372] i8042: Attempting to reset device connected to KBD port
+> [    2.789037] serio: i8042 KBD port at 0x60,0x64 irq 1
+> [    2.791586] serio: i8042 AUX port at 0x60,0x64 irq 12
+> [    2.813840] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input4
+> [    3.811431] psmouse serio1: elantech: assuming hardware version 4 (with firmware version 0x361f0e)
+> [    3.825424] psmouse serio1: elantech: Synaptics capabilities query result 0x00, 0x15, 0x0f.
+> [    3.839424] psmouse serio1: elantech: Elan sample query result 03, 58, 74
+> [    3.911349] input: ETPS/2 Elantech Touchpad as /devices/platform/i8042/serio1/input/input6
+> 
+> Signed-off-by: Patrick Scheuring <patrick.scheuring.dev@gmail.com>
+
+Applied, thank you.
+
+> ---
+>  drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+> index 68f5f4a..4187019 100644
+> --- a/drivers/input/serio/i8042-x86ia64io.h
+> +++ b/drivers/input/serio/i8042-x86ia64io.h
+> @@ -793,6 +793,13 @@ static const struct dmi_system_id __initconst i8042_dmi_kbdreset_table[] = {
+>  			DMI_MATCH(DMI_PRODUCT_NAME, "P34"),
+>  		},
+>  	},
+> +	{
+> +		/* Schenker XMG C504 - Elantech touchpad */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "XMG"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "C504"),
+> +		},
+> +	},
+>  	{ }
+>  };
+>  
+> -- 
+> 2.9.3
+> 
+
+-- 
+Dmitry

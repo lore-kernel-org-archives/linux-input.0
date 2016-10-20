@@ -1,174 +1,173 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v3 07/18] HID: wacom: generic: Support and use 'Custom HID' mode and usages
-Date: Wed, 19 Oct 2016 18:03:43 -0700
-Message-ID: <20161020010354.4049-7-killertofu@gmail.com>
+Subject: [PATCH v3 10/18] HID: wacom: generic: Add support for vendor-defined "Sense" usage
+Date: Wed, 19 Oct 2016 18:03:46 -0700
+Message-ID: <20161020010354.4049-10-killertofu@gmail.com>
 References: <20161006212231.31440-1-killertofu@gmail.com>
  <20161020010354.4049-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:33904 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754445AbcJTBEc (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:36612 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755083AbcJTBEq (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 19 Oct 2016 21:04:32 -0400
-Received: by mail-pf0-f195.google.com with SMTP id 128so3847599pfz.1
-        for <linux-input@vger.kernel.org>; Wed, 19 Oct 2016 18:04:31 -0700 (PDT)
+        Wed, 19 Oct 2016 21:04:46 -0400
+Received: by mail-pf0-f193.google.com with SMTP id r16so3826021pfg.3
+        for <linux-input@vger.kernel.org>; Wed, 19 Oct 2016 18:04:46 -0700 (PDT)
 In-Reply-To: <20161020010354.4049-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Jason Gerecke <killertofu@gmail.com>
 
-Wacom's new "MobileStudio Pro" tablets are the first devices in their
-branded product line-up to include a usable HID descriptor for the pen
-interface. Like prior branded products, the device can operate in one
-of two modes: 'Standard HID', and 'Wacom Custom HID'. Although the
-first mode is usable by the HID_GENERIC codepath as-is (huzzah!), it is
-subject to some restrictions -- most notably pressure being limited
-to 2048 levels instead of 8192. To ensure tablets that include support
-for Custom HID mode work optimally, we add support for its usages and
-switch the device to Custom HID mode if possible.
+Wacom's professional tablets beginning with the Intuos4 are capable of
+reporting an intermediate degree of proximity where the pen is no longer
+close enough to communicate with ("in prox"), but still close enough to
+be sensed ("in range"). This additional state is particularly useful for
+performing palm rejection as it allows the driver to disable the touch
+sensor while the pen is a greater distance from the tablet.
 
-The usages defined for Custom HID mode are often numerically similar to
-their standard HID equivalents, allowing us to write a simple translation
-function that takes arbitrary HID usages as input and which returns
-the corresponding standard HID usage as output (if one exists). Switching
-on this translated usage instead of the actual usage allows the existing
-cases to apply to both modes of operation without having to explicitly
-define every Custom HID usage.
+Like other professional tablets, the new MobileStudio Pro also reports
+this intermeidate "in range" proximity state. Its descriptor assigns
+usage 0xff0d0036 to this bit. Normally 'wacom_equivalent_usage' would
+translate this to the standard HID "Quality" usage, but since this has
+a different meaning we have it explicitly ignore the usage and define
+it ourselves as "Sense" (since "In Range" is already defined by the
+HID standard and interpreted by our driver as meaning "in prox").
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom_sys.c |  5 +++++
- drivers/hid/wacom_wac.c | 37 +++++++++++++++++++++++++++++++------
+ drivers/hid/wacom_wac.c | 26 +++++++++++++++++++++++---
  drivers/hid/wacom_wac.h |  3 +++
- 3 files changed, 39 insertions(+), 6 deletions(-)
+ 2 files changed, 26 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 7b9bff2..b2e2471 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -166,6 +166,11 @@ static void wacom_feature_mapping(struct hid_device *hdev,
- 		}
- 		break;
- 
-+	case WACOM_HID_WD_DATAMODE:
-+		wacom->wacom_wac.mode_report = field->report->id;
-+		wacom->wacom_wac.mode_value = 2;
-+		break;
-+
- 	case WACOM_HID_UP_G9:
- 	case WACOM_HID_UP_G11:
- 		if (field->report->id == 0x03 &&
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 3f4ba53..6c2f0e4 100644
+index 81467c9..c0d75ae 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -1435,14 +1435,35 @@ static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
+@@ -1443,6 +1443,7 @@ static int wacom_equivalent_usage(int usage)
+ 
+ 		if (subpage == WACOM_HID_SP_DIGITIZER ||
+ 		    subpage == WACOM_HID_SP_DIGITIZERINFO ||
++		    usage == WACOM_HID_WD_SENSE ||
+ 		    usage == WACOM_HID_WD_DISTANCE) {
+ 			return usage;
+ 		}
+@@ -1493,6 +1494,7 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ {
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
++	struct wacom_features *features = &wacom_wac->features;
+ 	struct input_dev *input = wacom_wac->pen_input;
+ 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
+ 
+@@ -1539,6 +1541,10 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ 	case HID_DG_TOOLSERIALNUMBER:
+ 		wacom_map_usage(input, usage, field, EV_MSC, MSC_SERIAL, 0);
+ 		break;
++	case WACOM_HID_WD_SENSE:
++		features->quirks |= WACOM_QUIRK_SENSE;
++		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
++		break;
+ 	case WACOM_HID_WD_FINGERWHEEL:
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_WHEEL, 0);
+ 		break;
+@@ -1550,6 +1556,7 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
+ {
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
++	struct wacom_features *features = &wacom_wac->features;
+ 	struct input_dev *input = wacom_wac->pen_input;
+ 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
+ 
+@@ -1564,6 +1571,8 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
+ 		break;
+ 	case HID_DG_INRANGE:
+ 		wacom_wac->hid_data.inrange_state = value;
++		if (!(features->quirks & WACOM_QUIRK_SENSE))
++			wacom_wac->hid_data.sense_state = value;
+ 		return 0;
+ 	case HID_DG_INVERT:
+ 		wacom_wac->hid_data.invert_state = value;
+@@ -1572,6 +1581,9 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
+ 	case HID_DG_TIPSWITCH:
+ 		wacom_wac->hid_data.tipswitch |= value;
+ 		return 0;
++	case WACOM_HID_WD_SENSE:
++		wacom_wac->hid_data.sense_state = value;
++		return 0;
+ 	}
+ 
+ 	/* send pen events only when touch is up or forced out
+@@ -1580,6 +1592,10 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
+ 	if (!usage->type || delay_pen_events(wacom_wac))
+ 		return 0;
+ 
++	/* send pen events only when the pen is in/entering/leaving proximity */
++	if (!wacom_wac->hid_data.inrange_state && !wacom_wac->tool[0])
++		return 0;
++
+ 	input_event(input, usage->type, usage->code, value);
+ 
  	return 0;
+@@ -1598,16 +1614,17 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+ 	struct input_dev *input = wacom_wac->pen_input;
+ 	bool prox = wacom_wac->hid_data.inrange_state;
++	bool range = wacom_wac->hid_data.sense_state;
+ 
+-	if (!wacom_wac->shared->stylus_in_proximity) /* first in prox */
++	if (!wacom_wac->tool[0] && prox) /* first in prox */
+ 		/* Going into proximity select tool */
+ 		wacom_wac->tool[0] = wacom_wac->hid_data.invert_state ?
+ 						BTN_TOOL_RUBBER : BTN_TOOL_PEN;
+ 
+ 	/* keep pen state for touch events */
+-	wacom_wac->shared->stylus_in_proximity = prox;
++	wacom_wac->shared->stylus_in_proximity = range;
+ 
+-	if (!delay_pen_events(wacom_wac)) {
++	if (!delay_pen_events(wacom_wac) && wacom_wac->tool[0]) {
+ 		input_report_key(input, BTN_TOUCH,
+ 				wacom_wac->hid_data.tipswitch);
+ 		input_report_key(input, wacom_wac->tool[0], prox);
+@@ -1616,6 +1633,9 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
+ 
+ 		input_sync(input);
+ 	}
++
++	if (!prox)
++		wacom_wac->tool[0] = 0;
  }
  
-+static int wacom_equivalent_usage(int usage)
-+{
-+	if ((usage & HID_USAGE_PAGE) == WACOM_HID_UP_WACOMDIGITIZER) {
-+		int subpage = (usage & 0xFF00) << 8;
-+		int subusage = (usage & 0xFF);
-+
-+		if (subpage == WACOM_HID_SP_DIGITIZER ||
-+		    subpage == WACOM_HID_SP_DIGITIZERINFO) {
-+			return usage;
-+		}
-+
-+		if (subpage == HID_UP_UNDEFINED)
-+			subpage = HID_UP_DIGITIZER;
-+
-+		return subpage | subusage;
-+	}
-+
-+	return usage;
-+}
-+
- static void wacom_map_usage(struct input_dev *input, struct hid_usage *usage,
- 		struct hid_field *field, __u8 type, __u16 code, int fuzz)
- {
- 	int fmin = field->logical_minimum;
- 	int fmax = field->logical_maximum;
-+	unsigned int equivalent_usage = wacom_equivalent_usage(usage->hid);
- 	int resolution_code = code;
- 
--	if (usage->hid == HID_DG_TWIST) {
-+	if (equivalent_usage == HID_DG_TWIST) {
- 		resolution_code = ABS_RZ;
- 	}
- 
-@@ -1472,8 +1493,9 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct input_dev *input = wacom_wac->pen_input;
-+	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
- 
--	switch (usage->hid) {
-+	switch (equivalent_usage) {
- 	case HID_GD_X:
- 		wacom_map_usage(input, usage, field, EV_ABS, ABS_X, 4);
- 		break;
-@@ -1524,8 +1546,9 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct input_dev *input = wacom_wac->pen_input;
-+	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
- 
--	switch (usage->hid) {
-+	switch (equivalent_usage) {
- 	case HID_GD_Z:
- 		/*
- 		 * HID_GD_Z "should increase as the control's position is
-@@ -1597,8 +1620,9 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct input_dev *input = wacom_wac->touch_input;
- 	unsigned touch_max = wacom_wac->features.touch_max;
-+	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
- 
--	switch (usage->hid) {
-+	switch (equivalent_usage) {
- 	case HID_GD_X:
- 		if (touch_max == 1)
- 			wacom_map_usage(input, usage, field, EV_ABS, ABS_X, 4);
-@@ -1673,8 +1697,9 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
- 
--	switch (usage->hid) {
-+	switch (equivalent_usage) {
- 	case HID_GD_X:
- 		wacom_wac->hid_data.x = value;
- 		break;
-@@ -1697,7 +1722,7 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
- 
- 
- 	if (usage->usage_index + 1 == field->report_count) {
--		if (usage->hid == wacom_wac->hid_data.last_slot_field)
-+		if (equivalent_usage == wacom_wac->hid_data.last_slot_field)
- 			wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
- 	}
- 
+ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
 diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index d2629c8..ba914ba 100644
+index 5447559..c27b7b4 100644
 --- a/drivers/hid/wacom_wac.h
 +++ b/drivers/hid/wacom_wac.h
-@@ -85,7 +85,10 @@
- #define WACOM_DEVICETYPE_DIRECT         0x0010
+@@ -74,6 +74,7 @@
  
- #define WACOM_HID_UP_WACOMDIGITIZER     0xff0d0000
-+#define WACOM_HID_SP_DIGITIZER          0x000d0000
-+#define WACOM_HID_SP_DIGITIZERINFO      0x00100000
+ /* device quirks */
+ #define WACOM_QUIRK_BBTOUCH_LOWRES	0x0001
++#define WACOM_QUIRK_SENSE		0x0002
+ #define WACOM_QUIRK_BATTERY		0x0008
+ 
+ /* device types */
+@@ -88,6 +89,7 @@
+ #define WACOM_HID_SP_DIGITIZER          0x000d0000
+ #define WACOM_HID_SP_DIGITIZERINFO      0x00100000
  #define WACOM_HID_WD_DIGITIZER          (WACOM_HID_UP_WACOMDIGITIZER | 0x01)
-+#define WACOM_HID_WD_DATAMODE           (WACOM_HID_UP_WACOMDIGITIZER | 0x1002)
- #define WACOM_HID_UP_G9                 0xff090000
- #define WACOM_HID_G9_PEN                (WACOM_HID_UP_G9 | 0x02)
- #define WACOM_HID_G9_TOUCHSCREEN        (WACOM_HID_UP_G9 | 0x11)
++#define WACOM_HID_WD_SENSE              (WACOM_HID_UP_WACOMDIGITIZER | 0x36)
+ #define WACOM_HID_WD_DISTANCE           (WACOM_HID_UP_WACOMDIGITIZER | 0x0132)
+ #define WACOM_HID_WD_FINGERWHEEL        (WACOM_HID_UP_WACOMDIGITIZER | 0x0d03)
+ #define WACOM_HID_WD_DATAMODE           (WACOM_HID_UP_WACOMDIGITIZER | 0x1002)
+@@ -212,6 +214,7 @@ struct wacom_shared {
+ struct hid_data {
+ 	__s16 inputmode;	/* InputMode HID feature, -1 if non-existent */
+ 	__s16 inputmode_index;	/* InputMode HID feature index in the report */
++	bool sense_state;
+ 	bool inrange_state;
+ 	bool invert_state;
+ 	bool tipswitch;
 -- 
 2.10.0
 

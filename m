@@ -1,158 +1,108 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v3 16/18] HID: wacom: generic: Add support for battery status on pen and pad interfaces
-Date: Wed, 19 Oct 2016 18:03:52 -0700
-Message-ID: <20161020010354.4049-16-killertofu@gmail.com>
+Subject: [PATCH v3 17/18] HID: wacom: generic: Extend pad support
+Date: Wed, 19 Oct 2016 18:03:53 -0700
+Message-ID: <20161020010354.4049-17-killertofu@gmail.com>
 References: <20161006212231.31440-1-killertofu@gmail.com>
  <20161020010354.4049-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:35563 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755704AbcJTBFO (ORCPT
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:36772 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755704AbcJTBFS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 19 Oct 2016 21:05:14 -0400
-Received: by mail-pf0-f193.google.com with SMTP id s8so3835324pfj.2
-        for <linux-input@vger.kernel.org>; Wed, 19 Oct 2016 18:05:13 -0700 (PDT)
+        Wed, 19 Oct 2016 21:05:18 -0400
+Received: by mail-pf0-f194.google.com with SMTP id r16so3827106pfg.3
+        for <linux-input@vger.kernel.org>; Wed, 19 Oct 2016 18:05:18 -0700 (PDT)
 In-Reply-To: <20161020010354.4049-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Jason Gerecke <killertofu@gmail.com>
 
-Adds support for usages that may appear on the pen or pad interface which
-report the state of the tablet battery.
+The HID specification that the MobileStudio Pro follows includes usages
+for several values that would be good to support so that future devices
+"just work" out of the box. Extend the HID_GENERIC pad codepath to handle
+these usages.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom_wac.c | 41 ++++++++++++++++++++++++++++++++++++++++-
- drivers/hid/wacom_wac.h |  6 ++++++
- include/linux/hid.h     |  1 +
- 3 files changed, 47 insertions(+), 1 deletion(-)
+ drivers/hid/wacom_wac.c | 15 +++++++++++++++
+ drivers/hid/wacom_wac.h |  5 +++++
+ 2 files changed, 20 insertions(+)
 
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 70de1fa..f3edecf 100644
+index f3edecf..0723ba8 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -1525,6 +1525,10 @@ static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
- 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
- 
- 	switch (equivalent_usage) {
-+	case WACOM_HID_WD_BATTERY_LEVEL:
-+	case WACOM_HID_WD_BATTERY_CHARGING:
-+		features->quirks |= WACOM_QUIRK_BATTERY;
-+		break;
- 	case WACOM_HID_WD_ACCELEROMETER_X:
- 		__set_bit(INPUT_PROP_ACCELEROMETER, input->propbit);
- 		wacom_map_usage(input, usage, field, EV_ABS, ABS_X, 0);
-@@ -1574,8 +1578,25 @@ static int wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field,
- 		wacom_wac->hid_data.inrange_state |= value;
- 	}
- 
--	if (equivalent_usage != WACOM_HID_WD_TOUCHRINGSTATUS)
-+	switch (equivalent_usage) {
-+	case WACOM_HID_WD_BATTERY_LEVEL:
-+		wacom_wac->hid_data.battery_capacity = value;
-+		wacom_wac->hid_data.bat_connected = 1;
-+		return 0;
-+
-+	case WACOM_HID_WD_BATTERY_CHARGING:
-+		wacom_wac->hid_data.bat_charging = value;
-+		wacom_wac->hid_data.ps_connected = value;
-+		wacom_wac->hid_data.bat_connected = 1;
-+		return 0;
-+
-+	case WACOM_HID_WD_TOUCHRINGSTATUS:
-+		return 0;
-+
-+	default:
- 		input_event(input, usage->type, usage->code, value);
-+		break;
-+	}
- 
- 	return 0;
- }
-@@ -1594,6 +1615,7 @@ static void wacom_wac_pad_report(struct hid_device *hdev,
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct wacom_features *features = &wacom_wac->features;
- 	struct input_dev *input = wacom_wac->pad_input;
- 	bool active = wacom_wac->hid_data.inrange_state != 0;
- 
-@@ -1604,6 +1626,16 @@ static void wacom_wac_pad_report(struct hid_device *hdev,
- 	if (wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY)
- 		input_event(input, EV_ABS, ABS_MISC, active ? PAD_DEVICE_ID : 0);
- 
-+	if (features->quirks & WACOM_QUIRK_BATTERY) {
-+		int capacity = wacom_wac->hid_data.battery_capacity;
-+		bool charging = wacom_wac->hid_data.bat_charging;
-+		bool connected = wacom_wac->hid_data.bat_connected;
-+		bool powered = wacom_wac->hid_data.ps_connected;
-+
-+		wacom_notify_battery(wacom_wac, capacity, charging,
-+				     connected, powered);
-+	}
-+
- 	input_sync(input);
- }
- 
-@@ -1633,6 +1665,9 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
- 	case HID_DG_INRANGE:
- 		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
+@@ -1457,6 +1457,8 @@ static int wacom_equivalent_usage(int usage)
+ 		    usage == WACOM_HID_WD_SERIALHI ||
+ 		    usage == WACOM_HID_WD_TOOLTYPE ||
+ 		    usage == WACOM_HID_WD_DISTANCE ||
++		    usage == WACOM_HID_WD_TOUCHSTRIP ||
++		    usage == WACOM_HID_WD_TOUCHSTRIP2 ||
+ 		    usage == WACOM_HID_WD_TOUCHRING ||
+ 		    usage == WACOM_HID_WD_TOUCHRINGSTATUS) {
+ 			return usage;
+@@ -1512,6 +1514,9 @@ static void wacom_map_usage(struct input_dev *input, struct hid_usage *usage,
+ 	case EV_MSC:
+ 		input_set_capability(input, EV_MSC, code);
  		break;
-+	case HID_DG_BATTERYSTRENGTH:
-+		features->quirks |= WACOM_QUIRK_BATTERY;
++	case EV_SW:
++		input_set_capability(input, EV_SW, code);
 +		break;
- 	case HID_DG_INVERT:
+ 	}
+ }
+ 
+@@ -1546,11 +1551,21 @@ static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
+ 	case WACOM_HID_WD_BUTTONDOWN:
+ 	case WACOM_HID_WD_BUTTONLEFT:
+ 	case WACOM_HID_WD_BUTTONRIGHT:
++	case WACOM_HID_WD_BUTTONCENTER:
  		wacom_map_usage(input, usage, field, EV_KEY,
- 				BTN_TOOL_RUBBER, 0);
-@@ -1703,6 +1738,10 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
- 		if (!(features->quirks & WACOM_QUIRK_SENSE))
- 			wacom_wac->hid_data.sense_state = value;
- 		return 0;
-+	case HID_DG_BATTERYSTRENGTH:
-+		wacom_wac->hid_data.battery_capacity = value;
-+		wacom_wac->hid_data.bat_connected = 1;
+ 				wacom_numbered_button_to_key(features->numbered_buttons),
+ 				0);
+ 		features->numbered_buttons++;
+ 		break;
++	case WACOM_HID_WD_TOUCHONOFF:
++		wacom_map_usage(input, usage, field, EV_SW, SW_MUTE_DEVICE, 0);
 +		break;
- 	case HID_DG_INVERT:
- 		wacom_wac->hid_data.invert_state = value;
- 		return 0;
++	case WACOM_HID_WD_TOUCHSTRIP:
++		wacom_map_usage(input, usage, field, EV_ABS, ABS_RX, 0);
++		break;
++	case WACOM_HID_WD_TOUCHSTRIP2:
++		wacom_map_usage(input, usage, field, EV_ABS, ABS_RY, 0);
++		break;
+ 	case WACOM_HID_WD_TOUCHRING:
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_WHEEL, 0);
+ 		break;
 diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 1f7c4a8..7418c97 100644
+index 7418c97..a54a301 100644
 --- a/drivers/hid/wacom_wac.h
 +++ b/drivers/hid/wacom_wac.h
-@@ -101,6 +101,8 @@
+@@ -96,6 +96,8 @@
+ #define WACOM_HID_WD_SERIALHI           (WACOM_HID_UP_WACOMDIGITIZER | 0x5c)
+ #define WACOM_HID_WD_TOOLTYPE           (WACOM_HID_UP_WACOMDIGITIZER | 0x77)
+ #define WACOM_HID_WD_DISTANCE           (WACOM_HID_UP_WACOMDIGITIZER | 0x0132)
++#define WACOM_HID_WD_TOUCHSTRIP         (WACOM_HID_UP_WACOMDIGITIZER | 0x0136)
++#define WACOM_HID_WD_TOUCHSTRIP2        (WACOM_HID_UP_WACOMDIGITIZER | 0x0137)
+ #define WACOM_HID_WD_TOUCHRING          (WACOM_HID_UP_WACOMDIGITIZER | 0x0138)
+ #define WACOM_HID_WD_TOUCHRINGSTATUS    (WACOM_HID_UP_WACOMDIGITIZER | 0x0139)
  #define WACOM_HID_WD_ACCELEROMETER_X    (WACOM_HID_UP_WACOMDIGITIZER | 0x0401)
- #define WACOM_HID_WD_ACCELEROMETER_Y    (WACOM_HID_UP_WACOMDIGITIZER | 0x0402)
- #define WACOM_HID_WD_ACCELEROMETER_Z    (WACOM_HID_UP_WACOMDIGITIZER | 0x0403)
-+#define WACOM_HID_WD_BATTERY_CHARGING   (WACOM_HID_UP_WACOMDIGITIZER | 0x0404)
-+#define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
+@@ -104,11 +106,14 @@
+ #define WACOM_HID_WD_BATTERY_CHARGING   (WACOM_HID_UP_WACOMDIGITIZER | 0x0404)
+ #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
  #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
++#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0950)
  #define WACOM_HID_WD_BUTTONHOME         (WACOM_HID_UP_WACOMDIGITIZER | 0x0990)
  #define WACOM_HID_WD_BUTTONUP           (WACOM_HID_UP_WACOMDIGITIZER | 0x0991)
-@@ -257,6 +259,10 @@ struct hid_data {
- 	int last_slot_field;
- 	int num_expected;
- 	int num_received;
-+	int battery_capacity;
-+	int bat_charging;
-+	int bat_connected;
-+	int ps_connected;
- };
- 
- struct wacom_remote_data {
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index e712101..3baa2f9 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -231,6 +231,7 @@ struct hid_item {
- #define HID_DG_TAP		0x000d0035
- #define HID_DG_TABLETFUNCTIONKEY	0x000d0039
- #define HID_DG_PROGRAMCHANGEKEY	0x000d003a
-+#define HID_DG_BATTERYSTRENGTH	0x000d003b
- #define HID_DG_INVERT		0x000d003c
- #define HID_DG_TILT_X		0x000d003d
- #define HID_DG_TILT_Y		0x000d003e
+ #define WACOM_HID_WD_BUTTONDOWN         (WACOM_HID_UP_WACOMDIGITIZER | 0x0992)
+ #define WACOM_HID_WD_BUTTONLEFT         (WACOM_HID_UP_WACOMDIGITIZER | 0x0993)
+ #define WACOM_HID_WD_BUTTONRIGHT        (WACOM_HID_UP_WACOMDIGITIZER | 0x0994)
++#define WACOM_HID_WD_BUTTONCENTER       (WACOM_HID_UP_WACOMDIGITIZER | 0x0995)
++#define WACOM_HID_WD_TOUCHONOFF         (WACOM_HID_UP_WACOMDIGITIZER | 0x0996)
+ #define WACOM_HID_WD_FINGERWHEEL        (WACOM_HID_UP_WACOMDIGITIZER | 0x0d03)
+ #define WACOM_HID_WD_OFFSETLEFT         (WACOM_HID_UP_WACOMDIGITIZER | 0x0d30)
+ #define WACOM_HID_WD_OFFSETTOP          (WACOM_HID_UP_WACOMDIGITIZER | 0x0d31)
 -- 
 2.10.0
 

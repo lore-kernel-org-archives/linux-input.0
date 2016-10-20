@@ -1,54 +1,117 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v3 02/18] HID: wacom: Have WACOM_PEN_FIELD and WACOM_FINGER_FIELD recgonize more fields
-Date: Wed, 19 Oct 2016 18:03:38 -0700
-Message-ID: <20161020010354.4049-2-killertofu@gmail.com>
+Subject: [PATCH v3 01/18] HID: wacom: Update vendor-defined usage names to better match standards
+Date: Wed, 19 Oct 2016 18:03:37 -0700
+Message-ID: <20161020010354.4049-1-killertofu@gmail.com>
 References: <20161006212231.31440-1-killertofu@gmail.com>
- <20161020010354.4049-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:33769 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752621AbcJTBEJ (ORCPT
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:34806 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752621AbcJTBEG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 19 Oct 2016 21:04:09 -0400
-Received: by mail-pf0-f193.google.com with SMTP id i85so3838838pfa.0
-        for <linux-input@vger.kernel.org>; Wed, 19 Oct 2016 18:04:09 -0700 (PDT)
-In-Reply-To: <20161020010354.4049-1-killertofu@gmail.com>
+        Wed, 19 Oct 2016 21:04:06 -0400
+Received: by mail-pf0-f194.google.com with SMTP id 128so3846713pfz.1
+        for <linux-input@vger.kernel.org>; Wed, 19 Oct 2016 18:04:05 -0700 (PDT)
+In-Reply-To: <20161006212231.31440-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Jason Gerecke <killertofu@gmail.com>
 
-We've defined several new usages (e.g. WACOM_G9_PEN and WACOM_G9_TOUCHSCREEN)
-which aren't checked by the WACOM_PEN_FIELD and WACOM_FINGER_FIELD macros but
-probably should be.
+Our loose use of "pen" and "digitizer" in the naming of several of our
+vendor-defined usages may be a source of confusion given that the terms
+have specific meaning within the HID specification. "Pen" specifically
+refers to "an integrated display that allows the use of a stylus" (e.g.
+something like a tablet PC or Cintiq) wheras "Digitizer" is a better
+fit for opaque tablets like an Intuos.
+
+While we're at it, go ahead and rename the definitions to make them more
+distinct and better match up with the convention used by HID (e.g. the use
+of '_UP_' for usage pages) and make them more distinct.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom_wac.h | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/hid/wacom_sys.c | 12 ++++++------
+ drivers/hid/wacom_wac.c |  2 +-
+ drivers/hid/wacom_wac.h | 17 +++++++++--------
+ 3 files changed, 16 insertions(+), 15 deletions(-)
 
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 5e7a564..773fa11 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -159,18 +159,18 @@ static void wacom_feature_mapping(struct hid_device *hdev,
+ 
+ 	case HID_UP_DIGITIZER:
+ 		if (field->report->id == 0x0B &&
+-		    (field->application == WACOM_G9_DIGITIZER ||
+-		     field->application == WACOM_G11_DIGITIZER)) {
++		    (field->application == WACOM_HID_G9_PEN ||
++		     field->application == WACOM_HID_G11_PEN)) {
+ 			wacom->wacom_wac.mode_report = field->report->id;
+ 			wacom->wacom_wac.mode_value = 0;
+ 		}
+ 		break;
+ 
+-	case WACOM_G9_PAGE:
+-	case WACOM_G11_PAGE:
++	case WACOM_HID_UP_G9:
++	case WACOM_HID_UP_G11:
+ 		if (field->report->id == 0x03 &&
+-		    (field->application == WACOM_G9_TOUCHSCREEN ||
+-		     field->application == WACOM_G11_TOUCHSCREEN)) {
++		    (field->application == WACOM_HID_G9_TOUCHSCREEN ||
++		     field->application == WACOM_HID_G11_TOUCHSCREEN)) {
+ 			wacom->wacom_wac.mode_report = field->report->id;
+ 			wacom->wacom_wac.mode_value = 0;
+ 		}
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 1cb7992..3038954 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2448,7 +2448,7 @@ void wacom_setup_device_quirks(struct wacom *wacom)
+ 	/*
+ 	 * Raw Wacom-mode pen and touch events both come from interface
+ 	 * 0, whose HID descriptor has an application usage of 0xFF0D
+-	 * (i.e., WACOM_VENDORDEFINED_PEN). We route pen packets back
++	 * (i.e., WACOM_HID_WD_DIGITIZER). We route pen packets back
+ 	 * out through the HID_GENERIC device created for interface 1,
+ 	 * so rewrite this one to be of type WACOM_DEVICETYPE_TOUCH.
+ 	 */
 diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index f58bbd1..d2629c8 100644
+index 324c40b..f58bbd1 100644
 --- a/drivers/hid/wacom_wac.h
 +++ b/drivers/hid/wacom_wac.h
-@@ -98,10 +98,14 @@
+@@ -84,20 +84,21 @@
+ #define WACOM_DEVICETYPE_WL_MONITOR     0x0008
+ #define WACOM_DEVICETYPE_DIRECT         0x0010
+ 
+-#define WACOM_VENDORDEFINED_PEN		0xff0d0001
+-#define WACOM_G9_PAGE			0xff090000
+-#define WACOM_G9_DIGITIZER		(WACOM_G9_PAGE | 0x02)
+-#define WACOM_G9_TOUCHSCREEN		(WACOM_G9_PAGE | 0x11)
+-#define WACOM_G11_PAGE			0xff110000
+-#define WACOM_G11_DIGITIZER		(WACOM_G11_PAGE | 0x02)
+-#define WACOM_G11_TOUCHSCREEN		(WACOM_G11_PAGE | 0x11)
++#define WACOM_HID_UP_WACOMDIGITIZER     0xff0d0000
++#define WACOM_HID_WD_DIGITIZER          (WACOM_HID_UP_WACOMDIGITIZER | 0x01)
++#define WACOM_HID_UP_G9                 0xff090000
++#define WACOM_HID_G9_PEN                (WACOM_HID_UP_G9 | 0x02)
++#define WACOM_HID_G9_TOUCHSCREEN        (WACOM_HID_UP_G9 | 0x11)
++#define WACOM_HID_UP_G11                0xff110000
++#define WACOM_HID_G11_PEN               (WACOM_HID_UP_G11 | 0x02)
++#define WACOM_HID_G11_TOUCHSCREEN       (WACOM_HID_UP_G11 | 0x11)
+ 
+ #define WACOM_PEN_FIELD(f)	(((f)->logical == HID_DG_STYLUS) || \
+ 				 ((f)->physical == HID_DG_STYLUS) || \
  				 ((f)->physical == HID_DG_PEN) || \
  				 ((f)->application == HID_DG_PEN) || \
  				 ((f)->application == HID_DG_DIGITIZER) || \
--				 ((f)->application == WACOM_HID_WD_DIGITIZER))
-+				 ((f)->application == WACOM_HID_WD_DIGITIZER) || \
-+				 ((f)->application == WACOM_HID_G9_PEN) || \
-+				 ((f)->application == WACOM_HID_G11_PEN))
+-				 ((f)->application == WACOM_VENDORDEFINED_PEN))
++				 ((f)->application == WACOM_HID_WD_DIGITIZER))
  #define WACOM_FINGER_FIELD(f)	(((f)->logical == HID_DG_FINGER) || \
  				 ((f)->physical == HID_DG_FINGER) || \
--				 ((f)->application == HID_DG_TOUCHSCREEN))
-+				 ((f)->application == HID_DG_TOUCHSCREEN) || \
-+				 ((f)->application == WACOM_HID_G9_TOUCHSCREEN) || \
-+				 ((f)->application == WACOM_HID_G11_TOUCHSCREEN))
- 
- enum {
- 	PENPARTNER = 0,
+ 				 ((f)->application == HID_DG_TOUCHSCREEN))
 -- 
 2.10.0
 

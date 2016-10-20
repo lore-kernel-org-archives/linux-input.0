@@ -1,87 +1,75 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: gpio_keys_polled - always use
- gpiod_get_value_cansleep
-Date: Wed, 19 Oct 2016 16:43:32 -0700
-Message-ID: <20161019234332.GA15459@dtor-ws>
-References: <20161019234107.GA2927@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20161019234107.GA2927@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Aaron Lu <aaron.lu@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH v3 04/18] HID: wacom: Detect and correct descriptors missing HID_DG_BARRELSWITCH2
+Date: Wed, 19 Oct 2016 18:03:40 -0700
+Message-ID: <20161020010354.4049-4-killertofu@gmail.com>
+References: <20161006212231.31440-1-killertofu@gmail.com>
+ <20161020010354.4049-1-killertofu@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36490 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753662AbcJTBES (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 19 Oct 2016 21:04:18 -0400
+Received: by mail-pf0-f196.google.com with SMTP id r16so3825168pfg.3
+        for <linux-input@vger.kernel.org>; Wed, 19 Oct 2016 18:04:17 -0700 (PDT)
+In-Reply-To: <20161020010354.4049-1-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Jason Gerecke <killertofu@gmail.com>
 
-On Wed, Oct 19, 2016 at 04:41:07PM -0700, Dmitry Torokhov wrote:
-> It does not matter if given GPIO may sleep or not when reading state,
-> polling is always done in a non-atomic context, so we should always
-> be able to simply use gpiod_get_value_cansleep().
-> 
-> Also let's note in the logs when we fail to read gpio state.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/keyboard/gpio_keys_polled.c | 21 ++++++++++-----------
->  1 file changed, 10 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-> index daef8ea..3c79158 100644
-> --- a/drivers/input/keyboard/gpio_keys_polled.c
-> +++ b/drivers/input/keyboard/gpio_keys_polled.c
-> @@ -34,7 +34,6 @@ struct gpio_keys_button_data {
->  	int last_state;
->  	int count;
->  	int threshold;
-> -	int can_sleep;
->  };
->  
->  struct gpio_keys_polled_dev {
-> @@ -76,16 +75,17 @@ static void gpio_keys_polled_check_state(struct input_polled_dev *dev,
->  {
->  	int state;
->  
-> -	if (bdata->can_sleep)
-> -		state = !!gpiod_get_value_cansleep(bdata->gpiod);
-> -	else
-> -		state = !!gpiod_get_value(bdata->gpiod);
-> -
-> -	gpio_keys_button_event(dev, button, state);
-> +	state = gpiod_get_value_cansleep(bdata->gpiod);
-> +	if (unlikely(state < 0)) {
-> +		dev_err(input->dev.parent,
+ISDv4 devices have long supported reporting data from each of two barrel
+switches, but HID_DG_BARRELSWITCH2 itself was only recently standardized.
+Prior to its adoption, ISDv4 devices would associate the bit indicating
+the state of the second barrel switch with the "Undefined" 0x000D0000
+usage. Although most such devices have explicit support, a few use the
+HID_GENERIC codepath which ignores the "Undefined" usage.
 
-Umm, this should have been dev->input->dev.parent
+This patch adds code which detects the presence of a pre-standard second
+barrel switch and corrects the usage value so that the HID_GENERIC code
+will declare its presence and report its state.
 
-> +			"failed to get gpio state: %d\n", state);
-> +	} else {
-> +		gpio_keys_button_event(dev, button, state);
->  
-> -	if (state != bdata->last_state) {
-> -		bdata->count = 0;
-> -		bdata->last_state = state;
-> +		if (state != bdata->last_state) {
-> +			bdata->count = 0;
-> +			bdata->last_state = state;
-> +		}
->  	}
->  }
->  
-> @@ -341,7 +341,6 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
->  			}
->  		}
->  
-> -		bdata->can_sleep = gpiod_cansleep(bdata->gpiod);
->  		bdata->last_state = -1;
->  		bdata->threshold = DIV_ROUND_UP(button->debounce_interval,
->  						pdata->poll_interval);
-> -- 
-> 2.8.0.rc3.226.g39d4020
-> 
-> 
-> -- 
-> Dmitry
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/wacom_sys.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 773fa11..033cc03 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -240,6 +240,30 @@ static void wacom_usage_mapping(struct hid_device *hdev,
+ 			features->touch_max = 1;
+ 	}
+ 
++	/*
++	 * ISDv4 devices which predate HID's adoption of the
++	 * HID_DG_BARELSWITCH2 usage use 0x000D0000 in its
++	 * position instead. We can accurately detect if a
++	 * usage with that value should be HID_DG_BARRELSWITCH2
++	 * based on the surrounding usages, which have remained
++	 * constant across generations.
++	 */
++	if (features->type == HID_GENERIC &&
++	    usage->hid == 0x000D0000 &&
++	    field->application == HID_DG_PEN &&
++	    field->physical == HID_DG_STYLUS) {
++		int i = usage->usage_index;
++
++		if (i-4 >= 0 && i+1 < field->maxusage &&
++		    field->usage[i-4].hid == HID_DG_TIPSWITCH &&
++		    field->usage[i-3].hid == HID_DG_BARRELSWITCH &&
++		    field->usage[i-2].hid == HID_DG_ERASER &&
++		    field->usage[i-1].hid == HID_DG_INVERT &&
++		    field->usage[i+1].hid == HID_DG_INRANGE) {
++			usage->hid = HID_DG_BARRELSWITCH2;
++		}
++	}
++
+ 	switch (usage->hid) {
+ 	case HID_GD_X:
+ 		features->x_max = field->logical_maximum;
 -- 
-Dmitry
+2.10.0
+

@@ -1,75 +1,91 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v3 04/18] HID: wacom: Detect and correct descriptors missing HID_DG_BARRELSWITCH2
-Date: Wed, 19 Oct 2016 18:03:40 -0700
-Message-ID: <20161020010354.4049-4-killertofu@gmail.com>
+Subject: [PATCH v3 03/18] HID: wacom: Refactor button-to-key translation into function
+Date: Wed, 19 Oct 2016 18:03:39 -0700
+Message-ID: <20161020010354.4049-3-killertofu@gmail.com>
 References: <20161006212231.31440-1-killertofu@gmail.com>
  <20161020010354.4049-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:36490 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753662AbcJTBES (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:33787 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753662AbcJTBEN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 19 Oct 2016 21:04:18 -0400
-Received: by mail-pf0-f196.google.com with SMTP id r16so3825168pfg.3
-        for <linux-input@vger.kernel.org>; Wed, 19 Oct 2016 18:04:17 -0700 (PDT)
+        Wed, 19 Oct 2016 21:04:13 -0400
+Received: by mail-pf0-f193.google.com with SMTP id i85so3838973pfa.0
+        for <linux-input@vger.kernel.org>; Wed, 19 Oct 2016 18:04:13 -0700 (PDT)
 In-Reply-To: <20161020010354.4049-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Jason Gerecke <killertofu@gmail.com>
 
-ISDv4 devices have long supported reporting data from each of two barrel
-switches, but HID_DG_BARRELSWITCH2 itself was only recently standardized.
-Prior to its adoption, ISDv4 devices would associate the bit indicating
-the state of the second barrel switch with the "Undefined" 0x000D0000
-usage. Although most such devices have explicit support, a few use the
-HID_GENERIC codepath which ignores the "Undefined" usage.
-
-This patch adds code which detects the presence of a pre-standard second
-barrel switch and corrects the usage value so that the HID_GENERIC code
-will declare its presence and report its state.
+This just centralizes the logic used in both wacom_setup_numbered_buttons
+and wacom_report_numbered_buttons so that they don't drift out of sync.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom_sys.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/hid/wacom_wac.c | 36 ++++++++++++++++++++++++------------
+ 1 file changed, 24 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 773fa11..033cc03 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -240,6 +240,30 @@ static void wacom_usage_mapping(struct hid_device *hdev,
- 			features->touch_max = 1;
- 	}
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 3038954..8071c18 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2769,17 +2769,29 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 	return 0;
+ }
  
-+	/*
-+	 * ISDv4 devices which predate HID's adoption of the
-+	 * HID_DG_BARELSWITCH2 usage use 0x000D0000 in its
-+	 * position instead. We can accurately detect if a
-+	 * usage with that value should be HID_DG_BARRELSWITCH2
-+	 * based on the surrounding usages, which have remained
-+	 * constant across generations.
-+	 */
-+	if (features->type == HID_GENERIC &&
-+	    usage->hid == 0x000D0000 &&
-+	    field->application == HID_DG_PEN &&
-+	    field->physical == HID_DG_STYLUS) {
-+		int i = usage->usage_index;
++static int wacom_numbered_button_to_key(int n)
++{
++	if (n < 10)
++		return BTN_0 + n;
++	else if (n < 16)
++		return BTN_A + (n-10);
++	else if (n < 18)
++		return BTN_BASE + (n-16);
++	else
++		return 0;
++}
 +
-+		if (i-4 >= 0 && i+1 < field->maxusage &&
-+		    field->usage[i-4].hid == HID_DG_TIPSWITCH &&
-+		    field->usage[i-3].hid == HID_DG_BARRELSWITCH &&
-+		    field->usage[i-2].hid == HID_DG_ERASER &&
-+		    field->usage[i-1].hid == HID_DG_INVERT &&
-+		    field->usage[i+1].hid == HID_DG_INRANGE) {
-+			usage->hid = HID_DG_BARRELSWITCH2;
-+		}
+ static void wacom_setup_numbered_buttons(struct input_dev *input_dev,
+ 				int button_count)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < button_count && i < 10; i++)
+-		__set_bit(BTN_0 + i, input_dev->keybit);
+-	for (i = 10; i < button_count && i < 16; i++)
+-		__set_bit(BTN_A + (i-10), input_dev->keybit);
+-	for (i = 16; i < button_count && i < 18; i++)
+-		__set_bit(BTN_BASE + (i-16), input_dev->keybit);
++	for (i = 0; i < button_count; i++) {
++		int key = wacom_numbered_button_to_key(i);
++
++		if (key)
++			__set_bit(key, input_dev->keybit);
 +	}
+ }
+ 
+ static void wacom_24hd_update_leds(struct wacom *wacom, int mask, int group)
+@@ -2881,12 +2893,12 @@ static void wacom_report_numbered_buttons(struct input_dev *input_dev,
+ 	for (i = 0; i < wacom->led.count; i++)
+ 		wacom_update_led(wacom,  button_count, mask, i);
+ 
+-	for (i = 0; i < button_count && i < 10; i++)
+-		input_report_key(input_dev, BTN_0 + i, mask & (1 << i));
+-	for (i = 10; i < button_count && i < 16; i++)
+-		input_report_key(input_dev, BTN_A + (i-10), mask & (1 << i));
+-	for (i = 16; i < button_count && i < 18; i++)
+-		input_report_key(input_dev, BTN_BASE + (i-16), mask & (1 << i));
++	for (i = 0; i < button_count; i++) {
++		int key = wacom_numbered_button_to_key(i);
 +
- 	switch (usage->hid) {
- 	case HID_GD_X:
- 		features->x_max = field->logical_maximum;
++		if (key)
++			input_report_key(input_dev, key, mask & (1 << i));
++	}
+ }
+ 
+ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
 -- 
 2.10.0
 

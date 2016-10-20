@@ -1,141 +1,183 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v3 11/18] HID: wacom: Read and internally use corrected Intuos tool IDs
-Date: Wed, 19 Oct 2016 18:03:47 -0700
-Message-ID: <20161020010354.4049-11-killertofu@gmail.com>
+Subject: [PATCH v3 12/18] HID: wacom: generic: Support tool ID and additional tool types
+Date: Wed, 19 Oct 2016 18:03:48 -0700
+Message-ID: <20161020010354.4049-12-killertofu@gmail.com>
 References: <20161006212231.31440-1-killertofu@gmail.com>
  <20161020010354.4049-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:36631 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755083AbcJTBEv (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:35470 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755083AbcJTBEz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 19 Oct 2016 21:04:51 -0400
-Received: by mail-pf0-f194.google.com with SMTP id r16so3826154pfg.3
-        for <linux-input@vger.kernel.org>; Wed, 19 Oct 2016 18:04:50 -0700 (PDT)
+        Wed, 19 Oct 2016 21:04:55 -0400
+Received: by mail-pf0-f195.google.com with SMTP id s8so3834691pfj.2
+        for <linux-input@vger.kernel.org>; Wed, 19 Oct 2016 18:04:55 -0700 (PDT)
 In-Reply-To: <20161020010354.4049-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Jason Gerecke <killertofu@gmail.com>
 
-The 'wacom_intuos_inout' function incorrectly assmebles tool IDs from the
-proximity report, shifting the higher values of the ID four bits farther
-than intended. This problem was not detected until too late, but has not
-caused any issues since the incorrect IDs still fit in a 32-bit integer
-and userspace programs have not required the value to match the hardware
-(just that the values are unique and constant).
-
-The tool IDs reported by the new MobileStudio Pro (or any future
-HID_GENERIC device that supports them) do not suffer from the same
-assembly issue, however. In order for 'wacom_intuos_get_tool_type' to
-work for with both codepaths, we correct this issue internally and
-have 'wacom_intuos_general' only mangle the ID when it is posted to
-userspace.
+Devices following the new Custom HID mode specification (as well as even
+some recent component sensors which use the same standard HID usage)
+are capable of reporting tool ID information that we need to relay to
+userspace. This patch adds support for reading and relaying the tool
+type information, which is (unfortunately) split across two usages.
+We also advertise the existence of tool types beyond BTN_TOOL_PEN
+that might be available.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/wacom_wac.c | 38 ++++++++++++++++++++++----------------
- 1 file changed, 22 insertions(+), 16 deletions(-)
+ drivers/hid/wacom_wac.c | 72 ++++++++++++++++++++++++++++++++++++++++++++++---
+ drivers/hid/wacom_wac.h |  4 ++-
+ 2 files changed, 71 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index c0d75ae..df9d866 100644
+index df9d866..85e1ad1 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -588,6 +588,11 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
- 	return 1;
- }
- 
-+static int wacom_intuos_id_mangle(int tool_id)
-+{
-+	return (tool_id & ~0xFFF) << 4 | (tool_id & 0xFFF);
-+}
-+
- static int wacom_intuos_get_tool_type(int tool_id)
- {
- 	int tool_type;
-@@ -595,7 +600,7 @@ static int wacom_intuos_get_tool_type(int tool_id)
- 	switch (tool_id) {
- 	case 0x812: /* Inking pen */
- 	case 0x801: /* Intuos3 Inking pen */
--	case 0x120802: /* Intuos4/5 Inking Pen */
-+	case 0x12802: /* Intuos4/5 Inking Pen */
- 	case 0x012:
- 		tool_type = BTN_TOOL_PENCIL;
+@@ -1450,6 +1450,8 @@ static int wacom_equivalent_usage(int usage)
+ 		if (subpage == WACOM_HID_SP_DIGITIZER ||
+ 		    subpage == WACOM_HID_SP_DIGITIZERINFO ||
+ 		    usage == WACOM_HID_WD_SENSE ||
++		    usage == WACOM_HID_WD_SERIALHI ||
++		    usage == WACOM_HID_WD_TOOLTYPE ||
+ 		    usage == WACOM_HID_WD_DISTANCE) {
+ 			return usage;
+ 		}
+@@ -1551,6 +1553,17 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ 		features->quirks |= WACOM_QUIRK_SENSE;
+ 		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
  		break;
-@@ -610,11 +615,11 @@ static int wacom_intuos_get_tool_type(int tool_id)
- 	case 0x804: /* Intuos4/5 13HD/24HD Marker Pen */
- 	case 0x8e2: /* IntuosHT2 pen */
- 	case 0x022:
--	case 0x100804: /* Intuos4/5 13HD/24HD Art Pen */
--	case 0x140802: /* Intuos4/5 13HD/24HD Classic Pen */
--	case 0x160802: /* Cintiq 13HD Pro Pen */
--	case 0x180802: /* DTH2242 Pen */
--	case 0x100802: /* Intuos4/5 13HD/24HD General Pen */
-+	case 0x10804: /* Intuos4/5 13HD/24HD Art Pen */
-+	case 0x14802: /* Intuos4/5 13HD/24HD Classic Pen */
-+	case 0x16802: /* Cintiq 13HD Pro Pen */
-+	case 0x18802: /* DTH2242 Pen */
-+	case 0x10802: /* Intuos4/5 13HD/24HD General Pen */
- 		tool_type = BTN_TOOL_PEN;
++	case WACOM_HID_WD_SERIALHI:
++		wacom_map_usage(input, usage, field, EV_ABS, ABS_MISC, 0);
++		set_bit(EV_KEY, input->evbit);
++		input_set_capability(input, EV_KEY, BTN_TOOL_PEN);
++		input_set_capability(input, EV_KEY, BTN_TOOL_RUBBER);
++		input_set_capability(input, EV_KEY, BTN_TOOL_BRUSH);
++		input_set_capability(input, EV_KEY, BTN_TOOL_PENCIL);
++		input_set_capability(input, EV_KEY, BTN_TOOL_AIRBRUSH);
++		input_set_capability(input, EV_KEY, BTN_TOOL_MOUSE);
++		input_set_capability(input, EV_KEY, BTN_TOOL_LENS);
++		break;
+ 	case WACOM_HID_WD_FINGERWHEEL:
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_WHEEL, 0);
  		break;
- 
-@@ -648,12 +653,12 @@ static int wacom_intuos_get_tool_type(int tool_id)
- 	case 0x80c: /* Intuos4/5 13HD/24HD Marker Pen Eraser */
- 	case 0x80a: /* Intuos4/5 13HD/24HD General Pen Eraser */
- 	case 0x90a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
--	case 0x14080a: /* Intuos4/5 13HD/24HD Classic Pen Eraser */
--	case 0x10090a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
--	case 0x10080c: /* Intuos4/5 13HD/24HD Art Pen Eraser */
--	case 0x16080a: /* Cintiq 13HD Pro Pen Eraser */
--	case 0x18080a: /* DTH2242 Eraser */
--	case 0x10080a: /* Intuos4/5 13HD/24HD General Pen Eraser */
-+	case 0x1480a: /* Intuos4/5 13HD/24HD Classic Pen Eraser */
-+	case 0x1090a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
-+	case 0x1080c: /* Intuos4/5 13HD/24HD Art Pen Eraser */
-+	case 0x1680a: /* Cintiq 13HD Pro Pen Eraser */
-+	case 0x1880a: /* DTH2242 Eraser */
-+	case 0x1080a: /* Intuos4/5 13HD/24HD General Pen Eraser */
- 		tool_type = BTN_TOOL_RUBBER;
- 		break;
- 
-@@ -662,7 +667,7 @@ static int wacom_intuos_get_tool_type(int tool_id)
- 	case 0x112:
- 	case 0x913: /* Intuos3 Airbrush */
- 	case 0x902: /* Intuos4/5 13HD/24HD Airbrush */
--	case 0x100902: /* Intuos4/5 13HD/24HD Airbrush */
-+	case 0x10902: /* Intuos4/5 13HD/24HD Airbrush */
- 		tool_type = BTN_TOOL_AIRBRUSH;
- 		break;
- 
-@@ -693,7 +698,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 			(data[6] << 4) + (data[7] >> 4);
- 
- 		wacom->id[idx] = (data[2] << 4) | (data[3] >> 4) |
--			((data[7] & 0x0f) << 20) | ((data[8] & 0xf0) << 12);
-+		     ((data[7] & 0x0f) << 16) | ((data[8] & 0xf0) << 8);
- 
- 		wacom->tool[idx] = wacom_intuos_get_tool_type(wacom->id[idx]);
- 
-@@ -923,7 +928,7 @@ static int wacom_intuos_general(struct wacom_wac *wacom)
- 	 * don't report events for invalid data
- 	 */
- 	/* older I4 styli don't work with new Cintiqs */
--	if ((!((wacom->id[idx] >> 20) & 0x01) &&
-+	if ((!((wacom->id[idx] >> 16) & 0x01) &&
- 			(features->type == WACOM_21UX2)) ||
- 	    /* Only large Intuos support Lense Cursor */
- 	    (wacom->tool[idx] == BTN_TOOL_LENS &&
-@@ -1059,7 +1064,8 @@ static int wacom_intuos_general(struct wacom_wac *wacom)
- 		break;
+@@ -1587,9 +1600,35 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
+ 	case HID_DG_TIPSWITCH:
+ 		wacom_wac->hid_data.tipswitch |= value;
+ 		return 0;
++	case HID_DG_TOOLSERIALNUMBER:
++		wacom_wac->serial[0] = (wacom_wac->serial[0] & ~0xFFFFFFFF);
++		wacom_wac->serial[0] |= value;
++		return 0;
+ 	case WACOM_HID_WD_SENSE:
+ 		wacom_wac->hid_data.sense_state = value;
+ 		return 0;
++	case WACOM_HID_WD_SERIALHI:
++		wacom_wac->serial[0] = (wacom_wac->serial[0] & 0xFFFFFFFF);
++		wacom_wac->serial[0] |= ((__u64)value) << 32;
++		/*
++		 * Non-USI EMR devices may contain additional tool type
++		 * information here. See WACOM_HID_WD_TOOLTYPE case for
++		 * more details.
++		 */
++		if (value >> 20 == 1) {
++			wacom_wac->id[0] |= value & 0xFFFFF;
++		}
++		return 0;
++	case WACOM_HID_WD_TOOLTYPE:
++		/*
++		 * Some devices (MobileStudio Pro, and possibly later
++		 * devices as well) do not return the complete tool
++		 * type in their WACOM_HID_WD_TOOLTYPE usage. Use a
++		 * bitwise OR so the complete value can be built
++		 * up over time :(
++		 */
++		wacom_wac->id[0] |= value;
++		return 0;
  	}
  
--	input_report_abs(input, ABS_MISC, wacom->id[idx]); /* report tool id */
-+	input_report_abs(input, ABS_MISC,
-+			 wacom_intuos_id_mangle(wacom->id[idx])); /* report tool id */
- 	input_report_key(input, wacom->tool[idx], 1);
- 	input_event(input, EV_MSC, MSC_SERIAL, wacom->serial[idx]);
- 	wacom->reporting_data = true;
+ 	/* send pen events only when touch is up or forced out
+@@ -1622,26 +1661,51 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
+ 	bool prox = wacom_wac->hid_data.inrange_state;
+ 	bool range = wacom_wac->hid_data.sense_state;
+ 
+-	if (!wacom_wac->tool[0] && prox) /* first in prox */
++	if (!wacom_wac->tool[0] && prox) { /* first in prox */
+ 		/* Going into proximity select tool */
+-		wacom_wac->tool[0] = wacom_wac->hid_data.invert_state ?
+-						BTN_TOOL_RUBBER : BTN_TOOL_PEN;
++		if (wacom_wac->hid_data.invert_state)
++			wacom_wac->tool[0] = BTN_TOOL_RUBBER;
++		else if (wacom_wac->id[0])
++			wacom_wac->tool[0] = wacom_intuos_get_tool_type(wacom_wac->id[0]);
++		else
++			wacom_wac->tool[0] = BTN_TOOL_PEN;
++	}
+ 
+ 	/* keep pen state for touch events */
+ 	wacom_wac->shared->stylus_in_proximity = range;
+ 
+ 	if (!delay_pen_events(wacom_wac) && wacom_wac->tool[0]) {
++		int id = wacom_wac->id[0];
++
++		/*
++		 * Non-USI EMR tools should have their IDs mangled to
++		 * match the legacy behavior of wacom_intuos_general
++		 */
++		if (wacom_wac->serial[0] >> 52 == 1)
++			id = wacom_intuos_id_mangle(id);
++
++		/*
++		 * To ensure compatibility with xf86-input-wacom, we should
++		 * report the BTN_TOOL_* event prior to the ABS_MISC or
++		 * MSC_SERIAL events.
++		 */
+ 		input_report_key(input, BTN_TOUCH,
+ 				wacom_wac->hid_data.tipswitch);
+ 		input_report_key(input, wacom_wac->tool[0], prox);
++		if (wacom_wac->serial[0]) {
++			input_event(input, EV_MSC, MSC_SERIAL, wacom_wac->serial[0]);
++			input_report_abs(input, ABS_MISC, id);
++		}
+ 
+ 		wacom_wac->hid_data.tipswitch = false;
+ 
+ 		input_sync(input);
+ 	}
+ 
+-	if (!prox)
++	if (!prox) {
+ 		wacom_wac->tool[0] = 0;
++		wacom_wac->id[0] = 0;
++	}
+ }
+ 
+ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index c27b7b4..83ddb2a0 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -90,6 +90,8 @@
+ #define WACOM_HID_SP_DIGITIZERINFO      0x00100000
+ #define WACOM_HID_WD_DIGITIZER          (WACOM_HID_UP_WACOMDIGITIZER | 0x01)
+ #define WACOM_HID_WD_SENSE              (WACOM_HID_UP_WACOMDIGITIZER | 0x36)
++#define WACOM_HID_WD_SERIALHI           (WACOM_HID_UP_WACOMDIGITIZER | 0x5c)
++#define WACOM_HID_WD_TOOLTYPE           (WACOM_HID_UP_WACOMDIGITIZER | 0x77)
+ #define WACOM_HID_WD_DISTANCE           (WACOM_HID_UP_WACOMDIGITIZER | 0x0132)
+ #define WACOM_HID_WD_FINGERWHEEL        (WACOM_HID_UP_WACOMDIGITIZER | 0x0d03)
+ #define WACOM_HID_WD_DATAMODE           (WACOM_HID_UP_WACOMDIGITIZER | 0x1002)
+@@ -247,7 +249,7 @@ struct wacom_wac {
+ 	unsigned char data[WACOM_PKGLEN_MAX];
+ 	int tool[2];
+ 	int id[2];
+-	__u32 serial[2];
++	__u64 serial[2];
+ 	bool reporting_data;
+ 	struct wacom_features features;
+ 	struct wacom_shared *shared;
 -- 
 2.10.0
 

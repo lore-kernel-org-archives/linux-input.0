@@ -1,128 +1,94 @@
-From: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 4/4] Input: goodix - Support interchanging x and y coordinates in hardware
-Date: Thu, 20 Oct 2016 14:59:17 -0500
-Message-ID: <20161020195917.20051-5-fcooper@ti.com>
+From: Franklin S Cooper Jr <fcooper@ti.com>
+Subject: [PATCH 3/4] Input: goodix - Tweak configuration to use passed in touchscreen resolution
+Date: Thu, 20 Oct 2016 14:59:16 -0500
+Message-ID: <20161020195917.20051-4-fcooper@ti.com>
 References: <20161020195917.20051-1-fcooper@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20161020195917.20051-1-fcooper-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org, octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, merker-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, nm-l0cyMroinI0@public.gmane.org
-Cc: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20161020195917.20051-1-fcooper@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, hadess@hadess.net, octavian.purdila@intel.com, irina.tirdea@intel.com, merker@debian.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, nsekhar@ti.com, nm@ti.com
+Cc: Franklin S Cooper Jr <fcooper@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-On systems with a fixed display/touchscreen orientation it is important to
-pass in the "correct" x and y coordinates based on the orientation.
-Currently, to support landscape and portrait touchscreen-swapped-x-y
-simply does the following:
+Some goodix touchscreen controllers aren't programed properly to match the
+display panel it is used on. Although the defaults may largely work it is
+also likely that the screen resolution will be incorrect. Therefore,
+add support to allow via DT for the touchscreen resolution to be set and
+reprogram the controller to use this updated resolution.
 
-Assuming touchscreen is as follows:
-X: 1280 Y:800 programmed in touchscreen controller and also interchange
-bit cleared. Assuming ts mounted in portrait mode.
-
-1280 (X)
-------
-|    |
-|    | 800 (Y)
-|    |
-|    |
-------
-
-800 (Y)
-------
-|    |
-|    | 1280 (X)
-|    |
-|    |
-------
-
-However, the above isn't really what we want especially in distros that
-assumes a fixed orientation. In this case what we really want is to
-interchange the x and y coordinates so the Y coordinate can return a max
-value of 1280 and X can return a max value of 800.
-
-800 (X)
-------
-|    |
-|    | 1280 (Y)
-|    |
-|    |
-------
-
-Since the driver is limited to the value reported by the touchscreen
-controller this issue can't be fixed purely in the driver. Therefore,
-add a new DT property that supports interchanging X and Y coordinates
-internally within the hardware.
-
-Signed-off-by: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
 ---
- .../devicetree/bindings/input/touchscreen/goodix.txt        |  2 ++
- drivers/input/touchscreen/goodix.c                          | 13 +++++++++++++
- 2 files changed, 15 insertions(+)
+ .../bindings/input/touchscreen/goodix.txt          |  2 ++
+ drivers/input/touchscreen/goodix.c                 | 26 +++++++++++++++++++++-
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-index ebc7cb7..b8be2ab 100644
+index c98757a..ebc7cb7 100644
 --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
 +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-@@ -25,6 +25,8 @@ Optional properties:
+@@ -19,6 +19,8 @@ Optional properties:
+ 			  interrupt gpio pin as output to reset the device.
+  - reset-gpios		: GPIO pin used for reset
+ 
++ - touchscreen-size-x      : horizontal resolution of touchscreen (in pixels)
++ - touchscreen-size-y      : vertical resolution of touchscreen (in pixels)
+  - touchscreen-inverted-x  : X axis is inverted (boolean)
   - touchscreen-inverted-y  : Y axis is inverted (boolean)
   - touchscreen-swapped-x-y : X and Y axis are swapped (boolean)
-                              (swapping is done after inverting the axis)
-+ - touchscreen-inter-x-y   : X and Y maximum values programmed in the device
-+                             are interchanged internally in hardware. (boolean)
- 
- Example:
- 
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index c2428e1..3f93375 100644
+index 01e12f8..c2428e1 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -39,6 +39,7 @@ struct goodix_ts_data {
- 	bool swapped_x_y;
- 	bool inverted_x;
- 	bool inverted_y;
-+	bool interchange_x_y;
- 	unsigned int max_touch_num;
- 	unsigned int int_trigger_type;
- 	int cfg_len;
-@@ -76,6 +77,9 @@ struct goodix_ts_data {
- #define MAX_CONTACTS_LOC	5
- #define TRIGGER_LOC		6
+@@ -496,6 +496,10 @@ static void goodix_tweak_config(struct goodix_ts_data *ts)
+ 		return;
+ 	}
  
-+/* Register Bits */
-+#define XY_COORD_INTER		3
-+
- static const unsigned long goodix_irq_flags[] = {
- 	IRQ_TYPE_EDGE_RISING,
- 	IRQ_TYPE_EDGE_FALLING,
-@@ -500,6 +504,10 @@ static void goodix_tweak_config(struct goodix_ts_data *ts)
- 	put_unaligned_le16(ts->abs_x_max, &config[RESOLUTION_LOC]);
- 	put_unaligned_le16(ts->abs_y_max, &config[RESOLUTION_LOC + 2]);
- 
-+	if (ts->interchange_x_y)
-+		config[TRIGGER_LOC] = config[TRIGGER_LOC] |
-+				      (1 << XY_COORD_INTER);
++	/* Setting X and Y Resolution */
++	put_unaligned_le16(ts->abs_x_max, &config[RESOLUTION_LOC]);
++	put_unaligned_le16(ts->abs_y_max, &config[RESOLUTION_LOC + 2]);
 +
  	check_sum = goodix_calculate_checksum(ts->cfg_len, config);
  
  	config[raw_cfg_len] = check_sum;
-@@ -700,6 +708,11 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
- 		}
- 	}
+@@ -669,6 +673,8 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts)
+ static int goodix_configure_dev(struct goodix_ts_data *ts)
+ {
+ 	int error;
++	bool alter_config = false;
++	u32 max_x, max_y;
  
-+	ts->interchange_x_y = device_property_read_bool(&ts->client->dev,
-+						    "touchscreen-inter-x-y");
-+	if (ts->interchange_x_y)
-+		alter_config = true;
+ 	ts->swapped_x_y = device_property_read_bool(&ts->client->dev,
+ 						    "touchscreen-swapped-x-y");
+@@ -676,9 +682,27 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
+ 						   "touchscreen-inverted-x");
+ 	ts->inverted_y = device_property_read_bool(&ts->client->dev,
+ 						   "touchscreen-inverted-y");
+-
+ 	goodix_read_config(ts);
+ 
++	if (device_property_present(&ts->client->dev, "touchscreen-size-x") &&
++	    device_property_present(&ts->client->dev, "touchscreen-size-y")) {
 +
- 	if (alter_config)
- 		goodix_tweak_config(ts);
- 
++		device_property_read_u32(&ts->client->dev, "touchscreen-size-x",
++				&max_x);
++
++		device_property_read_u32(&ts->client->dev, "touchscreen-size-y",
++				&max_y);
++
++		if (max_x > 0 && max_y > 0) {
++			ts->abs_x_max = max_x;
++			ts->abs_y_max = max_y;
++			alter_config = true;
++		}
++	}
++
++	if (alter_config)
++		goodix_tweak_config(ts);
++
+ 	error = goodix_request_input_dev(ts);
+ 	if (error)
+ 		return error;
 -- 
 2.10.0
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

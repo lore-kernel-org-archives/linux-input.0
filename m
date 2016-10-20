@@ -1,46 +1,71 @@
-From: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 0/4] Input: goodix - Support dynamic reconfiguration
-Date: Thu, 20 Oct 2016 14:59:13 -0500
-Message-ID: <20161020195917.20051-1-fcooper@ti.com>
+From: Franklin S Cooper Jr <fcooper@ti.com>
+Subject: [PATCH 2/4] Input: goodix - Allow tweaking of configuration file dynamically
+Date: Thu, 20 Oct 2016 14:59:15 -0500
+Message-ID: <20161020195917.20051-3-fcooper@ti.com>
+References: <20161020195917.20051-1-fcooper@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org, octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, merker-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, nm-l0cyMroinI0@public.gmane.org
-Cc: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20161020195917.20051-1-fcooper@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, hadess@hadess.net, octavian.purdila@intel.com, irina.tirdea@intel.com, merker@debian.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, nsekhar@ti.com, nm@ti.com
+Cc: Franklin S Cooper Jr <fcooper@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-Goodix touchscreen controller supports the ability to update its settings
-at runtime. Currently, the driver supports this by loading a firmware
-and reconfiguring the panel. However, this may lead to a large quantity
-of firmwares being created and managed. This is a hassle since likely a
-preexisting firmware or even the default configuration is good enough and
-only a couple of changes need to be made.
+Some goodix touchscreen controllers don't have the correct configuration
+firmware for the display panel it is attached to. Therefore, settings such
+as touchscreen x and y size may need to be passed in via DT and have the
+panel reprogrammed for the updated touchscreen resolution.
 
-This patchset adds the capability to dynamically alter the firmware
-utilizing several new DT properties.
+This patchset adds support for reading the current configuration firmware
+on the panel and allowing it to be modified and rewritten back to the
+device.
 
-These new properties will allow a user to specify the touchscreen
-resolution and also allow x and y coordinates to be interchanged. All of
-this configuration changes are done dynamically by the driver and can work
-using the default touchscreen controller configuration or even on top of
-a firmware that was loaded.
+Currently this function is unused but later patches will make use of it.
 
-Franklin S Cooper Jr (4):
-  Input: goodix - Restructure cfg checksum function
-  Input: goodix - Allow tweaking of configuration file dynamically
-  Input: goodix - Tweak configuration to use passed in touchscreen
-    resolution
-  Input: goodix - Support interchanging x and y coordinates in hardware
+Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
+---
+ drivers/input/touchscreen/goodix.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
- .../bindings/input/touchscreen/goodix.txt          |   4 +
- drivers/input/touchscreen/goodix.c                 | 109 +++++++++++++++++----
- 2 files changed, 96 insertions(+), 17 deletions(-)
-
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index a43c8ca..01e12f8 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -478,6 +478,34 @@ static int goodix_get_gpio_config(struct goodix_ts_data *ts)
+ 	return 0;
+ }
+ 
++static void goodix_tweak_config(struct goodix_ts_data *ts)
++{
++	u8 config[GOODIX_CONFIG_MAX_LENGTH];
++	int error;
++	int raw_cfg_len;
++	u8 check_sum = 0;
++
++	raw_cfg_len = ts->cfg_len - 2;
++
++	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
++				config, ts->cfg_len);
++	if (error) {
++		dev_warn(&ts->client->dev,
++			 "Error reading config (%d), avoid tweaking config\n",
++			 error);
++		return;
++	}
++
++	check_sum = goodix_calculate_checksum(ts->cfg_len, config);
++
++	config[raw_cfg_len] = check_sum;
++	config[raw_cfg_len + 1] = 1;
++
++	error = goodix_send_cfg(ts, ts->cfg_len, config);
++	if (error)
++		dev_warn(&ts->client->dev,
++			 "Error writing config (%d)\n", error);
++}
+ /**
+  * goodix_read_config - Read the embedded configuration of the panel
+  *
 -- 
 2.10.0
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

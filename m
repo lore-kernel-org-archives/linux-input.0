@@ -1,102 +1,131 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [-next, 1/2] Input: synaptics-rmi4 - add support for F55 sensor
- tuning
-Date: Fri, 21 Oct 2016 15:03:24 -0700
-Message-ID: <20161021220324.GA3269@roeck-us.net>
-References: <1475292168-20961-1-git-send-email-linux@roeck-us.net>
- <20161017213008.GA20263@roeck-us.net>
- <20161020225107.GA13204@lava.h.shmanahar.org>
- <1477006119.5714.46.camel@synaptics.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [1/2] Input: melfas_mip4 - add product_id sysfs attribute
+Date: Fri, 21 Oct 2016 15:31:31 -0700
+Message-ID: <20161021223131.GA1350@dtor-ws>
+References: <1477046929-9337-1-git-send-email-jeesw@melfas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:59362 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933808AbcJUWEH (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:36073 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751839AbcJUWbe (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Oct 2016 18:04:07 -0400
+        Fri, 21 Oct 2016 18:31:34 -0400
+Received: by mail-pf0-f195.google.com with SMTP id r16so9686917pfg.3
+        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2016 15:31:34 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1477006119.5714.46.camel@synaptics.com>
+In-Reply-To: <1477046929-9337-1-git-send-email-jeesw@melfas.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Healy <cphealy@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Hans Verkuil <hans.verkuil@cisco.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Sangwon Jee <jeesw@melfas.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Oct 20, 2016 at 04:28:39PM -0700, Christopher Heiny wrote:
-> On Thu, 2016-10-20 at 23:51 +0100, Nick Dyer wrote:
-> > On Mon, Oct 17, 2016 at 02:30:08PM -0700, Guenter Roeck wrote:
-> > > 
-> > > On Fri, Sep 30, 2016 at 08:22:47PM -0700, Guenter Roeck wrote:
-> > > > 
-> > > > Sensor tuning support is needed to determine the number of
-> > > > enabled
-> > > > tx and rx electrodes for use in F54 functions.
-> > > > 
-> > > > The number of enabled electrodes is not identical to the total
-> > > > number
-> > > > of electrodes as reported with F55:Query0 and F55:Query1. It has
-> > > > to be
-> > > > calculated by analyzing F55:Ctrl1 (sensor receiver assignment)
-> > > > and
-> > > > F55:Ctrl2 (sensor transmitter assignment).
-> > > > 
-> > > > Support for additional sensor tuning functions may be added
-> > > > later.
-> > > > 
-> > > > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> > > 
-> > > Ping ... any comments on this patch and on
-> > > https://patchwork.kernel.org/patch/9359061/ ?
-> > > 
-> > > Both patches now apply to mainline.
-> > > 
-> > > Thanks,
-> > > Guenter
-> > 
-> > Hi Guenter-
-> > 
-> > I've reviewed and tested (on S7300 and S7813) both these patches now
-> > - you can add my sign-off.
-> > 
-> > However, on the S7813 firmware, F55 is on PDT page 3, and nothing
-> > on page 2, so the default behaviour of the mainline driver means it
-> > is
-> > not initialised.
-> > 
-> > So I think we need to revert this change in mainline:
-> > https://patchwork.kernel.org/patch/3796971/
-> > 
-> > See below the PDT scan with it reverted and some debug added.
-> > 
-> > Christopher/Andrew: is there a better heuristic than scanning all 255
-> > pages, given that some firmwares contain gaps?
+On Fri, Oct 21, 2016 at 07:48:49PM +0900, Sangwon Jee wrote:
+> Add product_id sysfs attribute and update protocol version to support it.
 > 
-> It's difficult to say.  It is against the RMI4 spec for there to be
-> gaps in the pages - you're supposed to be able to scan until you hit a
-> page with an empty PDT, and then stop.
+> Signed-off-by: Sangwon Jee <jeesw@melfas.com>
+
+Applied, thank you.
+
+> ---
+>  drivers/input/touchscreen/melfas_mip4.c | 40 +++++++++++++++++++++++++++++++--
+>  1 file changed, 38 insertions(+), 2 deletions(-)
 > 
-> Since F55 is hardcoded to page 3 for this firmware, it may be a
-> customer specific deviation.  This may have been done to accommodate a
-> customer-written driver that did not scan the PDT, but instead always
-> looked for F55 on page 3.  This idea is supported by the existence of
-> the F51 custom function on page 4, since F51 almost always requires
-> customer driver code to handle it.
-> 
-> In my opinion, the Non-standard bit should have been set in the PDT to
-> indicate that special handling was required, but that wasn't done in
-> this case.
-> 
-> Anyway, given that this sort of thing has escaped into the wild, I'm
-> unsure what to advise.  Just off the top of my head, one possibility is
-> to have a "keep-going" option to scan the first 128 pages (0x00 through
-> 0x7F), regardless of whether an empty page is encountered.  This could
-> be triggered either by a product ID on the "known goofy list", or by a
-> boot/load time flag.  I'm sure there are other possibilities, though.
+> diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
+> index 552a377..8739cb7 100644
+> --- a/drivers/input/touchscreen/melfas_mip4.c
+> +++ b/drivers/input/touchscreen/melfas_mip4.c
+> @@ -33,7 +33,7 @@
+>  
+>  /*****************************************************************
+>   * Protocol
+> - * Version : MIP 4.0 Rev 4.6
+> + * Version : MIP 4.0 Rev 5.4
+>   *****************************************************************/
+>  
+>  /* Address */
+> @@ -81,6 +81,9 @@
+>  #define MIP4_R1_INFO_IC_HW_CATEGORY		0x77
+>  #define MIP4_R1_INFO_CONTACT_THD_SCR		0x78
+>  #define MIP4_R1_INFO_CONTACT_THD_KEY		0x7A
+> +#define MIP4_R1_INFO_PID				0x7C
+> +#define MIP4_R1_INFO_VID				0x7E
+> +#define MIP4_R1_INFO_SLAVE_ADDR			0x80
+>  
+>  #define MIP4_R0_EVENT				0x02
+>  #define MIP4_R1_EVENT_SUPPORTED_FUNC		0x00
+> @@ -157,6 +160,7 @@ struct mip4_ts {
+>  
+>  	char phys[32];
+>  	char product_name[16];
+> +	u16 product_id;
+>  	char ic_name[4];
+>  
+>  	unsigned int max_x;
+> @@ -264,6 +268,18 @@ static int mip4_query_device(struct mip4_ts *ts)
+>  		dev_dbg(&ts->client->dev, "product name: %.*s\n",
+>  			(int)sizeof(ts->product_name), ts->product_name);
+>  
+> +	/* Product ID */
+> +	cmd[0] = MIP4_R0_INFO;
+> +	cmd[1] = MIP4_R1_INFO_PID;
+> +	error = mip4_i2c_xfer(ts, cmd, sizeof(cmd), buf, 2);
+> +	if (error) {
+> +		dev_warn(&ts->client->dev,
+> +			 "Failed to retrieve product id: %d\n", error);
+> +	} else {
+> +		ts->product_id = get_unaligned_le16(&buf[0]);
+> +		dev_dbg(&ts->client->dev, "product id: %04X\n", ts->product_id);
+> +	}
+> +
+>  	/* IC name */
+>  	cmd[0] = MIP4_R0_INFO;
+>  	cmd[1] = MIP4_R1_INFO_IC_NAME;
+> @@ -1348,6 +1364,25 @@ static ssize_t mip4_sysfs_read_hw_version(struct device *dev,
+>  
+>  static DEVICE_ATTR(hw_version, S_IRUGO, mip4_sysfs_read_hw_version, NULL);
+>  
+> +static ssize_t mip4_sysfs_read_product_id(struct device *dev,
+> +					  struct device_attribute *attr,
+> +					  char *buf)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct mip4_ts *ts = i2c_get_clientdata(client);
+> +	size_t count;
+> +
+> +	mutex_lock(&ts->input->mutex);
+> +
+> +	count = snprintf(buf, PAGE_SIZE, "%04X\n", ts->product_id);
+> +
+> +	mutex_unlock(&ts->input->mutex);
+> +
+> +	return count;
+> +}
+> +
+> +static DEVICE_ATTR(product_id, S_IRUGO, mip4_sysfs_read_product_id, NULL);
+> +
+>  static ssize_t mip4_sysfs_read_ic_name(struct device *dev,
+>  					  struct device_attribute *attr,
+>  					  char *buf)
+> @@ -1371,6 +1406,7 @@ static DEVICE_ATTR(ic_name, S_IRUGO, mip4_sysfs_read_ic_name, NULL);
+>  static struct attribute *mip4_attrs[] = {
+>  	&dev_attr_fw_version.attr,
+>  	&dev_attr_hw_version.attr,
+> +	&dev_attr_product_id.attr,
+>  	&dev_attr_ic_name.attr,
+>  	&dev_attr_update_fw.attr,
+>  	NULL,
+> @@ -1572,6 +1608,6 @@ static struct i2c_driver mip4_driver = {
+>  module_i2c_driver(mip4_driver);
+>  
+>  MODULE_DESCRIPTION("MELFAS MIP4 Touchscreen");
+> -MODULE_VERSION("2016.09.28");
+> +MODULE_VERSION("2016.10.20");
+>  MODULE_AUTHOR("Sangwon Jee <jeesw@melfas.com>");
+>  MODULE_LICENSE("GPL");
+> -- 
+> 1.9.1
 > 
 
-Maybe introduce quirks if the problematic device and/or problematic firmware
-version can be identified ? Not sure if scanning 128 pages would be necessary,
-though - requiring two empty pages to stop scanning might be sufficient.
-
-Guenter
+-- 
+Dmitry

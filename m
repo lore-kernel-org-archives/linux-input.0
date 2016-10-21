@@ -1,46 +1,102 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH v2 4/4] hid: intel-ish-hid: request_irq failure
-Date: Fri, 21 Oct 2016 15:48:41 -0700
-Message-ID: <1477090121-41744-5-git-send-email-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v2 1/4] hid: intel-ish-hid: ipc: consolidate ish wake up operation
+Date: Fri, 21 Oct 2016 15:48:38 -0700
+Message-ID: <1477090121-41744-2-git-send-email-srinivas.pandruvada@linux.intel.com>
 References: <1477090121-41744-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:37590 "EHLO mga05.intel.com"
+Received: from mga05.intel.com ([192.55.52.43]:62344 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S934841AbcJUWs6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Oct 2016 18:48:58 -0400
+        id S1751839AbcJUWs5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 21 Oct 2016 18:48:57 -0400
 In-Reply-To: <1477090121-41744-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jikos@kernel.org
-Cc: linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: linux-input@vger.kernel.org, Even Xu <even.xu@intel.com>
 
-On some platforms ISH interrupt is shared, which causes request_irq to
-fail. This requires IRQF_SHARED irq flag.
+From: Even Xu <even.xu@intel.com>
 
-But IRQF_NO_SUSPEND and IRQF_SHARED should not be used together, so
-removed IRQF_NO_SUSPEND flag. Anyway this driver doesn't require
-IRQF_NO_SUSPEND, as this interrupt is not required during "noirq" phases
-of suspending and resuming devices as well as during the time when
-nonboot CPUs are taken offline and brought back online.
+Same operations are done in ish_hw_start() and _ish_hw_reset() to
+wakeup ISH device. Consolidate them by introducing a new function
+ish_wakeup() and move the code there.
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Even Xu <even.xu@intel.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/intel-ish-hid/ipc/pci-ish.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/intel-ish-hid/ipc/ipc.c | 45 +++++++++++++++++++++----------------
+ 1 file changed, 26 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-index 42f0bee..6fda0f9 100644
---- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-+++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-@@ -146,7 +146,7 @@ static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	pdev->dev_flags |= PCI_DEV_FLAGS_NO_D3;
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
+index e2517c1..d4c5721 100644
+--- a/drivers/hid/intel-ish-hid/ipc/ipc.c
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -638,6 +638,28 @@ irqreturn_t ish_irq_handler(int irq, void *dev_id)
+ }
  
- 	/* request and enable interrupt */
--	ret = request_irq(pdev->irq, ish_irq_handler, IRQF_NO_SUSPEND,
-+	ret = request_irq(pdev->irq, ish_irq_handler, IRQF_SHARED,
- 			  KBUILD_MODNAME, dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "ISH: request IRQ failure (%d)\n",
+ /**
++ * ish_wakeup() - wakeup ishfw from waiting-for-host state
++ * @dev: ishtp device pointer
++ *
++ * Set the dma enable bit and send a void message to FW,
++ * it wil wakeup FW from waiting-for-host state.
++ */
++static void ish_wakeup(struct ishtp_device *dev)
++{
++	/* Set dma enable bit */
++	ish_reg_write(dev, IPC_REG_ISH_RMP2, IPC_RMP2_DMA_ENABLED);
++
++	/*
++	 * Send 0 IPC message so that ISH FW wakes up if it was already
++	 * asleep.
++	 */
++	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, IPC_DRBL_BUSY_BIT);
++
++	/* Flush writes to doorbell and REMAP2 */
++	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++}
++
++/**
+  * _ish_hw_reset() - HW reset
+  * @dev: ishtp device pointer
+  *
+@@ -690,16 +712,8 @@ static int _ish_hw_reset(struct ishtp_device *dev)
+ 	csr |= PCI_D0;
+ 	pci_write_config_word(pdev, pdev->pm_cap + PCI_PM_CTRL, csr);
+ 
+-	ish_reg_write(dev, IPC_REG_ISH_RMP2, IPC_RMP2_DMA_ENABLED);
+-
+-	/*
+-	 * Send 0 IPC message so that ISH FW wakes up if it was already
+-	 * asleep
+-	 */
+-	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, IPC_DRBL_BUSY_BIT);
+-
+-	/* Flush writes to doorbell and REMAP2 */
+-	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++	/* Now we can enable ISH DMA operation and wakeup ISHFW */
++	ish_wakeup(dev);
+ 
+ 	return	0;
+ }
+@@ -758,16 +772,9 @@ static int _ish_ipc_reset(struct ishtp_device *dev)
+ int ish_hw_start(struct ishtp_device *dev)
+ {
+ 	ish_set_host_rdy(dev);
+-	/* After that we can enable ISH DMA operation */
+-	ish_reg_write(dev, IPC_REG_ISH_RMP2, IPC_RMP2_DMA_ENABLED);
+ 
+-	/*
+-	 * Send 0 IPC message so that ISH FW wakes up if it was already
+-	 * asleep
+-	 */
+-	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, IPC_DRBL_BUSY_BIT);
+-	/* Flush write to doorbell */
+-	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
++	/* After that we can enable ISH DMA operation and wakeup ISHFW */
++	ish_wakeup(dev);
+ 
+ 	set_host_ready(dev);
+ 
 -- 
 2.7.4
 

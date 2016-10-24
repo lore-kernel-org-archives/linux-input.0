@@ -1,62 +1,77 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: Re: [PATCH -resend] Input: i8042, lower log level when
- controller_init fails
-Date: Mon, 24 Oct 2016 11:05:57 +0200
-Message-ID: <f20ed893-1395-4e4b-e04f-a4e6f14a273c@suse.cz>
-References: <20161003085652.15810-1-jslaby@suse.cz>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] Input: tca8418_keypad: hide gcc-4.9 -Wmaybe-uninitialized warning
+Date: Mon, 24 Oct 2016 17:32:08 +0200
+Message-ID: <20161024153222.2738294-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20161003085652.15810-1-jslaby@suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.187]:49876 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935768AbcJXPc1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 24 Oct 2016 11:32:27 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Any updates on this?
+Older versions of gcc warn about the tca8418_irq_handler function
+as they can't keep track of the variable assignment inside of the
+loop when using the -Wmaybe-unintialized flag:
 
-On 10/03/2016, 10:56 AM, Jiri Slaby wrote:
-> There are a lot of machines without i8042 controller nowadays.
-> Sometimes i8042_controller_check returns 0 because i8042_flush does
-> nothing (read from the port returns 0 and the while loop does not
-> execute).
-> 
-> In that case, the probe method is called and fails with this error
-> output to console:
-> i8042: Can't read CTR while initializing i8042
-> i8042: probe of i8042 failed with error -5
-> 
-> Lower the former error message to be KERN_INFO and make the function
-> in that case return -ENODEV instead of -EIO. This will suppress the
-> latter.
-> 
-> There is also an IBM support page about these messages:
-> https://www-947.ibm.com/support/entry/portal/docdisplay?lndocid=migr-5082417
-> 
-> Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-> ---
->  drivers/input/serio/i8042.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-> index 405252a884dd..15c87b98d70b 100644
-> --- a/drivers/input/serio/i8042.c
-> +++ b/drivers/input/serio/i8042.c
-> @@ -950,8 +950,8 @@ static int i8042_controller_init(void)
->  			udelay(50);
->  
->  		if (i8042_command(&ctr[n++ % 2], I8042_CMD_CTL_RCTR)) {
-> -			pr_err("Can't read CTR while initializing i8042\n");
-> -			return -EIO;
-> +			pr_info("Can't read CTR while initializing i8042. Either i8042 controller is not present or it does not respond.\n");
-> +			return -ENODEV;
->  		}
->  
->  	} while (n < 2 || ctr[0] != ctr[1]);
-> 
+drivers/input/keyboard/tca8418_keypad.c: In function ‘tca8418_irq_handler’:
+drivers/input/keyboard/tca8418_keypad.c:172:9: error: ‘reg’ may be used uninitialized in this function [-Werror=maybe-uninitialized]
+drivers/input/keyboard/tca8418_keypad.c:165:5: note: ‘reg’ was declared here
 
+This is fixed in gcc-6, but it's possible to rearrange the code
+in a way that avoids the warning on older compilers as well.
 
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/input/keyboard/tca8418_keypad.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
+index 9002298698fc..3048ef3e3e16 100644
+--- a/drivers/input/keyboard/tca8418_keypad.c
++++ b/drivers/input/keyboard/tca8418_keypad.c
+@@ -164,11 +164,18 @@ static void tca8418_read_keypad(struct tca8418_keypad *keypad_data)
+ 	int error, col, row;
+ 	u8 reg, state, code;
+ 
+-	/* Initial read of the key event FIFO */
+-	error = tca8418_read_byte(keypad_data, REG_KEY_EVENT_A, &reg);
++	do {
++		error = tca8418_read_byte(keypad_data, REG_KEY_EVENT_A, &reg);
++		if (error < 0) {
++			dev_err(&keypad_data->client->dev,
++				"unable to read REG_KEY_EVENT_A\n");
++			break;
++		}
++
++		/* Assume that key code 0 signifies empty FIFO */
++		if (reg <= 0)
++			break;
+ 
+-	/* Assume that key code 0 signifies empty FIFO */
+-	while (error >= 0 && reg > 0) {
+ 		state = reg & KEY_EVENT_VALUE;
+ 		code  = reg & KEY_EVENT_CODE;
+ 
+@@ -184,11 +191,7 @@ static void tca8418_read_keypad(struct tca8418_keypad *keypad_data)
+ 
+ 		/* Read for next loop */
+ 		error = tca8418_read_byte(keypad_data, REG_KEY_EVENT_A, &reg);
+-	}
+-
+-	if (error < 0)
+-		dev_err(&keypad_data->client->dev,
+-			"unable to read REG_KEY_EVENT_A\n");
++	} while (1);
+ 
+ 	input_sync(input);
+ }
 -- 
-js
-suse labs
+2.9.0
+

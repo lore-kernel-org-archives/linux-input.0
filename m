@@ -1,12 +1,12 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v5 5/7] Input: synaptics-rmi4 - add sysfs attribute update_fw_status
-Date: Mon, 24 Oct 2016 22:51:55 +0100
-Message-ID: <1477345917-25326-6-git-send-email-nick@shmanahar.org>
+Subject: [PATCH v5 2/7] Input: synaptics-rmi4 - add a couple of debug lines
+Date: Mon, 24 Oct 2016 22:51:52 +0100
+Message-ID: <1477345917-25326-3-git-send-email-nick@shmanahar.org>
 References: <1477345917-25326-1-git-send-email-nick@shmanahar.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avasout05.plus.net ([84.93.230.250]:57326 "EHLO
-        avasout05.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S941073AbcJXVwJ (ORCPT
+Received: from avasout06.plus.net ([212.159.14.18]:36752 "EHLO
+        avasout06.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S941248AbcJXVwJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Mon, 24 Oct 2016 17:52:09 -0400
 In-Reply-To: <1477345917-25326-1-git-send-email-nick@shmanahar.org>
@@ -15,159 +15,38 @@ List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
 Cc: Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
 
-The status is the percentage complete, or once complete, zero for
-success or a negative return code.
-
 Signed-off-by: Nick Dyer <nick@shmanahar.org>
 ---
- drivers/input/rmi4/rmi_f34.c   | 34 ++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/rmi_f34.h   |  4 ++++
- drivers/input/rmi4/rmi_f34v7.c | 14 ++++++++++++++
- 3 files changed, 52 insertions(+)
+ drivers/input/rmi4/rmi_bus.c    | 3 +++
+ drivers/input/rmi4/rmi_driver.c | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
-index a4c159e..9124a1e 100644
---- a/drivers/input/rmi4/rmi_f34.c
-+++ b/drivers/input/rmi4/rmi_f34.c
-@@ -157,6 +157,9 @@ static int rmi_f34_write_blocks(struct f34_data *f34, const void *data,
- 			i + 1, block_count);
+diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+index ef8c747..3c6a1b5 100644
+--- a/drivers/input/rmi4/rmi_bus.c
++++ b/drivers/input/rmi4/rmi_bus.c
+@@ -230,6 +230,9 @@ int rmi_register_function(struct rmi_function *fn)
  
- 		data += f34->v5.block_size;
-+		f34->update_progress += f34->v5.block_size;
-+		f34->update_status = (f34->update_progress * 100) /
-+			f34->update_size;
- 	}
- 
- 	return 0;
-@@ -186,6 +189,8 @@ static int rmi_f34_flash_firmware(struct f34_data *f34,
- 	struct rmi_function *fn = f34->fn;
- 	int ret;
- 
-+	f34->update_progress = 0;
-+	f34->update_size = syn_fw->image_size + syn_fw->config_size;
- 	if (syn_fw->image_size) {
- 		dev_info(&fn->dev, "Erasing firmware...\n");
- 		ret = rmi_f34_command(f34, F34_ERASE_ALL,
-@@ -277,12 +282,24 @@ int rmi_f34_update_firmware(struct f34_data *f34, const struct firmware *fw)
- 
- 	ret = rmi_f34_flash_firmware(f34, syn_fw);
- 
-+	f34->update_status = ret;
- 	mutex_unlock(&f34->v5.flash_mutex);
- 
- out:
- 	return ret;
- }
- 
-+int rmi_f34_status(struct rmi_function *fn)
-+{
-+	struct f34_data *f34 = dev_get_drvdata(&fn->dev);
-+
-+	/*
-+	 * The status is the percentage complete, or once complete,
-+	 * zero for success or a negative return code.
-+	 */
-+	return f34->update_status;
-+}
-+
- static int rmi_firmware_update(struct rmi_driver_data *data,
- 			       const struct firmware *fw)
+ void rmi_unregister_function(struct rmi_function *fn)
  {
-@@ -401,8 +418,25 @@ static ssize_t rmi_driver_update_fw_store(struct device *dev,
- 
- static DEVICE_ATTR(update_fw, 0200, NULL, rmi_driver_update_fw_store);
- 
-+static ssize_t rmi_driver_update_fw_status_show(struct device *dev,
-+						struct device_attribute *dattr,
-+						char *buf)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	int update_status = 0;
++	rmi_dbg(RMI_DEBUG_CORE, &fn->dev, "Unregistering F%02X.\n",
++			fn->fd.function_number);
 +
-+	if (data->f34_container)
-+		update_status = rmi_f34_status(data->f34_container);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", update_status);
-+}
-+
-+static DEVICE_ATTR(update_fw_status, 0444,
-+		   rmi_driver_update_fw_status_show, NULL);
-+
- static struct attribute *rmi_firmware_attrs[] = {
- 	&dev_attr_update_fw.attr,
-+	&dev_attr_update_fw_status.attr,
- 	NULL
- };
- 
-diff --git a/drivers/input/rmi4/rmi_f34.h b/drivers/input/rmi4/rmi_f34.h
-index 2c93d40..8df9fea 100644
---- a/drivers/input/rmi4/rmi_f34.h
-+++ b/drivers/input/rmi4/rmi_f34.h
-@@ -425,6 +425,10 @@ struct f34_data {
- 	unsigned char bootloader_id[5];
- 	unsigned char configuration_id[SYNAPTICS_RMI4_CONFIG_ID_SIZE*2 + 1];
- 
-+	int update_status;
-+	int update_progress;
-+	int update_size;
-+
- 	union {
- 		struct f34v5_data v5;
- 		struct f34v7_data v7;
-diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
-index 52ca604..5718165 100644
---- a/drivers/input/rmi4/rmi_f34v7.c
-+++ b/drivers/input/rmi4/rmi_f34v7.c
-@@ -926,6 +926,11 @@ static int rmi_f34v7_write_f34v7_blocks(struct f34_data *f34,
- 
- 		block_ptr += (transfer * f34->v7.block_size);
- 		remaining -= transfer;
-+
-+		if (command == v7_CMD_WRITE_FW)
-+			f34->update_status = 80 - 70*remaining/block_cnt;
-+		else if (command == v7_CMD_WRITE_CONFIG)
-+			f34->update_status = 90 - 10*remaining/block_cnt;
- 	} while (remaining);
- 
- 	return 0;
-@@ -1281,6 +1286,8 @@ int rmi_f34v7_do_reflash(struct f34_data *f34, const struct firmware *fw)
- 	if (ret < 0)
- 		goto fail;
- 
-+	f34->update_status = 5;
-+
- 	if (!f34->v7.new_partition_table) {
- 		ret = rmi_f34v7_check_ui_firmware_size(f34);
- 		if (ret < 0)
-@@ -1320,6 +1327,7 @@ int rmi_f34v7_do_reflash(struct f34_data *f34, const struct firmware *fw)
- 			 __func__);
- 	}
- 
-+	f34->update_status = 10;
- 	dev_info(&f34->fn->dev, "Writing firmware (%d bytes)...\n",
- 		 f34->v7.img.ui_firmware.size);
- 
-@@ -1344,6 +1352,8 @@ int rmi_f34v7_do_reflash(struct f34_data *f34, const struct firmware *fw)
- 			goto fail;
- 	}
- 
-+	f34->update_status = 95;
-+
- 	if (f34->v7.new_partition_table) {
- 		if (f34->v7.has_guest_code && f34->v7.img.contains_guest_code) {
- 			dev_info(&f34->fn->dev, "Writing guest code...\n");
-@@ -1354,7 +1364,11 @@ int rmi_f34v7_do_reflash(struct f34_data *f34, const struct firmware *fw)
+ 	device_del(&fn->dev);
+ 	of_node_put(fn->dev.of_node);
+ 	put_device(&fn->dev);
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 63c9e22..adb3ee8 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -722,6 +722,7 @@ static int rmi_initial_reset(struct rmi_device *rmi_dev,
+ 			return RMI_SCAN_DONE;
  		}
- 	}
  
-+	f34->update_status = 0;
-+	return 0;
-+
- fail:
-+	f34->update_status = ret;
- 	return ret;
- }
- 
++		rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev, "Sending reset\n");
+ 		error = rmi_write_block(rmi_dev, cmd_addr, &cmd_buf, 1);
+ 		if (error) {
+ 			dev_err(&rmi_dev->dev,
 -- 
 2.7.4
 

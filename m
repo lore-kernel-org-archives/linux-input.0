@@ -1,52 +1,44 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v5 2/7] Input: synaptics-rmi4 - add a couple of debug lines
-Date: Mon, 24 Oct 2016 22:51:52 +0100
-Message-ID: <1477345917-25326-3-git-send-email-nick@shmanahar.org>
-References: <1477345917-25326-1-git-send-email-nick@shmanahar.org>
+Subject: [PATCH v5 0/7] Input: synaptics-rmi4 - F34 device reflash support
+Date: Mon, 24 Oct 2016 22:51:50 +0100
+Message-ID: <1477345917-25326-1-git-send-email-nick@shmanahar.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avasout06.plus.net ([212.159.14.18]:36752 "EHLO
-        avasout06.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S941248AbcJXVwJ (ORCPT
+Received: from avasout05.plus.net ([84.93.230.250]:57303 "EHLO
+        avasout05.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S940018AbcJXVwJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Mon, 24 Oct 2016 17:52:09 -0400
-In-Reply-To: <1477345917-25326-1-git-send-email-nick@shmanahar.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
-Cc: Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
+Cc: Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Signed-off-by: Nick Dyer <nick@shmanahar.org>
----
- drivers/input/rmi4/rmi_bus.c    | 3 +++
- drivers/input/rmi4/rmi_driver.c | 1 +
- 2 files changed, 4 insertions(+)
+Hi-
 
-diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-index ef8c747..3c6a1b5 100644
---- a/drivers/input/rmi4/rmi_bus.c
-+++ b/drivers/input/rmi4/rmi_bus.c
-@@ -230,6 +230,9 @@ int rmi_register_function(struct rmi_function *fn)
- 
- void rmi_unregister_function(struct rmi_function *fn)
- {
-+	rmi_dbg(RMI_DEBUG_CORE, &fn->dev, "Unregistering F%02X.\n",
-+			fn->fd.function_number);
-+
- 	device_del(&fn->dev);
- 	of_node_put(fn->dev.of_node);
- 	put_device(&fn->dev);
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 63c9e22..adb3ee8 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -722,6 +722,7 @@ static int rmi_initial_reset(struct rmi_device *rmi_dev,
- 			return RMI_SCAN_DONE;
- 		}
- 
-+		rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev, "Sending reset\n");
- 		error = rmi_write_block(rmi_dev, cmd_addr, &cmd_buf, 1);
- 		if (error) {
- 			dev_err(&rmi_dev->dev,
--- 
-2.7.4
+Please find attached patches to add F34 firmware update to the RMI4
+driver.
+
+Changes in v5:
+- Improve split between for different versions (req. Bjorn Andersson)
+- Address a couple of kbuild test robot issues
+- Fix a bug with configuration ID on V7
+
+Changes in v4:
+- Add support for v7 bootloaders and fix numerous issues
+- Add sysfs attributes for retrieving various hardware IDs
+- Add a couple of debug lines to core
+
+Changes in v3:
+- Only attempt to flash on F34 V0 (later versions have different
+  register map)
+
+Changes in v2:
+- Resolved reliability issues with locking and teardown/re-probe
+- Add #ifdefs for CONFIG_RMI4_F34 in rmi_driver.c
+- Slightly improve debug
+- Tested by Chris Healy
+
+cheers
+
+Nick
 

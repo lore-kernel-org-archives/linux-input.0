@@ -1,153 +1,65 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH -next 1/2] Input: synaptics-rmi4 - add support for F55
- sensor tuning
-Date: Mon, 24 Oct 2016 20:13:49 -0700
-Message-ID: <dbe3b301-a5d1-96f6-8c12-36828ca556c3@roeck-us.net>
-References: <1475292168-20961-1-git-send-email-linux@roeck-us.net>
- <80256c99-e54a-1989-c149-49f600ee6875@synaptics.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] Input: tca8418_keypad: hide gcc-4.9 -Wmaybe-uninitialized warning
+Date: Tue, 25 Oct 2016 11:59:22 +0200
+Message-ID: <3580924.2eqYJQ5Dgh@wuerfel>
+References: <20161024153222.2738294-1-arnd@arndb.de> <20161024234513.GA15034@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <80256c99-e54a-1989-c149-49f600ee6875@synaptics.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Chris Healy <cphealy@gmail.com>, Nick Dyer <nick@shmanahar.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Hans Verkuil <hans.verkuil@cisco.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.135]:61328 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933920AbcJYJ70 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 25 Oct 2016 05:59:26 -0400
+In-Reply-To: <20161024234513.GA15034@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Monday, October 24, 2016 4:45:13 PM CEST Dmitry Torokhov wrote:
+> > diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
+> > index 9002298698fc..3048ef3e3e16 100644
+> > --- a/drivers/input/keyboard/tca8418_keypad.c
+> > +++ b/drivers/input/keyboard/tca8418_keypad.c
+> > @@ -164,11 +164,18 @@ static void tca8418_read_keypad(struct tca8418_keypad *keypad_data)
+> >       int error, col, row;
+> >       u8 reg, state, code;
+> >  
+> > -     /* Initial read of the key event FIFO */
+> > -     error = tca8418_read_byte(keypad_data, REG_KEY_EVENT_A, &reg);
+> > +     do {
+> > +             error = tca8418_read_byte(keypad_data, REG_KEY_EVENT_A, &reg);
+> > +             if (error < 0) {
+> > +                     dev_err(&keypad_data->client->dev,
+> > +                             "unable to read REG_KEY_EVENT_A\n");
+> > +                     break;
+> > +             }
+> > +
+> > +             /* Assume that key code 0 signifies empty FIFO */
+> > +             if (reg <= 0)
+> > +                     break;
+> 
+> I am unconvinced that this rearrangement fixes the issue for all older
+> GCCs. Can we simply do:
+> 
+>         u8 uninitialized_var(reg);
+> 
+> and be done with it?
 
-On 10/24/2016 05:59 PM, Andrew Duggan wrote:
-> Hi Guenter,
->
-> I have a couple of comments below.
->
+Yes, that would work. However:
 
-Thanks a lot for the feedback.
+- avoiding the fake intialization tends to produce better object
+  code, as gcc actually knows what's going on
+- Linus doesn't like uninitialized_var() and would rather see it
+  removed from the kernel
+- llvm produces warnings for uninitialized_var()
 
-> On 09/30/2016 08:22 PM, Guenter Roeck wrote:
->> Sensor tuning support is needed to determine the number of enabled
->> tx and rx electrodes for use in F54 functions.
->>
->> The number of enabled electrodes is not identical to the total number
->> of electrodes as reported with F55:Query0 and F55:Query1. It has to be
->> calculated by analyzing F55:Ctrl1 (sensor receiver assignment) and
->> F55:Ctrl2 (sensor transmitter assignment).
->>
->> Support for additional sensor tuning functions may be added later.
->>
->> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
->> ---
->> This patch applies to next-20160930.
->>
->>   drivers/input/rmi4/Kconfig      |   9 +++
->>   drivers/input/rmi4/Makefile     |   1 +
->>   drivers/input/rmi4/rmi_bus.c    |   3 +
->>   drivers/input/rmi4/rmi_driver.h |   1 +
->>   drivers/input/rmi4/rmi_f55.c    | 127 ++++++++++++++++++++++++++++++++++++++++
->>   5 files changed, 141 insertions(+)
->>   create mode 100644 drivers/input/rmi4/rmi_f55.c
->>
->> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
->> index 4c8a55857e00..11ede43c9936 100644
->> --- a/drivers/input/rmi4/Kconfig
->> +++ b/drivers/input/rmi4/Kconfig
->> @@ -72,3 +72,12 @@ config RMI4_F54
->>           Function 54 provides access to various diagnostic features in certain
->>         RMI4 touch sensors.
->> +
->> +config RMI4_F55
->> +    bool "RMI4 Function 55 (Sensor tuning)"
->> +    depends on RMI4_CORE
->> +    help
->> +      Say Y here if you want to add support for RMI4 function 55
->> +
->> +      Function 55 provides access to the RMI4 touch sensor tuning
->> +      mechanism.
->> diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
->> index 0bafc8502c4b..96f8e0c21e3b 100644
->> --- a/drivers/input/rmi4/Makefile
->> +++ b/drivers/input/rmi4/Makefile
->> @@ -8,6 +8,7 @@ rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
->>   rmi_core-$(CONFIG_RMI4_F12) += rmi_f12.o
->>   rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
->>   rmi_core-$(CONFIG_RMI4_F54) += rmi_f54.o
->> +rmi_core-$(CONFIG_RMI4_F55) += rmi_f55.o
->>     # Transports
->>   obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
->> diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
->> index ef8c747c35e7..82b7d4960858 100644
->> --- a/drivers/input/rmi4/rmi_bus.c
->> +++ b/drivers/input/rmi4/rmi_bus.c
->> @@ -314,6 +314,9 @@ static struct rmi_function_handler *fn_handlers[] = {
->>   #ifdef CONFIG_RMI4_F54
->>       &rmi_f54_handler,
->>   #endif
->> +#ifdef CONFIG_RMI4_F55
->> +    &rmi_f55_handler,
->> +#endif
->>   };
->>     static void __rmi_unregister_function_handlers(int start_idx)
->> diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
->> index 8dfbebe9bf86..a65cf70f61e2 100644
->> --- a/drivers/input/rmi4/rmi_driver.h
->> +++ b/drivers/input/rmi4/rmi_driver.h
->> @@ -103,4 +103,5 @@ extern struct rmi_function_handler rmi_f11_handler;
->>   extern struct rmi_function_handler rmi_f12_handler;
->>   extern struct rmi_function_handler rmi_f30_handler;
->>   extern struct rmi_function_handler rmi_f54_handler;
->> +extern struct rmi_function_handler rmi_f55_handler;
->>   #endif
->> diff --git a/drivers/input/rmi4/rmi_f55.c b/drivers/input/rmi4/rmi_f55.c
->> new file mode 100644
->> index 000000000000..268fa904205a
->> --- /dev/null
->> +++ b/drivers/input/rmi4/rmi_f55.c
->> @@ -0,0 +1,127 @@
->> +/*
->> + * Copyright (c) 2012-2015 Synaptics Incorporated
->> + * Copyright (C) 2016 Zodiac Inflight Innovations
->> + *
->> + * This program is free software; you can redistribute it and/or modify it
->> + * under the terms of the GNU General Public License version 2 as published by
->> + * the Free Software Foundation.
->> + */
->> +
->> +#include <linux/bitops.h>
->> +#include <linux/delay.h>
->> +#include <linux/i2c.h>
->
-> This is incidental, but I don't think i2c.h needs to be included here since this file shouldn't contain anything i2c specific. Its not that big a deal, but I noticed it so I thought I would mention it.
->
+I have checked gcc-4.6/4.7/4.8/4.9/5.x/6.x, and only gcc-4.9
+produces the warning. 4.9 changed the detection for uninitialized
+variables significantly, which generally caused fewer false
+positives but unfortunately introduced a couple of new ones
+like this.
 
-Makes sense. delay.h and input.h seem to be unnecessary too.
-I'll remove those if/when I resubmit.
-
->> +#include <linux/input.h>
->> +#include <linux/kernel.h>
->> +#include <linux/rmi.h>
->> +#include <linux/slab.h>
->> +#include "rmi_driver.h"
->> +
->> +#define F55_NAME        "rmi4_f55"
->> +
->> +/* F55 data offsets */
->> +#define F55_NUM_RX_OFFSET    0
->> +#define F55_NUM_TX_OFFSET    1
->> +#define F55_PHYS_CHAR_OFFSET    2
->> +
->> +/* Fixed sizes of reports */
->> +#define F55_QUERY_LEN        17
->
-> How did you chose the number 17? The number of F55 query registers present will depend on how the firmware is configured so the total length of query registers can change. Right now this driver is only using the first three F55 query registers which will always be present so that not an issue. But, beyond query 2 not all query registers are guaranteed to be present.
->
-
-According to the information I have, the maximum size is 17.
-
-Do you have a better idea on how to handle the dynamic length ? Or a better number ?
-Should I only read the minimum ? Or the number we actually need (3) at this point ?
-Or just name the define F55_QUERY_MAXLEN and change the comment to "maximum size
-of report" ?
-
-Thanks,
-Guenter
+	Arnd

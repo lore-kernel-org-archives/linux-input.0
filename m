@@ -1,66 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: tca8418_keypad: hide gcc-4.9
- -Wmaybe-uninitialized warning
-Date: Mon, 24 Oct 2016 16:45:13 -0700
-Message-ID: <20161024234513.GA15034@dtor-ws>
-References: <20161024153222.2738294-1-arnd@arndb.de>
+Subject: Re: [PATCH v1] Input: synaptics-rmi4 - allow number of PDT pages to
+ be specified
+Date: Mon, 24 Oct 2016 17:09:13 -0700
+Message-ID: <20161025000913.GD15034@dtor-ws>
+References: <1477349722-26635-1-git-send-email-nick@shmanahar.org>
+ <20161024233941.GB9026@dtor-ws>
+ <67e70b31-292d-b0ff-0598-7b71e1dcff35@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20161024153222.2738294-1-arnd@arndb.de>
+In-Reply-To: <67e70b31-292d-b0ff-0598-7b71e1dcff35@synaptics.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Nick Dyer <nick@shmanahar.org>, Christopher Heiny <cheiny@synaptics.com>, Guenter Roeck <linux@roeck-us.net>, Chris Healy <cphealy@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Arnd,
-On Mon, Oct 24, 2016 at 05:32:08PM +0200, Arnd Bergmann wrote:
-> Older versions of gcc warn about the tca8418_irq_handler function
-> as they can't keep track of the variable assignment inside of the
-> loop when using the -Wmaybe-unintialized flag:
+On Mon, Oct 24, 2016 at 05:03:30PM -0700, Andrew Duggan wrote:
+> On 10/24/2016 04:39 PM, Dmitry Torokhov wrote:
+> >On Mon, Oct 24, 2016 at 11:55:22PM +0100, Nick Dyer wrote:
+> >>We have encountered some RMI4 firmwares where there are blank pages in between
+> >>PDT pages which contain functions. Add a device tree property which can be set
+> >>to force reading the first N pages.
+> >Cann we get updated firmware instead? This seems like violation of RMI
+> >protocol. Or, if it is allowed by the protocol, can we avoid DT
+> >parameter and keep scanning until the end?
 > 
-> drivers/input/keyboard/tca8418_keypad.c: In function ‘tca8418_irq_handler’:
-> drivers/input/keyboard/tca8418_keypad.c:172:9: error: ‘reg’ may be used uninitialized in this function [-Werror=maybe-uninitialized]
-> drivers/input/keyboard/tca8418_keypad.c:165:5: note: ‘reg’ was declared here
+> It is a violation of the RMI4 spec and we found at least one other
+> device with misconfigured firmware, so this problem extends beyond
+> just a single device. We are adding steps to our verification
+> process to make sure we catch these misconfigurations in the future.
+> But, I'm not sure we can guarantee that a device with this issue
+> didn't go into production.
 > 
-> This is fixed in gcc-6, but it's possible to rearrange the code
-> in a way that avoids the warning on older compilers as well.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/input/keyboard/tca8418_keypad.c | 21 ++++++++++++---------
->  1 file changed, 12 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
-> index 9002298698fc..3048ef3e3e16 100644
-> --- a/drivers/input/keyboard/tca8418_keypad.c
-> +++ b/drivers/input/keyboard/tca8418_keypad.c
-> @@ -164,11 +164,18 @@ static void tca8418_read_keypad(struct tca8418_keypad *keypad_data)
->  	int error, col, row;
->  	u8 reg, state, code;
->  
-> -	/* Initial read of the key event FIFO */
-> -	error = tca8418_read_byte(keypad_data, REG_KEY_EVENT_A, &reg);
-> +	do {
-> +		error = tca8418_read_byte(keypad_data, REG_KEY_EVENT_A, &reg);
-> +		if (error < 0) {
-> +			dev_err(&keypad_data->client->dev,
-> +				"unable to read REG_KEY_EVENT_A\n");
-> +			break;
-> +		}
-> +
-> +		/* Assume that key code 0 signifies empty FIFO */
-> +		if (reg <= 0)
-> +			break;
+> I like Guenter's suggestion of requiring two empty pages to stop
+> scanning. If we did that for all devices it would add one extra read
+> to the PDT scan, but we would avoid us having to maintain a list of
+> devices or set additional parameters.
 
-I am unconvinced that this rearrangement fixes the issue for all older
-GCCs. Can we simply do:
-
-	u8 uninitialized_var(reg);
-
-and be done with it?
+OK, if that fixes broken firmware then that's what I would prefer.
 
 Thanks.
 

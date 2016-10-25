@@ -1,117 +1,253 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH v1] Input: synaptics-rmi4 - allow number of PDT pages to
- be specified
-Date: Mon, 24 Oct 2016 17:03:30 -0700
-Message-ID: <67e70b31-292d-b0ff-0598-7b71e1dcff35@synaptics.com>
-References: <1477349722-26635-1-git-send-email-nick@shmanahar.org>
- <20161024233941.GB9026@dtor-ws>
+Subject: Re: [PATCH -next 1/2] Input: synaptics-rmi4 - add support for F55
+ sensor tuning
+Date: Mon, 24 Oct 2016 17:59:36 -0700
+Message-ID: <80256c99-e54a-1989-c149-49f600ee6875@synaptics.com>
+References: <1475292168-20961-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20161024233941.GB9026@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick@shmanahar.org>
-Cc: Christopher Heiny <cheiny@synaptics.com>, Guenter Roeck <linux@roeck-us.net>, Chris Healy <cphealy@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx1.synaptics.com ([192.147.44.131]:62348 "EHLO
+        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755190AbcJYA7m (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 24 Oct 2016 20:59:42 -0400
+In-Reply-To: <1475292168-20961-1-git-send-email-linux@roeck-us.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Chris Healy <cphealy@gmail.com>, Nick Dyer <nick@shmanahar.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Hans Verkuil <hans.verkuil@cisco.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 10/24/2016 04:39 PM, Dmitry Torokhov wrote:
-> On Mon, Oct 24, 2016 at 11:55:22PM +0100, Nick Dyer wrote:
->> We have encountered some RMI4 firmwares where there are blank pages in between
->> PDT pages which contain functions. Add a device tree property which can be set
->> to force reading the first N pages.
-> Cann we get updated firmware instead? This seems like violation of RMI
-> protocol. Or, if it is allowed by the protocol, can we avoid DT
-> parameter and keep scanning until the end?
+Hi Guenter,
 
-It is a violation of the RMI4 spec and we found at least one other 
-device with misconfigured firmware, so this problem extends beyond just 
-a single device. We are adding steps to our verification process to make 
-sure we catch these misconfigurations in the future. But, I'm not sure 
-we can guarantee that a device with this issue didn't go into production.
+I have a couple of comments below.
 
-I like Guenter's suggestion of requiring two empty pages to stop 
-scanning. If we did that for all devices it would add one extra read to 
-the PDT scan, but we would avoid us having to maintain a list of devices 
-or set additional parameters.
+On 09/30/2016 08:22 PM, Guenter Roeck wrote:
+> Sensor tuning support is needed to determine the number of enabled
+> tx and rx electrodes for use in F54 functions.
+>
+> The number of enabled electrodes is not identical to the total number
+> of electrodes as reported with F55:Query0 and F55:Query1. It has to be
+> calculated by analyzing F55:Ctrl1 (sensor receiver assignment) and
+> F55:Ctrl2 (sensor transmitter assignment).
+>
+> Support for additional sensor tuning functions may be added later.
+>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+> This patch applies to next-20160930.
+>
+>   drivers/input/rmi4/Kconfig      |   9 +++
+>   drivers/input/rmi4/Makefile     |   1 +
+>   drivers/input/rmi4/rmi_bus.c    |   3 +
+>   drivers/input/rmi4/rmi_driver.h |   1 +
+>   drivers/input/rmi4/rmi_f55.c    | 127 ++++++++++++++++++++++++++++++++++++++++
+>   5 files changed, 141 insertions(+)
+>   create mode 100644 drivers/input/rmi4/rmi_f55.c
+>
+> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+> index 4c8a55857e00..11ede43c9936 100644
+> --- a/drivers/input/rmi4/Kconfig
+> +++ b/drivers/input/rmi4/Kconfig
+> @@ -72,3 +72,12 @@ config RMI4_F54
+>   
+>   	  Function 54 provides access to various diagnostic features in certain
+>   	  RMI4 touch sensors.
+> +
+> +config RMI4_F55
+> +	bool "RMI4 Function 55 (Sensor tuning)"
+> +	depends on RMI4_CORE
+> +	help
+> +	  Say Y here if you want to add support for RMI4 function 55
+> +
+> +	  Function 55 provides access to the RMI4 touch sensor tuning
+> +	  mechanism.
+> diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
+> index 0bafc8502c4b..96f8e0c21e3b 100644
+> --- a/drivers/input/rmi4/Makefile
+> +++ b/drivers/input/rmi4/Makefile
+> @@ -8,6 +8,7 @@ rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
+>   rmi_core-$(CONFIG_RMI4_F12) += rmi_f12.o
+>   rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
+>   rmi_core-$(CONFIG_RMI4_F54) += rmi_f54.o
+> +rmi_core-$(CONFIG_RMI4_F55) += rmi_f55.o
+>   
+>   # Transports
+>   obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
+> diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+> index ef8c747c35e7..82b7d4960858 100644
+> --- a/drivers/input/rmi4/rmi_bus.c
+> +++ b/drivers/input/rmi4/rmi_bus.c
+> @@ -314,6 +314,9 @@ static struct rmi_function_handler *fn_handlers[] = {
+>   #ifdef CONFIG_RMI4_F54
+>   	&rmi_f54_handler,
+>   #endif
+> +#ifdef CONFIG_RMI4_F55
+> +	&rmi_f55_handler,
+> +#endif
+>   };
+>   
+>   static void __rmi_unregister_function_handlers(int start_idx)
+> diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+> index 8dfbebe9bf86..a65cf70f61e2 100644
+> --- a/drivers/input/rmi4/rmi_driver.h
+> +++ b/drivers/input/rmi4/rmi_driver.h
+> @@ -103,4 +103,5 @@ extern struct rmi_function_handler rmi_f11_handler;
+>   extern struct rmi_function_handler rmi_f12_handler;
+>   extern struct rmi_function_handler rmi_f30_handler;
+>   extern struct rmi_function_handler rmi_f54_handler;
+> +extern struct rmi_function_handler rmi_f55_handler;
+>   #endif
+> diff --git a/drivers/input/rmi4/rmi_f55.c b/drivers/input/rmi4/rmi_f55.c
+> new file mode 100644
+> index 000000000000..268fa904205a
+> --- /dev/null
+> +++ b/drivers/input/rmi4/rmi_f55.c
+> @@ -0,0 +1,127 @@
+> +/*
+> + * Copyright (c) 2012-2015 Synaptics Incorporated
+> + * Copyright (C) 2016 Zodiac Inflight Innovations
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2 as published by
+> + * the Free Software Foundation.
+> + */
+> +
+> +#include <linux/bitops.h>
+> +#include <linux/delay.h>
+> +#include <linux/i2c.h>
+
+This is incidental, but I don't think i2c.h needs to be included here 
+since this file shouldn't contain anything i2c specific. Its not that 
+big a deal, but I noticed it so I thought I would mention it.
+
+> +#include <linux/input.h>
+> +#include <linux/kernel.h>
+> +#include <linux/rmi.h>
+> +#include <linux/slab.h>
+> +#include "rmi_driver.h"
+> +
+> +#define F55_NAME		"rmi4_f55"
+> +
+> +/* F55 data offsets */
+> +#define F55_NUM_RX_OFFSET	0
+> +#define F55_NUM_TX_OFFSET	1
+> +#define F55_PHYS_CHAR_OFFSET	2
+> +
+> +/* Fixed sizes of reports */
+> +#define F55_QUERY_LEN		17
+
+How did you chose the number 17? The number of F55 query registers 
+present will depend on how the firmware is configured so the total 
+length of query registers can change. Right now this driver is only 
+using the first three F55 query registers which will always be present 
+so that not an issue. But, beyond query 2 not all query registers are 
+guaranteed to be present.
+
+Everything else looks correct.
 
 Andrew
 
-> Thanks.
->
->> Signed-off-by: Nick Dyer <nick@shmanahar.org>
->> ---
->>   Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt |  2 ++
->>   drivers/input/rmi4/rmi_driver.c                          | 16 ++++++++++++++--
->>   include/linux/rmi.h                                      |  1 +
->>   3 files changed, 17 insertions(+), 2 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
->> index ec908b9..a611374 100644
->> --- a/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
->> +++ b/Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
->> @@ -25,6 +25,8 @@ See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
->>   - syna,startup-delay-ms: The number of milliseconds to wait after powering on
->>   			 the device.
->>   
->> +- syna,pdt-scan-pages: Scan the first N PDT pages, ignoring blank pages.
->> +
->>   - vdd-supply: VDD power supply.
->>   See ../regulator/regulator.txt
->>   
->> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
->> index 4a88312..8f94160 100644
->> --- a/drivers/input/rmi4/rmi_driver.c
->> +++ b/drivers/input/rmi4/rmi_driver.c
->> @@ -428,6 +428,8 @@ static int rmi_scan_pdt_page(struct rmi_device *rmi_dev,
->>   					     const struct pdt_entry *entry))
->>   {
->>   	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
->> +	const struct rmi_device_platform_data *pdata =
->> +		rmi_get_platform_data(rmi_dev);
->>   	struct pdt_entry pdt_entry;
->>   	u16 page_start = RMI4_PAGE_SIZE * page;
->>   	u16 pdt_start = page_start + PDT_START_SCAN_LOCATION;
->> @@ -449,8 +451,13 @@ static int rmi_scan_pdt_page(struct rmi_device *rmi_dev,
->>   			return retval;
->>   	}
->>   
->> -	return (data->f01_bootloader_mode || addr == pdt_start) ?
->> -					RMI_SCAN_DONE : RMI_SCAN_CONTINUE;
->> +	if (data->f01_bootloader_mode)
->> +		return RMI_SCAN_DONE;
->> +
->> +	if (page >= pdata->pdt_scan_pages && addr == pdt_start)
->> +		return RMI_SCAN_DONE;
->> +
->> +	return RMI_SCAN_CONTINUE;
->>   }
->>   
->>   static int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
->> @@ -832,6 +839,11 @@ static int rmi_driver_of_probe(struct device *dev,
->>   	if (retval)
->>   		return retval;
->>   
->> +	retval = rmi_of_property_read_u32(dev, &pdata->pdt_scan_pages,
->> +					"syna,pdt-scan-pages", 1);
->> +	if (retval)
->> +		return retval;
->> +
->>   	return 0;
->>   }
->>   #else
->> diff --git a/include/linux/rmi.h b/include/linux/rmi.h
->> index e0aca14..2c4570d 100644
->> --- a/include/linux/rmi.h
->> +++ b/include/linux/rmi.h
->> @@ -207,6 +207,7 @@ struct rmi_device_platform_data_spi {
->>    */
->>   struct rmi_device_platform_data {
->>   	int reset_delay_ms;
->> +	u32 pdt_scan_pages;
->>   
->>   	struct rmi_device_platform_data_spi spi_data;
->>   
->> -- 
->> 2.7.4
->>
+> +
+> +/* F55 capabilities */
+> +#define F55_CAP_SENSOR_ASSIGN	BIT(0)
+> +
+> +struct f55_data {
+> +	struct rmi_function *fn;
+> +
+> +	u8 qry[F55_QUERY_LEN];
+> +	u8 num_rx_electrodes;
+> +	u8 cfg_num_rx_electrodes;
+> +	u8 num_tx_electrodes;
+> +	u8 cfg_num_tx_electrodes;
+> +};
+> +
+> +static int rmi_f55_detect(struct rmi_function *fn)
+> +{
+> +	struct f55_data *f55;
+> +	int error;
+> +
+> +	f55 = dev_get_drvdata(&fn->dev);
+> +
+> +	error = rmi_read_block(fn->rmi_dev, fn->fd.query_base_addr,
+> +			       &f55->qry, sizeof(f55->qry));
+> +	if (error) {
+> +		dev_err(&fn->dev, "%s: Failed to query F55 properties\n",
+> +			__func__);
+> +		return error;
+> +	}
+> +
+> +	f55->num_rx_electrodes = f55->qry[F55_NUM_RX_OFFSET];
+> +	f55->num_tx_electrodes = f55->qry[F55_NUM_TX_OFFSET];
+> +
+> +	f55->cfg_num_rx_electrodes = f55->num_rx_electrodes;
+> +	f55->cfg_num_tx_electrodes = f55->num_rx_electrodes;
+> +
+> +	if (f55->qry[F55_PHYS_CHAR_OFFSET] & F55_CAP_SENSOR_ASSIGN) {
+> +		int i, total;
+> +		u8 buf[256];
+> +
+> +		/*
+> +		 * Calculate the number of enabled receive and transmit
+> +		 * electrodes by reading F55:Ctrl1 (sensor receiver assignment)
+> +		 * and F55:Ctrl2 (sensor transmitter assignment). The number of
+> +		 * enabled electrodes is the sum of all field entries with a
+> +		 * value other than 0xff.
+> +		 */
+> +		error = rmi_read_block(fn->rmi_dev,
+> +				       fn->fd.control_base_addr + 1,
+> +				       buf, f55->num_rx_electrodes);
+> +		if (!error) {
+> +			total = 0;
+> +			for (i = 0; i < f55->num_rx_electrodes; i++) {
+> +				if (buf[i] != 0xff)
+> +					total++;
+> +			}
+> +			f55->cfg_num_rx_electrodes = total;
+> +		}
+> +
+> +		error = rmi_read_block(fn->rmi_dev,
+> +				       fn->fd.control_base_addr + 2,
+> +				       buf, f55->num_tx_electrodes);
+> +		if (!error) {
+> +			total = 0;
+> +			for (i = 0; i < f55->num_tx_electrodes; i++) {
+> +				if (buf[i] != 0xff)
+> +					total++;
+> +			}
+> +			f55->cfg_num_tx_electrodes = total;
+> +		}
+> +	}
+> +
+> +	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "F55 num_rx_electrodes: %d (raw %d)\n",
+> +		f55->cfg_num_rx_electrodes, f55->num_rx_electrodes);
+> +	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "F55 num_tx_electrodes: %d (raw %d)\n",
+> +		f55->cfg_num_tx_electrodes, f55->num_tx_electrodes);
+> +
+> +	return 0;
+> +}
+> +
+> +static int rmi_f55_probe(struct rmi_function *fn)
+> +{
+> +	struct f55_data *f55;
+> +
+> +	f55 = devm_kzalloc(&fn->dev, sizeof(struct f55_data), GFP_KERNEL);
+> +	if (!f55)
+> +		return -ENOMEM;
+> +
+> +	f55->fn = fn;
+> +	dev_set_drvdata(&fn->dev, f55);
+> +
+> +	return rmi_f55_detect(fn);
+> +}
+> +
+> +struct rmi_function_handler rmi_f55_handler = {
+> +	.driver = {
+> +		.name = F55_NAME,
+> +	},
+> +	.func = 0x55,
+> +	.probe = rmi_f55_probe,
+> +};
+
+

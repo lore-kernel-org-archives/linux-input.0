@@ -1,209 +1,191 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v4 4/8] drivers:input:tsc2007: add iio interface to read
- external ADC input and temperature
-Date: Tue, 25 Oct 2016 17:54:12 +0100
-Message-ID: <f814b75d-4061-1479-15b8-347599bf0213@kernel.org>
-References: <cover.1476712675.git.hns@goldelico.com>
- <4d3c600bf0a6b75a74212a103bf31525505290a0.1476712675.git.hns@goldelico.com>
- <07bb4d52-a439-f9a9-8593-ddde8e93e6ee@kernel.org>
- <7A0E332C-4930-4F1A-8320-F87F864B53AE@goldelico.com>
- <1dd251db-7f45-78bf-c9dd-4ae29b0ed757@kernel.org>
- <976C7328-A6AA-4CD5-AAAA-3B14BA3BD793@goldelico.com>
- <F0CB8C7F-29FD-41DF-A652-9D1AF7824D5F@goldelico.com>
- <4b6773d9-bc33-7471-ee29-01f51c5cfce2@kernel.org>
- <4735A551-6E90-4D2B-8A37-671B2789ECE4@goldelico.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH -next 1/2] Input: synaptics-rmi4 - add support for F55
+ sensor tuning
+Date: Tue, 25 Oct 2016 11:26:19 -0700
+Message-ID: <694259f0-1742-ab3d-b731-845a6d79e2f1@synaptics.com>
+References: <1475292168-20961-1-git-send-email-linux@roeck-us.net>
+ <80256c99-e54a-1989-c149-49f600ee6875@synaptics.com>
+ <dbe3b301-a5d1-96f6-8c12-36828ca556c3@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4735A551-6E90-4D2B-8A37-671B2789ECE4@goldelico.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, kernel@pyra-handheld.com, Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King <linux@armlinux.org.uk>, linux-iio@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, =?UTF-8?Q?Mika_Penttil=c3=a4?= <mika.penttila@nextfour.com>, =?UTF-8?Q?Beno=c3=aet_Cousson?= <bcousson@baylibre.com>, linux-input@vger.kernel.org, Michael Welling <mwelling@ieee.org>, letux-kernel@openphoenux.org, "Andrew F. Davis" <afd@ti.com>, Igor Grinberg <grinberg@compulab.co.il>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx1.synaptics.com ([192.147.44.131]:32621 "EHLO
+        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752762AbcJYS0U (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 25 Oct 2016 14:26:20 -0400
+In-Reply-To: <dbe3b301-a5d1-96f6-8c12-36828ca556c3@roeck-us.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Chris Healy <cphealy@gmail.com>, Nick Dyer <nick@shmanahar.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Hans Verkuil <hans.verkuil@cisco.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 24/10/16 20:14, H. Nikolaus Schaller wrote:
-> Hi Jonathan,
-> 
->> Am 23.10.2016 um 21:00 schrieb Jonathan Cameron <jic23@kernel.org>:
+On 10/24/2016 08:13 PM, Guenter Roeck wrote:
+> Hi Andrew,
+>
+> On 10/24/2016 05:59 PM, Andrew Duggan wrote:
+>> Hi Guenter,
 >>
->> On 23/10/16 19:34, H. Nikolaus Schaller wrote:
->>> Hi Jonathan,
->>>
->>>> Am 23.10.2016 um 11:57 schrieb H. Nikolaus Schaller <hns@goldelico.com>:
->>>>
->>>> Hi,
->>>>
->>>>>> +static int tsc2007_alloc(struct i2c_client *client, struct tsc2007 **ts,
->>>>>> +                          struct input_dev **input_dev)
->>>>>> +{
->>>>>> +       int err;
->>>>>> +       struct iio_dev *indio_dev;
->>>>>> +
->>>>>> +       indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*ts));
->>>>> Instead of doing this to reduce the delta between versions make 
->>>>> iio_priv a struct tsc2007 **
->>>>>
->>>>> That is have a single pointer in there and do your allocation of struct
->>>>> tsc2007 separately.
->>>>
->>>> Sorry, but I think I do not completely understand what you mean here.
->>>>
->>>> The problem is that we need to allocate some struct tsc2007 in both cases.
->>>> But in one case managed directly by &client->dev and in the other managed
->>>> indirectly. This is why I use the private area of struct iio_dev to store
->>>> the full struct tsc2007 and not just a pointer.
->>>
->>> Ok, I think I finally did understand how you mean this and have started to
->>> implement something.
->>>
->> oops. Didn't look on in my emails to get to this one!
->>> The idea is to have one alloc function to return a struct tsc2007. This
->>> can be part of the probe function, like it is in the unpatched driver.
->>>
->>> In case of iio this struct tsc2007 is also allocated explicitly so that
->>> a pointer can be stored in iio_priv.
->>>
->>> This just means an additional iio_priv->ts = devm_kzalloc() in case of iio.
->>>
->>> I have added that approach to my inlined patch and it seems to work (attached).
->>>
->>> Sorry if I do not use the wording you would use and sometimes overlook
->>> something you have said. I feel here like moving on thin ice and doing
->>> guesswork about unspoken assumptions...
->> That's fine.  Stuff that can appear obvious to one person is not
->> necessarily obvious to another!
->>>
->>>>
->>>>>
->>>>> Having doing that, you can have this CONFIG_IIO block as just
->>>>> doing the iio stuff with the input elements pulled back into the main
->>>>> probe function.
->>>>>
->>>>> Then define something like
->>>>>
->>>>> iio_configure (stubbed to nothing if no IIO)
->>>>> and
->>>>> iio_unconfigure (also stubbed to nothing if no IIO).
->>>
->>> This seems to work (draft attached).
->>>
->>>>>
->>>>> A couple of additions in the header
->>>
->>> I think you mean tsc2007.h?
->> Nope. A local header alongside the driver is what you want for this stuff.
->> driver/input/tsc2007.h 
->>>
->>> This currently contains only platform data and could IMHO be eliminated
->>> if everything becomes DT.
->>>
->>>>> to make it all work
->>>>> (the struct tsc2007 and tsc2007_xfer() + a few of the
->>>>> register defines..
->>>
->>> Here it appears to me that I have to make a lot of so far private static
->>> and even static inline functions public so that I can make them stubs and
->>> call them from tsc2007_iio.c.
->> There will be a few.
->>>
->>> And for having proper parameter types I have to make most private structs
->>> also public.
->> Yes a few of those as well.
->>>
->>> I really like the idea to have the optional iio feature in a separate source
->>> file, but when really starting to write code, I get the impression that
->>> it introduces more problems than it solves.
->>>
->>> And I wonder a little why it is not done for #ifdef CONFIG_OF in tsc2007.c
->>> as well. There are also two static function in some #ifdef #else # endif
->>> and not going through stubs.
->> Usually it is only done once a certain volume of code exists.
->>>
->>> So is this intended to give up some static definitions?
->> Yes, that happens the moment you have multiple source files.
+>> I have a couple of comments below.
 >>
->> Some losses but generally end up with clean code separation. Always a trade
->> off unfortunately.  Pity we can't just insist IIO is available! Rather large
->> to pull in for what is probable a niche use case.
+>
+> Thanks a lot for the feedback.
+>
+>> On 09/30/2016 08:22 PM, Guenter Roeck wrote:
+>>> Sensor tuning support is needed to determine the number of enabled
+>>> tx and rx electrodes for use in F54 functions.
+>>>
+>>> The number of enabled electrodes is not identical to the total number
+>>> of electrodes as reported with F55:Query0 and F55:Query1. It has to be
+>>> calculated by analyzing F55:Ctrl1 (sensor receiver assignment) and
+>>> F55:Ctrl2 (sensor transmitter assignment).
+>>>
+>>> Support for additional sensor tuning functions may be added later.
+>>>
+>>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+>>> ---
+>>> This patch applies to next-20160930.
+>>>
+>>>   drivers/input/rmi4/Kconfig      |   9 +++
+>>>   drivers/input/rmi4/Makefile     |   1 +
+>>>   drivers/input/rmi4/rmi_bus.c    |   3 +
+>>>   drivers/input/rmi4/rmi_driver.h |   1 +
+>>>   drivers/input/rmi4/rmi_f55.c    | 127 
+>>> ++++++++++++++++++++++++++++++++++++++++
+>>>   5 files changed, 141 insertions(+)
+>>>   create mode 100644 drivers/input/rmi4/rmi_f55.c
+>>>
+>>> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+>>> index 4c8a55857e00..11ede43c9936 100644
+>>> --- a/drivers/input/rmi4/Kconfig
+>>> +++ b/drivers/input/rmi4/Kconfig
+>>> @@ -72,3 +72,12 @@ config RMI4_F54
+>>>           Function 54 provides access to various diagnostic features 
+>>> in certain
+>>>         RMI4 touch sensors.
+>>> +
+>>> +config RMI4_F55
+>>> +    bool "RMI4 Function 55 (Sensor tuning)"
+>>> +    depends on RMI4_CORE
+>>> +    help
+>>> +      Say Y here if you want to add support for RMI4 function 55
+>>> +
+>>> +      Function 55 provides access to the RMI4 touch sensor tuning
+>>> +      mechanism.
+>>> diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
+>>> index 0bafc8502c4b..96f8e0c21e3b 100644
+>>> --- a/drivers/input/rmi4/Makefile
+>>> +++ b/drivers/input/rmi4/Makefile
+>>> @@ -8,6 +8,7 @@ rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
+>>>   rmi_core-$(CONFIG_RMI4_F12) += rmi_f12.o
+>>>   rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
+>>>   rmi_core-$(CONFIG_RMI4_F54) += rmi_f54.o
+>>> +rmi_core-$(CONFIG_RMI4_F55) += rmi_f55.o
+>>>     # Transports
+>>>   obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
+>>> diff --git a/drivers/input/rmi4/rmi_bus.c 
+>>> b/drivers/input/rmi4/rmi_bus.c
+>>> index ef8c747c35e7..82b7d4960858 100644
+>>> --- a/drivers/input/rmi4/rmi_bus.c
+>>> +++ b/drivers/input/rmi4/rmi_bus.c
+>>> @@ -314,6 +314,9 @@ static struct rmi_function_handler 
+>>> *fn_handlers[] = {
+>>>   #ifdef CONFIG_RMI4_F54
+>>>       &rmi_f54_handler,
+>>>   #endif
+>>> +#ifdef CONFIG_RMI4_F55
+>>> +    &rmi_f55_handler,
+>>> +#endif
+>>>   };
+>>>     static void __rmi_unregister_function_handlers(int start_idx)
+>>> diff --git a/drivers/input/rmi4/rmi_driver.h 
+>>> b/drivers/input/rmi4/rmi_driver.h
+>>> index 8dfbebe9bf86..a65cf70f61e2 100644
+>>> --- a/drivers/input/rmi4/rmi_driver.h
+>>> +++ b/drivers/input/rmi4/rmi_driver.h
+>>> @@ -103,4 +103,5 @@ extern struct rmi_function_handler rmi_f11_handler;
+>>>   extern struct rmi_function_handler rmi_f12_handler;
+>>>   extern struct rmi_function_handler rmi_f30_handler;
+>>>   extern struct rmi_function_handler rmi_f54_handler;
+>>> +extern struct rmi_function_handler rmi_f55_handler;
+>>>   #endif
+>>> diff --git a/drivers/input/rmi4/rmi_f55.c 
+>>> b/drivers/input/rmi4/rmi_f55.c
+>>> new file mode 100644
+>>> index 000000000000..268fa904205a
+>>> --- /dev/null
+>>> +++ b/drivers/input/rmi4/rmi_f55.c
+>>> @@ -0,0 +1,127 @@
+>>> +/*
+>>> + * Copyright (c) 2012-2015 Synaptics Incorporated
+>>> + * Copyright (C) 2016 Zodiac Inflight Innovations
+>>> + *
+>>> + * This program is free software; you can redistribute it and/or 
+>>> modify it
+>>> + * under the terms of the GNU General Public License version 2 as 
+>>> published by
+>>> + * the Free Software Foundation.
+>>> + */
+>>> +
+>>> +#include <linux/bitops.h>
+>>> +#include <linux/delay.h>
+>>> +#include <linux/i2c.h>
 >>
->> Below is definitely heading in the right direction. I remember vaguely being
->> convinced of the worth of doing this when optional code is involved!
->> (was a good while ago now)
+>> This is incidental, but I don't think i2c.h needs to be included here 
+>> since this file shouldn't contain anything i2c specific. Its not that 
+>> big a deal, but I noticed it so I thought I would mention it.
 >>
->> Jonathan
->>>
->>> BR and thanks,
->>> Nikolaus
->>>
->>> diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
->>> index 5e3c4bf..92da8f6 100644
->>> --- a/drivers/input/touchscreen/tsc2007.c
->>> +++ b/drivers/input/touchscreen/tsc2007.c
->>> @@ -30,6 +30,7 @@
->>> #include <linux/of.h>
->>> #include <linux/of_gpio.h>
->>> #include <linux/input/touchscreen.h>
->>> +#include <linux/iio/iio.h>
->> Should not need this after introducing the new file.  Will only be
->> needed in the iio specific .c file.
->>>
->>> #define TSC2007_MEASURE_TEMP0          (0x0 << 4)
->>> #define TSC2007_MEASURE_AUX            (0x2 << 4)
->>> @@ -98,6 +99,9 @@ struct tsc2007 {
->> This will definitely need to go in the header though.
-> 
-> Now I have split the code into:
-> 
-> tsc2007.h (constants, structs and stubs)
-> tsc2007_iio.c (the iio stuff)
-> tsc2007.c (most parts of the original driver)
-> 
-> but I have a problem of correctly modifying the Makefile.
-> 
-> It currently looks like:
-> 
-> obj-$(CONFIG_TOUCHSCREEN_TSC2007)	+= tsc2007.o
-> obj-$(CONFIG_IIO)			+= tsc2007_iio.o
-> 
-> We have configured CONFIG_TOUCHSCREEN_TSC2007=m and CONFIG_IIO=y.
-> 
-> This obviously compiles tsc2007_iio.o into the kernel.
-> 
-> This means that tsc2007_iio.o references tsc2007_xfer which is part of
-> the module.
-> 
-> I would like to get both linked into the module, but the iio part
-> obviously only if CONFIG_IIO is defined (either -y or -m).
-> 
-> How can I define this?
-> 
-> Or can I define
-> 
-> obj-$(CONFIG_TOUCHSCREEN_TSC2007)	+= tsc2007.o tsc2007_iio.o
-This is a common problem with optional support. Various ways of 
-handling it.
+>
+> Makes sense. delay.h and input.h seem to be unnecessary too.
+> I'll remove those if/when I resubmit.
+>
+>>> +#include <linux/input.h>
+>>> +#include <linux/kernel.h>
+>>> +#include <linux/rmi.h>
+>>> +#include <linux/slab.h>
+>>> +#include "rmi_driver.h"
+>>> +
+>>> +#define F55_NAME        "rmi4_f55"
+>>> +
+>>> +/* F55 data offsets */
+>>> +#define F55_NUM_RX_OFFSET    0
+>>> +#define F55_NUM_TX_OFFSET    1
+>>> +#define F55_PHYS_CHAR_OFFSET    2
+>>> +
+>>> +/* Fixed sizes of reports */
+>>> +#define F55_QUERY_LEN        17
+>>
+>> How did you chose the number 17? The number of F55 query registers 
+>> present will depend on how the firmware is configured so the total 
+>> length of query registers can change. Right now this driver is only 
+>> using the first three F55 query registers which will always be 
+>> present so that not an issue. But, beyond query 2 not all query 
+>> registers are guaranteed to be present.
+>>
+>
+> According to the information I have, the maximum size is 17.
+>
+> Do you have a better idea on how to handle the dynamic length ? Or a 
+> better number ?
+> Should I only read the minimum ? Or the number we actually need (3) at 
+> this point ?
+> Or just name the define F55_QUERY_MAXLEN and change the comment to 
+> "maximum size
+> of report" ?
+>
 
-A simple one would be:
-#Define the stuff that always forms part of the .o file
-magic_tsc2007-y := tsc2007.o
-#Define the optional bit to build the resulting magic_tsc2007.o file
-magic_tsc2007-$(CONFIG_IIO) += tsc2007_iio.o
-#Use this magic combined file
-obj-$(CONFIG_TOUCHSCREEN_TSC2007) += magic_tsc2007.o
+I would just read the three registers which you are using. Those 
+registers will be present in F55 so it is safe to just use them.
+Beyond F55 Query2 is where registers may or not may not be present.
 
-With sensible naming of course ;)
+If in the future we need query registers beyond Query2 then we would 
+probably do something similar to what we do for F11 in 
+rmi_f11_get_query_parameters().
 
-Jonathan
-> 
-> and embrace all code in tsc2007_iio with a big #ifdef CONFIG_IIO
-> so that it is compiled into an empty object file in the non-iio case?
-> 
-> BR and thanks,
-> Nikolaus
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Andrew
+
+> Thanks,
+> Guenter
+>
+

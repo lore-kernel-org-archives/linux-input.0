@@ -1,26 +1,29 @@
 From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH V2 03/10] Documentation: devicetree: thermal: da9062/61 TJUNC
- temperature binding
+Subject: [PATCH V2 01/10] Documentation: devicetree: input: additions for
+ da9061 onkey driver
 Date: Wed, 26 Oct 2016 17:56:37 +0100
-Message-ID: <d8c986e39bafc2b8a1c5c23e722f61cdd021e9be.1477501000.git.stwiss.opensource@diasemi.com>
+Message-ID: <e85c9e4723ea7e7bff32d7a4c92807439b438c6d.1477501000.git.stwiss.opensource@diasemi.com>
 References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <cover.1477501000.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
 From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-Device tree binding information for DA9062 and DA9061 thermal junction
-temperature monitor.
+Add binding information for DA9061 onkey.
 
-Binding descriptions for the DA9061 and DA9062 thermal TJUNC supervisor
-device driver, using a single THERMAL_TRIP_HOT trip-wire and allowing for
-a configurable polling period for over-temperature polling.
+This patch updates the compatible string "dlg,da9061-onkey" to support
+DA9061, removes the reference to KEY_SLEEP (which the driver no longer
+supports) and fixes a typo in the example for DA9063.
+
+It also adds two new examples, one for DA9062 and one for DA9061. The
+DA9061 examples uses a fall-back compatible string for the DA9062 onkey
+driver.
 
 Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
@@ -28,79 +31,108 @@ Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gman
 This patch applies against linux-next and v4.8
 
 v1 -> v2
- - Patch renamed from [PATCH V1 08/10] to [PATCH V2 03/10] -- these
+ - Patch renamed from [PATCH V1 06/10] to [PATCH V2 01/10] -- these
    changes were made to fix checkpatch warnings caused by the patch
    set dependency order
- - A second example for DA9061 is provided to highlight the use of a
-   fall-back compatible option for the DA9062 watchdog driver
+ - Typo s/ther/the/ in commit message
+ - Explanation about why KEY_SLEEP was removed (see below)
+ - Addition of DA9062 example
+ - Addition of a DA9061 example to follow the driver fall-back compatible
+   convention being applied for this device driver
 
 Hi,
 
-This patch depends on acceptance of the main code for the thermal device
-driver:
-  [PATCH V2 09/10] thermal: da9061: TJUNC temperature driver 
+This patch depends on the acceptance of the main code for the onkey:
+  [PATCH V2 07/10] Input: da9061: onkey driver.
 
-The previous [PATCH V1 08/10] was acked-by: Rob Herring, however this has
-not been added because changes have been made to add a new binding
-example. This describes the use of DA9061.
-This addition was made after alterations to the device driver meant that a
-fall-back compatible string could reuse the DA9062 device driver.
- 
+The device driver no longer supports KEY_SLEEP. It only supports
+KEY_POWER. This change was sent a while ago for the DA9063 ONKEY driver,
+but the docs were not updated.
+
+Supporting KEY_SLEEP was not the general convention and the typical
+solution should have been for KEY_POWER to support both cases of suspend
+and S/W power off.
+
+There is also new binding examples for DA9062 and DA9061. Importantly,
+the Linux device driver changes for DA9061 were rejected because the
+DA9062 device driver can be reused. For this reason, the DA9061 example
+uses a fall-back compatible string.
+
 Regards,
 Steve Twiss, Dialog Semiconductor Ltd.
 
 
- .../devicetree/bindings/thermal/da9062-thermal.txt | 37 ++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+ .../devicetree/bindings/input/da9062-onkey.txt     | 39 +++++++++++++++-------
+ 1 file changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/thermal/da9062-thermal.txt b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
-new file mode 100644
-index 0000000..fb207ff
---- /dev/null
-+++ b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
-@@ -0,0 +1,37 @@
-+* Dialog DA9062/61 TJUNC Thermal Module
-+
-+This module is part of the DA9061/DA9062. For more details about entire
+diff --git a/Documentation/devicetree/bindings/input/da9062-onkey.txt b/Documentation/devicetree/bindings/input/da9062-onkey.txt
+index ab0e048..e5a0469 100644
+--- a/Documentation/devicetree/bindings/input/da9062-onkey.txt
++++ b/Documentation/devicetree/bindings/input/da9062-onkey.txt
+@@ -1,32 +1,47 @@
+-* Dialog DA9062/63 OnKey Module
++* Dialog DA9061/62/63 OnKey Module
+ 
+-This module is part of the DA9062/DA9063. For more details about entire
+-chips see Documentation/devicetree/bindings/mfd/da9062.txt and
+-Documentation/devicetree/bindings/mfd/da9063.txt
++This module is part of the DA9061/DA9062/DA9063. For more details about entire
 +DA9062 and DA9061 chips see Documentation/devicetree/bindings/mfd/da9062.txt
++For DA9063 see Documentation/devicetree/bindings/mfd/da9063.txt
+ 
+-This module provides KEY_POWER, KEY_SLEEP and events.
++This module provides the KEY_POWER event.
+ 
+ Required properties:
+ 
+ - compatible: should be one of:
++	dlg,da9061-onkey
+ 	dlg,da9062-onkey
+ 	dlg,da9063-onkey
+ 
+ Optional properties:
+ 
+-  - dlg,disable-key-power : Disable power-down using a long key-press. If this
++- dlg,disable-key-power : Disable power-down using a long key-press. If this
+     entry exists the OnKey driver will remove support for the KEY_POWER key
+-    press. If this entry does not exist then by default the key-press
+-    triggered power down is enabled and the OnKey will support both KEY_POWER
+-    and KEY_SLEEP.
++    press when triggered using a long press of the OnKey.
+ 
+-Example:
+-
+-	pmic0: da9062@58 {
++Example: DA9063
+ 
++	pmic0: da9063@58 {
+ 		onkey {
+ 			compatible = "dlg,da9063-onkey";
+ 			dlg,disable-key-power;
+ 		};
++	};
 +
-+Junction temperature thermal module uses an interrupt signal to identify
-+high THERMAL_TRIP_HOT temperatures for the PMIC device.
-+
-+Required properties:
-+
-+- compatible: should be one of:
-+        dlg,da9061-thermal
-+        dlg,da9062-thermal
-+
-+Optional properties:
-+
-+- dlg,tjunc-temp-polling-period-ms : Specify the polling period, measured
-+    in milliseconds, between thermal zone device update checks.
-+
-+Example: DA9061
++Example: DA9062
 +
 +	pmic0: da9062@58 {
-+		thermal {
-+			compatible = "dlg,da9062-thermal";
-+			dlg,tjunc-temp-polling-period-ms = <3000>;
++		onkey {
++			compatible = "dlg,da9062-onkey";
++			dlg,disable-key-power;
 +		};
 +	};
 +
 +Example: DA9061 using a fall-back compatible for the DA9062 onkey driver
-+
+ 
 +	pmic0: da9061@58 {
-+		thermal {
-+			compatible = "dlg,da9061-thermal", "dlg,da9062-thermal";
-+			dlg,tjunc-temp-polling-period-ms = <3000>;
++		onkey {
++			compatible = "dlg,da9061-onkey", "dlg,da9062-onkey";
++			dlg,disable-key-power;
 +		};
-+	};
-+
+ 	};
 -- 
 end-of-patch for PATCH V2
 
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

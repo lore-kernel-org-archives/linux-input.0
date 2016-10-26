@@ -1,68 +1,174 @@
-From: Simon Wood <gitsend@mungewell.org>
-Subject: [RFC] HID:hid-lg4ff: Delay to allow wheels to center after plug-in
-Date: Tue, 25 Oct 2016 19:26:12 -0600
-Message-ID: <1477445172-2682-1-git-send-email-simon@mungewell.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host18.canaca.com ([66.49.204.205]:40974 "EHLO
-        host18.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754149AbcJZB0b (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 25 Oct 2016 21:26:31 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH -next 1/2] Input: synaptics-rmi4 - add support for F55
+ sensor tuning
+Date: Tue, 25 Oct 2016 19:41:57 -0700
+Message-ID: <a1d88c06-16af-ad22-a114-0f908e6a3bda@roeck-us.net>
+References: <1475292168-20961-1-git-send-email-linux@roeck-us.net>
+ <80256c99-e54a-1989-c149-49f600ee6875@synaptics.com>
+ <dbe3b301-a5d1-96f6-8c12-36828ca556c3@roeck-us.net>
+ <694259f0-1742-ab3d-b731-845a6d79e2f1@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <694259f0-1742-ab3d-b731-845a6d79e2f1@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Chris Healy <cphealy@gmail.com>, Nick Dyer <nick@shmanahar.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Hans Verkuil <hans.verkuil@cisco.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin Velds <edwin@velds.nl>, Elias Vanderstuyft <elias.vds@gmail.com>, Michal Maly <madcatxster@gmail.com>, Simon Wood <simon@mungewell.org>
 
-A number of wheels (G27/etc) do a little full right/full left 'dance'
-when first plugged in. This patch inserts a delay so that this 'dance'
-is completed before we disable (set to zero) the autocenter spring.
+On 10/25/2016 11:26 AM, Andrew Duggan wrote:
+> On 10/24/2016 08:13 PM, Guenter Roeck wrote:
+>> Hi Andrew,
+>>
+>> On 10/24/2016 05:59 PM, Andrew Duggan wrote:
+>>> Hi Guenter,
+>>>
+>>> I have a couple of comments below.
+>>>
+>>
+>> Thanks a lot for the feedback.
+>>
+>>> On 09/30/2016 08:22 PM, Guenter Roeck wrote:
+>>>> Sensor tuning support is needed to determine the number of enabled
+>>>> tx and rx electrodes for use in F54 functions.
+>>>>
+>>>> The number of enabled electrodes is not identical to the total number
+>>>> of electrodes as reported with F55:Query0 and F55:Query1. It has to be
+>>>> calculated by analyzing F55:Ctrl1 (sensor receiver assignment) and
+>>>> F55:Ctrl2 (sensor transmitter assignment).
+>>>>
+>>>> Support for additional sensor tuning functions may be added later.
+>>>>
+>>>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+>>>> ---
+>>>> This patch applies to next-20160930.
+>>>>
+>>>>   drivers/input/rmi4/Kconfig      |   9 +++
+>>>>   drivers/input/rmi4/Makefile     |   1 +
+>>>>   drivers/input/rmi4/rmi_bus.c    |   3 +
+>>>>   drivers/input/rmi4/rmi_driver.h |   1 +
+>>>>   drivers/input/rmi4/rmi_f55.c    | 127 ++++++++++++++++++++++++++++++++++++++++
+>>>>   5 files changed, 141 insertions(+)
+>>>>   create mode 100644 drivers/input/rmi4/rmi_f55.c
+>>>>
+>>>> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+>>>> index 4c8a55857e00..11ede43c9936 100644
+>>>> --- a/drivers/input/rmi4/Kconfig
+>>>> +++ b/drivers/input/rmi4/Kconfig
+>>>> @@ -72,3 +72,12 @@ config RMI4_F54
+>>>>           Function 54 provides access to various diagnostic features in certain
+>>>>         RMI4 touch sensors.
+>>>> +
+>>>> +config RMI4_F55
+>>>> +    bool "RMI4 Function 55 (Sensor tuning)"
+>>>> +    depends on RMI4_CORE
+>>>> +    help
+>>>> +      Say Y here if you want to add support for RMI4 function 55
+>>>> +
+>>>> +      Function 55 provides access to the RMI4 touch sensor tuning
+>>>> +      mechanism.
+>>>> diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
+>>>> index 0bafc8502c4b..96f8e0c21e3b 100644
+>>>> --- a/drivers/input/rmi4/Makefile
+>>>> +++ b/drivers/input/rmi4/Makefile
+>>>> @@ -8,6 +8,7 @@ rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
+>>>>   rmi_core-$(CONFIG_RMI4_F12) += rmi_f12.o
+>>>>   rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
+>>>>   rmi_core-$(CONFIG_RMI4_F54) += rmi_f54.o
+>>>> +rmi_core-$(CONFIG_RMI4_F55) += rmi_f55.o
+>>>>     # Transports
+>>>>   obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
+>>>> diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+>>>> index ef8c747c35e7..82b7d4960858 100644
+>>>> --- a/drivers/input/rmi4/rmi_bus.c
+>>>> +++ b/drivers/input/rmi4/rmi_bus.c
+>>>> @@ -314,6 +314,9 @@ static struct rmi_function_handler *fn_handlers[] = {
+>>>>   #ifdef CONFIG_RMI4_F54
+>>>>       &rmi_f54_handler,
+>>>>   #endif
+>>>> +#ifdef CONFIG_RMI4_F55
+>>>> +    &rmi_f55_handler,
+>>>> +#endif
+>>>>   };
+>>>>     static void __rmi_unregister_function_handlers(int start_idx)
+>>>> diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+>>>> index 8dfbebe9bf86..a65cf70f61e2 100644
+>>>> --- a/drivers/input/rmi4/rmi_driver.h
+>>>> +++ b/drivers/input/rmi4/rmi_driver.h
+>>>> @@ -103,4 +103,5 @@ extern struct rmi_function_handler rmi_f11_handler;
+>>>>   extern struct rmi_function_handler rmi_f12_handler;
+>>>>   extern struct rmi_function_handler rmi_f30_handler;
+>>>>   extern struct rmi_function_handler rmi_f54_handler;
+>>>> +extern struct rmi_function_handler rmi_f55_handler;
+>>>>   #endif
+>>>> diff --git a/drivers/input/rmi4/rmi_f55.c b/drivers/input/rmi4/rmi_f55.c
+>>>> new file mode 100644
+>>>> index 000000000000..268fa904205a
+>>>> --- /dev/null
+>>>> +++ b/drivers/input/rmi4/rmi_f55.c
+>>>> @@ -0,0 +1,127 @@
+>>>> +/*
+>>>> + * Copyright (c) 2012-2015 Synaptics Incorporated
+>>>> + * Copyright (C) 2016 Zodiac Inflight Innovations
+>>>> + *
+>>>> + * This program is free software; you can redistribute it and/or modify it
+>>>> + * under the terms of the GNU General Public License version 2 as published by
+>>>> + * the Free Software Foundation.
+>>>> + */
+>>>> +
+>>>> +#include <linux/bitops.h>
+>>>> +#include <linux/delay.h>
+>>>> +#include <linux/i2c.h>
+>>>
+>>> This is incidental, but I don't think i2c.h needs to be included here since this file shouldn't contain anything i2c specific. Its not that big a deal, but I noticed it so I thought I would mention it.
+>>>
+>>
+>> Makes sense. delay.h and input.h seem to be unnecessary too.
+>> I'll remove those if/when I resubmit.
+>>
+>>>> +#include <linux/input.h>
+>>>> +#include <linux/kernel.h>
+>>>> +#include <linux/rmi.h>
+>>>> +#include <linux/slab.h>
+>>>> +#include "rmi_driver.h"
+>>>> +
+>>>> +#define F55_NAME        "rmi4_f55"
+>>>> +
+>>>> +/* F55 data offsets */
+>>>> +#define F55_NUM_RX_OFFSET    0
+>>>> +#define F55_NUM_TX_OFFSET    1
+>>>> +#define F55_PHYS_CHAR_OFFSET    2
+>>>> +
+>>>> +/* Fixed sizes of reports */
+>>>> +#define F55_QUERY_LEN        17
+>>>
+>>> How did you chose the number 17? The number of F55 query registers present will depend on how the firmware is configured so the total length of query registers can change. Right now this driver is only using the first three F55 query registers which will always be present so that not an issue. But, beyond query 2 not all query registers are guaranteed to be present.
+>>>
+>>
+>> According to the information I have, the maximum size is 17.
+>>
+>> Do you have a better idea on how to handle the dynamic length ? Or a better number ?
+>> Should I only read the minimum ? Or the number we actually need (3) at this point ?
+>> Or just name the define F55_QUERY_MAXLEN and change the comment to "maximum size
+>> of report" ?
+>>
+>
+> I would just read the three registers which you are using. Those registers will be present in F55 so it is safe to just use them.
+> Beyond F55 Query2 is where registers may or not may not be present.
+>
+> If in the future we need query registers beyond Query2 then we would probably do something similar to what we do for F11 in rmi_f11_get_query_parameters().
+>
 
-A side benefit is that the DFGT was confused without the delay, and is
-now correctly being set to 900' rotation mode.
+ok, I'll do that.
 
-Side Effect - and the reason I am sending as RFC. This 8s delay seems
-to have an effect on other wheels connected at the same time.
+Thanks,
+Guenter
 
-With 3 wheels on a hub, and then the hub connected to PC. The wheel
-on the right in video below waits for G27 to complete this 8s, before
-it will do it's 'dance' and register with the system.
-
-https://www.youtube.com/watch?v=xCVpCw_yGgA
-
-I don't know if this is a problem, or if someone here has suggestions
-on a better way to implement the delay...
----
- drivers/hid/hid-lg4ff.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-index af3a8ec..3eee920 100644
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -1248,6 +1248,8 @@ int lg4ff_init(struct hid_device *hid)
- 	/* Check if autocentering is available and
- 	 * set the centering force to zero by default */
- 	if (test_bit(FF_AUTOCENTER, dev->ffbit)) {
-+		wait_queue_head_t wait;
-+
- 		/* Formula Force EX expects different autocentering command */
- 		if ((bcdDevice >> 8) == LG4FF_FFEX_REV_MAJ &&
- 		    (bcdDevice & 0xff) == LG4FF_FFEX_REV_MIN)
-@@ -1255,6 +1257,14 @@ int lg4ff_init(struct hid_device *hid)
- 		else
- 			dev->ff->set_autocenter = lg4ff_set_autocenter_default;
- 
-+		/* insert a 8s delay to allow DFGT/G25/G27/G29 wheels to return to center position*/
-+		if (lg4ff_devices[i].product_id == USB_DEVICE_ID_LOGITECH_DFGT_WHEEL ||
-+				lg4ff_devices[i].product_id == USB_DEVICE_ID_LOGITECH_G25_WHEEL ||
-+				lg4ff_devices[i].product_id == USB_DEVICE_ID_LOGITECH_G27_WHEEL ||
-+				lg4ff_devices[i].product_id == USB_DEVICE_ID_LOGITECH_G29_WHEEL) {
-+			init_waitqueue_head (&wait);
-+			wait_event_interruptible_timeout(wait, 0, msecs_to_jiffies(8000));
-+		}
- 		dev->ff->set_autocenter(dev, 0);
- 	}
- 
--- 
-2.7.4
-
+> Andrew
+>
+>> Thanks,
+>> Guenter
+>>
+>
+>

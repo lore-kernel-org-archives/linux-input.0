@@ -1,76 +1,113 @@
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-Subject: [PATCH V2 00/10]  da9061: DA9061 driver submission
-Date: Wed, 26 Oct 2016 17:56:40 +0100
-Message-ID: <cover.1477501000.git.stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH V2 07/10] Input: da9061: onkey driver
+Date: Wed, 26 Oct 2016 17:56:39 +0100
+Message-ID: <29f73d4d4718cc5848c0414ea60f865ef39bd2cf.1477501000.git.stwiss.opensource@diasemi.com>
+References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-pm-owner@vger.kernel.org>
-Sender: linux-pm-owner@vger.kernel.org
-To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Steve Twiss <stwiss.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
-Cc: Support Opensource <support.opensource@diasemi.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1477501000.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Steve Twiss <stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-This patch set adds support for the Dialog DA9061 Power Management IC.
-Support is made by altering the existing DA9062 device driver, where
-appropriate.
+Copyright header is updated to add DA9061 in its description and the module
+description macro is extended to include DA9061.
 
-In this patch set the following is provided:
+Minor change to the code, alters dev_dbg() statements to report a generic
+"PMIC" instead of DA9063. This device driver is compatible with DA9061,
+DA9062 and DA9063.
 
-[PATCH V2 01/10] Binding for onkey
-[PATCH V2 02/10] Binding for watchdog
-[PATCH V2 03/10] Binding for thermal supervisor
-[PATCH V2 04/10] Binding for MFD and regulators
-[PATCH V2 05/10] MFD core support
-[PATCH V2 06/10] BUCKs and LDOs
-[PATCH V2 07/10] Onkey 
-[PATCH V2 08/10] Watchdog
-[PATCH V2 09/10] PMIC temperature monitoring
-[PATCH V2 10/10] MAINTAINERS update
+Kconfig is updated to reflect support for DA9061/62/63.
 
-This patch applies against linux-next and v4.8 
+Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-Thank you,
+---
+This patch applies against linux-next and v4.8
+
+v1 -> v2
+ - Patch renamed from [PATCH V1 03/10] to [PATCH V2 07/10] -- these
+   changes were made to fix checkpatch warnings caused by the patch
+   set dependency order
+ - Revert changes for DA9061 specific compatible changes.
+
+Dmitry,
+
+Alterations made in accordance with previous e-mail thread on the use of
+compatible strings: https://lkml.org/lkml/2016/10/7/641
+Now assuming the use of a fallback compatible string in the DT.
+compatible = "dlg,da9061-onkey", "dlg,da9062-onkey";
+
+Regards,
 Steve Twiss, Dialog Semiconductor Ltd.
 
-Steve Twiss (10):
-  Documentation: devicetree: input: additions for da9061 onkey driver
-  Documentation: devicetree: watchdog: da9062/61 watchdog timer binding
-  Documentation: devicetree: thermal: da9062/61 TJUNC temperature
-    binding
-  Documentation: devicetree: mfd: da9062/61 MFD binding
-  mfd: da9061: MFD core support
-  regulator: da9061: BUCK and LDO regulator driver
-  Input: da9061: onkey driver
-  watchdog: da9062/61: watchdog driver
-  thermal: da9062/61: Thermal junction temperature monitoring driver
-  MAINTAINERS: da9062/61 updates to the Dialog Semiconductor search
-    terms
 
- .../devicetree/bindings/input/da9062-onkey.txt     |  39 +-
- Documentation/devicetree/bindings/mfd/da9062.txt   |  45 ++-
- .../devicetree/bindings/thermal/da9062-thermal.txt |  37 ++
- .../devicetree/bindings/watchdog/da9062-wdt.txt    |  21 +
- MAINTAINERS                                        |   4 +
- drivers/input/misc/Kconfig                         |   7 +-
- drivers/input/misc/da9063_onkey.c                  |   8 +-
- drivers/mfd/Kconfig                                |   5 +-
- drivers/mfd/da9062-core.c                          | 427 ++++++++++++++++++++-
- drivers/regulator/Kconfig                          |   4 +-
- drivers/regulator/da9062-regulator.c               | 301 ++++++++++++++-
- drivers/thermal/Kconfig                            |  10 +
- drivers/thermal/Makefile                           |   1 +
- drivers/thermal/da9062-thermal.c                   | 289 ++++++++++++++
- drivers/watchdog/Kconfig                           |   4 +-
- drivers/watchdog/da9062_wdt.c                      |  18 +-
- include/linux/mfd/da9062/core.h                    |  27 +-
- include/linux/mfd/da9062/registers.h               |   2 +
- 18 files changed, 1180 insertions(+), 69 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
- create mode 100644 drivers/thermal/da9062-thermal.c
+ drivers/input/misc/Kconfig        | 7 ++++---
+ drivers/input/misc/da9063_onkey.c | 8 ++++----
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index efb0ca8..57cc9c2 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -613,11 +613,12 @@ config INPUT_DA9055_ONKEY
+ 	  will be called da9055_onkey.
+ 
+ config INPUT_DA9063_ONKEY
+-	tristate "Dialog DA9062/63 OnKey"
++	tristate "Dialog DA9063/62/61 OnKey"
+ 	depends on MFD_DA9063 || MFD_DA9062
+ 	help
+-	  Support the ONKEY of Dialog DA9063 and DA9062 Power Management ICs
+-	  as an input device capable of reporting the power button status.
++	  Support the ONKEY of Dialog DA9063, DA9062 and DA9061 Power
++	  Management ICs as an input device capable of reporting the
++	  power button status.
+ 
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called da9063_onkey.
+diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
+index bb863e0..dff6fe5 100644
+--- a/drivers/input/misc/da9063_onkey.c
++++ b/drivers/input/misc/da9063_onkey.c
+@@ -1,5 +1,5 @@
+ /*
+- * OnKey device driver for DA9063 and DA9062 PMICs
++ * OnKey device driver for DA9063, DA9062 and DA9061 PMICs
+  * Copyright (C) 2015  Dialog Semiconductor Ltd.
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -149,13 +149,13 @@ static void da9063_poll_on(struct work_struct *work)
+ 			 * and then send shutdown command
+ 			 */
+ 			dev_dbg(&onkey->input->dev,
+-				"Sending SHUTDOWN to DA9063 ...\n");
++				"Sending SHUTDOWN to PMIC ...\n");
+ 			error = regmap_write(onkey->regmap,
+ 					     config->onkey_shutdown,
+ 					     config->onkey_shutdown_mask);
+ 			if (error)
+ 				dev_err(&onkey->input->dev,
+-					"Cannot SHUTDOWN DA9063: %d\n",
++					"Cannot SHUTDOWN PMIC: %d\n",
+ 					error);
+ 		}
+ 	}
+@@ -300,6 +300,6 @@ static struct platform_driver da9063_onkey_driver = {
+ module_platform_driver(da9063_onkey_driver);
+ 
+ MODULE_AUTHOR("S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>");
+-MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063 and DA9062");
++MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063, DA9062 and DA9061");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:" DA9063_DRVNAME_ONKEY);
 -- 
 end-of-patch for PATCH V2
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

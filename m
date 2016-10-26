@@ -1,108 +1,106 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] HID:hid-lg4ff: Delay to allow wheels to center after plug-in
-Date: Wed, 26 Oct 2016 10:00:34 -0700
-Message-ID: <CAKdAkRQN2Kv7CLrmXzEjfPatgkmzBexzsBYdhzOLjunDTD0APg@mail.gmail.com>
-References: <1477445172-2682-1-git-send-email-simon@mungewell.org> <24625977.TfGNBbEdyA@thora>
+From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH V2 03/10] Documentation: devicetree: thermal: da9062/61 TJUNC
+ temperature binding
+Date: Wed, 26 Oct 2016 17:56:37 +0100
+Message-ID: <d8c986e39bafc2b8a1c5c23e722f61cdd021e9be.1477501000.git.stwiss.opensource@diasemi.com>
+References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f193.google.com ([209.85.217.193]:34577 "EHLO
-        mail-ua0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753255AbcJZRAg (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Oct 2016 13:00:36 -0400
-In-Reply-To: <24625977.TfGNBbEdyA@thora>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1477501000.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@gmail.com>
-Cc: Simon Wood <gitsend@mungewell.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Edwin Velds <edwin@velds.nl>, Elias Vanderstuyft <elias.vds@gmail.com>, Simon Wood <simon@mungewell.org>
 
-On Wed, Oct 26, 2016 at 12:36 AM, Michal Mal=C3=BD <madcatxster@gmail.com> =
-wrote:
-> Hi all,
->
-> maybe instead of stalling the entire init() function it'd be better to pu=
-t a
-> request to disable autocentering on a workqueue and start a delayed work =
-once
-> the init() function is done setting the wheel up? There'd be a bit more c=
-ode
-> to write though...
->
+From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-Yeah, if device happens to be plugged at boot time it will wait that
-long before even getting to mount rootfs if driver is built into the
-kernel.
+Device tree binding information for DA9062 and DA9061 thermal junction
+temperature monitor.
 
-This is also interesting way to say "msleep(8000)".
+Binding descriptions for the DA9061 and DA9062 thermal TJUNC supervisor
+device driver, using a single THERMAL_TRIP_HOT trip-wire and allowing for
+a configurable polling period for over-temperature polling.
 
-> Michal
->
-> On Tuesday, October 25, 2016 7:26:12 PM CEST Simon Wood wrote:
->> A number of wheels (G27/etc) do a little full right/full left 'dance'
->> when first plugged in. This patch inserts a delay so that this 'dance'
->> is completed before we disable (set to zero) the autocenter spring.
->>
->> A side benefit is that the DFGT was confused without the delay, and is
->> now correctly being set to 900' rotation mode.
->>
->> Side Effect - and the reason I am sending as RFC. This 8s delay seems
->> to have an effect on other wheels connected at the same time.
->>
->> With 3 wheels on a hub, and then the hub connected to PC. The wheel
->> on the right in video below waits for G27 to complete this 8s, before
->> it will do it's 'dance' and register with the system.
->>
->> https://www.youtube.com/watch?v=3DxCVpCw_yGgA
->>
->> I don't know if this is a problem, or if someone here has suggestions
->> on a better way to implement the delay...
->> ---
->>  drivers/hid/hid-lg4ff.c | 10 ++++++++++
->>  1 file changed, 10 insertions(+)
->>
->> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
->> index af3a8ec..3eee920 100644
->> --- a/drivers/hid/hid-lg4ff.c
->> +++ b/drivers/hid/hid-lg4ff.c
->> @@ -1248,6 +1248,8 @@ int lg4ff_init(struct hid_device *hid)
->>       /* Check if autocentering is available and
->>        * set the centering force to zero by default */
->>       if (test_bit(FF_AUTOCENTER, dev->ffbit)) {
->> +             wait_queue_head_t wait;
->> +
->>               /* Formula Force EX expects different autocentering comman=
-d */
->>               if ((bcdDevice >> 8) =3D=3D LG4FF_FFEX_REV_MAJ &&
->>                   (bcdDevice & 0xff) =3D=3D LG4FF_FFEX_REV_MIN)
->> @@ -1255,6 +1257,14 @@ int lg4ff_init(struct hid_device *hid)
->>               else
->>                       dev->ff->set_autocenter =3D lg4ff_set_autocenter_d=
-efault;
->>
->> +             /* insert a 8s delay to allow DFGT/G25/G27/G29 wheels to r=
-eturn to
-> center
->> position*/ +          if (lg4ff_devices[i].product_id =3D=3D
->> USB_DEVICE_ID_LOGITECH_DFGT_WHEEL || +
-> lg4ff_devices[i].product_id =3D=3D
->> USB_DEVICE_ID_LOGITECH_G25_WHEEL || +                         lg4ff_devi=
-ces[i].product_id
-> =3D=3D
->> USB_DEVICE_ID_LOGITECH_G27_WHEEL || +                         lg4ff_devi=
-ces[i].product_id
-> =3D=3D
->> USB_DEVICE_ID_LOGITECH_G29_WHEEL) { +                 init_waitqueue_hea=
-d (&wait);
->> +                     wait_event_interruptible_timeout(wait, 0, msecs_to=
-_jiffies(8000));
->> +             }
->>               dev->ff->set_autocenter(dev, 0);
->>       }
->
+Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-Thanks.
+---
+This patch applies against linux-next and v4.8
 
---=20
-Dmitry
+v1 -> v2
+ - Patch renamed from [PATCH V1 08/10] to [PATCH V2 03/10] -- these
+   changes were made to fix checkpatch warnings caused by the patch
+   set dependency order
+ - A second example for DA9061 is provided to highlight the use of a
+   fall-back compatible option for the DA9062 watchdog driver
+
+Hi,
+
+This patch depends on acceptance of the main code for the thermal device
+driver:
+  [PATCH V2 09/10] thermal: da9061: TJUNC temperature driver 
+
+The previous [PATCH V1 08/10] was acked-by: Rob Herring, however this has
+not been added because changes have been made to add a new binding
+example. This describes the use of DA9061.
+This addition was made after alterations to the device driver meant that a
+fall-back compatible string could reuse the DA9062 device driver.
+ 
+Regards,
+Steve Twiss, Dialog Semiconductor Ltd.
+
+
+ .../devicetree/bindings/thermal/da9062-thermal.txt | 37 ++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+
+diff --git a/Documentation/devicetree/bindings/thermal/da9062-thermal.txt b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+new file mode 100644
+index 0000000..fb207ff
+--- /dev/null
++++ b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+@@ -0,0 +1,37 @@
++* Dialog DA9062/61 TJUNC Thermal Module
++
++This module is part of the DA9061/DA9062. For more details about entire
++DA9062 and DA9061 chips see Documentation/devicetree/bindings/mfd/da9062.txt
++
++Junction temperature thermal module uses an interrupt signal to identify
++high THERMAL_TRIP_HOT temperatures for the PMIC device.
++
++Required properties:
++
++- compatible: should be one of:
++        dlg,da9061-thermal
++        dlg,da9062-thermal
++
++Optional properties:
++
++- dlg,tjunc-temp-polling-period-ms : Specify the polling period, measured
++    in milliseconds, between thermal zone device update checks.
++
++Example: DA9061
++
++	pmic0: da9062@58 {
++		thermal {
++			compatible = "dlg,da9062-thermal";
++			dlg,tjunc-temp-polling-period-ms = <3000>;
++		};
++	};
++
++Example: DA9061 using a fall-back compatible for the DA9062 onkey driver
++
++	pmic0: da9061@58 {
++		thermal {
++			compatible = "dlg,da9061-thermal", "dlg,da9062-thermal";
++			dlg,tjunc-temp-polling-period-ms = <3000>;
++		};
++	};
++
+-- 
+end-of-patch for PATCH V2
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

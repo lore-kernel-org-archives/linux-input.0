@@ -1,57 +1,159 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [GIT PULL] Immutable branch between MFD, GPIO, Input and Regulator
- due for the v4.10 merge window
-Date: Wed, 26 Oct 2016 10:34:38 +0100
-Message-ID: <20161026093438.GO8574@dell>
-References: <1474270746-11568-1-git-send-email-j-keerthy@ti.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v7 5/5] mfd: Move binding document
+Date: Wed, 26 Oct 2016 13:42:27 +0100
+Message-ID: <20161026124227.GG11267@dell>
+References: <cover.1475416202.git.ksenija.stanojevic@gmail.com>
+ <e4106d819bf15c1d35ea5dadebc354fd0f999f71.1475416202.git.ksenija.stanojevic@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f49.google.com ([74.125.82.49]:36066 "EHLO
+        mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S967041AbcJZMj6 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 26 Oct 2016 08:39:58 -0400
+Received: by mail-wm0-f49.google.com with SMTP id b80so222329053wme.1
+        for <linux-input@vger.kernel.org>; Wed, 26 Oct 2016 05:39:58 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1474270746-11568-1-git-send-email-j-keerthy-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Keerthy <j-keerthy-l0cyMroinI0@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, t-kristo-l0cyMroinI0@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+In-Reply-To: <e4106d819bf15c1d35ea5dadebc354fd0f999f71.1475416202.git.ksenija.stanojevic@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com
 
-The following changes since commit 1001354ca34179f3db924eb66672442a173147dc:
+On Sun, 02 Oct 2016, Ksenija Stanojevic wrote:
 
-  Linux 4.9-rc1 (2016-10-15 12:17:50 -0700)
+> The bindings, which are now used in MFD, need also to be
+> documented in the MFD binding document.
+> 
+> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+> ---
+> Changes in v7:
+>  - add to the patchset
+> 
+>  .../devicetree/bindings/iio/adc/mxs-lradc.txt      | 47 ----------------------
+>  .../devicetree/bindings/mfd/mxs-lradc.txt          | 47 ++++++++++++++++++++++
+>  2 files changed, 47 insertions(+), 47 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
+>  create mode 100644 Documentation/devicetree/bindings/mfd/mxs-lradc.txt
 
-are available in the git repository at:
+Please use -M when you create these kinds of patches.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-gpio-input-regulator-v4.10
+NB: I use -M all the time.  It doesn't hurt in cases where it's not
+required.
 
-for you to fetch changes up to 2dc4940360d4c0c38aa9275532c7c0d7542f6258:
+Please re-submit.
 
-  regulator: tps65218: Remove all the compatibles (2016-10-26 10:30:39 +0100)
-
-----------------------------------------------------------------
-Immutable branch between MFD, GPIO, Input and Regulator due for the v4.10 merge window
-
-----------------------------------------------------------------
-Keerthy (5):
-      mfd: tps65218: Remove redundant read wrapper
-      Documentation: regulator: tps65218: Update examples
-      input: tps65218-pwrbutton: Add platform_device_id table
-      mfd: tps65218: Use mfd_add_devices instead of of_platform_populate
-      regulator: tps65218: Remove all the compatibles
-
- .../devicetree/bindings/regulator/tps65218.txt     |  87 +++++++++---
- drivers/gpio/gpio-tps65218.c                       |   3 +-
- drivers/input/misc/tps65218-pwrbutton.c            |   8 ++
- drivers/mfd/tps65218.c                             |  34 ++---
- drivers/regulator/tps65218-regulator.c             | 153 ++++++++-------------
- include/linux/mfd/tps65218.h                       |   3 +-
- 6 files changed, 157 insertions(+), 131 deletions(-)
+> diff --git a/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt b/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
+> deleted file mode 100644
+> index 555fb11..0000000
+> --- a/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
+> +++ /dev/null
+> @@ -1,47 +0,0 @@
+> -* Freescale MXS LRADC device driver
+> -
+> -Required properties:
+> -- compatible: Should be "fsl,imx23-lradc" for i.MX23 SoC and "fsl,imx28-lradc"
+> -              for i.MX28 SoC
+> -- reg: Address and length of the register set for the device
+> -- interrupts: Should contain the LRADC interrupts
+> -
+> -Optional properties:
+> -- fsl,lradc-touchscreen-wires: Number of wires used to connect the touchscreen
+> -                               to LRADC. Valid value is either 4 or 5. If this
+> -                               property is not present, then the touchscreen is
+> -                               disabled. 5 wires is valid for i.MX28 SoC only.
+> -- fsl,ave-ctrl: number of samples per direction to calculate an average value.
+> -                Allowed value is 1 ... 32, default is 4
+> -- fsl,ave-delay: delay between consecutive samples. Allowed value is
+> -                 2 ... 2048. It is used if 'fsl,ave-ctrl' > 1, counts at
+> -                 2 kHz and its default is 2 (= 1 ms)
+> -- fsl,settling: delay between plate switch to next sample. Allowed value is
+> -                1 ... 2047. It counts at 2 kHz and its default is
+> -                10 (= 5 ms)
+> -
+> -Example for i.MX23 SoC:
+> -
+> -	lradc@80050000 {
+> -		compatible = "fsl,imx23-lradc";
+> -		reg = <0x80050000 0x2000>;
+> -		interrupts = <36 37 38 39 40 41 42 43 44>;
+> -		status = "okay";
+> -		fsl,lradc-touchscreen-wires = <4>;
+> -		fsl,ave-ctrl = <4>;
+> -		fsl,ave-delay = <2>;
+> -		fsl,settling = <10>;
+> -	};
+> -
+> -Example for i.MX28 SoC:
+> -
+> -	lradc@80050000 {
+> -		compatible = "fsl,imx28-lradc";
+> -		reg = <0x80050000 0x2000>;
+> -		interrupts = <10 14 15 16 17 18 19 20 21 22 23 24 25>;
+> -		status = "okay";
+> -		fsl,lradc-touchscreen-wires = <5>;
+> -		fsl,ave-ctrl = <4>;
+> -		fsl,ave-delay = <2>;
+> -		fsl,settling = <10>;
+> -	};
+> diff --git a/Documentation/devicetree/bindings/mfd/mxs-lradc.txt b/Documentation/devicetree/bindings/mfd/mxs-lradc.txt
+> new file mode 100644
+> index 0000000..555fb11
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/mxs-lradc.txt
+> @@ -0,0 +1,47 @@
+> +* Freescale MXS LRADC device driver
+> +
+> +Required properties:
+> +- compatible: Should be "fsl,imx23-lradc" for i.MX23 SoC and "fsl,imx28-lradc"
+> +              for i.MX28 SoC
+> +- reg: Address and length of the register set for the device
+> +- interrupts: Should contain the LRADC interrupts
+> +
+> +Optional properties:
+> +- fsl,lradc-touchscreen-wires: Number of wires used to connect the touchscreen
+> +                               to LRADC. Valid value is either 4 or 5. If this
+> +                               property is not present, then the touchscreen is
+> +                               disabled. 5 wires is valid for i.MX28 SoC only.
+> +- fsl,ave-ctrl: number of samples per direction to calculate an average value.
+> +                Allowed value is 1 ... 32, default is 4
+> +- fsl,ave-delay: delay between consecutive samples. Allowed value is
+> +                 2 ... 2048. It is used if 'fsl,ave-ctrl' > 1, counts at
+> +                 2 kHz and its default is 2 (= 1 ms)
+> +- fsl,settling: delay between plate switch to next sample. Allowed value is
+> +                1 ... 2047. It counts at 2 kHz and its default is
+> +                10 (= 5 ms)
+> +
+> +Example for i.MX23 SoC:
+> +
+> +	lradc@80050000 {
+> +		compatible = "fsl,imx23-lradc";
+> +		reg = <0x80050000 0x2000>;
+> +		interrupts = <36 37 38 39 40 41 42 43 44>;
+> +		status = "okay";
+> +		fsl,lradc-touchscreen-wires = <4>;
+> +		fsl,ave-ctrl = <4>;
+> +		fsl,ave-delay = <2>;
+> +		fsl,settling = <10>;
+> +	};
+> +
+> +Example for i.MX28 SoC:
+> +
+> +	lradc@80050000 {
+> +		compatible = "fsl,imx28-lradc";
+> +		reg = <0x80050000 0x2000>;
+> +		interrupts = <10 14 15 16 17 18 19 20 21 22 23 24 25>;
+> +		status = "okay";
+> +		fsl,lradc-touchscreen-wires = <5>;
+> +		fsl,ave-ctrl = <4>;
+> +		fsl,ave-delay = <2>;
+> +		fsl,settling = <10>;
+> +	};
 
 -- 
 Lee Jones
 Linaro STMicroelectronics Landing Team Lead
 Linaro.org │ Open source software for ARM SoCs
 Follow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

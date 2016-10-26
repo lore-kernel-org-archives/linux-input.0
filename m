@@ -1,122 +1,84 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2 07/10] Input: da9061: onkey driver
-Date: Wed, 26 Oct 2016 15:50:05 -0700
-Message-ID: <20161026225005.GA27930@dtor-ws>
-References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
- <29f73d4d4718cc5848c0414ea60f865ef39bd2cf.1477501000.git.stwiss.opensource@diasemi.com>
+Subject: Re: Input: melfas_mip4 - use product id for firmware name
+Date: Wed, 26 Oct 2016 15:54:47 -0700
+Message-ID: <20161026225447.GC27930@dtor-ws>
+References: <1477464684-5848-1-git-send-email-jeesw@melfas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:35393 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932584AbcJZWuJ (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:33494 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933396AbcJZWy6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Oct 2016 18:50:09 -0400
+        Wed, 26 Oct 2016 18:54:58 -0400
+Received: by mail-pf0-f193.google.com with SMTP id i85so663630pfa.0
+        for <linux-input@vger.kernel.org>; Wed, 26 Oct 2016 15:54:52 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <29f73d4d4718cc5848c0414ea60f865ef39bd2cf.1477501000.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <1477464684-5848-1-git-send-email-jeesw@melfas.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, DEVICETREE <devicetree@vger.kernel.org>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
+To: Sangwon Jee <jeesw@melfas.com>
+Cc: linux-input@vger.kernel.org
 
-On Wed, Oct 26, 2016 at 05:56:39PM +0100, Steve Twiss wrote:
-> From: Steve Twiss <stwiss.opensource@diasemi.com>
+On Wed, Oct 26, 2016 at 03:51:24PM +0900, Sangwon Jee wrote:
+> Use product id for firmware name to request compatible firmware.
 > 
-> Copyright header is updated to add DA9061 in its description and the module
-> description macro is extended to include DA9061.
-> 
-> Minor change to the code, alters dev_dbg() statements to report a generic
-> "PMIC" instead of DA9063. This device driver is compatible with DA9061,
-> DA9062 and DA9063.
-> 
-> Kconfig is updated to reflect support for DA9061/62/63.
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> Signed-off-by: Sangwon Jee <jeesw@melfas.com>
 
 Applied, thank you.
 
-> 
 > ---
-> This patch applies against linux-next and v4.8
+>  drivers/input/touchscreen/melfas_mip4.c | 12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
 > 
-> v1 -> v2
->  - Patch renamed from [PATCH V1 03/10] to [PATCH V2 07/10] -- these
->    changes were made to fix checkpatch warnings caused by the patch
->    set dependency order
->  - Revert changes for DA9061 specific compatible changes.
-> 
-> Dmitry,
-> 
-> Alterations made in accordance with previous e-mail thread on the use of
-> compatible strings: https://lkml.org/lkml/2016/10/7/641
-> Now assuming the use of a fallback compatible string in the DT.
-> compatible = "dlg,da9061-onkey", "dlg,da9062-onkey";
-> 
-> Regards,
-> Steve Twiss, Dialog Semiconductor Ltd.
-> 
-> 
->  drivers/input/misc/Kconfig        | 7 ++++---
->  drivers/input/misc/da9063_onkey.c | 8 ++++----
->  2 files changed, 8 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index efb0ca8..57cc9c2 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -613,11 +613,12 @@ config INPUT_DA9055_ONKEY
->  	  will be called da9055_onkey.
+> diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
+> index 8739cb7..0f2230a 100644
+> --- a/drivers/input/touchscreen/melfas_mip4.c
+> +++ b/drivers/input/touchscreen/melfas_mip4.c
+> @@ -162,6 +162,7 @@ struct mip4_ts {
+>  	char product_name[16];
+>  	u16 product_id;
+>  	char ic_name[4];
+> +	char fw_name[32];
 >  
->  config INPUT_DA9063_ONKEY
-> -	tristate "Dialog DA9062/63 OnKey"
-> +	tristate "Dialog DA9063/62/61 OnKey"
->  	depends on MFD_DA9063 || MFD_DA9062
->  	help
-> -	  Support the ONKEY of Dialog DA9063 and DA9062 Power Management ICs
-> -	  as an input device capable of reporting the power button status.
-> +	  Support the ONKEY of Dialog DA9063, DA9062 and DA9061 Power
-> +	  Management ICs as an input device capable of reporting the
-> +	  power button status.
->  
->  	  To compile this driver as a module, choose M here: the module
->  	  will be called da9063_onkey.
-> diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
-> index bb863e0..dff6fe5 100644
-> --- a/drivers/input/misc/da9063_onkey.c
-> +++ b/drivers/input/misc/da9063_onkey.c
-> @@ -1,5 +1,5 @@
->  /*
-> - * OnKey device driver for DA9063 and DA9062 PMICs
-> + * OnKey device driver for DA9063, DA9062 and DA9061 PMICs
->   * Copyright (C) 2015  Dialog Semiconductor Ltd.
->   *
->   * This program is free software; you can redistribute it and/or
-> @@ -149,13 +149,13 @@ static void da9063_poll_on(struct work_struct *work)
->  			 * and then send shutdown command
->  			 */
->  			dev_dbg(&onkey->input->dev,
-> -				"Sending SHUTDOWN to DA9063 ...\n");
-> +				"Sending SHUTDOWN to PMIC ...\n");
->  			error = regmap_write(onkey->regmap,
->  					     config->onkey_shutdown,
->  					     config->onkey_shutdown_mask);
->  			if (error)
->  				dev_err(&onkey->input->dev,
-> -					"Cannot SHUTDOWN DA9063: %d\n",
-> +					"Cannot SHUTDOWN PMIC: %d\n",
->  					error);
->  		}
+>  	unsigned int max_x;
+>  	unsigned int max_y;
+> @@ -280,6 +281,11 @@ static int mip4_query_device(struct mip4_ts *ts)
+>  		dev_dbg(&ts->client->dev, "product id: %04X\n", ts->product_id);
 >  	}
-> @@ -300,6 +300,6 @@ static struct platform_driver da9063_onkey_driver = {
->  module_platform_driver(da9063_onkey_driver);
 >  
->  MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
-> -MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063 and DA9062");
-> +MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063, DA9062 and DA9061");
+> +	/* Firmware name */
+> +	snprintf(ts->fw_name, sizeof(ts->fw_name),
+> +		"melfas_mip4_%04X.fw", ts->product_id);
+> +	dev_dbg(&ts->client->dev, "firmware name: %s\n", ts->fw_name);
+> +
+>  	/* IC name */
+>  	cmd[0] = MIP4_R0_INFO;
+>  	cmd[1] = MIP4_R1_INFO_IC_NAME;
+> @@ -1285,11 +1291,11 @@ static ssize_t mip4_sysfs_fw_update(struct device *dev,
+>  	const struct firmware *fw;
+>  	int error;
+>  
+> -	error = request_firmware(&fw, MIP4_FW_NAME, dev);
+> +	error = request_firmware(&fw, ts->fw_name, dev);
+>  	if (error) {
+>  		dev_err(&ts->client->dev,
+>  			"Failed to retrieve firmware %s: %d\n",
+> -			MIP4_FW_NAME, error);
+> +			ts->fw_name, error);
+>  		return error;
+>  	}
+>  
+> @@ -1608,6 +1614,6 @@ static struct i2c_driver mip4_driver = {
+>  module_i2c_driver(mip4_driver);
+>  
+>  MODULE_DESCRIPTION("MELFAS MIP4 Touchscreen");
+> -MODULE_VERSION("2016.10.20");
+> +MODULE_VERSION("2016.10.24");
+>  MODULE_AUTHOR("Sangwon Jee <jeesw@melfas.com>");
 >  MODULE_LICENSE("GPL");
->  MODULE_ALIAS("platform:" DA9063_DRVNAME_ONKEY);
 > -- 
-> end-of-patch for PATCH V2
+> 1.9.1
 > 
 
 -- 

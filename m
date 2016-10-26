@@ -1,70 +1,78 @@
-From: Sangwon Jee <jeesw@melfas.com>
-Subject: Input: melfas_mip4 - use product id for firmware name
-Date: Wed, 26 Oct 2016 15:51:24 +0900
-Message-ID: <1477464684-5848-1-git-send-email-jeesw@melfas.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sbs.melfas.com ([39.118.242.30]:45290 "EHLO sbs.melfas.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753777AbcJZGve (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Oct 2016 02:51:34 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@gmail.com>
+Subject: Re: [RFC] HID:hid-lg4ff: Delay to allow wheels to center after plug-in
+Date: Wed, 26 Oct 2016 09:36:27 +0200
+Message-ID: <24625977.TfGNBbEdyA@thora>
+References: <1477445172-2682-1-git-send-email-simon@mungewell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1477445172-2682-1-git-send-email-simon@mungewell.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Simon Wood <gitsend@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin Velds <edwin@velds.nl>, Elias Vanderstuyft <elias.vds@gmail.com>, Simon Wood <simon@mungewell.org>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, jeesw@melfas.com
 
-Use product id for firmware name to request compatible firmware.
+Hi all,
 
-Signed-off-by: Sangwon Jee <jeesw@melfas.com>
----
- drivers/input/touchscreen/melfas_mip4.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+maybe instead of stalling the entire init() function it'd be better to put a 
+request to disable autocentering on a workqueue and start a delayed work once 
+the init() function is done setting the wheel up? There'd be a bit more code 
+to write though...
 
-diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
-index 8739cb7..0f2230a 100644
---- a/drivers/input/touchscreen/melfas_mip4.c
-+++ b/drivers/input/touchscreen/melfas_mip4.c
-@@ -162,6 +162,7 @@ struct mip4_ts {
- 	char product_name[16];
- 	u16 product_id;
- 	char ic_name[4];
-+	char fw_name[32];
- 
- 	unsigned int max_x;
- 	unsigned int max_y;
-@@ -280,6 +281,11 @@ static int mip4_query_device(struct mip4_ts *ts)
- 		dev_dbg(&ts->client->dev, "product id: %04X\n", ts->product_id);
- 	}
- 
-+	/* Firmware name */
-+	snprintf(ts->fw_name, sizeof(ts->fw_name),
-+		"melfas_mip4_%04X.fw", ts->product_id);
-+	dev_dbg(&ts->client->dev, "firmware name: %s\n", ts->fw_name);
-+
- 	/* IC name */
- 	cmd[0] = MIP4_R0_INFO;
- 	cmd[1] = MIP4_R1_INFO_IC_NAME;
-@@ -1285,11 +1291,11 @@ static ssize_t mip4_sysfs_fw_update(struct device *dev,
- 	const struct firmware *fw;
- 	int error;
- 
--	error = request_firmware(&fw, MIP4_FW_NAME, dev);
-+	error = request_firmware(&fw, ts->fw_name, dev);
- 	if (error) {
- 		dev_err(&ts->client->dev,
- 			"Failed to retrieve firmware %s: %d\n",
--			MIP4_FW_NAME, error);
-+			ts->fw_name, error);
- 		return error;
- 	}
- 
-@@ -1608,6 +1614,6 @@ static struct i2c_driver mip4_driver = {
- module_i2c_driver(mip4_driver);
- 
- MODULE_DESCRIPTION("MELFAS MIP4 Touchscreen");
--MODULE_VERSION("2016.10.20");
-+MODULE_VERSION("2016.10.24");
- MODULE_AUTHOR("Sangwon Jee <jeesw@melfas.com>");
- MODULE_LICENSE("GPL");
--- 
-1.9.1
+Michal
 
+On Tuesday, October 25, 2016 7:26:12 PM CEST Simon Wood wrote:
+> A number of wheels (G27/etc) do a little full right/full left 'dance'
+> when first plugged in. This patch inserts a delay so that this 'dance'
+> is completed before we disable (set to zero) the autocenter spring.
+> 
+> A side benefit is that the DFGT was confused without the delay, and is
+> now correctly being set to 900' rotation mode.
+> 
+> Side Effect - and the reason I am sending as RFC. This 8s delay seems
+> to have an effect on other wheels connected at the same time.
+> 
+> With 3 wheels on a hub, and then the hub connected to PC. The wheel
+> on the right in video below waits for G27 to complete this 8s, before
+> it will do it's 'dance' and register with the system.
+> 
+> https://www.youtube.com/watch?v=xCVpCw_yGgA
+> 
+> I don't know if this is a problem, or if someone here has suggestions
+> on a better way to implement the delay...
+> ---
+>  drivers/hid/hid-lg4ff.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+> index af3a8ec..3eee920 100644
+> --- a/drivers/hid/hid-lg4ff.c
+> +++ b/drivers/hid/hid-lg4ff.c
+> @@ -1248,6 +1248,8 @@ int lg4ff_init(struct hid_device *hid)
+>  	/* Check if autocentering is available and
+>  	 * set the centering force to zero by default */
+>  	if (test_bit(FF_AUTOCENTER, dev->ffbit)) {
+> +		wait_queue_head_t wait;
+> +
+>  		/* Formula Force EX expects different autocentering command */
+>  		if ((bcdDevice >> 8) == LG4FF_FFEX_REV_MAJ &&
+>  		    (bcdDevice & 0xff) == LG4FF_FFEX_REV_MIN)
+> @@ -1255,6 +1257,14 @@ int lg4ff_init(struct hid_device *hid)
+>  		else
+>  			dev->ff->set_autocenter = lg4ff_set_autocenter_default;
+> 
+> +		/* insert a 8s delay to allow DFGT/G25/G27/G29 wheels to return to 
+center
+> position*/ +		if (lg4ff_devices[i].product_id ==
+> USB_DEVICE_ID_LOGITECH_DFGT_WHEEL || +				
+lg4ff_devices[i].product_id ==
+> USB_DEVICE_ID_LOGITECH_G25_WHEEL || +				lg4ff_devices[i].product_id 
+==
+> USB_DEVICE_ID_LOGITECH_G27_WHEEL || +				lg4ff_devices[i].product_id 
+==
+> USB_DEVICE_ID_LOGITECH_G29_WHEEL) { +			init_waitqueue_head (&wait);
+> +			wait_event_interruptible_timeout(wait, 0, msecs_to_jiffies(8000));
+> +		}
+>  		dev->ff->set_autocenter(dev, 0);
+>  	}

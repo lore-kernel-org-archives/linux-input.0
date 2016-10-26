@@ -1,78 +1,57 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@gmail.com>
-Subject: Re: [RFC] HID:hid-lg4ff: Delay to allow wheels to center after plug-in
-Date: Wed, 26 Oct 2016 09:36:27 +0200
-Message-ID: <24625977.TfGNBbEdyA@thora>
-References: <1477445172-2682-1-git-send-email-simon@mungewell.org>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [GIT PULL] Immutable branch between MFD, GPIO, Input and Regulator
+ due for the v4.10 merge window
+Date: Wed, 26 Oct 2016 10:34:38 +0100
+Message-ID: <20161026093438.GO8574@dell>
+References: <1474270746-11568-1-git-send-email-j-keerthy@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1477445172-2682-1-git-send-email-simon@mungewell.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Simon Wood <gitsend@mungewell.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin Velds <edwin@velds.nl>, Elias Vanderstuyft <elias.vds@gmail.com>, Simon Wood <simon@mungewell.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1474270746-11568-1-git-send-email-j-keerthy-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Keerthy <j-keerthy-l0cyMroinI0@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, t-kristo-l0cyMroinI0@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi all,
+The following changes since commit 1001354ca34179f3db924eb66672442a173147dc:
 
-maybe instead of stalling the entire init() function it'd be better to put a 
-request to disable autocentering on a workqueue and start a delayed work once 
-the init() function is done setting the wheel up? There'd be a bit more code 
-to write though...
+  Linux 4.9-rc1 (2016-10-15 12:17:50 -0700)
 
-Michal
+are available in the git repository at:
 
-On Tuesday, October 25, 2016 7:26:12 PM CEST Simon Wood wrote:
-> A number of wheels (G27/etc) do a little full right/full left 'dance'
-> when first plugged in. This patch inserts a delay so that this 'dance'
-> is completed before we disable (set to zero) the autocenter spring.
-> 
-> A side benefit is that the DFGT was confused without the delay, and is
-> now correctly being set to 900' rotation mode.
-> 
-> Side Effect - and the reason I am sending as RFC. This 8s delay seems
-> to have an effect on other wheels connected at the same time.
-> 
-> With 3 wheels on a hub, and then the hub connected to PC. The wheel
-> on the right in video below waits for G27 to complete this 8s, before
-> it will do it's 'dance' and register with the system.
-> 
-> https://www.youtube.com/watch?v=xCVpCw_yGgA
-> 
-> I don't know if this is a problem, or if someone here has suggestions
-> on a better way to implement the delay...
-> ---
->  drivers/hid/hid-lg4ff.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-> index af3a8ec..3eee920 100644
-> --- a/drivers/hid/hid-lg4ff.c
-> +++ b/drivers/hid/hid-lg4ff.c
-> @@ -1248,6 +1248,8 @@ int lg4ff_init(struct hid_device *hid)
->  	/* Check if autocentering is available and
->  	 * set the centering force to zero by default */
->  	if (test_bit(FF_AUTOCENTER, dev->ffbit)) {
-> +		wait_queue_head_t wait;
-> +
->  		/* Formula Force EX expects different autocentering command */
->  		if ((bcdDevice >> 8) == LG4FF_FFEX_REV_MAJ &&
->  		    (bcdDevice & 0xff) == LG4FF_FFEX_REV_MIN)
-> @@ -1255,6 +1257,14 @@ int lg4ff_init(struct hid_device *hid)
->  		else
->  			dev->ff->set_autocenter = lg4ff_set_autocenter_default;
-> 
-> +		/* insert a 8s delay to allow DFGT/G25/G27/G29 wheels to return to 
-center
-> position*/ +		if (lg4ff_devices[i].product_id ==
-> USB_DEVICE_ID_LOGITECH_DFGT_WHEEL || +				
-lg4ff_devices[i].product_id ==
-> USB_DEVICE_ID_LOGITECH_G25_WHEEL || +				lg4ff_devices[i].product_id 
-==
-> USB_DEVICE_ID_LOGITECH_G27_WHEEL || +				lg4ff_devices[i].product_id 
-==
-> USB_DEVICE_ID_LOGITECH_G29_WHEEL) { +			init_waitqueue_head (&wait);
-> +			wait_event_interruptible_timeout(wait, 0, msecs_to_jiffies(8000));
-> +		}
->  		dev->ff->set_autocenter(dev, 0);
->  	}
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-gpio-input-regulator-v4.10
+
+for you to fetch changes up to 2dc4940360d4c0c38aa9275532c7c0d7542f6258:
+
+  regulator: tps65218: Remove all the compatibles (2016-10-26 10:30:39 +0100)
+
+----------------------------------------------------------------
+Immutable branch between MFD, GPIO, Input and Regulator due for the v4.10 merge window
+
+----------------------------------------------------------------
+Keerthy (5):
+      mfd: tps65218: Remove redundant read wrapper
+      Documentation: regulator: tps65218: Update examples
+      input: tps65218-pwrbutton: Add platform_device_id table
+      mfd: tps65218: Use mfd_add_devices instead of of_platform_populate
+      regulator: tps65218: Remove all the compatibles
+
+ .../devicetree/bindings/regulator/tps65218.txt     |  87 +++++++++---
+ drivers/gpio/gpio-tps65218.c                       |   3 +-
+ drivers/input/misc/tps65218-pwrbutton.c            |   8 ++
+ drivers/mfd/tps65218.c                             |  34 ++---
+ drivers/regulator/tps65218-regulator.c             | 153 ++++++++-------------
+ include/linux/mfd/tps65218.h                       |   3 +-
+ 6 files changed, 157 insertions(+), 131 deletions(-)
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,85 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Input: melfas_mip4 - use product id for firmware name
-Date: Wed, 26 Oct 2016 15:54:47 -0700
-Message-ID: <20161026225447.GC27930@dtor-ws>
-References: <1477464684-5848-1-git-send-email-jeesw@melfas.com>
+Subject: Re: [PATCH] Input: tca8418_keypad: hide gcc-4.9
+ -Wmaybe-uninitialized warning
+Date: Wed, 26 Oct 2016 15:59:54 -0700
+Message-ID: <20161026225954.GD27930@dtor-ws>
+References: <20161024153222.2738294-1-arnd@arndb.de>
+ <20161024234513.GA15034@dtor-ws>
+ <3580924.2eqYJQ5Dgh@wuerfel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:33494 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933396AbcJZWy6 (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36702 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751201AbcJZW75 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Oct 2016 18:54:58 -0400
-Received: by mail-pf0-f193.google.com with SMTP id i85so663630pfa.0
-        for <linux-input@vger.kernel.org>; Wed, 26 Oct 2016 15:54:52 -0700 (PDT)
+        Wed, 26 Oct 2016 18:59:57 -0400
 Content-Disposition: inline
-In-Reply-To: <1477464684-5848-1-git-send-email-jeesw@melfas.com>
+In-Reply-To: <3580924.2eqYJQ5Dgh@wuerfel>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sangwon Jee <jeesw@melfas.com>
-Cc: linux-input@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Oct 26, 2016 at 03:51:24PM +0900, Sangwon Jee wrote:
-> Use product id for firmware name to request compatible firmware.
+On Tue, Oct 25, 2016 at 11:59:22AM +0200, Arnd Bergmann wrote:
+> On Monday, October 24, 2016 4:45:13 PM CEST Dmitry Torokhov wrote:
+> > > diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
+> > > index 9002298698fc..3048ef3e3e16 100644
+> > > --- a/drivers/input/keyboard/tca8418_keypad.c
+> > > +++ b/drivers/input/keyboard/tca8418_keypad.c
+> > > @@ -164,11 +164,18 @@ static void tca8418_read_keypad(struct tca8418_keypad *keypad_data)
+> > >       int error, col, row;
+> > >       u8 reg, state, code;
+> > >  
+> > > -     /* Initial read of the key event FIFO */
+> > > -     error = tca8418_read_byte(keypad_data, REG_KEY_EVENT_A, &reg);
+> > > +     do {
+> > > +             error = tca8418_read_byte(keypad_data, REG_KEY_EVENT_A, &reg);
+> > > +             if (error < 0) {
+> > > +                     dev_err(&keypad_data->client->dev,
+> > > +                             "unable to read REG_KEY_EVENT_A\n");
+> > > +                     break;
+> > > +             }
+> > > +
+> > > +             /* Assume that key code 0 signifies empty FIFO */
+> > > +             if (reg <= 0)
+> > > +                     break;
+> > 
+> > I am unconvinced that this rearrangement fixes the issue for all older
+> > GCCs. Can we simply do:
+> > 
+> >         u8 uninitialized_var(reg);
+> > 
+> > and be done with it?
 > 
-> Signed-off-by: Sangwon Jee <jeesw@melfas.com>
+> Yes, that would work. However:
+> 
+> - avoiding the fake intialization tends to produce better object
+>   code, as gcc actually knows what's going on
+> - Linus doesn't like uninitialized_var() and would rather see it
+>   removed from the kernel
+> - llvm produces warnings for uninitialized_var()
+> 
+> I have checked gcc-4.6/4.7/4.8/4.9/5.x/6.x, and only gcc-4.9
+> produces the warning. 4.9 changed the detection for uninitialized
+> variables significantly, which generally caused fewer false
+> positives but unfortunately introduced a couple of new ones
+> like this.
 
-Applied, thank you.
+OK, I'll apply it then.
 
-> ---
->  drivers/input/touchscreen/melfas_mip4.c | 12 +++++++++---
->  1 file changed, 9 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
-> index 8739cb7..0f2230a 100644
-> --- a/drivers/input/touchscreen/melfas_mip4.c
-> +++ b/drivers/input/touchscreen/melfas_mip4.c
-> @@ -162,6 +162,7 @@ struct mip4_ts {
->  	char product_name[16];
->  	u16 product_id;
->  	char ic_name[4];
-> +	char fw_name[32];
->  
->  	unsigned int max_x;
->  	unsigned int max_y;
-> @@ -280,6 +281,11 @@ static int mip4_query_device(struct mip4_ts *ts)
->  		dev_dbg(&ts->client->dev, "product id: %04X\n", ts->product_id);
->  	}
->  
-> +	/* Firmware name */
-> +	snprintf(ts->fw_name, sizeof(ts->fw_name),
-> +		"melfas_mip4_%04X.fw", ts->product_id);
-> +	dev_dbg(&ts->client->dev, "firmware name: %s\n", ts->fw_name);
-> +
->  	/* IC name */
->  	cmd[0] = MIP4_R0_INFO;
->  	cmd[1] = MIP4_R1_INFO_IC_NAME;
-> @@ -1285,11 +1291,11 @@ static ssize_t mip4_sysfs_fw_update(struct device *dev,
->  	const struct firmware *fw;
->  	int error;
->  
-> -	error = request_firmware(&fw, MIP4_FW_NAME, dev);
-> +	error = request_firmware(&fw, ts->fw_name, dev);
->  	if (error) {
->  		dev_err(&ts->client->dev,
->  			"Failed to retrieve firmware %s: %d\n",
-> -			MIP4_FW_NAME, error);
-> +			ts->fw_name, error);
->  		return error;
->  	}
->  
-> @@ -1608,6 +1614,6 @@ static struct i2c_driver mip4_driver = {
->  module_i2c_driver(mip4_driver);
->  
->  MODULE_DESCRIPTION("MELFAS MIP4 Touchscreen");
-> -MODULE_VERSION("2016.10.20");
-> +MODULE_VERSION("2016.10.24");
->  MODULE_AUTHOR("Sangwon Jee <jeesw@melfas.com>");
->  MODULE_LICENSE("GPL");
-> -- 
-> 1.9.1
-> 
+Thanks.
 
 -- 
 Dmitry

@@ -1,408 +1,696 @@
-From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH V2 09/10] thermal: da9062/61: Thermal junction temperature
- monitoring driver
-Date: Wed, 26 Oct 2016 17:56:39 +0100
-Message-ID: <20fefc922818ab0511101f73b1a4d3468c9a8ed3.1477501000.git.stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: [PATCH V2 05/10] mfd: da9061: MFD core support
+Date: Wed, 26 Oct 2016 17:56:38 +0100
+Message-ID: <bf02595c2fa32ba0c4311e2d480321b811fc9cf5.1477501000.git.stwiss.opensource@diasemi.com>
 References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1477501000.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1477501000.git.stwiss.opensource@diasemi.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LINUX-KERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
+Cc: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-Add junction temperature monitoring supervisor device driver, compatible
-with the DA9062 and DA9061 PMICs.
+MFD support for DA9061 is provided as part of the DA9062 device driver.
 
-If the PMIC's internal junction temperature rises above TEMP_WARN (125
-degC) an interrupt is issued. This TEMP_WARN level is defined as the
-THERMAL_TRIP_HOT trip-wire inside the device driver.
+The registers header file adds two new chip variant IDs defined in DA9061
+and DA9062 hardware. The core header file adds new software enumerations
+for listing the valid DA9061 IRQs and a da9062_compatible_types enumeration
+for distinguishing between DA9061/62 devices in software.
 
-The thermal triggering mechanism is interrupt based and happens when the
-temperature rises above a given threshold level. The component cannot
-return an exact temperature, it only has knowledge if the temperature is
-above or below a given threshold value. A status bit must be polled to
-detect when the temperature falls below that threshold level again. A
-kernel work queue is configured to repeatedly poll and detect when the
-temperature falls below this trip-wire, between 1 and 10 second intervals
-(defaulting at 3 seconds).
+The core source code adds a new .compatible of_device_id entry. This is
+extended from DA9062 to support both "dlg,da9061" and "dlg,da9062". The
+.data entry now holds a reference to the enumerated device type.
 
-This first level of temperature supervision is intended for non-invasive
-temperature control, where the necessary measures for cooling the system
-down are left to the host software.
+A new regmap_irq_chip model is added for DA9061 and this supports the new
+list of regmap_irq entries. A new mfd_cell da9061_devs[] array lists the
+new sub system components for DA9061. Support is added for a new DA9061
+regmap_config which lists the correct readable, writable and volatile
+ranges for this chip.
 
-Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+The probe function uses the device tree compatible string to switch on the
+da9062_compatible_types and configure the correct mfd cells, irq chip and
+regmap config.
+ 
+Kconfig is updated to reflect support for DA9061 and DA9062 PMICs.
+
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
 ---
 This patch applies against linux-next and v4.8
 
 v1 -> v2
- - Patch renamed from [PATCH V1 05/10] to [PATCH V2 09/10] -- these
+ - Patch renamed from [PATCH V1 01/10] to [PATCH V2 05/10] -- these
    changes were made to fix checkpatch warnings caused by the patch
    set dependency order
- - List the header files in alphabetical order
- - Remove "GPL v2" and replace with MODULE_LICENSE("GPL") to match the
-   copyright "GNU Public License v2 or later" option in the header
-   comment for this file. See the allowed identifiers in the file
-   include/linux/module.h +170
- - Remove notify function "da9062_thermal_notify" function.
- - MODULE_AUTHOR() macros removes Company Name and just gives Name in
-   accordance with include/linux/module.h +200
- - Remove the compatible "dlg,da9061-thermal" option in the of_device_id
-   struct table. This patch now assumes the use of a DA9062 fallback
-   compatible string in the DTS when using the DA9061 thermal component
-   of the DA9061 device.
- - Re-ordered some assignments earlier in the probe() for thermal->hw,
-   thermal->polling_period, thermal->mode, thermal->dev
- - Added further information in the patch description to explain the use
-   of the device driver's built-in work-queue.
+ - Fixed typo in the commit message "readble" to "readable"
+ - Removed the explicit cross-check to decide if there is a conflict
+   between the device tree compatible string and the hardware definition.
+   This patch assumes the device tree is correctly written and therefore
+   removes the need for a hardware/DT sanity check.
+ - Removed extra semicolon in drivers/mfd/da9062-core.c:877
+ - Re-write compatible entries into numerical order
+
+Lee,
+
+This patch adds support for the DA9061 PMIC. This is done as part of the
+existing DA9062 device driver by extending the of_device_id match table.
+This in turn allows new MFD cells, irq chip and regmap definitions to
+support DA9061.
 
 Regards,
 Steve Twiss, Dialog Semiconductor Ltd.
 
 
- drivers/thermal/Kconfig          |  10 ++
- drivers/thermal/Makefile         |   1 +
- drivers/thermal/da9062-thermal.c | 289 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 300 insertions(+)
- create mode 100644 drivers/thermal/da9062-thermal.c
+ drivers/mfd/Kconfig                  |   5 +-
+ drivers/mfd/da9062-core.c            | 427 +++++++++++++++++++++++++++++++++--
+ include/linux/mfd/da9062/core.h      |  27 ++-
+ include/linux/mfd/da9062/registers.h |   2 +
+ 4 files changed, 441 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
-index 2d702ca..da58e54 100644
---- a/drivers/thermal/Kconfig
-+++ b/drivers/thermal/Kconfig
-@@ -272,6 +272,16 @@ config DB8500_CPUFREQ_COOLING
- 	  bound cpufreq cooling device turns active to set CPU frequency low to
- 	  cool down the CPU.
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 2d1fb64..533798a 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -236,13 +236,14 @@ config MFD_DA9055
+ 	  called "da9055"
  
-+config DA9062_THERMAL
-+	tristate "DA9062/DA9061 Dialog Semiconductor thermal driver"
-+	depends on MFD_DA9062
-+	depends on OF
-+	help
-+	  Enable this for the Dialog Semiconductor thermal sensor driver.
-+	  This will report PMIC junction over-temperature for one thermal trip
-+	  zone.
-+	  Compatible with the DA9062 and DA9061 PMICs.
-+
- config INTEL_POWERCLAMP
- 	tristate "Intel PowerClamp idle injection driver"
- 	depends on THERMAL
-diff --git a/drivers/thermal/Makefile b/drivers/thermal/Makefile
-index 10b07c1..0a2b3f2 100644
---- a/drivers/thermal/Makefile
-+++ b/drivers/thermal/Makefile
-@@ -38,6 +38,7 @@ obj-$(CONFIG_ARMADA_THERMAL)	+= armada_thermal.o
- obj-$(CONFIG_TANGO_THERMAL)	+= tango_thermal.o
- obj-$(CONFIG_IMX_THERMAL)	+= imx_thermal.o
- obj-$(CONFIG_DB8500_CPUFREQ_COOLING)	+= db8500_cpufreq_cooling.o
-+obj-$(CONFIG_DA9062_THERMAL)	+= da9062-thermal.o
- obj-$(CONFIG_INTEL_POWERCLAMP)	+= intel_powerclamp.o
- obj-$(CONFIG_X86_PKG_TEMP_THERMAL)	+= x86_pkg_temp_thermal.o
- obj-$(CONFIG_INTEL_SOC_DTS_IOSF_CORE)	+= intel_soc_dts_iosf.o
-diff --git a/drivers/thermal/da9062-thermal.c b/drivers/thermal/da9062-thermal.c
-new file mode 100644
-index 0000000..e0d2b1b
---- /dev/null
-+++ b/drivers/thermal/da9062-thermal.c
-@@ -0,0 +1,289 @@
-+/*
-+ * Thermal device driver for DA9062 and DA9061
-+ * Copyright (C) 2016  Dialog Semiconductor Ltd.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version 2
-+ * of the License, or (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/errno.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+#include <linux/thermal.h>
-+#include <linux/workqueue.h>
-+
-+#include <linux/mfd/da9062/core.h>
-+#include <linux/mfd/da9062/registers.h>
-+
-+#define DA9062_DEFAULT_POLLING_MS_PERIOD	3000
-+#define DA9062_MAX_POLLING_MS_PERIOD		10000
-+#define DA9062_MIN_POLLING_MS_PERIOD		1000
-+
-+#define DA9062_MILLI_CELSIUS(t)			((t)*1000)
-+
-+struct da9062_thermal_config {
-+	const char *name;
-+};
-+
-+struct da9062_thermal {
-+	struct da9062 *hw;
-+	struct delayed_work work;
-+	struct thermal_zone_device *zone;
-+	enum thermal_device_mode mode;
-+	unsigned int polling_period;
-+	struct mutex lock;
-+	int temperature;
-+	int irq;
-+	const struct da9062_thermal_config *config;
-+	struct device *dev;
-+};
-+
-+static void da9062_thermal_poll_on(struct work_struct *work)
-+{
-+	struct da9062_thermal *thermal = container_of(work,
-+						struct da9062_thermal,
-+						work.work);
-+	unsigned int val;
-+	int ret;
-+
-+	/* clear E_TEMP */
-+	ret = regmap_write(thermal->hw->regmap,
-+				DA9062AA_EVENT_B,
-+				DA9062AA_E_TEMP_MASK);
-+	if (ret < 0) {
-+		dev_err(thermal->dev,
-+			"Cannot clear the TJUNC temperature status\n");
-+		goto err_enable_irq;
-+	}
-+
-+	/* Now read E_TEMP again: it is acting like a status bit.
-+	 * If over-temperature, then this status will be true.
-+	 * If not over-temperature, this status will be false.
-+	 */
-+	ret = regmap_read(thermal->hw->regmap,
-+			  DA9062AA_EVENT_B,
-+			  &val);
-+	if (ret < 0) {
-+		dev_err(thermal->dev,
-+			"Cannot check the TJUNC temperature status\n");
-+		goto err_enable_irq;
-+	} else {
-+		if (val & DA9062AA_E_TEMP_MASK) {
-+			mutex_lock(&thermal->lock);
-+			thermal->temperature = DA9062_MILLI_CELSIUS(125);
-+			mutex_unlock(&thermal->lock);
-+			thermal_zone_device_update(thermal->zone);
-+
-+			schedule_delayed_work(&thermal->work,
-+				msecs_to_jiffies(thermal->polling_period));
-+			return;
-+		} else {
-+			mutex_lock(&thermal->lock);
-+			thermal->temperature = DA9062_MILLI_CELSIUS(0);
-+			mutex_unlock(&thermal->lock);
-+			thermal_zone_device_update(thermal->zone);
-+		}
-+	}
-+
-+err_enable_irq:
-+	enable_irq(thermal->irq);
-+}
-+
-+static irqreturn_t da9062_thermal_irq_handler(int irq, void *data)
-+{
-+	struct da9062_thermal *thermal = data;
-+
-+	disable_irq_nosync(thermal->irq);
-+	schedule_delayed_work(&thermal->work, 0);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int da9062_thermal_get_mode(struct thermal_zone_device *z,
-+				   enum thermal_device_mode *mode)
-+{
-+	struct da9062_thermal *thermal = z->devdata;
-+	*mode = thermal->mode;
-+	return 0;
-+}
-+
-+static int da9062_thermal_get_trip_type(struct thermal_zone_device *z,
-+				int trip,
-+				enum thermal_trip_type *type)
-+{
-+	struct da9062_thermal *thermal = z->devdata;
-+
-+	switch (trip) {
-+	case 0:
-+		*type = THERMAL_TRIP_HOT;
-+		break;
-+	default:
-+		dev_err(thermal->dev,
-+			"Driver does not support more than 1 trip-wire\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int da9062_thermal_get_trip_temp(struct thermal_zone_device *z,
-+					int trip,
-+					int *temp)
-+{
-+	struct da9062_thermal *thermal = z->devdata;
-+
-+	switch (trip) {
-+	case 0:
-+		*temp = DA9062_MILLI_CELSIUS(125);
-+		break;
-+	default:
-+		dev_err(thermal->dev,
-+			"Driver does not support more than 1 trip-wire\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int da9062_thermal_get_temp(struct thermal_zone_device *z,
-+				   int *temp)
-+{
-+	struct da9062_thermal *thermal = z->devdata;
-+
-+	mutex_lock(&thermal->lock);
-+	*temp = thermal->temperature;
-+	mutex_unlock(&thermal->lock);
-+
-+	return 0;
-+}
-+
-+static struct thermal_zone_device_ops da9062_thermal_ops = {
-+	.get_temp	= da9062_thermal_get_temp,
-+	.get_mode	= da9062_thermal_get_mode,
-+	.get_trip_type	= da9062_thermal_get_trip_type,
-+	.get_trip_temp	= da9062_thermal_get_trip_temp,
-+};
-+
-+static const struct da9062_thermal_config da9062_config = {
-+	.name = "da9062-thermal",
-+};
-+
-+static const struct of_device_id da9062_compatible_reg_id_table[] = {
-+	{ .compatible = "dlg,da9062-thermal", .data = &da9062_config },
-+	{ },
-+};
-+
-+static int da9062_thermal_probe(struct platform_device *pdev)
-+{
-+	struct da9062 *chip = dev_get_drvdata(pdev->dev.parent);
-+	struct da9062_thermal *thermal;
-+	unsigned int pp_tmp = DA9062_DEFAULT_POLLING_MS_PERIOD;
-+	const struct of_device_id *match;
-+	int ret = 0;
-+
-+	match = of_match_node(da9062_compatible_reg_id_table,
-+			      pdev->dev.of_node);
-+	if (!match)
-+		return -ENXIO;
-+
-+	if (pdev->dev.of_node) {
-+		if (!of_property_read_u32(pdev->dev.of_node,
-+					"dlg,tjunc-temp-polling-period-ms",
-+					&pp_tmp)) {
-+			if (pp_tmp < DA9062_MIN_POLLING_MS_PERIOD ||
-+				pp_tmp > DA9062_MAX_POLLING_MS_PERIOD)
-+				pp_tmp = DA9062_DEFAULT_POLLING_MS_PERIOD;
-+		}
-+
-+		dev_dbg(&pdev->dev,
-+			 "TJUNC temp polling period set at %d ms\n",
-+			 pp_tmp);
-+	}
-+
-+	thermal = devm_kzalloc(&pdev->dev, sizeof(struct da9062_thermal),
-+			     GFP_KERNEL);
-+	if (!thermal) {
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+
-+	thermal->config = match->data;
-+	thermal->hw = chip;
-+	thermal->polling_period = pp_tmp;
-+	thermal->mode = THERMAL_DEVICE_ENABLED;
-+	thermal->dev = &pdev->dev;
-+
-+	INIT_DELAYED_WORK(&thermal->work, da9062_thermal_poll_on);
-+	mutex_init(&thermal->lock);
-+
-+	thermal->zone = thermal_zone_device_register(thermal->config->name,
-+					1, 0, thermal,
-+					&da9062_thermal_ops, NULL, 0,
-+					0);
-+	if (IS_ERR(thermal->zone)) {
-+		dev_err(&pdev->dev, "Cannot register thermal zone device\n");
-+		ret = PTR_ERR(thermal->zone);
-+		goto err;
-+	}
-+
-+	ret = platform_get_irq_byname(pdev, "THERMAL");
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
-+		goto err_zone;
-+	}
-+	thermal->irq = ret;
-+
-+	ret = request_threaded_irq(thermal->irq, NULL,
-+				   da9062_thermal_irq_handler,
-+				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+				   "THERMAL", thermal);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"Failed to request thermal device IRQ.\n");
-+		goto err_zone;
-+	}
-+
-+	platform_set_drvdata(pdev, thermal);
-+	return 0;
-+
-+err_zone:
-+	thermal_zone_device_unregister(thermal->zone);
-+err:
-+	return ret;
-+}
-+
-+static int da9062_thermal_remove(struct platform_device *pdev)
-+{
-+	struct	da9062_thermal *thermal = platform_get_drvdata(pdev);
-+
-+	free_irq(thermal->irq, thermal);
-+	thermal_zone_device_unregister(thermal->zone);
-+	cancel_delayed_work_sync(&thermal->work);
-+	return 0;
-+}
-+
-+static struct platform_driver da9062_thermal_driver = {
-+	.probe	= da9062_thermal_probe,
-+	.remove	= da9062_thermal_remove,
-+	.driver	= {
-+		.name	= "da9062-thermal",
-+		.of_match_table = da9062_compatible_reg_id_table,
+ config MFD_DA9062
+-	tristate "Dialog Semiconductor DA9062 PMIC Support"
++	tristate "Dialog Semiconductor DA9062/61 PMIC Support"
+ 	select MFD_CORE
+ 	select REGMAP_I2C
+ 	select REGMAP_IRQ
+ 	depends on I2C
+ 	help
+-	  Say yes here for support for the Dialog Semiconductor DA9062 PMIC.
++	  Say yes here for support for the Dialog Semiconductor DA9061 and
++	  DA9062 PMICs.
+ 	  This includes the I2C driver and core APIs.
+ 	  Additional drivers must be enabled in order to use the functionality
+ 	  of the device.
+diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+index 8f873866..6585ad6 100644
+--- a/drivers/mfd/da9062-core.c
++++ b/drivers/mfd/da9062-core.c
+@@ -1,5 +1,5 @@
+ /*
+- * Core, IRQ and I2C device driver for DA9062 PMIC
++ * Core, IRQ and I2C device driver for DA9061 and DA9062 PMICs
+  * Copyright (C) 2015  Dialog Semiconductor Ltd.
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -30,6 +30,70 @@
+ #define	DA9062_REG_EVENT_B_OFFSET	1
+ #define	DA9062_REG_EVENT_C_OFFSET	2
+ 
++static struct regmap_irq da9061_irqs[] = {
++	/* EVENT A */
++	[DA9061_IRQ_ONKEY] = {
++		.reg_offset = DA9062_REG_EVENT_A_OFFSET,
++		.mask = DA9062AA_M_NONKEY_MASK,
++	},
++	[DA9061_IRQ_WDG_WARN] = {
++		.reg_offset = DA9062_REG_EVENT_A_OFFSET,
++		.mask = DA9062AA_M_WDG_WARN_MASK,
++	},
++	[DA9061_IRQ_SEQ_RDY] = {
++		.reg_offset = DA9062_REG_EVENT_A_OFFSET,
++		.mask = DA9062AA_M_SEQ_RDY_MASK,
++	},
++	/* EVENT B */
++	[DA9061_IRQ_TEMP] = {
++		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
++		.mask = DA9062AA_M_TEMP_MASK,
++	},
++	[DA9061_IRQ_LDO_LIM] = {
++		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
++		.mask = DA9062AA_M_LDO_LIM_MASK,
++	},
++	[DA9061_IRQ_DVC_RDY] = {
++		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
++		.mask = DA9062AA_M_DVC_RDY_MASK,
++	},
++	[DA9061_IRQ_VDD_WARN] = {
++		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
++		.mask = DA9062AA_M_VDD_WARN_MASK,
++	},
++	/* EVENT C */
++	[DA9061_IRQ_GPI0] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI0_MASK,
++	},
++	[DA9061_IRQ_GPI1] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI1_MASK,
++	},
++	[DA9061_IRQ_GPI2] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI2_MASK,
++	},
++	[DA9061_IRQ_GPI3] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI3_MASK,
++	},
++	[DA9061_IRQ_GPI4] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI4_MASK,
 +	},
 +};
 +
-+module_platform_driver(da9062_thermal_driver);
++static struct regmap_irq_chip da9061_irq_chip = {
++	.name = "da9061-irq",
++	.irqs = da9061_irqs,
++	.num_irqs = DA9061_NUM_IRQ,
++	.num_regs = 3,
++	.status_base = DA9062AA_EVENT_A,
++	.mask_base = DA9062AA_IRQ_MASK_A,
++	.ack_base = DA9062AA_EVENT_A,
++};
 +
-+MODULE_AUTHOR("Steve Twiss");
-+MODULE_DESCRIPTION("Thermal TJUNC device driver for Dialog DA9062 and DA9061");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:da9062-thermal");
+ static struct regmap_irq da9062_irqs[] = {
+ 	/* EVENT A */
+ 	[DA9062_IRQ_ONKEY] = {
+@@ -102,6 +166,57 @@ static struct regmap_irq_chip da9062_irq_chip = {
+ 	.ack_base = DA9062AA_EVENT_A,
+ };
+ 
++static struct resource da9061_core_resources[] = {
++	DEFINE_RES_NAMED(DA9061_IRQ_VDD_WARN, 1, "VDD_WARN", IORESOURCE_IRQ),
++};
++
++static struct resource da9061_regulators_resources[] = {
++	DEFINE_RES_NAMED(DA9061_IRQ_LDO_LIM, 1, "LDO_LIM", IORESOURCE_IRQ),
++};
++
++static struct resource da9061_thermal_resources[] = {
++	DEFINE_RES_NAMED(DA9061_IRQ_TEMP, 1, "THERMAL", IORESOURCE_IRQ),
++};
++
++static struct resource da9061_wdt_resources[] = {
++	DEFINE_RES_NAMED(DA9061_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
++};
++
++static struct resource da9061_onkey_resources[] = {
++	DEFINE_RES_NAMED(DA9061_IRQ_ONKEY, 1, "ONKEY", IORESOURCE_IRQ),
++};
++
++static const struct mfd_cell da9061_devs[] = {
++	{
++		.name		= "da9061-core",
++		.num_resources	= ARRAY_SIZE(da9061_core_resources),
++		.resources	= da9061_core_resources,
++	},
++	{
++		.name		= "da9062-regulators",
++		.num_resources	= ARRAY_SIZE(da9061_regulators_resources),
++		.resources	= da9061_regulators_resources,
++	},
++	{
++		.name		= "da9061-watchdog",
++		.num_resources	= ARRAY_SIZE(da9061_wdt_resources),
++		.resources	= da9061_wdt_resources,
++		.of_compatible  = "dlg,da9061-watchdog",
++	},
++	{
++		.name		= "da9061-thermal",
++		.num_resources	= ARRAY_SIZE(da9061_thermal_resources),
++		.resources	= da9061_thermal_resources,
++		.of_compatible  = "dlg,da9061-thermal",
++	},
++	{
++		.name		= "da9061-onkey",
++		.num_resources	= ARRAY_SIZE(da9061_onkey_resources),
++		.resources	= da9061_onkey_resources,
++		.of_compatible = "dlg,da9061-onkey",
++	},
++};
++
+ static struct resource da9062_core_resources[] = {
+ 	DEFINE_RES_NAMED(DA9062_IRQ_VDD_WARN, 1, "VDD_WARN", IORESOURCE_IRQ),
+ };
+@@ -142,7 +257,7 @@ static const struct mfd_cell da9062_devs[] = {
+ 		.name		= "da9062-watchdog",
+ 		.num_resources	= ARRAY_SIZE(da9062_wdt_resources),
+ 		.resources	= da9062_wdt_resources,
+-		.of_compatible  = "dlg,da9062-wdt",
++		.of_compatible  = "dlg,da9062-watchdog",
+ 	},
+ 	{
+ 		.name		= "da9062-thermal",
+@@ -200,7 +315,8 @@ static int da9062_clear_fault_log(struct da9062 *chip)
+ 
+ static int da9062_get_device_type(struct da9062 *chip)
+ {
+-	int device_id, variant_id, variant_mrc;
++	int device_id, variant_id, variant_mrc, variant_vrc;
++	char *type;
+ 	int ret;
+ 
+ 	ret = regmap_read(chip->regmap, DA9062AA_DEVICE_ID, &device_id);
+@@ -208,6 +324,7 @@ static int da9062_get_device_type(struct da9062 *chip)
+ 		dev_err(chip->dev, "Cannot read chip ID.\n");
+ 		return -EIO;
+ 	}
++
+ 	if (device_id != DA9062_PMIC_DEVICE_ID) {
+ 		dev_err(chip->dev, "Invalid device ID: 0x%02x\n", device_id);
+ 		return -ENODEV;
+@@ -219,9 +336,23 @@ static int da9062_get_device_type(struct da9062 *chip)
+ 		return -EIO;
+ 	}
+ 
++	variant_vrc = (variant_id & DA9062AA_VRC_MASK) >> DA9062AA_VRC_SHIFT;
++
++	switch (variant_vrc) {
++	case DA9062_PMIC_VARIANT_VRC_DA9061:
++		type = "DA9061";
++		break;
++	case DA9062_PMIC_VARIANT_VRC_DA9062:
++		type = "DA9062";
++		break;
++	default:
++		type = "Unknown";
++		break;
++	}
++
+ 	dev_info(chip->dev,
+-		 "Device detected (device-ID: 0x%02X, var-ID: 0x%02X)\n",
+-		 device_id, variant_id);
++		 "Device detected (device-ID: 0x%02X, var-ID: 0x%02X, %s)\n",
++		 device_id, variant_id, type);
+ 
+ 	variant_mrc = (variant_id & DA9062AA_MRC_MASK) >> DA9062AA_MRC_SHIFT;
+ 
+@@ -234,6 +365,234 @@ static int da9062_get_device_type(struct da9062 *chip)
+ 	return ret;
+ }
+ 
++static const struct regmap_range da9061_aa_readable_ranges[] = {
++	{
++		.range_min = DA9062AA_PAGE_CON,
++		.range_max = DA9062AA_STATUS_B,
++	}, {
++		.range_min = DA9062AA_STATUS_D,
++		.range_max = DA9062AA_EVENT_C,
++	}, {
++		.range_min = DA9062AA_IRQ_MASK_A,
++		.range_max = DA9062AA_IRQ_MASK_C,
++	}, {
++		.range_min = DA9062AA_CONTROL_A,
++		.range_max = DA9062AA_GPIO_4,
++	}, {
++		.range_min = DA9062AA_GPIO_WKUP_MODE,
++		.range_max = DA9062AA_GPIO_OUT3_4,
++	}, {
++		.range_min = DA9062AA_BUCK1_CONT,
++		.range_max = DA9062AA_BUCK4_CONT,
++	}, {
++		.range_min = DA9062AA_BUCK3_CONT,
++		.range_max = DA9062AA_BUCK3_CONT,
++	}, {
++		.range_min = DA9062AA_LDO1_CONT,
++		.range_max = DA9062AA_LDO4_CONT,
++	}, {
++		.range_min = DA9062AA_DVC_1,
++		.range_max = DA9062AA_DVC_1,
++	}, {
++		.range_min = DA9062AA_SEQ,
++		.range_max = DA9062AA_ID_4_3,
++	}, {
++		.range_min = DA9062AA_ID_12_11,
++		.range_max = DA9062AA_ID_16_15,
++	}, {
++		.range_min = DA9062AA_ID_22_21,
++		.range_max = DA9062AA_ID_32_31,
++	}, {
++		.range_min = DA9062AA_SEQ_A,
++		.range_max = DA9062AA_WAIT,
++	}, {
++		.range_min = DA9062AA_RESET,
++		.range_max = DA9062AA_BUCK_ILIM_C,
++	}, {
++		.range_min = DA9062AA_BUCK1_CFG,
++		.range_max = DA9062AA_BUCK3_CFG,
++	}, {
++		.range_min = DA9062AA_VBUCK1_A,
++		.range_max = DA9062AA_VBUCK4_A,
++	}, {
++		.range_min = DA9062AA_VBUCK3_A,
++		.range_max = DA9062AA_VBUCK3_A,
++	}, {
++		.range_min = DA9062AA_VLDO1_A,
++		.range_max = DA9062AA_VLDO4_A,
++	}, {
++		.range_min = DA9062AA_VBUCK1_B,
++		.range_max = DA9062AA_VBUCK4_B,
++	}, {
++		.range_min = DA9062AA_VBUCK3_B,
++		.range_max = DA9062AA_VBUCK3_B,
++	}, {
++		.range_min = DA9062AA_VLDO1_B,
++		.range_max = DA9062AA_VLDO4_B,
++	}, {
++		.range_min = DA9062AA_BBAT_CONT,
++		.range_max = DA9062AA_BBAT_CONT,
++	}, {
++		.range_min = DA9062AA_INTERFACE,
++		.range_max = DA9062AA_CONFIG_E,
++	}, {
++		.range_min = DA9062AA_CONFIG_G,
++		.range_max = DA9062AA_CONFIG_K,
++	}, {
++		.range_min = DA9062AA_CONFIG_M,
++		.range_max = DA9062AA_CONFIG_M,
++	}, {
++		.range_min = DA9062AA_GP_ID_0,
++		.range_max = DA9062AA_GP_ID_19,
++	}, {
++		.range_min = DA9062AA_DEVICE_ID,
++		.range_max = DA9062AA_CONFIG_ID,
++	},
++};
++
++static const struct regmap_range da9061_aa_writeable_ranges[] = {
++	{
++		.range_min = DA9062AA_PAGE_CON,
++		.range_max = DA9062AA_PAGE_CON,
++	}, {
++		.range_min = DA9062AA_FAULT_LOG,
++		.range_max = DA9062AA_EVENT_C,
++	}, {
++		.range_min = DA9062AA_IRQ_MASK_A,
++		.range_max = DA9062AA_IRQ_MASK_C,
++	}, {
++		.range_min = DA9062AA_CONTROL_A,
++		.range_max = DA9062AA_GPIO_4,
++	}, {
++		.range_min = DA9062AA_GPIO_WKUP_MODE,
++		.range_max = DA9062AA_GPIO_OUT3_4,
++	}, {
++		.range_min = DA9062AA_BUCK1_CONT,
++		.range_max = DA9062AA_BUCK4_CONT,
++	}, {
++		.range_min = DA9062AA_BUCK3_CONT,
++		.range_max = DA9062AA_BUCK3_CONT,
++	}, {
++		.range_min = DA9062AA_LDO1_CONT,
++		.range_max = DA9062AA_LDO4_CONT,
++	}, {
++		.range_min = DA9062AA_DVC_1,
++		.range_max = DA9062AA_DVC_1,
++	}, {
++		.range_min = DA9062AA_SEQ,
++		.range_max = DA9062AA_ID_4_3,
++	}, {
++		.range_min = DA9062AA_ID_12_11,
++		.range_max = DA9062AA_ID_16_15,
++	}, {
++		.range_min = DA9062AA_ID_22_21,
++		.range_max = DA9062AA_ID_32_31,
++	}, {
++		.range_min = DA9062AA_SEQ_A,
++		.range_max = DA9062AA_WAIT,
++	}, {
++		.range_min = DA9062AA_RESET,
++		.range_max = DA9062AA_BUCK_ILIM_C,
++	}, {
++		.range_min = DA9062AA_BUCK1_CFG,
++		.range_max = DA9062AA_BUCK3_CFG,
++	}, {
++		.range_min = DA9062AA_VBUCK1_A,
++		.range_max = DA9062AA_VBUCK4_A,
++	}, {
++		.range_min = DA9062AA_VBUCK3_A,
++		.range_max = DA9062AA_VBUCK3_A,
++	}, {
++		.range_min = DA9062AA_VLDO1_A,
++		.range_max = DA9062AA_VLDO4_A,
++	}, {
++		.range_min = DA9062AA_VBUCK1_B,
++		.range_max = DA9062AA_VBUCK4_B,
++	}, {
++		.range_min = DA9062AA_VBUCK3_B,
++		.range_max = DA9062AA_VBUCK3_B,
++	}, {
++		.range_min = DA9062AA_VLDO1_B,
++		.range_max = DA9062AA_VLDO4_B,
++	}, {
++		.range_min = DA9062AA_BBAT_CONT,
++		.range_max = DA9062AA_BBAT_CONT,
++	}, {
++		.range_min = DA9062AA_GP_ID_0,
++		.range_max = DA9062AA_GP_ID_19,
++	},
++};
++
++static const struct regmap_range da9061_aa_volatile_ranges[] = {
++	{
++		.range_min = DA9062AA_PAGE_CON,
++		.range_max = DA9062AA_STATUS_B,
++	}, {
++		.range_min = DA9062AA_STATUS_D,
++		.range_max = DA9062AA_EVENT_C,
++	}, {
++		.range_min = DA9062AA_CONTROL_A,
++		.range_max = DA9062AA_CONTROL_B,
++	}, {
++		.range_min = DA9062AA_CONTROL_E,
++		.range_max = DA9062AA_CONTROL_F,
++	}, {
++		.range_min = DA9062AA_BUCK1_CONT,
++		.range_max = DA9062AA_BUCK4_CONT,
++	}, {
++		.range_min = DA9062AA_BUCK3_CONT,
++		.range_max = DA9062AA_BUCK3_CONT,
++	}, {
++		.range_min = DA9062AA_LDO1_CONT,
++		.range_max = DA9062AA_LDO4_CONT,
++	}, {
++		.range_min = DA9062AA_DVC_1,
++		.range_max = DA9062AA_DVC_1,
++	}, {
++		.range_min = DA9062AA_SEQ,
++		.range_max = DA9062AA_SEQ,
++	},
++};
++
++static const struct regmap_access_table da9061_aa_readable_table = {
++	.yes_ranges = da9061_aa_readable_ranges,
++	.n_yes_ranges = ARRAY_SIZE(da9061_aa_readable_ranges),
++};
++
++static const struct regmap_access_table da9061_aa_writeable_table = {
++	.yes_ranges = da9061_aa_writeable_ranges,
++	.n_yes_ranges = ARRAY_SIZE(da9061_aa_writeable_ranges),
++};
++
++static const struct regmap_access_table da9061_aa_volatile_table = {
++	.yes_ranges = da9061_aa_volatile_ranges,
++	.n_yes_ranges = ARRAY_SIZE(da9061_aa_volatile_ranges),
++};
++
++static const struct regmap_range_cfg da9061_range_cfg[] = {
++	{
++		.range_min = DA9062AA_PAGE_CON,
++		.range_max = DA9062AA_CONFIG_ID,
++		.selector_reg = DA9062AA_PAGE_CON,
++		.selector_mask = 1 << DA9062_I2C_PAGE_SEL_SHIFT,
++		.selector_shift = DA9062_I2C_PAGE_SEL_SHIFT,
++		.window_start = 0,
++		.window_len = 256,
++	}
++};
++
++static struct regmap_config da9061_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.ranges = da9061_range_cfg,
++	.num_ranges = ARRAY_SIZE(da9061_range_cfg),
++	.max_register = DA9062AA_CONFIG_ID,
++	.cache_type = REGCACHE_RBTREE,
++	.rd_table = &da9061_aa_readable_table,
++	.wr_table = &da9061_aa_writeable_table,
++	.volatile_table = &da9061_aa_volatile_table,
++};
++
+ static const struct regmap_range da9062_aa_readable_ranges[] = {
+ 	{
+ 		.range_min = DA9062AA_PAGE_CON,
+@@ -456,17 +815,38 @@ static struct regmap_config da9062_regmap_config = {
+ 	.volatile_table = &da9062_aa_volatile_table,
+ };
+ 
++static const struct of_device_id da9062_dt_ids[] = {
++	{ .compatible = "dlg,da9061", .data = (void *)COMPAT_TYPE_DA9061, },
++	{ .compatible = "dlg,da9062", .data = (void *)COMPAT_TYPE_DA9062, },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, da9062_dt_ids);
++
+ static int da9062_i2c_probe(struct i2c_client *i2c,
+ 	const struct i2c_device_id *id)
+ {
+ 	struct da9062 *chip;
++	const struct of_device_id *match;
+ 	unsigned int irq_base;
++	const struct mfd_cell *cell;
++	const struct regmap_irq_chip *irq_chip;
++	const struct regmap_config *config;
++	int cell_num;
+ 	int ret;
+ 
+ 	chip = devm_kzalloc(&i2c->dev, sizeof(*chip), GFP_KERNEL);
+ 	if (!chip)
+ 		return -ENOMEM;
+ 
++	if (i2c->dev.of_node) {
++		match = of_match_node(da9062_dt_ids, i2c->dev.of_node);
++		if (!match)
++			return -EINVAL;
++
++		chip->chip_type = (int)match->data;
++	} else
++		chip->chip_type = id->driver_data;
++
+ 	i2c_set_clientdata(i2c, chip);
+ 	chip->dev = &i2c->dev;
+ 
+@@ -475,7 +855,25 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+ 		return -EINVAL;
+ 	}
+ 
+-	chip->regmap = devm_regmap_init_i2c(i2c, &da9062_regmap_config);
++	switch (chip->chip_type) {
++	case(COMPAT_TYPE_DA9061):
++		cell = da9061_devs;
++		cell_num = ARRAY_SIZE(da9061_devs);
++		irq_chip = &da9061_irq_chip;
++		config = &da9061_regmap_config;
++		break;
++	case(COMPAT_TYPE_DA9062):
++		cell = da9062_devs;
++		cell_num = ARRAY_SIZE(da9062_devs);
++		irq_chip = &da9062_irq_chip;
++		config = &da9062_regmap_config;
++		break;
++	default:
++		dev_err(chip->dev, "Unrecognised chip type\n");
++		return -ENODEV;
++	}
++
++	chip->regmap = devm_regmap_init_i2c(i2c, config);
+ 	if (IS_ERR(chip->regmap)) {
+ 		ret = PTR_ERR(chip->regmap);
+ 		dev_err(chip->dev, "Failed to allocate register map: %d\n",
+@@ -493,7 +891,7 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+ 
+ 	ret = regmap_add_irq_chip(chip->regmap, i2c->irq,
+ 			IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
+-			-1, &da9062_irq_chip,
++			-1, irq_chip,
+ 			&chip->regmap_irq);
+ 	if (ret) {
+ 		dev_err(chip->dev, "Failed to request IRQ %d: %d\n",
+@@ -503,8 +901,8 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+ 
+ 	irq_base = regmap_irq_chip_get_base(chip->regmap_irq);
+ 
+-	ret = mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, da9062_devs,
+-			      ARRAY_SIZE(da9062_devs), NULL, irq_base,
++	ret = mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, cell,
++			      cell_num, NULL, irq_base,
+ 			      NULL);
+ 	if (ret) {
+ 		dev_err(chip->dev, "Cannot register child devices\n");
+@@ -526,17 +924,12 @@ static int da9062_i2c_remove(struct i2c_client *i2c)
+ }
+ 
+ static const struct i2c_device_id da9062_i2c_id[] = {
+-	{ "da9062", 0 },
++	{ "da9061", COMPAT_TYPE_DA9061 },
++	{ "da9062", COMPAT_TYPE_DA9062 },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(i2c, da9062_i2c_id);
+ 
+-static const struct of_device_id da9062_dt_ids[] = {
+-	{ .compatible = "dlg,da9062", },
+-	{ }
+-};
+-MODULE_DEVICE_TABLE(of, da9062_dt_ids);
+-
+ static struct i2c_driver da9062_i2c_driver = {
+ 	.driver = {
+ 		.name = "da9062",
+@@ -549,6 +942,6 @@ static struct i2c_driver da9062_i2c_driver = {
+ 
+ module_i2c_driver(da9062_i2c_driver);
+ 
+-MODULE_DESCRIPTION("Core device driver for Dialog DA9062");
++MODULE_DESCRIPTION("Core device driver for Dialog DA9061 and DA9062");
+ MODULE_AUTHOR("Steve Twiss <stwiss.opensource@diasemi.com>");
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/mfd/da9062/core.h b/include/linux/mfd/da9062/core.h
+index 376ba84..199c524 100644
+--- a/include/linux/mfd/da9062/core.h
++++ b/include/linux/mfd/da9062/core.h
+@@ -18,7 +18,31 @@
+ #include <linux/interrupt.h>
+ #include <linux/mfd/da9062/registers.h>
+ 
+-/* Interrupts */
++enum da9062_compatible_types {
++	COMPAT_TYPE_DA9061 = 1,
++	COMPAT_TYPE_DA9062,
++};
++
++enum da9061_irqs {
++	/* IRQ A */
++	DA9061_IRQ_ONKEY,
++	DA9061_IRQ_WDG_WARN,
++	DA9061_IRQ_SEQ_RDY,
++	/* IRQ B*/
++	DA9061_IRQ_TEMP,
++	DA9061_IRQ_LDO_LIM,
++	DA9061_IRQ_DVC_RDY,
++	DA9061_IRQ_VDD_WARN,
++	/* IRQ C */
++	DA9061_IRQ_GPI0,
++	DA9061_IRQ_GPI1,
++	DA9061_IRQ_GPI2,
++	DA9061_IRQ_GPI3,
++	DA9061_IRQ_GPI4,
++
++	DA9061_NUM_IRQ,
++};
++
+ enum da9062_irqs {
+ 	/* IRQ A */
+ 	DA9062_IRQ_ONKEY,
+@@ -45,6 +69,7 @@ struct da9062 {
+ 	struct device *dev;
+ 	struct regmap *regmap;
+ 	struct regmap_irq_chip_data *regmap_irq;
++	enum da9062_compatible_types chip_type;
+ };
+ 
+ #endif /* __MFD_DA9062_CORE_H__ */
+diff --git a/include/linux/mfd/da9062/registers.h b/include/linux/mfd/da9062/registers.h
+index 97790d1..4457fdc 100644
+--- a/include/linux/mfd/da9062/registers.h
++++ b/include/linux/mfd/da9062/registers.h
+@@ -18,6 +18,8 @@
+ 
+ #define DA9062_PMIC_DEVICE_ID		0x62
+ #define DA9062_PMIC_VARIANT_MRC_AA	0x01
++#define DA9062_PMIC_VARIANT_VRC_DA9061	0x01
++#define DA9062_PMIC_VARIANT_VRC_DA9062	0x02
+ 
+ #define DA9062_I2C_PAGE_SEL_SHIFT	1
+ 
 -- 
 end-of-patch for PATCH V2
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,1011 +1,566 @@
 From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: [PATCH 2/9] ALSA: ac97: add an ac97 bus
-Date: Wed, 26 Oct 2016 21:41:40 +0200
-Message-ID: <1477510907-23495-3-git-send-email-robert.jarzmik@free.fr>
+Subject: [PATCH 1/9] ALSA: ac97: split out the generic ac97 registers
+Date: Wed, 26 Oct 2016 21:41:39 +0200
+Message-ID: <1477510907-23495-2-git-send-email-robert.jarzmik@free.fr>
 References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
-Return-path: <linux-pm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
-Sender: linux-pm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, linux-pm@vger.kernel.org, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-AC97 is a bus for sound usage. It enables for a AC97 AC-Link to link one
-controller to 0 to 4 AC97 codecs.
+Split out from the ac97_codec.h the ac97 generic registers, which can be
+used by a codec, typically a generic ac97 codec, and by the ac97 bus, to
+scan an ac97 AC-Link.
 
-The goal of this new implementation is to implement a device/driver
-model for AC97, with an automatic scan of the bus and automatic
-discovery of AC97 codec devices.
+This split encompasses all the AC97 standard registers, but not the
+codec specific ones.
+
+In order to have a clean split between former ac97 bus implementation
+and the new coming one in sound/ac97, it is safer to not include any
+former ac97 includes, excepting in sound/ac97/compat.c.
+
+Amongst the thing to isolate :
+ - don't have the struct snd_ac97 in sound/ac97/* (except compat.c) to not
+   be "fooled" by a definition which would come with ac97_codec.h by
+   "chance".
+ - don't have to have snd_a97_*() functions, as they rely on struct snd_ac97.
+ - don't want the struct snd_ac97_bus_ops, there is a new one
 
 Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 ---
-Since v1:
- - Takashi's review
-   - changed the codec.h guard ... a better name could be found ...
-   - added the AC97_* macros missing parenthesis
-   - constantified the id_table in the codec driver structure
-   - changed the 4 codecs linked list into an array
-   - enabled the ac97 bus to be a module
-   - added a slots_available to snd_ac97_controller_register() to have a
-     way to prevent scanning and probing of unconnected codecs
-   - removed useless ac97 bus index
-   - all exported functions begin with snd_ac97_*()
-   - change bus operations to controller+slot parameters instead of
-     codec device
-
- - Mark's review
-   - changed ac97_digital_controller into ac97_controller
-   - rename ac97_digital_controller_*() into ac97_controller_*()
-   - add the ac97 ac-link clock to the codec device (ie. the AC'97
-     BIT_CLK)
-
-Since v2:
- - more snd_ac97 namespace review
- - change the compat allocation prototype to force the user to provide
-   and ac97_codec_device structure pointer
+Since v1: improve commit message to explain better the rationale
 ---
- include/sound/ac97/codec.h      | 115 +++++++++
- include/sound/ac97/compat.h     |  21 ++
- include/sound/ac97/controller.h |  85 +++++++
- sound/ac97/Kconfig              |  19 ++
- sound/ac97/Makefile             |   8 +
- sound/ac97/ac97_core.h          |  10 +
- sound/ac97/bus.c                | 510 ++++++++++++++++++++++++++++++++++++++++
- sound/ac97/codec.c              |  15 ++
- sound/ac97/snd_ac97_compat.c    | 105 +++++++++
- 9 files changed, 888 insertions(+)
- create mode 100644 include/sound/ac97/codec.h
- create mode 100644 include/sound/ac97/compat.h
- create mode 100644 include/sound/ac97/controller.h
- create mode 100644 sound/ac97/Kconfig
- create mode 100644 sound/ac97/Makefile
- create mode 100644 sound/ac97/ac97_core.h
- create mode 100644 sound/ac97/bus.c
- create mode 100644 sound/ac97/codec.c
- create mode 100644 sound/ac97/snd_ac97_compat.c
+ include/sound/ac97/regs.h  | 262 +++++++++++++++++++++++++++++++++++++++++++++
+ include/sound/ac97_codec.h | 239 +----------------------------------------
+ 2 files changed, 263 insertions(+), 238 deletions(-)
+ create mode 100644 include/sound/ac97/regs.h
 
-diff --git a/include/sound/ac97/codec.h b/include/sound/ac97/codec.h
+diff --git a/include/sound/ac97/regs.h b/include/sound/ac97/regs.h
 new file mode 100644
-index 000000000000..8901c1200522
+index 000000000000..4bb86d379bd5
 --- /dev/null
-+++ b/include/sound/ac97/codec.h
-@@ -0,0 +1,115 @@
++++ b/include/sound/ac97/regs.h
+@@ -0,0 +1,262 @@
 +/*
-+ *  Copyright (C) 2016 Robert Jarzmik <robert.jarzmik@free.fr>
++ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
++ *  Universal interface for Audio Codec '97
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+#ifndef __SOUND_AC97_CODEC2_H
-+#define __SOUND_AC97_CODEC2_H
-+
-+#include <linux/device.h>
-+
-+#define AC97_ID(vendor_id1, vendor_id2) \
-+	((((vendor_id1) & 0xffff) << 16) | ((vendor_id2) & 0xffff))
-+#define AC97_DRIVER_ID(vendor_id1, vendor_id2, mask_id1, mask_id2, _data) \
-+	{ .id = (((vendor_id1) & 0xffff) << 16) | ((vendor_id2) & 0xffff), \
-+	  .mask = (((mask_id1) & 0xffff) << 16) | ((mask_id2) & 0xffff), \
-+	  .data = (_data) }
-+
-+#define to_ac97_device(d) container_of(d, struct ac97_codec_device, dev)
-+#define to_ac97_driver(d) container_of(d, struct ac97_codec_driver, driver)
-+
-+struct ac97_controller;
-+struct clk;
-+
-+/**
-+ * struct ac97_id - matches a codec device and driver on an ac97 bus
-+ * @id: The significant bits if the codec vendor ID1 and ID2
-+ * @mask: Bitmask specifying which bits of the id field are significant when
-+ *	  matching. A driver binds to a device when :
-+ *        ((vendorID1 << 8 | vendorID2) & (mask_id1 << 8 | mask_id2)) == id.
-+ * @data: Private data used by the driver.
-+ */
-+struct ac97_id {
-+	unsigned int		id;
-+	unsigned int		mask;
-+	void			*data;
-+};
-+
-+/**
-+ * ac97_codec_device - a ac97 codec
-+ * @dev: the core device
-+ * @vendor_id: the vendor_id of the codec, as sensed on the AC-link
-+ * @num: the codec number, 0 is primary, 1 is first slave, etc ...
-+ * @clk: the clock BIT_CLK provided by the codec
-+ * @ac97_ctrl: ac97 digital controller on the same AC-link
++ *  For more details look to AC '97 component specification revision 2.1
++ *  by Intel Corporation (http://developer.intel.com).
 + *
-+ * This is the device instanciated for each codec living on a AC-link. There are
-+ * normally 0 to 4 codec devices per AC-link, and all of them are controlled by
-+ * an AC97 digital controller.
++ *
++ *   This program is free software; you can redistribute it and/or modify
++ *   it under the terms of the GNU General Public License as published by
++ *   the Free Software Foundation; either version 2 of the License, or
++ *   (at your option) any later version.
++ *
++ *   This program is distributed in the hope that it will be useful,
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *   GNU General Public License for more details.
++ *
++ *   You should have received a copy of the GNU General Public License
++ *   along with this program; if not, write to the Free Software
++ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
++ *
 + */
-+struct ac97_codec_device {
-+	struct device		dev;
-+	unsigned int		vendor_id;
-+	unsigned int		num;
-+	struct clk		*clk;
-+	struct ac97_controller	*ac97_ctrl;
-+};
 +
-+/**
-+ * ac97_codec_driver - a ac97 codec driver
-+ * @driver: the device driver structure
-+ * @probe: the function called when a ac97_codec_device is matched
-+ * @remove: the function called when the device is unbound/removed
-+ * @suspend: suspend function (might be NULL)
-+ * @resume: resume function (might be NULL)
-+ * @shutdown: shutdown function (might be NULL)
-+ * @id_table: ac97 vendor_id match table, { } member terminated
-+ */
-+struct ac97_codec_driver {
-+	struct device_driver	driver;
-+	int			(*probe)(struct ac97_codec_device *);
-+	int			(*remove)(struct ac97_codec_device *);
-+	int			(*suspend)(struct ac97_codec_device *);
-+	int			(*resume)(struct ac97_codec_device *);
-+	void			(*shutdown)(struct ac97_codec_device *);
-+	const struct ac97_id	*id_table;
-+};
-+
-+#if defined(CONFIG_AC97_BUS_NEW)
-+int snd_ac97_codec_driver_register(struct ac97_codec_driver *drv);
-+void snd_ac97_codec_driver_unregister(struct ac97_codec_driver *drv);
-+#else
-+static inline int
-+snd_ac97_codec_driver_register(struct ac97_codec_driver *drv)
-+{
-+	return 0;
-+}
-+static inline void
-+snd_ac97_codec_driver_unregister(struct ac97_codec_driver *drv)
-+{
-+}
-+#endif
-+
-+
-+static inline struct device *
-+ac97_codec_dev2dev(struct ac97_codec_device *adev)
-+{
-+	return &adev->dev;
-+}
-+
-+static inline void *ac97_get_drvdata(struct ac97_codec_device *adev)
-+{
-+	return dev_get_drvdata(ac97_codec_dev2dev(adev));
-+}
-+
-+static inline void ac97_set_drvdata(struct ac97_codec_device *adev,
-+				    void *data)
-+{
-+	dev_set_drvdata(ac97_codec_dev2dev(adev), data);
-+}
-+
-+void *snd_ac97_codec_get_platdata(const struct ac97_codec_device *adev);
-+
-+#endif
-diff --git a/include/sound/ac97/compat.h b/include/sound/ac97/compat.h
-new file mode 100644
-index 000000000000..d876464bf7e4
---- /dev/null
-+++ b/include/sound/ac97/compat.h
-@@ -0,0 +1,21 @@
 +/*
-+ *  Copyright (C) 2016 Robert Jarzmik <robert.jarzmik@free.fr>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This file is for backward compatibility with snd_ac97 structure and its
-+ * multiple usages, such as the snd_ac97_bus and snd_ac97_build_ops.
-+ *
-+ */
-+#ifndef AC97_COMPAT_H
-+#define AC97_COMPAT_H
-+
-+#include <sound/ac97_codec.h>
-+#include <sound/soc.h>
-+
-+struct snd_ac97 *snd_ac97_compat_alloc(struct ac97_codec_device *adev);
-+void snd_ac97_compat_release(struct snd_ac97 *ac97);
-+
-+#endif
-diff --git a/include/sound/ac97/controller.h b/include/sound/ac97/controller.h
-new file mode 100644
-index 000000000000..5ff59bd7e324
---- /dev/null
-+++ b/include/sound/ac97/controller.h
-@@ -0,0 +1,85 @@
-+/*
-+ *  Copyright (C) 2016 Robert Jarzmik <robert.jarzmik@free.fr>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+#ifndef AC97_CONTROLLER_H
-+#define AC97_CONTROLLER_H
-+
-+#include <linux/list.h>
-+
-+#define AC97_BUS_MAX_CODECS 4
-+#define AC97_SLOTS_AVAILABLE_ALL 0xf
-+
-+struct device;
-+
-+/**
-+ * struct ac97_controller - The AC97 controller of the AC-Link
-+ * @ops:		the AC97 operations.
-+ * @controllers:	linked list of all existing controllers.
-+ * @dev:		the device providing the AC97 controller.
-+ * @slots_available:	the mask of accessible/scanable codecs.
-+ * @codecs:		the 4 possible AC97 codecs (NULL if none found).
-+ * @codecs_pdata:	platform_data for each codec (NULL if no pdata).
-+ *
-+ * This structure is internal to AC97 bus, and should not be used by the
-+ * controllers themselves, excepting for using @dev.
-+ */
-+struct ac97_controller {
-+	const struct ac97_controller_ops *ops;
-+	struct list_head controllers;
-+	struct device *dev;
-+	unsigned short slots_available;
-+	struct ac97_codec_device *codecs[AC97_BUS_MAX_CODECS];
-+	void *codecs_pdata[AC97_BUS_MAX_CODECS];
-+};
-+
-+/**
-+ * struct ac97_controller_ops - The AC97 operations
-+ * @reset:	Cold reset of the AC97 AC-Link.
-+ * @warm_reset:	Warm reset of the AC97 AC-Link.
-+ * @read:	Read of a single AC97 register.
-+ *		Returns the register value or a negative error code.
-+ * @write:	Write of a single AC97 register.
-+ * @wait:	Wait for the current AC97 operation to finish (might be NULL).
-+ * @init:	Initialization of the AC97 AC-Link (might be NULL).
-+ *
-+ * These are the basic operation an AC97 controller must provide for an AC97
-+ * access functions. Amongst these, all but the last 2 are mandatory.
-+ * The slot number is also known as the AC97 codec number, between 0 and 3.
-+ */
-+struct ac97_controller_ops {
-+	void (*reset)(struct ac97_controller *adrv);
-+	void (*warm_reset)(struct ac97_controller *adrv);
-+	int (*write)(struct ac97_controller *adrv, int slot,
-+		     unsigned short reg, unsigned short val);
-+	int (*read)(struct ac97_controller *adrv, int slot, unsigned short reg);
-+	void (*wait)(struct ac97_controller *adrv, int slot);
-+	void (*init)(struct ac97_controller *adrv, int slot);
-+};
-+
-+#if defined(CONFIG_AC97_BUS_NEW)
-+int snd_ac97_controller_register(const struct ac97_controller_ops *ops,
-+				 struct device *dev,
-+				 unsigned short slots_available,
-+				 void **codecs_pdata);
-+int snd_ac97_controller_unregister(struct device *dev);
-+#else
-+static inline int
-+snd_ac97_controller_register(const struct ac97_controller_ops *ops,
-+			     struct device *dev,
-+			     unsigned short slots_available,
-+			     void **codecs_pdata)
-+{
-+	return 0;
-+}
-+
-+static inline int snd_ac97_controller_unregister(struct device *dev)
-+{
-+	return 0;
-+}
-+#endif
-+
-+#endif
-diff --git a/sound/ac97/Kconfig b/sound/ac97/Kconfig
-new file mode 100644
-index 000000000000..f8a64e15e5bf
---- /dev/null
-+++ b/sound/ac97/Kconfig
-@@ -0,0 +1,19 @@
-+#
-+# AC97 configuration
-+#
-+
-+
-+config AC97_BUS_NEW
-+	tristate
-+	select AC97
-+	help
-+	  This is the new AC97 bus type, successor of AC97_BUS. The ported
-+	  drivers which benefit from the AC97 automatic probing should "select"
-+	  this instead of the AC97_BUS.
-+	  Say Y here if you want to have AC97 devices, which are sound oriented
-+	  devices around an AC-Link.
-+
-+config AC97_BUS_COMPAT
-+	bool
-+	depends on AC97_BUS_NEW
-+	depends on !AC97_BUS
-diff --git a/sound/ac97/Makefile b/sound/ac97/Makefile
-new file mode 100644
-index 000000000000..f9c2640bfb59
---- /dev/null
-+++ b/sound/ac97/Makefile
-@@ -0,0 +1,8 @@
-+#
-+# make for AC97 bus drivers
-+#
-+
-+obj-$(CONFIG_AC97_BUS_NEW)	+= ac97.o
-+
-+ac97-y				+= bus.o codec.o
-+ac97-$(CONFIG_AC97_BUS_COMPAT)	+= snd_ac97_compat.o
-diff --git a/sound/ac97/ac97_core.h b/sound/ac97/ac97_core.h
-new file mode 100644
-index 000000000000..10cdfad8ad52
---- /dev/null
-+++ b/sound/ac97/ac97_core.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Copyright (C) 2016 Robert Jarzmik <robert.jarzmik@free.fr>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
++ *  AC'97 codec registers
 + */
 +
-+unsigned int snd_ac97_bus_scan_one(struct ac97_controller *ac97,
-+				   int codec_num);
-diff --git a/sound/ac97/bus.c b/sound/ac97/bus.c
-new file mode 100644
-index 000000000000..6f26053d8be9
---- /dev/null
-+++ b/sound/ac97/bus.c
-@@ -0,0 +1,510 @@
-+/*
-+ * Copyright (C) 2016 Robert Jarzmik <robert.jarzmik@free.fr>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
++#define AC97_RESET		0x00	/* Reset */
++#define AC97_MASTER		0x02	/* Master Volume */
++#define AC97_HEADPHONE		0x04	/* Headphone Volume (optional) */
++#define AC97_MASTER_MONO	0x06	/* Master Volume Mono (optional) */
++#define AC97_MASTER_TONE	0x08	/* Master Tone (Bass & Treble) (optional) */
++#define AC97_PC_BEEP		0x0a	/* PC Beep Volume (optinal) */
++#define AC97_PHONE		0x0c	/* Phone Volume (optional) */
++#define AC97_MIC		0x0e	/* MIC Volume */
++#define AC97_LINE		0x10	/* Line In Volume */
++#define AC97_CD			0x12	/* CD Volume */
++#define AC97_VIDEO		0x14	/* Video Volume (optional) */
++#define AC97_AUX		0x16	/* AUX Volume (optional) */
++#define AC97_PCM		0x18	/* PCM Volume */
++#define AC97_REC_SEL		0x1a	/* Record Select */
++#define AC97_REC_GAIN		0x1c	/* Record Gain */
++#define AC97_REC_GAIN_MIC	0x1e	/* Record Gain MIC (optional) */
++#define AC97_GENERAL_PURPOSE	0x20	/* General Purpose (optional) */
++#define AC97_3D_CONTROL		0x22	/* 3D Control (optional) */
++#define AC97_INT_PAGING		0x24	/* Audio Interrupt & Paging (AC'97 2.3) */
++#define AC97_POWERDOWN		0x26	/* Powerdown control / status */
++/* range 0x28-0x3a - AUDIO AC'97 2.0 extensions */
++#define AC97_EXTENDED_ID	0x28	/* Extended Audio ID */
++#define AC97_EXTENDED_STATUS	0x2a	/* Extended Audio Status and Control */
++#define AC97_PCM_FRONT_DAC_RATE 0x2c	/* PCM Front DAC Rate */
++#define AC97_PCM_SURR_DAC_RATE	0x2e	/* PCM Surround DAC Rate */
++#define AC97_PCM_LFE_DAC_RATE	0x30	/* PCM LFE DAC Rate */
++#define AC97_PCM_LR_ADC_RATE	0x32	/* PCM LR ADC Rate */
++#define AC97_PCM_MIC_ADC_RATE	0x34	/* PCM MIC ADC Rate */
++#define AC97_CENTER_LFE_MASTER	0x36	/* Center + LFE Master Volume */
++#define AC97_SURROUND_MASTER	0x38	/* Surround (Rear) Master Volume */
++#define AC97_SPDIF		0x3a	/* S/PDIF control */
++/* range 0x3c-0x58 - MODEM */
++#define AC97_EXTENDED_MID	0x3c	/* Extended Modem ID */
++#define AC97_EXTENDED_MSTATUS	0x3e	/* Extended Modem Status and Control */
++#define AC97_LINE1_RATE		0x40	/* Line1 DAC/ADC Rate */
++#define AC97_LINE2_RATE		0x42	/* Line2 DAC/ADC Rate */
++#define AC97_HANDSET_RATE	0x44	/* Handset DAC/ADC Rate */
++#define AC97_LINE1_LEVEL	0x46	/* Line1 DAC/ADC Level */
++#define AC97_LINE2_LEVEL	0x48	/* Line2 DAC/ADC Level */
++#define AC97_HANDSET_LEVEL	0x4a	/* Handset DAC/ADC Level */
++#define AC97_GPIO_CFG		0x4c	/* GPIO Configuration */
++#define AC97_GPIO_POLARITY	0x4e	/* GPIO Pin Polarity/Type, 0=low, 1=high active */
++#define AC97_GPIO_STICKY	0x50	/* GPIO Pin Sticky, 0=not, 1=sticky */
++#define AC97_GPIO_WAKEUP	0x52	/* GPIO Pin Wakeup, 0=no int, 1=yes int */
++#define AC97_GPIO_STATUS	0x54	/* GPIO Pin Status, slot 12 */
++#define AC97_MISC_AFE		0x56	/* Miscellaneous Modem AFE Status and Control */
++/* range 0x5a-0x7b - Vendor Specific */
++#define AC97_VENDOR_ID1		0x7c	/* Vendor ID1 */
++#define AC97_VENDOR_ID2		0x7e	/* Vendor ID2 / revision */
++/* range 0x60-0x6f (page 1) - extended codec registers */
++#define AC97_CODEC_CLASS_REV	0x60	/* Codec Class/Revision */
++#define AC97_PCI_SVID		0x62	/* PCI Subsystem Vendor ID */
++#define AC97_PCI_SID		0x64	/* PCI Subsystem ID */
++#define AC97_FUNC_SELECT	0x66	/* Function Select */
++#define AC97_FUNC_INFO		0x68	/* Function Information */
++#define AC97_SENSE_INFO		0x6a	/* Sense Details */
 +
-+#include <linux/module.h>
-+#include <linux/bitops.h>
-+#include <linux/clk.h>
-+#include <linux/device.h>
-+#include <linux/list.h>
-+#include <linux/mutex.h>
-+#include <linux/pm.h>
-+#include <linux/pm_runtime.h>
-+#include <linux/slab.h>
-+#include <linux/sysfs.h>
-+#include <sound/ac97/codec.h>
-+#include <sound/ac97/controller.h>
++/* volume controls */
++#define AC97_MUTE_MASK_MONO	0x8000
++#define AC97_MUTE_MASK_STEREO	0x8080
++
++/* slot allocation */
++#define AC97_SLOT_TAG		0
++#define AC97_SLOT_CMD_ADDR	1
++#define AC97_SLOT_CMD_DATA	2
++#define AC97_SLOT_PCM_LEFT	3
++#define AC97_SLOT_PCM_RIGHT	4
++#define AC97_SLOT_MODEM_LINE1	5
++#define AC97_SLOT_PCM_CENTER	6
++#define AC97_SLOT_MIC		6	/* input */
++#define AC97_SLOT_SPDIF_LEFT1	6
++#define AC97_SLOT_PCM_SLEFT	7	/* surround left */
++#define AC97_SLOT_PCM_LEFT_0	7	/* double rate operation */
++#define AC97_SLOT_SPDIF_LEFT	7
++#define AC97_SLOT_PCM_SRIGHT	8	/* surround right */
++#define AC97_SLOT_PCM_RIGHT_0	8	/* double rate operation */
++#define AC97_SLOT_SPDIF_RIGHT	8
++#define AC97_SLOT_LFE		9
++#define AC97_SLOT_SPDIF_RIGHT1	9
++#define AC97_SLOT_MODEM_LINE2	10
++#define AC97_SLOT_PCM_LEFT_1	10	/* double rate operation */
++#define AC97_SLOT_SPDIF_LEFT2	10
++#define AC97_SLOT_HANDSET	11	/* output */
++#define AC97_SLOT_PCM_RIGHT_1	11	/* double rate operation */
++#define AC97_SLOT_SPDIF_RIGHT2	11
++#define AC97_SLOT_MODEM_GPIO	12	/* modem GPIO */
++#define AC97_SLOT_PCM_CENTER_1	12	/* double rate operation */
++
++/* basic capabilities (reset register) */
++#define AC97_BC_DEDICATED_MIC	0x0001	/* Dedicated Mic PCM In Channel */
++#define AC97_BC_RESERVED1	0x0002	/* Reserved (was Modem Line Codec support) */
++#define AC97_BC_BASS_TREBLE	0x0004	/* Bass & Treble Control */
++#define AC97_BC_SIM_STEREO	0x0008	/* Simulated stereo */
++#define AC97_BC_HEADPHONE	0x0010	/* Headphone Out Support */
++#define AC97_BC_LOUDNESS	0x0020	/* Loudness (bass boost) Support */
++#define AC97_BC_16BIT_DAC	0x0000	/* 16-bit DAC resolution */
++#define AC97_BC_18BIT_DAC	0x0040	/* 18-bit DAC resolution */
++#define AC97_BC_20BIT_DAC	0x0080	/* 20-bit DAC resolution */
++#define AC97_BC_DAC_MASK	0x00c0
++#define AC97_BC_16BIT_ADC	0x0000	/* 16-bit ADC resolution */
++#define AC97_BC_18BIT_ADC	0x0100	/* 18-bit ADC resolution */
++#define AC97_BC_20BIT_ADC	0x0200	/* 20-bit ADC resolution */
++#define AC97_BC_ADC_MASK	0x0300
++#define AC97_BC_3D_TECH_ID_MASK	0x7c00	/* Per-vendor ID of 3D enhancement */
++
++/* general purpose */
++#define AC97_GP_DRSS_MASK	0x0c00	/* double rate slot select */
++#define AC97_GP_DRSS_1011	0x0000	/* LR(C) 10+11(+12) */
++#define AC97_GP_DRSS_78		0x0400	/* LR 7+8 */
++
++/* powerdown bits */
++#define AC97_PD_ADC_STATUS	0x0001	/* ADC status (RO) */
++#define AC97_PD_DAC_STATUS	0x0002	/* DAC status (RO) */
++#define AC97_PD_MIXER_STATUS	0x0004	/* Analog mixer status (RO) */
++#define AC97_PD_VREF_STATUS	0x0008	/* Vref status (RO) */
++#define AC97_PD_PR0		0x0100	/* Power down PCM ADCs and input MUX */
++#define AC97_PD_PR1		0x0200	/* Power down PCM front DAC */
++#define AC97_PD_PR2		0x0400	/* Power down Mixer (Vref still on) */
++#define AC97_PD_PR3		0x0800	/* Power down Mixer (Vref off) */
++#define AC97_PD_PR4		0x1000	/* Power down AC-Link */
++#define AC97_PD_PR5		0x2000	/* Disable internal clock usage */
++#define AC97_PD_PR6		0x4000	/* Headphone amplifier */
++#define AC97_PD_EAPD		0x8000	/* External Amplifer Power Down (EAPD) */
++
++/* extended audio ID bit defines */
++#define AC97_EI_VRA		0x0001	/* Variable bit rate supported */
++#define AC97_EI_DRA		0x0002	/* Double rate supported */
++#define AC97_EI_SPDIF		0x0004	/* S/PDIF out supported */
++#define AC97_EI_VRM		0x0008	/* Variable bit rate supported for MIC */
++#define AC97_EI_DACS_SLOT_MASK	0x0030	/* DACs slot assignment */
++#define AC97_EI_DACS_SLOT_SHIFT	4
++#define AC97_EI_CDAC		0x0040	/* PCM Center DAC available */
++#define AC97_EI_SDAC		0x0080	/* PCM Surround DACs available */
++#define AC97_EI_LDAC		0x0100	/* PCM LFE DAC available */
++#define AC97_EI_AMAP		0x0200	/* indicates optional slot/DAC mapping based on codec ID */
++#define AC97_EI_REV_MASK	0x0c00	/* AC'97 revision mask */
++#define AC97_EI_REV_22		0x0400	/* AC'97 revision 2.2 */
++#define AC97_EI_REV_23		0x0800	/* AC'97 revision 2.3 */
++#define AC97_EI_REV_SHIFT	10
++#define AC97_EI_ADDR_MASK	0xc000	/* physical codec ID (address) */
++#define AC97_EI_ADDR_SHIFT	14
++
++/* extended audio status and control bit defines */
++#define AC97_EA_VRA		0x0001	/* Variable bit rate enable bit */
++#define AC97_EA_DRA		0x0002	/* Double-rate audio enable bit */
++#define AC97_EA_SPDIF		0x0004	/* S/PDIF out enable bit */
++#define AC97_EA_VRM		0x0008	/* Variable bit rate for MIC enable bit */
++#define AC97_EA_SPSA_SLOT_MASK	0x0030	/* Mask for slot assignment bits */
++#define AC97_EA_SPSA_SLOT_SHIFT 4
++#define AC97_EA_SPSA_3_4	0x0000	/* Slot assigned to 3 & 4 */
++#define AC97_EA_SPSA_7_8	0x0010	/* Slot assigned to 7 & 8 */
++#define AC97_EA_SPSA_6_9	0x0020	/* Slot assigned to 6 & 9 */
++#define AC97_EA_SPSA_10_11	0x0030	/* Slot assigned to 10 & 11 */
++#define AC97_EA_CDAC		0x0040	/* PCM Center DAC is ready (Read only) */
++#define AC97_EA_SDAC		0x0080	/* PCM Surround DACs are ready (Read only) */
++#define AC97_EA_LDAC		0x0100	/* PCM LFE DAC is ready (Read only) */
++#define AC97_EA_MDAC		0x0200	/* MIC ADC is ready (Read only) */
++#define AC97_EA_SPCV		0x0400	/* S/PDIF configuration valid (Read only) */
++#define AC97_EA_PRI		0x0800	/* Turns the PCM Center DAC off */
++#define AC97_EA_PRJ		0x1000	/* Turns the PCM Surround DACs off */
++#define AC97_EA_PRK		0x2000	/* Turns the PCM LFE DAC off */
++#define AC97_EA_PRL		0x4000	/* Turns the MIC ADC off */
++
++/* S/PDIF control bit defines */
++#define AC97_SC_PRO		0x0001	/* Professional status */
++#define AC97_SC_NAUDIO		0x0002	/* Non audio stream */
++#define AC97_SC_COPY		0x0004	/* Copyright status */
++#define AC97_SC_PRE		0x0008	/* Preemphasis status */
++#define AC97_SC_CC_MASK		0x07f0	/* Category Code mask */
++#define AC97_SC_CC_SHIFT	4
++#define AC97_SC_L		0x0800	/* Generation Level status */
++#define AC97_SC_SPSR_MASK	0x3000	/* S/PDIF Sample Rate bits */
++#define AC97_SC_SPSR_SHIFT	12
++#define AC97_SC_SPSR_44K	0x0000	/* Use 44.1kHz Sample rate */
++#define AC97_SC_SPSR_48K	0x2000	/* Use 48kHz Sample rate */
++#define AC97_SC_SPSR_32K	0x3000	/* Use 32kHz Sample rate */
++#define AC97_SC_DRS		0x4000	/* Double Rate S/PDIF */
++#define AC97_SC_V		0x8000	/* Validity status */
++
++/* Interrupt and Paging bit defines (AC'97 2.3) */
++#define AC97_PAGE_MASK		0x000f	/* Page Selector */
++#define AC97_PAGE_VENDOR	0	/* Vendor-specific registers */
++#define AC97_PAGE_1		1	/* Extended Codec Registers page 1 */
++#define AC97_INT_ENABLE		0x0800	/* Interrupt Enable */
++#define AC97_INT_SENSE		0x1000	/* Sense Cycle */
++#define AC97_INT_CAUSE_SENSE	0x2000	/* Sense Cycle Completed (RO) */
++#define AC97_INT_CAUSE_GPIO	0x4000	/* GPIO bits changed (RO) */
++#define AC97_INT_STATUS		0x8000	/* Interrupt Status */
++
++/* extended modem ID bit defines */
++#define AC97_MEI_LINE1		0x0001	/* Line1 present */
++#define AC97_MEI_LINE2		0x0002	/* Line2 present */
++#define AC97_MEI_HANDSET	0x0004	/* Handset present */
++#define AC97_MEI_CID1		0x0008	/* caller ID decode for Line1 is supported */
++#define AC97_MEI_CID2		0x0010	/* caller ID decode for Line2 is supported */
++#define AC97_MEI_ADDR_MASK	0xc000	/* physical codec ID (address) */
++#define AC97_MEI_ADDR_SHIFT	14
++
++/* extended modem status and control bit defines */
++#define AC97_MEA_GPIO		0x0001	/* GPIO is ready (ro) */
++#define AC97_MEA_MREF		0x0002	/* Vref is up to nominal level (ro) */
++#define AC97_MEA_ADC1		0x0004	/* ADC1 operational (ro) */
++#define AC97_MEA_DAC1		0x0008	/* DAC1 operational (ro) */
++#define AC97_MEA_ADC2		0x0010	/* ADC2 operational (ro) */
++#define AC97_MEA_DAC2		0x0020	/* DAC2 operational (ro) */
++#define AC97_MEA_HADC		0x0040	/* HADC operational (ro) */
++#define AC97_MEA_HDAC		0x0080	/* HDAC operational (ro) */
++#define AC97_MEA_PRA		0x0100	/* GPIO power down (high) */
++#define AC97_MEA_PRB		0x0200	/* reserved */
++#define AC97_MEA_PRC		0x0400	/* ADC1 power down (high) */
++#define AC97_MEA_PRD		0x0800	/* DAC1 power down (high) */
++#define AC97_MEA_PRE		0x1000	/* ADC2 power down (high) */
++#define AC97_MEA_PRF		0x2000	/* DAC2 power down (high) */
++#define AC97_MEA_PRG		0x4000	/* HADC power down (high) */
++#define AC97_MEA_PRH		0x8000	/* HDAC power down (high) */
++
++/* modem gpio status defines */
++#define AC97_GPIO_LINE1_OH      0x0001  /* Off Hook Line1 */
++#define AC97_GPIO_LINE1_RI      0x0002  /* Ring Detect Line1 */
++#define AC97_GPIO_LINE1_CID     0x0004  /* Caller ID path enable Line1 */
++#define AC97_GPIO_LINE1_LCS     0x0008  /* Loop Current Sense Line1 */
++#define AC97_GPIO_LINE1_PULSE   0x0010  /* Opt./ Pulse Dial Line1 (out) */
++#define AC97_GPIO_LINE1_HL1R    0x0020  /* Opt./ Handset to Line1 relay control (out) */
++#define AC97_GPIO_LINE1_HOHD    0x0040  /* Opt./ Handset off hook detect Line1 (in) */
++#define AC97_GPIO_LINE12_AC     0x0080  /* Opt./ Int.bit 1 / Line1/2 AC (out) */
++#define AC97_GPIO_LINE12_DC     0x0100  /* Opt./ Int.bit 2 / Line1/2 DC (out) */
++#define AC97_GPIO_LINE12_RS     0x0200  /* Opt./ Int.bit 3 / Line1/2 RS (out) */
++#define AC97_GPIO_LINE2_OH      0x0400  /* Off Hook Line2 */
++#define AC97_GPIO_LINE2_RI      0x0800  /* Ring Detect Line2 */
++#define AC97_GPIO_LINE2_CID     0x1000  /* Caller ID path enable Line2 */
++#define AC97_GPIO_LINE2_LCS     0x2000  /* Loop Current Sense Line2 */
++#define AC97_GPIO_LINE2_PULSE   0x4000  /* Opt./ Pulse Dial Line2 (out) */
++#define AC97_GPIO_LINE2_HL1R    0x8000  /* Opt./ Handset to Line2 relay control (out) */
++
+diff --git a/include/sound/ac97_codec.h b/include/sound/ac97_codec.h
+index 15aa5f07c955..89d311a503d3 100644
+--- a/include/sound/ac97_codec.h
++++ b/include/sound/ac97_codec.h
+@@ -28,6 +28,7 @@
+ #include <linux/bitops.h>
+ #include <linux/device.h>
+ #include <linux/workqueue.h>
 +#include <sound/ac97/regs.h>
-+
-+#include "ac97_core.h"
-+
-+/*
-+ * Protects ac97_controllers and each ac97_controller structure.
-+ */
-+static DEFINE_MUTEX(ac97_controllers_mutex);
-+static LIST_HEAD(ac97_controllers);
-+
-+static struct bus_type ac97_bus_type;
-+
-+static struct ac97_codec_device *
-+ac97_codec_find(struct ac97_controller *ac97_ctrl, int codec_num)
-+{
-+	if ((codec_num < 0) || (codec_num >= AC97_BUS_MAX_CODECS))
-+		return ERR_PTR(-ERANGE);
-+
-+	return ac97_ctrl->codecs[codec_num];
-+}
-+
-+static void ac97_codec_release(struct device *dev)
-+{
-+	struct ac97_codec_device *adev;
-+	struct ac97_controller *ac97_ctrl;
-+
-+	adev = container_of(dev, struct ac97_codec_device, dev);
-+	ac97_ctrl = adev->ac97_ctrl;
-+	ac97_ctrl->codecs[adev->num] = NULL;
-+	sysfs_remove_link(&dev->kobj, "ac97_controller");
-+	kfree(adev);
-+}
-+
-+static int ac97_codec_add(struct ac97_controller *ac97_ctrl, int idx,
-+		   unsigned int vendor_id)
-+{
-+	struct ac97_codec_device *codec;
-+	char *codec_name;
-+	int ret;
-+
-+	codec = kzalloc(sizeof(*codec), GFP_KERNEL);
-+	if (!codec)
-+		return -ENOMEM;
-+	ac97_ctrl->codecs[idx] = codec;
-+	codec->vendor_id = vendor_id;
-+	codec->dev.release = ac97_codec_release;
-+	codec->dev.bus = &ac97_bus_type;
-+	codec->dev.parent = ac97_ctrl->dev;
-+	codec->num = idx;
-+	codec->ac97_ctrl = ac97_ctrl;
-+
-+	codec_name = kasprintf(GFP_KERNEL, "%s:%d", dev_name(ac97_ctrl->dev),
-+			       idx);
-+	codec->dev.init_name = codec_name;
-+
-+	ret = device_register(&codec->dev);
-+	kfree(codec_name);
-+	if (ret)
-+		goto err_free_codec;
-+
-+	ret = sysfs_create_link(&codec->dev.kobj, &ac97_ctrl->dev->kobj,
-+				"ac97_controller");
-+	if (ret)
-+		goto err_unregister_device;
-+
-+	return 0;
-+err_unregister_device:
-+	put_device(&codec->dev);
-+err_free_codec:
-+	kfree(codec);
-+	ac97_ctrl->codecs[idx] = NULL;
-+
-+	return ret;
-+}
-+
-+unsigned int snd_ac97_bus_scan_one(struct ac97_controller *adrv,
-+				      int codec_num)
-+{
-+	unsigned short vid1, vid2;
-+	int ret;
-+
-+	ret = adrv->ops->read(adrv, codec_num, AC97_VENDOR_ID1);
-+	vid1 = (ret & 0xffff);
-+	if (ret < 0)
-+		return 0;
-+
-+	ret = adrv->ops->read(adrv, codec_num, AC97_VENDOR_ID2);
-+	vid2 = (ret & 0xffff);
-+	if (ret < 0)
-+		return 0;
-+
-+	dev_dbg(adrv->dev, "%s(codec_num=%d): vendor_id=0x%08x\n",
-+		__func__, codec_num, AC97_ID(vid1, vid2));
-+	return AC97_ID(vid1, vid2);
-+}
-+
-+static int ac97_bus_scan(struct ac97_controller *ac97_ctrl)
-+{
-+	int ret, i;
-+	unsigned int vendor_id;
-+
-+	for (i = 0; i < AC97_BUS_MAX_CODECS; i++) {
-+		if (ac97_codec_find(ac97_ctrl, i))
-+			continue;
-+		if (!(ac97_ctrl->slots_available & BIT(i)))
-+			continue;
-+		vendor_id = snd_ac97_bus_scan_one(ac97_ctrl, i);
-+		if (!vendor_id)
-+			continue;
-+
-+		ret = ac97_codec_add(ac97_ctrl, i, vendor_id);
-+		if (ret < 0)
-+			return ret;
-+	}
-+	return 0;
-+}
-+
-+static void ac97_rescan_all_controllers(void)
-+{
-+	struct ac97_controller *ac97_ctrl;
-+	int ret;
-+
-+	mutex_lock(&ac97_controllers_mutex);
-+	list_for_each_entry(ac97_ctrl, &ac97_controllers, controllers) {
-+		ret = ac97_bus_scan(ac97_ctrl);
-+		if (ret)
-+			dev_warn(ac97_ctrl->dev, "scan failed: %d\n", ret);
-+	}
-+	mutex_unlock(&ac97_controllers_mutex);
-+}
-+
-+static int ac97_bus_reset(struct ac97_controller *ac97_ctrl)
-+{
-+	ac97_ctrl->ops->reset(ac97_ctrl);
-+
-+	return 0;
-+}
-+
-+/**
-+ * snd_ac97_codec_driver_register - register an AC97 codec driver
-+ * @dev: AC97 driver codec to register
-+ *
-+ * Register an AC97 codec driver to the ac97 bus driver, aka. the AC97 digital
-+ * controller.
-+ *
-+ * Returns 0 on success or error code
-+ */
-+int snd_ac97_codec_driver_register(struct ac97_codec_driver *drv)
-+{
-+	int ret;
-+
-+	drv->driver.bus = &ac97_bus_type;
-+
-+	ret = driver_register(&drv->driver);
-+	if (!ret)
-+		ac97_rescan_all_controllers();
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(snd_ac97_codec_driver_register);
-+
-+/**
-+ * snd_ac97_codec_driver_unregister - unregister an AC97 codec driver
-+ * @dev: AC97 codec driver to unregister
-+ *
-+ * Unregister a previously registered ac97 codec driver.
-+ */
-+void snd_ac97_codec_driver_unregister(struct ac97_codec_driver *drv)
-+{
-+	driver_unregister(&drv->driver);
-+}
-+EXPORT_SYMBOL(snd_ac97_codec_driver_unregister);
-+
-+/**
-+ * snd_ac97_codec_get_platdata - get platform_data
-+ * @adev: the ac97 codec device
-+ *
-+ * For legacy platforms, in order to have platform_data in codec drivers
-+ * available, while ac97 device are auto-created upon probe, this retrieves the
-+ * platdata which was setup on ac97 controller registration.
-+ *
-+ * Returns the platform data pointer
-+ */
-+void *snd_ac97_codec_get_platdata(const struct ac97_codec_device *adev)
-+{
-+	struct ac97_controller *ac97_ctrl = adev->ac97_ctrl;
-+
-+	return ac97_ctrl->codecs_pdata[adev->num];
-+}
-+EXPORT_SYMBOL(snd_ac97_codec_get_platdata);
-+
-+static struct ac97_controller *ac97_ctrl_find(struct device *dev)
-+{
-+	struct ac97_controller *ac97_ctrl, *tmp;
-+
-+	list_for_each_entry_safe(ac97_ctrl, tmp, &ac97_controllers,
-+				 controllers)
-+		if (ac97_ctrl->dev == dev)
-+			return ac97_ctrl;
-+
-+	return NULL;
-+}
-+static int ac97_ctrl_codecs_unregister(struct ac97_controller *ac97_ctrl)
-+{
-+	int i;
-+
-+	for (i = 0; i < AC97_BUS_MAX_CODECS; i++)
-+		if (ac97_ctrl->codecs[i])
-+			put_device(&ac97_ctrl->codecs[i]->dev);
-+
-+	return 0;
-+}
-+
-+static ssize_t cold_reset_store(struct device *dev,
-+				struct device_attribute *attr, const char *buf,
-+				size_t len)
-+{
-+	struct ac97_controller *ac97_ctrl = ac97_ctrl_find(dev);
-+
-+	if (!dev)
-+		return -ENODEV;
-+
-+	ac97_ctrl->ops->reset(ac97_ctrl);
-+	return len;
-+}
-+static DEVICE_ATTR_WO(cold_reset);
-+
-+static ssize_t warm_reset_store(struct device *dev,
-+				struct device_attribute *attr, const char *buf,
-+				size_t len)
-+{
-+	struct ac97_controller *ac97_ctrl = ac97_ctrl_find(dev);
-+
-+	if (!dev)
-+		return -ENODEV;
-+
-+	ac97_ctrl->ops->warm_reset(ac97_ctrl);
-+	return len;
-+}
-+static DEVICE_ATTR_WO(warm_reset);
-+
-+static struct attribute *ac97_controller_device_attrs[] = {
-+	&dev_attr_cold_reset.attr,
-+	&dev_attr_warm_reset.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group ac97_controller_attr_group = {
-+	.name	= "ac97_operations",
-+	.attrs	= ac97_controller_device_attrs,
-+};
-+
-+/**
-+ * snd_ac97_controller_register - register an ac97 controller
-+ * @ops: the ac97 bus operations
-+ * @dev: the device providing the ac97 DC function
-+ * @slots_available: mask of the ac97 codecs that can be scanned and probed
-+ *                   bit0 => codec 0, bit1 => codec 1 ... bit 3 => codec 3
-+ *
-+ * Register a digital controller which can control up to 4 ac97 codecs. This is
-+ * the controller side of the AC97 AC-link, while the slave side are the codecs.
-+ *
-+ * Returns 0 upon success, negative value upon error
-+ */
-+int snd_ac97_controller_register(const struct ac97_controller_ops *ops,
-+				 struct device *dev,
-+				 unsigned short slots_available,
-+				 void **codecs_pdata)
-+{
-+	struct ac97_controller *ac97_ctrl;
-+	int ret, i;
-+
-+	ac97_ctrl = kzalloc(sizeof(*ac97_ctrl), GFP_KERNEL);
-+	if (!ac97_ctrl)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < AC97_BUS_MAX_CODECS && codecs_pdata; i++)
-+		ac97_ctrl->codecs_pdata[i] = codecs_pdata[i];
-+
-+	ret = sysfs_create_group(&dev->kobj, &ac97_controller_attr_group);
-+	if (ret)
-+		return ret;
-+
-+	mutex_lock(&ac97_controllers_mutex);
-+	ac97_ctrl->ops = ops;
-+	ac97_ctrl->slots_available = slots_available;
-+	ac97_ctrl->dev = dev;
-+	list_add(&ac97_ctrl->controllers, &ac97_controllers);
-+	mutex_unlock(&ac97_controllers_mutex);
-+
-+	ac97_bus_reset(ac97_ctrl);
-+	ac97_bus_scan(ac97_ctrl);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(snd_ac97_controller_register);
-+
-+/**
-+ * snd_ac97_controller_unregister - unregister an ac97 controller
-+ * @dev: the device previously provided to ac97_controller_register()
-+ *
-+ * Returns 0 on success, negative upon error
-+ */
-+int snd_ac97_controller_unregister(struct device *dev)
-+{
-+	struct ac97_controller *ac97_ctrl;
-+	int ret = -ENODEV, i;
-+
-+	mutex_lock(&ac97_controllers_mutex);
-+	ac97_ctrl = ac97_ctrl_find(dev);
-+	if (ac97_ctrl) {
-+		ret = 0;
-+		for (i = 0; i < AC97_BUS_MAX_CODECS; i++)
-+			if (ac97_ctrl->codecs[i] &&
-+			    device_is_registered(&ac97_ctrl->codecs[i]->dev))
-+				ret = -EBUSY;
-+		if (!ret)
-+			ret = ac97_ctrl_codecs_unregister(ac97_ctrl);
-+		if (!ret) {
-+			list_del(&ac97_ctrl->controllers);
-+			sysfs_remove_group(&dev->kobj,
-+					   &ac97_controller_attr_group);
-+		}
-+	}
-+	mutex_unlock(&ac97_controllers_mutex);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(snd_ac97_controller_unregister);
-+
-+#ifdef CONFIG_PM
-+static int ac97_pm_runtime_suspend(struct device *dev)
-+{
-+	struct ac97_codec_device *codec = to_ac97_device(dev);
-+	int ret = pm_generic_runtime_suspend(dev);
-+
-+	if (ret == 0 && dev->driver) {
-+		if (pm_runtime_is_irq_safe(dev))
-+			clk_disable(codec->clk);
-+		else
-+			clk_disable_unprepare(codec->clk);
-+	}
-+
-+	return ret;
-+}
-+
-+static int ac97_pm_runtime_resume(struct device *dev)
-+{
-+	struct ac97_codec_device *codec = to_ac97_device(dev);
-+	int ret;
-+
-+	if (dev->driver) {
-+		if (pm_runtime_is_irq_safe(dev))
-+			ret = clk_enable(codec->clk);
-+		else
-+			ret = clk_prepare_enable(codec->clk);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return pm_generic_runtime_resume(dev);
-+}
-+#endif /* CONFIG_PM */
-+
-+static const struct dev_pm_ops ac97_pm = {
-+	.suspend	= pm_generic_suspend,
-+	.resume		= pm_generic_resume,
-+	.freeze		= pm_generic_freeze,
-+	.thaw		= pm_generic_thaw,
-+	.poweroff	= pm_generic_poweroff,
-+	.restore	= pm_generic_restore,
-+	SET_RUNTIME_PM_OPS(
-+		ac97_pm_runtime_suspend,
-+		ac97_pm_runtime_resume,
-+		NULL)
-+};
-+
-+static int ac97_get_enable_clk(struct ac97_codec_device *adev)
-+{
-+	int ret;
-+
-+	adev->clk = clk_get(&adev->dev, "ac97_clk");
-+	if (IS_ERR(adev->clk))
-+		return PTR_ERR(adev->clk);
-+
-+	ret = clk_prepare_enable(adev->clk);
-+	if (ret)
-+		clk_put(adev->clk);
-+
-+	return ret;
-+}
-+
-+static void ac97_put_disable_clk(struct ac97_codec_device *adev)
-+{
-+	clk_disable_unprepare(adev->clk);
-+	clk_put(adev->clk);
-+}
-+
-+static ssize_t vendor_id_show(struct device *dev,
-+			      struct device_attribute *attr, char *buf)
-+{
-+	struct ac97_codec_device *codec = to_ac97_device(dev);
-+
-+	return sprintf(buf, "%08x", codec->vendor_id);
-+}
-+
-+static struct device_attribute ac97_dev_attrs[] = {
-+	__ATTR_RO(vendor_id),
-+	__ATTR_NULL,
-+};
-+
-+static int ac97_bus_match(struct device *dev, struct device_driver *drv)
-+{
-+	struct ac97_codec_device *adev = to_ac97_device(dev);
-+	struct ac97_codec_driver *adrv = to_ac97_driver(drv);
-+	const struct ac97_id *id = adrv->id_table;
-+	int i = 0;
-+
-+	if (adev->vendor_id == 0x0 || adev->vendor_id == 0xffffffff)
-+		return false;
-+
-+	do {
-+		if ((id[i].id & id->mask) == (adev->vendor_id & id[i].mask))
-+			return true;
-+	} while (id[i++].id);
-+
-+	return false;
-+}
-+
-+static int ac97_bus_probe(struct device *dev)
-+{
-+	struct ac97_codec_device *adev = to_ac97_device(dev);
-+	struct ac97_codec_driver *adrv = to_ac97_driver(dev->driver);
-+	int ret;
-+
-+	ret = ac97_get_enable_clk(adev);
-+	if (ret)
-+		return ret;
-+
-+	pm_runtime_get_noresume(dev);
-+	pm_runtime_set_active(dev);
-+	pm_runtime_enable(dev);
-+
-+	ret = adrv->probe(adev);
-+	if (ret == 0)
-+		return 0;
-+
-+	pm_runtime_disable(dev);
-+	pm_runtime_set_suspended(dev);
-+	pm_runtime_put_noidle(dev);
-+	ac97_put_disable_clk(adev);
-+
-+	return ret;
-+}
-+
-+static int ac97_bus_remove(struct device *dev)
-+{
-+	struct ac97_codec_device *adev = to_ac97_device(dev);
-+	struct ac97_codec_driver *adrv = to_ac97_driver(dev->driver);
-+	int ret;
-+
-+	ret = pm_runtime_get_sync(dev);
-+	if (ret)
-+		return ret;
-+
-+	ret = adrv->remove(adev);
-+	pm_runtime_put_noidle(dev);
-+	if (ret == 0)
-+		ac97_put_disable_clk(adev);
-+
-+	return ret;
-+}
-+
-+static struct bus_type ac97_bus_type = {
-+	.name		= "ac97",
-+	.dev_attrs	= ac97_dev_attrs,
-+	.match		= ac97_bus_match,
-+	.pm		= &ac97_pm,
-+	.probe		= ac97_bus_probe,
-+	.remove		= ac97_bus_remove,
-+};
-+
-+static int __init ac97_bus_init(void)
-+{
-+	return bus_register(&ac97_bus_type);
-+}
-+subsys_initcall(ac97_bus_init);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Robert Jarzmik <robert.jarzmik@free.fr>");
-diff --git a/sound/ac97/codec.c b/sound/ac97/codec.c
-new file mode 100644
-index 000000000000..a835f03744bf
---- /dev/null
-+++ b/sound/ac97/codec.c
-@@ -0,0 +1,15 @@
-+/*
-+ *  Copyright (C) 2016 Robert Jarzmik <robert.jarzmik@free.fr>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <sound/ac97_codec.h>
-+#include <sound/ac97/codec.h>
-+#include <sound/ac97/controller.h>
-+#include <linux/device.h>
-+#include <linux/slab.h>
-+#include <sound/soc.h>	/* For compat_ac97_* */
-+
-diff --git a/sound/ac97/snd_ac97_compat.c b/sound/ac97/snd_ac97_compat.c
-new file mode 100644
-index 000000000000..ac8d835c1513
---- /dev/null
-+++ b/sound/ac97/snd_ac97_compat.c
-@@ -0,0 +1,105 @@
-+/*
-+ *  Copyright (C) 2016 Robert Jarzmik <robert.jarzmik@free.fr>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/list.h>
-+#include <linux/slab.h>
-+#include <sound/ac97/codec.h>
-+#include <sound/ac97/compat.h>
-+#include <sound/ac97/controller.h>
-+#include <sound/soc.h>
-+
-+#include "ac97_core.h"
-+
-+static void compat_ac97_reset(struct snd_ac97 *ac97)
-+{
-+	struct ac97_codec_device *adev = to_ac97_device(ac97->private_data);
-+	struct ac97_controller *actrl = adev->ac97_ctrl;
-+
-+	if (actrl->ops->reset)
-+		actrl->ops->reset(actrl);
-+}
-+
-+static void compat_ac97_warm_reset(struct snd_ac97 *ac97)
-+{
-+	struct ac97_codec_device *adev = to_ac97_device(ac97->private_data);
-+	struct ac97_controller *actrl = adev->ac97_ctrl;
-+
-+	if (actrl->ops->warm_reset)
-+		actrl->ops->warm_reset(actrl);
-+}
-+
-+static void compat_ac97_write(struct snd_ac97 *ac97, unsigned short reg,
-+			      unsigned short val)
-+{
-+	struct ac97_codec_device *adev = to_ac97_device(ac97->private_data);
-+	struct ac97_controller *actrl = adev->ac97_ctrl;
-+
-+	actrl->ops->write(actrl, ac97->num, reg, val);
-+}
-+
-+static unsigned short compat_ac97_read(struct snd_ac97 *ac97,
-+				       unsigned short reg)
-+{
-+	struct ac97_codec_device *adev = to_ac97_device(ac97->private_data);
-+	struct ac97_controller *actrl = adev->ac97_ctrl;
-+
-+	return actrl->ops->read(actrl, ac97->num, reg);
-+}
-+
-+static struct snd_ac97_bus_ops compat_snd_ac97_bus_ops = {
-+	.reset = compat_ac97_reset,
-+	.warm_reset = compat_ac97_warm_reset,
-+	.write = compat_ac97_write,
-+	.read = compat_ac97_read,
-+};
-+
-+static struct snd_ac97_bus compat_soc_ac97_bus = {
-+	.ops = &compat_snd_ac97_bus_ops,
-+};
-+
-+struct snd_ac97 *snd_ac97_compat_alloc(struct ac97_codec_device *adev)
-+{
-+	struct snd_ac97 *ac97;
-+
-+	ac97 = kzalloc(sizeof(struct snd_ac97), GFP_KERNEL);
-+	if (ac97 == NULL)
-+		return ERR_PTR(-ENOMEM);
-+
-+	ac97->dev = adev->dev;
-+	ac97->private_data = adev;
-+	ac97->bus = &compat_soc_ac97_bus;
-+	return ac97;
-+}
-+EXPORT_SYMBOL_GPL(snd_ac97_compat_alloc);
-+
-+void snd_ac97_compat_release(struct snd_ac97 *ac97)
-+{
-+	kfree(ac97);
-+}
-+EXPORT_SYMBOL_GPL(snd_ac97_compat_release);
-+
-+int snd_ac97_reset(struct snd_ac97 *ac97, bool try_warm, unsigned int id,
-+	unsigned int id_mask)
-+{
-+	struct ac97_codec_device *adev = to_ac97_device(ac97->private_data);
-+	struct ac97_controller *actrl = adev->ac97_ctrl;
-+
-+	if (try_warm) {
-+		compat_ac97_warm_reset(ac97);
-+		if (snd_ac97_bus_scan_one(actrl, adev->num) == adev->vendor_id)
-+			return 1;
-+	}
-+
-+	compat_ac97_reset(ac97);
-+	compat_ac97_warm_reset(ac97);
-+	if (snd_ac97_bus_scan_one(actrl, adev->num) == adev->vendor_id)
-+		return 0;
-+
-+	return -ENODEV;
-+}
-+EXPORT_SYMBOL_GPL(snd_ac97_reset);
+ #include <sound/pcm.h>
+ #include <sound/control.h>
+ #include <sound/info.h>
+@@ -35,244 +36,6 @@
+ /* maximum number of devices on the AC97 bus */
+ #define	AC97_BUS_MAX_DEVICES	4
+ 
+-/*
+- *  AC'97 codec registers
+- */
+-
+-#define AC97_RESET		0x00	/* Reset */
+-#define AC97_MASTER		0x02	/* Master Volume */
+-#define AC97_HEADPHONE		0x04	/* Headphone Volume (optional) */
+-#define AC97_MASTER_MONO	0x06	/* Master Volume Mono (optional) */
+-#define AC97_MASTER_TONE	0x08	/* Master Tone (Bass & Treble) (optional) */
+-#define AC97_PC_BEEP		0x0a	/* PC Beep Volume (optinal) */
+-#define AC97_PHONE		0x0c	/* Phone Volume (optional) */
+-#define AC97_MIC		0x0e	/* MIC Volume */
+-#define AC97_LINE		0x10	/* Line In Volume */
+-#define AC97_CD			0x12	/* CD Volume */
+-#define AC97_VIDEO		0x14	/* Video Volume (optional) */
+-#define AC97_AUX		0x16	/* AUX Volume (optional) */
+-#define AC97_PCM		0x18	/* PCM Volume */
+-#define AC97_REC_SEL		0x1a	/* Record Select */
+-#define AC97_REC_GAIN		0x1c	/* Record Gain */
+-#define AC97_REC_GAIN_MIC	0x1e	/* Record Gain MIC (optional) */
+-#define AC97_GENERAL_PURPOSE	0x20	/* General Purpose (optional) */
+-#define AC97_3D_CONTROL		0x22	/* 3D Control (optional) */
+-#define AC97_INT_PAGING		0x24	/* Audio Interrupt & Paging (AC'97 2.3) */
+-#define AC97_POWERDOWN		0x26	/* Powerdown control / status */
+-/* range 0x28-0x3a - AUDIO AC'97 2.0 extensions */
+-#define AC97_EXTENDED_ID	0x28	/* Extended Audio ID */
+-#define AC97_EXTENDED_STATUS	0x2a	/* Extended Audio Status and Control */
+-#define AC97_PCM_FRONT_DAC_RATE 0x2c	/* PCM Front DAC Rate */
+-#define AC97_PCM_SURR_DAC_RATE	0x2e	/* PCM Surround DAC Rate */
+-#define AC97_PCM_LFE_DAC_RATE	0x30	/* PCM LFE DAC Rate */
+-#define AC97_PCM_LR_ADC_RATE	0x32	/* PCM LR ADC Rate */
+-#define AC97_PCM_MIC_ADC_RATE	0x34	/* PCM MIC ADC Rate */
+-#define AC97_CENTER_LFE_MASTER	0x36	/* Center + LFE Master Volume */
+-#define AC97_SURROUND_MASTER	0x38	/* Surround (Rear) Master Volume */
+-#define AC97_SPDIF		0x3a	/* S/PDIF control */
+-/* range 0x3c-0x58 - MODEM */
+-#define AC97_EXTENDED_MID	0x3c	/* Extended Modem ID */
+-#define AC97_EXTENDED_MSTATUS	0x3e	/* Extended Modem Status and Control */
+-#define AC97_LINE1_RATE		0x40	/* Line1 DAC/ADC Rate */
+-#define AC97_LINE2_RATE		0x42	/* Line2 DAC/ADC Rate */
+-#define AC97_HANDSET_RATE	0x44	/* Handset DAC/ADC Rate */
+-#define AC97_LINE1_LEVEL	0x46	/* Line1 DAC/ADC Level */
+-#define AC97_LINE2_LEVEL	0x48	/* Line2 DAC/ADC Level */
+-#define AC97_HANDSET_LEVEL	0x4a	/* Handset DAC/ADC Level */
+-#define AC97_GPIO_CFG		0x4c	/* GPIO Configuration */
+-#define AC97_GPIO_POLARITY	0x4e	/* GPIO Pin Polarity/Type, 0=low, 1=high active */
+-#define AC97_GPIO_STICKY	0x50	/* GPIO Pin Sticky, 0=not, 1=sticky */
+-#define AC97_GPIO_WAKEUP	0x52	/* GPIO Pin Wakeup, 0=no int, 1=yes int */
+-#define AC97_GPIO_STATUS	0x54	/* GPIO Pin Status, slot 12 */
+-#define AC97_MISC_AFE		0x56	/* Miscellaneous Modem AFE Status and Control */
+-/* range 0x5a-0x7b - Vendor Specific */
+-#define AC97_VENDOR_ID1		0x7c	/* Vendor ID1 */
+-#define AC97_VENDOR_ID2		0x7e	/* Vendor ID2 / revision */
+-/* range 0x60-0x6f (page 1) - extended codec registers */
+-#define AC97_CODEC_CLASS_REV	0x60	/* Codec Class/Revision */
+-#define AC97_PCI_SVID		0x62	/* PCI Subsystem Vendor ID */
+-#define AC97_PCI_SID		0x64	/* PCI Subsystem ID */
+-#define AC97_FUNC_SELECT	0x66	/* Function Select */
+-#define AC97_FUNC_INFO		0x68	/* Function Information */
+-#define AC97_SENSE_INFO		0x6a	/* Sense Details */
+-
+-/* volume controls */
+-#define AC97_MUTE_MASK_MONO	0x8000
+-#define AC97_MUTE_MASK_STEREO	0x8080
+-
+-/* slot allocation */
+-#define AC97_SLOT_TAG		0
+-#define AC97_SLOT_CMD_ADDR	1
+-#define AC97_SLOT_CMD_DATA	2
+-#define AC97_SLOT_PCM_LEFT	3
+-#define AC97_SLOT_PCM_RIGHT	4
+-#define AC97_SLOT_MODEM_LINE1	5
+-#define AC97_SLOT_PCM_CENTER	6
+-#define AC97_SLOT_MIC		6	/* input */
+-#define AC97_SLOT_SPDIF_LEFT1	6
+-#define AC97_SLOT_PCM_SLEFT	7	/* surround left */
+-#define AC97_SLOT_PCM_LEFT_0	7	/* double rate operation */
+-#define AC97_SLOT_SPDIF_LEFT	7
+-#define AC97_SLOT_PCM_SRIGHT	8	/* surround right */
+-#define AC97_SLOT_PCM_RIGHT_0	8	/* double rate operation */
+-#define AC97_SLOT_SPDIF_RIGHT	8
+-#define AC97_SLOT_LFE		9
+-#define AC97_SLOT_SPDIF_RIGHT1	9
+-#define AC97_SLOT_MODEM_LINE2	10
+-#define AC97_SLOT_PCM_LEFT_1	10	/* double rate operation */
+-#define AC97_SLOT_SPDIF_LEFT2	10
+-#define AC97_SLOT_HANDSET	11	/* output */
+-#define AC97_SLOT_PCM_RIGHT_1	11	/* double rate operation */
+-#define AC97_SLOT_SPDIF_RIGHT2	11
+-#define AC97_SLOT_MODEM_GPIO	12	/* modem GPIO */
+-#define AC97_SLOT_PCM_CENTER_1	12	/* double rate operation */
+-
+-/* basic capabilities (reset register) */
+-#define AC97_BC_DEDICATED_MIC	0x0001	/* Dedicated Mic PCM In Channel */
+-#define AC97_BC_RESERVED1	0x0002	/* Reserved (was Modem Line Codec support) */
+-#define AC97_BC_BASS_TREBLE	0x0004	/* Bass & Treble Control */
+-#define AC97_BC_SIM_STEREO	0x0008	/* Simulated stereo */
+-#define AC97_BC_HEADPHONE	0x0010	/* Headphone Out Support */
+-#define AC97_BC_LOUDNESS	0x0020	/* Loudness (bass boost) Support */
+-#define AC97_BC_16BIT_DAC	0x0000	/* 16-bit DAC resolution */
+-#define AC97_BC_18BIT_DAC	0x0040	/* 18-bit DAC resolution */
+-#define AC97_BC_20BIT_DAC	0x0080	/* 20-bit DAC resolution */
+-#define AC97_BC_DAC_MASK	0x00c0
+-#define AC97_BC_16BIT_ADC	0x0000	/* 16-bit ADC resolution */
+-#define AC97_BC_18BIT_ADC	0x0100	/* 18-bit ADC resolution */
+-#define AC97_BC_20BIT_ADC	0x0200	/* 20-bit ADC resolution */
+-#define AC97_BC_ADC_MASK	0x0300
+-#define AC97_BC_3D_TECH_ID_MASK	0x7c00	/* Per-vendor ID of 3D enhancement */
+-
+-/* general purpose */
+-#define AC97_GP_DRSS_MASK	0x0c00	/* double rate slot select */
+-#define AC97_GP_DRSS_1011	0x0000	/* LR(C) 10+11(+12) */
+-#define AC97_GP_DRSS_78		0x0400	/* LR 7+8 */
+-
+-/* powerdown bits */
+-#define AC97_PD_ADC_STATUS	0x0001	/* ADC status (RO) */
+-#define AC97_PD_DAC_STATUS	0x0002	/* DAC status (RO) */
+-#define AC97_PD_MIXER_STATUS	0x0004	/* Analog mixer status (RO) */
+-#define AC97_PD_VREF_STATUS	0x0008	/* Vref status (RO) */
+-#define AC97_PD_PR0		0x0100	/* Power down PCM ADCs and input MUX */
+-#define AC97_PD_PR1		0x0200	/* Power down PCM front DAC */
+-#define AC97_PD_PR2		0x0400	/* Power down Mixer (Vref still on) */
+-#define AC97_PD_PR3		0x0800	/* Power down Mixer (Vref off) */
+-#define AC97_PD_PR4		0x1000	/* Power down AC-Link */
+-#define AC97_PD_PR5		0x2000	/* Disable internal clock usage */
+-#define AC97_PD_PR6		0x4000	/* Headphone amplifier */
+-#define AC97_PD_EAPD		0x8000	/* External Amplifer Power Down (EAPD) */
+-
+-/* extended audio ID bit defines */
+-#define AC97_EI_VRA		0x0001	/* Variable bit rate supported */
+-#define AC97_EI_DRA		0x0002	/* Double rate supported */
+-#define AC97_EI_SPDIF		0x0004	/* S/PDIF out supported */
+-#define AC97_EI_VRM		0x0008	/* Variable bit rate supported for MIC */
+-#define AC97_EI_DACS_SLOT_MASK	0x0030	/* DACs slot assignment */
+-#define AC97_EI_DACS_SLOT_SHIFT	4
+-#define AC97_EI_CDAC		0x0040	/* PCM Center DAC available */
+-#define AC97_EI_SDAC		0x0080	/* PCM Surround DACs available */
+-#define AC97_EI_LDAC		0x0100	/* PCM LFE DAC available */
+-#define AC97_EI_AMAP		0x0200	/* indicates optional slot/DAC mapping based on codec ID */
+-#define AC97_EI_REV_MASK	0x0c00	/* AC'97 revision mask */
+-#define AC97_EI_REV_22		0x0400	/* AC'97 revision 2.2 */
+-#define AC97_EI_REV_23		0x0800	/* AC'97 revision 2.3 */
+-#define AC97_EI_REV_SHIFT	10
+-#define AC97_EI_ADDR_MASK	0xc000	/* physical codec ID (address) */
+-#define AC97_EI_ADDR_SHIFT	14
+-
+-/* extended audio status and control bit defines */
+-#define AC97_EA_VRA		0x0001	/* Variable bit rate enable bit */
+-#define AC97_EA_DRA		0x0002	/* Double-rate audio enable bit */
+-#define AC97_EA_SPDIF		0x0004	/* S/PDIF out enable bit */
+-#define AC97_EA_VRM		0x0008	/* Variable bit rate for MIC enable bit */
+-#define AC97_EA_SPSA_SLOT_MASK	0x0030	/* Mask for slot assignment bits */
+-#define AC97_EA_SPSA_SLOT_SHIFT 4
+-#define AC97_EA_SPSA_3_4	0x0000	/* Slot assigned to 3 & 4 */
+-#define AC97_EA_SPSA_7_8	0x0010	/* Slot assigned to 7 & 8 */
+-#define AC97_EA_SPSA_6_9	0x0020	/* Slot assigned to 6 & 9 */
+-#define AC97_EA_SPSA_10_11	0x0030	/* Slot assigned to 10 & 11 */
+-#define AC97_EA_CDAC		0x0040	/* PCM Center DAC is ready (Read only) */
+-#define AC97_EA_SDAC		0x0080	/* PCM Surround DACs are ready (Read only) */
+-#define AC97_EA_LDAC		0x0100	/* PCM LFE DAC is ready (Read only) */
+-#define AC97_EA_MDAC		0x0200	/* MIC ADC is ready (Read only) */
+-#define AC97_EA_SPCV		0x0400	/* S/PDIF configuration valid (Read only) */
+-#define AC97_EA_PRI		0x0800	/* Turns the PCM Center DAC off */
+-#define AC97_EA_PRJ		0x1000	/* Turns the PCM Surround DACs off */
+-#define AC97_EA_PRK		0x2000	/* Turns the PCM LFE DAC off */
+-#define AC97_EA_PRL		0x4000	/* Turns the MIC ADC off */
+-
+-/* S/PDIF control bit defines */
+-#define AC97_SC_PRO		0x0001	/* Professional status */
+-#define AC97_SC_NAUDIO		0x0002	/* Non audio stream */
+-#define AC97_SC_COPY		0x0004	/* Copyright status */
+-#define AC97_SC_PRE		0x0008	/* Preemphasis status */
+-#define AC97_SC_CC_MASK		0x07f0	/* Category Code mask */
+-#define AC97_SC_CC_SHIFT	4
+-#define AC97_SC_L		0x0800	/* Generation Level status */
+-#define AC97_SC_SPSR_MASK	0x3000	/* S/PDIF Sample Rate bits */
+-#define AC97_SC_SPSR_SHIFT	12
+-#define AC97_SC_SPSR_44K	0x0000	/* Use 44.1kHz Sample rate */
+-#define AC97_SC_SPSR_48K	0x2000	/* Use 48kHz Sample rate */
+-#define AC97_SC_SPSR_32K	0x3000	/* Use 32kHz Sample rate */
+-#define AC97_SC_DRS		0x4000	/* Double Rate S/PDIF */
+-#define AC97_SC_V		0x8000	/* Validity status */
+-
+-/* Interrupt and Paging bit defines (AC'97 2.3) */
+-#define AC97_PAGE_MASK		0x000f	/* Page Selector */
+-#define AC97_PAGE_VENDOR	0	/* Vendor-specific registers */
+-#define AC97_PAGE_1		1	/* Extended Codec Registers page 1 */
+-#define AC97_INT_ENABLE		0x0800	/* Interrupt Enable */
+-#define AC97_INT_SENSE		0x1000	/* Sense Cycle */
+-#define AC97_INT_CAUSE_SENSE	0x2000	/* Sense Cycle Completed (RO) */
+-#define AC97_INT_CAUSE_GPIO	0x4000	/* GPIO bits changed (RO) */
+-#define AC97_INT_STATUS		0x8000	/* Interrupt Status */
+-
+-/* extended modem ID bit defines */
+-#define AC97_MEI_LINE1		0x0001	/* Line1 present */
+-#define AC97_MEI_LINE2		0x0002	/* Line2 present */
+-#define AC97_MEI_HANDSET	0x0004	/* Handset present */
+-#define AC97_MEI_CID1		0x0008	/* caller ID decode for Line1 is supported */
+-#define AC97_MEI_CID2		0x0010	/* caller ID decode for Line2 is supported */
+-#define AC97_MEI_ADDR_MASK	0xc000	/* physical codec ID (address) */
+-#define AC97_MEI_ADDR_SHIFT	14
+-
+-/* extended modem status and control bit defines */
+-#define AC97_MEA_GPIO		0x0001	/* GPIO is ready (ro) */
+-#define AC97_MEA_MREF		0x0002	/* Vref is up to nominal level (ro) */
+-#define AC97_MEA_ADC1		0x0004	/* ADC1 operational (ro) */
+-#define AC97_MEA_DAC1		0x0008	/* DAC1 operational (ro) */
+-#define AC97_MEA_ADC2		0x0010	/* ADC2 operational (ro) */
+-#define AC97_MEA_DAC2		0x0020	/* DAC2 operational (ro) */
+-#define AC97_MEA_HADC		0x0040	/* HADC operational (ro) */
+-#define AC97_MEA_HDAC		0x0080	/* HDAC operational (ro) */
+-#define AC97_MEA_PRA		0x0100	/* GPIO power down (high) */
+-#define AC97_MEA_PRB		0x0200	/* reserved */
+-#define AC97_MEA_PRC		0x0400	/* ADC1 power down (high) */
+-#define AC97_MEA_PRD		0x0800	/* DAC1 power down (high) */
+-#define AC97_MEA_PRE		0x1000	/* ADC2 power down (high) */
+-#define AC97_MEA_PRF		0x2000	/* DAC2 power down (high) */
+-#define AC97_MEA_PRG		0x4000	/* HADC power down (high) */
+-#define AC97_MEA_PRH		0x8000	/* HDAC power down (high) */
+-
+-/* modem gpio status defines */
+-#define AC97_GPIO_LINE1_OH      0x0001  /* Off Hook Line1 */
+-#define AC97_GPIO_LINE1_RI      0x0002  /* Ring Detect Line1 */
+-#define AC97_GPIO_LINE1_CID     0x0004  /* Caller ID path enable Line1 */
+-#define AC97_GPIO_LINE1_LCS     0x0008  /* Loop Current Sense Line1 */
+-#define AC97_GPIO_LINE1_PULSE   0x0010  /* Opt./ Pulse Dial Line1 (out) */
+-#define AC97_GPIO_LINE1_HL1R    0x0020  /* Opt./ Handset to Line1 relay control (out) */
+-#define AC97_GPIO_LINE1_HOHD    0x0040  /* Opt./ Handset off hook detect Line1 (in) */
+-#define AC97_GPIO_LINE12_AC     0x0080  /* Opt./ Int.bit 1 / Line1/2 AC (out) */
+-#define AC97_GPIO_LINE12_DC     0x0100  /* Opt./ Int.bit 2 / Line1/2 DC (out) */
+-#define AC97_GPIO_LINE12_RS     0x0200  /* Opt./ Int.bit 3 / Line1/2 RS (out) */
+-#define AC97_GPIO_LINE2_OH      0x0400  /* Off Hook Line2 */
+-#define AC97_GPIO_LINE2_RI      0x0800  /* Ring Detect Line2 */
+-#define AC97_GPIO_LINE2_CID     0x1000  /* Caller ID path enable Line2 */
+-#define AC97_GPIO_LINE2_LCS     0x2000  /* Loop Current Sense Line2 */
+-#define AC97_GPIO_LINE2_PULSE   0x4000  /* Opt./ Pulse Dial Line2 (out) */
+-#define AC97_GPIO_LINE2_HL1R    0x8000  /* Opt./ Handset to Line2 relay control (out) */
+-
+ /* specific - SigmaTel */
+ #define AC97_SIGMATEL_OUTSEL	0x64	/* Output Select, STAC9758 */
+ #define AC97_SIGMATEL_INSEL	0x66	/* Input Select, STAC9758 */
 -- 
 2.1.4
-

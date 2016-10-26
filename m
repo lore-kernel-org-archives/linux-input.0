@@ -1,75 +1,139 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH v2] Input: synaptics-rmi4 - stop scanning PDT after two
- empty pages
-Date: Wed, 26 Oct 2016 12:27:30 -0700
-Message-ID: <48c87bf2-a2ae-9964-fe01-e4a511c1ea2c@synaptics.com>
-References: <1477427791-1094-1-git-send-email-nick@shmanahar.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1477427791-1094-1-git-send-email-nick@shmanahar.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Guenter Roeck <linux@roeck-us.net>
-Cc: Chris Healy <cphealy@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+Subject: [PATCH 9/9] Input: wm97xx: add new AC97 bus support
+Date: Wed, 26 Oct 2016 21:41:47 +0200
+Message-ID: <1477510907-23495-10-git-send-email-robert.jarzmik@free.fr>
+References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
+Sender: linux-pm-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, linux-pm@vger.kernel.org, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On 10/25/2016 01:36 PM, Nick Dyer wrote:
-> We have encountered some RMI4 firmwares where there are blank pages in
-> between PDT pages which contain functions. This change makes them
-> correctly enumerate all functions on the device.
->
-> Tested on S7817 (has empty page 2).
->
-> Signed-off-by: Nick Dyer <nick@shmanahar.org>
+This adds support for the new AC97 bus code, which discovers the devices
+rather than uses platform data.
 
-Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
+As part of this discovery, it enables a multi-function device wm97xx,
+which supports touchscreen, battery, ADC and an audio codec. This patch
+adds the code to bind the touchscreen "cell" as the touchscreen driver.
 
-> ---
->   drivers/input/rmi4/rmi_driver.c | 16 ++++++++++++++--
->   1 file changed, 14 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index 4a88312..425bd19 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -422,6 +422,7 @@ static void rmi_driver_copy_pdt_to_fd(const struct pdt_entry *pdt,
->   
->   static int rmi_scan_pdt_page(struct rmi_device *rmi_dev,
->   			     int page,
-> +			     int *empty_pages,
->   			     void *ctx,
->   			     int (*callback)(struct rmi_device *rmi_dev,
->   					     void *ctx,
-> @@ -449,7 +450,16 @@ static int rmi_scan_pdt_page(struct rmi_device *rmi_dev,
->   			return retval;
->   	}
->   
-> -	return (data->f01_bootloader_mode || addr == pdt_start) ?
-> +	/*
-> +	 * Count number of empty PDT pages. If a gap of two pages
-> +	 * or more is found, stop scanning.
-> +	 */
-> +	if (addr == pdt_start)
-> +		++*empty_pages;
-> +	else
-> +		*empty_pages = 0;
-> +
-> +	return (data->f01_bootloader_mode || *empty_pages >= 2) ?
->   					RMI_SCAN_DONE : RMI_SCAN_CONTINUE;
->   }
->   
-> @@ -459,10 +469,12 @@ static int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
->   					const struct pdt_entry *entry))
->   {
->   	int page;
-> +	int empty_pages = 0;
->   	int retval = RMI_SCAN_DONE;
->   
->   	for (page = 0; page <= RMI4_MAX_PAGE; page++) {
-> -		retval = rmi_scan_pdt_page(rmi_dev, page, ctx, callback);
-> +		retval = rmi_scan_pdt_page(rmi_dev, page, &empty_pages,
-> +					   ctx, callback);
->   		if (retval != RMI_SCAN_CONTINUE)
->   			break;
->   	}
+This was tested on the pxa architecture with a pxa270 + wm9713 + the
+mioa701 touchscreen.
+
+Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+---
+ drivers/input/touchscreen/Kconfig       |  2 +-
+ drivers/input/touchscreen/wm97xx-core.c | 56 ++++++++++++++++++++++++++++++++-
+ 2 files changed, 56 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index efca0133e266..7af06015e704 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -737,7 +737,7 @@ config TOUCHSCREEN_WM831X
+ 
+ config TOUCHSCREEN_WM97XX
+ 	tristate "Support for WM97xx AC97 touchscreen controllers"
+-	depends on AC97_BUS
++	depends on AC97_BUS || AC97_BUS_NEW
+ 	help
+ 	  Say Y here if you have a Wolfson Microelectronics WM97xx
+ 	  touchscreen connected to your system. Note that this option
+diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+index 50a110e2988b..4d5c96a5ab04 100644
+--- a/drivers/input/touchscreen/wm97xx-core.c
++++ b/drivers/input/touchscreen/wm97xx-core.c
+@@ -44,6 +44,7 @@
+ #include <linux/pm.h>
+ #include <linux/interrupt.h>
+ #include <linux/bitops.h>
++#include <linux/mfd/wm97xx.h>
+ #include <linux/workqueue.h>
+ #include <linux/wm97xx.h>
+ #include <linux/uaccess.h>
+@@ -763,6 +764,39 @@ static int wm97xx_remove(struct device *dev)
+ 	return 0;
+ }
+ 
++static int wm97xx_mfd_probe(struct platform_device *pdev)
++{
++	struct wm97xx *wm;
++	struct wm97xx_platform_data *mfd_pdata = dev_get_platdata(&pdev->dev);
++	int ret;
++
++	wm = devm_kzalloc(&pdev->dev, sizeof(struct wm97xx), GFP_KERNEL);
++	if (!wm)
++		return -ENOMEM;
++
++	wm->dev = &pdev->dev;
++	wm->ac97 = mfd_pdata->ac97;
++
++	ret =  _wm97xx_probe(wm);
++	if (ret)
++		return ret;
++
++	ret = wm97xx_add_battery(wm, mfd_pdata->batt_pdata);
++	if (ret < 0)
++		goto batt_err;
++
++	return ret;
++
++batt_err:
++	wm97xx_unregister_touch(wm);
++	return ret;
++}
++
++static int wm97xx_mfd_remove(struct platform_device *pdev)
++{
++	return wm97xx_remove(&pdev->dev);
++}
++
+ static int __maybe_unused wm97xx_suspend(struct device *dev)
+ {
+ 	struct wm97xx *wm = dev_get_drvdata(dev);
+@@ -859,21 +893,41 @@ EXPORT_SYMBOL_GPL(wm97xx_unregister_mach_ops);
+ 
+ static struct device_driver wm97xx_driver = {
+ 	.name =		"wm97xx-ts",
++#ifdef CONFIG_AC97_BUS
+ 	.bus =		&ac97_bus_type,
++#endif
+ 	.owner =	THIS_MODULE,
+ 	.probe =	wm97xx_probe,
+ 	.remove =	wm97xx_remove,
+ 	.pm =		&wm97xx_pm_ops,
+ };
+ 
++static struct platform_driver wm97xx_mfd_driver = {
++	.driver = {
++		.name =		"wm97xx-ts",
++		.pm =		&wm97xx_pm_ops,
++	},
++	.probe =	wm97xx_mfd_probe,
++	.remove =	wm97xx_mfd_remove,
++};
++
+ static int __init wm97xx_init(void)
+ {
+-	return driver_register(&wm97xx_driver);
++	int ret;
++
++	ret = platform_driver_register(&wm97xx_mfd_driver);
++	if (ret)
++		return ret;
++
++	if (IS_BUILTIN(CONFIG_AC97_BUS))
++		ret =  driver_register(&wm97xx_driver);
++	return ret;
+ }
+ 
+ static void __exit wm97xx_exit(void)
+ {
+ 	driver_unregister(&wm97xx_driver);
++	platform_driver_unregister(&wm97xx_mfd_driver);
+ }
+ 
+ module_init(wm97xx_init);
+-- 
+2.1.4
+

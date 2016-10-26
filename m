@@ -1,127 +1,91 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: [PATCH 4/9] ASoC: wm9713: add ac97 new bus support
-Date: Wed, 26 Oct 2016 21:41:42 +0200
-Message-ID: <1477510907-23495-5-git-send-email-robert.jarzmik@free.fr>
-References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
-Sender: linux-pm-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, linux-pm@vger.kernel.org, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
+From: Jan Kandziora <jjj@gmx.de>
+Subject: Silicon Works Multi-touch Device, VID:PID 29bd:4101; some initial
+ help needed tweaking/developing a driver for it
+Date: Wed, 26 Oct 2016 22:01:36 +0200
+Message-ID: <849deb02-0289-ba43-66fb-1d163efaedec@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.gmx.net ([212.227.17.22]:54563 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932826AbcJZUBj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 26 Oct 2016 16:01:39 -0400
+Received: from [10.0.0.99] ([79.242.237.131]) by mail.gmx.com (mrgmx103) with
+ ESMTPSA (Nemesis) id 0LevUh-1cgqI325qZ-00qmXg for
+ <linux-input@vger.kernel.org>; Wed, 26 Oct 2016 22:01:36 +0200
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Add support for the new ac97 bus model, where devices are automatically
-discovered on AC-Links.
+Hi,
 
-Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
----
- sound/soc/codecs/Kconfig  |  3 ++-
- sound/soc/codecs/wm9713.c | 37 ++++++++++++++++++++++++++-----------
- 2 files changed, 28 insertions(+), 12 deletions(-)
+I have some POS system which I'd like to use which has an USB HID
+touchscreen
 
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index c67667bb970f..c5871a299cfc 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -202,7 +202,7 @@ config SND_SOC_ALL_CODECS
- 	select SND_SOC_WM9090 if I2C
- 	select SND_SOC_WM9705 if SND_SOC_AC97_BUS
- 	select SND_SOC_WM9712 if SND_SOC_AC97_BUS
--	select SND_SOC_WM9713 if SND_SOC_AC97_BUS
-+	select SND_SOC_WM9713 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
-         help
-           Normally ASoC codec drivers are only built if a machine driver which
-           uses them is also built since they are only usable with a machine
-@@ -1061,6 +1061,7 @@ config SND_SOC_WM9712
- config SND_SOC_WM9713
- 	tristate
- 	select REGMAP_AC97
-+	select AC97_BUS_COMPAT if AC97_BUS_NEW
- 
- # Amp
- config SND_SOC_LM4857
-diff --git a/sound/soc/codecs/wm9713.c b/sound/soc/codecs/wm9713.c
-index e4301ddb1b84..2163232855cb 100644
---- a/sound/soc/codecs/wm9713.c
-+++ b/sound/soc/codecs/wm9713.c
-@@ -17,12 +17,15 @@
- 
- #include <linux/init.h>
- #include <linux/slab.h>
-+#include <linux/mfd/wm97xx.h>
- #include <linux/module.h>
- #include <linux/device.h>
- #include <linux/regmap.h>
- #include <sound/core.h>
- #include <sound/pcm.h>
- #include <sound/ac97_codec.h>
-+#include <sound/ac97/codec.h>
-+#include <sound/ac97/compat.h>
- #include <sound/initval.h>
- #include <sound/pcm_params.h>
- #include <sound/tlv.h>
-@@ -38,6 +41,7 @@ struct wm9713_priv {
- 	u32 pll_in; /* PLL input frequency */
- 	unsigned int hp_mixer[2];
- 	struct mutex lock;
-+	struct wm97xx_platform_data *mfd_pdata;
- };
- 
- #define HPL_MIXER 0
-@@ -1207,15 +1211,21 @@ static int wm9713_soc_probe(struct snd_soc_codec *codec)
- 	struct wm9713_priv *wm9713 = snd_soc_codec_get_drvdata(codec);
- 	struct regmap *regmap;
- 
--	wm9713->ac97 = snd_soc_new_ac97_codec(codec, WM9713_VENDOR_ID,
--		WM9713_VENDOR_ID_MASK);
--	if (IS_ERR(wm9713->ac97))
--		return PTR_ERR(wm9713->ac97);
--
--	regmap = regmap_init_ac97(wm9713->ac97, &wm9713_regmap_config);
--	if (IS_ERR(regmap)) {
--		snd_soc_free_ac97_codec(wm9713->ac97);
--		return PTR_ERR(regmap);
-+	if (wm9713->mfd_pdata) {
-+		wm9713->ac97 = wm9713->mfd_pdata->ac97;
-+		regmap = wm9713->mfd_pdata->regmap;
-+	} else {
-+#ifdef CONFIG_SND_SOC_AC97_BUS
-+		wm9713->ac97 = snd_soc_new_ac97_codec(codec, WM9713_VENDOR_ID,
-+						      WM9713_VENDOR_ID_MASK);
-+		if (IS_ERR(wm9713->ac97))
-+			return PTR_ERR(wm9713->ac97);
-+		regmap = regmap_init_ac97(wm9713->ac97, &wm9713_regmap_config);
-+		if (IS_ERR(regmap)) {
-+			snd_soc_free_ac97_codec(wm9713->ac97);
-+			return PTR_ERR(regmap);
-+		}
-+#endif
- 	}
- 
- 	snd_soc_codec_init_regmap(codec, regmap);
-@@ -1230,8 +1240,12 @@ static int wm9713_soc_remove(struct snd_soc_codec *codec)
- {
- 	struct wm9713_priv *wm9713 = snd_soc_codec_get_drvdata(codec);
- 
--	snd_soc_codec_exit_regmap(codec);
--	snd_soc_free_ac97_codec(wm9713->ac97);
-+	if (!wm9713->mfd_pdata) {
-+		snd_soc_codec_exit_regmap(codec);
-+#ifdef CONFIG_SND_SOC_AC97_BUS
-+		snd_soc_free_ac97_codec(wm9713->ac97);
-+#endif
-+	}
- 	return 0;
- }
- 
-@@ -1262,6 +1276,7 @@ static int wm9713_probe(struct platform_device *pdev)
- 
- 	mutex_init(&wm9713->lock);
- 
-+	wm9713->mfd_pdata = dev_get_platdata(&pdev->dev);
- 	platform_set_drvdata(pdev, wm9713);
- 
- 	return snd_soc_register_codec(&pdev->dev,
--- 
-2.1.4
+	Silicon Works Multi-touch Device, VID:PID 29bd:4101
 
+hid-multitouch claims it and opens a /dev/input/event4 on the hardware,
+but no reports are coming from it when touched.
+
+I was able to get touch data from it through /dev/hidraw0, reports are
+six bytes each and have the pattern
+
+	0x03 pressed xl xh yl yh
+
+I then used samples/hid-example.c on the hidraw0 device, which gives
+
+Report Descriptor Size: 761
+Report Descriptor:
+6 0 ff 9 1 a1 1 a1 1 15 0 26 ff 0 85 14 9 2 75 8 95 3f b1 2 c0 c0 5 d 9
+4 a1 1 85 10 9 22 a1 2 9 42 15 0 25 1 75 1 95 1 81 2 95 7 81 3 75 8 9 51
+95 1 81 2 5 1 26 ff 7f 75 10 55 e 65 11 9 30 35 0 46 d2 a 81 2 46 18 6 9
+31 81 2 c0 5 d 9 22 a1 2 9 42 15 0 25 1 75 1 95 1 81 2 95 7 81 3 75 8 9
+51 95 1 81 2 5 1 26 ff 7f 75 10 55 e 65 11 9 30 35 0 46 e2 13 81 2 46 36
+b 9 31 81 2 c0 5 d 9 22 a1 2 9 42 15 0 25 1 75 1 95 1 81 2 95 7 81 3 75
+8 9 51 95 1 81 2 5 1 26 ff 7f 75 10 55 e 65 11 9 30 35 0 46 d2 a 81 2 46
+18 6 9 31 81 2 c0 5 d 9 22 a1 2 9 42 15 0 25 1 75 1 95 1 81 2 95 7 81 3
+75 8 9 51 95 1 81 2 5 1 26 ff 7f 75 10 55 e 65 11 9 30 35 0 46 d2 a 81 2
+46 18 6 9 31 81 2 c0 5 d 9 22 a1 2 9 42 15 0 25 1 75 1 95 1 81 2 95 7 81
+3 75 8 9 51 95 1 81 2 5 1 26 ff 7f 75 10 55 e 65 11 9 30 35 0 46 d2 a 81
+2 46 18 6 9 31 81 2 c0 5 d 9 22 a1 2 9 42 15 0 25 1 75 1 95 1 81 2 95 7
+81 3 75 8 9 51 95 1 81 2 5 1 26 ff 7f 75 10 55 e 65 11 9 30 35 0 46 d2 a
+81 2 46 18 6 9 31 81 2 c0 5 d 9 22 a1 2 9 42 15 0 25 1 75 1 95 1 81 2 95
+7 81 3 75 8 9 51 95 1 81 2 5 1 26 ff 7f 75 10 55 e 65 11 9 30 35 0 46 d2
+a 81 2 46 18 6 9 31 81 2 c0 5 d 9 22 a1 2 9 42 15 0 25 1 75 1 95 1 81 2
+95 7 81 3 75 8 9 51 95 1 81 2 5 1 26 ff 7f 75 10 55 e 65 11 9 30 35 0 46
+d2 a 81 2 46 18 6 9 31 81 2 c0 5 d 9 22 a1 2 9 42 15 0 25 1 75 1 95 1 81
+2 95 7 81 3 75 8 9 51 95 1 81 2 5 1 26 ff 7f 75 10 55 e 65 11 9 30 35 0
+46 d2 a 81 2 46 18 6 9 31 81 2 c0 5 d 9 22 a1 2 9 42 15 0 25 1 75 1 95 1
+81 2 95 7 81 3 75 8 9 51 95 1 81 2 5 1 26 ff 7f 75 10 55 e 65 11 9 30 35
+0 46 d2 a 81 2 46 18 6 9 31 81 2 c0 5 d 9 54 25 a 95 1 75 8 81 2 15 0 27
+ff ff 0 0 55 c 66 1 10 75 10 9 56 35 0 47 ff ff 0 0 81 2 85 8 9 55 25 a
+b1 2 85 44 6 0 ff 9 c5 15 0 26 ff 0 75 8 96 0 1 b1 2 c0 5 d 9 e a1 1 85
+7 9 22 a1 0 9 52 9 53 15 0 25 a 75 8 95 2 b1 2 c0 c0 5 1 9 2 a1 1 85 3 9
+1 a1 0 5 9 19 1 29 2 15 0 25 1 75 1 95 2 81 2 95 6 81 3 5 1 9 30 9 31 75
+10 95 2 15 0 26 ff 7f 35 0 46 ff 7f 81 2 c0 c0
+
+Raw Name: Silicon Works Multi-touch Device
+Raw Phys: usb-0000:00:1d.0-1.4/input0
+Raw Info:
+        bustype: 3 (USB)
+        vendor: 0x29bd
+        product: 0x4101
+HIDIOCSFEATURE: Broken pipe
+HIDIOCGFEATURE: Broken pipe
+Error: 32
+write: Broken pipe
+read: Resource temporarily unavailable
+
+
+Question: is there some similar HID driver I could use as a base to get
+this thing working? I have some experience in kernel development (have
+the w1_ds28e17 i2c host driver in review currently) but haven't done a
+HID driver yet.
+
+Where should I start?
+
+
+Kind regards
+
+	Jan

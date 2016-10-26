@@ -1,603 +1,108 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v8 1/5] mfd: mxs-lradc: Add support for mxs-lradc MFD
-Date: Wed, 26 Oct 2016 15:19:14 +0100
-Message-ID: <20161026141914.GJ13127@dell>
-References: <cover.1477235446.git.ksenija.stanojevic@gmail.com>
- <c18883dfacaaf40ab98cbb4938d5164a95a817d7.1477235446.git.ksenija.stanojevic@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC] HID:hid-lg4ff: Delay to allow wheels to center after plug-in
+Date: Wed, 26 Oct 2016 10:00:34 -0700
+Message-ID: <CAKdAkRQN2Kv7CLrmXzEjfPatgkmzBexzsBYdhzOLjunDTD0APg@mail.gmail.com>
+References: <1477445172-2682-1-git-send-email-simon@mungewell.org> <24625977.TfGNBbEdyA@thora>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f53.google.com ([74.125.82.53]:38397 "EHLO
-        mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934141AbcJZOQn (ORCPT
+Received: from mail-ua0-f193.google.com ([209.85.217.193]:34577 "EHLO
+        mail-ua0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753255AbcJZRAg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Oct 2016 10:16:43 -0400
-Received: by mail-wm0-f53.google.com with SMTP id d128so87627005wmf.1
-        for <linux-input@vger.kernel.org>; Wed, 26 Oct 2016 07:16:42 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <c18883dfacaaf40ab98cbb4938d5164a95a817d7.1477235446.git.ksenija.stanojevic@gmail.com>
+        Wed, 26 Oct 2016 13:00:36 -0400
+In-Reply-To: <24625977.TfGNBbEdyA@thora>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com
+To: =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@gmail.com>
+Cc: Simon Wood <gitsend@mungewell.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Edwin Velds <edwin@velds.nl>, Elias Vanderstuyft <elias.vds@gmail.com>, Simon Wood <simon@mungewell.org>
 
-On Sun, 23 Oct 2016, Ksenija Stanojevic wrote:
+On Wed, Oct 26, 2016 at 12:36 AM, Michal Mal=C3=BD <madcatxster@gmail.com> =
+wrote:
+> Hi all,
+>
+> maybe instead of stalling the entire init() function it'd be better to pu=
+t a
+> request to disable autocentering on a workqueue and start a delayed work =
+once
+> the init() function is done setting the wheel up? There'd be a bit more c=
+ode
+> to write though...
+>
 
-> Add core files for mxs-lradc MFD driver.
-> 
-> Note:  this patch won't compile in iio/testing without this patch:
-> a8f447be8056 ("mfd: Add resource managed APIs for mfd_add_devices")
-> 
-> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-> ---
-> Changes in v8:
->  - rebase onto 4.9-rc1
-> 
-> Changes in v7:
->  - define macros ADC_CELL and TSC_CELL
->  - remove one cell and dynamically set them in the switch()
->  - fail in the touchscreen driver instead of mfd driver if
->    hardware doesn't contain a touchscreen
-> 
-> Changes in v6:
->  - update copyright
->  - add kernel-doc header for struct mxs-lradc
->  - add error message
->  - change EINVAL to ENODEV
->  - use PLATFORM_DEVID_NONE instead -1
->  - cosmetic fixes
-> 
-> Changes in v5:
->  - use DEFINE_RES_MEM
->  - don't pass ioreammaped adress to platform cells
->  - move comment outside of struct mxs_lradc
->  - change type of argument in mxs_lradc_reg_set, mxs_lradc_reg_clear,
->    mxs_lradc_reg_wrt (struct mxs_lradc * -> void __iomem *)
-> 
-> Changes in v4:
->  - update copyright
->  - use DEFINE_RES_IRQ_NAMED
->  - remove mxs_lradc_add_device function
->  - use struct mfd_cell in static form
->  - improve spacing
->  - remove unnecessary comment
->  - remove platform_get_irq
->  - remove touch_ret and use ret instead
->  - rename use_touchscreen to touchscreen_wire
->  - use goto statements
->  - remove irq[13], irq_count and irq_name from struct mxs_lradc
->  - remove all defines from inside the struct definition
-> 
-> Changes in v3:
->  - add note to commit message
->  - move switch statement into if(touch_ret == 0) branch
->  - add MODULE_AUTHOR
-> 
-> Changes in v2:
->  - do not change spacing in Kconfig
->  - make struct mfd_cell part of struct mxs_lradc
->  - use switch instead of if in mxs_lradc_irq_mask
->  - use only necessary header files in mxs_lradc.h
->  - use devm_mfd_add_device
->  - use separate function to register mfd device
->  - change licence to GPL
->  - add copyright
-> 
->  drivers/mfd/Kconfig           |  17 +++
->  drivers/mfd/Makefile          |   1 +
->  drivers/mfd/mxs-lradc.c       | 249 ++++++++++++++++++++++++++++++++++++++++++
->  include/linux/mfd/mxs-lradc.h | 203 ++++++++++++++++++++++++++++++++++
->  4 files changed, 470 insertions(+)
->  create mode 100644 drivers/mfd/mxs-lradc.c
->  create mode 100644 include/linux/mfd/mxs-lradc.h
+Yeah, if device happens to be plugged at boot time it will wait that
+long before even getting to mount rootfs if driver is built into the
+kernel.
 
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+This is also interesting way to say "msleep(8000)".
 
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index c6df644..bdd88cf 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -326,6 +326,23 @@ config MFD_MC13XXX_I2C
->  	help
->  	  Select this if your MC13xxx is connected via an I2C bus.
->  
-> +config MFD_MXS_LRADC
-> +	tristate "Freescale i.MX23/i.MX28 LRADC"
-> +	depends on ARCH_MXS || COMPILE_TEST
-> +	select MFD_CORE
-> +	select STMP_DEVICE
-> +	help
-> +	  Say yes here to build support for the Low Resolution
-> +	  Analog-to-Digital Converter (LRADC) found on the i.MX23 and i.MX28
-> +	  processors. This driver provides common support for accessing the
-> +	  device, additional drivers must be enabled in order to use the
-> +	  functionality of the device:
-> +		mxs-lradc-adc for ADC readings
-> +		mxs-lradc-ts  for touchscreen support
-> +
-> +	  This driver can also be built as a module. If so, the module will be
-> +	  called mxs-lradc.
-> +
->  config MFD_MX25_TSADC
->  	tristate "Freescale i.MX25 integrated Touchscreen and ADC unit"
->  	select REGMAP_MMIO
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index 9834e66..057ca15 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -211,3 +211,4 @@ obj-$(CONFIG_INTEL_SOC_PMIC)	+= intel-soc-pmic.o
->  obj-$(CONFIG_MFD_MT6397)	+= mt6397-core.o
->  
->  obj-$(CONFIG_MFD_ALTERA_A10SR)	+= altera-a10sr.o
-> +obj-$(CONFIG_MFD_MXS_LRADC)     += mxs-lradc.o
-> diff --git a/drivers/mfd/mxs-lradc.c b/drivers/mfd/mxs-lradc.c
-> new file mode 100644
-> index 0000000..ffc8f2e
-> --- /dev/null
-> +++ b/drivers/mfd/mxs-lradc.c
-> @@ -0,0 +1,249 @@
-> +/*
-> + * Freescale MXS Low Resolution Analog-to-Digital Converter driver
-> + *
-> + * Copyright (c) 2012 DENX Software Engineering, GmbH.
-> + * Copyright (c) 2016 Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-> + *
-> + * Authors:
-> + *  Marek Vasut <marex@denx.de>
-> + *  Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +#include <linux/clk.h>
-> +#include <linux/device.h>
-> +#include <linux/mfd/core.h>
-> +#include <linux/mfd/mxs-lradc.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/of_device.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/slab.h>
-> +
-> +#define MXS_LRADC_BASE		0x80050000
-> +#define ADC_CELL		0
-> +#define TSC_CELL		1
-> +
-> +enum mx23_lradc_irqs {
-> +	MX23_LRADC_TS_IRQ = 0,
-> +	MX23_LRADC_CH0_IRQ,
-> +	MX23_LRADC_CH1_IRQ,
-> +	MX23_LRADC_CH2_IRQ,
-> +	MX23_LRADC_CH3_IRQ,
-> +	MX23_LRADC_CH4_IRQ,
-> +	MX23_LRADC_CH5_IRQ,
-> +	MX23_LRADC_CH6_IRQ,
-> +	MX23_LRADC_CH7_IRQ,
-> +};
-> +
-> +enum mx28_lradc_irqs {
-> +	MX28_LRADC_TS_IRQ = 0,
-> +	MX28_LRADC_TRESH0_IRQ,
-> +	MX28_LRADC_TRESH1_IRQ,
-> +	MX28_LRADC_CH0_IRQ,
-> +	MX28_LRADC_CH1_IRQ,
-> +	MX28_LRADC_CH2_IRQ,
-> +	MX28_LRADC_CH3_IRQ,
-> +	MX28_LRADC_CH4_IRQ,
-> +	MX28_LRADC_CH5_IRQ,
-> +	MX28_LRADC_CH6_IRQ,
-> +	MX28_LRADC_CH7_IRQ,
-> +	MX28_LRADC_BUTTON0_IRQ,
-> +	MX28_LRADC_BUTTON1_IRQ,
-> +};
-> +
-> +static struct resource mx23_adc_resources[] = {
-> +	DEFINE_RES_MEM(MXS_LRADC_BASE, 0x1fff),
-> +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH0_IRQ, "mxs-lradc-channel0"),
-> +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH1_IRQ, "mxs-lradc-channel1"),
-> +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH2_IRQ, "mxs-lradc-channel2"),
-> +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH3_IRQ, "mxs-lradc-channel3"),
-> +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH4_IRQ, "mxs-lradc-channel4"),
-> +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH5_IRQ, "mxs-lradc-channel5"),
-> +};
-> +
-> +static struct resource mx23_touchscreen_resources[] = {
-> +	DEFINE_RES_MEM(MXS_LRADC_BASE, 0x1fff),
-> +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_TS_IRQ, "mxs-lradc-touchscreen"),
-> +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH6_IRQ, "mxs-lradc-channel6"),
-> +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH7_IRQ, "mxs-lradc-channel7"),
-> +};
-> +
-> +static struct resource mx28_adc_resources[] = {
-> +	DEFINE_RES_MEM(MXS_LRADC_BASE, 0x1fff),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_TRESH0_IRQ, "mxs-lradc-thresh0"),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_TRESH1_IRQ, "mxs-lradc-thresh1"),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH0_IRQ, "mxs-lradc-channel0"),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH1_IRQ, "mxs-lradc-channel1"),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH2_IRQ, "mxs-lradc-channel2"),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH3_IRQ, "mxs-lradc-channel3"),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH4_IRQ, "mxs-lradc-channel4"),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH5_IRQ, "mxs-lradc-channel5"),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_BUTTON0_IRQ, "mxs-lradc-button0"),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_BUTTON1_IRQ, "mxs-lradc-button1"),
-> +};
-> +
-> +static struct resource mx28_touchscreen_resources[] = {
-> +	DEFINE_RES_MEM(MXS_LRADC_BASE, 0x1fff),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_TS_IRQ, "mxs-lradc-touchscreen"),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH6_IRQ, "mxs-lradc-channel6"),
-> +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH7_IRQ, "mxs-lradc-channel7"),
-> +};
-> +
-> +static struct mfd_cell mxs_cells[] = {
-> +	{
-> +		.name = "mxs-lradc-adc",
-> +	},
-> +	{
-> +		.name = "mxs-lradc-ts",
-> +	},
-> +};
-> +
-> +static const struct of_device_id mxs_lradc_dt_ids[] = {
-> +	{ .compatible = "fsl,imx23-lradc", .data = (void *)IMX23_LRADC, },
-> +	{ .compatible = "fsl,imx28-lradc", .data = (void *)IMX28_LRADC, },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, mxs_lradc_dt_ids);
-> +
-> +static int mxs_lradc_probe(struct platform_device *pdev)
-> +{
-> +	const struct of_device_id *of_id;
-> +	struct device *dev = &pdev->dev;
-> +	struct device_node *node = dev->of_node;
-> +	struct mxs_lradc *lradc;
-> +	struct mfd_cell *cells = mxs_cells;
-> +	int ret = 0;
-> +	u32 ts_wires = 0;
-> +
-> +	lradc = devm_kzalloc(&pdev->dev, sizeof(*lradc), GFP_KERNEL);
-> +	if (!lradc)
-> +		return -ENOMEM;
-> +
-> +	of_id = of_match_device(mxs_lradc_dt_ids, &pdev->dev);
-> +	lradc->soc = (enum mxs_lradc_id)of_id->data;
-> +
-> +	lradc->clk = devm_clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(lradc->clk)) {
-> +		dev_err(dev, "Failed to get the delay unit clock\n");
-> +		return PTR_ERR(lradc->clk);
-> +	}
-> +
-> +	ret = clk_prepare_enable(lradc->clk);
-> +	if (ret) {
-> +		dev_err(dev, "Failed to enable the delay unit clock\n");
-> +		return ret;
-> +	}
-> +
-> +	ret = of_property_read_u32(node, "fsl,lradc-touchscreen-wires",
-> +					 &ts_wires);
-> +
-> +	if (!ret) {
-> +		lradc->buffer_vchans = BUFFER_VCHANS_LIMITED;
-> +
-> +		switch (ts_wires) {
-> +		case 4:
-> +			lradc->touchscreen_wire = MXS_LRADC_TOUCHSCREEN_4WIRE;
-> +			break;
-> +		case 5:
-> +			if (lradc->soc == IMX28_LRADC) {
-> +				lradc->touchscreen_wire =
-> +					MXS_LRADC_TOUCHSCREEN_5WIRE;
-> +				break;
-> +			}
-> +			/* fall through to an error message for i.MX23 */
-> +		default:
-> +			dev_err(&pdev->dev,
-> +				"Unsupported number of touchscreen wires (%d)\n"
-> +				, ts_wires);
-> +			ret = -EINVAL;
-> +			goto err_clk;
-> +		}
-> +	} else {
-> +		lradc->buffer_vchans = BUFFER_VCHANS_ALL;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, lradc);
-> +
-> +	switch (lradc->soc) {
-> +	case IMX23_LRADC:
-> +		cells[ADC_CELL].resources = mx23_adc_resources;
-> +		cells[ADC_CELL].num_resources = ARRAY_SIZE(mx23_adc_resources);
-> +		cells[TSC_CELL].resources = mx23_touchscreen_resources;
-> +		cells[TSC_CELL].num_resources =
-> +			ARRAY_SIZE(mx23_touchscreen_resources);
-> +		break;
-> +	case IMX28_LRADC:
-> +		cells[ADC_CELL].resources = mx28_adc_resources;
-> +		cells[ADC_CELL].num_resources = ARRAY_SIZE(mx28_adc_resources);
-> +		cells[TSC_CELL].resources = mx28_touchscreen_resources;
-> +		cells[TSC_CELL].num_resources =
-> +			ARRAY_SIZE(mx28_touchscreen_resources);
-> +		break;
-> +	default:
-> +		dev_err(dev, "Unsupported SoC\n");
-> +		ret = -ENODEV;
-> +		goto err_clk;
-> +	}
-> +	cells[ADC_CELL].platform_data = lradc;
-> +	cells[ADC_CELL].pdata_size = sizeof(*lradc);
-> +
-> +	ret = devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
-> +				   &cells[ADC_CELL], 1, NULL, 0, NULL);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to add the ADC subdevice\n");
-> +		goto err_clk;
-> +	}
-> +
-> +	cells[TSC_CELL].platform_data = lradc;
-> +	cells[TSC_CELL].pdata_size = sizeof(*lradc);
-> +
-> +	ret = devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
-> +				   &cells[TSC_CELL], 1, NULL, 0, NULL);
-> +	if (ret) {
-> +		dev_err(&pdev->dev,
-> +			"Failed to add the touchscreen subdevice\n");
-> +		goto err_clk;
-> +	}
-> +
-> +	return 0;
-> +
-> +err_clk:
-> +	clk_disable_unprepare(lradc->clk);
-> +
-> +	return ret;
-> +}
-> +
-> +static int mxs_lradc_remove(struct platform_device *pdev)
-> +{
-> +	struct mxs_lradc *lradc = platform_get_drvdata(pdev);
-> +
-> +	clk_disable_unprepare(lradc->clk);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver mxs_lradc_driver = {
-> +	.driver = {
-> +		.name = "mxs-lradc",
-> +		.of_match_table = mxs_lradc_dt_ids,
-> +	},
-> +	.probe = mxs_lradc_probe,
-> +	.remove = mxs_lradc_remove,
-> +};
-> +module_platform_driver(mxs_lradc_driver);
-> +
-> +MODULE_AUTHOR("Ksenija Stanojevic <ksenija.stanojevic@gmail.com>");
-> +MODULE_DESCRIPTION("Freescale i.MX23/i.MX28 LRADC driver");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:mxs-lradc");
-> diff --git a/include/linux/mfd/mxs-lradc.h b/include/linux/mfd/mxs-lradc.h
-> new file mode 100644
-> index 0000000..64140681
-> --- /dev/null
-> +++ b/include/linux/mfd/mxs-lradc.h
-> @@ -0,0 +1,203 @@
-> +/*
-> + * Freescale MXS Low Resolution Analog-to-Digital Converter driver
-> + *
-> + * Copyright (c) 2012 DENX Software Engineering, GmbH.
-> + * Copyright (c) 2016 Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-> + *
-> + * Author: Marek Vasut <marex@denx.de>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +#ifndef __MFD_MXS_LRADC_H
-> +#define __MFD_MXS_LRADC_H
-> +
-> +#include <linux/bitops.h>
-> +#include <linux/io.h>
-> +#include <linux/stmp_device.h>
-> +
-> +#define LRADC_MAX_DELAY_CHANS	4
-> +#define LRADC_MAX_MAPPED_CHANS	8
-> +#define LRADC_MAX_TOTAL_CHANS	16
-> +
-> +#define LRADC_DELAY_TIMER_HZ	2000
-> +
-> +#define LRADC_CTRL0				0x00
-> +# define LRADC_CTRL0_MX28_TOUCH_DETECT_ENABLE	BIT(23)
-> +# define LRADC_CTRL0_MX28_TOUCH_SCREEN_TYPE	BIT(22)
-> +# define LRADC_CTRL0_MX28_YNNSW /* YM */	BIT(21)
-> +# define LRADC_CTRL0_MX28_YPNSW /* YP */	BIT(20)
-> +# define LRADC_CTRL0_MX28_YPPSW /* YP */	BIT(19)
-> +# define LRADC_CTRL0_MX28_XNNSW /* XM */	BIT(18)
-> +# define LRADC_CTRL0_MX28_XNPSW /* XM */	BIT(17)
-> +# define LRADC_CTRL0_MX28_XPPSW /* XP */	BIT(16)
-> +
-> +# define LRADC_CTRL0_MX23_TOUCH_DETECT_ENABLE	BIT(20)
-> +# define LRADC_CTRL0_MX23_YM			BIT(19)
-> +# define LRADC_CTRL0_MX23_XM			BIT(18)
-> +# define LRADC_CTRL0_MX23_YP			BIT(17)
-> +# define LRADC_CTRL0_MX23_XP			BIT(16)
-> +
-> +# define LRADC_CTRL0_MX28_PLATE_MASK \
-> +		(LRADC_CTRL0_MX28_TOUCH_DETECT_ENABLE | \
-> +		LRADC_CTRL0_MX28_YNNSW | LRADC_CTRL0_MX28_YPNSW | \
-> +		LRADC_CTRL0_MX28_YPPSW | LRADC_CTRL0_MX28_XNNSW | \
-> +		LRADC_CTRL0_MX28_XNPSW | LRADC_CTRL0_MX28_XPPSW)
-> +
-> +# define LRADC_CTRL0_MX23_PLATE_MASK \
-> +		(LRADC_CTRL0_MX23_TOUCH_DETECT_ENABLE | \
-> +		LRADC_CTRL0_MX23_YM | LRADC_CTRL0_MX23_XM | \
-> +		LRADC_CTRL0_MX23_YP | LRADC_CTRL0_MX23_XP)
-> +
-> +#define LRADC_CTRL1				0x10
-> +#define LRADC_CTRL1_TOUCH_DETECT_IRQ_EN		BIT(24)
-> +#define LRADC_CTRL1_LRADC_IRQ_EN(n)		(1 << ((n) + 16))
-> +#define LRADC_CTRL1_MX28_LRADC_IRQ_EN_MASK	(0x1fff << 16)
-> +#define LRADC_CTRL1_MX23_LRADC_IRQ_EN_MASK	(0x01ff << 16)
-> +#define LRADC_CTRL1_LRADC_IRQ_EN_OFFSET		16
-> +#define LRADC_CTRL1_TOUCH_DETECT_IRQ		BIT(8)
-> +#define LRADC_CTRL1_LRADC_IRQ(n)		(1 << (n))
-> +#define LRADC_CTRL1_MX28_LRADC_IRQ_MASK		0x1fff
-> +#define LRADC_CTRL1_MX23_LRADC_IRQ_MASK		0x01ff
-> +#define LRADC_CTRL1_LRADC_IRQ_OFFSET		0
-> +
-> +#define LRADC_CTRL2				0x20
-> +#define LRADC_CTRL2_DIVIDE_BY_TWO_OFFSET	24
-> +#define LRADC_CTRL2_TEMPSENSE_PWD		BIT(15)
-> +
-> +#define LRADC_STATUS				0x40
-> +#define LRADC_STATUS_TOUCH_DETECT_RAW		BIT(0)
-> +
-> +#define LRADC_CH(n)				(0x50 + (0x10 * (n)))
-> +#define LRADC_CH_ACCUMULATE			BIT(29)
-> +#define LRADC_CH_NUM_SAMPLES_MASK		(0x1f << 24)
-> +#define LRADC_CH_NUM_SAMPLES_OFFSET		24
-> +#define LRADC_CH_NUM_SAMPLES(x) \
-> +				((x) << LRADC_CH_NUM_SAMPLES_OFFSET)
-> +#define LRADC_CH_VALUE_MASK			0x3ffff
-> +#define LRADC_CH_VALUE_OFFSET			0
-> +
-> +#define LRADC_DELAY(n)				(0xd0 + (0x10 * (n)))
-> +#define LRADC_DELAY_TRIGGER_LRADCS_MASK		(0xffUL << 24)
-> +#define LRADC_DELAY_TRIGGER_LRADCS_OFFSET	24
-> +#define LRADC_DELAY_TRIGGER(x) \
-> +				(((x) << LRADC_DELAY_TRIGGER_LRADCS_OFFSET) & \
-> +				LRADC_DELAY_TRIGGER_LRADCS_MASK)
-> +#define LRADC_DELAY_KICK			BIT(20)
-> +#define LRADC_DELAY_TRIGGER_DELAYS_MASK		(0xf << 16)
-> +#define LRADC_DELAY_TRIGGER_DELAYS_OFFSET	16
-> +#define LRADC_DELAY_TRIGGER_DELAYS(x) \
-> +				(((x) << LRADC_DELAY_TRIGGER_DELAYS_OFFSET) & \
-> +				LRADC_DELAY_TRIGGER_DELAYS_MASK)
-> +#define LRADC_DELAY_LOOP_COUNT_MASK		(0x1f << 11)
-> +#define LRADC_DELAY_LOOP_COUNT_OFFSET		11
-> +#define LRADC_DELAY_LOOP(x) \
-> +				(((x) << LRADC_DELAY_LOOP_COUNT_OFFSET) & \
-> +				LRADC_DELAY_LOOP_COUNT_MASK)
-> +#define LRADC_DELAY_DELAY_MASK			0x7ff
-> +#define LRADC_DELAY_DELAY_OFFSET		0
-> +#define LRADC_DELAY_DELAY(x) \
-> +				(((x) << LRADC_DELAY_DELAY_OFFSET) & \
-> +				LRADC_DELAY_DELAY_MASK)
-> +
-> +#define LRADC_CTRL4				0x140
-> +#define LRADC_CTRL4_LRADCSELECT_MASK(n)		(0xf << ((n) * 4))
-> +#define LRADC_CTRL4_LRADCSELECT_OFFSET(n)	((n) * 4)
-> +#define LRADC_CTRL4_LRADCSELECT(n, x) \
-> +				(((x) << LRADC_CTRL4_LRADCSELECT_OFFSET(n)) & \
-> +				LRADC_CTRL4_LRADCSELECT_MASK(n))
-> +
-> +#define LRADC_RESOLUTION			12
-> +#define LRADC_SINGLE_SAMPLE_MASK		((1 << LRADC_RESOLUTION) - 1)
-> +
-> +#define BUFFER_VCHANS_LIMITED		0x3f
-> +#define BUFFER_VCHANS_ALL		0xff
-> +
-> +	/*
-> +	 * Certain LRADC channels are shared between touchscreen
-> +	 * and/or touch-buttons and generic LRADC block. Therefore when using
-> +	 * either of these, these channels are not available for the regular
-> +	 * sampling. The shared channels are as follows:
-> +	 *
-> +	 * CH0 -- Touch button #0
-> +	 * CH1 -- Touch button #1
-> +	 * CH2 -- Touch screen XPUL
-> +	 * CH3 -- Touch screen YPLL
-> +	 * CH4 -- Touch screen XNUL
-> +	 * CH5 -- Touch screen YNLR
-> +	 * CH6 -- Touch screen WIPER (5-wire only)
-> +	 *
-> +	 * The bit fields below represents which parts of the LRADC block are
-> +	 * switched into special mode of operation. These channels can not
-> +	 * be sampled as regular LRADC channels. The driver will refuse any
-> +	 * attempt to sample these channels.
-> +	 */
-> +#define CHAN_MASK_TOUCHBUTTON		(BIT(1) | BIT(0))
-> +#define CHAN_MASK_TOUCHSCREEN_4WIRE	(0xf << 2)
-> +#define CHAN_MASK_TOUCHSCREEN_5WIRE	(0x1f << 2)
-> +
-> +enum mxs_lradc_id {
-> +	IMX23_LRADC,
-> +	IMX28_LRADC,
-> +};
-> +
-> +enum mxs_lradc_ts_wires {
-> +	MXS_LRADC_TOUCHSCREEN_NONE = 0,
-> +	MXS_LRADC_TOUCHSCREEN_4WIRE,
-> +	MXS_LRADC_TOUCHSCREEN_5WIRE,
-> +};
-> +
-> +/**
-> + * struct mxs_lradc
-> + * @soc: soc type (IMX23 or IMX28)
-> + * @clk: 2 kHz clock for delay units
-> + * @buffer_vchans: channels that can be used during buffered capture
-> + * @touchscreen_wire: touchscreen type (4-wire or 5-wire)
-> + * @use_touchbutton: button state (on or off)
-> + */
-> +struct mxs_lradc {
-> +	enum mxs_lradc_id	soc;
-> +	struct clk		*clk;
-> +	u8			buffer_vchans;
-> +
-> +	enum mxs_lradc_ts_wires	touchscreen_wire;
-> +	bool			use_touchbutton;
-> +};
-> +
-> +static inline void mxs_lradc_reg_set(void __iomem *base, u32 val, u32 reg)
-> +{
-> +	writel(val, base + reg + STMP_OFFSET_REG_SET);
-> +}
-> +
-> +static inline void mxs_lradc_reg_clear(void __iomem *base, u32 val,
-> +				       u32 reg)
-> +{
-> +	writel(val, base + reg + STMP_OFFSET_REG_CLR);
-> +}
-> +
-> +static inline void mxs_lradc_reg_wrt(void __iomem *base, u32 val, u32 reg)
-> +{
-> +	writel(val, base + reg);
-> +}
-> +
-> +static inline u32 mxs_lradc_irq_mask(struct mxs_lradc *lradc)
-> +{
-> +	switch (lradc->soc) {
-> +	case IMX23_LRADC:
-> +		return LRADC_CTRL1_MX23_LRADC_IRQ_MASK;
-> +	case IMX28_LRADC:
-> +		return LRADC_CTRL1_MX28_LRADC_IRQ_MASK;
-> +	default:
-> +		return 0;
-> +	}
-> +}
-> +
-> +#endif /* __MXS_LRADC_H */
+> Michal
+>
+> On Tuesday, October 25, 2016 7:26:12 PM CEST Simon Wood wrote:
+>> A number of wheels (G27/etc) do a little full right/full left 'dance'
+>> when first plugged in. This patch inserts a delay so that this 'dance'
+>> is completed before we disable (set to zero) the autocenter spring.
+>>
+>> A side benefit is that the DFGT was confused without the delay, and is
+>> now correctly being set to 900' rotation mode.
+>>
+>> Side Effect - and the reason I am sending as RFC. This 8s delay seems
+>> to have an effect on other wheels connected at the same time.
+>>
+>> With 3 wheels on a hub, and then the hub connected to PC. The wheel
+>> on the right in video below waits for G27 to complete this 8s, before
+>> it will do it's 'dance' and register with the system.
+>>
+>> https://www.youtube.com/watch?v=3DxCVpCw_yGgA
+>>
+>> I don't know if this is a problem, or if someone here has suggestions
+>> on a better way to implement the delay...
+>> ---
+>>  drivers/hid/hid-lg4ff.c | 10 ++++++++++
+>>  1 file changed, 10 insertions(+)
+>>
+>> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+>> index af3a8ec..3eee920 100644
+>> --- a/drivers/hid/hid-lg4ff.c
+>> +++ b/drivers/hid/hid-lg4ff.c
+>> @@ -1248,6 +1248,8 @@ int lg4ff_init(struct hid_device *hid)
+>>       /* Check if autocentering is available and
+>>        * set the centering force to zero by default */
+>>       if (test_bit(FF_AUTOCENTER, dev->ffbit)) {
+>> +             wait_queue_head_t wait;
+>> +
+>>               /* Formula Force EX expects different autocentering comman=
+d */
+>>               if ((bcdDevice >> 8) =3D=3D LG4FF_FFEX_REV_MAJ &&
+>>                   (bcdDevice & 0xff) =3D=3D LG4FF_FFEX_REV_MIN)
+>> @@ -1255,6 +1257,14 @@ int lg4ff_init(struct hid_device *hid)
+>>               else
+>>                       dev->ff->set_autocenter =3D lg4ff_set_autocenter_d=
+efault;
+>>
+>> +             /* insert a 8s delay to allow DFGT/G25/G27/G29 wheels to r=
+eturn to
+> center
+>> position*/ +          if (lg4ff_devices[i].product_id =3D=3D
+>> USB_DEVICE_ID_LOGITECH_DFGT_WHEEL || +
+> lg4ff_devices[i].product_id =3D=3D
+>> USB_DEVICE_ID_LOGITECH_G25_WHEEL || +                         lg4ff_devi=
+ces[i].product_id
+> =3D=3D
+>> USB_DEVICE_ID_LOGITECH_G27_WHEEL || +                         lg4ff_devi=
+ces[i].product_id
+> =3D=3D
+>> USB_DEVICE_ID_LOGITECH_G29_WHEEL) { +                 init_waitqueue_hea=
+d (&wait);
+>> +                     wait_event_interruptible_timeout(wait, 0, msecs_to=
+_jiffies(8000));
+>> +             }
+>>               dev->ff->set_autocenter(dev, 0);
+>>       }
+>
 
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Thanks.
+
+--=20
+Dmitry

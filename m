@@ -1,66 +1,32 @@
 From: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 7/9] Input: wm97xx: split out touchscreen registering
-Date: Thu, 27 Oct 2016 10:02:33 +0100
-Message-ID: <20161027090233.GF28180@localhost.localdomain>
+Subject: Re: [PATCH 8/9] mfd: wm97xx-core: core support for wm97xx Codec
+Date: Thu, 27 Oct 2016 10:11:02 +0100
+Message-ID: <20161027091102.GG28180@localhost.localdomain>
 References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
- <1477510907-23495-8-git-send-email-robert.jarzmik@free.fr>
+ <1477510907-23495-9-git-send-email-robert.jarzmik@free.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1477510907-23495-8-git-send-email-robert.jarzmik@free.fr>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+In-Reply-To: <1477510907-23495-9-git-send-email-robert.jarzmik@free.fr>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Takashi Iwai <tiwai@suse.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Sebastian Reichel <sre@kernel.org>, Mark Brown <broonie@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>, Lee Jones <lee.jones@linaro.org>, Daniel Mack <daniel@zonque.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, linux-pm@vger.kernel.org, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Oct 26, 2016 at 09:41:45PM +0200, Robert Jarzmik wrote:
-> wm97xx-core does several things in it initialization :
->  - touchscreen input device setup
->  - battery device creation
+On Wed, Oct 26, 2016 at 09:41:46PM +0200, Robert Jarzmik wrote:
+> The WM9705, WM9712 and WM9713 are highly integrated codecs, with an
+> audio codec, DAC and ADC, GPIO unit and a touchscreen interface.
 > 
-> As the wm97xx is actually a multi-function device handling an audio
-> codec, a touchscreen, a gpio block and an ADC, reshape the probing to
-> isolate what is truly input/touchscreen specific from the remaining
-> part.
-> 
-> This is only code shuffling, there is no functional change.
+> Historically the support was spread across drivers/input/touchscreen and
+> sound/soc/codecs. The sharing was done through ac97 bus sharing. This
+> model will not withstand the new AC97 bus model, where codecs are
+> discovered on runtime.
 > 
 > Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 > ---
->  drivers/input/touchscreen/wm97xx-core.c | 193 ++++++++++++++++++--------------
->  1 file changed, 112 insertions(+), 81 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-> index 83cf11312fd9..50a110e2988b 100644
-<snip>
-> +static void wm97xx_remove_battery(struct wm97xx *wm)
-> +{
-> +	platform_device_put(wm->battery_dev);
-> +}
-<snip>
-> @@ -724,10 +757,8 @@ static int wm97xx_remove(struct device *dev)
->  {
->  	struct wm97xx *wm = dev_get_drvdata(dev);
->  
-> -	platform_device_unregister(wm->battery_dev);
-> -	platform_device_unregister(wm->touch_dev);
-> -	input_unregister_device(wm->input_dev);
-> -	kfree(wm);
-> +	wm97xx_remove_battery(wm);
 
-The commit message says this is just shifting code around but the
-platform_device_unregister for the battery_dev seems to have
-turned into a platform_device_put here.
+Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 
 Thanks,
 Charles

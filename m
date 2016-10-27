@@ -1,70 +1,93 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: gpio-keys - use module_platform_driver macro
-Date: Thu, 27 Oct 2016 09:48:30 -0700
-Message-ID: <20161027164830.GB36933@dtor-ws>
-References: <20161027141554.GA31977@x220.localdomain>
+From: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH 2/4] Input: goodix - Allow tweaking of configuration file
+ dynamically
+Date: Thu, 27 Oct 2016 11:58:59 -0500
+Message-ID: <f3a9de30-eba6-0738-ed91-f4834f142a2c@ti.com>
+References: <20161020195917.20051-1-fcooper@ti.com>
+ <20161020195917.20051-3-fcooper@ti.com> <1477564424.2458.9.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34627 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934834AbcJ0Qse (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Oct 2016 12:48:34 -0400
-Content-Disposition: inline
-In-Reply-To: <20161027141554.GA31977@x220.localdomain>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1477564424.2458.9.camel-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, merker-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, nm-l0cyMroinI0@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Slawomir Stepien <sst@poczta.fm>
-Cc: ldewangan@nvidia.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-Hi Slawomir,
 
-On Thu, Oct 27, 2016 at 04:15:54PM +0200, Slawomir Stepien wrote:
-> The gpio_keys_init() and gpio_keys_exit() are not doing anything
-> more then just register and unregister. Replace these functions with
-> module_platform_driver.
+
+On 10/27/2016 05:33 AM, Bastien Nocera wrote:
+> On Thu, 2016-10-20 at 14:59 -0500, Franklin S Cooper Jr wrote:
+>> Some goodix touchscreen controllers don't have the correct
+>> configuration
+>> firmware for the display panel it is attached to. Therefore, settings
+>> such
+>> as touchscreen x and y size may need to be passed in via DT and have
+>> the
+>> panel reprogrammed for the updated touchscreen resolution.
+>>
+>> This patchset adds support for reading the current configuration
+>> firmware
+>> on the panel and allowing it to be modified and rewritten back to the
+>> device.
+>>
+>> Currently this function is unused but later patches will make use of
+>> it.
+>>
+>> Signed-off-by: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+>> ---
+>>  drivers/input/touchscreen/goodix.c | 28 ++++++++++++++++++++++++++++
+>>  1 file changed, 28 insertions(+)
+>>
+>> diff --git a/drivers/input/touchscreen/goodix.c
+>> b/drivers/input/touchscreen/goodix.c
+>> index a43c8ca..01e12f8 100644
+>> --- a/drivers/input/touchscreen/goodix.c
+>> +++ b/drivers/input/touchscreen/goodix.c
+>> @@ -478,6 +478,34 @@ static int goodix_get_gpio_config(struct
+>> goodix_ts_data *ts)
+>>  	return 0;
+>>  }
+>>  
+>> +static void goodix_tweak_config(struct goodix_ts_data *ts)
+>> +{
+>> +	u8 config[GOODIX_CONFIG_MAX_LENGTH];
+>> +	int error;
+>> +	int raw_cfg_len;
+>> +	u8 check_sum = 0;
+>> +
+>> +	raw_cfg_len = ts->cfg_len - 2;
+>> +
+>> +	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
+>> +				config, ts->cfg_len);
+>> +	if (error) {
+>> +		dev_warn(&ts->client->dev,
+>> +			 "Error reading config (%d), avoid tweaking
+>> config\n",
+>> +			 error);
+>> +		return;
+>> +	}
 > 
-> Signed-off-by: Slawomir Stepien <sst@poczta.fm>
-> ---
->  drivers/input/keyboard/gpio_keys.c | 13 +------------
->  1 file changed, 1 insertion(+), 12 deletions(-)
+> Please add a placeholder comment here, to go along with the commit
+> message explanation.
+
+You just want a comment here stating that changes to the firmware should
+be made here?
 > 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index 2909365..e54b586 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -877,18 +877,7 @@ static struct platform_driver gpio_keys_device_driver = {
->  	}
->  };
->  
-> -static int __init gpio_keys_init(void)
-> -{
-> -	return platform_driver_register(&gpio_keys_device_driver);
-> -}
-> -
-> -static void __exit gpio_keys_exit(void)
-> -{
-> -	platform_driver_unregister(&gpio_keys_device_driver);
-> -}
-> -
-> -late_initcall(gpio_keys_init);
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Because of this we can't switch to module_platform_driver(). The
-late_initcall was requirement of one of platforms because of the probe
-ordering issues. It may be resolved now with deferred probing, but you'd
-need to confirm with all the users.
-
-> -module_exit(gpio_keys_exit);
-> +module_platform_driver(gpio_keys_device_driver);
->  
->  MODULE_LICENSE("GPL");
->  MODULE_AUTHOR("Phil Blundell <pb@handhelds.org>");
-> -- 
-> 2.10.0
-
-Thanks.
-
--- 
-Dmitry
+>> +	check_sum = goodix_calculate_checksum(ts->cfg_len, config);
+>> +
+>> +	config[raw_cfg_len] = check_sum;
+>> +	config[raw_cfg_len + 1] = 1;
+>> +
+>> +	error = goodix_send_cfg(ts, ts->cfg_len, config);
+>> +	if (error)
+>> +		dev_warn(&ts->client->dev,
+>> +			 "Error writing config (%d)\n", error);
+>> +}
+>>  /**
+>>   * goodix_read_config - Read the embedded configuration of the panel
+>>   *
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

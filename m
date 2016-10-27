@@ -1,104 +1,86 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH 2/4] Input: goodix - Allow tweaking of configuration
- file dynamically
-Date: Thu, 27 Oct 2016 19:41:23 +0200
-Message-ID: <1477590083.18960.0.camel@hadess.net>
+From: Franklin S Cooper Jr <fcooper@ti.com>
+Subject: Re: [PATCH 4/4] Input: goodix - Support interchanging x and y
+ coordinates in hardware
+Date: Thu, 27 Oct 2016 12:42:06 -0500
+Message-ID: <317acd32-f363-3b2b-9e30-106d5b335342@ti.com>
 References: <20161020195917.20051-1-fcooper@ti.com>
-         <20161020195917.20051-3-fcooper@ti.com>
-         <1477564424.2458.9.camel@hadess.net>
-         <f3a9de30-eba6-0738-ed91-f4834f142a2c@ti.com>
+ <20161020195917.20051-5-fcooper@ti.com>
+ <20161026231816.a35orxe3mpsvcx3m@rob-hp-laptop>
+ <1477564471.2458.11.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <f3a9de30-eba6-0738-ed91-f4834f142a2c@ti.com>
+In-Reply-To: <1477564471.2458.11.camel@hadess.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Franklin S Cooper Jr <fcooper@ti.com>, dmitry.torokhov@gmail.com, robh+dt@kernel.org, octavian.purdila@intel.com, irina.tirdea@intel.com, merker@debian.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, nsekhar@ti.com, nm@ti.com
+To: Bastien Nocera <hadess@hadess.net>, Rob Herring <robh@kernel.org>
+Cc: dmitry.torokhov@gmail.com, octavian.purdila@intel.com, irina.tirdea@intel.com, merker@debian.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, nsekhar@ti.com, nm@ti.com
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 2016-10-27 at 11:58 -0500, Franklin S Cooper Jr wrote:
-> 
-> On 10/27/2016 05:33 AM, Bastien Nocera wrote:
-> > On Thu, 2016-10-20 at 14:59 -0500, Franklin S Cooper Jr wrote:
-> > > Some goodix touchscreen controllers don't have the correct
-> > > configuration
-> > > firmware for the display panel it is attached to. Therefore,
-> > > settings
-> > > such
-> > > as touchscreen x and y size may need to be passed in via DT and
-> > > have
-> > > the
-> > > panel reprogrammed for the updated touchscreen resolution.
-> > > 
-> > > This patchset adds support for reading the current configuration
-> > > firmware
-> > > on the panel and allowing it to be modified and rewritten back to
-> > > the
-> > > device.
-> > > 
-> > > Currently this function is unused but later patches will make use
-> > > of
-> > > it.
-> > > 
-> > > Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
-> > > ---
-> > >  drivers/input/touchscreen/goodix.c | 28
-> > > ++++++++++++++++++++++++++++
-> > >  1 file changed, 28 insertions(+)
-> > > 
-> > > diff --git a/drivers/input/touchscreen/goodix.c
-> > > b/drivers/input/touchscreen/goodix.c
-> > > index a43c8ca..01e12f8 100644
-> > > --- a/drivers/input/touchscreen/goodix.c
-> > > +++ b/drivers/input/touchscreen/goodix.c
-> > > @@ -478,6 +478,34 @@ static int goodix_get_gpio_config(struct
-> > > goodix_ts_data *ts)
-> > >  	return 0;
-> > >  }
-> > >  
-> > > +static void goodix_tweak_config(struct goodix_ts_data *ts)
-> > > +{
-> > > +	u8 config[GOODIX_CONFIG_MAX_LENGTH];
-> > > +	int error;
-> > > +	int raw_cfg_len;
-> > > +	u8 check_sum = 0;
-> > > +
-> > > +	raw_cfg_len = ts->cfg_len - 2;
-> > > +
-> > > +	error = goodix_i2c_read(ts->client,
-> > > GOODIX_REG_CONFIG_DATA,
-> > > +				config, ts->cfg_len);
-> > > +	if (error) {
-> > > +		dev_warn(&ts->client->dev,
-> > > +			 "Error reading config (%d), avoid
-> > > tweaking
-> > > config\n",
-> > > +			 error);
-> > > +		return;
-> > > +	}
-> > 
-> > Please add a placeholder comment here, to go along with the commit
-> > message explanation.
-> 
-> You just want a comment here stating that changes to the firmware
-> should
-> be made here?
 
-Yes, at least for this intermediary patch. You can remove in in
-subsequent patches when it's clearer that this is where things go.
 
-> > > +	check_sum = goodix_calculate_checksum(ts->cfg_len,
-> > > config);
-> > > +
-> > > +	config[raw_cfg_len] = check_sum;
-> > > +	config[raw_cfg_len + 1] = 1;
-> > > +
-> > > +	error = goodix_send_cfg(ts, ts->cfg_len, config);
-> > > +	if (error)
-> > > +		dev_warn(&ts->client->dev,
-> > > +			 "Error writing config (%d)\n", error);
-> > > +}
-> > >  /**
-> > >   * goodix_read_config - Read the embedded configuration of the
-> > > panel
-> > >   *
+On 10/27/2016 05:34 AM, Bastien Nocera wrote:
+> On Wed, 2016-10-26 at 18:18 -0500, Rob Herring wrote:
+>> On Thu, Oct 20, 2016 at 02:59:17PM -0500, Franklin S Cooper Jr wrote:
+>>>
+> <snip>
+>> I'm not sure I follow why existing properties don't cover this.
+> 
+> Me neither. I certainly don't understand why the driver can't mangle
+> the data from the touchscreen all it wants. It's not like user-space is
+> talking to the touchscreen directly.
+> 
+Sorry the above could of been clearer.
+
+Lets ignore talking about X and Y axis for a little bit since that
+really depends on the default touchscreen config values and the way it
+is mounted on the touchscreen. Now lets say when your interacting with
+the touchscreen the touchscreen controller outputs a max value of 1280
+when moving your finger horizontally and 800 when moving your finger
+vertically.
+
+<-1280->
+------
+|    |  ^
+|    |  |
+|    | 800
+|    |  |
+------  V
+
+So no matter what your horizontal range is 0-1280 and your vertical
+range is 0-800. Now based on the above diagram you can see that usually
+you want the longer side to have a higher resolution. So you may want a
+vertical range of 0-1280 and a horizontal range from 0-800 instead.
+
+So lets add labels to the original diagram and assume that the x and y
+axis from the driver/user-space perspective is as follows.
+<-1280-> (X)
+------
+|    |  ^
+|    |  |
+|    | 800  (Y)
+|    |  |
+------  V
+
+The only thing the driver (software) has the ability to do is change the
+"orientation".
+
+<-1280-> (Y)
+------
+|    |  ^
+|    |  |
+|    | 800  (X)
+|    |  |
+------  V
+
+However, this doesn't change the resolution ie range of values in the
+horizontal and vertical direction the touch screen controller will
+report. Only the hardware can determine the resolution it will use. The
+interchange bit I set essentially swaps the range that the controller is
+currently programmed to use which in my first diagram the horizontal
+range was 0-1280 and my vertical range is 0-800. So by setting this
+interchange bit in hardware the horizontal range will now be 0-800 while
+the vertical range will be 0-1280 which is what we want.
+
+Does this clarify things? I messed up the second diagram in my commit
+message which is probably what caused the confusion.

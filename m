@@ -1,70 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: da9063 - fix module autoload when registered
- via OF
-Date: Wed, 26 Oct 2016 16:46:57 -0700
-Message-ID: <20161026234657.GH27930@dtor-ws>
-References: <1476460819-12809-1-git-send-email-javier@osg.samsung.com>
- <1476460819-12809-2-git-send-email-javier@osg.samsung.com>
+Subject: Re: [PATCH] Input: gpio_keys_polled - fix DT node reference leak
+Date: Wed, 26 Oct 2016 18:08:57 -0700
+Message-ID: <20161027010857.GA31660@dtor-ws>
+References: <20161020220636.GA17948@dtor-ws>
+ <20161021090235.GS24289@lahna.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:35519 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932887AbcJZXrA (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Oct 2016 19:47:00 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1476460819-12809-2-git-send-email-javier@osg.samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20161021090235.GS24289@lahna.fi.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Hans de Goede <hdegoede@redhat.com>, Geert Uytterhoeven <geert+renesas@glider.be>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Support Opensource <support.opensource@diasemi.com>, linux-input@vger.kernel.org
 
-On Fri, Oct 14, 2016 at 01:00:19PM -0300, Javier Martinez Canillas wrote:
-> If the driver is built as a module, autoload won't work because the module
-> alias information is not filled. So user-space can't match the registered
-> device with the corresponding module.
+On Fri, Oct 21, 2016 at 12:02:35PM +0300, Mika Westerberg wrote:
+> On Thu, Oct 20, 2016 at 03:06:36PM -0700, Dmitry Torokhov wrote:
+> > When someone requests button with wakeup (which this driver does not
+> > support) we should drop reference to the current child device node before
+> > returning error.
+> > 
+> > Note that when we using legacy platform data 'child' stays NULL which
+> > fwnode_handle_put() handles just fine.
+> > 
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > ---
+> >  drivers/input/keyboard/gpio_keys_polled.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+> > index 270dcf7..72b3503 100644
+> > --- a/drivers/input/keyboard/gpio_keys_polled.c
+> > +++ b/drivers/input/keyboard/gpio_keys_polled.c
+> > @@ -291,6 +291,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+> >  
+> >  		if (button->wakeup) {
+> >  			dev_err(dev, DRV_NAME " does not support wakeup\n");
+> > +			fwnode_handle_put(child);
 > 
-> Export the module alias information using the MODULE_DEVICE_TABLE() macro.
+> Are you sure this is the right place?
 > 
-> Before this patch:
-> 
-> $ modinfo drivers/input/misc/da9063_onkey.ko | grep alias
-> alias:          platform:da9063-onkey
-> 
-> After this patch:
-> 
-> $ modinfo drivers/input/misc/da9063_onkey.ko | grep alias
-> alias:          platform:da9063-onkey
-> alias:          of:N*T*Cdlg,da9062-onkeyC*
-> alias:          of:N*T*Cdlg,da9062-onkey
-> alias:          of:N*T*Cdlg,da9063-onkeyC*
-> alias:          of:N*T*Cdlg,da9063-onkey
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> I didn't try to compile this but to me it looks like there is no
+> variable named "child" in the whole gpio_keys_polled_probe() function.
+> Unless I'm looking at wrong branch ;-)
 
-Applied, thank you.
+Hmm, it was on top of my other change. I though I already published it,
+but since it turns out I didn't I will just fold this one in.
 
-> ---
-> 
->  drivers/input/misc/da9063_onkey.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
-> index bb863e062b03..f0d0543562df 100644
-> --- a/drivers/input/misc/da9063_onkey.c
-> +++ b/drivers/input/misc/da9063_onkey.c
-> @@ -87,6 +87,7 @@ static const struct of_device_id da9063_compatible_reg_id_table[] = {
->  	{ .compatible = "dlg,da9062-onkey", .data = &da9062_regs },
->  	{ },
->  };
-> +MODULE_DEVICE_TABLE(of, da9063_compatible_reg_id_table);
->  
->  static void da9063_poll_on(struct work_struct *work)
->  {
-> -- 
-> 2.7.4
-> 
+Thanks.
 
 -- 
 Dmitry

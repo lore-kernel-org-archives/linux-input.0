@@ -1,79 +1,87 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: gpio-keys: Convert to universal device properties
- API
-Date: Wed, 26 Oct 2016 18:16:10 -0700
-Message-ID: <20161027011610.GB31660@dtor-ws>
-References: <20161017143803.142231-1-mika.westerberg@linux.intel.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH v2 2/4] input: evdev: Replace timeval with
+	timespec64
+Date: Thu, 27 Oct 2016 11:34:33 +1000
+Message-ID: <20161027013433.GA14832@jelly>
+References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com>
+ <1476761253-13450-3-git-send-email-deepa.kernel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:32935 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753115AbcJ0BQN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Oct 2016 21:16:13 -0400
-Received: by mail-pf0-f196.google.com with SMTP id i85so932166pfa.0
-        for <linux-input@vger.kernel.org>; Wed, 26 Oct 2016 18:16:13 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
 Content-Disposition: inline
-In-Reply-To: <20161017143803.142231-1-mika.westerberg@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1476761253-13450-3-git-send-email-deepa.kernel@gmail.com>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+To: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: y2038@lists.linaro.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, arnd@arndb.de, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org
 
-Hi Mika,
-
-On Mon, Oct 17, 2016 at 05:38:03PM +0300, Mika Westerberg wrote:
-> In order to use this driver in ACPI based systems, convert the driver to
-> take advantage of device properties APIs instead of Device Tree specific
-> one and make it available outside of CONFIG_OF.
-> 
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> ---
->  drivers/input/keyboard/gpio_keys.c | 92 ++++++++++++++++----------------------
->  1 file changed, 38 insertions(+), 54 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index 29093657f2ef..0e6d516df01b 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -22,13 +22,12 @@
->  #include <linux/proc_fs.h>
->  #include <linux/delay.h>
->  #include <linux/platform_device.h>
-> +#include <linux/property.h>
->  #include <linux/input.h>
->  #include <linux/gpio_keys.h>
->  #include <linux/workqueue.h>
->  #include <linux/gpio.h>
->  #include <linux/of.h>
-> -#include <linux/of_platform.h>
-> -#include <linux/of_gpio.h>
->  #include <linux/of_irq.h>
->  #include <linux/spinlock.h>
->  
-> @@ -479,13 +478,15 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
->  	spin_lock_init(&bdata->lock);
->  
->  	if (gpio_is_valid(button->gpio)) {
-> -
-> -		error = devm_gpio_request_one(&pdev->dev, button->gpio,
-> -					      GPIOF_IN, desc);
-> -		if (error < 0) {
-> -			dev_err(dev, "Failed to request GPIO %d, error %d\n",
-> -				button->gpio, error);
-> -			return error;
-> +		/* Only request GPIO if GPIO descriptor is not used */
-> +		if (!button->gpiod) {
-
-So the issue here is that button is supposed to be constant (in case of
-legacy platform data) and we should not be stuffing gpiod in there. The
-commit adding the descriptor to button data was wrong.
-
-I have a patch that moves in from button data to bdata for polled keys
-and also an alternative patch for gpio_keys; I'll post the series.
-
-Thanks.
-
--- 
-Dmitry
+T24gTW9uLCBPY3QgMTcsIDIwMTYgYXQgMDg6Mjc6MzFQTSAtMDcwMCwgRGVlcGEgRGluYW1hbmkg
+d3JvdGU6Cj4gc3RydWN0IHRpbWV2YWwgaXMgbm90IHkyMDM4IHNhZmUuCj4gCj4gQWxsIHJlZmVy
+ZW5jZXMgdG8gdGltZXZhbCBpbiB0aGUga2VybmVsIHdpbGwgYmUgcmVwbGFjZWQKPiBieSB5MjAz
+OCBzYWZlIHN0cnVjdHVyZXMuCj4gUmVwbGFjZSBhbGwgcmVmZXJlbmNlcyB0byB0aW1ldmFsIHdp
+dGggeTIwMzggc2FmZQo+IHN0cnVjdCB0aW1lc3BlYzY0IGhlcmUuCj4gCj4gc3RydWN0IGlucHV0
+X2V2ZW50IHdpbGwgYmUgY2hhbmdlZCBpbiBhIGRpZmZlcmVudCBwYXRjaC4KPiAKPiBTaWduZWQt
+b2ZmLWJ5OiBEZWVwYSBEaW5hbWFuaSA8ZGVlcGEua2VybmVsQGdtYWlsLmNvbT4KPiBSZXZpZXdl
+ZC1ieTogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4KPiAtLS0KPiAgZHJpdmVycy9pbnB1
+dC9ldmRldi5jIHwgMzcgKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLQo+ICAx
+IGZpbGUgY2hhbmdlZCwgMjMgaW5zZXJ0aW9ucygrKSwgMTQgZGVsZXRpb25zKC0pCj4gCj4gZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvZXZkZXYuYyBiL2RyaXZlcnMvaW5wdXQvZXZkZXYuYwo+
+IGluZGV4IGU5YWUzZDUuLmI0ZTMxNzEgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9pbnB1dC9ldmRl
+di5jCj4gKysrIGIvZHJpdmVycy9pbnB1dC9ldmRldi5jCj4gQEAgLTE1NiwxNSArMTU2LDIyIEBA
+IHN0YXRpYyB2b2lkIF9fZXZkZXZfZmx1c2hfcXVldWUoc3RydWN0IGV2ZGV2X2NsaWVudCAqY2xp
+ZW50LCB1bnNpZ25lZCBpbnQgdHlwZSkKPiAgc3RhdGljIHZvaWQgX19ldmRldl9xdWV1ZV9zeW5f
+ZHJvcHBlZChzdHJ1Y3QgZXZkZXZfY2xpZW50ICpjbGllbnQpCj4gIHsKPiAgCXN0cnVjdCBpbnB1
+dF9ldmVudCBldjsKPiAtCWt0aW1lX3QgdGltZTsKPiArCXN0cnVjdCB0aW1lc3BlYzY0IHRzOwo+
+ICAKPiAtCXRpbWUgPSBjbGllbnQtPmNsa190eXBlID09IEVWX0NMS19SRUFMID8KPiAtCQkJa3Rp
+bWVfZ2V0X3JlYWwoKSA6Cj4gLQkJCWNsaWVudC0+Y2xrX3R5cGUgPT0gRVZfQ0xLX01PTk8gPwo+
+IC0JCQkJa3RpbWVfZ2V0KCkgOgo+IC0JCQkJa3RpbWVfZ2V0X2Jvb3R0aW1lKCk7Cj4gKwlzd2l0
+Y2ggKGNsaWVudC0+Y2xrX3R5cGUpIHsKPiArCWNhc2UgRVZfQ0xLX1JFQUw6Cj4gKwkJa3RpbWVf
+Z2V0X3JlYWxfdHM2NCgmdHMpOwo+ICsJCWJyZWFrOwo+ICsJY2FzZSBFVl9DTEtfTU9OTzoKPiAr
+CQlrdGltZV9nZXRfdHM2NCgmdHMpOwo+ICsJCWJyZWFrOwo+ICsJY2FzZSBFVl9DTEtfQk9PVDoK
+PiArCQlnZXRfbW9ub3RvbmljX2Jvb3R0aW1lNjQoJnRzKTsKPiArCQlicmVhazsKPiArCX0KPiAg
+Cj4gLQlldi50aW1lID0ga3RpbWVfdG9fdGltZXZhbCh0aW1lKTsKPiArCWV2LnRpbWUudHZfc2Vj
+ID0gdHMudHZfc2VjOwo+ICsJZXYudGltZS50dl91c2VjID0gdHMudHZfbnNlYyAvIE5TRUNfUEVS
+X1VTRUM7Cj4gIAlldi50eXBlID0gRVZfU1lOOwo+ICAJZXYuY29kZSA9IFNZTl9EUk9QUEVEOwo+
+ICAJZXYudmFsdWUgPSAwOwo+IEBAIC0yNTcsMTcgKzI2NCwyMCBAQCBzdGF0aWMgdm9pZCBfX3Bh
+c3NfZXZlbnQoc3RydWN0IGV2ZGV2X2NsaWVudCAqY2xpZW50LAo+ICAKPiAgc3RhdGljIHZvaWQg
+ZXZkZXZfcGFzc192YWx1ZXMoc3RydWN0IGV2ZGV2X2NsaWVudCAqY2xpZW50LAo+ICAJCQljb25z
+dCBzdHJ1Y3QgaW5wdXRfdmFsdWUgKnZhbHMsIHVuc2lnbmVkIGludCBjb3VudCwKPiAtCQkJa3Rp
+bWVfdCAqZXZfdGltZSkKPiArCQkJc3RydWN0IHRpbWVzcGVjNjQgKmV2X3RpbWUpCj4gIHsKPiAg
+CXN0cnVjdCBldmRldiAqZXZkZXYgPSBjbGllbnQtPmV2ZGV2Owo+ICAJY29uc3Qgc3RydWN0IGlu
+cHV0X3ZhbHVlICp2Owo+ICAJc3RydWN0IGlucHV0X2V2ZW50IGV2ZW50Owo+ICsJc3RydWN0IHRp
+bWVzcGVjNjQgdHM7Cj4gIAlib29sIHdha2V1cCA9IGZhbHNlOwo+ICAKPiAgCWlmIChjbGllbnQt
+PnJldm9rZWQpCj4gIAkJcmV0dXJuOwo+ICAKPiAtCWV2ZW50LnRpbWUgPSBrdGltZV90b190aW1l
+dmFsKGV2X3RpbWVbY2xpZW50LT5jbGtfdHlwZV0pOwo+ICsJdHMgPSBldl90aW1lW2NsaWVudC0+
+Y2xrX3R5cGVdOwo+ICsJZXZlbnQudGltZS50dl9zZWMgPSB0cy50dl9zZWM7Cj4gKwlldmVudC50
+aW1lLnR2X3VzZWMgPSB0cy50dl9uc2VjIC8gTlNFQ19QRVJfVVNFQzsKCnlvdSBoYXZlIGt0aW1l
+X2dldF8qIGhlbHBlcnMgYmVsb3cgYnV0IHlvdSBkb24ndCBoYXZlIG9uZSBmb3IgdGltZXNwZWM2
+NCB0bwpzdHJ1Y3QgdGltZXZhbD8gVGhhdCBzZWVtcyBsaWtlIGEgYnVnIHdhaXRpZyB0byBoYXBw
+ZW4uCgpDaGVlcnMsCiAgIFBldGVyCgo+ICAKPiAgCS8qIEludGVycnVwdHMgYXJlIGRpc2FibGVk
+LCBqdXN0IGFjcXVpcmUgdGhlIGxvY2suICovCj4gIAlzcGluX2xvY2soJmNsaWVudC0+YnVmZmVy
+X2xvY2spOwo+IEBAIC0zMDQsMTIgKzMxNCwxMSBAQCBzdGF0aWMgdm9pZCBldmRldl9ldmVudHMo
+c3RydWN0IGlucHV0X2hhbmRsZSAqaGFuZGxlLAo+ICB7Cj4gIAlzdHJ1Y3QgZXZkZXYgKmV2ZGV2
+ID0gaGFuZGxlLT5wcml2YXRlOwo+ICAJc3RydWN0IGV2ZGV2X2NsaWVudCAqY2xpZW50Owo+IC0J
+a3RpbWVfdCBldl90aW1lW0VWX0NMS19NQVhdOwo+ICsJc3RydWN0IHRpbWVzcGVjNjQgZXZfdGlt
+ZVtFVl9DTEtfTUFYXTsKPiAgCj4gLQlldl90aW1lW0VWX0NMS19NT05PXSA9IGt0aW1lX2dldCgp
+Owo+IC0JZXZfdGltZVtFVl9DTEtfUkVBTF0gPSBrdGltZV9tb25vX3RvX3JlYWwoZXZfdGltZVtF
+Vl9DTEtfTU9OT10pOwo+IC0JZXZfdGltZVtFVl9DTEtfQk9PVF0gPSBrdGltZV9tb25vX3RvX2Fu
+eShldl90aW1lW0VWX0NMS19NT05PXSwKPiAtCQkJCQkJIFRLX09GRlNfQk9PVCk7Cj4gKwlrdGlt
+ZV9nZXRfdHM2NCgmZXZfdGltZVtFVl9DTEtfTU9OT10pOwo+ICsJa3RpbWVfZ2V0X3JlYWxfdHM2
+NCgmZXZfdGltZVtFVl9DTEtfUkVBTF0pOwo+ICsJZ2V0X21vbm90b25pY19ib290dGltZTY0KCZl
+dl90aW1lW0VWX0NMS19CT09UXSk7Cj4gIAo+ICAJcmN1X3JlYWRfbG9jaygpOwo+ICAKPiAtLSAK
+PiAyLjcuNAo+IAo+IC0tCj4gVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhl
+IGxpbmUgInVuc3Vic2NyaWJlIGxpbnV4LWlucHV0IiBpbgo+IHRoZSBib2R5IG9mIGEgbWVzc2Fn
+ZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnCj4gTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAg
+aHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sCj4gCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClkyMDM4IG1haWxpbmcgbGlzdApZ
+MjAzOEBsaXN0cy5saW5hcm8ub3JnCmh0dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3kyMDM4Cg==

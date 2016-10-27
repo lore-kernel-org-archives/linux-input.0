@@ -1,81 +1,67 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: mt: only perform pointer emulation on drivers
+From: "Bird, Timothy" <Tim.Bird@am.sony.com>
+Subject: RE: [PATCH] Input: mt: only perform pointer emulation on drivers
  desiring this functionality
-Date: Thu, 27 Oct 2016 16:54:06 -0700
-Message-ID: <20161027235406.GE12312@dtor-ws>
+Date: Thu, 27 Oct 2016 21:36:16 +0000
+Message-ID: <ECADFF3FD767C149AD96A924E7EA6EAF0ABA40EA@USCULXMSG01.am.sony.com>
 References: <1477603873-9143-1-git-send-email-roderick@gaikai.com>
- <20161027231942.GB12312@dtor-ws>
- <CANndSKmxgUM-u+jZF611Ko5supENX95-JR2xKp++3YPGZHAJtw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:36180 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933978AbcJ0XyK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Oct 2016 19:54:10 -0400
-Received: by mail-pf0-f195.google.com with SMTP id n85so3855774pfi.3
-        for <linux-input@vger.kernel.org>; Thu, 27 Oct 2016 16:54:10 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CANndSKmxgUM-u+jZF611Ko5supENX95-JR2xKp++3YPGZHAJtw@mail.gmail.com>
+Received: from mail-bn3nam01on0126.outbound.protection.outlook.com ([104.47.33.126]:31040
+        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S935144AbcJ1AIy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Oct 2016 20:08:54 -0400
+In-Reply-To: <1477603873-9143-1-git-send-email-roderick@gaikai.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roderick Colenbrander <roderick@gaikai.com>
-Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
+To: "roderick@gaikai.com" <roderick@gaikai.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>
 
-On Thu, Oct 27, 2016 at 04:46:01PM -0700, Roderick Colenbrander wrote:
-> On Thu, Oct 27, 2016 at 4:19 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Thu, Oct 27, 2016 at 02:31:13PM -0700, Roderick Colenbrander wrote:
-> >> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> >>
-> >> The input-mt driver pointer emulation from 'input_mt_sync_frame' regardless
-> >> of the flags passed in to 'input_mt_init_slots' by device drivers.
-> >
-> > Right, because needing single-touch (pointer) emulation is not property
-> > of device or driver but rather consumer. If we get to the point where
-> > everything is ready to accept multi-touch (are we there yet) then we can
-> > stop doing pointer emulation altogether.
-> >
-> >>
-> >> Pointer emulation is undesired on drivers, which didn't request this
-> >> capability like the hid-sony driver for the Dualshock 4. This gamepad already
-> >> reports ABS_X / ABS_Y for gamepad stick purposes. Pointer emulation would
-> >> inject touchpad values into these sticks, which is undesired.
-> >
-> > The driver should not be re-purposing events like that.
-> > ABS_MT_POSITION_X and ABS_X should match.
-> >
-> > Why doesn't driver follow Documentation/input/gamepad.txt?
-> >
-> 
-> The original hid-sony code and the multitouch handling code for the Dualshock 4
-> were written by the community. We are stepping in to make the hid-sony driver
-> properly handle the Dualshock 4.
-> The driver doesn't fully follow the gamepad spec yet, which we will
-> try to improve. At
-> least the left analog stick is reported as ABS_X and ABS_Y already,
-> but the buttons
-> are inconsistent and right stick is wrong as well.
-> While it would be great to conform to the spec, the conflict with
-> multitouch would still
-> exist as the Dualshock 4 has both analog sticks and a multitouch touchpad.
-> 
-> Disabling the pointer emulation feature avoids the conflict. This
-> issue was only exposed
-> recently by adding of the input_mt_sync_frame call as recommended by Benjamin as
-> part of some improvements we did for touchpad handling in hid-sony.
 
-As I mentioned, ABS_MT_POSITION_X and ABS_X should represent the same
-data, so the driver's use of them for different sub-devices is not
-correct. Maybe the multitouch "touchpad" should be reported as
-completely separate input device and userspace should "stitch" it back
-into composite device.
 
-In any case, as I mentioned above, the pointer emulation is requirement
-of client and thus this patch is not appropriate.
+> -----Original Message-----
+> From: Roderick Colenbrander  on Thursday, October 27, 2016 2:31 PM
 
-Thanks.
 
--- 
-Dmitry
+> The input-mt driver pointer emulation from 'input_mt_sync_frame'
+> regardless
+> of the flags passed in to 'input_mt_init_slots' by device drivers.
+
+There seems to be a verb missing from this sentence.
+=20
+> Pointer emulation is undesired on drivers, which didn't request this
+> capability like the hid-sony driver for the Dualshock 4. This gamepad alr=
+eady
+> reports ABS_X / ABS_Y for gamepad stick purposes. Pointer emulation would
+> inject touchpad values into these sticks, which is undesired.
+>=20
+> This patch checks the flags INPUT_MT_POINTER / INPUT_MT_DIRECT from
+> within
+> input_mt_sync_frame to only allow pointer emulation when the feature was
+> requested by the driver as the flags were set in input_mt_init_slots.
+> ---
+>  drivers/input/input-mt.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+> index a1bbec9..30c8128 100644
+> --- a/drivers/input/input-mt.c
+> +++ b/drivers/input/input-mt.c
+> @@ -305,7 +305,8 @@ void input_mt_sync_frame(struct input_dev *dev)
+>  	if ((mt->flags & INPUT_MT_POINTER) && !(mt->flags &
+> INPUT_MT_SEMI_MT))
+>  		use_count =3D true;
+>=20
+> -	input_mt_report_pointer_emulation(dev, use_count);
+> +	if (mt->flags & (INPUT_MT_POINTER | INPUT_MT_DIRECT))
+> +		input_mt_report_pointer_emulation(dev, use_count);
+>=20
+>  	mt->frame++;
+>  }
+> --
+> 2.7.4
+>=20
+

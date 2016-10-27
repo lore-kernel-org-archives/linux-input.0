@@ -1,42 +1,51 @@
-From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: Re: [PATCH v2 1/4] uinput: Add ioctl for using monotonic/
-	boot times
-Date: Thu, 27 Oct 2016 13:39:30 -0700
-Message-ID: <CABeXuvoKpW52kd3mR0bBcDSqyRJOZ8tP0oMS8p5UkzzOHtzPpQ@mail.gmail.com>
-References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com>
- <1476761253-13450-2-git-send-email-deepa.kernel@gmail.com>
- <20161027014509.GB14832@jelly>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-In-Reply-To: <20161027014509.GB14832@jelly>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: y2038 Mailman List <y2038@lists.linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org
+From: Roderick Colenbrander <roderick@gaikai.com>
+Subject: [PATCH] Input: mt: only perform pointer emulation on drivers desiring this functionality
+Date: Thu, 27 Oct 2016 14:31:13 -0700
+Message-ID: <1477603873-9143-1-git-send-email-roderick@gaikai.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qk0-f174.google.com ([209.85.220.174]:36174 "EHLO
+        mail-qk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751152AbcJ0Vbn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Oct 2016 17:31:43 -0400
+Received: by mail-qk0-f174.google.com with SMTP id o68so64252060qkf.3
+        for <linux-input@vger.kernel.org>; Thu, 27 Oct 2016 14:31:43 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-PiBobW0sIEknbSBhIGJpdCBjb25mdXNlZCBoZXJlLiBUaGlzIGlzIGFuIGluLWtlcm5lbCBiaXQg
-b25seSAocGFzc2luZyB0aGUKPiB0aW1lIHRocm91Z2ggdWlucHV0IGV2ZW50cyBoYXMgbm8gZWZm
-ZWN0KS4gU28gd2h5IGRvIHdlIG5lZWQgYW4gaW9jdGwgaGVyZT8KPiBpdCdzIGFuIGluLWtlcm5l
-bCBkZWNpc2lvbiBvbmx5IGFueXdheSBhbmQgdGhlIHRpbWUgaW4gdGhlIGV2ZW50cyBzZW50IHRv
-Cj4gdGhlIGV2ZGV2IGNsaWVudCBzaG91bGQgYmUgZGljdGF0ZWQgYnkgd2hhdCB0aGF0IGNsaWVu
-dCBzZXRzIGZvciB0aGUgY2xvY2sKPiB0eXBlLCByaWdodD8KClRoaXMgaXMgZm9yIGlucHV0IGV2
-ZW50cyBxdWV1ZWQgYnkgdGhlIHVpbnB1dCBkcml2ZXIgZm9yIHRoZSB2aXJ0dWFsCmlucHV0IGRl
-dmljZS4KVGhpcyBjYW4gYmUgcmVhZCB0aHJvdWdoIHVpbnB1dF9yZWFkKCkgZm9wcy4KSSBkb24n
-dCB0aGluayBhbnlib2R5IGlzIGRvaW5nIGEgcmVhZCBvbiB1aW5wdXQgbm9kZXMsIHNvIGFub3Ro
-ZXIKb3B0aW9uKEFybmQgYW5kIEkgY29uc2lkZXJlZCB0aGlzKSBjb3VsZCBiZSBub3Qgc3VwcG9y
-dGluZyByZWFkcyBvbgp0aGVzZSBub2RlcyBhdCBhbGwuCgpUaGlzIGlzIG5vdCByZWxhdGVkIHRv
-IGV2ZGV2IGV2ZW50cyBpbiB0aGUga2VybmVsLgpDdXJyZW50bHksIHRoaXMgdGltZXN0YW1wIGNv
-dWxkIGJlIHRoZSBzYW1lIGZvcm1hdCBhcyB0aGUgZXZkZXYKdGltZXN0YW1wcyBvciBub3QuCgot
-RGVlcGEKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWTIw
-MzggbWFpbGluZyBsaXN0ClkyMDM4QGxpc3RzLmxpbmFyby5vcmcKaHR0cHM6Ly9saXN0cy5saW5h
-cm8ub3JnL21haWxtYW4vbGlzdGluZm8veTIwMzgK
+From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+
+The input-mt driver pointer emulation from 'input_mt_sync_frame' regardless
+of the flags passed in to 'input_mt_init_slots' by device drivers.
+
+Pointer emulation is undesired on drivers, which didn't request this
+capability like the hid-sony driver for the Dualshock 4. This gamepad already
+reports ABS_X / ABS_Y for gamepad stick purposes. Pointer emulation would
+inject touchpad values into these sticks, which is undesired.
+
+This patch checks the flags INPUT_MT_POINTER / INPUT_MT_DIRECT from within
+input_mt_sync_frame to only allow pointer emulation when the feature was
+requested by the driver as the flags were set in input_mt_init_slots.
+---
+ drivers/input/input-mt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+index a1bbec9..30c8128 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -305,7 +305,8 @@ void input_mt_sync_frame(struct input_dev *dev)
+ 	if ((mt->flags & INPUT_MT_POINTER) && !(mt->flags & INPUT_MT_SEMI_MT))
+ 		use_count = true;
+ 
+-	input_mt_report_pointer_emulation(dev, use_count);
++	if (mt->flags & (INPUT_MT_POINTER | INPUT_MT_DIRECT))
++		input_mt_report_pointer_emulation(dev, use_count);
+ 
+ 	mt->frame++;
+ }
+-- 
+2.7.4
+

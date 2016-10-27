@@ -1,51 +1,91 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH] Input: mt: only perform pointer emulation on drivers desiring this functionality
-Date: Thu, 27 Oct 2016 14:31:13 -0700
-Message-ID: <1477603873-9143-1-git-send-email-roderick@gaikai.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f174.google.com ([209.85.220.174]:36174 "EHLO
-        mail-qk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751152AbcJ0Vbn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Oct 2016 17:31:43 -0400
-Received: by mail-qk0-f174.google.com with SMTP id o68so64252060qkf.3
-        for <linux-input@vger.kernel.org>; Thu, 27 Oct 2016 14:31:43 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Deepa Dinamani <deepa.kernel@gmail.com>
+Subject: Re: [PATCH v2 3/4] input: Deprecate real timestamps beyond
+	year 2106
+Date: Thu, 27 Oct 2016 15:24:55 -0700
+Message-ID: <CABeXuvookKiZOHQUAPpajBvAGMSqOqJZYP843s=Do+eYxmiGZA@mail.gmail.com>
+References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com>
+ <1476761253-13450-4-git-send-email-deepa.kernel@gmail.com>
+ <20161027025616.GC14832@jelly>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+In-Reply-To: <20161027025616.GC14832@jelly>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: y2038 Mailman List <y2038@lists.linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-From: Roderick Colenbrander <roderick.colenbrander@sony.com>
-
-The input-mt driver pointer emulation from 'input_mt_sync_frame' regardless
-of the flags passed in to 'input_mt_init_slots' by device drivers.
-
-Pointer emulation is undesired on drivers, which didn't request this
-capability like the hid-sony driver for the Dualshock 4. This gamepad already
-reports ABS_X / ABS_Y for gamepad stick purposes. Pointer emulation would
-inject touchpad values into these sticks, which is undesired.
-
-This patch checks the flags INPUT_MT_POINTER / INPUT_MT_DIRECT from within
-input_mt_sync_frame to only allow pointer emulation when the feature was
-requested by the driver as the flags were set in input_mt_init_slots.
----
- drivers/input/input-mt.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index a1bbec9..30c8128 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -305,7 +305,8 @@ void input_mt_sync_frame(struct input_dev *dev)
- 	if ((mt->flags & INPUT_MT_POINTER) && !(mt->flags & INPUT_MT_SEMI_MT))
- 		use_count = true;
- 
--	input_mt_report_pointer_emulation(dev, use_count);
-+	if (mt->flags & (INPUT_MT_POINTER | INPUT_MT_DIRECT))
-+		input_mt_report_pointer_emulation(dev, use_count);
- 
- 	mt->frame++;
- }
--- 
-2.7.4
-
+T24gV2VkLCBPY3QgMjYsIDIwMTYgYXQgNzo1NiBQTSwgUGV0ZXIgSHV0dGVyZXIKPHBldGVyLmh1
+dHRlcmVyQHdoby10Lm5ldD4gd3JvdGU6Cj4gT24gTW9uLCBPY3QgMTcsIDIwMTYgYXQgMDg6Mjc6
+MzJQTSAtMDcwMCwgRGVlcGEgRGluYW1hbmkgd3JvdGU6Cj4+IHN0cnVjdCB0aW1ldmFsIGlzIG5v
+dCB5MjAzOCBzYWZlLgo+PiBBbGwgdXNhZ2Ugb2YgdGltZXZhbCBpbiB0aGUga2VybmVsIHdpbGwg
+YmUgcmVwbGFjZWQgYnkKPj4geTIwMzggc2FmZSBzdHJ1Y3R1cmVzLgo+Pgo+PiBzdHJ1Y3QgaW5w
+dXRfZXZlbnQgbWFpbnRhaW5zIHRpbWUgZm9yIGVhY2ggaW5wdXQgZXZlbnQuCj4+IFJlYWwgdGlt
+ZSB0aW1lc3RhbXBzIGFyZSBub3QgaWRlYWwgZm9yIGlucHV0IGFzIHRoaXMKPj4gdGltZSBjYW4g
+Z28gYmFja3dhcmRzIGFzIG5vdGVkIGluIHRoZSBwYXRjaCBhODBiODNiN2I4Cj4+IGJ5IEpvaG4g
+U3R1bHR6LiBIZW5jZSwgaGF2aW5nIHRoZSBpbnB1dF9ldmVudC50aW1lIGZpZWxkcwo+PiBvbmx5
+IGJpZyBlbm91Z2ggZm9yIG1vbm90b25pYyBhbmQgYm9vdCB0aW1lcyBhcmUKPj4gc3VmZmljaWVu
+dC4KPj4KPj4gTGVhdmUgdGhlIG9yaWdpbmFsIGlucHV0X2V2ZW50IGFzIGlzLiBUaGlzIGlzIHRv
+IG1haW50YWluCj4+IGJhY2t3YXJkIGNvbXBhdGliaWxpdHkgd2l0aCBleGlzdGluZyB1c2Vyc3Bh
+Y2UgaW50ZXJmYWNlcwo+PiB0aGF0IHVzZSBpbnB1dF9ldmVudC4KPj4gSW50cm9kdWNlIGEgbmV3
+IHJlcGxhY2VtZW50IHN0cnVjdCByYXdfaW5wdXRfZXZlbnQuCj4KPiBnZW5lcmFsIGNvbW1lbnQg
+aGVyZSAtIHBsZWFzZSBkb24ndCBuYW1lIGl0ICJyYXdfaW5wdXRfZXZlbnQiLgo+IEZpcnN0LCB3
+aGVuIHlvdSBncmVwIGZvciBpbnB1dF9ldmVudCB5b3Ugd2FudCB0aGUgbmV3IG9uZXMgdG8gc2hv
+dyB1cCB0b28sCj4gc28gYSBzdHJ1Y3QgaW5wdXRfZXZlbnRfcmF3IHdvdWxkIGJlIGJldHRlciBo
+ZXJlLiBUaGF0IGFsc28gaGFzIGJldHRlcgo+IG5hbWVzcGFjaW5nIGluIGdlbmVyYWwuIFNlY29u
+ZCB0aG91Z2g6IHRoZSBldmVudCBpc24ndCBhbnkgbW9yZSAicmF3IiB0aGFuCj4gdGhlIHByZXZp
+b3VzIHdlIGhhZC4KPgo+IEkgY2FuJ3QgdGhpbmsgb2YgYW55dGhpbmcgYmV0dGVyIHRoYW4gc3Ry
+dWN0IGlucHV0X2V2ZW50X3YyIHRob3VnaC4KClRoZSBnZW5lcmFsIGlkZWEgd2FzIHRvIGxlYXZl
+IHRoZSBvcmlnaW5hbCBzdHJ1Y3QgaW5wdXRfZXZlbnQgYXMgYQpjb21tb24gaW50ZXJmYWNlIGZv
+ciB1c2Vyc3BhY2UgKGFzIGl0IGNhbm5vdCBiZSBkZWxldGVkKS4KU28gcmVhZGluZyByYXcgZGF0
+YSB1bmZvcm1hdHRlZCBieSB0aGUgdXNlcnNwYWNlIHdpbGwgaGF2ZSB0aGUgbmV3CnN0cnVjdCBy
+YXdfaW5wdXRfZXZlbnQgZm9ybWF0LgpUaGlzIHdhcyB0aGUgcmVhc29uIGZvciB0aGUgInJhdyIg
+aW4gdGhlIG5hbWUuCgpzdHJ1Y3QgaW5wdXRfZXZlbnRfdjIgaXMgZmluZSB0b28sIGlmIHRoaXMg
+aXMgbW9yZSBwcmVmZXJyZWQuCgo+PiBUaGlzIHJlcGxhY2VzIHRpbWV2YWwgd2l0aCBzdHJ1Y3Qg
+aW5wdXRfdGltZXZhbC4gVGhpcyBzdHJ1Y3R1cmUKPj4gbWFpbnRhaW5zIHRpbWUgaW4gX19rZXJu
+ZWxfdWxvbmdfdCBvciBjb21wYXRfdWxvbmdfdCB0byBhbGxvdwo+PiBmb3IgYXJjaGl0ZWN0dXJl
+cyB0byBvdmVycmlkZSB0eXBlcyBhcyBpbiB0aGUgY2FzZSBvZiB4MzIuCj4+Cj4+IFRoZSBjaGFu
+Z2UgcmVxdWlyZXMgYW55IHVzZXJzcGFjZSB1dGlsaXRpZXMgcmVhZGluZyBvciB3cml0aW5nCj4+
+IGZyb20gZXZlbnQgbm9kZXMgdG8gdXBkYXRlIHRoZWlyIHJlYWRpbmcgZm9ybWF0IHRvIG1hdGNo
+Cj4+IHJhd19pbnB1dF9ldmVudC4gVGhlIGNoYW5nZXMgdG8gdGhlIHBvcHVsYXIgbGlicmFyaWVz
+IHdpbGwgYmUKPj4gcG9zdGVkIGFsb25nIHdpdGggdGhlIGtlcm5lbCBjaGFuZ2VzLgo+PiBUaGUg
+ZHJpdmVyIHZlcnNpb24gaXMgYWxzbyB1cGRhdGVkIHRvIHJlZmxlY3QgdGhlIGNoYW5nZSBpbgo+
+PiBldmVudCBmb3JtYXQuCj4KPiBEb2Vzbid0IHRoaXMgYnJlYWsgKmFsbCogb2YgdXNlcnNwYWNl
+IHRoZW4/IEkgZG9uJ3Qgc2VlIGFueXRoaW5nIHRvCj4gbmVnb3RpYXRlIHRoZSB0eXBlIG9mIGlu
+cHV0IGV2ZW50IHRoZSBrZXJuZWwgZ2l2ZXMgbWUuIEFuZCBub3RoaW5nIHJpZ2h0IG5vdwo+IGNo
+ZWNrcyBmb3IgRVZERVZfVkVSU0lPTiwgc28gdGhleSBhbGwganVzdCBhc3N1bWUgaXQncyBhIHN0
+cnVjdAo+IGlucHV0X2V2ZW50LiBCZXN0IGNhc2UsIGlmIHRoZSBhdmFpbGFibGUgZXZlbnRzIGFy
+ZW4ndCBhIG11bHRpcGxlIG9mCj4gc2l6ZW9mKHN0cnVjdCBpbnB1dF9ldmVudCkgdXNlcnNwYWNl
+IHdpbGwgYm9tYiBvdXQsIGJ1dCB1bmxlc3MgdGhhdCBoYXBwZW5zLAo+IGV2ZXJ5b25lIHdpbGwg
+anVzdCBoYXBwaWx5IHJlYWQgb2xkLXN0eWxlIGV2ZW50cy4KPgo+IFNvIHdlIG5lZWQgc29tZSBu
+ZWdvdGlhdGlvbiB3aGF0IGlzIGFjY2VwdGFibGUuIFdoaWNoIGFsc28gbmVlZHMgdG8gYWRkcmVz
+cwo+IHRoZSByYWNlIGNvbmRpdGlvbnMgd2UncmUgZ29pbmcgdG8gZ2V0IHdoZW4gZXZlbnRzIHN0
+YXJ0IGNvbWluZyBpbiBiZWZvcmUKPiB0aGUgY2xpZW50IGhhcyBhbm5vdW5jZWQgdGhhdCBpdCBz
+dXBwb3J0cyB0aGUgbmV3LXN0eWxlIGV2ZW50cy4KCk5vLCB0aGlzIGRvZXMgbm90IGJyZWFrIGFu
+eSB1c2Vyc3BhY2UgcmlnaHQgbm93LgpCb3RoIHN0cnVjdCBpbnB1dF9ldmVudCBhbmQgc3RydWN0
+IHJhd19pbnB1dF9ldmVudCBhcmUgZXhhY3RseSB0aGUgc2FtZSB0b2RheS4KVGhpcyB3aWxsIGJl
+IHRoZSBjYXNlIHVudGlsIGEgMjAzOC1zYWZlIGdsaWJjIGlzIHVzZWQgd2l0aCBhIDY0IGJpdCB0
+aW1lX3QgZmxhZy4KClNvIHRoZXNlIGFyZSB0aGUgc2NlbmFyaW9zOgoxLiBvbGQga2VybmVsIGRy
+aXZlciArIG5ldyB1c2Vyc3BhY2UKICAtLSBzaG91bGQgc3RpbGwgYmUgb2sgdW50aWwgMjAzOC4g
+VmVyc2lvbiBjaGVja3MgY291bGQgaGVscCBkaXNjb3ZlciB0aGVzZQoyLiBuZXcga2VybmVsIGRy
+aXZlciArIG9sZCB1c2Vyc3BhY2UgKHdpdGhvdXQgcmVjb21waWxlZCB3aXRoIG5ldyAyMDM4IGdi
+bGljKQogIC0tIHdvcmtzIGJlY2F1c2UgdGhlIGZvcm1hdCBpcyByZWFsbHkgdGhlIHNhbWUuCgpU
+aGUgcGF0Y2ggSSBwb3N0ZWQgdG8gbGliZXZkZXYgY2hlY2tzIHRoaXMgZHJpdmVyIHZlcnNpb24u
+CkFuZCwgaGVuY2UgYW55IGxpYnJhcnkgdGhhdCByZXN1bHRzIGluIGEgY2FsbCB0byBsaWJldmRl
+dl9zZXRfZmQoKQp3aWxsIGZhaWwgaWYgaXQgaXMgbm90IHRoaXMgdXBkYXRlZCBkcml2ZXIuCldl
+IGNvdWxkIGp1c3QgZG8gYSBzaW1pbGFyIGNoZWNrIGluIGV2ZXJ5IGxpYnJhcnkgYWxzby4KSSB0
+aGluayB0aGUgbGF0dGVyIHdvdWxkIGJlIGJldHRlci4KClNvLCB0aGUga2VybmVsIHBhdGNoZXMg
+Y2FuIGdvIGluIGFzIGEgbm8tb3AgcmlnaHQgbm93IGFuZCB0aGVuIEkgY2FuCmFkZCB2ZXJzaW9u
+IGNoZWNrcyB0byByZXNwZWN0aXZlIHVzZXIgc3BhY2UgbGlicmFyaWVzLgoKLURlZXBhCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClkyMDM4IG1haWxpbmcg
+bGlzdApZMjAzOEBsaXN0cy5saW5hcm8ub3JnCmh0dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3kyMDM4Cg==

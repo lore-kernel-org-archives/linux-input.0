@@ -1,87 +1,186 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v2 2/4] input: evdev: Replace timeval with
-	timespec64
-Date: Thu, 27 Oct 2016 11:34:33 +1000
-Message-ID: <20161027013433.GA14832@jelly>
+Subject: Re: [PATCH v2 1/4] uinput: Add ioctl for using monotonic/ boot times
+Date: Thu, 27 Oct 2016 11:45:09 +1000
+Message-ID: <20161027014509.GB14832@jelly>
 References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com>
- <1476761253-13450-3-git-send-email-deepa.kernel@gmail.com>
+ <1476761253-13450-2-git-send-email-deepa.kernel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1476761253-13450-3-git-send-email-deepa.kernel@gmail.com>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+In-Reply-To: <1476761253-13450-2-git-send-email-deepa.kernel@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: y2038@lists.linaro.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, arnd@arndb.de, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de, y2038@lists.linaro.org
 List-Id: linux-input@vger.kernel.org
 
-T24gTW9uLCBPY3QgMTcsIDIwMTYgYXQgMDg6Mjc6MzFQTSAtMDcwMCwgRGVlcGEgRGluYW1hbmkg
-d3JvdGU6Cj4gc3RydWN0IHRpbWV2YWwgaXMgbm90IHkyMDM4IHNhZmUuCj4gCj4gQWxsIHJlZmVy
-ZW5jZXMgdG8gdGltZXZhbCBpbiB0aGUga2VybmVsIHdpbGwgYmUgcmVwbGFjZWQKPiBieSB5MjAz
-OCBzYWZlIHN0cnVjdHVyZXMuCj4gUmVwbGFjZSBhbGwgcmVmZXJlbmNlcyB0byB0aW1ldmFsIHdp
-dGggeTIwMzggc2FmZQo+IHN0cnVjdCB0aW1lc3BlYzY0IGhlcmUuCj4gCj4gc3RydWN0IGlucHV0
-X2V2ZW50IHdpbGwgYmUgY2hhbmdlZCBpbiBhIGRpZmZlcmVudCBwYXRjaC4KPiAKPiBTaWduZWQt
-b2ZmLWJ5OiBEZWVwYSBEaW5hbWFuaSA8ZGVlcGEua2VybmVsQGdtYWlsLmNvbT4KPiBSZXZpZXdl
-ZC1ieTogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4KPiAtLS0KPiAgZHJpdmVycy9pbnB1
-dC9ldmRldi5jIHwgMzcgKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLQo+ICAx
-IGZpbGUgY2hhbmdlZCwgMjMgaW5zZXJ0aW9ucygrKSwgMTQgZGVsZXRpb25zKC0pCj4gCj4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvZXZkZXYuYyBiL2RyaXZlcnMvaW5wdXQvZXZkZXYuYwo+
-IGluZGV4IGU5YWUzZDUuLmI0ZTMxNzEgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9pbnB1dC9ldmRl
-di5jCj4gKysrIGIvZHJpdmVycy9pbnB1dC9ldmRldi5jCj4gQEAgLTE1NiwxNSArMTU2LDIyIEBA
-IHN0YXRpYyB2b2lkIF9fZXZkZXZfZmx1c2hfcXVldWUoc3RydWN0IGV2ZGV2X2NsaWVudCAqY2xp
-ZW50LCB1bnNpZ25lZCBpbnQgdHlwZSkKPiAgc3RhdGljIHZvaWQgX19ldmRldl9xdWV1ZV9zeW5f
-ZHJvcHBlZChzdHJ1Y3QgZXZkZXZfY2xpZW50ICpjbGllbnQpCj4gIHsKPiAgCXN0cnVjdCBpbnB1
-dF9ldmVudCBldjsKPiAtCWt0aW1lX3QgdGltZTsKPiArCXN0cnVjdCB0aW1lc3BlYzY0IHRzOwo+
-ICAKPiAtCXRpbWUgPSBjbGllbnQtPmNsa190eXBlID09IEVWX0NMS19SRUFMID8KPiAtCQkJa3Rp
-bWVfZ2V0X3JlYWwoKSA6Cj4gLQkJCWNsaWVudC0+Y2xrX3R5cGUgPT0gRVZfQ0xLX01PTk8gPwo+
-IC0JCQkJa3RpbWVfZ2V0KCkgOgo+IC0JCQkJa3RpbWVfZ2V0X2Jvb3R0aW1lKCk7Cj4gKwlzd2l0
-Y2ggKGNsaWVudC0+Y2xrX3R5cGUpIHsKPiArCWNhc2UgRVZfQ0xLX1JFQUw6Cj4gKwkJa3RpbWVf
-Z2V0X3JlYWxfdHM2NCgmdHMpOwo+ICsJCWJyZWFrOwo+ICsJY2FzZSBFVl9DTEtfTU9OTzoKPiAr
-CQlrdGltZV9nZXRfdHM2NCgmdHMpOwo+ICsJCWJyZWFrOwo+ICsJY2FzZSBFVl9DTEtfQk9PVDoK
-PiArCQlnZXRfbW9ub3RvbmljX2Jvb3R0aW1lNjQoJnRzKTsKPiArCQlicmVhazsKPiArCX0KPiAg
-Cj4gLQlldi50aW1lID0ga3RpbWVfdG9fdGltZXZhbCh0aW1lKTsKPiArCWV2LnRpbWUudHZfc2Vj
-ID0gdHMudHZfc2VjOwo+ICsJZXYudGltZS50dl91c2VjID0gdHMudHZfbnNlYyAvIE5TRUNfUEVS
-X1VTRUM7Cj4gIAlldi50eXBlID0gRVZfU1lOOwo+ICAJZXYuY29kZSA9IFNZTl9EUk9QUEVEOwo+
-ICAJZXYudmFsdWUgPSAwOwo+IEBAIC0yNTcsMTcgKzI2NCwyMCBAQCBzdGF0aWMgdm9pZCBfX3Bh
-c3NfZXZlbnQoc3RydWN0IGV2ZGV2X2NsaWVudCAqY2xpZW50LAo+ICAKPiAgc3RhdGljIHZvaWQg
-ZXZkZXZfcGFzc192YWx1ZXMoc3RydWN0IGV2ZGV2X2NsaWVudCAqY2xpZW50LAo+ICAJCQljb25z
-dCBzdHJ1Y3QgaW5wdXRfdmFsdWUgKnZhbHMsIHVuc2lnbmVkIGludCBjb3VudCwKPiAtCQkJa3Rp
-bWVfdCAqZXZfdGltZSkKPiArCQkJc3RydWN0IHRpbWVzcGVjNjQgKmV2X3RpbWUpCj4gIHsKPiAg
-CXN0cnVjdCBldmRldiAqZXZkZXYgPSBjbGllbnQtPmV2ZGV2Owo+ICAJY29uc3Qgc3RydWN0IGlu
-cHV0X3ZhbHVlICp2Owo+ICAJc3RydWN0IGlucHV0X2V2ZW50IGV2ZW50Owo+ICsJc3RydWN0IHRp
-bWVzcGVjNjQgdHM7Cj4gIAlib29sIHdha2V1cCA9IGZhbHNlOwo+ICAKPiAgCWlmIChjbGllbnQt
-PnJldm9rZWQpCj4gIAkJcmV0dXJuOwo+ICAKPiAtCWV2ZW50LnRpbWUgPSBrdGltZV90b190aW1l
-dmFsKGV2X3RpbWVbY2xpZW50LT5jbGtfdHlwZV0pOwo+ICsJdHMgPSBldl90aW1lW2NsaWVudC0+
-Y2xrX3R5cGVdOwo+ICsJZXZlbnQudGltZS50dl9zZWMgPSB0cy50dl9zZWM7Cj4gKwlldmVudC50
-aW1lLnR2X3VzZWMgPSB0cy50dl9uc2VjIC8gTlNFQ19QRVJfVVNFQzsKCnlvdSBoYXZlIGt0aW1l
-X2dldF8qIGhlbHBlcnMgYmVsb3cgYnV0IHlvdSBkb24ndCBoYXZlIG9uZSBmb3IgdGltZXNwZWM2
-NCB0bwpzdHJ1Y3QgdGltZXZhbD8gVGhhdCBzZWVtcyBsaWtlIGEgYnVnIHdhaXRpZyB0byBoYXBw
-ZW4uCgpDaGVlcnMsCiAgIFBldGVyCgo+ICAKPiAgCS8qIEludGVycnVwdHMgYXJlIGRpc2FibGVk
-LCBqdXN0IGFjcXVpcmUgdGhlIGxvY2suICovCj4gIAlzcGluX2xvY2soJmNsaWVudC0+YnVmZmVy
-X2xvY2spOwo+IEBAIC0zMDQsMTIgKzMxNCwxMSBAQCBzdGF0aWMgdm9pZCBldmRldl9ldmVudHMo
-c3RydWN0IGlucHV0X2hhbmRsZSAqaGFuZGxlLAo+ICB7Cj4gIAlzdHJ1Y3QgZXZkZXYgKmV2ZGV2
-ID0gaGFuZGxlLT5wcml2YXRlOwo+ICAJc3RydWN0IGV2ZGV2X2NsaWVudCAqY2xpZW50Owo+IC0J
-a3RpbWVfdCBldl90aW1lW0VWX0NMS19NQVhdOwo+ICsJc3RydWN0IHRpbWVzcGVjNjQgZXZfdGlt
-ZVtFVl9DTEtfTUFYXTsKPiAgCj4gLQlldl90aW1lW0VWX0NMS19NT05PXSA9IGt0aW1lX2dldCgp
-Owo+IC0JZXZfdGltZVtFVl9DTEtfUkVBTF0gPSBrdGltZV9tb25vX3RvX3JlYWwoZXZfdGltZVtF
-Vl9DTEtfTU9OT10pOwo+IC0JZXZfdGltZVtFVl9DTEtfQk9PVF0gPSBrdGltZV9tb25vX3RvX2Fu
-eShldl90aW1lW0VWX0NMS19NT05PXSwKPiAtCQkJCQkJIFRLX09GRlNfQk9PVCk7Cj4gKwlrdGlt
-ZV9nZXRfdHM2NCgmZXZfdGltZVtFVl9DTEtfTU9OT10pOwo+ICsJa3RpbWVfZ2V0X3JlYWxfdHM2
-NCgmZXZfdGltZVtFVl9DTEtfUkVBTF0pOwo+ICsJZ2V0X21vbm90b25pY19ib290dGltZTY0KCZl
-dl90aW1lW0VWX0NMS19CT09UXSk7Cj4gIAo+ICAJcmN1X3JlYWRfbG9jaygpOwo+ICAKPiAtLSAK
-PiAyLjcuNAo+IAo+IC0tCj4gVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhl
-IGxpbmUgInVuc3Vic2NyaWJlIGxpbnV4LWlucHV0IiBpbgo+IHRoZSBib2R5IG9mIGEgbWVzc2Fn
-ZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnCj4gTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAg
-aHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sCj4gCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClkyMDM4IG1haWxpbmcgbGlzdApZ
-MjAzOEBsaXN0cy5saW5hcm8ub3JnCmh0dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3kyMDM4Cg==
+On Mon, Oct 17, 2016 at 08:27:30PM -0700, Deepa Dinamani wrote:
+> struct timeval which is part of struct input_event to
+> maintain the event times is not y2038 safe.
+> 
+> Real time timestamps are also not ideal for input_event
+> as this time can go backwards as noted in the patch
+> a80b83b7b8 by John Stultz.
+> 
+> Arnd Bergmann suggested deprecating real time and using
+> monotonic or other timers for all input_event times as a
+> solution to both the above problems.
+> 
+> Add a new ioctl to let the user dictate the kind of time
+> to be used for input events. This is similar to the evdev
+> implementation of the feature. Realtime is still the
+> default time. This is to maintain backward compatibility.
+> 
+> The structure to maintain input events will be changed
+> in a different patch.
+> 
+> Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+> ---
+>  drivers/input/misc/uinput.c | 56 ++++++++++++++++++++++++++++++++++++++++++++-
+>  include/linux/uinput.h      |  1 +
+>  include/uapi/linux/uinput.h |  3 +++
+>  3 files changed, 59 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index 92595b9..3d75c5a 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -46,11 +46,26 @@ static int uinput_dev_event(struct input_dev *dev,
+>  			    unsigned int type, unsigned int code, int value)
+>  {
+>  	struct uinput_device	*udev = input_get_drvdata(dev);
+> +	struct timespec64	ts;
+>  
+>  	udev->buff[udev->head].type = type;
+>  	udev->buff[udev->head].code = code;
+>  	udev->buff[udev->head].value = value;
+> -	do_gettimeofday(&udev->buff[udev->head].time);
+> +
+> +	switch (udev->clk_type) {
+> +	case CLOCK_REALTIME:
+> +		ktime_get_real_ts64(&ts);
+> +		break;
+> +	case CLOCK_MONOTONIC:
+> +		ktime_get_ts64(&ts);
+> +		break;
+> +	case CLOCK_BOOTTIME:
+> +		get_monotonic_boottime64(&ts);
+> +		break;
+> +	}
+
+hmm, I'm a bit confused here. This is an in-kernel bit only (passing the
+time through uinput events has no effect). So why do we need an ioctl here?
+it's an in-kernel decision only anyway and the time in the events sent to
+the evdev client should be dictated by what that client sets for the clock
+type, right?
+
+Cheers,
+   Peter
+
+> +
+> +	udev->buff[udev->head].time.tv_sec = ts.tv_sec;
+> +	udev->buff[udev->head].time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
+>  	udev->head = (udev->head + 1) % UINPUT_BUFFER_SIZE;
+>  
+>  	wake_up_interruptible(&udev->waitq);
+> @@ -295,6 +310,7 @@ static int uinput_create_device(struct uinput_device *udev)
+>  	if (error)
+>  		goto fail2;
+>  
+> +	udev->clk_type = CLOCK_REALTIME;
+>  	udev->state = UIST_CREATED;
+>  
+>  	return 0;
+> @@ -304,6 +320,38 @@ static int uinput_create_device(struct uinput_device *udev)
+>  	return error;
+>  }
+>  
+> +static int uinput_set_clk_type(struct uinput_device *udev, unsigned int clkid)
+> +{
+> +	unsigned int clk_type;
+> +
+> +	if (udev->state != UIST_CREATED)
+> +		return -EINVAL;
+> +
+> +	switch (clkid) {
+> +	/* Realtime clock is only valid until year 2038.*/
+> +	case CLOCK_REALTIME:
+> +		clk_type = CLOCK_REALTIME;
+> +		break;
+> +	case CLOCK_MONOTONIC:
+> +		clk_type = CLOCK_MONOTONIC;
+> +		break;
+> +	case CLOCK_BOOTTIME:
+> +		clk_type = CLOCK_BOOTTIME;
+> +		break;
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (udev->clk_type != clk_type) {
+> +		udev->clk_type = clk_type;
+> +
+> +		/* Flush pending events */
+> +		uinput_flush_requests(udev);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  static int uinput_open(struct inode *inode, struct file *file)
+>  {
+>  	struct uinput_device *newdev;
+> @@ -787,6 +835,7 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>  	char			*phys;
+>  	const char		*name;
+>  	unsigned int		size;
+> +	int			clock_id;
+>  
+>  	retval = mutex_lock_interruptible(&udev->mutex);
+>  	if (retval)
+> @@ -817,6 +866,11 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>  			retval = uinput_dev_setup(udev, p);
+>  			goto out;
+>  
+> +		case UI_SET_CLOCKID:
+> +			if (copy_from_user(&clock_id, p, sizeof(unsigned int)))
+> +				return -EFAULT;
+> +			return uinput_set_clk_type(udev, clock_id);
+> +
+>  		/* UI_ABS_SETUP is handled in the variable size ioctls */
+>  
+>  		case UI_SET_EVBIT:
+> diff --git a/include/linux/uinput.h b/include/linux/uinput.h
+> index 75de43d..6527fb7 100644
+> --- a/include/linux/uinput.h
+> +++ b/include/linux/uinput.h
+> @@ -72,6 +72,7 @@ struct uinput_device {
+>  	unsigned char		head;
+>  	unsigned char		tail;
+>  	struct input_event	buff[UINPUT_BUFFER_SIZE];
+> +	int			clk_type;
+>  	unsigned int		ff_effects_max;
+>  
+>  	struct uinput_request	*requests[UINPUT_NUM_REQUESTS];
+> diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
+> index dc652e2..d9494ae 100644
+> --- a/include/uapi/linux/uinput.h
+> +++ b/include/uapi/linux/uinput.h
+> @@ -133,6 +133,9 @@ struct uinput_abs_setup {
+>   */
+>  #define UI_ABS_SETUP _IOW(UINPUT_IOCTL_BASE, 4, struct uinput_abs_setup)
+>  
+> +/* Set clockid to be used for timestamps */
+> +#define UI_SET_CLOCKID _IOW(UINPUT_IOCTL_BASE, 5, int)
+> +
+>  #define UI_SET_EVBIT		_IOW(UINPUT_IOCTL_BASE, 100, int)
+>  #define UI_SET_KEYBIT		_IOW(UINPUT_IOCTL_BASE, 101, int)
+>  #define UI_SET_RELBIT		_IOW(UINPUT_IOCTL_BASE, 102, int)
+> -- 
+> 2.7.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

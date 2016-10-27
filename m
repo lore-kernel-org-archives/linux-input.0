@@ -1,63 +1,70 @@
-From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: Re: [PATCH v2 3/4] input: Deprecate real timestamps beyond
-	year 2106
-Date: Thu, 27 Oct 2016 15:25:43 -0700
-Message-ID: <CABeXuvoo1N_1wuiWTns9eLvfVbgCa4YfLj6dRBHwFem6ZXSzfw@mail.gmail.com>
-References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com>
- <1476761253-13450-4-git-send-email-deepa.kernel@gmail.com>
- <20161027022420.GC31660@dtor-ws>
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: [PATCH] Input: mt: only perform pointer emulation on drivers
+ desiring this functionality
+Date: Fri, 28 Oct 2016 00:46:54 +0200
+Message-ID: <a1875ed3-56c1-18e7-6cd2-49486c9d1d08@bitmath.org>
+References: <1477603873-9143-1-git-send-email-roderick@gaikai.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-In-Reply-To: <20161027022420.GC31660@dtor-ws>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.com>, Arnd Bergmann <arnd@arndb.de>, Hans de Goede <hdegoede@redhat.com>, y2038 Mailman List <y2038@lists.linaro.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailrelay7.public.one.com ([91.198.169.215]:41957 "EHLO
+        mailrelay7.public.one.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S964781AbcJ0XDF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Oct 2016 19:03:05 -0400
+In-Reply-To: <1477603873-9143-1-git-send-email-roderick@gaikai.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Roderick Colenbrander <roderick@gaikai.com>, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Pj4gc3RydWN0IHRpbWV2YWwgaXMgbm90IHkyMDM4IHNhZmUuCj4+IEFsbCB1c2FnZSBvZiB0aW1l
-dmFsIGluIHRoZSBrZXJuZWwgd2lsbCBiZSByZXBsYWNlZCBieQo+PiB5MjAzOCBzYWZlIHN0cnVj
-dHVyZXMuCj4+Cj4+IHN0cnVjdCBpbnB1dF9ldmVudCBtYWludGFpbnMgdGltZSBmb3IgZWFjaCBp
-bnB1dCBldmVudC4KPj4gUmVhbCB0aW1lIHRpbWVzdGFtcHMgYXJlIG5vdCBpZGVhbCBmb3IgaW5w
-dXQgYXMgdGhpcwo+PiB0aW1lIGNhbiBnbyBiYWNrd2FyZHMgYXMgbm90ZWQgaW4gdGhlIHBhdGNo
-IGE4MGI4M2I3YjgKPj4gYnkgSm9obiBTdHVsdHouIEhlbmNlLCBoYXZpbmcgdGhlIGlucHV0X2V2
-ZW50LnRpbWUgZmllbGRzCj4+IG9ubHkgYmlnIGVub3VnaCBmb3IgbW9ub3RvbmljIGFuZCBib290
-IHRpbWVzIGFyZQo+PiBzdWZmaWNpZW50Lgo+Pgo+PiBMZWF2ZSB0aGUgb3JpZ2luYWwgaW5wdXRf
-ZXZlbnQgYXMgaXMuIFRoaXMgaXMgdG8gbWFpbnRhaW4KPj4gYmFja3dhcmQgY29tcGF0aWJpbGl0
-eSB3aXRoIGV4aXN0aW5nIHVzZXJzcGFjZSBpbnRlcmZhY2VzCj4+IHRoYXQgdXNlIGlucHV0X2V2
-ZW50Lgo+PiBJbnRyb2R1Y2UgYSBuZXcgcmVwbGFjZW1lbnQgc3RydWN0IHJhd19pbnB1dF9ldmVu
-dC4KPj4gVGhpcyByZXBsYWNlcyB0aW1ldmFsIHdpdGggc3RydWN0IGlucHV0X3RpbWV2YWwuIFRo
-aXMgc3RydWN0dXJlCj4+IG1haW50YWlucyB0aW1lIGluIF9fa2VybmVsX3Vsb25nX3Qgb3IgY29t
-cGF0X3Vsb25nX3QgdG8gYWxsb3cKPj4gZm9yIGFyY2hpdGVjdHVyZXMgdG8gb3ZlcnJpZGUgdHlw
-ZXMgYXMgaW4gdGhlIGNhc2Ugb2YgeDMyLgo+Pgo+PiBUaGUgY2hhbmdlIHJlcXVpcmVzIGFueSB1
-c2Vyc3BhY2UgdXRpbGl0aWVzIHJlYWRpbmcgb3Igd3JpdGluZwo+PiBmcm9tIGV2ZW50IG5vZGVz
-IHRvIHVwZGF0ZSB0aGVpciByZWFkaW5nIGZvcm1hdCB0byBtYXRjaAo+PiByYXdfaW5wdXRfZXZl
-bnQuIFRoZSBjaGFuZ2VzIHRvIHRoZSBwb3B1bGFyIGxpYnJhcmllcyB3aWxsIGJlCj4+IHBvc3Rl
-ZCBhbG9uZyB3aXRoIHRoZSBrZXJuZWwgY2hhbmdlcy4KPj4gVGhlIGRyaXZlciB2ZXJzaW9uIGlz
-IGFsc28gdXBkYXRlZCB0byByZWZsZWN0IHRoZSBjaGFuZ2UgaW4KPj4gZXZlbnQgZm9ybWF0Lgo+
-Cj4gSWYgdXNlcnMgYXJlIGZvcmNlZCB0byB1cGRhdGUgdG8gYWRhcHQgdG8gdGhlIG5ldyBldmVu
-dCBmb3JtYXQsIHNob3VsZAo+IHdlIGNvbnNpZGVyIG1vcmUgcmFkaWNhbCBjaGFuZ2VzPyBGb3Ig
-ZXhhbXBsZSwgZG9lcyBpdCBtYWtlIHNlbnNlIHRvCj4gc2VuZCB0aW1lc3RhbXAgb24gZXZlcnkg
-ZXZlbnQ/IE1heWJlIHdlIHNob3VsZCBvbmx5IHNlbmQgaXQgb25jZSBwZXIKPiBldmVudCBwYWNr
-ZXQgKGJldHdlZW4gRVZfU1lOL1NZTl9SRVBPUlQpPyBXaGF0IGdyYW51bGFyaXR5IGRvIHdlIG5l
-ZWQ/Cj4gSXMgdGhlcmUgYW55dGhpbmcgZWxzZSBpbiBjdXJyZW50IHByb3RvY29sIHRoYXQgd2Un
-ZCBsaWtlIHRvIGNoYW5nZT8KCkkgZGlkIHNlZSB0aGUgdGhyZWFkIHdpdGggUGluZ2JvJ3MgcGF0
-Y2hlcyB3aGVyZSB5b3UgaGFkIGEgc2ltaWxhciBjb21tZW50LgoKSSBzZWUgbXkgc2VyaWVzIGFz
-IGRlY291cGxpbmcgdGhlIGtlcm5lbCBpbnB1dCBldmVudCBmb3JtYXQgZnJvbSB0aGUKdXNlcnNw
-YWNlIGZvcm1hdC4KVGhlIGZvcm1hdHMgYWxzbyBhcmUgcmVhbGx5IHRoZSBzYW1lIHN0aWxsLgpD
-b3VsZCB0aGlzIGJlIGNvbnNpZGVyZWQgdGhlIGZpcnN0IHN0ZXAgdG93YXJkcyBjaGFuZ2luZyB0
-aGUgcHJvdG9jb2w/CgpUaGUgcHJvdG9jb2wgY2hhbmdlcyBtaWdodCBuZWVkIG5ldyBpbnRlcmZh
-Y2VzIHRvIGJlIGRlZmluZWQgYmV0d2VlbiBsaWJyYXJpZXMuCkFuZCwgY291bGQgZW5kIHVwIGJl
-aW5nIGEgc3Vic3RhbnRpYWwgY2hhbmdlLgpXb3VsZCBhIHN0ZXAgYnkgc3RlcCBhcHByb2FjaCBt
-YWtlIHNlbnNlPwoKLURlZXBhCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClkyMDM4IG1haWxpbmcgbGlzdApZMjAzOEBsaXN0cy5saW5hcm8ub3JnCmh0dHBz
-Oi8vbGlzdHMubGluYXJvLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3kyMDM4Cg==
+Hi Roderick,
+
+> Pointer emulation is undesired on drivers, which didn't request this
+> capability like the hid-sony driver for the Dualshock 4. This gamepad already
+> reports ABS_X / ABS_Y for gamepad stick purposes. Pointer emulation would
+> inject touchpad values into these sticks, which is undesired.
+> 
+> This patch checks the flags INPUT_MT_POINTER / INPUT_MT_DIRECT from within
+> input_mt_sync_frame to only allow pointer emulation when the feature was
+> requested by the driver as the flags were set in input_mt_init_slots.
+
+So why call input_mt_sync_frame() in the first place?
+
+The existing drivers that use ABS_X / ABS_Y independently do not call that
+function. It seems your recent hid-sony patches adds it, which leads to broken
+behavior.
+
+> ---
+>  drivers/input/input-mt.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+> index a1bbec9..30c8128 100644
+> --- a/drivers/input/input-mt.c
+> +++ b/drivers/input/input-mt.c
+> @@ -305,7 +305,8 @@ void input_mt_sync_frame(struct input_dev *dev)
+>  	if ((mt->flags & INPUT_MT_POINTER) && !(mt->flags & INPUT_MT_SEMI_MT))
+>  		use_count = true;
+>  
+> -	input_mt_report_pointer_emulation(dev, use_count);
+> +	if (mt->flags & (INPUT_MT_POINTER | INPUT_MT_DIRECT))
+> +		input_mt_report_pointer_emulation(dev, use_count);
+>  
+>  	mt->frame++;
+>  }
+> 
+
+That said, I am not against this patch at all, I think it is good, but the
+commit message should address the effect on the large number of existing drivers
+that use this functionality. Is any of them affected by this patch? As you
+probably know, we do not like to break userspace.
+
+>From what I can see, only hid-multitouch (Benjamin?) and hid-sony use
+input_mt_init_slots() in such a way that MT_POINTER or MT_DIRECT cannot be
+directly inferred. So if Benjamin sees no issues with this, I am ok with the change.
+
+Thanks,
+Henrik
+

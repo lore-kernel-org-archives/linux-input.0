@@ -1,101 +1,81 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH] HID: sensor-hub: Fix packing of result buffer for feature report
-Date: Thu, 27 Oct 2016 16:49:20 -0700
-Message-ID: <1477612160-23621-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: mt: only perform pointer emulation on drivers
+ desiring this functionality
+Date: Thu, 27 Oct 2016 16:54:06 -0700
+Message-ID: <20161027235406.GE12312@dtor-ws>
+References: <1477603873-9143-1-git-send-email-roderick@gaikai.com>
+ <20161027231942.GB12312@dtor-ws>
+ <CANndSKmxgUM-u+jZF611Ko5supENX95-JR2xKp++3YPGZHAJtw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:59908 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1033390AbcJ0Xtj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Oct 2016 19:49:39 -0400
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:36180 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933978AbcJ0XyK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Oct 2016 19:54:10 -0400
+Received: by mail-pf0-f195.google.com with SMTP id n85so3855774pfi.3
+        for <linux-input@vger.kernel.org>; Thu, 27 Oct 2016 16:54:10 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CANndSKmxgUM-u+jZF611Ko5supENX95-JR2xKp++3YPGZHAJtw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org, jic23@kernel.org
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Roderick Colenbrander <roderick@gaikai.com>
+Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-When report count is more than one and report size is not 4 bytes, then we
-need some packing into result buffer from the caller of function
-sensor_hub_get_feature.
-By default the value extracted from a field is 4 bytes from hid core
-(using hid_hw_request(hsdev->hdev, report, HID_REQ_GET_REPORT)), even
-if report size if less than 4 byte. So when we copy data to user buffer in
-sensor_hub_get_feature, we need to only copy report size bytes even
-when report count is more than 1. This is
-not an issue for most of the sensor hub fields as report count will be 1
-where we already copy only report size bytes, but some string fields
-like description, it is a problem as the report count will be more than 1.
-For example:
-    Field(6)
-      Physical(Sensor.OtherCustom)
-      Application(Sensor.Sensor)
-      Usage(11)
-        Sensor.0306
-        Sensor.0306
-        Sensor.0306
-        Sensor.0306
-        Sensor.0306
-        Sensor.0306
-        Sensor.0306
-        Sensor.0306
-        Sensor.0306
-        Sensor.0306
-        Sensor.0306
-      Report Size(16)
-      Report Count(11)
+On Thu, Oct 27, 2016 at 04:46:01PM -0700, Roderick Colenbrander wrote:
+> On Thu, Oct 27, 2016 at 4:19 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Thu, Oct 27, 2016 at 02:31:13PM -0700, Roderick Colenbrander wrote:
+> >> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+> >>
+> >> The input-mt driver pointer emulation from 'input_mt_sync_frame' regardless
+> >> of the flags passed in to 'input_mt_init_slots' by device drivers.
+> >
+> > Right, because needing single-touch (pointer) emulation is not property
+> > of device or driver but rather consumer. If we get to the point where
+> > everything is ready to accept multi-touch (are we there yet) then we can
+> > stop doing pointer emulation altogether.
+> >
+> >>
+> >> Pointer emulation is undesired on drivers, which didn't request this
+> >> capability like the hid-sony driver for the Dualshock 4. This gamepad already
+> >> reports ABS_X / ABS_Y for gamepad stick purposes. Pointer emulation would
+> >> inject touchpad values into these sticks, which is undesired.
+> >
+> > The driver should not be re-purposing events like that.
+> > ABS_MT_POSITION_X and ABS_X should match.
+> >
+> > Why doesn't driver follow Documentation/input/gamepad.txt?
+> >
+> 
+> The original hid-sony code and the multitouch handling code for the Dualshock 4
+> were written by the community. We are stepping in to make the hid-sony driver
+> properly handle the Dualshock 4.
+> The driver doesn't fully follow the gamepad spec yet, which we will
+> try to improve. At
+> least the left analog stick is reported as ABS_X and ABS_Y already,
+> but the buttons
+> are inconsistent and right stick is wrong as well.
+> While it would be great to conform to the spec, the conflict with
+> multitouch would still
+> exist as the Dualshock 4 has both analog sticks and a multitouch touchpad.
+> 
+> Disabling the pointer emulation feature avoids the conflict. This
+> issue was only exposed
+> recently by adding of the input_mt_sync_frame call as recommended by Benjamin as
+> part of some improvements we did for touchpad handling in hid-sony.
 
-Here since the report size is 2 bytes, we will have 2 additional bytes of
-0s copied into user buffer, if we directly copy to user buffer from
-report->field[]->value
+As I mentioned, ABS_MT_POSITION_X and ABS_X should represent the same
+data, so the driver's use of them for different sub-devices is not
+correct. Maybe the multitouch "touchpad" should be reported as
+completely separate input device and userspace should "stitch" it back
+into composite device.
 
-This change will copy report size bytes into the buffer of caller for each
-usage report->field[]->value. So for example without this change, the
-data displayed for a custom sensor field "sensor-model":
+In any case, as I mentioned above, the pointer emulation is requirement
+of client and thus this patch is not appropriate.
 
-76 00 101 00 110 00 111 00 118 00 111
-(truncated to report count of 11)
+Thanks.
 
-With change
-
-76 101 110 111 118 111 32 89 111 103 97
-("Lenovo Yoga" in ASCII )
-
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/hid/hid-sensor-hub.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 658a607..c5c3d61 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -251,6 +251,9 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
- 	int report_size;
- 	int ret = 0;
-+	u8 *val_ptr;
-+	int buffer_index = 0;
-+	int i;
- 
- 	mutex_lock(&data->mutex);
- 	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
-@@ -271,7 +274,17 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 		goto done_proc;
- 	}
- 	ret = min(report_size, buffer_size);
--	memcpy(buffer, report->field[field_index]->value, ret);
-+
-+	val_ptr = (u8 *)report->field[field_index]->value;
-+	for (i = 0; i < report->field[field_index]->report_count; ++i) {
-+		if (buffer_index >= ret)
-+			break;
-+
-+		memcpy(&((u8 *)buffer)[buffer_index], val_ptr,
-+		       report->field[field_index]->report_size / 8);
-+		val_ptr += sizeof(__s32);
-+		buffer_index += (report->field[field_index]->report_size / 8);
-+	}
- 
- done_proc:
- 	mutex_unlock(&data->mutex);
 -- 
-2.7.4
-
+Dmitry

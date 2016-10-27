@@ -1,632 +1,288 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH v1] HID: udraw: Add support for the uDraw tablet for PS3
-Date: Thu, 27 Oct 2016 15:49:58 +0200
-Message-ID: <1477576198.2458.27.camel@hadess.net>
+Subject: Re: [PATCH v12 1/5] Input: goodix - add sysfs interface to dump
+ config
+Date: Thu, 27 Oct 2016 15:44:15 +0200
+Message-ID: <1477575855.2458.19.camel@hadess.net>
+References: <1473530257-7495-1-git-send-email-irina.tirdea@intel.com>
+         <1473530257-7495-2-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:48155 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935913AbcJ0Nu1 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Oct 2016 09:50:27 -0400
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1473530257-7495-2-git-send-email-irina.tirdea@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Irina Tirdea <irina.tirdea@intel.com>, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-This adds support for the THQ uDraw tablet for the PS3, as
-4 separate device nodes, so that user-space can easily consume
-events coming from the hardware.
 
-Note that the touchpad two-finger support is fairly unreliable,
-and a right-click can only be achieved with a two-finger tap
-with the two fingers slightly apart (about 1cm should be enough).
 
-Tested-by: Bastien Nocera <hadess@hadess.net>
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
----
- MAINTAINERS             |   6 +
- drivers/hid/Kconfig     |   7 +
- drivers/hid/Makefile    |   1 +
- drivers/hid/hid-core.c  |   1 +
- drivers/hid/hid-ids.h   |   3 +
- drivers/hid/hid-udraw.c | 478
-++++++++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 496 insertions(+)
- create mode 100644 drivers/hid/hid-udraw.c
+On Sat, 2016-09-10 at 20:57 +0300, Irina Tirdea wrote:
+> Goodix devices have a configuration information register area that
+> specifies various parameters for the device. The configuration
+> information
+> has a specific format described in the Goodix datasheet. It includes
+> X/Y
+> resolution, maximum supported touch points, interrupt flags, various
+> sesitivity factors and settings for advanced features (like gesture
+> recognition).
+> 
+> Export a sysfs interface that would allow reading the configuration
+> information. The default device configuration can be used as a
+> starting
+> point for creating a valid configuration firmware used by the device
+> at
+> init time to update its configuration.
+> 
+> This sysfs interface will be exported only if the gpio pins are
+> properly
+> initialized from ACPI/DT.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 33d7779..57f6bea 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12197,6 +12197,12 @@ S:	Maintained
- F:	Documentation/filesystems/udf.txt
- F:	fs/udf/
- 
-+UDRAW TABLET
-+M:	Bastien Nocera <hadess@hadess.net>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	drivers/hid/hid-udraw.c
-+
- UFS FILESYSTEM
- M:	Evgeniy Dushistov <dushistov@mail.ru>
- S:	Maintained
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index cd4599c..88c831e 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -861,6 +861,13 @@ config THRUSTMASTER_FF
- 	  a THRUSTMASTER Dual Trigger 3-in-1 or a THRUSTMASTER Ferrari
-GT
- 	  Rumble Force or Force Feedback Wheel.
- 
-+config HID_UDRAW
-+	tristate "THQ PS3 uDraw tablet"
-+	depends on HID
-+	---help---
-+	  Say Y here if you want to use the THQ uDraw gaming tablet
-for
-+	  the PS3.
-+
- config HID_WACOM
- 	tristate "Wacom Intuos/Graphire tablet support (USB)"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 86b2b57..d0d9b34 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -96,6 +96,7 @@ obj-$(CONFIG_HID_TIVO)		+= hid-tivo.o
- obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
- obj-$(CONFIG_HID_TWINHAN)	+= hid-twinhan.o
- obj-$(CONFIG_HID_UCLOGIC)	+= hid-uclogic.o
-+obj-$(CONFIG_HID_UDRAW)		+= hid-udraw.o
- obj-$(CONFIG_HID_LED)		+= hid-led.o
- obj-$(CONFIG_HID_XINMO)		+= hid-xinmo.o
- obj-$(CONFIG_HID_ZEROPLUS)	+= hid-zpff.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 2b89c70..3611ec7 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2086,6 +2086,7 @@ static const struct hid_device_id
-hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-USB_DEVICE_ID_UCLOGIC_TABLET_WP1062) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_THQ,
-USB_DEVICE_ID_THQ_PS3_UDRAW) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-USB_DEVICE_ID_YIYNOVA_TABLET) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-USB_DEVICE_ID_UGEE_TABLET_81) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-USB_DEVICE_ID_UGEE_TABLET_45) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index cd59c79..4ff9ecc 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -955,6 +955,9 @@
- #define USB_VENDOR_ID_THINGM		0x27b8
- #define USB_DEVICE_ID_BLINK1		0x01ed
- 
-+#define USB_VENDOR_ID_THQ		0x20d6
-+#define USB_DEVICE_ID_THQ_PS3_UDRAW	0xcb17
-+
- #define USB_VENDOR_ID_THRUSTMASTER	0x044f
- 
- #define USB_VENDOR_ID_TIVO		0x150a
-diff --git a/drivers/hid/hid-udraw.c b/drivers/hid/hid-udraw.c
-new file mode 100644
-index 0000000..794aae5
---- /dev/null
-+++ b/drivers/hid/hid-udraw.c
-@@ -0,0 +1,478 @@
-+/*
-+ * HID driver for THQ PS3 uDraw tablet
-+ *
-+ * Copyright (C) 2016 Red Hat Inc. All Rights Reserved
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation,
-and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include "hid-ids.h"
-+
-+MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
-+MODULE_DESCRIPTION("PS3 uDraw tablet driver");
-+MODULE_LICENSE("GPL");
-+
-+/*
-+ * Protocol information from:
-+ * http://brandonw.net/udraw/
-+ * and the source code of:
-+ * https://vvvv.org/contribution/udraw-hid
-+ */
-+
-+/*
-+ * The device is setup with multiple input devices to make it easier
-+ * to handle in user-space:
-+ * - the touch area which works as a touchpad
-+ * - the tablet area which works as a touchpad/drawing tablet
-+ * - a joypad with a d-pad, and 7 buttons
-+ * - an accelerometer device
-+ */
-+
-+enum {
-+	TOUCH_NONE,
-+	TOUCH_PEN,
-+	TOUCH_FINGER,
-+	TOUCH_TWOFINGER
-+};
-+
-+enum {
-+	AXIS_X,
-+	AXIS_Y,
-+	AXIS_Z
-+};
-+
-+/* Accelerometer min/max values
-+ * in order, X, Y and Z
-+ */
-+struct {
-+	int min;
-+	int max;
-+} accel_limits[] = {
-+	[AXIS_X] = { 0x1EA, 0x216 },
-+	[AXIS_Y] = { 0x1EA, 0x216 },
-+	[AXIS_Z] = { 0x1EC, 0x218 }
-+};
-+
-+#define DEVICE_NAME "THQ uDraw Game Tablet for PS3"
-+/* resolution in pixels */
-+#define RES_X 1920
-+#define RES_Y 1080
-+/* size in mm */
-+#define WIDTH  160
-+#define HEIGHT 90
-+#define PRESSURE_OFFSET 0x71
-+#define MAX_PRESSURE (0xFF - PRESSURE_OFFSET)
-+
-+struct udraw {
-+	struct input_dev *joy_input_dev;
-+	struct input_dev *touch_input_dev;
-+	struct input_dev *pen_input_dev;
-+	struct input_dev *accel_input_dev;
-+	struct hid_device *hdev;
-+
-+	/* The device's two-finger support is pretty unreliable, as
-+	 * the device could report a single touch when the two fingers
-+	 * are too close together, and the distance between fingers,
-even
-+	 * though reported is not in pixels, but in an arbitrary unit.
-+	 *
-+	 * We'll make do without it, and try to report the first touch
-+	 * as reliably as possible.
-+	 */
-+	int last_one_finger_x;
-+	int last_one_finger_y;
-+	int last_two_finger_x;
-+	int last_two_finger_y;
-+};
-+
-+static int clamp_accel(int axis, int offset)
-+{
-+	axis = clamp(axis,
-+			accel_limits[offset].min,
-+			accel_limits[offset].max);
-+	axis = (axis - accel_limits[offset].min) /
-+			((accel_limits[offset].max -
-+			  accel_limits[offset].min) * 0xFF);
-+	return axis;
-+}
-+
-+static int udraw_raw_event(struct hid_device *hdev, struct hid_report
-*report,
-+	 u8 *data, int len)
-+{
-+	struct udraw *udraw = hid_get_drvdata(hdev);
-+	int touch;
-+	int x, y, z;
-+
-+	if (len != 0x1B)
-+		return 0;
-+
-+	if (data[11] == 0x00)
-+		touch = TOUCH_NONE;
-+	else if (data[11] == 0x40)
-+		touch = TOUCH_PEN;
-+	else if (data[11] == 0x80)
-+		touch = TOUCH_FINGER;
-+	else
-+		touch = TOUCH_TWOFINGER;
-+
-+	/* joypad */
-+	input_report_key(udraw->joy_input_dev, BTN_WEST, data[0] & 1);
-+	input_report_key(udraw->joy_input_dev, BTN_SOUTH, data[0] &
-2);
-+	input_report_key(udraw->joy_input_dev, BTN_EAST, data[0] & 4);
-+	input_report_key(udraw->joy_input_dev, BTN_NORTH, data[0] &
-8);
-+
-+	input_report_key(udraw->joy_input_dev, BTN_SELECT, data[1] &
-1);
-+	input_report_key(udraw->joy_input_dev, BTN_START, data[1] &
-2);
-+	input_report_key(udraw->joy_input_dev, BTN_MODE, data[1] &
-16);
-+
-+	x = y = 0;
-+	switch (data[2]) {
-+	case 0x0:
-+		y = -127;
-+		break;
-+	case 0x1:
-+		y = -127;
-+		x = 127;
-+		break;
-+	case 0x2:
-+		x = 127;
-+		break;
-+	case 0x3:
-+		y = 127;
-+		x = 127;
-+		break;
-+	case 0x4:
-+		y = 127;
-+		break;
-+	case 0x5:
-+		y = 127;
-+		x = -127;
-+		break;
-+	case 0x6:
-+		x = -127;
-+		break;
-+	case 0x7:
-+		y = -127;
-+		x = -127;
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	input_report_abs(udraw->joy_input_dev, ABS_X, x);
-+	input_report_abs(udraw->joy_input_dev, ABS_Y, y);
-+
-+	input_sync(udraw->joy_input_dev);
-+
-+	/* For pen and touchpad */
-+	x = y = 0;
-+	if (touch != TOUCH_NONE) {
-+		if (data[15] != 0x0F)
-+			x = data[15] * 256 + data[17];
-+		if (data[16] != 0x0F)
-+			y = data[16] * 256 + data[18];
-+	}
-+
-+	if (touch == TOUCH_FINGER) {
-+		/* Save the last one-finger touch */
-+		udraw->last_one_finger_x = x;
-+		udraw->last_one_finger_y = y;
-+		udraw->last_two_finger_x = -1;
-+		udraw->last_two_finger_y = -1;
-+	} else if (touch == TOUCH_TWOFINGER) {
-+		/* We have a problem because x/y is the one for the
-+		 * second finger but we want the first finger given
-+		 * to user-space otherwise it'll look as if it jumped.
-+		 */
-+		if (udraw->last_two_finger_x == -1) {
-+			/* Save the position of the 2nd finger */
-+			udraw->last_two_finger_x = x;
-+			udraw->last_two_finger_y = y;
-+
-+			x = udraw->last_one_finger_x;
-+			y = udraw->last_one_finger_y;
-+		} else {
-+			/* Offset the 2-finger coords using the
-+			 * saved data from the first finger
-+			 */
-+			x = x - (udraw->last_two_finger_x
-+				- udraw->last_one_finger_x);
-+			y = y - (udraw->last_two_finger_y
-+				- udraw->last_one_finger_y);
-+		}
-+	}
-+
-+	/* touchpad */
-+	if (touch == TOUCH_FINGER || touch == TOUCH_TWOFINGER) {
-+		input_report_key(udraw->touch_input_dev, BTN_TOUCH,
-1);
-+		input_report_key(udraw->touch_input_dev,
-BTN_TOOL_FINGER,
-+				touch == TOUCH_FINGER);
-+		input_report_key(udraw->touch_input_dev,
-BTN_TOOL_DOUBLETAP,
-+				touch == TOUCH_TWOFINGER);
-+
-+		input_report_abs(udraw->touch_input_dev, ABS_X, x);
-+		input_report_abs(udraw->touch_input_dev, ABS_Y, y);
-+	} else {
-+		input_report_key(udraw->touch_input_dev, BTN_TOUCH,
-0);
-+		input_report_key(udraw->touch_input_dev,
-BTN_TOOL_FINGER, 0);
-+		input_report_key(udraw->touch_input_dev,
-BTN_TOOL_DOUBLETAP, 0);
-+	}
-+	input_sync(udraw->touch_input_dev);
-+
-+	/* pen */
-+	if (touch == TOUCH_PEN) {
-+		int level;
-+
-+		level = clamp(data[13] - PRESSURE_OFFSET,
-+				0, MAX_PRESSURE);
-+
-+		input_report_key(udraw->pen_input_dev, BTN_TOUCH,
-(level != 0));
-+		input_report_key(udraw->pen_input_dev, BTN_TOOL_PEN,
-1);
-+		input_report_abs(udraw->pen_input_dev, ABS_PRESSURE,
-level);
-+		input_report_abs(udraw->pen_input_dev, ABS_X, x);
-+		input_report_abs(udraw->pen_input_dev, ABS_Y, y);
-+	} else {
-+		input_report_key(udraw->pen_input_dev, BTN_TOUCH, 0);
-+		input_report_key(udraw->pen_input_dev, BTN_TOOL_PEN,
-0);
-+		input_report_abs(udraw->pen_input_dev, ABS_PRESSURE,
-0);
-+	}
-+	input_sync(udraw->pen_input_dev);
-+
-+	/* accel */
-+	x = (data[19] + (data[20] << 8));
-+	x = clamp_accel(x, AXIS_X);
-+	y = (data[21] + (data[22] << 8));
-+	y = clamp_accel(y, AXIS_Y);
-+	z = (data[23] + (data[24] << 8));
-+	z = clamp_accel(z, AXIS_Z);
-+	input_report_abs(udraw->accel_input_dev, ABS_X, x);
-+	input_report_abs(udraw->accel_input_dev, ABS_Y, y);
-+	input_report_abs(udraw->accel_input_dev, ABS_Z, z);
-+	input_sync(udraw->accel_input_dev);
-+
-+	/* let hidraw and hiddev handle the report */
-+	return 0;
-+}
-+
-+static int udraw_open(struct input_dev *dev)
-+{
-+	struct udraw *udraw = input_get_drvdata(dev);
-+
-+	return hid_hw_open(udraw->hdev);
-+}
-+
-+static void udraw_close(struct input_dev *dev)
-+{
-+	struct udraw *udraw = input_get_drvdata(dev);
-+
-+	hid_hw_close(udraw->hdev);
-+}
-+
-+static struct input_dev *allocate_and_setup(struct hid_device *hdev,
-+		const char *name)
-+{
-+	struct input_dev *input_dev;
-+
-+	input_dev = devm_input_allocate_device(&hdev->dev);
-+	if (!input_dev)
-+		return NULL;
-+
-+	input_dev->name = name;
-+	input_dev->phys = hdev->phys;
-+	input_dev->dev.parent = &hdev->dev;
-+	input_dev->open = udraw_open;
-+	input_dev->close = udraw_close;
-+	input_dev->uniq = hdev->uniq;
-+	input_dev->id.bustype = hdev->bus;
-+	input_dev->id.vendor  = hdev->vendor;
-+	input_dev->id.product = hdev->product;
-+	input_dev->id.version = hdev->version;
-+	input_set_drvdata(input_dev, hid_get_drvdata(hdev));
-+
-+	return input_dev;
-+}
-+
-+static bool udraw_setup_touch(struct udraw *udraw,
-+		struct hid_device *hdev)
-+{
-+	struct input_dev *input_dev;
-+
-+	input_dev = allocate_and_setup(hdev, DEVICE_NAME " Touchpad");
-+	if (!input_dev)
-+		return false;
-+
-+	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
-+
-+	set_bit(ABS_X, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_X, 0, RES_X, 1, 0);
-+	input_abs_set_res(input_dev, ABS_X, RES_X / WIDTH);
-+	set_bit(ABS_Y, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_Y, 0, RES_Y, 1, 0);
-+	input_abs_set_res(input_dev, ABS_Y, RES_Y / HEIGHT);
-+
-+	set_bit(BTN_TOUCH, input_dev->keybit);
-+	set_bit(BTN_TOOL_FINGER, input_dev->keybit);
-+	set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
-+
-+	set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-+
-+	udraw->touch_input_dev = input_dev;
-+
-+	return true;
-+}
-+
-+static bool udraw_setup_pen(struct udraw *udraw,
-+		struct hid_device *hdev)
-+{
-+	struct input_dev *input_dev;
-+
-+	input_dev = allocate_and_setup(hdev, DEVICE_NAME " Pen");
-+	if (!input_dev)
-+		return false;
-+
-+	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
-+
-+	set_bit(ABS_X, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_X, 0, RES_X, 1, 0);
-+	input_abs_set_res(input_dev, ABS_X, RES_X / WIDTH);
-+	set_bit(ABS_Y, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_Y, 0, RES_Y, 1, 0);
-+	input_abs_set_res(input_dev, ABS_Y, RES_Y / HEIGHT);
-+	set_bit(ABS_PRESSURE, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_PRESSURE,
-+			0, MAX_PRESSURE, 0, 0);
-+
-+	set_bit(BTN_TOUCH, input_dev->keybit);
-+	set_bit(BTN_TOOL_PEN, input_dev->keybit);
-+
-+	set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-+
-+	udraw->pen_input_dev = input_dev;
-+
-+	return true;
-+}
-+
-+static bool udraw_setup_accel(struct udraw *udraw,
-+		struct hid_device *hdev)
-+{
-+	struct input_dev *input_dev;
-+
-+	input_dev = allocate_and_setup(hdev, DEVICE_NAME "
-Accelerometer");
-+	if (!input_dev)
-+		return false;
-+
-+	input_dev->evbit[0] = BIT(EV_ABS);
-+
-+	/* 1G accel is reported as ~256, so clamp to 2G */
-+	set_bit(ABS_X, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_X, -512, 512, 0, 0);
-+	set_bit(ABS_Y, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_Y, -512, 512, 0, 0);
-+	set_bit(ABS_Z, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_Z, -512, 512, 0, 0);
-+
-+	set_bit(INPUT_PROP_ACCELEROMETER, input_dev->propbit);
-+
-+	udraw->accel_input_dev = input_dev;
-+
-+	return true;
-+}
-+
-+static bool udraw_setup_joypad(struct udraw *udraw,
-+		struct hid_device *hdev)
-+{
-+	struct input_dev *input_dev;
-+
-+	input_dev = allocate_and_setup(hdev, DEVICE_NAME " Joypad");
-+	if (!input_dev)
-+		return false;
-+
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-+
-+	set_bit(BTN_SOUTH, input_dev->keybit);
-+	set_bit(BTN_NORTH, input_dev->keybit);
-+	set_bit(BTN_EAST, input_dev->keybit);
-+	set_bit(BTN_WEST, input_dev->keybit);
-+	set_bit(BTN_SELECT, input_dev->keybit);
-+	set_bit(BTN_START, input_dev->keybit);
-+	set_bit(BTN_MODE, input_dev->keybit);
-+
-+	set_bit(ABS_X, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_X, -127, 127, 0, 0);
-+	set_bit(ABS_Y, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_Y, -127, 127, 0, 0);
-+
-+	udraw->joy_input_dev = input_dev;
-+
-+	return true;
-+}
-+
-+static int udraw_probe(struct hid_device *hdev, const struct
-hid_device_id *id)
-+{
-+	struct udraw *udraw;
-+	int ret;
-+
-+	udraw = devm_kzalloc(&hdev->dev, sizeof(struct udraw),
-GFP_KERNEL);
-+	if (!udraw)
-+		return -ENOMEM;
-+
-+	udraw->hdev = hdev;
-+	udraw->last_two_finger_x = -1;
-+	udraw->last_two_finger_y = -1;
-+
-+	hid_set_drvdata(hdev, udraw);
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "parse failed\n");
-+		return ret;
-+	}
-+
-+	if (!udraw_setup_joypad(udraw, hdev) ||
-+	    !udraw_setup_touch(udraw, hdev) ||
-+	    !udraw_setup_pen(udraw, hdev) ||
-+	    !udraw_setup_accel(udraw, hdev)) {
-+		hid_err(hdev, "could not allocate interfaces\n");
-+		return -ENOMEM;
-+	}
-+
-+	ret = input_register_device(udraw->joy_input_dev) ||
-+		input_register_device(udraw->touch_input_dev) ||
-+		input_register_device(udraw->pen_input_dev) ||
-+		input_register_device(udraw->accel_input_dev);
-+	if (ret) {
-+		hid_err(hdev, "failed to register interfaces\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW |
-HID_CONNECT_DRIVER);
-+	if (ret) {
-+		hid_err(hdev, "hw start failed\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id udraw_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_THQ,
-USB_DEVICE_ID_THQ_PS3_UDRAW) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, udraw_devices);
-+
-+static struct hid_driver udraw_driver = {
-+	.name = "hid-udraw",
-+	.id_table = udraw_devices,
-+	.raw_event = udraw_raw_event,
-+	.probe = udraw_probe,
-+};
-+module_hid_driver(udraw_driver);
--- 
-2.7.4
+Reviewed-by: Bastien Nocera <hadess@hadess.net>
+
+Only thing I don't like is the overly complicated bash script. I'd
+really rather the code was in C, making it easier to debug, and not
+rely on a fair number of external utilities.
+
+> 
+> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> ---
+>  Documentation/input/goodix.txt     | 84
+> ++++++++++++++++++++++++++++++++++++++
+>  drivers/input/touchscreen/goodix.c | 64 ++++++++++++++++++++++++++
+> ---
+>  2 files changed, 143 insertions(+), 5 deletions(-)
+>  create mode 100644 Documentation/input/goodix.txt
+> 
+> diff --git a/Documentation/input/goodix.txt
+> b/Documentation/input/goodix.txt
+> new file mode 100644
+> index 0000000..f9be1e2
+> --- /dev/null
+> +++ b/Documentation/input/goodix.txt
+> @@ -0,0 +1,84 @@
+> +Goodix touchscreen driver
+> +=====================================
+> +
+> +How to update configuration firmware
+> +=====================================
+> +
+> +Goodix touchscreen devices have a set of registers that specify
+> configuration
+> +information for the device. The configuration information has a
+> specific format
+> +described in the Goodix datasheet. It includes X/Y resolution,
+> maximum
+> +supported touch points, interrupt flags, various sesitivity factors
+> and
+> +settings for advanced features (like gesture recognition).
+> +
+> +The devices have an initial default configuration that can be read
+> through
+> +the sysfs interface (/sys/class/input/inputX/device/dump_config).
+> This default
+> +configuration can be used as a starting point for creating a new
+> configuration
+> +firmware file. At init, the driver will read the configuration
+> firmware file
+> +and update the device configuration.
+> +
+> +This configuration can be accesed only if both interrupt and reset
+> gpio pins
+> +are connected and properly configured through ACPI _DSD/DT
+> properties.
+> +
+> +Below are instructions on how to generate a valid configuration
+> starting from
+> +the device default configuration.
+> +
+> +1. Dump the default configuration of the device to a file:
+> +  $ cat /sys/class/input/inputX/device/dump_config >
+> goodix_<model>_cfg
+> +
+> +2. Make the needed changes to the configuration (e.g. change
+> resolution of
+> +x/y axes, maximum reported touch points, switch X,Y axes, etc.). For
+> more
+> +details check the Goodix datasheet for format of Configuration
+> Registers.
+> +
+> +3. Generate a valid configuration starting from  goodix_<model>_cfg.
+> +After making changes, you need to recompute the checksum of the
+> entire
+> +configuration data, set Config_Fresh to 1 and generate the binary
+> config
+> +firmware image. This can be done using a helper script similar to
+> the
+> +one below:
+> +
+> +#!/bin/bash
+> +
+> +if [[ $# -lt 1 ]]; then
+> +    echo "$0 fw_filename"
+> +    exit 1
+> +fi
+> +
+> +file_in="$1"
+> +file_out_bin=${file_in}.bin
+> +
+> +print_val ()
+> +{
+> +    val="$1"
+> +    printf "0x%.2x" "$val" | xxd -r -p >> ${file_out_bin}
+> +}
+> +
+> +rm -f ${file_out_bin}
+> +
+> +size=`cat ${file_in} | wc -w`
+> +
+> +checksum=0
+> +i=1
+> +for val in `cat ${file_in}`; do
+> +    val="0x$val"
+> +    if [[ $i == $size ]]; then
+> +	# Config_Fresh
+> +	print_val 0x01
+> +    elif [[ $i == $((size-1)) ]]; then
+> +	# Config_Chksum
+> +	checksum=$(( (~ checksum + 1) & 0xFF))
+> +	print_val $checksum
+> +    else
+> +	checksum=$((checksum + val))
+> +	print_val $val
+> +    fi
+> +    i=$((i+1))
+> +done
+> +
+> +echo "Wrote ${file_out_bin}"
+> +
+> +4. Copy the binary config firmware in the appropriate location
+> +(e.g. /lib/firmware), using the name goodix_<model>_cfg.bin (e.g.
+> for gt911,
+> +use goodix_911_cfg.bin).
+> +
+> +5. Check that the new firmware was successfully written to the
+> device
+> +after reboot. Config_Fresh is reset to 0 after a successful update
+> of the
+> +configuration.
+> diff --git a/drivers/input/touchscreen/goodix.c
+> b/drivers/input/touchscreen/goodix.c
+> index 240b16f..2447b73 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -430,6 +430,40 @@ static int goodix_reset(struct goodix_ts_data
+> *ts)
+>  	return 0;
+>  }
+>  
+> +static ssize_t goodix_dump_config_show(struct device *dev,
+> +				       struct device_attribute
+> *attr, char *buf)
+> +{
+> +	struct goodix_ts_data *ts = dev_get_drvdata(dev);
+> +	u8 config[GOODIX_CONFIG_MAX_LENGTH];
+> +	int error, count = 0, i;
+> +
+> +	wait_for_completion(&ts->firmware_loading_complete);
+> +
+> +	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
+> +				config, ts->cfg_len);
+> +	if (error) {
+> +		dev_warn(&ts->client->dev,
+> +			 "Error reading config (%d)\n",  error);
+> +		return error;
+> +	}
+> +
+> +	for (i = 0; i < ts->cfg_len; i++)
+> +		count += scnprintf(buf + count, PAGE_SIZE - count,
+> "%02x ",
+> +				   config[i]);
+> +	return count;
+> +}
+> +
+> +static DEVICE_ATTR(dump_config, S_IRUGO, goodix_dump_config_show,
+> NULL);
+> +
+> +static struct attribute *goodix_attrs[] = {
+> +	&dev_attr_dump_config.attr,
+> +	NULL
+> +};
+> +
+> +static const struct attribute_group goodix_attr_group = {
+> +	.attrs = goodix_attrs,
+> +};
+> +
+>  /**
+>   * goodix_get_gpio_config - Get GPIO config from ACPI/DT
+>   *
+> @@ -735,11 +769,22 @@ static int goodix_ts_probe(struct i2c_client
+> *client,
+>  	ts->cfg_len = goodix_get_cfg_len(ts->id);
+>  
+>  	if (ts->gpiod_int && ts->gpiod_rst) {
+> +		error = sysfs_create_group(&client->dev.kobj,
+> +					   &goodix_attr_group);
+> +		if (error) {
+> +			dev_err(&client->dev,
+> +				"Failed to create sysfs group:
+> %d\n",
+> +				error);
+> +			return error;
+> +		}
+> +
+>  		/* update device config */
+>  		ts->cfg_name = devm_kasprintf(&client->dev,
+> GFP_KERNEL,
+>  					      "goodix_%d_cfg.bin",
+> ts->id);
+> -		if (!ts->cfg_name)
+> -			return -ENOMEM;
+> +		if (!ts->cfg_name) {
+> +			error = -ENOMEM;
+> +			goto err_sysfs_remove_group;
+> +		}
+>  
+>  		error = request_firmware_nowait(THIS_MODULE, true,
+> ts->cfg_name,
+>  						&client->dev,
+> GFP_KERNEL, ts,
+> @@ -748,7 +793,7 @@ static int goodix_ts_probe(struct i2c_client
+> *client,
+>  			dev_err(&client->dev,
+>  				"Failed to invoke firmware loader:
+> %d\n",
+>  				error);
+> -			return error;
+> +			goto err_sysfs_remove_group;
+>  		}
+>  
+>  		return 0;
+> @@ -759,14 +804,23 @@ static int goodix_ts_probe(struct i2c_client
+> *client,
+>  	}
+>  
+>  	return 0;
+> +
+> +err_sysfs_remove_group:
+> +	if (ts->gpiod_int && ts->gpiod_rst)
+> +		sysfs_remove_group(&client->dev.kobj,
+> &goodix_attr_group);
+> +	return error;
+>  }
+>  
+>  static int goodix_ts_remove(struct i2c_client *client)
+>  {
+>  	struct goodix_ts_data *ts = i2c_get_clientdata(client);
+>  
+> -	if (ts->gpiod_int && ts->gpiod_rst)
+> -		wait_for_completion(&ts->firmware_loading_complete);
+> +	if (!ts->gpiod_int || !ts->gpiod_rst)
+> +		return 0;
+> +
+> +	wait_for_completion(&ts->firmware_loading_complete);
+> +
+> +	sysfs_remove_group(&client->dev.kobj, &goodix_attr_group);
+>  
+>  	return 0;
+>  }

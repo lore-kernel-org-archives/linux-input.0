@@ -1,288 +1,335 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v12 1/5] Input: goodix - add sysfs interface to dump
- config
-Date: Thu, 27 Oct 2016 15:44:15 +0200
-Message-ID: <1477575855.2458.19.camel@hadess.net>
+Subject: Re: [PATCH v12 2/5] Input: goodix - add support for ESD
+Date: Thu, 27 Oct 2016 15:44:21 +0200
+Message-ID: <1477575861.2458.20.camel@hadess.net>
 References: <1473530257-7495-1-git-send-email-irina.tirdea@intel.com>
-         <1473530257-7495-2-git-send-email-irina.tirdea@intel.com>
+         <1473530257-7495-3-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1473530257-7495-2-git-send-email-irina.tirdea@intel.com>
+In-Reply-To: <1473530257-7495-3-git-send-email-irina.tirdea@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Irina Tirdea <irina.tirdea@intel.com>, linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-
-
 On Sat, 2016-09-10 at 20:57 +0300, Irina Tirdea wrote:
-> Goodix devices have a configuration information register area that
-> specifies various parameters for the device. The configuration
-> information
-> has a specific format described in the Goodix datasheet. It includes
-> X/Y
-> resolution, maximum supported touch points, interrupt flags, various
-> sesitivity factors and settings for advanced features (like gesture
-> recognition).
+> Add ESD (Electrostatic Discharge) protection mechanism.
 > 
-> Export a sysfs interface that would allow reading the configuration
-> information. The default device configuration can be used as a
-> starting
-> point for creating a valid configuration firmware used by the device
-> at
-> init time to update its configuration.
+> The driver enables ESD protection in HW and checks a register
+> to determine if ESD occurred. If ESD is signalled by the HW,
+> the driver will reset the device.
 > 
-> This sysfs interface will be exported only if the gpio pins are
-> properly
-> initialized from ACPI/DT.
+> The ESD poll time (in ms) can be set through the sysfs property
+> esd_timeout. If it is set to 0, ESD protection is disabled.
+> Recommended value is 2000 ms.
 
-Reviewed-by: Bastien Nocera <hadess@hadess.net>
+What's the default value though?
 
-Only thing I don't like is the overly complicated bash script. I'd
-really rather the code was in C, making it easier to debug, and not
-rely on a fair number of external utilities.
-
+>  The initial value for ESD timeout
+> can be set through esd-recovery-timeout-ms ACPI/DT property.
+> If there is no such property defined, ESD protection is disabled.
+> For ACPI 5.1, the property can be specified using _DSD properties:
+>  Device (STAC)
+>  {
+>      Name (_HID, "GDIX1001")
+>      ...
 > 
+>      Name (_DSD,  Package ()
+>      {
+>          ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+>          Package ()
+>          {
+>              Package (2) { "esd-recovery-timeout-ms", Package(1) {
+> 2000 }},
+>              ...
+>          }
+>      })
+>  }
+
+Are there any devices which ship with that information? What do the
+Windows drivers use as a default for ESD, and how is it declared in
+ACPI?
+
+> The ESD protection mechanism is only available if the gpio pins
+> are properly initialized from ACPI/DT.
+> 
+> This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
+> driver gt9xx.c for Android (publicly available in Android kernel
+> trees for various devices).
+
+Could you link to a "close to upstream" tree that includes that
+support? Do they use the same timeout, or is it set to a default
+hardcoded value instead?
+
+Cheers
+
 > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> Acked-by: Rob Herring <robh@kernel.org>
 > ---
->  Documentation/input/goodix.txt     | 84
-> ++++++++++++++++++++++++++++++++++++++
->  drivers/input/touchscreen/goodix.c | 64 ++++++++++++++++++++++++++
-> ---
->  2 files changed, 143 insertions(+), 5 deletions(-)
->  create mode 100644 Documentation/input/goodix.txt
+>  .../bindings/input/touchscreen/goodix.txt          |   4 +
+>  drivers/input/touchscreen/goodix.c                 | 130
+> ++++++++++++++++++++-
+>  2 files changed, 132 insertions(+), 2 deletions(-)
 > 
-> diff --git a/Documentation/input/goodix.txt
-> b/Documentation/input/goodix.txt
-> new file mode 100644
-> index 0000000..f9be1e2
-> --- /dev/null
-> +++ b/Documentation/input/goodix.txt
-> @@ -0,0 +1,84 @@
-> +Goodix touchscreen driver
-> +=====================================
-> +
-> +How to update configuration firmware
-> +=====================================
-> +
-> +Goodix touchscreen devices have a set of registers that specify
-> configuration
-> +information for the device. The configuration information has a
-> specific format
-> +described in the Goodix datasheet. It includes X/Y resolution,
-> maximum
-> +supported touch points, interrupt flags, various sesitivity factors
-> and
-> +settings for advanced features (like gesture recognition).
-> +
-> +The devices have an initial default configuration that can be read
-> through
-> +the sysfs interface (/sys/class/input/inputX/device/dump_config).
-> This default
-> +configuration can be used as a starting point for creating a new
-> configuration
-> +firmware file. At init, the driver will read the configuration
-> firmware file
-> +and update the device configuration.
-> +
-> +This configuration can be accesed only if both interrupt and reset
-> gpio pins
-> +are connected and properly configured through ACPI _DSD/DT
-> properties.
-> +
-> +Below are instructions on how to generate a valid configuration
-> starting from
-> +the device default configuration.
-> +
-> +1. Dump the default configuration of the device to a file:
-> +  $ cat /sys/class/input/inputX/device/dump_config >
-> goodix_<model>_cfg
-> +
-> +2. Make the needed changes to the configuration (e.g. change
-> resolution of
-> +x/y axes, maximum reported touch points, switch X,Y axes, etc.). For
-> more
-> +details check the Goodix datasheet for format of Configuration
-> Registers.
-> +
-> +3. Generate a valid configuration starting from  goodix_<model>_cfg.
-> +After making changes, you need to recompute the checksum of the
-> entire
-> +configuration data, set Config_Fresh to 1 and generate the binary
-> config
-> +firmware image. This can be done using a helper script similar to
+> diff --git
+> a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> index c98757a..ef5f42d 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> @@ -18,6 +18,10 @@ Optional properties:
+>   - irq-gpios		: GPIO pin used for IRQ. The driver uses
 > the
-> +one below:
-> +
-> +#!/bin/bash
-> +
-> +if [[ $# -lt 1 ]]; then
-> +    echo "$0 fw_filename"
-> +    exit 1
-> +fi
-> +
-> +file_in="$1"
-> +file_out_bin=${file_in}.bin
-> +
-> +print_val ()
-> +{
-> +    val="$1"
-> +    printf "0x%.2x" "$val" | xxd -r -p >> ${file_out_bin}
-> +}
-> +
-> +rm -f ${file_out_bin}
-> +
-> +size=`cat ${file_in} | wc -w`
-> +
-> +checksum=0
-> +i=1
-> +for val in `cat ${file_in}`; do
-> +    val="0x$val"
-> +    if [[ $i == $size ]]; then
-> +	# Config_Fresh
-> +	print_val 0x01
-> +    elif [[ $i == $((size-1)) ]]; then
-> +	# Config_Chksum
-> +	checksum=$(( (~ checksum + 1) & 0xFF))
-> +	print_val $checksum
-> +    else
-> +	checksum=$((checksum + val))
-> +	print_val $val
-> +    fi
-> +    i=$((i+1))
-> +done
-> +
-> +echo "Wrote ${file_out_bin}"
-> +
-> +4. Copy the binary config firmware in the appropriate location
-> +(e.g. /lib/firmware), using the name goodix_<model>_cfg.bin (e.g.
-> for gt911,
-> +use goodix_911_cfg.bin).
-> +
-> +5. Check that the new firmware was successfully written to the
-> device
-> +after reboot. Config_Fresh is reset to 0 after a successful update
-> of the
-> +configuration.
+>  			  interrupt gpio pin as output to reset the
+> device.
+>   - reset-gpios		: GPIO pin used for reset
+> + - esd-recovery-timeout-ms : ESD poll time (in milli seconds) for
+> the driver to
+> +                            check if ESD occurred and in that case
+> reset the
+> +                            device. ESD is disabled if this property
+> is not set
+> +                            or is set to 0.
+>  
+>   - touchscreen-inverted-x  : X axis is inverted (boolean)
+>   - touchscreen-inverted-y  : Y axis is inverted (boolean)
 > diff --git a/drivers/input/touchscreen/goodix.c
 > b/drivers/input/touchscreen/goodix.c
-> index 240b16f..2447b73 100644
+> index 2447b73..cf39dc4 100644
 > --- a/drivers/input/touchscreen/goodix.c
 > +++ b/drivers/input/touchscreen/goodix.c
-> @@ -430,6 +430,40 @@ static int goodix_reset(struct goodix_ts_data
-> *ts)
->  	return 0;
+> @@ -49,10 +49,13 @@ struct goodix_ts_data {
+>  	const char *cfg_name;
+>  	struct completion firmware_loading_complete;
+>  	unsigned long irq_flags;
+> +	atomic_t esd_timeout;
+> +	struct delayed_work esd_work;
+>  };
+>  
+>  #define GOODIX_GPIO_INT_NAME		"irq"
+>  #define GOODIX_GPIO_RST_NAME		"reset"
+> +#define GOODIX_DEVICE_ESD_TIMEOUT_PROPERTY     "esd-recovery-
+> timeout-ms"
+>  
+>  #define GOODIX_MAX_HEIGHT		4096
+>  #define GOODIX_MAX_WIDTH		4096
+> @@ -67,6 +70,8 @@ struct goodix_ts_data {
+>  /* Register defines */
+>  #define GOODIX_REG_COMMAND		0x8040
+>  #define GOODIX_CMD_SCREEN_OFF		0x05
+> +#define GOODIX_CMD_ESD_ENABLED		0xAA
+> +#define GOODIX_REG_ESD_CHECK		0x8041
+>  
+>  #define GOODIX_READ_COOR_ADDR		0x814E
+>  #define GOODIX_REG_CONFIG_DATA		0x8047
+> @@ -453,10 +458,114 @@ static ssize_t goodix_dump_config_show(struct
+> device *dev,
+>  	return count;
 >  }
 >  
-> +static ssize_t goodix_dump_config_show(struct device *dev,
+> +static void goodix_disable_esd(struct goodix_ts_data *ts)
+> +{
+> +	if (!atomic_read(&ts->esd_timeout))
+> +		return;
+> +	cancel_delayed_work_sync(&ts->esd_work);
+> +}
+> +
+> +static int goodix_enable_esd(struct goodix_ts_data *ts)
+> +{
+> +	int error, esd_timeout;
+> +
+> +	esd_timeout = atomic_read(&ts->esd_timeout);
+> +	if (!esd_timeout)
+> +		return 0;
+> +
+> +	error = goodix_i2c_write_u8(ts->client,
+> GOODIX_REG_ESD_CHECK,
+> +				    GOODIX_CMD_ESD_ENABLED);
+> +	if (error) {
+> +		dev_err(&ts->client->dev, "Failed to enable ESD:
+> %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	schedule_delayed_work(&ts->esd_work, round_jiffies_relative(
+> +			      msecs_to_jiffies(esd_timeout)));
+> +	return 0;
+> +}
+> +
+> +static void goodix_esd_work(struct work_struct *work)
+> +{
+> +	struct goodix_ts_data *ts = container_of(work, struct
+> goodix_ts_data,
+> +						 esd_work.work);
+> +	int retries = 3, error;
+> +	u8 esd_data[2];
+> +	const struct firmware *cfg = NULL;
+> +
+> +	wait_for_completion(&ts->firmware_loading_complete);
+> +
+> +	while (--retries) {
+> +		error = goodix_i2c_read(ts->client,
+> GOODIX_REG_COMMAND,
+> +					esd_data, sizeof(esd_data));
+> +		if (error)
+> +			continue;
+> +		if (esd_data[0] != GOODIX_CMD_ESD_ENABLED &&
+> +		    esd_data[1] == GOODIX_CMD_ESD_ENABLED) {
+> +			/* feed the watchdog */
+> +			goodix_i2c_write_u8(ts->client,
+> +					    GOODIX_REG_COMMAND,
+> +					    GOODIX_CMD_ESD_ENABLED);
+> +			break;
+> +		}
+> +	}
+> +
+> +	if (!retries) {
+> +		dev_dbg(&ts->client->dev, "Performing ESD
+> recovery.\n");
+> +		goodix_free_irq(ts);
+> +		goodix_reset(ts);
+> +		error = request_firmware(&cfg, ts->cfg_name, &ts-
+> >client->dev);
+> +		if (!error) {
+> +			goodix_send_cfg(ts, cfg);
+> +			release_firmware(cfg);
+> +		}
+> +		goodix_request_irq(ts);
+> +		goodix_enable_esd(ts);
+> +		return;
+> +	}
+> +
+> +	schedule_delayed_work(&ts->esd_work, round_jiffies_relative(
+> +			      msecs_to_jiffies(atomic_read(&ts-
+> >esd_timeout))));
+> +}
+> +
+> +static ssize_t goodix_esd_timeout_show(struct device *dev,
 > +				       struct device_attribute
 > *attr, char *buf)
 > +{
 > +	struct goodix_ts_data *ts = dev_get_drvdata(dev);
-> +	u8 config[GOODIX_CONFIG_MAX_LENGTH];
-> +	int error, count = 0, i;
 > +
-> +	wait_for_completion(&ts->firmware_loading_complete);
+> +	return scnprintf(buf, PAGE_SIZE, "%d\n", atomic_read(&ts-
+> >esd_timeout));
+> +}
 > +
-> +	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
-> +				config, ts->cfg_len);
-> +	if (error) {
-> +		dev_warn(&ts->client->dev,
-> +			 "Error reading config (%d)\n",  error);
+> +static ssize_t goodix_esd_timeout_store(struct device *dev,
+> +					struct device_attribute
+> *attr,
+> +					const char *buf, size_t
+> count)
+> +{
+> +	struct goodix_ts_data *ts = dev_get_drvdata(dev);
+> +	int error, esd_timeout, new_esd_timeout;
+> +
+> +	error = kstrtouint(buf, 10, &new_esd_timeout);
+> +	if (error)
 > +		return error;
-> +	}
 > +
-> +	for (i = 0; i < ts->cfg_len; i++)
-> +		count += scnprintf(buf + count, PAGE_SIZE - count,
-> "%02x ",
-> +				   config[i]);
+> +	esd_timeout = atomic_read(&ts->esd_timeout);
+> +	if (esd_timeout && !new_esd_timeout)
+> +		goodix_disable_esd(ts);
+> +
+> +	atomic_set(&ts->esd_timeout, new_esd_timeout);
+> +	if (!esd_timeout && new_esd_timeout)
+> +		goodix_enable_esd(ts);
+> +
 > +	return count;
 > +}
 > +
-> +static DEVICE_ATTR(dump_config, S_IRUGO, goodix_dump_config_show,
+>  static DEVICE_ATTR(dump_config, S_IRUGO, goodix_dump_config_show,
 > NULL);
+> +/* ESD timeout in ms. Default disabled (0). Recommended 2000 ms. */
+> +static DEVICE_ATTR(esd_timeout, S_IRUGO | S_IWUSR,
+> goodix_esd_timeout_show,
+> +		   goodix_esd_timeout_store);
+>  
+>  static struct attribute *goodix_attrs[] = {
+>  	&dev_attr_dump_config.attr,
+> +	&dev_attr_esd_timeout.attr,
+>  	NULL
+>  };
+>  
+> @@ -713,7 +822,11 @@ static void goodix_config_cb(const struct
+> firmware *cfg, void *ctx)
+>  			goto err_release_cfg;
+>  	}
+>  
+> -	goodix_configure_dev(ts);
+> +	error = goodix_configure_dev(ts);
+> +	if (error)
+> +		goto err_release_cfg;
 > +
-> +static struct attribute *goodix_attrs[] = {
-> +	&dev_attr_dump_config.attr,
-> +	NULL
-> +};
-> +
-> +static const struct attribute_group goodix_attr_group = {
-> +	.attrs = goodix_attrs,
-> +};
-> +
->  /**
->   * goodix_get_gpio_config - Get GPIO config from ACPI/DT
->   *
-> @@ -735,11 +769,22 @@ static int goodix_ts_probe(struct i2c_client
+> +	goodix_enable_esd(ts);
+>  
+>  err_release_cfg:
+>  	release_firmware(cfg);
+> @@ -724,7 +837,7 @@ static int goodix_ts_probe(struct i2c_client
+> *client,
+>  			   const struct i2c_device_id *id)
+>  {
+>  	struct goodix_ts_data *ts;
+> -	int error;
+> +	int error, esd_timeout;
+>  
+>  	dev_dbg(&client->dev, "I2C Address: 0x%02x\n", client-
+> >addr);
+>  
+> @@ -740,6 +853,7 @@ static int goodix_ts_probe(struct i2c_client
+> *client,
+>  	ts->client = client;
+>  	i2c_set_clientdata(client, ts);
+>  	init_completion(&ts->firmware_loading_complete);
+> +	INIT_DELAYED_WORK(&ts->esd_work, goodix_esd_work);
+>  
+>  	error = goodix_get_gpio_config(ts);
+>  	if (error)
+> @@ -769,6 +883,12 @@ static int goodix_ts_probe(struct i2c_client
 > *client,
 >  	ts->cfg_len = goodix_get_cfg_len(ts->id);
 >  
 >  	if (ts->gpiod_int && ts->gpiod_rst) {
-> +		error = sysfs_create_group(&client->dev.kobj,
-> +					   &goodix_attr_group);
-> +		if (error) {
-> +			dev_err(&client->dev,
-> +				"Failed to create sysfs group:
-> %d\n",
-> +				error);
-> +			return error;
-> +		}
+> +		error = device_property_read_u32(&ts->client->dev,
+> +					GOODIX_DEVICE_ESD_TIMEOUT_PR
+> OPERTY,
+> +					&esd_timeout);
+> +		if (!error)
+> +			atomic_set(&ts->esd_timeout, esd_timeout);
 > +
->  		/* update device config */
->  		ts->cfg_name = devm_kasprintf(&client->dev,
-> GFP_KERNEL,
->  					      "goodix_%d_cfg.bin",
-> ts->id);
-> -		if (!ts->cfg_name)
-> -			return -ENOMEM;
-> +		if (!ts->cfg_name) {
-> +			error = -ENOMEM;
-> +			goto err_sysfs_remove_group;
-> +		}
+>  		error = sysfs_create_group(&client->dev.kobj,
+>  					   &goodix_attr_group);
+>  		if (error) {
+> @@ -821,6 +941,7 @@ static int goodix_ts_remove(struct i2c_client
+> *client)
+>  	wait_for_completion(&ts->firmware_loading_complete);
 >  
->  		error = request_firmware_nowait(THIS_MODULE, true,
-> ts->cfg_name,
->  						&client->dev,
-> GFP_KERNEL, ts,
-> @@ -748,7 +793,7 @@ static int goodix_ts_probe(struct i2c_client
-> *client,
->  			dev_err(&client->dev,
->  				"Failed to invoke firmware loader:
-> %d\n",
->  				error);
-> -			return error;
-> +			goto err_sysfs_remove_group;
->  		}
+>  	sysfs_remove_group(&client->dev.kobj, &goodix_attr_group);
+> +	goodix_disable_esd(ts);
 >  
+>  	return 0;
+>  }
+> @@ -836,6 +957,7 @@ static int __maybe_unused goodix_suspend(struct
+> device *dev)
 >  		return 0;
-> @@ -759,14 +804,23 @@ static int goodix_ts_probe(struct i2c_client
-> *client,
->  	}
 >  
->  	return 0;
+>  	wait_for_completion(&ts->firmware_loading_complete);
+> +	goodix_disable_esd(ts);
+>  
+>  	/* Free IRQ as IRQ pin is used as output in the suspend
+> sequence */
+>  	goodix_free_irq(ts);
+> @@ -894,6 +1016,10 @@ static int __maybe_unused goodix_resume(struct
+> device *dev)
+>  	if (error)
+>  		return error;
+>  
+> +	error = goodix_enable_esd(ts);
+> +	if (error)
+> +		return error;
 > +
-> +err_sysfs_remove_group:
-> +	if (ts->gpiod_int && ts->gpiod_rst)
-> +		sysfs_remove_group(&client->dev.kobj,
-> &goodix_attr_group);
-> +	return error;
->  }
->  
->  static int goodix_ts_remove(struct i2c_client *client)
->  {
->  	struct goodix_ts_data *ts = i2c_get_clientdata(client);
->  
-> -	if (ts->gpiod_int && ts->gpiod_rst)
-> -		wait_for_completion(&ts->firmware_loading_complete);
-> +	if (!ts->gpiod_int || !ts->gpiod_rst)
-> +		return 0;
-> +
-> +	wait_for_completion(&ts->firmware_loading_complete);
-> +
-> +	sysfs_remove_group(&client->dev.kobj, &goodix_attr_group);
->  
 >  	return 0;
 >  }
+>  

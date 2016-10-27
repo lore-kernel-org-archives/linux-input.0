@@ -1,77 +1,54 @@
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH v6 5/8] DT:omap3+tsc2007: use new common touchscreen bindings
-Date: Thu, 27 Oct 2016 10:44:18 +0200
-Message-ID: <72927a5b3d5b9f33dfd57a68ef1de9cb0a536407.1477557860.git.hns@goldelico.com>
-References: <cover.1477557860.git.hns@goldelico.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mo4-p04-ob.smtp.rzone.de ([81.169.146.176]:9851 "EHLO
-        mo4-p04-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932605AbcJ0JRl (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Oct 2016 05:17:41 -0400
-In-Reply-To: <cover.1477557860.git.hns@goldelico.com>
-In-Reply-To: <cover.1477557860.git.hns@goldelico.com>
-References: <cover.1477557860.git.hns@goldelico.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v2 2/4] input: evdev: Replace timeval with
+	timespec64
+Date: Thu, 27 Oct 2016 13:14:44 +0200
+Message-ID: <4848596.2bn4Hou7Gz@wuerfel>
+References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com>
+ <1476761253-13450-3-git-send-email-deepa.kernel@gmail.com>
+ <20161027013433.GA14832@jelly>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+In-Reply-To: <20161027013433.GA14832@jelly>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+To: y2038@lists.linaro.org
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Deepa Dinamani <deepa.kernel@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, =?UTF-8?q?Mika=20Penttil=C3=A4?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, Sebastian Reichel <sre@kernel.org>, "Andrew F. Davis" <afd@ti.com>, "H. Nikolaus Schaller" <hns@goldelico.com>, Mark Brown <broonie@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Sangwon Jee <jeesw@melfas.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, letux-kernel@openphoenux.org, linux-iio@vger.kernel.org, kernel@pyra-handheld.com
 
-While we fix the GTA04 we add proper pinmux for the
-penirq gpio.
-
-Tested on: GTA04A4 and Pyra-Handheld
-
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
----
- arch/arm/boot/dts/omap3-gta04.dtsi | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
-
-diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
-index b3a8b1f..64d6ee3 100644
---- a/arch/arm/boot/dts/omap3-gta04.dtsi
-+++ b/arch/arm/boot/dts/omap3-gta04.dtsi
-@@ -273,6 +273,13 @@
- 			OMAP3_CORE1_IOPAD(0x2134, PIN_INPUT_PULLUP | MUX_MODE4) /* gpio112 */
- 		>;
- 	};
-+
-+	penirq_pins: pinmux_penirq_pins {
-+		pinctrl-single,pins = <
-+			/* here we could enable to wakeup the cpu from suspend by a pen touch */
-+			OMAP3_CORE1_IOPAD(0x2194, PIN_INPUT_PULLUP | MUX_MODE4) /* gpio160 */
-+		>;
-+	};
- };
- 
- &omap3_pmx_core2 {
-@@ -410,10 +417,24 @@
- 	tsc2007@48 {
- 		compatible = "ti,tsc2007";
- 		reg = <0x48>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&penirq_pins>;
- 		interrupt-parent = <&gpio6>;
- 		interrupts = <0 IRQ_TYPE_EDGE_FALLING>; /* GPIO_160 */
--		gpios = <&gpio6 0 GPIO_ACTIVE_LOW>;
--		ti,x-plate-ohms = <600>;
-+		gpios = <&gpio6 0 GPIO_ACTIVE_LOW>;	/* GPIO_160 */
-+		touchscreen-size-x = <480>;
-+		touchscreen-size-y = <640>;
-+		touchscreen-max-pressure = <1000>;
-+		touchscreen-fuzz-x = <3>;
-+		touchscreen-fuzz-y = <8>;
-+		touchscreen-fuzz-pressure = <10>;
-+		touchscreen-inverted-y;
-+		ti,min-x = <0x100>;
-+		ti,max-x = <0xf00>;
-+		ti,min-y = <0x100>;
-+		ti,max-y = <0xf00>;
-+		ti,max-rt = <4096>;
-+		ti,x-plate-ohms = <550>;
- 	};
- 
- 	/* RFID EEPROM */
--- 
-2.7.3
-
+T24gVGh1cnNkYXksIE9jdG9iZXIgMjcsIDIwMTYgMTE6MzQ6MzMgQU0gQ0VTVCBQZXRlciBIdXR0
+ZXJlciB3cm90ZToKPiA+IEBAIC0yNTcsMTcgKzI2NCwyMCBAQCBzdGF0aWMgdm9pZCBfX3Bhc3Nf
+ZXZlbnQoc3RydWN0IGV2ZGV2X2NsaWVudCAqY2xpZW50LAo+ID4gIAo+ID4gIHN0YXRpYyB2b2lk
+IGV2ZGV2X3Bhc3NfdmFsdWVzKHN0cnVjdCBldmRldl9jbGllbnQgKmNsaWVudCwKPiA+ICAgICAg
+ICAgICAgICAgICAgICAgICBjb25zdCBzdHJ1Y3QgaW5wdXRfdmFsdWUgKnZhbHMsIHVuc2lnbmVk
+IGludCBjb3VudCwKPiA+IC0gICAgICAgICAgICAgICAgICAgICBrdGltZV90ICpldl90aW1lKQo+
+ID4gKyAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCB0aW1lc3BlYzY0ICpldl90aW1lKQo+ID4g
+IHsKPiA+ICAgICAgIHN0cnVjdCBldmRldiAqZXZkZXYgPSBjbGllbnQtPmV2ZGV2Owo+ID4gICAg
+ICAgY29uc3Qgc3RydWN0IGlucHV0X3ZhbHVlICp2Owo+ID4gICAgICAgc3RydWN0IGlucHV0X2V2
+ZW50IGV2ZW50Owo+ID4gKyAgICAgc3RydWN0IHRpbWVzcGVjNjQgdHM7Cj4gPiAgICAgICBib29s
+IHdha2V1cCA9IGZhbHNlOwo+ID4gIAo+ID4gICAgICAgaWYgKGNsaWVudC0+cmV2b2tlZCkKPiA+
+ICAgICAgICAgICAgICAgcmV0dXJuOwo+ID4gIAo+ID4gLSAgICAgZXZlbnQudGltZSA9IGt0aW1l
+X3RvX3RpbWV2YWwoZXZfdGltZVtjbGllbnQtPmNsa190eXBlXSk7Cj4gPiArICAgICB0cyA9IGV2
+X3RpbWVbY2xpZW50LT5jbGtfdHlwZV07Cj4gPiArICAgICBldmVudC50aW1lLnR2X3NlYyA9IHRz
+LnR2X3NlYzsKPiA+ICsgICAgIGV2ZW50LnRpbWUudHZfdXNlYyA9IHRzLnR2X25zZWMgLyBOU0VD
+X1BFUl9VU0VDOwo+IAo+IHlvdSBoYXZlIGt0aW1lX2dldF8qIGhlbHBlcnMgYmVsb3cgYnV0IHlv
+dSBkb24ndCBoYXZlIG9uZSBmb3IgdGltZXNwZWM2NCB0bwo+IHN0cnVjdCB0aW1ldmFsPyBUaGF0
+IHNlZW1zIGxpa2UgYSBidWcgd2FpdGlnIHRvIGhhcHBlbi4KClRoaXMgaXMgaW50ZW50aW9uYWwg
+dG8gYSBjZXJ0YWluIGRlZ3JlZTogd2UgZG9uJ3QgaGF2ZSBhIHRpbWV2YWw2NApiZWNhdXNlIGFu
+eSBjb252ZXJzaW9uIHRvIGEgbmV3IGludGVyZmFjZSBzaG91bGQgcHJlZmVyIHRpbWVzcGVjNjQK
+b3IgNjQtYml0IG5hbm9zZWNvbmRzLCBhbmQgd2UgdHJ5IHRvIHJlbW92ZSB0aW1ldmFsIChhbG9u
+ZyB3aXRoCnRpbWVzcGVjKSBmcm9tIGV2ZXJ5d2hlcmUgaW4gdGhlIGtlcm5lbCBiZWNhdXNlIGJh
+c2ljYWxseSBhbGwgdXNlcwphcmUgcHJvYmxlbWF0aWMgZm9yIHkyMDM4LgoKTm90ZSB0aGF0IGFm
+dGVyIHBhdGNoIDMsIGV2ZW50LT50aW1lIGlzIG5vIGxvbmdlciBhICd0aW1ldmFsJwplaXRoZXIs
+IHNvIGV2ZW4gaWYgd2UgaGFkIGEgY29udmVyc2lvbiBmdW5jdGlvbiwgd2UgY291bGQKbm8gbG9u
+Z2VyIHVzZSBpdCBoZXJlLgoKCUFybmQKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KWTIwMzggbWFpbGluZyBsaXN0ClkyMDM4QGxpc3RzLmxpbmFyby5vcmcK
+aHR0cHM6Ly9saXN0cy5saW5hcm8ub3JnL21haWxtYW4vbGlzdGluZm8veTIwMzgK

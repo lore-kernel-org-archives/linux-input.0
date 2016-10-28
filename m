@@ -1,116 +1,99 @@
-From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Subject: Re: [PATCH 4/4] Input: goodix - Support interchanging x and y
- coordinates in hardware
-Date: Fri, 28 Oct 2016 02:08:12 +0200
-Message-ID: <1477613292.18960.2.camel@hadess.net>
-References: <20161020195917.20051-1-fcooper@ti.com>
-         <20161020195917.20051-5-fcooper@ti.com>
-         <20161026231816.a35orxe3mpsvcx3m@rob-hp-laptop>
-         <1477564471.2458.11.camel@hadess.net>
-         <317acd32-f363-3b2b-9e30-106d5b335342@ti.com>
+From: Roderick Colenbrander <roderick@gaikai.com>
+Subject: Re: [PATCH] Input: mt: only perform pointer emulation on drivers
+ desiring this functionality
+Date: Thu, 27 Oct 2016 17:10:20 -0700
+Message-ID: <CANndSK=B6+B2MOAodi4EkgpD_UFcoXbRP5G9L8k+cuok0h=Wow@mail.gmail.com>
+References: <1477603873-9143-1-git-send-email-roderick@gaikai.com>
+ <20161027231942.GB12312@dtor-ws> <CANndSKmxgUM-u+jZF611Ko5supENX95-JR2xKp++3YPGZHAJtw@mail.gmail.com>
+ <20161027235406.GE12312@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <317acd32-f363-3b2b-9e30-106d5b335342-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, merker-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, nm-l0cyMroinI0@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ua0-f172.google.com ([209.85.217.172]:35802 "EHLO
+        mail-ua0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936469AbcJ1AKW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Oct 2016 20:10:22 -0400
+Received: by mail-ua0-f172.google.com with SMTP id 12so42297000uas.2
+        for <linux-input@vger.kernel.org>; Thu, 27 Oct 2016 17:10:21 -0700 (PDT)
+In-Reply-To: <20161027235406.GE12312@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Thu, 2016-10-27 at 12:42 -0500, Franklin S Cooper Jr wrote:
-> 
-> On 10/27/2016 05:34 AM, Bastien Nocera wrote:
-> > On Wed, 2016-10-26 at 18:18 -0500, Rob Herring wrote:
-> > > On Thu, Oct 20, 2016 at 02:59:17PM -0500, Franklin S Cooper Jr
-> > > wrote:
-> > > > 
-> > 
-> > <snip>
-> > > I'm not sure I follow why existing properties don't cover this.
-> > 
-> > Me neither. I certainly don't understand why the driver can't
-> > mangle
-> > the data from the touchscreen all it wants. It's not like user-
-> > space is
-> > talking to the touchscreen directly.
-> > 
-> 
-> Sorry the above could of been clearer.
-> 
-> Lets ignore talking about X and Y axis for a little bit since that
-> really depends on the default touchscreen config values and the way
-> it
-> is mounted on the touchscreen. Now lets say when your interacting
-> with
-> the touchscreen the touchscreen controller outputs a max value of
-> 1280
-> when moving your finger horizontally and 800 when moving your finger
-> vertically.
-> 
-> <-1280->
-> ------
-> >    |  ^
-> >    |  |
-> >    | 800
-> >    |  |
-> 
-> ------  V
-> 
-> So no matter what your horizontal range is 0-1280 and your vertical
-> range is 0-800. Now based on the above diagram you can see that
-> usually
-> you want the longer side to have a higher resolution. So you may want
-> a
-> vertical range of 0-1280 and a horizontal range from 0-800 instead.
-> 
-> So lets add labels to the original diagram and assume that the x and
-> y
-> axis from the driver/user-space perspective is as follows.
-> <-1280-> (X)
-> ------
-> >    |  ^
-> >    |  |
-> >    | 800  (Y)
-> >    |  |
-> 
-> ------  V
-> 
-> The only thing the driver (software) has the ability to do is change
-> the
-> "orientation".
-> 
-> <-1280-> (Y)
-> ------
-> >    |  ^
-> >    |  |
-> >    | 800  (X)
-> >    |  |
-> 
-> ------  V
-> 
-> However, this doesn't change the resolution ie range of values in the
-> horizontal and vertical direction the touch screen controller will
-> report. Only the hardware can determine the resolution it will use.
-> The
-> interchange bit I set essentially swaps the range that the controller
-> is
-> currently programmed to use which in my first diagram the horizontal
-> range was 0-1280 and my vertical range is 0-800. So by setting this
-> interchange bit in hardware the horizontal range will now be 0-800
-> while
-> the vertical range will be 0-1280 which is what we want.
-> 
-> Does this clarify things? I messed up the second diagram in my commit
-> message which is probably what caused the confusion.
+On Thu, Oct 27, 2016 at 4:54 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Thu, Oct 27, 2016 at 04:46:01PM -0700, Roderick Colenbrander wrote:
+>> On Thu, Oct 27, 2016 at 4:19 PM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>> > On Thu, Oct 27, 2016 at 02:31:13PM -0700, Roderick Colenbrander wrote:
+>> >> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+>> >>
+>> >> The input-mt driver pointer emulation from 'input_mt_sync_frame' regardless
+>> >> of the flags passed in to 'input_mt_init_slots' by device drivers.
+>> >
+>> > Right, because needing single-touch (pointer) emulation is not property
+>> > of device or driver but rather consumer. If we get to the point where
+>> > everything is ready to accept multi-touch (are we there yet) then we can
+>> > stop doing pointer emulation altogether.
+>> >
+>> >>
+>> >> Pointer emulation is undesired on drivers, which didn't request this
+>> >> capability like the hid-sony driver for the Dualshock 4. This gamepad already
+>> >> reports ABS_X / ABS_Y for gamepad stick purposes. Pointer emulation would
+>> >> inject touchpad values into these sticks, which is undesired.
+>> >
+>> > The driver should not be re-purposing events like that.
+>> > ABS_MT_POSITION_X and ABS_X should match.
+>> >
+>> > Why doesn't driver follow Documentation/input/gamepad.txt?
+>> >
+>>
+>> The original hid-sony code and the multitouch handling code for the Dualshock 4
+>> were written by the community. We are stepping in to make the hid-sony driver
+>> properly handle the Dualshock 4.
+>> The driver doesn't fully follow the gamepad spec yet, which we will
+>> try to improve. At
+>> least the left analog stick is reported as ABS_X and ABS_Y already,
+>> but the buttons
+>> are inconsistent and right stick is wrong as well.
+>> While it would be great to conform to the spec, the conflict with
+>> multitouch would still
+>> exist as the Dualshock 4 has both analog sticks and a multitouch touchpad.
+>>
+>> Disabling the pointer emulation feature avoids the conflict. This
+>> issue was only exposed
+>> recently by adding of the input_mt_sync_frame call as recommended by Benjamin as
+>> part of some improvements we did for touchpad handling in hid-sony.
+>
+> As I mentioned, ABS_MT_POSITION_X and ABS_X should represent the same
+> data, so the driver's use of them for different sub-devices is not
+> correct. Maybe the multitouch "touchpad" should be reported as
+> completely separate input device and userspace should "stitch" it back
+> into composite device.
+>
+> In any case, as I mentioned above, the pointer emulation is requirement
+> of client and thus this patch is not appropriate.
+>
+> Thanks.
+>
+> --
+> Dmitry
 
-Looks to me that this should be fixed in the firmware configuration,
-which is what Irina's patches allow doing.
+Thanks for your reply. I guess the only option then is to create an
+actual sub device. I suppose
+we are not the first input driver exposing sub devices. Are there good
+example drivers you can
+recommend (or drivers to avoid glancing at)?
 
-If the goal of this series is implementing this, I wouldn't take any of
-those patches until we figure out why the firmware config in those
-devices isn't set properly.
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The only concern I have is the stitching together in user space, which
+not kinds of platforms
+or userland libraries are handling. The only way is to inspect sysfs
+and try to tie things together.
+It would be nice if there was some better way. From memory Video4Linux
+exposed various
+APIs to locate subdevices from the 'master' device.
+
+Thanks,
+Roderick

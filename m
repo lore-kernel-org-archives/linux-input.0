@@ -1,64 +1,331 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2 3/4] input: Deprecate real timestamps beyond year 2106
-Date: Sat, 29 Oct 2016 00:01:14 +0200
-Message-ID: <1563780.JF7NgVgytb@wuerfel>
-References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com> <3544660.FKrMrRAIUC@wuerfel> <CAKdAkRRXyz=uao_XdDVpG=BDsy+GA=bzkEKJabbs3Cd7ZG1mZA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.187]:49400 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753955AbcJ1WBT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 28 Oct 2016 18:01:19 -0400
-In-Reply-To: <CAKdAkRRXyz=uao_XdDVpG=BDsy+GA=bzkEKJabbs3Cd7ZG1mZA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 1/6] Input: gpio_keys_polled - keep button data constant
+Date: Fri, 28 Oct 2016 16:14:39 -0700
+Message-ID: <1477696485-6995-1-git-send-email-dmitry.torokhov@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Linus Walleij <linus.walleij@linaro.org>, Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Deepa Dinamani <deepa.kernel@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>
 
-On Friday, October 28, 2016 2:56:10 PM CEST Dmitry Torokhov wrote:
-> On Fri, Oct 28, 2016 at 2:47 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Friday, October 28, 2016 2:39:35 PM CEST Deepa Dinamani wrote:
-> >> >> >> @@ -55,24 +60,24 @@ struct ff_effect_compat {
-> >> >> >>
-> >> >> >>  static inline size_t input_event_size(void)
-> >> >> >>  {
-> >> >> >> -       return (in_compat_syscall() && !COMPAT_USE_64BIT_TIME) ?
-> >> >> >> -               sizeof(struct input_event_compat) : sizeof(struct input_event);
-> >> >> >> +       return in_compat_syscall() ? sizeof(struct raw_input_event_compat) :
-> >> >> >> +                                    sizeof(struct raw_input_event);
-> >> >> >>  }
-> >> >> >
-> >> >> > I think the COMPAT_USE_64BIT_TIME check has to stay here,
-> >> >> > it's needed for x32 mode on x86-64.
-> >> >>
-> >
-> > We have to distinguish four cases on x86:
-> >
-> > - native 32-bit, input_event with 32-bit time_t
-> > - compat 32-bit, input_event_compat with 32-bit time_t
-> > - native 64-bit, input_event with 64-bit time_t
-> > - compat x32, input_event with 64-bit time_t
-> >
-> > The first three can happen on other architectures too,
-> > the last one is x86 specific. There are probably other ways
-> > to express the condition above, but I can't think of one
-> > that is better than the one we have today.
-> 
-> Can we detect if given task is compat x32, like we do for compat
-> 64/32? Or entire userspace has to be x32?
+Commit 633a21d80b4a ("input: gpio_keys_polled: Add support for GPIO
+descriptors") placed gpio descriptor into gpio_keys_button structure, which
+is supposed to be part of platform data and not modifiable by the driver.
+To keep the data constant, let's move the descriptor to
+gpio_keys_button_data structure instead.
 
-Yes, this works fine per task, with the definition of COMPAT_USE_64BIT_TIME
-that is hardcoded to zero everywhere except on x86 where it is
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/gpio_keys.c        |  10 +--
+ drivers/input/keyboard/gpio_keys_polled.c | 105 +++++++++++++++++-------------
+ include/linux/gpio_keys.h                 |   4 +-
+ 3 files changed, 64 insertions(+), 55 deletions(-)
 
-#define COMPAT_USE_64BIT_TIME \
-        (!!(task_pt_regs(current)->orig_ax & __X32_SYSCALL_BIT))
-
-This is unrelated to the patch in question, the existing code
-is correct as long as we don't change the logic and just
-replace input_event with raw_input_event (or __kernel_input_event
-or whichever you prefer).
-
-	Arnd
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 2909365..890eb39 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -624,7 +624,6 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 	struct gpio_keys_button *button;
+ 	int error;
+ 	int nbuttons;
+-	int i;
+ 
+ 	node = dev->of_node;
+ 	if (!node)
+@@ -640,19 +639,18 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 	if (!pdata)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	pdata->buttons = (struct gpio_keys_button *)(pdata + 1);
++	button = (struct gpio_keys_button *)(pdata + 1);
++
++	pdata->buttons = button;
+ 	pdata->nbuttons = nbuttons;
+ 
+ 	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
+ 
+ 	of_property_read_string(node, "label", &pdata->name);
+ 
+-	i = 0;
+ 	for_each_available_child_of_node(node, pp) {
+ 		enum of_gpio_flags flags;
+ 
+-		button = &pdata->buttons[i++];
+-
+ 		button->gpio = of_get_gpio_flags(pp, 0, &flags);
+ 		if (button->gpio < 0) {
+ 			error = button->gpio;
+@@ -694,6 +692,8 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 		if (of_property_read_u32(pp, "debounce-interval",
+ 					 &button->debounce_interval))
+ 			button->debounce_interval = 5;
++
++		button++;
+ 	}
+ 
+ 	if (pdata->nbuttons == 0)
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index 62bdb1d..2cf4078 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -30,6 +30,7 @@
+ #define DRV_NAME	"gpio-keys-polled"
+ 
+ struct gpio_keys_button_data {
++	struct gpio_desc *gpiod;
+ 	int last_state;
+ 	int count;
+ 	int threshold;
+@@ -46,7 +47,7 @@ struct gpio_keys_polled_dev {
+ };
+ 
+ static void gpio_keys_button_event(struct input_polled_dev *dev,
+-				   struct gpio_keys_button *button,
++				   const struct gpio_keys_button *button,
+ 				   int state)
+ {
+ 	struct gpio_keys_polled_dev *bdev = dev->private;
+@@ -70,15 +71,15 @@ static void gpio_keys_button_event(struct input_polled_dev *dev,
+ }
+ 
+ static void gpio_keys_polled_check_state(struct input_polled_dev *dev,
+-					 struct gpio_keys_button *button,
++					 const struct gpio_keys_button *button,
+ 					 struct gpio_keys_button_data *bdata)
+ {
+ 	int state;
+ 
+ 	if (bdata->can_sleep)
+-		state = !!gpiod_get_value_cansleep(button->gpiod);
++		state = !!gpiod_get_value_cansleep(bdata->gpiod);
+ 	else
+-		state = !!gpiod_get_value(button->gpiod);
++		state = !!gpiod_get_value(bdata->gpiod);
+ 
+ 	gpio_keys_button_event(dev, button, state);
+ 
+@@ -142,48 +143,35 @@ static void gpio_keys_polled_close(struct input_polled_dev *dev)
+ 		pdata->disable(bdev->dev);
+ }
+ 
+-static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct device *dev)
++static struct gpio_keys_platform_data *
++gpio_keys_polled_get_devtree_pdata(struct device *dev)
+ {
+ 	struct gpio_keys_platform_data *pdata;
+ 	struct gpio_keys_button *button;
+ 	struct fwnode_handle *child;
+-	int error;
+ 	int nbuttons;
+ 
+ 	nbuttons = device_get_child_node_count(dev);
+ 	if (nbuttons == 0)
+-		return NULL;
++		return ERR_PTR(-EINVAL);
+ 
+ 	pdata = devm_kzalloc(dev, sizeof(*pdata) + nbuttons * sizeof(*button),
+ 			     GFP_KERNEL);
+ 	if (!pdata)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	pdata->buttons = (struct gpio_keys_button *)(pdata + 1);
++	button = (struct gpio_keys_button *)(pdata + 1);
++
++	pdata->buttons = button;
++	pdata->nbuttons = nbuttons;
+ 
+ 	pdata->rep = device_property_present(dev, "autorepeat");
+ 	device_property_read_u32(dev, "poll-interval", &pdata->poll_interval);
+ 
+ 	device_for_each_child_node(dev, child) {
+-		struct gpio_desc *desc;
+-
+-		desc = devm_get_gpiod_from_child(dev, NULL, child);
+-		if (IS_ERR(desc)) {
+-			error = PTR_ERR(desc);
+-			if (error != -EPROBE_DEFER)
+-				dev_err(dev,
+-					"Failed to get gpio flags, error: %d\n",
+-					error);
+-			fwnode_handle_put(child);
+-			return ERR_PTR(error);
+-		}
+-
+-		button = &pdata->buttons[pdata->nbuttons++];
+-		button->gpiod = desc;
+-
+-		if (fwnode_property_read_u32(child, "linux,code", &button->code)) {
+-			dev_err(dev, "Button without keycode: %d\n",
+-				pdata->nbuttons - 1);
++		if (fwnode_property_read_u32(child, "linux,code",
++					     &button->code)) {
++			dev_err(dev, "button without keycode\n");
+ 			fwnode_handle_put(child);
+ 			return ERR_PTR(-EINVAL);
+ 		}
+@@ -206,10 +194,9 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+ 		if (fwnode_property_read_u32(child, "debounce-interval",
+ 					     &button->debounce_interval))
+ 			button->debounce_interval = 5;
+-	}
+ 
+-	if (pdata->nbuttons == 0)
+-		return ERR_PTR(-EINVAL);
++		button++;
++	}
+ 
+ 	return pdata;
+ }
+@@ -220,7 +207,7 @@ static void gpio_keys_polled_set_abs_params(struct input_dev *input,
+ 	int i, min = 0, max = 0;
+ 
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+-		struct gpio_keys_button *button = &pdata->buttons[i];
++		const struct gpio_keys_button *button = &pdata->buttons[i];
+ 
+ 		if (button->type != EV_ABS || button->code != code)
+ 			continue;
+@@ -230,6 +217,7 @@ static void gpio_keys_polled_set_abs_params(struct input_dev *input,
+ 		if (button->value > max)
+ 			max = button->value;
+ 	}
++
+ 	input_set_abs_params(input, code, min, max, 0, 0);
+ }
+ 
+@@ -242,6 +230,7 @@ MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
+ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
++	struct fwnode_handle *child = NULL;
+ 	const struct gpio_keys_platform_data *pdata = dev_get_platdata(dev);
+ 	struct gpio_keys_polled_dev *bdev;
+ 	struct input_polled_dev *poll_dev;
+@@ -254,10 +243,6 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 		pdata = gpio_keys_polled_get_devtree_pdata(dev);
+ 		if (IS_ERR(pdata))
+ 			return PTR_ERR(pdata);
+-		if (!pdata) {
+-			dev_err(dev, "missing platform data\n");
+-			return -EINVAL;
+-		}
+ 	}
+ 
+ 	if (!pdata->poll_interval) {
+@@ -300,20 +285,40 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 		__set_bit(EV_REP, input->evbit);
+ 
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+-		struct gpio_keys_button *button = &pdata->buttons[i];
++		const struct gpio_keys_button *button = &pdata->buttons[i];
+ 		struct gpio_keys_button_data *bdata = &bdev->data[i];
+ 		unsigned int type = button->type ?: EV_KEY;
+ 
+ 		if (button->wakeup) {
+ 			dev_err(dev, DRV_NAME " does not support wakeup\n");
++			fwnode_handle_put(child);
+ 			return -EINVAL;
+ 		}
+ 
+-		/*
+-		 * Legacy GPIO number so request the GPIO here and
+-		 * convert it to descriptor.
+-		 */
+-		if (!button->gpiod && gpio_is_valid(button->gpio)) {
++		if (!dev_get_platdata(dev)) {
++			/* No legacy static platform data */
++			child = device_get_next_child_node(dev, child);
++			if (!child) {
++				dev_err(dev, "missing child device node\n");
++				return -EINVAL;
++			}
++
++			bdata->gpiod = devm_get_gpiod_from_child(dev, NULL,
++								 child);
++			if (IS_ERR(bdata->gpiod)) {
++				error = PTR_ERR(bdata->gpiod);
++				if (error != -EPROBE_DEFER)
++					dev_err(dev,
++						"failed to get gpio: %d\n",
++						error);
++				fwnode_handle_put(child);
++				return error;
++			}
++		} else if (gpio_is_valid(button->gpio)) {
++			/*
++			 * Legacy GPIO number so request the GPIO here and
++			 * convert it to descriptor.
++			 */
+ 			unsigned flags = GPIOF_IN;
+ 
+ 			if (button->active_low)
+@@ -322,18 +327,22 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 			error = devm_gpio_request_one(&pdev->dev, button->gpio,
+ 					flags, button->desc ? : DRV_NAME);
+ 			if (error) {
+-				dev_err(dev, "unable to claim gpio %u, err=%d\n",
++				dev_err(dev,
++					"unable to claim gpio %u, err=%d\n",
+ 					button->gpio, error);
+ 				return error;
+ 			}
+ 
+-			button->gpiod = gpio_to_desc(button->gpio);
++			bdata->gpiod = gpio_to_desc(button->gpio);
++			if (!bdata->gpiod) {
++				dev_err(dev,
++					"unable to convert gpio %u to descriptor\n",
++					button->gpio);
++				return -EINVAL;
++			}
+ 		}
+ 
+-		if (IS_ERR(button->gpiod))
+-			return PTR_ERR(button->gpiod);
+-
+-		bdata->can_sleep = gpiod_cansleep(button->gpiod);
++		bdata->can_sleep = gpiod_cansleep(bdata->gpiod);
+ 		bdata->last_state = -1;
+ 		bdata->threshold = DIV_ROUND_UP(button->debounce_interval,
+ 						pdata->poll_interval);
+@@ -344,6 +353,8 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 							button->code);
+ 	}
+ 
++	fwnode_handle_put(child);
++
+ 	bdev->poll_dev = poll_dev;
+ 	bdev->dev = dev;
+ 	bdev->pdata = pdata;
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index ee2d8c6..d1250ad 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -2,7 +2,6 @@
+ #define _GPIO_KEYS_H
+ 
+ struct device;
+-struct gpio_desc;
+ 
+ /**
+  * struct gpio_keys_button - configuration parameters
+@@ -31,7 +30,6 @@ struct gpio_keys_button {
+ 	bool can_disable;
+ 	int value;
+ 	unsigned int irq;
+-	struct gpio_desc *gpiod;
+ };
+ 
+ /**
+@@ -46,7 +44,7 @@ struct gpio_keys_button {
+  * @name:		input device name
+  */
+ struct gpio_keys_platform_data {
+-	struct gpio_keys_button *buttons;
++	const struct gpio_keys_button *buttons;
+ 	int nbuttons;
+ 	unsigned int poll_interval;
+ 	unsigned int rep:1;
+-- 
+2.8.0.rc3.226.g39d4020

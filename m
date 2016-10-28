@@ -1,53 +1,57 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2 3/4] input: Deprecate real timestamps beyond year 2106
-Date: Fri, 28 Oct 2016 17:45:20 +0200
-Message-ID: <1960434.J8MW3Y2VCi@wuerfel>
-References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com> <5347568.3SpFZiqxSr@wuerfel> <CABeXuvra9faVw1z_0Bjwp5znO5y+6y0fSJ29AuBWt2A-cRLtrg@mail.gmail.com>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V2 06/10] regulator: da9061: BUCK and LDO regulator driver
+Date: Fri, 28 Oct 2016 18:59:18 +0100
+Message-ID: <20161028175918.tb4ntnelofse7kjf@sirena.org.uk>
+References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
+ <c8529abdbe8a07ac0d7b09ab24fad73ab56116be.1477501000.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CABeXuvra9faVw1z_0Bjwp5znO5y+6y0fSJ29AuBWt2A-cRLtrg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="7qsjzthrt7pfq7qy"
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <c8529abdbe8a07ac0d7b09ab24fad73ab56116be.1477501000.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Cc: LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Friday, October 28, 2016 8:19:46 AM CEST Deepa Dinamani wrote:
-> On Fri, Oct 28, 2016 at 5:43 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Monday, October 17, 2016 8:27:32 PM CEST Deepa Dinamani wrote:
-> >> @@ -55,24 +60,24 @@ struct ff_effect_compat {
-> >>
-> >>  static inline size_t input_event_size(void)
-> >>  {
-> >> -       return (in_compat_syscall() && !COMPAT_USE_64BIT_TIME) ?
-> >> -               sizeof(struct input_event_compat) : sizeof(struct input_event);
-> >> +       return in_compat_syscall() ? sizeof(struct raw_input_event_compat) :
-> >> +                                    sizeof(struct raw_input_event);
-> >>  }
-> >
-> > I think the COMPAT_USE_64BIT_TIME check has to stay here,
-> > it's needed for x32 mode on x86-64.
-> 
-> There is no time_t anymore in the raw_input_event structure.
-> The struct uses __kernel_ulong_t type.
-> This should take care of x32 support.
 
-I don't think it does.
+--7qsjzthrt7pfq7qy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> From this cover letter:
-> https://www.spinics.net/lists/linux-arch/msg16356.html
-> 
-> I see that that the __kernel types were introduced to address the ABI
-> issues for x32.
+On Wed, Oct 26, 2016 at 05:56:38PM +0100, Steve Twiss wrote:
+> From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+>=20
+> Regulator support for the DA9061 is added into the DA9062 regulator drive=
+r.
+> =20
+> The regulators for DA9061 differ from those of DA9062.
+> A new DA9061 enumeration list for the LDOs and Bucks supported by this
+> device is added. Regulator information added: the old regulator
+> information for DA9062 is renamed from local_regulator_info[] to
+> local_da9062_regulator_info[] and a new array is added to support
+> local_da9061_regulator_info[].
 
-This is a variation of the problem we are trying to solve for
-the other architectures in your patch set:
+Acked-by: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
-On x32, the kernel uses produces a structure with the 64-bit
-layout, using __u64 tv_sec, to match the current user space
-that has 64-bit __kernel_ulong_t and 64-bit time_t, but
-in_compat_syscall() also returns 'true' here, as this is
-mostly a 32-bit ABI (time_t being one of the exceptions).
+--7qsjzthrt7pfq7qy
+Content-Type: application/pgp-signature; name="signature.asc"
 
-	ARnd
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAABCAAGBQJYE5H2AAoJECTWi3JdVIfQVxkH/jkLzUk7fRE29zqArap+RyWE
+pjNSKx51EbFFtj84+HxyQAaVq8gEh9g2X6SGh/fBGb752qyYwdJPIGCS/+2eMVZO
+OpIT3J2jF/Ur4WR7+zm8Uwfe0uXj+xLEI8Se0kZa23Bwmrz0ghLb57SODoGlLDma
+rXqe7rNpQg9N5wovZGsg/Jc8j1M4bwzSyPmJRVAfDlQ4rt16+DshORLaZtfRE//Q
+QHmxZzMOeC1CngeAZBqfI3CH1YOPvG2xn7ghu4LWDRiK48sZMVCT25c9SuPF5cow
+UGXwTUGCRWOSNcJeW4/PDpVikEKo/Y91QY+6hCk4jLzhM+kniMh5IRk8nH72tBM=
+=Ad0J
+-----END PGP SIGNATURE-----
+
+--7qsjzthrt7pfq7qy--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

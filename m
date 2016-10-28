@@ -1,116 +1,69 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH v2 3/4] input: Deprecate real timestamps beyond year 2106
-Date: Fri, 28 Oct 2016 14:46:42 +1000
-Message-ID: <20161028044642.GA28017@jelly>
-References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com>
- <1476761253-13450-4-git-send-email-deepa.kernel@gmail.com>
- <20161027025616.GC14832@jelly>
- <CABeXuvookKiZOHQUAPpajBvAGMSqOqJZYP843s=Do+eYxmiGZA@mail.gmail.com>
+Date: Fri, 28 Oct 2016 14:19:42 +0200
+Message-ID: <3030448.PcHXLsYrel@wuerfel>
+References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com> <CABeXuvoo1N_1wuiWTns9eLvfVbgCa4YfLj6dRBHwFem6ZXSzfw@mail.gmail.com> <20161027231254.GA12312@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:54602 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755777AbcJ1Eqv (ORCPT
+Received: from mout.kundenserver.de ([212.227.126.134]:54645 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755605AbcJ1MUG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 28 Oct 2016 00:46:51 -0400
-Content-Disposition: inline
-In-Reply-To: <CABeXuvookKiZOHQUAPpajBvAGMSqOqJZYP843s=Do+eYxmiGZA@mail.gmail.com>
+        Fri, 28 Oct 2016 08:20:06 -0400
+In-Reply-To: <20161027231254.GA12312@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, y2038 Mailman List <y2038@lists.linaro.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Deepa Dinamani <deepa.kernel@gmail.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.com>, Hans de Goede <hdegoede@redhat.com>
 
-On Thu, Oct 27, 2016 at 03:24:55PM -0700, Deepa Dinamani wrote:
-> On Wed, Oct 26, 2016 at 7:56 PM, Peter Hutterer
-> <peter.hutterer@who-t.net> wrote:
-> > On Mon, Oct 17, 2016 at 08:27:32PM -0700, Deepa Dinamani wrote:
-> >> struct timeval is not y2038 safe.
-> >> All usage of timeval in the kernel will be replaced by
-> >> y2038 safe structures.
-> >>
-> >> struct input_event maintains time for each input event.
-> >> Real time timestamps are not ideal for input as this
-> >> time can go backwards as noted in the patch a80b83b7b8
-> >> by John Stultz. Hence, having the input_event.time fields
-> >> only big enough for monotonic and boot times are
-> >> sufficient.
-> >>
-> >> Leave the original input_event as is. This is to maintain
-> >> backward compatibility with existing userspace interfaces
-> >> that use input_event.
-> >> Introduce a new replacement struct raw_input_event.
-> >
-> > general comment here - please don't name it "raw_input_event".
-> > First, when you grep for input_event you want the new ones to show up too,
-> > so a struct input_event_raw would be better here. That also has better
-> > namespacing in general. Second though: the event isn't any more "raw" than
-> > the previous we had.
-> >
-> > I can't think of anything better than struct input_event_v2 though.
+On Thursday, October 27, 2016 4:12:54 PM CEST Dmitry Torokhov wrote:
+> On Thu, Oct 27, 2016 at 03:25:43PM -0700, Deepa Dinamani wrote:
+> > > If users are forced to update to adapt to the new event format, should
+> > > we consider more radical changes? For example, does it make sense to
+> > > send timestamp on every event? Maybe we should only send it once per
+> > > event packet (between EV_SYN/SYN_REPORT)? What granularity do we need?
+> > > Is there anything else in current protocol that we'd like to change?
+> > 
+> > I did see the thread with Pingbo's patches where you had a similar comment.
+> > 
+> > I see my series as decoupling the kernel input event format from the
+> > userspace format.
+> > The formats also are really the same still.
+> > Could this be considered the first step towards changing the protocol?
 > 
-> The general idea was to leave the original struct input_event as a
-> common interface for userspace (as it cannot be deleted).
-> So reading raw data unformatted by the userspace will have the new
-> struct raw_input_event format.
-> This was the reason for the "raw" in the name.
+> I really do not see the point. I think we agree that the current
+> protocol is not working past 2038 and it does not seem we can fix it
+> transparently for the user. So we need to define new protocol and let
+> kernel and clients negotiate which one is used.
+
+This work is not primarily about fixing the protocol to work beyond
+2038 (although as a side-effect it will work until 2106). The
+main intention here is to not break existing applications when
+they get recompiled against a C library that defines time_t as
+64-bit.
+
+> I am not concerned about in-kernel representation much as it does not
+> get stored anywhere so we can adjust it as needed without too much
+> effort.
+>
+> > The protocol changes might need new interfaces to be defined between libraries.
+> > And, could end up being a substantial change.
+> > Would a step by step approach make sense?
 > 
-> struct input_event_v2 is fine too, if this is more preferred.
-> 
-> >> This replaces timeval with struct input_timeval. This structure
-> >> maintains time in __kernel_ulong_t or compat_ulong_t to allow
-> >> for architectures to override types as in the case of x32.
-> >>
-> >> The change requires any userspace utilities reading or writing
-> >> from event nodes to update their reading format to match
-> >> raw_input_event. The changes to the popular libraries will be
-> >> posted along with the kernel changes.
-> >> The driver version is also updated to reflect the change in
-> >> event format.
-> >
-> > Doesn't this break *all* of userspace then? I don't see anything to
-> > negotiate the type of input event the kernel gives me. And nothing right now
-> > checks for EVDEV_VERSION, so they all just assume it's a struct
-> > input_event. Best case, if the available events aren't a multiple of
-> > sizeof(struct input_event) userspace will bomb out, but unless that happens,
-> > everyone will just happily read old-style events.
-> >
-> > So we need some negotiation what is acceptable. Which also needs to address
-> > the race conditions we're going to get when events start coming in before
-> > the client has announced that it supports the new-style events.
-> 
-> No, this does not break any userspace right now.
-> Both struct input_event and struct raw_input_event are exactly the same today.
+> It would depend largely on the scope.
 
-oh, right, the ABI is the same. I see that now, thanks.
+I think we should do those two things completely independently.
+We need to do something now to preserve the current interfaces
+for the glibc changes that are coming soon [1], and Deepa's
+patches do that (though I now realize the changelog doesn't
+mention the requirement).
 
-> This will be the case until a 2038-safe glibc is used with a 64 bit time_t flag.
-> 
-> So these are the scenarios:
-> 1. old kernel driver + new userspace
->   -- should still be ok until 2038. Version checks could help discover these
-> 2. new kernel driver + old userspace (without recompiled with new 2038 gblic)
->   -- works because the format is really the same.
-> 
-> The patch I posted to libevdev checks this driver version.
+An overhaul of the input_event handling with a new modern
+but incompatible format may or may not be a good idea, but
+this should be decided independently.
 
-btw, where did you post the libevdev patch? I haven't seen it anywhere I'm
-subscribed to.
+	Arnd
 
-> And, hence any library that results in a call to libevdev_set_fd()
-> will fail if it is not this updated driver.
-
-without having seen the libevdev patch - that sounds like a bad idea . there
-are plenty of usecases where libevdev_set_fd() is called but timestamps in
-events just don't matter. So we may need need some more negotiation between
-the library user, libevdev and the kernel.
-
-Cheers,
-   Peter
-
-> We could just do a similar check in every library also.
-> I think the latter would be better.
-> 
-> So, the kernel patches can go in as a no-op right now and then I can
-> add version checks to respective user space libraries.
-
+[1] https://sourceware.org/glibc/wiki/Y2038ProofnessDesign

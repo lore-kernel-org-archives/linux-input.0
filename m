@@ -1,53 +1,35 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 3/6] Input: gpio_keys - annotate PM methods as __maybe_unused
-Date: Fri, 28 Oct 2016 16:14:41 -0700
-Message-ID: <1477696485-6995-3-git-send-email-dmitry.torokhov@gmail.com>
-References: <1477696485-6995-1-git-send-email-dmitry.torokhov@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 5/6] Input: gpio_keys - add support for GPIO descriptors
+Date: Sat, 29 Oct 2016 10:38:21 +0200
+Message-ID: <CACRpkdaGDtV19eSmnhpRUQKki8bzDy0ymK8ZhWzW=KTejLF9iA@mail.gmail.com>
+References: <1477696485-6995-1-git-send-email-dmitry.torokhov@gmail.com> <1477696485-6995-5-git-send-email-dmitry.torokhov@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1477696485-6995-1-git-send-email-dmitry.torokhov@gmail.com>
+In-Reply-To: <1477696485-6995-5-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Linus Walleij <linus.walleij@linaro.org>, Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Instead of using #ifdef, let's mark suspend and resume methods as
-__maybe_unused to provide better compile coverage.
+On Sat, Oct 29, 2016 at 1:14 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/gpio_keys.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+> From: Geert Uytterhoeven <geert+renesas@glider.be>
+>
+> GPIO descriptors are the preferred way over legacy GPIO numbers
+> nowadays. Convert the driver to use GPIO descriptors internally but
+> still allow passing legacy GPIO numbers from platform data to support
+> existing platforms.
+>
+> Based on commits 633a21d80b4a2cd6 ("input: gpio_keys_polled: Add support
+> for GPIO descriptors") and 1ae5ddb6f8837558 ("Input: gpio_keys_polled -
+> request GPIO pin as input.").
+>
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 890eb39..8f7c20b 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -814,8 +814,7 @@ static int gpio_keys_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--#ifdef CONFIG_PM_SLEEP
--static int gpio_keys_suspend(struct device *dev)
-+static int __maybe_unused gpio_keys_suspend(struct device *dev)
- {
- 	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
- 	struct input_dev *input = ddata->input;
-@@ -837,7 +836,7 @@ static int gpio_keys_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int gpio_keys_resume(struct device *dev)
-+static int __maybe_unused gpio_keys_resume(struct device *dev)
- {
- 	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
- 	struct input_dev *input = ddata->input;
-@@ -863,7 +862,6 @@ static int gpio_keys_resume(struct device *dev)
- 	gpio_keys_report_state(ddata);
- 	return 0;
- }
--#endif
- 
- static SIMPLE_DEV_PM_OPS(gpio_keys_pm_ops, gpio_keys_suspend, gpio_keys_resume);
- 
--- 
-2.8.0.rc3.226.g39d4020
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij

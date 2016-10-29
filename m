@@ -1,35 +1,66 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 5/6] Input: gpio_keys - add support for GPIO descriptors
-Date: Sat, 29 Oct 2016 10:38:21 +0200
-Message-ID: <CACRpkdaGDtV19eSmnhpRUQKki8bzDy0ymK8ZhWzW=KTejLF9iA@mail.gmail.com>
-References: <1477696485-6995-1-git-send-email-dmitry.torokhov@gmail.com> <1477696485-6995-5-git-send-email-dmitry.torokhov@gmail.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: [PATCH] HID: intel-ish-hid: Fix !CONFIG_PM build warning
+Date: Sat, 29 Oct 2016 13:17:40 +0200
+Message-ID: <20161029111740.741-1-bp@alien8.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1477696485-6995-5-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wei Yongjun <weiyongjun1@huawei.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Oct 29, 2016 at 1:14 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+From: Borislav Petkov <bp@suse.de>
 
-> From: Geert Uytterhoeven <geert+renesas@glider.be>
->
-> GPIO descriptors are the preferred way over legacy GPIO numbers
-> nowadays. Convert the driver to use GPIO descriptors internally but
-> still allow passing legacy GPIO numbers from platform data to support
-> existing platforms.
->
-> Based on commits 633a21d80b4a2cd6 ("input: gpio_keys_polled: Add support
-> for GPIO descriptors") and 1ae5ddb6f8837558 ("Input: gpio_keys_polled -
-> request GPIO pin as input.").
->
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fix
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+  drivers/hid/intel-ish-hid/ipc/pci-ish.c:247:12: warning: ‘ish_suspend’ defined but not used [-Wunused-function]
+   static int ish_suspend(struct device *device)
+              ^
+  drivers/hid/intel-ish-hid/ipc/pci-ish.c:282:12: warning: ‘ish_resume’ defined but not used [-Wunused-function]
+   static int ish_resume(struct device *device)
+            ^
+by sticking them in the CONFIG_PM range too.
 
-Yours,
-Linus Walleij
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: linux-input@vger.kernel.org
+---
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+index 42f0beeb09fd..7e3622a724aa 100644
+--- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -202,6 +202,7 @@ static void ish_remove(struct pci_dev *pdev)
+ 	kfree(ishtp_dev);
+ }
+ 
++#ifdef CONFIG_PM
+ static struct device *ish_resume_device;
+ 
+ /**
+@@ -293,7 +294,6 @@ static int ish_resume(struct device *device)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_PM
+ static const struct dev_pm_ops ish_pm_ops = {
+ 	.suspend = ish_suspend,
+ 	.resume = ish_resume,
+@@ -301,7 +301,7 @@ static const struct dev_pm_ops ish_pm_ops = {
+ #define ISHTP_ISH_PM_OPS	(&ish_pm_ops)
+ #else
+ #define ISHTP_ISH_PM_OPS	NULL
+-#endif
++#endif /* CONFIG_PM */
+ 
+ static struct pci_driver ish_driver = {
+ 	.name = KBUILD_MODNAME,
+-- 
+2.10.0

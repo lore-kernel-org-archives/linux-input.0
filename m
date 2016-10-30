@@ -1,21 +1,21 @@
 From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v5 4/8] drivers:input:tsc2007: add iio interface to read
+Subject: Re: [PATCH v6 4/8] drivers:input:tsc2007: add iio interface to read
  external ADC input and temperature
-Date: Sun, 30 Oct 2016 16:42:55 +0000
-Message-ID: <a3e8f869-2624-6e5f-ecc3-dc9d54e9a5b1@kernel.org>
-References: <cover.1477423581.git.hns@goldelico.com>
- <a7181466063e26097a1a4b49f12a7856d68d80cd.1477423581.git.hns@goldelico.com>
+Date: Sun, 30 Oct 2016 17:11:00 +0000
+Message-ID: <11af748a-3e40-91ec-7baa-59bac28d4f72@kernel.org>
+References: <cover.1477557860.git.hns@goldelico.com>
+ <810571cc83159c674116f6f55624ca6227510f96.1477557860.git.hns@goldelico.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a7181466063e26097a1a4b49f12a7856d68d80cd.1477423581.git.hns@goldelico.com>
+In-Reply-To: <810571cc83159c674116f6f55624ca6227510f96.1477557860.git.hns@goldelico.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: "H. Nikolaus Schaller" <hns@goldelico.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, =?UTF-8?Q?Beno=c3=aet_Cousson?= <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, =?UTF-8?Q?Mika_Penttil=c3=a4?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, Sebastian Reichel <sre@kernel.org>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Sangwon Jee <jeesw@melfas.com>
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, letux-kernel@openphoenux.org, linux-iio@vger.kernel.org, kernel@pyra-handheld.com
 List-Id: linux-input@vger.kernel.org
 
-On 25/10/16 20:26, H. Nikolaus Schaller wrote:
+On 27/10/16 09:44, H. Nikolaus Schaller wrote:
 > The tsc2007 chip not only has a resistive touch screen controller but
 > also an external AUX adc imput which can be used for an ambient
 > light sensor, battery voltage monitoring or any general purpose.
@@ -27,7 +27,6 @@ On 25/10/16 20:26, H. Nikolaus Schaller wrote:
 > Since it is not wasting much resources and is very straightforward,
 > we simply provide all other adc channels as optional iio interfaces
 > as weel. This can be used for debugging or special applications.
-well
 > 
 > This patch also splits the tsc2007 driver in several source files:
 > tsc2007.h -- constants, structs and stubs
@@ -39,32 +38,18 @@ well
 > CONFIG_TOUCHSCREEN_TSC2007=m.
 > 
 > Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Basically sound, just a few minor bits inline.  In particular the point
-about including iio.h (and it applies to input.h etc) in your header.
+oops. Missed this newer version.  Replied to V5.  Most of the comments are still
+relevant I think.
 
-You can define a pointer to a struct iio_dev without having to let the compiler
-know what is actually in it - as long as you don't dereference it in any
-place where the compiler needs to know.
-
-Couple of examples in for example drivers/iio/adc/xilinx-xadc.h
-The struct clk; stuff is just what we need here for example.
-
-All about keeping internal structures opaque where we don't need to know
-what is in them.
-
-Anyhow, nearly there! (as far as I'm concerned anyway)
-
-Thanks,
-
-Jonathan
+J
 > ---
 >  drivers/input/touchscreen/Makefile                 |   2 +
->  drivers/input/touchscreen/tsc2007.h                | 124 ++++++++++++++++
->  .../touchscreen/{tsc2007.c => tsc2007_core.c}      | 119 +++++----------
->  drivers/input/touchscreen/tsc2007_iio.c            | 162 +++++++++++++++++++++
->  4 files changed, 323 insertions(+), 84 deletions(-)
+>  drivers/input/touchscreen/tsc2007.h                | 129 ++++++++++++++++++
+>  .../touchscreen/{tsc2007.c => tsc2007_core.c}      | 127 ++++++-----------
+>  drivers/input/touchscreen/tsc2007_iio.c            | 151 +++++++++++++++++++++
+>  4 files changed, 320 insertions(+), 89 deletions(-)
 >  create mode 100644 drivers/input/touchscreen/tsc2007.h
->  rename drivers/input/touchscreen/{tsc2007.c => tsc2007_core.c} (85%)
+>  rename drivers/input/touchscreen/{tsc2007.c => tsc2007_core.c} (84%)
 >  create mode 100644 drivers/input/touchscreen/tsc2007_iio.c
 > 
 > diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
@@ -82,10 +67,10 @@ Jonathan
 >  obj-$(CONFIG_TOUCHSCREEN_WACOM_W8001)	+= wacom_w8001.o
 > diff --git a/drivers/input/touchscreen/tsc2007.h b/drivers/input/touchscreen/tsc2007.h
 > new file mode 100644
-> index 0000000..7153bf3
+> index 0000000..87d5ce5
 > --- /dev/null
 > +++ b/drivers/input/touchscreen/tsc2007.h
-> @@ -0,0 +1,124 @@
+> @@ -0,0 +1,129 @@
 > +/*
 > + * drivers/input/touchscreen/tsc2007.h
 > + *
@@ -111,8 +96,6 @@ Jonathan
 > +#include <linux/module.h>
 > +#include <linux/slab.h>
 > +#include <linux/input.h>
-You shouldn't need to include input.h in here...
-(see below comment on the struct iio_dev *
 > +#include <linux/interrupt.h>
 > +#include <linux/i2c.h>
 > +#include <linux/i2c/tsc2007.h>
@@ -120,7 +103,6 @@ You shouldn't need to include input.h in here...
 > +#include <linux/of.h>
 > +#include <linux/of_gpio.h>
 > +#include <linux/input/touchscreen.h>
-Not sure why this is included either here.
 > +
 > +#define TSC2007_MEASURE_TEMP0		(0x0 << 4)
 > +#define TSC2007_MEASURE_AUX		(0x2 << 4)
@@ -192,10 +174,6 @@ Not sure why this is included either here.
 > +
 > +	struct mutex		mlock;
 > +#ifdef CONFIG_IIO
-I don't like this.  Nothing stops you using a struct iio_dev * pointer
-without including iio.h.  It's a commmon thing to do.  Just put
-struct *iio_dev above and don't ever dereference it without having include
-iio.h in the file.
 > +	void			*private;
 > +#endif
 > +};
@@ -213,16 +191,20 @@ iio.h in the file.
 > +
 > +#else /* CONFIG_IIO */
 > +
-> +static inline int tsc2007_iio_configure(struct tsc2007 *ts) { }
-should return 0.
-> +static inline void tsc2007_iio_unconfigure(struct tsc2007 *ts) { }
+> +static inline int tsc2007_iio_configure(struct tsc2007 *ts)
+> +{
+> +	return 0;
+> +}
+> +static inline void tsc2007_iio_unconfigure(struct tsc2007 *ts)
+> +{
+> +}
 > +
 > +#endif /* CONFIG_IIO */
 > diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007_core.c
-> similarity index 85%
+> similarity index 84%
 > rename from drivers/input/touchscreen/tsc2007.c
 > rename to drivers/input/touchscreen/tsc2007_core.c
-> index 5e3c4bf..19dfc9b 100644
+> index 5e3c4bf..56c9a52 100644
 > --- a/drivers/input/touchscreen/tsc2007.c
 > +++ b/drivers/input/touchscreen/tsc2007_core.c
 > @@ -20,87 +20,9 @@
@@ -386,53 +368,65 @@ should return 0.
 >  
 >  	snprintf(ts->phys, sizeof(ts->phys),
 >  		 "%s/input0", dev_name(&client->dev));
-> @@ -503,8 +438,10 @@ static int tsc2007_probe(struct i2c_client *client,
->  							  ts->fuzzz, 0);
+> @@ -494,7 +429,7 @@ static int tsc2007_probe(struct i2c_client *client,
+>  	if (pdata) {
+>  		err = tsc2007_probe_pdev(client, ts, pdata, id);
+>  		if (err)
+> -			return err;
+> +			goto probe_err;
+>  		input_set_abs_params(input_dev, ABS_X, 0, ts->max_x-ts->min_x,
+>  							  ts->fuzzx, 0);
+>  		input_set_abs_params(input_dev, ABS_Y, 0, ts->max_y-ts->min_y,
+> @@ -504,7 +439,7 @@ static int tsc2007_probe(struct i2c_client *client,
 >  	} else {
 >  		err = tsc2007_probe_dt(client, ts);
-> -		if (err)
-> +		if (err) {
-> +			tsc2007_iio_unconfigure(ts);
->  			return err;
-> +		}
+>  		if (err)
+> -			return err;
+> +			goto probe_err;
 >  	}
 >  
 >  	if (pdata) {
-> @@ -516,6 +453,7 @@ static int tsc2007_probe(struct i2c_client *client,
+> @@ -516,7 +451,7 @@ static int tsc2007_probe(struct i2c_client *client,
 >  				dev_err(&client->dev,
 >  					"Failed to register exit_platform_hw action, %d\n",
 >  					err);
-> +				tsc2007_iio_unconfigure(ts);
->  				return err;
+> -				return err;
+> +				goto probe_err;
 >  			}
 >  		}
-> @@ -533,6 +471,7 @@ static int tsc2007_probe(struct i2c_client *client,
+>  
+> @@ -533,7 +468,7 @@ static int tsc2007_probe(struct i2c_client *client,
 >  	if (err) {
 >  		dev_err(&client->dev, "Failed to request irq %d: %d\n",
 >  			ts->irq, err);
-> +		tsc2007_iio_unconfigure(ts);
->  		return err;
+> -		return err;
+> +		goto probe_err;
 >  	}
 >  
-> @@ -543,6 +482,7 @@ static int tsc2007_probe(struct i2c_client *client,
+>  	tsc2007_stop(ts);
+> @@ -543,17 +478,30 @@ static int tsc2007_probe(struct i2c_client *client,
 >  	if (err < 0) {
 >  		dev_err(&client->dev,
 >  			"Failed to setup chip: %d\n", err);
-> +		tsc2007_iio_unconfigure(ts);
->  		return err;	/* usually, chip does not respond */
+> -		return err;	/* usually, chip does not respond */
+> +		goto probe_err;	/* chip does not respond */
 >  	}
 >  
-> @@ -550,12 +490,22 @@ static int tsc2007_probe(struct i2c_client *client,
+>  	err = input_register_device(input_dev);
 >  	if (err) {
 >  		dev_err(&client->dev,
 >  			"Failed to register input device: %d\n", err);
-> +		tsc2007_iio_unconfigure(ts);
->  		return err;
+> -		return err;
+> +		goto probe_err;
 >  	}
 >  
 >  	return 0;
->  }
->  
+> +
+> +probe_err:
+> +	tsc2007_iio_unconfigure(ts);
+> +	return err;
+> +}
+> +
 > +static int tsc2007_remove(struct i2c_client *client)
 > +{
 > +	struct tsc2007 *ts = i2c_get_clientdata(client);
@@ -440,12 +434,10 @@ should return 0.
 > +	tsc2007_iio_unconfigure(ts);
 > +	input_unregister_device(ts->input);
 > +	return 0;
-> +}
-> +
+>  }
+>  
 >  static const struct i2c_device_id tsc2007_idtable[] = {
->  	{ "tsc2007", 0 },
->  	{ }
-> @@ -578,6 +528,7 @@ static struct i2c_driver tsc2007_driver = {
+> @@ -578,6 +526,7 @@ static struct i2c_driver tsc2007_driver = {
 >  	},
 >  	.id_table	= tsc2007_idtable,
 >  	.probe		= tsc2007_probe,
@@ -455,26 +447,15 @@ should return 0.
 >  module_i2c_driver(tsc2007_driver);
 > diff --git a/drivers/input/touchscreen/tsc2007_iio.c b/drivers/input/touchscreen/tsc2007_iio.c
 > new file mode 100644
-> index 0000000..608db45
+> index 0000000..0375d8b
 > --- /dev/null
 > +++ b/drivers/input/touchscreen/tsc2007_iio.c
-> @@ -0,0 +1,162 @@
+> @@ -0,0 +1,151 @@
 > +/*
 > + * drivers/input/touchscreen/tsc2007_iio.c
 > + *
-> + * Copyright (c) 2008 MtekVision Co., Ltd.
-> + *	Kwangwoo Lee <kwlee@mtekvision.com>
-> + *
-> + * Using code from:
-> + *  - ads7846.c
-> + *	Copyright (c) 2005 David Brownell
-> + *	Copyright (c) 2006 Nokia Corporation
-> + *  - corgi_ts.c
-> + *	Copyright (C) 2004-2005 Richard Purdie
-> + *  - omap_ts.[hc], ads7846.h, ts_osk.c
-> + *	Copyright (C) 2002 MontaVista Software
-> + *	Copyright (C) 2004 Texas Instruments
-> + *	Copyright (C) 2005 Dirk Behme
+> + * Copyright (c) 2016 Golden Delicious Comp. GmbH&Co. KG
+> + *	Nikolaus Schaller <hns@goldelico.com>
 > + *
 > + *  This program is free software; you can redistribute it and/or modify
 > + *  it under the terms of the GNU General Public License version 2 as
@@ -572,10 +553,6 @@ should return 0.
 > +	ret = IIO_VAL_INT;
 > +
 > +	return ret;
-return IIO_VAL_INT;
-
-Though feels like tsc2007_xfer might return an error and should
-be handled...
 > +}
 > +
 > +static const struct iio_info tsc2007_iio_info = {

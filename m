@@ -1,40 +1,64 @@
-From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: Re: [PATCH v2 3/4] input: Deprecate real timestamps beyond year 2106
-Date: Sat, 29 Oct 2016 21:34:13 -0700
-Message-ID: <CABeXuvpZb73gs9Xr-ox4HSXfOuCg1UeYBoMcQok+dWTJNUo55w@mail.gmail.com>
-References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com>
- <CABeXuvoo1N_1wuiWTns9eLvfVbgCa4YfLj6dRBHwFem6ZXSzfw@mail.gmail.com>
- <20161027231254.GA12312@dtor-ws> <3030448.PcHXLsYrel@wuerfel>
+From: Marcel Hasler <mahasler@gmail.com>
+Subject: [PATCH] usbhid: Add quirks for Mayflash/Dragonrise GameCube and PS3
+ adapters.
+Date: Sun, 30 Oct 2016 10:29:13 +0100
+Message-ID: <20161030092913.GA3426@arch-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f50.google.com ([209.85.214.50]:36095 "EHLO
-        mail-it0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750728AbcJ3EeO (ORCPT
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:34451 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750951AbcJ3J3V (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 30 Oct 2016 00:34:14 -0400
-In-Reply-To: <3030448.PcHXLsYrel@wuerfel>
+        Sun, 30 Oct 2016 05:29:21 -0400
+Received: by mail-wm0-f67.google.com with SMTP id p190so7726214wmp.1
+        for <linux-input@vger.kernel.org>; Sun, 30 Oct 2016 02:29:20 -0700 (PDT)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.com>, Hans de Goede <hdegoede@redhat.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-> I think we should do those two things completely independently.
-> We need to do something now to preserve the current interfaces
-> for the glibc changes that are coming soon [1], and Deepa's
-> patches do that (though I now realize the changelog doesn't
-> mention the requirement).
+All known gamepad adapters by Mayflash (identified as Dragonrise) need HID_QUIRK_MULTI_INPUT to
+split them up into four input devices. Without this quirk those adapters are falsely recognized
+as tablets. Fixes bug 115841 (https://bugzilla.kernel.org/show_bug.cgi?id=115841).
 
-I'll update the changelog in the next version of the series along with
-the task check for x32 mode.
+Signed-off-by: Marcel Hasler <mahasler@gmail.com>
+---
+ drivers/hid/hid-ids.h           | 6 ++++--
+ drivers/hid/usbhid/hid-quirks.c | 2 ++
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-> An overhaul of the input_event handling with a new modern
-> but incompatible format may or may not be a good idea, but
-> this should be decided independently.
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6cfb5ca..642e648 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -314,8 +314,10 @@
+ #define USB_VENDOR_ID_DMI		0x0c0b
+ #define USB_DEVICE_ID_DMI_ENC		0x5fab
+ 
+-#define USB_VENDOR_ID_DRAGONRISE	0x0079
+-#define USB_DEVICE_ID_DRAGONRISE_WIIU	0x1800
++#define USB_VENDOR_ID_DRAGONRISE		0x0079
++#define USB_DEVICE_ID_DRAGONRISE_WIIU		0x1800
++#define USB_DEVICE_ID_DRAGONRISE_PS3		0x1801
++#define USB_DEVICE_ID_DRAGONRISE_GAMECUBE	0x1843
+ 
+ #define USB_VENDOR_ID_DWAV		0x0eef
+ #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 354d49e..05f6f61 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -81,6 +81,8 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_CREATIVELABS, USB_DEVICE_ID_CREATIVE_SB_OMNI_SURROUND_51, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_WIIU, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_ELAN, HID_ANY_ID, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK_NO_INIT_REPORTS },
+-- 
+2.10.1
 
-Just to clarify, we are going with the plan that Arnd suggested:
-leaving the overhaul of the input event protocol alone and proceeding
-with the series according to suggested changes.
-Are we in agreement over this?
-
--Deepa

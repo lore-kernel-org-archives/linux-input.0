@@ -1,34 +1,29 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v2 3/4] input: Deprecate real timestamps beyond year 2106
-Date: Mon, 31 Oct 2016 20:30:15 +1000
-Message-ID: <20161031103015.GA1839@jelly.local>
-References: <1476761253-13450-1-git-send-email-deepa.kernel@gmail.com>
- <1476761253-13450-4-git-send-email-deepa.kernel@gmail.com>
- <20161027025616.GC14832@jelly>
- <CABeXuvookKiZOHQUAPpajBvAGMSqOqJZYP843s=Do+eYxmiGZA@mail.gmail.com>
- <20161028044642.GA28017@jelly>
- <CABeXuvoMR2tQJF3Xv=ovTZWvO72tDrtatH56YzQSkuNFUUodzA@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] usbhid: Add quirks for Mayflash/Dragonrise GameCube and
+ PS3 adapters.
+Date: Mon, 31 Oct 2016 11:34:51 +0100
+Message-ID: <20161031103451.GA11633@mail.corp.redhat.com>
+References: <20161030092913.GA3426@arch-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:60346 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1765434AbcJaKez (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 31 Oct 2016 06:34:55 -0400
 Content-Disposition: inline
-In-Reply-To: <CABeXuvoMR2tQJF3Xv=ovTZWvO72tDrtatH56YzQSkuNFUUodzA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, y2038 Mailman List <y2038@lists.linaro.org>
+In-Reply-To: <20161030092913.GA3426@arch-desktop>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Marcel Hasler <mahasler@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-On Sat, Oct 29, 2016 at 09:19:05PM -0700, Deepa Dinamani wrote:
-> > btw, where did you post the libevdev patch? I haven't seen it anywhere I'm
-> > subscribed to.
+On Oct 30 2016 or thereabouts, Marcel Hasler wrote:
+> All known gamepad adapters by Mayflash (identified as Dragonrise) need HID_QUIRK_MULTI_INPUT to
+> split them up into four input devices. Without this quirk those adapters are falsely recognized
+> as tablets. Fixes bug 115841 (https://bugzilla.kernel.org/show_bug.cgi?id=115841).
 > 
-> The libevdev patch was posted to input-tools@lists.freedesktop.org :
-> https://www.mail-archive.com/y2038@lists.linaro.org/msg01824.html
+> Signed-off-by: Marcel Hasler <mahasler@gmail.com>
 
-ah, right. that would do it.  input-tools@ discarded all posts by nonmembers
-(guess that explains why we didn't get much spam :)
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-I changed that over now, please re-send to the list, thanks.
-
-Cheers,
-   Peter

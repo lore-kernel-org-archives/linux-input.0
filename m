@@ -1,253 +1,125 @@
-From: Marcel Hasler <mahasler@gmail.com>
-Subject: [PATCH 2/2] Add new force feedback driver for Mayflash game
- controller adapters.
-Date: Sun, 30 Oct 2016 23:13:13 +0100
-Message-ID: <20161030221313.GA15445@arch-desktop>
-References: <cover.1477863542.git.mahasler@gmail.com>
+From: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v4 1/8] drivers:input:tsc2007: add new common binding
+ names, pre-calibration, flipping and rotation
+Date: Sun, 30 Oct 2016 22:39:21 -0500
+Message-ID: <CAL_JsqLhBwb4eJdrAqLLksovcfP1xm9RGTUQKVvF_WxJaMn4WA@mail.gmail.com>
+References: <cover.1476712675.git.hns@goldelico.com> <76746b85957c9f3ef7101a7ee883898a414cabd8.1476712675.git.hns@goldelico.com>
+ <CAL_JsqJhzZC6Hw3eRLFDiBA8jih=N507WvEh=TRbPhLS9EjhBQ@mail.gmail.com> <3D3CBADC-42F7-4A2B-9D0D-40A0649F79FB@goldelico.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:35625 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754498AbcJ3WNU (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 30 Oct 2016 18:13:20 -0400
-Received: by mail-wm0-f67.google.com with SMTP id 68so9212428wmz.2
-        for <linux-input@vger.kernel.org>; Sun, 30 Oct 2016 15:13:19 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <cover.1477863542.git.mahasler@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <3D3CBADC-42F7-4A2B-9D0D-40A0649F79FB-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Cc: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, =?UTF-8?Q?Beno=C3=AEt_Cousson?= <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, =?UTF-8?Q?Mika_Penttil=C3=A4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, "Andrew F. Davis" <afd-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>linux-omap <lin>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
 
-Add a new module named hid-mf that implements force feedback for game controller adapters
-manufactured by Mayflash. Currently only the PS3 adapter is supported, other adapters still need
-to be tested.
+On Tue, Oct 18, 2016 at 12:27 PM, H. Nikolaus Schaller
+<hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org> wrote:
+> Hi Rob,
+>
+>> Am 18.10.2016 um 18:22 schrieb Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>:
+>>
+>> On Mon, Oct 17, 2016 at 8:57 AM, H. Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org> wrote:
+>>> commit b98abe52fa8e ("Input: add common DT binding for touchscreens")
+>>> introduced common DT bindings for touchscreens [1] and a helper function to
+>>> parse the DT.
+>>>
+>>> commit ed7c9870c9bc ("Input: of_touchscreen - add support for inverted / swapped axes")
+>>> added another helper for parsing axis inversion and swapping
+>>> and applying them to x and y coordinates.
+>>>
+>>> Both helpers have been integrated to accommodate any orientation of the
+>>> touch panel in relation to the LCD.
+>>
+>> Please add the explanation of why this is a compatible change here.
+>
+> Can you please describe in more detail what you are missing here?
 
-Signed-off-by: Marcel Hasler <mahasler@gmail.com>
----
- drivers/hid/Kconfig    |   8 +++
- drivers/hid/Makefile   |   1 +
- drivers/hid/hid-core.c |   1 +
- drivers/hid/hid-mf.c   | 165 +++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 175 insertions(+)
- create mode 100644 drivers/hid/hid-mf.c
+You stop handling ti,fuzzx for example. So the default driver value
+will be used and this is okay because...
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index cd4599c..1530d28 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -512,6 +512,14 @@ config HID_MAGICMOUSE
- 	Say Y here if you want support for the multi-touch features of the
- 	Apple Wireless "Magic" Mouse and the Apple Wireless "Magic" Trackpad.
- 
-+config HID_MAYFLASH
-+	tristate "Mayflash game controller adapter force feedback"
-+	depends on HID
-+	select INPUT_FF_MEMLESS
-+	---help---
-+	Say Y here if you have HJZ Mayflash PS3 game controller adapters
-+	and want to enable force feedback support.
-+
- config HID_MICROSOFT
- 	tristate "Microsoft non-fully HID-compliant devices"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 86b2b57..c0453f1 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -58,6 +58,7 @@ obj-$(CONFIG_HID_LOGITECH)	+= hid-logitech.o
- obj-$(CONFIG_HID_LOGITECH_DJ)	+= hid-logitech-dj.o
- obj-$(CONFIG_HID_LOGITECH_HIDPP)	+= hid-logitech-hidpp.o
- obj-$(CONFIG_HID_MAGICMOUSE)	+= hid-magicmouse.o
-+obj-$(CONFIG_HID_MAYFLASH)	+= hid-mf.o
- obj-$(CONFIG_HID_MICROSOFT)	+= hid-microsoft.o
- obj-$(CONFIG_HID_MONTEREY)	+= hid-monterey.o
- obj-$(CONFIG_HID_MULTITOUCH)	+= hid-multitouch.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 2b89c70..8470e22 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1883,6 +1883,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELCOM, USB_DEVICE_ID_DELCOM_VISUAL_IND) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_WN) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_FA) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
-diff --git a/drivers/hid/hid-mf.c b/drivers/hid/hid-mf.c
-new file mode 100644
-index 0000000..6791ce7
---- /dev/null
-+++ b/drivers/hid/hid-mf.c
-@@ -0,0 +1,165 @@
-+/*
-+ * Force feedback support for Mayflash game controller adapters.
-+ *
-+ * These devices are manufactured by Mayflash but identify themselves
-+ * using the vendor ID of DragonRise Inc.
-+ *
-+ * Tested with:
-+ * 0079:1801 "DragonRise Inc. Mayflash PS3 Game Controller Adapter"
-+ *
-+ * The following adapters probably work too, but need to be tested:
-+ * 0079:1800 "DragonRise Inc. Mayflash WIIU Game Controller Adapter"
-+ * 0079:1843 "DragonRise Inc. Mayflash GameCube Game Controller Adapter"
-+ *
-+ * Copyright (c) 2016 Marcel Hasler <mahasler@gmail.com>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/input.h>
-+#include <linux/slab.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+struct mf_device {
-+	struct hid_report *report;
-+};
-+
-+static int mf_play(struct input_dev *dev, void *data, struct ff_effect *effect)
-+{
-+	struct hid_device *hid = input_get_drvdata(dev);
-+	struct mf_device *mf = data;
-+	int strong, weak;
-+
-+	strong = effect->u.rumble.strong_magnitude;
-+	weak = effect->u.rumble.weak_magnitude;
-+
-+	dbg_hid("Called with 0x%04x 0x%04x.\n", strong, weak);
-+
-+	strong = strong * 0xff / 0xffff;
-+	weak = weak * 0xff / 0xffff;
-+
-+	dbg_hid("Running with 0x%02x 0x%02x.\n", strong, weak);
-+
-+	mf->report->field[0]->value[0] = weak;
-+	mf->report->field[0]->value[1] = strong;
-+	hid_hw_request(hid, mf->report, HID_REQ_SET_REPORT);
-+
-+	return 0;
-+}
-+
-+static int mf_init(struct hid_device *hid)
-+{
-+	struct mf_device *mf;
-+
-+	struct list_head *report_list =
-+			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
-+
-+	struct list_head *report_ptr;
-+	struct hid_report *report;
-+
-+	struct hid_input *input =
-+			list_first_entry(&hid->inputs, struct hid_input, list);
-+
-+	struct input_dev *dev;
-+
-+	int error;
-+
-+	/* Setup each of the four inputs */
-+	list_for_each(report_ptr, report_list) {
-+		report = list_entry(report_ptr, struct hid_report, list);
-+
-+		if (report->maxfield < 1 || report->field[0]->report_count < 2) {
-+			hid_err(hid, "Invalid report, this should never happen!\n");
-+			return -ENODEV;
-+		}
-+
-+		if (input == NULL) {
-+			hid_err(hid, "Missing input, this should never happen!\n");
-+			return -ENODEV;
-+		}
-+
-+		dev = input->input;
-+		input = list_next_entry(input, list);
-+
-+		mf = kzalloc(sizeof(struct mf_device), GFP_KERNEL);
-+		if (!mf)
-+			return -ENOMEM;
-+
-+		set_bit(FF_RUMBLE, dev->ffbit);
-+
-+		error = input_ff_create_memless(dev, mf, mf_play);
-+		if (error) {
-+			kfree(mf);
-+			return error;
-+		}
-+
-+		mf->report = report;
-+		mf->report->field[0]->value[0] = 0x00;
-+		mf->report->field[0]->value[1] = 0x00;
-+		hid_hw_request(hid, mf->report, HID_REQ_SET_REPORT);
-+	}
-+
-+	hid_info(hid, "Force feedback for HJZ Mayflash game controller "
-+		      "adapters by Marcel Hasler <mahasler@gmail.com>\n");
-+
-+	return 0;
-+}
-+
-+static int mf_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	int error;
-+
-+	dev_dbg(&hdev->dev, "Mayflash HID hardware probe...\n");
-+
-+	/* Split device into four inputs */
-+	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-+
-+	error = hid_parse(hdev);
-+	if (error) {
-+		hid_err(hdev, "HID parse failed.\n");
-+		return error;
-+	}
-+
-+	error = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
-+	if (error) {
-+		hid_err(hdev, "HID hw start failed\n");
-+		return error;
-+	}
-+
-+	error = mf_init(hdev);
-+	if (error) {
-+		hid_err(hdev, "Force feedback init failed.\n");
-+		hid_hw_stop(hdev);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id mf_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3),  },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, mf_devices);
-+
-+static struct hid_driver mf_driver = {
-+	.name = "hid_mf",
-+	.id_table = mf_devices,
-+	.probe = mf_probe,
-+};
-+module_hid_driver(mf_driver);
-+
-+MODULE_LICENSE("GPL");
--- 
-2.10.1
+Seems like you would have a regression in behavior if the fuzz values
+specified in an existing DT are ignored.
 
+> The patch simply makes use of the generic helper function introduced by the
+> two patches cited above and is therefore automatically compatible if none of
+> the new properties is defined.
+>
+> The tsc2007 didn't have these features before. So what should we say
+> about compatibility?
+
+It certainly had the fuzz features before.
+
+
+>>> -- ti,max-rt: maximum pressure.
+>>> -- ti,fuzzx: specifies the absolute input fuzz x value.
+>>> -  If set, it will permit noise in the data up to +- the value given to the fuzz
+>>> -  parameter, that is used to filter noise from the event stream.
+>>> -- ti,fuzzy: specifies the absolute input fuzz y value.
+>>> -- ti,fuzzz: specifies the absolute input fuzz z value.
+>>> +- ti,max-rt: maximum pressure resistance above which samples are ignored
+>>> +  (default: 4095).
+>>> +- ti,report-resistance: report resistance (no pressure = max_rt) instead
+>>> +  of pressure (no pressure = 0).
+>>> +- ti,min-x: minimum value reported by X axis ADC (default 0).
+>>> +- ti,max-x: maximum value reported by X axis ADC (default 4095).
+>>> +- ti,min-y: minimum value reported by Y axis ADC (default 0).
+>>> +- ti,max-y: maximum value reported by Y axis ADC (default 4095).
+>>
+>> I thought these were going to be common? I think they should be.
+>
+> Yes, we had discussed that before.
+>
+> In a second thought, I found that they are not even existing for the different
+> touch chip drivers that are around. And some chip might not need them (because
+> e.g. min/max are constants or defined my means outside the DT or the chip itself
+> can store them in NV memory).
+>
+> And, since they define ADC raw-values, they are very closely related to the
+> individual chip, so that I am not sure if it is really necessary to make
+> them common. At least if they are properly documented in the bindings for
+> the specific chip they can have different names without disturbing each
+> other.
+
+They wouldn't disturb each other, but then there is no chance to have
+common parsing either.
+
+> So I think it is perfectly reasonable to define common bindings towards
+> the input event layer (e.g. size, fuzz, swapping, inversion) and support
+> them by common code which bakes raw coordinates into input events. The latest
+> helper functions already do most of that fully automatic.
+
+I could argue that size in pixels has no business being in DT. That's
+a property of the panel the touchscreen is glued to. I guess in some
+cases, the controller is internally scaling the ADC values.
+
+> Next, I had simply copied them from the ads7846 driver where they
+> exist for a long time. So this is sort of "common", at least for two different
+> chips now. See also patch 6/8 of this series which adds the common properties
+> to the ads7846 as well.
+>
+> For more reference about the existing bindings:
+>
+> Documentation/devicetree/bindings/input/ads7846.txt
+>
+> (btw I think someone should move them to bindings/input/touchscreen).
+
+Patches welcome.
+
+> It appears as if there is some overlap of the new generic properties (for x/y
+> swapping) with the old ads7846 properties, but that is something you had
+> already proposed a while ago to make me the driver recognize both properties to
+> stay compatible with older DT files.
+>
+> So if we now rename the min/max-x/y properties for the tsc2007 we have to rename
+> them for the ads7846 (and maybe others) as well, which might break out-of-tree
+> ads7846 devices or leads to more complex code for handling of property aliases.
+
+We don't have to rename them for ads7846. That's already baked. But
+there's a trend here. You're defining the same property. Use a common
+name, so when the 3rd binding comes along needing the same thing, we
+already have a common binding. If we're catching this on only the 2nd
+binding, we're doing pretty good.
+
+Rob

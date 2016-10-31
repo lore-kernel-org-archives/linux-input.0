@@ -1,301 +1,319 @@
-From: Marcel Hasler <mahasler@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Subject: Re: [PATCH 2/2] Add new force feedback driver for Mayflash game
  controller adapters.
-Date: Mon, 31 Oct 2016 14:31:43 +0100
-Message-ID: <CAOJOY2Op+7JefZKcwN8GFxL18Fk5mSGYWOmxJ7jcY2LWdvu4XQ@mail.gmail.com>
-References: <cover.1477863542.git.mahasler@gmail.com> <20161030221313.GA15445@arch-desktop>
+Date: Mon, 31 Oct 2016 14:48:46 +0100
+Message-ID: <20161031134846.GB12780@mail.corp.redhat.com>
+References: <cover.1477863542.git.mahasler@gmail.com>
+ <20161030221313.GA15445@arch-desktop>
  <20161031111758.GB12010@mail.corp.redhat.com>
+ <CAOJOY2Op+7JefZKcwN8GFxL18Fk5mSGYWOmxJ7jcY2LWdvu4XQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f66.google.com ([209.85.218.66]:33349 "EHLO
-        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S942934AbcJaNcZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 31 Oct 2016 09:32:25 -0400
-Received: by mail-oi0-f66.google.com with SMTP id i127so11724458oia.0
-        for <linux-input@vger.kernel.org>; Mon, 31 Oct 2016 06:32:24 -0700 (PDT)
-In-Reply-To: <20161031111758.GB12010@mail.corp.redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:44132 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S943171AbcJaNsv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 31 Oct 2016 09:48:51 -0400
+Content-Disposition: inline
+In-Reply-To: <CAOJOY2Op+7JefZKcwN8GFxL18Fk5mSGYWOmxJ7jcY2LWdvu4XQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Marcel Hasler <mahasler@gmail.com>
 Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-Hi
+On Oct 31 2016 or thereabouts, Marcel Hasler wrote:
+> Hi
+> 
+> 2016-10-31 12:17 GMT+01:00 Benjamin Tissoires <benjamin.tissoires@redhat.com>:
+> > On Oct 30 2016 or thereabouts, Marcel Hasler wrote:
+> >> Add a new module named hid-mf that implements force feedback for game controller adapters
+> >> manufactured by Mayflash. Currently only the PS3 adapter is supported, other adapters still need
+> >> to be tested.
+> >>
+> >> Signed-off-by: Marcel Hasler <mahasler@gmail.com>
+> >> ---
+> >>  drivers/hid/Kconfig    |   8 +++
+> >>  drivers/hid/Makefile   |   1 +
+> >>  drivers/hid/hid-core.c |   1 +
+> >>  drivers/hid/hid-mf.c   | 165 +++++++++++++++++++++++++++++++++++++++++++++++++
+> >>  4 files changed, 175 insertions(+)
+> >>  create mode 100644 drivers/hid/hid-mf.c
+> >>
+> >> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> >> index cd4599c..1530d28 100644
+> >> --- a/drivers/hid/Kconfig
+> >> +++ b/drivers/hid/Kconfig
+> >> @@ -512,6 +512,14 @@ config HID_MAGICMOUSE
+> >>       Say Y here if you want support for the multi-touch features of the
+> >>       Apple Wireless "Magic" Mouse and the Apple Wireless "Magic" Trackpad.
+> >>
+> >> +config HID_MAYFLASH
+> >> +     tristate "Mayflash game controller adapter force feedback"
+> >> +     depends on HID
+> >> +     select INPUT_FF_MEMLESS
+> >> +     ---help---
+> >> +     Say Y here if you have HJZ Mayflash PS3 game controller adapters
+> >> +     and want to enable force feedback support.
+> >> +
+> >>  config HID_MICROSOFT
+> >>       tristate "Microsoft non-fully HID-compliant devices"
+> >>       depends on HID
+> >> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+> >> index 86b2b57..c0453f1 100644
+> >> --- a/drivers/hid/Makefile
+> >> +++ b/drivers/hid/Makefile
+> >> @@ -58,6 +58,7 @@ obj-$(CONFIG_HID_LOGITECH)  += hid-logitech.o
+> >>  obj-$(CONFIG_HID_LOGITECH_DJ)        += hid-logitech-dj.o
+> >>  obj-$(CONFIG_HID_LOGITECH_HIDPP)     += hid-logitech-hidpp.o
+> >>  obj-$(CONFIG_HID_MAGICMOUSE) += hid-magicmouse.o
+> >> +obj-$(CONFIG_HID_MAYFLASH)   += hid-mf.o
+> >>  obj-$(CONFIG_HID_MICROSOFT)  += hid-microsoft.o
+> >>  obj-$(CONFIG_HID_MONTEREY)   += hid-monterey.o
+> >>  obj-$(CONFIG_HID_MULTITOUCH) += hid-multitouch.o
+> >> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> >> index 2b89c70..8470e22 100644
+> >> --- a/drivers/hid/hid-core.c
+> >> +++ b/drivers/hid/hid-core.c
+> >> @@ -1883,6 +1883,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+> >>       { HID_USB_DEVICE(USB_VENDOR_ID_DELCOM, USB_DEVICE_ID_DELCOM_VISUAL_IND) },
+> >>       { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
+> >>       { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011) },
+> >> +     { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3) },
+> >>       { HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_WN) },
+> >>       { HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_FA) },
+> >>       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
+> >> diff --git a/drivers/hid/hid-mf.c b/drivers/hid/hid-mf.c
+> >> new file mode 100644
+> >> index 0000000..6791ce7
+> >> --- /dev/null
+> >> +++ b/drivers/hid/hid-mf.c
+> >> @@ -0,0 +1,165 @@
+> >> +/*
+> >> + * Force feedback support for Mayflash game controller adapters.
+> >> + *
+> >> + * These devices are manufactured by Mayflash but identify themselves
+> >> + * using the vendor ID of DragonRise Inc.
+> >> + *
+> >> + * Tested with:
+> >> + * 0079:1801 "DragonRise Inc. Mayflash PS3 Game Controller Adapter"
+> >> + *
+> >> + * The following adapters probably work too, but need to be tested:
+> >> + * 0079:1800 "DragonRise Inc. Mayflash WIIU Game Controller Adapter"
+> >> + * 0079:1843 "DragonRise Inc. Mayflash GameCube Game Controller Adapter"
+> >> + *
+> >> + * Copyright (c) 2016 Marcel Hasler <mahasler@gmail.com>
+> >> + */
+> >> +
+> >> +/*
+> >> + * This program is free software; you can redistribute it and/or modify
+> >> + * it under the terms of the GNU General Public License as published by
+> >> + * the Free Software Foundation; either version 2 of the License, or
+> >> + * (at your option) any later version.
+> >> + *
+> >> + * This program is distributed in the hope that it will be useful,
+> >> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> >> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> >> + * GNU General Public License for more details.
+> >> + */
+> >> +
+> >> +#include <linux/input.h>
+> >> +#include <linux/slab.h>
+> >> +#include <linux/hid.h>
+> >> +#include <linux/module.h>
+> >> +
+> >> +#include "hid-ids.h"
+> >> +
+> >> +struct mf_device {
+> >> +     struct hid_report *report;
+> >> +};
+> >> +
+> >> +static int mf_play(struct input_dev *dev, void *data, struct ff_effect *effect)
+> >> +{
+> >> +     struct hid_device *hid = input_get_drvdata(dev);
+> >> +     struct mf_device *mf = data;
+> >> +     int strong, weak;
+> >> +
+> >> +     strong = effect->u.rumble.strong_magnitude;
+> >> +     weak = effect->u.rumble.weak_magnitude;
+> >> +
+> >> +     dbg_hid("Called with 0x%04x 0x%04x.\n", strong, weak);
+> >> +
+> >> +     strong = strong * 0xff / 0xffff;
+> >> +     weak = weak * 0xff / 0xffff;
+> >> +
+> >> +     dbg_hid("Running with 0x%02x 0x%02x.\n", strong, weak);
+> >> +
+> >> +     mf->report->field[0]->value[0] = weak;
+> >> +     mf->report->field[0]->value[1] = strong;
+> >> +     hid_hw_request(hid, mf->report, HID_REQ_SET_REPORT);
+> >> +
+> >> +     return 0;
+> >> +}
+> >> +
+> >> +static int mf_init(struct hid_device *hid)
+> >> +{
+> >> +     struct mf_device *mf;
+> >> +
+> >> +     struct list_head *report_list =
+> >> +                     &hid->report_enum[HID_OUTPUT_REPORT].report_list;
+> >> +
+> >> +     struct list_head *report_ptr;
+> >> +     struct hid_report *report;
+> >> +
+> >> +     struct hid_input *input =
+> >> +                     list_first_entry(&hid->inputs, struct hid_input, list);
+> >> +
+> >> +     struct input_dev *dev;
+> >> +
+> >> +     int error;
+> >> +
+> >> +     /* Setup each of the four inputs */
+> >> +     list_for_each(report_ptr, report_list) {
+> >> +             report = list_entry(report_ptr, struct hid_report, list);
+> >> +
+> >> +             if (report->maxfield < 1 || report->field[0]->report_count < 2) {
+> >> +                     hid_err(hid, "Invalid report, this should never happen!\n");
+> >> +                     return -ENODEV;
+> >> +             }
+> >> +
+> >> +             if (input == NULL) {
+> >> +                     hid_err(hid, "Missing input, this should never happen!\n");
+> >> +                     return -ENODEV;
+> >> +             }
+> >> +
+> >> +             dev = input->input;
+> >> +             input = list_next_entry(input, list);
+> >
+> > Wouldn't it make more sense to use .input_configured instead of this
+> > after-the-fact loop?
+> >
+> >> +
+> >> +             mf = kzalloc(sizeof(struct mf_device), GFP_KERNEL);
+> >
+> > I might not be fully awoken, but where is the corresponding kfree?
+> > If you do not want to manually free the allocated memory, you can use
+> > devm_kzalloc, as long as there is no races when removing the device.
+> >
+> 
+> The corresponding kfree for mf in this case is in ml_ff_destroy().
 
-2016-10-31 12:17 GMT+01:00 Benjamin Tissoires <benjamin.tissoires@redhat.com>:
-> On Oct 30 2016 or thereabouts, Marcel Hasler wrote:
->> Add a new module named hid-mf that implements force feedback for game controller adapters
->> manufactured by Mayflash. Currently only the PS3 adapter is supported, other adapters still need
->> to be tested.
->>
->> Signed-off-by: Marcel Hasler <mahasler@gmail.com>
->> ---
->>  drivers/hid/Kconfig    |   8 +++
->>  drivers/hid/Makefile   |   1 +
->>  drivers/hid/hid-core.c |   1 +
->>  drivers/hid/hid-mf.c   | 165 +++++++++++++++++++++++++++++++++++++++++++++++++
->>  4 files changed, 175 insertions(+)
->>  create mode 100644 drivers/hid/hid-mf.c
->>
->> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
->> index cd4599c..1530d28 100644
->> --- a/drivers/hid/Kconfig
->> +++ b/drivers/hid/Kconfig
->> @@ -512,6 +512,14 @@ config HID_MAGICMOUSE
->>       Say Y here if you want support for the multi-touch features of the
->>       Apple Wireless "Magic" Mouse and the Apple Wireless "Magic" Trackpad.
->>
->> +config HID_MAYFLASH
->> +     tristate "Mayflash game controller adapter force feedback"
->> +     depends on HID
->> +     select INPUT_FF_MEMLESS
->> +     ---help---
->> +     Say Y here if you have HJZ Mayflash PS3 game controller adapters
->> +     and want to enable force feedback support.
->> +
->>  config HID_MICROSOFT
->>       tristate "Microsoft non-fully HID-compliant devices"
->>       depends on HID
->> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
->> index 86b2b57..c0453f1 100644
->> --- a/drivers/hid/Makefile
->> +++ b/drivers/hid/Makefile
->> @@ -58,6 +58,7 @@ obj-$(CONFIG_HID_LOGITECH)  += hid-logitech.o
->>  obj-$(CONFIG_HID_LOGITECH_DJ)        += hid-logitech-dj.o
->>  obj-$(CONFIG_HID_LOGITECH_HIDPP)     += hid-logitech-hidpp.o
->>  obj-$(CONFIG_HID_MAGICMOUSE) += hid-magicmouse.o
->> +obj-$(CONFIG_HID_MAYFLASH)   += hid-mf.o
->>  obj-$(CONFIG_HID_MICROSOFT)  += hid-microsoft.o
->>  obj-$(CONFIG_HID_MONTEREY)   += hid-monterey.o
->>  obj-$(CONFIG_HID_MULTITOUCH) += hid-multitouch.o
->> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->> index 2b89c70..8470e22 100644
->> --- a/drivers/hid/hid-core.c
->> +++ b/drivers/hid/hid-core.c
->> @@ -1883,6 +1883,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>       { HID_USB_DEVICE(USB_VENDOR_ID_DELCOM, USB_DEVICE_ID_DELCOM_VISUAL_IND) },
->>       { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
->>       { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011) },
->> +     { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3) },
->>       { HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_WN) },
->>       { HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_FA) },
->>       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
->> diff --git a/drivers/hid/hid-mf.c b/drivers/hid/hid-mf.c
->> new file mode 100644
->> index 0000000..6791ce7
->> --- /dev/null
->> +++ b/drivers/hid/hid-mf.c
->> @@ -0,0 +1,165 @@
->> +/*
->> + * Force feedback support for Mayflash game controller adapters.
->> + *
->> + * These devices are manufactured by Mayflash but identify themselves
->> + * using the vendor ID of DragonRise Inc.
->> + *
->> + * Tested with:
->> + * 0079:1801 "DragonRise Inc. Mayflash PS3 Game Controller Adapter"
->> + *
->> + * The following adapters probably work too, but need to be tested:
->> + * 0079:1800 "DragonRise Inc. Mayflash WIIU Game Controller Adapter"
->> + * 0079:1843 "DragonRise Inc. Mayflash GameCube Game Controller Adapter"
->> + *
->> + * Copyright (c) 2016 Marcel Hasler <mahasler@gmail.com>
->> + */
->> +
->> +/*
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of the GNU General Public License as published by
->> + * the Free Software Foundation; either version 2 of the License, or
->> + * (at your option) any later version.
->> + *
->> + * This program is distributed in the hope that it will be useful,
->> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> + * GNU General Public License for more details.
->> + */
->> +
->> +#include <linux/input.h>
->> +#include <linux/slab.h>
->> +#include <linux/hid.h>
->> +#include <linux/module.h>
->> +
->> +#include "hid-ids.h"
->> +
->> +struct mf_device {
->> +     struct hid_report *report;
->> +};
->> +
->> +static int mf_play(struct input_dev *dev, void *data, struct ff_effect *effect)
->> +{
->> +     struct hid_device *hid = input_get_drvdata(dev);
->> +     struct mf_device *mf = data;
->> +     int strong, weak;
->> +
->> +     strong = effect->u.rumble.strong_magnitude;
->> +     weak = effect->u.rumble.weak_magnitude;
->> +
->> +     dbg_hid("Called with 0x%04x 0x%04x.\n", strong, weak);
->> +
->> +     strong = strong * 0xff / 0xffff;
->> +     weak = weak * 0xff / 0xffff;
->> +
->> +     dbg_hid("Running with 0x%02x 0x%02x.\n", strong, weak);
->> +
->> +     mf->report->field[0]->value[0] = weak;
->> +     mf->report->field[0]->value[1] = strong;
->> +     hid_hw_request(hid, mf->report, HID_REQ_SET_REPORT);
->> +
->> +     return 0;
->> +}
->> +
->> +static int mf_init(struct hid_device *hid)
->> +{
->> +     struct mf_device *mf;
->> +
->> +     struct list_head *report_list =
->> +                     &hid->report_enum[HID_OUTPUT_REPORT].report_list;
->> +
->> +     struct list_head *report_ptr;
->> +     struct hid_report *report;
->> +
->> +     struct hid_input *input =
->> +                     list_first_entry(&hid->inputs, struct hid_input, list);
->> +
->> +     struct input_dev *dev;
->> +
->> +     int error;
->> +
->> +     /* Setup each of the four inputs */
->> +     list_for_each(report_ptr, report_list) {
->> +             report = list_entry(report_ptr, struct hid_report, list);
->> +
->> +             if (report->maxfield < 1 || report->field[0]->report_count < 2) {
->> +                     hid_err(hid, "Invalid report, this should never happen!\n");
->> +                     return -ENODEV;
->> +             }
->> +
->> +             if (input == NULL) {
->> +                     hid_err(hid, "Missing input, this should never happen!\n");
->> +                     return -ENODEV;
->> +             }
->> +
->> +             dev = input->input;
->> +             input = list_next_entry(input, list);
->
-> Wouldn't it make more sense to use .input_configured instead of this
-> after-the-fact loop?
->
->> +
->> +             mf = kzalloc(sizeof(struct mf_device), GFP_KERNEL);
->
-> I might not be fully awoken, but where is the corresponding kfree?
-> If you do not want to manually free the allocated memory, you can use
-> devm_kzalloc, as long as there is no races when removing the device.
->
+K, thanks. I should definitively have taken more attention while reading
+the patch.
 
-The corresponding kfree for mf in this case is in ml_ff_destroy().
+> 
+> >> +             if (!mf)
+> >> +                     return -ENOMEM;
+> >> +
+> >> +             set_bit(FF_RUMBLE, dev->ffbit);
+> >> +
+> >> +             error = input_ff_create_memless(dev, mf, mf_play);
+> >> +             if (error) {
+> >> +                     kfree(mf);
+> >> +                     return error;
+> >> +             }
+> >> +
+> >> +             mf->report = report;
+> >> +             mf->report->field[0]->value[0] = 0x00;
+> >> +             mf->report->field[0]->value[1] = 0x00;
+> >> +             hid_hw_request(hid, mf->report, HID_REQ_SET_REPORT);
+> >> +     }
+> >> +
+> >> +     hid_info(hid, "Force feedback for HJZ Mayflash game controller "
+> >> +                   "adapters by Marcel Hasler <mahasler@gmail.com>\n");
+> >> +
+> >> +     return 0;
+> >> +}
+> >> +
+> >> +static int mf_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> >> +{
+> >> +     int error;
+> >> +
+> >> +     dev_dbg(&hdev->dev, "Mayflash HID hardware probe...\n");
+> >> +
+> >> +     /* Split device into four inputs */
+> >> +     hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+> >
+> > Looks like the entry in the previous patch was not required apparently
+> > :)
+> >
+> >> +
+> >> +     error = hid_parse(hdev);
+> >> +     if (error) {
+> >> +             hid_err(hdev, "HID parse failed.\n");
+> >> +             return error;
+> >> +     }
+> >> +
+> >> +     error = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
+> >> +     if (error) {
+> >> +             hid_err(hdev, "HID hw start failed\n");
+> >> +             return error;
+> >> +     }
+> >> +
+> >> +     error = mf_init(hdev);
+> >
+> > This seems completely racy. hid_hw_start() exports the input nodes to
+> > user-space and the ff initialization is done after. It would be much
+> > better to initialize the ff part in .input_configured when the device
+> > hasn't been registered to user space yet.
+> >
+> > Cheers,
+> > Benjamin
+> >
+> >> +     if (error) {
+> >> +             hid_err(hdev, "Force feedback init failed.\n");
+> >> +             hid_hw_stop(hdev);
+> >> +             return error;
+> >> +     }
+> >> +
+> >> +     return 0;
+> >> +}
+> >> +
+> >> +static const struct hid_device_id mf_devices[] = {
+> >> +     { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3),  },
+> >> +     { }
+> >> +};
+> >> +MODULE_DEVICE_TABLE(hid, mf_devices);
+> >> +
+> >> +static struct hid_driver mf_driver = {
+> >> +     .name = "hid_mf",
+> >> +     .id_table = mf_devices,
+> >> +     .probe = mf_probe,
+> >> +};
+> >> +module_hid_driver(mf_driver);
+> >> +
+> >> +MODULE_LICENSE("GPL");
+> >> --
+> >> 2.10.1
+> >>
+> 
+> Thanks for the hints. I tried your idea with .input_configured but
+> there's a bit of a problem with that. For each of the four gamepads
+> two input device nodes are created, one for the buttons/axes and one
+> for force feedback. Unfortunately systemd only assigns the first nodes
+> the uaccess tag. Now, I looked at the other ff drivers and essentially
+> followed their example. None of these use .input_configured, but
+> instead just use the very first hid_input and make ff available
+> through that. This works and actually has the desired effect that
+> normal users can use force feedback without having to be in the
+> 'input' group (which as I understand is deprecated).
 
->> +             if (!mf)
->> +                     return -ENOMEM;
->> +
->> +             set_bit(FF_RUMBLE, dev->ffbit);
->> +
->> +             error = input_ff_create_memless(dev, mf, mf_play);
->> +             if (error) {
->> +                     kfree(mf);
->> +                     return error;
->> +             }
->> +
->> +             mf->report = report;
->> +             mf->report->field[0]->value[0] = 0x00;
->> +             mf->report->field[0]->value[1] = 0x00;
->> +             hid_hw_request(hid, mf->report, HID_REQ_SET_REPORT);
->> +     }
->> +
->> +     hid_info(hid, "Force feedback for HJZ Mayflash game controller "
->> +                   "adapters by Marcel Hasler <mahasler@gmail.com>\n");
->> +
->> +     return 0;
->> +}
->> +
->> +static int mf_probe(struct hid_device *hdev, const struct hid_device_id *id)
->> +{
->> +     int error;
->> +
->> +     dev_dbg(&hdev->dev, "Mayflash HID hardware probe...\n");
->> +
->> +     /* Split device into four inputs */
->> +     hdev->quirks |= HID_QUIRK_MULTI_INPUT;
->
-> Looks like the entry in the previous patch was not required apparently
-> :)
->
->> +
->> +     error = hid_parse(hdev);
->> +     if (error) {
->> +             hid_err(hdev, "HID parse failed.\n");
->> +             return error;
->> +     }
->> +
->> +     error = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
->> +     if (error) {
->> +             hid_err(hdev, "HID hw start failed\n");
->> +             return error;
->> +     }
->> +
->> +     error = mf_init(hdev);
->
-> This seems completely racy. hid_hw_start() exports the input nodes to
-> user-space and the ff initialization is done after. It would be much
-> better to initialize the ff part in .input_configured when the device
-> hasn't been registered to user space yet.
->
-> Cheers,
-> Benjamin
->
->> +     if (error) {
->> +             hid_err(hdev, "Force feedback init failed.\n");
->> +             hid_hw_stop(hdev);
->> +             return error;
->> +     }
->> +
->> +     return 0;
->> +}
->> +
->> +static const struct hid_device_id mf_devices[] = {
->> +     { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3),  },
->> +     { }
->> +};
->> +MODULE_DEVICE_TABLE(hid, mf_devices);
->> +
->> +static struct hid_driver mf_driver = {
->> +     .name = "hid_mf",
->> +     .id_table = mf_devices,
->> +     .probe = mf_probe,
->> +};
->> +module_hid_driver(mf_driver);
->> +
->> +MODULE_LICENSE("GPL");
->> --
->> 2.10.1
->>
+I haven't taken much attention to the ff implementation both in the
+kernel and in userspace. After your explanation. I am not sure I want to
+spend more time on it though :)
 
-Thanks for the hints. I tried your idea with .input_configured but
-there's a bit of a problem with that. For each of the four gamepads
-two input device nodes are created, one for the buttons/axes and one
-for force feedback. Unfortunately systemd only assigns the first nodes
-the uaccess tag. Now, I looked at the other ff drivers and essentially
-followed their example. None of these use .input_configured, but
-instead just use the very first hid_input and make ff available
-through that. This works and actually has the desired effect that
-normal users can use force feedback without having to be in the
-'input' group (which as I understand is deprecated).
+> 
+> So while I completely agree that using .input_configured would be the
+> proper thing to do, I think either all ff drivers should use it (and
+> systemd should be fixed to make those input nodes accessible) or
+> hid-mf should do what all others do (at least for the time being).
 
-So while I completely agree that using .input_configured would be the
-proper thing to do, I think either all ff drivers should use it (and
-systemd should be fixed to make those input nodes accessible) or
-hid-mf should do what all others do (at least for the time being).
+Yes, please stick to what other kernel drivers do, and hope for the
+best. If I understand correctly, you'll need to remove the for loop and
+only check for the first available input node, right?
 
-Best regards
-Marcel
+Cheers,
+Benjamin
+
+> 
+> Best regards
+> Marcel

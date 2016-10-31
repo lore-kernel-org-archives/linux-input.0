@@ -1,118 +1,301 @@
-From: <liverpool@tortilla.co.uk>
-Subject: 9368986062576 linux-input
-Date: Mon, 31 Oct 2016 13:06:13 -0000
-Message-ID: <147791917345.25343.8598374607917326890@teletalk.net.br>
+From: Marcel Hasler <mahasler@gmail.com>
+Subject: Re: [PATCH 2/2] Add new force feedback driver for Mayflash game
+ controller adapters.
+Date: Mon, 31 Oct 2016 14:31:43 +0100
+Message-ID: <CAOJOY2Op+7JefZKcwN8GFxL18Fk5mSGYWOmxJ7jcY2LWdvu4XQ@mail.gmail.com>
+References: <cover.1477863542.git.mahasler@gmail.com> <20161030221313.GA15445@arch-desktop>
+ <20161031111758.GB12010@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: application/zip; name="jqlinux-input.zip"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 99.114.136.177.teletalk.net.br ([177.136.114.99]:49476 "HELO
-        teletalk.net.br" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with SMTP id S941020AbcJaNGU (ORCPT
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:33349 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S942934AbcJaNcZ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 31 Oct 2016 09:06:20 -0400
-Content-Disposition: attachment
+        Mon, 31 Oct 2016 09:32:25 -0400
+Received: by mail-oi0-f66.google.com with SMTP id i127so11724458oia.0
+        for <linux-input@vger.kernel.org>; Mon, 31 Oct 2016 06:32:24 -0700 (PDT)
+In-Reply-To: <20161031111758.GB12010@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-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
+Hi
+
+2016-10-31 12:17 GMT+01:00 Benjamin Tissoires <benjamin.tissoires@redhat.com>:
+> On Oct 30 2016 or thereabouts, Marcel Hasler wrote:
+>> Add a new module named hid-mf that implements force feedback for game controller adapters
+>> manufactured by Mayflash. Currently only the PS3 adapter is supported, other adapters still need
+>> to be tested.
+>>
+>> Signed-off-by: Marcel Hasler <mahasler@gmail.com>
+>> ---
+>>  drivers/hid/Kconfig    |   8 +++
+>>  drivers/hid/Makefile   |   1 +
+>>  drivers/hid/hid-core.c |   1 +
+>>  drivers/hid/hid-mf.c   | 165 +++++++++++++++++++++++++++++++++++++++++++++++++
+>>  4 files changed, 175 insertions(+)
+>>  create mode 100644 drivers/hid/hid-mf.c
+>>
+>> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+>> index cd4599c..1530d28 100644
+>> --- a/drivers/hid/Kconfig
+>> +++ b/drivers/hid/Kconfig
+>> @@ -512,6 +512,14 @@ config HID_MAGICMOUSE
+>>       Say Y here if you want support for the multi-touch features of the
+>>       Apple Wireless "Magic" Mouse and the Apple Wireless "Magic" Trackpad.
+>>
+>> +config HID_MAYFLASH
+>> +     tristate "Mayflash game controller adapter force feedback"
+>> +     depends on HID
+>> +     select INPUT_FF_MEMLESS
+>> +     ---help---
+>> +     Say Y here if you have HJZ Mayflash PS3 game controller adapters
+>> +     and want to enable force feedback support.
+>> +
+>>  config HID_MICROSOFT
+>>       tristate "Microsoft non-fully HID-compliant devices"
+>>       depends on HID
+>> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+>> index 86b2b57..c0453f1 100644
+>> --- a/drivers/hid/Makefile
+>> +++ b/drivers/hid/Makefile
+>> @@ -58,6 +58,7 @@ obj-$(CONFIG_HID_LOGITECH)  += hid-logitech.o
+>>  obj-$(CONFIG_HID_LOGITECH_DJ)        += hid-logitech-dj.o
+>>  obj-$(CONFIG_HID_LOGITECH_HIDPP)     += hid-logitech-hidpp.o
+>>  obj-$(CONFIG_HID_MAGICMOUSE) += hid-magicmouse.o
+>> +obj-$(CONFIG_HID_MAYFLASH)   += hid-mf.o
+>>  obj-$(CONFIG_HID_MICROSOFT)  += hid-microsoft.o
+>>  obj-$(CONFIG_HID_MONTEREY)   += hid-monterey.o
+>>  obj-$(CONFIG_HID_MULTITOUCH) += hid-multitouch.o
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index 2b89c70..8470e22 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -1883,6 +1883,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>>       { HID_USB_DEVICE(USB_VENDOR_ID_DELCOM, USB_DEVICE_ID_DELCOM_VISUAL_IND) },
+>>       { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
+>>       { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011) },
+>> +     { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3) },
+>>       { HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_WN) },
+>>       { HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_FA) },
+>>       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
+>> diff --git a/drivers/hid/hid-mf.c b/drivers/hid/hid-mf.c
+>> new file mode 100644
+>> index 0000000..6791ce7
+>> --- /dev/null
+>> +++ b/drivers/hid/hid-mf.c
+>> @@ -0,0 +1,165 @@
+>> +/*
+>> + * Force feedback support for Mayflash game controller adapters.
+>> + *
+>> + * These devices are manufactured by Mayflash but identify themselves
+>> + * using the vendor ID of DragonRise Inc.
+>> + *
+>> + * Tested with:
+>> + * 0079:1801 "DragonRise Inc. Mayflash PS3 Game Controller Adapter"
+>> + *
+>> + * The following adapters probably work too, but need to be tested:
+>> + * 0079:1800 "DragonRise Inc. Mayflash WIIU Game Controller Adapter"
+>> + * 0079:1843 "DragonRise Inc. Mayflash GameCube Game Controller Adapter"
+>> + *
+>> + * Copyright (c) 2016 Marcel Hasler <mahasler@gmail.com>
+>> + */
+>> +
+>> +/*
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License as published by
+>> + * the Free Software Foundation; either version 2 of the License, or
+>> + * (at your option) any later version.
+>> + *
+>> + * This program is distributed in the hope that it will be useful,
+>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+>> + * GNU General Public License for more details.
+>> + */
+>> +
+>> +#include <linux/input.h>
+>> +#include <linux/slab.h>
+>> +#include <linux/hid.h>
+>> +#include <linux/module.h>
+>> +
+>> +#include "hid-ids.h"
+>> +
+>> +struct mf_device {
+>> +     struct hid_report *report;
+>> +};
+>> +
+>> +static int mf_play(struct input_dev *dev, void *data, struct ff_effect *effect)
+>> +{
+>> +     struct hid_device *hid = input_get_drvdata(dev);
+>> +     struct mf_device *mf = data;
+>> +     int strong, weak;
+>> +
+>> +     strong = effect->u.rumble.strong_magnitude;
+>> +     weak = effect->u.rumble.weak_magnitude;
+>> +
+>> +     dbg_hid("Called with 0x%04x 0x%04x.\n", strong, weak);
+>> +
+>> +     strong = strong * 0xff / 0xffff;
+>> +     weak = weak * 0xff / 0xffff;
+>> +
+>> +     dbg_hid("Running with 0x%02x 0x%02x.\n", strong, weak);
+>> +
+>> +     mf->report->field[0]->value[0] = weak;
+>> +     mf->report->field[0]->value[1] = strong;
+>> +     hid_hw_request(hid, mf->report, HID_REQ_SET_REPORT);
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +static int mf_init(struct hid_device *hid)
+>> +{
+>> +     struct mf_device *mf;
+>> +
+>> +     struct list_head *report_list =
+>> +                     &hid->report_enum[HID_OUTPUT_REPORT].report_list;
+>> +
+>> +     struct list_head *report_ptr;
+>> +     struct hid_report *report;
+>> +
+>> +     struct hid_input *input =
+>> +                     list_first_entry(&hid->inputs, struct hid_input, list);
+>> +
+>> +     struct input_dev *dev;
+>> +
+>> +     int error;
+>> +
+>> +     /* Setup each of the four inputs */
+>> +     list_for_each(report_ptr, report_list) {
+>> +             report = list_entry(report_ptr, struct hid_report, list);
+>> +
+>> +             if (report->maxfield < 1 || report->field[0]->report_count < 2) {
+>> +                     hid_err(hid, "Invalid report, this should never happen!\n");
+>> +                     return -ENODEV;
+>> +             }
+>> +
+>> +             if (input == NULL) {
+>> +                     hid_err(hid, "Missing input, this should never happen!\n");
+>> +                     return -ENODEV;
+>> +             }
+>> +
+>> +             dev = input->input;
+>> +             input = list_next_entry(input, list);
+>
+> Wouldn't it make more sense to use .input_configured instead of this
+> after-the-fact loop?
+>
+>> +
+>> +             mf = kzalloc(sizeof(struct mf_device), GFP_KERNEL);
+>
+> I might not be fully awoken, but where is the corresponding kfree?
+> If you do not want to manually free the allocated memory, you can use
+> devm_kzalloc, as long as there is no races when removing the device.
+>
+
+The corresponding kfree for mf in this case is in ml_ff_destroy().
+
+>> +             if (!mf)
+>> +                     return -ENOMEM;
+>> +
+>> +             set_bit(FF_RUMBLE, dev->ffbit);
+>> +
+>> +             error = input_ff_create_memless(dev, mf, mf_play);
+>> +             if (error) {
+>> +                     kfree(mf);
+>> +                     return error;
+>> +             }
+>> +
+>> +             mf->report = report;
+>> +             mf->report->field[0]->value[0] = 0x00;
+>> +             mf->report->field[0]->value[1] = 0x00;
+>> +             hid_hw_request(hid, mf->report, HID_REQ_SET_REPORT);
+>> +     }
+>> +
+>> +     hid_info(hid, "Force feedback for HJZ Mayflash game controller "
+>> +                   "adapters by Marcel Hasler <mahasler@gmail.com>\n");
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +static int mf_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>> +{
+>> +     int error;
+>> +
+>> +     dev_dbg(&hdev->dev, "Mayflash HID hardware probe...\n");
+>> +
+>> +     /* Split device into four inputs */
+>> +     hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+>
+> Looks like the entry in the previous patch was not required apparently
+> :)
+>
+>> +
+>> +     error = hid_parse(hdev);
+>> +     if (error) {
+>> +             hid_err(hdev, "HID parse failed.\n");
+>> +             return error;
+>> +     }
+>> +
+>> +     error = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
+>> +     if (error) {
+>> +             hid_err(hdev, "HID hw start failed\n");
+>> +             return error;
+>> +     }
+>> +
+>> +     error = mf_init(hdev);
+>
+> This seems completely racy. hid_hw_start() exports the input nodes to
+> user-space and the ff initialization is done after. It would be much
+> better to initialize the ff part in .input_configured when the device
+> hasn't been registered to user space yet.
+>
+> Cheers,
+> Benjamin
+>
+>> +     if (error) {
+>> +             hid_err(hdev, "Force feedback init failed.\n");
+>> +             hid_hw_stop(hdev);
+>> +             return error;
+>> +     }
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +static const struct hid_device_id mf_devices[] = {
+>> +     { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3),  },
+>> +     { }
+>> +};
+>> +MODULE_DEVICE_TABLE(hid, mf_devices);
+>> +
+>> +static struct hid_driver mf_driver = {
+>> +     .name = "hid_mf",
+>> +     .id_table = mf_devices,
+>> +     .probe = mf_probe,
+>> +};
+>> +module_hid_driver(mf_driver);
+>> +
+>> +MODULE_LICENSE("GPL");
+>> --
+>> 2.10.1
+>>
+
+Thanks for the hints. I tried your idea with .input_configured but
+there's a bit of a problem with that. For each of the four gamepads
+two input device nodes are created, one for the buttons/axes and one
+for force feedback. Unfortunately systemd only assigns the first nodes
+the uaccess tag. Now, I looked at the other ff drivers and essentially
+followed their example. None of these use .input_configured, but
+instead just use the very first hid_input and make ff available
+through that. This works and actually has the desired effect that
+normal users can use force feedback without having to be in the
+'input' group (which as I understand is deprecated).
+
+So while I completely agree that using .input_configured would be the
+proper thing to do, I think either all ff drivers should use it (and
+systemd should be fixed to make those input nodes accessible) or
+hid-mf should do what all others do (at least for the time being).
+
+Best regards
+Marcel

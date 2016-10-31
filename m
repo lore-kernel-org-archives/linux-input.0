@@ -1,152 +1,102 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V2 01/10] Documentation: devicetree: input: additions for
- da9061 onkey driver
-Date: Sun, 30 Oct 2016 23:15:55 -0500
-Message-ID: <20161031041555.y5l3qxo6b774hxfz@rob-hp-laptop>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH V2 02/10] Documentation: devicetree: watchdog: da9062/61
+ watchdog timer binding
+Date: Sun, 30 Oct 2016 23:17:03 -0500
+Message-ID: <20161031041703.kzovhtayt4v2chu4@rob-hp-laptop>
 References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
- <e85c9e4723ea7e7bff32d7a4c92807439b438c6d.1477501000.git.stwiss.opensource@diasemi.com>
+ <eb4502ac9eb455678eac325824312c5a377e658e.1477501000.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <e85c9e4723ea7e7bff32d7a4c92807439b438c6d.1477501000.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Cc: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <eb4502ac9eb455678eac325824312c5a377e658e.1477501000.git.stwiss.opensource@diasemi.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Wim Van Sebroeck <wim@iguana.be>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Zhang Rui <rui.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
 
 On Wed, Oct 26, 2016 at 05:56:37PM +0100, Steve Twiss wrote:
-> From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
 > 
-> Add binding information for DA9061 onkey.
+> Add binding information for DA9062 and DA9061 watchdog.
 > 
-> This patch updates the compatible string "dlg,da9061-onkey" to support
-> DA9061, removes the reference to KEY_SLEEP (which the driver no longer
-> supports) and fixes a typo in the example for DA9063.
+> Example bindings for both devices are added.
 > 
-> It also adds two new examples, one for DA9062 and one for DA9061. The
-> DA9061 examples uses a fall-back compatible string for the DA9062 onkey
-> driver.
+> The original binding for DA9062 (only) used to reside inside the
+> Documentation/devicetree/bindings/mfd/da9062.txt MFD document.
+> The da9062-watchdog section was deleted in that file and replaced
+> with a link to the new DA9061/62 binding information stored in this
+> patch.
 > 
-> Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 > 
 > ---
 > This patch applies against linux-next and v4.8
 > 
 > v1 -> v2
->  - Patch renamed from [PATCH V1 06/10] to [PATCH V2 01/10] -- these
+>  - Patch renamed from [PATCH V1 07/10] to [PATCH V2 02/10] -- these
 >    changes were made to fix checkpatch warnings caused by the patch
 >    set dependency order
->  - Typo s/ther/the/ in commit message
->  - Explanation about why KEY_SLEEP was removed (see below)
->  - Addition of DA9062 example
->  - Addition of a DA9061 example to follow the driver fall-back compatible
->    convention being applied for this device driver
+>  - Updated the patch description to be explicit about where parts of
+>    this binding had originally been stored
+>  - A second example for DA9061 is provided to highlight the use of a
+>    fall-back compatible option for the DA9062 watchdog driver
 > 
 > Hi,
 > 
-> This patch depends on the acceptance of the main code for the onkey:
->   [PATCH V2 07/10] Input: da9061: onkey driver.
-
-Just FYI, not really. While common practice is we take the whole series 
-together bindings could come first without a driver.
-
-> The device driver no longer supports KEY_SLEEP. It only supports
-> KEY_POWER. This change was sent a while ago for the DA9063 ONKEY driver,
-> but the docs were not updated.
+> This patch depends on the acceptance of DA9061 watchdog driver:
+>   [PATCH V2 08/10] watchdog: da9061: watchdog driver
 > 
-> Supporting KEY_SLEEP was not the general convention and the typical
-> solution should have been for KEY_POWER to support both cases of suspend
-> and S/W power off.
-
-This info will be lost when applied. You should add it to the commit 
-message.
-
+> This previous [PATCH V1 07/10] was acked-by: Rob Herring, however changes
+> in the Linux device driver have meant an additional binding example is
+> necessary to describe the use of DA9061.
 > 
-> There is also new binding examples for DA9062 and DA9061. Importantly,
-> the Linux device driver changes for DA9061 were rejected because the
-> DA9062 device driver can be reused. For this reason, the DA9061 example
-> uses a fall-back compatible string.
-> 
+> The Linux device driver changes for DA9061 were rejected after
+> conversations with the watchdog maintainers, specifically about
+> compatibility between DA9061 and DA9062 watchdog hardware components. In
+> the case of the watchdog the DA9062 device driver is compatible with the
+> DA9061 and for this reason there is minimal change required to the DA9062
+> watchdog device driver and so the example for the DA9061 watchdog shows
+> the use of a fall-back compatible string.
+>  
 > Regards,
 > Steve Twiss, Dialog Semiconductor Ltd.
 > 
 > 
->  .../devicetree/bindings/input/da9062-onkey.txt     | 39 +++++++++++++++-------
->  1 file changed, 27 insertions(+), 12 deletions(-)
+>  .../devicetree/bindings/watchdog/da9062-wdt.txt     | 21 +++++++++++++++++++++
+>  1 file changed, 21 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/input/da9062-onkey.txt b/Documentation/devicetree/bindings/input/da9062-onkey.txt
-> index ab0e048..e5a0469 100644
-> --- a/Documentation/devicetree/bindings/input/da9062-onkey.txt
-> +++ b/Documentation/devicetree/bindings/input/da9062-onkey.txt
-> @@ -1,32 +1,47 @@
-> -* Dialog DA9062/63 OnKey Module
-> +* Dialog DA9061/62/63 OnKey Module
->  
-> -This module is part of the DA9062/DA9063. For more details about entire
-> -chips see Documentation/devicetree/bindings/mfd/da9062.txt and
-> -Documentation/devicetree/bindings/mfd/da9063.txt
-> +This module is part of the DA9061/DA9062/DA9063. For more details about entire
-> +DA9062 and DA9061 chips see Documentation/devicetree/bindings/mfd/da9062.txt
-> +For DA9063 see Documentation/devicetree/bindings/mfd/da9063.txt
->  
-> -This module provides KEY_POWER, KEY_SLEEP and events.
-> +This module provides the KEY_POWER event.
->  
->  Required properties:
->  
->  - compatible: should be one of:
-> +	dlg,da9061-onkey
+> diff --git a/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+> new file mode 100644
+> index 0000000..1f8255c
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+> @@ -0,0 +1,21 @@
+> +* Dialog Semiconductor DA9062/61 Watchdog Timer
+> +
+> +Required properties:
+> +- compatible: "dlg,da9062-watchdog"
+> +              "dlg,da9061-watchdog"
 
-This needs to list the fallback too. It's below, but each line should be 
-valid combinations of compatible strings.
+Similar comment here. List each valid combination.
 
->  	dlg,da9062-onkey
->  	dlg,da9063-onkey
->  
->  Optional properties:
->  
-> -  - dlg,disable-key-power : Disable power-down using a long key-press. If this
-> +- dlg,disable-key-power : Disable power-down using a long key-press. If this
->      entry exists the OnKey driver will remove support for the KEY_POWER key
-> -    press. If this entry does not exist then by default the key-press
-> -    triggered power down is enabled and the OnKey will support both KEY_POWER
-> -    and KEY_SLEEP.
-> +    press when triggered using a long press of the OnKey.
->  
-> -Example:
-> -
-> -	pmic0: da9062@58 {
-> +Example: DA9063
->  
-> +	pmic0: da9063@58 {
->  		onkey {
->  			compatible = "dlg,da9063-onkey";
->  			dlg,disable-key-power;
->  		};
-> +	};
 > +
 > +Example: DA9062
 > +
 > +	pmic0: da9062@58 {
-> +		onkey {
-> +			compatible = "dlg,da9062-onkey";
-> +			dlg,disable-key-power;
+> +		watchdog {
+> +			compatible = "dlg,da9062-watchdog";
 > +		};
 > +	};
 > +
-> +Example: DA9061 using a fall-back compatible for the DA9062 onkey driver
->  
+> +Example: DA9061 using a fall-back compatible for the DA9062 watchdog driver
+> +
 > +	pmic0: da9061@58 {
-> +		onkey {
-> +			compatible = "dlg,da9061-onkey", "dlg,da9062-onkey";
-> +			dlg,disable-key-power;
+> +		watchdog {
+> +			compatible = "dlg,da9061-watchdog", "dlg,da9062-watchdog";
 > +		};
->  	};
+> +	};
 > -- 
 > end-of-patch for PATCH V2
 > 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

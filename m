@@ -1,63 +1,65 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH 00/12] xen: add common function for reading optional value
-Date: Mon, 31 Oct 2016 17:48:18 +0100
-Message-ID: <1477932510-28594-1-git-send-email-jgross@suse.com>
-Return-path: <linux-pci-owner@vger.kernel.org>
-Sender: linux-pci-owner@vger.kernel.org
+Subject: [PATCH 05/12] xen: make use of xenbus_read_unsigned() in xen-kbdfront
+Date: Mon, 31 Oct 2016 17:48:23 +0100
+Message-ID: <1477932510-28594-6-git-send-email-jgross@suse.com>
+References: <1477932510-28594-1-git-send-email-jgross@suse.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1477932510-28594-1-git-send-email-jgross@suse.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, xen-devel@lists.xen.org
-Cc: david.vrabel@citrix.com, boris.ostrovsky@oracle.com, Juergen Gross <jgross@suse.com>, konrad.wilk@oracle.com, roger.pau@citrix.com, peterhuewe@gmx.de, tpmdd@selhorst.net, jarkko.sakkinen@linux.intel.com, jgunthorpe@obsidianresearch.com, tpmdd-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, wei.liu2@citrix.com, paul.durrant@citrix.com, netdev@vger.kernel.org, bhelgaas@google.com, linux-pci@vger.kernel.org, tomi.valkeinen@ti.com, linux-fbdev@vger.kernel.org
+Cc: david.vrabel@citrix.com, boris.ostrovsky@oracle.com, Juergen Gross <jgross@suse.com>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-There are multiple instances of code reading an optional unsigned
-parameter from Xenstore via xenbus_scanf(). Instead of repeating the
-same code over and over add a service function doing the job and
-replace the call of xenbus_scanf() with the call of the new function
-where appropriate.
+Use xenbus_read_unsigned() instead of xenbus_scanf() when possible.
+This requires to change the type of the reads from int to unsigned,
+but these cases have been wrong before: negative values are not allowed
+for the modified cases.
 
-Juergen Gross (12):
-  xen: introduce xenbus_read_unsigned()
-  xen: make use of xenbus_read_unsigned() in xen-blkback
-  xen: make use of xenbus_read_unsigned() in xen-blkfront
-  xen: make use of xenbus_read_unsigned() in xen-tpmfront
-  xen: make use of xenbus_read_unsigned() in xen-kbdfront
-  xen: make use of xenbus_read_unsigned() in xen-netback
-  xen: make use of xenbus_read_unsigned() in xen-netfront
-  xen: make use of xenbus_read_unsigned() in xen-pcifront
-  xen: make use of xenbus_read_unsigned() in xen-scsifront
-  xen: make use of xenbus_read_unsigned() in xen-fbfront
-  xen: make use of xenbus_read_unsigned() in xen-pciback
-  xen: make use of xenbus_read_unsigned() in xenbus
-
- drivers/block/xen-blkback/xenbus.c        | 36 ++++++--------
- drivers/block/xen-blkfront.c              | 81 ++++++++++---------------------
- drivers/char/tpm/xen-tpmfront.c           |  8 +--
- drivers/input/misc/xen-kbdfront.c         | 13 ++---
- drivers/net/xen-netback/xenbus.c          | 50 ++++++-------------
- drivers/net/xen-netfront.c                | 67 +++++++------------------
- drivers/pci/xen-pcifront.c                |  6 +--
- drivers/scsi/xen-scsifront.c              |  6 +--
- drivers/video/fbdev/xen-fbfront.c         | 13 ++---
- drivers/xen/xen-pciback/xenbus.c          |  8 ++-
- drivers/xen/xenbus/xenbus_probe_backend.c |  8 +--
- drivers/xen/xenbus/xenbus_xs.c            | 22 +++++++--
- include/xen/xenbus.h                      |  4 ++
- 13 files changed, 112 insertions(+), 210 deletions(-)
-
-Cc: konrad.wilk@oracle.com
-Cc: roger.pau@citrix.com
-Cc: peterhuewe@gmx.de
-Cc: tpmdd@selhorst.net
-Cc: jarkko.sakkinen@linux.intel.com
-Cc: jgunthorpe@obsidianresearch.com
-Cc: tpmdd-devel@lists.sourceforge.net
 Cc: dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org
-Cc: wei.liu2@citrix.com
-Cc: paul.durrant@citrix.com
-Cc: netdev@vger.kernel.org
-Cc: bhelgaas@google.com
-Cc: linux-pci@vger.kernel.org
-Cc: tomi.valkeinen@ti.com
-Cc: linux-fbdev@vger.kernel.org
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ drivers/input/misc/xen-kbdfront.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index 227fbd2..3900875 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -108,7 +108,8 @@ static irqreturn_t input_handler(int rq, void *dev_id)
+ static int xenkbd_probe(struct xenbus_device *dev,
+ 				  const struct xenbus_device_id *id)
+ {
+-	int ret, i, abs;
++	int ret, i;
++	unsigned int abs;
+ 	struct xenkbd_info *info;
+ 	struct input_dev *kbd, *ptr;
+ 
+@@ -127,8 +128,7 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 	if (!info->page)
+ 		goto error_nomem;
+ 
+-	if (xenbus_scanf(XBT_NIL, dev->otherend, "feature-abs-pointer", "%d", &abs) < 0)
+-		abs = 0;
++	abs = xenbus_read_unsigned(dev->otherend, "feature-abs-pointer", 0);
+ 	if (abs) {
+ 		ret = xenbus_write(XBT_NIL, dev->nodename,
+ 				   "request-abs-pointer", "1");
+@@ -322,11 +322,8 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
+ 
+ 	case XenbusStateInitWait:
+ InitWait:
+-		ret = xenbus_scanf(XBT_NIL, info->xbdev->otherend,
+-				   "feature-abs-pointer", "%d", &val);
+-		if (ret < 0)
+-			val = 0;
+-		if (val) {
++		if (xenbus_read_unsigned(info->xbdev->otherend,
++					 "feature-abs-pointer", 0)) {
+ 			ret = xenbus_write(XBT_NIL, info->xbdev->nodename,
+ 					   "request-abs-pointer", "1");
+ 			if (ret)
 -- 
 2.6.6

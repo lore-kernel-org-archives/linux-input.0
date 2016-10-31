@@ -1,31 +1,30 @@
 From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH V3 2/9] Documentation: devicetree: watchdog: da9062/61
- watchdog timer binding
-Date: Mon, 31 Oct 2016 16:02:03 +0000
-Message-ID: <35578f27515c2abc1780823829ebab467543548c.1477929725.git.stwiss.opensource@diasemi.com>
+Subject: [PATCH V3 7/9] watchdog: da9062/61: watchdog driver
+Date: Mon, 31 Oct 2016 16:02:04 +0000
+Message-ID: <45b99f01747a87dbee2529fa34e61883fceabcfc.1477929725.git.stwiss.opensource@diasemi.com>
 References: <cover.1477929725.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <cover.1477929725.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Cc: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
 From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-Add binding information for DA9062 and DA9061 watchdog.
+The of_device_id match array is added to support "dlg,da9062-watchdog"
+as a valid .compatible string. A MODULE_DEVICE_TABLE() macro is added.
 
-Example bindings for both DA9062 and DA9061 devices are added. For
-the DA9061 device, a fallback compatible line is added as a valid
-combination of compatible strings.
+This patch assumes the use of a DA9062 fallback compatible string for the
+DTS to pick up the DA9062 device driver for use with the DA9061 watchdog
+hardware
 
-The original binding for DA9062 (only) used to reside inside the
-Documentation/devicetree/bindings/mfd/da9062.txt MFD document.
-The da9062-watchdog section was deleted in that file and replaced
-with a link to the new DA9061/62 binding information stored in this
-patch.
+Copyright header is updated to add DA9061 in its description and the module
+description macro is extended to include DA9061.
+
+Kconfig is updated to reflect support for DA9061/62.
 
 Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
@@ -33,81 +32,99 @@ Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gman
 This patch applies against linux-next and v4.8
 
 v2 -> v3
- - Patch renamed from [PATCH V1 02/10] to [PATCH V3 2/9]
- - Each compatible line should be a valid combination of compatible
-   strings, alter DA9061 line to include the fall back compatible string
- - Update the commit message to describe this change
- - Add information about associated patches from this set without
-   describing them as being explicitly dependent on this binding
+ - Patch renamed from [PATCH V2 08/10] to [PATCH V3 7/9]
+ - Removal of match->data and of_match_node search. There is only one
+   compatible string now. and delete the .data = &da9062_watchdog_info
+   association in the struct of_device_id compatible table.
+ - Addition of MODULE_DEVICE_TABLE macro to allow modinfo additions:
+   da9062_wdt.ko platform:da9062_watchdog
+                 of:N*T*Cdlg,da9062_watchdogC*
+                 of:N*T*Cdlg,da9062_watchdog
 
 v1 -> v2
- - Patch renamed from [PATCH V1 07/10] to [PATCH V2 02/10] -- these
+ - Patch renamed from [PATCH V1 04/10] to [PATCH V2 08/10] -- these
    changes were made to fix checkpatch warnings caused by the patch
    set dependency order
- - Updated the patch description to be explicit about where parts of
-   this binding had originally been stored
- - A second example for DA9061 is provided to highlight the use of a
-   fall-back compatible option for the DA9062 watchdog driver
+ - Removal of the DA9061 compatible entries for this device driver.
+ - Additional explanation in the patch description for the use of a
+   fall-back compatible DTS string
 
-Hi,
+Guenter,
 
-A previous [PATCH V1 07/10] was acked-by: Rob Herring, however changes
-in the Linux device driver have meant an additional binding information
-and an example is necessary to describe the use of DA9061.
+Alterations have been made in accordance with the previous e-mail thread
+on the use of compatible strings: https://lkml.org/lkml/2016/10/7/641
+This patch now assumes the use of a fallback compatible string in the DTS.
+Of the form: compatible = "dlg,da9061-watchdog", "dlg,da9062-watchdog";
 
-The Linux device driver changes for DA9061 were rejected after
-conversations with the watchdog maintainers, specifically about
-compatibility between DA9061 and DA9062 watchdog hardware components. In
-the case of the watchdog the DA9062 device driver is compatible with the
-DA9061 and for this reason there is minimal change required to the DA9062
-watchdog device driver and so the example for the DA9061 watchdog shows
-the use of a fall-back compatible string.
-
-Other information:
-The device driver from this patch set (associated with this binding) is
-  [PATCH V3 7/9] watchdog: da9061: watchdog driver
- 
 Regards,
 Steve Twiss, Dialog Semiconductor Ltd.
 
 
- .../devicetree/bindings/watchdog/da9062-wdt.txt    | 23 ++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+ drivers/watchdog/Kconfig      |  4 ++--
+ drivers/watchdog/da9062_wdt.c | 12 ++++++++++--
+ 2 files changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
-new file mode 100644
-index 0000000..b935b52
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
-@@ -0,0 +1,23 @@
-+* Dialog Semiconductor DA9062/61 Watchdog Timer
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 1bffe00..d6b4088 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -104,11 +104,11 @@ config DA9063_WATCHDOG
+ 	  This driver can be built as a module. The module name is da9063_wdt.
+ 
+ config DA9062_WATCHDOG
+-	tristate "Dialog DA9062 Watchdog"
++	tristate "Dialog DA9062/61 Watchdog"
+ 	depends on MFD_DA9062
+ 	select WATCHDOG_CORE
+ 	help
+-	  Support for the watchdog in the DA9062 PMIC.
++	  Support for the watchdog in the DA9062 and DA9061 PMICs.
+ 
+ 	  This driver can be built as a module. The module name is da9062_wdt.
+ 
+diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
+index 7386111..a02cee6 100644
+--- a/drivers/watchdog/da9062_wdt.c
++++ b/drivers/watchdog/da9062_wdt.c
+@@ -1,5 +1,5 @@
+ /*
+- * da9062_wdt.c - WDT device driver for DA9062
++ * Watchdog device driver for DA9062 and DA9061 PMICs
+  * Copyright (C) 2015  Dialog Semiconductor Ltd.
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -188,6 +188,13 @@ static const struct watchdog_ops da9062_watchdog_ops = {
+ 	.set_timeout = da9062_wdt_set_timeout,
+ };
+ 
++static const struct of_device_id da9062_compatible_id_table[] = {
++	{ .compatible = "dlg,da9062-watchdog", },
++	{ },
++};
 +
-+Required properties:
++MODULE_DEVICE_TABLE(of, da9062_compatible_id_table);
 +
-+- compatible: should be one of the following valid compatible string lines:
-+	"dlg,da9061-watchdog", "dlg,da9062-watchdog"
-+	"dlg,da9062-watchdog"
-+
-+Example: DA9062
-+
-+	pmic0: da9062@58 {
-+		watchdog {
-+			compatible = "dlg,da9062-watchdog";
-+		};
-+	};
-+
-+Example: DA9061 using a fall-back compatible for the DA9062 watchdog driver
-+
-+	pmic0: da9061@58 {
-+		watchdog {
-+			compatible = "dlg,da9061-watchdog", "dlg,da9062-watchdog";
-+		};
-+	};
+ static int da9062_wdt_probe(struct platform_device *pdev)
+ {
+ 	int ret;
+@@ -244,11 +251,12 @@ static struct platform_driver da9062_wdt_driver = {
+ 	.remove = da9062_wdt_remove,
+ 	.driver = {
+ 		.name = "da9062-watchdog",
++		.of_match_table = da9062_compatible_id_table,
+ 	},
+ };
+ module_platform_driver(da9062_wdt_driver);
+ 
+ MODULE_AUTHOR("S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>");
+-MODULE_DESCRIPTION("WDT device driver for Dialog DA9062");
++MODULE_DESCRIPTION("WDT device driver for Dialog DA9062 and DA9061");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:da9062-watchdog");
 -- 
 end-of-patch for PATCH V3
 
 --
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

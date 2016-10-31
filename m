@@ -1,65 +1,35 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH 05/12] xen: make use of xenbus_read_unsigned() in xen-kbdfront
-Date: Mon, 31 Oct 2016 17:48:23 +0100
-Message-ID: <1477932510-28594-6-git-send-email-jgross@suse.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 00/12] xen: add common function for reading
+ optional value
+Date: Mon, 31 Oct 2016 13:08:31 -0400 (EDT)
+Message-ID: <20161031.130831.2006896157400677867.davem@davemloft.net>
 References: <1477932510-28594-1-git-send-email-jgross@suse.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xen.org>
 In-Reply-To: <1477932510-28594-1-git-send-email-jgross@suse.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, xen-devel@lists.xen.org
-Cc: david.vrabel@citrix.com, boris.ostrovsky@oracle.com, Juergen Gross <jgross@suse.com>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xen.org>
+List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
+List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xen.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
+To: jgross@suse.com
+Cc: linux-fbdev@vger.kernel.org, wei.liu2@citrix.com, linux-pci@vger.kernel.org, netdev@vger.kernel.org, tomi.valkeinen@ti.com, dmitry.torokhov@gmail.com, tpmdd@selhorst.net, linux-kernel@vger.kernel.org, jarkko.sakkinen@linux.intel.com, xen-devel@lists.xen.org, jgunthorpe@obsidianresearch.com, tpmdd-devel@lists.sourceforge.net, david.vrabel@citrix.com, linux-input@vger.kernel.org, bhelgaas@google.com, boris.ostrovsky@oracle.com, peterhuewe@gmx.de, paul.durrant@citrix.com, roger.pau@citrix.com
 List-Id: linux-input@vger.kernel.org
 
-Use xenbus_read_unsigned() instead of xenbus_scanf() when possible.
-This requires to change the type of the reads from int to unsigned,
-but these cases have been wrong before: negative values are not allowed
-for the modified cases.
-
-Cc: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- drivers/input/misc/xen-kbdfront.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-index 227fbd2..3900875 100644
---- a/drivers/input/misc/xen-kbdfront.c
-+++ b/drivers/input/misc/xen-kbdfront.c
-@@ -108,7 +108,8 @@ static irqreturn_t input_handler(int rq, void *dev_id)
- static int xenkbd_probe(struct xenbus_device *dev,
- 				  const struct xenbus_device_id *id)
- {
--	int ret, i, abs;
-+	int ret, i;
-+	unsigned int abs;
- 	struct xenkbd_info *info;
- 	struct input_dev *kbd, *ptr;
- 
-@@ -127,8 +128,7 @@ static int xenkbd_probe(struct xenbus_device *dev,
- 	if (!info->page)
- 		goto error_nomem;
- 
--	if (xenbus_scanf(XBT_NIL, dev->otherend, "feature-abs-pointer", "%d", &abs) < 0)
--		abs = 0;
-+	abs = xenbus_read_unsigned(dev->otherend, "feature-abs-pointer", 0);
- 	if (abs) {
- 		ret = xenbus_write(XBT_NIL, dev->nodename,
- 				   "request-abs-pointer", "1");
-@@ -322,11 +322,8 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
- 
- 	case XenbusStateInitWait:
- InitWait:
--		ret = xenbus_scanf(XBT_NIL, info->xbdev->otherend,
--				   "feature-abs-pointer", "%d", &val);
--		if (ret < 0)
--			val = 0;
--		if (val) {
-+		if (xenbus_read_unsigned(info->xbdev->otherend,
-+					 "feature-abs-pointer", 0)) {
- 			ret = xenbus_write(XBT_NIL, info->xbdev->nodename,
- 					   "request-abs-pointer", "1");
- 			if (ret)
--- 
-2.6.6
+RnJvbTogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPgpEYXRlOiBNb24sIDMxIE9jdCAy
+MDE2IDE3OjQ4OjE4ICswMTAwCgo+IFRoZXJlIGFyZSBtdWx0aXBsZSBpbnN0YW5jZXMgb2YgY29k
+ZSByZWFkaW5nIGFuIG9wdGlvbmFsIHVuc2lnbmVkCj4gcGFyYW1ldGVyIGZyb20gWGVuc3RvcmUg
+dmlhIHhlbmJ1c19zY2FuZigpLiBJbnN0ZWFkIG9mIHJlcGVhdGluZyB0aGUKPiBzYW1lIGNvZGUg
+b3ZlciBhbmQgb3ZlciBhZGQgYSBzZXJ2aWNlIGZ1bmN0aW9uIGRvaW5nIHRoZSBqb2IgYW5kCj4g
+cmVwbGFjZSB0aGUgY2FsbCBvZiB4ZW5idXNfc2NhbmYoKSB3aXRoIHRoZSBjYWxsIG9mIHRoZSBu
+ZXcgZnVuY3Rpb24KPiB3aGVyZSBhcHByb3ByaWF0ZS4KCkFzIHRoaXMgc2VlbXMgdG8gYmUgYSBz
+ZXJpZXMgdGhhdCB3aWxsIGdvIHRocm91Z2ggc29tZSB0cmVlIG90aGVyCnRoYW4gbWluZSwgSSBh
+c3N1bWUgdGhlIG5ldHdvcmtpbmcgYml0cyB3aWxsIGJlIHRha2VuIGNhcmUgb2YgdGhhdAp3YXku
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpYZW4tZGV2
+ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZlbEBsaXN0cy54ZW4ub3JnCmh0dHBzOi8vbGlzdHMueGVu
+Lm9yZy94ZW4tZGV2ZWwK

@@ -1,35 +1,35 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 00/12] xen: add common function for reading
- optional value
-Date: Mon, 31 Oct 2016 13:08:31 -0400 (EDT)
-Message-ID: <20161031.130831.2006896157400677867.davem@davemloft.net>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH 00/12] xen: add common function for reading optional value
+Date: Tue, 1 Nov 2016 05:33:01 +0100
+Message-ID: <76a0c445-c345-fdf4-12b1-974491f6a77e@suse.com>
 References: <1477932510-28594-1-git-send-email-jgross@suse.com>
+ <20161031.130831.2006896157400677867.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xen.org>
-In-Reply-To: <1477932510-28594-1-git-send-email-jgross@suse.com>
-List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xen.org>
-List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
-List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xen.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
-To: jgross@suse.com
-Cc: linux-fbdev@vger.kernel.org, wei.liu2@citrix.com, linux-pci@vger.kernel.org, netdev@vger.kernel.org, tomi.valkeinen@ti.com, dmitry.torokhov@gmail.com, tpmdd@selhorst.net, linux-kernel@vger.kernel.org, jarkko.sakkinen@linux.intel.com, xen-devel@lists.xen.org, jgunthorpe@obsidianresearch.com, tpmdd-devel@lists.sourceforge.net, david.vrabel@citrix.com, linux-input@vger.kernel.org, bhelgaas@google.com, boris.ostrovsky@oracle.com, peterhuewe@gmx.de, paul.durrant@citrix.com, roger.pau@citrix.com
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pci-owner@vger.kernel.org>
+In-Reply-To: <20161031.130831.2006896157400677867.davem@davemloft.net>
+Sender: linux-pci-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xen.org, david.vrabel@citrix.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, roger.pau@citrix.com, peterhuewe@gmx.de, tpmdd@selhorst.net, jarkko.sakkinen@linux.intel.com, jgunthorpe@obsidianresearch.com, tpmdd-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, wei.liu2@citrix.com, paul.durrant@citrix.com, netdev@vger.kernel.org, bhelgaas@google.com, linux-pci@vger.kernel.org, tomi.valkeinen@ti.com, linux-fbdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-RnJvbTogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPgpEYXRlOiBNb24sIDMxIE9jdCAy
-MDE2IDE3OjQ4OjE4ICswMTAwCgo+IFRoZXJlIGFyZSBtdWx0aXBsZSBpbnN0YW5jZXMgb2YgY29k
-ZSByZWFkaW5nIGFuIG9wdGlvbmFsIHVuc2lnbmVkCj4gcGFyYW1ldGVyIGZyb20gWGVuc3RvcmUg
-dmlhIHhlbmJ1c19zY2FuZigpLiBJbnN0ZWFkIG9mIHJlcGVhdGluZyB0aGUKPiBzYW1lIGNvZGUg
-b3ZlciBhbmQgb3ZlciBhZGQgYSBzZXJ2aWNlIGZ1bmN0aW9uIGRvaW5nIHRoZSBqb2IgYW5kCj4g
-cmVwbGFjZSB0aGUgY2FsbCBvZiB4ZW5idXNfc2NhbmYoKSB3aXRoIHRoZSBjYWxsIG9mIHRoZSBu
-ZXcgZnVuY3Rpb24KPiB3aGVyZSBhcHByb3ByaWF0ZS4KCkFzIHRoaXMgc2VlbXMgdG8gYmUgYSBz
-ZXJpZXMgdGhhdCB3aWxsIGdvIHRocm91Z2ggc29tZSB0cmVlIG90aGVyCnRoYW4gbWluZSwgSSBh
-c3N1bWUgdGhlIG5ldHdvcmtpbmcgYml0cyB3aWxsIGJlIHRha2VuIGNhcmUgb2YgdGhhdAp3YXku
-CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpYZW4tZGV2
-ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZlbEBsaXN0cy54ZW4ub3JnCmh0dHBzOi8vbGlzdHMueGVu
-Lm9yZy94ZW4tZGV2ZWwK
+On 31/10/16 18:08, David Miller wrote:
+> From: Juergen Gross <jgross@suse.com>
+> Date: Mon, 31 Oct 2016 17:48:18 +0100
+> 
+>> There are multiple instances of code reading an optional unsigned
+>> parameter from Xenstore via xenbus_scanf(). Instead of repeating the
+>> same code over and over add a service function doing the job and
+>> replace the call of xenbus_scanf() with the call of the new function
+>> where appropriate.
+> 
+> As this seems to be a series that will go through some tree other
+> than mine, I assume the networking bits will be taken care of that
+> way.
+> 
+
+If accepted I expect this series to go through the Xen tree.
+
+
+Juergen

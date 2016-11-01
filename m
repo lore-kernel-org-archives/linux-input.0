@@ -1,7 +1,7 @@
 From: Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH 1/2] Input: gpio_keys - Also send release events for ABS codes
-Date: Tue,  1 Nov 2016 11:25:03 +0100
-Message-ID: <20161101102504.3783-2-paul@crapouillou.net>
+Subject: [PATCH 2/2] Input: gpio_keys - Set ABS params when using axes
+Date: Tue,  1 Nov 2016 11:25:04 +0100
+Message-ID: <20161101102504.3783-3-paul@crapouillou.net>
 References: <20161101102504.3783-1-paul@crapouillou.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20161101102504.3783-1-paul@crapouillou.net>
@@ -10,32 +10,32 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Laxman Dewangan <ldewangan@nvid
 Cc: Maarten ter Huurne <maarten@treewalker.org>, Paul Cercueil <paul@crapouillou.net>
 List-Id: linux-input@vger.kernel.org
 
-Right now, the gpio-keys driver is mostly used with EV_KEY event types.
-However, this driver (and its devicetree bindings) support specifying
-a different input type, like EV_ABS, even though this doesn't work in
-practice: "key pressed" events are correctly received and treated, but
-"key released" are silently ignored.
+The gpio-keys supports the EV_ABS event type, but does not actually
+configure the input device to work with that mode.
 
-With this commit, keys configured as EV_ABS will inject an event with
-the value 0 when released.
+This patch configures the axis corresponding to button->code as being
+in the range [-1,+1]. This makes it possible to use gpio-keys to
+implement a hat (using the ABS_HAT0X /ABS_HAT0Y axes, with two GPIOs
+each with values -1/+1).
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
- drivers/input/keyboard/gpio_keys.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/keyboard/gpio_keys.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 2909365..7018c49 100644
+index 7018c49..1f2850a 100644
 --- a/drivers/input/keyboard/gpio_keys.c
 +++ b/drivers/input/keyboard/gpio_keys.c
-@@ -369,6 +369,8 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
- 	if (type == EV_ABS) {
- 		if (state)
- 			input_event(input, type, button->code, button->value);
-+		else
-+			input_event(input, type, button->code, 0);
- 	} else {
- 		input_event(input, type, button->code, !!state);
- 	}
+@@ -540,6 +540,9 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 
+ 	input_set_capability(input, button->type ?: EV_KEY, button->code);
+ 
++	if (button->type == EV_ABS)
++		input_set_abs_params(input, button->code, -1, 1, 0, 0);
++
+ 	/*
+ 	 * Install custom action to cancel release timer and
+ 	 * workqueue item.
 -- 
 2.9.3

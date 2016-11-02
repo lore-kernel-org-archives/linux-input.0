@@ -1,958 +1,432 @@
-From: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-Subject: [PATCH v9 2/5] iio: adc: mxs-lradc: Add support for adc driver
-Date: Wed,  2 Nov 2016 08:38:23 +0100
-Message-ID: <c750ee15d03f6cf1a066dda21b1973d74cf9f59f.1478071676.git.ksenija.stanojevic@gmail.com>
-References: <cover.1478071676.git.ksenija.stanojevic@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1478071676.git.ksenija.stanojevic@gmail.com>
-In-Reply-To: <cover.1478071676.git.ksenija.stanojevic@gmail.com>
-References: <cover.1478071676.git.ksenija.stanojevic@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: lee.jones@linaro.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+From: Lukasz Luba <lukasz.luba-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH V3 8/9] thermal: da9062/61: Thermal junction temperature
+ monitoring driver
+Date: Wed, 2 Nov 2016 13:28:35 +0000
+Message-ID: <b5789f09-0053-f0fc-ee35-c8c32969852b@arm.com>
+References: <cover.1477929725.git.stwiss.opensource@diasemi.com>
+ <52d74c72cc445d2bc911014f38b79c1f10426878.1477929725.git.stwiss.opensource@diasemi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <52d74c72cc445d2bc911014f38b79c1f10426878.1477929725.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Add support for sixteen-channel 12-bit resolution ADC and its functions,
-which include general-purpose ADC readings, battery voltage measurement,
-and die temperature measurement.
+Hi Steve,
 
-Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-Reviewed-by: Jonathan Cameron <jic23@kernel.org>
----
-Changes in v9:
- - none
+Please find my comments below.
 
-Changes in v8:
- - rebase onto 4.9-rc1
+Apart from these 2 comments, 10sec is not to long
+(waiting for the temperature change)?
 
-Changes in v7:
- - none
+On 31/10/16 16:02, Steve Twiss wrote:
+> From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+>
+> Add junction temperature monitoring supervisor device driver, compatible
+> with the DA9062 and DA9061 PMICs. A MODULE_DEVICE_TABLE() macro is added.
+>
+> If the PMIC's internal junction temperature rises above TEMP_WARN (125
+> degC) an interrupt is issued. This TEMP_WARN level is defined as the
+> THERMAL_TRIP_HOT trip-wire inside the device driver.
+>
+> The thermal triggering mechanism is interrupt based and happens when the
+> temperature rises above a given threshold level. The component cannot
+> return an exact temperature, it only has knowledge if the temperature is
+> above or below a given threshold value. A status bit must be polled to
+> detect when the temperature falls below that threshold level again. A
+> kernel work queue is configured to repeatedly poll and detect when the
+> temperature falls below this trip-wire, between 1 and 10 second intervals
+> (defaulting at 3 seconds).
+>
+> This first level of temperature supervision is intended for non-invasive
+> temperature control, where the necessary measures for cooling the system
+> down are left to the host software.
+>
+> Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+>
+> ---
+> This patch applies against linux-next and v4.8
+>
+> v2 -> v3
+>  - Patch renamed from [PATCH V2 09/10] to [PATCH V3 8/9]
+>  - Addition of MODULE_DEVICE_TABLE macro to allow modinfo additions
+>
+> v1 -> v2
+>  - Patch renamed from [PATCH V1 05/10] to [PATCH V2 09/10] -- these
+>    changes were made to fix checkpatch warnings caused by the patch
+>    set dependency order
+>  - List the header files in alphabetical order
+>  - Remove "GPL v2" and replace with MODULE_LICENSE("GPL") to match the
+>    copyright "GNU Public License v2 or later" option in the header
+>    comment for this file. See the allowed identifiers in the file
+>    include/linux/module.h +170
+>  - Remove notify function "da9062_thermal_notify" function.
+>  - MODULE_AUTHOR() macros removes Company Name and just gives Name in
+>    accordance with include/linux/module.h +200
+>  - Remove the compatible "dlg,da9061-thermal" option in the of_device_id
+>    struct table. This patch now assumes the use of a DA9062 fallback
+>    compatible string in the DTS when using the DA9061 thermal component
+>    of the DA9061 device.
+>  - Re-ordered some assignments earlier in the probe() for thermal->hw,
+>    thermal->polling_period, thermal->mode, thermal->dev
+>  - Added further information in the patch description to explain the use
+>    of the device driver's built-in work-queue.
+>
+> Regards,
+> Steve Twiss, Dialog Semiconductor Ltd.
+>
+>
+>  drivers/thermal/Kconfig          |  10 ++
+>  drivers/thermal/Makefile         |   1 +
+>  drivers/thermal/da9062-thermal.c | 291 +++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 302 insertions(+)
+>  create mode 100644 drivers/thermal/da9062-thermal.c
+>
+> diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
+> index 2d702ca..da58e54 100644
+> --- a/drivers/thermal/Kconfig
+> +++ b/drivers/thermal/Kconfig
+> @@ -272,6 +272,16 @@ config DB8500_CPUFREQ_COOLING
+>  	  bound cpufreq cooling device turns active to set CPU frequency low to
+>  	  cool down the CPU.
+>
+> +config DA9062_THERMAL
+> +	tristate "DA9062/DA9061 Dialog Semiconductor thermal driver"
+> +	depends on MFD_DA9062
+> +	depends on OF
+> +	help
+> +	  Enable this for the Dialog Semiconductor thermal sensor driver.
+> +	  This will report PMIC junction over-temperature for one thermal trip
+> +	  zone.
+> +	  Compatible with the DA9062 and DA9061 PMICs.
+> +
+>  config INTEL_POWERCLAMP
+>  	tristate "Intel PowerClamp idle injection driver"
+>  	depends on THERMAL
+> diff --git a/drivers/thermal/Makefile b/drivers/thermal/Makefile
+> index 10b07c1..0a2b3f2 100644
+> --- a/drivers/thermal/Makefile
+> +++ b/drivers/thermal/Makefile
+> @@ -38,6 +38,7 @@ obj-$(CONFIG_ARMADA_THERMAL)	+= armada_thermal.o
+>  obj-$(CONFIG_TANGO_THERMAL)	+= tango_thermal.o
+>  obj-$(CONFIG_IMX_THERMAL)	+= imx_thermal.o
+>  obj-$(CONFIG_DB8500_CPUFREQ_COOLING)	+= db8500_cpufreq_cooling.o
+> +obj-$(CONFIG_DA9062_THERMAL)	+= da9062-thermal.o
+>  obj-$(CONFIG_INTEL_POWERCLAMP)	+= intel_powerclamp.o
+>  obj-$(CONFIG_X86_PKG_TEMP_THERMAL)	+= x86_pkg_temp_thermal.o
+>  obj-$(CONFIG_INTEL_SOC_DTS_IOSF_CORE)	+= intel_soc_dts_iosf.o
+> diff --git a/drivers/thermal/da9062-thermal.c b/drivers/thermal/da9062-thermal.c
+> new file mode 100644
+> index 0000000..1f0af22
+> --- /dev/null
+> +++ b/drivers/thermal/da9062-thermal.c
+> @@ -0,0 +1,291 @@
+> +/*
+> + * Thermal device driver for DA9062 and DA9061
+> + * Copyright (C) 2016  Dialog Semiconductor Ltd.
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * as published by the Free Software Foundation; either version 2
+> + * of the License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/errno.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/thermal.h>
+> +#include <linux/workqueue.h>
+> +
+> +#include <linux/mfd/da9062/core.h>
+> +#include <linux/mfd/da9062/registers.h>
+> +
+> +#define DA9062_DEFAULT_POLLING_MS_PERIOD	3000
+> +#define DA9062_MAX_POLLING_MS_PERIOD		10000
+> +#define DA9062_MIN_POLLING_MS_PERIOD		1000
+> +
+> +#define DA9062_MILLI_CELSIUS(t)			((t)*1000)
+> +
+> +struct da9062_thermal_config {
+> +	const char *name;
+> +};
+> +
+> +struct da9062_thermal {
+> +	struct da9062 *hw;
+> +	struct delayed_work work;
+> +	struct thermal_zone_device *zone;
+> +	enum thermal_device_mode mode;
+> +	unsigned int polling_period;
+> +	struct mutex lock;
+> +	int temperature;
+> +	int irq;
+> +	const struct da9062_thermal_config *config;
+> +	struct device *dev;
+> +};
+> +
+> +static void da9062_thermal_poll_on(struct work_struct *work)
+> +{
+> +	struct da9062_thermal *thermal = container_of(work,
+> +						struct da9062_thermal,
+> +						work.work);
+> +	unsigned int val;
+> +	int ret;
+> +
+> +	/* clear E_TEMP */
+> +	ret = regmap_write(thermal->hw->regmap,
+> +				DA9062AA_EVENT_B,
+> +				DA9062AA_E_TEMP_MASK);
+> +	if (ret < 0) {
+> +		dev_err(thermal->dev,
+> +			"Cannot clear the TJUNC temperature status\n");
+> +		goto err_enable_irq;
+> +	}
+> +
+> +	/* Now read E_TEMP again: it is acting like a status bit.
+> +	 * If over-temperature, then this status will be true.
+> +	 * If not over-temperature, this status will be false.
+> +	 */
+> +	ret = regmap_read(thermal->hw->regmap,
+> +			  DA9062AA_EVENT_B,
+> +			  &val);
+> +	if (ret < 0) {
+> +		dev_err(thermal->dev,
+> +			"Cannot check the TJUNC temperature status\n");
+> +		goto err_enable_irq;
+> +	} else {
+> +		if (val & DA9062AA_E_TEMP_MASK) {
+> +			mutex_lock(&thermal->lock);
+> +			thermal->temperature = DA9062_MILLI_CELSIUS(125);
+> +			mutex_unlock(&thermal->lock);
+> +			thermal_zone_device_update(thermal->zone);
+> +
+> +			schedule_delayed_work(&thermal->work,
+> +				msecs_to_jiffies(thermal->polling_period));
+> +			return;
+> +		} else {
+> +			mutex_lock(&thermal->lock);
+> +			thermal->temperature = DA9062_MILLI_CELSIUS(0);
+> +			mutex_unlock(&thermal->lock);
+> +			thermal_zone_device_update(thermal->zone);
+> +		}
+> +	}
+> +
+> +err_enable_irq:
+> +	enable_irq(thermal->irq);
+> +}
+> +
+> +static irqreturn_t da9062_thermal_irq_handler(int irq, void *data)
+> +{
+> +	struct da9062_thermal *thermal = data;
+> +
+> +	disable_irq_nosync(thermal->irq);
+> +	schedule_delayed_work(&thermal->work, 0);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int da9062_thermal_get_mode(struct thermal_zone_device *z,
+> +				   enum thermal_device_mode *mode)
+> +{
+> +	struct da9062_thermal *thermal = z->devdata;
+> +	*mode = thermal->mode;
+> +	return 0;
+> +}
+> +
+> +static int da9062_thermal_get_trip_type(struct thermal_zone_device *z,
+> +				int trip,
+> +				enum thermal_trip_type *type)
+> +{
+> +	struct da9062_thermal *thermal = z->devdata;
+> +
+> +	switch (trip) {
+> +	case 0:
+> +		*type = THERMAL_TRIP_HOT;
+> +		break;
+> +	default:
+> +		dev_err(thermal->dev,
+> +			"Driver does not support more than 1 trip-wire\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int da9062_thermal_get_trip_temp(struct thermal_zone_device *z,
+> +					int trip,
+> +					int *temp)
+> +{
+> +	struct da9062_thermal *thermal = z->devdata;
+> +
+> +	switch (trip) {
+> +	case 0:
+> +		*temp = DA9062_MILLI_CELSIUS(125);
+> +		break;
+> +	default:
+> +		dev_err(thermal->dev,
+> +			"Driver does not support more than 1 trip-wire\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int da9062_thermal_get_temp(struct thermal_zone_device *z,
+> +				   int *temp)
+> +{
+> +	struct da9062_thermal *thermal = z->devdata;
+> +
+> +	mutex_lock(&thermal->lock);
+> +	*temp = thermal->temperature;
+> +	mutex_unlock(&thermal->lock);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct thermal_zone_device_ops da9062_thermal_ops = {
+> +	.get_temp	= da9062_thermal_get_temp,
+> +	.get_mode	= da9062_thermal_get_mode,
+> +	.get_trip_type	= da9062_thermal_get_trip_type,
+> +	.get_trip_temp	= da9062_thermal_get_trip_temp,
+> +};
+> +
+> +static const struct da9062_thermal_config da9062_config = {
+> +	.name = "da9062-thermal",
+> +};
+> +
+> +static const struct of_device_id da9062_compatible_reg_id_table[] = {
+> +	{ .compatible = "dlg,da9062-thermal", .data = &da9062_config },
+> +	{ },
+> +};
+> +
+> +MODULE_DEVICE_TABLE(of, da9062_compatible_reg_id_table);
+> +
+> +static int da9062_thermal_probe(struct platform_device *pdev)
+> +{
+> +	struct da9062 *chip = dev_get_drvdata(pdev->dev.parent);
+> +	struct da9062_thermal *thermal;
+> +	unsigned int pp_tmp = DA9062_DEFAULT_POLLING_MS_PERIOD;
+> +	const struct of_device_id *match;
+> +	int ret = 0;
+> +
+> +	match = of_match_node(da9062_compatible_reg_id_table,
+> +			      pdev->dev.of_node);
+> +	if (!match)
+> +		return -ENXIO;
+> +
+> +	if (pdev->dev.of_node) {
+> +		if (!of_property_read_u32(pdev->dev.of_node,
+> +					"dlg,tjunc-temp-polling-period-ms",
+> +					&pp_tmp)) {
+> +			if (pp_tmp < DA9062_MIN_POLLING_MS_PERIOD ||
+> +				pp_tmp > DA9062_MAX_POLLING_MS_PERIOD)
+> +				pp_tmp = DA9062_DEFAULT_POLLING_MS_PERIOD;
+Maybe it's worth to add some print here just to mention about
+the DT value out of range. When you saw a dmesg with
+this print on some bug report, you would know about wrong DT entry
+(even if debug was not set).
+> +		}
+> +
+> +		dev_dbg(&pdev->dev,
+> +			 "TJUNC temp polling period set at %d ms\n",
+> +			 pp_tmp);
+> +	}
+> +
+> +	thermal = devm_kzalloc(&pdev->dev, sizeof(struct da9062_thermal),
+> +			     GFP_KERNEL);
+> +	if (!thermal) {
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +
+> +	thermal->config = match->data;
+> +	thermal->hw = chip;
+> +	thermal->polling_period = pp_tmp;
+> +	thermal->mode = THERMAL_DEVICE_ENABLED;
+> +	thermal->dev = &pdev->dev;
+> +
+> +	INIT_DELAYED_WORK(&thermal->work, da9062_thermal_poll_on);
+> +	mutex_init(&thermal->lock);
+> +
+> +	thermal->zone = thermal_zone_device_register(thermal->config->name,
+> +					1, 0, thermal,
+> +					&da9062_thermal_ops, NULL, 0,
+> +					0);
+> +	if (IS_ERR(thermal->zone)) {
+> +		dev_err(&pdev->dev, "Cannot register thermal zone device\n");
+> +		ret = PTR_ERR(thermal->zone);
+> +		goto err;
+> +	}
+> +
+> +	ret = platform_get_irq_byname(pdev, "THERMAL");
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
+> +		goto err_zone;
+> +	}
+> +	thermal->irq = ret;
+> +
+> +	ret = request_threaded_irq(thermal->irq, NULL,
+> +				   da9062_thermal_irq_handler,
+> +				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> +				   "THERMAL", thermal);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"Failed to request thermal device IRQ.\n");
+> +		goto err_zone;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, thermal);
+> +	return 0;
+> +
+> +err_zone:
+> +	thermal_zone_device_unregister(thermal->zone);
+> +err:
+> +	return ret;
+> +}
+> +
+> +static int da9062_thermal_remove(struct platform_device *pdev)
+> +{
+> +	struct	da9062_thermal *thermal = platform_get_drvdata(pdev);
+> +
+> +	free_irq(thermal->irq, thermal);
+> +	thermal_zone_device_unregister(thermal->zone);
+> +	cancel_delayed_work_sync(&thermal->work);
+You should change the order for these two functions
+and cancel the work before unregistering thermal zone device.
 
-Changes in v6:
- - update copyright
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver da9062_thermal_driver = {
+> +	.probe	= da9062_thermal_probe,
+> +	.remove	= da9062_thermal_remove,
+> +	.driver	= {
+> +		.name	= "da9062-thermal",
+> +		.of_match_table = da9062_compatible_reg_id_table,
+> +	},
+> +};
+> +
+> +module_platform_driver(da9062_thermal_driver);
+> +
+> +MODULE_AUTHOR("Steve Twiss");
+> +MODULE_DESCRIPTION("Thermal TJUNC device driver for Dialog DA9062 and DA9061");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:da9062-thermal");
+>
 
-Changes in v5:
- - add field void __iomem *base to struct mxs_lradc_adc
- - change arguments in all functions for accessing I/O memory
-   to follow the previous change.
- - use devm_ioremap for mapping I/O memory
-
-Changes in v4:
- - update copyright
- - use platform_get_irq_byname
- - use irq_of_parse_and_map
-
-Changes in v3:
- - make buffer large enough for timestamps
- - remove unnecessary blank lines
-
-Changes in v2:
- - improve commit message
- - do not change spacing in Kconfig
- - impove formating
- - remove wrapper show_scale_avail
- - use correct syntax for comments
- - use devm_iio_trigger_alloc
- - do not allocate buffer dynamically
- - use iio_device_claim_*_mode helpers
- - add spinlock in struct mxs_lradc_ts to enable locking in interrupt handler
- - only grab irqs that are relevant to adc
- - remove blank line at the end of the file
- - change licence to GPL
- - add copyright
-
- drivers/iio/adc/Kconfig         |  13 +
- drivers/iio/adc/Makefile        |   1 +
- drivers/iio/adc/mxs-lradc-adc.c | 845 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 859 insertions(+)
- create mode 100644 drivers/iio/adc/mxs-lradc-adc.c
-
-diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-index 7edcf32..6414397 100644
---- a/drivers/iio/adc/Kconfig
-+++ b/drivers/iio/adc/Kconfig
-@@ -207,6 +207,19 @@ config EXYNOS_ADC
- 	  To compile this driver as a module, choose M here: the module will be
- 	  called exynos_adc.
- 
-+config MXS_LRADC_ADC
-+	tristate "Freescale i.MX23/i.MX28 LRADC ADC"
-+	depends on MFD_MXS_LRADC
-+	select IIO_BUFFER
-+	select IIO_TRIGGERED_BUFFER
-+	help
-+	  Say yes here to build support for the ADC functions of the
-+	  i.MX23/i.MX28 LRADC. This includes general-purpose ADC readings,
-+	  battery voltage measurement, and die temperature measurement.
-+
-+	  This driver can also be built as a module. If so, the module will be
-+	  called mxs-lradc-adc.
-+
- config FSL_MX25_ADC
- 	tristate "Freescale MX25 ADC driver"
- 	depends on MFD_MX25_TSADC
-diff --git a/drivers/iio/adc/Makefile b/drivers/iio/adc/Makefile
-index 7a40c04..e62ebeb 100644
---- a/drivers/iio/adc/Makefile
-+++ b/drivers/iio/adc/Makefile
-@@ -34,6 +34,7 @@ obj-$(CONFIG_MCP320X) += mcp320x.o
- obj-$(CONFIG_MCP3422) += mcp3422.o
- obj-$(CONFIG_MEDIATEK_MT6577_AUXADC) += mt6577_auxadc.o
- obj-$(CONFIG_MEN_Z188_ADC) += men_z188_adc.o
-+obj-$(CONFIG_MXS_LRADC_ADC) += mxs-lradc-adc.o
- obj-$(CONFIG_MXS_LRADC) += mxs-lradc.o
- obj-$(CONFIG_NAU7802) += nau7802.o
- obj-$(CONFIG_PALMAS_GPADC) += palmas_gpadc.o
-diff --git a/drivers/iio/adc/mxs-lradc-adc.c b/drivers/iio/adc/mxs-lradc-adc.c
-new file mode 100644
-index 0000000..6943220
---- /dev/null
-+++ b/drivers/iio/adc/mxs-lradc-adc.c
-@@ -0,0 +1,845 @@
-+/*
-+ * Freescale MXS LRADC ADC driver
-+ *
-+ * Copyright (c) 2012 DENX Software Engineering, GmbH.
-+ * Copyright (c) 2016 Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-+ *
-+ * Authors:
-+ *  Marek Vasut <marex@denx.de>
-+ *  Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/completion.h>
-+#include <linux/device.h>
-+#include <linux/err.h>
-+#include <linux/interrupt.h>
-+#include <linux/mfd/core.h>
-+#include <linux/mfd/mxs-lradc.h>
-+#include <linux/module.h>
-+#include <linux/of_irq.h>
-+#include <linux/platform_device.h>
-+#include <linux/sysfs.h>
-+
-+#include <linux/iio/buffer.h>
-+#include <linux/iio/iio.h>
-+#include <linux/iio/trigger.h>
-+#include <linux/iio/trigger_consumer.h>
-+#include <linux/iio/triggered_buffer.h>
-+#include <linux/iio/sysfs.h>
-+
-+/*
-+ * Make this runtime configurable if necessary. Currently, if the buffered mode
-+ * is enabled, the LRADC takes LRADC_DELAY_TIMER_LOOP samples of data before
-+ * triggering IRQ. The sampling happens every (LRADC_DELAY_TIMER_PER / 2000)
-+ * seconds. The result is that the samples arrive every 500mS.
-+ */
-+#define LRADC_DELAY_TIMER_PER	200
-+#define LRADC_DELAY_TIMER_LOOP	5
-+
-+#define VREF_MV_BASE 1850
-+
-+const char *mx23_lradc_adc_irq_names[] = {
-+	"mxs-lradc-channel0",
-+	"mxs-lradc-channel1",
-+	"mxs-lradc-channel2",
-+	"mxs-lradc-channel3",
-+	"mxs-lradc-channel4",
-+	"mxs-lradc-channel5",
-+};
-+
-+const char *mx28_lradc_adc_irq_names[] = {
-+	"mxs-lradc-thresh0",
-+	"mxs-lradc-thresh1",
-+	"mxs-lradc-channel0",
-+	"mxs-lradc-channel1",
-+	"mxs-lradc-channel2",
-+	"mxs-lradc-channel3",
-+	"mxs-lradc-channel4",
-+	"mxs-lradc-channel5",
-+	"mxs-lradc-button0",
-+	"mxs-lradc-button1",
-+};
-+
-+static const u32 mxs_lradc_adc_vref_mv[][LRADC_MAX_TOTAL_CHANS] = {
-+	[IMX23_LRADC] = {
-+		VREF_MV_BASE,		/* CH0 */
-+		VREF_MV_BASE,		/* CH1 */
-+		VREF_MV_BASE,		/* CH2 */
-+		VREF_MV_BASE,		/* CH3 */
-+		VREF_MV_BASE,		/* CH4 */
-+		VREF_MV_BASE,		/* CH5 */
-+		VREF_MV_BASE * 2,	/* CH6 VDDIO */
-+		VREF_MV_BASE * 4,	/* CH7 VBATT */
-+		VREF_MV_BASE,		/* CH8 Temp sense 0 */
-+		VREF_MV_BASE,		/* CH9 Temp sense 1 */
-+		VREF_MV_BASE,		/* CH10 */
-+		VREF_MV_BASE,		/* CH11 */
-+		VREF_MV_BASE,		/* CH12 USB_DP */
-+		VREF_MV_BASE,		/* CH13 USB_DN */
-+		VREF_MV_BASE,		/* CH14 VBG */
-+		VREF_MV_BASE * 4,	/* CH15 VDD5V */
-+	},
-+	[IMX28_LRADC] = {
-+		VREF_MV_BASE,		/* CH0 */
-+		VREF_MV_BASE,		/* CH1 */
-+		VREF_MV_BASE,		/* CH2 */
-+		VREF_MV_BASE,		/* CH3 */
-+		VREF_MV_BASE,		/* CH4 */
-+		VREF_MV_BASE,		/* CH5 */
-+		VREF_MV_BASE,		/* CH6 */
-+		VREF_MV_BASE * 4,	/* CH7 VBATT */
-+		VREF_MV_BASE,		/* CH8 Temp sense 0 */
-+		VREF_MV_BASE,		/* CH9 Temp sense 1 */
-+		VREF_MV_BASE * 2,	/* CH10 VDDIO */
-+		VREF_MV_BASE,		/* CH11 VTH */
-+		VREF_MV_BASE * 2,	/* CH12 VDDA */
-+		VREF_MV_BASE,		/* CH13 VDDD */
-+		VREF_MV_BASE,		/* CH14 VBG */
-+		VREF_MV_BASE * 4,	/* CH15 VDD5V */
-+	},
-+};
-+
-+enum mxs_lradc_divbytwo {
-+	MXS_LRADC_DIV_DISABLED = 0,
-+	MXS_LRADC_DIV_ENABLED,
-+};
-+
-+struct mxs_lradc_scale {
-+	unsigned int		integer;
-+	unsigned int		nano;
-+};
-+
-+struct mxs_lradc_adc {
-+	struct mxs_lradc	*lradc;
-+	struct device		*dev;
-+
-+	void __iomem		*base;
-+	u32			buffer[10];
-+	struct iio_trigger	*trig;
-+	struct completion	completion;
-+	spinlock_t		lock;
-+
-+	const u32		*vref_mv;
-+	struct mxs_lradc_scale	scale_avail[LRADC_MAX_TOTAL_CHANS][2];
-+	unsigned long		is_divided;
-+};
-+
-+
-+/* Raw I/O operations */
-+static int mxs_lradc_adc_read_single(struct iio_dev *iio_dev, int chan,
-+				     int *val)
-+{
-+	struct mxs_lradc_adc *adc = iio_priv(iio_dev);
-+	struct mxs_lradc *lradc = adc->lradc;
-+	int ret;
-+
-+	/*
-+	 * See if there is no buffered operation in progress. If there is simply
-+	 * bail out. This can be improved to support both buffered and raw IO at
-+	 * the same time, yet the code becomes horribly complicated. Therefore I
-+	 * applied KISS principle here.
-+	 */
-+	ret = iio_device_claim_direct_mode(iio_dev);
-+	if (ret)
-+		return ret;
-+
-+	reinit_completion(&adc->completion);
-+
-+	/*
-+	 * No buffered operation in progress, map the channel and trigger it.
-+	 * Virtual channel 0 is always used here as the others are always not
-+	 * used if doing raw sampling.
-+	 */
-+	if (lradc->soc == IMX28_LRADC)
-+		mxs_lradc_reg_clear(adc->base, LRADC_CTRL1_LRADC_IRQ_EN(0),
-+				    LRADC_CTRL1);
-+	mxs_lradc_reg_clear(adc->base, 0x1, LRADC_CTRL0);
-+
-+	/* Enable / disable the divider per requirement */
-+	if (test_bit(chan, &adc->is_divided))
-+		mxs_lradc_reg_set(adc->base,
-+				  1 << LRADC_CTRL2_DIVIDE_BY_TWO_OFFSET,
-+				  LRADC_CTRL2);
-+	else
-+		mxs_lradc_reg_clear(adc->base,
-+				    1 << LRADC_CTRL2_DIVIDE_BY_TWO_OFFSET,
-+				    LRADC_CTRL2);
-+
-+	/* Clean the slot's previous content, then set new one. */
-+	mxs_lradc_reg_clear(adc->base, LRADC_CTRL4_LRADCSELECT_MASK(0),
-+			    LRADC_CTRL4);
-+	mxs_lradc_reg_set(adc->base, chan, LRADC_CTRL4);
-+
-+	mxs_lradc_reg_wrt(adc->base, 0, LRADC_CH(0));
-+
-+	/* Enable the IRQ and start sampling the channel. */
-+	mxs_lradc_reg_set(adc->base, LRADC_CTRL1_LRADC_IRQ_EN(0), LRADC_CTRL1);
-+	mxs_lradc_reg_set(adc->base, BIT(0), LRADC_CTRL0);
-+
-+	/* Wait for completion on the channel, 1 second max. */
-+	ret = wait_for_completion_killable_timeout(&adc->completion, HZ);
-+	if (!ret)
-+		ret = -ETIMEDOUT;
-+	if (ret < 0)
-+		goto err;
-+
-+	/* Read the data. */
-+	*val = readl(adc->base + LRADC_CH(0)) & LRADC_CH_VALUE_MASK;
-+	ret = IIO_VAL_INT;
-+
-+err:
-+	mxs_lradc_reg_clear(adc->base, LRADC_CTRL1_LRADC_IRQ_EN(0),
-+			    LRADC_CTRL1);
-+
-+	iio_device_release_direct_mode(iio_dev);
-+
-+	return ret;
-+}
-+
-+static int mxs_lradc_adc_read_temp(struct iio_dev *iio_dev, int *val)
-+{
-+	int ret, min, max;
-+
-+	ret = mxs_lradc_adc_read_single(iio_dev, 8, &min);
-+	if (ret != IIO_VAL_INT)
-+		return ret;
-+
-+	ret = mxs_lradc_adc_read_single(iio_dev, 9, &max);
-+	if (ret != IIO_VAL_INT)
-+		return ret;
-+
-+	*val = max - min;
-+
-+	return IIO_VAL_INT;
-+}
-+
-+static int mxs_lradc_adc_read_raw(struct iio_dev *iio_dev,
-+			      const struct iio_chan_spec *chan,
-+			      int *val, int *val2, long m)
-+{
-+	struct mxs_lradc_adc *adc = iio_priv(iio_dev);
-+
-+	switch (m) {
-+	case IIO_CHAN_INFO_RAW:
-+		if (chan->type == IIO_TEMP)
-+			return mxs_lradc_adc_read_temp(iio_dev, val);
-+
-+		return mxs_lradc_adc_read_single(iio_dev, chan->channel, val);
-+
-+	case IIO_CHAN_INFO_SCALE:
-+		if (chan->type == IIO_TEMP) {
-+			/*
-+			 * From the datasheet, we have to multiply by 1.012 and
-+			 * divide by 4
-+			 */
-+			*val = 0;
-+			*val2 = 253000;
-+			return IIO_VAL_INT_PLUS_MICRO;
-+		}
-+
-+		*val = adc->vref_mv[chan->channel];
-+		*val2 = chan->scan_type.realbits -
-+			test_bit(chan->channel, &adc->is_divided);
-+		return IIO_VAL_FRACTIONAL_LOG2;
-+
-+	case IIO_CHAN_INFO_OFFSET:
-+		if (chan->type == IIO_TEMP) {
-+			/*
-+			 * The calculated value from the ADC is in Kelvin, we
-+			 * want Celsius for hwmon so the offset is -273.15
-+			 * The offset is applied before scaling so it is
-+			 * actually -213.15 * 4 / 1.012 = -1079.644268
-+			 */
-+			*val = -1079;
-+			*val2 = 644268;
-+
-+			return IIO_VAL_INT_PLUS_MICRO;
-+		}
-+
-+		return -EINVAL;
-+
-+	default:
-+		break;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+static int mxs_lradc_adc_write_raw(struct iio_dev *iio_dev,
-+				   const struct iio_chan_spec *chan,
-+				   int val, int val2, long m)
-+{
-+	struct mxs_lradc_adc *adc = iio_priv(iio_dev);
-+	struct mxs_lradc_scale *scale_avail =
-+			adc->scale_avail[chan->channel];
-+	int ret;
-+
-+	ret = iio_device_claim_direct_mode(iio_dev);
-+	if (ret)
-+		return ret;
-+
-+	switch (m) {
-+	case IIO_CHAN_INFO_SCALE:
-+		ret = -EINVAL;
-+		if (val == scale_avail[MXS_LRADC_DIV_DISABLED].integer &&
-+		    val2 == scale_avail[MXS_LRADC_DIV_DISABLED].nano) {
-+			/* divider by two disabled */
-+			clear_bit(chan->channel, &adc->is_divided);
-+			ret = 0;
-+		} else if (val == scale_avail[MXS_LRADC_DIV_ENABLED].integer &&
-+			   val2 == scale_avail[MXS_LRADC_DIV_ENABLED].nano) {
-+			/* divider by two enabled */
-+			set_bit(chan->channel, &adc->is_divided);
-+			ret = 0;
-+		}
-+
-+		break;
-+	default:
-+		ret = -EINVAL;
-+		break;
-+	}
-+
-+	iio_device_release_direct_mode(iio_dev);
-+
-+	return ret;
-+}
-+
-+static int mxs_lradc_adc_write_raw_get_fmt(struct iio_dev *iio_dev,
-+					   const struct iio_chan_spec *chan,
-+					   long m)
-+{
-+	return IIO_VAL_INT_PLUS_NANO;
-+}
-+
-+static ssize_t mxs_lradc_adc_show_scale_avail(struct device *dev,
-+						 struct device_attribute *attr,
-+						 char *buf)
-+{
-+	struct iio_dev *iio = dev_to_iio_dev(dev);
-+	struct mxs_lradc_adc *adc = iio_priv(iio);
-+	struct iio_dev_attr *iio_attr = to_iio_dev_attr(attr);
-+	int i, ch, len = 0;
-+
-+	ch = iio_attr->address;
-+	for (i = 0; i < ARRAY_SIZE(adc->scale_avail[ch]); i++)
-+		len += sprintf(buf + len, "%u.%09u ",
-+			       adc->scale_avail[ch][i].integer,
-+			       adc->scale_avail[ch][i].nano);
-+
-+	len += sprintf(buf + len, "\n");
-+
-+	return len;
-+}
-+
-+#define SHOW_SCALE_AVAILABLE_ATTR(ch)					\
-+static IIO_DEVICE_ATTR(in_voltage##ch##_scale_available, S_IRUGO,	\
-+		       mxs_lradc_adc_show_scale_avail, NULL, ch)
-+
-+SHOW_SCALE_AVAILABLE_ATTR(0);
-+SHOW_SCALE_AVAILABLE_ATTR(1);
-+SHOW_SCALE_AVAILABLE_ATTR(2);
-+SHOW_SCALE_AVAILABLE_ATTR(3);
-+SHOW_SCALE_AVAILABLE_ATTR(4);
-+SHOW_SCALE_AVAILABLE_ATTR(5);
-+SHOW_SCALE_AVAILABLE_ATTR(6);
-+SHOW_SCALE_AVAILABLE_ATTR(7);
-+SHOW_SCALE_AVAILABLE_ATTR(10);
-+SHOW_SCALE_AVAILABLE_ATTR(11);
-+SHOW_SCALE_AVAILABLE_ATTR(12);
-+SHOW_SCALE_AVAILABLE_ATTR(13);
-+SHOW_SCALE_AVAILABLE_ATTR(14);
-+SHOW_SCALE_AVAILABLE_ATTR(15);
-+
-+static struct attribute *mxs_lradc_adc_attributes[] = {
-+	&iio_dev_attr_in_voltage0_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage1_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage2_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage3_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage4_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage5_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage6_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage7_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage10_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage11_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage12_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage13_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage14_scale_available.dev_attr.attr,
-+	&iio_dev_attr_in_voltage15_scale_available.dev_attr.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group mxs_lradc_adc_attribute_group = {
-+	.attrs = mxs_lradc_adc_attributes,
-+};
-+
-+static const struct iio_info mxs_lradc_adc_iio_info = {
-+	.driver_module		= THIS_MODULE,
-+	.read_raw		= mxs_lradc_adc_read_raw,
-+	.write_raw		= mxs_lradc_adc_write_raw,
-+	.write_raw_get_fmt	= mxs_lradc_adc_write_raw_get_fmt,
-+	.attrs			= &mxs_lradc_adc_attribute_group,
-+};
-+
-+/* IRQ Handling */
-+static irqreturn_t mxs_lradc_adc_handle_irq(int irq, void *data)
-+{
-+	struct iio_dev *iio = data;
-+	struct mxs_lradc_adc *adc = iio_priv(iio);
-+	struct mxs_lradc *lradc = adc->lradc;
-+	unsigned long reg = readl(adc->base + LRADC_CTRL1);
-+	unsigned long flags;
-+
-+	if (!(reg & mxs_lradc_irq_mask(lradc)))
-+		return IRQ_NONE;
-+
-+	if (iio_buffer_enabled(iio)) {
-+		if (reg & lradc->buffer_vchans) {
-+			spin_lock_irqsave(&adc->lock, flags);
-+			iio_trigger_poll(iio->trig);
-+			spin_unlock_irqrestore(&adc->lock, flags);
-+		}
-+	} else if (reg & LRADC_CTRL1_LRADC_IRQ(0)) {
-+		complete(&adc->completion);
-+	}
-+
-+	mxs_lradc_reg_clear(adc->base, reg & mxs_lradc_irq_mask(lradc),
-+			    LRADC_CTRL1);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+
-+/* Trigger handling */
-+static irqreturn_t mxs_lradc_adc_trigger_handler(int irq, void *p)
-+{
-+	struct iio_poll_func *pf = p;
-+	struct iio_dev *iio = pf->indio_dev;
-+	struct mxs_lradc_adc *adc = iio_priv(iio);
-+	const u32 chan_value = LRADC_CH_ACCUMULATE |
-+		((LRADC_DELAY_TIMER_LOOP - 1) << LRADC_CH_NUM_SAMPLES_OFFSET);
-+	unsigned int i, j = 0;
-+
-+	for_each_set_bit(i, iio->active_scan_mask, LRADC_MAX_TOTAL_CHANS) {
-+		adc->buffer[j] = readl(adc->base + LRADC_CH(j));
-+		mxs_lradc_reg_wrt(adc->base, chan_value, LRADC_CH(j));
-+		adc->buffer[j] &= LRADC_CH_VALUE_MASK;
-+		adc->buffer[j] /= LRADC_DELAY_TIMER_LOOP;
-+		j++;
-+	}
-+
-+	iio_push_to_buffers_with_timestamp(iio, adc->buffer, pf->timestamp);
-+
-+	iio_trigger_notify_done(iio->trig);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int mxs_lradc_adc_configure_trigger(struct iio_trigger *trig, bool state)
-+{
-+	struct iio_dev *iio = iio_trigger_get_drvdata(trig);
-+	struct mxs_lradc_adc *adc = iio_priv(iio);
-+	const u32 st = state ? STMP_OFFSET_REG_SET : STMP_OFFSET_REG_CLR;
-+
-+	mxs_lradc_reg_wrt(adc->base, LRADC_DELAY_KICK, LRADC_DELAY(0) + st);
-+
-+	return 0;
-+}
-+
-+static const struct iio_trigger_ops mxs_lradc_adc_trigger_ops = {
-+	.owner = THIS_MODULE,
-+	.set_trigger_state = &mxs_lradc_adc_configure_trigger,
-+};
-+
-+static int mxs_lradc_adc_trigger_init(struct iio_dev *iio)
-+{
-+	int ret;
-+	struct iio_trigger *trig;
-+	struct mxs_lradc_adc *adc = iio_priv(iio);
-+
-+	trig = devm_iio_trigger_alloc(&iio->dev, "%s-dev%i", iio->name,
-+				      iio->id);
-+
-+	trig->dev.parent = adc->dev;
-+	iio_trigger_set_drvdata(trig, iio);
-+	trig->ops = &mxs_lradc_adc_trigger_ops;
-+
-+	ret = iio_trigger_register(trig);
-+	if (ret)
-+		return ret;
-+
-+	adc->trig = trig;
-+
-+	return 0;
-+}
-+
-+static void mxs_lradc_adc_trigger_remove(struct iio_dev *iio)
-+{
-+	struct mxs_lradc_adc *adc = iio_priv(iio);
-+
-+	iio_trigger_unregister(adc->trig);
-+}
-+
-+static int mxs_lradc_adc_buffer_preenable(struct iio_dev *iio)
-+{
-+	struct mxs_lradc_adc *adc = iio_priv(iio);
-+	struct mxs_lradc *lradc = adc->lradc;
-+	int chan, ofs = 0;
-+	unsigned long enable = 0;
-+	u32 ctrl4_set = 0;
-+	u32 ctrl4_clr = 0;
-+	u32 ctrl1_irq = 0;
-+	const u32 chan_value = LRADC_CH_ACCUMULATE |
-+		((LRADC_DELAY_TIMER_LOOP - 1) << LRADC_CH_NUM_SAMPLES_OFFSET);
-+
-+	if (lradc->soc == IMX28_LRADC)
-+		mxs_lradc_reg_clear(adc->base,
-+			lradc->buffer_vchans << LRADC_CTRL1_LRADC_IRQ_EN_OFFSET,
-+			LRADC_CTRL1);
-+	mxs_lradc_reg_clear(adc->base, lradc->buffer_vchans, LRADC_CTRL0);
-+
-+	for_each_set_bit(chan, iio->active_scan_mask, LRADC_MAX_TOTAL_CHANS) {
-+		ctrl4_set |= chan << LRADC_CTRL4_LRADCSELECT_OFFSET(ofs);
-+		ctrl4_clr |= LRADC_CTRL4_LRADCSELECT_MASK(ofs);
-+		ctrl1_irq |= LRADC_CTRL1_LRADC_IRQ_EN(ofs);
-+		mxs_lradc_reg_wrt(adc->base, chan_value, LRADC_CH(ofs));
-+		bitmap_set(&enable, ofs, 1);
-+		ofs++;
-+	}
-+
-+	mxs_lradc_reg_clear(adc->base, LRADC_DELAY_TRIGGER_LRADCS_MASK |
-+			    LRADC_DELAY_KICK, LRADC_DELAY(0));
-+	mxs_lradc_reg_clear(adc->base, ctrl4_clr, LRADC_CTRL4);
-+	mxs_lradc_reg_set(adc->base, ctrl4_set, LRADC_CTRL4);
-+	mxs_lradc_reg_set(adc->base, ctrl1_irq, LRADC_CTRL1);
-+	mxs_lradc_reg_set(adc->base,
-+			  enable << LRADC_DELAY_TRIGGER_LRADCS_OFFSET,
-+			  LRADC_DELAY(0));
-+
-+	return 0;
-+}
-+
-+static int mxs_lradc_adc_buffer_postdisable(struct iio_dev *iio)
-+{
-+	struct mxs_lradc_adc *adc = iio_priv(iio);
-+	struct mxs_lradc *lradc = adc->lradc;
-+
-+	mxs_lradc_reg_clear(adc->base, LRADC_DELAY_TRIGGER_LRADCS_MASK |
-+			    LRADC_DELAY_KICK, LRADC_DELAY(0));
-+
-+	mxs_lradc_reg_clear(adc->base, lradc->buffer_vchans, LRADC_CTRL0);
-+	if (lradc->soc == IMX28_LRADC)
-+		mxs_lradc_reg_clear(adc->base,
-+			lradc->buffer_vchans << LRADC_CTRL1_LRADC_IRQ_EN_OFFSET,
-+			LRADC_CTRL1);
-+
-+	return 0;
-+}
-+
-+static bool mxs_lradc_adc_validate_scan_mask(struct iio_dev *iio,
-+					     const unsigned long *mask)
-+{
-+	struct mxs_lradc_adc *adc = iio_priv(iio);
-+	struct mxs_lradc *lradc = adc->lradc;
-+	const int map_chans = bitmap_weight(mask, LRADC_MAX_TOTAL_CHANS);
-+	int rsvd_chans = 0;
-+	unsigned long rsvd_mask = 0;
-+
-+	if (lradc->use_touchbutton)
-+		rsvd_mask |= CHAN_MASK_TOUCHBUTTON;
-+	if (lradc->touchscreen_wire == MXS_LRADC_TOUCHSCREEN_4WIRE)
-+		rsvd_mask |= CHAN_MASK_TOUCHSCREEN_4WIRE;
-+	if (lradc->touchscreen_wire == MXS_LRADC_TOUCHSCREEN_5WIRE)
-+		rsvd_mask |= CHAN_MASK_TOUCHSCREEN_5WIRE;
-+
-+	if (lradc->use_touchbutton)
-+		rsvd_chans++;
-+	if (lradc->touchscreen_wire)
-+		rsvd_chans += 2;
-+
-+	/* Test for attempts to map channels with special mode of operation. */
-+	if (bitmap_intersects(mask, &rsvd_mask, LRADC_MAX_TOTAL_CHANS))
-+		return false;
-+
-+	/* Test for attempts to map more channels then available slots. */
-+	if (map_chans + rsvd_chans > LRADC_MAX_MAPPED_CHANS)
-+		return false;
-+
-+	return true;
-+}
-+
-+static const struct iio_buffer_setup_ops mxs_lradc_adc_buffer_ops = {
-+	.preenable = &mxs_lradc_adc_buffer_preenable,
-+	.postenable = &iio_triggered_buffer_postenable,
-+	.predisable = &iio_triggered_buffer_predisable,
-+	.postdisable = &mxs_lradc_adc_buffer_postdisable,
-+	.validate_scan_mask = &mxs_lradc_adc_validate_scan_mask,
-+};
-+
-+/* Driver initialization */
-+#define MXS_ADC_CHAN(idx, chan_type, name) {			\
-+	.type = (chan_type),					\
-+	.indexed = 1,						\
-+	.scan_index = (idx),					\
-+	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |		\
-+			      BIT(IIO_CHAN_INFO_SCALE),		\
-+	.channel = (idx),					\
-+	.address = (idx),					\
-+	.scan_type = {						\
-+		.sign = 'u',					\
-+		.realbits = LRADC_RESOLUTION,			\
-+		.storagebits = 32,				\
-+	},							\
-+	.datasheet_name = (name),				\
-+}
-+
-+static const struct iio_chan_spec mx23_lradc_chan_spec[] = {
-+	MXS_ADC_CHAN(0, IIO_VOLTAGE, "LRADC0"),
-+	MXS_ADC_CHAN(1, IIO_VOLTAGE, "LRADC1"),
-+	MXS_ADC_CHAN(2, IIO_VOLTAGE, "LRADC2"),
-+	MXS_ADC_CHAN(3, IIO_VOLTAGE, "LRADC3"),
-+	MXS_ADC_CHAN(4, IIO_VOLTAGE, "LRADC4"),
-+	MXS_ADC_CHAN(5, IIO_VOLTAGE, "LRADC5"),
-+	MXS_ADC_CHAN(6, IIO_VOLTAGE, "VDDIO"),
-+	MXS_ADC_CHAN(7, IIO_VOLTAGE, "VBATT"),
-+	/* Combined Temperature sensors */
-+	{
-+		.type = IIO_TEMP,
-+		.indexed = 1,
-+		.scan_index = 8,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |
-+				      BIT(IIO_CHAN_INFO_OFFSET) |
-+				      BIT(IIO_CHAN_INFO_SCALE),
-+		.channel = 8,
-+		.scan_type = {.sign = 'u', .realbits = 18, .storagebits = 32,},
-+		.datasheet_name = "TEMP_DIE",
-+	},
-+	/* Hidden channel to keep indexes */
-+	{
-+		.type = IIO_TEMP,
-+		.indexed = 1,
-+		.scan_index = -1,
-+		.channel = 9,
-+	},
-+	MXS_ADC_CHAN(10, IIO_VOLTAGE, NULL),
-+	MXS_ADC_CHAN(11, IIO_VOLTAGE, NULL),
-+	MXS_ADC_CHAN(12, IIO_VOLTAGE, "USB_DP"),
-+	MXS_ADC_CHAN(13, IIO_VOLTAGE, "USB_DN"),
-+	MXS_ADC_CHAN(14, IIO_VOLTAGE, "VBG"),
-+	MXS_ADC_CHAN(15, IIO_VOLTAGE, "VDD5V"),
-+};
-+
-+static const struct iio_chan_spec mx28_lradc_chan_spec[] = {
-+	MXS_ADC_CHAN(0, IIO_VOLTAGE, "LRADC0"),
-+	MXS_ADC_CHAN(1, IIO_VOLTAGE, "LRADC1"),
-+	MXS_ADC_CHAN(2, IIO_VOLTAGE, "LRADC2"),
-+	MXS_ADC_CHAN(3, IIO_VOLTAGE, "LRADC3"),
-+	MXS_ADC_CHAN(4, IIO_VOLTAGE, "LRADC4"),
-+	MXS_ADC_CHAN(5, IIO_VOLTAGE, "LRADC5"),
-+	MXS_ADC_CHAN(6, IIO_VOLTAGE, "LRADC6"),
-+	MXS_ADC_CHAN(7, IIO_VOLTAGE, "VBATT"),
-+	/* Combined Temperature sensors */
-+	{
-+		.type = IIO_TEMP,
-+		.indexed = 1,
-+		.scan_index = 8,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |
-+				      BIT(IIO_CHAN_INFO_OFFSET) |
-+				      BIT(IIO_CHAN_INFO_SCALE),
-+		.channel = 8,
-+		.scan_type = {.sign = 'u', .realbits = 18, .storagebits = 32,},
-+		.datasheet_name = "TEMP_DIE",
-+	},
-+	/* Hidden channel to keep indexes */
-+	{
-+		.type = IIO_TEMP,
-+		.indexed = 1,
-+		.scan_index = -1,
-+		.channel = 9,
-+	},
-+	MXS_ADC_CHAN(10, IIO_VOLTAGE, "VDDIO"),
-+	MXS_ADC_CHAN(11, IIO_VOLTAGE, "VTH"),
-+	MXS_ADC_CHAN(12, IIO_VOLTAGE, "VDDA"),
-+	MXS_ADC_CHAN(13, IIO_VOLTAGE, "VDDD"),
-+	MXS_ADC_CHAN(14, IIO_VOLTAGE, "VBG"),
-+	MXS_ADC_CHAN(15, IIO_VOLTAGE, "VDD5V"),
-+};
-+
-+static void mxs_lradc_adc_hw_init(struct mxs_lradc_adc *adc)
-+{
-+	/* The ADC always uses DELAY CHANNEL 0. */
-+	const u32 adc_cfg =
-+		(1 << (LRADC_DELAY_TRIGGER_DELAYS_OFFSET + 0)) |
-+		(LRADC_DELAY_TIMER_PER << LRADC_DELAY_DELAY_OFFSET);
-+
-+	/* Configure DELAY CHANNEL 0 for generic ADC sampling. */
-+	mxs_lradc_reg_wrt(adc->base, adc_cfg, LRADC_DELAY(0));
-+
-+	/*
-+	 * Start internal temperature sensing by clearing bit
-+	 * HW_LRADC_CTRL2_TEMPSENSE_PWD. This bit can be left cleared
-+	 * after power up.
-+	 */
-+	mxs_lradc_reg_wrt(adc->base, 0, LRADC_CTRL2);
-+}
-+
-+static void mxs_lradc_adc_hw_stop(struct mxs_lradc_adc *adc)
-+{
-+	mxs_lradc_reg_wrt(adc->base, 0, LRADC_DELAY(0));
-+}
-+
-+static int mxs_lradc_adc_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct mxs_lradc *lradc = dev_get_platdata(dev);
-+	struct mxs_lradc_adc *adc;
-+	struct iio_dev *iio;
-+	struct resource *iores;
-+	int ret, irq, virq, i, s, n;
-+	u64 scale_uv;
-+	const char **irq_name;
-+
-+	/* Allocate the IIO device. */
-+	iio = devm_iio_device_alloc(dev, sizeof(*adc));
-+	if (!iio) {
-+		dev_err(dev, "Failed to allocate IIO device\n");
-+		return -ENOMEM;
-+	}
-+
-+	adc = iio_priv(iio);
-+	adc->lradc = lradc;
-+	adc->dev = dev;
-+
-+	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	adc->base = devm_ioremap(dev, iores->start, resource_size(iores));
-+	if (IS_ERR(adc->base))
-+		return PTR_ERR(adc->base);
-+
-+	init_completion(&adc->completion);
-+	spin_lock_init(&adc->lock);
-+
-+	platform_set_drvdata(pdev, iio);
-+
-+	iio->name = pdev->name;
-+	iio->dev.parent = dev;
-+	iio->dev.of_node = dev->parent->of_node;
-+	iio->info = &mxs_lradc_adc_iio_info;
-+	iio->modes = INDIO_DIRECT_MODE;
-+	iio->masklength = LRADC_MAX_TOTAL_CHANS;
-+
-+	if (lradc->soc == IMX23_LRADC) {
-+		iio->channels = mx23_lradc_chan_spec;
-+		iio->num_channels = ARRAY_SIZE(mx23_lradc_chan_spec);
-+		irq_name = mx23_lradc_adc_irq_names;
-+		n = ARRAY_SIZE(mx23_lradc_adc_irq_names);
-+	} else {
-+		iio->channels = mx28_lradc_chan_spec;
-+		iio->num_channels = ARRAY_SIZE(mx28_lradc_chan_spec);
-+		irq_name = mx28_lradc_adc_irq_names;
-+		n = ARRAY_SIZE(mx28_lradc_adc_irq_names);
-+	}
-+
-+	ret = stmp_reset_block(adc->base);
-+	if (ret)
-+		return ret;
-+
-+	for (i = 0; i < n; i++) {
-+		irq = platform_get_irq_byname(pdev, irq_name[i]);
-+		if (irq < 0)
-+			return irq;
-+
-+		virq = irq_of_parse_and_map(dev->parent->of_node, irq);
-+
-+		ret = devm_request_irq(dev, virq, mxs_lradc_adc_handle_irq,
-+				       0, irq_name[i], iio);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	ret = mxs_lradc_adc_trigger_init(iio);
-+	if (ret)
-+		goto err_trig;
-+
-+	ret = iio_triggered_buffer_setup(iio, &iio_pollfunc_store_time,
-+					 &mxs_lradc_adc_trigger_handler,
-+					 &mxs_lradc_adc_buffer_ops);
-+	if (ret)
-+		return ret;
-+
-+	adc->vref_mv = mxs_lradc_adc_vref_mv[lradc->soc];
-+
-+	/* Populate available ADC input ranges */
-+	for (i = 0; i < LRADC_MAX_TOTAL_CHANS; i++) {
-+		for (s = 0; s < ARRAY_SIZE(adc->scale_avail[i]); s++) {
-+			/*
-+			 * [s=0] = optional divider by two disabled (default)
-+			 * [s=1] = optional divider by two enabled
-+			 *
-+			 * The scale is calculated by doing:
-+			 *   Vref >> (realbits - s)
-+			 * which multiplies by two on the second component
-+			 * of the array.
-+			 */
-+			scale_uv = ((u64)adc->vref_mv[i] * 100000000) >>
-+				   (LRADC_RESOLUTION - s);
-+			adc->scale_avail[i][s].nano =
-+					do_div(scale_uv, 100000000) * 10;
-+			adc->scale_avail[i][s].integer = scale_uv;
-+		}
-+	}
-+
-+	/* Configure the hardware. */
-+	mxs_lradc_adc_hw_init(adc);
-+
-+	/* Register IIO device. */
-+	ret = iio_device_register(iio);
-+	if (ret) {
-+		dev_err(dev, "Failed to register IIO device\n");
-+		goto err_dev;
-+	}
-+
-+	return 0;
-+
-+err_dev:
-+	mxs_lradc_adc_hw_stop(adc);
-+	mxs_lradc_adc_trigger_remove(iio);
-+err_trig:
-+	iio_triggered_buffer_cleanup(iio);
-+	return ret;
-+}
-+
-+static int mxs_lradc_adc_remove(struct platform_device *pdev)
-+{
-+	struct iio_dev *iio = platform_get_drvdata(pdev);
-+	struct mxs_lradc_adc *adc = iio_priv(iio);
-+
-+	iio_device_unregister(iio);
-+	mxs_lradc_adc_hw_stop(adc);
-+	mxs_lradc_adc_trigger_remove(iio);
-+	iio_triggered_buffer_cleanup(iio);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver mxs_lradc_adc_driver = {
-+	.driver = {
-+		.name	= "mxs-lradc-adc",
-+	},
-+	.probe	= mxs_lradc_adc_probe,
-+	.remove = mxs_lradc_adc_remove,
-+};
-+module_platform_driver(mxs_lradc_adc_driver);
-+
-+MODULE_AUTHOR("Marek Vasut <marex@denx.de>");
-+MODULE_DESCRIPTION("Freescale MXS LRADC driver general purpose ADC driver");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:mxs-lradc-adc");
--- 
-1.9.1
+Regards,
+Lukasz Luba
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

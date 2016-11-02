@@ -1,40 +1,49 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: Re: [PATCH 5/9] ASoC: pxa: switch to new ac97 bus support
-Date: Tue, 01 Nov 2016 20:55:10 +0100
-Message-ID: <8737jb0ych.fsf@belgarion.home>
-References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
-        <1477510907-23495-6-git-send-email-robert.jarzmik@free.fr>
-        <87bmy029tu.fsf@belgarion.home>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <87bmy029tu.fsf@belgarion.home> (Robert Jarzmik's message of
-        "Mon, 31 Oct 2016 09:37:17 +0100")
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, linux-pm@vger.kernel.org, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
+From: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+Subject: [PATCH v9 0/5] mxs-lradc: Split driver into MFD
+Date: Wed,  2 Nov 2016 08:38:21 +0100
+Message-ID: <cover.1478071676.git.ksenija.stanojevic@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:36359 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750971AbcKBHic (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 2 Nov 2016 03:38:32 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: lee.jones@linaro.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
 
-Robert Jarzmik <robert.jarzmik@free.fr> writes:
+Split existing driver mxs-lradc into MFD with touchscreen and
+IIO part.
 
-> Robert Jarzmik <robert.jarzmik@free.fr> writes:
->
->> Switch to the new ac97 bus support in sound/ac97 instead of the legacy
->> snd_ac97 one.
->>
->> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-> I realized this one impacts sound/arm/pxa2xx-ac97.c.
-> This deserves a v2, with this patch being split into 2 pieces :
->  - one for pxa2xx-ac97-lib.*
->  - one which will be the true switch to the new ac97 bus.
+Tested on I.MX28.
 
-And as another consequence, all pxa ac97 based codecs should be converted. So
-far, machine drivers in sound/soc/pxa/*.c using ac97 all use either wm9705,
-wm9712 or wm9713.
+Ksenija Stanojevic (5):
+  mfd: mxs-lradc: Add support for mxs-lradc MFD
+  iio: adc: mxs-lradc: Add support for adc driver
+  input: touchscreen: mxs-lradc: Add support for touchscreen
+  iio: adc: mxs-lradc: Remove driver
+  mfd: Move binding document
 
-Therefore for this patch to be usable, I must also convert wm9705 and wm9712.
-
-Cheers.
+ .../bindings/{iio/adc => mfd}/mxs-lradc.txt        |    0
+ drivers/iio/adc/Kconfig                            |   27 +-
+ drivers/iio/adc/Makefile                           |    2 +-
+ drivers/iio/adc/mxs-lradc-adc.c                    |  845 ++++++++++
+ drivers/iio/adc/mxs-lradc.c                        | 1750 --------------------
+ drivers/input/touchscreen/Kconfig                  |   10 +
+ drivers/input/touchscreen/Makefile                 |    1 +
+ drivers/input/touchscreen/mxs-lradc-ts.c           |  743 +++++++++
+ drivers/mfd/Kconfig                                |   17 +
+ drivers/mfd/Makefile                               |    1 +
+ drivers/mfd/mxs-lradc.c                            |  249 +++
+ include/linux/mfd/mxs-lradc.h                      |  203 +++
+ 12 files changed, 2083 insertions(+), 1765 deletions(-)
+ rename Documentation/devicetree/bindings/{iio/adc => mfd}/mxs-lradc.txt (100%)
+ create mode 100644 drivers/iio/adc/mxs-lradc-adc.c
+ delete mode 100644 drivers/iio/adc/mxs-lradc.c
+ create mode 100644 drivers/input/touchscreen/mxs-lradc-ts.c
+ create mode 100644 drivers/mfd/mxs-lradc.c
+ create mode 100644 include/linux/mfd/mxs-lradc.h
 
 -- 
-Robert
+1.9.1
+

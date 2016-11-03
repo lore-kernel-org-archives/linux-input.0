@@ -1,68 +1,68 @@
-From: Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>
-Subject: Re: [PATCH v7 3/3] iio: adc: add support for Allwinner SoCs ADC
-Date: Thu, 3 Nov 2016 16:31:34 +0100 (CET)
-Message-ID: <alpine.DEB.2.20.1611031630220.3008@hadrien>
-References: <201611032049.auU2FIXo%fengguang.wu@intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] Input: gpio_keys - Also send release events for ABS
+ codes
+Date: Thu, 3 Nov 2016 09:21:59 -0700
+Message-ID: <20161103162159.GB15366@dtor-ws>
+References: <20161101102504.3783-1-paul@crapouillou.net>
+ <20161101102504.3783-2-paul@crapouillou.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201611032049.auU2FIXo%fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, antoine.tenart-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kbuild-all-JC7UmRfGjtg@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:36640 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758076AbcKCQWD (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 3 Nov 2016 12:22:03 -0400
+Content-Disposition: inline
+In-Reply-To: <20161101102504.3783-2-paul@crapouillou.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Maarten ter Huurne <maarten@treewalker.org>
 
-I haven't checked the complete context, but it seems that *irq that is
-tested on line 431 is unsigned.
+On Tue, Nov 01, 2016 at 11:25:03AM +0100, Paul Cercueil wrote:
+> Right now, the gpio-keys driver is mostly used with EV_KEY event types.
+> However, this driver (and its devicetree bindings) support specifying
+> a different input type, like EV_ABS, even though this doesn't work in
+> practice: "key pressed" events are correctly received and treated, but
+> "key released" are silently ignored.
+> 
+> With this commit, keys configured as EV_ABS will inject an event with
+> the value 0 when released.
 
-julia
+No, this will break setups like this:
 
-On Thu, 3 Nov 2016, kbuild test robot wrote:
+gpio0 - ABS_X - 0
+gpio1 - ABS_X - 1
+gpio2 - ABS_X - 2
+...
+gpio7 - ABS_X - 7
 
-> Hi Quentin,
->
-> [auto build test WARNING on next-20161028]
-> [cannot apply to iio/togreg input/next linus/master v4.9-rc3 v4.9-rc2 v4.9-rc1 v4.9-rc3]
-> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
->
-> url:    https://github.com/0day-ci/linux/commits/Quentin-Schulz/add-support-for-Allwinner-SoCs-ADC/20161103-182828
-> :::::: branch date: 2 hours ago
-> :::::: commit date: 2 hours ago
->
-> >> drivers/iio/adc/sun4i-gpadc-iio.c:431:5-9: WARNING: Unsigned expression compared with zero: * irq < 0
->
-> git remote add linux-review https://github.com/0day-ci/linux
-> git remote update linux-review
-> git checkout 0068e4d1386fff54958ef3b8b304239982feaa8a
-> vim +431 drivers/iio/adc/sun4i-gpadc-iio.c
->
-> 0068e4d1 Quentin Schulz 2016-11-03  415
-> 0068e4d1 Quentin Schulz 2016-11-03  416  	/*
-> 0068e4d1 Quentin Schulz 2016-11-03  417  	 * Once the interrupt is activated, the IP continuously performs
-> 0068e4d1 Quentin Schulz 2016-11-03  418  	 * conversions thus throws interrupts. The interrupt is activated right
-> 0068e4d1 Quentin Schulz 2016-11-03  419  	 * after being requested but we want to control when these interrupts
-> 0068e4d1 Quentin Schulz 2016-11-03  420  	 * occur thus we disable it right after being requested. However, an
-> 0068e4d1 Quentin Schulz 2016-11-03  421  	 * interrupt might occur between these two instructions and we have to
-> 0068e4d1 Quentin Schulz 2016-11-03  422  	 * make sure that does not happen, by using atomic flags. We set the
-> 0068e4d1 Quentin Schulz 2016-11-03  423  	 * flag before requesting the interrupt and unset it right after
-> 0068e4d1 Quentin Schulz 2016-11-03  424  	 * disabling the interrupt. When an interrupt occurs between these two
-> 0068e4d1 Quentin Schulz 2016-11-03  425  	 * instructions, reading the atomic flag will tell us to ignore the
-> 0068e4d1 Quentin Schulz 2016-11-03  426  	 * interrupt.
-> 0068e4d1 Quentin Schulz 2016-11-03  427  	 */
-> 0068e4d1 Quentin Schulz 2016-11-03  428  	atomic_set(atomic, 1);
-> 0068e4d1 Quentin Schulz 2016-11-03  429
-> 0068e4d1 Quentin Schulz 2016-11-03  430  	*irq = platform_get_irq_byname(pdev, name);
-> 0068e4d1 Quentin Schulz 2016-11-03 @431  	if (*irq < 0) {
-> 0068e4d1 Quentin Schulz 2016-11-03  432  		dev_err(&pdev->dev, "no %s interrupt registered\n", name);
-> 0068e4d1 Quentin Schulz 2016-11-03  433  		return *irq;
-> 0068e4d1 Quentin Schulz 2016-11-03  434  	}
-> 0068e4d1 Quentin Schulz 2016-11-03  435
-> 0068e4d1 Quentin Schulz 2016-11-03  436  	*irq = regmap_irq_get_virq(mfd_dev->regmap_irqc, *irq);
-> 0068e4d1 Quentin Schulz 2016-11-03  437  	ret = devm_request_any_context_irq(&pdev->dev, *irq, handler, 0,
-> 0068e4d1 Quentin Schulz 2016-11-03  438  					   devname, info);
-> 0068e4d1 Quentin Schulz 2016-11-03  439  	if (ret < 0) {
->
+- something like a slider built on top of gpios.
+
+> 
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > ---
-> 0-DAY kernel test infrastructure                Open Source Technology Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
->
+>  drivers/input/keyboard/gpio_keys.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index 2909365..7018c49 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -369,6 +369,8 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+>  	if (type == EV_ABS) {
+>  		if (state)
+>  			input_event(input, type, button->code, button->value);
+> +		else
+> +			input_event(input, type, button->code, 0);
+>  	} else {
+>  		input_event(input, type, button->code, !!state);
+>  	}
+> -- 
+> 2.9.3
+> 
+
+Thanks.
+
+-- 
+Dmitry

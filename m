@@ -1,37 +1,33 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: intel-ish-hid: Fix !CONFIG_PM build warning
-Date: Thu, 3 Nov 2016 12:12:41 -0600 (MDT)
-Message-ID: <alpine.LNX.2.00.1611031212270.5061@cbobk.fhfr.pm>
-References: <20161029111740.741-1-bp@alien8.de>
+Subject: Re: [PATCH 0/2] Add new force feedback driver for Mayflash game
+ controller adapters.
+Date: Thu, 3 Nov 2016 12:16:04 -0600 (MDT)
+Message-ID: <alpine.LNX.2.00.1611031214420.5061@cbobk.fhfr.pm>
+References: <20161030221230.GA13800@arch-desktop>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37408 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:37830 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757846AbcKCSMo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 3 Nov 2016 14:12:44 -0400
-In-Reply-To: <20161029111740.741-1-bp@alien8.de>
+        id S1755446AbcKCSQG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 3 Nov 2016 14:16:06 -0400
+In-Reply-To: <20161030221230.GA13800@arch-desktop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Borislav Petkov <bp@alien8.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wei Yongjun <weiyongjun1@huawei.com>, linux-input@vger.kernel.org
+To: Marcel Hasler <mahasler@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Sat, 29 Oct 2016, Borislav Petkov wrote:
+On Sun, 30 Oct 2016, Marcel Hasler wrote:
 
-> From: Borislav Petkov <bp@suse.de>
-> 
-> Fix
-> 
->   drivers/hid/intel-ish-hid/ipc/pci-ish.c:247:12: warning: ‘ish_suspend’ defined but not used [-Wunused-function]
->    static int ish_suspend(struct device *device)
->               ^
->   drivers/hid/intel-ish-hid/ipc/pci-ish.c:282:12: warning: ‘ish_resume’ defined but not used [-Wunused-function]
->    static int ish_resume(struct device *device)
->             ^
-> by sticking them in the CONFIG_PM range too.
+> This patchset adds a new force feedback driver for game controller adapters by Mayflash,
+> called hid-mf.
 
-Applied to hid.git#for-4.9/upstream-fixes
+I am confused by parts o this patchset being resubmitted as v2 and parts 
+submitted separately as well, and the 2-patch submission is not properly 
+threaded.
+
+Could you please do a proper new resubmission so that I am sure I have the 
+most up-to-date version?
 
 Thanks,
 

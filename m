@@ -1,59 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: gpio_keys - Set ABS params when using axes
-Date: Thu, 3 Nov 2016 09:24:01 -0700
-Message-ID: <20161103162401.GC15366@dtor-ws>
-References: <20161101102504.3783-1-paul@crapouillou.net>
- <20161101102504.3783-3-paul@crapouillou.net>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2 0/4] ISH Fixes for module loading
+Date: Thu, 3 Nov 2016 12:05:33 -0600 (MDT)
+Message-ID: <alpine.LNX.2.00.1611031204500.5061@cbobk.fhfr.pm>
+References: <1477090121-41744-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20161101102504.3783-3-paul@crapouillou.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Paul Cercueil <paul@crapouillou.net>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Maarten ter Huurne <maarten@treewalker.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:36433 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1759250AbcKCSFp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 3 Nov 2016 14:05:45 -0400
+In-Reply-To: <1477090121-41744-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Nov 01, 2016 at 11:25:04AM +0100, Paul Cercueil wrote:
-> The gpio-keys supports the EV_ABS event type, but does not actually
-> configure the input device to work with that mode.
+On Fri, 21 Oct 2016, Srinivas Pandruvada wrote:
+
+> Two issues are reported related to loading of intel-ishtp-hid:
 > 
-> This patch configures the axis corresponding to button->code as being
-> in the range [-1,+1]. This makes it possible to use gpio-keys to
-> implement a hat (using the ABS_HAT0X /ABS_HAT0Y axes, with two GPIOs
-> each with values -1/+1).
-
-What if I am emitting values of 10?
-
-Also, reporting limits on axis is not a requirement, it is simply a
-hint. If your userspace refuses axis with unrefined (aka 0) min and max
-you need to fix it.
-
+> 1. Loading failure after rmmod and then modprobe
+> (Patch 1/4 to Patch 3/4) address this. Here first two patches are just
+> clean up patches which gets used in Patch 3/4 to fix the issue.
 > 
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> ---
->  drivers/input/keyboard/gpio_keys.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index 7018c49..1f2850a 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -540,6 +540,9 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
->  
->  	input_set_capability(input, button->type ?: EV_KEY, button->code);
->  
-> +	if (button->type == EV_ABS)
-> +		input_set_abs_params(input, button->code, -1, 1, 0, 0);
-> +
->  	/*
->  	 * Install custom action to cancel release timer and
->  	 * workqueue item.
-> -- 
-> 2.9.3
-> 
+> 2. Loading failure due to request_irq failure on some platforms
+> (Patch 4/4)
 
-Thanks.
+This actually looks like 4.9-rc material ... could you please confirm that 
+you agree with that, or you'd rather have this for the next merge window?
+
+Thanks,
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs
+

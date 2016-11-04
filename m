@@ -1,43 +1,119 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] hid: sensor: fix input and feature attributes in HID
- sensor custom sysfs interface
-Date: Fri, 04 Nov 2016 10:49:11 -0700
-Message-ID: <1478281751.14557.8.camel@linux.intel.com>
-References: <1478170515-24436-1-git-send-email-joyce.ooi@intel.com>
-         <20161104140308.GC20334@mail.corp.redhat.com>
+Subject: Re: [PATCH] iio: magnetometer: separate the values of attributes
+ based on their usage type for HID compass sensor
+Date: Fri, 04 Nov 2016 11:29:16 -0700
+Message-ID: <1478284156.14557.22.camel@linux.intel.com>
+References: <1478167670-23549-1-git-send-email-joyce.ooi@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20161104140308.GC20334@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Ooi, Joyce" <joyce.ooi@intel.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Kweh Hock Leong <hock.leong.kweh@intel.com>, Ong Boon Leong <boon.leong.ong@intel.com>, Lay Kuan Loon <kuan.loon.lay@intel.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga07.intel.com ([134.134.136.100]:26661 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S935873AbcKDS3f (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 4 Nov 2016 14:29:35 -0400
+In-Reply-To: <1478167670-23549-1-git-send-email-joyce.ooi@intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Ooi, Joyce" <joyce.ooi@intel.com>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>
+Cc: Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Kweh Hock Leong <hock.leong.kweh@intel.com>, Ong Boon Leong <boon.leong.ong@intel.com>, Lay Kuan Loon <kuan.loon.lay@intel.com>
 
-On Fri, 2016-11-04 at 15:03 +0100, Benjamin Tissoires wrote:
-> On Nov 03 2016 or thereabouts, Ooi, Joyce wrote:
-> > 
-> > User is unable to access to input-X-yyy and feature-X-yyy where
-> > X is a hex value and more than 9 (e.g. input-a-yyy, feature-b-yyy)
-> > in HID
-> > sensor custom sysfs interface.
-> > This is because when creating the attribute, the attribute index is
-> > written to using %x (hex). However, when reading and writing values
-> > into
-> > the attribute, the attribute index is scanned using %d (decimal).
-> > Hence,
-> > user is unable to access to attributes with index in hex values
-> > (e.g. 'a', 'b', 'c') but able to access to attributes with index in
-> > decimal values (e.g. 1, 2, 3,..).
-> > This fix will change input-%d-%x-%s and feature-%d-%x-%s to input-
-> > %x-%x-%s
-> > and feature-%x-%x-%s in show_values() and store_values()
-> > accordingly.
-> > 
-> > Signed-off-by: Ooi, Joyce <joyce.ooi@intel.com>
+On Thu, 2016-11-03 at 18:07 +0800, Ooi, Joyce wrote:
+> There are 2 usage types (Magnetic Flux and Heading data field) for
+> HID
+> compass sensor, thus the values of offset, scale, and sensitivity
+> should
+> be separated according to their respective usage type. The changes
+> made
+> are as below:
+> 1. Hysteresis: A struct hid_sensor_common rot_attributes is created
+> in
+> struct magn_3d_state to contain the sensitivity for IIO_ROT.
+> 2. Scale: scale_pre_decml and scale_post_decml are separated into
+> scale_pre_decml_magn, scale_post_decml_magn, scale_pre_decml_rot, and
+> scale_post_decml_rot.
+> 3. Offset: Same as scale, value_offset is separated into
+> value_offset_magn
+> and value_offset_rot.
 > 
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> For sensitivity, HID_USAGE_SENSOR_ORIENT_MAGN_FLUX and
+> HID_USAGE_SENSOR_ORIENT_MAGN_HEADING are used for sensivitity fields
+> based
+> on the HID Sensor Usages specifications. Hence, these changes are
+> added on
+> the sensitivity field.
+> 
+> Signed-off-by: Ooi, Joyce <joyce.ooi@intel.com>
+> ---
+>  .../iio/common/hid-sensors/hid-sensor-attributes.c |   5 +
+>  drivers/iio/magnetometer/hid-sensor-magn-3d.c      | 102
+> ++++++++++++++++++---
+>  2 files changed, 93 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> index c1f8c22..9641a15 100644
+> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> @@ -46,6 +46,11 @@
+>  
+>  	{HID_USAGE_SENSOR_COMPASS_3D, 0, 0, 1000000},
+>  	{HID_USAGE_SENSOR_COMPASS_3D, HID_USAGE_SENSOR_UNITS_GAUSS,
+> 1, 0},
+> +	{HID_USAGE_SENSOR_ORIENT_COMP_MAGN_NORTH, 0, 0, 17453293},
+> +	{HID_USAGE_SENSOR_ORIENT_COMP_MAGN_NORTH,
+> +		HID_USAGE_SENSOR_UNITS_DEGREES, 0, 17453293},
+> +	{HID_USAGE_SENSOR_ORIENT_COMP_MAGN_NORTH,
+> +		HID_USAGE_SENSOR_UNITS_RADIANS, 1, 0},
+>  
+>  	{HID_USAGE_SENSOR_INCLINOMETER_3D, 0, 0, 17453293},
+>  	{HID_USAGE_SENSOR_INCLINOMETER_3D,
+> diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+> b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+> index d8a0c8d..84a59d3 100644
+> --- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+> +++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+> @@ -45,6 +45,7 @@ enum magn_3d_channel {
+>  struct magn_3d_state {
+>  	struct hid_sensor_hub_callbacks callbacks;
+>  	struct hid_sensor_common common_attributes;
 
-> 
+To avoid confusion can we rename the above to something like
+magn_flux_attributes?
+
+
+> +	struct hid_sensor_common rot_attributes;
+>  	struct hid_sensor_hub_attribute_info
+> magn[MAGN_3D_CHANNEL_MAX];
+>  
+>  	/* dynamically sized array to hold sensor values */
+> @@ -52,10 +53,14 @@ struct magn_3d_state {
+>  	/* array of pointers to sensor value */
+>  	u32 *magn_val_addr[MAGN_3D_CHANNEL_MAX];
+>  
+> -	int scale_pre_decml;
+> -	int scale_post_decml;
+> -	int scale_precision;
+> -	int value_offset;
+> +	int scale_pre_decml_magn;
+> +	int scale_post_decml_magn;
+> +	int scale_precision_magn;
+> +	int value_offset_magn;
+> +	int scale_pre_decml_rot;
+> +	int scale_post_decml_rot;
+> +	int scale_precision_rot;
+> +	int value_offset_rot;
+
+Since the above is common can we have a struct with
+{
+	int scale_pre_decml;
+	int scale_post_decml;
+	int scale_precision;> 
+	int value_offset;> 
+};
+
+Then we can have both flux and heading attributes can use instead of
+repeating the field names.
+
+Thanks,
+Srinivas

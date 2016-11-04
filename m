@@ -1,119 +1,194 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] iio: magnetometer: separate the values of attributes
- based on their usage type for HID compass sensor
-Date: Fri, 04 Nov 2016 11:29:16 -0700
-Message-ID: <1478284156.14557.22.camel@linux.intel.com>
-References: <1478167670-23549-1-git-send-email-joyce.ooi@intel.com>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] [v9]Input: evdev: fix bug of dropping valid packet after
+ syn_dropped event
+Date: Sat, 5 Nov 2016 01:27:37 +0530
+Message-ID: <CADYu30_uxvqe0c7tGjzvhBtQuYz=cvnb71TztCCxQER6LwhwAg@mail.gmail.com>
+References: <1475608376-3077-1-git-send-email-a.mathur@samsung.com>
+ <CAOXgUe3xduK2Fhs6ooPP=6fGSmY8m=088NVaNsreNE=_pP=asg@mail.gmail.com> <CADYu30-2cFhn5yMHrskMN=Mrw_ofdzokp3v7JVfHRsbxreE-mA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:26661 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S935873AbcKDS3f (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 4 Nov 2016 14:29:35 -0400
-In-Reply-To: <1478167670-23549-1-git-send-email-joyce.ooi@intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CADYu30-2cFhn5yMHrskMN=Mrw_ofdzokp3v7JVfHRsbxreE-mA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Aniroop Mathur <a.mathur@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: "Ooi, Joyce" <joyce.ooi@intel.com>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>
-Cc: Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Kweh Hock Leong <hock.leong.kweh@intel.com>, Ong Boon Leong <boon.leong.ong@intel.com>, Lay Kuan Loon <kuan.loon.lay@intel.com>
 
-On Thu, 2016-11-03 at 18:07 +0800, Ooi, Joyce wrote:
-> There are 2 usage types (Magnetic Flux and Heading data field) for
-> HID
-> compass sensor, thus the values of offset, scale, and sensitivity
-> should
-> be separated according to their respective usage type. The changes
-> made
-> are as below:
-> 1. Hysteresis: A struct hid_sensor_common rot_attributes is created
-> in
-> struct magn_3d_state to contain the sensitivity for IIO_ROT.
-> 2. Scale: scale_pre_decml and scale_post_decml are separated into
-> scale_pre_decml_magn, scale_post_decml_magn, scale_pre_decml_rot, and
-> scale_post_decml_rot.
-> 3. Offset: Same as scale, value_offset is separated into
-> value_offset_magn
-> and value_offset_rot.
-> 
-> For sensitivity, HID_USAGE_SENSOR_ORIENT_MAGN_FLUX and
-> HID_USAGE_SENSOR_ORIENT_MAGN_HEADING are used for sensivitity fields
-> based
-> on the HID Sensor Usages specifications. Hence, these changes are
-> added on
-> the sensitivity field.
-> 
-> Signed-off-by: Ooi, Joyce <joyce.ooi@intel.com>
-> ---
->  .../iio/common/hid-sensors/hid-sensor-attributes.c |   5 +
->  drivers/iio/magnetometer/hid-sensor-magn-3d.c      | 102
-> ++++++++++++++++++---
->  2 files changed, 93 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> index c1f8c22..9641a15 100644
-> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> @@ -46,6 +46,11 @@
->  
->  	{HID_USAGE_SENSOR_COMPASS_3D, 0, 0, 1000000},
->  	{HID_USAGE_SENSOR_COMPASS_3D, HID_USAGE_SENSOR_UNITS_GAUSS,
-> 1, 0},
-> +	{HID_USAGE_SENSOR_ORIENT_COMP_MAGN_NORTH, 0, 0, 17453293},
-> +	{HID_USAGE_SENSOR_ORIENT_COMP_MAGN_NORTH,
-> +		HID_USAGE_SENSOR_UNITS_DEGREES, 0, 17453293},
-> +	{HID_USAGE_SENSOR_ORIENT_COMP_MAGN_NORTH,
-> +		HID_USAGE_SENSOR_UNITS_RADIANS, 1, 0},
->  
->  	{HID_USAGE_SENSOR_INCLINOMETER_3D, 0, 0, 17453293},
->  	{HID_USAGE_SENSOR_INCLINOMETER_3D,
-> diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-> b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-> index d8a0c8d..84a59d3 100644
-> --- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-> +++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-> @@ -45,6 +45,7 @@ enum magn_3d_channel {
->  struct magn_3d_state {
->  	struct hid_sensor_hub_callbacks callbacks;
->  	struct hid_sensor_common common_attributes;
-
-To avoid confusion can we rename the above to something like
-magn_flux_attributes?
+Hello Mr. Torokhov,
 
 
-> +	struct hid_sensor_common rot_attributes;
->  	struct hid_sensor_hub_attribute_info
-> magn[MAGN_3D_CHANNEL_MAX];
->  
->  	/* dynamically sized array to hold sensor values */
-> @@ -52,10 +53,14 @@ struct magn_3d_state {
->  	/* array of pointers to sensor value */
->  	u32 *magn_val_addr[MAGN_3D_CHANNEL_MAX];
->  
-> -	int scale_pre_decml;
-> -	int scale_post_decml;
-> -	int scale_precision;
-> -	int value_offset;
-> +	int scale_pre_decml_magn;
-> +	int scale_post_decml_magn;
-> +	int scale_precision_magn;
-> +	int value_offset_magn;
-> +	int scale_pre_decml_rot;
-> +	int scale_post_decml_rot;
-> +	int scale_precision_rot;
-> +	int value_offset_rot;
-
-Since the above is common can we have a struct with
-{
-	int scale_pre_decml;
-	int scale_post_decml;
-	int scale_precision;> 
-	int value_offset;> 
-};
-
-Then we can have both flux and heading attributes can use instead of
-repeating the field names.
+As you can see that this patch is pending for a long time,
+I request you to please review it at the earliest possible.
 
 Thanks,
-Srinivas
+Aniroop Mathur
+
+
+On Thu, Oct 13, 2016 at 12:05 AM, Aniroop Mathur
+<aniroop.mathur@gmail.com> wrote:
+> Hello Mr. Torokhov,
+>
+> Hope you are doing great!
+>
+> Could you please help to update about below version of the patch?
+>
+> --
+> Copying text about last two problems in v8:
+>
+> Problem 1: Handle EVIOCG[type] for queue empty case
+> --> Done
+> Queue empty condition needs to be added before calling evdev_queue_syn_dropped.
+> Since there is a rare chance that new packet gets inserted between buffer_lock
+> mutex unlocking and copying events to user space, so I will check whether queue
+> is empty or not before __evdev_flush_queue and then use it before invoking
+> evdev_queue_syn_dropped.
+> And if queue is not empty then there is no problem as after flushing some
+> events we always have atleast one SYN_REPORT event left in queue.
+>
+> Problem 2: We try to pass full packets to clients, but there is no guarantee.
+> --> Done
+> From my earlier patch discussion regarding dropping syn_report in between a
+> single packet it was deduced that since no driver is currently using that code
+> so there is no impact. Hence for this problem too, we are good to go.~
+> (Although from code reading/learning perspective, I would still suggest to not
+> have code of forceful sun_report event addition even if no driver using that
+> code :-) )
+>
+> Have a good day!
+>
+> Best Regards,
+> Aniroop Mathur
+>
+>
+>> On Wed, Oct 5, 2016 at 12:42 AM, Aniroop Mathur <a.mathur@samsung.com> wrote:
+>>> If last event dropped in the old queue was EV_SYN/SYN_REPORT, then lets
+>>> generate EV_SYN/SYN_REPORT immediately after queing EV_SYN/SYN_DROPPED
+>>> so that clients would not ignore next valid full packet events.
+>>>
+>>> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+>>>
+>>> Difference from v8:
+>>> Added check for handling EVIOCG[type] ioctl for queue empty case
+>>> ---
+>>>  drivers/input/evdev.c | 52 ++++++++++++++++++++++++++++++++++++++-------------
+>>>  1 file changed, 39 insertions(+), 13 deletions(-)
+>>>
+>>> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+>>> index e9ae3d5..69407ff 100644
+>>> --- a/drivers/input/evdev.c
+>>> +++ b/drivers/input/evdev.c
+>>> @@ -156,7 +156,12 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+>>>  static void __evdev_queue_syn_dropped(struct evdev_client *client)
+>>>  {
+>>>         struct input_event ev;
+>>> +       struct input_event *last_ev;
+>>>         ktime_t time;
+>>> +       unsigned int mask = client->bufsize - 1;
+>>> +
+>>> +       /* capture last event stored in the buffer */
+>>> +       last_ev = &client->buffer[(client->head - 1) & mask];
+>>>
+>>>         time = client->clk_type == EV_CLK_REAL ?
+>>>                         ktime_get_real() :
+>>> @@ -170,13 +175,28 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
+>>>         ev.value = 0;
+>>>
+>>>         client->buffer[client->head++] = ev;
+>>> -       client->head &= client->bufsize - 1;
+>>> +       client->head &= mask;
+>>>
+>>>         if (unlikely(client->head == client->tail)) {
+>>>                 /* drop queue but keep our SYN_DROPPED event */
+>>> -               client->tail = (client->head - 1) & (client->bufsize - 1);
+>>> +               client->tail = (client->head - 1) & mask;
+>>>                 client->packet_head = client->tail;
+>>>         }
+>>> +
+>>> +       /*
+>>> +        * If last packet was completely stored, then queue SYN_REPORT
+>>> +        * so that clients would not ignore next valid full packet
+>>> +        */
+>>> +       if (last_ev->type == EV_SYN && last_ev->code == SYN_REPORT) {
+>>> +               last_ev->time = ev.time;
+>>> +               client->buffer[client->head++] = *last_ev;
+>>> +               client->head &= mask;
+>>> +               client->packet_head = client->head;
+>>> +
+>>> +               /* drop queue but keep our SYN_DROPPED & SYN_REPORT event */
+>>> +               if (unlikely(client->head == client->tail))
+>>> +                       client->tail = (client->head - 2) & mask;
+>>> +       }
+>>>  }
+>>>
+>>>  static void evdev_queue_syn_dropped(struct evdev_client *client)
+>>> @@ -218,7 +238,7 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+>>>                 spin_lock_irqsave(&client->buffer_lock, flags);
+>>>
+>>>                 if (client->head != client->tail) {
+>>> -                       client->packet_head = client->head = client->tail;
+>>> +                       client->packet_head = client->tail = client->head;
+>>>                         __evdev_queue_syn_dropped(client);
+>>>                 }
+>>>
+>>> @@ -231,22 +251,24 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+>>>  static void __pass_event(struct evdev_client *client,
+>>>                          const struct input_event *event)
+>>>  {
+>>> +       unsigned int mask = client->bufsize - 1;
+>>> +
+>>>         client->buffer[client->head++] = *event;
+>>> -       client->head &= client->bufsize - 1;
+>>> +       client->head &= mask;
+>>>
+>>>         if (unlikely(client->head == client->tail)) {
+>>>                 /*
+>>>                  * This effectively "drops" all unconsumed events, leaving
+>>> -                * EV_SYN/SYN_DROPPED plus the newest event in the queue.
+>>> +                * EV_SYN/SYN_DROPPED, EV_SYN/SYN_REPORT (if required) and
+>>> +                * newest event in the queue.
+>>>                  */
+>>> -               client->tail = (client->head - 2) & (client->bufsize - 1);
+>>> -
+>>> -               client->buffer[client->tail].time = event->time;
+>>> -               client->buffer[client->tail].type = EV_SYN;
+>>> -               client->buffer[client->tail].code = SYN_DROPPED;
+>>> -               client->buffer[client->tail].value = 0;
+>>> +               client->head = (client->head - 1) & mask;
+>>> +               client->packet_head = client->tail = client->head;
+>>> +               __evdev_queue_syn_dropped(client);
+>>>
+>>> -               client->packet_head = client->tail;
+>>> +               client->buffer[client->head++] = *event;
+>>> +               client->head &= mask;
+>>> +               /* No need to check for buffer overflow as it just occurred */
+>>>         }
+>>>
+>>>         if (event->type == EV_SYN && event->code == SYN_REPORT) {
+>>> @@ -920,6 +942,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
+>>>         int ret;
+>>>         unsigned long *mem;
+>>>         size_t len;
+>>> +       bool is_queue_empty;
+>>>
+>>>         len = BITS_TO_LONGS(maxbit) * sizeof(unsigned long);
+>>>         mem = kmalloc(len, GFP_KERNEL);
+>>> @@ -933,12 +956,15 @@ static int evdev_handle_get_val(struct evdev_client *client,
+>>>
+>>>         spin_unlock(&dev->event_lock);
+>>>
+>>> +       if (client->head == client->tail)
+>>> +               is_queue_empty = true;
+>>> +
+>>>         __evdev_flush_queue(client, type);
+>>>
+>>>         spin_unlock_irq(&client->buffer_lock);
+>>>
+>>>         ret = bits_to_user(mem, maxbit, maxlen, p, compat);
+>>> -       if (ret < 0)
+>>> +       if (ret < 0 && !is_queue_empty)
+>>>                 evdev_queue_syn_dropped(client);
+>>>
+>>>         kfree(mem);
+>>> --
+>>> 2.6.2
+>>>

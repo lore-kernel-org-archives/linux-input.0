@@ -1,194 +1,95 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] [v9]Input: evdev: fix bug of dropping valid packet after
- syn_dropped event
-Date: Sat, 5 Nov 2016 01:27:37 +0530
-Message-ID: <CADYu30_uxvqe0c7tGjzvhBtQuYz=cvnb71TztCCxQER6LwhwAg@mail.gmail.com>
-References: <1475608376-3077-1-git-send-email-a.mathur@samsung.com>
- <CAOXgUe3xduK2Fhs6ooPP=6fGSmY8m=088NVaNsreNE=_pP=asg@mail.gmail.com> <CADYu30-2cFhn5yMHrskMN=Mrw_ofdzokp3v7JVfHRsbxreE-mA@mail.gmail.com>
+From: Daniel Eriksson <imerion@gmail.com>
+Subject: Re: [HP Pavilion x2 - 12-b003nf] Synaptics touchpad not configured by
+ HID RMI
+Date: Sat, 5 Nov 2016 03:10:13 +0100
+Message-ID: <CALYLGY1ZNd+ZVkA65bRH4epH7+WWpAe-knwK1pmChLkPyvpvjg@mail.gmail.com>
+References: <CALYLGY0iV=kJxKku2sY1CnpONjzi-FJcZEbVtaUGRJgKKZrHTQ@mail.gmail.com>
+ <20161104080828.GB20334@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CADYu30-2cFhn5yMHrskMN=Mrw_ofdzokp3v7JVfHRsbxreE-mA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Aniroop Mathur <a.mathur@samsung.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:34178 "EHLO
+        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750789AbcKECKO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 4 Nov 2016 22:10:14 -0400
+Received: by mail-oi0-f67.google.com with SMTP id 62so14765520oif.1
+        for <linux-input@vger.kernel.org>; Fri, 04 Nov 2016 19:10:14 -0700 (PDT)
+In-Reply-To: <20161104080828.GB20334@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: aduggan@synaptics.com, jikos@kernel.org, linux-input@vger.kernel.org
 
-Hello Mr. Torokhov,
+On Fri, Nov 4, 2016 at 9:08 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> On Nov 04 2016 or thereabouts, Daniel Eriksson wrote:
+>> Hi! I'm having some trouble with my touchpad, so I figured I'd send a
+>> report. Details can be seen below.
+>>
+>>
+>> [1.] One line summary of the problem:
+>>
+>> Synaptics touchpad fail to be configured by HID RMI on a HP Pavilion
+>> x2 (12-b003nf)
+>>
+>>
+>> [2.] Full description of the problem/report:
+>>
+>> Touchpad on the HP Pavilion X2 12" does nothing after boot. dmesg shows:
+>>
+>> [    6.032160] hid-rmi 0003:06CB:7D29.0001: No 2D sensor found, giving up.
+>> [    6.032273] hid-rmi 0003:06CB:7D29.0001: Error while initializing F11 (-19).
+>
+> Your sensor is probably using the F12 2D sensor, not the F11. We are
+> aware of this issue, and patches has already been submitted. We need
+> them to be pushed upstream...
+>
+> Meanwhile, if you can compile a kernel, you might be interested in:
+> - https://github.com/aduggan/linux/tree/development/hid-rmi (branch
+>   hid-rmi) -> this has been tested against F12 on RMI4 over HID
+> - https://github.com/bentiss/linux/commits/synaptics-rmi4-v4.8%2B (
+>   branch synaptics-rmi4-v4.8+) -> this is what matches the latest
+>   submission (the HID part has not been tested and thus not submitted)
+>
+> Any help in testing would be appreciated! :)
+>
+> Cheers,
+> Benjamin
+>
+
+I see, great to hear! Any idea how long it would take to get it pushed upstream?
+I want to help you test, but I'm not sure I can get the kernel
+compilation right. I'll give it a go and return if I get any results!
+
+Thanks!
+
+Daniel
 
 
-As you can see that this patch is pending for a long time,
-I request you to please review it at the earliest possible.
-
-Thanks,
-Aniroop Mathur
-
-
-On Thu, Oct 13, 2016 at 12:05 AM, Aniroop Mathur
-<aniroop.mathur@gmail.com> wrote:
-> Hello Mr. Torokhov,
->
-> Hope you are doing great!
->
-> Could you please help to update about below version of the patch?
->
-> --
-> Copying text about last two problems in v8:
->
-> Problem 1: Handle EVIOCG[type] for queue empty case
-> --> Done
-> Queue empty condition needs to be added before calling evdev_queue_syn_dropped.
-> Since there is a rare chance that new packet gets inserted between buffer_lock
-> mutex unlocking and copying events to user space, so I will check whether queue
-> is empty or not before __evdev_flush_queue and then use it before invoking
-> evdev_queue_syn_dropped.
-> And if queue is not empty then there is no problem as after flushing some
-> events we always have atleast one SYN_REPORT event left in queue.
->
-> Problem 2: We try to pass full packets to clients, but there is no guarantee.
-> --> Done
-> From my earlier patch discussion regarding dropping syn_report in between a
-> single packet it was deduced that since no driver is currently using that code
-> so there is no impact. Hence for this problem too, we are good to go.~
-> (Although from code reading/learning perspective, I would still suggest to not
-> have code of forceful sun_report event addition even if no driver using that
-> code :-) )
->
-> Have a good day!
->
-> Best Regards,
-> Aniroop Mathur
->
->
->> On Wed, Oct 5, 2016 at 12:42 AM, Aniroop Mathur <a.mathur@samsung.com> wrote:
->>> If last event dropped in the old queue was EV_SYN/SYN_REPORT, then lets
->>> generate EV_SYN/SYN_REPORT immediately after queing EV_SYN/SYN_DROPPED
->>> so that clients would not ignore next valid full packet events.
->>>
->>> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
->>>
->>> Difference from v8:
->>> Added check for handling EVIOCG[type] ioctl for queue empty case
->>> ---
->>>  drivers/input/evdev.c | 52 ++++++++++++++++++++++++++++++++++++++-------------
->>>  1 file changed, 39 insertions(+), 13 deletions(-)
->>>
->>> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
->>> index e9ae3d5..69407ff 100644
->>> --- a/drivers/input/evdev.c
->>> +++ b/drivers/input/evdev.c
->>> @@ -156,7 +156,12 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->>>  static void __evdev_queue_syn_dropped(struct evdev_client *client)
->>>  {
->>>         struct input_event ev;
->>> +       struct input_event *last_ev;
->>>         ktime_t time;
->>> +       unsigned int mask = client->bufsize - 1;
->>> +
->>> +       /* capture last event stored in the buffer */
->>> +       last_ev = &client->buffer[(client->head - 1) & mask];
->>>
->>>         time = client->clk_type == EV_CLK_REAL ?
->>>                         ktime_get_real() :
->>> @@ -170,13 +175,28 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
->>>         ev.value = 0;
->>>
->>>         client->buffer[client->head++] = ev;
->>> -       client->head &= client->bufsize - 1;
->>> +       client->head &= mask;
->>>
->>>         if (unlikely(client->head == client->tail)) {
->>>                 /* drop queue but keep our SYN_DROPPED event */
->>> -               client->tail = (client->head - 1) & (client->bufsize - 1);
->>> +               client->tail = (client->head - 1) & mask;
->>>                 client->packet_head = client->tail;
->>>         }
->>> +
->>> +       /*
->>> +        * If last packet was completely stored, then queue SYN_REPORT
->>> +        * so that clients would not ignore next valid full packet
->>> +        */
->>> +       if (last_ev->type == EV_SYN && last_ev->code == SYN_REPORT) {
->>> +               last_ev->time = ev.time;
->>> +               client->buffer[client->head++] = *last_ev;
->>> +               client->head &= mask;
->>> +               client->packet_head = client->head;
->>> +
->>> +               /* drop queue but keep our SYN_DROPPED & SYN_REPORT event */
->>> +               if (unlikely(client->head == client->tail))
->>> +                       client->tail = (client->head - 2) & mask;
->>> +       }
->>>  }
->>>
->>>  static void evdev_queue_syn_dropped(struct evdev_client *client)
->>> @@ -218,7 +238,7 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
->>>                 spin_lock_irqsave(&client->buffer_lock, flags);
->>>
->>>                 if (client->head != client->tail) {
->>> -                       client->packet_head = client->head = client->tail;
->>> +                       client->packet_head = client->tail = client->head;
->>>                         __evdev_queue_syn_dropped(client);
->>>                 }
->>>
->>> @@ -231,22 +251,24 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
->>>  static void __pass_event(struct evdev_client *client,
->>>                          const struct input_event *event)
->>>  {
->>> +       unsigned int mask = client->bufsize - 1;
->>> +
->>>         client->buffer[client->head++] = *event;
->>> -       client->head &= client->bufsize - 1;
->>> +       client->head &= mask;
->>>
->>>         if (unlikely(client->head == client->tail)) {
->>>                 /*
->>>                  * This effectively "drops" all unconsumed events, leaving
->>> -                * EV_SYN/SYN_DROPPED plus the newest event in the queue.
->>> +                * EV_SYN/SYN_DROPPED, EV_SYN/SYN_REPORT (if required) and
->>> +                * newest event in the queue.
->>>                  */
->>> -               client->tail = (client->head - 2) & (client->bufsize - 1);
->>> -
->>> -               client->buffer[client->tail].time = event->time;
->>> -               client->buffer[client->tail].type = EV_SYN;
->>> -               client->buffer[client->tail].code = SYN_DROPPED;
->>> -               client->buffer[client->tail].value = 0;
->>> +               client->head = (client->head - 1) & mask;
->>> +               client->packet_head = client->tail = client->head;
->>> +               __evdev_queue_syn_dropped(client);
->>>
->>> -               client->packet_head = client->tail;
->>> +               client->buffer[client->head++] = *event;
->>> +               client->head &= mask;
->>> +               /* No need to check for buffer overflow as it just occurred */
->>>         }
->>>
->>>         if (event->type == EV_SYN && event->code == SYN_REPORT) {
->>> @@ -920,6 +942,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
->>>         int ret;
->>>         unsigned long *mem;
->>>         size_t len;
->>> +       bool is_queue_empty;
->>>
->>>         len = BITS_TO_LONGS(maxbit) * sizeof(unsigned long);
->>>         mem = kmalloc(len, GFP_KERNEL);
->>> @@ -933,12 +956,15 @@ static int evdev_handle_get_val(struct evdev_client *client,
->>>
->>>         spin_unlock(&dev->event_lock);
->>>
->>> +       if (client->head == client->tail)
->>> +               is_queue_empty = true;
->>> +
->>>         __evdev_flush_queue(client, type);
->>>
->>>         spin_unlock_irq(&client->buffer_lock);
->>>
->>>         ret = bits_to_user(mem, maxbit, maxlen, p, compat);
->>> -       if (ret < 0)
->>> +       if (ret < 0 && !is_queue_empty)
->>>                 evdev_queue_syn_dropped(client);
->>>
->>>         kfree(mem);
->>> --
->>> 2.6.2
->>>
+>> [    6.044758] hid-rmi 0003:06CB:7D29.0001: hiddev0,hidraw1: USB HID
+>> v1.11 Mouse [SYNAPTICS Synaptics HIDUSB TouchPad V03] on
+>> usb-0000:00:14.0-2.1/input0
+>> [    6.044761] hid-rmi 0003:06CB:7D29.0001: Device failed to be
+>> properly configured
+>>
+>> Latest bios is installed.
+>>
+>>
+>> [3.] Keywords
+>>
+>>
+>> [4.] Kernel version
+>>
+>> Linux version 4.8.6-040806-generic (kernel@tangerine) (gcc version
+>> 6.2.0 20161005 (Ubuntu 6.2.0-5ubuntu12) ) #201610310831 SMP Mon Oct 31
+>> 12:33:48 UTC 2016
+>>
+>>
+>> [5.] Output of Oops.. message
+>>
+>> Not applicable.
+>>
+>>
+>> [6.] A small shell script or example program which triggers the problem
+>>
+>> Not applicable. Problem always appears.

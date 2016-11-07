@@ -1,65 +1,96 @@
 From: Hn Chen <hn.chen@weidahitech.com>
 Subject: RE: [PATCH] HID: i2c-hid: add retry in set power for fixing weida's
  issue
-Date: Mon, 7 Nov 2016 10:52:24 +0000
-Message-ID: <22498D53301C4D4A8FFA8F02C7C3C7C06DDE5450@mail02.WHT.local>
+Date: Mon, 7 Nov 2016 11:02:47 +0000
+Message-ID: <22498D53301C4D4A8FFA8F02C7C3C7C06DDE5462@mail02.WHT.local>
 References: <1478515138-1922-1-git-send-email-hn.chen@weidahitech.com>
+ <alpine.LNX.2.00.1611071147580.29400@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="big5"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ml01.weidahitech.com ([61.222.87.235]:2453 "EHLO
+Received: from ml01.weidahitech.com ([61.222.87.235]:1148 "EHLO
         ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752060AbcKGKwu (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2016 05:52:50 -0500
-In-Reply-To: <1478515138-1922-1-git-send-email-hn.chen@weidahitech.com>
+        with ESMTP id S1751297AbcKGLDU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2016 06:03:20 -0500
+In-Reply-To: <alpine.LNX.2.00.1611071147580.29400@cbobk.fhfr.pm>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "jkosina@suse.cz" <jkosina@suse.cz>
+To: Jiri Kosina <jikos@kernel.org>
 Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-SGkgYWxsLA0KDQpJIGFtIHNvcnJ5IGZvciB0aGUgZm9ybWF0IG1lc3MgdXAuDQpTb21lIG1lc3Nh
-Z2VzIGFyZSBtaXNzaW5nIGFuZCBqdXN0IGhhdmUgYW4gYWRkaXRpb25hbCBkZXNjcmlwdGlvbiBo
-ZXJlLg0KDQpXZWlkYSdzIGNvbnRyb2xsZXJzKFdEVDg3NTIvV0RUODc1NSkgcmVxdWlyZSAyIHN0
-ZXBzIHRvIHdha2V1cCBmcm9tIFNMRUVQIG1vZGUuIA0KVGhlIGZpcnN0IGNvbW1hbmQgd2lsbCB3
-YWtldXAgdGhlIGNvbnRyb2xsZXIgYnV0IHdpbGwgYmUgaWdub3JlZC4gDQpUaGUgc2Vjb25kIGNv
-bW1hbmQgd2lsbCBiZSBleGVjdXRlZCB3aGVuIHRoZSBjb250cm9sbGVyIHdhcyBhY3RpdmUuDQoN
-CkhuLmNoZW4uDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBobi5jaGVuQHdl
-aWRhaGl0ZWNoLmNvbSBbbWFpbHRvOmhuLmNoZW5Ad2VpZGFoaXRlY2guY29tXSANClNlbnQ6IE1v
-bmRheSwgTm92ZW1iZXIgMDcsIDIwMTYgNjozOSBQTQ0KVG86IGprb3NpbmFAc3VzZS5jeg0KQ2M6
-IGJlbmphbWluLnRpc3NvaXJlc0ByZWRoYXQuY29tOyBkbWl0cnkudG9yb2tob3ZAZ21haWwuY29t
-OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IEhuIENoZW4NClN1YmplY3Q6IFtQQVRDSF0g
-SElEOiBpMmMtaGlkOiBhZGQgcmV0cnkgaW4gc2V0IHBvd2VyIGZvciBmaXhpbmcgd2VpZGEncyBp
-c3N1ZQ0KDQpGcm9tOiBIdW5nTmllbiBDaGVuIDxobi5jaGVuQHdlaWRhaGl0ZWNoLmNvbT4NCg0K
-SnVzdCBtb2RpZnkgdGhlIHNldF9wb3dlciBmdW5jdGlvbiB0byBzZW5kIHRoZSBjb21tYW5kIHR3
-aWNlLg0KSXQgc2hvdWxkIGJlIG9rIGZvciBvdGhlciBjb250b3JsbGVycyBzaW5jZSBpdCB3aWxs
-IGp1bXAgb3V0IHRoZSBsb29wIGFmdGVyIHRoZSBmaXJzdCBjb21tYW5kIHNlbmQgb3V0LiBJZiB0
-aGlzIGlzIG5vdCBhIHByb3BlciBtb2RpZmljYXRpb24sIHBsZWFzZSB0ZWxsIG1lIGEgcHJvcGVy
-IHdheSB0byBmaXggdGhpcyBraW5kIG9mIGlzc3VlLg0KDQpTaWduZWQtb2ZmLWJ5OiBIdW5nTmll
-biBDaGVuIDxobi5jaGVuQHdlaWRhaGl0ZWNoLmNvbT4NCi0tLQ0KIGRyaXZlcnMvaGlkL2kyYy1o
-aWQvaTJjLWhpZC5jIHwgMjIgKysrKysrKysrKysrKysrKysrLS0tLQ0KIDEgZmlsZSBjaGFuZ2Vk
-LCAxOCBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQ0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy9oaWQvaTJjLWhpZC9pMmMtaGlkLmMgYi9kcml2ZXJzL2hpZC9pMmMtaGlkL2kyYy1oaWQuYyBp
-bmRleCBiM2VjNGYyLi5kNzQyM2Q5IDEwMDY0NA0KLS0tIGEvZHJpdmVycy9oaWQvaTJjLWhpZC9p
-MmMtaGlkLmMNCisrKyBiL2RyaXZlcnMvaGlkL2kyYy1oaWQvaTJjLWhpZC5jDQpAQCAtNDksNiAr
-NDksOCBAQA0KICNkZWZpbmUgSTJDX0hJRF9QV1JfT04JCTB4MDANCiAjZGVmaW5lIEkyQ19ISURf
-UFdSX1NMRUVQCTB4MDENCiANCisjZGVmaW5lCVNFVF9QV1JfUkVUUklFUwkJMg0KKw0KIC8qIGRl
-YnVnIG9wdGlvbiAqLw0KIHN0YXRpYyBib29sIGRlYnVnOw0KIG1vZHVsZV9wYXJhbShkZWJ1Zywg
-Ym9vbCwgMDQ0NCk7DQpAQCAtMzQzLDE0ICszNDUsMjYgQEAgc3RhdGljIGludCBpMmNfaGlkX3Nl
-dF9wb3dlcihzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50LCBpbnQgcG93ZXJfc3RhdGUpICB7DQog
-CXN0cnVjdCBpMmNfaGlkICppaGlkID0gaTJjX2dldF9jbGllbnRkYXRhKGNsaWVudCk7DQogCWlu
-dCByZXQ7DQorCWludCByZXRyeTsNCiANCiAJaTJjX2hpZF9kYmcoaWhpZCwgIiVzXG4iLCBfX2Z1
-bmNfXyk7DQogDQotCXJldCA9IF9faTJjX2hpZF9jb21tYW5kKGNsaWVudCwgJmhpZF9zZXRfcG93
-ZXJfY21kLCBwb3dlcl9zdGF0ZSwNCi0JCTAsIE5VTEwsIDAsIE5VTEwsIDApOw0KLQlpZiAocmV0
-KQ0KLQkJZGV2X2VycigmY2xpZW50LT5kZXYsICJmYWlsZWQgdG8gY2hhbmdlIHBvd2VyIHNldHRp
-bmcuXG4iKTsNCisgICAgICAgLyoNCisJKiBTb21lIFdlaWRhJ3MgY29udHJvbGxlcnMgcmVxdWly
-ZSBTZXRfUG93ZXIgdHdpY2Ugb24gcmVzdW1lLg0KKwkqIFRoZSAxc3QgY21kIHdha2V1cCB0aGUg
-Y29udHJvbGxlciBhbmQgdGhlIDJuZCBjbWQgd2lsbCBiZSBleGVjdXRlZC4NCisJKiBJdCBzaG91
-bGQgYmUgc2FmZSB0byBjb250cm9sbGVycyBvZiBvdGhlciB2ZW5kb3JzLg0KKwkqLw0KKwlmb3Ig
-KHJldHJ5ID0gMDsgcmV0cnkgPCBTRVRfUFdSX1JFVFJJRVM7IHJldHJ5KyspIHsNCisJCXJldCA9
-IF9faTJjX2hpZF9jb21tYW5kKGNsaWVudCwgJmhpZF9zZXRfcG93ZXJfY21kLA0KKwkJCXBvd2Vy
-X3N0YXRlLCAwLCBOVUxMLCAwLCBOVUxMLCAwKTsNCisNCisJCWlmICghcmV0KQ0KKwkJCWdvdG8g
-c2V0X3Bvd2VyX2V4aXQ7DQorCX0NCisNCisJZGV2X2VycigmY2xpZW50LT5kZXYsICJmYWlsZWQg
-dG8gY2hhbmdlIHBvd2VyIHNldHRpbmcuXG4iKTsNCiANCitzZXRfcG93ZXJfZXhpdDoNCiAJcmV0
-dXJuIHJldDsNCiB9DQogDQotLQ0KMS45LjENCg0K
+Hi Jiri,
+
+Thanks for the tip.
+
+Since I don't have any experience to add a quirk, may I have a sample code for reference ?
+It should be a HID quirk, right ?
+
+Hn.chen.
+
+-----Original Message-----
+From: Jiri Kosina [mailto:jikos@kernel.org] 
+Sent: Monday, November 07, 2016 6:49 PM
+To: Hn Chen
+Cc: benjamin.tissoires@redhat.com; dmitry.torokhov@gmail.com; linux-input@vger.kernel.org
+Subject: Re: [PATCH] HID: i2c-hid: add retry in set power for fixing weida's issue
+
+On Mon, 7 Nov 2016, hn.chen@weidahitech.com wrote:
+
+> From: HungNien Chen <hn.chen@weidahitech.com>
+> 
+> Just modify the set_power function to send the command twice.
+> It should be ok for other contorllers since it will jump out the loop 
+> after the first command send out. If this is not a proper 
+> modification, please tell me a proper way to fix this kind of issue.
+> 
+> Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c | 22 ++++++++++++++++++----
+>  1 file changed, 18 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c 
+> b/drivers/hid/i2c-hid/i2c-hid.c index b3ec4f2..d7423d9 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -49,6 +49,8 @@
+>  #define I2C_HID_PWR_ON		0x00
+>  #define I2C_HID_PWR_SLEEP	0x01
+>  
+> +#define	SET_PWR_RETRIES		2
+> +
+>  /* debug option */
+>  static bool debug;
+>  module_param(debug, bool, 0444);
+> @@ -343,14 +345,26 @@ static int i2c_hid_set_power(struct i2c_client 
+> *client, int power_state)  {
+>  	struct i2c_hid *ihid = i2c_get_clientdata(client);
+>  	int ret;
+> +	int retry;
+>  
+>  	i2c_hid_dbg(ihid, "%s\n", __func__);
+>  
+> -	ret = __i2c_hid_command(client, &hid_set_power_cmd, power_state,
+> -		0, NULL, 0, NULL, 0);
+> -	if (ret)
+> -		dev_err(&client->dev, "failed to change power setting.\n");
+> +       /*
+> +	* Some Weida's controllers require Set_Power twice on resume.
+> +	* The 1st cmd wakeup the controller and the 2nd cmd will be executed.
+> +	* It should be safe to controllers of other vendors.
+> +	*/
+> +	for (retry = 0; retry < SET_PWR_RETRIES; retry++) {
+> +		ret = __i2c_hid_command(client, &hid_set_power_cmd,
+> +			power_state, 0, NULL, 0, NULL, 0);
+> +
+> +		if (!ret)
+> +			goto set_power_exit;
+
+This is ugly, and we have no idea what this might do to any other
+(potential) devices. Can't you make this a quirk that'd be applied only to this specific device?
+
+--
+Jiri Kosina
+SUSE Labs
+

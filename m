@@ -1,25 +1,20 @@
 From: <hn.chen@weidahitech.com>
-Subject: [PATCH] HID: i2c-hid: add retry in set power for fixing weida's issue
-Date: Mon, 7 Nov 2016 18:38:58 +0800
-Message-ID: <1478515138-1922-1-git-send-email-hn.chen@weidahitech.com>
+Subject: [PATCH] HID: i2c-hid: add retry in set power for fixing resume issue(send again) Weida's controllers(WDT8752/WDT8755) require 2 steps to wakeup from SLEEP mode. The first command will wakeup the controller but will be ignored. The second command will be executed after the controller was active. Just modify the set_power function to send the command twice. It should be ok for other contorllers since it will jump out the loop after the first command send out. If it is not a proper modification, please tell me a proper way to fix this kind of issue.
+Date: Mon, 7 Nov 2016 18:45:10 +0800
+Message-ID: <1478515510-2148-1-git-send-email-hn.chen@weidahitech.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ml01.weidahitech.com ([61.222.87.235]:2962 "EHLO
+Received: from ml01.weidahitech.com ([61.222.87.235]:1683 "EHLO
         ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752029AbcKGKm3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2016 05:42:29 -0500
+        with ESMTP id S1751438AbcKGKmv (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2016 05:42:51 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jkosina@suse.cz
 Cc: benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, HungNien Chen <hn.chen@weidahitech.com>
 
 From: HungNien Chen <hn.chen@weidahitech.com>
-
-Just modify the set_power function to send the command twice.
-It should be ok for other contorllers since it will jump out the loop after
-the first command send out. If this is not a proper modification,
-please tell me a proper way to fix this kind of issue.
 
 Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
 ---

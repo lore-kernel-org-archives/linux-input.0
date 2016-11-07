@@ -1,58 +1,37 @@
-From: Hn Chen <hn.chen@weidahitech.com>
-Subject: RE: [PATCH] HID: i2c-hid: add retry in set power for fixing weida's
- issue
-Date: Mon, 7 Nov 2016 13:35:37 +0000
-Message-ID: <22498D53301C4D4A8FFA8F02C7C3C7C06DDE648F@mail02.WHT.local>
-References: <1478515138-1922-1-git-send-email-hn.chen@weidahitech.com>
- <alpine.LNX.2.00.1611071147580.29400@cbobk.fhfr.pm>
- <22498D53301C4D4A8FFA8F02C7C3C7C06DDE5462@mail02.WHT.local>,<alpine.LNX.2.00.1611071255020.29400@cbobk.fhfr.pm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [PATCH] drivers: tca8418: Change the interrupt type
+Date: Mon,  7 Nov 2016 15:40:24 +0100
+Message-ID: <20161107144024.15291-1-maxime.ripard@free-electrons.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ml01.weidahitech.com ([61.222.87.235]:2526 "EHLO
-        ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752427AbcKGNfz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2016 08:35:55 -0500
-In-Reply-To: <alpine.LNX.2.00.1611071255020.29400@cbobk.fhfr.pm>
-Content-Language: en-US
+Received: from up.free-electrons.com ([163.172.77.33]:49176 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751297AbcKGOkh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2016 09:40:37 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>
 
-HI Jiri,
+The TCA8418 interrupt has a level trigger, not a edge one.
 
-Ok. I see.  
-I will do simple vid/pid filter to see if it's weida's controller.
-Send the extra command if the answer is true.
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ drivers/input/keyboard/tca8418_keypad.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-hn.chen
-________________________________________
-From: Jiri Kosina [jikos@kernel.org]
-Sent: Monday, November 07, 2016 7:59 PM
-To: Hn Chen
-Cc: benjamin.tissoires@redhat.com; dmitry.torokhov@gmail.com; linux-input@vger.kernel.org
-Subject: RE: [PATCH] HID: i2c-hid: add retry in set power for fixing weida's issue
-
-On Mon, 7 Nov 2016, Hn Chen wrote:
-
-> Since I don't have any experience to add a quirk, may I have a sample
-> code for reference ? It should be a HID quirk, right ?
-
-Generic HID quirk might be over-stretching it, as i2c_hid_set_power() is
-being called from various places, so generalizing this requirement out
-into HID core wouldn't be clean either.
-
-You can special-case this behavior by looking at wVendorID / wProductID /
-wVersionID from the report descriptor, can't you?
-
-There is not a quirk mechanism for i2c-hid yet. If things start exploding
-like in usb-hid space, we'd definitely want to have a generic quirk
-mechanism one day. But if this has been a single case over the existence
-of the hid-over-i2c, I wouldn't bother (yet).
-
---
-Jiri Kosina
-SUSE Labs
+diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
+index 9002298698fc..b88b3696a2e1 100644
+--- a/drivers/input/keyboard/tca8418_keypad.c
++++ b/drivers/input/keyboard/tca8418_keypad.c
+@@ -360,7 +360,7 @@ static int tca8418_keypad_probe(struct i2c_client *client,
+ 		irq = gpio_to_irq(irq);
+ 
+ 	error = devm_request_threaded_irq(dev, irq, NULL, tca8418_irq_handler,
+-					  IRQF_TRIGGER_FALLING |
++					  IRQF_TRIGGER_LOW |
+ 						IRQF_SHARED |
+ 						IRQF_ONESHOT,
+ 					  client->name, keypad_data);
+-- 
+2.10.1
 

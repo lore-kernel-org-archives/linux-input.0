@@ -1,138 +1,120 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: Re: [PATCH v3 00/18] Synaptics RMI4 and SMBus implementation
-Date: Mon, 7 Nov 2016 23:17:22 +0000
-Message-ID: <20161107231722.GA4778@lava.h.shmanahar.org>
-References: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
- <CAN+gG=EG-6g52gBSwF60FNTaeXfg90F9BJzJNfFxHVC6YV3PEQ@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v5 3/7] Input: synaptics-rmi4 - add support for F34
+ device reflash
+Date: Mon, 7 Nov 2016 17:47:13 -0800
+Message-ID: <20161108014713.GB10133@dtor-ws>
+References: <1477345917-25326-1-git-send-email-nick@shmanahar.org>
+ <1477345917-25326-4-git-send-email-nick@shmanahar.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:35885 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751226AbcKHBrR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2016 20:47:17 -0500
 Content-Disposition: inline
-In-Reply-To: <CAN+gG=EG-6g52gBSwF60FNTaeXfg90F9BJzJNfFxHVC6YV3PEQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Lyude Paul <thatslyude@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Dennis Wassenberg <dennis.wassenberg@secunet.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jikos@jikos.cz>, Chris Healy <cphealy@gmail.com>
+In-Reply-To: <1477345917-25326-4-git-send-email-nick@shmanahar.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nick Dyer <nick@shmanahar.org>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2016 at 09:23:48AM +0100, Benjamin Tissoires wrote:
-> On Thu, Oct 13, 2016 at 5:50 PM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
-> > Hi guys,
-> >
-> > This is the third submission of this series, with some addition of RMI4 patches
-> > currently waiting on the list.
-> >
-> > I integrated Bjorn's patch because in the end, it seems to be the right thing
-> > to do. We can create an irqchip in hid-rmi and also provide an IRQ there.
-> > Worse case, if this doesn't work, we can always add a special case to
-> > disable the handling of the IRQs in core.
-> >
-> > I took Nick's patch as it's a nice cleanup and it solves an issue where
-> > the mutex irq_mutex might not be initialized (in the case we are not handling
-> > IRQ directly in core).
-> >
-> > I also took some patches from Andrew that were submitted back in July, and that
-> > were left over. They are required to allow hid-rmi to use rmi4-core without
-> > losing functionality. The DT binding seemed to be problematic, so I just lefted
-> > it out of the series. We can add it later when required (if required).
-> > Andrew, regarding hid-rmi, I'll try to give you a draft of the irqchip
-> > implementation based on what I did for SMBus Host Notify.
-> >
-> > The rest is an update of the SMBus work. The main differences is that now
-> > rmi4-smbus doesn't handle anymore the IRQ and I hope that the SMBus Host Notify
-> > patches I posted on linux-i2c will be approved by Wolfram.
+On Mon, Oct 24, 2016 at 10:51:53PM +0100, Nick Dyer wrote:
+> Add support for updating firmware, triggered by a sysfs attribute.
 > 
-> I understand you are busy with many other projects, but it would be
-> great if we could have this series (or a subset of this series)
-> landing ASAP.
+> This patch has been tested on Synaptics S7300.
 > 
-> We already have at least 2 machines (the Lenovo X1 Tablet and the HP
-> Pavilion x2) that need to be using the function 12 in Synaptics RMI4,
-> and so this series is a requirement to enable those touchpads.
+> Signed-off-by: Nick Dyer <nick@shmanahar.org>
+> Tested-by: Chris Healy <cphealy@gmail.com>
+> ---
+>  drivers/input/rmi4/Kconfig      |  11 +
+>  drivers/input/rmi4/Makefile     |   1 +
+>  drivers/input/rmi4/rmi_bus.c    |   3 +
+>  drivers/input/rmi4/rmi_driver.c |  89 ++++++--
+>  drivers/input/rmi4/rmi_driver.h |  24 ++
+>  drivers/input/rmi4/rmi_f01.c    |   6 +
+>  drivers/input/rmi4/rmi_f34.c    | 494 ++++++++++++++++++++++++++++++++++++++++
+>  drivers/input/rmi4/rmi_f34.h    |  68 ++++++
+>  include/linux/rmi.h             |   1 +
+>  9 files changed, 673 insertions(+), 24 deletions(-)
+>  create mode 100644 drivers/input/rmi4/rmi_f34.c
+>  create mode 100644 drivers/input/rmi4/rmi_f34.h
 > 
-> If you really want to postpone the review of the new files in this
-> series, I think merging only the following patches would be
-> acceptable:
-> [v3,01/18] Input: synaptics-rmi4 - Move IRQ handling to rmi_driver
-> [v3,02/18] Input: synaptics-rmi4 - factor out functions from probe
-> [v3,03/18] Input: synaptics-rmi4 - Handle incomplete input data
-> [v3,04/18] Input: synaptics-rmi4 - Add parameters for dribble packets
-> and palm detect gesture
-> [v3,05/18] Input: synaptics-rmi4 - Add support for controlling dribble
-> packets in F12
-> [v3,06/18] Input: synaptics-rmi4 - Set the ABS_MT_TOOL_TYPE bit to
-> report tool type
-> [v3,09/18] Input: synaptics-rmi4 - have only one struct platform data
-> [v3,18/18] Input: synaptics-rmi4 - fix documentation of
-> rmi_2d_sensor_platform_data
-> 
-> This is the bare minimum I think to enable the F12 in hid-rmi. It
-> should apply gracefully (crossing finger for 9/18), and would allow us
-> to switch hid-rmi to rmi4-core.
-> 
-> I guess Jiri will probably want a stable branch with those commits so
-> we can also merge the switch from hid-rmi to use rmi4-core in v4.10.
+> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+> index 4c8a558..9f10b1f 100644
+> --- a/drivers/input/rmi4/Kconfig
+> +++ b/drivers/input/rmi4/Kconfig
+> @@ -62,6 +62,17 @@ config RMI4_F30
+>  	  Function 30 provides GPIO and LED support for RMI4 devices. This
+>  	  includes support for buttons on TouchPads and ClickPads.
+>  
+> +config RMI4_F34
+> +	bool "RMI4 Function 34 (Device reflash)"
+> +	depends on RMI4_CORE
+> +	select FW_LOADER
+> +	help
+> +	  Say Y here if you want to add support for RMI4 function 34.
+> +
+> +	  Function 34 provides support for upgrading the firmware on the RMI4
+> +	  device via the firmware loader interface. This is triggered using a
+> +	  sysfs attribute.
+> +
+>  config RMI4_F54
+>  	bool "RMI4 Function 54 (Analog diagnostics)"
+>  	depends on RMI4_CORE
+> diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
+> index 0bafc85..5f165ad 100644
+> --- a/drivers/input/rmi4/Makefile
+> +++ b/drivers/input/rmi4/Makefile
+> @@ -7,6 +7,7 @@ rmi_core-$(CONFIG_RMI4_2D_SENSOR) += rmi_2d_sensor.o
+>  rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
+>  rmi_core-$(CONFIG_RMI4_F12) += rmi_f12.o
+>  rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
+> +rmi_core-$(CONFIG_RMI4_F34) += rmi_f34.o
+>  rmi_core-$(CONFIG_RMI4_F54) += rmi_f54.o
+>  
+>  # Transports
+> diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+> index 3c6a1b5..178d388 100644
+> --- a/drivers/input/rmi4/rmi_bus.c
+> +++ b/drivers/input/rmi4/rmi_bus.c
+> @@ -314,6 +314,9 @@ static struct rmi_function_handler *fn_handlers[] = {
+>  #ifdef CONFIG_RMI4_F30
+>  	&rmi_f30_handler,
+>  #endif
+> +#ifdef CONFIG_RMI4_F34
+> +	&rmi_f34_handler,
+> +#endif
+>  #ifdef CONFIG_RMI4_F54
+>  	&rmi_f54_handler,
+>  #endif
+> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+> index adb3ee8..545f7db 100644
+> --- a/drivers/input/rmi4/rmi_driver.c
+> +++ b/drivers/input/rmi4/rmi_driver.c
+> @@ -33,14 +33,21 @@
+>  #define RMI_DEVICE_RESET_CMD	0x01
+>  #define DEFAULT_RESET_DELAY_MS	100
+>  
+> -static void rmi_free_function_list(struct rmi_device *rmi_dev)
+> +void rmi_free_function_list(struct rmi_device *rmi_dev)
+>  {
+>  	struct rmi_function *fn, *tmp;
+>  	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+>  
+>  	rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev, "Freeing function list\n");
+>  
+> +	mutex_lock(&data->irq_mutex);
+> +
+>  	data->f01_container = NULL;
+> +	data->f34_container = NULL;
+> +	data->irq_status = NULL;
 
-Hi Benjamin-
+So you simply "lose" old irq_status memory and rely on devm clear it
+later? If anything it requires a comment, but I would like we did not
+leave stray memory.
 
-Just to say, there's a few other patches that we would be keen to also
-get into v4.10 if possible:
+Thanks.
 
-These three enable the F54 support to work properly on more devices:
-
-Input: synaptics-rmi4 - stop scanning PDT after two empty pages
-https://patchwork.kernel.org/patch/9398323/
-
-Input: synaptics-rmi4 - add support for F55 sensor tuning
-https://patchwork.kernel.org/patch/9359055/
-
-Input: synaptics-rmi4 - Propagate correct number of rx and tx electrodes
-to F54
-https://patchwork.kernel.org/patch/9359059/
-
-
-I would also be keen to get at least some of the F34 reflash support in:
-http://www.spinics.net/lists/linux-input/msg47479.html
-
-Would you be able to merge any of these into your series? I am happy to
-do some of the work if you are busy.
-
-cheers
-
-Nick
-
-> > Andrew Duggan (4):
-> >   Input: synaptics-rmi4 - Handle incomplete input data
-> >   Input: synaptics-rmi4 - Add parameters for dribble packets and palm
-> >     detect gesture
-> >   Input: synaptics-rmi4 - Add support for controlling dribble packets in
-> >     F12
-> >   Input: synaptics-rmi4 - Set the ABS_MT_TOOL_TYPE bit to report tool
-> >     type
-> >
-> > Benjamin Tissoires (10):
-> >   Input: synaptics-rmi4 - add SMBus support
-> >   Input: serio - store the pt_buttons in the struct serio directly
-> >   Input: synaptics-rmi4 - have only one struct platform data
-> >   Input: synaptics-rmi4 - Add rmi_find_function()
-> >   Input: synaptics-rmi4 - f30/f03: Forward mechanical buttons on
-> >     buttonpads to PS/2 guest
-> >   Input: synaptics - allocate a Synaptics Intertouch device
-> >   Input: synaptics-rmi4 - add rmi_platform
-> >   Input: synaptics-rmi4 - smbus: call psmouse_deactivate before
-> >     binding/resume
-> >   Input: synaptics-rmi4 - smbus: on resume, try 3 times if init fails
-> >   Input: synaptics-rmi4 - fix documentation of
-> >     rmi_2d_sensor_platform_data
-> >
-> > Bjorn Andersson (1):
-> >   Input: synaptics-rmi4 - Move IRQ handling to rmi_driver
-> >
-> > Dennis Wassenberg (1):
-> >   Input: synaptics-rmi4 - f03: grab data passed by transport device
-> >
-> > Lyude Paul (1):
-> >   Input: synaptics-rmi4 - add support for F03
-> >
-> > Nick Dyer (1):
-> >   Input: synaptics-rmi4 - factor out functions from probe
+-- 
+Dmitry

@@ -1,52 +1,57 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v7 1/3] input: touchscreen: TOUCHSCREEN_SUN4I depends on
- !SUN4I_GPADC
-Date: Tue, 8 Nov 2016 16:20:32 -0800
-Message-ID: <20161109002032.GD8719@dtor-ws>
-References: <20161103101601.24529-1-quentin.schulz@free-electrons.com>
- <20161103101601.24529-2-quentin.schulz@free-electrons.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Input: melfas_mip4 - add product ID reporting
+Date: Tue, 8 Nov 2016 16:24:40 -0800
+Message-ID: <20161109002440.GE8719@dtor-ws>
+References: <1477990392-7606-1-git-send-email-jeesw@melfas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:35506 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751382AbcKIAYn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2016 19:24:43 -0500
+Received: by mail-pf0-f196.google.com with SMTP id i88so21286891pfk.2
+        for <linux-input@vger.kernel.org>; Tue, 08 Nov 2016 16:24:43 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20161103101601.24529-2-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, antoine.tenart-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1477990392-7606-1-git-send-email-jeesw@melfas.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sangwon Jee <jeesw@melfas.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Nov 03, 2016 at 11:15:59AM +0100, Quentin Schulz wrote:
-> SUN4I_GPADC and TOUCHSCREEN_SUN4I are incompatible (both are drivers
-> for Allwinner SoCs' ADC). This makes sure TOUCHSCREEN_SUN4I isn't
-> enabled while SUN4I_GPADC is enabled.
+On Tue, Nov 01, 2016 at 05:53:12PM +0900, Sangwon Jee wrote:
+> Add reporting product ID through input_id.
 > 
-> Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> Signed-off-by: Sangwon Jee <jeesw@melfas.com>
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-Please merge with SUN4I_GPADC driver patch.
+Applied, thank you.
 
 > ---
+>  drivers/input/touchscreen/melfas_mip4.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> added in v7
-> 
->  drivers/input/touchscreen/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index efca013..c618cb9 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -1120,6 +1120,7 @@ config TOUCHSCREEN_SUN4I
->  	depends on ARCH_SUNXI || COMPILE_TEST
->  	depends on HWMON
->  	depends on THERMAL || !THERMAL_OF
-> +	depends on !SUN4I_GPADC
->  	help
->  	  This selects support for the resistive touchscreen controller
->  	  found on Allwinner sunxi SoCs.
+> diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
+> index 0f2230a..f160390 100644
+> --- a/drivers/input/touchscreen/melfas_mip4.c
+> +++ b/drivers/input/touchscreen/melfas_mip4.c
+> @@ -1477,6 +1477,7 @@ static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  
+>  	input->id.bustype = BUS_I2C;
+>  	input->id.vendor = 0x13c5;
+> +	input->id.product = ts->product_id;
+>  
+>  	input->open = mip4_input_open;
+>  	input->close = mip4_input_close;
+> @@ -1614,6 +1615,6 @@ static struct i2c_driver mip4_driver = {
+>  module_i2c_driver(mip4_driver);
+>  
+>  MODULE_DESCRIPTION("MELFAS MIP4 Touchscreen");
+> -MODULE_VERSION("2016.10.24");
+> +MODULE_VERSION("2016.10.31");
+>  MODULE_AUTHOR("Sangwon Jee <jeesw@melfas.com>");
+>  MODULE_LICENSE("GPL");
 > -- 
-> 2.9.3
+> 1.9.1
 > 
 
 -- 

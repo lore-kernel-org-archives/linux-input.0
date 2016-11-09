@@ -1,34 +1,33 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 03/18] Input: synaptics-rmi4 - Handle incomplete input
- data
-Date: Tue, 8 Nov 2016 16:46:58 -0800
-Message-ID: <20161109004658.GG8719@dtor-ws>
+Subject: Re: [PATCH v3 01/18] Input: synaptics-rmi4 - Move IRQ handling to
+ rmi_driver
+Date: Tue, 8 Nov 2016 16:47:11 -0800
+Message-ID: <20161109004711.GH8719@dtor-ws>
 References: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
- <1476373872-18027-4-git-send-email-benjamin.tissoires@redhat.com>
+ <1476373872-18027-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:35812 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751695AbcKIArC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2016 19:47:02 -0500
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:34272 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753813AbcKIArP (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2016 19:47:15 -0500
 Content-Disposition: inline
-In-Reply-To: <1476373872-18027-4-git-send-email-benjamin.tissoires@redhat.com>
+In-Reply-To: <1476373872-18027-2-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>, Lyude Paul <thatslyude@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Dennis Wassenberg <dennis.wassenberg@secunet.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Oct 13, 2016 at 05:50:57PM +0200, Benjamin Tissoires wrote:
-> From: Andrew Duggan <aduggan@synaptics.com>
+On Thu, Oct 13, 2016 at 05:50:55PM +0200, Benjamin Tissoires wrote:
+> From: Bjorn Andersson <bjorn.andersson@linaro.org>
 > 
-> Commit 5b65c2a02966 ("HID: rmi: check sanity of the incoming report") added
-> support for handling incomplete HID reports do to the input data being
-> corrupted in transit. This patch reimplements this functionality in the
-> function drivers so they can handle getting less valid data then they
-> expect.
+> The attn IRQ is related to the chip, rather than the transport, so move
+> all handling of interrupts to the core driver. This also makes sure that
+> there are no races between interrupts and availability of the resources
+> used by the core driver.
 > 
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Applied, thank you.
@@ -37,206 +36,469 @@ Applied, thank you.
 > ---
 > 
 > new in v3
-> ---
->  drivers/input/rmi4/rmi_f11.c | 54 ++++++++++++++++++++++++++++++++------------
->  drivers/input/rmi4/rmi_f12.c | 23 ++++++++++++++-----
->  drivers/input/rmi4/rmi_f30.c |  4 ++++
->  3 files changed, 61 insertions(+), 20 deletions(-)
 > 
-> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-> index 20c7134..3218742 100644
-> --- a/drivers/input/rmi4/rmi_f11.c
-> +++ b/drivers/input/rmi4/rmi_f11.c
-> @@ -572,31 +572,48 @@ static inline u8 rmi_f11_parse_finger_state(const u8 *f_state, u8 n_finger)
+> changes since Bjorn's submission:
+> - call disable_irq on remove()
+> ---
+>  drivers/input/rmi4/rmi_driver.c | 73 +++++++++++++++++++++++++++++++++++++---
+>  drivers/input/rmi4/rmi_i2c.c    | 74 +++--------------------------------------
+>  drivers/input/rmi4/rmi_spi.c    | 72 +++------------------------------------
+>  include/linux/rmi.h             |  7 ++--
+>  4 files changed, 83 insertions(+), 143 deletions(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+> index c83bce8..cf780ef 100644
+> --- a/drivers/input/rmi4/rmi_driver.c
+> +++ b/drivers/input/rmi4/rmi_driver.c
+> @@ -17,6 +17,7 @@
+>  #include <linux/bitmap.h>
+>  #include <linux/delay.h>
+>  #include <linux/fs.h>
+> +#include <linux/irq.h>
+>  #include <linux/kconfig.h>
+>  #include <linux/pm.h>
+>  #include <linux/slab.h>
+> @@ -134,7 +135,7 @@ static void process_one_interrupt(struct rmi_driver_data *data,
+>  	}
+>  }
 >  
->  static void rmi_f11_finger_handler(struct f11_data *f11,
->  				   struct rmi_2d_sensor *sensor,
-> -				   unsigned long *irq_bits, int num_irq_regs)
-> +				   unsigned long *irq_bits, int num_irq_regs,
-> +				   int size)
+> -int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
+> +static int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
 >  {
->  	const u8 *f_state = f11->data.f_state;
->  	u8 finger_state;
->  	u8 i;
-> +	int abs_fingers;
-> +	int rel_fingers;
-> +	int abs_size = sensor->nbr_fingers * RMI_F11_ABS_BYTES;
+>  	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+>  	struct device *dev = &rmi_dev->dev;
+> @@ -179,7 +180,42 @@ int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
 >  
->  	int abs_bits = bitmap_and(f11->result_bits, irq_bits, f11->abs_mask,
->  				  num_irq_regs * 8);
->  	int rel_bits = bitmap_and(f11->result_bits, irq_bits, f11->rel_mask,
->  				  num_irq_regs * 8);
->  
-> -	for (i = 0; i < sensor->nbr_fingers; i++) {
-> -		/* Possible of having 4 fingers per f_statet register */
-> -		finger_state = rmi_f11_parse_finger_state(f_state, i);
-> -		if (finger_state == F11_RESERVED) {
-> -			pr_err("Invalid finger state[%d]: 0x%02x", i,
-> -				finger_state);
-> -			continue;
-> -		}
-> +	if (abs_bits) {
-> +		if (abs_size > size)
-> +			abs_fingers = size / RMI_F11_ABS_BYTES;
-> +		else
-> +			abs_fingers = sensor->nbr_fingers;
+>  	return 0;
+>  }
+> -EXPORT_SYMBOL_GPL(rmi_process_interrupt_requests);
 > +
-> +		for (i = 0; i < abs_fingers; i++) {
-> +			/* Possible of having 4 fingers per f_state register */
-> +			finger_state = rmi_f11_parse_finger_state(f_state, i);
-> +			if (finger_state == F11_RESERVED) {
-> +				pr_err("Invalid finger state[%d]: 0x%02x", i,
-> +					finger_state);
-> +				continue;
-> +			}
->  
-> -		if (abs_bits)
->  			rmi_f11_abs_pos_process(f11, sensor, &sensor->objs[i],
->  							finger_state, i);
-> +		}
+> +static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
+> +{
+> +	struct rmi_device *rmi_dev = dev_id;
+> +	int ret;
+> +
+> +	ret = rmi_process_interrupt_requests(rmi_dev);
+> +	if (ret)
+> +		rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev,
+> +			"Failed to process interrupt request: %d\n", ret);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int rmi_irq_init(struct rmi_device *rmi_dev)
+> +{
+> +	struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
+> +	int irq_flags = irq_get_trigger_type(pdata->irq);
+> +	int ret;
+> +
+> +	if (!irq_flags)
+> +		irq_flags = IRQF_TRIGGER_LOW;
+> +
+> +	ret = devm_request_threaded_irq(&rmi_dev->dev, pdata->irq, NULL,
+> +					rmi_irq_fn, irq_flags | IRQF_ONESHOT,
+> +					dev_name(rmi_dev->xport->dev),
+> +					rmi_dev);
+> +	if (ret < 0) {
+> +		dev_warn(&rmi_dev->dev, "Failed to register interrupt %d\n",
+> +			 pdata->irq);
+> +
+> +		return ret;
 > +	}
 > +
-> +	if (rel_bits) {
-> +		if ((abs_size + sensor->nbr_fingers * RMI_F11_REL_BYTES) > size)
-> +			rel_fingers = (size - abs_size) / RMI_F11_REL_BYTES;
-> +		else
-> +			rel_fingers = sensor->nbr_fingers;
+> +	return 0;
+> +}
 >  
-> -		if (rel_bits)
-> +		for (i = 0; i < rel_fingers; i++)
->  			rmi_f11_rel_pos_report(f11, i);
->  	}
->  
-> @@ -612,7 +629,7 @@ static void rmi_f11_finger_handler(struct f11_data *f11,
->  					      sensor->nbr_fingers,
->  					      sensor->dmax);
->  
-> -		for (i = 0; i < sensor->nbr_fingers; i++) {
-> +		for (i = 0; i < abs_fingers; i++) {
->  			finger_state = rmi_f11_parse_finger_state(f_state, i);
->  			if (finger_state == F11_RESERVED)
->  				/* no need to send twice the error */
-> @@ -1242,10 +1259,19 @@ static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
->  	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
->  	u16 data_base_addr = fn->fd.data_base_addr;
->  	int error;
-> +	int valid_bytes = f11->sensor.pkt_size;
->  
->  	if (rmi_dev->xport->attn_data) {
-> +		/*
-> +		 * The valid data in the attention report is less then
-> +		 * expected. Only process the complete fingers.
-> +		 */
-> +		if (f11->sensor.attn_size > rmi_dev->xport->attn_size)
-> +			valid_bytes = rmi_dev->xport->attn_size;
-> +		else
-> +			valid_bytes = f11->sensor.attn_size;
->  		memcpy(f11->sensor.data_pkt, rmi_dev->xport->attn_data,
-> -			f11->sensor.attn_size);
-> +			valid_bytes);
->  		rmi_dev->xport->attn_data += f11->sensor.attn_size;
->  		rmi_dev->xport->attn_size -= f11->sensor.attn_size;
->  	} else {
-> @@ -1257,7 +1283,7 @@ static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
->  	}
->  
->  	rmi_f11_finger_handler(f11, &f11->sensor, irq_bits,
-> -				drvdata->num_of_irq_regs);
-> +				drvdata->num_of_irq_regs, valid_bytes);
->  
->  	return 0;
+>  static int suspend_one_function(struct rmi_function *fn)
+>  {
+> @@ -787,8 +823,10 @@ err_put_fn:
+>  	return error;
 >  }
-> diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
-> index 332c02f..767ac79 100644
-> --- a/drivers/input/rmi4/rmi_f12.c
-> +++ b/drivers/input/rmi4/rmi_f12.c
-> @@ -26,6 +26,8 @@ enum rmi_f12_object_type {
->  	RMI_F12_OBJECT_SMALL_OBJECT		= 0x0D,
+>  
+> -int rmi_driver_suspend(struct rmi_device *rmi_dev)
+> +int rmi_driver_suspend(struct rmi_device *rmi_dev, bool enable_wake)
+>  {
+> +	struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
+> +	int irq = pdata->irq;
+>  	int retval = 0;
+>  
+>  	retval = rmi_suspend_functions(rmi_dev);
+> @@ -796,14 +834,33 @@ int rmi_driver_suspend(struct rmi_device *rmi_dev)
+>  		dev_warn(&rmi_dev->dev, "Failed to suspend functions: %d\n",
+>  			retval);
+>  
+> +	disable_irq(irq);
+> +	if (enable_wake && device_may_wakeup(rmi_dev->xport->dev)) {
+> +		retval = enable_irq_wake(irq);
+> +		if (!retval)
+> +			dev_warn(&rmi_dev->dev,
+> +				 "Failed to enable irq for wake: %d\n",
+> +				 retval);
+> +	}
+>  	return retval;
+>  }
+>  EXPORT_SYMBOL_GPL(rmi_driver_suspend);
+>  
+> -int rmi_driver_resume(struct rmi_device *rmi_dev)
+> +int rmi_driver_resume(struct rmi_device *rmi_dev, bool clear_wake)
+>  {
+> +	struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
+> +	int irq = pdata->irq;
+>  	int retval;
+>  
+> +	enable_irq(irq);
+> +	if (clear_wake && device_may_wakeup(rmi_dev->xport->dev)) {
+> +		retval = disable_irq_wake(irq);
+> +		if (!retval)
+> +			dev_warn(&rmi_dev->dev,
+> +				 "Failed to disable irq for wake: %d\n",
+> +				 retval);
+> +	}
+> +
+>  	retval = rmi_resume_functions(rmi_dev);
+>  	if (retval)
+>  		dev_warn(&rmi_dev->dev, "Failed to suspend functions: %d\n",
+> @@ -816,6 +873,10 @@ EXPORT_SYMBOL_GPL(rmi_driver_resume);
+>  static int rmi_driver_remove(struct device *dev)
+>  {
+>  	struct rmi_device *rmi_dev = to_rmi_device(dev);
+> +	struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
+> +	int irq = pdata->irq;
+> +
+> +	disable_irq(irq);
+>  
+>  	rmi_free_function_list(rmi_dev);
+>  
+> @@ -1004,6 +1065,10 @@ static int rmi_driver_probe(struct device *dev)
+>  		}
+>  	}
+>  
+> +	retval = rmi_irq_init(rmi_dev);
+> +	if (retval < 0)
+> +		goto err_destroy_functions;
+> +
+>  	if (data->f01_container->dev.driver)
+>  		/* Driver already bound, so enable ATTN now. */
+>  		return enable_sensor(rmi_dev);
+> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+> index 6f2e0e4..64a5488 100644
+> --- a/drivers/input/rmi4/rmi_i2c.c
+> +++ b/drivers/input/rmi4/rmi_i2c.c
+> @@ -9,7 +9,6 @@
+>  
+>  #include <linux/i2c.h>
+>  #include <linux/rmi.h>
+> -#include <linux/irq.h>
+>  #include <linux/of.h>
+>  #include <linux/delay.h>
+>  #include <linux/regulator/consumer.h>
+> @@ -35,8 +34,6 @@ struct rmi_i2c_xport {
+>  	struct mutex page_mutex;
+>  	int page;
+>  
+> -	int irq;
+> -
+>  	u8 *tx_buf;
+>  	size_t tx_buf_size;
+>  
+> @@ -177,42 +174,6 @@ static const struct rmi_transport_ops rmi_i2c_ops = {
+>  	.read_block	= rmi_i2c_read_block,
 >  };
 >  
-> +#define F12_DATA1_BYTES_PER_OBJ			8
-> +
->  struct f12_data {
->  	struct rmi_2d_sensor sensor;
->  	struct rmi_2d_sensor_platform_data sensor_pdata;
-> @@ -146,12 +148,16 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
+> -static irqreturn_t rmi_i2c_irq(int irq, void *dev_id)
+> -{
+> -	struct rmi_i2c_xport *rmi_i2c = dev_id;
+> -	struct rmi_device *rmi_dev = rmi_i2c->xport.rmi_dev;
+> -	int ret;
+> -
+> -	ret = rmi_process_interrupt_requests(rmi_dev);
+> -	if (ret)
+> -		rmi_dbg(RMI_DEBUG_XPORT, &rmi_dev->dev,
+> -			"Failed to process interrupt request: %d\n", ret);
+> -
+> -	return IRQ_HANDLED;
+> -}
+> -
+> -static int rmi_i2c_init_irq(struct i2c_client *client)
+> -{
+> -	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
+> -	int irq_flags = irqd_get_trigger_type(irq_get_irq_data(rmi_i2c->irq));
+> -	int ret;
+> -
+> -	if (!irq_flags)
+> -		irq_flags = IRQF_TRIGGER_LOW;
+> -
+> -	ret = devm_request_threaded_irq(&client->dev, rmi_i2c->irq, NULL,
+> -			rmi_i2c_irq, irq_flags | IRQF_ONESHOT, client->name,
+> -			rmi_i2c);
+> -	if (ret < 0) {
+> -		dev_warn(&client->dev, "Failed to register interrupt %d\n",
+> -			rmi_i2c->irq);
+> -
+> -		return ret;
+> -	}
+> -
+> -	return 0;
+> -}
+> -
+>  #ifdef CONFIG_OF
+>  static const struct of_device_id rmi_i2c_of_match[] = {
+>  	{ .compatible = "syna,rmi4-i2c" },
+> @@ -240,8 +201,7 @@ static int rmi_i2c_probe(struct i2c_client *client,
+>  	if (!client->dev.of_node && client_pdata)
+>  		*pdata = *client_pdata;
+>  
+> -	if (client->irq > 0)
+> -		rmi_i2c->irq = client->irq;
+> +	pdata->irq = client->irq;
+>  
+>  	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Probing %s.\n",
+>  			dev_name(&client->dev));
+> @@ -295,10 +255,6 @@ static int rmi_i2c_probe(struct i2c_client *client,
+>  		return retval;
+>  	}
+>  
+> -	retval = rmi_i2c_init_irq(client);
+> -	if (retval < 0)
+> -		return retval;
+> -
+>  	dev_info(&client->dev, "registered rmi i2c driver at %#04x.\n",
+>  			client->addr);
+>  	return 0;
+> @@ -322,18 +278,10 @@ static int rmi_i2c_suspend(struct device *dev)
+>  	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
+>  	int ret;
+>  
+> -	ret = rmi_driver_suspend(rmi_i2c->xport.rmi_dev);
+> +	ret = rmi_driver_suspend(rmi_i2c->xport.rmi_dev, true);
+>  	if (ret)
+>  		dev_warn(dev, "Failed to resume device: %d\n", ret);
+>  
+> -	disable_irq(rmi_i2c->irq);
+> -	if (device_may_wakeup(&client->dev)) {
+> -		ret = enable_irq_wake(rmi_i2c->irq);
+> -		if (!ret)
+> -			dev_warn(dev, "Failed to enable irq for wake: %d\n",
+> -				ret);
+> -	}
+> -
+>  	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
+>  			       rmi_i2c->supplies);
+>  
+> @@ -353,15 +301,7 @@ static int rmi_i2c_resume(struct device *dev)
+>  
+>  	msleep(rmi_i2c->startup_delay);
+>  
+> -	enable_irq(rmi_i2c->irq);
+> -	if (device_may_wakeup(&client->dev)) {
+> -		ret = disable_irq_wake(rmi_i2c->irq);
+> -		if (!ret)
+> -			dev_warn(dev, "Failed to disable irq for wake: %d\n",
+> -				ret);
+> -	}
+> -
+> -	ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev);
+> +	ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev, true);
+>  	if (ret)
+>  		dev_warn(dev, "Failed to resume device: %d\n", ret);
+>  
+> @@ -376,12 +316,10 @@ static int rmi_i2c_runtime_suspend(struct device *dev)
+>  	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
+>  	int ret;
+>  
+> -	ret = rmi_driver_suspend(rmi_i2c->xport.rmi_dev);
+> +	ret = rmi_driver_suspend(rmi_i2c->xport.rmi_dev, false);
+>  	if (ret)
+>  		dev_warn(dev, "Failed to resume device: %d\n", ret);
+>  
+> -	disable_irq(rmi_i2c->irq);
+> -
+>  	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
+>  			       rmi_i2c->supplies);
+>  
+> @@ -401,9 +339,7 @@ static int rmi_i2c_runtime_resume(struct device *dev)
+>  
+>  	msleep(rmi_i2c->startup_delay);
+>  
+> -	enable_irq(rmi_i2c->irq);
+> -
+> -	ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev);
+> +	ret = rmi_driver_resume(rmi_i2c->xport.rmi_dev, false);
+>  	if (ret)
+>  		dev_warn(dev, "Failed to resume device: %d\n", ret);
+>  
+> diff --git a/drivers/input/rmi4/rmi_spi.c b/drivers/input/rmi4/rmi_spi.c
+> index 55bd1b3..f3e9e48 100644
+> --- a/drivers/input/rmi4/rmi_spi.c
+> +++ b/drivers/input/rmi4/rmi_spi.c
+> @@ -12,7 +12,6 @@
+>  #include <linux/rmi.h>
+>  #include <linux/slab.h>
+>  #include <linux/spi/spi.h>
+> -#include <linux/irq.h>
+>  #include <linux/of.h>
+>  #include "rmi_driver.h"
+>  
+> @@ -44,8 +43,6 @@ struct rmi_spi_xport {
+>  	struct mutex page_mutex;
+>  	int page;
+>  
+> -	int irq;
+> -
+>  	u8 *rx_buf;
+>  	u8 *tx_buf;
+>  	int xfer_buf_size;
+> @@ -326,41 +323,6 @@ static const struct rmi_transport_ops rmi_spi_ops = {
+>  	.read_block	= rmi_spi_read_block,
+>  };
+>  
+> -static irqreturn_t rmi_spi_irq(int irq, void *dev_id)
+> -{
+> -	struct rmi_spi_xport *rmi_spi = dev_id;
+> -	struct rmi_device *rmi_dev = rmi_spi->xport.rmi_dev;
+> -	int ret;
+> -
+> -	ret = rmi_process_interrupt_requests(rmi_dev);
+> -	if (ret)
+> -		rmi_dbg(RMI_DEBUG_XPORT, &rmi_dev->dev,
+> -			"Failed to process interrupt request: %d\n", ret);
+> -
+> -	return IRQ_HANDLED;
+> -}
+> -
+> -static int rmi_spi_init_irq(struct spi_device *spi)
+> -{
+> -	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
+> -	int irq_flags = irqd_get_trigger_type(irq_get_irq_data(rmi_spi->irq));
+> -	int ret;
+> -
+> -	if (!irq_flags)
+> -		irq_flags = IRQF_TRIGGER_LOW;
+> -
+> -	ret = devm_request_threaded_irq(&spi->dev, rmi_spi->irq, NULL,
+> -			rmi_spi_irq, irq_flags | IRQF_ONESHOT,
+> -			dev_name(&spi->dev), rmi_spi);
+> -	if (ret < 0) {
+> -		dev_warn(&spi->dev, "Failed to register interrupt %d\n",
+> -			rmi_spi->irq);
+> -		return ret;
+> -	}
+> -
+> -	return 0;
+> -}
+> -
+>  #ifdef CONFIG_OF
+>  static int rmi_spi_of_probe(struct spi_device *spi,
+>  			struct rmi_device_platform_data *pdata)
+> @@ -433,8 +395,7 @@ static int rmi_spi_probe(struct spi_device *spi)
+>  		return retval;
+>  	}
+>  
+> -	if (spi->irq > 0)
+> -		rmi_spi->irq = spi->irq;
+> +	pdata->irq = spi->irq;
+>  
+>  	rmi_spi->spi = spi;
+>  	mutex_init(&rmi_spi->page_mutex);
+> @@ -465,10 +426,6 @@ static int rmi_spi_probe(struct spi_device *spi)
+>  		return retval;
+>  	}
+>  
+> -	retval = rmi_spi_init_irq(spi);
+> -	if (retval < 0)
+> -		return retval;
+> -
+>  	dev_info(&spi->dev, "registered RMI SPI driver\n");
+>  	return 0;
+>  }
+> @@ -489,17 +446,10 @@ static int rmi_spi_suspend(struct device *dev)
+>  	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
+>  	int ret;
+>  
+> -	ret = rmi_driver_suspend(rmi_spi->xport.rmi_dev);
+> +	ret = rmi_driver_suspend(rmi_spi->xport.rmi_dev, true);
+>  	if (ret)
+>  		dev_warn(dev, "Failed to resume device: %d\n", ret);
+>  
+> -	disable_irq(rmi_spi->irq);
+> -	if (device_may_wakeup(&spi->dev)) {
+> -		ret = enable_irq_wake(rmi_spi->irq);
+> -		if (!ret)
+> -			dev_warn(dev, "Failed to enable irq for wake: %d\n",
+> -				ret);
+> -	}
+>  	return ret;
+>  }
+>  
+> @@ -509,15 +459,7 @@ static int rmi_spi_resume(struct device *dev)
+>  	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
+>  	int ret;
+>  
+> -	enable_irq(rmi_spi->irq);
+> -	if (device_may_wakeup(&spi->dev)) {
+> -		ret = disable_irq_wake(rmi_spi->irq);
+> -		if (!ret)
+> -			dev_warn(dev, "Failed to disable irq for wake: %d\n",
+> -				ret);
+> -	}
+> -
+> -	ret = rmi_driver_resume(rmi_spi->xport.rmi_dev);
+> +	ret = rmi_driver_resume(rmi_spi->xport.rmi_dev, true);
+>  	if (ret)
+>  		dev_warn(dev, "Failed to resume device: %d\n", ret);
+>  
+> @@ -532,12 +474,10 @@ static int rmi_spi_runtime_suspend(struct device *dev)
+>  	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
+>  	int ret;
+>  
+> -	ret = rmi_driver_suspend(rmi_spi->xport.rmi_dev);
+> +	ret = rmi_driver_suspend(rmi_spi->xport.rmi_dev, false);
+>  	if (ret)
+>  		dev_warn(dev, "Failed to resume device: %d\n", ret);
+>  
+> -	disable_irq(rmi_spi->irq);
+> -
 >  	return 0;
 >  }
 >  
-> -static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1)
-> +static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1, int size)
->  {
->  	int i;
->  	struct rmi_2d_sensor *sensor = &f12->sensor;
-> +	int objects = f12->data1->num_subpackets;
-> +
-> +	if ((f12->data1->num_subpackets * F12_DATA1_BYTES_PER_OBJ) > size)
-> +		objects = size / F12_DATA1_BYTES_PER_OBJ;
+> @@ -547,9 +487,7 @@ static int rmi_spi_runtime_resume(struct device *dev)
+>  	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
+>  	int ret;
 >  
-> -	for (i = 0; i < f12->data1->num_subpackets; i++) {
-> +	for (i = 0; i < objects; i++) {
->  		struct rmi_2d_sensor_abs_object *obj = &sensor->objs[i];
+> -	enable_irq(rmi_spi->irq);
+> -
+> -	ret = rmi_driver_resume(rmi_spi->xport.rmi_dev);
+> +	ret = rmi_driver_resume(rmi_spi->xport.rmi_dev, false);
+>  	if (ret)
+>  		dev_warn(dev, "Failed to resume device: %d\n", ret);
 >  
->  		obj->type = RMI_2D_OBJECT_NONE;
-> @@ -182,7 +188,7 @@ static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1)
+> diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+> index e0aca14..5944e6c 100644
+> --- a/include/linux/rmi.h
+> +++ b/include/linux/rmi.h
+> @@ -204,9 +204,11 @@ struct rmi_device_platform_data_spi {
+>   * @reset_delay_ms - after issuing a reset command to the touch sensor, the
+>   * driver waits a few milliseconds to give the firmware a chance to
+>   * to re-initialize.  You can override the default wait period here.
+> + * @irq: irq associated with the attn gpio line, or negative
+>   */
+>  struct rmi_device_platform_data {
+>  	int reset_delay_ms;
+> +	int irq;
 >  
->  		rmi_2d_sensor_abs_process(sensor, obj, i);
+>  	struct rmi_device_platform_data_spi spi_data;
 >  
-> -		data1 += 8;
-> +		data1 += F12_DATA1_BYTES_PER_OBJ;
->  	}
+> @@ -352,8 +354,7 @@ struct rmi_driver_data {
 >  
->  	if (sensor->kernel_tracking)
-> @@ -192,7 +198,7 @@ static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1)
->  				      sensor->nbr_fingers,
->  				      sensor->dmax);
+>  int rmi_register_transport_device(struct rmi_transport_dev *xport);
+>  void rmi_unregister_transport_device(struct rmi_transport_dev *xport);
+> -int rmi_process_interrupt_requests(struct rmi_device *rmi_dev);
 >  
-> -	for (i = 0; i < sensor->nbr_fingers; i++)
-> +	for (i = 0; i < objects; i++)
->  		rmi_2d_sensor_abs_report(sensor, &sensor->objs[i], i);
->  }
->  
-> @@ -203,10 +209,15 @@ static int rmi_f12_attention(struct rmi_function *fn,
->  	struct rmi_device *rmi_dev = fn->rmi_dev;
->  	struct f12_data *f12 = dev_get_drvdata(&fn->dev);
->  	struct rmi_2d_sensor *sensor = &f12->sensor;
-> +	int valid_bytes = sensor->pkt_size;
->  
->  	if (rmi_dev->xport->attn_data) {
-> +		if (sensor->attn_size > rmi_dev->xport->attn_size)
-> +			valid_bytes = rmi_dev->xport->attn_size;
-> +		else
-> +			valid_bytes = sensor->attn_size;
->  		memcpy(sensor->data_pkt, rmi_dev->xport->attn_data,
-> -			sensor->attn_size);
-> +			valid_bytes);
->  		rmi_dev->xport->attn_data += sensor->attn_size;
->  		rmi_dev->xport->attn_size -= sensor->attn_size;
->  	} else {
-> @@ -221,7 +232,7 @@ static int rmi_f12_attention(struct rmi_function *fn,
->  
->  	if (f12->data1)
->  		rmi_f12_process_objects(f12,
-> -			&sensor->data_pkt[f12->data1_offset]);
-> +			&sensor->data_pkt[f12->data1_offset], valid_bytes);
->  
->  	input_mt_sync_frame(sensor->input);
->  
-> diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
-> index 760aff1..485907f 100644
-> --- a/drivers/input/rmi4/rmi_f30.c
-> +++ b/drivers/input/rmi4/rmi_f30.c
-> @@ -110,6 +110,10 @@ static int rmi_f30_attention(struct rmi_function *fn, unsigned long *irq_bits)
->  
->  	/* Read the gpi led data. */
->  	if (rmi_dev->xport->attn_data) {
-> +		if (rmi_dev->xport->attn_size < f30->register_count) {
-> +			dev_warn(&fn->dev, "F30 interrupted, but data is missing\n");
-> +			return 0;
-> +		}
->  		memcpy(f30->data_regs, rmi_dev->xport->attn_data,
->  			f30->register_count);
->  		rmi_dev->xport->attn_data += f30->register_count;
+> -int rmi_driver_suspend(struct rmi_device *rmi_dev);
+> -int rmi_driver_resume(struct rmi_device *rmi_dev);
+> +int rmi_driver_suspend(struct rmi_device *rmi_dev, bool enable_wake);
+> +int rmi_driver_resume(struct rmi_device *rmi_dev, bool clear_wake);
+>  #endif
 > -- 
 > 2.7.4
 > 

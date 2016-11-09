@@ -1,40 +1,31 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 04/18] Input: synaptics-rmi4 - Add parameters for
- dribble packets and palm detect gesture
-Date: Tue, 8 Nov 2016 16:51:40 -0800
-Message-ID: <20161109005140.GI8719@dtor-ws>
+Subject: Re: [PATCH v3 05/18] Input: synaptics-rmi4 - Add support for
+ controlling dribble packets in F12
+Date: Tue, 8 Nov 2016 17:02:31 -0800
+Message-ID: <20161109010231.GJ8719@dtor-ws>
 References: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
- <1476373872-18027-5-git-send-email-benjamin.tissoires@redhat.com>
+ <1476373872-18027-6-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:36307 "EHLO
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33327 "EHLO
         mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751977AbcKIAvo (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2016 19:51:44 -0500
+        with ESMTP id S1751095AbcKIBCf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2016 20:02:35 -0500
 Content-Disposition: inline
-In-Reply-To: <1476373872-18027-5-git-send-email-benjamin.tissoires@redhat.com>
+In-Reply-To: <1476373872-18027-6-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>, Lyude Paul <thatslyude@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Dennis Wassenberg <dennis.wassenberg@secunet.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Oct 13, 2016 at 05:50:58PM +0200, Benjamin Tissoires wrote:
+On Thu, Oct 13, 2016 at 05:50:59PM +0200, Benjamin Tissoires wrote:
 > From: Andrew Duggan <aduggan@synaptics.com>
 > 
-> The rmi_f11 driver currently disables dribble packets and the palm detect
-> gesture for all devices. This patch creates a parameter in the 2d sensor
-> platform data for controlling this functionality on a per device basis.
-> 
-> For more information on dribble packets:
-> Commit 05ba999fcabb ("HID: rmi: disable dribble packets on Synaptics
-> touchpads")
-> 
-> For more information on the palm detect gesture:
-> Commit f097deef59a6 ("HID: rmi: disable palm detect gesture when present")
+> Implements reading and setting the dribble bit in F12's control registers.
 > 
 > Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Applied, thank you.
@@ -44,148 +35,131 @@ Applied, thank you.
 > 
 > new in v3
 > ---
->  drivers/input/rmi4/rmi_2d_sensor.h |  2 ++
->  drivers/input/rmi4/rmi_f01.c       |  6 +++---
->  drivers/input/rmi4/rmi_f11.c       | 32 ++++++++++++++++++++++++++++----
->  include/linux/rmi.h                | 21 +++++++++++++--------
->  4 files changed, 46 insertions(+), 15 deletions(-)
+>  drivers/input/rmi4/rmi_f12.c | 73 +++++++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 72 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/rmi4/rmi_2d_sensor.h b/drivers/input/rmi4/rmi_2d_sensor.h
-> index 77fcdfe..c871bef 100644
-> --- a/drivers/input/rmi4/rmi_2d_sensor.h
-> +++ b/drivers/input/rmi4/rmi_2d_sensor.h
-> @@ -67,6 +67,8 @@ struct rmi_2d_sensor {
->  	u8 report_rel;
->  	u8 x_mm;
->  	u8 y_mm;
-> +	enum rmi_reg_state dribble;
-> +	enum rmi_reg_state palm_detect;
->  };
+> diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
+> index 767ac79..f79a785 100644
+> --- a/drivers/input/rmi4/rmi_f12.c
+> +++ b/drivers/input/rmi4/rmi_f12.c
+> @@ -31,6 +31,7 @@ enum rmi_f12_object_type {
+>  struct f12_data {
+>  	struct rmi_2d_sensor sensor;
+>  	struct rmi_2d_sensor_platform_data sensor_pdata;
+> +	bool has_dribble;
 >  
->  int rmi_2d_sensor_of_probe(struct device *dev,
-> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-> index fac81fc..2cfa9f6 100644
-> --- a/drivers/input/rmi4/rmi_f01.c
-> +++ b/drivers/input/rmi4/rmi_f01.c
-> @@ -327,12 +327,12 @@ static int rmi_f01_probe(struct rmi_function *fn)
->  	}
+>  	u16 data_addr;
 >  
->  	switch (pdata->power_management.nosleep) {
-> -	case RMI_F01_NOSLEEP_DEFAULT:
-> +	case RMI_REG_STATE_DEFAULT:
->  		break;
-> -	case RMI_F01_NOSLEEP_OFF:
-> +	case RMI_REG_STATE_OFF:
->  		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_NOSLEEP_BIT;
->  		break;
-> -	case RMI_F01_NOSLEEP_ON:
-> +	case RMI_REG_STATE_ON:
->  		f01->device_control.ctrl0 |= RMI_F01_CTRL0_NOSLEEP_BIT;
->  		break;
->  	}
-> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-> index 3218742..cce82a1 100644
-> --- a/drivers/input/rmi4/rmi_f11.c
-> +++ b/drivers/input/rmi4/rmi_f11.c
-> @@ -1142,6 +1142,8 @@ static int rmi_f11_initialize(struct rmi_function *fn)
->  	sensor->topbuttonpad = f11->sensor_pdata.topbuttonpad;
->  	sensor->kernel_tracking = f11->sensor_pdata.kernel_tracking;
->  	sensor->dmax = f11->sensor_pdata.dmax;
-> +	sensor->dribble = f11->sensor_pdata.dribble;
-> +	sensor->palm_detect = f11->sensor_pdata.palm_detect;
+> @@ -239,12 +240,79 @@ static int rmi_f12_attention(struct rmi_function *fn,
+>  	return 0;
+>  }
 >  
->  	if (f11->sens_query.has_physical_props) {
->  		sensor->x_mm = f11->sens_query.x_sensor_size_mm;
-> @@ -1209,11 +1211,33 @@ static int rmi_f11_initialize(struct rmi_function *fn)
->  		ctrl->ctrl0_11[RMI_F11_DELTA_Y_THRESHOLD] =
->  			sensor->axis_align.delta_y_threshold;
->  
-> -	if (f11->sens_query.has_dribble)
-> -		ctrl->ctrl0_11[0] = ctrl->ctrl0_11[0] & ~BIT(6);
-> +	if (f11->sens_query.has_dribble) {
-> +		switch (sensor->dribble) {
-> +		case RMI_REG_STATE_OFF:
-> +			ctrl->ctrl0_11[0] = ctrl->ctrl0_11[0] & ~BIT(6);
+> +static int rmi_f12_write_control_regs(struct rmi_function *fn)
+> +{
+> +	int ret;
+> +	const struct rmi_register_desc_item *item;
+> +	struct rmi_device *rmi_dev = fn->rmi_dev;
+> +	struct f12_data *f12 = dev_get_drvdata(&fn->dev);
+> +	int control_size;
+> +	char buf[3];
+> +	u16 control_offset = 0;
+> +	u8 subpacket_offset = 0;
+> +
+> +	if (f12->has_dribble
+> +	    && (f12->sensor.dribble != RMI_REG_STATE_DEFAULT)) {
+> +		item = rmi_get_register_desc_item(&f12->control_reg_desc, 20);
+> +		if (item) {
+> +			control_offset = rmi_register_desc_calc_reg_offset(
+> +						&f12->control_reg_desc, 20);
+> +
+> +			/*
+> +			 * The byte containing the EnableDribble bit will be
+> +			 * in either byte 0 or byte 2 of control 20. Depending
+> +			 * on the existence of subpacket 0. If control 20 is
+> +			 * larger then 3 bytes, just read the first 3.
+> +			 */
+> +			if (item->reg_size >= 3)
+> +				control_size = 3;
+> +			else
+> +				control_size = item->reg_size;
 
 Changed to
+			control_size = min(item->reg_size, 3UL);
 
-			ctrl->ctrl0_11[0] &= ~BIT(6);
-
-> +			break;
-> +		case RMI_REG_STATE_ON:
-> +			ctrl->ctrl0_11[0] = ctrl->ctrl0_11[0] | BIT(6);
-> +			break;
-> +		case RMI_REG_STATE_DEFAULT:
-> +		default:
-> +			break;
-> +		}
-> +	}
->  
-> -	if (f11->sens_query.has_palm_det)
-> -		ctrl->ctrl0_11[11] = ctrl->ctrl0_11[11] & ~BIT(0);
-> +	if (f11->sens_query.has_palm_det) {
-> +		switch (sensor->palm_detect) {
-> +		case RMI_REG_STATE_OFF:
-> +			ctrl->ctrl0_11[11] = ctrl->ctrl0_11[11] & ~BIT(0);
-> +			break;
-> +		case RMI_REG_STATE_ON:
-> +			ctrl->ctrl0_11[11] = ctrl->ctrl0_11[11] & BIT(0);
-> +			break;
-> +		case RMI_REG_STATE_DEFAULT:
-> +		default:
-> +			break;
-> +		}
-> +	}
->  
->  	rc = f11_write_control_regs(fn, &f11->sens_query,
->  			   &f11->dev_controls, fn->fd.query_base_addr);
-> diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-> index 5944e6c..ac904bb 100644
-> --- a/include/linux/rmi.h
-> +++ b/include/linux/rmi.h
-> @@ -99,6 +99,8 @@ struct rmi_2d_sensor_platform_data {
->  	bool topbuttonpad;
->  	bool kernel_tracking;
->  	int dmax;
-> +	int dribble;
-> +	int palm_detect;
->  };
->  
->  /**
-> @@ -116,14 +118,17 @@ struct rmi_f30_data {
->  	bool disable;
->  };
->  
-> -/**
-> - * struct rmi_f01_power - override default power management settings.
-> - *
 > +
-> +/*
-> + * Set the state of a register
-> + *	DEFAULT - use the default value set by the firmware config
-> + *	OFF - explicitly disable the register
-> + *	ON - explicitly enable the register
->   */
-> -enum rmi_f01_nosleep {
-> -	RMI_F01_NOSLEEP_DEFAULT = 0,
-> -	RMI_F01_NOSLEEP_OFF = 1,
-> -	RMI_F01_NOSLEEP_ON = 2
-> +enum rmi_reg_state {
-> +	RMI_REG_STATE_DEFAULT = 0,
-> +	RMI_REG_STATE_OFF = 1,
-> +	RMI_REG_STATE_ON = 2
->  };
+> +			ret = rmi_read_block(rmi_dev, fn->fd.control_base_addr
+> +					+ control_offset, buf, control_size);
+> +			if (ret)
+> +				return ret;
+> +
+> +			if (rmi_register_desc_has_subpacket(item, 0))
+> +				subpacket_offset += 1;
+> +
+> +			switch (f12->sensor.dribble) {
+> +			case RMI_REG_STATE_OFF:
+> +				buf[subpacket_offset] &= ~BIT(2);
+> +				break;
+> +			case RMI_REG_STATE_ON:
+> +				buf[subpacket_offset] |= BIT(2);
+> +				break;
+> +			case RMI_REG_STATE_DEFAULT:
+> +			default:
+> +				break;
+> +			}
+> +
+> +			ret = rmi_write_block(rmi_dev,
+> +				fn->fd.control_base_addr + control_offset,
+> +				buf, control_size);
+> +			if (ret)
+> +				return ret;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +
+> +}
+> +
+>  static int rmi_f12_config(struct rmi_function *fn)
+>  {
+>  	struct rmi_driver *drv = fn->rmi_dev->driver;
+> +	int ret;
 >  
->  /**
-> @@ -143,7 +148,7 @@ enum rmi_f01_nosleep {
->   * when the touch sensor is in doze mode, in units of 10ms.
->   */
->  struct rmi_f01_power_management {
-> -	enum rmi_f01_nosleep nosleep;
-> +	enum rmi_reg_state nosleep;
->  	u8 wakeup_threshold;
->  	u8 doze_holdoff;
->  	u8 doze_interval;
+>  	drv->set_irq_bits(fn->rmi_dev, fn->irq_mask);
+>  
+> +	ret = rmi_f12_write_control_regs(fn);
+> +	if (ret)
+> +		dev_warn(&fn->dev,
+> +			"Failed to write F12 control registers: %d\n", ret);
+> +
+>  	return 0;
+>  }
+>  
+> @@ -271,7 +339,7 @@ static int rmi_f12_probe(struct rmi_function *fn)
+>  	}
+>  	++query_addr;
+>  
+> -	if (!(buf & 0x1)) {
+> +	if (!(buf & BIT(0))) {
+>  		dev_err(&fn->dev,
+>  			"Behavior of F12 without register descriptors is undefined.\n");
+>  		return -ENODEV;
+> @@ -281,6 +349,8 @@ static int rmi_f12_probe(struct rmi_function *fn)
+>  	if (!f12)
+>  		return -ENOMEM;
+>  
+> +	f12->has_dribble = !!(buf & BIT(3));
+> +
+>  	if (fn->dev.of_node) {
+>  		ret = rmi_2d_sensor_of_probe(&fn->dev, &f12->sensor_pdata);
+>  		if (ret)
+> @@ -329,6 +399,7 @@ static int rmi_f12_probe(struct rmi_function *fn)
+>  
+>  	sensor->x_mm = f12->sensor_pdata.x_mm;
+>  	sensor->y_mm = f12->sensor_pdata.y_mm;
+> +	sensor->dribble = f12->sensor_pdata.dribble;
+>  
+>  	if (sensor->sensor_type == rmi_sensor_default)
+>  		sensor->sensor_type =
 > -- 
 > 2.7.4
 > 

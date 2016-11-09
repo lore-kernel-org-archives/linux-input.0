@@ -1,172 +1,112 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2] HID:i2c-hid: add a simple quirk to fix device defects
-Date: Wed, 9 Nov 2016 11:33:19 +0100
-Message-ID: <20161109103319.GE10327@mail.corp.redhat.com>
+From: Hn Chen <hn.chen@weidahitech.com>
+Subject: RE: [PATCH v2] HID:i2c-hid: add a simple quirk to fix device defects
+Date: Wed, 9 Nov 2016 11:18:33 +0000
+Message-ID: <22498D53301C4D4A8FFA8F02C7C3C7C06DDE75EF@mail02.WHT.local>
 References: <1478686848-22968-1-git-send-email-hn.chen@weidahitech.com>
+ <20161109103319.GE10327@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41716 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751944AbcKIKdX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 9 Nov 2016 05:33:23 -0500
-Content-Disposition: inline
-In-Reply-To: <1478686848-22968-1-git-send-email-hn.chen@weidahitech.com>
+Received: from ml01.weidahitech.com ([61.222.87.235]:1996 "EHLO
+        ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933205AbcKILSy (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Nov 2016 06:18:54 -0500
+In-Reply-To: <20161109103319.GE10327@mail.corp.redhat.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: hn.chen@weidahitech.com
-Cc: jkosina@suse.cz, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: "jkosina@suse.cz" <jkosina@suse.cz>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Nov 09 2016 or thereabouts, hn.chen@weidahitech.com wrote:
-> From: HungNien Chen <hn.chen@weidahitech.com>
-> 
-> Add a static quirk table and lookup for the quirks in i2c_hid_probe().
-> Also add comments and do return value check in i2c_hid_set_power().
-> 
-> Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
-> ---
->  drivers/hid/hid-ids.h         |  5 ++++
->  drivers/hid/i2c-hid/i2c-hid.c | 57 +++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 62 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 6cfb5ca..787afdf 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -1033,6 +1033,11 @@
->  #define USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH	0x0500
->  #define USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET	0x0502
->  
-> +#define	USB_VENDOR_ID_WEIDA		0x2575
-> +#define	USB_DEVICE_ID_WEIDA_8756	0x8756
-> +#define	USB_DEVICE_ID_WEIDA_8752	0xC300
-> +#define	USB_DEVICE_ID_WEIDA_8755	0xC301
-> +
->  #define USB_VENDOR_ID_WISEGROUP		0x0925
->  #define USB_DEVICE_ID_SMARTJOY_PLUS	0x0005
->  #define USB_DEVICE_ID_SUPER_JOY_BOX_3	0x8888
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index b3ec4f2..b32a063 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -41,6 +41,11 @@
->  
->  #include <linux/i2c/i2c-hid.h>
->  
-> +#include "../hid-ids.h"
-> +
-> +/* quirks to control the device */
-> +#define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	(1 << 0)
-
-You can use BIT(0) instead of (1 << 0)
-
-> +
->  /* flags */
->  #define I2C_HID_STARTED		0
->  #define I2C_HID_RESET_PENDING	1
-> @@ -143,6 +148,7 @@ struct i2c_hid {
->  	char			*argsbuf;	/* Command arguments buffer */
->  
->  	unsigned long		flags;		/* device flags */
-> +	unsigned long		quirks;		/* Various quirks */
->  
->  	wait_queue_head_t	wait;		/* For waiting the interrupt */
->  	struct gpio_desc	*desc;
-> @@ -154,6 +160,39 @@ struct i2c_hid {
->  	struct mutex		reset_lock;
->  };
->  
-> +static const struct i2c_hid_blacklist {
-> +	__u16 idVendor;
-> +	__u16 idProduct;
-> +	__u32 quirks;
-> +} i2c_hid_blacklist[] = {
-
-I'd prefer not using "blacklist". i2c_hid_quirks?
-
-> +	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8752,
-> +		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
-> +	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8755,
-> +		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
-> +	{ 0, 0 }
-> +};
-> +
-> +/*
-> + * i2c_hid_lookup_quirk: return any quirks associated with a I2C HID device
-> + * @idVendor: the 16-bit vendor ID
-> + * @idProduct: the 16-bit product ID
-> + *
-> + * Returns: a u32 quirks value.
-> + */
-> +static u32 i2c_hid_lookup_quirk(const u16 idVendor, const u16 idProduct)
-> +{
-> +	u32 quirks = 0;
-> +	int n = 0;
-
-int n;
-
-> +
-> +	for (; i2c_hid_blacklist[n].idVendor; n++)
-
-for (n = 0; ...)
-
-please :)
-
-> +		if (i2c_hid_blacklist[n].idVendor == idVendor &&
-> +		    (i2c_hid_blacklist[n].idProduct == (__u16)HID_ANY_ID ||
-> +		     i2c_hid_blacklist[n].idProduct == idProduct))
-> +			quirks = i2c_hid_blacklist[n].quirks;
-> +
-> +	return quirks;
-> +}
-> +
->  static int __i2c_hid_command(struct i2c_client *client,
->  		const struct i2c_hid_cmd *command, u8 reportID,
->  		u8 reportType, u8 *args, int args_len,
-> @@ -346,11 +385,27 @@ static int i2c_hid_set_power(struct i2c_client *client, int power_state)
->  
->  	i2c_hid_dbg(ihid, "%s\n", __func__);
->  
-> +	/*
-> +	 * Some devices require to send a command to wakeup before power on.
-> +	 * The call will get a return value (EREMOTEIO) but device will be
-> +	 * triggered and activated. After that, it goes like a normal device.
-> +	 */
-> +	if (power_state == I2C_HID_PWR_ON &&
-> +	    ihid->quirks & I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV) {
-> +		ret = i2c_hid_command(client, &hid_set_power_cmd, NULL, 0);
-> +
-> +		/* Device was already activated */
-> +		if (!ret)
-> +			goto set_pwr_exit;
-> +	}
-> +
->  	ret = __i2c_hid_command(client, &hid_set_power_cmd, power_state,
->  		0, NULL, 0, NULL, 0);
-> +
->  	if (ret)
->  		dev_err(&client->dev, "failed to change power setting.\n");
->  
-> +set_pwr_exit:
->  	return ret;
->  }
->  
-> @@ -1050,6 +1105,8 @@ static int i2c_hid_probe(struct i2c_client *client,
->  		 client->name, hid->vendor, hid->product);
->  	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
->  
-> +	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
-> +
->  	ret = hid_add_device(hid);
->  	if (ret) {
->  		if (ret != -ENODEV)
-> -- 
-> 1.9.1
-> 
-
-OK, thanks for the resubmission. I am happy with the changes so far, so
-with the few nitpicks I expressed, it should be mergeable soon.
-
-Cheers,
-Benjamin
-
+SGkgQmVuamFtaW4sDQoNClRoYW5rcyBmb3IgdGhlIGFkdmljZSAhDQpXaWxsIHJlc3VibWl0IHNv
+b24gYWZ0ZXIgbWFrZSB0aGUgY2hhbmdlcyBhbmQgaGF2ZSBhIHRlc3QuDQoNCkhuLmNoZW4uDQoN
+Ci0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBCZW5qYW1pbiBUaXNzb2lyZXMgW21h
+aWx0bzpiZW5qYW1pbi50aXNzb2lyZXNAcmVkaGF0LmNvbV0gDQpTZW50OiBXZWRuZXNkYXksIE5v
+dmVtYmVyIDA5LCAyMDE2IDY6MzMgUE0NClRvOiBIbiBDaGVuDQpDYzogamtvc2luYUBzdXNlLmN6
+OyBkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcN
+ClN1YmplY3Q6IFJlOiBbUEFUQ0ggdjJdIEhJRDppMmMtaGlkOiBhZGQgYSBzaW1wbGUgcXVpcmsg
+dG8gZml4IGRldmljZSBkZWZlY3RzDQoNCk9uIE5vdiAwOSAyMDE2IG9yIHRoZXJlYWJvdXRzLCBo
+bi5jaGVuQHdlaWRhaGl0ZWNoLmNvbSB3cm90ZToNCj4gRnJvbTogSHVuZ05pZW4gQ2hlbiA8aG4u
+Y2hlbkB3ZWlkYWhpdGVjaC5jb20+DQo+IA0KPiBBZGQgYSBzdGF0aWMgcXVpcmsgdGFibGUgYW5k
+IGxvb2t1cCBmb3IgdGhlIHF1aXJrcyBpbiBpMmNfaGlkX3Byb2JlKCkuDQo+IEFsc28gYWRkIGNv
+bW1lbnRzIGFuZCBkbyByZXR1cm4gdmFsdWUgY2hlY2sgaW4gaTJjX2hpZF9zZXRfcG93ZXIoKS4N
+Cj4gDQo+IFNpZ25lZC1vZmYtYnk6IEh1bmdOaWVuIENoZW4gPGhuLmNoZW5Ad2VpZGFoaXRlY2gu
+Y29tPg0KPiAtLS0NCj4gIGRyaXZlcnMvaGlkL2hpZC1pZHMuaCAgICAgICAgIHwgIDUgKysrKw0K
+PiAgZHJpdmVycy9oaWQvaTJjLWhpZC9pMmMtaGlkLmMgfCA1NyANCj4gKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKw0KPiAgMiBmaWxlcyBjaGFuZ2VkLCA2MiBpbnNl
+cnRpb25zKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLWlkcy5oIGIvZHJp
+dmVycy9oaWQvaGlkLWlkcy5oIGluZGV4IA0KPiA2Y2ZiNWNhLi43ODdhZmRmIDEwMDY0NA0KPiAt
+LS0gYS9kcml2ZXJzL2hpZC9oaWQtaWRzLmgNCj4gKysrIGIvZHJpdmVycy9oaWQvaGlkLWlkcy5o
+DQo+IEBAIC0xMDMzLDYgKzEwMzMsMTEgQEANCj4gICNkZWZpbmUgVVNCX0RFVklDRV9JRF9XQUxU
+T1BfTUVESUFfVEFCTEVUXzE0XzFfSU5DSAkweDA1MDANCj4gICNkZWZpbmUgVVNCX0RFVklDRV9J
+RF9XQUxUT1BfU0lSSVVTX0JBVFRFUllfRlJFRV9UQUJMRVQJMHgwNTAyDQo+ICANCj4gKyNkZWZp
+bmUJVVNCX1ZFTkRPUl9JRF9XRUlEQQkJMHgyNTc1DQo+ICsjZGVmaW5lCVVTQl9ERVZJQ0VfSURf
+V0VJREFfODc1NgkweDg3NTYNCj4gKyNkZWZpbmUJVVNCX0RFVklDRV9JRF9XRUlEQV84NzUyCTB4
+QzMwMA0KPiArI2RlZmluZQlVU0JfREVWSUNFX0lEX1dFSURBXzg3NTUJMHhDMzAxDQo+ICsNCj4g
+ICNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9XSVNFR1JPVVAJCTB4MDkyNQ0KPiAgI2RlZmluZSBVU0Jf
+REVWSUNFX0lEX1NNQVJUSk9ZX1BMVVMJMHgwMDA1DQo+ICAjZGVmaW5lIFVTQl9ERVZJQ0VfSURf
+U1VQRVJfSk9ZX0JPWF8zCTB4ODg4OA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaTJjLWhp
+ZC9pMmMtaGlkLmMgDQo+IGIvZHJpdmVycy9oaWQvaTJjLWhpZC9pMmMtaGlkLmMgaW5kZXggYjNl
+YzRmMi4uYjMyYTA2MyAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9oaWQvaTJjLWhpZC9pMmMtaGlk
+LmMNCj4gKysrIGIvZHJpdmVycy9oaWQvaTJjLWhpZC9pMmMtaGlkLmMNCj4gQEAgLTQxLDYgKzQx
+LDExIEBADQo+ICANCj4gICNpbmNsdWRlIDxsaW51eC9pMmMvaTJjLWhpZC5oPg0KPiAgDQo+ICsj
+aW5jbHVkZSAiLi4vaGlkLWlkcy5oIg0KPiArDQo+ICsvKiBxdWlya3MgdG8gY29udHJvbCB0aGUg
+ZGV2aWNlICovDQo+ICsjZGVmaW5lIEkyQ19ISURfUVVJUktfU0VUX1BXUl9XQUtFVVBfREVWCSgx
+IDw8IDApDQoNCllvdSBjYW4gdXNlIEJJVCgwKSBpbnN0ZWFkIG9mICgxIDw8IDApDQoNCj4gKw0K
+PiAgLyogZmxhZ3MgKi8NCj4gICNkZWZpbmUgSTJDX0hJRF9TVEFSVEVECQkwDQo+ICAjZGVmaW5l
+IEkyQ19ISURfUkVTRVRfUEVORElORwkxDQo+IEBAIC0xNDMsNiArMTQ4LDcgQEAgc3RydWN0IGky
+Y19oaWQgew0KPiAgCWNoYXIJCQkqYXJnc2J1ZjsJLyogQ29tbWFuZCBhcmd1bWVudHMgYnVmZmVy
+ICovDQo+ICANCj4gIAl1bnNpZ25lZCBsb25nCQlmbGFnczsJCS8qIGRldmljZSBmbGFncyAqLw0K
+PiArCXVuc2lnbmVkIGxvbmcJCXF1aXJrczsJCS8qIFZhcmlvdXMgcXVpcmtzICovDQo+ICANCj4g
+IAl3YWl0X3F1ZXVlX2hlYWRfdAl3YWl0OwkJLyogRm9yIHdhaXRpbmcgdGhlIGludGVycnVwdCAq
+Lw0KPiAgCXN0cnVjdCBncGlvX2Rlc2MJKmRlc2M7DQo+IEBAIC0xNTQsNiArMTYwLDM5IEBAIHN0
+cnVjdCBpMmNfaGlkIHsNCj4gIAlzdHJ1Y3QgbXV0ZXgJCXJlc2V0X2xvY2s7DQo+ICB9Ow0KPiAg
+DQo+ICtzdGF0aWMgY29uc3Qgc3RydWN0IGkyY19oaWRfYmxhY2tsaXN0IHsNCj4gKwlfX3UxNiBp
+ZFZlbmRvcjsNCj4gKwlfX3UxNiBpZFByb2R1Y3Q7DQo+ICsJX191MzIgcXVpcmtzOw0KPiArfSBp
+MmNfaGlkX2JsYWNrbGlzdFtdID0gew0KDQpJJ2QgcHJlZmVyIG5vdCB1c2luZyAiYmxhY2tsaXN0
+Ii4gaTJjX2hpZF9xdWlya3M/DQoNCj4gKwl7IFVTQl9WRU5ET1JfSURfV0VJREEsIFVTQl9ERVZJ
+Q0VfSURfV0VJREFfODc1MiwNCj4gKwkJSTJDX0hJRF9RVUlSS19TRVRfUFdSX1dBS0VVUF9ERVYg
+fSwNCj4gKwl7IFVTQl9WRU5ET1JfSURfV0VJREEsIFVTQl9ERVZJQ0VfSURfV0VJREFfODc1NSwN
+Cj4gKwkJSTJDX0hJRF9RVUlSS19TRVRfUFdSX1dBS0VVUF9ERVYgfSwNCj4gKwl7IDAsIDAgfQ0K
+PiArfTsNCj4gKw0KPiArLyoNCj4gKyAqIGkyY19oaWRfbG9va3VwX3F1aXJrOiByZXR1cm4gYW55
+IHF1aXJrcyBhc3NvY2lhdGVkIHdpdGggYSBJMkMgSElEIA0KPiArZGV2aWNlDQo+ICsgKiBAaWRW
+ZW5kb3I6IHRoZSAxNi1iaXQgdmVuZG9yIElEDQo+ICsgKiBAaWRQcm9kdWN0OiB0aGUgMTYtYml0
+IHByb2R1Y3QgSUQNCj4gKyAqDQo+ICsgKiBSZXR1cm5zOiBhIHUzMiBxdWlya3MgdmFsdWUuDQo+
+ICsgKi8NCj4gK3N0YXRpYyB1MzIgaTJjX2hpZF9sb29rdXBfcXVpcmsoY29uc3QgdTE2IGlkVmVu
+ZG9yLCBjb25zdCB1MTYgDQo+ICtpZFByb2R1Y3QpIHsNCj4gKwl1MzIgcXVpcmtzID0gMDsNCj4g
+KwlpbnQgbiA9IDA7DQoNCmludCBuOw0KDQo+ICsNCj4gKwlmb3IgKDsgaTJjX2hpZF9ibGFja2xp
+c3Rbbl0uaWRWZW5kb3I7IG4rKykNCg0KZm9yIChuID0gMDsgLi4uKQ0KDQpwbGVhc2UgOikNCg0K
+PiArCQlpZiAoaTJjX2hpZF9ibGFja2xpc3Rbbl0uaWRWZW5kb3IgPT0gaWRWZW5kb3IgJiYNCj4g
+KwkJICAgIChpMmNfaGlkX2JsYWNrbGlzdFtuXS5pZFByb2R1Y3QgPT0gKF9fdTE2KUhJRF9BTllf
+SUQgfHwNCj4gKwkJICAgICBpMmNfaGlkX2JsYWNrbGlzdFtuXS5pZFByb2R1Y3QgPT0gaWRQcm9k
+dWN0KSkNCj4gKwkJCXF1aXJrcyA9IGkyY19oaWRfYmxhY2tsaXN0W25dLnF1aXJrczsNCj4gKw0K
+PiArCXJldHVybiBxdWlya3M7DQo+ICt9DQo+ICsNCj4gIHN0YXRpYyBpbnQgX19pMmNfaGlkX2Nv
+bW1hbmQoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwNCj4gIAkJY29uc3Qgc3RydWN0IGkyY19o
+aWRfY21kICpjb21tYW5kLCB1OCByZXBvcnRJRCwNCj4gIAkJdTggcmVwb3J0VHlwZSwgdTggKmFy
+Z3MsIGludCBhcmdzX2xlbiwgQEAgLTM0NiwxMSArMzg1LDI3IEBAIHN0YXRpYyANCj4gaW50IGky
+Y19oaWRfc2V0X3Bvd2VyKHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQsIGludCBwb3dlcl9zdGF0
+ZSkNCj4gIA0KPiAgCWkyY19oaWRfZGJnKGloaWQsICIlc1xuIiwgX19mdW5jX18pOw0KPiAgDQo+
+ICsJLyoNCj4gKwkgKiBTb21lIGRldmljZXMgcmVxdWlyZSB0byBzZW5kIGEgY29tbWFuZCB0byB3
+YWtldXAgYmVmb3JlIHBvd2VyIG9uLg0KPiArCSAqIFRoZSBjYWxsIHdpbGwgZ2V0IGEgcmV0dXJu
+IHZhbHVlIChFUkVNT1RFSU8pIGJ1dCBkZXZpY2Ugd2lsbCBiZQ0KPiArCSAqIHRyaWdnZXJlZCBh
+bmQgYWN0aXZhdGVkLiBBZnRlciB0aGF0LCBpdCBnb2VzIGxpa2UgYSBub3JtYWwgZGV2aWNlLg0K
+PiArCSAqLw0KPiArCWlmIChwb3dlcl9zdGF0ZSA9PSBJMkNfSElEX1BXUl9PTiAmJg0KPiArCSAg
+ICBpaGlkLT5xdWlya3MgJiBJMkNfSElEX1FVSVJLX1NFVF9QV1JfV0FLRVVQX0RFVikgew0KPiAr
+CQlyZXQgPSBpMmNfaGlkX2NvbW1hbmQoY2xpZW50LCAmaGlkX3NldF9wb3dlcl9jbWQsIE5VTEws
+IDApOw0KPiArDQo+ICsJCS8qIERldmljZSB3YXMgYWxyZWFkeSBhY3RpdmF0ZWQgKi8NCj4gKwkJ
+aWYgKCFyZXQpDQo+ICsJCQlnb3RvIHNldF9wd3JfZXhpdDsNCj4gKwl9DQo+ICsNCj4gIAlyZXQg
+PSBfX2kyY19oaWRfY29tbWFuZChjbGllbnQsICZoaWRfc2V0X3Bvd2VyX2NtZCwgcG93ZXJfc3Rh
+dGUsDQo+ICAJCTAsIE5VTEwsIDAsIE5VTEwsIDApOw0KPiArDQo+ICAJaWYgKHJldCkNCj4gIAkJ
+ZGV2X2VycigmY2xpZW50LT5kZXYsICJmYWlsZWQgdG8gY2hhbmdlIHBvd2VyIHNldHRpbmcuXG4i
+KTsNCj4gIA0KPiArc2V0X3B3cl9leGl0Og0KPiAgCXJldHVybiByZXQ7DQo+ICB9DQo+ICANCj4g
+QEAgLTEwNTAsNiArMTEwNSw4IEBAIHN0YXRpYyBpbnQgaTJjX2hpZF9wcm9iZShzdHJ1Y3QgaTJj
+X2NsaWVudCAqY2xpZW50LA0KPiAgCQkgY2xpZW50LT5uYW1lLCBoaWQtPnZlbmRvciwgaGlkLT5w
+cm9kdWN0KTsNCj4gIAlzdHJsY3B5KGhpZC0+cGh5cywgZGV2X25hbWUoJmNsaWVudC0+ZGV2KSwg
+c2l6ZW9mKGhpZC0+cGh5cykpOw0KPiAgDQo+ICsJaWhpZC0+cXVpcmtzID0gaTJjX2hpZF9sb29r
+dXBfcXVpcmsoaGlkLT52ZW5kb3IsIGhpZC0+cHJvZHVjdCk7DQo+ICsNCj4gIAlyZXQgPSBoaWRf
+YWRkX2RldmljZShoaWQpOw0KPiAgCWlmIChyZXQpIHsNCj4gIAkJaWYgKHJldCAhPSAtRU5PREVW
+KQ0KPiAtLQ0KPiAxLjkuMQ0KPiANCg0KT0ssIHRoYW5rcyBmb3IgdGhlIHJlc3VibWlzc2lvbi4g
+SSBhbSBoYXBweSB3aXRoIHRoZSBjaGFuZ2VzIHNvIGZhciwgc28NCndpdGggdGhlIGZldyBuaXRw
+aWNrcyBJIGV4cHJlc3NlZCwgaXQgc2hvdWxkIGJlIG1lcmdlYWJsZSBzb29uLg0KDQpDaGVlcnMs
+DQpCZW5qYW1pbg0KDQo=

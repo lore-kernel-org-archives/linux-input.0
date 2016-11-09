@@ -1,103 +1,70 @@
-From: Hn Chen <hn.chen@weidahitech.com>
-Subject: RE: [PATCH] HID:i2c-hid: add a simple quirk to fix device defects
-Date: Wed, 9 Nov 2016 03:32:04 +0000
-Message-ID: <22498D53301C4D4A8FFA8F02C7C3C7C06DDE7593@mail02.WHT.local>
-References: <1478594599-25044-1-git-send-email-hn.chen@weidahitech.com>
- <20161108093803.GD6689@mail.corp.redhat.com>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH] drivers: tca8418: Change the interrupt type
+Date: Wed, 9 Nov 2016 09:02:35 +0100
+Message-ID: <20161109080235.v23y42bojnwcw6rk@lukather>
+References: <20161107144024.15291-1-maxime.ripard@free-electrons.com>
+ <20161109000400.GA8719@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ml01.weidahitech.com ([61.222.87.235]:2092 "EHLO
-        ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751862AbcKIDcc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2016 22:32:32 -0500
-In-Reply-To: <20161108093803.GD6689@mail.corp.redhat.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="bwewk2qlvljjyhuw"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20161109000400.GA8719@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: "jkosina@suse.cz" <jkosina@suse.cz>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-SGkgQmVuamFtaW4sDQoNCk9rLCBJIHdpbGwgYWRkIGEgc3RhdGljIHF1aXJrIHRhYmxlIGFuZCBs
-b29rdXAgZm9yIHRoZSBxdWlya3MgaW4gaTJjX2hpZF9wcm9iZSgpLg0KDQpBYm91dCB0aGUgcmV0
-dXJuIHZhbHVlIGFmdGVyIHNlbmQgdGhlIFBXUl9PTiBjb21tYW5kLCBpdCBzaG91bGQgYmUgZmFp
-bGVkIGluIHdlaWRhJ3MgY2FzZS4NClRoZSBvc2NpbGxhdG9yIG9mIHRoZSBjb250cm9sbGVyIHdp
-bGwgYmUgZ2F0ZWQgaW4gdGhlIGRlZXAgc2xlZXAgbW9kZSBhbmQgDQp0aGUgY29udHJvbGxlciB3
-aWxsIGJlIGFjdGl2ZSBhZnRlciB0aGUgZmlyc3QgY29tbWFuZCBidXQgdGhlcmUgaXMgbm8gYW55
-IGZlZWRiYWNrLg0KU28gc2hvdWxkIEkgY2hlY2sgdGhlIGZhaWxlZCByZXR1cm4gdmFsdWUgaGVy
-ZSA/IE9yIEkgc2hvdWxkIGNoZWNrIGlmIGl0IGlzIG9rIGFuZCB0aGVuIGp1c3QgcmV0dXJuID8N
-Cg0KSG4uY2hlbg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogQmVuamFtaW4g
-VGlzc29pcmVzIFttYWlsdG86YmVuamFtaW4udGlzc29pcmVzQHJlZGhhdC5jb21dIA0KU2VudDog
-VHVlc2RheSwgTm92ZW1iZXIgMDgsIDIwMTYgNTozOCBQTQ0KVG86IEhuIENoZW4NCkNjOiBqa29z
-aW5hQHN1c2UuY3o7IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb207IGxpbnV4LWlucHV0QHZnZXIu
-a2VybmVsLm9yZw0KU3ViamVjdDogUmU6IFtQQVRDSF0gSElEOmkyYy1oaWQ6IGFkZCBhIHNpbXBs
-ZSBxdWlyayB0byBmaXggZGV2aWNlIGRlZmVjdHMNCg0KT24gTm92IDA4IDIwMTYgb3IgdGhlcmVh
-Ym91dHMsIGhuLmNoZW5Ad2VpZGFoaXRlY2guY29tIHdyb3RlOg0KPiBGcm9tOiBIdW5nTmllbiBD
-aGVuIDxobi5jaGVuQHdlaWRhaGl0ZWNoLmNvbT4NCj4gDQo+IFdlaWRhJ3MgZGV2aWNlIGNhbiBn
-ZXQgYSBxdWlyayB2YWx1ZSBieSB0aGUgcXVpcmsgZnVuY3Rpb24uDQo+IEJhc2Ugb24gdGhlIHF1
-aXJrIHZhbHVlLCBzZXRfcG93ZXIgZnVuY3Rpb24gd2lsbCBzZW5kIGEgY29tbWFuZCB0byANCj4g
-d2FrZSB1cCB0aGUgZGV2aWNlIGJlZm9yZSBzZW5kIHRoZSBQV1JfT04gY29tbWFuZC4NCj4gDQo+
-IFNpZ25lZC1vZmYtYnk6IEh1bmdOaWVuIENoZW4gPGhuLmNoZW5Ad2VpZGFoaXRlY2guY29tPg0K
-PiAtLS0NCj4gIGRyaXZlcnMvaGlkL2hpZC1pZHMuaCAgICAgICAgIHwgIDUgKysrKysNCj4gIGRy
-aXZlcnMvaGlkL2kyYy1oaWQvaTJjLWhpZC5jIHwgMzIgKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysNCj4gIDIgZmlsZXMgY2hhbmdlZCwgMzcgaW5zZXJ0aW9ucygrKQ0KPiANCj4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1pZHMuaCBiL2RyaXZlcnMvaGlkL2hpZC1pZHMuaCBp
-bmRleCANCj4gNmNmYjVjYS4uNzg3YWZkZiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9oaWQvaGlk
-LWlkcy5oDQo+ICsrKyBiL2RyaXZlcnMvaGlkL2hpZC1pZHMuaA0KPiBAQCAtMTAzMyw2ICsxMDMz
-LDExIEBADQo+ICAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfV0FMVE9QX01FRElBX1RBQkxFVF8xNF8x
-X0lOQ0gJMHgwNTAwDQo+ICAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfV0FMVE9QX1NJUklVU19CQVRU
-RVJZX0ZSRUVfVEFCTEVUCTB4MDUwMg0KPiAgDQo+ICsjZGVmaW5lCVVTQl9WRU5ET1JfSURfV0VJ
-REEJCTB4MjU3NQ0KPiArI2RlZmluZQlVU0JfREVWSUNFX0lEX1dFSURBXzg3NTYJMHg4NzU2DQo+
-ICsjZGVmaW5lCVVTQl9ERVZJQ0VfSURfV0VJREFfODc1MgkweEMzMDANCj4gKyNkZWZpbmUJVVNC
-X0RFVklDRV9JRF9XRUlEQV84NzU1CTB4QzMwMQ0KPiArDQo+ICAjZGVmaW5lIFVTQl9WRU5ET1Jf
-SURfV0lTRUdST1VQCQkweDA5MjUNCj4gICNkZWZpbmUgVVNCX0RFVklDRV9JRF9TTUFSVEpPWV9Q
-TFVTCTB4MDAwNQ0KPiAgI2RlZmluZSBVU0JfREVWSUNFX0lEX1NVUEVSX0pPWV9CT1hfMwkweDg4
-ODgNCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2kyYy1oaWQvaTJjLWhpZC5jIA0KPiBiL2Ry
-aXZlcnMvaGlkL2kyYy1oaWQvaTJjLWhpZC5jIGluZGV4IGIzZWM0ZjIuLjdhOWIxMDAgMTAwNjQ0
-DQo+IC0tLSBhL2RyaXZlcnMvaGlkL2kyYy1oaWQvaTJjLWhpZC5jDQo+ICsrKyBiL2RyaXZlcnMv
-aGlkL2kyYy1oaWQvaTJjLWhpZC5jDQo+IEBAIC00MSw2ICs0MSwxMSBAQA0KPiAgDQo+ICAjaW5j
-bHVkZSA8bGludXgvaTJjL2kyYy1oaWQuaD4NCj4gIA0KPiArI2luY2x1ZGUgIi4uL2hpZC1pZHMu
-aCINCj4gKw0KPiArLyogcXVpcmtzIHRvIGNvbnRyb2wgdGhlIGRldmljZSAqLw0KPiArI2RlZmlu
-ZSBJMkNfSElEX1FVSVJLX1NFVF9QV1JfV0FLRVVQX0RFVgkoMSA8PCAwKQ0KPiArDQo+ICAvKiBm
-bGFncyAqLw0KPiAgI2RlZmluZSBJMkNfSElEX1NUQVJURUQJCTANCj4gICNkZWZpbmUgSTJDX0hJ
-RF9SRVNFVF9QRU5ESU5HCTENCj4gQEAgLTE0Myw2ICsxNDgsNyBAQCBzdHJ1Y3QgaTJjX2hpZCB7
-DQo+ICAJY2hhcgkJCSphcmdzYnVmOwkvKiBDb21tYW5kIGFyZ3VtZW50cyBidWZmZXIgKi8NCj4g
-IA0KPiAgCXVuc2lnbmVkIGxvbmcJCWZsYWdzOwkJLyogZGV2aWNlIGZsYWdzICovDQo+ICsJdW5z
-aWduZWQgbG9uZwkJcXVpcmtzOwkJLyogVmFyaW91cyBxdWlya3MgKi8NCj4gIA0KPiAgCXdhaXRf
-cXVldWVfaGVhZF90CXdhaXQ7CQkvKiBGb3Igd2FpdGluZyB0aGUgaW50ZXJydXB0ICovDQo+ICAJ
-c3RydWN0IGdwaW9fZGVzYwkqZGVzYzsNCj4gQEAgLTE1NCw2ICsxNjAsMjUgQEAgc3RydWN0IGky
-Y19oaWQgew0KPiAgCXN0cnVjdCBtdXRleAkJcmVzZXRfbG9jazsNCj4gIH07DQo+ICANCj4gKy8q
-DQo+ICsgKiBpMmNfaGlkX2xvb2t1cF9xdWlyazogcmV0dXJuIGFueSBxdWlya3MgYXNzb2NpYXRl
-ZCB3aXRoIGEgSTJDIEhJRCANCj4gK2RldmljZQ0KPiArICogQGlkVmVuZG9yOiB0aGUgMTYtYml0
-IHZlbmRvciBJRA0KPiArICogQGlkUHJvZHVjdDogdGhlIDE2LWJpdCBwcm9kdWN0IElEDQo+ICsg
-Kg0KPiArICogUmV0dXJuczogYSB1MzIgcXVpcmtzIHZhbHVlLg0KPiArICovDQo+ICtzdGF0aWMg
-dTMyIGkyY19oaWRfbG9va3VwX3F1aXJrKGNvbnN0IHUxNiBpZFZlbmRvciwgY29uc3QgdTE2IA0K
-PiAraWRQcm9kdWN0KSB7DQo+ICsJdTMyIHF1aXJrcyA9IDA7DQo+ICsNCj4gKwkvKiBXZWlkYSBk
-ZXZpY2VzIGNoZWNrIGhlcmUgKi8NCj4gKwlpZiAoaWRWZW5kb3IgPT0gVVNCX1ZFTkRPUl9JRF9X
-RUlEQSAmJg0KPiArCSAgICBpZFByb2R1Y3QgPj0gVVNCX0RFVklDRV9JRF9XRUlEQV84NzUyKQ0K
-DQpXb3VsZG4ndCBpdCBtYWtlIG1vcmUgc2Vuc2UgdG8gaGF2ZSBhIHN0YXRpYyB0YWJsZSBvZiB0
-aGUgYWZmZWN0ZWQgcHJvZHVjdHMsIGluc3RlYWQgb2YgdGhpcyB0ZXN0Pw0KDQo+ICsJCXJldHVy
-biBJMkNfSElEX1FVSVJLX1NFVF9QV1JfV0FLRVVQX0RFVjsNCj4gKw0KPiArCXJldHVybiBxdWly
-a3M7DQo+ICt9DQo+ICsNCj4gIHN0YXRpYyBpbnQgX19pMmNfaGlkX2NvbW1hbmQoc3RydWN0IGky
-Y19jbGllbnQgKmNsaWVudCwNCj4gIAkJY29uc3Qgc3RydWN0IGkyY19oaWRfY21kICpjb21tYW5k
-LCB1OCByZXBvcnRJRCwNCj4gIAkJdTggcmVwb3J0VHlwZSwgdTggKmFyZ3MsIGludCBhcmdzX2xl
-biwgQEAgLTM0Niw2ICszNzEsMTEgQEAgc3RhdGljIA0KPiBpbnQgaTJjX2hpZF9zZXRfcG93ZXIo
-c3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwgaW50IHBvd2VyX3N0YXRlKQ0KPiAgDQo+ICAJaTJj
-X2hpZF9kYmcoaWhpZCwgIiVzXG4iLCBfX2Z1bmNfXyk7DQo+ICANCj4gKwkvKiBTb21lIGRldmlj
-ZXMgcmVxdWlyZSB0byBzZW5kIGEgY29tbWFuZCB0byB3YWtldXAgZmlyc3QgKi8NCj4gKwlpZiAo
-cG93ZXJfc3RhdGUgPT0gSTJDX0hJRF9QV1JfT04gJiYNCj4gKwkgICAgaWhpZC0+cXVpcmtzICYg
-STJDX0hJRF9RVUlSS19TRVRfUFdSX1dBS0VVUF9ERVYpDQo+ICsJCWkyY19oaWRfY29tbWFuZChj
-bGllbnQsICZoaWRfc2V0X3Bvd2VyX2NtZCwgTlVMTCwgMCk7DQoNCklzbid0IHRoZXJlIGEgbmVl
-ZCB0byBjaGVjayB0aGUgcmV0dXJuIHZhbHVlIGhlcmU/DQoNCj4gKw0KPiAgCXJldCA9IF9faTJj
-X2hpZF9jb21tYW5kKGNsaWVudCwgJmhpZF9zZXRfcG93ZXJfY21kLCBwb3dlcl9zdGF0ZSwNCj4g
-IAkJMCwgTlVMTCwgMCwgTlVMTCwgMCk7DQo+ICAJaWYgKHJldCkNCj4gQEAgLTY2MSw2ICs2OTEs
-OCBAQCBzdGF0aWMgaW50IGkyY19oaWRfcGFyc2Uoc3RydWN0IGhpZF9kZXZpY2UgKmhpZCkNCj4g
-IA0KPiAgCWkyY19oaWRfZGJnKGloaWQsICJlbnRlcmluZyAlc1xuIiwgX19mdW5jX18pOw0KPiAg
-DQo+ICsJaWhpZC0+cXVpcmtzID0gaTJjX2hpZF9sb29rdXBfcXVpcmsoaGlkLT52ZW5kb3IsIGhp
-ZC0+cHJvZHVjdCk7DQoNClBsZWFzZSBsb29rdXAgZm9yIHRoZSBxdWlya3MgaW4gaTJjX2hpZF9w
-cm9iZSgpLCByaWdodCBhZnRlciB3ZSBzZXQgdmVyc2lvbiwgdmVuZG9yIGFuZCBwcm9kdWN0DQoN
-Cj4gKw0KPiAgCXJzaXplID0gbGUxNl90b19jcHUoaGRlc2MtPndSZXBvcnREZXNjTGVuZ3RoKTsN
-Cj4gIAlpZiAoIXJzaXplIHx8IHJzaXplID4gSElEX01BWF9ERVNDUklQVE9SX1NJWkUpIHsNCj4g
-IAkJZGJnX2hpZCgid2VpcmQgc2l6ZSBvZiByZXBvcnQgZGVzY3JpcHRvciAoJXUpXG4iLCByc2l6
-ZSk7DQo+IC0tDQo+IDEuOS4xDQo+IA0KDQpDaGVlcnMsDQpCZW5qYW1pbg0KDQo=
+
+--bwewk2qlvljjyhuw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hello Dmitry,
+
+On Tue, Nov 08, 2016 at 04:04:00PM -0800, Dmitry Torokhov wrote:
+> On Mon, Nov 07, 2016 at 03:40:24PM +0100, Maxime Ripard wrote:
+> > The TCA8418 interrupt has a level trigger, not a edge one.
+> >=20
+> > Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+>=20
+> Hmm, maybe we could rely on OF data for trigger type?
+
+We might, even though the i2c core doesn't change the trigger type
+when it retrieves the interrupt from the DT.
+
+However, I'm a bit worried about the other probing mechanims (ACPI,
+board files) that should be supported as well, and removing the
+trigger type from the flags might break those. There's no board files
+using it though in the tree, but I don't know about ACPI systems.
+
+Thanks,
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
+
+--bwewk2qlvljjyhuw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBCAAGBQJYItgSAAoJEBx+YmzsjxAg0WYP/0IPDf2a4RLPqwVrVco87XYJ
+BQfQfsJwsSYoTJYKvH6G3Uy6XaSxvy+kRS2cbo2L8OahRpSgN6gjVZv7ilSyRjK9
+s7nedjsAWo+zf07YYpvFpU0eUgtmAGhU7cQRE1hkS0XfJ7hXfCSuRlqfNIipoatl
+YBvw8dtHat1aV78ZCxIHGdVzqXliA6bIkHS84smI7aNofzjac3qZVdCyFsRn84e4
+adpnfaZaif+bCuNcjYzz5J6t8PYLqqNu9jGAiJXmXytkrk3gT8swonTyynGCMr24
+rfEi61i3MRxTEBDVEdpOIZJ2aJ5Sdo/2p7LCLFh9CGhmpGaHCFfEDHMJkf8c9Y9g
+fk5eYalmMeDShLaFuXS+SCXYcx22AsEL/75Rzq23o3La0dPawRWgd/NLA/nYwGY4
+6HrlB3XIdXd68ZEsemIH4emNbqnANzit3pz8eh/Dy0fP6rEK8nItCXTnHb5jrEDu
+aqoLlcwRUvwiSpEyGsklTTPPr+b7bnZyHjriPQi8CD90MyoMwHS9YIO6eYYf89QP
+VycGEUPv/GuYbBWb8GGG4GFw/40R/c0/VVdWfq7q5EYZ2XQI0GCv5hPvJNUPv5xc
+Lpj2DnxrFzaBgVBqnkLopbgSq0UVlXqTqjIB5edsobSs23S/ANysU029HWErd/9h
+DMgAeqmIVV9WlDXIS3oQ
+=23Zh
+-----END PGP SIGNATURE-----
+
+--bwewk2qlvljjyhuw--

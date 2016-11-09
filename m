@@ -1,42 +1,45 @@
-From: Stefan Wahren <stefan.wahren@i2se.com>
-Subject: Re: [PATCH v9 1/5] mfd: mxs-lradc: Add support for mxs-lradc MFD
-Date: Tue, 8 Nov 2016 23:34:07 +0100 (CET)
-Message-ID: <1401051818.290769.fabb549c-29f9-4e5c-a868-650c6df97a1d.open-xchange@email.1und1.de>
-References: <cover.1478071676.git.ksenija.stanojevic@gmail.com>
- <c18883dfacaaf40ab98cbb4938d5164a95a817d7.1478071676.git.ksenija.stanojevic@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] drivers: tca8418: Change the interrupt type
+Date: Tue, 8 Nov 2016 16:04:00 -0800
+Message-ID: <20161109000400.GA8719@dtor-ws>
+References: <20161107144024.15291-1-maxime.ripard@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c18883dfacaaf40ab98cbb4938d5164a95a817d7.1478071676.git.ksenija.stanojevic@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20161107144024.15291-1-maxime.ripard@free-electrons.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, lee.jones@linaro.org
-Cc: linux-input@vger.kernel.org, pmeerw@pmeerw.net, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, dmitry.torokhov@gmail.com, harald@ccbib.org, fabio.estevam@freescale.com, linux-iio@vger.kernel.org, marex@denx.de, linux-kernel@vger.kernel.org
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-> Ksenija Stanojevic <ksenija.stanojevic@gmail.com> hat am 2. November 2016 um
-> 08:38 geschrieben:
+On Mon, Nov 07, 2016 at 03:40:24PM +0100, Maxime Ripard wrote:
+> The TCA8418 interrupt has a level trigger, not a edge one.
 > 
-> 
-> Add core files for low resolution analog-to-digital converter (mxs-lradc)
-> MFD driver.
-> 
-> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-
-for Patch 1 + 2
+Hmm, maybe we could rely on OF data for trigger type?
 
 > ---
-> ...
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index 9834e66..057ca15 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -211,3 +211,4 @@ obj-$(CONFIG_INTEL_SOC_PMIC)	+= intel-soc-pmic.o
->  obj-$(CONFIG_MFD_MT6397)	+= mt6397-core.o
+>  drivers/input/keyboard/tca8418_keypad.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
+> index 9002298698fc..b88b3696a2e1 100644
+> --- a/drivers/input/keyboard/tca8418_keypad.c
+> +++ b/drivers/input/keyboard/tca8418_keypad.c
+> @@ -360,7 +360,7 @@ static int tca8418_keypad_probe(struct i2c_client *client,
+>  		irq = gpio_to_irq(irq);
 >  
->  obj-$(CONFIG_MFD_ALTERA_A10SR)	+= altera-a10sr.o
-> +obj-$(CONFIG_MFD_MXS_LRADC)     += mxs-lradc.o
+>  	error = devm_request_threaded_irq(dev, irq, NULL, tca8418_irq_handler,
+> -					  IRQF_TRIGGER_FALLING |
+> +					  IRQF_TRIGGER_LOW |
+>  						IRQF_SHARED |
+>  						IRQF_ONESHOT,
+>  					  client->name, keypad_data);
+> -- 
+> 2.10.1
+> 
 
-Btw this part won't apply anymore
+-- 
+Dmitry

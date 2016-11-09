@@ -1,81 +1,244 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 05/12] xen: make use of xenbus_read_unsigned() in
- xen-kbdfront
-Date: Tue, 8 Nov 2016 16:29:16 -0800
-Message-ID: <20161109002916.GF8719@dtor-ws>
-References: <1477932510-28594-1-git-send-email-jgross@suse.com>
- <1477932510-28594-6-git-send-email-jgross@suse.com>
+Subject: Re: [PATCH v3 03/18] Input: synaptics-rmi4 - Handle incomplete input
+ data
+Date: Tue, 8 Nov 2016 16:46:58 -0800
+Message-ID: <20161109004658.GG8719@dtor-ws>
+References: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1476373872-18027-4-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:35190 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751564AbcKIA3T (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2016 19:29:19 -0500
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:35812 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751695AbcKIArC (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2016 19:47:02 -0500
 Content-Disposition: inline
-In-Reply-To: <1477932510-28594-6-git-send-email-jgross@suse.com>
+In-Reply-To: <1476373872-18027-4-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Juergen Gross <jgross@suse.com>
-Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xen.org, david.vrabel@citrix.com, boris.ostrovsky@oracle.com, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Lyude Paul <thatslyude@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Dennis Wassenberg <dennis.wassenberg@secunet.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mon, Oct 31, 2016 at 05:48:23PM +0100, Juergen Gross wrote:
-> Use xenbus_read_unsigned() instead of xenbus_scanf() when possible.
-> This requires to change the type of the reads from int to unsigned,
-> but these cases have been wrong before: negative values are not allowed
-> for the modified cases.
+On Thu, Oct 13, 2016 at 05:50:57PM +0200, Benjamin Tissoires wrote:
+> From: Andrew Duggan <aduggan@synaptics.com>
 > 
-> Cc: dmitry.torokhov@gmail.com
-> Cc: linux-input@vger.kernel.org
+> Commit 5b65c2a02966 ("HID: rmi: check sanity of the incoming report") added
+> support for handling incomplete HID reports do to the input data being
+> corrupted in transit. This patch reimplements this functionality in the
+> function drivers so they can handle getting less valid data then they
+> expect.
 > 
-> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Applied, thank you.
 
+> 
 > ---
->  drivers/input/misc/xen-kbdfront.c | 13 +++++--------
->  1 file changed, 5 insertions(+), 8 deletions(-)
 > 
-> diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-> index 227fbd2..3900875 100644
-> --- a/drivers/input/misc/xen-kbdfront.c
-> +++ b/drivers/input/misc/xen-kbdfront.c
-> @@ -108,7 +108,8 @@ static irqreturn_t input_handler(int rq, void *dev_id)
->  static int xenkbd_probe(struct xenbus_device *dev,
->  				  const struct xenbus_device_id *id)
+> new in v3
+> ---
+>  drivers/input/rmi4/rmi_f11.c | 54 ++++++++++++++++++++++++++++++++------------
+>  drivers/input/rmi4/rmi_f12.c | 23 ++++++++++++++-----
+>  drivers/input/rmi4/rmi_f30.c |  4 ++++
+>  3 files changed, 61 insertions(+), 20 deletions(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+> index 20c7134..3218742 100644
+> --- a/drivers/input/rmi4/rmi_f11.c
+> +++ b/drivers/input/rmi4/rmi_f11.c
+> @@ -572,31 +572,48 @@ static inline u8 rmi_f11_parse_finger_state(const u8 *f_state, u8 n_finger)
+>  
+>  static void rmi_f11_finger_handler(struct f11_data *f11,
+>  				   struct rmi_2d_sensor *sensor,
+> -				   unsigned long *irq_bits, int num_irq_regs)
+> +				   unsigned long *irq_bits, int num_irq_regs,
+> +				   int size)
 >  {
-> -	int ret, i, abs;
-> +	int ret, i;
-> +	unsigned int abs;
->  	struct xenkbd_info *info;
->  	struct input_dev *kbd, *ptr;
+>  	const u8 *f_state = f11->data.f_state;
+>  	u8 finger_state;
+>  	u8 i;
+> +	int abs_fingers;
+> +	int rel_fingers;
+> +	int abs_size = sensor->nbr_fingers * RMI_F11_ABS_BYTES;
 >  
-> @@ -127,8 +128,7 @@ static int xenkbd_probe(struct xenbus_device *dev,
->  	if (!info->page)
->  		goto error_nomem;
+>  	int abs_bits = bitmap_and(f11->result_bits, irq_bits, f11->abs_mask,
+>  				  num_irq_regs * 8);
+>  	int rel_bits = bitmap_and(f11->result_bits, irq_bits, f11->rel_mask,
+>  				  num_irq_regs * 8);
 >  
-> -	if (xenbus_scanf(XBT_NIL, dev->otherend, "feature-abs-pointer", "%d", &abs) < 0)
-> -		abs = 0;
-> +	abs = xenbus_read_unsigned(dev->otherend, "feature-abs-pointer", 0);
->  	if (abs) {
->  		ret = xenbus_write(XBT_NIL, dev->nodename,
->  				   "request-abs-pointer", "1");
-> @@ -322,11 +322,8 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
+> -	for (i = 0; i < sensor->nbr_fingers; i++) {
+> -		/* Possible of having 4 fingers per f_statet register */
+> -		finger_state = rmi_f11_parse_finger_state(f_state, i);
+> -		if (finger_state == F11_RESERVED) {
+> -			pr_err("Invalid finger state[%d]: 0x%02x", i,
+> -				finger_state);
+> -			continue;
+> -		}
+> +	if (abs_bits) {
+> +		if (abs_size > size)
+> +			abs_fingers = size / RMI_F11_ABS_BYTES;
+> +		else
+> +			abs_fingers = sensor->nbr_fingers;
+> +
+> +		for (i = 0; i < abs_fingers; i++) {
+> +			/* Possible of having 4 fingers per f_state register */
+> +			finger_state = rmi_f11_parse_finger_state(f_state, i);
+> +			if (finger_state == F11_RESERVED) {
+> +				pr_err("Invalid finger state[%d]: 0x%02x", i,
+> +					finger_state);
+> +				continue;
+> +			}
 >  
->  	case XenbusStateInitWait:
->  InitWait:
-> -		ret = xenbus_scanf(XBT_NIL, info->xbdev->otherend,
-> -				   "feature-abs-pointer", "%d", &val);
-> -		if (ret < 0)
-> -			val = 0;
-> -		if (val) {
-> +		if (xenbus_read_unsigned(info->xbdev->otherend,
-> +					 "feature-abs-pointer", 0)) {
->  			ret = xenbus_write(XBT_NIL, info->xbdev->nodename,
->  					   "request-abs-pointer", "1");
->  			if (ret)
+> -		if (abs_bits)
+>  			rmi_f11_abs_pos_process(f11, sensor, &sensor->objs[i],
+>  							finger_state, i);
+> +		}
+> +	}
+> +
+> +	if (rel_bits) {
+> +		if ((abs_size + sensor->nbr_fingers * RMI_F11_REL_BYTES) > size)
+> +			rel_fingers = (size - abs_size) / RMI_F11_REL_BYTES;
+> +		else
+> +			rel_fingers = sensor->nbr_fingers;
+>  
+> -		if (rel_bits)
+> +		for (i = 0; i < rel_fingers; i++)
+>  			rmi_f11_rel_pos_report(f11, i);
+>  	}
+>  
+> @@ -612,7 +629,7 @@ static void rmi_f11_finger_handler(struct f11_data *f11,
+>  					      sensor->nbr_fingers,
+>  					      sensor->dmax);
+>  
+> -		for (i = 0; i < sensor->nbr_fingers; i++) {
+> +		for (i = 0; i < abs_fingers; i++) {
+>  			finger_state = rmi_f11_parse_finger_state(f_state, i);
+>  			if (finger_state == F11_RESERVED)
+>  				/* no need to send twice the error */
+> @@ -1242,10 +1259,19 @@ static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
+>  	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
+>  	u16 data_base_addr = fn->fd.data_base_addr;
+>  	int error;
+> +	int valid_bytes = f11->sensor.pkt_size;
+>  
+>  	if (rmi_dev->xport->attn_data) {
+> +		/*
+> +		 * The valid data in the attention report is less then
+> +		 * expected. Only process the complete fingers.
+> +		 */
+> +		if (f11->sensor.attn_size > rmi_dev->xport->attn_size)
+> +			valid_bytes = rmi_dev->xport->attn_size;
+> +		else
+> +			valid_bytes = f11->sensor.attn_size;
+>  		memcpy(f11->sensor.data_pkt, rmi_dev->xport->attn_data,
+> -			f11->sensor.attn_size);
+> +			valid_bytes);
+>  		rmi_dev->xport->attn_data += f11->sensor.attn_size;
+>  		rmi_dev->xport->attn_size -= f11->sensor.attn_size;
+>  	} else {
+> @@ -1257,7 +1283,7 @@ static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
+>  	}
+>  
+>  	rmi_f11_finger_handler(f11, &f11->sensor, irq_bits,
+> -				drvdata->num_of_irq_regs);
+> +				drvdata->num_of_irq_regs, valid_bytes);
+>  
+>  	return 0;
+>  }
+> diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
+> index 332c02f..767ac79 100644
+> --- a/drivers/input/rmi4/rmi_f12.c
+> +++ b/drivers/input/rmi4/rmi_f12.c
+> @@ -26,6 +26,8 @@ enum rmi_f12_object_type {
+>  	RMI_F12_OBJECT_SMALL_OBJECT		= 0x0D,
+>  };
+>  
+> +#define F12_DATA1_BYTES_PER_OBJ			8
+> +
+>  struct f12_data {
+>  	struct rmi_2d_sensor sensor;
+>  	struct rmi_2d_sensor_platform_data sensor_pdata;
+> @@ -146,12 +148,16 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
+>  	return 0;
+>  }
+>  
+> -static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1)
+> +static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1, int size)
+>  {
+>  	int i;
+>  	struct rmi_2d_sensor *sensor = &f12->sensor;
+> +	int objects = f12->data1->num_subpackets;
+> +
+> +	if ((f12->data1->num_subpackets * F12_DATA1_BYTES_PER_OBJ) > size)
+> +		objects = size / F12_DATA1_BYTES_PER_OBJ;
+>  
+> -	for (i = 0; i < f12->data1->num_subpackets; i++) {
+> +	for (i = 0; i < objects; i++) {
+>  		struct rmi_2d_sensor_abs_object *obj = &sensor->objs[i];
+>  
+>  		obj->type = RMI_2D_OBJECT_NONE;
+> @@ -182,7 +188,7 @@ static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1)
+>  
+>  		rmi_2d_sensor_abs_process(sensor, obj, i);
+>  
+> -		data1 += 8;
+> +		data1 += F12_DATA1_BYTES_PER_OBJ;
+>  	}
+>  
+>  	if (sensor->kernel_tracking)
+> @@ -192,7 +198,7 @@ static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1)
+>  				      sensor->nbr_fingers,
+>  				      sensor->dmax);
+>  
+> -	for (i = 0; i < sensor->nbr_fingers; i++)
+> +	for (i = 0; i < objects; i++)
+>  		rmi_2d_sensor_abs_report(sensor, &sensor->objs[i], i);
+>  }
+>  
+> @@ -203,10 +209,15 @@ static int rmi_f12_attention(struct rmi_function *fn,
+>  	struct rmi_device *rmi_dev = fn->rmi_dev;
+>  	struct f12_data *f12 = dev_get_drvdata(&fn->dev);
+>  	struct rmi_2d_sensor *sensor = &f12->sensor;
+> +	int valid_bytes = sensor->pkt_size;
+>  
+>  	if (rmi_dev->xport->attn_data) {
+> +		if (sensor->attn_size > rmi_dev->xport->attn_size)
+> +			valid_bytes = rmi_dev->xport->attn_size;
+> +		else
+> +			valid_bytes = sensor->attn_size;
+>  		memcpy(sensor->data_pkt, rmi_dev->xport->attn_data,
+> -			sensor->attn_size);
+> +			valid_bytes);
+>  		rmi_dev->xport->attn_data += sensor->attn_size;
+>  		rmi_dev->xport->attn_size -= sensor->attn_size;
+>  	} else {
+> @@ -221,7 +232,7 @@ static int rmi_f12_attention(struct rmi_function *fn,
+>  
+>  	if (f12->data1)
+>  		rmi_f12_process_objects(f12,
+> -			&sensor->data_pkt[f12->data1_offset]);
+> +			&sensor->data_pkt[f12->data1_offset], valid_bytes);
+>  
+>  	input_mt_sync_frame(sensor->input);
+>  
+> diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
+> index 760aff1..485907f 100644
+> --- a/drivers/input/rmi4/rmi_f30.c
+> +++ b/drivers/input/rmi4/rmi_f30.c
+> @@ -110,6 +110,10 @@ static int rmi_f30_attention(struct rmi_function *fn, unsigned long *irq_bits)
+>  
+>  	/* Read the gpi led data. */
+>  	if (rmi_dev->xport->attn_data) {
+> +		if (rmi_dev->xport->attn_size < f30->register_count) {
+> +			dev_warn(&fn->dev, "F30 interrupted, but data is missing\n");
+> +			return 0;
+> +		}
+>  		memcpy(f30->data_regs, rmi_dev->xport->attn_data,
+>  			f30->register_count);
+>  		rmi_dev->xport->attn_data += f30->register_count;
 > -- 
-> 2.6.6
+> 2.7.4
 > 
 
 -- 

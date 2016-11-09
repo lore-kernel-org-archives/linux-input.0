@@ -1,70 +1,164 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH] drivers: tca8418: Change the interrupt type
-Date: Wed, 9 Nov 2016 09:02:35 +0100
-Message-ID: <20161109080235.v23y42bojnwcw6rk@lukather>
-References: <20161107144024.15291-1-maxime.ripard@free-electrons.com>
- <20161109000400.GA8719@dtor-ws>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID:i2c-hid: add a simple quirk to fix device defects
+Date: Wed, 9 Nov 2016 09:25:03 +0100
+Message-ID: <20161109082503.GC10327@mail.corp.redhat.com>
+References: <1478594599-25044-1-git-send-email-hn.chen@weidahitech.com>
+ <20161108093803.GD6689@mail.corp.redhat.com>
+ <22498D53301C4D4A8FFA8F02C7C3C7C06DDE7593@mail02.WHT.local>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="bwewk2qlvljjyhuw"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:41352 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751282AbcKIIZJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 9 Nov 2016 03:25:09 -0500
 Content-Disposition: inline
-In-Reply-To: <20161109000400.GA8719@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <22498D53301C4D4A8FFA8F02C7C3C7C06DDE7593@mail02.WHT.local>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hn Chen <hn.chen@weidahitech.com>
+Cc: "jkosina@suse.cz" <jkosina@suse.cz>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
+On Nov 09 2016 or thereabouts, Hn Chen wrote:
+> Hi Benjamin,
+> 
+> Ok, I will add a static quirk table and lookup for the quirks in i2c_hid_probe().
+> 
+> About the return value after send the PWR_ON command, it should be failed in weida's case.
+> The oscillator of the controller will be gated in the deep sleep mode and 
+> the controller will be active after the first command but there is no any feedback.
+> So should I check the failed return value here ? Or I should check if it is ok and then just return ?
 
---bwewk2qlvljjyhuw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Maybe just add a comment above saying that this is expected to fail on
+some devices, so there is no point in checking the return value here.
 
-Hello Dmitry,
+Cheers,
+Benjamin
 
-On Tue, Nov 08, 2016 at 04:04:00PM -0800, Dmitry Torokhov wrote:
-> On Mon, Nov 07, 2016 at 03:40:24PM +0100, Maxime Ripard wrote:
-> > The TCA8418 interrupt has a level trigger, not a edge one.
-> >=20
-> > Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
->=20
-> Hmm, maybe we could rely on OF data for trigger type?
-
-We might, even though the i2c core doesn't change the trigger type
-when it retrieves the interrupt from the DT.
-
-However, I'm a bit worried about the other probing mechanims (ACPI,
-board files) that should be supported as well, and removing the
-trigger type from the flags might break those. There's no board files
-using it though in the tree, but I don't know about ACPI systems.
-
-Thanks,
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
---bwewk2qlvljjyhuw
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIcBAEBCAAGBQJYItgSAAoJEBx+YmzsjxAg0WYP/0IPDf2a4RLPqwVrVco87XYJ
-BQfQfsJwsSYoTJYKvH6G3Uy6XaSxvy+kRS2cbo2L8OahRpSgN6gjVZv7ilSyRjK9
-s7nedjsAWo+zf07YYpvFpU0eUgtmAGhU7cQRE1hkS0XfJ7hXfCSuRlqfNIipoatl
-YBvw8dtHat1aV78ZCxIHGdVzqXliA6bIkHS84smI7aNofzjac3qZVdCyFsRn84e4
-adpnfaZaif+bCuNcjYzz5J6t8PYLqqNu9jGAiJXmXytkrk3gT8swonTyynGCMr24
-rfEi61i3MRxTEBDVEdpOIZJ2aJ5Sdo/2p7LCLFh9CGhmpGaHCFfEDHMJkf8c9Y9g
-fk5eYalmMeDShLaFuXS+SCXYcx22AsEL/75Rzq23o3La0dPawRWgd/NLA/nYwGY4
-6HrlB3XIdXd68ZEsemIH4emNbqnANzit3pz8eh/Dy0fP6rEK8nItCXTnHb5jrEDu
-aqoLlcwRUvwiSpEyGsklTTPPr+b7bnZyHjriPQi8CD90MyoMwHS9YIO6eYYf89QP
-VycGEUPv/GuYbBWb8GGG4GFw/40R/c0/VVdWfq7q5EYZ2XQI0GCv5hPvJNUPv5xc
-Lpj2DnxrFzaBgVBqnkLopbgSq0UVlXqTqjIB5edsobSs23S/ANysU029HWErd/9h
-DMgAeqmIVV9WlDXIS3oQ
-=23Zh
------END PGP SIGNATURE-----
-
---bwewk2qlvljjyhuw--
+> 
+> Hn.chen
+> 
+> -----Original Message-----
+> From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com] 
+> Sent: Tuesday, November 08, 2016 5:38 PM
+> To: Hn Chen
+> Cc: jkosina@suse.cz; dmitry.torokhov@gmail.com; linux-input@vger.kernel.org
+> Subject: Re: [PATCH] HID:i2c-hid: add a simple quirk to fix device defects
+> 
+> On Nov 08 2016 or thereabouts, hn.chen@weidahitech.com wrote:
+> > From: HungNien Chen <hn.chen@weidahitech.com>
+> > 
+> > Weida's device can get a quirk value by the quirk function.
+> > Base on the quirk value, set_power function will send a command to 
+> > wake up the device before send the PWR_ON command.
+> > 
+> > Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
+> > ---
+> >  drivers/hid/hid-ids.h         |  5 +++++
+> >  drivers/hid/i2c-hid/i2c-hid.c | 32 ++++++++++++++++++++++++++++++++
+> >  2 files changed, 37 insertions(+)
+> > 
+> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h index 
+> > 6cfb5ca..787afdf 100644
+> > --- a/drivers/hid/hid-ids.h
+> > +++ b/drivers/hid/hid-ids.h
+> > @@ -1033,6 +1033,11 @@
+> >  #define USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH	0x0500
+> >  #define USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET	0x0502
+> >  
+> > +#define	USB_VENDOR_ID_WEIDA		0x2575
+> > +#define	USB_DEVICE_ID_WEIDA_8756	0x8756
+> > +#define	USB_DEVICE_ID_WEIDA_8752	0xC300
+> > +#define	USB_DEVICE_ID_WEIDA_8755	0xC301
+> > +
+> >  #define USB_VENDOR_ID_WISEGROUP		0x0925
+> >  #define USB_DEVICE_ID_SMARTJOY_PLUS	0x0005
+> >  #define USB_DEVICE_ID_SUPER_JOY_BOX_3	0x8888
+> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c 
+> > b/drivers/hid/i2c-hid/i2c-hid.c index b3ec4f2..7a9b100 100644
+> > --- a/drivers/hid/i2c-hid/i2c-hid.c
+> > +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> > @@ -41,6 +41,11 @@
+> >  
+> >  #include <linux/i2c/i2c-hid.h>
+> >  
+> > +#include "../hid-ids.h"
+> > +
+> > +/* quirks to control the device */
+> > +#define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	(1 << 0)
+> > +
+> >  /* flags */
+> >  #define I2C_HID_STARTED		0
+> >  #define I2C_HID_RESET_PENDING	1
+> > @@ -143,6 +148,7 @@ struct i2c_hid {
+> >  	char			*argsbuf;	/* Command arguments buffer */
+> >  
+> >  	unsigned long		flags;		/* device flags */
+> > +	unsigned long		quirks;		/* Various quirks */
+> >  
+> >  	wait_queue_head_t	wait;		/* For waiting the interrupt */
+> >  	struct gpio_desc	*desc;
+> > @@ -154,6 +160,25 @@ struct i2c_hid {
+> >  	struct mutex		reset_lock;
+> >  };
+> >  
+> > +/*
+> > + * i2c_hid_lookup_quirk: return any quirks associated with a I2C HID 
+> > +device
+> > + * @idVendor: the 16-bit vendor ID
+> > + * @idProduct: the 16-bit product ID
+> > + *
+> > + * Returns: a u32 quirks value.
+> > + */
+> > +static u32 i2c_hid_lookup_quirk(const u16 idVendor, const u16 
+> > +idProduct) {
+> > +	u32 quirks = 0;
+> > +
+> > +	/* Weida devices check here */
+> > +	if (idVendor == USB_VENDOR_ID_WEIDA &&
+> > +	    idProduct >= USB_DEVICE_ID_WEIDA_8752)
+> 
+> Wouldn't it make more sense to have a static table of the affected products, instead of this test?
+> 
+> > +		return I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV;
+> > +
+> > +	return quirks;
+> > +}
+> > +
+> >  static int __i2c_hid_command(struct i2c_client *client,
+> >  		const struct i2c_hid_cmd *command, u8 reportID,
+> >  		u8 reportType, u8 *args, int args_len, @@ -346,6 +371,11 @@ static 
+> > int i2c_hid_set_power(struct i2c_client *client, int power_state)
+> >  
+> >  	i2c_hid_dbg(ihid, "%s\n", __func__);
+> >  
+> > +	/* Some devices require to send a command to wakeup first */
+> > +	if (power_state == I2C_HID_PWR_ON &&
+> > +	    ihid->quirks & I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV)
+> > +		i2c_hid_command(client, &hid_set_power_cmd, NULL, 0);
+> 
+> Isn't there a need to check the return value here?
+> 
+> > +
+> >  	ret = __i2c_hid_command(client, &hid_set_power_cmd, power_state,
+> >  		0, NULL, 0, NULL, 0);
+> >  	if (ret)
+> > @@ -661,6 +691,8 @@ static int i2c_hid_parse(struct hid_device *hid)
+> >  
+> >  	i2c_hid_dbg(ihid, "entering %s\n", __func__);
+> >  
+> > +	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
+> 
+> Please lookup for the quirks in i2c_hid_probe(), right after we set version, vendor and product
+> 
+> > +
+> >  	rsize = le16_to_cpu(hdesc->wReportDescLength);
+> >  	if (!rsize || rsize > HID_MAX_DESCRIPTOR_SIZE) {
+> >  		dbg_hid("weird size of report descriptor (%u)\n", rsize);
+> > --
+> > 1.9.1
+> > 
+> 
+> Cheers,
+> Benjamin
+> 

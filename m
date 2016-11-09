@@ -1,571 +1,103 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 07/18] Input: synaptics-rmi4 - add SMBus support
-Date: Tue, 8 Nov 2016 17:08:41 -0800
-Message-ID: <20161109010841.GL8719@dtor-ws>
-References: <1476373872-18027-1-git-send-email-benjamin.tissoires@redhat.com>
- <1476373872-18027-8-git-send-email-benjamin.tissoires@redhat.com>
+From: Hn Chen <hn.chen@weidahitech.com>
+Subject: RE: [PATCH] HID:i2c-hid: add a simple quirk to fix device defects
+Date: Wed, 9 Nov 2016 03:32:04 +0000
+Message-ID: <22498D53301C4D4A8FFA8F02C7C3C7C06DDE7593@mail02.WHT.local>
+References: <1478594599-25044-1-git-send-email-hn.chen@weidahitech.com>
+ <20161108093803.GD6689@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1476373872-18027-8-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Lyude Paul <thatslyude@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Dennis Wassenberg <dennis.wassenberg@secunet.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ml01.weidahitech.com ([61.222.87.235]:2092 "EHLO
+        ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751862AbcKIDcc (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2016 22:32:32 -0500
+In-Reply-To: <20161108093803.GD6689@mail.corp.redhat.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: "jkosina@suse.cz" <jkosina@suse.cz>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, Oct 13, 2016 at 05:51:01PM +0200, Benjamin Tissoires wrote:
-> Code obtained from https://raw.githubusercontent.com/mightybigcar/synaptics-rmi4/jf/drivers/input/rmi4/rmi_smbus.c
-> and updated to match upstream. And fixed to make it work.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-
-Applied, thank you.
-
-> 
-> ---
-> 
-> changes in v3:
-> - use of irq for Host Notify, not alert
-> - forward the irq to rmi_core and let it handling it
-> 
-> no changes in v2
-> 
-> Changes in v1 of this series:
-> - rely on PM functions for resume handling
-> 
-> Changes from the Host Notify series:
-> new in v5
-> 
-> no changes in v6
-> 
-> changes in v7:
-> - fixed typos as per Andrew's requests
-> - changed module author from Allie to Andrew as per Andrew's request
-> - add suspend/resume callbacks to match upstream rmi4 behavior
-> 
-> no changes in v8
-> ---
->  drivers/input/rmi4/Kconfig     |  12 ++
->  drivers/input/rmi4/Makefile    |   1 +
->  drivers/input/rmi4/rmi_bus.h   |  12 ++
->  drivers/input/rmi4/rmi_smbus.c | 448 +++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 473 insertions(+)
->  create mode 100644 drivers/input/rmi4/rmi_smbus.c
-> 
-> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-> index 4c8a558..8cbd362 100644
-> --- a/drivers/input/rmi4/Kconfig
-> +++ b/drivers/input/rmi4/Kconfig
-> @@ -27,6 +27,18 @@ config RMI4_SPI
->  
->  	  If unsure, say N.
->  
-> +config RMI4_SMB
-> +	tristate "RMI4 SMB Support"
-> +	depends on RMI4_CORE && I2C
-> +	help
-> +	  Say Y here if you want to support RMI4 devices connected to an SMB
-> +	  bus.
-> +
-> +	  If unsure, say N.
-> +
-> +	  To compile this driver as a module, choose M here: the module will be
-> +	  called rmi_smbus.
-> +
->  config RMI4_2D_SENSOR
->  	bool
->  	depends on RMI4_CORE
-> diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-> index 0bafc85..a6e2752 100644
-> --- a/drivers/input/rmi4/Makefile
-> +++ b/drivers/input/rmi4/Makefile
-> @@ -12,3 +12,4 @@ rmi_core-$(CONFIG_RMI4_F54) += rmi_f54.o
->  # Transports
->  obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
->  obj-$(CONFIG_RMI4_SPI) += rmi_spi.o
-> +obj-$(CONFIG_RMI4_SMB) += rmi_smbus.o
-> diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
-> index 8995798..b7625a9 100644
-> --- a/drivers/input/rmi4/rmi_bus.h
-> +++ b/drivers/input/rmi4/rmi_bus.h
-> @@ -105,6 +105,18 @@ rmi_get_platform_data(struct rmi_device *d)
->  bool rmi_is_physical_device(struct device *dev);
->  
->  /**
-> + * rmi_reset - reset a RMI4 device
-> + * @d: Pointer to an RMI device
-> + *
-> + * Calls for a reset of each function implemented by a specific device.
-> + * Returns 0 on success or a negative error code.
-> + */
-> +static inline int rmi_reset(struct rmi_device *d)
-> +{
-> +	return d->driver->reset_handler(d);
-> +}
-> +
-> +/**
->   * rmi_read - read a single byte
->   * @d: Pointer to an RMI device
->   * @addr: The address to read from
-> diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-> new file mode 100644
-> index 0000000..96ad325
-> --- /dev/null
-> +++ b/drivers/input/rmi4/rmi_smbus.c
-> @@ -0,0 +1,448 @@
-> +/*
-> + * Copyright (c) 2015 - 2016 Red Hat, Inc
-> + * Copyright (c) 2011, 2012 Synaptics Incorporated
-> + * Copyright (c) 2011 Unixphere
-> + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License version 2 as published by
-> + * the Free Software Foundation.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/delay.h>
-> +#include <linux/i2c.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/kconfig.h>
-> +#include <linux/lockdep.h>
-> +#include <linux/module.h>
-> +#include <linux/pm.h>
-> +#include <linux/rmi.h>
-> +#include <linux/slab.h>
-> +#include "rmi_driver.h"
-> +
-> +#define SMB_PROTOCOL_VERSION_ADDRESS	0xfd
-> +#define SMB_MAX_COUNT			32
-> +#define RMI_SMB2_MAP_SIZE		8 /* 8 entry of 4 bytes each */
-> +#define RMI_SMB2_MAP_FLAGS_WE		0x01
-> +
-> +struct mapping_table_entry {
-> +	__le16 rmiaddr;
-> +	u8 readcount;
-> +	u8 flags;
-> +};
-> +
-> +struct rmi_smb_xport {
-> +	struct rmi_transport_dev xport;
-> +	struct i2c_client *client;
-> +
-> +	struct mutex page_mutex;
-> +	int page;
-> +	u8 table_index;
-> +	struct mutex mappingtable_mutex;
-> +	struct mapping_table_entry mapping_table[RMI_SMB2_MAP_SIZE];
-> +};
-> +
-> +static int rmi_smb_get_version(struct rmi_smb_xport *rmi_smb)
-> +{
-> +	struct i2c_client *client = rmi_smb->client;
-> +	int retval;
-> +
-> +	/* Check if for SMBus new version device by reading version byte. */
-> +	retval = i2c_smbus_read_byte_data(client, SMB_PROTOCOL_VERSION_ADDRESS);
-> +	if (retval < 0) {
-> +		dev_err(&client->dev, "failed to get SMBus version number!\n");
-> +		return retval;
-> +	}
-> +	return retval + 1;
-> +}
-> +
-> +/* SMB block write - wrapper over ic2_smb_write_block */
-> +static int smb_block_write(struct rmi_transport_dev *xport,
-> +			      u8 commandcode, const void *buf, size_t len)
-> +{
-> +	struct rmi_smb_xport *rmi_smb =
-> +		container_of(xport, struct rmi_smb_xport, xport);
-> +	struct i2c_client *client = rmi_smb->client;
-> +	int retval;
-> +
-> +	retval = i2c_smbus_write_block_data(client, commandcode, len, buf);
-> +
-> +	rmi_dbg(RMI_DEBUG_XPORT, &client->dev,
-> +		"wrote %zd bytes at %#04x: %d (%*ph)\n",
-> +		len, commandcode, retval, (int)len, buf);
-> +
-> +	return retval;
-> +}
-> +
-> +/*
-> + * The function to get command code for smbus operations and keeps
-> + * records to the driver mapping table
-> + */
-> +static int rmi_smb_get_command_code(struct rmi_transport_dev *xport,
-> +		u16 rmiaddr, int bytecount, bool isread, u8 *commandcode)
-> +{
-> +	struct rmi_smb_xport *rmi_smb =
-> +		container_of(xport, struct rmi_smb_xport, xport);
-> +	int i;
-> +	int retval;
-> +	struct mapping_table_entry mapping_data[1];
-> +
-> +	mutex_lock(&rmi_smb->mappingtable_mutex);
-> +	for (i = 0; i < RMI_SMB2_MAP_SIZE; i++) {
-> +		if (rmi_smb->mapping_table[i].rmiaddr == rmiaddr) {
-> +			if (isread) {
-> +				if (rmi_smb->mapping_table[i].readcount
-> +							== bytecount) {
-> +					*commandcode = i;
-> +					retval = 0;
-> +					goto exit;
-> +				}
-> +			} else {
-> +				if (rmi_smb->mapping_table[i].flags &
-> +							RMI_SMB2_MAP_FLAGS_WE) {
-> +					*commandcode = i;
-> +					retval = 0;
-> +					goto exit;
-> +				}
-> +			}
-> +		}
-> +	}
-> +	i = rmi_smb->table_index;
-> +	rmi_smb->table_index = (i + 1) % RMI_SMB2_MAP_SIZE;
-> +
-> +	/* constructs mapping table data entry. 4 bytes each entry */
-> +	memset(mapping_data, 0, sizeof(mapping_data));
-> +
-> +	mapping_data[0].rmiaddr = cpu_to_le16(rmiaddr);
-> +	mapping_data[0].readcount = bytecount;
-> +	mapping_data[0].flags = !isread ? RMI_SMB2_MAP_FLAGS_WE : 0;
-> +
-> +	retval = smb_block_write(xport, i + 0x80, mapping_data,
-> +				 sizeof(mapping_data));
-> +
-> +	if (retval < 0) {
-> +		/*
-> +		 * if not written to device mapping table
-> +		 * clear the driver mapping table records
-> +		 */
-> +		rmi_smb->mapping_table[i].rmiaddr = 0x0000;
-> +		rmi_smb->mapping_table[i].readcount = 0;
-> +		rmi_smb->mapping_table[i].flags = 0;
-> +		goto exit;
-> +	}
-> +	/* save to the driver level mapping table */
-> +	rmi_smb->mapping_table[i].rmiaddr = rmiaddr;
-> +	rmi_smb->mapping_table[i].readcount = bytecount;
-> +	rmi_smb->mapping_table[i].flags = !isread ? RMI_SMB2_MAP_FLAGS_WE : 0;
-> +	*commandcode = i;
-> +
-> +exit:
-> +	mutex_unlock(&rmi_smb->mappingtable_mutex);
-> +
-> +	return retval;
-> +}
-> +
-> +static int rmi_smb_write_block(struct rmi_transport_dev *xport, u16 rmiaddr,
-> +				const void *databuff, size_t len)
-> +{
-> +	int retval = 0;
-> +	u8 commandcode;
-> +	struct rmi_smb_xport *rmi_smb =
-> +		container_of(xport, struct rmi_smb_xport, xport);
-> +	int cur_len = (int)len;
-> +
-> +	mutex_lock(&rmi_smb->page_mutex);
-> +
-> +	while (cur_len > 0) {
-> +		/*
-> +		 * break into 32 bytes chunks to write get command code
-> +		 */
-> +		int block_len = min_t(int, len, SMB_MAX_COUNT);
-> +
-> +		retval = rmi_smb_get_command_code(xport, rmiaddr, block_len,
-> +						  false, &commandcode);
-> +		if (retval < 0)
-> +			goto exit;
-> +
-> +		retval = smb_block_write(xport, commandcode,
-> +					 databuff, block_len);
-> +		if (retval < 0)
-> +			goto exit;
-> +
-> +		/* prepare to write next block of bytes */
-> +		cur_len -= SMB_MAX_COUNT;
-> +		databuff += SMB_MAX_COUNT;
-> +		rmiaddr += SMB_MAX_COUNT;
-> +	}
-> +exit:
-> +	mutex_unlock(&rmi_smb->page_mutex);
-> +	return retval;
-> +}
-> +
-> +/* SMB block read - wrapper over ic2_smb_read_block */
-> +static int smb_block_read(struct rmi_transport_dev *xport,
-> +			     u8 commandcode, void *buf, size_t len)
-> +{
-> +	struct rmi_smb_xport *rmi_smb =
-> +		container_of(xport, struct rmi_smb_xport, xport);
-> +	struct i2c_client *client = rmi_smb->client;
-> +	int retval;
-> +
-> +	retval = i2c_smbus_read_block_data(client, commandcode, buf);
-> +	if (retval < 0)
-> +		return retval;
-> +
-> +	return retval;
-> +}
-> +
-> +static int rmi_smb_read_block(struct rmi_transport_dev *xport, u16 rmiaddr,
-> +			      void *databuff, size_t len)
-> +{
-> +	struct rmi_smb_xport *rmi_smb =
-> +		container_of(xport, struct rmi_smb_xport, xport);
-> +	int retval;
-> +	u8 commandcode;
-> +	int cur_len = (int)len;
-> +
-> +	mutex_lock(&rmi_smb->page_mutex);
-> +	memset(databuff, 0, len);
-> +
-> +	while (cur_len > 0) {
-> +		/* break into 32 bytes chunks to write get command code */
-> +		int block_len =  min_t(int, cur_len, SMB_MAX_COUNT);
-> +
-> +		retval = rmi_smb_get_command_code(xport, rmiaddr, block_len,
-> +						  true, &commandcode);
-> +		if (retval < 0)
-> +			goto exit;
-> +
-> +		retval = smb_block_read(xport, commandcode,
-> +					databuff, block_len);
-> +		if (retval < 0)
-> +			goto exit;
-> +
-> +		/* prepare to read next block of bytes */
-> +		cur_len -= SMB_MAX_COUNT;
-> +		databuff += SMB_MAX_COUNT;
-> +		rmiaddr += SMB_MAX_COUNT;
-> +	}
-> +
-> +	retval = 0;
-> +
-> +exit:
-> +	mutex_unlock(&rmi_smb->page_mutex);
-> +	return retval;
-> +}
-> +
-> +static void rmi_smb_clear_state(struct rmi_smb_xport *rmi_smb)
-> +{
-> +	/* the mapping table has been flushed, discard the current one */
-> +	mutex_lock(&rmi_smb->mappingtable_mutex);
-> +	memset(rmi_smb->mapping_table, 0, sizeof(rmi_smb->mapping_table));
-> +	mutex_unlock(&rmi_smb->mappingtable_mutex);
-> +}
-> +
-> +static int rmi_smb_enable_smbus_mode(struct rmi_smb_xport *rmi_smb)
-> +{
-> +	int retval;
-> +
-> +	/* we need to get the smbus version to activate the touchpad */
-> +	retval = rmi_smb_get_version(rmi_smb);
-> +	if (retval < 0)
-> +		return retval;
-> +
-> +	return 0;
-> +}
-> +
-> +static int rmi_smb_reset(struct rmi_transport_dev *xport, u16 reset_addr)
-> +{
-> +	struct rmi_smb_xport *rmi_smb =
-> +		container_of(xport, struct rmi_smb_xport, xport);
-> +
-> +	rmi_smb_clear_state(rmi_smb);
-> +
-> +	/*
-> +	 * we do not call the actual reset command, it has to be handled in
-> +	 * PS/2 or there will be races between PS/2 and SMBus.
-> +	 * PS/2 should ensure that a psmouse_reset is called before
-> +	 * intializing the device and after it has been removed to be in a known
-> +	 * state.
-> +	 */
-> +	return rmi_smb_enable_smbus_mode(rmi_smb);
-> +}
-> +
-> +static const struct rmi_transport_ops rmi_smb_ops = {
-> +	.write_block	= rmi_smb_write_block,
-> +	.read_block	= rmi_smb_read_block,
-> +	.reset		= rmi_smb_reset,
-> +};
-> +
-> +static int rmi_smb_probe(struct i2c_client *client,
-> +			 const struct i2c_device_id *id)
-> +{
-> +	struct rmi_device_platform_data *pdata = dev_get_platdata(&client->dev);
-> +	struct rmi_smb_xport *rmi_smb;
-> +	int retval;
-> +	int smbus_version;
-> +
-> +	if (!i2c_check_functionality(client->adapter,
-> +				     I2C_FUNC_SMBUS_READ_BLOCK_DATA |
-> +				     I2C_FUNC_SMBUS_HOST_NOTIFY)) {
-> +		dev_err(&client->dev,
-> +			"adapter does not support required functionality.\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	if (client->irq <= 0) {
-> +		dev_err(&client->dev, "no IRQ provided, giving up.\n");
-> +		return client->irq ? client->irq : -ENODEV;
-> +	}
-> +
-> +	rmi_smb = devm_kzalloc(&client->dev, sizeof(struct rmi_smb_xport),
-> +				GFP_KERNEL);
-> +	if (!rmi_smb)
-> +		return -ENOMEM;
-> +
-> +	if (!pdata) {
-> +		dev_err(&client->dev, "no platform data, aborting\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Probing %s.\n",
-> +		dev_name(&client->dev));
-> +
-> +	rmi_smb->client = client;
-> +	mutex_init(&rmi_smb->page_mutex);
-> +	mutex_init(&rmi_smb->mappingtable_mutex);
-> +
-> +	rmi_smb->xport.dev = &client->dev;
-> +	rmi_smb->xport.pdata = *pdata;
-> +	rmi_smb->xport.pdata.irq = client->irq;
-> +	rmi_smb->xport.proto_name = "smb2";
-> +	rmi_smb->xport.ops = &rmi_smb_ops;
-> +
-> +	retval = rmi_smb_get_version(rmi_smb);
-> +	if (retval < 0)
-> +		return retval;
-> +
-> +	smbus_version = retval;
-> +	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Smbus version is %d",
-> +		smbus_version);
-> +
-> +	if (smbus_version != 2) {
-> +		dev_err(&client->dev, "Unrecognized SMB version %d.\n",
-> +				smbus_version);
-> +		return -ENODEV;
-> +	}
-> +
-> +	i2c_set_clientdata(client, rmi_smb);
-> +
-> +	retval = rmi_register_transport_device(&rmi_smb->xport);
-> +	if (retval) {
-> +		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
-> +			client->addr);
-> +		i2c_set_clientdata(client, NULL);
-> +		return retval;
-> +	}
-> +
-> +	dev_info(&client->dev, "registered rmi smb driver at %#04x.\n",
-> +			client->addr);
-> +	return 0;
-> +
-> +}
-> +
-> +static int rmi_smb_remove(struct i2c_client *client)
-> +{
-> +	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
-> +
-> +	rmi_unregister_transport_device(&rmi_smb->xport);
-> +
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused rmi_smb_suspend(struct device *dev)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
-> +	int ret;
-> +
-> +	ret = rmi_driver_suspend(rmi_smb->xport.rmi_dev, true);
-> +	if (ret)
-> +		dev_warn(dev, "Failed to suspend device: %d\n", ret);
-> +
-> +	return ret;
-> +}
-> +
-> +static int __maybe_unused rmi_smb_runtime_suspend(struct device *dev)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
-> +	int ret;
-> +
-> +	ret = rmi_driver_suspend(rmi_smb->xport.rmi_dev, false);
-> +	if (ret)
-> +		dev_warn(dev, "Failed to suspend device: %d\n", ret);
-> +
-> +	return ret;
-> +}
-> +
-> +static int __maybe_unused rmi_smb_resume(struct device *dev)
-> +{
-> +	struct i2c_client *client = container_of(dev, struct i2c_client, dev);
-> +	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
-> +	struct rmi_device *rmi_dev = rmi_smb->xport.rmi_dev;
-> +	int ret;
-> +
-> +	rmi_smb_reset(&rmi_smb->xport, 0);
-> +
-> +	rmi_reset(rmi_dev);
-> +
-> +	ret = rmi_driver_resume(rmi_smb->xport.rmi_dev, true);
-> +	if (ret)
-> +		dev_warn(dev, "Failed to resume device: %d\n", ret);
-> +
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused rmi_smb_runtime_resume(struct device *dev)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
-> +	int ret;
-> +
-> +	ret = rmi_driver_resume(rmi_smb->xport.rmi_dev, false);
-> +	if (ret)
-> +		dev_warn(dev, "Failed to resume device: %d\n", ret);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct dev_pm_ops rmi_smb_pm = {
-> +	SET_SYSTEM_SLEEP_PM_OPS(rmi_smb_suspend, rmi_smb_resume)
-> +	SET_RUNTIME_PM_OPS(rmi_smb_runtime_suspend, rmi_smb_runtime_resume,
-> +			   NULL)
-> +};
-> +
-> +static const struct i2c_device_id rmi_id[] = {
-> +	{ "rmi4_smbus", 0 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, rmi_id);
-> +
-> +static struct i2c_driver rmi_smb_driver = {
-> +	.driver = {
-> +		.owner	= THIS_MODULE,
-> +		.name	= "rmi4_smbus",
-> +		.pm	= &rmi_smb_pm,
-> +	},
-> +	.id_table	= rmi_id,
-> +	.probe		= rmi_smb_probe,
-> +	.remove		= rmi_smb_remove,
-> +};
-> +
-> +module_i2c_driver(rmi_smb_driver);
-> +
-> +MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com>");
-> +MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@redhat.com>");
-> +MODULE_DESCRIPTION("RMI4 SMBus driver");
-> +MODULE_LICENSE("GPL");
-> -- 
-> 2.7.4
-> 
-
--- 
-Dmitry
+SGkgQmVuamFtaW4sDQoNCk9rLCBJIHdpbGwgYWRkIGEgc3RhdGljIHF1aXJrIHRhYmxlIGFuZCBs
+b29rdXAgZm9yIHRoZSBxdWlya3MgaW4gaTJjX2hpZF9wcm9iZSgpLg0KDQpBYm91dCB0aGUgcmV0
+dXJuIHZhbHVlIGFmdGVyIHNlbmQgdGhlIFBXUl9PTiBjb21tYW5kLCBpdCBzaG91bGQgYmUgZmFp
+bGVkIGluIHdlaWRhJ3MgY2FzZS4NClRoZSBvc2NpbGxhdG9yIG9mIHRoZSBjb250cm9sbGVyIHdp
+bGwgYmUgZ2F0ZWQgaW4gdGhlIGRlZXAgc2xlZXAgbW9kZSBhbmQgDQp0aGUgY29udHJvbGxlciB3
+aWxsIGJlIGFjdGl2ZSBhZnRlciB0aGUgZmlyc3QgY29tbWFuZCBidXQgdGhlcmUgaXMgbm8gYW55
+IGZlZWRiYWNrLg0KU28gc2hvdWxkIEkgY2hlY2sgdGhlIGZhaWxlZCByZXR1cm4gdmFsdWUgaGVy
+ZSA/IE9yIEkgc2hvdWxkIGNoZWNrIGlmIGl0IGlzIG9rIGFuZCB0aGVuIGp1c3QgcmV0dXJuID8N
+Cg0KSG4uY2hlbg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogQmVuamFtaW4g
+VGlzc29pcmVzIFttYWlsdG86YmVuamFtaW4udGlzc29pcmVzQHJlZGhhdC5jb21dIA0KU2VudDog
+VHVlc2RheSwgTm92ZW1iZXIgMDgsIDIwMTYgNTozOCBQTQ0KVG86IEhuIENoZW4NCkNjOiBqa29z
+aW5hQHN1c2UuY3o7IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb207IGxpbnV4LWlucHV0QHZnZXIu
+a2VybmVsLm9yZw0KU3ViamVjdDogUmU6IFtQQVRDSF0gSElEOmkyYy1oaWQ6IGFkZCBhIHNpbXBs
+ZSBxdWlyayB0byBmaXggZGV2aWNlIGRlZmVjdHMNCg0KT24gTm92IDA4IDIwMTYgb3IgdGhlcmVh
+Ym91dHMsIGhuLmNoZW5Ad2VpZGFoaXRlY2guY29tIHdyb3RlOg0KPiBGcm9tOiBIdW5nTmllbiBD
+aGVuIDxobi5jaGVuQHdlaWRhaGl0ZWNoLmNvbT4NCj4gDQo+IFdlaWRhJ3MgZGV2aWNlIGNhbiBn
+ZXQgYSBxdWlyayB2YWx1ZSBieSB0aGUgcXVpcmsgZnVuY3Rpb24uDQo+IEJhc2Ugb24gdGhlIHF1
+aXJrIHZhbHVlLCBzZXRfcG93ZXIgZnVuY3Rpb24gd2lsbCBzZW5kIGEgY29tbWFuZCB0byANCj4g
+d2FrZSB1cCB0aGUgZGV2aWNlIGJlZm9yZSBzZW5kIHRoZSBQV1JfT04gY29tbWFuZC4NCj4gDQo+
+IFNpZ25lZC1vZmYtYnk6IEh1bmdOaWVuIENoZW4gPGhuLmNoZW5Ad2VpZGFoaXRlY2guY29tPg0K
+PiAtLS0NCj4gIGRyaXZlcnMvaGlkL2hpZC1pZHMuaCAgICAgICAgIHwgIDUgKysrKysNCj4gIGRy
+aXZlcnMvaGlkL2kyYy1oaWQvaTJjLWhpZC5jIHwgMzIgKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysNCj4gIDIgZmlsZXMgY2hhbmdlZCwgMzcgaW5zZXJ0aW9ucygrKQ0KPiANCj4gZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1pZHMuaCBiL2RyaXZlcnMvaGlkL2hpZC1pZHMuaCBp
+bmRleCANCj4gNmNmYjVjYS4uNzg3YWZkZiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9oaWQvaGlk
+LWlkcy5oDQo+ICsrKyBiL2RyaXZlcnMvaGlkL2hpZC1pZHMuaA0KPiBAQCAtMTAzMyw2ICsxMDMz
+LDExIEBADQo+ICAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfV0FMVE9QX01FRElBX1RBQkxFVF8xNF8x
+X0lOQ0gJMHgwNTAwDQo+ICAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfV0FMVE9QX1NJUklVU19CQVRU
+RVJZX0ZSRUVfVEFCTEVUCTB4MDUwMg0KPiAgDQo+ICsjZGVmaW5lCVVTQl9WRU5ET1JfSURfV0VJ
+REEJCTB4MjU3NQ0KPiArI2RlZmluZQlVU0JfREVWSUNFX0lEX1dFSURBXzg3NTYJMHg4NzU2DQo+
+ICsjZGVmaW5lCVVTQl9ERVZJQ0VfSURfV0VJREFfODc1MgkweEMzMDANCj4gKyNkZWZpbmUJVVNC
+X0RFVklDRV9JRF9XRUlEQV84NzU1CTB4QzMwMQ0KPiArDQo+ICAjZGVmaW5lIFVTQl9WRU5ET1Jf
+SURfV0lTRUdST1VQCQkweDA5MjUNCj4gICNkZWZpbmUgVVNCX0RFVklDRV9JRF9TTUFSVEpPWV9Q
+TFVTCTB4MDAwNQ0KPiAgI2RlZmluZSBVU0JfREVWSUNFX0lEX1NVUEVSX0pPWV9CT1hfMwkweDg4
+ODgNCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2kyYy1oaWQvaTJjLWhpZC5jIA0KPiBiL2Ry
+aXZlcnMvaGlkL2kyYy1oaWQvaTJjLWhpZC5jIGluZGV4IGIzZWM0ZjIuLjdhOWIxMDAgMTAwNjQ0
+DQo+IC0tLSBhL2RyaXZlcnMvaGlkL2kyYy1oaWQvaTJjLWhpZC5jDQo+ICsrKyBiL2RyaXZlcnMv
+aGlkL2kyYy1oaWQvaTJjLWhpZC5jDQo+IEBAIC00MSw2ICs0MSwxMSBAQA0KPiAgDQo+ICAjaW5j
+bHVkZSA8bGludXgvaTJjL2kyYy1oaWQuaD4NCj4gIA0KPiArI2luY2x1ZGUgIi4uL2hpZC1pZHMu
+aCINCj4gKw0KPiArLyogcXVpcmtzIHRvIGNvbnRyb2wgdGhlIGRldmljZSAqLw0KPiArI2RlZmlu
+ZSBJMkNfSElEX1FVSVJLX1NFVF9QV1JfV0FLRVVQX0RFVgkoMSA8PCAwKQ0KPiArDQo+ICAvKiBm
+bGFncyAqLw0KPiAgI2RlZmluZSBJMkNfSElEX1NUQVJURUQJCTANCj4gICNkZWZpbmUgSTJDX0hJ
+RF9SRVNFVF9QRU5ESU5HCTENCj4gQEAgLTE0Myw2ICsxNDgsNyBAQCBzdHJ1Y3QgaTJjX2hpZCB7
+DQo+ICAJY2hhcgkJCSphcmdzYnVmOwkvKiBDb21tYW5kIGFyZ3VtZW50cyBidWZmZXIgKi8NCj4g
+IA0KPiAgCXVuc2lnbmVkIGxvbmcJCWZsYWdzOwkJLyogZGV2aWNlIGZsYWdzICovDQo+ICsJdW5z
+aWduZWQgbG9uZwkJcXVpcmtzOwkJLyogVmFyaW91cyBxdWlya3MgKi8NCj4gIA0KPiAgCXdhaXRf
+cXVldWVfaGVhZF90CXdhaXQ7CQkvKiBGb3Igd2FpdGluZyB0aGUgaW50ZXJydXB0ICovDQo+ICAJ
+c3RydWN0IGdwaW9fZGVzYwkqZGVzYzsNCj4gQEAgLTE1NCw2ICsxNjAsMjUgQEAgc3RydWN0IGky
+Y19oaWQgew0KPiAgCXN0cnVjdCBtdXRleAkJcmVzZXRfbG9jazsNCj4gIH07DQo+ICANCj4gKy8q
+DQo+ICsgKiBpMmNfaGlkX2xvb2t1cF9xdWlyazogcmV0dXJuIGFueSBxdWlya3MgYXNzb2NpYXRl
+ZCB3aXRoIGEgSTJDIEhJRCANCj4gK2RldmljZQ0KPiArICogQGlkVmVuZG9yOiB0aGUgMTYtYml0
+IHZlbmRvciBJRA0KPiArICogQGlkUHJvZHVjdDogdGhlIDE2LWJpdCBwcm9kdWN0IElEDQo+ICsg
+Kg0KPiArICogUmV0dXJuczogYSB1MzIgcXVpcmtzIHZhbHVlLg0KPiArICovDQo+ICtzdGF0aWMg
+dTMyIGkyY19oaWRfbG9va3VwX3F1aXJrKGNvbnN0IHUxNiBpZFZlbmRvciwgY29uc3QgdTE2IA0K
+PiAraWRQcm9kdWN0KSB7DQo+ICsJdTMyIHF1aXJrcyA9IDA7DQo+ICsNCj4gKwkvKiBXZWlkYSBk
+ZXZpY2VzIGNoZWNrIGhlcmUgKi8NCj4gKwlpZiAoaWRWZW5kb3IgPT0gVVNCX1ZFTkRPUl9JRF9X
+RUlEQSAmJg0KPiArCSAgICBpZFByb2R1Y3QgPj0gVVNCX0RFVklDRV9JRF9XRUlEQV84NzUyKQ0K
+DQpXb3VsZG4ndCBpdCBtYWtlIG1vcmUgc2Vuc2UgdG8gaGF2ZSBhIHN0YXRpYyB0YWJsZSBvZiB0
+aGUgYWZmZWN0ZWQgcHJvZHVjdHMsIGluc3RlYWQgb2YgdGhpcyB0ZXN0Pw0KDQo+ICsJCXJldHVy
+biBJMkNfSElEX1FVSVJLX1NFVF9QV1JfV0FLRVVQX0RFVjsNCj4gKw0KPiArCXJldHVybiBxdWly
+a3M7DQo+ICt9DQo+ICsNCj4gIHN0YXRpYyBpbnQgX19pMmNfaGlkX2NvbW1hbmQoc3RydWN0IGky
+Y19jbGllbnQgKmNsaWVudCwNCj4gIAkJY29uc3Qgc3RydWN0IGkyY19oaWRfY21kICpjb21tYW5k
+LCB1OCByZXBvcnRJRCwNCj4gIAkJdTggcmVwb3J0VHlwZSwgdTggKmFyZ3MsIGludCBhcmdzX2xl
+biwgQEAgLTM0Niw2ICszNzEsMTEgQEAgc3RhdGljIA0KPiBpbnQgaTJjX2hpZF9zZXRfcG93ZXIo
+c3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwgaW50IHBvd2VyX3N0YXRlKQ0KPiAgDQo+ICAJaTJj
+X2hpZF9kYmcoaWhpZCwgIiVzXG4iLCBfX2Z1bmNfXyk7DQo+ICANCj4gKwkvKiBTb21lIGRldmlj
+ZXMgcmVxdWlyZSB0byBzZW5kIGEgY29tbWFuZCB0byB3YWtldXAgZmlyc3QgKi8NCj4gKwlpZiAo
+cG93ZXJfc3RhdGUgPT0gSTJDX0hJRF9QV1JfT04gJiYNCj4gKwkgICAgaWhpZC0+cXVpcmtzICYg
+STJDX0hJRF9RVUlSS19TRVRfUFdSX1dBS0VVUF9ERVYpDQo+ICsJCWkyY19oaWRfY29tbWFuZChj
+bGllbnQsICZoaWRfc2V0X3Bvd2VyX2NtZCwgTlVMTCwgMCk7DQoNCklzbid0IHRoZXJlIGEgbmVl
+ZCB0byBjaGVjayB0aGUgcmV0dXJuIHZhbHVlIGhlcmU/DQoNCj4gKw0KPiAgCXJldCA9IF9faTJj
+X2hpZF9jb21tYW5kKGNsaWVudCwgJmhpZF9zZXRfcG93ZXJfY21kLCBwb3dlcl9zdGF0ZSwNCj4g
+IAkJMCwgTlVMTCwgMCwgTlVMTCwgMCk7DQo+ICAJaWYgKHJldCkNCj4gQEAgLTY2MSw2ICs2OTEs
+OCBAQCBzdGF0aWMgaW50IGkyY19oaWRfcGFyc2Uoc3RydWN0IGhpZF9kZXZpY2UgKmhpZCkNCj4g
+IA0KPiAgCWkyY19oaWRfZGJnKGloaWQsICJlbnRlcmluZyAlc1xuIiwgX19mdW5jX18pOw0KPiAg
+DQo+ICsJaWhpZC0+cXVpcmtzID0gaTJjX2hpZF9sb29rdXBfcXVpcmsoaGlkLT52ZW5kb3IsIGhp
+ZC0+cHJvZHVjdCk7DQoNClBsZWFzZSBsb29rdXAgZm9yIHRoZSBxdWlya3MgaW4gaTJjX2hpZF9w
+cm9iZSgpLCByaWdodCBhZnRlciB3ZSBzZXQgdmVyc2lvbiwgdmVuZG9yIGFuZCBwcm9kdWN0DQoN
+Cj4gKw0KPiAgCXJzaXplID0gbGUxNl90b19jcHUoaGRlc2MtPndSZXBvcnREZXNjTGVuZ3RoKTsN
+Cj4gIAlpZiAoIXJzaXplIHx8IHJzaXplID4gSElEX01BWF9ERVNDUklQVE9SX1NJWkUpIHsNCj4g
+IAkJZGJnX2hpZCgid2VpcmQgc2l6ZSBvZiByZXBvcnQgZGVzY3JpcHRvciAoJXUpXG4iLCByc2l6
+ZSk7DQo+IC0tDQo+IDEuOS4xDQo+IA0KDQpDaGVlcnMsDQpCZW5qYW1pbg0KDQo=

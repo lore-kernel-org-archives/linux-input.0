@@ -1,112 +1,71 @@
-From: Hn Chen <hn.chen@weidahitech.com>
-Subject: RE: [PATCH v2] HID:i2c-hid: add a simple quirk to fix device defects
-Date: Wed, 9 Nov 2016 11:18:33 +0000
-Message-ID: <22498D53301C4D4A8FFA8F02C7C3C7C06DDE75EF@mail02.WHT.local>
-References: <1478686848-22968-1-git-send-email-hn.chen@weidahitech.com>
- <20161109103319.GE10327@mail.corp.redhat.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v4 1/3] Input: ALPS - Fix TrackStick support for SS5
+ hardware
+Date: Wed, 9 Nov 2016 13:12:31 +0100
+Message-ID: <20161109121231.GB19557@pali>
+References: <20161024210122.GA2919@TopQuark.net>
+ <20161108151430.GN2927@TopQuark.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ml01.weidahitech.com ([61.222.87.235]:1996 "EHLO
-        ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933205AbcKILSy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Nov 2016 06:18:54 -0500
-In-Reply-To: <20161109103319.GE10327@mail.corp.redhat.com>
-Content-Language: en-US
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:35989 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751638AbcKIMMf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Nov 2016 07:12:35 -0500
+Received: by mail-wm0-f67.google.com with SMTP id c17so28752202wmc.3
+        for <linux-input@vger.kernel.org>; Wed, 09 Nov 2016 04:12:34 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20161108151430.GN2927@TopQuark.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: "jkosina@suse.cz" <jkosina@suse.cz>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Paul Donohue <linux-kernel@PaulSD.com>
+Cc: linux-input@vger.kernel.org, Ben Gamari <ben@smart-cactus.org>, Michal Hocko <mhocko@suse.com>
 
-SGkgQmVuamFtaW4sDQoNClRoYW5rcyBmb3IgdGhlIGFkdmljZSAhDQpXaWxsIHJlc3VibWl0IHNv
-b24gYWZ0ZXIgbWFrZSB0aGUgY2hhbmdlcyBhbmQgaGF2ZSBhIHRlc3QuDQoNCkhuLmNoZW4uDQoN
-Ci0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBCZW5qYW1pbiBUaXNzb2lyZXMgW21h
-aWx0bzpiZW5qYW1pbi50aXNzb2lyZXNAcmVkaGF0LmNvbV0gDQpTZW50OiBXZWRuZXNkYXksIE5v
-dmVtYmVyIDA5LCAyMDE2IDY6MzMgUE0NClRvOiBIbiBDaGVuDQpDYzogamtvc2luYUBzdXNlLmN6
-OyBkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcN
-ClN1YmplY3Q6IFJlOiBbUEFUQ0ggdjJdIEhJRDppMmMtaGlkOiBhZGQgYSBzaW1wbGUgcXVpcmsg
-dG8gZml4IGRldmljZSBkZWZlY3RzDQoNCk9uIE5vdiAwOSAyMDE2IG9yIHRoZXJlYWJvdXRzLCBo
-bi5jaGVuQHdlaWRhaGl0ZWNoLmNvbSB3cm90ZToNCj4gRnJvbTogSHVuZ05pZW4gQ2hlbiA8aG4u
-Y2hlbkB3ZWlkYWhpdGVjaC5jb20+DQo+IA0KPiBBZGQgYSBzdGF0aWMgcXVpcmsgdGFibGUgYW5k
-IGxvb2t1cCBmb3IgdGhlIHF1aXJrcyBpbiBpMmNfaGlkX3Byb2JlKCkuDQo+IEFsc28gYWRkIGNv
-bW1lbnRzIGFuZCBkbyByZXR1cm4gdmFsdWUgY2hlY2sgaW4gaTJjX2hpZF9zZXRfcG93ZXIoKS4N
-Cj4gDQo+IFNpZ25lZC1vZmYtYnk6IEh1bmdOaWVuIENoZW4gPGhuLmNoZW5Ad2VpZGFoaXRlY2gu
-Y29tPg0KPiAtLS0NCj4gIGRyaXZlcnMvaGlkL2hpZC1pZHMuaCAgICAgICAgIHwgIDUgKysrKw0K
-PiAgZHJpdmVycy9oaWQvaTJjLWhpZC9pMmMtaGlkLmMgfCA1NyANCj4gKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKw0KPiAgMiBmaWxlcyBjaGFuZ2VkLCA2MiBpbnNl
-cnRpb25zKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLWlkcy5oIGIvZHJp
-dmVycy9oaWQvaGlkLWlkcy5oIGluZGV4IA0KPiA2Y2ZiNWNhLi43ODdhZmRmIDEwMDY0NA0KPiAt
-LS0gYS9kcml2ZXJzL2hpZC9oaWQtaWRzLmgNCj4gKysrIGIvZHJpdmVycy9oaWQvaGlkLWlkcy5o
-DQo+IEBAIC0xMDMzLDYgKzEwMzMsMTEgQEANCj4gICNkZWZpbmUgVVNCX0RFVklDRV9JRF9XQUxU
-T1BfTUVESUFfVEFCTEVUXzE0XzFfSU5DSAkweDA1MDANCj4gICNkZWZpbmUgVVNCX0RFVklDRV9J
-RF9XQUxUT1BfU0lSSVVTX0JBVFRFUllfRlJFRV9UQUJMRVQJMHgwNTAyDQo+ICANCj4gKyNkZWZp
-bmUJVVNCX1ZFTkRPUl9JRF9XRUlEQQkJMHgyNTc1DQo+ICsjZGVmaW5lCVVTQl9ERVZJQ0VfSURf
-V0VJREFfODc1NgkweDg3NTYNCj4gKyNkZWZpbmUJVVNCX0RFVklDRV9JRF9XRUlEQV84NzUyCTB4
-QzMwMA0KPiArI2RlZmluZQlVU0JfREVWSUNFX0lEX1dFSURBXzg3NTUJMHhDMzAxDQo+ICsNCj4g
-ICNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9XSVNFR1JPVVAJCTB4MDkyNQ0KPiAgI2RlZmluZSBVU0Jf
-REVWSUNFX0lEX1NNQVJUSk9ZX1BMVVMJMHgwMDA1DQo+ICAjZGVmaW5lIFVTQl9ERVZJQ0VfSURf
-U1VQRVJfSk9ZX0JPWF8zCTB4ODg4OA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaTJjLWhp
-ZC9pMmMtaGlkLmMgDQo+IGIvZHJpdmVycy9oaWQvaTJjLWhpZC9pMmMtaGlkLmMgaW5kZXggYjNl
-YzRmMi4uYjMyYTA2MyAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9oaWQvaTJjLWhpZC9pMmMtaGlk
-LmMNCj4gKysrIGIvZHJpdmVycy9oaWQvaTJjLWhpZC9pMmMtaGlkLmMNCj4gQEAgLTQxLDYgKzQx
-LDExIEBADQo+ICANCj4gICNpbmNsdWRlIDxsaW51eC9pMmMvaTJjLWhpZC5oPg0KPiAgDQo+ICsj
-aW5jbHVkZSAiLi4vaGlkLWlkcy5oIg0KPiArDQo+ICsvKiBxdWlya3MgdG8gY29udHJvbCB0aGUg
-ZGV2aWNlICovDQo+ICsjZGVmaW5lIEkyQ19ISURfUVVJUktfU0VUX1BXUl9XQUtFVVBfREVWCSgx
-IDw8IDApDQoNCllvdSBjYW4gdXNlIEJJVCgwKSBpbnN0ZWFkIG9mICgxIDw8IDApDQoNCj4gKw0K
-PiAgLyogZmxhZ3MgKi8NCj4gICNkZWZpbmUgSTJDX0hJRF9TVEFSVEVECQkwDQo+ICAjZGVmaW5l
-IEkyQ19ISURfUkVTRVRfUEVORElORwkxDQo+IEBAIC0xNDMsNiArMTQ4LDcgQEAgc3RydWN0IGky
-Y19oaWQgew0KPiAgCWNoYXIJCQkqYXJnc2J1ZjsJLyogQ29tbWFuZCBhcmd1bWVudHMgYnVmZmVy
-ICovDQo+ICANCj4gIAl1bnNpZ25lZCBsb25nCQlmbGFnczsJCS8qIGRldmljZSBmbGFncyAqLw0K
-PiArCXVuc2lnbmVkIGxvbmcJCXF1aXJrczsJCS8qIFZhcmlvdXMgcXVpcmtzICovDQo+ICANCj4g
-IAl3YWl0X3F1ZXVlX2hlYWRfdAl3YWl0OwkJLyogRm9yIHdhaXRpbmcgdGhlIGludGVycnVwdCAq
-Lw0KPiAgCXN0cnVjdCBncGlvX2Rlc2MJKmRlc2M7DQo+IEBAIC0xNTQsNiArMTYwLDM5IEBAIHN0
-cnVjdCBpMmNfaGlkIHsNCj4gIAlzdHJ1Y3QgbXV0ZXgJCXJlc2V0X2xvY2s7DQo+ICB9Ow0KPiAg
-DQo+ICtzdGF0aWMgY29uc3Qgc3RydWN0IGkyY19oaWRfYmxhY2tsaXN0IHsNCj4gKwlfX3UxNiBp
-ZFZlbmRvcjsNCj4gKwlfX3UxNiBpZFByb2R1Y3Q7DQo+ICsJX191MzIgcXVpcmtzOw0KPiArfSBp
-MmNfaGlkX2JsYWNrbGlzdFtdID0gew0KDQpJJ2QgcHJlZmVyIG5vdCB1c2luZyAiYmxhY2tsaXN0
-Ii4gaTJjX2hpZF9xdWlya3M/DQoNCj4gKwl7IFVTQl9WRU5ET1JfSURfV0VJREEsIFVTQl9ERVZJ
-Q0VfSURfV0VJREFfODc1MiwNCj4gKwkJSTJDX0hJRF9RVUlSS19TRVRfUFdSX1dBS0VVUF9ERVYg
-fSwNCj4gKwl7IFVTQl9WRU5ET1JfSURfV0VJREEsIFVTQl9ERVZJQ0VfSURfV0VJREFfODc1NSwN
-Cj4gKwkJSTJDX0hJRF9RVUlSS19TRVRfUFdSX1dBS0VVUF9ERVYgfSwNCj4gKwl7IDAsIDAgfQ0K
-PiArfTsNCj4gKw0KPiArLyoNCj4gKyAqIGkyY19oaWRfbG9va3VwX3F1aXJrOiByZXR1cm4gYW55
-IHF1aXJrcyBhc3NvY2lhdGVkIHdpdGggYSBJMkMgSElEIA0KPiArZGV2aWNlDQo+ICsgKiBAaWRW
-ZW5kb3I6IHRoZSAxNi1iaXQgdmVuZG9yIElEDQo+ICsgKiBAaWRQcm9kdWN0OiB0aGUgMTYtYml0
-IHByb2R1Y3QgSUQNCj4gKyAqDQo+ICsgKiBSZXR1cm5zOiBhIHUzMiBxdWlya3MgdmFsdWUuDQo+
-ICsgKi8NCj4gK3N0YXRpYyB1MzIgaTJjX2hpZF9sb29rdXBfcXVpcmsoY29uc3QgdTE2IGlkVmVu
-ZG9yLCBjb25zdCB1MTYgDQo+ICtpZFByb2R1Y3QpIHsNCj4gKwl1MzIgcXVpcmtzID0gMDsNCj4g
-KwlpbnQgbiA9IDA7DQoNCmludCBuOw0KDQo+ICsNCj4gKwlmb3IgKDsgaTJjX2hpZF9ibGFja2xp
-c3Rbbl0uaWRWZW5kb3I7IG4rKykNCg0KZm9yIChuID0gMDsgLi4uKQ0KDQpwbGVhc2UgOikNCg0K
-PiArCQlpZiAoaTJjX2hpZF9ibGFja2xpc3Rbbl0uaWRWZW5kb3IgPT0gaWRWZW5kb3IgJiYNCj4g
-KwkJICAgIChpMmNfaGlkX2JsYWNrbGlzdFtuXS5pZFByb2R1Y3QgPT0gKF9fdTE2KUhJRF9BTllf
-SUQgfHwNCj4gKwkJICAgICBpMmNfaGlkX2JsYWNrbGlzdFtuXS5pZFByb2R1Y3QgPT0gaWRQcm9k
-dWN0KSkNCj4gKwkJCXF1aXJrcyA9IGkyY19oaWRfYmxhY2tsaXN0W25dLnF1aXJrczsNCj4gKw0K
-PiArCXJldHVybiBxdWlya3M7DQo+ICt9DQo+ICsNCj4gIHN0YXRpYyBpbnQgX19pMmNfaGlkX2Nv
-bW1hbmQoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwNCj4gIAkJY29uc3Qgc3RydWN0IGkyY19o
-aWRfY21kICpjb21tYW5kLCB1OCByZXBvcnRJRCwNCj4gIAkJdTggcmVwb3J0VHlwZSwgdTggKmFy
-Z3MsIGludCBhcmdzX2xlbiwgQEAgLTM0NiwxMSArMzg1LDI3IEBAIHN0YXRpYyANCj4gaW50IGky
-Y19oaWRfc2V0X3Bvd2VyKHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQsIGludCBwb3dlcl9zdGF0
-ZSkNCj4gIA0KPiAgCWkyY19oaWRfZGJnKGloaWQsICIlc1xuIiwgX19mdW5jX18pOw0KPiAgDQo+
-ICsJLyoNCj4gKwkgKiBTb21lIGRldmljZXMgcmVxdWlyZSB0byBzZW5kIGEgY29tbWFuZCB0byB3
-YWtldXAgYmVmb3JlIHBvd2VyIG9uLg0KPiArCSAqIFRoZSBjYWxsIHdpbGwgZ2V0IGEgcmV0dXJu
-IHZhbHVlIChFUkVNT1RFSU8pIGJ1dCBkZXZpY2Ugd2lsbCBiZQ0KPiArCSAqIHRyaWdnZXJlZCBh
-bmQgYWN0aXZhdGVkLiBBZnRlciB0aGF0LCBpdCBnb2VzIGxpa2UgYSBub3JtYWwgZGV2aWNlLg0K
-PiArCSAqLw0KPiArCWlmIChwb3dlcl9zdGF0ZSA9PSBJMkNfSElEX1BXUl9PTiAmJg0KPiArCSAg
-ICBpaGlkLT5xdWlya3MgJiBJMkNfSElEX1FVSVJLX1NFVF9QV1JfV0FLRVVQX0RFVikgew0KPiAr
-CQlyZXQgPSBpMmNfaGlkX2NvbW1hbmQoY2xpZW50LCAmaGlkX3NldF9wb3dlcl9jbWQsIE5VTEws
-IDApOw0KPiArDQo+ICsJCS8qIERldmljZSB3YXMgYWxyZWFkeSBhY3RpdmF0ZWQgKi8NCj4gKwkJ
-aWYgKCFyZXQpDQo+ICsJCQlnb3RvIHNldF9wd3JfZXhpdDsNCj4gKwl9DQo+ICsNCj4gIAlyZXQg
-PSBfX2kyY19oaWRfY29tbWFuZChjbGllbnQsICZoaWRfc2V0X3Bvd2VyX2NtZCwgcG93ZXJfc3Rh
-dGUsDQo+ICAJCTAsIE5VTEwsIDAsIE5VTEwsIDApOw0KPiArDQo+ICAJaWYgKHJldCkNCj4gIAkJ
-ZGV2X2VycigmY2xpZW50LT5kZXYsICJmYWlsZWQgdG8gY2hhbmdlIHBvd2VyIHNldHRpbmcuXG4i
-KTsNCj4gIA0KPiArc2V0X3B3cl9leGl0Og0KPiAgCXJldHVybiByZXQ7DQo+ICB9DQo+ICANCj4g
-QEAgLTEwNTAsNiArMTEwNSw4IEBAIHN0YXRpYyBpbnQgaTJjX2hpZF9wcm9iZShzdHJ1Y3QgaTJj
-X2NsaWVudCAqY2xpZW50LA0KPiAgCQkgY2xpZW50LT5uYW1lLCBoaWQtPnZlbmRvciwgaGlkLT5w
-cm9kdWN0KTsNCj4gIAlzdHJsY3B5KGhpZC0+cGh5cywgZGV2X25hbWUoJmNsaWVudC0+ZGV2KSwg
-c2l6ZW9mKGhpZC0+cGh5cykpOw0KPiAgDQo+ICsJaWhpZC0+cXVpcmtzID0gaTJjX2hpZF9sb29r
-dXBfcXVpcmsoaGlkLT52ZW5kb3IsIGhpZC0+cHJvZHVjdCk7DQo+ICsNCj4gIAlyZXQgPSBoaWRf
-YWRkX2RldmljZShoaWQpOw0KPiAgCWlmIChyZXQpIHsNCj4gIAkJaWYgKHJldCAhPSAtRU5PREVW
-KQ0KPiAtLQ0KPiAxLjkuMQ0KPiANCg0KT0ssIHRoYW5rcyBmb3IgdGhlIHJlc3VibWlzc2lvbi4g
-SSBhbSBoYXBweSB3aXRoIHRoZSBjaGFuZ2VzIHNvIGZhciwgc28NCndpdGggdGhlIGZldyBuaXRw
-aWNrcyBJIGV4cHJlc3NlZCwgaXQgc2hvdWxkIGJlIG1lcmdlYWJsZSBzb29uLg0KDQpDaGVlcnMs
-DQpCZW5qYW1pbg0KDQo=
+On Tuesday 08 November 2016 10:14:30 Paul Donohue wrote:
+> The current Alps SS5 (SS4 v2) code generates bogus TouchPad events when
+> TrackStick packets are processed.
+>     
+> This causes the xorg synaptics driver to print
+> "unable to find touch point 0" and
+> "BUG: triggered 'if (priv->num_active_touches > priv->num_slots)'"
+> messages.  It also causes unexpected TouchPad button release and reclick
+> event sequences if the TrackStick is moved while holding a TouchPad
+> button.
+>     
+> This commit corrects the problem by adjusting
+> alps_process_packet_ss4_v2() so that it only sends TrackStick reports
+> when processing TrackStick packets.
+> 
+> Signed-off-by: Paul Donohue <linux-kernel@PaulSD.com>
+> 
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index 6d7de9b..b93fe83 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -1346,6 +1346,18 @@ static void alps_process_packet_ss4_v2(struct psmouse *psmouse)
+>  
+>  	priv->multi_packet = 0;
+>  
+> +	/* Report trackstick */
+> +	if (alps_get_pkt_id_ss4_v2(packet) == SS4_PACKET_ID_STICK) {
+
+I would propose to show warning when trackstick packet is received on
+device marked as non-trackstick. It would help to debug possible
+problems in future...
+
+if (!(priv->flags & ALPS_DUALPOINT))
+        psmouse_warn(psmouse, "Rejected trackstick packet from non DualPoint device");
+
+> +		if (priv->flags & ALPS_DUALPOINT) {
+> +			input_report_key(dev2, BTN_LEFT, f->ts_left);
+> +			input_report_key(dev2, BTN_RIGHT, f->ts_right);
+> +			input_report_key(dev2, BTN_MIDDLE, f->ts_middle);
+> +			input_sync(dev2);
+> +		}
+> +		return;
+> +	}
+
+-- 
+Pali Rohár
+pali.rohar@gmail.com

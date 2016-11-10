@@ -1,57 +1,28 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] drivers: tca8418: Change the interrupt type
-Date: Wed, 9 Nov 2016 20:02:08 -0800
-Message-ID: <20161110040208.GA9498@dtor-ws>
-References: <20161107144024.15291-1-maxime.ripard@free-electrons.com>
- <20161109000400.GA8719@dtor-ws>
- <20161109080235.v23y42bojnwcw6rk@lukather>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v3] HID:i2c-hid: add a simple quirk to fix device defects
+Date: Thu, 10 Nov 2016 09:39:23 +0100
+Message-ID: <20161110083923.GF10327@mail.corp.redhat.com>
+References: <1478749633-28185-1-git-send-email-hn.chen@weidahitech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:50894 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754694AbcKJIj1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 10 Nov 2016 03:39:27 -0500
 Content-Disposition: inline
-In-Reply-To: <20161109080235.v23y42bojnwcw6rk@lukather>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1478749633-28185-1-git-send-email-hn.chen@weidahitech.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: hn.chen@weidahitech.com
+Cc: jkosina@suse.cz, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Hi Maxime,
-
-On Wed, Nov 09, 2016 at 09:02:35AM +0100, Maxime Ripard wrote:
-> Hello Dmitry,
+On Nov 10 2016 or thereabouts, hn.chen@weidahitech.com wrote:
+> From: HungNien Chen <hn.chen@weidahitech.com>
 > 
-> On Tue, Nov 08, 2016 at 04:04:00PM -0800, Dmitry Torokhov wrote:
-> > On Mon, Nov 07, 2016 at 03:40:24PM +0100, Maxime Ripard wrote:
-> > > The TCA8418 interrupt has a level trigger, not a edge one.
-> > > 
-> > > Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-> > 
-> > Hmm, maybe we could rely on OF data for trigger type?
+> Rename i2c_hid_blacklist as i2c_hid_quirks.
+> Make the syntax changes of macro & for_loop slightly.
 > 
-> We might, even though the i2c core doesn't change the trigger type
-> when it retrieves the interrupt from the DT.
+> Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
 
-i2c core itself does not, and should not, but irq code does:
-
-of_irq_get() -> irq_create_of_mapping() -> irq_create_fwspec_mapping()
--> irqd_set_trigger_type().
-
-> 
-> However, I'm a bit worried about the other probing mechanims (ACPI,
-> board files) that should be supported as well, and removing the
-> trigger type from the flags might break those. There's no board files
-> using it though in the tree, but I don't know about ACPI systems.
-
-The driver is not enabled for ACPI systems, at least not in mainline.
-
-By the way, this is what TCA8418 binding dochas to say:
-
-"- interrupts: IRQ line number, should trigger on falling edge"
-
-so it seems there was at least one system that needed falling edge and
-not level interrupt.
-
-Thanks.
-
--- 
-Dmitry
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>

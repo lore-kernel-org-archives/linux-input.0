@@ -1,56 +1,79 @@
-From: Mugunthan V N <mugunthanvnm@ti.com>
-Subject: [PATCH v2 0/3] increase TSCADC clock to 24MHz and fix ti,charge-delay to represent in nS
-Date: Thu, 10 Nov 2016 22:05:12 +0530
-Message-ID: <20161110163515.27598-1-mugunthanvnm@ti.com>
+From: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v2 1/3] dt/binding: ti-tsc-adc: deprecate ti,charge-delay and add binding doc for ti,charge-delay-ns
+Date: Thu, 10 Nov 2016 22:05:13 +0530
+Message-ID: <20161110163515.27598-2-mugunthanvnm@ti.com>
+References: <20161110163515.27598-1-mugunthanvnm@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Lee Jones <lee.jones@linaro.org>, Sekhar Nori <nsekhar@ti.com>, Vignesh R <vigneshr@ti.com>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Mugunthan V N <mugunthanvnm@ti.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20161110163515.27598-1-mugunthanvnm-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-This patch series enables ADC to be clocked at 24MHz as the
-TI AM335x ADC driver has already adopted to use DMA to transfer
-ADC samples. Now ADC can generated upto 800K Samples per second
-with the patch [1] on AM335x BBB and AM437x GP EVM.
+ti,charge-delay represents the duration that ADC should wait
+before sampling the ADC line to detect the touch location and pen
+up/downs. Currently the ADC clock is set at 3MHz. The device-tree
+entry for ti,charge-delay is based on assumption of ADC clock at
+3MHz, but it can be operated up to 24MHz clock. Representing the
+charge delay of touchscreen in terms of ADC clocks is incorrect.
+So change this representation to ti,charge-delay-ns, which driver
+can convert it to number clock cycles based on ref clock
+frequency.
 
-when ADC ref clock is set at 24MHz, I am seeing some issue with
-touch screen pointer as the pointer jumps to random locations
-with free draw application. The issue is due to increase in ADC
-clock and charge delay for the touchscreen ADC line duration
-reduced.
-
-So the notation of ti,charge-delay in terms of ADC clock is
-wrong, it has to be represented in time and driver has to convert
-the charge delay time to ADC clocks based on what ADC clock
-frequency is set.
-
-Measured the performance with the iio_generic_buffer with the
-patch [2] applied
-
-Verified the touch screen on AM335x GP EVM and AM335x BBB LCD7
-cape with [3] dts for display and touch screen to work.
-
-Changes from initial version:
-* Removed modification to STEPCONFIG_OPENDLY defined as it
-  doesn't affect/improve touchscreen performance.
-* Changed ti,charge-delay to ti,charge-delay-ns
-
-[1] - http://pastebin.ubuntu.com/23357935/
-[2] - http://pastebin.ubuntu.com/23357939/
-[3] - http://pastebin.ubuntu.com/23456616/
-
-Mugunthan V N (3):
-  dt/binding: ti-tsc-adc: deprecate ti,charge-delay and add binding doc
-    for ti,charge-delay-ns
-  Input: ti_am335x_tsc: Add support for ti,charge-delay-ns
-  drivers: mfd: ti_am335x_tscadc: increase ADC ref clock to 24MHz
-
+Signed-off-by: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
+---
  .../bindings/input/touchscreen/ti-tsc-adc.txt      | 32 ++++++++++++++--------
- drivers/input/touchscreen/ti_am335x_tsc.c          | 31 +++++++++++++++------
- include/linux/mfd/ti_am335x_tscadc.h               |  2 +-
- 3 files changed, 45 insertions(+), 20 deletions(-)
+ 1 file changed, 21 insertions(+), 11 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+index b1163bf97146..83570776c804 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+@@ -30,17 +30,27 @@ Required properties:
+ 
+ Optional properties:
+ - child "tsc"
+-	ti,charge-delay: Length of touch screen charge delay step in terms of
+-			 ADC clock cycles. Charge delay value should be large
+-			 in order to avoid false pen-up events. This value
+-			 effects the overall sampling speed, hence need to be
+-			 kept as low as possible, while avoiding false pen-up
+-			 event. Start from a lower value, say 0x400, and
+-			 increase value until false pen-up events are avoided.
+-			 The pen-up detection happens immediately after the
+-			 charge step, so this does in fact function as a
+-			 hardware knob for adjusting the amount of "settling
+-			 time".
++	ti,charge-delay-ns: Length of touch screen charge delay step in terms of
++			    nano Seconds. Charge delay value should be large
++			    in order to avoid false pen-up events. This value
++			    effects the overall sampling speed, hence need to be
++			    kept as low as possible, while avoiding false pen-up
++			    event. Start from a lower value, say 41000nS, and
++			    increase value until false pen-up events are avoided.
++			    The pen-up detection happens immediately after the
++			    charge step, so this does in fact function as a
++			    hardware knob for adjusting the amount of "settling
++			    time".
++	ti,charge-delay: Deprecated as representing charge delay should be
++			 represented in time as the ADC clock may be different.
++			 Currently this value is calculated based on 3MHz ADC
++			 ref clock, but ADC clock can operate upto 24MHz clock.
++			 ADC clock will be changed to 24MHz to increase the
++			 number of ADC samples. So to keep the backward
++			 compatibility, driver will consider this value is
++			 calculated for 3MHz clock so the value will be
++			 multiplied by 8 to compensate the change in reference
++			 clock.
+ 
+ - child "adc"
+ 	ti,chan-step-opendelay: List of open delays for each channel of
 -- 
 2.11.0.rc0.7.gbe5a750
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,85 +1,147 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH v6 5/8] DT:omap3+tsc2007: use new common touchscreen
- bindings
-Date: Wed, 9 Nov 2016 15:27:23 -0700
-Message-ID: <20161109222723.GI2428@atomide.com>
-References: <cover.1477557860.git.hns@goldelico.com>
- <72927a5b3d5b9f33dfd57a68ef1de9cb0a536407.1477557860.git.hns@goldelico.com>
+From: <hn.chen@weidahitech.com>
+Subject: [PATCH v3] HID:i2c-hid: add a simple quirk to fix device defects
+Date: Thu, 10 Nov 2016 11:47:13 +0800
+Message-ID: <1478749633-28185-1-git-send-email-hn.chen@weidahitech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from muru.com ([72.249.23.125]:58476 "EHLO muru.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754111AbcKIW13 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 9 Nov 2016 17:27:29 -0500
-Content-Disposition: inline
-In-Reply-To: <72927a5b3d5b9f33dfd57a68ef1de9cb0a536407.1477557860.git.hns@goldelico.com>
+Received: from ml01.weidahitech.com ([61.222.87.235]:2321 "EHLO
+        ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752065AbcKJDoy (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Nov 2016 22:44:54 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, =?utf-8?Q?Beno=C3=AEt?= Cousson <bcousson@baylibre.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, Mika =?utf-8?B?UGVudHRpbMOk?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, Sebastian Reichel <sre@kernel.org>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Sangwon Jee <jeesw@melfas.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, letux-kernel@op
+To: jkosina@suse.cz
+Cc: benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, HungNien Chen <hn.chen@weidahitech.com>
 
-* H. Nikolaus Schaller <hns@goldelico.com> [161027 01:47]:
-> While we fix the GTA04 we add proper pinmux for the
-> penirq gpio.
-> 
-> Tested on: GTA04A4 and Pyra-Handheld
-> 
-> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+From: HungNien Chen <hn.chen@weidahitech.com>
 
-This should be safe to merge along with the driver changes:
+Rename i2c_hid_blacklist as i2c_hid_quirks.
+Make the syntax changes of macro & for_loop slightly.
 
-Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
+---
+ drivers/hid/hid-ids.h         |  5 ++++
+ drivers/hid/i2c-hid/i2c-hid.c | 57 +++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 62 insertions(+)
 
-> ---
->  arch/arm/boot/dts/omap3-gta04.dtsi | 25 +++++++++++++++++++++++--
->  1 file changed, 23 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
-> index b3a8b1f..64d6ee3 100644
-> --- a/arch/arm/boot/dts/omap3-gta04.dtsi
-> +++ b/arch/arm/boot/dts/omap3-gta04.dtsi
-> @@ -273,6 +273,13 @@
->  			OMAP3_CORE1_IOPAD(0x2134, PIN_INPUT_PULLUP | MUX_MODE4) /* gpio112 */
->  		>;
->  	};
-> +
-> +	penirq_pins: pinmux_penirq_pins {
-> +		pinctrl-single,pins = <
-> +			/* here we could enable to wakeup the cpu from suspend by a pen touch */
-> +			OMAP3_CORE1_IOPAD(0x2194, PIN_INPUT_PULLUP | MUX_MODE4) /* gpio160 */
-> +		>;
-> +	};
->  };
->  
->  &omap3_pmx_core2 {
-> @@ -410,10 +417,24 @@
->  	tsc2007@48 {
->  		compatible = "ti,tsc2007";
->  		reg = <0x48>;
-> +		pinctrl-names = "default";
-> +		pinctrl-0 = <&penirq_pins>;
->  		interrupt-parent = <&gpio6>;
->  		interrupts = <0 IRQ_TYPE_EDGE_FALLING>; /* GPIO_160 */
-> -		gpios = <&gpio6 0 GPIO_ACTIVE_LOW>;
-> -		ti,x-plate-ohms = <600>;
-> +		gpios = <&gpio6 0 GPIO_ACTIVE_LOW>;	/* GPIO_160 */
-> +		touchscreen-size-x = <480>;
-> +		touchscreen-size-y = <640>;
-> +		touchscreen-max-pressure = <1000>;
-> +		touchscreen-fuzz-x = <3>;
-> +		touchscreen-fuzz-y = <8>;
-> +		touchscreen-fuzz-pressure = <10>;
-> +		touchscreen-inverted-y;
-> +		ti,min-x = <0x100>;
-> +		ti,max-x = <0xf00>;
-> +		ti,min-y = <0x100>;
-> +		ti,max-y = <0xf00>;
-> +		ti,max-rt = <4096>;
-> +		ti,x-plate-ohms = <550>;
->  	};
->  
->  	/* RFID EEPROM */
-> -- 
-> 2.7.3
-> 
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6cfb5ca..787afdf 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1033,6 +1033,11 @@
+ #define USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH	0x0500
+ #define USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET	0x0502
+ 
++#define	USB_VENDOR_ID_WEIDA		0x2575
++#define	USB_DEVICE_ID_WEIDA_8756	0x8756
++#define	USB_DEVICE_ID_WEIDA_8752	0xC300
++#define	USB_DEVICE_ID_WEIDA_8755	0xC301
++
+ #define USB_VENDOR_ID_WISEGROUP		0x0925
+ #define USB_DEVICE_ID_SMARTJOY_PLUS	0x0005
+ #define USB_DEVICE_ID_SUPER_JOY_BOX_3	0x8888
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index b3ec4f2..b1bce80 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -41,6 +41,11 @@
+ 
+ #include <linux/i2c/i2c-hid.h>
+ 
++#include "../hid-ids.h"
++
++/* quirks to control the device */
++#define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
++
+ /* flags */
+ #define I2C_HID_STARTED		0
+ #define I2C_HID_RESET_PENDING	1
+@@ -143,6 +148,7 @@ struct i2c_hid {
+ 	char			*argsbuf;	/* Command arguments buffer */
+ 
+ 	unsigned long		flags;		/* device flags */
++	unsigned long		quirks;		/* Various quirks */
+ 
+ 	wait_queue_head_t	wait;		/* For waiting the interrupt */
+ 	struct gpio_desc	*desc;
+@@ -154,6 +160,39 @@ struct i2c_hid {
+ 	struct mutex		reset_lock;
+ };
+ 
++static const struct i2c_hid_quirks {
++	__u16 idVendor;
++	__u16 idProduct;
++	__u32 quirks;
++} i2c_hid_quirks[] = {
++	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8752,
++		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
++	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8755,
++		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
++	{ 0, 0 }
++};
++
++/*
++ * i2c_hid_lookup_quirk: return any quirks associated with a I2C HID device
++ * @idVendor: the 16-bit vendor ID
++ * @idProduct: the 16-bit product ID
++ *
++ * Returns: a u32 quirks value.
++ */
++static u32 i2c_hid_lookup_quirk(const u16 idVendor, const u16 idProduct)
++{
++	u32 quirks = 0;
++	int n;
++
++	for (n = 0; i2c_hid_quirks[n].idVendor; n++)
++		if (i2c_hid_quirks[n].idVendor == idVendor &&
++		    (i2c_hid_quirks[n].idProduct == (__u16)HID_ANY_ID ||
++		     i2c_hid_quirks[n].idProduct == idProduct))
++			quirks = i2c_hid_quirks[n].quirks;
++
++	return quirks;
++}
++
+ static int __i2c_hid_command(struct i2c_client *client,
+ 		const struct i2c_hid_cmd *command, u8 reportID,
+ 		u8 reportType, u8 *args, int args_len,
+@@ -346,11 +385,27 @@ static int i2c_hid_set_power(struct i2c_client *client, int power_state)
+ 
+ 	i2c_hid_dbg(ihid, "%s\n", __func__);
+ 
++	/*
++	 * Some devices require to send a command to wakeup before power on.
++	 * The call will get a return value (EREMOTEIO) but device will be
++	 * triggered and activated. After that, it goes like a normal device.
++	 */
++	if (power_state == I2C_HID_PWR_ON &&
++	    ihid->quirks & I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV) {
++		ret = i2c_hid_command(client, &hid_set_power_cmd, NULL, 0);
++
++		/* Device was already activated */
++		if (!ret)
++			goto set_pwr_exit;
++	}
++
+ 	ret = __i2c_hid_command(client, &hid_set_power_cmd, power_state,
+ 		0, NULL, 0, NULL, 0);
++
+ 	if (ret)
+ 		dev_err(&client->dev, "failed to change power setting.\n");
+ 
++set_pwr_exit:
+ 	return ret;
+ }
+ 
+@@ -1050,6 +1105,8 @@ static int i2c_hid_probe(struct i2c_client *client,
+ 		 client->name, hid->vendor, hid->product);
+ 	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
+ 
++	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
++
+ 	ret = hid_add_device(hid);
+ 	if (ret) {
+ 		if (ret != -ENODEV)
+-- 
+1.9.1
+

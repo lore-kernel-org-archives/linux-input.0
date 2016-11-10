@@ -1,68 +1,148 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v4 2/3] Input: ALPS - Clean up TrackStick handling for
- SS5 hardware
-Date: Thu, 10 Nov 2016 16:19:42 +0100
-Message-ID: <20161110151942.GA3969@pali>
-References: <20161024210122.GA2919@TopQuark.net>
- <20161108151430.GN2927@TopQuark.net>
- <20161108151621.GO2927@TopQuark.net>
- <20161109121443.GC19557@pali>
- <20161110142739.GT2927@TopQuark.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+From: Paul Donohue <linux-kernel@PaulSD.com>
+Subject: [PATCH v5 3/3] Input: ALPS - Clean up code for SS5 hardware
+Date: Thu, 10 Nov 2016 11:44:46 -0500
+Message-ID: <1478796286-1924-4-git-send-email-linux-kernel@PaulSD.com>
+References: <20161110151942.GA3969@pali>
+ <1478796286-1924-1-git-send-email-linux-kernel@PaulSD.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:35775 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933884AbcKJPTu (ORCPT
+Received: from Lepton.TopQuark.net ([168.235.66.66]:47379 "EHLO
+        Mail2.TopQuark.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935106AbcKJQpK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 10 Nov 2016 10:19:50 -0500
-Received: by mail-wm0-f68.google.com with SMTP id a20so3806111wme.2
-        for <linux-input@vger.kernel.org>; Thu, 10 Nov 2016 07:19:50 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20161110142739.GT2927@TopQuark.net>
+        Thu, 10 Nov 2016 11:45:10 -0500
+In-Reply-To: <1478796286-1924-1-git-send-email-linux-kernel@PaulSD.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Donohue <linux-kernel@PaulSD.com>
-Cc: linux-input@vger.kernel.org, Ben Gamari <ben@smart-cactus.org>, Michal Hocko <mhocko@suse.com>
+To: linux-input@vger.kernel.org
+Cc: Ben Gamari <ben@smart-cactus.org>, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>, Michal Hocko <mhocko@suse.com>, Paul Donohue <linux-kernel@PaulSD.com>
 
-On Thursday 10 November 2016 09:27:39 Paul Donohue wrote:
-> On Wed, Nov 09, 2016 at 01:14:43PM +0100, Pali Rohár wrote:
-> > On Tuesday 08 November 2016 10:16:21 Paul Donohue wrote:
-> > > --- a/drivers/input/mouse/alps.c
-> > > +++ b/drivers/input/mouse/alps.c
-> > > @@ -1267,18 +1267,11 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
-> > >  	case SS4_PACKET_ID_STICK:
-> > > +		f->st.x = (s8)(((p[0] & 1) << 7) | (p[1] & 0x7f));
-> > > +		f->st.y = -(s8)(((p[3] & 1) << 7) | (p[2] & 0x7f));
-> > > +		f->pressure = (s8)(p[4] & 0x7f);
-> > 
-> > This is not correct. Those fields values are used for single touch
-> > events from touchpad -- not from trackstick.
-> > 
-> > Btw, you have access to packet also in process functions, so you can
-> > extract x, y and pressure in process function too.
-> 
-> I was trying to keep all of the decoding logic in alps_decode_ss4_v2().
-> And since there aren't any fields specifically for the trackstick in
-> alps_fields, I figured the single touch fields would be an appropriate
-> place to stash those coordinates.
-> 
-> But if you would prefer to move some of the trackstick decoding logic to
-> alps_process_packet_ss4_v2(), I can do that.
+The return value of alps_get_pkt_id_ss4_v2() should really be
+"enum SS4_PACKET_ID", not "unsigned char".  Correct this.
 
-I see that e.g. alps_process_packet_v1_v2() or alps_process_packet_v6()
-or alps_process_trackstick_packet_v3() having decode logic... So for me
-it make sense to have it same also in ss4. But if some other developers
-prefer something different, let us know!
+Also, most of the Alps SS5 (SS4 v2) packet byte parsing code is
+implemented using macros, but there are a few places where bytes are
+directly manipulated in alps.c.  For consistency, migrate the rest of
+these to macros.
 
->From current code I understand that decode functions are there to fill
-"struct alps_fields" and process functions to process and send events.
+Signed-off-by: Paul Donohue <linux-kernel@PaulSD.com>
+---
+ drivers/input/mouse/alps.c | 24 ++++++++----------------
+ drivers/input/mouse/alps.h | 22 +++++++++++++++++++++-
+ 2 files changed, 29 insertions(+), 17 deletions(-)
 
-I would suggest to read code for other alps protocol versions and have
-similar behaviour for ss4 as for other protocol versions. At least this
-produce code which will be consistent...
-
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 61d61cc..c984b8c 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1153,15 +1153,13 @@ static void alps_process_packet_v7(struct psmouse *psmouse)
+ 		alps_process_touchpad_packet_v7(psmouse);
+ }
+ 
+-static unsigned char alps_get_pkt_id_ss4_v2(unsigned char *byte)
++static enum SS4_PACKET_ID alps_get_pkt_id_ss4_v2(unsigned char *byte)
+ {
+-	unsigned char pkt_id = SS4_PACKET_ID_IDLE;
++	enum SS4_PACKET_ID pkt_id = SS4_PACKET_ID_IDLE;
+ 
+ 	switch (byte[3] & 0x30) {
+ 	case 0x00:
+-		if (byte[0] == 0x18 && byte[1] == 0x10 && byte[2] == 0x00 &&
+-		    (byte[3] & 0x88) == 0x08 && byte[4] == 0x10 &&
+-		    byte[5] == 0x00) {
++		if (SS4_IS_IDLE_V2(byte)) {
+ 			pkt_id = SS4_PACKET_ID_IDLE;
+ 		} else {
+ 			pkt_id = SS4_PACKET_ID_ONE;
+@@ -1188,7 +1186,7 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
+ 			      unsigned char *p, struct psmouse *psmouse)
+ {
+ 	struct alps_data *priv = psmouse->private;
+-	unsigned char pkt_id;
++	enum SS4_PACKET_ID pkt_id;
+ 	unsigned int no_data_x, no_data_y;
+ 
+ 	pkt_id = alps_get_pkt_id_ss4_v2(p);
+@@ -1306,7 +1304,6 @@ static void alps_process_packet_ss4_v2(struct psmouse *psmouse)
+ 	struct input_dev *dev = psmouse->dev;
+ 	struct input_dev *dev2 = priv->dev2;
+ 	struct alps_fields *f = &priv->f;
+-	int x, y, pressure;
+ 
+ 	memset(f, 0, sizeof(struct alps_fields));
+ 	priv->decode_fields(f, packet, psmouse);
+@@ -1349,13 +1346,9 @@ static void alps_process_packet_ss4_v2(struct psmouse *psmouse)
+ 			return;
+ 		}
+ 
+-		x = (s8)(((packet[0] & 1) << 7) | (packet[1] & 0x7f));
+-		y = (s8)(((packet[3] & 1) << 7) | (packet[2] & 0x7f));
+-		pressure = (s8)(packet[4] & 0x7f);
+-
+-		input_report_rel(dev2, REL_X, x);
+-		input_report_rel(dev2, REL_Y, -y);
+-		input_report_abs(dev2, ABS_PRESSURE, pressure);
++		input_report_rel(dev2, REL_X, SS4_TS_X_V2(packet));
++		input_report_rel(dev2, REL_Y, SS4_TS_Y_V2(packet));
++		input_report_abs(dev2, ABS_PRESSURE, SS4_TS_Z_V2(packet));
+ 
+ 		input_report_key(dev2, BTN_LEFT, f->ts_left);
+ 		input_report_key(dev2, BTN_RIGHT, f->ts_right);
+@@ -1367,14 +1360,13 @@ static void alps_process_packet_ss4_v2(struct psmouse *psmouse)
+ 
+ 	/* Report touchpad */
+ 	alps_report_mt_data(psmouse, (f->fingers <= 4) ? f->fingers : 4);
+-
+ 	input_mt_report_finger_count(dev, f->fingers);
++	input_report_abs(dev, ABS_PRESSURE, f->pressure);
+ 
+ 	input_report_key(dev, BTN_LEFT, f->left);
+ 	input_report_key(dev, BTN_RIGHT, f->right);
+ 	input_report_key(dev, BTN_MIDDLE, f->middle);
+ 
+-	input_report_abs(dev, ABS_PRESSURE, f->pressure);
+ 	input_sync(dev);
+ }
+ 
+diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+index b9417e2..96e1d1d 100644
+--- a/drivers/input/mouse/alps.h
++++ b/drivers/input/mouse/alps.h
+@@ -54,7 +54,15 @@ enum SS4_PACKET_ID {
+ 
+ #define SS4_MASK_NORMAL_BUTTONS		0x07
+ 
+-#define SS4_1F_X_V2(_b)		((_b[0] & 0x0007) |		\
++#define SS4_IS_IDLE_V2(_b)	(((_b[0]) == 0x18) &&		\
++				 ((_b[1]) == 0x10) &&		\
++				 ((_b[2]) == 0x00) &&		\
++				 ((_b[3] & 0x88) == 0x08) &&	\
++				 ((_b[4]) == 0x10) &&		\
++				 ((_b[5]) == 0x00)		\
++				)
++
++#define SS4_1F_X_V2(_b)		(((_b[0]) & 0x0007) |		\
+ 				 ((_b[1] << 3) & 0x0078) |	\
+ 				 ((_b[1] << 2) & 0x0380) |	\
+ 				 ((_b[2] << 5) & 0x1C00)	\
+@@ -101,6 +109,18 @@ enum SS4_PACKET_ID {
+ #define SS4_IS_MF_CONTINUE(_b)	((_b[2] & 0x10) == 0x10)
+ #define SS4_IS_5F_DETECTED(_b)	((_b[2] & 0x10) == 0x10)
+ 
++#define SS4_TS_X_V2(_b)		(s8)(				\
++				 ((_b[0] & 0x01) << 7) |	\
++				 ((_b[1]) & 0x7F)		\
++				)
++
++#define SS4_TS_Y_V2(_b)		-(s8)(				\
++				 ((_b[3] & 0x01) << 7) |	\
++				 ((_b[2]) & 0x7F)		\
++				)
++
++#define SS4_TS_Z_V2(_b)		(s8)(_b[4] & 0x7F)
++
+ 
+ #define SS4_MFPACKET_NO_AX	8160	/* X-Coordinate value */
+ #define SS4_MFPACKET_NO_AY	4080	/* Y-Coordinate value */
 -- 
-Pali Rohár
-pali.rohar@gmail.com
+2.7.4
+

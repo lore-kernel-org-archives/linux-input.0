@@ -1,98 +1,56 @@
-From: Paul Donohue <linux-kernel@PaulSD.com>
-Subject: [PATCH v5 2/3] Input: ALPS - Clean up TrackStick handling for SS5 hardware
-Date: Thu, 10 Nov 2016 11:44:45 -0500
-Message-ID: <1478796286-1924-3-git-send-email-linux-kernel@PaulSD.com>
-References: <20161110151942.GA3969@pali>
- <1478796286-1924-1-git-send-email-linux-kernel@PaulSD.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from Lepton.TopQuark.net ([168.235.66.66]:47365 "EHLO
-        Mail2.TopQuark.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934958AbcKJQpE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 10 Nov 2016 11:45:04 -0500
-In-Reply-To: <1478796286-1924-1-git-send-email-linux-kernel@PaulSD.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: Mugunthan V N <mugunthanvnm@ti.com>
+Subject: [PATCH v2 0/3] increase TSCADC clock to 24MHz and fix ti,charge-delay to represent in nS
+Date: Thu, 10 Nov 2016 22:05:12 +0530
+Message-ID: <20161110163515.27598-1-mugunthanvnm@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Ben Gamari <ben@smart-cactus.org>, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>, Michal Hocko <mhocko@suse.com>, Paul Donohue <linux-kernel@PaulSD.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Lee Jones <lee.jones@linaro.org>, Sekhar Nori <nsekhar@ti.com>, Vignesh R <vigneshr@ti.com>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Mugunthan V N <mugunthanvnm@ti.com>
+List-Id: linux-input@vger.kernel.org
 
-For consistency and clarity, the input_report_*() functions should
-be called by alps_process_packet_ss4_v2() instead of by
-alps_decode_ss4_v2().
+This patch series enables ADC to be clocked at 24MHz as the
+TI AM335x ADC driver has already adopted to use DMA to transfer
+ADC samples. Now ADC can generated upto 800K Samples per second
+with the patch [1] on AM335x BBB and AM437x GP EVM.
 
-Signed-off-by: Paul Donohue <linux-kernel@PaulSD.com>
----
- drivers/input/mouse/alps.c | 42 +++++++++++++++++++++++++-----------------
- 1 file changed, 25 insertions(+), 17 deletions(-)
+when ADC ref clock is set at 24MHz, I am seeing some issue with
+touch screen pointer as the pointer jumps to random locations
+with free draw application. The issue is due to increase in ADC
+clock and charge delay for the touchscreen ADC line duration
+reduced.
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index b93fe83..61d61cc 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -1267,18 +1267,12 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
- 		break;
- 
- 	case SS4_PACKET_ID_STICK:
--		if (!(priv->flags & ALPS_DUALPOINT)) {
--			psmouse_warn(psmouse,
--				     "Rejected trackstick packet from non DualPoint device");
--		} else {
--			int x = (s8)(((p[0] & 1) << 7) | (p[1] & 0x7f));
--			int y = (s8)(((p[3] & 1) << 7) | (p[2] & 0x7f));
--			int pressure = (s8)(p[4] & 0x7f);
--
--			input_report_rel(priv->dev2, REL_X, x);
--			input_report_rel(priv->dev2, REL_Y, -y);
--			input_report_abs(priv->dev2, ABS_PRESSURE, pressure);
--		}
-+		/*
-+		 * x, y, and pressure are decoded in
-+		 * alps_process_packet_ss4_v2()
-+		 */
-+		f->first_mp = 0;
-+		f->is_mp = 0;
- 		break;
- 
- 	case SS4_PACKET_ID_IDLE:
-@@ -1312,6 +1306,7 @@ static void alps_process_packet_ss4_v2(struct psmouse *psmouse)
- 	struct input_dev *dev = psmouse->dev;
- 	struct input_dev *dev2 = priv->dev2;
- 	struct alps_fields *f = &priv->f;
-+	int x, y, pressure;
- 
- 	memset(f, 0, sizeof(struct alps_fields));
- 	priv->decode_fields(f, packet, psmouse);
-@@ -1348,12 +1343,25 @@ static void alps_process_packet_ss4_v2(struct psmouse *psmouse)
- 
- 	/* Report trackstick */
- 	if (alps_get_pkt_id_ss4_v2(packet) == SS4_PACKET_ID_STICK) {
--		if (priv->flags & ALPS_DUALPOINT) {
--			input_report_key(dev2, BTN_LEFT, f->ts_left);
--			input_report_key(dev2, BTN_RIGHT, f->ts_right);
--			input_report_key(dev2, BTN_MIDDLE, f->ts_middle);
--			input_sync(dev2);
-+		if (!(priv->flags & ALPS_DUALPOINT)) {
-+			psmouse_warn(psmouse,
-+				     "Rejected trackstick packet from non DualPoint device");
-+			return;
- 		}
-+
-+		x = (s8)(((packet[0] & 1) << 7) | (packet[1] & 0x7f));
-+		y = (s8)(((packet[3] & 1) << 7) | (packet[2] & 0x7f));
-+		pressure = (s8)(packet[4] & 0x7f);
-+
-+		input_report_rel(dev2, REL_X, x);
-+		input_report_rel(dev2, REL_Y, -y);
-+		input_report_abs(dev2, ABS_PRESSURE, pressure);
-+
-+		input_report_key(dev2, BTN_LEFT, f->ts_left);
-+		input_report_key(dev2, BTN_RIGHT, f->ts_right);
-+		input_report_key(dev2, BTN_MIDDLE, f->ts_middle);
-+
-+		input_sync(dev2);
- 		return;
- 	}
- 
+So the notation of ti,charge-delay in terms of ADC clock is
+wrong, it has to be represented in time and driver has to convert
+the charge delay time to ADC clocks based on what ADC clock
+frequency is set.
+
+Measured the performance with the iio_generic_buffer with the
+patch [2] applied
+
+Verified the touch screen on AM335x GP EVM and AM335x BBB LCD7
+cape with [3] dts for display and touch screen to work.
+
+Changes from initial version:
+* Removed modification to STEPCONFIG_OPENDLY defined as it
+  doesn't affect/improve touchscreen performance.
+* Changed ti,charge-delay to ti,charge-delay-ns
+
+[1] - http://pastebin.ubuntu.com/23357935/
+[2] - http://pastebin.ubuntu.com/23357939/
+[3] - http://pastebin.ubuntu.com/23456616/
+
+Mugunthan V N (3):
+  dt/binding: ti-tsc-adc: deprecate ti,charge-delay and add binding doc
+    for ti,charge-delay-ns
+  Input: ti_am335x_tsc: Add support for ti,charge-delay-ns
+  drivers: mfd: ti_am335x_tscadc: increase ADC ref clock to 24MHz
+
+ .../bindings/input/touchscreen/ti-tsc-adc.txt      | 32 ++++++++++++++--------
+ drivers/input/touchscreen/ti_am335x_tsc.c          | 31 +++++++++++++++------
+ include/linux/mfd/ti_am335x_tscadc.h               |  2 +-
+ 3 files changed, 45 insertions(+), 20 deletions(-)
+
 -- 
-2.7.4
-
+2.11.0.rc0.7.gbe5a750

@@ -1,82 +1,44 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v5 0/3] Input: ALPS - Bug fix and cleanup for SS5 hardware
-Date: Fri, 11 Nov 2016 14:59:09 +0100
-Message-ID: <201611111459.12642@pali>
-References: <20161110151942.GA3969@pali> <1478796286-1924-1-git-send-email-linux-kernel@PaulSD.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V2 05/10] mfd: da9061: MFD core support
+Date: Fri, 11 Nov 2016 15:50:12 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CCE9AB0@SW-EX-MBX02.diasemi.com>
+References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
+ <bf02595c2fa32ba0c4311e2d480321b811fc9cf5.1477501000.git.stwiss.opensource@diasemi.com>
+ <20161111103734.GD13638@dell>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2917540.YYrrEsBsaE";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33131 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756633AbcKKN7Q (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Nov 2016 08:59:16 -0500
-Received: by mail-wm0-f66.google.com with SMTP id u144so9642460wmu.0
-        for <linux-input@vger.kernel.org>; Fri, 11 Nov 2016 05:59:15 -0800 (PST)
-In-Reply-To: <1478796286-1924-1-git-send-email-linux-kernel@PaulSD.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20161111103734.GD13638@dell>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>, DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Paul Donohue <linux-kernel@paulsd.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Ben Gamari <ben@smart-cactus.org>, Michal Hocko <mhocko@suse.com>
 
---nextPart2917540.YYrrEsBsaE
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Thursday 10 November 2016 17:44:43 Paul Donohue wrote:
-> This series includes a bug fix and assorted cleanup for the Alps SS5
-> (SS4 v2) code.
->=20
-> Changes in v5:
-> * Moved TrackStick decoding logic to alps_process_packet_ss4_v2() to
->   make the code more consistent with other protocol versions
->   (Suggested by Pali Roh=C3=A1r <pali.rohar@gmail.com>)
->=20
-> Changes in v4:
-> * Fixed patch formatting issues
-> * Correct casting issues in macros added in v3
->=20
-> Changes in v3:
-> * Added additional code cleanup to make the code easier to understand
->   (Suggested by Pali Roh=C3=A1r <pali.rohar@gmail.com>)
->=20
-> Changes in v2:
-> * For consistency with other Alps functions, check packet bytes for
->   packet type rather than adding a flag to alps_fields for packet
-> type. (Suggested by Pali Roh=C3=A1r <pali.rohar@gmail.com>)
->=20
-> Paul Donohue (3):
->   Input: ALPS - Fix TrackStick support for SS5 hardware
->   Input: ALPS - Clean up TrackStick handling for SS5 hardware
->   Input: ALPS - Clean up code for SS5 hardware
->=20
->  drivers/input/mouse/alps.c | 59
-> +++++++++++++++++++++++++---------------------
-> drivers/input/mouse/alps.h | 22 ++++++++++++++++-
->  2 files changed, 53 insertions(+), 28 deletions(-)
-
-Whole patch series looks fine.
-You can add my Reviewed-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart2917540.YYrrEsBsaE
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlglzrAACgkQi/DJPQPkQ1JBWwCgnkGqLytA7nwRESN+nW1sDwqy
-SBoAnRmAU6MWTIatiCITMxUFxDTfZoV6
-=vS+f
------END PGP SIGNATURE-----
-
---nextPart2917540.YYrrEsBsaE--
+T24gMTEgTm92ZW1iZXIgMjAxNiAxMDozOCwgTGVlIEpvbmVzIHdyb3RlOg0KPiANCj4gPiArc3Rh
+dGljIHN0cnVjdCByZXNvdXJjZSBkYTkwNjFfY29yZV9yZXNvdXJjZXNbXSA9IHsNCj4gPiArCURF
+RklORV9SRVNfTkFNRUQoREE5MDYxX0lSUV9WRERfV0FSTiwgMSwgIlZERF9XQVJOIiwgSU9SRVNP
+VVJDRV9JUlEpLA0KPiA+ICt9Ow0KPiA+ICsNCj4gPiArc3RhdGljIHN0cnVjdCByZXNvdXJjZSBk
+YTkwNjFfcmVndWxhdG9yc19yZXNvdXJjZXNbXSA9IHsNCj4gPiArCURFRklORV9SRVNfTkFNRUQo
+REE5MDYxX0lSUV9MRE9fTElNLCAxLCAiTERPX0xJTSIsIElPUkVTT1VSQ0VfSVJRKSwNCj4gPiAr
+fTsNCj4gPiArDQo+ID4gK3N0YXRpYyBzdHJ1Y3QgcmVzb3VyY2UgZGE5MDYxX3RoZXJtYWxfcmVz
+b3VyY2VzW10gPSB7DQo+ID4gKwlERUZJTkVfUkVTX05BTUVEKERBOTA2MV9JUlFfVEVNUCwgMSwg
+IlRIRVJNQUwiLCBJT1JFU09VUkNFX0lSUSksDQo+ID4gK307DQo+ID4gKw0KPiA+ICtzdGF0aWMg
+c3RydWN0IHJlc291cmNlIGRhOTA2MV93ZHRfcmVzb3VyY2VzW10gPSB7DQo+ID4gKwlERUZJTkVf
+UkVTX05BTUVEKERBOTA2MV9JUlFfV0RHX1dBUk4sIDEsICJXRF9XQVJOIiwgSU9SRVNPVVJDRV9J
+UlEpLA0KPiA+ICt9Ow0KPiA+ICsNCj4gPiArc3RhdGljIHN0cnVjdCByZXNvdXJjZSBkYTkwNjFf
+b25rZXlfcmVzb3VyY2VzW10gPSB7DQo+ID4gKwlERUZJTkVfUkVTX05BTUVEKERBOTA2MV9JUlFf
+T05LRVksIDEsICJPTktFWSIsIElPUkVTT1VSQ0VfSVJRKSwNCj4gPiArfTsNCj4gDQo+IFRoZXNl
+IHNob3VsZCBhbCBiZTogREVGSU5FX1JFU19JT19OQU1FRCgpDQoNCkhhdmUgYWx0ZXJlZCB0aGVz
+ZSB0byBERUZJTkVfUkVTX0lSUV9OQU1FRCgpDQoNCj4gPiBAQCAtMTQyLDcgKzI1Nyw3IEBAIHN0
+YXRpYyBjb25zdCBzdHJ1Y3QgbWZkX2NlbGwgZGE5MDYyX2RldnNbXSA9IHsNCj4gPiAgCQkubmFt
+ZQkJPSAiZGE5MDYyLXdhdGNoZG9nIiwNCj4gPiAgCQkubnVtX3Jlc291cmNlcwk9IEFSUkFZX1NJ
+WkUoZGE5MDYyX3dkdF9yZXNvdXJjZXMpLA0KPiA+ICAJCS5yZXNvdXJjZXMJPSBkYTkwNjJfd2R0
+X3Jlc291cmNlcywNCj4gPiAtCQkub2ZfY29tcGF0aWJsZSAgPSAiZGxnLGRhOTA2Mi13ZHQiLA0K
+PiA+ICsJCS5vZl9jb21wYXRpYmxlICA9ICJkbGcsZGE5MDYyLXdhdGNoZG9nIiwNCj4gDQo+IFRo
+aXMgc2hvdWxkIGJlIGEgc2VwYXJhdGUgY2hhbmdlLg0KDQpPay4gcmV2ZXJ0ZWQuDQoNCj4gPiBA
+QCAtMjA4LDYgKzMyNCw3IEBAIHN0YXRpYyBpbnQgZGE5MDYyX2dldF9kZXZpY2VfdHlwZShzdHJ1
+Y3QgZGE5MDYyICpjaGlwKQ0KPiA+ICAJCWRldl9lcnIoY2hpcC0+ZGV2LCAiQ2Fubm90IHJlYWQg
+Y2hpcCBJRC5cbiIpOw0KPiA+ICAJCXJldHVybiAtRUlPOw0KPiA+ICAJfQ0KPiA+ICsNCj4gDQo+
+IFNuZWFreSENCg0KUmVtb3ZlZCB0aGUgd2hpdGVzcGFjZS4NCg==

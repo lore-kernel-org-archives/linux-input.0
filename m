@@ -1,48 +1,90 @@
-From: Even Xu <even.xu@intel.com>
-Subject: [PATCH 3/3] hid: intel-ish-hid: ipc: use msleep_interrupt() for wait
-Date: Fri, 11 Nov 2016 09:40:33 +0800
-Message-ID: <1478828433-31779-1-git-send-email-even.xu@intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:28419 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S935107AbcKKBkN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 10 Nov 2016 20:40:13 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Eric Wong <normalperson@yhbt.net>
+Subject: Re: BYD TouchPad driver (4.8.1) misdetects a Logitech mouse
+Date: Fri, 11 Nov 2016 01:57:57 +0000
+Message-ID: <20161111015757.GA10859@dcvr.yhbt.net>
+References: <20161015232444.7727e5f78910e8c610019143@michaelshell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20161015232444.7727e5f78910e8c610019143@michaelshell.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, chris@diamand.org, Michael Shell <list1@michaelshell.org>
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org
-Cc: linux-input@vger.kernel.org, srinivas.pandruvada@intel.com, Even Xu <even.xu@intel.com>
 
-set_current_task() must be called before schedule_timeout(), for this
-driver, in order to avoid incorrect usage, use msleep_interrupt()
-instead.
+Sorry for the late response, forwarding to Dmitry and linux-input.
+I haven't dealt with input in years...
 
-Signed-off-by: Even Xu <even.xu@intel.com>
----
- drivers/hid/intel-ish-hid/ipc/ipc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index 8194c35..86a36eb 100644
---- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-+++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -539,6 +539,8 @@ static int ish_fw_reset_handler(struct ishtp_device *dev)
- 	return	0;
- }
- 
-+#define TIMEOUT_FOR_HW_RDY_MS			300
-+
- /**
-  * ish_fw_reset_work_fn() - FW reset worker function
-  * @unused: not used
-@@ -552,7 +554,7 @@ static void fw_reset_work_fn(struct work_struct *unused)
- 	rv = ish_fw_reset_handler(ishtp_dev);
- 	if (!rv) {
- 		/* ISH is ILUP & ISHTP-ready. Restart ISHTP */
--		schedule_timeout(HZ / 3);
-+		msleep_interruptible(TIMEOUT_FOR_HW_RDY_MS);
- 		ishtp_dev->recvd_hw_ready = 1;
- 		wake_up_interruptible(&ishtp_dev->wait_hw_ready);
- 
--- 
-2.7.4
-
+Michael Shell <list1@michaelshell.org> wrote:
+> 
+> Not a big deal, but something nonetheless ...
+> 
+> I recently upgraded my kernel from 4.3 to 4.8.1 (this is a Linux From
+> Scratch build). There was only one obvious hiccup - X would not
+> start because it no longer saw the mouse.
+> 
+> I have a Logitech RX250 PS2/USB mouse on the PS/2 port (via a USB->PS2
+> adapter):
+> 
+> http://support.logitech.com/en_gb/product/rx250-mouse
+> 
+> The RX250 is a wheel mouse, but with an added left/right scroll wheel
+> "tilt" feature to provide for horizontal scrolling.
+> 
+> In my xorg.conf I had:
+> 
+> 
+> Section "InputDevice"
+>         Identifier      "Mouse0"
+>         Driver          "evdev"
+>         Option          "Name"  "ImExPS/2 Logitech Explorer Mouse"
+> EndSection
+> 
+> 
+> However, under the 4.8.1 kernel, cat /proc/bus/input/devices shows:
+> 
+> 
+> I: Bus=0011 Vendor=0002 Product=0006 Version=0073
+> N: Name="ImExPS/2 BYD TouchPad"
+> P: Phys=isa0060/serio1/input0
+> S: Sysfs=/devices/platform/i8042/serio1/input/input3
+> U: Uniq=
+> H: Handlers=mouse0 event2 
+> B: PROP=1
+> B: EV=7
+> B: KEY=1f0000 0 0 0 0 0 0 0 0
+> B: REL=143
+> 
+> 
+> and dmesg shows the lines:
+> 
+> 
+> psmouse serio1: logips2pp: Detected unknown Logitech mouse model 115
+> input: ImExPS/2 BYD TouchPad as /devices/platform/i8042/serio1/input/input3
+> 
+> 
+> Changing the mouse name in xorg.conf to "ImExPS/2 BYD TouchPad" did
+> allow the mouse to work correctly under X, including the tilt buttons.
+> FWIW, in the 4.8.1 kernel config, the byd.c driver does default to
+> "Yes", a default which I accepted under make oldconfig.
+> 
+> Apparently, the detection code (byd_detect) in the new byd.c driver,
+> which did not even exist in 4.3, (drivers/input/mouse/byd.c) falsely
+> sees the Logitech RX250 as being a BYD TouchPad and thus alters the
+> vendor and model names.
+> 
+> I do not know if it is also desirable to add an entry for a Logitech
+> model 115 in get_model_info in logips2pp.c
+> (drivers/input/mouse/logips2pp.c). But if so, I would be willing to
+> test any such new code. Even as an unknown Logitech model, it does
+> work just fine. I am curious as to how the tilt feature buttons would
+> be declared in the model info (would these be PS2PP_EXTRA_BTN,
+> or PS2PP_NAV_BTN, etc.?)
+> 
+> 
+> 
+>   Cheers and thanks in advance,
+>   
+>   Mike Shell
+> 

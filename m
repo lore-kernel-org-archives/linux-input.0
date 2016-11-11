@@ -1,35 +1,31 @@
-From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2] hid: hid-sensor-hub: clear memory to avoid random data
-Date: Fri, 11 Nov 2016 00:58:43 +0000
-Message-ID: <1478825923-12153-1-git-send-email-hongyan.song@intel.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Even Xu <even.xu@intel.com>
+Subject: [PATCH 0/3] Clean up ipc wait times
+Date: Fri, 11 Nov 2016 09:38:38 +0800
+Message-ID: <1478828319-31590-1-git-send-email-even.xu@intel.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga06.intel.com ([134.134.136.31]:4414 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S935107AbcKKBi6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 10 Nov 2016 20:38:58 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jikos@kernel.org
+Cc: linux-input@vger.kernel.org, srinivas.pandruvada@intel.com, Even Xu <even.xu@intel.com>
 
-Initialize user buffer with 0s. This will avoid random data in the buffer,
-when the user buffer size is bigger than the actual report size.
+This series addresses issue with schedule_timeout() calls and cleans
+up code around this.
 
-Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
-Changes in v2:
-    -clear memory in get_feature() instead of set_feature()
+Even Xu (3):
+  hid: intel-ish-hid: ipc: remove unused macro
+  hid: intel-ish-hid: ipc: change timed_wait_for_timeout() to be a
+    function
+  hid: intel-ish-hid: ipc: use msleep_interrupt() for wait
 
- drivers/hid/hid-sensor-hub.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/intel-ish-hid/ipc/ipc.c   | 66 +++++++++++++++++++++++++++++++----
+ drivers/hid/intel-ish-hid/ipc/utils.h | 64 ---------------------------------
+ 2 files changed, 60 insertions(+), 70 deletions(-)
+ delete mode 100644 drivers/hid/intel-ish-hid/ipc/utils.h
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 658a607..b74d954 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -252,6 +252,7 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 	int report_size;
- 	int ret = 0;
- 
-+	memset(buffer, 0, buffer_size);
- 	mutex_lock(&data->mutex);
- 	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
- 	if (!report || (field_index >= report->maxfield) ||
 -- 
-1.9.1
+2.7.4
+

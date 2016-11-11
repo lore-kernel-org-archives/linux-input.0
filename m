@@ -1,85 +1,59 @@
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH v7 9/9] DT:omap3+ads7846: use new common touchscreen bindings
-Date: Fri, 11 Nov 2016 20:02:06 +0100
-Message-ID: <bb3b82c63810026cd6c23a5788c3efc79fa53e60.1478890925.git.hns@goldelico.com>
-References: <cover.1478890925.git.hns@goldelico.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1478890925.git.hns@goldelico.com>
-In-Reply-To: <cover.1478890925.git.hns@goldelico.com>
-References: <cover.1478890925.git.hns@goldelico.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, =?UTF-8?q?Mika=20Penttil=C3=A4?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, Jonathan Cameron <jic23@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, letux-kernel@openphoenux.org, linux-iio@vger.kernel.org, kernel@pyra-handheld.com, "H. Nikolaus Schaller" <hns@goldelico.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH] HID: intel_ish-hid: use list_move_tail in
+ ishtp_cl_read_start
+Date: Fri, 11 Nov 2016 14:51:20 -0800
+Message-ID: <1478904680.20074.8.camel@linux.intel.com>
+References: <a23f3507ba7bad3d94ca8683d9021f1f565ec6aa.1478858593.git.geliangtang@gmail.com>
+         <3bdae868a5ebd999c5610f5b19e6a085c51db059.1478858760.git.geliangtang@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga06.intel.com ([134.134.136.31]:64695 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S934727AbcKKWvW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 11 Nov 2016 17:51:22 -0500
+In-Reply-To: <3bdae868a5ebd999c5610f5b19e6a085c51db059.1478858760.git.geliangtang@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Geliang Tang <geliangtang@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The standard touch screen bindings [1] replace the private ti,swap-xy
-with touchscreen-swaped-x-y. And for the Openpandora we use
-touchscreen-size etc. to match the LCD screen size.
+On Fri, 2016-11-11 at 20:26 +0800, Geliang Tang wrote:
+> Use list_move() instead of list_del() + list_add_tail() to simplify
+> the code.
+> 
+> Signed-off-by: Geliang Tang <geliangtang@gmail.com>
+> ---
+>  drivers/hid/intel-ish-hid/ishtp/client.c | 6 +-----
+>  1 file changed, 1 insertion(+), 5 deletions(-)
+> 
+> diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c
+> b/drivers/hid/intel-ish-hid/ishtp/client.c
+> index aad6132..0979e04 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp/client.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp/client.c
+> @@ -497,12 +497,8 @@ int ishtp_cl_read_start(struct ishtp_cl *cl)
+>  out:
+>  	/* if ishtp_hbm_cl_flow_control_req failed, return rb to
+> free list */
+>  	if (rets && rb) {
+> -		spin_lock_irqsave(&dev->read_list_spinlock,
+> dev_flags);
+> -		list_del(&rb->list);
+> -		spin_unlock_irqrestore(&dev->read_list_spinlock,
+> dev_flags);
+> -
+>  		spin_lock_irqsave(&cl->free_list_spinlock, flags);
+> -		list_add_tail(&rb->list, &cl->free_rb_list.list);
+> +		list_move_tail(&rb->list, &cl->free_rb_list.list);
+Logically the result is not same. They were protected under two
+spinlocks, now they are not.
 
-[1]: Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+Thanks,
+Srinivas
 
-Tested with OpenPandora.
-
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
----
- arch/arm/boot/dts/omap3-lilly-a83x.dtsi              |  2 +-
- arch/arm/boot/dts/omap3-pandora-common.dtsi          | 17 +++++++++++++----
- arch/arm/boot/dts/omap3-panel-sharp-ls037v7dw01.dtsi |  3 ++-
- 3 files changed, 16 insertions(+), 6 deletions(-)
-
-diff --git a/arch/arm/boot/dts/omap3-lilly-a83x.dtsi b/arch/arm/boot/dts/omap3-lilly-a83x.dtsi
-index fa611a5..b8b3864 100644
---- a/arch/arm/boot/dts/omap3-lilly-a83x.dtsi
-+++ b/arch/arm/boot/dts/omap3-lilly-a83x.dtsi
-@@ -325,7 +325,7 @@
- 		ti,y-max = /bits/ 16 <3600>;
- 		ti,x-plate-ohms = /bits/ 16 <80>;
- 		ti,pressure-max = /bits/ 16 <255>;
--		ti,swap-xy;
-+		touchscreen-swapped-x-y;
- 
- 		wakeup-source;
- 	};
-diff --git a/arch/arm/boot/dts/omap3-pandora-common.dtsi b/arch/arm/boot/dts/omap3-pandora-common.dtsi
-index b0d1551..d12008a 100644
---- a/arch/arm/boot/dts/omap3-pandora-common.dtsi
-+++ b/arch/arm/boot/dts/omap3-pandora-common.dtsi
-@@ -700,10 +700,19 @@
- 		pendown-gpio = <&gpio3 30 GPIO_ACTIVE_HIGH>;
- 		vcc-supply = <&vaux4>;
- 
--		ti,x-min = /bits/ 16 <0>;
--		ti,x-max = /bits/ 16 <8000>;
--		ti,y-min = /bits/ 16 <0>;
--		ti,y-max = /bits/ 16 <4800>;
-+		touchscreen-size-x = <800>;
-+		touchscreen-size-y = <480>;
-+		touchscreen-max-pressure = <1000>;
-+		touchscreen-fuzz-x = <16>;
-+		touchscreen-fuzz-y = <16>;
-+		touchscreen-fuzz-pressure = <10>;
-+		touchscreen-inverted-x;
-+		touchscreen-inverted-y;
-+
-+		ti,x-min = /bits/ 16 <160>;
-+		ti,x-max = /bits/ 16 <3900>;
-+		ti,y-min = /bits/ 16 <220>;
-+		ti,y-max = /bits/ 16 <3750>;
- 		ti,x-plate-ohms = /bits/ 16 <40>;
- 		ti,pressure-max = /bits/ 16 <255>;
- 
-diff --git a/arch/arm/boot/dts/omap3-panel-sharp-ls037v7dw01.dtsi b/arch/arm/boot/dts/omap3-panel-sharp-ls037v7dw01.dtsi
-index 157345b..3627a63 100644
---- a/arch/arm/boot/dts/omap3-panel-sharp-ls037v7dw01.dtsi
-+++ b/arch/arm/boot/dts/omap3-panel-sharp-ls037v7dw01.dtsi
-@@ -66,6 +66,7 @@
- 		ti,x-plate-ohms = /bits/ 16 <40>;
- 		ti,pressure-max = /bits/ 16 <255>;
- 		ti,swap-xy;
--		wakeup-source;
-+		touchscreen-swapped-x-y;
-+		linux,wakeup;
- 	};
- };
--- 
-2.7.3
+>  		spin_unlock_irqrestore(&cl->free_list_spinlock,
+> flags);
+>  	}
+>  	return rets;

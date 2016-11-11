@@ -1,7 +1,7 @@
 From: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH v2 3/3] drivers: mfd: ti_am335x_tscadc: increase ADC ref clock to 24MHz
-Date: Fri, 11 Nov 2016 13:28:38 +0530
-Message-ID: <20161111075838.5815-1-mugunthanvnm@ti.com>
+Subject: [PATCH v2 2/3] Input: ti_am335x_tsc: Add support for ti,charge-delay-ns
+Date: Fri, 11 Nov 2016 13:28:19 +0530
+Message-ID: <20161111075819.5760-1-mugunthanvnm@ti.com>
 References: <20161110163515.27598-1-mugunthanvnm@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,28 +12,62 @@ To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Increase ADC reference clock from 3MHz to 24MHz so that the
-sampling rates goes up from 100K samples per second to 800K
-samples per second on AM335x and AM437x SoC.
+ti,charge-delay will be deprecated as it represents number of
+clock cycles and the DT entries are done in assumption of 3MHz
+TSCADC clock, but clock can be set upto 24MHz. So driver add
+support for ti,charge-delay-ns and do not drop support for
+ti,charge-delay to support old dtbs and it will be assumed that
+it is for 3MHz TSCADC clock and will be calculated as per current
+clock speed.
 
 Signed-off-by: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
 ---
- include/linux/mfd/ti_am335x_tscadc.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/ti_am335x_tsc.c | 31 +++++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 8 deletions(-)
 
-diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
-index b9a53e013bff..f6c449b96ea5 100644
---- a/include/linux/mfd/ti_am335x_tscadc.h
-+++ b/include/linux/mfd/ti_am335x_tscadc.h
-@@ -137,7 +137,7 @@
- #define SEQ_STATUS BIT(5)
- #define CHARGE_STEP		0x11
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+index 7953381d939a..104b3640f728 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -379,15 +379,30 @@ static int titsc_parse_dt(struct platform_device *pdev,
+ 		ts_dev->coordinate_readouts = 5;
+ 	}
  
--#define ADC_CLK			3000000
-+#define ADC_CLK			24000000
- #define TOTAL_STEPS		16
- #define TOTAL_CHANNELS		8
- #define FIFO1_THRESHOLD		19
+-	err = of_property_read_u32(node, "ti,charge-delay",
++	err = of_property_read_u32(node, "ti,charge-delay-ns",
+ 				   &ts_dev->charge_delay);
+-	/*
+-	 * If ti,charge-delay value is not specified, then use
+-	 * CHARGEDLY_OPENDLY as the default value.
+-	 */
+-	if (err < 0) {
+-		ts_dev->charge_delay = CHARGEDLY_OPENDLY;
+-		dev_warn(&pdev->dev, "ti,charge-delay not specified\n");
++	if (err >= 0) {
++		u64 charge_delay = ts_dev->charge_delay;
++
++		charge_delay *= ADC_CLK;
++		do_div(charge_delay, 1E9);
++		ts_dev->charge_delay = (u32)charge_delay;
++	} else {
++		err = of_property_read_u32(node, "ti,charge-delay",
++					   &ts_dev->charge_delay);
++		/*
++		 * If ti,charge-delay value is not specified, then use
++		 * CHARGEDLY_OPENDLY as the default value.
++		 */
++		if (err < 0) {
++			ts_dev->charge_delay = CHARGEDLY_OPENDLY;
++			dev_warn(&pdev->dev, "ti,charge-delay not specified\n");
++		}
++		/*
++		 * ti,charge-delay is specified with referrence to 3MHz,
++		 * so convert it to in referrence to current clock
++		 */
++		ts_dev->charge_delay *= ADC_CLK / 3000000;
+ 	}
+ 
+ 	return of_property_read_u32_array(node, "ti,wire-config",
 -- 
 2.11.0.rc0.7.gbe5a750
 

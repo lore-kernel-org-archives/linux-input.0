@@ -1,12 +1,14 @@
 From: Even Xu <even.xu@intel.com>
 Subject: [PATCH 0/3] Clean up ipc wait times
-Date: Fri, 11 Nov 2016 09:38:38 +0800
-Message-ID: <1478828319-31590-1-git-send-email-even.xu@intel.com>
+Date: Fri, 11 Nov 2016 09:38:39 +0800
+Message-ID: <1478828319-31590-2-git-send-email-even.xu@intel.com>
+References: <1478828319-31590-1-git-send-email-even.xu@intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:4414 "EHLO mga06.intel.com"
+Received: from mga07.intel.com ([134.134.136.100]:19367 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S935107AbcKKBi6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 10 Nov 2016 20:38:58 -0500
+        id S935107AbcKKBjU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 10 Nov 2016 20:39:20 -0500
+In-Reply-To: <1478828319-31590-1-git-send-email-even.xu@intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jikos@kernel.org

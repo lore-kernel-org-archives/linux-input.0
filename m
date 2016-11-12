@@ -1,103 +1,68 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: byd - use DMI detection
-Date: Sat, 12 Nov 2016 11:13:13 -0800
-Message-ID: <20161112191313.GB5809@dtor-ws>
-References: <20161111235759.11988-1-chris@diamand.org>
+Subject: [PATCH] Input: psmouse - disable automatic probing of BYD touchpads
+Date: Sat, 12 Nov 2016 11:15:45 -0800
+Message-ID: <20161112191545.GA19531@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:36764 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S966695AbcKLTNR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 12 Nov 2016 14:13:17 -0500
-Received: by mail-pf0-f196.google.com with SMTP id c4so1365154pfb.3
-        for <linux-input@vger.kernel.org>; Sat, 12 Nov 2016 11:13:16 -0800 (PST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20161111235759.11988-1-chris@diamand.org>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Chris Diamand <chris@diamand.org>, phonesyfreakies@gmail.com, Michael Shell <list1@michaelshell.org>, Eric Wong <normalperson@yhbt.net>, Ondrej Zary <linux@rainbow-software.org>, Christophe TORDEUX <christophe@tordeux.net>, Richard Pospesel <pospeselr@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Diamand <chris@diamand.org>
-Cc: Richard Pospesel <pospeselr@gmail.com>, linux-input@vger.kernel.org, phonesyfreakies@gmail.com, Michael Shell <list1@michaelshell.org>, Ondrej Zary <linux@rainbow-software.org>
 
-On Fri, Nov 11, 2016 at 11:57:59PM +0000, Chris Diamand wrote:
-> Because the BYD touchpad uses standard PS/2 commands for its
-> detection sequence, some other models are incorrectly detected as BYD
-> touchpads. This causes chaos when byd_init() later fails.
-> 
-> To fix this, init() and detect() should be merged. However, this
-> would slow down detection for other mouse models. Instead, add a DMI
-> check before attempting touchpad detection.
-> 
-> Signed-off-by: Chris Diamand <chris@diamand.org>
-> ---
-> Hi all,
-> 
-> This patch should fix the mis-detection of some mouse models as BYD touchpads,
-> as mentioned in a few bug reports and other threads.
-> 
-> However, I no longer have a machine with a BYD touchpad (although I did record
-> its DMI data), so this is mostly untested - could anyone *with* a BYD touchpad
-> please try this patch to check their touchpad still works, and could anyone
-> with a misdetected non-BYD touchpad please check that this fixes the
-> misdetection?
-> 
-> Also, the DMI fields really are pretty much all like that ("To Be Filled By
-> O.E.M.", etc). I've tried to choose the most specific ones, but it's still
-> fairly arbitrary...
+BYD automatic protocol detection is extremely unreliable and is often
+triggers false positives on regular mice, Sentelic touchpads, and other
+devices. BYD has several documents that have recommended detection
+sequence, but they conflict with each other and, as far as I can see, still
+would not produce unique enough output to reliably differentiate BYD from
+other PS/2 devices.
 
-No, unfortunately this will trigger on many more whitebox devices.
+OEMs sourcing BYD devices also do not do us any favors by not supplying any
+reasonable DMI data and instead leaving turds like "To Be Filled By O.E.M."
+in place of vendor data, or "System Serial Number" as serial number.
 
-> 
-> Cheers!
-> Chris
-> 
->  drivers/input/mouse/byd.c | 15 +++++++++++++++
->  1 file changed, 15 insertions(+)
-> 
-> diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
-> index b27aa63..b4c5fd0 100644
-> --- a/drivers/input/mouse/byd.c
-> +++ b/drivers/input/mouse/byd.c
-> @@ -13,6 +13,7 @@
->   */
->  
->  #include <linux/delay.h>
-> +#include <linux/dmi.h>
->  #include <linux/input.h>
->  #include <linux/libps2.h>
->  #include <linux/serio.h>
-> @@ -235,6 +236,17 @@ struct byd_data {
->  	bool touch;
->  };
->  
-> +static const struct dmi_system_id byd_dmi_table[] = {
-> +	{
-> +		.matches = {
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "SharkBay Platform"),
-> +			DMI_MATCH(DMI_PRODUCT_SERIAL, "System Serial Number"),
-> +			DMI_MATCH(DMI_BOARD_NAME, "WhiteTip Mountain1 Fab2"),
-> +			DMI_MATCH(DMI_CHASSIS_VENDOR, "To Be Filled By O.E.M."),
-> +		},
-> +	},
-> +};
-> +
->  static void byd_report_input(struct psmouse *psmouse)
->  {
->  	struct byd_data *priv = psmouse->private;
-> @@ -439,6 +451,9 @@ int byd_detect(struct psmouse *psmouse, bool set_properties)
->  	struct ps2dev *ps2dev = &psmouse->ps2dev;
->  	u8 param[4] = {0x03, 0x00, 0x00, 0x00};
->  
-> +	if (!dmi_check_system(byd_dmi_table))
-> +		return -1;
-> +
->  	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
->  		return -1;
->  	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
-> -- 
-> 2.10.1
-> 
+On top of that BYD is not truly modern multitouch controller, but rather a
+single-touch transitional device that only reports absolute coordinates at
+the beginning of finger contact and then reverts to reporting
+displacements, and thus not very precise; the only benefit from using BYD
+mode vs the legacy PS/2 mode is possibility of edge scrolling.
+
+Given the above, and the fact that BYD devices are somewhat uncommon, let's
+disable automatic detection of BYD devices. Users who know they have BYD
+trackpads or want to experiment can attempt to activate BYD protocol via
+sysfs:
+
+	echo -n "byd" > /sys/bus/serio/devices/serio1/drvctl
+
+Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=151691
+Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=175421
+Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=120781
+Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=121281
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/mouse/psmouse-base.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index fb4b185..bee2674 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -1115,10 +1115,6 @@ static int psmouse_extensions(struct psmouse *psmouse,
+ 		if (psmouse_try_protocol(psmouse, PSMOUSE_TOUCHKIT_PS2,
+ 					 &max_proto, set_properties, true))
+ 			return PSMOUSE_TOUCHKIT_PS2;
+-
+-		if (psmouse_try_protocol(psmouse, PSMOUSE_BYD,
+-					 &max_proto, set_properties, true))
+-			return PSMOUSE_BYD;
+ 	}
+ 
+ 	/*
+-- 
+2.8.0.rc3.226.g39d4020
+
 
 -- 
 Dmitry

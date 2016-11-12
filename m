@@ -1,86 +1,114 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] drivers: tca8418: Change the interrupt type
-Date: Fri, 11 Nov 2016 17:24:17 -0800
-Message-ID: <20161112012417.GB37875@dtor-ws>
-References: <20161107144024.15291-1-maxime.ripard@free-electrons.com>
- <20161109000400.GA8719@dtor-ws>
- <20161109080235.v23y42bojnwcw6rk@lukather>
- <20161110040208.GA9498@dtor-ws>
- <20161110091302.cjn4srrpxtg2mknv@lukather>
+From: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+Subject: [PATCH] input: twl4030_keypad: make driver DT only
+Date: Sat, 12 Nov 2016 12:55:55 +0200
+Message-ID: <1478948155-30219-1-git-send-email-Nicolae_Rosia@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:36394 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934430AbcKLBYU (ORCPT
+Received: from relay1.mentorg.com ([192.94.38.131]:42868 "EHLO
+        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932115AbcKLK4H (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Nov 2016 20:24:20 -0500
-Content-Disposition: inline
-In-Reply-To: <20161110091302.cjn4srrpxtg2mknv@lukather>
+        Sat, 12 Nov 2016 05:56:07 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Nicolae Rosia <Nicolae_Rosia@mentor.com>
 
-On Thu, Nov 10, 2016 at 10:13:02AM +0100, Maxime Ripard wrote:
-> On Wed, Nov 09, 2016 at 08:02:08PM -0800, Dmitry Torokhov wrote:
-> > On Wed, Nov 09, 2016 at 09:02:35AM +0100, Maxime Ripard wrote:
-> > > Hello Dmitry,
-> > > 
-> > > On Tue, Nov 08, 2016 at 04:04:00PM -0800, Dmitry Torokhov wrote:
-> > > > On Mon, Nov 07, 2016 at 03:40:24PM +0100, Maxime Ripard wrote:
-> > > > > The TCA8418 interrupt has a level trigger, not a edge one.
-> > > > > 
-> > > > > Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-> > > > 
-> > > > Hmm, maybe we could rely on OF data for trigger type?
-> > > 
-> > > We might, even though the i2c core doesn't change the trigger type
-> > > when it retrieves the interrupt from the DT.
-> > 
-> > i2c core itself does not, and should not, but irq code does:
-> > 
-> > of_irq_get() -> irq_create_of_mapping() -> irq_create_fwspec_mapping()
-> > -> irqd_set_trigger_type().
-> 
-> Ah, indeed, I overlooked that. I wonder why platform_get_irq does it
-> then.
-> 
-> > 
-> > > 
-> > > However, I'm a bit worried about the other probing mechanims (ACPI,
-> > > board files) that should be supported as well, and removing the
-> > > trigger type from the flags might break those. There's no board files
-> > > using it though in the tree, but I don't know about ACPI systems.
-> > 
-> > The driver is not enabled for ACPI systems, at least not in mainline.
-> 
-> Ok. Good.
-> 
-> > By the way, this is what TCA8418 binding dochas to say:
-> > 
-> > "- interrupts: IRQ line number, should trigger on falling edge"
-> > 
-> > so it seems there was at least one system that needed falling edge and
-> > not level interrupt.
-> 
-> I don't know, looking at the datasheet, it really looks like it's
-> level triggered to me, and we were actually seeing issues when set in
-> edge.
-> 
-> http://www.ti.com/lit/ds/symlink/tca8418.pdf
-> Especially page 20 and 33.
-> 
-> My understanding is that in input, the chip will trigger on edges, but
-> the line coming from that device to the SoC will be level triggered.
+All users are DT-only and it makes no sense to keep
+unused code
 
-The issue is that it is not necessarily connected directly to the
-SoC/AP. It could be on a daughterboard with any number of converters,
-possibly inverting polarity, or doing level->edge, etc. So the only sane
-solution is to leave it to device tree to describe the setup to the
-driver.
+Signed-off-by: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+---
+ drivers/input/keyboard/Kconfig          |  1 +
+ drivers/input/keyboard/twl4030_keypad.c | 32 ++++++++++++--------------------
+ 2 files changed, 13 insertions(+), 20 deletions(-)
 
-Thanks.
-
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index cbd75cf..5c290b6 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -669,6 +669,7 @@ config KEYBOARD_TC3589X
+ config KEYBOARD_TWL4030
+ 	tristate "TI TWL4030/TWL5030/TPS659x0 keypad support"
+ 	depends on TWL4030_CORE
++	depends on OF
+ 	select INPUT_MATRIXKMAP
+ 	help
+ 	  Say Y here if your board use the keypad controller on
+diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
+index 323a0fb..af68330 100644
+--- a/drivers/input/keyboard/twl4030_keypad.c
++++ b/drivers/input/keyboard/twl4030_keypad.c
+@@ -335,13 +335,18 @@ static int twl4030_kp_program(struct twl4030_keypad *kp)
+  */
+ static int twl4030_kp_probe(struct platform_device *pdev)
+ {
+-	struct twl4030_keypad_data *pdata = dev_get_platdata(&pdev->dev);
+ 	const struct matrix_keymap_data *keymap_data = NULL;
+ 	struct twl4030_keypad *kp;
+ 	struct input_dev *input;
++	struct device_node *np = pdev->dev.of_node;
+ 	u8 reg;
+ 	int error;
+ 
++	if (!np) {
++		dev_err(&pdev->dev, "no DT info\n");
++		return -EINVAL;
++	}
++
+ 	kp = devm_kzalloc(&pdev->dev, sizeof(*kp), GFP_KERNEL);
+ 	if (!kp)
+ 		return -ENOMEM;
+@@ -363,28 +368,17 @@ static int twl4030_kp_probe(struct platform_device *pdev)
+ 	input->id.product	= 0x0001;
+ 	input->id.version	= 0x0003;
+ 
+-	if (pdata) {
+-		if (!pdata->rows || !pdata->cols || !pdata->keymap_data) {
+-			dev_err(&pdev->dev, "Missing platform_data\n");
+-			return -EINVAL;
+-		}
++	error = matrix_keypad_parse_of_params(&pdev->dev, &kp->n_rows,
++					      &kp->n_cols);
++	if (error)
++		return error;
+ 
+-		kp->n_rows = pdata->rows;
+-		kp->n_cols = pdata->cols;
+-		kp->autorepeat = pdata->rep;
+-		keymap_data = pdata->keymap_data;
+-	} else {
+-		error = matrix_keypad_parse_of_params(&pdev->dev, &kp->n_rows,
+-						      &kp->n_cols);
+-		if (error)
+-			return error;
++	kp->autorepeat = true;
+ 
+-		kp->autorepeat = true;
+-	}
+ 
+ 	if (kp->n_rows > TWL4030_MAX_ROWS || kp->n_cols > TWL4030_MAX_COLS) {
+ 		dev_err(&pdev->dev,
+-			"Invalid rows/cols amount specified in platform/devicetree data\n");
++			"Invalid rows/cols amount specified in DT\n");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -445,13 +439,11 @@ static int twl4030_kp_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_OF
+ static const struct of_device_id twl4030_keypad_dt_match_table[] = {
+ 	{ .compatible = "ti,twl4030-keypad" },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, twl4030_keypad_dt_match_table);
+-#endif
+ 
+ /*
+  * NOTE: twl4030 are multi-function devices connected via I2C.
 -- 
-Dmitry
+2.5.5
+

@@ -1,65 +1,38 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v2] HID: udraw: Add support for the uDraw tablet for PS3
-Date: Sat, 12 Nov 2016 18:25:57 +0100
-Message-ID: <1478971557.2497.17.camel@hadess.net>
-References: <1478274223-3633-1-git-send-email-hadess@hadess.net>
-         <alpine.LNX.2.00.1611081422170.29400@cbobk.fhfr.pm>
-         <1478611807.2497.2.camel@hadess.net>
+From: Richard Pospesel <pospeselr@gmail.com>
+Subject: Re: [PATCH] Input: byd - use DMI detection
+Date: Sat, 12 Nov 2016 09:33:57 -0800
+Message-ID: <CAHc7Qt2xPTsWbjZdy1FBWCT5Lz43=9Tzj5FVpsn87=6VfFmPGg@mail.gmail.com>
+References: <20161111235759.11988-1-chris@diamand.org> <58270744.cf3fc20a.1e77d.30f0@mx.google.com>
+ <20161112144814.wt3yct4iztil6a3e@peridot.local.diamand.org> <201611121604.43032@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:35486 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S966401AbcKLR0C (ORCPT
+Received: from mail-qk0-f171.google.com ([209.85.220.171]:34650 "EHLO
+        mail-qk0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S966604AbcKLRd6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 12 Nov 2016 12:26:02 -0500
-In-Reply-To: <1478611807.2497.2.camel@hadess.net>
+        Sat, 12 Nov 2016 12:33:58 -0500
+Received: by mail-qk0-f171.google.com with SMTP id q130so54354115qke.1
+        for <linux-input@vger.kernel.org>; Sat, 12 Nov 2016 09:33:58 -0800 (PST)
+In-Reply-To: <201611121604.43032@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
+Cc: Chris Diamand <chris@diamand.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Tue, 2016-11-08 at 14:30 +0100, Bastien Nocera wrote:
-> On Tue, 2016-11-08 at 14:23 +0100, Jiri Kosina wrote:
-> > 
-<snip>
-> > Hi Bastien,
-> > 
-> > overall the driver looks ok to me, thanks. Probably the only
-> > concern
-> > I'd 
-> > have -- traditionally, we've always been naming drivers by the
-> > vendor, as 
-> > it turned out that over time they get extended by adding support
-> > for 
-> > multiple devices with the same vendor, and usually there is quite
-> > some 
-> > overlap in shared code.
-> 
-> In that particular case, I'd rather it got renamed to "hid-udraw-ps3"
-> in this case. The XBox 360 and Wii versions use completely different
-> protocols:
-> http://brandonw.net/udraw/
-> 
-> The XBox 360 version is more likely to be integrated in with other
-> XBox
-> pads, and the Wii version along with other Wii Bluetooth remotes.
-> 
-> > Hence I'd propose to call this driver hid-thq (if that's really
-> > the 
-> > vendor's proper name, doesn't seem to be present in latest usb.ids 
-> > release).
-> 
-> THQ went under in 2012, as a result of making too many of those
-> drawing
-> tablets:
-> https://en.wikipedia.org/wiki/THQ
-> 
-> I'm fine with it either way. Just let me know which one you prefer.
+> How is windows detecting presence of BYD touchpads? Should we use
+> something similar? Or are not there some (public) documentation about
+> it?
 
-So, any preference? The sooner you make that choice, the sooner I can
-send an updated patch and push this into my distribution's kernel. I
-have a machine waiting on the hardware driver for control :)
+Windows doesn't detect it correctly without BYD's kernel driver installed.
 
-Cheers
+The only publicly available info on these can be found here:
+
+http://bydit.com/doce/products/microelectronics/2474.html
+
+Iv'e already tried getting mroe info from BYD, all they could find was a PDF
+which enumerated the gesture types and the packet id used for each (byte 4).
+No info there regarding protocol, etc.
+
+best,
+-Richard

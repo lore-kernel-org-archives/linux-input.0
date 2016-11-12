@@ -1,91 +1,98 @@
-From: Chris Diamand <chris@diamand.org>
-Subject: [PATCH] Input: byd - use DMI detection
-Date: Fri, 11 Nov 2016 23:57:59 +0000
-Message-ID: <20161111235759.11988-1-chris@diamand.org>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v5 0/3] Input: ALPS - Bug fix and cleanup for SS5 hardware
+Date: Sat, 12 Nov 2016 02:03:42 +0100
+Message-ID: <201611120203.44330@pali>
+References: <20161110151942.GA3969@pali> <201611111459.12642@pali> <20161112005621.GA20989@dtor-glaptop>
+Mime-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1538340.yB7YbvZvmc";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:36117 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S964958AbcKKX6N (ORCPT
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:33171 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S965894AbcKLBDr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Nov 2016 18:58:13 -0500
-Received: by mail-wm0-f67.google.com with SMTP id m203so655123wma.3
-        for <linux-input@vger.kernel.org>; Fri, 11 Nov 2016 15:58:12 -0800 (PST)
+        Fri, 11 Nov 2016 20:03:47 -0500
+Received: by mail-wm0-f66.google.com with SMTP id u144so875300wmu.0
+        for <linux-input@vger.kernel.org>; Fri, 11 Nov 2016 17:03:46 -0800 (PST)
+In-Reply-To: <20161112005621.GA20989@dtor-glaptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Richard Pospesel <pospeselr@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: phonesyfreakies@gmail.com, Michael Shell <list1@michaelshell.org>, Ondrej Zary <linux@rainbow-software.org>, Chris Diamand <chris@diamand.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Paul Donohue <linux-kernel@paulsd.com>, linux-input@vger.kernel.org, Ben Gamari <ben@smart-cactus.org>, Michal Hocko <mhocko@suse.com>
 
-Because the BYD touchpad uses standard PS/2 commands for its
-detection sequence, some other models are incorrectly detected as BYD
-touchpads. This causes chaos when byd_init() later fails.
+--nextPart1538340.yB7YbvZvmc
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-To fix this, init() and detect() should be merged. However, this
-would slow down detection for other mouse models. Instead, add a DMI
-check before attempting touchpad detection.
+On Saturday 12 November 2016 01:56:21 Dmitry Torokhov wrote:
+> On Fri, Nov 11, 2016 at 02:59:09PM +0100, Pali Roh=C3=A1r wrote:
+> > On Thursday 10 November 2016 17:44:43 Paul Donohue wrote:
+> > > This series includes a bug fix and assorted cleanup for the Alps
+> > > SS5 (SS4 v2) code.
+> > >=20
+> > > Changes in v5:
+> > > * Moved TrackStick decoding logic to alps_process_packet_ss4_v2()
+> > > to
+> > >=20
+> > >   make the code more consistent with other protocol versions
+> > >   (Suggested by Pali Roh=C3=A1r <pali.rohar@gmail.com>)
+> > >=20
+> > > Changes in v4:
+> > > * Fixed patch formatting issues
+> > > * Correct casting issues in macros added in v3
+> > >=20
+> > > Changes in v3:
+> > > * Added additional code cleanup to make the code easier to
+> > > understand
+> > >=20
+> > >   (Suggested by Pali Roh=C3=A1r <pali.rohar@gmail.com>)
+> > >=20
+> > > Changes in v2:
+> > > * For consistency with other Alps functions, check packet bytes
+> > > for
+> > >=20
+> > >   packet type rather than adding a flag to alps_fields for packet
+> > >=20
+> > > type. (Suggested by Pali Roh=C3=A1r <pali.rohar@gmail.com>)
+> > >=20
+> > > Paul Donohue (3):
+> > >   Input: ALPS - Fix TrackStick support for SS5 hardware
+> > >   Input: ALPS - Clean up TrackStick handling for SS5 hardware
+> > >   Input: ALPS - Clean up code for SS5 hardware
+> > > =20
+> > >  drivers/input/mouse/alps.c | 59
+> > >=20
+> > > +++++++++++++++++++++++++---------------------
+> > > drivers/input/mouse/alps.h | 22 ++++++++++++++++-
+> > >=20
+> > >  2 files changed, 53 insertions(+), 28 deletions(-)
+> >=20
+> > Whole patch series looks fine.
+> > You can add my Reviewed-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+>=20
+> FYI: I do not see a dingle email from Paul, only your replies.
 
-Signed-off-by: Chris Diamand <chris@diamand.org>
----
-Hi all,
+Patches were sent to linux-input@vger.kernel.org ML. Maybe some spam=20
+filter ate emails? Btw I added you to receivers of my last sent email.
 
-This patch should fix the mis-detection of some mouse models as BYD touchpads,
-as mentioned in a few bug reports and other threads.
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-However, I no longer have a machine with a BYD touchpad (although I did record
-its DMI data), so this is mostly untested - could anyone *with* a BYD touchpad
-please try this patch to check their touchpad still works, and could anyone
-with a misdetected non-BYD touchpad please check that this fixes the
-misdetection?
+--nextPart1538340.yB7YbvZvmc
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-Also, the DMI fields really are pretty much all like that ("To Be Filled By
-O.E.M.", etc). I've tried to choose the most specific ones, but it's still
-fairly arbitrary...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-Cheers!
-Chris
+iEYEABECAAYFAlgmanAACgkQi/DJPQPkQ1JP8ACgqtrs+l245SEv560kHpXsNw4R
+fSkAoK/zaLGzPQaGo/ddyC2luibeKN8g
+=j1y4
+-----END PGP SIGNATURE-----
 
- drivers/input/mouse/byd.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
-
-diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
-index b27aa63..b4c5fd0 100644
---- a/drivers/input/mouse/byd.c
-+++ b/drivers/input/mouse/byd.c
-@@ -13,6 +13,7 @@
-  */
- 
- #include <linux/delay.h>
-+#include <linux/dmi.h>
- #include <linux/input.h>
- #include <linux/libps2.h>
- #include <linux/serio.h>
-@@ -235,6 +236,17 @@ struct byd_data {
- 	bool touch;
- };
- 
-+static const struct dmi_system_id byd_dmi_table[] = {
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "SharkBay Platform"),
-+			DMI_MATCH(DMI_PRODUCT_SERIAL, "System Serial Number"),
-+			DMI_MATCH(DMI_BOARD_NAME, "WhiteTip Mountain1 Fab2"),
-+			DMI_MATCH(DMI_CHASSIS_VENDOR, "To Be Filled By O.E.M."),
-+		},
-+	},
-+};
-+
- static void byd_report_input(struct psmouse *psmouse)
- {
- 	struct byd_data *priv = psmouse->private;
-@@ -439,6 +451,9 @@ int byd_detect(struct psmouse *psmouse, bool set_properties)
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
- 	u8 param[4] = {0x03, 0x00, 0x00, 0x00};
- 
-+	if (!dmi_check_system(byd_dmi_table))
-+		return -1;
-+
- 	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
- 		return -1;
- 	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
--- 
-2.10.1
-
+--nextPart1538340.yB7YbvZvmc--

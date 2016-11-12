@@ -1,74 +1,70 @@
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: Re: [PATCH v7 4/9] drivers:input:tsc2007: add iio interface to read external ADC input and temperature
-Date: Sat, 12 Nov 2016 20:22:59 +0100
-Message-ID: <6219C71A-909F-4915-AACF-66E4D612016A@goldelico.com>
-References: <cover.1478890925.git.hns@goldelico.com> <6c64bb0331ad05840a2886bef6c3cfa64c866cb6.1478890925.git.hns@goldelico.com> <fc901399-0bde-d936-b9e2-4c591549eb55@kernel.org> <b4d79a26-4353-9860-a884-49c751bbe617@kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=windows-1252
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] Input: psmouse - disable automatic probing of BYD touchpads
+Date: Sat, 12 Nov 2016 20:39:32 +0100
+Message-ID: <201611122039.33245@pali>
+References: <20161112191545.GA19531@dtor-ws>
+Mime-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2066006.hKQSnr5iPu";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.163]:33257 "EHLO
-        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S966663AbcKLTXN (ORCPT
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:35193 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S966793AbcKLTjg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 12 Nov 2016 14:23:13 -0500
-In-Reply-To: <b4d79a26-4353-9860-a884-49c751bbe617@kernel.org>
+        Sat, 12 Nov 2016 14:39:36 -0500
+In-Reply-To: <20161112191545.GA19531@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, =?windows-1252?Q?Beno=EEt_Cousson?= <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, =?windows-1252?Q?Mika_Penttil=E4?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, letux-kernel@openphoenux.org, linux-iio@vger.kernel.org, kernel@pyra-handheld.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Chris Diamand <chris@diamand.org>, phonesyfreakies@gmail.com, Michael Shell <list1@michaelshell.org>, Eric Wong <normalperson@yhbt.net>, Ondrej Zary <linux@rainbow-software.org>, Christophe TORDEUX <christophe@tordeux.net>, Richard Pospesel <pospeselr@gmail.com>, linux-kernel@vger.kernel.org
 
-> Am 12.11.2016 um 15:19 schrieb Jonathan Cameron <jic23@kernel.org>:
-> 
-> On 12/11/16 14:04, Jonathan Cameron wrote:
->> On 11/11/16 19:02, H. Nikolaus Schaller wrote:
->>> The tsc2007 chip not only has a resistive touch screen controller but
->>> also an external AUX adc imput which can be used for an ambient
->>> light sensor, battery voltage monitoring or any general purpose.
->>> 
->>> Additionally it can measure the chip temperature.
->>> 
->>> This extension provides an iio interface for these adc channels.
->>> 
->>> Since it is not wasting much resources and is very straightforward,
->>> we simply provide all other adc channels as optional iio interfaces
->>> as weel. This can be used for debugging or special applications.
->>> 
->>> This patch also splits the tsc2007 driver in several source files:
->>> tsc2007.h -- constants, structs and stubs
->>> tsc2007_core.c -- functional parts of the original driver
->>> tsc2007_iio.c -- the optional iio stuff
->>> 
->>> Makefile magic allows to conditionally link the iio
->>> stuff if CONFIG_IIO=y in a way that it works with
->>> CONFIG_TOUCHSCREEN_TSC2007=m.
->>> 
->> 
->> I ran a quick build test and it blows up in a number of ways related to
->> the #ifdef CONFIG_IIO.
->> 
->> I'm not entirely sure why but
->> #if IS_ENABLED(CONFIG_IIO) works fine.
-> Ah, I'm being sleepy today.  It's because I'm building IIO as a module
-> and the symbol defined would therefore be CONFIG_IIO_MODULE.
-> 
-> The IS_ENABLED macro takes care of both cases.
+--nextPart2066006.hKQSnr5iPu
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Ah, yes. I wasn't aware that CONFIG_IIO is tristate at all.
-We have it as "y" and therefore didn't notice.
+On Saturday 12 November 2016 20:15:45 Dmitry Torokhov wrote:
+> BYD automatic protocol detection is extremely unreliable and is often
+> triggers false positives on regular mice, Sentelic touchpads, and
+> other devices. BYD has several documents that have recommended
+> detection sequence, but they conflict with each other and, as far as
+> I can see, still would not produce unique enough output to reliably
+> differentiate BYD from other PS/2 devices.
+>=20
+> OEMs sourcing BYD devices also do not do us any favors by not
+> supplying any reasonable DMI data and instead leaving turds like "To
+> Be Filled By O.E.M." in place of vendor data, or "System Serial
+> Number" as serial number.
+=2E..
+> 	echo -n "byd" > /sys/bus/serio/devices/serio1/drvctl
 
-I will collect this fix for V8.
+I agree, if we cannot detect BYD devices correctly without breaking=20
+other non-BYD devices then detection must be done by user...
 
->> 
->> Otherwise looks good to me
->>> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
->> Reviewed-by: Jonathan Cameron <jic23@kernel.org>
+So you can add my Reviewed-by: Pali Roh=C3=A1r to this patch.
 
-Will add this as well.
+Anyway, BYD show Linux as supported OS for their devices. It is really=20
+rude from BYD that they show Linux as supported OS, but Linux driver is=20
+reverse-engineered by community and they do not want to cooperate and at=20
+least provide some useful documentation for detection...
 
-Thanks for the detailled review!
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-BR,
-Nikolaus
+--nextPart2066006.hKQSnr5iPu
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
+iEYEABECAAYFAlgnb/UACgkQi/DJPQPkQ1K4twCghQJAV65L9bVypvuCiAkGZ9Qf
+mJ0An1/VkdUcxuaFXpHhV9C1GwLhIWeP
+=g+iS
+-----END PGP SIGNATURE-----
+
+--nextPart2066006.hKQSnr5iPu--

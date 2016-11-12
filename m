@@ -1,68 +1,86 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 0/3] Input: ALPS - Bug fix and cleanup for SS5 hardware
-Date: Fri, 11 Nov 2016 16:56:21 -0800
-Message-ID: <20161112005621.GA20989@dtor-glaptop>
-References: <20161110151942.GA3969@pali>
- <1478796286-1924-1-git-send-email-linux-kernel@PaulSD.com>
- <201611111459.12642@pali>
+Subject: Re: [PATCH] drivers: tca8418: Change the interrupt type
+Date: Fri, 11 Nov 2016 17:24:17 -0800
+Message-ID: <20161112012417.GB37875@dtor-ws>
+References: <20161107144024.15291-1-maxime.ripard@free-electrons.com>
+ <20161109000400.GA8719@dtor-ws>
+ <20161109080235.v23y42bojnwcw6rk@lukather>
+ <20161110040208.GA9498@dtor-ws>
+ <20161110091302.cjn4srrpxtg2mknv@lukather>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:34391 "EHLO
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:36394 "EHLO
         mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965548AbcKLBLY (ORCPT
+        with ESMTP id S934430AbcKLBYU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Nov 2016 20:11:24 -0500
-Received: by mail-pg0-f67.google.com with SMTP id e9so2714969pgc.1
-        for <linux-input@vger.kernel.org>; Fri, 11 Nov 2016 17:11:24 -0800 (PST)
+        Fri, 11 Nov 2016 20:24:20 -0500
 Content-Disposition: inline
-In-Reply-To: <201611111459.12642@pali>
+In-Reply-To: <20161110091302.cjn4srrpxtg2mknv@lukather>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Paul Donohue <linux-kernel@paulsd.com>, linux-input@vger.kernel.org, Ben Gamari <ben@smart-cactus.org>, Michal Hocko <mhocko@suse.com>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2016 at 02:59:09PM +0100, Pali Rohár wrote:
-> On Thursday 10 November 2016 17:44:43 Paul Donohue wrote:
-> > This series includes a bug fix and assorted cleanup for the Alps SS5
-> > (SS4 v2) code.
+On Thu, Nov 10, 2016 at 10:13:02AM +0100, Maxime Ripard wrote:
+> On Wed, Nov 09, 2016 at 08:02:08PM -0800, Dmitry Torokhov wrote:
+> > On Wed, Nov 09, 2016 at 09:02:35AM +0100, Maxime Ripard wrote:
+> > > Hello Dmitry,
+> > > 
+> > > On Tue, Nov 08, 2016 at 04:04:00PM -0800, Dmitry Torokhov wrote:
+> > > > On Mon, Nov 07, 2016 at 03:40:24PM +0100, Maxime Ripard wrote:
+> > > > > The TCA8418 interrupt has a level trigger, not a edge one.
+> > > > > 
+> > > > > Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+> > > > 
+> > > > Hmm, maybe we could rely on OF data for trigger type?
+> > > 
+> > > We might, even though the i2c core doesn't change the trigger type
+> > > when it retrieves the interrupt from the DT.
 > > 
-> > Changes in v5:
-> > * Moved TrackStick decoding logic to alps_process_packet_ss4_v2() to
-> >   make the code more consistent with other protocol versions
-> >   (Suggested by Pali Rohár <pali.rohar@gmail.com>)
+> > i2c core itself does not, and should not, but irq code does:
 > > 
-> > Changes in v4:
-> > * Fixed patch formatting issues
-> > * Correct casting issues in macros added in v3
-> > 
-> > Changes in v3:
-> > * Added additional code cleanup to make the code easier to understand
-> >   (Suggested by Pali Rohár <pali.rohar@gmail.com>)
-> > 
-> > Changes in v2:
-> > * For consistency with other Alps functions, check packet bytes for
-> >   packet type rather than adding a flag to alps_fields for packet
-> > type. (Suggested by Pali Rohár <pali.rohar@gmail.com>)
-> > 
-> > Paul Donohue (3):
-> >   Input: ALPS - Fix TrackStick support for SS5 hardware
-> >   Input: ALPS - Clean up TrackStick handling for SS5 hardware
-> >   Input: ALPS - Clean up code for SS5 hardware
-> > 
-> >  drivers/input/mouse/alps.c | 59
-> > +++++++++++++++++++++++++---------------------
-> > drivers/input/mouse/alps.h | 22 ++++++++++++++++-
-> >  2 files changed, 53 insertions(+), 28 deletions(-)
+> > of_irq_get() -> irq_create_of_mapping() -> irq_create_fwspec_mapping()
+> > -> irqd_set_trigger_type().
 > 
-> Whole patch series looks fine.
-> You can add my Reviewed-by: Pali Rohár <pali.rohar@gmail.com>
+> Ah, indeed, I overlooked that. I wonder why platform_get_irq does it
+> then.
+> 
+> > 
+> > > 
+> > > However, I'm a bit worried about the other probing mechanims (ACPI,
+> > > board files) that should be supported as well, and removing the
+> > > trigger type from the flags might break those. There's no board files
+> > > using it though in the tree, but I don't know about ACPI systems.
+> > 
+> > The driver is not enabled for ACPI systems, at least not in mainline.
+> 
+> Ok. Good.
+> 
+> > By the way, this is what TCA8418 binding dochas to say:
+> > 
+> > "- interrupts: IRQ line number, should trigger on falling edge"
+> > 
+> > so it seems there was at least one system that needed falling edge and
+> > not level interrupt.
+> 
+> I don't know, looking at the datasheet, it really looks like it's
+> level triggered to me, and we were actually seeing issues when set in
+> edge.
+> 
+> http://www.ti.com/lit/ds/symlink/tca8418.pdf
+> Especially page 20 and 33.
+> 
+> My understanding is that in input, the chip will trigger on edges, but
+> the line coming from that device to the SoC will be level triggered.
 
-FYI: I do not see a dingle email from Paul, only your replies.
+The issue is that it is not necessarily connected directly to the
+SoC/AP. It could be on a daughterboard with any number of converters,
+possibly inverting polarity, or doing level->edge, etc. So the only sane
+solution is to leave it to device tree to describe the setup to the
+driver.
 
 Thanks.
-
 
 -- 
 Dmitry

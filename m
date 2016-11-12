@@ -1,30 +1,130 @@
-From: Richard Pospesel <pospeselr@gmail.com>
-Subject: Re: [PATCH] Input: byd - use DMI detection
-Date: Sat, 12 Nov 2016 10:01:56 -0800
-Message-ID: <CAHc7Qt2MjsFKauODtXMSfO5fY8+KJrewE0ki61u+qP+-82Afqw@mail.gmail.com>
-References: <20161111235759.11988-1-chris@diamand.org> <201611121604.43032@pali>
- <CAHc7Qt2xPTsWbjZdy1FBWCT5Lz43=9Tzj5FVpsn87=6VfFmPGg@mail.gmail.com> <201611121848.13617@pali>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: twl4030_keypad: make driver DT only
+Date: Sat, 12 Nov 2016 10:39:37 -0800
+Message-ID: <20161112183937.GA5809@dtor-ws>
+References: <1478948155-30219-1-git-send-email-Nicolae_Rosia@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f182.google.com ([209.85.220.182]:35677 "EHLO
-        mail-qk0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S966530AbcKLSB6 (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:35752 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S966641AbcKLSjl (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 12 Nov 2016 13:01:58 -0500
-Received: by mail-qk0-f182.google.com with SMTP id n204so54784503qke.2
-        for <linux-input@vger.kernel.org>; Sat, 12 Nov 2016 10:01:57 -0800 (PST)
-In-Reply-To: <201611121848.13617@pali>
+        Sat, 12 Nov 2016 13:39:41 -0500
+Content-Disposition: inline
+In-Reply-To: <1478948155-30219-1-git-send-email-Nicolae_Rosia@mentor.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
-Cc: Chris Diamand <chris@diamand.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
 
-> I understand... it is hard to get some information...
->
-> One option is to trying to ask BYD again, another is to try reverse
-> engineer or sniff data exchange from windows driver.
+Hi Nicolae,
 
-That's how we've gotten this far with the linux driver, by
-intercepting and reverse engineering the protocol using the
-Windows driver.
+On Sat, Nov 12, 2016 at 12:55:55PM +0200, Nicolae Rosia wrote:
+> All users are DT-only and it makes no sense to keep
+> unused code
+> 
+
+I am looking into converting the matrix keymap code to generic device
+properties so that it can be not DT/legacy only; I'll pick up your patch
+in a bit (just the bits removing platform data handling).
+
+Thanks.
+
+> Signed-off-by: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+> ---
+>  drivers/input/keyboard/Kconfig          |  1 +
+>  drivers/input/keyboard/twl4030_keypad.c | 32 ++++++++++++--------------------
+>  2 files changed, 13 insertions(+), 20 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index cbd75cf..5c290b6 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -669,6 +669,7 @@ config KEYBOARD_TC3589X
+>  config KEYBOARD_TWL4030
+>  	tristate "TI TWL4030/TWL5030/TPS659x0 keypad support"
+>  	depends on TWL4030_CORE
+> +	depends on OF
+>  	select INPUT_MATRIXKMAP
+>  	help
+>  	  Say Y here if your board use the keypad controller on
+> diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
+> index 323a0fb..af68330 100644
+> --- a/drivers/input/keyboard/twl4030_keypad.c
+> +++ b/drivers/input/keyboard/twl4030_keypad.c
+> @@ -335,13 +335,18 @@ static int twl4030_kp_program(struct twl4030_keypad *kp)
+>   */
+>  static int twl4030_kp_probe(struct platform_device *pdev)
+>  {
+> -	struct twl4030_keypad_data *pdata = dev_get_platdata(&pdev->dev);
+>  	const struct matrix_keymap_data *keymap_data = NULL;
+>  	struct twl4030_keypad *kp;
+>  	struct input_dev *input;
+> +	struct device_node *np = pdev->dev.of_node;
+>  	u8 reg;
+>  	int error;
+>  
+> +	if (!np) {
+> +		dev_err(&pdev->dev, "no DT info\n");
+> +		return -EINVAL;
+> +	}
+> +
+>  	kp = devm_kzalloc(&pdev->dev, sizeof(*kp), GFP_KERNEL);
+>  	if (!kp)
+>  		return -ENOMEM;
+> @@ -363,28 +368,17 @@ static int twl4030_kp_probe(struct platform_device *pdev)
+>  	input->id.product	= 0x0001;
+>  	input->id.version	= 0x0003;
+>  
+> -	if (pdata) {
+> -		if (!pdata->rows || !pdata->cols || !pdata->keymap_data) {
+> -			dev_err(&pdev->dev, "Missing platform_data\n");
+> -			return -EINVAL;
+> -		}
+> +	error = matrix_keypad_parse_of_params(&pdev->dev, &kp->n_rows,
+> +					      &kp->n_cols);
+> +	if (error)
+> +		return error;
+>  
+> -		kp->n_rows = pdata->rows;
+> -		kp->n_cols = pdata->cols;
+> -		kp->autorepeat = pdata->rep;
+> -		keymap_data = pdata->keymap_data;
+> -	} else {
+> -		error = matrix_keypad_parse_of_params(&pdev->dev, &kp->n_rows,
+> -						      &kp->n_cols);
+> -		if (error)
+> -			return error;
+> +	kp->autorepeat = true;
+>  
+> -		kp->autorepeat = true;
+> -	}
+>  
+>  	if (kp->n_rows > TWL4030_MAX_ROWS || kp->n_cols > TWL4030_MAX_COLS) {
+>  		dev_err(&pdev->dev,
+> -			"Invalid rows/cols amount specified in platform/devicetree data\n");
+> +			"Invalid rows/cols amount specified in DT\n");
+>  		return -EINVAL;
+>  	}
+>  
+> @@ -445,13 +439,11 @@ static int twl4030_kp_probe(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> -#ifdef CONFIG_OF
+>  static const struct of_device_id twl4030_keypad_dt_match_table[] = {
+>  	{ .compatible = "ti,twl4030-keypad" },
+>  	{},
+>  };
+>  MODULE_DEVICE_TABLE(of, twl4030_keypad_dt_match_table);
+> -#endif
+>  
+>  /*
+>   * NOTE: twl4030 are multi-function devices connected via I2C.
+> -- 
+> 2.5.5
+> 
+
+-- 
+Dmitry

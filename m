@@ -1,114 +1,69 @@
-From: Nicolae Rosia <Nicolae_Rosia@mentor.com>
-Subject: [PATCH] input: twl4030_keypad: make driver DT only
-Date: Sat, 12 Nov 2016 12:55:55 +0200
-Message-ID: <1478948155-30219-1-git-send-email-Nicolae_Rosia@mentor.com>
+From: Pali =?UTF-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] Input: byd - use DMI detection
+Date: Sat, 12 Nov 2016 13:12:29 +0100
+Message-ID: <58270744.cf3fc20a.1e77d.30f0@mx.google.com>
+References: <20161111235759.11988-1-chris@diamand.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay1.mentorg.com ([192.94.38.131]:42868 "EHLO
-        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932115AbcKLK4H (ORCPT
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:35300 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936990AbcKLMMy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 12 Nov 2016 05:56:07 -0500
+        Sat, 12 Nov 2016 07:12:54 -0500
+Received: by mail-wm0-f66.google.com with SMTP id a20so2987801wme.2
+        for <linux-input@vger.kernel.org>; Sat, 12 Nov 2016 04:12:54 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Nicolae Rosia <Nicolae_Rosia@mentor.com>
+To: Chris Diamand <chris@diamand.org>, Richard Pospesel <pospeselr@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-All users are DT-only and it makes no sense to keep
-unused code
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Nicolae Rosia <Nicolae_Rosia@mentor.com>
----
- drivers/input/keyboard/Kconfig          |  1 +
- drivers/input/keyboard/twl4030_keypad.c | 32 ++++++++++++--------------------
- 2 files changed, 13 insertions(+), 20 deletions(-)
+On So 12. November 2016 00:57 Chris Diamand wrote:
+...
+> +static const struct dmi_system_id byd_dmi_table[] = {
+> +	{
+> +		.matches = {
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "SharkBay Platform"),
+> +			DMI_MATCH(DMI_PRODUCT_SERIAL, "System Serial Number"),
+> +			DMI_MATCH(DMI_BOARD_NAME, "WhiteTip Mountain1 Fab2"),
+> +			DMI_MATCH(DMI_CHASSIS_VENDOR, "To Be Filled By O.E.M."),
+> +		},
+> +	},
+> +};
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index cbd75cf..5c290b6 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -669,6 +669,7 @@ config KEYBOARD_TC3589X
- config KEYBOARD_TWL4030
- 	tristate "TI TWL4030/TWL5030/TPS659x0 keypad support"
- 	depends on TWL4030_CORE
-+	depends on OF
- 	select INPUT_MATRIXKMAP
- 	help
- 	  Say Y here if your board use the keypad controller on
-diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
-index 323a0fb..af68330 100644
---- a/drivers/input/keyboard/twl4030_keypad.c
-+++ b/drivers/input/keyboard/twl4030_keypad.c
-@@ -335,13 +335,18 @@ static int twl4030_kp_program(struct twl4030_keypad *kp)
-  */
- static int twl4030_kp_probe(struct platform_device *pdev)
- {
--	struct twl4030_keypad_data *pdata = dev_get_platdata(&pdev->dev);
- 	const struct matrix_keymap_data *keymap_data = NULL;
- 	struct twl4030_keypad *kp;
- 	struct input_dev *input;
-+	struct device_node *np = pdev->dev.of_node;
- 	u8 reg;
- 	int error;
- 
-+	if (!np) {
-+		dev_err(&pdev->dev, "no DT info\n");
-+		return -EINVAL;
-+	}
-+
- 	kp = devm_kzalloc(&pdev->dev, sizeof(*kp), GFP_KERNEL);
- 	if (!kp)
- 		return -ENOMEM;
-@@ -363,28 +368,17 @@ static int twl4030_kp_probe(struct platform_device *pdev)
- 	input->id.product	= 0x0001;
- 	input->id.version	= 0x0003;
- 
--	if (pdata) {
--		if (!pdata->rows || !pdata->cols || !pdata->keymap_data) {
--			dev_err(&pdev->dev, "Missing platform_data\n");
--			return -EINVAL;
--		}
-+	error = matrix_keypad_parse_of_params(&pdev->dev, &kp->n_rows,
-+					      &kp->n_cols);
-+	if (error)
-+		return error;
- 
--		kp->n_rows = pdata->rows;
--		kp->n_cols = pdata->cols;
--		kp->autorepeat = pdata->rep;
--		keymap_data = pdata->keymap_data;
--	} else {
--		error = matrix_keypad_parse_of_params(&pdev->dev, &kp->n_rows,
--						      &kp->n_cols);
--		if (error)
--			return error;
-+	kp->autorepeat = true;
- 
--		kp->autorepeat = true;
--	}
- 
- 	if (kp->n_rows > TWL4030_MAX_ROWS || kp->n_cols > TWL4030_MAX_COLS) {
- 		dev_err(&pdev->dev,
--			"Invalid rows/cols amount specified in platform/devicetree data\n");
-+			"Invalid rows/cols amount specified in DT\n");
- 		return -EINVAL;
- 	}
- 
-@@ -445,13 +439,11 @@ static int twl4030_kp_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--#ifdef CONFIG_OF
- static const struct of_device_id twl4030_keypad_dt_match_table[] = {
- 	{ .compatible = "ti,twl4030-keypad" },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, twl4030_keypad_dt_match_table);
--#endif
- 
- /*
-  * NOTE: twl4030 are multi-function devices connected via I2C.
--- 
-2.5.5
+Hi! This looks very fragile. We really cannot test presence of some device
+by DMI string "To Be Filled By O.E.M." or by "WhiteTip Mountain1 Fab2".
+Look at other dmi detection code. We match full device and vendor.
 
+...
+> +	if (!dmi_check_system(byd_dmi_table))
+> +		return -1;
+> +
+>  if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+>  return -1;
+>  if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+...
+
+If we really have a problem when byd detect incorrect detect some non-byd
+device as byd, we either needs:
+
+1) extend detect code to include also parts of init sequence (this should
+   fix problem on wrongly detected non-byd devices, but init code on them
+   will take longer)
+
+2) or use another detection technique, which will address above problem (
+   your "To Be Filled By O.E.M." is not good; maybe looking at ACPI?)
+
+- -- 
+Pali Rohár
+pali.rohar@gmail.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlgnBy0ACgkQi/DJPQPkQ1JWmwCffbqKKjwjxVc+y2Gghb9bCcSB
+Ae8AoJ8Hn+xP4h3tFqEi2Yna9hpYGYql
+=Dvey
+-----END PGP SIGNATURE-----

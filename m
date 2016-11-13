@@ -1,126 +1,57 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v5 0/3] Input: ALPS - Bug fix and cleanup for SS5 hardware
-Date: Sun, 13 Nov 2016 11:31:21 +0100
-Message-ID: <201611131131.22394@pali>
-References: <20161110151942.GA3969@pali> <201611121329.26484@pali> <CAKdAkRTy437SMLS0EYtAnYG4Dg_Us_8X56k4AQ9LLb+eYtx7Qg@mail.gmail.com>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] hid: hid-sensor-hub: clear memory to avoid random
+ data
+Date: Sun, 13 Nov 2016 14:45:09 +0000
+Message-ID: <1479048126.13439.8.camel@intel.com>
+References: <1478825923-12153-1-git-send-email-hongyan.song@intel.com>
+         <e64c6b31-739c-a6ab-cd1e-6637809feae4@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1950288.HlGGyRRI7S";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:33299 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932923AbcKMKb0 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 13 Nov 2016 05:31:26 -0500
-Received: by mail-wm0-f65.google.com with SMTP id u144so7515426wmu.0
-        for <linux-input@vger.kernel.org>; Sun, 13 Nov 2016 02:31:25 -0800 (PST)
-In-Reply-To: <CAKdAkRTy437SMLS0EYtAnYG4Dg_Us_8X56k4AQ9LLb+eYtx7Qg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <e64c6b31-739c-a6ab-cd1e-6637809feae4-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Content-Language: en-US
+Content-ID: <D4A0CB21B8206449B41B92A313FB2D71-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Song, Hongyan" <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: "jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Paul Donohue <linux-kernel@paulsd.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Ben Gamari <ben@smart-cactus.org>, Michal Hocko <mhocko@suse.com>
 
---nextPart1950288.HlGGyRRI7S
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Sunday 13 November 2016 07:43:35 Dmitry Torokhov wrote:
-> On Sat, Nov 12, 2016 at 4:29 AM, Pali Roh=C3=A1r <pali.rohar@gmail.com>
-> wrote:
-> > On Saturday 12 November 2016 02:06:40 Dmitry Torokhov wrote:
-> >> On Sat, Nov 12, 2016 at 02:03:42AM +0100, Pali Roh=C3=A1r wrote:
-> >> > On Saturday 12 November 2016 01:56:21 Dmitry Torokhov wrote:
-> >> > > On Fri, Nov 11, 2016 at 02:59:09PM +0100, Pali Roh=C3=A1r wrote:
-> >> > > > On Thursday 10 November 2016 17:44:43 Paul Donohue wrote:
-> >> > > > > This series includes a bug fix and assorted cleanup for
-> >> > > > > the Alps SS5 (SS4 v2) code.
-> >> > > > >=20
-> >> > > > > Changes in v5:
-> >> > > > > * Moved TrackStick decoding logic to
-> >> > > > > alps_process_packet_ss4_v2() to
-> >> > > > >=20
-> >> > > > >   make the code more consistent with other protocol
-> >> > > > >   versions (Suggested by Pali Roh=C3=A1r
-> >> > > > >   <pali.rohar@gmail.com>)
-> >> > > > >=20
-> >> > > > > Changes in v4:
-> >> > > > > * Fixed patch formatting issues
-> >> > > > > * Correct casting issues in macros added in v3
-> >> > > > >=20
-> >> > > > > Changes in v3:
-> >> > > > > * Added additional code cleanup to make the code easier to
-> >> > > > > understand
-> >> > > > >=20
-> >> > > > >   (Suggested by Pali Roh=C3=A1r <pali.rohar@gmail.com>)
-> >> > > > >=20
-> >> > > > > Changes in v2:
-> >> > > > > * For consistency with other Alps functions, check packet
-> >> > > > > bytes for
-> >> > > > >=20
-> >> > > > >   packet type rather than adding a flag to alps_fields for
-> >> > > > >   packet
-> >> > > > >=20
-> >> > > > > type. (Suggested by Pali Roh=C3=A1r <pali.rohar@gmail.com>)
-> >> > > > >=20
-> >> > > > > Paul Donohue (3):
-> >> > > > >   Input: ALPS - Fix TrackStick support for SS5 hardware
-> >> > > > >   Input: ALPS - Clean up TrackStick handling for SS5
-> >> > > > >   hardware Input: ALPS - Clean up code for SS5 hardware
-> >> > > > > =20
-> >> > > > >  drivers/input/mouse/alps.c | 59
-> >> > > > >=20
-> >> > > > > +++++++++++++++++++++++++---------------------
-> >> > > > > drivers/input/mouse/alps.h | 22 ++++++++++++++++-
-> >> > > > >=20
-> >> > > > >  2 files changed, 53 insertions(+), 28 deletions(-)
-> >> > > >=20
-> >> > > > Whole patch series looks fine.
-> >> > > > You can add my Reviewed-by: Pali Roh=C3=A1r
-> >> > > > <pali.rohar@gmail.com>
-> >> > >=20
-> >> > > FYI: I do not see a dingle email from Paul, only your replies.
-> >> >=20
-> >> > Patches were sent to linux-input@vger.kernel.org ML. Maybe some
-> >> > spam filter ate emails? Btw I added you to receivers of my last
-> >> > sent email.
-> >>=20
-> >> Yes, I looked there as well and did not see anything but you
-> >> replies.
-> >>=20
-> >> Thanks.
-> >=20
-> > Do you need to resend patches? Or have you already found them?
->=20
-> Hmm, was the latest v5? I see
-> https://patchwork.kernel.org/patch/9421473/
-
-Yes, v5 is the last.
-
-> It looks like Paul is running his own mailserver on what looks like
-> Verizon IP pool, which in this day and age likely makes gmail drop
-> his mails.
-
-Hm... looks weird... because at least I received his emails on my gmail=20
-account...
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart1950288.HlGGyRRI7S
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlgoQPoACgkQi/DJPQPkQ1Kq3wCgunKihw+y2+ojPJNmP+DlbK/d
-FqIAnie0rdnuGfCQp0G1PqBibSwPvXiT
-=u/ZM
------END PGP SIGNATURE-----
-
---nextPart1950288.HlGGyRRI7S--
+T24gU2F0LCAyMDE2LTExLTEyIGF0IDE0OjQzICswMDAwLCBKb25hdGhhbiBDYW1lcm9uIHdyb3Rl
+Og0KPiBPbiAxMS8xMS8xNiAwMDo1OCwgU29uZyBIb25neWFuIHdyb3RlOg0KPiA+IA0KPiA+IElu
+aXRpYWxpemUgdXNlciBidWZmZXIgd2l0aCAwcy4gVGhpcyB3aWxsIGF2b2lkIHJhbmRvbSBkYXRh
+IGluIHRoZQ0KPiA+IGJ1ZmZlciwNCj4gPiB3aGVuIHRoZSB1c2VyIGJ1ZmZlciBzaXplIGlzIGJp
+Z2dlciB0aGFuIHRoZSBhY3R1YWwgcmVwb3J0IHNpemUuDQo+ID4gDQo+ID4gU2lnbmVkLW9mZi1i
+eTogU29uZyBIb25neWFuIDxob25neWFuLnNvbmdAaW50ZWwuY29tPg0KPiBQbGVhc2UgZGVzY3Jp
+YmUgdGhlIHJlc3VsdCBvZiB0aGlzIGJ1ZyBpbiB0aGUgZGVzY3JpcHRpb24uDQo+IFdoeSBkb2Vz
+IGl0IG1hdHRlcj8NCkhvbmd5YW4sDQoNClBsZWFzZSByZXN1Ym1pdC4NCg0KDQoNClRoZSBpc3N1
+ZSBpczoNCg0KV2hlbiB1c2VyIHRyaWVkIHRvIHJlYWQgc29tZSBmaWVsZHMgbGlrZSBoeXN0ZXJl
+c2lzIGZyb20gSUlPIHN5c2ZzIG9uDQpzb21lIHN5c3RlbXMsIGl0IGZhaWxzLiBUaGUgcmVhc29u
+IGlzIHRoYXQgdGhpcyBmaWVsZCBpcyBhIGJ5dGUgZmllbGQNCmFuZCBjYWxsZXIgb2Ygc2Vuc29y
+X2h1Yl9nZXRfZmVhdHVyZSgpIHBhc3NlcyBhIGJ1ZmZlciBvZiA0IGJ5dGVzLiBIZXJlDQp0aGUg
+ZnVuY3Rpb24gc2Vuc29yX2h1Yl9nZXRfZmVhdHVyZSgpIGNvcGllcyB0aGUgc2luZ2xlIGJ5dGUg
+ZnJvbSB0aGUNCnJlcG9ydCB0byB0aGUgY2FsbGVyIGJ1ZmZlciBhbmQgcmV0dXJucyAiMSIgYXMg
+dGhlIG51bWJlciBvZiBieXRlcw0KY29waWVkLiBTbyBjYWxsZXIgY2FuIHVzZSB0aGUgcmV0dXJu
+IHZhbHVlLg0KDQpCdXQgdGhpcyBpcyBkb25lIGJ5IG11bHRpcGxlIGNhbGxlcnMsIHNvIGlmIHdl
+IGp1c3QgY2hhbmdlIHRoZQ0Kc2Vuc29yX2h1Yl9nZXRfZmVhdHVyZSBzbyB0aGF0IGNhbGxlciBi
+dWZmZXIgaXMgaW5pdGlhbGl6ZWQgd2l0aCAwcw0KdGhlbiB3ZSBkb24ndCB0byBjaGFuZ2UgYWxs
+IGZ1bmN0aW9ucy7CoA0KDQoNCg0KPiANCj4gV2l0aG91dCB0aGF0IGluZm8sIGl0J3MgaGFyZCB0
+byBqdWRnZSB3aGF0IHBhdGggdGhpcyBzaG91bGQgdGFrZQ0KPiBpbnRvIG1haW5saW5lIG9yIHdo
+ZXRoZXIgdGhlIGZpeCBuZWVkcyB0byBiZSBtYXJrZWQgZm9yIHN0YWJsZS4NCklNTyB0aGlzIGlz
+IG5vdCBhbiB1cmdlbnQgZml4IGFuZCBxdWV1ZWQgZm9yIG5leHQga2VybmVsIHJlbGVhc2UuDQoN
+Cg0KPiBUaGFua3MsDQo+IA0KPiBKb25hdGhhbg0KPiA+IA0KPiA+IC0tLQ0KPiA+IENoYW5nZXMg
+aW4gdjI6DQo+ID4gwqDCoMKgwqAtY2xlYXIgbWVtb3J5IGluIGdldF9mZWF0dXJlKCkgaW5zdGVh
+ZCBvZiBzZXRfZmVhdHVyZSgpDQpzL2dldF9mZWF0dXJlKCkvc2Vuc29yX2h1Yl9nZXRfZmVhdHVy
+ZSgpDQoNCg0KVGhhbmtzLA0KU3Jpbml2YXMNCg0KPiA+IA0KPiA+IMKgZHJpdmVycy9oaWQvaGlk
+LXNlbnNvci1odWIuYyB8IDEgKw0KPiA+IMKgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCsp
+DQo+ID4gDQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMgYi9k
+cml2ZXJzL2hpZC9oaWQtc2Vuc29yLQ0KPiA+IGh1Yi5jDQo+ID4gaW5kZXggNjU4YTYwNy4uYjc0
+ZDk1NCAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2hpZC9oaWQtc2Vuc29yLWh1Yi5jDQo+ID4g
+KysrIGIvZHJpdmVycy9oaWQvaGlkLXNlbnNvci1odWIuYw0KPiA+IEBAIC0yNTIsNiArMjUyLDcg
+QEAgaW50IHNlbnNvcl9odWJfZ2V0X2ZlYXR1cmUoc3RydWN0DQo+ID4gaGlkX3NlbnNvcl9odWJf
+ZGV2aWNlICpoc2RldiwgdTMyIHJlcG9ydF9pZCwNCj4gPiDCoAlpbnQgcmVwb3J0X3NpemU7DQo+
+ID4gwqAJaW50IHJldCA9IDA7DQo+ID4gwqANCj4gPiArCW1lbXNldChidWZmZXIsIDAsIGJ1ZmZl
+cl9zaXplKTsNCj4gPiDCoAltdXRleF9sb2NrKCZkYXRhLT5tdXRleCk7DQo+ID4gwqAJcmVwb3J0
+ID0gc2Vuc29yX2h1Yl9yZXBvcnQocmVwb3J0X2lkLCBoc2Rldi0+aGRldiwNCj4gPiBISURfRkVB
+VFVSRV9SRVBPUlQpOw0KPiA+IMKgCWlmICghcmVwb3J0IHx8IChmaWVsZF9pbmRleCA+PSByZXBv
+cnQtPm1heGZpZWxkKSB8fA0KPiA+IA==

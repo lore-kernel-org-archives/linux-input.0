@@ -1,55 +1,68 @@
-From: Paul Donohue <linux-kernel@paulsd.com>
-Subject: Re: [PATCH v5 0/3] Input: ALPS - Bug fix and cleanup for SS5 hardware
-Date: Sun, 13 Nov 2016 10:28:08 -0500
-Message-ID: <20161113152808.GU2927@TopQuark.net>
-References: <20161110151942.GA3969@pali>
- <201611121329.26484@pali>
- <CAKdAkRTy437SMLS0EYtAnYG4Dg_Us_8X56k4AQ9LLb+eYtx7Qg@mail.gmail.com>
- <201611131131.22394@pali>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] input: bma150: Only claim to support the bma180 if the separate iio bma180 driver is not build
+Date: Sun, 13 Nov 2016 19:34:07 +0100
+Message-ID: <20161113183407.12848-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from Lepton.TopQuark.net ([168.235.66.66]:54508 "EHLO
-        Mail2.TopQuark.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932338AbcKMP2L (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 13 Nov 2016 10:28:11 -0500
-Content-Disposition: inline
-In-Reply-To: <201611131131.22394@pali>
+Received: from mx1.redhat.com ([209.132.183.28]:33802 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932542AbcKMSeM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 13 Nov 2016 13:34:12 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Ben Gamari <ben@smart-cactus.org>, Michal Hocko <mhocko@suse.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hans de Goede <hdegoede@redhat.com>, "Dr . H . Nikolaus Schaller" <hns@goldelico.com>
 
-On Sun, Nov 13, 2016 at 11:31:21AM +0100, Pali Roh=E1r wrote:
-> On Sunday 13 November 2016 07:43:35 Dmitry Torokhov wrote:
+commit ef3714fdbc8d ("Input: bma150 - extend chip detection for bma180"),
+adds bma180 chip-ids to the input bma150 driver, assuming that they are
+100% compatible, but the bma180 is not compatible with the bma150 at all,
+it has 14 bits resolution instead of 10, and it has quite different
+control registers too.
 
-> > >> > > FYI: I do not see a dingle email from Paul, only your replies.
+Treating the bma180 as a bma150 wrt its data registers will just result
+in throwing away the lowest 4 bits, which is not too bad. But the ctrl
+registers are a different story. Things happen to just work but supporting
+that certainly does not make treating the bma180 the same as the bma150
+right.
 
-> > >> > Patches were sent to linux-input@vger.kernel.org ML. Maybe some
-> > >> > spam filter ate emails? Btw I added you to receivers of my last
-> > >> > sent email.
+Since some setups depend on the evdev interface the bma150 driver offers
+on top of the bma180, we cannot simply remove the bma180 ids.
 
-> > >> Yes, I looked there as well and did not see anything but you
-> > >> replies.
+So this commit only removes the bma180 id when the bma180 iio driver,
+which does treat the bma180 properly, is enabled.
 
-> > It looks like Paul is running his own mailserver on what looks like
-> > Verizon IP pool, which in this day and age likely makes gmail drop
-> > his mails.
+Cc: Dr. H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/misc/bma150.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-> Hm... looks weird... because at least I received his emails on my gmail=
-=20
-> account...
+diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
+index b0d4453..9fa1c9a 100644
+--- a/drivers/input/misc/bma150.c
++++ b/drivers/input/misc/bma150.c
+@@ -539,7 +539,11 @@ static int bma150_probe(struct i2c_client *client,
+ 	}
+ 
+ 	chip_id = i2c_smbus_read_byte_data(client, BMA150_CHIP_ID_REG);
+-	if (chip_id != BMA150_CHIP_ID && chip_id != BMA180_CHIP_ID) {
++	if (chip_id != BMA150_CHIP_ID
++#ifndef CONFIG_BMA180
++	    && chip_id != BMA180_CHIP_ID
++#endif
++	    ) {
+ 		dev_err(&client->dev, "BMA150 chip id error: %d\n", chip_id);
+ 		return -EINVAL;
+ 	}
+@@ -643,7 +647,9 @@ static UNIVERSAL_DEV_PM_OPS(bma150_pm, bma150_suspend, bma150_resume, NULL);
+ 
+ static const struct i2c_device_id bma150_id[] = {
+ 	{ "bma150", 0 },
++#ifndef CONFIG_BMA180
+ 	{ "bma180", 0 },
++#endif
+ 	{ "smb380", 0 },
+ 	{ "bma023", 0 },
+ 	{ }
+-- 
+2.9.3
 
-Very weird.  Yes, I run my own mail servers ... incoming mail goes to a=20
-Verizon IP, but outgoing mail is sent from a US-based web / cloud=20
-hosting provider (specifically for this reason - to avoid spam filters).
-
-Either way, the mailing list itself is clearly getting my messages=20
-(since they show up in the web archive), so spam filtering must be=20
-happening after the message has been forwarded by the mailing list.
-
-Do the messages show up in your spam folder on gmail?  If not, we might
-have to ask the admins for vger.kernel.org to check their logs so we=20
-can figure out where the messages are being lost.

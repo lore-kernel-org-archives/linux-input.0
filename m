@@ -1,57 +1,55 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] hid: hid-sensor-hub: clear memory to avoid random
- data
-Date: Sun, 13 Nov 2016 14:45:09 +0000
-Message-ID: <1479048126.13439.8.camel@intel.com>
-References: <1478825923-12153-1-git-send-email-hongyan.song@intel.com>
-         <e64c6b31-739c-a6ab-cd1e-6637809feae4@kernel.org>
+From: Paul Donohue <linux-kernel@paulsd.com>
+Subject: Re: [PATCH v5 0/3] Input: ALPS - Bug fix and cleanup for SS5 hardware
+Date: Sun, 13 Nov 2016 10:28:08 -0500
+Message-ID: <20161113152808.GU2927@TopQuark.net>
+References: <20161110151942.GA3969@pali>
+ <201611121329.26484@pali>
+ <CAKdAkRTy437SMLS0EYtAnYG4Dg_Us_8X56k4AQ9LLb+eYtx7Qg@mail.gmail.com>
+ <201611131131.22394@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <e64c6b31-739c-a6ab-cd1e-6637809feae4-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Content-Language: en-US
-Content-ID: <D4A0CB21B8206449B41B92A313FB2D71-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Song, Hongyan" <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: "jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from Lepton.TopQuark.net ([168.235.66.66]:54508 "EHLO
+        Mail2.TopQuark.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932338AbcKMP2L (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 13 Nov 2016 10:28:11 -0500
+Content-Disposition: inline
+In-Reply-To: <201611131131.22394@pali>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Ben Gamari <ben@smart-cactus.org>, Michal Hocko <mhocko@suse.com>
 
-T24gU2F0LCAyMDE2LTExLTEyIGF0IDE0OjQzICswMDAwLCBKb25hdGhhbiBDYW1lcm9uIHdyb3Rl
-Og0KPiBPbiAxMS8xMS8xNiAwMDo1OCwgU29uZyBIb25neWFuIHdyb3RlOg0KPiA+IA0KPiA+IElu
-aXRpYWxpemUgdXNlciBidWZmZXIgd2l0aCAwcy4gVGhpcyB3aWxsIGF2b2lkIHJhbmRvbSBkYXRh
-IGluIHRoZQ0KPiA+IGJ1ZmZlciwNCj4gPiB3aGVuIHRoZSB1c2VyIGJ1ZmZlciBzaXplIGlzIGJp
-Z2dlciB0aGFuIHRoZSBhY3R1YWwgcmVwb3J0IHNpemUuDQo+ID4gDQo+ID4gU2lnbmVkLW9mZi1i
-eTogU29uZyBIb25neWFuIDxob25neWFuLnNvbmdAaW50ZWwuY29tPg0KPiBQbGVhc2UgZGVzY3Jp
-YmUgdGhlIHJlc3VsdCBvZiB0aGlzIGJ1ZyBpbiB0aGUgZGVzY3JpcHRpb24uDQo+IFdoeSBkb2Vz
-IGl0IG1hdHRlcj8NCkhvbmd5YW4sDQoNClBsZWFzZSByZXN1Ym1pdC4NCg0KDQoNClRoZSBpc3N1
-ZSBpczoNCg0KV2hlbiB1c2VyIHRyaWVkIHRvIHJlYWQgc29tZSBmaWVsZHMgbGlrZSBoeXN0ZXJl
-c2lzIGZyb20gSUlPIHN5c2ZzIG9uDQpzb21lIHN5c3RlbXMsIGl0IGZhaWxzLiBUaGUgcmVhc29u
-IGlzIHRoYXQgdGhpcyBmaWVsZCBpcyBhIGJ5dGUgZmllbGQNCmFuZCBjYWxsZXIgb2Ygc2Vuc29y
-X2h1Yl9nZXRfZmVhdHVyZSgpIHBhc3NlcyBhIGJ1ZmZlciBvZiA0IGJ5dGVzLiBIZXJlDQp0aGUg
-ZnVuY3Rpb24gc2Vuc29yX2h1Yl9nZXRfZmVhdHVyZSgpIGNvcGllcyB0aGUgc2luZ2xlIGJ5dGUg
-ZnJvbSB0aGUNCnJlcG9ydCB0byB0aGUgY2FsbGVyIGJ1ZmZlciBhbmQgcmV0dXJucyAiMSIgYXMg
-dGhlIG51bWJlciBvZiBieXRlcw0KY29waWVkLiBTbyBjYWxsZXIgY2FuIHVzZSB0aGUgcmV0dXJu
-IHZhbHVlLg0KDQpCdXQgdGhpcyBpcyBkb25lIGJ5IG11bHRpcGxlIGNhbGxlcnMsIHNvIGlmIHdl
-IGp1c3QgY2hhbmdlIHRoZQ0Kc2Vuc29yX2h1Yl9nZXRfZmVhdHVyZSBzbyB0aGF0IGNhbGxlciBi
-dWZmZXIgaXMgaW5pdGlhbGl6ZWQgd2l0aCAwcw0KdGhlbiB3ZSBkb24ndCB0byBjaGFuZ2UgYWxs
-IGZ1bmN0aW9ucy7CoA0KDQoNCg0KPiANCj4gV2l0aG91dCB0aGF0IGluZm8sIGl0J3MgaGFyZCB0
-byBqdWRnZSB3aGF0IHBhdGggdGhpcyBzaG91bGQgdGFrZQ0KPiBpbnRvIG1haW5saW5lIG9yIHdo
-ZXRoZXIgdGhlIGZpeCBuZWVkcyB0byBiZSBtYXJrZWQgZm9yIHN0YWJsZS4NCklNTyB0aGlzIGlz
-IG5vdCBhbiB1cmdlbnQgZml4IGFuZCBxdWV1ZWQgZm9yIG5leHQga2VybmVsIHJlbGVhc2UuDQoN
-Cg0KPiBUaGFua3MsDQo+IA0KPiBKb25hdGhhbg0KPiA+IA0KPiA+IC0tLQ0KPiA+IENoYW5nZXMg
-aW4gdjI6DQo+ID4gwqDCoMKgwqAtY2xlYXIgbWVtb3J5IGluIGdldF9mZWF0dXJlKCkgaW5zdGVh
-ZCBvZiBzZXRfZmVhdHVyZSgpDQpzL2dldF9mZWF0dXJlKCkvc2Vuc29yX2h1Yl9nZXRfZmVhdHVy
-ZSgpDQoNCg0KVGhhbmtzLA0KU3Jpbml2YXMNCg0KPiA+IA0KPiA+IMKgZHJpdmVycy9oaWQvaGlk
-LXNlbnNvci1odWIuYyB8IDEgKw0KPiA+IMKgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCsp
-DQo+ID4gDQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMgYi9k
-cml2ZXJzL2hpZC9oaWQtc2Vuc29yLQ0KPiA+IGh1Yi5jDQo+ID4gaW5kZXggNjU4YTYwNy4uYjc0
-ZDk1NCAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2hpZC9oaWQtc2Vuc29yLWh1Yi5jDQo+ID4g
-KysrIGIvZHJpdmVycy9oaWQvaGlkLXNlbnNvci1odWIuYw0KPiA+IEBAIC0yNTIsNiArMjUyLDcg
-QEAgaW50IHNlbnNvcl9odWJfZ2V0X2ZlYXR1cmUoc3RydWN0DQo+ID4gaGlkX3NlbnNvcl9odWJf
-ZGV2aWNlICpoc2RldiwgdTMyIHJlcG9ydF9pZCwNCj4gPiDCoAlpbnQgcmVwb3J0X3NpemU7DQo+
-ID4gwqAJaW50IHJldCA9IDA7DQo+ID4gwqANCj4gPiArCW1lbXNldChidWZmZXIsIDAsIGJ1ZmZl
-cl9zaXplKTsNCj4gPiDCoAltdXRleF9sb2NrKCZkYXRhLT5tdXRleCk7DQo+ID4gwqAJcmVwb3J0
-ID0gc2Vuc29yX2h1Yl9yZXBvcnQocmVwb3J0X2lkLCBoc2Rldi0+aGRldiwNCj4gPiBISURfRkVB
-VFVSRV9SRVBPUlQpOw0KPiA+IMKgCWlmICghcmVwb3J0IHx8IChmaWVsZF9pbmRleCA+PSByZXBv
-cnQtPm1heGZpZWxkKSB8fA0KPiA+IA==
+On Sun, Nov 13, 2016 at 11:31:21AM +0100, Pali Roh=E1r wrote:
+> On Sunday 13 November 2016 07:43:35 Dmitry Torokhov wrote:
+
+> > >> > > FYI: I do not see a dingle email from Paul, only your replies.
+
+> > >> > Patches were sent to linux-input@vger.kernel.org ML. Maybe some
+> > >> > spam filter ate emails? Btw I added you to receivers of my last
+> > >> > sent email.
+
+> > >> Yes, I looked there as well and did not see anything but you
+> > >> replies.
+
+> > It looks like Paul is running his own mailserver on what looks like
+> > Verizon IP pool, which in this day and age likely makes gmail drop
+> > his mails.
+
+> Hm... looks weird... because at least I received his emails on my gmail=
+=20
+> account...
+
+Very weird.  Yes, I run my own mail servers ... incoming mail goes to a=20
+Verizon IP, but outgoing mail is sent from a US-based web / cloud=20
+hosting provider (specifically for this reason - to avoid spam filters).
+
+Either way, the mailing list itself is clearly getting my messages=20
+(since they show up in the web archive), so spam filtering must be=20
+happening after the message has been forwarded by the mailing list.
+
+Do the messages show up in your spam folder on gmail?  If not, we might
+have to ask the admins for vger.kernel.org to check their logs so we=20
+can figure out where the messages are being lost.

@@ -1,86 +1,117 @@
-From: "Dr. Felix Collins" <felixcollinsfnb2@gmail.com>
-Subject: PLEASE VIEW THE ATTACHED FILE AND CONTACT ME.
-Date: Mon, 14 Nov 2016 07:43:19 +0000 (UTC)
-Message-ID: <1666584935.3489547.1479109399212__18617.0929264792$1479110259$gmane$org@mail.yahoo.com>
-References: <1666584935.3489547.1479109399212.ref@mail.yahoo.com>
-Reply-To: "Dr. Felix Collins" <felixcollinsa@gmail.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: [PATCH V4 1/8] Documentation: devicetree: watchdog: da9062/61
+ watchdog timer binding
+Date: Mon, 14 Nov 2016 08:22:44 +0000
+Message-ID: <5c3d4527c6f52bd30f7e919a19c1cd6232aad1a4.1479111766.git.stwiss.opensource@diasemi.com>
+References: <cover.1479111766.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-        boundary="----=_Part_3489546_1885277376.1479109399212"
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nm33-vm5.bullet.mail.ne1.yahoo.com ([98.138.229.69]:58727 "EHLO
-        nm33-vm5.bullet.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753225AbcKNH4z (ORCPT
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.161]:27845 "EHLO
+        mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752188AbcKNI1t (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 14 Nov 2016 02:56:55 -0500
+        Mon, 14 Nov 2016 03:27:49 -0500
+In-Reply-To: <cover.1479111766.git.stwiss.opensource@diasemi.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: DEVICETREE <devicetree@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Wim Van Sebroeck <wim@iguana.be>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Zhang Rui <rui.zhang@intel.com>
 
-------=_Part_3489546_1885277376.1479109399212
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+
+Add binding information for DA9062 and DA9061 watchdog.
+
+Example bindings for both DA9062 and DA9061 devices are added. For
+the DA9061 device, a fallback compatible line is added as a valid
+combination of compatible strings.
+
+The original binding for DA9062 (only) used to reside inside the
+Documentation/devicetree/bindings/mfd/da9062.txt MFD document.
+The da9062-watchdog section was deleted in that file and replaced
+with a link to the new DA9061/62 binding information stored in this
+patch.
+
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
+---
+This patch applies against linux-next and v4.8
+
+v3 -> v4
+ - NO CODE CHANGE
+ - Patch renamed from [PATCH V3 2/9] to [PATCH V4 1/8]
+ - Added Acked-by Rob Herring
+
+v2 -> v3
+ - Patch renamed from [PATCH V1 02/10] to [PATCH V3 2/9]
+ - Each compatible line should be a valid combination of compatible
+   strings, alter DA9061 line to include the fall back compatible string
+ - Update the commit message to describe this change
+ - Add information about associated patches from this set without
+   describing them as being explicitly dependent on this binding
+
+v1 -> v2
+ - Patch renamed from [PATCH V1 07/10] to [PATCH V2 02/10] -- these
+   changes were made to fix checkpatch warnings caused by the patch
+   set dependency order
+ - Updated the patch description to be explicit about where parts of
+   this binding had originally been stored
+ - A second example for DA9061 is provided to highlight the use of a
+   fall-back compatible option for the DA9062 watchdog driver
+
+Hi,
+
+No code changes for this version PATCH V4. Added an Ack by Rob Herring
+for PATCH V3.
+
+As previously:
+For the watchdog case: the DA9062 device driver is compatible with the
+DA9061 and for this reason there is minimal change required to the DA9062
+watchdog device driver. The example for the DA9061 watchdog shows the
+use of a fall-back compatible string.
+
+Other information:
+The device driver from this patch set (associated with this binding) is
+  [PATCH V4 6/8] watchdog: da9061: watchdog driver
+ 
+Regards,
+Steve Twiss, Dialog Semiconductor Ltd.
 
 
+ .../devicetree/bindings/watchdog/da9062-wdt.txt    | 23 ++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
 
-------=_Part_3489546_1885277376.1479109399212
-Content-Type: application/msword
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="FROM FIRST NATIONAL BANK OF SOUTH AFRICA (F.N.B)..rtf"
-Content-ID: <f03ac67e-da25-e224-9d59-4c56ed95efcb@yahoo.com>
+diff --git a/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+new file mode 100644
+index 0000000..b935b52
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+@@ -0,0 +1,23 @@
++* Dialog Semiconductor DA9062/61 Watchdog Timer
++
++Required properties:
++
++- compatible: should be one of the following valid compatible string lines:
++	"dlg,da9061-watchdog", "dlg,da9062-watchdog"
++	"dlg,da9062-watchdog"
++
++Example: DA9062
++
++	pmic0: da9062@58 {
++		watchdog {
++			compatible = "dlg,da9062-watchdog";
++		};
++	};
++
++Example: DA9061 using a fall-back compatible for the DA9062 watchdog driver
++
++	pmic0: da9061@58 {
++		watchdog {
++			compatible = "dlg,da9061-watchdog", "dlg,da9062-watchdog";
++		};
++	};
+-- 
+end-of-patch for PATCH V4
 
-e1xydGYxXGFuc2lcYW5zaWNwZzEyNTJcZGVmZjBcZGVmbGFuZzcxNzd7XGZvbnR0Ymx7XGYwXGZz
-d2lzc1xmY2hhcnNldDAgQXJpYWw7fX0NCntcKlxnZW5lcmF0b3IgTXNmdGVkaXQgNS40MS4xNS4x
-NTEyO31cdmlld2tpbmQ0XHVjMVxwYXJkXGYwXGZzMjQgSSBhbSBGZWxpeCBDb2xsaW5zLCBJIHdv
-cmsgd2l0aCB0aGUgRklSU1QgTkFUSU9OQUwgQkFOSyBPRiBTT1VUSCBBRlJJQ0EgKEYuTi5CKS5c
-cGFyDQpQbGVhc2UgY29udGFjdCBtZSB3aXRoIHRoaXMgZW1haWwgYWRkcmVzc2VzLlxwYXINCmZl
-bGl4Y29sbGluc2FAZ21haWwuY29tXHBhcg0KUGxlYXNlIGNhbGwgbWUgb24gbXkgcHJpdmF0ZSBu
-dW1iZXIgKCsyNy03OSAtMTQxLTIzODUpXHBhcg0KXHBhcg0KXHBhcg0KQVRURU5USU9OOiBTSVIv
-TUFEQU0sXHBhcg0KXHBhcg0KSSBkbyB1bmRlcnN0YW5kIHRoZSBjb25jZXJuIHRoaXMgbGV0dGVy
-IHdpbGwgYnJpbmcgdG8geW91IGZvciB0aGUgZmFjdCB0aGF0IGl0IGNvbWVzIGZyb20gYSB0b3Rh
-bCBzdHJhbmdlciwgYnV0IGJlIHJlc3QgYXNzdXJlZCBmb3IgaXQgY29tZXMgd2l0aCBnb29kIGlu
-dGVudGlvbnMuIEkgZ290IHlvdXIgY29udGFjdCB0aHJvdWdoIHRoZSBTb3V0aCBBZnJpY2FuIElu
-dGVybmF0aW9uYWwgRXhjaGFuZ2UgTmV0d29yayBPbi1saW5lIGhlcmUgaW4gSm9oYW5uZXNidXJn
-LCBTb3V0aCBBZnJpY2EuIEZvciBwdXJwb3NlIG9mIGludHJvZHVjdGlvbiBJIGFtIEZlbGl4IENv
-bGxpbnMsIEkgd29yayB3aXRoIHRoZSBGSVJTVCBOQVRJT05BTCBCQU5LIE9GIFNPVVRIIEFGUklD
-QSAoRi5OLkIpICBUaGVyZSBpcyBhbiBhY2NvdW50IG9wZW5lZCBpbiB0aGlzIGJhbmsgc2luY2Ug
-MTk4MCBhbmQgc2luY2UgMTk5NSBub2JvZHkgaGFzIG9wZXJhdGVkIG9uIHRoaXMgYWNjb3VudCBh
-Z2Fpbi4gQWZ0ZXIgZ29pbmcgdGhyb3VnaCBzb21lIG9sZCBmaWxlcyBpbiB0aGUgcmVjb3Jkcywg
-SSBkaXNjb3ZlcmVkIHRoYXQgaWYgSSBkb24ndCByZW1pdCB0aGlzIG1vbmV5IG91dCB1cmdlbnRs
-eSBpdCB3b3VsZCBiZSBmb3JmZWl0ZWQgZm9yIG5vdGhpbmcuXHBhcg0KXHBhcg0KVGhlIG93bmVy
-IG9mIHRoaXMgYWNjb3VudCBpcyBNci4gU21pdGggLkIuIEFuZHJlYXMsIGEgZm9yZWlnbmVyIGFu
-ZCBhIG1pbmVyIGF0IEtydWdlciBHb2xkIENvLW9wZXJhdGlvbiwgYSBnZW9sb2dpc3QgYnkgcHJv
-ZmVzc2lvbiBhbmQgaGUgZGllZCBzaW5jZSAxOTk0LiBObyBvdGhlciBwZXJzb24ga25vd3MgYWJv
-dXQgdGhpcyBhY2NvdW50IG9yIGFueXRoaW5nIGNvbmNlcm5pbmcgaXQsIHRoZSBhY2NvdW50IGhh
-cyBubyBvdGhlciBiZW5lZmljaWFyeSBhbmQgbXkgaW52ZXN0aWdhdGlvbiBwcm92ZWQgdG8gbWUg
-YXMgd2VsbCB0aGF0IHRoZSBjb21wYW55IGRvZXMgbm90IGtub3cgYW55dGhpbmcgYWJvdXQgdGhp
-cyBhY2NvdW50IGFuZCB0aGUgYW1vdW50IGludm9sdmVkIGlzIFVTRCQ3NSwwMDAuMDAwLDAwICgg
-U2V2ZW50eSBGaXZlIE1pbGxpb24gVW5pdGVkIFN0YXRlcyBEb2xsYXJzKS4gSSBhbSBvbmx5IGNv
-bnRhY3RpbmcgeW91IGFzIGEgZm9yZWlnbmVyIGJlY2F1c2UgdGhpcyBtb25leSBjYW5ub3QgYmUg
-YXBwcm92ZWQgdG8gYSBsb2NhbCBiYW5rIGhlcmUsIGJ1dCBjYW4gb25seSBiZSBhcHByb3ZlZCB0
-byBhbnkgZm9yZWlnbiBhY2NvdW50IGJlY2F1c2UgdGhlIG1vbmV5IGlzIGluIFVuaXRlZCBTdGF0
-ZXMgRG9sbGFycyBhbmQgdGhlIGZvcm1lciBvd25lciBvZiB0aGUgYWNjb3VudCBNci4gU21pdGgg
-LkIgLiBBbmRyZWFzIGlzIGEgZm9yZWlnbmVyIHRvby4gSSBuZWVkIGEgdHJ1dGhmdWwgcGVyc29u
-IGluIHRoaXMgYnVzaW5lc3MgYmVjYXVzZSBJIGRvbid0IHdhbnQgdG8gbWFrZSBtaXN0YWtlcy5c
-cGFyDQpccGFyDQogSSBuZWVkIHlvdXIgc3Ryb25nIGFzc3VyYW5jZSBhbmQgdHJ1c3QuIFdpdGgg
-bXkgcG9zaXRpb24gbm93IGluIG9mZmljZSBJIGNhbiB0cmFuc2ZlciB0aGlzIG1vbmV5IHRvIGFu
-eSBmb3JlaWduIHJlbGlhYmxlIGFjY291bnQsIHRocm91Z2ggb24tbGluZSBiYW5raW5nIG9yIFRl
-bGVncmFwaGljIFRyYW5zZmVyIChULlQpIHdoaWNoIHlvdSBjYW4gcHJvdmlkZSB3aXRoIGFzc3Vy
-YW5jZSB0aGF0IHRoaXMgbW9uZXkgd2lsbCBiZSBpbnRhY3QgcGVuZGluZyBteSBwaHlzaWNhbCBh
-cnJpdmFsIHRvIHlvdXIgY291bnRyeSBmb3Igc2hhcmluZy4gSSB3aWxsIGFwcGx5IGZvciBhbm51
-YWwgbGVhdmUgdG8gZ2V0IGEgdmlzYSBpbW1lZGlhdGVseSBJIGhlYXIgZnJvbSB5b3UgdGhhdCB5
-b3UgYXJlIHJlYWR5IHRvIGFjdCBhbmQgcmVjZWl2ZSB0aGlzIG1vbmV5IGluIHlvdXIgYWNjb3Vu
-dC4gQXQgdGhlIGNvbmNsdXNpb24gb2YgdGhpcyBidXNpbmVzcywgSSB3aWxsIGNvbWUgdG8geW91
-ciBjb3VudHJ5IGZvciB3aXRoZHJhd2FsIGFuZCBzaGFyaW5nIGFuZCBvdGhlciBpbnZlc3RtZW50
-cy4geW91IHdpbGwgYmUgZ2l2ZW4gNDAlIG9mIHRoZSB0b3RhbCBhbW91bnQsIDUwJSB3aWxsIGJl
-IGZvciBtZSAsIGFuZCB3aGlsZSAxMCUgd2lsbCBiZSBmb3IgZXhwZW5zZXMgYm90aCBwYXJ0aWVz
-IG1pZ2h0IGluY3VyIGR1cmluZyB0aGUgcHJvY2VzcyBvZiB0cmFuc2ZlcnJpbmcgdGhpcyBtb25l
-eS5ccGFyDQpccGFyDQpUaGVyZWZvcmUsIGlmIHlvdSBhcmUgd2lsbGluZyBhbmQgaW50ZXJlc3Rl
-ZCB0byByZW5kZXIgdGhlIG5lZWRlZCBhc3Npc3RhbmNlLCBFbmRlYXZvciB0byByZXBseSB0aHJv
-dWdoIG15IGVtYWlsIGFkZHJlc3MsIEkgYWxzbyBuZWVkIHlvdXIgcHJpdmF0ZSBwaG9uZSBhbmQg
-ZmF4IG51bWJlcnMgZm9yIGVhc3kgY29tbXVuaWNhdGlvbi4gSSB3aWxsIGdpdmUgbW9yZSBjbGFy
-aWZpY2F0aW9ucyBvbiB0aGUgbW9kYWxpdGllcyBuZWVkZWQgZm9yIHRoZSBzdWNjZXNzZnVsIGNv
-bXBsZXRpb24gb2YgdGhpcyB0cmFuc2FjdGlvbi5ccGFyDQpccGFyDQpccGFyDQpCZXN0IFJlZ2Fy
-ZHMsXHBhcg0KRHIuIEZlbGl4IENvbGxpbnNccGFyDQogXHBhcg0KfQ0KAA==
-
-------=_Part_3489546_1885277376.1479109399212--

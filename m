@@ -1,80 +1,123 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2] input: bma150: Only claim to support the bma180 if the
- separate iio bma180 driver is not build
-Date: Mon, 14 Nov 2016 14:11:14 +0100
-Message-ID: <20161114131114.6053-1-hdegoede@redhat.com>
+From: Daniel Eriksson <imerion@gmail.com>
+Subject: Re: [HP Pavilion x2 - 12-b003nf] Synaptics touchpad not configured by
+ HID RMI
+Date: Mon, 14 Nov 2016 15:09:51 +0100
+Message-ID: <CALYLGY23QzLh0VPH41K2v0wVHtHmhc_QPNEVKPtxeUAPs-4ypw@mail.gmail.com>
+References: <CALYLGY0iV=kJxKku2sY1CnpONjzi-FJcZEbVtaUGRJgKKZrHTQ@mail.gmail.com>
+ <20161104080828.GB20334@mail.corp.redhat.com> <CALYLGY1ZNd+ZVkA65bRH4epH7+WWpAe-knwK1pmChLkPyvpvjg@mail.gmail.com>
+ <CALYLGY0FcRPFjKFT9PeABtSPQ5DFpvp4YnWUR_bU5Cg5jWwO2A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Dr . H . Nikolaus Schaller" <hns@goldelico.com>, Hans de Goede <hdegoede@redhat.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f193.google.com ([209.85.161.193]:33561 "EHLO
+        mail-yw0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752214AbcKNOJx (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 14 Nov 2016 09:09:53 -0500
+Received: by mail-yw0-f193.google.com with SMTP id s68so6708261ywg.0
+        for <linux-input@vger.kernel.org>; Mon, 14 Nov 2016 06:09:52 -0800 (PST)
+In-Reply-To: <CALYLGY0FcRPFjKFT9PeABtSPQ5DFpvp4YnWUR_bU5Cg5jWwO2A@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: aduggan@synaptics.com, jikos@kernel.org, linux-input@vger.kernel.org
 
-commit ef3714fdbc8d ("Input: bma150 - extend chip detection for bma180"),
-adds bma180 chip-ids to the input bma150 driver, assuming that they are
-100% compatible, but the bma180 is not compatible with the bma150 at all,
-it has 14 bits resolution instead of 10, and it has quite different
-control registers too.
+Now I tried this branch as well :
+https://github.com/bentiss/linux/commits/synaptics-rmi4-v4.8%2B
 
-Treating the bma180 as a bma150 wrt its data registers will just result
-in throwing away the lowest 4 bits, which is not too bad. But the ctrl
-registers are a different story. Things happen to just work but supporting
-that certainly does not make treating the bma180 the same as the bma150
-right.
+But I can't seem to get it to boot. I got a "gave up waiting for root
+device". Something about missing modules and an alert followed by a
+long UUID that does not exist. Probably has nothing to do with the hid
+driver though, I probably just did something wrong when configuring or
+compiling the kernel.
 
-Since some setups depend on the evdev interface the bma150 driver offers
-on top of the bma180, we cannot simply remove the bma180 ids.
+Thought I'd let you know. If there are other branches that needs
+testing for this new hid driver I can do so. Especially good if there
+are .debs available, so nothing get's screwed up along the compilation
+process. :)
 
-So this commit only removes the bma180 id when the bma180 iio driver,
-which does treat the bma180 properly, is enabled.
 
-Cc: Dr. H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Changes in v2:
--Use IS_ENABLED(CONFIG_BMA180) instead of #ifdef CONFIG_BMA180
----
- drivers/input/misc/bma150.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-index b0d4453..2124390 100644
---- a/drivers/input/misc/bma150.c
-+++ b/drivers/input/misc/bma150.c
-@@ -538,8 +538,13 @@ static int bma150_probe(struct i2c_client *client,
- 		return -EIO;
- 	}
- 
-+	/*
-+	 * Note if the IIO CONFIG_BMA180 driver is enabled we want to fail
-+	 * the probe for the bma180 as the iio driver is preferred.
-+	 */
- 	chip_id = i2c_smbus_read_byte_data(client, BMA150_CHIP_ID_REG);
--	if (chip_id != BMA150_CHIP_ID && chip_id != BMA180_CHIP_ID) {
-+	if (chip_id != BMA150_CHIP_ID &&
-+	    (IS_ENABLED(CONFIG_BMA180) || chip_id != BMA180_CHIP_ID)) {
- 		dev_err(&client->dev, "BMA150 chip id error: %d\n", chip_id);
- 		return -EINVAL;
- 	}
-@@ -643,7 +648,9 @@ static UNIVERSAL_DEV_PM_OPS(bma150_pm, bma150_suspend, bma150_resume, NULL);
- 
- static const struct i2c_device_id bma150_id[] = {
- 	{ "bma150", 0 },
-+#if !IS_ENABLED(CONFIG_BMA180)
- 	{ "bma180", 0 },
-+#endif
- 	{ "smb380", 0 },
- 	{ "bma023", 0 },
- 	{ }
--- 
-2.9.3
+On Sun, Nov 6, 2016 at 4:51 PM, Daniel Eriksson <imerion@gmail.com> wrote:
+> I managed to compile my own kernel, and can now confirm this branch:
+> https://github.com/aduggan/linux/tree/development/hid-rmi
+>
+> Works perfect with the hardware I described. Two-finger scrolling,
+> edge scrolling and correct acceleration all works as they should. :)
+>
+> Thanks to all involved! Now I only hope this gets pushed upstream soon. :)
+>
+>
+> On Sat, Nov 5, 2016 at 3:10 AM, Daniel Eriksson <imerion@gmail.com> wrote:
+>> On Fri, Nov 4, 2016 at 9:08 AM, Benjamin Tissoires
+>> <benjamin.tissoires@redhat.com> wrote:
+>>> On Nov 04 2016 or thereabouts, Daniel Eriksson wrote:
+>>>> Hi! I'm having some trouble with my touchpad, so I figured I'd send a
+>>>> report. Details can be seen below.
+>>>>
+>>>>
+>>>> [1.] One line summary of the problem:
+>>>>
+>>>> Synaptics touchpad fail to be configured by HID RMI on a HP Pavilion
+>>>> x2 (12-b003nf)
+>>>>
+>>>>
+>>>> [2.] Full description of the problem/report:
+>>>>
+>>>> Touchpad on the HP Pavilion X2 12" does nothing after boot. dmesg shows:
+>>>>
+>>>> [    6.032160] hid-rmi 0003:06CB:7D29.0001: No 2D sensor found, giving up.
+>>>> [    6.032273] hid-rmi 0003:06CB:7D29.0001: Error while initializing F11 (-19).
+>>>
+>>> Your sensor is probably using the F12 2D sensor, not the F11. We are
+>>> aware of this issue, and patches has already been submitted. We need
+>>> them to be pushed upstream...
+>>>
+>>> Meanwhile, if you can compile a kernel, you might be interested in:
+>>> - https://github.com/aduggan/linux/tree/development/hid-rmi (branch
+>>>   hid-rmi) -> this has been tested against F12 on RMI4 over HID
+>>> - https://github.com/bentiss/linux/commits/synaptics-rmi4-v4.8%2B (
+>>>   branch synaptics-rmi4-v4.8+) -> this is what matches the latest
+>>>   submission (the HID part has not been tested and thus not submitted)
+>>>
+>>> Any help in testing would be appreciated! :)
+>>>
+>>> Cheers,
+>>> Benjamin
+>>>
+>>
+>> I see, great to hear! Any idea how long it would take to get it pushed upstream?
+>> I want to help you test, but I'm not sure I can get the kernel
+>> compilation right. I'll give it a go and return if I get any results!
+>>
+>> Thanks!
+>>
+>> Daniel
+>>
+>>
+>>>> [    6.044758] hid-rmi 0003:06CB:7D29.0001: hiddev0,hidraw1: USB HID
+>>>> v1.11 Mouse [SYNAPTICS Synaptics HIDUSB TouchPad V03] on
+>>>> usb-0000:00:14.0-2.1/input0
+>>>> [    6.044761] hid-rmi 0003:06CB:7D29.0001: Device failed to be
+>>>> properly configured
+>>>>
+>>>> Latest bios is installed.
+>>>>
+>>>>
+>>>> [3.] Keywords
+>>>>
+>>>>
+>>>> [4.] Kernel version
+>>>>
+>>>> Linux version 4.8.6-040806-generic (kernel@tangerine) (gcc version
+>>>> 6.2.0 20161005 (Ubuntu 6.2.0-5ubuntu12) ) #201610310831 SMP Mon Oct 31
+>>>> 12:33:48 UTC 2016
+>>>>
+>>>>
+>>>> [5.] Output of Oops.. message
+>>>>
+>>>> Not applicable.
+>>>>
+>>>>
+>>>> [6.] A small shell script or example program which triggers the problem
+>>>>
+>>>> Not applicable. Problem always appears.

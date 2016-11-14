@@ -1,68 +1,45 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] input: bma150: Only claim to support the bma180 if the separate iio bma180 driver is not build
-Date: Sun, 13 Nov 2016 19:34:07 +0100
-Message-ID: <20161113183407.12848-1-hdegoede@redhat.com>
+From: Song Hongyan <hongyan.song@intel.com>
+Subject: [PATCH v3] hid: hid-sensor-hub: clear memory to avoid random data
+Date: Mon, 14 Nov 2016 02:09:54 +0000
+Message-ID: <1479089394-30765-1-git-send-email-hongyan.song@intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33802 "EHLO mx1.redhat.com"
+Received: from mga03.intel.com ([134.134.136.65]:56297 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932542AbcKMSeM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 13 Nov 2016 13:34:12 -0500
+        id S1753265AbcKNCGr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 13 Nov 2016 21:06:47 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hans de Goede <hdegoede@redhat.com>, "Dr . H . Nikolaus Schaller" <hns@goldelico.com>
+To: linux-input@vger.kernel.org, linux-iio@vger.kernel.org
+Cc: jikos@kernel.org, jic23@kernel.org, srinivas.pandruvada@intel.com, Song Hongyan <hongyan.song@intel.com>
 
-commit ef3714fdbc8d ("Input: bma150 - extend chip detection for bma180"),
-adds bma180 chip-ids to the input bma150 driver, assuming that they are
-100% compatible, but the bma180 is not compatible with the bma150 at all,
-it has 14 bits resolution instead of 10, and it has quite different
-control registers too.
+When user tried to read some fields like hysteresis from IIO sysfs on some
+systems, it fails. The reason is that this field is a byte field and caller
+of sensor_hub_get_feature() passes a buffer of 4 bytes. Here the function
+sensor_hub_get_feature() copies the single byte from the report to the
+caller buffer and returns "1" as the number of bytes copied. So caller
+can use the return value, which is actually not right.
 
-Treating the bma180 as a bma150 wrt its data registers will just result
-in throwing away the lowest 4 bits, which is not too bad. But the ctrl
-registers are a different story. Things happen to just work but supporting
-that certainly does not make treating the bma180 the same as the bma150
-right.
+Since this is done by multiple callers, if we change the
+sensor_hub_get_feature() can make sure the caller buffer is initialized
+with 0s then we don't need to change all functions.
 
-Since some setups depend on the evdev interface the bma150 driver offers
-on top of the bma180, we cannot simply remove the bma180 ids.
-
-So this commit only removes the bma180 id when the bma180 iio driver,
-which does treat the bma180 properly, is enabled.
-
-Cc: Dr. H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Song Hongyan <hongyan.song@intel.com>
 ---
- drivers/input/misc/bma150.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/hid/hid-sensor-hub.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-index b0d4453..9fa1c9a 100644
---- a/drivers/input/misc/bma150.c
-+++ b/drivers/input/misc/bma150.c
-@@ -539,7 +539,11 @@ static int bma150_probe(struct i2c_client *client,
- 	}
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 658a607..b74d954 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -252,6 +252,7 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 	int report_size;
+ 	int ret = 0;
  
- 	chip_id = i2c_smbus_read_byte_data(client, BMA150_CHIP_ID_REG);
--	if (chip_id != BMA150_CHIP_ID && chip_id != BMA180_CHIP_ID) {
-+	if (chip_id != BMA150_CHIP_ID
-+#ifndef CONFIG_BMA180
-+	    && chip_id != BMA180_CHIP_ID
-+#endif
-+	    ) {
- 		dev_err(&client->dev, "BMA150 chip id error: %d\n", chip_id);
- 		return -EINVAL;
- 	}
-@@ -643,7 +647,9 @@ static UNIVERSAL_DEV_PM_OPS(bma150_pm, bma150_suspend, bma150_resume, NULL);
- 
- static const struct i2c_device_id bma150_id[] = {
- 	{ "bma150", 0 },
-+#ifndef CONFIG_BMA180
- 	{ "bma180", 0 },
-+#endif
- 	{ "smb380", 0 },
- 	{ "bma023", 0 },
- 	{ }
++	memset(buffer, 0, buffer_size);
+ 	mutex_lock(&data->mutex);
+ 	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
+ 	if (!report || (field_index >= report->maxfield) ||
 -- 
-2.9.3
+1.9.1
 

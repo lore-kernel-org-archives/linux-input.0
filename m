@@ -1,117 +1,74 @@
 From: Steve Twiss <stwiss.opensource@diasemi.com>
-Subject: [PATCH V4 2/8] Documentation: devicetree: thermal: da9062/61 TJUNC
- temperature binding
-Date: Mon, 14 Nov 2016 08:22:44 +0000
-Message-ID: <a835a5977e7cf43274293d055d3e19befffab019.1479111766.git.stwiss.opensource@diasemi.com>
-References: <cover.1479111766.git.stwiss.opensource@diasemi.com>
+Subject: [PATCH V4 0/8]  da9061: DA9061 driver submission
+Date: Mon, 14 Nov 2016 08:22:46 +0000
+Message-ID: <cover.1479111766.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <cover.1479111766.git.stwiss.opensource@diasemi.com>
 Sender: linux-pm-owner@vger.kernel.org
-To: DEVICETREE <devicetree@vger.kernel.org>, Eduardo Valentin <edubezval@gmail.com>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Zhang Rui <rui.zhang@intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Lukasz Luba <lukasz.luba@arm.com>, Mark Brown <broonie@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
+To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Lukasz Luba <lukasz.luba@arm.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Steve Twiss <stwiss.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
+Cc: Support Opensource <support.opensource@diasemi.com>
 List-Id: linux-input@vger.kernel.org
 
 From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-Device tree binding information for DA9062 and DA9061 thermal junction
-temperature monitor.
+This patch set adds support for the Dialog DA9061 Power Management IC.
+Support is made by altering the existing DA9062 device driver, where
+appropriate.
 
-Binding descriptions for the DA9061 and DA9062 thermal TJUNC supervisor
-device driver, using a single THERMAL_TRIP_HOT trip-wire and allowing for
-a configurable polling period for over-temperature polling.
+In this patch set the following is provided:
 
-This patch also adds two examples, one for DA9062 and one for DA9061. The 
-DA9061 example uses a fall-back compatible string for the DA9062.
+[PATCH V4 1/8] Binding for watchdog
+[PATCH V4 2/8] Binding for thermal supervisor
+[PATCH V4 3/8] Binding for MFD and regulators
+[PATCH V4 4/8] MFD core support
+[PATCH V4 5/8] BUCKs and LDOs
+[PATCH V4 6/8] Watchdog
+[PATCH V4 7/8] PMIC temperature monitoring
+[PATCH V4 8/8] MAINTAINERS update
 
-Acked-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Some previous patches from this set have been applied already:
 
----
-This patch applies against linux-next and v4.8
+Onkey binding -- https://lkml.org/lkml/2016/11/8/958
+Onkey driver  -- https://lkml.org/lkml/2016/10/26/1169
 
-v3 -> v4
- - NO CODE CHANGE
- - Patch renamed from [PATCH V3 3/9] to [PATCH V4 2/8]
- - Added Acked-by Rob Herring
+This patch applies against linux-next and v4.8 
 
-v2 -> v3
- - Patch renamed from [PATCH V2 03/10] to [PATCH V3 3/9]
- - Changes suggested from other component reviews by Rob Herring:
- - Each compatible line should be a valid combination of compatible
-   strings: alter DA9061 line to include the fall back compatible string
-   and update the commit message accordingly
- - Add e-mail information about associated patches from this set without
-   describing them as being explicitly dependent on this binding
-
-v1 -> v2
- - Patch renamed from [PATCH V1 08/10] to [PATCH V2 03/10] -- these
-   changes were made to fix checkpatch warnings caused by the patch
-   set dependency order
- - A second example for DA9061 is provided to highlight the use of a
-   fall-back compatible option for the DA9062
-
-Hi,
-
-No code changes for this version PATCH V4. Added an Ack by Rob Herring
-for PATCH V3.
-
-As previously:
-The device driver from this patch set (associated with this binding) is:
-  [PATCH V4 7/8] thermal: da9061: TJUNC temperature driver 
-
-Regards,
+Thank you,
 Steve Twiss, Dialog Semiconductor Ltd.
 
+Steve Twiss (8):
+  Documentation: devicetree: watchdog: da9062/61 watchdog timer binding
+  Documentation: devicetree: thermal: da9062/61 TJUNC temperature
+    binding
+  Documentation: devicetree: mfd: da9062/61 MFD binding
+  mfd: da9061: MFD core support
+  regulator: da9061: BUCK and LDO regulator driver
+  watchdog: da9062/61: watchdog driver
+  thermal: da9062/61: Thermal junction temperature monitoring driver
+  MAINTAINERS: da9062/61 updates to the Dialog Semiconductor search
+    terms
 
- .../devicetree/bindings/thermal/da9062-thermal.txt | 37 ++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ Documentation/devicetree/bindings/mfd/da9062.txt   |  49 ++-
+ .../devicetree/bindings/thermal/da9062-thermal.txt |  37 ++
+ .../devicetree/bindings/watchdog/da9062-wdt.txt    |  23 ++
+ MAINTAINERS                                        |   4 +
+ drivers/mfd/Kconfig                                |   5 +-
+ drivers/mfd/da9062-core.c                          | 424 ++++++++++++++++++++-
+ drivers/regulator/Kconfig                          |   4 +-
+ drivers/regulator/da9062-regulator.c               | 301 ++++++++++++++-
+ drivers/thermal/Kconfig                            |  10 +
+ drivers/thermal/Makefile                           |   1 +
+ drivers/thermal/da9062-thermal.c                   | 300 +++++++++++++++
+ drivers/watchdog/Kconfig                           |   4 +-
+ drivers/watchdog/da9062_wdt.c                      |  12 +-
+ include/linux/mfd/da9062/core.h                    |  27 +-
+ include/linux/mfd/da9062/registers.h               |   2 +
+ 15 files changed, 1154 insertions(+), 49 deletions(-)
  create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
+ create mode 100644 drivers/thermal/da9062-thermal.c
 
-diff --git a/Documentation/devicetree/bindings/thermal/da9062-thermal.txt b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
-new file mode 100644
-index 0000000..460ce68
---- /dev/null
-+++ b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
-@@ -0,0 +1,37 @@
-+* Dialog DA9062/61 TJUNC Thermal Module
-+
-+This module is part of the DA9061/DA9062. For more details about entire
-+DA9062 and DA9061 chips see Documentation/devicetree/bindings/mfd/da9062.txt
-+
-+Junction temperature thermal module uses an interrupt signal to identify
-+high THERMAL_TRIP_HOT temperatures for the PMIC device.
-+
-+Required properties:
-+
-+- compatible: should be one of the following valid compatible string lines:
-+        "dlg,da9061-thermal", "dlg,da9062-thermal"
-+        "dlg,da9062-thermal"
-+
-+Optional properties:
-+
-+- dlg,tjunc-temp-polling-period-ms : Specify the polling period, measured
-+    in milliseconds, between thermal zone device update checks.
-+
-+Example: DA9062
-+
-+	pmic0: da9062@58 {
-+		thermal {
-+			compatible = "dlg,da9062-thermal";
-+			dlg,tjunc-temp-polling-period-ms = <3000>;
-+		};
-+	};
-+
-+Example: DA9061 using a fall-back compatible for the DA9062 onkey driver
-+
-+	pmic0: da9061@58 {
-+		thermal {
-+			compatible = "dlg,da9061-thermal", "dlg,da9062-thermal";
-+			dlg,tjunc-temp-polling-period-ms = <3000>;
-+		};
-+	};
-+
 -- 
 end-of-patch for PATCH V4
 

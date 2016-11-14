@@ -1,30 +1,29 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH v7 9/9] DT:omap3+ads7846: use new common touchscreen
- bindings
-Date: Mon, 14 Nov 2016 13:28:56 -0800
-Message-ID: <20161114212855.GB4082@atomide.com>
-References: <cover.1478890925.git.hns@goldelico.com>
- <bb3b82c63810026cd6c23a5788c3efc79fa53e60.1478890925.git.hns@goldelico.com>
+From: Fabio Estevam <festevam@gmail.com>
+Subject: Re: [PATCH v9 1/5] mfd: mxs-lradc: Add support for mxs-lradc MFD
+Date: Mon, 14 Nov 2016 21:39:23 -0200
+Message-ID: <CAOMZO5C_=xNdkpcargLjysr9hkTAVAb6Hb8m5LpH62o0FQYZew@mail.gmail.com>
+References: <cover.1478071676.git.ksenija.stanojevic@gmail.com>
+ <c18883dfacaaf40ab98cbb4938d5164a95a817d7.1478071676.git.ksenija.stanojevic@gmail.com>
+ <9560d7a2-98b2-732d-c91a-944ae381107c@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from muru.com ([72.249.23.125]:60006 "EHLO muru.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753274AbcKNV3B (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 14 Nov 2016 16:29:01 -0500
-Content-Disposition: inline
-In-Reply-To: <bb3b82c63810026cd6c23a5788c3efc79fa53e60.1478890925.git.hns@goldelico.com>
+Received: from mail-ua0-f196.google.com ([209.85.217.196]:33857 "EHLO
+        mail-ua0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754630AbcKNXjZ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 14 Nov 2016 18:39:25 -0500
+In-Reply-To: <9560d7a2-98b2-732d-c91a-944ae381107c@denx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, =?utf-8?Q?Beno=C3=AEt?= Cousson <bcousson@baylibre.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, Mika =?utf-8?B?UGVudHRpbMOk?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, Jonathan Cameron <jic23@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, letux-kernel@openphoenux.org, linux-iio@vger.kernel.org, kernel@pyra-handheld.com
+To: Marek Vasut <marex@denx.de>
+Cc: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, Harald Geyer <harald@ccbib.org>, Stefan Wahren <stefan.wahren@i2se.com>, Fabio Estevam <fabio.estevam@freescale.com>
 
-* H. Nikolaus Schaller <hns@goldelico.com> [161111 11:03]:
-> The standard touch screen bindings [1] replace the private ti,swap-xy
-> with touchscreen-swaped-x-y. And for the Openpandora we use
-> touchscreen-size etc. to match the LCD screen size.
+On Mon, Nov 14, 2016 at 4:43 PM, Marek Vasut <marex@denx.de> wrote:
 
-This one should not cause conflicts, so please feel free to merge along
-with the driver changes:
+>> +#define MXS_LRADC_BASE               0x80050000
+>
+> Just for my understanding, why is this hardware address hard-coded here?
+> Shouldn't that be fetched from DT ?
 
-Acked-by: Tony Lindgren <tony@atomide.com>
+Yes, this base address should be retrieved from device tree.

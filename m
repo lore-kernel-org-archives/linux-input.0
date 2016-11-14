@@ -1,46 +1,30 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] hid: hid-sensor-hub: clear memory to avoid random
- data
-Date: Mon, 14 Nov 2016 19:02:57 +0000
-Message-ID: <1479150175.6544.25.camel@intel.com>
-References: <1479089394-30765-1-git-send-email-hongyan.song@intel.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH v7 9/9] DT:omap3+ads7846: use new common touchscreen
+ bindings
+Date: Mon, 14 Nov 2016 13:28:56 -0800
+Message-ID: <20161114212855.GB4082@atomide.com>
+References: <cover.1478890925.git.hns@goldelico.com>
+ <bb3b82c63810026cd6c23a5788c3efc79fa53e60.1478890925.git.hns@goldelico.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1479089394-30765-1-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Content-Language: en-US
-Content-ID: <21E16101D3CBB948A2FF08B744C0DBFE-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Song, Hongyan" <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: "jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from muru.com ([72.249.23.125]:60006 "EHLO muru.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753274AbcKNV3B (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 14 Nov 2016 16:29:01 -0500
+Content-Disposition: inline
+In-Reply-To: <bb3b82c63810026cd6c23a5788c3efc79fa53e60.1478890925.git.hns@goldelico.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, =?utf-8?Q?Beno=C3=AEt?= Cousson <bcousson@baylibre.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, Mika =?utf-8?B?UGVudHRpbMOk?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, Jonathan Cameron <jic23@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, letux-kernel@openphoenux.org, linux-iio@vger.kernel.org, kernel@pyra-handheld.com
 
-T24gTW9uLCAyMDE2LTExLTE0IGF0IDAyOjA5ICswMDAwLCBTb25nIEhvbmd5YW4gd3JvdGU6DQo+
-IFdoZW4gdXNlciB0cmllZCB0byByZWFkIHNvbWUgZmllbGRzIGxpa2UgaHlzdGVyZXNpcyBmcm9t
-IElJTyBzeXNmcyBvbg0KPiBzb21lDQo+IHN5c3RlbXMsIGl0IGZhaWxzLiBUaGUgcmVhc29uIGlz
-IHRoYXQgdGhpcyBmaWVsZCBpcyBhIGJ5dGUgZmllbGQgYW5kDQo+IGNhbGxlcg0KPiBvZiBzZW5z
-b3JfaHViX2dldF9mZWF0dXJlKCkgcGFzc2VzIGEgYnVmZmVyIG9mIDQgYnl0ZXMuIEhlcmUgdGhl
-DQo+IGZ1bmN0aW9uDQo+IHNlbnNvcl9odWJfZ2V0X2ZlYXR1cmUoKSBjb3BpZXMgdGhlIHNpbmds
-ZSBieXRlIGZyb20gdGhlIHJlcG9ydCB0bw0KPiB0aGUNCj4gY2FsbGVyIGJ1ZmZlciBhbmQgcmV0
-dXJucyAiMSIgYXMgdGhlIG51bWJlciBvZiBieXRlcyBjb3BpZWQuDQoNCklzIHRoZSBmb2xsb3dp
-bmcgc2VudGVuY2UgYWNjdXJhdGU/DQo+ICBTbyBjYWxsZXINCj4gY2FuIHVzZSB0aGUgcmV0dXJu
-IHZhbHVlLCB3aGljaCBpcyBhY3R1YWxseSBub3QgcmlnaHQuDQpDYWxsZXIgY291bGQgaGF2ZSB1
-c2VkIGEgc2luZ2xlIGJ5dGUgZnJvbSB0aGUgcmVzdWx0IGJ1ZmZlciBhcyB0aGlzIGlzDQp2YWxp
-ZCBkYXRhIGlnbm9yaW5nIG90aGVyIGJ5dGVzLg0KDQoNCj4gU2luY2UgdGhpcyBpcyBkb25lIGJ5
-IG11bHRpcGxlIGNhbGxlcnMsIGlmIHdlIGNoYW5nZSB0aGUNCj4gc2Vuc29yX2h1Yl9nZXRfZmVh
-dHVyZSgpIGNhbiBtYWtlIHN1cmUgdGhlIGNhbGxlciBidWZmZXIgaXMNCj4gaW5pdGlhbGl6ZWQN
-Cj4gd2l0aCAwcyB0aGVuIHdlIGRvbid0IG5lZWQgdG8gY2hhbmdlIGFsbCBmdW5jdGlvbnMuDQo+
-IA0KPiBTaWduZWQtb2ZmLWJ5OiBTb25nIEhvbmd5YW4gPGhvbmd5YW4uc29uZ0BpbnRlbC5jb20+
-DQo+IC0tLQ0KPiDCoGRyaXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMgfCAxICsNCj4gwqAxIGZp
-bGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKykNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2hp
-ZC9oaWQtc2Vuc29yLWh1Yi5jIGIvZHJpdmVycy9oaWQvaGlkLXNlbnNvci0NCj4gaHViLmMNCj4g
-aW5kZXggNjU4YTYwNy4uYjc0ZDk1NCAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9oaWQvaGlkLXNl
-bnNvci1odWIuYw0KPiArKysgYi9kcml2ZXJzL2hpZC9oaWQtc2Vuc29yLWh1Yi5jDQo+IEBAIC0y
-NTIsNiArMjUyLDcgQEAgaW50IHNlbnNvcl9odWJfZ2V0X2ZlYXR1cmUoc3RydWN0DQo+IGhpZF9z
-ZW5zb3JfaHViX2RldmljZSAqaHNkZXYsIHUzMiByZXBvcnRfaWQsDQo+IMKgCWludCByZXBvcnRf
-c2l6ZTsNCj4gwqAJaW50IHJldCA9IDA7DQo+IMKgDQo+ICsJbWVtc2V0KGJ1ZmZlciwgMCwgYnVm
-ZmVyX3NpemUpOw0KPiDCoAltdXRleF9sb2NrKCZkYXRhLT5tdXRleCk7DQo+IMKgCXJlcG9ydCA9
-IHNlbnNvcl9odWJfcmVwb3J0KHJlcG9ydF9pZCwgaHNkZXYtPmhkZXYsDQo+IEhJRF9GRUFUVVJF
-X1JFUE9SVCk7DQo+IMKgCWlmICghcmVwb3J0IHx8IChmaWVsZF9pbmRleCA+PSByZXBvcnQtPm1h
-eGZpZWxkKSB8fA==
+* H. Nikolaus Schaller <hns@goldelico.com> [161111 11:03]:
+> The standard touch screen bindings [1] replace the private ti,swap-xy
+> with touchscreen-swaped-x-y. And for the Openpandora we use
+> touchscreen-size etc. to match the LCD screen size.
+
+This one should not cause conflicts, so please feel free to merge along
+with the driver changes:
+
+Acked-by: Tony Lindgren <tony@atomide.com>

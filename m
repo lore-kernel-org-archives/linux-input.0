@@ -1,89 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input: bma150: Only claim to support the bma180 if
- the separate iio bma180 driver is not build
-Date: Mon, 14 Nov 2016 10:53:54 -0800
-Message-ID: <20161114185354.GB7694@dtor-ws>
-References: <20161114131114.6053-1-hdegoede@redhat.com>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3] hid: hid-sensor-hub: clear memory to avoid random
+ data
+Date: Mon, 14 Nov 2016 19:02:57 +0000
+Message-ID: <1479150175.6544.25.camel@intel.com>
+References: <1479089394-30765-1-git-send-email-hongyan.song@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:34666 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934709AbcKNSx5 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 14 Nov 2016 13:53:57 -0500
-Received: by mail-pg0-f66.google.com with SMTP id e9so9252721pgc.1
-        for <linux-input@vger.kernel.org>; Mon, 14 Nov 2016 10:53:56 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20161114131114.6053-1-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1479089394-30765-1-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Language: en-US
+Content-ID: <21E16101D3CBB948A2FF08B744C0DBFE-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Song, Hongyan" <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "Dr . H . Nikolaus Schaller" <hns@goldelico.com>
 
-On Mon, Nov 14, 2016 at 02:11:14PM +0100, Hans de Goede wrote:
-> commit ef3714fdbc8d ("Input: bma150 - extend chip detection for bma180"),
-> adds bma180 chip-ids to the input bma150 driver, assuming that they are
-> 100% compatible, but the bma180 is not compatible with the bma150 at all,
-> it has 14 bits resolution instead of 10, and it has quite different
-> control registers too.
-> 
-> Treating the bma180 as a bma150 wrt its data registers will just result
-> in throwing away the lowest 4 bits, which is not too bad. But the ctrl
-> registers are a different story. Things happen to just work but supporting
-> that certainly does not make treating the bma180 the same as the bma150
-> right.
-> 
-> Since some setups depend on the evdev interface the bma150 driver offers
-> on top of the bma180, we cannot simply remove the bma180 ids.
-> 
-> So this commit only removes the bma180 id when the bma180 iio driver,
-> which does treat the bma180 properly, is enabled.
-> 
-> Cc: Dr. H. Nikolaus Schaller <hns@goldelico.com>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-
-Applied, thank you.
-
-> ---
-> Changes in v2:
-> -Use IS_ENABLED(CONFIG_BMA180) instead of #ifdef CONFIG_BMA180
-> ---
->  drivers/input/misc/bma150.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-> index b0d4453..2124390 100644
-> --- a/drivers/input/misc/bma150.c
-> +++ b/drivers/input/misc/bma150.c
-> @@ -538,8 +538,13 @@ static int bma150_probe(struct i2c_client *client,
->  		return -EIO;
->  	}
->  
-> +	/*
-> +	 * Note if the IIO CONFIG_BMA180 driver is enabled we want to fail
-> +	 * the probe for the bma180 as the iio driver is preferred.
-> +	 */
->  	chip_id = i2c_smbus_read_byte_data(client, BMA150_CHIP_ID_REG);
-> -	if (chip_id != BMA150_CHIP_ID && chip_id != BMA180_CHIP_ID) {
-> +	if (chip_id != BMA150_CHIP_ID &&
-> +	    (IS_ENABLED(CONFIG_BMA180) || chip_id != BMA180_CHIP_ID)) {
->  		dev_err(&client->dev, "BMA150 chip id error: %d\n", chip_id);
->  		return -EINVAL;
->  	}
-> @@ -643,7 +648,9 @@ static UNIVERSAL_DEV_PM_OPS(bma150_pm, bma150_suspend, bma150_resume, NULL);
->  
->  static const struct i2c_device_id bma150_id[] = {
->  	{ "bma150", 0 },
-> +#if !IS_ENABLED(CONFIG_BMA180)
->  	{ "bma180", 0 },
-> +#endif
->  	{ "smb380", 0 },
->  	{ "bma023", 0 },
->  	{ }
-> -- 
-> 2.9.3
-> 
-
--- 
-Dmitry
+T24gTW9uLCAyMDE2LTExLTE0IGF0IDAyOjA5ICswMDAwLCBTb25nIEhvbmd5YW4gd3JvdGU6DQo+
+IFdoZW4gdXNlciB0cmllZCB0byByZWFkIHNvbWUgZmllbGRzIGxpa2UgaHlzdGVyZXNpcyBmcm9t
+IElJTyBzeXNmcyBvbg0KPiBzb21lDQo+IHN5c3RlbXMsIGl0IGZhaWxzLiBUaGUgcmVhc29uIGlz
+IHRoYXQgdGhpcyBmaWVsZCBpcyBhIGJ5dGUgZmllbGQgYW5kDQo+IGNhbGxlcg0KPiBvZiBzZW5z
+b3JfaHViX2dldF9mZWF0dXJlKCkgcGFzc2VzIGEgYnVmZmVyIG9mIDQgYnl0ZXMuIEhlcmUgdGhl
+DQo+IGZ1bmN0aW9uDQo+IHNlbnNvcl9odWJfZ2V0X2ZlYXR1cmUoKSBjb3BpZXMgdGhlIHNpbmds
+ZSBieXRlIGZyb20gdGhlIHJlcG9ydCB0bw0KPiB0aGUNCj4gY2FsbGVyIGJ1ZmZlciBhbmQgcmV0
+dXJucyAiMSIgYXMgdGhlIG51bWJlciBvZiBieXRlcyBjb3BpZWQuDQoNCklzIHRoZSBmb2xsb3dp
+bmcgc2VudGVuY2UgYWNjdXJhdGU/DQo+ICBTbyBjYWxsZXINCj4gY2FuIHVzZSB0aGUgcmV0dXJu
+IHZhbHVlLCB3aGljaCBpcyBhY3R1YWxseSBub3QgcmlnaHQuDQpDYWxsZXIgY291bGQgaGF2ZSB1
+c2VkIGEgc2luZ2xlIGJ5dGUgZnJvbSB0aGUgcmVzdWx0IGJ1ZmZlciBhcyB0aGlzIGlzDQp2YWxp
+ZCBkYXRhIGlnbm9yaW5nIG90aGVyIGJ5dGVzLg0KDQoNCj4gU2luY2UgdGhpcyBpcyBkb25lIGJ5
+IG11bHRpcGxlIGNhbGxlcnMsIGlmIHdlIGNoYW5nZSB0aGUNCj4gc2Vuc29yX2h1Yl9nZXRfZmVh
+dHVyZSgpIGNhbiBtYWtlIHN1cmUgdGhlIGNhbGxlciBidWZmZXIgaXMNCj4gaW5pdGlhbGl6ZWQN
+Cj4gd2l0aCAwcyB0aGVuIHdlIGRvbid0IG5lZWQgdG8gY2hhbmdlIGFsbCBmdW5jdGlvbnMuDQo+
+IA0KPiBTaWduZWQtb2ZmLWJ5OiBTb25nIEhvbmd5YW4gPGhvbmd5YW4uc29uZ0BpbnRlbC5jb20+
+DQo+IC0tLQ0KPiDCoGRyaXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMgfCAxICsNCj4gwqAxIGZp
+bGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKykNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2hp
+ZC9oaWQtc2Vuc29yLWh1Yi5jIGIvZHJpdmVycy9oaWQvaGlkLXNlbnNvci0NCj4gaHViLmMNCj4g
+aW5kZXggNjU4YTYwNy4uYjc0ZDk1NCAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9oaWQvaGlkLXNl
+bnNvci1odWIuYw0KPiArKysgYi9kcml2ZXJzL2hpZC9oaWQtc2Vuc29yLWh1Yi5jDQo+IEBAIC0y
+NTIsNiArMjUyLDcgQEAgaW50IHNlbnNvcl9odWJfZ2V0X2ZlYXR1cmUoc3RydWN0DQo+IGhpZF9z
+ZW5zb3JfaHViX2RldmljZSAqaHNkZXYsIHUzMiByZXBvcnRfaWQsDQo+IMKgCWludCByZXBvcnRf
+c2l6ZTsNCj4gwqAJaW50IHJldCA9IDA7DQo+IMKgDQo+ICsJbWVtc2V0KGJ1ZmZlciwgMCwgYnVm
+ZmVyX3NpemUpOw0KPiDCoAltdXRleF9sb2NrKCZkYXRhLT5tdXRleCk7DQo+IMKgCXJlcG9ydCA9
+IHNlbnNvcl9odWJfcmVwb3J0KHJlcG9ydF9pZCwgaHNkZXYtPmhkZXYsDQo+IEhJRF9GRUFUVVJF
+X1JFUE9SVCk7DQo+IMKgCWlmICghcmVwb3J0IHx8IChmaWVsZF9pbmRleCA+PSByZXBvcnQtPm1h
+eGZpZWxkKSB8fA==

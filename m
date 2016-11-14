@@ -1,169 +1,89 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH resend] input: touchscreen: silead: Add regulator support
-Date: Mon, 14 Nov 2016 10:50:57 -0800
-Message-ID: <20161114185057.GA7694@dtor-ws>
-References: <20161114144502.10595-1-hdegoede@redhat.com>
- <20161114144502.10595-2-hdegoede@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] input: bma150: Only claim to support the bma180 if
+ the separate iio bma180 driver is not build
+Date: Mon, 14 Nov 2016 10:53:54 -0800
+Message-ID: <20161114185354.GB7694@dtor-ws>
+References: <20161114131114.6053-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:34666 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934709AbcKNSx5 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 14 Nov 2016 13:53:57 -0500
+Received: by mail-pg0-f66.google.com with SMTP id e9so9252721pgc.1
+        for <linux-input@vger.kernel.org>; Mon, 14 Nov 2016 10:53:56 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20161114144502.10595-2-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20161114131114.6053-1-hdegoede@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "Dr . H . Nikolaus Schaller" <hns@goldelico.com>
 
-Hi Hans,
-
-On Mon, Nov 14, 2016 at 03:45:02PM +0100, Hans de Goede wrote:
-> On some tablets the touchscreen controller is powered by seperate
-> regulators, add support for this.
+On Mon, Nov 14, 2016 at 02:11:14PM +0100, Hans de Goede wrote:
+> commit ef3714fdbc8d ("Input: bma150 - extend chip detection for bma180"),
+> adds bma180 chip-ids to the input bma150 driver, assuming that they are
+> 100% compatible, but the bma180 is not compatible with the bma150 at all,
+> it has 14 bits resolution instead of 10, and it has quite different
+> control registers too.
 > 
-> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Treating the bma180 as a bma150 wrt its data registers will just result
+> in throwing away the lowest 4 bits, which is not too bad. But the ctrl
+> registers are a different story. Things happen to just work but supporting
+> that certainly does not make treating the bma180 the same as the bma150
+> right.
+> 
+> Since some setups depend on the evdev interface the bma150 driver offers
+> on top of the bma180, we cannot simply remove the bma180 ids.
+> 
+> So this commit only removes the bma180 id when the bma180 iio driver,
+> which does treat the bma180 properly, is enabled.
+> 
+> Cc: Dr. H. Nikolaus Schaller <hns@goldelico.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+
+Applied, thank you.
+
 > ---
->  .../bindings/input/touchscreen/silead_gsl1680.txt  |  2 +
->  drivers/input/touchscreen/silead.c                 | 51 ++++++++++++++++++++--
->  2 files changed, 49 insertions(+), 4 deletions(-)
+> Changes in v2:
+> -Use IS_ENABLED(CONFIG_BMA180) instead of #ifdef CONFIG_BMA180
+> ---
+>  drivers/input/misc/bma150.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-> index e844c3f..b726823 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-> @@ -22,6 +22,8 @@ Optional properties:
->  - touchscreen-inverted-y  : See touchscreen.txt
->  - touchscreen-swapped-x-y : See touchscreen.txt
->  - silead,max-fingers	  : maximum number of fingers the touchscreen can detect
-> +- vddio-supply		  : regulator phandle for controller VDDIO
-> +- avdd-supply		  : regulator phandle for controller AVDD
+> diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
+> index b0d4453..2124390 100644
+> --- a/drivers/input/misc/bma150.c
+> +++ b/drivers/input/misc/bma150.c
+> @@ -538,8 +538,13 @@ static int bma150_probe(struct i2c_client *client,
+>  		return -EIO;
+>  	}
 >  
->  Example:
->  
-> diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-> index f502c84..c6a1ae9 100644
-> --- a/drivers/input/touchscreen/silead.c
-> +++ b/drivers/input/touchscreen/silead.c
-> @@ -29,6 +29,7 @@
->  #include <linux/input/touchscreen.h>
->  #include <linux/pm.h>
->  #include <linux/irq.h>
-> +#include <linux/regulator/consumer.h>
->  
->  #include <asm/unaligned.h>
->  
-> @@ -72,6 +73,8 @@ enum silead_ts_power {
->  struct silead_ts_data {
->  	struct i2c_client *client;
->  	struct gpio_desc *gpio_power;
-> +	struct regulator *vddio;
-> +	struct regulator *avdd;
->  	struct input_dev *input;
->  	char fw_name[64];
->  	struct touchscreen_properties prop;
-> @@ -465,21 +468,52 @@ static int silead_ts_probe(struct i2c_client *client,
->  	if (client->irq <= 0)
->  		return -ENODEV;
->  
-> +	data->vddio = devm_regulator_get_optional(dev, "vddio");
-> +	if (IS_ERR(data->vddio)) {
-> +		if (PTR_ERR(data->vddio) == -EPROBE_DEFER)
-> +			return -EPROBE_DEFER;
-> +		data->vddio = NULL;
-
-Why do we ignore other errors? If there is an issue reported by
-regulator framework we should net be ignoring it.
-
-Unless regulator is truly optional (i.e. chip can work with some
-functionality powered off) and not simply hidden (firmware takes care of
-powering up system), we should not be using regulator_get_optional():
-if regulator is absent from ACPI/DT/etc, regulator framework will supply
-dummy regulator that you can enable/disable and not bothering checking
-whether it is NULL or not.
-
-Also, please consider using devm_regulator_bulk_get().
-
-> +	}
-> +
-> +	data->avdd = devm_regulator_get_optional(dev, "avdd");
-> +	if (IS_ERR(data->avdd)) {
-> +		if (PTR_ERR(data->avdd) == -EPROBE_DEFER)
-> +			return -EPROBE_DEFER;
-> +		data->avdd = NULL;
-> +	}
-> +
 > +	/*
-> +	 * Enable regulators at probe and disable them at remove, we need
-> +	 * to keep the chip powered otherwise it forgets its firmware.
+> +	 * Note if the IIO CONFIG_BMA180 driver is enabled we want to fail
+> +	 * the probe for the bma180 as the iio driver is preferred.
 > +	 */
-> +	if (data->vddio) {
-> +		error = regulator_enable(data->vddio);
-> +		if (error)
-> +			return error;
-> +	}
-> +
-> +	if (data->avdd) {
-> +		error = regulator_enable(data->avdd);
-> +		if (error)
-> +			goto disable_vddio;
-> +	}
-
-Use devm_add_action_or_reset() to work regulator_bulk_disable call into
-devm stream. As it is you are leaving regulators on on unbind/remove.
-
-> +
->  	/* Power GPIO pin */
->  	data->gpio_power = devm_gpiod_get_optional(dev, "power", GPIOD_OUT_LOW);
->  	if (IS_ERR(data->gpio_power)) {
->  		if (PTR_ERR(data->gpio_power) != -EPROBE_DEFER)
->  			dev_err(dev, "Shutdown GPIO request failed\n");
-> -		return PTR_ERR(data->gpio_power);
-> +		error = PTR_ERR(data->gpio_power);
-> +		goto disable_avdd;
+>  	chip_id = i2c_smbus_read_byte_data(client, BMA150_CHIP_ID_REG);
+> -	if (chip_id != BMA150_CHIP_ID && chip_id != BMA180_CHIP_ID) {
+> +	if (chip_id != BMA150_CHIP_ID &&
+> +	    (IS_ENABLED(CONFIG_BMA180) || chip_id != BMA180_CHIP_ID)) {
+>  		dev_err(&client->dev, "BMA150 chip id error: %d\n", chip_id);
+>  		return -EINVAL;
 >  	}
+> @@ -643,7 +648,9 @@ static UNIVERSAL_DEV_PM_OPS(bma150_pm, bma150_suspend, bma150_resume, NULL);
 >  
->  	error = silead_ts_setup(client);
->  	if (error)
-> -		return error;
-> +		goto disable_avdd;
->  
->  	error = silead_ts_request_input_dev(data);
->  	if (error)
-> -		return error;
-> +		goto disable_avdd;
->  
->  	error = devm_request_threaded_irq(dev, client->irq,
->  					  NULL, silead_ts_threaded_irq_handler,
-> @@ -487,10 +521,19 @@ static int silead_ts_probe(struct i2c_client *client,
->  	if (error) {
->  		if (error != -EPROBE_DEFER)
->  			dev_err(dev, "IRQ request failed %d\n", error);
-> -		return error;
-> +		goto disable_avdd;
->  	}
->  
->  	return 0;
-> +
-> +disable_avdd:
-> +	if (data->avdd)
-> +		regulator_disable(data->avdd);
-> +disable_vddio:
-> +	if (data->vddio)
-> +		regulator_disable(data->vddio);
-> +
-> +	return error;
->  }
->  
->  static int __maybe_unused silead_ts_suspend(struct device *dev)
+>  static const struct i2c_device_id bma150_id[] = {
+>  	{ "bma150", 0 },
+> +#if !IS_ENABLED(CONFIG_BMA180)
+>  	{ "bma180", 0 },
+> +#endif
+>  	{ "smb380", 0 },
+>  	{ "bma023", 0 },
+>  	{ }
 > -- 
 > 2.9.3
 > 
 
-Thanks.
-
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

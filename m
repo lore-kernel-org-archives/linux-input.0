@@ -1,70 +1,65 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH v2] input: tca8418: Use the interrupt trigger from the device tree
-Date: Mon, 14 Nov 2016 09:39:11 +0100
-Message-ID: <20161114083911.2423-1-maxime.ripard@free-electrons.com>
+From: Hans Verkuil <hansverk@cisco.com>
+Subject: Re: [patch] [media] Input: synaptics-rmi4 - unlock on error
+Date: Mon, 14 Nov 2016 13:24:12 +0100
+Message-ID: <0b9ecb27-505d-71be-35f7-ab262428ec34@cisco.com>
+References: <20161014171427.GA21917@mwanda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:34863 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752188AbcKNIjR (ORCPT
+Received: from aer-iport-3.cisco.com ([173.38.203.53]:53544 "EHLO
+        aer-iport-3.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933800AbcKNMeL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 14 Nov 2016 03:39:17 -0500
+        Mon, 14 Nov 2016 07:34:11 -0500
+In-Reply-To: <20161014171427.GA21917@mwanda>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Dan Carpenter <dan.carpenter@oracle.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick@shmanahar.org>
+Cc: Hans Verkuil <hans.verkuil@cisco.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-The TCA8418 might be used using different interrupt triggers on various
-boards. This is not working so far because the current code forces a
-falling edge trigger.
+On 10/14/2016 07:14 PM, Dan Carpenter wrote:
+> We should unlock before returning on this error path.
+>
+> Fixes: 3a762dbd5347 ('[media] Input: synaptics-rmi4 - add support for F54 diagnostics')
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-The device tree already provides a trigger type, so let's use whatever it
-sets up, and since we can be loaded without DT, keep the old behaviour for
-the non-DT case.
+Dmitry, will you pick this up? It probably should to in for 4.9.
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
----
-Hi,
+Even though it was prefixed with [media] it wasn't send to linux-media, so it never
+ended up in our patchwork.
 
-This is the second version of the patch "drivers: tca8418: Change the
-interrupt type".
+If you don't want to process this patch, then let me know and I'll take it.
 
-Changes from v1:
-  - Rely on the trigger type provided by the DT
+Regards,
 
- drivers/input/keyboard/tca8418_keypad.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+	Hans
 
-diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
-index 9002298698fc..33e4950431c8 100644
---- a/drivers/input/keyboard/tca8418_keypad.c
-+++ b/drivers/input/keyboard/tca8418_keypad.c
-@@ -274,6 +274,7 @@ static int tca8418_keypad_probe(struct i2c_client *client,
- 	bool irq_is_gpio = false;
- 	int irq;
- 	int error, row_shift, max_keys;
-+	unsigned long trigger = 0;
- 
- 	/* Copy the platform data */
- 	if (pdata) {
-@@ -286,6 +287,7 @@ static int tca8418_keypad_probe(struct i2c_client *client,
- 		cols = pdata->cols;
- 		rep  = pdata->rep;
- 		irq_is_gpio = pdata->irq_is_gpio;
-+		trigger = IRQF_TRIGGER_FALLING;
- 	} else {
- 		struct device_node *np = dev->of_node;
- 		int err;
-@@ -360,9 +362,7 @@ static int tca8418_keypad_probe(struct i2c_client *client,
- 		irq = gpio_to_irq(irq);
- 
- 	error = devm_request_threaded_irq(dev, irq, NULL, tca8418_irq_handler,
--					  IRQF_TRIGGER_FALLING |
--						IRQF_SHARED |
--						IRQF_ONESHOT,
-+					  trigger | IRQF_SHARED | IRQF_ONESHOT,
- 					  client->name, keypad_data);
- 	if (error) {
- 		dev_err(dev, "Unable to claim irq %d; error %d\n",
--- 
-2.10.1
+>
+> diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+> index cf805b9..2e934ae 100644
+> --- a/drivers/input/rmi4/rmi_f54.c
+> +++ b/drivers/input/rmi4/rmi_f54.c
+> @@ -200,7 +200,7 @@ static int rmi_f54_request_report(struct rmi_function *fn, u8 report_type)
+>
+>  	error = rmi_write(rmi_dev, fn->fd.command_base_addr, F54_GET_REPORT);
+>  	if (error < 0)
+> -		return error;
+> +		goto unlock;
+>
+>  	init_completion(&f54->cmd_done);
+>
+> @@ -209,9 +209,10 @@ static int rmi_f54_request_report(struct rmi_function *fn, u8 report_type)
+>
+>  	queue_delayed_work(f54->workqueue, &f54->work, 0);
+>
+> +unlock:
+>  	mutex_unlock(&f54->data_mutex);
+>
+> -	return 0;
+> +	return error;
+>  }
+>
+>  static size_t rmi_f54_get_report_size(struct f54_data *f54)
+>
 

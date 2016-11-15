@@ -1,142 +1,48 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 2/2] Input: synaptics-rmi4 - Propagate correct number of rx and tx electrodes to F54
-Date: Mon, 14 Nov 2016 21:39:38 -0800
-Message-ID: <1479188378-19379-2-git-send-email-linux@roeck-us.net>
-References: <1479188378-19379-1-git-send-email-linux@roeck-us.net>
+From: Lukasz Luba <lukasz.luba@arm.com>
+Subject: Re: [PATCH V4 7/8] thermal: da9062/61: Thermal junction temperature
+ monitoring driver
+Date: Tue, 15 Nov 2016 09:46:51 +0000
+Message-ID: <b2d2809e-b71e-5db0-2aeb-4773dc58960d@arm.com>
+References: <cover.1479111766.git.stwiss.opensource@diasemi.com>
+ <5d6cf6b51d71d2069db20ee427a92271015c337a.1479111766.git.stwiss.opensource@diasemi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1479188378-19379-1-git-send-email-linux@roeck-us.net>
+In-Reply-To: <5d6cf6b51d71d2069db20ee427a92271015c337a.1479111766.git.stwiss.opensource@diasemi.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Chris Healy <cphealy@gmail.com>, Nick Dyer <nick@shmanahar.org>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+To: Steve Twiss <stwiss.opensource@diasemi.com>, Eduardo Valentin <edubezval@gmail.com>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
 List-Id: linux-input@vger.kernel.org
 
-F54 diagnostics report functions provide data based on the number of
-enabled rx and tx electrodes, which is not identical to the number of
-electrodes reported with F54:Query0 and F54:Query1. Those values report
-the number of supported electrodes, not the number of enabled electrodes.
-The number of enabled electrodes can be determined by analyzing F55:Ctrl1
-(sensor receiver assignment) and F55:Ctrl2 (sensor transmitter assignment).
+On 14/11/16 08:22, Steve Twiss wrote:
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
+>
+> Add junction temperature monitoring supervisor device driver, compatible
+> with the DA9062 and DA9061 PMICs. A MODULE_DEVICE_TABLE() macro is added.
+>
+> If the PMIC's internal junction temperature rises above TEMP_WARN (125
+> degC) an interrupt is issued. This TEMP_WARN level is defined as the
+> THERMAL_TRIP_HOT trip-wire inside the device driver.
+>
+> The thermal triggering mechanism is interrupt based and happens when the
+> temperature rises above a given threshold level. The component cannot
+> return an exact temperature, it only has knowledge if the temperature is
+> above or below a given threshold value. A status bit must be polled to
+> detect when the temperature falls below that threshold level again. A
+> kernel work queue is configured to repeatedly poll and detect when the
+> temperature falls below this trip-wire, between 1 and 10 second intervals
+> (defaulting at 3 seconds).
+>
+> This first level of temperature supervision is intended for non-invasive
+> temperature control, where the necessary measures for cooling the system
+> down are left to the host software.
+>
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+>
+Looks good to me.
 
-Propagate the number of enabled electrodes from F55 to F54 to avoid
-corrupted output if not all electrodes are enabled.
+Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
 
-Fixes: 3a762dbd5347 ("[media] Input: synaptics-rmi4 - add support for F54 ...")
-Cc: Nick Dyer <nick@shmanahar.org>
-Cc: Andrew Duggan <aduggan@synaptics.com>
-Cc: Chris Healy <cphealy@gmail.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-v2: Update Fixes: sha
-
- drivers/input/rmi4/Kconfig   |  1 +
- drivers/input/rmi4/rmi_f54.c | 14 ++++++++++----
- drivers/input/rmi4/rmi_f55.c |  7 +++++++
- include/linux/rmi.h          |  3 +++
- 4 files changed, 21 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index 11ede43c9936..d7129928cde6 100644
---- a/drivers/input/rmi4/Kconfig
-+++ b/drivers/input/rmi4/Kconfig
-@@ -67,6 +67,7 @@ config RMI4_F54
- 	depends on RMI4_CORE
- 	depends on VIDEO_V4L2=y || (RMI4_CORE=m && VIDEO_V4L2=m)
- 	select VIDEOBUF2_VMALLOC
-+	select RMI4_F55
- 	help
- 	  Say Y here if you want to add support for RMI4 function 54
- 
-diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-index cf805b960866..9cb3aa733f0f 100644
---- a/drivers/input/rmi4/rmi_f54.c
-+++ b/drivers/input/rmi4/rmi_f54.c
-@@ -216,8 +216,10 @@ static int rmi_f54_request_report(struct rmi_function *fn, u8 report_type)
- 
- static size_t rmi_f54_get_report_size(struct f54_data *f54)
- {
--	u8 rx = f54->num_rx_electrodes ? : f54->num_rx_electrodes;
--	u8 tx = f54->num_tx_electrodes ? : f54->num_tx_electrodes;
-+	struct rmi_device *rmi_dev = f54->fn->rmi_dev;
-+	struct rmi_driver_data *drv_data = dev_get_drvdata(&rmi_dev->dev);
-+	u8 rx = drv_data->num_rx_electrodes ? : f54->num_rx_electrodes;
-+	u8 tx = drv_data->num_tx_electrodes ? : f54->num_tx_electrodes;
- 	size_t size;
- 
- 	switch (rmi_f54_get_reptype(f54, f54->input)) {
-@@ -401,6 +403,10 @@ static int rmi_f54_vidioc_enum_input(struct file *file, void *priv,
- 
- static int rmi_f54_set_input(struct f54_data *f54, unsigned int i)
- {
-+	struct rmi_device *rmi_dev = f54->fn->rmi_dev;
-+	struct rmi_driver_data *drv_data = dev_get_drvdata(&rmi_dev->dev);
-+	u8 rx = drv_data->num_rx_electrodes ? : f54->num_rx_electrodes;
-+	u8 tx = drv_data->num_tx_electrodes ? : f54->num_tx_electrodes;
- 	struct v4l2_pix_format *f = &f54->format;
- 	enum rmi_f54_report_type reptype;
- 	int ret;
-@@ -415,8 +421,8 @@ static int rmi_f54_set_input(struct f54_data *f54, unsigned int i)
- 
- 	f54->input = i;
- 
--	f->width = f54->num_rx_electrodes;
--	f->height = f54->num_tx_electrodes;
-+	f->width = rx;
-+	f->height = tx;
- 	f->field = V4L2_FIELD_NONE;
- 	f->colorspace = V4L2_COLORSPACE_RAW;
- 	f->bytesperline = f->width * sizeof(u16);
-diff --git a/drivers/input/rmi4/rmi_f55.c b/drivers/input/rmi4/rmi_f55.c
-index 2d221cc97391..37390ca6a924 100644
---- a/drivers/input/rmi4/rmi_f55.c
-+++ b/drivers/input/rmi4/rmi_f55.c
-@@ -38,6 +38,8 @@ struct f55_data {
- 
- static int rmi_f55_detect(struct rmi_function *fn)
- {
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	struct rmi_driver_data *drv_data = dev_get_drvdata(&rmi_dev->dev);
- 	struct f55_data *f55;
- 	int error;
- 
-@@ -57,6 +59,9 @@ static int rmi_f55_detect(struct rmi_function *fn)
- 	f55->cfg_num_rx_electrodes = f55->num_rx_electrodes;
- 	f55->cfg_num_tx_electrodes = f55->num_rx_electrodes;
- 
-+	drv_data->num_rx_electrodes = f55->cfg_num_rx_electrodes;
-+	drv_data->num_tx_electrodes = f55->cfg_num_rx_electrodes;
-+
- 	if (f55->qry[F55_PHYS_CHAR_OFFSET] & F55_CAP_SENSOR_ASSIGN) {
- 		int i, total;
- 		u8 buf[256];
-@@ -78,6 +83,7 @@ static int rmi_f55_detect(struct rmi_function *fn)
- 					total++;
- 			}
- 			f55->cfg_num_rx_electrodes = total;
-+			drv_data->num_rx_electrodes = total;
- 		}
- 
- 		error = rmi_read_block(fn->rmi_dev,
-@@ -90,6 +96,7 @@ static int rmi_f55_detect(struct rmi_function *fn)
- 					total++;
- 			}
- 			f55->cfg_num_tx_electrodes = total;
-+			drv_data->num_tx_electrodes = total;
- 		}
- 	}
- 
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index e0aca1476001..45734f1343b3 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -345,6 +345,9 @@ struct rmi_driver_data {
- 	u8 pdt_props;
- 	u8 bsr;
- 
-+	u8 num_rx_electrodes;
-+	u8 num_tx_electrodes;
-+
- 	bool enabled;
- 
- 	void *data;
--- 
-2.5.0
+Regards,
+Lukasz

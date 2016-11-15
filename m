@@ -1,29 +1,42 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: Re: [PATCH v9 1/5] mfd: mxs-lradc: Add support for mxs-lradc MFD
-Date: Mon, 14 Nov 2016 21:39:23 -0200
-Message-ID: <CAOMZO5C_=xNdkpcargLjysr9hkTAVAb6Hb8m5LpH62o0FQYZew@mail.gmail.com>
-References: <cover.1478071676.git.ksenija.stanojevic@gmail.com>
- <c18883dfacaaf40ab98cbb4938d5164a95a817d7.1478071676.git.ksenija.stanojevic@gmail.com>
- <9560d7a2-98b2-732d-c91a-944ae381107c@denx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f196.google.com ([209.85.217.196]:33857 "EHLO
-        mail-ua0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754630AbcKNXjZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 14 Nov 2016 18:39:25 -0500
-In-Reply-To: <9560d7a2-98b2-732d-c91a-944ae381107c@denx.de>
-Sender: linux-input-owner@vger.kernel.org
+From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH V4] hid: hid-sensor-hub: clear memory to avoid random data
+Date: Tue, 15 Nov 2016 01:11:10 +0000
+Message-ID: <1479172270-3684-1-git-send-email-hongyan.song@intel.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marex@denx.de>
-Cc: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, Harald Geyer <harald@ccbib.org>, Stefan Wahren <stefan.wahren@i2se.com>, Fabio Estevam <fabio.estevam@freescale.com>
 
-On Mon, Nov 14, 2016 at 4:43 PM, Marek Vasut <marex@denx.de> wrote:
+When user tried to read some fields like hysteresis from IIO sysfs on some
+systems, it fails. The reason is that this field is a byte field and caller
+of sensor_hub_get_feature() passes a buffer of 4 bytes. Here the function
+sensor_hub_get_feature() copies the single byte from the report to the
+caller buffer and returns "1" as the number of bytes copied. So caller
+can use the return value.
 
->> +#define MXS_LRADC_BASE               0x80050000
->
-> Just for my understanding, why is this hardware address hard-coded here?
-> Shouldn't that be fetched from DT ?
+But this is done by multiple callers, so if we just change the
+sensor_hub_get_feature so that caller buffer is initialized with 0s
+then we don't to change all functions.
 
-Yes, this base address should be retrieved from device tree.
+Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+	changes: update comments
+
+ drivers/hid/hid-sensor-hub.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 658a607..b74d954 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -252,6 +252,7 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 	int report_size;
+ 	int ret = 0;
+ 
++	memset(buffer, 0, buffer_size);
+ 	mutex_lock(&data->mutex);
+ 	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
+ 	if (!report || (field_index >= report->maxfield) ||
+-- 
+1.9.1

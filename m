@@ -1,42 +1,34 @@
-From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH V4] hid: hid-sensor-hub: clear memory to avoid random data
-Date: Tue, 15 Nov 2016 01:11:10 +0000
-Message-ID: <1479172270-3684-1-git-send-email-hongyan.song@intel.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 1/3] dt/binding: ti-tsc-adc: deprecate ti,charge-delay
+ and add binding doc for ti,charge-delay-ns
+Date: Mon, 14 Nov 2016 19:54:42 -0600
+Message-ID: <20161115015442.pexycr4adco3hnug@rob-hp-laptop>
+References: <20161110163515.27598-1-mugunthanvnm@ti.com>
+ <20161110163515.27598-2-mugunthanvnm@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20161110163515.27598-2-mugunthanvnm@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mugunthan V N <mugunthanvnm@ti.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Lee Jones <lee.jones@linaro.org>, Sekhar Nori <nsekhar@ti.com>, Vignesh R <vigneshr@ti.com>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-When user tried to read some fields like hysteresis from IIO sysfs on some
-systems, it fails. The reason is that this field is a byte field and caller
-of sensor_hub_get_feature() passes a buffer of 4 bytes. Here the function
-sensor_hub_get_feature() copies the single byte from the report to the
-caller buffer and returns "1" as the number of bytes copied. So caller
-can use the return value.
+On Thu, Nov 10, 2016 at 10:05:13PM +0530, Mugunthan V N wrote:
+> ti,charge-delay represents the duration that ADC should wait
+> before sampling the ADC line to detect the touch location and pen
+> up/downs. Currently the ADC clock is set at 3MHz. The device-tree
+> entry for ti,charge-delay is based on assumption of ADC clock at
+> 3MHz, but it can be operated up to 24MHz clock. Representing the
+> charge delay of touchscreen in terms of ADC clocks is incorrect.
+> So change this representation to ti,charge-delay-ns, which driver
+> can convert it to number clock cycles based on ref clock
+> frequency.
+> 
+> Signed-off-by: Mugunthan V N <mugunthanvnm@ti.com>
+> ---
+>  .../bindings/input/touchscreen/ti-tsc-adc.txt      | 32 ++++++++++++++--------
+>  1 file changed, 21 insertions(+), 11 deletions(-)
 
-But this is done by multiple callers, so if we just change the
-sensor_hub_get_feature so that caller buffer is initialized with 0s
-then we don't to change all functions.
-
-Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
-	changes: update comments
-
- drivers/hid/hid-sensor-hub.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 658a607..b74d954 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -252,6 +252,7 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 	int report_size;
- 	int ret = 0;
- 
-+	memset(buffer, 0, buffer_size);
- 	mutex_lock(&data->mutex);
- 	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
- 	if (!report || (field_index >= report->maxfield) ||
--- 
-1.9.1
+Acked-by: Rob Herring <robh@kernel.org>

@@ -1,45 +1,149 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Subject: Re: [PATCH 3/3] hid: intel-ish-hid: ipc: use msleep_interrupt() for
- wait
-Date: Tue, 15 Nov 2016 18:10:27 +0000
-Message-ID: <1479233425.6544.47.camel@intel.com>
-References: <1478828433-31779-1-git-send-email-even.xu@intel.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
+Subject: Re: [PATCH v9 1/5] mfd: mxs-lradc: Add support for mxs-lradc MFD
+Date: Tue, 15 Nov 2016 20:33:41 +0100 (CET)
+Message-ID: <657653985.202232.6f7a3a9a-5120-4cc2-a76b-92a516ab6500.open-xchange@email.1und1.de>
+References: <cover.1478071676.git.ksenija.stanojevic@gmail.com>
+ <c18883dfacaaf40ab98cbb4938d5164a95a817d7.1478071676.git.ksenija.stanojevic@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:43486 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932462AbcKOSK6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Nov 2016 13:10:58 -0500
-In-Reply-To: <1478828433-31779-1-git-send-email-even.xu@intel.com>
-Content-Language: en-US
-Content-ID: <8D2BF1CCA57AE544B49CB5AA32D4D6D9@intel.com>
+Received: from mout.kundenserver.de ([217.72.192.75]:65433 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932407AbcKOTeK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 15 Nov 2016 14:34:10 -0500
+In-Reply-To: <c18883dfacaaf40ab98cbb4938d5164a95a817d7.1478071676.git.ksenija.stanojevic@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "jikos@kernel.org" <jikos@kernel.org>, "Xu, Even" <even.xu@intel.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, linux-kernel@vger.kernel.org
+Cc: lee.jones@linaro.org, linux-input@vger.kernel.org, pmeerw@pmeerw.net, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, dmitry.torokhov@gmail.com, harald@ccbib.org, fabio.estevam@freescale.com, linux-iio@vger.kernel.org, marex@denx.de
 
-T24gRnJpLCAyMDE2LTExLTExIGF0IDA5OjQwICswODAwLCBFdmVuIFh1IHdyb3RlOg0KPiBzZXRf
-Y3VycmVudF90YXNrKCkgbXVzdCBiZSBjYWxsZWQgYmVmb3JlIHNjaGVkdWxlX3RpbWVvdXQoKSwg
-Zm9yIHRoaXMNCj4gZHJpdmVyLCBpbiBvcmRlciB0byBhdm9pZCBpbmNvcnJlY3QgdXNhZ2UsIHVz
-ZSBtc2xlZXBfaW50ZXJydXB0KCkNCj4gaW5zdGVhZC4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEV2
-ZW4gWHUgPGV2ZW4ueHVAaW50ZWwuY29tPg0KQWNrZWQtYnk6IFNyaW5pdmFzIFBhbmRydXZhZGEg
-PHNyaW5pdmFzLnBhbmRydXZhZGFAbGludXguaW50ZWwuY29tPg0KDQo+IC0tLQ0KPiDCoGRyaXZl
-cnMvaGlkL2ludGVsLWlzaC1oaWQvaXBjL2lwYy5jIHwgNCArKystDQo+IMKgMSBmaWxlIGNoYW5n
-ZWQsIDMgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2Ry
-aXZlcnMvaGlkL2ludGVsLWlzaC1oaWQvaXBjL2lwYy5jIGIvZHJpdmVycy9oaWQvaW50ZWwtDQo+
-IGlzaC1oaWQvaXBjL2lwYy5jDQo+IGluZGV4IDgxOTRjMzUuLjg2YTM2ZWIgMTAwNjQ0DQo+IC0t
-LSBhL2RyaXZlcnMvaGlkL2ludGVsLWlzaC1oaWQvaXBjL2lwYy5jDQo+ICsrKyBiL2RyaXZlcnMv
-aGlkL2ludGVsLWlzaC1oaWQvaXBjL2lwYy5jDQo+IEBAIC01MzksNiArNTM5LDggQEAgc3RhdGlj
-IGludCBpc2hfZndfcmVzZXRfaGFuZGxlcihzdHJ1Y3QNCj4gaXNodHBfZGV2aWNlICpkZXYpDQo+
-IMKgCXJldHVybgkwOw0KPiDCoH0NCj4gwqANCj4gKyNkZWZpbmUgVElNRU9VVF9GT1JfSFdfUkRZ
-X01TCQkJMzAwDQo+ICsNCj4gwqAvKioNCj4gwqAgKiBpc2hfZndfcmVzZXRfd29ya19mbigpIC0g
-RlcgcmVzZXQgd29ya2VyIGZ1bmN0aW9uDQo+IMKgICogQHVudXNlZDogbm90IHVzZWQNCj4gQEAg
-LTU1Miw3ICs1NTQsNyBAQCBzdGF0aWMgdm9pZCBmd19yZXNldF93b3JrX2ZuKHN0cnVjdCB3b3Jr
-X3N0cnVjdA0KPiAqdW51c2VkKQ0KPiDCoAlydiA9IGlzaF9md19yZXNldF9oYW5kbGVyKGlzaHRw
-X2Rldik7DQo+IMKgCWlmICghcnYpIHsNCj4gwqAJCS8qIElTSCBpcyBJTFVQICYgSVNIVFAtcmVh
-ZHkuIFJlc3RhcnQgSVNIVFAgKi8NCj4gLQkJc2NoZWR1bGVfdGltZW91dChIWiAvIDMpOw0KPiAr
-CQltc2xlZXBfaW50ZXJydXB0aWJsZShUSU1FT1VUX0ZPUl9IV19SRFlfTVMpOw0KPiDCoAkJaXNo
-dHBfZGV2LT5yZWN2ZF9od19yZWFkeSA9IDE7DQo+IMKgCQl3YWtlX3VwX2ludGVycnVwdGlibGUo
-JmlzaHRwX2Rldi0+d2FpdF9od19yZWFkeSk7DQo+IMKg
+Hi Ksenija,
+
+> Ksenija Stanojevic <ksenija.stanojevic@gmail.com> hat am 2. November 2016 um
+> 08:38 geschrieben:
+> 
+> 
+> Add core files for low resolution analog-to-digital converter (mxs-lradc)
+> MFD driver.
+> 
+> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+> ---
+> Changes in v9:
+>  - improve commit message.
+> 
+> Changes in v8:
+>  - rebase onto 4.9-rc1
+> 
+> Changes in v7:
+>  - define macros ADC_CELL and TSC_CELL
+>  - remove one cell and dynamically set them in the switch()
+>  - fail in the touchscreen driver instead of mfd driver if
+>    hardware doesn't contain a touchscreen
+> 
+> Changes in v6:
+>  - update copyright
+>  - add kernel-doc header for struct mxs-lradc
+>  - add error message
+>  - change EINVAL to ENODEV
+>  - use PLATFORM_DEVID_NONE instead -1
+>  - cosmetic fixes
+> 
+> Changes in v5:
+>  - use DEFINE_RES_MEM
+>  - don't pass ioreammaped adress to platform cells
+>  - move comment outside of struct mxs_lradc
+>  - change type of argument in mxs_lradc_reg_set, mxs_lradc_reg_clear,
+>    mxs_lradc_reg_wrt (struct mxs_lradc * -> void __iomem *)
+> 
+> Changes in v4:
+>  - update copyright
+>  - use DEFINE_RES_IRQ_NAMED
+>  - remove mxs_lradc_add_device function
+>  - use struct mfd_cell in static form
+>  - improve spacing
+>  - remove unnecessary comment
+>  - remove platform_get_irq
+>  - remove touch_ret and use ret instead
+>  - rename use_touchscreen to touchscreen_wire
+>  - use goto statements
+>  - remove irq[13], irq_count and irq_name from struct mxs_lradc
+>  - remove all defines from inside the struct definition
+> 
+> Changes in v3:
+>  - add note to commit message
+>  - move switch statement into if(touch_ret == 0) branch
+>  - add MODULE_AUTHOR
+> 
+> Changes in v2:
+>  - do not change spacing in Kconfig
+>  - make struct mfd_cell part of struct mxs_lradc
+>  - use switch instead of if in mxs_lradc_irq_mask
+>  - use only necessary header files in mxs_lradc.h
+>  - use devm_mfd_add_device
+>  - use separate function to register mfd device
+>  - change licence to GPL
+>  - add copyright
+> 
+>  drivers/mfd/Kconfig           |  17 +++
+>  drivers/mfd/Makefile          |   1 +
+>  drivers/mfd/mxs-lradc.c       | 249
+> ++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/mfd/mxs-lradc.h | 203 ++++++++++++++++++++++++++++++++++
+>  4 files changed, 470 insertions(+)
+>  create mode 100644 drivers/mfd/mxs-lradc.c
+>  create mode 100644 include/linux/mfd/mxs-lradc.h
+> 
+> ...
+> diff --git a/drivers/mfd/mxs-lradc.c b/drivers/mfd/mxs-lradc.c
+> new file mode 100644
+> index 0000000..ffc8f2e
+> --- /dev/null
+> +++ b/drivers/mfd/mxs-lradc.c
+> @@ -0,0 +1,249 @@
+> ...
+> +
+> +static const struct of_device_id mxs_lradc_dt_ids[] = {
+> +	{ .compatible = "fsl,imx23-lradc", .data = (void *)IMX23_LRADC, },
+> +	{ .compatible = "fsl,imx28-lradc", .data = (void *)IMX28_LRADC, },
+> +	{ /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, mxs_lradc_dt_ids);
+> +
+> +static int mxs_lradc_probe(struct platform_device *pdev)
+> +{
+> +	const struct of_device_id *of_id;
+> +	struct device *dev = &pdev->dev;
+> +	struct device_node *node = dev->of_node;
+> +	struct mxs_lradc *lradc;
+> +	struct mfd_cell *cells = mxs_cells;
+> +	int ret = 0;
+> +	u32 ts_wires = 0;
+> +
+> +	lradc = devm_kzalloc(&pdev->dev, sizeof(*lradc), GFP_KERNEL);
+> +	if (!lradc)
+> +		return -ENOMEM;
+> +
+> +	of_id = of_match_device(mxs_lradc_dt_ids, &pdev->dev);
+
+since you already plan to make a V10, please add a NULL check here.
+So we can avoid a possible NULL pointer dereference in the following line.
+
+Thanks
+Stefan
+
+> +	lradc->soc = (enum mxs_lradc_id)of_id->data;
+> +
+> +	lradc->clk = devm_clk_get(&pdev->dev, NULL);
+> +	if (IS_ERR(lradc->clk)) {
+> +		dev_err(dev, "Failed to get the delay unit clock\n");
+> +		return PTR_ERR(lradc->clk);
+> +	}
+> +
+> +	ret = clk_prepare_enable(lradc->clk);
+> +	if (ret) {
+> +		dev_err(dev, "Failed to enable the delay unit clock\n");
+> +		return ret;
+> +	}
+> +

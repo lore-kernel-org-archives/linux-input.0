@@ -1,177 +1,37 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH v9 1/5] mfd: mxs-lradc: Add support for mxs-lradc MFD
-Date: Tue, 15 Nov 2016 18:25:25 +0100
-Message-ID: <5e011496-2f80-ccba-f550-9401c8f7281c@denx.de>
-References: <cover.1478071676.git.ksenija.stanojevic@gmail.com>
- <c18883dfacaaf40ab98cbb4938d5164a95a817d7.1478071676.git.ksenija.stanojevic@gmail.com>
- <9560d7a2-98b2-732d-c91a-944ae381107c@denx.de>
- <CAL7P5jLxDfWNwSCPfbUEhDte3kEOwh1+2deSzfrB_qkxDpmvMg@mail.gmail.com>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Subject: Re: [PATCH 0/3] Clean up ipc wait times
+Date: Tue, 15 Nov 2016 18:08:58 +0000
+Message-ID: <1479233337.6544.44.camel@intel.com>
+References: <1478828319-31590-1-git-send-email-even.xu@intel.com>
+         <1478828319-31590-2-git-send-email-even.xu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAL7P5jLxDfWNwSCPfbUEhDte3kEOwh1+2deSzfrB_qkxDpmvMg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Ksenija_Stanojevi=c4=87?= <ksenija.stanojevic@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, Harald Geyer <harald@ccbib.org>, Stefan Wahren <stefan.wahren@i2se.com>, Fabio Estevam <fabio.estevam@freescale.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:54909 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752754AbcKOSJA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 15 Nov 2016 13:09:00 -0500
+In-Reply-To: <1478828319-31590-2-git-send-email-even.xu@intel.com>
+Content-Language: en-US
+Content-ID: <D9E687D3ECD66F488AD97CBDC906F1FB@intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "jikos@kernel.org" <jikos@kernel.org>, "Xu, Even" <even.xu@intel.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 11/15/2016 06:06 PM, Ksenija Stanojević wrote:
-> On Mon, Nov 14, 2016 at 7:43 PM, Marek Vasut <marex@denx.de> wrote:
->> On 11/02/2016 08:38 AM, Ksenija Stanojevic wrote:
->>> Add core files for low resolution analog-to-digital converter (mxs-lradc)
->>> MFD driver.
->>>
->>> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
->>> ---
->>> Changes in v9:
->>>  - improve commit message.
->>>
->>> Changes in v8:
->>>  - rebase onto 4.9-rc1
->>>
->>> Changes in v7:
->>>  - define macros ADC_CELL and TSC_CELL
->>>  - remove one cell and dynamically set them in the switch()
->>>  - fail in the touchscreen driver instead of mfd driver if
->>>    hardware doesn't contain a touchscreen
->>>
->>> Changes in v6:
->>>  - update copyright
->>>  - add kernel-doc header for struct mxs-lradc
->>>  - add error message
->>>  - change EINVAL to ENODEV
->>>  - use PLATFORM_DEVID_NONE instead -1
->>>  - cosmetic fixes
->>>
->>> Changes in v5:
->>>  - use DEFINE_RES_MEM
->>>  - don't pass ioreammaped adress to platform cells
->>>  - move comment outside of struct mxs_lradc
->>>  - change type of argument in mxs_lradc_reg_set, mxs_lradc_reg_clear,
->>>    mxs_lradc_reg_wrt (struct mxs_lradc * -> void __iomem *)
->>>
->>> Changes in v4:
->>>  - update copyright
->>>  - use DEFINE_RES_IRQ_NAMED
->>>  - remove mxs_lradc_add_device function
->>>  - use struct mfd_cell in static form
->>>  - improve spacing
->>>  - remove unnecessary comment
->>>  - remove platform_get_irq
->>>  - remove touch_ret and use ret instead
->>>  - rename use_touchscreen to touchscreen_wire
->>>  - use goto statements
->>>  - remove irq[13], irq_count and irq_name from struct mxs_lradc
->>>  - remove all defines from inside the struct definition
->>>
->>> Changes in v3:
->>>  - add note to commit message
->>>  - move switch statement into if(touch_ret == 0) branch
->>>  - add MODULE_AUTHOR
->>>
->>> Changes in v2:
->>>  - do not change spacing in Kconfig
->>>  - make struct mfd_cell part of struct mxs_lradc
->>>  - use switch instead of if in mxs_lradc_irq_mask
->>>  - use only necessary header files in mxs_lradc.h
->>>  - use devm_mfd_add_device
->>>  - use separate function to register mfd device
->>>  - change licence to GPL
->>>  - add copyright
->>>
->>>  drivers/mfd/Kconfig           |  17 +++
->>>  drivers/mfd/Makefile          |   1 +
->>>  drivers/mfd/mxs-lradc.c       | 249 ++++++++++++++++++++++++++++++++++++++++++
->>>  include/linux/mfd/mxs-lradc.h | 203 ++++++++++++++++++++++++++++++++++
->>>  4 files changed, 470 insertions(+)
->>>  create mode 100644 drivers/mfd/mxs-lradc.c
->>>  create mode 100644 include/linux/mfd/mxs-lradc.h
->>>
->>> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
->>> index c6df644..bdd88cf 100644
->>> --- a/drivers/mfd/Kconfig
->>> +++ b/drivers/mfd/Kconfig
->>> @@ -326,6 +326,23 @@ config MFD_MC13XXX_I2C
->>>       help
->>>         Select this if your MC13xxx is connected via an I2C bus.
->>>
->>> +config MFD_MXS_LRADC
->>> +     tristate "Freescale i.MX23/i.MX28 LRADC"
->>> +     depends on ARCH_MXS || COMPILE_TEST
->>> +     select MFD_CORE
->>> +     select STMP_DEVICE
->>> +     help
->>> +       Say yes here to build support for the Low Resolution
->>> +       Analog-to-Digital Converter (LRADC) found on the i.MX23 and i.MX28
->>> +       processors. This driver provides common support for accessing the
->>> +       device, additional drivers must be enabled in order to use the
->>> +       functionality of the device:
->>> +             mxs-lradc-adc for ADC readings
->>> +             mxs-lradc-ts  for touchscreen support
->>> +
->>> +       This driver can also be built as a module. If so, the module will be
->>> +       called mxs-lradc.
->>> +
->>>  config MFD_MX25_TSADC
->>>       tristate "Freescale i.MX25 integrated Touchscreen and ADC unit"
->>>       select REGMAP_MMIO
->>> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
->>> index 9834e66..057ca15 100644
->>> --- a/drivers/mfd/Makefile
->>> +++ b/drivers/mfd/Makefile
->>> @@ -211,3 +211,4 @@ obj-$(CONFIG_INTEL_SOC_PMIC)      += intel-soc-pmic.o
->>>  obj-$(CONFIG_MFD_MT6397)     += mt6397-core.o
->>>
->>>  obj-$(CONFIG_MFD_ALTERA_A10SR)       += altera-a10sr.o
->>> +obj-$(CONFIG_MFD_MXS_LRADC)     += mxs-lradc.o
->>> diff --git a/drivers/mfd/mxs-lradc.c b/drivers/mfd/mxs-lradc.c
->>> new file mode 100644
->>> index 0000000..ffc8f2e
->>> --- /dev/null
->>> +++ b/drivers/mfd/mxs-lradc.c
->>> @@ -0,0 +1,249 @@
->>> +/*
->>> + * Freescale MXS Low Resolution Analog-to-Digital Converter driver
->>> + *
->>> + * Copyright (c) 2012 DENX Software Engineering, GmbH.
->>> + * Copyright (c) 2016 Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
->>> + *
->>> + * Authors:
->>> + *  Marek Vasut <marex@denx.de>
->>> + *  Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
->>> + *
->>> + * This program is free software; you can redistribute it and/or modify
->>> + * it under the terms of the GNU General Public License as published by
->>> + * the Free Software Foundation; either version 2 of the License, or
->>> + * (at your option) any later version.
->>> + *
->>> + * This program is distributed in the hope that it will be useful,
->>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
->>> + * GNU General Public License for more details.
->>> + */
->>> +
->>> +#include <linux/clk.h>
->>> +#include <linux/device.h>
->>> +#include <linux/mfd/core.h>
->>> +#include <linux/mfd/mxs-lradc.h>
->>> +#include <linux/module.h>
->>> +#include <linux/of.h>
->>> +#include <linux/of_device.h>
->>> +#include <linux/platform_device.h>
->>> +#include <linux/slab.h>
->>> +
->>> +#define MXS_LRADC_BASE               0x80050000
->>
->> Just for my understanding, why is this hardware address hard-coded here?
->> Shouldn't that be fetched from DT ?
-> 
-> Do you mean that address should be fetched by using of_address_to_resource()
-> in probe function, or something else?
-
-Probably platform_get_resource() .
-
--- 
-Best regards,
-Marek Vasut
+T24gRnJpLCAyMDE2LTExLTExIGF0IDA5OjM4ICswODAwLCBFdmVuIFh1IHdyb3RlOg0KPiBUaGlz
+IHNlcmllcyBhZGRyZXNzZXMgaXNzdWUgd2l0aCBzY2hlZHVsZV90aW1lb3V0KCkgY2FsbHMgYW5k
+IGNsZWFucw0KPiB1cCBjb2RlIGFyb3VuZCB0aGlzLg0KPiANCj4gRXZlbiBYdSAoMyk6DQo+IMKg
+IGhpZDogaW50ZWwtaXNoLWhpZDogaXBjOiByZW1vdmUgdW51c2VkIG1hY3JvDQo+IMKgIGhpZDog
+aW50ZWwtaXNoLWhpZDogaXBjOiBjaGFuZ2UgdGltZWRfd2FpdF9mb3JfdGltZW91dCgpIHRvIGJl
+IGENCj4gwqDCoMKgwqBmdW5jdGlvbg0KPiDCoCBoaWQ6IGludGVsLWlzaC1oaWQ6IGlwYzogdXNl
+IG1zbGVlcF9pbnRlcnJ1cHQoKSBmb3Igd2FpdA0KPiANCk5vbmUgb2YgdGhlc2UgcGF0Y2hlcyBh
+cmUgaW1wb3J0YW50IGVub3VnaCBmb3IgNC45LXJjIHJlbGVhc2UuDQpTbyB3ZSBjYW4gYXBwbHkg
+Zm9yIDQuMTAuDQpJIHdpbGwgQUNLIGluZGl2aWR1YWwgcGF0Y2guDQoNClRoYW5rcywNClNyaW5p
+dmFzDQoNCj4gwqBkcml2ZXJzL2hpZC9pbnRlbC1pc2gtaGlkL2lwYy9pcGMuY8KgwqDCoHwgNjYN
+Cj4gKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0NCj4gwqBkcml2ZXJzL2hpZC9p
+bnRlbC1pc2gtaGlkL2lwYy91dGlscy5oIHwgNjQgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4g
+LS0tLS0tLS0tLQ0KPiDCoDIgZmlsZXMgY2hhbmdlZCwgNjAgaW5zZXJ0aW9ucygrKSwgNzAgZGVs
+ZXRpb25zKC0pDQo+IMKgZGVsZXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvaGlkL2ludGVsLWlzaC1o
+aWQvaXBjL3V0aWxzLmgNCj4g

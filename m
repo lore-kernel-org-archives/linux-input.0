@@ -1,121 +1,85 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input: touchscreen: silead: Add regulator support
-Date: Wed, 16 Nov 2016 09:51:59 -0800
-Message-ID: <20161116175159.GB335@dtor-ws>
-References: <20161116115507.24220-1-hdegoede@redhat.com>
+Subject: Re: [PATCH v2 -next] Input: gpio_keys: set input direction
+ explicitly for gpio keys
+Date: Wed, 16 Nov 2016 10:34:34 -0800
+Message-ID: <20161116183434.GC335@dtor-ws>
+References: <1479297298-26555-1-git-send-email-sudeep.holla@arm.com>
+ <1479303734-16198-1-git-send-email-sudeep.holla@arm.com>
+ <20161116173656.GA335@dtor-ws>
+ <e96aa040-49d9-4e8e-d017-10712354984c@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:36120 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751688AbcKPRwD (ORCPT
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:35460 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752015AbcKPSei (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 16 Nov 2016 12:52:03 -0500
+        Wed, 16 Nov 2016 13:34:38 -0500
 Content-Disposition: inline
-In-Reply-To: <20161116115507.24220-1-hdegoede@redhat.com>
+In-Reply-To: <e96aa040-49d9-4e8e-d017-10712354984c@arm.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>
+To: Sudeep Holla <sudeep.holla@arm.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On Wed, Nov 16, 2016 at 12:55:07PM +0100, Hans de Goede wrote:
-> On some tablets the touchscreen controller is powered by separate
-> regulators, add support for this.
+On Wed, Nov 16, 2016 at 05:42:15PM +0000, Sudeep Holla wrote:
 > 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> Acked-by: Rob Herring <robh@kernel.org>
-> ---
-> Changes in v2:
-> -Use devm_regulator_bulk_get() and friends
-> -Use devm_add_action_or_reset() to disable the regulator
-> ---
->  .../bindings/input/touchscreen/silead_gsl1680.txt  |  2 ++
->  drivers/input/touchscreen/silead.c                 | 29 ++++++++++++++++++++++
->  2 files changed, 31 insertions(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-> index e844c3f..b726823 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-> @@ -22,6 +22,8 @@ Optional properties:
->  - touchscreen-inverted-y  : See touchscreen.txt
->  - touchscreen-swapped-x-y : See touchscreen.txt
->  - silead,max-fingers	  : maximum number of fingers the touchscreen can detect
-> +- vddio-supply		  : regulator phandle for controller VDDIO
-> +- avdd-supply		  : regulator phandle for controller AVDD
->  
->  Example:
->  
-> diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-> index f502c84..404830a 100644
-> --- a/drivers/input/touchscreen/silead.c
-> +++ b/drivers/input/touchscreen/silead.c
-> @@ -29,6 +29,7 @@
->  #include <linux/input/touchscreen.h>
->  #include <linux/pm.h>
->  #include <linux/irq.h>
-> +#include <linux/regulator/consumer.h>
->  
->  #include <asm/unaligned.h>
->  
-> @@ -73,6 +74,7 @@ struct silead_ts_data {
->  	struct i2c_client *client;
->  	struct gpio_desc *gpio_power;
->  	struct input_dev *input;
-> +	struct regulator_bulk_data regulators[2];
->  	char fw_name[64];
->  	struct touchscreen_properties prop;
->  	u32 max_fingers;
-> @@ -433,6 +435,13 @@ static int silead_ts_set_default_fw_name(struct silead_ts_data *data,
->  }
->  #endif
->  
-> +static void silead_disable_regulator(void *arg)
-> +{
-> +	struct silead_ts_data *data = arg;
-> +
-> +	regulator_bulk_disable(ARRAY_SIZE(data->regulators), data->regulators);
-> +}
-> +
->  static int silead_ts_probe(struct i2c_client *client,
->  			   const struct i2c_device_id *id)
->  {
-> @@ -465,6 +474,26 @@ static int silead_ts_probe(struct i2c_client *client,
->  	if (client->irq <= 0)
->  		return -ENODEV;
->  
-> +	data->regulators[0].supply = "vddio";
-> +	data->regulators[1].supply = "avdd";
-> +	error = devm_regulator_bulk_get(dev, ARRAY_SIZE(data->regulators),
-> +					data->regulators);
-> +	if (error)
-> +		return error;
-> +
-> +	/*
-> +	 * Enable regulators at probe and disable them at remove, we need
-> +	 * to keep the chip powered otherwise it forgets its firmware.
-> +	 */
+> On 16/11/16 17:36, Dmitry Torokhov wrote:
+> >On Wed, Nov 16, 2016 at 01:42:14PM +0000, Sudeep Holla wrote:
+> >>Commit 700a38b27eef ("Input: gpio_keys - switch to using generic device
+> >>properties") switched to use generic device properties for GPIO keys and
+> >>commit 5feeca3c1e39 ("Input: gpio_keys - add support for GPIO descriptors")
+> >>switched from legacy GPIO numbers to GPIO descriptors.
+> >>
+> >>Previously devm_gpio_request_one was explicitly passed GPIOF_DIR_IN flag
+> >>to set the GPIO direction as input. However devm_get_gpiod_from_child
+> >>doesn't have such provisions and hence fwnode_get_named_gpiod can't set
+> >>it as input.
+> >>
+> >>This breaks few platforms with the following error:
+> >>" gpiochip_lock_as_irq: tried to flag a GPIO set as output for IRQ
+> >>  unable to lock HW IRQ <n> for IRQ
+> >>  genirq: Failed to request resources for POWER (irq <x>) on irqchip
+> >>  gpio_keys: Unable to claim irq <x>; error -22
+> >>  gpio-keys: probe failed with error -22 "
+> >>
+> >>This patch fixes the issue by setting input direction explicitly for
+> >>gpio input keys. It also remove the existing GPIOF_DIR_IN flag setting
+> >>for the legacy gpios and merges into single gpiod_direction_input call.
+> >>
+> >>Fixes: 700a38b27eef ("Input: gpio_keys - switch to using generic device properties")
+> >>Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> >>Cc: Linus Walleij <linus.walleij@linaro.org>
+> >>Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+> >>Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> >>Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+> >>---
+> >> drivers/input/keyboard/gpio_keys.c        | 5 ++++-
+> >> drivers/input/keyboard/gpio_keys_polled.c | 5 ++++-
+> >> 2 files changed, 8 insertions(+), 2 deletions(-)
+> >>
+> >>v1->v2:
+> >>	- Fix the build(had sent a wrong version by accident)
+> >>
+> >>Hi Dmitry,
+> >>
+> >>The other option would be to pass the flag explicitly and add support to
+> >>handle it in the path devm_get_gpiod_from_child would take.
+> >
+> >Hi Sudeep,
+> >
+> >No, I think explicitly configuring it for input is good (at least for
+> >now), but we need error handling.
+> >
+> 
+> Sure, a quick glance makes me think: all I need is to return the error
+> as everything is handled by devm_* APIs. If so I will respin with that
+> change, otherwise please let me know if I am missing anything here.
 
-Hmm, this burns power though. Why can't we reload firmware on resume (it
-should be already cached)? Does it take too long?
+No, I think that is it.
 
 Thanks.
-
-> +	error = regulator_bulk_enable(ARRAY_SIZE(data->regulators),
-> +				      data->regulators);
-> +	if (error)
-> +		return error;
-> +
-> +	error = devm_add_action_or_reset(dev, silead_disable_regulator, data);
-> +	if (error)
-> +		return error;
-> +
->  	/* Power GPIO pin */
->  	data->gpio_power = devm_gpiod_get_optional(dev, "power", GPIOD_OUT_LOW);
->  	if (IS_ERR(data->gpio_power)) {
-> -- 
-> 2.9.3
-> 
 
 -- 
 Dmitry

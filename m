@@ -1,44 +1,139 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] input: raydium_i2c_ts: fix spelling mistake in dev_err message
-Date: Wed, 16 Nov 2016 18:40:30 +0000
-Message-ID: <20161116184030.10486-1-colin.king@canonical.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2] input: touchscreen: silead: Add regulator support
+Date: Wed, 16 Nov 2016 19:58:26 +0100
+Message-ID: <cdc827c1-f5ba-27b8-b7d0-4489fbd6da28@redhat.com>
+References: <20161116115507.24220-1-hdegoede@redhat.com>
+ <20161116175159.GB335@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:52128 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752805AbcKPSkq (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 16 Nov 2016 13:40:46 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:55142 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753881AbcKPS63 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 16 Nov 2016 13:58:29 -0500
+In-Reply-To: <20161116175159.GB335@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jeffrey Lin <jeffrey.lin@rad-ic.com>, Guenter Roeck <groeck@chromium.org>, Rob Herring <robh@kernel.org>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>
 
-From: Colin Ian King <colin.king@canonical.com>
+HI,
 
-Trivial fix to spelling mistake "failied" to "failed" in
-dev_err message.
+On 16-11-16 18:51, Dmitry Torokhov wrote:
+> On Wed, Nov 16, 2016 at 12:55:07PM +0100, Hans de Goede wrote:
+>> On some tablets the touchscreen controller is powered by separate
+>> regulators, add support for this.
+>>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> Acked-by: Rob Herring <robh@kernel.org>
+>> ---
+>> Changes in v2:
+>> -Use devm_regulator_bulk_get() and friends
+>> -Use devm_add_action_or_reset() to disable the regulator
+>> ---
+>>  .../bindings/input/touchscreen/silead_gsl1680.txt  |  2 ++
+>>  drivers/input/touchscreen/silead.c                 | 29 ++++++++++++++++++++++
+>>  2 files changed, 31 insertions(+)
+>>
+>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+>> index e844c3f..b726823 100644
+>> --- a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+>> +++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+>> @@ -22,6 +22,8 @@ Optional properties:
+>>  - touchscreen-inverted-y  : See touchscreen.txt
+>>  - touchscreen-swapped-x-y : See touchscreen.txt
+>>  - silead,max-fingers	  : maximum number of fingers the touchscreen can detect
+>> +- vddio-supply		  : regulator phandle for controller VDDIO
+>> +- avdd-supply		  : regulator phandle for controller AVDD
+>>
+>>  Example:
+>>
+>> diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+>> index f502c84..404830a 100644
+>> --- a/drivers/input/touchscreen/silead.c
+>> +++ b/drivers/input/touchscreen/silead.c
+>> @@ -29,6 +29,7 @@
+>>  #include <linux/input/touchscreen.h>
+>>  #include <linux/pm.h>
+>>  #include <linux/irq.h>
+>> +#include <linux/regulator/consumer.h>
+>>
+>>  #include <asm/unaligned.h>
+>>
+>> @@ -73,6 +74,7 @@ struct silead_ts_data {
+>>  	struct i2c_client *client;
+>>  	struct gpio_desc *gpio_power;
+>>  	struct input_dev *input;
+>> +	struct regulator_bulk_data regulators[2];
+>>  	char fw_name[64];
+>>  	struct touchscreen_properties prop;
+>>  	u32 max_fingers;
+>> @@ -433,6 +435,13 @@ static int silead_ts_set_default_fw_name(struct silead_ts_data *data,
+>>  }
+>>  #endif
+>>
+>> +static void silead_disable_regulator(void *arg)
+>> +{
+>> +	struct silead_ts_data *data = arg;
+>> +
+>> +	regulator_bulk_disable(ARRAY_SIZE(data->regulators), data->regulators);
+>> +}
+>> +
+>>  static int silead_ts_probe(struct i2c_client *client,
+>>  			   const struct i2c_device_id *id)
+>>  {
+>> @@ -465,6 +474,26 @@ static int silead_ts_probe(struct i2c_client *client,
+>>  	if (client->irq <= 0)
+>>  		return -ENODEV;
+>>
+>> +	data->regulators[0].supply = "vddio";
+>> +	data->regulators[1].supply = "avdd";
+>> +	error = devm_regulator_bulk_get(dev, ARRAY_SIZE(data->regulators),
+>> +					data->regulators);
+>> +	if (error)
+>> +		return error;
+>> +
+>> +	/*
+>> +	 * Enable regulators at probe and disable them at remove, we need
+>> +	 * to keep the chip powered otherwise it forgets its firmware.
+>> +	 */
+>
+> Hmm, this burns power though. Why can't we reload firmware on resume (it
+> should be already cached)?
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/input/touchscreen/raydium_i2c_ts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+We already put the device in low-power mode using the power pin. Of the
+20 or so different tablets I've with this touchscreen controller only
+2 actually have a separate regulator for the controller, so I do not
+believe that powering down the regulator will be a big win, otherwise
+all tablets would have had this.
 
-diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-index a99fb5c..2658afa 100644
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -669,7 +669,7 @@ static int raydium_i2c_do_update_firmware(struct raydium_data *ts,
- 
- 		if (ts->boot_mode == RAYDIUM_TS_MAIN) {
- 			dev_err(&client->dev,
--				"failied to jump to boot loader: %d\n",
-+				"failed to jump to boot loader: %d\n",
- 				error);
- 			return -EIO;
- 		}
--- 
-2.10.2
+ > Does it take too long?
 
+It is a couple of kB written one 32-bit word at a time over i2c, so
+it's not fast.
+
+Regards,
+
+Hans
+
+
+>
+> Thanks.
+>
+>> +	error = regulator_bulk_enable(ARRAY_SIZE(data->regulators),
+>> +				      data->regulators);
+>> +	if (error)
+>> +		return error;
+>> +
+>> +	error = devm_add_action_or_reset(dev, silead_disable_regulator, data);
+>> +	if (error)
+>> +		return error;
+>> +
+>>  	/* Power GPIO pin */
+>>  	data->gpio_power = devm_gpiod_get_optional(dev, "power", GPIOD_OUT_LOW);
+>>  	if (IS_ERR(data->gpio_power)) {
+>> --
+>> 2.9.3
+>>
+>

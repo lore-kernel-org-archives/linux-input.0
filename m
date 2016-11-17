@@ -1,71 +1,91 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch] [media] Input: synaptics-rmi4 - unlock on error
-Date: Wed, 16 Nov 2016 17:24:30 -0800
-Message-ID: <20161117012430.GD8133@dtor-ws>
-References: <20161014171427.GA21917@mwanda>
- <0b9ecb27-505d-71be-35f7-ab262428ec34@cisco.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
+Subject: Re: [PATCH v3 -next] Input: gpio_keys: set input direction explicitly
+ for gpio keys
+Date: Thu, 17 Nov 2016 09:48:24 +0000
+Message-ID: <db85d594-5601-5da6-8247-b1f5b186ae0a@arm.com>
+References: <1479303734-16198-1-git-send-email-sudeep.holla@arm.com>
+ <1479321502-22265-1-git-send-email-sudeep.holla@arm.com>
+ <20161117011836.GB8133@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <0b9ecb27-505d-71be-35f7-ab262428ec34@cisco.com>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Hans Verkuil <hansverk@cisco.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, Nick Dyer <nick@shmanahar.org>, Hans Verkuil <hans.verkuil@cisco.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from foss.arm.com ([217.140.101.70]:46266 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751204AbcKQJs3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 17 Nov 2016 04:48:29 -0500
+In-Reply-To: <20161117011836.GB8133@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sudeep Holla <sudeep.holla@arm.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On Mon, Nov 14, 2016 at 01:24:12PM +0100, Hans Verkuil wrote:
-> On 10/14/2016 07:14 PM, Dan Carpenter wrote:
-> >We should unlock before returning on this error path.
-> >
-> >Fixes: 3a762dbd5347 ('[media] Input: synaptics-rmi4 - add support for F54 diagnostics')
-> >Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> 
-> Dmitry, will you pick this up? It probably should to in for 4.9.
-> 
-> Even though it was prefixed with [media] it wasn't send to linux-media, so it never
-> ended up in our patchwork.
-> 
-> If you don't want to process this patch, then let me know and I'll take it.
 
-I picked it up. Given it is error handling that should not really fail I
-think it can wait for next merge.
 
-Thanks.
+On 17/11/16 01:18, Dmitry Torokhov wrote:
+> On Wed, Nov 16, 2016 at 06:38:22PM +0000, Sudeep Holla wrote:
+>> Commit 700a38b27eef ("Input: gpio_keys - switch to using generic device
+>> properties") switched to use generic device properties for GPIO keys and
+>> commit 5feeca3c1e39 ("Input: gpio_keys - add support for GPIO descriptors")
+>> switched from legacy GPIO numbers to GPIO descriptors.
+>>
+>> Previously devm_gpio_request_one was explicitly passed GPIOF_DIR_IN flag
+>> to set the GPIO direction as input. However devm_get_gpiod_from_child
+>> doesn't have such provisions and hence fwnode_get_named_gpiod can't set
+>> it as input.
+>>
+>> This breaks few platforms with the following error:
+>> " gpiochip_lock_as_irq: tried to flag a GPIO set as output for IRQ
+>>   unable to lock HW IRQ <n> for IRQ
+>>   genirq: Failed to request resources for POWER (irq <x>) on irqchip
+>>   gpio_keys: Unable to claim irq <x>; error -22
+>>   gpio-keys: probe failed with error -22 "
+>>
+>> This patch fixes the issue by setting input direction explicitly for
+>> gpio input keys. It also remove the existing GPIOF_DIR_IN flag setting
+>> for the legacy gpios and merges into single gpiod_direction_input call.
+>>
+>> Fixes: 700a38b27eef ("Input: gpio_keys - switch to using generic device properties")
+>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Cc: Linus Walleij <linus.walleij@linaro.org>
+>> Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+>> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+>> Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+>> ---
+>>  drivers/input/keyboard/gpio_keys.c        | 10 +++++++++-
+>>  drivers/input/keyboard/gpio_keys_polled.c | 10 +++++++++-
+>>  2 files changed, 18 insertions(+), 2 deletions(-)
+>>
+>> v2->v3:
+>> 	- Added error handling and error message
+>>
+>> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+>> index 5576f2ae0b71..ed38a05b3039 100644
+>> --- a/drivers/input/keyboard/gpio_keys.c
+>> +++ b/drivers/input/keyboard/gpio_keys.c
+>> @@ -502,7 +502,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+>>  		 * Legacy GPIO number, so request the GPIO here and
+>>  		 * convert it to descriptor.
+>>  		 */
+>> -		unsigned flags = GPIOF_IN;
+>> +		unsigned flags = 0;
+>>
+>>  		if (button->active_low)
+>>  			flags |= GPIOF_ACTIVE_LOW;
+>
+> Sudeep, I looked into this aa bit deeper, and I have issue with this
+> part: in absence of GPIOF_IN devm_gpio_request_one() will attempt to
+> configure GPIO line as output, which may not work. Because of this I
+> think we should move gpiod_direction_input() call into the "modern"
+> branch and leave legacy branch as is.
+>
+> Does the version below work for you?
+>
 
-> 
-> Regards,
-> 
-> 	Hans
-> 
-> >
-> >diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-> >index cf805b9..2e934ae 100644
-> >--- a/drivers/input/rmi4/rmi_f54.c
-> >+++ b/drivers/input/rmi4/rmi_f54.c
-> >@@ -200,7 +200,7 @@ static int rmi_f54_request_report(struct rmi_function *fn, u8 report_type)
-> >
-> > 	error = rmi_write(rmi_dev, fn->fd.command_base_addr, F54_GET_REPORT);
-> > 	if (error < 0)
-> >-		return error;
-> >+		goto unlock;
-> >
-> > 	init_completion(&f54->cmd_done);
-> >
-> >@@ -209,9 +209,10 @@ static int rmi_f54_request_report(struct rmi_function *fn, u8 report_type)
-> >
-> > 	queue_delayed_work(f54->workqueue, &f54->work, 0);
-> >
-> >+unlock:
-> > 	mutex_unlock(&f54->data_mutex);
-> >
-> >-	return 0;
-> >+	return error;
-> > }
-> >
-> > static size_t rmi_f54_get_report_size(struct f54_data *f54)
-> >
-> 
+Yes it does and in fact I started with something similar and then saw
+that I can make it common between legacy and new branch conditions. So I
+am fine with the modified version you sent.
 
 -- 
-Dmitry
+Regards,
+Sudeep

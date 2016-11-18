@@ -1,340 +1,461 @@
-From: =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Subject: RE: [PATCH] Input: elan_i2c - Add new ic and modify some functions for new IC infomation Signed-off-by: KT Liao <kt.liao@emc.com.tw>
-Date: Fri, 18 Nov 2016 16:32:18 +0800
-Message-ID: <000501d24176$46655c80$d3301580$@emc.com.tw>
-References: <1479383263-34546-1-git-send-email-kt.liao@emc.com.tw> <20161117171524.GA40773@dtor-ws>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 8/9] mfd: wm97xx-core: core support for wm97xx Codec
+Date: Fri, 18 Nov 2016 16:50:40 +0000
+Message-ID: <20161118165040.GB19884@dell.home>
+References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
+ <1477510907-23495-9-git-send-email-robert.jarzmik@free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20161117171524.GA40773@dtor-ws>
-Content-Language: zh-tw
-Sender: linux-kernel-owner@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'KT Liao' <ktalex.liao@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, phoenix@emc.com.tw
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f49.google.com ([74.125.82.49]:37508 "EHLO
+        mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752522AbcKRQrp (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 18 Nov 2016 11:47:45 -0500
+Received: by mail-wm0-f49.google.com with SMTP id t79so48884523wmt.0
+        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2016 08:47:44 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1477510907-23495-9-git-send-email-robert.jarzmik@free.fr>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, linux-pm@vger.kernel.org, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 
-Hi Dmitry
+On Wed, 26 Oct 2016, Robert Jarzmik wrote:
 
------Original Message-----
-From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
-Sent: Friday, November 18, 2016 1:15 AM
-To: KT Liao
-Cc: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org; phoenix@emc.com.tw; kt.liao@emc.com.tw
-Subject: Re: [PATCH] Input: elan_i2c - Add new ic and modify some functions for new IC infomation Signed-off-by: KT Liao <kt.liao@emc.com.tw>
-
-Hi KT,
-
-On Thu, Nov 17, 2016 at 07:47:43PM +0800, KT Liao wrote:
-> ---
->  drivers/input/mouse/elan_i2c.h       |  6 ++--
->  drivers/input/mouse/elan_i2c_core.c  | 46 ++++++++++++++++++--------
->  drivers/input/mouse/elan_i2c_i2c.c   | 63 ++++++++++++++++++++++++++++++------
->  drivers/input/mouse/elan_i2c_smbus.c | 11 +++++--
->  4 files changed, 99 insertions(+), 27 deletions(-)  mode change 
-> 100644 => 100755 drivers/input/mouse/elan_i2c.h  mode change 100644 => 
-> 100755 drivers/input/mouse/elan_i2c_core.c
->  mode change 100644 => 100755 drivers/input/mouse/elan_i2c_i2c.c
->  mode change 100644 => 100755 drivers/input/mouse/elan_i2c_smbus.c
-
-Why are you changing mode on the files?
-[KT]:Sorry, it's my fault to change file mode. I will fix it in next upstream.
-
+> The WM9705, WM9712 and WM9713 are highly integrated codecs, with an
+> audio codec, DAC and ADC, GPIO unit and a touchscreen interface.
 > 
-> diff --git a/drivers/input/mouse/elan_i2c.h 
-> b/drivers/input/mouse/elan_i2c.h old mode 100644 new mode 100755 index 
-> c0ec261..a90df14
-> --- a/drivers/input/mouse/elan_i2c.h
-> +++ b/drivers/input/mouse/elan_i2c.h
-> @@ -56,9 +56,10 @@ struct elan_transport_ops {
->  	int (*get_baseline_data)(struct i2c_client *client,
->  				 bool max_baseliune, u8 *value);
+> Historically the support was spread across drivers/input/touchscreen and
+> sound/soc/codecs. The sharing was done through ac97 bus sharing. This
+> model will not withstand the new AC97 bus model, where codecs are
+> discovered on runtime.
+> 
+> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+> ---
+>  drivers/mfd/Kconfig        |  14 +++
+>  drivers/mfd/Makefile       |   1 +
+>  drivers/mfd/wm97xx-core.c  | 282 +++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/mfd/wm97xx.h |  31 +++++
+>  4 files changed, 328 insertions(+)
+>  create mode 100644 drivers/mfd/wm97xx-core.c
+>  create mode 100644 include/linux/mfd/wm97xx.h
+> 
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index c6df6442ba2b..2ac818127b0a 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -1597,6 +1597,20 @@ config MFD_WM8994
+>  	  core support for the WM8994, in order to use the actual
+>  	  functionaltiy of the device other drivers must be enabled.
 >  
-> -	int (*get_version)(struct i2c_client *client, bool iap, u8 *version);
-> +	int (*get_version)(struct i2c_client *client,
-> +			   bool iap, u8 *version, u8 pattern);
->  	int (*get_sm_version)(struct i2c_client *client,
-> -			      u8* ic_type, u8 *version);
-> +			      u16 *ic_type, u8 *version, u8 pattern);
->  	int (*get_checksum)(struct i2c_client *client, bool iap, u16 *csum);
->  	int (*get_product_id)(struct i2c_client *client, u16 *id);
->  
-> @@ -82,6 +83,7 @@ struct elan_transport_ops {
->  	int (*get_report)(struct i2c_client *client, u8 *report);
->  	int (*get_pressure_adjustment)(struct i2c_client *client,
->  				       int *adjustment);
-> +	int (*get_pattern)(struct i2c_client *client, u8 *pattern);
->  };
->  
->  extern const struct elan_transport_ops elan_smbus_ops, elan_i2c_ops; 
-> diff --git a/drivers/input/mouse/elan_i2c_core.c 
-> b/drivers/input/mouse/elan_i2c_core.c
-> old mode 100644
-> new mode 100755
-> index d15b338..bb0c832
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -5,7 +5,7 @@
->   *
->   * Author: 林政維 (Duson Lin) <dusonlin@emc.com.tw>
->   * Author: KT Liao <kt.liao@emc.com.tw>
-> - * Version: 1.6.2
-> + * Version: 1.6.3
->   *
->   * Based on cyapa driver:
->   * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
-> @@ -41,7 +41,7 @@
->  #include "elan_i2c.h"
->  
->  #define DRIVER_NAME		"elan_i2c"
-> -#define ELAN_DRIVER_VERSION	"1.6.2"
-> +#define ELAN_DRIVER_VERSION	"1.6.3"
->  #define ELAN_VENDOR_ID		0x04f3
->  #define ETP_MAX_PRESSURE	255
->  #define ETP_FWIDTH_REDUCE	90
-> @@ -78,6 +78,7 @@ struct elan_tp_data {
->  	unsigned int		x_res;
->  	unsigned int		y_res;
->  
-> +	u8			pattern;
->  	u16			product_id;
->  	u8			fw_version;
->  	u8			sm_version;
-> @@ -85,7 +86,7 @@ struct elan_tp_data {
->  	u16			fw_checksum;
->  	int			pressure_adjustment;
->  	u8			mode;
-> -	u8			ic_type;
-> +	u16			ic_type;
->  	u16			fw_validpage_count;
->  	u16			fw_signature_address;
->  
-> @@ -96,10 +97,10 @@ struct elan_tp_data {
->  	bool			baseline_ready;
->  };
->  
-> -static int elan_get_fwinfo(u8 iap_version, u16 *validpage_count,
-> +static int elan_get_fwinfo(u16 ic_type, u16 *validpage_count,
->  			   u16 *signature_address)
->  {
-> -	switch (iap_version) {
-> +	switch (ic_type) {
->  	case 0x00:
->  	case 0x06:
->  	case 0x08:
-> @@ -119,6 +120,9 @@ static int elan_get_fwinfo(u8 iap_version, u16 *validpage_count,
->  	case 0x0E:
->  		*validpage_count = 640;
->  		break;
-> +	case 0x10:
-> +		*validpage_count = 1024;
-> +		break;
->  	default:
->  		/* unknown ic type clear value */
->  		*validpage_count = 0;
-> @@ -204,12 +208,17 @@ static int elan_query_product(struct 
-> elan_tp_data *data)  {
->  	int error;
->  
-> +	error = data->ops->get_pattern(data->client, &data->pattern);
-> +	if (error)
-> +		return error;
+> +config MFD_WM97xx
+> +	tristate "Wolfson Microelectronics WM97xx"
+> +	select MFD_CORE
+> +	select REGMAP_AC97
+> +	select AC97_BUS_COMPAT if AC97_BUS_NEW
+> +	help
 > +
->  	error = data->ops->get_product_id(data->client, &data->product_id);
->  	if (error)
->  		return error;
->  
->  	error = data->ops->get_sm_version(data->client, &data->ic_type,
-> -					  &data->sm_version);
-> +					&data->sm_version, data->pattern);
+
+Surplus '\n' here.
+
+> +	  The WM9705, WM9712 and WM9713 is a highly integrated hi-fi CODEC
+> +	  designed for smartphone applications.  As well as audio functionality
+> +	  it has on board GPIO and a touchscreen functionality which is
+> +	  supported via the relevant subsystems.  This driver provides core
+> +	  support for the WM97xx, in order to use the actual functionaltiy of
+
+Always spell check your work.
+
+> +	  the device other drivers must be enabled.
 > +
->  	if (error)
->  		return error;
+>  config MFD_STW481X
+>  	tristate "Support for ST Microelectronics STw481x"
+>  	depends on I2C && (ARCH_NOMADIK || COMPILE_TEST)
+> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+> index 9834e669d985..5c3534f4c7c3 100644
+> --- a/drivers/mfd/Makefile
+> +++ b/drivers/mfd/Makefile
+> @@ -69,6 +69,7 @@ obj-$(CONFIG_MFD_WM8350)	+= wm8350.o
+>  obj-$(CONFIG_MFD_WM8350_I2C)	+= wm8350-i2c.o
+>  wm8994-objs			:= wm8994-core.o wm8994-irq.o wm8994-regmap.o
+>  obj-$(CONFIG_MFD_WM8994)	+= wm8994.o
+> +obj-$(CONFIG_MFD_WM97xx)	+= wm97xx-core.o
 >  
-> @@ -302,9 +311,10 @@ static int elan_initialize(struct elan_tp_data 
-> *data)
->  
->  static int elan_query_device_info(struct elan_tp_data *data)  {
-> -	int error;
-> +	int error, ic_type;
->  
-> -	error = data->ops->get_version(data->client, false, &data->fw_version);
-> +	error = data->ops->get_version(data->client, false, &data->fw_version,
-> +			       data->pattern);
->  	if (error)
->  		return error;
->  
-> @@ -313,16 +323,23 @@ static int elan_query_device_info(struct elan_tp_data *data)
->  	if (error)
->  		return error;
->  
-> -	error = data->ops->get_version(data->client, true, &data->iap_version);
-> +	error = data->ops->get_version(data->client, true, &data->iap_version,
-> +				       data->pattern);
->  	if (error)
->  		return error;
->  
+>  obj-$(CONFIG_TPS6105X)		+= tps6105x.o
+>  obj-$(CONFIG_TPS65010)		+= tps65010.o
+> diff --git a/drivers/mfd/wm97xx-core.c b/drivers/mfd/wm97xx-core.c
+> new file mode 100644
+> index 000000000000..f2cd80354b4a
+> --- /dev/null
+> +++ b/drivers/mfd/wm97xx-core.c
+> @@ -0,0 +1,282 @@
+> +/*
+> + * Wolfson WM97xx -- Core device
+> + *
+> + * Copyright (C) 2016 Robert Jarzmik
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * Features:
+> + *  - an AC97 audio codec
+> + *  - a touchscreen driver
+> + *  - a GPIO block
+
+Place this above the Copyright.
+
+> + */
 > +
->  	error = data->ops->get_pressure_adjustment(data->client,
->  						   &data->pressure_adjustment);
->  	if (error)
->  		return error;
->  
-> -	error = elan_get_fwinfo(data->iap_version, &data->fw_validpage_count,
-> +	if (data->pattern == 0x01)
-> +		ic_type = data->ic_type;
-> +	else
-> +		ic_type = data->iap_version;
-> +
-> +	error = elan_get_fwinfo(ic_type, &data->fw_validpage_count,
->  				&data->fw_signature_address);
->  	if (error)
->  		dev_warn(&data->client->dev,
-> @@ -1093,7 +1110,7 @@ static int elan_probe(struct i2c_client *client,
->  	if (error)
->  		return error;
->  
-> -	dev_dbg(&client->dev,
-> +	dev_info(&client->dev,
->  		"Elan Touchpad Information:\n"
->  		"    Module product ID:  0x%04x\n"
->  		"    Firmware Version:  0x%04x\n"
-> @@ -1101,14 +1118,17 @@ static int elan_probe(struct i2c_client *client,
->  		"    IAP Version:  0x%04x\n"
->  		"    Max ABS X,Y:   %d,%d\n"
->  		"    Width X,Y:   %d,%d\n"
-> -		"    Resolution X,Y:   %d,%d (dots/mm)\n",
-> +		"    Resolution X,Y:   %d,%d (dots/mm)\n"
-> +		"    ic type: 0x%x\n"
-> +		"    info pattern: 0x%x\n",
->  		data->product_id,
->  		data->fw_version,
->  		data->sm_version,
->  		data->iap_version,
->  		data->max_x, data->max_y,
->  		data->width_x, data->width_y,
-> -		data->x_res, data->y_res);
-> +		data->x_res, data->y_res,
-> +		data->ic_type, data->pattern);
->  
->  	/* Set up input device properties based on queried parameters. */
->  	error = elan_setup_input_device(data); diff --git 
-> a/drivers/input/mouse/elan_i2c_i2c.c 
-> b/drivers/input/mouse/elan_i2c_i2c.c
-> old mode 100644
-> new mode 100755
-> index a679e56..c108589
-> --- a/drivers/input/mouse/elan_i2c_i2c.c
-> +++ b/drivers/input/mouse/elan_i2c_i2c.c
-> @@ -34,9 +34,12 @@
->  #define ETP_I2C_DESC_CMD		0x0001
->  #define ETP_I2C_REPORT_DESC_CMD		0x0002
->  #define ETP_I2C_STAND_CMD		0x0005
-> +#define ETP_I2C_PATTERN_CMD		0x0100
->  #define ETP_I2C_UNIQUEID_CMD		0x0101
->  #define ETP_I2C_FW_VERSION_CMD		0x0102
-> -#define ETP_I2C_SM_VERSION_CMD		0x0103
-> +#define ETP_I2C_IC_TYPE_CMD		0x0103
-> +#define ETP_I2C_OSM_VERSION_CMD		0x0103
-> +#define ETP_I2C_NSM_VERSION_CMD		0x0104
->  #define ETP_I2C_XY_TRACENUM_CMD		0x0105
->  #define ETP_I2C_MAX_X_AXIS_CMD		0x0106
->  #define ETP_I2C_MAX_Y_AXIS_CMD		0x0107
-> @@ -240,7 +243,7 @@ static int elan_i2c_get_baseline_data(struct 
-> i2c_client *client,  }
->  
->  static int elan_i2c_get_version(struct i2c_client *client,
-> -				bool iap, u8 *version)
-> +				bool iap, u8 *version, u8 pattern)
->  {
->  	int error;
->  	u8 val[3];
-> @@ -255,24 +258,47 @@ static int elan_i2c_get_version(struct i2c_client *client,
->  		return error;
->  	}
->  
-> -	*version = val[0];
-> +	if (pattern == 0x01)
-> +		*version = iap ? val[1] : val[0];
-> +	else
-> +		*version = val[0];
->  	return 0;
->  }
->  
->  static int elan_i2c_get_sm_version(struct i2c_client *client,
-> -				   u8 *ic_type, u8 *version)
-> +				   u16 *ic_type, u8 *version, u8 pattern)
->  {
->  	int error;
->  	u8 val[3];
->  
-> -	error = elan_i2c_read_cmd(client, ETP_I2C_SM_VERSION_CMD, val);
-> -	if (error) {
-> -		dev_err(&client->dev, "failed to get SM version: %d\n", error);
-> -		return error;
-> +	if (pattern == 0x01) {
-> +		error = elan_i2c_read_cmd(client, ETP_I2C_IC_TYPE_CMD, val);
-> +		if (error) {
-> +			dev_err(&client->dev, "failed to get ic type: %d\n",
-> +				error);
-> +			return error;
-> +		}
-> +		*ic_type = be16_to_cpup((__be16 *)val);
-> +
-> +		error = elan_i2c_read_cmd(client, ETP_I2C_NSM_VERSION_CMD,
-> +					  val);
-> +		if (error) {
-> +			dev_err(&client->dev, "failed to get SM version: %d\n",
-> +				error);
-> +			return error;
-> +		}
-> +		*version = val[1];
-> +	} else {
-> +		error = elan_i2c_read_cmd(client, ETP_I2C_OSM_VERSION_CMD, val);
-> +		if (error) {
-> +			dev_err(&client->dev, "failed to get SM version: %d\n",
-> +				error);
-> +			return error;
-> +		}
-> +		*version = val[0];
-> +		*ic_type = val[1];
->  	}
->  
-> -	*version = val[0];
-> -	*ic_type = val[1];
->  	return 0;
->  }
->  
-> @@ -611,6 +637,21 @@ static int elan_i2c_get_report(struct i2c_client *client, u8 *report)
->  	return 0;
->  }
->  
-> +static int elan_i2c_get_pattern(struct i2c_client *client, u8 
-> +*pattern) {
-> +	int error;
-> +	u8 val[3];
-> +
-> +	error = elan_i2c_read_cmd(client, ETP_I2C_PATTERN_CMD, val);
-> +	if (error) {
-> +		dev_err(&client->dev, "failed to get pattern: %d\n", error);
-> +		return error;
+> +#include <linux/module.h>
+
+Why is this seperted?
+
+> +#include <linux/device.h>
+> +#include <linux/mfd/core.h>
+> +#include <linux/mfd/wm97xx.h>
+> +#include <linux/wm97xx.h>
+> +#include <linux/regmap.h>
+> +#include <linux/slab.h>
+> +#include <sound/ac97/codec.h>
+> +#include <sound/ac97/compat.h>
+
+Alphabetical.
+
+> +#define WM9705_VENDOR_ID 0x574d4c05
+> +#define WM9712_VENDOR_ID 0x574d4c12
+> +#define WM9713_VENDOR_ID 0x574d4c13
+> +#define WM97xx_VENDOR_ID_MASK 0xffffffff
+
+Use tabs, not spaces.
+
+These are probably better represented as enums.
+
+> +struct wm97xx_priv {
+> +	struct regmap *regmap;
+> +	struct snd_ac97 *ac97;
+> +	struct device *dev;
+> +};
+
+Replace _priv with _ddata.
+
+Also document using kerneldoc.
+
+> +static bool wm97xx_readable_reg(struct device *dev, unsigned int reg)
+> +{
+> +	switch (reg) {
+> +	case AC97_RESET ... AC97_PCM_SURR_DAC_RATE:
+> +	case AC97_PCM_LR_ADC_RATE:
+> +	case AC97_CENTER_LFE_MASTER:
+> +	case AC97_SPDIF ... AC97_LINE1_LEVEL:
+> +	case AC97_GPIO_CFG ... 0x5c:
+
+Please define.
+> +	case AC97_CODEC_CLASS_REV ... AC97_PCI_SID:
+> +	case 0x74 ... AC97_VENDOR_ID2:
+
+As above.
+
+> +	default:
+> +		return false;
 > +	}
-> +	*pattern = val[1];
+> +}
+> +
+> +static bool wm97xx_writeable_reg(struct device *dev, unsigned int reg)
+> +{
+> +	switch (reg) {
+> +	case AC97_VENDOR_ID1:
+> +	case AC97_VENDOR_ID2:
+> +		return false;
+> +	default:
+> +		return wm97xx_readable_reg(dev, reg);
+> +	}
+> +}
+> +
+> +static const struct reg_default wm97xx_reg_defaults[] = {
+> +};
 
-Is the pattern command available on all firmware versions?
-[KT]:Yes, it's compatible for all firmware. We use "pattern" to indicate FW information version and access the corresponding address
+What's the point in this?
 
-Also, instead of plumbing whole parrent thing, maybe it would be easier to read it twice, once in elan_i2c_get_version and another in elan_i2c_get_sm_version?
-[KT]:Do you mean I remove elan_i2c_get_pattern in elan_query_product and then add them in elan_i2c_get_version and elan_i2c_get_sm_version?
-    I will update it in next upstream
-    BTW, I have one question and need your advice. Our Linux driver is little different from Chrome kernel driver.
-    I compared both version of code. I think Chrome's input->inhibit and input->uninhibit for wakeup/suspend is the major difference.
-    Is it possible for us to use preprocessor for the difference and then I can maintain the same code for Linux kernel and Chrome kernel
+> +static const struct regmap_config wm9705_regmap_config = {
+> +	.reg_bits = 16,
+> +	.reg_stride = 2,
+> +	.val_bits = 16,
+> +	.max_register = 0x7e,
+> +	.cache_type = REGCACHE_RBTREE,
+> +
+> +	.reg_defaults = wm97xx_reg_defaults,
+> +	.num_reg_defaults = ARRAY_SIZE(wm97xx_reg_defaults),
+> +	.volatile_reg = regmap_ac97_default_volatile,
+> +	.readable_reg = wm97xx_readable_reg,
+> +	.writeable_reg = wm97xx_writeable_reg,
+> +};
+> +
+> +static const struct regmap_config wm9712_regmap_config = {
+> +	.reg_bits = 16,
+> +	.reg_stride = 2,
+> +	.val_bits = 16,
+> +	.max_register = 0x7e,
+> +	.cache_type = REGCACHE_RBTREE,
+> +
+> +	.reg_defaults = wm97xx_reg_defaults,
+> +	.num_reg_defaults = ARRAY_SIZE(wm97xx_reg_defaults),
+> +	.volatile_reg = regmap_ac97_default_volatile,
+> +	.readable_reg = wm97xx_readable_reg,
+> +	.writeable_reg = wm97xx_writeable_reg,
+> +};
+> +
+> +static int wm9705_register(struct wm97xx_priv *wm97xx)
+> +{
+> +	return 0;
+> +}
+> +
+> +static int wm9712_register(struct wm97xx_priv *wm97xx)
+> +{
+> +	return 0;
+> +}
 
-Thanks		KT
+I don't get it?
 
-Thanks.
+Either populate or don't provide.
 
---
-Dmitry
+> +static const struct reg_default wm9713_reg_defaults[] = {
+> +	{ 0x02, 0x8080 },	/* Speaker Output Volume */
+> +	{ 0x04, 0x8080 },	/* Headphone Output Volume */
+> +	{ 0x06, 0x8080 },	/* Out3/OUT4 Volume */
+> +	{ 0x08, 0xc880 },	/* Mono Volume */
+> +	{ 0x0a, 0xe808 },	/* LINEIN Volume */
+> +	{ 0x0c, 0xe808 },	/* DAC PGA Volume */
+> +	{ 0x0e, 0x0808 },	/* MIC PGA Volume */
+> +	{ 0x10, 0x00da },	/* MIC Routing Control */
+> +	{ 0x12, 0x8000 },	/* Record PGA Volume */
+> +	{ 0x14, 0xd600 },	/* Record Routing */
+> +	{ 0x16, 0xaaa0 },	/* PCBEEP Volume */
+> +	{ 0x18, 0xaaa0 },	/* VxDAC Volume */
+> +	{ 0x1a, 0xaaa0 },	/* AUXDAC Volume */
+> +	{ 0x1c, 0x0000 },	/* Output PGA Mux */
+> +	{ 0x1e, 0x0000 },	/* DAC 3D control */
+> +	{ 0x20, 0x0f0f },	/* DAC Tone Control*/
+> +	{ 0x22, 0x0040 },	/* MIC Input Select & Bias */
+> +	{ 0x24, 0x0000 },	/* Output Volume Mapping & Jack */
+> +	{ 0x26, 0x7f00 },	/* Powerdown Ctrl/Stat*/
+> +	{ 0x28, 0x0405 },	/* Extended Audio ID */
+> +	{ 0x2a, 0x0410 },	/* Extended Audio Start/Ctrl */
+> +	{ 0x2c, 0xbb80 },	/* Audio DACs Sample Rate */
+> +	{ 0x2e, 0xbb80 },	/* AUXDAC Sample Rate */
+> +	{ 0x32, 0xbb80 },	/* Audio ADCs Sample Rate */
+> +	{ 0x36, 0x4523 },	/* PCM codec control */
+> +	{ 0x3a, 0x2000 },	/* SPDIF control */
+> +	{ 0x3c, 0xfdff },	/* Powerdown 1 */
+> +	{ 0x3e, 0xffff },	/* Powerdown 2 */
+> +	{ 0x40, 0x0000 },	/* General Purpose */
+> +	{ 0x42, 0x0000 },	/* Fast Power-Up Control */
+> +	{ 0x44, 0x0080 },	/* MCLK/PLL Control */
+> +	{ 0x46, 0x0000 },	/* MCLK/PLL Control */
+> +
+> +	{ 0x4c, 0xfffe },	/* GPIO Pin Configuration */
+> +	{ 0x4e, 0xffff },	/* GPIO Pin Polarity / Type */
+> +	{ 0x50, 0x0000 },	/* GPIO Pin Sticky */
+> +	{ 0x52, 0x0000 },	/* GPIO Pin Wake-Up */
+> +				/* GPIO Pin Status */
+> +	{ 0x56, 0xfffe },	/* GPIO Pin Sharing */
+> +	{ 0x58, 0x4000 },	/* GPIO PullUp/PullDown */
+> +	{ 0x5a, 0x0000 },	/* Additional Functions 1 */
+> +	{ 0x5c, 0x0000 },	/* Additional Functions 2 */
+> +	{ 0x60, 0xb032 },	/* ALC Control */
+> +	{ 0x62, 0x3e00 },	/* ALC / Noise Gate Control */
+> +	{ 0x64, 0x0000 },	/* AUXDAC input control */
+> +	{ 0x74, 0x0000 },	/* Digitiser Reg 1 */
+> +	{ 0x76, 0x0006 },	/* Digitiser Reg 2 */
+> +	{ 0x78, 0x0001 },	/* Digitiser Reg 3 */
+> +	{ 0x7a, 0x0000 },	/* Digitiser Read Back */
+> +};
+> +
+> +static const struct regmap_config wm9713_regmap_config = {
+> +	.reg_bits = 16,
+> +	.reg_stride = 2,
+> +	.val_bits = 16,
+> +	.max_register = 0x7e,
+> +	.cache_type = REGCACHE_RBTREE,
+> +
+> +	.reg_defaults = wm9713_reg_defaults,
+> +	.num_reg_defaults = ARRAY_SIZE(wm9713_reg_defaults),
+> +	.volatile_reg = regmap_ac97_default_volatile,
+> +	.readable_reg = wm97xx_readable_reg,
+> +	.writeable_reg = wm97xx_writeable_reg,
+> +};
+> +
+> +static int wm9713_register(struct wm97xx_priv *wm97xx,
+> +			   struct wm97xx_pdata *pdata)
+> +{
+
+What are you lining this up with?
+
+> +	struct wm97xx_platform_data codec_pdata;
+> +	const struct mfd_cell cells[] = {
+> +		{
+> +			.name = "wm9713-codec",
+> +			.platform_data = &codec_pdata,
+> +			.pdata_size = sizeof(codec_pdata),
+> +		},
+> +		{
+> +			.name = "wm97xx-ts",
+> +			.platform_data = &codec_pdata,
+> +			.pdata_size = sizeof(codec_pdata),
+> +		},
+> +	};
+> +
+> +	codec_pdata.ac97 = wm97xx->ac97;
+> +	codec_pdata.regmap = devm_regmap_init_ac97(wm97xx->ac97,
+> +						   &wm9713_regmap_config);
+> +	codec_pdata.batt_pdata = pdata->batt_pdata;
+> +	if (IS_ERR(codec_pdata.regmap))
+> +		return PTR_ERR(codec_pdata.regmap);
+
+This doesn't look like pdata.  You can get rid of all of this hoop
+jumping if you add it to ddata and set it as such.
+
+> +	return devm_mfd_add_devices(wm97xx->dev, -1, cells,
+
+Use the defines.
+
+> +				    ARRAY_SIZE(cells), NULL, 0, NULL);
+> +}
+> +
+> +static int wm97xx_ac97_probe(struct ac97_codec_device *adev)
+
+This looks sound specific.
+
+Why isn't this a plane platform driver?
+
+> +{
+> +	struct wm97xx_priv *wm97xx;
+> +	int ret;
+> +	void *pdata = snd_ac97_codec_get_platdata(adev);
+> +
+> +	wm97xx = devm_kzalloc(ac97_codec_dev2dev(adev),
+> +			      sizeof(*wm97xx), GFP_KERNEL);
+> +	if (!wm97xx)
+> +		return -ENOMEM;
+> +
+> +	wm97xx->dev = ac97_codec_dev2dev(adev);
+> +	wm97xx->ac97 = snd_ac97_compat_alloc(adev);
+> +	if (IS_ERR(wm97xx->ac97))
+> +		return PTR_ERR(wm97xx->ac97);
+> +
+> +
+> +	ac97_set_drvdata(adev, wm97xx);
+> +	dev_info(wm97xx->dev, "wm97xx core found, id=0x%x\n",
+> +		 adev->vendor_id);
+
+All of this ac97/sound stuff should be done in the ac97/sound driver.
+
+> +	switch (adev->vendor_id) {
+> +	case WM9705_VENDOR_ID:
+> +		ret = wm9705_register(wm97xx);
+> +		break;
+> +	case WM9712_VENDOR_ID:
+> +		ret = wm9712_register(wm97xx);
+> +		break;
+> +	case WM9713_VENDOR_ID:
+> +		ret = wm9713_register(wm97xx, pdata);
+> +		break;
+> +	default:
+> +		ret = -ENODEV;
+> +	}
+> +
+> +	if (ret)
+> +		snd_ac97_compat_release(wm97xx->ac97);
+> +
+> +	return ret;
+> +}
+> +
+> +static int wm97xx_ac97_remove(struct ac97_codec_device *adev)
+> +{
+> +	struct wm97xx_priv *wm97xx = ac97_get_drvdata(adev);
+> +
+> +	snd_ac97_compat_release(wm97xx->ac97);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct ac97_id wm97xx_ac97_ids[] = {
+> +	{ .id = WM9705_VENDOR_ID, .mask = WM97xx_VENDOR_ID_MASK },
+> +	{ .id = WM9712_VENDOR_ID, .mask = WM97xx_VENDOR_ID_MASK },
+> +	{ .id = WM9713_VENDOR_ID, .mask = WM97xx_VENDOR_ID_MASK },
+> +	{ }
+> +};
+> +
+> +static struct ac97_codec_driver wm97x3_ac97_driver = {
+> +	.driver = {
+> +		.name = "wm97xx-core",
+> +	},
+> +	.probe		= wm97xx_ac97_probe,
+> +	.remove		= wm97xx_ac97_remove,
+> +	.id_table	= wm97xx_ac97_ids,
+> +};
+> +
+> +static int __init wm97xx_module_init(void)
+> +{
+> +	return snd_ac97_codec_driver_register(&wm97x3_ac97_driver);
+> +}
+> +module_init(wm97xx_module_init);
+> +
+> +static void __exit wm97xx_module_exit(void)
+> +{
+> +	snd_ac97_codec_driver_unregister(&wm97x3_ac97_driver);
+> +}
+> +module_exit(wm97xx_module_exit);
+> +
+> +MODULE_DESCRIPTION("WM9712, WM9713 core driver");
+> +MODULE_AUTHOR("Robert Jarzmik <robert.jarzmik@free.fr>");
+> +MODULE_LICENSE("GPL");
+> +
+> diff --git a/include/linux/mfd/wm97xx.h b/include/linux/mfd/wm97xx.h
+> new file mode 100644
+> index 000000000000..627322f14d48
+> --- /dev/null
+> +++ b/include/linux/mfd/wm97xx.h
+> @@ -0,0 +1,31 @@
+> +/*
+> + * wm97xx client interface
+> + *
+> + * Copyright (C) 2016 Robert Jarzmik
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#ifndef __LINUX_MFD_WM97XX_H
+> +#define __LINUX_MFD_WM97XX_H
+> +
+> +struct regmap;
+> +struct wm97xx_batt_pdata;
+> +struct snd_ac97;
+
+Why can't you just add the include files?
+
+> +struct wm97xx_platform_data {
+> +	struct snd_ac97 *ac97;
+> +	struct regmap *regmap;
+> +	struct wm97xx_batt_pdata *batt_pdata;
+> +};
+> +
+> +
+> +#endif
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

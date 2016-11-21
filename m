@@ -1,53 +1,49 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v10 5/5] mfd: Move binding document
-Date: Mon, 21 Nov 2016 10:50:23 +0000
-Message-ID: <20161121105023.GH32509@dell>
-References: <cover.1479638191.git.ksenija.stanojevic@gmail.com>
- <ed11371e67fb76fc6c6f347ec779e620412a339f.1479638191.git.ksenija.stanojevic@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <ed11371e67fb76fc6c6f347ec779e620412a339f.1479638191.git.ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org, stefan.wahren-eS4NqCHxEME@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 0/4] HID: fix few non-DMA capable HID transfers
+Date: Mon, 21 Nov 2016 11:48:38 +0100
+Message-ID: <1479725322-30863-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:26771 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753599AbcKUKsq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 21 Nov 2016 05:48:46 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, 20 Nov 2016, Ksenija Stanojevic wrote:
+Hi Jiri,
 
-> The bindings, which are now used in MFD, need also to be
-> documented in the MFD binding document.
-> 
-> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
-> Changes in v10:
->  - none
-> 
-> Changes in v9:
->  - format patch using -M option
-> 
-> Changes in v8:
->  - rebase onto 4.9-rc1
-> 
-> Changes in v7:
->  - add to the patchset
-> 
->  Documentation/devicetree/bindings/{iio/adc => mfd}/mxs-lradc.txt | 0
->  1 file changed, 0 insertions(+), 0 deletions(-)
->  rename Documentation/devicetree/bindings/{iio/adc => mfd}/mxs-lradc.txt (100%)
+While playing a little bit with the CP2112 (for hid-rmi I must confess), I
+realized that kernel v4.9 now enforces DMA capable buffers when calling
+hid_hw_raw_request(). Kernel v4.8 works fine (but gives a stacktrace the first
+time), but v4.9 doesn't.
 
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+So I gave a check of all the other drivers in the HID tree, and it looks like
+only 4 drivers are not properly allocating their buffers.
 
-> diff --git a/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt b/Documentation/devicetree/bindings/mfd/mxs-lradc.txt
-> similarity index 100%
-> rename from Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
-> rename to Documentation/devicetree/bindings/mfd/mxs-lradc.txt
+I'd say this is v4.9 material but I was not able to test magicmouse and lg.
+If this doesn't qualifies for 4.9-rc7, I think we should add the stable@ stamp,
+given that the chance this will break hid-rmi is huge (cp2112 is not so much an
+issue, given it's a devel board).
+
+Cheers,
+Benjamin
+
+
+
+Benjamin Tissoires (4):
+  HID: cp2112: make transfer buffers DMA capable
+  HID: lg: make transfer buffers DMA capable
+  HID: magicmouse: make transfer buffers DMA capable
+  HID: rmi: make transfer buffers DMA capable
+
+ drivers/hid/hid-cp2112.c     | 115 +++++++++++++++++++++++++++++--------------
+ drivers/hid/hid-lg.c         |  12 +++--
+ drivers/hid/hid-magicmouse.c |  12 ++++-
+ drivers/hid/hid-rmi.c        |  10 +++-
+ 4 files changed, 106 insertions(+), 43 deletions(-)
 
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.7.4
+

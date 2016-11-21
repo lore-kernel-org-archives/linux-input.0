@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/4] HID: lg: make transfer buffers DMA capable
-Date: Mon, 21 Nov 2016 11:48:40 +0100
-Message-ID: <1479725322-30863-3-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 3/4] HID: magicmouse: make transfer buffers DMA capable
+Date: Mon, 21 Nov 2016 11:48:41 +0100
+Message-ID: <1479725322-30863-4-git-send-email-benjamin.tissoires@redhat.com>
 References: <1479725322-30863-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1479725322-30863-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -15,40 +15,46 @@ buffers allocated on the stack.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-lg.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/hid/hid-magicmouse.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
-index 76f644d..d4c72a5 100644
---- a/drivers/hid/hid-lg.c
-+++ b/drivers/hid/hid-lg.c
-@@ -756,11 +756,16 @@ static int lg_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	/* Setup wireless link with Logitech Wii wheel */
- 	if (hdev->product == USB_DEVICE_ID_LOGITECH_WII_WHEEL) {
--		unsigned char buf[] = { 0x00, 0xAF,  0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-+		const unsigned char cbuf[] = { 0x00, 0xAF,  0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-+		u8 *buf = kmemdup(cbuf, sizeof(cbuf), GFP_KERNEL);
- 
--		ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
--					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+		if (!buf) {
-+			ret = -ENOMEM;
-+			goto err_free;
-+		}
- 
-+		ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(cbuf),
-+					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
- 		if (ret >= 0) {
- 			/* insert a little delay of 10 jiffies ~ 40ms */
- 			wait_queue_head_t wait;
-@@ -775,6 +780,7 @@ static int lg_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 			ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
- 					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
- 		}
-+		kfree(buf);
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index d6fa496..20b40ad 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -493,7 +493,8 @@ static int magicmouse_input_configured(struct hid_device *hdev,
+ static int magicmouse_probe(struct hid_device *hdev,
+ 	const struct hid_device_id *id)
+ {
+-	__u8 feature[] = { 0xd7, 0x01 };
++	const u8 feature[] = { 0xd7, 0x01 };
++	u8 *buf;
+ 	struct magicmouse_sc *msc;
+ 	struct hid_report *report;
+ 	int ret;
+@@ -544,6 +545,12 @@ static int magicmouse_probe(struct hid_device *hdev,
  	}
+ 	report->size = 6;
  
- 	if (drv_data->quirks & LG_FF)
++	buf = kmemdup(feature, sizeof(feature), GFP_KERNEL);
++	if (!buf) {
++		ret = -ENOMEM;
++		goto err_stop_hw;
++	}
++
+ 	/*
+ 	 * Some devices repond with 'invalid report id' when feature
+ 	 * report switching it into multitouch mode is sent to it.
+@@ -552,8 +559,9 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 	 * but there seems to be no other way of switching the mode.
+ 	 * Thus the super-ugly hacky success check below.
+ 	 */
+-	ret = hid_hw_raw_request(hdev, feature[0], feature, sizeof(feature),
++	ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(feature),
+ 				HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
++	kfree(buf);
+ 	if (ret != -EIO && ret != sizeof(feature)) {
+ 		hid_err(hdev, "unable to request touch data (%d)\n", ret);
+ 		goto err_stop_hw;
 -- 
 2.7.4

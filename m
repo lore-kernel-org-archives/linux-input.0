@@ -1,214 +1,354 @@
-From: =?UTF-8?B?QW5pcm9vcCBNYXRodXI=?= <a.mathur@samsung.com>
-Subject: =?UTF-8?B?UkU6IFJlOiBbUEFUQ0hdIFt2OV1JbnB1dDogZXZkZXY6IGZp?=
- =?UTF-8?B?eCBidWcgb2YgZHJvcHBpbmcgdmFsaWQgcGFja2V0IGFmdGVy?=
- =?UTF-8?B?IHN5bl9kcm9wcGVkIGV2ZW50?=
-Date: Mon, 21 Nov 2016 16:17:01 +0000
-Message-ID: <20161121161701epcms5p3a2be540957bf9e316b0d6168c935321c@epcms5p3>
-References: <1475608376-3077-1-git-send-email-a.mathur@samsung.com>
- <CGME20161119190005epcas4p156a7f1ebece75cae0bfaf88500d8bf90@epcas4p1.samsung.com>
-Reply-To: a.mathur@samsung.com
+From: KT Liao <ktalex.liao@gmail.com>
+Subject: [PATCH] Input: elan_i2c - Add new ic and modify some functions for new IC infomation Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+Date: Tue, 22 Nov 2016 14:43:26 +0800
+Message-ID: <1479797006-2770-1-git-send-email-kt.liao@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: multipart/related;
- boundary="----=_Part_184223_1071865847.1479745021937"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
-Cc: =?UTF-8?B?bGludXgtaW5wdXRAdmdlci5rZXJuZWwub3Jn?= <linux-input@vger.kernel.org>, =?UTF-8?B?bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw==?= <linux-kernel@vger.kernel.org>, =?UTF-8?B?YW5pcm9vcC5tYXRodXJAZ21haWwuY29t?= <aniroop.mathur@gmail.com>
+Content-Type: text/plain; charset=y
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:35656 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750971AbcKVGmR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 22 Nov 2016 01:42:17 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw
 
-------=_Part_184223_1071865847.1479745021937
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"
+---
+ drivers/input/mouse/elan_i2c.h       |  6 ++-
+ drivers/input/mouse/elan_i2c_core.c  | 40 +++++++++++++------
+ drivers/input/mouse/elan_i2c_i2c.c   | 74 ++++++++++++++++++++++++++++++++----
+ drivers/input/mouse/elan_i2c_smbus.c |  9 ++++-
+ 4 files changed, 108 insertions(+), 21 deletions(-)
 
-SGVsbG8gTXIuIFRvcm9raG92LA0KDQoNCj4+ICBzdGF0aWMgdm9pZCBfX2V2ZGV2X3F1ZXVlX3N5
-bl9kcm9wcGVkKHN0cnVjdCBldmRldl9jbGllbnQgKmNsaWVudCkNCj4+ICB7DQo+PiAgICAgICAg
-ICBzdHJ1Y3QgaW5wdXRfZXZlbnQgZXY7DQo+PiArICAgICAgICBzdHJ1Y3QgaW5wdXRfZXZlbnQg
-Kmxhc3RfZXY7DQo+PiAgICAgICAgICBrdGltZV90IHRpbWU7DQo+PiArICAgICAgICB1bnNpZ25l
-ZCBpbnQgbWFzayA9IGNsaWVudC0+YnVmc2l6ZSAtIDE7DQo+PiArDQo+PiArICAgICAgICAvKiBj
-YXB0dXJlIGxhc3QgZXZlbnQgc3RvcmVkIGluIHRoZSBidWZmZXIgKi8NCj4+ICsgICAgICAgIGxh
-c3RfZXYgPSAmY2xpZW50LT5idWZmZXJbKGNsaWVudC0+aGVhZCAtIDEpICYgbWFza107DQogDQo+
-IEkgYW0gdW5lYXN5IHdpdGggdGhpcyAibG9va2luZyBiYWNrIiBpbnRvIHRoZSBxdWV1ZS4gSG93
-IGNhbiB3ZSBiZSBzdXJlDQo+IHRoYXQgd2UgYXJlIGxvb2tpbmcgYXQgdGhlIHJpZ2h0IGV2ZW50
-PyBBcyBmYXIgYXMgSSBjYW4gdGVsbCB3ZSBkbyBub3QNCj4ga25vdyBpZiB0aGF0IGV2ZW50IGhh
-cyBiZWVuIGNvbnN1bWVkIG9yIG5vdC4NCg0KDQoNCldlbGwsIEkgdGhpbmsgdGhhdCBmb3IgYW4g
-ZXhjZXB0aW9uYWwgY2FzZSB3aGVyZSBldmVuIGlmIGxhc3QgZXZlbnQgaXMNCmNvbnN1bWVkIHRo
-ZW4gYWxzbyBpdCBpcyB0aGUgcmlnaHQgZXZlbnQgdG8gcHJvY2VlZCB3aXRoLg0KDQpCZWZvcmUg
-bWVudGlvbmluZyB0aGVuIGV4Y2VwdGlvbmFsIGNhc2UsIHRoZXJlIGlzIGEgbmVlZCB0byBmaXgg
-YSBidWcgaW4NCmNhbGxpbmcgZXZkZXZfcXVldWVfc3luX2Ryb3BwZWQgaW4gZXZkZXZfaGFuZGxl
-X2dldF92YWwgZnVuY3Rpb24uDQpUaGUgYnVnIGlzOg0KQ3VycmVudGx5IHdlIGFyZSBjYWxsaW5n
-IGV2ZGV2X3F1ZXVlX3N5bl9kcm9wcGVkIHdpdGhvdXQgdGFraW5nIGNhcmUNCndoZXRoZXIgc29t
-ZSBldmVudHMgaGF2ZSBhY3R1YWxseSBiZWVuIGZsdXNoZWQgb3V0IG9yIG5vdCBieSBjYWxsaW5n
-DQpfX2V2ZGV2X2ZsdXNoX3F1ZXVlIGZ1bmN0aW9uLiBCdXQgaWRlYWxseSB3ZSBzaG91bGQgY2Fs
-bA0KZXZkZXZfcXVldWVfc3luX2Ryb3BwZWQgb25seSB3aGVuIHNvbWUgZXZlbnRzIGFyZSBiZWlu
-ZyBmbHVzaGVkIG91dC4NCkZvciBleGFtcGxlOiBJZiBjbGllbnQgcmVxdWVzdHMgZm9yIEVWX0tF
-WSBldmVudHMgYW5kIHF1ZXVlIG9ubHkgaGFzDQpFVl9MRUQgdHlwZSBvZiBldmVudHMsIHRoZW4g
-aXQgaXMgcG9zc2libGUgdGhhdCBiaXRzX3RvX3VzZXIgZmFpbHMNCmJ1dCBubyBldmVudHMgZ2V0
-IGZsdXNoZWQgb3V0IGZyb20gcXVldWUgYW5kIGhlbmNlIHdlIHNob3VsZCBub3QgYmUNCmluc2Vy
-dGluZyBTWU5fRFJPUFBFRCBldmVudCBmb3IgdGhpcyBjYXNlLg0KU28gdG8gZml4IHRoaXMsDQpJ
-IHRoaW5rIHdlIG5lZWQgdG8gcmV0dXJuIHRoZSBudW1iZXIgb2YgZXZlbnRzIGRyb3BwZWQgZnJv
-bSBmdW5jdGlvbg0KX19ldmRldl9mbHVzaF9xdWV1ZSwgc2F5IG4gaXMgdGhhdCB2YWx1ZS4gU28g
-b25seSBpZiBuID4gMCwgdGhlbiBvbmx5DQpldmRldl9xdWV1ZV9zeW5fZHJvcHBlZCBzaG91bGQg
-YmUgY2FsbGVkLg0KLSBfX2V2ZGV2X2ZsdXNoX3F1ZXVlKGNsaWVudCwgdHlwZSk7DQorIG4gPSAg
-X19ldmRldl9mbHVzaF9xdWV1ZShjbGllbnQsIHR5cGUpOw0KLSBpZiAocmV0IDwgMCkNCisgaWYg
-KHJldCA8IDAgJiYgbiA+IDApDQogICAgICBldmRldl9xdWV1ZV9zeW5fZHJvcHBlZChjbGllbnQp
-Ow0KDQpBbG9uZyB3aXRoIHRoaXMgYnVnIGZpeCwgaXQgd2lsbCBhbHNvIGhhbmRsZSB0aGUgY2Fz
-ZSB3aGVuIHF1ZXVlIGlzDQplbXB0eSBhdCB0aW1lIG9mIGludm9raW5nIEVWSU9DR1t0eXBlXSBp
-b2N0bCBjYWxsIHNvIGFmdGVyIGluY2x1ZGluZw0KdGhpcyBmaXgsIHdlIGNhbiByZW1vdmUgZXhw
-bGljaXQgaGFuZGxpbmcgb2YgcXVldWUgZW1wdHkgY2FzZSBmcm9tIHRoaXMgcGF0Y2guDQoNCkFm
-dGVyIGhhdmluZyB0aGlzIGNoYW5nZSwgdGhhdCBleGNlcHRpb25hbCBjYXNlIHdoZXJlIGV2ZW4g
-aWYgdGhlIGxhc3QgZXZlbnQNCmlzIGNvbnN1bWVkLCBpdCBpcyBzdGlsbCB0aGUgcmlnaHQgZXZl
-bnQgaXM6DQpTdXBwb3NlIGNsaWVudCByZXF1ZXN0IGZyb20gRVZfS0VZIHR5cGUgb2YgZXZlbnRz
-IHVzaW5nIEVWSU9DR1t0eXBlXSBpb2N0bCBjYWxsDQphbmQgcXVldWUgZG9lcyBjb250YWluIEVW
-X0tFWSB0eXBlIG9mIGV2ZW50cyBhbmQgYml0c190b191c2VyIGZhaWxzIHRvby4NCk5vdywgYWZ0
-ZXIgdGhpcyB3aGVuIHdlIGludm9rZSBldmRldl9xdWV1ZV9zeW5fZHJvcHBlZCBmdW5jdGlvbiwg
-dGhlcmUgaXMgYQ0KY2hhbmNlIHRoYXQgcXVldWUgZ2V0IGZ1bGx5IGNvbnN1bWVkIGkuZS4gaGVh
-ZCA9PSB0YWlsLiBTbyBsYXN0IGV2ZW50IGlzIA0KY29uc3VtZWQgYXMgd2VsbC4gQnV0IHNpbmNl
-IHdlIG5lZWQgdG8gc2VuZCBTWU5fRFJPUFBFRCBldmVudCBmb3IgdGhpcyBjYXNlDQp0byBpbmRp
-Y2F0ZSB0byB1c2VyIHNwYWNlIHRoYXQgc29tZSBldmVudHMgaGF2ZSBiZWVuIGRyb3BwZWQsIHNv
-IHdlIGFsc28gaGF2ZQ0KdG8gY2hlY2sgd2hldGhlciB3ZSBuZWVkIHRvIGluc2VydCBhIFNZTl9S
-RVBPUlQgZXZlbnQgb3Igbm90IHJpZ2h0IGFmdGVyDQpTWU5fRFJPUFBFRCBldmVudCB1c2luZyB0
-aGF0IGxhc3QgY29uc3VtZWQgZXZlbnQuIEFuZCBJIHRoaW5rIHRoYXQgaXQgaXMgZm9yDQpzdXJl
-IHRoYXQgdGhpcyBsYXN0IGV2ZW50IGlzIGFjdHVhbGx5IFNZTl9SRVBPUlQgZXZlbnQgc2luY2Ug
-aW5wdXQgY29yZQ0KYWx3YXlzIHNlbmQgZXZlbnRzIGluIHBhY2tldHMgc28gU1lOX1JFUE9SVCBp
-cyBhbHdheXMgdGhlIGxhc3QgZXZlbnQgZm9yd2FyZGVkDQpieSBpbnB1dCBjb3JlIHRvIGV2ZGV2
-Lg0KDQpEb2VzIHRoZSBhYm92ZSBtZW50aW9uZWQgcG9pbnRzIHNlZW0gb2theSB0byB5b3U/DQoN
-Cg0KLS0NCkJlc3QgUmVnYXJkcywNCkFuaXJvb3AgTWF0aHVyDQrCoA0KwqANCi0tLS0tLS0tLSBP
-cmlnaW5hbCBNZXNzYWdlIC0tLS0tLS0tLQ0KU2VuZGVyIDogRG1pdHJ5IFRvcm9raG92wqA8ZG1p
-dHJ5LnRvcm9raG92QGdtYWlsLmNvbT4NCkRhdGUgICA6IDIwMTYtMTEtMjAgMDA6MzAgKEdNVCs1
-OjMwKQ0KVGl0bGUgIDogUmU6IFtQQVRDSF0gW3Y5XUlucHV0OiBldmRldjogZml4IGJ1ZyBvZiBk
-cm9wcGluZyB2YWxpZCBwYWNrZXQgYWZ0ZXIgc3luX2Ryb3BwZWQgZXZlbnQNCsKgDQpIacKgQW5v
-cm9vcCwNCsKgDQpPbsKgV2VkLMKgT2N0wqAwNSzCoDIwMTbCoGF0wqAxMjo0Mjo1NkFNwqArMDUz
-MCzCoEFuaXJvb3DCoE1hdGh1csKgd3JvdGU6DQo+wqBJZsKgbGFzdMKgZXZlbnTCoGRyb3BwZWTC
-oGluwqB0aGXCoG9sZMKgcXVldWXCoHdhc8KgRVZfU1lOL1NZTl9SRVBPUlQswqB0aGVuwqBsZXRz
-DQo+wqBnZW5lcmF0ZcKgRVZfU1lOL1NZTl9SRVBPUlTCoGltbWVkaWF0ZWx5wqBhZnRlcsKgcXVl
-aW5nwqBFVl9TWU4vU1lOX0RST1BQRUQNCj7CoHNvwqB0aGF0wqBjbGllbnRzwqB3b3VsZMKgbm90
-wqBpZ25vcmXCoG5leHTCoHZhbGlkwqBmdWxswqBwYWNrZXTCoGV2ZW50cy4NCj7CoA0KPsKgU2ln
-bmVkLW9mZi1ieTrCoEFuaXJvb3DCoE1hdGh1csKgPGEubWF0aHVyQHNhbXN1bmcuY29tPg0KPsKg
-DQo+wqBEaWZmZXJlbmNlwqBmcm9twqB2ODoNCj7CoEFkZGVkwqBjaGVja8KgZm9ywqBoYW5kbGlu
-Z8KgRVZJT0NHW3R5cGVdwqBpb2N0bMKgZm9ywqBxdWV1ZcKgZW1wdHnCoGNhc2UNCj7CoC0tLQ0K
-PsKgwqBkcml2ZXJzL2lucHV0L2V2ZGV2LmPCoHzCoDUywqArKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0NCj7CoMKgMcKgZmlsZcKgY2hhbmdlZCzCoDM5
-wqBpbnNlcnRpb25zKCspLMKgMTPCoGRlbGV0aW9ucygtKQ0KPsKgDQo+wqBkaWZmwqAtLWdpdMKg
-YS9kcml2ZXJzL2lucHV0L2V2ZGV2LmPCoGIvZHJpdmVycy9pbnB1dC9ldmRldi5jDQo+wqBpbmRl
-eMKgZTlhZTNkNS4uNjk0MDdmZsKgMTAwNjQ0DQo+wqAtLS3CoGEvZHJpdmVycy9pbnB1dC9ldmRl
-di5jDQo+wqArKyvCoGIvZHJpdmVycy9pbnB1dC9ldmRldi5jDQo+wqBAQMKgLTE1Niw3wqArMTU2
-LDEywqBAQMKgc3RhdGljwqB2b2lkwqBfX2V2ZGV2X2ZsdXNoX3F1ZXVlKHN0cnVjdMKgZXZkZXZf
-Y2xpZW50wqAqY2xpZW50LMKgdW5zaWduZWTCoGludMKgdHlwZSkNCj7CoMKgc3RhdGljwqB2b2lk
-wqBfX2V2ZGV2X3F1ZXVlX3N5bl9kcm9wcGVkKHN0cnVjdMKgZXZkZXZfY2xpZW50wqAqY2xpZW50
-KQ0KPsKgwqB7DQo+wqDCoMKgwqDCoMKgwqDCoMKgwqBzdHJ1Y3TCoGlucHV0X2V2ZW50wqBldjsN
-Cj7CoCvCoMKgwqDCoMKgwqDCoMKgc3RydWN0wqBpbnB1dF9ldmVudMKgKmxhc3RfZXY7DQo+wqDC
-oMKgwqDCoMKgwqDCoMKgwqBrdGltZV90wqB0aW1lOw0KPsKgK8KgwqDCoMKgwqDCoMKgwqB1bnNp
-Z25lZMKgaW50wqBtYXNrwqA9wqBjbGllbnQtPmJ1ZnNpemXCoC3CoDE7DQo+wqArDQo+wqArwqDC
-oMKgwqDCoMKgwqDCoC8qwqBjYXB0dXJlwqBsYXN0wqBldmVudMKgc3RvcmVkwqBpbsKgdGhlwqBi
-dWZmZXLCoCovDQo+wqArwqDCoMKgwqDCoMKgwqDCoGxhc3RfZXbCoD3CoCZjbGllbnQtPmJ1ZmZl
-clsoY2xpZW50LT5oZWFkwqAtwqAxKcKgJsKgbWFza107DQrCoA0KScKgYW3CoHVuZWFzecKgd2l0
-aMKgdGhpc8KgImxvb2tpbmfCoGJhY2siwqBpbnRvwqB0aGXCoHF1ZXVlLsKgSG93wqBjYW7CoHdl
-wqBiZcKgc3VyZQ0KdGhhdMKgd2XCoGFyZcKgbG9va2luZ8KgYXTCoHRoZcKgcmlnaHTCoGV2ZW50
-P8KgQXPCoGZhcsKgYXPCoEnCoGNhbsKgdGVsbMKgd2XCoGRvwqBub3QNCmtub3fCoGlmwqB0aGF0
-wqBldmVudMKgaGFzwqBiZWVuwqBjb25zdW1lZMKgb3LCoG5vdC4NCsKgDQo+wqDCoA0KPsKgwqDC
-oMKgwqDCoMKgwqDCoMKgdGltZcKgPcKgY2xpZW50LT5jbGtfdHlwZcKgPT3CoEVWX0NMS19SRUFM
-wqA/DQo+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oGt0aW1lX2dldF9yZWFsKCnCoDoNCj7CoEBAwqAtMTcwLDEzwqArMTc1LDI4wqBAQMKgc3RhdGlj
-wqB2b2lkwqBfX2V2ZGV2X3F1ZXVlX3N5bl9kcm9wcGVkKHN0cnVjdMKgZXZkZXZfY2xpZW50wqAq
-Y2xpZW50KQ0KPsKgwqDCoMKgwqDCoMKgwqDCoMKgZXYudmFsdWXCoD3CoDA7DQo+wqDCoA0KPsKg
-wqDCoMKgwqDCoMKgwqDCoMKgY2xpZW50LT5idWZmZXJbY2xpZW50LT5oZWFkKytdwqA9wqBldjsN
-Cj7CoC3CoMKgwqDCoMKgwqDCoMKgY2xpZW50LT5oZWFkwqAmPcKgY2xpZW50LT5idWZzaXplwqAt
-wqAxOw0KPsKgK8KgwqDCoMKgwqDCoMKgwqBjbGllbnQtPmhlYWTCoCY9wqBtYXNrOw0KPsKgwqAN
-Cj7CoMKgwqDCoMKgwqDCoMKgwqDCoGlmwqAodW5saWtlbHkoY2xpZW50LT5oZWFkwqA9PcKgY2xp
-ZW50LT50YWlsKSnCoHsNCj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAvKsKg
-ZHJvcMKgcXVldWXCoGJ1dMKga2VlcMKgb3VywqBTWU5fRFJPUFBFRMKgZXZlbnTCoCovDQo+wqAt
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBjbGllbnQtPnRhaWzCoD3CoChjbGllbnQt
-PmhlYWTCoC3CoDEpwqAmwqAoY2xpZW50LT5idWZzaXplwqAtwqAxKTsNCj7CoCvCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoGNsaWVudC0+dGFpbMKgPcKgKGNsaWVudC0+aGVhZMKgLcKg
-MSnCoCbCoG1hc2s7DQo+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgY2xpZW50
-LT5wYWNrZXRfaGVhZMKgPcKgY2xpZW50LT50YWlsOw0KPsKgwqDCoMKgwqDCoMKgwqDCoMKgfQ0K
-PsKgKw0KPsKgK8KgwqDCoMKgwqDCoMKgwqAvKg0KPsKgK8KgwqDCoMKgwqDCoMKgwqDCoCrCoElm
-wqBsYXN0wqBwYWNrZXTCoHdhc8KgY29tcGxldGVsecKgc3RvcmVkLMKgdGhlbsKgcXVldWXCoFNZ
-Tl9SRVBPUlQNCj7CoCvCoMKgwqDCoMKgwqDCoMKgwqAqwqBzb8KgdGhhdMKgY2xpZW50c8Kgd291
-bGTCoG5vdMKgaWdub3JlwqBuZXh0wqB2YWxpZMKgZnVsbMKgcGFja2V0DQo+wqArwqDCoMKgwqDC
-oMKgwqDCoMKgKi8NCj7CoCvCoMKgwqDCoMKgwqDCoMKgaWbCoChsYXN0X2V2LT50eXBlwqA9PcKg
-RVZfU1lOwqAmJsKgbGFzdF9ldi0+Y29kZcKgPT3CoFNZTl9SRVBPUlQpwqB7DQo+wqArwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBsYXN0X2V2LT50aW1lwqA9wqBldi50aW1lOw0KPsKg
-K8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgY2xpZW50LT5idWZmZXJbY2xpZW50LT5o
-ZWFkKytdwqA9wqAqbGFzdF9ldjsNCj7CoCvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oGNsaWVudC0+aGVhZMKgJj3CoG1hc2s7DQo+wqArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqBjbGllbnQtPnBhY2tldF9oZWFkwqA9wqBjbGllbnQtPmhlYWQ7DQo+wqArDQo+wqArwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAvKsKgZHJvcMKgcXVldWXCoGJ1dMKga2VlcMKg
-b3VywqBTWU5fRFJPUFBFRMKgJsKgU1lOX1JFUE9SVMKgZXZlbnTCoCovDQo+wqArwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpZsKgKHVubGlrZWx5KGNsaWVudC0+aGVhZMKgPT3CoGNs
-aWVudC0+dGFpbCkpDQo+wqArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgY2xpZW50LT50YWlswqA9wqAoY2xpZW50LT5oZWFkwqAtwqAyKcKgJsKgbWFzazsN
-Cj7CoCvCoMKgwqDCoMKgwqDCoMKgfQ0KPsKgwqB9DQo+wqDCoA0KPsKgwqBzdGF0aWPCoHZvaWTC
-oGV2ZGV2X3F1ZXVlX3N5bl9kcm9wcGVkKHN0cnVjdMKgZXZkZXZfY2xpZW50wqAqY2xpZW50KQ0K
-PsKgQEDCoC0yMTgsN8KgKzIzOCw3wqBAQMKgc3RhdGljwqBpbnTCoGV2ZGV2X3NldF9jbGtfdHlw
-ZShzdHJ1Y3TCoGV2ZGV2X2NsaWVudMKgKmNsaWVudCzCoHVuc2lnbmVkwqBpbnTCoGNsa2lkKQ0K
-PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHNwaW5fbG9ja19pcnFzYXZlKCZj
-bGllbnQtPmJ1ZmZlcl9sb2NrLMKgZmxhZ3MpOw0KPsKgwqANCj7CoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqBpZsKgKGNsaWVudC0+aGVhZMKgIT3CoGNsaWVudC0+dGFpbCnCoHsN
-Cj7CoC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBjbGll
-bnQtPnBhY2tldF9oZWFkwqA9wqBjbGllbnQtPmhlYWTCoD3CoGNsaWVudC0+dGFpbDsNCj7CoCvC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBjbGllbnQtPnBh
-Y2tldF9oZWFkwqA9wqBjbGllbnQtPnRhaWzCoD3CoGNsaWVudC0+aGVhZDsNCj7CoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgX19ldmRldl9xdWV1ZV9z
-eW5fZHJvcHBlZChjbGllbnQpOw0KPsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oH0NCj7CoMKgDQo+wqBAQMKgLTIzMSwyMsKgKzI1MSwyNMKgQEDCoHN0YXRpY8KgaW50wqBldmRl
-dl9zZXRfY2xrX3R5cGUoc3RydWN0wqBldmRldl9jbGllbnTCoCpjbGllbnQswqB1bnNpZ25lZMKg
-aW50wqBjbGtpZCkNCj7CoMKgc3RhdGljwqB2b2lkwqBfX3Bhc3NfZXZlbnQoc3RydWN0wqBldmRl
-dl9jbGllbnTCoCpjbGllbnQsDQo+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgY29uc3TCoHN0cnVjdMKgaW5wdXRfZXZlbnTCoCpldmVudCkNCj7C
-oMKgew0KPsKgK8KgwqDCoMKgwqDCoMKgwqB1bnNpZ25lZMKgaW50wqBtYXNrwqA9wqBjbGllbnQt
-PmJ1ZnNpemXCoC3CoDE7DQo+wqArDQo+wqDCoMKgwqDCoMKgwqDCoMKgwqBjbGllbnQtPmJ1ZmZl
-cltjbGllbnQtPmhlYWQrK13CoD3CoCpldmVudDsNCj7CoC3CoMKgwqDCoMKgwqDCoMKgY2xpZW50
-LT5oZWFkwqAmPcKgY2xpZW50LT5idWZzaXplwqAtwqAxOw0KPsKgK8KgwqDCoMKgwqDCoMKgwqBj
-bGllbnQtPmhlYWTCoCY9wqBtYXNrOw0KPsKgwqANCj7CoMKgwqDCoMKgwqDCoMKgwqDCoGlmwqAo
-dW5saWtlbHkoY2xpZW50LT5oZWFkwqA9PcKgY2xpZW50LT50YWlsKSnCoHsNCj7CoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAvKg0KPsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgKsKgVGhpc8KgZWZmZWN0aXZlbHnCoCJkcm9wcyLCoGFsbMKgdW5jb25zdW1l
-ZMKgZXZlbnRzLMKgbGVhdmluZw0KPsKgLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqAqwqBFVl9TWU4vU1lOX0RST1BQRUTCoHBsdXPCoHRoZcKgbmV3ZXN0wqBldmVudMKgaW7CoHRo
-ZcKgcXVldWUuDQo+wqArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCrCoEVWX1NZ
-Ti9TWU5fRFJPUFBFRCzCoEVWX1NZTi9TWU5fUkVQT1JUwqAoaWbCoHJlcXVpcmVkKcKgYW5kDQo+
-wqArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCrCoG5ld2VzdMKgZXZlbnTCoGlu
-wqB0aGXCoHF1ZXVlLg0KPsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgKi8N
-Cj7CoC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGNsaWVudC0+dGFpbMKgPcKgKGNs
-aWVudC0+aGVhZMKgLcKgMinCoCbCoChjbGllbnQtPmJ1ZnNpemXCoC3CoDEpOw0KPsKgLQ0KPsKg
-LcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgY2xpZW50LT5idWZmZXJbY2xpZW50LT50
-YWlsXS50aW1lwqA9wqBldmVudC0+dGltZTsNCj7CoC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoGNsaWVudC0+YnVmZmVyW2NsaWVudC0+dGFpbF0udHlwZcKgPcKgRVZfU1lOOw0KPsKg
-LcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgY2xpZW50LT5idWZmZXJbY2xpZW50LT50
-YWlsXS5jb2RlwqA9wqBTWU5fRFJPUFBFRDsNCj7CoC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoGNsaWVudC0+YnVmZmVyW2NsaWVudC0+dGFpbF0udmFsdWXCoD3CoDA7DQo+wqArwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBjbGllbnQtPmhlYWTCoD3CoChjbGllbnQtPmhl
-YWTCoC3CoDEpwqAmwqBtYXNrOw0KPsKgK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-Y2xpZW50LT5wYWNrZXRfaGVhZMKgPcKgY2xpZW50LT50YWlswqA9wqBjbGllbnQtPmhlYWQ7DQo+
-wqArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBfX2V2ZGV2X3F1ZXVlX3N5bl9kcm9w
-cGVkKGNsaWVudCk7DQo+wqDCoA0KPsKgLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-Y2xpZW50LT5wYWNrZXRfaGVhZMKgPcKgY2xpZW50LT50YWlsOw0KPsKgK8KgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgY2xpZW50LT5idWZmZXJbY2xpZW50LT5oZWFkKytdwqA9wqAqZXZl
-bnQ7DQo+wqArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBjbGllbnQtPmhlYWTCoCY9
-wqBtYXNrOw0KPsKgK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgLyrCoE5vwqBuZWVk
-wqB0b8KgY2hlY2vCoGZvcsKgYnVmZmVywqBvdmVyZmxvd8KgYXPCoGl0wqBqdXN0wqBvY2N1cnJl
-ZMKgKi8NCj7CoMKgwqDCoMKgwqDCoMKgwqDCoH0NCj7CoMKgDQo+wqDCoMKgwqDCoMKgwqDCoMKg
-wqBpZsKgKGV2ZW50LT50eXBlwqA9PcKgRVZfU1lOwqAmJsKgZXZlbnQtPmNvZGXCoD09wqBTWU5f
-UkVQT1JUKcKgew0KPsKgQEDCoC05MjAsNsKgKzk0Miw3wqBAQMKgc3RhdGljwqBpbnTCoGV2ZGV2
-X2hhbmRsZV9nZXRfdmFsKHN0cnVjdMKgZXZkZXZfY2xpZW50wqAqY2xpZW50LA0KPsKgwqDCoMKg
-wqDCoMKgwqDCoMKgaW50wqByZXQ7DQo+wqDCoMKgwqDCoMKgwqDCoMKgwqB1bnNpZ25lZMKgbG9u
-Z8KgKm1lbTsNCj7CoMKgwqDCoMKgwqDCoMKgwqDCoHNpemVfdMKgbGVuOw0KPsKgK8KgwqDCoMKg
-wqDCoMKgwqBib29swqBpc19xdWV1ZV9lbXB0eTsNCj7CoMKgDQo+wqDCoMKgwqDCoMKgwqDCoMKg
-wqBsZW7CoD3CoEJJVFNfVE9fTE9OR1MobWF4Yml0KcKgKsKgc2l6ZW9mKHVuc2lnbmVkwqBsb25n
-KTsNCj7CoMKgwqDCoMKgwqDCoMKgwqDCoG1lbcKgPcKga21hbGxvYyhsZW4swqBHRlBfS0VSTkVM
-KTsNCj7CoEBAwqAtOTMzLDEywqArOTU2LDE1wqBAQMKgc3RhdGljwqBpbnTCoGV2ZGV2X2hhbmRs
-ZV9nZXRfdmFsKHN0cnVjdMKgZXZkZXZfY2xpZW50wqAqY2xpZW50LA0KPsKgwqANCj7CoMKgwqDC
-oMKgwqDCoMKgwqDCoHNwaW5fdW5sb2NrKCZkZXYtPmV2ZW50X2xvY2spOw0KPsKgwqANCj7CoCvC
-oMKgwqDCoMKgwqDCoMKgaWbCoChjbGllbnQtPmhlYWTCoD09wqBjbGllbnQtPnRhaWwpDQo+wqAr
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpc19xdWV1ZV9lbXB0ecKgPcKgdHJ1ZTsN
-Cj7CoCsNCj7CoMKgwqDCoMKgwqDCoMKgwqDCoF9fZXZkZXZfZmx1c2hfcXVldWUoY2xpZW50LMKg
-dHlwZSk7DQo+wqDCoA0KPsKgwqDCoMKgwqDCoMKgwqDCoMKgc3Bpbl91bmxvY2tfaXJxKCZjbGll
-bnQtPmJ1ZmZlcl9sb2NrKTsNCj7CoMKgDQo+wqDCoMKgwqDCoMKgwqDCoMKgwqByZXTCoD3CoGJp
-dHNfdG9fdXNlcihtZW0swqBtYXhiaXQswqBtYXhsZW4swqBwLMKgY29tcGF0KTsNCj7CoC3CoMKg
-wqDCoMKgwqDCoMKgaWbCoChyZXTCoDzCoDApDQo+wqArwqDCoMKgwqDCoMKgwqDCoGlmwqAocmV0
-wqA8wqAwwqAmJsKgIWlzX3F1ZXVlX2VtcHR5KQ0KPsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoGV2ZGV2X3F1ZXVlX3N5bl9kcm9wcGVkKGNsaWVudCk7DQo+wqDCoA0KPsKgwqDC
-oMKgwqDCoMKgwqDCoMKga2ZyZWUobWVtKTsNCj7CoC0twqANCj7CoDIuNi4yDQo+wqANCsKgDQpU
-aGFua3MuDQrCoA0KLS3CoA0KRG1pdHJ5DQrCoA0KwqA=
-------=_Part_184223_1071865847.1479745021937--
+diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_i2c.h
+index c0ec261..a1228dd 100644
+--- a/drivers/input/mouse/elan_i2c.h
++++ b/drivers/input/mouse/elan_i2c.h
+@@ -56,9 +56,10 @@ struct elan_transport_ops {
+ 	int (*get_baseline_data)(struct i2c_client *client,
+ 				 bool max_baseliune, u8 *value);
+ 
+-	int (*get_version)(struct i2c_client *client, bool iap, u8 *version);
++	int (*get_version)(struct i2c_client *client,
++			   bool iap, u8 *version);
+ 	int (*get_sm_version)(struct i2c_client *client,
+-			      u8* ic_type, u8 *version);
++			      u16 *ic_type, u8 *version);
+ 	int (*get_checksum)(struct i2c_client *client, bool iap, u16 *csum);
+ 	int (*get_product_id)(struct i2c_client *client, u16 *id);
+ 
+@@ -82,6 +83,7 @@ struct elan_transport_ops {
+ 	int (*get_report)(struct i2c_client *client, u8 *report);
+ 	int (*get_pressure_adjustment)(struct i2c_client *client,
+ 				       int *adjustment);
++	int (*get_pattern)(struct i2c_client *client, u8 *pattern);
+ };
+ 
+ extern const struct elan_transport_ops elan_smbus_ops, elan_i2c_ops;
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index d15b338..818c73a 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -5,7 +5,7 @@
+  *
+  * Author: 林政維 (Duson Lin) <dusonlin@emc.com.tw>
+  * Author: KT Liao <kt.liao@emc.com.tw>
+- * Version: 1.6.2
++ * Version: 1.6.3
+  *
+  * Based on cyapa driver:
+  * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
+@@ -41,7 +41,7 @@
+ #include "elan_i2c.h"
+ 
+ #define DRIVER_NAME		"elan_i2c"
+-#define ELAN_DRIVER_VERSION	"1.6.2"
++#define ELAN_DRIVER_VERSION	"1.6.3"
+ #define ELAN_VENDOR_ID		0x04f3
+ #define ETP_MAX_PRESSURE	255
+ #define ETP_FWIDTH_REDUCE	90
+@@ -78,6 +78,7 @@ struct elan_tp_data {
+ 	unsigned int		x_res;
+ 	unsigned int		y_res;
+ 
++	u8			pattern;
+ 	u16			product_id;
+ 	u8			fw_version;
+ 	u8			sm_version;
+@@ -85,7 +86,7 @@ struct elan_tp_data {
+ 	u16			fw_checksum;
+ 	int			pressure_adjustment;
+ 	u8			mode;
+-	u8			ic_type;
++	u16			ic_type;
+ 	u16			fw_validpage_count;
+ 	u16			fw_signature_address;
+ 
+@@ -96,10 +97,10 @@ struct elan_tp_data {
+ 	bool			baseline_ready;
+ };
+ 
+-static int elan_get_fwinfo(u8 iap_version, u16 *validpage_count,
++static int elan_get_fwinfo(u16 ic_type, u16 *validpage_count,
+ 			   u16 *signature_address)
+ {
+-	switch (iap_version) {
++	switch (ic_type) {
+ 	case 0x00:
+ 	case 0x06:
+ 	case 0x08:
+@@ -119,6 +120,9 @@ static int elan_get_fwinfo(u8 iap_version, u16 *validpage_count,
+ 	case 0x0E:
+ 		*validpage_count = 640;
+ 		break;
++	case 0x10:
++		*validpage_count = 1024;
++		break;
+ 	default:
+ 		/* unknown ic type clear value */
+ 		*validpage_count = 0;
+@@ -209,7 +213,8 @@ static int elan_query_product(struct elan_tp_data *data)
+ 		return error;
+ 
+ 	error = data->ops->get_sm_version(data->client, &data->ic_type,
+-					  &data->sm_version);
++					&data->sm_version);
++
+ 	if (error)
+ 		return error;
+ 
+@@ -302,7 +307,7 @@ static int elan_initialize(struct elan_tp_data *data)
+ 
+ static int elan_query_device_info(struct elan_tp_data *data)
+ {
+-	int error;
++	int error, ic_type;
+ 
+ 	error = data->ops->get_version(data->client, false, &data->fw_version);
+ 	if (error)
+@@ -317,12 +322,22 @@ static int elan_query_device_info(struct elan_tp_data *data)
+ 	if (error)
+ 		return error;
+ 
++
+ 	error = data->ops->get_pressure_adjustment(data->client,
+ 						   &data->pressure_adjustment);
+ 	if (error)
+ 		return error;
+ 
+-	error = elan_get_fwinfo(data->iap_version, &data->fw_validpage_count,
++	error = data->ops->get_pattern(data->client, &data->pattern);
++	if (error)
++		return error;
++
++	if (data->pattern == 0x01)
++		ic_type = data->ic_type;
++	else
++		ic_type = data->iap_version;
++
++	error = elan_get_fwinfo(ic_type, &data->fw_validpage_count,
+ 				&data->fw_signature_address);
+ 	if (error)
+ 		dev_warn(&data->client->dev,
+@@ -1093,7 +1108,7 @@ static int elan_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
+ 
+-	dev_dbg(&client->dev,
++	dev_info(&client->dev,
+ 		"Elan Touchpad Information:\n"
+ 		"    Module product ID:  0x%04x\n"
+ 		"    Firmware Version:  0x%04x\n"
+@@ -1101,14 +1116,17 @@ static int elan_probe(struct i2c_client *client,
+ 		"    IAP Version:  0x%04x\n"
+ 		"    Max ABS X,Y:   %d,%d\n"
+ 		"    Width X,Y:   %d,%d\n"
+-		"    Resolution X,Y:   %d,%d (dots/mm)\n",
++		"    Resolution X,Y:   %d,%d (dots/mm)\n"
++		"    ic type: 0x%x\n"
++		"    info pattern: 0x%x\n",
+ 		data->product_id,
+ 		data->fw_version,
+ 		data->sm_version,
+ 		data->iap_version,
+ 		data->max_x, data->max_y,
+ 		data->width_x, data->width_y,
+-		data->x_res, data->y_res);
++		data->x_res, data->y_res,
++		data->ic_type, data->pattern);
+ 
+ 	/* Set up input device properties based on queried parameters. */
+ 	error = elan_setup_input_device(data);
+diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/elan_i2c_i2c.c
+index a679e56..7e75fcd 100644
+--- a/drivers/input/mouse/elan_i2c_i2c.c
++++ b/drivers/input/mouse/elan_i2c_i2c.c
+@@ -34,9 +34,12 @@
+ #define ETP_I2C_DESC_CMD		0x0001
+ #define ETP_I2C_REPORT_DESC_CMD		0x0002
+ #define ETP_I2C_STAND_CMD		0x0005
++#define ETP_I2C_PATTERN_CMD		0x0100
+ #define ETP_I2C_UNIQUEID_CMD		0x0101
+ #define ETP_I2C_FW_VERSION_CMD		0x0102
+-#define ETP_I2C_SM_VERSION_CMD		0x0103
++#define ETP_I2C_IC_TYPE_CMD		0x0103
++#define ETP_I2C_OSM_VERSION_CMD		0x0103
++#define ETP_I2C_NSM_VERSION_CMD		0x0104
+ #define ETP_I2C_XY_TRACENUM_CMD		0x0105
+ #define ETP_I2C_MAX_X_AXIS_CMD		0x0106
+ #define ETP_I2C_MAX_Y_AXIS_CMD		0x0107
+@@ -64,6 +67,8 @@
+ #define ETP_I2C_IAP_REG_L		0x01
+ #define ETP_I2C_IAP_REG_H		0x06
+ 
++static int elan_i2c_get_pattern(struct i2c_client *client, u8 *pattern);
++
+ static int elan_i2c_read_block(struct i2c_client *client,
+ 			       u16 reg, u8 *val, u16 len)
+ {
+@@ -243,8 +248,16 @@ static int elan_i2c_get_version(struct i2c_client *client,
+ 				bool iap, u8 *version)
+ {
+ 	int error;
++	u8 pattern_ver;
+ 	u8 val[3];
+ 
++	error = elan_i2c_get_pattern(client, &pattern_ver);
++	if (error) {
++		dev_err(&client->dev, "failed to get pattern version\n");
++		return error;
++	}
++
++
+ 	error = elan_i2c_read_cmd(client,
+ 				  iap ? ETP_I2C_IAP_VERSION_CMD :
+ 					ETP_I2C_FW_VERSION_CMD,
+@@ -255,24 +268,54 @@ static int elan_i2c_get_version(struct i2c_client *client,
+ 		return error;
+ 	}
+ 
+-	*version = val[0];
++	if (pattern_ver == 0x01)
++		*version = iap ? val[1] : val[0];
++	else
++		*version = val[0];
+ 	return 0;
+ }
+ 
+ static int elan_i2c_get_sm_version(struct i2c_client *client,
+-				   u8 *ic_type, u8 *version)
++				   u16 *ic_type, u8 *version)
+ {
+ 	int error;
++	u8 pattern_ver;
+ 	u8 val[3];
+ 
+-	error = elan_i2c_read_cmd(client, ETP_I2C_SM_VERSION_CMD, val);
++	error = elan_i2c_get_pattern(client, &pattern_ver);
+ 	if (error) {
+-		dev_err(&client->dev, "failed to get SM version: %d\n", error);
++		dev_err(&client->dev, "failed to get pattern version\n");
+ 		return error;
+ 	}
+ 
+-	*version = val[0];
+-	*ic_type = val[1];
++	if (pattern_ver == 0x01) {
++		error = elan_i2c_read_cmd(client, ETP_I2C_IC_TYPE_CMD, val);
++		if (error) {
++			dev_err(&client->dev, "failed to get ic type: %d\n",
++				error);
++			return error;
++		}
++		*ic_type = be16_to_cpup((__be16 *)val);
++
++		error = elan_i2c_read_cmd(client, ETP_I2C_NSM_VERSION_CMD,
++					  val);
++		if (error) {
++			dev_err(&client->dev, "failed to get SM version: %d\n",
++				error);
++			return error;
++		}
++		*version = val[1];
++	} else {
++		error = elan_i2c_read_cmd(client, ETP_I2C_OSM_VERSION_CMD, val);
++		if (error) {
++			dev_err(&client->dev, "failed to get SM version: %d\n",
++				error);
++			return error;
++		}
++		*version = val[0];
++		*ic_type = val[1];
++	}
++
+ 	return 0;
+ }
+ 
+@@ -611,6 +654,21 @@ static int elan_i2c_get_report(struct i2c_client *client, u8 *report)
+ 	return 0;
+ }
+ 
++static int elan_i2c_get_pattern(struct i2c_client *client, u8 *pattern)
++{
++	int error;
++	u8 val[3];
++
++	error = elan_i2c_read_cmd(client, ETP_I2C_PATTERN_CMD, val);
++	if (error) {
++		dev_err(&client->dev, "failed to get pattern: %d\n", error);
++		return error;
++	}
++	*pattern = val[1];
++
++	return 0;
++}
++
+ const struct elan_transport_ops elan_i2c_ops = {
+ 	.initialize		= elan_i2c_initialize,
+ 	.sleep_control		= elan_i2c_sleep_control,
+@@ -639,5 +697,7 @@ const struct elan_transport_ops elan_i2c_ops = {
+ 	.write_fw_block		= elan_i2c_write_fw_block,
+ 	.finish_fw_update	= elan_i2c_finish_fw_update,
+ 
++	.get_pattern		= elan_i2c_get_pattern,
++
+ 	.get_report		= elan_i2c_get_report,
+ };
+diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
+index e23b249..df7a57c 100644
+--- a/drivers/input/mouse/elan_i2c_smbus.c
++++ b/drivers/input/mouse/elan_i2c_smbus.c
+@@ -166,7 +166,7 @@ static int elan_smbus_get_version(struct i2c_client *client,
+ }
+ 
+ static int elan_smbus_get_sm_version(struct i2c_client *client,
+-				     u8 *ic_type, u8 *version)
++				     u16 *ic_type, u8 *version)
+ {
+ 	int error;
+ 	u8 val[3];
+@@ -495,6 +495,12 @@ static int elan_smbus_finish_fw_update(struct i2c_client *client,
+ 	return 0;
+ }
+ 
++static int elan_smbus_get_pattern(struct i2c_client *client, u8 *pattern)
++{
++	*pattern = 0;
++	return 0;
++}
++
+ const struct elan_transport_ops elan_smbus_ops = {
+ 	.initialize		= elan_smbus_initialize,
+ 	.sleep_control		= elan_smbus_sleep_control,
+@@ -524,4 +530,5 @@ const struct elan_transport_ops elan_smbus_ops = {
+ 	.finish_fw_update	= elan_smbus_finish_fw_update,
+ 
+ 	.get_report		= elan_smbus_get_report,
++	.get_pattern		= elan_smbus_get_pattern,
+ };
+-- 
+2.7.4
+

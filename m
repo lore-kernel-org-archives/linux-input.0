@@ -1,72 +1,49 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 0/9] AC97 device/driver model revamp
-Date: Tue, 22 Nov 2016 18:13:17 +0000
-Message-ID: <20161122181317.jcyhcyorxgpp6w3m@sirena.org.uk>
-References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
+From: =?UTF-8?B?SsOpcsOpbXkgTGFs?= <kapouer@melix.org>
+Subject: Re: hig_magicmouse HID_BATTERY_QUIRK_IGNORE
+Date: Wed, 23 Nov 2016 00:00:40 +0100
+Message-ID: <CAJxTCxxN7=fjNFQ4BJPKfU0jHY=uAQNq_g3iN_0mYhSHdc28ug@mail.gmail.com>
+References: <CAJxTCxxMvwdrLZnsMsOG4vLDNbYmtdGgAXLofUMLvPvoepTk7Q@mail.gmail.com>
+ <1E169F84-8B4E-4E63-B9BD-213FBBC1B36E@holtmann.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0576043004976886590=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Takashi Iwai <tiwai@suse.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Sebastian Reichel <sre@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>, Lee Jones <lee.jones@linaro.org>, Daniel Mack <daniel@zonque.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.polytechnique.org ([129.104.30.34]:34656 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755611AbcKVXIn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 22 Nov 2016 18:08:43 -0500
+Received: from mail-io0-f177.google.com (mail-io0-f177.google.com [209.85.223.177])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 5720B5647CB
+        for <linux-input@vger.kernel.org>; Wed, 23 Nov 2016 00:00:44 +0100 (CET)
+Received: by mail-io0-f177.google.com with SMTP id c21so86244785ioj.1
+        for <linux-input@vger.kernel.org>; Tue, 22 Nov 2016 15:00:44 -0800 (PST)
+In-Reply-To: <1E169F84-8B4E-4E63-B9BD-213FBBC1B36E@holtmann.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+
+Hi,
+i've been using this patch for a while, as a workaround for
+https://bugzilla.kernel.org/show_bug.cgi?id=103631
+(mouse freeze when battery reports).
+
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -321,6 +321,9 @@
+ { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+   USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI),
+   HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
++  { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
++    USB_DEVICE_ID_APPLE_MAGICMOUSE),
++    HID_BATTERY_QUIRK_IGNORE },
+ { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
+   USB_DEVICE_ID_ELECOM_BM084),
+   HID_BATTERY_QUIRK_IGNORE },
 
 
---===============0576043004976886590==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="xaxrk4mep5322mmb"
-Content-Disposition: inline
+Greetings,
+Jérémy
 
-
---xaxrk4mep5322mmb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, Oct 26, 2016 at 09:41:38PM +0200, Robert Jarzmik wrote:
-
-> The driving ideas are still the same, and I put them in [1] for memory. This is
-> the first post RFC submission. In order to make a full demonstration of the
-> framework, wm97xx was converted to an MFD, see [2] for the "why".
-
-This all looks nice to me, I did spot a few things but I don't think I
-had anything that wasn't already raised by someone else so didn't repeat
-them.  Thanks for stepping up and doing this work!
-
---xaxrk4mep5322mmb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAABCAAGBQJYNIq8AAoJECTWi3JdVIfQMjgH/je+KeOstLfSW2OjUoKyRn7y
-CYdl68cdRkRygHfPUIZio/QXlpxbqKDl9VYmGXAvDWpad5MyRDVZjDlPm3JtflgP
-2ug3nn01Jw0NeE1kD3pgJBQi7ghg3XExXwMlCv7qawo4kQQIhUUgQFY8lQD6Bwal
-Hku9hddeFQCpuNwlx3Rekd5VXm6X7x8NkPgSrHJVOJRogmmwbzBPVu4ONhR24oCK
-RSx2p/7cedwlkCKVEisd6zRKIcQJgmJHhQQjzc3A+n6foEM7GWnM6h5oP9S1nxVk
-kD9RxstanRPNTg06bIWlgXq1iAAaavhZJQG3wWoSyWr1dtNvWiMST/az9j3HcAo=
-=lGWW
------END PGP SIGNATURE-----
-
---xaxrk4mep5322mmb--
-
-
---===============0576043004976886590==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============0576043004976886590==--

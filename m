@@ -1,34 +1,70 @@
-From: Nicolae Rosia <nicolae.rosia.oss@gmail.com>
-Subject: Re: [PATCH] input: twl4030_keypad: make driver DT only
-Date: Tue, 22 Nov 2016 12:44:41 +0200
-Message-ID: <CAKP5S=21AD9rX1fEw1nBfMuasToAZcbpUk4ALkgrVhmteGLjCg@mail.gmail.com>
-References: <1478948155-30219-1-git-send-email-Nicolae_Rosia@mentor.com> <20161112183937.GA5809@dtor-ws>
+From: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+Subject: [PATCH] Input: twl4030-vibra: remove legacy pdata support
+Date: Tue, 22 Nov 2016 12:59:58 +0200
+Message-ID: <1479812398-1122-1-git-send-email-Nicolae_Rosia@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f66.google.com ([209.85.214.66]:36731 "EHLO
-        mail-it0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753565AbcKVKon (ORCPT
+Received: from relay1.mentorg.com ([192.94.38.131]:53572 "EHLO
+        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752526AbcKVLAP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Nov 2016 05:44:43 -0500
-In-Reply-To: <20161112183937.GA5809@dtor-ws>
+        Tue, 22 Nov 2016 06:00:15 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Nicolae Rosia <Nicolae_Rosia@mentor.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
+Cc: Marek Belisko <marek@goldelico.com>, Baruch Siach <baruch@tkos.co.il>, Peter Ujfalusi <peter.ujfalusi@ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Nicolae Rosia <Nicolae_Rosia@mentor.com>
 
-Hi Dmitry,
+Remove dead code since all users are device tree enabled.
 
-On Sat, Nov 12, 2016 at 8:39 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Nicolae,
-> I am looking into converting the matrix keymap code to generic device
-> properties so that it can be not DT/legacy only; I'll pick up your patch
-> in a bit (just the bits removing platform data handling).
->
-> Thanks.
->
-Any update on this?
+Signed-off-by: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+---
+ drivers/input/misc/twl4030-vibra.c | 13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
-Thanks,
-Nicolae
+diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
+index caa5a62..5acc241 100644
+--- a/drivers/input/misc/twl4030-vibra.c
++++ b/drivers/input/misc/twl4030-vibra.c
+@@ -177,12 +177,8 @@ static int __maybe_unused twl4030_vibra_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(twl4030_vibra_pm_ops,
+ 			 twl4030_vibra_suspend, twl4030_vibra_resume);
+ 
+-static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
+-			      struct device_node *node)
++static bool twl4030_vibra_check_coexist(struct device_node *node)
+ {
+-	if (pdata && pdata->coexist)
+-		return true;
+-
+ 	node = of_find_node_by_name(node, "codec");
+ 	if (node) {
+ 		of_node_put(node);
+@@ -194,13 +190,12 @@ static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
+ 
+ static int twl4030_vibra_probe(struct platform_device *pdev)
+ {
+-	struct twl4030_vibra_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct device_node *twl4030_core_node = pdev->dev.parent->of_node;
+ 	struct vibra_info *info;
+ 	int ret;
+ 
+-	if (!pdata && !twl4030_core_node) {
+-		dev_dbg(&pdev->dev, "platform_data not available\n");
++	if (!twl4030_core_node) {
++		dev_err(&pdev->dev, "no DT info\n\n");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -209,7 +204,7 @@ static int twl4030_vibra_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	info->dev = &pdev->dev;
+-	info->coexist = twl4030_vibra_check_coexist(pdata, twl4030_core_node);
++	info->coexist = twl4030_vibra_check_coexist(twl4030_core_node);
+ 	INIT_WORK(&info->play_work, vibra_play_work);
+ 
+ 	info->input_dev = devm_input_allocate_device(&pdev->dev);
+-- 
+2.7.4
+

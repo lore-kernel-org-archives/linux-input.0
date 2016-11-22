@@ -1,79 +1,57 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH] Input: twl4030-vibra: remove legacy pdata support
-Date: Tue, 22 Nov 2016 13:19:36 +0200
-Message-ID: <d30d4cca-9fcf-befa-0389-1aafaef99ce8@ti.com>
-References: <1479812398-1122-1-git-send-email-Nicolae_Rosia@mentor.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 3/3] drivers: mfd: ti_am335x_tscadc: increase ADC ref
+ clock to 24MHz
+Date: Tue, 22 Nov 2016 13:04:38 +0000
+Message-ID: <20161122130438.GF316@dell.lan>
+References: <20161110163515.27598-1-mugunthanvnm@ti.com>
+ <20161111075838.5815-1-mugunthanvnm@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fllnx209.ext.ti.com ([198.47.19.16]:47326 "EHLO
-        fllnx209.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932933AbcKVLTk (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Nov 2016 06:19:40 -0500
-In-Reply-To: <1479812398-1122-1-git-send-email-Nicolae_Rosia@mentor.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20161111075838.5815-1-mugunthanvnm-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Nicolae Rosia <Nicolae_Rosia@mentor.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Marek Belisko <marek@goldelico.com>, Baruch Siach <baruch@tkos.co.il>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
 
+Don't make up $SUBJECT line format.
 
-
-On 11/22/2016 12:59 PM, Nicolae Rosia wrote:
-> Remove dead code since all users are device tree enabled.
-
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-
-> Signed-off-by: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+> Increase ADC reference clock from 3MHz to 24MHz so that the
+> sampling rates goes up from 100K samples per second to 800K
+> samples per second on AM335x and AM437x SoC.
+> 
+> Signed-off-by: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
 > ---
->  drivers/input/misc/twl4030-vibra.c | 13 ++++---------
->  1 file changed, 4 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
-> index caa5a62..5acc241 100644
-> --- a/drivers/input/misc/twl4030-vibra.c
-> +++ b/drivers/input/misc/twl4030-vibra.c
-> @@ -177,12 +177,8 @@ static int __maybe_unused twl4030_vibra_resume(struct device *dev)
->  static SIMPLE_DEV_PM_OPS(twl4030_vibra_pm_ops,
->  			 twl4030_vibra_suspend, twl4030_vibra_resume);
+>  include/linux/mfd/ti_am335x_tscadc.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+
+Change looks okay though.
+
+For my own reference:
+  Acked-for-MFD-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+
+> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
+> index b9a53e013bff..f6c449b96ea5 100644
+> --- a/include/linux/mfd/ti_am335x_tscadc.h
+> +++ b/include/linux/mfd/ti_am335x_tscadc.h
+> @@ -137,7 +137,7 @@
+>  #define SEQ_STATUS BIT(5)
+>  #define CHARGE_STEP		0x11
 >  
-> -static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
-> -			      struct device_node *node)
-> +static bool twl4030_vibra_check_coexist(struct device_node *node)
->  {
-> -	if (pdata && pdata->coexist)
-> -		return true;
-> -
->  	node = of_find_node_by_name(node, "codec");
->  	if (node) {
->  		of_node_put(node);
-> @@ -194,13 +190,12 @@ static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
->  
->  static int twl4030_vibra_probe(struct platform_device *pdev)
->  {
-> -	struct twl4030_vibra_data *pdata = dev_get_platdata(&pdev->dev);
->  	struct device_node *twl4030_core_node = pdev->dev.parent->of_node;
->  	struct vibra_info *info;
->  	int ret;
->  
-> -	if (!pdata && !twl4030_core_node) {
-> -		dev_dbg(&pdev->dev, "platform_data not available\n");
-> +	if (!twl4030_core_node) {
-> +		dev_err(&pdev->dev, "no DT info\n\n");
->  		return -EINVAL;
->  	}
->  
-> @@ -209,7 +204,7 @@ static int twl4030_vibra_probe(struct platform_device *pdev)
->  		return -ENOMEM;
->  
->  	info->dev = &pdev->dev;
-> -	info->coexist = twl4030_vibra_check_coexist(pdata, twl4030_core_node);
-> +	info->coexist = twl4030_vibra_check_coexist(twl4030_core_node);
->  	INIT_WORK(&info->play_work, vibra_play_work);
->  
->  	info->input_dev = devm_input_allocate_device(&pdev->dev);
-> 
+> -#define ADC_CLK			3000000
+> +#define ADC_CLK			24000000
+>  #define TOTAL_STEPS		16
+>  #define TOTAL_CHANNELS		8
+>  #define FIFO1_THRESHOLD		19
 
 -- 
-Péter
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org â”‚ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
